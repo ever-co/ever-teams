@@ -21,6 +21,7 @@ import {
 import { ISuccessResponse } from '@/core/types/interfaces/common/data-response';
 import { IOrganizationTeam } from '@/core/types/interfaces/team/organization-team';
 import { TUser } from '@/core/types/schemas';
+import { logInDev } from '@/core/lib/helpers/error-message';
 
 class AuthService extends APIService {
 	/**
@@ -40,6 +41,19 @@ class AuthService extends APIService {
 		return api.post<{ token: string; refresh_token: string }>('/auth/refresh', { refresh_token });
 	};
 
+	/**
+	 * Mint tokens for another organization of the caller's tenant (`POST /auth/switch-organization`). Gauzy confines a
+	 * non-admin to the organization in the token, so the token must follow the organization the app acts in. Answers
+	 * `{ user, token, refresh_token }`, or null when Gauzy refuses. No cookie side effects.
+	 */
+	switchOrganizationRaw = async (organizationId: string) => {
+		if (GAUZY_API_BASE_SERVER_URL.value) {
+			return this.post<IAuthResponse | null>('/auth/switch-organization', { organizationId });
+		}
+		const api = await getFallbackAPI();
+		return api.post<IAuthResponse | null>('/auth/switch-organization', { organizationId });
+	};
+
 	refreshToken = async () => {
 		const refresh_token = getRefreshTokenCookie();
 
@@ -47,11 +61,11 @@ class AuthService extends APIService {
 			throw new Error('No refresh token available');
 		}
 
-		console.log('[AuthService] Attempting token refresh...');
+		logInDev('[AuthService] Attempting token refresh...');
 
 		try {
 			if (GAUZY_API_BASE_SERVER_URL.value) {
-				console.log('[AuthService] Using direct Gauzy API for token refresh');
+				logInDev('[AuthService] Using direct Gauzy API for token refresh');
 				const { data } = await this.post<{ token: string; refresh_token: string }>('/auth/refresh-token', {
 					refresh_token
 				});
@@ -66,16 +80,16 @@ class AuthService extends APIService {
 				// Update refresh token if a new one is provided (token rotation)
 				if (data.refresh_token) {
 					setRefreshTokenCookie(data.refresh_token);
-					console.log('[AuthService] Refresh token rotated successfully');
+					logInDev('[AuthService] Refresh token rotated successfully');
 				}
 
-				console.log('[AuthService] Token refreshed successfully via direct API');
+				logInDev('[AuthService] Token refreshed successfully via direct API');
 
 				// Get fresh user data with the new token
 				return userService.getAuthenticatedUserData();
 			}
 
-			console.log('[AuthService] Using Next.js API route for token refresh');
+			logInDev('[AuthService] Using Next.js API route for token refresh');
 			const api = await getFallbackAPI();
 			const result = await api.post<IAuthResponse>(`/auth/refresh`, {
 				refresh_token
@@ -91,10 +105,10 @@ class AuthService extends APIService {
 			// Update refresh token if a new one is provided (token rotation)
 			if (result.data?.refresh_token) {
 				setRefreshTokenCookie(result.data.refresh_token);
-				console.log('[AuthService] Refresh token rotated successfully via API route');
+				logInDev('[AuthService] Refresh token rotated successfully via API route');
 			}
 
-			console.log('[AuthService] Token refreshed successfully via API route');
+			logInDev('[AuthService] Token refreshed successfully via API route');
 			return result;
 		} catch (error: any) {
 			console.error('[AuthService] Token refresh failed:', {
@@ -251,10 +265,11 @@ class AuthService extends APIService {
 	 * The API sends an email with a reset link containing a token.
 	 */
 	requestPassword = async (email: string) => {
-		const endpoint = GAUZY_API_BASE_SERVER_URL.value
-			? '/auth/request-password'
-			: `/auth/request-password`;
-		return this.post<boolean>(endpoint, { email });
+		if (GAUZY_API_BASE_SERVER_URL.value) {
+			return this.post<boolean>('/auth/request-password', { email });
+		}
+		const api = await getFallbackAPI();
+		return api.post<boolean>('/auth/request-password', { email });
 	};
 
 	/**
@@ -262,10 +277,11 @@ class AuthService extends APIService {
 	 * Calls POST /auth/reset-password with the token and new password.
 	 */
 	resetPassword = async (token: string, password: string, confirmPassword: string) => {
-		const endpoint = GAUZY_API_BASE_SERVER_URL.value
-			? '/auth/reset-password'
-			: `/auth/reset-password`;
-		return this.post<boolean>(endpoint, { token, password, confirmPassword });
+		if (GAUZY_API_BASE_SERVER_URL.value) {
+			return this.post<boolean>('/auth/reset-password', { token, password, confirmPassword });
+		}
+		const api = await getFallbackAPI();
+		return api.post<boolean>('/auth/reset-password', { token, password, confirmPassword });
 	};
 }
 

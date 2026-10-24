@@ -17,6 +17,7 @@ import {
 	TEditProjectRequest,
 	TOrganizationProjectSetting
 } from '@/core/types/schemas';
+import { scopedReadConfig, ScopedReadOptions } from '../../api-request-scope';
 
 /**
  * Enhanced Organization Project Service with Zod validation
@@ -168,12 +169,16 @@ class OrganizationProjectService extends APIService {
 	 * @returns Promise<TOrganizationProject> - Validated project data
 	 * @throws ValidationError if response data doesn't match schema
 	 */
-	getOrganizationProject = async (organizationProjectId: string): Promise<TOrganizationProject> => {
+	getOrganizationProject = async (
+		organizationProjectId: string,
+		options?: ScopedReadOptions
+	): Promise<TOrganizationProject> => {
 		try {
+			const tenantId = options ? options.scope.tenantId : this.tenantId;
 			// Include relations to get full project data (members, teams, tags, etc.)
 			const relations = ['organizationContact', 'members.employee.user', 'tags', 'teams'];
 			const obj: Record<string, string> = {
-				tenantId: this.tenantId
+				tenantId: tenantId as string
 			};
 
 			relations.forEach((relation, i) => {
@@ -183,7 +188,8 @@ class OrganizationProjectService extends APIService {
 			const query = qs.stringify(obj);
 
 			const response = await this.get<TOrganizationProject>(
-				`/organization-projects/${organizationProjectId}?${query}`
+				`/organization-projects/${organizationProjectId}?${query}`,
+				options ? scopedReadConfig(options) : undefined
 			);
 
 			// Validate the response data
@@ -215,20 +221,26 @@ class OrganizationProjectService extends APIService {
 	getOrganizationProjects = async ({
 		queries,
 		skip,
-		take
+		take,
+		signal,
+		scope
 	}: {
 		queries?: Record<string, string>;
 		skip?: number;
 		take?: number;
+		signal?: AbortSignal;
+		scope?: ScopedReadOptions['scope'];
 	} = {}): Promise<PaginationResponse<TOrganizationProject>> => {
 		try {
+			const tenantId = scope ? scope.tenantId : this.tenantId;
+			const organizationId = scope ? scope.organizationId : this.organizationId;
 			// No `join[...]` params here: the Gauzy API (stage, 2026-08) answers them with HTTP 200 and the
 			// body {"message":"\"join\" option has been removed. Use \"relations\" ..."} — no items/total —
 			// so every page logged "Organization projects validation failed" and projects never loaded.
 			// `relations` below already left-joins tags, which is all the join was doing.
 			const obj = {
-				'where[organizationId]': this.organizationId,
-				'where[tenantId]': this.tenantId
+				'where[organizationId]': organizationId,
+				'where[tenantId]': tenantId
 			} as Record<string, string>;
 
 			// Relations matching the provided URL structure
@@ -257,9 +269,7 @@ class OrganizationProjectService extends APIService {
 
 			const response = await this.get<PaginationResponse<TOrganizationProject>>(
 				`/organization-projects?${query}`,
-				{
-					tenantId: this.tenantId
-				}
+				scope ? scopedReadConfig({ scope, signal }) : { tenantId: this.tenantId, signal }
 			);
 			// Validate the response data using Zod schema
 			return validatePaginationResponse(

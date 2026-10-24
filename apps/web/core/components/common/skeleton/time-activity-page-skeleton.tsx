@@ -7,7 +7,6 @@ import { Card } from '@/core/components/common/card';
 interface TimeActivityPageSkeletonProps {
 	className?: string;
 	showTimer?: boolean;
-	fullWidth?: boolean;
 }
 
 /**
@@ -15,11 +14,7 @@ interface TimeActivityPageSkeletonProps {
  * Integrates seamlessly with PageLayout structure without swallowing it up
  * Matches exact layout: mainHeaderSlot (breadcrumb + filters + cards) + main content (table)
  */
-export const TimeActivityPageSkeleton: FC<TimeActivityPageSkeletonProps> = ({
-	className,
-	showTimer = false,
-	fullWidth = false
-}) => {
+export const TimeActivityPageSkeleton: FC<TimeActivityPageSkeletonProps> = ({ className, showTimer = false }) => {
 	return (
 		<PageLayout
 			className="items-start pb-1 !overflow-hidden w-full"
@@ -27,19 +22,19 @@ export const TimeActivityPageSkeleton: FC<TimeActivityPageSkeletonProps> = ({
 			showTimer={showTimer}
 			mainHeaderSlot={
 				<div className="flex flex-col pb-4 bg-gray-100 dark:bg-dark-high">
-					<Container fullWidth={fullWidth} className={cn('flex flex-col gap-4 items-center w-full')}>
+					<Container className={cn('flex flex-col gap-4 items-center w-full')}>
 						{/* SKELETON: Breadcrumb Section */}
 						<div className="flex items-center pt-6 w-full">
 							{/* Back Arrow Skeleton */}
 							<div className="p-1 mr-2">
-								<div className="w-6 h-6 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded" />
+								<div className="w-6 h-6 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded" />
 							</div>
 
 							{/* Breadcrumb Skeleton */}
 							<div className="flex gap-2 items-center">
-								<div className="w-12 h-4 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded" />
-								<div className="w-1 h-1 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded-full" />
-								<div className="w-32 h-4 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded" />
+								<div className="w-12 h-4 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded" />
+								<div className="w-1 h-1 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded-full" />
+								<div className="w-32 h-4 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded" />
 							</div>
 						</div>
 
@@ -48,24 +43,24 @@ export const TimeActivityPageSkeleton: FC<TimeActivityPageSkeletonProps> = ({
 							{/* TimeActivityHeader Skeleton */}
 							<div className="flex justify-between items-center w-full">
 								{/* Title Skeleton */}
-								<div className="w-48 h-8 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded" />
+								<div className="w-48 h-8 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded" />
 
 								{/* Filters Container */}
 								<div className="flex gap-4 items-center">
 									{/* GroupBy Select Skeleton */}
-									<div className="w-32 h-10 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded-lg border border-gray-200 dark:border-gray-600" />
+									<div className="w-32 h-10 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded-lg border border-gray-200 dark:border-gray-600" />
 
 									{/* Filter Popover Skeleton */}
-									<div className="w-24 h-10 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded-lg border border-gray-200 dark:border-gray-600" />
+									<div className="w-24 h-10 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded-lg border border-gray-200 dark:border-gray-600" />
 
 									{/* View Select Skeleton */}
-									<div className="w-20 h-10 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded-lg border border-gray-200 dark:border-gray-600" />
+									<div className="w-20 h-10 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded-lg border border-gray-200 dark:border-gray-600" />
 
 									{/* Date Range Picker Skeleton */}
-									<div className="w-40 h-10 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded-lg border border-gray-200 dark:border-gray-600" />
+									<div className="w-40 h-10 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded-lg border border-gray-200 dark:border-gray-600" />
 
 									{/* Export Select Skeleton */}
-									<div className="w-24 h-10 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded-lg border border-gray-200 dark:border-gray-600" />
+									<div className="w-24 h-10 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded-lg border border-gray-200 dark:border-gray-600" />
 								</div>
 							</div>
 
@@ -74,25 +69,25 @@ export const TimeActivityPageSkeleton: FC<TimeActivityPageSkeletonProps> = ({
 								{/* Card 1: Total Hours */}
 								<Card className="p-6 bg-white dark:bg-dark--theme-light">
 									<div className="flex flex-col gap-4">
-										<div className="w-24 h-4 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded" />
-										<div className="w-20 h-8 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded" />
+										<div className="w-24 h-4 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded" />
+										<div className="w-20 h-8 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded" />
 									</div>
 								</Card>
 
 								{/* Card 2: Average Activity (with progress) */}
 								<Card className="p-6 bg-white dark:bg-dark--theme-light">
 									<div className="flex flex-col gap-4">
-										<div className="w-32 h-4 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded" />
-										<div className="w-16 h-8 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded" />
-										<div className="w-full h-2 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded-full" />
+										<div className="w-32 h-4 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded" />
+										<div className="w-16 h-8 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded" />
+										<div className="w-full h-2 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded-full" />
 									</div>
 								</Card>
 
 								{/* Card 3: Total Earnings */}
 								<Card className="p-6 bg-white dark:bg-dark--theme-light">
 									<div className="flex flex-col gap-4">
-										<div className="w-28 h-4 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded" />
-										<div className="w-32 h-8 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded" />
+										<div className="w-28 h-4 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded" />
+										<div className="w-32 h-8 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded" />
 									</div>
 								</Card>
 							</div>
@@ -102,7 +97,7 @@ export const TimeActivityPageSkeleton: FC<TimeActivityPageSkeletonProps> = ({
 			}
 		>
 			{/* SKELETON: Main Content Area */}
-			<Container fullWidth={fullWidth} className={cn('flex flex-col gap-8 !px-4 py-6 w-full')}>
+			<Container className={cn('flex flex-col gap-8 !px-4 py-6 w-full')}>
 				<Card className="w-full dark:bg-dark--theme-light min-h-[600px]">
 					{/* SKELETON: Data Table Content */}
 					<div className="p-6">
@@ -118,12 +113,12 @@ export const TimeActivityPageSkeleton: FC<TimeActivityPageSkeletonProps> = ({
 									<div className="p-4 border-b border-gray-200 dark:border-gray-600">
 										<div className="flex gap-8 items-center">
 											{/* Date Skeleton */}
-											<div className="w-48 h-5 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded" />
+											<div className="w-48 h-5 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded" />
 
 											{/* Hours Badge Skeleton */}
 											<div className="flex items-center gap-1.5 border border-gray-200 dark:border-gray-600 rounded-lg py-1.5 px-2">
-												<div className="w-12 h-4 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded" />
-												<div className="w-16 h-4 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded" />
+												<div className="w-12 h-4 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded" />
+												<div className="w-16 h-4 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded" />
 											</div>
 										</div>
 									</div>
@@ -131,7 +126,7 @@ export const TimeActivityPageSkeleton: FC<TimeActivityPageSkeletonProps> = ({
 									{/* Table Content */}
 									<div className="overflow-x-auto">
 										{/* Table Header */}
-										<div className="bg-gray-50 border-b border-gray-200 dark:bg-gray-800/50 dark:border-gray-600">
+										<div className="bg-gray-50 border-b border-gray-200 dark:bg-white/5 dark:border-gray-600">
 											<div className="flex">
 												{[
 													'Member',
@@ -142,7 +137,7 @@ export const TimeActivityPageSkeleton: FC<TimeActivityPageSkeletonProps> = ({
 													'Activity Level'
 												].map((header, index) => (
 													<div key={index} className="flex-1 px-6 py-3">
-														<div className="w-20 h-4 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded" />
+														<div className="w-20 h-4 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded" />
 													</div>
 												))}
 											</div>
@@ -154,46 +149,46 @@ export const TimeActivityPageSkeleton: FC<TimeActivityPageSkeletonProps> = ({
 												key={rowIndex}
 												className="border-b border-gray-200 dark:border-gray-600"
 											>
-												<div className="flex hover:bg-gray-50 dark:hover:bg-gray-800/50">
+												<div className="flex hover:bg-gray-50 dark:hover:bg-white/5">
 													{/* Member Cell */}
 													<div className="flex-1 px-6 py-4">
 														<div className="flex gap-3 items-center">
-															<div className="w-8 h-8 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded-full" />
-															<div className="w-24 h-4 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded" />
+															<div className="w-8 h-8 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded-full" />
+															<div className="w-24 h-4 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded" />
 														</div>
 													</div>
 
 													{/* Project Cell */}
 													<div className="flex-1 px-6 py-4">
 														<div className="flex gap-3 items-center">
-															<div className="w-6 h-6 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded" />
-															<div className="w-20 h-4 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded" />
+															<div className="w-6 h-6 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded" />
+															<div className="w-20 h-4 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded" />
 														</div>
 													</div>
 
 													{/* Task Cell */}
 													<div className="flex-1 px-6 py-4">
-														<div className="w-32 h-4 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded" />
+														<div className="w-32 h-4 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded" />
 													</div>
 
 													{/* Tracked Hours Cell */}
 													<div className="flex-1 px-6 py-4">
 														<div className="flex gap-2 justify-end items-center">
-															<div className="w-2 h-2 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded-full" />
-															<div className="w-16 h-4 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded" />
+															<div className="w-2 h-2 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded-full" />
+															<div className="w-16 h-4 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded" />
 														</div>
 													</div>
 
 													{/* Earnings Cell */}
 													<div className="flex-1 px-6 py-4">
-														<div className="w-20 h-4 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded-sm ml-auto" />
+														<div className="w-20 h-4 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded-sm ml-auto" />
 													</div>
 
 													{/* Activity Level Cell */}
 													<div className="flex-1 px-6 py-4">
 														<div className="flex gap-3 items-center">
-															<div className="w-16 h-2 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded-full" />
-															<div className="w-8 h-4 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded" />
+															<div className="w-16 h-2 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded-full" />
+															<div className="w-8 h-4 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded" />
 														</div>
 													</div>
 												</div>
@@ -206,16 +201,16 @@ export const TimeActivityPageSkeleton: FC<TimeActivityPageSkeletonProps> = ({
 							{/* Pagination Skeleton */}
 							<div className="flex justify-between items-center mt-6">
 								<div className="flex gap-2 items-center">
-									<div className="w-16 h-4 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded" />
-									<div className="w-12 h-8 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded-sm border border-gray-200 dark:border-gray-600" />
-									<div className="w-20 h-4 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded" />
+									<div className="w-16 h-4 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded" />
+									<div className="w-12 h-8 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded-sm border border-gray-200 dark:border-gray-600" />
+									<div className="w-20 h-4 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded" />
 								</div>
 
 								<div className="flex gap-2 items-center">
-									<div className="w-8 h-8 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded-sm border border-gray-200 dark:border-gray-600" />
-									<div className="w-8 h-8 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded-sm border border-gray-200 dark:border-gray-600" />
-									<div className="w-8 h-8 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded-sm border border-gray-200 dark:border-gray-600" />
-									<div className="w-8 h-8 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded-sm border border-gray-200 dark:border-gray-600" />
+									<div className="w-8 h-8 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded-sm border border-gray-200 dark:border-gray-600" />
+									<div className="w-8 h-8 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded-sm border border-gray-200 dark:border-gray-600" />
+									<div className="w-8 h-8 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded-sm border border-gray-200 dark:border-gray-600" />
+									<div className="w-8 h-8 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded-sm border border-gray-200 dark:border-gray-600" />
 								</div>
 							</div>
 						</div>

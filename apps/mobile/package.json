@@ -1,6 +1,6 @@
 {
 	"resolutions": {
-		"@hono/node-server": "1.19.13",
+		"@hono/node-server": "1.19.17",
 		"fast-xml-parser": "4.5.6",
 		"react-server-dom-webpack": "19.0.5",
 		"follow-redirects": "1.16.0",
@@ -44,7 +44,7 @@
 		"build": "yarn compile",
 		"compile": "yarn tsc --noEmit -p . --pretty",
 		"format": "yarn prettier --write \"app/**/*.{js,jsx,json,md,ts,tsx}\"",
-		"lint": "yarn eslint index.js App.js app test --fix --ext .js,.ts,.tsx && npm run format",
+		"lint": "node bin/eslint-legacy.js index.js App.js app test --fix --ext .js,.ts,.tsx && npm run format",
 		"patch": "yarn patch-package",
 		"test": "yarn jest",
 		"test:watch": "yarn jest --watch",

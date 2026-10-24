@@ -5,7 +5,7 @@ import { useAuthenticateUser } from '@/core/hooks';
 import { activeTeamState, isTeamMemberState, publicState, timerStatusState } from '@/core/stores';
 import { clsxm, isValidUrl } from '@/core/lib/utils';
 import { Popover, PopoverButton, PopoverPanel, Transition } from '@headlessui/react';
-import { Divider, FullWidthToggler, Text, ThemeToggler } from '@/core/components';
+import { Divider, Text, ThemeToggler } from '@/core/components';
 
 import {
 	DevicesIcon,
@@ -13,8 +13,7 @@ import {
 	MoonLightOutlineIcon as MoonIcon,
 	PeoplesIcon,
 	BriefCaseIcon,
-	SettingOutlineIcon,
-	FullWidthIcon
+	SettingOutlineIcon
 } from 'assets/svg';
 import ThemesPopup from '@/core/components/common/themes-popup';
 import { useTheme } from 'next-themes';
@@ -22,15 +21,14 @@ import Link from 'next/link';
 import { useMemo } from 'react';
 import { useAtomValue } from 'jotai';
 import stc from 'string-to-color';
-import gauzyDark from '@/public/assets/themeImages/gauzyDark.png';
-import gauzyLight from '@/public/assets/themeImages/gauzyLight.png';
 import { TimerStatus, getTimerStatusValue } from '../timer/timer-status';
 import Collaborate from '@/core/components/collaborate';
 import { TeamsDropDown } from '../teams/teams-dropdown';
 import { KeyboardShortcuts } from '@/core/components/common/keyboard-shortcuts';
 import { usePathname } from 'next/navigation';
 import { useTranslations } from 'next-intl';
-import { ChevronDown, Globe2Icon } from 'lucide-react';
+import { ChevronDown, ChevronsUpDown, Globe2Icon } from 'lucide-react';
+import { useSidebar } from '@/core/components/common/sidebar';
 import { LanguageDropDownWithFlags } from '@/core/components/common/language-dropdown-flags';
 import { signOutFunction } from '@/core/lib/helpers/social-logins';
 import { Avatar } from '../duplicated-components/avatar';
@@ -40,7 +38,15 @@ import { ETimerStatus } from '@/core/types/generics/enums/timer';
 import { ThemeInterface } from '@/core/types/interfaces/common/theme';
 import { useUserQuery } from '@/core/hooks/queries/user-user.query';
 
-export function UserNavAvatar() {
+type UserNavAvatarProps = {
+	/**
+	 * `header`: the round avatar of the top bar (legacy placement).
+	 * `sidebar`: the avatar · name · e-mail row at the foot of the sidebar, menu opening upwards.
+	 */
+	variant?: 'header' | 'sidebar';
+};
+
+export function UserNavAvatar({ variant = 'header' }: Readonly<UserNavAvatarProps>) {
 	const { data: user } = useUserQuery();
 	const imageUrl = user?.image?.thumbUrl || user?.image?.fullUrl || user?.imageUrl;
 	const name = user?.name || user?.firstName || user?.lastName || user?.username || '';
@@ -55,6 +61,10 @@ export function UserNavAvatar() {
 	const timerStatusValue: ETimerStatus = useMemo(() => {
 		return getTimerStatusValue(timerStatus, currentMember, publicTeam);
 	}, [timerStatus, currentMember, publicTeam]);
+
+	if (variant === 'sidebar') {
+		return <SidebarUserNav user={user} imageUrl={imageUrl} name={name} timerStatusValue={timerStatusValue} />;
+	}
 
 	return (
 		<Popover className="relative z-[60] flex items-center">
@@ -73,23 +83,23 @@ export function UserNavAvatar() {
 					{imageUrl && isValidUrl(imageUrl) ? (
 						<Avatar
 							size={48}
-							className="relative cursor-pointer dark:border-[0.25rem] dark:border-[#26272C]"
+							className="relative cursor-pointer dark:border-[0.25rem] dark:border-border"
 							imageUrl={imageUrl}
 							alt="Team Avatar"
 							imageTitle={name}
 						>
 							<TimerStatus
 								status={timerStatusValue}
-								className="size-[1.3rem] absolute bottom-3 -right-2 -mb-4 border-[0.125rem] border-white dark:border-[#26272C]"
+								className="size-[1.3rem] absolute bottom-3 -right-2 -mb-4 border-[0.125rem] border-white dark:border-border"
 								tooltipClassName="mt-10"
 							/>
 						</Avatar>
 					) : name ? (
-						<div className="size-12 flex justify-center items-center relative rounded-full dark:border-[0.25rem] dark:border-[#26272C] text-white">
+						<div className="size-12 flex justify-center items-center relative rounded-full dark:border-[0.25rem] dark:border-border text-white">
 							{imgTitle(name).charAt(0)}
 							<TimerStatus
 								status={timerStatusValue}
-								className="size-[1.3rem] absolute bottom-3 -right-2 -mb-4 border-[0.125rem] border-white dark:border-[#26272C]"
+								className="size-[1.3rem] absolute bottom-3 -right-2 -mb-4 border-[0.125rem] border-white dark:border-border"
 								tooltipClassName="mt-8"
 								labelContainerClassName="mr-8"
 							/>
@@ -117,6 +127,91 @@ export function UserNavAvatar() {
 	);
 }
 
+/**
+ * The sidebar-foot account row (Ever Works' pattern): a 32px avatar with the timer-status dot,
+ * the name and e-mail beside it, and the same menu as the header avatar opening above it.
+ * Collapsed to the icon rail only the avatar shows and the menu opens to its right.
+ */
+function SidebarUserNav({
+	user,
+	imageUrl,
+	name,
+	timerStatusValue
+}: Readonly<{
+	user: ReturnType<typeof useUserQuery>['data'];
+	imageUrl?: string | null;
+	name: string;
+	timerStatusValue: ETimerStatus;
+}>) {
+	const { state, isMobile } = useSidebar();
+	const collapsed = state === 'collapsed' && !isMobile;
+	const fullName = `${user?.firstName || ''} ${user?.lastName || ''}`.trim() || name;
+
+	return (
+		<Popover className="relative flex w-full items-center">
+			<PopoverButton
+				className={clsxm(
+					'flex w-full items-center gap-2.5 rounded-md p-1.5 text-left outline-none transition-colors',
+					'hover:bg-black/[0.04] dark:hover:bg-white/[0.04] focus-visible:ring-2 focus-visible:ring-sidebar-ring',
+					collapsed && 'justify-center p-1'
+				)}
+				title={collapsed ? fullName : undefined}
+			>
+				<div
+					className="relative flex size-8 shrink-0 items-center justify-center rounded-full text-sm font-medium text-white"
+					style={{ backgroundColor: `${stc(name || '')}80` }}
+				>
+					{imageUrl && isValidUrl(imageUrl) ? (
+						<Avatar size={32} className="relative" imageUrl={imageUrl} alt={fullName} imageTitle={name}>
+							<TimerStatus
+								status={timerStatusValue}
+								showIcon={false}
+								className="absolute -bottom-px -right-px z-10 size-2.5 border-2 border-sidebar"
+								tooltipClassName="mt-2"
+							/>
+						</Avatar>
+					) : (
+						<>
+							{imgTitle(name).charAt(0)}
+							<TimerStatus
+								status={timerStatusValue}
+								showIcon={false}
+								className="absolute -bottom-px -right-px z-10 size-2.5 border-2 border-sidebar"
+								tooltipClassName="mt-2"
+							/>
+						</>
+					)}
+				</div>
+				{!collapsed && (
+					<>
+						<span className="flex min-w-0 flex-1 flex-col">
+							<span className="truncate text-sm font-medium leading-tight text-foreground">{fullName}</span>
+							<span className="truncate text-xs leading-tight text-muted-foreground">{user?.email}</span>
+						</span>
+						<ChevronsUpDown className="size-4 shrink-0 text-muted-foreground" aria-hidden="true" />
+					</>
+				)}
+			</PopoverButton>
+
+			{/* Desktop: anchored = portaled to <body>, because the sidebar sits in its own stacking layer
+			    below the chat panel's edge handle and an in-tree panel had that handle painted through it.
+			    Phones: the sidebar is a modal sheet that blocks pointer events outside itself, so the panel
+			    stays in the sheet, opening upwards. */}
+			<PopoverPanel
+				anchor={isMobile ? undefined : collapsed ? { to: 'right end', gap: 8 } : { to: 'top start', gap: 8 }}
+				transition
+				className={clsxm(
+					'z-[1060] focus:outline-none',
+					isMobile ? 'absolute bottom-full left-0 mb-2 w-full' : 'w-[308px]',
+					'transition duration-100 ease-out data-[closed]:scale-95 data-[closed]:opacity-0'
+				)}
+			>
+				<UserNavMenu placement="sidebar" />
+			</PopoverPanel>
+		</Popover>
+	);
+}
+
 function MenuIndicator() {
 	return (
 		<EverCard
@@ -133,7 +228,7 @@ function MenuIndicator() {
 	);
 }
 
-function UserNavMenu() {
+function UserNavMenu({ placement = 'header' }: Readonly<{ placement?: 'header' | 'sidebar' }>) {
 	const { user, logOut } = useAuthenticateUser();
 	const t = useTranslations();
 	const imageUrl = user?.image?.thumbUrl || user?.image?.fullUrl || user?.imageUrl;
@@ -168,7 +263,10 @@ function UserNavMenu() {
 	return (
 		<EverCard
 			shadow="custom"
-			className="w-[308px relative flex flex-col nav-items--shadow z-10 shadow-darker dark:bg-[#1B1D22] border dark:border-[#26272C]"
+			className={clsxm(
+				'relative z-10 flex flex-col border border-border bg-popover shadow-lg dark:bg-popover',
+				placement === 'header' ? 'w-[308px] nav-items--shadow shadow-darker' : 'w-full rounded-lg !px-4 !py-4'
+			)}
 		>
 			<div className="flex flex-col justify-center items-center">
 				<Link href={`/settings/personal`}>
@@ -187,7 +285,7 @@ function UserNavMenu() {
 							<Avatar size={72} className="relative cursor-pointer" imageUrl={imageUrl} alt="Team Avatar">
 								<TimerStatus
 									status={timerStatusValue}
-									className="w-[1.3rem] h-[1.3rem] absolute z-20 bottom-3 -right-1 -mb-3 border-[0.125rem] border-white dark:border-[#26272C]"
+									className="w-[1.3rem] h-[1.3rem] absolute z-20 bottom-3 -right-1 -mb-3 border-[0.125rem] border-white dark:border-border"
 									tooltipClassName="mt-10"
 								/>
 							</Avatar>
@@ -196,7 +294,7 @@ function UserNavMenu() {
 								{imgTitle(name).charAt(0)}
 								<TimerStatus
 									status={timerStatusValue}
-									className="w-[1.3rem] h-[1.3rem] absolute z-20 bottom-3 -right-1 -mb-3 border-[0.125rem] border-white dark:border-[#26272C]"
+									className="w-[1.3rem] h-[1.3rem] absolute z-20 bottom-3 -right-1 -mb-3 border-[0.125rem] border-white dark:border-border"
 									tooltipClassName="mt-2 "
 									labelContainerClassName="mr-14"
 								/>
@@ -256,15 +354,6 @@ function UserNavMenu() {
 						</Link>
 					</li>
 
-					{/* fullWidth menu */}
-					<li className="flex justify-between items-center space-x-3 h-10 font-normal">
-						<div className="flex flex-1 items-center space-x-3 font-normal">
-							<FullWidthIcon strokeWidth="1.7" className="w-5 h-5" />{' '}
-							<span>{t('common.FULL_WIDTH')}</span>
-						</div>
-						<FullWidthToggler className="scale-75" />
-					</li>
-
 					{/* Darkmode menu */}
 					<li className="flex justify-between items-center mb-1 space-x-3 h-10 font-normal">
 						<div className="flex flex-1 items-center space-x-3">
@@ -277,6 +366,7 @@ function UserNavMenu() {
 							<Globe2Icon className="w-5 h-5" strokeWidth="1.7" /> <span>{t('common.LANGUAGE')}</span>
 						</div>
 						<LanguageDropDownWithFlags
+							deferLoading
 							showFlag={false}
 							btnClassName="dark:bg-transparent border-none flex items-center justify-end w-[120px]"
 						/>
@@ -318,8 +408,8 @@ function UserNavMenu() {
 						<button
 							className="flex space-x-3 items-center font-normal text-[#DE437B]"
 							onClick={() => {
-								logOut();
-								signOutFunction();
+								// signOut navigates away: let logOut stop the timer and clear the session first
+								void logOut().then(signOutFunction);
 							}}
 						>
 							<LogoutRoundIcon className="w-5 h-5 stroke-[#DE437B]" /> <span>{t('common.LOGOUT')}</span>
@@ -327,25 +417,28 @@ function UserNavMenu() {
 					</li>
 				</ul>
 			</div>
-			<div className="w-8 h-8 bg-inherit border-inherit rounded-none border shadow-inherit absolute [clip-path:polygon(0%_0%,100%_100%,_0%_100%)] -top-[0.95rem] right-8 rotate-[135deg] rounded-bl-md" />
+			{placement === 'header' && (
+				<div className="w-8 h-8 bg-inherit border-inherit rounded-none border shadow-inherit absolute [clip-path:polygon(0%_0%,100%_100%,_0%_100%)] -top-[0.95rem] right-8 rotate-[135deg] rounded-bl-md" />
+			)}
 		</EverCard>
 	);
 }
 
 function ThemeDropdown() {
+	const t = useTranslations();
 	const { theme, setTheme } = useTheme();
 
+	// Neutral, translated names: a deployment rebranded with `docker run -e APP_NAME=...` must not
+	// read someone else's product name in its own theme picker.
 	const themes: ThemeInterface[] = [
 		{
 			theme: 'light',
-			text: 'Gauzy Light 2D',
-			image: gauzyLight,
+			text: t('common.THEME_LIGHT'),
 			enabled: theme === 'light'
 		},
 		{
 			theme: 'dark',
-			text: 'Gauzy Dark 2D',
-			image: gauzyDark,
+			text: t('common.THEME_DARK'),
 			enabled: theme === 'dark'
 		}
 	];
@@ -355,7 +448,7 @@ function ThemeDropdown() {
 	return (
 		<Popover className="flex relative z-30 items-center h-full">
 			<PopoverButton className="flex items-center h-full text-sm font-light">
-				<p className="text-sm text-neutral">{selectedThemeText?.replace('2D', '')}</p>
+				<p className="text-sm text-neutral">{selectedThemeText}</p>
 				<ChevronDown className="ml-2 w-4 h-4 opacity-50" />
 			</PopoverButton>
 			<Transition
@@ -378,7 +471,6 @@ function ThemeDropdown() {
 								index={index}
 								theme={item.theme}
 								text={item.text}
-								image={item.image}
 								enabled={item.enabled}
 								setTheme={setTheme}
 							/>

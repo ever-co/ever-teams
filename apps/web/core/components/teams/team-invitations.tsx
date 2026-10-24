@@ -75,7 +75,7 @@ export function TeamInvitations(props: IProps) {
 						shadow="bigger"
 						className={clsxm(
 							'w-full mt-2 flex justify-between',
-							'border dark:border-[#28292F] dark:shadow-lg dark:bg-[#1B1D22]',
+							'border dark:border-border dark:shadow-lg dark:bg-card',
 							'pt-2 pb-2'
 						)}
 						key={index}

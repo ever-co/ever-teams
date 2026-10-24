@@ -1,4 +1,5 @@
 'use client';
+import { logErrorInDev } from '@/core/lib/helpers/error-message';
 import {
 	HostKeys,
 	RTuseTaskInput,
@@ -46,6 +47,8 @@ import { TTask } from '@/core/types/schemas/task/task.schema';
 type Props = {
 	task?: Nullable<TTask>;
 	tasks?: TTask[];
+	// False when `tasks` is a copy taken before every team task page was loaded.
+	tasksComplete?: boolean;
 	onTaskClick?: (task: TTask) => void;
 	initEditMode?: boolean;
 	onCloseCombobox?: () => void;
@@ -90,7 +93,8 @@ export function TaskInput(props: Props) {
 	const datas = useTaskInput({
 		task: props.task,
 		initEditMode: props.initEditMode,
-		tasks: props.tasks
+		tasks: props.tasks,
+		tasksComplete: props.tasksComplete
 	});
 
 	const onCloseComboboxRef = useCallbackRef(props.onCloseCombobox);
@@ -222,9 +226,12 @@ export function TaskInput(props: Props) {
 						});
 					}
 					onTaskCreated(createdTask);
-				})
-				.finally(() => {
 					viewType === 'one-view' && setTaskName('');
+				})
+				.catch((error) => {
+					// useCreateTask already showed the error toast; the typed title stays for a retry. Logged so a
+					// failure in the caller's onTaskCreated is not swallowed silently.
+					logErrorInDev('[TaskInput] task creation flow failed', error);
 				});
 	}, [datas, props, autoActiveTask, onTaskCreated, viewType, t]);
 
@@ -341,7 +348,7 @@ export function TaskInput(props: Props) {
 			setTaskName={setTaskName}
 			ignoreElementRefForTitle={ignoreElementRef as unknown as RefObject<HTMLDivElement>}
 			autoFocus={props.autoFocus}
-			wrapperClassName={`rounded-lg dark:bg-[#1B1D22]`}
+			wrapperClassName={`rounded-lg dark:bg-card`}
 			placeholder={props.placeholder || t('form.TASK_INPUT_PLACEHOLDER')}
 			onFocus={(e) => {
 				setEditMode(true);
@@ -374,7 +381,7 @@ export function TaskInput(props: Props) {
 			}
 			className={clsxm(
 				showTaskNumber && inputTask && ['pl-2'],
-				'dark:bg-[#1B1D22]',
+				'dark:bg-card',
 				props.initEditMode && 'h-10'
 			)}
 			/* Showing the task number and issue type */
@@ -617,7 +624,7 @@ function TaskCard({
 									placeholder="Description"
 									emojis={true}
 									onChange={handleDescriptionChange}
-									className={'dark:bg-[#1B1D22]'}
+									className={'dark:bg-card'}
 								/>
 
 								<div className="flex gap-2 justify-start">
@@ -655,7 +662,7 @@ function TaskCard({
 										<TaskLabels
 											className="min-w-fit lg:max-w-[170px] text-xs z-[1000]"
 											forDetails={true}
-											taskStatusClassName="dark:bg-[#1B1D22] dark:border dark:border-[#FFFFFF33] h-full text-xs"
+											taskStatusClassName="dark:bg-card dark:border dark:border-[#FFFFFF33] h-full text-xs"
 											onValueChange={handleLabelsChange}
 											task={null}
 										/>
@@ -716,7 +723,7 @@ function TaskCard({
 									datas.filter === 'open' && ['text-primary dark:text-primary-light font-semibold']
 								)}
 							>
-								{datas.openTaskCount || 0} {t('common.OPEN')}
+								{datas.tasksComplete && (datas.openTaskCount || 0)} {t('common.OPEN')}
 							</span>
 						</OutlineBadge>
 
@@ -730,7 +737,7 @@ function TaskCard({
 									datas.filter === 'closed' && ['text-primary dark:text-primary-light font-semibold']
 								)}
 							>
-								{datas.closedTaskCount || 0} {t('common.CLOSED')}
+								{datas.tasksComplete && (datas.closedTaskCount || 0)} {t('common.CLOSED')}
 							</span>
 						</OutlineBadge>
 					</div>
@@ -854,7 +861,7 @@ function AssigneesSelect(props: ITeamMemberSelectProps & { key?: string }): Reac
 	return (
 		<div
 			className={cn(
-				'max-w-52 border rounded-xl bg-[#F2F2F2] dark:bg-[#1B1D22] dark:border dark:border-[#FFFFFF33] px-3',
+				'max-w-52 border rounded-xl bg-[#F2F2F2] dark:bg-card dark:border dark:border-[#FFFFFF33] px-3',
 				props.className
 			)}
 		>
@@ -884,7 +891,7 @@ function AssigneesSelect(props: ITeamMemberSelectProps & { key?: string }): Reac
 						leaveFrom="opacity-100"
 						leaveTo="opacity-0"
 					>
-						<Combobox.Options className="absolute mt-1 max-h-40 h-auto overflow-auto rounded-md dark:bg-[#1B1D22] dark:border dark:border-[#FFFFFF33] py-1 text-base shadow-lg ring-1 ring-black/5 focus:outline-none sm:text-sm">
+						<Combobox.Options className="absolute mt-1 max-h-40 h-auto overflow-auto rounded-md dark:bg-card dark:border dark:border-[#FFFFFF33] py-1 text-base shadow-lg ring-1 ring-black/5 focus:outline-none sm:text-sm">
 							{authMember && (
 								<Combobox.Option
 									className={({ active }) =>

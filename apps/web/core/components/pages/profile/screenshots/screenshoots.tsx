@@ -6,6 +6,23 @@ import { ScreenshotPerHour, ScreenshotPerHourTeam } from './screenshoots-per-hou
 import { ScreenshootSkeleton } from './screenshoots-per-hour-skeleton';
 import { ProgressBar } from '@/core/components/common/progress-bar';
 import { SegmentedProgressBar } from '@/core/components/duplicated-components/_progress-bar';
+import { TrackingSourceEmptyState } from '../tracking-source-empty-state';
+import { TTimeSlot } from '@/core/types/schemas';
+
+type ScreenshotsListProps = Readonly<{ timeSlots: TTimeSlot[]; loading: boolean }>;
+
+/** Shown once loaded when no time slot carries a screenshot. */
+function NoScreenshotsState({ timeSlots, loading }: ScreenshotsListProps) {
+	const t = useTranslations();
+	// The browser timer also creates time slots, without any screenshot attached.
+	if (loading || timeSlots.some((slot) => slot.screenshots?.length)) return null;
+
+	return (
+		<div className="p-4 py-8 my-4 flex items-center justify-center rounded-md dark:bg-card border-[0.125rem] dark:border-[#FFFFFF0D]">
+			<TrackingSourceEmptyState label={t('timer.NO_SCREENSHOOT')} />
+		</div>
+	);
+}
 
 export function ScreenshootTab() {
 	const { loading, timeSlots } = useTimeSlots();
@@ -20,7 +37,7 @@ export function ScreenshootTab() {
 		<div>
 			<div className="flex items-center gap-4">
 				{/* Activity */}
-				<div className=" border-2 rounded-[1rem] p-6 min-h-[8rem] min-w-[20rem] flex flex-col justify-between gap-3  bg-white dark:bg-[#26272C]">
+				<div className=" border-2 rounded-[1rem] p-6 min-h-[8rem] min-w-[20rem] flex flex-col justify-between gap-3  bg-white dark:bg-muted">
 					<span>{t('timer.TIME_ACTIVITY')}</span>
 					<div className="flex flex-col gap-3">
 						<h2 className="text-3xl font-medium">
@@ -31,7 +48,7 @@ export function ScreenshootTab() {
 				</div>
 
 				{/* Total hours */}
-				<div className=" border-2 rounded-[1rem] p-6 min-h-[8rem] min-w-[20rem] flex flex-col justify-between gap-3  bg-white dark:bg-[#26272C]">
+				<div className=" border-2 rounded-[1rem] p-6 min-h-[8rem] min-w-[20rem] flex flex-col justify-between gap-3  bg-white dark:bg-muted">
 					<span>{t('timer.TOTAL_HOURS')}</span>
 					<div className="flex flex-col gap-3">
 						<h2 className="text-3xl font-medium">{`${h}:${m}:00`}</h2>
@@ -40,6 +57,7 @@ export function ScreenshootTab() {
 				</div>
 			</div>
 
+			<NoScreenshotsState timeSlots={timeSlots} loading={loading} />
 			{groupDataByHour(timeSlots).map((hourData, i) => (
 				<ScreenshotPerHour
 					key={i}
@@ -48,22 +66,16 @@ export function ScreenshootTab() {
 					stoppedAt={hourData.stoppedAt}
 				/>
 			))}
-			{timeSlots.length < 1 && !loading && (
-				<div className="p-4 py-8 my-4 flex items-center justify-center rounded-md dark:bg-[#1E2025] border-[0.125rem] dark:border-[#FFFFFF0D]">
-					<h3>{t('timer.NO_SCREENSHOOT')}</h3>
-				</div>
-			)}
 			{loading && timeSlots.length < 1 && <ScreenshootSkeleton />}
 		</div>
 	);
 }
 
-export function ScreenshootTeamTab() {
-	const { timeSlots, loading } = useTimeSlots(true);
-	const t = useTranslations();
-
+/** Hourly screenshots of a member's card, shared by the team tab and the optimized activity panel. */
+export function ScreenshotsTeamList({ timeSlots, loading }: ScreenshotsListProps) {
 	return (
 		<div>
+			<NoScreenshotsState timeSlots={timeSlots} loading={loading} />
 			{groupDataByHour(timeSlots).map((hourData, i) => (
 				<ScreenshotPerHourTeam
 					key={i}
@@ -72,12 +84,13 @@ export function ScreenshootTeamTab() {
 					stoppedAt={hourData.stoppedAt}
 				/>
 			))}
-			{timeSlots.length < 1 && !loading && (
-				<div className="p-4 py-8 my-4 flex items-center justify-center rounded-md dark:bg-[#1E2025] border-[0.125rem] dark:border-[#FFFFFF0D]">
-					<h3>{t('timer.NO_SCREENSHOOT')}</h3>
-				</div>
-			)}
 			{loading && timeSlots.length < 1 && <ScreenshootSkeleton />}
 		</div>
 	);
+}
+
+export function ScreenshootTeamTab() {
+	const { timeSlots, loading } = useTimeSlots(true);
+
+	return <ScreenshotsTeamList timeSlots={timeSlots} loading={loading} />;
 }

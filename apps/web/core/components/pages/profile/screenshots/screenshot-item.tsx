@@ -18,10 +18,13 @@ const ScreenshotItem = ({
 	startTime,
 	viewMode = 'default',
 	onShow,
-	isTeamPage = false
+	isTeamPage = false,
+	ownerEmployeeId
 }: IScreenShootItem) => {
 	const t = useTranslations();
-	const { deleteTimeSlots } = useTimeSlots();
+	const { deleteTimeSlots, canDeleteTimeSlots, ownEmployeeId, canActForOthers } = useTimeSlots();
+	// A slot that names its owner is judged on its own; otherwise by the slots of the member on screen
+	const canDelete = ownerEmployeeId ? ownerEmployeeId === ownEmployeeId || canActForOthers : canDeleteTimeSlots;
 	const { isOpen, openModal, closeModal } = useModal();
 	const [isLoading, setIsLoading] = useState(false);
 	const handleDelete = async () => {
@@ -32,14 +35,14 @@ const ScreenshotItem = ({
 	return (
 		<div
 			className={clsxm(
-				'rounded-[1.5rem] shrink-0 bg-white cursor-pointer max-w-[14rem] border-2 hover:border-transparent  dark:border-[#26272C] dark:bg-[#191a20] overflow-hidden h-[16rem] max-h-[16rem] w-full',
+				'rounded-[1.5rem] shrink-0 bg-white cursor-pointer max-w-[14rem] border-2 hover:border-transparent  dark:border-border dark:bg-background overflow-hidden h-[16rem] max-h-[16rem] w-full',
 				isTeamPage && '!h-32',
 				viewMode === 'screenShot-only' && 'h-[10rem]'
 			)}
 		>
 			<div
 				className={clsxm(
-					'w-full group h-[60%] bg-gray-200 overflow-hidden dark:bg-[#26272C] relative',
+					'w-full group h-[60%] bg-gray-200 overflow-hidden dark:bg-muted relative',
 					viewMode === 'screenShot-only' && 'h-full'
 				)}
 			>
@@ -56,12 +59,14 @@ const ScreenshotItem = ({
 				/>
 				<div className=" group-hover:absolute w-full group-hover:top-[0%] transition-all left-0 h-full bg-[rgba(1,2,4,.4)] top-full ">
 					<div className="relative flex items-end w-full h-full">
-						<div
-							className="absolute z-10 flex items-center justify-center w-8 h-8 text-center bg-red-700 rounded-full top-3 right-3 "
-							onClick={() => openModal()}
-						>
-							<TrashIcon className="w-3 text-center text-white" />
-						</div>
+						{canDelete && (
+							<div
+								className="absolute z-10 flex items-center justify-center w-8 h-8 text-center bg-red-700 rounded-full top-3 right-3 "
+								onClick={() => openModal()}
+							>
+								<TrashIcon className="w-3 text-center text-white" />
+							</div>
+						)}
 
 						{viewMode === 'screenShot-only' ? null : (
 							<div className="flex flex-col items-center justify-center w-full h-auto gap-4 py-4">
@@ -79,7 +84,7 @@ const ScreenshotItem = ({
 					</div>
 				</div>
 			</div>
-			<div className={clsxm('w-full h-[40%] p-4 dark:bg-[#191a20]')} onClick={onShow}>
+			<div className={clsxm('w-full h-[40%] p-4 dark:bg-background')} onClick={onShow}>
 				<>
 					<h4 className="text-xs font-semibold">
 						{new Date(startTime).toLocaleTimeString('en-US', {

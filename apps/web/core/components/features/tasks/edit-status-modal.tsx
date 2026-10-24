@@ -10,6 +10,7 @@ import { Loader } from 'lucide-react';
 import { EverCard } from '../../common/ever-card';
 import { InputField } from '../../duplicated-components/_input';
 import { ETaskStatusName } from '@/core/types/schemas';
+import { publicAssetUrl } from '@/core/lib/helpers/public-asset-url';
 
 type EditSet = {
 	name: ETaskStatusName;
@@ -35,7 +36,10 @@ const EditStatusModal = ({ status, onClose, setColumn }: { status: any; onClose:
 					return {
 						...column,
 						name: newProp,
-						icon: !icon.includes('https') ? `https://api.ever.team/public/${icon}` : icon
+						// This deployment's API, or this app's /api proxy when it publishes no API origin to
+						// the browser: a self-hosted instance never loads icons from Ever's API. An absolute
+						// URL (https, or http on a self-hosted API / MinIO) is kept as it is.
+						icon: publicAssetUrl(icon)
 					};
 				}
 				return column;

@@ -6,6 +6,8 @@ import { routing } from '@/libs/i18nNavigation';
 import { NextIntlClientProvider } from 'next-intl';
 import { getMessages, setRequestLocale } from 'next-intl/server';
 import { notFound } from 'next/navigation';
+import { connection } from 'next/server';
+import { readRuntimeEnv } from '@/libs/runtime-env';
 import '@/styles/global.css';
 import ClientLayout from '@/components/ClientLayout';
 
@@ -80,6 +82,11 @@ export default async function RootLayout(props: { children: React.ReactNode; par
 	// Using internationalization in Client Components
 	const messages = await getMessages();
 
+	// Per request, never prerendered: a page rendered at build time would freeze the build machine's env
+	// into its HTML, which is exactly what a re-usable image must avoid.
+	await connection();
+	const apiUrl = readRuntimeEnv('NEXT_PUBLIC_TEAMS_API_URL') || process.env.NEXT_PUBLIC_TEAMS_API_URL;
+
 	// The `suppressHydrationWarning` attribute in <body> is used to prevent hydration errors caused by Sentry Overlay,
 	// which dynamically adds a `style` attribute to the body tag.
 
@@ -87,7 +94,7 @@ export default async function RootLayout(props: { children: React.ReactNode; par
 		<html suppressHydrationWarning lang={locale}>
 			<body>
 				<NextIntlClientProvider locale={locale} messages={messages}>
-					<ClientLayout lang={locale}>
+					<ClientLayout apiUrl={apiUrl} lang={locale}>
 						<div>{props.children}</div>
 						<DemoBadge />
 					</ClientLayout>

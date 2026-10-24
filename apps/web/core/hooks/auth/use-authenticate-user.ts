@@ -1,41 +1,38 @@
 'use client';
 import { DEFAULT_APP_PATH, LAST_WORKSPACE_AND_TEAM } from '@/core/constants/config/constants';
-import { getAccessTokenCookie, getRefreshTokenCookie, removeAuthCookies } from '@/core/lib/helpers/cookies';
+import { removeAuthCookies } from '@/core/lib/helpers/cookies';
 import { handleUnauthorized, registerRefreshTokenCallback } from '@/core/lib/auth/handle-unauthorized';
 import { DisconnectionReason } from '@/core/types/enums/disconnection-reason';
 import { logDisconnection } from '@/core/lib/auth/disconnect-logger';
-import {
-	calculateRefreshInterval,
-	shouldRefreshToken,
-	getTokenRemainingTime,
-	getTokenLifetime,
-	formatRemainingTime
-} from '@/core/lib/auth/jwt-utils';
 import { isUnauthorizedError } from '@/core/lib/auth/retry-logic';
-import { activeTeamManagersState, activeTeamState, userState } from '@/core/stores';
+import { activeTeamManagersState, activeTeamState, timerStatusState, userState } from '@/core/stores';
 import { useCallback, useMemo, useRef, useEffect } from 'react';
-import { useSetAtom, useAtomValue } from 'jotai';
+import { useSetAtom, useAtomValue, useStore } from 'jotai';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 
 import { authService } from '@/core/services/client/api/auth/auth.service';
-import { useIsMemberManager } from '../organizations';
-import { useUserProfilePage } from '../users';
+import { timerService } from '@/core/services/client/api/timers';
+import { ETimeLogSource } from '@/core/types/generics/enums/timer';
+import { ITimeLog } from '@/core/types/interfaces/timer/time-log/time-log';
+import { isRunningTeamsLog } from '@/core/lib/helpers/timer-policy';
+import { useIsMemberManager } from '../organizations/teams/use-team-member';
+import { useUserProfilePage } from '../users/use-user-profile-page';
 import { TUser } from '@/core/types/schemas';
 import { queryKeys } from '@/core/query/keys';
 import { toast } from 'sonner';
 import { UseAuthenticateUserResult } from '@/core/types/interfaces/user/user';
 import { useUserQuery } from '../queries/user-user.query';
-import { logErrorInDev } from '@/core/lib/helpers/error-message';
+import { logErrorInDev, logInDev } from '@/core/lib/helpers/error-message';
+import { clearChatHistoryForUser } from '@/core/components/features/chat-panel/chat-history';
 
 export const useAuthenticateUser = (defaultUser?: TUser): UseAuthenticateUserResult => {
 	const userDataQuery = useUserQuery();
 	const user = userDataQuery.data;
 	const setUser = useSetAtom(userState);
 	const $user = useRef<TUser | null>(defaultUser || user || null);
-	// Ref for the recursive setTimeout-based refresh scheduler
-	// Using number type for browser setTimeout (returns number, not NodeJS.Timeout)
-	const refreshTimeoutRef = useRef<number | null>(null);
 	const activeTeam = useAtomValue(activeTeamState);
+	// Read at logout time only: subscribing to the timer status would re-render every caller of this hook.
+	const store = useStore();
 	const queryClient = useQueryClient();
 
 	// Track consecutive refresh failures for smarter error handling
@@ -51,7 +48,7 @@ export const useAuthenticateUser = (defaultUser?: TUser): UseAuthenticateUserRes
 		},
 		onSuccess: () => {
 			consecutiveFailures.current = 0;
-			console.log('[Auth] ✅ Token refreshed successfully');
+			logInDev('[Auth] ✅ Token refreshed successfully');
 			queryClient.invalidateQueries({ queryKey: queryKeys.users.me });
 		},
 		onError: (error: unknown) => {
@@ -88,7 +85,7 @@ export const useAuthenticateUser = (defaultUser?: TUser): UseAuthenticateUserRes
 			} else {
 				console.warn(
 					`[Auth] ⚠️ Refresh attempt ${consecutiveFailures.current}/${maxConsecutiveFailures} failed:`,
-					error
+					(error as Error)?.message
 				);
 				toast.warning(
 					`Connection issue. Retrying... (${consecutiveFailures.current}/${maxConsecutiveFailures})`
@@ -98,11 +95,9 @@ export const useAuthenticateUser = (defaultUser?: TUser): UseAuthenticateUserRes
 		retry: 1,
 		gcTime: 0
 	});
-	// Stable function refs: the useMutation RESULT object is recreated on every state change (idle → pending →
-	// success). Depending on it made refreshUserData/refreshToken new on every render and re-ran the
-	// refresh-scheduler effect mid-flight (a second refresh could then run with an already-rotated refresh
-	// token). mutate/mutateAsync are bound once and safe to depend on.
-	const refreshTokenMutate = refreshTokenMutation.mutate;
+	// Stable function ref: the useMutation RESULT object is recreated on every state change (idle → pending →
+	// success). Depending on it made refreshUserData/refreshToken new on every render. mutateAsync is bound
+	// once and safe to depend on.
 	const refreshTokenMutateAsync = refreshTokenMutation.mutateAsync;
 
 	useEffect(() => {
@@ -167,7 +162,7 @@ export const useAuthenticateUser = (defaultUser?: TUser): UseAuthenticateUserRes
 		return user || $user.current;
 	}, [user]);
 
-	const logOut = useCallback(() => {
+	const logOut = useCallback(async () => {
 		// Log the intentional logout
 		logDisconnection(DisconnectionReason.USER_LOGOUT, {
 			userId: user?.id,
@@ -175,144 +170,29 @@ export const useAuthenticateUser = (defaultUser?: TUser): UseAuthenticateUserRes
 		});
 
 		window?.localStorage.setItem(LAST_WORKSPACE_AND_TEAM, activeTeam?.id ?? '');
-		removeAuthCookies();
-		// Clear the refresh timeout scheduler
-		if (refreshTimeoutRef.current) {
-			window?.clearTimeout(refreshTimeoutRef.current);
-			refreshTimeoutRef.current = null;
+		clearChatHistoryForUser(user?.id);
+
+		// A TEAMS timer left running would keep counting after logout: stop it while the session still
+		// exists, without letting a failed or slow request hold the logout back. Past the server's midnight
+		// the status reads stopped while the last log still runs (useTimerRunningPastMidnight): check it too.
+		const timerStatus = store.get(timerStatusState);
+		const pastMidnightLog = timerStatus?.running
+			? null
+			: queryClient.getQueryData<ITimeLog | null>(queryKeys.timer.lastLog(user?.employee?.id));
+		if (
+			(timerStatus?.running && timerStatus.lastLog?.source === ETimeLogSource.TEAMS) ||
+			isRunningTeamsLog(pastMidnightLog)
+		) {
+			const stopTimer = timerService
+				.stopTimer({ source: ETimeLogSource.TEAMS })
+				.catch((error) => logErrorInDev('[Auth] Timer stop before logout failed:', error));
+			await Promise.race([stopTimer, new Promise((resolve) => window.setTimeout(resolve, 3000))]);
 		}
+
+		removeAuthCookies();
 		queryClient.clear();
 		window?.location.replace(DEFAULT_APP_PATH);
-	}, [activeTeam?.id, queryClient, user?.id, user?.email]);
-
-	/**
-	 * Start automatic token refresh based on JWT expiration
-	 *
-	 * Strategy: Refresh at 50% of token lifetime (per OAuth 2.0 best practices)
-	 * - For 24h token → refresh every 12h (2 calls/day instead of 144 with 10min interval)
-	 * - Minimum: 10 minutes, Maximum: 12 hours
-	 *
-	 * Uses recursive setTimeout instead of setInterval to recalculate
-	 * the refresh interval after each successful refresh (based on new token's expiration)
-	 */
-	const timeToTimeRefreshToken = useCallback(() => {
-		// Clear any existing timeout
-		if (refreshTimeoutRef.current) {
-			window?.clearTimeout(refreshTimeoutRef.current);
-			refreshTimeoutRef.current = null;
-		}
-
-		/**
-		 * Schedule the next token refresh based on current token's expiration
-		 * Uses recursive setTimeout to recalculate interval after each refresh
-		 */
-		const scheduleNextRefresh = () => {
-			const currentToken = getAccessTokenCookie();
-			if (!currentToken) {
-				console.warn('[Auth] No access token found, stopping refresh scheduler');
-				return;
-			}
-
-			// Calculate optimal refresh interval based on CURRENT token,
-			// but never schedule a refresh after the token is expected to expire
-			const remainingTimeSeconds = getTokenRemainingTime(currentToken);
-			if (remainingTimeSeconds <= 0) {
-				console.log('[Auth] Token already expired, not scheduling further refreshes');
-				return;
-			}
-
-			const rawInterval = calculateRefreshInterval(currentToken);
-			const interval = Math.min(rawInterval, remainingTimeSeconds * 1000);
-
-			console.log(
-				`[Auth] Token remaining: ${formatRemainingTime(remainingTimeSeconds)}, ` +
-					`Next refresh in: ${formatRemainingTime(interval / 1000)}`
-			);
-
-			refreshTimeoutRef.current =
-				window?.setTimeout(async () => {
-					const tokenToCheck = getAccessTokenCookie();
-
-					// Guard: Only refresh if actually needed (token might have been refreshed elsewhere)
-					// Strategy: If token has more than 50% of its lifetime remaining, someone refreshed it
-					// This is consistent with the 50% refresh strategy used in calculateRefreshInterval
-					if (!tokenToCheck) {
-						console.log('[Auth] Token cleared, stopping scheduler');
-						return; // Stop, don't reschedule - user logged out
-					}
-
-					const remainingSeconds = getTokenRemainingTime(tokenToCheck);
-					const lifetimeSeconds = getTokenLifetime(tokenToCheck);
-					// Default to 12h (43200s) if lifetime can't be determined
-					const halfLifeSeconds = lifetimeSeconds ? lifetimeSeconds / 2 : 12 * 60 * 60;
-
-					if (remainingSeconds > halfLifeSeconds) {
-						// Token has more than 50% life remaining - was refreshed elsewhere (e.g., by proxy.ts)
-						console.log(
-							`[Auth] Token refreshed elsewhere (${formatRemainingTime(remainingSeconds)} remaining > 50% lifetime), rescheduling...`
-						);
-						scheduleNextRefresh();
-						return;
-					}
-
-					console.log('[Auth] Scheduled token refresh triggered');
-
-					try {
-						await refreshTokenMutateAsync();
-						// Success: Schedule next refresh with NEW token's interval
-						scheduleNextRefresh();
-					} catch (error) {
-						// Error handling is done in mutation's onError callback
-						// Reschedule after a short delay to allow for retry
-						logErrorInDev('[Auth] Refresh failed in scheduler, will retry in 30 seconds', error);
-						refreshTimeoutRef.current = window?.setTimeout(scheduleNextRefresh, 30000) ?? null;
-					}
-				}, interval) ?? null;
-		};
-
-		// Check if immediate refresh is needed before starting scheduler
-		const accessToken = getAccessTokenCookie();
-		if (!accessToken) {
-			console.warn('[Auth] No access token found, skipping refresh scheduler setup');
-			return () => {};
-		}
-
-		if (shouldRefreshToken(accessToken, 300)) {
-			// Token expires within 5 min - refresh immediately before starting scheduler
-			// Using mutate() with callbacks to control scheduler timing (no async/await needed)
-			// NOTE: The mutation's onSuccess/onError already handle core logic (reset failures,
-			// invalidate queries, 401 detection, etc). These callbacks ONLY add scheduling control.
-			console.log('[Auth] Token expired or expiring soon, refreshing immediately...');
-			refreshTokenMutate(undefined, {
-				onSuccess: () => {
-					// Core success logic handled by mutation's onSuccess
-					// Here we ONLY add: start scheduler with the refreshed token
-					scheduleNextRefresh();
-				},
-				onError: () => {
-					// Core error logic handled by mutation's onError (401 → logout, network → counter)
-					// Here we ONLY add: if still logged in (network error), schedule quick retry
-					// Check via refresh token presence - if gone, handleUnauthorized was called
-					if (getRefreshTokenCookie()) {
-						console.warn('[Auth] Immediate refresh failed (network), scheduling retry in 30s');
-						refreshTimeoutRef.current = window?.setTimeout(scheduleNextRefresh, 30000) ?? null;
-					}
-					// If no refresh token → 401 handled, user logged out, no scheduler needed
-				}
-			});
-		} else {
-			// Token is still valid (> 5 min remaining) - start normal scheduler
-			scheduleNextRefresh();
-		}
-
-		// Return cleanup function
-		return () => {
-			if (refreshTimeoutRef.current) {
-				window?.clearTimeout(refreshTimeoutRef.current);
-				refreshTimeoutRef.current = null;
-			}
-		};
-	}, [refreshTokenMutate]);
+	}, [activeTeam?.id, queryClient, store, user?.id, user?.email, user?.employee?.id]);
 
 	const refreshToken = useCallback(async (): Promise<void> => {
 		await refreshTokenMutateAsync();
@@ -327,7 +207,6 @@ export const useAuthenticateUser = (defaultUser?: TUser): UseAuthenticateUserRes
 		refreshUserData,
 		refreshUserLoading,
 		logOut,
-		timeToTimeRefreshToken,
 		refreshToken,
 
 		userDataQuery,

@@ -1,13 +1,18 @@
 /* eslint-disable no-mixed-spaces-and-tabs */
 import { useModal, useDeleteOrganizationTeam, useUser } from '@/core/hooks';
-import { Button, Text } from '@/core/components';
-import Image from 'next/image';
+import { Button } from '@/core/components';
 import { useCallback, useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { RemoveModal } from '../../../settings/remove-modal';
 import { useUserQuery } from '@/core/hooks/queries/user-user.query';
 type RemoveModalType = 'REMOVE' | 'DELETE' | 'DELETE_ALL' | string;
 type ActionFunction = () => void;
+
+/** One line per irreversible action: what it does on the left, a quiet outlined danger button on the right. */
+const DANGER_ROW =
+	'flex flex-col gap-3 border-t border-border py-4 first:border-t-0 first:pt-0 sm:flex-row sm:items-center sm:justify-between';
+const DANGER_BUTTON =
+	'h-9 shrink-0 whitespace-nowrap rounded-md border border-destructive/40 bg-transparent px-3 text-sm font-medium text-destructive hover:bg-destructive/10 dark:bg-transparent';
 
 export const DangerZone = () => {
 	const t = useTranslations();
@@ -41,80 +46,46 @@ export const DangerZone = () => {
 	const messageToShow = modalMessages[removeModalType] || '';
 	const onAction = actionTypes[removeModalType] || handleRemoveUser;
 
+	const rows: { type: RemoveModalType; title: string; description: string }[] = [
+		{
+			type: 'REMOVE',
+			title: t('common.REMOVE_EVERYWHERE'),
+			description: t('alerts.ALERT_DELETE_ACCOUNT')
+		},
+		{
+			type: 'DELETE',
+			title: t('common.DELETE_ACCOUNT'),
+			description: t('alerts.ALERT_ACCOUNT_PERMANENT_DELETE')
+		},
+		{
+			type: 'DELETE_ALL',
+			title: t('common.DELETE_ALL_DATA'),
+			description: t('alerts.ALERT_REMOVE_ALL_DATA')
+		}
+	];
+
 	return (
 		<>
-			<div className="flex flex-col justify-between items-center">
-				<div className="mt-5 w-full">
-					<div className="">
-						<div className="flex flex-col gap-6 justify-between items-center w-full lg:flex-row">
-							<div className="flex flex-auto justify-center items-center opacity-50 sm:w-32">
-								<Image alt="Danger zone" src="/assets/svg/danger-zones.svg" width={150} height={150} />
-							</div>
-							<div className="flex-auto sm:w-96">
-								<div className="flex flex-col gap-6 justify-between items-center w-full sm:flex-row">
-									<div className="flex-auto sm:w-64">
-										<Text className="font-normal text-gray-400 text-md">
-											{t('alerts.ALERT_DELETE_ACCOUNT')}
-										</Text>
-									</div>
-									<div className="flex-auto w-full lg:w-32">
-										<Button
-											variant="danger"
-											type="submit"
-											className="float-right w-full !bg-[#FF9B50]"
-											onClick={() => {
-												setRemoveModalType('REMOVE');
-												openModal();
-											}}
-										>
-											{t('common.REMOVE_EVERYWHERE')}
-										</Button>
-									</div>
-								</div>
-								<div className="flex flex-col gap-6 justify-between items-center mt-5 w-full sm:flex-row">
-									<div className="flex-auto sm:w-64">
-										<Text className="font-normal text-center text-gray-400 text-md sm:text-left">
-											{t('alerts.ALERT_ACCOUNT_PERMANENT_DELETE')}
-										</Text>
-									</div>
-									<div className="flex-auto w-full lg:w-32">
-										<Button
-											variant="danger"
-											type="submit"
-											className="float-right w-full bg-[#DE5536] text-nowrap whitespace-nowrap min-w-32 px-3.5"
-											onClick={() => {
-												setRemoveModalType('DELETE');
-												openModal();
-											}}
-										>
-											{t('common.DELETE_ACCOUNT')}
-										</Button>
-									</div>
-								</div>
-								<div className="flex flex-col gap-6 justify-between items-center mt-5 w-full sm:flex-row">
-									<div className="flex-auto sm:w-64">
-										<Text className="font-normal text-center text-gray-400 text-md sm:text-left">
-											{t('alerts.ALERT_REMOVE_ALL_DATA')}
-										</Text>
-									</div>
-									<div className="flex-auto w-full lg:w-32">
-										<Button
-											variant="danger"
-											type="submit"
-											className="float-right w-full bg-[#DE5536] text-nowrap whitespace-nowrap min-w-32 px-3.5"
-											onClick={() => {
-												setRemoveModalType('DELETE_ALL');
-												openModal();
-											}}
-										>
-											{t('common.DELETE_ALL_DATA')}
-										</Button>
-									</div>
-								</div>
-							</div>
+			<div className="w-full">
+				{rows.map((row) => (
+					<div key={row.type} className={DANGER_ROW}>
+						<div className="min-w-0">
+							<p className="text-sm font-medium text-foreground">{row.title}</p>
+							<p className="mt-0.5 text-xs text-muted-foreground">{row.description}</p>
 						</div>
+						<Button
+							variant="outline-danger"
+							type="button"
+							className={DANGER_BUTTON}
+							onClick={() => {
+								setRemoveModalType(row.type);
+								openModal();
+							}}
+						>
+							{row.title}
+						</Button>
 					</div>
-				</div>
+				))}
 
 				<RemoveModal
 					open={removeModalType && isOpen ? true : false}

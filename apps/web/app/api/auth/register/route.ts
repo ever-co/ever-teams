@@ -20,6 +20,8 @@ import {
 	VERIFY_EMAIL_CALLBACK_PATH
 } from '@/core/constants/config/constants';
 import { NextResponse } from 'next/server';
+import { isEverIdRegisterBody, registerWithEverId } from '@/core/services/server/ever-id/register';
+import { setSignupTeamCookie } from '@/core/services/server/finish-signup';
 
 export async function POST(req: Request) {
 	const url = new URL(req.url);
@@ -56,6 +58,13 @@ export async function POST(req: Request) {
 			return NextResponse.json({ errors: { recaptcha: 'Invalid reCAPTCHA. Please try again' } }, { status: 400 });
 		}
 	}
+
+	// Ever ID sign-up (the body carries the `ever_id` marker; the one-time key is in the sealed cookie of the sign-in):
+	// the account comes from the verified Ever ID, created by the Gauzy API once the person confirmed. Without the
+	// marker nothing below changes.
+	if (isEverIdRegisterBody(body)) {
+		return registerWithEverId(req, body, response);
+	}
 	/**
 	 * Verify if the SMTP has been configured
 	 */
@@ -85,6 +94,16 @@ export async function POST(req: Request) {
 		},
 		appEmailConfirmationUrl
 	});
+
+	// Gauzy keeps a self-registration inactive until the link in its verification e-mail is opened (owner decision 4,
+	// ever-co/ever-gauzy#11341): signing in now would answer 401. The person confirms, then signs in with the e-mail
+	// code, and that sign-in sets up the workspace with the team name kept here (finish-signup.ts).
+	if ((user as { isActive?: boolean } | undefined)?.isActive === false) {
+		const pending = NextResponse.json({ verifyEmail: true }, { status: 201 });
+		setSignupTeamCookie(pending, body.team, url.protocol === 'https:');
+		return pending;
+	}
+
 	// User Login, get the access token
 	const { data: loginRes } = await loginUserRequest(body.email, password);
 	let auth_token = loginRes.token;

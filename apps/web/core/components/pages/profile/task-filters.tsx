@@ -7,6 +7,7 @@ import { Transition } from '@headlessui/react';
 import { Button } from '@/core/components';
 import { SearchNormalIcon } from 'assets/svg';
 import { useState } from 'react';
+import { useAtomValue } from 'jotai';
 import { TaskUnOrAssignPopover } from '../../features/tasks/task-assign-popover';
 import { TaskLabelsDropdown, TaskPropertiesDropdown, TaskStatusDropdown } from '@/core/components/tasks/task-status';
 import { useTranslations } from 'next-intl';
@@ -16,6 +17,7 @@ import { Divider } from '@/core/components';
 
 import { AddManualTimeModalSkeleton } from '@/core/components/common/skeleton/calendar-component-skeletons';
 import { useDateRange } from '@/core/hooks/daily-plans/use-date-range';
+import { dailyPlanVisibleTabsState } from '@/core/stores';
 import { useLocalStorageState } from '@/core/hooks/common/use-local-storage-state';
 import { TaskDatePickerWithRange } from '../../tasks/task-date-range';
 import { DateRange } from 'react-day-picker';
@@ -45,7 +47,7 @@ export function TaskFilter({ className, hook, profile }: IClassName & Props) {
 		<div className="relative z-10 w-full">
 			<div
 				className={clsxm(
-					'flex flex-col flex-wrap-reverse justify-between items-center w-full xs:flex-row lg:flex-nowrap',
+					'flex w-full flex-wrap items-center justify-between gap-x-4 gap-y-2',
 					className
 				)}
 			>
@@ -102,7 +104,7 @@ function InputFilters({ hook, profile }: Props) {
 	const osSpecificAssignTaskTooltipLabel = 'A';
 
 	return (
-		<div className="flex items-center mt-8 gap-x-2 lg:gap-x-5 xs:mt-4">
+		<div className="flex shrink-0 items-center gap-x-2">
 			<button
 				ref={hook.outclickFilterCard.ignoreElementRef}
 				className={clsxm('outline-none')}
@@ -119,9 +121,9 @@ function InputFilters({ hook, profile }: Props) {
 			<button
 				ref={hook.outclickFilterCard.ignoreElementRef}
 				className={clsxm(
-					'p-3 px-5 flex space-x-2 input-border rounded-xl items-center text-sm',
-					hook.filterType === 'status' && ['bg-gray-lighter'],
-					'h-[2.75rem]'
+					'flex h-9 items-center gap-2 rounded-md border border-border bg-card px-3 text-sm',
+					hook.filterType === 'status' && ['bg-muted'],
+					'shrink-0'
 				)}
 				onClick={() => hook.toggleFilterType('status')}
 			>
@@ -131,11 +133,11 @@ function InputFilters({ hook, profile }: Props) {
 			<Button
 				onClick={() => openManualTimeModal()}
 				className={clsxm(
-					'bg-primary text-white dark:border-from-regal-rose dark:border-to-regal-blue dark:text-transparent dark:bg-clip-text dark:bg-gradient-to-tl  dark:from-regal-rose dark:to-regal-blue h-full px-4 py-3 rounded-xl text-sm flex items-center gap-x-1 dark:border-gradient-dark dark:border-regal-rose dark:border',
-					'min-w-fit w-fit h-[2.75rem] !text-nowrap whitespace-nowrap'
+					'bg-primary text-white dark:border-from-regal-rose dark:border-to-regal-blue dark:text-transparent dark:bg-clip-text dark:bg-gradient-to-tl  dark:from-regal-rose dark:to-regal-blue h-9 px-3 py-0 rounded-md text-sm flex items-center gap-x-1 dark:border-gradient-dark dark:border-regal-rose dark:border',
+					'min-w-fit w-fit shrink-0 !text-nowrap whitespace-nowrap'
 				)}
 			>
-				<span className="text-xl">+</span>
+				<span className="text-base leading-none">+</span>
 				{t('common.ADD_TIME')}
 			</Button>
 
@@ -156,8 +158,8 @@ function InputFilters({ hook, profile }: Props) {
 					<Button
 						loading={loading}
 						className={clsxm(
-							'dark:bg-gradient-to-tl dark:from-regal-rose dark:to-regal-blue h-full px-4 py-3 rounded-xl text-sm',
-							'min-w-fit h-[2.75rem] !text-white text-nowrap whitespace-nowrap'
+							'dark:bg-gradient-to-tl dark:from-regal-rose dark:to-regal-blue h-9 px-3 py-0 rounded-md text-sm',
+							'min-w-fit shrink-0 !text-white text-nowrap whitespace-nowrap'
 						)}
 					>
 						{t('common.ASSIGN_TASK')}
@@ -181,7 +183,7 @@ function InputFilters({ hook, profile }: Props) {
 /* It's a function that returns a nav element. */
 function TabsNav({ hook }: { hook: I_TaskFilter }) {
 	return (
-		<nav className="flex items-center justify-center w-full gap-1 -mb-1 md:justify-start md:gap-4 md:mt-0 max-w-fit">
+		<nav className="flex max-w-full items-center gap-1 overflow-x-auto md:gap-3">
 			{hook.tabs.map((item, i) => {
 				const active = item.tab === hook.tab;
 
@@ -190,15 +192,15 @@ function TabsNav({ hook }: { hook: I_TaskFilter }) {
 						<button
 							onClick={() => hook.setTab(item.tab)}
 							className={clsxm(
-								'text-sm text-gray-500 font-normal outline-hidden px-4 relative mt-4 md:mt-0 w-full md:min-w-fit flex flex-col md:flex-row gap-1 items-center',
+								'relative flex shrink-0 items-center gap-1.5 whitespace-nowrap px-2 py-2 text-sm font-normal text-muted-foreground outline-hidden',
 								active && ['text-primary dark:text-white']
 							)}
 						>
 							{item.name}{' '}
 							<span
 								className={clsxm(
-									'bg-gray-lighter p-1 px-2 !text-xs rounded-md m-1',
-									active && ['bg-primary dark:bg-[#47484D] text-white']
+									'rounded-md bg-muted px-1.5 py-0.5 !text-xs',
+									active && ['bg-primary dark:bg-muted text-white']
 								)}
 							>
 								{item.count}
@@ -207,7 +209,7 @@ function TabsNav({ hook }: { hook: I_TaskFilter }) {
 								<div
 									className={clsxm(
 										'bg-primary dark:bg-white',
-										'h-[0.1875rem] absolute -bottom-8 left-0 right-0 w-full'
+										'absolute inset-x-0 -bottom-2 h-0.5 rounded-full'
 									)}
 								/>
 							)}
@@ -226,11 +228,13 @@ export function TaskStatusFilter({ hook, employeeId }: { hook: I_TaskFilter; emp
 	const [key, setKey] = useState(0);
 	const t = useTranslations();
 	// Use useLocalStorageState for consistent state management
-	const [dailyPlanTab] = useLocalStorageState<string>('daily-plan-tab', 'Future Tasks');
+	const [storedDailyPlanTab] = useLocalStorageState<string>('daily-plan-tab', 'Future Tasks');
+	// Follow the tab UserProfilePlans shows: the stored value is only read on mount and goes stale on tab switches
+	const dailyPlanTab = useAtomValue(dailyPlanVisibleTabsState)[employeeId] ?? storedDailyPlanTab;
 
 	// Get plans data from useEmployeeDailyPlans instead of useDateRange to avoid global atom conflicts
 	const { employeeSortedPlans, employeeFuturePlans, employeePastPlans } = useEmployeeDailyPlans(employeeId);
-	const { date, setDate } = useDateRange(dailyPlanTab);
+	const { date, setDate } = useDateRange(dailyPlanTab, employeeId);
 
 	// Map tab names to their corresponding plan data
 	const mapFilter: Record<string, typeof employeeFuturePlans> = {

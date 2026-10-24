@@ -141,8 +141,8 @@ Please refer to our official [Platform Documentation](https://docs.ever.team) (W
 
 - Clone repo.
 - Make sure you have the latest Docker Compose [installed locally](https://docs.docker.com/compose/install). Important: you need a minimum [v2.20](https://docs.docker.com/compose/release-notes/#2200).
-- Run `docker-compose -f docker-compose.demo.yml up`, if you want to run the platform in basic configuration (e.g. for Demo / explore functionality / quick run) using our prebuilt Docker images. Check `.env.demo.compose` file for different settings (optionally). _(Note: Docker Compose will use latest images pre-build automatically from head of `master` branch using GitHub CI/CD.)_
-- Run `docker-compose up`, if you want to run the platform in production configuration using our prebuilt Docker images. Check `.env.compose` file for different settings (optionally). _(Note: Docker Compose will use latest images pre-build automatically from head of `master` branch using GitHub CI/CD.)_
+- Run `docker-compose -f docker-compose.demo.yml up`, if you want to run the platform in basic configuration (e.g. for Demo / explore functionality / quick run) using our prebuilt Docker images. Check `.env.demo.compose` file for different settings (optionally). _(Note: Docker Compose will use latest images pre-build automatically from head of `main` branch using GitHub CI/CD.)_
+- Run `docker-compose up`, if you want to run the platform in production configuration using our prebuilt Docker images. Check `.env.compose` file for different settings (optionally). _(Note: Docker Compose will use latest images pre-build automatically from head of `main` branch using GitHub CI/CD.)_
 - Run `docker-compose -f docker-compose.build.yml up`, if you want to build everything (code and Docker images) locally. Check `.env.compose` file for different settings (optionally). _(Note: this can be long process because it builds whole platform locally. Other options above are much faster!)_
 - :coffee: time... It might take some time for the first Docker Compose run, even if you used prebuilt Docker images.
 - Open <http://localhost:3030> in your browser, register a new account, and start using Ever Teams!
@@ -150,7 +150,14 @@ Please refer to our official [Platform Documentation](https://docs.ever.team) (W
   
 _Notes:_ 
 - _You can execute `docker-compose` command with `-d` option to run it in the "detached" mode (allows containers to run in the background, separate from the terminal)._
-- _By default, Ever Teams web frontend will be connected to our production [Ever Gauzy API](https://github.com/ever-co/ever-gauzy) API endpoint <https://api.ever.team>. You can change it in the environment variables `GAUZY_API_SERVER_URL` and `NEXT_PUBLIC_GAUZY_API_SERVER_URL`, see more in the [Run with a Self-hosted Backend](#run-with-a-self-hosted-backend) section._
+- _`docker-compose.yml` starts a Gauzy API of its own, and the web frontend is connected to that one: `GAUZY_API_SERVER_URL` defaults to `http://api:3000` (read inside the container, over the Compose network, and following `API_PORT` when you change it) and `NEXT_PUBLIC_GAUZY_API_SERVER_URL` to `http://localhost:3000` (read by the browser, through the published port). That `localhost` assumes the browser runs on the Docker host: for remote browsers, set `NEXT_PUBLIC_GAUZY_API_SERVER_URL` to an origin that reaches the API, or leave it empty so the browser calls the API through the web app's own `/api` proxy. `docker-compose.demo.yml` and `docker-compose.build.yml` run the web app alone, so they stay connected to our production [Ever Gauzy API](https://github.com/ever-co/ever-gauzy) endpoint <https://api.ever.team>. Set both variables to use another API, see the [Run with a Self-hosted Backend](#run-with-a-self-hosted-backend) section. To keep `docker-compose.yml` on Ever's hosted API (its previous default), run `GAUZY_API_SERVER_URL=https://api.ever.team NEXT_PUBLIC_GAUZY_API_SERVER_URL=https://api.ever.team docker-compose up` or put both in a root `.env` file (values in `.env.compose` do not override the `environment:` block)._
+- _The web app is configured at runtime by the `environment:` block of the `webapp` service (no rebuild needed, see [Configure at Runtime](#configure-at-runtime)). Values listed there take precedence over the `env_file` (`.env.compose` / `.env.demo.compose`); to change one, export it in your shell or pass `--env-file <file>` to `docker-compose`, which fills the `${VAR:-default}` placeholders._
+- _Both `docker-compose.yml` and `docker-compose.demo.yml` default `NEXT_PUBLIC_DEMO` to `false`. Demo mode (password login page with one-click demo accounts) only works against a Gauzy API seeded with the demo accounts; enable it with `NEXT_PUBLIC_DEMO=true docker-compose up` (or in a root `.env` file, which Compose uses for `${...}` substitution)._
+- _`docker-compose.build.yml` defaults `NEXT_PUBLIC_DEMO` to `true`, and an empty value keeps that default there:
+  run `NEXT_PUBLIC_DEMO=false docker-compose -f docker-compose.build.yml up` (or set `NEXT_PUBLIC_DEMO=false` in the
+  `--env-file`) to turn demo mode off._
+- _The Compose files leave the services Ever operates for its own deployments (Jitsi meetings, whiteboard, GitHub
+  App) off; see [Configure at Runtime](#configure-at-runtime) to point them at your own._
 
 ### Run with Docker
 
@@ -159,18 +166,71 @@ Docker build definitions are stored under `.deploy/web/` to keep the repository 
 #### Build & Run
 
 Run with Public Images:
-- You can pull our public docker image with `docker pull everco/ever-teams-webapp .` command.  
+- You can pull our public docker image with `docker pull everco/ever-teams-webapp` command.  
 - You can run <https://hub.docker.com/r/everco/ever-teams-webapp> docker image with the following command: `docker run -p 127.0.0.1:3030:3030/tcp everco/ever-teams-webapp`. 
 - Open <http://localhost:3030> in your browser, register a new account, and start using Ever Teams!
 
-_Note: To build such images on each release (push to our master branch), we are using relevant [Github Action](https://github.com/ever-co/ever-teams/blob/develop/.github/workflows/docker-build-publish-prod.yml)._
+_Note: To build such images on each release (push to our `main` branch), we are using relevant [Github Action](https://github.com/ever-co/ever-teams/blob/develop/.github/workflows/docker-build-publish-prod.yml)._
 
 Build and Run Locally:
-- If you want to build an image locally from our source code (after cloning the repo locally), please run the following command (from the root of mono-repo): `docker build . -t ever-teams-webapp -f .deploy/web/Dockerfile`.
+- If you want to build an image locally from our source code (after cloning the repo locally), please run the following command (from the root of mono-repo): `docker build . -t ever-teams-webapp -f .deploy/web/Dockerfile`. No deployment-specific `--build-arg` is needed (or read): configure the container at runtime, as below.
 - To run the locally built image, please run the following command: `docker run -p 127.0.0.1:3030:3030/tcp ever-teams-webapp`. 
 - Open <http://localhost:3030> in your browser, register a new account, and start using Ever Teams!
 
 _Note: By default, Ever Teams web frontend will be connected to our production [Ever Gauzy API](https://github.com/ever-co/ever-gauzy) API endpoint <https://api.ever.team>. You can change it in the environment variables `GAUZY_API_SERVER_URL` and `NEXT_PUBLIC_GAUZY_API_SERVER_URL`, see more in the [Run with a Self-hosted Backend](#run-with-a-self-hosted-backend) section._
+
+#### Configure at Runtime
+
+The published images bake nothing deployment-specific: the API URL, captcha keys, analytics keys, branding, Meet / Board endpoints and secrets are all read from the container environment at runtime (when the server starts and on every page request). Set them with `docker run -e ...`, a Compose `environment:` block or a Kubernetes Secret, then restart the container; no rebuild is needed. For example:
+
+```bash
+docker run -d -p 3030:3030 \
+  -e GAUZY_API_SERVER_URL=https://api.example.com \
+  -e NEXT_PUBLIC_GAUZY_API_SERVER_URL=https://api.example.com \
+  -e AUTH_SECRET="$(openssl rand -base64 32)" \
+  -e NEXT_PUBLIC_CAPTCHA_TYPE=recaptcha \
+  -e NEXT_PUBLIC_CAPTCHA_SITE_KEY=<your-site-key> \
+  -e CAPTCHA_SECRET_KEY=<your-secret-key> \
+  -e APP_NAME="Acme Teams" \
+  -e APP_LOGO_URL=https://teams.example.com/logo.png \
+  -e APP_LINK=https://teams.example.com \
+  -e COMPANY_NAME="Acme Inc." \
+  -e COMPANY_LINK=https://example.com \
+  -e NEXT_PUBLIC_IMAGES_HOSTS=cdn.example.com \
+  everco/ever-teams-webapp
+```
+
+- `GAUZY_API_SERVER_URL` is used by the Next.js server, so it must be reachable from inside the container; `NEXT_PUBLIC_GAUZY_API_SERVER_URL` is used by the browser. Both are the API origin, without a trailing `/api`. If `NEXT_PUBLIC_GAUZY_API_SERVER_URL` is unset, the browser calls the API through the web app's own `/api` proxy.
+- `AUTH_SECRET` is required in production (sessions and social login). With a social login or Ever ID configured and no `AUTH_SECRET`, the server logs an error at start-up and those sign-ins fail; set `AUTH_SECRET_REQUIRED=true` to make it refuse to start instead.
+- `NEXT_PUBLIC_CAPTCHA_TYPE` is `recaptcha` (default), `hcaptcha` or `cloudflare` (Turnstile). Set `NEXT_PUBLIC_CAPTCHA_SITE_KEY` and `CAPTCHA_SECRET_KEY` together, or leave both empty to sign up without a captcha.
+- Branding: `APP_NAME`, `APP_SIGNATURE`, `APP_LOGO_URL`, `APP_FAVICON_URL` (default `/favicon.ico`), `APP_LINK`,
+  `APP_SLOGAN_TEXT`, `COMPANY_NAME`, `COMPANY_LINK`, `TERMS_LINK`, `PRIVACY_POLICY_LINK`, `MAIN_PICTURE`,
+  `MAIN_PICTURE_DARK`. The logo and favicon are absolute URLs or paths served by the app (emails resolve a logo path
+  against `APP_LINK`). Set `APP_SLOGAN_TEXT`, `COMPANY_LINK`, `TERMS_LINK` or `PRIVACY_POLICY_LINK` to `none` to hide
+  it (an empty value brings back the default).
+- Social login (Google, Facebook, GitHub, Twitter/X): set `NEXT_PUBLIC_<PROVIDER>_APP_NAME` and
+  `<PROVIDER>_CLIENT_ID` / `<PROVIDER>_CLIENT_SECRET`, and register `<public origin>/api/auth/callback/<provider>`
+  (e.g. `https://teams.example.com/api/auth/callback/google`) as the OAuth callback URL. Behind a reverse proxy or
+  ingress that does not forward the public host (`Host` / `X-Forwarded-Host`) and `X-Forwarded-Proto`, also set
+  `AUTH_URL` to the public origin of the app, without a path (e.g. `https://teams.example.com`).
+- Services that Ever operates for its own deployments are off unless you point them at your own: Jitsi meetings
+  (`NEXT_PUBLIC_MEET_DOMAIN` with `MEET_JWT_APP_ID` / `MEET_JWT_APP_SECRET`, or LiveKit), the collaborative
+  whiteboard (`NEXT_PUBLIC_BOARD_APP_DOMAIN`, `NEXT_PUBLIC_BOARD_BACKEND_POST_URL`) and the GitHub integration,
+  which offers no install link until `NEXT_PUBLIC_GITHUB_APP_NAME` is set to the slug of your own GitHub App.
+- Error reporting: `SENTRY_DSN` (server) and `NEXT_PUBLIC_SENTRY_DSN` (browser) are read at runtime; unset = off.
+  Analytics and support chat are runtime settings too: PostHog (`NEXT_PUBLIC_POSTHOG_KEY`, unset = off;
+  `NEXT_PUBLIC_POSTHOG_HOST`, default `https://us.i.posthog.com`), Jitsu and Chatwoot.
+- Demo mode (`NEXT_PUBLIC_DEMO=true`): `NEXT_PUBLIC_DEMO_ACCOUNTS` replaces the one-click demo accounts with a JSON
+  array of `{"type","email","password"}` objects (optional `"role"` label), one per `type` among `SUPER_ADMIN`,
+  `ADMIN` and `EMPLOYEE`, e.g.
+  `[{"type":"ADMIN","email":"demo@example.com","password":"demo-password"}]`. It is sent to the browser: use
+  throwaway demo credentials only.
+- `NEXT_PUBLIC_IMAGES_HOSTS` (comma-separated) allows extra remote image hosts at runtime; the origins of the `NEXT_PUBLIC_GAUZY_API_SERVER_URL`, `APP_LOGO_URL` and `MAIN_PICTURE*` URLs are allowed automatically. An entry is either `host`, `*.host` (subdomains only) or `host:port`, which means https, or a full origin such as `http://minio.lan:9000`, which allows exactly that origin (use it for http or a custom port). Hosts that were not in the list the image was built with are served without Next.js image optimization (`/_next/image` redirects the browser to the original image); hosts in the build-time list always go through the optimizer.
+- An empty value counts as unset, so the built-in default applies. The one exception is `NEXT_PUBLIC_<PROVIDER>_APP_NAME`: setting it, even to an empty value, advertises that social login, which still only appears once `<PROVIDER>_CLIENT_ID` and `<PROVIDER>_CLIENT_SECRET` are set. Social sign-in buttons exist only for Google, Facebook, GitHub and Twitter/X; Ever ID has its own (see [Sign in with Ever ID](#sign-in-with-ever-id-optional)).
+- Only `NEXT_PUBLIC_*` and branding variables reach the browser. Secrets (`AUTH_SECRET`, `CAPTCHA_SECRET_KEY`, `*_CLIENT_SECRET`, `SMTP_PASSWORD`, ...) stay on the server.
+- [`.env.docker`](.env.docker) lists every runtime variable with its default. You can pass it as is: `docker run --env-file .env.docker -p 3030:3030 everco/ever-teams-webapp`.
+
+Image flavours: `everco/ever-teams-webapp` (also `ghcr.io/ever-co/ever-teams-webapp`) is built from `main`, `-stage` from `stage` and `-dev` from `develop`. The `-dev` image is a demo image: it defaults to `NEXT_PUBLIC_DEMO=true` (password login page with one-click demo accounts). Pass `-e NEXT_PUBLIC_DEMO=false` to turn demo mode off.
 
 #### Images
 
@@ -187,12 +247,13 @@ We have Ever Teams Docker images published into:
 
 _Notes:_
 - _By default, Ever Teams web frontend will be connected to our production [Ever Gauzy API](https://github.com/ever-co/ever-gauzy) API endpoint <https://api.ever.team>. You can change it in environment variables `GAUZY_API_SERVER_URL` and `NEXT_PUBLIC_GAUZY_API_SERVER_URL`, see the [Run with a Self-hosted Backend](#run-with-a-self-hosted-backend) section below._
+- _`yarn start:web:dev` runs `next dev` with Turbopack, which compiles each page the first time it is requested. The `Ready in ...` line only means the server is listening, so with an empty cache the first visit to a page can still take several seconds. The compiler cache lives in `apps/web/.next/dev` and is reused after a restart: keep that folder between sessions, because deleting `.next` makes every page compile from scratch again._
 
 ### Run with a Self-hosted Backend
 
 1. Download and run the Ever Gauzy Server setup (<https://gauzy.co/downloads>) or run the server manually (see <https://github.com/ever-co/ever-gauzy/tree/develop/apps/server>). You can also run only Ever Gauzy APIs (manually), see <https://github.com/ever-co/ever-gauzy/tree/develop/apps/api>. For getting started instructions, it's best to check the Ever Gauzy [README](https://github.com/ever-co/ever-gauzy/blob/develop/README.md) file.
 2. Clone this repo
-3. After you get the API or Server running, make sure you set the environment variables `GAUZY_API_SERVER_URL` and `NEXT_PUBLIC_GAUZY_API_SERVER_URL` in Ever Teams .env file (see <https://github.com/ever-co/ever-teams/blob/develop/apps/web/.env.sample>). For example, you can set those env vars to <http://localhost:3000> if Gauzy APIs run on that host & port.
+3. After you get the API or Server running, make sure you set the environment variables `GAUZY_API_SERVER_URL` and `NEXT_PUBLIC_GAUZY_API_SERVER_URL` in Ever Teams .env file (see <https://github.com/ever-co/ever-teams/blob/develop/apps/web/.env.sample>). For example, you can set those env vars to <http://localhost:3000> if Gauzy APIs run on that host & port. With our Docker image, pass the same two variables to the container instead (`docker run -e ...`, no rebuild needed, see [Configure at Runtime](#configure-at-runtime)); remember that `localhost` inside a container is the container itself, so point `GAUZY_API_SERVER_URL` at an address the container can reach (e.g. the API service name in Docker Compose, or `http://host.docker.internal:3000` on Docker Desktop), while `NEXT_PUBLIC_GAUZY_API_SERVER_URL` must be reachable from the browser.
 4. Run `yarn install`
 5. Run `yarn build:web && yarn start:web` OR `yarn start:web:dev`
 6. Open <http://localhost:3030> in your browser
@@ -200,6 +261,44 @@ _Notes:_
 #### Notes
 
 Note: Ever® Teams™ requires access to Ever® Gauzy™ Platform APIs, provided by another project - Ever® Gauzy™ Platform, see <https://github.com/ever-co/ever-gauzy> (and also <https://gauzy.co>). Specifically, you might be interested in the `apps/api` and `apps/server` folders of the mono-repo for the Gauzy API & Gauzy Server code.
+
+#### Sign in with Ever ID (optional)
+
+Ever Teams can offer Ever ID as one more sign-in method, through OpenID Connect. It is off unless you configure it, and every existing sign-in method keeps working exactly as before.
+
+1. Register a confidential OpenID Connect client at your Ever ID issuer with the redirect URI `https://<host>/api/auth/callback/ever-id` and the back-channel logout URI `https://<host>/api/auth/ever-id/backchannel-logout`, where `<host>` is the public host of the web app. Behind a reverse proxy or ingress that does not forward the public host and protocol, also set `AUTH_URL` (see the social login notes above), or the redirect URI the app sends will not match.
+2. Set these variables on the web app (read at runtime, no rebuild needed):
+    - `NEXT_PUBLIC_EVER_ID_APP_NAME` (e.g. `Ever ID`) turns the sign-in on; unlike the social login names, an empty value counts as unset. The sign-in stays off (no button, next-auth does not serve the provider and the `/api/auth/ever-id/*` routes answer 404) until this name and all of `EVER_ID_ISSUER_URL`, `EVER_ID_CLIENT_ID` and `EVER_ID_CLIENT_SECRET` are set, and `GAUZY_API_SERVER_URL` (or `NEXT_PUBLIC_GAUZY_API_SERVER_URL`) is set explicitly: the ID tokens are exchanged there, never with a default API;
+    - `EVER_ID_ISSUER_URL`: the issuer, an https URL used exactly as written (plain http only on the local machine);
+    - `EVER_ID_CLIENT_ID` and `EVER_ID_CLIENT_SECRET`: the client of step 1 (server only, never sent to the browser);
+    - `EVER_PLATFORM_PROJECT_ID` (optional): also requests the audience of that project id;
+    - `EVER_ID_TEAMS_AUTO_PROVISION` (default `false`): a sign-in whose Ever ID is linked to no workspace ends on an explanatory page and creates nothing; with `true` that page also offers the usual sign-up, and an account is created only once the person completes it.
+3. The Gauzy API the web app uses must run its Ever ID sign-in with this client id in its allowed audiences (`ZITADEL_ALLOWED_AUDIENCES`): the web app exchanges the ID token there for the person's workspaces (and sends its name, logo and links for the API's one-time code e-mail), signs in through the usual workspace sign-in, and forwards back-channel logouts there, which the API accepts for the clients of its allowed audiences. A forward the API refuses is logged as `ever_id.backchannel outcome=forward_failed`.
+
+The button appears after Google, and demo mode (`NEXT_PUBLIC_DEMO=true`) hides it like the other sign-in buttons. No token, key or e-mail address is ever put in a URL: the steps that continue on another page (the API's one-time e-mail code before an existing account is linked, or the confirmation of a new workspace) carry only a step marker, and their one-time key travels in a short-lived, encrypted, httpOnly cookie that only the web app's own `/api/auth` routes receive.
+
+#### Ever Platform (optional)
+
+Ever Teams can show an **Ever Platform** section in *Settings → Team*, backed entirely by the Gauzy API it uses
+(Ever Teams stores nothing of it). Everything in it is optional, and every existing feature works exactly the
+same without it.
+
+-   **Anonymous usage statistics.** Once a day the web app can send an anonymous report: the release that runs
+    and how it was installed, nothing about people, organizations or their data. It sends only while the Gauzy
+    API says its statistics are on; the operator of the installation switches them off in the section (the
+    switch is stored in the Gauzy API), and `EVER_STATS_ENABLED=false` does not even load the code. See
+    [docs/ever-platform/anonymous-usage-statistics.md](docs/ever-platform/anonymous-usage-statistics.md).
+-   **Connection parts** (organization link, integrations with their data scopes, entitlements): off unless
+    `NEXT_PUBLIC_EVER_CONNECT_ENABLED=true`, and shown only while the Gauzy API answers its connection
+    `health` to the signed-in person.
+-   **Pairing:** the Gauzy API answers both only when it declares that it serves Ever Teams
+    (`EVER_STATS_SERVES=gauzy,teams` in its environment). Without it the web app sends nothing and hides the
+    connection parts.
+
+Every outbound call these features can make, and what switches it off, is listed in
+[docs/ever-platform/outbound-calls.md](docs/ever-platform/outbound-calls.md); the
+[egress audit](tools/egress-audit/README.md) proves on every change that with them off the web app and its UI
+make none.
 
 ### Run in Gitpod
 
@@ -214,6 +313,12 @@ DevContainers for VSCode are supported (WIP).
 [Click here to get started.](https://vscode.dev/redirect?url=vscode://ms-vscode-remote.remote-containers/cloneInVolume?url=https://github.com/ever-co/ever-teams)
 
 ## 🚗 Self Hosting
+
+Platforms that run our prebuilt Docker image (e.g. the Koyeb button below) are configured with environment variables only: the image bakes nothing deployment-specific. See [Configure at Runtime](#configure-at-runtime) and [`.env.docker`](.env.docker).
+
+The Render, Heroku and Northflank templates generate a random `AUTH_SECRET`; on Fly, set it once with
+`fly secrets set AUTH_SECRET=$(openssl rand -base64 32)`. They all point `GAUZY_API_SERVER_URL` and
+`NEXT_PUBLIC_GAUZY_API_SERVER_URL` at our public API (<https://api.ever.team>): change both to use your own Gauzy API.
 
 ### DigitalOcean
 
@@ -250,6 +355,10 @@ Please see our [Wiki](https://github.com/ever-co/ever-teams/wiki/Deploy-to-Digit
 ### Northflank
 
 [Deploy to Northflank](https://app.northflank.com/s/account/templates/new?data=656ed069216b5d387f5379c6)
+
+### RepoCloud
+
+[![Deploy on RepoCloud](https://d16t0pc4846x52.cloudfront.net/deploylobe.svg)](https://repocloud.io/details/ever-teams/)
 
 ## 📄 Content
 

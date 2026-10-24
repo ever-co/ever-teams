@@ -4,8 +4,9 @@ import { useCallback, useMemo } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 import { useAtomValue } from 'jotai';
 import { activeTeamState, activeTeamIdState } from '@/core/stores';
-import { queryKeys } from '@/core/query/keys';
+import { getActiveProjectIdCookie } from '@/core/lib/helpers/cookies';
 import { useUserQuery } from '../queries/user-user.query';
+import { createTaskMetadataScope, invalidateTaskMetadataSectionCaches } from './task-metadata-cache';
 
 /**
  * Hook providing shared cache invalidation logic for issue types.
@@ -31,15 +32,15 @@ export function useInvalidateIssueTypes() {
 	const organizationId = useMemo(() => user?.employee?.organizationId, [user?.employee?.organizationId]);
 	const tenantId = useMemo(() => user?.employee?.tenantId, [user?.employee?.tenantId]);
 	const isEnabled = useMemo(() => !!tenantId && !!organizationId && !!teamId, [tenantId, organizationId, teamId]);
+	const projectId = getActiveProjectIdCookie();
+	const scope = useMemo(
+		() => createTaskMetadataScope(tenantId, organizationId, teamId, projectId),
+		[organizationId, projectId, teamId, tenantId]
+	);
 
 	const invalidateIssueTypesData = useCallback(
-		() =>
-			teamId
-				? queryClient.invalidateQueries({
-						queryKey: queryKeys.issueTypes.byTeam(teamId)
-					})
-				: Promise.resolve(),
-		[queryClient, teamId]
+		() => invalidateTaskMetadataSectionCaches(queryClient, { section: 'issueTypes', scope, teamId }),
+		[queryClient, scope, teamId]
 	);
 
 	return {
@@ -51,4 +52,3 @@ export function useInvalidateIssueTypes() {
 		isEnabled
 	};
 }
-

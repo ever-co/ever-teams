@@ -521,7 +521,7 @@ export function TaskStatus({
 
 				issueType === 'issue' && ['text-white'],
 
-				active ? ['dark:text-default'] : ['bg-gray-200 dark:bg-gray-700 dark:border dark:border-[#FFFFFF21]'],
+				active ? ['dark:text-default'] : ['bg-gray-200 dark:bg-muted dark:border dark:border-[#FFFFFF21]'],
 
 				bordered && ['input-border'],
 
@@ -677,7 +677,7 @@ export function StatusDropdown<T extends TStatusItem>({
 				sidebarUI && ['text-xs'],
 				!value && [
 					'text-dark/40! dark:text-white/70',
-					'bg-white dark:bg-[#1B1D22] border border-gray-200 dark:border-[#FFFFFF33]'
+					'bg-white dark:bg-card border border-gray-200 dark:border-[#FFFFFF33]'
 				],
 				value && ['text-black dark:text-black', 'bg-white dark:bg-white border border-gray-200'],
 				isVersion || (forDetails && !value) ? ['text-xs font-normal'] : ['text-sm font-normal'],
@@ -732,7 +732,7 @@ export function StatusDropdown<T extends TStatusItem>({
 				'justify-between w-full capitalize h-full',
 				sidebarUI && ['text-xs'],
 				'text-dark dark:text-white bg-[#F2F2F2] dark:bg-dark--theme-light',
-				forDetails && 'bg-transparent border dark:border-[#FFFFFF33] dark:bg-[#1B1D22]',
+				forDetails && 'bg-transparent border dark:border-[#FFFFFF33] dark:bg-card',
 				taskStatusClassName
 			)}
 			name={
@@ -851,7 +851,7 @@ export function StatusDropdown<T extends TStatusItem>({
 						items={items}
 						renderItem={renderItem as any}
 						multiple={multiple}
-						dropdownClassName="max-h-[320px] overflow-auto scrollbar-hide !border-b-0 dark:bg-[#1B1D22]"
+						dropdownClassName="max-h-[320px] overflow-auto scrollbar-hide !border-b-0 dark:bg-card"
 					/>
 				)}
 			</Tooltip>

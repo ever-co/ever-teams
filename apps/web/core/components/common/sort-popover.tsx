@@ -22,7 +22,7 @@ export function SortPopover({ label, sortKey, currentConfig, onSort }: SortPopov
 					<Button
 						variant="ghost"
 						size="icon"
-						className={`w-4 h-4 hover:bg-gray-100 dark:hover:bg-gray-700 ${isActive ? 'bg-gray-100 dark:bg-dark--theme-light' : ''}`}
+						className={`w-4 h-4 hover:bg-gray-100 dark:hover:bg-muted ${isActive ? 'bg-gray-100 dark:bg-dark--theme-light' : ''}`}
 					>
 						<ChevronsUpDown className={isActive ? 'text-primary' : ''} />
 					</Button>

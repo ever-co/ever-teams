@@ -1,12 +1,11 @@
 'use client';
-import { secondsToTime, tomorrowDate } from '@/core/lib/helpers/index';
+import { getDailyPlanDay, secondsToTime } from '@/core/lib/helpers/index';
 import {
 	I_UserProfilePage,
 	I_TeamMemberMutationsHook,
 	useCanSeeActivityScreen,
 	useModal,
 	useTMCardTaskEdit,
-	useTaskStatistics,
 	useMemberIdentity,
 	useMemberActiveTask,
 	useTeamMemberMutations,
@@ -22,7 +21,7 @@ import {
 	IDailyPlanTasksUpdate,
 	IRemoveTaskFromManyPlansRequest
 } from '@/core/types/interfaces/task/daily-plan/daily-plan';
-import { activeTeamState, activeTeamTaskState, timerSecondsState } from '@/core/stores';
+import { activeTaskStatisticsState, activeTeamState, activeTeamTaskState, timerSecondsState } from '@/core/stores';
 import { clsxm } from '@/core/lib/utils';
 import {
 	DropdownMenu,
@@ -34,7 +33,16 @@ import {
 } from '@/core/components/common/dropdown-menu';
 import { SpinnerLoader, Text } from '@/core/components';
 import Link from 'next/link';
-import React, { useCallback, useMemo, useState, useTransition } from 'react';
+import React, {
+	PropsWithChildren,
+	useCallback,
+	useEffect,
+	useId,
+	useMemo,
+	useRef,
+	useState,
+	useTransition
+} from 'react';
 import { SetStateAction, useAtomValue } from 'jotai';
 import { TimerButton } from '../timer/timer-button';
 import { TaskAllStatusTypes } from './task-all-status-type';
@@ -52,6 +60,7 @@ import { Nullable, SetAtom } from '@/core/types/generics';
 import { TaskEstimateInfo } from '../pages/teams/team/team-members-views/user-team-card/task-estimate';
 import { EverCard } from '../common/ever-card';
 import { VerticalSeparator } from '../duplicated-components/separator';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '../common/tooltip';
 import { AddTaskToPlan } from '../features/daily-plan/add-task-to-plan';
 import { IEmployee } from '@/core/types/interfaces/organization/employee';
 import { IClassName } from '@/core/types/interfaces/common/class-name';
@@ -98,11 +107,6 @@ export const TaskCard = React.memo(function TaskCard(props: Props) {
 	} = props;
 	const t = useTranslations();
 	const [loading, setLoading] = useState(false);
-	// Only get timer state for active auth task to prevent unnecessary re-renders
-	const seconds = useAtomValue(timerSecondsState);
-	const { activeTaskDailyStat, activeTaskTotalStat, addSeconds } = useTaskStatistics(
-		isAuthUser && activeAuthTask ? seconds : 0
-	);
 
 	const { data: user } = useUserQuery();
 	const activeTeam = useAtomValue(activeTeamState);
@@ -117,39 +121,30 @@ export const TaskCard = React.memo(function TaskCard(props: Props) {
 	// Auth member is the currently logged-in user's team member (for "Assign Task to Me" action)
 	const authMember = members.find((m) => m.employee?.user?.id === user?.id);
 
-	const { hours: h, minutes: m } = secondsToTime((activeTaskTotalStat?.duration || 0) + addSeconds);
 	const totalWork = useMemo(
 		() =>
 			isAuthUser && activeAuthTask ? (
 				<div className={clsxm('flex items-center space-x-2 font-normal')}>
 					<span className="text-gray-500 lg:text-sm">{t('pages.taskDetails.TOTAL_TIME')}:</span>
-					<Text>
-						{h}h : {m}m
-					</Text>
+					<ActiveTaskWorkedTime period="total" />
 				</div>
 			) : (
 				<></>
 			),
-		[activeAuthTask, h, isAuthUser, m, t]
+		[activeAuthTask, isAuthUser, t]
 	);
 	// Daily work
-	const { hours: dh, minutes: dm } = useMemo(
-		() => secondsToTime((activeTaskDailyStat?.duration || 0) + addSeconds),
-		[activeTaskDailyStat?.duration, addSeconds]
-	);
 	const todayWork = useMemo(
 		() =>
 			isAuthUser && activeAuthTask ? (
 				<div className={clsxm('flex flex-col items-start font-normal')}>
 					<span className="text-xs text-gray-500">{t('common.TOTAL_WORK')}</span>
-					<Text>
-						{dh}h : {dm}m
-					</Text>
+					<ActiveTaskWorkedTime period="today" />
 				</div>
 			) : (
 				<></>
 			),
-		[activeAuthTask, dh, dm, isAuthUser, t]
+		[activeAuthTask, isAuthUser, t]
 	);
 	// Granular hooks for currentMember — "pay only for what you use"
 	const identity = useMemberIdentity(currentMember || undefined);
@@ -182,9 +177,9 @@ export const TaskCard = React.memo(function TaskCard(props: Props) {
 			<EverCard
 				shadow="bigger"
 				className={clsxm(
-					'lg:flex items-center justify-between py-3 px-4 md:px-4 hidden h-[7rem] dark:bg-[#1E2025] border-[0.125rem] dark:border-[#FFFFFF0D] relative',
-					active && ['border-primary-light dark:bg-[#1E2025]'],
-					'xl:gap-5 gap-2',
+					'relative hidden min-h-[4.5rem] items-center justify-between px-3 py-2.5 lg:flex',
+					active && ['border-primary-light'],
+					'gap-2 xl:gap-3',
 					className
 				)}
 			>
@@ -194,7 +189,7 @@ export const TaskCard = React.memo(function TaskCard(props: Props) {
 
 				<div
 					className={clsxm(
-						'flex flex-row flex-1 justify-between min-w-[12rem] max-w-[22rem]',
+						'flex min-w-[10rem] flex-1 flex-row justify-between',
 						taskContentClassName
 					)}
 				>
@@ -212,7 +207,7 @@ export const TaskCard = React.memo(function TaskCard(props: Props) {
 				{(viewType === 'default' || viewType === 'dailyplan') && (
 					<>
 						{/* TaskEstimateInfo */}
-						<div className="flex items-center flex-col justify-center lg:flex-row w-[20%]">
+						<div className="flex min-w-[9rem] shrink-0 flex-col items-center justify-center lg:flex-row">
 							<TaskEstimateInfo
 								plan={plan}
 								memberInfo={memberInfo}
@@ -240,7 +235,7 @@ export const TaskCard = React.memo(function TaskCard(props: Props) {
 				<VerticalSeparator />
 
 				{/* TaskTimes */}
-				<div className="flex items-center justify-between gap-[1.125rem] min-w-fit px-5 w-max lg:px-3 2xl:max-w-52 3xl:max-w-72">
+				<div className="flex shrink-0 items-center gap-3 px-2">
 					<TaskTimes
 						activeAuthTask={activeAuthTask}
 						task={task}
@@ -254,23 +249,23 @@ export const TaskCard = React.memo(function TaskCard(props: Props) {
 							activeTeam={activeTeam}
 							currentMember={currentMember}
 							task={task}
-							className="w-11 h-11"
+							className="size-9"
 						/>
 					)}
 				</div>
 				<VerticalSeparator />
 
-				<div className="flex justify-center items-center w-1/5 h-full min-w-fit xl:justify-between lg:px-3 2xl:max-w-52 3xl:max-w-72">
+				<div className="flex shrink-0 items-center justify-end gap-2 px-2">
 					{/* Active Task Status Dropdown (It's a dropdown that allows the user to change the status of the task.)*/}
 					<div className="flex justify-center items-center">
 						<ActiveTaskStatusDropdown
 							task={task}
 							onChangeLoading={(load: boolean) => setLoading(load)}
-							className="min-w-[10.625rem] text-sm"
+							className="min-w-[8.5rem] text-sm"
 						/>
 					</div>
 					{/* TaskCardMenu */}
-					<div className="flex justify-end items-end mt-2 shrink-0 xl:mt-0 text-start">
+					<div className="flex shrink-0 items-center justify-end text-start">
 						{task && (currentMember || authMember) && (
 							<TaskCardMenu
 								task={task}
@@ -348,6 +343,19 @@ export const TaskCard = React.memo(function TaskCard(props: Props) {
 	);
 });
 
+// Holds the per-second timer subscription so a tick re-renders this text, not the memoized TaskCard
+function ActiveTaskWorkedTime({ period }: Readonly<{ period: 'total' | 'today' }>) {
+	const seconds = useAtomValue(timerSecondsState);
+	const statActiveTask = useAtomValue(activeTaskStatisticsState);
+	const { hours, minutes } = secondsToTime((statActiveTask[period]?.duration || 0) + seconds);
+
+	return (
+		<Text>
+			{hours}h : {minutes}m
+		</Text>
+	);
+}
+
 // Memorize UsersTaskAssigned with custom comparator to detect members changes
 const UsersTaskAssigned = React.memo(
 	({ task, className }: { task: Nullable<TTask> } & IClassName) => {
@@ -420,16 +428,48 @@ const TimerButtonCall = React.memo(
 		// Use optimistic state if available, otherwise use real state
 		const displayRunning = optimisticRunning ?? activeTaskStatus?.running;
 
+		const blockedByPlan = !activeTaskStatus && task.status !== 'closed' && !canTrack;
+		const planReasonId = useId();
+		const startButtonRef = useRef<HTMLButtonElement>(null);
+		// Set when this card's "Add to today's plan" succeeds: the focused action goes away with the tooltip once Start is enabled.
+		const refocusStartRef = useRef(false);
+
+		useEffect(() => {
+			if (blockedByPlan || !refocusStartRef.current) return;
+			refocusStartRef.current = false;
+			// Give focus back to Start only when it was lost with the tooltip, never take it from another control.
+			const active = document.activeElement;
+			if (!active || active === document.body) startButtonRef.current?.focus();
+		}, [blockedByPlan]);
+
+		const timerButton = (
+			<TimerButton
+				ref={startButtonRef}
+				onClick={activeTaskStatus ? startStopTimerHandler : startTimerWithTask}
+				running={displayRunning}
+				disabled={activeTaskStatus ? disabled : task.status === 'closed' || !canTrack}
+				aria-describedby={blockedByPlan ? planReasonId : undefined}
+				className={clsxm('w-14 h-14', className)}
+			/>
+		);
+
 		return loading ? (
 			<SpinnerLoader size={30} />
 		) : (
 			<>
-				<TimerButton
-					onClick={activeTaskStatus ? startStopTimerHandler : startTimerWithTask}
-					running={displayRunning}
-					disabled={activeTaskStatus ? disabled : task.status === 'closed' || !canTrack}
-					className={clsxm('w-14 h-14', className)}
-				/>
+				{blockedByPlan ? (
+					<PlanRequiredTooltip
+						taskId={task.id}
+						reasonId={planReasonId}
+						onPlanned={() => {
+							refocusStartRef.current = true;
+						}}
+					>
+						{timerButton}
+					</PlanRequiredTooltip>
+				) : (
+					timerButton
+				)}
 
 				<SuggestDailyPlanModal
 					isOpen={modals.isSuggestDailyPlanModalOpen}
@@ -476,6 +516,59 @@ const TimerButtonCall = React.memo(
 		);
 	}
 );
+
+// Explains a Start button greyed by the team's "require a plan to track" rule and offers the "plan for today" action.
+function PlanRequiredTooltip({
+	taskId,
+	reasonId,
+	onPlanned,
+	children
+}: PropsWithChildren<{ taskId: string; reasonId: string; onPlanned: () => void }>) {
+	const t = useTranslations();
+	const { data: user } = useUserQuery();
+	const [open, setOpen] = useState(false);
+	const containerRef = useRef<HTMLDivElement>(null);
+	const reason = t('timer.PLAN_REQUIRED_TO_START');
+
+	// The tooltip holds a focusable action: keyboard focus moving between the Start button and that action keeps it open.
+	return (
+		<TooltipProvider>
+			<Tooltip open={open} onOpenChange={setOpen}>
+				<div
+					ref={containerRef}
+					className="inline-flex"
+					onBlur={(event) => {
+						if (!event.currentTarget.contains(event.relatedTarget)) setOpen(false);
+					}}
+				>
+					<TooltipTrigger
+						asChild
+						onBlur={(event) => {
+							if (containerRef.current?.contains(event.relatedTarget)) event.preventDefault();
+						}}
+					>
+						<div className="inline-flex">{children}</div>
+					</TooltipTrigger>
+					<TooltipContent aria-label={reason} className="flex flex-col gap-1 items-start max-w-xs text-xs">
+						<p>{reason}</p>
+						<div className="text-primary dark:text-primary-light">
+							<PlanTask
+								planMode={EDailyPlanMode.TODAY}
+								taskId={taskId}
+								employeeId={user?.employee?.id}
+								label={t('dailyPlan.ADD_TO_TODAY_PLAN')}
+								onPlanned={onPlanned}
+							/>
+						</div>
+					</TooltipContent>
+					<span id={reasonId} hidden>
+						{reason}
+					</span>
+				</div>
+			</Tooltip>
+		</TooltipProvider>
+	);
+}
 
 //* Task Estimate info *
 //* Task Info FC *
@@ -603,7 +696,7 @@ export function TaskCardMenu({
 
 	const canSeeActivity = useCanSeeActivityScreen();
 
-	const { myTodayPlan, myFuturePlans } = useMyDailyPlans();
+	const { myTodayPlan, myFuturePlans, ensureMyDailyPlans, isLoading: isPlansLoading } = useMyDailyPlans();
 
 	const taskPlannedToday = useMemo(
 		() => myTodayPlan[myTodayPlan.length - 1]?.tasks?.find((planTask) => planTask.id === task.id),
@@ -623,12 +716,7 @@ export function TaskCardMenu({
 	const taskPlannedTomorrow = useMemo(
 		() =>
 			myFuturePlans
-				.filter((_plan) =>
-					moment(_plan.date)
-						.format('YYYY-MM-DD')
-						?.toString()
-						?.startsWith(moment()?.add(1, 'day').format('YYYY-MM-DD'))
-				)[0]
+				.filter((_plan) => getDailyPlanDay(_plan.date) === moment().add(1, 'day').format('YYYY-MM-DD'))[0]
 				?.tasks?.find((planTask) => planTask.id === task.id),
 		[myFuturePlans, task.id]
 	);
@@ -638,7 +726,8 @@ export function TaskCardMenu({
 
 	return (
 		<>
-			<DropdownMenu>
+			{/* The plan items below read the personal plans, which teams without a plan requirement do not preload */}
+			<DropdownMenu onOpenChange={(open) => open && void ensureMyDailyPlans()}>
 				<DropdownMenuTrigger asChild>
 					<button className="flex items-center border-none outline-none">
 						{!isMenuLoading && (
@@ -694,7 +783,8 @@ export function TaskCardMenu({
 							<>
 								<DropdownMenuSeparator className="my-3" />
 								<div className="mt-3">
-									{!taskPlannedToday && (
+									{/* Until the first read lands the plans look empty, and a planned task would be offered again */}
+									{!taskPlannedToday && !isPlansLoading && (
 										<DropdownMenuItem
 											asChild
 											className="p-0 mb-2 transition-all duration-300 hover:font-semibold hover:!bg-transparent"
@@ -707,7 +797,7 @@ export function TaskCardMenu({
 											/>
 										</DropdownMenuItem>
 									)}
-									{!taskPlannedTomorrow && (
+									{!taskPlannedTomorrow && !isPlansLoading && (
 										<DropdownMenuItem
 											asChild
 											className="p-0 mb-2 transition-all duration-300 hover:font-semibold  hover:!bg-transparent"
@@ -793,7 +883,9 @@ export function PlanTask({
 	chooseMember = false,
 	taskPlannedToday,
 	taskPlannedForTomorrow,
-	openModal
+	openModal,
+	label,
+	onPlanned
 }: {
 	taskId: string;
 	planMode: EDailyPlanMode;
@@ -802,6 +894,10 @@ export function PlanTask({
 	taskPlannedToday?: TTask;
 	taskPlannedForTomorrow?: TTask;
 	openModal?: () => void;
+	/** Replaces the default label of the plan mode */
+	label?: string;
+	/** Called once the plan is created, in today and tomorrow modes */
+	onPlanned?: () => void;
 }) {
 	const t = useTranslations();
 	const [isPending, startTransition] = useTransition();
@@ -820,7 +916,7 @@ export function PlanTask({
 						await createDailyPlan({
 							workTimePlanned: 0,
 							taskId,
-							date: String(new Date()),
+							date: moment().format('YYYY-MM-DD'),
 							status: EDailyPlanStatus.OPEN,
 							tenantId: user?.tenantId ?? '',
 							employeeId: employeeId,
@@ -829,6 +925,7 @@ export function PlanTask({
 						toast.success(t('task.toastMessages.TASK_PLANNED_FOR_TODAY'), {
 							id: 'task-planned-for-today'
 						});
+						onPlanned?.();
 					} catch (error) {
 						console.error('Plan creation error:', error);
 						toast.error(t('task.toastMessages.TASK_PLAN_FAILED'), {
@@ -842,7 +939,7 @@ export function PlanTask({
 						await createDailyPlan({
 							workTimePlanned: 0,
 							taskId,
-							date: String(tomorrowDate),
+							date: moment().add(1, 'day').format('YYYY-MM-DD'),
 							status: EDailyPlanStatus.OPEN,
 							tenantId: user?.tenantId ?? '',
 							employeeId: employeeId,
@@ -851,6 +948,7 @@ export function PlanTask({
 						toast.success(t('task.toastMessages.TASK_PLANNED_FOR_TOMORROW'), {
 							id: 'task-planned-for-tomorrow'
 						});
+						onPlanned?.();
 					} catch (error) {
 						console.error('Plan creation error:', error);
 						toast.error(t('task.toastMessages.TASK_PLAN_FAILED'), {
@@ -864,6 +962,9 @@ export function PlanTask({
 			toast.error(t('task.toastMessages.TASK_PLAN_FAILED'));
 		}
 	};
+
+	const todayLabel = label ?? t('dailyPlan.PLAN_FOR_TODAY');
+	const tomorrowLabel = label ?? t('dailyPlan.PLAN_FOR_TOMORROW');
 
 	return (
 		<div>
@@ -880,7 +981,7 @@ export function PlanTask({
 						{isPending || createDailyPlanLoading ? (
 							<ReloadIcon className="mr-2 w-4 h-4 animate-spin" />
 						) : (
-							t('dailyPlan.PLAN_FOR_TODAY')
+							todayLabel
 						)}
 					</span>
 				)}
@@ -889,11 +990,11 @@ export function PlanTask({
 						{isPending || createDailyPlanLoading ? (
 							<ReloadIcon className="mr-2 w-4 h-4 animate-spin" />
 						) : (
-							t('dailyPlan.PLAN_FOR_TOMORROW')
+							tomorrowLabel
 						)}
 					</span>
 				)}
-				{planMode === 'custom' && t('dailyPlan.PLAN_FOR_SOME_DAY')}
+				{planMode === 'custom' && (label ?? t('dailyPlan.PLAN_FOR_SOME_DAY'))}
 			</button>
 		</div>
 	);

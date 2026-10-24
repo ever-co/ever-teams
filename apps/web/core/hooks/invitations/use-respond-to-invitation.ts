@@ -28,6 +28,7 @@ export function useRespondToInvitation() {
 	const { refreshToken } = useAuthenticateUser();
 	const { invalidateTeamInvitations, invalidateMyInvitations } = useInvitationInvalidation();
 	const { data: user } = useUserQuery();
+	const myInvitationsKey = queryKeys.users.invitations.myByUser(user?.tenantId, user?.id);
 
 	// ===== ACCEPT / REJECT =====
 
@@ -47,14 +48,11 @@ export function useRespondToInvitation() {
 			}
 
 			// Optimistic update for rejection — update React Query cache directly
-			queryClient.setQueryData<PaginationResponse<TInvite>>(
-				queryKeys.users.invitations.my(user?.tenantId || ''),
-				(old) => {
-					if (!old?.items) return old;
-					const filtered = old.items.filter((invitation) => invitation.id !== id);
-					return { ...old, items: filtered, total: filtered.length };
-				}
-			);
+			queryClient.setQueryData<PaginationResponse<TInvite>>(myInvitationsKey, (old) => {
+				if (!old?.items) return old;
+				const filtered = old.items.filter((invitation) => invitation.id !== id);
+				return { ...old, items: filtered, total: filtered.length };
+			});
 
 			// Cross-invalidate both caches
 			invalidateTeamInvitations();
@@ -80,4 +78,3 @@ export function useRespondToInvitation() {
 		acceptOrRejectLoading: acceptOrRejectMutation.isPending
 	};
 }
-

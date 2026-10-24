@@ -2,20 +2,21 @@
 @config '../tailwind.config.js';
 
 :root {
-	--tw-color-dark--theme: #1e2025;
+	/* The one dark shell surface (sidebar, header, chat, pages, footer), shared with Ever Works. */
+	--tw-color-dark--theme: #0a0a0a;
 	--tooltipBackground: #000;
-	--radius: .625rem;
-    --color-background: var(--color-zinc-50);
-    --color-foreground: var(--color-zinc-950);
-    --color-card: var(--color-white);
-    --color-illustration: var(--color-white);
-    --color-card-foreground: var(--color-zinc-950);
-    --color-popover: var(--color-white);
-    --color-popover-foreground: var(--color-zinc-950);
-    --color-primary: var(--color-indigo-500);
-    --color-primary-foreground: var(--color-white);
-    --color-secondary: var(--color-sky-100);
-    --color-secondary-foreground: var(--color-sky-600);
+	--radius: 0.625rem;
+	--color-background: var(--color-zinc-50);
+	--color-foreground: var(--color-zinc-950);
+	--color-card: var(--color-white);
+	--color-illustration: var(--color-white);
+	--color-card-foreground: var(--color-zinc-950);
+	--color-popover: var(--color-white);
+	--color-popover-foreground: var(--color-zinc-950);
+	--color-primary: var(--color-indigo-500);
+	--color-primary-foreground: var(--color-white);
+	--color-secondary: var(--color-sky-100);
+	--color-secondary-foreground: var(--color-sky-600);
 }
 html {
 	background: hsl(var(--background));
@@ -44,6 +45,11 @@ html.dark {
 @theme {
 	--default-ring-width: 3px;
 	--default-ring-color: var(--color-blue-500);
+
+	/* Same system stack as Ever Works, so both products render in the OS UI face. */
+	--font-sans:
+		-apple-system, 'BlinkMacSystemFont', 'Segoe UI', 'Roboto', 'Helvetica Neue', 'Arial', 'Noto Sans', sans-serif,
+		'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
 }
 
 @layer base {
@@ -52,12 +58,12 @@ html.dark {
 	::before,
 	::backdrop,
 	::file-selector-button {
-		border-color: var(--color-gray-200, currentColor);
+		border-color: hsl(var(--border));
 	}
 
 	input::placeholder,
 	textarea::placeholder {
-		color: var(--color-gray-400);
+		color: hsl(var(--muted-foreground) / 80%);
 	}
 
 	button:not(:disabled),
@@ -69,115 +75,91 @@ html.dark {
 		margin: auto;
 	}
 
+	/*
+	 * Surface tokens. The values mirror Ever Works (apps/web globals.css there), so the two products
+	 * share one palette: light pages on #fafafa with white surfaces and slate text, dark pages on
+	 * #0a0a0a with surfaces lifted by a few percent of white and hairline white/9% borders.
+	 */
 	:root {
-
-		--background: 240 5% 96%;
-		--foreground: 240 6% 10%;
-
-		--muted: 240 5% 96%;
-		--muted-foreground: 240 4% 46%;
-
+		--background: 0 0% 98%; /* #fafafa */
+		--foreground: 222 47% 11%; /* #0f172a */
+		--muted: 210 40% 96%; /* #f1f5f9 */
+		--muted-foreground: 215 16% 47%; /* #64748b */
 		--popover: 0 0% 100%;
-		--popover-foreground: 240 6% 10%;
-
+		--popover-foreground: 222 47% 11%;
 		--card: 0 0% 100%;
-		--card-foreground: 240 6% 10%;
-
-		--border: 240 6% 90%;
-		--input: 240 6% 90%;
-
+		--card-foreground: 222 47% 11%;
+		--border: 214 32% 91%; /* hsl(var(--border)) */
+		--input: 214 32% 91%;
 		--primary: 239 84% 67%;
 		--primary-foreground: 0 0% 100%;
-
-		--secondary: 240 5% 96%;
-		--secondary-foreground: 240 6% 10%;
-
-		--accent: 240 5% 96%;
-		--accent-foreground: 240 4% 16%;
-
+		--secondary: 210 40% 96%;
+		--secondary-foreground: 222 47% 11%;
+		--accent: 210 40% 96%;
+		--accent-foreground: 222 47% 11%;
 		--destructive: 0 84% 60%;
 		--destructive-foreground: 0 0% 100%;
-
 		--ring: 239 84% 67%;
-
 		--radius: 0.625rem;
-
-		--sidebar-background: 0 0% 98%;
-
-		--sidebar-foreground: 240 5.3% 26.1%;
-
-		--sidebar-primary: 240 5.9% 10%;
-
+		--sidebar-background: 0 0% 100%;
+		--sidebar-foreground: 222 47% 11%;
+		--sidebar-primary: 222 47% 11%;
 		--sidebar-primary-foreground: 0 0% 98%;
-
-		--sidebar-accent: 240 4.8% 95.9%;
-
-		--sidebar-accent-foreground: 240 5.9% 10%;
-
-		--sidebar-border: 220 13% 91%;
-
-		--sidebar-ring: 217.2 91.2% 59.8%;
+		--sidebar-accent: 210 40% 96%;
+		--sidebar-accent-foreground: 222 47% 11%;
+		--sidebar-border: 214 32% 91%;
+		--sidebar-ring: 239 84% 67%;
 	}
 
+	/*
+	 * `clip`, not `hidden`: `overflow-x: hidden` turns the element into a scroll container, which
+	 * made <body> a second vertical scroller next to the page's own one. `clip` only clips.
+	 */
 	html,
 	body {
-		overflow-x: hidden;
+		overflow-x: clip;
 	}
 	.dark {
-		--background: 240 10% 4%;
-		--foreground: 0 0% 100%;
-
-		--muted: 240 4% 16%;
-		--muted-foreground: 240 5% 65%;
-
-		--popover: 240 10% 4%;
-		--popover-foreground: 0 0% 100%;
-
-		--card: 240 6% 8%;
-		--card-foreground: 0 0% 100%;
-
-		--border: 240 4% 16%;
-		--input: 240 4% 16%;
-
+		--background: 0 0% 4%; /* #0a0a0a */
+		--foreground: 214 32% 91%; /* hsl(var(--border)) */
+		--muted: 0 0% 10%; /* ≈ white/6% on the shell */
+		--muted-foreground: 218 11% 65%; /* #9ca3af */
+		--popover: 0 0% 7%;
+		--popover-foreground: 214 32% 91%;
+		--card: 0 0% 7%; /* ≈ white/3% on the shell */
+		--card-foreground: 214 32% 91%;
+		--border: 0 0% 13%; /* ≈ white/9% on the shell */
+		--input: 0 0% 15%;
 		--primary: 239 84% 67%;
 		--primary-foreground: 0 0% 100%;
-
-		--secondary: 240 4% 16%;
-		--secondary-foreground: 0 0% 100%;
-
-		--accent: 240 4% 16%;
+		--secondary: 0 0% 10%;
+		--secondary-foreground: 214 32% 91%;
+		--accent: 0 0% 10%;
 		--accent-foreground: 0 0% 100%;
-
 		--destructive: 0 72% 51%;
 		--destructive-foreground: 0 0% 100%;
-
-		--ring: 240 4% 46%;
-
-		--sidebar-background: 240 5.9% 10%;
-
-		--sidebar-foreground: 240 4.8% 95.9%;
-
-		--sidebar-primary: 224.3 76.3% 48%;
-
+		--ring: 0 0% 40%;
+		--sidebar-background: 0 0% 4%;
+		--sidebar-foreground: 214 32% 91%;
+		--sidebar-primary: 239 84% 67%;
 		--sidebar-primary-foreground: 0 0% 100%;
-
-		--sidebar-accent: 240 3.7% 15.9%;
-
-		--sidebar-accent-foreground: 240 4.8% 95.9%;
-
-		--sidebar-border: 240 3.7% 15.9%;
-
-		--sidebar-ring: 217.2 91.2% 59.8%;
+		--sidebar-accent: 0 0% 13%;
+		--sidebar-accent-foreground: 0 0% 100%;
+		--sidebar-border: 0 0% 13%;
+		--sidebar-ring: 0 0% 40%;
 	}
 
+	/* Hairlines from the border token; thin, translucent scrollbars everywhere (Ever Works' rules):
+	   the 8px grey bars were part of why the app read as heavy. */
 	* {
 		@apply border-border;
+
+		scrollbar-width: thin;
+		scrollbar-color: rgb(148 163 184 / 50%) transparent;
 	}
 
 	body {
-		font-family:
-			var(--font-sans), 'Plus-Jakarta-Sans-VariableFont_wght', 'Inter', 'Geist Sans', ui-sans-serif, system-ui,
-			sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji' !important;
+		font-family: var(--font-sans);
 		font-style: normal;
 		font-weight: 400;
 		line-height: 1.5;
@@ -186,7 +168,52 @@ html.dark {
 		text-rendering: optimizeLegibility;
 		-webkit-tap-highlight-color: transparent;
 		-webkit-touch-callout: none;
-		@apply text-default dark:text-white bg-[rgb(242,242,242)] dark:bg-background text-foreground text-sm;
+
+		@apply bg-background text-foreground text-sm;
+	}
+
+	.dark * {
+		scrollbar-color: rgb(115 115 115 / 45%) transparent;
+	}
+
+	::-webkit-scrollbar {
+		width: 6px;
+		height: 6px;
+	}
+
+	::-webkit-scrollbar-track {
+		background: transparent;
+		border-radius: 3px;
+	}
+
+	::-webkit-scrollbar-thumb {
+		background: rgb(148 163 184 / 40%);
+		border-radius: 3px;
+		transition: background 0.2s ease;
+	}
+
+	::-webkit-scrollbar-thumb:hover {
+		background: rgb(148 163 184 / 60%);
+	}
+
+	::-webkit-scrollbar-thumb:active {
+		background: rgb(148 163 184 / 80%);
+	}
+
+	::-webkit-scrollbar-corner {
+		background: transparent;
+	}
+
+	.dark ::-webkit-scrollbar-thumb {
+		background: rgb(115 115 115 / 40%);
+	}
+
+	.dark ::-webkit-scrollbar-thumb:hover {
+		background: rgb(115 115 115 / 60%);
+	}
+
+	.dark ::-webkit-scrollbar-thumb:active {
+		background: rgb(115 115 115 / 80%);
 	}
 
 	.x-container {
@@ -195,6 +222,35 @@ html.dark {
 }
 
 @layer components {
+	/* Ever Teams application shell and density contracts. */
+	.app-page {
+		@apply flex min-h-0 w-full flex-col bg-background text-foreground;
+	}
+
+	.app-page-header {
+		@apply flex w-full flex-col gap-1 border-b bg-background px-4 py-4 sm:px-6 lg:px-8;
+	}
+
+	.app-surface {
+		@apply rounded-lg border bg-card text-card-foreground shadow-xs;
+	}
+
+	.app-section {
+		@apply p-4 sm:p-5 lg:p-6;
+	}
+
+	.app-field {
+		@apply h-10 rounded-md border border-input bg-background px-3 text-sm outline-none transition-colors placeholder:text-muted-foreground focus-visible:ring-2 focus-visible:ring-ring/40 disabled:cursor-not-allowed disabled:opacity-60;
+	}
+
+	.app-label {
+		@apply text-sm font-medium leading-none text-foreground;
+	}
+
+	.app-help {
+		@apply text-xs leading-5 text-muted-foreground;
+	}
+
 	/* Colors custom */
 	.bg-gray-lighter {
 		@apply bg-[#F2F2F2] dark:bg-dark--theme-light;
@@ -234,8 +290,8 @@ html.dark {
 
 	/* ------------------- Input ----------------------- */
 	.input-border {
-		@apply border-[#00000021] dark:border-[#3b3c44] border-solid border;
-		@apply dark:bg-[#1B1D22];
+		@apply border-border border-solid border;
+		@apply dark:bg-card;
 	}
 
 	/* Shadow */
@@ -244,7 +300,7 @@ html.dark {
 	}
 
 	.main--card-border {
-		@apply border dark:border-[#28292F];
+		@apply border border-border;
 	}
 
 	/* Tooplip  */
@@ -277,18 +333,18 @@ html.dark {
 		scrollbar-width: none; /* Firefox */
 	}
 
+	/* Kept for the scroll owners that opt in; same thin bar as the global rule, always visible. */
 	.custom-scrollbar::-webkit-scrollbar {
 		display: block;
-		width: 8px;
-		height: 5px;
-		@apply dark:bg-[#7b7b7c] bg-gray-400;
-	}
-	.custom-scrollbar:hover::-webkit-scrollbar {
-		padding: 1px;
+		width: 6px;
+		height: 6px;
+		background: transparent;
 	}
 
 	.custom-scrollbar::-webkit-scrollbar-thumb {
-		@apply dark:bg-[#484848] bg-gray-300;
+		border-radius: 3px;
+
+		@apply bg-slate-400/40 dark:bg-neutral-500/40;
 	}
 
 	/* Details Aside Bar */
@@ -360,7 +416,7 @@ html.dark {
 }
 
 .textAreaOutline:focus {
-	@apply ring-0 outline-gray-200 dark:outline-none dark:border-2 dark:border-[#464242];
+	@apply ring-0 outline-gray-200 dark:outline-none dark:border-2 dark:border-border;
 }
 
 .nivo-calendar .nivo-calendar-month-legend text {
@@ -405,13 +461,15 @@ html.dark {
 
 		.no-scrollbar:hover::-webkit-scrollbar {
 			display: block;
-			width: 8px;
-			height: 5px;
-			@apply dark:bg-[#606062] bg-gray-300;
+			width: 6px;
+			height: 6px;
+			background: transparent;
 		}
 
 		.no-scrollbar::-webkit-scrollbar-thumb {
-			@apply bg-gray-400 dark:bg-dark--theme-light;
+			border-radius: 3px;
+
+			@apply bg-slate-400/40 dark:bg-neutral-500/40;
 		}
 
 		.no-scrollbar {
@@ -449,14 +507,15 @@ html.dark {
 .phoneinput-wrapper {
 	position: relative;
 	width: 100%;
-	height: 54px;
-	border-radius: 10px;
-	border: 1px solid #00000021;
+	height: 36px;
+	border-radius: calc(var(--radius) - 2px);
+	border: 1px solid hsl(var(--border));
+	background-color: hsl(var(--card));
 }
 
 .dark .phoneinput-wrapper {
-	border-color: #3b3c44;
-	background-color: #1b1d22;
+	border-color: hsl(var(--border));
+	background-color: hsl(var(--card));
 }
 
 .phoneinput-wrapper-error {
@@ -482,7 +541,8 @@ html.dark {
 	flex: 1;
 	min-width: 0;
 	height: 100%;
-	border-radius: 10px;
+	border-radius: calc(var(--radius) - 2px);
+	font-size: 0.875rem;
 	border: none;
 	padding-left: 8px;
 	outline: none;
@@ -513,7 +573,7 @@ html.dark {
 }
 
 .dark .phoneinput-disabled {
-	background-color: #1b1d22;
+	background-color: hsl(var(--card));
 }
 
 /* Country dropdown styling */
@@ -522,8 +582,8 @@ html.dark {
 }
 
 html.dark .PhoneInputCountrySelect > option {
-	background-color: #1b1d22;
-	color: #e0e0e0;
+	background-color: hsl(var(--card));
+	color: hsl(var(--foreground));
 }
 
 html.dark .PhoneInputInput:disabled {
@@ -531,17 +591,17 @@ html.dark .PhoneInputInput:disabled {
 }
 
 html.dark .PhoneInput .PhoneInputCountrySelect__dropdown {
-	background-color: #1b1d22;
-	color: #e0e0e0;
-	border-color: #3b3c44;
+	background-color: hsl(var(--card));
+	color: hsl(var(--foreground));
+	border-color: hsl(var(--border));
 }
 
 html.dark .PhoneInput .PhoneInputCountrySelect__option--highlight {
-	background-color: #2a2d33;
+	background-color: hsl(var(--muted));
 }
 
 html.dark .PhoneInput .PhoneInputCountrySelect__option:hover {
-	background-color: #2a2d33;
+	background-color: hsl(var(--muted));
 }
 
 .PhoneInputCountrySelect__dropdown-search {
@@ -549,9 +609,9 @@ html.dark .PhoneInput .PhoneInputCountrySelect__option:hover {
 }
 
 html.dark .PhoneInputCountrySelect__dropdown-search-input {
-	background-color: #1b1d22;
-	color: #e0e0e0;
-	border-color: #3b3c44;
+	background-color: hsl(var(--card));
+	color: hsl(var(--foreground));
+	border-color: hsl(var(--border));
 }
 
 .PhoneInput--focus .PhoneInputInput {
@@ -569,15 +629,15 @@ html.dark .PhoneInputCountrySelect__dropdown-search-input {
 
 body .PhoneInputCountrySelectDropdown {
 	background-color: #ffffff;
-	border: 1px solid #e2e8f0;
+	border: 1px solid hsl(var(--border));
 	box-shadow:
 		0 4px 6px -1px rgba(0, 0, 0, 0.1),
 		0 2px 4px -1px rgba(0, 0, 0, 0.06);
 }
 
 body.dark .PhoneInputCountrySelectDropdown {
-	background-color: #1b1d22;
-	border-color: #3b3c44;
+	background-color: hsl(var(--card));
+	border-color: hsl(var(--border));
 	box-shadow:
 		0 4px 6px -1px rgba(0, 0, 0, 0.3),
 		0 2px 4px -1px rgba(0, 0, 0, 0.2);
@@ -589,12 +649,12 @@ body .PhoneInputCountrySelectOption {
 
 body .PhoneInputCountrySelectOption:hover,
 body .PhoneInputCountrySelectOption:focus {
-	background-color: #f3f4f6;
+	background-color: hsl(var(--muted));
 }
 
 body.dark .PhoneInputCountrySelectOption:hover,
 body.dark .PhoneInputCountrySelectOption:focus {
-	background-color: #2a2d33;
+	background-color: hsl(var(--muted));
 }
 
 /* Custom country selector with search */
@@ -615,7 +675,7 @@ body.dark .PhoneInputCountrySelectOption:focus {
 .phoneinput-country-name {
 	margin-left: 2px;
 	margin-right: 4px;
-	font-size: 14px;
+	font-size: 0.875rem;
 }
 
 .phoneinput-dropdown-arrow {
@@ -637,7 +697,7 @@ body.dark .PhoneInputCountrySelectOption:focus {
 	display: flex;
 	flex-direction: column;
 	background-color: #fff;
-	border: 1px solid #e2e8f0;
+	border: 1px solid hsl(var(--border));
 	border-radius: 6px;
 	box-shadow:
 		0 4px 6px -1px rgba(0, 0, 0, 0.1),
@@ -645,8 +705,8 @@ body.dark .PhoneInputCountrySelectOption:focus {
 }
 
 .dark .phoneinput-dropdown {
-	background-color: #1b1d22;
-	border-color: #3b3c44;
+	background-color: hsl(var(--card));
+	border-color: hsl(var(--border));
 	box-shadow:
 		0 4px 6px -1px rgba(0, 0, 0, 0.3),
 		0 2px 4px -1px rgba(0, 0, 0, 0.2);
@@ -659,28 +719,28 @@ body.dark .PhoneInputCountrySelectOption:focus {
 	z-index: 1;
 	padding: 8px;
 	background-color: #fff;
-	border-bottom: 1px solid #e2e8f0;
+	border-bottom: 1px solid hsl(var(--border));
 	border-top-left-radius: 6px;
 	border-top-right-radius: 6px;
 }
 
 .dark .phoneinput-search-container {
-	background-color: #1b1d22;
-	border-bottom-color: #3b3c44;
+	background-color: hsl(var(--card));
+	border-bottom-color: hsl(var(--border));
 }
 
 .phoneinput-search-input {
 	width: 100%;
 	padding: 8px 12px 8px 32px;
-	border: 1px solid #e2e8f0;
+	border: 1px solid hsl(var(--border));
 	border-radius: 4px;
 	font-size: 14px;
 }
 
 .dark .phoneinput-search-input {
-	background-color: #1b1d22;
-	border-color: #3b3c44;
-	color: #e0e0e0;
+	background-color: hsl(var(--card));
+	border-color: hsl(var(--border));
+	color: hsl(var(--foreground));
 }
 
 .phoneinput-search-input:focus {
@@ -722,19 +782,19 @@ body.dark .PhoneInputCountrySelectOption:focus {
 }
 
 .phoneinput-country-option:hover {
-	background-color: #f3f4f6;
+	background-color: hsl(var(--muted));
 }
 
 .dark .phoneinput-country-option:hover {
-	background-color: #2a2d33;
+	background-color: hsl(var(--muted));
 }
 
 .phoneinput-selected {
-	background-color: #f3f4f6;
+	background-color: hsl(var(--muted));
 }
 
 .dark .phoneinput-selected {
-	background-color: #2a2d33;
+	background-color: hsl(var(--muted));
 }
 
 .phoneinput-no-results {
@@ -809,7 +869,7 @@ body.dark .PhoneInputCountrySelectOption:focus {
 }
 
 .dark .phoneinput-container:has(.phoneinput-disabled) .phoneinput-country-button {
-	background-color: #1b1d22;
+	background-color: hsl(var(--card));
 }
 
 @keyframes shimmer {

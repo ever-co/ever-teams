@@ -24,6 +24,7 @@ import { activeTeamState, organizationTeamsState } from '@/core/stores';
 import { useAtomValue } from 'jotai';
 import { useRolesQuery } from '@/core/hooks/roles/use-roles-query';
 import { useUserQuery } from '@/core/hooks/queries/user-user.query';
+import { resolveProjectRoleId } from '@/core/lib/helpers/create-project';
 
 function safeFormatDate(date: string | Date | null | undefined, fmt = 'd.MM.yyyy'): string {
 	if (!date) return '-';
@@ -66,7 +67,11 @@ export default function FinalReview(props: IStepElementProps) {
 
 	// Enhanced member assignment with default role logic
 	const processedMembers = useMemo(() => {
-		const members = finalData?.members || [];
+		// A member assigned before the roles list loaded still holds a fallback role id.
+		const members = (finalData?.members || []).map((member) => ({
+			...member,
+			roleId: resolveProjectRoleId(member.roleId, rolesFromApi)
+		}));
 		const hasManagers = members.some((el) => el.roleId === managerRoleId && el.memberId);
 
 		// If no managers are assigned and current user is available, assign current user as manager
@@ -97,7 +102,7 @@ export default function FinalReview(props: IStepElementProps) {
 			}
 			return member;
 		});
-	}, [finalData?.members, managerRoleId, simpleMemberRoleId, user?.employee?.id]);
+	}, [finalData?.members, managerRoleId, rolesFromApi, simpleMemberRoleId, user?.employee?.id]);
 
 	// Use teams from form data, fallback to activeTeam if none selected
 	const selectedTeams = useMemo(() => {
@@ -308,7 +313,7 @@ function BasicInformation(props: IBasicInformationProps) {
 				<span className="text-xs font-medium">{t('common.DESCRIPTION')}</span>
 				{description ? (
 					<div
-						className="p-3 text-xs rounded-lg border min-h-20 [&_strong]:font-bold [&_em]:italic [&_u]:underline [&_code]:bg-gray-200 [&_code]:dark:bg-gray-700 [&_code]:px-1 [&_code]:rounded [&_p]:mb-1 [&_p:last-child]:mb-0"
+						className="p-3 text-xs rounded-lg border min-h-20 [&_strong]:font-bold [&_em]:italic [&_u]:underline [&_code]:bg-gray-200 [&_code]:dark:bg-muted [&_code]:px-1 [&_code]:rounded [&_p]:mb-1 [&_p:last-child]:mb-0"
 						dangerouslySetInnerHTML={{ __html: sanitizeHtml(description) }}
 					/>
 				) : (

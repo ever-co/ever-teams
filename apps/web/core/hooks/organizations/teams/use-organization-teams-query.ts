@@ -16,17 +16,44 @@ import {
 	organizationTeamsState,
 	teamTasksState
 } from '@/core/stores';
-import { useCallback, useEffect, useRef } from 'react';
+import { useCallback, useEffect, useMemo, useRef } from 'react';
 import { useAtom, useAtomValue, useSetAtom } from 'jotai';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
+import isEqual from 'lodash/isEqual';
 import { LAST_WORKSPACE_AND_TEAM } from '@/core/constants/config/constants';
 import { organizationTeamService } from '@/core/services/client/api/organizations/teams';
-import { useFirstLoad, useSyncRef } from '../../common';
+import { useFirstLoad } from '../../common/use-first-load';
+import { useSyncRef } from '../../common/use-sync-ref';
 import { useTeamsState } from './use-teams-state';
-import { mergePreservingOrder } from '@/core/lib/utils/team-members.utils';
+import { getMembersPresenceSignature, mergePreservingOrder } from '@/core/lib/utils/team-members.utils';
 import { queryKeys } from '@/core/query/keys';
-import { useSettings } from '../../users';
-import { TOrganizationTeam } from '@/core/types/schemas';
+import { useSettings } from '../../users/use-settings';
+import { TOrganizationTeam, TOrganizationTeamEmployee } from '@/core/types/schemas';
+import type { ApiRequestScope } from '@/core/services/client/api-request-scope';
+import { useScopeGuard } from '../../bootstrap/use-scope-guard';
+import { useReactiveAccessTokenCookie } from '../../auth/use-reactive-access-token-cookie';
+import { syncTokenOrganization } from '@/core/lib/auth/token-organization';
+
+interface UseOrganizationTeamsQueryOptions {
+	enabled?: boolean;
+	scope?: ApiRequestScope;
+	refetchInterval?: number | false;
+	detailRefetchInterval?: number | false;
+	detailRefetchOnWindowFocus?: boolean;
+}
+
+// Presence changes never move team.updatedAt: a start or stop only touches the employee row, and Gauzy
+// computes the timer fields on each read. Worked durations stay out because they grow on every read
+// while a timer runs, which would rebuild the active team on each poll.
+const getMemberPresenceSignature = (member: TOrganizationTeamEmployee) =>
+	[
+		member.timerStatus,
+		member.running,
+		member.lastWorkedTask?.id,
+		member.employee?.isOnline,
+		member.employee?.isTrackingTime,
+		member.employee?.isActive
+	].join(':');
 
 /**
  * Hook for read-only organization teams operations.
@@ -41,7 +68,7 @@ import { TOrganizationTeam } from '@/core/types/schemas';
  * - `teams` - Array of organization teams (from Jotai)
  * - `activeTeam` - Currently active team (from Jotai)
  */
-export function useOrganizationTeamsQuery() {
+export function useOrganizationTeamsQuery(options: UseOrganizationTeamsQueryOptions = {}) {
 	const queryClient = useQueryClient();
 	const [teams, setTeams] = useAtom(organizationTeamsState);
 	const teamsRef = useSyncRef(teams);
@@ -55,9 +82,50 @@ export function useOrganizationTeamsQuery() {
 	const activeTeamIdRef = useSyncRef(activeTeamId);
 	const [isTeamMemberJustDeleted, setIsTeamMemberJustDeleted] = useAtom(isTeamMemberJustDeletedState);
 	const { firstLoadData: firstLoadTeamsDataInternal } = useFirstLoad();
-	const setIsTeamMember = useSetAtom(isTeamMemberState);
+	const [isTeamMember, setIsTeamMember] = useAtom(isTeamMemberState);
+	const isTeamMemberRef = useSyncRef(isTeamMember);
 	const setActiveTeamTask = useSetAtom(activeTeamTaskState);
 	const setTeamTasks = useSetAtom(teamTasksState);
+	const reactiveAccessToken = useReactiveAccessTokenCookie();
+	const {
+		enabled = true,
+		scope: explicitScope,
+		refetchInterval = false,
+		detailRefetchInterval = false,
+		detailRefetchOnWindowFocus = false
+	} = options;
+	const scope = useMemo<ApiRequestScope | undefined>(
+		() =>
+			explicitScope ?? {
+				tenantId: user?.employee?.tenantId ?? user?.tenantId,
+				organizationId: user?.employee?.organizationId,
+				teamId: activeTeamId || null,
+				userId: user?.id,
+				accessToken: reactiveAccessToken
+			},
+		[
+			activeTeamId,
+			explicitScope,
+			reactiveAccessToken,
+			user?.employee?.organizationId,
+			user?.employee?.tenantId,
+			user?.id,
+			user?.tenantId
+		]
+	);
+	const canHydrateSharedState = explicitScope !== undefined;
+	const scopedTeamId = scope?.teamId ?? activeTeamId;
+	const listKey = queryKeys.organizationTeams.listByScope(scope?.tenantId, scope?.organizationId, scope?.userId);
+	const detailKey = queryKeys.organizationTeams.detailByScope(
+		scope?.tenantId,
+		scope?.organizationId,
+		scopedTeamId,
+		scope?.userId
+	);
+	const listCurrent = useScopeGuard(listKey, enabled);
+	const detailCurrent = useScopeGuard(detailKey, enabled);
+	const scopedListReady = !!(scope?.tenantId && scope.organizationId && scope.accessToken);
+	const scopedDetailReady = scopedListReady && !!scopedTeamId;
 
 	// ==================== SET ACTIVE TEAM (inlined to avoid circular dependency) ====================
 
@@ -71,6 +139,11 @@ export function useOrganizationTeamsQuery() {
 
 			setActiveTeamIdCookie(team?.id);
 			setOrganizationIdCookie(team?.organizationId || '');
+			// Gauzy confines a non-admin to the token's organization: a team of another organization needs a token for
+			// it, and the user (its employee) is read again for that organization
+			void syncTokenOrganization(team?.organizationId).then((switched) => {
+				if (switched) queryClient.invalidateQueries({ queryKey: queryKeys.users.me });
+			});
 
 			if (team && team?.projects && team.projects.length) {
 				setActiveProjectIdCookie(team.projects[0].id);
@@ -84,47 +157,52 @@ export function useOrganizationTeamsQuery() {
 
 			setActiveTeamId(team?.id);
 		},
-		[setActiveTeamId, setActiveTeamTask, setTeamTasks, updateUserLastTeam, user]
+		[queryClient, setActiveTeamId, setActiveTeamTask, setTeamTasks, updateUserLastTeam, user]
 	);
 
 	// ==================== QUERIES ====================
 
 	// Query for organization teams list
 	const organizationTeamsQuery = useQuery({
-		queryKey: queryKeys.organizationTeams.all,
-		queryFn: async () => {
-			return await organizationTeamService.getOrganizationTeams();
-		},
-		enabled: !!(user?.employee?.organizationId && user?.employee?.tenantId),
+		queryKey: listKey,
+		queryFn: ({ signal }) => organizationTeamService.getOrganizationTeams({ scope: scope!, signal }),
+		enabled: enabled && scopedListReady && canHydrateSharedState,
 		staleTime: 1000 * 60 * 10, // 10 minutes
 		gcTime: 1000 * 60 * 30, // 30 minutes
 		refetchOnWindowFocus: false,
-		refetchOnReconnect: false
+		refetchOnReconnect: false,
+		refetchInterval,
+		refetchIntervalInBackground: false
 	});
 
 	// Query for specific team details
 	const organizationTeamQuery = useQuery({
-		queryKey: queryKeys.organizationTeams.detail(activeTeamId),
-		queryFn: async () => {
-			if (!activeTeamId) {
+		queryKey: detailKey,
+		queryFn: async ({ signal }) => {
+			if (!scopedTeamId) {
 				throw new Error('Team ID is required');
 			}
-			return await organizationTeamService.getOrganizationTeam(activeTeamId);
+			return organizationTeamService.getOrganizationTeam(scopedTeamId, { scope: scope!, signal });
 		},
-		enabled: !!(activeTeamId && user?.employee?.organizationId && user?.employee?.tenantId),
+		enabled: enabled && scopedDetailReady && canHydrateSharedState,
 		staleTime: 1000 * 60 * 10,
 		gcTime: 1000 * 60 * 30,
-		refetchOnWindowFocus: false,
-		refetchOnReconnect: false
+		refetchOnWindowFocus: detailRefetchOnWindowFocus ? 'always' : false,
+		refetchOnReconnect: false,
+		refetchInterval: detailRefetchInterval,
+		refetchIntervalInBackground: false
 	});
 
 	// ==================== JOTAI SYNCHRONIZATION ====================
 
 	// Sync organization teams data with Jotai state
-	const lastProcessedTeamsSignatureRef = useRef<string>('');
+	const lastProcessedTeamsSignatureRef = useRef<string | null>(null);
+	useEffect(() => {
+		lastProcessedTeamsSignatureRef.current = null;
+	}, [scope?.organizationId, scope?.tenantId, scope?.userId]);
 
 	useEffect(() => {
-		if (organizationTeamsQuery.data?.data?.items) {
+		if (canHydrateSharedState && organizationTeamsQuery.data?.data?.items && listCurrent()) {
 			const latestTeams = organizationTeamsQuery.data.data.items;
 
 			// Create a signature based on ALL mutable fields
@@ -132,7 +210,9 @@ export function useOrganizationTeamsQuery() {
 				.map((t) => {
 					const memberRolesSignature =
 						t.members?.map((m) => `${m.id}:${m.role?.name ?? 'none'}`).join(',') || '';
-					return `${t.id}:${t.updatedAt ?? ''}:${t.name}:${t.shareProfileView ?? ''}:${t.requirePlanToTrack ?? ''}:${t.public ?? ''}:${t.color ?? ''}:${t.emoji ?? ''}:${t.prefix ?? ''}:${t.members?.length ?? 0}:${memberRolesSignature}`;
+					// Timer presence (other clients) and the presence heartbeat both have to change the signature
+					const memberPresenceSignature = `${t.members?.map(getMemberPresenceSignature).join(',') || ''}:${getMembersPresenceSignature(t.members)}`;
+					return `${t.id}:${t.updatedAt ?? ''}:${t.name}:${t.shareProfileView ?? ''}:${t.requirePlanToTrack ?? ''}:${t.public ?? ''}:${t.color ?? ''}:${t.emoji ?? ''}:${t.prefix ?? ''}:${t.members?.length ?? 0}:${memberRolesSignature}:${memberPresenceSignature}`;
 				})
 				.sort()
 				.join('|');
@@ -164,33 +244,83 @@ export function useOrganizationTeamsQuery() {
 					finalMembers = mergePreservingOrder(existingTeam.members ?? [], latestTeam.members);
 				}
 
-				return {
+				const mergedTeam: TOrganizationTeam = {
 					...existingTeam,
 					...latestTeam,
 					members: finalMembers
 				};
+
+				return isEqual(mergedTeam, existingTeam) ? existingTeam : mergedTeam;
 			});
 
-			setTeams(mergedTeams);
+			// No team changed: passing the current array back lets Jotai skip notifying every team reader
+			const teamsChanged =
+				mergedTeams.length !== currentTeams.length ||
+				mergedTeams.some((team, index) => team !== currentTeams[index]);
+			setTeams(teamsChanged ? mergedTeams : currentTeams);
 
 			if (latestTeams.length === 0) {
 				setIsTeamMember(false);
 				setIsTeamMemberJustDeleted(true);
+			} else {
+				// Recover the normal shell after an invitation/new team appears. Preserve a
+				// real team-deletion toast when membership never went through no-team.
+				if (!isTeamMemberRef.current) setIsTeamMemberJustDeleted(false);
+				setIsTeamMember(true);
 			}
 		}
 		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [organizationTeamsQuery.dataUpdatedAt, setTeams, setIsTeamMember, setIsTeamMemberJustDeleted]);
+	}, [
+		organizationTeamsQuery.dataUpdatedAt,
+		setTeams,
+		setIsTeamMember,
+		setIsTeamMemberJustDeleted,
+		isTeamMemberRef,
+		canHydrateSharedState,
+		listCurrent
+	]);
+
+	// Resolve the selected team from the scoped list without issuing an imperative duplicate fetch.
+	useEffect(() => {
+		if (!canHydrateSharedState || !enabled || !organizationTeamsQuery.data?.data?.items || !listCurrent()) return;
+		const latestTeams = organizationTeamsQuery.data.data.items;
+		if (!latestTeams.length) {
+			setActiveTeamId('');
+			return;
+		}
+		let selectedId = getActiveTeamIdCookie();
+		if (!selectedId && typeof window !== 'undefined') {
+			selectedId = window.localStorage.getItem(LAST_WORKSPACE_AND_TEAM) || '';
+		}
+		if (!selectedId) selectedId = user?.lastTeamId || '';
+		const selected = latestTeams.find((team) => team.id === selectedId) ?? latestTeams[0];
+		if (selected?.id && activeTeamIdRef.current !== selected.id) setActiveTeam(selected);
+	}, [
+		activeTeamIdRef,
+		canHydrateSharedState,
+		enabled,
+		listCurrent,
+		organizationTeamsQuery.data,
+		setActiveTeam,
+		setActiveTeamId,
+		user?.lastTeamId
+	]);
 
 	// Sync specific team data with Jotai state
-	const lastProcessedTeamSignatureRef = useRef<string>('');
+	const lastProcessedTeamSignatureRef = useRef<string | null>(null);
+	useEffect(() => {
+		lastProcessedTeamSignatureRef.current = null;
+	}, [scope?.organizationId, scope?.teamId, scope?.tenantId, scope?.userId]);
 
 	useEffect(() => {
-		if (organizationTeamQuery.data?.data) {
+		if (canHydrateSharedState && organizationTeamQuery.data?.data && detailCurrent()) {
 			const newTeam = organizationTeamQuery.data.data;
 
 			const memberActiveTaskIds = newTeam.members?.map((m) => m.activeTaskId || 'null').join(',') || '';
 			const memberRoles = newTeam.members?.map((m) => `${m.id}:${m.role?.name ?? 'none'}`).join(',') || '';
-			const newSignature = `${newTeam.id}:${newTeam.updatedAt ?? ''}:${newTeam.members?.length ?? 0}:${memberActiveTaskIds}:${memberRoles}`;
+			// Timer presence (other clients) and the presence heartbeat both have to change the signature
+			const memberPresence = `${newTeam.members?.map(getMemberPresenceSignature).join(',') || ''}:${getMembersPresenceSignature(newTeam.members)}`;
+			const newSignature = `${newTeam.id}:${newTeam.updatedAt ?? ''}:${newTeam.members?.length ?? 0}:${memberActiveTaskIds}:${memberRoles}:${memberPresence}`;
 
 			if (newSignature === lastProcessedTeamSignatureRef.current) {
 				return;
@@ -205,7 +335,7 @@ export function useOrganizationTeamsQuery() {
 			}
 		}
 		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [organizationTeamQuery.dataUpdatedAt, setTeamsUpdate, activeTeam]);
+	}, [organizationTeamQuery.dataUpdatedAt, setTeamsUpdate, activeTeam, canHydrateSharedState, detailCurrent]);
 
 	// ==================== QUERY FUNCTIONS ====================
 
@@ -229,10 +359,8 @@ export function useOrganizationTeamsQuery() {
 
 		try {
 			const teamsResult = await queryClient.fetchQuery({
-				queryKey: queryKeys.organizationTeams.all,
-				queryFn: async () => {
-					return await organizationTeamService.getOrganizationTeams();
-				}
+				queryKey: listKey,
+				queryFn: ({ signal }) => organizationTeamService.getOrganizationTeams({ scope: scope!, signal })
 			});
 
 			const latestTeams = teamsResult.data?.items || [];
@@ -256,10 +384,14 @@ export function useOrganizationTeamsQuery() {
 
 			if (teamId) {
 				await queryClient.fetchQuery({
-					queryKey: queryKeys.organizationTeams.detail(teamId),
-					queryFn: async () => {
-						return await organizationTeamService.getOrganizationTeam(teamId);
-					}
+					queryKey: queryKeys.organizationTeams.detailByScope(
+						scope?.tenantId,
+						scope?.organizationId,
+						teamId,
+						scope?.userId
+					),
+					queryFn: ({ signal }) =>
+						organizationTeamService.getOrganizationTeam(teamId, { scope: scope!, signal })
 				});
 			}
 
@@ -276,7 +408,9 @@ export function useOrganizationTeamsQuery() {
 		setActiveTeamId,
 		setIsTeamMember,
 		setIsTeamMemberJustDeleted,
-		setActiveTeam
+		setActiveTeam,
+		listKey,
+		scope
 	]);
 
 	const handleFirstLoad = useCallback(async () => {
@@ -290,20 +424,30 @@ export function useOrganizationTeamsQuery() {
 			// We use getQueryData to retrieve from cache instead of making a redundant API call
 			const cachedTeamData = queryClient.getQueryData<{
 				data: TOrganizationTeam;
-			}>(queryKeys.organizationTeams.detail(currentTeamId));
+			}>(
+				queryKeys.organizationTeams.detailByScope(
+					scope?.tenantId,
+					scope?.organizationId,
+					currentTeamId,
+					scope?.userId
+				)
+			);
 			if (cachedTeamData) {
 				setTeamsUpdate(cachedTeamData.data);
 			}
 		}
 
 		firstLoadTeamsDataInternal();
-	}, [activeTeamIdRef, firstLoadTeamsDataInternal, loadTeamsData, queryClient, setTeamsUpdate]);
+	}, [activeTeamIdRef, firstLoadTeamsDataInternal, loadTeamsData, queryClient, scope, setTeamsUpdate]);
 
 	return {
 		// Query states
 		getOrganizationTeamsLoading: organizationTeamsQuery.isLoading,
 		loadingTeam: organizationTeamQuery.isLoading,
 		teamsFetching: organizationTeamsQuery.isFetching,
+		organizationTeamsSuccess: organizationTeamsQuery.isSuccess && listCurrent(),
+		organizationTeamSuccess:
+			(!teams.length && organizationTeamsQuery.isSuccess) || (organizationTeamQuery.isSuccess && detailCurrent()),
 
 		// Data from Jotai (for backward compatibility)
 		teams,

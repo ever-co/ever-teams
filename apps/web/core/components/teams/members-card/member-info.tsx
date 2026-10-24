@@ -40,7 +40,7 @@ export function MemberInfo({
 						name="memberName"
 						onChange={onChangeName}
 						onKeyDown={(event) => event.key === 'Enter' && onSubmitName && onSubmitName()}
-						className="w-full h-10 rounded-lg px-2 shadow-inner border border-[#D7E1EB] dark:border-[#27272A]"
+						className="w-full h-10 rounded-lg px-2 shadow-inner border border-[#D7E1EB] dark:border-border"
 					/>
 				) : (
 					<Link href={`/profile/${member?.id}`}>

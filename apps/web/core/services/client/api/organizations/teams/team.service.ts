@@ -20,6 +20,7 @@ import {
 	organizationTeamUpdateSchema,
 	TOrganizationTeamUpdate
 } from '@/core/types/schemas';
+import { scopedReadConfig, type ScopedReadOptions } from '@/core/services/client/api-request-scope';
 
 class OrganizationTeamService extends APIService {
 	/**
@@ -27,7 +28,9 @@ class OrganizationTeamService extends APIService {
 	 *
 	 * @returns A Promise resolving to a paginated response containing the list of organization teams.
 	 */
-	getOrganizationTeams = async () => {
+	getOrganizationTeams = async (options?: ScopedReadOptions) => {
+		const tenantId = options?.scope.tenantId ?? this.tenantId;
+		const organizationId = options?.scope.organizationId ?? this.organizationId;
 		const relations = [
 			'members',
 			'members.role',
@@ -39,8 +42,8 @@ class OrganizationTeamService extends APIService {
 		];
 		// Construct the query parameters including relations
 		const queryParameters = {
-			'where[organizationId]': this.organizationId,
-			'where[tenantId]': this.tenantId,
+			'where[organizationId]': organizationId,
+			'where[tenantId]': tenantId,
 			source: ETimeLogSource.TEAMS,
 			withLastWorkedTask: 'true', // Corrected the typo here
 			relations
@@ -52,9 +55,10 @@ class OrganizationTeamService extends APIService {
 		const endpoint = `/organization-team?${query}`;
 
 		try {
-			const response = await this.get<PaginationResponse<TOrganizationTeam>>(endpoint, {
-				tenantId: this.tenantId
-			});
+			const response = await this.get<PaginationResponse<TOrganizationTeam>>(
+				endpoint,
+				options ? scopedReadConfig(options) : { tenantId: this.tenantId }
+			);
 
 			// Validate paginated response data and return the original response structure
 			const validatedData = validatePaginationResponse(
@@ -191,7 +195,9 @@ class OrganizationTeamService extends APIService {
 	 * @param {string} teamId The unique identifier of the team.
 	 * @returns A Promise resolving to the details of the specified organization team.
 	 */
-	getOrganizationTeam = async (teamId: string) => {
+	getOrganizationTeam = async (teamId: string, options?: ScopedReadOptions) => {
+		const tenantId = options?.scope.tenantId ?? this.tenantId;
+		const organizationId = options?.scope.organizationId ?? this.organizationId;
 		const relations = [
 			'members',
 			'members.role',
@@ -204,8 +210,8 @@ class OrganizationTeamService extends APIService {
 
 		// Define base parameters including organization and tenant IDs, and date range
 		const queryParams = {
-			organizationId: this.organizationId,
-			tenantId: this.tenantId,
+			organizationId,
+			tenantId,
 			withLastWorkedTask: 'true', // Corrected the typo here
 			startDate: moment().startOf('day').toISOString(),
 			endDate: moment().endOf('day').toISOString(),
@@ -221,7 +227,10 @@ class OrganizationTeamService extends APIService {
 
 		try {
 			// Fetch and return the team details
-			const response = await this.get<TOrganizationTeam>(endpoint);
+			const response = await this.get<TOrganizationTeam>(
+				endpoint,
+				options ? scopedReadConfig(options) : undefined
+			);
 
 			// Validate single organization team response data
 			const validatedData = validateApiResponse(
@@ -242,7 +251,7 @@ class OrganizationTeamService extends APIService {
 					issues: error.issues,
 					context: 'getOrganizationTeam',
 					teamId,
-					organizationId: this.organizationId
+					organizationId
 				});
 			}
 			throw error;

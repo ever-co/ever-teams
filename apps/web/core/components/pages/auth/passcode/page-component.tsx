@@ -1,11 +1,13 @@
 'use client';
 
 import { getAccessTokenCookie, getActiveUserIdCookie } from '@/core/lib/helpers/index';
-import { TAuthenticationPasscode, useAuthenticationPasscode } from '@/core/hooks';
+import { TAuthenticationPasscode, useAuthenticationPasscode } from '@/core/hooks/auth/use-authentication-passcode';
 import { IClassName } from '@/core/types/interfaces/common/class-name';
-import { BackButton, BackdropLoader, Button, SpinnerLoader, Text } from '@/core/components';
+import { BackButton, Button } from '@/core/components/common/button';
+import { BackdropLoader, SpinnerLoader } from '@/core/components/common/loader';
+import { Text } from '@/core/components/common/typography';
 import { CircleIcon, CheckCircleOutlineIcon } from 'assets/svg';
-import { AuthLayout } from '@/core/components/layouts/default-layout';
+import { AuthLayout } from '@/core/components/layouts/default-layout/auth-layout';
 import { useTranslations } from 'next-intl';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
@@ -38,6 +40,7 @@ import { Avatar } from '@/core/components/duplicated-components/avatar';
 import { ISigninEmailConfirmWorkspaces } from '@/core/types/interfaces/auth/auth';
 import { hasTeams, getFirstTeamId, findWorkspaceIndexByTeamId } from '@/core/lib/utils/workspace.utils';
 import { useWorkspaceAnalysis } from '@/core/hooks/auth/use-workspace-analysis';
+import { useResendCooldown } from '@/core/hooks/auth/use-resend-cooldown';
 import { buttonVariants } from '@/core/components/duplicated-components/_button';
 
 function AuthPasscode() {
@@ -170,34 +173,8 @@ function PasscodeScreen({ form, className }: { form: TAuthenticationPasscode } &
 	const formRef = useRef<HTMLFormElement>(null);
 	const urlSearchParams = new URLSearchParams(window.location.search);
 	const code = urlSearchParams.get('code');
-
-	const formatTime = (seconds: number) => {
-		const minutes = Math.floor(seconds / 60);
-		const remainingSeconds = seconds % 60;
-		return `${String(minutes).padStart(2, '0')}:${String(remainingSeconds).padStart(2, '0')}`;
-	};
-
-	const [timer, setTimer] = useState(60);
-	const [disabled, setDisabled] = useState(true);
-
-	useEffect(() => {
-		let interval: NodeJS.Timeout | undefined = undefined;
-		if (timer > 0) {
-			interval = setInterval(() => {
-				setTimer((prevTimer) => prevTimer - 1);
-			}, 1000);
-		} else {
-			setDisabled(false);
-			clearInterval(interval);
-		}
-
-		return () => clearInterval(interval);
-	}, [timer]);
-
-	const handleResendClick = () => {
-		setDisabled(true);
-		setTimer(60);
-	};
+	// This screen opens right after a code was sent
+	const resendCooldown = useResendCooldown(true);
 
 	const resetForm = () => {
 		if (inputsRef.current) {
@@ -254,28 +231,33 @@ function PasscodeScreen({ form, className }: { form: TAuthenticationPasscode } &
 					)}
 				</div>
 
+				{/* Ever ID: Gauzy already sent its one-time code to the account's mailbox (no resend from here) */}
+				{form.everIdConfirm && (
+					<p className="text-sm text-muted-foreground">{t('pages.auth.everId.CONFIRM_HINT')}</p>
+				)}
+
 				{/* Resend code + back */}
-				<div className="flex flex-col gap-2 text-sm">
+				<div className={cn('flex flex-col gap-2 text-sm', form.everIdConfirm && 'hidden')}>
 					<div className="flex flex-row gap-2 items-center">
 						<span className="text-muted-foreground">{t('pages.auth.UNRECEIVED_CODE')}</span>
-						{!form.sendCodeLoading ? (
+						{!form.signInEmailLoading ? (
 							<button
 								type="button"
 								className="text-sm cursor-pointer"
 								onClick={() => {
-									if (!disabled) {
+									if (!resendCooldown.locked) {
 										form.sendAuthCodeHandler();
-										handleResendClick();
+										resendCooldown.start();
 									}
 								}}
 							>
-								{!disabled ? (
+								{!resendCooldown.locked ? (
 									<span className="font-medium text-primary hover:underline">
 										{t('pages.auth.RESEND_CODE')}
 									</span>
 								) : (
 									<span className="text-muted-foreground">
-										{t('pages.auth.RESEND_CODE_IN')} {formatTime(timer)}
+										{t('pages.auth.RESEND_CODE_IN')} {resendCooldown.countdown}
 									</span>
 								)}
 							</button>
@@ -289,8 +271,8 @@ function PasscodeScreen({ form, className }: { form: TAuthenticationPasscode } &
 				<div className="flex flex-col gap-1.5 items-center w-full">
 					<Button
 						type="submit"
-						loading={form.signInEmailConfirmLoading}
-						disabled={form.signInEmailConfirmLoading}
+						loading={form.signInEmailConfirmLoading || form.everIdConfirmLoading}
+						disabled={form.signInEmailConfirmLoading || form.everIdConfirmLoading}
 						className="cursor-pointer w-full inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium transition-all focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 shadow-md border-[0.5px] border-white/10 shadow-black/15 [&_svg]:drop-shadow-sm bg-primary ring-1 ring-(--ring-color) [--ring-color:color-mix(in_oklab,black_15%,var(--color-primary))] dark:border-transparent dark:[--ring-color:color-mix(in_oklab,white_15%,var(--color-primary))] text-primary-foreground hover:bg-primary/90 h-9 px-4 py-2"
 					>
 						{t('pages.auth.LOGIN')}
@@ -299,6 +281,8 @@ function PasscodeScreen({ form, className }: { form: TAuthenticationPasscode } &
 					<BackButton
 						className={buttonVariants({ variant: 'link', className: 'w-full underline' })}
 						onClick={() => {
+							// Leaving the Ever ID step drops its marker from the URL and empties the code
+							form.leaveEverIdStep();
 							form.authScreen.setScreen('email');
 							form.setErrors({});
 						}}
@@ -402,6 +386,7 @@ function WorkSpaceScreen({ form, className }: { form: TAuthenticationPasscode } 
 					workspaces={form.workspaces}
 					onSubmit={signInToWorkspace}
 					onBackButtonClick={() => {
+						form.leaveEverIdStep();
 						form.authScreen.setScreen('email');
 						form.setErrors({});
 					}}
@@ -410,6 +395,7 @@ function WorkSpaceScreen({ form, className }: { form: TAuthenticationPasscode } 
 					setSelectedTeam={setSelectedTeam}
 					selectedTeam={selectedTeam}
 					signInWorkspaceLoading={form.signInWorkspaceLoading}
+					teamsUnavailable={form.everIdTeamsUnavailable}
 				/>
 			</div>
 
@@ -433,6 +419,8 @@ type IWorkSpace = {
 	signInWorkspaceLoading?: boolean;
 	setSelectedTeam: Dispatch<SetStateAction<string>>;
 	selectedTeam: string;
+	/** The workspaces carry no team list (an Ever ID sign-in): list them without empty-workspace warnings. */
+	teamsUnavailable?: boolean;
 };
 
 export function WorkSpaceComponent(props: IWorkSpace) {
@@ -449,6 +437,19 @@ export function WorkSpaceComponent(props: IWorkSpace) {
 	// so the user can still proceed to create a team.
 	// Also preserve original indices to correctly map filtered UI selections back to the original array.
 	const workspacesWithTeamsStatus = useMemo(() => {
+		// Team lists unknown (Ever ID sign-in): every workspace is listed as a plain choice, the team is picked later
+		if (props.teamsUnavailable) {
+			return props.workspaces
+				.map((workspace, index) => ({ workspace, originalIndex: index }))
+				.filter(({ workspace }) => workspace?.user)
+				.map(({ workspace, originalIndex }) => ({
+					workspace: { ...workspace, current_teams: workspace.current_teams ?? [] },
+					originalIndex,
+					hasTeams: true,
+					teamCount: 0
+				}));
+		}
+
 		// Get all valid workspaces with their original indices
 		const allWorkspacesWithIndices = props.workspaces
 			.map((workspace, index) => ({ workspace, originalIndex: index }))
@@ -469,7 +470,7 @@ export function WorkSpaceComponent(props: IWorkSpace) {
 			hasTeams: hasTeams(workspace),
 			teamCount: workspace.current_teams?.length || 0
 		}));
-	}, [props.workspaces]);
+	}, [props.workspaces, props.teamsUnavailable]);
 
 	// Find the selected workspace in the filtered array using originalIndex
 	const selectedWorkspaceData = workspacesWithTeamsStatus.find((ws) => ws.originalIndex === props.selectedWorkspace);
@@ -547,16 +548,16 @@ export function WorkSpaceComponent(props: IWorkSpace) {
 											isEmpty &&
 												'border-amber-200 dark:border-amber-800 bg-amber-50/30 dark:bg-amber-900/10',
 											// Normal workspace styling
-											!isEmpty && 'border-[#0000001A] dark:border-[#34353D]',
+											!isEmpty && 'border-[#0000001A] dark:border-border',
 											// Selected workspace styling
 											props.selectedWorkspace === originalIndex &&
 												!isEmpty &&
-												'bg-[#FCFCFC] -order-1 dark:bg-[#1F2024]',
+												'bg-[#FCFCFC] -order-1 dark:bg-card',
 											props.selectedWorkspace === originalIndex &&
 												isEmpty &&
 												'bg-amber-100/50 -order-1 dark:bg-amber-900/20',
 											// Hover styling
-											!isEmpty && 'hover:bg-[#FCFCFC] dark:hover:bg-[#1F2024]',
+											!isEmpty && 'hover:bg-[#FCFCFC] dark:hover:bg-card',
 											isEmpty && 'hover:bg-amber-100/40 dark:hover:bg-amber-900/15'
 										)}
 									>
@@ -587,7 +588,7 @@ export function WorkSpaceComponent(props: IWorkSpace) {
 
 														{/* Team count badge for non-empty workspaces */}
 														{!isEmpty && teamCount > 0 && (
-															<span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-300 shrink-0">
+															<span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-700 dark:bg-muted dark:text-gray-300 shrink-0">
 																{teamCount}{' '}
 																{teamCount === 1
 																	? t('pages.auth.TEAM_COUNT_SINGULAR')
@@ -639,7 +640,7 @@ export function WorkSpaceComponent(props: IWorkSpace) {
 											<span
 												className={`bg-[#E5E5E5] w-full h-px hidden ${expandedWorkspace === index && 'block'}`}
 											></span>
-											{/* <div className="w-full h-[1px] bg-[#E5E5E5] dark:bg-[#34353D]"></div> */}
+											{/* <div className="w-full h-[1px] bg-[#E5E5E5] dark:bg-muted"></div> */}
 											<div className="flex flex-col gap-4 px-5 py-1.5">
 												{workspace.current_teams
 													?.filter((team) => team && team.team_name)

@@ -1,5 +1,5 @@
 'use client';
-import { useAtomValue } from 'jotai';
+import { useAtomValue, useSetAtom } from 'jotai';
 import { AlertPopup, Container } from '@/core/components';
 import { DottedLanguageObjectStringPaths, useTranslations } from 'next-intl';
 import { useCallback, useEffect, useMemo, useState } from 'react';
@@ -10,6 +10,7 @@ import { useDeleteDailyPlan } from '@/core/hooks/daily-plans/use-delete-daily-pl
 import { useUserQuery } from '@/core/hooks/queries/user-user.query';
 import { useDateRange } from '@/core/hooks/daily-plans/use-date-range';
 import { filterDailyPlan } from '@/core/hooks/daily-plans/use-filter-date-range';
+import { estimatedTotalTime, getTotalTasks } from '@/core/hooks/daily-plans/daily-plan-totals';
 import { useLocalStorageState } from '@/core/hooks/common/use-local-storage-state';
 import {
 	DAILY_PLAN_SUGGESTION_MODAL_DATE,
@@ -17,21 +18,13 @@ import {
 	HAS_VISITED_OUTSTANDING_TASKS
 } from '@/core/constants/config/constants';
 import { TDailyPlan, TUser } from '@/core/types/schemas';
-import { activeTeamState } from '@/core/stores';
-import { fullWidthState } from '@/core/stores/common/full-width';
+import { activeTeamState, dailyPlanVisibleTabsState } from '@/core/stores';
 import { clsxm } from '@/core/lib/utils';
 import { Button } from '@/core/components/duplicated-components/_button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/core/components/common/select';
 import { ReloadIcon, StarIcon } from '@radix-ui/react-icons';
 
-import {
-	estimatedTotalTime,
-	getTotalTasks,
-	Outstanding,
-	OutstandingAll,
-	OutstandingFilterDate,
-	PastTasks
-} from '../tasks/daily-plan';
+import { Outstanding, OutstandingAll, OutstandingFilterDate, PastTasks } from '../tasks/daily-plan';
 import { FutureTasks } from '../tasks/daily-plan/future-tasks';
 import ViewsHeaderTabs from '../tasks/daily-plan/views-header-tabs';
 import moment from 'moment';
@@ -88,10 +81,20 @@ export function UserProfilePlans(props: IUserProfilePlansProps) {
 		isLoading
 	} = useEmployeeDailyPlans(targetEmployeeId);
 	const { deleteDailyPlan, deleteDailyPlanLoading } = useDeleteDailyPlan();
-	const fullWidth = useAtomValue(fullWidthState);
 	const [currentOutstanding, setCurrentOutstanding] = useLocalStorageState<FilterOutstanding>('outstanding', 'DATE');
 	const [currentTab, setCurrentTab] = useLocalStorageState<FilterTabs>('daily-plan-tab', 'Today Tasks');
-	const { setDate, date } = useDateRange(currentTab);
+	const { setDate } = useDateRange(currentTab, targetEmployeeId);
+	const { date: futureRange } = useDateRange('Future Tasks', targetEmployeeId);
+	const { date: pastRange } = useDateRange('Past Tasks', targetEmployeeId);
+	const { date: allRange } = useDateRange('All Tasks', targetEmployeeId);
+	const setVisibleTabs = useSetAtom(dailyPlanVisibleTabsState);
+
+	// The date picker of the profile filter bar lives in another tree: tell it which tab is on screen
+	useEffect(() => {
+		setVisibleTabs((prev) =>
+			prev[targetEmployeeId] === currentTab ? prev : { ...prev, [targetEmployeeId]: currentTab }
+		);
+	}, [setVisibleTabs, targetEmployeeId, currentTab]);
 
 	const filterPlanAndTask = useCallback(
 		(plans: TDailyPlan[]) => (filteredTaskIds ? filterDailyPlansByTasks(plans, filteredTaskIds) : plans),
@@ -189,10 +192,10 @@ export function UserProfilePlans(props: IUserProfilePlansProps) {
 	// Use data directly from useEmployeeDailyPlans instead of local states to prevent stale data
 	// when targetEmployeeId changes (e.g., when viewing different user profiles)
 	const totalTasksDailyPlansMap = useMemo(() => {
-		// Apply date filtering to get the correct counts
-		const filteredFuturePlans = filterDailyPlan(date, filterPlanAndTask(employeeFuturePlans));
-		const filteredPastPlans = filterDailyPlan(date, filterPlanAndTask(employeePastPlans));
-		const filteredAllPlans = filterDailyPlan(date, filterPlanAndTask(employeeSortedPlans));
+		// Filter each count by the range of its own tab, so it matches what that tab shows
+		const filteredFuturePlans = filterDailyPlan(futureRange, filterPlanAndTask(employeeFuturePlans));
+		const filteredPastPlans = filterDailyPlan(pastRange, filterPlanAndTask(employeePastPlans));
+		const filteredAllPlans = filterDailyPlan(allRange, filterPlanAndTask(employeeSortedPlans));
 
 		return {
 			// filterByEmployee = false: show ALL tasks in daily plans (not just assigned to user)
@@ -220,7 +223,9 @@ export function UserProfilePlans(props: IUserProfilePlansProps) {
 		employeeSortedPlans,
 		employeeOutstandingPlans,
 		user,
-		date
+		futureRange,
+		pastRange,
+		allRange
 	]);
 	/*
 	 * DAILY PLANS DISPLAY LOGIC FIX
@@ -247,7 +252,7 @@ export function UserProfilePlans(props: IUserProfilePlansProps) {
 
 	return (
 		<div ref={profile.loadTaskStatsIObserverRef}>
-			<Container fullWidth={fullWidth} className="">
+			<Container className="">
 				<>
 					{/*
 					 * CONDITIONAL RENDERING WITH LOADING STATES
@@ -296,7 +301,7 @@ export function UserProfilePlans(props: IUserProfilePlansProps) {
 														)}
 														<span
 															className={clsxm(
-																'text-xs bg-gray-200 dark:bg-dark--theme-light text-dark--theme-light dark:text-gray-200 p-2 rounded-sm py-1',
+																'text-xs bg-gray-200 dark:bg-dark--theme-light text-foreground dark:text-gray-200 p-2 rounded-sm py-1',
 																currentTab == filter && 'dark:bg-gray-600'
 															)}
 														>

@@ -1,5 +1,10 @@
+const path = require('node:path');
 const withNextIntl = require('next-intl/plugin')('./core/lib/i18n/request.ts');
 const { withSentryConfig } = require('@sentry/nextjs');
+const { parseImageHosts, serializeImageRemotePatterns } = require('./image-hosts');
+const { version: webPackageVersion } = require('./package.json');
+const webBuildSha =
+	process.env.NEXT_PUBLIC_BUILD_SHA || process.env.VERCEL_GIT_COMMIT_SHA || process.env.GITHUB_SHA || 'dev';
 const withBundleAnalyzer = require('@next/bundle-analyzer')({
 	enabled: process.env.ANALYZE === 'true'
 });
@@ -7,42 +12,11 @@ const isProduction = process.env.NODE_ENV === 'production';
 
 const isSentryEnabled = isProduction && process.env.SENTRY_DSN;
 
-// Parse images hosts from environment variable
-const parseImagesHosts = () => {
-	const hostsEnv = process.env.NEXT_PUBLIC_IMAGES_HOSTS;
-	if (!hostsEnv) {
-		// Default hosts if environment variable is not set
-		return [
-			'dummyimage.com',
-			'res.cloudinary.com',
-			'gauzy.sfo2.digitaloceanspaces.com',
-			'cdn-icons-png.flaticon.com',
-			'api.gauzy.co',
-			'apida.gauzy.co',
-			'apicw.gauzy.co',
-			'apicivo.gauzy.co',
-			'apidev.gauzy.co',
-			'apidemo.gauzy.co',
-			'apidemocw.gauzy.co',
-			'apidemodt.gauzy.co',
-			'apidemodts.gauzy.co',
-			'apidemocivo.gauzy.co',
-			'apidemoda.gauzy.co',
-			'apistage.gauzy.co',
-			'apistagecivo.gauzy.co',
-			'apistagecw.gauzy.co',
-			'apistageda.gauzy.co',
-			'apistagedt.gauzy.co',
-			'apistagedts.gauzy.co',
-			'api.ever.team',
-			'app.ever.team',
-			'apidev.ever.team',
-			'gauzy.s3.wasabisys.com',
-			'gauzystage.s3.wasabisys.com'
-		];
-	}
-	return hostsEnv.split(',').map((host) => host.trim());
-};
+// Parse images hosts from environment variable (defaults when unset: image-hosts.js DEFAULT_IMAGE_HOSTS).
+// The default list and the parsing live in image-hosts.js, shared with proxy.ts: this list is frozen
+// into the build (images.remotePatterns below), while hosts added at runtime are served unoptimized
+// by proxy.ts (core/lib/helpers/image-request.ts).
+const parseImagesHosts = () => parseImageHosts(process.env.NEXT_PUBLIC_IMAGES_HOSTS);
 
 const allowedImageHosts = parseImagesHosts();
 const localImageHosts = [
@@ -60,81 +34,69 @@ const localImageHosts = [
 	}
 ];
 
+// next/image optimizer allowlist (images.remotePatterns). BUILD-time: output 'standalone' serializes
+// the resolved config into server.js, so container env cannot change it. The same list reaches
+// proxy.ts through the EVER_TEAMS_OPTIMIZED_IMAGE_HOSTS env key below.
+const imageRemotePatterns = [
+	// Static localhost patterns
+	...localImageHosts.map((host) => ({
+		protocol: 'http',
+		hostname: host.hostname,
+		port: host.port
+	})),
+	// Dynamic hosts from environment variable
+	...allowedImageHosts.map((hostname) => ({
+		protocol: 'https',
+		hostname: hostname,
+		port: ''
+	}))
+];
+
 const BUILD_OUTPUT_MODE = process.env.NEXT_BUILD_OUTPUT_TYPE;
 
-const sentryConfig = isSentryEnabled && {
-	sentry: {
-		// For all available options, see: https://docs.sentry.io/platforms/javascript/guides/nextjs/manual-setup/
-
-		// Upload a larger set of source maps for prettier stack traces (increases build time)
-		widenClientFileUpload: true,
-
-		// Transpiles SDK to be compatible with IE11 (increases bundle size)
-		transpileClientSDK: true,
-
-		// Routes browser requests to Sentry through a Next.js rewrite to circumvent ad-blockers (increases server load)
-		tunnelRoute: '/monitoring',
-
-		// Hides source maps from generated client bundles
-		hideSourceMaps: true,
-
-		// Automatically tree-shake Sentry logger statements to reduce bundle size
-		disableLogger: true
-	}
-};
+// Left unset, Next takes the directory of the highest lockfile above apps/web as the workspace root,
+// so a stray lockfile in a parent folder (e.g. the home directory) wins over the monorepo. The
+// standalone output must stay laid out as apps/web/server.js (Docker CMD, Procfile, server-web).
+const workspaceRoot = path.resolve(__dirname, '../..');
 // Next.js 16: eslint configuration in next.config.js is no longer supported
 // Use eslint.config.mjs for ESLint configuration instead
 /** @type {import('next').NextConfig} */
 const nextConfig = {
 	output: ['standalone', 'export'].includes(BUILD_OUTPUT_MODE) ? BUILD_OUTPUT_MODE : undefined,
+	outputFileTracingRoot: workspaceRoot,
 	// Next.js 16: Cache Components for explicit caching control
 	// Note: Disabled for now due to incompatibility with route segment config "runtime"
 	// cacheComponents: true,
 	experimental: {
-		optimizePackageImports: [
-			'geist',
-			'@ever-teams/constants',
-			'@ever-teams/hooks',
-			'@ever-teams/services',
-			'@ever-teams/tookit',
-			'@ever-teams/tookit-ui',
-			'@ever-teams/tookit-types',
-			'@ever-teams/types',
-			'@ever-teams/utils',
-			'@ever-teams/ui'
-		],
+		// No optimizePackageImports list: Next 16 already rewrites lodash imports per method and optimizes
+		// react-icons/* and the @heroicons/react sets used here by default, while @radix-ui/react-icons and
+		// country-flag-icons/react/1x1 keep every icon in a single module that it cannot split.
 		// Turbopack caching is enabled by default in Next.js 16
 	},
+	// One turbopack object: a second `turbopack:` key would silently replace the first.
+	turbopack: {
+		root: workspaceRoot,
+		resolveAlias: {
+			// Turbopack ignores excludeDefaultMomentLocales, so the dynamic require('./locale/' + name) in
+			// moment.js bundles all 137 locale files on every route. The min build has no locale folder next
+			// to it, and the app only uses moment's built-in English locale. moment-timezone requires
+			// 'moment' too, so it resolves to the same instance.
+			// moment.locale('xx') and import 'moment/locale/xx' do not reach this instance: before using a
+			// moment locale, remove this alias (or point it at moment/min/moment-with-locales.min.js).
+			moment: 'moment/min/moment.min.js'
+		}
+	},
 	transpilePackages: [
-		'geist',
+		// Their entry point is raw TypeScript (main: ./src/index.ts), so Next must compile them once imported.
 		'@ever-teams/constants',
-		'@ever-teams/hooks',
-		'@ever-teams/services',
 		'@ever-teams/types',
-		'@ever-teams/utils',
-		'@ever-teams/ui',
 		'@radix-ui/react-icons',
-		'react-icons',
 		'@heroicons/react'
 	],
 
 	images: {
 		// Next.js 16: remotePatterns replaces deprecated domains config
-		remotePatterns: [
-			// Static localhost patterns
-			...localImageHosts.map((host) => ({
-				protocol: 'http',
-				hostname: host.hostname,
-				port: host.port
-			})),
-			// Dynamic hosts from environment variable
-			...allowedImageHosts.map((hostname) => ({
-				protocol: 'https',
-				hostname: hostname,
-				port: ''
-			}))
-		],
-
+		remotePatterns: imageRemotePatterns
 	},
 	async rewrites() {
 		// Next.js 16: rewrites should return an object with beforeFiles, afterFiles, and fallback
@@ -149,29 +111,23 @@ const nextConfig = {
 			fallback: []
 		};
 	},
+	// Only BUILD-identity values belong here: Next inlines every key of this block into the client AND
+	// server bundles at build time. Branding (APP_NAME, APP_LOGO_URL, COMPANY_*, TERMS_LINK,
+	// MAIN_PICTURE*, ...) is deliberately NOT listed: it is read at runtime (env-config.ts
+	// readRuntimeEnv + the runtime env <script> in app/[locale]/layout.tsx), so a published Docker
+	// image can be rebranded with container env instead of a rebuild.
 	env: {
-		APP_NAME: process.env.APP_NAME,
-		APP_SIGNATURE: process.env.APP_SIGNATURE,
-		APP_LOGO_URL: process.env.APP_LOGO_URL,
-		APP_LINK: process.env.APP_LINK,
-		APP_SLOGAN_TEXT: process.env.APP_SLOGAN_TEXT,
-		COMPANY_NAME: process.env.COMPANY_NAME,
-		COMPANY_LINK: process.env.COMPANY_LINK,
-		TERMS_LINK: process.env.TERMS_LINK,
-		PRIVACY_POLICY_LINK: process.env.PRIVACY_POLICY_LINK,
-		MAIN_PICTURE: process.env.MAIN_PICTURE,
-		MAIN_PICTURE_DARK: process.env.MAIN_PICTURE_DARK,
-		// New branding variables
-		NEXT_PUBLIC_SITE_NAME: process.env.NEXT_PUBLIC_SITE_NAME,
-		NEXT_PUBLIC_SITE_TITLE: process.env.NEXT_PUBLIC_SITE_TITLE,
-		NEXT_PUBLIC_SITE_DESCRIPTION: process.env.NEXT_PUBLIC_SITE_DESCRIPTION,
-		NEXT_PUBLIC_SITE_KEYWORDS: process.env.NEXT_PUBLIC_SITE_KEYWORDS,
-		NEXT_PUBLIC_WEB_APP_URL: process.env.NEXT_PUBLIC_WEB_APP_URL,
-		NEXT_PUBLIC_TWITTER_USERNAME: process.env.NEXT_PUBLIC_TWITTER_USERNAME,
+		NEXT_PUBLIC_BUILD_VERSION: process.env.NEXT_PUBLIC_BUILD_VERSION || webPackageVersion,
+		NEXT_PUBLIC_BUILD_SHA: webBuildSha,
+		// NEXT_PUBLIC_SITE_* / NEXT_PUBLIC_WEB_APP_URL / NEXT_PUBLIC_TWITTER_USERNAME used to be listed here too;
+		// like every NEXT_PUBLIC_* they are read at runtime (readRuntimeEnv), never pinned by this block.
+		// Build-time by nature: the hosts the /_next/image optimizer accepts (images.remotePatterns is
+		// frozen into the build). proxy.ts compares them with the RUNTIME image hosts, and serves hosts
+		// allowed only at runtime unoptimized instead of letting the optimizer reject them.
+		EVER_TEAMS_OPTIMIZED_IMAGE_HOSTS: serializeImageRemotePatterns(imageRemotePatterns),
 		ANALYZE: process.env.ANALYZE
 		// NEXT_PUBLIC_DEMO is automatically accessible (no need to add it here)
-	},
-	...sentryConfig
+	}
 };
 
 // Injected content via Sentry wizard below
@@ -184,14 +140,25 @@ const sentryWebpackPluginOptions = {
 
 	silent: true, // Suppresses all logs
 
-	dryRun: process.env.NODE_ENV !== 'production'
+	// Upload a larger set of source maps for prettier stack traces (increases build time)
+	widenClientFileUpload: true,
+
+	// Webpack builds only: Turbopack, the `next build` default, ignores this option.
+	webpack: {
+		treeshake: {
+			removeDebugLogging: true
+		}
+	}
+
+	// No tunnelRoute: proxy.ts runs before rewrites and its matcher catches the tunnel path, so next-intl would
+	// rewrite or redirect Sentry's requests before the SDK's rewrite applies, and a static export
+	// (NEXT_BUILD_OUTPUT_TYPE=export) cannot serve a tunnel at all. Exclude the path from that matcher first.
 
 	// Additional config options for the Sentry Webpack plugin.
 	// Keep in mind that https://github.com/getsentry/sentry-webpack-plugin#options.
 };
 
 // Make sure adding Sentry options is the last code to run before exporting
-module.exports =
-	process.env.NODE_ENV === 'production' && process.env.SENTRY_DSN
-		? withSentryConfig(withNextIntl(withBundleAnalyzer(nextConfig)), sentryWebpackPluginOptions)
-		: withNextIntl(withBundleAnalyzer(nextConfig));
+module.exports = isSentryEnabled
+	? withSentryConfig(withNextIntl(withBundleAnalyzer(nextConfig)), sentryWebpackPluginOptions)
+	: withNextIntl(withBundleAnalyzer(nextConfig));

@@ -15,12 +15,15 @@
  */
 
 import { jwtDecode } from 'jwt-decode';
+import { logInDev } from '@/core/lib/helpers/error-message';
 
 export interface JWTPayload {
 	id: string;
 	email?: string;
 	tenantId: string | null;
 	employeeId?: string | null;
+	/** The organization the token acts in: Gauzy confines a non-admin to it (organization boundary). */
+	organizationId?: string | null;
 	role: string | null;
 	permissions?: Array<{ permission: string; enabled: boolean }> | null;
 	iat: number; // Issued At (timestamp in seconds)
@@ -55,6 +58,18 @@ export function decodeJWT(token: string): JWTPayload | null {
 		console.error('[JWT] Failed to decode token:', error);
 		return null;
 	}
+}
+
+/**
+ * The user organization `token` acts in, else the first one. Gauzy confines a non-admin to the token's organization, so
+ * after a sign-in the organization cookie must name that one; the first organization of the list can be another.
+ */
+export function pickTokenOrganization<T extends { organizationId?: string | null }>(
+	items: T[] | undefined,
+	token: string
+): T | undefined {
+	const tokenOrganizationId = decodeJWT(token)?.organizationId;
+	return items?.find((item) => item.organizationId === tokenOrganizationId) ?? items?.[0];
 }
 
 /**
@@ -157,7 +172,7 @@ export function calculateRefreshInterval(token: string): number {
 	// Apply constraints
 	const interval = Math.max(MIN_INTERVAL, Math.min(optimalInterval, MAX_INTERVAL));
 
-	console.log(`[JWT] Token lifetime: ${lifetime}s, Refresh interval: ${interval / 1000 / 60}min`);
+	logInDev(`[JWT] Token lifetime: ${lifetime}s, Refresh interval: ${interval / 1000 / 60}min`);
 
 	return interval;
 }

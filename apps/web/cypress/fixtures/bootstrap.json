@@ -1,0 +1,38 @@
+{
+	"ids": {
+		"tenantA": "11111111-1111-4111-8111-111111111111",
+		"tenantB": "11111111-1111-4111-8111-222222222222",
+		"organizationA": "22222222-2222-4222-8222-111111111111",
+		"organizationB": "22222222-2222-4222-8222-222222222222",
+		"teamA": "33333333-3333-4333-8333-111111111111",
+		"teamB": "33333333-3333-4333-8333-222222222222",
+		"user": "44444444-4444-4444-8444-111111111111",
+		"employee": "55555555-5555-4555-8555-111111111111",
+		"member": "66666666-6666-4666-8666-111111111111",
+		"teammateUser": "44444444-4444-4444-8444-222222222222",
+		"teammateEmployee": "55555555-5555-4555-8555-222222222222",
+		"teammateMember": "66666666-6666-4666-8666-222222222222",
+		"deniedUser": "44444444-4444-4444-8444-333333333333",
+		"deniedEmployee": "55555555-5555-4555-8555-333333333333",
+		"task": "77777777-7777-4777-8777-111111111111",
+		"todoStatus": "88888888-8888-4888-8888-111111111111",
+		"inProgressStatus": "88888888-8888-4888-8888-222222222222",
+		"role": "99999999-9999-4999-8999-111111111111",
+		"project": "aaaaaaaa-aaaa-4aaa-8aaa-111111111111",
+		"plan": "bbbbbbbb-bbbb-4bbb-8bbb-111111111111",
+		"invite": "cccccccc-cccc-4ccc-8ccc-111111111111"
+	},
+	"names": {
+		"workspaceA": "Fixture Workspace A",
+		"workspaceB": "Fixture Workspace B",
+		"organizationA": "Fixture Organization A",
+		"organizationB": "Fixture Organization B",
+		"teamA": "Fixture Team A",
+		"teamB": "Fixture Team B",
+		"user": "Fixture Manager",
+		"teammate": "Fixture Teammate",
+		"denied": "Fixture Restricted Teammate",
+		"task": "Fixture active task"
+	},
+	"profileLink": "fixture-team"
+}

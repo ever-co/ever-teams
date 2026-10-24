@@ -3,7 +3,6 @@ import { secondsToTime } from '@/core/lib/helpers/index';
 import {
 	useCollaborative,
 	useTMCardTaskEdit,
-	useTaskStatistics,
 	useMemberIdentity,
 	useMemberActiveTask,
 	useTeamMemberMutations,
@@ -14,6 +13,7 @@ import { useEmployeeDailyPlans } from '@/core/hooks/daily-plans/use-employee-dai
 import { IClassName } from '@/core/types/interfaces/common/class-name';
 import {
 	activeTaskStatisticsState,
+	activeTeamState,
 	activeTeamManagersState,
 	timerSecondsState,
 	userDetailAccordion as userAccordion
@@ -35,7 +35,6 @@ import { AppsTab } from '@/core/components/pages/profile/apps';
 import { VisitedSitesTab } from '@/core/components/pages/profile/visited-sites';
 import { FilterTab } from '@/app/[locale]/(main)/profile/[memberId]/page';
 import { Loader } from 'lucide-react';
-import { fullWidthState } from '@/core/stores/common/full-width';
 import { useTaskFilter } from '@/core/hooks/tasks/use-task-filter';
 import { ScreenshootTab } from '@/core/components/pages/profile/screenshots/screenshoots';
 import { InputField } from '@/core/components/duplicated-components/_input';
@@ -54,6 +53,8 @@ import {
 	UserProfileTaskSkeleton
 } from '@/core/components/common/skeleton/profile-component-skeletons';
 import { uniqueId } from 'lodash';
+import { normalizeProfileActivityTimeZone } from '@/core/hooks/activities/use-profile-activity';
+import type { TProfileActivityScope } from '@/core/types/schemas/activities/profile-activity.schema';
 
 type IUserTeamCard = {
 	active?: boolean;
@@ -94,7 +95,7 @@ const ChevronToggleButton = React.memo(
 	}
 );
 
-export function UserTeamCard({
+export const UserTeamCard = React.memo(function UserTeamCard({
 	className,
 	active,
 	member,
@@ -105,16 +106,9 @@ export function UserTeamCard({
 	onDragEnter = () => null,
 	onDragOver = () => null
 }: IUserTeamCard) {
-	const t = useTranslations();
-
 	const { data: user } = useUserQuery();
 
-	// Memoize expensive hook calls
-	const profile = useUserProfilePage();
 	const [userDetailAccordion, setUserDetailAccordion] = useAtom(userAccordion);
-	// Use isolated tab state for UserTeamCard to prevent global state leak from profile page
-	// With 'auto' default: shows daily plans if user has them, otherwise shows assigned tasks
-	const hook = useTaskFilter(profile, { persistState: false, defaultTab: 'auto' });
 	// Granular hooks — "pay only for what you use"
 	const identity = useMemberIdentity(member);
 	const memberTask = useMemberActiveTask(member);
@@ -129,16 +123,12 @@ export function UserTeamCard({
 
 	const taskEdition = useTMCardTaskEdit(memberTask);
 	const { collaborativeSelect, user_selected, onUserSelect } = useCollaborative(identity.memberUser);
-	const fullWidth = useAtomValue(fullWidthState);
 
-	const seconds = useAtomValue(timerSecondsState);
 	const setActivityFilter = useSetAtom(activityTypeState);
 
-	const statActiveTask = useAtomValue(activeTaskStatisticsState);
-	const activeTaskTotalStat = statActiveTask.total;
-	const { addSeconds } = useTaskStatistics(seconds);
 	const [showActivity, setShowActivity] = React.useState<boolean>(false);
 	const activeTeamManagers = useAtomValue(activeTeamManagersState);
+	const activeTeam = useAtomValue(activeTeamState);
 
 	const isManagerConnectedUser = activeTeamManagers.findIndex((member) => member.employee?.user?.id === user?.id);
 
@@ -171,29 +161,6 @@ export function UserTeamCard({
 		[setUserDetailAccordion, setActivityFilter]
 	);
 
-	let totalWork = <></>;
-	if (identity.isAuthUser) {
-		const { hours: h, minutes: m } = secondsToTime(
-			((member?.totalTodayTasks &&
-				member?.totalTodayTasks.reduce(
-					(previousValue: number, currentValue: TTaskStatistics) =>
-						previousValue + (currentValue.duration || 0),
-					0
-				)) ||
-				activeTaskTotalStat?.duration ||
-				0) + addSeconds
-		);
-
-		totalWork = (
-			<div className={clsxm('flex flex-col gap-1 items-center mr-4 font-normal')}>
-				<span className="text-xs text-gray-500">{t('common.TOTAL_TIME')}:</span>
-				<Text className="text-xs">
-					{h}h : {m}m
-				</Text>
-			</div>
-		);
-	}
-
 	const menu = (
 		<>
 			{(!collaborativeSelect || active) && (
@@ -218,24 +185,6 @@ export function UserTeamCard({
 		</>
 	);
 	const [activityFilter, setActivity] = useState<FilterTab>('Tasks');
-
-	const activityScreens = useMemo(() => {
-		return {
-			Tasks: (
-				<LazyUserProfileTask
-					profile={profile}
-					tabFiltered={hook}
-					user={member?.employee?.user}
-					employeeId={member?.employeeId}
-					paginateTasks={true}
-					useVirtualization={hook.tasksFiltered?.length > ITEMS_LENGTH_TO_VIRTUALIZED}
-				/>
-			),
-			Screenshots: <ScreenshootTab />,
-			Apps: <AppsTab />,
-			'Visited Sites': <VisitedSitesTab />
-		};
-	}, [profile, hook, member?.employee?.user, member?.employeeId]);
 	const changeActivityFilter = useCallback(
 		(filter: FilterTab) => {
 			setActivity(filter);
@@ -251,6 +200,27 @@ export function UserTeamCard({
 
 		return result;
 	}, [identity.memberUser?.id, user?.id, isManagerConnectedUser]);
+	const activityScope = useMemo<TProfileActivityScope | undefined>(() => {
+		if (publicTeam || !canSeeActivity || !targetEmployeeId || !activeTeam?.tenantId || !activeTeam.organizationId) {
+			return undefined;
+		}
+
+		return {
+			tenantId: activeTeam.tenantId,
+			organizationId: activeTeam.organizationId,
+			organizationTeamId: activeTeam.id,
+			employeeId: targetEmployeeId,
+			timeZone: normalizeProfileActivityTimeZone(user?.timeZone)
+		};
+	}, [
+		activeTeam?.id,
+		activeTeam?.organizationId,
+		activeTeam?.tenantId,
+		canSeeActivity,
+		publicTeam,
+		targetEmployeeId,
+		user?.timeZone
+	]);
 
 	// Use the memoized accordion state from above
 
@@ -270,12 +240,11 @@ export function UserTeamCard({
 			onDragEnter={onDragEnter}
 			onDragEnd={onDragEnd}
 			onDragOver={onDragOver}
-			ref={profile?.loadTaskStatsIObserverRef}
 		>
 			<EverCard
 				shadow="bigger"
 				className={clsxm(
-					'sm:flex sm:flex-col hidden transition-all dark:bg-[#1E2025] min-h-24 !py-2.5 px-2.5 md:px-4 sm:justify-center',
+					'sm:flex sm:flex-col hidden transition-all dark:bg-card min-h-24 !py-2.5 px-2.5 md:px-4 sm:justify-center',
 					active
 						? ['border-primary-light border-[0.1875rem]']
 						: ['dark:border border border-transparent dark:border-[#FFFFFF14]'],
@@ -387,38 +356,13 @@ export function UserTeamCard({
 					<div className="absolute right-2">{menu}</div>
 				</div>
 				{isAccordionExpanded && canSeeActivity && !showActivity ? (
-					isLoadingMemberData ? (
-						// Show skeleton while loading member data
-						<div className="overflow-y-auto h-96">
-							<UserProfileTaskSkeleton />
-						</div>
-					) : (
-						// Show content once loaded
-						<div className="overflow-y-auto h-96">
-							<Container fullWidth={fullWidth} className="px-3 py-5 xl:px-0">
-								<div className={clsxm('flex gap-4 justify-start items-center mt-3')}>
-									{Object.keys(activityScreens).map((filter, i) => (
-										<div
-											key={uniqueId(`${i + 1}`)}
-											className="flex gap-4 justify-start items-center cursor-pointer"
-										>
-											{i !== 0 && <VerticalSeparator />}
-											<div
-												className={clsxm(
-													'text-gray-500',
-													activityFilter == filter && 'text-black dark:text-white'
-												)}
-												onClick={() => changeActivityFilter(filter as FilterTab)}
-											>
-												{filter}
-											</div>
-										</div>
-									))}
-								</div>
-							</Container>
-							{activityScreens[activityFilter] ?? null}
-						</div>
-					)
+					<MemberActivityPanel
+						member={member}
+						activityScope={activityScope}
+						activityFilter={activityFilter}
+						onActivityFilterChange={changeActivityFilter}
+						isLoading={isLoadingMemberData}
+					/>
 				) : isAccordionExpanded ? (
 					<div className="flex justify-center items-center w-full h-20">
 						<Loader className="animate-spin" />
@@ -426,7 +370,11 @@ export function UserTeamCard({
 				) : null}
 				{showActivity && (
 					<Suspense fallback={<UserTeamActivitySkeleton />}>
-						<LazyUserTeamActivity showActivity={showActivity} member={member} />
+						<LazyUserTeamActivity
+							showActivity={showActivity}
+							member={member}
+							canSeeActivity={canSeeActivity}
+						/>
 					</Suspense>
 				)}
 			</EverCard>
@@ -440,16 +388,11 @@ export function UserTeamCard({
 			>
 				<div className="flex justify-between items-center mb-4">
 					<UserInfo memberInfo={identity} publicTeam={publicTeam} className="w-9/12" />
-					{totalWork}
+					{identity.isAuthUser && <AuthUserTotalWork member={member} />}
 				</div>
 
 				<div className="flex flex-wrap justify-between items-start pb-4 border-b">
-					<TaskInfo
-						edition={taskEdition}
-						className="px-4"
-						publicTeam={publicTeam}
-						tab="default"
-					/>
+					<TaskInfo edition={taskEdition} className="px-4" publicTeam={publicTeam} tab="default" />
 				</div>
 
 				<div className="flex justify-between items-center mt-4 mb-4 space-x-5">
@@ -477,6 +420,109 @@ export function UserTeamCard({
 			{/* {currentExit && (
 				<HorizontalSeparator className="mt-2 !border-primary-light dark:!border-primary-light !border-t-2" />
 			)} */}
+		</div>
+	);
+});
+
+// Only the authenticated member's card shows this total, so only that card subscribes to the per-second timer
+function AuthUserTotalWork({ member }: Readonly<{ member: IUserTeamCard['member'] }>) {
+	const t = useTranslations();
+	const seconds = useAtomValue(timerSecondsState);
+	const statActiveTask = useAtomValue(activeTaskStatisticsState);
+	const activeTaskTotalStat = statActiveTask.total;
+
+	const { hours: h, minutes: m } = secondsToTime(
+		((member?.totalTodayTasks &&
+			member?.totalTodayTasks.reduce(
+				(previousValue: number, currentValue: TTaskStatistics) => previousValue + (currentValue.duration || 0),
+				0
+			)) ||
+			activeTaskTotalStat?.duration ||
+			0) + seconds
+	);
+
+	return (
+		<div className={clsxm('flex flex-col gap-1 items-center mr-4 font-normal')}>
+			<span className="text-xs text-gray-500">{t('common.TOTAL_TIME')}:</span>
+			<Text className="text-xs">
+				{h}h : {m}m
+			</Text>
+		</div>
+	);
+}
+
+type MemberActivityPanelProps = {
+	member: IUserTeamCard['member'];
+	activityScope?: TProfileActivityScope;
+	activityFilter: FilterTab;
+	onActivityFilterChange: (filter: FilterTab) => void;
+	isLoading: boolean;
+};
+
+// Mounted only in the expanded card, so the profile and task filter hooks run once instead of once per member row
+function MemberActivityPanel({
+	member,
+	activityScope,
+	activityFilter,
+	onActivityFilterChange,
+	isLoading
+}: Readonly<MemberActivityPanelProps>) {
+	const profile = useUserProfilePage();
+	// Use isolated tab state for UserTeamCard to prevent global state leak from profile page
+	// With 'auto' default: shows daily plans if user has them, otherwise shows assigned tasks
+	const hook = useTaskFilter(profile, { persistState: false, defaultTab: 'auto', statsCount: 0 });
+
+	const activityScreens = useMemo(() => {
+		return {
+			Tasks: (
+				<LazyUserProfileTask
+					profile={profile}
+					tabFiltered={hook}
+					user={member?.employee?.user}
+					employeeId={member?.employeeId}
+					activityScope={activityScope}
+					paginateTasks={true}
+					useVirtualization={hook.tasksFiltered?.length > ITEMS_LENGTH_TO_VIRTUALIZED}
+				/>
+			),
+			Screenshots: <ScreenshootTab />,
+			Apps: <AppsTab />,
+			'Visited Sites': <VisitedSitesTab />
+		};
+	}, [activityScope, profile, hook, member?.employee?.user, member?.employeeId]);
+
+	return (
+		<div className="overflow-y-auto h-96" ref={profile.loadTaskStatsIObserverRef}>
+			{isLoading ? (
+				// Show skeleton while loading member data
+				<UserProfileTaskSkeleton />
+			) : (
+				// Show content once loaded
+				<>
+					<Container className="px-3 py-5 xl:px-0">
+						<div className={clsxm('flex gap-4 justify-start items-center mt-3')}>
+							{Object.keys(activityScreens).map((filter, i) => (
+								<div
+									key={uniqueId(`${i + 1}`)}
+									className="flex gap-4 justify-start items-center cursor-pointer"
+								>
+									{i !== 0 && <VerticalSeparator />}
+									<div
+										className={clsxm(
+											'text-gray-500',
+											activityFilter == filter && 'text-black dark:text-white'
+										)}
+										onClick={() => onActivityFilterChange(filter as FilterTab)}
+									>
+										{filter}
+									</div>
+								</div>
+							))}
+						</div>
+					</Container>
+					{activityScreens[activityFilter] ?? null}
+				</>
+			)}
 		</div>
 	);
 }

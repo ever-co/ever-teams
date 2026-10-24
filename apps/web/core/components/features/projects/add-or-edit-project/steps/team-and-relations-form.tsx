@@ -5,7 +5,7 @@ import { Identifiable, Select, Thumbnail } from './basic-information-form';
 import { IStepElementProps } from '../container';
 import { cn } from '@/core/lib/helpers';
 import { useTranslations } from 'next-intl';
-import { getInitialValue } from '@/core/lib/helpers/create-project';
+import { getInitialValue, resolveProjectRoleId } from '@/core/lib/helpers/create-project';
 import { EProjectRelation } from '@/core/types/generics/enums/project';
 import { ERoleName } from '@/core/types/generics/enums/role';
 import { TProjectRelation } from '@/core/types/schemas';
@@ -228,7 +228,7 @@ export default function TeamAndRelationsForm(props: IStepElementProps) {
 										'flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-medium transition-colors',
 										isSelected
 											? 'bg-primary text-primary-foreground'
-											: 'bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700',
+											: 'bg-gray-100 dark:bg-muted hover:bg-gray-200 dark:hover:bg-muted',
 										isLocked && isSelected && 'cursor-not-allowed opacity-80'
 									)}
 									title={
@@ -269,11 +269,12 @@ export default function TeamAndRelationsForm(props: IStepElementProps) {
 						{members.length ? (
 							members.map((el) => (
 								<PairingItem
-									selected={[el.memberId, el.roleId]}
+									selected={[el.memberId, resolveProjectRoleId(el.roleId, rolesFromApi)]}
 									keys={allMembers}
 									values={availableRoles}
 									onRemove={handleRemoveMember}
-									key={el.id}
+									// PairingItem copies `selected` once: remount it when the loaded roles replace the fallback ones.
+									key={rolesFromApi.length ? el.id : `${el.id}-fallback`}
 									id={el.id}
 									keysLabel={t('pages.projects.teamAndRelationsForm.formFields.selectMember')}
 									valuesLabel={t('pages.projects.teamAndRelationsForm.formFields.selectRole')}

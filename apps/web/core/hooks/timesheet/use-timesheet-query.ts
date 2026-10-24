@@ -27,7 +27,7 @@ import {
  * Handles: query, params synchronization, Jotai sync, search filtering, and view-mode grouping.
  */
 export function useTimesheetQuery({ startDate, endDate, timesheetViewMode, inputSearch }: TimesheetParams) {
-	const { user } = useAuthenticateUser();
+	const { user, isTeamManager } = useAuthenticateUser();
 	const [timesheet, setTimesheet] = useAtom(timesheetRapportState);
 	const {
 		employee,
@@ -44,7 +44,8 @@ export function useTimesheetQuery({ startDate, endDate, timesheetViewMode, input
 		handleSelectRowTimesheet
 	} = useTimelogFilterOptions();
 
-	const isManage = user && isUserAllowedToAccess(user);
+	// A team manager usually holds the EMPLOYEE role; the API checks which members they manage
+	const isManage = user && (isUserAllowedToAccess(user) || isTeamManager);
 
 	// ─── Query Params State ──────────────────────────────────────────────────
 	const [timesheetParams, setTimesheetParams] = useState<{

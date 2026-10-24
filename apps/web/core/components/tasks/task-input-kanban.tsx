@@ -1,4 +1,5 @@
 'use client';
+import { logErrorInDev } from '@/core/lib/helpers/error-message';
 
 import {
 	HostKeys,
@@ -175,10 +176,15 @@ export function TaskInputKanban(props: Props) {
 					assignToUsers: props.usersTaskCreatedAssignTo || []
 				})
 				?.then(onTaskCreated)
-				.finally(async () => {
+				.then(() => {
 					setTaskName('');
 
 					props.onClose && props.onClose();
+				})
+				.catch((error) => {
+					// useCreateTask already showed the error toast; the modal stays open for a retry. Logged so a
+					// failure in the caller's onTaskCreated is not swallowed silently.
+					logErrorInDev('[TaskInputKanban] task creation flow failed', error);
 				});
 	}, [datas, props, onTaskCreated]);
 
@@ -253,7 +259,7 @@ export function TaskInputKanban(props: Props) {
 			disabled={timerRunningStatus}
 			// ref={targetEl}
 			autoFocus={props.autoFocus}
-			wrapperClassName={`rounded-lg dark:bg-[#1B1D22]`}
+			wrapperClassName={`rounded-lg dark:bg-card`}
 			placeholder={props.placeholder || t('form.TASK_INPUT_PLACEHOLDER')}
 			onFocus={(e) => {
 				setEditMode(true);
@@ -286,7 +292,7 @@ export function TaskInputKanban(props: Props) {
 			}
 			className={clsxm(
 				showTaskNumber && inputTask && ['pl-6'],
-				'dark:bg-[#1B1D22]',
+				'dark:bg-card',
 				props.initEditMode && 'h-10'
 			)}
 			/* Showing the task number. */
@@ -512,7 +518,7 @@ function TaskCard({
 											taskDescription.current = e.target.value;
 										}
 									}}
-									className={'dark:bg-[#1B1D22]'}
+									className={'dark:bg-card'}
 								/>
 
 								<div className="flex flex-wrap gap-2 justify-start">

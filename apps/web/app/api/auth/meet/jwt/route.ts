@@ -1,14 +1,12 @@
 import { MEET_DOMAIN, MEET_JWT_APP_ID, MEET_JWT_APP_SECRET } from '@/core/constants/config/constants';
-// import {
-// 	// getMeetJwtSessionCookie,
-// 	setMeetJwtSessionCookie,
-// } from '@app/helpers';
 import { authenticatedGuard } from '@/core/services/server/guards/authenticated-guard-app';
 import jwt from 'jsonwebtoken';
 
 import { NextResponse } from 'next/server';
 
-const algo: jwt.SignOptions = { algorithm: 'HS256' };
+// Jitsi checks a token when the participant joins, not during the meeting: the expiry only bounds a leaked token
+const TOKEN_TTL = '1h';
+
 type Params = {
 	name: string;
 	email: string;
@@ -37,7 +35,24 @@ function generateToken(params: Params): string {
 		room: params.room
 	};
 
-	return jwt.sign(payload, params.appkey, algo);
+	return jwt.sign(payload, params.appkey, { algorithm: 'HS256', expiresIn: TOKEN_TTL });
+}
+
+/**
+ * The Jitsi room a meeting link opens for a tenant. Jitsi lowercases and URI-encodes room names before
+ * matching them against the token, so the name keeps only characters both leave unchanged (accents dropped,
+ * the rest turned into "-"). The tenant follows the first "_", which the name part never contains, so no
+ * room name can reach another tenant's room.
+ */
+function tenantRoomName(tenantId: string, room: string) {
+	const name = room
+		.normalize('NFKD')
+		.replace(/[\u0300-\u036f]/g, '')
+		.toLowerCase()
+		.replace(/[^a-z0-9-]+/g, '-')
+		.replace(/^-+|-+$/g, '');
+
+	return name ? `${name}_${tenantId.toLowerCase()}` : null;
 }
 
 export async function GET(req: Request) {
@@ -45,34 +60,33 @@ export async function GET(req: Request) {
 	const { $res, user } = await authenticatedGuard(req, res);
 	if (!user) return $res('Unauthorized');
 
-	if (!MEET_JWT_APP_SECRET || !MEET_JWT_APP_ID || !MEET_DOMAIN) {
-		return $res('Invalid configuration !');
+	// Session tenant, not the guard's auth-tenant-id cookie: that one is client-writable
+	if (!user.tenantId) {
+		return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 	}
 
-	// Check if existing token from cookie is valid
-	// const existing_token = getMeetJwtSessionCookie({ req, res });
-	// if (
-	// 	existing_token &&
-	// 	jwt.verify(existing_token, MEET_JWT_APP_SECRET, algo)
-	// ) {
-	// 	return $res.json({ token: existing_token });
-	// }
+	const room = tenantRoomName(user.tenantId, new URL(req.url).searchParams.get('room') ?? '');
+	if (!room) {
+		return NextResponse.json({ error: 'Missing or invalid "room" query parameter' }, { status: 400 });
+	}
 
-	// Generate new token
-	const new_token = generateToken({
+	if (!MEET_JWT_APP_SECRET || !MEET_JWT_APP_ID || !MEET_DOMAIN.value) {
+		console.error('Server misconfigured: missing Jitsi meet environment variables.');
+		return NextResponse.json({ error: 'Server misconfigured' }, { status: 500 });
+	}
+
+	// The token opens this one room only: a '*' room would let any signed-in user join every tenant's meetings
+	const token = generateToken({
 		id: user.id,
 		name: user.name || user.email?.split('@')[0] || '',
 		email: user.email || '',
 		avatar: user.imageUrl || null,
 		audience: 'jitsi',
-		room: '*',
+		room,
 		domain: MEET_DOMAIN.value,
 		appid: MEET_JWT_APP_ID,
 		appkey: MEET_JWT_APP_SECRET
 	});
 
-	// We don't use this cookie for now
-	// setMeetJwtSessionCookie(new_token, { req, res });
-
-	return NextResponse.json({ token: new_token });
+	return NextResponse.json({ token, room });
 }

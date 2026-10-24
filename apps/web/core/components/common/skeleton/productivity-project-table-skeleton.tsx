@@ -30,7 +30,7 @@ export const ProductivityProjectTableSkeleton: FC<ProductivityProjectTableSkelet
 					{[1, 2].map((projectIndex) => (
 						<Fragment key={`project-group-${projectIndex}`}>
 							{/* Project Header Row */}
-							<TableRow key={`project-header-${projectIndex}`} className="bg-gray-50/50 dark:bg-gray-800">
+							<TableRow key={`project-header-${projectIndex}`} className="bg-gray-50/50 dark:bg-muted">
 								<TableCell colSpan={5} className="py-2">
 									<div className="flex gap-2 items-center">
 										<Skeleton className="w-6 h-6 rounded-full" />
@@ -45,7 +45,7 @@ export const ProductivityProjectTableSkeleton: FC<ProductivityProjectTableSkelet
 									{/* Date Header Row */}
 									<TableRow
 										key={`date-header-${projectIndex}-${dateIndex}`}
-										className="bg-gray-50/30 dark:bg-gray-800"
+										className="bg-gray-50/30 dark:bg-muted"
 									>
 										<TableCell>
 											<Skeleton className="w-40 h-4" />

@@ -1,18 +1,19 @@
 'use client';
 
 import { useAtomValue } from 'jotai';
-import moment from 'moment';
 import { useMemo } from 'react';
 
 import { activeTeamState, activeTeamTaskState, timerStatusState } from '@/core/stores';
-import { ETimeLogSource } from '@/core/types/generics/enums/timer';
+import { ETaskStatusName } from '@/core/types/generics/enums/task';
 import { TDailyPlan } from '@/core/types/schemas/task/daily-plan.schema';
 import { TOrganizationTeam } from '@/core/types/schemas';
 import { TTask } from '@/core/types/schemas/task/task.schema';
 import { ITimerStatus } from '@/core/types/interfaces/timer/timer-status';
+import { PaginationResponse } from '@/core/types/interfaces/common/data-response';
+import { findTimerPlans } from '@/core/lib/helpers/daily-plan-day';
+import { canRunTimerForState } from '@/core/lib/helpers/timer-policy';
 
 import { useAuthenticateUser } from '../auth';
-import { useSyncRef } from '../common/use-sync-ref';
 import { useMyDailyPlans } from '../daily-plans/use-my-daily-plans';
 
 // ==================== TYPES ====================
@@ -34,8 +35,11 @@ export interface UseTimerPlanStatusReturn {
 	activeTeamTask: TTask | null;
 	/** The timer status (shared atom — avoids duplicate subscriptions in consumers) */
 	timerStatus: ITimerStatus | null;
+	/** Reads the personal plans when nothing has loaded them yet, from cache when they are fresh */
+	ensureMyDailyPlans?: () => Promise<PaginationResponse<TDailyPlan> | undefined>;
+	/** Whether the personal plans were already read in this scope */
+	hasCachedMyDailyPlans?: () => boolean;
 }
-
 
 /**
  * Lightweight read-only hook for plan-related timer state.
@@ -54,30 +58,13 @@ export function useTimerPlanStatus(): UseTimerPlanStatusReturn {
 	const activeTeam = useAtomValue(activeTeamState);
 	const activeTeamTask = useAtomValue(activeTeamTaskState);
 	const timerStatus = useAtomValue(timerStatusState);
-	const timerStatusRef = useSyncRef(timerStatus);
 
 	const { user } = useAuthenticateUser();
-	const { myDailyPlans } = useMyDailyPlans();
+	const { myDailyPlans, ensureMyDailyPlans, hasCachedMyDailyPlans } = useMyDailyPlans();
 
 	// ==================== DERIVED STATE ====================
 
-	const hasPlan = useMemo(
-		() =>
-			myDailyPlans?.items.find(
-				(plan: TDailyPlan) =>
-					moment(plan.date).format('YYYY-MM-DD') === moment().format('YYYY-MM-DD') &&
-					plan.tasks &&
-					plan.tasks?.length > 0
-			),
-		[myDailyPlans?.items]
-	);
-
-	const hasPlanForTomorrow = useMemo(() => {
-		const tomorrow = moment().add(1, 'days');
-		return myDailyPlans?.items.find(
-			(plan: TDailyPlan) => moment(plan.date).format('YYYY-MM-DD') === tomorrow.format('YYYY-MM-DD')
-		);
-	}, [myDailyPlans?.items]);
+	const { hasPlan, hasPlanForTomorrow } = useMemo(() => findTimerPlans(myDailyPlans?.items), [myDailyPlans?.items]);
 
 	const requirePlan = activeTeam?.requirePlanToTrack;
 
@@ -98,13 +85,14 @@ export function useTimerPlanStatus(): UseTimerPlanStatusReturn {
 
 	const canRunTimer = useMemo(
 		() =>
-			!!(
-				user?.isEmailVerified &&
-				((!!activeTeamTask && activeTeamTask.status !== 'closed') ||
-					timerStatusRef.current?.lastLog?.source !== ETimeLogSource.TEAMS)
-			),
-		// eslint-disable-next-line react-hooks/exhaustive-deps
-		[user?.isEmailVerified, activeTeamTask]
+			canRunTimerForState({
+				isEmailVerified: !!user?.isEmailVerified,
+				hasActiveTask: !!activeTeamTask,
+				isActiveTaskClosed: activeTeamTask?.status === ETaskStatusName.CLOSED,
+				isTimerRunning: !!timerStatus?.running,
+				timerSource: timerStatus?.lastLog?.source
+			}),
+		[user?.isEmailVerified, activeTeamTask, timerStatus?.running, timerStatus?.lastLog?.source]
 	);
 
 	// ==================== RETURN ====================
@@ -117,6 +105,8 @@ export function useTimerPlanStatus(): UseTimerPlanStatusReturn {
 		canRunTimer,
 		activeTeam,
 		activeTeamTask,
-		timerStatus
+		timerStatus,
+		ensureMyDailyPlans,
+		hasCachedMyDailyPlans
 	};
 }

@@ -1,13 +1,17 @@
 'use client';
 
 import { useAtomValue } from 'jotai';
-import { useCallback } from 'react';
+import { useCallback, useMemo } from 'react';
 import { activeTeamState, tasksByTeamState } from '@/core/stores';
 import { dailyPlanService } from '../../services/client/api';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { queryKeys } from '@/core/query/keys';
+import { orderTasksInPlans } from '@/core/lib/helpers/daily-plan-task-order';
 import { useUserQuery } from '../queries/user-user.query';
 import { useDailyPlanCalculations } from './use-daily-plan-calculations';
+import type { ApiRequestScope } from '@/core/services/client/api-request-scope';
+import { useScopeGuard } from '../bootstrap/use-scope-guard';
+import { useReactiveAccessTokenCookie } from '../auth/use-reactive-access-token-cookie';
 
 export interface UseMyDailyPlansOptions {
 	/**
@@ -16,6 +20,10 @@ export interface UseMyDailyPlansOptions {
 	 * @default true
 	 */
 	enabled?: boolean;
+	/** Captured request identity for the shell owner. */
+	scope?: ApiRequestScope;
+	/** Optional declarative refresh interval. */
+	refetchInterval?: number | false;
 }
 
 /**
@@ -44,23 +52,61 @@ export interface UseMyDailyPlansOptions {
  * ```
  */
 export function useMyDailyPlans(options?: UseMyDailyPlansOptions) {
+	const queryClient = useQueryClient();
 	const { data: user } = useUserQuery();
 	const activeTeam = useAtomValue(activeTeamState);
 	const allTeamTasks = useAtomValue(tasksByTeamState);
+	const reactiveAccessToken = useReactiveAccessTokenCookie();
 
 	// Extract options with defaults
-	const { enabled = true } = options || {};
+	const { enabled = true, scope: explicitScope, refetchInterval = false } = options || {};
+	const scope = useMemo<ApiRequestScope | undefined>(
+		() =>
+			explicitScope ?? {
+				tenantId: user?.employee?.tenantId ?? user?.tenantId,
+				organizationId: activeTeam?.organizationId ?? user?.employee?.organizationId,
+				teamId: activeTeam?.id,
+				userId: user?.id,
+				accessToken: reactiveAccessToken
+			},
+		[
+			activeTeam?.id,
+			activeTeam?.organizationId,
+			explicitScope,
+			reactiveAccessToken,
+			user?.employee?.organizationId,
+			user?.employee?.tenantId,
+			user?.id,
+			user?.tenantId
+		]
+	);
+	const canOwnScopedQuery = explicitScope !== undefined;
+	const queryKey = queryKeys.dailyPlans.myPlansByScope(
+		scope?.tenantId,
+		scope?.organizationId,
+		scope?.teamId,
+		scope?.userId
+	);
+	const isCurrentScope = useScopeGuard(queryKey, enabled);
+	const scopedReady = !!(
+		scope?.tenantId &&
+		scope.organizationId &&
+		scope.teamId &&
+		scope.userId &&
+		scope.accessToken
+	);
 
 	// ==================== QUERY ====================
 
 	const getMyDailyPlansQuery = useQuery({
-		queryKey: queryKeys.dailyPlans.myPlans(activeTeam?.id),
-		queryFn: async () => {
-			const res = await dailyPlanService.getMyDailyPlans();
-			return res;
-		},
-		enabled: enabled && !!activeTeam?.id,
-		gcTime: 1000 * 60 * 60 // 1 hour
+		queryKey,
+		queryFn: ({ signal }) => dailyPlanService.getMyDailyPlans({ scope: scope!, signal }),
+		select: orderTasksInPlans,
+		enabled: enabled && scopedReady && canOwnScopedQuery,
+		staleTime: 60_000,
+		gcTime: 1000 * 60 * 60, // 1 hour
+		refetchInterval,
+		refetchIntervalInBackground: false
 	});
 
 	// ==================== DERIVED STATE ====================
@@ -97,6 +143,39 @@ export function useMyDailyPlans(options?: UseMyDailyPlansOptions) {
 		await loadMyDailyPlans();
 	}, [loadMyDailyPlans]);
 
+	// Only the shell owns this query, and only when the team requires a plan. A consumer that needs the plans
+	// anyway reads them here: a fresh cache answers without a request.
+	const ensureMyDailyPlans = useCallback(async () => {
+		if (!enabled || !scopedReady || !scope) return undefined;
+		try {
+			const plans = await queryClient.fetchQuery({
+				queryKey: queryKeys.dailyPlans.myPlansByScope(
+					scope.tenantId,
+					scope.organizationId,
+					scope.teamId,
+					scope.userId
+				),
+				queryFn: ({ signal }) => dailyPlanService.getMyDailyPlans({ scope, signal }),
+				staleTime: 60_000,
+				// Callers fall back to the cached plans, a retry would only delay them
+				retry: false
+			});
+			return isCurrentScope() ? orderTasksInPlans(plans) : undefined;
+		} catch {
+			return undefined;
+		}
+	}, [enabled, isCurrentScope, queryClient, scope, scopedReady]);
+
+	/** Whether the personal plans were already read in this scope, so a caller can use them without waiting */
+	const hasCachedMyDailyPlans = useCallback(
+		() =>
+			!!scope &&
+			queryClient.getQueryData(
+				queryKeys.dailyPlans.myPlansByScope(scope.tenantId, scope.organizationId, scope.teamId, scope.userId)
+			) !== undefined,
+		[queryClient, scope]
+	);
+
 	return {
 		// Raw data
 		myDailyPlans: getMyDailyPlansQuery.data || { items: [], total: 0 },
@@ -114,10 +193,13 @@ export function useMyDailyPlans(options?: UseMyDailyPlansOptions) {
 		getMyDailyPlans,
 		loadMyDailyPlans,
 		firstLoadMyDailyPlans,
+		ensureMyDailyPlans,
+		hasCachedMyDailyPlans,
 
 		// Loading states
 		isLoading: getMyDailyPlansQuery.isLoading,
 		isFetching: getMyDailyPlansQuery.isFetching,
+		isSuccess: getMyDailyPlansQuery.isSuccess && isCurrentScope(),
 		isError: getMyDailyPlansQuery.isError,
 		error: getMyDailyPlansQuery.error
 	};

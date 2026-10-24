@@ -143,7 +143,7 @@ export const PersonalSettingForm: React.FC = () => {
 	return (
 		<>
 			<form
-				className="w-[96%]"
+				className="w-full"
 				autoComplete="off"
 				onSubmit={(e) => {
 					e.preventDefault();
@@ -152,35 +152,35 @@ export const PersonalSettingForm: React.FC = () => {
 				}}
 			>
 				<div id="general" className="flex flex-col justify-between items-center">
-					<div className="mt-5 w-full">
+					<div className="w-full">
 						<div>
 							{/* Full name */}
-							<div className="flex flex-col justify-between items-center w-full sm:gap-8 sm:flex-row">
-								<div className="flex flex-col justify-between items-center w-full sm:gap-4 sm:flex-row">
-									<Text className="font-normal min-w-[25%] text-gray-400 text-lg justify-center">
+							<div className="w-full py-3 first:pt-0">
+								<div className="grid w-full grid-cols-1 gap-2 sm:grid-cols-[10rem_minmax(0,1fr)] sm:items-center sm:gap-4">
+									<Text className="text-sm font-medium text-muted-foreground">
 										{t('common.FULL_NAME')}
 									</Text>
-									<div className="flex flex-col gap-2 justify-start w-full lg:flex-row">
+									<div className="flex min-w-0 flex-wrap items-center gap-2">
 										<InputField
 											type="text"
 											placeholder={t('form.FIRST_NAME_PLACEHOLDER')}
 											{...register('firstName', { required: true, maxLength: 80 })}
-											className={`w-full m-0 h-[54px] ${!editFullname ? 'disabled:bg-[#FCFCFC]' : ''}`}
+											className={`m-0 h-9 w-full ${!editFullname ? 'disabled:bg-muted/40' : ''}`}
 											disabled={!editFullname}
-											wrapperClassName="rounded-lg w-full lg:w-[230px] mb-0 mr-5"
+											wrapperClassName="mb-0 min-w-[10rem] flex-1 rounded-md"
 										/>
 										<InputField
 											type="text"
 											placeholder={t('form.LAST_NAME_PLACEHOLDER')}
 											{...register('lastName', { maxLength: 80 })}
-											className={`w-full m-0 h-[54px] ${!editFullname ? 'disabled:bg-[#FCFCFC]' : ''}`}
+											className={`m-0 h-9 w-full ${!editFullname ? 'disabled:bg-muted/40' : ''}`}
 											disabled={!editFullname}
-											wrapperClassName="rounded-lg w-full lg:w-[230px] mb-0 mr-5"
+											wrapperClassName="mb-0 min-w-[10rem] flex-1 rounded-md"
 										/>
 										{editFullname ? (
 											<Button
 												variant="primary"
-												className="min-w-[100px] h-[54px] rounded-[8px] font-[600]"
+												className="h-9 min-w-20 shrink-0 rounded-md px-3 text-sm font-medium"
 												type="button"
 												onClick={(e) => {
 													e.preventDefault();
@@ -192,7 +192,7 @@ export const PersonalSettingForm: React.FC = () => {
 										) : (
 											<Button
 												variant="grey"
-												className="min-w-[100px] h-[54px] rounded-[8px] font-[600]"
+												className="h-9 min-w-20 shrink-0 rounded-md px-3 text-sm font-medium"
 												type="button"
 												onClick={() => setEditFullname(true)}
 											>
@@ -204,12 +204,12 @@ export const PersonalSettingForm: React.FC = () => {
 							</div>
 
 							{/* Contact */}
-							<div className="flex flex-col justify-between items-center mt-8 w-full sm:gap-8 sm:flex-row">
-								<div className="flex flex-col justify-between items-center w-full sm:gap-4 sm:flex-row">
-									<Text className="font-normal min-w-[25%] text-gray-400 text-lg justify-center">
+							<div className="w-full border-t border-border py-3">
+								<div className="grid w-full grid-cols-1 gap-2 sm:grid-cols-[10rem_minmax(0,1fr)] sm:items-center sm:gap-4">
+									<Text className="text-sm font-medium text-muted-foreground">
 										{t('common.CONTACT')}
 									</Text>
-									<div className="flex flex-col gap-2 justify-start w-full lg:flex-row">
+									<div className="flex min-w-0 flex-wrap items-center gap-2">
 										<div className="relative">
 											<InputField
 												type="email"
@@ -219,11 +219,11 @@ export const PersonalSettingForm: React.FC = () => {
 													pattern:
 														/^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
 												})}
-												className={`w-full m-0 h-[54px] ${!editContacts ? 'disabled:bg-[#FCFCFC]' : ''}`}
+												className={`m-0 h-9 w-full ${!editContacts ? 'disabled:bg-muted/40' : ''}`}
 												onChange={checkEmailValidity}
 												disabled={!editContacts}
 												notValidBorder={!isValid.email}
-												wrapperClassName="rounded-lg w-full lg:w-[230px] mb-0 mr-5 "
+												wrapperClassName="mb-0 min-w-[10rem] flex-1 rounded-md"
 											/>
 											{!isValid.email && (
 												<p className="absolute -bottom-5 text-xs text-red-500">
@@ -231,7 +231,7 @@ export const PersonalSettingForm: React.FC = () => {
 												</p>
 											)}
 										</div>
-										<div className="lg:w-[230px] mb-0 mr-5 relative">
+										<div className="relative mb-0 min-w-[10rem] flex-1">
 											<InternationalPhoneInput
 												name="phoneNumber"
 												register={register}
@@ -239,14 +239,14 @@ export const PersonalSettingForm: React.FC = () => {
 												value={user?.phoneNumber || ''}
 												onChange={handlePhoneChange}
 												disabled={!editContacts}
-												className={`h-[54px] ${!editContacts ? 'bg-[#FCFCFC] dark:bg-dark--theme-light' : ''}`}
-												wrapperClassName="mb-0 h-[54px]"
+												className={`h-9 ${!editContacts ? 'bg-muted/40' : ''}`}
+												wrapperClassName="mb-0 h-9"
 											/>
 										</div>
 										{editContacts ? (
 											<Button
 												variant="primary"
-												className="min-w-[100px] h-[54px] rounded-[8px] font-[600]"
+												className="h-9 min-w-20 shrink-0 rounded-md px-3 text-sm font-medium"
 												type="button"
 												onClick={(e) => {
 													e.preventDefault();
@@ -258,7 +258,7 @@ export const PersonalSettingForm: React.FC = () => {
 										) : (
 											<Button
 												variant="grey"
-												className="min-w-[100px] h-[54px] rounded-[8px] font-[600]"
+												className="h-9 min-w-20 shrink-0 rounded-md px-3 text-sm font-medium"
 												type="button"
 												onClick={() => {
 													setEditContacts(true);
@@ -273,14 +273,14 @@ export const PersonalSettingForm: React.FC = () => {
 							</div>
 
 							{/* Theme */}
-							<div className="flex flex-col justify-between items-center mt-8 w-full sm:gap-8 sm:flex-row">
-								<div className="flex flex-col justify-between items-center w-full sm:gap-4 sm:flex-row">
-									<Text className="font-normal min-w-[25%] text-gray-400 text-lg justify-center">
+							<div className="w-full border-t border-border py-3">
+								<div className="grid w-full grid-cols-1 gap-2 sm:grid-cols-[10rem_minmax(0,1fr)] sm:items-center sm:gap-4">
+									<Text className="text-sm font-medium text-muted-foreground">
 										{t('common.THEME')}
 									</Text>
-									<div className="flex items-center w-full lg:items-start">
+									<div className="flex items-center gap-3">
 										<ThemeToggler />
-										<Text className="flex items-center ml-5 mt-2.5 text-sm font-normal text-gray-400">
+										<Text className="text-sm text-muted-foreground">
 											{theme === 'light' ? 'Light' : 'Dark'} Mode
 										</Text>
 									</div>
@@ -288,12 +288,12 @@ export const PersonalSettingForm: React.FC = () => {
 							</div>
 
 							{/* Language */}
-							<div className="flex flex-col justify-between items-center mt-8 w-full sm:gap-8 sm:flex-row">
-								<div className="flex flex-col justify-between items-center w-full sm:gap-4 sm:flex-row">
-									<Text className="font-normal min-w-[25%] text-gray-400 text-lg justify-center">
+							<div className="w-full border-t border-border py-3">
+								<div className="grid w-full grid-cols-1 gap-2 sm:grid-cols-[10rem_minmax(0,1fr)] sm:items-center sm:gap-4">
+									<Text className="text-sm font-medium text-muted-foreground">
 										{t('common.LANGUAGE')}
 									</Text>
-									<div className="flex relative flex-col w-full lg:flex-row">
+									<div className="relative flex w-full max-w-md">
 										<LanguageDropDown
 											currentLanguage={currentLanguage}
 											onChangeLanguage={handleChangeLanguage}
@@ -303,22 +303,22 @@ export const PersonalSettingForm: React.FC = () => {
 							</div>
 
 							{/* Timezone */}
-							<div className="flex flex-col justify-between items-center mt-8 w-full sm:gap-8 sm:flex-row">
-								<div className="flex flex-col justify-between items-center w-full sm:gap-4 sm:flex-row">
-									<Text className="font-normal min-w-[25%] text-gray-400 text-lg justify-center">
+							<div className="w-full border-t border-border py-3">
+								<div className="grid w-full grid-cols-1 gap-2 sm:grid-cols-[10rem_minmax(0,1fr)] sm:items-center sm:gap-4">
+									<Text className="text-sm font-medium text-muted-foreground">
 										{t('common.TIME_ZONE')}
 									</Text>
-									<div className="flex relative flex-col gap-2 w-full lg:flex-row">
+									<div className="relative flex w-full max-w-xl items-center gap-2">
 										<TimezoneDropDown
 											currentTimezone={currentTimezone}
 											onChange={handleChangeTimezone}
-											className="md:w-[469px] dark:bg-dark--theme-light"
+											className="min-w-0 flex-1"
 										/>
 										<Button
 											variant="grey"
 											type="button"
 											onClick={() => handleChangeTimezone(undefined)}
-											className="min-w-[100px] shrink-0 h-[54px] rounded-[8px] font-[600] ml-5"
+											className="h-9 shrink-0 rounded-md px-3 text-sm font-medium"
 										>
 											{t('common.DETECT')}
 										</Button>
@@ -329,14 +329,14 @@ export const PersonalSettingForm: React.FC = () => {
 							{/* Work schedule */}
 							<div
 								id="work-schedule"
-								className="flex flex-col justify-between items-center mt-8 w-full sm:gap-8 sm:flex-row"
+								className="w-full border-t border-border py-3"
 							>
-								<div className="flex flex-col justify-between items-center w-full sm:gap-4 sm:flex-row">
-									<Text className="font-normal min-w-[25%] text-gray-400 text-lg justify-center">
+								<div className="grid w-full grid-cols-1 gap-2 sm:grid-cols-[10rem_minmax(0,1fr)] sm:items-center sm:gap-4">
+									<Text className="text-sm font-medium text-muted-foreground">
 										{t('pages.settingsPersonal.WORK_SCHEDULE')}
 									</Text>
-									<div className="flex w-full">
-										<Text className="text-lg font-normal">{t('common.NO')}</Text>
+									<div className="flex items-center">
+										<Text className="text-sm text-foreground">{t('common.NO')}</Text>
 									</div>
 								</div>
 							</div>
@@ -344,14 +344,14 @@ export const PersonalSettingForm: React.FC = () => {
 							{/* Subscription */}
 							<div
 								id="subscription"
-								className="flex flex-col justify-between items-center mt-8 w-full sm:gap-8 sm:flex-row"
+								className="w-full border-t border-border py-3"
 							>
-								<div className="flex flex-col justify-between items-center w-full sm:gap-4 sm:flex-row">
-									<Text className="font-normal min-w-[25%] text-gray-400 text-lg justify-center">
+								<div className="grid w-full grid-cols-1 gap-2 sm:grid-cols-[10rem_minmax(0,1fr)] sm:items-center sm:gap-4">
+									<Text className="text-sm font-medium text-muted-foreground">
 										{t('pages.settingsPersonal.SUBSCRIPTION')}
 									</Text>
-									<div className="flex w-full">
-										<Text className="text-lg font-normal">{t('common.BASIC')}</Text>
+									<div className="flex items-center">
+										<Text className="text-sm text-foreground">{t('common.BASIC')}</Text>
 									</div>
 								</div>
 							</div>

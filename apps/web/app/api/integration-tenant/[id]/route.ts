@@ -10,8 +10,8 @@ export async function DELETE(req: Request, { params }: { params: Promise<{ id: s
 		return;
 	}
 
-	const { $res, user, access_token, tenantId, organizationId } = await authenticatedGuard(req, res);
-	if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+	const { $res, user, access_token, tenantId, organizationId, status } = await authenticatedGuard(req, res);
+	if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: status ?? 401 });
 
 	const response = await deleteIntegrationTenantRequest(integrationId, tenantId, organizationId, access_token);
 

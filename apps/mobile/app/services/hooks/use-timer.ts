@@ -150,6 +150,7 @@ export function useTimer() {
 	const timerStatusRef = useSyncRef(timerStatus);
 	const taskId = useSyncRef(activeTask?.id);
 	const activeTeamTaskRef = useSyncRef(activeTask);
+	const activeTeamIdRef = useSyncRef(activeTeamId);
 	const lastActiveTeamId = useRef<string | null>(null);
 	const lastActiveTaskId = useRef<string | null>(null);
 	const canRunTimer = !!activeTask?.id && activeTask.status !== 'Closed';
@@ -180,7 +181,8 @@ export function useTimer() {
 				tags: [],
 				taskId,
 				tenantId,
-				organizationId
+				organizationId,
+				...(activeTeamIdRef.current ? { organizationTeamId: activeTeamIdRef.current } : {})
 			},
 			authToken
 		);
@@ -215,7 +217,8 @@ export function useTimer() {
 			taskId: activeTask?.id,
 			logType: 'TRACKED',
 			source: TimerSource.MOBILE,
-			tags: []
+			tags: [],
+			...(activeTeamIdRef.current ? { organizationTeamId: activeTeamIdRef.current } : {})
 		};
 
 		const { data } = await startTimerRequest(params, authToken);

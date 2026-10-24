@@ -1,34 +1,23 @@
 import { FC, PropsWithChildren } from 'react';
 import { ToastMessageManager } from '@/core/components/common/toaster';
 import { Meta } from '@/core/components/common/meta';
-import { useAtomValue } from 'jotai';
-import { fullWidthState } from '@/core/stores/common/full-width';
 import { APP_NAME } from '@/core/constants/config/constants';
 interface AppContainerProps extends PropsWithChildren {
 	title?: string;
 }
 const AppContainer: FC<AppContainerProps> = ({ children, title = APP_NAME }) => {
-	const fullWidth = useAtomValue(fullWidthState);
 	return (
 		<>
 			<style jsx global>
 				{`
 					:root {
-						--tw-color-dark--theme: #191a20;
+						--tw-color-dark--theme: #0a0a0a;
 					}
+					/* No min-width: fit-content any more — it pinned the page to its widest row, so the
+					   content panel overflowed instead of reflowing when the chat panel took space. */
 					.mx-8-container {
-						min-width: fit-content;
-						${fullWidth
-							? `
 						margin-left: 2rem;
 						margin-right: 2rem;
-						`
-							: `	--tblr-gutter-x: 1.5rem;
-					--tblr-gutter-y: 0;
-					padding-right: calc(var(--tblr-gutter-x) * 0.5);
-					padding-left: calc(var(--tblr-gutter-x) * 0.5);
-					margin-right: auto;
-					margin-left: auto;`}
 					}
 				`}
 			</style>

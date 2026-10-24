@@ -80,7 +80,7 @@ const ScreenshotDetailsModal = ({
 		<Modal
 			isOpen={open}
 			closeModal={closeModal}
-			className="bg-white dark:border-[#26272C] dark:bg-[#191a20] dark:border rounded-[1rem] h-[44rem] lg:w-[50rem]"
+			className="bg-white dark:border-border dark:bg-background dark:border rounded-[1rem] h-[44rem] lg:w-[50rem]"
 		>
 			<div className="flex overflow-x-auto flex-col gap-5 p-5 w-full h-full">
 				<div className="flex flex-col gap-2 w-full">

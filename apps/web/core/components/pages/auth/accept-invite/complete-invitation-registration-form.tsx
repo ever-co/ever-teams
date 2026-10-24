@@ -1,4 +1,5 @@
-import { BackdropLoader, Button } from '@/core/components';
+import { BackdropLoader } from '@/core/components/common/loader';
+import { Button } from '@/core/components/common/button';
 import { Checkbox } from '@/core/components/common/checkbox';
 import { EverCard } from '@/core/components/common/ever-card';
 import { Text } from '@/core/components/common/typography';
@@ -18,6 +19,8 @@ export function CompleteInvitationRegistrationForm(props: {
 	const t = useTranslations();
 	const { invitationData, onCompleteRegistration, acceptInvitationLoading } = props;
 	const [agreeToTerms, setAgreeToTerms] = useState(false);
+	// A deployment that turned TERMS_LINK off has no terms to agree to: no checkbox, nothing to tick.
+	const requiresTermsAgreement = Boolean(TERMS_LINK);
 	const router = useRouter();
 	const [loadingWorkspace, setLoadingWorkspace] = useState(false);
 
@@ -87,7 +90,7 @@ export function CompleteInvitationRegistrationForm(props: {
 					{t('pages.invite.acceptInvite.COMPLETE_REGISTRATION', { userEmail: invitationData.email })}
 				</p>
 			</div>
-			<EverCard className={cn('w-full  bg-[#ffffff] dark:bg-[#25272D]')} shadow="custom">
+			<EverCard className={cn('w-full  bg-[#ffffff] dark:bg-muted')} shadow="custom">
 				<form className="flex flex-col gap-1 items-center justify-between" onSubmit={handleSubmit}>
 					<div className="w-full flex flex-col items-center gap-8">
 						<Text.Heading as="h3" className="text-center">
@@ -102,8 +105,8 @@ export function CompleteInvitationRegistrationForm(props: {
 								errors={errors}
 								onChange={(e) => setUserDetails({ ...userDetails, fullName: e.target.value })}
 								autoComplete="off"
-								wrapperClassName="dark:bg-[#25272D]"
-								className="dark:bg-[#25272D]"
+								wrapperClassName="dark:bg-muted"
+								className="dark:bg-muted"
 								required
 							/>
 
@@ -111,8 +114,8 @@ export function CompleteInvitationRegistrationForm(props: {
 								type="password"
 								name="password"
 								placeholder={t('form.PASSWORD_PLACEHOLDER')}
-								className="dark:bg-[#25272D]"
-								wrapperClassName="dark:bg-[#25272D]"
+								className="dark:bg-muted"
+								wrapperClassName="dark:bg-muted"
 								value={userDetails.password}
 								errors={errors}
 								onChange={(e) => setUserDetails({ ...userDetails, password: e.target.value })}
@@ -123,8 +126,8 @@ export function CompleteInvitationRegistrationForm(props: {
 								type="password"
 								name="confirmPassword"
 								placeholder={t('form.CONFIRM_PASSWORD_PLACEHOLDER')}
-								className="dark:bg-[#25272D]"
-								wrapperClassName="mb-5 dark:bg-[#25272D]"
+								className="dark:bg-muted"
+								wrapperClassName="mb-5 dark:bg-muted"
 								value={userDetails.confirmPassword}
 								errors={errors}
 								onChange={(e) => {
@@ -140,30 +143,42 @@ export function CompleteInvitationRegistrationForm(props: {
 						</div>
 					</div>
 
-					<div className="flex items-center justify-between w-full">
-						<div className="flex items-center gap-2">
-							<Checkbox
-								id="accept-invite-agree-terms"
-								checked={agreeToTerms}
-								onCheckedChange={() => setAgreeToTerms(!agreeToTerms)}
-							/>
-							{/* A real label: clicking the "Agree to" text toggles the (16px) checkbox — it did not before. */}
-							<label htmlFor="accept-invite-agree-terms" className="space-x-2 dark:text-gray-300 cursor-pointer">
-								{t('form.AGREE_TO')}{' '}
-								<a
-									href={TERMS_LINK}
-									target="_blank"
-									className="text-primary dark:text-gray-300 dark:font-medium"
-									rel="noreferrer"
+					<div
+						className={cn(
+							'flex items-center w-full',
+							requiresTermsAgreement ? 'justify-between' : 'justify-end'
+						)}
+					>
+						{requiresTermsAgreement && (
+							<div className="flex items-center gap-2">
+								<Checkbox
+									id="accept-invite-agree-terms"
+									checked={agreeToTerms}
+									onCheckedChange={() => setAgreeToTerms(!agreeToTerms)}
+								/>
+								{/* A real label: clicking the "Agree to" text toggles the (16px) checkbox — it did not before. */}
+								<label
+									htmlFor="accept-invite-agree-terms"
+									className="space-x-2 dark:text-gray-300 cursor-pointer"
 								>
-									{t('layout.footer.TERMS_AND_CONDITIONS')}
-								</a>
-							</label>
-						</div>
+									{t('form.AGREE_TO')}{' '}
+									<a
+										href={TERMS_LINK}
+										target="_blank"
+										className="text-primary dark:text-gray-300 dark:font-medium"
+										rel="noreferrer"
+									>
+										{t('layout.footer.TERMS_AND_CONDITIONS')}
+									</a>
+								</label>
+							</div>
+						)}
 
 						<Button
 							loading={acceptInvitationLoading}
-							disabled={acceptInvitationLoading || !agreeToTerms || loadingWorkspace}
+							disabled={
+								acceptInvitationLoading || (requiresTermsAgreement && !agreeToTerms) || loadingWorkspace
+							}
 							className="px-6"
 							type="submit"
 						>

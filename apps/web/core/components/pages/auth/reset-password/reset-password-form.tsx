@@ -4,8 +4,9 @@ import { useTranslations } from 'next-intl';
 import { useCallback, useState, useMemo } from 'react';
 import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
-import { Button, Text } from '@/core/components';
-import { AuthLayout } from '@/core/components/layouts/default-layout';
+import { Button } from '@/core/components/common/button';
+import { Text } from '@/core/components/common/typography';
+import { AuthLayout } from '@/core/components/layouts/default-layout/auth-layout';
 import { InputField } from '@/core/components/duplicated-components/_input';
 import { authService } from '@/core/services/client/api/auth/auth.service';
 import { cn } from '@/core/lib/helpers';
@@ -14,7 +15,7 @@ import { ArrowLeft, CheckCircle2, Eye, EyeOff } from 'lucide-react';
 const INPUT_CLASS =
 	'dark:bg-foreground/5 ring-foreground/10 placeholder:text-muted-foreground/75 selection:bg-primary selection:text-primary-foreground flex h-9 w-full min-w-0 rounded-md border border-transparent bg-white px-3 py-1 text-base shadow-sm outline-none ring-1 transition-[color,box-shadow] md:text-sm focus-visible:border-foreground/35 focus-visible:ring-ring/25 dark:focus-visible:border-foreground/25 focus-visible:ring-[3px]';
 
-export default function ResetPasswordForm() {
+export default function ResetPasswordForm({ isTokenExpired }: Readonly<{ isTokenExpired: boolean }>) {
 	const t = useTranslations();
 	const searchParams = useSearchParams();
 	const token = searchParams.get('token') || '';
@@ -27,7 +28,7 @@ export default function ResetPasswordForm() {
 	const [success, setSuccess] = useState(false);
 	const [errors, setErrors] = useState<Record<string, string>>({});
 
-	const isTokenMissing = useMemo(() => !token, [token]);
+	const isTokenInvalid = useMemo(() => !token || isTokenExpired, [token, isTokenExpired]);
 
 	const validate = useCallback(() => {
 		const errs: Record<string, string> = {};
@@ -75,8 +76,8 @@ export default function ResetPasswordForm() {
 			description={t('pages.authResetPassword.HEADING_DESCRIPTION')}
 		>
 			<div className="w-full overflow-x-hidden overflow-y-clip p-1.5">
-				{isTokenMissing ? (
-					/* No token - show error */
+				{isTokenInvalid ? (
+					/* Missing or expired token - show error */
 					<div className="flex flex-col gap-6 items-center py-4">
 						<div className="flex flex-col gap-2 items-center text-center">
 							<h3 className="text-lg font-semibold">

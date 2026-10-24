@@ -12,8 +12,17 @@ import {
 } from '@/core/components/optimized-components';
 import { HorizontalSeparator } from '../duplicated-components/separator';
 import { ProgressBar } from '../duplicated-components/_progress-bar';
+import { TodayWorkedTasks } from './today-worked-tasks';
 
-const UserTeamActivity = ({ showActivity, member }: { showActivity: boolean; member?: any }) => {
+const UserTeamActivity = ({
+	showActivity,
+	member,
+	canSeeActivity
+}: {
+	showActivity: boolean;
+	member?: any;
+	canSeeActivity: boolean;
+}) => {
 	const { timeSlots } = useTimeSlots(true);
 	const t = useTranslations();
 
@@ -36,7 +45,7 @@ const UserTeamActivity = ({ showActivity, member }: { showActivity: boolean; mem
 				<h2 className="py-2 text-xl font-semibold">Activity for Today</h2>
 				<div className="flex overflow-hidden flex-col gap-y-5 justify-between w-full">
 					<div className="flex gap-3 items-center w-full">
-						<div className="shadow basis-1/4 min-w-56 max-w-80 rounded-md p-4 h-32 bg-light--theme-light dark:bg-[#26272C]">
+						<div className="shadow basis-1/4 min-w-56 max-w-80 rounded-md p-4 h-32 bg-light--theme-light dark:bg-muted">
 							<span>{t('timer.TIME_ACTIVITY')}</span>
 							<h2 className="my-3 text-3xl font-bold">
 								{activityPercent ? activityPercent.toFixed(2) : '00'} %
@@ -51,7 +60,7 @@ const UserTeamActivity = ({ showActivity, member }: { showActivity: boolean; mem
 									<TabsTrigger
 										key={filter}
 										value={filter}
-										className="rounded-lg py-2.5 text-sm font-medium leading-5 data-[state=active]:bg-white data-[state=active]:dark:bg-dark data-[state=active]:text-blue-700 data-[state=active]:shadow h-fit"
+										className="rounded-lg py-2.5 text-sm font-medium leading-5 data-[state=active]:bg-white data-[state=active]:dark:bg-card data-[state=active]:text-blue-700 data-[state=active]:shadow h-fit"
 									>
 										{filter}
 									</TabsTrigger>
@@ -59,7 +68,8 @@ const UserTeamActivity = ({ showActivity, member }: { showActivity: boolean; mem
 							</TabsList>
 
 							<TabsContent value={ActivityFilters.TASKS} className="overflow-hidden mt-2 w-full">
-								<LazyOptimizedTasksTab member={member} />
+								{canSeeActivity && member?.id ? <TodayWorkedTasks memberId={member.id} /> : null}
+								<LazyOptimizedTasksTab member={member} canSeeActivity={canSeeActivity} />
 							</TabsContent>
 							<TabsContent value={ActivityFilters.SCREENSHOOTS} className="mt-2 w-full">
 								<LazyOptimizedScreenshotsTab />

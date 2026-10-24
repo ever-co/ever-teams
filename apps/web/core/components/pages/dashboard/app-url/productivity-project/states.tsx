@@ -11,7 +11,7 @@ export const LoadingSkeleton: React.FC = () => {
 		<Card className="bg-white rounded-md border border-gray-100 dark:border-gray-800 dark:bg-dark--theme-light min-h-[600px] w-full">
 			<Table>
 				<TableHeader>
-					<TableRow className="bg-gray-50 dark:bg-gray-800">
+					<TableRow className="bg-gray-50 dark:bg-muted">
 						<TableHead className="font-semibold">{t('common.DATE')}</TableHead>
 						<TableHead className="font-semibold">{t('common.MEMBER')}</TableHead>
 						<TableHead className="font-semibold">{t('common.APPLICATION')}</TableHead>

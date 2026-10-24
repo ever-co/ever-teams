@@ -49,8 +49,8 @@ const TaskDetailCard = ({ now = false, task }: ITaskDetailCard) => {
 			className={`w-full rounded-[10px] drop-shadow-[0px_3px_15px_#3E1DAD1A] border relative  ${
 				now === true
 					? '  border-primary dark:border-gray-100'
-					: ' hover:border hover:border-primary dark:border-[#202023]'
-			} bg-[#FFFFFF] my-[15px] dark:bg-[#202023] justify-between dark:hover:border-gray-100 font-bold px-[24px] dark:text-[#FFFFFF] py-[10px]`}
+					: ' hover:border hover:border-primary dark:border-border'
+			} bg-[#FFFFFF] my-[15px] dark:bg-card justify-between dark:hover:border-gray-100 font-bold px-[24px] dark:text-[#FFFFFF] py-[10px]`}
 		>
 			<div className="flex justify-between items-center">
 				<div

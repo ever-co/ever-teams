@@ -1,3 +1,4 @@
+import { config } from '../config/environment.js';
 import { createLogger } from '../config/logger.js';
 import { ClientInfo } from './client-detector.js';
 
@@ -34,8 +35,8 @@ export interface EnhancedToolResponse extends McpToolResponse {
  * Key _meta fields:
  * - openai/outputTemplate: URI to UI component for rich display
  * - openai/widgetPrefersBorder: Show border around widget
- * - openai/widgetDomain: Domain for security context
- * - openai/widgetCSP: Content Security Policy
+ * - openai/widgetDomain: Domain for security context (runtime env CHATGPT_WIDGET_DOMAIN)
+ * - openai/widgetCSP: Content Security Policy (runtime env CHATGPT_WIDGET_CSP)
  * - openai/locale: User's locale for internationalization
  * - openai/toolInvocation/invoking: Loading message
  * - openai/toolInvocation/invoked: Success message
@@ -99,9 +100,10 @@ export class MetaEnhancer {
 		return {
 			// Widget preferences
 			'openai/widgetPrefersBorder': true,
-			'openai/widgetDomain': 'ever.team',
-			'openai/widgetCSP':
-				"default-src 'self' https://ever.team https://*.gauzy.co; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline';",
+			// Deployment-specific: resolved from the runtime env (defaults: Ever's hosted deployment),
+			// so a self-hosted image does not advertise Ever's domain.
+			'openai/widgetDomain': config.widgetDomain,
+			'openai/widgetCSP': config.widgetCsp,
 
 			// Localization - echo user's locale
 			'openai/locale': clientInfo.locale || 'en-US'

@@ -8,14 +8,15 @@ import {
 } from '@/core/lib/helpers/index';
 import { taskService } from '@/core/services/client/api';
 import { activeTeamState, activeTeamTaskId, detailedTaskState, teamTasksState } from '@/core/stores';
-import { useCallback } from 'react';
+import { useCallback, useRef } from 'react';
 import { useAtom, useAtomValue, useSetAtom } from 'jotai';
 import { ITaskStatusField } from '@/core/types/interfaces/task/task-status/task-status-field';
 import { ITaskStatusStack } from '@/core/types/interfaces/task/task-status/task-status-stack';
-import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useMutation, useQueryClient, type InfiniteData } from '@tanstack/react-query';
 import { queryKeys } from '@/core/query/keys';
 import { TTask } from '@/core/types/schemas/task/task.schema';
 import { PaginationResponse } from '@/core/types/interfaces/common/data-response';
+import { flattenTaskPages } from '@/core/lib/utils/task.utils';
 import { useInvalidateTeamTasks } from './use-invalidate-team-tasks';
 import { useTaskQueries } from './use-task-queries';
 
@@ -40,6 +41,20 @@ import { useTaskQueries } from './use-task-queries';
 export function useUpdateTask() {
 	const queryClient = useQueryClient();
 	const activeTeam = useAtomValue(activeTeamState);
+	const taskListQueryKey = queryKeys.tasks.byTeamByScope(
+		activeTeam?.tenantId,
+		activeTeam?.organizationId,
+		activeTeam?.id,
+		activeTeam?.projects?.[0]?.id ?? null
+	);
+	const scopeFingerprint = JSON.stringify([
+		activeTeam?.tenantId ?? null,
+		activeTeam?.organizationId ?? null,
+		activeTeam?.id ?? null,
+		activeTeam?.projects?.[0]?.id ?? null
+	]);
+	const currentScopeFingerprintRef = useRef(scopeFingerprint);
+	currentScopeFingerprintRef.current = scopeFingerprint;
 	const setAllTasks = useSetAtom(teamTasksState);
 	const [detailedTask, setDetailedTask] = useAtom(detailedTaskState);
 	const setActive = useSetAtom(activeTeamTaskId);
@@ -55,26 +70,26 @@ export function useUpdateTask() {
 		},
 		onMutate: async ({ taskId, taskData }) => {
 			// Cancel any outgoing refetches (so they don't overwrite our optimistic update)
-			await queryClient.cancelQueries({ queryKey: queryKeys.tasks.byTeam(activeTeam?.id) });
+			await queryClient.cancelQueries({ queryKey: taskListQueryKey });
 
 			// Snapshot the previous value
-			const previousTasks = queryClient.getQueryData<PaginationResponse<TTask>>(
-				queryKeys.tasks.byTeam(activeTeam?.id)
-			);
+			const previousTasks =
+				queryClient.getQueryData<InfiniteData<PaginationResponse<TTask>, number>>(taskListQueryKey);
 
 			// Optimistically update to the new value
-			if (previousTasks?.items) {
-				const optimisticTasksItems = previousTasks.items.map((task) =>
-					task.id === taskId ? { ...task, ...taskData } : task
-				);
+			if (previousTasks?.pages) {
+				const optimisticPages = previousTasks.pages.map((page) => ({
+					...page,
+					items: page.items.map((task) => (task.id === taskId ? { ...task, ...taskData } : task))
+				}));
 
-				const optimisticData = { ...previousTasks, items: optimisticTasksItems };
+				const optimisticData = { ...previousTasks, pages: optimisticPages };
 
 				// 1. Update React Query Cache
-				queryClient.setQueryData(queryKeys.tasks.byTeam(activeTeam?.id), optimisticData);
+				queryClient.setQueryData(taskListQueryKey, optimisticData);
 
 				// 2. Update Jotai State immediately (for instant UI feedback)
-				setAllTasks(optimisticTasksItems as TTask[]);
+				setAllTasks(flattenTaskPages(optimisticPages));
 
 				// 3. Update Detailed Task State if applicable
 				if (detailedTask?.id === taskId) {
@@ -82,15 +97,31 @@ export function useUpdateTask() {
 				}
 			}
 
-			return { previousTasks };
+			return { previousTasks, queryKey: taskListQueryKey, scopeFingerprint };
 		},
-		onError: (_err, _newTodo, context) => {
-			// Rollback to the previous value
-			if (context?.previousTasks) {
-				queryClient.setQueryData(queryKeys.tasks.byTeam(activeTeam?.id), context.previousTasks);
+		onError: (_err, { taskId }, context) => {
+			// Always restore the cache that owned the mutation. Shared mirrors may only
+			// be restored while that same scope is still active.
+			if (context?.previousTasks?.pages) {
+				// Pages may have been loaded since the snapshot: put back only the edited task, keep the rest.
+				const previousTask = flattenTaskPages(context.previousTasks.pages).find((task) => task.id === taskId);
+				const currentTasks = queryClient.getQueryData<InfiniteData<PaginationResponse<TTask>, number>>(
+					context.queryKey
+				);
+				const restoredTasks =
+					previousTask && currentTasks?.pages
+						? {
+								...currentTasks,
+								pages: currentTasks.pages.map((page) => ({
+									...page,
+									items: page.items.map((task) => (task.id === taskId ? previousTask : task))
+								}))
+							}
+						: context.previousTasks;
+				queryClient.setQueryData(context.queryKey, restoredTasks);
 
-				if (context.previousTasks.items) {
-					setAllTasks(context.previousTasks.items);
+				if (context.scopeFingerprint === currentScopeFingerprintRef.current) {
+					setAllTasks(flattenTaskPages(restoredTasks.pages));
 				}
 			}
 		},

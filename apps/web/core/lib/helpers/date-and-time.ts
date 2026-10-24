@@ -1,6 +1,7 @@
 import moment from 'moment';
 import * as momentTimezone from 'moment-timezone';
 import { TranslationHooks } from 'next-intl';
+import { getDailyPlanDay } from './daily-plan-day';
 
 const months: { [key: string]: string } = {
 	'01': 'January',
@@ -174,9 +175,7 @@ export const tomorrowDate = moment().add(1, 'days').toDate();
 export const yesterdayDate = moment().subtract(1, 'days').toDate();
 
 export const formatDayPlanDate = (dateString: string | Date, format?: string) => {
-	if (dateString.toString().length > 10) {
-		dateString = dateString.toString().split('T')[0];
-	}
+	dateString = getDailyPlanDay(dateString);
 	const date = moment(dateString, 'YYYY-MM-DD');
 
 	if (date.isSame(moment(), 'day')) return 'Today';
@@ -188,16 +187,20 @@ export const formatDayPlanDate = (dateString: string | Date, format?: string) =>
 
 // Formats a given number into hours
 export const formatIntegerToHour = (number: number) => {
-	// Separate decimal and in parts
-	const integerPart = Math.floor(number);
-	const decimalPart = number - integerPart;
+	// Round the total minutes before splitting, so 59.5+ minutes carry into the hours (e.g. 7199 seconds)
+	// and the subtraction of the integer part cannot push an exact half-minute below 0.5.
+	// Work on the absolute value so negative durations (e.g. an exceeded limit) are not floored
+	// towards -infinity: -1.5 must give -1h30m, not -2h30m
+	const sign = number < 0 ? '-' : '';
+	const totalMinutes = Math.round(Math.abs(number) * 60);
+	const integerPart = Math.floor(totalMinutes / 60);
+	const minutes = totalMinutes - integerPart * 60;
 
 	// Format int part with 'h'
-	let formattedHour = `${integerPart}h`;
+	let formattedHour = `${totalMinutes !== 0 ? sign : ''}${integerPart}h`;
 
-	// if the decimal part is not zero, add minutes
-	if (decimalPart !== 0) {
-		const minutes = Math.round(decimalPart * 60);
+	// if the rounded minutes are not zero, add them
+	if (minutes !== 0) {
 		formattedHour += `${minutes < 10 ? '0' : ''}${minutes}m`;
 	}
 

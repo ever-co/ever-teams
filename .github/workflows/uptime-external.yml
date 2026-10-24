@@ -27,6 +27,7 @@
 # cspell:ignore namelookup appconnect starttransfer ipify ifconfig blackhole homelab blackbox
 # cspell:ignore mktemp redirs ttfb elif esac endgroup
 # cspell:ignore checkip amazonaws unmetered ratelimit
+# cspell:ignore cfallow cfcleanup startswith fromdateiso tolower alnum
 
 name: Uptime (external vantage point)
 
@@ -58,14 +59,198 @@ jobs:
     # = ~460s, plus runner boot and the gh steps. 10 minutes left almost no margin, and the
     # failure mode is the bad one: the step is killed, no outputs are written, every later `if:`
     # evaluates false, and a genuine outage produces a red X with no issue and no report.
-    timeout-minutes: 15
+    # The temporary Cloudflare allow (below) adds up to ~4 minutes before the probe on a slow
+    # Cloudflare API (zone lookup, a 60 s-boxed sweep, create, and the lost-answer lookup) and
+    # ~2 minutes after it (the delete with retries), hence 25. The stale-rule sweep's age
+    # threshold (30 minutes) must stay above this timeout.
+    timeout-minutes: 25
 
     steps:
       # No actions/checkout on purpose -- this job needs nothing from the repository tree, and
       # skipping the checkout keeps each run down to a few seconds.
+
+      # Public IPv4 egress of this runner, recorded in every alert so a reader can tell "GitHub's
+      # egress cannot reach us" apart from "the site is genuinely down", and the one address the
+      # temporary Cloudflare allow rule below is made for. IPv4 only (-4), like the probes: the rule
+      # must match the address they leave from. AWS first, Cloudflare-fronted sources only as
+      # fallbacks: this field's whole job is to stay readable DURING a Cloudflare event, which is the
+      # incident class this workflow exists for.
+      - name: Find this runner's egress address
+        id: egress
+        shell: bash
+        run: |
+          set -uo pipefail
+          IP=''
+          for svc in https://checkip.amazonaws.com https://api.ipify.org https://ifconfig.me/ip; do
+            IP="$(curl -4 -fsS --max-time 10 "$svc" 2>/dev/null | tr -d '[:space:]')" || IP=''
+            [ -n "$IP" ] && break
+          done
+          # Written to $GITHUB_OUTPUT, where an embedded newline would inject extra key=value
+          # records or break the parse outright. Accept a bare IPv4 address or 'unknown'.
+          [[ "$IP" =~ ^([0-9]{1,3}\.){3}[0-9]{1,3}$ ]] || IP='unknown'
+          echo "Runner public egress IP: $IP"
+          echo "ip=$IP" >> "$GITHUB_OUTPUT"
+
+      # ---------------------------------------------------------------------------------------------
+      #  Why a temporary Cloudflare allow rule (owner decision 2026-10-20, alert issue #4677)
+      #
+      #  From 2026-10-18 ~11:3xZ every probe from a GitHub-hosted (Azure) runner got HTTP 403 "Just a
+      #  moment..." (a Cloudflare managed challenge, `cf-mitigated: challenge`) on all three targets,
+      #  while real users were served normally - so the monitor stayed red and could no longer see a
+      #  real outage. gauzy.co and ever.works (same Cloudflare account) did the same within the hour.
+      #  ever.works' Security events name the cause: Bot Fight Mode (source botFight, managed
+      #  challenge), newly switched on, challenging Microsoft's ASN 8075 from 2026-10-18 11:55Z. For
+      #  ever.team that is an inference (same account, same hour, same challenge page); the step logs
+      #  the zone's plan, and on Pro or above a WAF Skip rule would do instead. The same fix ships for
+      #  gauzy.co in ever-co/ever-gauzy#11175.
+      #
+      #  On the Free plan Bot Fight Mode CANNOT be skipped by a WAF custom rule (no Skip / Allow action
+      #  reaches it - it runs outside the Ruleset Engine). The one thing that takes precedence is an IP
+      #  Access rule that matches first. So, for the length of one run only:
+      #    1. allow THIS runner's own IPv4 egress address on the ever.team zone (not account-wide);
+      #    2. probe;
+      #    3. delete the rule in an `always()` step, even if the probe failed or the run was cancelled;
+      #    4. every run also deletes OUR rules older than 30 minutes (longer than the 25-minute job
+      #       timeout, so never a rule a running job still needs), in case a run died before step 3.
+      #  Bot Fight Mode stays on for everyone else.
+      #
+      #  Token: repo secret CLOUDFLARE_UPTIME_ALLOWLIST_TOKEN = a Cloudflare API token limited to zone
+      #  ever.team with Zone:Read + Zone:Firewall Services:Edit and nothing else. It reaches only this
+      #  step and the clean-up step. This workflow has no pull_request trigger, so no fork can ever
+      #  run it with the secret. With no token the probe still runs, and a challenged probe is
+      #  reported as "refused by Cloudflare's edge" instead of a bare HTTP 403.
+      # ---------------------------------------------------------------------------------------------
+      - name: Let this runner past Bot Fight Mode (temporary IP Access rule)
+        id: cfallow
+        shell: bash
+        env:
+          CF_TOKEN: ${{ secrets.CLOUDFLARE_UPTIME_ALLOWLIST_TOKEN }}
+          CF_ZONE_NAME: ever.team
+          EGRESS_IP: ${{ steps.egress.outputs.ip }}
+        run: |
+          # Never fails the run: if Cloudflare cannot be asked, the probe still runs and its report says
+          # who refused it. -e is on, so every call that may fail is guarded.
+          set -euo pipefail
+          # Outputs: zone_id, and rule_id only when THIS run created the rule (only then may it delete it).
+          NOTE_TAG='ever-teams-uptime-monitor'
+          API='https://api.cloudflare.com/client/v4'
+
+          if [ -z "${CF_TOKEN}" ]; then
+            echo "::warning::CLOUDFLARE_UPTIME_ALLOWLIST_TOKEN is not set, so the probe runs without the temporary allow and Bot Fight Mode will challenge it (HTTP 403)."
+            exit 0
+          fi
+          if ! printf '%s' "${EGRESS_IP}" | grep -Eq '^([0-9]{1,3}\.){3}[0-9]{1,3}$'; then
+            echo "::warning::Runner egress IP '${EGRESS_IP}' is not an IPv4 address, so no allow rule can be made for it."
+            exit 0
+          fi
+
+          # cf METHOD PATH [JSON]: prints the response body. Fails only when curl itself fails.
+          cf() {
+            local args=(-sS --connect-timeout 10 --max-time 30 -X "$1"
+              -H "Authorization: Bearer ${CF_TOKEN}" -H 'Content-Type: application/json')
+            if [ "$#" -ge 3 ]; then args+=(--data "$3"); fi
+            curl "${args[@]}" "${API}$2"
+          }
+          # cf_errors: Cloudflare's error list from the last response, for a warning line.
+          cf_errors() { printf '%s' "${RESP:-}" | jq -c '.errors' 2>/dev/null || echo 'no response'; }
+
+          RESP=''
+          if ! RESP=$(cf GET "/zones?name=${CF_ZONE_NAME}") \
+              || ! ZONE_ID=$(jq -er '.result[0].id' <<< "${RESP}" 2>/dev/null); then
+            echo "::warning::Could not look up zone ${CF_ZONE_NAME}: $(cf_errors)"
+            exit 0
+          fi
+          echo "zone_id=${ZONE_ID}" >> "$GITHUB_OUTPUT"
+          # On Pro and above, Super Bot Fight Mode replaces Bot Fight Mode and CAN be skipped by a WAF
+          # rule, which would make this whole step unnecessary - so say which plan the zone is on.
+          echo "Zone ${CF_ZONE_NAME} plan: $(jq -r '.result[0].plan.name // "unknown"' <<< "${RESP}" 2>/dev/null || echo unknown)"
+
+          # Sweep: only IP allow rules carrying OUR note, older than 30 minutes. The owner's own
+          # rules (inherited user/account-level ones show up in this listing too) never carry that
+          # note, so they are never touched. The note is the key on purpose, not `scope.type`:
+          # Cloudflare documents that field as only "user" or "organization", so a zone-scope
+          # filter could hide our own leftovers from the sweep.
+          if RESP=$(cf GET "/zones/${ZONE_ID}/firewall/access_rules/rules?per_page=100&mode=whitelist&notes=${NOTE_TAG}"); then
+            STALE=$(jq -r --arg tag "${NOTE_TAG}" '.result[]?
+              | select(((.notes // "") | startswith($tag)) and .mode == "whitelist"
+                  and .configuration.target == "ip")
+              | select((.created_on | sub("\\.[0-9]+Z$"; "Z") | fromdateiso8601) < (now - 1800))
+              | .id' <<< "${RESP}" 2>/dev/null || true)
+            # Time-boxed: the probe and its alert matter more than tidying up. If leftovers piled up
+            # and Cloudflare is slow, stop starting deletes after 60 s and leave the rest to the next
+            # run (one in-flight call can still add up to 30 s).
+            SWEEP_DEADLINE=$((SECONDS + 60))
+            for id in ${STALE}; do
+              if [ "${SECONDS}" -ge "${SWEEP_DEADLINE}" ]; then
+                echo "::warning::Stale-rule sweep hit its 60 s budget; the next run removes the rest."
+                break
+              fi
+              if cf DELETE "/zones/${ZONE_ID}/firewall/access_rules/rules/${id}" | jq -e '.success == true' > /dev/null 2>&1; then
+                echo "Removed a stale allow rule left by an earlier run: ${id}"
+              else
+                echo "::warning::Could not remove stale allow rule ${id}; the next run will try again."
+              fi
+            done
+          fi
+
+          NOTE="${NOTE_TAG} run ${GITHUB_RUN_ID}/${GITHUB_RUN_ATTEMPT} - temporary, deleted when the probe ends"
+          DATA=$(jq -nc --arg ip "${EGRESS_IP}" --arg n "${NOTE}" \
+            '{mode: "whitelist", configuration: {target: "ip", value: $ip}, notes: $n}')
+          RESP=$(cf POST "/zones/${ZONE_ID}/firewall/access_rules/rules" "${DATA}") || RESP=''
+          if RULE_ID=$(jq -er 'select(.success == true) | .result.id' <<< "${RESP}" 2>/dev/null); then
+            echo "rule_id=${RULE_ID}" >> "$GITHUB_OUTPUT"
+            echo "Temporary allow rule ${RULE_ID} for ${EGRESS_IP} on ${CF_ZONE_NAME}."
+            # IP Access rules apply within seconds; the probe's own retries cover any remaining lag.
+            sleep 5
+          elif jq -e '.success == false' <<< "${RESP}" > /dev/null 2>&1; then
+            # Cloudflare answered and refused, so no rule was created. Most likely "already exists":
+            # another rule (the owner's, say) already allows this IP. Not ours to delete, so no rule_id:
+            # the probe simply runs.
+            echo "::warning::Could not create the allow rule for ${EGRESS_IP}: $(cf_errors)"
+          else
+            # No usable answer (a timeout, a dropped connection, a cut-off body): the rule may exist
+            # anyway. Adopt only a rule carrying THIS run attempt's exact note for this IP - never a
+            # duplicate or anyone else's. The listing is filtered to this one IP, so it is a handful of
+            # rules, but a just-created rule may not be listed yet: look three times, 5 s apart. Not
+            # finding it is NOT proof that none was made, so then (or if the lookup itself fails) the
+            # last step fails the run to get a human to look.
+            echo "::warning::The create call for ${EGRESS_IP} got no usable answer; checking whether the rule exists."
+            RULE_ID=''
+            for attempt in 1 2 3; do
+              if RESP=$(cf GET "/zones/${ZONE_ID}/firewall/access_rules/rules?per_page=100&mode=whitelist&configuration.target=ip&configuration.value=${EGRESS_IP}") \
+                  && jq -e '.success == true' <<< "${RESP}" > /dev/null 2>&1 \
+                  && RULE_ID=$(jq -er --arg n "${NOTE}" --arg ip "${EGRESS_IP}" '[.result[]?
+                    | select(.notes == $n and .mode == "whitelist" and .configuration.value == $ip)][0].id
+                    // empty' <<< "${RESP}" 2>/dev/null); then
+                break
+              fi
+              RULE_ID=''
+              [ "${attempt}" -lt 3 ] && sleep 5
+            done
+            if [ -n "${RULE_ID}" ]; then
+              echo "rule_id=${RULE_ID}" >> "$GITHUB_OUTPUT"
+              echo "The allow rule was created after all (${RULE_ID}); it will be removed after the probe."
+              sleep 5
+            else
+              echo "uncertain=true" >> "$GITHUB_OUTPUT"
+              if jq -e '.success == true' <<< "${RESP}" > /dev/null 2>&1; then
+                WHY='not listed after 3 lookups'
+              else
+                WHY="lookup failed: $(cf_errors)"
+              fi
+              echo "::warning::Could not confirm whether an allow rule for ${EGRESS_IP} was created (${WHY})."
+            fi
+          fi
+
       - name: Probe endpoints from outside the homelab
         id: probe
+        # Runs even if the Cloudflare allow step failed outright: that step stays red in the run,
+        # but the probe, its report and the alert issue must not be skipped because of it.
+        if: ${{ !cancelled() }}
         shell: bash
+        env:
+          EGRESS_IP: ${{ steps.egress.outputs.ip }}
+          CF_ALLOW_RULE: ${{ steps.cfallow.outputs.rule_id }}
         run: |
           set -uo pipefail
 
@@ -99,22 +284,15 @@ jobs:
           TABLE="$WORK/table.md"
           : > "$TABLE"
 
-          # Public egress IP of this runner, recorded in every alert so a reader can tell
-          # "GitHub's egress cannot reach us" apart from "the site is genuinely down".
-          # AWS first, Cloudflare-fronted sources only as fallbacks: this field's whole job is to
-          # stay readable DURING a Cloudflare event, which is the incident class this workflow
-          # exists for.
-          EGRESS_IP="$(curl -fsS --max-time 10 https://checkip.amazonaws.com 2>/dev/null \
-            || curl -fsS --max-time 10 https://api.ipify.org 2>/dev/null \
-            || curl -fsS --max-time 10 https://ifconfig.me/ip 2>/dev/null \
-            || echo 'unknown')"
-          # This value is written to $GITHUB_OUTPUT, where an embedded newline would inject extra
-          # key=value records or break the parse outright ("Unable to process file command"). That
-          # would fail THIS step -- and because every later `if:` carries an implicit success(),
-          # the monitor would go SILENT rather than loud. Accept a bare address or nothing.
-          EGRESS_IP="$(printf '%s' "$EGRESS_IP" | tr -d '[:space:]')"
+          # Public egress IP of this runner, found by the "Find this runner's egress address" step.
+          # Re-validated here because it is written to $GITHUB_OUTPUT again below, where an
+          # embedded newline would inject extra key=value records or break the parse outright
+          # ("Unable to process file command"). That would fail THIS step -- and because every
+          # later `if:` carries an implicit success(), the monitor would go SILENT rather than
+          # loud. Accept a bare address or nothing.
+          EGRESS_IP="$(printf '%s' "${EGRESS_IP:-}" | tr -d '[:space:]')"
           [[ "$EGRESS_IP" =~ ^[0-9A-Fa-f:.]{3,45}$ ]] || EGRESS_IP='unknown'
-          echo "Runner public egress IP: $EGRESS_IP"
+          CF_ALLOW_RULE="$(printf '%s' "${CF_ALLOW_RULE:-}" | tr -cd '[:alnum:]')"
 
           # -------------------------------------------------------------------------------
           # One probe. Emits a single pipe-separated metrics line on stdout.
@@ -126,9 +304,16 @@ jobs:
           # -------------------------------------------------------------------------------
           probe_once() {
             local url="$1" body="$2" w rc
-            w="$(curl -sS -A "$UA" \
+            # Reset both per attempt: if curl dies before any header or body arrives, a stale file
+            # from the previous attempt (a challenge page, say) must not be read as this attempt's
+            # answer.
+            : > "$body"
+            : > "$body.hdr"
+            # -4: leave from the IPv4 address the temporary Cloudflare allow rule was made for.
+            w="$(curl -4 -sS -A "$UA" \
                   -L --max-redirs 5 \
                   --connect-timeout 10 --max-time 25 \
+                  -D "$body.hdr" \
                   -o "$body" \
                   -w '%{http_code}|%{time_namelookup}|%{time_connect}|%{time_appconnect}|%{time_starttransfer}|%{time_total}|%{size_download}|%{remote_ip}' \
                   "$url" 2>"$body.err")"
@@ -145,23 +330,75 @@ jobs:
             printf '%s|%s' "$w" "$rc"
           }
 
+          # -------------------------------------------------------------------------------
+          # Who answered a failed probe: Cloudflare's edge, or our origin behind it?
+          #
+          # From 2026-10-18 11:36Z every run got HTTP 403 with a ~5.4 KB page on all three hosts
+          # while the sites answered 200 to everyone else: Cloudflare was refusing GitHub's runner
+          # IPs, and the origin never saw the request. The status code alone cannot say that, and
+          # the report showed it as a plain "DOWN". Cloudflare sets `cf-mitigated: challenge` on
+          # every challenge page it serves (https://developers.cloudflare.com/cloudflare-challenges/challenge-types/challenge-pages/detect-response/).
+          # A WAF *block* has no such header; it is recognized by its branded page title instead,
+          # which is only a strong hint, so it is reported as "likely". `cf-ray` is kept for
+          # correlation with the zone's Security events: it proves the request crossed Cloudflare,
+          # not who answered. Printed as one sanitized line, because it lands in a markdown
+          # table: no pipes, no backticks.
+          # -------------------------------------------------------------------------------
+          # header_value <name> <header-file>: the value from the FINAL response only. `curl -L -D`
+          # writes every response of a redirect chain, so a Cloudflare 301 followed by an origin
+          # 503 must not report the 301's headers: each status line starts a new block and resets.
+          header_value() {
+            awk -v want="$(printf '%s' "$1" | tr '[:upper:]' '[:lower:]')" '
+              /^HTTP\// { v = "" }
+              {
+                line = $0; sub(/\r$/, "", line)
+                i = index(line, ":")
+                if (i > 0 && tolower(substr(line, 1, i - 1)) == want) v = substr(line, i + 1)
+              }
+              END { sub(/^[ \t]+/, "", v); sub(/[ \t]+$/, "", v); printf "%s", v }' "$2" 2>/dev/null
+          }
+          page_title() {
+            grep -o -i -m 1 '<title>[^<]*</title>' "$1" 2>/dev/null | head -n 1 | sed -E 's#</?[Tt][Ii][Tt][Ll][Ee]>##g'
+          }
+          edge_info() {
+            local hdr="$1" body="$2" server mitigated ray title out=''
+            server="$(header_value server "$hdr")"
+            mitigated="$(header_value cf-mitigated "$hdr")"
+            ray="$(header_value cf-ray "$hdr")"
+            title="$(page_title "$body")"
+            [ -n "$server" ] && out="server=$server"
+            [ -n "$mitigated" ] && out="$out cf-mitigated=$mitigated"
+            [ -n "$ray" ] && out="$out cf-ray=$ray"
+            [ -n "$title" ] && out="$out title=\"$title\""
+            printf '%s' "$out" | tr -d '|`' | tr -cd '[:print:]' | sed -E 's/^ +//' | head -c 160
+          }
+
           # check_endpoint <url> <expected-body-marker-or-empty> <min-bytes>
           # Returns 0 if healthy, 1 if it failed every attempt. Appends a report row either way.
           check_endpoint() {
             local url="$1" marker="$2" min_bytes="$3"
             local attempt code dns conn tls ttfb total size ip rc
             local body="$WORK/body.$RANDOM"
-            local ok=0 fails=0 reason='' last=''
+            local ok=0 fails=0 reason='' last='' edge=''
 
             for attempt in $(seq 1 "$ATTEMPTS"); do
               last="$(probe_once "$url" "$body")"
               IFS='|' read -r code dns conn tls ttfb total size ip rc <<< "$last"
 
               reason=''
+              edge=''
               if [ "${rc:-0}" -ne 0 ]; then
                 reason="curl exit ${rc} (transfer did not complete cleanly)"
               elif [ "$code" != "200" ]; then
                 reason="HTTP $code (expected 200)"
+                # Still a failure: a monitor that cannot reach the site cannot vouch for it. But
+                # say who refused, so nobody hunts an origin outage that is an edge rule.
+                if [ -n "$(header_value cf-mitigated "$body.hdr")" ]; then
+                  reason="$reason -- refused by Cloudflare's edge (cf-mitigated: $(header_value cf-mitigated "$body.hdr" | tr -d '|`')), the origin was not reached"
+                elif [ "$(header_value server "$body.hdr")" = 'cloudflare' ] \
+                  && page_title "$body" | grep -qi 'Attention Required.*Cloudflare'; then
+                  reason="$reason -- likely blocked by Cloudflare's WAF (its block page), the origin was probably not reached"
+                fi
               elif [ "${size:-0}" -lt "$min_bytes" ]; then
                 reason="body too small: ${size}B < ${min_bytes}B"
               elif [ -n "$marker" ] && ! grep -qF -- "$marker" "$body"; then
@@ -177,6 +414,10 @@ jobs:
               fails=$((fails + 1))
               echo "FAIL  $url  (attempt $attempt/$ATTEMPTS) -- $reason"
               echo "      dns=${dns}s connect=${conn}s tls=${tls}s ttfb=${ttfb}s total=${total}s peer=${ip:-none}"
+              edge="$(edge_info "$body.hdr" "$body")"
+              if [ -n "$edge" ]; then
+                echo "      edge: $edge"
+              fi
               if [ -s "$body.err" ]; then
                 echo "      curl: $(head -c 300 "$body.err" | tr '\n' ' ')"
               fi
@@ -192,8 +433,8 @@ jobs:
               verdict="DOWN ($fails/$ATTEMPTS consecutive failures)"
             fi
 
-            printf '| `%s` | %s | %s | %s | %s | %s | %s | %s | %s |\n' \
-              "$url" "$verdict" "$code" "$dns" "$conn" "$tls" "$ttfb" "${size}B" "${ip:-none}" >> "$TABLE"
+            printf '| `%s` | %s | %s | %s | %s | %s | %s | %s | %s | %s |\n' \
+              "$url" "$verdict" "$code" "$dns" "$conn" "$tls" "$ttfb" "${size}B" "${ip:-none}" "${edge:--}" >> "$TABLE"
 
             if [ "$ok" -eq 1 ]; then
               return 0
@@ -247,6 +488,13 @@ jobs:
           # Deliberately NOT monitored: stage.ever.team and demo.ever.team. Those are WIP
           # environments where short outages are expected and tolerated, and alerting on them
           # would train everyone to ignore this label. Add rows below if that ever changes.
+          #
+          # Not monitored YET: mcp.ever.team (the MCP server the ChatGPT app in apps/chatgpt proxies
+          # to, with mcpauth.ever.team for OAuth and chatgpt.ever.team for the app itself). On
+          # 2026-10-20 none of the three had a DNS record (NOERROR, no A/AAAA/CNAME), and the
+          # chatgpt.deploy-do-* workflows have only ever been skipped, so there is nothing to probe:
+          # a row now would only report "DNS failure" forever. Add a row once it is deployed, with
+          # a marker taken from its real health response.
           # -------------------------------------------------------------------------------
           FAILED=false
           FAILURES=''
@@ -286,6 +534,11 @@ jobs:
             echo ""
             echo "- Checked at: \`$(date -u '+%Y-%m-%d %H:%M:%S UTC')\`"
             echo "- Runner public egress IP: \`$EGRESS_IP\`"
+            if [ -n "$CF_ALLOW_RULE" ]; then
+              echo "- Temporary Cloudflare allow rule for that IP on ever.team: \`$CF_ALLOW_RULE\` (removed by the next step)"
+            else
+              echo "- No temporary Cloudflare allow rule this run (see the step before the probe), so Bot Fight Mode may challenge the probe"
+            fi
             # The control shares the timing table below with the real targets. Without this line a
             # reader sees "check passed" directly above a row reading DOWN and misreads a probe
             # fault as an Ever Teams outage -- the precise confusion this workflow exists to end.
@@ -304,8 +557,8 @@ jobs:
             fi
             echo "### Timing breakdown"
             echo ""
-            echo "| endpoint | result | http | dns | connect | tls | ttfb | bytes | peer |"
-            echo "| --- | --- | --- | --- | --- | --- | --- | --- | --- |"
+            echo "| endpoint | result | http | dns | connect | tls | ttfb | bytes | peer | edge |"
+            echo "| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |"
             cat "$TABLE"
             echo ""
             echo "> **How to read this:** a non-zero \`dns\` with \`connect\` stuck at \`0.000000\`"
@@ -313,6 +566,11 @@ jobs:
             echo "> (a routing blackhole or a firewall), not an application fault. An application"
             echo "> that is merely broken still connects and answers with a 5xx. \`peer\` is the"
             echo "> edge IP actually reached, which tells you which Cloudflare prefix was in play."
+            echo "> \`edge\` (failures only) says who answered. \`cf-mitigated=challenge\` means Cloudflare"
+            echo "> itself challenged the probe; a \`server=cloudflare\` answer titled like Cloudflare's"
+            echo "> block page (\"Attention Required\") is most likely a WAF block. Either way the origin"
+            echo "> never saw the request, so look at the zone's Security events for the runner's egress"
+            echo "> IP (and the \`cf-ray\`) before looking at the cluster."
           } > "$REPORT"
 
           cat "$REPORT" >> "$GITHUB_STEP_SUMMARY"
@@ -328,13 +586,41 @@ jobs:
           # This step never fails the job by itself -- the reporting steps below must still run.
           exit 0
 
+      - name: Remove the temporary Cloudflare allow rule
+        id: cfcleanup
+        # always(): also when the probe failed, its own tooling broke, or the run was cancelled. Placed
+        # straight after the probe so the IP is allowed for as short a time as possible. It never fails
+        # itself (that would skip the alert steps below); a rule it could not remove fails the run in
+        # the last step instead, and a later successful sweep removes it.
+        if: always() && steps.cfallow.outputs.rule_id != ''
+        shell: bash
+        env:
+          CF_TOKEN: ${{ secrets.CLOUDFLARE_UPTIME_ALLOWLIST_TOKEN }}
+          ZONE_ID: ${{ steps.cfallow.outputs.zone_id }}
+          RULE_ID: ${{ steps.cfallow.outputs.rule_id }}
+        run: |
+          set -euo pipefail
+          URL="https://api.cloudflare.com/client/v4/zones/${ZONE_ID}/firewall/access_rules/rules/${RULE_ID}"
+          for attempt in 1 2 3; do
+            RESP=$(curl -sS --connect-timeout 10 --max-time 30 -X DELETE \
+                     -H "Authorization: Bearer ${CF_TOKEN}" "${URL}" 2>/dev/null) || RESP=''
+            if jq -e '.success == true' <<< "${RESP}" > /dev/null 2>&1; then
+              echo "Removed temporary allow rule ${RULE_ID}."
+              echo "removed=true" >> "$GITHUB_OUTPUT"
+              exit 0
+            fi
+            echo "::warning::Attempt ${attempt}/3 to remove allow rule ${RULE_ID} failed: $(jq -c '.errors' <<< "${RESP}" 2>/dev/null || echo 'no response')"
+            sleep 5
+          done
+          echo "removed=false" >> "$GITHUB_OUTPUT"
+
       # -----------------------------------------------------------------------------------
       # Alerting. One long-lived issue per incident, reused across runs, so a multi-hour outage
       # produces a single issue with a comment trail rather than four new issues an hour. Issue
       # spam is the most common reason monitoring like this gets muted and then deleted.
       # -----------------------------------------------------------------------------------
       - name: Open or update the alert issue
-        if: steps.probe.outputs.failed == 'true' && steps.probe.outputs.control_down == 'false'
+        if: ${{ !cancelled() && steps.probe.outputs.failed == 'true' && steps.probe.outputs.control_down == 'false' }}
         shell: bash
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -381,7 +667,7 @@ jobs:
         # flapped would print "these results cannot tell an outage from a network fault" onto a
         # GREEN run -- which is false there, and is the kind of noise that teaches people to stop
         # reading this workflow's output.
-        if: steps.probe.outputs.control_down == 'true' && steps.probe.outputs.failed == 'true'
+        if: ${{ !cancelled() && steps.probe.outputs.control_down == 'true' && steps.probe.outputs.failed == 'true' }}
         shell: bash
         run: |
           echo "::error::The known-good control endpoint was also unreachable, so this runner's own"
@@ -389,14 +675,14 @@ jobs:
           echo "::error::Ever Teams outage apart from a GitHub Actions network fault."
 
       - name: Note that the control endpoint flapped on an otherwise healthy run
-        if: steps.probe.outputs.control_down == 'true' && steps.probe.outputs.failed == 'false'
+        if: ${{ !cancelled() && steps.probe.outputs.control_down == 'true' && steps.probe.outputs.failed == 'false' }}
         shell: bash
         run: |
           echo "::warning::The control endpoint failed but every Ever Teams endpoint answered"
           echo "::warning::correctly, so this run is still valid evidence that the service is up."
 
       - name: Close the alert issue on recovery
-        if: steps.probe.outputs.failed == 'false'
+        if: ${{ !cancelled() && steps.probe.outputs.failed == 'false' }}
         shell: bash
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -451,7 +737,7 @@ jobs:
         # Deliberately NOT gated on control_down. Going green when the control is unhealthy would
         # make this a monitor that can only report success -- worse than no monitor at all. Stay
         # red, and say plainly which of the two situations this is.
-        if: steps.probe.outputs.failed == 'true'
+        if: ${{ !cancelled() && steps.probe.outputs.failed == 'true' }}
         shell: bash
         env:
           CONTROL_DOWN: ${{ steps.probe.outputs.control_down }}
@@ -462,4 +748,26 @@ jobs:
             exit 1
           fi
           echo "::error::One or more Ever Teams public endpoints failed every attempt from outside the homelab."
+          exit 1
+
+      - name: Fail the run if the temporary allow rule was left behind
+        # A leftover rule lets one Azure IP past Bot Fight Mode on ever.team until a later SUCCESSFUL
+        # sweep removes it. The sweep takes rules older than 30 minutes and runs every 15, so that is
+        # as early as ~30 minutes and usually ~45 - later if runs queue, Cloudflare cannot be
+        # reached or the delete fails then too. Rare, but it must be loud, not a warning in a log.
+        # Same for a create call whose outcome could not be confirmed either way.
+        if: >-
+          always() && (steps.cfallow.outputs.uncertain == 'true'
+          || (steps.cfcleanup.outcome == 'success' && steps.cfcleanup.outputs.removed != 'true'))
+        shell: bash
+        env:
+          RULE_ID: ${{ steps.cfallow.outputs.rule_id }}
+          UNCERTAIN: ${{ steps.cfallow.outputs.uncertain }}
+        run: |
+          WHERE="Cloudflare dashboard → ever.team → Security → WAF → Tools → IP Access Rules, note 'ever-teams-uptime-monitor run ${GITHUB_RUN_ID}/${GITHUB_RUN_ATTEMPT}'"
+          if [ "${UNCERTAIN}" = 'true' ]; then
+            echo "::error::The temporary Cloudflare allow rule's create call got no usable answer and the follow-up lookup could not confirm the outcome, so a rule may have been left on ever.team. A later successful sweep removes it (as early as ~30 minutes, usually ~45); check now: ${WHERE}."
+          else
+            echo "::error::Temporary Cloudflare allow rule ${RULE_ID} on ever.team could not be removed. A later successful sweep removes it (rules older than 30 minutes, so as early as ~30 minutes, usually ~45); remove it now: ${WHERE}."
+          fi
           exit 1

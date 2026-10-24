@@ -6,6 +6,7 @@ import { useEffect } from 'react';
 import { Outlet } from 'react-router-dom';
 import GradientBackground from './GradientBackground';
 import { tracker } from '@ever-teams/tracking';
+import { readRuntimeEnv } from '../../lib/runtime-env';
 
 function ErrorFallback({ error }: { error: Error }) {
 	const isDev = import.meta.env.DEV;
@@ -21,8 +22,10 @@ function ErrorFallback({ error }: { error: Error }) {
 	);
 }
 
+// Runtime first (/runtime-config.js, written at container start), build-time value as the fallback:
+// this is a static bundle with no server, so the literal below is frozen into the image.
 const teamsConfig = {
-	apiUrl: import.meta.env.VITE_TEAMS_API_URL
+	apiUrl: readRuntimeEnv('VITE_TEAMS_API_URL') || import.meta.env.VITE_TEAMS_API_URL
 };
 
 export default function ClientLayout() {

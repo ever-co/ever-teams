@@ -1,4 +1,5 @@
-import { GAUZY_API_SERVER_URL, tasksStatusSvgCacheDuration } from '@/core/constants/config/constants';
+import { GAUZY_API_SERVER_URL } from '@/core/constants/config/constants';
+import { clientIpHeaders } from './client-ip';
 
 export function serverFetch<T>({
 	path,
@@ -33,61 +34,46 @@ export function serverFetch<T>({
 		datas['body'] = JSON.stringify(body);
 	}
 
-	return fetch(GAUZY_API_SERVER_URL + path, {
-		...datas,
-		...(init || {}),
-		headers: {
-			...headers,
-			...(init?.headers || {})
-		},
-		method
-	}).then(async (res) => {
-		const data = (await res.json().catch(console.error)) as T;
+	// The browser's address for Gauzy's per-IP limits, when EVER_TEAMS_CLIENT_IP_SECRET is set (client-ip.ts)
+	return clientIpHeaders()
+		.then((ipHeaders) =>
+			fetch(GAUZY_API_SERVER_URL + path, {
+				...datas,
+				...(init || {}),
+				headers: {
+					...headers,
+					...ipHeaders,
+					...(init?.headers || {})
+				},
+				method
+			})
+		)
+		.then(async (res) => {
+			const data = (await res.json().catch(console.error)) as T;
 
-		if (!res.ok) {
-			throw Promise.reject(data);
-		}
+			if (!res.ok) {
+				// Callers read Gauzy's error body with unwrapRejection(), so the rejection value stays a rejected
+				// promise. It is marked handled: left as it was, every non-2xx answer (e.g. the 400 of
+				// /invite/validate-by-code on each sign-in) was also reported as an unhandled rejection.
+				const rejection = Promise.reject(data);
+				rejection.catch(() => undefined);
+				throw rejection;
+			}
 
-		return {
-			data,
-			response: res
-		};
-	});
+			return {
+				data,
+				response: res
+			};
+		});
 }
 
-/** Tasks status SVG icons fetch */
-
-// In memory cache for performance
-
-const tasksStatusSvgCache = new Map<
-	string,
-	{
-		content: Response;
-		timestamp: number;
-	}
->();
-
-export async function svgFetch(url: string): Promise<Response> {
+// serverFetch rejects a non-2xx answer with Promise.reject(data), so Gauzy's error body sits inside
+// that promise; a network failure rejects with a plain error that carries no status code.
+export async function unwrapRejection(error: unknown): Promise<unknown> {
+	if (!(error instanceof Promise)) return error;
 	try {
-		//Url validation
-		new URL(url);
-
-		const cached = tasksStatusSvgCache.get(url);
-		const now = Date.now();
-
-		if (cached && now - cached.timestamp < tasksStatusSvgCacheDuration) {
-			return cached.content.clone();
-		}
-
-		// Fetch the SVG
-		const response = await fetch(url);
-
-		tasksStatusSvgCache.set(url, {
-			content: response.clone(),
-			timestamp: now
-		});
-		return response;
-	} catch {
-		throw new Error('Invalid URL provided');
+		return await error;
+	} catch (error_) {
+		return error_;
 	}
 }

@@ -6,13 +6,13 @@
     "dev": "next dev --webpack",
     "build": "next build --webpack",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "eslint ."
   },
   "dependencies": {
     "@ever-teams/atoms": "*",
     "@ever-teams/tracking": "*",
     "@ever-teams/toolkit-ui": "*",
-    "next": "^16.2.6",
+    "next": "^16.4.2",
     "react": "^19.2.3",
     "react-dom": "^19.2.3",
     "react-error-boundary": "^5.0.0",

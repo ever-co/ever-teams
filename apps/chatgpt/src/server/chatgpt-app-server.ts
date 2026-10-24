@@ -1,4 +1,5 @@
 import express, { Request, Response, NextFunction } from 'express';
+import { isIP } from 'node:net';
 import cors from 'cors';
 import helmet from 'helmet';
 import { McpProxy, McpRequest, McpResponse } from './mcp-proxy.js';
@@ -9,6 +10,21 @@ import { createLogger } from '../config/logger.js';
 import { AppConfig } from '../config/environment.js';
 
 const logger = createLogger('ChatGPTAppServer');
+
+/**
+ * The POST /mcp rate limit key: the edge's own header when one is configured (CLIENT_IP_HEADER) and it holds an IP
+ * (unlike X-Forwarded-For, the caller cannot set it), otherwise `req.ip`.
+ */
+export function rateLimitKey(
+	req: Pick<Request, 'get' | 'ip'> & { socket?: { remoteAddress?: string } },
+	clientIpHeader?: string
+): string {
+	const header = clientIpHeader ? req.get(clientIpHeader)?.trim() : undefined;
+	if (header && isIP(header)) {
+		return header;
+	}
+	return req.ip ?? req.socket?.remoteAddress ?? 'unknown';
+}
 
 /**
  * ChatGPT App Server
@@ -33,6 +49,10 @@ export class ChatGPTAppServer {
 	constructor(config: AppConfig) {
 		this.config = config;
 		this.app = express();
+		// Behind a reverse proxy, req.ip (the /mcp rate limit key) is the proxy's address unless Express trusts it
+		if (config.trustProxy !== undefined) {
+			this.app.set('trust proxy', config.trustProxy);
+		}
 		this.mcpProxy = new McpProxy(config.mcpServerUrl);
 		this.componentResources = new ComponentResourcesHandler();
 
@@ -114,7 +134,7 @@ export class ChatGPTAppServer {
 
 		return (req: Request, res: Response, next: NextFunction): void => {
 			const now = Date.now();
-			const key = req.ip ?? req.socket.remoteAddress ?? 'unknown';
+			const key = rateLimitKey(req, this.config.clientIpHeader);
 
 			// Lazily prune expired buckets to bound memory usage.
 			if (hits.size > 10_000) {
@@ -162,7 +182,11 @@ export class ChatGPTAppServer {
 		this.app.get('/.well-known/oauth-authorization-server', this.handleOAuthDiscovery.bind(this));
 
 		// MCP endpoint (main proxy endpoint) - rate limited to mitigate abuse
-		this.app.post('/mcp', this.createRateLimiter(), this.handleMcpRequest.bind(this));
+		this.app.post(
+			'/mcp',
+			this.createRateLimiter({ max: this.config.mcpRateLimit }),
+			this.handleMcpRequest.bind(this)
+		);
 
 		// OAuth callback endpoint
 		this.app.get('/oauth2/callback', this.handleOAuthCallback.bind(this));
@@ -257,6 +281,17 @@ export class ChatGPTAppServer {
 				hasAuth: !!authToken
 			}, 'Processing MCP request');
 
+			// Notifications carry no id and expect 202 with no body (MCP Streamable HTTP)
+			if (
+				(mcpRequest.id === undefined || mcpRequest.id === null) &&
+				typeof method === 'string' &&
+				method.startsWith('notifications/')
+			) {
+				await this.mcpProxy.forwardNotification(method, params, authToken);
+				res.status(202).end();
+				return;
+			}
+
 			// Forward request to MCP server
 			let mcpResponse: any;
 
@@ -306,7 +341,7 @@ export class ChatGPTAppServer {
 				}
 			} else if (method === 'initialize') {
 				// Initialize MCP connection
-				mcpResponse = await this.mcpProxy.initialize(params.clientInfo);
+				mcpResponse = await this.mcpProxy.initialize(params?.clientInfo, authToken);
 			} else if (method === 'prompts/list') {
 				// List prompts
 				mcpResponse = await this.mcpProxy.listPrompts(authToken);
@@ -350,6 +385,9 @@ export class ChatGPTAppServer {
 					// MCP server resource
 					mcpResponse = await this.mcpProxy.readResource(resourceUri, authToken);
 				}
+			} else if (method === 'ping') {
+				// Answered here with the empty result the MCP spec requires; the MCP server has no ping method
+				mcpResponse = {};
 			} else {
 				// Generic forward for any other method
 				mcpResponse = await this.mcpProxy.forwardRequest(

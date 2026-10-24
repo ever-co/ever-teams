@@ -10,10 +10,9 @@ import {
 } from '@/core/services/server/requests';
 import { NextResponse } from 'next/server';
 import { APP_NAME } from '@/core/constants/config/constants';
+import { pickTokenOrganization } from '@/core/lib/auth/jwt-utils';
 
 export async function POST(req: Request) {
-	const res = new NextResponse();
-
 	const body = (await req.json()) as unknown as { email: string; code: string };
 	let loginResponse: IAuthResponse | null = null;
 
@@ -35,7 +34,8 @@ export async function POST(req: Request) {
 	// General a random password with 8 chars
 	if (inviteReq && inviteReq.data.fullName) {
 		const password = generateToken(8);
-		console.log('inviteReq', inviteReq.data);
+		// Ids only: the server log is readable by anyone with cluster access.
+		console.log('[API /auth/signin-email-confirm] invite code matched', { inviteId: inviteReq.data.id });
 
 		const names = inviteReq.data.fullName.split(' ');
 		const acceptInviteRes = await acceptInviteRequest({
@@ -82,8 +82,6 @@ export async function POST(req: Request) {
 
 	// Login from Invitation
 	if (loginResponse) {
-		console.log('loginResponse>>>', loginResponse);
-
 		/**
 		 * Get the first team from first organization
 		 */
@@ -91,8 +89,11 @@ export async function POST(req: Request) {
 		const access_token = loginResponse.token;
 		const userId = loginResponse.user?.id;
 
+		// Never the login response itself: it holds the access and refresh tokens.
+		console.log('[API /auth/signin-email-confirm] invite accepted', { userId, tenantId });
+
 		const { data: organizations } = await getUserOrganizationsRequest({ tenantId, userId }, access_token);
-		const organization = organizations?.items[0];
+		const organization = pickTokenOrganization(organizations?.items, access_token);
 
 		if (!organization) {
 			return NextResponse.json(
@@ -111,8 +112,10 @@ export async function POST(req: Request) {
 		);
 
 		const team = teams.items[0];
+		// The cookies go on the response that is returned, or the browser never receives them
+		const res = NextResponse.json({ team, loginResponse });
 		if (!team) {
-			setNoTeamPopupShowCookie(true);
+			setNoTeamPopupShowCookie(true, { req, res });
 		}
 
 		setAuthCookies(
@@ -131,7 +134,7 @@ export async function POST(req: Request) {
 			{ req, res }
 		);
 
-		return NextResponse.json({ team, loginResponse });
+		return res;
 	}
 
 	// Accept Invite Flow End

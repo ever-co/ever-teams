@@ -9,8 +9,15 @@ import {
 } from '@/core/constants/config/constants';
 import { cookiesKeys, setAccessTokenCookie, setRefreshTokenCookie } from '@/core/lib/helpers/cookies';
 import { currentAuthenticatedUserRequest, refreshTokenRequest } from '@/core/services/server/requests/auth';
-import { range } from '@/core/lib/helpers';
+import { unwrapRejection } from '@/core/services/server/fetch';
+import { requestAccessToken, requestCookies } from '@/core/services/server/request-cookies';
 import { isTokenExpired, decodeJWT, getTokenRemainingTime, formatRemainingTime } from '@/core/lib/auth/jwt-utils';
+import {
+	getRuntimeImageHosts,
+	isImageOptimizerRequest,
+	resolveImageRequest,
+	splitImageHostList
+} from '@/core/lib/helpers/image-request';
 import { NextRequest, NextResponse } from 'next/server';
 
 import createMiddleware from 'next-intl/middleware';
@@ -53,6 +60,22 @@ function setUserHeader(response: NextResponse, user: unknown): void {
 	response.headers.set('x-user', serialized);
 }
 
+// The 401 messages Gauzy answers when the refresh token was rotated (or is being rotated) by another request.
+const ROTATED_REFRESH_TOKEN_MESSAGES = new Set([
+	'Token is rotated',
+	'Token is not active',
+	'Failed to rotate token - concurrent modification'
+]);
+
+// serverFetch rejects with a promise holding Gauzy's body: unwrap it so a refused refresh token is recognized.
+async function requestTokenRefresh(refreshToken: string) {
+	try {
+		return await refreshTokenRequest(refreshToken);
+	} catch (error) {
+		throw await unwrapRejection(error);
+	}
+}
+
 export const config = {
 	matcher: [
 		'/',
@@ -65,13 +88,39 @@ export const config = {
 		'/meet(.*)',
 		'/board(.*)',
 		'/kanban(.*)',
-		'/unauthorized(.*)'
+		'/unauthorized(.*)',
+		// next/image optimizer: see handleImageRequest (must stay a literal, Next reads it statically)
+		'/_next/image'
 	]
 };
 
 export { auth as authMiddleware } from './auth';
 
+/**
+ * `/_next/image` requests: serve hosts allowed only at RUNTIME (container env) without the optimizer.
+ *
+ * The optimizer's host allowlist (next.config images.remotePatterns) is frozen into the build, so a
+ * published Docker image answered 400 for a self-hoster's own image hosts (their Gauzy API, S3,
+ * MinIO, logo host). Those requests are now redirected (307) to the original image; everything else
+ * — relative URLs, build-time hosts, hosts allowed nowhere — continues to the optimizer untouched.
+ * See core/lib/helpers/image-request.ts.
+ */
+function handleImageRequest(request: NextRequest): NextResponse {
+	const decision = resolveImageRequest(
+		request.nextUrl.searchParams.getAll('url'),
+		// Inlined at build from next.config.js `env` (the build-time optimizer allowlist).
+		splitImageHostList(process.env.EVER_TEAMS_OPTIMIZED_IMAGE_HOSTS),
+		getRuntimeImageHosts()
+	);
+	return decision === 'optimize' ? NextResponse.next() : NextResponse.redirect(decision.redirect, 307);
+}
+
 export async function proxy(request: NextRequest) {
+	// Image optimizer requests never go through i18n or auth handling below.
+	if (isImageOptimizerRequest(request.nextUrl.pathname)) {
+		return handleImageRequest(request);
+	}
+
 	const nextIntlMiddleware = createMiddleware({
 		defaultLocale: APPLICATION_DEFAULT_LANGUAGE,
 		locales: APPLICATION_LANGUAGES_CODE,
@@ -90,47 +139,9 @@ export async function proxy(request: NextRequest) {
 		return response;
 	}
 
-	let access_token = null;
-
-	const totalChunksCookie = request.cookies.get(`${TOKEN_COOKIE_NAME}_totalChunks`)?.value.trim();
-
-	// Helper function to reconstruct token from chunks with retry logic
-	const reconstructTokenFromChunks = (totalChunks: number, retryCount: number = 0): string | null => {
-		const chunks = range(totalChunks).map((index) => {
-			const chunkCookie = request.cookies.get(`${TOKEN_COOKIE_NAME}${index}`)?.value.trim();
-
-			if (!chunkCookie) {
-				console.warn(`[Proxy] Missing chunk ${index} of ${totalChunks}`);
-				return null;
-			}
-
-			return chunkCookie;
-		});
-
-		const missingChunks = chunks.filter((chunk) => chunk === null).length;
-		if (missingChunks > 0) {
-			return null;
-		}
-
-		return chunks.join('');
-	};
-
-	if (!totalChunksCookie) {
-		access_token = request.cookies.get(TOKEN_COOKIE_NAME)?.value.trim() || '';
-	} else if (totalChunksCookie) {
-		const totalChunks = Number.parseInt(totalChunksCookie);
-		access_token = reconstructTokenFromChunks(totalChunks, 0);
-
-		// If token reconstruction failed and we have chunks, it might be a race condition
-		// during login where cookies are still being set. Add a small delay to allow
-		// all cookies to be properly set before verification.
-		if (!access_token && totalChunks > 0) {
-			console.log('[Proxy] Token reconstruction failed, likely race condition during login. Adding delay...');
-			// Small delay to allow cookies to settle
-			await delay(50);
-			access_token = reconstructTokenFromChunks(totalChunks, 1);
-		}
-	}
+	// The route guards' reader: the chunk count comes from a client cookie, so it is bounded before it sizes
+	// anything (an unbounded `auth-token_totalChunks` blocked the event loop for every user of the server)
+	const access_token = requestAccessToken(requestCookies(request));
 
 	const refresh_token = request.cookies.get(REFRESH_TOKEN_COOKIE_NAME)?.value.trim();
 
@@ -183,6 +194,7 @@ export async function proxy(request: NextRequest) {
 		userData?: any;
 		error?: string;
 		isExpired?: boolean;
+		retryable?: boolean;
 	}> => {
 		if (!refresh_token) {
 			console.log('[Proxy] No refresh token available for refresh attempt');
@@ -191,7 +203,7 @@ export async function proxy(request: NextRequest) {
 
 		try {
 			console.log('[Proxy] Attempting token refresh...');
-			const refreshRes = await refreshTokenRequest(refresh_token);
+			const refreshRes = await requestTokenRefresh(refresh_token);
 			if (!refreshRes?.data?.token) {
 				console.error('[Proxy] Token refresh failed: No token in response', refreshRes);
 				return { success: false, error: 'No token in refresh response', isExpired: true };
@@ -222,8 +234,19 @@ export async function proxy(request: NextRequest) {
 			return { success: false, error: `Token verification failed: ${verifyRes?.response?.status}`, isExpired };
 		} catch (error: any) {
 			const errorMsg = error?.message || 'Unknown error';
-			const statusCode = error?.response?.status || error?.status;
+			const statusCode = error?.statusCode || error?.response?.status || error?.status;
 			const isExpired = isTokenExpiredError(error);
+
+			// Another request already rotated this refresh token and its response may have given the browser the
+			// new pair: a redirect would clear those cookies, and a retry with this token fails the same way.
+			if (isExpired && ROTATED_REFRESH_TOKEN_MESSAGES.has(error?.message)) {
+				return {
+					success: false,
+					error: `Refresh token already rotated: ${errorMsg}`,
+					isExpired: false,
+					retryable: false
+				};
+			}
 
 			return {
 				success: false,
@@ -255,6 +278,11 @@ export async function proxy(request: NextRequest) {
 				// If token is expired, don't retry
 				if (result.isExpired) {
 					console.log('[Proxy] Token expired, not retrying');
+					return result;
+				}
+
+				if (result.retryable === false) {
+					console.log('[Proxy] Refresh token already rotated, not retrying');
 					return result;
 				}
 

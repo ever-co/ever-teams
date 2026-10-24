@@ -1,0 +1,3297 @@
+{
+  "app/[locale]/(main)/(teams)/team/[teamId]/[profileLink]/page.tsx": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 1
+    },
+    "react-hooks/exhaustive-deps": {
+      "count": 1
+    }
+  },
+  "app/[locale]/(main)/(teams)/team/tasks/page.tsx": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 1
+    },
+    "react-hooks/incompatible-library": {
+      "count": 1
+    }
+  },
+  "app/[locale]/(main)/calendar/page.tsx": {
+    "react-hooks/exhaustive-deps": {
+      "count": 1
+    }
+  },
+  "app/[locale]/(main)/kanban/page.tsx": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 7
+    },
+    "react-hooks/immutability": {
+      "count": 1
+    }
+  },
+  "app/[locale]/(main)/profile/[memberId]/page.test.tsx": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 3
+    }
+  },
+  "app/[locale]/(main)/profile/[memberId]/page.tsx": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 1
+    }
+  },
+  "app/[locale]/(main)/reports/weekly-limit/page.tsx": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 1
+    }
+  },
+  "app/[locale]/(main)/settings/layout.tsx": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 1
+    }
+  },
+  "app/[locale]/(main)/task/[id]/page.tsx": {
+    "react-hooks/refs": {
+      "count": 2
+    }
+  },
+  "app/[locale]/auth/reset-password/page.tsx": {
+    "react-hooks/purity": {
+      "count": 1
+    }
+  },
+  "app/[locale]/next-intls.d.ts": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 1
+    }
+  },
+  "app/api/auth/_signin-workspace/route.ts": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 2
+    }
+  },
+  "app/api/auth/ever-id/backchannel-logout/route.test.ts": {
+    "@typescript-eslint/no-require-imports": {
+      "count": 1
+    }
+  },
+  "app/api/auth/ever-id/confirm/route.test.ts": {
+    "@typescript-eslint/no-require-imports": {
+      "count": 3
+    }
+  },
+  "app/api/auth/ever-id/finish-setup/route.test.ts": {
+    "@typescript-eslint/no-require-imports": {
+      "count": 1
+    }
+  },
+  "app/api/auth/ever-id/signup-handoff/route.test.ts": {
+    "@typescript-eslint/no-require-imports": {
+      "count": 4
+    }
+  },
+  "app/api/auth/login/route.ts": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 6
+    },
+    "@typescript-eslint/no-unused-vars": {
+      "count": 1
+    }
+  },
+  "app/api/auth/refresh/route.ts": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 1
+    }
+  },
+  "app/api/auth/register/route.test.ts": {
+    "@typescript-eslint/no-require-imports": {
+      "count": 4
+    }
+  },
+  "app/api/auth/request-password/route.ts": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 1
+    }
+  },
+  "app/api/auth/send-code/route.ts": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 1
+    }
+  },
+  "app/api/auth/signin-email-confirm/route.ts": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 2
+    }
+  },
+  "app/api/auth/signin-email/route.ts": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 1
+    }
+  },
+  "app/api/auth/signin-workspace/signin-workspace.ts": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 2
+    }
+  },
+  "app/api/auth/verify/code/route.ts": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 1
+    }
+  },
+  "app/api/auth/verify/token/route.ts": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 1
+    }
+  },
+  "app/api/health/route.test.ts": {
+    "@typescript-eslint/no-require-imports": {
+      "count": 1
+    }
+  },
+  "app/api/invite/validate-by-code/route.ts": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 1
+    }
+  },
+  "app/api/organization-team/route.ts": {
+    "@typescript-eslint/no-unused-vars": {
+      "count": 2
+    }
+  },
+  "app/api/tasks/team/route.ts": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 1
+    }
+  },
+  "app/api/timer/stop/route.ts": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 1
+    }
+  },
+  "app/api/timer/sync/route.ts": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 1
+    }
+  },
+  "app/api/timer/timesheet/status/route.ts": {
+    "@typescript-eslint/no-unused-vars": {
+      "count": 1
+    }
+  },
+  "app/api/timer/toggle/route.ts": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 1
+    }
+  },
+  "app/api/timesheet/activity/report/route.ts": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 1
+    }
+  },
+  "core/components/activities/activity-calendar.tsx": {
+    "@typescript-eslint/ban-ts-comment": {
+      "count": 1
+    },
+    "react-hooks/exhaustive-deps": {
+      "count": 1
+    },
+    "react-hooks/preserve-manual-memoization": {
+      "count": 1
+    }
+  },
+  "core/components/activities/optimized-activity-tabs.tsx": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 1
+    },
+    "react-hooks/exhaustive-deps": {
+      "count": 1
+    }
+  },
+  "core/components/activities/optimized-task-accordion.tsx": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 4
+    },
+    "@typescript-eslint/no-unused-vars": {
+      "count": 1
+    }
+  },
+  "core/components/activities/time-activity-filter-popover.tsx": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 4
+    },
+    "react-hooks/exhaustive-deps": {
+      "count": 1
+    },
+    "react-hooks/preserve-manual-memoization": {
+      "count": 1
+    }
+  },
+  "core/components/activities/user-team-card-activity.tsx": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 1
+    }
+  },
+  "core/components/activities/user-worked-task.tsx": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 1
+    },
+    "react-hooks/exhaustive-deps": {
+      "count": 1
+    }
+  },
+  "core/components/auth/auth-code-input.tsx": {
+    "@typescript-eslint/no-unused-expressions": {
+      "count": 2
+    }
+  },
+  "core/components/auth/must-be-a-manager.test.tsx": {
+    "@typescript-eslint/no-require-imports": {
+      "count": 1
+    }
+  },
+  "core/components/auth/must-be-a-manager.tsx": {
+    "react-hooks/set-state-in-effect": {
+      "count": 1
+    }
+  },
+  "core/components/auth/re-captcha-client-boundary.tsx": {
+    "@typescript-eslint/no-unused-vars": {
+      "count": 2
+    }
+  },
+  "core/components/auth/recaptcha.tsx": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 1
+    }
+  },
+  "core/components/auth/social-logins-buttons.test.tsx": {
+    "@typescript-eslint/no-unused-vars": {
+      "count": 1
+    }
+  },
+  "core/components/collaborate/index.tsx": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 2
+    },
+    "@typescript-eslint/no-unused-expressions": {
+      "count": 1
+    }
+  },
+  "core/components/collaborate/jitsu-root.tsx": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 2
+    },
+    "@typescript-eslint/no-unused-expressions": {
+      "count": 1
+    }
+  },
+  "core/components/common/alert-dialog-confirmation.tsx": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 1
+    }
+  },
+  "core/components/common/alert-popup.tsx": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 1
+    }
+  },
+  "core/components/common/auto-complete-dropdown.tsx": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 2
+    }
+  },
+  "core/components/common/button.tsx": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 2
+    }
+  },
+  "core/components/common/color-picker.tsx": {
+    "@typescript-eslint/ban-ts-comment": {
+      "count": 2
+    },
+    "@typescript-eslint/no-explicit-any": {
+      "count": 1
+    }
+  },
+  "core/components/common/combobox.tsx": {
+    "@typescript-eslint/no-unused-vars": {
+      "count": 1
+    },
+    "react-hooks/exhaustive-deps": {
+      "count": 1
+    },
+    "react-hooks/refs": {
+      "count": 2
+    }
+  },
+  "core/components/common/data-table.tsx": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 2
+    },
+    "react-hooks/incompatible-library": {
+      "count": 1
+    }
+  },
+  "core/components/common/date-picker.tsx": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 1
+    }
+  },
+  "core/components/common/date-range-select.tsx": {
+    "@typescript-eslint/ban-ts-comment": {
+      "count": 1
+    },
+    "react-hooks/set-state-in-effect": {
+      "count": 1
+    }
+  },
+  "core/components/common/dropdown-menu.tsx": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 2
+    }
+  },
+  "core/components/common/dropdown.tsx": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 1
+    }
+  },
+  "core/components/common/emoji-picker.tsx": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 3
+    }
+  },
+  "core/components/common/image-overlapper.tsx": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 1
+    },
+    "@typescript-eslint/no-unused-vars": {
+      "count": 1
+    }
+  },
+  "core/components/common/input.tsx": {
+    "@typescript-eslint/no-empty-object-type": {
+      "count": 1
+    }
+  },
+  "core/components/common/international-phone-Input.tsx": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 4
+    },
+    "react-hooks/exhaustive-deps": {
+      "count": 1
+    },
+    "react-hooks/set-state-in-effect": {
+      "count": 2
+    }
+  },
+  "core/components/common/language-dropdown-flags.test.tsx": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 4
+    },
+    "jsx-a11y/role-has-required-aria-props": {
+      "count": 1
+    }
+  },
+  "core/components/common/language-dropdown-flags.tsx": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 4
+    },
+    "react-hooks/set-state-in-effect": {
+      "count": 1
+    }
+  },
+  "core/components/common/language-dropdown.tsx": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 2
+    },
+    "react-hooks/set-state-in-effect": {
+      "count": 1
+    }
+  },
+  "core/components/common/lazy-render.tsx": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 1
+    }
+  },
+  "core/components/common/multiple-select.tsx": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 5
+    }
+  },
+  "core/components/common/sidebar.tsx": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 5
+    },
+    "react-hooks/purity": {
+      "count": 1
+    }
+  },
+  "core/components/common/skeleton/app-urls-dashboard-page-skeleton.tsx": {
+    "@typescript-eslint/no-unused-vars": {
+      "count": 1
+    }
+  },
+  "core/components/common/skeleton/calendar-component-skeletons.tsx": {
+    "import/no-anonymous-default-export": {
+      "count": 1
+    }
+  },
+  "core/components/common/skeleton/calendar-page-skeleton.tsx": {
+    "@typescript-eslint/no-unused-vars": {
+      "count": 1
+    }
+  },
+  "core/components/common/skeleton/profile-component-skeletons.tsx": {
+    "import/no-anonymous-default-export": {
+      "count": 1
+    }
+  },
+  "core/components/common/skeleton/profile-page-skeleton.tsx": {
+    "@typescript-eslint/no-unused-vars": {
+      "count": 2
+    }
+  },
+  "core/components/common/skeleton/reports-component-skeletons.tsx": {
+    "import/no-anonymous-default-export": {
+      "count": 1
+    }
+  },
+  "core/components/common/skeleton/reports-page-skeleton.tsx": {
+    "@typescript-eslint/no-unused-vars": {
+      "count": 1
+    }
+  },
+  "core/components/common/skeleton/rich-text-editor-skeleton.tsx": {
+    "@typescript-eslint/no-unused-vars": {
+      "count": 1
+    }
+  },
+  "core/components/common/skeleton/team-dashboard-page-skeleton.tsx": {
+    "@typescript-eslint/no-unused-vars": {
+      "count": 1
+    }
+  },
+  "core/components/common/skeleton/time-activity-page-skeleton.tsx": {
+    "@typescript-eslint/no-unused-vars": {
+      "count": 1
+    }
+  },
+  "core/components/common/skeleton/time-activity-skeletons.tsx": {
+    "import/no-anonymous-default-export": {
+      "count": 1
+    }
+  },
+  "core/components/common/skeleton/timesheet-page-skeleton.tsx": {
+    "@typescript-eslint/no-unused-vars": {
+      "count": 1
+    }
+  },
+  "core/components/common/sonner.tsx": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 2
+    }
+  },
+  "core/components/common/switch.tsx": {
+    "react-hooks/set-state-in-effect": {
+      "count": 3
+    }
+  },
+  "core/components/common/time-input.tsx": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 3
+    },
+    "@typescript-eslint/no-unused-expressions": {
+      "count": 1
+    }
+  },
+  "core/components/common/toggler.tsx": {
+    "@typescript-eslint/no-unused-expressions": {
+      "count": 2
+    }
+  },
+  "core/components/common/unverified-email.tsx": {
+    "react-hooks/exhaustive-deps": {
+      "count": 1
+    },
+    "react-hooks/preserve-manual-memoization": {
+      "count": 1
+    },
+    "react-hooks/set-state-in-effect": {
+      "count": 1
+    }
+  },
+  "core/components/common/virtualized-list.tsx": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 6
+    },
+    "react-hooks/exhaustive-deps": {
+      "count": 3
+    },
+    "react-hooks/preserve-manual-memoization": {
+      "count": 5
+    }
+  },
+  "core/components/daily-plan/all-plans-modal.tsx": {
+    "@typescript-eslint/no-non-null-asserted-optional-chain": {
+      "count": 1
+    },
+    "@typescript-eslint/no-unused-expressions": {
+      "count": 2
+    },
+    "@typescript-eslint/no-unused-vars": {
+      "count": 1
+    },
+    "react-hooks/purity": {
+      "count": 2
+    }
+  },
+  "core/components/daily-plan/all-plans.tsx": {
+    "@typescript-eslint/ban-ts-comment": {
+      "count": 4
+    },
+    "@typescript-eslint/no-explicit-any": {
+      "count": 3
+    },
+    "react-hooks/exhaustive-deps": {
+      "count": 1
+    },
+    "react-hooks/refs": {
+      "count": 3
+    }
+  },
+  "core/components/daily-plan/plan-header.tsx": {
+    "react-hooks/exhaustive-deps": {
+      "count": 1
+    }
+  },
+  "core/components/duplicated-components/_input.tsx": {
+    "react-hooks/set-state-in-effect": {
+      "count": 2
+    }
+  },
+  "core/components/duplicated-components/auth-code-input.tsx": {
+    "@typescript-eslint/no-unused-expressions": {
+      "count": 1
+    }
+  },
+  "core/components/duplicated-components/avatar.tsx": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 1
+    }
+  },
+  "core/components/duplicated-components/input.tsx": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 1
+    }
+  },
+  "core/components/duplicated-components/pagination.tsx": {
+    "@typescript-eslint/no-unused-vars": {
+      "count": 1
+    }
+  },
+  "core/components/duplicated-components/recaptcha.tsx": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 1
+    }
+  },
+  "core/components/duplicated-components/time-picker.tsx": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 4
+    },
+    "@typescript-eslint/no-unused-expressions": {
+      "count": 1
+    }
+  },
+  "core/components/features/chat-panel/components/chat-config-dialog.tsx": {
+    "react-hooks/set-state-in-effect": {
+      "count": 1
+    }
+  },
+  "core/components/features/chat-panel/components/chat-panel-layout.tsx": {
+    "react-hooks/refs": {
+      "count": 9
+    }
+  },
+  "core/components/features/chat-panel/components/chat-view.tsx": {
+    "@typescript-eslint/no-unused-vars": {
+      "count": 1
+    },
+    "react-hooks/preserve-manual-memoization": {
+      "count": 1
+    },
+    "react-hooks/set-state-in-effect": {
+      "count": 4
+    }
+  },
+  "core/components/features/daily-plan/active-task-handler-modal.tsx": {
+    "@typescript-eslint/no-unused-expressions": {
+      "count": 2
+    }
+  },
+  "core/components/features/daily-plan/add-task-estimation-hours-modal.tsx": {
+    "@typescript-eslint/no-non-null-asserted-optional-chain": {
+      "count": 1
+    },
+    "@typescript-eslint/no-unused-expressions": {
+      "count": 4
+    },
+    "react-hooks/exhaustive-deps": {
+      "count": 5
+    },
+    "react-hooks/preserve-manual-memoization": {
+      "count": 7
+    }
+  },
+  "core/components/features/daily-plan/add-task-to-plan.tsx": {
+    "@typescript-eslint/no-unused-expressions": {
+      "count": 1
+    },
+    "react-hooks/exhaustive-deps": {
+      "count": 1
+    }
+  },
+  "core/components/features/daily-plan/create-daily-plan-form-modal.tsx": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 1
+    }
+  },
+  "core/components/features/daily-plan/daily-plan-compare-estimate-modal.tsx": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 2
+    }
+  },
+  "core/components/features/daily-plan/enforce-planed-task-modal.tsx": {
+    "react-hooks/preserve-manual-memoization": {
+      "count": 1
+    }
+  },
+  "core/components/features/manual-time/add-manual-time-modal.tsx": {
+    "@typescript-eslint/ban-ts-comment": {
+      "count": 1
+    },
+    "@typescript-eslint/no-explicit-any": {
+      "count": 6
+    },
+    "@typescript-eslint/no-unused-expressions": {
+      "count": 1
+    },
+    "react-hooks/set-state-in-effect": {
+      "count": 6
+    }
+  },
+  "core/components/features/projects/add-or-edit-project/steps/basic-information-form.tsx": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 2
+    }
+  },
+  "core/components/features/projects/add-or-edit-project/steps/categorization-form.tsx": {
+    "@typescript-eslint/ban-ts-comment": {
+      "count": 1
+    },
+    "@typescript-eslint/no-explicit-any": {
+      "count": 1
+    }
+  },
+  "core/components/features/projects/add-or-edit-project/steps/financial-settings-form.test.tsx": {
+    "@typescript-eslint/no-unused-vars": {
+      "count": 1
+    }
+  },
+  "core/components/features/projects/add-or-edit-project/steps/review-summary.tsx": {
+    "react-hooks/preserve-manual-memoization": {
+      "count": 1
+    },
+    "react-hooks/static-components": {
+      "count": 1
+    }
+  },
+  "core/components/features/projects/add-or-edit-project/steps/select.tsx": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 2
+    }
+  },
+  "core/components/features/projects/add-or-edit-project/text-editor/index.tsx": {
+    "@typescript-eslint/ban-ts-comment": {
+      "count": 1
+    },
+    "@typescript-eslint/no-explicit-any": {
+      "count": 4
+    }
+  },
+  "core/components/features/projects/archive-project-modal.tsx": {
+    "react-hooks/preserve-manual-memoization": {
+      "count": 1
+    }
+  },
+  "core/components/features/roles/edit-role-dropdown.tsx": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 1
+    },
+    "react-hooks/set-state-in-effect": {
+      "count": 1
+    }
+  },
+  "core/components/features/tasks/create-task-modal.tsx": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 3
+    }
+  },
+  "core/components/features/tasks/delete-task.tsx": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 1
+    }
+  },
+  "core/components/features/tasks/edit-status-modal.tsx": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 6
+    }
+  },
+  "core/components/features/tasks/edit-task-modal.tsx": {
+    "react-hooks/exhaustive-deps": {
+      "count": 1
+    }
+  },
+  "core/components/features/tasks/global-assign-task-modal.tsx": {
+    "react-hooks/exhaustive-deps": {
+      "count": 2
+    },
+    "react-hooks/refs": {
+      "count": 1
+    }
+  },
+  "core/components/features/teams/invite-form-modal.test.tsx": {
+    "@typescript-eslint/no-unused-vars": {
+      "count": 4
+    }
+  },
+  "core/components/features/teams/invite-form-modal.tsx": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 1
+    },
+    "react-hooks/exhaustive-deps": {
+      "count": 1
+    },
+    "react-hooks/preserve-manual-memoization": {
+      "count": 3
+    },
+    "react-hooks/set-state-in-effect": {
+      "count": 2
+    }
+  },
+  "core/components/features/teams/invite-modal.tsx": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 3
+    }
+  },
+  "core/components/features/teams/request-to-join-modal.tsx": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 2
+    }
+  },
+  "core/components/features/timesheet/add-mask-modal.tsx": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 6
+    }
+  },
+  "core/components/features/users/email-reset-modal.tsx": {
+    "no-constant-binary-expression": {
+      "count": 1
+    }
+  },
+  "core/components/integration/boards/exalidraw.tsx": {
+    "@typescript-eslint/ban-ts-comment": {
+      "count": 1
+    }
+  },
+  "core/components/integration/calendar/setup-full-calendar.tsx": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 3
+    }
+  },
+  "core/components/integration/chatwoot/index.tsx": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 2
+    },
+    "@typescript-eslint/no-unused-expressions": {
+      "count": 1
+    }
+  },
+  "core/components/integration/livekit/settings-livekit.tsx": {
+    "@typescript-eslint/ban-ts-comment": {
+      "count": 2
+    },
+    "@typescript-eslint/no-empty-object-type": {
+      "count": 1
+    }
+  },
+  "core/components/integration/meet/index.tsx": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 1
+    },
+    "react-hooks/set-state-in-effect": {
+      "count": 1
+    }
+  },
+  "core/components/layouts/app/authenticator.tsx": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 3
+    },
+    "@typescript-eslint/no-unused-vars": {
+      "count": 1
+    },
+    "react-hooks/set-state-in-effect": {
+      "count": 1
+    }
+  },
+  "core/components/layouts/app/init-state.test.tsx": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 6
+    }
+  },
+  "core/components/layouts/app/init-state.tsx": {
+    "react-hooks/exhaustive-deps": {
+      "count": 2
+    }
+  },
+  "core/components/layouts/app/use-scope-transition-guard.test.tsx": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 19
+    }
+  },
+  "core/components/layouts/app/use-scope-transition-guard.ts": {
+    "react-hooks/refs": {
+      "count": 5
+    }
+  },
+  "core/components/layouts/default-layout/footer.tsx": {
+    "react-hooks/set-state-in-effect": {
+      "count": 1
+    }
+  },
+  "core/components/layouts/default-layout/header/position-dropdown.tsx": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 2
+    },
+    "react-hooks/set-state-in-effect": {
+      "count": 1
+    }
+  },
+  "core/components/layouts/default-layout/header/sidebar-command-modal.tsx": {
+    "react-hooks/exhaustive-deps": {
+      "count": 1
+    },
+    "react-hooks/preserve-manual-memoization": {
+      "count": 1
+    }
+  },
+  "core/components/layouts/default-layout/next-auth-provider.tsx": {
+    "@typescript-eslint/ban-ts-comment": {
+      "count": 1
+    }
+  },
+  "core/components/layouts/default-layout/page-layout.tsx": {
+    "react-hooks/exhaustive-deps": {
+      "count": 1
+    },
+    "react-hooks/set-state-in-effect": {
+      "count": 1
+    }
+  },
+  "core/components/layouts/position-item.tsx": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 1
+    }
+  },
+  "core/components/layouts/sidebar-accordian.tsx": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 1
+    }
+  },
+  "core/components/layouts/sidebar-opt-in-form.tsx": {
+    "@typescript-eslint/no-unused-vars": {
+      "count": 2
+    }
+  },
+  "core/components/layouts/skeletons/all-teams-page-skeleton.tsx": {
+    "@typescript-eslint/no-unused-vars": {
+      "count": 1
+    }
+  },
+  "core/components/layouts/skeletons/kanban-page-skeleton.tsx": {
+    "@typescript-eslint/no-unused-vars": {
+      "count": 1
+    }
+  },
+  "core/components/layouts/skeletons/team-member-profile-page-skeleton.tsx": {
+    "@typescript-eslint/no-unused-vars": {
+      "count": 1
+    }
+  },
+  "core/components/layouts/skeletons/team-tasks-page-skeleton.tsx": {
+    "@typescript-eslint/no-unused-vars": {
+      "count": 1
+    }
+  },
+  "core/components/pages/auth/accept-invite/complete-invitation-registration-form.tsx": {
+    "react-hooks/exhaustive-deps": {
+      "count": 1
+    },
+    "react-hooks/preserve-manual-memoization": {
+      "count": 1
+    }
+  },
+  "core/components/pages/auth/passcode/page-component.tsx": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 2
+    },
+    "@typescript-eslint/no-unused-expressions": {
+      "count": 2
+    },
+    "react-hooks/exhaustive-deps": {
+      "count": 1
+    },
+    "react-hooks/refs": {
+      "count": 22
+    },
+    "react-hooks/set-state-in-effect": {
+      "count": 2
+    }
+  },
+  "core/components/pages/auth/password/page-component.tsx": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 1
+    },
+    "@typescript-eslint/no-unused-expressions": {
+      "count": 2
+    }
+  },
+  "core/components/pages/auth/signup/page-component.tsx": {
+    "@typescript-eslint/ban-ts-comment": {
+      "count": 1
+    },
+    "@typescript-eslint/no-explicit-any": {
+      "count": 2
+    }
+  },
+  "core/components/pages/auth/social-welcome/page-component.tsx": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 1
+    }
+  },
+  "core/components/pages/auth/workspace/page-component.tsx": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 2
+    },
+    "@typescript-eslint/no-unused-expressions": {
+      "count": 2
+    },
+    "react-hooks/set-state-in-effect": {
+      "count": 3
+    }
+  },
+  "core/components/pages/calendar/page-component.tsx": {
+    "@typescript-eslint/ban-ts-comment": {
+      "count": 1
+    },
+    "@typescript-eslint/no-explicit-any": {
+      "count": 1
+    },
+    "@typescript-eslint/no-unused-expressions": {
+      "count": 1
+    }
+  },
+  "core/components/pages/dashboard/app-url/productivity-application/productivity-application-table.tsx": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 1
+    }
+  },
+  "core/components/pages/dashboard/app-url/productivity-employee/productivity-employee-table.tsx": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 6
+    },
+    "react-hooks/exhaustive-deps": {
+      "count": 1
+    }
+  },
+  "core/components/pages/dashboard/app-url/productivity-project/index.tsx": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 1
+    }
+  },
+  "core/components/pages/dashboard/app-url/productivity-table.tsx": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 1
+    }
+  },
+  "core/components/pages/dashboard/dashboard-header.tsx": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 2
+    }
+  },
+  "core/components/pages/dashboard/export-dialog.tsx": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 1
+    }
+  },
+  "core/components/pages/dashboard/export-menu.tsx": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 1
+    }
+  },
+  "core/components/pages/dashboard/pdf/index.tsx": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 1
+    }
+  },
+  "core/components/pages/dashboard/team-dashboard-filter.tsx": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 4
+    },
+    "react-hooks/exhaustive-deps": {
+      "count": 1
+    }
+  },
+  "core/components/pages/dashboard/team-dashboard/team-stats-chart.tsx": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 2
+    }
+  },
+  "core/components/pages/dashboard/team-dashboard/team-stats-table.tsx": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 1
+    }
+  },
+  "core/components/pages/integration/github/page-component.tsx": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 1
+    },
+    "react-hooks/refs": {
+      "count": 7
+    }
+  },
+  "core/components/pages/kanban/menu-kanban-card.tsx": {
+    "@typescript-eslint/ban-ts-comment": {
+      "count": 1
+    },
+    "@typescript-eslint/no-explicit-any": {
+      "count": 1
+    }
+  },
+  "core/components/pages/kanban/search-bar.tsx": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 2
+    }
+  },
+  "core/components/pages/kanban/sort-tasks-status-settings.tsx": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 1
+    }
+  },
+  "core/components/pages/kanban/team-members-kanban-view.tsx": {
+    "@typescript-eslint/ban-ts-comment": {
+      "count": 1
+    },
+    "@typescript-eslint/no-explicit-any": {
+      "count": 4
+    }
+  },
+  "core/components/pages/meet/jitsi/page-component.tsx": {
+    "react-hooks/set-state-in-effect": {
+      "count": 1
+    }
+  },
+  "core/components/pages/meet/livekit/page-component.tsx": {
+    "react-hooks/set-state-in-effect": {
+      "count": 1
+    }
+  },
+  "core/components/pages/profile/screenshots/screenshot-details.tsx": {
+    "@typescript-eslint/no-unused-expressions": {
+      "count": 1
+    },
+    "react-hooks/set-state-in-effect": {
+      "count": 2
+    }
+  },
+  "core/components/pages/profile/task-filters.tsx": {
+    "react-hooks/refs": {
+      "count": 5
+    }
+  },
+  "core/components/pages/profile/user-profile-tasks.tsx": {
+    "react-hooks/set-state-in-effect": {
+      "count": 1
+    }
+  },
+  "core/components/pages/projects/page-component.tsx": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 1
+    },
+    "react-hooks/exhaustive-deps": {
+      "count": 2
+    },
+    "react-hooks/set-state-in-effect": {
+      "count": 4
+    }
+  },
+  "core/components/pages/reports/weekly-limit/data-table.tsx": {
+    "react-hooks/incompatible-library": {
+      "count": 1
+    }
+  },
+  "core/components/pages/settings/interaction-observer.tsx": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 1
+    }
+  },
+  "core/components/pages/settings/personal/personal-setting-form.tsx": {
+    "react-hooks/exhaustive-deps": {
+      "count": 2
+    },
+    "react-hooks/preserve-manual-memoization": {
+      "count": 4
+    },
+    "react-hooks/set-state-in-effect": {
+      "count": 2
+    }
+  },
+  "core/components/pages/settings/team/integration-setting.tsx": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 2
+    },
+    "react-hooks/set-state-in-effect": {
+      "count": 1
+    }
+  },
+  "core/components/pages/settings/team/member-setting.tsx": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 1
+    }
+  },
+  "core/components/pages/settings/team/team-setting-form.tsx": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 3
+    },
+    "react-hooks/exhaustive-deps": {
+      "count": 2
+    },
+    "react-hooks/use-memo": {
+      "count": 1
+    }
+  },
+  "core/components/pages/task/child-issue-card.tsx": {
+    "react-hooks/immutability": {
+      "count": 1
+    }
+  },
+  "core/components/pages/task/description-block/editor-components/block-button.tsx": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 3
+    }
+  },
+  "core/components/pages/task/description-block/editor-components/check-list-element.tsx": {
+    "@typescript-eslint/ban-ts-comment": {
+      "count": 2
+    },
+    "@typescript-eslint/no-explicit-any": {
+      "count": 1
+    }
+  },
+  "core/components/pages/task/description-block/editor-components/link-element.tsx": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 2
+    }
+  },
+  "core/components/pages/task/description-block/editor-components/mark-button.tsx": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 2
+    }
+  },
+  "core/components/pages/task/description-block/editor-footer.tsx": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 2
+    }
+  },
+  "core/components/pages/task/description-block/editor-toolbar.tsx": {
+    "@typescript-eslint/ban-ts-comment": {
+      "count": 1
+    },
+    "@typescript-eslint/no-explicit-any": {
+      "count": 32
+    },
+    "@typescript-eslint/no-unused-expressions": {
+      "count": 1
+    }
+  },
+  "core/components/pages/task/description-block/task-description-editor.tsx": {
+    "@typescript-eslint/ban-ts-comment": {
+      "count": 8
+    },
+    "@typescript-eslint/no-explicit-any": {
+      "count": 18
+    },
+    "react-hooks/exhaustive-deps": {
+      "count": 1
+    },
+    "react-hooks/immutability": {
+      "count": 1
+    }
+  },
+  "core/components/pages/task/description-block/tool-button.tsx": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 1
+    }
+  },
+  "core/components/pages/task/details-section/blocks/task-estimations-info.tsx": {
+    "react-hooks/exhaustive-deps": {
+      "count": 2
+    },
+    "react-hooks/preserve-manual-memoization": {
+      "count": 2
+    }
+  },
+  "core/components/pages/task/details-section/blocks/task-main-info.tsx": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 1
+    },
+    "react-hooks/immutability": {
+      "count": 2
+    }
+  },
+  "core/components/pages/task/details-section/blocks/task-plans.tsx": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 1
+    }
+  },
+  "core/components/pages/task/details-section/blocks/task-progress.tsx": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 2
+    },
+    "react-hooks/set-state-in-effect": {
+      "count": 3
+    }
+  },
+  "core/components/pages/task/details-section/blocks/task-publicity.tsx": {
+    "react-hooks/set-state-in-effect": {
+      "count": 1
+    }
+  },
+  "core/components/pages/task/details-section/blocks/task-secondary-info.tsx": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 2
+    },
+    "react-hooks/exhaustive-deps": {
+      "count": 1
+    },
+    "react-hooks/preserve-manual-memoization": {
+      "count": 1
+    },
+    "react-hooks/set-state-in-effect": {
+      "count": 1
+    }
+  },
+  "core/components/pages/task/issue-card.tsx": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 1
+    },
+    "react-hooks/exhaustive-deps": {
+      "count": 1
+    },
+    "react-hooks/preserve-manual-memoization": {
+      "count": 2
+    }
+  },
+  "core/components/pages/task/title-block/task-title-block.tsx": {
+    "@typescript-eslint/no-unused-expressions": {
+      "count": 2
+    },
+    "react-hooks/immutability": {
+      "count": 1
+    }
+  },
+  "core/components/pages/teams/all-teams/all-teams-members-views/users-teams-block/member-block.tsx": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 2
+    }
+  },
+  "core/components/pages/teams/all-teams/all-teams-members-views/users-teams-block/user-team-today-worked.tsx": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 1
+    }
+  },
+  "core/components/pages/teams/team/tasks/dropdown-menu-task.tsx": {
+    "react-hooks/exhaustive-deps": {
+      "count": 1
+    },
+    "react-hooks/preserve-manual-memoization": {
+      "count": 1
+    }
+  },
+  "core/components/pages/teams/team/tasks/tasks-data-table.tsx": {
+    "react-hooks/incompatible-library": {
+      "count": 1
+    }
+  },
+  "core/components/pages/teams/team/team-members-views/team-members-card-view.tsx": {
+    "react-hooks/refs": {
+      "count": 1
+    }
+  },
+  "core/components/pages/teams/team/team-members-views/user-team-block/index.tsx": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 1
+    }
+  },
+  "core/components/pages/teams/team/team-members-views/user-team-block/task-info.tsx": {
+    "react-hooks/refs": {
+      "count": 5
+    }
+  },
+  "core/components/pages/teams/team/team-members-views/user-team-block/user-team-block-header.tsx": {
+    "react-hooks/refs": {
+      "count": 7
+    }
+  },
+  "core/components/pages/teams/team/team-members-views/user-team-card/index.tsx": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 6
+    },
+    "react-hooks/preserve-manual-memoization": {
+      "count": 1
+    },
+    "react-hooks/refs": {
+      "count": 1
+    }
+  },
+  "core/components/pages/teams/team/team-members-views/user-team-card/task-estimate.tsx": {
+    "@typescript-eslint/no-unused-expressions": {
+      "count": 2
+    },
+    "react-hooks/refs": {
+      "count": 7
+    }
+  },
+  "core/components/pages/teams/team/team-members-views/user-team-card/task-info.tsx": {
+    "react-hooks/refs": {
+      "count": 5
+    }
+  },
+  "core/components/pages/teams/team/team-members-views/user-team-card/user-team-card-menu.tsx": {
+    "@typescript-eslint/no-unused-expressions": {
+      "count": 7
+    },
+    "react-hooks/exhaustive-deps": {
+      "count": 4
+    },
+    "react-hooks/preserve-manual-memoization": {
+      "count": 3
+    }
+  },
+  "core/components/pages/teams/team/team-members-views/user-team-table/team-member-cells.tsx": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 5
+    }
+  },
+  "core/components/pages/time-and-activity/date-range-picker-time-activity.tsx": {
+    "@typescript-eslint/ban-ts-comment": {
+      "count": 1
+    }
+  },
+  "core/components/pages/time-and-activity/export/export-progress-modal.tsx": {
+    "react/no-unescaped-entities": {
+      "count": 2
+    }
+  },
+  "core/components/pages/time-and-activity/export/time-activity-export-menu.tsx": {
+    "react-hooks/exhaustive-deps": {
+      "count": 1
+    }
+  },
+  "core/components/pages/time-and-activity/page-component.tsx": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 1
+    }
+  },
+  "core/components/pages/time-and-activity/time-activity-header.tsx": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 1
+    }
+  },
+  "core/components/pages/time-and-activity/time-activity-table-adapter.tsx": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 3
+    }
+  },
+  "core/components/pages/time-and-activity/weekly-report-table.tsx": {
+    "react-hooks/set-state-in-effect": {
+      "count": 1
+    }
+  },
+  "core/components/pages/timesheet/calendar-view.tsx": {
+    "react-hooks/refs": {
+      "count": 1
+    }
+  },
+  "core/components/pages/timesheet/table-time-sheet.tsx": {
+    "@typescript-eslint/no-non-null-asserted-optional-chain": {
+      "count": 1
+    }
+  },
+  "core/components/pages/timesheet/timesheet-card.tsx": {
+    "@typescript-eslint/no-non-null-asserted-optional-chain": {
+      "count": 1
+    }
+  },
+  "core/components/pages/timesheet/timesheet-filter-date.tsx": {
+    "@typescript-eslint/ban-ts-comment": {
+      "count": 3
+    },
+    "@typescript-eslint/no-explicit-any": {
+      "count": 1
+    },
+    "@typescript-eslint/no-unused-expressions": {
+      "count": 1
+    },
+    "@typescript-eslint/no-unused-vars": {
+      "count": 2
+    },
+    "react-hooks/exhaustive-deps": {
+      "count": 1
+    },
+    "react-hooks/purity": {
+      "count": 2
+    }
+  },
+  "core/components/pages/timesheet/timesheet-filter-popover.tsx": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 5
+    }
+  },
+  "core/components/pages/timesheet/timesheet-page-content.tsx": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 1
+    },
+    "react-hooks/exhaustive-deps": {
+      "count": 1
+    }
+  },
+  "core/components/projects/filters-card-modal.tsx": {
+    "react-hooks/set-state-in-effect": {
+      "count": 1
+    }
+  },
+  "core/components/providers/query-client-provider.tsx": {
+    "react-hooks/refs": {
+      "count": 2
+    }
+  },
+  "core/components/roles/permission-dropdown.tsx": {
+    "@typescript-eslint/no-unused-expressions": {
+      "count": 1
+    }
+  },
+  "core/components/roles/permission-item.tsx": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 1
+    }
+  },
+  "core/components/settings/choose-dropdown.tsx": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 2
+    },
+    "react-hooks/set-state-in-effect": {
+      "count": 3
+    }
+  },
+  "core/components/settings/color-dropdown.tsx": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 1
+    },
+    "react-hooks/set-state-in-effect": {
+      "count": 3
+    }
+  },
+  "core/components/settings/confirmation-modal.tsx": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 1
+    }
+  },
+  "core/components/settings/day-dropdown.tsx": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 2
+    },
+    "react-hooks/set-state-in-effect": {
+      "count": 3
+    }
+  },
+  "core/components/settings/filter-by-dropdown.tsx": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 2
+    },
+    "react-hooks/set-state-in-effect": {
+      "count": 3
+    }
+  },
+  "core/components/settings/icon-dropdown.tsx": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 2
+    },
+    "react-hooks/set-state-in-effect": {
+      "count": 3
+    }
+  },
+  "core/components/settings/icon-popover.tsx": {
+    "react-hooks/set-state-in-effect": {
+      "count": 1
+    }
+  },
+  "core/components/settings/list-card.tsx": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 2
+    }
+  },
+  "core/components/settings/notify-dropdown.tsx": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 2
+    },
+    "react-hooks/set-state-in-effect": {
+      "count": 3
+    }
+  },
+  "core/components/settings/page-dropdown.tsx": {
+    "react-hooks/exhaustive-deps": {
+      "count": 2
+    },
+    "react-hooks/set-state-in-effect": {
+      "count": 1
+    }
+  },
+  "core/components/settings/period-dropdown.tsx": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 2
+    },
+    "react-hooks/set-state-in-effect": {
+      "count": 3
+    }
+  },
+  "core/components/settings/proof-dropdown.tsx": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 2
+    },
+    "react-hooks/set-state-in-effect": {
+      "count": 3
+    }
+  },
+  "core/components/settings/remove-modal.tsx": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 2
+    }
+  },
+  "core/components/settings/sort-by-dropdown.tsx": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 2
+    },
+    "react-hooks/set-state-in-effect": {
+      "count": 3
+    }
+  },
+  "core/components/settings/table-action-popover.tsx": {
+    "@typescript-eslint/no-unused-expressions": {
+      "count": 1
+    }
+  },
+  "core/components/tasks/assigned-tasks.tsx": {
+    "react-hooks/refs": {
+      "count": 2
+    }
+  },
+  "core/components/tasks/custom-dropdown.tsx": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 2
+    }
+  },
+  "core/components/tasks/daily-plan/future-tasks.tsx": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 2
+    }
+  },
+  "core/components/tasks/daily-plan/outstanding-all.tsx": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 2
+    },
+    "react-hooks/exhaustive-deps": {
+      "count": 1
+    }
+  },
+  "core/components/tasks/daily-plan/outstanding-date.tsx": {
+    "@typescript-eslint/ban-ts-comment": {
+      "count": 1
+    },
+    "@typescript-eslint/no-explicit-any": {
+      "count": 1
+    }
+  },
+  "core/components/tasks/daily-plan/outstanding.tsx": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 1
+    }
+  },
+  "core/components/tasks/daily-plan/past-tasks.tsx": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 2
+    }
+  },
+  "core/components/tasks/default-issue-type-form.tsx": {
+    "@typescript-eslint/no-unused-expressions": {
+      "count": 1
+    }
+  },
+  "core/components/tasks/issue-types-form.tsx": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 1
+    }
+  },
+  "core/components/tasks/kanban-card.tsx": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 6
+    },
+    "react-hooks/refs": {
+      "count": 4
+    }
+  },
+  "core/components/tasks/kanban.tsx": {
+    "@typescript-eslint/ban-ts-comment": {
+      "count": 2
+    },
+    "@typescript-eslint/no-explicit-any": {
+      "count": 12
+    },
+    "@typescript-eslint/no-unused-vars": {
+      "count": 2
+    },
+    "react-hooks/refs": {
+      "count": 2
+    }
+  },
+  "core/components/tasks/multiple-status-dropdown.tsx": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 1
+    },
+    "@typescript-eslint/no-unused-vars": {
+      "count": 1
+    }
+  },
+  "core/components/tasks/observer.tsx": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 2
+    },
+    "@typescript-eslint/no-unused-expressions": {
+      "count": 2
+    }
+  },
+  "core/components/tasks/related-issue-type-form.tsx": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 1
+    },
+    "@typescript-eslint/no-unused-expressions": {
+      "count": 1
+    }
+  },
+  "core/components/tasks/status-dropdown.tsx": {
+    "react-hooks/set-state-in-effect": {
+      "count": 2
+    }
+  },
+  "core/components/tasks/task-block-card.tsx": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 2
+    }
+  },
+  "core/components/tasks/task-card.tsx": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 1
+    },
+    "@typescript-eslint/no-unused-vars": {
+      "count": 1
+    },
+    "react-hooks/preserve-manual-memoization": {
+      "count": 2
+    }
+  },
+  "core/components/tasks/task-detail-card.tsx": {
+    "react-hooks/refs": {
+      "count": 3
+    }
+  },
+  "core/components/tasks/task-displays.tsx": {
+    "@typescript-eslint/ban-ts-comment": {
+      "count": 2
+    }
+  },
+  "core/components/tasks/task-estimate.tsx": {
+    "@typescript-eslint/no-unused-expressions": {
+      "count": 5
+    }
+  },
+  "core/components/tasks/task-filter.tsx": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 1
+    }
+  },
+  "core/components/tasks/task-input-kanban.tsx": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 3
+    },
+    "@typescript-eslint/no-unused-expressions": {
+      "count": 11
+    },
+    "react-hooks/exhaustive-deps": {
+      "count": 4
+    },
+    "react-hooks/immutability": {
+      "count": 6
+    },
+    "react-hooks/preserve-manual-memoization": {
+      "count": 1
+    }
+  },
+  "core/components/tasks/task-input.tsx": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 8
+    },
+    "@typescript-eslint/no-unused-expressions": {
+      "count": 10
+    },
+    "react-hooks/exhaustive-deps": {
+      "count": 3
+    },
+    "react-hooks/immutability": {
+      "count": 9
+    }
+  },
+  "core/components/tasks/task-issue.tsx": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 1
+    },
+    "@typescript-eslint/no-unused-vars": {
+      "count": 3
+    },
+    "react-hooks/exhaustive-deps": {
+      "count": 1
+    }
+  },
+  "core/components/tasks/task-item.tsx": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 1
+    }
+  },
+  "core/components/tasks/task-items.tsx": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 1
+    }
+  },
+  "core/components/tasks/task-labels-form.tsx": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 2
+    },
+    "react-hooks/incompatible-library": {
+      "count": 1
+    }
+  },
+  "core/components/tasks/task-labels.tsx": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 3
+    },
+    "react-hooks/refs": {
+      "count": 1
+    }
+  },
+  "core/components/tasks/task-list.tsx": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 2
+    },
+    "@typescript-eslint/no-unused-expressions": {
+      "count": 1
+    },
+    "react-hooks/set-state-in-effect": {
+      "count": 1
+    }
+  },
+  "core/components/tasks/task-member-estimate.tsx": {
+    "@typescript-eslint/no-unused-expressions": {
+      "count": 6
+    },
+    "react-hooks/exhaustive-deps": {
+      "count": 2
+    }
+  },
+  "core/components/tasks/task-priorities-form.tsx": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 1
+    },
+    "@typescript-eslint/no-unused-expressions": {
+      "count": 2
+    }
+  },
+  "core/components/tasks/task-sizes-form.tsx": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 1
+    },
+    "@typescript-eslint/no-unused-expressions": {
+      "count": 2
+    }
+  },
+  "core/components/tasks/task-status-modal.tsx": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 2
+    }
+  },
+  "core/components/tasks/task-status.tsx": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 7
+    },
+    "react-hooks/immutability": {
+      "count": 1
+    },
+    "react/no-children-prop": {
+      "count": 1
+    }
+  },
+  "core/components/tasks/task-statuses-form.tsx": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 3
+    },
+    "@typescript-eslint/no-unused-expressions": {
+      "count": 2
+    },
+    "react-hooks/exhaustive-deps": {
+      "count": 1
+    }
+  },
+  "core/components/tasks/unassigned-task.tsx": {
+    "react-hooks/refs": {
+      "count": 2
+    }
+  },
+  "core/components/tasks/version-form.tsx": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 2
+    },
+    "@typescript-eslint/no-unused-expressions": {
+      "count": 3
+    },
+    "react-hooks/exhaustive-deps": {
+      "count": 1
+    }
+  },
+  "core/components/teams/invite/invitation-expire-dropdown.tsx": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 2
+    },
+    "react-hooks/set-state-in-effect": {
+      "count": 3
+    }
+  },
+  "core/components/teams/invite/invite-email-dropdown.tsx": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 1
+    },
+    "react-hooks/set-state-in-effect": {
+      "count": 1
+    }
+  },
+  "core/components/teams/invite/user-invite-card.tsx": {
+    "@typescript-eslint/no-unused-vars": {
+      "count": 2
+    }
+  },
+  "core/components/teams/manage-member-component.tsx": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 2
+    }
+  },
+  "core/components/teams/member-table.tsx": {
+    "react-hooks/refs": {
+      "count": 1
+    }
+  },
+  "core/components/teams/members-card/estimate-time-info.tsx": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 3
+    },
+    "@typescript-eslint/no-unused-expressions": {
+      "count": 1
+    }
+  },
+  "core/components/teams/members-card/members-card.tsx": {
+    "react-hooks/set-state-in-effect": {
+      "count": 2
+    }
+  },
+  "core/components/teams/members-card/users-card-menu.tsx": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 2
+    },
+    "@typescript-eslint/no-unused-expressions": {
+      "count": 1
+    }
+  },
+  "core/components/teams/team-avatar.tsx": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 1
+    }
+  },
+  "core/components/teams/team-invitations.tsx": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 2
+    },
+    "react-hooks/set-state-in-effect": {
+      "count": 1
+    }
+  },
+  "core/components/teams/team-outstanding-notifications.tsx": {
+    "react-hooks/set-state-in-effect": {
+      "count": 2
+    }
+  },
+  "core/components/teams/team-size-popover.tsx": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 2
+    }
+  },
+  "core/components/teams/teams-dropdown.tsx": {
+    "react-hooks/exhaustive-deps": {
+      "count": 1
+    },
+    "react-hooks/immutability": {
+      "count": 1
+    }
+  },
+  "core/components/teams/transfer-team/transfer-team-dropdown.tsx": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 3
+    },
+    "react-hooks/set-state-in-effect": {
+      "count": 1
+    }
+  },
+  "core/components/timer/estimate-time.tsx": {
+    "react-hooks/refs": {
+      "count": 2
+    }
+  },
+  "core/components/timer/timer-status.tsx": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 2
+    },
+    "@typescript-eslint/no-unused-vars": {
+      "count": 1
+    }
+  },
+  "core/components/timer/timer.tsx": {
+    "react-hooks/set-state-in-effect": {
+      "count": 1
+    }
+  },
+  "core/components/timesheet/filter-with-status.tsx": {
+    "@typescript-eslint/no-unused-vars": {
+      "count": 1
+    },
+    "react-hooks/exhaustive-deps": {
+      "count": 1
+    }
+  },
+  "core/components/timesheet/frequency-select.tsx": {
+    "@typescript-eslint/ban-ts-comment": {
+      "count": 1
+    }
+  },
+  "core/components/timesheet/monthly-timesheet-calendar.tsx": {
+    "react-hooks/exhaustive-deps": {
+      "count": 1
+    },
+    "react-hooks/preserve-manual-memoization": {
+      "count": 1
+    },
+    "react-hooks/set-state-in-effect": {
+      "count": 1
+    }
+  },
+  "core/components/timesheet/timesheet-loader.tsx": {
+    "react-hooks/set-state-in-effect": {
+      "count": 1
+    }
+  },
+  "core/components/timesheet/weekly-timesheet-calendar.tsx": {
+    "react-hooks/set-state-in-effect": {
+      "count": 1
+    }
+  },
+  "core/components/users/profile-avatar.tsx": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 1
+    }
+  },
+  "core/components/users/user-profile-plans.tsx": {
+    "@typescript-eslint/no-unused-expressions": {
+      "count": 1
+    }
+  },
+  "core/hooks/activities/use-activity-filters.ts": {
+    "react-hooks/exhaustive-deps": {
+      "count": 1
+    },
+    "react-hooks/preserve-manual-memoization": {
+      "count": 2
+    }
+  },
+  "core/hooks/activities/use-optimized-activity-tabs.ts": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 4
+    }
+  },
+  "core/hooks/activities/use-optimized-task-cache.ts": {
+    "react-hooks/exhaustive-deps": {
+      "count": 1
+    }
+  },
+  "core/hooks/activities/use-start-stop-timer-handler.ts": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 2
+    },
+    "react-hooks/preserve-manual-memoization": {
+      "count": 1
+    }
+  },
+  "core/hooks/activities/use-time-activity-export.ts": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 10
+    },
+    "@typescript-eslint/no-unused-vars": {
+      "count": 1
+    }
+  },
+  "core/hooks/activities/use-time-activity-stats.ts": {
+    "react-hooks/exhaustive-deps": {
+      "count": 2
+    },
+    "react-hooks/preserve-manual-memoization": {
+      "count": 2
+    }
+  },
+  "core/hooks/activities/use-time-daily-activity.ts": {
+    "react-hooks/exhaustive-deps": {
+      "count": 1
+    },
+    "react-hooks/set-state-in-effect": {
+      "count": 1
+    }
+  },
+  "core/hooks/activities/use-time-limits.ts": {
+    "react-hooks/exhaustive-deps": {
+      "count": 1
+    }
+  },
+  "core/hooks/activities/use-time-slots.ts": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 1
+    },
+    "@typescript-eslint/no-unused-vars": {
+      "count": 1
+    },
+    "react-hooks/exhaustive-deps": {
+      "count": 2
+    },
+    "react-hooks/preserve-manual-memoization": {
+      "count": 2
+    }
+  },
+  "core/hooks/activities/use-timer-polling.ts": {
+    "react-hooks/exhaustive-deps": {
+      "count": 1
+    }
+  },
+  "core/hooks/activities/use-today-worked-time.ts": {
+    "react-hooks/preserve-manual-memoization": {
+      "count": 1
+    }
+  },
+  "core/hooks/auth/use-accept-invite.test.tsx": {
+    "@typescript-eslint/no-require-imports": {
+      "count": 2
+    },
+    "react-hooks/immutability": {
+      "count": 1
+    }
+  },
+  "core/hooks/auth/use-accept-invite.ts": {
+    "@typescript-eslint/no-non-null-asserted-optional-chain": {
+      "count": 1
+    },
+    "react-hooks/preserve-manual-memoization": {
+      "count": 1
+    }
+  },
+  "core/hooks/auth/use-authenticate-user.ts": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 3
+    },
+    "react-hooks/exhaustive-deps": {
+      "count": 1
+    },
+    "react-hooks/refs": {
+      "count": 4
+    }
+  },
+  "core/hooks/auth/use-authentication-passcode.ever-id.test.tsx": {
+    "@typescript-eslint/no-require-imports": {
+      "count": 1
+    }
+  },
+  "core/hooks/auth/use-authentication-passcode.test.tsx": {
+    "@typescript-eslint/no-require-imports": {
+      "count": 1
+    }
+  },
+  "core/hooks/auth/use-authentication-passcode.ts": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 13
+    }
+  },
+  "core/hooks/auth/use-authentication-password.ts": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 8
+    },
+    "react-hooks/immutability": {
+      "count": 1
+    }
+  },
+  "core/hooks/auth/use-authentication-social-login.ts": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 2
+    }
+  },
+  "core/hooks/auth/use-authentication-team.ever-id.test.tsx": {
+    "@typescript-eslint/no-require-imports": {
+      "count": 1
+    }
+  },
+  "core/hooks/auth/use-authentication-team.ts": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 5
+    }
+  },
+  "core/hooks/auth/use-current-org.ts": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 2
+    },
+    "react-hooks/preserve-manual-memoization": {
+      "count": 1
+    }
+  },
+  "core/hooks/auth/use-ever-id-workspace-choice.test.tsx": {
+    "@typescript-eslint/no-require-imports": {
+      "count": 1
+    }
+  },
+  "core/hooks/auth/use-workspace-switcher.ts": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 2
+    }
+  },
+  "core/hooks/auth/use-workspaces.ts": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 2
+    }
+  },
+  "core/hooks/board/use-board.ts": {
+    "react-hooks/exhaustive-deps": {
+      "count": 1
+    },
+    "react-hooks/preserve-manual-memoization": {
+      "count": 1
+    }
+  },
+  "core/hooks/bootstrap/scope-guards.test.tsx": {
+    "@typescript-eslint/no-require-imports": {
+      "count": 3
+    }
+  },
+  "core/hooks/bootstrap/scope-race.test.tsx": {
+    "@typescript-eslint/no-require-imports": {
+      "count": 3
+    }
+  },
+  "core/hooks/common/use-callback-ref.ts": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 1
+    },
+    "react-hooks/refs": {
+      "count": 1
+    }
+  },
+  "core/hooks/common/use-check-api.ts": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 1
+    },
+    "react-hooks/exhaustive-deps": {
+      "count": 1
+    },
+    "react-hooks/set-state-in-effect": {
+      "count": 2
+    }
+  },
+  "core/hooks/common/use-custom-embla-carousel.ts": {
+    "react-hooks/set-state-in-effect": {
+      "count": 1
+    }
+  },
+  "core/hooks/common/use-detect-os.ts": {
+    "react-hooks/set-state-in-effect": {
+      "count": 1
+    }
+  },
+  "core/hooks/common/use-has-mounted.ts": {
+    "react-hooks/exhaustive-deps": {
+      "count": 4
+    },
+    "react-hooks/set-state-in-effect": {
+      "count": 1
+    }
+  },
+  "core/hooks/common/use-infinity-fetch.ts": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 1
+    }
+  },
+  "core/hooks/common/use-language-settings.test.tsx": {
+    "@typescript-eslint/no-unused-vars": {
+      "count": 1
+    }
+  },
+  "core/hooks/common/use-language-settings.ts": {
+    "@typescript-eslint/no-unused-vars": {
+      "count": 1
+    },
+    "react-hooks/exhaustive-deps": {
+      "count": 1
+    },
+    "react-hooks/preserve-manual-memoization": {
+      "count": 1
+    }
+  },
+  "core/hooks/common/use-language-state-sync.ts": {
+    "react-hooks/exhaustive-deps": {
+      "count": 1
+    }
+  },
+  "core/hooks/common/use-memoized-cache.ts": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 7
+    },
+    "@typescript-eslint/no-unused-vars": {
+      "count": 1
+    }
+  },
+  "core/hooks/common/use-outside-click.ts": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 2
+    },
+    "@typescript-eslint/no-unused-expressions": {
+      "count": 1
+    }
+  },
+  "core/hooks/common/use-pagination.ts": {
+    "react-hooks/exhaustive-deps": {
+      "count": 1
+    },
+    "react-hooks/refs": {
+      "count": 4
+    },
+    "react-hooks/set-state-in-effect": {
+      "count": 1
+    }
+  },
+  "core/hooks/common/use-query.ts": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 2
+    }
+  },
+  "core/hooks/common/use-refresh-interval.ts": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 2
+    }
+  },
+  "core/hooks/common/use-shared-virtualization-cache.ts": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 5
+    },
+    "react-hooks/purity": {
+      "count": 2
+    }
+  },
+  "core/hooks/common/use-sortable-data.ts": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 3
+    }
+  },
+  "core/hooks/common/use-sync-ref.ts": {
+    "react-hooks/refs": {
+      "count": 1
+    }
+  },
+  "core/hooks/common/use-tanstack-virtual.ts": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 3
+    },
+    "react-hooks/incompatible-library": {
+      "count": 1
+    },
+    "react-hooks/refs": {
+      "count": 2
+    }
+  },
+  "core/hooks/common/use-toast.ts": {
+    "@typescript-eslint/no-unused-vars": {
+      "count": 1
+    }
+  },
+  "core/hooks/daily-plans/daily-plan-totals.ts": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 4
+    }
+  },
+  "core/hooks/daily-plans/use-employee-daily-plans.ts": {
+    "react-hooks/preserve-manual-memoization": {
+      "count": 1
+    },
+    "react-hooks/set-state-in-effect": {
+      "count": 1
+    }
+  },
+  "core/hooks/daily-plans/use-my-daily-plans.test.tsx": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 2
+    }
+  },
+  "core/hooks/daily-plans/use-team-daily-plans.ts": {
+    "react-hooks/exhaustive-deps": {
+      "count": 1
+    },
+    "react-hooks/immutability": {
+      "count": 1
+    }
+  },
+  "core/hooks/daily-plans/use-update-daily-plan.ts": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 1
+    }
+  },
+  "core/hooks/integrations/use-integration.ts": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 1
+    },
+    "react-hooks/set-state-in-effect": {
+      "count": 1
+    }
+  },
+  "core/hooks/invitations/use-invitation-invalidation.test.tsx": {
+    "@typescript-eslint/no-require-imports": {
+      "count": 1
+    },
+    "prefer-const": {
+      "count": 1
+    }
+  },
+  "core/hooks/invitations/use-my-invitations-query.test.tsx": {
+    "@typescript-eslint/no-require-imports": {
+      "count": 1
+    }
+  },
+  "core/hooks/organizations/employees/use-productivity-table-config.ts": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 7
+    }
+  },
+  "core/hooks/organizations/projects/use-edit-organization-project.ts": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 2
+    }
+  },
+  "core/hooks/organizations/projects/use-organization-projects-query.ts": {
+    "react-hooks/exhaustive-deps": {
+      "count": 3
+    },
+    "react-hooks/use-memo": {
+      "count": 1
+    }
+  },
+  "core/hooks/organizations/teams/use-active-team.ts": {
+    "react-hooks/exhaustive-deps": {
+      "count": 1
+    }
+  },
+  "core/hooks/organizations/teams/use-create-organization-team.ts": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 1
+    },
+    "@typescript-eslint/no-unused-expressions": {
+      "count": 1
+    }
+  },
+  "core/hooks/organizations/teams/use-member-active-task.ts": {
+    "react-hooks/exhaustive-deps": {
+      "count": 1
+    }
+  },
+  "core/hooks/organizations/teams/use-organization-teams-employee.ts": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 3
+    }
+  },
+  "core/hooks/organizations/teams/use-organization-teams-query.test.tsx": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 4
+    },
+    "@typescript-eslint/no-require-imports": {
+      "count": 1
+    }
+  },
+  "core/hooks/organizations/teams/use-organization-teams-query.ts": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 1
+    }
+  },
+  "core/hooks/organizations/teams/use-public-organization-teams.ts": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 3
+    },
+    "react-hooks/exhaustive-deps": {
+      "count": 2
+    },
+    "react-hooks/preserve-manual-memoization": {
+      "count": 2
+    }
+  },
+  "core/hooks/organizations/teams/use-request-to-join-query.ts": {
+    "react-hooks/exhaustive-deps": {
+      "count": 1
+    },
+    "react-hooks/preserve-manual-memoization": {
+      "count": 1
+    }
+  },
+  "core/hooks/organizations/teams/use-team-member-card.ts": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 2
+    }
+  },
+  "core/hooks/organizations/teams/use-team-member-mutations.ts": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 1
+    }
+  },
+  "core/hooks/organizations/teams/use-team-member.ts": {
+    "react-hooks/exhaustive-deps": {
+      "count": 2
+    },
+    "react-hooks/preserve-manual-memoization": {
+      "count": 5
+    }
+  },
+  "core/hooks/organizations/teams/use-team-tasks-query.ts": {
+    "react-hooks/exhaustive-deps": {
+      "count": 1
+    },
+    "react-hooks/refs": {
+      "count": 1
+    }
+  },
+  "core/hooks/organizations/teams/use-team-tasks.ts": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 1
+    },
+    "@typescript-eslint/no-unused-vars": {
+      "count": 4
+    },
+    "react-hooks/exhaustive-deps": {
+      "count": 6
+    }
+  },
+  "core/hooks/organizations/teams/use-update-task.ts": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 1
+    },
+    "@typescript-eslint/no-unused-vars": {
+      "count": 1
+    },
+    "react-hooks/refs": {
+      "count": 1
+    }
+  },
+  "core/hooks/organizations/teams/use-validate-request-to-join.ts": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 1
+    }
+  },
+  "core/hooks/projects/use-project-permissions.ts": {
+    "react-hooks/preserve-manual-memoization": {
+      "count": 1
+    }
+  },
+  "core/hooks/queries/user-user.query.ts": {
+    "react-hooks/exhaustive-deps": {
+      "count": 1
+    }
+  },
+  "core/hooks/tasks/use-active-task-status.ts": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 4
+    },
+    "react-hooks/set-state-in-effect": {
+      "count": 1
+    }
+  },
+  "core/hooks/tasks/use-active-team-task.ts": {
+    "react-hooks/preserve-manual-memoization": {
+      "count": 1
+    }
+  },
+  "core/hooks/tasks/use-kanban.ts": {
+    "react-hooks/set-state-in-effect": {
+      "count": 1
+    }
+  },
+  "core/hooks/tasks/use-map-to-task-status-values.tsx": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 3
+    }
+  },
+  "core/hooks/tasks/use-task-activity.ts": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 1
+    },
+    "react-hooks/exhaustive-deps": {
+      "count": 1
+    }
+  },
+  "core/hooks/tasks/use-task-estimation.ts": {
+    "react-hooks/set-state-in-effect": {
+      "count": 1
+    }
+  },
+  "core/hooks/tasks/use-task-filter.ts": {
+    "@typescript-eslint/no-unused-expressions": {
+      "count": 1
+    }
+  },
+  "core/hooks/tasks/use-task-input.ts": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 1
+    },
+    "react-hooks/set-state-in-effect": {
+      "count": 2
+    }
+  },
+  "core/hooks/tasks/use-task-labels-value.ts": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 1
+    }
+  },
+  "core/hooks/tasks/use-task-labels.ts": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 2
+    }
+  },
+  "core/hooks/tasks/use-task-member-estimation.ts": {
+    "react-hooks/set-state-in-effect": {
+      "count": 1
+    }
+  },
+  "core/hooks/tasks/use-task-metadata-bootstrap-query.test.tsx": {
+    "@typescript-eslint/no-require-imports": {
+      "count": 15
+    }
+  },
+  "core/hooks/tasks/use-task-statistics.test.tsx": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 6
+    }
+  },
+  "core/hooks/tasks/use-task-statistics.ts": {
+    "react-hooks/exhaustive-deps": {
+      "count": 2
+    },
+    "react-hooks/use-memo": {
+      "count": 1
+    }
+  },
+  "core/hooks/tasks/use-task-status.ts": {
+    "react-hooks/exhaustive-deps": {
+      "count": 1
+    },
+    "react-hooks/immutability": {
+      "count": 2
+    }
+  },
+  "core/hooks/tasks/use-timer-button.ts": {
+    "react-hooks/exhaustive-deps": {
+      "count": 1
+    }
+  },
+  "core/hooks/teams/use-processed-team-members.ts": {
+    "react-hooks/exhaustive-deps": {
+      "count": 1
+    },
+    "react-hooks/preserve-manual-memoization": {
+      "count": 2
+    }
+  },
+  "core/hooks/timer/use-stale-timer-guard.ts": {
+    "react-hooks/set-state-in-effect": {
+      "count": 2
+    }
+  },
+  "core/hooks/timer/use-timer-api.ts": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 7
+    },
+    "@typescript-eslint/no-unused-expressions": {
+      "count": 2
+    },
+    "react-hooks/exhaustive-deps": {
+      "count": 2
+    },
+    "react-hooks/preserve-manual-memoization": {
+      "count": 6
+    }
+  },
+  "core/hooks/timer/use-timer-ui.ts": {
+    "react-hooks/exhaustive-deps": {
+      "count": 1
+    },
+    "react-hooks/refs": {
+      "count": 6
+    }
+  },
+  "core/hooks/timesheet/use-timesheet-query.ts": {
+    "@typescript-eslint/no-unused-vars": {
+      "count": 2
+    },
+    "react-hooks/exhaustive-deps": {
+      "count": 1
+    },
+    "react-hooks/set-state-in-effect": {
+      "count": 1
+    }
+  },
+  "core/hooks/users/use-profile-validation.ts": {
+    "react-hooks/preserve-manual-memoization": {
+      "count": 1
+    },
+    "react-hooks/set-state-in-effect": {
+      "count": 2
+    }
+  },
+  "core/hooks/users/use-user-details.ts": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 1
+    },
+    "react-hooks/preserve-manual-memoization": {
+      "count": 1
+    }
+  },
+  "core/hooks/users/use-user-profile-page.ts": {
+    "react-hooks/exhaustive-deps": {
+      "count": 1
+    }
+  },
+  "core/hooks/users/use-user-selected-page.ts": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 1
+    },
+    "react-hooks/preserve-manual-memoization": {
+      "count": 1
+    }
+  },
+  "core/lib/auth/disconnect-logger.ts": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 2
+    }
+  },
+  "core/lib/auth/ever-id/handoff.test.ts": {
+    "@typescript-eslint/no-require-imports": {
+      "count": 1
+    }
+  },
+  "core/lib/config/export-config.ts": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 1
+    }
+  },
+  "core/lib/helpers.ts": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 2
+    }
+  },
+  "core/lib/helpers/array-data.ts": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 1
+    }
+  },
+  "core/lib/helpers/cookies/helpers.ts": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 1
+    },
+    "@typescript-eslint/no-unused-vars": {
+      "count": 1
+    }
+  },
+  "core/lib/helpers/cookies/index.ts": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 2
+    },
+    "@typescript-eslint/no-unused-vars": {
+      "count": 1
+    }
+  },
+  "core/lib/helpers/create-project.ts": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 1
+    }
+  },
+  "core/lib/helpers/date-and-time.ts": {
+    "prefer-const": {
+      "count": 1
+    }
+  },
+  "core/lib/helpers/encode.ts": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 1
+    }
+  },
+  "core/lib/helpers/export-to-backend.ts": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 1
+    }
+  },
+  "core/lib/helpers/firebase.ts": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 8
+    }
+  },
+  "core/lib/helpers/merge-refs.ts": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 1
+    }
+  },
+  "core/lib/helpers/productivity-project.ts": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 1
+    }
+  },
+  "core/lib/helpers/social-logins.ts": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 1
+    }
+  },
+  "core/lib/helpers/task.ts": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 1
+    }
+  },
+  "core/lib/helpers/text-editor-serializer-configurations.ts": {
+    "@typescript-eslint/ban-ts-comment": {
+      "count": 2
+    },
+    "@typescript-eslint/no-explicit-any": {
+      "count": 1
+    }
+  },
+  "core/lib/helpers/text-editor-service.ts": {
+    "@typescript-eslint/ban-ts-comment": {
+      "count": 13
+    },
+    "@typescript-eslint/no-explicit-any": {
+      "count": 13
+    },
+    "@typescript-eslint/no-unused-vars": {
+      "count": 1
+    }
+  },
+  "core/lib/helpers/validations.ts": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 1
+    }
+  },
+  "core/lib/i18n/hook.ts": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 1
+    }
+  },
+  "core/lib/utils/check-provider-env-vars.test.ts": {
+    "@typescript-eslint/no-require-imports": {
+      "count": 3
+    }
+  },
+  "core/lib/utils/is-valid-url.ts": {
+    "@typescript-eslint/no-unused-vars": {
+      "count": 1
+    }
+  },
+  "core/lib/utils/queue.ts": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 3
+    }
+  },
+  "core/lib/utils/table-utils.ts": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 2
+    }
+  },
+  "core/query/keys/index.ts": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 10
+    }
+  },
+  "core/services/client/api-error.service.test.ts": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 2
+    }
+  },
+  "core/services/client/api-error.service.ts": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 6
+    },
+    "prefer-const": {
+      "count": 1
+    }
+  },
+  "core/services/client/api/auth/auth.service.ts": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 3
+    }
+  },
+  "core/services/client/api/auth/register.service.ts": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 1
+    }
+  },
+  "core/services/client/api/auth/signin.service.ts": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 3
+    }
+  },
+  "core/services/client/api/daily-plans/daily-plan.service.ts": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 3
+    }
+  },
+  "core/services/client/api/integrations/github.service.ts": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 7
+    },
+    "@typescript-eslint/no-unused-vars": {
+      "count": 2
+    }
+  },
+  "core/services/client/api/organizations/organization-project.service.ts": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 1
+    }
+  },
+  "core/services/client/api/organizations/teams/employee.service.ts": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 1
+    }
+  },
+  "core/services/client/api/organizations/teams/invites/invite.service.ts": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 1
+    },
+    "prefer-const": {
+      "count": 1
+    }
+  },
+  "core/services/client/api/tasks/task-related-issue-type.service.ts": {
+    "@typescript-eslint/no-unused-vars": {
+      "count": 6
+    }
+  },
+  "core/services/client/api/timesheets/time-log.service.ts": {
+    "@typescript-eslint/no-unused-vars": {
+      "count": 3
+    }
+  },
+  "core/services/client/api/users/user.service.ts": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 1
+    }
+  },
+  "core/services/client/axios.ts": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 10
+    }
+  },
+  "core/services/logs/logger-adapter.service.ts": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 6
+    },
+    "@typescript-eslint/no-unused-vars": {
+      "count": 1
+    }
+  },
+  "core/services/logs/logger-client.ts": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 1
+    }
+  },
+  "core/services/logs/logger-server.ts": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 3
+    },
+    "@typescript-eslint/no-unused-vars": {
+      "count": 1
+    }
+  },
+  "core/services/logs/logger.service.ts": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 9
+    },
+    "@typescript-eslint/no-unused-vars": {
+      "count": 1
+    }
+  },
+  "core/services/server/ever-stats/report.test.ts": {
+    "@typescript-eslint/no-unused-vars": {
+      "count": 8
+    }
+  },
+  "core/services/server/fetch.ts": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 1
+    }
+  },
+  "core/services/server/guards/authenticated-guard-app.ts": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 4
+    }
+  },
+  "core/services/server/guards/authenticated-guard.ts": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 1
+    }
+  },
+  "core/services/server/requests/daily-plan.ts": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 4
+    }
+  },
+  "core/services/server/requests/email-reset.ts": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 4
+    }
+  },
+  "core/services/server/requests/employee.ts": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 1
+    }
+  },
+  "core/services/server/requests/integrations/github.ts": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 4
+    }
+  },
+  "core/services/server/requests/invite.ts": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 2
+    }
+  },
+  "core/services/server/requests/issue-type.ts": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 6
+    }
+  },
+  "core/services/server/requests/o-auth.ever-id.test.ts": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 2
+    },
+    "@typescript-eslint/no-require-imports": {
+      "count": 2
+    }
+  },
+  "core/services/server/requests/o-auth.ts": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 9
+    },
+    "@typescript-eslint/no-unused-vars": {
+      "count": 1
+    }
+  },
+  "core/services/server/requests/organization-projects.ts": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 8
+    }
+  },
+  "core/services/server/requests/task-labels.ts": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 6
+    }
+  },
+  "core/services/server/requests/task-priorities.ts": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 6
+    }
+  },
+  "core/services/server/requests/task-related-issue-type.ts": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 6
+    }
+  },
+  "core/services/server/requests/task-sizes.ts": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 6
+    }
+  },
+  "core/services/server/requests/task-version.ts": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 6
+    }
+  },
+  "core/services/server/requests/taskStatus.ts": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 6
+    }
+  },
+  "core/services/server/requests/timer.ts": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 1
+    }
+  },
+  "core/services/server/requests/user.ts": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 7
+    }
+  },
+  "core/stores/tasks/task-optimistic-updates.ts": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 2
+    }
+  },
+  "core/stores/user/avatar.ts": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 1
+    }
+  },
+  "core/types/generics/services.ts": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 4
+    }
+  },
+  "core/types/interfaces/auth/auth.ts": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 2
+    }
+  },
+  "core/types/interfaces/common/base-interfaces.ts": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 1
+    }
+  },
+  "core/types/interfaces/common/data-response.ts": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 2
+    }
+  },
+  "core/types/interfaces/common/favorite.ts": {
+    "@typescript-eslint/no-empty-object-type": {
+      "count": 1
+    }
+  },
+  "core/types/interfaces/common/language.ts": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 1
+    }
+  },
+  "core/types/interfaces/common/runtime-server-config.ts": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 1
+    }
+  },
+  "core/types/interfaces/integrations/github-repositories.ts": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 1
+    }
+  },
+  "core/types/interfaces/organization/employee.ts": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 1
+    }
+  },
+  "core/types/interfaces/organization/organization.ts": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 1
+    }
+  },
+  "core/types/interfaces/role/role.ts": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 1
+    }
+  },
+  "core/types/interfaces/tag/tag.ts": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 2
+    }
+  },
+  "core/types/interfaces/task/task-card.ts": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 1
+    }
+  },
+  "core/types/interfaces/task/task-status/task-status-stack.ts": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 2
+    }
+  },
+  "core/types/interfaces/task/task-status/task-status.ts": {
+    "@typescript-eslint/no-empty-object-type": {
+      "count": 1
+    }
+  },
+  "core/types/interfaces/task/task.ts": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 1
+    }
+  },
+  "core/types/interfaces/team/organization-team.ts": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 1
+    }
+  },
+  "core/types/interfaces/timer/screenshoot/screenshoot.ts": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 2
+    }
+  },
+  "core/types/interfaces/timer/time-slot/time-slot.ts": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 1
+    }
+  },
+  "core/types/interfaces/timer/timer-status.ts": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 1
+    }
+  },
+  "core/types/interfaces/user/invite.ts": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 4
+    }
+  },
+  "core/types/schemas/common/data-response.schema.ts": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 2
+    }
+  },
+  "core/types/schemas/task/task.schema.test.ts": {
+    "@typescript-eslint/no-require-imports": {
+      "count": 2
+    }
+  },
+  "cypress/e2e/startup-performance.cy.ts": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 2
+    },
+    "@typescript-eslint/no-unused-vars": {
+      "count": 1
+    }
+  },
+  "cypress/support/commands.ts": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 2
+    },
+    "@typescript-eslint/no-namespace": {
+      "count": 1
+    }
+  },
+  "env-config.ts": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 3
+    }
+  },
+  "image-hosts.js": {
+    "no-redeclare": {
+      "count": 1
+    }
+  },
+  "proxy.ts": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 5
+    },
+    "@typescript-eslint/no-unused-vars": {
+      "count": 1
+    },
+    "prefer-const": {
+      "count": 1
+    }
+  },
+  "styles/tailwind-config.test.ts": {
+    "@typescript-eslint/no-require-imports": {
+      "count": 1
+    }
+  },
+  "test/architecture/ever-id-provider-off.test.ts": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 3
+    },
+    "@typescript-eslint/no-require-imports": {
+      "count": 14
+    },
+    "@typescript-eslint/no-unused-vars": {
+      "count": 1
+    }
+  },
+  "test/architecture/ever-platform-modules-off.test.ts": {
+    "@typescript-eslint/no-require-imports": {
+      "count": 3
+    }
+  },
+  "test/runtime-env/browser-runtime-env.test.tsx": {
+    "@typescript-eslint/no-require-imports": {
+      "count": 3
+    }
+  },
+  "test/runtime-env/deployment-defaults.test.ts": {
+    "@typescript-eslint/no-require-imports": {
+      "count": 2
+    }
+  },
+  "test/runtime-env/head-hydration.test.tsx": {
+    "@next/next/no-head-element": {
+      "count": 1
+    }
+  },
+  "test/runtime-env/payload-less-document.test.tsx": {
+    "@typescript-eslint/no-require-imports": {
+      "count": 2
+    }
+  },
+  "test/runtime-env/posthog-provider.test.tsx": {
+    "@typescript-eslint/no-require-imports": {
+      "count": 1
+    }
+  },
+  "test/runtime-env/public-runtime-env.test.ts": {
+    "@typescript-eslint/no-require-imports": {
+      "count": 2
+    }
+  },
+  "test/sentry/sentry-client-instrumentation.test.ts": {
+    "@typescript-eslint/no-require-imports": {
+      "count": 2
+    }
+  },
+  "test/sentry/sentry-server-instrumentation.test.ts": {
+    "@typescript-eslint/no-require-imports": {
+      "count": 2
+    }
+  }
+}

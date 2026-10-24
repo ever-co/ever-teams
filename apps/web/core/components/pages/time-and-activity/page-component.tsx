@@ -3,7 +3,6 @@ import { PageLayout } from '@/core/components/layouts/default-layout';
 import { useTranslations } from 'next-intl';
 import { useRouter, useParams } from 'next/navigation';
 import { useAtomValue } from 'jotai';
-import { fullWidthState } from '@/core/stores/common/full-width';
 import { Container } from '@/core/components';
 import { cn } from '@/core/lib/helpers';
 import { ArrowLeftIcon } from '@radix-ui/react-icons';
@@ -22,7 +21,7 @@ import {
 	LazyTimeActivityHeader,
 	LazyCardTimeAndActivity,
 	LazyActivityTable,
-	LazyTimeActivityTable
+	LazyWeeklyReportTable
 } from '@/core/components/optimized-components/reports';
 import { activeTeamState, isTrackingEnabledState, tasksByTeamState } from '@/core/stores';
 import { useOrganizationProjectsQuery } from '@/core/hooks/organizations/projects/use-organization-projects-query';
@@ -74,6 +73,15 @@ const TimeActivityComponents = () => {
 		[updateFilters]
 	);
 
+	// mergedProps takes its team ids from the team dashboard filter, so the teams picked in this page's filter are passed to the weekly report here
+	const weeklyProps = useMemo(
+		() =>
+			mergedProps && currentFilters.teamIds?.length
+				? { ...mergedProps, teamIds: currentFilters.teamIds }
+				: mergedProps,
+		[mergedProps, currentFilters.teamIds]
+	);
+
 	// Calculate dynamic statistics from real data
 	const {
 		totalHours,
@@ -123,7 +131,6 @@ const TimeActivityComponents = () => {
 	}, []);
 
 	const router = useRouter();
-	const fullWidth = useAtomValue(fullWidthState);
 	const paramsUrl = useParams<{ locale: string }>();
 	const currentLocale = paramsUrl?.locale;
 	const { userManagedTeams } = useOrganizationAndTeamManagers();
@@ -145,7 +152,7 @@ const TimeActivityComponents = () => {
 
 	// Show unified skeleton while data is loading
 	if (loading && (!rapportDailyActivity || !activeTeam)) {
-		return <TimeActivityPageSkeleton showTimer={isTrackingEnabled} fullWidth={fullWidth} />;
+		return <TimeActivityPageSkeleton showTimer={isTrackingEnabled} />;
 	}
 
 	return (
@@ -155,7 +162,7 @@ const TimeActivityComponents = () => {
 			showTimer={isTrackingEnabled}
 			mainHeaderSlot={
 				<div className="flex flex-col pb-4 bg-gray-100 dark:bg-dark-high">
-					<Container fullWidth={fullWidth} className={cn('flex flex-col gap-4 items-center w-full')}>
+					<Container className={cn('flex flex-col gap-4 items-center w-full')}>
 						<div className="flex items-center pt-6 w-full">
 							<button
 								onClick={handleBack}
@@ -214,7 +221,7 @@ const TimeActivityComponents = () => {
 				</div>
 			}
 		>
-			<Container fullWidth={fullWidth} className={cn('flex flex-col gap-8 !px-4 py-6 w-full')}>
+			<Container className={cn('flex flex-col gap-8 !px-4 py-6 w-full')}>
 				<Card className="w-full dark:bg-dark--theme-light min-h-[600px]">
 					{/* Conditional table rendering based on groupByType */}
 					{(() => {
@@ -228,7 +235,11 @@ const TimeActivityComponents = () => {
 									/>
 								);
 							case 'weekly':
-								return <LazyTimeActivityTable data={rapportDailyActivity as any} loading={loading} />;
+								return <LazyWeeklyReportTable
+										mergedProps={weeklyProps}
+										enabled={enabled}
+										initialDate={dateRange.startDate}
+									/>;
 							default:
 								return (
 									<LazyActivityTable

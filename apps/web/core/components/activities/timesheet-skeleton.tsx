@@ -12,18 +12,18 @@ function TimesheetSkeleton() {
 		>
 			<div className="flex flex-col w-full gap-4">
 				<div className="flex items-center justify-between  gap-4">
-					<Skeleton width={80} borderRadius={4} height={10} className="dark:bg-[#272930]" />
-					<Skeleton width={80} borderRadius={4} height={10} className="dark:bg-[#272930]" />
+					<Skeleton width={80} borderRadius={4} height={10} className="dark:bg-muted" />
+					<Skeleton width={80} borderRadius={4} height={10} className="dark:bg-muted" />
 				</div>
 				<div className="flex items-center justify-between gap-4 w-full">
 					<div className="flex items-center gap-2">
-						<Skeleton width={20} borderRadius={4} height={20} className="dark:bg-[#272930]" />
-						<Skeleton width={200} borderRadius={4} height={20} className="dark:bg-[#272930]" />
-						<Skeleton width={40} borderRadius={4} height={20} className="dark:bg-[#272930]" />
+						<Skeleton width={20} borderRadius={4} height={20} className="dark:bg-muted" />
+						<Skeleton width={200} borderRadius={4} height={20} className="dark:bg-muted" />
+						<Skeleton width={40} borderRadius={4} height={20} className="dark:bg-muted" />
 					</div>
 					<div className="flex items-center gap-2">
-						<Skeleton width={200} borderRadius={4} height={20} className="dark:bg-[#272930]" />
-						<Skeleton width={200} borderRadius={4} height={20} className="dark:bg-[#272930]" />
+						<Skeleton width={200} borderRadius={4} height={20} className="dark:bg-muted" />
+						<Skeleton width={200} borderRadius={4} height={20} className="dark:bg-muted" />
 					</div>
 				</div>
 			</div>

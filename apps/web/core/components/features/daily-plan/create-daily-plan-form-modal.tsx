@@ -3,7 +3,7 @@ import { useForm } from 'react-hook-form';
 import { useEmployeeDailyPlans } from '@/core/hooks/daily-plans/use-employee-daily-plans';
 import { useCreateDailyPlan } from '@/core/hooks/daily-plans/use-create-daily-plan';
 import { Modal, Text } from '@/core/components';
-import { imgTitle, tomorrowDate, yesterdayDate } from '@/core/lib/helpers/index';
+import { getDailyPlanDay, imgTitle, tomorrowDate, yesterdayDate } from '@/core/lib/helpers/index';
 import { ReloadIcon } from '@radix-ui/react-icons';
 import moment from 'moment';
 import { Calendar } from '@/core/components/common/calendar';
@@ -74,14 +74,14 @@ export function CreateDailyPlanFormModal({
 	) as 'Select' | 'Select & Close';
 	const t = useTranslations();
 	const existingPlanDates = useMemo(
-		() => employeeDailyPlans?.items?.map((plan: TDailyPlan) => new Date(plan.date)),
+		() => employeeDailyPlans?.items?.map((plan: TDailyPlan) => moment(getDailyPlanDay(plan.date)).toDate()),
 		[employeeDailyPlans.items]
 	);
 	const existingTaskPlanDates = useMemo(
 		() =>
 			employeeDailyPlans?.items
 				?.filter((plan: TDailyPlan) => plan.tasks?.some((task) => task.id === taskId))
-				.map((plan: TDailyPlan) => new Date(plan.date)),
+				.map((plan: TDailyPlan) => moment(getDailyPlanDay(plan.date)).toDate()),
 		[employeeDailyPlans.items, taskId]
 	);
 
@@ -107,17 +107,15 @@ export function CreateDailyPlanFormModal({
 
 	const onSubmit = useCallback(
 		async (values: any) => {
-			const toDay = new Date();
 			createDailyPlan({
 				workTimePlanned: parseInt(values.workTimePlanned) || 0,
 				taskId,
-				date: String(
-					planMode == 'today'
-						? toDay
-						: planMode == 'tomorrow'
-							? tomorrowDate
-							: new Date(moment(date).format('YYYY-MM-DD'))
-				),
+				date: (planMode == 'today'
+					? moment()
+					: planMode == 'tomorrow'
+						? moment().add(1, 'day')
+						: moment(date)
+				).format('YYYY-MM-DD'),
 				status: EDailyPlanStatus.OPEN,
 				tenantId: user?.tenantId ?? '',
 				employeeId: employeeId ?? selectedEmployee?.employeeId ?? undefined,
@@ -298,7 +296,7 @@ function MembersList({
 	handleMemberClick: (member: TOrganizationTeamEmployee) => void;
 }) {
 	return (
-		<Command className="overflow-hidden rounded-t-none border-t border-[#0000001A] dark:border-[#26272C]">
+		<Command className="overflow-hidden rounded-t-none border-t border-[#0000001A] dark:border-border">
 			<CommandInput placeholder="Search member..." />
 			<CommandList>
 				<CommandEmpty>No member founded</CommandEmpty>
@@ -334,7 +332,7 @@ function MembersList({
 									) ? (
 										<Avatar
 											size={36}
-											className="relative cursor-pointer dark:border-[0.25rem] dark:border-[#26272C]"
+											className="relative cursor-pointer dark:border-[0.25rem] dark:border-border"
 											imageUrl={
 												member?.employee?.user?.image?.thumbUrl ||
 												member?.employee?.user?.image?.fullUrl ||

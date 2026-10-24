@@ -10,8 +10,16 @@
 import { render, screen, act } from '@testing-library/react';
 
 const mockReplace = jest.fn();
-const auth = { user: null as null | { id: string; employee?: { id: string } }, userLoading: false, isTeamManager: false };
-const teamsQ = { getOrganizationTeamsLoading: false, teams: [] as unknown[], activeTeam: null as null | { members: unknown[] } };
+const auth = {
+	user: null as null | { id: string; employee?: { id: string }; role?: { name: string } },
+	userLoading: false,
+	isTeamManager: false
+};
+const teamsQ = {
+	getOrganizationTeamsLoading: false,
+	teams: [] as unknown[],
+	activeTeam: null as null | { members: unknown[] }
+};
 const SELF = { id: 'm-self', employee: { userId: 'u1' } };
 const OTHER = { id: 'm-other', employee: { userId: 'u2' } };
 
@@ -23,7 +31,14 @@ jest.mock('../common/global-skeleton', () => () => <div data-testid="skeleton" /
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const MustBeAManager = require('./must-be-a-manager').default as typeof import('./must-be-a-manager').default;
 
-function setState(next: { user?: { id: string } | null; userLoading?: boolean; isTeamManager?: boolean; teamsLoading?: boolean; teams?: unknown[]; activeTeam?: { members: unknown[] } | null }) {
+function setState(next: {
+	user?: { id: string; employee?: { id: string }; role?: { name: string } } | null;
+	userLoading?: boolean;
+	isTeamManager?: boolean;
+	teamsLoading?: boolean;
+	teams?: unknown[];
+	activeTeam?: { members: unknown[] } | null;
+}) {
 	if ('user' in next) auth.user = next.user ?? null;
 	if ('userLoading' in next) auth.userLoading = !!next.userLoading;
 	if ('isTeamManager' in next) auth.isTeamManager = !!next.isTeamManager;
@@ -36,7 +51,14 @@ describe('MustBeAManager', () => {
 	beforeEach(() => {
 		jest.useFakeTimers();
 		mockReplace.mockReset();
-		setState({ user: null, userLoading: false, isTeamManager: false, teamsLoading: false, teams: [], activeTeam: null });
+		setState({
+			user: null,
+			userLoading: false,
+			isTeamManager: false,
+			teamsLoading: false,
+			teams: [],
+			activeTeam: null
+		});
 	});
 	afterEach(() => jest.useRealTimers());
 
@@ -67,9 +89,28 @@ describe('MustBeAManager', () => {
 	});
 
 	it('redirects a real non-manager once membership is loaded', () => {
-		setState({ user: { id: 'u1' }, teams: [{ id: 't1' }], activeTeam: { members: [OTHER, SELF] }, isTeamManager: false });
+		setState({
+			user: { id: 'u1' },
+			teams: [{ id: 't1' }],
+			activeTeam: { members: [OTHER, SELF] },
+			isTeamManager: false
+		});
 		render(<MustBeAManager useRedirect>{<div>child</div>}</MustBeAManager>);
 		expect(mockReplace).toHaveBeenCalledWith('/');
+	});
+
+	it('allows a global super admin who is not a member of the active team', () => {
+		setState({
+			user: { id: 'u1', role: { name: 'SUPER_ADMIN' } },
+			teams: [{ id: 't1' }],
+			activeTeam: { members: [OTHER] },
+			isTeamManager: false
+		});
+
+		render(<MustBeAManager useRedirect>{<div>child</div>}</MustBeAManager>);
+
+		expect(screen.getByText('child')).toBeTruthy();
+		expect(mockReplace).not.toHaveBeenCalled();
 	});
 
 	it('a user with no teams is decided only after the bounded wait (the teams atom lags the query)', () => {

@@ -3,6 +3,8 @@ import { GAUZY_API_BASE_SERVER_URL } from '@/core/constants/config/constants';
 import { DeleteResponse, PaginationResponse } from '@/core/types/interfaces/common/data-response';
 import { ITag, ITagCreate } from '@/core/types/interfaces/tag/tag';
 import { TTag } from '@/core/types/schemas';
+import { TaskMetadataScope } from '@/core/types/interfaces/task/task-metadata-bootstrap';
+import qs from 'qs';
 
 class TaskLabelService extends APIService {
 	createTaskLabels = async (data: ITagCreate) => {
@@ -23,10 +25,27 @@ class TaskLabelService extends APIService {
 		return this.delete<DeleteResponse>(`/tags/${id}`);
 	};
 
-	getTaskLabelsList = async () => {
+	getTaskLabelsList = async (scope?: TaskMetadataScope, signal?: AbortSignal) => {
+		if (scope) {
+			const query = qs.stringify({
+				tenantId: scope.tenantId,
+				organizationId: scope.organizationId,
+				...(scope.organizationTeamId !== undefined ? { organizationTeamId: scope.organizationTeamId } : {})
+			});
+			const endpoint = `/tags/level?${query}`;
+
+			return this.get<PaginationResponse<TTag>>(endpoint, {
+				tenantId: scope.tenantId,
+				...(signal ? { signal } : {})
+			});
+		}
+
 		const endpoint = `/tags/level?tenantId=${this.tenantId}&organizationId=${this.organizationId}&organizationTeamId=${this.activeTeamId}`;
 
-		return this.get<PaginationResponse<TTag>>(endpoint, { tenantId: this.tenantId });
+		return this.get<PaginationResponse<TTag>>(endpoint, {
+			tenantId: this.tenantId,
+			...(signal ? { signal } : {})
+		});
 	};
 }
 

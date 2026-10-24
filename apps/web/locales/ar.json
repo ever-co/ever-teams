@@ -1,5 +1,5 @@
 {
-	"TITLE": "إيفر تيمز",
+	"TITLE": "{appName}",
 	"common": {
 		"APPLICATION": "تطبيق",
 		"TIME_SPENT": "الوقت المستغرق",
@@ -19,6 +19,9 @@
 		"ADD_TIME_ENTRY": "إضافة إدخال وقت",
 		"OPT_IN_UPDATES": "اشترك لتلقي التحديثات والأخبار حول {appName}.",
 		"SUBSCRIBE_NEWSLETTER": "اشترك في النشرة الإخبارية",
+		"SUBSCRIBE": "اشترك",
+		"SUBSCRIBING": "جارٍ الاشتراك...",
+		"EMAIL": "البريد الإلكتروني",
 		"VIEW_PROJECT": "عرض المشروع",
 		"SHARE_PROJECT": "مشاركة المشروع",
 		"DELETE_PROJECT": "حذف المشروع",
@@ -177,6 +180,8 @@
 		"THEMES": "المواضيع",
 		"3D_MODE": "الوضع ثلاثي الأبعاد",
 		"DARK_MODE": "الوضع الداكن",
+		"THEME_LIGHT": "فاتح",
+		"THEME_DARK": "داكن",
 		"SETTINGS": "الإعدادات",
 		"PERSONAL": "شخصي",
 		"USE_SETTING": "استخدام الإعداد",
@@ -415,7 +420,9 @@
 		"PRODUCTIVITY_BREAKDOWN": "تفصيل الإنتاجية لـ {month}",
 		"DAILY": "يومي",
 		"WEEKLY": "أسبوعي",
-		"MONTHLY": "شهري"
+		"MONTHLY": "شهري",
+		"HIDE_CHART": "إخفاء المخطط",
+		"SHOW_ACTIVITY_CHART": "إظهار مخطط النشاط"
 	},
 	"timeActivity": {
 		"TIME_AND_ACTIVITY": "الوقت والنشاط",
@@ -448,11 +455,21 @@
 		"GROUP_BY": "تجميع حسب",
 		"DATE": "التاريخ",
 		"VIEW": "عرض",
-		"HOURS_ON_DATE": "{hours} ساعة في {date}"
+		"HOURS_ON_DATE": "{hours} ساعة في {date}",
+		"PREVIOUS_WEEK": "الأسبوع السابق",
+		"NEXT_WEEK": "الأسبوع التالي",
+		"WEEKLY_REPORT_ERROR": "التقرير الأسبوعي غير متاح",
+		"WEEKLY_REPORT_ERROR_MESSAGE": "تعذّر تحميل الوقت المسجّل خلال الأسبوع المحدد.",
+		"EXPORT_FAILED": "تعذّر إنشاء الملف. حاول مرة أخرى."
 	},
 	"sidebar": {
 		"DASHBOARD": "لوحة التحكم",
 		"FORYOU": "عام",
+		"QUICK_CREATE": "إنشاء سريع",
+		"COMMAND": "أمر",
+		"PLATFORM": "المنصة",
+		"TEAM_DASHBOARD": "لوحة تحكم الفريق",
+		"APPS_AND_URLS": "التطبيقات والروابط",
 		"HOME": "الصفحة الرئيسية",
 		"INBOX": "الوارد",
 		"PROJECTS": "المشاريع",
@@ -709,7 +726,34 @@
 			"FORGOT_PASSWORD": "هل نسيت كلمة المرور؟",
 			"TERMS_OF_SERVICE": "شروط الخدمة",
 			"PRIVACY_POLICY": "سياسة الخصوصية",
-			"OR_CONTINUE_WITH": "أو تابع باستخدام"
+			"OR_CONTINUE_WITH": "أو تابع باستخدام",
+			"SIGNUP_VERIFY_EMAIL": "تم إنشاء حسابك. افتح الرابط في البريد الإلكتروني الذي أرسلناه إلى {email} لتفعيله، ثم سجّل الدخول ببريدك الإلكتروني.",
+			"everId": {
+				"NO_WORKSPACE_TITLE": "لا توجد مساحة عمل لهذا الـ Ever ID بعد",
+				"NO_WORKSPACE_BODY": "لا توجد مساحة عمل مرتبطة بهذا الـ Ever ID بعد. سجّل الدخول بطريقة أخرى، أو اطلب دعوة من مسؤول مساحة العمل.",
+				"WORKSPACE_BLOCKED_TITLE": "استخدم تسجيل الدخول الخاص بشركتك",
+				"WORKSPACE_BLOCKED_BODY": "تطلب مساحة عملك تسجيل الدخول عبر شركتك. استخدمه للمتابعة، أو سجّل الدخول بطريقة أخرى.",
+				"SIGN_IN_ANOTHER_WAY": "تسجيل الدخول بطريقة أخرى",
+				"NO_WORKSPACE_SIGNUP_BODY": "يمكنك أيضًا إنشاء مساحة عمل جديدة عبر التسجيل المعتاد.",
+				"CREATE_WORKSPACE": "إنشاء مساحة عمل",
+				"CONFIRM_HINT": "أرسلنا رمزًا لمرة واحدة إلى عنوان البريد الإلكتروني لحسابك الحالي. أدخله لربط الـ Ever ID الخاص بك.",
+				"CODE_EXPIRED": "انتهت صلاحية هذا الرمز أو جُرّب مرات كثيرة. سجّل الدخول مرة أخرى باستخدام Ever ID.",
+				"TOO_MANY_ATTEMPTS": "محاولات كثيرة جدًا. انتظر دقيقة ثم حاول مرة أخرى.",
+				"UNAVAILABLE": "تسجيل الدخول باستخدام Ever ID غير متاح حاليًا. حاول لاحقًا أو سجّل الدخول بطريقة أخرى.",
+				"SIGNUP_CONFIRM": "إنشاء مساحة عملي باستخدام هذا الـ Ever ID",
+				"SIGNUP_HINT": "يأتي عنوان بريدك الإلكتروني من الـ Ever ID الموثّق الخاص بك. لا يُنشأ أي شيء حتى تتابع.",
+				"SIGNUP_CONFIRM_REQUIRED": "حدّد المربع لإنشاء مساحة عملك باستخدام هذا الـ Ever ID.",
+				"SIGNUP_TERMS": "أوافق على هذه المستندات:",
+				"SIGNUP_TERMS_REQUIRED": "وافق على المستندات للمتابعة.",
+				"SIGNUP_EXPIRED": "انتهت صلاحية هذا التسجيل. سجّل الدخول مرة أخرى باستخدام Ever ID.",
+				"SIGNUP_CHECKOUT": "يلزم اشتراك قبل أن يمكن إنشاء مساحة عملك.",
+				"CONTINUE_TO_CHECKOUT": "المتابعة إلى الدفع",
+				"EMAIL_UNVERIFIED_TITLE": "أكّد بريدك الإلكتروني في Ever ID",
+				"EMAIL_UNVERIFIED_BODY": "لم يتحقق Ever ID من عنوان بريدك الإلكتروني بعد. افتح رسالة التحقق التي أرسلها Ever ID، أو تحقق من عنوانك في Ever ID الآن، ثم سجّل الدخول باستخدام Ever ID مرة أخرى.",
+				"VERIFY_EMAIL": "تأكيد بريدي الإلكتروني في Ever ID",
+				"SIGN_IN_AGAIN": "تسجيل الدخول باستخدام Ever ID مرة أخرى",
+				"LOGIN_WITH_EVER_ID": "تسجيل الدخول باستخدام <wordmark>Ever ID</wordmark>"
+			}
 		},
 		"authPasscode": {
 			"HEADING_TITLE": "الانضمام إلى فريق موجود",
@@ -768,6 +812,8 @@
 			"LOADING_WORKSPACE": "نحن نقوم بتحميل مساحة العمل، انتظر...",
 			"REDIRECT_TO_WORSPACE_LOADING": "إعادة التوجيه إلى مساحة العمل الخاصة بك",
 			"VERIFY_EMAIL_LOADING_TEXT": "نحن نحقق من بريدك الإلكتروني، انتظر...",
+			"VERIFY_EMAIL_FAILED_TITLE": "تعذر التحقق من بريدك الإلكتروني",
+			"VERIFY_EMAIL_FAILED_MESSAGE": "قد يكون الرابط غير صالح أو منتهي الصلاحية أو تم استخدامه بالفعل، أو تعذّر الاتصال بالخادم. أعد المحاولة بعد قليل أو افتح التطبيق لطلب رابط جديد.",
 			"INPUT_TEAM_NAME": "أدخل اسم فريقك",
 			"JOIN_EXISTING_TEAM": "الانضمام إلى فريق موجود؟",
 			"CREATE_FIRST_TEAM": "أنشئ أول فريق لك",
@@ -791,6 +837,10 @@
 			"HEADING_TITLE": "الإعدادات العامة",
 			"goToTeamSettings": "انتقل إلى إعدادات الفريق",
 			"WORKING_HOURS": "ساعات العمل",
+			"ADD_HOURS_FOR": "إضافة ساعات ليوم {day}",
+			"REMOVE_HOURS_FOR": "إزالة ساعات ليوم {day}",
+			"UNAVAILABLE": "غير متاح",
+			"TOGGLE_AVAILABILITY_FOR": "توفر يوم {day}",
 			"emailNotValid": "يرجى تقديم بريد إلكتروني صالح",
 			"phoneNotValid": "يرجى تقديم رقم هاتف صالح",
 			"WORK_SCHEDULE": "جدول العمل",
@@ -811,6 +861,8 @@
 			"SIZES_HEADING": "الأحجام",
 			"TEAM_NAME": "اسم الفريق",
 			"TEAM_TYPE": "نوع الفريق",
+			"TEAM_TYPE_UPDATED": "تم تحديث نوع الفريق بنجاح",
+			"TEAM_TYPE_UPDATE_FAILED": "فشل في تحديث نوع الفريق. يرجى المحاولة مرة أخرى.",
 			"TIME_TRACKING": "تتبع الوقت",
 			"ENFORCE_PLAN": "فرض الخطة",
 			"ADD_NEW_MEMBER": "إضافة عضو جديد",
@@ -908,7 +960,56 @@
 			"NO_INVITATIONS": "لا توجد دعوات حاليًا!",
 			"NO_MEMBERS": "لا يوجد أعضاء حاليًا!",
 			"GO_TO_PERSONAL_SETTINGS": "الانتقال إلى الإعدادات الشخصية",
-			"SHARE_MEMBERS_PROFILE_VIEWS": "مشاركة مشاهدات ملفات تعريف الأعضاء"
+			"SHARE_MEMBERS_PROFILE_VIEWS": "مشاركة مشاهدات ملفات تعريف الأعضاء",
+			"everPlatform": {
+				"TITLE": "Ever Platform",
+				"DESCRIPTION": "ميزات اختيارية لهذا التثبيت. كل ما يظهر هنا يحفظه الـ API الخاص به، ويمكن إيقاف كل جزء منه.",
+				"STATS_TITLE": "إحصاءات استخدام مجهولة الهوية",
+				"STATS_DESCRIPTION": "يمكن لهذا التثبيت إرسال تقرير مجهول الهوية مرة واحدة يوميًا: الإصدار الذي يعمل وطريقة تثبيته. لا يُرسل أبدًا اسم أي شخص أو عنوان بريده الإلكتروني أو أي محتوى أو بيانات استخدامه.",
+				"STATS_TOGGLE_LABEL": "إرسال إحصاءات استخدام مجهولة الهوية",
+				"STATS_ON": "مُفعّلة",
+				"STATS_OFF": "متوقفة",
+				"STATS_REASON_UI": "أُوقفت من الإعدادات",
+				"STATS_REASON_CONFIG": "لا يمكن استخدام عنوان الإحصاءات المُعدّ",
+				"STATS_REASON_KEY": "تعذّرت قراءة مفتاح الإحصاءات",
+				"STATS_NEXT_SEND": "التقرير التالي",
+				"STATS_WEB_APP": "تطبيق الويب",
+				"STATS_API": "API",
+				"STATS_LAST_PAYLOAD": "آخر تقرير مُرسل",
+				"STATS_NO_PAYLOAD": "لم يُرسل أي تقرير بعد.",
+				"STATS_SENT_AT": "أُرسل",
+				"STATS_HTTP_STATUS": "الاستجابة",
+				"STATS_TOGGLE_ERROR": "تعذّر حفظ الإعداد. حاول مرة أخرى.",
+				"STATS_MANAGED_CLOUD": "تديره Ever Cloud",
+				"STATS_MANAGED_OPERATOR": "يديره مشغّل المثيل",
+				"STATS_DOCS_LINK": "ما الذي يُرسل وكيفية إيقافه",
+				"CONNECT_LINK_TITLE": "ربط المؤسسة",
+				"CONNECT_LINKED_AS": "مرتبطة بـ",
+				"CONNECT_NOT_LINKED": "هذه المؤسسة غير مرتبطة بـ Ever Platform.",
+				"CONNECT_LINK_CODE_HINT": "الصق رمز الربط من Ever Platform (EVL-XXXX-XXXX-XXXX).",
+				"CONNECT_LINK_CODE_INVALID": "هذا ليس رمز ربط صالحًا.",
+				"CONNECT_LINK": "ربط",
+				"CONNECT_UNLINK": "إلغاء الربط",
+				"CONNECT_NOT_CONNECTED": "لم يقم مشغّل هذا التثبيت بتوصيله بـ Ever Platform.",
+				"INTEGRATIONS_TITLE": "التكاملات والبيانات",
+				"INTEGRATIONS_EMPTY": "لا يوجد تكامل مُتاح لهذه المؤسسة.",
+				"SHOW_SCOPE": "عرض النطاق",
+				"HIDE_SCOPE": "إخفاء النطاق",
+				"MANAGE_IN_APP": "الإدارة في Ever Platform",
+				"DISABLE": "إيقاف",
+				"STATE_ENABLED": "مُفعّل",
+				"STATE_OFF": "غير مُفعّل",
+				"STATE_PENDING": "بانتظار المشغّل",
+				"STATE_DENIED": "غير مسموح هنا",
+				"ENTITLEMENTS_TITLE": "الصلاحيات",
+				"ENTITLEMENT_PLAN": "الخطة",
+				"ENTITLEMENT_FEATURES": "الميزات",
+				"ENTITLEMENT_EXPIRES": "صالح حتى",
+				"ENTITLEMENT_NONE": "لا توجد صلاحيات بعد.",
+				"REFRESH": "تحديث",
+				"LOAD_ERROR": "تعذّر تحميل هذه المعلومات.",
+				"ACTION_FAILED": "فشل الإجراء. حاول مرة أخرى."
+			}
 		},
 		"invite": {
 			"HEADING_TITLE": "دعوة عضو لفريقك",
@@ -998,6 +1099,7 @@
 			"LOADING": "جار تحميل بيانات الجدول الزمني...",
 			"NO_ENTRIES_FOUND": "لم يتم العثور على مدخلات في الجدول الزمني",
 			"YOU_ARE_ABOUT_TO_REJECT_ENTRY": "أنت على وشك رفض الإدخال المحدد، هل ترغب في المتابعة؟",
+			"REJECTION_REASON": "سبب الرفض",
 			"ALL_TASKS": "جميع المهام",
 			"PENDING": "قيد الانتظار",
 			"APPROVED": "تمت الموافقة",
@@ -1017,19 +1119,27 @@
 			"BILLABLE_MODIFY_SUCCESS": "تم تعديل حالة الفوترة بنجاح.",
 			"BILLABLE_MODIFY_ERROR": "فشل تعديل حالة الفوترة. يرجى المحاولة مرة أخرى.",
 			"STATUS_MODIFY_SUCCESS": "تم تعديل حالة جدول الدوام بنجاح.",
-			"STATUS_MODIFY_ERROR": "فشل تعديل حالة جدول الدوام. يرجى المحاولة مرة أخرى."
+			"STATUS_MODIFY_ERROR": "فشل تعديل حالة جدول الدوام. يرجى المحاولة مرة أخرى.",
+			"END_AFTER_START": "يجب أن يكون وقت الانتهاء بعد وقت البدء."
 		}
 	},
 	"timer": {
 		"START_TIMER": "يرجى تحديد أو إنشاء مهمة جديدة لبدء تتبع الوقت أو وضع خطة",
 		"ALREADY_TRACKING_MESSAGE": "أنت تتبع الوقت بالفعل في علامة تبويب أو جهاز آخر.",
 		"TASK_CLOSED": "المهمة مغلقة",
+		"PLAN_REQUIRED_TO_START": "أضف هذه المهمة إلى خطة اليوم للبدء",
 		"STARTING_TIMER": "جاري بدء المؤقت...",
 		"TIMER_STARTED": "تم بدء المؤقت بنجاح",
 		"TIMER_START_FAILED": "فشل بدء المؤقت",
+		"STALE_TIMER_STOPPED_DESCRIPTION": "استمر المؤقت في العمل بعد إغلاق التطبيق، لذلك تم إيقافه عند آخر لحظة كان فيها التطبيق مفتوحًا ({stoppedAt}). إذا عملت بعد ذلك، فأضف الوقت يدويًا.",
+		"TIMER_STOP_FAILED": "فشل إيقاف المؤقت. يرجى المحاولة مرة أخرى.",
 		"TEAM_SWITCH": {
 			"STOPPED_TIMER_TOAST_TITLE": "توقف المؤقت",
 			"STOPPED_TIMER_TOAST_DESCRIPTION": "توقف المؤقت بسبب التبديل بين الفرق"
+		},
+		"TASK_SWITCH": {
+			"STOPPED_TIMER_TOAST_TITLE": "توقف المؤقت",
+			"STOPPED_TIMER_TOAST_DESCRIPTION": "توقف المؤقت بسبب تغيير المهمة النشطة"
 		},
 		"ACTIVE": "نشط",
 		"APPS": "تطبيقات",
@@ -1069,7 +1179,9 @@
 			"WARNING_PLAN_ESTIMATION": "رجى تصحيح ساعات العمل المخطط لها أو إعادة تقدير المهمة (المهام)"
 		},
 		"VISITED_SITES": "المواقع التي تمت زيارتها",
-		"NO_VISITED_SITE_MESSAGE": "لا يوجد مواقع تمت زيارتها"
+		"NO_VISITED_SITE_MESSAGE": "لا يوجد مواقع تمت زيارتها",
+		"TRACKING_SOURCE_HINT": "يتم التقاط لقطات الشاشة والتطبيقات والمواقع التي تمت زيارتها بواسطة تطبيق سطح المكتب أو الوكيل، وليس عند تتبع الوقت في المتصفح.",
+		"DOWNLOAD_DESKTOP_APP": "تنزيل تطبيق سطح المكتب"
 	},
 	"task": {
 		"TITLE": "المهمة",
@@ -1135,12 +1247,14 @@
 			"TASK_PLAN_FAILED": "فشل في تخطيط المهمة. يرجى المحاولة مرة أخرى.",
 			"TASK_ASSIGNMENT_FAILED": "فشل في تعيين/إلغاء تعيين المهمة. يرجى المحاولة مرة أخرى.",
 			"TASK_FAVORITE_FAILED": "فشل في تحديث المفضلة. يرجى المحاولة مرة أخرى.",
+			"TASK_CREATION_FAILED": "فشل في إنشاء المهمة. يرجى المحاولة مرة أخرى.",
 			"FAVORITE_ITEM_CREATED_SUCCESSFULLY": "تم إنشاء العنصر المفضل بنجاح",
 			"FAVORITE_ITEM_DELETED_SUCCESSFULLY": "تم حذف العنصر المفضل بنجاح"
 		}
 	},
 	"dailyPlan": {
 		"PLAN_FOR_TODAY": "خطة اليوم",
+		"ADD_TO_TODAY_PLAN": "أضف إلى خطة اليوم",
 		"TASK_TIME": "وقت المهمة",
 		"TOTAL_TODAY": "الإجمالي اليوم",
 		"PLAN_FOR_TOMORROW": "خطة الغد",
@@ -1164,6 +1278,7 @@
 		"TOTAL_TASK": "إجمالي المهام",
 		"DAILY_PLAN_DESCRIPTION": "'الخطة اليومية' تساعد في تنظيم عملية العمل لتحقيق أفضل النتائج",
 		"SUGGESTS_TO_ADD_TASK_TO_TODAY_PLAN": "لم تكن هذه المهمة مخططة لخطة اليوم. هل ترغب في إضافة شيء إلى الخطة؟",
+		"TASK_ORDER_SAVE_FAILED": "تعذّر حفظ الترتيب الجديد للمهام. يرجى المحاولة مرة أخرى.",
 		"planned_tasks_popup": {
 			"warning": {
 				"PLANNED_TIME": "يرجى إضافة الوقت المخطط",
@@ -1214,7 +1329,10 @@
 			"TERMS_AND_CONDITIONS": "الشروط والأحكام",
 			"PRIVACY_POLICY": "سياسة الخصوصية",
 			"COOKIES": "سياسة ملفات تعريف الارتباط",
-			"BY": "من طرف"
+			"BY": "من طرف",
+			"BUILD_WEB": "إصدار الويب v{version}",
+			"API_VERSION": "API v{version}",
+			"OPEN_COMMIT": "فتح الالتزام {commit}"
 		}
 	},
 	"errors": {
@@ -1227,7 +1345,8 @@
 		"PASSWORDS_DO_NOT_MATCH": "كلمات المرور غير متطابقة"
 	},
 	"placeholders": {
-		"ENTER_TO_VALIDATE": "اضغط إدخال للتحقق"
+		"ENTER_TO_VALIDATE": "اضغط إدخال للتحقق",
+		"ENTER_A_COMMAND": "أدخل أمرًا..."
 	},
 	"team": {
 		"BACK_LABEL": "العودة إلى الفريق",
@@ -1287,7 +1406,7 @@
 		"HEADER_TITLE": "محادثة الذكاء الاصطناعي",
 		"CLEAR_CONVERSATION": "مسح المحادثة",
 		"CONFIGURATION": "الإعدادات",
-		"ASSISTANT_NAME": "مساعد Ever Teams",
+		"ASSISTANT_NAME": "مساعد {appName}",
 		"EMPTY_CONFIGURED": "اطرح سؤالاً للبدء.",
 		"EMPTY_NOT_CONFIGURED": "قم بتهيئة مفتاح API للبدء.",
 		"CONFIGURE_BUTTON": "تهيئة",
@@ -1295,6 +1414,14 @@
 		"INPUT_PLACEHOLDER_READY": "رسالتك...",
 		"INPUT_PLACEHOLDER_NO_KEY": "قم بتهيئة مفتاح API...",
 		"STOP": "إيقاف",
-		"SEND": "إرسال"
+		"SEND": "إرسال",
+		"NEW_CHAT": "محادثة جديدة",
+		"HISTORY": "السجل",
+		"NO_CONVERSATIONS": "لا توجد محادثات بعد",
+		"PANEL_CONTROLS": "عناصر التحكم في لوحة المحادثة",
+		"COLLAPSE_ASSISTANT": "طي المساعد",
+		"STANDARD_ASSISTANT_WIDTH": "عرض المساعد القياسي",
+		"EXPAND_ASSISTANT": "توسيع المساعد",
+		"OPEN_ASSISTANT": "فتح مساعد {appName}"
 	}
 }

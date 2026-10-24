@@ -1,4 +1,3 @@
-import { useTimerView } from '@/core/hooks';
 import { useUpdateDailyPlan } from '@/core/hooks/daily-plans/use-update-daily-plan';
 import { Button, Modal, Text } from '@/core/components';
 import { useCallback } from 'react';
@@ -13,6 +12,7 @@ interface UnplanActiveTaskModalProps {
 	closeModal: () => void;
 	task: TTask;
 	plan: TDailyPlan;
+	stopTimer: () => void;
 }
 
 /**
@@ -23,15 +23,16 @@ interface UnplanActiveTaskModalProps {
  * @param {() => void} props.closeModal - A function to close the modal
  * @param {TTask} props.task - The task to unplan
  * @param {TDailyPlan} props.plan - The today's plan
+ * @param {() => void} props.stopTimer - Stops the timer. Passed in by the parent because this modal is mounted
+ * once per plan row, and a timer hook here would add one timer API instance per row.
  *
  * @returns {JSX.Element} The modal element
  */
 export function UnplanActiveTaskModal(props: UnplanActiveTaskModalProps) {
-	const { closeModal, task, open, plan } = props;
+	const { closeModal, task, open, plan, stopTimer } = props;
 	const timerStatus = useAtomValue(timerStatusState);
 
 	const { removeTaskFromPlan, removeTaskFromPlanLoading } = useUpdateDailyPlan();
-	const { stopTimer } = useTimerView();
 
 	const handleCloseModal = useCallback(() => {
 		closeModal();

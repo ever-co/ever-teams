@@ -13,7 +13,7 @@
     "db:studio": "drizzle-kit studio"
   },
   "dependencies": {
-    "next": "^16.2.6",
+    "next": "^16.4.2",
     "next-intl": "^4.9.2",
     "react": "^19.2.3",
     "react-dom": "^19.2.3",
@@ -47,7 +47,7 @@
     "tailwindcss-animate": "^1.0.7",
     "tailwindcss-react-aria-components": "2.0.0",
     "typescript": "^5.8.2",
-    "zod": "^3.24.2",
+    "zod": "^4.6.6",
     "@ever-teams/atoms": "*",
     "@ever-teams/toolkit-ui": "*",
     "@ever-teams/api": "*",

@@ -5,7 +5,11 @@ import { GAUZY_API_BASE_SERVER_URL } from '@/core/constants/config/constants';
 import { DeleteResponse, PaginationResponse } from '@/core/types/interfaces/common/data-response';
 import { createTaskSchema, taskSchema, TCreateTask, TTask } from '@/core/types/schemas/task/task.schema';
 import { TEmployee, ZodValidationError } from '@/core/types/schemas';
-import { zodStrictApiResponseValidate, zodStrictPaginationResponseValidate } from '@/core/lib/validation/zod-validators';
+import {
+	zodStrictApiResponseValidate,
+	zodStrictPaginationResponseValidate
+} from '@/core/lib/validation/zod-validators';
+import { scopedReadConfig, type ScopedReadOptions } from '../../api-request-scope';
 
 /**
  * Enhanced Task Service with Zod validation
@@ -30,6 +34,15 @@ class TaskService extends APIService {
 		];
 	}
 
+	/**
+	 * Relations the team task list reads. Linked issues and estimations are one-to-many joins that
+	 * multiply the rows behind /tasks/team, and only the task detail shows them and the creator, so
+	 * they stay in `baseRelations`, loaded by getTaskById.
+	 */
+	get listRelations() {
+		return ['tags', 'teams', 'members', 'members.user', 'parent', 'children'];
+	}
+
 	get baseQueries() {
 		return {
 			'where[organizationId]': this.organizationId,
@@ -38,8 +51,12 @@ class TaskService extends APIService {
 			'join[leftJoinAndSelect][members]': 'task.members',
 			'join[leftJoinAndSelect][user]': 'members.user',
 			'join[leftJoinAndSelect][estimations]': 'task.estimations',
-			...Object.fromEntries(this.baseRelations.map((relation, index) => [`relations[${index}]`, relation]))
+			...this.relationQueries(this.baseRelations)
 		};
+	}
+
+	private relationQueries(relations: string[]) {
+		return Object.fromEntries(relations.map((relation, index) => [`relations[${index}]`, relation]));
 	}
 	/**
 	 * Fetches a single task by its ID with validation
@@ -78,19 +95,49 @@ class TaskService extends APIService {
 	 * Fetches a paginated list of tasks with validation
 	 *
 	 * @param {string} projectId - Project identifier
+	 * @param {number} [take] - Page size, capped at 100, only sent together with `page`
+	 * @param {number} [page] - 1-based page number; without `take` and `page` the whole list is returned
 	 * @returns {Promise<PaginationResponse<TTask>>} - Validated paginated tasks data
 	 * @throws ValidationError if response data doesn't match schema
 	 */
-	getTasks = async ({ projectId }: { projectId: string }): Promise<PaginationResponse<TTask>> => {
+	getTasks = async ({
+		projectId,
+		options,
+		take,
+		page
+	}: {
+		projectId: string;
+		options?: ScopedReadOptions;
+		take?: number;
+		page?: number;
+	}): Promise<PaginationResponse<TTask>> => {
 		try {
+			const tenantId = options?.scope.tenantId ?? this.tenantId;
+			const organizationId = options?.scope.organizationId ?? this.organizationId;
+			const teamId = options?.scope.teamId ?? this.activeTeamId;
 			const query = qs.stringify({
-				...this.baseQueries,
+				...this.relationQueries(this.listRelations),
+				'where[organizationId]': organizationId,
+				'where[tenantId]': tenantId,
 				'where[projectId]': projectId,
-				'where[teams][0]': this.activeTeamId
+				'where[teams][0]': teamId,
+				// Gauzy reads `skip` as a 1-based page number (0 yields a negative offset) and applies
+				// no default order, so pages need an explicit stable sort to not overlap.
+				...(take !== undefined && page !== undefined
+					? {
+							take: Math.min(take, 100),
+							skip: Math.max(page, 1),
+							'order[createdAt]': 'DESC',
+							'order[id]': 'DESC'
+						}
+					: {})
 			});
 			const endpoint = `/tasks/team?${query}`;
 
-			const response = await this.get<PaginationResponse<TTask>>(endpoint, { tenantId: this.tenantId });
+			const response = await this.get<PaginationResponse<TTask>>(
+				endpoint,
+				options ? scopedReadConfig(options) : { tenantId: this.tenantId }
+			);
 
 			// Validate the response data using zod validation with enum normalization
 			return zodStrictPaginationResponseValidate(taskSchema, response.data, 'getTasks API response');
@@ -291,9 +338,23 @@ class TaskService extends APIService {
 					'createTask input data'
 				) as TCreateTask;
 
-				await this.post('/tasks', validatedInput, { tenantId });
+				const { data: createdTask } = await this.post<TTask>('/tasks', validatedInput, { tenantId });
 
-				return this.getTasks({ projectId });
+				// The task exists from here on. A failed list refresh must not read as a failed creation,
+				// or the user retries and creates it twice; callers refresh the task lists on success.
+				try {
+					return await this.getTasks({ projectId });
+				} catch (error) {
+					this.logger.warn(
+						'Task created but the task list refresh failed:',
+						{ message: error instanceof Error ? error.message : String(error) },
+						'TaskService'
+					);
+					// Hand back the created task so the caller can still activate it. The API echoes `teams` as
+					// the `{ id }` refs sent above, which the team schema rejects, so they are left out.
+					const created = taskSchema.omit({ teams: true }).safeParse(createdTask);
+					return created.success ? { items: [created.data], total: 1 } : { items: [], total: 0 };
+				}
 			}
 
 			const api = await getFallbackAPI();
@@ -349,17 +410,26 @@ class TaskService extends APIService {
 	 * Fetches tasks by employee ID with validation
 	 *
 	 * @param {string} employeeId - Employee identifier
+	 * @param {string} organizationTeamId - Team the tasks are scoped to
 	 * @returns {Promise<TTask[]>} - Validated array of tasks
 	 * @throws ValidationError if response data doesn't match schema
 	 */
-	getTasksByEmployeeId = async ({ employeeId }: { employeeId: string }): Promise<TTask[]> => {
+	getTasksByEmployeeId = async ({
+		employeeId,
+		organizationTeamId
+	}: {
+		employeeId: string;
+		/** Optional, as before #4546: without it the employee's tasks of every team are returned */
+		organizationTeamId?: string;
+	}): Promise<TTask[]> => {
 		try {
 			const organizationId = this.organizationId;
 			const tenantId = this.tenantId;
 			const obj = {
 				'where[tenantId]': tenantId,
 				'where[organizationId]': organizationId,
-				'teams[0]': this.activeTeamId
+				// Gauzy passes `where` to the ORM unchanged on this endpoint and never reads a root `teams` key.
+				...(organizationTeamId ? { 'where[teams][id]': organizationTeamId } : {})
 			} as Record<string, string>;
 			const query = qs.stringify(obj);
 
@@ -377,7 +447,7 @@ class TaskService extends APIService {
 						message: error.message,
 						issues: error.issues,
 						employeeId,
-						activeTeamId: this.activeTeamId
+						organizationTeamId
 					},
 					'TaskService'
 				);

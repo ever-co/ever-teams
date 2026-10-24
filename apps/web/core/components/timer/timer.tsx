@@ -16,7 +16,8 @@ import {
 	LifebuoyIcon
 } from '@heroicons/react/24/outline';
 import { HotkeysEvent } from 'hotkeys-js';
-import { useCallback, useMemo } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
+import { toast } from 'sonner';
 import { AddTasksEstimationHoursModal, EnforcePlanedTaskModal, SuggestDailyPlanModal } from '../daily-plan';
 import { useStartStopTimerHandler } from '@/core/hooks/activities/use-start-stop-timer-handler';
 import { ProgressBar } from '../duplicated-components/_progress-bar';
@@ -25,10 +26,17 @@ import { VerticalSeparator } from '../duplicated-components/separator';
 import { IClassName } from '@/core/types/interfaces/common/class-name';
 import { ETimeLogSource } from '@/core/types/generics/enums/timer';
 import { useAtomValue } from 'jotai';
-import { activeTeamState, activeTeamTaskState } from '@/core/stores';
+import { activeTeamState, activeTeamTaskState, timerStatusState } from '@/core/stores';
+
+function useHydrated() {
+	const [hydrated, setHydrated] = useState(false);
+	useEffect(() => setHydrated(true), []);
+	return hydrated;
+}
 
 export function Timer({ className, showTimerButton = true }: IClassName) {
 	const t = useTranslations();
+	const hydrated = useHydrated();
 
 	const {
 		hours,
@@ -37,17 +45,18 @@ export function Timer({ className, showTimerButton = true }: IClassName) {
 		activeTaskEstimation,
 		ms_p,
 		canRunTimer,
-		timerHanlder,
 		timerStatus,
-		disabled,
 		hasPlan,
 		startTimer,
 		stopTimer
 	} = useTimerView();
-	const { modals, startStopTimerHandler } = useStartStopTimerHandler({ startTimer, stopTimer });
+	const { modals, actionDisabled, startStopTimerHandler } = useStartStopTimerHandler({ startTimer, stopTimer });
 	const activeTeam = useAtomValue(activeTeamState);
 	const activeTeamTask = useAtomValue(activeTeamTaskState);
 	const requirePlan = useMemo(() => activeTeam?.requirePlanToTrack, [activeTeam?.requirePlanToTrack]);
+	// Unfiltered status, the one startStopTimerHandler decides on. timerStatus above reports a timer
+	// running on another team's task as stopped, while the handler would stop that timer.
+	const rawTimerRunning = useAtomValue(timerStatusState)?.running === true;
 
 	// FIX_NOTE: Use team-scoped time instead of global timerStatus.duration
 	// timerStatus.duration is global and doesn't change when switching teams
@@ -81,20 +90,22 @@ export function Timer({ className, showTimerButton = true }: IClassName) {
 		}
 	}, [os, timerStatus?.running]);
 
-	// Handling Hotkeys
+	// Handling Hotkeys: same handler as the button, so the shortcut cannot skip the daily plan rules
 	const handleStartSTOPTimer = useCallback(
 		(e?: KeyboardEvent, h?: HotkeysEvent) => {
-			// Start Timer
-			if ((h?.shortcut === 'ctrl+option+]' || h?.shortcut === 'ctrl+alt+]') && !timerStatus?.running) {
-				timerHanlder();
+			// Start Timer: only when no timer runs at all, so the start key never stops one
+			if (h?.shortcut === 'ctrl+option+]' || h?.shortcut === 'ctrl+alt+]') {
+				if (!rawTimerRunning) startStopTimerHandler();
+				// A timer runs on another team's task: say so, as the start key did before
+				else if (!timerStatus?.running) toast.info(t('timer.ALREADY_TRACKING_MESSAGE'));
 			}
 
 			// Stop Timer
 			if ((h?.shortcut === 'ctrl+option+[' || h?.shortcut === 'ctrl+alt+[') && timerStatus?.running) {
-				timerHanlder();
+				startStopTimerHandler();
 			}
 		},
-		[timerHanlder, timerStatus]
+		[startStopTimerHandler, timerStatus, rawTimerRunning, t]
 	);
 	useHotkeys(HostKeys.START_STOP_TIMER, handleStartSTOPTimer);
 
@@ -121,7 +132,7 @@ export function Timer({ className, showTimerButton = true }: IClassName) {
 						>
 							<Text.Heading
 								as="h3"
-								className={`text-4xl w-[200px] lg:text-start tracking-wide font-normal ${
+								className={`text-3xl w-[9.5rem] lg:text-start tabular-nums tracking-tight font-medium ${
 									timerStatus?.running &&
 									timerStatus?.lastLog?.source &&
 									timerStatus?.lastLog?.source !== ETimeLogSource.TEAMS
@@ -171,10 +182,7 @@ export function Timer({ className, showTimerButton = true }: IClassName) {
 							<TimerButton
 								onClick={startStopTimerHandler}
 								running={displayRunning}
-								disabled={
-									// If timer is running at some other source and user may or may not have selected the task
-									!canRunTimer || (disabled && timerStatus?.lastLog?.source !== ETimeLogSource.TEAMS)
-								}
+								disabled={!hydrated || actionDisabled}
 							/>
 						</Tooltip>
 
@@ -227,8 +235,9 @@ export function Timer({ className, showTimerButton = true }: IClassName) {
 }
 
 export function MinTimerFrame({ className }: IClassName) {
-	const { hours, minutes, seconds, ms_p, timerStatus, disabled, hasPlan, startTimer, stopTimer } = useTimerView();
-	const { modals, startStopTimerHandler } = useStartStopTimerHandler({ startTimer, stopTimer });
+	const hydrated = useHydrated();
+	const { hours, minutes, seconds, ms_p, timerStatus, hasPlan, startTimer, stopTimer } = useTimerView();
+	const { modals, actionDisabled, startStopTimerHandler } = useStartStopTimerHandler({ startTimer, stopTimer });
 	const activeTeam = useAtomValue(activeTeamState);
 	const activeTeamTask = useAtomValue(activeTeamTaskState);
 	const requirePlan = useMemo(() => activeTeam?.requirePlanToTrack, [activeTeam?.requirePlanToTrack]);
@@ -251,8 +260,8 @@ export function MinTimerFrame({ className }: IClassName) {
 	return (
 		<div
 			className={clsxm(
-				'input-border rounded-lg py-2 px-4 h-fit dark:bg-[#1B1D22] dark:border-2 border-[#0000001A] dark:border-[#26272C]',
-				'flex items-center md:space-x-4 space-x-1',
+				'h-9 rounded-md border border-border bg-card px-3',
+				'flex items-center gap-2 md:gap-3',
 				className
 			)}
 		>
@@ -267,7 +276,7 @@ export function MinTimerFrame({ className }: IClassName) {
 				leaveTo="opacity-0"
 				key={timerStatus?.running ? 'running' : 'stopped'}
 			>
-				<Text className="text-lg tracking-wide font-normal w-[110px]">
+				<Text className="w-[84px] text-sm font-medium tabular-nums">
 					{timerStatus?.running
 						? `${pad(hours)}:${pad(minutes)}:${pad(seconds)}`
 						: `${pad(todayHours)}:${pad(todayMinutes)}:${pad(todaySeconds)}`}
@@ -295,7 +304,7 @@ export function MinTimerFrame({ className }: IClassName) {
 				<TimerButton
 					onClick={startStopTimerHandler}
 					running={displayRunning}
-					disabled={disabled}
+					disabled={!hydrated || actionDisabled}
 					className="w-7 h-7"
 				/>
 			</div>

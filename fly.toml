@@ -11,6 +11,13 @@ kill_timeout = "5m0s"
 [build]
   image = "ghcr.io/ever-co/ever-teams-webapp:latest"
 
+# Runtime configuration of the image (no rebuild needed; full list in .env.docker). Point both URLs at your own
+# Gauzy API origin (without a trailing /api) to self-host the backend too. Keep secrets out of this file:
+#   fly secrets set AUTH_SECRET=$(openssl rand -base64 32)
+[env]
+  GAUZY_API_SERVER_URL = "https://api.ever.team"
+  NEXT_PUBLIC_GAUZY_API_SERVER_URL = "https://api.ever.team"
+
 [http_service]
   internal_port = 3030
   force_https = true

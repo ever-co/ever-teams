@@ -1,8 +1,7 @@
 'use client';
 
-import { AxiosError } from 'axios';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { useEffect, useState, useMemo } from 'react';
+import { useEffect, useMemo } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { emailVerificationService } from '@/core/services/client/api/users/emails/email-verification.service';
 import { queryKeys } from '@/core/query/keys';
@@ -12,8 +11,6 @@ export function useEmailVerifyToken() {
 	const router = useRouter();
 	const email = searchParams?.get('email');
 	const token = searchParams?.get('token');
-
-	const [errors, setErrors] = useState({} as { [x: string]: any });
 
 	// SECURE - Memoized parameters to prevent infinite re-renders
 	const verificationParams = useMemo(() => {
@@ -46,18 +43,9 @@ export function useEmailVerifyToken() {
 		}
 	}, [emailVerificationQuery.data, router]);
 
-	// Handle errors - extract error details
-	useEffect(() => {
-		if (emailVerificationQuery.error) {
-			const err = emailVerificationQuery.error as AxiosError;
-			if (err.response?.status === 400) {
-				setErrors((err.response?.data as any)?.errors || {});
-			}
-		}
-	}, [emailVerificationQuery.error]);
-
 	return {
-		errors,
+		// A link without email or token never starts the query, so it counts as a failed verification too.
+		failed: !verificationParams || emailVerificationQuery.isError,
 		loading: emailVerificationQuery.isLoading
 	};
 }

@@ -15,7 +15,6 @@ export * from './use-left-setting-data';
 export * from './use-live-kit';
 export * from './use-local-storage-state';
 export * from './use-modal';
-export * from './use-ot-refresh-interval';
 export * from './use-outside-click';
 export * from './use-pagination';
 export * from './use-query';

@@ -6,11 +6,38 @@ import { ITimeSlot } from '@/core/types/interfaces/timer/time-slot/time-slot';
 import { ITimeLog } from '@/core/types/interfaces/timer/time-log/time-log';
 import { ETimeLogSource } from '@/core/types/generics/enums/timer';
 
-export function getTimerStatusRequest({ tenantId, organizationId }: IGetTimerStatusParams, bearer_token: string) {
-	const params = qs.stringify({ tenantId, organizationId });
+/** Day bounds computed in the browser, since neither this server nor Gauzy knows the user's time zone. */
+export function readTodayRange(req: Request): Pick<IGetTimerStatusParams, 'todayStart' | 'todayEnd'> {
+	const { searchParams } = new URL(req.url);
+
+	return {
+		todayStart: searchParams.get('todayStart') ?? undefined,
+		todayEnd: searchParams.get('todayEnd') ?? undefined
+	};
+}
+
+export function getTimerStatusRequest(
+	{ tenantId, organizationId, todayStart, todayEnd }: IGetTimerStatusParams,
+	bearer_token: string
+) {
+	const params = qs.stringify({ tenantId, organizationId, todayStart, todayEnd });
 
 	return serverFetch<ITimerStatus>({
 		path: `/timesheet/timer/status?${params}`,
+		method: 'GET',
+		bearer_token,
+		tenantId
+	});
+}
+
+export function getTimerWorkedStatusRequest(
+	{ tenantId, organizationId, employeeId }: IGetTimerStatusParams & { employeeId?: string },
+	bearer_token: string
+) {
+	const params = qs.stringify({ tenantId, organizationId, employeeId });
+
+	return serverFetch<ITimerStatus[]>({
+		path: `/timesheet/timer/status/worked?${params}`,
 		method: 'GET',
 		bearer_token,
 		tenantId
@@ -27,7 +54,10 @@ export function startTimerRequest(params: IUpdateTimerStatusParams, bearer_token
 	});
 }
 
-export function stopTimerRequest(params: IUpdateTimerStatusParams, bearer_token: string) {
+export function stopTimerRequest(
+	params: IUpdateTimerStatusParams & { startedAt?: string; stoppedAt?: string },
+	bearer_token: string
+) {
 	return serverFetch<ITimeLog | null>({
 		path: '/timesheet/timer/stop',
 		method: 'POST',
@@ -38,7 +68,14 @@ export function stopTimerRequest(params: IUpdateTimerStatusParams, bearer_token:
 }
 
 export function toggleTimerRequest(
-	{ source = ETimeLogSource.TEAMS, logType = 'TRACKED', taskId, tenantId, organizationId }: IUpdateTimerStatusParams,
+	{
+		source = ETimeLogSource.TEAMS,
+		logType = 'TRACKED',
+		taskId,
+		tenantId,
+		organizationId,
+		organizationTeamId
+	}: IUpdateTimerStatusParams,
 	bearer_token: string
 ) {
 	return serverFetch<ITimeLog | null>({
@@ -49,7 +86,8 @@ export function toggleTimerRequest(
 			logType,
 			taskId,
 			tenantId,
-			organizationId
+			organizationId,
+			organizationTeamId
 		},
 		bearer_token,
 		tenantId

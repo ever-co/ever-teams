@@ -1,5 +1,4 @@
 import { Button } from '@/core/components/duplicated-components/_button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/core/components/common/card';
 import { SidebarInput, useSidebar } from '@/core/components/common/sidebar';
 
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -10,8 +9,14 @@ import { ToastAction } from '../common/toast';
 import { toast } from '../../hooks/common/use-toast';
 import { useState } from 'react';
 import { useTranslations } from 'next-intl';
+import { ArrowRight, Loader2 } from 'lucide-react';
 import { APP_NAME } from '@/core/constants/config/constants';
 
+/**
+ * Newsletter opt-in at the foot of the sidebar: one quiet bordered block the width of the nav,
+ * with the e-mail field and the send button on a single row so it never crowds the account menu
+ * below it. Hidden while the sidebar is collapsed to its icon rail.
+ */
 export function SidebarOptInForm() {
 	const t = useTranslations();
 	const { state } = useSidebar();
@@ -26,15 +31,11 @@ export function SidebarOptInForm() {
 	});
 
 	const subscribe = async () => {
-		const appName = APP_NAME;
-		const tags = [`${appName}, ${appName} App`, 'Open', 'Cloud'];
 		setLoading((prev) => true);
+		// The route sets the list status and tags itself.
 		const res = await fetch('/api/subscribe', {
 			body: JSON.stringify({
-				email_address: form.getValues('email'),
-				captcha: '',
-				tags: tags,
-				status: 'subscribed'
+				email_address: form.getValues('email')
 			}),
 			headers: {
 				'Content-Type': 'application/json'
@@ -72,44 +73,53 @@ export function SidebarOptInForm() {
 		(async () => await subscribe())();
 	};
 
+	const subscribeLabel = isLoading ? t('common.SUBSCRIBING') : t('common.SUBSCRIBE');
+
 	return state == 'expanded' ? (
 		<Form {...form}>
-			<Card className="p-1 mt-auto shadow-none bg-light--theme-light dark:bg-dark--theme-light">
-				<form onSubmit={form.handleSubmit(onSubmit)}>
-					<CardHeader className="flex flex-col gap-1 p-4 pb-0">
-						<CardTitle className="text-sm font-medium">{t('common.SUBSCRIBE_NEWSLETTER')}</CardTitle>
-						<CardDescription className="text-xs">
-							{t('common.OPT_IN_UPDATES', { appName: APP_NAME })}
-						</CardDescription>
-					</CardHeader>
-					<CardContent className="grid gap-2.5 p-4">
-						<FormField
-							control={form.control}
-							name="email"
-							render={({ field }) => (
-								<FormItem>
-									<FormControl>
-										<SidebarInput
-											type="email"
-											placeholder="Email"
-											className="border-gray-200 placeholder:text-xs dark:bg-gray-800 dark:border-gray-700"
-											{...field}
-										/>
-									</FormControl>
-									<FormMessage className="text-xs" />
-								</FormItem>
-							)}
-						/>
-						<Button
-							type="submit"
-							className="w-full shadow-none bg-sidebar-primary text-sidebar-primary-foreground"
-							size="sm"
-						>
-							{isLoading ? 'Subscribing...' : 'Subscribe'}
-						</Button>
-					</CardContent>
-				</form>
-			</Card>
+			<form
+				onSubmit={form.handleSubmit(onSubmit)}
+				className="rounded-lg border border-sidebar-border bg-black/[0.02] p-3 dark:bg-white/[0.03]"
+			>
+				<p className="text-xs font-medium text-foreground">{t('common.SUBSCRIBE_NEWSLETTER')}</p>
+				<p className="mt-0.5 text-[11px] leading-4 text-muted-foreground">
+					{t('common.OPT_IN_UPDATES', { appName: APP_NAME })}
+				</p>
+				<FormField
+					control={form.control}
+					name="email"
+					render={({ field }) => (
+						<FormItem className="mt-2.5">
+							<FormControl>
+								<div className="flex items-center gap-1.5">
+									<SidebarInput
+										type="email"
+										placeholder={t('common.EMAIL')}
+										className="h-8 min-w-0 flex-1 rounded-md border-sidebar-border bg-background text-xs placeholder:text-xs"
+										{...field}
+									/>
+									<Button
+										type="submit"
+										variant="outline"
+										size="icon"
+										className="size-8 shrink-0 rounded-md border-sidebar-border bg-background text-muted-foreground hover:text-foreground"
+										disabled={isLoading}
+										aria-label={subscribeLabel}
+										title={subscribeLabel}
+									>
+										{isLoading ? (
+											<Loader2 className="size-3.5 animate-spin" aria-hidden="true" />
+										) : (
+											<ArrowRight className="size-3.5" aria-hidden="true" />
+										)}
+									</Button>
+								</div>
+							</FormControl>
+							<FormMessage className="text-[11px]" />
+						</FormItem>
+					)}
+				/>
+			</form>
 		</Form>
 	) : null;
 }

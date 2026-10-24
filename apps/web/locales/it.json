@@ -3,6 +3,11 @@
 	"sidebar": {
 		"DASHBOARD": "Cruscotto",
 		"FORYOU": "Generale",
+		"QUICK_CREATE": "Creazione rapida",
+		"COMMAND": "Comando",
+		"PLATFORM": "Piattaforma",
+		"TEAM_DASHBOARD": "Dashboard del Team",
+		"APPS_AND_URLS": "App e URL",
 		"HOME": "Home",
 		"INBOX": "Posta in arrivo",
 		"PROJECTS": "Progetti",
@@ -44,6 +49,9 @@
 		"ADD_TIME_ENTRY": "Aggiungi voce di tempo",
 		"OPT_IN_UPDATES": "Acconsenti a ricevere aggiornamenti e notizie su {appName}.",
 		"SUBSCRIBE_NEWSLETTER": "Iscriviti alla nostra newsletter",
+		"SUBSCRIBE": "Iscriviti",
+		"SUBSCRIBING": "Iscrizione in corso...",
+		"EMAIL": "Email",
 		"VIEW_PROJECT": "Visualizza progetto",
 		"SHARE_PROJECT": "Condividi progetto",
 		"DELETE_PROJECT": "Elimina progetto",
@@ -197,6 +205,8 @@
 		"THEMES": "Temi",
 		"3D_MODE": "Modalità 3D",
 		"DARK_MODE": "Modalità Scura",
+		"THEME_LIGHT": "Chiaro",
+		"THEME_DARK": "Scuro",
 		"SETTINGS": "Impostazioni",
 		"PERSONAL": "Personale",
 		"USE_SETTING": "Usa Impostazione",
@@ -436,7 +446,9 @@
 		"PRODUCTIVITY_BREAKDOWN": "Ripartizione produttività per {month}",
 		"DAILY": "Giornaliero",
 		"WEEKLY": "Settimanale",
-		"MONTHLY": "Mensile"
+		"MONTHLY": "Mensile",
+		"HIDE_CHART": "Nascondi grafico",
+		"SHOW_ACTIVITY_CHART": "Mostra grafico attività"
 	},
 	"timeActivity": {
 		"TIME_AND_ACTIVITY": "Tempo e Attività",
@@ -469,7 +481,12 @@
 		"GROUP_BY": "Raggruppa per",
 		"DATE": "Data",
 		"VIEW": "Vista",
-		"HOURS_ON_DATE": "{hours} ore il {date}"
+		"HOURS_ON_DATE": "{hours} ore il {date}",
+		"PREVIOUS_WEEK": "Settimana precedente",
+		"NEXT_WEEK": "Settimana successiva",
+		"WEEKLY_REPORT_ERROR": "Report settimanale non disponibile",
+		"WEEKLY_REPORT_ERROR_MESSAGE": "Non è stato possibile caricare il tempo registrato nella settimana selezionata.",
+		"EXPORT_FAILED": "Impossibile creare il file. Riprova."
 	},
 	"hotkeys": {
 		"HELP": "Aiuto",
@@ -709,7 +726,34 @@
 			"FORGOT_PASSWORD": "Password dimenticata?",
 			"TERMS_OF_SERVICE": "Termini di servizio",
 			"PRIVACY_POLICY": "Informativa sulla privacy",
-			"OR_CONTINUE_WITH": "o continua con"
+			"OR_CONTINUE_WITH": "o continua con",
+			"SIGNUP_VERIFY_EMAIL": "Il tuo account è stato creato. Apri il link nell'e-mail inviata a {email} per attivarlo, poi accedi con la tua e-mail.",
+			"everId": {
+				"NO_WORKSPACE_TITLE": "Ancora nessuno spazio di lavoro per questo Ever ID",
+				"NO_WORKSPACE_BODY": "Nessuno spazio di lavoro è ancora collegato a questo Ever ID. Accedi in un altro modo oppure chiedi un invito all'amministratore del tuo spazio di lavoro.",
+				"WORKSPACE_BLOCKED_TITLE": "Usa l'accesso della tua azienda",
+				"WORKSPACE_BLOCKED_BODY": "Il tuo spazio di lavoro richiede l'accesso tramite la tua azienda. Usalo per continuare oppure accedi in un altro modo.",
+				"SIGN_IN_ANOTHER_WAY": "Accedi in un altro modo",
+				"NO_WORKSPACE_SIGNUP_BODY": "Puoi anche creare un nuovo spazio di lavoro con la consueta registrazione.",
+				"CREATE_WORKSPACE": "Crea uno spazio di lavoro",
+				"CONFIRM_HINT": "Abbiamo inviato un codice monouso all'indirizzo e-mail del tuo account esistente. Inseriscilo per collegare il tuo Ever ID.",
+				"CODE_EXPIRED": "Questo codice è scaduto o è stato provato troppe volte. Accedi di nuovo con Ever ID.",
+				"TOO_MANY_ATTEMPTS": "Troppi tentativi. Attendi un minuto, poi riprova.",
+				"UNAVAILABLE": "L'accesso con Ever ID non è disponibile al momento. Riprova più tardi oppure accedi in un altro modo.",
+				"SIGNUP_CONFIRM": "Crea il mio spazio di lavoro con questo Ever ID",
+				"SIGNUP_HINT": "Il tuo indirizzo e-mail proviene dal tuo Ever ID verificato. Non viene creato nulla finché non continui.",
+				"SIGNUP_CONFIRM_REQUIRED": "Seleziona la casella per creare il tuo spazio di lavoro con questo Ever ID.",
+				"SIGNUP_TERMS": "Accetto questi documenti:",
+				"SIGNUP_TERMS_REQUIRED": "Accetta i documenti per continuare.",
+				"SIGNUP_EXPIRED": "Questa registrazione è scaduta. Accedi di nuovo con Ever ID.",
+				"SIGNUP_CHECKOUT": "È necessario un abbonamento prima di poter creare il tuo spazio di lavoro.",
+				"CONTINUE_TO_CHECKOUT": "Continua al pagamento",
+				"EMAIL_UNVERIFIED_TITLE": "Verifica la tua e-mail Ever ID",
+				"EMAIL_UNVERIFIED_BODY": "Ever ID non ha ancora verificato il tuo indirizzo e-mail. Apri l'e-mail di verifica che Ever ID ti ha inviato oppure verifica ora il tuo indirizzo su Ever ID, poi accedi di nuovo con Ever ID.",
+				"VERIFY_EMAIL": "Verifica la mia e-mail su Ever ID",
+				"SIGN_IN_AGAIN": "Accedi di nuovo con Ever ID",
+				"LOGIN_WITH_EVER_ID": "Accedi con <wordmark>Ever ID</wordmark>"
+			}
 		},
 		"authPasscode": {
 			"HEADING_TITLE": "Unisciti a un Team esistente",
@@ -768,6 +812,8 @@
 			"LOADING_WORKSPACE": "Stiamo caricando lo spazio di lavoro, attendi...",
 			"REDIRECT_TO_WORSPACE_LOADING": "Reindirizzamento al tuo spazio di lavoro...",
 			"VERIFY_EMAIL_LOADING_TEXT": "Stiamo verificando la tua email, attendi...",
+			"VERIFY_EMAIL_FAILED_TITLE": "Non siamo riusciti a verificare la tua email",
+			"VERIFY_EMAIL_FAILED_MESSAGE": "Il link potrebbe non essere valido, essere scaduto o già utilizzato, oppure non è stato possibile raggiungere il server. Riprova tra poco o apri l'app per richiederne uno nuovo.",
 			"INPUT_TEAM_NAME": "Inserisci il nome del tuo team",
 			"JOIN_EXISTING_TEAM": "Unisciti a un team esistente?",
 			"CREATE_FIRST_TEAM": "Crea il tuo primo team",
@@ -791,6 +837,10 @@
 			"HEADING_TITLE": "Impostazioni Generali",
 			"goToTeamSettings": "Vai alle impostazioni del team",
 			"WORKING_HOURS": "Orario di lavoro",
+			"ADD_HOURS_FOR": "Aggiungi ore per {day}",
+			"REMOVE_HOURS_FOR": "Rimuovi ore per {day}",
+			"UNAVAILABLE": "Non disponibile",
+			"TOGGLE_AVAILABILITY_FOR": "Attiva o disattiva la disponibilità per {day}",
 			"emailNotValid": "Fornisci un indirizzo email valido",
 			"phoneNotValid": "Fornisci un numero di telefono valido",
 			"WORK_SCHEDULE": "Orario di Lavoro",
@@ -811,6 +861,8 @@
 			"SIZES_HEADING": "Dimensioni",
 			"TEAM_NAME": "Nome del Team",
 			"TEAM_TYPE": "Tipo di Team",
+			"TEAM_TYPE_UPDATED": "Tipo di team aggiornato con successo",
+			"TEAM_TYPE_UPDATE_FAILED": "Aggiornamento del tipo di team fallito. Riprova.",
 			"TIME_TRACKING": "Tracciamento del Tempo",
 			"ENFORCE_PLAN": "Far rispettare il piano",
 			"ADD_NEW_MEMBER": "Aggiungi nuovo membro",
@@ -908,7 +960,56 @@
 			"NO_INVITATIONS": "Al momento non ci sono inviti!",
 			"NO_MEMBERS": "Al momento non ci sono membri!",
 			"GO_TO_PERSONAL_SETTINGS": "Vai alle impostazioni personali",
-			"SHARE_MEMBERS_PROFILE_VIEWS": "Condividi visualizzazioni del profilo dei membri"
+			"SHARE_MEMBERS_PROFILE_VIEWS": "Condividi visualizzazioni del profilo dei membri",
+			"everPlatform": {
+				"TITLE": "Ever Platform",
+				"DESCRIPTION": "Funzionalità facoltative di questa installazione. Tutto ciò che è mostrato qui è memorizzato dalla sua API e ogni parte può essere disattivata.",
+				"STATS_TITLE": "Statistiche di utilizzo anonime",
+				"STATS_DESCRIPTION": "Una volta al giorno questa installazione può inviare un rapporto anonimo: la versione in esecuzione e come è stata installata. Non vengono mai inviati nomi, indirizzi e-mail, contenuti o dati di utilizzo di una persona.",
+				"STATS_TOGGLE_LABEL": "Invia statistiche di utilizzo anonime",
+				"STATS_ON": "Attive",
+				"STATS_OFF": "Disattivate",
+				"STATS_REASON_UI": "disattivate nelle impostazioni",
+				"STATS_REASON_CONFIG": "l'indirizzo delle statistiche configurato non è utilizzabile",
+				"STATS_REASON_KEY": "la chiave delle statistiche non è leggibile",
+				"STATS_NEXT_SEND": "Prossimo rapporto",
+				"STATS_WEB_APP": "App web",
+				"STATS_API": "API",
+				"STATS_LAST_PAYLOAD": "Ultimo rapporto inviato",
+				"STATS_NO_PAYLOAD": "Non è ancora stato inviato alcun rapporto.",
+				"STATS_SENT_AT": "Inviato",
+				"STATS_HTTP_STATUS": "Risposta",
+				"STATS_TOGGLE_ERROR": "Impossibile salvare l'impostazione. Riprova.",
+				"STATS_MANAGED_CLOUD": "Gestito da Ever Cloud",
+				"STATS_MANAGED_OPERATOR": "Gestito dall'operatore dell'istanza",
+				"STATS_DOCS_LINK": "Cosa viene inviato e come disattivarlo",
+				"CONNECT_LINK_TITLE": "Collegamento dell'organizzazione",
+				"CONNECT_LINKED_AS": "Collegata a",
+				"CONNECT_NOT_LINKED": "Questa organizzazione non è collegata a Ever Platform.",
+				"CONNECT_LINK_CODE_HINT": "Incolla il codice di collegamento di Ever Platform (EVL-XXXX-XXXX-XXXX).",
+				"CONNECT_LINK_CODE_INVALID": "Questo codice di collegamento non è valido.",
+				"CONNECT_LINK": "Collega",
+				"CONNECT_UNLINK": "Scollega",
+				"CONNECT_NOT_CONNECTED": "L'operatore di questa installazione non l'ha connessa a Ever Platform.",
+				"INTEGRATIONS_TITLE": "Integrazioni e dati",
+				"INTEGRATIONS_EMPTY": "Nessuna integrazione è offerta a questa organizzazione.",
+				"SHOW_SCOPE": "Mostra ambito",
+				"HIDE_SCOPE": "Nascondi ambito",
+				"MANAGE_IN_APP": "Gestisci in Ever Platform",
+				"DISABLE": "Disattiva",
+				"STATE_ENABLED": "Attivata",
+				"STATE_OFF": "Non attivata",
+				"STATE_PENDING": "In attesa dell'operatore",
+				"STATE_DENIED": "Non consentita qui",
+				"ENTITLEMENTS_TITLE": "Diritti",
+				"ENTITLEMENT_PLAN": "Piano",
+				"ENTITLEMENT_FEATURES": "Funzionalità",
+				"ENTITLEMENT_EXPIRES": "Valido fino al",
+				"ENTITLEMENT_NONE": "Ancora nessun diritto.",
+				"REFRESH": "Aggiorna",
+				"LOAD_ERROR": "Impossibile caricare queste informazioni.",
+				"ACTION_FAILED": "L'azione non è riuscita. Riprova."
+			}
 		},
 		"invite": {
 			"HEADING_TITLE": "Invita un membro nel tuo team",
@@ -998,6 +1099,7 @@
 			"LOADING": "Caricamento dati della registrazione ore...",
 			"NO_ENTRIES_FOUND": "Nessuna voce di registrazione ore trovata",
 			"YOU_ARE_ABOUT_TO_REJECT_ENTRY": "Stai per rifiutare l'elemento selezionato, vuoi procedere?",
+			"REJECTION_REASON": "Motivo del rifiuto",
 			"ALL_TASKS": "Tutti i compiti",
 			"PENDING": "In sospeso",
 			"APPROVED": "Approvato",
@@ -1017,19 +1119,27 @@
 			"BILLABLE_MODIFY_SUCCESS": "Lo stato fatturabile è stato modificato con successo.",
 			"BILLABLE_MODIFY_ERROR": "Impossibile modificare lo stato fatturabile. Riprova.",
 			"STATUS_MODIFY_SUCCESS": "Lo stato del foglio presenze è stato modificato con successo.",
-			"STATUS_MODIFY_ERROR": "Impossibile modificare lo stato del foglio presenze. Riprova."
+			"STATUS_MODIFY_ERROR": "Impossibile modificare lo stato del foglio presenze. Riprova.",
+			"END_AFTER_START": "L'ora di fine deve essere successiva all'ora di inizio."
 		}
 	},
 	"timer": {
 		"START_TIMER": "Per favore, seleziona o crea un nuovo compito per iniziare a tracciare il tempo o creare un piano",
 		"ALREADY_TRACKING_MESSAGE": "Stai già tracciando il tempo in un'altra scheda o dispositivo.",
 		"TASK_CLOSED": "L'attività è chiusa",
+		"PLAN_REQUIRED_TO_START": "Aggiungi questa attività al piano di oggi per iniziare",
 		"STARTING_TIMER": "Avvio del timer...",
 		"TIMER_STARTED": "Timer avviato con successo",
 		"TIMER_START_FAILED": "Impossibile avviare il Timer",
+		"STALE_TIMER_STOPPED_DESCRIPTION": "Il timer ha continuato a funzionare dopo la chiusura dell'app. È stato quindi fermato all'ultimo momento in cui l'app era aperta ({stoppedAt}). Se hai lavorato dopo, aggiungi il tempo manualmente.",
+		"TIMER_STOP_FAILED": "Impossibile fermare il Timer. Riprova.",
 		"TEAM_SWITCH": {
 			"STOPPED_TIMER_TOAST_TITLE": "Timer Fermato",
 			"STOPPED_TIMER_TOAST_DESCRIPTION": "Il timer è stato fermato a causa del cambio di team"
+		},
+		"TASK_SWITCH": {
+			"STOPPED_TIMER_TOAST_TITLE": "Timer Fermato",
+			"STOPPED_TIMER_TOAST_DESCRIPTION": "Il timer è stato fermato a causa del cambio dell'attività attiva"
 		},
 		"ESTIMATION": {
 			"ESTIMATE_LABEL": "Stima"
@@ -1069,7 +1179,9 @@
 		"ARCHIVED": "Archiviato",
 		"NOT_ARCHIVED": "Non archiviato",
 		"VISITED_SITES": "Siti visitati",
-		"NO_VISITED_SITE_MESSAGE": "Non ci sono siti visitati"
+		"NO_VISITED_SITE_MESSAGE": "Non ci sono siti visitati",
+		"TRACKING_SOURCE_HINT": "Schermate, app e siti visitati vengono registrati dall'app desktop o dall'agente, non quando il tempo viene tracciato nel browser.",
+		"DOWNLOAD_DESKTOP_APP": "Scarica l'app desktop"
 	},
 	"task": {
 		"TITLE": "Compito",
@@ -1135,12 +1247,14 @@
 			"TASK_PLAN_FAILED": "Pianificazione dell'attività fallita. Riprova.",
 			"TASK_ASSIGNMENT_FAILED": "Assegnazione/rimozione dell'attività fallita. Riprova.",
 			"TASK_FAVORITE_FAILED": "Aggiornamento dei preferiti fallito. Riprova.",
+			"TASK_CREATION_FAILED": "Creazione dell'attività fallita. Riprova.",
 			"FAVORITE_ITEM_CREATED_SUCCESSFULLY": "Elemento preferito creato con successo",
 			"FAVORITE_ITEM_DELETED_SUCCESSFULLY": "Elemento preferito eliminato con successo"
 		}
 	},
 	"dailyPlan": {
 		"PLAN_FOR_TODAY": "Piano per oggi",
+		"ADD_TO_TODAY_PLAN": "Aggiungi al piano di oggi",
 		"TASK_TIME": "tempo di compito",
 		"TOTAL_TODAY": "Totale Oggi",
 		"PLAN_FOR_TOMORROW": "Piano per domani",
@@ -1164,6 +1278,7 @@
 		"TOTAL_TASK": "Compiti totali",
 		"DAILY_PLAN_DESCRIPTION": "'Piano giornaliero' aiuta a organizzare il processo di lavoro per ottenere i migliori risultati",
 		"SUGGESTS_TO_ADD_TASK_TO_TODAY_PLAN": "Questa attività non era pianificata per il piano di oggi. Vuoi aggiungerla al piano?",
+		"TASK_ORDER_SAVE_FAILED": "Impossibile salvare il nuovo ordine delle attività. Riprova.",
 		"planned_tasks_popup": {
 			"warning": {
 				"PLANNED_TIME": "Per favore, aggiungi il tempo pianificato",
@@ -1214,7 +1329,10 @@
 			"TERMS_AND_CONDITIONS": "Termini e condizioni",
 			"PRIVACY_POLICY": "politica sulla riservatezza",
 			"COOKIES": "Gestione dei Cookie",
-			"BY": "Di"
+			"BY": "Di",
+			"BUILD_WEB": "Build Web v{version}",
+			"API_VERSION": "API v{version}",
+			"OPEN_COMMIT": "Apri commit {commit}"
 		}
 	},
 	"errors": {
@@ -1227,7 +1345,8 @@
 		"PASSWORDS_DO_NOT_MATCH": "Le password non corrispondono"
 	},
 	"placeholders": {
-		"ENTER_TO_VALIDATE": "Premi Invio per convalidare"
+		"ENTER_TO_VALIDATE": "Premi Invio per convalidare",
+		"ENTER_A_COMMAND": "Inserisci un comando..."
 	},
 	"team": {
 		"BACK_LABEL": "Torna al Team",
@@ -1287,7 +1406,7 @@
 		"HEADER_TITLE": "Chat IA",
 		"CLEAR_CONVERSATION": "Cancella conversazione",
 		"CONFIGURATION": "Configurazione",
-		"ASSISTANT_NAME": "Assistente Ever Teams",
+		"ASSISTANT_NAME": "Assistente {appName}",
 		"EMPTY_CONFIGURED": "Fai una domanda per iniziare.",
 		"EMPTY_NOT_CONFIGURED": "Configura la tua chiave API per iniziare.",
 		"CONFIGURE_BUTTON": "Configura",
@@ -1295,6 +1414,14 @@
 		"INPUT_PLACEHOLDER_READY": "Il tuo messaggio...",
 		"INPUT_PLACEHOLDER_NO_KEY": "Configura la tua chiave API...",
 		"STOP": "Ferma",
-		"SEND": "Invia"
+		"SEND": "Invia",
+		"NEW_CHAT": "Nuova chat",
+		"HISTORY": "Cronologia",
+		"NO_CONVERSATIONS": "Nessuna conversazione",
+		"PANEL_CONTROLS": "Controlli del pannello chat",
+		"COLLAPSE_ASSISTANT": "Comprimi assistente",
+		"STANDARD_ASSISTANT_WIDTH": "Larghezza standard dell’assistente",
+		"EXPAND_ASSISTANT": "Espandi assistente",
+		"OPEN_ASSISTANT": "Apri l’assistente {appName}"
 	}
 }

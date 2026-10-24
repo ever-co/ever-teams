@@ -2,12 +2,18 @@ name: 'Check Spelling and Typos with cspell'
 on:
   push:
     branches: [develop]
+  # Feature and fix PRs into develop deliberately run no CI (cost): develop is checked on push, and the
+  # promotion PRs (develop -> stage, stage -> main) are checked before they merge.
   pull_request:
-    branches: [develop]
+    branches: [stage, main, master]
 
 concurrency:
   group: ${{ github.ref }}-${{ github.workflow }}
   cancel-in-progress: true
+
+# Least privilege for the workflow token (CodeQL actions/missing-workflow-permissions)
+permissions:
+  contents: read
 
 jobs:
   spellcheck:

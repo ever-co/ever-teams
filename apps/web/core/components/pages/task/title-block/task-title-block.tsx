@@ -126,14 +126,14 @@ const TaskTitleBlock = () => {
 							<button
 								ref={saveButton}
 								onClick={() => saveTitle(title)}
-								className="border-2 dark:border-[#464242] rounded-md"
+								className="border-2 dark:border-border rounded-md"
 							>
 								<CheckSimpleIcon className="w-full max-w-[26px]" strokeWidth="1.6" />
 							</button>
 							<button
 								ref={cancelButton}
 								onClick={cancelEdit}
-								className="border-2 dark:border-[#464242] rounded-md"
+								className="border-2 dark:border-border rounded-md"
 							>
 								<XMarkIcon className="text-[#7E7991]" />
 							</button>

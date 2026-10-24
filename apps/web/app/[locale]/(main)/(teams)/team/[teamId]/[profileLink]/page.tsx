@@ -7,9 +7,8 @@ import { MainHeader, PageLayout } from '@/core/components/layouts/default-layout
 import { useRouter, useParams, notFound } from 'next/navigation';
 import { useCallback, useEffect } from 'react';
 import { useTranslations } from 'next-intl';
-import { useAtom, useAtomValue } from 'jotai';
+import { useAtom } from 'jotai';
 
-import { fullWidthState } from '@/core/stores/common/full-width';
 import { IssuesView } from '@/core/constants/config/constants';
 import { usePublicOrganizationTeams } from '@/core/hooks/organizations';
 import { useRefreshIntervalV2 } from '@/core/hooks/common';
@@ -31,7 +30,6 @@ const Team = () => {
 	} = usePublicOrganizationTeams();
 	const t = useTranslations();
 	const [publicTeam, setPublic] = useAtom(publicState);
-	const fullWidth = useAtomValue(fullWidthState);
 
 	useEffect(() => {
 		const userId = getActiveUserIdCookie();
@@ -75,12 +73,12 @@ const Team = () => {
 	// COMPLETE PAGE SKELETON: Show unified skeleton while initial data is loading
 	// IMPORTANT: This must be AFTER all hooks to avoid "Rendered fewer hooks than expected" error
 	if (teamsFetching || !publicTeamData) {
-		return <TeamMemberProfilePageSkeleton fullWidth={fullWidth} publicTeam={publicTeam} />;
+		return <TeamMemberProfilePageSkeleton publicTeam={publicTeam} />;
 	}
 
 	return (
 		<PageLayout publicTeam={publicTeam}>
-			<MainHeader fullWidth={fullWidth}>
+			<MainHeader>
 				<Breadcrumb paths={breadcrumb} className="text-sm" />
 
 				<UnverifiedEmail />
@@ -92,10 +90,9 @@ const Team = () => {
 			{/* Divider */}
 			<div className="h-0.5 bg-[#FFFFFF14]"></div>
 
-			<Container fullWidth={fullWidth}>
+			<Container>
 				<TeamMembersView
 					teamsFetching={teamsFetching}
-					fullWidth={fullWidth}
 					members={publicTeamData?.members || []}
 					view={IssuesView.CARDS}
 					blockViewMembers={[]}

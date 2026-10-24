@@ -5,6 +5,7 @@ import { ILoginDataAPI, ILoginResponse } from '../../../interfaces/IAuthenticati
 import { loginUserRequest, verifyAuthCodeRequest } from '../../requests/auth';
 import { acceptInviteRequest, verifyInviteCodeRequest } from '../../requests/invite';
 import { getUserOrganizationsRequest } from '../../requests/organization';
+import { pickTokenOrganization } from './workspace-setup';
 import { getAllOrganizationTeamRequest } from '../../requests/organization-team';
 
 export async function login(params: ILoginDataAPI) {
@@ -50,14 +51,23 @@ export async function login(params: ILoginDataAPI) {
 			};
 		}
 
+		// The confirm reply lists the workspaces (no user or token) and the code is single-use,
+		// so hand the workspaces back as they are instead of reading them as a login reply.
+		if (Array.isArray(authReq.data?.workspaces)) {
+			return {
+				status: 201,
+				workspacesResponse: authReq.data
+			};
+		}
+
 		loginResponse = authReq.data;
 		/**
 		 * If provided code is an invite code and
 		 * verified the accepte and register the related user
 		 */
 	} else {
-		// generate a random password
-		const password = '123456' + await generateSecureToken(6);
+		// A random password the user never sees (they sign in with a code): 32 hex characters, 128 bits, not 24
+		const password = '123456' + (await generateSecureToken(32));
 		const email = inviteResponse.data.email;
 		const names = inviteResponse.data.fullName.split(' ');
 
@@ -112,7 +122,7 @@ export async function login(params: ILoginDataAPI) {
 
 	const { data: organizations } = await getUserOrganizationsRequest({ tenantId, userId }, accessToken);
 
-	const organization = organizations?.items[0];
+	const organization = pickTokenOrganization(organizations?.items, accessToken);
 
 	if (!organization) {
 		return {

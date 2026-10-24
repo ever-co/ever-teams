@@ -13,7 +13,7 @@ import {
 	CommandList
 } from '@/core/components/common/command';
 import { ScrollArea } from '@/core/components/common/scroll-bar';
-import { formatDayPlanDate, tomorrowDate } from '@/core/lib/helpers/index';
+import { formatDayPlanDate, getDailyPlanDay, tomorrowDate } from '@/core/lib/helpers/index';
 import { Modal, Text } from '@/core/components';
 import { Button } from '@/core/components/duplicated-components/_button';
 import { CalendarIcon, ReloadIcon } from '@radix-ui/react-icons';
@@ -185,19 +185,14 @@ function PlansList({
 	selectedPlan: TDailyPlan | null;
 }) {
 	return (
-		<Command className="overflow-hidden rounded-t-none border-t border-[#0000001A] dark:border-[#26272C]">
+		<Command className="overflow-hidden rounded-t-none border-t border-[#0000001A] dark:border-border">
 			<CommandInput placeholder="Search plan..." />
 			<CommandList>
 				<CommandEmpty>No plan founded</CommandEmpty>
 				<ScrollArea className="h-[15rem]">
 					<CommandGroup className="p-2">
 						{plans
-							.filter((plan) => {
-								const planDate = new Date(plan?.date);
-								const today = new Date();
-								today.setHours(0, 0, 0, 0); // Set today time to exclude timestamps in comparization
-								return planDate.getTime() > today.getTime();
-							})
+							.filter((plan) => getDailyPlanDay(plan?.date) >= moment().format('YYYY-MM-DD'))
 							.sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())
 							.map((plan) => (
 								<CommandItem

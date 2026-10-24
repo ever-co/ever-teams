@@ -1,7 +1,8 @@
 'use client';
 
 import NotFound from '@/core/components/pages/404';
-import { AuthLayout } from '@/core/components/layouts/default-layout';
+// By path: the default-layout barrel would add the whole app shell to this boundary, which every page loads.
+import { AuthLayout } from '@/core/components/layouts/default-layout/auth-layout';
 import { useTranslations } from 'next-intl';
 
 const NotFoundPage = () => {

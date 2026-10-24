@@ -13,8 +13,6 @@ import {
 import { clsxm } from '@/core/lib/utils';
 import { TaskTimes } from '../../../../../tasks/task-times';
 import get from 'lodash/get';
-import { useAtomValue } from 'jotai';
-import { fullWidthState } from '@/core/stores/common/full-width';
 import { TaskInfo } from '../user-team-card/task-info';
 import { UserInfo } from '../user-team-card/user-info';
 import { TaskEstimateInfo } from '../user-team-card/task-estimate';
@@ -83,15 +81,11 @@ export function TeamMemberRowWrapper({ data, children }: { data: any; children: 
 export function TaskCell() {
 	const { taskEdition } = useTeamMemberRowContext();
 	const publicTeam = false;
-	const fullWidth = useAtomValue(fullWidthState);
 
 	return (
 		<TaskInfo
 			edition={taskEdition}
-			className={clsxm(
-				'flex flex-1 justify-center items-center px-2',
-				fullWidth ? 'max-w-[24rem]' : 'max-w-[20rem]'
-			)}
+			className={clsxm('flex flex-1 justify-center items-center px-2', 'max-w-[24rem]')}
 			publicTeam={publicTeam}
 		/>
 	);

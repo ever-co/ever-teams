@@ -1,6 +1,7 @@
 import { useMemo } from 'react';
 import { TOrganizationTeamEmployee, TUser } from '@/core/types/schemas';
 import { ETimerStatus } from '@/core/types/generics/enums/timer';
+import { getMemberFilterStatus } from '@/core/lib/utils/team-members.utils';
 
 // Type for filter statistics
 export interface TeamMemberFilterStats {
@@ -39,12 +40,13 @@ export const useTeamMemberFilterStats = (
 				acc.all += 1;
 
 				// Enhanced status logic matching the filter conditions
-				if (!member.timerStatus) {
+				const status = getMemberFilterStatus(member);
+				if (!status) {
 					// New users without timer status are considered 'idle'
 					acc.idle += 1;
 				} else {
 					// Count based on actual timer status
-					switch (member.timerStatus) {
+					switch (status) {
 						case ETimerStatus.IDLE:
 							acc.idle += 1;
 							break;

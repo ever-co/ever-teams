@@ -12,7 +12,6 @@ import HeaderTabs from '@/core/components/common/header-tabs';
 import { AddIcon, PeoplesIcon } from 'assets/svg';
 import { userTimezone } from '@/core/lib/helpers/index';
 import { useAtomValue } from 'jotai';
-import { fullWidthState } from '@/core/stores/common/full-width';
 import { XMarkIcon } from '@heroicons/react/20/solid';
 import { cn } from '@/core/lib/helpers';
 import { useKanban } from '@/core/hooks/tasks/use-kanban';
@@ -21,6 +20,7 @@ import { Breadcrumb } from '@/core/components/duplicated-components/breadcrumb';
 import { TTask } from '@/core/types/schemas/task/task.schema';
 // dynamic import removed - using optimized components
 import { KanbanViewSkeleton } from '@/core/components/common/skeleton/kanban-view-skeleton';
+import { AnimatedEmptyState } from '@/core/components/common/empty-state';
 import { ModalSkeleton } from '@/core/components/common/skeleton/modal-skeleton';
 import { KanbanPageSkeleton } from '@/core/components/layouts/skeletons/kanban-page-skeleton';
 import { ImageOverlapperProps } from '@/core/components/common/image-overlapper';
@@ -46,8 +46,10 @@ import {
 } from '@/core/components/optimized-components/kanban';
 import { activeTeamState, isTrackingEnabledState } from '@/core/stores';
 import { useUserQuery } from '@/core/hooks/queries/user-user.query';
+import { useTeamDailyPlansOwner } from '@/core/hooks/bootstrap/use-feature-data';
 
 const Kanban = () => {
+	useTeamDailyPlansOwner();
 	// Get all required hooks and states — single instance for the entire Kanban page.
 	// Board operations are passed down to KanbanView via props (no duplicate hook instance).
 	const {
@@ -55,6 +57,8 @@ const Kanban = () => {
 		setSearchTasks,
 		searchTasks,
 		isLoading,
+		isError,
+		refetchTaskStatuses,
 		setPriority,
 		setSizes,
 		setLabels,
@@ -77,7 +81,6 @@ const Kanban = () => {
 	const activeTeam = useAtomValue(activeTeamState);
 	const t = useTranslations();
 	const params = useParams<{ locale: string }>();
-	const fullWidth = useAtomValue(fullWidthState);
 	const currentLocale = params ? params.locale : null;
 	const [activeTab, setActiveTab] = useState(KanbanTabs.ALL);
 	const employee = useSearchParams().get('employee');
@@ -207,7 +210,7 @@ const Kanban = () => {
 	// Show unified skeleton while initial data is loading
 	// IMPORTANT: This must be AFTER all hooks to avoid "Rendered fewer hooks than expected" error
 	if (isLoading || !data || !activeTeam) {
-		return <KanbanPageSkeleton showTimer={isTrackingEnabled} fullWidth={fullWidth} />;
+		return <KanbanPageSkeleton showTimer={isTrackingEnabled} />;
 	}
 
 	return (
@@ -221,10 +224,10 @@ const Kanban = () => {
 				mainHeaderSlot={
 					<div
 						className={
-							'flex flex-col min-h-fit border-b-[1px] dark:border-[#26272C] mx-[0px] w-full bg-white dark:bg-dark-high'
+							'flex flex-col min-h-fit border-b-[1px] dark:border-border mx-[0px] w-full bg-white dark:bg-dark-high'
 						}
 					>
-						<Container fullWidth={fullWidth} className="!pt-0">
+						<Container className="!pt-0">
 							<div className="flex flex-row justify-between items-start mt-4 bg-white dark:bg-dark-high">
 								<div className="flex gap-8 justify-center items-center h-10">
 									<PeoplesIcon className="text-dark dark:text-[#6b7280] h-6 w-6" />
@@ -260,7 +263,7 @@ const Kanban = () => {
 								</div>
 							</div>
 							<div className="flex flex-col gap-4 justify-between items-start pt-6 mb-4 bg-white xl:flex-row xl:items-center dark:bg-dark-high">
-								<div className="flex flex-row overflow-x-auto no-scrollbar w-full xl:w-auto border-b border-gray-100 dark:border-[#26272C]">
+								<div className="flex flex-row overflow-x-auto no-scrollbar w-full xl:w-auto border-b border-gray-100 dark:border-border">
 									{tabs.map((tab) => (
 										<div
 											key={tab.name}
@@ -333,7 +336,7 @@ const Kanban = () => {
 															value: ''
 														}))
 													}
-													className="flex justify-center items-center ml-1 w-5 h-5 rounded transition-colors hover:bg-gray-100 dark:hover:bg-gray-700"
+													className="flex justify-center items-center ml-1 w-5 h-5 rounded transition-colors hover:bg-gray-100 dark:hover:bg-muted"
 												>
 													<XMarkIcon className="w-3.5 h-3.5 text-gray-500 dark:text-gray-300" />
 												</button>
@@ -377,7 +380,7 @@ const Kanban = () => {
 										taskStatusClassName="!text-sm"
 									/>
 
-									<div className="mx-1 w-px h-6 bg-gray-200 dark:bg-gray-700" />
+									<div className="mx-1 w-px h-6 bg-gray-200 dark:bg-muted" />
 
 									<LazyKanbanSearch
 										setSearchTasks={setSearchTasks}
@@ -412,7 +415,17 @@ const Kanban = () => {
 							</div>
 						) : (
 							<div className="flex flex-col flex-1 w-full h-full">
-								<KanbanViewSkeleton fullWidth={fullWidth} />
+								{/* No columns means no task statuses: a failed load must not spin forever */}
+								{isError ? (
+									<AnimatedEmptyState
+										title={t('pages.error.HEADING_TITLE')}
+										message={t('pages.error.HEADING_DESCRIPTION')}
+										actionLabel={t('pages.unauthorized.TRY_AGAIN')}
+										onAction={() => refetchTaskStatuses()}
+									/>
+								) : (
+									<KanbanViewSkeleton />
+								)}
 							</div>
 						)}
 					</div>

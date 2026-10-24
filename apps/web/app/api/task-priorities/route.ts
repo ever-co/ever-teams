@@ -10,13 +10,14 @@ export async function GET(req: Request) {
 	if (!user) return $res('Unauthorized');
 
 	const { searchParams } = new URL(req.url);
-
-	const { organizationTeamId } = searchParams as unknown as { organizationTeamId: string };
+	const organizationTeamId = searchParams.get('organizationTeamId') || null;
+	const projectId = searchParams.get('projectId') || null;
 
 	const par = {
 		tenantId,
 		organizationId,
-		organizationTeamId: (organizationTeamId as string) || null
+		organizationTeamId,
+		...(projectId !== null ? { projectId } : {})
 	};
 
 	const { data } = await getTaskPrioritiesListRequest(par, access_token);

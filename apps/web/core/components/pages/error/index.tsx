@@ -1,7 +1,7 @@
 'use client';
 
 import SadCry from '@/core/components/svgs/sad-cry';
-import { Text } from '@/core/components';
+import { Text } from '@/core/components/common/typography';
 import { useTranslations } from 'next-intl';
 import React from 'react';
 

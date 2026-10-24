@@ -51,6 +51,13 @@ CustomSelectItem.displayName = 'CustomSelectItem';
 // Types
 export type CalendarProps = React.ComponentProps<typeof DayPicker>;
 
+export const compactCalendarClassNames = {
+	months: 'flex flex-col gap-2 sm:flex-row',
+	month: 'space-y-2',
+	head_cell: 'text-gray-500 dark:text-gray-400 w-8 font-medium text-xs flex-1 text-center py-1',
+	day: 'h-8 w-8 p-0 mx-auto text-xs font-normal aria-selected:opacity-100 hover:bg-gray-100 dark:hover:bg-muted rounded-full flex items-center justify-center transition-colors dark:text-gray-300'
+} as const;
+
 interface CustomCaptionProps extends CaptionProps {
 	onMonthChange?: (date: Date) => void;
 }
@@ -95,21 +102,21 @@ function CustomCaption({ displayMonth, onMonthChange }: CustomCaptionProps) {
 			<div className="flex gap-1 justify-between items-center w-full">
 				<div className="relative z-[999]">
 					<Select value={MONTHS[displayMonth.getMonth()]} onValueChange={handleMonthChange}>
-						<SelectTrigger className="px-2 h-8 text-sm font-medium text-gray-700 bg-transparent border-none transition hover:bg-gray-50 dark:hover:bg-gray-700 focus:ring-0 dark:text-gray-300">
+						<SelectTrigger className="px-2 h-8 text-sm font-medium text-gray-700 bg-transparent border-none transition hover:bg-gray-50 dark:hover:bg-muted focus:ring-0 dark:text-gray-300">
 							<SelectValue placeholder="Month" />
 						</SelectTrigger>
 						<SelectContent
 							position="popper"
 							sideOffset={4}
-							className="z-[1000] bg-white dark:bg-gray-800 rounded-md py-1 shadow-md dark:border dark:border-gray-700 max-h-[200px] overflow-y-auto"
+							className="z-[1000] bg-white dark:bg-muted rounded-md py-1 shadow-md dark:border dark:border-gray-700 max-h-[200px] overflow-y-auto"
 						>
 							{MONTHS.map((month, index) => (
 								<CustomSelectItem
 									key={month}
 									value={month}
 									className={cn(
-										'text-sm cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700 rounded-sm transition dark:text-gray-300',
-										displayMonth.getMonth() === index ? 'bg-gray-100 dark:bg-gray-700' : ''
+										'text-sm cursor-pointer hover:bg-gray-100 dark:hover:bg-muted rounded-sm transition dark:text-gray-300',
+										displayMonth.getMonth() === index ? 'bg-gray-100 dark:bg-muted' : ''
 									)}
 								>
 									{month}
@@ -120,21 +127,21 @@ function CustomCaption({ displayMonth, onMonthChange }: CustomCaptionProps) {
 				</div>
 				<div className="relative z-[999]">
 					<Select value={displayMonth.getFullYear().toString()} onValueChange={handleYearChange}>
-						<SelectTrigger className="px-2 h-8 text-sm font-medium text-gray-700 bg-transparent border-none transition hover:bg-gray-50 dark:hover:bg-gray-700 focus:ring-0 dark:text-gray-300">
+						<SelectTrigger className="px-2 h-8 text-sm font-medium text-gray-700 bg-transparent border-none transition hover:bg-gray-50 dark:hover:bg-muted focus:ring-0 dark:text-gray-300">
 							<SelectValue placeholder="Year" />
 						</SelectTrigger>
 						<SelectContent
 							position="popper"
 							sideOffset={4}
-							className="z-[1000] bg-white dark:bg-gray-800 rounded-md py-1 shadow-md dark:border dark:border-gray-700 max-h-[200px] overflow-y-auto"
+							className="z-[1000] bg-white dark:bg-muted rounded-md py-1 shadow-md dark:border dark:border-gray-700 max-h-[200px] overflow-y-auto"
 						>
 							{years.map((year) => (
 								<CustomSelectItem
 									key={year}
 									value={year.toString()}
 									className={cn(
-										'text-sm cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700 rounded-sm transition dark:text-gray-300',
-										displayMonth.getFullYear() === year ? 'bg-gray-100 dark:bg-gray-700' : ''
+										'text-sm cursor-pointer hover:bg-gray-100 dark:hover:bg-muted rounded-sm transition dark:text-gray-300',
+										displayMonth.getFullYear() === year ? 'bg-gray-100 dark:bg-muted' : ''
 									)}
 								>
 									{year}
@@ -164,30 +171,28 @@ function Calendar({
 			weekStartsOn={1} // Start week on Monday
 			showOutsideDays={showOutsideDays}
 			captionLayout={captionLayout}
-			className={cn('p-4 bg-white rounded-lg dark:bg-dark--theme-light', className)}
+			className={cn('p-3 bg-white rounded-lg dark:bg-dark--theme-light', className)}
 			classNames={{
-				months: 'flex gap-4',
-				month: 'space-y-4',
+				months: compactCalendarClassNames.months,
+				month: compactCalendarClassNames.month,
 				caption: 'flex justify-between pt-1 relative items-center px-2',
 				caption_label: 'text-sm font-medium dark:text-gray-300',
 				nav: 'space-x-1 flex items-center',
 				nav_button: cn(
 					buttonVariants({ variant: 'ghost' }),
-					'h-7 w-7 bg-transparent p-0 text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-full'
+					'h-7 w-7 bg-transparent p-0 text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-muted rounded-full'
 				),
 				nav_button_previous: 'absolute left-1',
 				nav_button_next: 'absolute right-1',
 				table: 'w-full border-collapse',
 				head_row: 'flex w-full mb-1',
-				head_cell: 'text-gray-500 dark:text-gray-400 w-9 font-medium text-[0.8rem] flex-1 text-center py-2',
+				head_cell: compactCalendarClassNames.head_cell,
 				row: 'flex w-full mt-1',
 				cell: cn(
 					'relative p-0 text-center text-sm focus-within:relative focus-within:z-20 flex-1 my-0.5',
 					'[&:has([aria-selected])]:bg-transparent'
 				),
-				day: cn(
-					'h-9 w-9 p-0 mx-auto font-normal aria-selected:opacity-100 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-full flex items-center justify-center transition-colors dark:text-gray-300'
-				),
+				day: compactCalendarClassNames.day,
 				day_selected: cn(
 					'bg-indigo-600 dark:bg-indigo-500 text-white font-medium',
 					'hover:bg-indigo-700 dark:hover:bg-indigo-600 hover:text-white',

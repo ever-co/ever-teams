@@ -68,7 +68,12 @@ export function useUpdateDailyPlan() {
 
 				// Get the task from React Query cache
 				const tasksData = queryClient.getQueryData<{ items: TTask[]; total: number }>(
-					queryKeys.tasks.byTeam(activeTeam?.id)
+					queryKeys.tasks.byTeamByScope(
+						activeTeam?.tenantId,
+						activeTeam?.organizationId,
+						activeTeam?.id,
+						activeTeam?.projects?.[0]?.id ?? null
+					)
 				);
 
 				const task = tasksData?.items?.find((t) => t.id === taskId);
@@ -81,16 +86,21 @@ export function useUpdateDailyPlan() {
 						// Get employee object from activeTeam.members
 						const employee = activeTeam?.members?.find((m) => m.employeeId === requestEmployeeId);
 						if (employee && employee.employeeId) {
+							// PUT /tasks/:id replaces the whole task, so build the payload from a fresh read:
+							// the cached copy can predate a teammate's edit and would send the old values back.
+							const freshTask = await taskService.getTaskById(task.id);
 							// Add employee to task members (deduplicate by userId for idempotence)
-							const existingMembers = task.members ?? [];
-							const memberExists = existingMembers.some((m) => m.userId === employee.user?.id);
+							const existingMembers = freshTask.members ?? [];
+							const memberExists = existingMembers.some(
+								(m) => m.id === requestEmployeeId || m.userId === employee.user?.id
+							);
 
 							if (!memberExists) {
 								const updatedMembers = [...existingMembers, employee];
 								// Update task via taskService (will trigger invalidation)
 								await taskService.updateTask({
-									taskId: task.id,
-									data: { ...task, members: updatedMembers as any } // Type assertion needed due to Zod lazy schema
+									taskId: freshTask.id,
+									data: { ...freshTask, members: updatedMembers as any } // Type assertion needed due to Zod lazy schema
 								});
 								toast.success('Employee assigned to task');
 							}

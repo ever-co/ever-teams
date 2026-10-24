@@ -3,7 +3,10 @@ import { useMemo, useCallback, useState, useEffect, useRef, Dispatch, SetStateAc
 import { Modal, SpinnerLoader, Text } from '@/core/components';
 import { Button } from '@/core/components/duplicated-components/_button';
 import { useTranslations } from 'next-intl';
-import { useModal, useTimerView } from '@/core/hooks';
+import { useRouter } from 'next/navigation';
+import { getMyWorkNavigation } from '@/core/components/layouts/my-work-navigation';
+import { useModal } from '@/core/hooks';
+import { useTimerActions } from '@/core/hooks/timer';
 import { useTeamTasksState } from '@/core/hooks/organizations/teams/use-team-tasks-state';
 import { useCreateTask } from '@/core/hooks/organizations/teams/use-create-task';
 import { useTaskQueries } from '@/core/hooks/organizations/teams/use-task-queries';
@@ -16,7 +19,7 @@ import { TaskEstimate } from '../../tasks/task-estimate';
 import clsx from 'clsx';
 import { AddIcon, ThreeCircleOutlineVerticalIcon } from 'assets/svg';
 import { clsxm } from '@/core/lib/utils';
-import { formatIntegerToHour, formatTimeString } from '@/core/lib/helpers/index';
+import { formatIntegerToHour, formatTimeString, getDailyPlanDay } from '@/core/lib/helpers/index';
 import { ActiveTaskHandlerModal } from './active-task-handler-modal';
 import { TaskDetailsModal } from '../../tasks/task-details-modal';
 import { Popover, PopoverButton, PopoverPanel, Transition } from '@headlessui/react';
@@ -34,7 +37,7 @@ import { ID } from '@/core/types/interfaces/common/base-interfaces';
 import { TDailyPlan } from '@/core/types/schemas/task/daily-plan.schema';
 import { TTask } from '@/core/types/schemas/task/task.schema';
 import { useAtomValue } from 'jotai';
-import { activeTeamTaskState, tasksByTeamState, timerStatusState } from '@/core/stores';
+import { activeTeamTaskState, tasksByTeamState, teamTasksPagesLoadingState, timerStatusState } from '@/core/stores';
 import { useUserQuery } from '@/core/hooks/queries/user-user.query';
 import { EIssueType } from '@/core/types/generics/enums/task';
 import { useTaskStatusesQuery } from '@/core/hooks/tasks/use-task-statuses-query';
@@ -106,7 +109,11 @@ export function AddTasksEstimationHoursModal(props: IAddTasksEstimationHoursModa
 	const globalTasks = useAtomValue(tasksByTeamState);
 	const activeTeamTask = useAtomValue(activeTeamTaskState);
 	const timerStatus = useAtomValue(timerStatusState);
-	const { startTimer } = useTimerView();
+	// PERF: task-card.tsx renders this modal ONCE PER CARD whenever the user has a daily plan, so
+	// useTimerView() here re-subscribed every card to the 20Hz timer tick (see use-timer-button.ts).
+	// `startTimer` is a Layer-1 mutation; useTimerActions provides it without Layer 3.
+	// `stopTimer` goes down to the plan rows so UnplanActiveTaskModal does not mount a timer hook per row.
+	const { startTimer, stopTimer } = useTimerActions();
 
 	const { setActiveTask } = useTeamTasksState();
 	const [showSearchInput, setShowSearchInput] = useState(false);
@@ -158,8 +165,7 @@ export function AddTasksEstimationHoursModal(props: IAddTasksEstimationHoursModa
 	});
 
 	const canStartWorking = useMemo(() => {
-		const isTodayPlan =
-			plan && new Date(Date.now()).toLocaleDateString('en') == new Date(plan.date).toLocaleDateString('en');
+		const isTodayPlan = plan && getDailyPlanDay(plan.date) === moment().format('YYYY-MM-DD');
 
 		return isTodayPlan;
 		// Can add others conditions
@@ -212,7 +218,8 @@ export function AddTasksEstimationHoursModal(props: IAddTasksEstimationHoursModa
 			if (!isRenderedInSoftFlow) {
 				handleCloseModal();
 			}
-			startTimer();
+			// startTimer reports its own failure, this only keeps the rejection from going unhandled
+			startTimer()?.catch(() => undefined);
 		} else {
 			openActiveTaskHandlerModal();
 		}
@@ -418,9 +425,26 @@ export function AddTasksEstimationHoursModal(props: IAddTasksEstimationHoursModa
 		</Button>
 	);
 
-	// TODO: Add onclick handler
+	const router = useRouter();
+	const { data: currentUser } = useUserQuery();
+	// A past plan's time is in the Work Diary of the plan's employee (the signed-in user when the plan carries none)
+	const openPlanTimesheet = useCallback(() => {
+		const planUserId: string | undefined = plan?.employee?.user?.id;
+		const planUserName: string | undefined = plan?.employee?.fullName || plan?.employee?.user?.name;
+		closeModal();
+		router.push(
+			getMyWorkNavigation(
+				planUserId ?? currentUser?.id,
+				(planUserId ? planUserName : currentUser?.name) || undefined
+			).workDiary
+		);
+	}, [closeModal, currentUser?.id, currentUser?.name, plan?.employee, router]);
+
 	const TimeSheetsButton = (
-		<Button className="px-5 py-3 w-full font-light rounded-md text-md dark:text-white dark:bg-slate-700 dark:border-slate-600">
+		<Button
+			onClick={openPlanTimesheet}
+			className="px-5 py-3 w-full font-light rounded-md text-md dark:text-white dark:bg-slate-700 dark:border-slate-600"
+		>
 			{t('common.timesheets.PLURAL')}
 		</Button>
 	);
@@ -438,6 +462,7 @@ export function AddTasksEstimationHoursModal(props: IAddTasksEstimationHoursModa
 					<SearchTaskInput
 						defaultTask={defaultTask}
 						setDefaultTask={setDefaultTask}
+						stopTimer={stopTimer}
 						setShowSearchInput={setShowSearchInput}
 						selectedPlan={plan}
 						selectedDate={selectedDate}
@@ -567,6 +592,7 @@ export function AddTasksEstimationHoursModal(props: IAddTasksEstimationHoursModa
 													key={index}
 													task={task}
 													setDefaultTask={setDefaultTask}
+													stopTimer={stopTimer}
 													isDefaultTask={task.id == defaultTask?.id}
 												/>
 											))}
@@ -647,6 +673,7 @@ interface ISearchTaskInputProps {
 	selectedPlan?: TDailyPlan;
 	setShowSearchInput: Dispatch<SetStateAction<boolean>>;
 	setDefaultTask: Dispatch<SetStateAction<TTask | null>>;
+	stopTimer: () => void;
 	defaultTask: TTask | null;
 	selectedDate?: Date;
 	employeeId?: string | null;
@@ -671,12 +698,15 @@ export function SearchTaskInput(props: ISearchTaskInputProps) {
 		setShowSearchInput,
 		defaultTask,
 		setDefaultTask,
+		stopTimer,
 		selectedDate,
 		employeeId,
 		canEdit = true
 	} = props;
 
 	const teamTasks = useAtomValue(tasksByTeamState);
+	// No match in a list whose pages are still loading is not proof the task is missing: no create meanwhile
+	const teamTasksPagesLoading = useAtomValue(teamTasksPagesLoadingState);
 	const { createTask } = useCreateTask();
 	const { taskStatuses } = useTaskStatusesQuery();
 	const [taskName, setTaskName] = useState('');
@@ -787,6 +817,7 @@ export function SearchTaskInput(props: ISearchTaskInputProps) {
 										task={task}
 										plan={selectedPlan}
 										setDefaultTask={setDefaultTask}
+										stopTimer={stopTimer}
 										isDefaultTask={task.id == defaultTask?.id}
 										selectedDate={selectedDate}
 										onTaskAdded={() => setShowSearchInput(false)}
@@ -800,7 +831,7 @@ export function SearchTaskInput(props: ISearchTaskInputProps) {
 				) : (
 					<EverCard shadow="custom" className="shadow-lg border z-40 !rounded !p-2">
 						<Button
-							disabled={createTaskLoading || taskName.trim().length < 5}
+							disabled={createTaskLoading || teamTasksPagesLoading || taskName.trim().length < 5}
 							onClick={handleCreateTask}
 							className="w-full h-full min-h-12"
 						>
@@ -822,6 +853,7 @@ export function SearchTaskInput(props: ISearchTaskInputProps) {
 interface ITaskCardProps {
 	task: TTask;
 	setDefaultTask: Dispatch<SetStateAction<TTask | null>>;
+	stopTimer: () => void;
 	isDefaultTask: boolean;
 	plan?: TDailyPlan;
 	viewListMode?: 'planned' | 'searched';
@@ -838,6 +870,7 @@ function TaskCard(props: ITaskCardProps) {
 		viewListMode = 'planned',
 		isDefaultTask,
 		setDefaultTask,
+		stopTimer,
 		selectedDate,
 		onTaskAdded,
 		employeeId,
@@ -850,8 +883,7 @@ function TaskCard(props: ITaskCardProps) {
 	const [addToPlanLoading, setAddToPlanLoading] = useState(false);
 
 	const { taskStatuses } = useTaskStatusesQuery();
-	const isTaskRenderedInTodayPlan =
-		plan && new Date(Date.now()).toLocaleDateString('en') == new Date(plan.date).toLocaleDateString('en');
+	const isTaskRenderedInTodayPlan = plan && getDailyPlanDay(plan.date) === moment().format('YYYY-MM-DD');
 	const {
 		isOpen: isTaskDetailsModalOpen,
 		closeModal: closeTaskDetailsModal,
@@ -951,7 +983,7 @@ function TaskCard(props: ITaskCardProps) {
 		<EverCard
 			shadow="custom"
 			className={clsx(
-				'lg:flex  items-center gap-2 py-3  md:px-4 hidden min-h-18 w-full h-18 dark:bg-[#1E2025] border-[0.05rem] dark:border-[#FFFFFF0D] relative text-xs! cursor-pointer',
+				'lg:flex  items-center gap-2 py-3  md:px-4 hidden min-h-18 w-full h-18 dark:bg-card border-[0.05rem] dark:border-[#FFFFFF0D] relative text-xs! cursor-pointer',
 				isTaskRenderedInTodayPlan && isDefaultTask && 'border-primary-light border-[0.15rem]'
 			)}
 		>
@@ -1017,6 +1049,7 @@ function TaskCard(props: ITaskCardProps) {
 					task={activeTeamTask}
 					plan={plan}
 					closeModal={closeUnplanActiveTaskModal}
+					stopTimer={stopTimer}
 				/>
 			)}
 		</EverCard>
@@ -1076,7 +1109,7 @@ function TaskCardActions(props: ITaskCardActionsProps) {
 
 		if (!planDate || !todayPlanDate) return false;
 
-		return new Date(planDate).toLocaleDateString('en') == new Date(todayPlanDate).toLocaleDateString('en');
+		return getDailyPlanDay(planDate) === getDailyPlanDay(todayPlanDate);
 	}, [selectedPlan?.date, employeeTodayPlan]);
 
 	/**
@@ -1271,7 +1304,8 @@ function UnplanTask(props: IUnplanTaskProps) {
 	const { removeManyTaskPlans, removeManyTaskFromPlanLoading } = useUpdateDailyPlan();
 
 	const activeTeamTask = useAtomValue(activeTeamTaskState);
-	const { timerStatus } = useTimerView();
+	// PERF: same reason as the sibling above — Layer-1 value, no need for the 20Hz tick subscription.
+	const { timerStatus } = useTimerActions();
 
 	const isActiveTaskPlannedToday = useMemo(
 		() => employeeTodayPlan[0]?.tasks?.find((task) => task.id === activeTeamTask?.id),

@@ -18,10 +18,16 @@ import { APP_NAME, VERIFY_EMAIL_CALLBACK_PATH } from '@/core/constants/config/co
 import { signinService } from '../../client/api/auth/signin.service';
 import { userOrganizationService } from '../../client/api/users/user-organization.service';
 import { EProvider } from '@/core/types/generics/enums/social-accounts';
+import { everIdUserByAccount, isEverIdCallbackRequest } from '@/core/services/server/ever-id/sign-in';
+import { pickTokenOrganization } from '@/core/lib/auth/jwt-utils';
 
 export function GauzyAdapter(req: NextRequest): Adapter {
 	return {
 		createUser: async (user): Promise<any> => {
+			// The Ever ID sign-in never creates an account itself (an account comes only from a sign-up the person confirms)
+			if (isEverIdCallbackRequest(req)) {
+				throw new Error('Ever ID sign-in does not create accounts');
+			}
 			const url = new URL(req.url);
 
 			const { email, name } = user;
@@ -36,6 +42,13 @@ export function GauzyAdapter(req: NextRequest): Adapter {
 				user: { email, firstName, lastName, timeZone: '' },
 				appEmailConfirmationUrl
 			});
+
+			// Gauzy keeps a self-registration inactive until its e-mail link is opened (owner decision 4,
+			// ever-co/ever-gauzy#11341): a login now answers 401. The account exists and the link is on its way; the
+			// workspace is set up at the first sign-in after the confirmation (finish-signup.ts).
+			if ((createdUser.data as { isActive?: boolean } | undefined)?.isActive === false) {
+				return createdUser.data;
+			}
 
 			// User Login, get the access token
 			const { data: loginRes } = await loginUserRequest(email, password);
@@ -102,6 +115,10 @@ export function GauzyAdapter(req: NextRequest): Adapter {
 		getUserByAccount: async (
 			providerAccountId: Pick<AdapterAccount, 'provider' | 'providerAccountId'>
 		): Promise<any> => {
+			// Ever ID: the Gauzy user the ID token exchange resolved (the link itself lives in the Gauzy API)
+			if (providerAccountId.provider === EProvider.EVER_ID) {
+				return everIdUserByAccount(providerAccountId.providerAccountId);
+			}
 			const response = await signinGetSocialUserByProviderIdRequest(providerAccountId);
 			if (!response.data.isUserExists) return null;
 			return response.data;
@@ -112,6 +129,10 @@ export function GauzyAdapter(req: NextRequest): Adapter {
 		},
 
 		linkAccount: async (account: AdapterAccount) => {
+			// Ever ID links are made in the Gauzy API, never here
+			if (account.provider === EProvider.EVER_ID) {
+				return null;
+			}
 			const { provider, access_token: token } = account;
 			if (provider && token) {
 				return (await linkUserToSocialAccount({ provider: provider as EProvider, token }))
@@ -166,7 +187,7 @@ async function signIn(provider: EProvider, access_token: string) {
 			token
 		});
 
-		const organization = organizations?.items[0];
+		const organization = pickTokenOrganization(organizations?.items, token);
 
 		if (!organization) {
 			return Promise.reject({

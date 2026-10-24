@@ -19,16 +19,32 @@ import { toast } from 'sonner';
 import { TOrganizationTeam, TOrganizationTeamUpdate } from '@/core/types/schemas';
 import { useUserQuery } from '@/core/hooks/queries/user-user.query';
 import { LoaderCircle } from 'lucide-react';
+import { useQueryClient } from '@tanstack/react-query';
+import { queryKeys } from '@/core/query/keys';
+
+// Settings row: label column on the left, control on the right (see the settings design contract).
+const ROW =
+	'grid grid-cols-1 gap-2 border-t border-border py-3 first:border-t-0 first:pt-0 sm:grid-cols-[10rem_minmax(0,1fr)] sm:items-center sm:gap-4';
+const LABEL = 'text-sm font-medium text-muted-foreground';
+const CONTROL = 'flex min-w-0 flex-wrap items-center gap-2 text-sm text-foreground';
+// The colour, emoji and size pickers draw their own 48px box with outer margins; this sizes them like
+// every other control of the block without touching the shared picker components.
+const PICKER =
+	'w-full max-w-md [&>div]:mt-0 [&>div>div]:mb-0 [&_.input-border]:h-9 [&_.input-border]:rounded-md';
+const ICON_BUTTON =
+	'mr-1 size-8 min-w-0 shrink-0 rounded-md p-0 text-muted-foreground outline-none hover:bg-muted hover:text-foreground';
 
 export const TeamSettingForm = () => {
 	const { data: user } = useUserQuery();
 	const { register, setValue, handleSubmit, getValues, trigger } = useForm();
 	const t = useTranslations();
+	const queryClient = useQueryClient();
 
 	const [activeTeam, setActiveTeam] = useAtom(activeTeamState);
 	const setTeams = useSetAtom(organizationTeamsState);
 	const { getOrganizationTeamsLoading: loading, loadingTeam } = useOrganizationTeamsQuery();
-	const { editOrganizationTeam, editOrganizationTeamLoading } = useEditOrganizationTeam();
+	// Every save below shows its own error toast
+	const { editOrganizationTeam, editOrganizationTeamLoading } = useEditOrganizationTeam({ toastOnError: false });
 	const { isTeamManager, activeManager } = useIsMemberManager(user);
 	const [copied, setCopied] = useState<boolean>(false);
 	const [disabled, setDisabled] = useState<boolean>(true);
@@ -238,256 +254,245 @@ export const TeamSettingForm = () => {
 		}
 	}, [editOrganizationTeam, activeTeam?.id, getValues]);
 
+	// Sends only `public`: onSubmit builds memberIds from team-employee row ids, which Gauzy would treat as removals
+	const handleTeamTypeUpdate = useCallback(
+		async (teamType: string) => {
+			try {
+				await editOrganizationTeam({
+					id: activeTeam?.id,
+					public: teamType === 'PUBLIC'
+				});
+
+				toast.success(t('pages.settingsTeam.TEAM_TYPE_UPDATED'));
+			} catch (error) {
+				console.error('Team type update failed:', error);
+				// Put the radio back on the last synced value of the team on screen, which can differ from the
+				// one this request targeted if the active team switched. Then refetch: the PUT may have landed
+				// even though the read that follows it failed.
+				setValue('teamType', formDetails.current.teamType);
+				queryClient.invalidateQueries({ queryKey: queryKeys.organizationTeams.all });
+				toast.error(t('pages.settingsTeam.TEAM_TYPE_UPDATE_FAILED'));
+			}
+		},
+		[editOrganizationTeam, activeTeam?.id, setValue, queryClient, t]
+	);
+
 	return (
 		<>
-			<form className="mt-8 w-fit" onSubmit={handleSubmit(onSubmit)} autoComplete="off">
-				<div className="flex flex-col justify-between items-center">
-					<div className="mt-5 w-full">
-						<div className="">
-							{/* Team Name */}
-							<div className="flex flex-col justify-between items-center w-full sm:gap-12 sm:flex-row">
-								<Text className="flex-none grow-0 mb-2 text-lg font-normal text-gray-400 sm:w-1/5">
-									{t('pages.settingsTeam.TEAM_NAME')}
-								</Text>
-								<div
-									ref={inputWrapperRef}
-									className="flex flex-row grow-0 justify-between items-center w-full lg:w-4/5"
-								>
-									<InputField
-										autoCustomFocus={!disabled}
-										type="text"
-										placeholder={t('pages.settingsTeam.TEAM_NAME')}
-										{...register('teamName', {
-											required: true,
-											maxLength: 80
-										})}
-										className={`${disabled ? 'disabled:bg-[#FCFCFC]' : ''}`}
-										trailingNode={
-											isTeamManager ? (
-												disabled ? (
-													<Button
-														type="button"
-														variant="ghost"
-														className="p-0 m-0 mr-[0.5rem] min-w-0 outline-none"
-														disabled={!isTeamManager}
-														onClick={() => {
-															setDisabled(false);
-														}}
-													>
-														<EditPenUnderlineIcon className="w-6 h-6 text-inherit" />
-													</Button>
-												) : (
-													<Button
-														variant="ghost"
-														className="p-0 m-0 mr-[0.8rem] mb-[0.2rem] min-w-0 outline-none"
-														type="button"
-														disabled={editOrganizationTeamLoading}
-														onClick={async () => {
-															const isValid = await trigger('teamName');
-															if (!isValid)
-																return toast.error(
-																	'Team name is required, max 80 characters'
-																);
-															await handleTeamNameUpdate();
-															setDisabled(true);
-														}}
-													>
-														{editOrganizationTeamLoading ? (
-															<LoaderCircle
-																className="w-[18px] h-[18px] animate-spin"
-																strokeWidth="1.4"
-															/>
-														) : (
-															<CheckSquareOutlineIcon
-																className="w-[18px] h-[18px]"
-																strokeWidth="1.4"
-															/>
-														)}
-													</Button>
-												)
-											) : (
-												<></>
-											)
-										}
-										disabled={disabled}
-										wrapperClassName={`rounded-lg bg-light--theme-light dark:bg-dark--theme-light`}
-									/>
-								</div>
-							</div>
-
-							{/* Team Color */}
-							<div className="flex flex-col gap-1 justify-between items-center w-full lg:flex-row lg:gap-12">
-								<Text className="flex-none grow-0 mb-2 w-full text-lg font-normal text-gray-400 lg:w-1/5">
-									{t('pages.settingsTeam.TEAM_COLOR')}
-								</Text>
-								<div className="flex z-10 flex-row grow-0 justify-between items-center w-full lg:w-4/5">
-									<ColorPicker
-										onSave={handleTeamColorUpdate}
-										defaultColor={activeTeam?.color || ''}
-										onChange={(color: any | null) => {
-											debounceHandleColorChange(color);
-										}}
-										isTeamManager={isTeamManager}
-										disabled={!isTeamManager}
-										fullWidthInput
-									/>
-								</div>
-							</div>
-
-							{/* Emoji */}
-							<div className="flex flex-col gap-1 justify-between items-center w-full lg:flex-row lg:gap-12">
-								<Text className="flex-none grow-0 mb-2 w-full text-lg font-normal text-gray-400 lg:w-1/5">
-									{t('pages.settingsTeam.EMOJI')}
-								</Text>
-								<div className="flex flex-row items-start lg:items-center justify-between grow-0 w-full max-w-[88vw] lg:w-4/5">
-									<EmojiPicker
-										onChange={(emoji: string) => {
-											setValue('emoji', emoji);
-										}}
-										emoji={activeTeam?.emoji || null}
-										isTeamManager={isTeamManager}
-										disabled={!isTeamManager}
-										onSave={handleTeamEmojiUpdate}
-									/>
-								</div>
-							</div>
-
-							{/* Team Size */}
-							{
-								<div className="flex flex-col gap-1 justify-between items-center mt-3 w-full lg:flex-row lg:gap-12">
-									<Text className="flex-none grow-0 mb-2 w-full text-lg font-normal text-gray-400 lg:w-1/5">
-										{t('pages.settingsTeam.TEAM_SIZE')}
-									</Text>
-									<div className="flex flex-row grow-0 justify-between items-center w-full lg:w-4/5">
-										<TeamSize
-											defaultValue={activeTeam?.teamSize || ''}
-											onChange={(teamSize: string) => {
-												setValue('teamSize', teamSize);
-											}}
-											isTeamManager={isTeamManager}
+			<form className="mt-2 w-full" onSubmit={handleSubmit(onSubmit)} autoComplete="off">
+				{/* Team Name */}
+				<div className={ROW}>
+					<Text className={LABEL}>{t('pages.settingsTeam.TEAM_NAME')}</Text>
+					<div ref={inputWrapperRef} className={CONTROL}>
+						<InputField
+							autoCustomFocus={!disabled}
+							type="text"
+							placeholder={t('pages.settingsTeam.TEAM_NAME')}
+							{...register('teamName', {
+								required: true,
+								maxLength: 80
+							})}
+							className={`h-9 ${disabled ? 'disabled:bg-muted/40' : ''}`}
+							trailingNode={
+								isTeamManager ? (
+									disabled ? (
+										<Button
+											type="button"
+											variant="ghost"
+											className={ICON_BUTTON}
 											disabled={!isTeamManager}
-											onSave={handleTimeSizeUpdate}
-										/>
-									</div>
-								</div>
+											onClick={() => {
+												setDisabled(false);
+											}}
+										>
+											<EditPenUnderlineIcon className="size-4 text-inherit" />
+										</Button>
+									) : (
+										<Button
+											variant="ghost"
+											className={ICON_BUTTON}
+											type="button"
+											disabled={editOrganizationTeamLoading}
+											onClick={async () => {
+												const isValid = await trigger('teamName');
+												if (!isValid)
+													return toast.error('Team name is required, max 80 characters');
+												await handleTeamNameUpdate();
+												setDisabled(true);
+											}}
+										>
+											{editOrganizationTeamLoading ? (
+												<LoaderCircle className="size-4 animate-spin" strokeWidth="1.4" />
+											) : (
+												<CheckSquareOutlineIcon className="size-4" strokeWidth="1.4" />
+											)}
+										</Button>
+									)
+								) : (
+									<></>
+								)
 							}
+							disabled={disabled}
+							wrapperClassName="mb-0 max-w-md"
+						/>
+					</div>
+				</div>
 
-							{/* Team Type */}
-							<div className="flex flex-col items-center mt-8 w-full sm:gap-12 sm:flex-row">
-								<Text className="flex-none grow-0 mb-2 w-full text-lg font-normal text-gray-400 sm:w-1/5">
-									{t('pages.settingsTeam.TEAM_TYPE')}
-								</Text>
-								<div className="flex lg:gap-x-[30px] flex-col sm:flex-row items-center">
-									{isTeamManager && (
-										<div className="flex justify-between items-center space-y-2 w-full sm:block">
-											<div className="flex items-center mb-[0.125rem] min-h-[1.5rem] pl-[1.5rem]">
-												<input
-													id="team-type-radio-public"
-													className="relative float-left -ml-[1.5rem] mr-1 mt-0.5 h-5 w-5 appearance-none rounded-full border-2 border-solid border-neutral-300 before:pointer-events-none before:absolute before:h-4 before:w-4 before:scale-0 before:rounded-full before:bg-transparent before:opacity-0 before:shadow-[0px_0px_0px_13px_transparent] before:content-[''] after:absolute after:z-[1] after:block after:h-4 after:w-4 after:rounded-full after:content-[''] checked:border-primary checked:before:opacity-[0.16] checked:after:absolute checked:after:left-1/2 checked:after:top-1/2 checked:after:h-[0.625rem] checked:after:w-[0.625rem] checked:after:rounded-full checked:after:border-primary checked:dark:after:border-primary-xlight checked:after:bg-primary checked:dark:after:bg-primary-xlight checked:after:content-[''] checked:after:[transform:translate(-50%,-50%)] hover:cursor-pointer hover:before:opacity-[0.04] hover:before:shadow-[0px_0px_0px_13px_rgba(0,0,0,0.6)] focus:shadow-none focus:outline-none focus:ring-0 focus:before:scale-100 focus:before:opacity-[0.12] focus:before:shadow-[0px_0px_0px_13px_rgba(0,0,0,0.6)] focus:before:transition-[box-shadow_0.2s,transform_0.2s] checked:focus:border-primary checked:dark:focus:border-primary-xlight checked:focus:before:scale-100 checked:focus:before:shadow-[0px_0px_0px_13px_#3b71ca] checked:focus:before:transition-[box-shadow_0.2s,transform_0.2s] dark:border-neutral-600 dark:checked:border-primary-xlight dark:checked:after:border-primary-xlight dark:checked:after:bg-primary-xlight dark:focus:before:shadow-[0px_0px_0px_13px_rgba(255,255,255,0.4)] dark:checked:focus:border-primary-xlight dark:checked:focus:before:shadow-[0px_0px_0px_13px_#3b71ca]"
-													type="radio"
-													{...register('teamType')}
-													value="PUBLIC"
-													disabled={!isTeamManager}
-												/>
-
-												<Text.Label
-													className="mt-px text-nowrap whitespace-nowrap inline-block pl-[0.15rem] hover:cursor-pointer"
-													htmlFor="team-type-radio-public"
-												>
-													{t('team.PUBLIC_TEAM')}
-												</Text.Label>
-											</div>
-											<div className="flex items-center mb-[0.125rem] min-h-[1.5rem] pl-[1.5rem]">
-												<input
-													id="team-type-radio-private"
-													className="relative float-left -ml-[1.5rem] mr-1 mt-0.5 h-5 w-5 appearance-none rounded-full border-2 border-solid border-neutral-300 before:pointer-events-none before:absolute before:h-4 before:w-4 before:scale-0 before:rounded-full before:bg-transparent before:opacity-0 before:shadow-[0px_0px_0px_13px_transparent] before:content-[''] after:absolute after:z-[1] after:block after:h-4 after:w-4 after:rounded-full after:content-[''] checked:border-primary checked:before:opacity-[0.16] checked:after:absolute checked:after:left-1/2 checked:after:top-1/2 checked:after:h-[0.625rem] checked:after:w-[0.625rem] checked:after:rounded-full checked:after:border-primary checked:dark:after:border-primary-xlight checked:after:bg-primary checked:dark:after:bg-primary-xlight checked:after:content-[''] checked:after:[transform:translate(-50%,-50%)] hover:cursor-pointer hover:before:opacity-[0.04] hover:before:shadow-[0px_0px_0px_13px_rgba(0,0,0,0.6)] focus:shadow-none focus:outline-none focus:ring-0 focus:before:scale-100 focus:before:opacity-[0.12] focus:before:shadow-[0px_0px_0px_13px_rgba(0,0,0,0.6)] focus:before:transition-[box-shadow_0.2s,transform_0.2s] checked:focus:border-primary checked:dark:focus:border-primary-xlight checked:focus:before:scale-100 checked:focus:before:shadow-[0px_0px_0px_13px_#3b71ca] checked:focus:before:transition-[box-shadow_0.2s,transform_0.2s] dark:border-neutral-600 dark:checked:border-primary-xlight dark:checked:after:border-primary-xlight dark:checked:after:bg-primary-xlight dark:focus:before:shadow-[0px_0px_0px_13px_rgba(255,255,255,0.4)] dark:checked:focus:border-primary-xlight dark:checked:focus:before:shadow-[0px_0px_0px_13px_#3b71ca]"
-													type="radio"
-													{...register('teamType')}
-													value="PRIVATE"
-													disabled={!isTeamManager}
-												/>
-												<Text.Label
-													className="mt-px text-nowrap whitespace-nowrap inline-block pl-[0.15rem] hover:cursor-pointer"
-													htmlFor="team-type-radio-private"
-												>
-													{t('team.PRIVATE_TEAM')}
-												</Text.Label>
-											</div>
-										</div>
-									)}
-									{getTeamLink() && (
-										<div className="flex flex-col gap-4 items-center sm:flex-row">
-											<div className="flex flex-row grow-0 justify-between items-center mb-0 w-full lg:w-64">
-												<Tooltip
-													label={getTeamLink()}
-													placement="auto"
-													enabled
-													className="w-full"
-												>
-													<InputField
-														type="text"
-														placeholder={getTeamLink()}
-														className="mb-0 h-[54px]"
-														wrapperClassName="mb-0 h-[54px] rounded-lg"
-														disabled={true}
-													/>
-												</Tooltip>
-											</div>
-											<div className="flex flex-row grow-0 justify-between items-center sm:w-1/5">
-												<Button
-													variant="outline"
-													className="border-2 rounded-xl h-[54px] min-w-[105px] font-[600] text-[14px]"
-													type="button"
-													onClick={() => {
-														navigator.clipboard.writeText(getTeamLink());
-														setCopied(true);
-														setTimeout(() => {
-															setCopied(false);
-														}, 1000 * 10 /** 10 Seconds */);
-													}}
-												>
-													{!copied ? 'Copy Link' : 'Copied'}
-												</Button>
-											</div>
-										</div>
-									)}
-								</div>
-							</div>
-
-							{/* Time Tracking */}
-							{isTeamManager ? (
-								<>
-									<div className="flex gap-12 justify-between items-center mt-8 w-full">
-										<Text className="flex-none grow-0 text-lg font-normal text-gray-400 md-2 sm:w-1/5">
-											{t('pages.settingsTeam.TIME_TRACKING')}
-										</Text>
-										<div className="flex flex-row grow-0 justify-between items-center w-4/5">
-											<TimeTrackingToggle activeManager={activeManager as any} />
-										</div>
-									</div>
-									<div className="flex gap-12 justify-between items-center mt-8 w-full">
-										<Text className="flex-none grow-0 text-lg font-normal text-gray-400 md-2 sm:w-1/5">
-											{t('pages.settingsTeam.SHARE_MEMBERS_PROFILE_VIEWS')}
-										</Text>
-										<div className="flex flex-row grow-0 justify-between items-center w-4/5">
-											<ShareProfileViewsToggle />
-										</div>
-									</div>
-									<div className="flex gap-12 justify-between items-center mt-8 w-full">
-										<Text className="flex-none grow-0 text-lg font-normal text-gray-400 md-2 sm:w-1/5">
-											{t('pages.settingsTeam.ENFORCE_PLAN')}
-										</Text>
-										<div className="flex flex-row grow-0 justify-between items-center w-4/5">
-											<RequireDailyPlanToTrack />
-										</div>
-									</div>
-								</>
-							) : (
-								<></>
-							)}
+				{/* Team Color */}
+				<div className={ROW}>
+					<Text className={LABEL}>{t('pages.settingsTeam.TEAM_COLOR')}</Text>
+					<div className={`${CONTROL} z-10`}>
+						<div className={PICKER}>
+							<ColorPicker
+								onSave={handleTeamColorUpdate}
+								defaultColor={activeTeam?.color || ''}
+								onChange={(color: any | null) => {
+									debounceHandleColorChange(color);
+								}}
+								isTeamManager={isTeamManager}
+								disabled={!isTeamManager}
+								fullWidthInput
+							/>
 						</div>
 					</div>
 				</div>
+
+				{/* Emoji */}
+				<div className={ROW}>
+					<Text className={LABEL}>{t('pages.settingsTeam.EMOJI')}</Text>
+					<div className={CONTROL}>
+						<div className={PICKER}>
+							<EmojiPicker
+								onChange={(emoji: string) => {
+									setValue('emoji', emoji);
+								}}
+								emoji={activeTeam?.emoji || null}
+								isTeamManager={isTeamManager}
+								disabled={!isTeamManager}
+								onSave={handleTeamEmojiUpdate}
+							/>
+						</div>
+					</div>
+				</div>
+
+				{/* Team Size */}
+				<div className={ROW}>
+					<Text className={LABEL}>{t('pages.settingsTeam.TEAM_SIZE')}</Text>
+					<div className={CONTROL}>
+						<div className={PICKER}>
+							<TeamSize
+								defaultValue={activeTeam?.teamSize || ''}
+								onChange={(teamSize: string) => {
+									setValue('teamSize', teamSize);
+								}}
+								isTeamManager={isTeamManager}
+								disabled={!isTeamManager}
+								onSave={handleTimeSizeUpdate}
+							/>
+						</div>
+					</div>
+				</div>
+
+				{/* Team Type */}
+				<div className={ROW}>
+					<Text className={LABEL}>{t('pages.settingsTeam.TEAM_TYPE')}</Text>
+					<div className={`${CONTROL} gap-x-4`}>
+						{isTeamManager && (
+							<div className="flex flex-wrap items-center gap-x-4 gap-y-2">
+								<div className="flex items-center gap-2">
+									<input
+										id="team-type-radio-public"
+										className="size-4 shrink-0 cursor-pointer accent-primary disabled:cursor-not-allowed"
+										type="radio"
+										{...register('teamType', {
+											onChange: (event) => handleTeamTypeUpdate(event.target.value)
+										})}
+										value="PUBLIC"
+										disabled={!isTeamManager || editOrganizationTeamLoading}
+									/>
+
+									<Text.Label
+										className="ml-0 cursor-pointer whitespace-nowrap font-normal text-foreground dark:text-foreground"
+										htmlFor="team-type-radio-public"
+									>
+										{t('team.PUBLIC_TEAM')}
+									</Text.Label>
+								</div>
+								<div className="flex items-center gap-2">
+									<input
+										id="team-type-radio-private"
+										className="size-4 shrink-0 cursor-pointer accent-primary disabled:cursor-not-allowed"
+										type="radio"
+										{...register('teamType', {
+											onChange: (event) => handleTeamTypeUpdate(event.target.value)
+										})}
+										value="PRIVATE"
+										disabled={!isTeamManager || editOrganizationTeamLoading}
+									/>
+									<Text.Label
+										className="ml-0 cursor-pointer whitespace-nowrap font-normal text-foreground dark:text-foreground"
+										htmlFor="team-type-radio-private"
+									>
+										{t('team.PRIVATE_TEAM')}
+									</Text.Label>
+								</div>
+							</div>
+						)}
+						{getTeamLink() && (
+							<div className="flex min-w-0 flex-1 flex-wrap items-center gap-2">
+								<Tooltip label={getTeamLink()} placement="auto" enabled className="min-w-0 flex-1 sm:max-w-xs">
+									<InputField
+										type="text"
+										placeholder={getTeamLink()}
+										className="mb-0 h-9"
+										wrapperClassName="mb-0"
+										disabled={true}
+									/>
+								</Tooltip>
+								<Button
+									variant="outline-dark"
+									className="h-9 shrink-0 rounded-md bg-card px-3 py-0 text-sm font-medium text-foreground hover:bg-muted"
+									type="button"
+									onClick={() => {
+										navigator.clipboard.writeText(getTeamLink());
+										setCopied(true);
+										setTimeout(() => {
+											setCopied(false);
+										}, 1000 * 10 /** 10 Seconds */);
+									}}
+								>
+									{!copied ? 'Copy Link' : 'Copied'}
+								</Button>
+							</div>
+						)}
+					</div>
+				</div>
+
+				{/* Time Tracking */}
+				{isTeamManager ? (
+					<>
+						<div className={ROW}>
+							<Text className={LABEL}>{t('pages.settingsTeam.TIME_TRACKING')}</Text>
+							<div className={CONTROL}>
+								<TimeTrackingToggle activeManager={activeManager as any} />
+							</div>
+						</div>
+						<div className={ROW}>
+							<Text className={LABEL}>{t('pages.settingsTeam.SHARE_MEMBERS_PROFILE_VIEWS')}</Text>
+							<div className={CONTROL}>
+								<ShareProfileViewsToggle />
+							</div>
+						</div>
+						<div className={ROW}>
+							<Text className={LABEL}>{t('pages.settingsTeam.ENFORCE_PLAN')}</Text>
+							<div className={CONTROL}>
+								<RequireDailyPlanToTrack />
+							</div>
+						</div>
+					</>
+				) : (
+					<></>
+				)}
 			</form>
 		</>
 	);

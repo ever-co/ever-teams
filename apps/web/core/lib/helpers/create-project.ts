@@ -1,4 +1,5 @@
 import { TStepData } from '@/core/components/features/projects/add-or-edit-project/container';
+import { TRole } from '@/core/types/schemas';
 
 /**
  * Retrieves the initial value for the project steps form.
@@ -24,4 +25,16 @@ export const getInitialValue = (currentData: TStepData | undefined, key: keyof T
 		}
 	}
 	return fallback;
+};
+
+const FALLBACK_ROLE_ID_PREFIX = 'fallback-';
+
+/**
+ * Project member role ids are `fallback-<ROLE NAME>` until the roles list loads, and the list can load after a
+ * member was assigned. Reads such an id as the loaded role with the same name and leaves any other id unchanged.
+ */
+export const resolveProjectRoleId = (roleId: string, roles: TRole[]): string => {
+	if (!roleId?.startsWith(FALLBACK_ROLE_ID_PREFIX)) return roleId;
+	const name = roleId.slice(FALLBACK_ROLE_ID_PREFIX.length);
+	return roles.find((role) => role.name === name)?.id ?? roleId;
 };

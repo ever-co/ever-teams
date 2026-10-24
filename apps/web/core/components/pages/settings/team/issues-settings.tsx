@@ -13,180 +13,161 @@ import { useSetAtom } from 'jotai';
 import { activeSettingTeamTab } from '@/core/stores/common/setting';
 import { InteractionObserverVisible } from '@/core/components/pages/settings/interaction-observer';
 
+// Settings row (still hidden until these settings exist): label column on the left, control on the right.
+const HIDDEN_ROW =
+	'hidden w-full grid-cols-1 gap-2 sm:grid-cols-[10rem_minmax(0,1fr)] sm:items-center sm:gap-4';
+const LABEL = 'text-sm font-medium text-muted-foreground';
+const CONTROL = 'flex min-w-0 flex-wrap items-center gap-2';
+// The visible sections are separated by a hairline; the first starts at the top of the block, the
+// last ends at its bottom.
+const SECTION_FIRST = 'pb-4';
+const SECTION = 'py-4';
+const SECTION_LAST = 'pt-4';
+
 export const IssuesSettings = () => {
 	const setActiveTeam = useSetAtom(activeSettingTeamTab);
 	const t = useTranslations();
 	return (
 		<div>
 			{/* TODO */}
-			<div className="hidden w-full items-center justify-between gap-[2rem]">
-				<Text className="flex-none grow-0 w-1/5 text-lg font-normal text-gray-400 md-2">
-					{t('pages.settingsTeam.TASK_PRIVACY')}
-				</Text>
-				<div className="flex flex-row items-center justify-between grow-0 w-4/5">
+			<div className={HIDDEN_ROW}>
+				<Text className={LABEL}>{t('pages.settingsTeam.TASK_PRIVACY')}</Text>
+				<div className={CONTROL}>
 					<CommonToggle enabledText={t('common.ACTIVATED')} disabledText={t('common.DEACTIVATED')} />
 				</div>
 			</div>
 			{/* TODO */}
-			<div className="hidden w-full items-center justify-between gap-[2rem]">
-				<Text className="flex-none grow-0 w-1/5 text-lg font-normal text-gray-400 md-2">
-					{t('pages.settingsTeam.MULTIPLE_ASSIGNEES')}
-				</Text>
-				<div className="flex flex-row items-center justify-between grow-0 w-4/5">
+			<div className={HIDDEN_ROW}>
+				<Text className={LABEL}>{t('pages.settingsTeam.MULTIPLE_ASSIGNEES')}</Text>
+				<div className={CONTROL}>
 					<CommonToggle enabledText={t('common.ACTIVATED')} disabledText={t('common.DEACTIVATED')} />
 				</div>
 			</div>
 			{/* TODO */}
-			<div className="hidden w-full items-center justify-between gap-[2rem]">
-				<Text className="flex-none grow-0 w-1/5 text-lg font-normal text-gray-400 md-2">
-					{t('pages.settingsTeam.MANUAL_TIME')}
-				</Text>
-				<div className="flex flex-row items-center justify-between grow-0 w-4/5">
+			<div className={HIDDEN_ROW}>
+				<Text className={LABEL}>{t('pages.settingsTeam.MANUAL_TIME')}</Text>
+				<div className={CONTROL}>
 					<CommonToggle enabledText={t('common.ACTIVATED')} disabledText={t('common.DEACTIVATED')} />
 				</div>
 			</div>
 			{/* TODO */}
-			<div className="hidden  w-full items-center justify-between gap-[2rem]">
-				<Text className="flex-none grow-0 w-1/5 text-lg font-normal text-gray-400 md-2">
-					{t('pages.settingsTeam.GROUP_ESTIMATION')}
-				</Text>
-				<div className="flex flex-row items-center justify-between grow-0 w-4/5">
+			<div className={HIDDEN_ROW}>
+				<Text className={LABEL}>{t('pages.settingsTeam.GROUP_ESTIMATION')}</Text>
+				<div className={CONTROL}>
 					<CommonToggle enabledText={t('common.ACTIVATED')} disabledText={t('common.DEACTIVATED')} />
 				</div>
 			</div>
 			{/* TODO */}
-			<div className="hidden  w-full items-center justify-between gap-[2rem]">
-				<Text className="flex-none grow-0 w-1/5 text-lg font-normal text-gray-400 md-2">
-					{t('pages.settingsTeam.ESTIMATION_IN_HOURS')}
-				</Text>
-				<div className="flex flex-row items-center justify-between grow-0 w-4/5">
+			<div className={HIDDEN_ROW}>
+				<Text className={LABEL}>{t('pages.settingsTeam.ESTIMATION_IN_HOURS')}</Text>
+				<div className={CONTROL}>
 					<CommonToggle enabledText={t('common.ACTIVATED')} disabledText={t('common.DEACTIVATED')} />
 				</div>
 			</div>
 			{/* TODO */}
-			<div className="hidden _flex w-full items-center justify-between gap-[2rem]">
-				<Text className="flex-none grow-0 w-1/5 text-lg font-normal text-gray-400 md-2">
-					{t('pages.settingsTeam.ESTIMATION_IN_STORY_POINTS')}
-				</Text>
-				<div className="flex flex-row items-center justify-between grow-0 w-4/5">
+			<div className={HIDDEN_ROW}>
+				<Text className={LABEL}>{t('pages.settingsTeam.ESTIMATION_IN_STORY_POINTS')}</Text>
+				<div className={CONTROL}>
 					<CommonToggle enabledText={t('common.ACTIVATED')} disabledText={t('common.DEACTIVATED')} />
 				</div>
 			</div>
 			{/* TODO */}
-			<div className="hidden w-full items-center justify-between gap-[2rem]">
-				<Text className="flex-none grow-0 w-1/5 text-lg font-normal text-gray-400 md-2">
-					{t('pages.settingsTeam.PROOF_OF_COMPLETION')}
-				</Text>
-				<div className="flex flex-row items-center grow-0 w-4/5">
-					<div className="w-[30%]">
-						<CommonToggle enabledText={t('common.ACTIVATED')} disabledText={t('common.DEACTIVATED')} />
-					</div>
-					<Text className="flex-none text-gray-400 grow-0 text-lg font-normal md-2 w-[14%]">In</Text>
+			<div className={HIDDEN_ROW}>
+				<Text className={LABEL}>{t('pages.settingsTeam.PROOF_OF_COMPLETION')}</Text>
+				<div className={CONTROL}>
+					<CommonToggle enabledText={t('common.ACTIVATED')} disabledText={t('common.DEACTIVATED')} />
+					<Text className="text-sm text-muted-foreground">In</Text>
 					<ProofDropdown setValue={() => console.log('proof')} />
 				</div>
 			</div>
 			{/* TODO */}
-			<div className="hidden w-full items-center justify-between gap-[2rem]">
-				<Text className="flex-none grow-0 w-1/5 text-lg font-normal text-gray-400 md-2">
-					{t('pages.settingsTeam.LINKED_ISSUES')}
-				</Text>
-				<div className="flex flex-row items-center justify-between grow-0 w-4/5">
+			<div className={HIDDEN_ROW}>
+				<Text className={LABEL}>{t('pages.settingsTeam.LINKED_ISSUES')}</Text>
+				<div className={CONTROL}>
 					<CommonToggle enabledText={t('common.ACTIVATED')} disabledText={t('common.DEACTIVATED')} />
 				</div>
 			</div>
 			{/* TODO */}
-			<div className="hidden  w-full items-center justify-between gap-[2rem]">
-				<Text className="flex-none grow-0 w-1/5 text-lg font-normal text-gray-400 md-2">
-					{t('pages.settingsTeam.COMMENTS')}
-				</Text>
-				<div className="flex flex-row items-center justify-between grow-0 w-4/5">
+			<div className={HIDDEN_ROW}>
+				<Text className={LABEL}>{t('pages.settingsTeam.COMMENTS')}</Text>
+				<div className={CONTROL}>
 					<CommonToggle enabledText={t('common.ACTIVATED')} disabledText={t('common.DEACTIVATED')} />
 				</div>
 			</div>
 			{/* TODO */}
-			<div className="hidden  w-full items-center justify-between gap-[2rem]">
-				<Text className="flex-none grow-0 w-1/5 text-lg font-normal text-gray-400 md-2">
-					{t('pages.settingsTeam.HISTORY')}
-				</Text>
-				<div className="flex flex-row items-center justify-between grow-0 w-4/5">
+			<div className={HIDDEN_ROW}>
+				<Text className={LABEL}>{t('pages.settingsTeam.HISTORY')}</Text>
+				<div className={CONTROL}>
 					<CommonToggle enabledText={t('common.ACTIVATED')} disabledText={t('common.DEACTIVATED')} />
 				</div>
 			</div>
 			{/* TODO */}
-			<div className="hidden w-full items-center justify-between gap-[2rem]">
-				<Text className="flex-none grow-0 w-1/5 text-lg font-normal text-gray-400 md-2">
-					{t('pages.settingsTeam.ACCEPTANCE_CRITERIA')}
-				</Text>
-				<div className="flex flex-row items-center justify-between grow-0 w-4/5">
+			<div className={HIDDEN_ROW}>
+				<Text className={LABEL}>{t('pages.settingsTeam.ACCEPTANCE_CRITERIA')}</Text>
+				<div className={CONTROL}>
 					<CommonToggle enabledText={t('common.ACTIVATED')} disabledText={t('common.DEACTIVATED')} />
 				</div>
 			</div>
 			{/* TODO */}
-			<div className="hidden  w-full items-center justify-between gap-[2rem]">
-				<Text className="flex-none grow-0 w-1/5 text-lg font-normal text-gray-400 md-2">
-					{t('pages.settingsTeam.DRAFT_ISSUES')}
-				</Text>
-				<div className="flex flex-row items-center justify-between grow-0 w-4/5">
+			<div className={HIDDEN_ROW}>
+				<Text className={LABEL}>{t('pages.settingsTeam.DRAFT_ISSUES')}</Text>
+				<div className={CONTROL}>
 					<CommonToggle enabledText={t('common.ACTIVATED')} disabledText={t('common.DEACTIVATED')} />
 				</div>
 			</div>
 			{/* TODO */}
-			<div className="hidden w-full items-center justify-between gap-[2rem]">
-				<Text className="flex-none grow-0 w-1/5 text-lg font-normal text-gray-400 md-2">
-					{t('pages.settingsTeam.AUTO_CLOSE_ISSUE')}
-				</Text>
-				<div className="flex flex-row items-center grow-0 w-4/5 gap-5">
+			<div className={HIDDEN_ROW}>
+				<Text className={LABEL}>{t('pages.settingsTeam.AUTO_CLOSE_ISSUE')}</Text>
+				<div className={CONTROL}>
 					<CommonToggle enabledText={t('common.PERIOD')} disabledText={t('common.DEACTIVATED')} />
 					<PeriodDropdown setValue={() => console.log('set value')} />
 				</div>
 			</div>
 			{/* TODO */}
-			<div className="hidden w-full items-center justify-between gap-[2rem]">
-				<Text className="flex-none grow-0 w-1/5 text-lg font-normal text-gray-400 md-2">
-					{t('pages.settingsTeam.AUTO_ARCHIVE_ISSUE')}
-				</Text>
-				<div className="flex flex-row items-center grow-0 w-4/5 gap-5">
+			<div className={HIDDEN_ROW}>
+				<Text className={LABEL}>{t('pages.settingsTeam.AUTO_ARCHIVE_ISSUE')}</Text>
+				<div className={CONTROL}>
 					<CommonToggle enabledText={t('common.PERIOD')} disabledText={t('common.DEACTIVATED')} />
 					<PeriodDropdown setValue={() => console.log('set value')} />
 				</div>
 			</div>
 			{/* TODO */}
-			<div className="hidden w-full items-center justify-between gap-[2rem]">
-				<Text className="flex-none grow-0 w-1/5 text-lg font-normal text-gray-400 md-2">
-					{t('pages.settingsTeam.AUTO_STATUS')}
-				</Text>
-				<div className="flex flex-row items-center justify-between grow-0 w-4/5">
+			<div className={HIDDEN_ROW}>
+				<Text className={LABEL}>{t('pages.settingsTeam.AUTO_STATUS')}</Text>
+				<div className={CONTROL}>
 					<CommonToggle enabledText={t('common.PERIOD')} disabledText={t('common.DEACTIVATED')} />
 				</div>
 			</div>
 
-			<div className="flex w-full items-center justify-between gap-[2rem]">
-				<TaskVersionForm />
+			<div className="flex w-full flex-col divide-y divide-border">
+				<div className={SECTION_FIRST}>
+					<TaskVersionForm />
+				</div>
+				{/* TODO */}
+				<div className={SECTION}>
+					<DefaultIssueTypeForm />
+				</div>
+				<InteractionObserverVisible id="statuses" setActiveSection={setActiveTeam}>
+					<div className={SECTION}>
+						<TaskStatusesForm />
+					</div>
+				</InteractionObserverVisible>
+				<InteractionObserverVisible id="priorities" setActiveSection={setActiveTeam}>
+					<div className={SECTION}>
+						<TaskPrioritiesForm />
+					</div>
+				</InteractionObserverVisible>
+				<InteractionObserverVisible id="sizes" setActiveSection={setActiveTeam}>
+					<div className={SECTION}>
+						<TaskSizesForm />
+					</div>
+				</InteractionObserverVisible>
+				<InteractionObserverVisible id="labels" setActiveSection={setActiveTeam}>
+					<div className={SECTION_LAST}>
+						<TaskLabelForm />
+					</div>
+				</InteractionObserverVisible>
 			</div>
-			{/* TODO */}
-			<div className="flex w-full items-center justify-between gap-[2rem]">
-				<DefaultIssueTypeForm />
-			</div>
-			<InteractionObserverVisible id="statuses" setActiveSection={setActiveTeam}>
-				<div className="flex w-full items-center justify-between gap-[2rem]">
-					<TaskStatusesForm />
-				</div>
-			</InteractionObserverVisible>
-			<InteractionObserverVisible id="priorities" setActiveSection={setActiveTeam}>
-				<div className="flex w-full items-center justify-between gap-[2rem]">
-					<TaskPrioritiesForm />
-				</div>
-			</InteractionObserverVisible>
-			<InteractionObserverVisible id="sizes" setActiveSection={setActiveTeam}>
-				<div className="flex w-full items-center justify-between gap-[2rem]">
-					<TaskSizesForm />
-				</div>
-			</InteractionObserverVisible>
-			<InteractionObserverVisible id="labels" setActiveSection={setActiveTeam}>
-				<div className="flex w-full items-center justify-between gap-[2rem]">
-					<TaskLabelForm />
-				</div>
-			</InteractionObserverVisible>
 		</div>
 	);
 };

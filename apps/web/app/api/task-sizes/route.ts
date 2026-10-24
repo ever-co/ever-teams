@@ -1,5 +1,6 @@
 import { ITaskSizesCreate } from '@/core/types/interfaces/task/task-size';
 import { authenticatedGuard } from '@/core/services/server/guards/authenticated-guard-app';
+import { getTeamProjectScope } from '@/core/services/server/team-project-scope';
 import { createSizesRequest, getTaskSizesListRequest } from '@/core/services/server/requests';
 import { NextResponse } from 'next/server';
 
@@ -9,15 +10,7 @@ export async function GET(req: Request) {
 
 	if (!user) return $res('Unauthorized');
 
-	const { searchParams } = new URL(req.url);
-
-	const { organizationTeamId } = searchParams as unknown as { organizationTeamId: string };
-
-	const par = {
-		tenantId,
-		organizationId,
-		organizationTeamId: (organizationTeamId as string) || null
-	};
+	const par = { tenantId, organizationId, ...getTeamProjectScope(req) };
 
 	const { data } = await getTaskSizesListRequest(par, access_token);
 

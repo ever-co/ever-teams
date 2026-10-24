@@ -6,6 +6,8 @@ import { ETimeLogType } from '@/core/types/generics/enums/timer';
 import { UseReportActivityProps } from '../use-activity-filters';
 import { shouldRetryQuery } from '../../../lib/helpers/retry-utils';
 
+const STATISTICS_LOG_TYPE = [ETimeLogType.TRACKED];
+
 // ==================== TYPES ====================
 
 export interface UseActivityStatisticsQueryOptions {
@@ -34,16 +36,28 @@ export interface UseActivityStatisticsQueryOptions {
  */
 export function useActivityStatisticsQuery({ mergedProps, enabled = true }: UseActivityStatisticsQueryOptions) {
 	const query = useQuery({
+		// Employee and team ids stay out of the key: the team dashboard filter rewrites them on every pick and
+		// applies them through an explicit refetch. Keying on them would fetch on each pick and could swap the
+		// page for its skeleton while the filter is still open.
 		queryKey: queryKeys.activities.statisticsCounts({
 			tenantId: mergedProps?.tenantId,
 			organizationId: mergedProps?.organizationId,
+			// The team a dashboard page is scoped to. It does not follow the filter picks.
+			teamId: mergedProps?.teamId,
 			startDate: mergedProps?.startDate,
-			endDate: mergedProps?.endDate
+			endDate: mergedProps?.endDate,
+			projectIds: mergedProps?.projectIds,
+			activityLevel: mergedProps?.activityLevel,
+			logType: STATISTICS_LOG_TYPE,
+			// The member and team picks applied on the Time and Activity page itself: the counts request
+			// sends them, so the cached counts must follow them (not the dashboard fallback described above)
+			selectedEmployeeIds: mergedProps?.selectedEmployeeIds,
+			selectedTeamIds: mergedProps?.selectedTeamIds
 		}),
 		queryFn: () =>
 			statisticsService.getTimesheetStatisticsCounts({
 				...mergedProps!,
-				logType: [ETimeLogType.TRACKED]
+				logType: STATISTICS_LOG_TYPE
 			}),
 		enabled: enabled && !!mergedProps,
 		staleTime: 1000 * 60 * 10,

@@ -32,7 +32,6 @@ import { HorizontalSeparator, VerticalSeparator } from '@/core/components/duplic
 import { cn } from '@/core/lib/helpers';
 import { sanitizeHtml } from '@/core/lib/helpers/sanitize-html';
 import { activeTeamState, isTrackingEnabledState } from '@/core/stores';
-import { fullWidthState } from '@/core/stores/common/full-width';
 import { organizationProjectService } from '@/core/services/client/api/organizations';
 import { queryKeys } from '@/core/query/keys';
 import { EProjectBilling, EProjectBudgetType } from '@/core/types/generics/enums/project';
@@ -53,7 +52,6 @@ export default function ProjectDetailPageComponent() {
 
 	const isTrackingEnabled = useAtomValue(isTrackingEnabledState);
 	const activeTeam = useAtomValue(activeTeamState);
-	const fullWidth = useAtomValue(fullWidthState);
 
 	// Fetch project by ID
 	const {
@@ -137,7 +135,7 @@ export default function ProjectDetailPageComponent() {
 
 		return (
 			<PageLayout showTimer={isTrackingEnabled} className="p-0! pb-1 overflow-hidden! w-full">
-				<Container fullWidth={fullWidth} className="flex flex-col items-center justify-center h-full gap-4 p-8">
+				<Container className="flex flex-col items-center justify-center h-full gap-4 p-8">
 					<div className="text-center">
 						<h2 className="mb-2 text-2xl font-semibold text-gray-900 dark:text-white">
 							{t('manualTime.reasons.ERROR')}
@@ -156,7 +154,7 @@ export default function ProjectDetailPageComponent() {
 	if (project && !projectBelongsToActiveTeam) {
 		return (
 			<PageLayout showTimer={isTrackingEnabled} className="p-0! pb-1 overflow-hidden! w-full">
-				<Container fullWidth={fullWidth} className="flex flex-col items-center justify-center h-full gap-4 p-8">
+				<Container className="flex flex-col items-center justify-center h-full gap-4 p-8">
 					<div className="text-center">
 						<div className="flex items-center justify-center w-16 h-16 mx-auto mb-4 rounded-full bg-amber-100 dark:bg-amber-900/30">
 							<ShieldAlert className="w-8 h-8 text-amber-600 dark:text-amber-400" />
@@ -188,11 +186,11 @@ export default function ProjectDetailPageComponent() {
 			className="p-0! pb-1 overflow-hidden! w-full"
 			childrenClassName="w-full h-full overflow-y-auto"
 			mainHeaderSlot={
-				<Container fullWidth={fullWidth} className="flex flex-col p-4 dark:bg-dark--theme">
+				<Container className="flex flex-col p-4 dark:bg-dark--theme">
 					<div className="flex items-center w-full">
 						<button
 							onClick={handleBack}
-							className="p-1 transition-colors rounded-full hover:bg-gray-100 dark:hover:bg-gray-800"
+							className="p-1 transition-colors rounded-full hover:bg-gray-100 dark:hover:bg-muted"
 						>
 							<ArrowLeftIcon className="text-dark dark:text-[#6b7280] h-6 w-6" />
 						</button>
@@ -214,7 +212,6 @@ export default function ProjectDetailPageComponent() {
 					budgetTypeLabels={budgetTypeLabels}
 					locale={locale}
 					t={t}
-					fullWidth={fullWidth}
 				/>
 			) : null}
 		</PageLayout>
@@ -242,7 +239,6 @@ interface ProjectDetailContentProps {
 	budgetTypeLabels: Record<EProjectBudgetType, string>;
 	locale: string;
 	t: ReturnType<typeof useTranslations>;
-	fullWidth: boolean;
 }
 
 function ProjectDetailContent({
@@ -254,8 +250,7 @@ function ProjectDetailContent({
 	billingLabels,
 	budgetTypeLabels,
 	locale,
-	t,
-	fullWidth
+	t
 }: ProjectDetailContentProps) {
 	const { openEditModal, openArchiveModal, openDeleteModal, openRestoreModal } = useProjectActionModal();
 	const { canEdit, canArchive, canDelete, hasAnyPermission } = useProjectPermissions({ members: project.members });
@@ -264,7 +259,7 @@ function ProjectDetailContent({
 	const showSeparator = canDelete && (canEdit || canArchive);
 
 	return (
-		<Container fullWidth={fullWidth} className="p-4 md:p-6 lg:p-8">
+		<Container className="p-4 md:p-6 lg:p-8">
 			<div className="flex flex-col max-w-5xl gap-8 mx-auto">
 				{/* ===== HERO SECTION ===== */}
 				<div className="flex flex-col items-start gap-6 p-6 bg-white border shadow-sm md:flex-row dark:bg-dark--theme-light rounded-xl dark:border-gray-800">
@@ -304,7 +299,7 @@ function ProjectDetailContent({
 							{/* Actions Dropdown - Only for Admins or Project Managers */}
 							{(hasAnyPermission || isArchived) && (
 								<Menu as="div" className="relative shrink-0">
-									<Menu.Button className="flex items-center justify-center w-10 h-10 transition-colors rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800">
+									<Menu.Button className="flex items-center justify-center w-10 h-10 transition-colors rounded-lg hover:bg-gray-100 dark:hover:bg-muted">
 										<MoreVertical size={20} className="text-gray-500" />
 									</Menu.Button>
 									<Transition
@@ -404,7 +399,7 @@ function ProjectDetailContent({
 						{/* Quick Info Row */}
 						<div className="flex flex-wrap items-center gap-4 text-sm text-gray-500 dark:text-gray-400">
 							{project.code && (
-								<span className="font-mono bg-gray-100 dark:bg-gray-800 px-2 py-0.5 rounded text-xs">
+								<span className="font-mono bg-gray-100 dark:bg-muted px-2 py-0.5 rounded text-xs">
 									{project.code}
 								</span>
 							)}
@@ -440,7 +435,7 @@ function ProjectDetailContent({
 						{/* Description preview */}
 						{project.description && (
 							<div
-								className="text-sm text-gray-600 dark:text-gray-400 line-clamp-2 [&_strong]:font-bold [&_em]:italic [&_u]:underline [&_code]:bg-gray-200 [&_code]:dark:bg-gray-700 [&_code]:px-1 [&_code]:rounded [&_p]:inline [&_p:not(:last-child)]:after:content-['_·_']"
+								className="text-sm text-gray-600 dark:text-gray-400 line-clamp-2 [&_strong]:font-bold [&_em]:italic [&_u]:underline [&_code]:bg-gray-200 [&_code]:dark:bg-muted [&_code]:px-1 [&_code]:rounded [&_p]:inline [&_p:not(:last-child)]:after:content-['_·_']"
 								dangerouslySetInnerHTML={{ __html: sanitizeHtml(project.description) }}
 							/>
 						)}
@@ -483,7 +478,7 @@ function ProjectDetailContent({
 				{project.description && (
 					<Section title={t('common.DESCRIPTION')}>
 						<div
-							className="p-4 text-sm leading-relaxed text-gray-700 whitespace-pre-wrap rounded-lg bg-gray-50 dark:bg-dark--theme dark:text-gray-300 [&_strong]:font-bold [&_em]:italic [&_u]:underline [&_code]:bg-gray-200 [&_code]:dark:bg-gray-700 [&_code]:px-1 [&_code]:rounded [&_p]:mb-1 [&_p:last-child]:mb-0"
+							className="p-4 text-sm leading-relaxed text-gray-700 whitespace-pre-wrap rounded-lg bg-gray-50 dark:bg-dark--theme dark:text-gray-300 [&_strong]:font-bold [&_em]:italic [&_u]:underline [&_code]:bg-gray-200 [&_code]:dark:bg-muted [&_code]:px-1 [&_code]:rounded [&_p]:mb-1 [&_p:last-child]:mb-0"
 							dangerouslySetInnerHTML={{ __html: sanitizeHtml(project.description) }}
 						/>
 					</Section>
@@ -590,7 +585,7 @@ function ProjectDetailContent({
 								{teams.map((team) => (
 									<span
 										key={team.id}
-										className="inline-flex items-center gap-2 px-3 py-1.5 text-sm rounded-lg bg-gray-100 dark:bg-gray-800"
+										className="inline-flex items-center gap-2 px-3 py-1.5 text-sm rounded-lg bg-gray-100 dark:bg-muted"
 									>
 										{team.image?.thumbUrl ? (
 											<Image
@@ -628,7 +623,11 @@ function ProjectDetailContent({
 									</span>
 									<div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
 										{managers.map((member, index) => (
-											<MemberCard key={member.id ?? `manager-${index}`} member={member} isManager />
+											<MemberCard
+												key={member.id ?? `manager-${index}`}
+												member={member}
+												isManager
+											/>
 										))}
 									</div>
 								</div>

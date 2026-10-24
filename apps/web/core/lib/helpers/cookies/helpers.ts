@@ -1,6 +1,64 @@
-import { deleteCookie as _deleteCookie, getCookie as _getCookie, setCookie as _setCookie } from 'cookies-next';
+import {
+	deleteCookie as _deleteCookie,
+	getCookie as _getCookie,
+	setCookie as _setCookie,
+	type HttpContext
+} from 'cookies-next';
+import { readRuntimeEnv } from '@/env-config';
 
 type DeleteCookieOptions = Parameters<typeof _deleteCookie>[1];
+type CookieOptions = Parameters<typeof _setCookie>[2];
+
+/** The first protocol a proxy in front of the app reports in x-forwarded-proto, if any. */
+const forwardedProto = (options: CookieOptions): string | undefined => {
+	const headers = options?.req?.headers;
+	// A Fetch API Headers on app router requests, a plain object on a Node IncomingMessage
+	const header =
+		typeof (headers as Headers | undefined)?.get === 'function'
+			? (headers as Headers).get('x-forwarded-proto')
+			: (headers as Record<string, string | string[] | undefined> | undefined)?.['x-forwarded-proto'];
+	const value = Array.isArray(header) ? header[0] : header;
+	return value?.split(',')[0]?.trim().toLowerCase() || undefined;
+};
+
+/**
+ * Whether the page, or on the server the incoming request, is served over https. On the server the proxy header comes
+ * first, as for the Ever ID handoff cookie: behind a TLS-terminating proxy the request URL can carry the internal http.
+ */
+const isHttps = (options: CookieOptions): boolean => {
+	const forwarded = forwardedProto(options);
+	if (forwarded) return forwarded === 'https';
+
+	const url = options?.req?.url ?? (typeof window !== 'undefined' ? window.location.href : undefined);
+	try {
+		return !!url && new URL(url).protocol === 'https:';
+	} catch {
+		return false;
+	}
+};
+
+/**
+ * SameSite=Lax keeps the cookies (the auth tokens among them) off cross-site subrequests and form posts, and Secure
+ * keeps them off plain http. Secure follows the protocol in use rather than NODE_ENV, so an http setup (local dev,
+ * the desktop app, a self-hosted instance without TLS) still gets its cookies stored.
+ */
+/**
+ * NEXT_PUBLIC_COOKIE_SAME_SITE (lax | strict | none, default lax). `none` keeps the app working when another site
+ * embeds it in an iframe; browsers only accept SameSite=None together with Secure, so that needs https.
+ */
+const configuredSameSite = (): 'lax' | 'strict' | 'none' => {
+	const value = (readRuntimeEnv('NEXT_PUBLIC_COOKIE_SAME_SITE') || process.env.NEXT_PUBLIC_COOKIE_SAME_SITE || 'lax')
+		.trim()
+		.toLowerCase();
+	return value === 'none' || value === 'strict' ? value : 'lax';
+};
+
+const withSafeAttributes = (options: CookieOptions): CookieOptions => {
+	// Defaults fill only what the caller left unset, so an explicit undefined cannot drop them
+	const { sameSite, secure } = (options ?? {}) as Pick<HttpContext, 'sameSite' | 'secure'>;
+	const site = sameSite ?? configuredSameSite();
+	return { ...options, sameSite: site, secure: secure ?? (site === 'none' ? true : isHttps(options)) };
+};
 
 export const deleteCookie: typeof _deleteCookie = (key, options) => {
 	_deleteCookie(key, options);
@@ -14,17 +72,11 @@ export const deleteCookie: typeof _deleteCookie = (key, options) => {
 };
 
 /**
- * Delete a cookie with cross-site attributes (SameSite=None; Secure)
- * Required for cookies set with crossSite=true, as js-cookie requires exact attribute match to delete
+ * Delete a cookie written with crossSite=true (the access token), using the attributes `setCookie` writes it with.
+ * A forced `Secure` would be rejected on a plain-http page and leave the token chunks behind after logout.
  */
 export const deleteCookieCrossSite = (key: string, options?: DeleteCookieOptions) => {
-	const crossSiteOptions = {
-		sameSite: 'none' as const,
-		secure: true,
-		...options
-	};
-
-	_deleteCookie(key, crossSiteOptions);
+	_deleteCookie(key, withSafeAttributes(options));
 };
 
 export const getCookie: typeof _getCookie = (key, options) => {
@@ -35,5 +87,5 @@ type SetCookie = (...params: [...Parameters<typeof _setCookie>, ...[crossSite?: 
 
 export const setCookie: SetCookie = (key, data, options, _crossSite) => {
 	// Intentionally ignore crossSite/domain fan-out; set only for the current request/host.
-	_setCookie(key, data, options);
+	_setCookie(key, data, withSafeAttributes(options));
 };

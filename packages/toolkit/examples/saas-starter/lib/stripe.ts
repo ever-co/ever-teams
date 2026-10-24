@@ -2,16 +2,20 @@
 
 import { loadStripe } from '@stripe/stripe-js';
 
-const NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY = process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY;
-if (!NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY) {
-	throw new Error('NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY is not set in environment variables');
-}
-
 let stripePromise: ReturnType<typeof loadStripe>;
 
-export const getStripe = () => {
+/**
+ * The publishable key is a DEPLOYMENT value, so it must not be read from `process.env` here: Next
+ * would inline the key of whoever built the image and no `docker run -e ...` could change it. Read it
+ * on the server (lib/runtime-env.ts) and pass it down as a prop, like the Teams API URL in
+ * components/layout/client-layout.tsx.
+ */
+export const getStripe = (publishableKey: string) => {
+	if (!publishableKey) {
+		throw new Error('A Stripe publishable key is required (NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY)');
+	}
 	if (!stripePromise) {
-		stripePromise = loadStripe(NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY).catch((error) => {
+		stripePromise = loadStripe(publishableKey).catch((error) => {
 			console.error('Failed to load Stripe:', error);
 			throw error; // Re-throw to prevent silently failing but ensure error is logged
 		});

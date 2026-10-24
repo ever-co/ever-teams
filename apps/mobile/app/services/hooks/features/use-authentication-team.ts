@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { TextInput } from 'react-native';
+import { Alert, TextInput } from 'react-native';
+import { translate } from '../../../i18n';
 import { useStores } from '../../../models';
 import { login } from '../../client/api/auth/login';
 import { register } from '../../client/api/auth/register';
@@ -66,7 +67,17 @@ export function useAuthenticationTeam() {
 
 			const { response } = await signIn({ email: authEmail, token });
 
-			if (response) {
+			// A sign-in error (workspace not loaded, setup not complete) has no data: show it and keep the form, so the
+			// person can try again. Reading the data first threw, and the message never reached the screen.
+			if (response && 'errors' in response) {
+				setIsSubmitted(false);
+				setJoinError(response.errors.email);
+				return;
+			}
+
+			// Narrowed by `in`: this project type-checks without strictNullChecks, where the early return above does not
+			// narrow `response` for what follows
+			if (response && 'data' in response) {
 				setUser(response.data.authStoreData.user);
 				setEmployeeId(response.data.authStoreData.user.employeeId);
 				// Save Auth Token
@@ -89,10 +100,6 @@ export function useAuthenticationTeam() {
 				setAuthUsername('');
 				setAuthInviteCode('');
 				setAuthConfirmCode('');
-
-				if (response.errors) {
-					setJoinError(response.errors.email);
-				}
 			}
 		} catch (error) {
 			setIsSubmitted(false);
@@ -121,6 +128,17 @@ export function useAuthenticationTeam() {
 		})
 			.then((res) => {
 				const { response } = res;
+
+				// The account waits for its e-mail confirmation: no session yet
+				if ((response as { verifyEmail?: boolean }).verifyEmail) {
+					setIsLoading(false);
+					setIsSubmitted(false);
+					Alert.alert(
+						translate('loginScreen.verifyEmailTitle'),
+						translate('loginScreen.verifyEmailMessage', { email: authEmail })
+					);
+					return;
+				}
 
 				// If successful, reset the fields and set the token.
 				if (response.status === 200) {
@@ -183,7 +201,11 @@ export function useAuthenticationTeam() {
 		setJoinError('');
 
 		try {
-			await login({ email: authEmail, code: authInviteCode }).then((res) => {
+			const workspacesResponse = await login({ email: authEmail, code: authInviteCode }).then((res) => {
+				if ('workspacesResponse' in res) {
+					return res.workspacesResponse;
+				}
+
 				const { response, errors, status } = res;
 
 				if (status === 200) {
@@ -227,6 +249,18 @@ export function useAuthenticationTeam() {
 					}
 				}
 			});
+
+			// login() already used the single-use code, so it must not be confirmed a second time.
+			if (workspacesResponse) {
+				setIsLoading(false);
+
+				return {
+					response: 201,
+					success: true,
+					data: workspacesResponse,
+					error: null
+				};
+			}
 
 			return {
 				success: false,

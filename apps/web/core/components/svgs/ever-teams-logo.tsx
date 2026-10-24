@@ -1,4 +1,4 @@
-import { APP_LINK, APP_LOGO_SRC } from '@/core/constants/config/constants';
+import { APP_LINK, APP_LOGO_SRC, APP_NAME } from '@/core/constants/config/constants';
 import { IClassName } from '@/core/types/interfaces/common/class-name';
 import { clsxm } from '@/core/lib/utils';
 import Image from 'next/image';
@@ -25,7 +25,7 @@ export function EverTeamsLogo({ className, dash, color = 'auto' }: Props) {
 						color === 'black-white' && ['brightness-0 invert-0 dark:invert'],
 						className
 					)}
-					alt="EverTeams Logo"
+					alt={`${APP_NAME} Logo`}
 					width={350}
 					height={350}
 				/>

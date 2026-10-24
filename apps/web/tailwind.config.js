@@ -1,6 +1,23 @@
 /** @type {import('tailwindcss').Config} */
 
 const defaultTheme = require('tailwindcss/defaultTheme');
+const colors = require('tailwindcss/colors');
+
+/* Same stack as Ever Works: the OS UI face on every platform, no webfont. */
+const systemSans = [
+	'-apple-system',
+	'BlinkMacSystemFont',
+	'"Segoe UI"',
+	'Roboto',
+	'"Helvetica Neue"',
+	'Arial',
+	'"Noto Sans"',
+	'sans-serif',
+	'"Apple Color Emoji"',
+	'"Segoe UI Emoji"',
+	'"Segoe UI Symbol"',
+	'"Noto Color Emoji"'
+];
 
 module.exports = {
 	darkMode: ['class'],
@@ -44,7 +61,7 @@ module.exports = {
 		},
 		extend: {
 			fontSize: {
-				xs: ['12px', '18px'],
+				xs: ['12px', '16px'],
 				sm: ['14px', '20px'],
 				base: ['16px', '24px'],
 				lg: ['18px', '28px'],
@@ -67,21 +84,26 @@ module.exports = {
 			colors: {
 				transparent: 'transparent',
 				current: 'currentColor',
+				// Tailwind's `gray` is blue-tinted; on the neutral #0a0a0a shell every `dark:bg-gray-*`
+				// and `text-gray-*` read as a cold patch. Neutral keeps the same scale, without the tint.
+				gray: colors.neutral,
 				neutral: '#7E7991',
 				chetwodeBlue: '#8C7AE4',
 				indianRed: '#D95F5F',
 				grey: '#868296',
 				transparentWhite: 'rgba(255, 255, 255, 0.30)',
 				default: {
-					DEFAULT: '#282048'
+					DEFAULT: 'hsl(var(--foreground))'
 				},
 				'light--theme': {
 					light: '#fff',
-					DEFAULT: '#f7f7f8',
-					dark: '#E7E7EA'
+					DEFAULT: '#fafafa',
+					dark: '#e2e8f0'
 				},
+				// The legacy names resolve to the surface tokens, so the ~400 `dark:bg-dark--theme*`
+				// call sites follow the palette without being edited one by one.
 				'dark--theme': {
-					light: '#1E2025',
+					light: 'hsl(var(--card))',
 					DEFAULT: 'var(--tw-color-dark--theme)'
 				},
 				primary: {
@@ -92,13 +114,16 @@ module.exports = {
 					foreground: 'hsl(var(--primary-foreground))'
 				},
 				dark: {
-					high: '#16171B',
-					lighter: '#1E2430',
-					DEFAULT: '#1A1C1E'
+					high: 'hsl(var(--background))',
+					lighter: 'hsl(var(--muted))',
+					// `text-dark` is a text colour in 25 places (and `bg-dark` only ever under `dark:`, now `bg-card`):
+					// foreground keeps it readable in both themes.
+					DEFAULT: 'hsl(var(--foreground))'
 				},
 				'regal-blue': '#6A71E7',
 				'regal-rose': '#E93CB9',
 				border: 'hsl(var(--border))',
+				input: 'hsl(var(--input))',
 				ring: 'hsl(var(--ring))',
 				background: 'hsl(var(--background))',
 				foreground: 'hsl(var(--foreground))',
@@ -138,6 +163,7 @@ module.exports = {
 				}
 			},
 			fontFamily: {
+				sans: systemSans,
 				PlusJakartaSans: ['Plus-Jakarta-Sans-VariableFont_wght'],
 				PlusJakartaSansRegular: ['Plus-Jakarta-Sans-Regular'],
 				PlusJakartaSansBold: ['Plus-Jakarta-Sans-Bold'],

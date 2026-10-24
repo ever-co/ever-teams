@@ -1,7 +1,10 @@
 name: Mobile Build Before Merge
 on:
+  # Feature and fix PRs into develop deliberately run no CI (cost). This build runs on the promotion PRs
+  # (develop -> stage, stage -> main) and on demand for any branch through "Run workflow".
   pull_request:
     types: [opened, synchronize, reopened]
+    branches: [stage, main, master]
     paths:
       - ".github/workflows/mobile.before-merge.yml"
       - "apps/mobile/**"
@@ -10,6 +13,7 @@ on:
       # The EAS upload archive decides which workspaces get installed on the builder,
       # so a change to it changes the build as surely as a dependency bump does.
       - ".easignore"
+  workflow_dispatch:
 
 concurrency:
   group: ${{ github.ref }}-${{ github.workflow }}
@@ -40,22 +44,25 @@ jobs:
       - name: Use Node.js
         uses: actions/setup-node@v7
         with:
-          node-version: "24.14.0"
+          node-version: "26.12.1"
           cache: "yarn"
 
       - name: Configure Registry
-        shell: bash
-        run: |
-          if [ -n "${{ secrets.VERDACCIO_TOKEN }}" ]; then
-            echo "//packages.ever.co/:_authToken=${{ secrets.VERDACCIO_TOKEN }}" >> .npmrc
-            echo "registry=https://packages.ever.co/" >> .npmrc
-          fi
+        uses: ever-co/ever-gauzy/.github/actions/configure-registry@727973d766f3968d3f1184300af085872abcb20b
+        with:
+          verdaccio-registry: ${{ vars.VERDACCIO_REGISTRY }}
+          verdaccio-token: ${{ secrets.VERDACCIO_TOKEN }}
+          force-public: ${{ vars.VERDACCIO_FORCE_PUBLIC }}
+          expect-vip: ${{ vars.RUNNER_LINUX_X64_4 != '' }}
 
       - name: Install Packages
         run: |
           yarn install --network-timeout 1000000 --frozen-lockfile
         env:
           NODE_OPTIONS: '--dns-result-order=ipv4first'
+          # This job runs no Cypress: skip the binary download in cypress's postinstall, a network flake that failed
+          # whole builds (the npm package and its types are still installed for the typecheck)
+          CYPRESS_INSTALL_BINARY: '0'
 
       - name: Build Mobile
         run: |

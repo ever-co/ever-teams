@@ -52,19 +52,21 @@ const UserTenants: FC<IUserTenants> = ({
 				const defaultUserInfoString = await AsyncStorage.getItem('defaultUserInfo');
 				const defaultUserInfoObj: defaultUserInfoType = JSON.parse(defaultUserInfoString);
 
+				// Only the row that picks the active team stores its token, so the token sent on
+				// Continue always belongs to the workspace shown as selected.
 				if (
 					defaultTeamId &&
 					data?.user?.id === defaultUserInfoObj?.defaultUserId &&
 					data?.user?.tenant?.id === defaultUserInfoObj?.defaultUserTenantId
 				) {
 					setActiveTeamId(defaultTeamId);
-				} else {
-					index === 0 && setActiveTeamId(data?.current_teams[0]?.team_id);
+					setTempAuthToken(data?.token);
+				} else if (index === 0) {
+					setActiveTeamId(data?.current_teams[0]?.team_id);
+					setTempAuthToken(data?.token);
 				}
 
 				setIsValid({ ...isValid, step3: true });
-
-				setTempAuthToken(data?.token);
 			} catch (error) {
 				console.error(error);
 			}

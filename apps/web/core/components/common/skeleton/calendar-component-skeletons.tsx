@@ -24,17 +24,17 @@ export const SetupFullCalendarSkeleton: FC<SkeletonProps> = ({ className }) => {
 					<div className="flex justify-between items-center pb-4 mb-6 border-b border-gray-200 dark:border-gray-600">
 						{/* Left Navigation */}
 						<div className="flex gap-4 items-center">
-							<div className="w-8 h-8 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded-sm border border-gray-200 dark:border-gray-600" />
-							<div className="w-32 h-6 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded" />
-							<div className="w-8 h-8 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded-sm border border-gray-200 dark:border-gray-600" />
+							<div className="w-8 h-8 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded-sm border border-gray-200 dark:border-gray-600" />
+							<div className="w-32 h-6 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded" />
+							<div className="w-8 h-8 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded-sm border border-gray-200 dark:border-gray-600" />
 						</div>
 
 						{/* Right Controls */}
 						<div className="flex gap-2 items-center">
-							<div className="w-16 h-8 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded-sm border border-gray-200 dark:border-gray-600" />
-							<div className="w-12 h-8 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded-sm border border-gray-200 dark:border-gray-600" />
-							<div className="w-12 h-8 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded-sm border border-gray-200 dark:border-gray-600" />
-							<div className="w-12 h-8 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded-sm border border-gray-200 dark:border-gray-600" />
+							<div className="w-16 h-8 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded-sm border border-gray-200 dark:border-gray-600" />
+							<div className="w-12 h-8 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded-sm border border-gray-200 dark:border-gray-600" />
+							<div className="w-12 h-8 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded-sm border border-gray-200 dark:border-gray-600" />
+							<div className="w-12 h-8 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded-sm border border-gray-200 dark:border-gray-600" />
 						</div>
 					</div>
 
@@ -42,7 +42,7 @@ export const SetupFullCalendarSkeleton: FC<SkeletonProps> = ({ className }) => {
 					<div className="grid grid-cols-7 gap-1 mb-4">
 						{['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map((day, index) => (
 							<div key={index} className="p-3 text-center border-b border-gray-200 dark:border-gray-600">
-								<div className="w-8 h-4 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded-sm mx-auto" />
+								<div className="w-8 h-4 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded-sm mx-auto" />
 							</div>
 						))}
 					</div>
@@ -52,10 +52,10 @@ export const SetupFullCalendarSkeleton: FC<SkeletonProps> = ({ className }) => {
 						{[...Array(42)].map((_, index) => (
 							<div
 								key={index}
-								className="p-2 bg-white border border-gray-100 aspect-square dark:border-gray-700 dark:bg-dark--theme-light hover:bg-gray-50 dark:hover:bg-gray-800"
+								className="p-2 bg-white border border-gray-100 aspect-square dark:border-gray-700 dark:bg-dark--theme-light hover:bg-gray-50 dark:hover:bg-muted"
 							>
 								{/* Day Number */}
-								<div className="w-6 h-4 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded-sm mb-2" />
+								<div className="w-6 h-4 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded-sm mb-2" />
 
 								{/* Events (realistic pattern) */}
 								{index % 4 === 0 && (
@@ -78,23 +78,23 @@ export const SetupFullCalendarSkeleton: FC<SkeletonProps> = ({ className }) => {
 				<div className="pl-5 m-5 w-1/5 h-full border-l border-gray-200 dark:border-gray-600">
 					<div className="py-10">
 						{/* Side Panel Header */}
-						<div className="w-full h-6 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded-sm mb-6" />
+						<div className="w-full h-6 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded-sm mb-6" />
 
 						{/* Event List */}
 						<div className="space-y-4">
 							{[...Array(5)].map((_, index) => (
 								<div
 									key={index}
-									className="p-3 bg-gray-50 rounded-lg border border-gray-200 dark:bg-gray-800 dark:border-gray-600"
+									className="p-3 bg-gray-50 rounded-lg border border-gray-200 dark:bg-muted dark:border-gray-600"
 								>
 									{/* Event Time */}
-									<div className="w-16 h-3 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded-sm mb-2" />
+									<div className="w-16 h-3 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded-sm mb-2" />
 
 									{/* Event Title */}
-									<div className="w-full h-4 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded-sm mb-2" />
+									<div className="w-full h-4 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded-sm mb-2" />
 
 									{/* Event Details */}
-									<div className="w-3/4 h-3 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded" />
+									<div className="w-3/4 h-3 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded" />
 								</div>
 							))}
 						</div>
@@ -118,12 +118,12 @@ export const SetupTimeSheetSkeleton: FC<SkeletonProps> = ({ className }) => {
 				<div className="p-4 border-b border-gray-200 dark:border-gray-600">
 					<div className="flex justify-between items-center">
 						{/* Title */}
-						<div className="w-32 h-6 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded" />
+						<div className="w-32 h-6 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded" />
 
 						{/* Filter Controls */}
 						<div className="flex gap-4 items-center">
-							<div className="w-24 h-8 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded-sm border border-gray-200 dark:border-gray-600" />
-							<div className="w-32 h-8 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded-sm border border-gray-200 dark:border-gray-600" />
+							<div className="w-24 h-8 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded-sm border border-gray-200 dark:border-gray-600" />
+							<div className="w-32 h-8 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded-sm border border-gray-200 dark:border-gray-600" />
 						</div>
 					</div>
 				</div>
@@ -131,11 +131,11 @@ export const SetupTimeSheetSkeleton: FC<SkeletonProps> = ({ className }) => {
 				{/* TimeSheet Table */}
 				<div className="overflow-x-auto">
 					{/* Table Header */}
-					<div className="bg-gray-50 border-b border-gray-200 dark:bg-gray-800/50 dark:border-gray-600">
+					<div className="bg-gray-50 border-b border-gray-200 dark:bg-white/5 dark:border-gray-600">
 						<div className="flex">
 							{['Date', 'Project', 'Task', 'Hours', 'Status', 'Actions'].map((header, index) => (
 								<div key={index} className="flex-1 px-6 py-3">
-									<div className="w-16 h-4 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded" />
+									<div className="w-16 h-4 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded" />
 								</div>
 							))}
 						</div>
@@ -144,40 +144,40 @@ export const SetupTimeSheetSkeleton: FC<SkeletonProps> = ({ className }) => {
 					{/* Table Rows */}
 					{[...Array(8)].map((_, rowIndex) => (
 						<div key={rowIndex} className="border-b border-gray-200 dark:border-gray-600">
-							<div className="flex hover:bg-gray-50 dark:hover:bg-gray-800/50">
+							<div className="flex hover:bg-gray-50 dark:hover:bg-white/5">
 								{/* Date Cell */}
 								<div className="flex-1 px-6 py-4">
-									<div className="w-20 h-4 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded" />
+									<div className="w-20 h-4 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded" />
 								</div>
 
 								{/* Project Cell */}
 								<div className="flex-1 px-6 py-4">
 									<div className="flex gap-3 items-center">
-										<div className="w-6 h-6 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded" />
-										<div className="w-24 h-4 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded" />
+										<div className="w-6 h-6 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded" />
+										<div className="w-24 h-4 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded" />
 									</div>
 								</div>
 
 								{/* Task Cell */}
 								<div className="flex-1 px-6 py-4">
-									<div className="w-32 h-4 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded" />
+									<div className="w-32 h-4 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded" />
 								</div>
 
 								{/* Hours Cell */}
 								<div className="flex-1 px-6 py-4">
-									<div className="w-16 h-4 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded" />
+									<div className="w-16 h-4 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded" />
 								</div>
 
 								{/* Status Cell */}
 								<div className="flex-1 px-6 py-4">
-									<div className="w-20 h-6 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded-full" />
+									<div className="w-20 h-6 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded-full" />
 								</div>
 
 								{/* Actions Cell */}
 								<div className="flex-1 px-6 py-4">
 									<div className="flex gap-2 items-center">
-										<div className="w-8 h-8 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded-sm border border-gray-200 dark:border-gray-600" />
-										<div className="w-8 h-8 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded-sm border border-gray-200 dark:border-gray-600" />
+										<div className="w-8 h-8 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded-sm border border-gray-200 dark:border-gray-600" />
+										<div className="w-8 h-8 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded-sm border border-gray-200 dark:border-gray-600" />
 									</div>
 								</div>
 							</div>
@@ -188,16 +188,16 @@ export const SetupTimeSheetSkeleton: FC<SkeletonProps> = ({ className }) => {
 				{/* Pagination */}
 				<div className="flex justify-between items-center p-4 border-t border-gray-200 dark:border-gray-600">
 					<div className="flex gap-2 items-center">
-						<div className="w-16 h-4 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded" />
-						<div className="w-12 h-8 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded-sm border border-gray-200 dark:border-gray-600" />
-						<div className="w-20 h-4 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded" />
+						<div className="w-16 h-4 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded" />
+						<div className="w-12 h-8 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded-sm border border-gray-200 dark:border-gray-600" />
+						<div className="w-20 h-4 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded" />
 					</div>
 
 					<div className="flex gap-2 items-center">
-						<div className="w-8 h-8 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded-sm border border-gray-200 dark:border-gray-600" />
-						<div className="w-8 h-8 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded-sm border border-gray-200 dark:border-gray-600" />
-						<div className="w-8 h-8 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded-sm border border-gray-200 dark:border-gray-600" />
-						<div className="w-8 h-8 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded-sm border border-gray-200 dark:border-gray-600" />
+						<div className="w-8 h-8 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded-sm border border-gray-200 dark:border-gray-600" />
+						<div className="w-8 h-8 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded-sm border border-gray-200 dark:border-gray-600" />
+						<div className="w-8 h-8 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded-sm border border-gray-200 dark:border-gray-600" />
+						<div className="w-8 h-8 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded-sm border border-gray-200 dark:border-gray-600" />
 					</div>
 				</div>
 			</div>
@@ -219,8 +219,8 @@ export const AddManualTimeModalSkeleton: FC<SkeletonProps> = ({ className }) => 
 			<div className="relative mx-4 w-full max-w-md bg-white rounded-lg border border-gray-200 shadow-xl dark:bg-dark--theme-light dark:border-gray-600">
 				{/* Modal Header */}
 				<div className="flex justify-between items-center p-6 border-b border-gray-200 dark:border-gray-600">
-					<div className="w-32 h-6 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded" />
-					<div className="w-6 h-6 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded" />
+					<div className="w-32 h-6 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded" />
+					<div className="w-6 h-6 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded" />
 				</div>
 
 				{/* Modal Body */}
@@ -228,16 +228,16 @@ export const AddManualTimeModalSkeleton: FC<SkeletonProps> = ({ className }) => 
 					{/* Form Fields */}
 					{[...Array(5)].map((_, index) => (
 						<div key={index} className="space-y-2">
-							<div className="w-20 h-4 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded" />
-							<div className="w-full h-10 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded-sm border border-gray-200 dark:border-gray-600" />
+							<div className="w-20 h-4 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded" />
+							<div className="w-full h-10 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded-sm border border-gray-200 dark:border-gray-600" />
 						</div>
 					))}
 				</div>
 
 				{/* Modal Footer */}
 				<div className="flex gap-3 justify-end items-center p-6 border-t border-gray-200 dark:border-gray-600">
-					<div className="w-20 h-10 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded-sm border border-gray-200 dark:border-gray-600" />
-					<div className="w-24 h-10 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded-sm border border-gray-200 dark:border-gray-600" />
+					<div className="w-20 h-10 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded-sm border border-gray-200 dark:border-gray-600" />
+					<div className="w-24 h-10 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded-sm border border-gray-200 dark:border-gray-600" />
 				</div>
 			</div>
 		</div>

@@ -12,6 +12,7 @@ import {
 } from '../client/requests/organization-team';
 import {
 	deleteOrganizationTeamEmployeeRequest,
+	updateOrganizationTeamEmployeeActiveTaskRequest,
 	updateOrganizationTeamEmployeeRequest
 } from '../client/requests/organization-team-employee';
 import { IOrganizationTeamList, IOrganizationTeamWithMStatus, OT_Member } from '../interfaces/IOrganizationTeam';
@@ -321,21 +322,28 @@ export function useOrganizationTeam() {
 
 	const updateOrganizationTeamEmployeeActiveTask = useCallback(
 		async (user: OT_Member, activeTaskId: string, activeTeamId: string) => {
-			const { data, response } = await updateOrganizationTeamEmployeeRequest({
+			// The generic member update only lets managers through, this route lets members set their own task.
+			const { data, response } = await updateOrganizationTeamEmployeeActiveTaskRequest({
 				id: user.id,
 				body: {
-					id: user.id,
 					organizationId,
 					organizationTeamId: activeTeamId,
-					activeTaskId
+					activeTaskId,
+					tenantId
 				},
 				tenantId,
 				bearer_token: authToken
 			});
 
+			// currentUser.activeTaskId comes from the teams query: refresh it before answering, so the caller keeps its
+			// update guard up until the fresh member data is there (else the task hook's sync restores the old task)
+			if (response.ok) {
+				await refetch().catch((e) => console.log(e));
+			}
+
 			return { data, response };
 		},
-		[]
+		[refetch]
 	);
 
 	/**

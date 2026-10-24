@@ -92,7 +92,7 @@ export function MemberFilter() {
 						</div>
 					</SelectTrigger>
 					<SelectContent
-						className="p-0 border-none shadow-xl dark:bg-[#1B1D22] dark:border dark:border-[#FFFFFF33] min-w-[200px]"
+						className="p-0 border-none shadow-xl dark:bg-card dark:border dark:border-[#FFFFFF33] min-w-[200px]"
 						position="popper"
 						sideOffset={5}
 						align="start"

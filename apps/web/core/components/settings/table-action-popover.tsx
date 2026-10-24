@@ -71,7 +71,7 @@ export const TableActionPopover = ({ member, handleEdit, status }: Props) => {
 						leaveTo="opacity-0 translate-y-1"
 					>
 						<PopoverPanel
-							className={`z-10 absolute ${status === 'profile' ? 'left-10' : 'right-10'} bg-white rounded-2xl w-[13.5rem] flex flex-col pl-5 pr-5 pt-2 pb-2 shadow-xl card dark:bg-[#1B1D22] dark:border dark:border-[#FFFFFF33]`}
+							className={`z-10 absolute ${status === 'profile' ? 'left-10' : 'right-10'} bg-white rounded-2xl w-[13.5rem] flex flex-col pl-5 pr-5 pt-2 pb-2 shadow-xl card dark:bg-card dark:border dark:border-[#FFFFFF33]`}
 						>
 							{/* TODO Dynamic */}
 							{/* Edit */}
@@ -210,7 +210,7 @@ const RolePopover = () => {
 				leaveTo="opacity-0 translate-y-1"
 			>
 				<PopoverPanel
-					className="z-10 absolute right-0 bg-white dark:bg-[#202023] rounded-2xl w-[9.5rem] flex flex-col pl-5 pr-5 pt-2 pb-2 mt-10 mr-10"
+					className="z-10 absolute right-0 bg-white dark:bg-card rounded-2xl w-[9.5rem] flex flex-col pl-5 pr-5 pt-2 pb-2 mt-10 mr-10"
 					style={{ boxShadow: ' rgba(0, 0, 0, 0.12) -24px 17px 49px' }}
 				>
 					{roles.map((role) => (

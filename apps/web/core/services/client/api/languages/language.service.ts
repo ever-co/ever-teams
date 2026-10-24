@@ -7,6 +7,7 @@ import {
 	ZodValidationError,
 	TLanguageItemList
 } from '@/core/types/schemas';
+import { scopedReadConfig, ScopedReadOptions } from '../../api-request-scope';
 
 /**
  * Enhanced Language Service with Zod validation
@@ -22,21 +23,30 @@ class LanguageService extends APIService {
 	 * @returns Promise<PaginationResponse<TLanguageItemList>> - Validated languages data
 	 * @throws ValidationError if response data doesn't match schema
 	 */
-	getLanguages = async (is_system: boolean): Promise<PaginationResponse<TLanguageItemList>> => {
+	getLanguages = async (
+		is_system: boolean,
+		options?: ScopedReadOptions
+	): Promise<PaginationResponse<TLanguageItemList>> => {
 		const endpoint = `/languages?is_system=${is_system}`;
-		const response = await this.get<PaginationResponse<TLanguageItemList>>(endpoint);
+		const response = await this.get<PaginationResponse<TLanguageItemList>>(
+			endpoint,
+			options ? scopedReadConfig(options) : undefined
+		);
 
 		try {
 			// Validate the response data using Zod schema
 			return validatePaginationResponse(languageItemListSchema, response.data, 'getLanguages API response');
 		} catch (error) {
 			if (error instanceof ZodValidationError) {
-				this.logger.error('Language validation failed:',
+				this.logger.error(
+					'Language validation failed:',
 					{
 						message: error.message,
 						issues: error.issues,
-						data:response.data
-					},'LanguageService');
+						data: response.data
+					},
+					'LanguageService'
+				);
 			}
 			throw error;
 		}

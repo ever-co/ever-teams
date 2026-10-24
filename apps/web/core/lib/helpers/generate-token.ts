@@ -1,9 +1,9 @@
-import { randomBytes } from 'crypto';
-
 const CHARS = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
 // Largest multiple of CHARS.length that fits in a byte — bytes at or above it are rejected so
 // every character stays equally likely (unbiased rejection sampling).
 const LIMIT = 256 - (256 % CHARS.length);
+// getRandomValues throws a QuotaExceededError when asked for more than 65,536 bytes at once.
+const MAX_DRAW_BYTES = 65536;
 
 /**
  * Cryptographically random token of `length` characters from [a-zA-Z0-9].
@@ -23,7 +23,10 @@ export function generateToken(length: number): string {
 	let token = '';
 	while (token.length < length) {
 		// Over-draw a little so most calls finish in one round; leftovers are simply discarded.
-		const bytes = randomBytes(length - token.length + 8);
+		const bytes = new Uint8Array(Math.min(length - token.length + 8, MAX_DRAW_BYTES));
+		// Global Web Crypto works in the browser and in Node. Client components reach this file, so
+		// importing Node's 'crypto' module here would bundle the crypto-browserify polyfill for the browser.
+		globalThis.crypto.getRandomValues(bytes);
 		for (let i = 0; i < bytes.length && token.length < length; i++) {
 			const value = bytes[i];
 			if (value < LIMIT) {

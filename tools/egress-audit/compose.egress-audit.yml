@@ -1,0 +1,77 @@
+# Egress audit only (see README.md): the Ever Teams web app from the image under test, with the Gauzy API
+# it pairs with and that API's database. Nothing is published to the host: everything runs on the audit's
+# sealed Docker setup, where the browser reaches the web app as `webapp` and the API as `api`.
+#
+# - TEAMS_WEB_IMAGE: the web image under test (built by the workflow from .deploy/web/Dockerfile).
+# - GAUZY_API_IMAGE: the paired API image (the workflow pulls it first); never pulled here.
+# - TEAMS_AUDIT_SECRET: a random value the workflow makes per run (never committed): the session secret
+#   and the API's token and database secrets.
+# - TEAMS_AUDIT_ADMIN_PASSWORD: another random value per run, the seeded super admin's password (the
+#   adapter signs in with it; it reaches the audit's evidence, so it guards nothing else).
+# - AUDIT_GAUZY_STATS_ENABLED / AUDIT_GAUZY_CONNECT_ENABLED: the API's own Ever Platform switches for the
+#   mode (the web app's switches are set by the audit itself, per mode).
+#
+# The web app runs with its image defaults except what the sealed setup needs: the API address (a
+# service name the browser can reach) and the session secret.
+services:
+    webapp:
+        image: ${TEAMS_WEB_IMAGE:?set TEAMS_WEB_IMAGE to the web image under test}
+        pull_policy: never
+        depends_on:
+            - api
+        environment:
+            GAUZY_API_SERVER_URL: http://api:3000
+            NEXT_PUBLIC_GAUZY_API_SERVER_URL: http://api:3000
+            AUTH_SECRET: ${TEAMS_AUDIT_SECRET:?set TEAMS_AUDIT_SECRET to a random value}-auth
+            AUTH_TRUST_HOST: 'true'
+            HOSTNAME: 0.0.0.0
+            PORT: '3030'
+
+    api:
+        image: ${GAUZY_API_IMAGE:?set GAUZY_API_IMAGE to the paired API image}
+        pull_policy: never
+        depends_on:
+            db:
+                condition: service_healthy
+        environment:
+            NODE_ENV: production
+            DEMO: 'false'
+            JWT_SECRET: ${TEAMS_AUDIT_SECRET}-jwt
+            JWT_REFRESH_TOKEN_SECRET: ${TEAMS_AUDIT_SECRET}-refresh
+            JWT_VERIFICATION_TOKEN_SECRET: ${TEAMS_AUDIT_SECRET}-verification
+            EXPRESS_SESSION_SECRET: ${TEAMS_AUDIT_SECRET}-session
+            # The first start seeds the default accounts; the web app signs in as the super admin.
+            DEMO_SUPER_ADMIN_PASSWORD: ${TEAMS_AUDIT_ADMIN_PASSWORD:?set TEAMS_AUDIT_ADMIN_PASSWORD to a random value}
+            DEMO_ADMIN_PASSWORD: ${TEAMS_AUDIT_SECRET}-local-admin
+            DEMO_EMPLOYEE_PASSWORD: ${TEAMS_AUDIT_SECRET}-employee
+            API_HOST: 0.0.0.0
+            API_PORT: '3000'
+            API_BASE_URL: http://api:3000
+            CLIENT_BASE_URL: http://webapp:3030
+            DB_TYPE: postgres
+            DB_HOST: db
+            DB_PORT: '5432'
+            DB_NAME: gauzy
+            DB_USER: gauzy
+            DB_PASS: ${TEAMS_AUDIT_SECRET}-db
+            DB_SSL_MODE: 'false'
+            REDIS_ENABLED: 'false'
+            THROTTLE_ENABLED: 'false'
+            # The API serves this web app: its statistics `state` and connection `health` routes exist.
+            EVER_STATS_SERVES: gauzy,teams
+            EVER_STATS_ENABLED: ${AUDIT_GAUZY_STATS_ENABLED:-false}
+            # The API's own reports are not what this audit looks at: an address it cannot use, so it sends none.
+            EVER_STATS_API_URL: 'none'
+            EVER_CONNECT_ENABLED: ${AUDIT_GAUZY_CONNECT_ENABLED:-}
+
+    db:
+        image: postgres:18-alpine
+        environment:
+            POSTGRES_DB: gauzy
+            POSTGRES_USER: gauzy
+            POSTGRES_PASSWORD: ${TEAMS_AUDIT_SECRET}-db
+        healthcheck:
+            test: ['CMD-SHELL', 'pg_isready -U gauzy -d gauzy']
+            interval: 5s
+            timeout: 5s
+            retries: 24

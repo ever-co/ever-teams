@@ -13,7 +13,7 @@ import Link from 'next/link';
 const Footer = () => {
 	const t = useTranslations();
 	return (
-		<footer className="flex flex-col justify-between items-center py-2 text-sm font-light text-center md:flex-row lg:text-base sm:text-start x-container-fluid">
+		<footer className="flex flex-col justify-between items-center py-2 text-xs text-muted-foreground text-center md:flex-row sm:text-start x-container-fluid">
 			<div className="flex flex-col space-x-1 text-center text-light sm:flex-row md:flex-start sm:items-center md:flex-row">
 				<div className="flex justify-between items-center space-x-1 sm:justify-start sm:space-x-2">
 					<span className="px-1">{t('layout.footer.COPY_RIGHT1', { date: new Date().getFullYear() })}</span>
@@ -49,7 +49,8 @@ const Footer = () => {
 
 			<div className="flex flex-col items-center xs:flex-row sm:flex-col md:flex-row">
 				<div className="flex justify-center space-x-4 w-full text-center">
-					{TERMS_LINK ? (
+					{/* A deployment can turn either link off ('' => not rendered). */}
+					{TERMS_LINK && (
 						<Link
 							href={TERMS_LINK}
 							target="_blank"
@@ -58,10 +59,8 @@ const Footer = () => {
 						>
 							{t('layout.footer.TERMS')}
 						</Link>
-					) : (
-						<span className="text-gray-400">{t('layout.footer.TERMS')}</span>
 					)}
-					{PRIVACY_POLICY_LINK ? (
+					{PRIVACY_POLICY_LINK && (
 						<Link
 							href={PRIVACY_POLICY_LINK}
 							target="_blank"
@@ -70,8 +69,6 @@ const Footer = () => {
 						>
 							{t('layout.footer.PRIVACY_POLICY')}
 						</Link>
-					) : (
-						<span className="text-gray-400">{t('layout.footer.PRIVACY_POLICY')}</span>
 					)}
 				</div>
 				<div className="flex px-4 space-x-2 xs:hidden md:flex">

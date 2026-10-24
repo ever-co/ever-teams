@@ -6,6 +6,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { stripe } from '@/lib/payments/stripe';
 import Stripe from 'stripe';
 import { stripe as stripeServer } from '@/lib/stripe-server';
+import { readRuntimeEnv } from '@/lib/runtime-env';
 
 export const runtime = "nodejs";
 
@@ -17,7 +18,10 @@ export async function POST(req: Request) {
 			return new NextResponse('Price ID is required', { status: 400 });
 		}
 
-		if (!process.env.NEXT_PUBLIC_APP_URL) {
+		// Read per request from the container env: `process.env.NEXT_PUBLIC_APP_URL` alone is inlined by
+		// Next at build time, in the server bundle as well, so it would be frozen into the image.
+		const appUrl = readRuntimeEnv('NEXT_PUBLIC_APP_URL') || process.env.NEXT_PUBLIC_APP_URL;
+		if (!appUrl) {
 			throw new Error('NEXT_PUBLIC_APP_URL is not set in environment variables');
 		}
 
@@ -33,8 +37,8 @@ export async function POST(req: Request) {
 				}
 			],
 			allow_promotion_codes: true,
-			success_url: `${process.env.NEXT_PUBLIC_APP_URL}/dashboard?session_id={CHECKOUT_SESSION_ID}`,
-			cancel_url: `${process.env.NEXT_PUBLIC_APP_URL}/pricing`,
+			success_url: `${appUrl}/dashboard?session_id={CHECKOUT_SESSION_ID}`,
+			cancel_url: `${appUrl}/pricing`,
 			automatic_tax: { enabled: true }
 		});
 

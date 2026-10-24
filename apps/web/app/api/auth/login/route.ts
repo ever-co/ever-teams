@@ -12,9 +12,9 @@ import {
 } from '@/core/services/server/requests';
 import { NextResponse } from 'next/server';
 import { APP_NAME } from '@/core/constants/config/constants';
+import { pickTokenOrganization } from '@/core/lib/auth/jwt-utils';
 
 export async function POST(req: Request) {
-	const res = new NextResponse();
 	const body = (await req.json()) as unknown as ILoginDataAPI;
 	let loginResponse: IAuthResponse | null = null;
 
@@ -113,7 +113,7 @@ export async function POST(req: Request) {
 
 	const { data: organizations } = await getUserOrganizationsRequest({ tenantId, userId }, access_token);
 
-	const organization = organizations?.items[0];
+	const organization = pickTokenOrganization(organizations?.items, access_token);
 
 	if (!organization) {
 		return NextResponse.json({
@@ -129,9 +129,11 @@ export async function POST(req: Request) {
 	);
 
 	const team = teams.items[0];
+	// The cookies go on the response that is returned, or the browser never receives them
+	const res = NextResponse.json({ team, loginResponse });
 
 	if (!team) {
-		setNoTeamPopupShowCookie(true);
+		setNoTeamPopupShowCookie(true, { req, res });
 	}
 
 	setAuthCookies(
@@ -150,5 +152,5 @@ export async function POST(req: Request) {
 		{ req, res }
 	);
 
-	return NextResponse.json({ team, loginResponse });
+	return res;
 }

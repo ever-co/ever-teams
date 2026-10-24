@@ -30,8 +30,10 @@ import {
 import { activeTeamState, isTrackingEnabledState } from '@/core/stores';
 import { currentOrganizationState } from '@/core/stores/user/user-organizations';
 import { useAtomValue } from 'jotai';
+import { useCurrentOrganizationOwner } from '@/core/hooks/bootstrap/use-feature-data';
 
 function WeeklyLimitReport() {
+	useCurrentOrganizationOwner();
 	const isTrackingEnabled = useAtomValue(isTrackingEnabledState);
 	// The organization is loaded app-wide by useGetCurrentOrganization (init-state) through the CLIENT api
 	// service. This page used to call the server-only getUserOrganizationsRequest (serverFetch →
@@ -105,7 +107,7 @@ function WeeklyLimitReport() {
 	]);
 	// IMPORTANT: This must be AFTER all hooks to avoid "Rendered fewer hooks than expected" error
 	if (!organization || !organizationLimits || getTimeLimitReportLoading) {
-		return <ReportsPageSkeleton showTimer={isTrackingEnabled} fullWidth={false} />;
+		return <ReportsPageSkeleton showTimer={isTrackingEnabled} />;
 	}
 
 	return (

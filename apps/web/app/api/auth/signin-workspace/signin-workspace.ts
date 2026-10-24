@@ -11,6 +11,7 @@ import { generateToken, setAuthCookies, setNoTeamPopupShowCookie } from '@/core/
 import { IOrganizationTeam } from '@/core/types/interfaces/team/organization-team';
 import { IAuthResponse } from '@/core/types/interfaces/auth/auth';
 import { APP_NAME } from '@/core/constants/config/constants';
+import { pickTokenOrganization } from '@/core/lib/auth/jwt-utils';
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
 	if (req.method !== 'POST') {
@@ -89,8 +90,6 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 		}
 
 		if (loginResponse) {
-			console.log('loginResponse>>>', loginResponse);
-
 			/**
 			 * Get the first team from first organization
 			 */
@@ -98,8 +97,11 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 			const access_token = loginResponse.token;
 			const userId = loginResponse.user?.id;
 
+			// Never the login response itself: it holds the access and refresh tokens.
+			console.log('[API /auth/signin-workspace] invite accepted', { userId, tenantId });
+
 			const { data: organizations } = await getUserOrganizationsRequest({ tenantId, userId }, access_token);
-			const organization = organizations?.items[0];
+			const organization = pickTokenOrganization(organizations?.items, access_token);
 
 			if (!organization) {
 				return res.status(400).json({
@@ -159,7 +161,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
 	const { data: organizations } = await getUserOrganizationsRequest({ tenantId, userId }, access_token);
 
-	const organization = organizations?.items[0];
+	const organization = pickTokenOrganization(organizations?.items, access_token);
 
 	if (!organization) {
 		return res.status(400).json({

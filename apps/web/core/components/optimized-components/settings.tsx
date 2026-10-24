@@ -37,7 +37,7 @@ export const LazyLeftSideSettingMenu = dynamic(
 	{
 		ssr: false,
 		loading: () => (
-			<div className="w-64 h-96 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded-lg flex items-center justify-center">
+			<div className="w-64 h-96 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded-lg flex items-center justify-center">
 				<div className="text-gray-500">Loading Settings Menu...</div>
 			</div>
 		)
@@ -61,10 +61,10 @@ export const LazyProfileAvatar = dynamic(
 		ssr: false,
 		loading: () => (
 			<div className="flex gap-4 items-center mb-5">
-				<div className="w-20 h-20 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded-full" />
+				<div className="w-20 h-20 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded-full" />
 				<div className="flex flex-col gap-2">
-					<div className="w-32 h-4 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded" />
-					<div className="w-24 h-3 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded" />
+					<div className="w-32 h-4 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded" />
+					<div className="w-24 h-3 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded" />
 				</div>
 			</div>
 		)
@@ -106,6 +106,17 @@ export const LazyIntegrationSetting = dynamic(
 	() =>
 		import('@/core/components/pages/settings/team/integration-setting').then((mod) => ({
 			default: mod.IntegrationSetting
+		})),
+	{
+		ssr: false
+	}
+);
+
+// Ever Platform (optional): loaded only when the section shows
+export const LazyEverPlatformSection = dynamic(
+	() =>
+		import('@/core/components/pages/settings/team/ever-platform-section').then((mod) => ({
+			default: mod.EverPlatformSection
 		})),
 	{
 		ssr: false

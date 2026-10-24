@@ -3,6 +3,11 @@
 	"sidebar": {
 		"DASHBOARD": "Dashboard",
 		"FORYOU": "General",
+		"QUICK_CREATE": "Quick Create",
+		"COMMAND": "Command",
+		"PLATFORM": "Platform",
+		"TEAM_DASHBOARD": "Team Dashboard",
+		"APPS_AND_URLS": "Apps & URLs",
 		"HOME": "Home",
 		"INBOX": "Inbox",
 		"PROJECTS": "Projects",
@@ -64,6 +69,9 @@
 		"ADD_TIME_ENTRY": "Add Time Entry",
 		"OPT_IN_UPDATES": "Opt-in to receive updates and news about {appName}.",
 		"SUBSCRIBE_NEWSLETTER": "Subscribe to our newsletter",
+		"SUBSCRIBE": "Subscribe",
+		"SUBSCRIBING": "Subscribing...",
+		"EMAIL": "Email",
 		"VIEW_PROJECT": "View Project",
 		"SHARE_PROJECT": "Share Project",
 		"DELETE_PROJECT": "Delete Project",
@@ -222,6 +230,8 @@
 		"THEMES": "Themes",
 		"3D_MODE": "3D Mode",
 		"DARK_MODE": "Dark Mode",
+		"THEME_LIGHT": "Light",
+		"THEME_DARK": "Dark",
 		"SETTINGS": "Settings",
 		"PERSONAL": "Personal",
 		"USE_SETTING": "Use setting",
@@ -436,7 +446,9 @@
 		"PRODUCTIVITY_BREAKDOWN": "Productivity breakdown for {month}",
 		"DAILY": "Daily",
 		"WEEKLY": "Weekly",
-		"MONTHLY": "Monthly"
+		"MONTHLY": "Monthly",
+		"HIDE_CHART": "Hide chart",
+		"SHOW_ACTIVITY_CHART": "Show activity chart"
 	},
 	"timeActivity": {
 		"TIME_AND_ACTIVITY": "Time and Activity",
@@ -469,7 +481,12 @@
 		"GROUP_BY": "Group by",
 		"DATE": "Date",
 		"VIEW": "View",
-		"HOURS_ON_DATE": "{hours} hours on {date}"
+		"HOURS_ON_DATE": "{hours} hours on {date}",
+		"PREVIOUS_WEEK": "Previous week",
+		"NEXT_WEEK": "Next week",
+		"WEEKLY_REPORT_ERROR": "Weekly report unavailable",
+		"WEEKLY_REPORT_ERROR_MESSAGE": "The time tracked during the selected week could not be loaded.",
+		"EXPORT_FAILED": "The file could not be created. Please try again."
 	},
 	"hotkeys": {
 		"HELP": "Help",
@@ -709,7 +726,34 @@
 			"FORGOT_PASSWORD": "Forgot Password?",
 			"TERMS_OF_SERVICE": "Terms of Service",
 			"PRIVACY_POLICY": "Privacy Policy",
-			"OR_CONTINUE_WITH": "or continue with"
+			"OR_CONTINUE_WITH": "or continue with",
+			"SIGNUP_VERIFY_EMAIL": "Your account has been created. Open the link in the e-mail we sent to {email} to activate it, then sign in with your e-mail.",
+			"everId": {
+				"NO_WORKSPACE_TITLE": "No workspace for this Ever ID yet",
+				"NO_WORKSPACE_BODY": "No workspace is linked to this Ever ID yet. Sign in another way, or ask your workspace admin for an invitation.",
+				"WORKSPACE_BLOCKED_TITLE": "Use your company sign-in",
+				"WORKSPACE_BLOCKED_BODY": "Your workspace asks you to sign in with your company sign-in. Use it to continue, or sign in another way.",
+				"SIGN_IN_ANOTHER_WAY": "Sign in another way",
+				"NO_WORKSPACE_SIGNUP_BODY": "You can also create a new workspace with the usual sign-up.",
+				"CREATE_WORKSPACE": "Create a workspace",
+				"CONFIRM_HINT": "We sent a one-time code to the e-mail address of your existing account. Enter it to connect your Ever ID.",
+				"CODE_EXPIRED": "This code has expired or was tried too often. Sign in with Ever ID again.",
+				"TOO_MANY_ATTEMPTS": "Too many attempts. Wait a minute, then try again.",
+				"UNAVAILABLE": "Ever ID sign-in is not available right now. Try again later or sign in another way.",
+				"SIGNUP_CONFIRM": "Create my workspace with this Ever ID",
+				"SIGNUP_HINT": "Your e-mail address comes from your verified Ever ID. Nothing is created until you continue.",
+				"SIGNUP_CONFIRM_REQUIRED": "Tick the box to create your workspace with this Ever ID.",
+				"SIGNUP_TERMS": "I accept these documents:",
+				"SIGNUP_TERMS_REQUIRED": "Accept the documents to continue.",
+				"SIGNUP_EXPIRED": "This sign-up has expired. Sign in with Ever ID again.",
+				"SIGNUP_CHECKOUT": "A subscription is needed before your workspace can be created.",
+				"CONTINUE_TO_CHECKOUT": "Continue to checkout",
+				"EMAIL_UNVERIFIED_TITLE": "Verify your Ever ID e-mail",
+				"EMAIL_UNVERIFIED_BODY": "Ever ID has not verified your e-mail address yet. Open the verification e-mail Ever ID sent you, or verify your address on Ever ID now, then sign in with Ever ID again.",
+				"VERIFY_EMAIL": "Verify my e-mail on Ever ID",
+				"SIGN_IN_AGAIN": "Sign in with Ever ID again",
+				"LOGIN_WITH_EVER_ID": "Login with <wordmark>Ever ID</wordmark>"
+			}
 		},
 		"authPasscode": {
 			"HEADING_TITLE": "Join existing Team",
@@ -768,6 +812,8 @@
 			"LOADING_WORKSPACE": "We are loading the workspace, hold on...",
 			"REDIRECT_TO_WORSPACE_LOADING": "Redirecting to your workspace...",
 			"VERIFY_EMAIL_LOADING_TEXT": "We are verifying your email, hold on...",
+			"VERIFY_EMAIL_FAILED_TITLE": "We couldn't verify your email",
+			"VERIFY_EMAIL_FAILED_MESSAGE": "The link may be invalid, expired or already used, or the server could not be reached. Try the link again in a moment, or open the app to request a new one.",
 			"INPUT_TEAM_NAME": "Enter your team name",
 			"JOIN_EXISTING_TEAM": "Joining existing team?",
 			"CREATE_FIRST_TEAM": "Create your first team",
@@ -791,6 +837,10 @@
 			"HEADING_TITLE": "General Settings",
 			"goToTeamSettings": "Go to Team settings",
 			"WORKING_HOURS": "Working hours",
+			"ADD_HOURS_FOR": "Add hours for {day}",
+			"REMOVE_HOURS_FOR": "Remove hours for {day}",
+			"UNAVAILABLE": "Unavailable",
+			"TOGGLE_AVAILABILITY_FOR": "Availability for {day}",
 			"emailNotValid": "Please provide a valid Email",
 			"phoneNotValid": "Please provide a valid Phone Number",
 			"WORK_SCHEDULE": "Work Schedule",
@@ -811,6 +861,8 @@
 			"SIZES_HEADING": "Sizes",
 			"TEAM_NAME": "Team Name",
 			"TEAM_TYPE": "Team Type",
+			"TEAM_TYPE_UPDATED": "Team type updated successfully",
+			"TEAM_TYPE_UPDATE_FAILED": "Failed to update team type. Please try again.",
 			"TIME_TRACKING": "Time Tracking",
 			"ENFORCE_PLAN": "Enforce plan",
 			"ADD_NEW_MEMBER": "Add new member",
@@ -908,7 +960,56 @@
 			"NO_INVITATIONS": "There are no Invitations at the moment!",
 			"NO_MEMBERS": "There are no Members at the moment!",
 			"GO_TO_PERSONAL_SETTINGS": "Go to Personal settings",
-			"SHARE_MEMBERS_PROFILE_VIEWS": "Share members profile views"
+			"SHARE_MEMBERS_PROFILE_VIEWS": "Share members profile views",
+			"everPlatform": {
+				"TITLE": "Ever Platform",
+				"DESCRIPTION": "Optional features of this installation. Everything shown here is stored by its API, and each part can be switched off.",
+				"STATS_TITLE": "Anonymous usage statistics",
+				"STATS_DESCRIPTION": "Once a day this installation can send an anonymous report: the version that runs and how it was installed. No name, e-mail address, content or usage data of a person is ever sent.",
+				"STATS_TOGGLE_LABEL": "Send anonymous usage statistics",
+				"STATS_ON": "On",
+				"STATS_OFF": "Off",
+				"STATS_REASON_UI": "switched off in the settings",
+				"STATS_REASON_CONFIG": "the configured statistics address cannot be used",
+				"STATS_REASON_KEY": "the statistics key cannot be read",
+				"STATS_NEXT_SEND": "Next report",
+				"STATS_WEB_APP": "Web app",
+				"STATS_API": "API",
+				"STATS_LAST_PAYLOAD": "Last report sent",
+				"STATS_NO_PAYLOAD": "No report has been sent yet.",
+				"STATS_SENT_AT": "Sent",
+				"STATS_HTTP_STATUS": "Answer",
+				"STATS_TOGGLE_ERROR": "The setting could not be saved. Try again.",
+				"STATS_MANAGED_CLOUD": "Managed by Ever Cloud",
+				"STATS_MANAGED_OPERATOR": "Managed by the instance operator",
+				"STATS_DOCS_LINK": "What is sent, and how to switch it off",
+				"CONNECT_LINK_TITLE": "Organization link",
+				"CONNECT_LINKED_AS": "Linked to",
+				"CONNECT_NOT_LINKED": "This organization is not linked to Ever Platform.",
+				"CONNECT_LINK_CODE_HINT": "Paste the link code from Ever Platform (EVL-XXXX-XXXX-XXXX).",
+				"CONNECT_LINK_CODE_INVALID": "This is not a valid link code.",
+				"CONNECT_LINK": "Link",
+				"CONNECT_UNLINK": "Unlink",
+				"CONNECT_NOT_CONNECTED": "The operator of this installation has not connected it to Ever Platform.",
+				"INTEGRATIONS_TITLE": "Integrations & data",
+				"INTEGRATIONS_EMPTY": "No integration is offered to this organization.",
+				"SHOW_SCOPE": "Show scope",
+				"HIDE_SCOPE": "Hide scope",
+				"MANAGE_IN_APP": "Manage in Ever Platform",
+				"DISABLE": "Disable",
+				"STATE_ENABLED": "Enabled",
+				"STATE_OFF": "Not enabled",
+				"STATE_PENDING": "Waiting for the operator",
+				"STATE_DENIED": "Not allowed here",
+				"ENTITLEMENTS_TITLE": "Entitlements",
+				"ENTITLEMENT_PLAN": "Plan",
+				"ENTITLEMENT_FEATURES": "Features",
+				"ENTITLEMENT_EXPIRES": "Valid until",
+				"ENTITLEMENT_NONE": "No entitlement yet.",
+				"REFRESH": "Refresh",
+				"LOAD_ERROR": "This information could not be loaded.",
+				"ACTION_FAILED": "The action failed. Try again."
+			}
 		},
 		"invite": {
 			"HEADING_TITLE": "Invite member to your team",
@@ -998,6 +1099,7 @@
 			"LOADING": "Loading timesheet data...",
 			"NO_ENTRIES_FOUND": "No timesheet entries found",
 			"YOU_ARE_ABOUT_TO_REJECT_ENTRY": "You are about to reject the selected entry, would you like to proceed?",
+			"REJECTION_REASON": "Rejection reason",
 			"ALL_TASKS": "All Tasks",
 			"PENDING": "Pending",
 			"APPROVED": "Approved",
@@ -1017,19 +1119,27 @@
 			"BILLABLE_MODIFY_SUCCESS": "The billable state has been successfully modified.",
 			"BILLABLE_MODIFY_ERROR": "Failed to modify billable state. Please try again.",
 			"STATUS_MODIFY_SUCCESS": "The timesheet status has been successfully modified.",
-			"STATUS_MODIFY_ERROR": "Failed to modify timesheet status. Please try again."
+			"STATUS_MODIFY_ERROR": "Failed to modify timesheet status. Please try again.",
+			"END_AFTER_START": "The end time must be after the start time."
 		}
 	},
 	"timer": {
 		"START_TIMER": "Please, select or create a new task to start tracking the time or create a plan",
 		"ALREADY_TRACKING_MESSAGE": "You're already tracking time in another tab or device.",
 		"TASK_CLOSED": "Task is closed",
+		"PLAN_REQUIRED_TO_START": "Add this task to today's plan to start",
 		"STARTING_TIMER": "Starting timer...",
 		"TIMER_STARTED": "Timer started successfully",
 		"TIMER_START_FAILED": "Failed to start timer",
+		"STALE_TIMER_STOPPED_DESCRIPTION": "Your timer kept running after the app was closed, so it was stopped at the last moment the app was open ({stoppedAt}). If you worked after that, add the time manually.",
+		"TIMER_STOP_FAILED": "Failed to stop timer. Please try again.",
 		"TEAM_SWITCH": {
 			"STOPPED_TIMER_TOAST_TITLE": "Timer Stopped",
 			"STOPPED_TIMER_TOAST_DESCRIPTION": "Timer Stopped due to Team Switch"
+		},
+		"TASK_SWITCH": {
+			"STOPPED_TIMER_TOAST_TITLE": "Timer Stopped",
+			"STOPPED_TIMER_TOAST_DESCRIPTION": "Timer stopped because your active task changed"
 		},
 		"ESTIMATION": {
 			"ESTIMATE_LABEL": "Estimate"
@@ -1069,7 +1179,9 @@
 			"WARNING_PLAN_ESTIMATION": "Please correct planned work hours or  re-estimate task(s)"
 		},
 		"VISITED_SITES": "Visited sites",
-		"NO_VISITED_SITE_MESSAGE": "There are no visited sites"
+		"NO_VISITED_SITE_MESSAGE": "There are no visited sites",
+		"TRACKING_SOURCE_HINT": "Screenshots, apps and visited sites are captured by the desktop app or the agent, not when time is tracked in the browser.",
+		"DOWNLOAD_DESKTOP_APP": "Download the desktop app"
 	},
 	"task": {
 		"TITLE": "Task",
@@ -1135,12 +1247,14 @@
 			"TASK_PLAN_FAILED": "Failed to plan task. Please try again.",
 			"TASK_ASSIGNMENT_FAILED": "Failed to assign/unassign task. Please try again.",
 			"TASK_FAVORITE_FAILED": "Failed to update favorites. Please try again.",
+			"TASK_CREATION_FAILED": "Failed to create task. Please try again.",
 			"FAVORITE_ITEM_CREATED_SUCCESSFULLY": "Favorite item created successfully",
 			"FAVORITE_ITEM_DELETED_SUCCESSFULLY": "Favorite item deleted successfully"
 		}
 	},
 	"dailyPlan": {
 		"PLAN_FOR_TODAY": "Plan for today",
+		"ADD_TO_TODAY_PLAN": "Add to today's plan",
 		"TASK_TIME": "task time",
 		"TOTAL_TODAY": "Total Today",
 		"PLAN_FOR_TOMORROW": "Plan for tomorrow",
@@ -1164,6 +1278,7 @@
 		"TOTAL_TASK": "Total tasks",
 		"DAILY_PLAN_DESCRIPTION": "'Daily Plan' helps organize the work process to achieve the best results",
 		"SUGGESTS_TO_ADD_TASK_TO_TODAY_PLAN": "This task was not planned for Today's plan. Would you like to add to the plan?",
+		"TASK_ORDER_SAVE_FAILED": "The new task order could not be saved. Please try again.",
 		"planned_tasks_popup": {
 			"warning": {
 				"PLANNED_TIME": "Please, add planned time",
@@ -1214,7 +1329,10 @@
 			"TERMS_AND_CONDITIONS": "Terms and Conditions",
 			"PRIVACY_POLICY": "Privacy Policy",
 			"COOKIES": "Cookie Policy",
-			"BY": "By"
+			"BY": "By",
+			"BUILD_WEB": "Build Web v{version}",
+			"API_VERSION": "API v{version}",
+			"OPEN_COMMIT": "Open commit {commit}"
 		}
 	},
 	"errors": {
@@ -1227,7 +1345,8 @@
 		"PASSWORDS_DO_NOT_MATCH": "Passwords do not match"
 	},
 	"placeholders": {
-		"ENTER_TO_VALIDATE": "Press Enter to validate"
+		"ENTER_TO_VALIDATE": "Press Enter to validate",
+		"ENTER_A_COMMAND": "Enter a command..."
 	},
 	"team": {
 		"BACK_LABEL": "Back to Team",
@@ -1287,7 +1406,7 @@
 		"HEADER_TITLE": "Chat AI",
 		"CLEAR_CONVERSATION": "Clear conversation",
 		"CONFIGURATION": "Configuration",
-		"ASSISTANT_NAME": "Ever Teams Assistant",
+		"ASSISTANT_NAME": "{appName} Assistant",
 		"EMPTY_CONFIGURED": "Ask a question to get started.",
 		"EMPTY_NOT_CONFIGURED": "Configure your API key to get started.",
 		"CONFIGURE_BUTTON": "Configure",
@@ -1295,6 +1414,14 @@
 		"INPUT_PLACEHOLDER_READY": "Your message...",
 		"INPUT_PLACEHOLDER_NO_KEY": "Configure your API key...",
 		"STOP": "Stop",
-		"SEND": "Send"
+		"SEND": "Send",
+		"NEW_CHAT": "New chat",
+		"HISTORY": "History",
+		"NO_CONVERSATIONS": "No conversations yet",
+		"PANEL_CONTROLS": "Chat panel controls",
+		"COLLAPSE_ASSISTANT": "Collapse assistant",
+		"STANDARD_ASSISTANT_WIDTH": "Standard assistant width",
+		"EXPAND_ASSISTANT": "Expand assistant",
+		"OPEN_ASSISTANT": "Open {appName} Assistant"
 	}
 }

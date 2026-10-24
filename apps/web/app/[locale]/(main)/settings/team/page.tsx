@@ -20,7 +20,8 @@ import {
 	LazyMemberSetting,
 	LazyIntegrationSetting,
 	LazyIssuesSettings,
-	LazyDangerZoneTeam
+	LazyDangerZoneTeam,
+	LazyEverPlatformSection
 } from '@/core/components/optimized-components/settings';
 import { Suspense } from 'react';
 import {
@@ -29,8 +30,10 @@ import {
 	MemberSettingSkeleton,
 	IntegrationSettingSkeleton,
 	IssuesSettingsSkeleton,
-	DangerZoneTeamSkeleton
+	DangerZoneTeamSkeleton,
+	EverPlatformSectionSkeleton
 } from '@/core/components/common/skeleton/settings-skeletons';
+import { useEverPlatformSection } from '@/core/hooks/ever-platform/use-ever-platform-section';
 
 const Team = () => {
 	const t = useTranslations();
@@ -41,6 +44,8 @@ const Team = () => {
 
 	const activeTeam = useAtomValue(activeTeamState);
 	const isTeamMember = useAtomValue(isTeamMemberState);
+	// Optional Ever Platform section: team managers only, never on a demo deployment (see the hook).
+	const everPlatform = useEverPlatformSection(Boolean(user) && isTeamManager);
 
 	if (!user) {
 		return (
@@ -48,7 +53,7 @@ const Team = () => {
 				<div className="flex flex-col w-full sm:mr-[20px] lg:mr-0">
 					<EverCard className="dark:bg-dark--theme p-[32px] mt-[36px]" shadow="bigger">
 						<div className="flex justify-center items-center p-8">
-							<div className="w-8 h-8 bg-[#F0F0F0] dark:bg-[#353741] animate-pulse rounded-full" />
+							<div className="w-8 h-8 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded-full" />
 							<span className="ml-3 text-gray-600 dark:text-gray-400">Loading team settings...</span>
 						</div>
 					</EverCard>
@@ -57,20 +62,17 @@ const Team = () => {
 		);
 	}
 	return (
-		<div className="overflow-hidden pb-16">
+		<div className="space-y-4 pb-8">
 			{isTeamMember ? (
 				<>
 					<Link href={'/settings/personal'} className="w-full">
-						<button className="p-4 mt-2 w-full rounded-xl border lg:hidden hover:bg-white border-dark text-dark">
+						<button className="h-10 px-4 w-full rounded-lg border lg:hidden hover:bg-muted">
 							{t('pages.settingsTeam.GO_TO_PERSONAL_SETTINGS')}
 						</button>
 					</Link>
 					{/* General Settings */}
 					<InteractionObserverVisible id="general-settings" setActiveSection={setActiveTeam}>
-						<Accordian
-							title={t('pages.settingsTeam.HEADING_TITLE')}
-							className="w-full max-w-[96vw] p-4 mt-8 dark:bg-dark--theme"
-						>
+						<Accordian title={t('pages.settingsTeam.HEADING_TITLE')} className="w-full">
 							<div className="flex flex-col">
 								<TeamAvatar disabled={!isTeamManager} bgColor={activeTeam?.color || ''} />
 								{/* Use lazy loaded TeamSettingForm with Suspense */}
@@ -87,7 +89,7 @@ const Team = () => {
 							<Accordian
 								title={t('pages.settingsTeam.INVITATION_HEADING_TITLE')}
 								defaultOpen={teamInvitations.length ? true : false}
-								className="w-full max-w-[96vw] p-4 mt-8 dark:bg-dark--theme"
+								className="w-full"
 							>
 								{/* Use lazy loaded InvitationSetting with Suspense */}
 								<Suspense fallback={<InvitationSettingSkeleton />}>
@@ -100,10 +102,7 @@ const Team = () => {
 					{/* Members */}
 					{isTeamManager ? (
 						<InteractionObserverVisible id="member" setActiveSection={setActiveTeam}>
-							<Accordian
-								title={t('pages.settingsTeam.MEMBER_HEADING_TITLE')}
-								className="w-full max-w-[96vw] p-4 mt-8 dark:bg-dark--theme"
-							>
+							<Accordian title={t('pages.settingsTeam.MEMBER_HEADING_TITLE')} className="w-full">
 								{/* Use lazy loaded MemberSetting with Suspense */}
 								<Suspense fallback={<MemberSettingSkeleton />}>
 									<LazyMemberSetting />
@@ -114,10 +113,7 @@ const Team = () => {
 
 					{isTeamManager && (
 						<InteractionObserverVisible id="integrations" setActiveSection={setActiveTeam}>
-							<Accordian
-								title={t('pages.settingsTeam.INTEGRATIONS')}
-								className="w-full max-w-[96vw] p-4 mt-8 dark:bg-dark--theme"
-							>
+							<Accordian title={t('pages.settingsTeam.INTEGRATIONS')} className="w-full">
 								{/* Use lazy loaded IntegrationSetting with Suspense */}
 								<Suspense fallback={<IntegrationSettingSkeleton />}>
 									<LazyIntegrationSetting />
@@ -126,12 +122,23 @@ const Team = () => {
 						</InteractionObserverVisible>
 					)}
 
+					{/* Ever Platform (optional) */}
+					{everPlatform.visible && (
+						<InteractionObserverVisible id="ever-platform" setActiveSection={setActiveTeam}>
+							<Accordian title={t('pages.settingsTeam.everPlatform.TITLE')} className="w-full">
+								<Suspense fallback={<EverPlatformSectionSkeleton />}>
+									<LazyEverPlatformSection
+										connectAvailable={everPlatform.connect.available}
+										connected={everPlatform.connect.connected}
+									/>
+								</Suspense>
+							</Accordian>
+						</InteractionObserverVisible>
+					)}
+
 					{/* Issues Settings */}
 					<InteractionObserverVisible id="issues-settings" setActiveSection={setActiveTeam}>
-						<Accordian
-							title={t('pages.settingsTeam.ISSUES_HEADING_TITLE')}
-							className="w-full max-w-[96vw] p-4 mt-8 dark:bg-dark--theme"
-						>
+						<Accordian title={t('pages.settingsTeam.ISSUES_HEADING_TITLE')} className="w-full">
 							{/* Use lazy loaded IssuesSettings with Suspense */}
 							<Suspense fallback={<IssuesSettingsSkeleton />}>
 								<LazyIssuesSettings />
@@ -152,7 +159,7 @@ const Team = () => {
 					<InteractionObserverVisible id="danger-zones" setActiveSection={setActiveTeam}>
 						<Accordian
 							title={t('pages.settings.DANDER_ZONE')}
-							className="w-full max-w-[96vw] p-4 mt-8 mb-40 dark:bg-dark--theme"
+							className="w-full border-destructive/30"
 							isDanger={true}
 						>
 							{/* Use lazy loaded DangerZoneTeam with Suspense */}

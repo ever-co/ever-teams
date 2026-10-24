@@ -4,6 +4,7 @@ import { useTranslations } from 'next-intl';
 import { useMemo } from 'react';
 import VisitedItem from '../visited-Item';
 import { VisitedItemSkeleton } from '../visited-item-skeleton';
+import { TrackingSourceEmptyState } from '../tracking-source-empty-state';
 
 export function AppsTab() {
 	const { visitedApps, loading } = useTimeDailyActivity('APP');
@@ -35,7 +36,7 @@ export function AppsTab() {
 		<div>
 			<div className="flex justify-end w-full">{/* TODO: Filters components */}</div>
 			<div className="w-full space-y-6">
-				<header className="bg-gray-200 dark:bg-[#26272C] rounded-[1rem] px-6 h-14 flex items-center">
+				<header className="bg-gray-200 dark:bg-muted rounded-[1rem] px-6 h-14 flex items-center">
 					{headers.map((header, i) => (
 						<div style={{ flexBasis: header.width }} key={i} className="border font-medium">
 							{header.title}
@@ -44,7 +45,7 @@ export function AppsTab() {
 				</header>
 				<section className="space-y-6">
 					{apps?.map((app, i) => (
-						<div key={i} className=" p-6 rounded-[1rem] bg-white dark:bg-[#26272C]">
+						<div key={i} className=" p-6 rounded-[1rem] bg-white dark:bg-muted">
 							{app?.apps?.map((item, i) => (
 								<div key={i} className="w-full">
 									{/* <AppVisitedModal> */}
@@ -56,8 +57,8 @@ export function AppsTab() {
 					))}
 				</section>
 				{visitedApps?.length < 1 && !loading && (
-					<div className="hover:dark:bg-[#26272C] border dark:border-[#26272C] dark:bg-[#191a20] p-4 py-16 rounded-md flex justify-center items-center my-2">
-						<p className="text-center">{t('timer.THERE_IS_NO_APPS_VISITED')}</p>
+					<div className="hover:dark:bg-muted border dark:border-border dark:bg-background p-4 py-16 rounded-md flex justify-center items-center my-2">
+						<TrackingSourceEmptyState label={t('timer.THERE_IS_NO_APPS_VISITED')} />
 					</div>
 				)}
 				{loading && visitedApps?.length < 1 && (

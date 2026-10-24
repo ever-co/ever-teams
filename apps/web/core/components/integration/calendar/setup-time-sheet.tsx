@@ -4,7 +4,7 @@ import { DataTableTimeSheet, SelectFilter } from '../../pages/timesheet/table-ti
 import { HeadTimeSheet } from '@/core/components/pages/calendar/page-component';
 import { statusOptions, timesheetCalendar } from '../../../lib/helpers/helper-calendar';
 import { StatusBadge } from './confirm-change-status';
-import { RiDeleteBinLine } from 'react-icons/ri';
+import { Trash2 } from 'lucide-react';
 import { useModal } from '@/core/hooks';
 
 interface ISetupTimeSheetProps {
@@ -25,8 +25,7 @@ export function SetupTimeSheet({ timesheet }: ISetupTimeSheetProps) {
 						<span className="font-medium">123 Logs Selected</span>
 						<SelectFilter selectedStatus="Rejected" />
 						<button className="border flex items-center gap-2 border-gray-200 dark:border-gray-700 text-red-500 h-8 px-2 rounded-md">
-							{/* @ts-ignore */}
-							<RiDeleteBinLine />
+							<Trash2 size="1em" />
 							<span className="!font-normal text-sm">Delete</span>
 						</button>
 					</div>

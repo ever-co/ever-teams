@@ -18,9 +18,16 @@ class ApiConfigManager {
 	}
 
 	setConfig(config: Partial<IApiTeamsConfig>) {
+		// Callers pass `{ apiUrl: <env value> }`, which is `undefined` when the deployment did not set it.
+		// A plain spread would wipe the default above and every request would go to `undefined/<path>`,
+		// i.e. a relative URL against the app's own origin. Undefined means "leave it as it is".
+		const defined = Object.fromEntries(
+			Object.entries(config).filter(([, value]) => value !== undefined)
+		) as Partial<IApiTeamsConfig>;
+
 		this.config = {
 			...this.config,
-			...config
+			...defined
 		};
 	}
 

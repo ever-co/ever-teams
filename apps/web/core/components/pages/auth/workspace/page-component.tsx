@@ -1,10 +1,10 @@
 'use client';
 
 import { clsxm } from '@/core/lib/utils';
-import { AuthLayout } from '@/core/components/layouts/default-layout';
+import { AuthLayout } from '@/core/components/layouts/default-layout/auth-layout';
 import { useTranslations } from 'next-intl';
 import { useRouter } from 'next/navigation';
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { WorkSpaceComponent } from '../passcode/page-component';
 import { useAuthenticationSocialLogin } from '@/core/hooks/auth/use-authentication-social-login';
 import Cookies from 'js-cookie';
@@ -17,6 +17,9 @@ import {
 import { ISigninEmailConfirmWorkspaces } from '@/core/types/interfaces/auth/auth';
 import { getFirstTeamId, findWorkspaceIndexByTeamId } from '@/core/lib/utils/workspace.utils';
 import { useWorkspaceAnalysis } from '@/core/hooks/auth/use-workspace-analysis';
+import { readEverIdSession } from '@/core/lib/auth/ever-id/session';
+import { readSocialSession } from '@/core/lib/auth/social-session';
+import { useEverIdWorkspaceChoice } from '@/core/hooks/auth/use-ever-id-workspace-choice';
 
 export default function SocialLoginChooseWorspace() {
 	const t = useTranslations();
@@ -56,16 +59,26 @@ function WorkSpaceScreen() {
 
 	useEffect(() => {
 		const loadOAuthSession = async () => {
-			if (session) {
-				const { access_token, confirmed_mail, organizationId, refresh_token, tenantId, userId } = session.user;
+			const social = readSocialSession(session);
+			if (social) {
+				const { access_token, confirmed_mail, organizationId, refresh_token, tenantId, userId } = social;
 				setSigninResult({ access_token, confirmed_mail, organizationId, refresh_token, tenantId, userId });
-				setWorkspaces(session.user.workspaces);
+				setWorkspaces(Array.isArray(social.workspaces) ? social.workspaces : []);
 			} else {
 				return;
 			}
 		};
-		loadOAuthSession();
+		void loadOAuthSession();
 	}, [session]);
+
+	// Ever ID: the sign-in left the workspace list in the session (no Gauzy token yet: the workspace sign-in
+	// below makes it). Runs after the effect above, so its values are the ones kept.
+	const everIdSession = useMemo(() => readEverIdSession(session), [session]);
+	useEffect(() => {
+		if (!everIdSession) return;
+		setSigninResult((current) => ({ ...current, confirmed_mail: everIdSession.confirmedEmail }));
+		setWorkspaces(everIdSession.workspaces);
+	}, [everIdSession]);
 
 	// Analyze workspace structure to determine if we should show workspace selection
 	// Using centralized hook to avoid code duplication across auth components
@@ -115,8 +128,21 @@ function WorkSpaceScreen() {
 		}
 	}, [workspaces, workspaceAnalysis]);
 
+	// Ever ID: start on the workspace the ID token points at (when exactly one matches)
+	useEffect(() => {
+		if (everIdSession && everIdSession.preselectIndex >= 0 && everIdSession.preselectIndex < workspaces.length) {
+			setSelectedWorkspace(everIdSession.preselectIndex);
+		}
+	}, [everIdSession, workspaces]);
+
+	// Ever ID: an expired workspace token starts its sign-in again; a workspace without a tenant yet is set up
+	const everIdChoice = useEverIdWorkspaceChoice(everIdSession);
+
 	const signInToWorkspace = (e: any) => {
 		e.preventDefault();
+		if (everIdChoice.continueChoice(selectedWorkspace, workspaces[selectedWorkspace]?.token, updateOAuthSession)) {
+			return;
+		}
 		updateOAuthSession();
 
 		new Array(3).fill('').forEach((_, i) => {
@@ -126,9 +152,17 @@ function WorkSpaceScreen() {
 		window && window?.localStorage.setItem(LAST_WORKSPACE_AND_TEAM, selectedTeam);
 	};
 
+	const { onWorkspaceSigninError } = everIdChoice;
 	const updateOAuthSession = useCallback(() => {
-		form.updateOAuthSession(signinResult, workspaces, selectedWorkspace, selectedTeam);
-	}, [form, selectedTeam, selectedWorkspace, signinResult, workspaces]);
+		form.updateOAuthSession(
+			signinResult,
+			workspaces,
+			selectedWorkspace,
+			selectedTeam,
+			undefined,
+			onWorkspaceSigninError
+		);
+	}, [form, onWorkspaceSigninError, selectedTeam, selectedWorkspace, signinResult, workspaces]);
 
 	return (
 		<WorkSpaceComponent
@@ -141,7 +175,8 @@ function WorkSpaceScreen() {
 			setSelectedWorkspace={setSelectedWorkspace}
 			setSelectedTeam={setSelectedTeam}
 			selectedTeam={selectedTeam}
-			signInWorkspaceLoading={form.signInWorkspaceLoading}
+			signInWorkspaceLoading={form.signInWorkspaceLoading || everIdChoice.setupRunning}
+			teamsUnavailable={everIdSession?.teamsUnavailable}
 		/>
 	);
 }

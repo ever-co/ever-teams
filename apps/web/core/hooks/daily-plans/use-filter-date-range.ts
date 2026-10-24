@@ -1,6 +1,7 @@
 'use client';
 
-import { isTestDateRange } from '@/core/lib/helpers/index';
+import moment from 'moment';
+import { getDailyPlanDay, isTestDateRange } from '@/core/lib/helpers/index';
 import { DateRange } from 'react-day-picker';
 import { TDailyPlan, TUser } from '@/core/types/schemas';
 
@@ -24,7 +25,7 @@ export const filterDailyPlan = (date?: DateRange, data?: TDailyPlan[]) => {
 		return data;
 	}
 	return data?.filter((plan) => {
-		const itemDate = new Date(plan?.date);
+		const itemDate = moment(getDailyPlanDay(plan?.date)).toDate();
 		return isTestDateRange(itemDate, from, to);
 	});
 };

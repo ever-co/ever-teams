@@ -26,7 +26,7 @@ export const TeamsDropDown = () => {
 						<PopoverButton
 							className={`w-[290px] h-12
                 ${open ? '' : 'text-white/90'}
-                group inline-flex items-center rounded-[12px] bg-[#E8EBF8] dark:bg-[#18181B] px-3 py-2 text-base font-medium text-white hover:text-white/100 focus:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-white/75`}
+                group inline-flex items-center rounded-[12px] bg-[#E8EBF8] dark:bg-background px-3 py-2 text-base font-medium text-white hover:text-white/100 focus:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-white/75`}
 						>
 							<div className="flex justify-between items-center w-full">
 								<div className="flex justify-center items-center space-x-4">
@@ -62,7 +62,7 @@ export const TeamsDropDown = () => {
 						>
 							<PopoverPanel className="absolute left-1/2 z-10 mt-3 w-[290px] max-w-sm -translate-x-1/2 transform px-4 sm:px-0 lg:max-w-3xl">
 								<div className="overflow-hidden rounded-lg ring-1 ring-black/5 shadow-lg">
-									<div className="relative grid gap-[8px] bg-[#FFFFFF] dark:bg-[#18181B] px-3 py-4 lg:grid-cols-1 w-full">
+									<div className="relative grid gap-[8px] bg-[#FFFFFF] dark:bg-background px-3 py-4 lg:grid-cols-1 w-full">
 										{teams.map((item) => {
 											const color = '#F5F6FB';
 											return (
@@ -91,9 +91,9 @@ export const TeamsDropDown = () => {
 									{edit === true ? (
 										<CreateNewTeam setEdit={setEdit} />
 									) : (
-										<div className="bg-white dark:bg-[#18181B] p-4">
+										<div className="bg-white dark:bg-background p-4">
 											<button
-												className="rounded-[8px] bg-[#D7E1EB] dark:bg-[#202023] text-[16px] text-primary dark:text-white font-medium text-center w-[261px] h-[40px]"
+												className="rounded-[8px] bg-[#D7E1EB] dark:bg-card text-[16px] text-primary dark:text-white font-medium text-center w-[261px] h-[40px]"
 												onClick={() => {
 													setEdit(true);
 												}}
@@ -137,11 +137,11 @@ function CreateNewTeam({ setEdit }: { setEdit: (value: React.SetStateAction<bool
 	};
 
 	return (
-		<div className="bg-white dark:bg-[#202023] p-4 border-t border-[#9490A0]/10 ">
+		<div className="bg-white dark:bg-card p-4 border-t border-[#9490A0]/10 ">
 			<form onSubmit={handleSubmit} className="relative text-gray-600 focus-within:text-gray-400">
 				<input
 					autoFocus
-					className="w-full h-[40px] pr-[20px] dark:text-white text-primary bg-[#EEEFF5] border border-[#EEEFF5] dark:bg-[#1B1B1E] placeholder-[#9490A0] placeholder:font-light placeholder:text-sm dark:placeholder-[#616164] rounded-[10px] pl-[10px] shadow-inner "
+					className="w-full h-[40px] pr-[20px] dark:text-white text-primary bg-[#EEEFF5] border border-[#EEEFF5] dark:bg-card placeholder-[#9490A0] placeholder:font-light placeholder:text-sm dark:placeholder-[#616164] rounded-[10px] pl-[10px] shadow-inner "
 					placeholder="Please enter your team name"
 					disabled={createOTeamLoading}
 					name="name"

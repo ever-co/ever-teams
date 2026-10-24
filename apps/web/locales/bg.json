@@ -1,8 +1,13 @@
 {
-	"TITLE": "Ever Отбори",
+	"TITLE": "{appName}",
 	"sidebar": {
 		"DASHBOARD": "Табло",
 		"FORYOU": "Общи",
+		"QUICK_CREATE": "Бързо създаване",
+		"COMMAND": "Команда",
+		"PLATFORM": "Платформа",
+		"TEAM_DASHBOARD": "Табло на екипа",
+		"APPS_AND_URLS": "Приложения и URL адреси",
 		"HOME": "Начало",
 		"INBOX": "Входящи",
 		"PROJECTS": "Проекти",
@@ -44,6 +49,9 @@
 		"ADD_TIME_ENTRY": "Добавяне на запис на време",
 		"OPT_IN_UPDATES": "Абонирайте се за актуализации и новини за {appName}.",
 		"SUBSCRIBE_NEWSLETTER": "Абонирайте се за нашия бюлетин",
+		"SUBSCRIBE": "Абонирайте се",
+		"SUBSCRIBING": "Абониране...",
+		"EMAIL": "Имейл",
 		"VIEW_PROJECT": "Преглед на проекта",
 		"SHARE_PROJECT": "Споделяне на проекта",
 		"DELETE_PROJECT": "Изтриване на проекта",
@@ -197,6 +205,8 @@
 		"THEMES": "Теми",
 		"3D_MODE": "3D режим",
 		"DARK_MODE": "Тъмен режим",
+		"THEME_LIGHT": "Светла",
+		"THEME_DARK": "Тъмна",
 		"SETTINGS": "Настройки",
 		"PERSONAL": "Лични",
 		"USE_SETTING": "Използвай настройка",
@@ -436,7 +446,9 @@
 		"PRODUCTIVITY_BREAKDOWN": "Разбивка на продуктивността за {month}",
 		"DAILY": "Дневно",
 		"WEEKLY": "Седмично",
-		"MONTHLY": "Месечно"
+		"MONTHLY": "Месечно",
+		"HIDE_CHART": "Скрий диаграмата",
+		"SHOW_ACTIVITY_CHART": "Покажи диаграмата на активността"
 	},
 	"timeActivity": {
 		"TIME_AND_ACTIVITY": "Време и дейност",
@@ -469,7 +481,12 @@
 		"GROUP_BY": "Групиране по",
 		"DATE": "Дата",
 		"VIEW": "Изглед",
-		"HOURS_ON_DATE": "{hours} часа на {date}"
+		"HOURS_ON_DATE": "{hours} часа на {date}",
+		"PREVIOUS_WEEK": "Предишна седмица",
+		"NEXT_WEEK": "Следваща седмица",
+		"WEEKLY_REPORT_ERROR": "Седмичният отчет не е наличен",
+		"WEEKLY_REPORT_ERROR_MESSAGE": "Проследеното време за избраната седмица не можа да се зареди.",
+		"EXPORT_FAILED": "Файлът не можа да бъде създаден. Опитайте отново."
 	},
 	"hotkeys": {
 		"HELP": "Помощ",
@@ -709,7 +726,34 @@
 			"FORGOT_PASSWORD": "Забравена парола?",
 			"TERMS_OF_SERVICE": "Условия за ползване",
 			"PRIVACY_POLICY": "Политика за поверителност",
-			"OR_CONTINUE_WITH": "или продължете с"
+			"OR_CONTINUE_WITH": "или продължете с",
+			"SIGNUP_VERIFY_EMAIL": "Акаунтът ви е създаден. Отворете връзката в имейла, който изпратихме на {email}, за да го активирате, след което влезте с имейла си.",
+			"everId": {
+				"NO_WORKSPACE_TITLE": "Все още няма работно пространство за този Ever ID",
+				"NO_WORKSPACE_BODY": "С този Ever ID все още не е свързано работно пространство. Влезте по друг начин или помолете администратора на работното си пространство за покана.",
+				"WORKSPACE_BLOCKED_TITLE": "Използвайте входа на вашата компания",
+				"WORKSPACE_BLOCKED_BODY": "Вашето работно пространство изисква вход чрез вашата компания. Използвайте го, за да продължите, или влезте по друг начин.",
+				"SIGN_IN_ANOTHER_WAY": "Вход по друг начин",
+				"NO_WORKSPACE_SIGNUP_BODY": "Можете също да създадете ново работно пространство чрез обичайната регистрация.",
+				"CREATE_WORKSPACE": "Създаване на работно пространство",
+				"CONFIRM_HINT": "Изпратихме еднократен код на имейл адреса на съществуващия ви акаунт. Въведете го, за да свържете своя Ever ID.",
+				"CODE_EXPIRED": "Този код е изтекъл или е въвеждан твърде много пъти. Влезте отново с Ever ID.",
+				"TOO_MANY_ATTEMPTS": "Твърде много опити. Изчакайте минута и опитайте отново.",
+				"UNAVAILABLE": "Входът с Ever ID в момента не е достъпен. Опитайте по-късно или влезте по друг начин.",
+				"SIGNUP_CONFIRM": "Създаване на работното ми пространство с този Ever ID",
+				"SIGNUP_HINT": "Имейл адресът ви идва от вашия потвърден Ever ID. Нищо не се създава, докато не продължите.",
+				"SIGNUP_CONFIRM_REQUIRED": "Отметнете полето, за да създадете работното си пространство с този Ever ID.",
+				"SIGNUP_TERMS": "Приемам тези документи:",
+				"SIGNUP_TERMS_REQUIRED": "Приемете документите, за да продължите.",
+				"SIGNUP_EXPIRED": "Тази регистрация е изтекла. Влезте отново с Ever ID.",
+				"SIGNUP_CHECKOUT": "Необходим е абонамент, преди работното ви пространство да бъде създадено.",
+				"CONTINUE_TO_CHECKOUT": "Продължете към плащане",
+				"EMAIL_UNVERIFIED_TITLE": "Потвърдете имейла си в Ever ID",
+				"EMAIL_UNVERIFIED_BODY": "Ever ID все още не е потвърдил вашия имейл адрес. Отворете имейла за потвърждение от Ever ID или потвърдете адреса си в Ever ID сега, след което влезте отново с Ever ID.",
+				"VERIFY_EMAIL": "Потвърди имейла ми в Ever ID",
+				"SIGN_IN_AGAIN": "Влез отново с Ever ID",
+				"LOGIN_WITH_EVER_ID": "Вход с <wordmark>Ever ID</wordmark>"
+			}
 		},
 		"authPasscode": {
 			"HEADING_TITLE": "Присъединяване към съществуващ отбор",
@@ -768,6 +812,8 @@
 			"LOADING_WORKSPACE": "Зареждаме работното пространство, изчакайте...",
 			"REDIRECT_TO_WORSPACE_LOADING": "Пренасочване към вашето работно пространство...",
 			"VERIFY_EMAIL_LOADING_TEXT": "Проверяваме имейла ви, изчакайте...",
+			"VERIFY_EMAIL_FAILED_TITLE": "Не успяхме да потвърдим имейла ви",
+			"VERIFY_EMAIL_FAILED_MESSAGE": "Връзката може да е невалидна, изтекла или вече използвана, или сървърът не е бил достъпен. Опитайте отново след малко или отворете приложението, за да заявите нова.",
 			"INPUT_TEAM_NAME": "Въведете име на отбора",
 			"JOIN_EXISTING_TEAM": "Присъединявате се към съществуващ отбор?",
 			"CREATE_FIRST_TEAM": "Създайте първия си отбор",
@@ -791,6 +837,10 @@
 			"HEADING_TITLE": "Основни настройки",
 			"goToTeamSettings": "Отидете към настройките на отбора",
 			"WORKING_HOURS": "Работно време",
+			"ADD_HOURS_FOR": "Добавяне на часове за {day}",
+			"REMOVE_HOURS_FOR": "Премахване на часове за {day}",
+			"UNAVAILABLE": "Недостъпно",
+			"TOGGLE_AVAILABILITY_FOR": "Наличност за {day}",
 			"emailNotValid": "Моля, въведете валиден имейл",
 			"phoneNotValid": "Моля, въведете валиден телефонен номер",
 			"WORK_SCHEDULE": "Работен график",
@@ -811,6 +861,8 @@
 			"SIZES_HEADING": "Размери",
 			"TEAM_NAME": "Име на отбора",
 			"TEAM_TYPE": "Тип отбор",
+			"TEAM_TYPE_UPDATED": "Типът на отбора е обновен успешно",
+			"TEAM_TYPE_UPDATE_FAILED": "Неуспешно обновяване на типа на отбора. Моля, опитайте отново.",
 			"TIME_TRACKING": "Проследяване на времето",
 			"ENFORCE_PLAN": "Принудете плана",
 			"ADD_NEW_MEMBER": "Добави нов член",
@@ -908,7 +960,56 @@
 			"NO_INVITATIONS": "В момента няма покани!",
 			"NO_MEMBERS": "В момента няма членове!",
 			"GO_TO_PERSONAL_SETTINGS": "Отидете в лични настройки",
-			"SHARE_MEMBERS_PROFILE_VIEWS": "Споделете прегледите на профилите на членовете"
+			"SHARE_MEMBERS_PROFILE_VIEWS": "Споделете прегледите на профилите на членовете",
+			"everPlatform": {
+				"TITLE": "Ever Platform",
+				"DESCRIPTION": "Незадължителни функции на тази инсталация. Всичко показано тук се съхранява от нейния API и всяка част може да бъде изключена.",
+				"STATS_TITLE": "Анонимна статистика за използването",
+				"STATS_DESCRIPTION": "Веднъж дневно тази инсталация може да изпраща анонимен отчет: работещата версия и начина на инсталиране. Никога не се изпращат имена, имейл адреси, съдържание или данни за използването от конкретен човек.",
+				"STATS_TOGGLE_LABEL": "Изпращане на анонимна статистика за използването",
+				"STATS_ON": "Включено",
+				"STATS_OFF": "Изключено",
+				"STATS_REASON_UI": "изключено в настройките",
+				"STATS_REASON_CONFIG": "конфигурираният адрес за статистика не може да се използва",
+				"STATS_REASON_KEY": "ключът за статистика не може да бъде прочетен",
+				"STATS_NEXT_SEND": "Следващ отчет",
+				"STATS_WEB_APP": "Уеб приложение",
+				"STATS_API": "API",
+				"STATS_LAST_PAYLOAD": "Последен изпратен отчет",
+				"STATS_NO_PAYLOAD": "Все още не е изпратен отчет.",
+				"STATS_SENT_AT": "Изпратено",
+				"STATS_HTTP_STATUS": "Отговор",
+				"STATS_TOGGLE_ERROR": "Настройката не можа да бъде запазена. Опитайте отново.",
+				"STATS_MANAGED_CLOUD": "Управлява се от Ever Cloud",
+				"STATS_MANAGED_OPERATOR": "Управлява се от оператора на инстанцията",
+				"STATS_DOCS_LINK": "Какво се изпраща и как да го изключите",
+				"CONNECT_LINK_TITLE": "Връзка на организацията",
+				"CONNECT_LINKED_AS": "Свързана с",
+				"CONNECT_NOT_LINKED": "Тази организация не е свързана с Ever Platform.",
+				"CONNECT_LINK_CODE_HINT": "Поставете кода за връзка от Ever Platform (EVL-XXXX-XXXX-XXXX).",
+				"CONNECT_LINK_CODE_INVALID": "Това не е валиден код за връзка.",
+				"CONNECT_LINK": "Свържи",
+				"CONNECT_UNLINK": "Прекъсни връзката",
+				"CONNECT_NOT_CONNECTED": "Операторът на тази инсталация не я е свързал с Ever Platform.",
+				"INTEGRATIONS_TITLE": "Интеграции и данни",
+				"INTEGRATIONS_EMPTY": "На тази организация не се предлага интеграция.",
+				"SHOW_SCOPE": "Покажи обхвата",
+				"HIDE_SCOPE": "Скрий обхвата",
+				"MANAGE_IN_APP": "Управление в Ever Platform",
+				"DISABLE": "Изключи",
+				"STATE_ENABLED": "Включена",
+				"STATE_OFF": "Не е включена",
+				"STATE_PENDING": "Изчаква оператора",
+				"STATE_DENIED": "Не е разрешена тук",
+				"ENTITLEMENTS_TITLE": "Права",
+				"ENTITLEMENT_PLAN": "План",
+				"ENTITLEMENT_FEATURES": "Функции",
+				"ENTITLEMENT_EXPIRES": "Валидно до",
+				"ENTITLEMENT_NONE": "Все още няма права.",
+				"REFRESH": "Обнови",
+				"LOAD_ERROR": "Тази информация не можа да бъде заредена.",
+				"ACTION_FAILED": "Действието не бе успешно. Опитайте отново."
+			}
 		},
 		"invite": {
 			"HEADING_TITLE": "Поканете член в отбора ви",
@@ -998,6 +1099,7 @@
 			"LOADING": "Зареждане на данни за таблицата за работно време...",
 			"NO_ENTRIES_FOUND": "Няма намерени записи в таблицата за работно време",
 			"YOU_ARE_ABOUT_TO_REJECT_ENTRY": "Вие ще отхвърлите избрания запис, искате ли да продължите?",
+			"REJECTION_REASON": "Причина за отхвърляне",
 			"ALL_TASKS": "Всички задачи",
 			"PENDING": "Висящи",
 			"APPROVED": "Одобрено",
@@ -1017,7 +1119,8 @@
 			"BILLABLE_MODIFY_SUCCESS": "Състоянието за фактуриране беше успешно променено.",
 			"BILLABLE_MODIFY_ERROR": "Неуспешна промяна на състоянието за фактуриране. Моля, опитайте отново.",
 			"STATUS_MODIFY_SUCCESS": "Статусът на графика беше успешно променен.",
-			"STATUS_MODIFY_ERROR": "Неуспешна промяна на статуса на графика. Моля, опитайте отново."
+			"STATUS_MODIFY_ERROR": "Неуспешна промяна на статуса на графика. Моля, опитайте отново.",
+			"END_AFTER_START": "Крайният час трябва да е след началния."
 		}
 	},
 	"timer": {
@@ -1025,12 +1128,19 @@
 		"START_TIMER": "Моля, изберете или създайте нова задача, за да започнете да проследявате времето или да създадете план",
 		"ALREADY_TRACKING_MESSAGE": "Вече проследявате времето в друг раздел или устройство.",
 		"TASK_CLOSED": "Задачата е затворена",
+		"PLAN_REQUIRED_TO_START": "Добави тази задача към плана за днес, за да започнеш",
 		"STARTING_TIMER": "Стартиране на таймера...",
 		"TIMER_STARTED": "Таймерът е стартиран успешно",
 		"TIMER_START_FAILED": "Неуспешно стартиране на таймера",
+		"STALE_TIMER_STOPPED_DESCRIPTION": "Таймерът продължи да работи след затварянето на приложението, затова беше спрян в последния момент, в който приложението беше отворено ({stoppedAt}). Ако сте работили след това, добавете времето ръчно.",
+		"TIMER_STOP_FAILED": "Неуспешно спиране на таймера. Моля, опитайте отново.",
 		"TEAM_SWITCH": {
 			"STOPPED_TIMER_TOAST_TITLE": "Таймерът спря",
 			"STOPPED_TIMER_TOAST_DESCRIPTION": "Таймерът спря поради смяна на отбора"
+		},
+		"TASK_SWITCH": {
+			"STOPPED_TIMER_TOAST_TITLE": "Таймерът спря",
+			"STOPPED_TIMER_TOAST_DESCRIPTION": "Таймерът спря поради смяна на активната задача"
 		},
 		"APPS": "Приложения",
 		"ARCHIVED": "Архивиран",
@@ -1069,7 +1179,9 @@
 			"WARNING_PLAN_ESTIMATION": "Моля, коригирайте планираните работни часове или преоценете задачата(ите) "
 		},
 		"VISITED_SITES": "Посетени сайтове",
-		"NO_VISITED_SITE_MESSAGE": "Няма посетени сайтове"
+		"NO_VISITED_SITE_MESSAGE": "Няма посетени сайтове",
+		"TRACKING_SOURCE_HINT": "Снимките на екрана, приложенията и посетените сайтове се записват от настолното приложение или агента, а не когато времето се отчита в браузъра.",
+		"DOWNLOAD_DESKTOP_APP": "Изтеглете настолното приложение"
 	},
 	"task": {
 		"TITLE": "Задача",
@@ -1135,12 +1247,14 @@
 			"TASK_PLAN_FAILED": "Неуспешно планиране на задачата. Моля, опитайте отново.",
 			"TASK_ASSIGNMENT_FAILED": "Неуспешно възлагане/отмяна на възлагане на задачата. Моля, опитайте отново.",
 			"TASK_FAVORITE_FAILED": "Неуспешно обновяване на любими. Моля, опитайте отново.",
+			"TASK_CREATION_FAILED": "Неуспешно създаване на задачата. Моля, опитайте отново.",
 			"FAVORITE_ITEM_CREATED_SUCCESSFULLY": "Любимият елемент е създаден успешно",
 			"FAVORITE_ITEM_DELETED_SUCCESSFULLY": "Любимият елемент е изтрит успешно"
 		}
 	},
 	"dailyPlan": {
 		"PLAN_FOR_TODAY": "План за днес",
+		"ADD_TO_TODAY_PLAN": "Добави към плана за днес",
 		"TASK_TIME": "време за задача",
 		"TOTAL_TODAY": "Общо Днес",
 		"PLAN_FOR_TOMORROW": "План за утре",
@@ -1164,6 +1278,7 @@
 		"TOTAL_TASK": "Общо задачи",
 		"DAILY_PLAN_DESCRIPTION": "'Дневният план' помага да се организира работният процес за постигане на най-добри резултати",
 		"SUGGESTS_TO_ADD_TASK_TO_TODAY_PLAN": "Тази задача не беше планирана за днешния план. Искате ли да добавите към плана?",
+		"TASK_ORDER_SAVE_FAILED": "Новият ред на задачите не можа да бъде запазен. Опитайте отново.",
 		"planned_tasks_popup": {
 			"warning": {
 				"PLANNED_TIME": "Моля, добавете планираното време",
@@ -1214,7 +1329,10 @@
 			"TERMS_AND_CONDITIONS": "Общи условия",
 			"PRIVACY_POLICY": "Политика за поверителност",
 			"COOKIES": "Политика за бисквитки",
-			"BY": "От"
+			"BY": "От",
+			"BUILD_WEB": "Уеб компилация v{version}",
+			"API_VERSION": "API v{version}",
+			"OPEN_COMMIT": "Отвори комит {commit}"
 		}
 	},
 	"errors": {
@@ -1227,7 +1345,8 @@
 		"PASSWORDS_DO_NOT_MATCH": "Паролите не съвпадат"
 	},
 	"placeholders": {
-		"ENTER_TO_VALIDATE": "Натиснете Enter за валидиране"
+		"ENTER_TO_VALIDATE": "Натиснете Enter за валидиране",
+		"ENTER_A_COMMAND": "Въведете команда..."
 	},
 	"team": {
 		"BACK_LABEL": "Обратно към отбора",
@@ -1287,7 +1406,7 @@
 		"HEADER_TITLE": "AI Чат",
 		"CLEAR_CONVERSATION": "Изчисти разговора",
 		"CONFIGURATION": "Конфигурация",
-		"ASSISTANT_NAME": "Асистент Ever Teams",
+		"ASSISTANT_NAME": "Асистент {appName}",
 		"EMPTY_CONFIGURED": "Задайте въпрос, за да започнете.",
 		"EMPTY_NOT_CONFIGURED": "Конфигурирайте вашия API ключ, за да започнете.",
 		"CONFIGURE_BUTTON": "Конфигуриране",
@@ -1295,6 +1414,14 @@
 		"INPUT_PLACEHOLDER_READY": "Вашето съобщение...",
 		"INPUT_PLACEHOLDER_NO_KEY": "Конфигурирайте вашия API ключ...",
 		"STOP": "Спри",
-		"SEND": "Изпрати"
+		"SEND": "Изпрати",
+		"NEW_CHAT": "Нов чат",
+		"HISTORY": "История",
+		"NO_CONVERSATIONS": "Все още няма разговори",
+		"PANEL_CONTROLS": "Контроли на чат панела",
+		"COLLAPSE_ASSISTANT": "Свий асистента",
+		"STANDARD_ASSISTANT_WIDTH": "Стандартна ширина на асистента",
+		"EXPAND_ASSISTANT": "Разшири асистента",
+		"OPEN_ASSISTANT": "Отвори асистента {appName}"
 	}
 }

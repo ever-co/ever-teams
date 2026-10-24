@@ -21,6 +21,7 @@ import { Button } from '../duplicated-components/_button';
 import { AlertPopup } from '../common/alert-popup';
 import { toast } from 'sonner';
 import { useGetTimeLogs } from '@/core/hooks/activities/time-logs/use-get-time-logs';
+import { isTaskFinished } from '@/core/lib/helpers/task';
 
 export function PlanHeader({ plan, planMode }: { plan: TDailyPlan; planMode: FilterTabs }) {
 	const [editTime, setEditTime] = useState<boolean>(false);
@@ -48,7 +49,7 @@ export function PlanHeader({ plan, planMode }: { plan: TDailyPlan; planMode: Fil
 
 	// Get completed tasks
 	const completedTasks = useMemo(
-		() => plan.tasks?.filter((task) => task.status === 'completed')?.length || 0,
+		() => plan.tasks?.filter((task) => isTaskFinished(task.status))?.length || 0,
 		[plan.tasks]
 	);
 

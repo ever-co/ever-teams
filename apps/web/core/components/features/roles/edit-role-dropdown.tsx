@@ -1,6 +1,7 @@
 import { Dropdown } from '@/core/components';
 import { clsxm } from '@/core/lib/utils';
 import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useTranslations } from 'next-intl';
 import { mapRoleItems, RoleItem } from '@/core/components/roles/role-item';
 import { TOrganizationTeamEmployee, TRole } from '@/core/types/schemas';
 import { useRolesQuery } from '@/core/hooks/roles/use-roles-query';
@@ -12,7 +13,8 @@ export const EditUserRoleDropdown = ({
 	member: TOrganizationTeamEmployee;
 	handleRoleChange: (newRole: TRole) => void;
 }) => {
-	const { roles } = useRolesQuery();
+	const t = useTranslations();
+	const { roles, isLoading } = useRolesQuery();
 
 	const items = useMemo(
 		() => mapRoleItems(roles?.filter((role) => ['MANAGER', 'EMPLOYEE'].includes(role.name)) || []),
@@ -45,7 +47,12 @@ export const EditUserRoleDropdown = ({
 				value={roleItem}
 				onChange={onChange}
 				items={items}
-			></Dropdown>
+				loading={isLoading}
+			>
+				{!isLoading && !items.length && (
+					<p className="px-1 text-sm text-gray-500 dark:text-gray-400">{t('common.NO_RESULT')}</p>
+				)}
+			</Dropdown>
 		</>
 	);
 };
