@@ -4,7 +4,7 @@ import { pickTokenOrganization } from '@/core/lib/auth/jwt-utils';
 
 import { authFormValidate } from '@/core/lib/helpers/validations';
 import { generateToken } from '@/core/lib/helpers/generate-token';
-import { AxiosResponse } from 'axios';
+import { AxiosResponse, InternalAxiosRequestConfig } from 'axios';
 import { setAuthCookies, setNoTeamPopupShowCookie } from '@/core/lib/helpers/cookies';
 
 import { inviteService } from '../organizations/teams/invites';
@@ -112,7 +112,7 @@ class SigninService extends APIService {
 				status: 200,
 				statusText: '',
 				headers: {},
-				config: {} as any
+				config: {} as InternalAxiosRequestConfig
 			};
 
 			return Promise.resolve(response);
@@ -216,7 +216,7 @@ class SigninService extends APIService {
 					status: 200,
 					statusText: '',
 					headers: {},
-					config: {} as any
+					config: {} as InternalAxiosRequestConfig
 				} as AxiosResponse<{ loginResponse: IAuthResponse; team: TOrganizationTeam | undefined }>);
 			}
 
@@ -245,7 +245,7 @@ class SigninService extends APIService {
 			status: 200,
 			statusText: '',
 			headers: {},
-			config: {} as any
+			config: {} as InternalAxiosRequestConfig
 		};
 
 		return Promise.resolve(response);

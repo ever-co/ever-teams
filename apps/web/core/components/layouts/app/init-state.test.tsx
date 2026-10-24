@@ -118,9 +118,9 @@ jest.mock('@/core/lib/helpers/cookies', () => ({
 }));
 // The token's organization switch (InitState runs it for every new token) has its own tests
 // (token-organization.test.ts): here it reads no cookie and calls no API
-const mockSyncTokenOrganization = jest.fn((..._args: unknown[]) => Promise.resolve(false));
+const mockSyncTokenOrganization = jest.fn(() => Promise.resolve(false));
 jest.mock('@/core/lib/auth/token-organization', () => ({
-	syncTokenOrganization: (...args: unknown[]) => mockSyncTokenOrganization(...args)
+	syncTokenOrganization: () => mockSyncTokenOrganization()
 }));
 
 import { InitState } from './init-state';
