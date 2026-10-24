@@ -307,12 +307,28 @@ function buildData(fixture, scenario, requestUrl, requestTenantId) {
 	};
 }
 
+/** An unsigned token shaped like Gauzy's: the web app only decodes its claims (`organizationId` since Gauzy #11316). */
+function syntheticToken(userId, organizationId, rotation) {
+	const part = (value) => Buffer.from(JSON.stringify(value)).toString('base64url');
+	const now = Math.floor(Date.now() / 1000);
+	const claims = { sub: userId, organizationId, iat: now, exp: now + 86_400, jti: rotation };
+	return `${part({ alg: 'none', typ: 'JWT' })}.${part(claims)}.fixture`;
+}
+
 function routeResponse(method, pathname, requestUrl, data, fixture, state, body) {
 	const { ids } = fixture;
 	if (pathname === '/api/user/me') return data.baseUser;
 	if (pathname === '/api/auth/workspaces') return data.workspaces;
 	if (pathname === '/api/auth/refresh-token')
 		return { token: 'synthetic-refreshed-token', refresh_token: 'synthetic-refresh-token' };
+	// Tokens for another organization of the caller's tenant (the web app switches when the token's differs)
+	if (pathname === '/api/auth/switch-organization' && method === 'POST') {
+		const organizationId = typeof body?.organizationId === 'string' ? body.organizationId : ids.organizationA;
+		return {
+			token: syntheticToken(ids.user, organizationId, `switched-${organizationId}`),
+			refresh_token: 'synthetic-refresh-token'
+		};
+	}
 
 	if (pathname === '/api/organization-team' && method === 'GET') return pagination([data.team]);
 	if (/^\/api\/organization-team\/[^/]+$/.test(pathname) && method === 'GET') return data.team;
