@@ -4,6 +4,10 @@ on:
   push:
     branches: [main]
 
+# Least privilege for the workflow token (CodeQL actions/missing-workflow-permissions): it pushes the version tag and creates the release
+permissions:
+  contents: write
+
 jobs:
   release:
     runs-on: ${{ matrix.os }}

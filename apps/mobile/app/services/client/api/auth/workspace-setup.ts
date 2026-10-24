@@ -11,7 +11,7 @@ import { createTenantRequest } from '../../requests/tenant';
  * (organization boundary, ever-co/ever-gauzy#11316), so the app must act in that one; the first of the list can be
  * another.
  */
-export function pickTokenOrganization<T extends { organizationId?: string }>(
+export function pickTokenOrganization<T extends { organizationId?: string | null }>(
 	items: T[] | undefined,
 	token: string
 ): T | undefined {

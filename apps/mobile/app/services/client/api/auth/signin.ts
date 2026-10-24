@@ -30,9 +30,20 @@ export async function signIn(params: ISignInDataAPI) {
 	const userId = data.user?.id;
 
 	// An account with no tenant yet has no organization to list (and the list needs a tenant)
-	const organizations = tenantId
-		? (await getUserOrganizationsRequest({ tenantId, userId }, accessToken)).data
-		: undefined;
+	const lookup = tenantId ? await getUserOrganizationsRequest({ tenantId, userId }, accessToken) : undefined;
+	// The request helper answers an HTTP error instead of throwing: a failed or malformed read is a sign-in error,
+	// never "no organization" (which would set up a second workspace for the owner of a tenant)
+	if (lookup && (!lookup.response.ok || !Array.isArray(lookup.data?.items))) {
+		return {
+			response: {
+				status: 400,
+				errors: {
+					email: 'Your workspace could not be loaded. Please try again.'
+				}
+			}
+		};
+	}
+	const organizations = lookup?.data;
 
 	const organization = pickTokenOrganization(organizations?.items, accessToken);
 

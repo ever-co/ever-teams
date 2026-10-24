@@ -14,11 +14,10 @@ concurrency:
   group: ${{ github.ref }}-${{ github.workflow }}
   cancel-in-progress: true
 
-# Least privilege for the workflow token (CodeQL actions/missing-workflow-permissions); the Vercel action may comment the deployment
+# Least privilege for the workflow token (CodeQL actions/missing-workflow-permissions); the Vercel action may record the deployment
 permissions:
   contents: read
   deployments: write
-  pull-requests: write
 
 jobs:
   deploy:
