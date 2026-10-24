@@ -23,7 +23,7 @@
 		"@ever-teams/toolkit-ui": "*",
 		"@storybook/addon-links": "10.1.10",
 		"@storybook/addon-onboarding": "10.1.10",
-		"@types/node": "^20",
+		"@types/node": "^26.6.5",
 		"@types/react": "^19",
 		"@types/react-dom": "^19",
 		"eslint": "^9.39.5",
