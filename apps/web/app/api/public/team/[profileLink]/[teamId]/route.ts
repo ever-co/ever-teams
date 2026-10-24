@@ -10,7 +10,12 @@ export async function GET(req: Request, { params }: INextParams) {
 	const { searchParams } = new URL(req.url);
 
 	if (!profileLink || !teamId) {
-		return;
+		return NextResponse.json({ message: 'A profile link and a team are required' }, { status: 400 });
+	}
+
+	// Encoding keeps "/" inside one segment, but "." and ".." stay as they are and would still walk the Gauzy path
+	if ([profileLink, teamId].some((segment) => segment === '.' || segment === '..')) {
+		return NextResponse.json({ message: 'Invalid profile link or team' }, { status: 400 });
 	}
 
 	const type = searchParams.get('type') as string;

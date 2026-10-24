@@ -1,91 +1,61 @@
 'use server';
-import { appendFile, mkdir } from 'fs/promises';
-import { join, resolve } from 'path';
+import { appendFile, mkdir, readdir, stat, rm } from 'fs/promises';
+import { basename, join } from 'path';
 import { existsSync } from 'fs';
 import { LogEntry } from '@/core/types/generics';
-import { Logger } from './logger.service';
-import { isServer } from '@/core/lib/helpers';
 
-import { readdir, stat, rm } from 'fs/promises';
-/**
- * Append a log entry to a file
+/*
+ * 🛑 Every function exported from this 'use server' module is a Server Action: client code imports the logger, so
+ * anyone who can reach the app can call these with arguments of their choosing. None of them may take a path from
+ * its caller. (`logServerToFile(logDir, filename, ...)` used to append to any file the server could write, and
+ * appending a JSON key such as "$(curl ...|sh)" to a shell profile runs it.)
  */
-export async function logServerToFile(logDir: string, filename: string, logEntry: LogEntry) {
-	if (process.env.NODE_ENV !== 'production') {
-		const filePath = join(logDir, filename);
-		const logString = JSON.stringify(logEntry, null, 2) + '\n';
 
-		await appendFile(filePath, logString, { encoding: 'utf8' });
+/** The logger's directory (`Logger`'s default `logDir`), relative to the working directory. */
+const LOG_DIR = 'logs';
+
+/** A log file name: one path segment, ending in `.log`. */
+const LOG_FILE_NAME = /^[A-Za-z0-9][A-Za-z0-9._-]{0,127}\.log$/;
+
+/**
+ * Append a log entry to a file of the log directory. Development only.
+ *
+ * @param filename - The file name (`2026-10-20.log`, or a custom `<name>.log`); anything that is not a plain
+ * `.log` file name is refused.
+ * @param logEntry - The entry to append.
+ */
+export async function logServerToFile(filename: string, logEntry: LogEntry) {
+	if (process.env.NODE_ENV === 'production') {
+		return;
 	}
+	if (typeof filename !== 'string' || !LOG_FILE_NAME.test(filename)) {
+		throw new Error('Invalid log file name');
+	}
+
+	const logString = JSON.stringify(logEntry, null, 2) + '\n';
+
+	// `basename` as well: the name is already one segment, and the path is built from nothing else.
+	await appendFile(join(LOG_DIR, basename(filename)), logString, { encoding: 'utf8' });
 }
 
 /**
- * Create a directory recursively if it does not exist
+ * Ensure that the log directory exists, and empty it when it has grown past `LOG_FOLDER_MAX_SIZE` MB. Development
+ * only.
  */
-export async function ensureDirectoryExists(dirPath: string): Promise<void> {
-	if (!isServer()) {
-		return; // Nothing to do on the client
+export async function createLogDir(): Promise<void> {
+	if (process.env.NODE_ENV === 'production') {
+		return;
 	}
-
-	const absolutePath = await getAbsolutePath(dirPath);
-
-	if (!existsSync(absolutePath)) {
-		try {
-			await mkdir(absolutePath, { recursive: true });
-		} catch (err) {
-			console.error('[FsUtils] Failed to create directory', absolutePath, err);
-		}
-	}
-}
-
-/**
- * Get the absolute path for a relative directory to the project root
- * Compatible with the development and production environments of Next.js
- */
-export async function getAbsolutePath(relativePath: string): Promise<string> {
-	if (!isServer()) {
-		throw new Error('This function can only be called on the server');
-	}
-
-	// Determine the project root
-	let rootDir: string;
-
-	// In development, the process runs at the project root
-	// In production with Next.js, the process generally runs in .next/server/
-	if (await isProjectRootDir(process.cwd())) {
-		// Development ‑ already at project root
-		rootDir = process.cwd();
-	} else {
-		// Production ‑ running from .next/server or dist folder
-		rootDir = resolve(process.cwd(), '../../');
-	}
-
-	return resolve(rootDir, relativePath);
-}
-
-export async function isProjectRootDir(dir: string): Promise<boolean> {
-	return (
-		existsSync(join(dir, 'package.json')) ||
-		existsSync(join(dir, 'next.config.js')) ||
-		existsSync(join(dir, '.next'))
-	);
-}
-
-/**
- * Ensure that the log directory exists
- */
-export async function createLogDir(logger: Logger): Promise<void> {
-	const config = logger.getConfig();
 
 	try {
-		if (!existsSync(config.logDir!)) {
-			await mkdir(config.logDir!, { recursive: true });
+		if (!existsSync(LOG_DIR)) {
+			await mkdir(LOG_DIR, { recursive: true });
 		} else {
 			// Clean up logs if they're too big - don't await to avoid blocking
-			cleanIfTooBig(config.logDir!, Number(process.env.LOG_FOLDER_MAX_SIZE || 10)).catch((error) => {});
+			cleanIfTooBig(LOG_DIR, Number(process.env.LOG_FOLDER_MAX_SIZE || 10)).catch(() => undefined);
 		}
 	} catch (error) {
-		console.error(`[Logger] Failed to create log directory: ${config.logDir}`, error);
+		console.error(`[Logger] Failed to create log directory: ${LOG_DIR}`, error);
 	}
 }
 

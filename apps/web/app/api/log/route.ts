@@ -26,7 +26,7 @@ export async function POST(req: NextRequest) {
 			}
 
 			const logger = Logger.getInstance();
-			await createLogDir(logger);
+			await createLogDir();
 			logger.simpleLogToConsole(body);
 
 			// Extract custom log file name if provided

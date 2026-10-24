@@ -116,6 +116,12 @@ jest.mock('@/core/lib/helpers/cookies', () => ({
 	ACCESS_TOKEN_REFRESHED_EVENT: 'ever-teams:access-token-refreshed',
 	getAccessTokenCookie: () => accessToken
 }));
+// The token's organization switch (InitState runs it for every new token) has its own tests
+// (token-organization.test.ts): here it reads no cookie and calls no API
+const mockSyncTokenOrganization = jest.fn(() => Promise.resolve(false));
+jest.mock('@/core/lib/auth/token-organization', () => ({
+	syncTokenOrganization: () => mockSyncTokenOrganization()
+}));
 
 import { InitState } from './init-state';
 

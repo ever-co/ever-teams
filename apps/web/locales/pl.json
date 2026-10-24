@@ -727,6 +727,7 @@
 			"TERMS_OF_SERVICE": "Regulamin",
 			"PRIVACY_POLICY": "Polityka prywatności",
 			"OR_CONTINUE_WITH": "lub kontynuuj przez",
+			"SIGNUP_VERIFY_EMAIL": "Twoje konto zostało utworzone. Otwórz link w e-mailu wysłanym na {email}, aby je aktywować, a następnie zaloguj się e-mailem.",
 			"everId": {
 				"NO_WORKSPACE_TITLE": "Brak jeszcze przestrzeni roboczej dla tego Ever ID",
 				"NO_WORKSPACE_BODY": "Z tym Ever ID nie jest jeszcze połączona żadna przestrzeń robocza. Zaloguj się w inny sposób lub poproś administratora swojej przestrzeni roboczej o zaproszenie.",
@@ -1118,7 +1119,8 @@
 			"BILLABLE_MODIFY_SUCCESS": "Stan rozliczeniowy został pomyślnie zmieniony.",
 			"BILLABLE_MODIFY_ERROR": "Nie udało się zmienić stanu rozliczeniowego. Spróbuj ponownie.",
 			"STATUS_MODIFY_SUCCESS": "Status karty czasu pracy został pomyślnie zmieniony.",
-			"STATUS_MODIFY_ERROR": "Nie udało się zmienić statusu karty czasu pracy. Spróbuj ponownie."
+			"STATUS_MODIFY_ERROR": "Nie udało się zmienić statusu karty czasu pracy. Spróbuj ponownie.",
+			"END_AFTER_START": "Godzina zakończenia musi być późniejsza niż godzina rozpoczęcia."
 		}
 	},
 	"timer": {

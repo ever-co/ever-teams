@@ -1,4 +1,5 @@
 import Store from 'electron-store';
+import { randomBytes } from 'crypto';
 import { WebServer, ServerConfig } from '../../interfaces';
 const store = new Store();
 const DEFAULT_CONFIG:WebServer = {
@@ -17,6 +18,22 @@ const DEFAULT_CONFIG:WebServer = {
 export const LocalStore = {
 	getStore: (source: string | 'config'): WebServer | any => {
 		return store.get(source);
+	},
+
+	/**
+	 * A secret of this install, generated on first use and kept in the app's store, which only this user can read.
+	 *
+	 * @param name The secret's name.
+	 * @returns 32 random bytes, base64.
+	 */
+	getInstallSecret: (name: string): string => {
+		const key = `secrets.${name}`;
+		let secret = store.get(key) as string | undefined;
+		if (typeof secret !== 'string' || secret.length < 32) {
+			secret = randomBytes(32).toString('base64');
+			store.set(key, secret);
+		}
+		return secret;
 	},
 
 	updateConfigSetting: (values: WebServer) => {

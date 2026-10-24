@@ -1,9 +1,10 @@
 import { APP_NAME, GAUZY_API_BASE_SERVER_URL } from '@/core/constants/config/constants';
-import { APIService } from '../../api.service';
+import { APIService, getFallbackAPI } from '../../api.service';
+import { pickTokenOrganization } from '@/core/lib/auth/jwt-utils';
 
 import { authFormValidate } from '@/core/lib/helpers/validations';
 import { generateToken } from '@/core/lib/helpers/generate-token';
-import { AxiosResponse } from 'axios';
+import { AxiosResponse, InternalAxiosRequestConfig } from 'axios';
 import { setAuthCookies, setNoTeamPopupShowCookie } from '@/core/lib/helpers/cookies';
 
 import { inviteService } from '../organizations/teams/invites';
@@ -73,7 +74,7 @@ class SigninService extends APIService {
 				userId,
 				token: access_token
 			});
-			const organization = organizations?.items[0];
+			const organization = pickTokenOrganization(organizations?.items, access_token);
 
 			if (!organization) {
 				return Promise.reject({
@@ -111,7 +112,7 @@ class SigninService extends APIService {
 				status: 200,
 				statusText: '',
 				headers: {},
-				config: {} as any
+				config: {} as InternalAxiosRequestConfig
 			};
 
 			return Promise.resolve(response);
@@ -193,15 +194,32 @@ class SigninService extends APIService {
 		const access_token = data.token;
 		const userId = data.user?.id;
 
-		const { data: organizations } = await userOrganizationService.getUserOrganizations({
-			tenantId,
-			userId,
-			token: access_token
-		});
+		// An account with no tenant yet has no organization to list (and the list needs a tenant)
+		const organizations = tenantId
+			? (
+					await userOrganizationService.getUserOrganizations({
+						tenantId,
+						userId,
+						token: access_token
+					})
+				).data
+			: undefined;
 
-		const organization = organizations?.items[0];
+		const organization = pickTokenOrganization(organizations?.items, access_token);
 
 		if (!organization) {
+			// An e-mail sign-up confirmed after register has no workspace yet: the server sets it up and signs in
+			// (the session cookies come with its answer). An account in a tenant it does not own is refused below.
+			if (await finishSignupSetup(params.email, params.token)) {
+				return Promise.resolve({
+					data: { team: undefined, loginResponse: data },
+					status: 200,
+					statusText: '',
+					headers: {},
+					config: {} as InternalAxiosRequestConfig
+				} as AxiosResponse<{ loginResponse: IAuthResponse; team: TOrganizationTeam | undefined }>);
+			}
+
 			return Promise.reject({
 				errors: {
 					email: `Your account is not yet ready to be used on the ${APP_NAME} Platform`
@@ -227,11 +245,25 @@ class SigninService extends APIService {
 			status: 200,
 			statusText: '',
 			headers: {},
-			config: {} as any
+			config: {} as InternalAxiosRequestConfig
 		};
 
 		return Promise.resolve(response);
 	};
+}
+
+/**
+ * Asks this app's server to set up the workspace of a confirmed e-mail sign-up that has none yet
+ * (`POST /api/auth/finish-setup`, see core/services/server/finish-signup.ts). True when it did and signed in.
+ */
+async function finishSignupSetup(email: string, token: string): Promise<boolean> {
+	try {
+		const api = await getFallbackAPI();
+		const { status } = await api.post('/auth/finish-setup', { email, token });
+		return status === 200;
+	} catch {
+		return false;
+	}
 }
 
 export const signinService = new SigninService(GAUZY_API_BASE_SERVER_URL.value);

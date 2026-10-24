@@ -97,6 +97,16 @@ describe('POST /api/auth/signin-workspace — server log', () => {
 		expect(log).not.toContain(refreshToken);
 	}, 15_000);
 
+	it('asks Gauzy for no invitation when the sign-in carries no code (each such call spent its per-IP limit)', async () => {
+		tolerateServerFetchRejections();
+		const workspaceToken = `workspace-token-${INVITED.userId}`;
+
+		const res = await postToRoute({ email: 'person@example.test', token: workspaceToken, teamId: INVITED.teamId });
+
+		expect(res.status).toBe(200);
+		expect(gauzy.calls('POST', '/api/invite/validate-by-code')).toHaveLength(0);
+	}, 15_000);
+
 	it('signs an invited person in without writing their tokens or generated password to the log', async () => {
 		// The e-mailed code matches an invite: the route accepts it, which signs the person in.
 		const res = await postToRoute({ email: INVITED.email, code: INVITED.code, token: '', teamId: INVITED.teamId });

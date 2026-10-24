@@ -18,6 +18,9 @@ export async function register() {
 		// sign-ins fail, as before this check existed). AUTH_SECRET_REQUIRED=true makes the server refuse to start
 		// instead: in production Next only logs a throw from here and then answers every request with a 500.
 		if (process.env.NODE_ENV === 'production') {
+			// Before next-auth first reads it: the repository's own .env publishes a development value
+			const { dropPublishedAuthSecret } = await import('@/core/lib/utils/published-auth-secret');
+			dropPublishedAuthSecret();
 			const { assertAuthSecret } = await import('@/core/lib/utils/check-provider-env-vars');
 			try {
 				assertAuthSecret();

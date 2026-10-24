@@ -10,6 +10,7 @@ import {
 } from '@/core/services/server/requests';
 import { NextResponse } from 'next/server';
 import { APP_NAME } from '@/core/constants/config/constants';
+import { pickTokenOrganization } from '@/core/lib/auth/jwt-utils';
 
 export async function POST(req: Request) {
 	const body = (await req.json()) as unknown as { email: string; code: string };
@@ -92,7 +93,7 @@ export async function POST(req: Request) {
 		console.log('[API /auth/signin-email-confirm] invite accepted', { userId, tenantId });
 
 		const { data: organizations } = await getUserOrganizationsRequest({ tenantId, userId }, access_token);
-		const organization = organizations?.items[0];
+		const organization = pickTokenOrganization(organizations?.items, access_token);
 
 		if (!organization) {
 			return NextResponse.json(

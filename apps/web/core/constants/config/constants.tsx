@@ -707,12 +707,29 @@ export const EVER_ID_TEAMS_AUTO_PROVISION = blankToUndefined(process.env.EVER_ID
 
 export const developmentAuthSecret = 'DEFAULT_VALUE_OF_SECRET_FOR_DEVELOPMENT';
 export const isDevelopment = process.env.NODE_ENV === 'development';
+
 /**
- * The secret next-auth and the Ever ID hand-off use; only `next dev` has a built-in one. A blank AUTH_SECRET counts
- * as unset, a set one is used as written.
+ * AUTH_SECRET values published in this repository (`apps/web/.env`, `.env.dev.docker`). Next.js loads `apps/web/.env`
+ * in production too, so a deployment built from the repository without an AUTH_SECRET of its own signed next-auth's
+ * cookies with a value anyone can read. Outside `next dev` they count as unset.
  */
-export const authSecret =
-	(AUTH_SECRET?.trim() ? AUTH_SECRET : undefined) ?? (isDevelopment ? developmentAuthSecret : undefined);
+export const PUBLISHED_AUTH_SECRETS: readonly string[] = ['ever-app-auth-secret', 'ever-app-auth-secret-dev'];
+
+/** Whether `value` is one of the {@link PUBLISHED_AUTH_SECRETS}. */
+export const isPublishedAuthSecret = (value: string | undefined): boolean =>
+	!!value && PUBLISHED_AUTH_SECRETS.includes(value.trim());
+
+/**
+ * The secret from AUTH_SECRET: a blank one counts as unset, and so does a published one outside `next dev`; any other
+ * is used as written. Only `next dev` has a built-in one.
+ */
+export function resolveAuthSecret(value: string | undefined, development: boolean): string | undefined {
+	const configured = value?.trim() && (development || !isPublishedAuthSecret(value)) ? value : undefined;
+	return configured ?? (development ? developmentAuthSecret : undefined);
+}
+
+/** The secret next-auth and the Ever ID hand-off use (see {@link resolveAuthSecret}). */
+export const authSecret = resolveAuthSecret(AUTH_SECRET, isDevelopment);
 
 // Add manual timer reason
 

@@ -4,31 +4,56 @@ import { contextBridge, ipcRenderer, IpcRendererEvent } from 'electron';
 import { Channels } from './helpers/interfaces';
 import { CustomTitlebar, TitlebarColor } from 'custom-electron-titlebar';
 
+/**
+ * The channels the renderer may use. `Channels` is only a type: at runtime the bridge passed any channel name on, so a
+ * page that ever loaded in a window reached every `ipcMain` listener of the main process.
+ */
+const ALLOWED_CHANNELS: ReadonlySet<string> = new Set<Channels>([
+  'setting-page',
+  'ipc-renderer',
+  'language-set',
+  'updater-page',
+  'server-page',
+  'theme-change',
+  'current-theme',
+  'current-language',
+  'get-platform',
+  'control-button',
+  'open-file-dialog'
+]);
+
+function allowed(channel: Channels): Channels {
+  if (!ALLOWED_CHANNELS.has(channel)) {
+    throw new Error(`IPC channel not allowed: ${String(channel)}`);
+  }
+  return channel;
+}
+
 const electronHandler = {
   ipcRenderer: {
     sendMessage(channel: Channels, ...args: unknown[]) {
-      ipcRenderer.send(channel, ...args);
+      ipcRenderer.send(allowed(channel), ...args);
     },
     sendMessageSync(channel: Channels, ...args: unknown[]) {
-      ipcRenderer.sendSync(channel, ...args);
+      ipcRenderer.sendSync(allowed(channel), ...args);
     },
     on(channel: Channels, func: (...args: unknown[]) => void) {
       const subscription = (_event: IpcRendererEvent, ...args: unknown[]) =>
         func(...args);
-      ipcRenderer.on(channel, subscription);
+      ipcRenderer.on(allowed(channel), subscription);
 
       return () => {
         ipcRenderer.removeListener(channel, subscription);
       };
     },
     once(channel: Channels, func: (...args: unknown[]) => void) {
-      ipcRenderer.once(channel, (_event, ...args) => func(...args));
+      ipcRenderer.once(allowed(channel), (_event, ...args) => func(...args));
     },
     invoke(channel: Channels, ...args: unknown[]) {
-      return ipcRenderer.invoke(channel, ...args);
+      return ipcRenderer.invoke(allowed(channel), ...args);
     },
     removeEventListener(channel: Channels) {
-      ipcRenderer.removeAllListeners(channel)
+      ipcRenderer.removeAllListeners(allowed(channel))
     }
   },
 };

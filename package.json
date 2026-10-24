@@ -243,6 +243,7 @@
 		"nohoist": []
 	},
 	"resolutions": {
+		"isolated-vm": "7.0.1",
 		"postcss": "8.5.31",
 		"qs": "6.15.2",
 		"js-cookie": "3.0.8",
@@ -263,7 +264,7 @@
 		"@types/react": "19.2.8",
 		"@types/react-dom": "19.2.3",
 		"zod": "^4.3.6",
-		"storybook": "10.1.10"
+		"storybook": "10.6.2"
 	},
 	"dependencies": {
 		"@lexical/react": "^0.41.0",

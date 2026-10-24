@@ -380,7 +380,9 @@
 
             renderTimeEntry(data);
 
+            // Updates come from the frame that embeds the widget only: any other window could post HTML-bearing data
             window.addEventListener('message', function(event) {
+                if (event.source !== window.parent) return;
                 if (event.data && event.data.type === 'time-entry-update') {
                     renderTimeEntry(event.data.payload);
                 }
