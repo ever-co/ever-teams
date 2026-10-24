@@ -75,7 +75,9 @@ export function useAuthenticationTeam() {
 				return;
 			}
 
-			if (response) {
+			// Narrowed by `in`: this project type-checks without strictNullChecks, where the early return above does not
+			// narrow `response` for what follows
+			if (response && 'data' in response) {
 				setUser(response.data.authStoreData.user);
 				setEmployeeId(response.data.authStoreData.user.employeeId);
 				// Save Auth Token
