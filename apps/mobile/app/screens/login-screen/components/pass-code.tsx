@@ -295,6 +295,8 @@ const PassCode: FC<Props> = observer(
 								/>
 							)}
 						/>
+						{/* A sign-in error of the chosen workspace (not loaded, setup not complete) shows here too */}
+						{joinError ? <Text style={styles.verifyError}>{joinError}</Text> : null}
 					</View>
 				)}
 				<View style={styles.buttonsView}>
