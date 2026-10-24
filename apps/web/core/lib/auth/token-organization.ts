@@ -21,9 +21,13 @@ const inFlight = new Map<string, Promise<boolean>>();
 // page's life; a network error or a 5xx is retried on the next team choice or token
 const refused = new Set<string>();
 
-/** The HTTP status of a failed request, when it got an answer. */
+/**
+ * The HTTP status of a failed request, when it got an answer: an Axios error (`response.status`, proxy mode) or the
+ * API service's ApiErrorService (`httpResponseStatus`, direct mode).
+ */
 function statusOf(error: unknown): number | undefined {
-	const status = (error as { response?: { status?: unknown } } | null)?.response?.status;
+	const failed = error as { response?: { status?: unknown }; httpResponseStatus?: unknown } | null;
+	const status = failed?.httpResponseStatus ?? failed?.response?.status;
 	return typeof status === 'number' ? status : undefined;
 }
 

@@ -38,7 +38,7 @@ const fr = {
 	loginScreen: {
 		name: 'Connexion',
 		verifyEmailTitle: 'Vérifiez votre e-mail',
-		verifyEmailMessage: 'Votre compte a été créé. Ouvrez le lien de l'e-mail envoyé à {{email}} pour l'activer, puis connectez-vous avec votre e-mail.',
+		verifyEmailMessage: "Votre compte a été créé. Ouvrez le lien de l'e-mail envoyé à {{email}} pour l'activer, puis connectez-vous avec votre e-mail.",
 		enterDetails: 'Créer une nouvelle équipe',
 		enterDetails2: "Rejoignez l'équipe existante",
 		enterDetails3: 'Espace de travail',

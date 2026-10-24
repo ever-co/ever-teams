@@ -274,7 +274,8 @@ export function useAuthenticationTeam() {
 			return;
 		}
 
-		// Final submission
+		// Final submission (a new one replaces the notice of an earlier one, and shows the loader again)
+		setVerifyEmailSentTo(null);
 		infiniteLoading.current = true;
 
 		queryCall(submissionData)
