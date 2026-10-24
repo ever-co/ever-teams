@@ -1,5 +1,6 @@
 /* eslint-disable no-void */
 import { authFormValidate } from '../../../../helpers/validations';
+import { translate } from '../../../../i18n';
 import { ISignInDataAPI } from '../../../interfaces/IAuthentication';
 import { signInWorkspaceRequest } from '../../requests/auth';
 
@@ -12,6 +13,18 @@ import {
 	savePendingSignup,
 	setupConfirmedSignupWorkspace
 } from './workspace-setup';
+
+/** The sign-in answer for a workspace whose setup could not be checked or completed: the person signs in again. */
+function setupError() {
+	return {
+		response: {
+			status: 400,
+			errors: {
+				email: translate('loginScreen.workspaceSetupFailed')
+			}
+		}
+	};
+}
 
 export async function signIn(params: ISignInDataAPI) {
 	const { errors, valid: formValid } = authFormValidate(['email'], params as any);
@@ -57,7 +70,7 @@ export async function signIn(params: ISignInDataAPI) {
 	// A sign-up confirmed after register has no workspace yet: set it up now. The owner of a tenant whose setup stopped
 	// half-way (no organization yet) resumes it in that tenant; any other account in a tenant is left alone.
 	const ownsIncompleteTenant = !!tenantId && (data.user as { role?: { name?: string } })?.role?.name === 'SUPER_ADMIN';
-	const pending = await loadPendingSignup(params.email);
+	const pending = userId ? await loadPendingSignup(userId) : null;
 
 	// A setup that stopped after the organization (it has no team yet) resumes too, where it was started: the device
 	// keeps the mark of a setup in progress until it completes
@@ -67,13 +80,14 @@ export async function signIn(params: ISignInDataAPI) {
 			{ tenantId, organizationId: organization.organizationId, relations: [] },
 			accessToken
 		);
-		if (teams.response.ok && Array.isArray(teams.data?.items) && teams.data.items.length === 0) {
-			resumeOrganizationId = organization.organizationId;
-		}
+		// As for the organizations: a failed read is a sign-in error, never "it has teams" (that would admit a
+		// workspace whose setup did not finish)
+		if (!teams.response.ok || !Array.isArray(teams.data?.items)) return setupError();
+		if (teams.data.items.length === 0) resumeOrganizationId = organization.organizationId;
 	}
 
 	if (userId && (resumeOrganizationId || (!organization && (!tenantId || ownsIncompleteTenant)))) {
-		if (!pending) await savePendingSignup(params.email, null);
+		if (!pending) await savePendingSignup(userId, null);
 		const employeeId = (data.user as { employee?: { id?: string } } | undefined)?.employee?.id;
 		const setup = await setupConfirmedSignupWorkspace({
 			accessToken,
@@ -85,8 +99,10 @@ export async function signIn(params: ISignInDataAPI) {
 			existingOrganizationId: resumeOrganizationId,
 			existingEmployeeId: resumeOrganizationId ? employeeId : undefined
 		});
+		// A resumed setup that failed again keeps its mark: the next sign-in retries, this one does not get in
+		if (!setup && resumeOrganizationId) return setupError();
 		if (setup) {
-			await clearPendingSignup(params.email);
+			await clearPendingSignup(userId);
 			return {
 				response: {
 					data: {

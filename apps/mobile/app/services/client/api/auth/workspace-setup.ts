@@ -8,23 +8,26 @@ import { createTenantRequest } from '../../requests/tenant';
 import { load, remove, save } from '../../../../utils/storage';
 
 /**
- * A sign-up whose workspace is not set up yet, kept on the device by e-mail: the team name asked for at register (Gauzy
- * keeps the account inactive until its e-mail is confirmed, so the workspace is set up at the first sign-in after), and
- * the mark that a setup started, so one that stopped half-way resumes at the next sign-in.
+ * A sign-up whose workspace is not set up yet, kept on the device for the user it registered: the team name asked for
+ * at register (Gauzy keeps the account inactive until its e-mail is confirmed, so the workspace is set up at the first
+ * sign-in after), and the mark that a setup started, so one that stopped half-way resumes at the next sign-in. Keyed
+ * by user, not e-mail: one e-mail can sign in to several workspaces (one user each), and another workspace of that
+ * e-mail must never be taken for this one's unfinished setup.
  */
-const pendingSignupKey = (email: string) => `ever-teams-pending-signup:${email.trim().toLowerCase()}`;
+const pendingSignupKey = (userId: string) => `ever-teams-pending-signup:${userId}`;
 
-export async function savePendingSignup(email: string, team: string | null): Promise<void> {
-	await save(pendingSignupKey(email), { team: team?.trim() || null });
+/** @returns false when the device could not store it (the setup then uses the default team name). */
+export async function savePendingSignup(userId: string, team: string | null): Promise<boolean> {
+	return save(pendingSignupKey(userId), { team: team?.trim() || null });
 }
 
-export async function loadPendingSignup(email: string): Promise<{ team: string | null } | null> {
-	const pending = await load(pendingSignupKey(email));
+export async function loadPendingSignup(userId: string): Promise<{ team: string | null } | null> {
+	const pending = await load(pendingSignupKey(userId));
 	return pending && typeof pending === 'object' ? { team: typeof pending.team === 'string' ? pending.team : null } : null;
 }
 
-export async function clearPendingSignup(email: string): Promise<void> {
-	await remove(pendingSignupKey(email));
+export async function clearPendingSignup(userId: string): Promise<void> {
+	await remove(pendingSignupKey(userId));
 }
 
 /**

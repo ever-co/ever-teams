@@ -29,6 +29,8 @@ function token(organizationId: string | null, userId = 'user-1', issuedAt = Math
 beforeEach(() => {
 	resetTokenOrganizationState();
 	jest.clearAllMocks();
+	// A test may make the cookie follow what the app stores: back to a plain spy
+	mockSet.access.mockReset();
 	mockCookies.token = token('org-a');
 	mockCookies.organizationId = 'org-a';
 	jest.spyOn(console, 'error').mockImplementation(() => undefined);
@@ -86,6 +88,46 @@ describe('syncTokenOrganization', () => {
 
 		expect(mockSwitch).toHaveBeenCalledTimes(1);
 		expect(mockSet.access).not.toHaveBeenCalled();
+	});
+
+	it('asks on its own for a token that changed while a switch was pending', async () => {
+		let answer: (value: unknown) => void = () => undefined;
+		mockSwitch.mockReturnValueOnce(new Promise((resolve) => (answer = resolve)));
+
+		mockCookies.organizationId = 'org-b';
+		const first = syncTokenOrganization('org-b');
+		// Another user signed in (another tab) before the first answer arrived: their switch is not the first one
+		mockCookies.token = token('org-a', 'user-2');
+		mockSwitch.mockResolvedValueOnce({ data: { token: 'user-2-access', refresh_token: 'user-2-refresh' } });
+		const second = syncTokenOrganization('org-b');
+		answer({ data: { token: 'user-1-access', refresh_token: 'user-1-refresh' } });
+
+		expect(await first).toBe(false);
+		expect(await second).toBe(true);
+		expect(mockSwitch).toHaveBeenCalledTimes(2);
+		expect(mockSet.access).toHaveBeenCalledTimes(1);
+		expect(mockSet.access).toHaveBeenCalledWith('user-2-access');
+	});
+
+	it('drops an older answer of the same user once a newer switch has stored its tokens', async () => {
+		// The cookie follows what the app stores
+		mockSet.access.mockImplementation((value: string) => (mockCookies.token = value));
+		let answerFirst: (value: unknown) => void = () => undefined;
+		mockSwitch.mockReturnValueOnce(new Promise((resolve) => (answerFirst = resolve)));
+
+		mockCookies.organizationId = 'org-b';
+		const first = syncTokenOrganization('org-b');
+		// The token was refreshed (same user) while the first switch was pending; its own switch answers first
+		mockCookies.token = token('org-a', 'user-1', Math.floor(Date.now() / 1000) + 60);
+		mockSwitch.mockResolvedValueOnce({ data: { token: 'second-access', refresh_token: 'second-refresh' } });
+		expect(await syncTokenOrganization('org-b')).toBe(true);
+
+		answerFirst({ data: { token: 'first-access', refresh_token: 'first-refresh' } });
+		expect(await first).toBe(false);
+		expect(mockCookies.token).toBe('second-access');
+		expect(mockSet.access).toHaveBeenCalledTimes(1);
+		expect(mockSet.refresh).toHaveBeenCalledWith('second-refresh');
+		expect(mockSet.refresh).not.toHaveBeenCalledWith('first-refresh');
 	});
 
 	it('asks again with a new token after a refusal (an expired token is refused with 401 too)', async () => {
