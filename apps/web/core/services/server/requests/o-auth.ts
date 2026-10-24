@@ -19,6 +19,7 @@ import { signinService } from '../../client/api/auth/signin.service';
 import { userOrganizationService } from '../../client/api/users/user-organization.service';
 import { EProvider } from '@/core/types/generics/enums/social-accounts';
 import { everIdUserByAccount, isEverIdCallbackRequest } from '@/core/services/server/ever-id/sign-in';
+import { pickTokenOrganization } from '@/core/lib/auth/jwt-utils';
 
 export function GauzyAdapter(req: NextRequest): Adapter {
 	return {
@@ -186,7 +187,7 @@ async function signIn(provider: EProvider, access_token: string) {
 			token
 		});
 
-		const organization = organizations?.items[0];
+		const organization = pickTokenOrganization(organizations?.items, token);
 
 		if (!organization) {
 			return Promise.reject({
