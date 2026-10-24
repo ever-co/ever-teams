@@ -69,7 +69,7 @@ export function useAuthenticationTeam() {
 
 			// A sign-in error (workspace not loaded, setup not complete) has no data: show it and keep the form, so the
 			// person can try again. Reading the data first threw, and the message never reached the screen.
-			if (response?.errors) {
+			if (response && 'errors' in response) {
 				setIsSubmitted(false);
 				setJoinError(response.errors.email);
 				return;
