@@ -17,9 +17,12 @@ import { authService } from '@/core/services/client/api/auth/auth.service';
  */
 
 const inFlight = new Map<string, Promise<boolean>>();
-// An organization Gauzy refused (401 not a member / inactive there, 403 no permission) is not asked again in this
-// page's life; a network error or a 5xx is retried on the next team choice or token
+// An organization Gauzy refused (401 not a member / inactive there, or an expired token; 403 no permission) is not
+// asked again WITH THAT TOKEN: a refreshed or new token retries. A network error or a 5xx retries at the next call.
 const refused = new Set<string>();
+
+/** The refusal key: the organization and the token that was refused it. */
+const refusalKey = (token: string, organizationId: string) => `${organizationId} ${token}`;
 
 /**
  * The HTTP status of a failed request, when it got an answer: an Axios error (`response.status`, proxy mode) or the
@@ -45,12 +48,15 @@ export function syncTokenOrganization(
 ): Promise<boolean> {
 	const target = organizationId || null;
 	const token = getAccessTokenCookie();
-	if (!target || !token || tokenOrganizationId(token) === target || refused.has(target)) {
+	if (!target || !token || tokenOrganizationId(token) === target || refused.has(refusalKey(token, target))) {
 		return Promise.resolve(false);
 	}
 
 	const pending = inFlight.get(target);
 	if (pending) return pending;
+
+	// The user the switch is for: an answer that arrives after another sign-in (another tab) is not theirs to keep
+	const startedFor = decodeJWT(token)?.id ?? null;
 
 	const switching = authService
 		.switchOrganizationRaw(target)
@@ -60,7 +66,8 @@ export function syncTokenOrganization(
 			// The answer is late: the user chose another organization meanwhile (it no longer is the cookie's), or
 			// signed out. Saving it would put the tokens out of step with the active team.
 			const chosen = getOrganizationIdCookie() || null;
-			if (!getAccessTokenCookie() || (chosen && chosen !== target)) return false;
+			const current = getAccessTokenCookie();
+			if (!current || (decodeJWT(current)?.id ?? null) !== startedFor || (chosen && chosen !== target)) return false;
 			setAccessTokenCookie(data.token);
 			if (data.refresh_token) setRefreshTokenCookie(data.refresh_token);
 			setOrganizationIdCookie(target);
@@ -68,7 +75,7 @@ export function syncTokenOrganization(
 		})
 		.catch((error: unknown) => {
 			const status = statusOf(error);
-			if (status === 401 || status === 403) refused.add(target);
+			if (status === 401 || status === 403) refused.add(refusalKey(token, target));
 			console.error('[Auth] Could not switch the token to the organization of the active team:', error);
 			return false;
 		})
