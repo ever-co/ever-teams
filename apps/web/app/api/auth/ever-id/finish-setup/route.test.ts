@@ -333,6 +333,32 @@ describe('POST /api/auth/ever-id/finish-setup', () => {
 		expect(mockSetAuthCookies).not.toHaveBeenCalled();
 	});
 
+	it('answers 502 and creates nothing when the membership list has no items (never read as "no organization")', async () => {
+		primeOwnerWithOrganizations([]);
+		mockRequests.getUserOrganizationsRequest.mockResolvedValue({ data: { message: 'x' } });
+		const { POST } = loadRoute();
+
+		expect((await POST(post({ workspace: 0 }))).status).toBe(502);
+		expect(mockRequests.getAllOrganizationTeamRequest).not.toHaveBeenCalled();
+		expect(mockRequests.createOrganizationRequest).not.toHaveBeenCalled();
+		expect(mockRequests.createEmployeeFromUser).not.toHaveBeenCalled();
+		expect(mockRequests.createOrganizationTeamRequest).not.toHaveBeenCalled();
+		expect(mockSetAuthCookies).not.toHaveBeenCalled();
+	});
+
+	it('answers 502 and creates nothing when the employee list has no items (never read as "no employee")', async () => {
+		primeOwnerWithOrganizations(['org-1']);
+		mockRequests.getAllOrganizationTeamRequest.mockResolvedValue({ data: { items: [], total: 0 } });
+		mockRequests.getOrganizationEmployees.mockResolvedValue({ data: undefined });
+		const { POST } = loadRoute();
+
+		expect((await POST(post({ workspace: 0 }))).status).toBe(502);
+		expect(mockRequests.getOrganizationEmployees).toHaveBeenCalledWith('access-1', 't1', 'org-1');
+		expect(mockRequests.createEmployeeFromUser).not.toHaveBeenCalled();
+		expect(mockRequests.createOrganizationTeamRequest).not.toHaveBeenCalled();
+		expect(mockSetAuthCookies).not.toHaveBeenCalled();
+	});
+
 	it.each([
 		['its employee exists', { items: [{ id: 'emp-1', userId: 'u1' }], total: 1 }, 'emp-1'],
 		['its employee is missing too', { items: [], total: 0 }, 'emp-new']
