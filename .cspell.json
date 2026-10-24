@@ -6,6 +6,8 @@
 	"words": [
 		"KNEX",
 		"HMAC",
+		"fflate",
+		"msgpackr",
 		"autocapture",
 		"xlink",
 		"Fanything",
