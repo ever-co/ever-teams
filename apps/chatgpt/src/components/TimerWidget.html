@@ -399,7 +399,9 @@
             renderTimer(data);
 
             // Listen for data updates (if needed)
+            // Updates come from the frame that embeds the widget only: any other window could post HTML-bearing data
             window.addEventListener('message', function(event) {
+                if (event.source !== window.parent) return;
                 if (event.data && event.data.type === 'timer-update') {
                     renderTimer(event.data.payload);
                 }
