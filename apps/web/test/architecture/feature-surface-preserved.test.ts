@@ -1967,14 +1967,16 @@ describe('Ever Teams feature surface preservation', () => {
 
 	it('covers all real App Router route files and outward handler verbs', () => {
 		const routes = collectRealHeadSurface().routes;
-		expect(routes.filter((value) => /\/route\.[jt]s$/.test(value))).toHaveLength(136);
+		expect(routes.filter((value) => /\/route\.[jt]s$/.test(value))).toHaveLength(137);
 		expect(
 			routes.filter((value) => /\/route\.[jt]s::(?:GET|POST|PUT|PATCH|DELETE|HEAD|OPTIONS)$/.test(value))
-		).toHaveLength(182);
+		).toHaveLength(183);
 		expect(routes).toEqual(
 			expect.arrayContaining([
 				// Proxy mode twin of Gauzy's POST /auth/switch-organization (organization boundary, 2026-10-24)
 				'apps/web/app/api/auth/switch-organization/route.ts::POST',
+				// Finishes the workspace of an e-mail sign-up confirmed after register (direct API mode, 2026-10-24)
+				'apps/web/app/api/auth/finish-setup/route.ts::POST',
 				// Proxy routes added by the 2026-10 PR batch, and the old misspelled toggle path kept as an alias
 				'apps/web/app/api/auth/request-password/route.ts::POST',
 				'apps/web/app/api/auth/reset-password/route.ts::POST',

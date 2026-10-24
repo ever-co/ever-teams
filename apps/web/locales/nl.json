@@ -727,6 +727,7 @@
 			"TERMS_OF_SERVICE": "Servicevoorwaarden",
 			"PRIVACY_POLICY": "Privacybeleid",
 			"OR_CONTINUE_WITH": "of ga verder met",
+			"SIGNUP_VERIFY_EMAIL": "Je account is aangemaakt. Open de link in de e-mail die we naar {email} hebben gestuurd om het te activeren en log daarna in met je e-mail.",
 			"everId": {
 				"NO_WORKSPACE_TITLE": "Nog geen werkruimte voor deze Ever ID",
 				"NO_WORKSPACE_BODY": "Er is nog geen werkruimte aan deze Ever ID gekoppeld. Log op een andere manier in of vraag de beheerder van uw werkruimte om een uitnodiging.",

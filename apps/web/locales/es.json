@@ -604,6 +604,7 @@
 			"TERMS_OF_SERVICE": "Términos de servicio",
 			"PRIVACY_POLICY": "Política de privacidad",
 			"OR_CONTINUE_WITH": "o continuar con",
+			"SIGNUP_VERIFY_EMAIL": "Tu cuenta ha sido creada. Abre el enlace del correo que enviamos a {email} para activarla y luego inicia sesión con tu correo.",
 			"everId": {
 				"NO_WORKSPACE_TITLE": "Todavía no hay un espacio de trabajo para este Ever ID",
 				"NO_WORKSPACE_BODY": "Todavía no hay ningún espacio de trabajo vinculado a este Ever ID. Inicie sesión de otra forma o pida una invitación al administrador de su espacio de trabajo.",

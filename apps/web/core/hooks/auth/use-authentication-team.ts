@@ -71,6 +71,8 @@ export function useAuthenticationTeam() {
 	const [formValues, setFormValues] = useState<IRegisterDataAPI>(initialValues);
 	const [errors, setErrors] = useState(initialValues);
 	const { queryCall, loading, infiniteLoading } = useQueryCall(authService.registerUserTeam);
+	// The address a confirmation e-mail went to: Gauzy keeps a new account inactive until its link is opened
+	const [verifyEmailSentTo, setVerifyEmailSentTo] = useState<string | null>(null);
 
 	// Ever ID sign-up: a person new to the product creates the workspace with the Ever ID they signed in with.
 	// The URL only carries the step marker; the verified name and e-mail address are read from the server, which
@@ -276,7 +278,15 @@ export function useAuthenticationTeam() {
 		infiniteLoading.current = true;
 
 		queryCall(submissionData)
-			.then(() => router.push('/'))
+			.then((res) => {
+				if ((res?.data as { verifyEmail?: boolean } | undefined)?.verifyEmail) {
+					// No session yet: the person opens the link, then signs in with the e-mail code
+					infiniteLoading.current = false;
+					setVerifyEmailSentTo(submissionData.email);
+					return;
+				}
+				router.push('/');
+			})
 			.catch((err: AxiosError) => {
 				if (err.response?.status === 400) {
 					setErrors((err.response?.data as any)?.errors || {});
@@ -335,6 +345,7 @@ export function useAuthenticationTeam() {
 		setStep,
 		errors,
 		formValues,
-		startMode
+		startMode,
+		verifyEmailSentTo
 	};
 }

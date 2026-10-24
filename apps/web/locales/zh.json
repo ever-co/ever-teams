@@ -727,6 +727,7 @@
 			"TERMS_OF_SERVICE": "服务条款",
 			"PRIVACY_POLICY": "隐私政策",
 			"OR_CONTINUE_WITH": "或继续使用",
+			"SIGNUP_VERIFY_EMAIL": "您的账户已创建。请打开我们发送到 {email} 的邮件中的链接以激活账户，然后使用邮箱登录。",
 			"everId": {
 				"NO_WORKSPACE_TITLE": "此 Ever ID 还没有工作区",
 				"NO_WORKSPACE_BODY": "此 Ever ID 尚未关联任何工作区。请使用其他方式登录，或向您的工作区管理员索取邀请。",

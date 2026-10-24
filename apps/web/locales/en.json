@@ -727,6 +727,7 @@
 			"TERMS_OF_SERVICE": "Terms of Service",
 			"PRIVACY_POLICY": "Privacy Policy",
 			"OR_CONTINUE_WITH": "or continue with",
+			"SIGNUP_VERIFY_EMAIL": "Your account has been created. Open the link in the e-mail we sent to {email} to activate it, then sign in with your e-mail.",
 			"everId": {
 				"NO_WORKSPACE_TITLE": "No workspace for this Ever ID yet",
 				"NO_WORKSPACE_BODY": "No workspace is linked to this Ever ID yet. Sign in another way, or ask your workspace admin for an invitation.",
