@@ -67,6 +67,14 @@ export function useAuthenticationTeam() {
 
 			const { response } = await signIn({ email: authEmail, token });
 
+			// A sign-in error (workspace not loaded, setup not complete) has no data: show it and keep the form, so the
+			// person can try again. Reading the data first threw, and the message never reached the screen.
+			if (response?.errors) {
+				setIsSubmitted(false);
+				setJoinError(response.errors.email);
+				return;
+			}
+
 			if (response) {
 				setUser(response.data.authStoreData.user);
 				setEmployeeId(response.data.authStoreData.user.employeeId);
@@ -90,10 +98,6 @@ export function useAuthenticationTeam() {
 				setAuthUsername('');
 				setAuthInviteCode('');
 				setAuthConfirmCode('');
-
-				if (response.errors) {
-					setJoinError(response.errors.email);
-				}
 			}
 		} catch (error) {
 			setIsSubmitted(false);

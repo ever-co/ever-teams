@@ -88,6 +88,25 @@ describe('syncTokenOrganization', () => {
 		expect(mockSet.access).not.toHaveBeenCalled();
 	});
 
+	it('asks on its own for a token that changed while a switch was pending', async () => {
+		let answer: (value: unknown) => void = () => undefined;
+		mockSwitch.mockReturnValueOnce(new Promise((resolve) => (answer = resolve)));
+
+		mockCookies.organizationId = 'org-b';
+		const first = syncTokenOrganization('org-b');
+		// Another user signed in (another tab) before the first answer arrived: their switch is not the first one
+		mockCookies.token = token('org-a', 'user-2');
+		mockSwitch.mockResolvedValueOnce({ data: { token: 'user-2-access', refresh_token: 'user-2-refresh' } });
+		const second = syncTokenOrganization('org-b');
+		answer({ data: { token: 'user-1-access', refresh_token: 'user-1-refresh' } });
+
+		expect(await first).toBe(false);
+		expect(await second).toBe(true);
+		expect(mockSwitch).toHaveBeenCalledTimes(2);
+		expect(mockSet.access).toHaveBeenCalledTimes(1);
+		expect(mockSet.access).toHaveBeenCalledWith('user-2-access');
+	});
+
 	it('asks again with a new token after a refusal (an expired token is refused with 401 too)', async () => {
 		mockCookies.organizationId = 'org-b';
 		mockSwitch.mockRejectedValueOnce(Object.assign(new Error('refused'), { response: { status: 401 } }));

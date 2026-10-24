@@ -39,6 +39,7 @@ const es = {
 		name: 'Login',
 		verifyEmailTitle: 'Revisa tu correo',
 		verifyEmailMessage: 'Tu cuenta ha sido creada. Abre el enlace del correo que enviamos a {{email}} para activarla y luego inicia sesión con tu correo.',
+		workspaceSetupFailed: "No se pudo completar la configuración de tu espacio de trabajo. Inténtalo de nuevo.",
 		enterDetails: 'Create New Team',
 		enterDetails2: 'Join Existed Team',
 		enterDetails3: 'Workspace',
