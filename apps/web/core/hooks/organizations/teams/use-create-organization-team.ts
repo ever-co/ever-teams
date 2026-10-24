@@ -10,7 +10,8 @@ import {
 } from '@/core/stores';
 import { useCallback } from 'react';
 import { useAtom, useSetAtom } from 'jotai';
-import { useMutation } from '@tanstack/react-query';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { syncTokenOrganization } from '@/core/lib/auth/token-organization';
 import { organizationTeamService } from '@/core/services/client/api/organizations/teams';
 import { useSyncRef } from '../../common';
 import { useAuthenticateUser } from '../../auth';
@@ -31,6 +32,7 @@ import { useSettings } from '../../users';
  */
 
 export function useCreateOrganizationTeam() {
+	const queryClient = useQueryClient();
 	const [teams, setTeams] = useAtom(organizationTeamsState);
 	const teamsRef = useSyncRef(teams);
 	const setActiveTeamId = useSetAtom(activeTeamIdState);
@@ -52,6 +54,11 @@ export function useCreateOrganizationTeam() {
 
 			setActiveTeamIdCookie(team?.id);
 			setOrganizationIdCookie(team?.organizationId || '');
+			// Gauzy confines a non-admin to the token's organization: a team of another organization needs a token
+			// for it, and the user (its employee) is read again for that organization
+			void syncTokenOrganization(team?.organizationId).then((switched) => {
+				if (switched) queryClient.invalidateQueries({ queryKey: queryKeys.users.me });
+			});
 
 			// Set Project Id to cookie
 			// TODO: Make it dynamic when we add Dropdown in Navbar
@@ -68,7 +75,7 @@ export function useCreateOrganizationTeam() {
 			// This must be called at the end (Update store)
 			setActiveTeamId(team?.id);
 		},
-		[setActiveTeamId, setActiveTeamTask, setTeamTasks, updateUserLastTeam, user]
+		[queryClient, setActiveTeamId, setActiveTeamTask, setTeamTasks, updateUserLastTeam, user]
 	);
 
 	// Use cache invalidation hook - much cleaner than manual invalidations

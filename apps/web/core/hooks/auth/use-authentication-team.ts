@@ -320,7 +320,9 @@ export function useAuthenticationTeam() {
 		handleOnChange,
 		handleStartModeChange,
 		// Reading the Ever ID details only disables the form (everId.loading); `loading` means creating the workspace.
-		loading: loading || everIdSubmitting,
+		// useQueryCall keeps `loading` pinned (infiniteLoading) for the navigation that follows a sign-up: none follows
+		// when the account waits for its e-mail confirmation.
+		loading: (loading || everIdSubmitting) && !verifyEmailSentTo,
 		everId: everIdSignup
 			? {
 					prefill: everIdPrefill,
