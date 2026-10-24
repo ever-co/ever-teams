@@ -564,3 +564,33 @@ describe('POST /api/auth/register — Ever ID sign-up', () => {
 		});
 	});
 });
+
+describe('POST /api/auth/register — e-mail confirmation first (ever-co/ever-gauzy#11341)', () => {
+	it('answers verifyEmail, signs nothing in and keeps the team name, when Gauzy keeps the account inactive', async () => {
+		primeHappyPath();
+		mockRequests.registerUserRequest.mockResolvedValue({ data: { id: 'user-1', isActive: false } });
+		const { POST } = loadRoute({});
+
+		const res = await POST(post(validBody));
+
+		expect(res.status).toBe(201);
+		expect(await res.json()).toEqual({ verifyEmail: true });
+		expect(mockRequests.loginUserRequest).not.toHaveBeenCalled();
+		expect(mockRequests.createTenantRequest).not.toHaveBeenCalled();
+		expect(res.headers.get('set-cookie')).toContain('ever-teams-signup-team=');
+		expect(res.headers.get('set-cookie')).toMatch(/HttpOnly/i);
+	});
+
+	it('still signs an active account in at once (SIGNUP_EMAIL_VERIFICATION_REQUIRED=false on the API)', async () => {
+		primeHappyPath();
+		mockRequests.registerUserRequest.mockResolvedValue({ data: { id: 'user-1', isActive: true } });
+		const { POST } = loadRoute({});
+
+		const res = await POST(post(validBody));
+
+		expect(res.status).toBe(200);
+		expect(mockRequests.loginUserRequest).toHaveBeenCalledTimes(1);
+		expect(mockRequests.createTenantRequest).toHaveBeenCalledTimes(1);
+	});
+});
+

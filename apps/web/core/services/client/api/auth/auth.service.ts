@@ -41,6 +41,19 @@ class AuthService extends APIService {
 		return api.post<{ token: string; refresh_token: string }>('/auth/refresh', { refresh_token });
 	};
 
+	/**
+	 * Mint tokens for another organization of the caller's tenant (`POST /auth/switch-organization`). Gauzy confines a
+	 * non-admin to the organization in the token, so the token must follow the organization the app acts in. Answers
+	 * `{ user, token, refresh_token }`, or null when Gauzy refuses. No cookie side effects.
+	 */
+	switchOrganizationRaw = async (organizationId: string) => {
+		if (GAUZY_API_BASE_SERVER_URL.value) {
+			return this.post<IAuthResponse | null>('/auth/switch-organization', { organizationId });
+		}
+		const api = await getFallbackAPI();
+		return api.post<IAuthResponse | null>('/auth/switch-organization', { organizationId });
+	};
+
 	refreshToken = async () => {
 		const refresh_token = getRefreshTokenCookie();
 

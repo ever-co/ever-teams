@@ -22,6 +22,8 @@ export interface JWTPayload {
 	email?: string;
 	tenantId: string | null;
 	employeeId?: string | null;
+	/** The organization the token acts in: Gauzy confines a non-admin to it (organization boundary). */
+	organizationId?: string | null;
 	role: string | null;
 	permissions?: Array<{ permission: string; enabled: boolean }> | null;
 	iat: number; // Issued At (timestamp in seconds)

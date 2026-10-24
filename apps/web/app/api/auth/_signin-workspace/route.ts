@@ -11,6 +11,17 @@ import { NextResponse } from 'next/server';
 import { IOrganizationTeam } from '@/core/types/interfaces/team/organization-team';
 import { IAuthResponse } from '@/core/types/interfaces/auth/auth';
 import { APP_NAME } from '@/core/constants/config/constants';
+import { finishSignupWorkspace } from '@/core/services/server/finish-signup';
+import { decodeJWT } from '@/core/lib/auth/jwt-utils';
+
+/**
+ * The user organization the new token acts in, else the first one. Gauzy confines a non-admin to the token's
+ * organization, so the organization cookie must name that one; the first organization of the list can be another.
+ */
+function tokenOrganization<T extends { organizationId?: string }>(items: T[] | undefined, token: string): T | undefined {
+	const tokenOrganizationId = decodeJWT(token)?.organizationId;
+	return items?.find((item) => item.organizationId === tokenOrganizationId) ?? items?.[0];
+}
 
 export async function POST(req: Request) {
 	try {
@@ -93,7 +104,7 @@ export async function POST(req: Request) {
 			const userId = loginResponse.user?.id;
 
 			const { data: organizations } = await getUserOrganizationsRequest({ tenantId, userId }, access_token);
-			const organization = organizations?.items[0];
+			const organization = tokenOrganization(organizations?.items, access_token);
 
 			// Ids only: the server log is readable by anyone with cluster access.
 			console.log('[API /auth/signin-workspace] invite accepted', {
@@ -150,11 +161,26 @@ export async function POST(req: Request) {
 		const access_token = data.token;
 		const userId = data.user?.id;
 
-		const { data: organizations } = await getUserOrganizationsRequest({ tenantId, userId }, access_token);
+		// An account with no tenant yet has no organization to list (and the list needs a tenant)
+		const organizations = tenantId
+			? (await getUserOrganizationsRequest({ tenantId, userId }, access_token)).data
+			: undefined;
 
-		const organization = organizations?.items[0];
+		const organization = tokenOrganization(organizations?.items, access_token);
 
 		if (!organization) {
+			// An e-mail sign-up confirmed after the register route answered "check your e-mail" has no workspace yet:
+			// it is set up now (an account in a tenant it does not own is left alone and refused below)
+			const setupResponse = NextResponse.json({ loginResponse: data }, { status: 200 });
+			const setup = await finishSignupWorkspace({
+				req,
+				response: setupResponse,
+				email,
+				workspaceToken: token,
+				userId
+			});
+			if (setup === 'ok') return setupResponse;
+
 			return NextResponse.json(
 				{
 					errors: {

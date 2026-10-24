@@ -727,6 +727,7 @@
 			"TERMS_OF_SERVICE": "Conditions d'utilisation",
 			"PRIVACY_POLICY": "Politique de confidentialité",
 			"OR_CONTINUE_WITH": "ou continuer avec",
+			"SIGNUP_VERIFY_EMAIL": "Votre compte a été créé. Ouvrez le lien de l'e-mail envoyé à {email} pour l'activer, puis connectez-vous avec votre e-mail.",
 			"everId": {
 				"NO_WORKSPACE_TITLE": "Aucun espace de travail pour cet Ever ID pour le moment",
 				"NO_WORKSPACE_BODY": "Aucun espace de travail n'est encore lié à cet Ever ID. Connectez-vous autrement ou demandez une invitation à l'administrateur de votre espace de travail.",
