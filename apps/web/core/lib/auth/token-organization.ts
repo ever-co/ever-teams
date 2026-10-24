@@ -19,11 +19,18 @@ import { authService } from '@/core/services/client/api/auth/auth.service';
 const inFlight = new Map<string, Promise<boolean>>();
 // An organization Gauzy refused (401 not a member / inactive there, or an expired token; 403 no permission) is not
 // asked again WITH THAT TOKEN: a refreshed or new token retries. A network error or a 5xx retries at the next call.
-const refused = new Set<string>();
+// Only the current token's refusals are kept (a replaced token never asks again), so none piles up in a long-lived tab.
+let refused: { token: string; organizations: Set<string> } = { token: '', organizations: new Set() };
+
+/** The organizations refused to `token`; a new token starts with none (and the old token's list is dropped). */
+function refusedTo(token: string): Set<string> {
+	if (refused.token !== token) refused = { token, organizations: new Set() };
+	return refused.organizations;
+}
 
 /**
- * A switch request and its refusal belong to the organization AND the token that asked: a refreshed token, or another
- * user's after a sign-in in another tab, asks on its own instead of joining (or inheriting the refusal of) the old one.
+ * A pending switch request belongs to the organization AND the token that asked: a refreshed token, or another user's
+ * after a sign-in in another tab, asks on its own instead of joining the old request.
  */
 const requestKey = (token: string, organizationId: string) => `${organizationId} ${token}`;
 
@@ -54,7 +61,7 @@ export function syncTokenOrganization(
 	if (!target || !token || tokenOrganizationId(token) === target) return Promise.resolve(false);
 
 	const key = requestKey(token, target);
-	if (refused.has(key)) return Promise.resolve(false);
+	if (refusedTo(token).has(target)) return Promise.resolve(false);
 	const pending = inFlight.get(key);
 	if (pending) return pending;
 
@@ -78,7 +85,8 @@ export function syncTokenOrganization(
 		})
 		.catch((error: unknown) => {
 			const status = statusOf(error);
-			if (status === 401 || status === 403) refused.add(key);
+			// A refusal of a token that was replaced meanwhile is of no use: the new token asks on its own
+			if ((status === 401 || status === 403) && refused.token === token) refused.organizations.add(target);
 			console.error('[Auth] Could not switch the token to the organization of the active team:', error);
 			return false;
 		})
@@ -92,5 +100,5 @@ export function syncTokenOrganization(
 /** Test-only: forget the organizations Gauzy refused. */
 export function resetTokenOrganizationState(): void {
 	inFlight.clear();
-	refused.clear();
+	refused = { token: '', organizations: new Set() };
 }

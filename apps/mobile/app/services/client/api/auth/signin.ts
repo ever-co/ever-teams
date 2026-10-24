@@ -69,7 +69,7 @@ export async function signIn(params: ISignInDataAPI) {
 	// A sign-up confirmed after register has no workspace yet: set it up now. The owner of a tenant whose setup stopped
 	// half-way (no organization yet) resumes it in that tenant; any other account in a tenant is left alone.
 	const ownsIncompleteTenant = !!tenantId && (data.user as { role?: { name?: string } })?.role?.name === 'SUPER_ADMIN';
-	const pending = await loadPendingSignup(params.email);
+	const pending = userId ? await loadPendingSignup(userId) : null;
 
 	// A setup that stopped after the organization (it has no team yet) resumes too, where it was started: the device
 	// keeps the mark of a setup in progress until it completes
@@ -86,7 +86,7 @@ export async function signIn(params: ISignInDataAPI) {
 	}
 
 	if (userId && (resumeOrganizationId || (!organization && (!tenantId || ownsIncompleteTenant)))) {
-		if (!pending) await savePendingSignup(params.email, null);
+		if (!pending) await savePendingSignup(userId, null);
 		const employeeId = (data.user as { employee?: { id?: string } } | undefined)?.employee?.id;
 		const setup = await setupConfirmedSignupWorkspace({
 			accessToken,
@@ -101,7 +101,7 @@ export async function signIn(params: ISignInDataAPI) {
 		// A resumed setup that failed again keeps its mark: the next sign-in retries, this one does not get in
 		if (!setup && resumeOrganizationId) return setupError();
 		if (setup) {
-			await clearPendingSignup(params.email);
+			await clearPendingSignup(userId);
 			return {
 				response: {
 					data: {
