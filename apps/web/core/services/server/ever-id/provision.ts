@@ -116,7 +116,8 @@ export async function provisionEverIdWorkspace(input: EverIdProvisionInput): Pro
 			if (organizationId) {
 				const { data: employees } = await getOrganizationEmployees(auth_token, tenantId, organizationId);
 				if (!Array.isArray(employees?.items)) return 'failed';
-				const employee = employees.items.find((item) => item.userId === userId);
+				// `userId`, or the `user` relation the request asks for when an answer leaves `userId` out
+				const employee = employees.items.find((item) => (item.userId ?? item.user?.id) === userId);
 				if (employee && (typeof employee.id !== 'string' || !employee.id)) return 'failed';
 				employeeId = employee?.id;
 			}
