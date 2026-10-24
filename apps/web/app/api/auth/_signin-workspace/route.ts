@@ -36,10 +36,14 @@ export async function POST(req: Request) {
 		/**
 		 * Verify first if match with invite code
 		 */
-		const inviteReq = await verifyInviteCodeRequest({
-			email: body.email,
-			code: body.code
-		}).catch((err) => console.log(err));
+		// Only with a code: without one no invitation can match, and the call (a sure 400) spent Gauzy's per-IP limit
+		// of 10 a minute for this server's address on every workspace sign-in (restyle handover, #4630)
+		const inviteReq = body.code
+			? await verifyInviteCodeRequest({
+					email: body.email,
+					code: body.code
+				}).catch((err) => console.log(err))
+			: undefined;
 
 		// General a random password with 8 chars
 		if (inviteReq && inviteReq.data.fullName) {
