@@ -14,6 +14,8 @@ const mockRequests = {
 	createEmployeeFromUser: jest.fn(),
 	createOrganizationTeamRequest: jest.fn(),
 	getUserOrganizationsRequest: jest.fn(),
+	getAllOrganizationTeamRequest: jest.fn(),
+	getOrganizationEmployees: jest.fn(),
 	refreshTokenRequest: jest.fn()
 };
 const mockSetAuthCookies = jest.fn();
@@ -277,14 +279,56 @@ describe('POST /api/auth/ever-id/finish-setup', () => {
 			data: { user: { id: 'u1', tenantId: 't1', role }, token: 'access-1', refresh_token: 'refresh-1' }
 		});
 		if (memberships) mockRequests.getUserOrganizationsRequest.mockResolvedValue(memberships);
+		// The organization has its team: a finished workspace
+		mockRequests.getAllOrganizationTeamRequest.mockResolvedValue({ data: { items: [{ id: 'team-1' }], total: 1 } });
 		const { POST } = loadRoute();
 
 		expect((await POST(post({ workspace: 0 }))).status).toBe(409);
 		expect(mockRequests.createTenantRequest).not.toHaveBeenCalled();
 		expect(mockRequests.createOrganizationRequest).not.toHaveBeenCalled();
+		expect(mockRequests.createOrganizationTeamRequest).not.toHaveBeenCalled();
 		expect(mockSetAuthCookies).not.toHaveBeenCalled();
 		if (!memberships) expect(mockRequests.getUserOrganizationsRequest).not.toHaveBeenCalled();
 	});
+
+	it.each([
+		['its employee exists', { items: [{ id: 'emp-1', userId: 'u1' }], total: 1 }, 'emp-1'],
+		['its employee is missing too', { items: [], total: 0 }, 'emp-new']
+	])(
+		'resumes a setup that stopped after the organization (%s): only the missing steps run',
+		async (_label, employees, managerId) => {
+			mockWorkspaceSignin.mockResolvedValue({
+				status: 200,
+				data: {
+					user: { id: 'u1', tenantId: 't1', role: { name: 'SUPER_ADMIN' } },
+					token: 'access-1',
+					refresh_token: 'refresh-1'
+				}
+			});
+			mockRequests.getUserOrganizationsRequest.mockResolvedValue({
+				data: { items: [{ organizationId: 'org-1' }], total: 1 }
+			});
+			mockRequests.getAllOrganizationTeamRequest.mockResolvedValue({ data: { items: [], total: 0 } });
+			mockRequests.getOrganizationEmployees.mockResolvedValue({ data: employees });
+			mockRequests.createEmployeeFromUser.mockResolvedValue({ data: { id: 'emp-new' } });
+			mockRequests.createOrganizationTeamRequest.mockResolvedValue({ data: { id: 'team-new' } });
+			mockRequests.refreshTokenRequest.mockResolvedValue({ data: { token: 'access-2', refresh_token: 'refresh-2' } });
+			const { POST } = loadRoute();
+
+			expect((await POST(post({ workspace: 0 }))).status).toBe(200);
+			expect(mockRequests.createTenantRequest).not.toHaveBeenCalled();
+			expect(mockRequests.createOrganizationRequest).not.toHaveBeenCalled();
+			expect(mockRequests.createEmployeeFromUser).toHaveBeenCalledTimes(managerId === 'emp-new' ? 1 : 0);
+			expect(mockRequests.createOrganizationTeamRequest).toHaveBeenCalledWith(
+				expect.objectContaining({ organizationId: 'org-1', tenantId: 't1', managerIds: [managerId] }),
+				'access-1'
+			);
+			expect(mockSetAuthCookies).toHaveBeenCalledWith(
+				expect.objectContaining({ tenantId: 't1', organizationId: 'org-1', teamId: 'team-new', userId: 'u1' }),
+				expect.anything()
+			);
+		}
+	);
 
 	it('answers 502 when a setup step fails', async () => {
 		primeSetup();
