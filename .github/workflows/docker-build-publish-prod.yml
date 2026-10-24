@@ -15,6 +15,10 @@ env:
   DOCKER_BUILD_RECORD_UPLOAD: false
   DOCKER_BUILD_SUMMARY: false
 
+# Least privilege for the workflow token (CodeQL actions/missing-workflow-permissions): images are pushed with the GH_TOKEN / DOCKERHUB_TOKEN secrets
+permissions:
+  contents: read
+
 jobs:
   ever-teams-webapp:
     runs-on: ${{ vars.RUNNER_LINUX_X64_4 || 'ubuntu-latest' }}

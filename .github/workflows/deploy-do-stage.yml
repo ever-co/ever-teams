@@ -7,6 +7,10 @@ on:
     types:
       - completed
 
+# Least privilege for the workflow token (CodeQL actions/missing-workflow-permissions)
+permissions:
+  contents: read
+
 jobs:
   deploy-stage:
     runs-on: ${{ vars.RUNNER_LINUX_X64_4 || 'ubuntu-latest' }}
