@@ -43,7 +43,7 @@ export async function register(params: IRegisterDataAPI) {
 		// The workspace is set up at the first sign-in after the confirmation: keep the team name asked for until then
 		const userId = (user as { id?: string } | undefined)?.id;
 		if (!userId || !(await savePendingSignup(userId, params.team))) {
-			// Nothing for the person to do: the account exists, the workspace gets the default name (renamable later)
+			// Nothing for the person to do: the account exists, the workspace gets the default name (it can be renamed later)
 			console.log('Sign-up: the requested team name could not be kept on this device');
 		}
 		return {
