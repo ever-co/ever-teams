@@ -307,6 +307,9 @@ function buildData(fixture, scenario, requestUrl, requestTenantId) {
 	};
 }
 
+/** Marks a `routeResponse` answer that goes out with this HTTP status instead of 200 (symbol keys are not serialized). */
+const HTTP_STATUS = Symbol('http-status');
+
 /** An unsigned token shaped like Gauzy's: the web app only decodes its claims (`organizationId` since Gauzy #11316). */
 function syntheticToken(userId, organizationId, rotation) {
 	const part = (value) => Buffer.from(JSON.stringify(value)).toString('base64url');
@@ -326,7 +329,9 @@ function routeResponse(method, pathname, requestUrl, data, fixture, state, body)
 	// tenant-boundary regression in the web app cannot pass unnoticed.
 	if (pathname === '/api/auth/switch-organization' && method === 'POST') {
 		const organizationId = typeof body?.organizationId === 'string' ? body.organizationId : '';
-		if (organizationId !== data.organization.id) return { statusCode: 401, message: 'Unauthorized' };
+		if (organizationId !== data.organization.id) {
+			return { [HTTP_STATUS]: 401, statusCode: 401, message: 'Unauthorized' };
+		}
 		return {
 			token: syntheticToken(ids.user, organizationId, `switched-${organizationId}`),
 			refresh_token: 'synthetic-refresh-token'
@@ -632,7 +637,7 @@ export async function createMockGauzyServer({ fixture, port = 3988 } = {}) {
 		const payload = everPlatform
 			? everPlatform.payload
 			: routeResponse(method, requestUrl.pathname, requestUrl, data, fixture, state, body);
-		const status = everPlatform ? everPlatform.status : 200;
+		const status = everPlatform ? everPlatform.status : (payload?.[HTTP_STATUS] ?? 200);
 		const endMs = performance.now() - state.startedAt;
 		// The web app's statistics reporter reads `state` every few seconds in the browser runs: counted, not
 		// recorded with the requests the pages make.

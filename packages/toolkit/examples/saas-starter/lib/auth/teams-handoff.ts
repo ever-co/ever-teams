@@ -1,6 +1,6 @@
 import 'server-only';
 import { cookies } from 'next/headers';
-import { apiConfigManager, authLogin, createCompleteAccount } from '@ever-teams/api';
+import { apiConfigManager, authLogin, createCompleteAccount, finishAccountSetup } from '@ever-teams/api';
 import { readRuntimeEnv } from '@/lib/runtime-env';
 
 /**
@@ -25,13 +25,19 @@ function configureTeamsApi() {
 
 /**
  * Signs in to Ever Teams with the local credentials, or creates the Teams account (tenant, organization, team) when
- * there is none. Never rejects: a Teams failure is logged and answers `undefined`.
+ * there is none. An account whose Teams setup stopped before its tenant is finished first, never handed over half
+ * set up. Never rejects: a Teams failure is logged and answers `undefined`.
  */
 async function teamsToken(email: string, password: string): Promise<string | undefined> {
 	try {
 		configureTeamsApi();
 		const login = await authLogin({ email, password });
-		if (login && 'token' in login && login.token) return login.token;
+		if (login && 'token' in login && login.token) {
+			const ready = await finishAccountSetup(login, email.split('@')[0] || email);
+			if ('token' in ready) return ready.token;
+			console.warn('Teams account setup failed:', ready.error || ready.message);
+			return undefined;
+		}
 		const setup = await createCompleteAccount({
 			fullName: email.includes('@') ? email.split('@')[0] : email,
 			email,
