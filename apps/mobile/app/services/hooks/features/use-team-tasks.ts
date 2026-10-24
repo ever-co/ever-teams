@@ -15,6 +15,17 @@ import { useFirstLoad } from "../use-first-load"
 import isEqual from "lodash/isEqual"
 import { useOrganizationTeam } from "../use-organization"
 
+/**
+ * The active task id the teams data still held when a new task was chosen. Until the store names another one, no
+ * sync effect may restore it (the refetch reaches the MobX store only through the teams effect). One for the app:
+ * every useTeamTasks instance writes the same TaskStore, so each must honour a selection made by another. It holds
+ * for the team it was made in only: another team's data names its own active task.
+ */
+const pendingSelection: { staleActiveTaskId: string | null; teamId: string | null } = {
+	staleActiveTaskId: null,
+	teamId: null,
+}
+
 export function useTeamTasks() {
 	const {
 		authenticationStore: { tenantId, organizationId, authToken, user },
@@ -38,6 +49,8 @@ export function useTeamTasks() {
 	const [isUpdatingActiveTask, setIsUpdatingActiveTask] = useState<boolean>(false)
 	const [createLoading, setCreateLoading] = useState<boolean>(false)
 	const activeTeamRef = useSyncRef(activeTeam)
+	// The live member, for callbacks memoized with fewer dependencies (createNewTask keeps an older setActiveTeamTask)
+	const currentUserRef = useSyncRef(currentUser)
 
 	const { firstLoad, firstLoadData: firstLoadTaskData } = useFirstLoad()
 
@@ -276,12 +289,19 @@ export function useTeamTasks() {
 					activeTeamId,
 				)
 
+				// The user switched teams while the request was in flight: this answer is for a team no longer on screen
+				if (response.ok && activeTeamRef.current?.id !== activeTeamId) return
+
 				if (response.ok) {
-					const synchedActiveTask = allTasks?.find(
-						(task) => task.id === currentUser.activeTaskId,
-					)
-					setActiveTask(synchedActiveTask || task)
-					setActiveTaskId(synchedActiveTask?.id || task.id)
+					// The task just sent is the active one now: currentUser.activeTaskId still names the previous one
+					// until the next teams refresh, so looking it up showed the old task
+					const liveActiveTaskId = currentUserRef.current?.activeTaskId ?? ""
+					if ((task?.id ?? "") !== liveActiveTaskId) {
+						pendingSelection.staleActiveTaskId = liveActiveTaskId
+						pendingSelection.teamId = activeTeamId ?? null
+					}
+					setActiveTask(task)
+					setActiveTaskId(task?.id ?? "")
 				}
 			} catch (error) {
 				console.log(error)
@@ -289,11 +309,22 @@ export function useTeamTasks() {
 				setIsUpdatingActiveTask(false)
 			}
 		},
-		[setActiveTask, updateOrganizationTeamEmployeeActiveTask, activeTeamId],
+		[setActiveTask, updateOrganizationTeamEmployeeActiveTask, activeTeamId, currentUser],
 	)
 
 	useEffect(() => {
 		if (!isUpdatingActiveTask) {
+			if (pendingSelection.staleActiveTaskId !== null) {
+				// The teams data still names the task the user just left (in the team the choice was made in)
+				if (
+					pendingSelection.teamId === (activeTeamId ?? null) &&
+					(currentUser?.activeTaskId ?? "") === pendingSelection.staleActiveTaskId
+				) {
+					return
+				}
+				pendingSelection.staleActiveTaskId = null
+				pendingSelection.teamId = null
+			}
 			const synchedActiveTask =
 				allTasks && currentUser
 					? allTasks?.find((task) => task.id === currentUser.activeTaskId)
@@ -308,7 +339,7 @@ export function useTeamTasks() {
 			setActiveTask("")
 			setActiveTaskId("")
 		}
-	}, [tasksFetching, isUpdatingActiveTask, isSuccess, currentUser?.activeTaskId, allTasks])
+	}, [tasksFetching, isUpdatingActiveTask, isSuccess, currentUser?.activeTaskId, allTasks, activeTeamId])
 
 	const deleteEmployeeFromTasks = useCallback(
 		(employeeId: string, organizationTeamId: string) => {

@@ -31,7 +31,7 @@ jobs:
       - name: Use Node.js
         uses: actions/setup-node@v7
         with:
-          node-version: "24.14.0"
+          node-version: "26.12.1"
           cache: "yarn"
 
       - name: Configure Registry
@@ -47,6 +47,9 @@ jobs:
           yarn install --network-timeout 1000000 --frozen-lockfile
         env:
           NODE_OPTIONS: '--dns-result-order=ipv4first'
+          # This job runs no Cypress: skip the binary download in cypress's postinstall, a network flake that failed
+          # whole builds (the npm package and its types are still installed for the typecheck)
+          CYPRESS_INSTALL_BINARY: '0'
 
       - name: Build Mobile
         run: |

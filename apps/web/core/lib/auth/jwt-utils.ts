@@ -22,6 +22,8 @@ export interface JWTPayload {
 	email?: string;
 	tenantId: string | null;
 	employeeId?: string | null;
+	/** The organization the token acts in: Gauzy confines a non-admin to it (organization boundary). */
+	organizationId?: string | null;
 	role: string | null;
 	permissions?: Array<{ permission: string; enabled: boolean }> | null;
 	iat: number; // Issued At (timestamp in seconds)
@@ -56,6 +58,18 @@ export function decodeJWT(token: string): JWTPayload | null {
 		console.error('[JWT] Failed to decode token:', error);
 		return null;
 	}
+}
+
+/**
+ * The user organization `token` acts in, else the first one. Gauzy confines a non-admin to the token's organization, so
+ * after a sign-in the organization cookie must name that one; the first organization of the list can be another.
+ */
+export function pickTokenOrganization<T extends { organizationId?: string | null }>(
+	items: T[] | undefined,
+	token: string
+): T | undefined {
+	const tokenOrganizationId = decodeJWT(token)?.organizationId;
+	return items?.find((item) => item.organizationId === tokenOrganizationId) ?? items?.[0];
 }
 
 /**

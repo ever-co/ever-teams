@@ -335,9 +335,15 @@ export function useOrganizationTeam() {
 				bearer_token: authToken
 			});
 
+			// currentUser.activeTaskId comes from the teams query: refresh it before answering, so the caller keeps its
+			// update guard up until the fresh member data is there (else the task hook's sync restores the old task)
+			if (response.ok) {
+				await refetch().catch((e) => console.log(e));
+			}
+
 			return { data, response };
 		},
-		[]
+		[refetch]
 	);
 
 	/**

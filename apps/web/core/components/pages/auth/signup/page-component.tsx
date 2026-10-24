@@ -43,7 +43,8 @@ function AuthSignup() {
 		formValues,
 		loading,
 		startMode,
-		everId
+		everId,
+		verifyEmailSentTo
 	} = useAuthenticationTeam();
 
 	const t = useTranslations();
@@ -56,6 +57,11 @@ function AuthSignup() {
 			headerLinkHref={DEFAULT_APP_PATH}
 		>
 			<div className="w-full overflow-x-hidden overflow-y-clip p-1.5">
+				{verifyEmailSentTo && (
+					<p role="status" className="mb-4 rounded-md border border-primary/30 p-3 text-sm">
+						{t('pages.auth.SIGNUP_VERIFY_EMAIL', { email: verifyEmailSentTo })}
+					</p>
+				)}
 				<form onSubmit={handleSubmit} autoComplete="off" className="w-full">
 					<div
 						className={cn(

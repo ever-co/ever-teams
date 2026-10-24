@@ -43,11 +43,7 @@ class RegisterService extends APIService {
 	};
 
 	createTenantSmtp = async ({ tenantId, access_token }: { tenantId: string; access_token: string }) => {
-		const config = smtpConfiguration();
-
-		console.log(`SMTP Config: ${JSON.stringify(config)}`);
-
-		return this.post<ICustomSmtp>('/smtp', config, {
+		return this.post<ICustomSmtp>('/smtp', smtpConfiguration(), {
 			tenantId,
 			headers: { Authorization: `Bearer ${access_token}` }
 		});

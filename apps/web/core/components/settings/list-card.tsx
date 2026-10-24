@@ -4,7 +4,8 @@ import { CHARACTER_LIMIT_TO_SHOW } from '@/core/constants/config/constants';
 import { clsxm } from '@/core/lib/utils';
 import { useTranslations } from 'next-intl';
 import { useEffect } from 'react';
-import { svgFetch } from '@/core/services/server/fetch';
+import { svgFetch } from '@/core/lib/helpers/svg-fetch';
+import { sanitizeSvg } from '@/core/lib/helpers/sanitize-svg';
 import { Tooltip } from '../duplicated-components/tooltip';
 import { IClassName } from '@/core/types/interfaces/common/class-name';
 
@@ -120,8 +121,8 @@ const loadSVG = async (url: string, containerId: string, color: string): Promise
 		const container = document.getElementById(containerId);
 
 		if (container) {
-			console.log(container);
-			container.innerHTML = svgContent;
+			// The icon URL is a team member's choice: insert drawing markup only, never script or event handlers.
+			container.innerHTML = sanitizeSvg(svgContent);
 		} else {
 			console.error(`Container with ID "${containerId}" not found.`);
 		}

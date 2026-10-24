@@ -17,7 +17,11 @@ import { toast } from 'sonner';
  * - `editOrganizationTeam` - Function to edit team properties
  * - `editOrganizationTeamLoading` - Loading state for edit operation
  */
-export function useEditOrganizationTeam() {
+/**
+ * @param options.toastOnError - Show the generic "Edit team failed" toast (default). A caller that shows its own
+ * error toast turns it off, or a failed save shows two.
+ */
+export function useEditOrganizationTeam({ toastOnError = true }: { toastOnError?: boolean } = {}) {
 	const queryClient = useQueryClient();
 	const { setTeamsUpdate } = useTeamsState();
 
@@ -38,6 +42,7 @@ export function useEditOrganizationTeam() {
 			});
 		},
 		onError: (error) => {
+			if (!toastOnError) return;
 			if (error instanceof ZodValidationError) {
 				toast.error('Edit team validation failed:', {
 					description: JSON.stringify({

@@ -727,6 +727,7 @@
 			"TERMS_OF_SERVICE": "Termini di servizio",
 			"PRIVACY_POLICY": "Informativa sulla privacy",
 			"OR_CONTINUE_WITH": "o continua con",
+			"SIGNUP_VERIFY_EMAIL": "Il tuo account è stato creato. Apri il link nell'e-mail inviata a {email} per attivarlo, poi accedi con la tua e-mail.",
 			"everId": {
 				"NO_WORKSPACE_TITLE": "Ancora nessuno spazio di lavoro per questo Ever ID",
 				"NO_WORKSPACE_BODY": "Nessuno spazio di lavoro è ancora collegato a questo Ever ID. Accedi in un altro modo oppure chiedi un invito all'amministratore del tuo spazio di lavoro.",
@@ -1118,7 +1119,8 @@
 			"BILLABLE_MODIFY_SUCCESS": "Lo stato fatturabile è stato modificato con successo.",
 			"BILLABLE_MODIFY_ERROR": "Impossibile modificare lo stato fatturabile. Riprova.",
 			"STATUS_MODIFY_SUCCESS": "Lo stato del foglio presenze è stato modificato con successo.",
-			"STATUS_MODIFY_ERROR": "Impossibile modificare lo stato del foglio presenze. Riprova."
+			"STATUS_MODIFY_ERROR": "Impossibile modificare lo stato del foglio presenze. Riprova.",
+			"END_AFTER_START": "L'ora di fine deve essere successiva all'ora di inizio."
 		}
 	},
 	"timer": {

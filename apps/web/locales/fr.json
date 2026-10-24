@@ -727,6 +727,7 @@
 			"TERMS_OF_SERVICE": "Conditions d'utilisation",
 			"PRIVACY_POLICY": "Politique de confidentialité",
 			"OR_CONTINUE_WITH": "ou continuer avec",
+			"SIGNUP_VERIFY_EMAIL": "Votre compte a été créé. Ouvrez le lien de l'e-mail envoyé à {email} pour l'activer, puis connectez-vous avec votre e-mail.",
 			"everId": {
 				"NO_WORKSPACE_TITLE": "Aucun espace de travail pour cet Ever ID pour le moment",
 				"NO_WORKSPACE_BODY": "Aucun espace de travail n'est encore lié à cet Ever ID. Connectez-vous autrement ou demandez une invitation à l'administrateur de votre espace de travail.",
@@ -1118,7 +1119,8 @@
 			"BILLABLE_MODIFY_SUCCESS": "L'état facturable a été modifié avec succès.",
 			"BILLABLE_MODIFY_ERROR": "Échec de la modification de l'état facturable. Veuillez réessayer.",
 			"STATUS_MODIFY_SUCCESS": "Le statut de la feuille de temps a été modifié avec succès.",
-			"STATUS_MODIFY_ERROR": "Échec de la modification du statut de la feuille de temps. Veuillez réessayer."
+			"STATUS_MODIFY_ERROR": "Échec de la modification du statut de la feuille de temps. Veuillez réessayer.",
+			"END_AFTER_START": "L'heure de fin doit être postérieure à l'heure de début."
 		}
 	},
 	"timer": {

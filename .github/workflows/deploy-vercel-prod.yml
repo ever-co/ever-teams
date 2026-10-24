@@ -14,6 +14,11 @@ concurrency:
   group: ${{ github.ref }}-${{ github.workflow }}
   cancel-in-progress: true
 
+# Least privilege for the workflow token (CodeQL actions/missing-workflow-permissions); the Vercel action may record the deployment
+permissions:
+  contents: read
+  deployments: write
+
 jobs:
   deploy:
     runs-on: ${{ vars.RUNNER_LINUX_X64_4 || 'ubuntu-latest' }}
@@ -26,7 +31,7 @@ jobs:
       - name: Use Node.js
         uses: actions/setup-node@v7
         with:
-          node-version: "24.14.0"
+          node-version: "26.12.1"
           cache: "yarn"
 
       # 🛑 DO NOT migrate this step to the shared ever-gauzy configure-registry action.

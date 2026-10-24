@@ -204,6 +204,49 @@ describe('POST /api/chat', () => {
 		});
 	});
 
+	describe('image URLs and the completion model', () => {
+		const withImageUrl = (model: string, image = 'http://169.254.169.254/latest/meta-data/') =>
+			new Request('https://app.ever.team/api/chat', {
+				method: 'POST',
+				headers: { 'content-type': 'application/json' },
+				body: JSON.stringify({
+					messages: [
+						{
+							role: 'user',
+							content: [
+								{ type: 'text', text: 'What is this?' },
+								{ type: 'image', image }
+							]
+						}
+					],
+					config: { apiKey: 'sk-test', provider: 'openai', model }
+				})
+			});
+
+		it.each([
+			['http://169.254.169.254/latest/meta-data/'],
+			['HTTP://169.254.169.254/latest/meta-data/'],
+			['  https://169.254.169.254/latest/meta-data/']
+		])('refuses the image URL %p for gpt-3.5-turbo-instruct with 400, and fetches nothing', async (image) => {
+			// That model takes no image URL, so the SDK would download it with the global fetch before refusing
+			const response = await POST(withImageUrl('gpt-3.5-turbo-instruct', image));
+
+			expect(response.status).toBe(400);
+			expect(globalFetch).not.toHaveBeenCalled();
+			expect(mockGuardedFetch).not.toHaveBeenCalled();
+		});
+
+		it('passes an image URL on to a chat model, which takes it as it is', async () => {
+			const response = await POST(withImageUrl('gpt-4o-mini'));
+
+			expect(response.status).toBe(200);
+			// The stream runs the prompt preparation and the provider request: read it before checking the fetch
+			expect(await response.text()).toContain('0:"Hello"');
+			expect(globalFetch).toHaveBeenCalledTimes(1);
+			expect(String(globalFetch.mock.calls[0][0])).toBe('https://api.openai.com/v1/chat/completions');
+		});
+	});
+
 	describe('built-in providers are unchanged', () => {
 		it.each([
 			['openai', 'https://api.openai.com/v1/chat/completions'],

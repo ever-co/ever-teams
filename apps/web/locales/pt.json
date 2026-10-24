@@ -727,6 +727,7 @@
 			"TERMS_OF_SERVICE": "Termos de serviço",
 			"PRIVACY_POLICY": "Política de privacidade",
 			"OR_CONTINUE_WITH": "ou continue com",
+			"SIGNUP_VERIFY_EMAIL": "A sua conta foi criada. Abra o link no e-mail enviado para {email} para ativá-la e depois inicie sessão com o seu e-mail.",
 			"everId": {
 				"NO_WORKSPACE_TITLE": "Ainda não há espaço de trabalho para este Ever ID",
 				"NO_WORKSPACE_BODY": "Ainda não há nenhum espaço de trabalho vinculado a este Ever ID. Entre de outra forma ou peça um convite ao administrador do seu espaço de trabalho.",
@@ -1118,7 +1119,8 @@
 			"BILLABLE_MODIFY_SUCCESS": "O estado faturável foi modificado com sucesso.",
 			"BILLABLE_MODIFY_ERROR": "Falha ao modificar o estado faturável. Tente novamente.",
 			"STATUS_MODIFY_SUCCESS": "O status da folha de ponto foi modificado com sucesso.",
-			"STATUS_MODIFY_ERROR": "Falha ao modificar o status da folha de ponto. Tente novamente."
+			"STATUS_MODIFY_ERROR": "Falha ao modificar o status da folha de ponto. Tente novamente.",
+			"END_AFTER_START": "A hora de término deve ser posterior à hora de início."
 		}
 	},
 	"timer": {

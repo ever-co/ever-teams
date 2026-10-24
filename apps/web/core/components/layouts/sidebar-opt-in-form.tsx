@@ -31,15 +31,11 @@ export function SidebarOptInForm() {
 	});
 
 	const subscribe = async () => {
-		const appName = APP_NAME;
-		const tags = [`${appName}, ${appName} App`, 'Open', 'Cloud'];
 		setLoading((prev) => true);
+		// The route sets the list status and tags itself.
 		const res = await fetch('/api/subscribe', {
 			body: JSON.stringify({
-				email_address: form.getValues('email'),
-				captcha: '',
-				tags: tags,
-				status: 'subscribed'
+				email_address: form.getValues('email')
 			}),
 			headers: {
 				'Content-Type': 'application/json'

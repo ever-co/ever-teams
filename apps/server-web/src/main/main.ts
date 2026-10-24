@@ -40,12 +40,34 @@ import { debounce } from 'lodash';
 import WindowFactory from './windows/window-factory';
 import { setupTitlebar } from 'custom-electron-titlebar/main';
 import { config } from '../configs/config';
-import { ProxyConfig } from './helpers/services/server-proxy';
+import { LOOPBACK_HOST, ProxyConfig } from './helpers/services/server-proxy';
+import { isAppPage, isExternalLink, pickServerSettings } from './util';
 
 console.log = Log.log;
 Object.assign(console, Log.functions);
 
 app.name = config.DESCRIPTION;
+
+// Every window has the preload, which reaches the main process (settings, server restart, file dialog). A page other
+// than the app's own must never load in one: navigation stays on the app's page, and a link or `window.open` goes to
+// the user's browser instead.
+app.on('web-contents-created', (_event, contents) => {
+  contents.on('will-navigate', (event, url) => {
+    if (isAppPage(url)) {
+      return;
+    }
+    event.preventDefault();
+    if (isExternalLink(url)) {
+      shell.openExternal(url).catch((error) => console.error('Error opening external URL:', error));
+    }
+  });
+  contents.setWindowOpenHandler(({ url }) => {
+    if (isExternalLink(url)) {
+      shell.openExternal(url).catch((error) => console.error('Error opening external URL:', error));
+    }
+    return { action: 'deny' };
+  });
+});
 
 const eventEmitter = new EventEmitter();
 
@@ -342,16 +364,19 @@ const runServer = async () => {
     await desktopServer.start(
       { api: serverPath },
       {
-        ...(envVal || {}),
+        ...pickServerSettings(envVal),
         IS_DESKTOP_APP: true,
-        HOSTNAME: envVal?.DESKTOP_WEB_SERVER_HOSTNAME || '0.0.0.0',
+        // Behind the HTTPS proxy, the web server itself answers on loopback only: on the configured host, its plain HTTP
+        // port (DEFAULT_NEXT_PORT) let anyone on the network around the TLS the user turned on.
+        HOSTNAME: envVal?.useSsl ? LOOPBACK_HOST : envVal?.DESKTOP_WEB_SERVER_HOSTNAME || '0.0.0.0',
         NEXT_SHARP_PATH: path.join(
           process.resourcesPath,
           'app.asar',
           'node_modules',
           'sharp',
         ),
-        AUTH_SECRET: config.AUTH_SECRET,
+        // Generated for this install: the configured value is one constant baked into every build
+        AUTH_SECRET: LocalStore.getInstallSecret('authSecret'),
         ...sslOption,
         useSsl: envVal?.useSsl,
         PORT: envVal?.useSsl ? sslOption.nextPort : envVal?.PORT
@@ -767,7 +792,7 @@ ipcMain.on(IPC_TYPES.SETTING_PAGE, async (event, arg) => {
   switch (arg.type) {
     case SettingPageTypeMessage.saveSetting: {
       LocalStore.updateConfigSetting({
-        server: arg.data,
+        server: pickServerSettings(arg.data) as ServerConfig,
       });
       const diFilesPath = getWebDirPath();
       await clearDesktopConfig(diFilesPath);

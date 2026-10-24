@@ -9,6 +9,7 @@ import { signinService } from '@/core/services/client/api/auth/signin.service';
 import { userOrganizationService } from '@/core/services/client/api/users/user-organization.service';
 import { IOrganizationTeam } from '@/core/types/interfaces/team/organization-team';
 import { APP_NAME } from '@/core/constants/config/constants';
+import { pickTokenOrganization } from '@/core/lib/auth/jwt-utils';
 type SigninResult = {
 	access_token: string;
 	confirmed_mail: string;
@@ -57,7 +58,7 @@ export function useAuthenticationSocialLogin() {
 						userId,
 						token: access_token
 					});
-					const organization = organizations?.data.items[0];
+					const organization = pickTokenOrganization(organizations?.data.items, access_token);
 					if (!organization) {
 						return Promise.reject({
 							errors: {

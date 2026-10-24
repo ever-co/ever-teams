@@ -11,6 +11,8 @@ import { NextResponse } from 'next/server';
 import { IOrganizationTeam } from '@/core/types/interfaces/team/organization-team';
 import { IAuthResponse } from '@/core/types/interfaces/auth/auth';
 import { APP_NAME } from '@/core/constants/config/constants';
+import { finishSignupWorkspace } from '@/core/services/server/finish-signup';
+import { pickTokenOrganization } from '@/core/lib/auth/jwt-utils';
 
 export async function POST(req: Request) {
 	try {
@@ -34,10 +36,14 @@ export async function POST(req: Request) {
 		/**
 		 * Verify first if match with invite code
 		 */
-		const inviteReq = await verifyInviteCodeRequest({
-			email: body.email,
-			code: body.code
-		}).catch((err) => console.log(err));
+		// Only with a code: without one no invitation can match, and the call (a sure 400) spent Gauzy's per-IP limit
+		// of 10 a minute for this server's address on every workspace sign-in (restyle handover, #4630)
+		const inviteReq = body.code
+			? await verifyInviteCodeRequest({
+					email: body.email,
+					code: body.code
+				}).catch((err) => console.log(err))
+			: undefined;
 
 		// General a random password with 8 chars
 		if (inviteReq && inviteReq.data.fullName) {
@@ -93,7 +99,7 @@ export async function POST(req: Request) {
 			const userId = loginResponse.user?.id;
 
 			const { data: organizations } = await getUserOrganizationsRequest({ tenantId, userId }, access_token);
-			const organization = organizations?.items[0];
+			const organization = pickTokenOrganization(organizations?.items, access_token);
 
 			// Ids only: the server log is readable by anyone with cluster access.
 			console.log('[API /auth/signin-workspace] invite accepted', {
@@ -150,11 +156,26 @@ export async function POST(req: Request) {
 		const access_token = data.token;
 		const userId = data.user?.id;
 
-		const { data: organizations } = await getUserOrganizationsRequest({ tenantId, userId }, access_token);
+		// An account with no tenant yet has no organization to list (and the list needs a tenant)
+		const organizations = tenantId
+			? (await getUserOrganizationsRequest({ tenantId, userId }, access_token)).data
+			: undefined;
 
-		const organization = organizations?.items[0];
+		const organization = pickTokenOrganization(organizations?.items, access_token);
 
 		if (!organization) {
+			// An e-mail sign-up confirmed after the register route answered "check your e-mail" has no workspace yet:
+			// it is set up now (an account in a tenant it does not own is left alone and refused below)
+			const setupResponse = NextResponse.json({ loginResponse: data }, { status: 200 });
+			const setup = await finishSignupWorkspace({
+				req,
+				response: setupResponse,
+				email,
+				workspaceToken: token,
+				userId
+			});
+			if (setup === 'ok') return setupResponse;
+
 			return NextResponse.json(
 				{
 					errors: {

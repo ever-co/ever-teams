@@ -52,6 +52,11 @@ export function EditTaskModal({ isOpen, closeModal, timeLogData }: IEditTaskModa
 			? differenceBetweenHours(toDate(timeLogData.startedAt), toDate(timeLogData.stoppedAt))
 			: 0;
 	const { hours, minutes } = secondsToTime(seconds);
+	// A log that runs past local midnight: its end time reads earlier than its start time
+	const spansMidnight =
+		!!timeLogData.startedAt &&
+		!!timeLogData.stoppedAt &&
+		toDate(timeLogData.startedAt).toDateString() !== toDate(timeLogData.stoppedAt).toDateString();
 
 	const [timeRange, setTimeRange] = useState<{ startTime: string; endTime: string }>(initialTimeRange);
 
@@ -124,12 +129,22 @@ export function EditTaskModal({ isOpen, closeModal, timeLogData }: IEditTaskModa
 				baseDate.getDate(),
 				...timeRange.startTime.split(':').map(Number)
 			);
+			// An end at or before the start is on the next day (a log across local midnight), never before its start.
+			// Chosen from the HH:MM values and built on that day directly: building it on the start day first and then
+			// moving it would carry a daylight-saving shift of the start day into the end time.
+			const endDayOffset = timeRange.endTime <= timeRange.startTime ? 1 : 0;
 			const stoppedAt = new Date(
 				baseDate.getFullYear(),
 				baseDate.getMonth(),
-				baseDate.getDate(),
+				baseDate.getDate() + endDayOffset,
 				...timeRange.endTime.split(':').map(Number)
 			);
+			// A time inside a daylight-saving gap (e.g. 02:30 on the spring-forward day) is moved an hour by Date,
+			// which can still put the end at or before the start: refuse it rather than save a reversed log
+			if (stoppedAt.getTime() <= startedAt.getTime()) {
+				alert(t('pages.timeLog.END_AFTER_START'));
+				return;
+			}
 			const updatePayload: ITimeLogUpdatePayload = {
 				timeLogId: timeLogData.id,
 				isBillable: timesheetData.isBillable,
@@ -285,7 +300,7 @@ export function EditTaskModal({ isOpen, closeModal, timeLogData }: IEditTaskModa
 								aria-label="End time"
 								aria-describedby="end-time-error"
 								type="time"
-								min={getMinEndTime()}
+								min={spansMidnight ? undefined : getMinEndTime()}
 								onChange={(e) => updateTime('endTime', e.target.value)}
 								className="p-1 w-full font-normal rounded-md border border-slate-300 dark:border-slate-600 dark:bg-dark--theme-light"
 								required

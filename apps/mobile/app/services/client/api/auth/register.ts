@@ -7,6 +7,7 @@ import { createSmtpTenantRequest } from '../../requests/features/smtp';
 import { createOrganizationRequest } from '../../requests/organization';
 import { createOrganizationTeamRequest, getAllOrganizationTeamRequest } from '../../requests/organization-team';
 import { createTenantRequest } from '../../requests/tenant';
+import { savePendingSignup } from './workspace-setup';
 
 export async function register(params: IRegisterDataAPI) {
 	const { errors, valid: formValid } = authFormValidate(['email', 'name', 'team'], params);
@@ -20,8 +21,9 @@ export async function register(params: IRegisterDataAPI) {
 		};
 	}
 
-	// General a random password with 8 chars
-	const password = '123456' + await generateSecureToken(6);
+	// A random password the user never sees (they sign in with a code): 32 hex characters, 128 bits.
+	// It used to be '123456' and 6 hex characters, 24 bits, which a lockout-free login could be made to guess.
+	const password = '123456' + (await generateSecureToken(32));
 	const names = params.name.split(' ');
 
 	// Register user
@@ -34,6 +36,23 @@ export async function register(params: IRegisterDataAPI) {
 			email: params.email
 		}
 	});
+
+	// Gauzy keeps a self-registration inactive until the link in its verification e-mail is opened (owner decision 4,
+	// ever-co/ever-gauzy#11341): logging in now answers 401. The person confirms, then signs in with the e-mail code.
+	if ((user as { isActive?: boolean } | undefined)?.isActive === false) {
+		// The workspace is set up at the first sign-in after the confirmation: keep the team name asked for until then
+		const userId = (user as { id?: string } | undefined)?.id;
+		if (!userId || !(await savePendingSignup(userId, params.team))) {
+			// Nothing for the person to do: the account exists, the workspace gets the default name (it can be renamed later)
+			console.log('Sign-up: the requested team name could not be kept on this device');
+		}
+		return {
+			response: {
+				status: 202,
+				verifyEmail: true
+			}
+		};
+	}
 
 	const { data: loginRes } = await loginUserRequest(params.email, password);
 	const authToken = loginRes.token;
