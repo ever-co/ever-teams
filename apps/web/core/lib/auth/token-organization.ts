@@ -17,8 +17,15 @@ import { authService } from '@/core/services/client/api/auth/auth.service';
  */
 
 const inFlight = new Map<string, Promise<boolean>>();
-// An organization Gauzy refused to switch to is not asked again in this page's life
+// An organization Gauzy refused (401 not a member / inactive there, 403 no permission) is not asked again in this
+// page's life; a network error or a 5xx is retried on the next team choice or token
 const refused = new Set<string>();
+
+/** The HTTP status of a failed request, when it got an answer. */
+function statusOf(error: unknown): number | undefined {
+	const status = (error as { response?: { status?: unknown } } | null)?.response?.status;
+	return typeof status === 'number' ? status : undefined;
+}
 
 /** The organization the access token acts in, or null when there is no token or it names none. */
 export function tokenOrganizationId(token = getAccessTokenCookie()): string | null {
@@ -44,17 +51,20 @@ export function syncTokenOrganization(
 	const switching = authService
 		.switchOrganizationRaw(target)
 		.then(({ data }) => {
-			if (!data?.token) {
-				refused.add(target);
-				return false;
-			}
+			// Gauzy answers null for an error it did not expect: try again later
+			if (!data?.token) return false;
+			// The answer is late: the user chose another organization meanwhile (it no longer is the cookie's), or
+			// signed out. Saving it would put the tokens out of step with the active team.
+			const chosen = getOrganizationIdCookie() || null;
+			if (!getAccessTokenCookie() || (chosen && chosen !== target)) return false;
 			setAccessTokenCookie(data.token);
 			if (data.refresh_token) setRefreshTokenCookie(data.refresh_token);
 			setOrganizationIdCookie(target);
 			return true;
 		})
 		.catch((error: unknown) => {
-			refused.add(target);
+			const status = statusOf(error);
+			if (status === 401 || status === 403) refused.add(target);
 			console.error('[Auth] Could not switch the token to the organization of the active team:', error);
 			return false;
 		})

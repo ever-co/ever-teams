@@ -37,6 +37,8 @@ const he = {
 	},
 	loginScreen: {
 		name: 'Login',
+		verifyEmailTitle: 'בדוק את הדוא"ל שלך',
+		verifyEmailMessage: 'החשבון שלך נוצר. פתח את הקישור בדוא"ל ששלחנו אל {{email}} כדי להפעיל אותו, ואז התחבר עם הדוא"ל שלך.',
 		enterDetails: 'Create New Team',
 		enterDetails2: 'Join Existed Team',
 		enterDetails3: 'Workspace',

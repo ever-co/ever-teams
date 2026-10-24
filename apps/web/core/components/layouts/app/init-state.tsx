@@ -8,7 +8,7 @@ import { useUserQuery } from '@/core/hooks/queries/user-user.query';
 import { useAutoAssignTask, useTaskStatistics } from '@/core/hooks/tasks';
 import { useStaleTimerGuard, useTimerRunningPastMidnight } from '@/core/hooks/timer/use-stale-timer-guard';
 import { DISABLE_AUTO_REFRESH, TEAM_PRESENCE_REFRESH_INTERVAL } from '@/core/constants/config/constants';
-import { teamPresenceViewCountState } from '@/core/stores/teams/organization-team';
+import { activeTeamState, teamPresenceViewCountState } from '@/core/stores/teams/organization-team';
 import { useQueryClient } from '@tanstack/react-query';
 import { useAtomValue } from 'jotai';
 import { useEffect, useMemo, useRef } from 'react';
@@ -51,8 +51,9 @@ export function InitState() {
 		workspacesQuery.isSuccess &&
 		currentWorkspace
 	);
-	// Each new token (sign-in, refresh) must act in the organization the app acts in (the organization cookie):
-	// Gauzy confines a non-admin to the token's organization (token-organization.ts)
+	// Each new token (sign-in, refresh) and each active team must keep the token in the organization the app acts in
+	// (the organization cookie): Gauzy confines a non-admin to the token's organization (token-organization.ts)
+	const activeTeamOrganizationId = useAtomValue(activeTeamState)?.organizationId;
 	useEffect(() => {
 		let current = true;
 		void syncTokenOrganization().then((switched) => {
@@ -61,7 +62,7 @@ export function InitState() {
 		return () => {
 			current = false;
 		};
-	}, [accessToken, queryClient]);
+	}, [accessToken, activeTeamOrganizationId, queryClient]);
 	const autoRefreshEnabled = !DISABLE_AUTO_REFRESH.value;
 	const shellRefreshInterval = autoRefreshEnabled ? SHELL_REFRESH_INTERVAL : false;
 	const baseScope = useMemo(

@@ -60,6 +60,13 @@ const config: NextAuthConfig = {
 				everIdSessionUpdate(token, session);
 				return token;
 			}
+			// A social sign-up that created an account Gauzy keeps inactive until its e-mail link is opened (owner
+			// decision 4, ever-co/ever-gauzy#11341): no Gauzy sign-in can succeed yet, so none is tried; the welcome
+			// page tells the person to confirm the address and sign in again.
+			if (user && account && (user as { isActive?: boolean }).isActive === false) {
+				token.authCookie = { verifyEmail: true, email: user.email ?? '' };
+				return token;
+			}
 			if (user && account) {
 				const { access_token, provider } = account;
 				if (access_token) {

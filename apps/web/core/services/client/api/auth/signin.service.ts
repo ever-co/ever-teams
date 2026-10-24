@@ -1,5 +1,6 @@
 import { APP_NAME, GAUZY_API_BASE_SERVER_URL } from '@/core/constants/config/constants';
 import { APIService, getFallbackAPI } from '../../api.service';
+import { pickTokenOrganization } from '@/core/lib/auth/jwt-utils';
 
 import { authFormValidate } from '@/core/lib/helpers/validations';
 import { generateToken } from '@/core/lib/helpers/generate-token';
@@ -73,7 +74,7 @@ class SigninService extends APIService {
 				userId,
 				token: access_token
 			});
-			const organization = organizations?.items[0];
+			const organization = pickTokenOrganization(organizations?.items, access_token);
 
 			if (!organization) {
 				return Promise.reject({
@@ -204,7 +205,7 @@ class SigninService extends APIService {
 				).data
 			: undefined;
 
-		const organization = organizations?.items[0];
+		const organization = pickTokenOrganization(organizations?.items, access_token);
 
 		if (!organization) {
 			// An e-mail sign-up confirmed after register has no workspace yet: the server sets it up and signs in

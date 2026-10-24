@@ -72,16 +72,46 @@ describe('syncTokenOrganization', () => {
 	});
 
 	it.each([
-		['answers null', () => mockSwitch.mockResolvedValue({ data: null })],
-		['refuses', () => mockSwitch.mockRejectedValue(new Error('403'))]
-	])('keeps the tokens, and does not ask again, when Gauzy %s', async (_label, arrange) => {
-		arrange();
+		['refuses the membership (401)', 401],
+		['refuses the permission (403)', 403]
+	])('keeps the tokens, and does not ask again, when Gauzy %s', async (_label, status) => {
+		mockSwitch.mockRejectedValue(Object.assign(new Error('refused'), { response: { status } }));
 
 		expect(await syncTokenOrganization('org-b')).toBe(false);
 		expect(await syncTokenOrganization('org-b')).toBe(false);
 
 		expect(mockSwitch).toHaveBeenCalledTimes(1);
 		expect(mockSet.access).not.toHaveBeenCalled();
+	});
+
+	it.each([
+		['answers null', () => mockSwitch.mockResolvedValueOnce({ data: null })],
+		['is unreachable', () => mockSwitch.mockRejectedValueOnce(new Error('Network Error'))],
+		[
+			'fails (502)',
+			() => mockSwitch.mockRejectedValueOnce(Object.assign(new Error('bad'), { response: { status: 502 } }))
+		]
+	])('keeps the tokens but asks again later when Gauzy %s', async (_label, arrange) => {
+		arrange();
+		expect(await syncTokenOrganization('org-b')).toBe(false);
+
+		mockSwitch.mockResolvedValueOnce({ data: { token: 'new-access', refresh_token: 'new-refresh' } });
+		expect(await syncTokenOrganization('org-b')).toBe(true);
+		expect(mockSwitch).toHaveBeenCalledTimes(2);
+	});
+
+	it('drops a late answer when the user chose another organization meanwhile', async () => {
+		let answer: (value: unknown) => void = () => undefined;
+		mockSwitch.mockReturnValue(new Promise((resolve) => (answer = resolve)));
+
+		const switching = syncTokenOrganization('org-b');
+		// Back on a team of organization A before B's answer arrives
+		mockCookies.organizationId = 'org-a';
+		answer({ data: { token: 'b-access', refresh_token: 'b-refresh' } });
+
+		expect(await switching).toBe(false);
+		expect(mockSet.access).not.toHaveBeenCalled();
+		expect(mockSet.organization).not.toHaveBeenCalled();
 	});
 
 	it('asks nothing without a token or an organization', async () => {
