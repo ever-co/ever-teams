@@ -32,6 +32,7 @@ import { TOrganizationTeam, TOrganizationTeamEmployee } from '@/core/types/schem
 import type { ApiRequestScope } from '@/core/services/client/api-request-scope';
 import { useScopeGuard } from '../../bootstrap/use-scope-guard';
 import { useReactiveAccessTokenCookie } from '../../auth/use-reactive-access-token-cookie';
+import { syncTokenOrganization } from '@/core/lib/auth/token-organization';
 
 interface UseOrganizationTeamsQueryOptions {
 	enabled?: boolean;
@@ -138,6 +139,11 @@ export function useOrganizationTeamsQuery(options: UseOrganizationTeamsQueryOpti
 
 			setActiveTeamIdCookie(team?.id);
 			setOrganizationIdCookie(team?.organizationId || '');
+			// Gauzy confines a non-admin to the token's organization: a team of another organization needs a token for
+			// it, and the user (its employee) is read again for that organization
+			void syncTokenOrganization(team?.organizationId).then((switched) => {
+				if (switched) queryClient.invalidateQueries({ queryKey: queryKeys.users.me });
+			});
 
 			if (team && team?.projects && team.projects.length) {
 				setActiveProjectIdCookie(team.projects[0].id);
@@ -151,7 +157,7 @@ export function useOrganizationTeamsQuery(options: UseOrganizationTeamsQueryOpti
 
 			setActiveTeamId(team?.id);
 		},
-		[setActiveTeamId, setActiveTeamTask, setTeamTasks, updateUserLastTeam, user]
+		[queryClient, setActiveTeamId, setActiveTeamTask, setTeamTasks, updateUserLastTeam, user]
 	);
 
 	// ==================== QUERIES ====================

@@ -13,6 +13,8 @@ import { useQueryClient } from '@tanstack/react-query';
 import { useAtomValue } from 'jotai';
 import { useEffect, useMemo, useRef } from 'react';
 import { reownActiveQueriesAfterTokenRefresh } from './token-refresh-query-ownership';
+import { syncTokenOrganization } from '@/core/lib/auth/token-organization';
+import { queryKeys } from '@/core/query/keys';
 import { getShellCriticalQueryKeys, useScopeTransitionGuard } from './use-scope-transition-guard';
 
 const SHELL_REFRESH_INTERVAL = 60_000;
@@ -49,6 +51,17 @@ export function InitState() {
 		workspacesQuery.isSuccess &&
 		currentWorkspace
 	);
+	// Each new token (sign-in, refresh) must act in the organization the app acts in (the organization cookie):
+	// Gauzy confines a non-admin to the token's organization (token-organization.ts)
+	useEffect(() => {
+		let current = true;
+		void syncTokenOrganization().then((switched) => {
+			if (switched && current) queryClient.invalidateQueries({ queryKey: queryKeys.users.me });
+		});
+		return () => {
+			current = false;
+		};
+	}, [accessToken, queryClient]);
 	const autoRefreshEnabled = !DISABLE_AUTO_REFRESH.value;
 	const shellRefreshInterval = autoRefreshEnabled ? SHELL_REFRESH_INTERVAL : false;
 	const baseScope = useMemo(
