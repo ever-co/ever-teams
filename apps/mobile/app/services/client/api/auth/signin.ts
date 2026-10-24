@@ -36,13 +36,16 @@ export async function signIn(params: ISignInDataAPI) {
 
 	const organization = pickTokenOrganization(organizations?.items, accessToken);
 
-	// A sign-up confirmed after register has no workspace yet: set it up now (an account in a tenant is left alone)
-	if (!organization && !tenantId && userId) {
+	// A sign-up confirmed after register has no workspace yet: set it up now. The owner of a tenant whose setup stopped
+	// half-way (no organization yet) resumes it in that tenant; any other account in a tenant is left alone.
+	const ownsIncompleteTenant = !!tenantId && (data.user as { role?: { name?: string } })?.role?.name === 'SUPER_ADMIN';
+	if (!organization && userId && (!tenantId || ownsIncompleteTenant)) {
 		const setup = await setupConfirmedSignupWorkspace({
 			accessToken,
 			refreshToken: data.refresh_token,
 			userId,
-			name: [data.user?.firstName, data.user?.lastName].filter(Boolean).join(' ')
+			name: [data.user?.firstName, data.user?.lastName].filter(Boolean).join(' '),
+			existingTenantId: tenantId || undefined
 		});
 		if (setup) {
 			return {
@@ -50,7 +53,7 @@ export async function signIn(params: ISignInDataAPI) {
 					data: {
 						authStoreData: {
 							access_token: setup.accessToken,
-							refresh_token: data.refresh_token,
+							refresh_token: setup.refreshToken,
 							tenantId: setup.tenantId,
 							organizationId: setup.organizationId,
 							user: data.user
