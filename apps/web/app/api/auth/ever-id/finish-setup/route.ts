@@ -1,3 +1,4 @@
+import { createHash } from 'node:crypto';
 import { NextResponse } from 'next/server';
 import { auth } from '@/auth';
 import { everIdSetupAttempts } from '@/core/lib/auth/ever-id/attempts';
@@ -18,14 +19,24 @@ import { provisionEverIdWorkspace } from '@/core/services/server/ever-id/provisi
  * next-auth session on this server, never from the page. 404 while the Ever ID sign-in is not configured; 400 for
  * an index that is not a workspace of that session; 410 when there is no such session or its workspace token
  * expired (sign in with Ever ID again); 409 when there is nothing to set up (the account has its organization, or
- * a tenant it does not own); 429 (with a Retry-After) after 3 attempts a minute for one workspace; 502 when the API
- * fails.
+ * a tenant it does not own); 429 (with a Retry-After) after 3 attempts a minute for one workspace, or while a setup of
+ * that account is still running in this process (two tabs or two sign-ins); 502 when the API fails.
  */
 
 export const dynamic = 'force-dynamic';
 
 const NO_STORE = { 'Cache-Control': 'no-store' };
 const MAX_BODY_BYTES = 1_024;
+/** Seconds an overlapping request for a workspace whose setup is still running waits before it tries again. */
+const RUNNING_RETRY_AFTER_S = 5;
+
+/**
+ * Accounts whose setup is running in this process (hashed user ids; the workspace token when the session names no
+ * user): two overlapping setups of one account would both find no team and both create one. Two sign-ins of one
+ * account carry different workspace tokens, so the token alone would not tell them apart. Each replica keeps its
+ * own set.
+ */
+const runningSetups = new Set<string>();
 
 type Reason = 'invalid' | 'expired' | 'has_workspace' | 'throttled' | 'unavailable';
 
@@ -67,16 +78,31 @@ export async function POST(req: Request) {
 		return refuse(429, 'throttled', attempt.retryAfterS);
 	}
 
+	const setupKey = createHash('sha256')
+		.update(target.userId ? `user:${target.userId}` : `token:${target.token}`)
+		.digest('hex');
+	if (runningSetups.has(setupKey)) {
+		attempt.giveBack();
+		log('throttled');
+		return refuse(429, 'throttled', RUNNING_RETRY_AFTER_S);
+	}
+
 	const response = NextResponse.json({ ok: true }, { status: 200, headers: NO_STORE });
-	const result = await provisionEverIdWorkspace({
-		req,
-		response,
-		email: target.email,
-		workspaceToken: target.token,
-		fallbackUserId: target.userId,
-		team: teamName(body?.team),
-		timezone: typeof body?.timezone === 'string' ? body.timezone.slice(0, 64) : undefined
-	});
+	runningSetups.add(setupKey);
+	let result: Awaited<ReturnType<typeof provisionEverIdWorkspace>>;
+	try {
+		result = await provisionEverIdWorkspace({
+			req,
+			response,
+			email: target.email,
+			workspaceToken: target.token,
+			fallbackUserId: target.userId,
+			team: teamName(body?.team),
+			timezone: typeof body?.timezone === 'string' ? body.timezone.slice(0, 64) : undefined
+		});
+	} finally {
+		runningSetups.delete(setupKey);
+	}
 	switch (result) {
 		case 'ok':
 			log('ok');

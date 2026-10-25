@@ -61,5 +61,12 @@
 		"host_permissions": [
 			"https://*/*"
 		]
+	},
+	"resolutions": {
+		"**/@babel/core": "7.29.7",
+		"**/@babel/traverse": "7.29.10",
+		"**/browserslist": "4.29.4",
+		"**/fflate": "0.8.3",
+		"**/msgpackr": "1.12.1"
 	}
 }
