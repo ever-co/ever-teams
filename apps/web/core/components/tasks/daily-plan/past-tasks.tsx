@@ -13,6 +13,7 @@ import {
 	filterDailyPlansByTasks
 } from '@/core/hooks/daily-plans/use-filter-date-range';
 import { useMemo } from 'react';
+import moment from 'moment';
 import { TUser } from '@/core/types/schemas';
 import { DragDropContext, Draggable, Droppable, DroppableProvided, DroppableStateSnapshot } from '@hello-pangea/dnd';
 import { useDateRange } from '@/core/hooks/daily-plans/use-date-range';
@@ -65,8 +66,8 @@ export function PastTasks({
 	}, [date, employeePastPlans, user, filterByEmployee, filteredTaskIds]);
 	const { dragPlans, onDragEnd } = useDailyPlanTaskOrder(filteredPastPlans);
 	if (!filteredPastPlans) return null;
-	const yesterdayIsoString = getYesterdayDate().toISOString();
-	const yesterdayPlanDay = yesterdayIsoString.split('T')[0];
+	const yesterday = getYesterdayDate();
+	const yesterdayPlanDay = moment(yesterday).format('YYYY-MM-DD');
 	return (
 		<div className="flex flex-col gap-6">
 			{dragPlans.length > 0 ? (

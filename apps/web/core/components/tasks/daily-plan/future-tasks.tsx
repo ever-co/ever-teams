@@ -8,6 +8,7 @@ import { dailyPlanViewHeaderTabs } from '@/core/stores/common/header-tabs';
 import TaskBlockCard from '../task-block-card';
 import { clsxm } from '@/core/lib/utils';
 import { useMemo } from 'react';
+import moment from 'moment';
 import {
 	filterDailyPlan,
 	filterDailyPlansByEmployee,
@@ -63,8 +64,8 @@ export function FutureTasks({
 	const { dragPlans, onDragEnd } = useDailyPlanTaskOrder(futureDailyPlanTasks);
 
 	if (!futureDailyPlanTasks) return null;
-	const tomorrowIsoString = getTomorrowDate().toISOString();
-	const tomorrowPlanDay = tomorrowIsoString.split('T')[0];
+	const tomorrow = getTomorrowDate();
+	const tomorrowPlanDay = moment(tomorrow).format('YYYY-MM-DD');
 	return (
 		<div className="flex flex-col gap-6">
 			{dragPlans.length > 0 ? (
