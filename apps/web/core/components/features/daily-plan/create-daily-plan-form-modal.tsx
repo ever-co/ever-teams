@@ -37,6 +37,12 @@ const isBeforeToday = (day: Date) => {
 	return moment(day).isBefore(today, 'day');
 };
 
+// A custom day picked before midnight is in the past when the form is submitted after it
+const isPastCustomDay = (planMode: EDailyPlanMode, day: Date) => {
+	const isCustomMode = planMode === EDailyPlanMode.CUSTOM;
+	return isCustomMode && isBeforeToday(day);
+};
+
 // A selected day that is no longer ahead of the current day goes back to tomorrow
 const keepUpcomingDay = (selectedDay: Date) => {
 	const today = moment();
@@ -123,17 +129,18 @@ export function CreateDailyPlanFormModal({
 	}, [reset]);
 
 	const handleSelectAndClose = useCallback(() => {
-		if (!createDailyPlanLoading) {
+		// The submission moves a day that went past to tomorrow, so the modal stays open to show it
+		const isSelectedDayPast = isPastCustomDay(planMode, date);
+		const canClose = !createDailyPlanLoading && !isSelectedDayPast;
+		if (canClose) {
 			handleCloseModal();
 		}
 		window.localStorage.setItem(LAST_OPTION__CREATE_DAILY_PLAN_MODAL, 'Select & Close');
-	}, [createDailyPlanLoading, handleCloseModal]);
+	}, [createDailyPlanLoading, handleCloseModal, planMode, date]);
 
 	const onSubmit = useCallback(
 		async (values: any) => {
-			// A day picked before midnight is in the past when the form is submitted after it
-			const isPastCustomDay = planMode === 'custom' && isBeforeToday(date);
-			if (isPastCustomDay) {
+			if (isPastCustomDay(planMode, date)) {
 				setDate(getTomorrowDate());
 				return;
 			}

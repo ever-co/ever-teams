@@ -7,6 +7,7 @@ import { EDailyPlanMode } from '@/core/types/generics/enums/daily-plan';
 import { CreateDailyPlanFormModal } from './create-daily-plan-form-modal';
 
 const mockCreateDailyPlan = jest.fn();
+const mockCloseModal = jest.fn();
 // The day the calendar stand-in hands to the form when it is clicked
 let mockPickedDay: Date | undefined;
 
@@ -70,7 +71,7 @@ const setClock = (date: Date) => {
 const planForm = (open: boolean) => (
 	<CreateDailyPlanFormModal
 		open={open}
-		closeModal={jest.fn()}
+		closeModal={mockCloseModal}
 		taskId="task-1"
 		employeeId="employee-1"
 		planMode={EDailyPlanMode.CUSTOM}
@@ -102,6 +103,8 @@ describe('CreateDailyPlanFormModal across midnight', () => {
 	beforeEach(() => {
 		mockCreateDailyPlan.mockResolvedValue(undefined);
 		mockPickedDay = undefined;
+		// The main button follows the last option chosen, which the form keeps in localStorage
+		window.localStorage.clear();
 	});
 
 	it('preselects tomorrow when a form mounted the day before is opened', () => {
@@ -146,6 +149,29 @@ describe('CreateDailyPlanFormModal across midnight', () => {
 
 		await waitFor(() => expect(selectedDay()).toBe('2026-10-16'));
 		expect(mockCreateDailyPlan).not.toHaveBeenCalled();
+	});
+
+	it('keeps the form open when Select & close meets a day that passed', async () => {
+		setClock(new Date(2026, 9, 14, 23, 50));
+		render(planForm(true));
+		pickDay(new Date(2026, 9, 14));
+
+		setClock(new Date(2026, 9, 15, 0, 10));
+		fireEvent.click(screen.getByText('Select & close'));
+
+		await waitFor(() => expect(selectedDay()).toBe('2026-10-16'));
+		expect(mockCloseModal).not.toHaveBeenCalled();
+		expect(mockCreateDailyPlan).not.toHaveBeenCalled();
+	});
+
+	it('closes the form with Select & close on an upcoming day', async () => {
+		setClock(new Date(2026, 9, 14, 10, 0));
+		render(planForm(true));
+
+		fireEvent.click(screen.getByText('Select & close'));
+
+		expect(mockCloseModal).toHaveBeenCalledTimes(1);
+		await waitFor(() => expect(mockCreateDailyPlan).toHaveBeenCalledTimes(1));
 	});
 
 	it('plans the selected day while it is still upcoming', async () => {
