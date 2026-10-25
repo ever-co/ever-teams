@@ -1,6 +1,7 @@
 import { authenticatedGuard } from '@/core/services/server/guards/authenticated-guard-app';
 import { NextResponse } from 'next/server';
 import { getTimeLogReportDailyChartRequest } from '@/core/services/server/requests';
+import { IDailyChartRequestParams, readArrayParam } from '@/core/services/server/requests/timesheet';
 
 export async function GET(req: Request) {
 	const res = new NextResponse();
@@ -31,9 +32,19 @@ export async function GET(req: Request) {
 	if (!user) return $res('Unauthorized');
 
 	try {
+		// The list filters the client sends with indexed keys, passed on to Gauzy as direct mode sends them
+		const listFilters: Partial<IDailyChartRequestParams> = {};
+		for (const key of ['projectIds', 'employeeIds', 'taskIds', 'teamIds', 'logType'] as const) {
+			const values = readArrayParam(searchParams, key);
+			if (values.length) {
+				listFilters[key] = values;
+			}
+		}
+
 		// Make the request to get daily chart data
 		const { data } = await getTimeLogReportDailyChartRequest(
 			{
+				...listFilters,
 				activityLevel: {
 					start: parseInt(activityLevelStart || '0'),
 					end: parseInt(activityLevelEnd || '100')
