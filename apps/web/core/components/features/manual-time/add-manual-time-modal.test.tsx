@@ -81,13 +81,20 @@ jest.mock('../../teams/manage-member-component', () => ({
 	ManageOrMemberComponent: () => null
 }));
 
+// A select is either controlled or uncontrolled, so only one of the two props is passed on
+function mockSelectValueProps(value?: string, defaultValue?: string) {
+	if (value === undefined) {
+		return { defaultValue };
+	}
+	return { value };
+}
+
 // A native select stands in for the Radix one: controlled through `value`, uncontrolled through `defaultValue`
 jest.mock('../../common/multiple-select', () => ({
 	CustomSelect: ({ ariaLabel, options, value, defaultValue, valueKey = 'id', onChange }: MockCustomSelectProps) => (
 		<select
 			aria-label={ariaLabel}
-			value={value}
-			defaultValue={defaultValue}
+			{...mockSelectValueProps(value, defaultValue)}
 			onChange={(event) => onChange?.(event.target.value)}
 		>
 			<option value="">Select an option</option>
