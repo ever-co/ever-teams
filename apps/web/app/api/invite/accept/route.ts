@@ -40,7 +40,9 @@ async function acceptAndSignIn(req: Request, input: AcceptInviteParams) {
 	// Read before the accept, which closes the invitation
 	const invitedOrganizationName = await invitedOrganizationNameOf(input);
 
-	const { data: accepted, response: acceptance } = await acceptInviteRequest(input);
+	// The browser sends the app's origin in direct mode: Gauzy builds the links of its welcome e-mail on it
+	const { origin } = new URL(req.url);
+	const { data: accepted, response: acceptance } = await acceptInviteRequest(input, origin);
 
 	const tenantId = accepted.user?.tenantId || '';
 	const access_token = accepted.token;

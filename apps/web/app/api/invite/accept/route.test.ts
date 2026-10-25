@@ -173,6 +173,26 @@ describe('POST /api/invite/accept', () => {
 		expect(cookies).not.toContain(`${ORGANIZATION_ID_COOKIE_NAME}=org-before-the-invite`);
 	});
 
+	it("sends the app's origin to Gauzy's accept, as the browser does in direct mode, for the welcome e-mail links", async () => {
+		const token = invitedAccessToken();
+		const fetchMock = gauzyAnswers({
+			'POST /invite/validate-by-code': { status: 201, body: INVITATION_CHECK },
+			'POST /invite/accept': { status: 201, body: acceptedAnswer(token) },
+			'GET /user-organization': {
+				status: 200,
+				body: { items: [{ organizationId: INVITED.organizationId, organization: { name: 'Acme' } }], total: 1 }
+			},
+			'GET /organization-team': { status: 200, body: { items: [{ id: INVITED.teamId }], total: 1 } }
+		});
+
+		await POST(acceptRequest());
+
+		const calls = fetchMock.mock.calls as Array<[string, RequestInit]>;
+		const [, acceptCall] = calls;
+		expect(acceptCall[0]).toBe(`${GAUZY_API_SERVER_URL}/invite/accept`);
+		expect(acceptCall[1].headers).toEqual(expect.objectContaining({ origin: 'https://app.ever.team' }));
+	});
+
 	it('still accepts when the invitation check gives no answer, and takes the first organization like direct mode', async () => {
 		const token = invitedAccessToken('org-2');
 		const fetchMock = gauzyAnswers({
