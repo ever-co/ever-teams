@@ -38,7 +38,9 @@ export async function createOrganizationTeamRequest(datas: IOrganizationTeamCrea
 		// A network failure or a 5xx keeps it (the team may exist); so does a failed clean-up, which never hides the
 		// team's own error. The original rejection is rethrown as it was.
 		if (isRefusal(await unwrapRejection(error)) && project?.id) {
-			await withinCleanupTime(deleteOrganizationProjectRequest(project.id, datas.tenantId, bearer_token));
+			await withinCleanupTime((signal) =>
+				deleteOrganizationProjectRequest(project.id, datas.tenantId, bearer_token, signal)
+			);
 		}
 		throw error;
 	}
@@ -47,15 +49,22 @@ export async function createOrganizationTeamRequest(datas: IOrganizationTeamCrea
 /** At most this long for the clean-up: a hanging DELETE must not hold back the team's own error. */
 const CLEANUP_TIMEOUT_MS = 5_000;
 
-/** Waits for `cleanup` for up to {@link CLEANUP_TIMEOUT_MS}; never rejects. */
-async function withinCleanupTime(cleanup: Promise<unknown>): Promise<void> {
+/**
+ * Runs `cleanup` for up to {@link CLEANUP_TIMEOUT_MS}: then its request is aborted (the signal) and the wait ends even
+ * if the request ignores the abort. Never rejects.
+ */
+async function withinCleanupTime(cleanup: (signal: AbortSignal) => Promise<unknown>): Promise<void> {
+	const controller = new AbortController();
 	let timer: ReturnType<typeof setTimeout> | undefined;
 	const timeout = new Promise<void>((resolve) => {
-		timer = setTimeout(resolve, CLEANUP_TIMEOUT_MS);
+		timer = setTimeout(() => {
+			controller.abort();
+			resolve();
+		}, CLEANUP_TIMEOUT_MS);
 	});
 	try {
 		await Promise.race([
-			cleanup.then(
+			cleanup(controller.signal).then(
 				() => undefined,
 				() => undefined
 			),

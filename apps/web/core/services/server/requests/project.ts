@@ -2,12 +2,18 @@ import { ICreateProjectRequest, IOrganizationProject } from '@/core/types/interf
 import { serverFetch } from '../fetch';
 
 /** Deletes an organization project (the one a team creation made, when the team itself was refused). */
-export function deleteOrganizationProjectRequest(projectId: string, tenantId: string, bearer_token: string) {
+export function deleteOrganizationProjectRequest(
+	projectId: string,
+	tenantId: string | undefined,
+	bearer_token: string,
+	signal?: AbortSignal
+) {
 	return serverFetch<unknown>({
 		path: `/organization-projects/${encodeURIComponent(projectId)}`,
 		method: 'DELETE',
 		bearer_token,
-		tenantId
+		tenantId,
+		...(signal ? { init: { signal } } : {})
 	});
 }
 

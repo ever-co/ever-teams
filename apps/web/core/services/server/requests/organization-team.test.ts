@@ -130,6 +130,8 @@ describe('createOrganizationTeamRequest', () => {
 			const { error: thrown } = await outcome;
 
 			await expect(unwrapRejection(thrown)).resolves.toEqual({ statusCode: 400, message: 'refused' });
+			// The hanging DELETE was handed a signal, and it is aborted at the limit
+			expect(deletes()[0][0].init.signal.aborted).toBe(true);
 		} finally {
 			jest.useRealTimers();
 		}
