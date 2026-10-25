@@ -11,6 +11,14 @@ import {
 	TDailyActivity
 } from '@/core/types/schemas/activities/activity.schema';
 
+// The visited sites tabs ask for SITE, while Gauzy stores and filters these activities as URL (ActivityType).
+function toGauzyActivityType(type: string): string {
+	if (type === 'SITE') {
+		return 'URL';
+	}
+	return type;
+}
+
 class ActivityService extends APIService {
 	getActivities = async ({
 		taskId,
@@ -101,7 +109,9 @@ class ActivityService extends APIService {
 				startDate: params.todayStart.toISOString(),
 				endDate: params.todayEnd.toISOString()
 			};
-			if (params.type) queryParams['types[0]'] = params.type;
+			if (params.type) {
+				queryParams['types[0]'] = toGauzyActivityType(params.type);
+			}
 			if (params.title) queryParams['title[0]'] = params.title;
 			const query = qs.stringify(queryParams, { encode: false });
 
