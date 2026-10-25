@@ -2,9 +2,17 @@ import { secondsToTime } from '@/core/lib/helpers/index';
 import Link from 'next/link';
 import { useMemo } from 'react';
 import { ProgressBar } from '../../duplicated-components/_progress-bar';
-import { TActivity } from '@/core/types/schemas';
+import { TDailyActivity } from '@/core/types/schemas';
 
-const VisitedItem = ({ app, totalMilliseconds, type }: { app: TActivity; totalMilliseconds: number; type: string }) => {
+const VisitedItem = ({
+	app,
+	totalMilliseconds,
+	type
+}: {
+	app: TDailyActivity;
+	totalMilliseconds: number;
+	type: string;
+}) => {
 	const {
 		hours: h,
 		minutes: m,
