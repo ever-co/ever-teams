@@ -46,14 +46,22 @@ export function editOrganizationProjectsRequest({
 export function getOrganizationProjectRequest({
 	id,
 	tenantId,
-	bearer_token
+	bearer_token,
+	searchParams
 }: {
 	id: string;
 	tenantId: string;
 	bearer_token: string;
+	searchParams?: URLSearchParams;
 }) {
+	let path = `/organization-projects/${id}`;
+	const query = searchParams?.toString();
+	if (query) {
+		path = `${path}?${query}`;
+	}
+
 	return serverFetch<IOrganizationProject>({
-		path: `/organization-projects/${id}`,
+		path,
 		method: 'GET',
 		bearer_token,
 		tenantId
@@ -63,17 +71,30 @@ export function getOrganizationProjectRequest({
 export function getOrganizationProjectsRequest({
 	tenantId,
 	organizationId,
-	bearer_token
+	bearer_token,
+	searchParams
 }: {
 	tenantId: string;
 	bearer_token: string;
 	organizationId: string;
+	searchParams?: URLSearchParams;
 }) {
 	const obj = {
 		'where[organizationId]': organizationId,
 		'where[tenantId]': tenantId
 	};
-	const query = qs.stringify(obj);
+	const scopeQuery = qs.stringify(obj);
+
+	// The relations, paging and filters the client sends reach Gauzy as in direct mode; the organization and
+	// tenant stay the session's.
+	const clientParams = new URLSearchParams(searchParams);
+	clientParams.delete('where[organizationId]');
+	clientParams.delete('where[tenantId]');
+	const clientQuery = clientParams.toString();
+
+	const queries = [scopeQuery, clientQuery];
+	const presentQueries = queries.filter(Boolean);
+	const query = presentQueries.join('&');
 
 	return serverFetch<PaginationResponse<IOrganizationProject>>({
 		path: `/organization-projects?${query}`,
