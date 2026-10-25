@@ -32,6 +32,8 @@ const INVITATION_CHECK = {
 	isExpired: false
 };
 
+const ACCEPT_URL = 'https://app.ever.team/api/invite/accept';
+
 /** An organization the invitee belonged to before the invitation. */
 const EARLIER_ORGANIZATION_ID = 'org-before-the-invite';
 
@@ -136,10 +138,10 @@ function gauzyCalls(fetchMock: jest.Mock): string[] {
 	});
 }
 
-function acceptRequest(contentType = 'application/json') {
-	return new NextRequest('https://app.ever.team/api/invite/accept', {
+function acceptRequest(contentType = 'application/json', url = ACCEPT_URL, headers: Record<string, string> = {}) {
+	return new NextRequest(url, {
 		method: 'POST',
-		headers: { 'content-type': contentType },
+		headers: { 'content-type': contentType, ...headers },
 		body: JSON.stringify(INVITATION)
 	});
 }
@@ -247,6 +249,21 @@ describe('POST /api/invite/accept', () => {
 		const [, acceptCall] = calls;
 		expect(acceptCall[0]).toBe(`${GAUZY_API_SERVER_URL}/invite/accept`);
 		expect(acceptCall[1].headers).toEqual(expect.objectContaining({ origin: 'https://app.ever.team' }));
+	});
+
+	it.each([
+		// Behind a TLS-terminating proxy the request URL can carry the internal http
+		['the Origin the browser posts with', 'https://app.ever.team', 'https://app.ever.team'],
+		['the request URL when the browser sends a null Origin', 'null', 'http://localhost:3030']
+	])('sends Gauzy %s', async (_case, browserOrigin, sentOrigin) => {
+		const memberships = membershipsAnswer([INVITED.organizationId, 'Acme']);
+		const fetchMock = gauzyAnswers(acceptAnswers(invitedAccessToken(), memberships));
+		const internalUrl = 'http://localhost:3030/api/invite/accept';
+
+		await POST(acceptRequest('application/json', internalUrl, { origin: browserOrigin }));
+
+		const [, acceptCall] = fetchMock.mock.calls as Array<[string, RequestInit]>;
+		expect(acceptCall[1].headers).toEqual(expect.objectContaining({ origin: sentOrigin }));
 	});
 
 	it('still accepts when the invitation check gives no answer, and takes the first organization like direct mode', async () => {

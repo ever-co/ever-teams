@@ -46,8 +46,8 @@ async function acceptAndSignIn(req: Request, input: AcceptInviteParams) {
 	// Read before the accept, which closes the invitation
 	const invitedOrganizationName = await invitedOrganizationNameOf(input);
 
-	// The browser sends the app's origin in direct mode: Gauzy builds the links of its welcome e-mail on it
-	const { origin } = new URL(req.url);
+	// Gauzy builds the links of its welcome e-mail on the Origin of the accept
+	const origin = appOriginOf(req);
 	const { data: accepted, response: acceptance } = await acceptInviteRequest(input, origin);
 
 	const tenantId = accepted.user?.tenantId || '';
@@ -148,6 +148,19 @@ async function tokensInOrganization(
 	} catch {
 		return acceptedTokens;
 	}
+}
+
+/**
+ * The app's origin as the browser sees it: the Origin it posts with, the one Gauzy gets in direct mode. Behind a
+ * TLS-terminating proxy the request URL can carry the internal http (cookies/helpers.ts), so it only stands in when
+ * the browser sends none, or `null` from a privacy-sensitive context.
+ */
+function appOriginOf(req: Request): string {
+	const sentOrigin = req.headers.get('origin');
+	const isUsable = !!sentOrigin && sentOrigin !== 'null';
+	if (isUsable) return sentOrigin;
+
+	return new URL(req.url).origin;
 }
 
 function isJsonBody(req: Request): boolean {
