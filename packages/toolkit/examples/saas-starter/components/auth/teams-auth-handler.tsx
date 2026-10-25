@@ -10,6 +10,8 @@ import { useAccessToken } from '@ever-teams/atoms';
  * The sign-in / sign-up action connects the account to Teams on the server (`lib/auth/teams-handoff.ts`), so no
  * credentials are kept in the browser: this only collects the resulting Teams token, once, from the hand-off route.
  */
+const HANDOFF_ATTEMPTS = 3;
+
 export function TeamsAuthHandler(): ReactElement | null {
 	const { setAccessToken, accessToken } = useAccessToken();
 	const requested = useRef(false);
@@ -21,17 +23,25 @@ export function TeamsAuthHandler(): ReactElement | null {
 		}
 		requested.current = true;
 
+		// A few tries a little apart: a network blip or a busy server must not leave the page without its Teams token
+		// until the next sign-in. A 401 (no local session) or an answer without a token ends it at once.
 		const collectTeamsToken = async () => {
-			try {
-				const res = await fetch('/api/teams/handoff', { method: 'POST', credentials: 'same-origin' });
-				if (!res.ok) return;
-				const { token } = (await res.json()) as { token: string | null };
-				if (token) {
-					// Use Teams's native session management
-					setAccessToken(token);
+			for (let attempt = 1; attempt <= HANDOFF_ATTEMPTS; attempt++) {
+				try {
+					const res = await fetch('/api/teams/handoff', { method: 'POST', credentials: 'same-origin' });
+					if (res.ok) {
+						const { token } = (await res.json()) as { token: string | null };
+						if (token) {
+							// Use Teams's native session management
+							setAccessToken(token);
+						}
+						return;
+					}
+					if (res.status === 401) return;
+				} catch (error) {
+					console.warn('❌ Teams authentication failed:', error);
 				}
-			} catch (error) {
-				console.warn('❌ Teams authentication failed:', error);
+				if (attempt < HANDOFF_ATTEMPTS) await new Promise((resolve) => setTimeout(resolve, attempt * 1_000));
 			}
 		};
 
