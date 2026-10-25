@@ -8,7 +8,7 @@ import {
 } from '@/core/types/interfaces/team/organization-team';
 import moment from 'moment';
 import { serverFetch } from '../fetch';
-import { createOrganizationProjectRequest } from './project';
+import { createOrganizationProjectRequest, deleteOrganizationProjectRequest } from './project';
 import qs from 'qs';
 
 export async function createOrganizationTeamRequest(datas: IOrganizationTeamCreate, bearer_token: string) {
@@ -24,13 +24,30 @@ export async function createOrganizationTeamRequest(datas: IOrganizationTeamCrea
 
 	datas.projects = [project];
 
-	return serverFetch<IOrganizationTeam>({
-		path: '/organization-team',
-		method: 'POST',
-		body: datas,
-		bearer_token,
-		tenantId: datas.tenantId
-	});
+	try {
+		return await serverFetch<IOrganizationTeam>({
+			path: '/organization-team',
+			method: 'POST',
+			body: datas,
+			bearer_token,
+			tenantId: datas.tenantId
+		});
+	} catch (error) {
+		// The API refused the team (a 4xx answer, which serverFetch rejects with Gauzy's body): no team uses the project
+		// made for it, so it goes, and a retry does not leave one more behind. A network failure or a 5xx keeps it (the
+		// team may exist); so does a failed clean-up, which never hides the team's own error.
+		if (isRefusal(error) && project?.id) {
+			await deleteOrganizationProjectRequest(project.id, datas.tenantId, bearer_token).catch(() => undefined);
+		}
+		throw error;
+	}
+}
+
+/** Whether a serverFetch rejection is the API's own 4xx answer (Gauzy's error body), not a network failure. */
+function isRefusal(error: unknown): boolean {
+	const statusCode =
+		typeof error === 'object' && error !== null ? (error as { statusCode?: unknown }).statusCode : undefined;
+	return typeof statusCode === 'number' && statusCode >= 400 && statusCode < 500;
 }
 
 /**
