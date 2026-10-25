@@ -31,6 +31,22 @@ import { useUserQuery } from '@/core/hooks/queries/user-user.query';
 import { useAtomValue } from 'jotai';
 import { activeTeamManagersState, activeTeamState } from '@/core/stores';
 
+// Days before the current one cannot be planned, even when the calendar showed them when they were picked
+const isBeforeToday = (day: Date) => {
+	const today = moment();
+	return moment(day).isBefore(today, 'day');
+};
+
+// A selected day that is no longer ahead of the current day goes back to tomorrow
+const keepUpcomingDay = (selectedDay: Date) => {
+	const today = moment();
+	const isUpcoming = moment(selectedDay).isAfter(today, 'day');
+	if (isUpcoming) {
+		return selectedDay;
+	}
+	return getTomorrowDate();
+};
+
 export function CreateDailyPlanFormModal({
 	open,
 	closeModal,
@@ -59,6 +75,14 @@ export function CreateDailyPlanFormModal({
 	);
 
 	const [date, setDate] = useState<Date>(getTomorrowDate);
+	// The form stays mounted while the modal is closed, so the selected day is checked again each time it opens
+	const [wasOpen, setWasOpen] = useState(open);
+	if (open !== wasOpen) {
+		setWasOpen(open);
+		if (open) {
+			setDate(keepUpcomingDay);
+		}
+	}
 	const [selectedEmployee, setSelectedEmployee] = useState<TOrganizationTeamEmployee | undefined>(
 		isManagerConnectedUser
 	);
@@ -107,6 +131,12 @@ export function CreateDailyPlanFormModal({
 
 	const onSubmit = useCallback(
 		async (values: any) => {
+			// A day picked before midnight is in the past when the form is submitted after it
+			const isPastCustomDay = planMode === 'custom' && isBeforeToday(date);
+			if (isPastCustomDay) {
+				setDate(getTomorrowDate());
+				return;
+			}
 			createDailyPlan({
 				workTimePlanned: parseInt(values.workTimePlanned) || 0,
 				taskId,
@@ -270,6 +300,10 @@ const CustomCalendar = memo(function CustomCalendar({
 
 	const handleDaySelect = (day: Date | undefined) => {
 		const selectedDay = day ?? getTomorrowDate();
+		// A calendar left open past midnight still offers the day before
+		if (isBeforeToday(selectedDay)) {
+			return;
+		}
 		setDate(selectedDay);
 	};
 
