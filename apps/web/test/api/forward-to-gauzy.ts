@@ -5,7 +5,7 @@
 import { GAUZY_API_SERVER_URL, TENANT_ID_COOKIE_NAME, TOKEN_COOKIE_NAME } from '@/core/constants/config/constants';
 
 /** The session a browser holds in its cookies in proxy mode. */
-export const SESSION = { token: 'session-token-1', tenantId: 'tenant-1' } as const;
+const SESSION = { token: 'session-token-1', tenantId: 'tenant-1' } as const;
 
 const originalFetch = global.fetch;
 
