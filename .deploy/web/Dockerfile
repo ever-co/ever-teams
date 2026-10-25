@@ -27,7 +27,8 @@ ENV NEXT_TELEMETRY_DISABLED=1
 ENV NEXT_BUILD_OUTPUT_TYPE=standalone
 ENV NEXT_SHARP_PATH=/temp/node_modules/sharp
 
-RUN npm i -g npm@9
+# The latest npm for this Node (was npm@9, a downgrade from the npm Node 26 ships; npm 12 needs Node >= 26 or ^24.15)
+RUN npm i -g --ignore-scripts npm@12.2.1
 
 # Pre-install Sharp for Next.js image optimization support
 RUN mkdir /temp && cd /temp && npm i sharp
