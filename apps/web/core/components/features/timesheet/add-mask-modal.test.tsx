@@ -44,9 +44,7 @@ jest.mock('@/core/hooks/timesheet/use-create-timesheet', () => ({
 
 jest.mock('@/core/lib/helpers/index', () => ({ toUTC: (date: Date) => date }));
 
-jest.mock('@/core/lib/utils', () => ({
-	clsxm: (...classes: unknown[]) => classes.filter(Boolean).join(' ')
-}));
+jest.mock('@/core/lib/utils', () => ({ clsxm: () => '' }));
 
 jest.mock('@/core/components', () => ({
 	Modal: ({ children }: MockChildrenProps) => <>{children}</>
@@ -89,11 +87,14 @@ jest.mock('../../common/multiple-select', () => ({
 	CustomSelect: ({ ariaLabel, options, value, valueKey = 'id', onChange }: MockCustomSelectProps) => (
 		<select aria-label={ariaLabel} value={value} onChange={(event) => onChange?.(event.target.value)}>
 			<option value="">Select an option</option>
-			{options.map((option) => (
-				<option key={String(option[valueKey])} value={String(option[valueKey])}>
-					{String(option[valueKey])}
-				</option>
-			))}
+			{options.map((option) => {
+				const optionValue = String(option[valueKey]);
+				return (
+					<option key={optionValue} value={optionValue}>
+						{optionValue}
+					</option>
+				);
+			})}
 		</select>
 	)
 }));
@@ -119,18 +120,15 @@ function renderAddTimeForm() {
 	return render(<AddTaskModal isOpen closeModal={closeModal} />);
 }
 
-// Both CustomSelects carry the same aria-label: the task one comes first
-function taskSelect() {
-	return screen.getAllByLabelText('Task issues')[0] as HTMLSelectElement;
-}
-
-function employeeSelect() {
-	return screen.getAllByLabelText('Task issues')[1] as HTMLSelectElement;
+// Both CustomSelects carry the same aria-label: the task one comes first, then the employee one
+function taskAndEmployeeSelects() {
+	return screen.getAllByLabelText('Task issues') as HTMLSelectElement[];
 }
 
 function pickTaskAndEmployee(taskId: string, employeeId: string) {
-	fireEvent.change(taskSelect(), { target: { value: taskId } });
-	fireEvent.change(employeeSelect(), { target: { value: employeeId } });
+	const [taskSelect, employeeSelect] = taskAndEmployeeSelects();
+	fireEvent.change(taskSelect, { target: { value: taskId } });
+	fireEvent.change(employeeSelect, { target: { value: employeeId } });
 }
 
 function fillShiftTimes() {
@@ -140,7 +138,8 @@ function fillShiftTimes() {
 }
 
 function save() {
-	fireEvent.click(screen.getByRole('button', { name: 'common.SAVE' }));
+	const saveButton = screen.getByRole('button', { name: 'common.SAVE' });
+	fireEvent.click(saveButton);
 }
 
 describe('AddTaskModal team of the saved time', () => {
@@ -173,8 +172,9 @@ describe('AddTaskModal team of the saved time', () => {
 		mockAtomValues.tasksByTeamState = [taskB];
 		rerender(<AddTaskModal isOpen closeModal={closeModal} />);
 
-		expect(taskSelect().value).toBe('');
-		expect(employeeSelect().value).toBe('');
+		const [taskSelect, employeeSelect] = taskAndEmployeeSelects();
+		expect(taskSelect.value).toBe('');
+		expect(employeeSelect.value).toBe('');
 
 		save();
 
