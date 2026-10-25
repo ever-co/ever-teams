@@ -640,7 +640,7 @@ function useMenuPlans(profile?: I_UserProfilePage) {
 	if (isTeammateProfile) {
 		return {
 			isTeammateProfile,
-			ensureMyDailyPlans: myPlans.ensureMyDailyPlans,
+			ensurePlans: teammatePlans.ensureEmployeeDailyPlans,
 			todayPlans: teammatePlans.employeeTodayPlan,
 			futurePlans: teammatePlans.employeeFuturePlans,
 			isPlansLoading: teammatePlans.isLoading
@@ -648,7 +648,7 @@ function useMenuPlans(profile?: I_UserProfilePage) {
 	}
 	return {
 		isTeammateProfile,
-		ensureMyDailyPlans: myPlans.ensureMyDailyPlans,
+		ensurePlans: myPlans.ensureMyDailyPlans,
 		todayPlans: myPlans.myTodayPlan,
 		futurePlans: myPlans.myFuturePlans,
 		isPlansLoading: myPlans.isLoading
@@ -733,7 +733,7 @@ export function TaskCardMenu({
 	const canSeeActivity = useCanSeeActivityScreen();
 	const { myPermissions } = useMyRolePermissionsQuery();
 
-	const { isTeammateProfile, ensureMyDailyPlans, todayPlans, futurePlans, isPlansLoading } = useMenuPlans(profile);
+	const { isTeammateProfile, ensurePlans, todayPlans, futurePlans, isPlansLoading } = useMenuPlans(profile);
 
 	// The API lets only the team's managers, or a holder of CHANGE_SELECTED_EMPLOYEE, change another member's plans
 	const canActForOthers = myPermissions.includes('CHANGE_SELECTED_EMPLOYEE');
@@ -772,10 +772,17 @@ export function TaskCardMenu({
 	// Combine loading states: external loading OR assignment in progress
 	const isMenuLoading = loading || isAssigning;
 
+	// The plan items read the plans of the profile's member: teams without a plan requirement do not preload the
+	// personal ones, and a teammate's may have changed elsewhere since they were read
+	const handleMenuOpenChange = (open: boolean) => {
+		if (open) {
+			void ensurePlans();
+		}
+	};
+
 	return (
 		<>
-			{/* The plan items below read the personal plans, which teams without a plan requirement do not preload */}
-			<DropdownMenu onOpenChange={(open) => open && void ensureMyDailyPlans()}>
+			<DropdownMenu onOpenChange={handleMenuOpenChange}>
 				<DropdownMenuTrigger asChild>
 					<button className="flex items-center border-none outline-none">
 						{!isMenuLoading && (
