@@ -23,12 +23,12 @@
 	"devDependencies": {
 		"@plasmohq/prettier-plugin-sort-imports": "^4.0.1",
 		"@types/chrome": "^0.0.203",
-		"@types/node": "^20.12.2",
+		"@types/node": "^26.6.5",
 		"@types/react": "^19.2.8",
 		"@types/react-dom": "^19.2.3",
 		"postcss": "^8.5.10",
 		"prettier": "^3.2.5",
-		"typescript": "^4.9.4"
+		"typescript": "^5.9.3"
 	},
 	"prettier": {
 		"printWidth": 120,
@@ -61,5 +61,12 @@
 		"host_permissions": [
 			"https://*/*"
 		]
+	},
+	"resolutions": {
+		"**/@babel/core": "7.29.7",
+		"**/@babel/traverse": "7.29.10",
+		"**/browserslist": "4.29.4",
+		"**/fflate": "0.8.3",
+		"**/msgpackr": "1.12.1"
 	}
 }

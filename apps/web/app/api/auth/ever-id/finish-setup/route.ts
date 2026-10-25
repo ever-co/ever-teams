@@ -6,6 +6,7 @@ import { isEverIdConfigured } from '@/core/lib/auth/ever-id/config';
 import { logEverIdOutcome, type EverIdStepOutcome } from '@/core/lib/auth/ever-id/log';
 import { everIdSetupTarget } from '@/core/lib/auth/ever-id/session';
 import { provisionEverIdWorkspace } from '@/core/services/server/ever-id/provision';
+import { claimEverIdSetup } from '@/core/services/server/ever-id/setup-claims';
 
 /**
  * Finishes the setup of a workspace an Ever ID sign-in lists: an account the Gauzy API created for an Ever ID whose
@@ -18,14 +19,16 @@ import { provisionEverIdWorkspace } from '@/core/services/server/ever-id/provisi
  * next-auth session on this server, never from the page. 404 while the Ever ID sign-in is not configured; 400 for
  * an index that is not a workspace of that session; 410 when there is no such session or its workspace token
  * expired (sign in with Ever ID again); 409 when there is nothing to set up (the account has its organization, or
- * a tenant it does not own); 429 (with a Retry-After) after 3 attempts a minute for one workspace; 502 when the API
- * fails.
+ * a tenant it does not own); 429 (with a Retry-After) after 3 attempts a minute for one workspace, or while a setup of
+ * that account is still running in this process (two tabs or two sign-ins); 502 when the API fails.
  */
 
 export const dynamic = 'force-dynamic';
 
 const NO_STORE = { 'Cache-Control': 'no-store' };
 const MAX_BODY_BYTES = 1_024;
+/** Seconds an overlapping request for a workspace whose setup is still running waits before it tries again. */
+const RUNNING_RETRY_AFTER_S = 5;
 
 type Reason = 'invalid' | 'expired' | 'has_workspace' | 'throttled' | 'unavailable';
 
@@ -67,16 +70,29 @@ export async function POST(req: Request) {
 		return refuse(429, 'throttled', attempt.retryAfterS);
 	}
 
+	// One setup per account at a time in this process (two tabs or two sign-ins would both create a team)
+	const release = claimEverIdSetup(target);
+	if (!release) {
+		attempt.giveBack();
+		log('throttled');
+		return refuse(429, 'throttled', RUNNING_RETRY_AFTER_S);
+	}
+
 	const response = NextResponse.json({ ok: true }, { status: 200, headers: NO_STORE });
-	const result = await provisionEverIdWorkspace({
-		req,
-		response,
-		email: target.email,
-		workspaceToken: target.token,
-		fallbackUserId: target.userId,
-		team: teamName(body?.team),
-		timezone: typeof body?.timezone === 'string' ? body.timezone.slice(0, 64) : undefined
-	});
+	let result: Awaited<ReturnType<typeof provisionEverIdWorkspace>>;
+	try {
+		result = await provisionEverIdWorkspace({
+			req,
+			response,
+			email: target.email,
+			workspaceToken: target.token,
+			fallbackUserId: target.userId,
+			team: teamName(body?.team),
+			timezone: typeof body?.timezone === 'string' ? body.timezone.slice(0, 64) : undefined
+		});
+	} finally {
+		release();
+	}
 	switch (result) {
 		case 'ok':
 			log('ok');

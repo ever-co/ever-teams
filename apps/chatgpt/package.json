@@ -35,7 +35,7 @@
 		"@logtail/pino": "^0.5.2",
 		"@types/express": "^5.0.0",
 		"@types/cors": "^2.8.17",
-		"@types/node": "^22.13.9",
+		"@types/node": "^26.6.5",
 		"typescript": "^5.8.2",
 		"zod": "^4.6.6",
 		"tsx": "^4.19.2",

@@ -7,6 +7,8 @@ import {
 	createOrganizationTeamRequest,
 	createTenantRequest,
 	createTenantSmtpRequest,
+	getAllOrganizationTeamRequest,
+	getOrganizationEmployees,
 	getUserOrganizationsRequest,
 	refreshTokenRequest
 } from '@/core/services/server/requests';
@@ -19,8 +21,9 @@ import { everIdWorkspaceSigninRequest } from '@/core/services/server/requests/ev
  *
  * Used right after an Ever ID sign-up, and to resume a setup that did not finish at a later Ever ID sign-in: an
  * account without a tenant (the setup failed early, or the sign-up was completed by the API after checkout), or the
- * owner of a tenant without any organization (the setup stopped after the tenant), whose tenant is kept and whose
- * remaining steps run. Any other account with a tenant is left alone: it signs in the usual way.
+ * owner of a tenant without a team (the setup stopped after the tenant or the organization), whose tenant,
+ * organization and employee are kept and whose remaining steps run. Any other account with a tenant is left alone:
+ * it signs in the usual way.
  */
 
 const SMTP_CONFIGURED = Boolean(SMTP_USERNAME && SMTP_PASSWORD);
@@ -67,6 +70,11 @@ function defaultTeamName(user: Record<string, unknown> | undefined): string {
 	return name ? `${name}'s Team` : 'My Team';
 }
 
+/** A page that says it holds fewer rows than the list has (`total`): what it omits may be exactly what is looked for. */
+function isPartial(list: { items: unknown[]; total?: unknown }): boolean {
+	return typeof list.total === 'number' && list.total > list.items.length;
+}
+
 export async function provisionEverIdWorkspace(input: EverIdProvisionInput): Promise<EverIdProvisionResult> {
 	let signin;
 	try {
@@ -86,14 +94,44 @@ export async function provisionEverIdWorkspace(input: EverIdProvisionInput): Pro
 		const team = input.team || defaultTeamName(user);
 
 		let tenantId: string;
+		let organizationId: string | undefined;
+		let employeeId: string | undefined;
 		if (existingTenantId) {
-			// The setup stopped after the tenant: keep it and run the remaining steps, unless an organization exists.
+			// The setup stopped after the tenant (no organization yet) or after the organization (no team yet): keep
+			// what exists and run the remaining steps. An organization with a team is a finished workspace.
 			const { data: memberships } = await getUserOrganizationsRequest(
 				{ tenantId: existingTenantId, userId },
 				auth_token
 			);
-			if (memberships?.items?.length) return 'has_workspace';
 			tenantId = existingTenantId;
+			// An unreadable list is never read as "no organization" or "no employee": that would create a second one
+			// A partial one neither (an omitted organization may have its team): fail, never guess
+			if (!Array.isArray(memberships?.items) || isPartial(memberships)) return 'failed';
+			const organizationIds = memberships.items.map((membership) => membership.organizationId);
+			if (!organizationIds.every((id): id is string => typeof id === 'string' && !!id)) return 'failed';
+			// A team in ANY of the owner's organizations is a finished workspace
+			for (const id of organizationIds) {
+				const { data: teams } = await getAllOrganizationTeamRequest(
+					{ organizationId: id, tenantId, relations: [] },
+					auth_token
+				);
+				if (!Array.isArray(teams?.items)) return 'failed';
+				if (teams.items.length) return 'has_workspace';
+				if (isPartial(teams)) return 'failed';
+			}
+			organizationId = organizationIds[0];
+			if (organizationId) {
+				const { data: employees } = await getOrganizationEmployees(auth_token, tenantId, organizationId);
+				if (!Array.isArray(employees?.items)) return 'failed';
+				// `userId`, or the `user` relation the request asks for when an answer leaves `userId` out
+				const userIds = employees.items.map((item) => item.userId ?? item.user?.id);
+				// A row naming no user could be the owner's: fail rather than create a second employee
+				if (!userIds.every((id) => typeof id === 'string' && !!id)) return 'failed';
+				const employee = employees.items[userIds.indexOf(userId)];
+				if (!employee && isPartial(employees)) return 'failed';
+				if (employee && (typeof employee.id !== 'string' || !employee.id)) return 'failed';
+				employeeId = employee?.id;
+			}
 		} else {
 			const { data: tenant } = await createTenantRequest(team, auth_token);
 			tenantId = tenant.id;
@@ -102,22 +140,28 @@ export async function provisionEverIdWorkspace(input: EverIdProvisionInput): Pro
 			}
 		}
 
-		const { data: organization } = await createOrganizationRequest(
-			{ currency: 'USD', name: team, tenantId, invitesAllowed: true },
-			auth_token
-		);
+		if (!organizationId) {
+			const { data: organization } = await createOrganizationRequest(
+				{ currency: 'USD', name: team, tenantId, invitesAllowed: true },
+				auth_token
+			);
+			organizationId = organization.id;
+		}
 
-		const { data: employee } = await createEmployeeFromUser(
-			{ organizationId: organization.id, startedWorkOn: new Date(), tenantId, userId },
-			auth_token
-		);
+		if (!employeeId) {
+			const { data: employee } = await createEmployeeFromUser(
+				{ organizationId, startedWorkOn: new Date(), tenantId, userId },
+				auth_token
+			);
+			employeeId = employee.id;
+		}
 
 		const { data: createdTeam } = await createOrganizationTeamRequest(
 			{
 				name: team,
 				tenantId,
-				organizationId: organization.id,
-				managerIds: [employee.id],
+				organizationId,
+				managerIds: [employeeId],
 				public: true
 			},
 			auth_token
@@ -133,7 +177,7 @@ export async function provisionEverIdWorkspace(input: EverIdProvisionInput): Pro
 				timezone: input.timezone,
 				teamId: createdTeam.id,
 				tenantId,
-				organizationId: organization.id,
+				organizationId,
 				languageId: 'en',
 				userId
 			},

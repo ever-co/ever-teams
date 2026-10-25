@@ -50,7 +50,6 @@
 		"debounce": "^2.1.1",
 		"embla-carousel-react": "^8.2.0",
 		"framer-motion": "^11.3.28",
-		"grapejs": "^2.1.2",
 		"grapesjs": "^0.21.12",
 		"grapesjs-blocks-basic": "^1.0.2",
 		"grapesjs-blocks-flexbox": "^1.0.1",
@@ -80,7 +79,7 @@
 	"devDependencies": {
 		"@types/crypto-js": "^4.2.2",
 		"@types/lodash": "^4.17.16",
-		"@types/node": "^20",
+		"@types/node": "^26.6.5",
 		"@types/react": "^19.2.7",
 		"@types/react-color": "^3.0.12",
 		"@types/react-dom": "^19.2.3",

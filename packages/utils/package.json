@@ -28,7 +28,7 @@
 		"zxcvbn": "^4.4.2"
 	},
 	"devDependencies": {
-		"@types/node": "^24.10.1",
+		"@types/node": "^26.6.5",
 		"@types/react": "19.2.8",
 		"@types/zxcvbn": "^4.4.5",
 		"tsup": "^8.5.1",

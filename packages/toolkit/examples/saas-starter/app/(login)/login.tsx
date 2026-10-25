@@ -20,28 +20,6 @@ export function Login({ mode = 'signin' }: { mode?: 'signin' | 'signup' }): Reac
 		error: ''
 	});
 
-	// Enhanced form action that captures credentials before submission
-	const enhancedFormAction = async (formData: FormData) => {
-		const email = formData.get('email') as string;
-		const password = formData.get('password') as string;
-
-		// Store credentials for Teams authentication after successful login
-		if (email && password) {
-			// Store in sessionStorage for pickup after redirect
-			sessionStorage.setItem(
-				'recent-login-credentials',
-				JSON.stringify({
-					email,
-					password,
-					timestamp: Date.now()
-				})
-			);
-		}
-
-		// Call the original form action
-		return formAction(formData);
-	};
-
 	return (
 		<div className=" min-h-[100dvh] flex flex-col justify-center py-12 px-4 sm:px-6 lg:px-8 ">
 			<div className="sm:mx-auto sm:w-full sm:max-w-md">
@@ -56,7 +34,7 @@ export function Login({ mode = 'signin' }: { mode?: 'signin' | 'signup' }): Reac
 			</div>
 
 			<div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
-				<form className="space-y-6" action={enhancedFormAction}>
+				<form className="space-y-6" action={formAction}>
 					<input type="hidden" name="redirect" value={redirect || ''} />
 					<input type="hidden" name="priceId" value={priceId || ''} />
 					<input type="hidden" name="inviteId" value={inviteId || ''} />

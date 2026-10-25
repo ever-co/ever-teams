@@ -7,9 +7,11 @@ function base64Url(value: object): string {
 	return btoa(JSON.stringify(value)).replace(/=/g, '').replace(/\+/g, '-').replace(/\//g, '_');
 }
 
-function syntheticAccessToken(userId: string, rotation = 'initial'): string {
+/** Carries the scope's `organizationId` claim like a real Gauzy token (#11316), so InitState has nothing to switch. */
+function syntheticAccessToken(userId: string, organizationId: string | undefined, rotation = 'initial'): string {
 	const now = Math.floor(Date.now() / 1000);
-	return `${base64Url({ alg: 'none', typ: 'JWT' })}.${base64Url({ sub: userId, iat: now, exp: now + 86_400, jti: rotation })}.fixture`;
+	const claims = { sub: userId, organizationId, iat: now, exp: now + 86_400, jti: rotation };
+	return `${base64Url({ alg: 'none', typ: 'JWT' })}.${base64Url(claims)}.fixture`;
 }
 
 function setQuietCookie(name: string, value: string | undefined) {
@@ -29,7 +31,7 @@ Cypress.Commands.add('syntheticLogin', (scope: 'A' | 'B' = 'A') => {
 	cy.fixture('bootstrap').then((fixture: { ids: FixtureIds }) => {
 		const suffix = scope === 'B' ? 'B' : 'A';
 		cy.clearCookies({ log: false });
-		setQuietCookie('auth-token', syntheticAccessToken(fixture.ids.user));
+		setQuietCookie('auth-token', syntheticAccessToken(fixture.ids.user, fixture.ids[`organization${suffix}`]));
 		setQuietCookie('auth-refresh-token', 'synthetic-refresh-token');
 		setQuietCookie('auth-active-team', fixture.ids[`team${suffix}`]);
 		setQuietCookie('auth-tenant-id', fixture.ids[`tenant${suffix}`]);
@@ -57,9 +59,11 @@ Cypress.Commands.add('liveLogin', () => {
 
 Cypress.Commands.add('rotateSyntheticAccessToken', () => {
 	cy.fixture('bootstrap').then((fixture: { ids: FixtureIds }) => {
-		setQuietCookie('auth-token', syntheticAccessToken(fixture.ids.user, 'rotation-2'));
-		cy.window({ log: false }).then((window) => {
-			window.dispatchEvent(new Event('ever-teams:access-token-refreshed'));
+		cy.getCookie('auth-organization-id', { log: false }).then((organization) => {
+			setQuietCookie('auth-token', syntheticAccessToken(fixture.ids.user, organization?.value, 'rotation-2'));
+			cy.window({ log: false }).then((window) => {
+				window.dispatchEvent(new Event('ever-teams:access-token-refreshed'));
+			});
 		});
 	});
 });
