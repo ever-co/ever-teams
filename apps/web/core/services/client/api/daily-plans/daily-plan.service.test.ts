@@ -1,3 +1,4 @@
+import moment from 'moment-timezone';
 import { dailyPlanService } from './daily-plan.service';
 
 jest.mock('@/core/lib/helpers/cookies', () => ({
@@ -27,13 +28,18 @@ describe('DailyPlanService removeManyTaskFromPlans', () => {
 	afterEach(() => {
 		jest.restoreAllMocks();
 		jest.useRealTimers();
+		moment.tz.setDefault();
 	});
 
-	// Plans are dated on the user's local day, so neither end of that day may fall back to the UTC date.
+	// Plans are dated on the user's local day. Each case pins a zone where that day is not the UTC date.
 	it.each([
-		['late in the evening', new Date(2026, 5, 15, 23, 30), '2026-06-15'],
-		['just after midnight', new Date(2026, 5, 16, 0, 15), '2026-06-16']
-	])('sends the local day as today %s', async (_label, now, localDay) => {
+		['late in the evening west of UTC', 'America/New_York', new Date('2026-06-16T03:30:00.000Z'), '2026-06-15'],
+		['just after midnight east of UTC', 'Asia/Tokyo', new Date('2026-06-15T15:15:00.000Z'), '2026-06-16']
+	])('sends the local day as today %s', async (_label, timeZone, now, localDay) => {
+		const utcDay = moment.utc(now).format('YYYY-MM-DD');
+		expect(utcDay).not.toBe(localDay);
+
+		moment.tz.setDefault(timeZone);
 		jest.useFakeTimers();
 		jest.setSystemTime(now);
 		const put = mockRemovalResponse();
