@@ -1,13 +1,18 @@
 'use client';
 
-import { useAtom, useAtomValue } from 'jotai';
+import { useAtom, useAtomValue, useSetAtom } from 'jotai';
 import { useEffect, useMemo, useRef } from 'react';
 
 import { convertMsToTime, secondsToTime } from '@/core/lib/helpers/date-and-time';
 import {
-    localTimerStatusState, timeCounterIntervalState, timeCounterState, timerSecondsState,
-    timerStatusState
+	localTimerStatusState,
+	timeCounterIntervalState,
+	timeCounterState,
+	timerSecondsState,
+	timerStatusReceiptState,
+	timerStatusState
 } from '@/core/stores';
+import { ITimerStatus, ITimerStatusReceipt } from '@/core/types/interfaces/timer/timer-status';
 import { TTask } from '@/core/types/schemas/task/task.schema';
 
 import { useSyncRef } from '../common/use-sync-ref';
@@ -57,6 +62,7 @@ export function useTimerUi({ firstLoad, activeTeamTask }: UseTimerUiParams): Use
 	const [timeCounterInterval, setTimeCounterInterval] = useAtom(timeCounterIntervalState);
 	const [timeCounter, setTimeCounter] = useAtom(timeCounterState);
 	const [timerSeconds, setTimerSeconds] = useAtom(timerSecondsState);
+	const setTimerStatusReceipt = useSetAtom(timerStatusReceiptState);
 
 	// Read shared atoms (written by other layers)
 	const localTimerStatus = useAtomValue(localTimerStatusState);
@@ -137,6 +143,17 @@ export function useTimerUi({ firstLoad, activeTeamTask }: UseTimerUiParams): Use
 		};
 	}, [localTimerStatus, firstLoad, setTimeCounter, setTimeCounterInterval, timeCounterIntervalRef]);
 
+	// ==================== STATUS RECEIPT ====================
+
+	// A running status duration already counts the running log up to the moment it was read, so
+	// useLiveTimerStatus adds only the time elapsed since the status arrived
+	useEffect(() => {
+		if (firstLoad) {
+			const receivedAt = Date.now();
+			setTimerStatusReceipt({ status: timerStatus, receivedAt });
+		}
+	}, [firstLoad, timerStatus, setTimerStatusReceipt]);
+
 	// ==================== RETURN ====================
 
 	return {
@@ -148,6 +165,37 @@ export function useTimerUi({ firstLoad, activeTeamTask }: UseTimerUiParams): Use
 
 // ==================== STANDALONE HOOKS ====================
 
+function getSecondsSinceReceipt(timerStatus: ITimerStatus, receipt: ITimerStatusReceipt): number {
+	// A status that arrived in this render is recorded right after it: it was read a moment ago
+	const isReceiptForThisStatus = receipt.status === timerStatus;
+	if (!isReceiptForThisStatus) {
+		return 0;
+	}
+	const elapsedMs = Date.now() - receipt.receivedAt;
+	const elapsedSeconds = Math.floor(elapsedMs / 1000);
+	return Math.max(0, elapsedSeconds);
+}
+
+/**
+ * Running seconds the status duration does not count yet. A running status counts its running log up to the
+ * moment it was received; before the status reports the timer running (page load, start request in flight),
+ * the local seconds are the only count of the session.
+ */
+function getUncountedRunningSeconds(
+	timerStatus: ITimerStatus | null,
+	receipt: ITimerStatusReceipt,
+	isLocalTimerRunning: boolean,
+	localSeconds: number
+): number {
+	if (timerStatus?.running) {
+		return getSecondsSinceReceipt(timerStatus, receipt);
+	}
+	if (isLocalTimerRunning) {
+		return localSeconds;
+	}
+	return 0;
+}
+
 /**
  * Lightweight hook for components that only need the live timer display.
  * Does NOT trigger high-frequency re-renders from the ticking interval —
@@ -156,7 +204,13 @@ export function useTimerUi({ firstLoad, activeTeamTask }: UseTimerUiParams): Use
 export function useLiveTimerStatus() {
 	const seconds = useAtomValue(timerSecondsState);
 	const timerStatus = useAtomValue(timerStatusState);
-	const { hours: h, minutes: m } = secondsToTime((timerStatus?.duration || 0) + seconds);
+	const timerStatusReceipt = useAtomValue(timerStatusReceiptState);
+	const localTimerStatus = useAtomValue(localTimerStatusState);
+	const isLocalTimerRunning = localTimerStatus?.running === true;
+	const statusDuration = timerStatus?.duration || 0;
+	const uncountedSeconds = getUncountedRunningSeconds(timerStatus, timerStatusReceipt, isLocalTimerRunning, seconds);
+	const totalSeconds = statusDuration + uncountedSeconds;
+	const { hours: h, minutes: m } = secondsToTime(totalSeconds);
 
 	return {
 		time: { h, m },

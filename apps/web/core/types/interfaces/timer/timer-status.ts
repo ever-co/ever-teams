@@ -15,6 +15,10 @@ export type ILocalTimerStatus = {
 	runnedDateTime: number;
 	running: boolean;
 };
+export type ITimerStatusReceipt = {
+	status: ITimerStatus | null;
+	receivedAt: number;
+};
 export type IGetTimerStatusParams = {
 	source?: ETimeLogSource;
 	tenantId: string;
