@@ -4,7 +4,7 @@ import { ITimeLog } from '@/core/types/interfaces/timer/time-log/time-log';
 import { ETimesheetStatus } from '@/core/types/generics/enums/timesheet';
 import { useUpdateTimesheet } from '@/core/hooks/timesheet/use-update-timesheet';
 import { useDeleteTimesheet } from '@/core/hooks/timesheet/use-delete-timesheet';
-import { useMyRolePermissionsQuery } from '@/core/hooks/roles/use-my-role-permissions-query';
+import { useTimesheetReview } from '@/core/hooks/timesheet/use-timesheet-review';
 import { useModal } from '@/core/hooks';
 import { RejectSelectedModal } from '../../features/timesheet/reject-selected-modal';
 import { AlertConfirmationModal } from '@/core/components/common/alert-dialog-confirmation';
@@ -83,8 +83,10 @@ export const SelectedTimesheet: React.FC<SelectedTimesheetProps> = ({ selectTime
 	const { deleteTaskTimesheet, loadingDeleteTimesheet } = useDeleteTimesheet();
 	// Deleting time logs cannot be undone: ask first, as the list view does
 	const { isOpen: isDeleteOpen, openModal: openDeleteConfirm, closeModal: closeDeleteConfirm } = useModal();
-	// Approve and reject call PUT /timesheet/status, which requires this permission
-	const canUpdateTimeSheetStatus = useMyRolePermissionsQuery().myPermissions.includes('CAN_APPROVE_TIMESHEET');
+	// Approve and reject call PUT /timesheet/status, which takes them from an approver, or from a manager of a team
+	// of every selected member
+	const { canApproveAndReject } = useTimesheetReview();
+	const canUpdateTimeSheetStatus = canApproveAndReject(selectTimesheetId);
 	const { isOpen: isRejectModalOpen, openModal: openRejectModal, closeModal: closeRejectModal } = useModal();
 
 	const getSelectedIds = useCallback(
