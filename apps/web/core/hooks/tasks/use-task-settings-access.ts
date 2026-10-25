@@ -16,6 +16,9 @@ const TASK_SETTING_PERMISSION = 'ORG_TASK_SETTING';
 /** A task status, priority, size, version or issue type, as far as the team it belongs to goes. */
 type TTaskSettingRow = { organizationTeamId?: string | null };
 
+/** A row as the lists hand it over, which null-check their items: a missing one counts as a row of no team. */
+type TListedTaskSettingRow = TTaskSettingRow | null | undefined;
+
 /** Whether a team membership is the user's own: the API reads the caller's memberships by their employee. */
 function isOwnMembership(member: TOrganizationTeamEmployee, user: TUser): boolean {
 	const employeeId = user.employee?.id ?? user.employeeId;
@@ -117,13 +120,13 @@ export function useTaskSettingsAccess() {
 	);
 
 	const canWriteRow = useCallback(
-		(row: TTaskSettingRow) => canWriteInTeams([row.organizationTeamId]),
+		(row: TListedTaskSettingRow) => canWriteInTeams([row?.organizationTeamId]),
 		[canWriteInTeams]
 	);
 
 	const canWriteRows = useCallback(
-		(rows: TTaskSettingRow[]) => {
-			const teamIds = rows.map((row) => row.organizationTeamId);
+		(rows: TListedTaskSettingRow[]) => {
+			const teamIds = rows.map((row) => row?.organizationTeamId);
 			return canWriteInTeams(teamIds);
 		},
 		[canWriteInTeams]

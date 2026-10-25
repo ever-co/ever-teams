@@ -99,6 +99,15 @@ describe('useTaskSettingsAccess', () => {
 		expect(access.canWriteRows([])).toBe(false);
 	});
 
+	it('reads a missing row of a list as a row of no team instead of throwing', () => {
+		const activeTeam = team(TEAM_ID, [flaggedManager]);
+		const access = renderAccess([activeTeam]);
+
+		expect(access.canWriteRow(null)).toBe(false);
+		expect(access.canWriteRow(undefined)).toBe(false);
+		expect(access.canWriteRows([teamRow, null])).toBe(false);
+	});
+
 	it('counts the MANAGER role of a membership, the one a team creator gets', () => {
 		const activeTeam = team(TEAM_ID, [managerByRole]);
 		const access = renderAccess([activeTeam]);
