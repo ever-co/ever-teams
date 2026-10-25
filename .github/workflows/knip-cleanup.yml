@@ -31,7 +31,7 @@ jobs:
           node-version: '26.12.1'
 
       # Install through the Verdaccio cache like Web Build Before Merge: from the public registry, this install
-      # failed with ETIMEDOUT on busy nights (twice on 2026-10-25), which fails the promotion's Knip gate.
+      # timed out on busy nights (twice on 2026-10-25), which fails the promotion's Knip gate.
       - name: Configure Registry
         uses: ever-co/ever-gauzy/.github/actions/configure-registry@727973d766f3968d3f1184300af085872abcb20b
         with:
