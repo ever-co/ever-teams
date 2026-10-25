@@ -876,7 +876,7 @@
 			"ISSUE_TYPES": "Issue Types",
 			"DEFAULT_ISSUE_TYPE": "Default Issue Type",
 			"NO_DEFAULT_ISSUE_TYPE": "No Default Issue Type",
-			"TASK_SETTINGS_READ_ONLY": "Only team managers and admins can change task settings",
+			"TASK_SETTINGS_READ_ONLY": "Only team managers and admins can change task settings. Only admins can change the defaults shared by all teams.",
 			"RELATED_TYPE": "Related Type",
 			"INVITATION_HEADING_TITLE": "Invitations",
 			"CREATE_NEW_STATUSES": "Create new Statuses",

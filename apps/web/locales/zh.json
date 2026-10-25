@@ -934,7 +934,7 @@
 			"ISSUETYPE": "议题类型",
 			"DEFAULT_ISSUE_TYPE": "默认问题类型",
 			"NO_DEFAULT_ISSUE_TYPE": "无默认问题类型",
-			"TASK_SETTINGS_READ_ONLY": "只有团队经理和管理员可以更改任务设置",
+			"TASK_SETTINGS_READ_ONLY": "只有团队经理和管理员可以更改任务设置。只有管理员可以更改所有团队共享的默认设置。",
 			"LIST_OF_ISSUES": "议题列表",
 			"RELATED_ISSUE_TYPE": "相关议题类型",
 			"LIST_OF_RELATED_TYPE": "相关类型列表",

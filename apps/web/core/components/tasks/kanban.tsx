@@ -64,30 +64,60 @@ function headerStyleChanger(snapshot: DraggableStateSnapshot, bgColor: any) {
 	};
 }
 
-/** The "Edit status" entry of a column menu, read-only for a user who may not change the status. */
-function EditStatusMenuItem({
+/**
+ * An entry of a column menu that saves on the status (edit it, collapse or expand the column), read-only for a user
+ * who may not change the status.
+ */
+function StatusMenuItem({
+	label,
 	canEdit,
 	readOnlyHint,
 	onClick
 }: {
+	label: string;
 	canEdit: boolean;
 	readOnlyHint: string;
 	onClick: () => void;
 }) {
-	const t = useTranslations();
-
 	if (!canEdit) {
 		return (
 			<div className="p-1.5 text-sm opacity-40 cursor-not-allowed" aria-disabled="true" title={readOnlyHint}>
-				{t('common.EDIT_STATUS')}
+				{label}
 			</div>
 		);
 	}
 
 	return (
 		<div className="hover:font-medium p-1.5 text-sm cursor-pointer" onClick={onClick}>
-			{t('common.EDIT_STATUS')}
+			{label}
 		</div>
+	);
+}
+
+/** The chevron that collapses or expands a column: the collapsed state is saved on the status, for the whole team. */
+function ColumnToggleButton({
+	className,
+	canEdit,
+	readOnlyHint,
+	onClick
+}: {
+	className: string;
+	canEdit: boolean;
+	readOnlyHint: string;
+	onClick: () => void;
+}) {
+	if (!canEdit) {
+		return (
+			<button className={cn(className, 'opacity-40 cursor-not-allowed')} disabled title={readOnlyHint}>
+				<ChevronLeftIcon className="text-[#1B1D22]" />
+			</button>
+		);
+	}
+
+	return (
+		<button className={cn('hover:bg-[#0000001A]', className)} onClick={onClick}>
+			<ChevronLeftIcon className="text-[#1B1D22]" />
+		</button>
 	);
 }
 
@@ -304,6 +334,8 @@ export const EmptyKanbanDroppable = ({
 	const { isOpen: editIsOpen, closeModal: editCloseModal, openModal: editOpenModal } = useModal();
 	const { canWriteRow, readOnlyHint } = useTaskSettingsAccess();
 	const canEditStatus = canWriteRow(status);
+	// The Create task entry also opens the status form of the header: only for a user who may save it
+	const showsEditFormOnCreate = isOpen && canEditStatus;
 
 	if (!enabled) return null;
 
@@ -329,12 +361,12 @@ export const EmptyKanbanDroppable = ({
 										style={headerStyleChanger(snapshot, backgroundColor)}
 									>
 										<div className="flex flex-col items-center space-2">
-											<button
-												className="hover:bg-[#0000001A] w-8 h-8 p-2 rounded-md rotate-180"
+											<ColumnToggleButton
+												className="w-8 h-8 p-2 rounded-md rotate-180"
+												canEdit={canEditStatus}
+												readOnlyHint={readOnlyHint}
 												onClick={() => toggleColumn(title, false)}
-											>
-												<ChevronLeftIcon className="text-[#1B1D22]" />
-											</button>
+											/>
 											<Popover>
 												<PopoverTrigger className="mt-1" asChild>
 													<Button
@@ -354,13 +386,14 @@ export const EmptyKanbanDroppable = ({
 													>
 														{t('hotkeys.CREATE_TASK')}
 													</div>
-													<div
-														className="hover:font-medium p-1.5 text-sm cursor-pointer"
+													<StatusMenuItem
+														label={t('common.EXPAND_COLUMN')}
+														canEdit={canEditStatus}
+														readOnlyHint={readOnlyHint}
 														onClick={() => toggleColumn(title, false)}
-													>
-														{t('common.EXPAND_COLUMN')}
-													</div>
-													<EditStatusMenuItem
+													/>
+													<StatusMenuItem
+														label={t('common.EDIT_STATUS')}
 														canEdit={canEditStatus}
 														readOnlyHint={readOnlyHint}
 														onClick={editOpenModal}
@@ -368,7 +401,7 @@ export const EmptyKanbanDroppable = ({
 												</PopoverContent>
 											</Popover>
 										</div>
-										{isOpen && (
+										{showsEditFormOnCreate && (
 											<Suspense fallback={<ModalSkeleton size="md" />}>
 												<Modal isOpen={isOpen} closeModal={closeModal}>
 													<LazyEditStatusModal
@@ -501,25 +534,26 @@ const KanbanDraggableHeader = ({
 								>
 									{t('common.CREATE_TASK')}
 								</div>
-								<div
-									className="hover:font-medium p-1.5 text-sm cursor-pointer"
+								<StatusMenuItem
+									label={t('common.COLLAPSE_COLUMN')}
+									canEdit={canEditStatus}
+									readOnlyHint={readOnlyHint}
 									onClick={() => toggleColumn(title, true)}
-								>
-									{t('common.COLLAPSE_COLUMN')}
-								</div>
-								<EditStatusMenuItem
+								/>
+								<StatusMenuItem
+									label={t('common.EDIT_STATUS')}
 									canEdit={canEditStatus}
 									readOnlyHint={readOnlyHint}
 									onClick={openModal}
 								/>
 							</PopoverContent>
 						</Popover>
-						<button
-							className="hover:bg-[#0000001A] w-8 h-8 p-2 rounded-md"
+						<ColumnToggleButton
+							className="w-8 h-8 p-2 rounded-md"
+							canEdit={canEditStatus}
+							readOnlyHint={readOnlyHint}
 							onClick={() => toggleColumn(title, true)}
-						>
-							<ChevronLeftIcon className="text-[#1B1D22]" />
-						</button>
+						/>
 					</div>
 				</header>
 			)}
