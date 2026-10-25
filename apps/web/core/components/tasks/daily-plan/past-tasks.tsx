@@ -1,4 +1,4 @@
-import { formatDayPlanDate, getYesterdayDate } from '@/core/lib/helpers/index';
+import { formatDayPlanDate, getDailyPlanDay, getYesterdayDate } from '@/core/lib/helpers/index';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/core/components/common/accordion';
 import { FilterTabs } from '@/core/types/interfaces/task/task-card';
 
@@ -75,7 +75,7 @@ export function PastTasks({
 					<Accordion type="multiple" className="text-sm" defaultValue={[yesterdayPlanDay]}>
 						{dragPlans.map((plan) => (
 							<AccordionItem
-								value={plan.date.toString().split('T')[0]}
+								value={getDailyPlanDay(plan.date)}
 								key={plan.id}
 								className="dark:border-slate-600 !border-none"
 							>

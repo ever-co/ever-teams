@@ -1,4 +1,4 @@
-import { formatDayPlanDate, getTomorrowDate } from '@/core/lib/helpers/index';
+import { formatDayPlanDate, getDailyPlanDay, getTomorrowDate } from '@/core/lib/helpers/index';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/core/components/common/accordion';
 import { EmptyPlans, PlanHeader } from '@/core/components/daily-plan';
 
@@ -73,7 +73,7 @@ export function FutureTasks({
 					<Accordion type="multiple" className="text-sm" defaultValue={[tomorrowPlanDay]}>
 						{dragPlans.map((plan) => (
 							<AccordionItem
-								value={plan.date.toString().split('T')[0]}
+								value={getDailyPlanDay(plan.date)}
 								key={plan.id}
 								className="dark:border-slate-600 !border-none"
 							>
