@@ -44,12 +44,12 @@ function TeamDashboard() {
 		rapportChartActivity,
 		refetchChartActivity,
 		isLoading: isChartLoading
-	} = useActivityChartQuery({ mergedProps, enabled });
+	} = useActivityChartQuery({ mergedProps: statisticsProps, enabled });
 	const {
 		rapportDailyActivity,
 		refetchDailyReport,
 		isLoading: isDailyLoading
-	} = useActivityDailyReportQuery({ mergedProps, enabled });
+	} = useActivityDailyReportQuery({ mergedProps: statisticsProps, enabled });
 	const {
 		statisticsCounts,
 		refetchStatisticsCounts,
