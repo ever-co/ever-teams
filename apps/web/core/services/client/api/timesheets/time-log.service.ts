@@ -1,5 +1,6 @@
 import { APIService } from '../../api.service';
 import qs from 'qs';
+import { endOfDay, startOfDay } from 'date-fns';
 
 import { getDefaultTimezone } from '@/core/lib/helpers/date-and-time';
 import { GAUZY_API_BASE_SERVER_URL, TIMESHEET_RELATIONS } from '@/core/constants/config/constants';
@@ -35,11 +36,12 @@ import { ITimeLogUpdatePayload } from '@/core/types/interfaces/timesheet/time-lo
 class TimeLogService extends APIService {
 	getTimeLimitsReport = async (params: TGetTimeLimitReport): Promise<TTimeLimitReportList[]> => {
 		const convertedParams = { ...params, tenantId: this.tenantId, organizationId: this.organizationId };
+		// The API filters on these instants and lists their days in `timeZone`, so they are the user's day bounds.
 		if (params.endDate) {
-			convertedParams.endDate = this.dateToEndOfDay(params.endDate);
+			convertedParams.endDate = endOfDay(params.endDate);
 		}
 		if (params.startDate) {
-			convertedParams.startDate = this.dateToStartOfDay(params.startDate);
+			convertedParams.startDate = startOfDay(params.startDate);
 		}
 
 		const query = qs.stringify(convertedParams);
