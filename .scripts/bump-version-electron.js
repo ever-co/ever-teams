@@ -30,6 +30,18 @@ async function getLatestTag(repoURL) {
 	}
 }
 
+// The tag the workflow's create-release job picked for the whole run (DESKTOP_RELEASE_TAG), so every platform job
+// builds the same version even when a newer tag appears meanwhile; else the newest tag.
+async function getReleaseTag(repoURL) {
+	const pinned = (process.env.DESKTOP_RELEASE_TAG || '').trim();
+	if (/^v[0-9]+\.[0-9]+\.[0-9]+$/.test(pinned)) {
+		console.log('Using the release tag picked by create-release:', pinned);
+		return pinned;
+	}
+	if (pinned) console.warn(`Ignoring DESKTOP_RELEASE_TAG '${pinned}': not a vX.Y.Z tag`);
+	return getLatestTag(repoURL);
+}
+
 module.exports.serverweb = async (isProd) => {
 	if (fs.existsSync('./apps/server-web/release/app/package.json')) {
 		let package = require('../apps/server-web/release/app/package.json');
@@ -41,7 +53,7 @@ module.exports.serverweb = async (isProd) => {
 		const appName = process.env.DESKTOP_WEB_SERVER_APP_NAME;
 		console.log('appName', appName);
 
-		const stdout = await getLatestTag(repoURL);
+		const stdout = await getReleaseTag(repoURL);
 
 		let newVersion = stdout.trim();
 		console.log('latest tag', newVersion);
@@ -78,7 +90,7 @@ module.exports.serverweb = async (isProd) => {
 		const appName = process.env.DESKTOP_WEB_SERVER_APP_NAME;
 		console.log('appName', appName);
 
-		const stdout = await getLatestTag(repoURL);
+		const stdout = await getReleaseTag(repoURL);
 
 		let newVersion = stdout.trim();
 		console.log('latest tag', newVersion);
