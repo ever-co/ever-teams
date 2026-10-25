@@ -5,5 +5,8 @@ export async function GET(req: Request, { params }: { params: Promise<{ id: stri
 	const { id } = await params;
 
 	// Encoded, so an id such as `../user` stays one path segment instead of reaching another endpoint
-	return forwardToGauzy(req, `/organization/${encodeURIComponent(id)}`);
+	const encodedId = encodeURIComponent(id);
+	const gauzyPath = `/organization/${encodedId}`;
+
+	return forwardToGauzy(req, gauzyPath);
 }

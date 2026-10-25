@@ -31,7 +31,10 @@ export async function DELETE(req: Request, { params }: { params: Promise<{ id: s
 	const { id } = await params;
 
 	// Encoded, so an id such as `../employee` stays one path segment instead of reaching another endpoint
-	return forwardToGauzy(req, `/organization-projects/${encodeURIComponent(id)}`);
+	const encodedId = encodeURIComponent(id);
+	const gauzyPath = `/organization-projects/${encodedId}`;
+
+	return forwardToGauzy(req, gauzyPath);
 }
 
 export async function GET(req: Request, { params }: { params: Promise<{ id: string }> }) {
