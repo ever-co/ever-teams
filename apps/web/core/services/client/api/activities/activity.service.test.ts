@@ -10,19 +10,10 @@ jest.mock('@/core/constants/config/constants', () => ({
 	GAUZY_API_BASE_SERVER_URL: { value: undefined }
 }));
 
+// The service reads the scope of the query from these two cookies.
 jest.mock('@/core/lib/helpers/cookies', () => ({
-	getAccessTokenCookie: () => null,
-	getActiveTeamIdCookie: () => 'cookie-team',
-	getOrganizationIdCookie: () => 'cookie-organization',
-	getTenantIdCookie: () => 'cookie-tenant'
-}));
-
-jest.mock('@/core/services/logs/logger.service', () => ({
-	Logger: { getInstance: () => ({ debug: jest.fn(), error: jest.fn() }) }
-}));
-
-jest.mock('@/core/services/logs/logger-adapter.service', () => ({
-	HttpLoggerAdapter: jest.fn().mockImplementation(() => ({ logError: jest.fn() }))
+	getTenantIdCookie: () => 'tenant-1',
+	getOrganizationIdCookie: () => 'organization-1'
 }));
 
 import { GAUZY_API_BASE_SERVER_URL } from '@/core/constants/config/constants';
@@ -87,8 +78,8 @@ describe('ActivityService.getDailyActivities', () => {
 			const url = requestedUrl(get);
 			expect(url.pathname).toBe(pathname);
 			expect(Object.fromEntries(url.searchParams)).toEqual({
-				tenantId: 'cookie-tenant',
-				organizationId: 'cookie-organization',
+				tenantId: 'tenant-1',
+				organizationId: 'organization-1',
 				'employeeIds[0]': 'employee-1',
 				startDate: '2026-10-25T00:00:00.000Z',
 				endDate: '2026-10-25T23:59:59.999Z',
