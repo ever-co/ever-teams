@@ -34,7 +34,9 @@ export const KanbanView = ({
 				id: columnInfo?.id,
 				name: key,
 				icon: columnInfo ? columnInfo.fullIconUrl : '',
-				color: columnInfo?.color
+				color: columnInfo?.color,
+				// The status's team decides who may edit it
+				organizationTeamId: columnInfo?.organizationTeamId
 			};
 		})
 	);

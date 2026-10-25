@@ -6,6 +6,7 @@ import { useTaskVersionsQuery } from '@/core/hooks/tasks/use-task-versions-query
 import { useCreateTaskVersion } from '@/core/hooks/tasks/use-create-task-version';
 import { useEditTaskVersion } from '@/core/hooks/tasks/use-edit-task-version';
 import { useDeleteTaskVersion } from '@/core/hooks/tasks/use-delete-task-version';
+import { useTaskSettingsAccess } from '@/core/hooks/tasks/use-task-settings-access';
 import { Spinner } from '@/core/components/common/spinner';
 import { PlusIcon } from '@heroicons/react/20/solid';
 import { useCallback, useEffect, useState } from 'react';
@@ -15,6 +16,7 @@ import { useRefetchData } from '@/core/hooks';
 import { clsxm } from '@/core/lib/utils';
 import { useTranslations } from 'next-intl';
 import { InputField } from '../duplicated-components/_input';
+import { Tooltip } from '../duplicated-components/tooltip';
 import { TTaskVersion } from '@/core/types/schemas';
 import { getActiveTeamIdCookie, getOrganizationIdCookie, getTenantIdCookie } from '@/core/lib/helpers/cookies';
 import { useUserQuery } from '@/core/hooks/queries/user-user.query';
@@ -24,7 +26,7 @@ const ROW = 'sm:grid-cols-[10rem_minmax(0,1fr)] sm:gap-4';
 const LABEL = 'text-sm font-medium text-muted-foreground sm:pt-2';
 const SUB_LABEL = 'text-xs font-medium text-muted-foreground';
 const SECONDARY_BUTTON =
-	'h-9 shrink-0 gap-1.5 rounded-md bg-card px-3 py-0 text-sm font-medium text-foreground hover:bg-muted';
+	'h-9 shrink-0 gap-1.5 rounded-md bg-card px-3 py-0 text-sm font-medium text-foreground hover:bg-muted disabled:pointer-events-none';
 const PRIMARY_BUTTON = 'h-9 shrink-0 rounded-md px-3 py-0 text-sm font-medium hover:bg-primary/90';
 const CANCEL_BUTTON = 'h-9 shrink-0 rounded-md px-3 py-0 text-sm font-medium';
 
@@ -50,6 +52,7 @@ export const TaskVersionForm = ({ formOnly = false, onCreated, onVersionCreated 
 	const { editTaskVersion, editTaskVersionLoading } = useEditTaskVersion();
 	const { deleteTaskVersion } = useDeleteTaskVersion();
 	const { refetch } = useRefetchData();
+	const { canCreate, canWriteRow, readOnlyHint } = useTaskSettingsAccess();
 
 	useEffect(() => {
 		if (!edit && !getValues().name) {
@@ -120,17 +123,20 @@ export const TaskVersionForm = ({ formOnly = false, onCreated, onVersionCreated 
 					<div className="flex min-w-0 flex-col gap-3">
 						{!createNew && !edit && (
 							<div className="flex flex-wrap items-center gap-2">
-								<Button
-									variant="outline-dark"
-									className={SECONDARY_BUTTON}
-									onClick={() => {
-										setEdit(null);
-										setCreateNew(true);
-									}}
-								>
-									<PlusIcon className="size-4" />
-									{t('pages.settingsTeam.CREATE_NEW_VERSION')}
-								</Button>
+								<Tooltip label={readOnlyHint} enabled={!canCreate}>
+									<Button
+										variant="outline-dark"
+										className={SECONDARY_BUTTON}
+										disabled={!canCreate}
+										onClick={() => {
+											setEdit(null);
+											setCreateNew(true);
+										}}
+									>
+										<PlusIcon className="size-4" />
+										{t('pages.settingsTeam.CREATE_NEW_VERSION')}
+									</Button>
+								</Tooltip>
 							</div>
 						)}
 
@@ -196,6 +202,7 @@ export const TaskVersionForm = ({ formOnly = false, onCreated, onVersionCreated 
 													deleteTaskVersion(version.id);
 												}}
 												isStatus={true}
+												readOnly={!canWriteRow(version)}
 											/>
 										))
 									) : (

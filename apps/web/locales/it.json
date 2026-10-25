@@ -934,6 +934,7 @@
 			"ISSUETYPE": "Tipi di Problema",
 			"DEFAULT_ISSUE_TYPE": "Tipo di problema predefinito",
 			"NO_DEFAULT_ISSUE_TYPE": "Nessun tipo di problema predefinito",
+			"TASK_SETTINGS_READ_ONLY": "Solo i manager del team e gli amministratori possono modificare le impostazioni dei compiti",
 			"LIST_OF_ISSUES": "Elenco dei Problemi",
 			"RELATED_ISSUE_TYPE": "Tipi di Problema Collegati",
 			"LIST_OF_RELATED_TYPE": "Elenco dei Tipi Collegati",

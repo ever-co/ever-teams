@@ -19,6 +19,7 @@ import { useTranslations } from 'next-intl';
 import { AddIcon, ChevronLeftIcon } from 'assets/svg';
 
 import { useModal } from '@/core/hooks';
+import { useTaskSettingsAccess } from '@/core/hooks/tasks/use-task-settings-access';
 import { Modal } from '../common/modal';
 import Image from 'next/image';
 import { ScrollArea } from '@/core/components/common/scroll-area';
@@ -61,6 +62,33 @@ function headerStyleChanger(snapshot: DraggableStateSnapshot, bgColor: any) {
 	return {
 		backgroundColor
 	};
+}
+
+/** The "Edit status" entry of a column menu, read-only for a user who may not change the status. */
+function EditStatusMenuItem({
+	canEdit,
+	readOnlyHint,
+	onClick
+}: {
+	canEdit: boolean;
+	readOnlyHint: string;
+	onClick: () => void;
+}) {
+	const t = useTranslations();
+
+	if (!canEdit) {
+		return (
+			<div className="p-1.5 text-sm opacity-40 cursor-not-allowed" aria-disabled="true" title={readOnlyHint}>
+				{t('common.EDIT_STATUS')}
+			</div>
+		);
+	}
+
+	return (
+		<div className="hover:font-medium p-1.5 text-sm cursor-pointer" onClick={onClick}>
+			{t('common.EDIT_STATUS')}
+		</div>
+	);
 }
 
 /**
@@ -274,6 +302,8 @@ export const EmptyKanbanDroppable = ({
 
 	const { isOpen, closeModal, openModal } = useModal();
 	const { isOpen: editIsOpen, closeModal: editCloseModal, openModal: editOpenModal } = useModal();
+	const { canWriteRow, readOnlyHint } = useTaskSettingsAccess();
+	const canEditStatus = canWriteRow(status);
 
 	if (!enabled) return null;
 
@@ -330,12 +360,11 @@ export const EmptyKanbanDroppable = ({
 													>
 														{t('common.EXPAND_COLUMN')}
 													</div>
-													<div
-														className="hover:font-medium p-1.5 text-sm cursor-pointer"
+													<EditStatusMenuItem
+														canEdit={canEditStatus}
+														readOnlyHint={readOnlyHint}
 														onClick={editOpenModal}
-													>
-														{t('common.EDIT_STATUS')}
-													</div>
+													/>
 												</PopoverContent>
 											</Popover>
 										</div>
@@ -427,6 +456,8 @@ const KanbanDraggableHeader = ({
 	// toggleColumn is now passed as prop instead of using useKanban hook
 	const { isOpen, closeModal, openModal } = useModal();
 	const t = useTranslations();
+	const { canWriteRow, readOnlyHint } = useTaskSettingsAccess();
+	const canEditStatus = canWriteRow(status);
 	return (
 		<>
 			{title && (
@@ -476,9 +507,11 @@ const KanbanDraggableHeader = ({
 								>
 									{t('common.COLLAPSE_COLUMN')}
 								</div>
-								<div className="hover:font-medium p-1.5 text-sm cursor-pointer" onClick={openModal}>
-									{t('common.EDIT_STATUS')}
-								</div>
+								<EditStatusMenuItem
+									canEdit={canEditStatus}
+									readOnlyHint={readOnlyHint}
+									onClick={openModal}
+								/>
 							</PopoverContent>
 						</Popover>
 						<button

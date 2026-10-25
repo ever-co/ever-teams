@@ -934,6 +934,7 @@
 			"ISSUETYPE": "Tipos de problemas",
 			"DEFAULT_ISSUE_TYPE": "Tipo de problema predeterminado",
 			"NO_DEFAULT_ISSUE_TYPE": "Sin tipo de problema predeterminado",
+			"TASK_SETTINGS_READ_ONLY": "Solo los gerentes del equipo y los administradores pueden cambiar la configuración de las tareas",
 			"LIST_OF_ISSUES": "Lista de problemas",
 			"RELATED_ISSUE_TYPE": "Tipos de problemas relacionados",
 			"LIST_OF_RELATED_TYPE": "Lista de tipos relacionados",

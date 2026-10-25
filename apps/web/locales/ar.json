@@ -934,6 +934,7 @@
 			"ISSUETYPE": "أنواع القضايا",
 			"DEFAULT_ISSUE_TYPE": "نوع المشكلة الافتراضي",
 			"NO_DEFAULT_ISSUE_TYPE": "لا يوجد نوع مشكلة افتراضي",
+			"TASK_SETTINGS_READ_ONLY": "يمكن لمديري الفريق والمسؤولين فقط تغيير إعدادات المهام",
 			"LIST_OF_ISSUES": "قائمة القضايا",
 			"RELATED_ISSUE_TYPE": "أنواع القضايا ذات الصلة",
 			"LIST_OF_RELATED_TYPE": "قائمة الأنواع ذات الصلة",

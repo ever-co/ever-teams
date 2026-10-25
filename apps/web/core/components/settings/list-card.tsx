@@ -9,8 +9,9 @@ import { sanitizeSvg } from '@/core/lib/helpers/sanitize-svg';
 import { Tooltip } from '../duplicated-components/tooltip';
 import { IClassName } from '@/core/types/interfaces/common/class-name';
 
+// A disabled action lets the pointer through, so the tooltip around it still explains why.
 const ICON_BUTTON =
-	'size-8 min-w-0 shrink-0 rounded-md p-0 text-muted-foreground hover:bg-muted hover:text-foreground';
+	'size-8 min-w-0 shrink-0 rounded-md p-0 text-muted-foreground hover:bg-muted hover:text-foreground disabled:pointer-events-none disabled:opacity-40';
 
 /**
  * A compact chip for a status / priority / size / label / version: the colour as a dot, the icon in
@@ -25,6 +26,7 @@ export const StatusesListCard = ({
 	onDelete,
 	showDeleteButton = true,
 	isStatus,
+	readOnly = false,
 	className
 }: IClassName<{
 	statusIcon: string;
@@ -35,6 +37,8 @@ export const StatusesListCard = ({
 	showDeleteButton?: boolean;
 	isStatus?: boolean;
 	statusId?: string;
+	/** Shows the edit and delete actions disabled, for a user who may not change this task setting. */
+	readOnly?: boolean;
 }>) => {
 	const t = useTranslations();
 
@@ -81,14 +85,16 @@ export const StatusesListCard = ({
 				</Text.Label>
 			</Tooltip>
 			<div className="flex shrink-0 items-center">
-				<Tooltip label={t('common.EDIT')}>
-					<Button variant="ghost" className={ICON_BUTTON} onClick={onEdit}>
-						<EditPenUnderlineIcon className="size-4 text-inherit" />
-					</Button>
+				<Tooltip label={t('common.EDIT')} enabled={!readOnly}>
+					<Tooltip label={t('pages.settingsTeam.TASK_SETTINGS_READ_ONLY')} enabled={readOnly}>
+						<Button variant="ghost" className={ICON_BUTTON} onClick={onEdit} disabled={readOnly}>
+							<EditPenUnderlineIcon className="size-4 text-inherit" />
+						</Button>
+					</Tooltip>
 				</Tooltip>
 
 				{showDeleteButton && (
-					<Button variant="ghost" className={ICON_BUTTON} onClick={onDelete}>
+					<Button variant="ghost" className={ICON_BUTTON} onClick={onDelete} disabled={readOnly}>
 						<TrashIcon className="size-4" />
 					</Button>
 				)}

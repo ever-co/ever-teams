@@ -4,6 +4,7 @@ import { useTaskPrioritiesQuery } from '@/core/hooks/tasks/use-task-priorities-q
 import { useCreateTaskPriority } from '@/core/hooks/tasks/use-create-task-priority';
 import { useEditTaskPriority } from '@/core/hooks/tasks/use-edit-task-priority';
 import { useDeleteTaskPriority } from '@/core/hooks/tasks/use-delete-task-priority';
+import { useTaskSettingsAccess } from '@/core/hooks/tasks/use-task-settings-access';
 import { useUserQuery } from '@/core/hooks/queries/user-user.query';
 import { Button, ColorPicker, Text } from '@/core/components';
 import { useCallback, useEffect, useState } from 'react';
@@ -18,6 +19,7 @@ import { useTranslations } from 'next-intl';
 import { generateIconList, IIcon } from '../settings/icon-items';
 import IconPopover from '../settings/icon-popover';
 import { InputField } from '../duplicated-components/_input';
+import { Tooltip } from '../duplicated-components/tooltip';
 import { TTaskPriority } from '@/core/types/schemas';
 
 // Settings row (label column + content) and the compact controls of the issue-settings blocks.
@@ -25,7 +27,7 @@ const ROW = 'sm:grid-cols-[10rem_minmax(0,1fr)] sm:gap-4';
 const LABEL = 'text-sm font-medium text-muted-foreground sm:pt-2';
 const SUB_LABEL = 'text-xs font-medium text-muted-foreground';
 const SECONDARY_BUTTON =
-	'h-9 shrink-0 gap-1.5 rounded-md bg-card px-3 py-0 text-sm font-medium text-foreground hover:bg-muted';
+	'h-9 shrink-0 gap-1.5 rounded-md bg-card px-3 py-0 text-sm font-medium text-foreground hover:bg-muted disabled:pointer-events-none';
 const PRIMARY_BUTTON = 'h-9 shrink-0 rounded-md px-3 py-0 text-sm font-medium hover:bg-primary/90';
 const CANCEL_BUTTON = 'h-9 shrink-0 rounded-md px-3 py-0 text-sm font-medium';
 // The icon and colour pickers draw their own 54px box; this sizes them like the other controls of the
@@ -68,6 +70,7 @@ export const TaskPrioritiesForm = ({ formOnly = false, onCreated }: StatusForm) 
 	const { editTaskPriorities, editTaskPrioritiesLoading } = useEditTaskPriority();
 	const { deleteTaskPriorities } = useDeleteTaskPriority();
 	const { refetch } = useRefetchData();
+	const { canCreate, canWriteRow, readOnlyHint } = useTaskSettingsAccess();
 
 	useEffect(() => {
 		if (!edit && !getValues().name) {
@@ -136,17 +139,20 @@ export const TaskPrioritiesForm = ({ formOnly = false, onCreated }: StatusForm) 
 					<div className="flex min-w-0 flex-col gap-3">
 						{!createNew && !edit && (
 							<div className="flex flex-wrap items-center gap-2">
-								<Button
-									variant="outline-dark"
-									className={SECONDARY_BUTTON}
-									onClick={() => {
-										setEdit(null);
-										setCreateNew(true);
-									}}
-								>
-									<PlusIcon className="size-4" />
-									{t('pages.settingsTeam.CREATE_NEW_PRIORITY')}
-								</Button>
+								<Tooltip label={readOnlyHint} enabled={!canCreate}>
+									<Button
+										variant="outline-dark"
+										className={SECONDARY_BUTTON}
+										disabled={!canCreate}
+										onClick={() => {
+											setEdit(null);
+											setCreateNew(true);
+										}}
+									>
+										<PlusIcon className="size-4" />
+										{t('pages.settingsTeam.CREATE_NEW_PRIORITY')}
+									</Button>
+								</Tooltip>
 							</div>
 						)}
 
@@ -229,6 +235,7 @@ export const TaskPrioritiesForm = ({ formOnly = false, onCreated }: StatusForm) 
 												onDelete={() => {
 													deleteTaskPriorities(priority?.id);
 												}}
+												readOnly={!canWriteRow(priority)}
 												key={priority?.id}
 											/>
 										))
