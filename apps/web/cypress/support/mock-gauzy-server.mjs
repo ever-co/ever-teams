@@ -318,18 +318,20 @@ function syntheticToken(userId, organizationId, rotation) {
 	return `${part({ alg: 'none', typ: 'JWT' })}.${part(claims)}.fixture`;
 }
 
-function routeResponse(method, pathname, requestUrl, data, fixture, state, body) {
+function routeResponse(method, pathname, requestUrl, data, fixture, state, body, requestTenantId) {
 	const { ids } = fixture;
 	if (pathname === '/api/user/me') return data.baseUser;
 	if (pathname === '/api/auth/workspaces') return data.workspaces;
 	if (pathname === '/api/auth/refresh-token')
 		return { token: 'synthetic-refreshed-token', refresh_token: 'synthetic-refresh-token' };
 	// Tokens for another organization of the caller's tenant (the web app switches when the token's differs). Like
-	// Gauzy, only an organization of the request's tenant is granted: anything else is refused without tokens, so a
-	// tenant-boundary regression in the web app cannot pass unnoticed.
+	// Gauzy, only an organization of the request's own tenant (its `tenant-id`) is granted: an unknown tenant, or an
+	// organization of the other one, is refused without tokens, so a tenant-boundary regression cannot pass unnoticed.
 	if (pathname === '/api/auth/switch-organization' && method === 'POST') {
 		const organizationId = typeof body?.organizationId === 'string' ? body.organizationId : '';
-		if (organizationId !== data.organization.id) {
+		const tenantOrganization = { [ids.tenantA]: ids.organizationA, [ids.tenantB]: ids.organizationB };
+		const allowed = typeof requestTenantId === 'string' ? tenantOrganization[requestTenantId] : undefined;
+		if (!allowed || organizationId !== allowed) {
 			return { [HTTP_STATUS]: 401, statusCode: 401, message: 'Unauthorized' };
 		}
 		return {
@@ -510,7 +512,8 @@ function statsResponse(method, pathname, signedIn, state, body) {
 	}
 	if (!signedIn) return UNAUTHORIZED;
 	if (scenario.statsOperator === false) return NOT_FOUND;
-	if (pathname === '/api/ever-stats/status' && method === 'GET') return { status: 200, payload: operatorStatus(scenario) };
+	if (pathname === '/api/ever-stats/status' && method === 'GET')
+		return { status: 200, payload: operatorStatus(scenario) };
 	if (pathname === '/api/ever-stats/enabled' && method === 'PUT') return statsToggle(state, body, signedIn);
 	// `last` answers 404 until the API has sent a report.
 	return NOT_FOUND;
@@ -632,11 +635,26 @@ export async function createMockGauzyServer({ fixture, port = 3988 } = {}) {
 		);
 		if (delayMs > 0) await new Promise((resolve) => setTimeout(resolve, delayMs));
 		const body = await readJsonBody(request);
-		const data = buildData(fixture, state.scenario, requestUrl, typeof tenantId === 'string' ? tenantId : undefined);
+		const data = buildData(
+			fixture,
+			state.scenario,
+			requestUrl,
+			typeof tenantId === 'string' ? tenantId : undefined
+		);
 		const everPlatform = everPlatformResponse(method, requestUrl.pathname, request, state, body);
 		const payload = everPlatform
 			? everPlatform.payload
-			: routeResponse(method, requestUrl.pathname, requestUrl, data, fixture, state, body);
+			: // The organization switch is authorized on the tenant-id HEADER only (a query value must not override it)
+				routeResponse(
+					method,
+					requestUrl.pathname,
+					requestUrl,
+					data,
+					fixture,
+					state,
+					body,
+					request.headers['tenant-id']
+				);
 		const status = everPlatform ? everPlatform.status : (payload?.[HTTP_STATUS] ?? 200);
 		const endMs = performance.now() - state.startedAt;
 		// The web app's statistics reporter reads `state` every few seconds in the browser runs: counted, not
