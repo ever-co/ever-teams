@@ -35,7 +35,8 @@ const originalFetch = global.fetch;
 let fetchMock: jest.Mock;
 
 beforeEach(() => {
-	mockAuthenticatedGuard.mockResolvedValue(signedIn({ id: 'user-1' }));
+	const guardAnswer = signedIn({ id: 'user-1' });
+	mockAuthenticatedGuard.mockResolvedValue(guardAnswer);
 	const gauzyAnswer = Response.json(GAUZY_COUNTS, { status: 200 });
 	fetchMock = jest.fn().mockResolvedValue(gauzyAnswer);
 	global.fetch = fetchMock;
@@ -59,7 +60,7 @@ function countsRequest(query: Record<string, string>, cookie?: string) {
 /** The URL and the headers of the call made to Gauzy. */
 function upstreamCall() {
 	const [rawUrl, init] = fetchMock.mock.calls[0];
-	const url = new URL(String(rawUrl));
+	const url = new URL(rawUrl);
 	return { url, headers: init.headers };
 }
 
