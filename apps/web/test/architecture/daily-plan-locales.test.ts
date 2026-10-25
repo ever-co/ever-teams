@@ -26,6 +26,7 @@ function getPlaceholders(message: string) {
 
 const localesDirectoryFiles = readdirSync(LOCALES_DIRECTORY);
 const localeFiles = localesDirectoryFiles.filter((file) => file.endsWith('.json'));
+const translatedLocaleFiles = localeFiles.filter((file) => file !== 'en.json');
 const englishMessages = readMessages('en.json');
 
 describe('daily plan translations', () => {
@@ -42,5 +43,12 @@ describe('daily plan translations', () => {
 				expect(placeholders).toEqual(englishPlaceholders);
 			}
 		}
+	});
+
+	it.each(translatedLocaleFiles)('names the plan date dialog options in the language of %s', (file) => {
+		const messages = readMessages(file);
+
+		expect(messages.common.SELECT).not.toBe(englishMessages.common.SELECT);
+		expect(messages.common.SELECT_AND_CLOSE).not.toBe(englishMessages.common.SELECT_AND_CLOSE);
 	});
 });
