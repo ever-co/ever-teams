@@ -178,7 +178,7 @@ export function AddTaskModal({ closeModal, isOpen }: IAddTaskModalProps) {
 			source: ETimeLogSource.BROWSER as any,
 			taskId: formState.taskId,
 			employeeId: formState.employeeId,
-			organizationTeamId: undefined
+			organizationTeamId: activeTeam?.id
 		};
 		try {
 			if (!formState.shifts || formState.shifts.length === 0) {

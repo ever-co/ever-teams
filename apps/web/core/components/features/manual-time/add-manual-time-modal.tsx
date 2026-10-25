@@ -54,6 +54,7 @@ export function AddManualTimeModal(props: Readonly<IAddManualTimeModalProps>) {
 	const [projectId, setProjectId] = useState<string>('');
 	const [employeeId, setEmployeeId] = useState<string>('');
 	const isTaskPickedRef = useRef(false);
+	const isTeamPickedRef = useRef(false);
 	const [timeDifference, setTimeDifference] = useState<string>('');
 
 	const activeTeamTask = useAtomValue(activeTeamTaskState);
@@ -105,6 +106,8 @@ export function AddManualTimeModal(props: Readonly<IAddManualTimeModalProps>) {
 			stoppedAt.setHours(parseInt(endTime.split(':')[0]));
 			stoppedAt.setMinutes(parseInt(endTime.split(':')[1]));
 
+			const teamToSave = team ?? activeTeam;
+
 			const requestData: Omit<IAddManualTimeRequest, 'tenantId' | 'employeeId' | 'logType' | 'source'> & {
 				employeeId?: string;
 			} = {
@@ -115,6 +118,7 @@ export function AddManualTimeModal(props: Readonly<IAddManualTimeModalProps>) {
 				reason,
 				isBillable,
 				organizationId: team?.organizationId,
+				organizationTeamId: teamToSave?.id,
 				...pickedFields
 			};
 
@@ -300,7 +304,8 @@ export function AddManualTimeModal(props: Readonly<IAddManualTimeModalProps>) {
 				});
 			}
 		}
-		if (activeTeam) {
+		// A team picked in the form must not be replaced by the active team when the lists refresh
+		if (activeTeam && !isTeamPickedRef.current) {
 			setTeam(activeTeam);
 		}
 	}, [activeTeamTask, activeTeam, activeTeamTasks]);
@@ -521,7 +526,10 @@ export function AddManualTimeModal(props: Readonly<IAddManualTimeModalProps>) {
 								className="w-full text-sm border-gray-300 dark:border-slate-600 dark:text-white"
 								options={teams}
 								onChange={(value) => {
-									setTeam(value); // Set the full team object, not just ID
+									// CustomSelect passes the picked team's id
+									const pickedTeam = teams.find((item) => item.id === value);
+									isTeamPickedRef.current = true;
+									setTeam(pickedTeam); // Set the full team object, not just ID
 								}}
 							/>
 						</div>
