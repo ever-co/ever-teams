@@ -65,7 +65,7 @@
         "electron": "^42.11.9",
         "electron-builder": "^26.18.0",
         "@electron/notarize": "^2.1.0",
-        "@electron/rebuild": "^3.3.0",
+        "@electron/rebuild": "^4.2.1",
         "@pmmmwh/react-refresh-webpack-plugin": "^0.5.11",
         "@teamsupercell/typings-for-css-modules-loader": "^2.5.2",
         "@testing-library/jest-dom": "^6.6.3",
