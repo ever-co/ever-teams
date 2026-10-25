@@ -13,6 +13,15 @@ jest.mock('@/core/services/server/guards/authenticated-guard-app', () => ({
 
 import { GET } from './route';
 
+/** The guard's answer for the signed-in user. */
+const SIGNED_IN = {
+	$res: (payload: unknown) => Response.json(payload),
+	user: { id: 'user-1' },
+	access_token: 'access-token',
+	tenantId: 'tenant-1',
+	organizationId: 'organization-1'
+};
+
 const originalFetch = global.fetch;
 
 describe('GET /api/integration-tenant/remember/state', () => {
@@ -22,13 +31,7 @@ describe('GET /api/integration-tenant/remember/state', () => {
 	});
 
 	it('filters the lookup by the integration name the request names', async () => {
-		mockAuthenticatedGuard.mockResolvedValue({
-			$res: (payload: unknown) => Response.json(payload),
-			user: { id: 'user-1' },
-			access_token: 'access-token',
-			tenantId: 'tenant-1',
-			organizationId: 'organization-1'
-		});
+		mockAuthenticatedGuard.mockResolvedValue(SIGNED_IN);
 		const fetchMock = jest.fn().mockResolvedValue(Response.json({ items: [], total: 0 }, { status: 200 }));
 		global.fetch = fetchMock;
 
