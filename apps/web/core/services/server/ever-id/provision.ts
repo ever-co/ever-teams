@@ -70,6 +70,11 @@ function defaultTeamName(user: Record<string, unknown> | undefined): string {
 	return name ? `${name}'s Team` : 'My Team';
 }
 
+/** A page that says it holds fewer rows than the list has (`total`): what it omits may be exactly what is looked for. */
+function isPartial(list: { items: unknown[]; total?: unknown }): boolean {
+	return typeof list.total === 'number' && list.total > list.items.length;
+}
+
 export async function provisionEverIdWorkspace(input: EverIdProvisionInput): Promise<EverIdProvisionResult> {
 	let signin;
 	try {
@@ -100,7 +105,8 @@ export async function provisionEverIdWorkspace(input: EverIdProvisionInput): Pro
 			);
 			tenantId = existingTenantId;
 			// An unreadable list is never read as "no organization" or "no employee": that would create a second one
-			if (!Array.isArray(memberships?.items)) return 'failed';
+			// A partial one neither (an omitted organization may have its team): fail, never guess
+			if (!Array.isArray(memberships?.items) || isPartial(memberships)) return 'failed';
 			const organizationIds = memberships.items.map((membership) => membership.organizationId);
 			if (!organizationIds.every((id): id is string => typeof id === 'string' && !!id)) return 'failed';
 			// A team in ANY of the owner's organizations is a finished workspace
@@ -111,13 +117,18 @@ export async function provisionEverIdWorkspace(input: EverIdProvisionInput): Pro
 				);
 				if (!Array.isArray(teams?.items)) return 'failed';
 				if (teams.items.length) return 'has_workspace';
+				if (isPartial(teams)) return 'failed';
 			}
 			organizationId = organizationIds[0];
 			if (organizationId) {
 				const { data: employees } = await getOrganizationEmployees(auth_token, tenantId, organizationId);
 				if (!Array.isArray(employees?.items)) return 'failed';
 				// `userId`, or the `user` relation the request asks for when an answer leaves `userId` out
-				const employee = employees.items.find((item) => (item.userId ?? item.user?.id) === userId);
+				const userIds = employees.items.map((item) => item.userId ?? item.user?.id);
+				// A row naming no user could be the owner's: fail rather than create a second employee
+				if (!userIds.every((id) => typeof id === 'string' && !!id)) return 'failed';
+				const employee = employees.items[userIds.indexOf(userId)];
+				if (!employee && isPartial(employees)) return 'failed';
 				if (employee && (typeof employee.id !== 'string' || !employee.id)) return 'failed';
 				employeeId = employee?.id;
 			}

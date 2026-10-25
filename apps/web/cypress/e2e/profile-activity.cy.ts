@@ -6,6 +6,18 @@ function profileReads(requests: Array<{ path: string; query: string }>) {
 	return requests.filter((request) => request.path === PROFILE_PATH);
 }
 
+/** Polls the mock until it has seen at least `count` profile reads, for up to 10 s (a busy runner mounts Stats late). */
+function waitForProfileReads(count: number, deadline?: number): void {
+	cy.mockRequests().then((requests) => {
+		// Set when the first poll RUNS, not when the test queues it (the visit and the click come before)
+		const until = deadline ?? Date.now() + 10_000;
+		if (profileReads(requests).length < count && Date.now() < until) {
+			cy.wait(100, { log: false });
+			waitForProfileReads(count, until);
+		}
+	});
+}
+
 describe('employee-scoped profile activity', () => {
 	beforeEach(() => {
 		cy.mockReset();
@@ -58,6 +70,8 @@ describe('employee-scoped profile activity', () => {
 			cy.mockScenario({ manager: false, shareProfileView: true });
 			cy.hardVisit(`/profile/${fixture.ids.teammateUser}`);
 			cy.contains('button', /^stats/i, { timeout: 15_000 }).click();
+			waitForProfileReads(2);
+			// Still exactly two a moment later: a third read is the regression this guards
 			cy.wait(300);
 			cy.mockRequests().then((requests) => {
 				const reads = profileReads(requests);

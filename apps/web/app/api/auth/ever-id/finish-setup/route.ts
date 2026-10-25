@@ -1,4 +1,3 @@
-import { createHash } from 'node:crypto';
 import { NextResponse } from 'next/server';
 import { auth } from '@/auth';
 import { everIdSetupAttempts } from '@/core/lib/auth/ever-id/attempts';
@@ -7,6 +6,7 @@ import { isEverIdConfigured } from '@/core/lib/auth/ever-id/config';
 import { logEverIdOutcome, type EverIdStepOutcome } from '@/core/lib/auth/ever-id/log';
 import { everIdSetupTarget } from '@/core/lib/auth/ever-id/session';
 import { provisionEverIdWorkspace } from '@/core/services/server/ever-id/provision';
+import { claimEverIdSetup } from '@/core/services/server/ever-id/setup-claims';
 
 /**
  * Finishes the setup of a workspace an Ever ID sign-in lists: an account the Gauzy API created for an Ever ID whose
@@ -29,14 +29,6 @@ const NO_STORE = { 'Cache-Control': 'no-store' };
 const MAX_BODY_BYTES = 1_024;
 /** Seconds an overlapping request for a workspace whose setup is still running waits before it tries again. */
 const RUNNING_RETRY_AFTER_S = 5;
-
-/**
- * Accounts whose setup is running in this process (hashed user ids; the workspace token when the session names no
- * user): two overlapping setups of one account would both find no team and both create one. Two sign-ins of one
- * account carry different workspace tokens, so the token alone would not tell them apart. Each replica keeps its
- * own set.
- */
-const runningSetups = new Set<string>();
 
 type Reason = 'invalid' | 'expired' | 'has_workspace' | 'throttled' | 'unavailable';
 
@@ -78,17 +70,15 @@ export async function POST(req: Request) {
 		return refuse(429, 'throttled', attempt.retryAfterS);
 	}
 
-	const setupKey = createHash('sha256')
-		.update(target.userId ? `user:${target.userId}` : `token:${target.token}`)
-		.digest('hex');
-	if (runningSetups.has(setupKey)) {
+	// One setup per account at a time in this process (two tabs or two sign-ins would both create a team)
+	const release = claimEverIdSetup(target);
+	if (!release) {
 		attempt.giveBack();
 		log('throttled');
 		return refuse(429, 'throttled', RUNNING_RETRY_AFTER_S);
 	}
 
 	const response = NextResponse.json({ ok: true }, { status: 200, headers: NO_STORE });
-	runningSetups.add(setupKey);
 	let result: Awaited<ReturnType<typeof provisionEverIdWorkspace>>;
 	try {
 		result = await provisionEverIdWorkspace({
@@ -101,7 +91,7 @@ export async function POST(req: Request) {
 			timezone: typeof body?.timezone === 'string' ? body.timezone.slice(0, 64) : undefined
 		});
 	} finally {
-		runningSetups.delete(setupKey);
+		release();
 	}
 	switch (result) {
 		case 'ok':

@@ -17,6 +17,7 @@ import {
 	invitations
 } from '@/lib/db/schema';
 import { comparePasswords, hashPassword, setSession } from '@/lib/auth/session';
+import { CHECKOUT_HANDOFF_MAX_AGE_S, clearTeamsHandoff, connectTeamsAccount } from '@/lib/auth/teams-handoff';
 import { redirect } from 'next/navigation';
 import { cookies } from 'next/headers';
 import { createCheckoutSession } from '@/lib/payments/stripe';
@@ -40,6 +41,10 @@ const signInSchema = z.object({
 	email: z.string().email().min(3).max(255),
 	password: z.string().min(8).max(100)
 });
+
+/** The Teams hand-off outlives a Stripe Checkout the sign-in goes to first (the page collects it on the way back). */
+const handoffMaxAge = (formData: FormData) =>
+	formData.get('redirect') === 'checkout' ? CHECKOUT_HANDOFF_MAX_AGE_S : undefined;
 
 export const signIn = validatedAction(signInSchema, async (data, formData) => {
 	const { email, password } = data;
@@ -75,8 +80,12 @@ export const signIn = validatedAction(signInSchema, async (data, formData) => {
 		};
 	}
 
-	// Set local session after successful Teams authentication
-	await Promise.all([setSession(foundUser), logActivity(foundTeam?.id, foundUser.id, ActivityType.SIGN_IN)]);
+	await Promise.all([
+		setSession(foundUser),
+		logActivity(foundTeam?.id, foundUser.id, ActivityType.SIGN_IN),
+		// On the server, with the password this action already has: only the Teams token reaches the browser
+		connectTeamsAccount({ userId: foundUser.id, email, password, maxAgeS: handoffMaxAge(formData) })
+	]);
 
 	// Handle redirect logic
 	const redirectTo = formData.get('redirect') as string | null;
@@ -187,7 +196,8 @@ export const signUp = validatedAction(signUpSchema, async (data, formData) => {
 	await Promise.all([
 		db.insert(teamMembers).values(newTeamMember),
 		logActivity(teamId, createdUser.id, ActivityType.SIGN_UP),
-		setSession(createdUser)
+		setSession(createdUser),
+		connectTeamsAccount({ userId: createdUser.id, email, password, maxAgeS: handoffMaxAge(formData) })
 	]);
 
 	const redirectTo = formData.get('redirect') as string | null;
@@ -204,6 +214,7 @@ export async function signOut() {
 	const userWithTeam = await getUserWithTeam(user.id);
 	await logActivity(userWithTeam?.teamId, user.id, ActivityType.SIGN_OUT);
 	(await cookies()).delete('session');
+	await clearTeamsHandoff();
 }
 
 const updatePasswordSchema = z
@@ -275,6 +286,7 @@ export const deleteAccount = validatedActionWithUser(deleteAccountSchema, async 
 	}
 
 	(await cookies()).delete('session');
+	await clearTeamsHandoff();
 	redirect('/sign-in');
 });
 

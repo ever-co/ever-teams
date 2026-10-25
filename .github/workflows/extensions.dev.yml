@@ -46,6 +46,9 @@ jobs:
           cd apps/extensions && yarn install --network-timeout 1000000 --frozen-lockfile
         env:
           NODE_OPTIONS: '--dns-result-order=ipv4first'
+          # This job runs no Cypress: skip the binary download in cypress's postinstall, a network flake that failed
+          # whole builds (same as the web deploy and mobile jobs, #4769)
+          CYPRESS_INSTALL_BINARY: '0'
 
       - name: Repair sharp libvips layout (yarn 1 hoisting)
         # apps/extensions -> plasmo pins sharp@0.33.5 while the workspace root uses sharp@^0.34.5.

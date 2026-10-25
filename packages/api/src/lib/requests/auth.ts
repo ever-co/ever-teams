@@ -140,6 +140,45 @@ export const createCompleteAccount = async (params: ICompleteAccountSetup): Prom
 			return loginResult as IServerError;
 		}
 
+		// Steps 3-7: tenant, organization + team, employee, refreshed token (nothing for a user with a tenant)
+		return await finishAccountSetup(loginResult, tenantName || email.split('@')[0]);
+	} catch (error) {
+		return {
+			error: 'Account setup failed',
+			message: (error as Error).message
+		} as IServerError;
+	}
+};
+
+export const logOut = async (token?: string) => {
+	try {
+		await ApiCall<{ user: string }>({
+			path: '/auth/logout',
+			method: 'GET',
+			bearer_token: token
+		});
+	} catch (error) {
+		return {
+			error: 'Logout failed',
+			message: (error as Error).message
+		} as IServerError;
+	}
+};
+
+/**
+ * Finishes the Teams setup of a signed-in account: for a user without a tenant (a sign-up whose setup never ran or
+ * stopped early), creates the tenant, the default organization + team and the employee, then refreshes the token so it
+ * carries them. A user who has a tenant is answered as is. `createCompleteAccount` runs it after the sign-up.
+ *
+ * @param loginResult - The answer of `authLogin` for the account
+ * @param tenantName - The name of the tenant to create
+ * @returns IAuthLogin (with the refreshed token after a setup) on success, IServerError on failure
+ */
+export const finishAccountSetup = async (
+	loginResult: IAuthLogin,
+	tenantName: string
+): Promise<IAuthLogin | IServerError> => {
+	try {
 		// Step 3: Check if user already has tenant (existing user case)
 		if (loginResult.user.tenantId) {
 			return loginResult; // User already has complete setup
@@ -147,7 +186,7 @@ export const createCompleteAccount = async (params: ICompleteAccountSetup): Prom
 
 		// Step 4: Create tenant
 		const tenant = await createTenant({
-			tenantName: tenantName || email.split('@')[0],
+			tenantName,
 			token: loginResult.token
 		});
 
@@ -195,21 +234,6 @@ export const createCompleteAccount = async (params: ICompleteAccountSetup): Prom
 	} catch (error) {
 		return {
 			error: 'Account setup failed',
-			message: (error as Error).message
-		} as IServerError;
-	}
-};
-
-export const logOut = async (token?: string) => {
-	try {
-		await ApiCall<{ user: string }>({
-			path: '/auth/logout',
-			method: 'GET',
-			bearer_token: token
-		});
-	} catch (error) {
-		return {
-			error: 'Logout failed',
 			message: (error as Error).message
 		} as IServerError;
 	}

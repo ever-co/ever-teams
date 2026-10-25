@@ -1,78 +1,42 @@
 'use client';
 
-import { ReactElement, useEffect, useState } from 'react';
+import { ReactElement, useEffect, useRef } from 'react';
 import { useAccessToken } from '@ever-teams/atoms';
-import { authLogin, createCompleteAccount } from '@ever-teams/api';
 
 /**
- * Component that handles Teams authentication after successful local login
- * This runs on the dashboard and other authenticated pages
+ * Component that completes the Teams authentication after a successful local sign-in or sign-up.
+ * This runs on the dashboard and other authenticated pages.
+ *
+ * The sign-in / sign-up action connects the account to Teams on the server (`lib/auth/teams-handoff.ts`), so no
+ * credentials are kept in the browser: this only collects the resulting Teams token, once, from the hand-off route.
  */
 export function TeamsAuthHandler(): ReactElement | null {
 	const { setAccessToken, accessToken } = useAccessToken();
-	const [isProcessing, setIsProcessing] = useState(false);
-	const [hasProcessed, setHasProcessed] = useState(false);
+	const requested = useRef(false);
 
 	useEffect(() => {
-		const handleTeamsAuth = async () => {
-			// Skip if already has Teams token or already processed
-			if (accessToken || hasProcessed || isProcessing) {
-				return;
-			}
+		// Skip if already has Teams token or already asked
+		if (accessToken || requested.current) {
+			return;
+		}
+		requested.current = true;
 
-			// Check if we have login credentials stored from recent login
-			const recentLogin = sessionStorage.getItem('recent-login-credentials');
-			if (!recentLogin) {
-				return;
-			}
-
-			setIsProcessing(true);
-
+		const collectTeamsToken = async () => {
 			try {
-				const { email, password, timestamp } = JSON.parse(recentLogin);
-
-				// Only process if the login was recent (within last 30 seconds)
-				if (Date.now() - timestamp > 30000) {
-					sessionStorage.removeItem('recent-login-credentials');
-					return;
-				}
-
-				// Try to authenticate with Teams
-				console.log('Attempting Teams login for:', email);
-				const teamsResult = await authLogin({ email, password });
-
-				if (teamsResult && 'token' in teamsResult) {
+				const res = await fetch('/api/teams/handoff', { method: 'POST', credentials: 'same-origin' });
+				if (!res.ok) return;
+				const { token } = (await res.json()) as { token: string | null };
+				if (token) {
 					// Use Teams's native session management
-					setAccessToken(teamsResult.token);
-				} else {
-					// Create complete account with full organizational setup
-					console.log('Creating complete Teams account...');
-					const setupResult = await createCompleteAccount({
-						fullName: email.includes('@') ? email.split('@')[0] : email, // Could enhance to get from local user data
-						email,
-						password,
-						confirmPassword: password
-					});
-
-					if ('token' in setupResult) {
-						setAccessToken(setupResult.token);
-					} else {
-						console.warn('❌ Teams account setup failed:', setupResult.error || setupResult.message);
-					}
+					setAccessToken(token);
 				}
-
-				// Clear the stored credentials after processing
-				sessionStorage.removeItem('recent-login-credentials');
 			} catch (error) {
 				console.warn('❌ Teams authentication failed:', error);
-			} finally {
-				setIsProcessing(false);
-				setHasProcessed(true);
 			}
 		};
 
-		handleTeamsAuth();
-	}, [accessToken, hasProcessed, isProcessing, setAccessToken]);
+		void collectTeamsToken();
+	}, [accessToken, setAccessToken]);
 
 	// This component renders nothing visible
 	return null;

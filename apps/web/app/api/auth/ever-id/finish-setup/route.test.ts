@@ -239,7 +239,11 @@ describe('POST /api/auth/ever-id/finish-setup', () => {
 			const { POST } = loadRoute();
 
 			const first = POST(post({ workspace: 1 }));
-			await new Promise((resolve) => setTimeout(resolve, 0));
+			// The first request holds its claim once it reaches the workspace sign-in (after body, session and budget)
+			for (let tick = 0; !mockWorkspaceSignin.mock.calls.length && tick < 100; tick++) {
+				await new Promise((resolve) => setTimeout(resolve, 0));
+			}
+			expect(mockWorkspaceSignin).toHaveBeenCalledTimes(1);
 			mockAuth.mockResolvedValueOnce(
 				everIdSession([workspace('u1', 't1'), { ...workspace('u2', null), token: overlappingToken }])
 			);
@@ -364,7 +368,14 @@ describe('POST /api/auth/ever-id/finish-setup', () => {
 
 	it.each([
 		['is refused', () => mockRequests.getAllOrganizationTeamRequest.mockRejectedValue(new Error('API down'))],
-		['has no items', () => mockRequests.getAllOrganizationTeamRequest.mockResolvedValue({ data: { message: 'x' } })]
+		[
+			'has no items',
+			() => mockRequests.getAllOrganizationTeamRequest.mockResolvedValue({ data: { message: 'x' } })
+		],
+		[
+			'is a partial page (no row, total 1)',
+			() => mockRequests.getAllOrganizationTeamRequest.mockResolvedValue({ data: { items: [], total: 1 } })
+		]
 	])('answers 502 and creates nothing when the team list %s (never read as "no team")', async (_label, arrange) => {
 		primeOwnerWithOrganizations(['org-1']);
 		arrange();
@@ -378,7 +389,11 @@ describe('POST /api/auth/ever-id/finish-setup', () => {
 
 	it.each([
 		['has no items', { message: 'x' }],
-		['has a membership without its organization', { items: [{ organizationId: 'org-1' }, { id: 'm-2' }], total: 2 }]
+		[
+			'has a membership without its organization',
+			{ items: [{ organizationId: 'org-1' }, { id: 'm-2' }], total: 2 }
+		],
+		['is a partial page (1 of 2 memberships)', { items: [{ organizationId: 'org-1' }], total: 2 }]
 	])(
 		'answers 502 and creates nothing when the membership list %s (never read as "no organization")',
 		async (_label, memberships) => {
@@ -397,7 +412,9 @@ describe('POST /api/auth/ever-id/finish-setup', () => {
 
 	it.each([
 		['has no items', undefined],
-		['names the employee without its id', { items: [{ userId: 'u1' }], total: 1 }]
+		['names the employee without its id', { items: [{ userId: 'u1' }], total: 1 }],
+		['is a partial page without the owner', { items: [{ id: 'emp-2', userId: 'u2' }], total: 2 }],
+		['has a row naming no user', { items: [{ id: 'emp-2' }], total: 1 }]
 	])(
 		'answers 502 and creates nothing when the employee list %s (never read as "no employee")',
 		async (_label, employees) => {
