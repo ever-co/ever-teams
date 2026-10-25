@@ -94,11 +94,15 @@ jobs:
         shell: bash
         env:
           VERDACCIO_REGISTRY: ${{ vars.VERDACCIO_REGISTRY }}
+          VERDACCIO_FORCE_PUBLIC: ${{ vars.VERDACCIO_FORCE_PUBLIC }}
         # The in-cluster Verdaccio cache first on self-hosted runners (registry.npmjs.org over the homelab WAN timed out
         # on busy nights: Release Apps v0.146.28 release-linux), then the public registry; a few spaced tries.
         # GitHub-hosted runners cannot reach the LAN cache, so they use the public registry only.
         run: |
           registries="https://registry.npmjs.org/"
+          # VERDACCIO_FORCE_PUBLIC (the operator switch Configure Registry also honours) skips the cache
+          force_public="$(printf %s "$VERDACCIO_FORCE_PUBLIC" | tr "[:upper:]" "[:lower:]")"
+          case "$force_public" in true|1|yes) VERDACCIO_REGISTRY="" ;; esac
           if [ "$RUNNER_ENVIRONMENT" = "self-hosted" ] && [ -n "$VERDACCIO_REGISTRY" ]; then registries="$VERDACCIO_REGISTRY $registries"; fi
           for attempt in 1 2 3; do
             for registry in $registries; do
@@ -436,11 +440,15 @@ jobs:
         shell: bash
         env:
           VERDACCIO_REGISTRY: ${{ vars.VERDACCIO_REGISTRY }}
+          VERDACCIO_FORCE_PUBLIC: ${{ vars.VERDACCIO_FORCE_PUBLIC }}
         # The in-cluster Verdaccio cache first on self-hosted runners (registry.npmjs.org over the homelab WAN timed out
         # on busy nights: Release Apps v0.146.28 release-linux), then the public registry; a few spaced tries.
         # GitHub-hosted runners cannot reach the LAN cache, so they use the public registry only.
         run: |
           registries="https://registry.npmjs.org/"
+          # VERDACCIO_FORCE_PUBLIC (the operator switch Configure Registry also honours) skips the cache
+          force_public="$(printf %s "$VERDACCIO_FORCE_PUBLIC" | tr "[:upper:]" "[:lower:]")"
+          case "$force_public" in true|1|yes) VERDACCIO_REGISTRY="" ;; esac
           if [ "$RUNNER_ENVIRONMENT" = "self-hosted" ] && [ -n "$VERDACCIO_REGISTRY" ]; then registries="$VERDACCIO_REGISTRY $registries"; fi
           for attempt in 1 2 3; do
             for registry in $registries; do
@@ -732,11 +740,15 @@ jobs:
         shell: bash
         env:
           VERDACCIO_REGISTRY: ${{ vars.VERDACCIO_REGISTRY }}
+          VERDACCIO_FORCE_PUBLIC: ${{ vars.VERDACCIO_FORCE_PUBLIC }}
         # The in-cluster Verdaccio cache first on self-hosted runners (registry.npmjs.org over the homelab WAN timed out
         # on busy nights: Release Apps v0.146.28 release-linux), then the public registry; a few spaced tries.
         # GitHub-hosted runners cannot reach the LAN cache, so they use the public registry only.
         run: |
           registries="https://registry.npmjs.org/"
+          # VERDACCIO_FORCE_PUBLIC (the operator switch Configure Registry also honours) skips the cache
+          force_public="$(printf %s "$VERDACCIO_FORCE_PUBLIC" | tr "[:upper:]" "[:lower:]")"
+          case "$force_public" in true|1|yes) VERDACCIO_REGISTRY="" ;; esac
           if [ "$RUNNER_ENVIRONMENT" = "self-hosted" ] && [ -n "$VERDACCIO_REGISTRY" ]; then registries="$VERDACCIO_REGISTRY $registries"; fi
           for attempt in 1 2 3; do
             for registry in $registries; do
@@ -1093,11 +1105,15 @@ jobs:
         shell: bash
         env:
           VERDACCIO_REGISTRY: ${{ vars.VERDACCIO_REGISTRY }}
+          VERDACCIO_FORCE_PUBLIC: ${{ vars.VERDACCIO_FORCE_PUBLIC }}
         # The in-cluster Verdaccio cache first on self-hosted runners (registry.npmjs.org over the homelab WAN timed out
         # on busy nights: Release Apps v0.146.28 release-linux), then the public registry; a few spaced tries.
         # GitHub-hosted runners cannot reach the LAN cache, so they use the public registry only.
         run: |
           registries="https://registry.npmjs.org/"
+          # VERDACCIO_FORCE_PUBLIC (the operator switch Configure Registry also honours) skips the cache
+          force_public="$(printf %s "$VERDACCIO_FORCE_PUBLIC" | tr "[:upper:]" "[:lower:]")"
+          case "$force_public" in true|1|yes) VERDACCIO_REGISTRY="" ;; esac
           if [ "$RUNNER_ENVIRONMENT" = "self-hosted" ] && [ -n "$VERDACCIO_REGISTRY" ]; then registries="$VERDACCIO_REGISTRY $registries"; fi
           for attempt in 1 2 3; do
             for registry in $registries; do
@@ -1431,11 +1447,15 @@ jobs:
         shell: bash
         env:
           VERDACCIO_REGISTRY: ${{ vars.VERDACCIO_REGISTRY }}
+          VERDACCIO_FORCE_PUBLIC: ${{ vars.VERDACCIO_FORCE_PUBLIC }}
         # The in-cluster Verdaccio cache first on self-hosted runners (registry.npmjs.org over the homelab WAN timed out
         # on busy nights: Release Apps v0.146.28 release-linux), then the public registry; a few spaced tries.
         # GitHub-hosted runners cannot reach the LAN cache, so they use the public registry only.
         run: |
           registries="https://registry.npmjs.org/"
+          # VERDACCIO_FORCE_PUBLIC (the operator switch Configure Registry also honours) skips the cache
+          force_public="$(printf %s "$VERDACCIO_FORCE_PUBLIC" | tr "[:upper:]" "[:lower:]")"
+          case "$force_public" in true|1|yes) VERDACCIO_REGISTRY="" ;; esac
           if [ "$RUNNER_ENVIRONMENT" = "self-hosted" ] && [ -n "$VERDACCIO_REGISTRY" ]; then registries="$VERDACCIO_REGISTRY $registries"; fi
           for attempt in 1 2 3; do
             for registry in $registries; do
