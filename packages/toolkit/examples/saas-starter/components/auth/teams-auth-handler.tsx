@@ -25,8 +25,11 @@ export function TeamsAuthHandler(): ReactElement | null {
 		// Leaving the page stops the tries: no request, no timer and no token from a page that is gone
 		const controller = new AbortController();
 
-		// A few tries a little apart: a network blip or a busy server must not leave the page without its Teams token
-		// until the next sign-in. A 401 (no local session) or an answer without a token ends it at once.
+		// Whether the collection ended (token set, none waiting, or a final answer), as opposed to being cut short
+		let finished = false;
+
+		// A few tries a little apart: a network blip or a busy server (5xx) must not leave the page without its Teams
+		// token until the next sign-in. Any other answer ends it at once: 4xx are final (401 = no local session).
 		const collectTeamsToken = async () => {
 			for (let attempt = 1; attempt <= HANDOFF_ATTEMPTS && !controller.signal.aborted; attempt++) {
 				try {
@@ -43,7 +46,7 @@ export function TeamsAuthHandler(): ReactElement | null {
 						}
 						return;
 					}
-					if (res.status === 401) return;
+					if (res.status < 500) return;
 				} catch (error) {
 					if (controller.signal.aborted) return;
 					console.warn('❌ Teams authentication failed:', error);
@@ -60,8 +63,14 @@ export function TeamsAuthHandler(): ReactElement | null {
 			}
 		};
 
-		void collectTeamsToken();
-		return () => controller.abort();
+		void collectTeamsToken().finally(() => {
+			finished = !controller.signal.aborted;
+		});
+		return () => {
+			controller.abort();
+			// Cut short (unmount, or React Strict Mode's setup -> cleanup -> setup): the next mount collects again
+			if (!finished) requested.current = false;
+		};
 	}, [accessToken, setAccessToken]);
 
 	// This component renders nothing visible

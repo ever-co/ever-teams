@@ -894,6 +894,9 @@ jobs:
         uses: ilammy/msvc-dev-cmd@v1
         with:
           arch: x64
+          # The Build Tools installed above. Without it the action enters the newest VS on the image (VS 18 / 2026
+          # on windows-11-arm since 2026-10), which node-gyp 10 cannot read and msvs_version=2022 rejects
+          vsversion: '2022'
 
       - name: Install latest version of NPM
         run: 'npm install -g npm@11.6.2'
@@ -1185,6 +1188,9 @@ jobs:
         uses: ilammy/msvc-dev-cmd@v1
         with:
           arch: arm64
+          # The Build Tools installed above. Without it the action enters the newest VS on the image (VS 18 / 2026
+          # on windows-11-arm since 2026-10), which node-gyp 10 cannot read and msvs_version=2022 rejects
+          vsversion: '2022'
 
       - name: Install latest version of NPM
         run: 'npm install -g npm@11.6.2'
