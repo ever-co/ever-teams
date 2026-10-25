@@ -32,7 +32,8 @@ beforeEach(() => {
 		tenantId: 'tenant-1',
 		organizationId: 'organization-1'
 	});
-	fetchMock = jest.fn().mockResolvedValue(Response.json({}, { status: 200 }));
+	const answer = Response.json({}, { status: 200 });
+	fetchMock = jest.fn().mockResolvedValue(answer);
 	global.fetch = fetchMock;
 });
 
@@ -44,18 +45,21 @@ afterEach(() => {
 /** The URL Gauzy was asked for. */
 function upstreamUrl(): URL {
 	const [requested] = fetchMock.mock.calls[0];
-	return new URL(String(requested));
+	const href = String(requested);
+	return new URL(href);
 }
 
 /** GET /api/organization-projects with `query`, as the browser sends it in proxy mode. */
 function list(query = '') {
-	return listProjects(new Request(`https://app.ever.team/api/organization-projects${query}`));
+	const request = new Request(`https://app.ever.team/api/organization-projects${query}`);
+	return listProjects(request);
 }
 
 /** GET /api/organization-projects/project-1 with `query`, as the browser sends it in proxy mode. */
 function read(query = '') {
 	const request = new Request(`https://app.ever.team/api/organization-projects/project-1${query}`);
-	return readProject(request, { params: Promise.resolve({ id: 'project-1' }) });
+	const params = Promise.resolve({ id: 'project-1' });
+	return readProject(request, { params });
 }
 
 describe('GET /api/organization-projects', () => {
@@ -85,7 +89,8 @@ describe('GET /api/organization-projects', () => {
 
 		await list(`?${query}`);
 
-		const forwarded = upstreamUrl().searchParams;
+		const upstream = upstreamUrl();
+		const forwarded = upstream.searchParams;
 		expect(forwarded.getAll('where[organizationId]')).toEqual(['organization-1']);
 		expect(forwarded.getAll('where[tenantId]')).toEqual(['tenant-1']);
 		expect(forwarded.get('relations[0]')).toBe('teams');
