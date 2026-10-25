@@ -154,4 +154,23 @@ describe('useLiveTimerStatus total time', () => {
 		advanceSeconds(300);
 		expect(result.current.time).toEqual({ h: 0, m: 11 });
 	});
+
+	it('keeps the receipt of an unchanged status when the shell mounts again', () => {
+		// OfflineWrapper unmounts AppState while offline and mounts it again on reconnect, the store keeps the status
+		const store = createStore();
+		const sessionStartedAt = LOAD_TIME - 630_000;
+		store.set(timerStatusState, { running: true, duration: 630 });
+		setLocalTimerRunning(store, sessionStartedAt);
+		const wrapper = createWrapper(store);
+		const shell = renderHook(() => useTimerUi({ firstLoad: true, activeTeamTask: null }), { wrapper });
+		const { result } = renderHook(() => useLiveTimerStatus(), { wrapper });
+		advanceSeconds(300);
+		expect(result.current.time).toEqual({ h: 0, m: 15 });
+
+		shell.unmount();
+		advanceSeconds(60);
+		renderHook(() => useTimerUi({ firstLoad: true, activeTeamTask: null }), { wrapper });
+		advanceSeconds(1);
+		expect(result.current.time).toEqual({ h: 0, m: 16 });
+	});
 });

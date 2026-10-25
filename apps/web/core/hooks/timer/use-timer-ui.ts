@@ -149,8 +149,7 @@ export function useTimerUi({ firstLoad, activeTeamTask }: UseTimerUiParams): Use
 	// useLiveTimerStatus adds only the time elapsed since the status arrived
 	useEffect(() => {
 		if (firstLoad) {
-			const receivedAt = Date.now();
-			setTimerStatusReceipt({ status: timerStatus, receivedAt });
+			setTimerStatusReceipt((previousReceipt) => getNextStatusReceipt(previousReceipt, timerStatus));
 		}
 	}, [firstLoad, timerStatus, setTimerStatusReceipt]);
 
@@ -164,6 +163,19 @@ export function useTimerUi({ firstLoad, activeTeamTask }: UseTimerUiParams): Use
 }
 
 // ==================== STANDALONE HOOKS ====================
+
+function getNextStatusReceipt(
+	previousReceipt: ITimerStatusReceipt,
+	timerStatus: ITimerStatus | null
+): ITimerStatusReceipt {
+	// A shell mounted again (OfflineWrapper after a reconnect) finds the status it recorded: its read time is unchanged
+	const isRecordedStatus = previousReceipt.status === timerStatus;
+	if (isRecordedStatus) {
+		return previousReceipt;
+	}
+	const receivedAt = Date.now();
+	return { status: timerStatus, receivedAt };
+}
 
 function getSecondsSinceReceipt(timerStatus: ITimerStatus, receipt: ITimerStatusReceipt): number {
 	// A status that arrived in this render is recorded right after it: it was read a moment ago
