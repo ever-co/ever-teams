@@ -265,7 +265,8 @@ const CustomCalendar = memo(function CustomCalendar({
 	existingPlanDates: Date[];
 	existingTaskPlanDates: Date[];
 }) {
-	const pastDays = { from: new Date(1970, 1, 1), to: getYesterdayDate() };
+	const yesterday = getYesterdayDate();
+	const pastDays = { from: new Date(1970, 1, 1), to: yesterday };
 
 	const handleDaySelect = (day: Date | undefined) => {
 		const selectedDay = day ?? getTomorrowDate();
