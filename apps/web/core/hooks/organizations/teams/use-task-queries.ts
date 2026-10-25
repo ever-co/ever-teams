@@ -2,13 +2,16 @@
 
 import { taskService } from '@/core/services/client/api';
 import { activeTeamState, detailedTaskState, tasksByTeamState } from '@/core/stores';
-import { useCallback } from 'react';
+import { useCallback, useState } from 'react';
 import { useAtom, useAtomValue } from 'jotai';
 import { useSyncRef } from '../../common/use-sync-ref';
 import { useQueryCall } from '../../common/use-query';
 import { useQueryClient } from '@tanstack/react-query';
 import { queryKeys } from '@/core/query/keys';
 import { useTasksByEmployeeQuery } from './use-tasks-by-employee-query';
+
+/** A `getTaskById` call that failed: the task it asked for and the error it got. */
+type TGetTaskByIdError = { taskId: string; error: unknown };
 
 /**
  * Hook for specific task queries (individual task fetching operations).
@@ -22,6 +25,7 @@ import { useTasksByEmployeeQuery } from './use-tasks-by-employee-query';
  * @returns Object containing:
  * - `getTaskById` - Function to fetch a single task
  * - `getTasksByIdLoading` - Task fetch loading state
+ * - `getTaskByIdError` - The last failed task fetch (task id and error), cleared by the next successful one
  * - `getTasksByEmployeeId` - Function to fetch tasks by employee
  * - `getTasksByEmployeeIdLoading` - Employee tasks loading state
  * - `detailedTask` - Currently detailed task data
@@ -32,6 +36,8 @@ export function useTaskQueries() {
 	const tasks = useAtomValue(tasksByTeamState);
 	const tasksRef = useSyncRef(tasks);
 	const [detailedTask, setDetailedTask] = useAtom(detailedTaskState);
+	// getTaskById resolves to null on failure for its callers; the task page reads the failure from here
+	const [getTaskByIdError, setGetTaskByIdError] = useState<TGetTaskByIdError | null>(null);
 
 	const { getTasksByEmployeeId, getTasksByEmployeeIdLoading } = useTasksByEmployeeQuery(undefined, activeTeam?.id);
 
@@ -62,12 +68,14 @@ export function useTaskQueries() {
 
 			try {
 				const res = await getTaskByIdQuery(taskId);
+				setGetTaskByIdError(null);
 				if (updateState) {
 					setDetailedTask(res || null);
 				}
 				return res;
 			} catch (error) {
 				console.error('Error fetching task by ID:', error);
+				setGetTaskByIdError({ taskId, error });
 				return null;
 			}
 		},
@@ -77,6 +85,7 @@ export function useTaskQueries() {
 	return {
 		getTaskById,
 		getTasksByIdLoading,
+		getTaskByIdError,
 		getTasksByEmployeeId,
 		getTasksByEmployeeIdLoading,
 		detailedTask,

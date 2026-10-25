@@ -12,14 +12,24 @@ import { useTranslations } from 'next-intl';
 import { useAtomValue } from 'jotai';
 import { Breadcrumb } from '@/core/components/duplicated-components/breadcrumb';
 import { TaskDetailsPageSkeleton } from '@/core/components/common/skeleton/task-details-page-skeleton';
+import { AnimatedEmptyState } from '@/core/components/common/empty-state';
 import { DocumentMagnifyingGlassIcon } from '@heroicons/react/20/solid';
 import { clsxm } from '@/core/lib/utils';
+import { ApiErrorService } from '@/core/services/client/api-error.service';
 import Link from 'next/link';
 
 // Import optimized components from centralized location
 import { LazyTaskDetailsComponent } from '@/core/components/optimized-components';
 import { activeTeamState, detailedTaskState, isTrackingEnabledState } from '@/core/stores';
 import { useTeamDailyPlansOwner } from '@/core/hooks/bootstrap/use-feature-data';
+
+/** The API answers 404 for a task that does not exist or was deleted, and 406 for an id that is not a UUID. */
+function isTaskNotFoundError(error: unknown): boolean {
+	if (!ApiErrorService.isApiError(error)) {
+		return false;
+	}
+	return error.hasHttpResponseStatus(404, 406);
+}
 
 const TaskDetails = () => {
 	useTeamDailyPlansOwner();
@@ -31,12 +41,18 @@ const TaskDetails = () => {
 	const activeTeam = useAtomValue(activeTeamState);
 	const isTrackingEnabled = useAtomValue(isTrackingEnabledState);
 	const detailedTask = useAtomValue(detailedTaskState);
-	const { getTaskById, getTasksByIdLoading } = useTaskQueries();
+	const { getTaskById, getTasksByIdLoading, getTaskByIdError } = useTaskQueries();
 
 	// State to track if we've already tried to load the task
 	const [hasAttemptedLoad, setHasAttemptedLoad] = useState(false);
 
 	const id = params?.id;
+
+	const hasLoadFailed = getTaskByIdError !== null && getTaskByIdError.taskId === id;
+	// The task of another id can still be in the store after a failed load: it must not stand in for this one
+	const isLoadFailureShown = hasLoadFailed && detailedTask?.id !== id;
+	const isTaskNotFound = isTaskNotFoundError(getTaskByIdError?.error);
+	const isLoadErrorShown = isLoadFailureShown && !isTaskNotFound;
 
 	const breadcrumb = [
 		{ title: activeTeam?.name || '', href: '/' },
@@ -47,28 +63,38 @@ const TaskDetails = () => {
 	];
 
 	useEffect(() => {
-		if (
-			router &&
-			// If id is passed in query param
-			id &&
-			// Either no task or task id doesn't match query id
-			(!detailedTask || (detailedTask && detailedTask.id !== id)) &&
-			!getTasksByIdLoading
-		) {
+		// Either no task or task id doesn't match query id
+		const isTaskMissing = !detailedTask || detailedTask.id !== id;
+		// After a failed load only the retry button sends it again, not every end of loading
+		const canLoadTask = !getTasksByIdLoading && !hasLoadFailed;
+		// If id is passed in query param
+		if (router && id && isTaskMissing && canLoadTask) {
 			getTaskById(id as string);
 			setHasAttemptedLoad(true);
 		}
-	}, [getTaskById, router, detailedTask, getTasksByIdLoading, id]);
+	}, [getTaskById, router, detailedTask, getTasksByIdLoading, hasLoadFailed, id]);
 
 	// Optimized render logic
 	const renderContent = useMemo(() => {
+		// The load failed for another reason than a missing task: say so and offer a retry
+		if (isLoadErrorShown) {
+			return (
+				<AnimatedEmptyState
+					title={t('pages.error.HEADING_TITLE')}
+					message={t('pages.error.HEADING_DESCRIPTION')}
+					actionLabel={t('pages.unauthorized.TRY_AGAIN')}
+					onAction={() => getTaskById(id as string)}
+				/>
+			);
+		}
+
 		// If we're loading or haven't tried to load yet
 		if ((getTasksByIdLoading || !hasAttemptedLoad) && !detailedTask) {
 			return <TaskDetailsPageSkeleton />;
 		}
 
 		// If we've finished loading and have a task
-		if (detailedTask) {
+		if (detailedTask && !isLoadFailureShown) {
 			return <LazyTaskDetailsComponent task={detailedTask} />;
 		}
 
@@ -96,7 +122,7 @@ const TaskDetails = () => {
 				</div>
 			</div>
 		);
-	}, [getTasksByIdLoading, hasAttemptedLoad, detailedTask]);
+	}, [getTasksByIdLoading, hasAttemptedLoad, detailedTask, isLoadErrorShown, isLoadFailureShown, getTaskById, id, t]);
 
 	return (
 		<PageLayout
