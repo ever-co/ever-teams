@@ -334,7 +334,9 @@ export const TaskCard = React.memo(function TaskCard(props: Props) {
 							loading={loading}
 							mutations={authMutations}
 							viewType={viewType}
+							profile={profile}
 							plan={plan}
+							planMode={planMode}
 						/>
 					)}
 				</div>
