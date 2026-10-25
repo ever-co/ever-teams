@@ -38,10 +38,10 @@ export function formatStartAndEndDateRange(
 	const startOfDay = getLocalDayStart(startDateObj);
 	const start = startOfDay.toISOString();
 
-	// Format end date to end of the local day (23:59:59.999)
-	const endOfDay = getLocalDayStart(endDateObj);
-	endOfDay.setHours(23, 59, 59, 999);
-	const end = endOfDay.toISOString();
+	// Format end date to end of the local day, 1 ms before the next local midnight (also on DST change days)
+	const lastDayStart = getLocalDayStart(endDateObj);
+	const endOfLastDay = moment(lastDayStart).endOf('day');
+	const end = endOfLastDay.toISOString();
 
 	return { start, end };
 }
