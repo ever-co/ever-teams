@@ -7,11 +7,13 @@ function profileReads(requests: Array<{ path: string; query: string }>) {
 }
 
 /** Polls the mock until it has seen at least `count` profile reads, for up to 10 s (a busy runner mounts Stats late). */
-function waitForProfileReads(count: number, deadline = Date.now() + 10_000): void {
+function waitForProfileReads(count: number, deadline?: number): void {
 	cy.mockRequests().then((requests) => {
-		if (profileReads(requests).length < count && Date.now() < deadline) {
+		// Set when the first poll RUNS, not when the test queues it (the visit and the click come before)
+		const until = deadline ?? Date.now() + 10_000;
+		if (profileReads(requests).length < count && Date.now() < until) {
 			cy.wait(100, { log: false });
-			waitForProfileReads(count, deadline);
+			waitForProfileReads(count, until);
 		}
 	});
 }
