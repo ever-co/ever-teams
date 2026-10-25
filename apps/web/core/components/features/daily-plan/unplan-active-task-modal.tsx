@@ -1,6 +1,7 @@
 import { useUpdateDailyPlan } from '@/core/hooks/daily-plans/use-update-daily-plan';
 import { Button, Modal, Text } from '@/core/components';
 import { useCallback } from 'react';
+import { useTranslations } from 'next-intl';
 import { EverCard } from '../../common/ever-card';
 import { TTask } from '@/core/types/schemas/task/task.schema';
 import { TDailyPlan } from '@/core/types/schemas/task/daily-plan.schema';
@@ -30,6 +31,7 @@ interface UnplanActiveTaskModalProps {
  */
 export function UnplanActiveTaskModal(props: UnplanActiveTaskModalProps) {
 	const { closeModal, task, open, plan, stopTimer } = props;
+	const t = useTranslations();
 	const timerStatus = useAtomValue(timerStatusState);
 
 	const { removeTaskFromPlan, removeTaskFromPlanLoading } = useUpdateDailyPlan();
@@ -72,7 +74,7 @@ export function UnplanActiveTaskModal(props: UnplanActiveTaskModalProps) {
 			<EverCard className="w-full" shadow="custom">
 				<div className="flex flex-col justify-between w-full gap-6">
 					<Text.Heading as="h5" className="mb-3 text-center">
-						You are about to unplan the current active task, please confirm the action
+						{t('dailyPlan.labels.UNPLAN_ACTIVE_TASK_CONFIRMATION')}
 					</Text.Heading>
 					<div className="flex items-center w-full justify-evenly">
 						<Button
@@ -82,7 +84,7 @@ export function UnplanActiveTaskModal(props: UnplanActiveTaskModalProps) {
 							onClick={handleCloseModal}
 							className="font-light rounded-md text-md dark:text-white dark:bg-slate-700 dark:border-slate-600"
 						>
-							No
+							{t('common.NO')}
 						</Button>
 						<Button
 							loading={removeTaskFromPlanLoading}
@@ -92,7 +94,7 @@ export function UnplanActiveTaskModal(props: UnplanActiveTaskModalProps) {
 							type="submit"
 							className="font-light rounded-md text-md dark:text-white"
 						>
-							Yes
+							{t('common.YES')}
 						</Button>
 					</div>
 				</div>

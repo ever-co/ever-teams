@@ -72,7 +72,8 @@ export function PlanHeader({ plan, planMode }: { plan: TDailyPlan; planMode: Fil
 		try {
 			const { hours, error: parseError } = parseStringInputToHours(inputValue);
 			if (parseError || hours === undefined || !Number.isFinite(hours) || hours < 0) {
-				throw new Error(parseError ?? 'Invalid time format, use H:MM or decimal (e.g. 4.5).');
+				const invalidTimeMessage = parseError ?? t('dailyPlan.toastMessages.INVALID_TIME_FORMAT');
+				throw new Error(invalidTimeMessage);
 			}
 
 			if (plan.workTimePlanned === hours) {
@@ -87,12 +88,16 @@ export function PlanHeader({ plan, planMode }: { plan: TDailyPlan; planMode: Fil
 			await updateDailyPlan({ workTimePlanned: hours, employeeId: plan.employeeId || undefined }, plan.id ?? '');
 
 			setEditTime(false);
-			toast.success('Plan updated successfully');
+			toast.success(t('dailyPlan.toastMessages.PLAN_UPDATED'));
 		} catch (err) {
 			setTime(plan.workTimePlanned ?? 0);
 			setInputValue(hoursToHMM(plan.workTimePlanned ?? 0));
 			setEditTime(false);
-			toast.error(`Failed to update plan. Error: ${err}`);
+			const errorText = String(err);
+			const updateFailedMessage = t('dailyPlan.toastMessages.PLAN_UPDATE_FAILED_WITH_ERROR', {
+				error: errorText
+			});
+			toast.error(updateFailedMessage);
 		}
 	}, [
 		inputValue,
@@ -104,7 +109,8 @@ export function PlanHeader({ plan, planMode }: { plan: TDailyPlan; planMode: Fil
 		updateDailyPlanLoading,
 		setTime,
 		setInputValue,
-		setEditTime
+		setEditTime,
+		t
 	]);
 
 	// Get time logs for the plan
