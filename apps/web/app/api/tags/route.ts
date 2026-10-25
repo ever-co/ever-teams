@@ -19,7 +19,9 @@ export async function GET(req: Request) {
 		organizationTeamId
 	};
 
-	return $res(await getTaskLabelsListRequest(par, access_token));
+	const { data } = await getTaskLabelsListRequest(par, access_token);
+
+	return $res(data);
 }
 
 export async function POST(req: Request) {
