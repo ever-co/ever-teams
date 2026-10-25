@@ -1,4 +1,6 @@
 import { authenticatedGuard } from '@/core/services/server/guards/authenticated-guard-app';
+import { requestCookies } from '@/core/services/server/request-cookies';
+import { TENANT_ID_COOKIE_NAME } from '@/core/constants/config/constants';
 import { NextResponse } from 'next/server';
 import { getTimesheetStatisticsCountsRequest } from '@/core/services/server/requests';
 import { ETimeLogType } from '@/core/types/generics/enums/timer';
@@ -21,7 +23,12 @@ export async function GET(req: Request) {
 	const activityLevelStart = searchParams.get('activityLevel[start]');
 	const activityLevelEnd = searchParams.get('activityLevel[end]');
 	const organizationId = searchParams.get('organizationId');
-	const tenantId = searchParams.get('tenantId');
+	// The web client sends the tenant only in a header: without a query value, use the session tenant cookie
+	// that the guard and the other statistics routes read
+	const queryTenantId = searchParams.get('tenantId');
+	const cookies = requestCookies(req);
+	const sessionTenantId = cookies.get(TENANT_ID_COOKIE_NAME);
+	const tenantId = queryTenantId || sessionTenantId;
 	const startDate = searchParams.get('startDate');
 	const endDate = searchParams.get('endDate');
 	const timeZone = searchParams.get('timeZone');
