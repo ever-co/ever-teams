@@ -1,4 +1,5 @@
 import { APP_NAME } from '@/core/constants/config/constants';
+import { decodeJWT } from '@/core/lib/auth/jwt-utils';
 import { setAuthCookies, setNoTeamPopupShowCookie } from '@/core/lib/helpers/cookies';
 import { unwrapRejection } from '@/core/services/server/fetch';
 import {
@@ -6,16 +7,21 @@ import {
 	acceptInviteRequest,
 	getAllOrganizationTeamRequest,
 	getUserOrganizationsRequest,
+	switchOrganizationServerRequest,
 	verifyInviteCodeRequest
 } from '@/core/services/server/requests';
+import { IAuthResponse } from '@/core/types/interfaces/auth/auth';
 import { IUserOrganization } from '@/core/types/interfaces/organization/user-organization';
 import { NextResponse } from 'next/server';
+
+/** The tokens a session is opened with. */
+type SessionTokens = Pick<IAuthResponse, 'token' | 'refresh_token'>;
 
 /**
  * Proxy mode twin of Gauzy's public `POST /invite/accept`, sent by the page of the invitation e-mail link. Like the
  * passcode sign-in (`/api/auth/login`), it then reads the invited organization and its first team with the new token
  * and sets the session cookies on its answer, so the invitee is signed in. The body is Gauzy's own answer, as in
- * direct mode.
+ * direct mode, with the tokens of that session.
  */
 export async function POST(req: Request) {
 	// The answer signs the browser in: another site can post a form or plain text here without a CORS preflight, but
@@ -45,10 +51,9 @@ async function acceptAndSignIn(req: Request, input: AcceptInviteParams) {
 	const { data: accepted, response: acceptance } = await acceptInviteRequest(input, origin);
 
 	const tenantId = accepted.user?.tenantId || '';
-	const access_token = accepted.token;
 	const userId = accepted.user?.id;
 
-	const { data: organizations } = await getUserOrganizationsRequest({ tenantId, userId }, access_token);
+	const { data: organizations } = await getUserOrganizationsRequest({ tenantId, userId }, accepted.token);
 	const organization = pickInvitedOrganization(organizations?.items, invitedOrganizationName);
 	if (!organization) {
 		const message = `Your account is not yet ready to be used on the ${APP_NAME} Platform`;
@@ -56,11 +61,15 @@ async function acceptAndSignIn(req: Request, input: AcceptInviteParams) {
 	}
 
 	const organizationId = organization.organizationId || '';
+	const tokens = await tokensInOrganization(accepted, { organizationId, tenantId });
+	const access_token = tokens.token;
 	const { data: teams } = await getAllOrganizationTeamRequest({ tenantId, organizationId }, access_token);
 	const team = teams.items[0];
 
+	// Once the tokens are moved, the accepted refresh token no longer refreshes: the body hands out the session's
+	const body = { ...accepted, ...tokens };
 	// The cookies go on the response that is returned, or the browser never receives them
-	const res = NextResponse.json(accepted, { status: acceptance.status });
+	const res = NextResponse.json(body, { status: acceptance.status });
 	if (!team) {
 		setNoTeamPopupShowCookie(true, { req, res });
 	}
@@ -69,7 +78,7 @@ async function acceptAndSignIn(req: Request, input: AcceptInviteParams) {
 		{
 			access_token,
 			refresh_token: {
-				token: accepted.refresh_token
+				token: tokens.refresh_token
 			},
 			teamId: team?.id,
 			tenantId,
@@ -99,7 +108,7 @@ async function invitedOrganizationNameOf({ email, code }: AcceptInviteParams): P
 
 /**
  * The invited organization, else the first one: the pick the accept page makes in direct mode, so a member of several
- * organizations lands in the one they were invited to (the app then moves the token there, as after any sign-in).
+ * organizations lands in the one they were invited to (tokensInOrganization moves the token there).
  */
 function pickInvitedOrganization(
 	items: IUserOrganization[] | undefined,
@@ -113,6 +122,32 @@ function pickInvitedOrganization(
 	}
 
 	return items?.[0];
+}
+
+/**
+ * The accepted tokens, moved to the invited organization when Gauzy minted them for another one (a member of several
+ * organizations) or for none. Gauzy confines a non-admin to the token's organization, so its teams answer such a token
+ * with none of the invited organization's: this is the switch the app makes on load (token-organization.ts), made
+ * before the team read. When Gauzy gives no tokens, the accepted ones stay and the app asks again on load.
+ */
+async function tokensInOrganization(
+	accepted: IAuthResponse,
+	{ organizationId, tenantId }: { organizationId: string; tenantId: string }
+): Promise<SessionTokens> {
+	const acceptedTokens = { token: accepted.token, refresh_token: accepted.refresh_token };
+	const tokenOrganizationId = decodeJWT(accepted.token)?.organizationId;
+	const isInOrganization = !organizationId || tokenOrganizationId === organizationId;
+	if (isInOrganization) return acceptedTokens;
+
+	try {
+		const { data: switched } = await switchOrganizationServerRequest({ organizationId, tenantId }, accepted.token);
+		if (!switched?.token) return acceptedTokens;
+
+		const refresh_token = switched.refresh_token || accepted.refresh_token;
+		return { token: switched.token, refresh_token };
+	} catch {
+		return acceptedTokens;
+	}
 }
 
 function isJsonBody(req: Request): boolean {

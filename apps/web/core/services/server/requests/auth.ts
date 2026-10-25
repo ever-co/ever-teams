@@ -254,3 +254,21 @@ export const switchWorkspaceServerRequest = (data: { tenantId: string }, bearerT
 		bearer_token: bearerToken
 	});
 };
+
+/**
+ * Tokens of `bearerToken`'s user for another organization of the tenant (`POST /auth/switch-organization`), as the
+ * app asks when the token acts in another organization than the one it works in (token-organization.ts). Gauzy
+ * answers null for an error it did not expect.
+ */
+export const switchOrganizationServerRequest = (
+	data: { organizationId: string; tenantId: string },
+	bearerToken: string
+) => {
+	return serverFetch<IAuthResponse | null>({
+		method: 'POST',
+		path: '/auth/switch-organization',
+		body: { organizationId: data.organizationId },
+		tenantId: data.tenantId,
+		bearer_token: bearerToken
+	});
+};

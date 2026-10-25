@@ -35,6 +35,18 @@ const INVITATION_CHECK = {
 /** An organization the invitee belonged to before the invitation. */
 const EARLIER_ORGANIZATION_ID = 'org-before-the-invite';
 
+/** The refresh token of the tokens Gauzy moves to the invited organization. */
+const MOVED_REFRESH_TOKEN = 'refresh-token-of-the-invited-organization';
+
+/** Gauzy's calls for an accept whose token acts in another organization than the one the invitee signs in to. */
+const CALLS_MOVING_THE_TOKEN = [
+	'POST /invite/validate-by-code',
+	'POST /invite/accept',
+	'GET /user-organization',
+	'POST /auth/switch-organization',
+	'GET /organization-team'
+];
+
 type GauzyAnswer = { status: number; body: unknown };
 
 const originalFetch = global.fetch;
@@ -174,6 +186,56 @@ describe('POST /api/invite/accept', () => {
 		expect(cookies).not.toContain(`${ORGANIZATION_ID_COOKIE_NAME}=${EARLIER_ORGANIZATION_ID}`);
 	});
 
+	it('moves the token of a member of several organizations to the invited one before reading its teams', async () => {
+		// Gauzy confines a non-admin to the token's organization: a token of the earlier one reads none of its teams
+		const token = invitedAccessToken(EARLIER_ORGANIZATION_ID);
+		const movedToken = invitedAccessToken();
+		const moved = { status: 200, body: { token: movedToken, refresh_token: MOVED_REFRESH_TOKEN } };
+		const fetchMock = gauzyAnswers({
+			...acceptAnswers(token, MEMBERSHIPS_OF_A_MEMBER),
+			'POST /auth/switch-organization': moved
+		});
+
+		const response = await POST(acceptRequest());
+
+		expect(response.status).toBe(201);
+		expect(gauzyCalls(fetchMock)).toEqual(CALLS_MOVING_THE_TOKEN);
+		const calls = fetchMock.mock.calls as Array<[string, RequestInit]>;
+		const [, , , switchCall, teamsCall] = calls;
+		expect(JSON.parse(String(switchCall[1].body))).toEqual({ organizationId: INVITED.organizationId });
+		const switchHeaders = { authorization: `Bearer ${token}`, 'tenant-id': INVITED.tenantId };
+		expect(switchCall[1].headers).toEqual(expect.objectContaining(switchHeaders));
+		expect(teamsCall[1].headers).toEqual(expect.objectContaining({ authorization: `Bearer ${movedToken}` }));
+
+		// The accepted refresh token no longer refreshes once moved: the body and the session carry the moved tokens
+		const movedTokens = { token: movedToken, refresh_token: MOVED_REFRESH_TOKEN };
+		await expect(response.json()).resolves.toEqual(expect.objectContaining(movedTokens));
+		const cookies = response.headers.get('set-cookie') ?? '';
+		expect(cookies).toContain(`${TOKEN_COOKIE_NAME}=${movedToken}`);
+		expect(cookies).toContain(`${REFRESH_TOKEN_COOKIE_NAME}=${MOVED_REFRESH_TOKEN}`);
+		expect(cookies).toContain(`${ACTIVE_TEAM_COOKIE_NAME}=${INVITED.teamId}`);
+	});
+
+	it.each([
+		['refuses to move them', { status: 401, body: { statusCode: 401, message: 'Unauthorized' } }],
+		['answers null, as for an error it did not expect', { status: 200, body: null }]
+	])('keeps the accepted tokens when Gauzy %s, and still signs the invitee in', async (_case, switchAnswer) => {
+		const token = invitedAccessToken(EARLIER_ORGANIZATION_ID);
+		gauzyAnswers({
+			...acceptAnswers(token, MEMBERSHIPS_OF_A_MEMBER),
+			'POST /auth/switch-organization': switchAnswer
+		});
+
+		const response = await POST(acceptRequest());
+
+		// The app moves the token on load, as after any sign-in
+		expect(response.status).toBe(201);
+		const cookies = response.headers.get('set-cookie') ?? '';
+		expect(cookies).toContain(`${TOKEN_COOKIE_NAME}=${token}`);
+		expect(cookies).toContain(`${REFRESH_TOKEN_COOKIE_NAME}=${INVITED.refreshToken}`);
+		expect(cookies).toContain(`${ORGANIZATION_ID_COOKIE_NAME}=${INVITED.organizationId}`);
+	});
+
 	it("sends the app's origin to Gauzy's accept, as the browser does in direct mode, for the welcome e-mail links", async () => {
 		const token = invitedAccessToken();
 		const memberships = membershipsAnswer([INVITED.organizationId, 'Acme']);
@@ -197,12 +259,8 @@ describe('POST /api/invite/accept', () => {
 		const response = await POST(acceptRequest());
 
 		expect(response.status).toBe(201);
-		expect(gauzyCalls(fetchMock)).toEqual([
-			'POST /invite/validate-by-code',
-			'POST /invite/accept',
-			'GET /user-organization',
-			'GET /organization-team'
-		]);
+		// The token acts in org-2, so it is moved to the first organization before the team read
+		expect(gauzyCalls(fetchMock)).toEqual(CALLS_MOVING_THE_TOKEN);
 		const cookies = response.headers.get('set-cookie') ?? '';
 		expect(cookies).toContain(`${ORGANIZATION_ID_COOKIE_NAME}=${INVITED.organizationId}`);
 	});
