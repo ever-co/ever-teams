@@ -1967,10 +1967,10 @@ describe('Ever Teams feature surface preservation', () => {
 
 	it('covers all real App Router route files and outward handler verbs', () => {
 		const routes = collectRealHeadSurface().routes;
-		expect(routes.filter((value) => /\/route\.[jt]s$/.test(value))).toHaveLength(140);
+		expect(routes.filter((value) => /\/route\.[jt]s$/.test(value))).toHaveLength(141);
 		expect(
 			routes.filter((value) => /\/route\.[jt]s::(?:GET|POST|PUT|PATCH|DELETE|HEAD|OPTIONS)$/.test(value))
-		).toHaveLength(186);
+		).toHaveLength(187);
 		expect(routes).toEqual(
 			expect.arrayContaining([
 				// Proxy mode twin of Gauzy's POST /auth/switch-organization (organization boundary, 2026-10-24)
@@ -1992,6 +1992,7 @@ describe('Ever Teams feature surface preservation', () => {
 				'apps/web/app/api/favorite/employee/route.ts::GET',
 				'apps/web/app/api/favorite/route.ts::POST',
 				'apps/web/app/api/invite/accept/route.ts::POST',
+				'apps/web/app/api/organization/[id]/route.ts::GET',
 				'apps/web/app/api/role-permissions/me/route.ts::GET',
 				'apps/web/app/api/roles/team-assignable/route.ts::GET',
 				'apps/web/app/api/timer/status/worked/route.ts::GET',
