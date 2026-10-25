@@ -512,7 +512,8 @@ function statsResponse(method, pathname, signedIn, state, body) {
 	}
 	if (!signedIn) return UNAUTHORIZED;
 	if (scenario.statsOperator === false) return NOT_FOUND;
-	if (pathname === '/api/ever-stats/status' && method === 'GET') return { status: 200, payload: operatorStatus(scenario) };
+	if (pathname === '/api/ever-stats/status' && method === 'GET')
+		return { status: 200, payload: operatorStatus(scenario) };
 	if (pathname === '/api/ever-stats/enabled' && method === 'PUT') return statsToggle(state, body, signedIn);
 	// `last` answers 404 until the API has sent a report.
 	return NOT_FOUND;
@@ -634,11 +635,26 @@ export async function createMockGauzyServer({ fixture, port = 3988 } = {}) {
 		);
 		if (delayMs > 0) await new Promise((resolve) => setTimeout(resolve, delayMs));
 		const body = await readJsonBody(request);
-		const data = buildData(fixture, state.scenario, requestUrl, typeof tenantId === 'string' ? tenantId : undefined);
+		const data = buildData(
+			fixture,
+			state.scenario,
+			requestUrl,
+			typeof tenantId === 'string' ? tenantId : undefined
+		);
 		const everPlatform = everPlatformResponse(method, requestUrl.pathname, request, state, body);
 		const payload = everPlatform
 			? everPlatform.payload
-			: routeResponse(method, requestUrl.pathname, requestUrl, data, fixture, state, body, tenantId);
+			: // The organization switch is authorized on the tenant-id HEADER only (a query value must not override it)
+				routeResponse(
+					method,
+					requestUrl.pathname,
+					requestUrl,
+					data,
+					fixture,
+					state,
+					body,
+					request.headers['tenant-id']
+				);
 		const status = everPlatform ? everPlatform.status : (payload?.[HTTP_STATUS] ?? 200);
 		const endMs = performance.now() - state.startedAt;
 		// The web app's statistics reporter reads `state` every few seconds in the browser runs: counted, not

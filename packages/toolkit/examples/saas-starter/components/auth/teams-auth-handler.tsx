@@ -22,16 +22,22 @@ export function TeamsAuthHandler(): ReactElement | null {
 			return;
 		}
 		requested.current = true;
+		// Leaving the page stops the tries: no request, no timer and no token from a page that is gone
+		const controller = new AbortController();
 
 		// A few tries a little apart: a network blip or a busy server must not leave the page without its Teams token
 		// until the next sign-in. A 401 (no local session) or an answer without a token ends it at once.
 		const collectTeamsToken = async () => {
-			for (let attempt = 1; attempt <= HANDOFF_ATTEMPTS; attempt++) {
+			for (let attempt = 1; attempt <= HANDOFF_ATTEMPTS && !controller.signal.aborted; attempt++) {
 				try {
-					const res = await fetch('/api/teams/handoff', { method: 'POST', credentials: 'same-origin' });
+					const res = await fetch('/api/teams/handoff', {
+						method: 'POST',
+						credentials: 'same-origin',
+						signal: controller.signal
+					});
 					if (res.ok) {
 						const { token } = (await res.json()) as { token: string | null };
-						if (token) {
+						if (token && !controller.signal.aborted) {
 							// Use Teams's native session management
 							setAccessToken(token);
 						}
@@ -39,13 +45,23 @@ export function TeamsAuthHandler(): ReactElement | null {
 					}
 					if (res.status === 401) return;
 				} catch (error) {
+					if (controller.signal.aborted) return;
 					console.warn('❌ Teams authentication failed:', error);
 				}
-				if (attempt < HANDOFF_ATTEMPTS) await new Promise((resolve) => setTimeout(resolve, attempt * 1_000));
+				if (attempt < HANDOFF_ATTEMPTS) {
+					await new Promise<void>((resolve) => {
+						const timer = setTimeout(resolve, attempt * 1_000);
+						controller.signal.addEventListener('abort', () => {
+							clearTimeout(timer);
+							resolve();
+						});
+					});
+				}
 			}
 		};
 
 		void collectTeamsToken();
+		return () => controller.abort();
 	}, [accessToken, setAccessToken]);
 
 	// This component renders nothing visible
