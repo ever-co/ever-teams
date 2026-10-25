@@ -53,6 +53,8 @@ jobs:
               core.warning('No vX.Y.Z tag on ever-co/ever-teams: the builds pick their own version');
               return;
             }
+            // Output first: if the release calls below fail, the builds still share this version and publish-release still runs
+            core.setOutput('tag', tag);
             // A draft has no git tag yet, so it is looked up in the release list (as electron-builder does)
             const { data: releases } = await github.rest.repos.listReleases({ owner, repo, per_page: 100 });
             const existing = releases.find((r) => r.tag_name === tag);
@@ -62,7 +64,6 @@ jobs:
               const { data } = await github.rest.repos.createRelease({ owner, repo, tag_name: tag, name: tag.slice(1), draft: true });
               core.info(`Created the draft ${owner}/${repo} ${tag}: ${data.html_url}`);
             }
-            core.setOutput('tag', tag);
 
   release-linux:
     needs: create-release
