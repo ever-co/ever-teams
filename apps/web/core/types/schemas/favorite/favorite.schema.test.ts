@@ -51,9 +51,10 @@ describe('favoriteSchema (favorites list read)', () => {
 	});
 
 	it('accepts an entity type Gauzy adds later without failing the whole list', () => {
-		const items = [favoriteOn(EBaseEntityEnum.Task, taskId), favoriteOn('EntityAddedLater')];
+		const taskFavorite = favoriteOn(EBaseEntityEnum.Task, taskId);
+		const laterTypeFavorite = favoriteOn('EntityAddedLater');
 
-		const favorites = readFavorites(items);
+		const favorites = readFavorites([taskFavorite, laterTypeFavorite]);
 
 		expect(favorites.items).toHaveLength(2);
 	});
