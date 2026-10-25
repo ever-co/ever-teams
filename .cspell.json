@@ -8,6 +8,7 @@
 		"HMAC",
 		"fflate",
 		"msgpackr",
+		"vsversion",
 		"autocapture",
 		"xlink",
 		"Fanything",
