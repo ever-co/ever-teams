@@ -1,19 +1,21 @@
 import { APP_NAME } from '@/core/constants/config/constants';
-import { pickTokenOrganization } from '@/core/lib/auth/jwt-utils';
 import { setAuthCookies, setNoTeamPopupShowCookie } from '@/core/lib/helpers/cookies';
 import { unwrapRejection } from '@/core/services/server/fetch';
 import {
 	AcceptInviteParams,
 	acceptInviteRequest,
 	getAllOrganizationTeamRequest,
-	getUserOrganizationsRequest
+	getUserOrganizationsRequest,
+	verifyInviteCodeRequest
 } from '@/core/services/server/requests';
+import { IUserOrganization } from '@/core/types/interfaces/organization/user-organization';
 import { NextResponse } from 'next/server';
 
 /**
  * Proxy mode twin of Gauzy's public `POST /invite/accept`, sent by the page of the invitation e-mail link. Like the
- * passcode sign-in (`/api/auth/login`), it then reads the organization and the first team with the new token and sets
- * the session cookies on its answer, so the invitee is signed in. The body is Gauzy's own answer, as in direct mode.
+ * passcode sign-in (`/api/auth/login`), it then reads the invited organization and its first team with the new token
+ * and sets the session cookies on its answer, so the invitee is signed in. The body is Gauzy's own answer, as in
+ * direct mode.
  */
 export async function POST(req: Request) {
 	// The answer signs the browser in: another site can post a form or plain text here without a CORS preflight, but
@@ -35,6 +37,9 @@ export async function POST(req: Request) {
 }
 
 async function acceptAndSignIn(req: Request, input: AcceptInviteParams) {
+	// Read before the accept, which closes the invitation
+	const invitedOrganizationName = await invitedOrganizationNameOf(input);
+
 	const { data: accepted, response: acceptance } = await acceptInviteRequest(input);
 
 	const tenantId = accepted.user?.tenantId || '';
@@ -42,7 +47,7 @@ async function acceptAndSignIn(req: Request, input: AcceptInviteParams) {
 	const userId = accepted.user?.id;
 
 	const { data: organizations } = await getUserOrganizationsRequest({ tenantId, userId }, access_token);
-	const organization = pickTokenOrganization(organizations?.items, access_token);
+	const organization = pickInvitedOrganization(organizations?.items, invitedOrganizationName);
 	if (!organization) {
 		const message = `Your account is not yet ready to be used on the ${APP_NAME} Platform`;
 		return NextResponse.json({ statusCode: 400, message }, { status: 400 });
@@ -75,6 +80,37 @@ async function acceptAndSignIn(req: Request, input: AcceptInviteParams) {
 	);
 
 	return res;
+}
+
+/**
+ * The name of the organization the code invites to, from the same Gauzy check the accept page makes before it shows
+ * the form. Undefined when that check gives no answer: the accept then checks the code on its own.
+ */
+async function invitedOrganizationNameOf({ email, code }: AcceptInviteParams): Promise<string | undefined> {
+	try {
+		const { data: invitation } = await verifyInviteCodeRequest({ email, code });
+		return invitation?.organization?.name;
+	} catch {
+		return undefined;
+	}
+}
+
+/**
+ * The invited organization, else the first one: the pick the accept page makes in direct mode, so a member of several
+ * organizations lands in the one they were invited to (the app then moves the token there, as after any sign-in).
+ */
+function pickInvitedOrganization(
+	items: IUserOrganization[] | undefined,
+	invitedOrganizationName: string | undefined
+): IUserOrganization | undefined {
+	if (invitedOrganizationName) {
+		const invited = items?.find((item) => item.organization?.name === invitedOrganizationName);
+		if (invited) {
+			return invited;
+		}
+	}
+
+	return items?.[0];
 }
 
 function isJsonBody(req: Request): boolean {

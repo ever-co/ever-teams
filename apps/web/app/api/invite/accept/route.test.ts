@@ -1,7 +1,7 @@
 /**
  * Proxy mode: the page of the invitation e-mail link posts /api/invite/accept, which used to fall on the [id] route
- * (no POST, 405), so the invitee never joined nor got a session. The route accepts with Gauzy, reads the
- * organization and the first team with the new token, and signs the browser in on its answer, like /api/auth/login.
+ * (no POST, 405), so the invitee never joined nor got a session. The route accepts with Gauzy, reads the invited
+ * organization and its first team with the new token, and signs the browser in on its answer, like /api/auth/login.
  */
 import { NextRequest } from 'next/server';
 import {
@@ -23,6 +23,15 @@ const INVITATION = {
 	email: INVITED.email
 };
 
+/** Gauzy's answer to the invitation check the accept page makes (`POST /invite/validate-by-code`). */
+const INVITATION_CHECK = {
+	id: 'invite-1',
+	email: INVITED.email,
+	fullName: 'Invited Person',
+	organization: { name: 'Acme' },
+	isExpired: false
+};
+
 type GauzyAnswer = { status: number; body: unknown };
 
 const originalFetch = global.fetch;
@@ -31,18 +40,27 @@ afterEach(() => {
 	global.fetch = originalFetch;
 });
 
-/** A token that decodes like Gauzy's, acting in the invited organization (pickTokenOrganization reads it). */
-function invitedAccessToken(): string {
+/** A token that decodes like Gauzy's, acting in `organizationId` (the invited organization by default). */
+function invitedAccessToken(organizationId: string = INVITED.organizationId): string {
 	const now = Math.floor(Date.now() / 1000);
 	const header = base64Url({ alg: 'HS256', typ: 'JWT' });
 	const payload = base64Url({
 		id: INVITED.userId,
 		tenantId: INVITED.tenantId,
-		organizationId: INVITED.organizationId,
+		organizationId,
 		iat: now,
 		exp: now + 3600
 	});
 	return `${header}.${payload}.signature`;
+}
+
+/** Gauzy's answer to an accept that signs the invitee in with `token`. */
+function acceptedAnswer(token: string) {
+	return {
+		user: { id: INVITED.userId, tenantId: INVITED.tenantId, email: INVITED.email },
+		token,
+		refresh_token: INVITED.refreshToken
+	};
 }
 
 function base64Url(part: object): string {
@@ -53,8 +71,7 @@ function base64Url(part: object): string {
 /** Gauzy answers each call by method and path (`POST /invite/accept`); a call it does not expect gets a 404. */
 function gauzyAnswers(answers: Record<string, GauzyAnswer>): jest.Mock {
 	const fetchMock = jest.fn(async (url: string, init: RequestInit) => {
-		const pathAndQuery = url.slice(GAUZY_API_SERVER_URL.length);
-		const [path] = pathAndQuery.split('?');
+		const path = gauzyPathOf(url);
 		const answer = answers[`${init.method} ${path}`];
 		if (!answer) return Response.json({ statusCode: 404, message: 'Not Found' }, { status: 404 });
 
@@ -62,6 +79,21 @@ function gauzyAnswers(answers: Record<string, GauzyAnswer>): jest.Mock {
 	});
 	global.fetch = fetchMock as unknown as typeof fetch;
 	return fetchMock;
+}
+
+function gauzyPathOf(url: string): string {
+	const pathAndQuery = url.slice(GAUZY_API_SERVER_URL.length);
+	const [path] = pathAndQuery.split('?');
+	return path;
+}
+
+/** Each call the route made to Gauzy, in order, by method and path. */
+function gauzyCalls(fetchMock: jest.Mock): string[] {
+	const calls = fetchMock.mock.calls as Array<[string, RequestInit]>;
+	return calls.map(([url, init]) => {
+		const path = gauzyPathOf(url);
+		return `${init.method} ${path}`;
+	});
 }
 
 function acceptRequest(contentType = 'application/json') {
@@ -73,19 +105,19 @@ function acceptRequest(contentType = 'application/json') {
 }
 
 describe('POST /api/invite/accept', () => {
-	it('accepts with Gauzy, then signs the invitee in to the organization of the new token and its first team', async () => {
+	it('accepts with Gauzy, then signs the invitee in to the invited organization and its first team', async () => {
 		const token = invitedAccessToken();
-		const accepted = {
-			user: { id: INVITED.userId, tenantId: INVITED.tenantId, email: INVITED.email },
-			token,
-			refresh_token: INVITED.refreshToken
-		};
+		const accepted = acceptedAnswer(token);
 		const fetchMock = gauzyAnswers({
+			'POST /invite/validate-by-code': { status: 201, body: INVITATION_CHECK },
 			'POST /invite/accept': { status: 201, body: accepted },
 			'GET /user-organization': {
 				status: 200,
 				body: {
-					items: [{ organizationId: 'org-of-another-invite' }, { organizationId: INVITED.organizationId }],
+					items: [
+						{ organizationId: 'org-of-another-invite', organization: { name: 'Another' } },
+						{ organizationId: INVITED.organizationId, organization: { name: 'Acme' } }
+					],
 					total: 2
 				}
 			},
@@ -98,7 +130,9 @@ describe('POST /api/invite/accept', () => {
 		expect(response.status).toBe(201);
 		await expect(response.json()).resolves.toEqual(accepted);
 
-		const [acceptCall, organizationsCall, teamsCall] = fetchMock.mock.calls as Array<[string, RequestInit]>;
+		const calls = fetchMock.mock.calls as Array<[string, RequestInit]>;
+		const [checkCall, acceptCall, organizationsCall, teamsCall] = calls;
+		expect(JSON.parse(String(checkCall[1].body))).toEqual({ email: INVITED.email, code: INVITED.code });
 		expect(JSON.parse(String(acceptCall[1].body))).toEqual(INVITATION);
 		expect(organizationsCall[1].headers).toEqual(expect.objectContaining({ authorization: `Bearer ${token}` }));
 		expect(teamsCall[1].headers).toEqual(expect.objectContaining({ authorization: `Bearer ${token}` }));
@@ -112,6 +146,63 @@ describe('POST /api/invite/accept', () => {
 		expect(cookies).toContain(`${ACTIVE_TEAM_COOKIE_NAME}=${INVITED.teamId}`);
 	});
 
+	it('signs a member of several organizations in to the invited one by name, as the accept page does in direct mode', async () => {
+		// Gauzy's token acts in the organization the user already belonged to, also the first of the list
+		const token = invitedAccessToken('org-before-the-invite');
+		gauzyAnswers({
+			'POST /invite/validate-by-code': { status: 201, body: INVITATION_CHECK },
+			'POST /invite/accept': { status: 201, body: acceptedAnswer(token) },
+			'GET /user-organization': {
+				status: 200,
+				body: {
+					items: [
+						{ organizationId: 'org-before-the-invite', organization: { name: 'Before' } },
+						{ organizationId: INVITED.organizationId, organization: { name: 'Acme' } }
+					],
+					total: 2
+				}
+			},
+			'GET /organization-team': { status: 200, body: { items: [{ id: INVITED.teamId }], total: 1 } }
+		});
+
+		const response = await POST(acceptRequest());
+
+		expect(response.status).toBe(201);
+		const cookies = response.headers.get('set-cookie') ?? '';
+		expect(cookies).toContain(`${ORGANIZATION_ID_COOKIE_NAME}=${INVITED.organizationId}`);
+		expect(cookies).not.toContain(`${ORGANIZATION_ID_COOKIE_NAME}=org-before-the-invite`);
+	});
+
+	it('still accepts when the invitation check gives no answer, and takes the first organization like direct mode', async () => {
+		const token = invitedAccessToken('org-2');
+		const fetchMock = gauzyAnswers({
+			'POST /invite/accept': { status: 201, body: acceptedAnswer(token) },
+			'GET /user-organization': {
+				status: 200,
+				body: {
+					items: [
+						{ organizationId: INVITED.organizationId, organization: { name: 'Acme' } },
+						{ organizationId: 'org-2', organization: { name: 'Second' } }
+					],
+					total: 2
+				}
+			},
+			'GET /organization-team': { status: 200, body: { items: [{ id: INVITED.teamId }], total: 1 } }
+		});
+
+		const response = await POST(acceptRequest());
+
+		expect(response.status).toBe(201);
+		expect(gauzyCalls(fetchMock)).toEqual([
+			'POST /invite/validate-by-code',
+			'POST /invite/accept',
+			'GET /user-organization',
+			'GET /organization-team'
+		]);
+		const cookies = response.headers.get('set-cookie') ?? '';
+		expect(cookies).toContain(`${ORGANIZATION_ID_COOKIE_NAME}=${INVITED.organizationId}`);
+	});
+
 	it.each([
 		['the status its body names', 429, { statusCode: 429, message: 'ThrottlerException: Too Many Requests' }],
 		['a 400 when its body names none', 400, { message: 'Invite does not exist' }]
@@ -122,7 +213,8 @@ describe('POST /api/invite/accept', () => {
 
 		expect(response.status).toBe(status);
 		await expect(response.json()).resolves.toEqual(body);
-		expect(fetchMock).toHaveBeenCalledTimes(1);
+		// Nothing is read with a token after the refusal
+		expect(gauzyCalls(fetchMock)).toEqual(['POST /invite/validate-by-code', 'POST /invite/accept']);
 		expect(response.headers.get('set-cookie')).toBeNull();
 	});
 
