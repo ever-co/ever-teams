@@ -49,6 +49,15 @@ function isTaskOfTeam(tasks: TTask[], taskId: string, teamId: string | undefined
 	return taskTeams.some((taskTeam) => taskTeam?.id === teamId);
 }
 
+/** Whether the employee is a member of the team, matched like the Employee field reads a member's employee id. */
+function isEmployeeOfTeam(team: TOrganizationTeam | null | undefined, employeeId: string): boolean {
+	const members = team?.members ?? [];
+	return members.some((member) => {
+		const memberEmployeeId = member.employeeId ?? member.employee?.id;
+		return memberEmployeeId === employeeId;
+	});
+}
+
 export function AddManualTimeModal(props: Readonly<IAddManualTimeModalProps>) {
 	const { closeModal, isOpen, params, timeSheetStatus } = props;
 	const t = useTranslations();
@@ -154,6 +163,14 @@ export function AddManualTimeModal(props: Readonly<IAddManualTimeModalProps>) {
 				return;
 			}
 
+			// Same for an employee picked in the Calendar dialog: a member of the previous team is not sent
+			const hasPickedEmployee = employeeId !== '';
+			const isEmployeeOfTeamToSave = isEmployeeOfTeam(teamToSave, employeeId);
+			if (hasPickedEmployee && !isEmployeeOfTeamToSave) {
+				setErrorMsg('Please complete: Employee');
+				return;
+			}
+
 			if (endTime <= startTime) {
 				setErrorMsg('End time must be after start time');
 				return;
@@ -175,7 +192,8 @@ export function AddManualTimeModal(props: Readonly<IAddManualTimeModalProps>) {
 			team,
 			activeTeam,
 			teamToSave,
-			tasks
+			tasks,
+			employeeId
 		]
 	);
 

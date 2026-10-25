@@ -7,6 +7,13 @@ import { AddManualTimeModal } from './add-manual-time-modal';
 const mockAddManualTime = jest.fn();
 const mockAtomValues: Record<string, unknown> = {};
 
+type MockItem = Record<string, unknown>;
+
+type MockManageOrMemberProps = {
+	itemsLists: Record<string, MockItem[]>;
+	handleChange: (field: string, item: MockItem | null) => void;
+};
+
 type MockCustomSelectProps = {
 	ariaLabel?: string;
 	options: Array<Record<string, unknown>>;
@@ -57,13 +64,9 @@ jest.mock('lucide-react', () => ({
 
 jest.mock('@/core/constants/config/constants', () => ({ manualTimeReasons: [] }));
 
-jest.mock('@/core/lib/helpers', () => ({
-	cn: (...classes: unknown[]) => classes.filter(Boolean).join(' ')
-}));
+jest.mock('@/core/lib/helpers', () => ({ cn: () => '' }));
 
-jest.mock('@/core/lib/utils', () => ({
-	clsxm: (...classes: unknown[]) => classes.filter(Boolean).join(' ')
-}));
+jest.mock('@/core/lib/utils', () => ({ clsxm: () => '' }));
 
 jest.mock('@/core/components', () => ({
 	Button: (props: React.ButtonHTMLAttributes<HTMLButtonElement> & { loading?: boolean }) => {
@@ -76,9 +79,26 @@ jest.mock('@/core/components', () => ({
 
 jest.mock('@/core/components/common/date-picker', () => ({ DatePicker: () => null }));
 
+// The Calendar dialog picks its employee and its task through ManageOrMemberComponent: one button per listed item
+function mockPickButtons(field: string, items: MockItem[], handleChange: MockManageOrMemberProps['handleChange']) {
+	return items.map((item) => {
+		const itemId = String(item.employeeId ?? item.id);
+		return (
+			<button key={itemId} type="button" onClick={() => handleChange(field, item)}>
+				{`pick ${itemId}`}
+			</button>
+		);
+	});
+}
+
 jest.mock('../../teams/manage-member-component', () => ({
 	getNestedValue: () => '',
-	ManageOrMemberComponent: () => null
+	ManageOrMemberComponent: ({ itemsLists, handleChange }: MockManageOrMemberProps) => (
+		<>
+			{mockPickButtons('Employee', itemsLists.Employee, handleChange)}
+			{mockPickButtons('Task', itemsLists.Task, handleChange)}
+		</>
+	)
 }));
 
 // A select is either controlled or uncontrolled, so only one of the two props is passed on
@@ -98,17 +118,25 @@ jest.mock('../../common/multiple-select', () => ({
 			onChange={(event) => onChange?.(event.target.value)}
 		>
 			<option value="">Select an option</option>
-			{options.map((option) => (
-				<option key={String(option[valueKey])} value={String(option[valueKey])}>
-					{String(option[valueKey])}
-				</option>
-			))}
+			{options.map((option) => {
+				const optionValue = String(option[valueKey]);
+				return (
+					<option key={optionValue} value={optionValue}>
+						{optionValue}
+					</option>
+				);
+			})}
 		</select>
 	)
 }));
 
-const teamA = { id: 'team-a', name: 'Team A', organizationId: 'org-1', projects: [], members: [] };
-const teamB = { id: 'team-b', name: 'Team B', organizationId: 'org-1', projects: [], members: [] };
+function teamWithMember(teamId: string, employeeId: string) {
+	const member = { id: `${teamId}-member`, employeeId, employee: { id: employeeId, fullName: employeeId } };
+	return { id: teamId, name: teamId, organizationId: 'org-1', projects: [], members: [member] };
+}
+
+const teamA = teamWithMember('team-a', 'employee-a');
+const teamB = teamWithMember('team-b', 'employee-b');
 const taskA = { id: 'task-a', title: 'Task A', teams: [{ id: 'team-a' }], members: [] };
 const otherTaskA = { id: 'task-a-2', title: 'Task A 2', teams: [{ id: 'team-a' }], members: [] };
 const sharedTask = { id: 'task-shared', title: 'Shared', teams: [{ id: 'team-a' }, { id: 'team-b' }], members: [] };
@@ -120,12 +148,35 @@ const teamBTasks = () => [taskB, sharedTask];
 
 const closeModal = jest.fn();
 
-function renderAddTimeDialog() {
-	const view = render(<AddManualTimeModal isOpen params="AddTime" closeModal={closeModal} />);
-	const [startInput, endInput] = Array.from(view.container.querySelectorAll('input[type="time"]'));
+function fillTimes(container: HTMLElement) {
+	const timeInputs = container.querySelectorAll('input[type="time"]');
+	const [startInput, endInput] = Array.from(timeInputs);
 	fireEvent.change(startInput, { target: { value: '09:00' } });
 	fireEvent.change(endInput, { target: { value: '11:00' } });
+}
+
+function renderAddTimeDialog() {
+	const view = render(<AddManualTimeModal isOpen params="AddTime" closeModal={closeModal} />);
+	fillTimes(view.container);
 	return view;
+}
+
+// The Calendar opens the dialog for a manager, with an Employee field. A new element each time, so a rerender renders.
+function calendarDialog() {
+	return (
+		<AddManualTimeModal isOpen params="AddManuelTime" timeSheetStatus="ManagerTimesheet" closeModal={closeModal} />
+	);
+}
+
+function renderCalendarDialog() {
+	const view = render(calendarDialog());
+	fillTimes(view.container);
+	return view;
+}
+
+function clickButton(name: string) {
+	const button = screen.getByRole('button', { name });
+	fireEvent.click(button);
 }
 
 // A task list refetch hands the dialog a new array, which re-runs its initialization effect
@@ -143,15 +194,17 @@ function switchActiveTeamToB(rerender: ReturnType<typeof render>['rerender']) {
 }
 
 function pickInSelect(ariaLabel: string, value: string) {
-	fireEvent.change(screen.getByLabelText(ariaLabel), { target: { value } });
+	const select = screen.getByLabelText(ariaLabel);
+	fireEvent.change(select, { target: { value } });
 }
 
 function selectedValue(ariaLabel: string) {
-	return (screen.getByLabelText(ariaLabel) as HTMLSelectElement).value;
+	const select = screen.getByLabelText(ariaLabel) as HTMLSelectElement;
+	return select.value;
 }
 
 function submitDialog() {
-	fireEvent.click(screen.getByRole('button', { name: 'common.ADD_TIME' }));
+	clickButton('common.ADD_TIME');
 }
 
 describe('AddManualTimeModal team of the saved time', () => {
@@ -241,6 +294,39 @@ describe('AddManualTimeModal team of the saved time', () => {
 
 		expect(mockAddManualTime).toHaveBeenCalledWith(
 			expect.objectContaining({ organizationTeamId: 'team-b', taskId: 'task-b' })
+		);
+	});
+
+	it('saves the Calendar time with an employee of the active team', () => {
+		renderCalendarDialog();
+
+		clickButton('pick employee-a');
+		submitDialog();
+
+		expect(mockAddManualTime).toHaveBeenCalledWith(
+			expect.objectContaining({ organizationTeamId: 'team-a', taskId: 'task-a', employeeId: 'employee-a' })
+		);
+	});
+
+	it('does not send an employee of the previous team after the active team switches', () => {
+		const { rerender } = renderCalendarDialog();
+
+		clickButton('pick employee-a');
+		mockAtomValues.activeTeamState = teamB;
+		mockAtomValues.activeTeamTaskState = null;
+		mockAtomValues.tasksByTeamState = teamBTasks();
+		rerender(calendarDialog());
+		clickButton('pick task-b');
+		submitDialog();
+
+		expect(mockAddManualTime).not.toHaveBeenCalled();
+		expect(screen.getByText('Please complete: Employee')).toBeTruthy();
+
+		clickButton('pick employee-b');
+		submitDialog();
+
+		expect(mockAddManualTime).toHaveBeenCalledWith(
+			expect.objectContaining({ organizationTeamId: 'team-b', taskId: 'task-b', employeeId: 'employee-b' })
 		);
 	});
 });
