@@ -735,10 +735,12 @@ export function TaskCardMenu({
 
 	const { isTeammateProfile, ensureMyDailyPlans, todayPlans, futurePlans, isPlansLoading } = useMenuPlans(profile);
 
-	// The API lets only the team's managers, or a holder of CHANGE_SELECTED_EMPLOYEE, plan for another member
+	// The API lets only the team's managers, or a holder of CHANGE_SELECTED_EMPLOYEE, change another member's plans
 	const canActForOthers = myPermissions.includes('CHANGE_SELECTED_EMPLOYEE');
 	const canPlanForTeammate = canSeeActivity || canActForOthers;
 	const canPlanForProfileMember = !isTeammateProfile || canPlanForTeammate;
+	const canRemoveForTeammate = isTeammateProfile && canPlanForTeammate;
+	const showRemoveEntries = canSeeActivity || canRemoveForTeammate;
 
 	const isOutstandingTab = viewType === 'dailyplan' && planMode === 'Outstanding';
 	const isPlanEntriesView = viewType === 'default' || isOutstandingTab;
@@ -873,7 +875,7 @@ export function TaskCardMenu({
 
 						{viewType === 'dailyplan' && (planMode === 'Today Tasks' || planMode === 'Future Tasks') && (
 							<>
-								{canSeeActivity ? (
+								{showRemoveEntries ? (
 									<div>
 										<DropdownMenuSeparator className="my-2" />
 										<DropdownMenuItem className="p-0 mt-2 transition-all duration-300 hover:font-semibold  hover:!bg-transparent">
