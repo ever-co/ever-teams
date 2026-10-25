@@ -10,14 +10,6 @@ jest.mock('@/core/lib/helpers/cookies', () => ({
 	getTenantIdCookie: () => 'cookie-tenant'
 }));
 
-jest.mock('@/core/services/logs/logger.service', () => ({
-	Logger: { getInstance: () => ({ debug: jest.fn(), error: jest.fn() }) }
-}));
-
-jest.mock('@/core/services/logs/logger-adapter.service', () => ({
-	HttpLoggerAdapter: jest.fn().mockImplementation(() => ({ logError: jest.fn() }))
-}));
-
 type CountsRange = Pick<ITimeLogReportDailyRequest, 'startDate' | 'endDate'>;
 
 const countsRequest: ITimeLogReportDailyRequest = {
