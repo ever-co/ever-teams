@@ -16,19 +16,26 @@ permissions:
   contents: read
 
 jobs:
-  # electron-builder creates the GitHub release lazily, so every platform job below (and the x64 and arm64
-  # publishers inside one job) races to create the same release, and all but one fail with 422 "Published releases
-  # must have a valid tag" (Release Apps v0.146.28, 2026-10-25). This job creates it first, for the version the bump
-  # step computes (the newest vX.Y.Z tag of ever-co/ever-teams); electron-builder then uploads into it
-  # (EP_GH_IGNORE_TIME lets it use a release older than 2 hours). The builds still run if this job fails.
+  # electron-builder creates the GitHub release lazily, so the platform jobs below (and the x64 and arm64
+  # publishers inside one job) raced to create the same release and all but one failed with 422 "Published releases
+  # must have a valid tag". Each job also read "the newest tag" for itself, so a tag made meanwhile (a main release)
+  # split one run over two versions (Release Apps v0.146.28, 2026-10-25: 0.146.34 and 0.146.35).
+  # This job picks the version once, hands it to every build, and creates its release as a DRAFT: electron-builder
+  # uploads into a draft with the same tag, and nothing is public before publish-release runs. If this job fails,
+  # the builds fall back to the old way (each picks the newest tag, electron-builder creates the release).
   create-release:
     runs-on: ${{ vars.RUNNER_LINUX_X64_4 || 'ubuntu-latest' }}
     timeout-minutes: 10
+    continue-on-error: true
 
     environment: prod
 
+    outputs:
+      tag: ${{ steps.prepare.outputs.tag }}
+
     steps:
-      - name: Create the GitHub release before the platform builds
+      - name: Pick the version and create its draft release
+        id: prepare
         uses: actions/github-script@v7
         with:
           github-token: ${{ secrets.GH_TOKEN }}
@@ -43,18 +50,19 @@ jobs:
               .sort((a, b) => a.localeCompare(b, undefined, { numeric: true }))
               .pop();
             if (!tag) {
-              core.notice('No vX.Y.Z tag on ever-co/ever-teams: electron-builder creates the release');
+              core.warning('No vX.Y.Z tag on ever-co/ever-teams: the builds pick their own version');
               return;
             }
-            try {
-              const { data } = await github.rest.repos.getReleaseByTag({ owner, repo, tag });
-              core.info(`${owner}/${repo} release ${tag} already exists: ${data.html_url}`);
-              return;
-            } catch (error) {
-              if (error.status !== 404) throw error;
+            // A draft has no git tag yet, so it is looked up in the release list (as electron-builder does)
+            const { data: releases } = await github.rest.repos.listReleases({ owner, repo, per_page: 100 });
+            const existing = releases.find((r) => r.tag_name === tag);
+            if (existing) {
+              core.info(`${owner}/${repo} ${tag} exists (${existing.draft ? 'draft' : 'published'}): ${existing.html_url}`);
+            } else {
+              const { data } = await github.rest.repos.createRelease({ owner, repo, tag_name: tag, name: tag.slice(1), draft: true });
+              core.info(`Created the draft ${owner}/${repo} ${tag}: ${data.html_url}`);
             }
-            const { data } = await github.rest.repos.createRelease({ owner, repo, tag_name: tag, name: tag.slice(1) });
-            core.info(`Created ${owner}/${repo} release ${tag}: ${data.html_url}`);
+            core.setOutput('tag', tag);
 
   release-linux:
     needs: create-release
@@ -200,6 +208,8 @@ jobs:
             const script = require('./.scripts/bump-version-electron.js')
             console.log(script.desktopTimer(true))
         env:
+          # The version create-release picked (empty if it failed: the script then picks the newest tag)
+          GAUZY_RELEASE_TAG: ${{ needs.create-release.outputs.tag }}
           PROJECT_REPO: "https://github.com/ever-co/ever-teams.git"
           DESKTOP_TIMER_APP_NAME: "ever-teams-desktop"
           DESKTOP_TIMER_APP_REPO_NAME: 'ever-teams-desktop'
@@ -547,6 +557,8 @@ jobs:
             const script = require('./.scripts/bump-version-electron.js')
             console.log(script.desktopTimer(true))
         env:
+          # The version create-release picked (empty if it failed: the script then picks the newest tag)
+          GAUZY_RELEASE_TAG: ${{ needs.create-release.outputs.tag }}
           PROJECT_REPO: "https://github.com/ever-co/ever-teams.git"
           DESKTOP_TIMER_APP_NAME: "ever-teams-desktop"
           DESKTOP_TIMER_APP_REPO_NAME: 'ever-teams-desktop'
@@ -849,6 +861,8 @@ jobs:
             const script = require('./.scripts/bump-version-electron.js')
             console.log(script.desktopTimer(true))
         env:
+          # The version create-release picked (empty if it failed: the script then picks the newest tag)
+          GAUZY_RELEASE_TAG: ${{ needs.create-release.outputs.tag }}
           PROJECT_REPO: "https://github.com/ever-co/ever-teams.git"
           DESKTOP_TIMER_APP_NAME: "ever-teams-desktop"
           DESKTOP_TIMER_APP_REPO_NAME: 'ever-teams-desktop'
@@ -1240,6 +1254,8 @@ jobs:
             const script = require('./.scripts/bump-version-electron.js')
             console.log(script.desktopTimer(true))
         env:
+          # The version create-release picked (empty if it failed: the script then picks the newest tag)
+          GAUZY_RELEASE_TAG: ${{ needs.create-release.outputs.tag }}
           PROJECT_REPO: "https://github.com/ever-co/ever-teams.git"
           DESKTOP_TIMER_APP_NAME: "ever-teams-desktop"
           DESKTOP_TIMER_APP_REPO_NAME: 'ever-teams-desktop'
@@ -1623,6 +1639,8 @@ jobs:
             const script = require('./.scripts/bump-version-electron.js')
             console.log(script.desktopTimer(true))
         env:
+          # The version create-release picked (empty if it failed: the script then picks the newest tag)
+          GAUZY_RELEASE_TAG: ${{ needs.create-release.outputs.tag }}
           PROJECT_REPO: "https://github.com/ever-co/ever-teams.git"
           DESKTOP_TIMER_APP_NAME: "ever-teams-desktop"
           DESKTOP_TIMER_APP_REPO_NAME: 'ever-teams-desktop'
@@ -1818,3 +1836,42 @@ jobs:
             }
             console.log("trimmed " + removed + " oldest entries; " + dir + " is now " + mb(total) + " MB");
           '
+
+  # Publishes the draft that create-release made, once the builds are done, with whatever they uploaded: as before, a
+  # failed platform does not hold back the others, and re-running it uploads into the published release. A draft
+  # with no assets (every build failed) stays a draft.
+  publish-release:
+    needs: [create-release, release-linux, release-linux-arm64, release-mac, release-windows, release-windows-arm64]
+    if: ${{ !cancelled() && needs.create-release.outputs.tag != '' }}
+    runs-on: ${{ vars.RUNNER_LINUX_X64_4 || 'ubuntu-latest' }}
+    timeout-minutes: 10
+
+    environment: prod
+
+    steps:
+      - name: Publish the draft release
+        uses: actions/github-script@v7
+        env:
+          RELEASE_TAG: ${{ needs.create-release.outputs.tag }}
+        with:
+          github-token: ${{ secrets.GH_TOKEN }}
+          script: |
+            const owner = 'ever-co';
+            const repo = 'ever-teams-desktop';
+            const tag = process.env.RELEASE_TAG;
+            const { data: releases } = await github.rest.repos.listReleases({ owner, repo, per_page: 100 });
+            const release = releases.find((r) => r.tag_name === tag);
+            if (!release) {
+              core.setFailed(`${owner}/${repo} has no release ${tag}`);
+              return;
+            }
+            if (!release.draft) {
+              core.info(`${tag} is already published: ${release.html_url}`);
+              return;
+            }
+            if (release.assets.length === 0) {
+              core.warning(`${owner}/${repo} ${tag} has no assets (did every build fail?): left as a draft`);
+              return;
+            }
+            const { data } = await github.rest.repos.updateRelease({ owner, repo, release_id: release.id, draft: false });
+            core.info(`Published ${tag} with ${release.assets.length} assets: ${data.html_url}`);
