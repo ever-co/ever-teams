@@ -2,7 +2,7 @@
 
 import React from 'react';
 import moment from 'moment-timezone';
-import { render, screen } from '@testing-library/react';
+import { fireEvent, render, screen } from '@testing-library/react';
 import { FutureTasks } from './future-tasks';
 import { PastTasks } from './past-tasks';
 
@@ -46,7 +46,10 @@ jest.mock('../task-block-card', () => ({ __esModule: true, default: () => null }
 jest.mock('./table-view', () => ({ __esModule: true, default: () => null }));
 
 // 10:00 on 15 October in the test zone, later than the day the test modules were loaded
-const currentInstant = Date.parse('2026-10-15T08:00:00.000Z');
+const firstMorning = Date.parse('2026-10-15T08:00:00.000Z');
+// 10:00 the day after
+const nextMorning = Date.parse('2026-10-16T08:00:00.000Z');
+let clock = firstMorning;
 
 const isPlanOpen = (label: string) => {
 	const planLabel = screen.getByText(label);
@@ -58,12 +61,16 @@ describe('Future Tasks and Past Tasks default open plan', () => {
 	beforeAll(() => {
 		// UTC+2 all year, so a plan saved at the time it was created can sit on the UTC day before its own
 		moment.tz.setDefault('Africa/Lubumbashi');
-		jest.spyOn(Date, 'now').mockImplementation(() => currentInstant);
+		jest.spyOn(Date, 'now').mockImplementation(() => clock);
 	});
 
 	afterAll(() => {
 		jest.restoreAllMocks();
 		moment.tz.setDefault();
+	});
+
+	beforeEach(() => {
+		clock = firstMorning;
 	});
 
 	it("opens tomorrow's plan of the current day", () => {
@@ -84,6 +91,31 @@ describe('Future Tasks and Past Tasks default open plan', () => {
 		expect(isPlanOpen('Tomorrow (0)')).toBe('true');
 	});
 
+	it("opens the new tomorrow's plan on a render after midnight", () => {
+		mockPlans = [
+			{ id: 'plan-16', date: '2026-10-16T00:00:00.000Z', tasks: [] },
+			{ id: 'plan-17', date: '2026-10-17T00:00:00.000Z', tasks: [] }
+		];
+		const { rerender } = render(<FutureTasks profile={{}} employeeId="employee-1" />);
+		expect(isPlanOpen('Saturday, October 17, 2026 (0)')).toBe('false');
+
+		clock = nextMorning;
+		mockPlans = [{ id: 'plan-17', date: '2026-10-17T00:00:00.000Z', tasks: [] }];
+		rerender(<FutureTasks profile={{}} employeeId="employee-1" />);
+
+		expect(isPlanOpen('Tomorrow (0)')).toBe('true');
+	});
+
+	it('keeps a plan the user closed on a later render the same day', () => {
+		mockPlans = [{ id: 'plan-16', date: '2026-10-16T00:00:00.000Z', tasks: [] }];
+		const { rerender } = render(<FutureTasks profile={{}} employeeId="employee-1" />);
+		fireEvent.click(screen.getByText('Tomorrow (0)'));
+
+		rerender(<FutureTasks profile={{}} employeeId="employee-1" />);
+
+		expect(isPlanOpen('Tomorrow (0)')).toBe('false');
+	});
+
 	it("opens yesterday's plan of the current day", () => {
 		mockPlans = [
 			{ id: 'plan-yesterday', date: '2026-10-14T00:00:00.000Z', tasks: [] },
@@ -98,6 +130,20 @@ describe('Future Tasks and Past Tasks default open plan', () => {
 	it("opens yesterday's plan saved with the time it was created at", () => {
 		mockPlans = [{ id: 'plan-yesterday', date: '2026-10-13T22:30:00.000Z', tasks: [] }];
 		render(<PastTasks profile={{}} employeeId="employee-1" />);
+
+		expect(isPlanOpen('Yesterday (0)')).toBe('true');
+	});
+
+	it("opens the new yesterday's plan on a render after midnight", () => {
+		mockPlans = [{ id: 'plan-14', date: '2026-10-14T00:00:00.000Z', tasks: [] }];
+		const { rerender } = render(<PastTasks profile={{}} employeeId="employee-1" />);
+
+		clock = nextMorning;
+		mockPlans = [
+			{ id: 'plan-15', date: '2026-10-15T00:00:00.000Z', tasks: [] },
+			{ id: 'plan-14', date: '2026-10-14T00:00:00.000Z', tasks: [] }
+		];
+		rerender(<PastTasks profile={{}} employeeId="employee-1" />);
 
 		expect(isPlanOpen('Yesterday (0)')).toBe('true');
 	});

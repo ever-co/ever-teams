@@ -65,12 +65,19 @@ export function FutureTasks({
 
 	if (!futureDailyPlanTasks) return null;
 	const tomorrow = getTomorrowDate();
+	// The accordion is keyed by this day because Radix reads defaultValue on mount only:
+	// a new day opens its plan again, renders of the same day keep what the user opened
 	const tomorrowPlanDay = moment(tomorrow).format('YYYY-MM-DD');
 	return (
 		<div className="flex flex-col gap-6">
 			{dragPlans.length > 0 ? (
 				<DragDropContext onDragEnd={onDragEnd}>
-					<Accordion type="multiple" className="text-sm" defaultValue={[tomorrowPlanDay]}>
+					<Accordion
+						key={tomorrowPlanDay}
+						type="multiple"
+						className="text-sm"
+						defaultValue={[tomorrowPlanDay]}
+					>
 						{dragPlans.map((plan) => (
 							<AccordionItem
 								value={getDailyPlanDay(plan.date)}
