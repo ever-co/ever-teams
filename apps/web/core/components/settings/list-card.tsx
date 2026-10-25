@@ -94,9 +94,11 @@ export const StatusesListCard = ({
 				</Tooltip>
 
 				{showDeleteButton && (
-					<Button variant="ghost" className={ICON_BUTTON} onClick={onDelete} disabled={readOnly}>
-						<TrashIcon className="size-4" />
-					</Button>
+					<Tooltip label={t('pages.settingsTeam.TASK_SETTINGS_READ_ONLY')} enabled={readOnly}>
+						<Button variant="ghost" className={ICON_BUTTON} onClick={onDelete} disabled={readOnly}>
+							<TrashIcon className="size-4" />
+						</Button>
+					</Tooltip>
 				)}
 			</div>
 		</div>
