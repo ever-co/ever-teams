@@ -1,4 +1,5 @@
 import qs from 'qs';
+import moment from 'moment';
 import { APIService, getFallbackAPI } from '../../api.service';
 import { GAUZY_API_BASE_SERVER_URL } from '@/core/constants/config/constants';
 import { TTasksTimesheetStatisticsParams } from '../../../server/requests';
@@ -19,6 +20,40 @@ import {
 	type TProfileActivityResponse
 } from '@/core/types/schemas/activities/profile-activity.schema';
 import { scopedReadConfig, type ScopedReadOptions } from '../../api-request-scope';
+
+const CALENDAR_DAY_FORMAT = 'YYYY-MM-DD';
+
+// Only a plain 'YYYY-MM-DD' day is read, in the user's time zone. A Date or a full timestamp gives an invalid
+// moment, so it is sent as it is.
+const parseCalendarDay = (date: string | Date): moment.Moment => {
+	if (typeof date !== 'string') {
+		return moment.invalid();
+	}
+
+	return moment(date, CALENDAR_DAY_FORMAT, true);
+};
+
+const toStartOfLocalDay = (date: string | Date): string | Date => {
+	const day = parseCalendarDay(date);
+
+	if (!day.isValid()) {
+		return date;
+	}
+
+	const dayStart = day.startOf('day');
+	return dayStart.toISOString();
+};
+
+const toEndOfLocalDay = (date: string | Date): string | Date => {
+	const day = parseCalendarDay(date);
+
+	if (!day.isValid()) {
+		return date;
+	}
+
+	const dayEnd = day.endOf('day');
+	return dayEnd.toISOString();
+};
 
 class StatisticsService extends APIService {
 	getProfileActivity = async (
@@ -271,13 +306,17 @@ class StatisticsService extends APIService {
 		projectIds,
 		teamIds
 	}: ITimeLogReportDailyRequest): Promise<{ data: ITimesheetCountsStatistics }> => {
+		// Gauzy reads a plain day as 00:00 UTC: the range would stop at the start of its last day, and a
+		// single day would be refused because its start would not be before its end
+		const rangeStart = toStartOfLocalDay(startDate);
+		const rangeEnd = toEndOfLocalDay(endDate);
 		const queryString = qs.stringify(
 			{
 				activityLevel,
 				logType,
 				organizationId: this.organizationId,
-				startDate,
-				endDate,
+				startDate: rangeStart,
+				endDate: rangeEnd,
 				timeZone,
 				employeeIds,
 				projectIds,
