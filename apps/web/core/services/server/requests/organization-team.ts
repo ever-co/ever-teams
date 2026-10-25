@@ -7,7 +7,7 @@ import {
 	ITeamRequestParams
 } from '@/core/types/interfaces/team/organization-team';
 import moment from 'moment';
-import { serverFetch } from '../fetch';
+import { serverFetch, unwrapRejection } from '../fetch';
 import { createOrganizationProjectRequest, deleteOrganizationProjectRequest } from './project';
 import qs from 'qs';
 
@@ -33,17 +33,40 @@ export async function createOrganizationTeamRequest(datas: IOrganizationTeamCrea
 			tenantId: datas.tenantId
 		});
 	} catch (error) {
-		// The API refused the team (a 4xx answer, which serverFetch rejects with Gauzy's body): no team uses the project
-		// made for it, so it goes, and a retry does not leave one more behind. A network failure or a 5xx keeps it (the
-		// team may exist); so does a failed clean-up, which never hides the team's own error.
-		if (isRefusal(error) && project?.id) {
-			await deleteOrganizationProjectRequest(project.id, datas.tenantId, bearer_token).catch(() => undefined);
+		// The API refused the team (a 4xx answer: serverFetch rejects with a rejected promise of Gauzy's body, read with
+		// unwrapRejection): no team uses the project made for it, so it goes, and a retry does not leave one more behind.
+		// A network failure or a 5xx keeps it (the team may exist); so does a failed clean-up, which never hides the
+		// team's own error. The original rejection is rethrown as it was.
+		if (isRefusal(await unwrapRejection(error)) && project?.id) {
+			await withinCleanupTime(deleteOrganizationProjectRequest(project.id, datas.tenantId, bearer_token));
 		}
 		throw error;
 	}
 }
 
-/** Whether a serverFetch rejection is the API's own 4xx answer (Gauzy's error body), not a network failure. */
+/** At most this long for the clean-up: a hanging DELETE must not hold back the team's own error. */
+const CLEANUP_TIMEOUT_MS = 5_000;
+
+/** Waits for `cleanup` for up to {@link CLEANUP_TIMEOUT_MS}; never rejects. */
+async function withinCleanupTime(cleanup: Promise<unknown>): Promise<void> {
+	let timer: ReturnType<typeof setTimeout> | undefined;
+	const timeout = new Promise<void>((resolve) => {
+		timer = setTimeout(resolve, CLEANUP_TIMEOUT_MS);
+	});
+	try {
+		await Promise.race([
+			cleanup.then(
+				() => undefined,
+				() => undefined
+			),
+			timeout
+		]);
+	} finally {
+		clearTimeout(timer);
+	}
+}
+
+/** Whether an unwrapped serverFetch rejection is the API's own 4xx answer (Gauzy's error body), not a network failure. */
 function isRefusal(error: unknown): boolean {
 	const statusCode =
 		typeof error === 'object' && error !== null ? (error as { statusCode?: unknown }).statusCode : undefined;
