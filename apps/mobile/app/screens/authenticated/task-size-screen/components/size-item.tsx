@@ -7,15 +7,19 @@ import { typography, useAppTheme } from "../../../../theme"
 import { ITaskSizeItem } from "../../../../services/interfaces/ITaskSize"
 import { SvgUri } from "react-native-svg"
 import { formatName } from "../../../../helpers/name-format"
+import { readOnlyOpacity } from "../../../../helpers/read-only-opacity"
 
 interface ISizeItem {
 	size: ITaskSizeItem
 	onDeleteSize: () => unknown
 	openForEdit: () => unknown
+	/** Shows the edit and delete actions disabled, for a user who may not change this size. */
+	readOnly?: boolean
 }
 
-const StatusItem: FC<ISizeItem> = ({ size, onDeleteSize, openForEdit }) => {
+const StatusItem: FC<ISizeItem> = ({ size, onDeleteSize, openForEdit, readOnly = false }) => {
 	const { colors, dark } = useAppTheme()
+	const actionsOpacity = readOnlyOpacity(readOnly)
 	return (
 		<View
 			style={{
@@ -28,17 +32,19 @@ const StatusItem: FC<ISizeItem> = ({ size, onDeleteSize, openForEdit }) => {
 				<SvgUri width={20} height={20} uri={size?.fullIconUrl} />
 				<Text style={styles.text}>{formatName(size?.name)}</Text>
 			</View>
-			<View style={styles.rightSection}>
+			<View style={{ ...styles.rightSection, opacity: actionsOpacity }}>
 				<AntDesign
 					size={16}
 					name={"edit"}
 					color={colors.primary}
+					disabled={readOnly}
 					onPress={() => openForEdit()}
 				/>
 				<Ionicons
 					name="trash-outline"
 					size={16}
 					color={"#DE5536"}
+					disabled={readOnly}
 					onPress={() => onDeleteSize()}
 				/>
 			</View>

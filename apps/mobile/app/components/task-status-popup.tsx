@@ -14,6 +14,8 @@ import {
 } from 'react-native';
 import { Feather, AntDesign, Ionicons } from '@expo/vector-icons';
 import { useTaskStatus } from '../services/hooks/features/use-task-status';
+import { useTaskSettingsAccess } from '../services/hooks/features/use-task-settings-access';
+import { readOnlyOpacity } from '../helpers/read-only-opacity';
 import { ITaskStatusItem } from '../services/interfaces/ITaskStatus';
 import { spacing, typography, useAppTheme } from '../theme';
 import { translate } from '../i18n';
@@ -85,6 +87,10 @@ const TaskStatusPopup: FC<Props> = function FilterPopup({
 	const [createStatusMode, setCreateStatusMode] = useState<boolean>(false);
 
 	const { createStatus, updateStatus } = useTaskStatus();
+	const { canCreate, readOnlyHint } = useTaskSettingsAccess();
+	const createReadOnly = !canCreate;
+	const createOpacity = readOnlyOpacity(createReadOnly);
+	const showsReadOnlyHint = canCreateStatus && createReadOnly;
 
 	const onStatusSelected = (status: string) => {
 		setSelectedStatus(status);
@@ -122,9 +128,11 @@ const TaskStatusPopup: FC<Props> = function FilterPopup({
 						/>
 						{canCreateStatus && (
 							<TouchableOpacity
+								disabled={createReadOnly}
 								style={{
 									...styles.createButton,
-									borderColor: dark ? '#6755C9' : '#3826A6'
+									borderColor: dark ? '#6755C9' : '#3826A6',
+									opacity: createOpacity
 								}}
 								onPress={() => setCreateStatusMode(true)}
 							>
@@ -138,6 +146,9 @@ const TaskStatusPopup: FC<Props> = function FilterPopup({
 									{translate('settingScreen.statusScreen.createNewStatusText')}
 								</Text>
 							</TouchableOpacity>
+						)}
+						{showsReadOnlyHint && (
+							<Text style={{ ...styles.readOnlyHint, color: colors.tertiary }}>{readOnlyHint}</Text>
 						)}
 					</>
 				) : (
@@ -229,6 +240,13 @@ const styles = StyleSheet.create({
 		marginTop: 10,
 		padding: 12,
 		width: '80%'
+	},
+	readOnlyHint: {
+		fontFamily: typography.primary.medium,
+		fontSize: 12,
+		marginHorizontal: 16,
+		marginTop: 8,
+		textAlign: 'center'
 	},
 	text: {
 		fontFamily: typography.primary.medium,

@@ -16,6 +16,8 @@ import { Feather, AntDesign, Ionicons } from '@expo/vector-icons';
 import { spacing, useAppTheme, typography } from '../theme';
 import { BadgedTaskPriority } from './priority-icon';
 import { useTaskPriority } from '../services/hooks/features/use-task-priority';
+import { useTaskSettingsAccess } from '../services/hooks/features/use-task-settings-access';
+import { readOnlyOpacity } from '../helpers/read-only-opacity';
 import { ITaskPriorityItem } from '../services/interfaces/ITaskPriority';
 import { translate } from '../i18n';
 import { BlurView } from 'expo-blur';
@@ -82,6 +84,10 @@ const TaskPriorityPopup: FC<Props> = function TaskPriorityPopup({
 	const { allTaskPriorities } = useTaskPriority();
 	const { colors, dark } = useAppTheme();
 	const { createPriority, updatePriority } = useTaskPriority();
+	const { canCreate, readOnlyHint } = useTaskSettingsAccess();
+	const createReadOnly = !canCreate;
+	const createOpacity = readOnlyOpacity(createReadOnly);
+	const showsReadOnlyHint = canCreatePriority && createReadOnly;
 
 	const [createPriorityMode, setCreatePriorityMode] = useState<boolean>(false);
 
@@ -121,9 +127,11 @@ const TaskPriorityPopup: FC<Props> = function TaskPriorityPopup({
 						/>
 						{canCreatePriority && (
 							<TouchableOpacity
+								disabled={createReadOnly}
 								style={{
 									...styles.createButton,
-									borderColor: dark ? '#6755C9' : '#3826A6'
+									borderColor: dark ? '#6755C9' : '#3826A6',
+									opacity: createOpacity
 								}}
 								onPress={() => setCreatePriorityMode(true)}
 							>
@@ -137,6 +145,9 @@ const TaskPriorityPopup: FC<Props> = function TaskPriorityPopup({
 									{translate('settingScreen.priorityScreen.createNewPriorityText')}
 								</Text>
 							</TouchableOpacity>
+						)}
+						{showsReadOnlyHint && (
+							<Text style={{ ...styles.readOnlyHint, color: colors.tertiary }}>{readOnlyHint}</Text>
 						)}
 					</>
 				) : (
@@ -219,6 +230,13 @@ const styles = StyleSheet.create({
 		marginTop: 10,
 		padding: 12,
 		width: '80%'
+	},
+	readOnlyHint: {
+		fontFamily: typography.primary.medium,
+		fontSize: 12,
+		marginHorizontal: 16,
+		marginTop: 8,
+		textAlign: 'center'
 	},
 	title: {
 		fontSize: spacing.medium - 2,

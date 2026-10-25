@@ -15,6 +15,8 @@ import {
 import { Feather, AntDesign, Ionicons } from '@expo/vector-icons';
 import { spacing, useAppTheme, typography } from '../theme';
 import { useTaskSizes } from '../services/hooks/features/use-task-sizes';
+import { useTaskSettingsAccess } from '../services/hooks/features/use-task-settings-access';
+import { readOnlyOpacity } from '../helpers/read-only-opacity';
 import { ITaskSizeItem } from '../services/interfaces/ITaskSize';
 import { BadgedTaskSize } from './size-icon';
 import { translate } from '../i18n';
@@ -82,6 +84,10 @@ const TaskStatusPopup: FC<Props> = function FilterPopup({
 	const { allTaskSizes } = useTaskSizes();
 	const { colors, dark } = useAppTheme();
 	const { createSize, updateSize } = useTaskSizes();
+	const { canCreate, readOnlyHint } = useTaskSettingsAccess();
+	const createReadOnly = !canCreate;
+	const createOpacity = readOnlyOpacity(createReadOnly);
+	const showsReadOnlyHint = canCreateSize && createReadOnly;
 
 	const [createSizeMode, setCreateSizeMode] = useState<boolean>(false);
 
@@ -117,9 +123,11 @@ const TaskStatusPopup: FC<Props> = function FilterPopup({
 						/>
 						{canCreateSize && (
 							<TouchableOpacity
+								disabled={createReadOnly}
 								style={{
 									...styles.createButton,
-									borderColor: dark ? '#6755C9' : '#3826A6'
+									borderColor: dark ? '#6755C9' : '#3826A6',
+									opacity: createOpacity
 								}}
 								onPress={() => setCreateSizeMode(true)}
 							>
@@ -133,6 +141,9 @@ const TaskStatusPopup: FC<Props> = function FilterPopup({
 									{translate('settingScreen.sizeScreen.createNewSizeText')}
 								</Text>
 							</TouchableOpacity>
+						)}
+						{showsReadOnlyHint && (
+							<Text style={{ ...styles.readOnlyHint, color: colors.tertiary }}>{readOnlyHint}</Text>
 						)}
 					</>
 				) : (
@@ -215,6 +226,13 @@ const styles = StyleSheet.create({
 		marginTop: 10,
 		padding: 12,
 		width: '80%'
+	},
+	readOnlyHint: {
+		fontFamily: typography.primary.medium,
+		fontSize: 12,
+		marginHorizontal: 16,
+		marginTop: 8,
+		textAlign: 'center'
 	},
 	title: {
 		fontSize: spacing.medium - 2,

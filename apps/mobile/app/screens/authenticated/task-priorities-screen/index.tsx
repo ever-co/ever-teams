@@ -23,6 +23,8 @@ import { ActivityIndicator } from 'react-native-paper';
 import { ITaskPriorityItem } from '../../../services/interfaces/ITaskPriority';
 import TaskPriorityForm from './components/task-priority-form';
 import { useTaskPriority } from '../../../services/hooks/features/use-task-priority';
+import { useTaskSettingsAccess } from '../../../services/hooks/features/use-task-settings-access';
+import { readOnlyOpacity } from '../../../helpers/read-only-opacity';
 import PriorityItem from './components/priority-item';
 import { BlurView } from 'expo-blur';
 import { useRoute, RouteProp } from '@react-navigation/native';
@@ -52,6 +54,12 @@ export const TaskPriorityScreen: FC<AuthenticatedDrawerScreenProps<'TaskPriority
     }, [navigation, previousTab]);
 
     const { isLoading, priorities, deletePriority, updatePriority, createPriority } = useTaskPriority();
+    const { canCreate, canWriteRow, readOnlyHint } = useTaskSettingsAccess();
+    const createReadOnly = !canCreate;
+    const createOpacity = readOnlyOpacity(createReadOnly);
+    const priorityItems = priorities?.items ?? [];
+    const hasReadOnlyPriority = priorityItems.some((priority) => !canWriteRow(priority));
+    const showsReadOnlyHint = createReadOnly || hasReadOnlyPriority;
     const [editMode, setEditMode] = useState(false);
     const [itemToEdit, setItemToEdit] = useState<ITaskPriorityItem>(null);
     const [bottomSheetVisible, setBottomSheetVisible] = useState(false);
@@ -180,10 +188,12 @@ export const TaskPriorityScreen: FC<AuthenticatedDrawerScreenProps<'TaskPriority
               <TouchableOpacity
                 accessibilityLabel={translate('settingScreen.priorityScreen.createNewPriorityText')}
                 accessibilityRole="button"
+                disabled={createReadOnly}
                 style={{
                   ...styles.createButtonSmall,
                   borderColor: dark ? '#6755C9' : '#3826A6',
-                  backgroundColor: dark ? 'rgba(103, 85, 201, 0.15)' : 'rgba(56, 38, 166, 0.15)'
+                  backgroundColor: dark ? 'rgba(103, 85, 201, 0.15)' : 'rgba(56, 38, 166, 0.15)',
+                  opacity: createOpacity
                 }}
                 onPress={handleCreateNew}
               >
@@ -193,6 +203,9 @@ export const TaskPriorityScreen: FC<AuthenticatedDrawerScreenProps<'TaskPriority
                 </Text>
               </TouchableOpacity>
             </View>
+            {showsReadOnlyHint && (
+              <Text style={{ ...styles.readOnlyHint, color: colors.tertiary }}>{readOnlyHint}</Text>
+            )}
 
             <View
               style={{
@@ -218,6 +231,7 @@ export const TaskPriorityScreen: FC<AuthenticatedDrawerScreenProps<'TaskPriority
                     openForEdit={() => openForEdit(item)}
                     onDeletePriority={() => deletePriority(item.id)}
                     priority={item}
+                    readOnly={!canWriteRow(item)}
                   />
                 )}
                 keyExtractor={(_, index) => index.toString()}
@@ -229,10 +243,12 @@ export const TaskPriorityScreen: FC<AuthenticatedDrawerScreenProps<'TaskPriority
           <TouchableOpacity
             accessibilityLabel={translate('settingScreen.priorityScreen.createNewPriorityText')}
             accessibilityRole="button"
+            disabled={createReadOnly}
             style={{
               ...styles.createButton,
               borderColor: dark ? '#6755C9' : '#3826A6',
-              backgroundColor: dark ? 'rgba(103, 85, 201, 0.05)' : 'rgba(56, 38, 166, 0.05)'
+              backgroundColor: dark ? 'rgba(103, 85, 201, 0.05)' : 'rgba(56, 38, 166, 0.05)',
+              opacity: createOpacity
             }}
             onPress={handleCreateNew}
           >
@@ -395,6 +411,11 @@ const styles = StyleSheet.create({
     color: '#7E7991',
     fontFamily: typography.primary.semiBold,
     fontSize: 16
+  },
+  readOnlyHint: {
+    fontFamily: typography.primary.medium,
+    fontSize: 14,
+    marginBottom: 12
   },
   title: {
     alignSelf: 'center',

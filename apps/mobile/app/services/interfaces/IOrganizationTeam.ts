@@ -76,6 +76,9 @@ export interface OT_Member {
 	employeeId: string;
 	roleId?: string;
 	role?: OT_Role;
+	isManager?: boolean | null;
+	isActive?: boolean | null;
+	isArchived?: boolean | null;
 	employee: IEmployee;
 	activeTaskId?: string;
 	lastWorkedTask?: ITeamTask;
