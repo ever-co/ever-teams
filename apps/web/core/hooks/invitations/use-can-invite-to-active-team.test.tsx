@@ -1,9 +1,11 @@
 /** @jest-environment jsdom */
 
-import { renderHook } from '@testing-library/react';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { renderHook, waitFor } from '@testing-library/react';
 import { Provider, createStore } from 'jotai';
 import type { PropsWithChildren } from 'react';
 
+import { queryKeys } from '@/core/query/keys';
 import { activeTeamIdState, organizationTeamsState } from '@/core/stores';
 import type { TOrganizationTeam } from '@/core/types/schemas';
 
@@ -117,5 +119,75 @@ describe('useCanInviteToActiveTeam', () => {
 		const activeTeam = team(TEAM_ID, [ownMembership({ isManager: true })], { createdByUserId: 'user-1' });
 
 		expect(canInviteWith([activeTeam])).toBe(false);
+	});
+});
+
+describe('useCanInviteToActiveTeam on a public team page', () => {
+	// The page leaves only the team it shows loaded, while invitations still go to the team of the active team cookie
+	const scopedUser = {
+		...signedInUser,
+		tenantId: 'tenant-1',
+		employee: { ...signedInUser.employee, tenantId: 'tenant-1', organizationId: 'organization-1' }
+	};
+	const ownTeamsKey = queryKeys.organizationTeams.listByScope('tenant-1', 'organization-1', 'user-1');
+	const publicTeam = team(OTHER_TEAM_ID, [colleagueManager]);
+
+	function ownTeamList(teams: Array<Record<string, unknown>>) {
+		return { data: { items: teams, total: teams.length } };
+	}
+
+	/** Renders the hook with the user's own team list cached as the shell caches it, if given. */
+	function renderOnPublicTeamPage(ownTeams?: Array<Record<string, unknown>>) {
+		const queryClient = new QueryClient({ defaultOptions: { queries: { gcTime: Infinity } } });
+		if (ownTeams) {
+			const cachedList = ownTeamList(ownTeams);
+			queryClient.setQueryData(ownTeamsKey, cachedList);
+		}
+		const store = createStore();
+		store.set(organizationTeamsState, [publicTeam] as unknown as TOrganizationTeam[]);
+		store.set(activeTeamIdState, TEAM_ID);
+		const wrapper = ({ children }: PropsWithChildren) => (
+			<QueryClientProvider client={queryClient}>
+				<Provider store={store}>{children}</Provider>
+			</QueryClientProvider>
+		);
+		const { result } = renderHook(() => useCanInviteToActiveTeam(), { wrapper });
+		return { queryClient, result };
+	}
+
+	beforeEach(() => {
+		mockUser = scopedUser;
+		mockPermissions.myPermissions = [];
+		document.cookie = `auth-active-team=${TEAM_ID}; path=/`;
+	});
+
+	afterEach(() => {
+		document.cookie = 'auth-active-team=; expires=Thu, 01 Jan 1970 00:00:00 GMT; path=/';
+	});
+
+	it('accepts a manager of the team the invitation goes to, read from their own cached teams', () => {
+		const ownTeam = team(TEAM_ID, [ownMembership({ isManager: true })]);
+		const { result } = renderOnPublicTeamPage([ownTeam]);
+
+		expect(result.current).toBe(true);
+	});
+
+	it('refuses a plain member of that team', () => {
+		const ownTeam = team(TEAM_ID, [ownMembership(), colleagueManager]);
+		const { result } = renderOnPublicTeamPage([ownTeam]);
+
+		expect(result.current).toBe(false);
+	});
+
+	it('keeps the entries until that team is loaded, then judges it', async () => {
+		const { queryClient, result } = renderOnPublicTeamPage();
+
+		expect(result.current).toBe(true);
+
+		const ownTeam = team(TEAM_ID, [ownMembership(), colleagueManager]);
+		const loadedList = ownTeamList([ownTeam]);
+		queryClient.setQueryData(ownTeamsKey, loadedList);
+
+		await waitFor(() => expect(result.current).toBe(false));
 	});
 });
