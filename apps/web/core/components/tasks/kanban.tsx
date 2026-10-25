@@ -87,10 +87,15 @@ function StatusMenuItem({
 		);
 	}
 
+	// A native button, so keyboard users reach it too; laid out like the other entries of the menu
 	return (
-		<div className="hover:font-medium p-1.5 text-sm cursor-pointer" onClick={onClick}>
+		<button
+			type="button"
+			className="block w-full text-start hover:font-medium p-1.5 text-sm cursor-pointer"
+			onClick={onClick}
+		>
 			{label}
-		</div>
+		</button>
 	);
 }
 

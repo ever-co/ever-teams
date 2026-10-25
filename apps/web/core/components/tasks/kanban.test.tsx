@@ -212,6 +212,13 @@ describe('Kanban column controls task settings access', () => {
 		expect(screen.queryByText('edit status form')).toBeNull();
 	});
 
+	it('renders the column menu entries a manager may use as buttons, so keyboard users reach them', () => {
+		renderOpenColumnAs(true, jest.fn());
+
+		expect(screen.getByRole('button', { name: 'common.COLLAPSE_COLUMN' })).toBeTruthy();
+		expect(screen.getByRole('button', { name: 'common.EDIT_STATUS' })).toBeTruthy();
+	});
+
 	it('gives an ORG_TASK_SETTING holder the collapse controls and Edit status without managing the team', () => {
 		mockPermissions.myPermissions = ['ORG_TASK_SETTING'];
 		const toggleColumn = jest.fn();
