@@ -1,7 +1,6 @@
 import { useCallback, useState, useMemo } from 'react';
 import { useAuthenticateUser } from '../auth';
 import { useTimelogFilterOptions } from './use-timelog-filter-options';
-import { useOrganizationAndTeamManagers } from '@/core/hooks/organizations/teams/use-organization-teams-managers';
 import { ETimeLogType } from '@/core/types/generics/enums/timer';
 import { ITimeLogReportDailyChartProps } from '@/core/types/interfaces/activity/activity-report';
 import { TOrganizationTeam, TOrganizationTeamEmployee } from '@/core/types/schemas';
@@ -52,13 +51,20 @@ const isActiveMembership = (member: TOrganizationTeamEmployee): boolean => {
 };
 
 /**
- * The employee ids of the active members of the given teams, without duplicates.
+ * The most ids an array query parameter can carry. Gauzy parses query strings with qs, whose default `arrayLimit`
+ * of 20 turns a longer list into an object, and the report DTOs (`@IsArray`) answer that with a 400.
+ */
+const MAX_QUERY_ARRAY_IDS = 20;
+
+/**
+ * The employee ids of the active members of the given teams, without duplicates, for a report request to name.
  *
  * A caller who may not pick any employee reads the time logs of the ids it sends only when each of them is an
  * active member of a team it manages. One inactive or archived membership in the list and the API falls back to
- * the caller's own logs.
+ * the caller's own logs. Teams with more active members than a query string can carry get no ids, so their
+ * requests stay as they were.
  */
-export function getActiveMemberEmployeeIds(teams: TOrganizationTeam[], teamIds: string[]): string[] {
+export function getReportMemberIds(teams: TOrganizationTeam[], teamIds: string[]): string[] {
 	const requestedTeams = teams.filter((team) => teamIds.includes(team.id));
 	const employeeIds = new Set<string>();
 
@@ -74,29 +80,49 @@ export function getActiveMemberEmployeeIds(teams: TOrganizationTeam[], teamIds: 
 		}
 	}
 
+	const exceedsQueryArrayLimit = employeeIds.size > MAX_QUERY_ARRAY_IDS;
+
+	if (exceedsQueryArrayLimit) return [];
+
 	return Array.from(employeeIds);
 }
 
-/** Whether each of the team ids is one of the managed teams */
-const managesEveryTeam = (managedTeams: TOrganizationTeam[], teamIds: string[]): boolean =>
-	teamIds.every((teamId) => managedTeams.some(({ id }) => id === teamId));
+export function managesEveryTeam(managedTeams: TOrganizationTeam[], teamIds: string[]): boolean {
+	const managedTeamIds = new Set(managedTeams.map(({ id }) => id));
 
-// The same empty list whenever no applied team adds members, so the merged props stay stable when the teams reload
-const NO_APPLIED_TEAMS_MEMBER_IDS: string[] = [];
+	return teamIds.every((teamId) => managedTeamIds.has(teamId));
+}
 
 /**
- * The employee ids a report request sends: the members applied through `updateFilters`, else the dashboard
- * filter picks (the user's own id for a member), else the active members of the teams applied on the page.
+ * The props of the time log reports (daily and weekly) of a page that applies teams with no member, for a manager
+ * of all of them without organization-wide access: the active members of those teams become the employee ids.
+ * With no employee id the API reads only the caller's own time logs, while the counts resolve these members from
+ * the team ids. Any other request, like one for teams too large to name their members, is returned as it is.
  */
-const getReportEmployeeIds = (
-	appliedEmployeeIds: string[] | undefined,
-	filterEmployeeIds: (string | undefined)[] | undefined,
-	appliedTeamsMemberIds: string[]
-) => {
-	if (appliedEmployeeIds?.length) return appliedEmployeeIds;
-	if (filterEmployeeIds?.length) return filterEmployeeIds;
-	return appliedTeamsMemberIds;
-};
+export function getAppliedTeamsReportProps(
+	mergedProps: Required<UseReportActivityProps> | null,
+	managedTeams: TOrganizationTeam[],
+	hasOrganizationWideAccess: boolean
+): Required<UseReportActivityProps> | null {
+	if (!mergedProps) return mergedProps;
+	if (hasOrganizationWideAccess) return mergedProps;
+
+	const appliedTeamIds = mergedProps.selectedTeamIds;
+	const namesEmployees = mergedProps.employeeIds.length > 0;
+
+	if (!appliedTeamIds.length) return mergedProps;
+	if (namesEmployees) return mergedProps;
+
+	const managesAppliedTeams = managesEveryTeam(managedTeams, appliedTeamIds);
+
+	if (!managesAppliedTeams) return mergedProps;
+
+	const memberIds = getReportMemberIds(managedTeams, appliedTeamIds);
+
+	if (!memberIds.length) return mergedProps;
+
+	return { ...mergedProps, employeeIds: memberIds };
+}
 
 // ==================== DEFAULTS ====================
 
@@ -191,7 +217,6 @@ export function useActivityFilters({ includeTeamManagers = true }: { includeTeam
 	// User and authentication
 	const { user, isTeamManager } = useAuthenticateUser();
 	const { allteamsState, alluserState, isUserAllowedToAccess } = useTimelogFilterOptions();
-	const { userManagedTeams } = useOrganizationAndTeamManagers();
 	// A team manager usually holds the EMPLOYEE role; the API checks which members they manage
 	const isManage = useMemo(
 		() => user && (isUserAllowedToAccess(user) || (includeTeamManagers && isTeamManager)),
@@ -214,19 +239,8 @@ export function useActivityFilters({ includeTeamManagers = true }: { includeTeam
 
 	const teamIds = useMemo(() => allteamsState?.map(({ id }) => id).filter(Boolean) || [], [allteamsState]);
 
-	// Teams applied on the page with no member, for a manager of all of them without organization-wide access:
-	// with no employee id the API reads only the caller's own time logs, while the counts widen to these members.
+	// Super admin, admin or organization MANAGER role: the roles the dashboards treat as organization-wide
 	const hasOrganizationWideAccess = isUserAllowedToAccess(user);
-	const appliedTeamsMemberIds = useMemo(() => {
-		const appliedTeamIds = currentFilters.teamIds ?? [];
-		const managesAppliedTeams = managesEveryTeam(userManagedTeams, appliedTeamIds);
-
-		if (!appliedTeamIds.length) return NO_APPLIED_TEAMS_MEMBER_IDS;
-		if (hasOrganizationWideAccess) return NO_APPLIED_TEAMS_MEMBER_IDS;
-		if (!managesAppliedTeams) return NO_APPLIED_TEAMS_MEMBER_IDS;
-
-		return getActiveMemberEmployeeIds(userManagedTeams, appliedTeamIds);
-	}, [currentFilters.teamIds, hasOrganizationWideAccess, userManagedTeams]);
 
 	// Props merging logic — getDefaultProps() called here so fallback dates stay fresh
 	const mergedProps = useMemo(() => {
@@ -249,7 +263,7 @@ export function useActivityFilters({ includeTeamManagers = true }: { includeTeam
 			groupBy: (currentFilters.groupBy || defaults.groupBy) as string,
 			projectIds: (currentFilters.projectIds || defaults.projectIds) as string[],
 			// Members and teams applied through updateFilters win over the dashboard filter state
-			employeeIds: getReportEmployeeIds(currentFilters.employeeIds, employeeIds, appliedTeamsMemberIds),
+			employeeIds: currentFilters.employeeIds?.length ? currentFilters.employeeIds : employeeIds,
 			teamIds: currentFilters.teamIds?.length ? currentFilters.teamIds : teamIds,
 			selectedEmployeeIds: currentFilters.employeeIds ?? [],
 			selectedTeamIds: currentFilters.teamIds ?? [],
@@ -260,16 +274,7 @@ export function useActivityFilters({ includeTeamManagers = true }: { includeTeam
 			start: currentFilters.start ?? defaults.start,
 			end: currentFilters.end ?? defaults.end
 		} as Required<UseReportActivityProps>;
-	}, [
-		user?.employee?.organizationId,
-		user?.employee?.id,
-		user?.tenantId,
-		currentFilters,
-		isManage,
-		employeeIds,
-		teamIds,
-		appliedTeamsMemberIds
-	]);
+	}, [user?.employee?.organizationId, user?.employee?.id, user?.tenantId, currentFilters, isManage, employeeIds, teamIds]);
 
 	const enabled = !!user && !!mergedProps;
 
@@ -297,6 +302,7 @@ export function useActivityFilters({ includeTeamManagers = true }: { includeTeam
 	return {
 		user,
 		isManage,
+		hasOrganizationWideAccess,
 		mergedProps,
 		enabled,
 		currentFilters,
