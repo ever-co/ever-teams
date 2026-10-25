@@ -21,6 +21,7 @@ import { VerticalSeparator } from '@/core/components/duplicated-components/separ
 import { useProcessedTeamMembers } from '@/core/hooks/teams/use-processed-team-members';
 import { useTeamMemberFilterStatsForUI } from '@/core/hooks/teams/use-team-member-filter-stats';
 import { useUserQuery } from '@/core/hooks/queries/user-user.query';
+import { useCanInviteToActiveTeam } from '@/core/hooks/invitations/use-can-invite-to-active-team';
 import { TeamMemberFilterType } from '@/core/lib/utils/team-members.utils';
 
 // Interface for filter stats (kept for UI compatibility)
@@ -76,6 +77,7 @@ export function UserTeamBlockHeader() {
 	const activeTeam = useAtomValue(activeTeamState);
 	const { data: user } = useUserQuery();
 	const { openModal, isOpen, closeModal } = useModal();
+	const canInvite = useCanInviteToActiveTeam();
 	const [activeFilter, setActiveFilter] = useAtom<TeamMemberFilterType>(taskBlockFilterState);
 	const [, setSearchQuery] = useAtom(blockViewSearchQueryState);
 
@@ -161,11 +163,18 @@ export function UserTeamBlockHeader() {
 								<SearchNormalIcon className={clsxm('w-4 dark:stroke-white')} />
 							</button>
 
-							<VerticalSeparator />
+							{canInvite && (
+								<>
+									<VerticalSeparator />
 
-							<Button className="h-9 rounded-md px-4 py-0 text-sm font-medium outline-hidden" onClick={openModal}>
-								Invite
-							</Button>
+									<Button
+										className="h-9 rounded-md px-4 py-0 text-sm font-medium outline-hidden"
+										onClick={openModal}
+									>
+										Invite
+									</Button>
+								</>
+							)}
 						</div>
 					)}
 				</div>

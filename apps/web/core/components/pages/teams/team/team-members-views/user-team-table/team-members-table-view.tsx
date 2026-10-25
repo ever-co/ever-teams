@@ -5,6 +5,7 @@ import { ColumnDef } from '@tanstack/react-table';
 import { useAuthenticateUser, useModal } from '@/core/hooks';
 import { InviteUserTeamCard } from '../../../../../teams/invite/user-invite-card';
 import { InviteFormModal } from '../../../../../features/teams/invite-form-modal';
+import { useCanInviteToActiveTeam } from '@/core/hooks/invitations/use-can-invite-to-active-team';
 import { useTranslations } from 'next-intl';
 import {
 	ActionMenuCell,
@@ -102,6 +103,11 @@ const TeamMembersTableView = memo(
 function Invite() {
 	const { user } = useAuthenticateUser();
 	const { openModal, isOpen, closeModal } = useModal();
+	const canInvite = useCanInviteToActiveTeam();
+
+	if (!canInvite) {
+		return null;
+	}
 
 	return (
 		<div className="py-2">

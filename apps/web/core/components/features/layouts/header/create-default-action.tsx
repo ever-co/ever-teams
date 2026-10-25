@@ -23,10 +23,12 @@ import CreateTaskModal from '../../tasks/create-task-modal';
 import { InviteFormModal } from '../../teams/invite-form-modal';
 import { CreateTeamModal } from '../../teams/create-team-modal';
 import { CreateProjectModal } from '../../projects/create-project-modal';
+import { useCanInviteToActiveTeam } from '@/core/hooks/invitations/use-can-invite-to-active-team';
 export const DefaultCreateAction = ({ publicTeam }: { publicTeam?: boolean }) => {
 	const [open, setOpen] = useState<boolean>(false);
 	const t = useTranslations();
 	const { user } = useAuthenticateUser();
+	const canInvite = useCanInviteToActiveTeam();
 	const { isOpen, closeModal, openModal } = useModal();
 	const { isOpen: inviteIsOpen, closeModal: inviteCloseModal, openModal: inviteOpenModal } = useModal();
 	const { isOpen: createTaskIsOpen, closeModal: createTaskCloseModal, openModal: createTaskOpenModal } = useModal();
@@ -146,12 +148,16 @@ export const DefaultCreateAction = ({ publicTeam }: { publicTeam?: boolean }) =>
 							<DropdownMenuShortcut>⌘CT</DropdownMenuShortcut>
 						</DropdownMenuItem>
 					</DropdownMenuGroup>
-					<DropdownMenuSeparator />
+					{canInvite && (
+						<>
+							<DropdownMenuSeparator />
 
-					<DropdownMenuItem onClick={inviteOpenModal} className="!text-indigo-500">
-						<AddUserIcon className="!text-indigo-500" /> Invite
-						<DropdownMenuShortcut className="!text-indigo-500">⌘CI</DropdownMenuShortcut>
-					</DropdownMenuItem>
+							<DropdownMenuItem onClick={inviteOpenModal} className="!text-indigo-500">
+								<AddUserIcon className="!text-indigo-500" /> Invite
+								<DropdownMenuShortcut className="!text-indigo-500">⌘CI</DropdownMenuShortcut>
+							</DropdownMenuItem>
+						</>
+					)}
 				</DropdownMenuContent>
 			</DropdownMenu>
 
