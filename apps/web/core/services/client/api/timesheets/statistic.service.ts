@@ -57,6 +57,10 @@ class StatisticsService extends APIService {
 				teamIds: params.teamIds ?? [],
 				todayEnd: params.todayEnd.toISOString(),
 				todayStart: params.todayStart.toISOString(),
+				// Gauzy reads this endpoint's range from startDate and endDate only and falls back to the current
+				// week without them; the /timer/slot proxy route reads todayStart and todayEnd
+				startDate: params.todayStart.toISOString(),
+				endDate: params.todayEnd.toISOString(),
 				relations: ['timeSlots.timeLogs.projectId', 'timeSlots.timeLogs.taskId']
 			} satisfies Record<string, string | string[] | number>;
 
