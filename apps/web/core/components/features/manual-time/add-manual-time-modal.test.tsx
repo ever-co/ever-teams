@@ -111,7 +111,12 @@ const teamA = { id: 'team-a', name: 'Team A', organizationId: 'org-1', projects:
 const teamB = { id: 'team-b', name: 'Team B', organizationId: 'org-1', projects: [], members: [] };
 const taskA = { id: 'task-a', title: 'Task A', teams: [{ id: 'team-a' }], members: [] };
 const otherTaskA = { id: 'task-a-2', title: 'Task A 2', teams: [{ id: 'team-a' }], members: [] };
+const sharedTask = { id: 'task-shared', title: 'Shared', teams: [{ id: 'team-a' }, { id: 'team-b' }], members: [] };
 const taskB = { id: 'task-b', title: 'Task B', teams: [{ id: 'team-b' }], members: [] };
+
+// The task list only holds the active team's tasks, and every load hands a new array
+const teamATasks = () => [taskA, otherTaskA, sharedTask];
+const teamBTasks = () => [taskB, sharedTask];
 
 const closeModal = jest.fn();
 
@@ -125,12 +130,24 @@ function renderAddTimeDialog() {
 
 // A task list refetch hands the dialog a new array, which re-runs its initialization effect
 function refreshTaskList(rerender: ReturnType<typeof render>['rerender']) {
-	mockAtomValues.tasksByTeamState = [taskA, otherTaskA, taskB];
+	mockAtomValues.tasksByTeamState = teamATasks();
+	rerender(<AddManualTimeModal isOpen params="AddTime" closeModal={closeModal} />);
+}
+
+// Another tab switched the active team and this tab's team list refetched while the dialog is open
+function switchActiveTeamToB(rerender: ReturnType<typeof render>['rerender']) {
+	mockAtomValues.activeTeamState = teamB;
+	mockAtomValues.activeTeamTaskState = null;
+	mockAtomValues.tasksByTeamState = teamBTasks();
 	rerender(<AddManualTimeModal isOpen params="AddTime" closeModal={closeModal} />);
 }
 
 function pickInSelect(ariaLabel: string, value: string) {
 	fireEvent.change(screen.getByLabelText(ariaLabel), { target: { value } });
+}
+
+function selectedValue(ariaLabel: string) {
+	return (screen.getByLabelText(ariaLabel) as HTMLSelectElement).value;
 }
 
 function submitDialog() {
@@ -143,7 +160,7 @@ describe('AddManualTimeModal team of the saved time', () => {
 		mockAtomValues.activeTeamState = teamA;
 		mockAtomValues.activeTeamTaskState = taskA;
 		mockAtomValues.organizationTeamsState = [teamA, teamB];
-		mockAtomValues.tasksByTeamState = [taskA, otherTaskA, taskB];
+		mockAtomValues.tasksByTeamState = teamATasks();
 	});
 
 	it('saves the time with the active team when no team is picked', () => {
@@ -165,11 +182,23 @@ describe('AddManualTimeModal team of the saved time', () => {
 		expect(mockAddManualTime).not.toHaveBeenCalled();
 		expect(screen.getByText('Please complete: Task')).toBeTruthy();
 
-		pickInSelect('task', 'task-b');
+		pickInSelect('task', 'task-shared');
 		submitDialog();
 
 		expect(mockAddManualTime).toHaveBeenCalledWith(
-			expect.objectContaining({ organizationTeamId: 'team-b', taskId: 'task-b' })
+			expect.objectContaining({ organizationTeamId: 'team-b', taskId: 'task-shared' })
+		);
+	});
+
+	it('keeps a task the picked team shares', () => {
+		mockAtomValues.activeTeamTaskState = sharedTask;
+		renderAddTimeDialog();
+
+		pickInSelect('teams', 'team-b');
+		submitDialog();
+
+		expect(mockAddManualTime).toHaveBeenCalledWith(
+			expect.objectContaining({ organizationTeamId: 'team-b', taskId: 'task-shared' })
 		);
 	});
 
@@ -181,7 +210,7 @@ describe('AddManualTimeModal team of the saved time', () => {
 		submitDialog();
 
 		expect(mockAddManualTime).not.toHaveBeenCalled();
-		expect((screen.getByLabelText('task') as HTMLSelectElement).value).toBe('');
+		expect(selectedValue('task')).toBe('');
 	});
 
 	it('keeps a picked task when the task list refreshes', () => {
@@ -193,6 +222,25 @@ describe('AddManualTimeModal team of the saved time', () => {
 
 		expect(mockAddManualTime).toHaveBeenCalledWith(
 			expect.objectContaining({ organizationTeamId: 'team-a', taskId: 'task-a-2' })
+		);
+	});
+
+	it('asks for a task again when the active team switches under the open dialog', () => {
+		const { rerender } = renderAddTimeDialog();
+
+		pickInSelect('task', 'task-a-2');
+		switchActiveTeamToB(rerender);
+		submitDialog();
+
+		expect(selectedValue('teams')).toBe('team-b');
+		expect(mockAddManualTime).not.toHaveBeenCalled();
+		expect(screen.getByText('Please complete: Task')).toBeTruthy();
+
+		pickInSelect('task', 'task-b');
+		submitDialog();
+
+		expect(mockAddManualTime).toHaveBeenCalledWith(
+			expect.objectContaining({ organizationTeamId: 'team-b', taskId: 'task-b' })
 		);
 	});
 });

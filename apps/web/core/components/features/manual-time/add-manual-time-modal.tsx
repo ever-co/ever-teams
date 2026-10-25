@@ -39,6 +39,16 @@ interface IAddManualTimeModalProps {
 	closeModal: () => void;
 }
 
+/** Whether the listed task belongs to the team, so time is never saved with a team and a task of another team. */
+function isTaskOfTeam(tasks: TTask[], taskId: string, teamId: string | undefined): boolean {
+	if (!teamId) {
+		return false;
+	}
+	const task = tasks.find((item) => item.id === taskId);
+	const taskTeams = task?.teams ?? [];
+	return taskTeams.some((taskTeam) => taskTeam?.id === teamId);
+}
+
 export function AddManualTimeModal(props: Readonly<IAddManualTimeModalProps>) {
 	const { closeModal, isOpen, params, timeSheetStatus } = props;
 	const t = useTranslations();
@@ -63,6 +73,7 @@ export function AddManualTimeModal(props: Readonly<IAddManualTimeModalProps>) {
 	const teams = useAtomValue(organizationTeamsState);
 	const { data: user } = useUserQuery();
 	const { isTeamManager } = useIsMemberManager(user);
+	const teamToSave = team ?? activeTeam;
 
 	const {
 		addManualTime,
@@ -106,8 +117,6 @@ export function AddManualTimeModal(props: Readonly<IAddManualTimeModalProps>) {
 			stoppedAt.setHours(parseInt(endTime.split(':')[0]));
 			stoppedAt.setMinutes(parseInt(endTime.split(':')[1]));
 
-			const teamToSave = team ?? activeTeam;
-
 			const requestData: Omit<IAddManualTimeRequest, 'tenantId' | 'employeeId' | 'logType' | 'source'> & {
 				employeeId?: string;
 			} = {
@@ -137,6 +146,14 @@ export function AddManualTimeModal(props: Readonly<IAddManualTimeModalProps>) {
 				return;
 			}
 
+			// The task must be one the saved team lists: after an active team switch from another tab, the task
+			// picked before it belongs to the previous team
+			const isTaskOfTeamToSave = isTaskOfTeam(tasks, taskId, teamToSave?.id);
+			if (!isTaskOfTeamToSave) {
+				setErrorMsg('Please complete: Task');
+				return;
+			}
+
 			if (endTime <= startTime) {
 				setErrorMsg('End time must be after start time');
 				return;
@@ -156,7 +173,9 @@ export function AddManualTimeModal(props: Readonly<IAddManualTimeModalProps>) {
 			taskId,
 			pickedFields,
 			team,
-			activeTeam
+			activeTeam,
+			teamToSave,
+			tasks
 		]
 	);
 
@@ -522,7 +541,8 @@ export function AddManualTimeModal(props: Readonly<IAddManualTimeModalProps>) {
 							</label>
 							<CustomSelect
 								valueKey="id"
-								defaultValue={activeTeam?.id ?? ''}
+								// Shows the team the time is saved with, also when the active team changes under the form
+								value={teamToSave?.id ?? ''}
 								classNameGroup="max-h-[40vh] dark:!text-white "
 								ariaLabel="teams"
 								className="w-full text-sm border-gray-300 dark:border-slate-600 dark:text-white"
