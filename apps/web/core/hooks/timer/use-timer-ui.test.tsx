@@ -173,4 +173,31 @@ describe('useLiveTimerStatus total time', () => {
 		advanceSeconds(1);
 		expect(result.current.time).toEqual({ h: 0, m: 16 });
 	});
+
+	it('follows the running log until a delayed stop answer lands', () => {
+		// The stop sends no stoppedAt: Gauzy closes the log when it handles the request, so the log counts until then
+		const store = createStore();
+		const sessionStartedAt = LOAD_TIME - 630_000;
+		store.set(timerStatusState, { running: true, duration: 630 });
+		setLocalTimerRunning(store, sessionStartedAt);
+		const { result, rerender } = renderShellAndLiveTotal(store);
+		advanceSeconds(20);
+		act(() => {
+			setLocalTimerStopped(store);
+		});
+		expect(result.current.time).toEqual({ h: 0, m: 10 });
+
+		// The answer takes 15 seconds and the reader renders again meanwhile
+		advanceSeconds(15);
+		rerender();
+		expect(result.current.time).toEqual({ h: 0, m: 11 });
+
+		// Gauzy handled the stop 13 seconds after the click
+		receiveStatus(store, { running: false, duration: 663 });
+		expect(result.current.time).toEqual({ h: 0, m: 11 });
+
+		advanceSeconds(300);
+		rerender();
+		expect(result.current.time).toEqual({ h: 0, m: 11 });
+	});
 });
