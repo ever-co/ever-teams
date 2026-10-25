@@ -292,8 +292,10 @@ export function AddManualTimeModal(props: Readonly<IAddManualTimeModalProps>) {
 			// Only set taskId if the task is valid and available in filtered tasks
 			const isTaskAvailable = activeTeamTasks.some((task) => task.id === activeTeamTask.id);
 			if (isTaskAvailable) {
-				// A task picked in the form must not be replaced by the active task when the task list refreshes
-				if (!isTaskPickedRef.current) {
+				// A task picked in the form must not be replaced by the active task when the task list refreshes,
+				// and the active task belongs to the active team, not to a team picked in the form
+				const isPickedInForm = isTaskPickedRef.current || isTeamPickedRef.current;
+				if (!isPickedInForm) {
 					setTaskId(activeTeamTask.id);
 				}
 			} else if (process.env.NODE_ENV === 'development') {
@@ -530,6 +532,16 @@ export function AddManualTimeModal(props: Readonly<IAddManualTimeModalProps>) {
 									const pickedTeam = teams.find((item) => item.id === value);
 									isTeamPickedRef.current = true;
 									setTeam(pickedTeam); // Set the full team object, not just ID
+									// A task of the previous team must not be saved with the picked team
+									const pickedTeamTasks = filterTasksByTeamAndRole(
+										tasks,
+										pickedTeam?.id,
+										isTaskInSelectedTeam
+									);
+									const isTaskInPickedTeam = pickedTeamTasks.some((task) => task.id === taskId);
+									if (!isTaskInPickedTeam) {
+										setTaskId('');
+									}
 								}}
 							/>
 						</div>
@@ -540,7 +552,8 @@ export function AddManualTimeModal(props: Readonly<IAddManualTimeModalProps>) {
 							</label>
 							<CustomSelect
 								valueKey="id"
-								defaultValue={taskId || ''}
+								// Controlled, so a task cleared on a team change is cleared in the select too
+								value={taskId}
 								classNameGroup="max-h-[40vh] overflow-x-hidden max-w-[420px] dark:!text-white "
 								ariaLabel="task"
 								className="w-full text-sm border-gray-300 dark:border-slate-600 dark:text-white"
@@ -558,6 +571,7 @@ export function AddManualTimeModal(props: Readonly<IAddManualTimeModalProps>) {
 											optionIds: (team ? selectedTeamTasks : activeTeamTasks).map((t) => t.id)
 										});
 									}
+									isTaskPickedRef.current = true;
 									setTaskId(value);
 								}}
 							/>
