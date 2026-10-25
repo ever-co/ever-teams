@@ -95,7 +95,7 @@ jobs:
         env:
           VERDACCIO_REGISTRY: ${{ vars.VERDACCIO_REGISTRY }}
           VERDACCIO_FORCE_PUBLIC: ${{ vars.VERDACCIO_FORCE_PUBLIC }}
-        # The in-cluster Verdaccio cache first on self-hosted runners (registry.npmjs.org over the homelab WAN timed out
+        # The in-cluster Verdaccio cache first on self-hosted runners (registry.npmjs.org over the WAN timed out
         # on busy nights: Release Apps v0.146.28 release-linux), then the public registry; a few spaced tries.
         # GitHub-hosted runners cannot reach the LAN cache, so they use the public registry only.
         run: |
@@ -441,7 +441,7 @@ jobs:
         env:
           VERDACCIO_REGISTRY: ${{ vars.VERDACCIO_REGISTRY }}
           VERDACCIO_FORCE_PUBLIC: ${{ vars.VERDACCIO_FORCE_PUBLIC }}
-        # The in-cluster Verdaccio cache first on self-hosted runners (registry.npmjs.org over the homelab WAN timed out
+        # The in-cluster Verdaccio cache first on self-hosted runners (registry.npmjs.org over the WAN timed out
         # on busy nights: Release Apps v0.146.28 release-linux), then the public registry; a few spaced tries.
         # GitHub-hosted runners cannot reach the LAN cache, so they use the public registry only.
         run: |
@@ -741,7 +741,7 @@ jobs:
         env:
           VERDACCIO_REGISTRY: ${{ vars.VERDACCIO_REGISTRY }}
           VERDACCIO_FORCE_PUBLIC: ${{ vars.VERDACCIO_FORCE_PUBLIC }}
-        # The in-cluster Verdaccio cache first on self-hosted runners (registry.npmjs.org over the homelab WAN timed out
+        # The in-cluster Verdaccio cache first on self-hosted runners (registry.npmjs.org over the WAN timed out
         # on busy nights: Release Apps v0.146.28 release-linux), then the public registry; a few spaced tries.
         # GitHub-hosted runners cannot reach the LAN cache, so they use the public registry only.
         run: |
@@ -1106,7 +1106,7 @@ jobs:
         env:
           VERDACCIO_REGISTRY: ${{ vars.VERDACCIO_REGISTRY }}
           VERDACCIO_FORCE_PUBLIC: ${{ vars.VERDACCIO_FORCE_PUBLIC }}
-        # The in-cluster Verdaccio cache first on self-hosted runners (registry.npmjs.org over the homelab WAN timed out
+        # The in-cluster Verdaccio cache first on self-hosted runners (registry.npmjs.org over the WAN timed out
         # on busy nights: Release Apps v0.146.28 release-linux), then the public registry; a few spaced tries.
         # GitHub-hosted runners cannot reach the LAN cache, so they use the public registry only.
         run: |
@@ -1448,7 +1448,7 @@ jobs:
         env:
           VERDACCIO_REGISTRY: ${{ vars.VERDACCIO_REGISTRY }}
           VERDACCIO_FORCE_PUBLIC: ${{ vars.VERDACCIO_FORCE_PUBLIC }}
-        # The in-cluster Verdaccio cache first on self-hosted runners (registry.npmjs.org over the homelab WAN timed out
+        # The in-cluster Verdaccio cache first on self-hosted runners (registry.npmjs.org over the WAN timed out
         # on busy nights: Release Apps v0.146.28 release-linux), then the public registry; a few spaced tries.
         # GitHub-hosted runners cannot reach the LAN cache, so they use the public registry only.
         run: |
