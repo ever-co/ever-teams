@@ -242,8 +242,8 @@ export const ProjectsTable = memo(
 				enableHiding: true,
 				enableMultiSort: true,
 				sortingFn: (rowA, rowB) => {
-					const a = rowA.original.startDate ? moment(rowA.original.archivedAt).toDate() : new Date(0); // Default to epoch if no date
-					const b = rowB.original.startDate ? moment(rowB.original.archivedAt).toDate() : new Date(0);
+					const a = moment(rowA.original.archivedAt).toDate();
+					const b = moment(rowB.original.archivedAt).toDate();
 
 					return b.getTime() - a.getTime();
 				},
