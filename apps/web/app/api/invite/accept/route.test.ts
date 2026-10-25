@@ -32,6 +32,9 @@ const INVITATION_CHECK = {
 	isExpired: false
 };
 
+/** An organization the invitee belonged to before the invitation. */
+const EARLIER_ORGANIZATION_ID = 'org-before-the-invite';
+
 type GauzyAnswer = { status: number; body: unknown };
 
 const originalFetch = global.fetch;
@@ -60,6 +63,31 @@ function acceptedAnswer(token: string) {
 		user: { id: INVITED.userId, tenantId: INVITED.tenantId, email: INVITED.email },
 		token,
 		refresh_token: INVITED.refreshToken
+	};
+}
+
+/** Gauzy's list of the invitee's organizations, each as `[organizationId, name]`, in the order it lists them. */
+function membershipsAnswer(...organizations: Array<[string, string]>): GauzyAnswer {
+	const items = organizations.map(([organizationId, name]) => ({ organizationId, organization: { name } }));
+	return { status: 200, body: { items, total: items.length } };
+}
+
+/** The invitee belongs to an earlier organization, listed first, and to the invited one. */
+const MEMBERSHIPS_OF_A_MEMBER = membershipsAnswer(
+	[EARLIER_ORGANIZATION_ID, 'Before'],
+	[INVITED.organizationId, 'Acme']
+);
+
+/**
+ * Gauzy's answers to a whole accept: the invitation check, the accept that signs the invitee in with `token`, the
+ * invitee's `memberships` and the invited organization's first team.
+ */
+function acceptAnswers(token: string, memberships: GauzyAnswer): Record<string, GauzyAnswer> {
+	return {
+		'POST /invite/validate-by-code': { status: 201, body: INVITATION_CHECK },
+		'POST /invite/accept': { status: 201, body: acceptedAnswer(token) },
+		'GET /user-organization': memberships,
+		'GET /organization-team': { status: 200, body: { items: [{ id: INVITED.teamId }], total: 1 } }
 	};
 }
 
@@ -108,21 +136,8 @@ describe('POST /api/invite/accept', () => {
 	it('accepts with Gauzy, then signs the invitee in to the invited organization and its first team', async () => {
 		const token = invitedAccessToken();
 		const accepted = acceptedAnswer(token);
-		const fetchMock = gauzyAnswers({
-			'POST /invite/validate-by-code': { status: 201, body: INVITATION_CHECK },
-			'POST /invite/accept': { status: 201, body: accepted },
-			'GET /user-organization': {
-				status: 200,
-				body: {
-					items: [
-						{ organizationId: 'org-of-another-invite', organization: { name: 'Another' } },
-						{ organizationId: INVITED.organizationId, organization: { name: 'Acme' } }
-					],
-					total: 2
-				}
-			},
-			'GET /organization-team': { status: 200, body: { items: [{ id: INVITED.teamId }], total: 1 } }
-		});
+		const memberships = membershipsAnswer(['org-of-another-invite', 'Another'], [INVITED.organizationId, 'Acme']);
+		const fetchMock = gauzyAnswers(acceptAnswers(token, memberships));
 
 		const response = await POST(acceptRequest());
 
@@ -148,42 +163,21 @@ describe('POST /api/invite/accept', () => {
 
 	it('signs a member of several organizations in to the invited one by name, as the accept page does in direct mode', async () => {
 		// Gauzy's token acts in the organization the user already belonged to, also the first of the list
-		const token = invitedAccessToken('org-before-the-invite');
-		gauzyAnswers({
-			'POST /invite/validate-by-code': { status: 201, body: INVITATION_CHECK },
-			'POST /invite/accept': { status: 201, body: acceptedAnswer(token) },
-			'GET /user-organization': {
-				status: 200,
-				body: {
-					items: [
-						{ organizationId: 'org-before-the-invite', organization: { name: 'Before' } },
-						{ organizationId: INVITED.organizationId, organization: { name: 'Acme' } }
-					],
-					total: 2
-				}
-			},
-			'GET /organization-team': { status: 200, body: { items: [{ id: INVITED.teamId }], total: 1 } }
-		});
+		const token = invitedAccessToken(EARLIER_ORGANIZATION_ID);
+		gauzyAnswers(acceptAnswers(token, MEMBERSHIPS_OF_A_MEMBER));
 
 		const response = await POST(acceptRequest());
 
 		expect(response.status).toBe(201);
 		const cookies = response.headers.get('set-cookie') ?? '';
 		expect(cookies).toContain(`${ORGANIZATION_ID_COOKIE_NAME}=${INVITED.organizationId}`);
-		expect(cookies).not.toContain(`${ORGANIZATION_ID_COOKIE_NAME}=org-before-the-invite`);
+		expect(cookies).not.toContain(`${ORGANIZATION_ID_COOKIE_NAME}=${EARLIER_ORGANIZATION_ID}`);
 	});
 
 	it("sends the app's origin to Gauzy's accept, as the browser does in direct mode, for the welcome e-mail links", async () => {
 		const token = invitedAccessToken();
-		const fetchMock = gauzyAnswers({
-			'POST /invite/validate-by-code': { status: 201, body: INVITATION_CHECK },
-			'POST /invite/accept': { status: 201, body: acceptedAnswer(token) },
-			'GET /user-organization': {
-				status: 200,
-				body: { items: [{ organizationId: INVITED.organizationId, organization: { name: 'Acme' } }], total: 1 }
-			},
-			'GET /organization-team': { status: 200, body: { items: [{ id: INVITED.teamId }], total: 1 } }
-		});
+		const memberships = membershipsAnswer([INVITED.organizationId, 'Acme']);
+		const fetchMock = gauzyAnswers(acceptAnswers(token, memberships));
 
 		await POST(acceptRequest());
 
@@ -195,20 +189,10 @@ describe('POST /api/invite/accept', () => {
 
 	it('still accepts when the invitation check gives no answer, and takes the first organization like direct mode', async () => {
 		const token = invitedAccessToken('org-2');
-		const fetchMock = gauzyAnswers({
-			'POST /invite/accept': { status: 201, body: acceptedAnswer(token) },
-			'GET /user-organization': {
-				status: 200,
-				body: {
-					items: [
-						{ organizationId: INVITED.organizationId, organization: { name: 'Acme' } },
-						{ organizationId: 'org-2', organization: { name: 'Second' } }
-					],
-					total: 2
-				}
-			},
-			'GET /organization-team': { status: 200, body: { items: [{ id: INVITED.teamId }], total: 1 } }
-		});
+		const memberships = membershipsAnswer([INVITED.organizationId, 'Acme'], ['org-2', 'Second']);
+		const answers = acceptAnswers(token, memberships);
+		delete answers['POST /invite/validate-by-code'];
+		const fetchMock = gauzyAnswers(answers);
 
 		const response = await POST(acceptRequest());
 
