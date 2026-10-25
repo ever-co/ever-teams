@@ -32,7 +32,13 @@ function render(rq: ReactQuery, client: QueryClient) {
 		['plain', undefined]
 	];
 	for (const [key, gcTime] of queries) {
-		new rq.QueryObserver(client, { queryKey: [key], queryFn: async () => [], enabled: false, gcTime });
+		// No gcTime key at all for `plain`: an explicit undefined would override the client's default
+		new rq.QueryObserver(client, {
+			queryKey: [key],
+			queryFn: async () => [],
+			enabled: false,
+			...(gcTime === undefined ? {} : { gcTime })
+		});
 	}
 	client.getQueryCache().build(client, { queryKey: ['prefetched'], gcTime: 15 * 60 * 1000 });
 }
