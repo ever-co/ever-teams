@@ -239,7 +239,11 @@ describe('POST /api/auth/ever-id/finish-setup', () => {
 			const { POST } = loadRoute();
 
 			const first = POST(post({ workspace: 1 }));
-			await new Promise((resolve) => setTimeout(resolve, 0));
+			// The first request holds its claim once it reaches the workspace sign-in (after body, session and budget)
+			for (let tick = 0; !mockWorkspaceSignin.mock.calls.length && tick < 100; tick++) {
+				await new Promise((resolve) => setTimeout(resolve, 0));
+			}
+			expect(mockWorkspaceSignin).toHaveBeenCalledTimes(1);
 			mockAuth.mockResolvedValueOnce(
 				everIdSession([workspace('u1', 't1'), { ...workspace('u2', null), token: overlappingToken }])
 			);
