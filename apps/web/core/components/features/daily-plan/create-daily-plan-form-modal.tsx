@@ -3,7 +3,7 @@ import { useForm } from 'react-hook-form';
 import { useEmployeeDailyPlans } from '@/core/hooks/daily-plans/use-employee-daily-plans';
 import { useCreateDailyPlan } from '@/core/hooks/daily-plans/use-create-daily-plan';
 import { Modal, Text } from '@/core/components';
-import { getDailyPlanDay, imgTitle, tomorrowDate, yesterdayDate } from '@/core/lib/helpers/index';
+import { getDailyPlanDay, getTomorrowDate, getYesterdayDate, imgTitle } from '@/core/lib/helpers/index';
 import { ReloadIcon } from '@radix-ui/react-icons';
 import moment from 'moment';
 import { Calendar } from '@/core/components/common/calendar';
@@ -58,7 +58,7 @@ export function CreateDailyPlanFormModal({
 		[activeTeamManagers, user?.id]
 	);
 
-	const [date, setDate] = useState<Date>(new Date(tomorrowDate));
+	const [date, setDate] = useState<Date>(getTomorrowDate);
 	const [selectedEmployee, setSelectedEmployee] = useState<TOrganizationTeamEmployee | undefined>(
 		isManagerConnectedUser
 	);
@@ -265,14 +265,21 @@ const CustomCalendar = memo(function CustomCalendar({
 	existingPlanDates: Date[];
 	existingTaskPlanDates: Date[];
 }) {
+	const pastDays = { from: new Date(1970, 1, 1), to: getYesterdayDate() };
+
+	const handleDaySelect = (day: Date | undefined) => {
+		const selectedDay = day ?? getTomorrowDate();
+		setDate(selectedDay);
+	};
+
 	return (
 		<Calendar
 			mode="single"
 			captionLayout="buttons"
 			selected={date}
-			onSelect={(day: Date | undefined) => setDate(day ? day : new Date(tomorrowDate))}
+			onSelect={handleDaySelect}
 			initialFocus
-			disabled={[{ from: new Date(1970, 1, 1), to: yesterdayDate }, ...existingTaskPlanDates]}
+			disabled={[pastDays, ...existingTaskPlanDates]}
 			modifiers={{
 				booked: existingPlanDates
 			}}

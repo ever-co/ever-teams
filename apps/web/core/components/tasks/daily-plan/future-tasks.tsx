@@ -1,4 +1,4 @@
-import { formatDayPlanDate, tomorrowDate } from '@/core/lib/helpers/index';
+import { formatDayPlanDate, getTomorrowDate } from '@/core/lib/helpers/index';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/core/components/common/accordion';
 import { EmptyPlans, PlanHeader } from '@/core/components/daily-plan';
 
@@ -63,15 +63,13 @@ export function FutureTasks({
 	const { dragPlans, onDragEnd } = useDailyPlanTaskOrder(futureDailyPlanTasks);
 
 	if (!futureDailyPlanTasks) return null;
+	const tomorrowIsoString = getTomorrowDate().toISOString();
+	const tomorrowPlanDay = tomorrowIsoString.split('T')[0];
 	return (
 		<div className="flex flex-col gap-6">
 			{dragPlans.length > 0 ? (
 				<DragDropContext onDragEnd={onDragEnd}>
-					<Accordion
-						type="multiple"
-						className="text-sm"
-						defaultValue={[tomorrowDate.toISOString().split('T')[0]]}
-					>
+					<Accordion type="multiple" className="text-sm" defaultValue={[tomorrowPlanDay]}>
 						{dragPlans.map((plan) => (
 							<AccordionItem
 								value={plan.date.toString().split('T')[0]}

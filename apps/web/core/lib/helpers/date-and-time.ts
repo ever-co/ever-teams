@@ -174,6 +174,11 @@ export const tomorrowDate = moment().add(1, 'days').toDate();
 
 export const yesterdayDate = moment().subtract(1, 'days').toDate();
 
+// tomorrowDate and yesterdayDate are fixed when the module loads, these follow the current day
+export const getTomorrowDate = () => moment().add(1, 'days').toDate();
+
+export const getYesterdayDate = () => moment().subtract(1, 'days').toDate();
+
 export const formatDayPlanDate = (dateString: string | Date, format?: string) => {
 	dateString = getDailyPlanDay(dateString);
 	const date = moment(dateString, 'YYYY-MM-DD');
