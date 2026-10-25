@@ -1302,6 +1302,7 @@
 			"EMPLOYEE_PLANS_FETCH_FAILED": "Errore durante il recupero dei piani giornalieri del dipendente: {employeeId}",
 			"PLANS_FETCH_FAILED": "Impossibile recuperare i piani giornalieri",
 			"INVALID_TIME_FORMAT": "Formato orario non valido, usa H:MM o un numero decimale (es. 4.5).",
+			"MINUTES_OUT_OF_RANGE": "I minuti devono essere < 60",
 			"PLAN_UPDATED": "Piano aggiornato con successo",
 			"PLAN_UPDATE_FAILED": "Aggiornamento del piano fallito. Riprova.",
 			"PLAN_UPDATE_FAILED_WITH_ERROR": "Aggiornamento del piano fallito. Errore: {error}",

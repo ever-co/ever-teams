@@ -1302,6 +1302,7 @@
 			"EMPLOYEE_PLANS_FETCH_FAILED": "Error al obtener los planes diarios del empleado: {employeeId}",
 			"PLANS_FETCH_FAILED": "No se pudieron obtener los planes diarios",
 			"INVALID_TIME_FORMAT": "Formato de hora no válido, usa H:MM o un número decimal (p. ej., 4.5).",
+			"MINUTES_OUT_OF_RANGE": "Los minutos deben ser < 60",
 			"PLAN_UPDATED": "Plan actualizado exitosamente",
 			"PLAN_UPDATE_FAILED": "Error al actualizar el plan. Por favor, inténtalo de nuevo.",
 			"PLAN_UPDATE_FAILED_WITH_ERROR": "Error al actualizar el plan. Error: {error}",

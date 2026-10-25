@@ -1,4 +1,4 @@
-import { formatIntegerToHour, formatTimeString } from './date-and-time';
+import { formatIntegerToHour, formatTimeString, parseStringInputToHours } from './date-and-time';
 
 describe('formatIntegerToHour', () => {
 	it('formats whole hours without minutes', () => {
@@ -39,5 +39,23 @@ describe('formatIntegerToHour', () => {
 		// The weekly-limit report renders its own '-' and relies on formatTimeString for the magnitude
 		expect(formatTimeString(formatIntegerToHour(-5400 / 3600))).toBe('1h 30m');
 		expect(formatTimeString(formatIntegerToHour(-1800 / 3600))).toBe('30m');
+	});
+});
+
+describe('parseStringInputToHours', () => {
+	it('reads H:MM and decimal inputs', () => {
+		expect(parseStringInputToHours('4:30')).toEqual({ hours: 4.5 });
+		expect(parseStringInputToHours('2,5')).toEqual({ hours: 2.5 });
+		expect(parseStringInputToHours(' ')).toEqual({ hours: 0 });
+	});
+
+	it('gives the reason of a rejected input as a code, next to its English message', () => {
+		expect(parseStringInputToHours('1:75')).toEqual({
+			error: 'Minutes must be < 60',
+			errorCode: 'MINUTES_OUT_OF_RANGE'
+		});
+		const invalidFormat = { error: 'Invalid format. Use H:MM or decimal (e.g. 4.5).', errorCode: 'INVALID_FORMAT' };
+		expect(parseStringInputToHours('abc')).toEqual(invalidFormat);
+		expect(parseStringInputToHours('-1')).toEqual(invalidFormat);
 	});
 });

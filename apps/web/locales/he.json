@@ -1302,6 +1302,7 @@
 			"EMPLOYEE_PLANS_FETCH_FAILED": "שגיאה בטעינת התוכניות היומיות של העובד: {employeeId}",
 			"PLANS_FETCH_FAILED": "לא ניתן לטעון את התוכניות היומיות",
 			"INVALID_TIME_FORMAT": "פורמט זמן לא תקין, השתמש ב-H:MM או במספר עשרוני (לדוגמה 4.5).",
+			"MINUTES_OUT_OF_RANGE": "הדקות חייבות להיות פחות מ-60",
 			"PLAN_UPDATED": "התוכנית עודכנה בהצלחה",
 			"PLAN_UPDATE_FAILED": "נכשל לעדכן את התוכנית. אנא נסה שוב.",
 			"PLAN_UPDATE_FAILED_WITH_ERROR": "נכשל לעדכן את התוכנית. שגיאה: {error}",

@@ -1302,6 +1302,7 @@
 			"EMPLOYEE_PLANS_FETCH_FAILED": "Błąd podczas pobierania planów dnia pracownika: {employeeId}",
 			"PLANS_FETCH_FAILED": "Nie udało się pobrać planów dnia",
 			"INVALID_TIME_FORMAT": "Nieprawidłowy format czasu, użyj H:MM lub liczby dziesiętnej (np. 4.5).",
+			"MINUTES_OUT_OF_RANGE": "Minuty muszą być < 60",
 			"PLAN_UPDATED": "Plan został pomyślnie zaktualizowany",
 			"PLAN_UPDATE_FAILED": "Nie udało się zaktualizować planu. Spróbuj ponownie.",
 			"PLAN_UPDATE_FAILED_WITH_ERROR": "Nie udało się zaktualizować planu. Błąd: {error}",

@@ -1302,6 +1302,7 @@
 			"EMPLOYEE_PLANS_FETCH_FAILED": "Fehler beim Abrufen der Tagespläne des Mitarbeiters: {employeeId}",
 			"PLANS_FETCH_FAILED": "Tagespläne konnten nicht abgerufen werden",
 			"INVALID_TIME_FORMAT": "Ungültiges Zeitformat, verwenden Sie H:MM oder eine Dezimalzahl (z. B. 4.5).",
+			"MINUTES_OUT_OF_RANGE": "Minuten müssen < 60 sein",
 			"PLAN_UPDATED": "Plan erfolgreich aktualisiert",
 			"PLAN_UPDATE_FAILED": "Aktualisierung des Plans fehlgeschlagen. Bitte versuchen Sie es erneut.",
 			"PLAN_UPDATE_FAILED_WITH_ERROR": "Aktualisierung des Plans fehlgeschlagen. Fehler: {error}",

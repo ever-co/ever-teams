@@ -1302,6 +1302,7 @@
 			"EMPLOYEE_PLANS_FETCH_FAILED": "Fout bij het ophalen van de dagplannen van medewerker: {employeeId}",
 			"PLANS_FETCH_FAILED": "Dagplannen ophalen mislukt",
 			"INVALID_TIME_FORMAT": "Ongeldige tijdnotatie, gebruik H:MM of een decimaal getal (bijv. 4.5).",
+			"MINUTES_OUT_OF_RANGE": "Minuten moeten < 60 zijn",
 			"PLAN_UPDATED": "Plan succesvol bijgewerkt",
 			"PLAN_UPDATE_FAILED": "Plan bijwerken mislukt. Probeer opnieuw.",
 			"PLAN_UPDATE_FAILED_WITH_ERROR": "Plan bijwerken mislukt. Fout: {error}",

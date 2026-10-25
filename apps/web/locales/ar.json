@@ -1302,6 +1302,7 @@
 			"EMPLOYEE_PLANS_FETCH_FAILED": "خطأ أثناء جلب الخطط اليومية للموظف: {employeeId}",
 			"PLANS_FETCH_FAILED": "تعذّر جلب الخطط اليومية",
 			"INVALID_TIME_FORMAT": "تنسيق الوقت غير صالح، استخدم H:MM أو رقمًا عشريًا (مثل 4.5).",
+			"MINUTES_OUT_OF_RANGE": "يجب أن تكون الدقائق أقل من 60",
 			"PLAN_UPDATED": "تم تحديث الخطة بنجاح",
 			"PLAN_UPDATE_FAILED": "فشل في تحديث الخطة. يرجى المحاولة مرة أخرى.",
 			"PLAN_UPDATE_FAILED_WITH_ERROR": "فشل في تحديث الخطة. الخطأ: {error}",

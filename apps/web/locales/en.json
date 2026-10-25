@@ -1302,6 +1302,7 @@
 			"EMPLOYEE_PLANS_FETCH_FAILED": "Error when fetching day plans for employee: {employeeId}",
 			"PLANS_FETCH_FAILED": "Unable to fetch day plans",
 			"INVALID_TIME_FORMAT": "Invalid time format, use H:MM or decimal (e.g. 4.5).",
+			"MINUTES_OUT_OF_RANGE": "Minutes must be < 60",
 			"PLAN_UPDATED": "Plan updated successfully",
 			"PLAN_UPDATE_FAILED": "Failed to update plan. Please try again.",
 			"PLAN_UPDATE_FAILED_WITH_ERROR": "Failed to update plan. Error: {error}",

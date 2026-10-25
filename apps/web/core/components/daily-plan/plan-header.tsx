@@ -4,7 +4,12 @@ import { checkPastDate } from '@/core/lib/helpers';
 import { useTranslations } from 'next-intl';
 import { useCallback, useMemo, useState } from 'react';
 
-import { formatIntegerToHour, hoursToHMM, parseStringInputToHours } from '@/core/lib/helpers/index';
+import {
+	formatIntegerToHour,
+	hoursToHMM,
+	parseStringInputToHours,
+	type THoursInputErrorCode
+} from '@/core/lib/helpers/index';
 import { useAuthenticateUser, useCanSeeActivityScreen } from '@/core/hooks';
 
 import { FilterTabs } from '@/core/types/daily-plan-types';
@@ -22,6 +27,22 @@ import { AlertPopup } from '../common/alert-popup';
 import { toast } from 'sonner';
 import { useGetTimeLogs } from '@/core/hooks/activities/time-logs/use-get-time-logs';
 import { isTaskFinished } from '@/core/lib/helpers/task';
+
+// The parser's own messages are English, its error code picks the translated one
+function getInvalidTimeMessageKey(errorCode?: THoursInputErrorCode) {
+	if (errorCode === 'MINUTES_OUT_OF_RANGE') {
+		return 'dailyPlan.toastMessages.MINUTES_OUT_OF_RANGE';
+	}
+	return 'dailyPlan.toastMessages.INVALID_TIME_FORMAT';
+}
+
+// String(error) would put an English "Error:" prefix in the translated toast
+function getErrorText(error: unknown) {
+	if (error instanceof Error && error.message) {
+		return error.message;
+	}
+	return String(error);
+}
 
 export function PlanHeader({ plan, planMode }: { plan: TDailyPlan; planMode: FilterTabs }) {
 	const [editTime, setEditTime] = useState<boolean>(false);
@@ -70,9 +91,10 @@ export function PlanHeader({ plan, planMode }: { plan: TDailyPlan; planMode: Fil
 		if (updateDailyPlanLoading) return;
 
 		try {
-			const { hours, error: parseError } = parseStringInputToHours(inputValue);
+			const { hours, error: parseError, errorCode } = parseStringInputToHours(inputValue);
 			if (parseError || hours === undefined || !Number.isFinite(hours) || hours < 0) {
-				const invalidTimeMessage = parseError ?? t('dailyPlan.toastMessages.INVALID_TIME_FORMAT');
+				const invalidTimeMessageKey = getInvalidTimeMessageKey(errorCode);
+				const invalidTimeMessage = t(invalidTimeMessageKey);
 				throw new Error(invalidTimeMessage);
 			}
 
@@ -93,7 +115,7 @@ export function PlanHeader({ plan, planMode }: { plan: TDailyPlan; planMode: Fil
 			setTime(plan.workTimePlanned ?? 0);
 			setInputValue(hoursToHMM(plan.workTimePlanned ?? 0));
 			setEditTime(false);
-			const errorText = String(err);
+			const errorText = getErrorText(err);
 			const updateFailedMessage = t('dailyPlan.toastMessages.PLAN_UPDATE_FAILED_WITH_ERROR', {
 				error: errorText
 			});
