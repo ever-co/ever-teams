@@ -81,6 +81,11 @@ jobs:
 
       - name: Install dependencies (Yarn)
         run: yarn install --frozen-lockfile
+        env:
+          # This job builds and publishes the SDK and runs no Cypress: skip the binary download in cypress's
+          # postinstall (a large download over the public network, outside Verdaccio). It failed this install on
+          # 2026-10-26 (run 40252197246), as it had the web and mobile jobs before they got the same setting.
+          CYPRESS_INSTALL_BINARY: '0'
 
       - name: Restore registry config (keep the checkout npmjs-clean)
         # Configure Registry above may rewrite yarn.lock and append registry lines
