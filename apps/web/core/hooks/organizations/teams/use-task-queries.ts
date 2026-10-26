@@ -1,6 +1,7 @@
 'use client';
 
 import { taskService } from '@/core/services/client/api';
+import { ApiErrorService } from '@/core/services/client/api-error.service';
 import { activeTeamState, detailedTaskState, tasksByTeamState } from '@/core/stores';
 import { useCallback, useState } from 'react';
 import { useAtom, useAtomValue } from 'jotai';
@@ -10,8 +11,16 @@ import { useQueryClient } from '@tanstack/react-query';
 import { queryKeys } from '@/core/query/keys';
 import { useTasksByEmployeeQuery } from './use-tasks-by-employee-query';
 
-/** A `getTaskById` call that failed: the task it asked for and the error it got. */
-type TGetTaskByIdError = { taskId: string; error: unknown };
+/** A `getTaskById` call that failed: the task it asked for, the error it got, and whether that task does not exist. */
+type TGetTaskByIdError = { taskId: string; error: unknown; isTaskNotFound: boolean };
+
+/** The API answers 404 for a task that does not exist or was deleted, and 406 for an id that is not a UUID. */
+function isTaskNotFoundError(error: unknown): boolean {
+	if (!ApiErrorService.isApiError(error)) {
+		return false;
+	}
+	return error.hasHttpResponseStatus(404, 406);
+}
 
 /**
  * Hook for specific task queries (individual task fetching operations).
@@ -25,7 +34,8 @@ type TGetTaskByIdError = { taskId: string; error: unknown };
  * @returns Object containing:
  * - `getTaskById` - Function to fetch a single task
  * - `getTasksByIdLoading` - Task fetch loading state
- * - `getTaskByIdError` - The last failed task fetch (task id and error), cleared by the next successful one
+ * - `getTaskByIdError` - The last failed task fetch (task id, error, and whether the task does not exist), cleared
+ *   by the next successful one
  * - `getTasksByEmployeeId` - Function to fetch tasks by employee
  * - `getTasksByEmployeeIdLoading` - Employee tasks loading state
  * - `detailedTask` - Currently detailed task data
@@ -75,7 +85,8 @@ export function useTaskQueries() {
 				return res;
 			} catch (error) {
 				console.error('Error fetching task by ID:', error);
-				setGetTaskByIdError({ taskId, error });
+				const isTaskNotFound = isTaskNotFoundError(error);
+				setGetTaskByIdError({ taskId, error, isTaskNotFound });
 				return null;
 			}
 		},

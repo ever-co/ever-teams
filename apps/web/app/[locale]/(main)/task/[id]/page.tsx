@@ -15,21 +15,12 @@ import { TaskDetailsPageSkeleton } from '@/core/components/common/skeleton/task-
 import { AnimatedEmptyState } from '@/core/components/common/empty-state';
 import { DocumentMagnifyingGlassIcon } from '@heroicons/react/20/solid';
 import { clsxm } from '@/core/lib/utils';
-import { ApiErrorService } from '@/core/services/client/api-error.service';
 import Link from 'next/link';
 
 // Import optimized components from centralized location
 import { LazyTaskDetailsComponent } from '@/core/components/optimized-components';
 import { activeTeamState, detailedTaskState, isTrackingEnabledState } from '@/core/stores';
 import { useTeamDailyPlansOwner } from '@/core/hooks/bootstrap/use-feature-data';
-
-/** The API answers 404 for a task that does not exist or was deleted, and 406 for an id that is not a UUID. */
-function isTaskNotFoundError(error: unknown): boolean {
-	if (!ApiErrorService.isApiError(error)) {
-		return false;
-	}
-	return error.hasHttpResponseStatus(404, 406);
-}
 
 const TaskDetails = () => {
 	useTeamDailyPlansOwner();
@@ -51,7 +42,7 @@ const TaskDetails = () => {
 	// A failed load wins over the store, which can still hold the task opened before, or the team list copy of
 	// this one that getTaskById puts there before it asks for the full task
 	const hasLoadFailed = getTaskByIdError !== null && getTaskByIdError.taskId === id;
-	const isTaskNotFound = isTaskNotFoundError(getTaskByIdError?.error);
+	const isTaskNotFound = getTaskByIdError?.isTaskNotFound === true;
 	const isLoadErrorShown = hasLoadFailed && !isTaskNotFound;
 
 	const breadcrumb = [
