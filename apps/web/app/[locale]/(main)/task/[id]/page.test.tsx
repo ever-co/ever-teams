@@ -180,7 +180,7 @@ describe('task page load failures', () => {
 		await screen.findByText('Task not found');
 		await keepPageOpen();
 		expect(mockGetTaskById).toHaveBeenCalledTimes(1);
-		expect(screen.queryByText('Task not found')).not.toBeNull();
+		expect(screen.getByText('Task not found')).toBeTruthy();
 		expect(screen.queryByText('pages.error.HEADING_TITLE')).toBeNull();
 	});
 
