@@ -30,8 +30,10 @@ export async function POST(req: Request) {
 		return NextResponse.json({ statusCode: 415, message: 'Unsupported Media Type' }, { status: 415 });
 	}
 
+	// Gauzy checks the fields (AcceptInviteDTO, whitelisted, keeps code, token and password optional on purpose): only a
+	// body that is no JSON object at all is refused here
 	const input: AcceptInviteParams | null = await req.json().catch(() => null);
-	if (!input) {
+	if (!isJsonObject(input)) {
 		return NextResponse.json({ statusCode: 400, message: 'Bad Request' }, { status: 400 });
 	}
 
@@ -161,6 +163,12 @@ function appOriginOf(req: Request): string {
 	if (isUsable) return sentOrigin;
 
 	return new URL(req.url).origin;
+}
+
+/** Whether a parsed JSON body is an object, the only shape Gauzy's accept takes. */
+function isJsonObject(body: unknown): body is object {
+	const isObject = typeof body === 'object' && body !== null;
+	return isObject && !Array.isArray(body);
 }
 
 function isJsonBody(req: Request): boolean {

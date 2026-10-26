@@ -146,6 +146,11 @@ function acceptRequest(contentType = 'application/json', url = ACCEPT_URL, heade
 	});
 }
 
+/** The accept form posting `body`, raw, as JSON. */
+function jsonAcceptRequest(body: string) {
+	return new NextRequest(ACCEPT_URL, { method: 'POST', headers: { 'content-type': 'application/json' }, body });
+}
+
 describe('POST /api/invite/accept', () => {
 	it('accepts with Gauzy, then signs the invitee in to the invited organization and its first team', async () => {
 		const token = invitedAccessToken();
@@ -304,5 +309,33 @@ describe('POST /api/invite/accept', () => {
 
 		expect(response.status).toBe(415);
 		expect(fetchMock).not.toHaveBeenCalled();
+	});
+
+	it.each([
+		['an array', '[]'],
+		['a string', '"an invitation"'],
+		['a number', '42']
+	])('refuses a JSON body that is %s without calling Gauzy, since no accept is one', async (_case, body) => {
+		const fetchMock = gauzyAnswers({});
+
+		const response = await POST(jsonAcceptRequest(body));
+
+		expect(response.status).toBe(400);
+		expect(fetchMock).not.toHaveBeenCalled();
+	});
+
+	it("leaves missing fields to Gauzy's own check, and answers its refusal without a session", async () => {
+		const posted = { email: INVITED.email, code: INVITED.code };
+		const refusal = { statusCode: 400, message: ['user should not be empty'], error: 'Bad Request' };
+		const fetchMock = gauzyAnswers({ 'POST /invite/accept': { status: 400, body: refusal } });
+
+		const response = await POST(jsonAcceptRequest(JSON.stringify(posted)));
+
+		expect(response.status).toBe(400);
+		await expect(response.json()).resolves.toEqual(refusal);
+		// Forwarded as posted: Gauzy's DTO keeps code, token and password optional and whitelists the rest
+		const [, acceptCall] = fetchMock.mock.calls as Array<[string, RequestInit]>;
+		expect(JSON.parse(String(acceptCall[1].body))).toEqual(posted);
+		expect(response.headers.get('set-cookie')).toBeNull();
 	});
 });
