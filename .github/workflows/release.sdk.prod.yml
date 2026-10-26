@@ -6,11 +6,12 @@ on:
   workflow_dispatch:
 
 # One release at a time, never cancelled: two runs reading the same npm version would compute the same next
-# version, and the second publish would skip it. A run waits for the one in progress. (GitHub keeps one pending run,
-# so a third push during a release replaces the pending one; main pushes are cascades, far apart.)
+# version, and the second publish would skip it. A run waits for the one in progress, and `queue: max` keeps every
+# waiting push (up to 100) instead of the default single pending run, so no push's changes are dropped.
 concurrency:
   group: release-sdk-npm
   cancel-in-progress: false
+  queue: max
 
 jobs:
   release:
@@ -45,7 +46,8 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v7
         with:
-          # Use GH_BRANCH_TOKEN to allow pushing to protected branches
+          # GH_BRANCH_TOKEN is not set (owner 2026-10-26: no token that pushes past main's PR rule): with
+          # GITHUB_TOKEN this job pushes only its bump branch and the release tags, never main.
           token: ${{ secrets.GH_BRANCH_TOKEN || secrets.GITHUB_TOKEN }}
           # Fetch full history for changesets
           fetch-depth: 0
@@ -199,6 +201,16 @@ jobs:
           # or every bump would cut a new release. They carry this marker in the commit subject and in the PR title,
           # so a squash-merged bump PR matches too.
           BUMP_MARKER='ci: sdk version bump via changeset'
+          # A re-run of a push this workflow already released must not release it again (it would publish the same
+          # code as the next patch). Such a push has a published release tag on a bump commit sitting directly on it.
+          for tag in $(git tag --list '@ever-teams/*@*'); do
+            if git log -1 --format=%s "$tag" 2>/dev/null | grep -qiF "$BUMP_MARKER" \
+              && [ "$(git rev-parse -q --verify "$tag^{commit}^" 2>/dev/null)" = "$(git rev-parse "$AFTER_SHA")" ]; then
+              echo "ℹ️  This push was already released ($tag): nothing to release again."
+              echo "release=false" >> "$GITHUB_OUTPUT"
+              exit 0
+            fi
+          done
           # A package counts as changed when the push makes a net change to it (a change reverted within the same
           # push does not count) AND that change comes from a commit other than a bump commit. Merge commits count
           # only for what they change beyond their parents (conflict resolutions), via the combined diff.
@@ -291,7 +303,8 @@ jobs:
             const pkg = JSON.parse(raw);
             let published = '';
             try {
-              published = execFileSync('npm', ['view', pkg.name, 'version'], { encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'] }).trim();
+              // npmjs explicitly: the tracked .npmrc points at the Yarn mirror, which can lag behind what was just published
+              published = execFileSync('npm', ['view', pkg.name, 'version', '--registry', 'https://registry.npmjs.org'], { encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'] }).trim();
             } catch (err) {
               // Only "no such package" means "not published yet". Any other failure (network, auth, registry) must stop
               // the release: going on from a stale version could compute one npm already has, which publish skips.
