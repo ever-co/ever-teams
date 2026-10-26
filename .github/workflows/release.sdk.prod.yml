@@ -144,10 +144,21 @@ jobs:
       - name: Drop changesets an earlier bump already published
         run: |
           marker='ci: sdk version bump via changeset'
-          consumed=$(for tag in $(git tag --list '@ever-teams/*@*'); do
-            if git log -1 --format=%s "$tag" 2>/dev/null | grep -qiF "$marker"; then
-              git show --diff-filter=D --name-only --format= "$tag" -- .changeset/ 2>/dev/null
-            fi
+          # A bump commit counts as published only when every package version it bumped has its release tag: after a
+          # partial publish its changesets stay, so a re-run finishes the release.
+          fully_published() {
+            local f id
+            for f in $(git diff-tree --no-commit-id --name-only -r "$1" -- 'packages/**/package.json' 2>/dev/null); do
+              id=$(git show "$1:$f" | node -e 'let s="";process.stdin.on("data",d=>s+=d).on("end",()=>{const p=JSON.parse(s);process.stdout.write(p.name+"@"+p.version)})')
+              git rev-parse -q --verify "refs/tags/$id" >/dev/null || return 1
+            done
+            return 0
+          }
+          bumps=$(for tag in $(git tag --list '@ever-teams/*@*'); do
+            git log -1 --format=%s "$tag" 2>/dev/null | grep -qiF "$marker" && git rev-parse "$tag^{commit}"
+          done | sort -u)
+          consumed=$(for c in $bumps; do
+            fully_published "$c" && git show --diff-filter=D --name-only --format= "$c" -- .changeset/ 2>/dev/null
           done | sort -u)
           for f in $consumed; do
             if [ -f "$f" ]; then
@@ -201,12 +212,23 @@ jobs:
           # or every bump would cut a new release. They carry this marker in the commit subject and in the PR title,
           # so a squash-merged bump PR matches too.
           BUMP_MARKER='ci: sdk version bump via changeset'
-          # A re-run of a push this workflow already released must not release it again (it would publish the same
-          # code as the next patch). Such a push has a published release tag on a bump commit sitting directly on it.
-          for tag in $(git tag --list '@ever-teams/*@*'); do
-            if git log -1 --format=%s "$tag" 2>/dev/null | grep -qiF "$BUMP_MARKER" \
-              && [ "$(git rev-parse -q --verify "$tag^{commit}^" 2>/dev/null)" = "$(git rev-parse "$AFTER_SHA")" ]; then
-              echo "ℹ️  This push was already released ($tag): nothing to release again."
+          # A push that is already part of a fully published release must not release again. That covers a re-run
+          # (it would publish the same code as the next patch) and a queued older run that starts after a newer one
+          # (it would publish older code as a newer version). Such a push is an ancestor of (or is) the commit a
+          # published bump commit was made on, and that bump has every one of its release tags.
+          fully_published() {
+            local f id
+            for f in $(git diff-tree --no-commit-id --name-only -r "$1" -- 'packages/**/package.json' 2>/dev/null); do
+              id=$(git show "$1:$f" | node -e 'let s="";process.stdin.on("data",d=>s+=d).on("end",()=>{const p=JSON.parse(s);process.stdout.write(p.name+"@"+p.version)})')
+              git rev-parse -q --verify "refs/tags/$id" >/dev/null || return 1
+            done
+            return 0
+          }
+          for bump in $(for tag in $(git tag --list '@ever-teams/*@*'); do
+            git log -1 --format=%s "$tag" 2>/dev/null | grep -qiF "$BUMP_MARKER" && git rev-parse "$tag^{commit}"
+          done | sort -u); do
+            if git merge-base --is-ancestor "$AFTER_SHA" "$bump^" 2>/dev/null && fully_published "$bump"; then
+              echo "ℹ️  This push is already in a published release (bump commit ${bump:0:8}): nothing to release again."
               echo "release=false" >> "$GITHUB_OUTPUT"
               exit 0
             fi
@@ -224,7 +246,8 @@ jobs:
               commit=${line%% *}
               parents=$(echo "$line" | wc -w)
               if [ "$parents" -gt 2 ]; then
-                [ -n "$(git diff-tree --cc --no-commit-id --name-only -r "$commit" -- "$@" 2>/dev/null)" ] && return 0
+                # A changelog-only resolution (two pending bump PRs both adding entries) is release metadata, not SDK code
+                [ -n "$(git diff-tree --cc --no-commit-id --name-only -r "$commit" -- "$@" ':(exclude,glob)**/CHANGELOG.md' 2>/dev/null)" ] && return 0
               elif ! git log -1 --format=%s "$commit" | grep -qiF "$BUMP_MARKER"; then
                 [ -n "$(git diff-tree --no-commit-id --name-only -r "$commit" -- "$@" 2>/dev/null)" ] && return 0
               fi
