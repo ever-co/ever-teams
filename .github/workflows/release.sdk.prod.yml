@@ -5,6 +5,13 @@ on:
     branches: [main]
   workflow_dispatch:
 
+# One release at a time, never cancelled: two runs reading the same npm version would compute the same next
+# version, and the second publish would skip it. A run waits for the one in progress. (GitHub keeps one pending run,
+# so a third push during a release replaces the pending one; main pushes are cascades, far apart.)
+concurrency:
+  group: release-sdk-npm
+  cancel-in-progress: false
+
 jobs:
   release:
     name: Version and SDK Publish with Changesets
@@ -129,7 +136,26 @@ jobs:
           yarn build:tracking
           echo "✅ All publishable SDK packages built successfully"
 
+      # A bump PR takes a while to reach main, and until then main still carries the changesets that bump consumed.
+      # Applying them again would cut another release with no new change. Each published release tag points at its
+      # bump commit, which deleted the changesets it consumed: those files are dropped here before anything counts them.
+      - name: Drop changesets an earlier bump already published
+        run: |
+          marker='ci: sdk version bump via changeset'
+          consumed=$(for tag in $(git tag --list '@ever-teams/*@*'); do
+            if git log -1 --format=%s "$tag" 2>/dev/null | grep -qiF "$marker"; then
+              git show --diff-filter=D --name-only --format= "$tag" -- .changeset/ 2>/dev/null
+            fi
+          done | sort -u)
+          for f in $consumed; do
+            if [ -f "$f" ]; then
+              echo "🧹 $f was already released by an earlier bump (its PR has not reached main yet): not applying it again"
+              rm -f "$f"
+            fi
+          done
+
       - name: Auto-generate changesets for changed SDK packages
+        id: detect
         env:
           BEFORE_SHA: ${{ github.event.before }}
           AFTER_SHA: ${{ github.sha }}
@@ -215,6 +241,7 @@ jobs:
 
           if [ ${#CHANGED_PACKAGES[@]} -eq 0 ] && [ "$EXISTING_CHANGESETS" -eq 0 ]; then
             echo "ℹ️  No SDK package changes detected and no manual changesets found. Skipping."
+            echo "release=false" >> "$GITHUB_OUTPUT"
             exit 0
           fi
 
@@ -243,12 +270,14 @@ jobs:
 
           echo ""
           echo "🎉 Changeset generation complete!"
+          echo "release=true" >> "$GITHUB_OUTPUT"
 
       # Until a version bump PR has gone develop -> stage -> main, main still carries the old versions: bumping from
       # them would compute a version npm already has, and `changeset publish` would silently skip the new code. So
       # each SDK package starts from npm's latest version when npm is ahead (internal dependencies use `*` ranges,
       # so nothing else needs rewriting).
       - name: Start SDK versions from npm's latest
+        if: steps.detect.outputs.release == 'true'
         run: |
           node <<'EOF'
           const fs = require('fs');
@@ -261,7 +290,15 @@ jobs:
             const raw = fs.readFileSync(file, 'utf8');
             const pkg = JSON.parse(raw);
             let published = '';
-            try { published = execFileSync('npm', ['view', pkg.name, 'version'], { encoding: 'utf8' }).trim(); } catch { console.log(`${pkg.name}: not on npm yet`); continue; }
+            try {
+              published = execFileSync('npm', ['view', pkg.name, 'version'], { encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'] }).trim();
+            } catch (err) {
+              // Only "no such package" means "not published yet". Any other failure (network, auth, registry) must stop
+              // the release: going on from a stale version could compute one npm already has, which publish skips.
+              if (/E404|404 Not Found/.test(String(err.stderr || '') + String(err.stdout || ''))) { console.log(`${pkg.name}: not on npm yet`); continue; }
+              console.error(`${pkg.name}: npm view failed:`, String(err.stderr || err.message).trim());
+              process.exit(1);
+            }
             if (published && newer(published, pkg.version)) {
               const indent = (/\n(\t| +)"/.exec(raw) || [, '\t'])[1];
               pkg.version = published;
@@ -274,6 +311,7 @@ jobs:
           EOF
 
       - name: Version bump via changesets
+        if: steps.detect.outputs.release == 'true'
         run: |
           yarn version-packages
 
@@ -282,6 +320,7 @@ jobs:
       # develop as a pull request, reaching main through the normal develop -> stage -> main cascade. The release
       # tags that the publish step pushes point at this commit, which the PR branch keeps reachable.
       - name: Open the version bump PR into develop
+        if: steps.detect.outputs.release == 'true'
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
