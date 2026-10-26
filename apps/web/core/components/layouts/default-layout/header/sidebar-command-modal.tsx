@@ -31,6 +31,7 @@ import {
 } from '../../../icons';
 import { useAuthenticateUser } from '../../../../hooks/auth';
 import { useModal } from '../../../../hooks';
+import { useCanInviteToActiveTeam } from '@/core/hooks/invitations/use-can-invite-to-active-team';
 import { useTranslations } from 'next-intl';
 import { Modal } from '../../../common/modal';
 import CreateTaskModal from '../../../features/tasks/create-task-modal';
@@ -100,6 +101,9 @@ export const SidebarCommandModal: FC<{ publicTeam: boolean; variant?: 'sidebar' 
 
 	const t = useTranslations();
 	const { user } = useAuthenticateUser();
+	// The API refuses an invitation into a team the user does not manage (403): offer "Invite User", and its
+	// key sequence, only to who may send it.
+	const canInvite = useCanInviteToActiveTeam();
 	const { setTheme, resolvedTheme } = useTheme();
 	const name = user?.name || user?.firstName || user?.lastName || user?.username;
 	const profileLink = `/profile/${user?.id}?name=${name || ''}`;
@@ -150,13 +154,17 @@ export const SidebarCommandModal: FC<{ publicTeam: boolean; variant?: 'sidebar' 
 			{
 				heading: 'Suggestions',
 				commands: [
-					{
-						sequence: ['i', 'u'],
-						description: 'Invite User',
-						shortcutDisplay: 'IU',
-						action: actions.inviteUser,
-						icon: <AddUserIcon />
-					},
+					...(canInvite
+						? [
+								{
+									sequence: ['i', 'u'],
+									description: 'Invite User',
+									shortcutDisplay: 'IU',
+									action: actions.inviteUser,
+									icon: <AddUserIcon />
+								}
+							]
+						: []),
 
 					{
 						sequence: ['a', 'm'],
@@ -328,7 +336,7 @@ export const SidebarCommandModal: FC<{ publicTeam: boolean; variant?: 'sidebar' 
 				]
 			}
 		],
-		[actions]
+		[actions, canInvite]
 	);
 
 	// Extract all shortcut configurations for the global hook
