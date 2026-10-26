@@ -19,6 +19,7 @@ jobs:
 
     permissions:
       contents: write # for changelog/version PRs
+      pull-requests: write # the version bump goes to develop as a pull request
       packages: write
       id-token: write # for trusted publishing (future use)
 
@@ -167,10 +168,23 @@ jobs:
             ':(exclude,glob)**/*.stories.*' ':(exclude,glob)**/.storybook/**'
           )
 
-          # Check each SDK package for changes across the full push range
+          # The commits that count: every non-merge commit of the push except this workflow's own version-bump
+          # commits. Those reach main through develop -> stage -> main (see "Open the version bump PR" below) and
+          # only change versions and changelogs; counting them would cut a new release after every bump.
+          RELEVANT_COMMITS=$(git log --no-merges --format='%H %s' "$DIFF_RANGE" 2>/dev/null | { grep -v ' ci: sdk version bump via changeset' || true; } | cut -d' ' -f1)
+          echo "🧾 Commits considered: $(echo "$RELEVANT_COMMITS" | { grep -c . || true; })"
+
+          # Check each SDK package for changes in those commits
           for pkg_path in "${!SDK_PACKAGES[@]}"; do
             pkg_name="${SDK_PACKAGES[$pkg_path]}"
-            if git diff --quiet "$DIFF_RANGE" -- "$pkg_path" "${DEV_ONLY[@]}" 2>/dev/null; then
+            pkg_changed=""
+            for commit in $RELEVANT_COMMITS; do
+              if [ -n "$(git diff-tree --no-commit-id --name-only -r "$commit" -- "$pkg_path" "${DEV_ONLY[@]}" 2>/dev/null)" ]; then
+                pkg_changed=1
+                break
+              fi
+            done
+            if [ -z "$pkg_changed" ]; then
               echo "  ⏭️  No changes in $pkg_name ($pkg_path)"
             else
               echo "  ✅ Changes detected in $pkg_name ($pkg_path)"
@@ -216,13 +230,31 @@ jobs:
         run: |
           yarn version-packages
 
-      - name: Commit and push version bumps
+      # main only takes changes through pull requests (owner decision 2026-10-26: no token that pushes past that).
+      # So the bump commit is not pushed to main. The packages are published from it below, and the bump goes to
+      # develop as a pull request, reaching main through the normal develop -> stage -> main cascade. The release
+      # tags that the publish step pushes point at this commit, which the PR branch keeps reachable.
+      - name: Open the version bump PR into develop
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add .
-          git commit -m "ci: sdk version bump via changeset [skip ci]" || echo "No changes to commit"
-          git push
+          if git diff --cached --quiet; then
+            echo "No version bump to commit"
+            exit 0
+          fi
+          git commit -m "ci: sdk version bump via changeset [skip ci]"
+          branch="ci/sdk-version-bump-${GITHUB_RUN_ID}"
+          git push origin "HEAD:refs/heads/${branch}"
+          versions=$(git diff --name-only HEAD~1 HEAD -- 'packages/**/package.json' | while read -r f; do node -p "const p = require('./$f'); p.name + '@' + p.version"; done | tr '\n' ' ')
+          gh pr create --base develop --head "$branch" \
+            --title "ci: SDK version bump from main ${GITHUB_SHA::8}" \
+            --body "Version bump made by **Release Ever Teams SDK to npm** (run ${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}) on main \`${GITHUB_SHA::8}\`; the packages are published to npm from this commit. ${versions}
+
+          Merge it into develop; it reaches main with the next develop -> stage -> main cascade. That run skips this commit when it looks for changed SDK packages, so it cuts no new release." \
+            || echo "::warning title=Version bump PR::Could not open the PR; open one from ${branch} into develop by hand (the bump is pushed and the publish still runs)."
 
       - name: Publish changed packages using Changesets
         uses: changesets/action@v1
