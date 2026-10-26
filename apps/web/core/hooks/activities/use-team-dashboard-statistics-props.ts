@@ -2,7 +2,12 @@ import { useMemo } from 'react';
 import { useAtomValue } from 'jotai';
 import { activeTeamState, organizationTeamsState } from '@/core/stores';
 import { useOrganizationAndTeamManagers } from '@/core/hooks/organizations/teams/use-organization-teams-managers';
-import { UseReportActivityProps, getReportMemberIds, managesEveryTeam } from './use-activity-filters';
+import {
+	UseReportActivityProps,
+	getReportMemberIds,
+	managesEveryTeam,
+	withResolvedMemberIds
+} from './use-activity-filters';
 import { useUserQuery } from '@/core/hooks/queries/user-user.query';
 import { ERoleName } from '@/core/types/generics/enums/role';
 
@@ -34,7 +39,8 @@ export interface TeamDashboardRequestProps {
  * The chart and the daily report read time logs, which the API limits to the caller's own logs when no employee
  * id is sent. For a manager with no member picked they name the active members of the requested teams, so they
  * cover the same members as the counters. Member picks, and teams too large to name their members, keep the
- * request they had.
+ * request they had. Their cache key follows the members of the page team, which no pick changes, so a change in
+ * that membership fetches them again.
  *
  * The URL segment is kept when it is one of the user's teams. Links saved before the segment carried a
  * team id hold a user id, so they fall back to the active team. Without any team the props are returned
@@ -74,16 +80,21 @@ export function useTeamDashboardStatisticsProps({
 			teamIds,
 			employeeIds: isManage ? mergedProps.employeeIds : []
 		};
+		// The page team's members key the chart and the daily report: a change in its membership fetches them again,
+		// while a pick in the filter still changes no key.
+		const pageMemberIds = getReportMemberIds(userManagedTeams, [statisticsTeamId]);
+		const reportPageProps = withResolvedMemberIds(pageProps, pageMemberIds);
 		const hasPickedMembers = !!isManage && mergedProps.employeeIds.length > 0;
 
-		if (hasPickedMembers) return { statisticsProps, reportProps: pageProps };
+		if (hasPickedMembers) return { statisticsProps, reportProps: reportPageProps };
 
 		const memberIds = getReportMemberIds(userManagedTeams, teamIds);
 
-		if (!memberIds.length) return { statisticsProps, reportProps: pageProps };
+		if (!memberIds.length) return { statisticsProps, reportProps: reportPageProps };
 
 		const memberProps = { ...statisticsProps, employeeIds: memberIds };
+		const reportMemberProps = withResolvedMemberIds(memberProps, pageMemberIds);
 
-		return { statisticsProps, reportProps: memberProps };
+		return { statisticsProps, reportProps: reportMemberProps };
 	}, [mergedProps, statisticsTeamId, userManagedTeams, isManage, isOrganizationWideViewer]);
 }

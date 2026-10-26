@@ -5,7 +5,7 @@ import type { UseReportActivityProps } from './use-activity-filters';
 jest.mock('@/core/hooks/auth', () => ({ useAuthenticateUser: jest.fn() }));
 jest.mock('./use-timelog-filter-options', () => ({ useTimelogFilterOptions: jest.fn() }));
 
-import { getAppliedTeamsReportProps } from './use-activity-filters';
+import { getActivityQueryKeyParams, getAppliedTeamsReportProps } from './use-activity-filters';
 
 const APPLIED_TEAM_ID = 'applied-team';
 
@@ -41,7 +41,11 @@ describe('getAppliedTeamsReportProps', () => {
 
 		const reportProps = getAppliedTeamsReportProps(mergedProps, [team], false);
 
-		expect(reportProps).toEqual({ ...mergedProps, employeeIds: ['manager', 'member-1'] });
+		expect(reportProps).toEqual({
+			...mergedProps,
+			employeeIds: ['manager', 'member-1'],
+			resolvedMemberIds: ['manager', 'member-1']
+		});
 	});
 
 	it('keeps the request of a team with more than 20 active members', () => {
@@ -63,5 +67,18 @@ describe('getAppliedTeamsReportProps', () => {
 		expect(withAppliedMember).toBe(memberProps);
 		expect(withUnmanagedTeam).toBe(mergedProps);
 		expect(forOrganizationWideViewer).toBe(mergedProps);
+	});
+
+	it('changes the report query key when the membership of the applied team changes', () => {
+		const team = buildTeam(buildActiveMembers(3));
+		const remainingMembers = buildActiveMembers(2);
+		const teamAfterArchive = buildTeam([...remainingMembers, { employeeId: 'employee-2', isArchived: true }]);
+
+		const reportProps = getAppliedTeamsReportProps(mergedProps, [team], false);
+		const reportPropsAfterArchive = getAppliedTeamsReportProps(mergedProps, [teamAfterArchive], false);
+		const queryKey = getActivityQueryKeyParams(reportProps);
+		const queryKeyAfterArchive = getActivityQueryKeyParams(reportPropsAfterArchive);
+
+		expect(queryKeyAfterArchive).not.toEqual(queryKey);
 	});
 });

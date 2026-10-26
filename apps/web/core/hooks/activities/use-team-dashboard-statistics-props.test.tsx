@@ -22,6 +22,7 @@ jest.mock('@/core/hooks/queries/user-user.query', () => ({ useUserQuery: () => (
 jest.mock('@/core/hooks/auth', () => ({ useAuthenticateUser: jest.fn() }));
 jest.mock('./use-timelog-filter-options', () => ({ useTimelogFilterOptions: jest.fn() }));
 
+import { getActivityQueryKeyParams } from './use-activity-filters';
 import { useTeamDashboardStatisticsProps } from './use-team-dashboard-statistics-props';
 
 const PAGE_TEAM_ID = 'page-team';
@@ -49,10 +50,16 @@ function buildActiveMembers(count: number) {
 	return Array.from({ length: count }, (_, index) => ({ employeeId: `employee-${index}` }));
 }
 
-function renderProps(team: TOrganizationTeam, props: Required<UseReportActivityProps>) {
-	mockUserManagedTeams = [team];
+function renderProps(
+	team: TOrganizationTeam,
+	props: Required<UseReportActivityProps>,
+	otherManagedTeams: TOrganizationTeam[] = []
+) {
+	const managedTeams = [team, ...otherManagedTeams];
+
+	mockUserManagedTeams = managedTeams;
 	mockUseAtomValue.mockImplementation((atom: unknown) => {
-		if (atom === 'organization-teams') return [team];
+		if (atom === 'organization-teams') return managedTeams;
 		return team;
 	});
 
@@ -82,7 +89,11 @@ describe('useTeamDashboardStatisticsProps', () => {
 
 		const { statisticsProps, reportProps } = renderProps(team, mergedProps);
 
-		expect(reportProps).toEqual({ ...countsProps, employeeIds: ['manager', 'member-1'] });
+		expect(reportProps).toEqual({
+			...countsProps,
+			employeeIds: ['manager', 'member-1'],
+			resolvedMemberIds: ['manager', 'member-1']
+		});
 		expect(statisticsProps).toEqual(countsProps);
 	});
 
@@ -109,7 +120,11 @@ describe('useTeamDashboardStatisticsProps', () => {
 
 		const picked = renderProps(team, pickedProps);
 
-		expect(picked.reportProps).toEqual({ ...pickedProps, teamId: PAGE_TEAM_ID });
+		expect(picked.reportProps).toEqual({
+			...pickedProps,
+			teamId: PAGE_TEAM_ID,
+			resolvedMemberIds: ['employee-0', 'employee-1', 'employee-2']
+		});
 		expect(picked.statisticsProps).toEqual({ ...pickedProps, teamId: PAGE_TEAM_ID });
 
 		mockUser = { role: { name: 'ADMIN' } };
@@ -118,5 +133,31 @@ describe('useTeamDashboardStatisticsProps', () => {
 
 		expect(admin.reportProps).toEqual({ ...mergedProps, teamId: PAGE_TEAM_ID });
 		expect(admin.statisticsProps).toEqual({ ...mergedProps, teamId: PAGE_TEAM_ID });
+	});
+
+	it('keys the chart and daily report on the page team members, which a pick in the filter does not change', () => {
+		const team = buildTeam(buildActiveMembers(3));
+		const remainingMembers = buildActiveMembers(2);
+		const teamAfterArchive = buildTeam([...remainingMembers, { employeeId: 'employee-2', isArchived: true }]);
+		const otherTeam = {
+			id: 'other-team',
+			members: [{ employeeId: 'other-member' }]
+		} as unknown as TOrganizationTeam;
+		const memberPickProps = { ...mergedProps, employeeIds: ['employee-1'] };
+		const teamPickProps = { ...mergedProps, teamIds: ['other-team'] };
+
+		const scoped = renderProps(team, mergedProps);
+		const afterArchive = renderProps(teamAfterArchive, mergedProps);
+		const withMemberPick = renderProps(team, memberPickProps);
+		const withTeamPick = renderProps(team, teamPickProps, [otherTeam]);
+
+		const queryKey = getActivityQueryKeyParams(scoped.reportProps);
+		const queryKeyAfterArchive = getActivityQueryKeyParams(afterArchive.reportProps);
+		const queryKeyWithMemberPick = getActivityQueryKeyParams(withMemberPick.reportProps);
+		const queryKeyWithTeamPick = getActivityQueryKeyParams(withTeamPick.reportProps);
+
+		expect(queryKeyAfterArchive).not.toEqual(queryKey);
+		expect(queryKeyWithMemberPick).toEqual(queryKey);
+		expect(queryKeyWithTeamPick).toEqual(queryKey);
 	});
 });

@@ -24,6 +24,11 @@ export interface UseReportActivityProps
 	/** Ids applied through `updateFilters`, without the dashboard filter fallback: used in the report query key */
 	selectedEmployeeIds?: string[];
 	selectedTeamIds?: string[];
+	/**
+	 * The active members resolved from the teams of a team manager's report, never from picks. Only the report query
+	 * key reads it, so a change in the team's membership fetches the report again.
+	 */
+	resolvedMemberIds?: string[];
 }
 
 export type GroupByType = 'date' | 'project' | 'employee' | 'application' | 'daily' | 'weekly' | 'member';
@@ -93,6 +98,16 @@ export function managesEveryTeam(managedTeams: TOrganizationTeam[], teamIds: str
 	return teamIds.every((teamId) => managedTeamIds.has(teamId));
 }
 
+/** The props keyed on the members resolved for them. With no member resolved they are returned as they are. */
+export function withResolvedMemberIds(
+	props: Required<UseReportActivityProps>,
+	memberIds: string[]
+): Required<UseReportActivityProps> {
+	if (!memberIds.length) return props;
+
+	return { ...props, resolvedMemberIds: memberIds };
+}
+
 /**
  * The props of the time log reports (daily and weekly) of a page that applies teams with no member, for a manager
  * of all of them without organization-wide access: the active members of those teams become the employee ids.
@@ -121,7 +136,9 @@ export function getAppliedTeamsReportProps(
 
 	if (!memberIds.length) return mergedProps;
 
-	return { ...mergedProps, employeeIds: memberIds };
+	const memberProps = { ...mergedProps, employeeIds: memberIds };
+
+	return withResolvedMemberIds(memberProps, memberIds);
 }
 
 // ==================== DEFAULTS ====================
@@ -177,7 +194,8 @@ function getDefaultProps(): DefaultProps {
  *
  * Employee and team ids stay out on purpose: they follow the dashboard filter, which changes them on
  * every pick and applies them with an explicit refetch. Keying on them would refetch on each pick and
- * swap the page for its loading skeleton while the filter is still open.
+ * swap the page for its loading skeleton while the filter is still open. The members resolved for a
+ * team manager are keyed on their own, through `resolvedMemberIds`, since no pick changes them.
  */
 export function getActivityQueryKeyParams(mergedProps: Required<UseReportActivityProps> | null) {
 	return {
@@ -194,7 +212,9 @@ export function getActivityQueryKeyParams(mergedProps: Required<UseReportActivit
 		activityLevel: mergedProps?.activityLevel,
 		// The member and team picks applied on the page itself (not the dashboard fallback described above)
 		selectedEmployeeIds: mergedProps?.selectedEmployeeIds,
-		selectedTeamIds: mergedProps?.selectedTeamIds
+		selectedTeamIds: mergedProps?.selectedTeamIds,
+		// The members resolved from the teams for a team manager: a change in the team's membership fetches again
+		resolvedMemberIds: mergedProps?.resolvedMemberIds
 	};
 }
 
