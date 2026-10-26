@@ -27,19 +27,22 @@ export const ORGANIZATION_WIDE_INVITE_PERMISSIONS: readonly string[] = Object.fr
  *
  * The team side of that rule is {@link useIsMemberManager}'s `isTeamManager`, computed on the active team. Until the
  * permissions load, only a team manager is let through: for a holder of an organization-wide permission the action
- * may appear late, never early.
+ * may appear late, never early. An invitation always names the active team (`useSendTeamInvitation` refuses to send
+ * without one), so nobody is offered the action while no team is active.
  *
  * @returns True when the current user may invite into the active team.
  */
 export function useCanInviteToActiveTeam(): boolean {
 	const { data: user } = useUserQuery();
-	const { isTeamManager } = useIsMemberManager(user);
+	const { isTeamManager, activeTeam } = useIsMemberManager(user);
 	const { myPermissions } = useMyRolePermissionsQuery();
+	const hasActiveTeam = Boolean(activeTeam?.id);
 
 	return useMemo(
 		() =>
-			isTeamManager ||
-			ORGANIZATION_WIDE_INVITE_PERMISSIONS.some((permission) => myPermissions.includes(permission)),
-		[isTeamManager, myPermissions]
+			hasActiveTeam &&
+			(isTeamManager ||
+				ORGANIZATION_WIDE_INVITE_PERMISSIONS.some((permission) => myPermissions.includes(permission))),
+		[hasActiveTeam, isTeamManager, myPermissions]
 	);
 }

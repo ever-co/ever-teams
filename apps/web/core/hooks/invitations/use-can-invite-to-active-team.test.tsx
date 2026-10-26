@@ -78,4 +78,10 @@ describe('useCanInviteToActiveTeam', () => {
 	it('hides the invite while no team is active and no organization-wide permission is held', () => {
 		expect(canInvite()).toBe(false);
 	});
+
+	it('hides the invite from an organization-wide permission holder while no team is active', () => {
+		mockPermissions = ['ALL_ORG_EDIT'];
+
+		expect(canInvite()).toBe(false);
+	});
 });
