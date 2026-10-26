@@ -11,6 +11,7 @@ import React from 'react';
 import { fireEvent, render, screen } from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { Provider, createStore } from 'jotai';
+import type { PrimitiveAtom } from 'jotai';
 import { ApiErrorService } from '@/core/services/client/api-error.service';
 import { detailedTaskState } from '@/core/stores';
 import type { TTask } from '@/core/types/schemas/task/task.schema';
@@ -95,6 +96,10 @@ jest.mock('next/link', () => ({
 	__esModule: true,
 	default: ({ children, href }: React.PropsWithChildren<{ href: string }>) => <a href={href}>{children}</a>
 }));
+
+/** The app derives the team list from the team tasks; the store mock above makes it a plain atom a test can fill. */
+type TStoresMock = { tasksByTeamState: PrimitiveAtom<TTask[]> };
+const { tasksByTeamState } = jest.requireMock<TStoresMock>('@/core/stores');
 
 /** What taskService.getTaskById rejects with when the API answers `status`: api.service.ts wraps the Axios error. */
 function apiAnswered(status: number) {
@@ -189,5 +194,21 @@ describe('task page load failures', () => {
 
 		await screen.findByText('pages.error.HEADING_TITLE');
 		expect(screen.queryByText('Task opened before')).toBeNull();
+	});
+
+	// getTaskById puts the team list copy of the task in the store before asking for the full one
+	it.each([
+		['a failed load as an error', apiUnreachable(), 'pages.error.HEADING_TITLE'],
+		['a deleted task as Task not found', apiAnswered(404), 'Task not found']
+	])('shows %s when the team list still holds the task', async (_case, error, shownText) => {
+		const store = createStore();
+		const teamListCopy = { id: TASK_ID, title: 'Team list copy' } as TTask;
+		store.set(tasksByTeamState, [teamListCopy]);
+		failEveryRequest(error);
+
+		renderTaskPage(store);
+
+		await screen.findByText(shownText);
+		expect(screen.queryByText('Team list copy')).toBeNull();
 	});
 });

@@ -48,11 +48,11 @@ const TaskDetails = () => {
 
 	const id = params?.id;
 
+	// A failed load wins over the store, which can still hold the task opened before, or the team list copy of
+	// this one that getTaskById puts there before it asks for the full task
 	const hasLoadFailed = getTaskByIdError !== null && getTaskByIdError.taskId === id;
-	// The task of another id can still be in the store after a failed load: it must not stand in for this one
-	const isLoadFailureShown = hasLoadFailed && detailedTask?.id !== id;
 	const isTaskNotFound = isTaskNotFoundError(getTaskByIdError?.error);
-	const isLoadErrorShown = isLoadFailureShown && !isTaskNotFound;
+	const isLoadErrorShown = hasLoadFailed && !isTaskNotFound;
 
 	const breadcrumb = [
 		{ title: activeTeam?.name || '', href: '/' },
@@ -94,7 +94,7 @@ const TaskDetails = () => {
 		}
 
 		// If we've finished loading and have a task
-		if (detailedTask && !isLoadFailureShown) {
+		if (detailedTask && !hasLoadFailed) {
 			return <LazyTaskDetailsComponent task={detailedTask} />;
 		}
 
@@ -122,7 +122,7 @@ const TaskDetails = () => {
 				</div>
 			</div>
 		);
-	}, [getTasksByIdLoading, hasAttemptedLoad, detailedTask, isLoadErrorShown, isLoadFailureShown, getTaskById, id, t]);
+	}, [getTasksByIdLoading, hasAttemptedLoad, detailedTask, isLoadErrorShown, hasLoadFailed, getTaskById, id, t]);
 
 	return (
 		<PageLayout
