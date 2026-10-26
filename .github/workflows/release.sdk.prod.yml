@@ -80,7 +80,14 @@ jobs:
           expect-vip: ${{ vars.RUNNER_LINUX_X64_8 != '' || vars.RUNNER_LINUX_X64_4 != '' }}
 
       - name: Install dependencies (Yarn)
-        run: yarn install --frozen-lockfile
+        # The install needs no npm token, so it reads an empty user config instead of setup-node's .npmrc
+        # (`_authToken=${NODE_AUTH_TOKEN}`): server-web's postinstall (`electron-builder install-app-deps`) runs a
+        # nested yarn install whose env electron-builder 26 strips of token-like variables on Linux, so that nested
+        # yarn failed with "Failed to replace env in config: ${NODE_AUTH_TOKEN}" (run 40276689546). Publishing
+        # later still uses setup-node's .npmrc and the job-wide NODE_AUTH_TOKEN.
+        run: |
+          : > "$RUNNER_TEMP/install.npmrc"
+          NPM_CONFIG_USERCONFIG="$RUNNER_TEMP/install.npmrc" yarn install --frozen-lockfile
         env:
           # This job builds and publishes the SDK and runs no Cypress: skip the binary download in cypress's
           # postinstall (a large download over the public network, outside Verdaccio). It failed this install on
