@@ -1,4 +1,5 @@
 name: Release Ever Teams SDK to npm
+# cspell:words elif
 
 on:
   push:
