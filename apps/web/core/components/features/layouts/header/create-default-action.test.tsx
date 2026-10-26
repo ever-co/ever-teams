@@ -54,22 +54,22 @@ jest.mock('../../projects/create-project-modal', () => ({ CreateProjectModal: ()
 
 import { DefaultCreateAction } from './create-default-action';
 
-const inviteItem = () => screen.queryByRole('menuitem', { name: /invite/i });
+const INVITE_ITEM = { name: /invite/i };
 
 describe('DefaultCreateAction invite item', () => {
 	it('offers Invite to a user who may invite into the active team', () => {
 		mockCanInvite = true;
 		render(<DefaultCreateAction />);
 
-		expect(inviteItem()).not.toBeNull();
-		expect(screen.queryByText('⌘CI')).not.toBeNull();
+		expect(screen.getByRole('menuitem', INVITE_ITEM)).toBeTruthy();
+		expect(screen.getByText('⌘CI')).toBeTruthy();
 	});
 
 	it('hides Invite, and its shortcut label, from a user the API would refuse', () => {
 		mockCanInvite = false;
 		render(<DefaultCreateAction />);
 
-		expect(inviteItem()).toBeNull();
+		expect(screen.queryByRole('menuitem', INVITE_ITEM)).toBeNull();
 		expect(screen.queryByText('⌘CI')).toBeNull();
 		// The other quick-create actions stay.
 		expect(screen.getAllByRole('menuitem')).toHaveLength(3);

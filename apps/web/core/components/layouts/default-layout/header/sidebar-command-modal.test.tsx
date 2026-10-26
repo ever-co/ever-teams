@@ -83,7 +83,7 @@ describe('SidebarCommandModal invite command', () => {
 		mockCanInvite = true;
 		render(<SidebarCommandModal publicTeam={false} variant="none" />);
 
-		expect(screen.queryByText('Invite User')).not.toBeNull();
+		expect(screen.getByText('Invite User')).toBeTruthy();
 		expect(registeredSequences()).toContain('i u');
 	});
 
@@ -94,7 +94,7 @@ describe('SidebarCommandModal invite command', () => {
 		expect(screen.queryByText('Invite User')).toBeNull();
 		expect(registeredSequences()).not.toContain('i u');
 		// The other commands stay.
-		expect(screen.queryByText('Assign to me')).not.toBeNull();
+		expect(screen.getByText('Assign to me')).toBeTruthy();
 		expect(registeredSequences()).toContain('a m');
 	});
 });
