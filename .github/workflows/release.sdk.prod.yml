@@ -168,22 +168,40 @@ jobs:
             ':(exclude,glob)**/*.stories.*' ':(exclude,glob)**/.storybook/**'
           )
 
-          # The commits that count: every non-merge commit of the push except this workflow's own version-bump
-          # commits. Those reach main through develop -> stage -> main (see "Open the version bump PR" below) and
-          # only change versions and changelogs; counting them would cut a new release after every bump.
-          RELEVANT_COMMITS=$(git log --no-merges --format='%H %s' "$DIFF_RANGE" 2>/dev/null | { grep -v ' ci: sdk version bump via changeset' || true; } | cut -d' ' -f1)
-          echo "🧾 Commits considered: $(echo "$RELEVANT_COMMITS" | { grep -c . || true; })"
+          # This workflow's own version-bump commits (see "Open the version bump PR" below) reach main through
+          # develop -> stage -> main and only change versions and changelogs: they must not count as package changes,
+          # or every bump would cut a new release. They carry this marker in the commit subject and in the PR title,
+          # so a squash-merged bump PR matches too.
+          BUMP_MARKER='ci: sdk version bump via changeset'
+          # A package counts as changed when the push makes a net change to it (a change reverted within the same
+          # push does not count) AND that change comes from a commit other than a bump commit. Merge commits count
+          # only for what they change beyond their parents (conflict resolutions), via the combined diff.
+          COMMITS=$(git rev-list --parents "$DIFF_RANGE" 2>/dev/null || true)
+          echo "🧾 Commits in the push: $(echo "$COMMITS" | { grep -c . || true; })"
 
-          # Check each SDK package for changes in those commits
+          touched_outside_bumps() {
+            local line commit parents
+            while read -r line; do
+              [ -z "$line" ] && continue
+              commit=${line%% *}
+              parents=$(echo "$line" | wc -w)
+              if [ "$parents" -gt 2 ]; then
+                [ -n "$(git diff-tree --cc --no-commit-id --name-only -r "$commit" -- "$@" 2>/dev/null)" ] && return 0
+              elif ! git log -1 --format=%s "$commit" | grep -qiF "$BUMP_MARKER"; then
+                [ -n "$(git diff-tree --no-commit-id --name-only -r "$commit" -- "$@" 2>/dev/null)" ] && return 0
+              fi
+            done <<< "$COMMITS"
+            return 1
+          }
+
+          # Check each SDK package for changes in this push
           for pkg_path in "${!SDK_PACKAGES[@]}"; do
             pkg_name="${SDK_PACKAGES[$pkg_path]}"
             pkg_changed=""
-            for commit in $RELEVANT_COMMITS; do
-              if [ -n "$(git diff-tree --no-commit-id --name-only -r "$commit" -- "$pkg_path" "${DEV_ONLY[@]}" 2>/dev/null)" ]; then
-                pkg_changed=1
-                break
-              fi
-            done
+            if ! git diff --quiet "$DIFF_RANGE" -- "$pkg_path" "${DEV_ONLY[@]}" 2>/dev/null \
+              && touched_outside_bumps "$pkg_path" "${DEV_ONLY[@]}"; then
+              pkg_changed=1
+            fi
             if [ -z "$pkg_changed" ]; then
               echo "  ⏭️  No changes in $pkg_name ($pkg_path)"
             else
@@ -226,6 +244,35 @@ jobs:
           echo ""
           echo "🎉 Changeset generation complete!"
 
+      # Until a version bump PR has gone develop -> stage -> main, main still carries the old versions: bumping from
+      # them would compute a version npm already has, and `changeset publish` would silently skip the new code. So
+      # each SDK package starts from npm's latest version when npm is ahead (internal dependencies use `*` ranges,
+      # so nothing else needs rewriting).
+      - name: Start SDK versions from npm's latest
+        run: |
+          node <<'EOF'
+          const fs = require('fs');
+          const { execFileSync } = require('child_process');
+          const dirs = ['packages/toolkit/atoms', 'packages/toolkit/tracking', 'packages/api', 'packages/toolkit-types', 'packages/toolkit-ui'];
+          const parts = (v) => v.split('-')[0].split('.').map(Number);
+          const newer = (a, b) => { const [x, y] = [parts(a), parts(b)]; for (let i = 0; i < 3; i++) if (x[i] !== y[i]) return x[i] > y[i]; return false; };
+          for (const dir of dirs) {
+            const file = `${dir}/package.json`;
+            const raw = fs.readFileSync(file, 'utf8');
+            const pkg = JSON.parse(raw);
+            let published = '';
+            try { published = execFileSync('npm', ['view', pkg.name, 'version'], { encoding: 'utf8' }).trim(); } catch { console.log(`${pkg.name}: not on npm yet`); continue; }
+            if (published && newer(published, pkg.version)) {
+              const indent = (/\n(\t| +)"/.exec(raw) || [, '\t'])[1];
+              pkg.version = published;
+              fs.writeFileSync(file, JSON.stringify(pkg, null, indent) + '\n');
+              console.log(`${pkg.name}: ${JSON.parse(raw).version} -> ${published} (npm is ahead: an earlier bump PR has not reached main yet)`);
+            } else {
+              console.log(`${pkg.name}: ${pkg.version} (npm: ${published})`);
+            }
+          }
+          EOF
+
       - name: Version bump via changesets
         run: |
           yarn version-packages
@@ -245,12 +292,15 @@ jobs:
             echo "No version bump to commit"
             exit 0
           fi
-          git commit -m "ci: sdk version bump via changeset [skip ci]"
-          branch="ci/sdk-version-bump-${GITHUB_RUN_ID}"
+          # No [skip ci]: the commit travels develop -> stage -> main and must not suppress those pushes' workflows.
+          # The subject keeps the marker the change detection above skips.
+          git commit -m "ci: sdk version bump via changeset"
+          # The run attempt is part of the name, so a re-run after a failed publish pushes a branch of its own.
+          branch="ci/sdk-version-bump-${GITHUB_RUN_ID}-${GITHUB_RUN_ATTEMPT}"
           git push origin "HEAD:refs/heads/${branch}"
           versions=$(git diff --name-only HEAD~1 HEAD -- 'packages/**/package.json' | while read -r f; do node -p "const p = require('./$f'); p.name + '@' + p.version"; done | tr '\n' ' ')
           gh pr create --base develop --head "$branch" \
-            --title "ci: SDK version bump from main ${GITHUB_SHA::8}" \
+            --title "ci: sdk version bump via changeset (main ${GITHUB_SHA::8})" \
             --body "Version bump made by **Release Ever Teams SDK to npm** (run ${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}) on main \`${GITHUB_SHA::8}\`; the packages are published to npm from this commit. ${versions}
 
           Merge it into develop; it reaches main with the next develop -> stage -> main cascade. That run skips this commit when it looks for changed SDK packages, so it cuts no new release." \
