@@ -18,7 +18,8 @@ import {
 	isSameMonth,
 	isSameYear,
 	isEqual,
-	startOfDay
+	startOfDay,
+	endOfDay
 } from 'date-fns';
 import { DateRange } from 'react-day-picker';
 import { useTranslations } from 'next-intl';
@@ -128,9 +129,10 @@ export function DateRangePicker({ className, onDateRangeChange, initialRange }: 
 							showOutsideDays={false}
 							fixedWeeks
 							initialFocus
-							// Only future dates are disabled. The report data only covers the range already
-							// selected, so it cannot tell which other days are worth picking.
-							disabled={(date: Date) => date >= startOfDay(new Date())}
+							// Only days after today are disabled, so a custom range can end today. The report
+							// data only covers the range already selected, so it cannot tell which other days
+							// are worth picking.
+							disabled={(date: Date) => date > endOfDay(new Date())}
 						/>
 					</div>
 					<div className="p-1 space-y-1 border-l max-w-36">
