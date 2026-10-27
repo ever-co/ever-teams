@@ -46,6 +46,7 @@ import {
 } from '@/core/components/optimized-components/kanban';
 import { activeTeamState, isTrackingEnabledState } from '@/core/stores';
 import { useUserQuery } from '@/core/hooks/queries/user-user.query';
+import { useCanInviteToActiveTeam } from '@/core/hooks/invitations/use-can-invite-to-active-team';
 import { useTeamDailyPlansOwner } from '@/core/hooks/bootstrap/use-feature-data';
 
 const Kanban = () => {
@@ -86,6 +87,9 @@ const Kanban = () => {
 	const employee = useSearchParams().get('employee');
 	const { data: user } = useUserQuery();
 	const { openModal, isOpen, closeModal } = useModal();
+	// The API refuses an invitation into a team the user does not manage (403): show the invite button only to
+	// who may send it.
+	const canInvite = useCanInviteToActiveTeam();
 	const timezone = userTimezone();
 
 	// Memoize breadcrumb path to prevent unnecessary recalculations
@@ -250,16 +254,20 @@ const Kanban = () => {
 										<Separator />
 									</div>
 									<LazyImageComponent onAvatarClickRedirectTo="kanbanTasks" images={teamMembers} />
-									<div className="mt-1">
-										<Separator />
-									</div>
+									{canInvite && (
+										<>
+											<div className="mt-1">
+												<Separator />
+											</div>
 
-									<button
-										onClick={openModal}
-										className="p-2 rounded-full relative z-50 border-2 border-[#0000001a] dark:border-white bg-white dark:bg-black"
-									>
-										<AddIcon className="w-6 h-6 text-foreground" />
-									</button>
+											<button
+												onClick={openModal}
+												className="p-2 rounded-full relative z-50 border-2 border-[#0000001a] dark:border-white bg-white dark:bg-black"
+											>
+												<AddIcon className="w-6 h-6 text-foreground" />
+											</button>
+										</>
+									)}
 								</div>
 							</div>
 							<div className="flex flex-col gap-4 justify-between items-start pt-6 mb-4 bg-white xl:flex-row xl:items-center dark:bg-dark-high">

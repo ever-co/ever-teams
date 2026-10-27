@@ -5,6 +5,7 @@ export * from './use-invitation-invalidation';
 export * from './use-team-invitations-query';
 export * from './use-send-team-invitation';
 export * from './use-remove-team-invitation';
+export * from './use-can-invite-to-active-team';
 
 // My invitations (User)
 export * from './use-my-invitations-query';
