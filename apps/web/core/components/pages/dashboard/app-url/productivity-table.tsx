@@ -4,7 +4,7 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/core/components/common/av
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/core/components/common/table';
 import { Skeleton } from '@/core/components/common/skeleton';
 import { Card } from '@/core/components/common/card';
-import { format } from 'date-fns';
+import { format, parseISO } from 'date-fns';
 import {
 	IActivityReport,
 	IActivityReportGroupByDate,
@@ -129,7 +129,7 @@ export function ProductivityTable({ data, isLoading }: { data?: IActivityReport[
 											colSpan={5}
 											className="px-6 py-4 font-medium bg-gray-50 dark:bg-muted"
 										>
-											{format(new Date(dayData.date), 'EEEE dd MMM yyyy')}
+											{format(parseISO(dayData.date), 'EEEE dd MMM yyyy')}
 										</TableCell>
 									</TableRow>
 									<TableRow>
@@ -151,7 +151,7 @@ export function ProductivityTable({ data, isLoading }: { data?: IActivityReport[
 										colSpan={5}
 										className="px-6 py-4 font-medium bg-gray-50 dark:bg-muted"
 									>
-										{format(new Date(dayData.date), 'EEEE dd MMM yyyy')}
+										{format(parseISO(dayData.date), 'EEEE dd MMM yyyy')}
 									</TableCell>
 								</TableRow>
 								{Array.from(employeeActivities.values()).map(({ employee, activities }) =>
