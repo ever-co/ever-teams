@@ -38,6 +38,7 @@ export default function AuthPassword() {
 			description={t('pages.authPassword.HEADING_DESCRIPTION')}
 			headerLinkText={t('common.REGISTER')}
 			headerLinkHref="/auth/signup"
+			showDeleteAccountLink
 		>
 			<div className="overflow-x-hidden w-full p-1.5">
 				<div className="w-full duration-500 transition-[transform] mb-3">

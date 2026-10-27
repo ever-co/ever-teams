@@ -1967,12 +1967,16 @@ describe('Ever Teams feature surface preservation', () => {
 
 	it('covers all real App Router route files and outward handler verbs', () => {
 		const routes = collectRealHeadSurface().routes;
-		expect(routes.filter((value) => /\/route\.[jt]s$/.test(value))).toHaveLength(137);
+		expect(routes.filter((value) => /\/route\.[jt]s$/.test(value))).toHaveLength(140);
 		expect(
 			routes.filter((value) => /\/route\.[jt]s::(?:GET|POST|PUT|PATCH|DELETE|HEAD|OPTIONS)$/.test(value))
-		).toHaveLength(183);
+		).toHaveLength(186);
 		expect(routes).toEqual(
 			expect.arrayContaining([
+				// Proxy mode twins of Gauzy's public account deletion by e-mail link (2026-10-27)
+				'apps/web/app/api/account-deletion/request/route.ts::POST',
+				'apps/web/app/api/account-deletion/verify/route.ts::POST',
+				'apps/web/app/api/account-deletion/confirm/route.ts::POST',
 				// Proxy mode twin of Gauzy's POST /auth/switch-organization (organization boundary, 2026-10-24)
 				'apps/web/app/api/auth/switch-organization/route.ts::POST',
 				// Finishes the workspace of an e-mail sign-up confirmed after register (direct API mode, 2026-10-24)

@@ -499,6 +499,7 @@
 		"CREATE_TASK": "Crear tarea"
 	},
 	"alerts": {
+		"ACTION_FAILED": "La acción falló.",
 		"REAL_TIME_ON_WORKING": "Estamos trabajando en la sincronización en tiempo real en este momento; verifique esta función más adelante.",
 		"ALERT_DELETE_ACCOUNT": "La cuenta será eliminada de todos los equipos, excepto donde eres sólo el administrador",
 		"ALERT_ACCOUNT_PERMANENT_DELETE": "Tu cuenta será eliminada permanentemente con la eliminación de todos los equipos",
@@ -508,6 +509,40 @@
 		"ALERT_USER_DELETED_FROM_TEAM": "Has sido eliminado del equipo"
 	},
 	"pages": {
+		"accountDeletion": {
+			"REQUEST_TITLE": "Eliminar tu cuenta",
+			"REQUEST_DESCRIPTION": "Te enviaremos por correo un enlace para eliminar tu cuenta de {appName}.",
+			"REQUEST_WHO_FOR": "Introduce el correo con el que inicias sesión. El enlace elimina todas las cuentas de {appName} con este correo, en todos los espacios de trabajo, aunque no puedas iniciar sesión.",
+			"SEND_LINK": "Enviarme un enlace de eliminación",
+			"SENT_TITLE": "Revisa tu correo",
+			"SENT_MESSAGE": "Si existe una cuenta con ese correo, te enviamos un enlace para eliminarla. El enlace caduca en {minutes} minutos.",
+			"REQUEST_ERROR": "No pudimos enviar la solicitud. Espera un minuto e inténtalo de nuevo.",
+			"BACK_TO_SIGN_IN": "Volver a iniciar sesión",
+			"CONFIRM_TITLE": "Confirmar la eliminación de la cuenta",
+			"DONE_TITLE": "Cuenta eliminada",
+			"CHECKING_LINK": "Comprobando tu enlace…",
+			"CONFIRM_INTRO": "Este enlace se envió a {email}. Al confirmar se eliminan estas cuentas de {appName}:",
+			"LINK_EXPIRES": "El enlace caduca a las {time}.",
+			"ORGANIZATIONS": "Organizaciones: {organizations}",
+			"OUTCOME_WORKSPACE_DELETED": "Eres su único miembro: se eliminará todo el espacio de trabajo y todos sus datos.",
+			"OUTCOME_ACCOUNT_REMOVED": "Se eliminarán tu cuenta y tus datos de miembro (registros de tiempo, capturas, actividad). Las tareas, comentarios y demás contenido compartido se quedan en el espacio de trabajo sin tu nombre.{count, plural, =0 {} one { # miembro más conserva el acceso.} other { # miembros más conservan el acceso.}}",
+			"SOLE_ADMIN_WARNING": "Eres el único administrador de este espacio de trabajo: {count, plural, one {# miembro más se quedará} other {# miembros más se quedarán}} sin administrador. Nombra antes a otro administrador si lo necesitan.",
+			"WHAT_IS_KEPT": "Se conserva tras la eliminación: un registro de auditoría de esta solicitud (sin tu nombre), los correos ya entregados, los datos de facturación que la ley nos obliga a guardar y las copias de seguridad cifradas hasta que caduquen.",
+			"CONFIRM_CHECKBOX": "Entiendo que esto elimina mis datos de forma permanente y no se puede deshacer.",
+			"TYPE_TO_CONFIRM": "Escribe {word} para confirmar",
+			"CONFIRM_BUTTON": "Eliminar mi cuenta para siempre",
+			"CONFIRM_ERROR": "La eliminación no se completó. Inténtalo de nuevo.",
+			"KEEP_ACCOUNT": "Conservar mi cuenta",
+			"DELETED_MESSAGE": "{accounts, plural, one {Se eliminó # cuenta} other {Se eliminaron # cuentas}}{workspaces, plural, =0 {} one {, con # espacio de trabajo} other {, con # espacios de trabajo}}. Te enviamos una confirmación por correo.",
+			"SIGNED_OUT": "Se cerró tu sesión en este navegador.",
+			"INVALID_LINK": "Este enlace no es válido o ha caducado. Solicita uno nuevo.",
+			"REQUEST_NEW_LINK": "Solicitar un nuevo enlace",
+			"GENERIC_ERROR": "Algo salió mal al comprobar tu enlace. Inténtalo de nuevo.",
+			"TRY_AGAIN": "Reintentar",
+			"DELETE_BY_EMAIL_LINK": "Eliminar mi cuenta por correo",
+			"DANGER_ZONE_TITLE": "Eliminar mediante enlace por correo",
+			"DANGER_ZONE_DESCRIPTION": "Elimina todas las cuentas con tu correo, en todos los espacios de trabajo, cuando confirmes desde un enlace que te enviamos."
+		},
 		"timeLimitReport": {
 			"TIME_SPENT": "Tiempo invertido",
 			"LIMIT": "Límite",

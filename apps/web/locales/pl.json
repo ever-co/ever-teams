@@ -499,6 +499,7 @@
 		"CREATE_TASK": "Utwórz Zadanie"
 	},
 	"alerts": {
+		"ACTION_FAILED": "Operacja nie powiodła się.",
 		"REAL_TIME_ON_WORKING": "W tej chwili pracujemy nad synchronizacją w czasie rzeczywistym. Sprawdź tę funkcję później.",
 		"ALERT_DELETE_ACCOUNT": "Zostaniesz usunięty z wszystkich zespołów, z wyjątkiem sytuacji, gdy jesteś jedynym menedżerem w zespole",
 		"ALERT_ACCOUNT_PERMANENT_DELETE": "Twoje Konto zostanie trwale usunięte wraz z usunięciem z wszystkich zespołów",
@@ -508,6 +509,40 @@
 		"ALERT_USER_DELETED_FROM_TEAM": "Zostałeś usunięty z zespołu"
 	},
 	"pages": {
+		"accountDeletion": {
+			"REQUEST_TITLE": "Usuń swoje konto",
+			"REQUEST_DESCRIPTION": "Wyślemy Ci e-mailem link do usunięcia konta {appName}.",
+			"REQUEST_WHO_FOR": "Wpisz adres e-mail, którym się logujesz. Link usuwa każde konto {appName} z tym adresem, we wszystkich obszarach roboczych, nawet jeśli nie możesz się zalogować.",
+			"SEND_LINK": "Wyślij mi link do usunięcia",
+			"SENT_TITLE": "Sprawdź pocztę",
+			"SENT_MESSAGE": "Jeśli istnieje konto z tym adresem, wysłaliśmy link do jego usunięcia. Link wygaśnie za {minutes} minut.",
+			"REQUEST_ERROR": "Nie udało się wysłać prośby. Poczekaj minutę i spróbuj ponownie.",
+			"BACK_TO_SIGN_IN": "Wróć do logowania",
+			"CONFIRM_TITLE": "Potwierdź usunięcie konta",
+			"DONE_TITLE": "Konto usunięte",
+			"CHECKING_LINK": "Sprawdzamy Twój link…",
+			"CONFIRM_INTRO": "Ten link wysłano na adres {email}. Potwierdzenie usunie te konta {appName}:",
+			"LINK_EXPIRES": "Link wygasa o {time}.",
+			"ORGANIZATIONS": "Organizacje: {organizations}",
+			"OUTCOME_WORKSPACE_DELETED": "Jesteś jedynym członkiem: cały obszar roboczy i wszystkie jego dane zostaną usunięte.",
+			"OUTCOME_ACCOUNT_REMOVED": "Twoje konto i dane członka (rejestry czasu, zrzuty ekranu, aktywność) zostaną usunięte. Zadania, komentarze i inne udostępnione treści pozostaną w obszarze roboczym bez Twojego imienia.{count, plural, =0 {} one { # inny członek zachowuje dostęp.} few { # innych członków zachowuje dostęp.} many { # innych członków zachowuje dostęp.} other { # innych członków zachowuje dostęp.}}",
+			"SOLE_ADMIN_WARNING": "Jesteś jedynym administratorem tego obszaru roboczego: {count, plural, one {# inny członek zostanie} few {# innych członków zostanie} many {# innych członków zostanie} other {# innych członków zostanie}} bez administratora. W razie potrzeby najpierw nadaj komuś uprawnienia administratora.",
+			"WHAT_IS_KEPT": "Zachowane po usunięciu: zapis audytowy tej prośby (bez Twojego imienia), już dostarczone e-maile, dane rozliczeniowe, które musimy przechowywać zgodnie z prawem, oraz zaszyfrowane kopie zapasowe do czasu ich wygaśnięcia.",
+			"CONFIRM_CHECKBOX": "Rozumiem, że to trwale usuwa moje dane i nie można tego cofnąć.",
+			"TYPE_TO_CONFIRM": "Wpisz {word}, aby potwierdzić",
+			"CONFIRM_BUTTON": "Trwale usuń moje konto",
+			"CONFIRM_ERROR": "Usunięcie nie powiodło się. Spróbuj ponownie.",
+			"KEEP_ACCOUNT": "Zachowaj moje konto",
+			"DELETED_MESSAGE": "{accounts, plural, one {Usunięto # konto} few {Usunięto # konta} many {Usunięto # kont} other {Usunięto # kont}}{workspaces, plural, =0 {} one {, w tym # obszar roboczy} few {, w tym # obszary robocze} many {, w tym # obszarów roboczych} other {, w tym # obszarów roboczych}}. Wysłaliśmy potwierdzenie na Twój e-mail.",
+			"SIGNED_OUT": "Zostałeś wylogowany w tej przeglądarce.",
+			"INVALID_LINK": "Ten link jest nieprawidłowy lub wygasł. Poproś o nowy.",
+			"REQUEST_NEW_LINK": "Poproś o nowy link",
+			"GENERIC_ERROR": "Coś poszło nie tak podczas sprawdzania linku. Spróbuj ponownie.",
+			"TRY_AGAIN": "Spróbuj ponownie",
+			"DELETE_BY_EMAIL_LINK": "Usuń moje konto przez e-mail",
+			"DANGER_ZONE_TITLE": "Usuń przez link e-mail",
+			"DANGER_ZONE_DESCRIPTION": "Usuwa każde konto z Twoim adresem e-mail, we wszystkich obszarach roboczych, po potwierdzeniu linkiem, który wyślemy e-mailem."
+		},
 		"timeLimitReport": {
 			"TIME_SPENT": "Czas spędzony",
 			"LIMIT": "Limit",

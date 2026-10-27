@@ -20,6 +20,7 @@ import {
 	PRIVACY_POLICY_LINK
 } from '@/core/constants/config/constants';
 import { cn } from '@/core/lib/helpers';
+import { ACCOUNT_DELETION_PATH } from '@/core/lib/auth/account-deletion';
 
 type Props = {
 	title?: string;
@@ -29,9 +30,19 @@ type Props = {
 	headerLinkText?: string;
 	/** Href for the top-right header link */
 	headerLinkHref?: string;
+	/** Footer link to the public account deletion request (/delete-account), for people who cannot sign in. */
+	showDeleteAccountLink?: boolean;
 } & PropsWithChildren;
 
-export function AuthLayout({ children, title, description, isAuthPage = true, headerLinkText, headerLinkHref }: Props) {
+export function AuthLayout({
+	children,
+	title,
+	description,
+	isAuthPage = true,
+	headerLinkText,
+	headerLinkHref,
+	showDeleteAccountLink = false
+}: Props) {
 	const t = useTranslations();
 
 	return (
@@ -156,6 +167,18 @@ export function AuthLayout({ children, title, description, isAuthPage = true, he
 										{t('pages.auth.PRIVACY_POLICY')}
 									</Link>
 								)}
+							</p>
+						)}
+
+						{showDeleteAccountLink && (
+							<p className="text-xs text-center text-muted-foreground">
+								<Link
+									href={ACCOUNT_DELETION_PATH}
+									className="underline hover:text-foreground"
+									data-testid="auth-delete-account-link"
+								>
+									{t('pages.accountDeletion.DELETE_BY_EMAIL_LINK')}
+								</Link>
 							</p>
 						)}
 

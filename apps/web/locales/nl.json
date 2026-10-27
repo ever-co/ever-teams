@@ -499,6 +499,7 @@
 		"CREATE_TASK": "Nieuwe taak maken"
 	},
 	"alerts": {
+		"ACTION_FAILED": "De actie is mislukt.",
 		"REAL_TIME_ON_WORKING": "We werken momenteel aan Real-Time Sync. Bekijk deze functie later opnieuw.",
 		"ALERT_DELETE_ACCOUNT": "Account wordt verwijderd van alle teams, behalve waar u alleen manager bent",
 		"ALERT_ACCOUNT_PERMANENT_DELETE": "Uw account wordt permanent verwijderd en uit alle teams verwijderd",
@@ -508,6 +509,40 @@
 		"ALERT_USER_DELETED_FROM_TEAM": "Je bent uit het team verwijderd"
 	},
 	"pages": {
+		"accountDeletion": {
+			"REQUEST_TITLE": "Je account verwijderen",
+			"REQUEST_DESCRIPTION": "We e-mailen je een link om je {appName}-account te verwijderen.",
+			"REQUEST_WHO_FOR": "Voer het e-mailadres in waarmee je inlogt. De link verwijdert elk {appName}-account met dit adres, in alle werkruimtes, ook als je niet kunt inloggen.",
+			"SEND_LINK": "Stuur mij een verwijderlink",
+			"SENT_TITLE": "Controleer je e-mail",
+			"SENT_MESSAGE": "Als er een account met dat e-mailadres bestaat, hebben we een link gestuurd om het te verwijderen. De link verloopt over {minutes} minuten.",
+			"REQUEST_ERROR": "We konden het verzoek niet versturen. Wacht een minuut en probeer het opnieuw.",
+			"BACK_TO_SIGN_IN": "Terug naar inloggen",
+			"CONFIRM_TITLE": "Verwijdering van account bevestigen",
+			"DONE_TITLE": "Account verwijderd",
+			"CHECKING_LINK": "Je link wordt gecontroleerd…",
+			"CONFIRM_INTRO": "Deze link is gestuurd naar {email}. Bevestigen verwijdert deze {appName}-accounts:",
+			"LINK_EXPIRES": "De link verloopt om {time}.",
+			"ORGANIZATIONS": "Organisaties: {organizations}",
+			"OUTCOME_WORKSPACE_DELETED": "Je bent het enige lid: de hele werkruimte en al haar gegevens worden verwijderd.",
+			"OUTCOME_ACCOUNT_REMOVED": "Je account en je ledengegevens (tijdregistraties, screenshots, activiteit) worden verwijderd. Taken, opmerkingen en andere gedeelde inhoud blijven zonder je naam in de werkruimte.{count, plural, =0 {} one { # ander lid houdt toegang.} other { # andere leden houden toegang.}}",
+			"SOLE_ADMIN_WARNING": "Je bent de enige beheerder van deze werkruimte: {count, plural, one {# ander lid heeft} other {# andere leden hebben}} daarna geen beheerder. Maak eerst iemand anders beheerder als dat nodig is.",
+			"WHAT_IS_KEPT": "Bewaard na verwijdering: een auditrecord van dit verzoek (zonder je naam), al bezorgde e-mails, factuurgegevens die we wettelijk moeten bewaren en versleutelde back-ups tot ze verlopen.",
+			"CONFIRM_CHECKBOX": "Ik begrijp dat dit mijn gegevens definitief verwijdert en niet ongedaan kan worden gemaakt.",
+			"TYPE_TO_CONFIRM": "Typ {word} om te bevestigen",
+			"CONFIRM_BUTTON": "Mijn account definitief verwijderen",
+			"CONFIRM_ERROR": "Het verwijderen is niet gelukt. Probeer het opnieuw.",
+			"KEEP_ACCOUNT": "Mijn account behouden",
+			"DELETED_MESSAGE": "{accounts, plural, one {# account is} other {# accounts zijn}} verwijderd{workspaces, plural, =0 {} one {, met # werkruimte} other {, met # werkruimtes}}. We hebben je een bevestiging gemaild.",
+			"SIGNED_OUT": "Je bent in deze browser uitgelogd.",
+			"INVALID_LINK": "Deze link is ongeldig of verlopen. Vraag een nieuwe aan.",
+			"REQUEST_NEW_LINK": "Nieuwe link aanvragen",
+			"GENERIC_ERROR": "Er ging iets mis bij het controleren van je link. Probeer het opnieuw.",
+			"TRY_AGAIN": "Opnieuw proberen",
+			"DELETE_BY_EMAIL_LINK": "Mijn account verwijderen via e-mail",
+			"DANGER_ZONE_TITLE": "Verwijderen via e-maillink",
+			"DANGER_ZONE_DESCRIPTION": "Verwijdert elk account met je e-mailadres, in alle werkruimtes, zodra je bevestigt via een link die we je mailen."
+		},
 		"timeLimitReport": {
 			"TIME_SPENT": "Bestede tijd",
 			"LIMIT": "Limiet",

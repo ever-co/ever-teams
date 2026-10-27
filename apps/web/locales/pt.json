@@ -499,6 +499,7 @@
 		"CREATE_TASK": "Criar Tarefa"
 	},
 	"alerts": {
+		"ACTION_FAILED": "A ação falhou.",
 		"REAL_TIME_ON_WORKING": "Estamos trabalhando na sincronização em tempo real no momento. Verifique esse recurso mais tarde.",
 		"ALERT_DELETE_ACCOUNT": "Você será removido de todas as equipes, exceto onde você é o único gerente na equipe",
 		"ALERT_ACCOUNT_PERMANENT_DELETE": "Sua conta será excluída permanentemente com a remoção de todas as equipes",
@@ -508,6 +509,40 @@
 		"ALERT_USER_DELETED_FROM_TEAM": "Você foi removido da equipe"
 	},
 	"pages": {
+		"accountDeletion": {
+			"REQUEST_TITLE": "Excluir sua conta",
+			"REQUEST_DESCRIPTION": "Enviaremos por e-mail um link para excluir sua conta do {appName}.",
+			"REQUEST_WHO_FOR": "Digite o e-mail com o qual você entra. O link exclui todas as contas do {appName} com esse e-mail, em todos os espaços de trabalho, mesmo que você não consiga entrar.",
+			"SEND_LINK": "Enviar link de exclusão por e-mail",
+			"SENT_TITLE": "Verifique seu e-mail",
+			"SENT_MESSAGE": "Se existir uma conta com esse e-mail, enviamos um link para excluí-la. O link expira em {minutes} minutos.",
+			"REQUEST_ERROR": "Não foi possível enviar a solicitação. Aguarde um minuto e tente novamente.",
+			"BACK_TO_SIGN_IN": "Voltar para o login",
+			"CONFIRM_TITLE": "Confirmar a exclusão da conta",
+			"DONE_TITLE": "Conta excluída",
+			"CHECKING_LINK": "Verificando seu link…",
+			"CONFIRM_INTRO": "Este link foi enviado para {email}. Ao confirmar, estas contas do {appName} serão excluídas:",
+			"LINK_EXPIRES": "O link expira às {time}.",
+			"ORGANIZATIONS": "Organizações: {organizations}",
+			"OUTCOME_WORKSPACE_DELETED": "Você é o único membro: todo o espaço de trabalho e todos os seus dados serão excluídos.",
+			"OUTCOME_ACCOUNT_REMOVED": "Sua conta e seus dados de membro (registros de tempo, capturas de tela, atividade) serão excluídos. Tarefas, comentários e outros conteúdos compartilhados permanecem no espaço de trabalho sem o seu nome.{count, plural, =0 {} one { # outro membro mantém o acesso.} other { # outros membros mantêm o acesso.}}",
+			"SOLE_ADMIN_WARNING": "Você é o único administrador deste espaço de trabalho: {count, plural, one {# outro membro ficará} other {# outros membros ficarão}} sem administrador. Se precisarem, torne outra pessoa administradora antes.",
+			"WHAT_IS_KEPT": "Mantido após a exclusão: um registro de auditoria desta solicitação (sem o seu nome), e-mails já entregues, dados de cobrança que a lei nos obriga a guardar e backups criptografados até expirarem.",
+			"CONFIRM_CHECKBOX": "Entendo que isso exclui meus dados permanentemente e não pode ser desfeito.",
+			"TYPE_TO_CONFIRM": "Digite {word} para confirmar",
+			"CONFIRM_BUTTON": "Excluir minha conta permanentemente",
+			"CONFIRM_ERROR": "A exclusão não foi concluída. Tente novamente.",
+			"KEEP_ACCOUNT": "Manter minha conta",
+			"DELETED_MESSAGE": "{accounts, plural, one {# conta foi excluída} other {# contas foram excluídas}}{workspaces, plural, =0 {} one {, com # espaço de trabalho} other {, com # espaços de trabalho}}. Enviamos uma confirmação para o seu e-mail.",
+			"SIGNED_OUT": "Você foi desconectado neste navegador.",
+			"INVALID_LINK": "Este link é inválido ou expirou. Solicite um novo.",
+			"REQUEST_NEW_LINK": "Solicitar um novo link",
+			"GENERIC_ERROR": "Algo deu errado ao verificar seu link. Tente novamente.",
+			"TRY_AGAIN": "Tentar novamente",
+			"DELETE_BY_EMAIL_LINK": "Excluir minha conta por e-mail",
+			"DANGER_ZONE_TITLE": "Excluir por link de e-mail",
+			"DANGER_ZONE_DESCRIPTION": "Exclui todas as contas com o seu e-mail, em todos os espaços de trabalho, quando você confirmar por um link que enviamos."
+		},
 		"timeLimitReport": {
 			"TIME_SPENT": "Tempo gasto",
 			"LIMIT": "Limite",
