@@ -94,7 +94,6 @@ export function DashboardHeader({
 					)}
 					<LazyDateRangePicker
 						onDateRangeChange={handleDateRangeChange}
-						data={reportData}
 						initialRange={
 							startDate && endDate ? { from: startDate, to: endDate } : undefined
 						}
