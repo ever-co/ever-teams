@@ -156,10 +156,11 @@ jobs:
             return 0
           }
           bumps=$(for tag in $(git tag --list '@ever-teams/*@*'); do
-            git log -1 --format=%s "$tag" 2>/dev/null | grep -qiF "$marker" && git rev-parse "$tag^{commit}"
+            # Explicit ifs, not `a && b`: a non-matching last tag must not fail the loop (and so the step under pipefail)
+            if git log -1 --format=%s "$tag" 2>/dev/null | grep -qiF "$marker"; then git rev-parse "$tag^{commit}"; fi
           done | sort -u)
           consumed=$(for c in $bumps; do
-            fully_published "$c" && git show --diff-filter=D --name-only --format= "$c" -- .changeset/ 2>/dev/null
+            if fully_published "$c"; then git show --diff-filter=D --name-only --format= "$c" -- .changeset/ 2>/dev/null; fi
           done | sort -u)
           for f in $consumed; do
             if [ -f "$f" ]; then
@@ -226,7 +227,7 @@ jobs:
             return 0
           }
           for bump in $(for tag in $(git tag --list '@ever-teams/*@*'); do
-            git log -1 --format=%s "$tag" 2>/dev/null | grep -qiF "$BUMP_MARKER" && git rev-parse "$tag^{commit}"
+            if git log -1 --format=%s "$tag" 2>/dev/null | grep -qiF "$BUMP_MARKER"; then git rev-parse "$tag^{commit}"; fi
           done | sort -u); do
             if git merge-base --is-ancestor "$AFTER_SHA" "$bump^" 2>/dev/null && fully_published "$bump"; then
               echo "ℹ️  This push is already in a published release (bump commit ${bump:0:8}): nothing to release again."
