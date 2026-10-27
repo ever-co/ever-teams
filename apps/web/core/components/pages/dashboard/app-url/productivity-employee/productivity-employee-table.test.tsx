@@ -57,3 +57,12 @@ describe('ProductivityEmployeeTable project badge', () => {
 		expect(container.textContent).not.toContain('Ever');
 	});
 });
+
+describe('ProductivityEmployeeTable date column', () => {
+	it('shows the calendar day of the report, whatever the local time zone', () => {
+		renderRows(activity('Website Redesign'));
+
+		// '2026-09-18' read as UTC midnight would render 'Thursday, September 17' west of UTC
+		expect(screen.getByText('Friday, September 18, 2026')).toBeTruthy();
+	});
+});
