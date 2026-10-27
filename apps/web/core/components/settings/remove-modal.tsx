@@ -1,5 +1,5 @@
 import { Button, Modal, Text } from '@/core/components';
-import { useState } from 'react';
+import { ReactNode, useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { EverCard } from '../common/ever-card';
 
@@ -8,13 +8,16 @@ export const RemoveModal = ({
 	close,
 	title,
 	onAction,
-	loading
+	loading,
+	children
 }: {
 	open: boolean;
 	close: () => void;
 	title: string;
 	onAction: () => any;
 	loading: boolean;
+	/** Optional details under the title (e.g. what a deletion will remove). */
+	children?: ReactNode;
 }) => {
 	const t = useTranslations();
 	const [notifyMessage, setNotifyMessage] = useState<string>('');
@@ -32,6 +35,8 @@ export const RemoveModal = ({
 						<Text.Heading as="h3" className="gap-32 text-2xl text-center">
 							{title}
 						</Text.Heading>
+
+						{children && <div className="self-stretch mt-4">{children}</div>}
 
 						{notifyMessage && (
 							<Text.Error className="self-start mt-2 justify-self-start">{notifyMessage}</Text.Error>

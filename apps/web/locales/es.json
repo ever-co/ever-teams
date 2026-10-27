@@ -541,7 +541,10 @@
 			"TRY_AGAIN": "Reintentar",
 			"DELETE_BY_EMAIL_LINK": "Eliminar mi cuenta por correo",
 			"DANGER_ZONE_TITLE": "Eliminar mediante enlace por correo",
-			"DANGER_ZONE_DESCRIPTION": "Elimina todas las cuentas con tu correo, en todos los espacios de trabajo, cuando confirmes desde un enlace que te enviamos."
+			"DANGER_ZONE_DESCRIPTION": "Elimina todas las cuentas con tu correo, en todos los espacios de trabajo, cuando confirmes desde un enlace que te enviamos.",
+			"CHECKING_ACCOUNT": "Comprobando qué se eliminará…",
+			"PREVIEW_ERROR": "No pudimos cargar qué se eliminará.",
+			"SIGN_OUT_AFTER": "Se cerrará tu sesión justo después."
 		},
 		"timeLimitReport": {
 			"TIME_SPENT": "Tiempo invertido",

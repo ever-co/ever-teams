@@ -7,6 +7,8 @@ import Link from 'next/link';
 import { RemoveModal } from '../../../settings/remove-modal';
 import { useUserQuery } from '@/core/hooks/queries/user-user.query';
 import { ACCOUNT_DELETION_PATH } from '@/core/lib/auth/account-deletion';
+import { useDeleteMyAccount } from '@/core/hooks/auth/use-delete-my-account';
+import { DeleteMyAccountPreview } from './delete-my-account-preview';
 type RemoveModalType = 'REMOVE' | 'DELETE' | 'DELETE_ALL' | string;
 type ActionFunction = () => Promise<unknown> | undefined;
 
@@ -23,8 +25,12 @@ const LINK_BUTTON =
  *
  * - Remove from all teams: `DELETE /organization-team/teams/:userId` (Gauzy), then the teams and the token reload.
  * - Delete this account: `DELETE /user/:id`, then logout (cookies cleared, redirect to sign-in).
- * - Delete all data: `DELETE /user/reset` (Gauzy's factory reset of the user's organizations), then logout. Until
- *   2026-10 this button only logged the user to the console and deleted nothing.
+ * - Delete all data: `POST /account-deletion/me` `{ confirm: true }` (Gauzy), with the e-mail link's semantics: the
+ *   whole workspace when the user is its only member, otherwise the account and its member records (shared content
+ *   stays without the name). The modal first shows `GET /account-deletion/me` (what will happen). Then logout. Until
+ *   2026-10 this button only logged the user to the console and deleted nothing. It deliberately does not call
+ *   `DELETE /user/reset` (useUser().resetUser, kept): Gauzy's factory reset wipes every member's data of the user's
+ *   organizations and keeps the account, which is not what the button promises.
  * - Delete by e-mail link: the public /delete-account flow, for every account with this e-mail (all workspaces).
  *
  * A failed call now shows its reason in the modal (RemoveModal) instead of leaving it open without a word.
@@ -34,7 +40,10 @@ export const DangerZone = () => {
 	const { isOpen, closeModal, openModal } = useModal();
 	const [removeModalType, setRemoveModalType] = useState<RemoveModalType>('');
 
-	const { deleteUser, deleteUserLoading, resetUser, resetUserLoading } = useUser();
+	const { deleteUser, deleteUserLoading } = useUser();
+	const { preview, previewLoading, previewError, deleteMyAccount, deleteMyAccountLoading } = useDeleteMyAccount(
+		isOpen && removeModalType === 'DELETE_ALL'
+	);
 	const { data: user } = useUserQuery();
 
 	const { removeUserFromAllTeam, removeUserFromAllTeamLoading } = useDeleteOrganizationTeam();
@@ -46,9 +55,9 @@ export const DangerZone = () => {
 
 	const handleDeleteAllUserData = useCallback(() => {
 		if (user) {
-			return resetUser();
+			return deleteMyAccount();
 		}
-	}, [user, resetUser]);
+	}, [user, deleteMyAccount]);
 
 	const actionTypes: Record<RemoveModalType, ActionFunction> = {
 		DELETE: deleteUser,
@@ -123,8 +132,12 @@ export const DangerZone = () => {
 					close={closeModal}
 					title={messageToShow}
 					onAction={onAction}
-					loading={deleteUserLoading || removeUserFromAllTeamLoading || resetUserLoading}
-				/>
+					loading={deleteUserLoading || removeUserFromAllTeamLoading || deleteMyAccountLoading}
+				>
+					{removeModalType === 'DELETE_ALL' && (
+						<DeleteMyAccountPreview preview={preview} loading={previewLoading} error={previewError} />
+					)}
+				</RemoveModal>
 			</div>
 		</>
 	);

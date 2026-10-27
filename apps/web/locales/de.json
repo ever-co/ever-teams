@@ -541,7 +541,10 @@
 			"TRY_AGAIN": "Erneut versuchen",
 			"DELETE_BY_EMAIL_LINK": "Mein Konto per E-Mail löschen",
 			"DANGER_ZONE_TITLE": "Per E-Mail-Link löschen",
-			"DANGER_ZONE_DESCRIPTION": "Löscht jedes Konto mit deiner E-Mail-Adresse in allen Arbeitsbereichen, sobald du über einen per E-Mail gesendeten Link bestätigst."
+			"DANGER_ZONE_DESCRIPTION": "Löscht jedes Konto mit deiner E-Mail-Adresse in allen Arbeitsbereichen, sobald du über einen per E-Mail gesendeten Link bestätigst.",
+			"CHECKING_ACCOUNT": "Es wird geprüft, was gelöscht wird…",
+			"PREVIEW_ERROR": "Wir konnten nicht laden, was gelöscht wird.",
+			"SIGN_OUT_AFTER": "Du wirst direkt danach abgemeldet."
 		},
 		"timeLimitReport": {
 			"TIME_SPENT": "Verbrachte Zeit",

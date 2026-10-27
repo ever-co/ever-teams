@@ -541,7 +541,10 @@
 			"TRY_AGAIN": "Tentar novamente",
 			"DELETE_BY_EMAIL_LINK": "Excluir minha conta por e-mail",
 			"DANGER_ZONE_TITLE": "Excluir por link de e-mail",
-			"DANGER_ZONE_DESCRIPTION": "Exclui todas as contas com o seu e-mail, em todos os espaços de trabalho, quando você confirmar por um link que enviamos."
+			"DANGER_ZONE_DESCRIPTION": "Exclui todas as contas com o seu e-mail, em todos os espaços de trabalho, quando você confirmar por um link que enviamos.",
+			"CHECKING_ACCOUNT": "Verificando o que será excluído…",
+			"PREVIEW_ERROR": "Não foi possível carregar o que será excluído.",
+			"SIGN_OUT_AFTER": "Você será desconectado logo em seguida."
 		},
 		"timeLimitReport": {
 			"TIME_SPENT": "Tempo gasto",

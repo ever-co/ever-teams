@@ -541,7 +541,10 @@
 			"TRY_AGAIN": "Opnieuw proberen",
 			"DELETE_BY_EMAIL_LINK": "Mijn account verwijderen via e-mail",
 			"DANGER_ZONE_TITLE": "Verwijderen via e-maillink",
-			"DANGER_ZONE_DESCRIPTION": "Verwijdert elk account met je e-mailadres, in alle werkruimtes, zodra je bevestigt via een link die we je mailen."
+			"DANGER_ZONE_DESCRIPTION": "Verwijdert elk account met je e-mailadres, in alle werkruimtes, zodra je bevestigt via een link die we je mailen.",
+			"CHECKING_ACCOUNT": "Controleren wat er wordt verwijderd…",
+			"PREVIEW_ERROR": "We konden niet laden wat er wordt verwijderd.",
+			"SIGN_OUT_AFTER": "Je wordt direct daarna uitgelogd."
 		},
 		"timeLimitReport": {
 			"TIME_SPENT": "Bestede tijd",

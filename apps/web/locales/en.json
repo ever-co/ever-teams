@@ -541,7 +541,10 @@
 			"TRY_AGAIN": "Try again",
 			"DELETE_BY_EMAIL_LINK": "Delete my account by email",
 			"DANGER_ZONE_TITLE": "Delete by email link",
-			"DANGER_ZONE_DESCRIPTION": "Deletes every account with your email, in all workspaces, once you confirm from a link we email you."
+			"DANGER_ZONE_DESCRIPTION": "Deletes every account with your email, in all workspaces, once you confirm from a link we email you.",
+			"CHECKING_ACCOUNT": "Checking what will be deleted…",
+			"PREVIEW_ERROR": "We could not load what will be deleted.",
+			"SIGN_OUT_AFTER": "You will be signed out right after."
 		},
 		"timeLimitReport": {
 			"TIME_SPENT": "Time spent",

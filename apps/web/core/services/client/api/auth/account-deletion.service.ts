@@ -47,6 +47,30 @@ class AccountDeletionService extends APIService {
 		);
 		return data;
 	};
+
+	/**
+	 * Signed in (bearer + tenant): what deleting the CURRENT account would do, in the `verify` shape (`accounts[0]` is
+	 * the current workspace: outcome, otherMembers, soleAdmin). `GET /account-deletion/me`.
+	 */
+	previewMe = async (): Promise<IAccountDeletionVerifyResponse> => {
+		const { data } = await this.get<IAccountDeletionVerifyResponse>('/account-deletion/me');
+		return data;
+	};
+
+	/**
+	 * Signed in: deletes the CURRENT account with the e-mail link's semantics (the whole workspace when the user is
+	 * its only member; otherwise the account and its member records, shared content kept without the name).
+	 * `POST /account-deletion/me` `{ confirm: true }`; Gauzy checks ACCESS_DELETE_ACCOUNT.
+	 */
+	deleteMe = async (): Promise<IAccountDeletionConfirmResponse> => {
+		const { data } = await this.post<IAccountDeletionConfirmResponse>(
+			'/account-deletion/me',
+			{ confirm: true },
+			undefined,
+			false
+		);
+		return data;
+	};
 }
 
 /** True for the API's "this link is invalid or has expired" answer (410, the same for every kind of bad token). */

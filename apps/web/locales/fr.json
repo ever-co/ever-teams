@@ -541,7 +541,10 @@
 			"TRY_AGAIN": "Réessayer",
 			"DELETE_BY_EMAIL_LINK": "Supprimer mon compte par e-mail",
 			"DANGER_ZONE_TITLE": "Supprimer par lien e-mail",
-			"DANGER_ZONE_DESCRIPTION": "Supprime tous les comptes associés à votre adresse e-mail, dans tous les espaces de travail, après confirmation via un lien envoyé par e-mail."
+			"DANGER_ZONE_DESCRIPTION": "Supprime tous les comptes associés à votre adresse e-mail, dans tous les espaces de travail, après confirmation via un lien envoyé par e-mail.",
+			"CHECKING_ACCOUNT": "Vérification de ce qui sera supprimé…",
+			"PREVIEW_ERROR": "Impossible de charger ce qui sera supprimé.",
+			"SIGN_OUT_AFTER": "Vous serez déconnecté juste après."
 		},
 		"timeLimitReport": {
 			"TIME_SPENT": "Temps passé",

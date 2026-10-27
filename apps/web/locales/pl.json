@@ -541,7 +541,10 @@
 			"TRY_AGAIN": "Spróbuj ponownie",
 			"DELETE_BY_EMAIL_LINK": "Usuń moje konto przez e-mail",
 			"DANGER_ZONE_TITLE": "Usuń przez link e-mail",
-			"DANGER_ZONE_DESCRIPTION": "Usuwa każde konto z Twoim adresem e-mail, we wszystkich obszarach roboczych, po potwierdzeniu linkiem, który wyślemy e-mailem."
+			"DANGER_ZONE_DESCRIPTION": "Usuwa każde konto z Twoim adresem e-mail, we wszystkich obszarach roboczych, po potwierdzeniu linkiem, który wyślemy e-mailem.",
+			"CHECKING_ACCOUNT": "Sprawdzamy, co zostanie usunięte…",
+			"PREVIEW_ERROR": "Nie udało się wczytać, co zostanie usunięte.",
+			"SIGN_OUT_AFTER": "Zaraz potem zostaniesz wylogowany."
 		},
 		"timeLimitReport": {
 			"TIME_SPENT": "Czas spędzony",
