@@ -73,14 +73,15 @@ class RegisterService extends APIService {
 		}
 
 		const password = generateToken(8);
-		const names = body.name.split(' ');
+		// The first word is the first name, the rest is the last name (same split as the Ever ID sign-up)
+		const [firstName = '', ...lastNames] = body.name.trim().split(/\s+/);
 
 		const user = await this.registerUser({
 			password: password,
 			confirmPassword: password,
 			user: {
-				firstName: names[0],
-				lastName: names[1] || '',
+				firstName,
+				lastName: lastNames.join(' '),
 				email: body.email,
 				timeZone: body.timezone as string
 			},

@@ -79,16 +79,17 @@ export async function POST(req: Request) {
 
 	// General a random password with 8 chars
 	const password = generateToken(8);
-	const names = body.name.split(' ');
-
+	// The first word is the first name, the rest is the last name (same split as the Ever ID sign-up),
+	// so "Mary Jane Watson" keeps "Jane Watson" and extra spaces do not yield empty names
+	const [firstName = '', ...lastNames] = body.name.trim().split(/\s+/);
 
 	// Register user
 	const { data: user } = await registerUserRequest({
 		password: password,
 		confirmPassword: password,
 		user: {
-			firstName: names[0],
-			lastName: names[1] || '',
+			firstName,
+			lastName: lastNames.join(' '),
 			email: body.email,
 			timeZone: body.timezone as string
 		},
