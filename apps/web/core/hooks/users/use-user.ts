@@ -9,8 +9,9 @@ export const useUser = () => {
 	const { user, logOut } = useAuthenticateUser();
 	const queryClient = useQueryClient();
 	const invalidateUser = useCallback(() => {
-		// Invalidate only user-related queries before logout
-		queryClient.invalidateQueries({ queryKey: queryKeys.users.all });
+		// The account is gone (or reset): drop the user queries instead of invalidating them. Invalidating refetched
+		// /user/me with the deleted account's token (401s that raced the logout below); logOut clears the cache anyway.
+		queryClient.removeQueries({ queryKey: queryKeys.users.all });
 		logOut();
 	}, [queryClient, logOut]);
 	// React Query mutation for delete user

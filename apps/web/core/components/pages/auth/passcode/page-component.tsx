@@ -68,6 +68,7 @@ function AuthPasscode() {
 		<AuthLayout
 			headerLinkText={t('common.REGISTER')}
 			headerLinkHref="/auth/signup"
+			showDeleteAccountLink
 			title={
 				form.authScreen.screen === 'workspace'
 					? t('pages.authLogin.WORKSPACE')
