@@ -53,14 +53,21 @@ describe('proxyAccountDeletionMe', () => {
 		expect(init.headers['tenant-id']).toBe('tenant-1');
 	});
 
-	it('POST sends { confirm: true, planHash } and passes a 403 through', async () => {
+	it('POST sends { confirm: true, planHash } with the branding only, and passes a 403 through', async () => {
 		mockGuard.mockResolvedValueOnce(signedIn);
 		fetchMock.mockResolvedValueOnce(new Response(JSON.stringify({ message: 'Forbidden resource' }), { status: 403 }));
 
-		const res = await proxyAccountDeletionMe('POST', request('POST', { planHash: 'plan-1', confirm: false }));
+		const res = await proxyAccountDeletionMe(
+			'POST',
+			request('POST', { planHash: 'plan-1', confirm: false, appName: 'Ever Teams', tenantId: 'not-forwarded' })
+		);
 
 		expect(res.status).toBe(403);
-		expect(JSON.parse(fetchMock.mock.calls[0][1].body)).toEqual({ confirm: true, planHash: 'plan-1' });
+		expect(JSON.parse(fetchMock.mock.calls[0][1].body)).toEqual({
+			confirm: true,
+			planHash: 'plan-1',
+			appName: 'Ever Teams'
+		});
 	});
 
 	it('answers the guard refusal without calling Gauzy for a caller without a session', async () => {

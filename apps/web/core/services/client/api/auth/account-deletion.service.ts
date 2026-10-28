@@ -1,6 +1,7 @@
 import { APIService } from '../../api.service';
 import { ApiErrorService } from '../../api-error.service';
 import { GAUZY_API_BASE_SERVER_URL } from '@/core/constants/config/constants';
+import { appEmailBranding } from '@/core/lib/helpers/app-email-branding';
 import type { APIConfig } from '../../axios';
 import type {
 	IAccountDeletionConfirmResponse,
@@ -63,13 +64,15 @@ class AccountDeletionService extends APIService {
 	/**
 	 * Signed in: deletes the CURRENT account with the e-mail link's semantics (the whole workspace when the user is
 	 * its only member; otherwise the account and its member records, shared content kept without the name).
-	 * `POST /account-deletion/me` `{ confirm: true, planHash }` (the preview's); Gauzy checks ACCESS_DELETE_ACCOUNT, and
+	 * `POST /account-deletion/me` `{ confirm: true, planHash, ...branding }` (the preview's hash, the app's e-mail
+	 * branding for the completion e-mail); Gauzy checks ACCESS_DELETE_ACCOUNT, and
 	 * answers 409 without deleting when the outcome changed since that preview.
 	 */
 	deleteMe = async (planHash?: string): Promise<IAccountDeletionConfirmResponse> => {
 		const { data } = await this.post<IAccountDeletionConfirmResponse>(
 			'/account-deletion/me',
-			{ confirm: true, ...(planHash ? { planHash } : {}) },
+			// The app's branding for the "your account was deleted" e-mail, as the e-mail link's request sends it
+			{ ...appEmailBranding(), confirm: true, ...(planHash ? { planHash } : {}) },
 			undefined,
 			false
 		);
