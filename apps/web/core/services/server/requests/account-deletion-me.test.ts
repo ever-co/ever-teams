@@ -28,10 +28,12 @@ const signedIn = {
 	tenantId: 'tenant-1'
 };
 
-function request(method: 'GET' | 'POST', body?: unknown) {
+function request(method: 'GET' | 'POST', body?: unknown, headers: Record<string, string> = {}) {
 	return new Request('https://app.ever.team/api/account-deletion/me', {
 		method,
-		...(body ? { body: JSON.stringify(body), headers: { 'content-type': 'application/json' } } : {})
+		...(body
+			? { body: JSON.stringify(body), headers: { 'content-type': 'application/json', host: 'app.ever.team', ...headers } }
+			: { headers })
 	});
 }
 
@@ -59,7 +61,11 @@ describe('proxyAccountDeletionMe', () => {
 
 		const res = await proxyAccountDeletionMe(
 			'POST',
-			request('POST', { planHash: 'plan-1', confirm: false, appName: 'Ever Teams', tenantId: 'not-forwarded' })
+			request(
+				'POST',
+				{ planHash: 'plan-1', confirm: true, appName: 'Ever Teams', tenantId: 'not-forwarded' },
+				{ origin: 'https://app.ever.team', 'sec-fetch-site': 'same-origin' }
+			)
 		);
 
 		expect(res.status).toBe(403);
@@ -76,9 +82,34 @@ describe('proxyAccountDeletionMe', () => {
 			user: null
 		});
 
-		const res = await proxyAccountDeletionMe('POST', request('POST'));
+		const res = await proxyAccountDeletionMe('GET', request('GET'));
 
 		expect(res.status).toBe(401);
+		expect(fetchMock).not.toHaveBeenCalled();
+	});
+
+	it.each([
+		['a cross-site browser request', { confirm: true }, { 'sec-fetch-site': 'cross-site' }, 403],
+		['another Origin', { confirm: true }, { origin: 'https://evil.example' }, 403],
+		['a body without confirm: true', { planHash: 'plan-1' }, {}, 400]
+	])('refuses %s without calling the guard or Gauzy', async (_case, body, headers, status) => {
+		const res = await proxyAccountDeletionMe('POST', request('POST', body, headers));
+
+		expect(res.status).toBe(status);
+		expect(mockGuard).not.toHaveBeenCalled();
+		expect(fetchMock).not.toHaveBeenCalled();
+	});
+
+	it('refuses a POST that is not JSON (an HTML form) with 415', async () => {
+		const form = new Request('https://app.ever.team/api/account-deletion/me', {
+			method: 'POST',
+			headers: { 'content-type': 'application/x-www-form-urlencoded' },
+			body: 'confirm=true'
+		});
+
+		const res = await proxyAccountDeletionMe('POST', form);
+
+		expect(res.status).toBe(415);
 		expect(fetchMock).not.toHaveBeenCalled();
 	});
 });

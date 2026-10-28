@@ -42,7 +42,7 @@ export const DangerZone = () => {
 	const [removeModalType, setRemoveModalType] = useState<RemoveModalType>('');
 
 	const { deleteUser, deleteUserLoading } = useUser();
-	const { preview, previewLoading, previewError, deleteMyAccount, deleteMyAccountLoading } = useDeleteMyAccount(
+	const { preview, previewLoading, previewError, retryPreview, deleteMyAccount, deleteMyAccountLoading } = useDeleteMyAccount(
 		isOpen && removeModalType === 'DELETE_ALL'
 	);
 	const { data: user } = useUserQuery();
@@ -54,6 +54,7 @@ export const DangerZone = () => {
 		}
 	}, [user, removeUserFromAllTeam]);
 
+	/** Deletes the signed-in account (POST /account-deletion/me); a 409 becomes the "changed" notice in the modal. */
 	const handleDeleteAllUserData = useCallback(() => {
 		if (user) {
 			return deleteMyAccount().catch((error: unknown) => {
@@ -138,10 +139,17 @@ export const DangerZone = () => {
 					title={messageToShow}
 					onAction={onAction}
 					loading={deleteUserLoading || removeUserFromAllTeamLoading || deleteMyAccountLoading}
-					confirmDisabled={removeModalType === 'DELETE_ALL' && (previewLoading || !preview?.accounts?.length)}
+					confirmDisabled={
+						removeModalType === 'DELETE_ALL' && (previewLoading || !!previewError || !preview?.accounts?.length)
+					}
 				>
 					{removeModalType === 'DELETE_ALL' && (
-						<DeleteMyAccountPreview preview={preview} loading={previewLoading} error={previewError} />
+						<DeleteMyAccountPreview
+							preview={preview}
+							loading={previewLoading}
+							error={previewError}
+							onRetry={retryPreview}
+						/>
 					)}
 				</RemoveModal>
 			</div>

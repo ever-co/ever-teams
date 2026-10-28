@@ -23,6 +23,7 @@ const SECONDARY_LINK = 'inline-flex gap-2 items-center text-sm font-medium text-
 const INPUT =
 	'dark:bg-foreground/5 ring-foreground/10 placeholder:text-muted-foreground/75 flex h-9 w-full min-w-0 rounded-md border border-transparent bg-white px-3 py-1 text-base shadow-sm outline-none ring-1 transition-[color,box-shadow] md:text-sm focus-visible:border-foreground/35 focus-visible:ring-ring/25 dark:focus-visible:border-foreground/25 focus-visible:ring-[3px] font-mono tracking-widest';
 
+/** The one answer for an unusable link (invalid, used, replaced or expired: 410), with a way to ask for a new one. */
 function InvalidLink() {
 	const t = useTranslations();
 	return (
@@ -50,13 +51,13 @@ function ConfirmForm({
 	confirmFailed,
 	planChanged,
 	onConfirm
-}: {
+}: Readonly<{
 	details: IAccountDeletionVerifyResponse | null;
 	deleting: boolean;
 	confirmFailed: boolean;
 	planChanged: boolean;
 	onConfirm: () => void;
-}) {
+}>) {
 	const t = useTranslations();
 	const format = useFormatter();
 	const [understood, setUnderstood] = useState(false);
@@ -219,12 +220,12 @@ export default function DeleteAccountConfirm() {
 					<CheckCircle2 className="w-8 h-8 text-green-600 dark:text-green-400" />
 				</div>
 				<div className="space-y-2">
-					<p className="max-w-sm text-sm text-muted-foreground" role="status">
+					<output className="block max-w-sm text-sm text-muted-foreground">
 						{t('pages.accountDeletion.DELETED_MESSAGE', {
 							accounts: result?.accounts ?? 0,
 							workspaces: result?.workspacesDeleted ?? 0
 						})}
-					</p>
+					</output>
 					{sessionCleared && (
 						<p className="max-w-sm text-sm text-muted-foreground">{t('pages.accountDeletion.SIGNED_OUT')}</p>
 					)}
@@ -254,6 +255,8 @@ export default function DeleteAccountConfirm() {
 			title={
 				phase === 'deleted' ? t('pages.accountDeletion.DONE_TITLE') : t('pages.accountDeletion.CONFIRM_TITLE')
 			}
+			// While the page holds a token, switching language (a new locale route) would remount it and lose the token
+			hideLanguageSwitcher={phase !== 'deleted' && phase !== 'invalid'}
 		>
 			<div className="overflow-x-hidden w-full overflow-y-clip p-1.5">{content}</div>
 		</AuthLayout>

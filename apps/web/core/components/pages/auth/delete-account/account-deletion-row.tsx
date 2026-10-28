@@ -16,7 +16,7 @@ function roleLabel(role?: string | null): string | null {
  * One account (one workspace) of an account deletion and what happens to it: the e-mail link's confirm page lists
  * every account of the address, the Danger Zone's "Delete all data" modal shows the current one.
  */
-export function AccountDeletionRow({ account }: { account: IAccountDeletionAccount }) {
+export function AccountDeletionRow({ account }: Readonly<{ account: IAccountDeletionAccount }>) {
 	const t = useTranslations();
 	const workspaceDeleted = account.outcome === 'workspace-deleted';
 	const role = roleLabel(account.role);

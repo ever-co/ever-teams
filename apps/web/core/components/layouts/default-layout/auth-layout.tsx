@@ -32,6 +32,11 @@ type Props = {
 	headerLinkHref?: string;
 	/** Footer link to the public account deletion request (/delete-account), for people who cannot sign in. */
 	showDeleteAccountLink?: boolean;
+	/**
+	 * Hides the language switcher. Switching navigates to another locale route, which remounts the page: the account
+	 * deletion confirm page would lose the e-mailed token it holds in memory (it is no longer in the address bar).
+	 */
+	hideLanguageSwitcher?: boolean;
 } & PropsWithChildren;
 
 export function AuthLayout({
@@ -41,7 +46,8 @@ export function AuthLayout({
 	isAuthPage = true,
 	headerLinkText,
 	headerLinkHref,
-	showDeleteAccountLink = false
+	showDeleteAccountLink = false,
+	hideLanguageSwitcher = false
 }: Props) {
 	const t = useTranslations();
 
@@ -184,10 +190,12 @@ export function AuthLayout({
 
 						{/* Language + Theme controls */}
 						<div className="flex gap-3 justify-center items-center">
-							<LanguageDropDownWithFlags
-								showFlag
-								btnClassName="bg-light--theme-dark dark:bg-card border-none max-w-28 text-xs"
-							/>
+							{!hideLanguageSwitcher && (
+								<LanguageDropDownWithFlags
+									showFlag
+									btnClassName="bg-light--theme-dark dark:bg-card border-none max-w-28 text-xs"
+								/>
+							)}
 							<ThemeToggler />
 						</div>
 					</footer>

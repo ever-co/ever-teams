@@ -53,11 +53,11 @@ export default function DeleteAccountRequestForm() {
 
 						<div className="flex flex-col gap-2 items-center text-center">
 							<h3 className="text-lg font-semibold">{t('pages.accountDeletion.SENT_TITLE')}</h3>
-							<p className="max-w-sm text-sm lg:max-w-md text-muted-foreground" role="status">
+							<output className="block max-w-sm text-sm lg:max-w-md text-muted-foreground">
 								{t('pages.accountDeletion.SENT_MESSAGE', {
 									minutes: ACCOUNT_DELETION_LINK_TTL_MINUTES
 								})}
-							</p>
+							</output>
 						</div>
 
 						<div className="flex items-center gap-2 px-4 py-2.5 rounded-lg bg-muted/50 ring-1 ring-foreground/10">

@@ -50,10 +50,14 @@ export function useDeleteMyAccount(enabled: boolean) {
 		}
 	}, [deleteMyAccountMutateAsync, planHash, refetchPreview]);
 
+	const retryPreview = useCallback(() => void refetchPreview(), [refetchPreview]);
+
 	return {
 		preview: preview.data,
 		previewLoading: preview.isFetching,
+		// Set after a failed read even when an earlier preview is still cached: that one must not be confirmed
 		previewError: preview.error,
+		retryPreview,
 		deleteMyAccount,
 		deleteMyAccountLoading: deletion.isPending
 	};

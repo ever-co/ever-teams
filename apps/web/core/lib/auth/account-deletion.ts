@@ -38,7 +38,9 @@ export function isAccountDeletionPath(pathname: string | null | undefined): bool
  */
 export function accountDeletionConfirmUrl(origin: string, locale?: string | null, defaultLocale = 'en'): string {
 	const prefix = locale && locale !== defaultLocale ? `/${locale}` : '';
-	return `${origin.replace(/\/+$/, '')}${prefix}${ACCOUNT_DELETION_CONFIRM_PATH}`;
+	let base = origin;
+	while (base.endsWith('/')) base = base.slice(0, -1);
+	return `${base}${prefix}${ACCOUNT_DELETION_CONFIRM_PATH}`;
 }
 
 /**
@@ -61,7 +63,7 @@ export function takeAccountDeletionToken(
 	if (location.hash || hadTokenInQuery) {
 		query.delete('token');
 		const search = query.toString();
-		history.replaceState(null, '', `${location.pathname}${search ? `?${search}` : ''}`);
+		history.replaceState(null, '', search ? `${location.pathname}?${search}` : location.pathname);
 	}
 
 	return token;
