@@ -1,4 +1,5 @@
 import { generateToken } from '@/core/lib/helpers/generate-token';
+import { splitFullName } from '@/core/lib/helpers/strings';
 import { authFormValidate } from '@/core/lib/helpers/validations';
 import { IRegisterDataAPI } from '@/core/types/interfaces/auth/auth';
 import {
@@ -79,9 +80,7 @@ export async function POST(req: Request) {
 
 	// General a random password with 8 chars
 	const password = generateToken(8);
-	// The first word is the first name, the rest is the last name (same split as the Ever ID sign-up),
-	// so "Mary Jane Watson" keeps "Jane Watson" and extra spaces do not yield empty names
-	const [firstName = '', ...lastNames] = body.name.trim().split(/\s+/);
+	const { firstName, lastName } = splitFullName(body.name);
 
 	// Register user
 	const { data: user } = await registerUserRequest({
@@ -89,7 +88,7 @@ export async function POST(req: Request) {
 		confirmPassword: password,
 		user: {
 			firstName,
-			lastName: lastNames.join(' '),
+			lastName,
 			email: body.email,
 			timeZone: body.timezone as string
 		},
