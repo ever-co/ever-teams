@@ -152,6 +152,21 @@ export function useAccountDeletionConfirm() {
 		};
 	}, [applyPreview, loadPreview]);
 
+	// A link pasted into this same tab only changes the fragment (no reload): take its token and start over.
+	useEffect(() => {
+		const onHashChange = () => {
+			const token = takeAccountDeletionToken();
+			if (!token) return;
+			tokenRef.current = token;
+			setResult(null);
+			setConfirmFailed(false);
+			setPlanChanged(false);
+			void verify();
+		};
+		window.addEventListener('hashchange', onHashChange);
+		return () => window.removeEventListener('hashchange', onHashChange);
+	}, [verify]);
+
 	const planHash = details?.planHash;
 	const confirm = useCallback(async () => {
 		const token = tokenRef.current;
