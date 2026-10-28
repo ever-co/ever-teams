@@ -81,12 +81,18 @@ export interface IAccountDeletionAccount {
 	soleAdmin?: boolean;
 }
 
-/** `POST /account-deletion/verify` (200). */
+/** `POST /account-deletion/verify` and `GET /account-deletion/me` (200). */
 export interface IAccountDeletionVerifyResponse {
 	/** The address, masked (`j***@example.com`). */
 	email: string;
 	expiresAt: string;
 	accounts: IAccountDeletionAccount[];
+	/**
+	 * Fingerprint of this preview (accounts and outcomes). The deletion sends back the one it showed: when the accounts
+	 * changed since (a member joined or left), the API answers 409 and deletes nothing, so the new preview is shown and
+	 * confirmed again.
+	 */
+	planHash?: string;
 }
 
 /** `POST /account-deletion/confirm` (200). */

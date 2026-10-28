@@ -3,13 +3,16 @@
 import { useCallback } from 'react';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { queryKeys } from '@/core/query/keys';
-import { accountDeletionService } from '@/core/services/client/api/auth/account-deletion.service';
+import {
+	accountDeletionService,
+	isAccountDeletionPlanChanged
+} from '@/core/services/client/api/auth/account-deletion.service';
 import { useAuthenticateUser } from './use-authenticate-user';
 
 /**
  * Settings → Danger Zone → "Delete all data": deletes the signed-in account with the e-mail link's semantics (Gauzy
  * `POST /account-deletion/me`), after showing what will happen (`GET /account-deletion/me`, read only while `enabled`,
- * i.e. while the confirm modal is open). On success the user is signed out: cookies and cached queries are cleared and
+ * i.e. while the confirm modal is open), then `POST` with that preview's `planHash`. On success the user is signed out: cookies and cached queries are cleared and
  * the app goes to the sign-in page (useAuthenticateUser().logOut).
  */
 export function useDeleteMyAccount(enabled: boolean) {
@@ -26,15 +29,26 @@ export function useDeleteMyAccount(enabled: boolean) {
 
 	const deletion = useMutation({
 		mutationKey: queryKeys.users.operations.deleteMe,
-		mutationFn: () => accountDeletionService.deleteMe(),
+		// The preview the person saw: Gauzy deletes only if the outcome is still the one it described (else 409)
+		mutationFn: (planHash?: string) => accountDeletionService.deleteMe(planHash),
 		onSuccess: () => {
 			// The account is gone: no refetch with its token, straight to the signed-out state.
 			void logOut();
 		}
 	});
 
+	const planHash = preview.data?.planHash;
+	const refetchPreview = preview.refetch;
 	const deleteMyAccountMutateAsync = deletion.mutateAsync;
-	const deleteMyAccount = useCallback(() => deleteMyAccountMutateAsync(), [deleteMyAccountMutateAsync]);
+	/** Deletes what the preview showed. On a 409 (the outcome changed), reads the new preview and rethrows. */
+	const deleteMyAccount = useCallback(async () => {
+		try {
+			return await deleteMyAccountMutateAsync(planHash);
+		} catch (error) {
+			if (isAccountDeletionPlanChanged(error)) await refetchPreview();
+			throw error;
+		}
+	}, [deleteMyAccountMutateAsync, planHash, refetchPreview]);
 
 	return {
 		preview: preview.data,

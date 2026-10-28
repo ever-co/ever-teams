@@ -544,7 +544,8 @@
 			"DANGER_ZONE_DESCRIPTION": "Supprime tous les comptes associés à votre adresse e-mail, dans tous les espaces de travail, après confirmation via un lien envoyé par e-mail.",
 			"CHECKING_ACCOUNT": "Vérification de ce qui sera supprimé…",
 			"PREVIEW_ERROR": "Impossible de charger ce qui sera supprimé.",
-			"SIGN_OUT_AFTER": "Vous serez déconnecté juste après."
+			"SIGN_OUT_AFTER": "Vous serez déconnecté juste après.",
+			"PLAN_CHANGED": "Ce qui sera supprimé a changé depuis le chargement de cette page (quelqu'un a rejoint ou quitté). Rien n'a été supprimé : vérifiez le nouveau résumé et confirmez à nouveau."
 		},
 		"timeLimitReport": {
 			"TIME_SPENT": "Temps passé",

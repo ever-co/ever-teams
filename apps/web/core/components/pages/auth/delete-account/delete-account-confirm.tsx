@@ -3,7 +3,7 @@
 import { useTranslations, useFormatter } from 'next-intl';
 import { useState } from 'react';
 import Link from 'next/link';
-import { ArrowLeft, CheckCircle2, LinkIcon } from 'lucide-react';
+import { AlertTriangle, ArrowLeft, CheckCircle2, LinkIcon } from 'lucide-react';
 import { Button } from '@/core/components/common/button';
 import { Checkbox } from '@/core/components/common/checkbox';
 import { SpinnerLoader } from '@/core/components/common/loader';
@@ -11,7 +11,11 @@ import { Text } from '@/core/components/common/typography';
 import { AuthLayout } from '@/core/components/layouts/default-layout/auth-layout';
 import { InputField } from '@/core/components/duplicated-components/_input';
 import { APP_NAME, DEFAULT_APP_PATH } from '@/core/constants/config/constants';
-import { ACCOUNT_DELETION_CONFIRM_WORD, ACCOUNT_DELETION_PATH } from '@/core/lib/auth/account-deletion';
+import {
+	ACCOUNT_DELETION_CONFIRM_WORD,
+	ACCOUNT_DELETION_PATH,
+	type IAccountDeletionVerifyResponse
+} from '@/core/lib/auth/account-deletion';
 import { AccountDeletionRow } from './account-deletion-row';
 import { useAccountDeletionConfirm } from '@/core/hooks/auth/use-account-deletion';
 
@@ -37,18 +41,152 @@ function InvalidLink() {
 }
 
 /**
+ * The review + confirmation of a `verify` preview. Keyed by the preview's `planHash` by its parent, so a preview that
+ * changed (409 on confirm) starts with the checkbox and the typed word cleared: it has to be confirmed again.
+ */
+function ConfirmForm({
+	details,
+	deleting,
+	confirmFailed,
+	planChanged,
+	onConfirm
+}: {
+	details: IAccountDeletionVerifyResponse | null;
+	deleting: boolean;
+	confirmFailed: boolean;
+	planChanged: boolean;
+	onConfirm: () => void;
+}) {
+	const t = useTranslations();
+	const format = useFormatter();
+	const [understood, setUnderstood] = useState(false);
+	const [typed, setTyped] = useState('');
+
+	const confirmed = understood && typed.trim().toUpperCase() === ACCOUNT_DELETION_CONFIRM_WORD;
+	const expiresAt = details?.expiresAt ? new Date(details.expiresAt) : null;
+
+	return (
+		<form
+			className="space-y-5"
+			data-testid="delete-account-confirm"
+			onSubmit={(e) => {
+				e.preventDefault();
+				if (confirmed && !deleting) onConfirm();
+			}}
+		>
+			{planChanged && (
+				<p
+					className="flex gap-1.5 items-start p-2.5 text-xs rounded-md bg-amber-500/10 text-amber-700 dark:text-amber-300"
+					role="alert"
+					data-testid="delete-account-plan-changed"
+				>
+					<AlertTriangle className="mt-px w-3.5 h-3.5 shrink-0" />
+					<span>{t('pages.accountDeletion.PLAN_CHANGED')}</span>
+				</p>
+			)}
+
+			<div className="space-y-1">
+				<p className="text-sm text-muted-foreground">
+					{t('pages.accountDeletion.CONFIRM_INTRO', { email: details?.email ?? '', appName: APP_NAME })}
+				</p>
+				{expiresAt && !Number.isNaN(expiresAt.getTime()) && (
+					<p className="text-xs text-muted-foreground">
+						{t('pages.accountDeletion.LINK_EXPIRES', {
+							time: format.dateTime(expiresAt, { hour: '2-digit', minute: '2-digit' })
+						})}
+					</p>
+				)}
+			</div>
+
+			<ul className="space-y-2">
+				{details?.accounts.map((account, index) => (
+					<AccountDeletionRow key={`${account.workspace}-${index}`} account={account} />
+				))}
+			</ul>
+
+			<p className="text-xs text-muted-foreground">{t('pages.accountDeletion.WHAT_IS_KEPT')}</p>
+
+			<div className="space-y-4">
+				<label className="flex gap-2.5 items-start text-sm cursor-pointer select-none">
+					<Checkbox
+						checked={understood}
+						onCheckedChange={(value) => setUnderstood(value === true)}
+						className="mt-0.5"
+						disabled={deleting}
+						data-testid="delete-account-understood"
+					/>
+					<span>{t('pages.accountDeletion.CONFIRM_CHECKBOX')}</span>
+				</label>
+
+				<div className="space-y-2">
+					<label className="block text-sm font-medium leading-none" htmlFor="delete-account-word">
+						{t('pages.accountDeletion.TYPE_TO_CONFIRM', { word: ACCOUNT_DELETION_CONFIRM_WORD })}
+					</label>
+					<InputField
+						id="delete-account-word"
+						name="confirm-word"
+						value={typed}
+						onChange={(e: React.ChangeEvent<HTMLInputElement>) => setTyped(e.target.value)}
+						autoComplete="off"
+						autoCapitalize="characters"
+						spellCheck={false}
+						placeholder={ACCOUNT_DELETION_CONFIRM_WORD}
+						noWrapper
+						className={INPUT}
+						disabled={deleting}
+					/>
+				</div>
+
+				{confirmFailed && (
+					<div
+						className="flex flex-wrap gap-2 justify-between items-center p-2.5 rounded-md bg-destructive/5"
+						data-testid="delete-account-confirm-failed"
+					>
+						<Text.Error className="text-xs" role="alert">
+							{t('pages.accountDeletion.CONFIRM_ERROR')}
+						</Text.Error>
+						<Button
+							type="button"
+							variant="outline"
+							className="px-3 py-1 h-8 text-xs"
+							disabled={deleting || !confirmed}
+							onClick={onConfirm}
+						>
+							{t('pages.accountDeletion.TRY_AGAIN')}
+						</Button>
+					</div>
+				)}
+
+				<Button
+					type="submit"
+					variant="danger"
+					loading={deleting}
+					disabled={!confirmed || deleting}
+					className="w-full h-9 text-sm font-medium rounded-md"
+					data-testid="delete-account-submit"
+				>
+					{t('pages.accountDeletion.CONFIRM_BUTTON')}
+				</Button>
+
+				<div className="text-center">
+					<Link href={DEFAULT_APP_PATH} className={SECONDARY_LINK}>
+						<ArrowLeft className="w-4 h-4" />
+						{t('pages.accountDeletion.KEEP_ACCOUNT')}
+					</Link>
+				</div>
+			</div>
+		</form>
+	);
+}
+
+/**
  * `/delete-account/confirm#token=…`: the page the e-mailed link opens. Public, no sign-in, no session created.
  * Shows what will be deleted (`verify`), asks for an explicit confirmation, then deletes (`confirm`).
  */
 export default function DeleteAccountConfirm() {
 	const t = useTranslations();
-	const format = useFormatter();
-	const { phase, details, result, confirmFailed, sessionCleared, confirm, retry } = useAccountDeletionConfirm();
-	const [understood, setUnderstood] = useState(false);
-	const [typed, setTyped] = useState('');
-
-	const confirmed = understood && typed.trim().toUpperCase() === ACCOUNT_DELETION_CONFIRM_WORD;
-	const deleting = phase === 'deleting';
+	const { phase, details, result, confirmFailed, planChanged, sessionCleared, confirm, retry } =
+		useAccountDeletionConfirm();
 
 	let content: React.ReactNode;
 	if (phase === 'verifying') {
@@ -81,7 +219,6 @@ export default function DeleteAccountConfirm() {
 					<CheckCircle2 className="w-8 h-8 text-green-600 dark:text-green-400" />
 				</div>
 				<div className="space-y-2">
-					<h3 className="text-lg font-semibold">{t('pages.accountDeletion.DELETED_TITLE')}</h3>
 					<p className="max-w-sm text-sm text-muted-foreground" role="status">
 						{t('pages.accountDeletion.DELETED_MESSAGE', {
 							accounts: result?.accounts ?? 0,
@@ -89,9 +226,7 @@ export default function DeleteAccountConfirm() {
 						})}
 					</p>
 					{sessionCleared && (
-						<p className="max-w-sm text-sm text-muted-foreground">
-							{t('pages.accountDeletion.SIGNED_OUT')}
-						</p>
+						<p className="max-w-sm text-sm text-muted-foreground">{t('pages.accountDeletion.SIGNED_OUT')}</p>
 					)}
 				</div>
 				<Link href={DEFAULT_APP_PATH} className={SECONDARY_LINK}>
@@ -102,93 +237,15 @@ export default function DeleteAccountConfirm() {
 		);
 	} else {
 		// ready | deleting
-		const expiresAt = details?.expiresAt ? new Date(details.expiresAt) : null;
 		content = (
-			<form
-				className="space-y-5"
-				data-testid="delete-account-confirm"
-				onSubmit={(e) => {
-					e.preventDefault();
-					if (confirmed && !deleting) void confirm();
-				}}
-			>
-				<div className="space-y-1">
-					<p className="text-sm text-muted-foreground">
-						{t('pages.accountDeletion.CONFIRM_INTRO', { email: details?.email ?? '', appName: APP_NAME })}
-					</p>
-					{expiresAt && !Number.isNaN(expiresAt.getTime()) && (
-						<p className="text-xs text-muted-foreground">
-							{t('pages.accountDeletion.LINK_EXPIRES', {
-								time: format.dateTime(expiresAt, { hour: '2-digit', minute: '2-digit' })
-							})}
-						</p>
-					)}
-				</div>
-
-				<ul className="space-y-2">
-					{details?.accounts.map((account, index) => (
-						<AccountDeletionRow key={`${account.workspace}-${index}`} account={account} />
-					))}
-				</ul>
-
-				<p className="text-xs text-muted-foreground">{t('pages.accountDeletion.WHAT_IS_KEPT')}</p>
-
-				<div className="space-y-4">
-					<label className="flex gap-2.5 items-start text-sm cursor-pointer select-none">
-						<Checkbox
-							checked={understood}
-							onCheckedChange={(value) => setUnderstood(value === true)}
-							className="mt-0.5"
-							disabled={deleting}
-							data-testid="delete-account-understood"
-						/>
-						<span>{t('pages.accountDeletion.CONFIRM_CHECKBOX')}</span>
-					</label>
-
-					<div className="space-y-2">
-						<label className="block text-sm font-medium leading-none" htmlFor="delete-account-word">
-							{t('pages.accountDeletion.TYPE_TO_CONFIRM', { word: ACCOUNT_DELETION_CONFIRM_WORD })}
-						</label>
-						<InputField
-							id="delete-account-word"
-							name="confirm-word"
-							value={typed}
-							onChange={(e: React.ChangeEvent<HTMLInputElement>) => setTyped(e.target.value)}
-							autoComplete="off"
-							autoCapitalize="characters"
-							spellCheck={false}
-							placeholder={ACCOUNT_DELETION_CONFIRM_WORD}
-							noWrapper
-							className={INPUT}
-							disabled={deleting}
-						/>
-					</div>
-
-					{confirmFailed && (
-						<Text.Error className="block text-xs" role="alert">
-							{t('pages.accountDeletion.CONFIRM_ERROR')}
-						</Text.Error>
-					)}
-
-					<Button
-						type="submit"
-						variant="danger"
-						loading={deleting}
-						disabled={!confirmed || deleting}
-						className="w-full h-9 text-sm font-medium rounded-md"
-						data-testid="delete-account-submit"
-					>
-						{t('pages.accountDeletion.CONFIRM_BUTTON')}
-					</Button>
-
-					<div className="text-center">
-						<Link href={DEFAULT_APP_PATH} className={SECONDARY_LINK}>
-							<ArrowLeft className="w-4 h-4" />
-							{t('pages.accountDeletion.KEEP_ACCOUNT')}
-						</Link>
-					</div>
-				</div>
-			</form>
+			<ConfirmForm
+				key={details?.planHash ?? 'plan'}
+				details={details}
+				deleting={phase === 'deleting'}
+				confirmFailed={confirmFailed}
+				planChanged={planChanged}
+				onConfirm={() => void confirm()}
+			/>
 		);
 	}
 

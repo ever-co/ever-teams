@@ -28,8 +28,11 @@ const signedIn = {
 	tenantId: 'tenant-1'
 };
 
-function request(method: 'GET' | 'POST') {
-	return new Request('https://app.ever.team/api/account-deletion/me', { method });
+function request(method: 'GET' | 'POST', body?: unknown) {
+	return new Request('https://app.ever.team/api/account-deletion/me', {
+		method,
+		...(body ? { body: JSON.stringify(body), headers: { 'content-type': 'application/json' } } : {})
+	});
 }
 
 describe('proxyAccountDeletionMe', () => {
@@ -50,14 +53,14 @@ describe('proxyAccountDeletionMe', () => {
 		expect(init.headers['tenant-id']).toBe('tenant-1');
 	});
 
-	it('POST sends { confirm: true } and passes a 403 through', async () => {
+	it('POST sends { confirm: true, planHash } and passes a 403 through', async () => {
 		mockGuard.mockResolvedValueOnce(signedIn);
 		fetchMock.mockResolvedValueOnce(new Response(JSON.stringify({ message: 'Forbidden resource' }), { status: 403 }));
 
-		const res = await proxyAccountDeletionMe('POST', request('POST'));
+		const res = await proxyAccountDeletionMe('POST', request('POST', { planHash: 'plan-1', confirm: false }));
 
 		expect(res.status).toBe(403);
-		expect(JSON.parse(fetchMock.mock.calls[0][1].body)).toEqual({ confirm: true });
+		expect(JSON.parse(fetchMock.mock.calls[0][1].body)).toEqual({ confirm: true, planHash: 'plan-1' });
 	});
 
 	it('answers the guard refusal without calling Gauzy for a caller without a session', async () => {

@@ -544,7 +544,8 @@
 			"DANGER_ZONE_DESCRIPTION": "Verwijdert elk account met je e-mailadres, in alle werkruimtes, zodra je bevestigt via een link die we je mailen.",
 			"CHECKING_ACCOUNT": "Controleren wat er wordt verwijderd…",
 			"PREVIEW_ERROR": "We konden niet laden wat er wordt verwijderd.",
-			"SIGN_OUT_AFTER": "Je wordt direct daarna uitgelogd."
+			"SIGN_OUT_AFTER": "Je wordt direct daarna uitgelogd.",
+			"PLAN_CHANGED": "Wat er wordt verwijderd is veranderd sinds deze pagina is geladen (iemand is erbij gekomen of vertrokken). Er is niets verwijderd: bekijk het nieuwe overzicht en bevestig opnieuw."
 		},
 		"timeLimitReport": {
 			"TIME_SPENT": "Bestede tijd",

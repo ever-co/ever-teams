@@ -9,6 +9,7 @@ import { useUserQuery } from '@/core/hooks/queries/user-user.query';
 import { ACCOUNT_DELETION_PATH } from '@/core/lib/auth/account-deletion';
 import { useDeleteMyAccount } from '@/core/hooks/auth/use-delete-my-account';
 import { DeleteMyAccountPreview } from './delete-my-account-preview';
+import { isAccountDeletionPlanChanged } from '@/core/services/client/api/auth/account-deletion.service';
 type RemoveModalType = 'REMOVE' | 'DELETE' | 'DELETE_ALL' | string;
 type ActionFunction = () => Promise<unknown> | undefined;
 
@@ -55,9 +56,13 @@ export const DangerZone = () => {
 
 	const handleDeleteAllUserData = useCallback(() => {
 		if (user) {
-			return deleteMyAccount();
+			return deleteMyAccount().catch((error: unknown) => {
+				// 409: the outcome changed since the preview; the modal now shows the new one, to be confirmed again
+				if (isAccountDeletionPlanChanged(error)) throw new Error(t('pages.accountDeletion.PLAN_CHANGED'));
+				throw error;
+			});
 		}
-	}, [user, deleteMyAccount]);
+	}, [user, deleteMyAccount, t]);
 
 	const actionTypes: Record<RemoveModalType, ActionFunction> = {
 		DELETE: deleteUser,
@@ -133,6 +138,7 @@ export const DangerZone = () => {
 					title={messageToShow}
 					onAction={onAction}
 					loading={deleteUserLoading || removeUserFromAllTeamLoading || deleteMyAccountLoading}
+					confirmDisabled={removeModalType === 'DELETE_ALL' && (previewLoading || !preview?.accounts?.length)}
 				>
 					{removeModalType === 'DELETE_ALL' && (
 						<DeleteMyAccountPreview preview={preview} loading={previewLoading} error={previewError} />

@@ -544,7 +544,8 @@
 			"DANGER_ZONE_DESCRIPTION": "Usuwa każde konto z Twoim adresem e-mail, we wszystkich obszarach roboczych, po potwierdzeniu linkiem, który wyślemy e-mailem.",
 			"CHECKING_ACCOUNT": "Sprawdzamy, co zostanie usunięte…",
 			"PREVIEW_ERROR": "Nie udało się wczytać, co zostanie usunięte.",
-			"SIGN_OUT_AFTER": "Zaraz potem zostaniesz wylogowany."
+			"SIGN_OUT_AFTER": "Zaraz potem zostaniesz wylogowany.",
+			"PLAN_CHANGED": "To, co zostanie usunięte, zmieniło się od załadowania tej strony (ktoś dołączył lub odszedł). Nic nie zostało usunięte: sprawdź nowe podsumowanie i potwierdź ponownie."
 		},
 		"timeLimitReport": {
 			"TIME_SPENT": "Czas spędzony",

@@ -544,7 +544,8 @@
 			"DANGER_ZONE_DESCRIPTION": "Löscht jedes Konto mit deiner E-Mail-Adresse in allen Arbeitsbereichen, sobald du über einen per E-Mail gesendeten Link bestätigst.",
 			"CHECKING_ACCOUNT": "Es wird geprüft, was gelöscht wird…",
 			"PREVIEW_ERROR": "Wir konnten nicht laden, was gelöscht wird.",
-			"SIGN_OUT_AFTER": "Du wirst direkt danach abgemeldet."
+			"SIGN_OUT_AFTER": "Du wirst direkt danach abgemeldet.",
+			"PLAN_CHANGED": "Was gelöscht wird, hat sich seit dem Laden dieser Seite geändert (jemand ist beigetreten oder gegangen). Es wurde nichts gelöscht: Prüfe die neue Übersicht und bestätige erneut."
 		},
 		"timeLimitReport": {
 			"TIME_SPENT": "Verbrachte Zeit",

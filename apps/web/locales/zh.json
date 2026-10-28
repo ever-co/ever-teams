@@ -544,7 +544,8 @@
 			"DANGER_ZONE_DESCRIPTION": "在您通过我们发送的邮件链接确认后，删除所有工作区中使用您邮箱的全部账户。",
 			"CHECKING_ACCOUNT": "正在检查将被删除的内容…",
 			"PREVIEW_ERROR": "无法加载将被删除的内容。",
-			"SIGN_OUT_AFTER": "随后您将立即退出登录。"
+			"SIGN_OUT_AFTER": "随后您将立即退出登录。",
+			"PLAN_CHANGED": "自此页面加载以来，将被删除的内容已发生变化（有人加入或离开）。尚未删除任何内容：请查看新的摘要并再次确认。"
 		},
 		"timeLimitReport": {
 			"TIME_SPENT": "花费时间",

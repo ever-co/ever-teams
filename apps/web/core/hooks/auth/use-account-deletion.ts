@@ -14,7 +14,8 @@ import { appEmailBranding } from '@/core/lib/helpers/app-email-branding';
 import { getAccessTokenCookie, removeAuthCookies } from '@/core/lib/helpers/cookies';
 import {
 	accountDeletionService,
-	isAccountDeletionLinkGone
+	isAccountDeletionLinkGone,
+	isAccountDeletionPlanChanged
 } from '@/core/services/client/api/auth/account-deletion.service';
 
 /**
@@ -35,7 +36,7 @@ export function useAccountDeletionRequest() {
 			setError(false);
 			setLoading(true);
 			try {
-				await accountDeletionService.request({
+				await accountDeletionService.requestLink({
 					...appEmailBranding(),
 					email: email.trim(),
 					callbackUrl: accountDeletionConfirmUrl(window.location.origin, locale, APPLICATION_DEFAULT_LANGUAGE),
@@ -88,7 +89,12 @@ export type TAccountDeletionConfirmPhase = 'verifying' | 'ready' | 'deleting' | 
  * The confirm page (`/delete-account/confirm#token=…`).
  *
  * The token is taken from the address and removed from it in a layout effect: before any passive effect of the page
- * (analytics page views included) can read the address. It then lives only in a ref of this hook.
+ * (analytics page views included) can read the address. It then lives only in a ref of this hook, so a failed call
+ * can be tried again although the address no longer has it.
+ *
+ * Only a 410 means the link is dead. A 409 on confirm means the accounts changed since the preview (nothing deleted,
+ * token kept): the preview is read again and shown with `planChanged`, to be confirmed again. Anything else (network,
+ * 5xx, 429) is transient: `phase: 'error'` (verify) or `confirmFailed` (confirm), each with a retry.
  */
 export function useAccountDeletionConfirm() {
 	const queryClient = useQueryClient();
@@ -98,6 +104,7 @@ export function useAccountDeletionConfirm() {
 	const [details, setDetails] = useState<IAccountDeletionVerifyResponse | null>(null);
 	const [result, setResult] = useState<IAccountDeletionConfirmResponse | null>(null);
 	const [confirmFailed, setConfirmFailed] = useState(false);
+	const [planChanged, setPlanChanged] = useState(false);
 	const [sessionCleared, setSessionCleared] = useState(false);
 
 	useLayoutEffect(() => {
@@ -106,32 +113,46 @@ export function useAccountDeletionConfirm() {
 		}
 	}, []);
 
-	const verify = useCallback(async (isCancelled: () => boolean = () => false) => {
+	/** Reads the preview for the token in memory; never sets state itself, so the mount effect sets it only after. */
+	const loadPreview = useCallback(async (): Promise<
+		{ details: IAccountDeletionVerifyResponse } | { gone: true } | { failed: true }
+	> => {
 		const token = tokenRef.current;
-		if (!token) {
-			setPhase('invalid');
-			return;
-		}
-		setPhase('verifying');
+		if (!token) return { gone: true };
 		try {
 			const data = await accountDeletionService.verify(token);
-			if (isCancelled()) return;
-			setDetails(data);
-			setPhase(data?.accounts?.length ? 'ready' : 'invalid');
+			return data?.accounts?.length ? { details: data } : { gone: true };
 		} catch (error) {
-			if (isCancelled()) return;
-			setPhase(isAccountDeletionLinkGone(error) ? 'invalid' : 'error');
+			return isAccountDeletionLinkGone(error) ? { gone: true } : { failed: true };
 		}
 	}, []);
 
+	const applyPreview = useCallback((preview: Awaited<ReturnType<typeof loadPreview>>) => {
+		if ('details' in preview) {
+			setDetails(preview.details);
+			setPhase('ready');
+		} else {
+			setPhase('gone' in preview ? 'invalid' : 'error');
+		}
+	}, []);
+
+	/** Reads the preview again (Try again, or after a 409), showing the spinner meanwhile. */
+	const verify = useCallback(async () => {
+		setPhase('verifying');
+		applyPreview(await loadPreview());
+	}, [applyPreview, loadPreview]);
+
 	useEffect(() => {
 		let cancelled = false;
-		void verify(() => cancelled);
+		void loadPreview().then((preview) => {
+			if (!cancelled) applyPreview(preview);
+		});
 		return () => {
 			cancelled = true;
 		};
-	}, [verify]);
+	}, [applyPreview, loadPreview]);
 
+	const planHash = details?.planHash;
 	const confirm = useCallback(async () => {
 		const token = tokenRef.current;
 		if (!token) {
@@ -139,9 +160,10 @@ export function useAccountDeletionConfirm() {
 			return;
 		}
 		setConfirmFailed(false);
+		setPlanChanged(false);
 		setPhase('deleting');
 		try {
-			const data = await accountDeletionService.confirm(token);
+			const data = await accountDeletionService.confirm(token, planHash);
 			// Single use: the API consumed it.
 			tokenRef.current = null;
 			setResult(data);
@@ -153,16 +175,23 @@ export function useAccountDeletionConfirm() {
 				setPhase('invalid');
 				return;
 			}
+			if (isAccountDeletionPlanChanged(error)) {
+				// Nothing was deleted and the token still works: show what would happen now, to be confirmed again.
+				setPlanChanged(true);
+				await verify();
+				return;
+			}
 			setConfirmFailed(true);
 			setPhase('ready');
 		}
-	}, [queryClient]);
+	}, [queryClient, planHash, verify]);
 
 	return {
 		phase,
 		details,
 		result,
 		confirmFailed,
+		planChanged,
 		sessionCleared,
 		confirm,
 		retry: () => void verify()

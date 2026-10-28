@@ -544,7 +544,8 @@
 			"DANGER_ZONE_DESCRIPTION": "Elimina tutti gli account con la tua email, in tutti gli spazi di lavoro, dopo la conferma da un link che ti inviamo.",
 			"CHECKING_ACCOUNT": "Verifica di cosa verrà eliminato…",
 			"PREVIEW_ERROR": "Non è stato possibile caricare cosa verrà eliminato.",
-			"SIGN_OUT_AFTER": "Verrai disconnesso subito dopo."
+			"SIGN_OUT_AFTER": "Verrai disconnesso subito dopo.",
+			"PLAN_CHANGED": "Ciò che verrà eliminato è cambiato da quando questa pagina è stata caricata (qualcuno si è unito o è uscito). Non è stato eliminato nulla: controlla il nuovo riepilogo e conferma di nuovo."
 		},
 		"timeLimitReport": {
 			"TIME_SPENT": "Tempo trascorso",

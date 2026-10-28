@@ -24,7 +24,7 @@ const FORWARDED_FIELDS: Record<TAccountDeletionStep, readonly string[]> = {
 		'companyName'
 	],
 	verify: ['token'],
-	confirm: ['token']
+	confirm: ['token', 'planHash']
 };
 
 const REQUIRED_FIELD: Record<TAccountDeletionStep, string> = {

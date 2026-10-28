@@ -77,13 +77,21 @@ describe('proxyAccountDeletion', () => {
 		expect(JSON.parse(String(forwarded().init.body))).toEqual({ token: 'tok' });
 	});
 
-	it('always sends confirm: true with the token on confirm', async () => {
+	it('always sends confirm: true with the token and the planHash of the preview on confirm', async () => {
 		gauzyAnswers(200, { deleted: true, accounts: 2, workspacesDeleted: 1 });
 
-		const res = await proxyAccountDeletion('confirm', post({ token: 'tok', confirm: false }));
+		const res = await proxyAccountDeletion('confirm', post({ token: 'tok', confirm: false, planHash: 'plan-1' }));
 
 		expect(res.status).toBe(200);
-		expect(JSON.parse(String(forwarded().init.body))).toEqual({ token: 'tok', confirm: true });
+		expect(JSON.parse(String(forwarded().init.body))).toEqual({ token: 'tok', planHash: 'plan-1', confirm: true });
+	});
+
+	it('passes the 409 of a changed preview through (nothing deleted)', async () => {
+		gauzyAnswers(409, { message: 'The accounts changed since the preview.' });
+
+		const res = await proxyAccountDeletion('confirm', post({ token: 'tok', planHash: 'old' }));
+
+		expect(res.status).toBe(409);
 	});
 
 	it('answers 400 without calling Gauzy when the required field is missing', async () => {

@@ -9,7 +9,8 @@ export const RemoveModal = ({
 	title,
 	onAction,
 	loading,
-	children
+	children,
+	confirmDisabled = false
 }: {
 	open: boolean;
 	close: () => void;
@@ -18,6 +19,8 @@ export const RemoveModal = ({
 	loading: boolean;
 	/** Optional details under the title (e.g. what a deletion will remove). */
 	children?: ReactNode;
+	/** Keeps Confirm disabled, e.g. until those details are loaded. */
+	confirmDisabled?: boolean;
 }) => {
 	const t = useTranslations();
 	const [notifyMessage, setNotifyMessage] = useState<string>('');
@@ -57,7 +60,7 @@ export const RemoveModal = ({
 								variant="danger"
 								type="submit"
 								className="font-medium rounded-lg bg-[#EB6961] md:min-w-[180px]"
-								disabled={loading}
+								disabled={loading || confirmDisabled}
 								loading={loading}
 								onClick={async () => {
 									setNotifyMessage('');
