@@ -84,6 +84,10 @@ export async function clearSessionIfAccountGone(queryClient: Pick<QueryClient, '
 		return false;
 	}
 
+	// The answer is about the token that was sent. It proves nothing if that token expired while the call was pending,
+	// and it is not about the session in the cookie any more if another tab replaced it (a sign-in, a refresh).
+	if (getAccessTokenCookie() !== token || isTokenExpired(token, 0)) return false;
+
 	removeAuthCookies();
 	queryClient.clear();
 	return true;
@@ -206,8 +210,11 @@ export function useAccountDeletionConfirm() {
 			if (generation !== generationRef.current) return;
 			// Single use: the API consumed it.
 			tokenRef.current = null;
+			const cleared = await clearSessionIfAccountGone(queryClient);
+			// A new link may have opened in this tab during the session check: its preview wins over this result.
+			if (generation !== generationRef.current) return;
 			setResult(data);
-			setSessionCleared(await clearSessionIfAccountGone(queryClient));
+			setSessionCleared(cleared);
 			setPhase('deleted');
 		} catch (error) {
 			if (generation !== generationRef.current) return;
