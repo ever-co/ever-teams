@@ -1,4 +1,5 @@
 import React, { FC, useRef, useState, useMemo, useCallback, useEffect } from 'react';
+import { observer } from 'mobx-react-lite';
 import {
   View,
   Text,
@@ -35,7 +36,7 @@ type TaskVersionRouteParams = {
 // Properly type the route object
 type TaskVersionRouteProp = RouteProp<{ TaskVersion: TaskVersionRouteParams }, 'TaskVersion'>;
 
-export const TaskVersionScreen: FC<AuthenticatedDrawerScreenProps<'TaskVersion'>> = function AuthenticatedDrawerScreen(
+export const TaskVersionScreen: FC<AuthenticatedDrawerScreenProps<'TaskVersion'>> = observer(function AuthenticatedDrawerScreen(
   _props
 ) {
   const { colors, dark } = useAppTheme();
@@ -333,7 +334,7 @@ export const TaskVersionScreen: FC<AuthenticatedDrawerScreenProps<'TaskVersion'>
       )}
     </Screen>
   );
-};
+});
 
 const $container: ViewStyle = {
   flex: 1

@@ -1,6 +1,7 @@
 /* eslint-disable react-native/no-color-literals */
 /* eslint-disable react-native/no-inline-styles */
 import React, { FC, useState, useRef, useMemo, useCallback, useEffect } from 'react';
+import { observer } from 'mobx-react-lite';
 import {
   View,
   Text,
@@ -38,7 +39,7 @@ type TaskSizeRouteParams = {
 // Properly type the route object
 type TaskSizeRouteProp = RouteProp<{ TaskSizeScreen: TaskSizeRouteParams }, 'TaskSizeScreen'>;
 
-export const TaskSizeScreen: FC<AuthenticatedDrawerScreenProps<'TaskSizeScreen'>> = function AuthenticatedDrawerScreen(
+export const TaskSizeScreen: FC<AuthenticatedDrawerScreenProps<'TaskSizeScreen'>> = observer(function AuthenticatedDrawerScreen(
   _props
 ) {
   const { colors, dark } = useAppTheme();
@@ -334,7 +335,7 @@ export const TaskSizeScreen: FC<AuthenticatedDrawerScreenProps<'TaskSizeScreen'>
       )}
     </Screen>
   );
-};
+});
 
 const $container: ViewStyle = {
   flex: 1

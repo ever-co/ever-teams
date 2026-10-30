@@ -84,6 +84,9 @@ function isManagedTeam(teamId: string | null | undefined, managedTeamIds: Set<st
  * Until the role's permissions, the user and the active team are loaded, nothing is shown read-only: the API still
  * decides every write.
  *
+ * The user and the memberships come from the MobX stores: a component calling this hook is an `observer`, so its
+ * controls follow a membership change.
+ *
  * @returns `canCreate` for a new row of the active team, `canWriteRow` for a stored row, and the hint a read-only
  * control shows.
  */

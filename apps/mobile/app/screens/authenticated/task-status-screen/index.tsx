@@ -1,6 +1,7 @@
 /* eslint-disable react-native/no-color-literals */
 /* eslint-disable react-native/no-inline-styles */
 import React, { FC, useState, useRef, useMemo, useCallback, useEffect } from 'react';
+import { observer } from 'mobx-react-lite';
 import {
   View,
   Text,
@@ -37,7 +38,7 @@ type TaskStatusRouteParams = {
 // Properly type the route object
 type TaskStatusRouteProp = RouteProp<{ TaskStatus: TaskStatusRouteParams }, 'TaskStatus'>;
 
-export const TaskStatusScreen: FC<AuthenticatedDrawerScreenProps<'TaskStatus'>> = function AuthenticatedDrawerScreen(
+export const TaskStatusScreen: FC<AuthenticatedDrawerScreenProps<'TaskStatus'>> = observer(function AuthenticatedDrawerScreen(
   _props
 ) {
   const { colors, dark } = useAppTheme();
@@ -335,7 +336,7 @@ export const TaskStatusScreen: FC<AuthenticatedDrawerScreenProps<'TaskStatus'>> 
       )}
     </Screen>
   );
-};
+});
 
 const $container: ViewStyle = {
   flex: 1

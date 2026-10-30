@@ -1,6 +1,7 @@
 /* eslint-disable react-native/no-inline-styles */
 /* eslint-disable react-native/no-color-literals */
 import React, { FC, useCallback, useState } from 'react';
+import { observer } from 'mobx-react-lite';
 import {
 	View,
 	ViewStyle,
@@ -33,7 +34,7 @@ export interface Props {
 	canCreateVersion?: boolean;
 }
 
-const TaskVersionPopup: FC<Props> = function TaskPriorityPopup({
+const TaskVersionPopup: FC<Props> = observer(function TaskPriorityPopup({
 	visible,
 	onDismiss,
 	setSelectedVersion,
@@ -120,7 +121,7 @@ const TaskVersionPopup: FC<Props> = function TaskPriorityPopup({
 			</View>
 		</ModalPopUp>
 	);
-};
+});
 
 export default TaskVersionPopup;
 

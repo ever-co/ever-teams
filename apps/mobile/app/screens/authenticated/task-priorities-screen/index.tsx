@@ -1,6 +1,7 @@
 /* eslint-disable react-native/no-color-literals */
 /* eslint-disable react-native/no-inline-styles */
 import React, { FC, useState, useRef, useMemo, useCallback, useEffect } from 'react';
+import { observer } from 'mobx-react-lite';
 import {
   View,
   Text,
@@ -38,7 +39,7 @@ type TaskPriorityRouteParams = {
 type TaskPriorityRouteProp = RouteProp<{ TaskPriority: TaskPriorityRouteParams }, 'TaskPriority'>;
 
 export const TaskPriorityScreen: FC<AuthenticatedDrawerScreenProps<'TaskPriority'>> =
-  function AuthenticatedDrawerScreen(_props) {
+  observer(function AuthenticatedDrawerScreen(_props) {
     const { colors, dark } = useAppTheme();
     const { navigation } = _props;
 
@@ -337,7 +338,7 @@ export const TaskPriorityScreen: FC<AuthenticatedDrawerScreenProps<'TaskPriority
         )}
       </Screen>
     );
-  };
+  });
 
 const $container: ViewStyle = {
   flex: 1

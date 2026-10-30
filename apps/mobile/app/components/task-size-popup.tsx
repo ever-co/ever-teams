@@ -1,6 +1,7 @@
 /* eslint-disable react-native/no-inline-styles */
 /* eslint-disable react-native/no-color-literals */
 import React, { FC, useState } from 'react';
+import { observer } from 'mobx-react-lite';
 import {
 	View,
 	ViewStyle,
@@ -74,7 +75,7 @@ const ModalPopUp = ({ visible, children, onDismiss }) => {
 	);
 };
 
-const TaskStatusPopup: FC<Props> = function FilterPopup({
+const TaskStatusPopup: FC<Props> = observer(function FilterPopup({
 	visible,
 	onDismiss,
 	setSelectedSize,
@@ -157,7 +158,7 @@ const TaskStatusPopup: FC<Props> = function FilterPopup({
 			</View>
 		</ModalPopUp>
 	);
-};
+});
 
 export default TaskStatusPopup;
 interface ItemProps {

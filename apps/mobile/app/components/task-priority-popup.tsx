@@ -1,6 +1,7 @@
 /* eslint-disable react-native/no-inline-styles */
 /* eslint-disable react-native/no-color-literals */
 import React, { FC, useState } from 'react';
+import { observer } from 'mobx-react-lite';
 import {
 	View,
 	ViewStyle,
@@ -74,7 +75,7 @@ const ModalPopUp = ({ visible, children, onDismiss }) => {
 	);
 };
 
-const TaskPriorityPopup: FC<Props> = function TaskPriorityPopup({
+const TaskPriorityPopup: FC<Props> = observer(function TaskPriorityPopup({
 	visible,
 	onDismiss,
 	setSelectedPriority,
@@ -161,7 +162,7 @@ const TaskPriorityPopup: FC<Props> = function TaskPriorityPopup({
 			</View>
 		</ModalPopUp>
 	);
-};
+});
 
 export default TaskPriorityPopup;
 

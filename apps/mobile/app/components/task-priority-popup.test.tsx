@@ -4,8 +4,9 @@
  * a hint, to everyone else. Picking a priority is not concerned.
  */
 import React from 'react';
+import { observable, runInAction } from 'mobx';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { fireEvent, render, screen } from '@testing-library/react-native';
+import { act, fireEvent, render, screen } from '@testing-library/react-native';
 import TaskPriorityPopup from './task-priority-popup';
 
 let mockStores: Record<string, unknown> = {};
@@ -53,9 +54,14 @@ const CREATE_LABEL = 'settingScreen.priorityScreen.createNewPriorityText';
 const READ_ONLY_HINT = 'settingScreen.teamSection.taskSettingsReadOnly';
 const PRIORITY_FORM = 'priority form';
 
-function givenOwnMembership(overrides: Record<string, unknown> = {}) {
+/** The active team, holding the user's own membership. */
+function teamWithOwnMembership(overrides: Record<string, unknown> = {}) {
 	const membership = { employeeId: 'employee-1', employee: { userId: 'user-1' }, isManager: false, ...overrides };
-	const activeTeam = { id: TEAM, members: [membership] };
+	return { id: TEAM, members: [membership] };
+}
+
+function givenOwnMembership(overrides: Record<string, unknown> = {}) {
+	const activeTeam = teamWithOwnMembership(overrides);
 	const user = { id: 'user-1', roleId: 'role-1', employee: { id: 'employee-1' } };
 	mockStores = {
 		authenticationStore: { authToken: 'token', tenantId: 'tenant-1', user, employeeId: 'employee-1' },
@@ -119,5 +125,25 @@ describe('<TaskPriorityPopup> create button', () => {
 
 		expect(screen.queryByText(CREATE_LABEL)).toBeNull();
 		expect(screen.queryByText(READ_ONLY_HINT)).toBeNull();
+	});
+
+	it('turns read-only when the user stops managing the team while the picker is open', async () => {
+		givenOwnMembership({ isManager: true });
+		// The team store is observable in the app: a membership change reaches the open picker by itself
+		const teamStore = observable(mockStores.teamStore as Record<string, unknown>, {}, { deep: false });
+		mockStores = { ...mockStores, teamStore };
+
+		await renderPopup([]);
+		expect(screen.queryByText(READ_ONLY_HINT)).toBeNull();
+
+		const demotedTeam = teamWithOwnMembership();
+		await act(async () => {
+			runInAction(() => {
+				teamStore.teams = { items: [demotedTeam], total: 1 };
+				teamStore.activeTeam = demotedTeam;
+			});
+		});
+
+		expect(screen.getByText(READ_ONLY_HINT)).toBeTruthy();
 	});
 });
