@@ -27,9 +27,8 @@ export async function GET(
 	if (!SIZE.test(size) || !BACKGROUND.test(background) || !TEXT.test(text)) return notFound();
 
 	const query = text ? `?text=${text}` : '';
-	return proxyGauzyImage(
-		'placeholder',
-		`${GAUZY_API_SERVER_ORIGIN}/api/placeholder/${size}/${background}${query}`,
-		'image/png'
-	);
+	let origin: string = GAUZY_API_SERVER_ORIGIN;
+	while (origin.endsWith('/')) origin = origin.slice(0, -1);
+
+	return proxyGauzyImage('placeholder', `${origin}/api/placeholder/${size}/${background}${query}`, 'image/png');
 }
