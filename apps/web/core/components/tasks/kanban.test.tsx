@@ -5,14 +5,15 @@
  * manager of the team or an ORG_TASK_SETTING holder): Edit status, and collapse or expand, which store the collapsed
  * state on the status for the whole team. Anyone else gets them read-only instead of a 403, and still creates tasks.
  */
-import { fireEvent, render, screen } from '@testing-library/react';
-import { Provider, createStore } from 'jotai';
+import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
+import { Provider, createStore, useAtomValue } from 'jotai';
 import type { ReactNode } from 'react';
 
 import { activeTeamIdState, organizationTeamsState } from '@/core/stores';
-import type { TOrganizationTeam } from '@/core/types/schemas';
+import type { TOrganizationTeam, TTaskStatus } from '@/core/types/schemas';
 
 const TEAM_ID = 'team-1';
+const OTHER_TEAM_ID = 'team-2';
 const COLUMN_TITLE = 'open';
 const READ_ONLY_HINT = 'pages.settingsTeam.TASK_SETTINGS_READ_ONLY';
 
@@ -39,7 +40,8 @@ jest.mock('@hello-pangea/dnd', () => {
 	};
 	const snapshot = { isDragging: false, isDraggingOver: false, draggingFromThisWith: null };
 	const WithDragState = ({ children }: TDragRenderProps) => <>{children(provided, snapshot)}</>;
-	return { Draggable: WithDragState, Droppable: WithDragState };
+	const DragDropContext = ({ children }: TChildrenProps) => <>{children}</>;
+	return { DragDropContext, Draggable: WithDragState, Droppable: WithDragState };
 });
 jest.mock('@/core/components/common/popover', () => {
 	const Wrapper = ({ children }: TChildrenProps) => <div>{children}</div>;
@@ -49,7 +51,8 @@ jest.mock('@/core/components/duplicated-components/_button', () => ({
 	Button: ({ children }: TChildrenProps) => <button>{children}</button>
 }));
 jest.mock('@/core/components/common/scroll-area', () => ({
-	ScrollArea: ({ children }: TChildrenProps) => <div>{children}</div>
+	ScrollArea: ({ children }: TChildrenProps) => <div>{children}</div>,
+	ScrollBar: () => null
 }));
 jest.mock('@/core/components/common/modal', () => ({
 	Modal: ({ children }: TChildrenProps) => <div>{children}</div>
@@ -72,6 +75,7 @@ jest.mock('@/core/hooks/roles/use-my-role-permissions-query', () => ({
 }));
 
 import KanbanDraggable, { EmptyKanbanDroppable } from './kanban';
+import { KanbanView } from '@/core/components/pages/kanban/team-members-kanban-view';
 
 const column = { id: 'status-1', name: COLUMN_TITLE, icon: '', color: '#ffffff', organizationTeamId: TEAM_ID };
 
@@ -132,6 +136,37 @@ function renderOpenColumnAs(isManager: boolean, toggleColumn: jest.Mock) {
 				toggleColumn={toggleColumn}
 			/>
 		</Provider>
+	);
+}
+
+/** A plain member of the active team who manages the other team of the user. */
+function storeOfMemberManagingOtherTeam() {
+	const store = createStore();
+	const memberTeam = { id: TEAM_ID, name: 'Team', members: [membership(false)] };
+	const managedTeam = { id: OTHER_TEAM_ID, name: 'Other team', members: [membership(true)] };
+	store.set(organizationTeamsState, [memberTeam, managedTeam] as unknown as TOrganizationTeam[]);
+	store.set(activeTeamIdState, TEAM_ID);
+	return store;
+}
+
+/** The board as the kanban page renders it: the statuses are those of the active team. */
+function ActiveTeamBoard({ toggleColumn }: Readonly<{ toggleColumn: jest.Mock }>) {
+	const activeTeamId = useAtomValue(activeTeamIdState);
+	const teamStatus = { ...column, id: `status-of-${activeTeamId}`, organizationTeamId: activeTeamId };
+	const statuses = [teamStatus] as unknown as TTaskStatus[];
+	return (
+		<KanbanView
+			kanbanBoardTasks={{ [COLUMN_TITLE]: [] }}
+			isLoading={false}
+			kanbanColumns={statuses}
+			taskStatuses={statuses}
+			updateKanbanBoard={jest.fn()}
+			updateTaskStatus={jest.fn()}
+			isColumnCollapse={() => false}
+			reorderStatus={jest.fn()}
+			addNewTask={jest.fn()}
+			toggleColumn={toggleColumn}
+		/>
 	);
 }
 
@@ -233,5 +268,27 @@ describe('Kanban column controls task settings access', () => {
 		expect(toggleColumn).toHaveBeenCalledTimes(2);
 		expect(toggleColumn).toHaveBeenCalledWith(COLUMN_TITLE, true);
 		expect(screen.getByText('edit status form')).toBeTruthy();
+	});
+
+	it('checks the column controls of a board switched to another team against that team', async () => {
+		const store = storeOfMemberManagingOtherTeam();
+		const toggleColumn = jest.fn();
+		render(
+			<Provider store={store}>
+				<ActiveTeamBoard toggleColumn={toggleColumn} />
+			</Provider>
+		);
+		const memberTeamToggle = await screen.findByRole('button', { name: 'chevron' });
+		expect(memberTeamToggle).toHaveProperty('disabled', true);
+
+		act(() => store.set(activeTeamIdState, OTHER_TEAM_ID));
+
+		await waitFor(() => {
+			const toggleAfterSwitch = chevronButton();
+			expect(toggleAfterSwitch).toHaveProperty('disabled', false);
+		});
+		const managedTeamToggle = chevronButton();
+		fireEvent.click(managedTeamToggle);
+		expect(toggleColumn).toHaveBeenCalledWith(COLUMN_TITLE, true);
 	});
 });
