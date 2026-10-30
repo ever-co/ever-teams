@@ -46,8 +46,8 @@ import {
 } from '@/core/components/optimized-components/kanban';
 import { activeTeamState, isTrackingEnabledState } from '@/core/stores';
 import { useUserQuery } from '@/core/hooks/queries/user-user.query';
-import { useTeamDailyPlansOwner } from '@/core/hooks/bootstrap/use-feature-data';
 import { useCanInviteToActiveTeam } from '@/core/hooks/invitations/use-can-invite-to-active-team';
+import { useTeamDailyPlansOwner } from '@/core/hooks/bootstrap/use-feature-data';
 
 const Kanban = () => {
 	useTeamDailyPlansOwner();
@@ -87,6 +87,8 @@ const Kanban = () => {
 	const employee = useSearchParams().get('employee');
 	const { data: user } = useUserQuery();
 	const { openModal, isOpen, closeModal } = useModal();
+	// The API refuses an invitation into a team the user does not manage (403): show the invite button only to
+	// who may send it.
 	const canInvite = useCanInviteToActiveTeam();
 	const timezone = userTimezone();
 

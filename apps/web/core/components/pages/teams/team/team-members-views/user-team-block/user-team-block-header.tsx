@@ -77,6 +77,7 @@ export function UserTeamBlockHeader() {
 	const activeTeam = useAtomValue(activeTeamState);
 	const { data: user } = useUserQuery();
 	const { openModal, isOpen, closeModal } = useModal();
+	// The API refuses an invitation into a team the user does not manage (403): show Invite only to who may send it.
 	const canInvite = useCanInviteToActiveTeam();
 	const [activeFilter, setActiveFilter] = useAtom<TeamMemberFilterType>(taskBlockFilterState);
 	const [, setSearchQuery] = useAtom(blockViewSearchQueryState);

@@ -1,51 +1,42 @@
 /** @jest-environment jsdom */
 
-/**
- * Quick Create offers Invite only to those the API lets invite into the active team; every other entry stays.
- */
+import React from 'react';
 import { render, screen } from '@testing-library/react';
-import { Provider, createStore } from 'jotai';
-import type { ReactNode } from 'react';
 
-import { activeTeamIdState, organizationTeamsState } from '@/core/stores';
-import type { TOrganizationTeam } from '@/core/types/schemas';
+let mockCanInvite = false;
 
-const TEAM_ID = 'team-1';
-
-const mockUser = { id: 'user-1', isEmailVerified: true, employee: { id: 'employee-1', userId: 'user-1' } };
-
-type TChildren = { children?: ReactNode };
-type TClickable = TChildren & { onClick?: () => void };
-
-jest.mock('next-intl', () => ({ useTranslations: () => (key: string) => key }));
-jest.mock('sonner', () => ({ toast: { error: jest.fn() } }));
+jest.mock('@/core/hooks/invitations/use-can-invite-to-active-team', () => ({
+	useCanInviteToActiveTeam: () => mockCanInvite
+}));
 jest.mock('@/core/hooks', () => ({
-	useAuthenticateUser: () => ({ user: mockUser }),
+	useAuthenticateUser: () => ({ user: { id: 'user-1', isEmailVerified: true } }),
 	useModal: () => ({ isOpen: false, openModal: jest.fn(), closeModal: jest.fn() })
 }));
-jest.mock('@/core/hooks/queries/user-user.query', () => ({
-	useUserQuery: () => ({ data: mockUser })
+jest.mock('next-intl', () => ({
+	useTranslations: () => (key: string) => key
 }));
-jest.mock('@/core/hooks/roles/use-my-role-permissions-query', () => ({
-	useMyRolePermissionsQuery: () => ({ myPermissions: [] })
+jest.mock('jotai', () => ({
+	useAtomValue: () => ({ running: false })
 }));
-jest.mock('@/core/components/common/button', () => ({
-	Button: ({ children, onClick }: TClickable) => <button onClick={onClick}>{children}</button>
-}));
+jest.mock('@/core/stores', () => ({ timerStatusState: Symbol('timer-status') }));
+jest.mock('sonner', () => ({ toast: { error: jest.fn() } }));
+
+// The menu renders inline, so its items can be read without opening it.
 jest.mock('@/core/components/common/dropdown-menu', () => {
-	const Pass = ({ children }: TChildren) => <>{children}</>;
-	const Item = ({ children, onClick }: TClickable) => <button onClick={onClick}>{children}</button>;
-	const Shortcut = ({ children }: TChildren) => <kbd>{children}</kbd>;
+	const Pass = ({ children }: { children?: React.ReactNode }) => <>{children}</>;
 	return {
 		DropdownMenu: Pass,
+		DropdownMenuTrigger: Pass,
 		DropdownMenuContent: Pass,
 		DropdownMenuGroup: Pass,
-		DropdownMenuItem: Item,
+		DropdownMenuItem: ({ children }: { children?: React.ReactNode }) => <div role="menuitem">{children}</div>,
 		DropdownMenuSeparator: () => <hr />,
-		DropdownMenuShortcut: Shortcut,
-		DropdownMenuTrigger: Pass
+		DropdownMenuShortcut: ({ children }: { children?: React.ReactNode }) => <span>{children}</span>
 	};
 });
+jest.mock('@/core/components/common/button', () => ({
+	Button: ({ children }: { children?: React.ReactNode }) => <button type="button">{children}</button>
+}));
 jest.mock('../../../icons', () => ({
 	AddUserIcon: () => null,
 	ProjectIcon: () => null,
@@ -53,7 +44,7 @@ jest.mock('../../../icons', () => ({
 	TeamIcon: () => null
 }));
 jest.mock('../../../duplicated-components/tooltip', () => ({
-	Tooltip: ({ children }: TChildren) => <>{children}</>
+	Tooltip: ({ children }: { children?: React.ReactNode }) => <>{children}</>
 }));
 jest.mock('../../../common/modal', () => ({ Modal: () => null }));
 jest.mock('../../tasks/create-task-modal', () => ({ __esModule: true, default: () => null }));
@@ -63,37 +54,24 @@ jest.mock('../../projects/create-project-modal', () => ({ CreateProjectModal: ()
 
 import { DefaultCreateAction } from './create-default-action';
 
-function renderQuickCreate(isManager: boolean) {
-	const membership = {
-		id: 'membership-1',
-		employeeId: 'employee-1',
-		employee: { id: 'employee-1', userId: 'user-1' },
-		isManager
-	};
-	const activeTeam = { id: TEAM_ID, name: 'Active team', members: [membership] };
-	const store = createStore();
-	store.set(organizationTeamsState, [activeTeam] as unknown as TOrganizationTeam[]);
-	store.set(activeTeamIdState, TEAM_ID);
-	render(
-		<Provider store={store}>
-			<DefaultCreateAction />
-		</Provider>
-	);
-}
+const INVITE_ITEM = { name: /invite/i };
 
-describe('DefaultCreateAction', () => {
-	it('does not offer Invite to a plain member of the active team', () => {
-		renderQuickCreate(false);
+describe('DefaultCreateAction invite item', () => {
+	it('offers Invite to a user who may invite into the active team', () => {
+		mockCanInvite = true;
+		render(<DefaultCreateAction />);
 
-		expect(screen.queryByText('Invite')).toBeNull();
-		expect(screen.getByText('Task')).toBeTruthy();
-		expect(screen.getByText('Team')).toBeTruthy();
-		expect(screen.getByText('Project')).toBeTruthy();
+		expect(screen.getByRole('menuitem', INVITE_ITEM)).toBeTruthy();
+		expect(screen.getByText('⌘CI')).toBeTruthy();
 	});
 
-	it('offers Invite to a manager of the active team', () => {
-		renderQuickCreate(true);
+	it('hides Invite, and its shortcut label, from a user the API would refuse', () => {
+		mockCanInvite = false;
+		render(<DefaultCreateAction />);
 
-		expect(screen.getByText('Invite')).toBeTruthy();
+		expect(screen.queryByRole('menuitem', INVITE_ITEM)).toBeNull();
+		expect(screen.queryByText('⌘CI')).toBeNull();
+		// The other quick-create actions stay.
+		expect(screen.getAllByRole('menuitem')).toHaveLength(3);
 	});
 });

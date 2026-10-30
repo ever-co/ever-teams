@@ -2,18 +2,24 @@
 
 import { useCallback, useContext, useSyncExternalStore } from 'react';
 import { notifyManager, QueryClientContext } from '@tanstack/react-query';
-import { useAtomValue } from 'jotai';
 import { getActiveTeamIdCookie } from '@/core/lib/helpers/cookies';
 import { queryKeys } from '@/core/query/keys';
-import { activeTeamIdState, organizationTeamsState } from '@/core/stores';
 import { ERoleName } from '@/core/types/generics/enums/role';
 import { PaginationResponse } from '@/core/types/interfaces/common/data-response';
 import { TOrganizationTeam, TOrganizationTeamEmployee, TUser } from '@/core/types/schemas';
-import { useUserQuery } from '../queries/user-user.query';
+import { useIsMemberManager } from '../organizations/teams/use-team-member';
 import { useMyRolePermissionsQuery } from '../roles/use-my-role-permissions-query';
+import { useUserQuery } from '../queries/user-user.query';
 
-/** Any one of these lets the API accept invitations into every team of the organization. */
-const ORGANIZATION_WIDE_PERMISSIONS = ['ALL_ORG_VIEW', 'ALL_ORG_EDIT', 'CHANGE_SELECTED_EMPLOYEE'];
+/**
+ * The role permissions that let a user invite into every team of the organization, whether or not they manage it.
+ * Mirrors `ORGANIZATION_WIDE_INVITE_GRANTS` in the Gauzy API (`packages/core/src/lib/invite/invite.service.ts`).
+ */
+export const ORGANIZATION_WIDE_INVITE_PERMISSIONS: readonly string[] = Object.freeze([
+	'ALL_ORG_VIEW',
+	'ALL_ORG_EDIT',
+	'CHANGE_SELECTED_EMPLOYEE'
+]);
 
 /** Besides the isManager flag, the team roles the API accepts team invitations from. */
 const TEAM_MANAGER_ROLES = new Set<string>([ERoleName.MANAGER, ERoleName.ADMIN, ERoleName.SUPER_ADMIN]);
@@ -38,11 +44,19 @@ function isManagerMembershipOf(member: TOrganizationTeamEmployee, userId: string
 	return isMembershipOf(member, userId);
 }
 
-function findTeam(teams: TOrganizationTeam[], teamId: string | null): TOrganizationTeam | undefined {
-	if (!teamId) {
-		return undefined;
+/**
+ * The team the invitation goes to, once loaded: the active team when it is that team, else the user's own team from
+ * the cached list, since a public team page leaves only the team it shows loaded.
+ */
+function findTargetTeam(
+	teamId: string,
+	activeTeam: TOrganizationTeam | null,
+	cachedOwnTeams: TOrganizationTeam[]
+): TOrganizationTeam | undefined {
+	if (activeTeam?.id === teamId) {
+		return activeTeam;
 	}
-	return teams.find((team) => team.id === teamId);
+	return cachedOwnTeams.find((team) => team.id === teamId);
 }
 
 const noUnsubscribe = () => undefined;
@@ -75,15 +89,28 @@ function useCachedOwnTeams(user: TUser | undefined): TOrganizationTeam[] {
 }
 
 /**
- * Whether the user may invite people into the team the invitations go to: the one the active team cookie names, as
- * useSendTeamInvitation reads it, else the active team. The API accepts team invitations from the team's managers
- * (isManager, or a MANAGER, ADMIN or SUPER_ADMIN team role), from the user who created the team and from holders of an
- * organization-wide permission, so only they get the Invite entries.
+ * Whether the current user may invite people into the active team, so the invite actions are shown only to them.
+ *
+ * Since ever-co/ever-gauzy#11473 the Gauzy API answers 403 to an invitation into a team the caller does not manage
+ * (`InviteService` in `packages/core/src/lib/invite/invite.service.ts`). It accepts the invitation when the caller:
+ * - holds one of {@link ORGANIZATION_WIDE_INVITE_PERMISSIONS} (`ALL_ORG_VIEW`, `ALL_ORG_EDIT`,
+ *   `CHANGE_SELECTED_EMPLOYEE`), which reach the invitations of every team; or
+ * - manages the team: a member flagged `isManager`, a member whose team role is MANAGER, ADMIN or SUPER_ADMIN, or
+ *   the team's creator (`createdByUserId`).
+ *
+ * The team judged is the one the invitation goes to: the team the active team cookie names, as
+ * `useSendTeamInvitation` reads it, else the active team {@link useIsMemberManager} resolves. A public team page
+ * leaves only the team it shows loaded, so that team is then read from the user's own team list in the query cache.
+ * Until the permissions load, only a team manager is let through: for a holder of an organization-wide permission the
+ * action may appear late, never early, and so it does for a manager until that team loads. An invitation always
+ * names the active team (`useSendTeamInvitation` refuses to send without one), so nobody is offered the action while
+ * no team is active.
+ *
+ * @returns True when the current user may invite into the active team.
  */
 export function useCanInviteToActiveTeam(): boolean {
 	const { data: user } = useUserQuery();
-	const loadedTeams = useAtomValue(organizationTeamsState);
-	const activeTeamId = useAtomValue(activeTeamIdState);
+	const { activeTeam } = useIsMemberManager(user);
 	const cachedOwnTeams = useCachedOwnTeams(user);
 	const { myPermissions } = useMyRolePermissionsQuery();
 
@@ -91,22 +118,23 @@ export function useCanInviteToActiveTeam(): boolean {
 		return false;
 	}
 
-	const holdsOrganizationWidePermission = ORGANIZATION_WIDE_PERMISSIONS.some((permission) =>
+	const cookieTeamId = getActiveTeamIdCookie();
+	const activeTeamId = activeTeam?.id;
+	const targetTeamId = cookieTeamId || activeTeamId;
+	if (!targetTeamId) {
+		return false;
+	}
+
+	const holdsOrganizationWidePermission = ORGANIZATION_WIDE_INVITE_PERMISSIONS.some((permission) =>
 		myPermissions.includes(permission)
 	);
 	if (holdsOrganizationWidePermission) {
 		return true;
 	}
 
-	const cookieTeamId = getActiveTeamIdCookie();
-	const targetTeamId = cookieTeamId || activeTeamId;
-	// A public team page leaves only the team it shows loaded, so the user's own cached teams are the fallback
-	const loadedTargetTeam = findTeam(loadedTeams, targetTeamId);
-	const cachedTargetTeam = findTeam(cachedOwnTeams, targetTeamId);
-	const targetTeam = loadedTargetTeam ?? cachedTargetTeam;
+	const targetTeam = findTargetTeam(targetTeamId, activeTeam, cachedOwnTeams);
 	if (!targetTeam) {
-		// Not loaded yet: keep the entries rather than hide them from someone who may invite
-		return true;
+		return false;
 	}
 
 	const targetTeamMembers = targetTeam.members ?? [];

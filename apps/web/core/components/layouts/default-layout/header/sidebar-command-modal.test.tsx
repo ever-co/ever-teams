@@ -1,76 +1,63 @@
 /** @jest-environment jsdom */
 
-/**
- * The command palette lists Invite User, and binds its I U shortcut, only for those the API lets invite into the
- * active team; every other command stays.
- */
+import React from 'react';
 import { render, screen } from '@testing-library/react';
-import { Provider, createStore } from 'jotai';
-import type { ReactNode } from 'react';
 
-import { activeTeamIdState, organizationTeamsState } from '@/core/stores';
-import type { TOrganizationTeam } from '@/core/types/schemas';
-
-const TEAM_ID = 'team-1';
-
-const mockUser = { id: 'user-1', isEmailVerified: true, employee: { id: 'employee-1', userId: 'user-1' } };
+let mockCanInvite = false;
 const mockUseKeyboardShortcuts = jest.fn();
 
-type TChildren = { children?: ReactNode };
-type TGroup = TChildren & { heading?: string };
-type TShortcut = { description: string };
-
-jest.mock('next-intl', () => ({ useTranslations: () => (key: string) => key }));
-jest.mock('next/navigation', () => ({ useRouter: () => ({ push: jest.fn() }) }));
-jest.mock('next-themes', () => ({ useTheme: () => ({ setTheme: jest.fn(), resolvedTheme: 'light' }) }));
-jest.mock('lucide-react', () => ({ ArrowUpRightIcon: () => null }));
-jest.mock('../../../../hooks/auth', () => ({ useAuthenticateUser: () => ({ user: mockUser }) }));
-jest.mock('../../../../hooks', () => ({
-	useModal: () => ({ isOpen: false, openModal: jest.fn(), closeModal: jest.fn() })
-}));
-jest.mock('@/core/hooks/queries/user-user.query', () => ({
-	useUserQuery: () => ({ data: mockUser })
-}));
-jest.mock('@/core/hooks/roles/use-my-role-permissions-query', () => ({
-	useMyRolePermissionsQuery: () => ({ myPermissions: [] })
+jest.mock('@/core/hooks/invitations/use-can-invite-to-active-team', () => ({
+	useCanInviteToActiveTeam: () => mockCanInvite
 }));
 jest.mock('@/core/hooks/common/use-keyboard-shortcuts', () => ({
 	useKeyboardShortcuts: (...args: unknown[]) => mockUseKeyboardShortcuts(...args)
 }));
+jest.mock('../../../../hooks/auth', () => ({
+	useAuthenticateUser: () => ({ user: { id: 'user-1', name: 'User', isEmailVerified: true } })
+}));
+jest.mock('../../../../hooks', () => ({
+	useModal: () => ({ isOpen: false, openModal: jest.fn(), closeModal: jest.fn() })
+}));
+jest.mock('jotai', () => ({
+	useAtom: () => [true, jest.fn()]
+}));
+jest.mock('@/core/stores/common/command-palette', () => ({ commandPaletteOpenAtom: Symbol('command-palette') }));
+jest.mock('next/navigation', () => ({ useRouter: () => ({ push: jest.fn() }) }));
+jest.mock('next-intl', () => ({ useTranslations: () => (key: string) => key }));
+jest.mock('next-themes', () => ({ useTheme: () => ({ setTheme: jest.fn(), resolvedTheme: 'light' }) }));
+jest.mock('lucide-react', () => ({ ArrowUpRightIcon: () => null }));
+
+// The palette renders inline, so its commands can be read without opening a dialog.
 jest.mock('@/core/components/common/command', () => {
-	const Pass = ({ children }: TChildren) => <>{children}</>;
-	const Group = ({ heading, children }: TGroup) => (
-		<section>
-			<h2>{heading}</h2>
-			{children}
-		</section>
-	);
-	const Item = ({ children }: TChildren) => <div>{children}</div>;
+	const Pass = ({ children }: { children?: React.ReactNode }) => <div>{children}</div>;
 	return {
 		CommandDialog: Pass,
 		CommandEmpty: () => null,
-		CommandGroup: Group,
+		CommandGroup: Pass,
 		CommandInput: () => null,
-		CommandItem: Item,
+		CommandItem: Pass,
 		CommandList: Pass,
 		CommandShortcut: Pass
 	};
 });
 jest.mock('./sidebar-command-form', () => ({ SidebarCommandForm: () => null }));
 jest.mock('../../../common/badge', () => ({ Badge: () => null }));
-jest.mock('../../../icons', () => ({
-	AddIcon: () => null,
-	AddTaskIcon: () => null,
-	AddTeamIcon: () => null,
-	AddUserIcon: () => null,
-	DashboardIcon: () => null,
-	MoonIcon: () => null,
-	ProfileIcon: () => null,
-	SettingsIcon: () => null,
-	TasksIcon: () => null,
-	TeamIcon: () => null,
-	UserCircleIcon: () => null
-}));
+jest.mock('../../../icons', () => {
+	const Icon = () => null;
+	return {
+		AddIcon: Icon,
+		AddTaskIcon: Icon,
+		AddTeamIcon: Icon,
+		AddUserIcon: Icon,
+		DashboardIcon: Icon,
+		MoonIcon: Icon,
+		ProfileIcon: Icon,
+		SettingsIcon: Icon,
+		TasksIcon: Icon,
+		TeamIcon: Icon,
+		UserCircleIcon: Icon
+	};
+});
 jest.mock('../../../common/modal', () => ({ Modal: () => null }));
 jest.mock('../../../features/tasks/create-task-modal', () => ({ __esModule: true, default: () => null }));
 jest.mock('../../../features/teams/invite-form-modal', () => ({ InviteFormModal: () => null }));
@@ -79,45 +66,35 @@ jest.mock('@/core/components/features/teams/create-team-modal', () => ({ CreateT
 
 import { SidebarCommandModal } from './sidebar-command-modal';
 
-function renderPalette(isManager: boolean) {
-	const membership = {
-		id: 'membership-1',
-		employeeId: 'employee-1',
-		employee: { id: 'employee-1', userId: 'user-1' },
-		isManager
-	};
-	const activeTeam = { id: TEAM_ID, name: 'Active team', members: [membership] };
-	const store = createStore();
-	store.set(organizationTeamsState, [activeTeam] as unknown as TOrganizationTeam[]);
-	store.set(activeTeamIdState, TEAM_ID);
-	render(
-		<Provider store={store}>
-			<SidebarCommandModal publicTeam={false} variant="none" />
-		</Provider>
-	);
+/** The key sequences the palette registered as global shortcuts on its last render. */
+function registeredSequences(): string[] {
+	const [configs] = mockUseKeyboardShortcuts.mock.calls[mockUseKeyboardShortcuts.mock.calls.length - 1] as [
+		Array<{ sequence: string[] }>
+	];
+	return configs.map((config) => config.sequence.join(' '));
 }
 
-/** The descriptions of the shortcuts the palette bound on its last render. */
-function boundShortcutDescriptions(): string[] {
-	const lastCall = mockUseKeyboardShortcuts.mock.lastCall;
-	const shortcuts = lastCall?.[0] as TShortcut[];
-	return shortcuts.map((shortcut) => shortcut.description);
-}
-
-describe('SidebarCommandModal', () => {
-	it('does not list or bind Invite User for a plain member of the active team', () => {
-		renderPalette(false);
-
-		expect(screen.queryByText('Invite User')).toBeNull();
-		expect(screen.getByText('Assign to me')).toBeTruthy();
-		expect(boundShortcutDescriptions()).not.toContain('Invite User');
-		expect(boundShortcutDescriptions()).toContain('Assign to me');
+describe('SidebarCommandModal invite command', () => {
+	beforeEach(() => {
+		mockUseKeyboardShortcuts.mockClear();
 	});
 
-	it('lists and binds Invite User for a manager of the active team', () => {
-		renderPalette(true);
+	it('offers "Invite User" and its "i u" sequence to a user who may invite into the active team', () => {
+		mockCanInvite = true;
+		render(<SidebarCommandModal publicTeam={false} variant="none" />);
 
 		expect(screen.getByText('Invite User')).toBeTruthy();
-		expect(boundShortcutDescriptions()).toContain('Invite User');
+		expect(registeredSequences()).toContain('i u');
+	});
+
+	it('hides "Invite User" and drops its "i u" sequence for a user the API would refuse', () => {
+		mockCanInvite = false;
+		render(<SidebarCommandModal publicTeam={false} variant="none" />);
+
+		expect(screen.queryByText('Invite User')).toBeNull();
+		expect(registeredSequences()).not.toContain('i u');
+		// The other commands stay.
+		expect(screen.getByText('Assign to me')).toBeTruthy();
+		expect(registeredSequences()).toContain('a m');
 	});
 });

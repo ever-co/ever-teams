@@ -3,9 +3,9 @@ import DataTable from '@/core/components/common/data-table';
 import { ColumnDef } from '@tanstack/react-table';
 
 import { useAuthenticateUser, useModal } from '@/core/hooks';
+import { useCanInviteToActiveTeam } from '@/core/hooks/invitations/use-can-invite-to-active-team';
 import { InviteUserTeamCard } from '../../../../../teams/invite/user-invite-card';
 import { InviteFormModal } from '../../../../../features/teams/invite-form-modal';
-import { useCanInviteToActiveTeam } from '@/core/hooks/invitations/use-can-invite-to-active-team';
 import { useTranslations } from 'next-intl';
 import {
 	ActionMenuCell,
@@ -103,11 +103,10 @@ const TeamMembersTableView = memo(
 function Invite() {
 	const { user } = useAuthenticateUser();
 	const { openModal, isOpen, closeModal } = useModal();
+	// The API refuses an invitation into a team the user does not manage (403): show the card only to who may send it.
 	const canInvite = useCanInviteToActiveTeam();
 
-	if (!canInvite) {
-		return null;
-	}
+	if (!canInvite) return null;
 
 	return (
 		<div className="py-2">

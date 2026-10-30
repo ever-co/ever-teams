@@ -13,6 +13,7 @@ import {
 import { useState, useMemo } from 'react';
 import { AddUserIcon, ProjectIcon, TaskIcon, TeamIcon } from '../../../icons';
 import { useAuthenticateUser, useModal } from '@/core/hooks';
+import { useCanInviteToActiveTeam } from '@/core/hooks/invitations/use-can-invite-to-active-team';
 import { useTranslations } from 'next-intl';
 import { useAtomValue } from 'jotai';
 import { timerStatusState } from '@/core/stores';
@@ -23,11 +24,11 @@ import CreateTaskModal from '../../tasks/create-task-modal';
 import { InviteFormModal } from '../../teams/invite-form-modal';
 import { CreateTeamModal } from '../../teams/create-team-modal';
 import { CreateProjectModal } from '../../projects/create-project-modal';
-import { useCanInviteToActiveTeam } from '@/core/hooks/invitations/use-can-invite-to-active-team';
 export const DefaultCreateAction = ({ publicTeam }: { publicTeam?: boolean }) => {
 	const [open, setOpen] = useState<boolean>(false);
 	const t = useTranslations();
 	const { user } = useAuthenticateUser();
+	// The API refuses an invitation into a team the user does not manage (403): offer Invite only to who may send it.
 	const canInvite = useCanInviteToActiveTeam();
 	const { isOpen, closeModal, openModal } = useModal();
 	const { isOpen: inviteIsOpen, closeModal: inviteCloseModal, openModal: inviteOpenModal } = useModal();

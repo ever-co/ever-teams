@@ -31,6 +31,7 @@ import {
 } from '../../../icons';
 import { useAuthenticateUser } from '../../../../hooks/auth';
 import { useModal } from '../../../../hooks';
+import { useCanInviteToActiveTeam } from '@/core/hooks/invitations/use-can-invite-to-active-team';
 import { useTranslations } from 'next-intl';
 import { Modal } from '../../../common/modal';
 import CreateTaskModal from '../../../features/tasks/create-task-modal';
@@ -42,7 +43,6 @@ import { useKeyboardShortcuts, CommandShortcutConfig } from '@/core/hooks/common
 import { InviteFormModal } from '../../../features/teams/invite-form-modal';
 import { CreateProjectModal } from '../../../features/projects/create-project-modal';
 import { CreateTeamModal } from '@/core/components/features/teams/create-team-modal';
-import { useCanInviteToActiveTeam } from '@/core/hooks/invitations/use-can-invite-to-active-team';
 
 // Definition of types to improve readability and security
 type ShortcutAction = () => void;
@@ -101,6 +101,8 @@ export const SidebarCommandModal: FC<{ publicTeam: boolean; variant?: 'sidebar' 
 
 	const t = useTranslations();
 	const { user } = useAuthenticateUser();
+	// The API refuses an invitation into a team the user does not manage (403): offer "Invite User", and its
+	// key sequence, only to who may send it.
 	const canInvite = useCanInviteToActiveTeam();
 	const { setTheme, resolvedTheme } = useTheme();
 	const name = user?.name || user?.firstName || user?.lastName || user?.username;
@@ -146,29 +148,24 @@ export const SidebarCommandModal: FC<{ publicTeam: boolean; variant?: 'sidebar' 
 		[router, profileLink, createTaskModal, teamModal, createProjectModal, inviteModal, setTheme, resolvedTheme]
 	);
 
-	// Invite User, and its shortcut, only for those the API lets invite into the active team
-	const inviteCommands = useMemo<CommandShortcutConfig[]>(() => {
-		if (!canInvite) {
-			return [];
-		}
-		return [
-			{
-				sequence: ['i', 'u'],
-				description: 'Invite User',
-				shortcutDisplay: 'IU',
-				action: actions.inviteUser,
-				icon: <AddUserIcon />
-			}
-		];
-	}, [canInvite, actions]);
-
 	// Centralized configuration of commands and shortcuts
 	const commandGroups: CommandGroupConfig[] = useMemo(
 		() => [
 			{
 				heading: 'Suggestions',
 				commands: [
-					...inviteCommands,
+					...(canInvite
+						? [
+								{
+									sequence: ['i', 'u'],
+									description: 'Invite User',
+									shortcutDisplay: 'IU',
+									action: actions.inviteUser,
+									icon: <AddUserIcon />
+								}
+							]
+						: []),
+
 					{
 						sequence: ['a', 'm'],
 						description: 'Assign to me',
@@ -339,7 +336,7 @@ export const SidebarCommandModal: FC<{ publicTeam: boolean; variant?: 'sidebar' 
 				]
 			}
 		],
-		[actions, inviteCommands]
+		[actions, canInvite]
 	);
 
 	// Extract all shortcut configurations for the global hook
