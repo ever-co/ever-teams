@@ -30,7 +30,10 @@ export async function proxyGauzyImage(
 		status: 200,
 		headers: {
 			'Content-Type': contentType,
-			'Cache-Control': 'public, max-age=3600, stale-while-revalidate=86400',
+			// Static images; but an upstream `no-store` (e.g. a degraded answer) is never turned into public caching.
+			'Cache-Control': /no-store/i.test(response.headers.get('cache-control') ?? '')
+				? 'no-store'
+				: 'public, max-age=3600, stale-while-revalidate=86400',
 			'X-Content-Type-Options': 'nosniff',
 			...extraHeaders
 		}
