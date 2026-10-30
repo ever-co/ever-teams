@@ -5,7 +5,7 @@
  * controls follow the rule the API applies to those writes (a manager of the team or an ORG_TASK_SETTING
  * holder); anyone else gets them read-only instead of a 403.
  */
-import { render, screen } from '@testing-library/react';
+import { fireEvent, render, screen } from '@testing-library/react';
 import { Provider, createStore } from 'jotai';
 import type { ButtonHTMLAttributes, ReactNode } from 'react';
 
@@ -13,6 +13,7 @@ import { activeTeamIdState, organizationTeamsState } from '@/core/stores';
 import type { TOrganizationTeam } from '@/core/types/schemas';
 
 const TEAM_ID = 'team-1';
+const READ_ONLY_HINT = 'pages.settingsTeam.TASK_SETTINGS_READ_ONLY';
 
 const mockUser = { id: 'user-1', tenantId: 'tenant-1', employee: { id: 'employee-1', organizationId: 'org-1' } };
 const mockPermissions = { myPermissions: [] as string[], isSuccess: true };
@@ -94,6 +95,12 @@ function rowButtons() {
 	return buttons.filter((button) => button !== create);
 }
 
+/** Hovers the area around a row action: a disabled action lets the pointer through to it. */
+function hoverAround(button: HTMLElement) {
+	const area = button.parentElement ?? button;
+	fireEvent.mouseEnter(area);
+}
+
 describe('TaskVersionForm task settings access', () => {
 	beforeEach(() => {
 		mockPermissions.myPermissions = [];
@@ -109,6 +116,17 @@ describe('TaskVersionForm task settings access', () => {
 		for (const button of rowButtons()) {
 			expect(button).toHaveProperty('disabled', true);
 		}
+	});
+
+	it('explains the read-only delete action of a version with the hint the edit action shows', async () => {
+		renderVersionsAs(false);
+
+		const rowActions = rowButtons();
+		const deleteAction = rowActions[1];
+		hoverAround(deleteAction);
+
+		const hint = await screen.findByText(READ_ONLY_HINT);
+		expect(hint).toBeTruthy();
 	});
 
 	it('gives a manager of the team the create, edit and delete controls', () => {
