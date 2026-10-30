@@ -184,6 +184,27 @@ describe('useTeamDashboardStatisticsProps', () => {
 		expect(queryKeyAfterArchive).not.toEqual(queryKey);
 	});
 
+	it('keeps the chart and daily report key when the managed teams come in another order', () => {
+		const team = buildTeam(buildActiveMembers(3));
+		const otherTeam = {
+			id: 'other-team',
+			members: [{ employeeId: 'other-member' }]
+		} as unknown as TOrganizationTeam;
+
+		const listed = renderProps(team, mergedProps, [otherTeam]);
+
+		// The next poll of the team list returns the same teams in another order
+		mockUserManagedTeams = [otherTeam, team];
+
+		const { result } = renderHook(() =>
+			useTeamDashboardStatisticsProps({ mergedProps, isManage: true, routeTeamId: PAGE_TEAM_ID })
+		);
+		const queryKey = getActivityQueryKeyParams(listed.reportProps);
+		const queryKeyInOtherOrder = getActivityQueryKeyParams(result.current.reportProps);
+
+		expect(queryKeyInOtherOrder).toEqual(queryKey);
+	});
+
 	it('keeps the chart and daily report key when a member of the page team picks a team they manage', () => {
 		const team = buildTeam(buildActiveMembers(3));
 		const managedTeam = {

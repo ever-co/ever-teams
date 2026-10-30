@@ -15,14 +15,21 @@ import { TOrganizationTeam } from '@/core/types/schemas';
 // Roles that see the organization-wide figures, as the chart and table below the counters do
 const ORGANIZATION_WIDE_ROLES: string[] = [ERoleName.SUPER_ADMIN, ERoleName.ADMIN, ERoleName.MANAGER];
 
+const compareTeamIds = (first: TOrganizationTeam, second: TOrganizationTeam): number =>
+	first.id.localeCompare(second.id);
+
 /**
  * The active members of each managed team, team after team, for the cache key of the chart and the daily report.
  * The filter only picks among these teams, so a pick leaves the list as it is, while a change in the membership of
  * any of them, a picked team's included, changes it. A team too large to name its members adds none, as in the
- * request.
+ * request. The teams go in id order, since the team list keeps the order the API returns, which it does not fix.
  */
 function getManagedTeamsMemberIds(managedTeams: TOrganizationTeam[]): string[] {
-	return managedTeams.flatMap((team) => getReportMemberIds([team], [team.id]));
+	const teamsInIdOrder = managedTeams.slice();
+
+	teamsInIdOrder.sort(compareTeamIds);
+
+	return teamsInIdOrder.flatMap((team) => getReportMemberIds([team], [team.id]));
 }
 
 export interface UseTeamDashboardStatisticsPropsOptions {
