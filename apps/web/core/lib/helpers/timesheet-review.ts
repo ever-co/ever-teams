@@ -99,6 +99,12 @@ export function getAllowedTimesheetStatuses(
 		return NO_TIMESHEET_STATUS;
 	}
 
+	// No time log means no timesheet to review, and every() below would hold on an empty list
+	const hasNoTimeLog = logs.length === 0;
+	if (hasNoTimeLog) {
+		return NO_TIMESHEET_STATUS;
+	}
+
 	const timesheetEmployeeIds = logs.map((log) => log.employeeId);
 	const employeeIds = [...new Set(timesheetEmployeeIds)];
 	const managesEveryEmployee = employeeIds.every((employeeId) =>

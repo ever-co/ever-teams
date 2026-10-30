@@ -58,6 +58,14 @@ describe('getAllowedTimesheetStatuses', () => {
 		expect(ownWithMember).toEqual([]);
 	});
 
+	it('gives a team manager nothing when no time log is passed', () => {
+		const reviewer = teamManager();
+
+		const statuses = statusesFor(reviewer);
+
+		expect(statuses).toEqual([]);
+	});
+
 	it('refuses a timesheet of an employee who is in no team the user manages', () => {
 		const sharedTeam = team({ employeeId: MANAGER_ID, isManager: false }, { employeeId: OUTSIDER_ID });
 		const reviewer = teamManager({ teams: [managedTeam(), sharedTeam] });
