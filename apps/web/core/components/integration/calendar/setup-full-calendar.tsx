@@ -207,6 +207,7 @@ export const CardItemsMember = ({ imageUrl, name, time }: { imageUrl?: string; n
 				<Image
 					className="flex justify-center items-center p-1 w-8 h-8 text-white rounded-full"
 					src={imageUrl ? imageUrl : ''}
+					unoptimized
 					alt=""
 					width={90}
 					height={90}
@@ -237,6 +238,7 @@ export const CardItemsProjects = ({
 			<div className="flex items-center w-full">
 				<Image
 					src={logo ? logo : ''}
+					unoptimized
 					alt="logos"
 					width={100}
 					height={100}
