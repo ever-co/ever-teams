@@ -135,7 +135,7 @@ describe('useTeamDashboardStatisticsProps', () => {
 		expect(admin.statisticsProps).toEqual({ ...mergedProps, teamId: PAGE_TEAM_ID });
 	});
 
-	it('keys the chart and daily report on the page team members, which a pick in the filter does not change', () => {
+	it('keys the chart and daily report on the managed team members, which a pick in the filter does not change', () => {
 		const team = buildTeam(buildActiveMembers(3));
 		const remainingMembers = buildActiveMembers(2);
 		const teamAfterArchive = buildTeam([...remainingMembers, { employeeId: 'employee-2', isArchived: true }]);
@@ -146,9 +146,10 @@ describe('useTeamDashboardStatisticsProps', () => {
 		const memberPickProps = { ...mergedProps, employeeIds: ['employee-1'] };
 		const teamPickProps = { ...mergedProps, teamIds: ['other-team'] };
 
-		const scoped = renderProps(team, mergedProps);
-		const afterArchive = renderProps(teamAfterArchive, mergedProps);
-		const withMemberPick = renderProps(team, memberPickProps);
+		// A pick does not change which teams the user manages, so every render manages both teams
+		const scoped = renderProps(team, mergedProps, [otherTeam]);
+		const afterArchive = renderProps(teamAfterArchive, mergedProps, [otherTeam]);
+		const withMemberPick = renderProps(team, memberPickProps, [otherTeam]);
 		const withTeamPick = renderProps(team, teamPickProps, [otherTeam]);
 
 		const queryKey = getActivityQueryKeyParams(scoped.reportProps);
@@ -158,6 +159,58 @@ describe('useTeamDashboardStatisticsProps', () => {
 
 		expect(queryKeyAfterArchive).not.toEqual(queryKey);
 		expect(queryKeyWithMemberPick).toEqual(queryKey);
+		expect(queryKeyWithTeamPick).toEqual(queryKey);
+	});
+
+	it('changes the chart and daily report key when the membership of a picked team changes', () => {
+		const team = buildTeam(buildActiveMembers(3));
+		const pickedTeam = {
+			id: 'picked-team',
+			members: [{ employeeId: 'picked-member' }, { employeeId: 'leaving-member' }]
+		} as unknown as TOrganizationTeam;
+		const pickedTeamAfterArchive = {
+			id: 'picked-team',
+			members: [{ employeeId: 'picked-member' }, { employeeId: 'leaving-member', isArchived: true }]
+		} as unknown as TOrganizationTeam;
+		const teamPickProps = { ...mergedProps, teamIds: ['picked-team'] };
+
+		const beforeArchive = renderProps(team, teamPickProps, [pickedTeam]);
+		const afterArchive = renderProps(team, teamPickProps, [pickedTeamAfterArchive]);
+
+		const queryKey = getActivityQueryKeyParams(beforeArchive.reportProps);
+		const queryKeyAfterArchive = getActivityQueryKeyParams(afterArchive.reportProps);
+
+		expect(afterArchive.reportProps?.employeeIds).toEqual(['picked-member']);
+		expect(queryKeyAfterArchive).not.toEqual(queryKey);
+	});
+
+	it('keeps the chart and daily report key when a member of the page team picks a team they manage', () => {
+		const team = buildTeam(buildActiveMembers(3));
+		const managedTeam = {
+			id: 'managed-team',
+			members: [{ employeeId: 'managed-member' }]
+		} as unknown as TOrganizationTeam;
+		const teamPickProps = { ...mergedProps, teamIds: ['managed-team'] };
+
+		// The user belongs to the page team without managing it, and manages another team
+		mockUserManagedTeams = [managedTeam];
+		mockUseAtomValue.mockImplementation((atom: unknown) => {
+			if (atom === 'organization-teams') return [team, managedTeam];
+			return team;
+		});
+
+		const { result, rerender } = renderHook(
+			(props: Required<UseReportActivityProps>) =>
+				useTeamDashboardStatisticsProps({ mergedProps: props, isManage: false, routeTeamId: PAGE_TEAM_ID }),
+			{ initialProps: mergedProps }
+		);
+		const queryKey = getActivityQueryKeyParams(result.current.reportProps);
+
+		rerender(teamPickProps);
+
+		const queryKeyWithTeamPick = getActivityQueryKeyParams(result.current.reportProps);
+
+		expect(result.current.reportProps?.employeeIds).toEqual(['managed-member']);
 		expect(queryKeyWithTeamPick).toEqual(queryKey);
 	});
 });

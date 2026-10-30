@@ -25,8 +25,9 @@ export interface UseReportActivityProps
 	selectedEmployeeIds?: string[];
 	selectedTeamIds?: string[];
 	/**
-	 * The active members resolved from the teams of a team manager's report, never from picks. Only the report query
-	 * key reads it, so a change in the team's membership fetches the report again.
+	 * The active members resolved from a team manager's teams (the applied ones, or every managed team on the Team
+	 * Dashboard), never from picks. Only the report query key reads it, so a change in their membership fetches the
+	 * report again.
 	 */
 	resolvedMemberIds?: string[];
 }
