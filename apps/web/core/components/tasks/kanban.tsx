@@ -73,12 +73,12 @@ function StatusMenuItem({
 	canEdit,
 	readOnlyHint,
 	onClick
-}: {
+}: Readonly<{
 	label: string;
 	canEdit: boolean;
 	readOnlyHint: string;
 	onClick: () => void;
-}) {
+}>) {
 	if (!canEdit) {
 		return (
 			<div className="p-1.5 text-sm opacity-40 cursor-not-allowed" aria-disabled="true" title={readOnlyHint}>
@@ -105,12 +105,12 @@ function ColumnToggleButton({
 	canEdit,
 	readOnlyHint,
 	onClick
-}: {
+}: Readonly<{
 	className: string;
 	canEdit: boolean;
 	readOnlyHint: string;
 	onClick: () => void;
-}) {
+}>) {
 	if (!canEdit) {
 		return (
 			<button className={cn(className, 'opacity-40 cursor-not-allowed')} disabled title={readOnlyHint}>
