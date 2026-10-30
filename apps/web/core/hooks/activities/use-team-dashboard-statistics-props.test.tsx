@@ -92,7 +92,7 @@ describe('useTeamDashboardStatisticsProps', () => {
 		expect(reportProps).toEqual({
 			...countsProps,
 			employeeIds: ['manager', 'member-1'],
-			resolvedMemberIds: ['manager', 'member-1']
+			resolvedMemberIds: ['page-team:manager', 'page-team:member-1']
 		});
 		expect(statisticsProps).toEqual(countsProps);
 	});
@@ -123,7 +123,7 @@ describe('useTeamDashboardStatisticsProps', () => {
 		expect(picked.reportProps).toEqual({
 			...pickedProps,
 			teamId: PAGE_TEAM_ID,
-			resolvedMemberIds: ['employee-0', 'employee-1', 'employee-2']
+			resolvedMemberIds: ['page-team:employee-0', 'page-team:employee-1', 'page-team:employee-2']
 		});
 		expect(picked.statisticsProps).toEqual({ ...pickedProps, teamId: PAGE_TEAM_ID });
 
@@ -182,6 +182,29 @@ describe('useTeamDashboardStatisticsProps', () => {
 
 		expect(afterArchive.reportProps?.employeeIds).toEqual(['picked-member']);
 		expect(queryKeyAfterArchive).not.toEqual(queryKey);
+	});
+
+	it('changes the chart and daily report key when a member moves from the page team to another managed team', () => {
+		const team = buildTeam([{ employeeId: 'moving-member' }, { employeeId: 'manager' }]);
+		const teamAfterMove = buildTeam([{ employeeId: 'manager' }]);
+		const otherTeam = {
+			id: 'other-team',
+			members: [{ employeeId: 'other-member' }]
+		} as unknown as TOrganizationTeam;
+		// A member added to a team goes at the end of its list, right before the page team in id order
+		const otherTeamAfterMove = {
+			id: 'other-team',
+			members: [{ employeeId: 'other-member' }, { employeeId: 'moving-member' }]
+		} as unknown as TOrganizationTeam;
+
+		const beforeMove = renderProps(team, mergedProps, [otherTeam]);
+		const afterMove = renderProps(teamAfterMove, mergedProps, [otherTeamAfterMove]);
+
+		const queryKey = getActivityQueryKeyParams(beforeMove.reportProps);
+		const queryKeyAfterMove = getActivityQueryKeyParams(afterMove.reportProps);
+
+		expect(afterMove.reportProps?.employeeIds).toEqual(['manager']);
+		expect(queryKeyAfterMove).not.toEqual(queryKey);
 	});
 
 	it('keeps the chart and daily report key when the managed teams come in another order', () => {

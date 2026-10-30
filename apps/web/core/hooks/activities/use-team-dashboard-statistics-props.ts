@@ -18,18 +18,25 @@ const ORGANIZATION_WIDE_ROLES: string[] = [ERoleName.SUPER_ADMIN, ERoleName.ADMI
 const compareTeamIds = (first: TOrganizationTeam, second: TOrganizationTeam): number =>
 	first.id.localeCompare(second.id);
 
+/** A team's active members, each written under the team id, so that a member moving to another team changes them. */
+function getTeamMemberKeys(team: TOrganizationTeam): string[] {
+	const memberIds = getReportMemberIds([team], [team.id]);
+
+	return memberIds.map((memberId) => `${team.id}:${memberId}`);
+}
+
 /**
- * The active members of each managed team, team after team, for the cache key of the chart and the daily report.
+ * The active members of each managed team, under their team id, for the cache key of the chart and the daily report.
  * The filter only picks among these teams, so a pick leaves the list as it is, while a change in the membership of
  * any of them, a picked team's included, changes it. A team too large to name its members adds none, as in the
  * request. The teams go in id order, since the team list keeps the order the API returns, which it does not fix.
  */
-function getManagedTeamsMemberIds(managedTeams: TOrganizationTeam[]): string[] {
+function getManagedTeamsMemberKeys(managedTeams: TOrganizationTeam[]): string[] {
 	const teamsInIdOrder = managedTeams.slice();
 
 	teamsInIdOrder.sort(compareTeamIds);
 
-	return teamsInIdOrder.flatMap((team) => getReportMemberIds([team], [team.id]));
+	return teamsInIdOrder.flatMap((team) => getTeamMemberKeys(team));
 }
 
 export interface UseTeamDashboardStatisticsPropsOptions {
@@ -91,8 +98,8 @@ export function useTeamDashboardStatisticsProps({
 
 		// The managed teams' members key the chart and the daily report in every branch below, so neither a pick nor
 		// the branch it leads to changes the key, while a change in the membership of a picked team fetches them again.
-		const managedMemberIds = getManagedTeamsMemberIds(userManagedTeams);
-		const reportPageProps = withResolvedMemberIds(pageProps, managedMemberIds);
+		const managedMemberKeys = getManagedTeamsMemberKeys(userManagedTeams);
+		const reportPageProps = withResolvedMemberIds(pageProps, managedMemberKeys);
 
 		if (!managesRequestedTeams) return { statisticsProps: pageProps, reportProps: reportPageProps };
 
@@ -111,7 +118,7 @@ export function useTeamDashboardStatisticsProps({
 		if (!memberIds.length) return { statisticsProps, reportProps: reportPageProps };
 
 		const memberProps = { ...statisticsProps, employeeIds: memberIds };
-		const reportMemberProps = withResolvedMemberIds(memberProps, managedMemberIds);
+		const reportMemberProps = withResolvedMemberIds(memberProps, managedMemberKeys);
 
 		return { statisticsProps, reportProps: reportMemberProps };
 	}, [mergedProps, statisticsTeamId, userManagedTeams, isManage, isOrganizationWideViewer]);
