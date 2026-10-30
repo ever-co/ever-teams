@@ -11,7 +11,8 @@ import { GAUZY_API_BASE_SERVER_URL } from '@/core/constants/config/constants';
  * @param text up to 4 letters or digits drawn on the image
  */
 export function getPlaceholderImageUrl(size: string, background: string, text?: string): string {
-	const origin = (GAUZY_API_BASE_SERVER_URL.value || '').replace(/\/+$/, '');
+	let origin = GAUZY_API_BASE_SERVER_URL.value || '';
+	while (origin.endsWith('/')) origin = origin.slice(0, -1);
 	const query = text ? `?text=${encodeURIComponent(text.slice(0, 4))}` : '';
 	return `${origin}/api/placeholder/${size}/${background}${query}`;
 }
