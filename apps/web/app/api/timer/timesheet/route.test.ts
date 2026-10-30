@@ -9,26 +9,23 @@ jest.mock('@/core/services/server/guards/authenticated-guard-app', () => ({
 	authenticatedGuard: (...args: unknown[]) => mockAuthenticatedGuard(...args)
 }));
 
+import { signedIn } from '@/test/auth/guard-answers';
 import { GET } from './route';
 
-const originalFetch = global.fetch;
-let fetchMock: jest.Mock;
+// The route reads the tenant and the organization from the guard's answer, not from the query
+const SESSION = signedIn({ id: 'user-1' });
+
+let fetchMock: jest.SpyInstance;
 
 beforeEach(() => {
-	mockAuthenticatedGuard.mockResolvedValue({
-		$res: (payload: unknown) => Response.json(payload),
-		user: { id: 'user-1', employee: { id: 'signed-in-employee' } },
-		access_token: 'access-token',
-		tenantId: 'tenant-1',
-		organizationId: 'organization-1'
-	});
-	fetchMock = jest.fn().mockResolvedValue(Response.json([], { status: 200 }));
-	global.fetch = fetchMock;
+	mockAuthenticatedGuard.mockResolvedValue(SESSION);
+	const noActivities = Response.json([]);
+	fetchMock = jest.spyOn(globalThis, 'fetch');
+	fetchMock.mockResolvedValue(noActivities);
 });
 
 afterEach(() => {
-	global.fetch = originalFetch;
-	jest.clearAllMocks();
+	fetchMock.mockRestore();
 });
 
 /** The URL Gauzy was asked with. */
@@ -52,8 +49,8 @@ describe('GET /api/timer/timesheet', () => {
 		expect(upstreamUrl().pathname.endsWith('/timesheet/activity')).toBe(true);
 		expect(upstreamQuery()).toEqual({
 			'taskIds[0]': 'task-1',
-			tenantId: 'tenant-1',
-			organizationId: 'organization-1',
+			tenantId: SESSION.tenantId,
+			organizationId: SESSION.organizationId,
 			defaultRange: 'false'
 		});
 	});
@@ -68,8 +65,8 @@ describe('GET /api/timer/timesheet', () => {
 		await GET(new Request('https://app.ever.team/api/timer/timesheet'));
 
 		expect(upstreamQuery()).toEqual({
-			tenantId: 'tenant-1',
-			organizationId: 'organization-1',
+			tenantId: SESSION.tenantId,
+			organizationId: SESSION.organizationId,
 			defaultRange: 'false'
 		});
 	});
