@@ -15,10 +15,17 @@ const MANAGER_ROLE = 'MANAGER';
 /** A task status, priority, size or version, as far as the team it belongs to goes. */
 type TTaskSettingRow = { organizationTeamId?: string | null };
 
+/** Whether a permission row grants the task settings: only an enabled one does, as the web reader counts them. */
+function grantsTaskSettings(row: IRolePermission): boolean {
+	const isEnabled = row.enabled === true;
+	const isTaskSetting = row.permission === TASK_SETTING_PERMISSION;
+	return isEnabled && isTaskSetting;
+}
+
 /** Whether the role's permissions, as the API lists them for the signed-in user, hold the task settings one. */
 function holdsTaskSettingPermission(rolePermissions: IRolePermission[] | undefined): boolean {
 	const rows = rolePermissions ?? [];
-	return rows.some((row) => row.permission === TASK_SETTING_PERMISSION);
+	return rows.some(grantsTaskSettings);
 }
 
 /** Whether a team membership is the user's own: the API reads the caller's memberships by their employee. */

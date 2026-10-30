@@ -88,6 +88,11 @@ async function answerRequests() {
 /** Renders the hook with the role's permissions already read, as they are once any screen has asked for them. */
 async function renderWithPermissions(permissions: string[]) {
 	const rows = permissionRows(permissions);
+	return renderWithRows(rows);
+}
+
+/** Renders the hook with these permission rows already read. */
+async function renderWithRows(rows: ReturnType<typeof permissionRows>) {
 	mockedPermissionsRequest.mockResolvedValue({ data: rows, response: { ok: true, status: 200 } });
 	const client = newQueryClient();
 	client.setQueryData(['rolePermissions', 'me', 'tenant-1', 'user-1', 'role-1'], rows);
@@ -176,6 +181,18 @@ describe('useTaskSettingsAccess', () => {
 		expect(result.current.canCreate).toBe(true);
 		expect(result.current.canWriteRow(OTHER_TEAM_ROW)).toBe(true);
 		expect(result.current.canWriteRow(DEFAULT_ROW)).toBe(true);
+	});
+
+	it('does not count an ORG_TASK_SETTING row that is disabled', async () => {
+		givenTeams([ownMembership()]);
+		const [grantedRow] = permissionRows(['ORG_TASK_SETTING']);
+		const disabledRow = { ...grantedRow, enabled: false };
+
+		const result = await renderWithRows([disabledRow]);
+
+		expect(result.current.canCreate).toBe(false);
+		expect(result.current.canWriteRow(OTHER_TEAM_ROW)).toBe(false);
+		expect(result.current.canWriteRow(DEFAULT_ROW)).toBe(false);
 	});
 
 	it('reads the permissions of the signed-in role from the API', async () => {
