@@ -233,6 +233,25 @@ describe('useTaskSettingsAccess', () => {
 		expect(result.current.canWriteRow(ACTIVE_TEAM_ROW)).toBe(true);
 	});
 
+	it('keeps the permissions last read when a later refresh of them fails', async () => {
+		givenTeams([ownMembership()]);
+		const rows = permissionRows(['ORG_TEAM_EDIT']);
+		mockedPermissionsRequest.mockResolvedValue({ data: rows, response: { ok: true, status: 200 } });
+		const client = newQueryClient();
+		const result = await renderAccess(client);
+		await answerRequests();
+
+		mockedPermissionsRequest.mockResolvedValue({ data: { statusCode: 500 }, response: { ok: false, status: 500 } });
+		await act(async () => {
+			await client.refetchQueries({ queryKey: ['rolePermissions'] });
+		});
+		await answerRequests();
+
+		expect(permissionsStatus(client)).toBe('error');
+		expect(result.current.canCreate).toBe(false);
+		expect(result.current.canWriteRow(ACTIVE_TEAM_ROW)).toBe(false);
+	});
+
 	it('shows nothing read-only before the active team is loaded', async () => {
 		givenTeams([ownMembership()]);
 		mockStores = {

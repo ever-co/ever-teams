@@ -82,7 +82,7 @@ function isManagedTeam(teamId: string | null | undefined, managedTeamIds: Set<st
  * team, such as a system default, needs the permission. A team's creator is its manager through that membership.
  *
  * Until the role's permissions, the user and the active team are loaded, nothing is shown read-only: the API still
- * decides every write.
+ * decides every write. Once read, the permissions keep deciding when a later refresh of them fails.
  *
  * The user and the memberships come from the MobX stores: a component calling this hook is an `observer`, so its
  * controls follow a membership change.
@@ -95,7 +95,7 @@ export function useTaskSettingsAccess() {
 		authenticationStore: { authToken, tenantId, user, employeeId },
 		teamStore: { teams, activeTeam, activeTeamId }
 	} = useStores();
-	const { data: rolePermissions, isSuccess: permissionsLoaded } = useFetchMyRolePermissions({
+	const { data: rolePermissions } = useFetchMyRolePermissions({
 		authToken,
 		tenantId,
 		userId: user?.id,
@@ -103,6 +103,8 @@ export function useTaskSettingsAccess() {
 	});
 
 	const holdsPermission = holdsTaskSettingPermission(rolePermissions);
+	// A failed refresh keeps the rows last read as the query's data, so they still decide
+	const permissionsLoaded = rolePermissions !== undefined;
 	const membershipsLoaded = !!user && !!activeTeam;
 	const isDecided = permissionsLoaded && membershipsLoaded;
 	const writesEveryRow = holdsPermission || !isDecided;
