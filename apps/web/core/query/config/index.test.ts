@@ -13,13 +13,13 @@ type ReactQuery = typeof import('@tanstack/react-query');
 const DAY_MS = 24 * 60 * 60 * 1000;
 
 /** The config module and the react-query it uses, loaded as on the server or in the browser. */
-function load(isServer: boolean): { config: Config; rq: ReactQuery } {
+async function load(isServer: boolean): Promise<{ config: Config; rq: ReactQuery }> {
 	let config: Config | undefined;
 	let rq: ReactQuery | undefined;
-	jest.isolateModules(() => {
+	await jest.isolateModulesAsync(async () => {
 		jest.doMock('@tanstack/react-query', () => ({ ...jest.requireActual('@tanstack/react-query'), isServer }));
-		rq = require('@tanstack/react-query');
-		config = require('./index');
+		rq = await import('@tanstack/react-query');
+		config = await import('./index');
 	});
 	return { config: config as Config, rq: rq as ReactQuery };
 }
@@ -51,10 +51,6 @@ const gcTimes = (client: QueryClient) =>
 
 let client: QueryClient | undefined;
 
-beforeEach(() => {
-	jest.useFakeTimers();
-});
-
 afterEach(() => {
 	client?.clear();
 	client = undefined;
@@ -62,8 +58,9 @@ afterEach(() => {
 });
 
 describe('createQueryClientInstance', () => {
-	it('arms no GC timer on the server, whatever gcTime a query asks for', () => {
-		const { config, rq } = load(true);
+	it('arms no GC timer on the server, whatever gcTime a query asks for', async () => {
+		const { config, rq } = await load(true);
+		jest.useFakeTimers();
 		client = config.createQueryClientInstance();
 		const timersBefore = jest.getTimerCount();
 
@@ -73,8 +70,8 @@ describe('createQueryClientInstance', () => {
 		expect(jest.getTimerCount()).toBe(timersBefore);
 	});
 
-	it('keeps the other defaults and per-query options on the server', () => {
-		const { config } = load(true);
+	it('keeps the other defaults and per-query options on the server', async () => {
+		const { config } = await load(true);
 		client = config.createQueryClientInstance();
 
 		const options = client.defaultQueryOptions({ queryKey: ['x'] });
@@ -82,8 +79,9 @@ describe('createQueryClientInstance', () => {
 		expect(client.defaultQueryOptions({ queryKey: ['x'], staleTime: 7 }).staleTime).toBe(7);
 	});
 
-	it('keeps the 24-hour cache and per-query gcTime in the browser', () => {
-		const { config, rq } = load(false);
+	it('keeps the 24-hour cache and per-query gcTime in the browser', async () => {
+		const { config, rq } = await load(false);
+		jest.useFakeTimers();
 		client = config.createQueryClientInstance();
 		const timersBefore = jest.getTimerCount();
 

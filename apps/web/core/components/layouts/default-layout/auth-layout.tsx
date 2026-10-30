@@ -20,6 +20,7 @@ import {
 	PRIVACY_POLICY_LINK
 } from '@/core/constants/config/constants';
 import { cn } from '@/core/lib/helpers';
+import { ACCOUNT_DELETION_PATH } from '@/core/lib/auth/account-deletion';
 
 type Props = {
 	title?: string;
@@ -29,9 +30,25 @@ type Props = {
 	headerLinkText?: string;
 	/** Href for the top-right header link */
 	headerLinkHref?: string;
+	/** Footer link to the public account deletion request (/delete-account), for people who cannot sign in. */
+	showDeleteAccountLink?: boolean;
+	/**
+	 * Hides the language switcher. Switching navigates to another locale route, which remounts the page: the account
+	 * deletion confirm page would lose the e-mailed token it holds in memory (it is no longer in the address bar).
+	 */
+	hideLanguageSwitcher?: boolean;
 } & PropsWithChildren;
 
-export function AuthLayout({ children, title, description, isAuthPage = true, headerLinkText, headerLinkHref }: Props) {
+export function AuthLayout({
+	children,
+	title,
+	description,
+	isAuthPage = true,
+	headerLinkText,
+	headerLinkHref,
+	showDeleteAccountLink = false,
+	hideLanguageSwitcher = false
+}: Props) {
 	const t = useTranslations();
 
 	return (
@@ -159,12 +176,26 @@ export function AuthLayout({ children, title, description, isAuthPage = true, he
 							</p>
 						)}
 
+						{showDeleteAccountLink && (
+							<p className="text-xs text-center text-muted-foreground">
+								<Link
+									href={ACCOUNT_DELETION_PATH}
+									className="underline hover:text-foreground"
+									data-testid="auth-delete-account-link"
+								>
+									{t('pages.accountDeletion.DELETE_BY_EMAIL_LINK')}
+								</Link>
+							</p>
+						)}
+
 						{/* Language + Theme controls */}
 						<div className="flex gap-3 justify-center items-center">
-							<LanguageDropDownWithFlags
-								showFlag
-								btnClassName="bg-light--theme-dark dark:bg-card border-none max-w-28 text-xs"
-							/>
+							{!hideLanguageSwitcher && (
+								<LanguageDropDownWithFlags
+									showFlag
+									btnClassName="bg-light--theme-dark dark:bg-card border-none max-w-28 text-xs"
+								/>
+							)}
 							<ThemeToggler />
 						</div>
 					</footer>

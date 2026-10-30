@@ -33,7 +33,11 @@ export const queryKeys = {
 			all: ['users', 'operations'] as const,
 			delete: (userId: string | undefined | null) =>
 				['users', 'operations', 'delete', ...(userId ? [userId] : [])] as const,
-			reset: ['users', 'operations', 'reset'] as const
+			reset: ['users', 'operations', 'reset'] as const,
+			// Signed-in account deletion (Gauzy /account-deletion/me): its preview and the deletion itself
+			deletionPreview: (userId: string | undefined | null) =>
+				['users', 'operations', 'deletion-preview', ...(userId ? [userId] : [])] as const,
+			deleteMe: ['users', 'operations', 'delete-me'] as const
 		},
 		settings: {
 			all: ['users', 'settings'] as const,

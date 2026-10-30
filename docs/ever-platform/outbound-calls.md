@@ -52,6 +52,6 @@ The demo sign-in presets of a demo deployment (`NEXT_PUBLIC_DEMO=true`) are not 
 server publishes them to the page, from `NEXT_PUBLIC_DEMO_ACCOUNTS` or, unset, the accounts of the Gauzy
 demo seed.
 
-The web app also loads two third-party images by default, which the audit allows by name
-(`allowed_external_hosts`): country flags from `purecatamphetamine.github.io` (the phone number field) and
-placeholder images from `dummyimage.com`. Neither is an Ever service.
+The web app also loads one third-party image set by default, which the audit allows by name
+(`allowed_external_hosts`): country flags from `purecatamphetamine.github.io` (the phone number field). It is
+not an Ever service. Placeholder images come from the Gauzy API's own `/api/placeholder/<w>x<h>/<hex>` route.

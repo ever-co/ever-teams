@@ -14,19 +14,10 @@ jest.mock('@/core/services/server/fetch', () => ({
 	unwrapRejection: jest.requireActual('@/core/services/server/fetch').unwrapRejection
 }));
 
-// No top-level import in this file: keep it a module so its consts stay file-scoped.
-export {};
+// The module keeps no state between calls, so one import serves every test (jest.mock above is hoisted over it)
+import { createOrganizationTeamRequest } from './organization-team';
 
-type TeamRequests = typeof import('./organization-team');
 type Fetch = typeof import('../fetch');
-
-function load(): TeamRequests {
-	let mod: TeamRequests | undefined;
-	jest.isolateModules(() => {
-		mod = require('./organization-team');
-	});
-	return mod as TeamRequests;
-}
 
 const { unwrapRejection } = jest.requireActual<Fetch>('@/core/services/server/fetch');
 
@@ -75,7 +66,6 @@ afterEach(() => {
 describe('createOrganizationTeamRequest', () => {
 	it('creates the project, then the team with it', async () => {
 		primeFetch(() => Promise.resolve({ data: { id: 'team-1' } }));
-		const { createOrganizationTeamRequest } = load();
 
 		const { data } = await createOrganizationTeamRequest({ ...TEAM }, 'token-1');
 
@@ -89,7 +79,6 @@ describe('createOrganizationTeamRequest', () => {
 		'deletes its project when the API refuses the team (%i) and rethrows the rejection as it was',
 		async (statusCode) => {
 			primeFetch(() => apiAnswer({ statusCode, message: 'refused' }));
-			const { createOrganizationTeamRequest } = load();
 
 			const { error: thrown } = await thrownBy(createOrganizationTeamRequest({ ...TEAM }, 'token-1'));
 
@@ -110,7 +99,6 @@ describe('createOrganizationTeamRequest', () => {
 		['a 5xx (the team may exist)', () => apiAnswer({ statusCode: 502, message: 'Bad Gateway' })]
 	])('keeps the project after %s', async (_label, teamAnswer) => {
 		primeFetch(teamAnswer);
-		const { createOrganizationTeamRequest } = load();
 
 		await thrownBy(createOrganizationTeamRequest({ ...TEAM }, 'token-1'));
 		expect(deletes()).toHaveLength(0);
@@ -123,7 +111,6 @@ describe('createOrganizationTeamRequest', () => {
 				() => apiAnswer({ statusCode: 400, message: 'refused' }),
 				() => new Promise(() => undefined)
 			);
-			const { createOrganizationTeamRequest } = load();
 
 			const outcome = thrownBy(createOrganizationTeamRequest({ ...TEAM }, 'token-1'));
 			await jest.advanceTimersByTimeAsync(5_000);
@@ -142,7 +129,6 @@ describe('createOrganizationTeamRequest', () => {
 			() => apiAnswer({ statusCode: 400, message: 'refused' }),
 			() => apiAnswer({ statusCode: 500, message: 'delete failed' })
 		);
-		const { createOrganizationTeamRequest } = load();
 
 		const { error: thrown } = await thrownBy(createOrganizationTeamRequest({ ...TEAM }, 'token-1'));
 

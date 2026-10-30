@@ -1,0 +1,115 @@
+/**
+ * Proxy-mode signed-in account deletion (app/api/account-deletion/me): the caller's token and tenant from its cookies,
+ * Gauzy's status answered as it is.
+ */
+const mockGuard = jest.fn();
+jest.mock('../guards/authenticated-guard-app', () => ({ authenticatedGuard: (...args: unknown[]) => mockGuard(...args) }));
+jest.mock('../client-ip', () => ({ clientIpHeaders: jest.fn(async () => ({})) }));
+
+import { NextResponse } from 'next/server';
+import { GAUZY_API_SERVER_URL } from '@/core/constants/config/constants';
+import { proxyAccountDeletionMe } from './account-deletion-me';
+
+const fetchMock = jest.fn();
+const originalFetch = global.fetch;
+
+beforeAll(() => {
+	global.fetch = fetchMock as unknown as typeof fetch;
+});
+
+afterAll(() => {
+	global.fetch = originalFetch;
+});
+
+const signedIn = {
+	$res: (data: unknown) => NextResponse.json(data),
+	user: { id: 'user-1' },
+	access_token: 'access-token',
+	tenantId: 'tenant-1'
+};
+
+function request(method: 'GET' | 'POST', body?: unknown, headers: Record<string, string> = {}) {
+	return new Request('https://app.ever.team/api/account-deletion/me', {
+		method,
+		...(body
+			? { body: JSON.stringify(body), headers: { 'content-type': 'application/json', host: 'app.ever.team', ...headers } }
+			: { headers })
+	});
+}
+
+describe('proxyAccountDeletionMe', () => {
+	it('GET forwards the token and tenant and answers the preview', async () => {
+		mockGuard.mockResolvedValueOnce(signedIn);
+		const preview = { email: 'j***@example.com', expiresAt: '', accounts: [{ workspace: 'Acme', outcome: 'workspace-deleted' }] };
+		fetchMock.mockResolvedValueOnce(new Response(JSON.stringify(preview), { status: 200 }));
+
+		const res = await proxyAccountDeletionMe('GET', request('GET'));
+
+		expect(res.status).toBe(200);
+		await expect(res.json()).resolves.toEqual(preview);
+		const [url, init] = fetchMock.mock.calls[0];
+		expect(url).toBe(`${GAUZY_API_SERVER_URL}/account-deletion/me`);
+		expect(init.method).toBe('GET');
+		expect(init.body).toBeUndefined();
+		expect(init.headers.authorization).toBe('Bearer access-token');
+		expect(init.headers['tenant-id']).toBe('tenant-1');
+	});
+
+	it('POST sends { confirm: true, planHash } with the branding only, and passes a 403 through', async () => {
+		mockGuard.mockResolvedValueOnce(signedIn);
+		fetchMock.mockResolvedValueOnce(new Response(JSON.stringify({ message: 'Forbidden resource' }), { status: 403 }));
+
+		const res = await proxyAccountDeletionMe(
+			'POST',
+			request(
+				'POST',
+				{ planHash: 'plan-1', confirm: true, appName: 'Ever Teams', tenantId: 'not-forwarded' },
+				{ origin: 'https://app.ever.team', 'sec-fetch-site': 'same-origin' }
+			)
+		);
+
+		expect(res.status).toBe(403);
+		expect(JSON.parse(fetchMock.mock.calls[0][1].body)).toEqual({
+			confirm: true,
+			planHash: 'plan-1',
+			appName: 'Ever Teams'
+		});
+	});
+
+	it('answers the guard refusal without calling Gauzy for a caller without a session', async () => {
+		mockGuard.mockResolvedValueOnce({
+			$res: (message: unknown) => NextResponse.json({ statusCode: 401, message }, { status: 401 }),
+			user: null
+		});
+
+		const res = await proxyAccountDeletionMe('GET', request('GET'));
+
+		expect(res.status).toBe(401);
+		expect(fetchMock).not.toHaveBeenCalled();
+	});
+
+	it.each([
+		['a cross-site browser request', { confirm: true }, { 'sec-fetch-site': 'cross-site' }, 403],
+		['another Origin', { confirm: true }, { origin: 'https://evil.example' }, 403],
+		['a body without confirm: true', { planHash: 'plan-1' }, {}, 400]
+	])('refuses %s without calling the guard or Gauzy', async (_case, body, headers, status) => {
+		const res = await proxyAccountDeletionMe('POST', request('POST', body, headers));
+
+		expect(res.status).toBe(status);
+		expect(mockGuard).not.toHaveBeenCalled();
+		expect(fetchMock).not.toHaveBeenCalled();
+	});
+
+	it('refuses a POST that is not JSON (an HTML form) with 415', async () => {
+		const form = new Request('https://app.ever.team/api/account-deletion/me', {
+			method: 'POST',
+			headers: { 'content-type': 'application/x-www-form-urlencoded' },
+			body: 'confirm=true'
+		});
+
+		const res = await proxyAccountDeletionMe('POST', form);
+
+		expect(res.status).toBe(415);
+		expect(fetchMock).not.toHaveBeenCalled();
+	});
+});
