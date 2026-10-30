@@ -13,6 +13,7 @@ import { formatWithSuffix } from '@/core/lib/helpers';
 import { useLocalStorageState } from '@/core/hooks';
 import { IconsAlarmOutline, IconsCalendarMonthOutline } from '@/core/components/icons';
 import { APP_NAME } from '@/core/constants/config/constants';
+import { getPlaceholderImageUrl } from '@/core/lib/helpers/placeholder-image';
 
 // import { IOrganizationTeamList } from '@app/interfaces';
 
@@ -169,27 +170,27 @@ export const CardItems = ({ selectedDate }: { selectedDate: Date }) => {
 				</span>
 				<div className="flex flex-col px-2 w-full h-full">
 					<CardItemsProjects
-						logo="https://dummyimage.com/330x300/0ecc9D/ffffff.jpg&text=N"
+						logo={getPlaceholderImageUrl('330x300', '0ecc9D', 'N')}
 						title={`${APP_NAME} projects`}
 						totalHours="Total hours 52h"
 					/>
 					<CardItemsMember
-						imageUrl="https://dummyimage.com/330x300/0ecs9D/ffffff.jpg&text=E"
+						imageUrl={getPlaceholderImageUrl('330x300', '0ecc9D', 'E')}
 						name="Ruslan"
 						time="04:06h"
 					/>
 					<CardItemsMember
-						imageUrl="https://dummyimage.com/330x300/0ecc8D/ffffff.jpg&text=R"
+						imageUrl={getPlaceholderImageUrl('330x300', '0ecc8D', 'R')}
 						name="Ruslan"
 						time="04:06h"
 					/>
 					<CardItemsProjects
-						logo="https://dummyimage.com/330x300/f97316/ffffff.jpg&text=G"
+						logo={getPlaceholderImageUrl('330x300', 'f97316', 'G')}
 						title="Ever Gauzy projects"
 						totalHours="Total hours 53h"
 					/>
 					<CardItemsMember
-						imageUrl="https://dummyimage.com/330x300/0ecs9D/ffffff.jpg&text=K"
+						imageUrl={getPlaceholderImageUrl('330x300', '0ecc9D', 'K')}
 						name="Ruslan"
 						time="04:06h"
 					/>
