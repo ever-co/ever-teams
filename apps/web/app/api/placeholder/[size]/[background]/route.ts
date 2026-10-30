@@ -1,4 +1,5 @@
 import { GAUZY_API_SERVER_ORIGIN } from '@/core/constants/config/constants';
+import { proxyGauzyImage } from '@/core/lib/helpers/proxy-gauzy-image';
 import { NextResponse } from 'next/server';
 
 /**
@@ -26,26 +27,9 @@ export async function GET(
 	if (!SIZE.test(size) || !BACKGROUND.test(background) || !TEXT.test(text)) return notFound();
 
 	const query = text ? `?text=${text}` : '';
-	const upstream = `${GAUZY_API_SERVER_ORIGIN}/api/placeholder/${size}/${background}${query}`;
-	if (!/^https?:\/\//i.test(upstream)) {
-		console.error(`[WEB][API] placeholder: the configured API origin is not http(s): ${upstream}`);
-		return new NextResponse(null, { status: 500 });
-	}
-
-	const response = await fetch(upstream, { headers: { Accept: 'image/png' } }).catch((error) => {
-		console.error(`[WEB][API] placeholder: ${upstream} is unreachable`, error);
-		return undefined;
-	});
-
-	const contentType = response?.headers.get('content-type') ?? '';
-	if (!response?.ok || !contentType.startsWith('image/')) return notFound();
-
-	return new NextResponse(response.body, {
-		status: 200,
-		headers: {
-			'Content-Type': contentType,
-			'Cache-Control': 'public, max-age=3600, stale-while-revalidate=86400',
-			'X-Content-Type-Options': 'nosniff'
-		}
-	});
+	return proxyGauzyImage(
+		'placeholder',
+		`${GAUZY_API_SERVER_ORIGIN}/api/placeholder/${size}/${background}${query}`,
+		'image/png'
+	);
 }
