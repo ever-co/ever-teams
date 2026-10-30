@@ -15,6 +15,9 @@ services:
       # Origins the API may put in sign-in, invite and verification e-mail links besides CLIENT_BASE_URL: the
       # Ever Teams web app of this stack (published on 3030)
       EMAIL_LINK_ALLOWED_ORIGINS: ${EMAIL_LINK_ALLOWED_ORIGINS:-http://localhost:3030}
+      # Prints sign-in codes and e-mail links on this API's console, so the stack works without a mail server. The API
+      # honours it only with NODE_ENV=development and both base URLs on localhost; set it to false to turn it off
+      PRINT_EMAIL_CODES: ${PRINT_EMAIL_CODES:-true}
       CLOUD_PROVIDER: ${CLOUD_PROVIDER:-}
       SENTRY_DSN: ${SENTRY_DSN:-}
       SENTRY_HTTP_TRACING_ENABLED: ${SENTRY_HTTP_TRACING_ENABLED:-}
