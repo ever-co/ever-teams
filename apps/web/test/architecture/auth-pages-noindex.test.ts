@@ -73,7 +73,7 @@ describe('auth pages are noindex, follow', () => {
 
 	// The account deletion pages (#4876) are public, carry a token in the URL fragment and are not content, so their
 	// layout declares its own robots { index: false, follow: false } on purpose: that is the one other allowed place.
-	it('does not spread robots or googleBot metadata to any route outside /[locale]/auth and the account deletion pages', () => {
+	it('does not spread robots or googleBot metadata to any route outside /[locale]/auth', () => {
 		const files = listSourceFiles(APP_DIR);
 		// Control: the pattern finds the declarations that are supposed to exist.
 		expect(files.filter((file) => /\b(robots|googleBot)\s*:/.test(readFileSync(file, 'utf8')))).toEqual([
