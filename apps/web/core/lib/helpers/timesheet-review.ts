@@ -33,13 +33,11 @@ export function canApproveAnyTimesheet(permissions: readonly string[]): boolean 
 
 /**
  * Whether the API runs its team manager check for a user without CAN_APPROVE_TIMESHEET. The status route lets a
- * team manager in through TIME_TRACKER, and the check reads no employee for a CHANGE_SELECTED_EMPLOYEE holder, so
- * it refuses them.
+ * team manager in through TIME_TRACKER. The check reads the caller's own employee from their user, so a team
+ * manager who also holds CHANGE_SELECTED_EMPLOYEE goes through it as well: that permission grants no approval.
  */
 function reachesTeamManagerCheck(permissions: readonly string[]): boolean {
-	const reachesStatusRoute = permissions.includes('TIME_TRACKER');
-	const actsForAnyEmployee = permissions.includes('CHANGE_SELECTED_EMPLOYEE');
-	return reachesStatusRoute && !actsForAnyEmployee;
+	return permissions.includes('TIME_TRACKER');
 }
 
 /** Whether the membership is the employee's and still in effect. The API counts a missing flag as in effect. */

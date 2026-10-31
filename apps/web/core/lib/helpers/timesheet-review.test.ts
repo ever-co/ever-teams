@@ -109,12 +109,23 @@ describe('getAllowedTimesheetStatuses', () => {
 
 	it('gives nothing to a team manager the API refuses before its team check', () => {
 		const withoutTimeTracker = teamManager({ permissions: [] });
-		const actsForAnyEmployee = teamManager({ permissions: ['TIME_TRACKER', 'CHANGE_SELECTED_EMPLOYEE'] });
 		const withoutEmployee = teamManager({ employeeId: null });
 
-		for (const reviewer of [withoutTimeTracker, actsForAnyEmployee, withoutEmployee]) {
+		for (const reviewer of [withoutTimeTracker, withoutEmployee]) {
 			const statuses = statusesFor(reviewer, MEMBER_ID);
 			expect(statuses).toEqual([]);
 		}
+	});
+
+	it('runs the team check for a team manager who also holds CHANGE_SELECTED_EMPLOYEE, as the API does', () => {
+		const actsForAnyEmployee = teamManager({ permissions: ['TIME_TRACKER', 'CHANGE_SELECTED_EMPLOYEE'] });
+
+		const memberStatuses = statusesFor(actsForAnyEmployee, MEMBER_ID);
+		const ownStatuses = statusesFor(actsForAnyEmployee, MANAGER_ID);
+		const outsiderStatuses = statusesFor(actsForAnyEmployee, OUTSIDER_ID);
+
+		expect(memberStatuses).toEqual(TEAM_MANAGER_STATUSES);
+		expect(ownStatuses).toEqual([]);
+		expect(outsiderStatuses).toEqual([]);
 	});
 });
