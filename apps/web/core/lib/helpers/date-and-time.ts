@@ -170,8 +170,16 @@ export const calculateRemainingDays = (startDate: string, endDate: string): numb
 	return moment(endDate).diff(startDate, 'days');
 };
 
+/**
+ * @public Kept for code outside the app that still imports it; the app itself uses getTomorrowDate().
+ * @deprecated Fixed when the module loads, so it is stale after midnight: use getTomorrowDate().
+ */
 export const tomorrowDate = moment().add(1, 'days').toDate();
 
+/**
+ * @public Kept for code outside the app that still imports it; the app itself uses getYesterdayDate().
+ * @deprecated Fixed when the module loads, so it is stale after midnight: use getYesterdayDate().
+ */
 export const yesterdayDate = moment().subtract(1, 'days').toDate();
 
 // tomorrowDate and yesterdayDate are fixed when the module loads, these follow the current day
