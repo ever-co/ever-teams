@@ -81,4 +81,16 @@ describe('getAppliedTeamsReportProps', () => {
 
 		expect(queryKeyAfterArchive).not.toEqual(queryKey);
 	});
+
+	it('keeps the report query key when the applied team lists its members in another order', () => {
+		const team = buildTeam([{ employeeId: 'member-b' }, { employeeId: 'member-a' }]);
+		const teamInOtherOrder = buildTeam([{ employeeId: 'member-a' }, { employeeId: 'member-b' }]);
+
+		const reportProps = getAppliedTeamsReportProps(mergedProps, [team], false);
+		const reportPropsInOtherOrder = getAppliedTeamsReportProps(mergedProps, [teamInOtherOrder], false);
+		const queryKey = getActivityQueryKeyParams(reportProps);
+		const queryKeyInOtherOrder = getActivityQueryKeyParams(reportPropsInOtherOrder);
+
+		expect(queryKeyInOtherOrder).toEqual(queryKey);
+	});
 });

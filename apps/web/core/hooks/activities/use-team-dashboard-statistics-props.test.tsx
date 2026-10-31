@@ -228,6 +228,24 @@ describe('useTeamDashboardStatisticsProps', () => {
 		expect(queryKeyInOtherOrder).toEqual(queryKey);
 	});
 
+	it('keeps the chart and daily report key when a team lists its members in another order', () => {
+		const team = buildTeam([{ employeeId: 'member-b' }, { employeeId: 'manager' }, { employeeId: 'member-a' }]);
+		// The next poll of the team list returns the same members in another order
+		const teamInOtherOrder = buildTeam([
+			{ employeeId: 'member-a' },
+			{ employeeId: 'member-b' },
+			{ employeeId: 'manager' }
+		]);
+
+		const listed = renderProps(team, mergedProps);
+		const listedInOtherOrder = renderProps(teamInOtherOrder, mergedProps);
+
+		const queryKey = getActivityQueryKeyParams(listed.reportProps);
+		const queryKeyInOtherOrder = getActivityQueryKeyParams(listedInOtherOrder.reportProps);
+
+		expect(queryKeyInOtherOrder).toEqual(queryKey);
+	});
+
 	it('keeps the chart and daily report key when a member of the page team picks a team they manage', () => {
 		const team = buildTeam(buildActiveMembers(3));
 		const managedTeam = {

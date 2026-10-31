@@ -99,14 +99,20 @@ export function managesEveryTeam(managedTeams: TOrganizationTeam[], teamIds: str
 	return teamIds.every((teamId) => managedTeamIds.has(teamId));
 }
 
-/** The props keyed on the members resolved for them. With no member resolved they are returned as they are. */
+/**
+ * The props keyed on the members resolved for them. With no member resolved they are returned as they are.
+ * The key holds the members in sorted order: the API does not fix the order of a team's members, so the same
+ * members listed in another order by the next poll of the teams keep the key and its cached report.
+ */
 export function withResolvedMemberIds(
 	props: Required<UseReportActivityProps>,
 	memberIds: string[]
 ): Required<UseReportActivityProps> {
 	if (!memberIds.length) return props;
 
-	return { ...props, resolvedMemberIds: memberIds };
+	const sortedMemberIds = [...memberIds].sort();
+
+	return { ...props, resolvedMemberIds: sortedMemberIds };
 }
 
 /**
