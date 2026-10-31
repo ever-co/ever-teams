@@ -60,7 +60,8 @@ const baseTaskSchema = z
 			.optional()
 			.nullable(),
 		size: z.nativeEnum(ETaskSize).optional().nullable(),
-		issueType: z.nativeEnum(EIssueType).optional().nullable(),
+		// Issue types are per-organization rows in Gauzy too: a task can hold Memo or a custom type.
+		issueType: z.nativeEnum(EIssueType).or(z.string()).optional().nullable(),
 		startDate: z.coerce.date().optional().nullable(),
 		resolvedAt: z.coerce.date().optional().nullable(),
 		dueDate: z.coerce.date().optional().nullable(),

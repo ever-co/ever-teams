@@ -53,6 +53,24 @@ export const taskIssues: TStatus<EIssueType> = {
 	}
 };
 
+const standardIssueTypes: string[] = Object.values(EIssueType);
+
+/** Only Bug, Task, Story and Epic have an icon, a color and transition rules here; Memo and custom types do not. */
+function isStandardIssueType(issueType: Nullable<string>): issueType is EIssueType {
+	if (!issueType) {
+		return false;
+	}
+	return standardIssueTypes.includes(issueType);
+}
+
+/** A task without an issue type, or with a custom one, shows like a Task. */
+function getTaskIssue(issueType: Nullable<string>): TStatusItem {
+	if (isStandardIssueType(issueType)) {
+		return taskIssues[issueType];
+	}
+	return taskIssues[EIssueType.TASK];
+}
+
 /**
  * It's a dropdown that allows you to select an issue from a list of issues, and it also allows you to
  * create a new issue
@@ -228,9 +246,17 @@ export function ActiveTaskIssuesDropdown({ ...props }: IActiveTaskStatuses<'issu
 	);
 
 	const updatedItemsBasedOnTaskIssueType = useMemo(() => {
+		// A custom issue type has no transition rules: like a task without a type, it can take any type.
+		const getValidTransitions = (issueType: string): TStatusItem[] => {
+			if (isStandardIssueType(issueType)) {
+				return validTransitions[issueType];
+			}
+			return items;
+		};
+
 		let updatedItemsBasedOnTaskIssueType: TStatusItem[] = [];
 		if (props.task && props.task?.issueType && props.task.parent) {
-			updatedItemsBasedOnTaskIssueType = validTransitions[props.task?.issueType];
+			updatedItemsBasedOnTaskIssueType = getValidTransitions(props.task?.issueType);
 
 			// If parent task is already Story then user can not assign current task as a Story
 			if (props.task.parent.issueType === EIssueType.STORY) {
@@ -239,7 +265,7 @@ export function ActiveTaskIssuesDropdown({ ...props }: IActiveTaskStatuses<'issu
 				);
 			}
 		} else if (props.task && props.task?.issueType) {
-			updatedItemsBasedOnTaskIssueType = validTransitions[props.task?.issueType];
+			updatedItemsBasedOnTaskIssueType = getValidTransitions(props.task?.issueType);
 		} else {
 			// Default show types in Dropdown
 			updatedItemsBasedOnTaskIssueType = items;
@@ -280,7 +306,7 @@ export function TaskIssueStatus({
 }: { task: Nullable<TTask>; showIssueLabels?: boolean } & IClassName) {
 	return (
 		<TaskStatus
-			{...taskIssues[task?.issueType || EIssueType.TASK]}
+			{...getTaskIssue(task?.issueType)}
 			showIssueLabels={showIssueLabels}
 			issueType="issue"
 			className={clsxm('px-2 text-white rounded-md', className)}

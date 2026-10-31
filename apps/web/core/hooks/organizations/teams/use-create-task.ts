@@ -9,7 +9,7 @@ import { toast } from 'sonner';
 import { useInvalidateTeamTasks } from './use-invalidate-team-tasks';
 
 import { TEmployee, TTag } from '@/core/types/schemas';
-import { EIssueType, ETaskPriority, ETaskSize } from '@/core/types/generics/enums/task';
+import { ETaskPriority, ETaskSize } from '@/core/types/generics/enums/task';
 import { useTaskStatusesQuery } from '../../tasks/use-task-statuses-query';
 
 /**
@@ -75,7 +75,7 @@ export function useCreateTask() {
 			members
 		}: {
 			title: string;
-			issueType?: EIssueType | null;
+			issueType?: string | null;
 			status?: string | null;
 			taskStatusId: string;
 			priority?: ETaskPriority | null;
