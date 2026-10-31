@@ -48,7 +48,7 @@ export interface UseTeamDashboardStatisticsPropsOptions {
 	routeTeamId?: string;
 }
 
-export interface TeamDashboardRequestProps {
+interface TeamDashboardRequestProps {
 	/** Props of the counts request */
 	statisticsProps: Required<UseReportActivityProps> | null;
 	/** Props of the chart and the daily report, which also feeds the member table and its export */
