@@ -90,8 +90,6 @@ export function validateForm<T extends Ks>(keys: (keyof T)[], data: T) {
 export function validSMTPConfig() {
 	const SMTPConfig = smtpConfiguration();
 
-	console.log(`SMTP Config: ${JSON.stringify(SMTPConfig)}`);
-
 	const keys = Object.keys(SMTPConfig) as (keyof I_SMTPRequest)[];
 
 	if (keys.some((key) => SMTPConfig[key] === null || SMTPConfig[key] === undefined)) {
