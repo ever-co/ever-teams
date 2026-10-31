@@ -8,7 +8,7 @@ export async function GET(req: Request) {
 	if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: status ?? 401 });
 
 	const { searchParams } = new URL(req.url);
-	const { name } = searchParams as unknown as { name: string };
+	const name = searchParams.get('name') || undefined;
 
 	const response = await getIntegrationTenantRequest(
 		{
