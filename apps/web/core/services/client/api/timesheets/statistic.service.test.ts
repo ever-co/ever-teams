@@ -1,7 +1,8 @@
-import moment from 'moment-timezone';
-import { ETimeLogType } from '@/core/types/generics/enums/timer';
-import type { ITimeLogReportDailyRequest } from '@/core/types/interfaces/activity/activity-report';
-import { statisticsService } from './statistic.service';
+// apps/web/.env sets NEXT_PUBLIC_GAUZY_API_SERVER_URL, which would otherwise decide the API mode of every case.
+jest.mock('@/core/constants/config/constants', () => ({
+	...jest.requireActual('@/core/constants/config/constants'),
+	GAUZY_API_BASE_SERVER_URL: { value: undefined }
+}));
 
 jest.mock('@/core/lib/helpers/cookies', () => ({
 	getAccessTokenCookie: () => null,
@@ -9,6 +10,64 @@ jest.mock('@/core/lib/helpers/cookies', () => ({
 	getOrganizationIdCookie: () => 'cookie-organization',
 	getTenantIdCookie: () => 'cookie-tenant'
 }));
+
+import moment from 'moment-timezone';
+import { GAUZY_API_BASE_SERVER_URL } from '@/core/constants/config/constants';
+import { ETimeLogType } from '@/core/types/generics/enums/timer';
+import type { ITimeLogReportDailyRequest } from '@/core/types/interfaces/activity/activity-report';
+import { statisticsService } from './statistic.service';
+
+function axiosResponse<T>(data: T) {
+	return { config: {}, data, headers: {}, status: 200, statusText: 'OK' };
+}
+
+/**
+ * Regression for #4791: in direct API mode the time slots query carried the day only as todayStart and
+ * todayEnd, which Gauzy's GET /timesheet/statistics/time-slots does not read, so Gauzy returned the whole
+ * week and the Screenshots tab and Activity for Today showed earlier days.
+ */
+const publishedApiOrigin = GAUZY_API_BASE_SERVER_URL as { value: string | undefined };
+const TODAY_START = '2026-10-25T00:00:00.000Z';
+const TODAY_END = '2026-10-25T23:59:59.999Z';
+
+async function requestTodaySlots(): Promise<URL> {
+	const get = jest.spyOn(statisticsService, 'get').mockResolvedValue(axiosResponse([]) as never);
+	await statisticsService.getTimeSlotsStatistics({
+		employeeId: 'employee-1',
+		todayStart: new Date(TODAY_START),
+		todayEnd: new Date(TODAY_END)
+	});
+	const [url] = get.mock.calls[0];
+	return new URL(url, 'https://client.test');
+}
+
+describe('StatisticsService.getTimeSlotsStatistics day range', () => {
+	beforeEach(() => {
+		publishedApiOrigin.value = undefined;
+	});
+
+	afterEach(() => jest.restoreAllMocks());
+
+	it('sends the day as startDate and endDate to the Gauzy time-slots route in direct mode', async () => {
+		publishedApiOrigin.value = 'https://api.selfhost.example';
+
+		const requested = await requestTodaySlots();
+		const query = requested.searchParams;
+
+		expect(requested.pathname).toBe('/timesheet/statistics/time-slots');
+		expect(query.get('startDate')).toBe(TODAY_START);
+		expect(query.get('endDate')).toBe(TODAY_END);
+	});
+
+	it('keeps todayStart and todayEnd for the /timer/slot proxy route', async () => {
+		const requested = await requestTodaySlots();
+		const query = requested.searchParams;
+
+		expect(requested.pathname).toBe('/timer/slot');
+		expect(query.get('todayStart')).toBe(TODAY_START);
+		expect(query.get('todayEnd')).toBe(TODAY_END);
+	});
+});
 
 type CountsRange = Pick<ITimeLogReportDailyRequest, 'startDate' | 'endDate'>;
 
@@ -20,10 +79,6 @@ const countsRequest: ITimeLogReportDailyRequest = {
 	logType: [ETimeLogType.TRACKED],
 	activityLevel: { start: 0, end: 100 }
 };
-
-function axiosResponse<T>(data: T) {
-	return { config: {}, data, headers: {}, status: 200, statusText: 'OK' };
-}
 
 async function sendCounts(range: CountsRange) {
 	const response = axiosResponse({});
