@@ -52,6 +52,7 @@ export const addManualTimeRequestSchema = z.object({
 	projectId: z.string().optional(),
 	taskId: z.string().optional(),
 	organizationContactId: z.string().optional(),
+	organizationTeamId: z.string().optional(),
 	description: z.string().optional(),
 	reason: z.string().optional(),
 	startedAt: z.date(),
