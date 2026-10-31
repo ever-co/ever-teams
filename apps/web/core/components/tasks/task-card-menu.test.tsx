@@ -205,7 +205,7 @@ describe('TaskCardMenu plan entries on a profile', () => {
 		renderMenu({ viewType: 'dailyplan', planMode: 'Today Tasks', plan });
 
 		expect(isShown('dailyPlan.REMOVE_FROM_THIS_PLAN')).toBe(true);
-		expect(isShown('Remove from all plans')).toBe(true);
+		expect(isShown('dailyPlan.labels.REMOVE_FROM_ALL_PLANS')).toBe(true);
 	});
 
 	it("refreshes the teammate's plans when the menu opens", () => {

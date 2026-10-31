@@ -157,7 +157,7 @@ describe('CreateDailyPlanFormModal across midnight', () => {
 		pickDay(new Date(2026, 9, 14));
 
 		setClock(new Date(2026, 9, 15, 0, 10));
-		fireEvent.click(screen.getByText('Select & close'));
+		fireEvent.click(screen.getByText('common.SELECT_AND_CLOSE'));
 
 		await waitFor(() => expect(selectedDay()).toBe('2026-10-16'));
 		expect(mockCloseModal).not.toHaveBeenCalled();
@@ -168,7 +168,7 @@ describe('CreateDailyPlanFormModal across midnight', () => {
 		setClock(new Date(2026, 9, 14, 10, 0));
 		render(planForm(true));
 
-		fireEvent.click(screen.getByText('Select & close'));
+		fireEvent.click(screen.getByText('common.SELECT_AND_CLOSE'));
 
 		expect(mockCloseModal).toHaveBeenCalledTimes(1);
 		await waitFor(() => expect(mockCreateDailyPlan).toHaveBeenCalledTimes(1));

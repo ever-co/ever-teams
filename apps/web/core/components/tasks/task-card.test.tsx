@@ -41,7 +41,8 @@ jest.mock('@/core/stores', () => ({
 	timerSecondsState: 'timer-seconds'
 }));
 jest.mock('@/core/hooks', () => ({
-	useCanSeeActivityScreen: () => false,
+	// The viewer manages the active team, so the menu offers the plan entries for a teammate
+	useCanSeeActivityScreen: () => true,
 	useModal: () => ({ isOpen: false, openModal: jest.fn(), closeModal: jest.fn() }),
 	useTMCardTaskEdit: () => ({}),
 	useMemberIdentity: () => ({}),
@@ -51,6 +52,18 @@ jest.mock('@/core/hooks', () => ({
 }));
 jest.mock('@/core/hooks/daily-plans/use-my-daily-plans', () => ({
 	useMyDailyPlans: () => ({ myTodayPlan: [], myFuturePlans: [], ensureMyDailyPlans: jest.fn(), isLoading: false })
+}));
+// On a teammate's profile the menu reads the teammate's plans
+jest.mock('@/core/hooks/daily-plans/use-employee-daily-plans', () => ({
+	useEmployeeDailyPlans: () => ({
+		employeeTodayPlan: [],
+		employeeFuturePlans: [],
+		ensureEmployeeDailyPlans: jest.fn(),
+		isLoading: false
+	})
+}));
+jest.mock('@/core/hooks/roles/use-my-role-permissions-query', () => ({
+	useMyRolePermissionsQuery: () => ({ myPermissions: [] })
 }));
 jest.mock('@/core/hooks/daily-plans/use-create-daily-plan', () => ({
 	useCreateDailyPlan: () => ({ createDailyPlan: mockCreateDailyPlan, createDailyPlanLoading: false })
