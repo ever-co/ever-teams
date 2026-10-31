@@ -200,6 +200,8 @@ const ko: Translations = {
 			taskPriorities: 'Task Priorities',
 			taskSizes: 'Task Sizes',
 			taskLabel: 'Task Label',
+			taskSettingsReadOnly:
+				'팀 매니저와 관리자만 작업 설정을 변경할 수 있습니다. 모든 팀이 공유하는 기본값은 관리자만 변경할 수 있습니다.',
 			changeLogo: 'Change Logo',
 			teamRole: 'Manager Member & Role',
 			workSchedule: 'Work Schedule',

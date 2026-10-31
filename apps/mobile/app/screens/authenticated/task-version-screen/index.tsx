@@ -1,4 +1,5 @@
 import React, { FC, useRef, useState, useMemo, useCallback, useEffect } from 'react';
+import { observer } from 'mobx-react-lite';
 import {
   View,
   Text,
@@ -19,6 +20,8 @@ import { translate } from '../../../i18n';
 import { typography, useAppTheme } from '../../../theme';
 import BottomSheet, { BottomSheetBackdrop, BottomSheetScrollView } from '@gorhom/bottom-sheet';
 import { useTaskVersion } from '../../../services/hooks/features/use-task-version';
+import { useTaskSettingsAccess } from '../../../services/hooks/features/use-task-settings-access';
+import { readOnlyOpacity } from '../../../helpers/read-only-opacity';
 import { ITaskVersionItemList } from '../../../services/interfaces/ITaskVersion';
 import { BlurView } from 'expo-blur';
 import VersionItem from './components/version-item';
@@ -33,7 +36,7 @@ type TaskVersionRouteParams = {
 // Properly type the route object
 type TaskVersionRouteProp = RouteProp<{ TaskVersion: TaskVersionRouteParams }, 'TaskVersion'>;
 
-export const TaskVersionScreen: FC<AuthenticatedDrawerScreenProps<'TaskVersion'>> = function AuthenticatedDrawerScreen(
+export const TaskVersionScreen: FC<AuthenticatedDrawerScreenProps<'TaskVersion'>> = observer(function AuthenticatedDrawerScreen(
   _props
 ) {
   const { colors, dark } = useAppTheme();
@@ -47,6 +50,14 @@ export const TaskVersionScreen: FC<AuthenticatedDrawerScreenProps<'TaskVersion'>
   const previousTab = route.params?.previousTab || 2 as const;
 
   const { isLoading, versions, deleteTaskVersion, updateTaskVersion, createTaskVersion } = useTaskVersion();
+  // A version edit also names the active team: this list only holds that team's versions and the shared defaults,
+  // so the row's own team decides, as for the other edits
+  const { canCreate, canWriteRow, readOnlyHint } = useTaskSettingsAccess();
+  const createReadOnly = !canCreate;
+  const createOpacity = readOnlyOpacity(createReadOnly);
+  const versionItems = versions?.items ?? [];
+  const hasReadOnlyVersion = versionItems.some((version) => !canWriteRow(version));
+  const showsReadOnlyHint = createReadOnly || hasReadOnlyVersion;
 
   const [editMode, setEditMode] = useState(false);
   const [itemToEdit, setItemToEdit] = useState<ITaskVersionItemList | null>(null);
@@ -174,10 +185,12 @@ export const TaskVersionScreen: FC<AuthenticatedDrawerScreenProps<'TaskVersion'>
             <TouchableOpacity
               accessibilityLabel={translate('settingScreen.versionScreen.createNewVersionButton')}
               accessibilityRole="button"
+              disabled={createReadOnly}
               style={{
                 ...styles.createButtonSmall,
                 borderColor: dark ? '#6755C9' : '#3826A6',
-                backgroundColor: dark ? 'rgba(103, 85, 201, 0.15)' : 'rgba(56, 38, 166, 0.15)'
+                backgroundColor: dark ? 'rgba(103, 85, 201, 0.15)' : 'rgba(56, 38, 166, 0.15)',
+                opacity: createOpacity
               }}
               onPress={handleCreateNew}
             >
@@ -187,6 +200,9 @@ export const TaskVersionScreen: FC<AuthenticatedDrawerScreenProps<'TaskVersion'>
               </Text>
             </TouchableOpacity>
           </View>
+          {showsReadOnlyHint && (
+            <Text style={{ ...styles.readOnlyHint, color: colors.tertiary }}>{readOnlyHint}</Text>
+          )}
 
           <View
             style={{
@@ -211,6 +227,7 @@ export const TaskVersionScreen: FC<AuthenticatedDrawerScreenProps<'TaskVersion'>
                   openForEdit={() => openForEdit(item)}
                   onDeleteTask={() => deleteTaskVersion(item.id)}
                   version={item}
+                  readOnly={!canWriteRow(item)}
                 />
               )}
               keyExtractor={(_, index) => index.toString()}
@@ -222,10 +239,12 @@ export const TaskVersionScreen: FC<AuthenticatedDrawerScreenProps<'TaskVersion'>
         <TouchableOpacity
           accessibilityLabel={translate('settingScreen.versionScreen.createNewVersionButton')}
           accessibilityRole="button"
+          disabled={createReadOnly}
           style={{
             ...styles.createButton,
             borderColor: dark ? '#6755C9' : '#3826A6',
-            backgroundColor: dark ? 'rgba(103, 85, 201, 0.05)' : 'rgba(56, 38, 166, 0.05)'
+            backgroundColor: dark ? 'rgba(103, 85, 201, 0.05)' : 'rgba(56, 38, 166, 0.05)',
+            opacity: createOpacity
           }}
           onPress={handleCreateNew}
         >
@@ -315,7 +334,7 @@ export const TaskVersionScreen: FC<AuthenticatedDrawerScreenProps<'TaskVersion'>
       )}
     </Screen>
   );
-};
+});
 
 const $container: ViewStyle = {
   flex: 1
@@ -389,6 +408,11 @@ const styles = StyleSheet.create({
     color: '#7E7991',
     fontFamily: typography.primary.semiBold,
     fontSize: 16
+  },
+  readOnlyHint: {
+    fontFamily: typography.primary.medium,
+    fontSize: 14,
+    marginBottom: 12
   },
   title: {
     alignSelf: 'center',

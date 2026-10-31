@@ -79,6 +79,16 @@
       "source": "router"
     },
     {
+      "path": "/:locale/delete-account",
+      "file": "apps/web/app/[locale]/delete-account/page.tsx",
+      "source": "router"
+    },
+    {
+      "path": "/:locale/delete-account/confirm",
+      "file": "apps/web/app/[locale]/delete-account/confirm/page.tsx",
+      "source": "router"
+    },
+    {
       "path": "/:locale/integration/github",
       "file": "apps/web/app/[locale]/(main)/integration/github/page.tsx",
       "source": "router"

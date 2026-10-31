@@ -9,7 +9,7 @@ import {
 } from '@/core/components/common/dropdown-menu';
 import { SelectContent } from '@/core/components/common/select';
 import { ConfirmStatusChange, statusOptions } from '../../integration/calendar';
-import { useModal, useMyRolePermissionsQuery, useTimelogFilterOptions } from '@/core/hooks';
+import { useModal, useTimelogFilterOptions } from '@/core/hooks';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/core/components/common/accordion';
 import { clsxm } from '@/core/lib/utils';
 import { AlertConfirmationModal, statusColor } from '@/core/components';
@@ -30,6 +30,7 @@ import type { GroupedTimesheet } from '@/core/lib/helpers/timesheet-grouping';
 import { getStatusTimesheet, groupedByTimesheetIds } from '@/core/lib/helpers/timesheet-grouping';
 import { useDeleteTimesheet } from '@/core/hooks/timesheet/use-delete-timesheet';
 import { useUpdateTimesheet } from '@/core/hooks/timesheet/use-update-timesheet';
+import { useTimesheetReview } from '@/core/hooks/timesheet/use-timesheet-review';
 import {
 	DisplayTimeForTimesheet,
 	TaskNameInfoDisplay,
@@ -85,8 +86,9 @@ export function DataTableTimeSheet({ data, user }: { data?: GroupedTimesheet[]; 
 		isUserAllowedToAccess
 	} = useTimelogFilterOptions();
 	const isManage = isUserAllowedToAccess(user);
-	// isManage also covers MANAGER, but approve and reject call PUT /timesheet/status, which requires this permission
-	const canUpdateTimeSheetStatus = useMyRolePermissionsQuery().myPermissions.includes('CAN_APPROVE_TIMESHEET');
+	// isManage also covers MANAGER, but approve and reject call PUT /timesheet/status, which takes them from an
+	// approver, or from a manager of a team of every member whose timesheet they move
+	const { canApproveAnyTimesheet, canApproveAndReject } = useTimesheetReview();
 	const handleConfirm = () => {
 		try {
 			deleteTaskTimesheet({
@@ -207,6 +209,14 @@ export function DataTableTimeSheet({ data, user }: { data?: GroupedTimesheet[]; 
 									const groupedByTimesheetId = groupedByTimesheetIds({ rows });
 
 									return Object.entries(groupedByTimesheetId).map(([timesheetId, timesheetRows]) => {
+										// The buttons act on the whole selection, so its timesheets are checked too
+										const reviewedLogs = [...timesheetRows, ...selectTimesheetId];
+										const canUpdateTimeSheetStatus = canApproveAndReject(reviewedLogs);
+										// The managing roles keep their buttons, and a team manager
+										// outside them gets approve and reject only
+										const reviewsAsTeamManager =
+											canUpdateTimeSheetStatus && !canApproveAnyTimesheet;
+										const showsGroupButtons = isManage || reviewsAsTeamManager;
 										return (
 											timesheetRows.length > 0 &&
 											status && (
@@ -258,13 +268,14 @@ export function DataTableTimeSheet({ data, user }: { data?: GroupedTimesheet[]; 
 																	'flex gap-2 items-center capitalize p-x-1'
 																)}
 															>
-																{isManage &&
+																{showsGroupButtons &&
 																	getTimesheetButtons(
 																		status as StatusType,
 																		t,
 																		selectTimesheetId.length === 0,
 																		handleButtonClick,
-																		canUpdateTimeSheetStatus
+																		canUpdateTimeSheetStatus,
+																		isManage
 																	)}
 															</div>
 														</div>
@@ -563,11 +574,11 @@ export const StatusTask = ({ timeLog, onReject }: { timeLog: ITimeLog; onReject:
 			});
 	};
 
-	const { myPermissions } = useMyRolePermissionsQuery();
-	const canUpdateTimeSheetStatus = React.useMemo(
-		() => (myPermissions ?? []).includes('CAN_APPROVE_TIMESHEET'),
-		[myPermissions]
-	);
+	// An approver may set any status, a manager of a team of the member only approved or denied
+	const { getAllowedStatuses } = useTimesheetReview();
+	const allowedStatuses = getAllowedStatuses([timeLog]);
+	const statusChoices = statusTable.filter((status) => allowedStatuses.includes(status.label));
+	const canUpdateTimeSheetStatus = statusChoices.length > 0;
 	return (
 		<>
 			{canUpdateTimeSheetStatus ? (
@@ -577,7 +588,7 @@ export const StatusTask = ({ timeLog, onReject }: { timeLog: ITimeLog; onReject:
 					</DropdownMenuSubTrigger>
 					<DropdownMenuPortal>
 						<DropdownMenuSubContent>
-							{statusTable?.map((status, index) => (
+							{statusChoices.map((status, index) => (
 								<DropdownMenuItem
 									onClick={() => {
 										if (!timeLog.timesheetId) return;

@@ -26,7 +26,7 @@ import { useAuthenticateUser } from '../../auth';
 import { useFirstLoad, useConditionalUpdateEffect, useSyncRef, useQueryCall } from '../../common';
 import { ITaskStatusField } from '@/core/types/interfaces/task/task-status/task-status-field';
 import { ITaskStatusStack } from '@/core/types/interfaces/task/task-status/task-status-stack';
-import { ETaskStatusName, TEmployee, TOrganizationTeamEmployee, TTag } from '@/core/types/schemas';
+import { TEmployee, TOrganizationTeamEmployee, TTag } from '@/core/types/schemas';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { queryKeys } from '@/core/query/keys';
 import { TTask } from '@/core/types/schemas/task/task.schema';
@@ -322,7 +322,7 @@ export function useTeamTasks() {
 		}: {
 			title: string;
 			issueType?: EIssueType | null;
-			status?: ETaskStatusName | null;
+			status?: string | null;
 			taskStatusId: string;
 			priority?: ETaskPriority | null;
 			size?: ETaskSize | null;

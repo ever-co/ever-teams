@@ -27,10 +27,13 @@ export async function GET(req: Request) {
 
 	if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: status ?? 401 });
 
+	const { searchParams } = new URL(req.url);
+
 	const response = await getOrganizationProjectsRequest({
 		bearer_token: access_token,
 		tenantId,
-		organizationId
+		organizationId,
+		searchParams
 	});
 
 	return $res(response.data);

@@ -52,7 +52,7 @@ export function ActiveTaskHandlerModal({
 		() => [
 			{
 				id: 0,
-				description: 'Change to planned default task',
+				description: t('dailyPlan.labels.CHANGE_TO_DEFAULT_TASK'),
 				action: async () => {
 					if (defaultPlannedTask) {
 						setActiveTask(defaultPlannedTask);
@@ -61,7 +61,7 @@ export function ActiveTaskHandlerModal({
 			},
 			{
 				id: 1,
-				description: 'Add the task as default to the plan',
+				description: t('dailyPlan.labels.ADD_TASK_AS_DEFAULT'),
 				action: async () => {
 					try {
 						if (todayPlan && todayPlan.id && activeTeamTask) {
@@ -87,7 +87,7 @@ export function ActiveTaskHandlerModal({
 			},
 			{
 				id: 2,
-				description: 'Add the task AND work on the default task',
+				description: t('dailyPlan.labels.ADD_TASK_AND_WORK_ON_DEFAULT'),
 				action: async () => {
 					try {
 						if (todayPlan && todayPlan.id && activeTeamTask) {
@@ -109,7 +109,7 @@ export function ActiveTaskHandlerModal({
 				}
 			}
 		],
-		[activeTeamTask, addTaskToPlan, defaultPlannedTask, setActiveTask, todayPlan]
+		[activeTeamTask, addTaskToPlan, defaultPlannedTask, setActiveTask, todayPlan, t]
 	);
 
 	const handleSubmit = useCallback(() => {

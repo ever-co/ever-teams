@@ -9,7 +9,7 @@ export async function GET(req: Request) {
 
 	const { searchParams } = new URL(req.url);
 
-	const { integrationId } = searchParams as unknown as { integrationId: string };
+	const integrationId = searchParams.get('integrationId') || undefined;
 
 	const response = await getGithubIntegrationRepositoriesRequest(
 		{

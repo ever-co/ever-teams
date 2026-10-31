@@ -1,5 +1,6 @@
 import KanbanDraggable, { EmptyKanbanDroppable } from '@/core/components/tasks/kanban';
 import { Fragment, useEffect, useRef, useState } from 'react';
+import { useAtomValue } from 'jotai';
 import {
 	DragDropContext,
 	DraggableLocation,
@@ -10,11 +11,12 @@ import {
 } from '@hello-pangea/dnd';
 import { ScrollArea, ScrollBar } from '@/core/components/common/scroll-area';
 import { cn } from '@/core/lib/helpers';
+import { activeTeamState } from '@/core/stores';
 import { TTaskStatus } from '@/core/types/schemas';
 import { TTask } from '@/core/types/schemas/task/task.schema';
 import { IKanban, KanbanViewProps } from '@/core/types/interfaces/task/task';
 
-export const KanbanView = ({
+const TeamKanbanBoard = ({
 	kanbanBoardTasks,
 	isLoading,
 	kanbanColumns,
@@ -25,7 +27,7 @@ export const KanbanView = ({
 	reorderStatus,
 	addNewTask,
 	toggleColumn
-}: KanbanViewProps) => {
+}: Readonly<KanbanViewProps>) => {
 	const items = kanbanBoardTasks;
 	const [columns, setColumn] = useState<any[]>(
 		Object.keys(kanbanBoardTasks).map((key) => {
@@ -34,7 +36,9 @@ export const KanbanView = ({
 				id: columnInfo?.id,
 				name: key,
 				icon: columnInfo ? columnInfo.fullIconUrl : '',
-				color: columnInfo?.color
+				color: columnInfo?.color,
+				// The status's team decides who may edit it
+				organizationTeamId: columnInfo?.organizationTeamId
 			};
 		})
 	);
@@ -268,4 +272,14 @@ export const KanbanView = ({
 			</ScrollArea>
 		</div>
 	);
+};
+
+/**
+ * The kanban board of the active team. Its columns are seeded once from the team's statuses, so the board of another
+ * team starts over from that team's statuses: their ids, and the team its column controls are checked against.
+ */
+export const KanbanView = (props: Readonly<KanbanViewProps>) => {
+	const activeTeam = useAtomValue(activeTeamState);
+	const boardTeamId = activeTeam?.id;
+	return <TeamKanbanBoard key={boardTeamId} {...props} />;
 };

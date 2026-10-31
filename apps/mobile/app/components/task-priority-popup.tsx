@@ -1,6 +1,7 @@
 /* eslint-disable react-native/no-inline-styles */
 /* eslint-disable react-native/no-color-literals */
 import React, { FC, useState } from 'react';
+import { observer } from 'mobx-react-lite';
 import {
 	View,
 	ViewStyle,
@@ -16,6 +17,8 @@ import { Feather, AntDesign, Ionicons } from '@expo/vector-icons';
 import { spacing, useAppTheme, typography } from '../theme';
 import { BadgedTaskPriority } from './priority-icon';
 import { useTaskPriority } from '../services/hooks/features/use-task-priority';
+import { useTaskSettingsAccess } from '../services/hooks/features/use-task-settings-access';
+import { readOnlyOpacity } from '../helpers/read-only-opacity';
 import { ITaskPriorityItem } from '../services/interfaces/ITaskPriority';
 import { translate } from '../i18n';
 import { BlurView } from 'expo-blur';
@@ -72,7 +75,7 @@ const ModalPopUp = ({ visible, children, onDismiss }) => {
 	);
 };
 
-const TaskPriorityPopup: FC<Props> = function TaskPriorityPopup({
+const TaskPriorityPopup: FC<Props> = observer(function TaskPriorityPopup({
 	visible,
 	onDismiss,
 	setSelectedPriority,
@@ -82,6 +85,10 @@ const TaskPriorityPopup: FC<Props> = function TaskPriorityPopup({
 	const { allTaskPriorities } = useTaskPriority();
 	const { colors, dark } = useAppTheme();
 	const { createPriority, updatePriority } = useTaskPriority();
+	const { canCreate, readOnlyHint } = useTaskSettingsAccess();
+	const createReadOnly = !canCreate;
+	const createOpacity = readOnlyOpacity(createReadOnly);
+	const showsReadOnlyHint = canCreatePriority && createReadOnly;
 
 	const [createPriorityMode, setCreatePriorityMode] = useState<boolean>(false);
 
@@ -121,9 +128,11 @@ const TaskPriorityPopup: FC<Props> = function TaskPriorityPopup({
 						/>
 						{canCreatePriority && (
 							<TouchableOpacity
+								disabled={createReadOnly}
 								style={{
 									...styles.createButton,
-									borderColor: dark ? '#6755C9' : '#3826A6'
+									borderColor: dark ? '#6755C9' : '#3826A6',
+									opacity: createOpacity
 								}}
 								onPress={() => setCreatePriorityMode(true)}
 							>
@@ -138,6 +147,9 @@ const TaskPriorityPopup: FC<Props> = function TaskPriorityPopup({
 								</Text>
 							</TouchableOpacity>
 						)}
+						{showsReadOnlyHint && (
+							<Text style={{ ...styles.readOnlyHint, color: colors.tertiary }}>{readOnlyHint}</Text>
+						)}
 					</>
 				) : (
 					<TaskPriorityForm
@@ -150,7 +162,7 @@ const TaskPriorityPopup: FC<Props> = function TaskPriorityPopup({
 			</View>
 		</ModalPopUp>
 	);
-};
+});
 
 export default TaskPriorityPopup;
 
@@ -166,7 +178,7 @@ const Item: FC<ItemProps> = ({ currentSizeName, priority, onPrioritySelected }) 
 		<TouchableOpacity onPress={() => onPrioritySelected(priority)}>
 			<View style={{ ...styles.wrapperItem, borderColor: colors.border }}>
 				<View style={{ ...styles.colorFrame, backgroundColor: priority.color }}>
-					<BadgedTaskPriority iconSize={16} TextSize={14} priority={priority.name} />
+					<BadgedTaskPriority iconSize={16} TextSize={14} priority={priority.name ?? ''} />
 				</View>
 				<View>
 					{!selected ? (
@@ -219,6 +231,13 @@ const styles = StyleSheet.create({
 		marginTop: 10,
 		padding: 12,
 		width: '80%'
+	},
+	readOnlyHint: {
+		fontFamily: typography.primary.medium,
+		fontSize: 12,
+		marginHorizontal: 16,
+		marginTop: 8,
+		textAlign: 'center'
 	},
 	title: {
 		fontSize: spacing.medium - 2,

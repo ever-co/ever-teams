@@ -72,7 +72,7 @@ export function SuggestDailyPlanModal(props: ISuggestDailyPlanModalProps) {
 							className="p-7 font-normal rounded-xl text-md"
 							onClick={handleCloseModal}
 						>
-							OK
+							{t('dailyPlan.labels.OK')}
 						</Button>
 					</Link>
 				</div>

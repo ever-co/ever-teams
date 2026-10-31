@@ -19,6 +19,7 @@ import { useTranslations } from 'next-intl';
 import { AddIcon, ChevronLeftIcon } from 'assets/svg';
 
 import { useModal } from '@/core/hooks';
+import { useTaskSettingsAccess } from '@/core/hooks/tasks/use-task-settings-access';
 import { Modal } from '../common/modal';
 import Image from 'next/image';
 import { ScrollArea } from '@/core/components/common/scroll-area';
@@ -61,6 +62,68 @@ function headerStyleChanger(snapshot: DraggableStateSnapshot, bgColor: any) {
 	return {
 		backgroundColor
 	};
+}
+
+/**
+ * An entry of a column menu that saves on the status (edit it, collapse or expand the column), read-only for a user
+ * who may not change the status.
+ */
+function StatusMenuItem({
+	label,
+	canEdit,
+	readOnlyHint,
+	onClick
+}: Readonly<{
+	label: string;
+	canEdit: boolean;
+	readOnlyHint: string;
+	onClick: () => void;
+}>) {
+	if (!canEdit) {
+		return (
+			<div className="p-1.5 text-sm opacity-40 cursor-not-allowed" aria-disabled="true" title={readOnlyHint}>
+				{label}
+			</div>
+		);
+	}
+
+	// A native button, so keyboard users reach it too; laid out like the other entries of the menu
+	return (
+		<button
+			type="button"
+			className="block w-full text-start hover:font-medium p-1.5 text-sm cursor-pointer"
+			onClick={onClick}
+		>
+			{label}
+		</button>
+	);
+}
+
+/** The chevron that collapses or expands a column: the collapsed state is saved on the status, for the whole team. */
+function ColumnToggleButton({
+	className,
+	canEdit,
+	readOnlyHint,
+	onClick
+}: Readonly<{
+	className: string;
+	canEdit: boolean;
+	readOnlyHint: string;
+	onClick: () => void;
+}>) {
+	if (!canEdit) {
+		return (
+			<button className={cn(className, 'opacity-40 cursor-not-allowed')} disabled title={readOnlyHint}>
+				<ChevronLeftIcon className="text-[#1B1D22]" />
+			</button>
+		);
+	}
+
+	return (
+		<button className={cn('hover:bg-[#0000001A]', className)} onClick={onClick}>
+			<ChevronLeftIcon className="text-[#1B1D22]" />
+		</button>
+	);
 }
 
 /**
@@ -274,6 +337,10 @@ export const EmptyKanbanDroppable = ({
 
 	const { isOpen, closeModal, openModal } = useModal();
 	const { isOpen: editIsOpen, closeModal: editCloseModal, openModal: editOpenModal } = useModal();
+	const { canWriteRow, readOnlyHint } = useTaskSettingsAccess();
+	const canEditStatus = canWriteRow(status);
+	// The Create task entry also opens the status form of the header: only for a user who may save it
+	const showsEditFormOnCreate = isOpen && canEditStatus;
 
 	if (!enabled) return null;
 
@@ -299,12 +366,12 @@ export const EmptyKanbanDroppable = ({
 										style={headerStyleChanger(snapshot, backgroundColor)}
 									>
 										<div className="flex flex-col items-center space-2">
-											<button
-												className="hover:bg-[#0000001A] w-8 h-8 p-2 rounded-md rotate-180"
+											<ColumnToggleButton
+												className="w-8 h-8 p-2 rounded-md rotate-180"
+												canEdit={canEditStatus}
+												readOnlyHint={readOnlyHint}
 												onClick={() => toggleColumn(title, false)}
-											>
-												<ChevronLeftIcon className="text-[#1B1D22]" />
-											</button>
+											/>
 											<Popover>
 												<PopoverTrigger className="mt-1" asChild>
 													<Button
@@ -324,22 +391,22 @@ export const EmptyKanbanDroppable = ({
 													>
 														{t('hotkeys.CREATE_TASK')}
 													</div>
-													<div
-														className="hover:font-medium p-1.5 text-sm cursor-pointer"
+													<StatusMenuItem
+														label={t('common.EXPAND_COLUMN')}
+														canEdit={canEditStatus}
+														readOnlyHint={readOnlyHint}
 														onClick={() => toggleColumn(title, false)}
-													>
-														{t('common.EXPAND_COLUMN')}
-													</div>
-													<div
-														className="hover:font-medium p-1.5 text-sm cursor-pointer"
+													/>
+													<StatusMenuItem
+														label={t('common.EDIT_STATUS')}
+														canEdit={canEditStatus}
+														readOnlyHint={readOnlyHint}
 														onClick={editOpenModal}
-													>
-														{t('common.EDIT_STATUS')}
-													</div>
+													/>
 												</PopoverContent>
 											</Popover>
 										</div>
-										{isOpen && (
+										{showsEditFormOnCreate && (
 											<Suspense fallback={<ModalSkeleton size="md" />}>
 												<Modal isOpen={isOpen} closeModal={closeModal}>
 													<LazyEditStatusModal
@@ -427,6 +494,8 @@ const KanbanDraggableHeader = ({
 	// toggleColumn is now passed as prop instead of using useKanban hook
 	const { isOpen, closeModal, openModal } = useModal();
 	const t = useTranslations();
+	const { canWriteRow, readOnlyHint } = useTaskSettingsAccess();
+	const canEditStatus = canWriteRow(status);
 	return (
 		<>
 			{title && (
@@ -470,23 +539,26 @@ const KanbanDraggableHeader = ({
 								>
 									{t('common.CREATE_TASK')}
 								</div>
-								<div
-									className="hover:font-medium p-1.5 text-sm cursor-pointer"
+								<StatusMenuItem
+									label={t('common.COLLAPSE_COLUMN')}
+									canEdit={canEditStatus}
+									readOnlyHint={readOnlyHint}
 									onClick={() => toggleColumn(title, true)}
-								>
-									{t('common.COLLAPSE_COLUMN')}
-								</div>
-								<div className="hover:font-medium p-1.5 text-sm cursor-pointer" onClick={openModal}>
-									{t('common.EDIT_STATUS')}
-								</div>
+								/>
+								<StatusMenuItem
+									label={t('common.EDIT_STATUS')}
+									canEdit={canEditStatus}
+									readOnlyHint={readOnlyHint}
+									onClick={openModal}
+								/>
 							</PopoverContent>
 						</Popover>
-						<button
-							className="hover:bg-[#0000001A] w-8 h-8 p-2 rounded-md"
+						<ColumnToggleButton
+							className="w-8 h-8 p-2 rounded-md"
+							canEdit={canEditStatus}
+							readOnlyHint={readOnlyHint}
 							onClick={() => toggleColumn(title, true)}
-						>
-							<ChevronLeftIcon className="text-[#1B1D22]" />
-						</button>
+						/>
 					</div>
 				</header>
 			)}

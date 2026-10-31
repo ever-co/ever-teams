@@ -257,6 +257,8 @@ export default function DeleteAccountConfirm() {
 			}
 			// While the page holds a token, switching language (a new locale route) would remount it and lose the token
 			hideLanguageSwitcher={phase !== 'deleted' && phase !== 'invalid'}
+			// Added after the egress audit's UI baseline: no built-in Ever links
+			operatorLinksOnly
 		>
 			<div className="overflow-x-hidden w-full overflow-y-clip p-1.5">{content}</div>
 		</AuthLayout>

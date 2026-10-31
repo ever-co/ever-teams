@@ -43,6 +43,8 @@ export default function DeleteAccountRequestForm() {
 			description={t('pages.accountDeletion.REQUEST_DESCRIPTION', { appName: APP_NAME })}
 			headerLinkText={t('pages.accountDeletion.BACK_TO_SIGN_IN')}
 			headerLinkHref={DEFAULT_APP_PATH}
+			// Added after the egress audit's UI baseline: no built-in Ever links
+			operatorLinksOnly
 		>
 			<div className="overflow-x-hidden w-full overflow-y-clip p-1.5" data-testid="delete-account-request">
 				{sent ? (

@@ -1,4 +1,8 @@
-/** @jest-environment jsdom */
+/**
+ * @jest-environment <rootDir>/test/environments/jsdom-west-of-utc.ts
+ *
+ * West of UTC so the date column test fails if a 'YYYY-MM-DD' day is read as UTC midnight.
+ */
 
 import React from 'react';
 import { render, screen } from '@testing-library/react';
@@ -55,5 +59,19 @@ describe('ProductivityEmployeeTable project badge', () => {
 		const badge = container.querySelector('[aria-hidden="true"].rounded-md');
 		expect(badge?.textContent).toBe('');
 		expect(container.textContent).not.toContain('Ever');
+	});
+});
+
+describe('ProductivityEmployeeTable date column', () => {
+	it('runs west of UTC, where UTC midnight of a day is still the previous local day', () => {
+		// Guards the test below: on a UTC host it would pass with or without the fix
+		expect(new Date('2026-09-18').getDate()).toBe(17);
+	});
+
+	it('shows the calendar day of the report, not the local day of its UTC midnight', () => {
+		renderRows(activity('Website Redesign'));
+
+		// '2026-09-18' read as UTC midnight renders 'Thursday, September 17, 2026' here
+		expect(screen.getByText('Friday, September 18, 2026')).toBeTruthy();
 	});
 });

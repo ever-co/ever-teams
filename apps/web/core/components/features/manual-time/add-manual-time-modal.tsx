@@ -39,6 +39,25 @@ interface IAddManualTimeModalProps {
 	closeModal: () => void;
 }
 
+/** Whether the listed task belongs to the team, so time is never saved with a team and a task of another team. */
+function isTaskOfTeam(tasks: TTask[], taskId: string, teamId: string | undefined): boolean {
+	if (!teamId) {
+		return false;
+	}
+	const task = tasks.find((item) => item.id === taskId);
+	const taskTeams = task?.teams ?? [];
+	return taskTeams.some((taskTeam) => taskTeam?.id === teamId);
+}
+
+/** Whether the employee is a member of the team, matched like the Employee field reads a member's employee id. */
+function isEmployeeOfTeam(team: TOrganizationTeam | null | undefined, employeeId: string): boolean {
+	const members = team?.members ?? [];
+	return members.some((member) => {
+		const memberEmployeeId = member.employeeId ?? member.employee?.id;
+		return memberEmployeeId === employeeId;
+	});
+}
+
 export function AddManualTimeModal(props: Readonly<IAddManualTimeModalProps>) {
 	const { closeModal, isOpen, params, timeSheetStatus } = props;
 	const t = useTranslations();
@@ -54,6 +73,7 @@ export function AddManualTimeModal(props: Readonly<IAddManualTimeModalProps>) {
 	const [projectId, setProjectId] = useState<string>('');
 	const [employeeId, setEmployeeId] = useState<string>('');
 	const isTaskPickedRef = useRef(false);
+	const isTeamPickedRef = useRef(false);
 	const [timeDifference, setTimeDifference] = useState<string>('');
 
 	const activeTeamTask = useAtomValue(activeTeamTaskState);
@@ -62,6 +82,7 @@ export function AddManualTimeModal(props: Readonly<IAddManualTimeModalProps>) {
 	const teams = useAtomValue(organizationTeamsState);
 	const { data: user } = useUserQuery();
 	const { isTeamManager } = useIsMemberManager(user);
+	const teamToSave = team ?? activeTeam;
 
 	const {
 		addManualTime,
@@ -115,6 +136,7 @@ export function AddManualTimeModal(props: Readonly<IAddManualTimeModalProps>) {
 				reason,
 				isBillable,
 				organizationId: team?.organizationId,
+				organizationTeamId: teamToSave?.id,
 				...pickedFields
 			};
 
@@ -130,6 +152,22 @@ export function AddManualTimeModal(props: Readonly<IAddManualTimeModalProps>) {
 				if (!taskId) missingFields.push('Task');
 
 				setErrorMsg(`Please complete: ${missingFields.join(', ')}`);
+				return;
+			}
+
+			// The task must be one the saved team lists: after an active team switch from another tab, the task
+			// picked before it belongs to the previous team
+			const isTaskOfTeamToSave = isTaskOfTeam(tasks, taskId, teamToSave?.id);
+			if (!isTaskOfTeamToSave) {
+				setErrorMsg('Please complete: Task');
+				return;
+			}
+
+			// Same for an employee picked in the Calendar dialog: a member of the previous team is not sent
+			const hasPickedEmployee = employeeId !== '';
+			const isEmployeeOfTeamToSave = isEmployeeOfTeam(teamToSave, employeeId);
+			if (hasPickedEmployee && !isEmployeeOfTeamToSave) {
+				setErrorMsg('Please complete: Employee');
 				return;
 			}
 
@@ -152,7 +190,10 @@ export function AddManualTimeModal(props: Readonly<IAddManualTimeModalProps>) {
 			taskId,
 			pickedFields,
 			team,
-			activeTeam
+			activeTeam,
+			teamToSave,
+			tasks,
+			employeeId
 		]
 	);
 
@@ -288,8 +329,10 @@ export function AddManualTimeModal(props: Readonly<IAddManualTimeModalProps>) {
 			// Only set taskId if the task is valid and available in filtered tasks
 			const isTaskAvailable = activeTeamTasks.some((task) => task.id === activeTeamTask.id);
 			if (isTaskAvailable) {
-				// A task picked in the form must not be replaced by the active task when the task list refreshes
-				if (!isTaskPickedRef.current) {
+				// A task picked in the form must not be replaced by the active task when the task list refreshes,
+				// and the active task belongs to the active team, not to a team picked in the form
+				const isPickedInForm = isTaskPickedRef.current || isTeamPickedRef.current;
+				if (!isPickedInForm) {
 					setTaskId(activeTeamTask.id);
 				}
 			} else if (process.env.NODE_ENV === 'development') {
@@ -300,7 +343,8 @@ export function AddManualTimeModal(props: Readonly<IAddManualTimeModalProps>) {
 				});
 			}
 		}
-		if (activeTeam) {
+		// A team picked in the form must not be replaced by the active team when the lists refresh
+		if (activeTeam && !isTeamPickedRef.current) {
 			setTeam(activeTeam);
 		}
 	}, [activeTeamTask, activeTeam, activeTeamTasks]);
@@ -515,13 +559,27 @@ export function AddManualTimeModal(props: Readonly<IAddManualTimeModalProps>) {
 							</label>
 							<CustomSelect
 								valueKey="id"
-								defaultValue={activeTeam?.id ?? ''}
+								// Shows the team the time is saved with, also when the active team changes under the form
+								value={teamToSave?.id ?? ''}
 								classNameGroup="max-h-[40vh] dark:!text-white "
 								ariaLabel="teams"
 								className="w-full text-sm border-gray-300 dark:border-slate-600 dark:text-white"
 								options={teams}
 								onChange={(value) => {
-									setTeam(value); // Set the full team object, not just ID
+									// CustomSelect passes the picked team's id
+									const pickedTeam = teams.find((item) => item.id === value);
+									isTeamPickedRef.current = true;
+									setTeam(pickedTeam); // Set the full team object, not just ID
+									// A task of the previous team must not be saved with the picked team
+									const pickedTeamTasks = filterTasksByTeamAndRole(
+										tasks,
+										pickedTeam?.id,
+										isTaskInSelectedTeam
+									);
+									const isTaskInPickedTeam = pickedTeamTasks.some((task) => task.id === taskId);
+									if (!isTaskInPickedTeam) {
+										setTaskId('');
+									}
 								}}
 							/>
 						</div>
@@ -532,7 +590,8 @@ export function AddManualTimeModal(props: Readonly<IAddManualTimeModalProps>) {
 							</label>
 							<CustomSelect
 								valueKey="id"
-								defaultValue={taskId || ''}
+								// Controlled, so a task cleared on a team change is cleared in the select too
+								value={taskId}
 								classNameGroup="max-h-[40vh] overflow-x-hidden max-w-[420px] dark:!text-white "
 								ariaLabel="task"
 								className="w-full text-sm border-gray-300 dark:border-slate-600 dark:text-white"
@@ -550,6 +609,7 @@ export function AddManualTimeModal(props: Readonly<IAddManualTimeModalProps>) {
 											optionIds: (team ? selectedTeamTasks : activeTeamTasks).map((t) => t.id)
 										});
 									}
+									isTaskPickedRef.current = true;
 									setTaskId(value);
 								}}
 							/>

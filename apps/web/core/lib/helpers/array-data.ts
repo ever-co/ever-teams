@@ -1,5 +1,5 @@
 import { pad } from './number';
-import { TActivity, TTimeSlot } from '@/core/types/schemas';
+import { TActivity, TDailyActivity, TTimeSlot } from '@/core/types/schemas';
 export function groupDataByHour(data: TTimeSlot[]) {
 	const groupedData: { startedAt: string; stoppedAt: string; items: TTimeSlot[] }[] = [];
 
@@ -24,11 +24,16 @@ export function groupDataByHour(data: TTimeSlot[]) {
 	return groupedData.sort((a, b) => (new Date(a.stoppedAt) < new Date(b.stoppedAt) ? 1 : -1));
 }
 
-export function groupAppsByHour(apps: TActivity[]) {
-	const groupedData: { hour: string; totalMilliseconds: number; apps: TActivity[] }[] = [];
+function getActivityHour(app: TDailyActivity): string {
+	const time = app.time ?? '';
+	return time.slice(0, 5);
+}
+
+export function groupAppsByHour(apps: TDailyActivity[]) {
+	const groupedData: { hour: string; totalMilliseconds: number; apps: TDailyActivity[] }[] = [];
 
 	apps.forEach((app) => {
-		const time = app.time.slice(0, 5);
+		const time = getActivityHour(app);
 
 		const hourDataIndex = groupedData.findIndex((el) => el.hour == time);
 
@@ -38,7 +43,7 @@ export function groupAppsByHour(apps: TActivity[]) {
 				groupedData[hourDataIndex].totalMilliseconds += +app.duration;
 			} else
 				groupedData.push({
-					hour: app.time.slice(0, 5),
+					hour: time,
 					totalMilliseconds: +app.duration,
 					apps: [app]
 				});

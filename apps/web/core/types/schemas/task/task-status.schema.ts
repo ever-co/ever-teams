@@ -18,7 +18,8 @@ export const taskStatusWorkFlowSchema = z.object({
 // Main task status schema
 export const taskStatusSchema = z
 	.object({
-		name: taskStatusNameSchema,
+		// Gauzy stores the name as free text: besides the standard names, a status can have a custom one.
+		name: taskStatusNameSchema.or(z.string()),
 		value: z.string(),
 		description: z.string().optional().nullable(),
 		icon: z.string().optional().nullable(),

@@ -15,6 +15,7 @@ import { metadata } from '@/app/[locale]/auth/layout';
 const APP_DIR = resolve(__dirname, '../../app');
 const AUTH_DIR = join(APP_DIR, '[locale]', 'auth');
 const AUTH_LAYOUT = join(AUTH_DIR, 'layout.tsx');
+const DELETE_ACCOUNT_LAYOUT = join(APP_DIR, '[locale]', 'delete-account', 'layout.tsx');
 const CORE_DIR = resolve(__dirname, '../../core');
 
 function listSourceFiles(dir: string): string[] {
@@ -70,11 +71,14 @@ describe('auth pages are noindex, follow', () => {
 		expect(files.filter((file) => RAW_ROBOTS_META.test(readFileSync(file, 'utf8')))).toEqual([]);
 	});
 
+	// The account deletion pages (#4876) are public, carry a token in the URL fragment and are not content, so their
+	// layout declares its own robots { index: false, follow: false } on purpose: that is the one other allowed place.
 	it('does not spread robots or googleBot metadata to any route outside /[locale]/auth', () => {
 		const files = listSourceFiles(APP_DIR);
-		// Control: the pattern finds the one declaration that is supposed to exist.
+		// Control: the pattern finds the declarations that are supposed to exist.
 		expect(files.filter((file) => /\b(robots|googleBot)\s*:/.test(readFileSync(file, 'utf8')))).toEqual([
-			AUTH_LAYOUT
+			AUTH_LAYOUT,
+			DELETE_ACCOUNT_LAYOUT
 		]);
 	});
 });

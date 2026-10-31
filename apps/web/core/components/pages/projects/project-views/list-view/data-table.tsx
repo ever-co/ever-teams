@@ -242,8 +242,10 @@ export const ProjectsTable = memo(
 				enableHiding: true,
 				enableMultiSort: true,
 				sortingFn: (rowA, rowB) => {
-					const a = rowA.original.startDate ? moment(rowA.original.archivedAt).toDate() : new Date(0); // Default to epoch if no date
-					const b = rowB.original.startDate ? moment(rowB.original.archivedAt).toDate() : new Date(0);
+					// A project that is not archived has no archive date: moment(null) is an Invalid Date, whose NaN
+					// time would make the comparison meaningless, so it sorts like the other date columns
+					const a = rowA.original.archivedAt ? moment(rowA.original.archivedAt).toDate() : new Date(0);
+					const b = rowB.original.archivedAt ? moment(rowB.original.archivedAt).toDate() : new Date(0);
 
 					return b.getTime() - a.getTime();
 				},

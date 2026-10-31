@@ -5,6 +5,7 @@ import { Skeleton } from '@/core/components/common/skeleton';
 import { Card } from '@/core/components/common/card';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/core/components/common/tooltip';
 import React from 'react';
+import { parseISO } from 'date-fns';
 import { EmptyState } from '../productivity-project/states';
 import { useTranslations } from 'next-intl';
 import { usePagination } from '@/core/hooks/common/use-pagination';
@@ -30,8 +31,10 @@ const getInitials = (name?: string | null): string =>
 				.toUpperCase()
 		: '';
 
+// The report groups by calendar day ('YYYY-MM-DD'). `new Date()` reads that as UTC midnight, which shows the
+// previous day west of UTC; `parseISO` reads it as local midnight.
 const formatDate = (dateStr: string): string => {
-	const date = new Date(dateStr);
+	const date = parseISO(dateStr);
 	return date.toLocaleDateString('en-US', {
 		weekday: 'long',
 		day: '2-digit',

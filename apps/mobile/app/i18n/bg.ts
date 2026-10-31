@@ -197,6 +197,8 @@ const bg = {
 			taskPriorities: 'Task Priorities',
 			taskSizes: 'Task Sizes',
 			taskLabel: 'Task Label',
+			taskSettingsReadOnly:
+				'Само мениджърите на екипа и администраторите могат да променят настройките на задачите. Само администраторите могат да променят стойностите по подразбиране, общи за всички екипи.',
 			changeLogo: 'Change Logo',
 			teamRole: 'Manager Member & Role',
 			workSchedule: 'Work Schedule',

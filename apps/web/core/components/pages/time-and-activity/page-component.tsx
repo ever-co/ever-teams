@@ -9,7 +9,11 @@ import { ArrowLeftIcon } from '@radix-ui/react-icons';
 import { useMemo, useState, useCallback } from 'react';
 import { Card } from '@/core/components/common/card';
 import { useOrganizationAndTeamManagers } from '@/core/hooks/organizations/teams/use-organization-teams-managers';
-import { type GroupByType, useActivityFilters } from '@/core/hooks/activities/use-activity-filters';
+import {
+	type GroupByType,
+	getAppliedTeamsReportProps,
+	useActivityFilters
+} from '@/core/hooks/activities/use-activity-filters';
 import { useActivityDailyReportQuery } from '@/core/hooks/activities/queries/use-activity-daily-report-query';
 import { useActivityStatisticsQuery } from '@/core/hooks/activities/queries/use-activity-statistics-query';
 import { useTimeActivityStats } from '@/core/hooks/activities/use-time-activity-stats';
@@ -38,8 +42,25 @@ const getDefaultViewOptions = (t: any): ViewOption[] => [
 ];
 
 const TimeActivityComponents = () => {
-	const { mergedProps, enabled, currentFilters, updateDateRange, updateFilters, isManage } = useActivityFilters();
-	const { rapportDailyActivity, isLoading: isDailyLoading } = useActivityDailyReportQuery({ mergedProps, enabled });
+	const {
+		mergedProps,
+		enabled,
+		currentFilters,
+		updateDateRange,
+		updateFilters,
+		isManage,
+		hasOrganizationWideAccess
+	} = useActivityFilters();
+	const { userManagedTeams } = useOrganizationAndTeamManagers();
+	// The counts resolve the members of the applied teams from their ids; the time log reports have to name them
+	const reportProps = useMemo(
+		() => getAppliedTeamsReportProps(mergedProps, userManagedTeams, hasOrganizationWideAccess),
+		[mergedProps, userManagedTeams, hasOrganizationWideAccess]
+	);
+	const { rapportDailyActivity, isLoading: isDailyLoading } = useActivityDailyReportQuery({
+		mergedProps: reportProps,
+		enabled
+	});
 	const { statisticsCounts, isLoading: isStatsLoading } = useActivityStatisticsQuery({ mergedProps, enabled });
 	const loading = isDailyLoading || isStatsLoading;
 	const [groupByType, setGroupByType] = useState<GroupByType>('daily');
@@ -74,13 +95,13 @@ const TimeActivityComponents = () => {
 	);
 
 	// mergedProps takes its team ids from the team dashboard filter, so the teams picked in this page's filter are passed to the weekly report here
-	const weeklyProps = useMemo(
-		() =>
-			mergedProps && currentFilters.teamIds?.length
-				? { ...mergedProps, teamIds: currentFilters.teamIds }
-				: mergedProps,
-		[mergedProps, currentFilters.teamIds]
-	);
+	const weeklyProps = useMemo(() => {
+		const appliedTeamIds = currentFilters.teamIds;
+
+		if (!reportProps || !appliedTeamIds?.length) return reportProps;
+
+		return { ...reportProps, teamIds: appliedTeamIds };
+	}, [reportProps, currentFilters.teamIds]);
 
 	// Calculate dynamic statistics from real data
 	const {
@@ -133,7 +154,6 @@ const TimeActivityComponents = () => {
 	const router = useRouter();
 	const paramsUrl = useParams<{ locale: string }>();
 	const currentLocale = paramsUrl?.locale;
-	const { userManagedTeams } = useOrganizationAndTeamManagers();
 	const { organizationProjects } = useOrganizationProjectsQuery();
 
 	const tasks = useAtomValue(tasksByTeamState);
