@@ -421,6 +421,18 @@ export const PRIVACY_POLICY_LINK = optionalBranding(
 	readRuntimeEnv('PRIVACY_POLICY_LINK') || process.env.PRIVACY_POLICY_LINK || 'https://ever.team/privacy'
 );
 
+/**
+ * Which footer links the operator set, as opposed to the built-in Ever defaults above. Pages the egress audit's UI
+ * baseline does not list (tools/egress-audit/ui-baseline.json, which may only shrink) link only to these, so with
+ * nothing set they reference no Ever host.
+ */
+export const BRANDING_LINKS_SET_BY_OPERATOR = {
+	app: Boolean(readRuntimeEnv('APP_LINK') || process.env.APP_LINK),
+	company: Boolean(readRuntimeEnv('COMPANY_LINK') || process.env.COMPANY_LINK),
+	terms: Boolean(readRuntimeEnv('TERMS_LINK') || process.env.TERMS_LINK),
+	privacy: Boolean(readRuntimeEnv('PRIVACY_POLICY_LINK') || process.env.PRIVACY_POLICY_LINK)
+};
+
 export const MAIN_PICTURE =
 	readRuntimeEnv('MAIN_PICTURE') || process.env.MAIN_PICTURE || '/assets/cover/auth-bg-cover.png';
 export const MAIN_PICTURE_DARK =
