@@ -1,4 +1,5 @@
 import { APIService } from '../../api.service';
+import moment from 'moment';
 import qs from 'qs';
 import { GAUZY_API_BASE_SERVER_URL } from '@/core/constants/config/constants';
 import { DeleteResponse, PaginationResponse } from '@/core/types/interfaces/common/data-response';
@@ -439,7 +440,11 @@ class DailyPlanService extends APIService {
 				'removeManyTaskFromPlans input data'
 			);
 
-			const response = await this.put<TDailyPlan[]>(`/daily-plan/${taskId}/remove`, validatedInput, {
+			// Without a day the API takes the UTC date as today, while plans are dated on the user's local day.
+			const today = moment().format('YYYY-MM-DD');
+			const payload = { ...validatedInput, today };
+
+			const response = await this.put<TDailyPlan[]>(`/daily-plan/${taskId}/remove`, payload, {
 				tenantId: this.tenantId
 			});
 
