@@ -174,6 +174,11 @@ export const tomorrowDate = moment().add(1, 'days').toDate();
 
 export const yesterdayDate = moment().subtract(1, 'days').toDate();
 
+// tomorrowDate and yesterdayDate are fixed when the module loads, these follow the current day
+export const getTomorrowDate = () => moment().add(1, 'days').toDate();
+
+export const getYesterdayDate = () => moment().subtract(1, 'days').toDate();
+
 export const formatDayPlanDate = (dateString: string | Date, format?: string) => {
 	dateString = getDailyPlanDay(dateString);
 	const date = moment(dateString, 'YYYY-MM-DD');
@@ -314,7 +319,14 @@ export const formatDuration = (seconds: number): string => {
  */
 export const getDefaultTimezone = () => Intl.DateTimeFormat().resolvedOptions().timeZone;
 
-export function parseStringInputToHours(input: string): { hours?: number; error?: string } {
+// Why an hours input was rejected, so a caller can show its own translated message
+export type THoursInputErrorCode = 'MINUTES_OUT_OF_RANGE' | 'INVALID_FORMAT';
+
+export function parseStringInputToHours(input: string): {
+	hours?: number;
+	error?: string;
+	errorCode?: THoursInputErrorCode;
+} {
 	const raw = input.trim();
 	if (!raw) return { hours: 0 };
 
@@ -323,7 +335,9 @@ export function parseStringInputToHours(input: string): { hours?: number; error?
 	if (colonMatch) {
 		const h = Number(colonMatch[1]);
 		const m = Number(colonMatch[2]);
-		if (m >= 60) return { error: 'Minutes must be < 60' };
+		if (m >= 60) {
+			return { error: 'Minutes must be < 60', errorCode: 'MINUTES_OUT_OF_RANGE' };
+		}
 		return { hours: h + m / 60 };
 	}
 
@@ -333,7 +347,7 @@ export function parseStringInputToHours(input: string): { hours?: number; error?
 		return { hours: decimal };
 	}
 
-	return { error: 'Invalid format. Use H:MM or decimal (e.g. 4.5).' };
+	return { error: 'Invalid format. Use H:MM or decimal (e.g. 4.5).', errorCode: 'INVALID_FORMAT' };
 }
 
 export function hoursToHMM(hours: number): string {
