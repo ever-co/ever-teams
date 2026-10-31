@@ -185,6 +185,14 @@ export interface IActivityRequestParams extends ITimeLogRequestParams {
 }
 
 /**
+ * Parameters specific to daily chart requests
+ */
+export interface IDailyChartRequestParams extends ITimeLogRequestParams {
+	/** Types of logs to count */
+	logType?: string[];
+}
+
+/**
  * Fetches timesheet statistics counts from the API
  * @param params - Parameters for the statistics request
  * @param bearer_token - Authentication token
@@ -255,8 +263,13 @@ export function readArrayParam(searchParams: URLSearchParams, key: string): stri
 	return values;
 }
 
-export async function getTimeLogReportDailyChartRequest(params: ITimeLogRequestParams, bearer_token?: string) {
+export async function getTimeLogReportDailyChartRequest(params: IDailyChartRequestParams, bearer_token?: string) {
 	const queries = buildTimeLogParams(params);
+
+	// buildTimeLogParams is shared with the other reports and leaves logType out, so the chart adds it here
+	params.logType?.forEach((value, index) => {
+		queries.append(`logType[${index}]`, value);
+	});
 
 	return serverFetch<ITimeLogReportDailyChart[]>({
 		path: `/timesheet/time-log/report/daily-chart?${queries}`,
