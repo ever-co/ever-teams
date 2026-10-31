@@ -326,7 +326,7 @@
 			"sat": "六"
 		},
 		"CALENDAR": "日历",
-		"SELECT": "Select",
+		"SELECT": "选择",
 		"SAVE_CHANGES": "保存更改",
 		"plan": {
 			"SINGULAR": "计划",
@@ -1330,6 +1330,51 @@
 		"chang_active_task_popup": {
 			"TITLE": "更改活动任务",
 			"MESSAGE": "您即将开始今天的计划 {defaultPlannedTask}，但仍有未完成的活动任务 {activeTask}"
+		},
+		"toastMessages": {
+			"PLAN_CREATION_FAILED": "每日计划创建失败",
+			"PLAN_CREATION_MISSING_TENANT": "无法创建每日计划：缺少 tenantId",
+			"MISSING_TENANT_ID": "缺少 tenantId",
+			"EMPLOYEE_ASSIGNED_TO_TASK": "已将员工分配到任务",
+			"EMPLOYEE_AUTO_ASSIGN_FAILED": "自动将员工分配到任务失败",
+			"MISSING_EMPLOYEE_ID": "getEmployeeDailyPlans：未提供员工 ID，状态中也没有",
+			"EMPLOYEE_PLANS_FETCH_FAILED": "获取员工的每日计划时出错：{employeeId}",
+			"PLANS_FETCH_FAILED": "无法获取每日计划",
+			"INVALID_TIME_FORMAT": "时间格式无效，请使用 H:MM 或小数（例如 4.5）。",
+			"MINUTES_OUT_OF_RANGE": "分钟数必须小于 60",
+			"PLAN_UPDATED": "计划更新成功",
+			"PLAN_UPDATE_FAILED": "计划更新失败。请重试。",
+			"PLAN_UPDATE_FAILED_WITH_ERROR": "计划更新失败。错误：{error}",
+			"WORK_TIME_PLANNED_UPDATED": "计划工作时间已更新为 {hours} 小时",
+			"WORK_STARTED": "已成功开始工作",
+			"TIMER_STARTED_FOR_PLANNED_TASKS": "已为您计划的任务启动计时器",
+			"WORK_START_FAILED": "开始工作失败。请重试。",
+			"TASK_CREATED": "任务创建成功",
+			"TASK_CREATED_DESCRIPTION": "任务 \"{title}\" 已创建",
+			"TASK_ADDED_TO_PLAN": "任务已添加到计划",
+			"TASK_ADDED_TO_PLAN_DESCRIPTION": "\"{title}\" 已添加到您的每日计划",
+			"PLAN_CREATED": "每日计划已创建",
+			"PLAN_CREATED_WITH_TASK": "已创建包含任务 \"{title}\" 的每日计划",
+			"TASK_ADD_TO_PLAN_FAILED": "将任务添加到计划失败。请重试。",
+			"TASK_REMOVED_FROM_PLAN": "任务已从计划中移除",
+			"TASK_REMOVED_FROM_PLAN_DESCRIPTION": "\"{title}\" 已从您的每日计划中移除",
+			"TASK_REMOVAL_FAILED": "从计划中移除任务失败。请重试。",
+			"TASK_REMOVED_FROM_ALL_PLANS": "任务已从所有计划中移除",
+			"TASK_REMOVED_FROM_ALL_PLANS_DESCRIPTION": "任务已从所有每日计划中移除",
+			"TASK_REMOVAL_FROM_PLANS_FAILED": "从多个计划中移除任务失败。请重试。"
+		},
+		"labels": {
+			"UNPLAN": "从计划中移除",
+			"UNPLAN_SELECTED_DATE": "从所选日期中移除",
+			"UNPLAN_ALL": "从所有日期中移除",
+			"REMOVE_FROM_ALL_PLANS": "从所有计划中移除",
+			"UNPLAN_ACTIVE_TASK_CONFIRMATION": "您即将从计划中移除当前活动任务，请确认此操作",
+			"CHANGE_TO_DEFAULT_TASK": "切换到计划中的默认任务",
+			"ADD_TASK_AS_DEFAULT": "将该任务作为默认任务添加到计划",
+			"ADD_TASK_AND_WORK_ON_DEFAULT": "添加该任务并同时处理默认任务",
+			"OK": "确定",
+			"FILTER_ALL": "全部",
+			"FILTER_DATE": "日期"
 		}
 	},
 	"form": {

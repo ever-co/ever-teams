@@ -53,6 +53,14 @@ const keepUpcomingDay = (selectedDay: Date) => {
 	return getTomorrowDate();
 };
 
+// Anything but 'Select' runs Select & Close (see lastSelectedOption), so the button says so
+function getLatestOptionLabelKey(latestOption: string | null) {
+	if (latestOption === 'Select') {
+		return 'common.SELECT';
+	}
+	return 'common.SELECT_AND_CLOSE';
+}
+
 export function CreateDailyPlanFormModal({
 	open,
 	closeModal,
@@ -237,7 +245,7 @@ export function CreateDailyPlanFormModal({
 												onClick={lastSelectedOption}
 												className="flex justify-center items-center w-full h-full text-sm font-light text-white"
 											>
-												{latestOption ?? 'Select & close'}
+												{t(getLatestOptionLabelKey(latestOption))}
 											</Button>
 
 											<div

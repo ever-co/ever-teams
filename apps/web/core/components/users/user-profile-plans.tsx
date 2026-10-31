@@ -38,6 +38,13 @@ import { filterDailyPlansByTasks } from '@/core/hooks';
 export type FilterTabs = 'Today Tasks' | 'Future Tasks' | 'Past Tasks' | 'All Tasks' | 'Outstanding';
 type FilterOutstanding = 'ALL' | 'DATE';
 
+function getOutstandingFilterLabelKey(filter: string) {
+	if (filter === 'DATE') {
+		return 'dailyPlan.labels.FILTER_DATE';
+	}
+	return 'dailyPlan.labels.FILTER_ALL';
+}
+
 interface IUserProfilePlansProps {
 	user?: TUser;
 	employeeId?: string; // Accept employeeId directly from parent
@@ -381,7 +388,7 @@ export function UserProfilePlans(props: IUserProfilePlansProps) {
 													}}
 												>
 													<SelectTrigger className="h-9 w-fit dark:border-dark--theme-light dark:bg-dark-high">
-														<SelectValue placeholder="Filter" />
+														<SelectValue placeholder={t('common.FILTER')} />
 													</SelectTrigger>
 													<SelectContent className="border-none cursor-pointer dark:bg-dark--theme-light dark:border-dark--theme-light">
 														{Object.keys(screenOutstanding).map((item, index) => (
@@ -392,7 +399,9 @@ export function UserProfilePlans(props: IUserProfilePlansProps) {
 																	) : (
 																		<StarIcon className="w-4 h-4" />
 																	)}
-																	<span className="capitalize">{item}</span>
+																	<span className="capitalize">
+																		{t(getOutstandingFilterLabelKey(item))}
+																	</span>
 																</div>
 															</SelectItem>
 														))}

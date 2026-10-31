@@ -1103,7 +1103,7 @@ export function RemoveTaskFromPlan({
 }
 
 export function RemoveManyTaskFromPlan({ task, member }: { task: TTask; member?: TOrganizationTeamEmployee }) {
-	// const t = useTranslations();
+	const t = useTranslations();
 	const { removeManyTaskPlans } = useUpdateDailyPlan();
 	const data: IRemoveTaskFromManyPlansRequest = {
 		plansIds: [],
@@ -1120,7 +1120,7 @@ export function RemoveManyTaskFromPlan({ task, member }: { task: TTask; member?:
 			)}
 			onClick={onClick}
 		>
-			Remove from all plans
+			{t('dailyPlan.labels.REMOVE_FROM_ALL_PLANS')}
 		</span>
 	);
 }
