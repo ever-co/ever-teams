@@ -222,8 +222,11 @@ export function acceptRejectMyInvitationsRequest(
 	invitationId: string,
 	action: EInviteAction
 ) {
+	// Encoded, so an id such as `../user` stays one path segment instead of reaching another endpoint
+	const encodedInvitationId = encodeURIComponent(invitationId);
+
 	return serverFetch<PaginationResponse<TInvite>>({
-		path: `/invite/${invitationId}/${action}`,
+		path: `/invite/${encodedInvitationId}/${action}`,
 		method: 'PUT',
 		bearer_token,
 		tenantId: tenantId
