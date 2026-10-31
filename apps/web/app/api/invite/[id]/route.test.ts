@@ -68,6 +68,17 @@ describe('PUT /api/invite/:id', () => {
 		);
 	});
 
+	it('keeps the invitation id in one path segment', async () => {
+		const url = 'https://app.ever.team/api/invite/..%2Fuser?action=ACCEPTED';
+		const request = new Request(url, { method: 'PUT' });
+		const params = Promise.resolve({ id: '../user' });
+
+		await PUT(request, { params });
+
+		const { path } = gauzyRequest();
+		expect(path).toMatch(/\/invite\/\.\.%2Fuser\/ACCEPTED$/);
+	});
+
 	it.each([
 		['an action Gauzy does not take', '?action=EXPIRED'],
 		['a path in the action', '?action=..%2F..%2Fuser%2Fme'],
