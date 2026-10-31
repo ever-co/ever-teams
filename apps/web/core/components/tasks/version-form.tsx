@@ -68,6 +68,10 @@ export const TaskVersionForm = ({ formOnly = false, onCreated, onVersionCreated 
 		}
 	}, [edit, setValue, createTaskVersion, editTaskVersion, user?.employee?.organizationId, user?.tenantId]);
 
+	// The permissions allow editing while they load: a form opened before they deny it must not submit, since
+	// Gauzy refuses the write
+	const canSubmit = createNew ? canCreate : !!edit && canWriteRow(edit);
+
 	const onSubmit = useCallback(
 		async (values: any) => {
 			if (createNew) {
@@ -116,7 +120,11 @@ export const TaskVersionForm = ({ formOnly = false, onCreated, onVersionCreated 
 
 	return (
 		<>
-			<form className="w-full" onSubmit={handleSubmit(onSubmit)} autoComplete="off">
+			<form
+				className="w-full"
+				onSubmit={canSubmit ? handleSubmit(onSubmit) : (event) => event.preventDefault()}
+				autoComplete="off"
+			>
 				<div className={clsxm('grid grid-cols-1 gap-2', !formOnly && ROW)}>
 					{!formOnly && <Text className={LABEL}>{t('pages.settingsTeam.VERSIONS')}</Text>}
 
@@ -160,7 +168,7 @@ export const TaskVersionForm = ({ formOnly = false, onCreated, onVersionCreated 
 										variant="primary"
 										className={PRIMARY_BUTTON}
 										type="submit"
-										disabled={createTaskVersionLoading || editTaskVersionLoading}
+										disabled={!canSubmit || createTaskVersionLoading || editTaskVersionLoading}
 										loading={createTaskVersionLoading || editTaskVersionLoading}
 									>
 										{edit ? t('common.SAVE') : t('common.CREATE')}

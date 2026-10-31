@@ -92,6 +92,10 @@ export const TaskPrioritiesForm = ({ formOnly = false, onCreated }: StatusForm) 
 		}
 	}, [edit, setValue]);
 
+	// The permissions allow editing while they load: a form opened before they deny it must not submit, since
+	// Gauzy refuses the write
+	const canSubmit = createNew ? canCreate : !!edit && canWriteRow(edit);
+
 	const onSubmit = useCallback(
 		async (values: any) => {
 			if (createNew) {
@@ -132,7 +136,11 @@ export const TaskPrioritiesForm = ({ formOnly = false, onCreated }: StatusForm) 
 
 	return (
 		<>
-			<form className="w-full" onSubmit={handleSubmit(onSubmit)} autoComplete="off">
+			<form
+				className="w-full"
+				onSubmit={canSubmit ? handleSubmit(onSubmit) : (event) => event.preventDefault()}
+				autoComplete="off"
+			>
 				<div className={clsxm('grid grid-cols-1 gap-2', !formOnly && ROW)}>
 					{!formOnly && <Text className={LABEL}>{t('pages.settingsTeam.TASK_PRIORITIES')}</Text>}
 
@@ -195,7 +203,7 @@ export const TaskPrioritiesForm = ({ formOnly = false, onCreated }: StatusForm) 
 										variant="primary"
 										className={PRIMARY_BUTTON}
 										type="submit"
-										disabled={createTaskPrioritiesLoading || editTaskPrioritiesLoading}
+										disabled={!canSubmit || createTaskPrioritiesLoading || editTaskPrioritiesLoading}
 										loading={createTaskPrioritiesLoading || editTaskPrioritiesLoading}
 									>
 										{edit ? t('common.SAVE') : t('common.CREATE')}

@@ -72,14 +72,14 @@ function membership(isManager: boolean) {
 	};
 }
 
-function renderVersionsAs(isManager: boolean) {
+function renderVersionsAs(isManager: boolean, { formOnly = false }: { formOnly?: boolean } = {}) {
 	const store = createStore();
 	const activeTeam = { id: TEAM_ID, name: 'Team', members: [membership(isManager)] };
 	store.set(organizationTeamsState, [activeTeam] as unknown as TOrganizationTeam[]);
 	store.set(activeTeamIdState, TEAM_ID);
 	render(
 		<Provider store={store}>
-			<TaskVersionForm />
+			<TaskVersionForm formOnly={formOnly} />
 		</Provider>
 	);
 }
@@ -146,6 +146,20 @@ describe('TaskVersionForm task settings access', () => {
 		for (const button of rowButtons()) {
 			expect(button).toHaveProperty('disabled', false);
 		}
+	});
+
+	// The permissions allow editing while they load, so a member can open the form (the + of the task details opens
+	// it on its own) before the denial arrives: it must then not submit a write Gauzy refuses.
+	it('does not let a member who cannot create submit an open form', () => {
+		renderVersionsAs(false, { formOnly: true });
+
+		expect(screen.getByRole('button', { name: 'common.CREATE' })).toHaveProperty('disabled', true);
+	});
+
+	it('lets a manager of the team submit the open form', () => {
+		renderVersionsAs(true, { formOnly: true });
+
+		expect(screen.getByRole('button', { name: 'common.CREATE' })).toHaveProperty('disabled', false);
 	});
 
 	it('keeps a version of no team read-only for a manager of the team, who still creates', () => {

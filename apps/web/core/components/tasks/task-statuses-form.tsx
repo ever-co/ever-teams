@@ -101,6 +101,10 @@ export const TaskStatusesForm = ({ formOnly = false, onCreated }: StatusForm) =>
 		}
 	}, [edit, setValue, createTaskStatus, editTaskStatus, user?.employee?.organizationId, user?.tenantId]);
 
+	// The permissions allow editing while they load: a form opened before they deny it must not submit, since
+	// Gauzy refuses the write
+	const canSubmit = createNew ? canCreate : !!edit && canWriteRow(edit);
+
 	const onSubmit = useCallback(
 		async (values: any) => {
 			if (createNew) {
@@ -207,7 +211,11 @@ export const TaskStatusesForm = ({ formOnly = false, onCreated }: StatusForm) =>
 			<Modal isOpen={isOpen} closeModal={closeModal}>
 				<SortTasksStatusSettings onClose={closeModal} arr={sortedArray} />
 			</Modal>
-			<form className="w-full" onSubmit={handleSubmit(onSubmit)} autoComplete="off">
+			<form
+				className="w-full"
+				onSubmit={canSubmit ? handleSubmit(onSubmit) : (event) => event.preventDefault()}
+				autoComplete="off"
+			>
 				<div className={clsxm('grid grid-cols-1 gap-2', !formOnly && ROW)}>
 					{!formOnly && <Text className={LABEL}>{t('pages.settingsTeam.TASK_STATUSES')}</Text>}
 
@@ -288,7 +296,7 @@ export const TaskStatusesForm = ({ formOnly = false, onCreated }: StatusForm) =>
 										variant="primary"
 										className={PRIMARY_BUTTON}
 										type="submit"
-										disabled={createTaskStatusLoading || editTaskStatusLoading}
+										disabled={!canSubmit || createTaskStatusLoading || editTaskStatusLoading}
 										loading={createTaskStatusLoading || editTaskStatusLoading}
 										onClick={() => {
 											setSelectedStatusType(null);
