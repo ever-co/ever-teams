@@ -18,26 +18,25 @@ import {
 	isSameMonth,
 	isSameYear,
 	isEqual,
-	startOfDay
+	startOfDay,
+	endOfDay
 } from 'date-fns';
 import { DateRange } from 'react-day-picker';
 import { useTranslations } from 'next-intl';
 import { SettingsIcon } from './team-icon';
 import { TranslationHooks } from 'next-intl';
 import { CalendarIcon } from '@radix-ui/react-icons';
-import { ITimeLogGroupedDailyReport } from '@/core/types/interfaces/activity/activity-report';
 
 interface DateRangePickerProps {
 	className?: string;
 	onDateRangeChange?: (range: DateRange | undefined) => void;
-	data?: ITimeLogGroupedDailyReport[];
 	/** Optional initial date range. When provided the picker starts with this
 	 *  range instead of the hardcoded "full current month" fallback.
 	 *  This keeps the UI in sync with the data-layer defaults from useActivityFilters. */
 	initialRange?: DateRange;
 }
 
-export function DateRangePicker({ className, onDateRangeChange, data, initialRange }: DateRangePickerProps) {
+export function DateRangePicker({ className, onDateRangeChange, initialRange }: DateRangePickerProps) {
 	const t = useTranslations();
 	const [dateRange, setDateRange] = React.useState<DateRange | undefined>(() => {
 		if (initialRange?.from && initialRange?.to) {
@@ -130,26 +129,10 @@ export function DateRangePicker({ className, onDateRangeChange, data, initialRan
 							showOutsideDays={false}
 							fixedWeeks
 							initialFocus
-							disabled={(date: Date | undefined) => {
-								// Disable future dates
-								if (date && date >= startOfDay(new Date())) return true;
-
-								// If no data provided, only disable future dates
-								if (!data) return false;
-
-								// Check if there's any data for this date
-								const hasDataForDate = data.some((log) => {
-									const logDate = new Date(log.date);
-									return (
-										logDate.getDate() === (date?.getDate() || 0) &&
-										logDate.getMonth() === (date?.getMonth() || 0) &&
-										logDate.getFullYear() === (date?.getFullYear() || 0)
-									);
-								});
-
-								// Disable dates with no data
-								return hasDataForDate;
-							}}
+							// Only days after today are disabled, so a custom range can end today. The report
+							// data only covers the range already selected, so it cannot tell which other days
+							// are worth picking.
+							disabled={(date: Date) => date > endOfDay(new Date())}
 						/>
 					</div>
 					<div className="p-1 space-y-1 border-l max-w-36">
