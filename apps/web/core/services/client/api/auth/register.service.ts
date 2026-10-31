@@ -10,6 +10,7 @@ import {
 import { APIService } from '../../api.service';
 import { authFormValidate } from '@/core/lib/helpers/validations';
 import { generateToken } from '@/core/lib/helpers/generate-token';
+import { splitFullName } from '@/core/lib/helpers/strings';
 import { setAuthCookies } from '@/core/lib/helpers/cookies';
 import { AxiosResponse } from 'axios';
 import { tenantService } from '../tenants/tenant.service';
@@ -73,14 +74,14 @@ class RegisterService extends APIService {
 		}
 
 		const password = generateToken(8);
-		const names = body.name.split(' ');
+		const { firstName, lastName } = splitFullName(body.name);
 
 		const user = await this.registerUser({
 			password: password,
 			confirmPassword: password,
 			user: {
-				firstName: names[0],
-				lastName: names[1] || '',
+				firstName,
+				lastName,
 				email: body.email,
 				timeZone: body.timezone as string
 			},
