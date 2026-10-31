@@ -147,20 +147,41 @@ jobs:
           marker='ci: sdk version bump via changeset'
           # A bump commit counts as published only when every package version it bumped has its release tag: after a
           # partial publish its changesets stay, so a re-run finishes the release.
+          # Returns 0 = fully published, 1 = not (or only partly) published, 2 = the commit could not be read.
           fully_published() {
-            local f id
-            for f in $(git diff-tree --no-commit-id --name-only -r "$1" -- 'packages/**/package.json' 2>/dev/null); do
-              id=$(git show "$1:$f" | node -e 'let s="";process.stdin.on("data",d=>s+=d).on("end",()=>{const p=JSON.parse(s);process.stdout.write(p.name+"@"+p.version)})')
+            local f id files
+            files=$(git diff-tree --no-commit-id --name-only -r "$1" -- 'packages/**/package.json') || return 2
+            for f in $files; do
+              id=$(git show "$1:$f" | node -e 'let s="";process.stdin.on("data",d=>s+=d).on("end",()=>{const p=JSON.parse(s);process.stdout.write(p.name+"@"+p.version)})') || return 2
               git rev-parse -q --verify "refs/tags/$id" >/dev/null || return 1
             done
             return 0
           }
-          bumps=$(for tag in $(git tag --list '@ever-teams/*@*'); do
-            git log -1 --format=%s "$tag" 2>/dev/null | grep -qiF "$marker" && git rev-parse "$tag^{commit}"
-          done | sort -u)
-          consumed=$(for c in $bumps; do
-            fully_published "$c" && git show --diff-filter=D --name-only --format= "$c" -- .changeset/ 2>/dev/null
-          done | sort -u)
+          # The commit of every release tag whose subject carries the bump marker. A tag that cannot be read fails the
+          # step: skipping it would keep changesets that were already published and release them again.
+          # Explicit ifs and no pipelines, so the step behaves the same with and without pipefail.
+          bump_commits() {
+            local tag subject
+            for tag in $(git tag --list '@ever-teams/*@*'); do
+              subject=$(git log -1 --format=%s "$tag") || { echo "::error::Cannot read release tag $tag" >&2; return 1; }
+              case "${subject,,}" in
+                *"${1,,}"*) git rev-parse "$tag^{commit}" || { echo "::error::Cannot resolve release tag $tag" >&2; return 1; } ;;
+              esac
+            done
+          }
+          raw=$(bump_commits "$marker")
+          bumps=$(printf '%s\n' "$raw" | sort -u)
+          consumed=""
+          for c in $bumps; do
+            rc=0
+            fully_published "$c" || rc=$?
+            case $rc in
+              0) consumed+=$'\n'"$(git show --diff-filter=D --name-only --format= "$c" -- .changeset/)" ;;
+              1) ;; # partly published: its changesets stay, so a re-run finishes that release
+              *) echo "::error::Cannot read bump commit $c"; exit 1 ;;
+            esac
+          done
+          consumed=$(printf '%s\n' "$consumed" | sort -u)
           for f in $consumed; do
             if [ -f "$f" ]; then
               echo "🧹 $f was already released by an earlier bump (its PR has not reached main yet): not applying it again"
@@ -217,21 +238,39 @@ jobs:
           # (it would publish the same code as the next patch) and a queued older run that starts after a newer one
           # (it would publish older code as a newer version). Such a push is an ancestor of (or is) the commit a
           # published bump commit was made on, and that bump has every one of its release tags.
+          # Returns 0 = fully published, 1 = not (or only partly) published, 2 = the commit could not be read.
           fully_published() {
-            local f id
-            for f in $(git diff-tree --no-commit-id --name-only -r "$1" -- 'packages/**/package.json' 2>/dev/null); do
-              id=$(git show "$1:$f" | node -e 'let s="";process.stdin.on("data",d=>s+=d).on("end",()=>{const p=JSON.parse(s);process.stdout.write(p.name+"@"+p.version)})')
+            local f id files
+            files=$(git diff-tree --no-commit-id --name-only -r "$1" -- 'packages/**/package.json') || return 2
+            for f in $files; do
+              id=$(git show "$1:$f" | node -e 'let s="";process.stdin.on("data",d=>s+=d).on("end",()=>{const p=JSON.parse(s);process.stdout.write(p.name+"@"+p.version)})') || return 2
               git rev-parse -q --verify "refs/tags/$id" >/dev/null || return 1
             done
             return 0
           }
-          for bump in $(for tag in $(git tag --list '@ever-teams/*@*'); do
-            git log -1 --format=%s "$tag" 2>/dev/null | grep -qiF "$BUMP_MARKER" && git rev-parse "$tag^{commit}"
-          done | sort -u); do
-            if git merge-base --is-ancestor "$AFTER_SHA" "$bump^" 2>/dev/null && fully_published "$bump"; then
-              echo "ℹ️  This push is already in a published release (bump commit ${bump:0:8}): nothing to release again."
-              echo "release=false" >> "$GITHUB_OUTPUT"
-              exit 0
+          # Same scan as in "Drop changesets an earlier bump already published": an unreadable tag fails the step.
+          bump_commits() {
+            local tag subject
+            for tag in $(git tag --list '@ever-teams/*@*'); do
+              subject=$(git log -1 --format=%s "$tag") || { echo "::error::Cannot read release tag $tag" >&2; return 1; }
+              case "${subject,,}" in
+                *"${1,,}"*) git rev-parse "$tag^{commit}" || { echo "::error::Cannot resolve release tag $tag" >&2; return 1; } ;;
+              esac
+            done
+          }
+          raw=$(bump_commits "$BUMP_MARKER")
+          for bump in $(printf '%s\n' "$raw" | sort -u); do
+            if git merge-base --is-ancestor "$AFTER_SHA" "$bump^" 2>/dev/null; then
+              rc=0
+              fully_published "$bump" || rc=$?
+              if [ "$rc" -eq 0 ]; then
+                echo "ℹ️  This push is already in a published release (bump commit ${bump:0:8}): nothing to release again."
+                echo "release=false" >> "$GITHUB_OUTPUT"
+                exit 0
+              elif [ "$rc" -ne 1 ]; then
+                echo "::error::Cannot read bump commit $bump"
+                exit 1
+              fi
             fi
           done
           # A package counts as changed when the push makes a net change to it (a change reverted within the same
@@ -375,12 +414,36 @@ jobs:
           branch="ci/sdk-version-bump-${GITHUB_RUN_ID}-${GITHUB_RUN_ATTEMPT}"
           git push origin "HEAD:refs/heads/${branch}"
           versions=$(git diff --name-only HEAD~1 HEAD -- 'packages/**/package.json' | while read -r f; do node -p "const p = require('./$f'); p.name + '@' + p.version"; done | tr '\n' ' ')
-          gh pr create --base develop --head "$branch" \
-            --title "ci: sdk version bump via changeset (main ${GITHUB_SHA::8})" \
-            --body "Version bump made by **Release Ever Teams SDK to npm** (run ${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}) on main \`${GITHUB_SHA::8}\`; the packages are published to npm from this commit. ${versions}
-
-          Merge it into develop; it reaches main with the next develop -> stage -> main cascade. That run skips this commit when it looks for changed SDK packages, so it cuts no new release." \
-            || echo "::warning title=Version bump PR::Could not open the PR; open one from ${branch} into develop by hand (the bump is pushed and the publish still runs)."
+          # The ARC runners have no `gh` CLI (run 40437234620: "gh: command not found"), so the PR is opened through
+          # the REST API with Node's fetch.
+          if ! BRANCH="$branch" VERSIONS="$versions" node <<'EOF'
+          const { GH_TOKEN, GITHUB_API_URL, GITHUB_REPOSITORY, GITHUB_SERVER_URL, GITHUB_RUN_ID, GITHUB_SHA, BRANCH, VERSIONS } = process.env;
+          const sha = GITHUB_SHA.slice(0, 8);
+          const body = [
+            `Version bump made by **Release Ever Teams SDK to npm** (run ${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}) on main \`${sha}\`; the packages are published to npm from this commit. ${VERSIONS}`,
+            '',
+            'Merge it into develop; it reaches main with the next develop -> stage -> main cascade. That run skips this commit when it looks for changed SDK packages, so it cuts no new release.'
+          ].join('\n');
+          (async () => {
+            const res = await fetch(`${GITHUB_API_URL}/repos/${GITHUB_REPOSITORY}/pulls`, {
+              method: 'POST',
+              headers: { Authorization: `Bearer ${GH_TOKEN}`, Accept: 'application/vnd.github+json', 'X-GitHub-Api-Version': '2022-11-28' },
+              body: JSON.stringify({ base: 'develop', head: BRANCH, title: `ci: sdk version bump via changeset (main ${sha})`, body })
+            });
+            const out = await res.json().catch(() => ({}));
+            if (!res.ok) {
+              console.error(`Opening the PR failed: HTTP ${res.status} ${out.message || ''}`);
+              process.exit(1);
+            }
+            console.log(`Opened ${out.html_url}`);
+          })().catch((err) => {
+            console.error(`Opening the PR failed: ${err.message}`);
+            process.exit(1);
+          });
+          EOF
+          then
+            echo "::warning title=Version bump PR::Could not open the PR; open one from ${branch} into develop by hand (the bump is pushed and the publish still runs)."
+          fi
 
       - name: Publish changed packages using Changesets
         uses: changesets/action@v1
