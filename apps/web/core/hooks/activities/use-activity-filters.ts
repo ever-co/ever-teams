@@ -110,7 +110,7 @@ export function withResolvedMemberIds(
 ): Required<UseReportActivityProps> {
 	if (!memberIds.length) return props;
 
-	const sortedMemberIds = [...memberIds].sort();
+	const sortedMemberIds = [...memberIds].sort((a, b) => a.localeCompare(b));
 
 	return { ...props, resolvedMemberIds: sortedMemberIds };
 }
