@@ -39,17 +39,21 @@ function TeamDashboard() {
 	const isTrackingEnabled = useAtomValue(isTrackingEnabledState);
 
 	const { mergedProps, enabled, currentFilters, updateDateRange, isManage } = useActivityFilters();
-	const statisticsProps = useTeamDashboardStatisticsProps({ mergedProps, isManage, routeTeamId: paramsUrl?.teamId });
+	const { statisticsProps, reportProps } = useTeamDashboardStatisticsProps({
+		mergedProps,
+		isManage,
+		routeTeamId: paramsUrl?.teamId
+	});
 	const {
 		rapportChartActivity,
 		refetchChartActivity,
 		isLoading: isChartLoading
-	} = useActivityChartQuery({ mergedProps, enabled });
+	} = useActivityChartQuery({ mergedProps: reportProps, enabled });
 	const {
 		rapportDailyActivity,
 		refetchDailyReport,
 		isLoading: isDailyLoading
-	} = useActivityDailyReportQuery({ mergedProps, enabled });
+	} = useActivityDailyReportQuery({ mergedProps: reportProps, enabled });
 	const {
 		statisticsCounts,
 		refetchStatisticsCounts,
