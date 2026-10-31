@@ -17,7 +17,8 @@ import { tagSchema } from '../tag/tag.schema';
 export const urlMetaDataSchema = z
 	.object({
 		title: z.string().optional(),
-		description: z.string().nullable(),
+		// The window data the desktop app and the agent store as metaData has no description
+		description: z.string().nullable().optional(),
 		image: z.string().optional(),
 		url: z.string().optional()
 		// Allow additional properties as per interface definition
@@ -62,11 +63,16 @@ export const activitySchema = basePerTenantAndOrganizationEntitySchema
 		// Core activity properties
 		title: z.string(),
 		description: z.string().nullable(),
-		timeSlot: timeSlotSchema.optional(),
-		timeSlotId: uuIdSchema.optional(),
-		task: taskSchema.optional(),
-		taskId: uuIdSchema.optional(),
-		metaData: z.union([z.string(), urlMetaDataSchema]).optional(),
+		// Gauzy answers null for a row with no time slot, task or metadata (MikroORM also sends the null relation),
+		// and the agent stores its keyboard and mouse counts as a metaData array
+		timeSlot: timeSlotSchema.optional().nullable(),
+		timeSlotId: uuIdSchema.optional().nullable(),
+		task: taskSchema.optional().nullable(),
+		taskId: uuIdSchema.optional().nullable(),
+		metaData: z
+			.union([z.string(), urlMetaDataSchema, z.array(z.unknown())])
+			.optional()
+			.nullable(),
 		date: z.string(),
 		time: z.string(),
 		duration: z.number().optional(),

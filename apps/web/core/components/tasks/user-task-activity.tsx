@@ -8,12 +8,23 @@ import { Tooltip } from '../duplicated-components/tooltip';
 import { TActivity } from '@/core/types/schemas';
 import { useTranslations } from 'next-intl';
 
+// Only the page data of a visited site carries a url: metaData can also be a string (SQLite) or an array (agent rows)
+function readVisitedUrl(metaData: TActivity['metaData']): string | undefined {
+	if (typeof metaData !== 'object' || metaData === null) {
+		return undefined;
+	}
+	if (Array.isArray(metaData)) {
+		return undefined;
+	}
+	return metaData.url;
+}
+
 export const UserTaskActivity = ({ timesheet }: { timesheet: TActivity }) => {
 	const [hidden, setHidden] = React.useState(true);
 	const t = useTranslations();
 	// Each activity record is one app or one visited site (Gauzy ActivityType APP | URL), with its own duration
 	const activityType = timesheet.type?.toUpperCase();
-	const visitedUrl = typeof timesheet.metaData === 'object' ? timesheet.metaData?.url : undefined;
+	const visitedUrl = readVisitedUrl(timesheet.metaData);
 	return (
 		<div className="shadow-md rounded-md  p-4 my-4 bg-[#00000014] dark:bg-muted">
 			<div className="flex justify-between items-center gap-5 py-2 border-b border-b-[#00000014] dark:border-b-border">
