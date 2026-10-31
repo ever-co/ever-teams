@@ -123,15 +123,18 @@ function failEveryRequest(error: unknown) {
 	);
 }
 
+/** Renders the task page and returns a function that renders it again, as Next.js does when the route id changes. */
 function renderTaskPage(store = createStore()) {
 	const client = new QueryClient({ defaultOptions: { queries: { retry: false, gcTime: Infinity } } });
-	render(
+	const taskPage = () => (
 		<QueryClientProvider client={client}>
 			<Provider store={store}>
 				<TaskDetailsPage />
 			</Provider>
 		</QueryClientProvider>
 	);
+	const view = render(taskPage());
+	return () => view.rerender(taskPage());
 }
 
 /**
@@ -148,6 +151,7 @@ describe('task page load failures', () => {
 	});
 
 	afterEach(() => {
+		mockParams.id = TASK_ID;
 		jest.restoreAllMocks();
 	});
 
@@ -167,6 +171,22 @@ describe('task page load failures', () => {
 
 		await screen.findByText('Fixture task');
 		expect(mockGetTaskById).toHaveBeenCalledTimes(2);
+	});
+
+	// The failure only holds back the task it was recorded for: opening another task loads it on its own
+	it('loads the next task on its own when the route moves on from a failed one', async () => {
+		failEveryRequest(apiUnreachable());
+		const rerenderTaskPage = renderTaskPage();
+		await screen.findByText('pages.error.HEADING_TITLE');
+
+		mockGetTaskById.mockResolvedValue({ id: OTHER_TASK_ID, title: 'Next task' });
+		mockParams.id = OTHER_TASK_ID;
+		rerenderTaskPage();
+
+		await screen.findByText('Next task');
+		expect(mockGetTaskById).toHaveBeenCalledTimes(2);
+		expect(mockGetTaskById).toHaveBeenLastCalledWith(OTHER_TASK_ID);
+		expect(screen.queryByText('pages.error.HEADING_TITLE')).toBeNull();
 	});
 
 	it.each([
