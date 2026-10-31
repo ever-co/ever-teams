@@ -973,6 +973,7 @@
 			"ISSUETYPE": "Probleemtypen",
 			"DEFAULT_ISSUE_TYPE": "Standaard probleemtype",
 			"NO_DEFAULT_ISSUE_TYPE": "Geen standaard probleemtype",
+			"TASK_SETTINGS_READ_ONLY": "Alleen teammanagers en beheerders kunnen de taakinstellingen wijzigen. Alleen beheerders kunnen de standaardwaarden wijzigen die alle teams delen.",
 			"LIST_OF_ISSUES": "Lijst met problemen",
 			"RELATED_ISSUE_TYPE": "Gerelateerde probleemtypen",
 			"LIST_OF_RELATED_TYPE": "Lijst met gerelateerde typen",

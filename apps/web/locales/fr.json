@@ -915,6 +915,7 @@
 			"ISSUE_TYPES": "Types de problèmes",
 			"DEFAULT_ISSUE_TYPE": "Type de problème par défaut",
 			"NO_DEFAULT_ISSUE_TYPE": "Aucun type de problème par défaut",
+			"TASK_SETTINGS_READ_ONLY": "Seuls les gestionnaires de l'équipe et les administrateurs peuvent modifier les paramètres des tâches. Seuls les administrateurs peuvent modifier les valeurs par défaut partagées par toutes les équipes.",
 			"RELATED_TYPE": "Type connexe",
 			"INVITATION_HEADING_TITLE": "Invitations",
 			"CREATE_NEW_STATUSES": "Créer de nouveaux statuts",

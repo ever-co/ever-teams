@@ -1,4 +1,5 @@
 import { useModal, useUpdateTask } from '@/core/hooks';
+import { useTaskSettingsAccess } from '@/core/hooks/tasks/use-task-settings-access';
 import { activeTeamState, detailedTaskState, isTeamManagerState } from '@/core/stores';
 import { useUserQuery } from '@/core/hooks/queries/user-user.query';
 import { ERoleName } from '@/core/types/generics/enums/role';
@@ -50,6 +51,7 @@ type StatusType = 'version' | 'epic' | 'status' | 'label' | 'size' | 'priority';
 const TaskSecondaryInfo = () => {
 	const task = useAtomValue(detailedTaskState);
 	const { updateTask, handleStatusUpdate } = useUpdateTask();
+	const { canCreate, readOnlyHint } = useTaskSettingsAccess();
 
 	const t = useTranslations();
 
@@ -110,13 +112,16 @@ const TaskSecondaryInfo = () => {
 					sidebarUI={true}
 					taskStatusClassName="text-[0.625rem] w-[7.6875rem] h-[2.35rem] max-w-[7.6875rem] rounded-sm 3xl:text-xs"
 				>
-					<Button
-						className="w-full px-2 py-1 mt-3 text-[0.625rem] dark:text-white dark:border-white"
-						variant="outline"
-						onClick={openModalEditionHandle('version')}
-					>
-						<PlusIcon className="w-4 h-4" />
-					</Button>
+					<Tooltip label={readOnlyHint} enabled={!canCreate}>
+						<Button
+							className="w-full px-2 py-1 mt-3 text-[0.625rem] dark:text-white dark:border-white disabled:pointer-events-none"
+							variant="outline"
+							disabled={!canCreate}
+							onClick={openModalEditionHandle('version')}
+						>
+							<PlusIcon className="w-4 h-4" />
+						</Button>
+					</Tooltip>
 				</ActiveTaskVersionDropdown>
 			</TaskRow>
 
@@ -149,13 +154,16 @@ const TaskSecondaryInfo = () => {
 					sidebarUI={true}
 					taskStatusClassName="text-[0.625rem] w-[7.6875rem] h-[2.35rem] max-w-[7.6875rem] rounded-sm 3xl:text-xs"
 				>
-					<Button
-						className="w-full px-2 py-1 text-xs dark:text-white dark:border-white"
-						variant="outline"
-						onClick={openModalEditionHandle('status')}
-					>
-						<PlusIcon className="w-4 h-4" />
-					</Button>
+					<Tooltip label={readOnlyHint} enabled={!canCreate}>
+						<Button
+							className="w-full px-2 py-1 text-xs dark:text-white dark:border-white disabled:pointer-events-none"
+							variant="outline"
+							disabled={!canCreate}
+							onClick={openModalEditionHandle('status')}
+						>
+							<PlusIcon className="w-4 h-4" />
+						</Button>
+					</Tooltip>
 				</ActiveTaskStatusDropdown>
 			</TaskRow>
 
@@ -197,13 +205,16 @@ const TaskSecondaryInfo = () => {
 					sidebarUI={true}
 					taskStatusClassName="text-[0.625rem] w-[7.6875rem] h-[2.35rem] max-w-[7.6875rem] rounded-sm 3xl:text-xs"
 				>
-					<Button
-						className="w-full px-2 py-1 text-xs dark:text-white dark:border-white"
-						variant="outline"
-						onClick={openModalEditionHandle('size')}
-					>
-						<PlusIcon className="w-4 h-4" />
-					</Button>
+					<Tooltip label={readOnlyHint} enabled={!canCreate}>
+						<Button
+							className="w-full px-2 py-1 text-xs dark:text-white dark:border-white disabled:pointer-events-none"
+							variant="outline"
+							disabled={!canCreate}
+							onClick={openModalEditionHandle('size')}
+						>
+							<PlusIcon className="w-4 h-4" />
+						</Button>
+					</Tooltip>
 				</ActiveTaskSizesDropdown>
 			</TaskRow>
 
@@ -216,13 +227,16 @@ const TaskSecondaryInfo = () => {
 					sidebarUI={true}
 					taskStatusClassName="text-[0.625rem] w-[7.6875rem] h-[2.35rem] max-w-[7.6875rem] rounded-sm 3xl:text-xs"
 				>
-					<Button
-						className="w-full px-2 py-1 text-xs dark:text-white dark:border-white"
-						variant="outline"
-						onClick={openModalEditionHandle('priority')}
-					>
-						<PlusIcon className="w-4 h-4" />
-					</Button>
+					<Tooltip label={readOnlyHint} enabled={!canCreate}>
+						<Button
+							className="w-full px-2 py-1 text-xs dark:text-white dark:border-white disabled:pointer-events-none"
+							variant="outline"
+							disabled={!canCreate}
+							onClick={openModalEditionHandle('priority')}
+						>
+							<PlusIcon className="w-4 h-4" />
+						</Button>
+					</Tooltip>
 				</ActiveTaskPropertiesDropdown>
 			</TaskRow>
 

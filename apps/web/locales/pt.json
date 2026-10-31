@@ -973,6 +973,7 @@
 			"ISSUETYPE": "Tipos de Problema",
 			"DEFAULT_ISSUE_TYPE": "Tipo de problema padrão",
 			"NO_DEFAULT_ISSUE_TYPE": "Nenhum tipo de problema padrão",
+			"TASK_SETTINGS_READ_ONLY": "Apenas gerentes da equipe e administradores podem alterar as configurações de tarefas. Apenas administradores podem alterar os padrões compartilhados por todas as equipes.",
 			"LIST_OF_ISSUES": "Lista de Problemas",
 			"RELATED_ISSUE_TYPE": "Tipos de Problema Relacionados",
 			"LIST_OF_RELATED_TYPE": "Lista de Tipos Relacionados",

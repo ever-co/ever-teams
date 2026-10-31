@@ -4,6 +4,7 @@ import { useTaskStatusesQuery } from '@/core/hooks/tasks/use-task-statuses-query
 import { useCreateTaskStatus } from '@/core/hooks/tasks/use-create-task-status';
 import { useEditTaskStatus } from '@/core/hooks/tasks/use-edit-task-status';
 import { useDeleteTaskStatus } from '@/core/hooks/tasks/use-delete-task-status';
+import { useTaskSettingsAccess } from '@/core/hooks/tasks/use-task-settings-access';
 import { tasksByTeamState } from '@/core/stores';
 import { clsxm } from '@/core/lib/utils';
 import { Spinner } from '@/core/components/common/spinner';
@@ -20,6 +21,7 @@ import SortTasksStatusSettings from '@/core/components/pages/kanban/sort-tasks-s
 import { DeleteTaskStatusConfirmationModal } from '@/core/components/features/tasks/delete-status-confirmation-modal';
 import { StandardTaskStatusDropDown } from './task-status';
 import { InputField } from '../duplicated-components/_input';
+import { Tooltip } from '../duplicated-components/tooltip';
 import { TTaskStatus } from '@/core/types/schemas';
 import { useUserQuery } from '@/core/hooks/queries/user-user.query';
 
@@ -28,7 +30,7 @@ const ROW = 'sm:grid-cols-[10rem_minmax(0,1fr)] sm:gap-4';
 const LABEL = 'text-sm font-medium text-muted-foreground sm:pt-2';
 const SUB_LABEL = 'text-xs font-medium text-muted-foreground';
 const SECONDARY_BUTTON =
-	'h-9 shrink-0 gap-1.5 rounded-md bg-card px-3 py-0 text-sm font-medium text-foreground hover:bg-muted';
+	'h-9 shrink-0 gap-1.5 rounded-md bg-card px-3 py-0 text-sm font-medium text-foreground hover:bg-muted disabled:pointer-events-none';
 const PRIMARY_BUTTON = 'h-9 shrink-0 rounded-md px-3 py-0 text-sm font-medium hover:bg-primary/90';
 const CANCEL_BUTTON = 'h-9 shrink-0 rounded-md px-3 py-0 text-sm font-medium';
 // The icon and colour pickers draw their own 54px box; this sizes them like the other controls of the
@@ -76,6 +78,8 @@ export const TaskStatusesForm = ({ formOnly = false, onCreated }: StatusForm) =>
 	const { editTaskStatus, editTaskStatusLoading } = useEditTaskStatus();
 	const { deleteTaskStatus } = useDeleteTaskStatus();
 	const { refetch } = useRefetchData();
+	const { canCreate, canWriteRow, canWriteRows, readOnlyHint } = useTaskSettingsAccess();
+	const canReorder = canWriteRows(taskStatuses);
 
 	useEffect(() => {
 		if (!edit && !getValues().name) {
@@ -210,21 +214,31 @@ export const TaskStatusesForm = ({ formOnly = false, onCreated }: StatusForm) =>
 					<div className="flex min-w-0 flex-col gap-3">
 						<div className="flex flex-wrap items-center gap-2">
 							{!createNew && !edit && (
+								<Tooltip label={readOnlyHint} enabled={!canCreate}>
+									<Button
+										variant="outline-dark"
+										className={SECONDARY_BUTTON}
+										disabled={!canCreate}
+										onClick={() => {
+											setEdit(null);
+											setCreateNew(true);
+										}}
+									>
+										<PlusIcon className="size-4" />
+										{t('pages.settingsTeam.CREATE_NEW_STATUS')}
+									</Button>
+								</Tooltip>
+							)}
+							<Tooltip label={readOnlyHint} enabled={!canReorder}>
 								<Button
+									onClick={openModal}
 									variant="outline-dark"
 									className={SECONDARY_BUTTON}
-									onClick={() => {
-										setEdit(null);
-										setCreateNew(true);
-									}}
+									disabled={!canReorder}
 								>
-									<PlusIcon className="size-4" />
-									{t('pages.settingsTeam.CREATE_NEW_STATUS')}
+									{t('common.SORT')}
 								</Button>
-							)}
-							<Button onClick={openModal} variant="outline-dark" className={SECONDARY_BUTTON}>
-								{t('common.SORT')}
-							</Button>
+							</Tooltip>
 						</div>
 						{(createNew || edit) && (
 							<>
@@ -338,6 +352,7 @@ export const TaskStatusesForm = ({ formOnly = false, onCreated }: StatusForm) =>
 														}
 													}}
 													isStatus={true}
+													readOnly={!canWriteRow(status)}
 												/>
 											))
 										) : (
