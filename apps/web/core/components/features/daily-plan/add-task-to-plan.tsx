@@ -13,7 +13,7 @@ import {
 	CommandList
 } from '@/core/components/common/command';
 import { ScrollArea } from '@/core/components/common/scroll-bar';
-import { formatDayPlanDate, getDailyPlanDay, tomorrowDate } from '@/core/lib/helpers/index';
+import { formatDayPlanDate, getDailyPlanDay, getTomorrowDate } from '@/core/lib/helpers/index';
 import { Modal, Text } from '@/core/components';
 import { Button } from '@/core/components/duplicated-components/_button';
 import { CalendarIcon, ReloadIcon } from '@radix-ui/react-icons';
@@ -134,9 +134,7 @@ export function AddTaskToPlan({
 									<Calendar
 										mode="single"
 										selected={date}
-										onSelect={(day: Date | undefined) =>
-											setDate(day ? day : new Date(tomorrowDate))
-										}
+										onSelect={(day: Date | undefined) => setDate(day ?? getTomorrowDate())}
 										initialFocus
 										disabled={{
 											from: new Date(1970, 1, 1),
