@@ -82,6 +82,19 @@ export const activitySchema = basePerTenantAndOrganizationEntitySchema
 		recordedAt: z.coerce.date().optional()
 	});
 
+// Grouped row of GET /timesheet/activity/daily (per date, time, title and employee), with no id or description.
+// PostgreSQL and MySQL send COUNT and SUM as strings, and the MikroORM branch of Gauzy selects no time.
+export const dailyActivitySchema = z
+	.object({
+		title: z.string().nullable().optional(),
+		date: z.string().nullable().optional(),
+		time: z.string().nullable().optional(),
+		duration: z.coerce.number().nullable().optional(),
+		sessions: z.coerce.number().nullable().optional(),
+		employeeId: z.string().nullable().optional()
+	})
+	.loose();
+
 // Activity filter schema (IActivityFilter interface) - pixel-perfect match
 export const activityFilterSchema = z.object({
 	type: z.enum(['DATE', 'TICKET']),
@@ -93,6 +106,7 @@ export const activityFilterSchema = z.object({
 
 // Inferred TypeScript types from Zod schemas - use these for consistency with validation
 export type TActivity = z.infer<typeof activitySchema>;
+export type TDailyActivity = z.infer<typeof dailyActivitySchema>;
 export type TActivityFilter = z.infer<typeof activityFilterSchema>;
 export type TUrlMetaData = z.infer<typeof urlMetaDataSchema>;
 export type TTimeSlot = z.infer<typeof timeSlotSchema>;

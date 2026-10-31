@@ -4,7 +4,20 @@ import qs from 'qs';
 import { getDefaultTimezone } from '@/core/lib/helpers/date-and-time';
 import { IActivitiesReportRequest, IActivityReport } from '@/core/types/interfaces/activity/activity-report';
 import { validateApiResponse, ZodValidationError } from '@/core/types/schemas';
-import { activitySchema, TActivity } from '@/core/types/schemas/activities/activity.schema';
+import {
+	activitySchema,
+	dailyActivitySchema,
+	TActivity,
+	TDailyActivity
+} from '@/core/types/schemas/activities/activity.schema';
+
+// The visited sites tabs ask for SITE, while Gauzy stores and filters these activities as URL (ActivityType).
+function toGauzyActivityType(type: string): string {
+	if (type === 'SITE') {
+		return 'URL';
+	}
+	return type;
+}
 
 class ActivityService extends APIService {
 	getActivities = async ({
@@ -70,7 +83,7 @@ class ActivityService extends APIService {
 	 * Get daily activities with validation
 	 *
 	 * @param params - Daily activities request parameters
-	 * @returns Promise<TActivity[]> - Validated daily activities data
+	 * @returns Promise<TDailyActivity[]> - Validated daily activities data
 	 * @throws ValidationError if response data doesn't match schema
 	 */
 	getDailyActivities = async (params: {
@@ -79,7 +92,7 @@ class ActivityService extends APIService {
 		todayStart: Date;
 		type?: string;
 		title?: string;
-	}): Promise<TActivity[]> => {
+	}): Promise<TDailyActivity[]> => {
 		try {
 			const queryParams: {
 				tenantId: string;
@@ -96,7 +109,9 @@ class ActivityService extends APIService {
 				startDate: params.todayStart.toISOString(),
 				endDate: params.todayEnd.toISOString()
 			};
-			if (params.type) queryParams['types[0]'] = params.type;
+			if (params.type) {
+				queryParams['types[0]'] = toGauzyActivityType(params.type);
+			}
 			if (params.title) queryParams['title[0]'] = params.title;
 			const query = qs.stringify(queryParams, { encode: false });
 
@@ -104,12 +119,12 @@ class ActivityService extends APIService {
 				? `/timesheet/activity/daily?${query}`
 				: `/timer/daily?${query}`;
 
-			const response = await this.get<TActivity[]>(endpoint);
+			const response = await this.get<TDailyActivity[]>(endpoint);
 
 			// Validate the response data using Zod schema
 			if (Array.isArray(response.data)) {
 				const validatedActivities = response.data.map((activity, index) =>
-					validateApiResponse(activitySchema, activity, `getDailyActivities API response item ${index}`)
+					validateApiResponse(dailyActivitySchema, activity, `getDailyActivities API response item ${index}`)
 				);
 				return validatedActivities;
 			}
