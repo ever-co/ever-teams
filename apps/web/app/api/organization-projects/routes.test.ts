@@ -1,3 +1,4 @@
+// cspell:ignore Borganization Btenant Femployee
 /**
  * GET /api/organization-projects and GET /api/organization-projects/:id are the proxy-mode twins of Gauzy's project
  * reads. They used to drop the query the client sends (ever-co/ever-teams#4825), so projects came back without their
