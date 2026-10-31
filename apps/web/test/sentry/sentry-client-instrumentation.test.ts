@@ -97,6 +97,21 @@ describe('browser Sentry (sentry.client.config.ts)', () => {
 		});
 	});
 
+	it.each(['/delete-account', '/delete-account/confirm', '/fr/delete-account/confirm'])(
+		'stays off, without downloading the SDK, on a page load that starts on %s (deletion token in the address)',
+		async (pathname) => {
+			setRuntimeEnv({ NEXT_PUBLIC_SENTRY_DSN: RUNTIME_DSN });
+			window.history.replaceState(null, '', `${pathname}#token=secret-token`);
+			try {
+				await expect(loadClientConfig().initSentryClient()).resolves.toBeUndefined();
+				expect(mockSdkLoads).toBe(0);
+				expect(mockInit).not.toHaveBeenCalled();
+			} finally {
+				window.history.replaceState(null, '', '/');
+			}
+		}
+	);
+
 	it('reads environment, release, sample rate and debug overrides from the runtime env', async () => {
 		setRuntimeEnv({
 			NEXT_PUBLIC_SENTRY_DSN: RUNTIME_DSN,

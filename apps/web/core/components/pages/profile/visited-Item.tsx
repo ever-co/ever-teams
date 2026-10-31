@@ -1,10 +1,36 @@
-import { secondsToTime } from '@/core/lib/helpers/index';
+import { getDailyPlanDay, secondsToTime } from '@/core/lib/helpers/index';
 import Link from 'next/link';
 import { useMemo } from 'react';
 import { ProgressBar } from '../../duplicated-components/_progress-bar';
-import { TActivity } from '@/core/types/schemas';
+import { TDailyActivity } from '@/core/types/schemas';
 
-const VisitedItem = ({ app, totalMilliseconds, type }: { app: TActivity; totalMilliseconds: number; type: string }) => {
+const VISITED_DAY_FORMAT: Intl.DateTimeFormatOptions = {
+	weekday: 'long',
+	year: 'numeric',
+	month: 'long',
+	day: 'numeric',
+	timeZone: 'UTC'
+};
+
+// Gauzy stores the UTC calendar day of an activity and sends it as a date-only value or as UTC midnight, depending
+// on the ORM. getDailyPlanDay reads such a value as that day, so formatting it in UTC no longer shows the day before
+// west of UTC.
+function formatVisitedDay(date: string): string {
+	const day = getDailyPlanDay(date);
+	const visitedDay = new Date(day);
+	const formatter = new Intl.DateTimeFormat('en-US', VISITED_DAY_FORMAT);
+	return formatter.format(visitedDay);
+}
+
+const VisitedItem = ({
+	app,
+	totalMilliseconds,
+	type
+}: {
+	app: TDailyActivity;
+	totalMilliseconds: number;
+	type: string;
+}) => {
 	const {
 		hours: h,
 		minutes: m,
@@ -29,12 +55,7 @@ const VisitedItem = ({ app, totalMilliseconds, type }: { app: TActivity; totalMi
 			</p>
 			{app?.date && (
 				<p style={{ flexBasis: itemCellsWidth['visited-dates'] }} className="">
-					{new Intl.DateTimeFormat('en-US', {
-						weekday: 'long',
-						year: 'numeric',
-						month: 'long',
-						day: 'numeric'
-					}).format(new Date(app?.date))}
+					{formatVisitedDay(app.date)}
 					{'  '}
 					{app?.time}
 				</p>

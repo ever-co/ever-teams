@@ -1,4 +1,4 @@
-import { formatDayPlanDate, tomorrowDate } from '@/core/lib/helpers/index';
+import { formatDayPlanDate, getDailyPlanDay, getTomorrowDate } from '@/core/lib/helpers/index';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/core/components/common/accordion';
 import { EmptyPlans, PlanHeader } from '@/core/components/daily-plan';
 
@@ -8,6 +8,7 @@ import { dailyPlanViewHeaderTabs } from '@/core/stores/common/header-tabs';
 import TaskBlockCard from '../task-block-card';
 import { clsxm } from '@/core/lib/utils';
 import { useMemo } from 'react';
+import moment from 'moment';
 import {
 	filterDailyPlan,
 	filterDailyPlansByEmployee,
@@ -63,18 +64,23 @@ export function FutureTasks({
 	const { dragPlans, onDragEnd } = useDailyPlanTaskOrder(futureDailyPlanTasks);
 
 	if (!futureDailyPlanTasks) return null;
+	const tomorrow = getTomorrowDate();
+	// The accordion is keyed by this day because Radix reads defaultValue on mount only:
+	// a new day opens its plan again, renders of the same day keep what the user opened
+	const tomorrowPlanDay = moment(tomorrow).format('YYYY-MM-DD');
 	return (
 		<div className="flex flex-col gap-6">
 			{dragPlans.length > 0 ? (
 				<DragDropContext onDragEnd={onDragEnd}>
 					<Accordion
+						key={tomorrowPlanDay}
 						type="multiple"
 						className="text-sm"
-						defaultValue={[tomorrowDate.toISOString().split('T')[0]]}
+						defaultValue={[tomorrowPlanDay]}
 					>
 						{dragPlans.map((plan) => (
 							<AccordionItem
-								value={plan.date.toString().split('T')[0]}
+								value={getDailyPlanDay(plan.date)}
 								key={plan.id}
 								className="dark:border-slate-600 !border-none"
 							>

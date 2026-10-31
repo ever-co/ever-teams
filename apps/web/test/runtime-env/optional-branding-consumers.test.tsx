@@ -73,7 +73,9 @@ const EVER_BRANDING = {
 	PRIVACY_POLICY_LINK: 'https://ever.team/privacy',
 	MAIN_PICTURE: '/assets/cover/auth-bg-cover.png',
 	MAIN_PICTURE_DARK: '/assets/cover/auth-bg-cover-dark.png',
-	IS_DEMO_MODE: false
+	IS_DEMO_MODE: false,
+	// No deployment value: every link above is the built-in Ever default
+	BRANDING_LINKS_SET_BY_OPERATOR: { app: false, company: false, terms: false, privacy: false }
 };
 const TURNED_OFF = { APP_SLOGAN_TEXT: '', COMPANY_LINK: '', TERMS_LINK: '', PRIVACY_POLICY_LINK: '' };
 
@@ -118,6 +120,34 @@ describe('AuthLayout', () => {
 		expect(screen.queryByText('pages.auth.TERMS_OF_SERVICE')).toBeNull();
 		expect(linkTo('pages.auth.PRIVACY_POLICY')).toBe('https://ever.team/privacy');
 		expect(container.textContent).not.toContain('·');
+	});
+
+	// The account deletion pages came after the egress audit's UI baseline, which may only shrink: they must not
+	// reference an Ever host the operator did not set.
+	it('links nothing to the built-in Ever defaults with operatorLinksOnly', () => {
+		const { container } = render(<AuthLayout operatorLinksOnly>content</AuthLayout>);
+
+		expect(container.querySelectorAll('a[href^="https://"]')).toHaveLength(0);
+		expect(screen.queryByText('pages.auth.TERMS_OF_SERVICE')).toBeNull();
+		expect(screen.queryByText('pages.auth.PRIVACY_POLICY')).toBeNull();
+		// The app and the company are still credited, just not linked.
+		expect(screen.getByText('Ever Teams').tagName).toBe('SPAN');
+		expect(screen.getByText('Ever Co. LTD').tagName).toBe('SPAN');
+	});
+
+	it('keeps the links the operator set with operatorLinksOnly', () => {
+		Object.assign(constants, {
+			COMPANY_LINK: 'https://acme.example',
+			PRIVACY_POLICY_LINK: 'https://acme.example/privacy',
+			BRANDING_LINKS_SET_BY_OPERATOR: { app: false, company: true, terms: false, privacy: true }
+		});
+
+		render(<AuthLayout operatorLinksOnly>content</AuthLayout>);
+
+		expect(linkTo('Ever Co. LTD')).toBe('https://acme.example');
+		expect(linkTo('pages.auth.PRIVACY_POLICY')).toBe('https://acme.example/privacy');
+		expect(screen.queryByText('pages.auth.TERMS_OF_SERVICE')).toBeNull();
+		expect(screen.getByText('Ever Teams').tagName).toBe('SPAN');
 	});
 });
 

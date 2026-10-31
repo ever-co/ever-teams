@@ -31,6 +31,10 @@ export async function POST(req: Request) {
 		bearer_token: access_token
 	});
 
+	// The role picked in the invite form, EMPLOYEE when none is sent. Gauzy checks that the inviter may grant it.
+	const defaultRoleId = employeeRole?.id || '';
+	const roleId = body.roleId || defaultRoleId;
+
 	const date = new Date();
 	date.setDate(date.getDate() - 1);
 
@@ -41,7 +45,7 @@ export async function POST(req: Request) {
 			departmentIds: [],
 			organizationContactIds: [],
 			teamIds: [teamId],
-			roleId: employeeRole?.id || '',
+			roleId,
 			invitationExpirationPeriod: 'Never',
 			inviteType: 'TEAM',
 			appliedDate: null,

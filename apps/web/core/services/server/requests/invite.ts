@@ -183,13 +183,20 @@ export interface AcceptInviteParams {
  * Accept Invite request
  *
  * @param params
+ * @param origin The app's origin, sent as the Origin header: Gauzy builds the links of its welcome e-mail on it
  * @returns
  */
-export function acceptInviteRequest(params: AcceptInviteParams) {
+export function acceptInviteRequest(params: AcceptInviteParams, origin?: string) {
+	const headers: Record<string, string> = {};
+	if (origin) {
+		headers['origin'] = origin;
+	}
+
 	return serverFetch<IAuthResponse>({
 		path: '/invite/accept',
 		method: 'POST',
-		body: params
+		body: params,
+		init: { headers }
 	});
 }
 
@@ -215,8 +222,11 @@ export function acceptRejectMyInvitationsRequest(
 	invitationId: string,
 	action: EInviteAction
 ) {
+	// Encoded, so an id such as `../user` stays one path segment instead of reaching another endpoint
+	const encodedInvitationId = encodeURIComponent(invitationId);
+
 	return serverFetch<PaginationResponse<TInvite>>({
-		path: `/invite/${invitationId}/${action}`,
+		path: `/invite/${encodedInvitationId}/${action}`,
 		method: 'PUT',
 		bearer_token,
 		tenantId: tenantId

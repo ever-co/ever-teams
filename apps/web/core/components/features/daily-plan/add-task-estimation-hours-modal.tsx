@@ -189,8 +189,8 @@ export function AddTasksEstimationHoursModal(props: IAddTasksEstimationHoursModa
 			if (plan && plan.workTimePlanned !== workTimePlanned) {
 				// Server requires employeeId in the payload, to correctly check permissions
 				await updateDailyPlan({ workTimePlanned, employeeId: plan.employeeId || undefined }, plan.id ?? '');
-				toast.success('Plan updated successfully', {
-					description: `Work time planned updated to ${workTimePlanned} hours`,
+				toast.success(t('dailyPlan.toastMessages.PLAN_UPDATED'), {
+					description: t('dailyPlan.toastMessages.WORK_TIME_PLANNED_UPDATED', { hours: workTimePlanned }),
 					duration: 3000
 				});
 			}
@@ -200,7 +200,7 @@ export function AddTasksEstimationHoursModal(props: IAddTasksEstimationHoursModa
 			handleCloseModal();
 		} catch (error) {
 			console.log(error);
-			toast.error('Failed to update plan. Please try again.');
+			toast.error(t('dailyPlan.toastMessages.PLAN_UPDATE_FAILED'));
 		} finally {
 			setLoading(false);
 		}
@@ -245,8 +245,8 @@ export function AddTasksEstimationHoursModal(props: IAddTasksEstimationHoursModa
 			if (plan && plan.workTimePlanned !== workTimePlanned) {
 				// Server requires employeeId in the payload, to correctly check permissions
 				await updateDailyPlan({ workTimePlanned, employeeId: plan.employeeId || undefined }, plan.id ?? '');
-				toast.success('Plan updated successfully', {
-					description: `Work time planned updated to ${workTimePlanned} hours`,
+				toast.success(t('dailyPlan.toastMessages.PLAN_UPDATED'), {
+					description: t('dailyPlan.toastMessages.WORK_TIME_PLANNED_UPDATED', { hours: workTimePlanned }),
 					duration: 3000
 				});
 			}
@@ -255,8 +255,8 @@ export function AddTasksEstimationHoursModal(props: IAddTasksEstimationHoursModa
 
 			if (canStartWorking && !timerStatus?.running) {
 				handleChangeActiveTask();
-				toast.success('Work started successfully', {
-					description: 'Timer has been started for your planned tasks',
+				toast.success(t('dailyPlan.toastMessages.WORK_STARTED'), {
+					description: t('dailyPlan.toastMessages.TIMER_STARTED_FOR_PLANNED_TASKS'),
 					duration: 3000
 				});
 
@@ -266,7 +266,7 @@ export function AddTasksEstimationHoursModal(props: IAddTasksEstimationHoursModa
 			}
 		} catch (error) {
 			console.log(error);
-			toast.error('Failed to start work. Please try again.');
+			toast.error(t('dailyPlan.toastMessages.WORK_START_FAILED'));
 		} finally {
 			setLoading(false);
 		}
@@ -278,7 +278,8 @@ export function AddTasksEstimationHoursModal(props: IAddTasksEstimationHoursModa
 		timerStatus?.running,
 		handleChangeActiveTask,
 		isRenderedInSoftFlow,
-		handleCloseModal
+		handleCloseModal,
+		t
 	]);
 
 	/**
@@ -752,17 +753,18 @@ export function SearchTaskInput(props: ISearchTaskInputProps) {
 				taskStatusId: taskStatuses[0].id,
 				issueType: EIssueType.BUG // TODO: Let the user choose the issue type
 			});
-			toast.success('Task created successfully', {
-				description: `Task "${taskName.trim()}" has been created`,
+			const createdTaskTitle = taskName.trim();
+			toast.success(t('dailyPlan.toastMessages.TASK_CREATED'), {
+				description: t('dailyPlan.toastMessages.TASK_CREATED_DESCRIPTION', { title: createdTaskTitle }),
 				duration: 3000
 			});
 		} catch (error) {
 			console.log(error);
-			toast.error('Failed to create task. Please try again.');
+			toast.error(t('task.toastMessages.TASK_CREATION_FAILED'));
 		} finally {
 			setCreateTaskLoading(false);
 		}
-	}, [createTask, taskName, taskStatuses]);
+	}, [createTask, taskName, taskStatuses, t]);
 
 	/**
 	 * Focus on the search input when the popover is mounted.
@@ -931,8 +933,8 @@ function TaskCard(props: ITaskCardProps) {
 					},
 					plan.id
 				);
-				toast.success('Task added to plan', {
-					description: `"${task.title}" has been added to your daily plan`,
+				toast.success(t('dailyPlan.toastMessages.TASK_ADDED_TO_PLAN'), {
+					description: t('dailyPlan.toastMessages.TASK_ADDED_TO_PLAN_DESCRIPTION', { title: task.title }),
 					duration: 3000
 				});
 				// Close search input after successful addition
@@ -950,8 +952,8 @@ function TaskCard(props: ITaskCardProps) {
 						employeeId,
 						organizationId: user?.employee?.organizationId!
 					});
-					toast.success('Daily plan created', {
-						description: `Daily plan created with task "${task.title}"`,
+					toast.success(t('dailyPlan.toastMessages.PLAN_CREATED'), {
+						description: t('dailyPlan.toastMessages.PLAN_CREATED_WITH_TASK', { title: task.title }),
 						duration: 3000
 					});
 					// Close search input after successful addition
@@ -960,7 +962,7 @@ function TaskCard(props: ITaskCardProps) {
 			}
 		} catch (error) {
 			console.log(error);
-			toast.error('Failed to add task to plan. Please try again.');
+			toast.error(t('dailyPlan.toastMessages.TASK_ADD_TO_PLAN_FAILED'));
 		} finally {
 			setAddToPlanLoading(false);
 		}
@@ -976,7 +978,8 @@ function TaskCard(props: ITaskCardProps) {
 		user?.employee?.id,
 		user?.employee?.organizationId,
 		user?.tenantId,
-		onTaskAdded
+		onTaskAdded,
+		t
 	]);
 
 	return (
@@ -1085,6 +1088,7 @@ interface ITaskCardActionsProps {
 
 function TaskCardActions(props: ITaskCardActionsProps) {
 	const { task, selectedPlan, openTaskDetailsModal, openUnplanActiveTaskModal, employeeId, canEdit = true } = props;
+	const t = useTranslations();
 	const { data: user } = useUserQuery();
 	// Use useEmployeeDailyPlans consistent with other components
 	const { employeeFuturePlans, employeeTodayPlan } = useEmployeeDailyPlans(employeeId ?? null);
@@ -1135,8 +1139,10 @@ function TaskCardActions(props: ITaskCardActionsProps) {
 								},
 								selectedPlan?.id
 							);
-							toast.success('Task removed from plan', {
-								description: `"${task.title}" has been removed from your daily plan`,
+							toast.success(t('dailyPlan.toastMessages.TASK_REMOVED_FROM_PLAN'), {
+								description: t('dailyPlan.toastMessages.TASK_REMOVED_FROM_PLAN_DESCRIPTION', {
+									title: task.title
+								}),
 								duration: 3000
 							});
 						}
@@ -1150,8 +1156,10 @@ function TaskCardActions(props: ITaskCardActionsProps) {
 						},
 						selectedPlan?.id
 					);
-					toast.success('Task removed from plan', {
-						description: `"${task.title}" has been removed from your daily plan`,
+					toast.success(t('dailyPlan.toastMessages.TASK_REMOVED_FROM_PLAN'), {
+						description: t('dailyPlan.toastMessages.TASK_REMOVED_FROM_PLAN_DESCRIPTION', {
+							title: task.title
+						}),
 						duration: 3000
 					});
 				}
@@ -1159,7 +1167,7 @@ function TaskCardActions(props: ITaskCardActionsProps) {
 				closePopover();
 			} catch (error) {
 				console.log(error);
-				toast.error('Failed to remove task from plan. Please try again.');
+				toast.error(t('dailyPlan.toastMessages.TASK_REMOVAL_FAILED'));
 			}
 		},
 		[
@@ -1174,7 +1182,8 @@ function TaskCardActions(props: ITaskCardActionsProps) {
 			task.title,
 			timerStatus?.running,
 			user?.employee?.id,
-			user?.employee?.organizationId
+			user?.employee?.organizationId,
+			t
 		]
 	);
 
@@ -1203,11 +1212,13 @@ function TaskCardActions(props: ITaskCardActionsProps) {
 										onClick={openTaskDetailsModal}
 										className={clsxm('hover:font-semibold hover:transition-all')}
 									>
-										View
+										{t('common.VIEW')}
 									</li>
 									{checkPastDate(selectedPlan?.date) ? null : (
 										<>
-											<li className={clsxm('hover:font-semibold hover:transition-all')}>Edit</li>
+											<li className={clsxm('hover:font-semibold hover:transition-all')}>
+												{t('common.EDIT')}
+											</li>
 
 											{selectedPlan?.id && (
 												<li>
@@ -1235,7 +1246,7 @@ function TaskCardActions(props: ITaskCardActionsProps) {
 															{removeTaskFromPlanLoading ? (
 																<SpinnerLoader size={10} />
 															) : (
-																'Unplan'
+																t('dailyPlan.labels.UNPLAN')
 															)}
 														</span>
 													)}
@@ -1298,6 +1309,7 @@ function UnplanTask(props: IUnplanTaskProps) {
 		employeeId,
 		canEdit = true
 	} = props;
+	const t = useTranslations();
 	const { data: user } = useUserQuery();
 	// Use useEmployeeDailyPlans consistent with other components
 	const { employeeTodayPlan } = useEmployeeDailyPlans(employeeId ?? null);
@@ -1336,8 +1348,8 @@ function UnplanTask(props: IUnplanTaskProps) {
 							},
 							taskId!
 						);
-						toast.success('Task removed from all plans', {
-							description: 'Task has been removed from all daily plans',
+						toast.success(t('dailyPlan.toastMessages.TASK_REMOVED_FROM_ALL_PLANS'), {
+							description: t('dailyPlan.toastMessages.TASK_REMOVED_FROM_ALL_PLANS_DESCRIPTION'),
 							duration: 3000
 						});
 					}
@@ -1350,8 +1362,8 @@ function UnplanTask(props: IUnplanTaskProps) {
 						},
 						taskId
 					);
-					toast.success('Task removed from all plans', {
-						description: 'Task has been removed from all daily plans',
+					toast.success(t('dailyPlan.toastMessages.TASK_REMOVED_FROM_ALL_PLANS'), {
+						description: t('dailyPlan.toastMessages.TASK_REMOVED_FROM_ALL_PLANS_DESCRIPTION'),
 						duration: 3000
 					});
 				}
@@ -1361,7 +1373,7 @@ function UnplanTask(props: IUnplanTaskProps) {
 				closeActionPopover();
 			} catch (error) {
 				console.log(error);
-				toast.error('Failed to remove task from plans. Please try again.');
+				toast.error(t('dailyPlan.toastMessages.TASK_REMOVAL_FROM_PLANS_FAILED'));
 			}
 		},
 		[
@@ -1376,14 +1388,17 @@ function UnplanTask(props: IUnplanTaskProps) {
 			taskId,
 			timerStatus?.running,
 			user?.employee?.id,
-			user?.employee?.organizationId
+			user?.employee?.organizationId,
+			t
 		]
 	);
 
 	return (
 		<Popover>
 			<PopoverButton>
-				<span className={clsxm('text-red-600 hover:font-semibold hover:transition-all')}>Unplan</span>
+				<span className={clsxm('text-red-600 hover:font-semibold hover:transition-all')}>
+					{t('dailyPlan.labels.UNPLAN')}
+				</span>
 			</PopoverButton>
 
 			<Transition
@@ -1414,7 +1429,7 @@ function UnplanTask(props: IUnplanTaskProps) {
 										{unPlanSelectedDateLoading ? (
 											<SpinnerLoader size={10} />
 										) : (
-											'Unplan selected date'
+											t('dailyPlan.labels.UNPLAN_SELECTED_DATE')
 										)}
 									</li>
 									<li
@@ -1425,7 +1440,11 @@ function UnplanTask(props: IUnplanTaskProps) {
 												'hover:font-semibold hover:transition-all '
 										)}
 									>
-										{removeManyTaskFromPlanLoading ? <SpinnerLoader size={10} /> : 'Unplan all'}
+										{removeManyTaskFromPlanLoading ? (
+											<SpinnerLoader size={10} />
+										) : (
+											t('dailyPlan.labels.UNPLAN_ALL')
+										)}
 									</li>
 								</ul>
 								<button
@@ -1434,7 +1453,7 @@ function UnplanTask(props: IUnplanTaskProps) {
 									}}
 									className={clsxm('px-3 py-2 w-full bg-primary/5')}
 								>
-									<span>Cancel</span>
+									<span>{t('common.CANCEL')}</span>
 								</button>
 							</EverCard>
 						);

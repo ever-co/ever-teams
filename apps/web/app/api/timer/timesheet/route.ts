@@ -1,5 +1,5 @@
 import { authenticatedGuard } from '@/core/services/server/guards/authenticated-guard-app';
-import { taskActivityRequest } from '@/core/services/server/requests';
+import { readArrayParam, taskActivityRequest } from '@/core/services/server/requests';
 import { NextResponse } from 'next/server';
 
 export async function GET(req: Request) {
@@ -9,13 +9,16 @@ export async function GET(req: Request) {
 
 	const { searchParams } = new URL(req.url);
 
-	const { taskId } = searchParams as unknown as {
-		taskId: string;
-	};
+	// The web client sends the task as taskIds[0]; a single taskId is read as well
+	const taskIds = readArrayParam(searchParams, 'taskIds');
+	const taskId = searchParams.get('taskId');
+	if (taskId) {
+		taskIds.push(taskId);
+	}
 
 	const { data } = await taskActivityRequest(
 		{
-			taskIds: [taskId],
+			taskIds,
 			tenantId,
 			organizationId,
 			defaultRange: 'false'

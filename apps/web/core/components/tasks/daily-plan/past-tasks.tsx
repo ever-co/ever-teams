@@ -1,4 +1,4 @@
-import { formatDayPlanDate, yesterdayDate } from '@/core/lib/helpers/index';
+import { formatDayPlanDate, getDailyPlanDay, getYesterdayDate } from '@/core/lib/helpers/index';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/core/components/common/accordion';
 import { FilterTabs } from '@/core/types/interfaces/task/task-card';
 
@@ -13,6 +13,7 @@ import {
 	filterDailyPlansByTasks
 } from '@/core/hooks/daily-plans/use-filter-date-range';
 import { useMemo } from 'react';
+import moment from 'moment';
 import { TUser } from '@/core/types/schemas';
 import { DragDropContext, Draggable, Droppable, DroppableProvided, DroppableStateSnapshot } from '@hello-pangea/dnd';
 import { useDateRange } from '@/core/hooks/daily-plans/use-date-range';
@@ -65,18 +66,23 @@ export function PastTasks({
 	}, [date, employeePastPlans, user, filterByEmployee, filteredTaskIds]);
 	const { dragPlans, onDragEnd } = useDailyPlanTaskOrder(filteredPastPlans);
 	if (!filteredPastPlans) return null;
+	const yesterday = getYesterdayDate();
+	// The accordion is keyed by this day because Radix reads defaultValue on mount only:
+	// a new day opens its plan again, renders of the same day keep what the user opened
+	const yesterdayPlanDay = moment(yesterday).format('YYYY-MM-DD');
 	return (
 		<div className="flex flex-col gap-6">
 			{dragPlans.length > 0 ? (
 				<DragDropContext onDragEnd={onDragEnd}>
 					<Accordion
+						key={yesterdayPlanDay}
 						type="multiple"
 						className="text-sm"
-						defaultValue={[yesterdayDate.toISOString().split('T')[0]]}
+						defaultValue={[yesterdayPlanDay]}
 					>
 						{dragPlans.map((plan) => (
 							<AccordionItem
-								value={plan.date.toString().split('T')[0]}
+								value={getDailyPlanDay(plan.date)}
 								key={plan.id}
 								className="dark:border-slate-600 !border-none"
 							>

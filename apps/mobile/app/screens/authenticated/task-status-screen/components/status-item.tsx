@@ -7,16 +7,20 @@ import { typography, useAppTheme } from '../../../../theme';
 import { ITaskStatusItem } from '../../../../services/interfaces/ITaskStatus';
 import { formatName } from '../../../../helpers/name-format';
 import { SvgUri } from 'react-native-svg';
+import { readOnlyOpacity } from '../../../../helpers/read-only-opacity';
 // import { useTaskStatusValue } from "../../../../components/StatusType"
 
 interface IStatusItem {
 	status: ITaskStatusItem;
 	onDeleteTask: () => unknown;
 	openForEdit: () => unknown;
+	/** Shows the edit and delete actions disabled, for a user who may not change this status. */
+	readOnly?: boolean;
 }
 
-const StatusItem: FC<IStatusItem> = ({ status, onDeleteTask, openForEdit }) => {
+const StatusItem: FC<IStatusItem> = ({ status, onDeleteTask, openForEdit, readOnly = false }) => {
 	const { colors, dark } = useAppTheme();
+	const actionsOpacity = readOnlyOpacity(readOnly);
 	// const allStatuses = useTaskStatusValue()
 	// const cStatus = allStatuses[status.name.split("-").join(" ")]
 
@@ -29,12 +33,24 @@ const StatusItem: FC<IStatusItem> = ({ status, onDeleteTask, openForEdit }) => {
 			}}
 		>
 			<View style={{ ...styles.statusContainer, backgroundColor: status?.color }}>
-				<SvgUri width={20} height={20} uri={status?.fullIconUrl} />
-				<Text style={styles.text}>{formatName(status?.name)}</Text>
+				<SvgUri width={20} height={20} uri={status?.fullIconUrl ?? null} />
+				<Text style={styles.text}>{formatName(status?.name ?? '')}</Text>
 			</View>
-			<View style={styles.rightSection}>
-				<AntDesign size={16} name={'edit'} color={colors.primary} onPress={() => openForEdit()} />
-				<Ionicons name="trash-outline" size={16} color={'#DE5536'} onPress={() => onDeleteTask()} />
+			<View style={{ ...styles.rightSection, opacity: actionsOpacity }}>
+				<AntDesign
+					size={16}
+					name={'edit'}
+					color={colors.primary}
+					disabled={readOnly}
+					onPress={() => openForEdit()}
+				/>
+				<Ionicons
+					name="trash-outline"
+					size={16}
+					color={'#DE5536'}
+					disabled={readOnly}
+					onPress={() => onDeleteTask()}
+				/>
 			</View>
 		</View>
 	);

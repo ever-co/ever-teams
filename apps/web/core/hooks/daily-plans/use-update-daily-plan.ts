@@ -3,6 +3,7 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useCallback } from 'react';
 import { useAtomValue } from 'jotai';
+import { useTranslations } from 'next-intl';
 import { toast } from 'sonner';
 import { dailyPlanService, taskService } from '@/core/services/client/api';
 import {
@@ -28,6 +29,7 @@ import { useDailyPlanInvalidation } from './use-daily-plan-invalidation';
  * @returns Object containing update mutations and loading states
  */
 export function useUpdateDailyPlan() {
+	const t = useTranslations();
 	const queryClient = useQueryClient();
 	const activeTeam = useAtomValue(activeTeamState);
 	const { invalidateDailyPlanData } = useDailyPlanInvalidation();
@@ -102,15 +104,16 @@ export function useUpdateDailyPlan() {
 									taskId: freshTask.id,
 									data: { ...freshTask, members: updatedMembers as any } // Type assertion needed due to Zod lazy schema
 								});
-								toast.success('Employee assigned to task');
+								toast.success(t('dailyPlan.toastMessages.EMPLOYEE_ASSIGNED_TO_TASK'));
 							}
 						}
 					}
 				}
 			} catch (error) {
 				// Log error but don't block the daily plan update
-				toast.error('Failed to auto-assign employee to task', {
-					description: getErrorMessage(error, 'Failed to auto-assign employee to task')
+				const autoAssignFailedMessage = t('dailyPlan.toastMessages.EMPLOYEE_AUTO_ASSIGN_FAILED');
+				toast.error(autoAssignFailedMessage, {
+					description: getErrorMessage(error, autoAssignFailedMessage)
 				});
 				logErrorInDev('Failed to auto-assign employee to task:', error);
 			}

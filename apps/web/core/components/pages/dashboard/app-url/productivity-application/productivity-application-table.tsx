@@ -17,7 +17,7 @@ import { useSortableData } from '@/core/hooks/common/use-sortable-data';
 import { SortPopover } from '@/core/components/common/sort-popover';
 import { usePagination } from '@/core/hooks/common/use-pagination';
 import { AnimatedEmptyState } from '@/core/components/common/empty-state';
-import { format } from 'date-fns';
+import { format, parseISO } from 'date-fns';
 import { Paginate } from '@/core/components/duplicated-components/_pagination';
 import { APP_LOGO_SRC, APP_NAME } from '@/core/constants/config/constants';
 
@@ -137,7 +137,7 @@ export function ProductivityApplicationTable({ data, isLoading }: { data?: IActi
 							{/* Application Activities */}
 							{activities.map(({ date, activity, employee, projectName }, index) => (
 								<TableRow key={`${appName}-${date}-${index}`}>
-									<TableCell>{format(new Date(date), 'EEEE dd MMM yyyy')}</TableCell>
+									<TableCell>{format(parseISO(date), 'EEEE dd MMM yyyy')}</TableCell>
 									<TableCell>
 										<div className="flex gap-2 items-center">
 											<Avatar className="object-contain w-8 h-8">

@@ -17,9 +17,11 @@ import {
 	MAIN_PICTURE_DARK,
 	IS_DEMO_MODE,
 	TERMS_LINK,
-	PRIVACY_POLICY_LINK
+	PRIVACY_POLICY_LINK,
+	BRANDING_LINKS_SET_BY_OPERATOR
 } from '@/core/constants/config/constants';
 import { cn } from '@/core/lib/helpers';
+import { ACCOUNT_DELETION_PATH } from '@/core/lib/auth/account-deletion';
 
 type Props = {
 	title?: string;
@@ -29,10 +31,37 @@ type Props = {
 	headerLinkText?: string;
 	/** Href for the top-right header link */
 	headerLinkHref?: string;
+	/** Footer link to the public account deletion request (/delete-account), for people who cannot sign in. */
+	showDeleteAccountLink?: boolean;
+	/**
+	 * Hides the language switcher. Switching navigates to another locale route, which remounts the page: the account
+	 * deletion confirm page would lose the e-mailed token it holds in memory (it is no longer in the address bar).
+	 */
+	hideLanguageSwitcher?: boolean;
+	/**
+	 * Links the footer only to the branding links the operator set, never to the built-in Ever defaults: for the
+	 * pages added after the egress audit's UI baseline (tools/egress-audit/ui-baseline.json), which may only shrink.
+	 */
+	operatorLinksOnly?: boolean;
 } & PropsWithChildren;
 
-export function AuthLayout({ children, title, description, isAuthPage = true, headerLinkText, headerLinkHref }: Props) {
+export function AuthLayout({
+	children,
+	title,
+	description,
+	isAuthPage = true,
+	headerLinkText,
+	headerLinkHref,
+	showDeleteAccountLink = false,
+	hideLanguageSwitcher = false,
+	operatorLinksOnly = false
+}: Props) {
 	const t = useTranslations();
+	const linkOf = (link: string, setByOperator: boolean) => (!operatorLinksOnly || setByOperator ? link : '');
+	const appLink = linkOf(APP_LINK, BRANDING_LINKS_SET_BY_OPERATOR.app);
+	const companyLink = linkOf(COMPANY_LINK, BRANDING_LINKS_SET_BY_OPERATOR.company);
+	const termsLink = linkOf(TERMS_LINK, BRANDING_LINKS_SET_BY_OPERATOR.terms);
+	const privacyPolicyLink = linkOf(PRIVACY_POLICY_LINK, BRANDING_LINKS_SET_BY_OPERATOR.privacy);
 
 	return (
 		<div className="scheme-light selection:bg-foreground/10 selection:text-foreground bg-background dark:scheme-dark">
@@ -119,16 +148,16 @@ export function AuthLayout({ children, title, description, isAuthPage = true, he
 						{/* Copyright */}
 						<p className="text-xs font-normal leading-4 text-center text-muted-foreground">
 							{t('layout.footer.COPY_RIGHT1', { date: new Date().getFullYear() })}{' '}
-							{APP_NAME && APP_LINK ? (
-								<Text.Link className="hover:underline" href={APP_LINK}>
+							{APP_NAME && appLink ? (
+								<Text.Link className="hover:underline" href={appLink}>
 									{APP_NAME}
 								</Text.Link>
 							) : (
 								<span>{APP_NAME}</span>
 							)}{' '}
 							{t('layout.footer.BY')}{' '}
-							{COMPANY_NAME && COMPANY_LINK ? (
-								<Text.Link className="hover:underline" href={COMPANY_LINK}>
+							{COMPANY_NAME && companyLink ? (
+								<Text.Link className="hover:underline" href={companyLink}>
 									{COMPANY_NAME}
 								</Text.Link>
 							) : (
@@ -138,19 +167,19 @@ export function AuthLayout({ children, title, description, isAuthPage = true, he
 						</p>
 
 						{/* Terms + Privacy (each one can be turned off: '' => not rendered) */}
-						{(TERMS_LINK || PRIVACY_POLICY_LINK) && (
+						{(termsLink || privacyPolicyLink) && (
 							<p className="text-xs text-center text-muted-foreground">
-								{TERMS_LINK && (
-									<a className="underline hover:text-foreground" href={TERMS_LINK}>
+								{termsLink && (
+									<a className="underline hover:text-foreground" href={termsLink}>
 										{t('pages.auth.TERMS_OF_SERVICE')}
 									</a>
 								)}
-								{TERMS_LINK && PRIVACY_POLICY_LINK && ' · '}
-								{PRIVACY_POLICY_LINK && (
+								{termsLink && privacyPolicyLink && ' · '}
+								{privacyPolicyLink && (
 									<Link
 										target="_blank"
 										className="underline hover:text-foreground"
-										href={PRIVACY_POLICY_LINK}
+										href={privacyPolicyLink}
 										rel="noreferrer"
 									>
 										{t('pages.auth.PRIVACY_POLICY')}
@@ -159,12 +188,26 @@ export function AuthLayout({ children, title, description, isAuthPage = true, he
 							</p>
 						)}
 
+						{showDeleteAccountLink && (
+							<p className="text-xs text-center text-muted-foreground">
+								<Link
+									href={ACCOUNT_DELETION_PATH}
+									className="underline hover:text-foreground"
+									data-testid="auth-delete-account-link"
+								>
+									{t('pages.accountDeletion.DELETE_BY_EMAIL_LINK')}
+								</Link>
+							</p>
+						)}
+
 						{/* Language + Theme controls */}
 						<div className="flex gap-3 justify-center items-center">
-							<LanguageDropDownWithFlags
-								showFlag
-								btnClassName="bg-light--theme-dark dark:bg-card border-none max-w-28 text-xs"
-							/>
+							{!hideLanguageSwitcher && (
+								<LanguageDropDownWithFlags
+									showFlag
+									btnClassName="bg-light--theme-dark dark:bg-card border-none max-w-28 text-xs"
+								/>
+							)}
 							<ThemeToggler />
 						</div>
 					</footer>

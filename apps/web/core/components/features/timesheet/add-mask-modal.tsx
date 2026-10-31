@@ -111,6 +111,15 @@ export function AddTaskModal({ closeModal, isOpen }: IAddTaskModalProps) {
 		shifts: [{ startTime: '', endTime: '', totalHours: '00:00h', dateFrom: new Date() }] as Shift[]
 	});
 
+	// The task and the employee come from the active team's lists: when that team changes under the open form
+	// (a team switch from another tab), they are cleared instead of being saved with the new team
+	const activeTeamId = activeTeam?.id;
+	const [formTeamId, setFormTeamId] = React.useState(activeTeamId);
+	if (formTeamId !== activeTeamId) {
+		setFormTeamId(activeTeamId);
+		setFormState((prevState) => ({ ...prevState, taskId: '', employeeId: '' }));
+	}
+
 	const updateFormState = useCallback((field: keyof typeof formState, value: any) => {
 		setFormState((prevState) => ({
 			...prevState,
@@ -178,7 +187,7 @@ export function AddTaskModal({ closeModal, isOpen }: IAddTaskModalProps) {
 			source: ETimeLogSource.BROWSER as any,
 			taskId: formState.taskId,
 			employeeId: formState.employeeId,
-			organizationTeamId: undefined
+			organizationTeamId: activeTeam?.id
 		};
 		try {
 			if (!formState.shifts || formState.shifts.length === 0) {
@@ -234,6 +243,7 @@ export function AddTaskModal({ closeModal, isOpen }: IAddTaskModalProps) {
 						<span className="text-[#de5505e1] ml-1">*</span>
 					</label>
 					<CustomSelect
+						value={formState.taskId}
 						onChange={(value) => {
 							updateFormState('taskId', value);
 						}}
@@ -264,6 +274,7 @@ export function AddTaskModal({ closeModal, isOpen }: IAddTaskModalProps) {
 					</label>
 					<CustomSelect
 						valueKey="employeeId"
+						value={formState.employeeId}
 						classNameGroup="max-h-[40vh] dark:!text-white "
 						ariaLabel="Task issues"
 						className="w-full font-medium dark:text-white"

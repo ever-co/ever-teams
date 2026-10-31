@@ -19,8 +19,33 @@ import {
 	groupByWeek,
 	groupByMonth,
 	reGroupByDate,
-	getStatusTimesheet
+	getStatusTimesheet,
+	isTimesheetStatus
 } from '@/core/lib/helpers/timesheet-grouping';
+
+// The Status select of the Filter popover stores its options as they are: each label is the timesheet status itself
+function getSelectedStatuses(options?: { label: string }[]): ETimesheetStatus[] {
+	if (!options) {
+		return [];
+	}
+	const labels = options.map((option) => option.label);
+	return labels.filter(isTimesheetStatus);
+}
+
+function hasOneOfStatuses(log: ITimeLog, statuses: ETimesheetStatus[]): boolean {
+	const status = log.timesheet?.status;
+	if (!status) {
+		return false;
+	}
+	return statuses.includes(status);
+}
+
+function keepLogsWithStatuses(logs: ITimeLog[], statuses: ETimesheetStatus[]): ITimeLog[] {
+	if (statuses.length === 0) {
+		return logs;
+	}
+	return logs.filter((log) => hasOneOfStatuses(log, statuses));
+}
 
 /**
  * Hook for fetching and transforming timesheet data.
@@ -184,15 +209,20 @@ export function useTimesheetQuery({ startDate, endDate, timesheetViewMode, input
 		[user, startDate, endDate]
 	);
 
+	// ─── Status Filter (Filter popover) ──────────────────────────────────────
+	// The time-log list API takes no status, so the statuses picked in the popover narrow the loaded logs here
+	const selectedStatuses = useMemo(() => getSelectedStatuses(statusState), [statusState]);
+	const statusFilteredLogs = useMemo(() => {
+		const logs = timesheetLogsQuery.data ?? timesheet;
+		return keepLogsWithStatuses(logs, selectedStatuses);
+	}, [timesheetLogsQuery.data, timesheet, selectedStatuses]);
+
 	// ─── Status Timesheet (memoized) ─────────────────────────────────────────
-	const statusTimesheet = useMemo(
-		() => getStatusTimesheet(timesheetLogsQuery.data ?? timesheet),
-		[timesheetLogsQuery.data, timesheet]
-	);
+	const statusTimesheet = useMemo(() => getStatusTimesheet(statusFilteredLogs), [statusFilteredLogs]);
 
 	// ─── Search Filtering ────────────────────────────────────────────────────
 	const filterDataTimesheet = useMemo(() => {
-		const data = timesheetLogsQuery.data ?? timesheet;
+		const data = statusFilteredLogs;
 		if (!inputSearch?.trim()) return data;
 		const searchTerm = normalizeText(inputSearch);
 		return data.filter((item) => {
@@ -201,7 +231,7 @@ export function useTimesheetQuery({ startDate, endDate, timesheetViewMode, input
 			const projectName = normalizeText(item.project?.name || '');
 			return taskName.includes(searchTerm) || employeeName.includes(searchTerm) || projectName.includes(searchTerm);
 		});
-	}, [timesheetLogsQuery.data, timesheet, inputSearch, normalizeText]);
+	}, [statusFilteredLogs, inputSearch, normalizeText]);
 
 	// ─── View-Mode Grouping ──────────────────────────────────────────────────
 	const timesheetElementGroup = useMemo(() => {

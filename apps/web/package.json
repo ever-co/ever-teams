@@ -204,6 +204,9 @@
 		"yaml": "^2.8.2"
 	},
 	"knip": {
+		"ignoreDependencies": [
+			"vitest-environment-<rootDir>"
+		],
 		"entry": [
 			"jest.config.ts",
 			"core/hooks/index.ts",

@@ -8,6 +8,7 @@ import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { queryKeys } from '@/core/query/keys';
 import { orderTasksInPlans } from '@/core/lib/helpers/daily-plan-task-order';
 import { useDailyPlanCalculations } from './use-daily-plan-calculations';
+import { useTranslations } from 'next-intl';
 import { toast } from 'sonner';
 import { getErrorMessage, logErrorInDev } from '@/core/lib/helpers/error-message';
 
@@ -50,6 +51,7 @@ export interface UseEmployeeDailyPlansOptions {
  * ```
  */
 export function useEmployeeDailyPlans(employeeId: string | null, options?: UseEmployeeDailyPlansOptions) {
+	const t = useTranslations();
 	const activeTeam = useAtomValue(activeTeamState);
 	const allTeamTasks = useAtomValue(tasksByTeamState);
 	const queryClient = useQueryClient();
@@ -121,12 +123,17 @@ export function useEmployeeDailyPlans(employeeId: string | null, options?: UseEm
 
 					return res;
 				} else {
-					toast.warning('getEmployeeDailyPlans: No employee ID provided or available in state');
+					toast.warning(t('dailyPlan.toastMessages.MISSING_EMPLOYEE_ID'));
 					return null;
 				}
 			} catch (error) {
-				toast.error(`Error when fetching day plans for employee: ${newEmployeeId || internalEmployeeId}`, {
-					description: getErrorMessage(error, 'Unable to fetch day plans')
+				const failedEmployeeId = newEmployeeId || internalEmployeeId;
+				const fetchFailedMessage = t('dailyPlan.toastMessages.EMPLOYEE_PLANS_FETCH_FAILED', {
+					employeeId: failedEmployeeId
+				});
+				const fetchFailedFallback = t('dailyPlan.toastMessages.PLANS_FETCH_FAILED');
+				toast.error(fetchFailedMessage, {
+					description: getErrorMessage(error, fetchFailedFallback)
 				});
 				logErrorInDev(
 					`Error when fetching day plans for employee: ${newEmployeeId || internalEmployeeId}`,
@@ -135,7 +142,7 @@ export function useEmployeeDailyPlans(employeeId: string | null, options?: UseEm
 				return null; // Return null on error to maintain consistent return type
 			}
 		},
-		[queryClient, activeTeam?.id, internalEmployeeId]
+		[queryClient, activeTeam?.id, internalEmployeeId, t]
 	);
 
 	const loadEmployeeDailyPlans = useCallback(async () => {
@@ -144,6 +151,25 @@ export function useEmployeeDailyPlans(employeeId: string | null, options?: UseEm
 			// Data is automatically available via React Query cache
 		}
 	}, [getEmployeeDailyPlans, internalEmployeeId]);
+
+	const activeTeamId = activeTeam?.id;
+	// For a consumer that shows these plans on demand: a cache under a minute old answers without a request
+	const ensureEmployeeDailyPlans = useCallback(async () => {
+		if (!enabled || !internalEmployeeId) {
+			return;
+		}
+		try {
+			await queryClient.fetchQuery({
+				queryKey: queryKeys.dailyPlans.byEmployee(internalEmployeeId, activeTeamId),
+				queryFn: () => dailyPlanService.getDayPlansByEmployee({ employeeId: internalEmployeeId }),
+				staleTime: 60_000,
+				// Callers keep the cached plans, a retry would only delay them
+				retry: false
+			});
+		} catch {
+			// The cached plans stay on screen
+		}
+	}, [activeTeamId, enabled, internalEmployeeId, queryClient]);
 
 	return {
 		// Raw data
@@ -161,6 +187,7 @@ export function useEmployeeDailyPlans(employeeId: string | null, options?: UseEm
 		// Query functions
 		getEmployeeDailyPlans,
 		loadEmployeeDailyPlans,
+		ensureEmployeeDailyPlans,
 
 		// Loading states
 		isLoading: getDayPlansByEmployeeQuery.isLoading,

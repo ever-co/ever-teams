@@ -3,6 +3,7 @@
 import { useMutation } from '@tanstack/react-query';
 import { useCallback } from 'react';
 import { useAtomValue } from 'jotai';
+import { useTranslations } from 'next-intl';
 import { toast } from 'sonner';
 import { dailyPlanService } from '@/core/services/client/api';
 import { TCreateDailyPlan } from '@/core/types/schemas/task/daily-plan.schema';
@@ -18,6 +19,7 @@ import { useUserQuery } from '../queries/user-user.query';
  * @returns Object containing create mutation and loading state
  */
 export function useCreateDailyPlan() {
+	const t = useTranslations();
 	const { data: user } = useUserQuery();
 	const activeTeam = useAtomValue(activeTeamState);
 	const { invalidateDailyPlanData } = useDailyPlanInvalidation();
@@ -31,8 +33,9 @@ export function useCreateDailyPlan() {
 			invalidateDailyPlanData();
 		},
 		onError: (error) => {
-			toast.error('Failed to create daily plan', {
-				description: getErrorMessage(error, 'Failed to create daily plan')
+			const creationFailedMessage = t('dailyPlan.toastMessages.PLAN_CREATION_FAILED');
+			toast.error(creationFailedMessage, {
+				description: getErrorMessage(error, creationFailedMessage)
 			});
 			logErrorInDev('Failed to create daily plan', error);
 		}
@@ -45,13 +48,13 @@ export function useCreateDailyPlan() {
 			if (user?.tenantId) {
 				return await createDailyplanMutateAsync({ ...data, organizationTeamId: activeTeam?.id });
 			} else {
-				toast.warning('Cannot create daily plan: Missing tenantId', {
-					description: 'Missing tenantId'
+				toast.warning(t('dailyPlan.toastMessages.PLAN_CREATION_MISSING_TENANT'), {
+					description: t('dailyPlan.toastMessages.MISSING_TENANT_ID')
 				});
 				return Promise.reject(new Error('Missing tenantId'));
 			}
 		},
-		[createDailyplanMutateAsync, user?.tenantId, activeTeam?.id]
+		[createDailyplanMutateAsync, user?.tenantId, activeTeam?.id, t]
 	);
 
 	return {
