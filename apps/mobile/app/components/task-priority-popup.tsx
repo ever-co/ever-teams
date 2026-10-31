@@ -178,7 +178,7 @@ const Item: FC<ItemProps> = ({ currentSizeName, priority, onPrioritySelected }) 
 		<TouchableOpacity onPress={() => onPrioritySelected(priority)}>
 			<View style={{ ...styles.wrapperItem, borderColor: colors.border }}>
 				<View style={{ ...styles.colorFrame, backgroundColor: priority.color }}>
-					<BadgedTaskPriority iconSize={16} TextSize={14} priority={priority.name} />
+					<BadgedTaskPriority iconSize={16} TextSize={14} priority={priority.name ?? ''} />
 				</View>
 				<View>
 					{!selected ? (

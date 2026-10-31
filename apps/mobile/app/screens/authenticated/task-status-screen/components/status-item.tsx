@@ -33,8 +33,8 @@ const StatusItem: FC<IStatusItem> = ({ status, onDeleteTask, openForEdit, readOn
 			}}
 		>
 			<View style={{ ...styles.statusContainer, backgroundColor: status?.color }}>
-				<SvgUri width={20} height={20} uri={status?.fullIconUrl} />
-				<Text style={styles.text}>{formatName(status?.name)}</Text>
+				<SvgUri width={20} height={20} uri={status?.fullIconUrl ?? null} />
+				<Text style={styles.text}>{formatName(status?.name ?? '')}</Text>
 			</View>
 			<View style={{ ...styles.rightSection, opacity: actionsOpacity }}>
 				<AntDesign

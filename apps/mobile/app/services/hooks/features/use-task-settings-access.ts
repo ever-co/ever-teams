@@ -96,7 +96,8 @@ export function useTaskSettingsAccess() {
 		teamStore: { teams, activeTeam, activeTeamId }
 	} = useStores();
 	const { data: rolePermissions } = useFetchMyRolePermissions({
-		authToken,
+		// Signed out the store holds no token: the query stays disabled until it does
+		authToken: authToken ?? '',
 		tenantId,
 		userId: user?.id,
 		roleId: user?.roleId
