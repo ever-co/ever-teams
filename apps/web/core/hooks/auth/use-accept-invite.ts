@@ -4,6 +4,7 @@ import { useInviteValidation } from '../invitations/use-invite-validation';
 import { userOrganizationService } from '@/core/services/client/api/users/user-organization.service';
 import { organizationTeamService } from '@/core/services/client/api/organizations/teams/team.service';
 import { CookiesDataType, setAuthCookies } from '@/core/lib/helpers/cookies';
+import { GAUZY_API_BASE_SERVER_URL } from '@/core/constants/config/constants';
 
 export function useAcceptInvite() {
 	const [invitationState, setInvitationState] = useState<TInvitationState>({
@@ -36,6 +37,11 @@ export function useAcceptInvite() {
 					code,
 					email
 				});
+
+				// Proxy mode: the /api/invite/accept route has read the organization and team and set the session
+				// cookies itself. The reads below hand the new token to Gauzy, which only direct mode supports.
+				const isProxyMode = !GAUZY_API_BASE_SERVER_URL.value;
+				if (isProxyMode) return;
 
 				// Prepare auth cookies
 
