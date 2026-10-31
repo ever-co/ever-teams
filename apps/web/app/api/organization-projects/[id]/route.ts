@@ -48,10 +48,13 @@ export async function GET(req: Request, { params }: { params: Promise<{ id: stri
 
 	if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: status ?? 401 });
 
+	const { searchParams } = new URL(req.url);
+
 	const response = await getOrganizationProjectRequest({
 		bearer_token: access_token,
 		id: id,
-		tenantId
+		tenantId,
+		searchParams
 	});
 
 	return $res(response.data);
