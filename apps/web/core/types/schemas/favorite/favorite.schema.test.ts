@@ -6,14 +6,9 @@
  */
 import { randomUUID } from 'node:crypto';
 import { EBaseEntityEnum } from '@/core/types/generics/enums/entity';
-
-// The zod schema modules import each other in a cycle; loading the barrel first (as the app does)
+// Through the barrel, as the app loads them: the zod schema modules import each other in a cycle, and the barrel
 // sets a working evaluation order.
-require('@/core/types/schemas');
-// eslint-disable-next-line @typescript-eslint/no-var-requires
-const { favoriteSchema, favoriteCreateSchema } = require('./favorite.schema') as typeof import('./favorite.schema');
-// eslint-disable-next-line @typescript-eslint/no-var-requires
-const { validatePaginationResponse } = require('../utils/validation') as typeof import('../utils/validation');
+import { favoriteCreateSchema, favoriteSchema, validatePaginationResponse } from '@/core/types/schemas';
 
 const tenantId = 'ec3b6673-d045-4d59-a307-a79521500a81';
 const organizationId = '06dea660-2426-4c79-a5aa-05f3434287d9';
