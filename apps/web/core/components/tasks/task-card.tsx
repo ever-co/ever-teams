@@ -12,9 +12,11 @@ import {
 	useTeamMemberRoleActions
 } from '@/core/hooks';
 import { useMyDailyPlans } from '@/core/hooks/daily-plans/use-my-daily-plans';
+import { useEmployeeDailyPlans } from '@/core/hooks/daily-plans/use-employee-daily-plans';
 import { useCreateDailyPlan } from '@/core/hooks/daily-plans/use-create-daily-plan';
 import { useUpdateDailyPlan } from '@/core/hooks/daily-plans/use-update-daily-plan';
 import { useUserQuery } from '@/core/hooks/queries/user-user.query';
+import { useMyRolePermissionsQuery } from '@/core/hooks/roles/use-my-role-permissions-query';
 import ImageComponent, { ImageOverlapperProps } from '@/core/components/common/image-overlapper';
 import { EDailyPlanStatus, EDailyPlanMode } from '@/core/types/generics/enums/daily-plan';
 import {
@@ -621,6 +623,40 @@ export const TaskInfo = React.memo(
 		);
 	}
 );
+
+function getTeammateEmployeeId(profile?: I_UserProfilePage): string | null {
+	const profileEmployeeId = profile?.member?.employeeId;
+	if (!profileEmployeeId || profile?.isAuthUser) {
+		return null;
+	}
+	return profileEmployeeId;
+}
+
+/** The plan entries act on the profile's member, so on a teammate's profile they follow that member's plans */
+function useMenuPlans(profile?: I_UserProfilePage) {
+	const myPlans = useMyDailyPlans();
+	const teammateEmployeeId = getTeammateEmployeeId(profile);
+	const isTeammateProfile = teammateEmployeeId !== null;
+	const teammatePlans = useEmployeeDailyPlans(teammateEmployeeId, { enabled: isTeammateProfile });
+
+	if (isTeammateProfile) {
+		return {
+			isTeammateProfile,
+			ensurePlans: teammatePlans.ensureEmployeeDailyPlans,
+			todayPlans: teammatePlans.employeeTodayPlan,
+			futurePlans: teammatePlans.employeeFuturePlans,
+			isPlansLoading: teammatePlans.isLoading
+		};
+	}
+	return {
+		isTeammateProfile,
+		ensurePlans: myPlans.ensureMyDailyPlans,
+		todayPlans: myPlans.myTodayPlan,
+		futurePlans: myPlans.myFuturePlans,
+		isPlansLoading: myPlans.isLoading
+	};
+}
+
 /**
  * It's a dropdown menu that allows the user to remove the task.
  */
@@ -697,15 +733,27 @@ export function TaskCardMenu({
 	}, [mutations, task, isUserAssignedToTask, t]);
 
 	const canSeeActivity = useCanSeeActivityScreen();
+	const { myPermissions } = useMyRolePermissionsQuery();
 
-	const { myTodayPlan, myFuturePlans, ensureMyDailyPlans, isLoading: isPlansLoading } = useMyDailyPlans();
+	const { isTeammateProfile, ensurePlans, todayPlans, futurePlans, isPlansLoading } = useMenuPlans(profile);
 
-	const taskPlannedToday = useMemo(
-		() => myTodayPlan[myTodayPlan.length - 1]?.tasks?.find((planTask) => planTask.id === task.id),
-		[task.id, myTodayPlan]
-	);
+	// The API lets only the team's managers, or a holder of CHANGE_SELECTED_EMPLOYEE, change another member's plans
+	const canActForOthers = myPermissions.includes('CHANGE_SELECTED_EMPLOYEE');
+	const canPlanForTeammate = canSeeActivity || canActForOthers;
+	const canPlanForProfileMember = !isTeammateProfile || canPlanForTeammate;
+	const canRemoveForTeammate = isTeammateProfile && canPlanForTeammate;
+	const showRemoveEntries = canSeeActivity || canRemoveForTeammate;
 
-	const allPlans = [...myTodayPlan, ...myFuturePlans];
+	const isOutstandingTab = viewType === 'dailyplan' && planMode === 'Outstanding';
+	const isPlanEntriesView = viewType === 'default' || isOutstandingTab;
+	const showPlanEntries = isPlanEntriesView && canPlanForProfileMember;
+
+	const taskPlannedToday = useMemo(() => {
+		const lastTodayPlan = todayPlans[todayPlans.length - 1];
+		return lastTodayPlan?.tasks?.find((planTask) => planTask.id === task.id);
+	}, [task.id, todayPlans]);
+
+	const allPlans = [...todayPlans, ...futurePlans];
 	const isTaskPlannedMultipleTimes =
 		allPlans.reduce((count, plan) => {
 			if (plan?.tasks) {
@@ -717,19 +765,26 @@ export function TaskCardMenu({
 
 	const taskPlannedTomorrow = useMemo(
 		() =>
-			myFuturePlans
+			futurePlans
 				.filter((_plan) => getDailyPlanDay(_plan.date) === moment().add(1, 'day').format('YYYY-MM-DD'))[0]
 				?.tasks?.find((planTask) => planTask.id === task.id),
-		[myFuturePlans, task.id]
+		[futurePlans, task.id]
 	);
 
 	// Combine loading states: external loading OR assignment in progress
 	const isMenuLoading = loading || isAssigning;
 
+	// The plan items read the plans of the profile's member: teams without a plan requirement do not preload the
+	// personal ones, and a teammate's may have changed elsewhere since they were read
+	const handleMenuOpenChange = (open: boolean) => {
+		if (open) {
+			void ensurePlans();
+		}
+	};
+
 	return (
 		<>
-			{/* The plan items below read the personal plans, which teams without a plan requirement do not preload */}
-			<DropdownMenu onOpenChange={(open) => open && void ensureMyDailyPlans()}>
+			<DropdownMenu onOpenChange={handleMenuOpenChange}>
 				<DropdownMenuTrigger asChild>
 					<button className="flex items-center border-none outline-none">
 						{!isMenuLoading && (
@@ -781,7 +836,7 @@ export function TaskCardMenu({
 							</span>
 						</DropdownMenuItem>
 
-						{(viewType == 'default' || (viewType === 'dailyplan' && planMode === 'Outstanding')) && (
+						{showPlanEntries && (
 							<>
 								<DropdownMenuSeparator className="my-3" />
 								<div className="mt-3">
@@ -829,7 +884,7 @@ export function TaskCardMenu({
 
 						{viewType === 'dailyplan' && (planMode === 'Today Tasks' || planMode === 'Future Tasks') && (
 							<>
-								{canSeeActivity ? (
+								{showRemoveEntries ? (
 									<div>
 										<DropdownMenuSeparator className="my-2" />
 										<DropdownMenuItem className="p-0 mt-2 transition-all duration-300 hover:font-semibold  hover:!bg-transparent">

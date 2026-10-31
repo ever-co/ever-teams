@@ -145,6 +145,25 @@ export function useEmployeeDailyPlans(employeeId: string | null, options?: UseEm
 		}
 	}, [getEmployeeDailyPlans, internalEmployeeId]);
 
+	const activeTeamId = activeTeam?.id;
+	// For a consumer that shows these plans on demand: a cache under a minute old answers without a request
+	const ensureEmployeeDailyPlans = useCallback(async () => {
+		if (!enabled || !internalEmployeeId) {
+			return;
+		}
+		try {
+			await queryClient.fetchQuery({
+				queryKey: queryKeys.dailyPlans.byEmployee(internalEmployeeId, activeTeamId),
+				queryFn: () => dailyPlanService.getDayPlansByEmployee({ employeeId: internalEmployeeId }),
+				staleTime: 60_000,
+				// Callers keep the cached plans, a retry would only delay them
+				retry: false
+			});
+		} catch {
+			// The cached plans stay on screen
+		}
+	}, [activeTeamId, enabled, internalEmployeeId, queryClient]);
+
 	return {
 		// Raw data
 		employeeDailyPlans: getDayPlansByEmployeeQuery.data || { items: [], total: 0 },
@@ -161,6 +180,7 @@ export function useEmployeeDailyPlans(employeeId: string | null, options?: UseEm
 		// Query functions
 		getEmployeeDailyPlans,
 		loadEmployeeDailyPlans,
+		ensureEmployeeDailyPlans,
 
 		// Loading states
 		isLoading: getDayPlansByEmployeeQuery.isLoading,
