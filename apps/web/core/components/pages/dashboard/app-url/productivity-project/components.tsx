@@ -1,4 +1,4 @@
-import { format } from 'date-fns';
+import { format, parseISO } from 'date-fns';
 import { Avatar, AvatarFallback, AvatarImage } from '@/core/components/common/avatar';
 import { TableCell, TableRow } from '@/core/components/common/table';
 import { cn } from '@/core/lib/helpers';
@@ -60,7 +60,7 @@ export const DateSummaryRow: React.FC<DateSummaryRowProps> = ({ date, activities
 		<TableRow className="bg-gray-800 border-t border-gray-200 dark:bg-dark--theme-light">
 			<TableCell></TableCell>
 			<TableCell colSpan={2} className="text-sm text-gray-500 dark:text-gray-400">
-				Total for {format(new Date(date), 'MMM dd')}
+				Total for {format(parseISO(date), 'MMM dd')}
 			</TableCell>
 			<TableCell className="text-gray-600 dark:text-gray-300">
 				{formatDuration(totalDuration.toString())}
@@ -97,7 +97,7 @@ export const DateHeaderRow: React.FC<DateHeaderRowProps> = ({ date, activities }
 	return (
 		<TableRow className="bg-gray-50/30 dark:bg-muted">
 			<TableCell className="text-gray-700 dark:text-gray-300">
-				{format(new Date(date), 'EEEE dd MMM yyyy')}
+				{format(parseISO(date), 'EEEE dd MMM yyyy')}
 			</TableCell>
 			<TableCell colSpan={4}>
 				<div className="flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400">
