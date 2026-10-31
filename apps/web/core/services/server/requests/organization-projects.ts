@@ -34,8 +34,11 @@ export function editOrganizationProjectsRequest({
 	bearer_token: string;
 	tenantId?: any;
 }) {
+	// Encoded, so an id such as `../employee` stays one path segment instead of reaching another endpoint
+	const encodedId = encodeURIComponent(id);
+
 	return serverFetch<any>({
-		path: `/organization-projects/${id}`,
+		path: `/organization-projects/${encodedId}`,
 		method: 'PUT',
 		body: datas,
 		bearer_token,
@@ -54,7 +57,10 @@ export function getOrganizationProjectRequest({
 	bearer_token: string;
 	searchParams?: URLSearchParams;
 }) {
-	let path = `/organization-projects/${id}`;
+	// Encoded, so an id such as `../employee` stays one path segment instead of reaching another endpoint, with
+	// the query the client sends
+	const encodedId = encodeURIComponent(id);
+	let path = `/organization-projects/${encodedId}`;
 	const query = searchParams?.toString();
 	if (query) {
 		path = `${path}?${query}`;

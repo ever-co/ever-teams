@@ -126,4 +126,14 @@ describe('GET /api/organization-projects/:id', () => {
 		expect(upstream.pathname).toMatch(/\/organization-projects\/project-1$/);
 		expect(upstream.search).toBe('');
 	});
+
+	it('keeps the project id in one path segment', async () => {
+		const request = new Request('https://app.ever.team/api/organization-projects/..%2Femployee');
+		const params = Promise.resolve({ id: '../employee' });
+
+		await readProject(request, { params });
+
+		const upstream = upstreamUrl();
+		expect(upstream.pathname).toMatch(/\/organization-projects\/\.\.%2Femployee$/);
+	});
 });
