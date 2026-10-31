@@ -3,7 +3,7 @@ import { useForm } from 'react-hook-form';
 import { useEmployeeDailyPlans } from '@/core/hooks/daily-plans/use-employee-daily-plans';
 import { useCreateDailyPlan } from '@/core/hooks/daily-plans/use-create-daily-plan';
 import { Modal, Text } from '@/core/components';
-import { getDailyPlanDay, imgTitle, tomorrowDate, yesterdayDate } from '@/core/lib/helpers/index';
+import { getDailyPlanDay, getTomorrowDate, getYesterdayDate, imgTitle } from '@/core/lib/helpers/index';
 import { ReloadIcon } from '@radix-ui/react-icons';
 import moment from 'moment';
 import { Calendar } from '@/core/components/common/calendar';
@@ -30,6 +30,28 @@ import { TDailyPlan, TOrganizationTeam, TOrganizationTeamEmployee } from '@/core
 import { useUserQuery } from '@/core/hooks/queries/user-user.query';
 import { useAtomValue } from 'jotai';
 import { activeTeamManagersState, activeTeamState } from '@/core/stores';
+
+// Days before the current one cannot be planned, even when the calendar showed them when they were picked
+const isBeforeToday = (day: Date) => {
+	const today = moment();
+	return moment(day).isBefore(today, 'day');
+};
+
+// A custom day picked before midnight is in the past when the form is submitted after it
+const isPastCustomDay = (planMode: EDailyPlanMode, day: Date) => {
+	const isCustomMode = planMode === EDailyPlanMode.CUSTOM;
+	return isCustomMode && isBeforeToday(day);
+};
+
+// A selected day that is no longer ahead of the current day goes back to tomorrow
+const keepUpcomingDay = (selectedDay: Date) => {
+	const today = moment();
+	const isUpcoming = moment(selectedDay).isAfter(today, 'day');
+	if (isUpcoming) {
+		return selectedDay;
+	}
+	return getTomorrowDate();
+};
 
 export function CreateDailyPlanFormModal({
 	open,
@@ -58,7 +80,15 @@ export function CreateDailyPlanFormModal({
 		[activeTeamManagers, user?.id]
 	);
 
-	const [date, setDate] = useState<Date>(new Date(tomorrowDate));
+	const [date, setDate] = useState<Date>(getTomorrowDate);
+	// The form stays mounted while the modal is closed, so the selected day is checked again each time it opens
+	const [wasOpen, setWasOpen] = useState(open);
+	if (open !== wasOpen) {
+		setWasOpen(open);
+		if (open) {
+			setDate(keepUpcomingDay);
+		}
+	}
 	const [selectedEmployee, setSelectedEmployee] = useState<TOrganizationTeamEmployee | undefined>(
 		isManagerConnectedUser
 	);
@@ -99,14 +129,21 @@ export function CreateDailyPlanFormModal({
 	}, [reset]);
 
 	const handleSelectAndClose = useCallback(() => {
-		if (!createDailyPlanLoading) {
+		// The submission moves a day that went past to tomorrow, so the modal stays open to show it
+		const isSelectedDayPast = isPastCustomDay(planMode, date);
+		const canClose = !createDailyPlanLoading && !isSelectedDayPast;
+		if (canClose) {
 			handleCloseModal();
 		}
 		window.localStorage.setItem(LAST_OPTION__CREATE_DAILY_PLAN_MODAL, 'Select & Close');
-	}, [createDailyPlanLoading, handleCloseModal]);
+	}, [createDailyPlanLoading, handleCloseModal, planMode, date]);
 
 	const onSubmit = useCallback(
 		async (values: any) => {
+			if (isPastCustomDay(planMode, date)) {
+				setDate(getTomorrowDate());
+				return;
+			}
 			createDailyPlan({
 				workTimePlanned: parseInt(values.workTimePlanned) || 0,
 				taskId,
@@ -265,14 +302,26 @@ const CustomCalendar = memo(function CustomCalendar({
 	existingPlanDates: Date[];
 	existingTaskPlanDates: Date[];
 }) {
+	const yesterday = getYesterdayDate();
+	const pastDays = { from: new Date(1970, 1, 1), to: yesterday };
+
+	const handleDaySelect = (day: Date | undefined) => {
+		const selectedDay = day ?? getTomorrowDate();
+		// A calendar left open past midnight still offers the day before
+		if (isBeforeToday(selectedDay)) {
+			return;
+		}
+		setDate(selectedDay);
+	};
+
 	return (
 		<Calendar
 			mode="single"
 			captionLayout="buttons"
 			selected={date}
-			onSelect={(day: Date | undefined) => setDate(day ? day : new Date(tomorrowDate))}
+			onSelect={handleDaySelect}
 			initialFocus
-			disabled={[{ from: new Date(1970, 1, 1), to: yesterdayDate }, ...existingTaskPlanDates]}
+			disabled={[pastDays, ...existingTaskPlanDates]}
 			modifiers={{
 				booked: existingPlanDates
 			}}
