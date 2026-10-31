@@ -195,6 +195,8 @@ const fr = {
 			taskPriorities: 'Priorités des tâches',
 			taskSizes: 'Tailles des tâches',
 			taskLabel: 'Libellé de la tâche',
+			taskSettingsReadOnly:
+				"Seuls les gestionnaires de l'équipe et les administrateurs peuvent modifier les paramètres des tâches. Seuls les administrateurs peuvent modifier les valeurs par défaut partagées par toutes les équipes.",
 			changeLogo: 'Changer de logo',
 			teamRole: 'Membre gestionnaire et rôle',
 			workSchedule: 'Horaire de travail',
