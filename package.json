@@ -240,7 +240,7 @@
 			"libs/*",
 			"tools"
 		],
-		"nohoist": []
+		"nohoist": ["@ever-teams/web/@tiptap/**"]
 	},
 	"resolutions": {
 		"isolated-vm": "7.0.1",
