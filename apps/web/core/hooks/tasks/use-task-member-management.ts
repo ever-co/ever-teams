@@ -1,8 +1,9 @@
 'use client';
 
 import { useCallback, useMemo, useState, useOptimistic, startTransition } from 'react';
-import { useTranslations } from 'next-intl';
+import { useTranslations, type DottedLanguageObjectStringPaths } from 'next-intl';
 import { toast } from 'sonner';
+import { errorReasonKeyOf } from '@/core/lib/utils/error-feedback';
 import { useUpdateTask } from '@/core/hooks/organizations/teams/use-update-task';
 import { TOrganizationTeamEmployee } from '@/core/types/schemas';
 import { TTask } from '@/core/types/schemas/task/task.schema';
@@ -78,11 +79,6 @@ export function useTaskMemberManagement(task: TTask | null, memberList: TOrganiz
 					...task,
 					members: updatedMembers
 				});
-
-				// Success toast
-				toast.success(t('task.toastMessages.TASK_ASSIGNED'), {
-					description: `${member.employee?.fullName || 'Member'} has been assigned to the task`
-				});
 			} catch (error) {
 				console.error('Failed to assign member:', error);
 
@@ -91,10 +87,8 @@ export function useTaskMemberManagement(task: TTask | null, memberList: TOrganiz
 					addOptimisticUpdate({ type: 'reset', next: task?.members || [] });
 				});
 
-				// Error toast
-				toast.error(t('task.toastMessages.TASK_ASSIGNMENT_FAILED'), {
-					description: `Failed to assign ${member.employee?.fullName || 'member'} to the task`
-				});
+				const reasonKey = errorReasonKeyOf(error) as DottedLanguageObjectStringPaths;
+				toast.error(t('toasts.tasks.MEMBER_ASSIGN_FAILED'), { description: t(reasonKey) });
 				throw error;
 			} finally {
 				setLoadingStates((prev) => ({ ...prev, [member.employeeId!]: null }));
@@ -128,11 +122,6 @@ export function useTaskMemberManagement(task: TTask | null, memberList: TOrganiz
 					...task,
 					members: updatedMembers
 				});
-
-				// Success toast
-				toast.success(t('task.toastMessages.TASK_UNASSIGNED'), {
-					description: `${member.employee?.fullName || 'Member'} has been unassigned from the task`
-				});
 			} catch (error) {
 				console.error('Failed to unassign member:', error);
 
@@ -141,10 +130,8 @@ export function useTaskMemberManagement(task: TTask | null, memberList: TOrganiz
 					addOptimisticUpdate({ type: 'reset', next: task?.members || [] });
 				});
 
-				// Error toast
-				toast.error(t('task.toastMessages.TASK_ASSIGNMENT_FAILED'), {
-					description: `Failed to unassign ${member.employee?.fullName || 'member'} from the task`
-				});
+				const reasonKey = errorReasonKeyOf(error) as DottedLanguageObjectStringPaths;
+				toast.error(t('toasts.tasks.MEMBER_UNASSIGN_FAILED'), { description: t(reasonKey) });
 				throw error;
 			} finally {
 				setLoadingStates((prev) => ({ ...prev, [member.employeeId!]: null }));

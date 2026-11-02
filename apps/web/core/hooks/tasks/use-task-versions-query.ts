@@ -7,6 +7,7 @@ import { queryKeys } from '@/core/query/keys';
 import { useFirstLoad } from '../common/use-first-load';
 import { useInvalidateTaskVersions } from './use-invalidate-task-versions';
 import { useTaskMetadataBootstrapQuery } from './use-task-metadata-bootstrap-query';
+import { useTaskMetadataReadState } from './use-task-metadata-read-state';
 
 /**
  * Hook for reading task versions data.
@@ -37,6 +38,11 @@ export function useTaskVersionsQuery() {
 	const taskVersionsPending = taskMetadataQuery.useBootstrap
 		? taskMetadataQuery.isPending
 		: taskVersionsQuery.isPending;
+	const { isError, refetch } = useTaskMetadataReadState(
+		taskMetadataQuery.useBootstrap,
+		taskMetadataQuery,
+		taskVersionsQuery
+	);
 
 	const loadTaskVersionData = useCallback(() => {
 		return taskVersionsData;
@@ -46,6 +52,8 @@ export function useTaskVersionsQuery() {
 		taskVersions,
 		loading: taskVersionsLoading,
 		taskVersionFetching: taskVersionsPending,
+		isError,
+		refetch,
 		loadTaskVersionData,
 		firstLoadTaskVersionData
 	};

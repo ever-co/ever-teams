@@ -3,7 +3,6 @@
 import { useMutation } from '@tanstack/react-query';
 import { taskVersionService } from '@/core/services/client/api/tasks/task-version.service';
 import { TTaskVersionCreate } from '@/core/types/schemas';
-import { toast } from 'sonner';
 import { useInvalidateTaskVersions } from './use-invalidate-task-versions';
 
 /**
@@ -14,13 +13,7 @@ export function useCreateTaskVersion() {
 
 	const createTaskVersionMutation = useMutation({
 		mutationFn: (data: TTaskVersionCreate) => taskVersionService.createTaskVersion(data),
-		onSuccess: () => {
-			toast.success('Task version created successfully');
-			invalidateTaskVersionsData();
-		},
-		onError: (error) => {
-			console.error('Error creating task version:', error);
-		}
+		onSuccess: () => invalidateTaskVersionsData()
 	});
 
 	return {
@@ -28,4 +21,3 @@ export function useCreateTaskVersion() {
 		createTaskVersionLoading: createTaskVersionMutation.isPending
 	};
 }
-

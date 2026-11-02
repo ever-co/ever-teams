@@ -1,21 +1,19 @@
 import { useAtom, useAtomValue } from 'jotai';
-import Link from 'next/link';
+import { useTranslations } from 'next-intl';
+import { TaskDrawerLink } from './drawer/task-drawer-link';
 import React from 'react';
 
 import ImageComponent, { ImageOverlapperProps } from '@/core/components/common/image-overlapper';
-import CircularProgress from '@/core/components/svgs/circular-progress';
-import { Priority, setCommentIconColor } from '@/core/components/tasks/kanban-card';
+import { ShareMeter } from '@/core/components/dashboards/kit/meters';
+import { Priority } from '@/core/components/tasks/kanban-card';
 import { useTaskStatistics } from '@/core/hooks';
 import { useUserQuery } from '@/core/hooks/queries/user-user.query';
-import { secondsToTime } from '@/core/lib/helpers/index';
+import { formatDurationShort } from '@/core/lib/utils/dashboard-figures';
+import { cn } from '@/core/lib/helpers';
 import { getTaskTotalWorkedDuration } from '@/core/lib/utils/task.utils';
-import {
-    activeTeamState, activeTeamTaskId, activeTeamTaskState, timerStatusState
-} from '@/core/stores';
-import { TTaskStatistics } from '@/core/types/interfaces/task/task';
+import { activeTeamState, activeTeamTaskId, activeTeamTaskState, timerStatusState } from '@/core/stores';
 import { TTask } from '@/core/types/schemas/task/task.schema';
 
-import { HorizontalSeparator } from '../duplicated-components/separator';
 import { LazyMenuKanbanCard, LazyTaskAllStatusTypes } from '../optimized-components';
 import { TaskInput } from './task-input';
 import { TaskIssueStatus } from './task-issue';
@@ -24,155 +22,139 @@ interface TaskItemProps {
 	task: TTask;
 }
 
+const AVATAR_DIAMETER = 24;
+
+const NO_ESTIMATE_TEXT = '–';
+
+/** Every card keeps the progress line, so cards of one lane share their height; without an estimate it stays empty. */
+function estimateProgressOf(hasEstimate: boolean, roundedProgress: number) {
+	if (!hasEstimate) {
+		return { meterShare: 0, progressText: NO_ESTIMATE_TEXT };
+	}
+	return { meterShare: roundedProgress, progressText: `${roundedProgress}%` };
+}
+
+function assigneeImagesOf(task: TTask): ImageOverlapperProps[] {
+	const members = task.members ?? [];
+	return members.map((member) => ({
+		id: member.user?.id ?? '',
+		url: member.user?.imageUrl ?? '',
+		alt: member.user?.firstName ?? ''
+	}));
+}
+
+/**
+ * A task of a plan in the Blocks view: the title first, the property chips under it, then how much of the estimate
+ * the time worked on it uses, who is on it and that time. The time is the task's own total, the figure the progress
+ * is made of, so the two always agree.
+ */
 export default function TaskBlockCard(props: TaskItemProps) {
 	const { task } = props;
+	const t = useTranslations();
 	const [activeTask, setActiveTask] = useAtom(activeTeamTaskId);
 	const activeTeam = useAtomValue(activeTeamState);
 	const timerStatus = useAtomValue(timerStatusState);
-
 	const activeTeamTask = useAtomValue(activeTeamTaskState);
 
 	const { data: user } = useUserQuery();
 	const { getEstimation } = useTaskStatistics(0);
 	const members = activeTeam?.members || [];
-	const currentUser = members.find((m) => m.employee?.userId === user?.id);
+	const currentMember = members.find((member) => member.employee?.userId === user?.id);
 
 	const totalWorkedTasksTimer = getTaskTotalWorkedDuration(activeTeam?.members, task.id);
-
-	const taskAssignee: ImageOverlapperProps[] =
-		task.members?.map((member: any) => {
-			return {
-				id: member.user?.id,
-				url: member.user?.imageUrl,
-				alt: member.user?.firstName
-			};
-		}) ?? [];
-
 	const progress = getEstimation(null, task, totalWorkedTasksTimer || 1, task.estimate || 0);
+	const roundedProgress = Math.round(progress);
+	const estimateSeconds = task.estimate || 0;
+	const hasEstimate = estimateSeconds > 0;
+	const { meterShare, progressText } = estimateProgressOf(hasEstimate, roundedProgress);
 
-	const currentMember = activeTeam?.members?.find((member) => member.id === currentUser?.id);
+	const taskAssignee = assigneeImagesOf(task);
+	const workedText = formatDurationShort(totalWorkedTasksTimer);
+	const isActiveTask = activeTeamTask?.id === task.id;
+	const isLive = isActiveTask && Boolean(timerStatus?.running);
+	const isRenaming = activeTask?.id == task.id;
 
-	const {
-		hours: h,
-		minutes: m,
-		seconds: s
-	} = secondsToTime(
-		(currentMember?.totalWorkedTasks &&
-			currentMember?.totalWorkedTasks?.length &&
-			currentMember?.totalWorkedTasks
-				.filter((t: TTask) => t.id === task?.id)
-				.reduce(
-					(previousValue: number, currentValue: TTaskStatistics) =>
-						previousValue + (currentValue.duration || 0),
-					0
-				)) ||
-			0
-	);
-
-	const activeTaskStatus = React.useMemo(
-		() => (activeTeamTask?.id === task.id ? timerStatus : undefined),
-		[activeTeamTask?.id, task.id, timerStatus]
-	);
+	let timeLabel = t('common.WORKED');
+	let timeClassName = 'text-foreground';
+	if (isLive) {
+		timeLabel = t('common.LIVE');
+		timeClassName = 'text-success-foreground';
+	}
 
 	return (
-		<div className="flex flex-col my-2.5 rounded-2xl bg-white dark:bg-dark--theme-light p-4 relative border border-[#F7F7F8] dark:border-gray-700">
-			<div className="justify-between w-full h-fit">
-				<div className="flex justify-between w-full">
-					<span className="!w-64">
-						<LazyTaskAllStatusTypes
-							className="justify-start"
-							task={task}
-							showStatus={false}
-							tab="default"
-							dayPlanTab="All Tasks"
-						/>
-					</span>
-					<span>
-						<LazyMenuKanbanCard member={currentMember} item={task} />
-					</span>
-				</div>
-				<div className="flex justify-between w-full my-3">
-					<div className="flex items-center w-64">
-						{activeTask?.id == task.id ? (
-							<>
-								<div className="w-56">
-									<TaskInput
-										task={task}
-										initEditMode={true}
-										keepOpen={true}
-										showCombobox={false}
-										autoFocus={true}
-										autoInputSelectText={true}
-										onTaskClick={(e) => {
-											// TODO: implement
-											console.log(e);
-										}}
-										onEnterKey={() => {
-											setActiveTask({ id: '' });
-										}}
-									/>
-								</div>
-							</>
-						) : (
-							<Link href={`/task/${task.id}`}>
-								<div className="overflow-hidden relative w-[250px] text-ellipsis">
-									{task.issueType && (
-										<span className="inline-block w-6 h-5">
-											<span className="absolute top-1">
-												<TaskIssueStatus
-													showIssueLabels={false}
-													type="HORIZONTAL"
-													task={task}
-													className="rounded-sm mr-1 h-6 w-6 !p-0 flex justify-center items-center"
-												/>
-											</span>
-										</span>
-									)}
-									<span className="text-xs">
-										<span className="mx-1 text-grey text-normal">#{task.number}</span>
-										{task.title}
-									</span>
-									<span className="inline-block ml-1">
-										{task.priority && <Priority level={task.priority} />}
-									</span>
-								</div>
-							</Link>
-						)}
-					</div>
-
-					<CircularProgress percentage={progress} />
-				</div>
-				<div className="my-2">
-					<HorizontalSeparator />
-				</div>
-				<div className="flex items-center justify-between w-full h-10">
-					<div>
-						{activeTaskStatus ? (
-							<div className="flex items-center gap-2">
-								<small className="text-xs text-grey text-normal">Live:</small>
-								<p className="text-[#219653] font-medium text-sm">
-									{h}h : {m}m : {s}s
-								</p>
-							</div>
-						) : (
-							<div className="flex items-center gap-2">
-								<small className="text-xs text-grey text-normal">Worked:</small>
-								<p className="text-sm font-medium text-black whitespace-nowrap text-nowrap min-w-20 dark:text-white">
-									{h}h : {m}m : {s}s
-								</p>
-							</div>
-						)}
-					</div>
-					<ImageComponent radius={30} images={taskAssignee} item={task} />
-					{task.issueType && (
-						<div className="flex flex-row items-center justify-center rounded-full w-5 h-5 z-[1] bg-[#e5e7eb] dark:bg-background absolute top-0 right-0">
-							<div
-								className="w-3.5 h-3.5 rounded-full"
-								style={setCommentIconColor(task.issueType as any)}
-							></div>
+		<div className="relative my-2.5 flex w-72 max-w-full flex-col gap-3 rounded-xl bg-card p-3 text-card-foreground hairline-ring ring-border shadow-sm shadow-black/6.5">
+			<div className="flex min-h-10 w-full items-start justify-between gap-2">
+				<div className="flex min-w-0 flex-1 items-center">
+					{isRenaming && (
+						<div className="w-full min-w-0">
+							<TaskInput
+								task={task}
+								initEditMode={true}
+								keepOpen={true}
+								showCombobox={false}
+								autoFocus={true}
+								autoInputSelectText={true}
+								onEnterKey={() => {
+									setActiveTask({ id: '' });
+								}}
+							/>
 						</div>
 					)}
+					{!isRenaming && (
+						<TaskDrawerLink
+							taskId={task.id}
+							className="min-w-0 rounded-sm outline-none focus-visible:ring-[3px] focus-visible:ring-ring/25"
+						>
+							<span className="line-clamp-2 text-[13px] font-medium leading-5 text-foreground">
+								{task.issueType && (
+									<TaskIssueStatus
+										showIssueLabels={false}
+										type="HORIZONTAL"
+										task={task}
+										className="mr-1.5 inline-flex size-4 items-center justify-center rounded-[4px] !p-0 align-[-3px]"
+									/>
+								)}
+								<span className="mr-1 font-normal tabular-nums text-muted-foreground">
+									#{task.number}
+								</span>
+								{task.title}
+								{task.priority && (
+									<span className="ml-1 inline-block align-middle">
+										<Priority level={task.priority} />
+									</span>
+								)}
+							</span>
+						</TaskDrawerLink>
+					)}
 				</div>
+				<span className="-mr-1 -mt-0.5 shrink-0">
+					<LazyMenuKanbanCard member={currentMember} item={task} />
+				</span>
+			</div>
+
+			<div className="h-6 min-w-0 overflow-hidden">
+				<LazyTaskAllStatusTypes
+					className="justify-start"
+					task={task}
+					showStatus={false}
+					tab="default"
+					dayPlanTab="All Tasks"
+				/>
+			</div>
+
+			<div className="flex h-4 items-center gap-2">
+				<ShareMeter share={meterShare} className="flex-1" />
+				<span className="w-9 shrink-0 text-right text-xs tabular-nums text-muted-foreground">
+					{progressText}
+				</span>
+			</div>
+
+			<div className="flex h-7 items-center justify-between gap-3">
+				<ImageComponent avatarSize={AVATAR_DIAMETER} images={taskAssignee} item={task} />
+				<span className="flex items-baseline gap-1.5 whitespace-nowrap">
+					<span className="text-xs text-muted-foreground">{timeLabel}</span>
+					<span className={cn('text-[13px] font-medium tabular-nums', timeClassName)}>{workedText}</span>
+				</span>
 			</div>
 		</div>
 	);

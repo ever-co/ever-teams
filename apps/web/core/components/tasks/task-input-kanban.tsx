@@ -1,38 +1,49 @@
 'use client';
 import { logErrorInDev } from '@/core/lib/helpers/error-message';
 
-import {
-	HostKeys,
-	RTuseTaskInput,
-	useCallbackRef,
-	useHotkeys,
-	useOutsideClick,
-	useTaskInput,
-} from '@/core/hooks';
+import { HostKeys, RTuseTaskInput, useCallbackRef, useHotkeys, useOutsideClick, useTaskInput } from '@/core/hooks';
 import { useTaskStatusesQuery } from '@/core/hooks/tasks/use-task-statuses-query';
 import { useTaskSizesQuery } from '@/core/hooks/tasks/use-task-sizes-query';
 import { useTaskPrioritiesQuery } from '@/core/hooks/tasks/use-task-priorities-query';
 import { useTaskLabelsQuery } from '@/core/hooks/tasks/use-task-labels-query';
 import { timerStatusState } from '@/core/stores';
-import { clsxm } from '@/core/lib/utils';
-import { PlusIcon } from '@heroicons/react/20/solid';
-import { Button, SpinnerLoader } from '@/core/components';
-import { RefObject, PropsWithChildren, useCallback, useEffect, useMemo, useRef, useState, JSX } from 'react';
+import {
+	Button,
+	SpinnerLoader,
+	modalDescriptionFieldClass,
+	modalFooterClass,
+	modalPrimaryActionClass,
+	modalPropertyPillClass,
+	modalTitleFieldClass
+} from '@/core/components';
+import { RefObject, PropsWithChildren, ReactNode, useCallback, useEffect, useMemo, useRef, useState, JSX } from 'react';
 import { useAtomValue } from 'jotai';
 import { TaskIssuesDropdown } from './task-issue';
 import { useTranslations } from 'next-intl';
-import { InputField } from '../duplicated-components/_input';
-import { EverCard } from '../common/ever-card';
 import { Tooltip } from '../duplicated-components/tooltip';
 import { Nullable } from '@/core/types/generics/utils';
 import { ETaskSizeName, ETaskPriority, EIssueType, ETaskStatusName } from '@/core/types/generics/enums/task';
 import { TTask } from '@/core/types/schemas/task/task.schema';
 import { Select } from '../features/projects/add-or-edit-project/steps/basic-information-form';
-import Image from 'next/image';
 import { cn } from '@/core/lib/helpers';
-import { X } from 'lucide-react';
-import { getTextColor } from '@/core/lib/helpers/colors';
+import { Check, FlagPriority, Plus as PlusIcon, Ruler, Tag } from '@/core/components/icons';
 import { TTag } from '@/core/types/schemas/tag/tag.schema';
+import { dataColorDotStyle, isPaintableColor } from './task-data-color';
+import { LazyRichEditor } from '@/core/components/common/rich-editor/lazy-rich-editor';
+import { useTeamMentionCandidates } from '@/core/hooks/organizations/teams/use-team-mention-candidates';
+import {
+	VOICE_FILL_FIELD_TRANSITION,
+	VOICE_FILLED_FIELD,
+	VoiceFillPanel,
+	VoiceFillTrigger,
+	useVoiceFillErrorToast
+} from '@/core/components/common/voice-fill/voice-fill-controls';
+import { useSyncRef } from '@/core/hooks/common/use-sync-ref';
+import {
+	useTaskVoiceFill,
+	type TaskCardVoiceTarget,
+	type TaskCardVoiceValues
+} from '@/core/hooks/tasks/use-task-voice-fill';
 
 type Props = {
 	task?: Nullable<TTask>;
@@ -74,7 +85,7 @@ type Props = {
 export function TaskInputKanban(props: Props) {
 	const t = useTranslations();
 
-	const { viewType = 'input-trigger', showTaskNumber = false } = props;
+	const { viewType = 'input-trigger' } = props;
 
 	const datas = useTaskInput({
 		task: props.task,
@@ -110,6 +121,38 @@ export function TaskInputKanban(props: Props) {
 	const inputTaskTitle = useMemo(() => inputTask?.title || '', [inputTask?.title]);
 
 	const [taskName, setTaskName] = useState('');
+	const titleInputRef = useRef<HTMLInputElement>(null);
+	const [voiceIssueType, setVoiceIssueType] = useState<string | null>(null);
+	const [issuePickerKey, setIssuePickerKey] = useState(0);
+	const voiceIssueTypeRef = useSyncRef(voiceIssueType);
+	const voiceCardRef = useRef<TaskCardVoiceTarget | null>(null);
+	const showVoiceError = useVoiceFillErrorToast();
+
+	const readTitle = useCallback(() => titleInputRef.current?.value ?? '', []);
+	const writeTitle = useCallback((title: string) => {
+		const input = titleInputRef.current;
+		if (input) {
+			input.value = title;
+		}
+		setTaskName(title);
+	}, []);
+	const readIssueType = useCallback(() => voiceIssueTypeRef.current, [voiceIssueTypeRef]);
+	const writeIssueType = useCallback(
+		(issueType: string | null) => {
+			setVoiceIssueType(issueType);
+			setTaskIssue(issueType ?? '');
+			setIssuePickerKey((key) => key + 1);
+		},
+		[setTaskIssue]
+	);
+	const {
+		voice,
+		fieldLabels: voiceFieldLabels,
+		hint: voiceHint
+	} = useTaskVoiceFill(
+		{ readTitle, writeTitle, readIssueType, writeIssueType, cardRef: voiceCardRef },
+		showVoiceError
+	);
 
 	const { targetEl, ignoreElementRef } = useOutsideClick<HTMLInputElement>(
 		() => !props.keepOpen && setEditMode(false)
@@ -253,73 +296,88 @@ export function TaskInputKanban(props: Props) {
 		}
 	}, [props.autoFocus, targetEl]);
 
-	const inputField = (
-		<InputField
-			// value={taskName}
-			disabled={timerRunningStatus}
-			// ref={targetEl}
-			autoFocus={props.autoFocus}
-			wrapperClassName={`rounded-lg dark:bg-card`}
-			placeholder={props.placeholder || t('form.TASK_INPUT_PLACEHOLDER')}
-			onFocus={(e) => {
-				setEditMode(true);
-				props.autoInputSelectText && setTimeout(() => e?.target?.select(), 10);
-			}}
-			onChange={(event) => {
-				setTaskName(event.target.value);
-			}}
-			onKeyUp={(e) => {
-				if (e.key === 'Enter' && inputTask) {
-					/* If createOnEnterClick is false then updateTaskNameHandler is called. */
-					!props.createOnEnterClick && updateTaskNameHandler(inputTask, taskName);
+	const hasTask = Boolean(props.task);
+	const isInputLoading = hasTask && Boolean(props.inputLoader);
+	const showTitleSpinner = updateLoading || isInputLoading;
+	const titlePlaceholder = props.placeholder || t('form.TASK_INPUT_PLACEHOLDER');
 
-					props.onEnterKey && props.onEnterKey(taskName, inputTask);
-				}
-				/* Creating a new task when the enter key is pressed. */
-				if (e.key === 'Enter') {
-					props.createOnEnterClick && handleTaskCreation();
-				}
-			}}
-			trailingNode={
-				/* Showing the spinner when the task is being updated. */
-				<div className="flex justify-center items-center p-2 h-full">
-					{props.task ? (
-						(updateLoading || props.inputLoader) && <SpinnerLoader size={25} />
-					) : (
-						<>{updateLoading && <SpinnerLoader size={25} />}</>
-					)}
-				</div>
-			}
-			className={clsxm(
-				showTaskNumber && inputTask && ['pl-6'],
-				'dark:bg-card',
-				props.initEditMode && 'h-10'
+	const inputField = (
+		<div className="flex flex-col gap-2">
+			<div
+				className={cn(
+					'flex items-center gap-2',
+					VOICE_FILL_FIELD_TRANSITION,
+					voice.isHighlighted('title') && VOICE_FILLED_FIELD
+				)}
+			>
+				<input
+					ref={titleInputRef}
+					type="text"
+					disabled={timerRunningStatus}
+					autoFocus={props.autoFocus}
+					aria-label={titlePlaceholder}
+					placeholder={titlePlaceholder}
+					onFocus={(e) => {
+						setEditMode(true);
+						props.autoInputSelectText && setTimeout(() => e?.target?.select(), 10);
+					}}
+					onChange={(event) => {
+						setTaskName(event.target.value);
+					}}
+					onKeyUp={(e) => {
+						if (e.key === 'Enter' && inputTask) {
+							!props.createOnEnterClick && updateTaskNameHandler(inputTask, taskName);
+
+							props.onEnterKey && props.onEnterKey(taskName, inputTask);
+						}
+						if (e.key === 'Enter') {
+							props.createOnEnterClick && handleTaskCreation();
+						}
+					}}
+					className={cn(modalTitleFieldClass, 'disabled:cursor-not-allowed disabled:opacity-50')}
+				/>
+				{showTitleSpinner && <SpinnerLoader size={20} />}
+				<VoiceFillTrigger voice={voice} disabled={timerRunningStatus} />
+			</div>
+			<VoiceFillPanel voice={voice} hint={voiceHint} fieldLabels={voiceFieldLabels} />
+		</div>
+	);
+
+	const issueTypePicker = (
+		<div
+			className={cn(
+				'flex items-center',
+				VOICE_FILL_FIELD_TRANSITION,
+				voice.isHighlighted('issueType') && VOICE_FILLED_FIELD
 			)}
-			/* Showing the task number. */
-			leadingNode={
-				// showTaskNumber &&
-				// inputTask &&
-				<div className="flex justify-center items-center w-10 h-full" ref={ignoreElementRef}>
-					<TaskIssuesDropdown
-						taskStatusClassName="!px-1 py-1 rounded-sm"
-						showIssueLabels={false}
-						onValueChange={(v: any) => setTaskIssue(v)}
-					/>
-				</div>
-			}
-		/>
+			ref={ignoreElementRef}
+		>
+			<TaskIssuesDropdown
+				key={issuePickerKey}
+				defaultValue={(voiceIssueType ?? undefined) as EIssueType | undefined}
+				taskStatusClassName="!px-1 py-1 rounded-sm"
+				showIssueLabels={false}
+				onValueChange={(v: any) => {
+					setTaskIssue(v);
+					setVoiceIssueType(v);
+				}}
+			/>
+		</div>
 	);
 
 	const taskCard = (
 		<TaskCard
 			datas={datas}
 			inputField={viewType ? inputField : undefined}
+			issueTypePicker={issueTypePicker}
 			fullWidth={props.fullWidthCombobox}
 			fullHeight={props.fullHeightCombobox}
 			kanbanTitle={props.kanbanTitle ?? 'open'}
 			handleTaskCreation={handleTaskCreation}
 			cardWithoutShadow={props.cardWithoutShadow}
 			updatedTaskList={updatedTaskList}
+			voiceCardRef={voiceCardRef}
+			isVoiceFilled={voice.isHighlighted}
 		/>
 	);
 
@@ -332,17 +390,23 @@ export function TaskInputKanban(props: Props) {
 function TaskCard({
 	datas,
 	inputField,
+	issueTypePicker,
 	kanbanTitle,
-	handleTaskCreation
+	handleTaskCreation,
+	voiceCardRef,
+	isVoiceFilled
 }: {
 	datas: Partial<RTuseTaskInput>;
 	inputField?: JSX.Element;
+	issueTypePicker?: JSX.Element;
 	kanbanTitle: string;
 	fullWidth?: boolean;
 	fullHeight?: boolean;
 	handleTaskCreation: () => void;
 	cardWithoutShadow?: boolean;
 	updatedTaskList?: TTask[];
+	voiceCardRef?: RefObject<TaskCardVoiceTarget | null>;
+	isVoiceFilled?: (key: string) => boolean;
 }) {
 	const t = useTranslations();
 	const activeTaskEl = useRef<HTMLLIElement | null>(null);
@@ -387,6 +451,8 @@ function TaskCard({
 		activeTaskSize?.current as ETaskSizeName | undefined
 	);
 	const [selectedTaskLabels, setSelectedTaskLabels] = useState(activeTaskLabels?.current.map((el) => el.name) ?? []);
+	const [description, setDescription] = useState('');
+	const mentions = useTeamMentionCandidates();
 
 	/**
 	 * Memoize select props to prevent unnecessary re-renders.
@@ -447,152 +513,187 @@ function TaskCard({
 	);
 
 	const labelSelectRenderItem = useCallback(
-		(item: (typeof taskLabelsOptions)[number]) => (
-			<div
-				style={{ backgroundColor: item.color ?? undefined }}
-				className="flex relative gap-2 items-center px-2 py-1 w-full rounded-md"
-			>
-				<div className="w-[1.2rem] flex items-center justify-center h-[1.2rem] p-[.02rem] rounded">
-					{item.fullIconUrl && (
-						<Image
-							className="object-cover w-full h-full rounded-md"
-							src={item.fullIconUrl}
-							alt={item.name + 'icon'}
-							width={40}
-							height={40}
-						/>
-					)}
-				</div>
-				<span style={{ color: getTextColor(item.color ?? 'white') }} className="text-xs">
-					{item.name}
-				</span>
-				{selectedTaskLabels?.includes(item.name) && (
-					<div
-						onClick={() => setSelectedTaskLabels(selectedTaskLabels.filter((el) => el !== item.name))}
-						className="flex absolute right-1 top-1/2 justify-center items-center -translate-y-1/2"
-					>
-						<X size={10} />
-					</div>
-				)}
-			</div>
+		(item: (typeof taskLabelsOptions)[number], isSelected: boolean) => (
+			<PropertyMenuRow name={item.name} color={item.color} isSelected={isSelected} />
 		),
-		[selectedTaskLabels, setSelectedTaskLabels]
+		[]
 	);
 
 	const labelSelectRenderValue = useCallback(() => {
+		const selectedCount = selectedTaskLabels.length;
+		if (selectedCount) {
+			return <span className="truncate">{t('modals.createTask.labelsSelected', { count: selectedCount })}</span>;
+		}
 		return (
-			<div className="flex gap-2 items-center w-full h-full">
-				{selectedTaskLabels.length ? (
-					<div
-						className={cn(
-							'flex w-full h-full items-center gap-2 rounded-md',
-							selectedTaskLabels.length > 0 ? '' : 'text-slate-500 '
-						)}
-					>
-						<span className="text-xs">{`${selectedTaskLabels.length} ${selectedTaskLabels.length > 1 ? 'Items' : 'Item'}`}</span>
-					</div>
-				) : (
-					<div className="flex gap-1 items-center">
-						<div className="w-4 h-4 rounded-full border"></div>
-						<p className="text-xs font-light text-slate-500">{t('pages.taskDetails.LABELS')}</p>
-					</div>
-				)}
-			</div>
+			<span className="flex items-center gap-1.5 text-muted-foreground">
+				<Tag aria-hidden="true" />
+				{t('pages.taskDetails.LABELS')}
+			</span>
 		);
 	}, [selectedTaskLabels, t]);
 
+	const isCreateDisabled = isTaskCreationBlocked(datas, timerRunningStatus);
+
+	const handleDescriptionChange = (html: string) => {
+		setDescription(html);
+		if (taskDescription) {
+			taskDescription.current = html;
+		}
+	};
+
+	const writeVoiceValues = (patch: Partial<TaskCardVoiceValues>) => {
+		if ('descriptionHtml' in patch) {
+			handleDescriptionChange(patch.descriptionHtml ?? '');
+		}
+		if ('priority' in patch) {
+			handleTaskPriorityChange(patch.priority ?? '');
+		}
+		if ('size' in patch) {
+			handleTaskSizeChange(patch.size ?? '');
+		}
+		if (patch.labels) {
+			handleTaskLabelsChange(patch.labels);
+		}
+	};
+
+	useEffect(() => {
+		if (!voiceCardRef) {
+			return;
+		}
+		voiceCardRef.current = {
+			read: () => ({
+				descriptionHtml: description,
+				priority: taskPriority,
+				size: taskSize,
+				labels: selectedTaskLabels
+			}),
+			write: writeVoiceValues
+		};
+	});
+
+	const voiceFieldClass = (key: string) =>
+		cn(VOICE_FILL_FIELD_TRANSITION, isVoiceFilled?.(key) && VOICE_FILLED_FIELD);
+
 	return (
-		<EverCard shadow="custom">
-			<>
+		<div className="flex flex-col gap-4">
+			<div className="flex flex-col gap-2">
 				{inputField}
-				<div>
-					{/* Create team button */}
-
-					<div className="flex flex-col gap-y-2">
-						{datas.hasCreateForm && (
-							<div>
-								<InputField
-									placeholder={t('pages.taskDetails.DESCRIPTION')}
-									onChange={(e) => {
-										if (taskDescription) {
-											taskDescription.current = e.target.value;
-										}
-									}}
-									className={'dark:bg-card'}
-								/>
-
-								<div className="flex flex-wrap gap-2 justify-start">
-									<TaskPropertySelect
-										placeholder={t('pages.taskDetails.PRIORITY')}
-										emptyLabel={t('pages.taskDetails.PRIORITY')}
-										selected={taskPriority}
-										onChange={handleTaskPriorityChange}
-										options={taskPrioritiesOptions}
-									/>
-
-									<TaskPropertySelect
-										placeholder={t('pages.taskDetails.SIZE')}
-										emptyLabel={t('pages.taskDetails.SIZE')}
-										selected={taskSize}
-										onChange={handleTaskSizeChange}
-										options={taskSizesOptions}
-									/>
-
-									<div className="w-28 h-[2rem]">
-										<Select
-											placeholder={t('pages.taskDetails.LABELS')}
-											options={taskLabelsOptions}
-											selected={selectedTaskLabels}
-											onChange={handleTaskLabelsChange}
-											multiple
-											selectTriggerClassName={cn(
-												'w-28 h-[30px]  overflow-hidden py-0 rounded-md hover:bg-transparent',
-												selectedTaskLabels?.length
-													? ' gap-1 border px-2'
-													: 'border px-2  gap-[.5rem]'
-											)}
-											selectOptionsListClassName="w-32 h-full"
-											renderItem={labelSelectRenderItem}
-											alignOptionsList="center"
-											renderValue={labelSelectRenderValue}
-										/>
-									</div>
-								</div>
-							</div>
-						)}
-
-						<Tooltip
-							enabled={!datas.user?.isEmailVerified}
-							label={t('common.VERIFY_ACCOUNT_MSG')}
-							placement="top-start"
-							className="inline-block"
-						>
-							<Button
-								variant="outline"
-								disabled={
-									!datas.hasCreateForm ||
-									datas.createLoading ||
-									!datas.user?.isEmailVerified ||
-									timerRunningStatus
-								}
-								loading={datas.createLoading}
-								className="font-normal text-sm rounded-xl min-w-[240px] max-w-[230px] inline-flex"
-								onClick={() => {
-									handleTaskCreation();
-									setTimeout(() => {
-										loadTaskStatuses();
-									}, 4000);
-								}}
-							>
-								{!datas.createLoading && <PlusIcon className="w-[16px] h-[16px]" />}
-								{t('common.CREATE_TASK')}
-							</Button>
-						</Tooltip>
+				{datas.hasCreateForm && (
+					<div className={voiceFieldClass('description')}>
+						<LazyRichEditor
+							value={description}
+							onChange={handleDescriptionChange}
+							chrome="bare"
+							toolbar={false}
+							placeholder={t('richEditor.CREATE_PLACEHOLDER')}
+							ai={{ context: 'task' }}
+							mentions={mentions}
+							aria-label={t('pages.taskDetails.DESCRIPTION')}
+							contentClassName={cn(
+								modalDescriptionFieldClass,
+								'max-h-48 min-h-16 overflow-y-auto px-0 py-0'
+							)}
+						/>
 					</div>
-				</div>
-			</>
-			<div className="w-2 h-5 opacity-0">{'|'}</div>
-		</EverCard>
+				)}
+			</div>
+
+			<div className="flex flex-wrap items-center gap-1.5">
+				{issueTypePicker}
+				{datas.hasCreateForm && (
+					<>
+						<span className={voiceFieldClass('priority')}>
+							<TaskPropertySelect
+								placeholder={t('pages.taskDetails.PRIORITY')}
+								emptyLabel={t('pages.taskDetails.PRIORITY')}
+								emptyIcon={<FlagPriority aria-hidden="true" />}
+								selected={taskPriority}
+								onChange={handleTaskPriorityChange}
+								options={taskPrioritiesOptions}
+							/>
+						</span>
+
+						<span className={voiceFieldClass('size')}>
+							<TaskPropertySelect
+								placeholder={t('pages.taskDetails.SIZE')}
+								emptyLabel={t('pages.taskDetails.SIZE')}
+								emptyIcon={<Ruler aria-hidden="true" />}
+								selected={taskSize}
+								onChange={handleTaskSizeChange}
+								options={taskSizesOptions}
+							/>
+						</span>
+
+						<span className={voiceFieldClass('labels')}>
+							<Select
+								placeholder={t('pages.taskDetails.LABELS')}
+								options={taskLabelsOptions}
+								selected={selectedTaskLabels}
+								onChange={handleTaskLabelsChange}
+								multiple
+								showChevronDownIcon={false}
+								selectTriggerClassName={modalPropertyPillClass}
+								selectOptionsListClassName="w-48"
+								renderItem={labelSelectRenderItem}
+								alignOptionsList="start"
+								renderValue={labelSelectRenderValue}
+							/>
+						</span>
+					</>
+				)}
+			</div>
+
+			<div className={modalFooterClass}>
+				<Tooltip
+					enabled={!datas.user?.isEmailVerified}
+					label={t('common.VERIFY_ACCOUNT_MSG')}
+					placement="top-start"
+					className="inline-block"
+				>
+					<Button
+						size="default"
+						disabled={isCreateDisabled}
+						loading={datas.createLoading}
+						className={modalPrimaryActionClass}
+						onClick={() => {
+							handleTaskCreation();
+							setTimeout(() => {
+								loadTaskStatuses();
+							}, 4000);
+						}}
+					>
+						{!datas.createLoading && <PlusIcon className="size-4" />}
+						{t('common.CREATE_TASK')}
+					</Button>
+				</Tooltip>
+			</div>
+		</div>
+	);
+}
+
+function isTaskCreationBlocked(datas: Partial<RTuseTaskInput>, timerRunningStatus: boolean) {
+	const hasNoCreateForm = !datas.hasCreateForm;
+	const isCreating = Boolean(datas.createLoading);
+	const isUnverified = !datas.user?.isEmailVerified;
+	return hasNoCreateForm || isCreating || isUnverified || timerRunningStatus;
+}
+
+function PropertyColorDot({ color }: { color?: string }) {
+	if (!isPaintableColor(color)) {
+		return (
+			<span aria-hidden="true" className="size-2 shrink-0 rounded-full hairline-border border-foreground/40" />
+		);
+	}
+	return <span aria-hidden="true" className="size-2 shrink-0 rounded-full" style={dataColorDotStyle(color)} />;
+}
+
+function PropertyMenuRow({ name, color, isSelected }: { name: string; color?: string; isSelected: boolean }) {
+	return (
+		<span className="flex w-full items-center gap-2 text-[13px]">
+			<PropertyColorDot color={color} />
+			<span className="min-w-0 flex-1 truncate capitalize">{name}</span>
+			{isSelected && <Check aria-hidden="true" className="size-4 text-foreground" />}
+		</span>
 	);
 }
 
@@ -605,36 +706,20 @@ interface TaskPropertySelectProps {
 	selected: string | undefined;
 	onChange: (value: string) => void;
 	emptyLabel: string;
+	emptyIcon?: ReactNode;
 }
 
-export function TaskPropertySelect({ placeholder, options, selected, onChange, emptyLabel }: TaskPropertySelectProps) {
-	/**
-	 * Memoize props to prevent unnecessary re-renders.
-	 */
-
-	const activeOptionStyle = useMemo(() => {
-		return selected ? { backgroundColor: options.find((el) => el.id === selected)?.color ?? undefined } : {};
-	}, [selected]);
-
+export function TaskPropertySelect({
+	placeholder,
+	options,
+	selected,
+	onChange,
+	emptyLabel,
+	emptyIcon
+}: TaskPropertySelectProps) {
 	const renderItem = useCallback(
-		(item: (typeof options)[number]) => (
-			<div
-				style={{ backgroundColor: item.color ?? undefined }}
-				className="flex gap-2 items-center px-2 py-1 w-full rounded-md"
-			>
-				<div className="w-[1.2rem] flex items-center justify-center h-[1.2rem] p-[.02rem] rounded">
-					{item.fullIconUrl && (
-						<Image
-							className="object-cover w-full h-full rounded-md"
-							src={item.fullIconUrl}
-							alt={item.name + 'icon'}
-							width={40}
-							height={40}
-						/>
-					)}
-				</div>
-				<span className="text-xs">{item.name}</span>
-			</div>
+		(item: (typeof options)[number], isSelected: boolean) => (
+			<PropertyMenuRow name={item.name} color={item.color} isSelected={isSelected} />
 		),
 		[]
 	);
@@ -642,33 +727,22 @@ export function TaskPropertySelect({ placeholder, options, selected, onChange, e
 	const renderValue = useCallback(
 		(value: string | null) => {
 			const item = options.find((el) => el.id === value);
+			if (item) {
+				return (
+					<span className="flex min-w-0 items-center gap-1.5">
+						<PropertyColorDot color={item.color} />
+						<span className="truncate capitalize">{item.name}</span>
+					</span>
+				);
+			}
 			return (
-				<div className="flex gap-2 items-center w-full h-full">
-					{value ? (
-						<div className="flex gap-2 items-center w-full h-full rounded-md">
-							<div className="w-[1rem] shrink-0 flex items-center justify-center h-[1rem] p-[.02rem] rounded">
-								{item?.fullIconUrl && (
-									<Image
-										className="object-cover w-full h-full rounded-md"
-										src={item.fullIconUrl}
-										alt={item.name + 'icon'}
-										width={30}
-										height={30}
-									/>
-								)}
-							</div>
-							<span className="text-xs">{item?.name}</span>
-						</div>
-					) : (
-						<div className="flex gap-1 items-center">
-							<div className="w-4 h-4 rounded-full border"></div>
-							<p className="text-xs font-light text-slate-500">{emptyLabel}</p>
-						</div>
-					)}
-				</div>
+				<span className="flex items-center gap-1.5 text-muted-foreground">
+					{emptyIcon}
+					{emptyLabel}
+				</span>
 			);
 		},
-		[options, emptyLabel]
+		[options, emptyLabel, emptyIcon]
 	);
 	return (
 		<Select
@@ -676,14 +750,11 @@ export function TaskPropertySelect({ placeholder, options, selected, onChange, e
 			options={options}
 			selected={selected as string}
 			onChange={onChange}
-			selectTriggerClassName={cn(
-				'w-28 h-[30px] overflow-hidden py-0 rounded-md hover:bg-transparent',
-				selected ? 'gap-1 border px-2' : 'border px-2 gap-[.5rem]'
-			)}
-			selectTriggerStyles={activeOptionStyle}
-			selectOptionsListClassName="w-32 h-full"
+			showChevronDownIcon={false}
+			selectTriggerClassName={modalPropertyPillClass}
+			selectOptionsListClassName="w-48"
 			renderItem={renderItem}
-			alignOptionsList="center"
+			alignOptionsList="start"
 			renderValue={renderValue}
 		/>
 	);

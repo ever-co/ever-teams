@@ -2,14 +2,16 @@
 
 import { useModal, useSyncRef, useUpdateTask } from '@/core/hooks';
 import { useTaskLabelsQuery } from '@/core/hooks/tasks/use-task-labels-query';
-import { Button, Modal } from '@/core/components';
+import { Modal } from '@/core/components';
 import { TaskLabelsDropdown } from '@/core/components/tasks/task-status';
 import { debounce, isEqual } from 'lodash';
 import { useCallback, useMemo, useRef, useState, useEffect } from 'react';
+import { useTranslations, type DottedLanguageObjectStringPaths } from 'next-intl';
 import { toast } from 'sonner';
-import { AddIcon } from 'assets/svg';
+import { errorReasonKeyOf } from '@/core/lib/utils/error-feedback';
+import { Plus } from '@/core/components/icons';
 import { TaskLabelForm } from './task-labels-form';
-import { EverCard } from '../common/ever-card';
+import { TaskPropertyMenuAction } from './task-property-menu';
 import { Nullable } from '@/core/types/generics/utils';
 import { TTask } from '@/core/types/schemas/task/task.schema';
 
@@ -23,6 +25,7 @@ type Props = {
 	onValueChange?: (_: any, values: string[] | undefined) => void;
 };
 export function TaskLabels({ task, className, forDetails, taskStatusClassName, onValueChange }: Props) {
+	const t = useTranslations();
 	const $task = useSyncRef(task);
 	const { updateTask } = useUpdateTask();
 	const { taskLabels } = useTaskLabelsQuery();
@@ -54,16 +57,11 @@ export function TaskLabels({ task, className, forDetails, taskStatusClassName, o
 						...task.current!,
 						tags: taskLabels.filter((tag) => (tag.name ? values?.includes(tag.name) : false)) as any
 					})
-						.then(() => {
-							// Success - keep optimistic value and show success toast
-							toast.success('Task labels updated successfully');
-						})
-						.catch((error) => {
+						.catch((error: unknown) => {
 							// Error - revert optimistic value and show error toast
 							setOptimisticLabels(null);
-							toast.error('Failed to update task labels', {
-								description: error?.message || 'Please try again'
-							});
+							const reasonKey = errorReasonKeyOf(error) as DottedLanguageObjectStringPaths;
+							toast.error(t('toasts.tasks.LABELS_UPDATE_FAILED'), { description: t(reasonKey) });
 							console.error('Error updating task labels:', error);
 						})
 						.finally(() => {
@@ -75,7 +73,7 @@ export function TaskLabels({ task, className, forDetails, taskStatusClassName, o
 				values
 			);
 		},
-		[$task, taskLabels, updateTask, latestLabels]
+		[$task, taskLabels, updateTask, latestLabels, t]
 	);
 
 	const onValuesChangeDebounce = useMemo(() => debounce(onValuesChange, 2000), [onValuesChange]);
@@ -89,7 +87,6 @@ export function TaskLabels({ task, className, forDetails, taskStatusClassName, o
 			<TaskLabelsDropdown
 				onValueChange={onValueChange ? onValueChange : onValuesChangeDebounce}
 				className={className}
-				placeholder="Labels"
 				defaultValues={tags || []}
 				multiple={true}
 				forDetails={forDetails}
@@ -98,20 +95,16 @@ export function TaskLabels({ task, className, forDetails, taskStatusClassName, o
 				latestLabels={latestLabels}
 				isLoading={isLoading}
 			>
-				<Button
-					className="px-2 py-1 mt-4 w-full text-xs dark:text-white dark:border-white"
-					variant="outline"
-					onClick={modal.openModal}
-				>
-					<AddIcon className="w-6 h-6 text-dark dark:text-white" />
-				</Button>
+				<TaskPropertyMenuAction icon={<Plus />} onClick={modal.openModal}>
+					{t('taskMenus.actions.createLabel')}
+				</TaskPropertyMenuAction>
 			</TaskLabelsDropdown>
 
 			{/* Modal */}
 			<Modal isOpen={modal.isOpen} closeModal={modal.closeModal}>
-				<EverCard className="sm:w-[530px] w-[330px]" shadow="custom">
+				<div className="w-[330px] sm:w-[530px]">
 					<TaskLabelForm onCreated={modal.closeModal} formOnly={true} />
-				</EverCard>
+				</div>
 			</Modal>
 		</>
 	);

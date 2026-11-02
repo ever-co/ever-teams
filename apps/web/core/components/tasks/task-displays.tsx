@@ -1,9 +1,8 @@
 import { clsxm } from '@/core/lib/utils';
 import { TaskIssueStatus } from './task-issue';
 import { differenceBetweenHours, formatDate, secondsToTime } from '@/core/lib/helpers/index';
-import { ClockIcon } from '@radix-ui/react-icons';
 import React from 'react';
-import { CalendarArrowDown, UserPlusIcon } from 'lucide-react';
+import { Clock, Idle, UserAdd } from '@/core/components/icons';
 import { cn } from '@/core/lib/helpers';
 import { Tooltip } from '../duplicated-components/tooltip';
 import { ETimeLogType } from '@/core/types/generics/enums/timer';
@@ -65,8 +64,8 @@ export function TaskNameInfoDisplay({
 						/>
 					</div>
 				)}
-				<span className={clsxm('font-normal grow truncate', taskTitleClassName)}>
-					<span className={clsxm('font-normal text-gray-500', taskNumberClassName)}>
+				<span className={clsxm('font-normal grow truncate text-foreground', taskTitleClassName)}>
+					<span className={clsxm('font-normal text-muted-foreground tabular-nums', taskNumberClassName)}>
 						#{task?.taskNumber} {dash && '-'}
 					</span>
 					{task?.title}
@@ -78,7 +77,7 @@ export function TaskNameInfoDisplay({
 }
 
 const formatTime = (hours: number, minutes: number, second?: number) => (
-	<div className="flex justify-start items-start min-w-[4rem]">
+	<div className="flex justify-start items-start min-w-[4rem] tabular-nums">
 		<span>{String(hours).padStart(2, '0')}</span>
 		<span>:</span>
 		<span>{String(minutes).padStart(2, '0')}</span>
@@ -106,19 +105,17 @@ export const DisplayTimeForTimesheet = ({
 
 	const { hours: hours, minutes: minute } = secondsToTime(seconds);
 
-	const iconClasses = 'text-[14px] h-4 w-4';
+	const iconClasses = 'size-4 shrink-0';
 	const icons = {
-		MANUAL: <UserPlusIcon className={`text-red-500 ${iconClasses}`} />,
-		TRACKED: <ClockIcon className={`text-green-400 ${iconClasses}`} />,
-		IDLE: <CalendarArrowDown className={`text-yellow-400 ${iconClasses}`} />
+		MANUAL: <UserAdd className={`text-destructive-ink ${iconClasses}`} />,
+		TRACKED: <Clock className={`text-success-foreground ${iconClasses}`} />,
+		IDLE: <Idle className={`text-warning-foreground ${iconClasses}`} />
 	};
 	const resolvedLogType: keyof typeof icons = (logType ?? 'TRACKED') as keyof typeof icons;
 	return (
 		<div className="flex gap-x-1 justify-start items-start font-medium">
 			{icons[resolvedLogType]}
-			<div className="flex items-start justify-start text-[#282048] dark:text-[#9b8ae1]">
-				{formatTime(hours, minute)}
-			</div>
+			<div className="flex items-start justify-start text-foreground">{formatTime(hours, minute)}</div>
 		</div>
 	);
 };
@@ -136,7 +133,9 @@ export const TotalTimeDisplay = React.memo(
 			: 0;
 
 		const { hours: hours, minutes: minute } = secondsToTime(totalDuration || 0);
-		return <div className={cn('flex items-center text-[#868688]', className)}>{formatTime(hours, minute)}</div>;
+		return (
+			<div className={cn('flex items-center text-muted-foreground', className)}>{formatTime(hours, minute)}</div>
+		);
 	}
 );
 TotalTimeDisplay.displayName = 'TotalTimeDisplay';
@@ -166,7 +165,11 @@ export const TotalDurationByDate = React.memo(
 			: 0;
 
 		const { hours: hours, minutes: minutes } = secondsToTime(totalDurationInSeconds);
-		return <div className={clsxm('flex items-center text-[#868688]', className)}>{formatTime(hours, minutes)}</div>;
+		return (
+			<div className={clsxm('flex items-center text-muted-foreground', className)}>
+				{formatTime(hours, minutes)}
+			</div>
+		);
 	}
 );
 TotalDurationByDate.displayName = 'TotalDurationByDate';

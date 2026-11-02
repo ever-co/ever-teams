@@ -12,10 +12,30 @@ import { ITab } from '@/core/components/pages/profile/task-filters';
 import { activeTeamManagersState, activeTeamState } from '@/core/stores';
 import { useAtomValue } from 'jotai';
 import { useUserQuery } from '../queries/user-user.query';
+import { isProfilePathname } from '@/core/lib/utils/profile-path';
 
-type IStatusType = 'status' | 'size' | 'priority' | 'label';
+export type IStatusType = 'status' | 'size' | 'priority' | 'label';
 type FilterType = 'status' | 'search' | undefined;
 type StatusFilter = { [x in IStatusType]: string[] };
+
+/**
+ * The profile remembers one tab for every profile it opens; a tab this viewer cannot see on this profile falls back
+ * to the first one they can.
+ */
+function visibleTabOf(tab: ITab, tabs: ITabs[], persistState: boolean) {
+	if (!persistState) {
+		return tab;
+	}
+	const isVisible = tabs.some((item) => item.tab === tab);
+	if (isVisible) {
+		return tab;
+	}
+	return tabs[0]?.tab ?? tab;
+}
+
+function hasAnyStatusFilter(filter: StatusFilter) {
+	return Object.values(filter).some((values) => values && values.length > 0);
+}
 
 type ITabs = {
 	tab: ITab;
@@ -177,20 +197,6 @@ export function useTaskFilter(profile: I_UserProfilePage, options: UseTaskFilter
 		]
 	);
 
-	const tasks = useMemo(() => tasksFiltered[tab] || [], [tab, tasksFiltered]);
-	const dailyPlanSuggestionModalDate = window && window?.localStorage.getItem(DAILY_PLAN_SUGGESTION_MODAL_DATE);
-
-	const outclickFilterCard = useOutsideClick<HTMLDivElement>(() => {
-		if (filterType === 'search' && taskName.trim().length === 0) {
-			setFilterType(undefined);
-		} else if (filterType === 'status') {
-			const hasStatus = (Object.keys(statusFilter) as IStatusType[]).some((skey) => {
-				return statusFilter[skey] && statusFilter[skey].length > 0;
-			});
-			!hasStatus && setFilterType(undefined);
-		}
-	});
-
 	const tabs: ITabs[] = [
 		{
 			tab: 'assigned',
@@ -216,8 +222,8 @@ export function useTaskFilter(profile: I_UserProfilePage, options: UseTaskFilter
 		});
 		tabs.push({
 			tab: 'stats',
-			name: 'Stats',
-			description: 'This tab shows all stats',
+			name: t('profile.page.STATS'),
+			description: t('profile.page.STATS_DESCRIPTION'),
 			count: resolvedStatsCount
 		});
 		tabs.unshift({
@@ -227,6 +233,22 @@ export function useTaskFilter(profile: I_UserProfilePage, options: UseTaskFilter
 			count: profile?.tasksGrouped?.workedTasks?.length || 0
 		});
 	}
+
+	const visibleTab = visibleTabOf(tab, tabs, persistState);
+
+	const tasks = useMemo(() => tasksFiltered[visibleTab] || [], [visibleTab, tasksFiltered]);
+	const dailyPlanSuggestionModalDate = window && window?.localStorage.getItem(DAILY_PLAN_SUGGESTION_MODAL_DATE);
+
+	const outclickFilterCard = useOutsideClick<HTMLDivElement>(() => {
+		if (filterType === 'search' && taskName.trim().length === 0) {
+			setFilterType(undefined);
+		} else if (filterType === 'status') {
+			const hasStatus = (Object.keys(statusFilter) as IStatusType[]).some((skey) => {
+				return statusFilter[skey] && statusFilter[skey].length > 0;
+			});
+			!hasStatus && setFilterType(undefined);
+		}
+	});
 
 	// useEffect(() => {
 	// 	window.localStorage.setItem('task-tab', tab);
@@ -259,7 +281,7 @@ export function useTaskFilter(profile: I_UserProfilePage, options: UseTaskFilter
 
 	// Set the tab to assigned if user has not planned tasks (if outstanding is empty) (on first load)
 	useEffect(() => {
-		if (dailyPlanSuggestionModalDate != new Date().toISOString().split('T')[0] && path.split('/')[1] == 'profile') {
+		if (dailyPlanSuggestionModalDate != new Date().toISOString().split('T')[0] && isProfilePathname(path)) {
 			if (estimatedTotalTime(employeeOutstandingPlans).totalTasks) {
 				setTab('dailyplan');
 			} else {
@@ -276,12 +298,11 @@ export function useTaskFilter(profile: I_UserProfilePage, options: UseTaskFilter
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, []);
 
-	// Reset status applied filter status when filter changed
-	useEffect(() => {
-		if (filterType !== 'status') {
-			setAppliedStatusFilter({} as StatusFilter);
-		}
-	}, [filterType]);
+	/** The filter menu applies a choice at once, as Linear does: no separate Apply step. */
+	const setStatusFilterValues = useCallback((type: IStatusType, values: string[]) => {
+		setStatusFilter((state) => ({ ...state, [type]: values }));
+		setAppliedStatusFilter((state) => ({ ...state, [type]: values }));
+	}, []);
 
 	const onResetStatusFilter = useCallback(() => {
 		setStatusFilter({} as StatusFilter);
@@ -319,16 +340,23 @@ export function useTaskFilter(profile: I_UserProfilePage, options: UseTaskFilter
 			});
 	}, [tasks, taskName, appliedStatusFilter]);
 
+	const isSearchingByName = taskName.trim().length > 0;
+	const hasAppliedStatusFilter = hasAnyStatusFilter(appliedStatusFilter);
+
 	return {
-		tab,
+		tab: visibleTab,
 		setTab,
 		tabs,
 		filterType,
 		toggleFilterType,
 		tasksFiltered: $tasks,
+		isSearchingByName,
+		hasAppliedStatusFilter,
 		taskName,
 		setTaskName,
 		statusFilter,
+		appliedStatusFilter,
+		setStatusFilterValues,
 		onChangeStatusFilter,
 		onResetStatusFilter,
 		applyStatusFilter: applyStatusFilter,

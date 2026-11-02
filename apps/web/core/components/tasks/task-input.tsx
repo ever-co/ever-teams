@@ -7,20 +7,21 @@ import {
 	useCallbackRef,
 	useHotkeys,
 	useOutsideClick,
-	useTaskInput,
+	useTaskInput
 } from '@/core/hooks';
 import { useTaskLabelsQuery } from '@/core/hooks/tasks/use-task-labels-query';
 import { useIssueTypesQuery } from '@/core/hooks/tasks/use-issue-types-query';
-import {
-	activeTeamState,
-	activeTeamTaskId,
-	timerStatusState
-} from '@/core/stores';
+import { activeTeamState, activeTeamTaskId, timerStatusState } from '@/core/stores';
 import { clsxm } from '@/core/lib/utils';
 import { Combobox, Popover, PopoverPanel, Transition } from '@headlessui/react';
-import { CheckIcon, ChevronDownIcon, PlusIcon, UserGroupIcon } from '@heroicons/react/20/solid';
-import { Button, Divider, SpinnerLoader } from '@/core/components';
-import { CircleIcon, CheckCircleTickIcon as TickCircleIcon } from 'assets/svg';
+import {
+	Check as CheckIcon,
+	ChevronDown as ChevronDownIcon,
+	Plus as PlusIcon,
+	UsersGroup as UserGroupIcon
+} from '@/core/components/icons';
+import { Button, SpinnerLoader } from '@/core/components';
+import { CircleIcon } from 'assets/svg';
 import { JSX, RefObject, PropsWithChildren, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useAtomValue, useSetAtom } from 'jotai';
 import { ActiveTaskIssuesDropdown, TaskIssuesDropdown } from './task-issue';
@@ -28,15 +29,21 @@ import { TaskItem } from './task-items';
 import { TaskLabels } from './task-labels';
 import { ActiveTaskPropertiesDropdown, ActiveTaskSizesDropdown, ActiveTaskStatusDropdown } from './task-status';
 import { useTranslations } from 'next-intl';
+import { DictationButton } from '@/core/components/common/dictation-button';
+import { appendDictatedText } from '@/core/hooks/ai/use-dictation';
 import { useInfinityScrolling } from '@/core/hooks/common/use-infinity-fetch';
 import { LazyRender } from '@/core/components/common/lazy-render';
 import { ProjectDropDown } from '@/core/components/pages/task/details-section/blocks/task-secondary-info';
 import { toast } from 'sonner';
 import { cn } from '@/core/lib/helpers';
+import { SegmentedControl, type SegmentedControlItem } from '@/core/components/common/segmented-control';
+import { TASK_PROPERTY_PILL_RECIPE } from './task-property-trigger';
 import { InputField } from '../duplicated-components/_input';
+import { LazyRichEditor } from '@/core/components/common/rich-editor/lazy-rich-editor';
+import { isInRichEditorLayer } from '@/core/components/common/rich-editor/editor-layer';
+import { useTeamMentionCandidates } from '@/core/hooks/organizations/teams/use-team-mention-candidates';
 import { Tooltip } from '../duplicated-components/tooltip';
 import { EverCard } from '../common/ever-card';
-import { OutlineBadge } from '../duplicated-components/badge';
 import { ObserverComponent } from './observer';
 import { Nullable } from '@/core/types/generics/utils';
 import { IIssueType } from '@/core/types/interfaces/task/issue-type';
@@ -74,6 +81,14 @@ type Props = {
 	assignTaskPopup?: boolean;
 	forParentChildRelationship?: boolean;
 } & PropsWithChildren;
+
+function issueTileClassName(task: { issueType?: string | null } | null | undefined) {
+	const isBug = task?.issueType === 'Bug';
+	if (isBug) {
+		return '!px-[0.3312rem] py-[0.2875rem] rounded-sm';
+	}
+	return '!px-[0.375rem] py-[0.375rem] rounded-sm';
+}
 
 /**
  * If task passed then some function should not considered as global state
@@ -133,9 +148,16 @@ export function TaskInput(props: Props) {
 
 	const [taskName, setTaskName] = useState('');
 
-	const { targetEl, ignoreElementRef } = useOutsideClick<HTMLInputElement>(
-		() => !props.keepOpen && !datas.isCreatingTask && setEditMode(false)
-	);
+	const closeOnOutsideClick = (_card: HTMLElement, target: HTMLElement) => {
+		const isKeptOpen = Boolean(props.keepOpen);
+		const isCreating = Boolean(datas.isCreatingTask);
+		const isInEditorMenu = isInRichEditorLayer(target);
+		const staysOpen = isKeptOpen || isCreating || isInEditorMenu;
+		if (!staysOpen) {
+			setEditMode(false);
+		}
+	};
+	const { targetEl, ignoreElementRef } = useOutsideClick<HTMLInputElement>(closeOnOutsideClick);
 
 	useEffect(() => {
 		setQuery(taskName === inputTask?.title ? '' : taskName);
@@ -218,12 +240,8 @@ export function TaskInput(props: Props) {
 					assignToUsers: props.usersTaskCreatedAssignTo || []
 				})
 				?.then((createdTask) => {
-					// Show success toast notification
 					if (createdTask) {
-						toast.success('Task Created Successfully', {
-							description: `"${createdTask.title}" has been created successfully`,
-							duration: 4000
-						});
+						toast.success(t('toasts.tasks.CREATED'), { description: createdTask.title });
 					}
 					onTaskCreated(createdTask);
 					viewType === 'one-view' && setTaskName('');
@@ -339,6 +357,11 @@ export function TaskInput(props: Props) {
 
 	// const savedIssueType : string | null = localStorage.getItem('savedIssueType') as string && null;
 
+	const appendDictation = (text: string) => {
+		setTaskName((current) => appendDictatedText(current, text));
+		targetEl.current?.focus();
+	};
+
 	const inputField = (
 		<InputField
 			value={taskName}
@@ -348,7 +371,7 @@ export function TaskInput(props: Props) {
 			setTaskName={setTaskName}
 			ignoreElementRefForTitle={ignoreElementRef as unknown as RefObject<HTMLDivElement>}
 			autoFocus={props.autoFocus}
-			wrapperClassName={`rounded-lg dark:bg-card`}
+			wrapperClassName={CALM_FIELD}
 			placeholder={props.placeholder || t('form.TASK_INPUT_PLACEHOLDER')}
 			onFocus={(e) => {
 				setEditMode(true);
@@ -377,13 +400,10 @@ export function TaskInput(props: Props) {
 					) : (
 						<>{updateLoading && <SpinnerLoader size={25} />}</>
 					)}
+					<DictationButton onText={appendDictation} disabled={timerRunningStatus} />
 				</div>
 			}
-			className={clsxm(
-				showTaskNumber && inputTask && ['pl-2'],
-				'dark:bg-card',
-				props.initEditMode && 'h-10'
-			)}
+			className={clsxm(showTaskNumber && inputTask && ['pl-2'], props.initEditMode && 'h-10')}
 			/* Showing the task number and issue type */
 			leadingNode={
 				// showTaskNumber &&
@@ -394,12 +414,7 @@ export function TaskInput(props: Props) {
 							key={(inputTask && inputTask.id) || ''}
 							task={inputTask}
 							forParentChildRelationship
-							taskStatusClassName={clsxm(
-								inputTask && inputTask.issueType === 'Bug'
-									? '!px-[0.3312rem] py-[0.2875rem] rounded-sm'
-									: '!px-[0.375rem] py-[0.375rem] rounded-sm',
-								'border-none'
-							)}
+							taskStatusClassName={clsxm(issueTileClassName(inputTask), 'border-none')}
 							className="p-1.5!"
 						/>
 					) : (
@@ -416,7 +431,9 @@ export function TaskInput(props: Props) {
 					)}
 
 					{!datas.hasCreateForm && (
-						<span className="text-sm text-gray-500">#{(inputTask && inputTask.taskNumber) || ''}</span>
+						<span className="text-sm tabular-nums text-muted-foreground">
+							#{(inputTask && inputTask.taskNumber) || ''}
+						</span>
 					)}
 				</div>
 			}
@@ -476,6 +493,34 @@ export function TaskInput(props: Props) {
 /**
  * A component that is used to render the task list.
  */
+type TaskListFilter = 'open' | 'closed';
+
+/**
+ * The title and description fields of the task block stay calm on focus, like Linear's and Plane's title fields:
+ * the hairline darkens, no halo around the field.
+ */
+const CALM_FIELD =
+	'rounded-lg [&>div]:focus-within:hairline-ring [&>div]:focus-within:ring-foreground/25 dark:[&>div]:focus-within:ring-foreground/30';
+
+/** A task option of the picker: a compact menu row, the current task tinted. */
+const TASK_OPTION_ROW = 'cursor-pointer rounded-md px-2 py-1.5 transition-colors hover:bg-foreground/[0.04]';
+const TASK_OPTION_ROW_ACTIVE = 'bg-foreground/[0.04]';
+
+function taskListHeightOf(assignTaskPopup: boolean | undefined) {
+	if (assignTaskPopup) {
+		return 'max-h-[40vh]';
+	}
+	return 'max-h-80';
+}
+
+/** A count is shown once every page of tasks has loaded; before that it would undercount. */
+function loadedCountOf(isComplete: boolean | undefined, count: number | undefined) {
+	if (!isComplete) {
+		return undefined;
+	}
+	return count ?? 0;
+}
+
 function TaskCard({
 	datas,
 	onItemClick,
@@ -516,6 +561,7 @@ function TaskCard({
 	const projectDropdownRef = useRef<HTMLDivElement>(null);
 
 	const { taskStatus, taskPriority, taskSize, taskLabels, taskDescription, taskProject, taskAssignees } = datas;
+	const mentions = useTeamMentionCandidates();
 	const { nextOffset, data } = useInfinityScrolling(updatedTaskList ?? [], 5);
 
 	// Register dropdown refs with useOutsideClick to ignore them
@@ -585,13 +631,21 @@ function TaskCard({
 	);
 
 	const handleDescriptionChange = useCallback(
-		(e: React.ChangeEvent<HTMLInputElement>) => {
+		(html: string) => {
 			if (taskDescription) {
-				taskDescription.current = e.target.value;
+				taskDescription.current = html;
 			}
 		},
 		[taskDescription]
 	);
+
+	const taskFilterItems: SegmentedControlItem<TaskListFilter>[] = [
+		{ value: 'open', label: t('common.OPEN'), count: loadedCountOf(datas.tasksComplete, datas.openTaskCount) },
+		{ value: 'closed', label: t('common.CLOSED'), count: loadedCountOf(datas.tasksComplete, datas.closedTaskCount) }
+	];
+	const selectTaskFilter = (filter: TaskListFilter) => {
+		datas.setFilter?.(filter);
+	};
 
 	useEffect(() => {
 		if (datas.editMode) {
@@ -609,25 +663,32 @@ function TaskCard({
 			<EverCard
 				shadow="custom"
 				className={clsxm(
-					'rounded-xl md:px-4 md:py-4',
-					!cardWithoutShadow && ['shadow-xl card'],
+					'overflow-hidden rounded-xl p-0 md:p-0',
+					!cardWithoutShadow && 'shadow-md shadow-black/6.5',
 					fullWidth ? ['w-full'] : ['md:w-[500px]'],
 					fullHeight && 'h-full'
 				)}
 			>
-				<div className="flex flex-col gap-3">
+				<div className="flex flex-col gap-3 p-3">
 					<>
 						{inputField}
 						{datas.hasCreateForm && (
 							<div className="flex flex-col gap-2">
-								<InputField
-									placeholder="Description"
-									emojis={true}
-									onChange={handleDescriptionChange}
-									className={'dark:bg-card'}
-								/>
+								<div className="rounded-lg bg-background px-3 py-2 hairline-ring ring-border transition-shadow focus-within:ring-foreground/25 dark:focus-within:ring-foreground/30">
+									<LazyRichEditor
+										value={taskDescription?.current ?? ''}
+										onChange={handleDescriptionChange}
+										chrome="bare"
+										toolbar={false}
+										placeholder={t('richEditor.CREATE_PLACEHOLDER')}
+										ai={{ context: 'task' }}
+										mentions={mentions}
+										aria-label={t('pages.taskDetails.DESCRIPTION')}
+										contentClassName="max-h-40 min-h-10 overflow-y-auto text-[13px]"
+									/>
+								</div>
 
-								<div className="flex gap-2 justify-start">
+								<div className="flex flex-wrap items-center gap-2">
 									<div ref={statusDropdownRef}>
 										<ActiveTaskStatusDropdown
 											className="min-w-fit lg:max-w-[170px]"
@@ -662,7 +723,7 @@ function TaskCard({
 										<TaskLabels
 											className="min-w-fit lg:max-w-[170px] text-xs z-[1000]"
 											forDetails={true}
-											taskStatusClassName="dark:bg-card dark:border dark:border-[#FFFFFF33] h-full text-xs"
+											taskStatusClassName="h-7"
 											onValueChange={handleLabelsChange}
 											task={null}
 										/>
@@ -672,7 +733,7 @@ function TaskCard({
 										<div ref={assigneesDropdownRef}>
 											<AssigneesSelect
 												key={`assignees-${datas.inputTask?.id || 'new'}`}
-												className="min-w-fit lg:max-w-[170px] bg-white h-full"
+												className="min-w-fit"
 												assignees={taskAssignees}
 												teamMembers={activeTeam?.members ?? []}
 											/>
@@ -693,63 +754,40 @@ function TaskCard({
 							</div>
 						)}
 
-						<Tooltip
-							enabled={!datas.user?.isEmailVerified}
-							label={t('common.VERIFY_ACCOUNT_MSG')}
-							placement="top-start"
-							className="inline-block"
-						>
-							<Button
-								variant="outline"
-								disabled={!datas.hasCreateForm || datas.createLoading || !datas.user?.isEmailVerified}
-								loading={datas.createLoading}
-								className="font-normal text-sm rounded-xl min-w-[240px] max-w-[230px] inline-flex"
-								onClick={handleTaskCreation}
+						<div className="flex flex-wrap items-center justify-between gap-2">
+							<SegmentedControl
+								items={taskFilterItems}
+								value={datas.filter ?? 'open'}
+								onValueChange={selectTaskFilter}
+								ariaLabel={t('common.FILTER')}
+							/>
+							<Tooltip
+								enabled={!datas.user?.isEmailVerified}
+								label={t('common.VERIFY_ACCOUNT_MSG')}
+								placement="top-start"
+								className="inline-block"
 							>
-								{!datas.createLoading && <PlusIcon className="w-[16px] h-[16px]" />}
-								{t('common.CREATE_TASK')}
-							</Button>
-						</Tooltip>
+								<Button
+									variant="outline"
+									size="sm"
+									disabled={
+										!datas.hasCreateForm || datas.createLoading || !datas.user?.isEmailVerified
+									}
+									loading={datas.createLoading}
+									onClick={handleTaskCreation}
+								>
+									{!datas.createLoading && <PlusIcon className="size-4" />}
+									{t('common.CREATE_TASK')}
+								</Button>
+							</Tooltip>
+						</div>
 					</>
-					{/* Task filter buttons  */}
-					<div className="flex space-x-3">
-						<OutlineBadge
-							className="py-2 text-xs cursor-pointer input-border"
-							onClick={() => datas.setFilter && datas.setFilter('open')}
-						>
-							<div className={clsxm('w-4 h-4 bg-green-300 rounded-full opacity-50')} />
-							<span
-								className={clsxm(
-									datas.filter === 'open' && ['text-primary dark:text-primary-light font-semibold']
-								)}
-							>
-								{datas.tasksComplete && (datas.openTaskCount || 0)} {t('common.OPEN')}
-							</span>
-						</OutlineBadge>
-
-						<OutlineBadge
-							className="py-2 text-xs cursor-pointer input-border"
-							onClick={() => datas.setFilter && datas.setFilter('closed')}
-						>
-							<TickCircleIcon className="opacity-50 w-full max-w-[17px]" />
-							<span
-								className={clsxm(
-									datas.filter === 'closed' && ['text-primary dark:text-primary-light font-semibold']
-								)}
-							>
-								{datas.tasksComplete && (datas.closedTaskCount || 0)} {t('common.CLOSED')}
-							</span>
-						</OutlineBadge>
-					</div>
 				</div>
 
-				<Divider className="my-4" />
-				{/* Task list */}
-				<ul className={assignTaskPopup ? 'overflow-y-auto py-6 max-h-[40vh]' : 'overflow-y-auto py-6 max-h-60'}>
+				<ul className={cn('hairline-t border-border overflow-y-auto p-1', taskListHeightOf(assignTaskPopup))}>
 					{forParentChildRelationship && (
 						<LazyRender items={data || []}>
 							{(task, i) => {
-								const last = (datas.filteredTasks?.length || 0) - 1 === i;
 								const active = datas.inputTask === task;
 
 								return (
@@ -758,10 +796,9 @@ function TaskCard({
 											task={task}
 											selected={active}
 											onClick={onItemClick}
-											className="overflow-y-auto cursor-pointer"
+											className={cn(TASK_OPTION_ROW, active && TASK_OPTION_ROW_ACTIVE)}
 										/>
 										<ObserverComponent isLast={i === data.length - 1} getNextData={nextOffset} />
-										{!last && <Divider className="my-3.5" />}
 									</li>
 								);
 							}}
@@ -771,7 +808,6 @@ function TaskCard({
 					{!forParentChildRelationship && (
 						<LazyRender items={datas.filteredTasks || []}>
 							{(task, i) => {
-								const last = (datas.filteredTasks?.length || 0) - 1 === i;
 								const active = datas.inputTask === task;
 
 								return (
@@ -780,10 +816,8 @@ function TaskCard({
 											task={task}
 											selected={active}
 											onClick={onItemClick}
-											className="cursor-pointer"
+											className={cn(TASK_OPTION_ROW, active && TASK_OPTION_ROW_ACTIVE)}
 										/>
-
-										{!last && <Divider className="my-5" />}
 									</li>
 								);
 							}}
@@ -792,7 +826,9 @@ function TaskCard({
 
 					{(forParentChildRelationship && updatedTaskList && updatedTaskList.length === 0) ||
 						(!forParentChildRelationship && datas.filteredTasks && datas.filteredTasks.length === 0 && (
-							<div className="text-center">{t('common.NO_TASKS')}</div>
+							<div className="px-3 py-6 text-center text-[13px] text-muted-foreground">
+								{t('common.NO_TASKS')}
+							</div>
 						))}
 				</ul>
 			</EverCard>
@@ -861,18 +897,19 @@ function AssigneesSelect(props: ITeamMemberSelectProps & { key?: string }): Reac
 	return (
 		<div
 			className={cn(
-				'max-w-52 border rounded-xl bg-[#F2F2F2] dark:bg-card dark:border dark:border-[#FFFFFF33] px-3',
+				TASK_PROPERTY_PILL_RECIPE,
+				'max-w-52 cursor-pointer transition-colors hover:bg-foreground/[0.03]',
 				props.className
 			)}
 		>
 			<Combobox multiple={true}>
 				<div className="relative my-auto h-full">
 					<div className="overflow-hidden w-full h-full text-left rounded-lg cursor-default focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 sm:text-sm">
-						<Combobox.Button className="flex justify-between items-center h-full min-w-fit max-w-40 hover:transition-all">
+						<Combobox.Button className="flex gap-1.5 justify-between items-center h-full min-w-fit max-w-40">
 							<div
 								className={cn(
-									'flex gap-1 items-center  !text-default dark:!text-white text-xs',
-									!assignees?.current?.length && ['!text-dark/40  dark:!text-white']
+									'flex gap-1 items-center text-foreground text-xs',
+									!assignees?.current?.length && '!text-muted-foreground'
 								)}
 							>
 								{!assignees?.current?.length ? (
@@ -882,7 +919,7 @@ function AssigneesSelect(props: ITeamMemberSelectProps & { key?: string }): Reac
 								)}
 								{t('common.ASSIGNEE')}
 							</div>
-							<ChevronDownIcon className={clsxm('w-5 h-5 text-default dark:text-white')} />
+							<ChevronDownIcon className="size-4 text-muted-foreground" />
 						</Combobox.Button>
 					</div>
 					<Transition
@@ -891,17 +928,16 @@ function AssigneesSelect(props: ITeamMemberSelectProps & { key?: string }): Reac
 						leaveFrom="opacity-100"
 						leaveTo="opacity-0"
 					>
-						<Combobox.Options className="absolute mt-1 max-h-40 h-auto overflow-auto rounded-md dark:bg-card dark:border dark:border-[#FFFFFF33] py-1 text-base shadow-lg ring-1 ring-black/5 focus:outline-none sm:text-sm">
+						<Combobox.Options className="absolute mt-1 max-h-40 h-auto overflow-auto rounded-xl bg-popover p-1 text-sm text-popover-foreground hairline-ring ring-border shadow-md shadow-black/6.5 focus:outline-none">
 							{authMember && (
 								<Combobox.Option
 									className={({ active }) =>
-										`relative select-none py-2 pl-10 pr-4 ${
-											canDeselectCurrentUser ? 'cursor-pointer' : 'cursor-not-allowed opacity-75'
-										} ${
-											active
-												? 'bg-primary/5 dark:text-gray-100 dark:bg-dark--theme-lights'
-												: 'text-gray-900 dark:text-gray-200'
-										}`
+										cn(
+											'relative select-none rounded-md py-1.5 pl-9 pr-3 text-foreground transition-colors',
+											canDeselectCurrentUser && 'cursor-pointer',
+											!canDeselectCurrentUser && 'cursor-not-allowed opacity-75',
+											active && 'bg-foreground/5'
+										)
 									}
 									onClick={() => {
 										if (!assignees) return;
@@ -925,14 +961,14 @@ function AssigneesSelect(props: ITeamMemberSelectProps & { key?: string }): Reac
 									value={authMember}
 								>
 									{isCurrentUserAssigned && (
-										<span className={`flex absolute inset-y-0 left-0 items-center pl-3`}>
-											<CheckIcon className="w-5 h-5" aria-hidden="true" />
+										<span className={`flex absolute inset-y-0 left-0 items-center pl-2.5`}>
+											<CheckIcon className="size-4" aria-hidden="true" />
 										</span>
 									)}
 									<span className="text-xs whitespace-nowrap text-nowrap">
 										{authMember.employee?.fullName}
 										{!canDeselectCurrentUser && isCurrentUserAssigned && (
-											<span className="ml-1 text-xs text-gray-500">(Required)</span>
+											<span className="ml-1 text-xs text-muted-foreground">(Required)</span>
 										)}
 									</span>
 								</Combobox.Option>
@@ -944,11 +980,10 @@ function AssigneesSelect(props: ITeamMemberSelectProps & { key?: string }): Reac
 									<Combobox.Option
 										key={member.id}
 										className={({ active }) =>
-											`relative cursor-pointer select-none py-2 pl-10 pr-4 ${
-												active
-													? 'bg-primary/5 dark:text-gray-100 dark:bg-dark--theme-lights'
-													: 'text-gray-900 dark:text-gray-200'
-											}`
+											cn(
+												'relative cursor-pointer select-none rounded-md py-1.5 pl-9 pr-3 text-foreground transition-colors',
+												active && 'bg-foreground/5'
+											)
 										}
 										onClick={() => {
 											if (!assignees) return;
@@ -970,8 +1005,8 @@ function AssigneesSelect(props: ITeamMemberSelectProps & { key?: string }): Reac
 										value={member}
 									>
 										{assignees?.current?.map((el) => el.id).includes(member.employee?.id || '') && (
-											<span className={`flex absolute inset-y-0 left-0 items-center pl-3`}>
-												<CheckIcon className="w-5 h-5" aria-hidden="true" />
+											<span className={`flex absolute inset-y-0 left-0 items-center pl-2.5`}>
+												<CheckIcon className="size-4" aria-hidden="true" />
 											</span>
 										)}
 

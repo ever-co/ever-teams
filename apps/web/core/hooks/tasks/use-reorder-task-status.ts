@@ -5,6 +5,8 @@ import { taskStatusService } from '@/core/services/client/api/tasks/task-status.
 import { ITaskStatusOrder } from '@/core/types/interfaces/task/task-status/task-status-order';
 import { useInvalidateTaskStatuses } from './use-invalidate-task-statuses';
 import { toast } from 'sonner';
+import { useTranslations, type DottedLanguageObjectStringPaths } from 'next-intl';
+import { errorReasonKeyOf } from '@/core/lib/utils/error-feedback';
 
 /**
  * Hook for reordering task statuses with cache invalidation and toast notifications.
@@ -14,6 +16,7 @@ import { toast } from 'sonner';
  * - `reOrderTaskStatusLoading` - Boolean indicating mutation pending state
  */
 export function useReorderTaskStatus() {
+	const t = useTranslations();
 	const { invalidateTaskStatusesData, tenantId } = useInvalidateTaskStatuses();
 
 	const reorderTaskStatusMutation = useMutation({
@@ -25,12 +28,10 @@ export function useReorderTaskStatus() {
 		},
 		onSuccess: () => {
 			invalidateTaskStatusesData();
-			toast.success('Task statuses reordered successfully');
 		},
 		onError: (error) => {
-			toast.error('Failed to reorder task statuses', {
-				description: error.message
-			});
+			const reasonKey = errorReasonKeyOf(error) as DottedLanguageObjectStringPaths;
+			toast.error(t('toasts.tasks.STATUS_ORDER_FAILED'), { description: t(reasonKey) });
 		}
 	});
 

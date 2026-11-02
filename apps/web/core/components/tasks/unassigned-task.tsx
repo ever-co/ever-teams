@@ -3,8 +3,9 @@ import { RawStatusDropdown } from '@/core/components/tasks/status-dropdown';
 
 import { useTaskStatistics } from '@/core/hooks/tasks/use-task-statistics';
 import { activeTaskStatisticsState, activeTeamTaskState, timerSecondsState } from '@/core/stores';
-import { PlayIcon } from '@heroicons/react/20/solid';
+import { Play as PlayIcon } from '@/core/components/icons';
 import { useRef } from 'react';
+import { clsxm } from '@/core/lib/utils';
 import { useAtomValue } from 'jotai';
 import { useTranslations } from 'next-intl';
 import { TTask } from '@/core/types/schemas/task/task.schema';
@@ -16,6 +17,7 @@ interface ITaskDetailCard {
 	current: string;
 }
 const UnAssignedTask = ({ now = false, task }: ITaskDetailCard) => {
+	const isNow = now === true;
 	const estimationPourtcent = useRef(0);
 	const t = useTranslations();
 	const timerReconds = useAtomValue(timerSecondsState);
@@ -44,34 +46,37 @@ const UnAssignedTask = ({ now = false, task }: ITaskDetailCard) => {
 	secondsToTime((taskStat && taskStat.duration) || 0);
 	return (
 		<div
-			className={`w-full rounded-[10px] drop-shadow-[0px_3px_15px_#3E1DAD1A] border relative  ${
-				now === true
-					? '  border-primary dark:border-gray-100'
-					: ' hover:border hover:border-primary dark:border-border'
-			} bg-[#FFFFFF] my-[15px] dark:bg-card justify-between dark:hover:border-gray-100 font-bold px-[24px] dark:text-[#FFFFFF] py-[10px]`}
+			className={clsxm(
+				'relative w-full my-3 justify-between rounded-xl bg-card px-6 py-2.5 font-semibold text-foreground',
+				'hairline-ring shadow-sm shadow-black/6.5 transition-colors',
+				isNow && 'ring-primary/40',
+				!isNow && 'ring-border hover:ring-primary/30'
+			)}
 		>
 			<div className="flex justify-between items-center">
 				<div
-					className={`text-black dark:text-[#FFFFFF] text-[14px] ${
-						now == true ? 'font-semibold' : 'font-medium'
-					} w-[413px]`}
+					className={clsxm(
+						'text-sm text-foreground w-[413px]',
+						isNow && 'font-semibold',
+						!isNow && 'font-medium'
+					)}
 				>
 					{`#${task && task.taskNumber} `} {task && task.title}
 				</div>
-				<div className="h-[35px] text-[#D7E1EB] border-l border-[#E8EBF8] dark:border-border flex justify-center items-center"></div>
-				<div className="w-[236px]  text-center text-[#C1BFC9] dark:text-[#FFFFFF] flex flex-col justify-center items-center">
+				<div className="h-[35px] hairline-l border-border flex justify-center items-center"></div>
+				<div className="w-[236px] text-center text-xs text-muted-foreground flex flex-col justify-center items-center">
 					<div className="">{t('task.ASSIGNED_BY')}</div>
-					<div className="text-black flex-2">{t('task.NO_ONE_FOR_TASK')}</div>
+					<div className="text-sm text-foreground flex-2">{t('task.NO_ONE_FOR_TASK')}</div>
 				</div>
-				<div className="h-[35px] text-[#D7E1EB] border-l border-[#E8EBF8] dark:border-border flex justify-center items-center"></div>
+				<div className="h-[35px] hairline-l border-border flex justify-center items-center"></div>
 
 				<div className="w-[245px]  flex justify-center items-center">
 					<div>
-						<div className="text-center text-[14px] text-[#C1BFC9]  py-1 font-semibold flex items-center justify-center">
+						<div className="text-center text-xs text-muted-foreground py-1 font-medium flex items-center justify-center">
 							<div> {t('common.TOTAL_TIME')} </div>
 						</div>
 
-						<div className="text-center text-[14px] text-black dark:text-[#FFFFFF]  py-1 font-semibold flex items-center justify-center">
+						<div className="text-center text-sm text-foreground tabular-nums py-1 font-semibold flex items-center justify-center">
 							<div>
 								{h}h:{m}m
 							</div>
@@ -81,9 +86,9 @@ const UnAssignedTask = ({ now = false, task }: ITaskDetailCard) => {
 						<PlayIcon></PlayIcon>
 					</div>
 				</div>
-				<div className="h-[35px] text-[#D7E1EB] border-l border-[#E8EBF8] dark:border-border flex justify-center items-center"></div>
+				<div className="h-[35px] hairline-l border-border flex justify-center items-center"></div>
 
-				<div className="text-center text-[14px] text-[#9490A0]  py-1 font-light flex flex-col items-center justify-center">
+				<div className="text-center text-sm text-muted-foreground py-1 flex flex-col items-center justify-center">
 					<RawStatusDropdown task={task} />
 				</div>
 

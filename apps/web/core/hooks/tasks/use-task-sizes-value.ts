@@ -3,5 +3,5 @@ import { useTaskSizesQuery } from './use-task-sizes-query';
 
 export function useTaskSizesValue() {
 	const { taskSizes } = useTaskSizesQuery();
-	return useMapToTaskStatusValues(taskSizes, false);
+	return useMapToTaskStatusValues(taskSizes, 'size');
 }

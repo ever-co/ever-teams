@@ -1,6 +1,6 @@
 'use client';
 import { format } from 'date-fns';
-import { CalendarDays } from 'lucide-react';
+import { Calendar as CalendarIcon } from '@/core/components/icons';
 import { cn } from '@/core/lib/helpers';
 import { getDailyPlanDay } from '@/core/lib/helpers/daily-plan-day';
 import { Button } from '@/core/components/duplicated-components/_button';
@@ -49,12 +49,12 @@ export function TaskDatePickerWithRange({
 						id="date"
 						variant={'outline'}
 						className={cn(
-							'w-[230px] justify-start text-left font-normal dark:bg-dark--theme-light rounded-xl  mt-4 mb-2 lg:mt-0 h-8',
+							'w-[230px] justify-start text-left font-normal mt-4 mb-2 lg:mt-0',
 							!date && 'text-muted-foreground',
 							contentClassName
 						)}
 					>
-						<CalendarDays className="mr-2 w-4 h-4" />
+						<CalendarIcon className="mr-2 size-4 text-muted-foreground" />
 						{date?.from ? (
 							date.to ? (
 								<>
@@ -70,7 +70,7 @@ export function TaskDatePickerWithRange({
 				</PopoverTrigger>
 				<PopoverContent className="p-0 w-auto" align="center">
 					<Calendar
-						className="dark:bg-dark--theme"
+						className=""
 						initialFocus
 						mode={'range'}
 						defaultMonth={date?.from}
