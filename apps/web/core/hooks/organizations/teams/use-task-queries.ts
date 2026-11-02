@@ -2,7 +2,7 @@
 
 import { taskService } from '@/core/services/client/api';
 import { ApiErrorService } from '@/core/services/client/api-error.service';
-import { activeTeamState, detailedTaskState, tasksByTeamState } from '@/core/stores';
+import { activeTeamScopeState, detailedTaskState, tasksByTeamState } from '@/core/stores';
 import { useCallback, useState } from 'react';
 import { useAtom, useAtomValue } from 'jotai';
 import { useSyncRef } from '../../common/use-sync-ref';
@@ -42,7 +42,7 @@ function isTaskNotFoundError(error: unknown): boolean {
  */
 export function useTaskQueries() {
 	const queryClient = useQueryClient();
-	const activeTeam = useAtomValue(activeTeamState);
+	const activeTeam = useAtomValue(activeTeamScopeState);
 	const tasks = useAtomValue(tasksByTeamState);
 	const tasksRef = useSyncRef(tasks);
 	const [detailedTask, setDetailedTask] = useAtom(detailedTaskState);

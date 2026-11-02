@@ -24,7 +24,7 @@ import { LAST_WORKSPACE_AND_TEAM } from '@/core/constants/config/constants';
 import { organizationTeamService } from '@/core/services/client/api/organizations/teams';
 import { useFirstLoad } from '../../common/use-first-load';
 import { useSyncRef } from '../../common/use-sync-ref';
-import { useTeamsState } from './use-teams-state';
+import { useSetTeamsUpdate } from './use-teams-state';
 import { getMembersPresenceSignature, mergePreservingOrder } from '@/core/lib/utils/team-members.utils';
 import { queryKeys } from '@/core/query/keys';
 import { useSettings } from '../../users/use-settings';
@@ -74,7 +74,7 @@ export function useOrganizationTeamsQuery(options: UseOrganizationTeamsQueryOpti
 	const teamsRef = useSyncRef(teams);
 	const activeTeam = useAtomValue(activeTeamState);
 
-	const { setTeamsUpdate } = useTeamsState();
+	const setTeamsUpdate = useSetTeamsUpdate();
 	const { data: user } = useUserQuery();
 	const { updateAvatar: updateUserLastTeam } = useSettings();
 
@@ -444,6 +444,8 @@ export function useOrganizationTeamsQuery(options: UseOrganizationTeamsQueryOpti
 		// Query states
 		getOrganizationTeamsLoading: organizationTeamsQuery.isLoading,
 		loadingTeam: organizationTeamQuery.isLoading,
+		// No detail yet and no error: also true before the query starts, unlike isLoading
+		teamDetailPending: organizationTeamQuery.isPending,
 		teamsFetching: organizationTeamsQuery.isFetching,
 		organizationTeamsSuccess: organizationTeamsQuery.isSuccess && listCurrent(),
 		organizationTeamSuccess:

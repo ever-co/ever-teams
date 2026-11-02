@@ -112,6 +112,8 @@ export function useOrganizationProjectsQuery({ enabled = true }: UseOrganization
 	return {
 		organizationProjects,
 		getOrganizationProjectsLoading: organizationProjectsQuery?.isLoading,
+		isOrganizationProjectsError: organizationProjectsQuery.isError,
+		refetchOrganizationProjects: organizationProjectsQuery.refetch,
 		getOrganizationProject,
 		firstLoadOrganizationProjectsData: handleFirstLoad,
 		setSearchQueries,

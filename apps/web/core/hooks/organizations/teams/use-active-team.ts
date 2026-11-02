@@ -30,16 +30,18 @@ export const useActiveTeam = () => {
 					activeTeam?.id &&
 					timerStatus.lastLog.organizationTeamId === activeTeam?.id
 				) {
-					toast.success(t('timer.TEAM_SWITCH.STOPPED_TIMER_TOAST_TITLE'), {
-						description: t('timer.TEAM_SWITCH.STOPPED_TIMER_TOAST_DESCRIPTION')
-					});
-					stopTimer();
+					const announceTimerStopped = () => {
+						toast.info(t('toasts.teams.TIMER_STOPPED_TEAM_CHANGE'));
+					};
+					const stopResult = stopTimer();
+					const stopping = Promise.resolve(stopResult);
+					void stopping.then(announceTimerStopped);
 				}
 
 				setActiveTeam(item.data);
 			}
 		},
-		[setActiveTeam, timerStatus, stopTimer, activeTeam, toast, t]
+		[setActiveTeam, timerStatus, stopTimer, activeTeam, t]
 	);
 	return { activeTeam, setActiveTeam, onChangeActiveTeam };
 };

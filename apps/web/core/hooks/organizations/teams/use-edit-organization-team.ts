@@ -6,8 +6,10 @@ import { organizationTeamService } from '@/core/services/client/api/organization
 import { TOrganizationTeamUpdate } from '@/core/types/schemas';
 import { ZodValidationError } from '@/core/types/schemas/utils/validation';
 import { queryKeys } from '@/core/query/keys';
-import { useTeamsState } from './use-teams-state';
+import { useSetTeamsUpdate } from './use-teams-state';
 import { toast } from 'sonner';
+import { useTranslations, type DottedLanguageObjectStringPaths } from 'next-intl';
+import { errorReasonKeyOf } from '@/core/lib/utils/error-feedback';
 
 /**
  * Hook for editing organization team properties.
@@ -23,7 +25,8 @@ import { toast } from 'sonner';
  */
 export function useEditOrganizationTeam({ toastOnError = true }: { toastOnError?: boolean } = {}) {
 	const queryClient = useQueryClient();
-	const { setTeamsUpdate } = useTeamsState();
+	const setTeamsUpdate = useSetTeamsUpdate();
+	const t = useTranslations();
 
 	// ==================== EDIT TEAM MUTATION ====================
 
@@ -44,19 +47,13 @@ export function useEditOrganizationTeam({ toastOnError = true }: { toastOnError?
 		onError: (error) => {
 			if (!toastOnError) return;
 			if (error instanceof ZodValidationError) {
-				toast.error('Edit team validation failed:', {
-					description: JSON.stringify({
-						message: error.message,
-						issues: error.issues
-					})
-				});
 				console.error('Edit team validation failed:', {
 					message: error.message,
 					issues: error.issues
 				});
-				return;
 			}
-			toast.error('Edit team failed');
+			const reasonKey = errorReasonKeyOf(error) as DottedLanguageObjectStringPaths;
+			toast.error(t('toasts.teams.UPDATE_FAILED'), { description: t(reasonKey) });
 		}
 	});
 

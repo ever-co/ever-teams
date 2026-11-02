@@ -4,7 +4,7 @@ import { useCallback, useMemo, useState } from 'react';
 import { useAtomValue } from 'jotai';
 import { useUpdateTask } from './use-update-task';
 import { useDeleteTask } from './use-delete-task';
-import { useTeamTasksState } from './use-team-tasks-state';
+import { useSetActiveTask } from './use-team-tasks-state';
 import { TOrganizationTeamEmployee } from '@/core/types/schemas';
 import { TTask } from '@/core/types/schemas/task/task.schema';
 import { useUserQuery } from '../../queries/user-user.query';
@@ -24,7 +24,7 @@ export function useTeamMemberMutations(member: TOrganizationTeamEmployee | undef
 	const { data: authUser } = useUserQuery();
 	const { updateTask } = useUpdateTask();
 	const { unassignAuthActiveTask } = useDeleteTask();
-	const { setActiveTask } = useTeamTasksState();
+	const { setActiveTask } = useSetActiveTask();
 	const tasks = useAtomValue(tasksByTeamState);
 	const activeTeamTask = useAtomValue(activeTeamTaskState);
 
@@ -48,11 +48,12 @@ export function useTeamMemberMutations(member: TOrganizationTeamEmployee | undef
 	/**
 	 * Assign a task to the member.
 	 * If the auth user has no active task, also sets this task as the active task.
+	 * Resolves to whether the assignment was sent: a member without an employee record cannot be assigned.
 	 */
 	const assignTask = useCallback(
-		(task: TTask) => {
+		(task: TTask): Promise<boolean> => {
 			if (!member?.employeeId) {
-				return Promise.resolve();
+				return Promise.resolve(false);
 			}
 			setAssignTaskLoading(true);
 			return updateTask({
@@ -63,6 +64,7 @@ export function useTeamMemberMutations(member: TOrganizationTeamEmployee | undef
 					if (isAuthUser && !activeTeamTask) {
 						setActiveTask(task);
 					}
+					return true;
 				})
 				.finally(() => {
 					setAssignTaskLoading(false);
@@ -108,4 +110,3 @@ export function useTeamMemberMutations(member: TOrganizationTeamEmployee | undef
 }
 
 export type I_TeamMemberMutationsHook = ReturnType<typeof useTeamMemberMutations>;
-

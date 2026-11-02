@@ -1,8 +1,6 @@
 'use client';
-import { activeTeamState } from '@/core/stores';
 import { useCallback } from 'react';
-import { useAtomValue } from 'jotai';
-import { useSyncRef } from '../../common/use-sync-ref';
+import { useGetActiveTeam } from './use-get-active-team';
 import { useUpdateOrganizationTeam } from './use-update-organization-team';
 import { useDeleteTask } from './use-delete-task';
 import { TOrganizationTeamEmployee } from '@/core/types/schemas';
@@ -17,13 +15,12 @@ import { ERoleName } from '@/core/types/generics/enums/role';
  * - removeMemberFromTeam: removes the member from the team and deletes their task assignments
  * - updateOTeamLoading: loading state for team update operations
  *
- * Uses activeTeamRef (via useSyncRef) to avoid stale closures in callbacks.
+ * Reads the active team when an action runs, so a member row does not re-render on every team refresh.
  *
  * @param member - The team member to manage roles for
  */
 export function useTeamMemberRoleActions(member: TOrganizationTeamEmployee | undefined) {
-	const activeTeam = useAtomValue(activeTeamState);
-	const activeTeamRef = useSyncRef(activeTeam);
+	const getActiveTeam = useGetActiveTeam();
 	const { updateOrganizationTeam, loading: updateOTeamLoading } = useUpdateOrganizationTeam();
 	const { deleteEmployeeFromTasks } = useDeleteTask();
 
@@ -33,9 +30,9 @@ export function useTeamMemberRoleActions(member: TOrganizationTeamEmployee | und
 	const makeMemberManager = useCallback(() => {
 		const employeeId = member?.employee?.id;
 
-		if (!activeTeamRef.current || !employeeId) return;
+		const team = getActiveTeam();
+		if (!team || !employeeId) return;
 
-		const team = activeTeamRef.current;
 		const managerIdSet = new Set<string>();
 		const memberIdSet = new Set<string>();
 
@@ -53,7 +50,7 @@ export function useTeamMemberRoleActions(member: TOrganizationTeamEmployee | und
 			managerIds: Array.from(managerIdSet),
 			memberIds: Array.from(memberIdSet)
 		});
-	}, [updateOrganizationTeam, member, activeTeamRef]);
+	}, [updateOrganizationTeam, member, getActiveTeam]);
 
 	/**
 	 * Remove manager role from the member
@@ -61,9 +58,9 @@ export function useTeamMemberRoleActions(member: TOrganizationTeamEmployee | und
 	const unMakeMemberManager = useCallback(() => {
 		const employeeId = member?.employee?.id;
 
-		if (!activeTeamRef.current || !employeeId) return;
+		const team = getActiveTeam();
+		if (!team || !employeeId) return;
 
-		const team = activeTeamRef.current;
 		const managerIdSet = new Set<string>();
 		const memberIdSet = new Set<string>();
 
@@ -79,16 +76,16 @@ export function useTeamMemberRoleActions(member: TOrganizationTeamEmployee | und
 			managerIds: Array.from(managerIdSet),
 			memberIds: Array.from(memberIdSet)
 		});
-	}, [updateOrganizationTeam, member, activeTeamRef]);
+	}, [updateOrganizationTeam, member, getActiveTeam]);
 
 	/**
 	 * Remove member from team and delete their task assignments
 	 */
 	const removeMemberFromTeam = useCallback(() => {
 		const employeeId = member?.employee?.id;
-		if (!activeTeamRef.current || !employeeId) return;
+		const team = getActiveTeam();
+		if (!team || !employeeId) return;
 
-		const team = activeTeamRef.current;
 		const memberIdSet = new Set<string>();
 		const managerIdSet = new Set<string>();
 
@@ -107,7 +104,7 @@ export function useTeamMemberRoleActions(member: TOrganizationTeamEmployee | und
 			memberIds: Array.from(memberIdSet),
 			managerIds: Array.from(managerIdSet)
 		});
-	}, [updateOrganizationTeam, member, activeTeamRef, deleteEmployeeFromTasks]);
+	}, [updateOrganizationTeam, member, getActiveTeam, deleteEmployeeFromTasks]);
 
 	return {
 		makeMemberManager,
@@ -118,4 +115,3 @@ export function useTeamMemberRoleActions(member: TOrganizationTeamEmployee | und
 }
 
 export type I_TeamMemberRoleActionsHook = ReturnType<typeof useTeamMemberRoleActions>;
-

@@ -4,12 +4,28 @@ import { useOrganizationTeamsQuery } from './use-organization-teams-query';
 import { organizationTeamEmployeeService } from '@/core/services/client/api/organizations/teams';
 import { queryKeys } from '@/core/query/keys';
 import { toast } from 'sonner';
+import { useTranslations, type DottedLanguageObjectStringPaths } from 'next-intl';
 import { TOrganizationTeamEmployee, TOrganizationTeamEmployeeUpdate } from '@/core/types/schemas';
-import { getErrorMessage, logErrorInDev } from '@/core/lib/helpers/error-message';
+import { logErrorInDev } from '@/core/lib/helpers/error-message';
+import { errorReasonKeyOf } from '@/core/lib/utils/error-feedback';
+
+function useFailureToast() {
+	const t = useTranslations();
+
+	return useCallback(
+		(titleKey: DottedLanguageObjectStringPaths, error: unknown) => {
+			const reasonKey = errorReasonKeyOf(error) as DottedLanguageObjectStringPaths;
+			toast.error(t(titleKey), { description: t(reasonKey) });
+		},
+		[t]
+	);
+}
 
 export function useOrganizationEmployeeTeams() {
 	const { loadTeamsData } = useOrganizationTeamsQuery();
 	const queryClient = useQueryClient();
+	const t = useTranslations();
+	const showFailure = useFailureToast();
 
 	// React Query mutation for delete organization employee team
 	const deleteOrganizationEmployeeTeamMutation = useMutation({
@@ -28,10 +44,10 @@ export function useOrganizationEmployeeTeams() {
 			// Preserve original behavior - call loadTeamsData
 			await loadTeamsData();
 
-			toast.success('Employee removed from team successfully');
+			toast.success(t('toasts.teams.LEFT_TEAM'));
 		},
 		onError: (error) => {
-			toast.error('Failed to remove employee from team:', { description: error.message });
+			showFailure('toasts.teams.LEAVE_FAILED', error);
 		}
 	});
 
@@ -57,7 +73,7 @@ export function useOrganizationEmployeeTeams() {
 			await loadTeamsData();
 		},
 		onError: (error) => {
-			toast.error('Failed to update employee:', { description: error.message });
+			showFailure('toasts.teams.MEMBER_NOT_SAVED', error);
 		}
 	});
 
@@ -85,9 +101,71 @@ export function useOrganizationEmployeeTeams() {
 			await loadTeamsData();
 		},
 		onError: (error) => {
-			toast.error('Failed to update employee order:', { description: error.message });
+			showFailure('toasts.teams.MEMBER_ORDER_NOT_SAVED', error);
 		}
 	});
+
+	// Depend on the STABLE mutateAsync, never on the mutation result object (recreated on every state change).
+	const deleteOrganizationEmployeeTeamMutateAsync = deleteOrganizationEmployeeTeamMutation.mutateAsync;
+	const updateOrganizationEmployeeTeamMutateAsync = updateOrganizationEmployeeTeamMutation.mutateAsync;
+	const editEmployeeOrderMutateAsync = editEmployeeOrderMutation.mutateAsync;
+
+	// Delete organization team employee function
+	const deleteOrganizationTeamEmployee = useCallback(
+		async ({ id, employeeId }: { id: string; employeeId: string }) => {
+			return await deleteOrganizationEmployeeTeamMutateAsync({
+				id,
+				employeeId
+			});
+		},
+		[deleteOrganizationEmployeeTeamMutateAsync]
+	);
+
+	// Update organization team employee function
+	const updateOrganizationTeamEmployee = useCallback(
+		async (id: string, data: Partial<TOrganizationTeamEmployeeUpdate>) => {
+			return await updateOrganizationEmployeeTeamMutateAsync({ id, data });
+		},
+		[updateOrganizationEmployeeTeamMutateAsync]
+	);
+
+	// Update employee order function
+	const updateOrganizationTeamEmployeeOrderOnList = useCallback(
+		async (employee: TOrganizationTeamEmployee, order: number) => {
+			return await editEmployeeOrderMutateAsync({
+				employeeId: employee.id,
+				data: {
+					order,
+					organizationTeamId: employee.organizationTeamId ?? '',
+					organizationId: employee.organizationId ?? ''
+				}
+			});
+		},
+		[editEmployeeOrderMutateAsync]
+	);
+
+	const { updateOrganizationTeamEmployeeActiveTask, updateOrganizationTeamEmployeeActiveTaskLoading } =
+		useUpdateEmployeeActiveTask();
+
+	return {
+		deleteOrganizationEmployeeTeamLoading: deleteOrganizationEmployeeTeamMutation.isPending,
+		deleteOrganizationTeamEmployee,
+		updateOrganizationEmployeeTeamLoading: updateOrganizationEmployeeTeamMutation.isPending,
+		updateOrganizationTeamEmployee,
+		updateOrganizationTeamEmployeeActiveTaskLoading,
+		updateOrganizationTeamEmployeeActiveTask,
+		editEmployeeIndexOrganizationTeamLoading: editEmployeeOrderMutation.isPending,
+		updateOrganizationTeamEmployeeOrderOnList
+	};
+}
+
+/**
+ * The active task update alone. Components rendered once per member or task use it: useOrganizationEmployeeTeams
+ * also mounts a teams query observer, which re-renders them on every refresh of the teams.
+ */
+export function useUpdateEmployeeActiveTask() {
+	const queryClient = useQueryClient();
+	const showFailure = useFailureToast();
 
 	// React Query mutation for update employee active task
 	const updateActiveTaskMutation = useMutation({
@@ -151,54 +229,14 @@ export function useOrganizationEmployeeTeams() {
 				queryClient.setQueryData(queryKeys.organizationTeams.all, context.previousTeams);
 			}
 
-			toast.error('Failed to update employee active task:', {
-				description: getErrorMessage(error, 'Unable to update active task')
-			});
+			showFailure('toasts.teams.ACTIVE_TASK_NOT_SAVED', error);
 			logErrorInDev('Failed to update employee active task:', error);
 		}
 	});
 
 	// Depend on the STABLE mutateAsync, never on the mutation result object (recreated on every state change).
-	const deleteOrganizationEmployeeTeamMutateAsync = deleteOrganizationEmployeeTeamMutation.mutateAsync;
-	const updateOrganizationEmployeeTeamMutateAsync = updateOrganizationEmployeeTeamMutation.mutateAsync;
-	const editEmployeeOrderMutateAsync = editEmployeeOrderMutation.mutateAsync;
 	const updateActiveTaskMutateAsync = updateActiveTaskMutation.mutateAsync;
 
-	// Delete organization team employee function
-	const deleteOrganizationTeamEmployee = useCallback(
-		async ({ id, employeeId }: { id: string; employeeId: string }) => {
-			return await deleteOrganizationEmployeeTeamMutateAsync({
-				id,
-				employeeId
-			});
-		},
-		[deleteOrganizationEmployeeTeamMutateAsync]
-	);
-
-	// Update organization team employee function
-	const updateOrganizationTeamEmployee = useCallback(
-		async (id: string, data: Partial<TOrganizationTeamEmployeeUpdate>) => {
-			return await updateOrganizationEmployeeTeamMutateAsync({ id, data });
-		},
-		[updateOrganizationEmployeeTeamMutateAsync]
-	);
-
-	// Update employee order function
-	const updateOrganizationTeamEmployeeOrderOnList = useCallback(
-		async (employee: TOrganizationTeamEmployee, order: number) => {
-			return await editEmployeeOrderMutateAsync({
-				employeeId: employee.id,
-				data: {
-					order,
-					organizationTeamId: employee.organizationTeamId ?? '',
-					organizationId: employee.organizationId ?? ''
-				}
-			});
-		},
-		[editEmployeeOrderMutateAsync]
-	);
-
-	// Update employee active task function
 	const updateOrganizationTeamEmployeeActiveTask = useCallback(
 		async (id: string, data: Partial<TOrganizationTeamEmployeeUpdate>) => {
 			return await updateActiveTaskMutateAsync({ id, data });
@@ -207,13 +245,7 @@ export function useOrganizationEmployeeTeams() {
 	);
 
 	return {
-		deleteOrganizationEmployeeTeamLoading: deleteOrganizationEmployeeTeamMutation.isPending,
-		deleteOrganizationTeamEmployee,
-		updateOrganizationEmployeeTeamLoading: updateOrganizationEmployeeTeamMutation.isPending,
-		updateOrganizationTeamEmployee,
-		updateOrganizationTeamEmployeeActiveTaskLoading: updateActiveTaskMutation.isPending,
 		updateOrganizationTeamEmployeeActiveTask,
-		editEmployeeIndexOrganizationTeamLoading: editEmployeeOrderMutation.isPending,
-		updateOrganizationTeamEmployeeOrderOnList
+		updateOrganizationTeamEmployeeActiveTaskLoading: updateActiveTaskMutation.isPending
 	};
 }

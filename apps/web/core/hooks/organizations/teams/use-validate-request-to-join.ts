@@ -4,6 +4,8 @@ import { requestToJoinTeamService } from '@/core/services/client/api/organizatio
 import { queryKeys } from '@/core/query/keys';
 import { TValidateRequestToJoinTeam } from '@/core/types/schemas';
 import { toast } from 'sonner';
+import { useTranslations, type DottedLanguageObjectStringPaths } from 'next-intl';
+import { errorReasonKeyOf } from '@/core/lib/utils/error-feedback';
 
 /**
  * Hook for the "validate request to join" mutation.
@@ -15,20 +17,18 @@ import { toast } from 'sonner';
  * - `validateRequestToJoinMutation` — raw React Query mutation for advanced usage
  */
 export function useValidateRequestToJoin() {
+	const t = useTranslations();
 	const validateRequestToJoinMutation = useMutation({
 		mutationKey: queryKeys.organizationTeams.requestToJoin.mutations.validate,
 		mutationFn: async (data: TValidateRequestToJoinTeam) => {
 			return await requestToJoinTeamService.validateRequestToJoin(data);
 		},
 		onSuccess: () => {
-			toast.success('Request validated successfully', {
-				description: 'You can now join the team'
-			});
+			toast.success(t('toasts.teams.JOIN_REQUEST_SENT'));
 		},
-		onError: (error: any) => {
-			toast.error('Failed to validate request', {
-				description: error instanceof Error ? error.message : 'Please try again later'
-			});
+		onError: (error) => {
+			const reasonKey = errorReasonKeyOf(error) as DottedLanguageObjectStringPaths;
+			toast.error(t('toasts.teams.JOIN_CODE_NOT_CONFIRMED'), { description: t(reasonKey) });
 		}
 	});
 
@@ -56,4 +56,3 @@ export function useValidateRequestToJoin() {
 		validateRequestToJoinMutation
 	};
 }
-
