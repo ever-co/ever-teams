@@ -20,8 +20,7 @@ export async function POST(req: Request, { params }: { params: Promise<{ folder:
 		{
 			tenantId: tenantId,
 			bearer_token: access_token,
-			folder: folderParam,
-			contentType: req.headers.get('Content-Type') as string
+			folder: folderParam
 		},
 		form
 	);
