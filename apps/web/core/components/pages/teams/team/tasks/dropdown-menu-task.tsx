@@ -7,16 +7,45 @@ import {
 	DropdownMenuSeparator
 } from '@/core/components/common/dropdown-menu';
 import { useAuthenticateUser, useTeamMemberMutations, useTMCardTaskEdit } from '@/core/hooks';
-import { useTranslations } from 'next-intl';
+import { useTranslations, type DottedLanguageObjectStringPaths } from 'next-intl';
 import { FC, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 
 import { toast } from 'sonner';
 import { TTask } from '@/core/types/schemas/task/task.schema';
-import { Spinner } from '@/core/components/common/spinner';
+import { Copy, FileText, MoreHorizontal, Spinner, Star, UserAdd, UserRemove } from '@/core/components/icons';
 import { useFavoriteTasks } from '@/core/hooks/tasks/use-favorites-task';
 import { activeTeamState } from '@/core/stores';
 import { useAtomValue } from 'jotai';
+import { errorReasonKeyOf } from '@/core/lib/utils/error-feedback';
+
+function favoriteLabelKey(isFavorite: boolean) {
+	if (isFavorite) {
+		return 'common.REMOVE_FAVORITE_TASK' as const;
+	}
+	return 'common.ADD_FAVORITE_TASK' as const;
+}
+
+function favoriteIcon(isLoading: boolean) {
+	if (isLoading) {
+		return <Spinner className="animate-spin" />;
+	}
+	return <Star />;
+}
+
+function assignmentLabelKey(isAssigned: boolean | undefined) {
+	if (isAssigned) {
+		return 'common.UNASSIGN_TASK' as const;
+	}
+	return 'common.ASSIGN_TASK' as const;
+}
+
+function assignmentIcon(isAssigned: boolean | undefined) {
+	if (isAssigned) {
+		return <UserRemove />;
+	}
+	return <UserAdd />;
+}
 
 const DropdownMenuTask: FC<{ task: TTask }> = ({ task }) => {
 	const activeTeam = useAtomValue(activeTeamState);
@@ -29,50 +58,28 @@ const DropdownMenuTask: FC<{ task: TTask }> = ({ task }) => {
 	const { toggleFavoriteTask, isFavoriteTask, addTaskToFavoriteLoading, deleteTaskFromFavoritesLoading } =
 		useFavoriteTasks();
 	const t = useTranslations();
+	const isFavoriteLoading = addTaskToFavoriteLoading || deleteTaskFromFavoritesLoading;
+	const isFavorite = isFavoriteTask(task.id);
 
 	const handleAssignment = useCallback(async () => {
-		if (isAssigned) {
-			await unassignTask(task);
-			toast.success(t('task.toastMessages.TASK_UNASSIGNED'), {
-				id: 'task-unassigned'
-			});
-		} else {
-			await assignTask(task);
-			toast.success(t('task.toastMessages.TASK_ASSIGNED'), {
-				id: 'task-assigned'
-			});
+		try {
+			if (isAssigned) {
+				await unassignTask(task);
+			} else {
+				await assignTask(task);
+			}
+		} catch (error) {
+			const reasonKey = errorReasonKeyOf(error) as DottedLanguageObjectStringPaths;
+			toast.error(t('toasts.tasks.ASSIGNEES_NOT_SAVED'), { description: t(reasonKey) });
 		}
-	}, [isAssigned, assignTask, unassignTask, task]);
+	}, [isAssigned, assignTask, unassignTask, task, t]);
 
 	return (
 		<DropdownMenu>
 			<DropdownMenuTrigger asChild>
-				<Button variant="ghost" className="h-8 w-8 p-0 dark:text-gray-200 text-[#292D32]">
-					<span className="sr-only">Open menu</span>
-					<svg
-						className="w-6 h-6"
-						width={24}
-						height={25}
-						viewBox="0 0 24 25"
-						fill="none"
-						xmlns="http://www.w3.org/2000/svg"
-					>
-						<path
-							d="M5 10.5C3.9 10.5 3 11.4 3 12.5C3 13.6 3.9 14.5 5 14.5C6.1 14.5 7 13.6 7 12.5C7 11.4 6.1 10.5 5 10.5Z"
-							stroke="currentColor"
-							strokeWidth="1.5"
-						/>
-						<path
-							d="M19 10.5C17.9 10.5 17 11.4 17 12.5C17 13.6 17.9 14.5 19 14.5C20.1 14.5 21 13.6 21 12.5C21 11.4 20.1 10.5 19 10.5Z"
-							stroke="currentColor"
-							strokeWidth="1.5"
-						/>
-						<path
-							d="M12 10.5C10.9 10.5 10 11.4 10 12.5C10 13.6 10.9 14.5 12 14.5C13.1 14.5 14 13.6 14 12.5C14 11.4 13.1 10.5 12 10.5Z"
-							stroke="currentColor"
-							strokeWidth="1.5"
-						/>
-					</svg>
+				<Button variant="ghost" size="icon" className="text-muted-foreground">
+					<span className="sr-only">{t('common.MORE_OPTIONS')}</span>
+					<MoreHorizontal className="size-4" />
 				</Button>
 			</DropdownMenuTrigger>
 			<DropdownMenuContent align="end">
@@ -80,26 +87,24 @@ const DropdownMenuTask: FC<{ task: TTask }> = ({ task }) => {
 					className="cursor-pointer"
 					onClick={() => taskEdition?.task?.id && navigator.clipboard.writeText(taskEdition.task.id)}
 				>
-					Copy Task ID
+					<Copy />
+					{t('common.COPY_TASK_ID')}
 				</DropdownMenuItem>
 				<DropdownMenuSeparator />
 
 				<DropdownMenuItem className="relative cursor-pointer" onClick={() => router.push(`/task/${task.id}`)}>
+					<FileText />
 					{t('common.TASK_DETAILS')}
 				</DropdownMenuItem>
 
 				<DropdownMenuItem className="cursor-pointer" onClick={async () => await toggleFavoriteTask(task)}>
-					{addTaskToFavoriteLoading || deleteTaskFromFavoritesLoading ? (
-						<Spinner />
-					) : isFavoriteTask(task.id) ? (
-						t('common.REMOVE_FAVORITE_TASK')
-					) : (
-						t('common.ADD_FAVORITE_TASK')
-					)}
+					{favoriteIcon(isFavoriteLoading)}
+					{t(favoriteLabelKey(isFavorite))}
 				</DropdownMenuItem>
 
 				<DropdownMenuItem className="cursor-pointer" onClick={handleAssignment}>
-					{isAssigned ? t('common.UNASSIGN_TASK') : t('common.ASSIGN_TASK')}
+					{assignmentIcon(isAssigned)}
+					{t(assignmentLabelKey(isAssigned))}
 				</DropdownMenuItem>
 			</DropdownMenuContent>
 		</DropdownMenu>
