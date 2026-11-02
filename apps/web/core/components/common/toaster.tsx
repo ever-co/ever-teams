@@ -13,7 +13,7 @@ export function ToastMessageManager() {
 	useEffect(() => {
 		let timer: NodeJS.Timeout;
 		if (isTeamMemberJustDeleted && !deletedNotifShown) {
-			toast.error(t('alerts.ALERT_USER_DELETED_FROM_TEAM'), { duration: 20000 });
+			toast.info(t('toasts.teams.NO_LONGER_MEMBER'), { duration: 20000 });
 			timer = setTimeout(() => {
 				setIsTeamMemberJustDeleted(false);
 			}, 10000);
