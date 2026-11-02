@@ -1,0 +1,227 @@
+/*
+ * One stylesheet for what is read (RichTextView) and what is written (RichEditor), so a description looks the same in
+ * both. Colours come from the theme tokens, which switch with dark mode on their own. Doubled with `.prose` so these
+ * rules win over the typography plugin's, which sit on the same element.
+ */
+:global(.prose).content {
+	--tw-prose-body: hsl(var(--foreground));
+	--tw-prose-headings: hsl(var(--foreground));
+	--tw-prose-links: hsl(var(--primary-ink));
+	--tw-prose-bold: hsl(var(--foreground));
+	--tw-prose-counters: hsl(var(--muted-foreground));
+	--tw-prose-bullets: hsl(var(--foreground) / 0.3);
+	--tw-prose-hr: hsl(var(--border));
+	--tw-prose-quotes: hsl(var(--muted-foreground));
+	--tw-prose-quote-borders: hsl(var(--foreground) / 0.15);
+	--tw-prose-code: hsl(var(--foreground));
+	--tw-prose-pre-code: hsl(var(--foreground));
+	--tw-prose-pre-bg: hsl(var(--foreground) / 0.04);
+
+	max-width: none;
+	min-width: 0;
+	font-size: 0.875rem;
+	line-height: 1.65;
+	overflow-wrap: anywhere;
+	color: hsl(var(--foreground));
+}
+
+.content > :first-child {
+	margin-top: 0;
+}
+
+.content > :last-child {
+	margin-bottom: 0;
+}
+
+:global(.prose).content p {
+	margin-top: 0.5rem;
+	margin-bottom: 0.5rem;
+}
+
+:global(.prose).content h1,
+:global(.prose).content h2,
+:global(.prose).content h3 {
+	margin-top: 1.125rem;
+	margin-bottom: 0.375rem;
+	font-weight: 600;
+	letter-spacing: 0;
+}
+
+:global(.prose).content h1 {
+	font-size: 1.25rem;
+	line-height: 1.3;
+}
+
+:global(.prose).content h2 {
+	font-size: 1.0625rem;
+	line-height: 1.35;
+}
+
+:global(.prose).content h3 {
+	font-size: 0.9375rem;
+	line-height: 1.4;
+}
+
+:global(.prose).content ul,
+:global(.prose).content ol {
+	margin-top: 0.375rem;
+	margin-bottom: 0.375rem;
+	padding-inline-start: 1.375rem;
+}
+
+:global(.prose).content li,
+:global(.prose).content li > p {
+	margin-top: 0.125rem;
+	margin-bottom: 0.125rem;
+}
+
+:global(.prose).content a {
+	font-weight: 500;
+	text-underline-offset: 3px;
+	text-decoration-color: hsl(var(--primary-ink) / 0.4);
+}
+
+:global(.prose).content blockquote {
+	margin-top: 0.75rem;
+	margin-bottom: 0.75rem;
+	padding-inline-start: 0.875rem;
+	border-inline-start-width: 2px;
+	font-style: normal;
+	font-weight: 400;
+}
+
+:global(.prose).content blockquote p::before,
+:global(.prose).content blockquote p::after {
+	content: none;
+}
+
+:global(.prose).content :not(pre) > code {
+	border-radius: 4px;
+	background: hsl(var(--foreground) / 0.06);
+	padding: 0.15em 0.38em;
+	font-size: 0.875em;
+	font-weight: 500;
+}
+
+:global(.prose).content :not(pre) > code::before,
+:global(.prose).content :not(pre) > code::after {
+	content: none;
+}
+
+:global(.prose).content pre {
+	margin: 0.75rem 0;
+	border-radius: 8px;
+	padding: 0.75rem 0.875rem;
+	font-size: 0.8125rem;
+	line-height: 1.6;
+}
+
+:global(.prose).content img {
+	display: block;
+	margin: 0.75rem 0;
+	max-height: 28rem;
+	width: auto;
+	max-width: 100%;
+	border-radius: 8px;
+	box-shadow: 0 0 0 var(--hairline, 1px) hsl(var(--border));
+}
+
+:global(.prose).content hr {
+	margin: 1.25rem 0;
+}
+
+/* To-do lists, as the editor writes them (ul[data-type="taskList"] > li[data-type="taskItem"] > label + div). */
+:global(.prose).content ul[data-type='taskList'] {
+	list-style: none;
+	padding-inline-start: 0.125rem;
+}
+
+:global(.prose).content li[data-type='taskItem'] {
+	display: flex;
+	align-items: flex-start;
+	gap: 0.5rem;
+	padding-inline-start: 0;
+}
+
+:global(.prose).content li[data-type='taskItem'] > label {
+	flex: none;
+	margin-top: 0.3rem;
+	user-select: none;
+}
+
+:global(.prose).content li[data-type='taskItem'] > div {
+	flex: 1 1 auto;
+	min-width: 0;
+}
+
+:global(.prose).content li[data-type='taskItem'] input[type='checkbox'] {
+	width: 0.875rem;
+	height: 0.875rem;
+	margin: 0;
+	accent-color: hsl(var(--primary));
+}
+
+.content[contenteditable='true'] li[data-type='taskItem'] input[type='checkbox'] {
+	cursor: pointer;
+}
+
+:global(.prose).content li[data-type='taskItem'][data-checked='true'] > div {
+	color: hsl(var(--muted-foreground));
+	text-decoration: line-through;
+	text-decoration-color: hsl(var(--foreground) / 0.35);
+}
+
+/* A mention is a brand-tinted chip with the person's name, in the editor and in the read view alike. */
+.content span[data-type='mention'] {
+	display: inline;
+	border-radius: 9999px;
+	background: hsl(var(--primary) / 0.12);
+	padding: 0.05em 0.45em;
+	font-weight: 500;
+	color: hsl(var(--primary-ink));
+	white-space: nowrap;
+	box-decoration-break: clone;
+	-webkit-box-decoration-break: clone;
+}
+
+/* What only the editor needs: the placeholder, the selected node, the gap cursor. */
+.content p:global(.is-editor-empty):first-child::before {
+	content: attr(data-placeholder);
+	float: left;
+	height: 0;
+	pointer-events: none;
+	color: hsl(var(--muted-foreground) / 0.75);
+}
+
+.content :global(.ProseMirror-selectednode) {
+	outline: 2px solid hsl(var(--ring));
+	outline-offset: 2px;
+	border-radius: 6px;
+}
+
+.content :global(.ProseMirror-gapcursor) {
+	display: none;
+	pointer-events: none;
+	position: relative;
+}
+
+.content:global(.ProseMirror-focused) :global(.ProseMirror-gapcursor) {
+	display: block;
+}
+
+.content :global(.ProseMirror-gapcursor)::after {
+	content: '';
+	display: block;
+	position: absolute;
+	top: -2px;
+	width: 20px;
+	border-top: 1px solid hsl(var(--foreground));
+}
+
+.content a {
+	cursor: text;
+}
+
+.content:not([contenteditable='true']) a {
+	cursor: pointer;
+}
