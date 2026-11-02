@@ -1,38 +1,25 @@
 'use client';
-import { forwardRef, LegacyRef } from 'react';
+import { forwardRef } from 'react';
 
 import { cn } from '@/core/lib/helpers';
-import { Container, Divider } from '@/core/components';
 import { Footer } from '.';
-import { useSidebar } from '@/core/components/common/sidebar';
+
 interface GlobalFooterProps {
 	footerClassName?: string;
 	isFixed?: boolean;
 }
 
-const GlobalFooter = forwardRef(({ footerClassName, isFixed = false }: GlobalFooterProps, ref) => {
-	const { state } = useSidebar();
+/** The page footer at the end of the content scroller; PageContentScroller pins it when asked to. */
+const GlobalFooter = forwardRef<HTMLDivElement, GlobalFooterProps>(function GlobalFooter(
+	{ footerClassName, isFixed = false },
+	ref
+) {
 	return (
 		<div
-			ref={ref as LegacyRef<HTMLDivElement>}
-			className={cn(
-				'bg-background shrink-0 transition-all duration-300 mt-auto',
-				isFixed
-					? `fixed z-50 bottom-0 left-0 right-0 !lg:pl-[${state === 'expanded' ? '--sidebar-width' : '--sidebar-width-icon'}] !lg:pl-[var(${state === 'expanded' ? '--sidebar-width' : '--sidebar-width-icon'})]`
-					: ''
-			)}
-			style={
-				isFixed
-					? {
-							paddingLeft: `var(${state === 'expanded' ? '--sidebar-width' : '--sidebar-width-icon'})`
-						}
-					: undefined
-			}
+			ref={ref}
+			className={cn('mt-auto shrink-0 hairline-t border-border bg-card', isFixed && 'sticky bottom-0 z-40')}
 		>
-			<Divider />
-			<Container className="w-full px-8 mt-auto !mx-0">
-				<Footer className={cn('justify-between w-full px-0 mx-auto', footerClassName)} />
-			</Container>
+			<Footer className={footerClassName} />
 		</div>
 	);
 });

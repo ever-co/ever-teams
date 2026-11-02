@@ -26,8 +26,8 @@ export function mapPositionItems(positions: IPosition[]) {
 
 export function PositionItem({ title, className }: { title?: string; className?: string; disabled?: boolean }) {
 	return (
-		<div className={clsxm('flex items-center justify-start space-x-2 text-sm cursor-pointer mb-4', className)}>
-			<span className={clsxm('text-normal')}>{title}</span>
+		<div className={clsxm('mb-4 flex cursor-pointer items-center justify-start gap-2 text-sm', className)}>
+			<span>{title}</span>
 		</div>
 	);
 }

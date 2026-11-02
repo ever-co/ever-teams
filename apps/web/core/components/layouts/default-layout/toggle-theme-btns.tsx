@@ -11,7 +11,7 @@ function ToggleThemeContainer() {
 					width="30"
 					height="30"
 					viewBox="0 0 30 30"
-					className="bg-[#1b005d] dark:bg-transparent rounded-2xl"
+					className="rounded-md bg-foreground dark:bg-transparent"
 					id="sun-svg"
 				>
 					<g
@@ -68,7 +68,7 @@ function ToggleThemeContainer() {
 					width="30"
 					height="30"
 					viewBox="0 0 30 30"
-					className="dark:bg-[#6a7c90] bg-transparent rounded-2xl"
+					className="rounded-md bg-transparent dark:bg-foreground/15"
 				>
 					<g id="moon" transform="translate(7.576 7.576)">
 						<path

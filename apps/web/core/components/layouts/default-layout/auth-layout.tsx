@@ -91,7 +91,7 @@ export function AuthLayout({
 						/>
 						{/* Gradient overlays */}
 						<div className="mask-t-from-25% mask-t-to-60% absolute inset-0 from-black/60 to-black/20 backdrop-blur-xl" />
-						<div className="absolute inset-0 border-r bg-linear-to-t from-black/60 to-black/20" />
+						<div className="absolute inset-0 hairline-r bg-linear-to-t from-black/60 to-black/20" />
 						{/* Bottom quote */}
 						<div className="absolute right-12 bottom-12 left-12">
 							<blockquote className="space-y-4">
@@ -111,9 +111,7 @@ export function AuthLayout({
 						<div className="flex flex-col gap-1">
 							<EverTeamsLogo dash className="h-5" />
 							{APP_SLOGAN_TEXT && (
-								<span className="mt-1 text-xs tracking-wide text-muted-foreground">
-									{APP_SLOGAN_TEXT}
-								</span>
+								<span className="mt-1 text-xs text-muted-foreground">{APP_SLOGAN_TEXT}</span>
 							)}
 						</div>
 						{headerLinkText && headerLinkHref && (
@@ -205,7 +203,7 @@ export function AuthLayout({
 							{!hideLanguageSwitcher && (
 								<LanguageDropDownWithFlags
 									showFlag
-									btnClassName="bg-light--theme-dark dark:bg-card border-none max-w-28 text-xs"
+									btnClassName="bg-foreground/5 border-none max-w-28 text-xs"
 								/>
 							)}
 							<ThemeToggler />

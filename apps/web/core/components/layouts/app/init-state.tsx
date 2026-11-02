@@ -1,16 +1,22 @@
-import { useTimer } from '@/core/hooks/activities';
+import { useTimer } from '@/core/hooks/activities/use-timer';
 import { useTimerPolling } from '@/core/hooks/activities/use-timer-polling';
-import { useWorkspaces } from '@/core/hooks/auth';
+import { useWorkspaces } from '@/core/hooks/auth/use-workspaces';
 import { useReactiveAccessTokenCookie } from '@/core/hooks/auth/use-reactive-access-token-cookie';
 import { useIsomorphicLayoutEffect } from '@/core/hooks/common/use-isomorphic-layout-effect';
-import { useOrganizationTeamsQuery, useTeamTasksQuery } from '@/core/hooks/organizations';
+import { useOrganizationTeamsQuery } from '@/core/hooks/organizations/teams/use-organization-teams-query';
+import { useTeamTasksQuery } from '@/core/hooks/organizations/teams/use-team-tasks-query';
 import { useUserQuery } from '@/core/hooks/queries/user-user.query';
-import { useAutoAssignTask, useTaskStatistics } from '@/core/hooks/tasks';
+import { useAutoAssignTask } from '@/core/hooks/tasks/use-auto-assign-task';
+import { useTaskStatistics } from '@/core/hooks/tasks/use-task-statistics';
 import { useStaleTimerGuard, useTimerRunningPastMidnight } from '@/core/hooks/timer/use-stale-timer-guard';
 import { DISABLE_AUTO_REFRESH, TEAM_PRESENCE_REFRESH_INTERVAL } from '@/core/constants/config/constants';
-import { activeTeamState, teamPresenceViewCountState } from '@/core/stores/teams/organization-team';
+import {
+	activeTeamDetailLoadingState,
+	activeTeamState,
+	teamPresenceViewCountState
+} from '@/core/stores/teams/organization-team';
 import { useQueryClient } from '@tanstack/react-query';
-import { useAtomValue } from 'jotai';
+import { useAtomValue, useSetAtom } from 'jotai';
 import { useEffect, useMemo, useRef } from 'react';
 import { reownActiveQueriesAfterTokenRefresh } from './token-refresh-query-ownership';
 import { syncTokenOrganization } from '@/core/lib/auth/token-organization';
@@ -84,6 +90,10 @@ export function InitState() {
 		detailRefetchOnWindowFocus: teamDetailRefresh.onWindowFocus
 	});
 	const { activeTeam, teams } = teamOwner;
+	const setTeamDetailLoading = useSetAtom(activeTeamDetailLoadingState);
+	useEffect(() => {
+		setTeamDetailLoading(teamOwner.teamDetailPending);
+	}, [teamOwner.teamDetailPending, setTeamDetailLoading]);
 	// The list already resolves the team with its projects and plan policy. The detail only adds member work
 	// statistics, so team-scoped reads start alongside it instead of one round trip after it.
 	const teamReady = !!(workspaceReady && teamOwner.organizationTeamsSuccess && activeTeam?.id);
@@ -126,7 +136,7 @@ export function InitState() {
 	);
 
 	// The single full timer owner supplies both callbacks and the unfiltered running state. While the own timer
-	// runs, the active team detail is still refreshed every 5 s (the team presence cadence above covers the rest).
+	// runs, the active team detail is also refreshed every 30 s in a visible tab (the presence cadence above too).
 	useTimerPolling(autoRefreshEnabled && teamReady && timerOwner.rawTimerRunning);
 	// The heartbeat is what proves a TEAMS timer is still open, so it runs even with auto refresh disabled.
 	useEffect(() => {

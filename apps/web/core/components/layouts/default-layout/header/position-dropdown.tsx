@@ -77,7 +77,8 @@ export const PositionDropDown = ({
 			<AutoCompleteDropdown
 				className="w-full"
 				buttonClassName={clsxm(
-					`py-0 font-normal h-[3.1rem] w-full ${!currentPosition ? 'text-gray-400' : ''}`,
+					'h-9 w-full py-0 font-normal',
+					!currentPosition && 'text-muted-foreground',
 					items.length === 0 && ['py-2']
 				)}
 				value={positionItem}
