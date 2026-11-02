@@ -1,204 +1,31 @@
+'use client';
+
+import { useTranslations } from 'next-intl';
 import { clsxm } from '@/core/lib/utils';
 import { IClassName } from '@/core/types/interfaces/common/class-name';
+import { Skeleton } from '@/core/components/common/skeleton';
 
+const SKELETON_TONE = 'bg-foreground/[0.06]';
+const PROPERTY_PILL_SKELETON_KEYS = ['status', 'priority', 'size', 'labels'];
+
+/**
+ * The task block while the active task is not known yet: the same rows at the same heights as the loaded block, so
+ * the input, the estimate and the properties never flash their empty state before the task arrives.
+ */
 export function AuthUserTaskInputSkeleton({ className }: IClassName) {
+	const t = useTranslations();
 	return (
-		<div className={clsxm('flex flex-col flex-1 mt-8 lg:mt-0', className)}>
-			{/* Task Input Skeleton */}
-			<div
-				className={clsxm(
-					'overflow-hidden relative rounded-lg border',
-					'bg-gray-100 dark:bg-white/5',
-					'border-gray-200 dark:border-gray-700',
-					'mb-4 h-12',
-					'animate-pulse'
-				)}
-			>
-				{/* Shimmer effect */}
-				<div
-					className={clsxm(
-						'absolute inset-0 -translate-x-full',
-						'bg-gradient-to-r from-transparent to-transparent via-white/20 dark:via-white/10',
-						'animate-[shimmer_2s_infinite]'
-					)}
-				/>
-
-				{/* Task number placeholder */}
-				<div
-					className={clsxm(
-						'absolute left-3 top-1/2 -translate-y-1/2',
-						'w-8 h-4 rounded',
-						'bg-gray-300 dark:bg-gray-600'
-					)}
-				/>
-
-				{/* Input text placeholder */}
-				<div
-					className={clsxm(
-						'absolute left-14 top-1/2 -translate-y-1/2',
-						'w-48 h-4 rounded',
-						'bg-gray-300 dark:bg-gray-600'
-					)}
-				/>
-			</div>
-
-			<div className="flex flex-row gap-3 items-center ml-2 lg:gap-4 md:justify-between lg:justify-start">
-				{/* Estimate Section Skeleton */}
-				<div className="mb-4 xl:flex lg:mb-0">
-					<div className={clsxm('flex gap-2 items-center', 'animate-pulse')}>
-						{/* "ESTIMATE:" label */}
-						<div className={clsxm('w-16 h-4 rounded', 'bg-gray-300 dark:bg-gray-600')} />
-						{/* Estimate value */}
-						<div
-							className={clsxm(
-								'w-12 h-6 rounded',
-								'bg-gray-200 dark:bg-muted',
-								'border border-gray-300 dark:border-gray-600'
-							)}
-						/>
-					</div>
+		<div role="status" className={clsxm('flex min-w-0 flex-1 flex-col gap-4 mt-8 lg:mt-0', className)}>
+			<Skeleton className={clsxm(SKELETON_TONE, 'h-10 w-full rounded-lg')} />
+			<div className="ml-2 flex flex-row flex-wrap items-center gap-3 md:justify-between lg:justify-start lg:gap-4">
+				<div className="mb-4 flex items-center lg:mb-0">
+					<span className="pr-2 font-normal text-muted-foreground">{t('common.ESTIMATE')}:</span>
+					<Skeleton className={clsxm(SKELETON_TONE, 'h-4 w-14')} />
 				</div>
-
-				{/* Desktop Controls Skeleton */}
-				<div className="hidden flex-1 gap-2 justify-end md:flex md:items-center">
-					{/* Status Dropdown Skeleton */}
-					<div
-						className={clsxm(
-							'overflow-hidden relative',
-							'h-8 w-fit lg:max-w-[190px] min-w-[120px]',
-							'rounded border',
-							'bg-gray-100 dark:bg-white/5',
-							'border-gray-200 dark:border-gray-700',
-							'animate-pulse'
-						)}
-					>
-						<div
-							className={clsxm(
-								'absolute inset-0 -translate-x-full',
-								'bg-gradient-to-r from-transparent to-transparent via-white/20 dark:via-white/10',
-								'animate-[shimmer_2s_infinite]'
-							)}
-						/>
-						<div
-							className={clsxm(
-								'absolute left-2 top-1/2 -translate-y-1/2',
-								'w-16 h-3 rounded',
-								'bg-gray-300 dark:bg-gray-600'
-							)}
-						/>
-						<div
-							className={clsxm(
-								'absolute right-2 top-1/2 -translate-y-1/2',
-								'w-3 h-3 rounded',
-								'bg-gray-300 dark:bg-gray-600'
-							)}
-						/>
-					</div>
-
-					{/* Properties Dropdown Skeleton */}
-					<div
-						className={clsxm(
-							'overflow-hidden relative',
-							'h-8 w-fit lg:max-w-[190px] min-w-[120px]',
-							'rounded border',
-							'bg-gray-100 dark:bg-white/5',
-							'border-gray-200 dark:border-gray-700',
-							'animate-pulse'
-						)}
-					>
-						<div
-							className={clsxm(
-								'absolute inset-0 -translate-x-full',
-								'bg-gradient-to-r from-transparent to-transparent via-white/20 dark:via-white/10',
-								'animate-[shimmer_2s_infinite]'
-							)}
-						/>
-						<div
-							className={clsxm(
-								'absolute left-2 top-1/2 -translate-y-1/2',
-								'w-20 h-3 rounded',
-								'bg-gray-300 dark:bg-gray-600'
-							)}
-						/>
-					</div>
-
-					{/* Sizes Dropdown Skeleton */}
-					<div
-						className={clsxm(
-							'overflow-hidden relative',
-							'h-8 w-fit lg:max-w-[190px] min-w-[100px]',
-							'rounded border',
-							'bg-gray-100 dark:bg-white/5',
-							'border-gray-200 dark:border-gray-700',
-							'animate-pulse'
-						)}
-					>
-						<div
-							className={clsxm(
-								'absolute inset-0 -translate-x-full',
-								'bg-gradient-to-r from-transparent to-transparent via-white/20 dark:via-white/10',
-								'animate-[shimmer_2s_infinite]'
-							)}
-						/>
-						<div
-							className={clsxm(
-								'absolute left-2 top-1/2 -translate-y-1/2',
-								'w-8 h-3 rounded',
-								'bg-gray-300 dark:bg-gray-600'
-							)}
-						/>
-					</div>
-
-					{/* Task Labels Skeleton */}
-					<div
-						className={clsxm(
-							'overflow-hidden relative',
-							'h-8 w-fit lg:max-w-[170px] min-w-[80px]',
-							'rounded border',
-							'bg-gray-100 dark:bg-white/5',
-							'border-gray-200 dark:border-gray-700',
-							'animate-pulse'
-						)}
-					>
-						<div
-							className={clsxm(
-								'absolute inset-0 -translate-x-full',
-								'bg-gradient-to-r from-transparent to-transparent via-white/20 dark:via-white/10',
-								'animate-[shimmer_2s_infinite]'
-							)}
-						/>
-						<div className="flex absolute left-2 top-1/2 gap-1 items-center -translate-y-1/2">
-							<div className={clsxm('w-4 h-4 rounded-full', 'bg-gray-300 dark:bg-gray-600')} />
-							<div className={clsxm('w-4 h-4 rounded-full', 'bg-gray-300 dark:bg-gray-600')} />
-						</div>
-					</div>
-
-					{/* Project Dropdown Skeleton */}
-					<div
-						className={clsxm(
-							'overflow-hidden relative',
-							'h-8 w-fit max-w-[140px] min-w-[90px]',
-							'rounded-xl border',
-							'bg-gray-100 dark:bg-white/5',
-							'border-gray-200 dark:border-gray-700',
-							'animate-pulse'
-						)}
-					>
-						<div
-							className={clsxm(
-								'absolute inset-0 -translate-x-full',
-								'bg-gradient-to-r from-transparent to-transparent via-white/20 dark:via-white/10',
-								'animate-[shimmer_2s_infinite]'
-							)}
-						/>
-						<div
-							className={clsxm(
-								'absolute left-2 top-1/2 -translate-y-1/2',
-								'w-12 h-3 rounded',
-								'bg-gray-300 dark:bg-gray-600'
-							)}
-						/>
-					</div>
+				<div className="hidden flex-1 justify-end gap-2 md:flex md:items-center">
+					{PROPERTY_PILL_SKELETON_KEYS.map((key) => (
+						<Skeleton key={key} className={clsxm(SKELETON_TONE, 'h-7 w-24 rounded-full')} />
+					))}
 				</div>
 			</div>
 		</div>

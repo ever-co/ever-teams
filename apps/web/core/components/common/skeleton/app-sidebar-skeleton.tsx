@@ -1,117 +1,55 @@
 import { cn } from '@/core/lib/helpers';
-import {
-	Sidebar,
-	SidebarContent,
-	SidebarHeader,
-	SidebarFooter,
-	SidebarRail,
-	SidebarTrigger,
-	SidebarSeparator
-} from '@/core/components/common/sidebar';
+import { Sidebar, SidebarContent, SidebarHeader, SidebarFooter, SidebarRail } from '@/core/components/common/sidebar';
 
 interface AppSidebarSkeletonProps {
 	className?: string;
 }
 
+function GroupSkeleton({ rows }: Readonly<{ rows: number }>) {
+	const rowKeys = Array.from({ length: rows }, (_, index) => index);
+	return (
+		<div className="space-y-1.5">
+			<div className="h-7 animate-pulse rounded-md bg-foreground/5" />
+			<div className="ml-4 space-y-1">
+				{rowKeys.map((key) => (
+					<div key={key} className="h-6 animate-pulse rounded-md bg-foreground/5" />
+				))}
+			</div>
+		</div>
+	);
+}
+
+/** Same geometry as AppSidebar, so the shell does not jump when the real sidebar mounts. */
 export function AppSidebarSkeleton({ className }: AppSidebarSkeletonProps) {
 	return (
-		<Sidebar className={cn('z-[1000]', className)} collapsible="icon">
-			{/* Sidebar Trigger Skeleton */}
-			<SidebarTrigger className="absolute right-[-5%] top-[8%] size-7 !bg-[#F0F0F0] dark:!bg-white/8 animate-pulse !rounded-full transition-all duration-300 z-[55]" />
-
-			{/* Sidebar Header Skeleton */}
-			<SidebarHeader>
-				{/* Workspace Switcher Skeleton */}
-				<div className="p-2">
-					<div className="h-10 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded-md" />
+		<Sidebar variant="inset" className={cn('z-[1000]', className)} collapsible="icon" aria-busy="true">
+			<SidebarHeader className="gap-2 p-2">
+				<div className="flex items-center gap-1">
+					<div className="h-12 flex-1 animate-pulse rounded-md bg-foreground/5" />
+					<div className="size-7 shrink-0 animate-pulse rounded-md bg-foreground/5" />
 				</div>
-
-				<SidebarSeparator />
-
-				{/* Command Modal Skeleton */}
-				<div className="p-2">
-					<div className="h-8 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded-md" />
+				<div className="flex items-center gap-1.5">
+					<div className="h-8 flex-1 animate-pulse rounded-md bg-foreground/5" />
+					<div className="size-8 shrink-0 animate-pulse rounded-md bg-foreground/5" />
+					<div className="size-8 shrink-0 animate-pulse rounded-md bg-foreground/5" />
 				</div>
-
-				{/* Home Navigation Skeleton */}
-				<div className="space-y-2 p-2">
-					<div className="h-8 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded-sm" />
-					<div className="h-8 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded-sm" />
-				</div>
-
-				<SidebarSeparator />
 			</SidebarHeader>
 
-			{/* Sidebar Content Skeleton */}
 			<SidebarContent>
 				<div className="space-y-4 p-2">
-					{/* Dashboard Section */}
-					<div className="space-y-2">
-						<div className="h-6 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded-sm" />
-						<div className="ml-4 space-y-1">
-							<div className="h-5 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded-sm" />
-							<div className="h-5 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded-sm" />
-						</div>
+					<div className="space-y-1">
+						<div className="h-8 animate-pulse rounded-md bg-foreground/5" />
 					</div>
-
-					{/* Favorites Section */}
-					<div className="space-y-2">
-						<div className="h-6 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded-sm" />
-						<div className="ml-4 space-y-1">
-							<div className="h-5 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded-sm" />
-							<div className="h-5 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded-sm" />
-							<div className="h-5 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded-sm" />
-						</div>
-					</div>
-
-					{/* Tasks Section */}
-					<div className="space-y-2">
-						<div className="h-6 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded-sm" />
-						<div className="ml-4 space-y-1">
-							<div className="h-5 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded-sm" />
-							<div className="h-5 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded-sm" />
-						</div>
-					</div>
-
-					{/* Projects Section */}
-					<div className="space-y-2">
-						<div className="h-6 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded-sm" />
-						<div className="ml-4 space-y-1">
-							{/* Project items with circular icons */}
-							{[...Array(3)].map((_, i) => (
-								<div key={i} className="flex items-center space-x-2">
-									<div className="w-6 h-6 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded-full" />
-									<div className="h-5 flex-1 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded-sm" />
-								</div>
-							))}
-							<div className="h-5 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded-sm" />
-						</div>
-					</div>
-
-					{/* My Works Section */}
-					<div className="space-y-2">
-						<div className="h-6 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded-sm" />
-						<div className="ml-4 space-y-1">
-							<div className="h-5 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded-sm" />
-							<div className="h-5 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded-sm" />
-						</div>
-					</div>
-
-					{/* Reports Section (for managers) */}
-					<div className="space-y-2">
-						<div className="h-6 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded-sm" />
-						<div className="ml-4 space-y-1">
-							{[...Array(6)].map((_, i) => (
-								<div key={i} className="h-5 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded-sm" />
-							))}
-						</div>
-					</div>
+					<GroupSkeleton rows={2} />
+					<GroupSkeleton rows={3} />
+					<GroupSkeleton rows={2} />
+					<GroupSkeleton rows={3} />
+					<GroupSkeleton rows={2} />
 				</div>
 			</SidebarContent>
 
-			{/* Sidebar Footer Skeleton */}
-			<SidebarFooter className="p-1 mt-auto">
-				<div className="h-12 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded-md" />
+			<SidebarFooter className="mt-auto gap-2 p-2">
+				<div className="h-12 animate-pulse rounded-md bg-foreground/5" />
 			</SidebarFooter>
 
 			<SidebarRail />

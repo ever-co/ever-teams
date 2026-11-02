@@ -8,7 +8,7 @@ export function ProjectDetailSkeleton() {
 		<div className="p-4 md:p-6 lg:p-8">
 			<div className="flex flex-col max-w-5xl gap-8 mx-auto">
 				{/* Hero Section Skeleton */}
-				<div className="flex flex-col items-start gap-6 p-6 bg-white border shadow-sm md:flex-row dark:bg-dark--theme-light rounded-xl dark:border-gray-800">
+				<div className="flex flex-col items-start gap-6 p-6 bg-card hairline-ring ring-border shadow-sm shadow-black/6.5 md:flex-row rounded-xl">
 					{/* Image Skeleton */}
 					<Skeleton className="w-24 h-24 md:w-32 md:h-32 rounded-xl shrink-0" />
 
@@ -29,7 +29,7 @@ export function ProjectDetailSkeleton() {
 				</div>
 
 				{/* Dates Section Skeleton */}
-				<div className="flex flex-col gap-3 p-4 bg-white border dark:bg-dark--theme-light rounded-xl dark:border-gray-800">
+				<div className="flex flex-col gap-3 p-4 bg-card hairline-ring ring-border shadow-sm shadow-black/6.5 rounded-xl">
 					<Skeleton className="w-24 h-5" />
 					<div className="flex gap-8">
 						<div className="flex flex-col gap-2">
@@ -44,7 +44,7 @@ export function ProjectDetailSkeleton() {
 				</div>
 
 				{/* Description Section Skeleton */}
-				<div className="flex flex-col gap-3 p-4 bg-white border dark:bg-dark--theme-light rounded-xl dark:border-gray-800">
+				<div className="flex flex-col gap-3 p-4 bg-card hairline-ring ring-border shadow-sm shadow-black/6.5 rounded-xl">
 					<Skeleton className="h-5 w-28" />
 					<div className="space-y-2">
 						<Skeleton className="w-full h-4" />
@@ -56,7 +56,7 @@ export function ProjectDetailSkeleton() {
 				{/* Grid Section Skeleton */}
 				<div className="grid grid-cols-1 gap-6 md:grid-cols-2">
 					{/* Tags Section */}
-					<div className="flex flex-col gap-3 p-4 bg-white border dark:bg-dark--theme-light rounded-xl dark:border-gray-800">
+					<div className="flex flex-col gap-3 p-4 bg-card hairline-ring ring-border shadow-sm shadow-black/6.5 rounded-xl">
 						<Skeleton className="h-5 w-28" />
 						<div className="flex flex-wrap gap-2">
 							<Skeleton className="w-20 h-6 rounded-full" />
@@ -66,7 +66,7 @@ export function ProjectDetailSkeleton() {
 					</div>
 
 					{/* Teams Section */}
-					<div className="flex flex-col gap-3 p-4 bg-white border dark:bg-dark--theme-light rounded-xl dark:border-gray-800">
+					<div className="flex flex-col gap-3 p-4 bg-card hairline-ring ring-border shadow-sm shadow-black/6.5 rounded-xl">
 						<Skeleton className="w-20 h-5" />
 						<div className="flex flex-wrap gap-2">
 							<Skeleton className="h-8 rounded-lg w-28" />
@@ -76,7 +76,7 @@ export function ProjectDetailSkeleton() {
 				</div>
 
 				{/* Members Section Skeleton */}
-				<div className="flex flex-col gap-3 p-4 bg-white border dark:bg-dark--theme-light rounded-xl dark:border-gray-800">
+				<div className="flex flex-col gap-3 p-4 bg-card hairline-ring ring-border shadow-sm shadow-black/6.5 rounded-xl">
 					<Skeleton className="h-5 w-36" />
 					<div className="space-y-4">
 						<div>
@@ -85,7 +85,7 @@ export function ProjectDetailSkeleton() {
 								{[1, 2].map((i) => (
 									<div
 										key={i}
-										className="flex items-center gap-3 p-3 border rounded-lg dark:border-gray-700"
+										className="flex items-center gap-3 p-3 rounded-lg bg-foreground/[0.03]"
 									>
 										<Skeleton className="w-10 h-10 rounded-full" />
 										<div className="flex flex-col flex-1 gap-1">
@@ -102,7 +102,7 @@ export function ProjectDetailSkeleton() {
 								{[1, 2, 3].map((i) => (
 									<div
 										key={i}
-										className="flex items-center gap-3 p-3 border rounded-lg dark:border-gray-700"
+										className="flex items-center gap-3 p-3 rounded-lg bg-foreground/[0.03]"
 									>
 										<Skeleton className="w-10 h-10 rounded-full" />
 										<div className="flex flex-col flex-1 gap-1">

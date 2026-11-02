@@ -2,6 +2,7 @@
 import React, { useEffect, useState } from 'react';
 import { useAuthenticateUser } from '@/core/hooks';
 import { useOrganizationTeamsQuery } from '@/core/hooks/organizations';
+import { useAreTeamsSettled } from '@/core/hooks/organizations/teams/use-are-teams-settled';
 import GlobalSkeleton from '../common/global-skeleton';
 import { useRouter } from 'next/navigation';
 import { ERoleName } from '@/core/types/generics/enums/role';
@@ -10,13 +11,26 @@ type Props = {
 	children: React.ReactNode;
 	redirectTo?: string;
 	useRedirect?: boolean;
+	/** What shows while membership is checked: the guarded page's own skeleton, so the wait never changes picture. */
+	fallback?: React.ReactNode;
 };
 
+const SELF_MEMBERSHIP_WAIT_MS = 8000;
+const TEAMS_LIST_WAIT_MS = 30000;
+
+function boundedWaitOf(teamsSettled: boolean) {
+	if (teamsSettled) {
+		return SELF_MEMBERSHIP_WAIT_MS;
+	}
+	return TEAMS_LIST_WAIT_MS;
+}
+
 /** Restricts report content to team managers and tenant-wide administrators. */
-export default function MustBeAManager({ children, redirectTo = '/', useRedirect = true }: Props) {
+export default function MustBeAManager({ children, redirectTo = '/', useRedirect = true, fallback }: Props) {
 	// All hooks must be called before any conditional returns
 	const { user, userLoading: isUserLoading, isTeamManager } = useAuthenticateUser();
 	const { getOrganizationTeamsLoading: isTeamsLoading, teams, activeTeam } = useOrganizationTeamsQuery();
+	const areTeamsSettled = useAreTeamsSettled();
 	const router = useRouter();
 	const [checked, setChecked] = useState(false);
 	const [isRedirecting, setIsRedirecting] = useState(false);
@@ -42,19 +56,24 @@ export default function MustBeAManager({ children, redirectTo = '/', useRedirect
 			(m?.employee?.userId && m.employee.userId === user?.id) ||
 			(m?.employeeId && user?.employee?.id && m.employeeId === user.employee.id)
 	);
-	// NOTE: the `teams` atom lags the teams query by one effect too — right after the query resolves the
-	// atom is still [] for a render (a full page load of any /reports URL is a cold load). "No teams"
-	// therefore keeps waiting as well; a user with genuinely zero teams is decided by the bounded wait.
-	const membershipPending =
-		!userReady || (!isGlobalAdmin && (isTeamsLoading || teams.length === 0 || !selfMembershipLoaded));
-	// Safety valve: if membership never resolves (e.g. the active-team cookie points at a team the user
-	// is no longer in), decide after a bounded wait instead of showing the skeleton forever.
+	// The `teams` atom lags the teams query by one effect, so "no teams" is only known once the shell has published
+	// the list or said there is none (`useAreTeamsSettled`). The API can take several seconds to answer it: the
+	// bounded wait below starts only once the teams are known, so a slow list never bounces a real manager.
+	const teamsSettled = areTeamsSettled && !isTeamsLoading;
+	const hasNoTeam = teamsSettled && teams.length === 0;
+	const awaitsTeams = !teamsSettled;
+	const awaitsSelfMembership = !hasNoTeam && !selfMembershipLoaded;
+	const awaitsMembership = awaitsTeams || awaitsSelfMembership;
+	const membershipPending = !userReady || (!isGlobalAdmin && awaitsMembership);
+	// Safety valve: the user's own membership row may never appear (the active-team cookie points at a team the user
+	// left), or the teams may never come (a failed request); decide after a bounded wait instead of showing the
+	// skeleton forever. The wait for the teams themselves is long because the API can be slow to list them.
 	const [waitedTooLong, setWaitedTooLong] = useState(false);
 	useEffect(() => {
 		if (!membershipPending) return;
-		const timer = setTimeout(() => setWaitedTooLong(true), 8000);
+		const timer = setTimeout(() => setWaitedTooLong(true), boundedWaitOf(teamsSettled));
 		return () => clearTimeout(timer);
-	}, [membershipPending]);
+	}, [membershipPending, teamsSettled]);
 	const isLoading = membershipPending && !waitedTooLong;
 
 	useEffect(() => {
@@ -74,21 +93,23 @@ export default function MustBeAManager({ children, redirectTo = '/', useRedirect
 	const shouldShowLoadingForRedirect = !isAuthorizedManager && useRedirect;
 	const shouldShowChildren = isAuthorizedManager;
 
+	const pending = fallback ?? <GlobalSkeleton />;
+
 	// Conditional rendering after all hooks
 	if (shouldShowLoading) {
-		return <GlobalSkeleton />;
+		return pending;
 	}
 
 	if (shouldShowAccessDenied) {
 		return (
-			<div className="p-6 mx-1 mt-10 mb-5 text-center text-red-500 bg-red-200 rounded">
+			<div className="p-6 mx-1 mt-10 mb-5 text-sm text-center rounded-xl bg-destructive/10 text-destructive-ink">
 				Access denied: manager rights required
 			</div>
 		);
 	}
 
 	if (shouldShowLoadingForRedirect) {
-		return <GlobalSkeleton />;
+		return pending;
 	}
 
 	if (shouldShowChildren) {
@@ -96,5 +117,5 @@ export default function MustBeAManager({ children, redirectTo = '/', useRedirect
 	}
 
 	// Fallback (should not reach here)
-	return <GlobalSkeleton />;
+	return pending;
 }

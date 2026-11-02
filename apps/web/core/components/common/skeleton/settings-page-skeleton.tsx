@@ -1,185 +1,140 @@
 'use client';
 import { FC } from 'react';
 import { cn } from '@/core/lib/helpers';
-import { Container } from '@/core/components';
-import { TitleBlockSkeleton } from './task-details-page-skeleton';
+import {
+	SETTINGS_ROW_CLASS,
+	SETTINGS_ROWS_CLASS,
+	SETTINGS_SECTIONS_CLASS
+} from '@/core/components/pages/settings/settings-section';
+
+const BAR = 'animate-pulse rounded-md bg-foreground/5';
+
+const PERSONAL_MENU_LINKS = 5;
+
+const TEAM_MENU_LINKS = 3;
+
+const DANGER_ROWS = 3;
 
 interface SettingsPageSkeletonProps {
 	className?: string;
 	showTimer?: boolean;
 }
 
-/**
- * Complete page-level skeleton for Settings pages
- * Integrates seamlessly with MainLayout structure without swallowing it up
- * Matches exact layout: mainHeaderSlot + LeftSideSettingMenu + content area
- */
-
-const SettingsPageSkeleton: FC<SettingsPageSkeletonProps> = ({ className }) => {
+function SettingsRowSkeleton() {
 	return (
-		<div className={cn('flex flex-col w-full', className)}>
-			<section className="flex gap-2.5 lg:items-start 3xl:gap-8">
-				{/* Main Content Section */}
-				<section className="md:max-w-[80rem] w-full 3xl:max-w-none xl:w-full mb-4 md:mb-0">
-					{/* Task Title Block Skeleton */}
-					<TitleBlockSkeleton />
-
-					{/* Main Content Area */}
-					<div className="flex flex-col gap-6 rounded-xl border bg-card p-4 dark:border-white/10">
-						<Container className="!p-0 w-full">
-							<div className="w-full">
-								<div className={cn('w-full', className)}>
-									<SettingsContentSkeleton />
-								</div>
-							</div>
-						</Container>
-					</div>
-				</section>
-			</section>
+		<div className={SETTINGS_ROW_CLASS}>
+			<div className={cn(BAR, 'h-4 w-28')} />
+			<div className={cn(BAR, 'h-9 w-full max-w-md')} />
 		</div>
 	);
-};
-/**
- * Skeleton for LeftSideSettingMenu component
- * Matches exact structure: Personal + Team sections with navigation items
- */
+}
+
+function SectionTitleSkeleton({ width }: { width: string }) {
+	return (
+		<div className="flex h-6 items-center">
+			<div className={cn(BAR, 'h-4', width)} />
+		</div>
+	);
+}
+
+function SettingsSectionSkeleton({ rows, titleWidth }: { rows: number; titleWidth: string }) {
+	const rowKeys = Array.from({ length: rows }, (_, index) => index);
+	return (
+		<section className="py-8">
+			<SectionTitleSkeleton width={titleWidth} />
+			<div className={cn('mt-5 min-w-0', SETTINGS_ROWS_CLASS)}>
+				{rowKeys.map((key) => (
+					<SettingsRowSkeleton key={key} />
+				))}
+			</div>
+		</section>
+	);
+}
+
+function DangerRowSkeleton() {
+	return (
+		<div className="flex flex-col gap-3 hairline-t border-border py-4 first:border-t-0 first:pt-0 sm:flex-row sm:items-center sm:justify-between">
+			<div className="flex flex-col gap-2">
+				<div className={cn(BAR, 'h-4 w-32')} />
+				<div className={cn(BAR, 'h-3 w-64')} />
+			</div>
+			<div className={cn(BAR, 'h-8 w-24 shrink-0')} />
+		</div>
+	);
+}
+
+function DangerSectionSkeleton() {
+	const rowKeys = Array.from({ length: DANGER_ROWS }, (_, index) => index);
+	return (
+		<section className="py-8">
+			<SectionTitleSkeleton width="w-28" />
+			<div className="mt-5 flex w-full flex-col">
+				{rowKeys.map((key) => (
+					<DangerRowSkeleton key={key} />
+				))}
+			</div>
+		</section>
+	);
+}
+
+function MenuGroupSkeleton({ links }: { links: number }) {
+	const linkKeys = Array.from({ length: links }, (_, index) => index);
+	return (
+		<section>
+			<div className="flex h-8 items-center gap-2 px-3">
+				<div className={cn(BAR, 'size-4 rounded-sm')} />
+				<div className={cn(BAR, 'h-3 w-16')} />
+			</div>
+			<div className="mt-1 flex flex-col gap-0.5">
+				{linkKeys.map((key) => (
+					<div key={key} className="flex h-8 items-center px-3">
+						<div className={cn(BAR, 'h-4 w-28')} />
+					</div>
+				))}
+			</div>
+		</section>
+	);
+}
+
+/** The section nav of the settings pages: two groups of 32px rows. */
 export const LeftSideSettingMenuSkeleton: FC = () => {
 	return (
-		<div className="w-full rounded-xl border bg-card p-3 shadow-sm dark:border-white/10">
-			{/* Personal Settings Section */}
-			<div className="mb-8">
-				{/* Section Header with Icon */}
-				<div className="flex gap-3 items-center mb-4">
-					<div className="w-5 h-5 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded" />
-					<div className="w-24 h-5 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded" />
-				</div>
-
-				{/* Navigation Items */}
-				<div className="flex flex-col gap-2 ml-8">
-					<div className="w-32 h-4 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded" />
-					<div className="w-28 h-4 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded" />
-					<div className="w-36 h-4 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded" />
-				</div>
-			</div>
-
-			{/* Team Settings Section */}
-			<div className="mb-8">
-				{/* Section Header with Icon */}
-				<div className="flex gap-3 items-center mb-4">
-					<div className="w-5 h-5 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded" />
-					<div className="w-20 h-5 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded" />
-				</div>
-
-				{/* Navigation Items */}
-				<div className="flex flex-col gap-2 ml-8">
-					<div className="w-28 h-4 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded" />
-					<div className="w-24 h-4 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded" />
-					<div className="w-32 h-4 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded" />
-					<div className="w-32 h-4 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded" />
-					<div className="w-24 h-4 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded" />
-					<div className="w-28 h-4 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded" />
-				</div>
-			</div>
+		<div className="flex w-full flex-col gap-4">
+			<MenuGroupSkeleton links={PERSONAL_MENU_LINKS} />
+			<MenuGroupSkeleton links={TEAM_MENU_LINKS} />
 		</div>
 	);
 };
 
-/**
- * Skeleton for Settings Content Area
- * Matches exact structure: mobile button + accordion sections
- */
-const SettingsContentSkeleton: FC = () => {
+/** The content column of a settings page: the phone-only switch button, then flat sections split by hairlines. */
+const SettingsContentSkeleton: FC<{ className?: string }> = ({ className }) => {
 	return (
-		<div className="w-full pb-16">
-			{/* Mobile Team Settings Button (lg:hidden) */}
-			<div className="mb-4 w-full lg:hidden">
-				<div className="w-full h-12 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded-xl border border-gray-100 dark:border-gray-800" />
-			</div>
-
-			{/* Accordion Sections */}
-			{[...Array(4)].map((_, index) => (
-				<AccordionSectionSkeleton key={index} isDanger={index === 3} />
-			))}
-		</div>
-	);
-};
-
-/**
- * Skeleton for individual Accordion Section
- * Matches exact structure: accordion header + content area
- */
-const AccordionSectionSkeleton: FC<{ isDanger?: boolean }> = ({ isDanger = false }) => {
-	return (
-		<div
-			className={cn(
-				'p-4 mt-8 w-full rounded-lg max-w-[96vw]',
-				isDanger ? 'bg-red-50 dark:bg-red-900/10' : 'bg-white dark:bg-dark--theme'
-			)}
-		>
-			{/* Accordion Header */}
-			<div className="flex justify-between items-center mb-6">
-				<div
-					className={cn(
-						'h-6 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded',
-						isDanger ? 'w-24' : 'w-32'
-					)}
-				/>
-				<div className="w-6 h-6 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded" />
-			</div>
-
-			{/* Accordion Content */}
-			<div className="space-y-6">
-				{/* Form Fields or Content */}
-				<div className="grid grid-cols-1 gap-6 md:grid-cols-2">
-					<div className="flex flex-col gap-2">
-						<div className="w-20 h-4 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded" />
-						<div className="w-full h-12 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded-lg border border-gray-200 dark:border-gray-600" />
-					</div>
-					<div className="flex flex-col gap-2">
-						<div className="w-24 h-4 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded" />
-						<div className="w-full h-12 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded-lg border border-gray-200 dark:border-gray-600" />
-					</div>
+		<div className={cn('flex flex-col gap-6 pb-8', className)}>
+			<div className={cn(BAR, 'h-9 w-full lg:hidden')} />
+			<div className={SETTINGS_SECTIONS_CLASS}>
+				<div>
+					<SettingsSectionSkeleton titleWidth="w-32" rows={4} />
 				</div>
-
-				{/* Additional Content */}
-				<div className="flex flex-col gap-4">
-					<div className="w-40 h-4 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded" />
-					<div className="w-full h-20 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded-lg border border-gray-200 dark:border-gray-600" />
+				<div>
+					<SettingsSectionSkeleton titleWidth="w-40" rows={2} />
 				</div>
-
-				{/* Action Buttons */}
-				<div className="flex gap-3 justify-end">
-					<div className="w-20 h-10 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded-lg" />
-					<div
-						className={cn(
-							'w-24 h-10 animate-pulse rounded-lg',
-							isDanger ? 'bg-red-200 dark:bg-red-800' : 'bg-[#F0F0F0] dark:bg-white/8'
-						)}
-					/>
+				<div>
+					<SettingsSectionSkeleton titleWidth="w-36" rows={2} />
+				</div>
+				<div>
+					<DangerSectionSkeleton />
 				</div>
 			</div>
 		</div>
 	);
 };
 
-/**
- * Simplified Settings Content Skeleton for individual pages
- * Used with withAuthentication showPageSkeleton option
- */
+const SettingsPageSkeleton: FC<SettingsPageSkeletonProps> = ({ className }) => {
+	return <SettingsContentSkeleton className={className} />;
+};
+
 export const SettingsContentPageSkeleton: FC<SettingsPageSkeletonProps> = ({ className }) => {
-	return (
-		<div className={cn('w-full pb-16', className)}>
-			{/* Mobile Team Settings Button (lg:hidden) */}
-			<div className="mb-4 w-full lg:hidden">
-				<div className="w-full h-12 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded-xl border border-gray-100 dark:border-gray-800" />
-			</div>
-
-			{/* Accordion Sections */}
-			{[...Array(4)].map((_, index) => (
-				<AccordionSectionSkeleton key={index} isDanger={index === 3} />
-			))}
-		</div>
-	);
+	return <SettingsContentSkeleton className={className} />;
 };
 
 export default SettingsPageSkeleton;

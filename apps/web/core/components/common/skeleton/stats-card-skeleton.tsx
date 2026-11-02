@@ -1,81 +1,44 @@
 import { Card } from '@/core/components/common/card';
-import { clsxm } from '@/core/lib/utils';
+import { cn } from '@/core/lib/helpers';
 
-interface StatSkeletonProps {
-	showProgress?: boolean;
-	progressColor?: string;
+const BAR = 'animate-pulse rounded-md bg-foreground/5';
+
+/** A TeamStatsGrid cell draws its own left and top hairlines; the card clips the outer ones (`overflow-hidden`). */
+export const STAT_CELL_CLASS_NAME =
+	'-ml-px -mt-px flex min-w-0 flex-col gap-2 hairline-l hairline-t border-dashed border-border px-4 py-3.5';
+
+const STAT_CELLS = [
+	{ key: 'members', showProgress: false },
+	{ key: 'projects', showProgress: false },
+	{ key: 'today', showProgress: true },
+	{ key: 'week', showProgress: true }
+];
+
+interface StatsCardSkeletonProps {
+	className?: string;
 }
 
-function StatCardSkeleton({ showProgress = false, progressColor = 'bg-gray-300' }: StatSkeletonProps) {
+function StatCellSkeleton({ showProgress }: { showProgress: boolean }) {
 	return (
-		<Card className={clsxm('rounded-xl px-4 py-3.5 shadow-none', 'overflow-hidden relative', 'animate-pulse')}>
-			{/* Shimmer overlay */}
-			<div
-				className={clsxm(
-					'absolute inset-0 -translate-x-full',
-					'bg-gradient-to-r from-transparent to-transparent via-white/20 dark:via-white/10',
-					'animate-[shimmer_2s_infinite]'
-				)}
-			/>
-
-			<div className="flex relative z-10 flex-col">
-				{/* Title skeleton */}
-				<div className={clsxm('h-3 w-1/2 rounded', 'bg-gray-300 dark:bg-gray-600', 'mb-1')} />
-
-				{/* Value skeleton */}
-				<div className="mt-2 flex h-6 items-center">
-					<div className={clsxm('h-5 w-16 rounded', 'bg-gray-400 dark:bg-gray-500')} />
-				</div>
-
-				{/* Progress bar skeleton */}
-				{showProgress && (
-					<div className="mt-1">
-						<div
-							className={clsxm(
-								'h-1 w-full rounded-full bg-muted',
-								'overflow-hidden relative'
-							)}
-						>
-							{/* Animated progress bar skeleton */}
-							<div
-								className={clsxm(
-									'h-full rounded-full',
-									progressColor.concat('/30'),
-									'animate-pulse',
-									'w-1/3'
-								)}
-							/>
-
-							{/* Moving shimmer on progress bar */}
-							<div
-								className={clsxm(
-									'absolute inset-0 -translate-x-full',
-									'bg-gradient-to-r from-transparent via-white/30 dark:via-white/20 to-transparent',
-									'animate-[shimmer_1.5s_infinite]',
-									'rounded-full'
-								)}
-							/>
-						</div>
-					</div>
-				)}
+		<div className={STAT_CELL_CLASS_NAME}>
+			<div className="flex h-4 items-center">
+				<div className={cn(BAR, 'h-3 w-24')} />
 			</div>
-		</Card>
+			<div className="flex h-6 items-center">
+				<div className={cn(BAR, 'h-5 w-20')} />
+			</div>
+			{showProgress && <div className={cn(BAR, 'h-1 w-full rounded-full')} />}
+		</div>
 	);
 }
-export function StatsCardSkeleton() {
-	const skeletonStats = [
-		{ showProgress: false },
-		{ showProgress: true, progressColor: 'bg-blue-300' },
-		{ showProgress: true, progressColor: 'bg-red-300' },
-		{ showProgress: true, progressColor: 'bg-yellow-300' },
-		{ showProgress: false }
-	];
 
+/** The four cells of TeamStatsGrid on one surface, split by dashed hairlines. */
+export function StatsCardSkeleton({ className }: StatsCardSkeletonProps) {
 	return (
-		<div className="grid grid-cols-1 gap-4 min-w-fit sm:grid-cols-2 lg:grid-cols-5">
-			{skeletonStats.map((stat, index) => (
-				<StatCardSkeleton key={index} showProgress={stat.showProgress} progressColor={stat.progressColor} />
+		<Card className={cn('grid grid-cols-1 overflow-hidden sm:grid-cols-2 xl:grid-cols-4', className)}>
+			{STAT_CELLS.map((cell) => (
+				<StatCellSkeleton key={cell.key} showProgress={cell.showProgress} />
 			))}
-		</div>
+		</Card>
 	);
 }

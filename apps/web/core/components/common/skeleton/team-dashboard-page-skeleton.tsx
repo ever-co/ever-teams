@@ -1,156 +1,49 @@
-import React, { FC } from 'react';
-import { Container } from '@/core/components';
+import { FC } from 'react';
 import { PageLayout } from '@/core/components/layouts/default-layout';
 import { cn } from '@/core/lib/helpers';
+import { StatsCardSkeleton } from './stats-card-skeleton';
+import { TeamStatsTableSkeleton } from './team-stats-table-skeleton';
+
+const BAR = 'animate-pulse rounded-md bg-foreground/5';
 
 interface TeamDashboardPageSkeletonProps {
 	className?: string;
 	showTimer?: boolean;
 }
 
-/**
- * Complete page-level skeleton for Team Dashboard page
- * Integrates seamlessly with PageLayout structure without swallowing it up
- * Matches exact layout: mainHeaderSlot (3 sections: breadcrumb + header + stats/chart) + main content (table)
- */
+/** The team dashboard: breadcrumb in the top bar, the title row in the band, then the strip, the chart toggle and the table. */
 export const TeamDashboardPageSkeleton: FC<TeamDashboardPageSkeletonProps> = ({ className, showTimer = false }) => {
 	return (
 		<PageLayout
-			className="items-start pb-1 !overflow-hidden w-full"
-			childrenClassName="w-full"
 			showTimer={showTimer}
+			className={className}
+			breadcrumb={
+				<div className="flex min-w-0 items-center gap-2">
+					<div className={cn(BAR, 'size-7 shrink-0')} />
+					<div className={cn(BAR, 'size-4 shrink-0 rounded-sm')} />
+					<div className={cn(BAR, 'h-4 w-16')} />
+					<div className={cn(BAR, 'size-3.5 rounded-sm')} />
+					<div className={cn(BAR, 'h-4 w-32')} />
+				</div>
+			}
 			mainHeaderSlot={
-				<div className="flex flex-col py-4 bg-gray-100 dark:bg-dark--theme">
-					<Container className={cn('flex flex-col gap-4 w-full')}>
-						{/* ✅ SKELETON: Section 1 - Back Button + Breadcrumb */}
-						<div className="flex items-center pt-6 dark:bg-dark--theme">
-							<div className="p-1 rounded-full">
-								<div className="w-6 h-6 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded" />
-							</div>
-							<div className="flex items-center gap-2 ml-2">
-								<div className="w-16 h-4 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded" />
-								<div className="w-1 h-1 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded-full" />
-								<div className="w-32 h-4 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded" />
-							</div>
-						</div>
-
-						{/* ✅ SKELETON: Section 2 - Dashboard Header */}
-						<div className="flex flex-col gap-3">
-							{/* Dashboard Header Skeleton */}
-							<div className="flex justify-between items-center w-full">
-								<div className="w-48 h-8 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded" />
-								<div className="flex gap-4 items-center">
-									{/* Group By Select */}
-									<div className="w-32 h-10 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded-lg border border-gray-200 dark:border-gray-600" />
-									{/* Date Range Picker */}
-									<div className="w-48 h-10 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded-lg border border-gray-200 dark:border-gray-600" />
-									{/* Team Filter */}
-									<div className="w-24 h-10 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded-lg border border-gray-200 dark:border-gray-600" />
-									{/* Export Button */}
-									<div className="w-20 h-10 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded-lg border border-gray-200 dark:border-gray-600" />
-								</div>
-							</div>
-
-							{/* ✅ SKELETON: Section 3 - Team Stats Grid */}
-							<div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-5">
-								{['members', 'tracked', 'manual', 'idle', 'total'].map((stat) => (
-									<div
-										key={stat}
-										className="p-6 bg-white dark:bg-dark--theme-light rounded-lg border border-gray-200 dark:border-gray-600"
-									>
-										<div className="flex flex-col">
-											<div className="w-24 h-4 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded-sm mb-2" />
-											<div className="mt-2 h-9">
-												<div className="w-16 h-8 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded" />
-											</div>
-										</div>
-									</div>
-								))}
-							</div>
-
-							{/* ✅ SKELETON: Chart Toggle Area */}
-							<div className="w-full">
-								{/* Chart Toggle Button */}
-								<div className="flex items-center justify-center bg-gradient-to-t from-gray-50/60 dark:from-gray-900/60 to-transparent py-0.5">
-									<div className="w-4 h-4 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded" />
-								</div>
-							</div>
-						</div>
-					</Container>
+				<div className="flex w-full flex-wrap items-center justify-between gap-3 px-4 py-3">
+					<div className={cn(BAR, 'h-5 w-40')} />
+					<div className="flex flex-wrap items-center gap-2">
+						<div className={cn(BAR, 'h-8 w-56')} />
+						<div className={cn(BAR, 'h-8 w-24')} />
+						<div className={cn(BAR, 'h-8 w-24')} />
+					</div>
 				</div>
 			}
 		>
-			{/* ✅ SKELETON: Main Content Area - Team Stats Table */}
-			<Container className={cn('flex flex-col gap-8 !px-4 py-6 w-full')}>
-				<div className="w-full bg-white dark:bg-dark--theme-light rounded-lg border border-gray-200 dark:border-gray-600">
-					{/* Table Header */}
-					<div className="bg-gray-50 dark:bg-white/5 border-b border-gray-200 dark:border-gray-600 p-4">
-						<div className="w-32 h-6 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded" />
-					</div>
-
-					{/* Table Content */}
-					<div className="p-4">
-						{/* Table Headers */}
-						<div className="grid grid-cols-6 gap-4 mb-4">
-							{['Employee', 'Project', 'Task', 'Time Spent', 'Activity', 'Status'].map((header) => (
-								<div
-									key={header}
-									className="w-20 h-4 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded"
-								/>
-							))}
-						</div>
-
-						{/* Table Rows */}
-						{Array.from({ length: 8 }, (_, rowIndex) => `team-row-${rowIndex + 1}`).map((rowKey) => (
-							<div
-								key={rowKey}
-								className="grid grid-cols-6 gap-4 py-3 border-b border-gray-100 dark:border-gray-700"
-							>
-								{/* Employee Cell with Avatar */}
-								<div className="flex items-center gap-3">
-									<div className="w-8 h-8 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded-full" />
-									<div className="w-24 h-4 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded" />
-								</div>
-
-								{/* Project Cell */}
-								<div className="w-20 h-4 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded" />
-
-								{/* Task Cell */}
-								<div className="w-28 h-4 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded" />
-
-								{/* Time Spent Cell */}
-								<div className="w-16 h-4 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded" />
-
-								{/* Activity Cell */}
-								<div className="w-24 h-4 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded" />
-
-								{/* Status Cell */}
-								<div className="w-16 h-6 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded-full" />
-							</div>
-						))}
-					</div>
-
-					{/* Table Footer - Pagination */}
-					<div className="bg-gray-50 dark:bg-white/5 border-t border-gray-200 dark:border-gray-600 p-4">
-						<div className="flex items-center justify-between">
-							{/* Left Info */}
-							<div className="flex items-center gap-2">
-								<div className="w-16 h-4 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded" />
-								<div className="w-12 h-8 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded-sm border border-gray-200 dark:border-gray-600" />
-								<div className="w-20 h-4 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded" />
-							</div>
-
-							{/* Right Navigation */}
-							<div className="flex items-center gap-2">
-								<div className="w-8 h-8 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded-sm border border-gray-200 dark:border-gray-600" />
-								<div className="w-8 h-8 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded-sm border border-gray-200 dark:border-gray-600" />
-								<div className="w-8 h-8 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded-sm border border-gray-200 dark:border-gray-600" />
-								<div className="w-8 h-8 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded-sm border border-gray-200 dark:border-gray-600" />
-							</div>
-						</div>
-					</div>
+			<div className="flex w-full flex-col gap-4">
+				<StatsCardSkeleton />
+				<div className="flex justify-center">
+					<div className={cn(BAR, 'h-8 w-44')} />
 				</div>
-			</Container>
+				<TeamStatsTableSkeleton />
+			</div>
 		</PageLayout>
 	);
 };

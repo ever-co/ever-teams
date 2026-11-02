@@ -2,113 +2,83 @@ import { FC, Fragment } from 'react';
 import { Card } from '@/core/components/common/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/core/components/common/table';
 import { Skeleton } from '@/core/components/common/skeleton';
+import { cn } from '@/core/lib/helpers';
+import { PaginateSkeleton } from './reports-component-skeletons';
+
+const DATE_GROUPS = 2;
+
+const ROWS_PER_GROUP = 5;
+
+const HEAD_BAR_WIDTHS = ['w-16', 'w-16', 'w-20', 'w-20', 'w-24'];
 
 interface ProductivityTableSkeletonProps {
 	className?: string;
 }
 
-export const ProductivityTableSkeleton: FC<ProductivityTableSkeletonProps> = ({ className }) => {
+function ProductivityRowSkeleton() {
 	return (
-		<Card
-			className={`bg-white rounded-md border border-gray-100 dark:border-gray-700 dark:bg-dark--theme-light min-h-[600px] ${className || ''}`}
-		>
+		<TableRow className="hover:bg-transparent">
+			<TableCell>
+				<div className="flex items-center gap-2">
+					<Skeleton className="size-8 shrink-0 rounded-full" />
+					<Skeleton className="h-4 w-24" />
+				</div>
+			</TableCell>
+			<TableCell>
+				<Skeleton className="h-4 w-24" />
+			</TableCell>
+			<TableCell>
+				<Skeleton className="h-4 w-32" />
+			</TableCell>
+			<TableCell>
+				<Skeleton className="h-4 w-16" />
+			</TableCell>
+			<TableCell>
+				<div className="flex items-center gap-2">
+					<Skeleton className="h-1.5 w-full rounded-full" />
+					<Skeleton className="h-4 w-10 shrink-0" />
+				</div>
+			</TableCell>
+		</TableRow>
+	);
+}
+
+/** The productivity table grouped by date: a sortable head, one day row per group, member rows, the pagination. */
+export const ProductivityTableSkeleton: FC<ProductivityTableSkeletonProps> = ({ className }) => {
+	const groupKeys = Array.from({ length: DATE_GROUPS }, (_, index) => index);
+	const rowKeys = Array.from({ length: ROWS_PER_GROUP }, (_, index) => index);
+	return (
+		<Card className={cn('min-h-[600px] overflow-hidden', className)}>
 			<Table>
-				<TableHeader className="bg-gray-50 dark:bg-dark--theme-light">
-					<TableRow>
-						<TableHead>
-							<div className="flex gap-2 items-center">
-								<Skeleton className="w-16 h-4" />
-								<Skeleton className="w-4 h-4" />
-							</div>
-						</TableHead>
-						<TableHead>
-							<div className="flex gap-2 items-center">
-								<Skeleton className="w-16 h-4" />
-								<Skeleton className="w-4 h-4" />
-							</div>
-						</TableHead>
-						<TableHead>
-							<div className="flex gap-2 items-center">
-								<Skeleton className="w-20 h-4" />
-								<Skeleton className="w-4 h-4" />
-							</div>
-						</TableHead>
-						<TableHead>
-							<div className="flex gap-2 items-center">
-								<Skeleton className="w-20 h-4" />
-								<Skeleton className="w-4 h-4" />
-							</div>
-						</TableHead>
-						<TableHead>
-							<div className="flex gap-2 items-center">
-								<Skeleton className="w-24 h-4" />
-								<Skeleton className="w-4 h-4" />
-							</div>
-						</TableHead>
+				<TableHeader className="bg-foreground/2.5">
+					<TableRow className="hover:bg-transparent">
+						{HEAD_BAR_WIDTHS.map((width, index) => (
+							<TableHead key={index}>
+								<div className="flex items-center gap-2">
+									<Skeleton className={cn('h-3', width)} />
+									<Skeleton className="size-4" />
+								</div>
+							</TableHead>
+						))}
 					</TableRow>
 				</TableHeader>
 				<TableBody>
-					{/* Date Groups */}
-					{[1, 2, 3].map((groupIndex) => (
-						<Fragment key={`date-group-${groupIndex}`}>
-							{/* Date Header Row */}
-							<TableRow key={`date-group-${groupIndex}`} className="bg-gray-50/30 dark:bg-muted">
-								<TableCell colSpan={5} className="py-3">
-									<div className="flex gap-3 items-center">
-										<Skeleton className="w-40 h-5" />
-										<Skeleton className="w-20 h-4" />
-									</div>
+					{groupKeys.map((groupKey) => (
+						<Fragment key={groupKey}>
+							<TableRow className="hover:bg-transparent">
+								<TableCell colSpan={5} className="bg-foreground/2.5 px-4 py-2.5">
+									<Skeleton className="h-4 w-44" />
 								</TableCell>
 							</TableRow>
-
-							{/* Employee Activity Rows */}
-							{[1, 2, 3, 4].map((activityIndex) => (
-								<TableRow key={`activity-${groupIndex}-${activityIndex}`}>
-									<TableCell>
-										<div className="flex gap-2 items-center">
-											<Skeleton className="w-8 h-8 rounded-full" />
-											<Skeleton className="w-24 h-4" />
-										</div>
-									</TableCell>
-									<TableCell>
-										<div className="flex gap-2 items-center">
-											<Skeleton className="w-8 h-8 rounded-full" />
-											<Skeleton className="w-20 h-4" />
-										</div>
-									</TableCell>
-									<TableCell>
-										<Skeleton className="w-28 h-4" />
-									</TableCell>
-									<TableCell>
-										<Skeleton className="w-16 h-4" />
-									</TableCell>
-									<TableCell>
-										<div className="flex gap-2 items-center">
-											<Skeleton className="w-16 h-2 rounded-full" />
-											<Skeleton className="w-8 h-4" />
-										</div>
-									</TableCell>
-								</TableRow>
+							{rowKeys.map((rowKey) => (
+								<ProductivityRowSkeleton key={rowKey} />
 							))}
 						</Fragment>
 					))}
 				</TableBody>
 			</Table>
-
-			{/* Pagination Skeleton */}
-			<div className="p-2 mt-4">
-				<div className="flex justify-between items-center">
-					<div className="flex gap-2 items-center">
-						<Skeleton className="w-12 h-4" />
-						<Skeleton className="w-16 h-8" />
-						<Skeleton className="w-16 h-4" />
-					</div>
-					<div className="flex gap-2 items-center">
-						<Skeleton className="w-20 h-8" />
-						<Skeleton className="w-32 h-4" />
-						<Skeleton className="w-20 h-8" />
-					</div>
-				</div>
+			<div className="hairline-t border-border px-4 py-3">
+				<PaginateSkeleton className="pt-0" />
 			</div>
 		</Card>
 	);

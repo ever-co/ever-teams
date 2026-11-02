@@ -1,31 +1,23 @@
 import { clsxm } from '@/core/lib/utils';
-import { EverCard } from '../../common/ever-card';
 
+/** The email notice while its chunk loads: the `Notice` card with its mark, two lines, the link and the button. */
 const UnverifiedEmailSkeleton = ({ className }: { className?: string }) => {
 	return (
-		<EverCard
-			shadow="bigger"
+		<div
+			aria-hidden="true"
 			className={clsxm(
-				'w-full flex justify-between items-center',
-				'border-[#00000008] border-[0.125rem] dark:border-border dark:shadow-lg dark:bg-card',
-				'py-2 px-4 mb-2',
+				'my-3 flex w-full items-center gap-3 rounded-xl bg-card px-3.5 py-3 hairline-ring ring-border shadow-sm shadow-black/6.5',
 				className
 			)}
 		>
-			{/* Email verification message */}
-			<div className="flex items-center gap-1 flex-1">
-				<div className="w-80 h-4 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded" />
+			<span className="size-[18px] shrink-0 animate-pulse rounded-full bg-foreground/[0.06]" />
+			<div className="flex min-w-0 flex-1 flex-col gap-2">
+				<span className="h-2.5 w-48 max-w-full animate-pulse rounded-full bg-foreground/[0.07]" />
+				<span className="h-2 w-64 max-w-full animate-pulse rounded-full bg-foreground/[0.05]" />
 			</div>
-
-			{/* Action buttons */}
-			<div className="flex items-center gap-2">
-				<div className="w-16 h-4 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded" />
-				<div className="w-16 h-4 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded" />
-			</div>
-
-			{/* Close button */}
-			<div className="w-5 h-5 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded-sm ml-2" />
-		</EverCard>
+			<span className="h-2 w-20 shrink-0 animate-pulse rounded-full bg-foreground/[0.05]" />
+			<span className="h-7 w-24 shrink-0 animate-pulse rounded-full bg-foreground/[0.05]" />
+		</div>
 	);
 };
 
