@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useState } from 'react';
-import { Check } from 'lucide-react';
+import { Calendar as CalendarIcon, Check, Spinner } from '@/core/components/icons';
+import { useTranslations } from 'next-intl';
 import { useEmployeeDailyPlans } from '@/core/hooks/daily-plans/use-employee-daily-plans';
 import { useCreateDailyPlan } from '@/core/hooks/daily-plans/use-create-daily-plan';
 import { useUpdateDailyPlan } from '@/core/hooks/daily-plans/use-update-daily-plan';
@@ -14,14 +15,12 @@ import {
 } from '@/core/components/common/command';
 import { ScrollArea } from '@/core/components/common/scroll-bar';
 import { formatDayPlanDate, getDailyPlanDay, getTomorrowDate } from '@/core/lib/helpers/index';
-import { Modal, Text } from '@/core/components';
+import { Modal, modalFooterClass, modalPrimaryActionClass } from '@/core/components';
 import { Button } from '@/core/components/duplicated-components/_button';
-import { CalendarIcon, ReloadIcon } from '@radix-ui/react-icons';
 import { Popover, PopoverContent, PopoverTrigger } from '@/core/components/common/popover';
 import { cn } from '@/core/lib/helpers';
 import moment from 'moment';
 import { Calendar } from '@/core/components/common/calendar';
-import { EverCard } from '../../common/ever-card';
 import { InputField } from '../../duplicated-components/_input';
 import { IEmployee } from '@/core/types/interfaces/organization/employee';
 import { TTask } from '@/core/types/schemas/task/task.schema';
@@ -45,6 +44,7 @@ export function AddTaskToPlan({
 	const [newPlan, setNewPlan] = useState<boolean>(false);
 	const [date, setDate] = useState<Date>(new Date());
 	const [workTimePlanned, setworkTimePlanned] = useState<number>(0);
+	const t = useTranslations();
 
 	const handlePlanClick = useCallback((plan: TDailyPlan) => {
 		setSelectedPlan(plan);
@@ -93,25 +93,28 @@ export function AddTaskToPlan({
 		getEmployeeDailyPlans();
 	}, [employee?.id, getEmployeeDailyPlans]);
 
-	return (
-		<Modal isOpen={open} closeModal={closeModal} className="w-[98%] md:w-[530px] relative">
-			<EverCard className="w-full" shadow="custom">
-				<div className="flex flex-col justify-between items-center">
-					<div className="mb-7">
-						<Text.Heading as="h3" className="mb-3 text-center">
-							ADD THE TASK TO DAY PLAN
-						</Text.Heading>
+	let submitPlanLabel = t('modals.addTaskToPlan.addToPlan');
+	let switchPlanLabel = t('modals.addTaskToPlan.createNewPlan');
+	if (newPlan) {
+		submitPlanLabel = t('modals.addTaskToPlan.createPlan');
+		switchPlanLabel = t('modals.addTaskToPlan.useExistingPlan');
+	}
 
-						<Text className="text-sm text-center text-gray-500">
-							You are adding the task &quot;<span className="font-bold text-black">{task.title}</span>
-							&quot; to a plan
-						</Text>
-					</div>
+	return (
+		<Modal
+			isOpen={open}
+			closeModal={closeModal}
+			className="relative w-[98%] md:w-[30rem]"
+			title={t('modals.addTaskToPlan.title')}
+			description={t('modals.addTaskToPlan.description', { title: task.title })}
+		>
+			<div className="w-full">
+				<div className="flex flex-col justify-between items-stretch gap-4">
 					{newPlan ? (
 						<div className="flex flex-col gap-4 mb-5 w-full">
 							<InputField
 								type="number"
-								placeholder="Working time to plan"
+								placeholder={t('modals.addTaskToPlan.workTimePlaceholder')}
 								className="mb-0 min-w-[350px]"
 								wrapperClassName="mb-0 rounded-lg"
 								onChange={(e) => setworkTimePlanned(parseFloat(e.target.value))}
@@ -122,12 +125,16 @@ export function AddTaskToPlan({
 									<Button
 										variant={'outline'}
 										className={cn(
-											'justify-start text-left font-normal py-6 rounded-lg',
+											'h-9 justify-start text-left font-normal',
 											!date && 'text-muted-foreground'
 										)}
 									>
 										<CalendarIcon className="mr-2 w-4 h-4" />
-										{date ? moment(date).format('DD.MM.YYYY') : <span>Pick a date</span>}
+										{date ? (
+											moment(date).format('DD.MM.YYYY')
+										) : (
+											<span>{t('manualTime.PICK_A_DATE')}</span>
+										)}
 									</Button>
 								</PopoverTrigger>
 								<PopoverContent className="w-full p-0 z-[1000]">
@@ -151,24 +158,29 @@ export function AddTaskToPlan({
 							selectedPlan={selectedPlan}
 						/>
 					)}
-					<Button
-						variant="default"
-						type="submit"
-						className="p-7 w-full font-normal rounded-xl text-md"
-						disabled={addTaskToPlanLoading}
-						onClick={onSubmit}
-					>
-						{addTaskToPlanLoading && <ReloadIcon className="mr-2 w-4 h-4 animate-spin" />}
-						{newPlan ? 'Create new Plan' : 'Add task to plan'}
-					</Button>
-					<span
-						className="mt-5 text-sm text-blue-600 underline cursor-pointer"
-						onClick={() => setNewPlan((prev) => !prev)}
-					>
-						{newPlan ? 'Add to an existing plan' : 'Create a new Plan'}
-					</span>
+					<div className="flex flex-wrap items-center justify-between gap-2 pt-1">
+						<button
+							type="button"
+							className="cursor-pointer text-[13px] text-primary-ink underline-offset-4 hover:underline"
+							onClick={() => setNewPlan((prev) => !prev)}
+						>
+							{switchPlanLabel}
+						</button>
+						<div className={modalFooterClass}>
+							<Button
+								variant="default"
+								type="submit"
+								className={modalPrimaryActionClass}
+								disabled={addTaskToPlanLoading}
+								onClick={onSubmit}
+							>
+								{addTaskToPlanLoading && <Spinner className="size-4 animate-spin" />}
+								{submitPlanLabel}
+							</Button>
+						</div>
+					</div>
 				</div>
-			</EverCard>
+			</div>
 		</Modal>
 	);
 }
@@ -182,11 +194,12 @@ function PlansList({
 	handlePlanClik: (plan: TDailyPlan) => void;
 	selectedPlan: TDailyPlan | null;
 }) {
+	const t = useTranslations();
 	return (
-		<Command className="overflow-hidden rounded-t-none border-t border-[#0000001A] dark:border-border">
-			<CommandInput placeholder="Search plan..." />
+		<Command className="overflow-hidden rounded-lg hairline-ring ring-border">
+			<CommandInput placeholder={t('modals.addTaskToPlan.searchPlan')} />
 			<CommandList>
-				<CommandEmpty>No plan founded</CommandEmpty>
+				<CommandEmpty>{t('modals.addTaskToPlan.noPlanFound')}</CommandEmpty>
 				<ScrollArea className="h-[15rem]">
 					<CommandGroup className="p-2">
 						{plans
@@ -201,15 +214,13 @@ function PlansList({
 									}}
 								>
 									<div className="ml-2">
-										<p className="text-sm font-medium leading-none">
+										<p className="text-[13px] font-medium leading-none">
 											{plan?.date ? formatDayPlanDate(plan.date) : ''} ({plan?.tasks?.length})
 										</p>
-										<p className="text-xs text-muted-foreground">
-											Planned time : {plan?.workTimePlanned}
-										</p>
+										<PlannedTime hours={plan?.workTimePlanned} />
 									</div>
 									{selectedPlan?.id == plan?.id && (
-										<Check className="flex ml-auto w-5 h-5 text-primary dark:text-white" />
+										<Check className="flex ml-auto size-4 text-primary-ink" />
 									)}
 								</CommandItem>
 							))}
@@ -218,4 +229,13 @@ function PlansList({
 			</CommandList>
 		</Command>
 	);
+}
+
+function PlannedTime({ hours }: { hours?: number | null }) {
+	const t = useTranslations();
+	const hasPlannedTime = typeof hours === 'number';
+	if (!hasPlannedTime) {
+		return null;
+	}
+	return <p className="text-xs text-muted-foreground">{t('modals.addTaskToPlan.plannedTime', { hours })}</p>;
 }

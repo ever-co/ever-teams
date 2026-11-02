@@ -1,5 +1,13 @@
 'use client';
-import { Modal, Text, Button } from '@/core/components';
+import {
+	Modal,
+	Button,
+	modalFieldLabelClass,
+	modalFooterClass,
+	modalPrimaryActionClass,
+	modalSecondaryActionClass
+} from '@/core/components';
+import { useTranslations } from 'next-intl';
 import { useMemo, useState } from 'react';
 import Separator from '@/core/components/common/separator';
 import { TaskNameInfoDisplay } from '../../tasks/task-displays';
@@ -14,7 +22,6 @@ import { ScrollArea } from '@/core/components/common/scroll-bar';
 import { IconsErrorWarningFill } from '@/core/components/icons';
 import { TaskEstimateInput } from '../../pages/teams/team/team-members-views/user-team-card/task-estimate';
 import { TimePicker, TimePickerValue } from '../../duplicated-components/time-picker';
-import { EverCard } from '../../common/ever-card';
 import { TTask } from '@/core/types/schemas/task/task.schema';
 import { TDailyPlan } from '@/core/types/schemas/task/daily-plan.schema';
 
@@ -35,6 +42,7 @@ export function DailyPlanCompareEstimatedModal({
 	todayPlan: TDailyPlan[];
 	profile: any;
 }) {
+	const t = useTranslations();
 	const { difference, workTimePlanned, estimated, plan } = dailyPlanCompareEstimated(todayPlan);
 	const { updateDailyPlan, updateDailyPlanLoading } = useUpdateDailyPlan();
 	const { hours: dh, minutes: dm } = secondsToTime(workTimePlanned || 0);
@@ -58,9 +66,9 @@ export function DailyPlanCompareEstimatedModal({
 	};
 
 	return (
-		<Modal isOpen={open} closeModal={closeModal}>
+		<Modal isOpen={open} closeModal={closeModal} title={t('modals.dailyPlan.todayPlanTitle')}>
 			<div className="w-[98%] md:w-[550px] relative">
-				<EverCard className="w-full h-[620px] flex flex-col justify-start bg-gray-50" shadow="custom">
+				<div className="w-full h-[620px] flex flex-col justify-start">
 					<div className="flex flex-col justify-between items-center">
 						<DailyPlanCompareHeader />
 					</div>
@@ -92,11 +100,11 @@ export function DailyPlanCompareEstimatedModal({
 						})}
 					</ScrollArea>
 					<div className="flex flex-col">
-						<div className="flex items-center pb-2 text-red-500 text-[12px]">
+						<div className="flex items-center pb-2 text-xs text-destructive-ink">
 							{!difference && !estimated?.every(Boolean) && (
 								<>
 									<IconsErrorWarningFill className="text-[14px]" />
-									<span>Please correct planned work hours or re-estimate task(s)</span>
+									<span>{t('modals.dailyPlan.correctHoursWarning')}</span>
 								</>
 							)}
 						</div>
@@ -107,7 +115,7 @@ export function DailyPlanCompareEstimatedModal({
 							disabled={updateDailyPlanLoading && (parseInt(times.hours) > 0 ? false : true)}
 						/>
 					</div>
-				</EverCard>
+				</div>
 			</div>
 		</Modal>
 	);
@@ -128,7 +136,7 @@ export function DailyPlanTask({ task, profile }: { task?: TTask; profile: any })
 	);
 
 	return (
-		<div className="flex justify-between items-center px-1 w-full h-16 font-normal bg-white rounded-lg border drop-shadow dark:bg-dark--theme-light dark:border-gray-700">
+		<div className="flex justify-between items-center px-1 w-full h-16 font-normal bg-card rounded-lg hairline-ring ring-border">
 			<div className="flex items-center space-x-1 w-full">
 				<TaskNameInfoDisplay
 					task={task}
@@ -165,55 +173,46 @@ export function DailyPlanCompareActionButton({
 	loading?: boolean;
 	disabled: boolean;
 }) {
+	const t = useTranslations();
 	return (
-		<div className="flex justify-between items-center">
-			<Button onClick={closeModal} variant="outline" className="h-9 font-normal rounded-xs text-md">
-				Cancel
+		<div className={modalFooterClass}>
+			<Button onClick={closeModal} variant="ghost" size="default" className={modalSecondaryActionClass}>
+				{t('common.CANCEL')}
 			</Button>
 			<Button
 				disabled={disabled}
 				loading={loading}
 				onClick={onClick}
-				className="h-9 font-normal rounded-xs text-md"
+				size="default"
+				className={modalPrimaryActionClass}
 			>
-				Start working
+				{t('timer.todayPlanSettings.START_WORKING_BUTTON')}
 			</Button>
 		</div>
 	);
 }
 
 export function DailyPlanCompareHeader() {
+	const t = useTranslations();
 	return (
-		<>
-			<div>
-				<Text.Heading as="h3" className="mb-3 font-bold text-center">
-					TODAY&apos;S PLAN
-				</Text.Heading>
-			</div>
-			<div className="flex justify-start items-center px-2 mb-3 w-full">
-				<div className="flex items-center space-x-1">
-					<Text.Heading as="h4" className="mb-3 text-center text-gray-500 text-[12px]">
-						Add planned working hours
-					</Text.Heading>
-					<Text.Heading as="h4" className="mb-3 text-center text-red-600">
-						*
-					</Text.Heading>
-				</div>
-			</div>
-		</>
+		<div className="mb-2 flex w-full items-center justify-start px-2">
+			<span className={modalFieldLabelClass}>
+				{t('modals.dailyPlan.addPlannedHours')}
+				<span className="ml-1 text-destructive-ink">*</span>
+			</span>
+		</div>
 	);
 }
 
 export function DailyPlanWorkTimeInput() {
+	const t = useTranslations();
 	return (
 		<>
 			<div className="flex items-center space-x-1 w-auto">
-				<Text.Heading as="h4" className=" text-center text-gray-500 text-[12px]">
-					Tasks with no time estimations
-				</Text.Heading>
-				<Text.Heading as="h4" className="text-center text-red-600">
-					*
-				</Text.Heading>
+				<span className={modalFieldLabelClass}>
+					{t('modals.dailyPlan.tasksWithoutEstimate')}
+					<span className="ml-1 text-destructive-ink">*</span>
+				</span>
 			</div>
 		</>
 	);

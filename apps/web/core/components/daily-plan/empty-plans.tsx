@@ -1,24 +1,33 @@
 'use client';
-import { NoData } from '@/core/components';
+import type { ReactNode } from 'react';
 import { useTranslations } from 'next-intl';
-import { ReaderIcon } from '@radix-ui/react-icons';
+import { BlockEmptyMessage } from '@/core/components/dashboards/kit/dashboard-states';
+import { TASK_LIST_SURFACE } from '@/core/components/tasks/task-row-recipes';
 import { FilterTabs } from '@/core/types/interfaces/task/task-card';
 
-export function EmptyPlans({ planMode, title }: Readonly<{ planMode?: FilterTabs; title?: string }>) {
+/** The empty state keeps the frame of the list it replaces: one surface where the rows would be. */
+export function EmptyPlans({
+	planMode,
+	title,
+	action
+}: Readonly<{ planMode?: FilterTabs; title?: string; action?: ReactNode }>) {
 	const t = useTranslations();
+	const todayText = t('dailyPlan.NO_TASK_PLANNED_TODAY');
+	const defaultText = t('dailyPlan.NO_TASK_PLANNED');
+
+	function resolveText() {
+		if (title) {
+			return title;
+		}
+		if (planMode == 'Today Tasks') {
+			return todayText;
+		}
+		return defaultText;
+	}
 
 	return (
-		<div className="xl:mt-20">
-			<NoData
-				text={
-					!title
-						? planMode == 'Today Tasks'
-							? t('dailyPlan.NO_TASK_PLANNED_TODAY')
-							: t('dailyPlan.NO_TASK_PLANNED')
-						: title
-				}
-				component={<ReaderIcon className="w-14 h-14" />}
-			/>
+		<div className={TASK_LIST_SURFACE}>
+			<BlockEmptyMessage title={resolveText()} action={action} />
 		</div>
 	);
 }

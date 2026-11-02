@@ -22,11 +22,22 @@ export const orderPlanTasks = (plan: TDailyPlan): TDailyPlan => {
 	return { ...plan, tasks, taskOrder: [...new Set([...order, ...tasks.map((task) => task.id)])] };
 };
 
-/** `select` for the daily plan list queries: the plans come out with their tasks in the saved order. */
-export const orderTasksInPlans = (data: PaginationResponse<TDailyPlan>): PaginationResponse<TDailyPlan> => ({
-	...data,
-	items: data.items.map(orderPlanTasks)
-});
+const orderedPlansByResponse = new WeakMap<PaginationResponse<TDailyPlan>, PaginationResponse<TDailyPlan>>();
+
+/**
+ * `select` for the daily plan list queries: the plans come out with their tasks in the saved order. Every observer of
+ * a query receives the same cached response, so the ordered copy is kept per response: the observers share one
+ * result, and the lists derived from it are computed once.
+ */
+export const orderTasksInPlans = (data: PaginationResponse<TDailyPlan>): PaginationResponse<TDailyPlan> => {
+	const cached = orderedPlansByResponse.get(data);
+	if (cached) {
+		return cached;
+	}
+	const ordered = { ...data, items: data.items.map(orderPlanTasks) };
+	orderedPlansByResponse.set(data, ordered);
+	return ordered;
+};
 
 /**
  * The plan's new `taskOrder` once the task shown at `from` is dropped at `to`. `plan.tasks` may be a
