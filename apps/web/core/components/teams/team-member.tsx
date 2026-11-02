@@ -27,7 +27,7 @@ export default function TeamMember({
 			className="w-100 cursor-pointer flex items-center"
 		>
 			<UserInfo memberInfo={memberInfo} className="2xl:w-[20.625rem] w-100 pointer-events-none" />
-			{assigned ? <IconsCheck fill="#3826a6" /> : <></>}
+			{assigned ? <IconsCheck className="text-primary-ink" /> : <></>}
 		</div>
 	);
 }

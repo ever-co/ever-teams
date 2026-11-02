@@ -46,7 +46,7 @@ export const EstimateTimeInfo = forwardRef<HTMLDivElement, Props>(
 			<div className="w-[245px]  flex justify-center items-center">
 				<div>
 					<EstimationProgress memberTask={memberTask} isAuthUser={isAuthUser} />
-					<div className="text-center text-[14px] text-[#9490A0]  py-1 font-light flex items-center justify-center">
+					<div className="text-center text-[14px] text-muted-foreground  py-1 font-light flex items-center justify-center">
 						{!editMode && (
 							<div className="flex items-center">
 								<div>
@@ -63,7 +63,7 @@ export const EstimateTimeInfo = forwardRef<HTMLDivElement, Props>(
 						)}
 						{editMode && (
 							<div className="flex items-center justify-center">
-								<div className="bg-[#F2F4FB] dark:bg-background flex" ref={ref}>
+								<div className="bg-foreground/5 flex" ref={ref}>
 									<TimeInput
 										value={'' + editable.estimateHours}
 										type="string"

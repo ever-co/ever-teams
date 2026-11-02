@@ -10,16 +10,27 @@ import { InviteFormModal } from '@/core/components/features/teams/invite-form-mo
 import { EInviteStatus } from '@/core/types/generics/enums/invite';
 import { useTeamInvitationsQuery } from '@/core/hooks/invitations/use-team-invitations-query';
 import { useUserQuery } from '@/core/hooks/queries/user-user.query';
+import { clsxm } from '@/core/lib/utils';
+import { MEMBER_CARD } from '@/core/components/teams/member-row-grid';
 
 interface Props {
 	teamMembers: TOrganizationTeamEmployee[];
 	publicTeam: boolean;
 	currentUser?: TOrganizationTeamEmployee;
 	teamsFetching: boolean;
+	statsPending?: boolean;
 }
 
+export { MEMBER_CARD };
+
+/** The signed-in member's card: one primary hairline and a shadow tinted with the same hue, never a second ring around it. */
+const OWN_MEMBER_CARD =
+	'ring-primary/45 shadow-[0_1px_2px_hsl(var(--primary)/0.10),0_8px_24px_-10px_hsl(var(--primary)/0.38)] hover:shadow-[0_1px_2px_hsl(var(--primary)/0.12),0_10px_26px_-10px_hsl(var(--primary)/0.45)] dark:ring-primary/55';
+
+const INVITE_SLOT_CARD = 'rounded-xl hairline-border border-dashed border-foreground/15';
+
 const TeamMembersCardView: React.FC<Props> = memo(
-	({ teamMembers: members, currentUser, teamsFetching = false, publicTeam = false }) => {
+	({ teamMembers: members, currentUser, teamsFetching = false, publicTeam = false, statsPending = false }) => {
 		const { data: user } = useUserQuery();
 
 		const { isTeamManager } = useIsMemberManager(user);
@@ -70,60 +81,41 @@ const TeamMembersCardView: React.FC<Props> = memo(
 
 		return (
 			<>
-				<ul className="flex overflow-y-auto flex-col gap-3 mt-7">
+				<ul className="flex flex-col gap-2">
 					{/* Current authenticated user members - Always show if user exists */}
 					{currentUser && (
-						<Transition
-							show={true}
-							enter="transition-opacity duration-75"
-							enterFrom="opacity-0"
-							enterTo="opacity-100"
-							leave="transition-opacity duration-150"
-							leaveFrom="opacity-100"
-							leaveTo="opacity-0"
-						>
-							<li className="flex flex-col gap-4">
+						<li className={clsxm(MEMBER_CARD, OWN_MEMBER_CARD)}>
+							<UserTeamCard
+								member={currentUser}
+								active
+								publicTeam={publicTeam}
+								statsPending={statsPending}
+								draggable={true}
+								currentExit={false}
+								onDragStart={dragHandlers[0].onDragStart}
+								onDragEnter={dragHandlers[0].onDragEnter}
+								onDragEnd={handleSort}
+								onDragOver={handleDragOver}
+							/>
+						</li>
+					)}
+
+					{/* Team members list: rows already there on load do not animate (design law, motion) */}
+					{members.map((member, i) => {
+						return (
+							<li key={member.id} className={MEMBER_CARD}>
 								<UserTeamCard
-									member={currentUser}
-									active
+									member={member}
 									publicTeam={publicTeam}
-									draggable={true}
-									currentExit={false}
-									onDragStart={dragHandlers[0].onDragStart}
-									onDragEnter={dragHandlers[0].onDragEnter}
+									statsPending={statsPending}
+									currentExit={draggedOverTeamMember.current == i}
+									draggable={isTeamManager}
+									onDragStart={dragHandlers[i].onDragStart}
+									onDragEnter={dragHandlers[i].onDragEnter}
 									onDragEnd={handleSort}
 									onDragOver={handleDragOver}
 								/>
 							</li>
-						</Transition>
-					)}
-
-					{/* Team members list */}
-					{members.map((member, i) => {
-						return (
-							<Transition
-								key={member.id}
-								show={true}
-								enter="transition-opacity duration-75"
-								enterFrom="opacity-0"
-								enterTo="opacity-100"
-								leave="transition-opacity duration-150"
-								leaveFrom="opacity-100"
-								leaveTo="opacity-0"
-							>
-								<li>
-									<UserTeamCard
-										member={member}
-										publicTeam={publicTeam}
-										currentExit={draggedOverTeamMember.current == i}
-										draggable={isTeamManager}
-										onDragStart={dragHandlers[i].onDragStart}
-										onDragEnter={dragHandlers[i].onDragEnter}
-										onDragEnd={handleSort}
-										onDragOver={handleDragOver}
-									/>
-								</li>
-							</Transition>
 						);
 					})}
 
@@ -131,7 +123,7 @@ const TeamMembersCardView: React.FC<Props> = memo(
 						teamInvitations
 							.filter((invitation) => invitation.status !== EInviteStatus.ACCEPTED)
 							.map((invitation) => (
-								<li key={invitation.id}>
+								<li key={invitation.id} className={MEMBER_CARD}>
 									<InvitedCard invitation={invitation} />
 								</li>
 							))}
@@ -148,12 +140,12 @@ const TeamMembersCardView: React.FC<Props> = memo(
 					>
 						{[0, 2].map((_, i) => {
 							return (
-								<li key={i} className="mt-3">
+								<li key={i} className={MEMBER_CARD}>
 									<UserTeamCardSkeleton />
 								</li>
 							);
 						})}
-						<li>
+						<li className={MEMBER_CARD}>
 							<InviteUserTeamSkeleton />
 						</li>
 					</Transition>
@@ -167,7 +159,7 @@ const TeamMembersCardView: React.FC<Props> = memo(
 						leaveFrom="opacity-100"
 						leaveTo="opacity-0"
 					>
-						<li>
+						<li className={INVITE_SLOT_CARD}>
 							<Invite />
 						</li>
 					</Transition>

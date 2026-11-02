@@ -1,12 +1,9 @@
-import { useOrganizationTeamsQuery } from '@/core/hooks';
 import { Transition } from '@headlessui/react';
-import UserTeamCardSkeletonCard from '@/core/components/teams/user-team-card-skeleton';
-import InviteUserTeamCardSkeleton from '@/core/components/teams/invite-team-card-skeleton';
-import { UserCard } from '@/core/components/teams/team-page-skeleton';
+import TeamMembersSkeleton from '@/core/components/common/skeleton/team-members-skeleton';
+import { MEMBER_LIST_CONTAINER } from '@/core/components/teams/member-row-grid';
 import { IssuesView } from '@/core/constants/config/constants';
 import { useAtomValue } from 'jotai';
 import { taskBlockFilterState, blockViewSearchQueryState } from '@/core/stores/tasks/task-filter';
-import { Container } from '@/core/components';
 import { useMemo, memo } from 'react';
 import TeamMembersCardView from './team-members-views/team-members-card-view';
 import TeamMembersTableView from './team-members-views/user-team-table/team-members-table-view';
@@ -15,6 +12,7 @@ import { TOrganizationTeamEmployee } from '@/core/types/schemas';
 import { TaskCardProps } from '@/core/types/interfaces/task/task-card';
 import { useProcessedTeamMembers, useFilteredTeamMembers } from '@/core/hooks/teams/use-processed-team-members';
 import { activeTeamState } from '@/core/stores';
+import { activeTeamDetailLoadingState } from '@/core/stores/teams/organization-team';
 import { useUserQuery } from '@/core/hooks/queries/user-user.query';
 import { TeamMemberFilterType } from '@/core/lib/utils/team-members.utils';
 import { useFuseMemberSearch } from '@/core/hooks/teams/use-fuse-member-search';
@@ -35,6 +33,7 @@ interface TeamMembersViewProps {
 	blockViewMembers: TOrganizationTeamEmployee[];
 	publicTeam: boolean;
 	isMemberActive?: boolean;
+	statsPending?: boolean;
 }
 
 // Utility function for sorting by order (kept local as it's specific to this component)
@@ -66,7 +65,7 @@ export const TeamMembers = memo<TeamMembersProps>(({ publicTeam = false, kanbanV
 	const activeFilter = useAtomValue(taskBlockFilterState) as TeamMemberFilterType;
 	const searchQuery = useAtomValue(blockViewSearchQueryState);
 	const activeTeam = useAtomValue(activeTeamState);
-	const { getOrganizationTeamsLoading: teamsFetching } = useOrganizationTeamsQuery();
+	const statsPending = useAtomValue(activeTeamDetailLoadingState);
 
 	// Use refactored hooks for member processing
 	const processedMembers = useProcessedTeamMembers(activeTeam, user!);
@@ -78,7 +77,8 @@ export const TeamMembers = memo<TeamMembersProps>(({ publicTeam = false, kanbanV
 	});
 
 	// Simple calculation without useless memoization
-	const isTeamsFetching = teamsFetching && processedMembers.members.length === 0;
+	// The active team always lists the signed-in member: an empty list only means the team is not there yet
+	const isTeamsFetching = processedMembers.members.length === 0;
 
 	return (
 		<TeamMembersView
@@ -89,6 +89,7 @@ export const TeamMembers = memo<TeamMembersProps>(({ publicTeam = false, kanbanV
 			view={view}
 			blockViewMembers={filteredBlockViewMembers}
 			isMemberActive={user?.isEmailVerified}
+			statsPending={statsPending}
 		/>
 	);
 });
@@ -97,21 +98,21 @@ export const TeamMembers = memo<TeamMembersProps>(({ publicTeam = false, kanbanV
 const VIEW_COMPONENTS_CONFIG = {
 	[IssuesView.CARDS]: {
 		component: TeamMembersCardView,
-		containerProps: { className: '!overflow-x-auto !mx-0 px-0' },
+		containerProps: { className: MEMBER_LIST_CONTAINER },
 		useTransition: false,
 		useBlockMembers: false,
 		additionalProps: (): Partial<TaskCardProps> => ({})
 	},
 	[IssuesView.TABLE]: {
 		component: TeamMembersTableView,
-		containerProps: { className: '!overflow-x-auto !mx-0 px-1' },
+		containerProps: { className: MEMBER_LIST_CONTAINER },
 		useTransition: true,
 		useBlockMembers: false,
 		additionalProps: (isMemberActive: boolean | undefined): Partial<TaskCardProps> => ({ active: isMemberActive })
 	},
 	[IssuesView.BLOCKS]: {
 		component: TeamMembersBlockView,
-		containerProps: { className: '!overflow-x-auto !mx-0 px-1' },
+		containerProps: { className: MEMBER_LIST_CONTAINER },
 		useTransition: false,
 		useBlockMembers: true,
 		additionalProps: (): Partial<TaskCardProps> => ({})
@@ -120,7 +121,7 @@ const VIEW_COMPONENTS_CONFIG = {
 
 // Optimized view component with table of correspondence
 export const TeamMembersView = memo<TeamMembersViewProps>(
-	({ members, currentUser, teamsFetching, view, blockViewMembers, publicTeam, isMemberActive }) => {
+	({ members, currentUser, teamsFetching, view, blockViewMembers, publicTeam, isMemberActive, statsPending }) => {
 		// Filtering and sorting the other members (optimized)
 		const otherMembers = useMemo(() => {
 			return members.filter((member) => member.id !== currentUser?.id).sort(sortByOrder);
@@ -128,24 +129,7 @@ export const TeamMembersView = memo<TeamMembersViewProps>(
 
 		// Early return for empty members
 		if (teamsFetching) {
-			return (
-				<Container className="!overflow-x-auto !mx-0 px-1">
-					<div className="hidden lg:block">
-						<UserTeamCardSkeletonCard />
-						<UserTeamCardSkeletonCard />
-						<UserTeamCardSkeletonCard />
-						<UserTeamCardSkeletonCard />
-						<InviteUserTeamCardSkeleton />
-						<InviteUserTeamCardSkeleton />
-						<InviteUserTeamCardSkeleton />
-					</div>
-					<div className="block lg:hidden">
-						<UserCard />
-						<UserCard />
-						<UserCard />
-					</div>
-				</Container>
-			);
+			return <TeamMembersSkeleton view={view} />;
 		}
 
 		// Retrieving the configuration for the current view (with fallback on CARDS)
@@ -160,6 +144,7 @@ export const TeamMembersView = memo<TeamMembersViewProps>(
 			...(viewConfig.useBlockMembers ? {} : { currentUser }), // Only pass currentUser for non-block views
 			publicTeam,
 			teamsFetching,
+			statsPending,
 			...(viewConfig.additionalProps?.(isMemberActive) || {})
 		};
 
@@ -184,7 +169,7 @@ export const TeamMembersView = memo<TeamMembersViewProps>(
 			viewContent
 		);
 
-		return <Container {...viewConfig.containerProps}>{containerContent}</Container>;
+		return <div {...viewConfig.containerProps}>{containerContent}</div>;
 	}
 );
 

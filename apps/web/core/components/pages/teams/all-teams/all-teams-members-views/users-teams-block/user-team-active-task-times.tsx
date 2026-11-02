@@ -34,7 +34,7 @@ export default function UserTeamActiveTaskTimesBlock({
 			memberInfo={memberInfo}
 			task={activeTask}
 			isAuthUser={memberInfo.isAuthUser}
-			className=" w-full  px-2 flex flex-col gap-y-[1.125rem] justify-center"
+			className="flex min-w-0 justify-center tabular-nums"
 			isBlock={true}
 		/>
 	);

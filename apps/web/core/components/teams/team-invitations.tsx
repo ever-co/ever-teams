@@ -6,11 +6,12 @@ import { useMyInvitationsQuery } from '@/core/hooks/invitations/use-my-invitatio
 import { clsxm } from '@/core/lib/utils';
 import { Button, Modal, Text } from '@/core/components';
 import { CrossCircleIcon as CloseCircleIcon } from 'assets/svg';
-import { CrossIcon, CheckCircleTickIcon as TickCircleIcon } from 'assets/svg';
+import { CheckCircleTickIcon as TickCircleIcon } from 'assets/svg';
+import { X } from '@/core/components/icons';
 import cloneDeep from 'lodash/cloneDeep';
 import { useTranslations } from 'next-intl';
 import { useCallback, useEffect, useState } from 'react';
-import { EverCard } from '../common/ever-card';
+import { LIST_SURFACE_CLASS } from './list-surface';
 import { EInviteAction } from '@/core/types/generics/enums/invite';
 import { TInvite } from '@/core/types/schemas';
 
@@ -18,6 +19,13 @@ interface IProps {
 	className?: string;
 	myInvitationsList: TInvite[];
 	myInvitations: () => void;
+}
+
+function confirmVariantFor(action: EInviteAction) {
+	if (action === EInviteAction.ACCEPTED) {
+		return 'primary';
+	}
+	return 'danger';
 }
 
 export function TeamInvitations(props: IProps) {
@@ -66,67 +74,75 @@ export function TeamInvitations(props: IProps) {
 		[removeMyInvitation, removedInvitations]
 	);
 
+	const pendingInvitations = myInvitationsList.filter(
+		(invitation) => !removedInvitations.includes(invitation.id || '')
+	);
+	const hasPendingInvitations = pendingInvitations.length > 0;
+	let confirmTitle = t('pages.home.CONFIRM_REJECT_INVITATION');
+	if (action === EInviteAction.ACCEPTED) {
+		confirmTitle = t('pages.home.CONFIRM_ACCEPT_INVITATION');
+	}
+
 	return (
 		<div className={clsxm('mt-6', className)}>
-			{myInvitationsList
-				.filter((invitation) => !removedInvitations.includes(invitation.id || ''))
-				.map((invitation, index) => (
-					<EverCard
-						shadow="bigger"
-						className={clsxm(
-							'w-full mt-2 flex justify-between',
-							'border dark:border-border dark:shadow-lg dark:bg-card',
-							'pt-2 pb-2'
-						)}
-						key={index}
-					>
-						<Text className="mt-auto mb-auto">
-							{t('pages.home.INVITATIONS')}{' '}
-							<span className="font-semibold">{invitation.teams?.[0]?.name}</span>
-						</Text>
+			{hasPendingInvitations && (
+				<ul
+					className={clsxm(
+						LIST_SURFACE_CLASS,
+						'flex flex-col hairline-divide-y divide-border overflow-visible'
+					)}
+				>
+					{pendingInvitations.map((invitation, index) => (
+						<li className="flex flex-wrap items-center gap-3 px-3 py-2" key={index}>
+							<Text className="min-w-0 flex-1 text-sm">
+								{t('pages.home.INVITATIONS')}{' '}
+								<span className="font-semibold">{invitation.teams?.[0]?.name}</span>
+							</Text>
 
-						<div className="flex flex-row gap-3 justify-items-end mr-5 ml-auto">
+							<div className="flex items-center gap-2">
+								<Button
+									size="default"
+									onClick={() => {
+										handleOpenModal(invitation.id || '', EInviteAction.ACCEPTED);
+									}}
+								>
+									<TickCircleIcon className="size-4" />
+									{t('common.ACCEPT')}
+								</Button>
+								<Button
+									size="default"
+									variant="outline-dark"
+									onClick={() => {
+										handleOpenModal(invitation.id || '', EInviteAction.REJECTED);
+									}}
+								>
+									<CloseCircleIcon className="size-4 text-muted-foreground" />
+									{t('common.REJECT')}
+								</Button>
+							</div>
+
 							<Button
-								className="pt-2 pb-2 rounded-xl"
+								variant="ghost"
+								size="icon-sm"
+								className="text-muted-foreground"
+								aria-label={t('common.CLOSE')}
 								onClick={() => {
-									handleOpenModal(invitation.id || '', EInviteAction.ACCEPTED);
+									handleCloseInvitation(invitation.id || '');
 								}}
 							>
-								<TickCircleIcon className="text-white w-full max-w-[17px]" />
-								{t('common.ACCEPT')}
+								<X className="size-4" />
 							</Button>
-							<Button
-								className="pt-2 pb-2 rounded-xl text-primary dark:text-white"
-								variant="outline-dark"
-								onClick={() => {
-									handleOpenModal(invitation.id || '', EInviteAction.REJECTED);
-								}}
-							>
-								<CloseCircleIcon className="text-primary dark:text-white w-[18px]" />
-								{t('common.REJECT')}
-							</Button>
-						</div>
-
-						<button
-							onClick={() => {
-								handleCloseInvitation(invitation.id || '');
-							}}
-						>
-							<CrossIcon className="w-5 h-5" />
-						</button>
-					</EverCard>
-				))}
+						</li>
+					))}
+				</ul>
+			)}
 
 			<ConfirmModal
 				open={isOpen}
 				close={closeModal}
 				onAction={handleAcceptReject}
 				loading={acceptOrRejectLoading}
-				title={
-					action === EInviteAction.ACCEPTED
-						? t('pages.home.CONFIRM_ACCEPT_INVITATION')
-						: t('pages.home.CONFIRM_REJECT_INVITATION')
-				}
+				title={confirmTitle}
 				action={action || EInviteAction.ACCEPTED}
 			/>
 		</div>
@@ -159,55 +175,44 @@ export const ConfirmModal = ({
 	return (
 		<>
 			<Modal isOpen={open} closeModal={handleOnClose}>
-				<EverCard className="w-full md:min-w-[480px]" shadow="custom">
-					<div className="flex flex-col justify-between items-center">
-						<Text.Heading as="h3" className="gap-32 text-2xl text-center">
-							{title}
-						</Text.Heading>
+				<div className="flex w-full flex-col gap-4 sm:w-md">
+					<Text.Heading as="h3" className="pr-8">
+						{title}
+					</Text.Heading>
 
-						{notifyMessage && (
-							<Text.Error className="justify-self-start self-start mt-2">{notifyMessage}</Text.Error>
-						)}
+					{notifyMessage && <Text.Error className="self-start">{notifyMessage}</Text.Error>}
 
-						<div className="flex justify-between items-center mt-10 w-full">
-							<Button
-								variant="danger"
-								type="button"
-								onClick={handleOnClose}
-								className={
-									'font-medium bg-transparent rounded-lg border border-gray-300 text-primary dark:text-dark--theme dark:border-0 dark:bg-light--theme-dark md:min-w-[180px]'
-								}
-							>
-								{t('common.DISCARD')}
-							</Button>
+					<div className="flex w-full flex-wrap items-center justify-end gap-2 pt-2">
+						<Button variant="outline" size="lg" type="button" onClick={handleOnClose}>
+							{t('common.DISCARD')}
+						</Button>
 
-							<Button
-								variant={action === EInviteAction.ACCEPTED ? 'primary' : 'danger'}
-								type="submit"
-								className="font-medium rounded-lg  md:min-w-[180px]"
-								disabled={loading}
-								loading={loading}
-								onClick={() => {
-									onAction()?.then((res: any) => {
-										if (res?.message) {
-											setNotifyMessage(
-												res?.message ||
-													(EInviteAction.ACCEPTED
-														? t('pages.invite.ERROR_WHILE_ACCEPTING_INVITATION')
-														: t('pages.invite.ERROR_WHILE_REJECTING_INVITATION'))
-											);
-											return;
-										}
+						<Button
+							variant={confirmVariantFor(action)}
+							type="submit"
+							size="lg"
+							disabled={loading}
+							loading={loading}
+							onClick={() => {
+								onAction()?.then((res: any) => {
+									if (res?.message) {
+										setNotifyMessage(
+											res?.message ||
+												(EInviteAction.ACCEPTED
+													? t('pages.invite.ERROR_WHILE_ACCEPTING_INVITATION')
+													: t('pages.invite.ERROR_WHILE_REJECTING_INVITATION'))
+										);
+										return;
+									}
 
-										handleOnClose();
-									});
-								}}
-							>
-								{t('common.CONFIRM')}
-							</Button>
-						</div>
+									handleOnClose();
+								});
+							}}
+						>
+							{t('common.CONFIRM')}
+						</Button>
 					</div>
-				</EverCard>
+				</div>
 			</Modal>
 		</>
 	);

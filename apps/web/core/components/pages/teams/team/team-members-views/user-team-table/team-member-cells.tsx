@@ -11,7 +11,7 @@ import {
 	I_TMCardTaskEditHook
 } from '@/core/hooks';
 import { clsxm } from '@/core/lib/utils';
-import { TaskTimes } from '../../../../../tasks/task-times';
+import { TaskTimes, TodayWorkedTime } from '../../../../../tasks/task-times';
 import get from 'lodash/get';
 import { TaskInfo } from '../user-team-card/task-info';
 import { UserInfo } from '../user-team-card/user-info';
@@ -20,6 +20,24 @@ import { UserTeamCardMenu } from '../user-team-card/user-team-card-menu';
 import { InputField } from '@/core/components/duplicated-components/_input';
 import { createContext, useContext, useMemo, memo } from 'react';
 import { TTask } from '@/core/types/schemas/task/task.schema';
+import { useAtomValue } from 'jotai';
+import { cn } from '@/core/lib/helpers';
+import { teamTasksPagesLoadingState } from '@/core/stores/teams/team-tasks';
+import {
+	MEMBER_CARD_PADDING,
+	MEMBER_CELL,
+	MEMBER_CELL_CENTER,
+	MEMBER_FIRST_CELL,
+	MEMBER_MENU_CELL,
+	MEMBER_ROW_GRID,
+	MEMBER_ROW_MIN_HEIGHT
+} from '@/core/components/teams/member-row-grid';
+import {
+	MemberEstimateCellSkeleton,
+	MemberTaskCellSkeleton,
+	MemberTimesCellSkeleton,
+	MemberTotalCellSkeleton
+} from '@/core/components/teams/member-row-skeleton';
 
 /**
  * Context to share granular hook results and taskEdition state across all cells in a table row.
@@ -109,7 +127,7 @@ export function WorkedOnTaskCell() {
 			memberInfo={identity}
 			task={memberTask}
 			isAuthUser={identity.isAuthUser}
-			className={clsxm('flex flex-col justify-center items-center mx-auto')}
+			className={clsxm('mx-auto flex flex-col items-center justify-center gap-y-1 tabular-nums')}
 		/>
 	);
 }
@@ -136,8 +154,12 @@ export function TaskEstimateInfoCell() {
 }
 
 export function ActionMenuCell({ cell }: { cell: any }) {
-	const { identity, memberTask, mutations, roleActions, taskEdition } = useTeamMemberRowContext();
 	const active = get(cell, 'column.columnDef.meta.active', false);
+	return <ActionMenu active={active} />;
+}
+
+export function ActionMenu({ active }: { active: boolean }) {
+	const { identity, memberTask, mutations, roleActions, taskEdition } = useTeamMemberRowContext();
 
 	const { collaborativeSelect, user_selected, onUserSelect } = useCollaborative(identity.memberUser);
 
@@ -157,15 +179,98 @@ export function ActionMenuCell({ cell }: { cell: any }) {
 				<InputField
 					type="checkbox"
 					checked={user_selected()}
-					className={clsxm(
-						'mr-1 w-4 h-4 border-none accent-primary-light',
-						'border-2 border-primary-light',
-						'w-1/5 2xl:w-[2rem]'
-					)}
+					className={clsxm('mr-1 w-4 h-4 border-none accent-primary-light', 'border-2 border-primary-light')}
 					noWrapper={true}
 					onChange={onUserSelect}
 				/>
 			)}
 		</>
+	);
+}
+
+interface TeamMemberTableRowProps {
+	publicTeam: boolean;
+	active: boolean;
+	statsPending: boolean;
+}
+
+/**
+ * One member of the table view on the member grid of the cards view, so the columns and their labels stay in place
+ * when switching between the two views. Cells whose data is still loading show their skeleton.
+ */
+export function TeamMemberTableRow({ publicTeam, active, statsPending }: TeamMemberTableRowProps) {
+	const { identity, memberTask, taskEdition } = useTeamMemberRowContext();
+	const tasksPagesLoading = useAtomValue(teamTasksPagesLoadingState);
+	const isTaskListPending = !memberTask && tasksPagesLoading;
+	const isTaskPending = isTaskListPending || statsPending;
+	const isTimesPending = isTaskPending || statsPending;
+
+	const memberInfo = useMemo(
+		() => ({ memberTask, isAuthUser: identity.isAuthUser, isAuthTeamManager: identity.isAuthTeamManager }),
+		[memberTask, identity.isAuthUser, identity.isAuthTeamManager]
+	);
+
+	return (
+		<div className={cn(MEMBER_CARD_PADDING, 'py-2')}>
+			<div className={cn(MEMBER_ROW_GRID, MEMBER_ROW_MIN_HEIGHT)}>
+				<div className={MEMBER_FIRST_CELL}>
+					<UserInfo memberInfo={identity} className="w-full" publicTeam={publicTeam} />
+				</div>
+
+				<div className={cn(MEMBER_CELL, 'justify-between gap-1')}>
+					{isTaskPending && <MemberTaskCellSkeleton />}
+					{!isTaskPending && (
+						<TaskInfo
+							edition={taskEdition}
+							className="w-full min-w-0 flex-1 overflow-y-hidden"
+							publicTeam={publicTeam}
+							tab="default"
+						/>
+					)}
+				</div>
+
+				<div className={cn(MEMBER_CELL, MEMBER_CELL_CENTER)}>
+					{isTimesPending && <MemberTimesCellSkeleton />}
+					{!isTimesPending && (
+						<TaskTimes
+							activeAuthTask={true}
+							memberInfo={identity}
+							task={memberTask}
+							isAuthUser={identity.isAuthUser}
+							className="flex flex-col gap-1"
+						/>
+					)}
+				</div>
+
+				<div className={cn(MEMBER_CELL, MEMBER_CELL_CENTER)}>
+					{isTaskPending && <MemberEstimateCellSkeleton />}
+					{!isTaskPending && (
+						<TaskEstimateInfo
+							memberInfo={memberInfo}
+							edition={taskEdition}
+							activeAuthTask={true}
+							className="w-full max-w-52 min-w-0"
+							useActiveTeamTaskByDefault={false}
+							allowEmptyTask={false}
+						/>
+					)}
+				</div>
+
+				<div className={cn(MEMBER_CELL, MEMBER_CELL_CENTER)}>
+					{statsPending && <MemberTotalCellSkeleton />}
+					{!statsPending && (
+						<TodayWorkedTime
+							isAuthUser={identity.isAuthUser}
+							className="text-sm font-medium tabular-nums"
+							memberInfo={identity}
+						/>
+					)}
+				</div>
+
+				<div className={MEMBER_MENU_CELL}>
+					<ActionMenu active={active} />
+				</div>
+			</div>
+		</div>
 	);
 }

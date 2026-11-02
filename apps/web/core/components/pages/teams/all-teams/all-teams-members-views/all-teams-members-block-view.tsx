@@ -28,19 +28,21 @@ export default function AllTeamsMembersBlockView({ teams }: { teams: TOrganizati
 	);
 
 	const employeesArray: Employee[] = Object.values(groupedEmployees);
+	const hasEmployees = employeesArray.length > 0;
 
 	return (
 		<>
-			{employeesArray.length > 0 ? (
-				<div className="flex flex-wrap items-start justify-center w-full">
+			{hasEmployees && (
+				<div className="grid w-full gap-3 sm:grid-cols-2 xl:grid-cols-3 3xl:grid-cols-4">
 					{employeesArray.map((employee) => (
-						<div className="px-2" key={employee.id}>
-							<UserTeamBlockCard key={employee.id} member={employee} />
-						</div>
+						<UserTeamBlockCard key={employee.id} member={employee} />
 					))}
 				</div>
-			) : (
-				<div className="w-full font-medium text-center">There is no member for filtered value</div>
+			)}
+			{!hasEmployees && (
+				<div className="w-full rounded-xl bg-card py-16 text-center text-sm text-muted-foreground hairline-ring ring-border shadow-sm shadow-black/6.5">
+					There is no member for filtered value
+				</div>
 			)}
 		</>
 	);

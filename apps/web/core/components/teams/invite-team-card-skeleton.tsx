@@ -1,40 +1,42 @@
-import { SixSquareGridIcon } from 'assets/svg';
-import Skeleton from '../common/skeleton/skeleton';
+import { clsxm } from '@/core/lib/utils';
+import { DragHandle } from '@/core/components/icons';
 import { EverCard } from '../common/ever-card';
 import { VerticalSeparator } from '../duplicated-components/separator';
 
-const InviteUserTeamCardSkeleton = () => {
+const BAR = 'animate-pulse rounded-md bg-foreground/5';
+
+const InviteUserTeamCardSkeleton = ({ className }: { className?: string }) => {
 	return (
-		<EverCard shadow="bigger" className="relative flex items-center py-4 my-6">
-			<div className="absolute opacity-40 -left-0">
-				<SixSquareGridIcon className="w-6 h-6 " />
+		<EverCard shadow="custom" className={clsxm('relative flex items-center py-4', className)}>
+			<div className="absolute left-1 text-muted-foreground opacity-40">
+				<DragHandle className="size-3.5" />
 			</div>
-			<div className="w-[330px] px-4 flex space-x-3 items-center">
-				<div className="opacity-40 w-8 h-8 bg-slate-400 dark:bg-white/8 rounded-full" />
-				<Skeleton height={20} width={160} borderRadius={10} className="dark:bg-white/8" />
+			<div className="flex w-82.5 items-center gap-3 px-4">
+				<div className="size-8 rounded-full hairline-border border-dashed border-foreground/20" />
+				<div className={clsxm(BAR, 'h-5 w-40')} />
 			</div>
 			<VerticalSeparator />
 
-			<div className="w-[330px] px-4 flex items-start">
-				<Skeleton height={10} width={120} borderRadius={10} className="dark:bg-white/8 mr-2" />
+			<div className="flex w-82.5 items-start px-4">
+				<div className={clsxm(BAR, 'mr-2 h-2.5 w-30')} />
 			</div>
 			<VerticalSeparator className="ml-2" />
 
-			<div className="flex flex-col items-center justify-center w-48 space-y-2">
-				<Skeleton height={20} width={120} borderRadius={10} className="dark:bg-white/8" />
-				<Skeleton height={10} width={160} borderRadius={10} className="dark:bg-white/8" />
+			<div className="flex w-48 flex-col items-end justify-center gap-2 px-4">
+				<div className={clsxm(BAR, 'h-5 w-30')} />
+				<div className={clsxm(BAR, 'h-2.5 w-40')} />
 			</div>
 			<VerticalSeparator />
 
-			<div className="flex flex-col items-center justify-center w-48 space-y-2">
-				<Skeleton height={20} width={120} borderRadius={10} className="dark:bg-white/8" />
-				<Skeleton height={10} width={160} borderRadius={10} className="dark:bg-white/8" />
+			<div className="flex w-48 flex-col items-center justify-center gap-2">
+				<div className={clsxm(BAR, 'h-5 w-30')} />
+				<div className={clsxm(BAR, 'h-2.5 w-40')} />
 			</div>
 			<VerticalSeparator />
 
-			<div className="flex flex-col items-center justify-center w-48 space-y-2">
-				<Skeleton height={20} width={120} borderRadius={10} className="dark:bg-white/8" />
-				<Skeleton height={10} width={160} borderRadius={10} className="dark:bg-white/8" />
+			<div className="flex w-48 flex-col items-end justify-center gap-2 px-4">
+				<div className={clsxm(BAR, 'h-5 w-30')} />
+				<div className={clsxm(BAR, 'h-2.5 w-40')} />
 			</div>
 		</EverCard>
 	);

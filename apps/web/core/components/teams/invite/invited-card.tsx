@@ -4,19 +4,17 @@ import { TInvite } from '@/core/types/schemas';
 
 export function InvitedCard({ invitation }: { invitation: TInvite }) {
 	return (
-		<div className="w-full rounded-[15px] bg-[#FFFFFF] my-[15px] dark:bg-card flex justify-between text-primary border border-white dark:border-border font-bold py-[24px] dark:text-[#FFFFFF]">
+		<div className="w-full rounded-xl bg-card my-[15px] flex justify-between text-primary hairline-border border-white dark:border-border font-semibold py-[24px] ">
 			<div className="w-[60px] flex justify-center items-center">
-				<div className="rounded-[50%] w-5 h-5 bg-[#E8EBF8] opacity-40"></div>
+				<div className="rounded-full w-5 h-5 bg-foreground/5 opacity-40"></div>
 			</div>
 			<div className="w-[235px] h-[48px] flex items-center justify-start">
 				<div className="flex items-center justify-center">
 					<div className="flex items-center justify-center space-x-4">
-						<div className="w-[42px] h-[42px] opacity-40 rounded-full bg-slate-100 dark:bg-white text-primary flex justify-center items-center text-[10px]">
+						<div className="w-[42px] h-[42px] opacity-40 rounded-full bg-foreground/5 text-primary flex justify-center items-center text-[10px]">
 							{imgTitle(invitation.email ?? '')}
 						</div>
-						<span className="text-[15px] opacity-40 text-primary text-normal dark:text-white">
-							{invitation.fullName}
-						</span>
+						<span className="text-[15px] opacity-40 text-foreground">{invitation.fullName}</span>
 					</div>
 				</div>
 			</div>
@@ -27,8 +25,8 @@ export function InvitedCard({ invitation }: { invitation: TInvite }) {
 			<Separator />
 			<div className="w-[245px]  flex justify-center items-center">
 				<div>
-					<div className="bg-[#E8EBF8] dark:bg-background w-[245px] opacity-40 h-[8px] rounded-full text-center" />
-					<div className="text-center text-[14px] text-[#9490A0] py-1 font-light opacity-40"></div>
+					<div className="bg-foreground/5 w-[245px] opacity-40 h-[8px] rounded-full text-center" />
+					<div className="text-center text-[14px] text-muted-foreground py-1 font-light opacity-40"></div>
 				</div>
 			</div>
 			<Separator />

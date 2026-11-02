@@ -119,9 +119,9 @@ const ManageOrMemberComponentBase = (props: ManageOrMemberComponentProps): React
 		<div>
 			{fields.map((field, index) => (
 				<div key={index} className="mb-4">
-					<label className="block text-gray-600 mb-1 text-sm">
+					<label className="mb-1 block text-sm font-medium text-foreground">
 						<span className={clsxm('text-[14px]', classNameTitle)}>{field.label}</span>
-						{field.isRequired && <span className="text-[#de5505e1] ml-1 text-sm">*</span>}
+						{field.isRequired && <span className="ml-1 text-sm text-destructive-ink">*</span>}
 					</label>
 					<CustomCombobox
 						defaultValue={field.defaultValue}

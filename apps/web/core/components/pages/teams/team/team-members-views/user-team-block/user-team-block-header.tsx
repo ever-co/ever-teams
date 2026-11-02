@@ -6,14 +6,9 @@ import { useTranslations } from 'next-intl';
 import { useMemo, useEffect } from 'react';
 import { activeTeamState } from '@/core/stores';
 import { clsxm } from '@/core/lib/utils';
-import {
-	SearchNormalIcon,
-	TimerPlayIcon,
-	CheckCircleTickIcon,
-	CrossCircleIcon,
-	StopCircleIcon,
-	PauseIcon
-} from 'assets/svg';
+import { CrossCircleIcon } from 'assets/svg';
+import { CircleCheck, Pause, Play, Search, StopCircle } from '@/core/components/icons';
+import { buttonVariants } from '@/core/components/duplicated-components/_button';
 import { InviteFormModal } from '@/core/components/features/teams/invite-form-modal';
 import { useTaskFilter } from '@/core/hooks/tasks/use-task-filter';
 import { TaskNameFilter } from '@/core/components/pages/profile/task-filters';
@@ -23,6 +18,8 @@ import { useTeamMemberFilterStatsForUI } from '@/core/hooks/teams/use-team-membe
 import { useUserQuery } from '@/core/hooks/queries/user-user.query';
 import { useCanInviteToActiveTeam } from '@/core/hooks/invitations/use-can-invite-to-active-team';
 import { TeamMemberFilterType } from '@/core/lib/utils/team-members.utils';
+import { Tabs, TabsList, TabsTrigger } from '@/core/components/common/tabs';
+import { COUNT_CHIP_CLASS_NAME } from '@/core/components/tasks/daily-plan/day-group';
 
 // Interface for filter stats (kept for UI compatibility)
 interface IFilter {
@@ -42,7 +39,7 @@ const statusButtons = (
 	{
 		status: 'all' as const,
 		label: t('common.ALL_MEMBERS'),
-		icon: StopCircleIcon,
+		icon: StopCircle,
 		count: totalMembersCount
 	},
 	{
@@ -54,19 +51,19 @@ const statusButtons = (
 	{
 		status: 'running' as const,
 		label: t('common.WORKING'),
-		icon: TimerPlayIcon,
+		icon: Play,
 		count: membersStatusNumber.running
 	},
 	{
 		status: 'pause' as const,
 		label: t('common.PAUSED'),
-		icon: PauseIcon,
+		icon: Pause,
 		count: membersStatusNumber.pause
 	},
 	{
 		status: 'online' as const,
 		label: t('common.ONLINE'),
-		icon: CheckCircleTickIcon,
+		icon: CircleCheck,
 		count: membersStatusNumber.online
 	}
 ];
@@ -107,72 +104,70 @@ export function UserTeamBlockHeader() {
 	);
 
 	const totalMembersCount = filterStats.all;
+	const isSearchOpen = hook.filterType === 'search';
 
 	return (
 		<>
 			<div
 				ref={profile.loadTaskStatsIObserverRef}
-				className="hidden items-center justify-between gap-3 pt-2 font-normal sm:flex"
+				className="hidden items-end justify-between gap-3 px-4 font-normal sm:flex"
 			>
-				<div className="flex min-w-0 flex-1 items-center overflow-x-auto">
-					{statusButtons(t, membersStatusNumber, totalMembersCount).map((button) => (
-						<div
-							key={button.status}
-							className={clsxm(
-								'flex shrink-0 cursor-pointer items-center gap-1.5 whitespace-nowrap border-b-2 border-transparent px-3 py-2.5 text-sm text-muted-foreground',
-								activeFilter === button.status &&
-									'border-primary text-foreground dark:border-white'
-							)}
-							onClick={() => setActiveFilter(button.status)}
-						>
-							<button.icon
-								className={clsxm(
-									'size-4 !text-muted-foreground',
-									activeFilter === button.status && '!text-foreground'
-								)}
-							/>
-							<p>{button.label}</p>
-							<span
-								className={clsxm(
-									'rounded-md bg-muted px-1.5 py-0.5 text-xs',
-									activeFilter === button.status && 'bg-primary text-white dark:bg-muted'
-								)}
-							>
-								{button.count}
-							</span>
-						</div>
-					))}
-				</div>
+				<Tabs
+					value={activeFilter}
+					onValueChange={(status) => setActiveFilter(status as TeamMemberFilterType)}
+					className="min-w-0 gap-0"
+				>
+					<TabsList className="w-auto border-b-0">
+						{statusButtons(t, membersStatusNumber, totalMembersCount).map((button) => {
+							const isActive = activeFilter === button.status;
+							return (
+								<TabsTrigger key={button.status} value={button.status}>
+									<button.icon className="size-4 shrink-0" />
+									<span>{button.label}</span>
+									<span
+										className={clsxm(
+											COUNT_CHIP_CLASS_NAME,
+											isActive && 'bg-primary/10 text-primary-ink'
+										)}
+									>
+										{button.count}
+									</span>
+								</TabsTrigger>
+							);
+						})}
+					</TabsList>
+				</Tabs>
 
-				<div className="flex shrink-0 items-center justify-end gap-2 pr-1">
-					{hook.filterType === 'search' ? (
+				<div className="flex h-11 shrink-0 items-center justify-end gap-2 pb-2">
+					{isSearchOpen && (
 						<TaskNameFilter
-							fullWidth={true}
+							className="w-72 py-0 md:w-72"
 							value={hook.taskName}
 							setValue={hook.setTaskName}
 							close={() => {
 								hook.toggleFilterType('search');
 							}}
 						/>
-					) : (
+					)}
+					{!isSearchOpen && (
 						<div className="flex items-center gap-3">
 							<button
 								ref={hook.outclickFilterCard.ignoreElementRef}
-								className={clsxm('outline-none')}
+								className={clsxm(
+									buttonVariants({ variant: 'ghost', size: 'icon' }),
+									'text-muted-foreground'
+								)}
 								onClick={() => hook.toggleFilterType('search')}
 							>
-								<SearchNormalIcon className={clsxm('w-4 dark:stroke-white')} />
+								<Search className="size-4" />
 							</button>
 
 							{canInvite && (
 								<>
-									<VerticalSeparator />
+									<VerticalSeparator className="my-auto h-4 self-auto" />
 
-									<Button
-										className="h-9 rounded-md px-4 py-0 text-sm font-medium outline-hidden"
-										onClick={openModal}
-									>
-										Invite
+									<Button size="default" onClick={openModal}>
+										{t('common.INVITE')}
 									</Button>
 								</>
 							)}

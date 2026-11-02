@@ -2,10 +2,9 @@
 
 import { useModal, useCreateOrganizationTeam } from '@/core/hooks';
 import { useProfileValidation } from '@/core/hooks/users/use-profile-validation';
-import { PlusIcon } from '@heroicons/react/24/solid';
-import { Button, Dropdown } from '@/core/components';
-import { useCallback, useEffect, useMemo, useState } from 'react';
-import { AllTeamItem, TeamItem, mapTeamItems } from './team-item';
+import { ChevronsUpDown, Plus, Settings, Timer, UsersGroup } from '@/core/components/icons';
+import { type MouseEvent, useCallback, useMemo, useState } from 'react';
+import { TeamItem } from './team-item';
 import { useTranslations } from 'next-intl';
 import { useOrganizationAndTeamManagers } from '@/core/hooks/organizations/teams/use-organization-teams-managers';
 import React from 'react';
@@ -20,6 +19,24 @@ import { activeTeamState, detailedTaskState, organizationTeamsState, timerStatus
 import { useAtomValue, useAtom } from 'jotai';
 import { usePathname, useRouter } from 'next/navigation';
 import { cn } from '@/core/lib/helpers';
+import Link from 'next/link';
+import { EntityTile } from '@/core/components/common/entity-tile';
+import { Skeleton } from '@/core/components/common/skeleton';
+import { commandKeycapClass } from '@/core/components/common/command';
+import { SelectedMark } from '@/core/components/common/selected-mark';
+import {
+	DropdownMenu,
+	DropdownMenuContent,
+	DropdownMenuItem,
+	DropdownMenuLabel,
+	DropdownMenuSeparator,
+	DropdownMenuTrigger
+} from '@/core/components/common/dropdown-menu';
+import { TOrganizationTeam } from '@/core/types/schemas';
+import { useActiveTeamSnapshot } from '@/core/hooks/organizations/teams/use-active-team-snapshot';
+
+const TEAM_SWITCH_BLOCKED_TOAST_ID = 'team-switch-blocked-timer-running';
+const CREATE_BLOCKED_TOAST_ID = 'create-blocked-timer-running';
 
 export const TeamsDropDown = ({ publicTeam }: { publicTeam?: boolean }) => {
 	const { data: user } = useUserQuery();
@@ -55,7 +72,9 @@ export const TeamsDropDown = ({ publicTeam }: { publicTeam?: boolean }) => {
 		(item: TeamItem) => {
 			// Prevent team switching when timer is running
 			if (timerRunningStatus) {
-				toast.error(t('common.TEAM_SWITCH_DISABLED_MESSAGE_WHEN_TIMER_RUNNING'));
+				toast.warning(t('common.TEAM_SWITCH_DISABLED_MESSAGE_WHEN_TIMER_RUNNING'), {
+					id: TEAM_SWITCH_BLOCKED_TOAST_ID
+				});
 				return;
 			}
 
@@ -89,58 +108,47 @@ export const TeamsDropDown = ({ publicTeam }: { publicTeam?: boolean }) => {
 				}
 			}
 		},
-		[setActiveTeam, t, setDetailedTask, path, router, timerRunningStatus] // Updated dependencies for timer protection
+		[setActiveTeam, t, setDetailedTask, path, router, timerRunningStatus, detailedTask?.id, profileValidation]
 	);
 
-	useEffect(() => {
-		if (path.includes('/all-teams')) {
-			setTeamItem({
-				key: 'all-teams',
-				Label: () => (
-					<div className="h-[42px] flex items-center">
-						<AllTeamItem title={t('common.ALL_TEAMS')} count={userManagedTeams.length} />
-					</div>
-				)
-			});
-		}
-	}, [path, userManagedTeams.length, t]);
-
-	// Create items from teams - keep it simple to avoid circular dependencies
-	const items: TeamItem[] = useMemo(() => mapTeamItems(teams, onChangeActiveTeam), [teams, onChangeActiveTeam]);
-
-	const [teamItem, setTeamItem] = useState<TeamItem | null>(null);
-
 	const { isOpen, closeModal, openModal } = useModal();
+	const [menuOpen, setMenuOpen] = useState(false);
 
-	// Update teamItem when activeTeam changes - use a ref to track previous values to avoid loops
-	const prevActiveTeamRef = React.useRef<string>('');
+	const isAllTeamsPage = path.includes('/all-teams');
+	const hasActiveTeam = Boolean(activeTeam?.id);
+	const showsActiveTeam = !isAllTeamsPage && hasActiveTeam;
+	const activeTeamSnapshot = useActiveTeamSnapshot(activeTeam, teamImageOf(activeTeam));
+	const isTeamUnknown = !isAllTeamsPage && !hasActiveTeam;
+	const showsSnapshot = isTeamUnknown && Boolean(activeTeamSnapshot);
+	const showsTeamSkeleton = isTeamUnknown && !activeTeamSnapshot;
+	const managesSeveralTeams = userManagedTeams.length > 1;
+	const showsAllTeams = managesSeveralTeams || isAllTeamsPage;
+	const cannotCreateTeam = !user?.isEmailVerified || timerRunningStatus;
+	const orderedTeams = useMemo(() => activeTeamFirst(teams, activeTeam?.id), [teams, activeTeam?.id]);
 
-	React.useEffect(() => {
-		const currentTeamKey = `${activeTeam?.id}-${activeTeam?.name}-${activeTeam?.color}-${activeTeam?.emoji}-${activeTeam?.teamSize}`;
+	const selectTeam = useCallback(
+		(team: TOrganizationTeam) => {
+			onChangeActiveTeam({ key: team.id, data: team } as TeamItem);
+		},
+		[onChangeActiveTeam]
+	);
 
-		if (currentTeamKey !== prevActiveTeamRef.current) {
-			prevActiveTeamRef.current = currentTeamKey;
+	const openTeamSettings = useCallback(
+		(event: MouseEvent<HTMLAnchorElement>, team: TOrganizationTeam) => {
+			event.stopPropagation();
+			selectTeam(team);
+			setMenuOpen(false);
+		},
+		[selectTeam]
+	);
 
-			if (activeTeam?.id) {
-				// Find item directly from teams instead of items to avoid circular dependency
-				const foundTeam = teams.find((t) => t.id === activeTeam.id);
-				if (foundTeam) {
-					const foundItem = mapTeamItems([foundTeam], onChangeActiveTeam)[0];
-					setTeamItem(foundItem);
-				}
-			} else {
-				setTeamItem(null);
-			}
+	const startTeamCreation = useCallback(() => {
+		if (timerRunningStatus) {
+			toast.warning(t('common.CREATE_DISABLED_MESSAGE_WHEN_TIMER_RUNNING'), { id: CREATE_BLOCKED_TOAST_ID });
+			return;
 		}
-	}, [
-		activeTeam?.id,
-		activeTeam?.name,
-		activeTeam?.color,
-		activeTeam?.emoji,
-		activeTeam?.teamSize,
-		teams,
-		onChangeActiveTeam
-	]); // Removed items dependency
+		openModal();
+	}, [timerRunningStatus, t, openModal]);
 
 	return (
 		<div>
@@ -149,72 +157,102 @@ export const TeamsDropDown = ({ publicTeam }: { publicTeam?: boolean }) => {
 				placement="top"
 				enabled={timerRunningStatus}
 			>
-				<Dropdown
-					className={cn(
-						'min-w-fit md:max-w-[223px] outline-none',
-						timerRunningStatus && '!cursor-not-allowed'
-					)}
-					optionsClassName="min-w-fit md:max-w-[223px] outline-none"
-					buttonClassName={cn(
-						'h-8 rounded-md border border-border bg-card py-0 text-sm font-medium outline-hidden dark:bg-card cursor-pointer',
-						items.length === 0 && ['py-2'],
-						timerRunningStatus && '!cursor-not-allowed opacity-50'
-					)}
-					value={teamItem}
-					onChange={onChangeActiveTeam}
-					items={
-						timerRunningStatus
-							? []
-							: [
-									...items,
-									...(userManagedTeams.length > 1 || path.includes('/all-teams')
-										? [
-												{
-													key: 'all-teams',
-													Label: () => (
-														<AllTeamItem
-															title={t('common.ALL_TEAMS')}
-															count={userManagedTeams.length}
-														/>
-													)
-												}
-											]
-										: [])
-								]
-					}
-					// loading={teamsFetching} // TODO: Enable loading in future when we implement better data fetching library like TanStack
-					publicTeam={publicTeam}
-				>
-					{!publicTeam || !timerRunningStatus ? (
-						<Tooltip
-							enabled={!user?.isEmailVerified || timerRunningStatus}
-							label={
-								timerRunningStatus
-									? t('common.TEAM_SWITCH_DISABLED_MESSAGE_WHEN_TIMER_RUNNING')
-									: t('common.VERIFY_ACCOUNT_MSG')
-							}
-							placement="top-start"
-						>
-							<Button
-								className={`w-full text-xs mt-3 dark:text-white rounded-xl border-[0.0938rem] ${
-									timerRunningStatus ? 'opacity-50 cursor-not-allowed' : ''
-								}`}
-								variant="outline"
-								onClick={() => {
-									if (timerRunningStatus) {
-										toast.error(t('common.TEAM_SWITCH_DISABLED_MESSAGE_WHEN_TIMER_RUNNING'));
-										return;
-									}
-									openModal();
-								}}
-								disabled={!user?.isEmailVerified || timerRunningStatus}
+				<DropdownMenu open={menuOpen} onOpenChange={setMenuOpen}>
+					<DropdownMenuTrigger asChild disabled={publicTeam}>
+						<button type="button" className={cn(TEAM_TRIGGER, timerRunningStatus && 'opacity-60')}>
+							{isAllTeamsPage && (
+								<TeamTriggerContent title={t('common.ALL_TEAMS')} count={userManagedTeams.length} />
+							)}
+							{showsActiveTeam && (
+								<TeamTriggerContent
+									title={activeTeam?.name}
+									count={activeTeam?.members?.length}
+									color={activeTeam?.color}
+									imageUrl={teamImageOf(activeTeam)}
+								/>
+							)}
+							{showsSnapshot && activeTeamSnapshot && (
+								<TeamTriggerContent
+									title={activeTeamSnapshot.name}
+									count={activeTeamSnapshot.memberCount}
+									color={activeTeamSnapshot.color}
+									imageUrl={activeTeamSnapshot.imageUrl ?? undefined}
+								/>
+							)}
+							{showsTeamSkeleton && <TeamTriggerSkeleton />}
+							<ChevronsUpDown className="size-3.5 shrink-0 text-muted-foreground" aria-hidden="true" />
+						</button>
+					</DropdownMenuTrigger>
+
+					<DropdownMenuContent align="end" sideOffset={6} className="w-72">
+						<DropdownMenuLabel>{t('common.TEAMS')}</DropdownMenuLabel>
+
+						{timerRunningStatus && (
+							<div className="mx-1 mb-1 flex items-start gap-2 rounded-md bg-warning/10 px-2 py-1.5 text-xs text-warning-foreground">
+								<Timer className="mt-px size-3.5 shrink-0" aria-hidden="true" />
+								<span>{t('common.TEAM_SWITCH_DISABLED_MESSAGE_WHEN_TIMER_RUNNING')}</span>
+							</div>
+						)}
+
+						{orderedTeams.map((team) => {
+							const isActiveTeam = team.id === activeTeam?.id;
+							return (
+								<DropdownMenuItem
+									key={team.id}
+									disabled={timerRunningStatus}
+									onClick={() => selectTeam(team)}
+									className="group/team h-9 gap-2.5"
+								>
+									<EntityTile name={team.name} color={team.color} imageUrl={teamImageOf(team)} />
+									<span className="min-w-0 flex-1 truncate" title={team.name}>
+										{team.name}
+									</span>
+									<span className={COUNT_KEYCAP}>{team.members?.length ?? 0}</span>
+									<span className="flex size-4 shrink-0 items-center justify-center">
+										{isActiveTeam && <SelectedMark />}
+									</span>
+									<Link
+										href="/settings/team"
+										aria-label={t('switchers.TEAM_SETTINGS')}
+										onClick={(event) => openTeamSettings(event, team)}
+										className={TEAM_SETTINGS_BUTTON}
+									>
+										<Settings className="size-3.5" />
+									</Link>
+								</DropdownMenuItem>
+							);
+						})}
+
+						<DropdownMenuSeparator />
+
+						{showsAllTeams && (
+							<DropdownMenuItem asChild className="h-8">
+								<Link href="/all-teams">
+									<UsersGroup />
+									<span className="flex-1">{t('common.ALL_TEAMS')}</span>
+									<span className={COUNT_KEYCAP}>{userManagedTeams.length}</span>
+								</Link>
+							</DropdownMenuItem>
+						)}
+
+						{!publicTeam && (
+							<Tooltip
+								enabled={!user?.isEmailVerified}
+								label={t('common.VERIFY_ACCOUNT_MSG')}
+								placement="left"
 							>
-								<PlusIcon className="w-4 h-4" />
-								<span className="whitespace-nowrap text-nowrap">{t('common.CREATE_TEAM')}</span>
-							</Button>
-						</Tooltip>
-					) : null}
-				</Dropdown>
+								<DropdownMenuItem
+									disabled={cannotCreateTeam}
+									onClick={startTeamCreation}
+									className="h-8"
+								>
+									<Plus />
+									<span>{t('common.CREATE_TEAM')}</span>
+								</DropdownMenuItem>
+							</Tooltip>
+						)}
+					</DropdownMenuContent>
+				</DropdownMenu>
 			</Tooltip>
 
 			{!publicTeam && isOpen && !!user?.isEmailVerified && !timerRunningStatus && (
@@ -225,3 +263,59 @@ export const TeamsDropDown = ({ publicTeam }: { publicTeam?: boolean }) => {
 		</div>
 	);
 };
+
+const TEAM_TRIGGER =
+	'inline-flex h-8 max-w-64 items-center gap-2 rounded-full bg-card pl-1.5 pr-2.5 text-[13px] font-medium text-foreground outline-none hairline-ring ring-border shadow-[0_1px_1px_rgb(0_0_0/0.04)] transition-colors hover:bg-foreground/[0.03] focus-visible:ring-[3px] focus-visible:ring-ring/25 data-[state=open]:bg-foreground/[0.04] disabled:cursor-default';
+
+const COUNT_KEYCAP = cn(commandKeycapClass, 'tabular-nums');
+
+const TEAM_SETTINGS_BUTTON =
+	'flex size-6 shrink-0 items-center justify-center rounded-md text-muted-foreground/70 outline-none transition-colors hover:bg-foreground/5 hover:text-foreground focus-visible:ring-[3px] focus-visible:ring-ring/25';
+
+function teamImageOf(team: TOrganizationTeam | null | undefined) {
+	const thumbUrl = team?.image?.thumbUrl;
+	if (thumbUrl) {
+		return thumbUrl;
+	}
+	return team?.image?.fullUrl ?? '';
+}
+
+function activeTeamFirst(teams: TOrganizationTeam[], activeTeamId: string | undefined) {
+	const namedTeams = teams.filter((team) => team.id && team.name);
+	const activeTeam = namedTeams.find((team) => team.id === activeTeamId);
+	const otherTeams = namedTeams.filter((team) => team.id !== activeTeamId);
+	if (!activeTeam) {
+		return otherTeams;
+	}
+	return [activeTeam, ...otherTeams];
+}
+
+function TeamTriggerContent({
+	title,
+	count,
+	color,
+	imageUrl
+}: {
+	title?: string;
+	count?: number;
+	color?: string | null;
+	imageUrl?: string;
+}) {
+	return (
+		<>
+			<EntityTile name={title} color={color} imageUrl={imageUrl} className="size-5" />
+			<span className="min-w-0 truncate">{title}</span>
+			<span className={COUNT_KEYCAP}>{count ?? 0}</span>
+		</>
+	);
+}
+
+/** Holds the trigger's place while the active team is not known yet, instead of an empty tile and a zero. */
+function TeamTriggerSkeleton() {
+	return (
+		<>
+			<Skeleton className="size-5 rounded-[28%] bg-foreground/[0.06]" />
+			<Skeleton className="h-3.5 w-20 bg-foreground/[0.06]" />
+		</>
+	);
+}

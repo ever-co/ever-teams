@@ -1,4 +1,4 @@
-import { Dispatch, SetStateAction, useCallback, useEffect, useMemo, useState } from 'react';
+import { Dispatch, ReactNode, SetStateAction, useCallback, useEffect, useMemo, useState } from 'react';
 import { IInviteEmail, InviteEmailItem, mapTeamMemberItems } from './invite-email-item';
 
 import { clsxm } from '@/core/lib/utils';
@@ -11,13 +11,19 @@ export const InviteEmailDropdown = ({
 	setSelectedEmail,
 	selectedEmail,
 	error,
-	handleAddNew
+	handleAddNew,
+	anchored,
+	inputClassName,
+	newItemLabel
 }: {
 	emails: IInviteEmail[];
 	setSelectedEmail: Dispatch<SetStateAction<IInviteEmail | undefined>>;
 	selectedEmail: IInviteEmail | undefined;
 	error: string;
 	handleAddNew: (email: string) => void;
+	anchored?: boolean;
+	inputClassName?: string;
+	newItemLabel?: (query: string) => ReactNode;
 }) => {
 	const t = useTranslations();
 	const items = useMemo(() => mapTeamMemberItems(emails), [emails]);
@@ -47,8 +53,8 @@ export const InviteEmailDropdown = ({
 	return (
 		<>
 			<AutoCompleteDropdown
-				className="min-w-[150px]  z-10"
-				buttonClassName={clsxm('font-normal h-[3rem] placeholder:font-light focus:outline-none p-4')}
+				className="z-10 min-w-[150px]"
+				buttonClassName={clsxm('h-9 px-3 font-normal')}
 				value={emailItem}
 				onChange={onChangeActive}
 				items={items}
@@ -58,6 +64,9 @@ export const InviteEmailDropdown = ({
 				useHandleKeyUp={true}
 				setSelectedEmail={setSelectedEmail}
 				selectedEmail={selectedEmail}
+				anchored={anchored}
+				inputClassName={inputClassName}
+				newItemLabel={newItemLabel}
 			/>
 		</>
 	);
