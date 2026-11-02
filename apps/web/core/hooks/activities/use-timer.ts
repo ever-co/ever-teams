@@ -1,7 +1,7 @@
 'use client';
 
 import { useAtomValue } from 'jotai';
-import { activeTeamIdState } from '@/core/stores';
+import { activeTeamIdState, timerSecondsState } from '@/core/stores';
 import { useFirstLoad } from '../common/use-first-load';
 import { useTaskStatistics } from '../tasks/use-task-statistics';
 import { useTimerApi } from '../timer/use-timer-api';
@@ -9,20 +9,22 @@ import { useTimerStorage } from '../timer/use-timer-storage';
 import { useTimerUi } from '../timer/use-timer-ui';
 import type { ApiRequestScope } from '@/core/services/client/api-request-scope';
 
-// Re-export useLiveTimerStatus from the new timer module for backward compatibility
-export { useLiveTimerStatus } from '../timer/use-timer-ui';
+// Re-exported from the timer module for backward compatibility
+export { useLiveTimerStatus, useTimerClock } from '../timer/use-timer-ui';
 
 /**
  * Composite timer hook — Full 3-layer facade.
  *
  * Composes all three layers (API + Storage + UI) with proper firstLoad lifecycle.
- * Use this hook when you need the **live ticking clock** (fomatedTimeCounter, timerSeconds)
- * or the **firstLoad bootstrap** (firstLoadTimerData).
+ * Use this hook when you own the timer runtime (the **firstLoad bootstrap**, `firstLoadTimerData`) or
+ * need its mutations and derived state. It never re-renders on the clock ticks: the digits come from
+ * `useTimerClock`, mounted where they are displayed.
  *
  * For lighter alternatives, prefer:
  * - `useTimerActions`    — Mutations + derived state, NO ticking (from '@/core/hooks/timer')
  * - `useTimerPlanStatus` — Read-only plan state, NO mutations (from '@/core/hooks/timer')
  * - `useLiveTimerStatus` — Lightweight live timer display (from '@/core/hooks/timer')
+ * - `useTimerClock`      — The 50ms digits alone (from '@/core/hooks/timer')
  */
 interface UseTimerOptions {
 	enabled?: boolean;
@@ -48,17 +50,13 @@ export function useTimer(options: UseTimerOptions = {}) {
 		...options
 	});
 
-	// Layer 3: UI & Animation — "The Face"
-	const ui = useTimerUi({
+	// Layer 3: UI & Animation — "The Face" (drives the atoms, subscribes to none of them)
+	useTimerUi({
 		firstLoad,
 		activeTeamTask: api.activeTeamTask
 	});
 
 	return {
-		// From UI layer
-		timeCounter: ui.timeCounter,
-		fomatedTimeCounter: ui.fomatedTimeCounter,
-		timerSeconds: ui.timerSeconds,
 		// From API layer
 		timerStatusFetching: api.timerStatusFetching,
 		getTimerStatus: api.getTimerStatus,
@@ -89,7 +87,6 @@ export function useTimer(options: UseTimerOptions = {}) {
  */
 export function useTimerView() {
 	const {
-		fomatedTimeCounter: { hours, minutes, seconds, ms_p },
 		timerStatus,
 		timerStatusFetching,
 		startTimer,
@@ -99,19 +96,11 @@ export function useTimerView() {
 		canRunTimer,
 		canTrack,
 		isPlanVerified,
-		timerSeconds,
 		activeTeamTask,
 		syncTimerLoading
 	} = useTimer();
 
-	const { activeTaskEstimation } = useTaskStatistics(timerSeconds);
-
 	return {
-		hours,
-		minutes,
-		seconds,
-		ms_p,
-		activeTaskEstimation,
 		canRunTimer,
 		timerStatusFetching,
 		timerStatus,
@@ -125,4 +114,14 @@ export function useTimerView() {
 		stopTimer,
 		syncTimerLoading
 	};
+}
+
+/**
+ * The active task's estimation progress, which moves with the timer once per second. Mount it in the progress bar
+ * alone, so the timer around it does not re-render every second.
+ */
+export function useActiveTaskEstimation() {
+	const timerSeconds = useAtomValue(timerSecondsState);
+	const { activeTaskEstimation } = useTaskStatistics(timerSeconds);
+	return activeTaskEstimation;
 }

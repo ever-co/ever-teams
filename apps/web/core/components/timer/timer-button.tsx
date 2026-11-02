@@ -1,7 +1,7 @@
 /* eslint-disable no-mixed-spaces-and-tabs */
 import { IClassName } from '@/core/types/interfaces/common/class-name';
-import { clsxm } from '@/core/lib/utils';
-import { Button } from '@/core/components';
+import { clsxm } from '@/core/lib/utils/clsxm';
+import { Button } from '@/core/components/common/button';
 import { TimerPlayIcon, TimerStopIcon } from 'assets/svg';
 import { MouseEventHandler, Ref } from 'react';
 
@@ -10,8 +10,32 @@ type Props = {
 	running: boolean | undefined;
 	disabled: boolean;
 	'aria-describedby'?: string;
+	/** The page's main timer: its button carries a shadow tinted with its own colour. */
+	emphasized?: boolean;
 	ref?: Ref<HTMLButtonElement>;
 } & IClassName;
+
+function timerButtonVariant(running: boolean | undefined) {
+	if (running) {
+		return 'danger' as const;
+	}
+	return 'primary' as const;
+}
+
+/** The main action carries a soft shadow tinted with its own colour (start in primary, stop in destructive). */
+function timerButtonGlow(running: boolean | undefined) {
+	if (running) {
+		return 'shadow-[0_6px_16px_-6px_hsl(var(--destructive)/0.5)]';
+	}
+	return 'shadow-[0_6px_16px_-6px_hsl(var(--primary)/0.55)]';
+}
+
+function TimerButtonIcon({ running }: { running: boolean | undefined }) {
+	if (running) {
+		return <TimerStopIcon className="size-1/2" />;
+	}
+	return <TimerPlayIcon className="size-1/2" />;
+}
 
 export function TimerButton({
 	onClick,
@@ -19,32 +43,23 @@ export function TimerButton({
 	disabled,
 	className,
 	'aria-describedby': ariaDescribedBy,
-	ref
+	ref,
+	emphasized = false
 }: Props) {
+	const variant = timerButtonVariant(running);
+
 	return (
 		<Button
 			ref={ref}
+			variant={variant}
+			size="icon"
 			onClick={onClick}
 			aria-label={running ? 'Stop timer' : 'Start timer'}
 			aria-disabled={disabled}
 			aria-describedby={ariaDescribedBy}
-			className={clsxm(
-				running
-					? ['bg-rose-600 dark:bg-rose-600 border-none shadow-rose-600/30']
-					: ['bg-white dark:bg-dark-lighter shadow-primary/30'],
-				'w-14 h-14 rounded-full inline-block min-w-[14px] !px-0 !py-0',
-				'flex justify-center items-center border border-[#0000001A] dark:border-[0.125rem] dark:border-border',
-				'shadow-xl drop-shadow-3xl dark:shadow-lg card-white',
-				disabled && ['opacity-70 cursor-default'],
-
-				className
-			)}
+			className={clsxm('min-w-0', emphasized && timerButtonGlow(running), className)}
 		>
-			{running ? (
-				<TimerStopIcon className={clsxm('w-[60%] h-[60%]')} />
-			) : (
-				<TimerPlayIcon className={clsxm('w-[60%] h-[60%]', ['text-primary dark:text-white'])} />
-			)}
+			<TimerButtonIcon running={running} />
 		</Button>
 	);
 }

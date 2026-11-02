@@ -13,7 +13,7 @@ import { PaginationResponse } from '@/core/types/interfaces/common/data-response
 import { findTimerPlans } from '@/core/lib/helpers/daily-plan-day';
 import { canRunTimerForState } from '@/core/lib/helpers/timer-policy';
 
-import { useAuthenticateUser } from '../auth';
+import { useAuthenticateUser } from '../auth/use-authenticate-user';
 import { useMyDailyPlans } from '../daily-plans/use-my-daily-plans';
 
 // ==================== TYPES ====================
