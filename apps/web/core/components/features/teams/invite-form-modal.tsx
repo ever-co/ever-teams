@@ -1,257 +1,245 @@
 'use client';
 
-import { AxiosError } from 'axios';
-import { isEmail, isNotEmpty } from 'class-validator';
-import { BackButton, Button, Modal, Text } from '@/core/components';
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { useTranslations } from 'next-intl';
-import { InviteEmailDropdown } from '../../teams/invite/invite-email-dropdown';
-import { useSendTeamInvitation } from '@/core/hooks/invitations/use-send-team-invitation';
-import { EverCard } from '@/core/components/common/ever-card';
-import { InputField } from '../../duplicated-components/_input';
-import { IInviteEmail } from '../../teams/invite/invite-email-item';
-import { toast } from 'sonner';
-import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from '../../common/select';
+import { type FormEvent, useCallback, useId, useMemo, useRef, useState } from 'react';
+import { type DottedLanguageObjectStringPaths, useTranslations } from 'next-intl';
 import { useAtomValue } from 'jotai';
 import { activeTeamState } from '@/core/stores';
-import { ERoleName } from '@/core/types/generics/enums/role';
+import { Info, Send, Spinner } from '@/core/components/icons';
+import { Button } from '@/core/components/duplicated-components/_button';
+import { AppDialog, APP_DIALOG_BODY, AppDialogDescription, AppDialogHeader } from '@/core/components/common/app-dialog';
+import { EntityTile } from '@/core/components/common/entity-tile';
+import { toastMoment } from '@/core/components/common/toast-moment';
+import { cn } from '@/core/lib/helpers';
+import { errorReasonKeyOf } from '@/core/lib/utils/error-feedback';
+import { sendableEntries, type InviteEmailEntry, type InviteEmailState } from '@/core/lib/utils/invite-emails';
+import { useInviteDialog, type InviteSendResult } from '@/core/hooks/invitations/use-invite-dialog';
+import { useRemoveTeamInvitation } from '@/core/hooks/invitations/use-remove-team-invitation';
+import { useSendTeamInvitation } from '@/core/hooks/invitations/use-send-team-invitation';
+import { useIsMemberManager } from '@/core/hooks/organizations/teams/use-team-member';
 import { useUserQuery } from '@/core/hooks/queries/user-user.query';
-import { useInviteDataOwner } from '@/core/hooks/bootstrap/use-feature-data';
+import { InviteEmailField } from './invite/invite-email-field';
+import { InviteRoleSelect } from './invite/invite-role-select';
+import { InvitePendingList, isOpenInvitation, type PendingInvitation } from './invite/invite-pending-list';
 
-const INVITABLE_ROLE_NAMES = new Set([ERoleName.ADMIN, ERoleName.EMPLOYEE, ERoleName.MANAGER]);
+type Translate = ReturnType<typeof useTranslations>;
 
-export function InviteFormModal({ open, closeModal }: { open: boolean; closeModal: () => void }) {
-	const { data: user } = useUserQuery();
-	const {
-		roles,
-		teamInvitations,
-		workingEmployees,
-		fetchingInvitations,
-		getWorkingEmployeeLoading,
-		rolesLoading,
-		rolesSuccess
-	} = useInviteDataOwner(open);
+/** What the summary under the field says about the addresses that will not leave as a new invitation. */
+const SUMMARY_KEYS: Partial<Record<InviteEmailState, DottedLanguageObjectStringPaths>> = {
+	invalid: 'modals.invite.summary.INVALID',
+	member: 'modals.invite.summary.MEMBER',
+	pending: 'modals.invite.summary.PENDING'
+};
+
+const SUMMARY_ORDER: InviteEmailState[] = ['invalid', 'member', 'pending'];
+
+function countByState(entries: readonly InviteEmailEntry[], state: InviteEmailState): number {
+	return entries.filter((entry) => entry.state === state).length;
+}
+
+function InviteSummary({ entries }: Readonly<{ entries: InviteEmailEntry[] }>) {
 	const t = useTranslations();
+	const lines: { state: InviteEmailState; count: number }[] = [];
+	for (const state of SUMMARY_ORDER) {
+		const count = countByState(entries, state);
+		if (count > 0) {
+			lines.push({ state, count });
+		}
+	}
+	if (lines.length === 0) {
+		return null;
+	}
 
-	const { inviteUser, inviteLoading, resendTeamInvitation, resendInviteLoading } = useSendTeamInvitation();
+	return (
+		<ul className="flex flex-col gap-0.5 pl-5 text-xs text-muted-foreground">
+			{lines.map((line) => (
+				<li key={line.state} className={cn(line.state === 'invalid' && 'text-destructive-ink')}>
+					{t(SUMMARY_KEYS[line.state] as DottedLanguageObjectStringPaths, { count: line.count })}
+				</li>
+			))}
+		</ul>
+	);
+}
 
-	const [errors, setErrors] = useState<{ email?: string; name?: string; role?: string }>({});
-	const [selectedEmail, setSelectedEmail] = useState<IInviteEmail>();
-	const [currentOrgEmails, setCurrentOrgEmails] = useState<IInviteEmail[]>([]);
+/** The address of a one-person invitation, for a toast that names them. */
+function onlyEmailOf(entries: readonly InviteEmailEntry[]): string | null {
+	const sendable = sendableEntries(entries);
+	if (sendable.length !== 1) {
+		return null;
+	}
+
+	return sendable[0].email;
+}
+
+function SendIcon({ isBusy }: Readonly<{ isBusy: boolean }>) {
+	if (isBusy) {
+		return <Spinner aria-hidden="true" className="animate-spin" />;
+	}
+
+	return <Send aria-hidden="true" />;
+}
+
+function announceSent(result: InviteSendResult, onlyEmail: string | null, t: Translate) {
+	const total = result.invited + result.resent;
+	if (onlyEmail) {
+		toastMoment(t('toasts.invites.SENT', { email: onlyEmail }), <Send />, { id: 'invite-form-modal-success' });
+		return;
+	}
+	const hasResent = result.resent > 0;
+	toastMoment(t('toasts.invites.SENT_MANY', { count: total }), <Send />, {
+		id: 'invite-form-modal-success',
+		description: hasResent && t('toasts.invites.SENT_MANY_RESENT', { count: result.resent })
+	});
+}
+
+function TeamContext() {
 	const activeTeam = useAtomValue(activeTeamState);
-	const nameInputRef = useRef<HTMLInputElement>(null);
-	const timeoutRef = useRef<NodeJS.Timeout | null>(null);
-	const selectableRoles = useMemo(
-		() => roles.filter((role) => INVITABLE_ROLE_NAMES.has(role.name as ERoleName)),
-		[roles]
+	if (!activeTeam?.name) {
+		return null;
+	}
+
+	return (
+		<>
+			<EntityTile
+				name={activeTeam.name}
+				color={activeTeam.color}
+				imageUrl={activeTeam.image?.thumbUrl ?? activeTeam.image?.fullUrl}
+				className="size-4 text-[7px]"
+			/>
+			<span className="truncate">{activeTeam.name}</span>
+		</>
 	);
-	const defaultSelectedRole = useMemo(
-		() => selectableRoles.find((role) => role.name === ERoleName.EMPLOYEE) ?? selectableRoles[0],
-		[selectableRoles]
+}
+
+/**
+ * Invites people to the active team, Linear's way: several addresses in one field (typed or pasted), the role of
+ * the batch for admins, the team's pending invitations below to send again or revoke. Gauzy needs addresses only:
+ * the person types their own name when they accept.
+ */
+export function InviteFormModal({ open, closeModal }: { open: boolean; closeModal: () => void }) {
+	const t = useTranslations();
+	const { data: user } = useUserQuery();
+	const { isTeamManager } = useIsMemberManager(user);
+	const dialog = useInviteDialog(open);
+	const { resendTeamInvitation } = useSendTeamInvitation();
+	const { removeTeamInvitation } = useRemoveTeamInvitation();
+	const formRef = useRef<HTMLFormElement>(null);
+	const summaryId = useId();
+	const [errorKey, setErrorKey] = useState<string | null>(null);
+	const { reset, send, entries, sendableCount } = dialog;
+
+	const pendingInvitations = useMemo(
+		() => (dialog.teamInvitations as PendingInvitation[]).filter(isOpenInvitation),
+		[dialog.teamInvitations]
 	);
-	const [selectedRoleId, setSelectedRoleId] = useState(() => defaultSelectedRole?.id);
-	const isAdmin = user?.role?.name && [ERoleName.ADMIN, ERoleName.SUPER_ADMIN].includes(user?.role.name as ERoleName);
-	const prerequisitesPending =
-		Boolean(fetchingInvitations) ||
-		Boolean(getWorkingEmployeeLoading) ||
-		Boolean(isAdmin && (rolesLoading || !rolesSuccess || (selectableRoles.length > 0 && !selectedRoleId)));
-	const isLoading = inviteLoading || resendInviteLoading || prerequisitesPending;
 
-	useEffect(() => {
-		setSelectedRoleId((currentRoleId) => {
-			if (currentRoleId && selectableRoles.some((role) => role.id === currentRoleId)) {
-				return currentRoleId;
-			}
+	const close = useCallback(() => {
+		reset();
+		setErrorKey(null);
+		closeModal();
+	}, [closeModal, reset]);
 
-			return defaultSelectedRole?.id;
-		});
-	}, [defaultSelectedRole?.id, selectableRoles]);
-
-	useEffect(() => {
-		return () => {
-			if (timeoutRef.current) clearTimeout(timeoutRef.current);
-		};
-	}, []);
-
-	useEffect(() => {
-		if (activeTeam?.members) {
-			const activeTeamMemberEmails = activeTeam?.members.map((m) => m.employee?.user?.email);
-			setCurrentOrgEmails(
-				workingEmployees
-					.map((emp) => ({
-						title: emp.user?.email || '',
-						name: emp.fullName || ''
-					}))
-					.filter((entry) => !activeTeamMemberEmails.includes(entry.title))
-			);
-		}
-	}, [workingEmployees, activeTeam]);
-
-	const handleAddNew = (email: string) => {
-		if (!email.includes('@')) email = `${email}@gmail.com`;
-
-		const newItem = { title: email, name: '' };
-		setSelectedEmail(newItem);
-		setCurrentOrgEmails((prev) => [...prev, newItem]);
-
-		const extractedName = email.split('@')[0];
-		if (nameInputRef.current) {
-			nameInputRef.current.value = extractedName;
-			nameInputRef.current.focus();
-			nameInputRef.current.select();
-		}
-	};
-
-	const showSuccessToast = (email: string) => {
-		toast.success(t('common.INVITATION_SENT'), {
-			id: 'invite-form-modal-success',
-			description: t('common.INVITATION_SENT_TO_USER', { email }),
-			duration: 5000
-		});
-	};
-
-	const showErrorToast = () => {
-		toast.error(t('errors.VALID_EMAIL'), {
-			id: 'invite-form-modal-error',
-			duration: 5000
-		});
-	};
-
-	const handleResend = async (invitationId: string | null | undefined, email: string) => {
-		if (!invitationId) return;
-
-		await resendTeamInvitation(invitationId);
-		showSuccessToast(email);
-	};
-
-	const handleInvite = async (email: string, name: string, form: HTMLFormElement, roleId?: string) => {
-		await inviteUser(email, name, roleId);
-
-		form.reset();
-		showSuccessToast(email);
-	};
-
-	const handleSubmit = useCallback(
-		async (e: React.FormEvent<HTMLFormElement>) => {
-			e.preventDefault();
-			if (prerequisitesPending) return;
-			const form = new FormData(e.currentTarget);
-
-			const email = selectedEmail?.title?.trim() || '';
-			const name = form.get('name')?.toString() || selectedEmail?.name || '';
-
-			if (!isEmail(email)) {
-				setErrors({ email: t('errors.VALID_EMAIL') });
+	const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
+		event.preventDefault();
+		setErrorKey(null);
+		const onlyEmail = onlyEmailOf(entries);
+		try {
+			const result = await send();
+			if (!result) {
 				return;
 			}
+			announceSent(result, onlyEmail, t);
+			close();
+		} catch (error) {
+			setErrorKey(errorReasonKeyOf(error));
+		}
+	};
 
-			try {
-				const existingInvitation = teamInvitations.find((inv) => inv.email === email);
+	const submitFromShortcut = () => {
+		// After the typed address became a chip, so the request carries it.
+		window.requestAnimationFrame(() => formRef.current?.requestSubmit());
+	};
 
-				if (existingInvitation) {
-					await handleResend(existingInvitation.id, email);
-				} else {
-					await handleInvite(email, name, e.currentTarget, selectedRoleId);
-				}
+	const resendInvitation = async (invitation: PendingInvitation) => {
+		if (!invitation.id) {
+			return;
+		}
+		await resendTeamInvitation(invitation.id);
+		toastMoment(t('toasts.invites.SENT', { email: invitation.email ?? '' }), <Send />);
+	};
 
-				timeoutRef.current = setTimeout(() => closeModal(), 1000);
-			} catch (err) {
-				const error = err as AxiosError;
+	const revokeInvitation = async (invitation: PendingInvitation) => {
+		if (!invitation.id) {
+			return;
+		}
+		await removeTeamInvitation(invitation.id, invitation.email ?? undefined);
+	};
 
-				if (error.response?.status === 400) {
-					const data = error.response.data as any;
+	const isSendDisabled = sendableCount === 0 || dialog.isBusy;
+	const isWaiting = dialog.prerequisitesPending;
+	const hasRolesToPick = dialog.selectableRoles.length > 0;
+	const showsRoleSelect = dialog.isAdmin && hasRolesToPick;
 
-					if ('errors' in data) setErrors(data.errors || {});
-					if (Array.isArray(data.message)) setErrors({ email: data.message[0] });
-
-					showErrorToast();
-				}
-			}
-		},
-		[
-			selectedEmail,
-			selectedRoleId,
-			teamInvitations,
-			closeModal,
-			t,
-			inviteUser,
-			resendTeamInvitation,
-			prerequisitesPending
-		]
+	const roleSelect = showsRoleSelect && (
+		<InviteRoleSelect
+			roles={dialog.selectableRoles}
+			value={dialog.selectedRoleId}
+			onChange={dialog.setSelectedRoleId}
+			disabled={dialog.isBusy}
+		/>
 	);
 
 	return (
-		<Modal isOpen={open} closeModal={closeModal}>
-			<form className="w-[98%] md:w-[530px] relative" autoComplete="off" onSubmit={handleSubmit}>
-				<EverCard className="w-full" shadow="custom">
-					<div className="flex flex-col justify-between items-center">
-						<div className="mb-7">
-							<Text.Heading as="h3" className="mb-3 text-center">
-								{t('pages.invite.HEADING_TITLE')}
-							</Text.Heading>
-
-							<Text className="text-sm text-center text-gray-500">
-								{t('pages.invite.HEADING_DESCRIPTION')}
-							</Text>
-						</div>
-
-						<div className="flex flex-col gap-3 w-full">
-							<InviteEmailDropdown
-								emails={currentOrgEmails}
-								setSelectedEmail={setSelectedEmail}
-								selectedEmail={selectedEmail}
-								error={isNotEmpty(errors) && errors.email ? errors.email : ''}
-								handleAddNew={handleAddNew}
+		<AppDialog open={open} onClose={close} width="md" keepOpenOnOutsideClick>
+			<AppDialogHeader title={t('modals.invite.TITLE')} context={<TeamContext />} onClose={close} />
+			<div className={cn(APP_DIALOG_BODY, 'flex flex-col gap-6 pb-5')}>
+				<form ref={formRef} onSubmit={handleSubmit} className="flex flex-col gap-2" autoComplete="off">
+					<AppDialogDescription className="-mt-1 mb-1 text-[13px] text-muted-foreground">
+						{t('modals.invite.DESCRIPTION')}
+					</AppDialogDescription>
+					<div className="flex items-start gap-2">
+						<div className="min-w-0 flex-1">
+							<InviteEmailField
+								entries={entries}
+								onAdd={dialog.addFromText}
+								onRemove={dialog.removeEmail}
+								onRemoveLast={dialog.removeLastEmail}
+								isFull={dialog.isFull}
+								onSubmitShortcut={submitFromShortcut}
+								trailing={roleSelect}
+								describedBy={summaryId}
 							/>
-
-							<InputField
-								ref={nameInputRef}
-								type="text"
-								name="name"
-								placeholder={t('form.TEAM_MEMBER_NAME_PLACEHOLDER')}
-								errors={errors}
-								className="h-[3rem]"
-								setErrors={setErrors}
-								noWrapper
-								required
-								defaultValue={selectedEmail?.name || ''}
-							/>
-
-							{isAdmin ? (
-								<Select
-									defaultValue={selectedRoleId}
-									value={selectedRoleId}
-									onValueChange={(value) => setSelectedRoleId(value)}
-								>
-									<SelectTrigger className="w-full input-border h-[3rem] data-[placeholder]:text-gray-400 data-[placeholder]:dark::text-[#3b3c44]  bg-white rounded-lg border-gray-300 text-ellipsis dark:bg-dark--theme-light focus:ring-2 focus:ring-transparent">
-										<SelectValue placeholder={t('form.TEAM_MEMBER_ROLE')} />
-									</SelectTrigger>
-									<SelectContent className="z-[1001] max-h-60 overflow-y-auto">
-										<SelectGroup>
-											{selectableRoles.map((role) => (
-												<SelectItem
-													key={role.id}
-													value={role.id}
-													className="hover:bg-primary focus:bg-primary focus:text-white hover:!text-white  py-1 cursor-pointer"
-												>
-													{role.name}
-												</SelectItem>
-											))}
-										</SelectGroup>
-									</SelectContent>
-								</Select>
-							) : null}
 						</div>
-
-						<div className="flex justify-between items-center mt-6 w-full">
-							<BackButton onClick={closeModal} />
-							<Button type="submit" disabled={isLoading} loading={isLoading}>
-								{t('pages.invite.SEND_INVITE')}
-							</Button>
-						</div>
+						<Button
+							type="submit"
+							size="lg"
+							disabled={isSendDisabled}
+							aria-busy={isWaiting}
+							className="shrink-0"
+						>
+							<SendIcon isBusy={dialog.isBusy} />
+							{t('common.INVITE')}
+						</Button>
 					</div>
-				</EverCard>
-			</form>
-		</Modal>
+					<div id={summaryId} className="flex flex-col gap-0.5">
+						<p className="flex items-center gap-1.5 text-xs text-muted-foreground">
+							<Info aria-hidden="true" className="size-3.5 shrink-0" />
+							{t('modals.invite.FIELD_HINT')}
+						</p>
+						<InviteSummary entries={entries} />
+						{errorKey && (
+							<p role="alert" className="text-xs text-destructive-ink">
+								{t('modals.invite.SEND_FAILED')} {t(errorKey as DottedLanguageObjectStringPaths)}
+							</p>
+						)}
+					</div>
+				</form>
+				<InvitePendingList
+					invitations={pendingInvitations}
+					canRevoke={isTeamManager}
+					onResend={resendInvitation}
+					onRevoke={revokeInvitation}
+				/>
+			</div>
+		</AppDialog>
 	);
 }

@@ -1,6 +1,7 @@
 'use client';
 
-import { useAtom } from 'jotai';
+import { useAtom, useAtomValue } from 'jotai';
+import { activeTeamState } from '@/core/stores';
 import { useCallback, useRef } from 'react';
 import { assignTaskModalState } from '@/core/stores/assign-task-modal';
 import { Modal } from '@/core/components';
@@ -40,6 +41,7 @@ import { useTranslations } from 'next-intl';
  */
 export function GlobalAssignTaskModal() {
 	const [modalState, setModalState] = useAtom(assignTaskModalState);
+	const activeTeam = useAtomValue(activeTeamState);
 	const t = useTranslations();
 
 	const modalStateRef = useRef(modalState);
@@ -69,17 +71,19 @@ export function GlobalAssignTaskModal() {
 		return null;
 	}
 
+	const assigneeName = modalState.userProfile?.employee?.user?.name;
+	let modalTitle = '';
+	if (assigneeName) {
+		modalTitle = `${t('common.ASSIGN_TASK_TO')} ${assigneeName}`;
+	}
+
 	return (
 		<Modal
 			isOpen={modalState.isOpen}
 			closeModal={closeModal}
-			title={
-				modalState.userProfile?.employee?.user?.name
-					? `${t('common.ASSIGN_TASK_TO')} ${modalState.userProfile.employee.user.name}`
-					: ''
-			}
-			className="bg-light--theme-light dark:bg-dark--theme-light p-5 rounded-xl w-full md:w-[70vw] h-[70vh] min-h-[640px] justify-start overflow-y-hidden"
-			titleClass="font-normal"
+			title={modalTitle}
+			breadcrumb={activeTeam?.name}
+			className="h-[70vh] min-h-[640px] w-full justify-start overflow-y-hidden md:w-[70vw]"
 		>
 			<TaskInput
 				task={null}

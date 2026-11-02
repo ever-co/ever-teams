@@ -19,7 +19,7 @@ jest.mock('jotai', () => ({
 	useAtomValue: () => ({ running: false })
 }));
 jest.mock('@/core/stores', () => ({ timerStatusState: Symbol('timer-status') }));
-jest.mock('sonner', () => ({ toast: { error: jest.fn() } }));
+jest.mock('sonner', () => ({ toast: { error: jest.fn(), warning: jest.fn() } }));
 
 // The menu renders inline, so its items can be read without opening it.
 jest.mock('@/core/components/common/dropdown-menu', () => {
@@ -39,6 +39,7 @@ jest.mock('@/core/components/common/button', () => ({
 }));
 jest.mock('../../../icons', () => ({
 	AddUserIcon: () => null,
+	Plus: () => null,
 	ProjectIcon: () => null,
 	TaskIcon: () => null,
 	TeamIcon: () => null
