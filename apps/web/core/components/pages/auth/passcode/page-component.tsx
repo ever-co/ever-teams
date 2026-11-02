@@ -6,10 +6,10 @@ import { IClassName } from '@/core/types/interfaces/common/class-name';
 import { BackButton, Button } from '@/core/components/common/button';
 import { BackdropLoader, SpinnerLoader } from '@/core/components/common/loader';
 import { Text } from '@/core/components/common/typography';
-import { CircleIcon, CheckCircleOutlineIcon } from 'assets/svg';
+import { Badge } from '@/core/components/common/badge';
+import { Alert, ChevronDown, Circle, CircleCheck } from '@/core/components/icons';
 import { AuthLayout } from '@/core/components/layouts/default-layout/auth-layout';
 import { useTranslations } from 'next-intl';
-import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import {
 	Dispatch,
@@ -33,7 +33,6 @@ import {
 	USER_SAW_OUTSTANDING_NOTIFICATION
 } from '@/core/constants/config/constants';
 import { cn } from '@/core/lib/helpers';
-import { ChevronDown } from 'lucide-react';
 import { AuthCodeInputField } from '@/core/components/auth/auth-code-input';
 import { InputField } from '@/core/components/duplicated-components/_input';
 import { Avatar } from '@/core/components/duplicated-components/avatar';
@@ -41,7 +40,16 @@ import { ISigninEmailConfirmWorkspaces } from '@/core/types/interfaces/auth/auth
 import { hasTeams, getFirstTeamId, findWorkspaceIndexByTeamId } from '@/core/lib/utils/workspace.utils';
 import { useWorkspaceAnalysis } from '@/core/hooks/auth/use-workspace-analysis';
 import { useResendCooldown } from '@/core/hooks/auth/use-resend-cooldown';
-import { buttonVariants } from '@/core/components/duplicated-components/_button';
+
+/** iOS zooms the page into any field under 16 px on focus: auth fields stay 16 px below `md`. */
+const AUTH_FIELD_TEXT = 'text-base md:text-sm';
+
+function teamCountLabel(teamCount: number, t: ReturnType<typeof useTranslations>) {
+	if (teamCount === 1) {
+		return t('pages.auth.TEAM_COUNT_SINGULAR');
+	}
+	return t('pages.auth.TEAM_COUNT_PLURAL');
+}
 
 function AuthPasscode() {
 	const form = useAuthenticationPasscode();
@@ -139,28 +147,26 @@ function EmailScreen({ form, className }: { form: TAuthenticationPasscode } & IC
 						required
 						autoComplete="off"
 						noWrapper
-						className="dark:bg-foreground/5 ring-foreground/10 placeholder:text-muted-foreground/75 selection:bg-primary selection:text-primary-foreground flex h-9 w-full min-w-0 rounded-md border border-transparent bg-white px-3 py-1 text-base shadow-sm outline-none ring-1 transition-[color,box-shadow] md:text-sm focus-visible:border-foreground/35 focus-visible:ring-ring/25 dark:focus-visible:border-foreground/25 focus-visible:ring"
+						className={AUTH_FIELD_TEXT}
 					/>
-					{form.errors?.email && <Text.Error className="text-xs">{form.errors.email}</Text.Error>}
+					{form.errors?.email && <Text.Error>{form.errors.email}</Text.Error>}
 				</div>
 
-				{/* Submit button — template exact classes */}
 				<Button
 					type="submit"
 					loading={form.signInEmailLoading}
 					disabled={form.signInEmailLoading}
-					className="cursor-pointer inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium transition-all focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 shadow-md border-[0.5px] border-white/10 shadow-black/15 [&_svg]:drop-shadow-sm bg-primary ring-1 ring-(--ring-color) [--ring-color:color-mix(in_oklab,black_15%,var(--color-primary))] dark:border-transparent dark:[--ring-color:color-mix(in_oklab,white_15%,var(--color-primary))] text-primary-foreground hover:bg-primary/90 h-9 px-4 py-2 w-full"
+					className="w-full"
 				>
 					{t('common.CONTINUE')}
 				</Button>
 
-				{/* Links — after button, template mt-10 */}
-				<div className="mt-3 space-y-2 text-sm text-muted-foreground">
+				<div className="text-sm text-muted-foreground">
 					<div className="flex gap-2 justify-between items-center">
 						<span>{t('pages.authLogin.HAVE_PASSWORD')}</span>
-						<Link href="/auth/password" className="font-medium text-primary hover:underline">
+						<Text.Link href="/auth/password" className="font-medium underline-offset-4 hover:underline">
 							{t('pages.authLogin.LOGIN_WITH_PASSWORD')}
-						</Link>
+						</Text.Link>
 					</div>
 				</div>
 			</div>
@@ -204,7 +210,7 @@ function PasscodeScreen({ form, className }: { form: TAuthenticationPasscode } &
 						<button
 							type="button"
 							onClick={() => resetForm()}
-							className="text-xs font-medium underline transition-all cursor-pointer text-muted-foreground hover:text-foreground hover:underline-offset-4 underline-offset-2"
+							className="cursor-pointer rounded-sm text-xs font-medium text-muted-foreground underline underline-offset-4 outline-none transition-colors hover:text-foreground focus-visible:ring-[3px] focus-visible:ring-ring/50"
 						>
 							{t('common.RESET')}
 						</button>
@@ -216,8 +222,8 @@ function PasscodeScreen({ form, className }: { form: TAuthenticationPasscode } &
 						allowedCharacters="alphanumeric"
 						length={AUTH_CODE_LENGTH}
 						ref={form.inputCodeRef}
-						containerClassName="mt-2 w-full flex justify-between gap-x-0.5"
-						inputClassName="w-[28px] xs:w-[32px] sm:w-[36px] md:w-[40px] px-0 text-center dark:bg-foreground/5 rounded-lg border border-input bg-background shadow-sm shadow-black/5 focus:border-ring focus:ring-[3px] focus:ring-ring/20"
+						containerClassName="flex w-full justify-between gap-1.5"
+						inputClassName="h-10 w-full min-w-0 max-w-10 flex-1 px-0 text-center text-base font-medium tabular-nums"
 						defaultValue={form.formValues.code}
 						autoComplete={code ? code : ''}
 						submitCode={autoSubmitForm}
@@ -228,7 +234,7 @@ function PasscodeScreen({ form, className }: { form: TAuthenticationPasscode } &
 						autoFocus={form.authScreen.screen === 'passcode'}
 					/>
 					{form.status === 'error' && (form.errors['code'] || form.errors['email']) && (
-						<Text.Error className="text-xs">{form.errors['code'] || form.errors['email']}</Text.Error>
+						<Text.Error>{form.errors['code'] || form.errors['email']}</Text.Error>
 					)}
 				</div>
 
@@ -244,7 +250,7 @@ function PasscodeScreen({ form, className }: { form: TAuthenticationPasscode } &
 						{!form.signInEmailLoading ? (
 							<button
 								type="button"
-								className="text-sm cursor-pointer"
+								className="cursor-pointer rounded-sm text-sm outline-none focus-visible:ring-[3px] focus-visible:ring-ring/50"
 								onClick={() => {
 									if (!resendCooldown.locked) {
 										form.sendAuthCodeHandler();
@@ -253,11 +259,11 @@ function PasscodeScreen({ form, className }: { form: TAuthenticationPasscode } &
 								}}
 							>
 								{!resendCooldown.locked ? (
-									<span className="font-medium text-primary hover:underline">
+									<span className="font-medium text-primary-ink underline-offset-4 hover:underline">
 										{t('pages.auth.RESEND_CODE')}
 									</span>
 								) : (
-									<span className="text-muted-foreground">
+									<span className="text-muted-foreground tabular-nums">
 										{t('pages.auth.RESEND_CODE_IN')} {resendCooldown.countdown}
 									</span>
 								)}
@@ -269,18 +275,17 @@ function PasscodeScreen({ form, className }: { form: TAuthenticationPasscode } &
 				</div>
 
 				{/* Actions */}
-				<div className="flex flex-col gap-1.5 items-center w-full">
+				<div className="flex flex-col gap-3 items-center w-full">
 					<Button
 						type="submit"
 						loading={form.signInEmailConfirmLoading || form.everIdConfirmLoading}
 						disabled={form.signInEmailConfirmLoading || form.everIdConfirmLoading}
-						className="cursor-pointer w-full inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium transition-all focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 shadow-md border-[0.5px] border-white/10 shadow-black/15 [&_svg]:drop-shadow-sm bg-primary ring-1 ring-(--ring-color) [--ring-color:color-mix(in_oklab,black_15%,var(--color-primary))] dark:border-transparent dark:[--ring-color:color-mix(in_oklab,white_15%,var(--color-primary))] text-primary-foreground hover:bg-primary/90 h-9 px-4 py-2"
+						className="w-full"
 					>
 						{t('pages.auth.LOGIN')}
 					</Button>
 
 					<BackButton
-						className={buttonVariants({ variant: 'link', className: 'w-full underline' })}
 						onClick={() => {
 							// Leaving the Ever ID step drops its marker from the URL and empties the code
 							form.leaveEverIdStep();
@@ -381,7 +386,7 @@ function WorkSpaceScreen({ form, className }: { form: TAuthenticationPasscode } 
 	return (
 		<>
 			{/* Show workspace component unless we're auto-submitting (1 workspace with exactly 1 team) */}
-			<div className={cn(`${workspaceAnalysis.shouldAutoSubmit ? 'hidden' : ''}`, 'w-full')}>
+			<div className={cn('w-full', workspaceAnalysis.shouldAutoSubmit && 'hidden')}>
 				<WorkSpaceComponent
 					className={className}
 					workspaces={form.workspaces}
@@ -485,84 +490,53 @@ export function WorkSpaceComponent(props: IWorkSpace) {
 		>
 			<div className="space-y-4 w-full">
 				<div className="flex justify-between items-center">
-					<button
-						type="button"
-						onClick={props.onBackButtonClick}
-						className="inline-flex items-center gap-1.5 text-sm font-medium transition-colors cursor-pointer text-muted-foreground hover:text-foreground"
-					>
-						<ChevronDown className="rotate-90 size-4" />
-						{t('common.BACK')}
-					</button>
-					<h3 className="text-lg font-semibold">{t('pages.auth.SELECT_WORKSPACE')}</h3>
+					<BackButton onClick={props.onBackButtonClick} />
+					<h3 className="text-lg font-semibold text-balance">{t('pages.auth.SELECT_WORKSPACE')}</h3>
 					{/* Spacer to center the title */}
 					<div className="w-16" />
 				</div>
 
 				{/* Warning message for empty workspace selection */}
 				{isSelectedWorkspaceEmpty && (
-					<div
-						role="alert"
-						className="px-4 py-3 w-full bg-amber-50 rounded-lg border border-amber-200 dark:bg-amber-900/20 dark:border-amber-800"
-					>
+					<div role="alert" className="w-full rounded-lg bg-warning/10 px-3 py-2.5 text-warning-foreground">
 						<div className="flex gap-2 items-start">
-							<svg
-								className="w-5 h-5 text-amber-600 dark:text-amber-400 mt-0.5 shrink-0"
-								fill="currentColor"
-								viewBox="0 0 20 20"
-							>
-								<path
-									fillRule="evenodd"
-									d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z"
-									clipRule="evenodd"
-								/>
-							</svg>
+							<Alert className="mt-0.5 size-4 shrink-0" />
 							<div className="flex-1">
-								<p className="text-sm font-medium text-amber-800 dark:text-amber-200">
-									{t('pages.auth.EMPTY_WORKSPACE_WARNING_TITLE')}
-								</p>
-								<p className="mt-1 text-xs text-amber-700 dark:text-amber-300">
-									{t('pages.auth.EMPTY_WORKSPACE_WARNING_MESSAGE')}
-								</p>
+								<p className="text-sm font-medium">{t('pages.auth.EMPTY_WORKSPACE_WARNING_TITLE')}</p>
+								<p className="mt-1 text-xs">{t('pages.auth.EMPTY_WORKSPACE_WARNING_MESSAGE')}</p>
 							</div>
 						</div>
 					</div>
 				)}
 
-				<div className="overflow-y-auto relative w-full h-64">
-					<div className="flex flex-col gap-y-4">
+				<div className="relative max-h-72 w-full overflow-y-auto rounded-xl bg-card hairline-ring ring-border shadow-sm shadow-black/6.5">
+					<div className="flex flex-col hairline-divide-y divide-border">
 						{workspacesWithTeamsStatus.map(
 							(
 								{ workspace: workspace, originalIndex, hasTeams: workspaceHasTeams, teamCount },
 								index
 							) => {
 								const isEmpty = !workspaceHasTeams;
+								const isExpanded = expandedWorkspace === index;
+								const isSelected = props.selectedWorkspace === originalIndex;
+								const isSelectedWithTeams = isSelected && !isEmpty;
+								const isSelectedEmpty = isSelected && isEmpty;
+								const showsTeamCount = !isEmpty && teamCount > 0;
 								const workspaceName = workspace.user.tenant?.name || workspace.user.name || 'Workspace';
 
 								return (
 									<div
 										key={originalIndex}
 										className={cn(
-											'w-full h-12 flex flex-col border rounded-xl transition-all',
-											expandedWorkspace === index && 'h-auto overflow-visible',
-											expandedWorkspace !== index && 'overflow-hidden',
-											// Empty workspace styling
-											isEmpty &&
-												'border-amber-200 dark:border-amber-800 bg-amber-50/30 dark:bg-amber-900/10',
-											// Normal workspace styling
-											!isEmpty && 'border-[#0000001A] dark:border-border',
-											// Selected workspace styling
-											props.selectedWorkspace === originalIndex &&
-												!isEmpty &&
-												'bg-[#FCFCFC] -order-1 dark:bg-card',
-											props.selectedWorkspace === originalIndex &&
-												isEmpty &&
-												'bg-amber-100/50 -order-1 dark:bg-amber-900/20',
-											// Hover styling
-											!isEmpty && 'hover:bg-[#FCFCFC] dark:hover:bg-card',
-											isEmpty && 'hover:bg-amber-100/40 dark:hover:bg-amber-900/15'
+											'flex w-full flex-col transition-colors hover:bg-foreground/[0.025]',
+											isExpanded && 'h-auto overflow-visible',
+											!isExpanded && 'h-12 overflow-hidden',
+											isEmpty && 'bg-warning/5 hover:bg-warning/7',
+											isSelectedWithTeams && 'bg-primary/5 hover:bg-primary/7',
+											isSelectedEmpty && 'bg-warning/10 hover:bg-warning/10'
 										)}
 									>
-										<div className="flex flex-col gap-3 p-3 w-full text-base font-medium">
+										<div className="flex flex-col gap-3 p-3 w-full text-sm font-medium">
 											<div className="flex gap-3 justify-between items-center w-full">
 												<div
 													onClick={() =>
@@ -570,11 +544,11 @@ export function WorkSpaceComponent(props: IWorkSpace) {
 													}
 													className="flex flex-1 gap-2 justify-between items-center min-w-0 cursor-pointer"
 												>
-													<div className="flex items-center">
+													<div className="flex min-w-0 items-center gap-2">
 														<span
 															className={cn(
 																'truncate',
-																isEmpty && 'text-amber-700 dark:text-amber-300'
+																isEmpty && 'text-warning-foreground'
 															)}
 														>
 															{workspaceName}
@@ -582,30 +556,28 @@ export function WorkSpaceComponent(props: IWorkSpace) {
 
 														{/* Badge for empty workspace */}
 														{isEmpty && (
-															<span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-amber-100 text-amber-800 dark:bg-amber-900/40 dark:text-amber-200 border border-amber-300 dark:border-amber-700 shrink-0">
+															<Badge variant="warning">
 																{t('pages.auth.NO_TEAMS_BADGE')}
-															</span>
+															</Badge>
 														)}
 
 														{/* Team count badge for non-empty workspaces */}
-														{!isEmpty && teamCount > 0 && (
-															<span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-700 dark:bg-muted dark:text-gray-300 shrink-0">
-																{teamCount}{' '}
-																{teamCount === 1
-																	? t('pages.auth.TEAM_COUNT_SINGULAR')
-																	: t('pages.auth.TEAM_COUNT_PLURAL')}
-															</span>
+														{showsTeamCount && (
+															<Badge variant="secondary" className="tabular-nums">
+																{teamCount} {teamCountLabel(teamCount, t)}
+															</Badge>
 														)}
 													</div>
 													<span
 														className={cn(
-															'h-6 w-6 shrink-0 flex items-center justify-center transition-transform',
-															expandedWorkspace === index && 'rotate-180'
+															'flex size-6 shrink-0 items-center justify-center transition-transform duration-200',
+															isExpanded && 'rotate-180'
 														)}
 													>
 														<ChevronDown
 															className={cn(
-																isEmpty && 'text-amber-600 dark:text-amber-400'
+																'size-4 text-muted-foreground',
+																isEmpty && 'text-warning-foreground'
 															)}
 														/>
 													</span>
@@ -614,7 +586,7 @@ export function WorkSpaceComponent(props: IWorkSpace) {
 													type="button"
 													aria-label={`${t('common.SELECT')} ${workspaceName}`}
 													aria-pressed={props.selectedWorkspace === originalIndex}
-													className="shrink-0 hover:cursor-pointer"
+													className="shrink-0 cursor-pointer rounded-full outline-none focus-visible:ring-[3px] focus-visible:ring-ring/25"
 													onClick={() => {
 														props.setSelectedWorkspace(originalIndex);
 														// Only auto-select first team if workspace has teams
@@ -631,55 +603,57 @@ export function WorkSpaceComponent(props: IWorkSpace) {
 														}
 													}}
 												>
-													{props.selectedWorkspace === originalIndex ? (
-														<CheckCircleOutlineIcon className="w-6 h-6 stroke-[#27AE60] fill-[#27AE60]" />
-													) : (
-														<CircleIcon className="w-6 h-6" />
-													)}
+													{isSelected && <CircleCheck className="size-5 text-primary-ink" />}
+													{!isSelected && <Circle className="size-5 text-muted-foreground" />}
 												</button>
 											</div>
 											<span
-												className={`bg-[#E5E5E5] w-full h-px hidden ${expandedWorkspace === index && 'block'}`}
+												className={cn('hidden h-px w-full bg-border', isExpanded && 'block')}
 											></span>
-											{/* <div className="w-full h-[1px] bg-[#E5E5E5] dark:bg-muted"></div> */}
-											<div className="flex flex-col gap-4 px-5 py-1.5">
+											<div className="flex flex-col hairline-divide-y divide-border">
 												{workspace.current_teams
 													?.filter((team) => team && team.team_name)
-													.map((team) => (
-														<div
-															key={`${originalIndex}-${team.team_id}`}
-															className="flex items-center justify-between gap-4 min-h-11.5"
-														>
-															<span className="flex gap-4 justify-between items-center">
-																<Avatar
-																	imageTitle={team.team_name}
-																	size={34}
-																	backgroundColor={`${stc(team.team_name)}80`}
-																/>
-																<div className="flex justify-between">
-																	<span className="overflow-hidden whitespace-nowrap max-w-48 text-ellipsis">
-																		{team.team_name}
-																	</span>
-																	<span>({team.team_member_count})</span>
-																</div>
-															</span>
-															<span
-																className="shrink-0 hover:cursor-pointer"
-																onClick={() => {
-																	props.setSelectedTeam(team.team_id);
-																	if (props.selectedWorkspace !== originalIndex) {
-																		props.setSelectedWorkspace(originalIndex);
-																	}
-																}}
+													.map((team) => {
+														const isTeamSelected = props.selectedTeam === team.team_id;
+														return (
+															<div
+																key={`${originalIndex}-${team.team_id}`}
+																className="flex h-10 items-center justify-between gap-3"
 															>
-																{props.selectedTeam === team.team_id ? (
-																	<CheckCircleOutlineIcon className="w-5 h-5 stroke-[#27AE60] fill-[#27AE60]" />
-																) : (
-																	<CircleIcon className="w-5 h-5" />
-																)}
-															</span>
-														</div>
-													))}
+																<span className="flex min-w-0 items-center gap-3">
+																	<Avatar
+																		imageTitle={team.team_name}
+																		size={28}
+																		backgroundColor={`${stc(team.team_name)}80`}
+																	/>
+																	<div className="flex min-w-0 items-center gap-1 font-normal">
+																		<span className="max-w-48 truncate">
+																			{team.team_name}
+																		</span>
+																		<span className="text-muted-foreground tabular-nums">
+																			({team.team_member_count})
+																		</span>
+																	</div>
+																</span>
+																<span
+																	className="shrink-0 cursor-pointer"
+																	onClick={() => {
+																		props.setSelectedTeam(team.team_id);
+																		if (props.selectedWorkspace !== originalIndex) {
+																			props.setSelectedWorkspace(originalIndex);
+																		}
+																	}}
+																>
+																	{isTeamSelected && (
+																		<CircleCheck className="size-5 text-primary-ink" />
+																	)}
+																	{!isTeamSelected && (
+																		<Circle className="size-5 text-muted-foreground" />
+																	)}
+																</span>
+															</div>
+														);
+													})}
 											</div>
 										</div>
 									</div>
@@ -695,7 +669,7 @@ export function WorkSpaceComponent(props: IWorkSpace) {
 						props.signInWorkspaceLoading || (!props.selectedWorkspace && props.selectedWorkspace !== 0)
 					}
 					id="continue-to-workspace"
-					className="cursor-pointer inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium transition-all focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 shadow-md border-[0.5px] border-white/10 shadow-black/15 [&_svg]:drop-shadow-sm bg-primary ring-1 ring-(--ring-color) [--ring-color:color-mix(in_oklab,black_15%,var(--color-primary))] dark:border-transparent dark:[--ring-color:color-mix(in_oklab,white_15%,var(--color-primary))] text-primary-foreground hover:bg-primary/90 h-9 px-4 py-2 w-full"
+					className="w-full"
 				>
 					{t('common.CONTINUE')}
 				</Button>

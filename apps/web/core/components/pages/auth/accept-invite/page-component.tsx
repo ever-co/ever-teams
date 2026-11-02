@@ -6,7 +6,7 @@ import { CompleteInvitationRegistrationForm } from './complete-invitation-regist
 import { EInvitationState } from '@/core/types/schemas/user/invite.schema';
 import { InvitationExpiredMessageCard } from './invitation-expired-message-card';
 import { AcceptInviteSkeleton } from '@/core/components/layouts/skeletons/accept-invite-skeleton';
-import { Loader } from 'lucide-react';
+import { Spinner } from '@/core/components/icons';
 import { useSearchParams } from 'next/navigation';
 import { useCallback, useEffect, useRef } from 'react';
 
@@ -66,8 +66,8 @@ export function AcceptInvitePageComponent() {
 		switch (invitationState.state) {
 			case EInvitationState.LOADING:
 				return (
-					<div className="w-full h-full flex items-center justify-center">
-						<Loader size={50} className=" animate-spin" />
+					<div className="w-full h-full flex items-center justify-center py-16">
+						<Spinner className="size-8 animate-spin text-muted-foreground" />
 					</div>
 				);
 			case EInvitationState.VALIDATED:
@@ -87,7 +87,7 @@ export function AcceptInvitePageComponent() {
 
 	return (
 		<AuthLayout isAuthPage={false}>
-			<div className="w-full  h-full flex items-center justify-center">{renderContent()}</div>
+			<div className="w-full h-full flex items-center justify-center">{renderContent()}</div>
 		</AuthLayout>
 	);
 }

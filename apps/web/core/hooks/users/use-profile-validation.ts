@@ -144,7 +144,7 @@ export function useProfileValidation(memberId: string | null) {
 
 			if (!memberExistsInNewTeam && !hasRedirected) {
 				setHasRedirected(true);
-				toast.info(t('common.MEMBER') + ' ' + t('common.NOT_FOUND'), {
+				toast.info(t('toasts.profile.MEMBER_NOT_IN_TEAM'), {
 					description: t('pages.profile.MEMBER_NOT_FOUND_MSG_2')
 				});
 				router.push('/');

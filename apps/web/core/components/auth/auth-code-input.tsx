@@ -232,9 +232,9 @@ export const AuthCodeInputField = forwardRef<AuthCodeRef, AuthCodeProps>(
 		}, [autoComplete, canSubmit]);
 
 		const hintColor = {
-			success: '#4BB543',
-			error: '#FF9494',
-			warning: '#ffcc00'
+			success: 'hsl(var(--success))',
+			error: 'hsl(var(--destructive))',
+			warning: 'hsl(var(--warning))'
 		} as const;
 
 		const inputs = [];
@@ -256,7 +256,7 @@ export const AuthCodeInputField = forwardRef<AuthCodeRef, AuthCodeProps>(
 						inputsRef.current[i] = el;
 					}}
 					maxLength={1}
-					className={clsxm('transition-[border-color]', inputClassName)}
+					className={clsxm('transition-[color,box-shadow,border-color]', inputClassName)}
 					autoComplete={i === 0 ? 'one-time-code' : 'off'}
 					aria-label={ariaLabel ? `${ariaLabel}. Character ${i + 1}.` : `Character ${i + 1}.`}
 					disabled={disabled}

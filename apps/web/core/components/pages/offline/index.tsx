@@ -1,10 +1,15 @@
-import { cn } from '@/core/lib/helpers';
 import SadCry from '@/core/components/svgs/sad-cry';
 import { Text } from '@/core/components/common/typography';
 import { useTranslations } from 'next-intl';
 // Static on purpose: this screen shows up once the network is gone, when a lazy chunk can no longer be fetched.
 // Only the (main) layout reaches this file, so the auth routes do not compile the Timer.
 import { Timer } from '../../timer/timer';
+import {
+	SystemPageFrame,
+	SYSTEM_PAGE_EYEBROW_CLASS,
+	SYSTEM_PAGE_TEXT_CLASS,
+	SYSTEM_PAGE_TITLE_CLASS
+} from '../error/system-page-frame';
 
 interface IPropsOffline {
 	showTimer?: boolean;
@@ -14,36 +19,17 @@ function Offline({ showTimer }: IPropsOffline) {
 	const t = useTranslations();
 
 	return (
-		<div className="mt-28 flex flex-col gap-7 items-center">
-			<div className="m-auto relative flex justify-center items-center gap-4 text-center ">
-				<SadCry width={97} height={97} />
-				<Text className="text-[78px] font-semibold text-chetwodeBlue">{t('pages.offline.STATUS_NETWORK')}</Text>
+		<SystemPageFrame>
+			<div className="flex flex-col items-center gap-3 text-muted-foreground">
+				<SadCry width={48} height={48} fill="currentColor" />
+				<Text className={SYSTEM_PAGE_EYEBROW_CLASS}>{t('pages.offline.STATUS_NETWORK')}</Text>
 			</div>
 
-			<Text className="text-[40px] font-bold text-center text-[#282048] dark:text-light--theme">
-				{t('pages.offline.HEADING_TITLE')}
-			</Text>
-			<div className="flex flex-col gap-4">
-				<Text className="text-[20px] font-normal text-center text-gray-400">
-					{t('pages.offline.HEADING_SUB_DESCRIPTION')}
-				</Text>
-			</div>
-			{showTimer && (
-				<Timer
-					showTimerButton={false}
-					className={cn(
-						'p-5 rounded-2xl shadow-xl card',
-						'dark:border-[0.125rem] dark:border-border',
-						'dark:bg-card'
-					)}
-				/>
-			)}
-			<div className="flex flex-col gap-4">
-				<Text className="text-[20px] font-normal text-center text-gray-400">
-					{t('pages.offline.HEADING_DESCRIPTION')}
-				</Text>
-			</div>
-		</div>
+			<Text className={SYSTEM_PAGE_TITLE_CLASS}>{t('pages.offline.HEADING_TITLE')}</Text>
+			<Text className={SYSTEM_PAGE_TEXT_CLASS}>{t('pages.offline.HEADING_SUB_DESCRIPTION')}</Text>
+			{showTimer && <Timer showTimerButton={false} className="rounded-lg bg-foreground/[0.025] p-4" />}
+			<Text className="text-sm text-balance text-muted-foreground">{t('pages.offline.HEADING_DESCRIPTION')}</Text>
+		</SystemPageFrame>
 	);
 }
 

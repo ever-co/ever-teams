@@ -8,7 +8,6 @@ import { Button } from '@/core/components/common/button';
 import { Text } from '@/core/components/common/typography';
 import { AuthLayout } from '@/core/components/layouts/default-layout/auth-layout';
 import { useTranslations } from 'next-intl';
-import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useCallback, useEffect, useState } from 'react';
 import { WorkSpaceComponent } from '../passcode/page-component';
@@ -23,7 +22,7 @@ import {
 import { cn } from '@/core/lib/helpers';
 import { logErrorInDev } from '@/core/lib/helpers/error-message';
 import { InputField } from '@/core/components/duplicated-components/_input';
-import { Eye, EyeOff } from 'lucide-react';
+import { Eye, EyeOff } from '@/core/components/icons';
 import { useWorkspaceAnalysis } from '@/core/hooks/auth/use-workspace-analysis';
 import { DemoAccountsSection } from '@/core/components/auth/demo-accounts-section';
 import { DemoCredentialsDropdown } from '@/core/components/auth/demo-credentials-dropdown';
@@ -71,20 +70,21 @@ interface LoginFormFieldsProps {
 	required?: boolean;
 }
 
-const INPUT_CLASS =
-	'dark:bg-foreground/5 ring-foreground/10 placeholder:text-muted-foreground/75 selection:bg-primary selection:text-primary-foreground flex h-9 w-full min-w-0 rounded-md border border-transparent bg-white px-3 py-1 text-base shadow-sm outline-none ring-1 transition-[color,box-shadow] md:text-sm focus-visible:border-foreground/35 focus-visible:ring-ring/25 dark:focus-visible:border-foreground/25 focus-visible:ring-[3px]';
+/** iOS zooms the page into any field under 16 px on focus: auth fields stay 16 px below `md`. */
+const INPUT_CLASS = 'text-base md:text-sm';
 
-function LoginFormFields({
-	form,
-	showPassword,
-	togglePasswordVisibility,
-	t,
-	required = false
-}: LoginFormFieldsProps) {
+const PASSWORD_TOGGLE_CLASS =
+	'absolute right-2 top-1/2 flex size-6 -translate-y-1/2 cursor-pointer items-center justify-center rounded-sm text-muted-foreground outline-none transition-colors hover:text-foreground focus-visible:ring-[3px] focus-visible:ring-ring/50';
+
+function LoginFormFields({ form, showPassword, togglePasswordVisibility, t, required = false }: LoginFormFieldsProps) {
 	return (
 		<div className="space-y-4">
 			<div className="space-y-2.5">
-				<label data-slot="label" className="block text-sm font-medium leading-none select-none" htmlFor="pw-email">
+				<label
+					data-slot="label"
+					className="block text-sm font-medium leading-none select-none"
+					htmlFor="pw-email"
+				>
 					{t('form.EMAIL_PLACEHOLDER')}
 				</label>
 				<InputField
@@ -100,11 +100,15 @@ function LoginFormFields({
 					className={INPUT_CLASS}
 					required={required}
 				/>
-				{form.errors?.email && <Text.Error className="text-xs">{form.errors.email}</Text.Error>}
+				{form.errors?.email && <Text.Error>{form.errors.email}</Text.Error>}
 			</div>
 
 			<div className="space-y-2.5">
-				<label data-slot="label" className="block text-sm font-medium leading-none select-none" htmlFor="pw-password">
+				<label
+					data-slot="label"
+					className="block text-sm font-medium leading-none select-none"
+					htmlFor="pw-password"
+				>
 					{t('form.PASSWORD_PLACEHOLDER')}
 				</label>
 				<div className="relative">
@@ -121,18 +125,15 @@ function LoginFormFields({
 						className={cn(INPUT_CLASS, 'pr-10')}
 						required={required}
 					/>
-					<button
-						type="button"
-						className="absolute right-3 top-1/2 transition-colors -translate-y-1/2 cursor-pointer text-muted-foreground hover:text-foreground"
-						onClick={togglePasswordVisibility}
-					>
-						{showPassword ? <Eye size={16} /> : <EyeOff size={16} />}
+					<button type="button" className={PASSWORD_TOGGLE_CLASS} onClick={togglePasswordVisibility}>
+						{showPassword && <Eye className="size-4" />}
+						{!showPassword && <EyeOff className="size-4" />}
 					</button>
 				</div>
-				{form.errors?.password && <Text.Error className="text-xs">{form.errors.password}</Text.Error>}
+				{form.errors?.password && <Text.Error>{form.errors.password}</Text.Error>}
 			</div>
 
-			{form.errors?.loginFailed && <Text.Error className="text-xs">{form.errors.loginFailed}</Text.Error>}
+			{form.errors?.loginFailed && <Text.Error>{form.errors.loginFailed}</Text.Error>}
 		</div>
 	);
 }
@@ -156,31 +157,24 @@ interface LoginFormActionsProps {
 function LoginFormActions({ form, t, showMagicCodeLink = false }: LoginFormActionsProps) {
 	return (
 		<>
-			{/* Continue Button — template exact classes */}
-			<Button
-				type="submit"
-				loading={form.signInLoading}
-				disabled={form.signInLoading}
-				className="cursor-pointer inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium transition-all focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 shadow-md border-[0.5px] border-white/10 shadow-black/15 [&_svg]:drop-shadow-sm bg-primary ring-1 ring-(--ring-color) [--ring-color:color-mix(in_oklab,black_15%,var(--color-primary))] dark:border-transparent dark:[--ring-color:color-mix(in_oklab,white_15%,var(--color-primary))] text-primary-foreground hover:bg-primary/90 h-9 px-4 py-2 w-full"
-			>
+			<Button type="submit" loading={form.signInLoading} disabled={form.signInLoading} className="w-full">
 				{t('common.CONTINUE')}
 			</Button>
 
-			{/* Links — after button, template mt-10 */}
-			<div className="mt-3 space-y-2 text-sm text-muted-foreground">
+			<div className="space-y-3 text-sm text-muted-foreground">
 				<div className="flex gap-2 justify-between items-center">
 					<span>{t('pages.authLogin.HAVE_PASSWORD')}</span>
-					<Link href="/auth/forgot-password" className="font-medium text-primary hover:underline">
+					<Text.Link href="/auth/forgot-password" className="font-medium underline-offset-4 hover:underline">
 						{t('pages.auth.FORGOT_PASSWORD')}
-					</Link>
+					</Text.Link>
 				</div>
 
 				{/* Magic Code Link - Only shown in NORMAL mode */}
 				{showMagicCodeLink && (
 					<div className="text-center">
-						<Link href={DEFAULT_APP_PATH} className="font-medium text-primary hover:underline">
+						<Text.Link href={DEFAULT_APP_PATH} className="font-medium underline-offset-4 hover:underline">
 							{t('pages.authLogin.LOGIN_WITH_MAGIC_CODE')}
-						</Link>
+						</Text.Link>
 					</div>
 				)}
 			</div>
@@ -373,7 +367,7 @@ function WorkSpaceScreen({ form, className }: { form: TAuthenticationPassword } 
 	return (
 		<>
 			{/* Show workspace component unless we're auto-submitting (1 workspace with exactly 1 team) */}
-			<div className={cn(`${workspaceAnalysis.shouldAutoSubmit ? 'hidden' : ''}`, 'w-full')}>
+			<div className={cn('w-full', workspaceAnalysis.shouldAutoSubmit && 'hidden')}>
 				<WorkSpaceComponent
 					className={className}
 					workspaces={form.workspaces}
