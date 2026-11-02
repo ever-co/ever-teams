@@ -4,7 +4,7 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } f
 import { useCallback } from 'react';
 import { Button } from './button';
 import { DottedLanguageObjectStringPaths, useTranslations } from 'next-intl';
-import { LineDotBoxIcon } from 'assets/svg';
+import { Keyboard } from '@/core/components/icons';
 import { Tooltip } from '../duplicated-components/tooltip';
 
 export function KeyboardShortcuts() {
@@ -27,23 +27,19 @@ export function KeyboardShortcuts() {
 	return (
 		<>
 			<Tooltip label={t('common.KEYBOARD_SHORTCUTS')} placement="auto">
-				<Button
-					variant="ghost"
-					className="m-0 size-8 min-w-0 rounded-md p-0 text-muted-foreground hover:bg-muted hover:text-foreground"
-					onClick={toggle}
-				>
-					<LineDotBoxIcon className="size-5" />
+				<Button variant="ghost" size="icon" className="m-0 min-w-0 text-muted-foreground" onClick={toggle}>
+					<Keyboard className="size-4" />
 				</Button>
 			</Tooltip>
 
 			<Dialog open={isOpen} defaultOpen={isOpen} onOpenChange={toggle}>
-				<DialogContent className="border-[#0000001A] dark:border-border">
+				<DialogContent>
 					<DialogHeader className="flex flex-col gap-5">
 						<DialogTitle>{t('common.KEYBOARD_SHORTCUTS')}</DialogTitle>
 						<DialogDescription className="flex flex-col gap-2">
 							{HostKeysMapping.map((item, index) => (
 								<div key={index} className="flex flex-col gap-2">
-									<p className="text-base font-normal text-black dark:text-light--theme-light">
+									<p className="text-sm font-medium text-foreground">
 										{t(`hotkeys.${item.heading}` as DottedLanguageObjectStringPaths)}
 									</p>
 
@@ -62,7 +58,7 @@ export function KeyboardShortcuts() {
 													(label) => (
 														<div
 															key={label}
-															className="border rounded-md py-1 px-3 text-foreground dark:text-white min-w-[2.5rem] text-center"
+															className="min-w-10 rounded-md bg-foreground/5 px-2 py-0.5 text-center font-sans text-xs font-medium text-foreground hairline-ring ring-border"
 														>
 															{label}
 														</div>
@@ -74,7 +70,7 @@ export function KeyboardShortcuts() {
 
 									{/* Divider */}
 									{index !== HostKeysMapping.length - 1 && (
-										<div className="h-[0.0625rem] bg-[#F2F2F2] dark:bg-muted w-full mx-auto"></div>
+										<div className="mx-auto h-px w-full bg-border"></div>
 									)}
 								</div>
 							))}

@@ -2,26 +2,27 @@ import { useCallback, useMemo, useState } from 'react';
 import { Popover, PopoverContent, PopoverTrigger } from '@/core/components/common/popover';
 import Image from 'next/image';
 import Link from 'next/link';
-import Skeleton from 'react-loading-skeleton';
+import { Skeleton } from '@/core/components/common/skeleton';
 import { ScrollArea } from '@/core/components/common/scroll-bar';
 import { useModal, useUpdateTask } from '@/core/hooks';
 import { Modal, Divider, SpinnerLoader } from '@/core/components';
-import { useTranslations } from 'next-intl';
+import { useTranslations, type DottedLanguageObjectStringPaths } from 'next-intl';
 import { toast } from 'sonner';
+import { errorReasonKeyOf } from '@/core/lib/utils/error-feedback';
 import { TaskAssignButton } from '@/core/components/tasks/task-assign-button';
 import { clsxm } from '@/core/lib/utils';
 import TeamMember from '@/core/components/teams/team-member';
 import { Url } from 'next/dist/shared/lib/router/router';
-import { IconsCheck, IconsPersonAddRounded, IconsPersonRounded } from '@/core/components/icons';
+import { Check, IconsPersonAddRounded, IconsPersonRounded } from '@/core/components/icons';
 import { cn } from '../../lib/helpers';
 import { TaskAvatars } from '../tasks/task-items';
 import { Tooltip } from '../duplicated-components/tooltip';
+import { Button } from '../duplicated-components/_button';
 import {
 	Tooltip as ShadcnTooltip,
 	TooltipContent,
 	TooltipProvider,
-	TooltipTrigger,
-	TooltipArrow
+	TooltipTrigger
 } from '@/core/components/common/tooltip';
 import { ITimerStatus } from '@/core/types/interfaces/timer/timer-status';
 import { useAtomValue } from 'jotai';
@@ -43,6 +44,37 @@ interface ArrowDataProps {
 	iconClassName: string | undefined;
 }
 
+const DEFAULT_AVATAR_SIZE_CLASS = '!h-10 !w-10';
+
+function avatarSizeStyleOf(avatarSize: number | undefined) {
+	if (!avatarSize) {
+		return undefined;
+	}
+	return { width: avatarSize, height: avatarSize };
+}
+
+function defaultAvatarSizeClassOf(avatarSize: number | undefined) {
+	if (avatarSize) {
+		return undefined;
+	}
+	return DEFAULT_AVATAR_SIZE_CLASS;
+}
+
+/** Smaller faces overlap by less, so each one still reads as a face. */
+function avatarOverlapClassOf(avatarSize: number | undefined) {
+	if (avatarSize) {
+		return '-space-x-1.5';
+	}
+	return '-space-x-3';
+}
+
+function moreOverlapClassOf(avatarSize: number | undefined) {
+	if (avatarSize) {
+		return '-ml-1.5 text-[10px]';
+	}
+	return '-ml-3';
+}
+
 export default function ImageOverlapper({
 	images,
 	radius = 20,
@@ -54,7 +86,8 @@ export default function ImageOverlapper({
 	hasActiveMembers = false,
 	assignTaskButtonCall = false,
 	hasInfo = '',
-	onAvatarClickRedirectTo = 'profile'
+	onAvatarClickRedirectTo = 'profile',
+	avatarSize
 }: {
 	images: ImageOverlapperProps[];
 	radius?: number;
@@ -67,6 +100,8 @@ export default function ImageOverlapper({
 	assignTaskButtonCall?: boolean;
 	hasInfo?: string;
 	onAvatarClickRedirectTo?: 'kanbanTasks' | 'profile';
+	/** The faces' size in pixels; without it they keep the 40px of every existing screen. */
+	avatarSize?: number;
 }) {
 	// Split the array into two arrays based on the display number
 	const firstArray = images?.slice(0, displayImageCount);
@@ -135,15 +170,22 @@ export default function ImageOverlapper({
 		const addedMembers = assignedMembers.filter((m) => !originalMemberIds.has(m.id));
 		const removedMembers = (item?.members || []).filter((m: TEmployee) => !newMemberIds.has(m.id));
 
-		// Helper to format member names with "and X others" for better UX
+		const memberNameOf = (member: TEmployee): string => {
+			const name = member.fullName || member.user?.name;
+			if (name) {
+				return name;
+			}
+			return t('common.UNKNOWN');
+		};
+
 		const formatMemberNames = (members: TEmployee[], maxDisplay = 2): string => {
-			const names = members.map((m) => m.fullName || m.user?.name || 'Unknown');
+			const names = members.map(memberNameOf);
 			if (names.length <= maxDisplay) {
 				return names.join(', ');
 			}
 			const displayed = names.slice(0, maxDisplay).join(', ');
 			const remaining = names.length - maxDisplay;
-			return `${displayed} ${t('common.AND_X_OTHERS', { count: remaining })}`;
+			return t('toasts.tasks.ASSIGNEES_NAMES_AND_OTHERS', { names: displayed, count: remaining });
 		};
 
 		try {
@@ -152,29 +194,29 @@ export default function ImageOverlapper({
 				members: assignedMembers
 			});
 
-			// Build descriptive toast message
-			const messages: string[] = [];
+			const changes: string[] = [];
 
 			if (addedMembers.length > 0) {
-				messages.push(`${t('common.ADDED')}: ${formatMemberNames(addedMembers)}`);
+				const addedNames = formatMemberNames(addedMembers);
+				changes.push(t('toasts.tasks.ASSIGNEES_ADDED', { names: addedNames }));
 			}
 
 			if (removedMembers.length > 0) {
-				messages.push(`${t('common.REMOVED')}: ${formatMemberNames(removedMembers)}`);
+				const removedNames = formatMemberNames(removedMembers);
+				changes.push(t('toasts.tasks.ASSIGNEES_REMOVED', { names: removedNames }));
 			}
 
-			if (messages.length === 0) {
-				toast.success(t('task.toastMessages.TASK_ASSIGNED'));
-			} else {
-				toast.success(t('task.toastMessages.TASK_ASSIGNED'), {
-					description: messages.join(' • ')
+			if (changes.length > 0) {
+				toast.success(t('toasts.tasks.ASSIGNEES_UPDATED'), {
+					description: changes.join(' · ')
 				});
 			}
 
 			closeModal();
 		} catch (error) {
 			console.error('Error updating task members:', error);
-			toast.error(t('task.toastMessages.TASK_ASSIGNMENT_FAILED'));
+			const reasonKey = errorReasonKeyOf(error) as DottedLanguageObjectStringPaths;
+			toast.error(t('toasts.tasks.ASSIGNEES_NOT_SAVED'), { description: t(reasonKey) });
 		} finally {
 			setIsSubmitting(false);
 		}
@@ -183,7 +225,7 @@ export default function ImageOverlapper({
 	const hasMembers = item?.members?.length > 0;
 
 	if (imageLength === undefined) {
-		return <Skeleton height={40} width={40} borderRadius={100} className="rounded-full dark:bg-white/8" />;
+		return <Skeleton className="size-10 rounded-full" />;
 	}
 
 	if ((!hasMembers && item) || hasActiveMembers || assignTaskButtonCall) {
@@ -205,42 +247,32 @@ export default function ImageOverlapper({
 								{!hasMembers ? (
 									<button
 										type="button"
-										className="flex items-center justify-center rounded-full border-2 border-dashed border-[#6b7280] cursor-pointer bg-transparent"
+										className="flex items-center justify-center rounded-full border border-dashed border-muted-foreground/40 cursor-pointer bg-transparent text-muted-foreground outline-none transition-colors hover:border-muted-foreground/70 hover:bg-foreground/5 focus-visible:ring-[3px] focus-visible:ring-ring/25"
 										style={{ width: diameter, height: diameter }}
 										onClick={openModal}
-										aria-label="Assign task"
+										aria-label={t('profile.rows.ASSIGN_THIS_TASK')}
 									>
 										<IconsPersonRounded
-											fill={'#6b7280'}
-											className="w-6 h-6 stroke-[#c46060]"
+											className="w-6 h-6"
 											style={{ width: diameter / 2, height: diameter / 2 }}
 										/>
 									</button>
 								) : (
 									<button
 										type="button"
-										className="flex items-center justify-center rounded-full border-2 border-dashed border-[#6b7280] cursor-pointer bg-transparent"
+										className="flex items-center justify-center rounded-full border border-dashed border-muted-foreground/40 cursor-pointer bg-transparent text-muted-foreground outline-none transition-colors hover:border-muted-foreground/70 hover:bg-foreground/5 focus-visible:ring-[3px] focus-visible:ring-ring/25"
 										style={{ width: diameter, height: diameter }}
 										onClick={openModal}
-										aria-label="Assign task to more people"
+										aria-label={t('profile.rows.ASSIGN_TO_MORE_PEOPLE')}
 									>
 										<IconsPersonAddRounded
-											fill={'#6b7280'}
-											className="w-6 h-6 stroke-[#c46060]"
+											className="w-6 h-6"
 											style={{ width: diameter / 2, height: diameter / 2 }}
 										/>
 									</button>
 								)}
 							</TooltipTrigger>
-							{hasInfo.length > 0 && (
-								<TooltipContent
-									side="top"
-									className="bg-black text-white border border-gray-700 dark:bg-white dark:text-gray-900 dark:border-gray-300 font-medium text-xs px-3 py-1.5 rounded-md shadow-lg"
-								>
-									{hasInfo}
-									<TooltipArrow className="fill-black dark:fill-white" />
-								</TooltipContent>
-							)}
+							{hasInfo.length > 0 && <TooltipContent side="top">{hasInfo}</TooltipContent>}
 						</ShadcnTooltip>
 					</TooltipProvider>
 				)}
@@ -250,8 +282,7 @@ export default function ImageOverlapper({
 						isOpen={isOpen}
 						closeModal={closeModal}
 						title={t('common.SELECT_TEAM_MEMBER')}
-						className="bg-light--theme-light dark:bg-dark--theme-light py-5 rounded-xl w-full md:min-w-[20vw] md:max-w-fit h-[45vh] justify-start"
-						titleClass="font-normal"
+						className="py-5 w-full md:min-w-[20vw] md:max-w-fit h-[45vh] justify-start"
 					>
 						<Divider className="mt-4" />
 						<ul className="p-5 py-6 overflow-auto">
@@ -259,7 +290,7 @@ export default function ImageOverlapper({
 								return (
 									<li
 										key={member.id}
-										className="border border-transparent rounded-lg cursor-pointer w-100 hover:border-blue-500/50"
+										className="rounded-lg cursor-pointer w-100 transition-colors hover:bg-foreground/5"
 									>
 										<TeamMember
 											member={member}
@@ -276,16 +307,18 @@ export default function ImageOverlapper({
 							<div className="flex -space-x-3.5 overflow-hidden flex-center mt-[5px] items-center sm:justify-between">
 								<TaskAvatars task={{ members: assignedMembers }} limit={3} />
 								<div className="flex px-4 h-fit">
-									<button
-										className="flex flex-row items-center justify-center h-12 min-w-0 gap-3 px-2 py-2 text-sm text-white w-28 rounded-xl bg-primary dark:bg-primary-light disabled:bg-primary-light disabled:opacity-40"
+									<Button
+										size="lg"
+										className="min-w-28"
 										disabled={isLoading}
 										onClick={() => {
 											onConfirm();
 										}}
 									>
-										{isLoading ? <SpinnerLoader size={20} /> : <IconsCheck fill="#ffffff" />}
+										{isLoading && <SpinnerLoader size={20} variant="light" />}
+										{!isLoading && <Check />}
 										{t('common.CONFIRM')}
-									</button>
+									</Button>
 								</div>
 							</div>
 						</div>
@@ -294,19 +327,19 @@ export default function ImageOverlapper({
 			</div>
 		);
 	}
+	const avatarStyle = avatarSizeStyleOf(avatarSize);
+	const avatarSizeClassName = defaultAvatarSizeClassOf(avatarSize);
+	const overlapClassName = avatarOverlapClassOf(avatarSize);
+
 	return (
 		<div className="relative flex items-center min-w-fit">
-			<div className="relative flex items-center -space-x-3">
+			<div className={cn('relative flex items-center', overlapClassName)}>
 				{firstArray.map((image, index) => (
-					<Link className="!h-10 !w-10" key={index} href={onRedirect(image)}>
-						<div
-							className={cn(
-								'w-full h-full [&:not(:hover)]:!z-0 hover:!z-[5] transition-all hover:scale-110 even:z-[1] odd:z-[2]'
-							)}
-						>
+					<Link className={avatarSizeClassName} style={avatarStyle} key={index} href={onRedirect(image)}>
+						<div className={cn('w-full h-full [&:not(:hover)]:!z-0 hover:!z-[5] even:z-[1] odd:z-[2]')}>
 							<Tooltip
 								label={image.alt ?? 'avatar'}
-								labelClassName={image.alt ? '' : 'text-gray-500'}
+								labelClassName={cn(!image.alt && 'text-muted-foreground')}
 								className="absolute hover:!z-[1]"
 								placement="top"
 							>
@@ -315,7 +348,8 @@ export default function ImageOverlapper({
 									alt={`${image.alt} avatar`}
 									width={80}
 									height={80}
-									className="!h-10 !w-10 rounded-full border-2 border-white"
+									className={cn('rounded-full ring-2 ring-card', avatarSizeClassName)}
+									style={avatarStyle}
 								/>
 							</Tooltip>
 						</div>
@@ -325,18 +359,25 @@ export default function ImageOverlapper({
 			{isMoreThanDisplay && (
 				<Popover>
 					<PopoverTrigger asChild>
-						<div className="flex absolute cursor-pointer rounded-full top-1/2 -translate-y-1/2 left-28 z-[6] flex-row text-sm text-[#282048] dark:text-white font-semibold items-center justify-center !h-10 !w-10 border-2 border-[#0000001a] dark:border-white bg-white dark:bg-background">
+						<div
+							style={avatarStyle}
+							className={cn(
+								'relative z-[6] flex cursor-pointer flex-row items-center justify-center rounded-full bg-muted text-xs font-medium tabular-nums text-muted-foreground ring-2 ring-card',
+								avatarSizeClassName,
+								moreOverlapClassOf(avatarSize)
+							)}
+						>
 							{secondArray.length < 100 ? secondArray.length : 99}+
 						</div>
 					</PopoverTrigger>
-					<PopoverContent className="!py-2 !px-0 bg-white dark:bg-dark--theme input-border">
+					<PopoverContent className="px-0 py-2">
 						<ScrollArea className="h-40">
 							<div className="flex flex-col m-2 gap-y-2">
 								{secondArray.map((image: ImageOverlapperProps, index: number) => {
 									return (
 										<Link
 											href={onRedirect(image)}
-											className="relative hover:bg-gray-300 hover:dark:bg-muted p-1 rounded-md"
+											className="relative rounded-md p-1 transition-colors hover:bg-foreground/5"
 											key={index}
 										>
 											<div className="flex items-center">
@@ -345,9 +386,9 @@ export default function ImageOverlapper({
 													alt={`${image.alt} avatar`}
 													width={80}
 													height={80}
-													className="!h-10 !w-10 rounded-full border-2 border-white"
+													className="!h-10 !w-10 rounded-full hairline-ring ring-border"
 												/>
-												<p className="ml-2">{image.alt}</p>
+												<p className="ml-2 text-sm">{image.alt}</p>
 											</div>
 										</Link>
 									);

@@ -4,6 +4,8 @@ import React, { Dispatch, KeyboardEvent, PropsWithChildren, SetStateAction, useC
 import { Transition, Combobox, ComboboxOption, ComboboxOptions, ComboboxInput } from '@headlessui/react';
 import { clsxm } from '@/core/lib/utils';
 import { Text } from './typography';
+import { controlRecipe } from './input';
+import { popoverSurfaceRecipe } from './popover';
 import { IInviteEmail } from '../teams/invite/invite-email-item';
 
 type DropdownItem<D = { [x: string]: any }> = {
@@ -31,7 +33,15 @@ type Props<T extends DropdownItem> = {
 	useHandleKeyUp?: boolean;
 	setSelectedEmail?: Dispatch<SetStateAction<IInviteEmail | undefined>>;
 	selectedEmail?: IInviteEmail | undefined;
+	/** Anchors the options to the input in a portal, so opening them never pushes the content below. */
+	anchored?: boolean;
+	inputClassName?: string;
+	newItemLabel?: (query: string) => React.ReactNode;
 } & PropsWithChildren;
+
+function defaultNewItemLabel(query: string) {
+	return <div className="flex justify-between">{query}</div>;
+}
 
 export function AutoCompleteDropdown<T extends DropdownItem>({
 	className,
@@ -47,7 +57,10 @@ export function AutoCompleteDropdown<T extends DropdownItem>({
 	error = '',
 	useHandleKeyUp = false,
 	setSelectedEmail,
-	selectedEmail
+	selectedEmail,
+	anchored = false,
+	inputClassName,
+	newItemLabel
 }: Props<T>) {
 	const [query, setQuery] = useState('');
 	let filteredItem = items;
@@ -57,6 +70,8 @@ export function AutoCompleteDropdown<T extends DropdownItem>({
 			return `${item?.data?.title || ''}`.toLowerCase().includes(query.toLowerCase());
 		});
 	}
+
+	const renderNewItem = newItemLabel ?? defaultNewItemLabel;
 
 	const handleKeyUp = useCallback(
 		(event: KeyboardEvent<HTMLElement>) => {
@@ -71,6 +86,33 @@ export function AutoCompleteDropdown<T extends DropdownItem>({
 		[query, handleAddNew, useHandleKeyUp]
 	);
 
+	const optionList = (
+		<div className={clsxm('flex flex-col justify-center p-1', popoverSurfaceRecipe)}>
+			{query && handleAddNew && (
+				<ComboboxOption
+					key={'new'}
+					value={query}
+					onClick={() => {
+						handleAddNew(query);
+					}}
+					className="flex items-center self-stretch h-full cursor-pointer rounded-md px-2 py-1.5 text-sm font-medium text-foreground transition-colors data-focus:bg-foreground/5"
+				>
+					{renderNewItem(query)}
+				</ComboboxOption>
+			)}
+			{filteredItem.map((Item, index) => (
+				<ComboboxOption key={Item.key ? Item.key : index} value={Item} disabled={Item.disabled}>
+					{({ focus, selected }) => {
+						return Item.Label ? <Item.Label active={focus} selected={selected} /> : <div></div>;
+					}}
+				</ComboboxOption>
+			))}
+
+			{/* Additional content */}
+			<div className="mt-2">{children}</div>
+		</div>
+	);
+
 	return (
 		<div className={clsxm(className)}>
 			<Combobox value={Value} onChange={onChange} disabled={disabled}>
@@ -81,11 +123,11 @@ export function AutoCompleteDropdown<T extends DropdownItem>({
 						setSelectedEmail?.({ name: selectedEmail?.name ?? '', title: event.target.value });
 					}}
 					className={clsxm(
-						'input-border ',
-						'w-full flex justify-between rounded-[0.625rem] px-3 py-2 text-sm items-center bg-transparent',
-						'bg-light--theme-light dark:bg-dark--theme-light outline-none',
+						controlRecipe,
+						'flex h-9 items-center justify-between px-2.5 py-1',
 						'font-normal',
-						buttonClassName
+						buttonClassName,
+						inputClassName
 					)}
 					displayValue={(item: T) => item?.data?.title}
 					autoFocus
@@ -93,53 +135,39 @@ export function AutoCompleteDropdown<T extends DropdownItem>({
 					value={query}
 				/>
 
-				<Transition
-					as="div"
-					enter="transition duration-100 ease-out"
-					enterFrom="transform scale-95 opacity-0"
-					enterTo="transform scale-100 opacity-100"
-					leave="transition duration-75 ease-out"
-					leaveFrom="transform scale-100 opacity-100"
-					leaveTo="transform scale-95 opacity-0"
-				>
+				{anchored && (
 					<ComboboxOptions
+						anchor={{ to: 'bottom start', gap: 6 }}
+						transition
 						className={clsxm(
-							'mt-3 min-w-full max-h-64',
-							'overflow-hidden overflow-y-auto',
+							'z-[1000] max-h-64 w-(--input-width) min-w-64 overflow-y-auto outline-none transition duration-100 ease-out data-closed:scale-95 data-closed:opacity-0',
 							optionsClassName
 						)}
 					>
-						<div className="flex flex-col justify-center py-2 rounded-sm shadow-md md:px-4 bg-slate-50 card">
-							{/* This should only show when New item needs to be created */}
-							{query && handleAddNew && (
-								<ComboboxOption
-									key={'new'}
-									value={query}
-									onClick={() => {
-										handleAddNew(query);
-									}}
-									className="flex items-center self-stretch h-full font-medium text-gray-900 cursor-pointer"
-								>
-									<div className="flex justify-between">{`${query}`}</div>
-								</ComboboxOption>
-							)}
-							{filteredItem.map((Item, index) => (
-								<ComboboxOption key={Item.key ? Item.key : index} value={Item} disabled={Item.disabled}>
-									{({ focus, selected }) => {
-										return Item.Label ? (
-											<Item.Label active={focus} selected={selected} />
-										) : (
-											<div></div>
-										);
-									}}
-								</ComboboxOption>
-							))}
-
-							{/* Additional content */}
-							<div className="mt-2">{children}</div>
-						</div>
+						{optionList}
 					</ComboboxOptions>
-				</Transition>
+				)}
+				{!anchored && (
+					<Transition
+						as="div"
+						enter="transition duration-100 ease-out"
+						enterFrom="transform scale-95 opacity-0"
+						enterTo="transform scale-100 opacity-100"
+						leave="transition duration-75 ease-out"
+						leaveFrom="transform scale-100 opacity-100"
+						leaveTo="transform scale-95 opacity-0"
+					>
+						<ComboboxOptions
+							className={clsxm(
+								'mt-1 min-w-full max-h-64',
+								'overflow-hidden overflow-y-auto',
+								optionsClassName
+							)}
+						>
+							{optionList}
+						</ComboboxOptions>
+					</Transition>
+				)}
 			</Combobox>
 			{error && <Text.Error className="self-start justify-self-start">{error}</Text.Error>}
 		</div>

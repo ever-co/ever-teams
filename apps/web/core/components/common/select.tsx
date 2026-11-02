@@ -1,108 +1,389 @@
+'use client';
+
 import * as React from 'react';
-import * as SelectPrimitive from '@radix-ui/react-select';
-import { Check, ChevronDown } from 'lucide-react';
+import { createPortal } from 'react-dom';
+import { Select as SelectPrimitive } from '@base-ui/react/select';
+import { Check, ChevronDown } from '@/core/components/icons/hugeicons';
 
 import { cn } from '@/core/lib/helpers';
 import { clsxm } from '@/core/lib/utils';
+import { composeRefs, openStateAttribute, useMirroredOpenState } from './base-ui';
+import { controlRecipe } from './input';
 
-const Select = SelectPrimitive.Root;
+type SelectValueType = string | null;
+
+interface SelectContextValue {
+	value: SelectValueType;
+	isOpen: boolean;
+	valueNode: HTMLElement | null;
+	setValueNode: (node: HTMLElement | null) => void;
+	valueNodeHasChildren: boolean;
+	setValueNodeHasChildren: (hasChildren: boolean) => void;
+}
+
+const SelectContext = React.createContext<SelectContextValue | null>(null);
+
+function useSelectContext(): SelectContextValue {
+	const context = React.useContext(SelectContext);
+	if (context === null) {
+		throw new Error('Select parts must be rendered inside <Select>.');
+	}
+	return context;
+}
+
+/**
+ * Radix showed the picked item's children in `SelectValue` even while the list was closed, by rendering the
+ * items into a detached fragment. Base UI only knows the raw value, so the content is rendered a second
+ * time, hidden, and the selected item portals its children into the value node from there.
+ */
+const SelectLabelRegistryContext = React.createContext(false);
+
+type SelectRootPrimitiveProps = SelectPrimitive.Root.Props<string, false>;
+
+type SelectRootOwnProps = Omit<
+	SelectRootPrimitiveProps,
+	| 'value'
+	| 'defaultValue'
+	| 'onValueChange'
+	| 'onOpenChange'
+	| 'multiple'
+	| 'items'
+	| 'itemToStringLabel'
+	| 'itemToStringValue'
+	| 'isItemEqualToValue'
+>;
+
+interface SelectProps extends SelectRootOwnProps {
+	value?: string;
+	defaultValue?: string;
+	onValueChange?(value: string): void;
+	onOpenChange?(open: boolean): void;
+}
+
+/** Radix treated the empty string as "nothing selected"; Base UI uses `null`. */
+function toBaseValue(value: string | undefined): SelectValueType {
+	if (!value) {
+		return null;
+	}
+	return value;
+}
+
+function Select({
+	children,
+	value,
+	defaultValue,
+	onValueChange,
+	open,
+	defaultOpen,
+	onOpenChange,
+	...props
+}: SelectProps) {
+	const [internalValue, setInternalValue] = React.useState<SelectValueType>(() => toBaseValue(defaultValue));
+	const isControlled = value !== undefined;
+	let currentValue = internalValue;
+	if (isControlled) {
+		currentValue = toBaseValue(value);
+	}
+	const { isOpen, trackOpen } = useMirroredOpenState(open, defaultOpen);
+	const [valueNode, setValueNode] = React.useState<HTMLElement | null>(null);
+	const [valueNodeHasChildren, setValueNodeHasChildren] = React.useState(false);
+
+	const handleValueChange = (nextValue: SelectValueType) => {
+		if (!isControlled) {
+			setInternalValue(nextValue);
+		}
+		onValueChange?.(nextValue ?? '');
+	};
+	const handleOpenChange = (nextOpen: boolean) => {
+		trackOpen(nextOpen);
+		onOpenChange?.(nextOpen);
+	};
+
+	const contextValue = React.useMemo<SelectContextValue>(
+		() => ({
+			value: currentValue,
+			isOpen,
+			valueNode,
+			setValueNode,
+			valueNodeHasChildren,
+			setValueNodeHasChildren
+		}),
+		[currentValue, isOpen, valueNode, valueNodeHasChildren]
+	);
+
+	return (
+		<SelectContext.Provider value={contextValue}>
+			<SelectPrimitive.Root
+				value={currentValue}
+				onValueChange={handleValueChange}
+				open={isOpen}
+				onOpenChange={handleOpenChange}
+				{...props}
+			>
+				{children}
+			</SelectPrimitive.Root>
+		</SelectContext.Provider>
+	);
+}
+Select.displayName = 'Select';
 
 const SelectPortal = SelectPrimitive.Portal;
 
-const SelectGroup = SelectPrimitive.Group;
+const SelectGroup = React.forwardRef<HTMLDivElement, SelectPrimitive.Group.Props>(({ children, ...props }, ref) => {
+	const isLabelRegistry = React.useContext(SelectLabelRegistryContext);
+	if (isLabelRegistry) {
+		return <>{children}</>;
+	}
+	return (
+		<SelectPrimitive.Group ref={ref} data-slot="select-group" {...props}>
+			{children}
+		</SelectPrimitive.Group>
+	);
+});
+SelectGroup.displayName = 'SelectGroup';
 
-const SelectValue = SelectPrimitive.Value;
+interface SelectValueProps extends Omit<SelectPrimitive.Value.Props, 'children' | 'placeholder'> {
+	children?: React.ReactNode;
+	placeholder?: React.ReactNode;
+}
 
-const SelectTrigger = React.forwardRef<
-	React.ElementRef<typeof SelectPrimitive.Trigger>,
-	React.ComponentPropsWithoutRef<typeof SelectPrimitive.Trigger>
->(({ className, children, ...props }, ref) => (
-	<SelectPrimitive.Trigger
-		ref={ref}
-		className={cn(
-			'flex justify-between items-center px-3 py-2 w-full h-10 text-sm rounded-md border border-input bg-background ring-offset-background placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50',
-			className
-		)}
-		{...props}
-	>
-		{children as React.ReactNode}
-		<SelectPrimitive.Icon asChild>
-			<ChevronDown className="ml-2 w-4 h-4 opacity-50 shrink-0" />
-		</SelectPrimitive.Icon>
-	</SelectPrimitive.Trigger>
-));
-SelectTrigger.displayName = SelectPrimitive.Trigger.displayName;
+const SelectValue = React.forwardRef<HTMLSpanElement, SelectValueProps>(
+	({ className, children, placeholder, ...props }, ref) => {
+		const { setValueNode, setValueNodeHasChildren } = useSelectContext();
+		const hasChildren = children !== undefined;
+		React.useLayoutEffect(() => {
+			setValueNodeHasChildren(hasChildren);
+		}, [hasChildren, setValueNodeHasChildren]);
+		const registerValueNode = React.useMemo(
+			() => composeRefs<HTMLSpanElement>(ref, setValueNode),
+			[ref, setValueNode]
+		);
+		const renderValue = (value: SelectValueType) => {
+			const isEmpty = value === null || value === '';
+			if (isEmpty) {
+				return placeholder;
+			}
+			if (hasChildren) {
+				return children;
+			}
+			return null;
+		};
+		return (
+			<SelectPrimitive.Value
+				ref={registerValueNode}
+				data-slot="select-value"
+				className={cn('pointer-events-none', className)}
+				{...props}
+			>
+				{renderValue}
+			</SelectPrimitive.Value>
+		);
+	}
+);
+SelectValue.displayName = 'SelectValue';
 
-const SelectContent = React.forwardRef<
-	React.ElementRef<typeof SelectPrimitive.Content>,
-	React.ComponentPropsWithoutRef<typeof SelectPrimitive.Content>
->(({ className, children, position = 'popper', ...props }, ref) => (
-	<SelectPrimitive.Portal>
-		<SelectPrimitive.Content
-			ref={ref}
-			className={cn(
-				'relative z-50 min-w-[8rem] overflow-hidden rounded-md border bg-popover text-popover-foreground shadow-md data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2',
-				position === 'popper' &&
-					'data-[side=bottom]:translate-y-1 data-[side=left]:-translate-x-1 data-[side=right]:translate-x-1 data-[side=top]:-translate-y-1',
-				className
-			)}
-			position={position}
-			{...props}
-		>
-			<SelectPrimitive.Viewport
+const SelectTrigger = React.forwardRef<HTMLButtonElement, SelectPrimitive.Trigger.Props>(
+	({ className, children, ...props }, ref) => {
+		const { isOpen } = useSelectContext();
+		return (
+			<SelectPrimitive.Trigger
+				ref={ref}
+				data-slot="select-trigger"
+				data-state={openStateAttribute(isOpen)}
 				className={cn(
-					'p-1',
-					position === 'popper' &&
-						'h-[var(--radix-select-trigger-height)] w-full min-w-[var(--radix-select-trigger-width)]'
+					controlRecipe,
+					'flex h-9 items-center justify-between gap-2 px-3 py-1.5 text-left data-placeholder:text-muted-foreground/75 [&>span]:truncate',
+					className
 				)}
+				{...props}
 			>
 				{children}
-			</SelectPrimitive.Viewport>
-		</SelectPrimitive.Content>
-	</SelectPrimitive.Portal>
-));
-SelectContent.displayName = SelectPrimitive.Content.displayName;
+				<SelectPrimitive.Icon data-slot="select-icon" className="flex shrink-0">
+					<ChevronDown className="size-4 shrink-0 text-muted-foreground" />
+				</SelectPrimitive.Icon>
+			</SelectPrimitive.Trigger>
+		);
+	}
+);
+SelectTrigger.displayName = 'SelectTrigger';
 
-const SelectLabel = React.forwardRef<
-	React.ElementRef<typeof SelectPrimitive.Label>,
-	React.ComponentPropsWithoutRef<typeof SelectPrimitive.Label>
->(({ className, ...props }, ref) => (
-	<SelectPrimitive.Label ref={ref} className={cn('py-1.5 pl-8 pr-2 text-sm font-semibold', className)} {...props} />
-));
-SelectLabel.displayName = SelectPrimitive.Label.displayName;
+type SelectPosition = 'popper' | 'item-aligned';
 
-const SelectItem = React.forwardRef<
-	React.ElementRef<typeof SelectPrimitive.Item>,
-	{
-		chevronClass?: string;
-	} & React.ComponentPropsWithoutRef<typeof SelectPrimitive.Item>
->(({ className, chevronClass, children, ...props }, ref) => (
-	<SelectPrimitive.Item
-		ref={ref}
-		className={cn(
-			'relative flex w-full cursor-default select-none items-center rounded-xs py-1.5 pl-8 pr-2 text-sm outline-hidden focus:bg-accent focus:text-accent-foreground data-[disabled]:pointer-events-none data-[disabled]:opacity-50',
-			className
-		)}
-		{...props}
-	>
-		<span className="absolute left-2 flex h-3.5 w-3.5 items-center justify-center">
-			<SelectPrimitive.ItemIndicator>
-				<Check className={clsxm('w-4 h-4', chevronClass)} />
-			</SelectPrimitive.ItemIndicator>
-		</span>
+type SelectPositionProps = Pick<
+	SelectPrimitive.Positioner.Props,
+	'align' | 'alignOffset' | 'side' | 'sideOffset' | 'collisionPadding' | 'anchor' | 'sticky'
+>;
 
-		<SelectPrimitive.ItemText>{children}</SelectPrimitive.ItemText>
-	</SelectPrimitive.Item>
-));
-SelectItem.displayName = SelectPrimitive.Item.displayName;
+interface SelectContentProps extends SelectPrimitive.Popup.Props, SelectPositionProps {
+	position?: SelectPosition;
+}
 
-const SelectSeparator = React.forwardRef<
-	React.ElementRef<typeof SelectPrimitive.Separator>,
-	React.ComponentPropsWithoutRef<typeof SelectPrimitive.Separator>
->(({ className, ...props }, ref) => (
-	<SelectPrimitive.Separator ref={ref} className={cn('-mx-1 my-1 h-px bg-muted', className)} {...props} />
-));
-SelectSeparator.displayName = SelectPrimitive.Separator.displayName;
+const POPPER_SIDE_OFFSET = 4;
+const ITEM_ALIGNED_SIDE_OFFSET = 0;
+
+function defaultSideOffset(isItemAligned: boolean): number {
+	if (isItemAligned) {
+		return ITEM_ALIGNED_SIDE_OFFSET;
+	}
+	return POPPER_SIDE_OFFSET;
+}
+
+const SelectContent = React.forwardRef<HTMLDivElement, SelectContentProps>(
+	(
+		{
+			className,
+			children,
+			position = 'popper',
+			align = 'start',
+			alignOffset,
+			side = 'bottom',
+			sideOffset,
+			collisionPadding = 10,
+			anchor,
+			sticky,
+			...props
+		},
+		ref
+	) => {
+		const isItemAligned = position === 'item-aligned';
+		const isPopper = !isItemAligned;
+		const resolvedSideOffset = sideOffset ?? defaultSideOffset(isItemAligned);
+		return (
+			<>
+				<SelectLabelRegistryContext.Provider value={true}>
+					<div hidden aria-hidden="true" data-slot="select-label-registry">
+						{children}
+					</div>
+				</SelectLabelRegistryContext.Provider>
+				<SelectPrimitive.Portal>
+					<SelectPrimitive.Positioner
+						data-slot="select-positioner"
+						className="z-[1070] select-none outline-hidden"
+						align={align}
+						alignOffset={alignOffset}
+						side={side}
+						sideOffset={resolvedSideOffset}
+						collisionPadding={collisionPadding}
+						anchor={anchor}
+						sticky={sticky}
+						alignItemWithTrigger={isItemAligned}
+					>
+						<SelectPrimitive.Popup
+							ref={ref}
+							data-slot="select-content"
+							className={cn(
+								'relative z-[1000] flex max-h-(--available-height) min-w-32 flex-col overflow-hidden rounded-xl bg-popover text-popover-foreground hairline-ring ring-border shadow-md shadow-black/6.5 origin-(--transform-origin) transition-[opacity,scale] duration-150 data-starting-style:scale-95 data-starting-style:opacity-0 data-ending-style:scale-95 data-ending-style:opacity-0 [--radix-select-trigger-width:var(--anchor-width)] [--radix-select-trigger-height:var(--anchor-height)] [--radix-select-content-available-height:var(--available-height)]',
+								className
+							)}
+							{...props}
+						>
+							<SelectPrimitive.List
+								data-slot="select-viewport"
+								className={cn('min-h-0 p-1', isPopper && 'w-full min-w-(--anchor-width)')}
+							>
+								{children}
+							</SelectPrimitive.List>
+						</SelectPrimitive.Popup>
+					</SelectPrimitive.Positioner>
+				</SelectPrimitive.Portal>
+			</>
+		);
+	}
+);
+SelectContent.displayName = 'SelectContent';
+
+const SelectLabel = React.forwardRef<HTMLDivElement, SelectPrimitive.GroupLabel.Props>(
+	({ className, ...props }, ref) => {
+		const isLabelRegistry = React.useContext(SelectLabelRegistryContext);
+		if (isLabelRegistry) {
+			return null;
+		}
+		return (
+			<SelectPrimitive.GroupLabel
+				ref={ref}
+				data-slot="select-label"
+				className={cn('py-1.5 pl-8 pr-2 text-xs font-medium text-muted-foreground', className)}
+				{...props}
+			/>
+		);
+	}
+);
+SelectLabel.displayName = 'SelectLabel';
+
+type RadixCheckedState = 'checked' | 'unchecked';
+
+function checkedStateAttribute(isSelected: boolean): RadixCheckedState {
+	if (isSelected) {
+		return 'checked';
+	}
+	return 'unchecked';
+}
+
+interface SelectItemProps extends SelectPrimitive.Item.Props {
+	chevronClass?: string;
+	textValue?: string;
+}
+
+const SelectItem = React.forwardRef<HTMLElement, SelectItemProps>(
+	({ className, chevronClass, children, textValue, label, value, ...props }, ref) => {
+		const isLabelRegistry = React.useContext(SelectLabelRegistryContext);
+		const { value: selectedValue, valueNode, valueNodeHasChildren } = useSelectContext();
+		const hasSelection = selectedValue !== null;
+		const isSelected = hasSelection && selectedValue === value;
+		if (isLabelRegistry) {
+			const canPortalLabel = isSelected && !valueNodeHasChildren;
+			if (!canPortalLabel) {
+				return null;
+			}
+			if (valueNode === null) {
+				return null;
+			}
+			return createPortal(children, valueNode);
+		}
+		const resolvedLabel = label ?? textValue;
+		return (
+			<SelectPrimitive.Item
+				ref={ref}
+				data-slot="select-item"
+				data-state={checkedStateAttribute(isSelected)}
+				value={value}
+				label={resolvedLabel}
+				className={cn(
+					'relative flex w-full cursor-default select-none items-center rounded-md py-1.5 pl-8 pr-2 text-sm outline-hidden transition-colors data-highlighted:bg-foreground/5 data-highlighted:text-foreground data-disabled:pointer-events-none data-disabled:opacity-50',
+					className
+				)}
+				{...props}
+			>
+				<span className="absolute left-2 flex size-3.5 items-center justify-center">
+					<SelectPrimitive.ItemIndicator>
+						<Check className={clsxm('size-4', chevronClass)} />
+					</SelectPrimitive.ItemIndicator>
+				</span>
+
+				<SelectPrimitive.ItemText>{children}</SelectPrimitive.ItemText>
+			</SelectPrimitive.Item>
+		);
+	}
+);
+SelectItem.displayName = 'SelectItem';
+
+const SelectSeparator = React.forwardRef<HTMLDivElement, SelectPrimitive.Separator.Props>(
+	({ className, ...props }, ref) => {
+		const isLabelRegistry = React.useContext(SelectLabelRegistryContext);
+		if (isLabelRegistry) {
+			return null;
+		}
+		return (
+			<SelectPrimitive.Separator
+				ref={ref}
+				data-slot="select-separator"
+				className={cn('-mx-1 my-1 h-px bg-border', className)}
+				{...props}
+			/>
+		);
+	}
+);
+SelectSeparator.displayName = 'SelectSeparator';
 
 export {
 	Select,

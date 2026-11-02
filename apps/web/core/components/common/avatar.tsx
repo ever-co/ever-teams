@@ -1,57 +1,76 @@
+'use client';
+
 import * as React from 'react';
-import * as AvatarPrimitive from '@radix-ui/react-avatar';
+import { Avatar as AvatarPrimitive } from '@base-ui/react/avatar';
 
 import { cn } from '@/core/lib/helpers';
 import { normalizeImageUrl } from '@/core/lib/utils/normalize-image-url';
 
-const Avatar = React.forwardRef<
-	React.ElementRef<typeof AvatarPrimitive.Root>,
-	React.ComponentPropsWithoutRef<typeof AvatarPrimitive.Root>
->(({ className, ...props }, ref) => (
+/** Opaque fill: in an overlapping stack a translucent one lets the avatar underneath show through. */
+const Avatar = React.forwardRef<HTMLSpanElement, AvatarPrimitive.Root.Props>(({ className, ...props }, ref) => (
 	<AvatarPrimitive.Root
 		ref={ref}
-		className={cn('relative flex h-10 w-10 shrink-0 overflow-hidden rounded-full', className)}
+		data-slot="avatar"
+		className={cn('relative flex size-10 shrink-0 overflow-hidden rounded-full bg-muted', className)}
 		{...props}
 	/>
 ));
-Avatar.displayName = AvatarPrimitive.Root.displayName;
+Avatar.displayName = 'Avatar';
 
-const AvatarImage = React.forwardRef<
-	React.ElementRef<typeof AvatarPrimitive.Image>,
-	React.ComponentPropsWithoutRef<typeof AvatarPrimitive.Image>
->(({ className, src, ...props }, ref) => {
-	// `src` is normalised because the API can return a route-relative path (e.g. the seeded
-	// `assets/images/avatars/avatar-default.svg`), which Next.js would otherwise resolve against the
-	// current route and 404. See `normalizeImageUrl`.
-	//
-	// `|| undefined` because an empty `src` makes the underlying <img> request the current document
-	// URL; `undefined` is also what tells Radix to show the fallback instead.
-	//
-	// React 19 types an <img> `src` as `string | Blob | undefined`. A Blob carries its own data and
-	// cannot resolve against a route, so it is forwarded untouched.
-	const normalizedSrc = typeof src === 'string' ? normalizeImageUrl(src) || undefined : src;
+type AvatarImageSrc = AvatarPrimitive.Image.Props['src'];
 
-	return (
-		<AvatarPrimitive.Image
-			ref={ref}
-			className={cn('aspect-square h-full w-full', className)}
-			src={normalizedSrc}
-			{...props}
-		/>
-	);
-});
-AvatarImage.displayName = AvatarPrimitive.Image.displayName;
+// The API can return a route-relative path (the seeded `assets/images/avatars/avatar-default.svg`), which
+// the browser would resolve against the current route and 404: see `normalizeImageUrl`. An empty `src`
+// makes the underlying <img> request the current document URL, so it becomes `undefined`, which is also
+// what shows the fallback. A Blob carries its own data and is forwarded untouched.
+function normalizeAvatarSrc(src: AvatarImageSrc): AvatarImageSrc {
+	if (typeof src !== 'string') {
+		return src;
+	}
+	const normalizedSrc = normalizeImageUrl(src);
+	if (!normalizedSrc) {
+		return undefined;
+	}
+	return normalizedSrc;
+}
 
-const AvatarFallback = React.forwardRef<
-	React.ElementRef<typeof AvatarPrimitive.Fallback>,
-	React.ComponentPropsWithoutRef<typeof AvatarPrimitive.Fallback>
->(({ className, ...props }, ref) => (
-	<AvatarPrimitive.Fallback
-		ref={ref}
-		className={cn('flex h-full w-full items-center justify-center rounded-full bg-muted', className)}
-		{...props}
-	/>
-));
-AvatarFallback.displayName = AvatarPrimitive.Fallback.displayName;
+const AvatarImage = React.forwardRef<HTMLImageElement, AvatarPrimitive.Image.Props>(
+	({ className, src, ...props }, ref) => {
+		const normalizedSrc = normalizeAvatarSrc(src);
+		return (
+			<AvatarPrimitive.Image
+				ref={ref}
+				data-slot="avatar-image"
+				className={cn('aspect-square size-full object-cover', className)}
+				src={normalizedSrc}
+				{...props}
+			/>
+		);
+	}
+);
+AvatarImage.displayName = 'AvatarImage';
+
+interface AvatarFallbackProps extends AvatarPrimitive.Fallback.Props {
+	delayMs?: number;
+}
+
+const AvatarFallback = React.forwardRef<HTMLSpanElement, AvatarFallbackProps>(
+	({ className, delayMs, delay, ...props }, ref) => {
+		const resolvedDelay = delay ?? delayMs;
+		return (
+			<AvatarPrimitive.Fallback
+				ref={ref}
+				data-slot="avatar-fallback"
+				delay={resolvedDelay}
+				className={cn(
+					'flex size-full items-center justify-center rounded-full bg-muted text-xs font-medium text-muted-foreground',
+					className
+				)}
+				{...props}
+			/>
+		);
+	}
+);
+AvatarFallback.displayName = 'AvatarFallback';
 
 export { Avatar, AvatarImage, AvatarFallback };

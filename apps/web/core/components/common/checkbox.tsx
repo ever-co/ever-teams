@@ -1,26 +1,63 @@
+'use client';
+
 import * as React from 'react';
-import * as CheckboxPrimitive from '@radix-ui/react-checkbox';
-import { Check } from 'lucide-react';
+import { Checkbox as CheckboxPrimitive } from '@base-ui/react/checkbox';
+import { Check } from '@/core/components/icons/hugeicons';
 
 import { cn } from '@/core/lib/helpers';
 
-const Checkbox = React.forwardRef<
-	React.ElementRef<typeof CheckboxPrimitive.Root>,
-	React.ComponentPropsWithoutRef<typeof CheckboxPrimitive.Root>
->(({ className, ...props }, ref) => (
-	<CheckboxPrimitive.Root
-		ref={ref}
-		className={cn(
-			'peer h-4 w-4 shrink-0 rounded-xs border border-primary ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 data-[state=checked]:bg-primary data-[state=checked]:text-primary-foreground',
-			className
-		)}
-		{...props}
-	>
-		<CheckboxPrimitive.Indicator className={cn('flex items-center justify-center text-current')}>
-			<Check className="h-4 w-4" />
-		</CheckboxPrimitive.Indicator>
-	</CheckboxPrimitive.Root>
-));
-Checkbox.displayName = CheckboxPrimitive.Root.displayName;
+type CheckedState = boolean | 'indeterminate';
+
+interface CheckboxProps extends Omit<CheckboxPrimitive.Root.Props, 'checked' | 'defaultChecked'> {
+	checked?: CheckedState;
+	defaultChecked?: CheckedState;
+}
+
+function toBooleanChecked(state: CheckedState | undefined): boolean | undefined {
+	if (state === 'indeterminate') {
+		return false;
+	}
+	return state;
+}
+
+function resolveIndeterminate(
+	checked: CheckedState | undefined,
+	defaultChecked: CheckedState | undefined,
+	indeterminate: boolean | undefined
+): boolean {
+	const isCheckedIndeterminate = checked === 'indeterminate';
+	const isDefaultIndeterminate = defaultChecked === 'indeterminate';
+	const isExplicitIndeterminate = indeterminate === true;
+	return isCheckedIndeterminate || isDefaultIndeterminate || isExplicitIndeterminate;
+}
+
+const Checkbox = React.forwardRef<HTMLElement, CheckboxProps>(
+	({ className, checked, defaultChecked, indeterminate, ...props }, ref) => (
+		<CheckboxPrimitive.Root
+			ref={ref}
+			data-slot="checkbox"
+			checked={toBooleanChecked(checked)}
+			defaultChecked={toBooleanChecked(defaultChecked)}
+			indeterminate={resolveIndeterminate(checked, defaultChecked, indeterminate)}
+			className={cn(
+				'peer relative inline-flex size-4 shrink-0 cursor-pointer items-center justify-center rounded-[4px] hairline-border border-transparent bg-background text-primary-foreground shadow-sm shadow-black/10 hairline-ring ring-foreground/10 outline-none transition-[color,box-shadow,background-color] dark:bg-foreground/5 dark:ring-foreground/15',
+				'focus-visible:border-foreground/35 focus-visible:ring-[3px] focus-visible:ring-ring/25 dark:focus-visible:border-foreground/25',
+				'data-checked:bg-primary data-checked:ring-(--ring-color) data-checked:[--ring-color:color-mix(in_oklab,black_15%,hsl(var(--primary)))] dark:data-checked:[--ring-color:color-mix(in_oklab,white_15%,hsl(var(--primary)))]',
+				'aria-invalid:border-destructive aria-invalid:ring-destructive/20',
+				'disabled:cursor-not-allowed disabled:opacity-50 data-disabled:cursor-not-allowed data-disabled:opacity-50',
+				className
+			)}
+			{...props}
+		>
+			<CheckboxPrimitive.Indicator
+				data-slot="checkbox-indicator"
+				className="flex items-center justify-center text-current"
+			>
+				<Check className="size-3" strokeWidth={3} />
+			</CheckboxPrimitive.Indicator>
+		</CheckboxPrimitive.Root>
+	)
+);
+Checkbox.displayName = 'Checkbox';
 
 export { Checkbox };

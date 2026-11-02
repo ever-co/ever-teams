@@ -35,8 +35,8 @@ export function LanguageItem({
 	disabled?: boolean;
 }) {
 	return (
-		<div className={clsxm('flex items-center justify-start space-x-2 text-sm cursor-pointer mb-4', className)}>
-			<span className={clsxm('text-normal dark:text-white')}>{title}</span>
+		<div className={clsxm('flex items-center justify-start space-x-2 text-sm cursor-pointer py-1.5', className)}>
+			<span className={clsxm('text-foreground')}>{title}</span>
 		</div>
 	);
 }

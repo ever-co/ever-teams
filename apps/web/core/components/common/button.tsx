@@ -2,77 +2,77 @@ import { clsxm } from '@/core/lib/utils';
 import { PropsWithChildren, cloneElement, isValidElement } from 'react';
 import { SpinnerLoader } from './loader';
 import { useTranslations } from 'next-intl';
-import { ArrowLeftIcon } from 'assets/svg';
+import { ChevronLeft } from '@/core/components/icons/hugeicons';
+import { buttonVariants } from '../duplicated-components/_button';
+import type { ButtonSize, ButtonVariant } from '../duplicated-components/_button';
+
+type LegacyVariant =
+	| 'primary'
+	| 'secondary'
+	| 'outline'
+	| 'outline-dark'
+	| 'outline-danger'
+	| 'ghost'
+	| 'light'
+	| 'dark'
+	| 'grey'
+	| 'danger';
 
 type Props = {
-	variant?:
-		| 'primary'
-		| 'secondary'
-		| 'outline'
-		| 'outline-dark'
-		| 'outline-danger'
-		| 'ghost'
-		| 'light'
-		| 'dark'
-		| 'grey'
-		| 'danger';
+	variant?: LegacyVariant;
+	size?: ButtonSize;
 	loading?: boolean;
 	asChild?: boolean;
 } & PropsWithChildren &
 	React.ComponentPropsWithRef<'button'>;
 
-/**
- * `export function Button({ children, className, variant = 'primary', loading, asChild, ...rest }: Props)`
- *
- * The above function is a React component that takes in the following props:
- *
- * - `children`: The content of the button.
- * - `className`: A class name that can be used to override the default styles.
- * - `variant`: The variant of the button. The default value is `primary`.
- * - `loading`: A boolean value that determines whether the button is loading or not.
- * - `asChild`: When true, renders the first child element with button styles instead of a button element.
- * - `...rest`: Any other props that are not listed above
- * @param {Props}  - `children` - The content of the button.
- * @returns A button with a spinner loader inside of it, or the child element with button styles when asChild is true.
- */
-export function Button({ children, className, variant = 'primary', loading, asChild = false, ...rest }: Props) {
-	const buttonClasses = clsxm(
-		'flex flex-row items-center justify-center py-3 px-4 gap-3 rounded-md min-w-fit',
-		[
-			variant === 'primary' && [
-				'bg-primary dark:bg-primary-light text-white text-sm',
-				'disabled:bg-primary-light disabled:opacity-40'
-				// 'disabled:bg-primary-light dark:disabled:bg-[#33353E] disabled:opacity-40 dark:disabled:opacity-50',
-			],
-			variant === 'outline' && [
-				'text-primary border border-primary font-medium',
-				'dark:text-white border dark:border-white',
-				'disabled:opacity-40'
-			],
-			variant === 'outline-dark' && ['input-border font-medium', 'disabled:opacity-40'],
-			variant === 'grey' && [
-				'disabled:opacity-40',
-				'bg-light--theme-dark',
-				'dark:bg-light--theme-dark',
-				'dark:text-primary'
-			],
-			variant === 'danger' && [
-				'disabled:opacity-40 bg-[#EB6961] text-white dark:bg-[#EB6961] text-base font-semibold'
-			],
-			variant === 'outline-danger' && [
-				'text-[#EB6961] border border-[#EB6961] font-medium',
-				'disabled:opacity-40'
-			]
-		],
-		className
-	);
+const RECIPE_BY_LEGACY_VARIANT: Record<LegacyVariant, ButtonVariant> = {
+	primary: 'default',
+	danger: 'destructive',
+	outline: 'outline',
+	'outline-dark': 'outline',
+	'outline-danger': 'outline',
+	grey: 'outline',
+	dark: 'outline',
+	secondary: 'ghost',
+	ghost: 'ghost',
+	light: 'ghost'
+};
 
-	const content = (
-		<>
-			{loading && <SpinnerLoader size={17} variant={variant === 'outline' ? 'primary' : 'light'} />}
-			{children}
-		</>
-	);
+const FILLED_VARIANTS: ReadonlySet<LegacyVariant> = new Set(['primary', 'danger']);
+
+function spinnerVariantFor(variant: LegacyVariant) {
+	if (FILLED_VARIANTS.has(variant)) {
+		return 'light';
+	}
+	return 'primary';
+}
+
+function recipeVariantFor(variant: LegacyVariant): ButtonVariant {
+	return RECIPE_BY_LEGACY_VARIANT[variant];
+}
+
+function legacyButtonClasses(variant: LegacyVariant, size: ButtonSize, className?: string) {
+	const recipe = buttonVariants({ variant: recipeVariantFor(variant), size });
+	const isDangerOutline = variant === 'outline-danger';
+	return clsxm(recipe, isDangerOutline && 'text-destructive-ink', className);
+}
+
+/**
+ * The app-wide button with the legacy variant names. Each legacy name resolves to one recipe of
+ * `buttonVariants`; `size` defaults to `lg` because this component carries the call-to-action buttons.
+ */
+export function Button({
+	children,
+	className,
+	variant = 'primary',
+	size = 'lg',
+	loading,
+	asChild = false,
+	...rest
+}: Props) {
+	const buttonClasses = legacyButtonClasses(variant, size, className);
+	const spinner = <SpinnerLoader size={16} variant={spinnerVariantFor(variant)} />;
 
 	if (asChild && isValidElement(children)) {
 		const childProps = children.props as any;
@@ -85,7 +85,7 @@ export function Button({ children, className, variant = 'primary', loading, asCh
 
 		const newChildren = loading ? (
 			<>
-				<SpinnerLoader size={17} variant={variant === 'outline' ? 'primary' : 'light'} />
+				{spinner}
 				{childProps.children}
 			</>
 		) : (
@@ -97,13 +97,15 @@ export function Button({ children, className, variant = 'primary', loading, asCh
 
 	return (
 		<button
+			data-slot="button"
 			{...rest}
 			type={rest?.type ?? 'button'}
 			disabled={rest?.disabled ?? !!loading}
 			aria-busy={loading || undefined}
 			className={buttonClasses}
 		>
-			{content}
+			{loading && spinner}
+			{children}
 		</button>
 	);
 }
@@ -114,9 +116,9 @@ export function RoundedButton({ children, className, ...rest }: RoundedButtonPro
 	return (
 		<button
 			className={clsxm(
-				'bg-white dark:bg-dark-lighter dark:text-white rounded-full',
-				'shadow-[0px_4px_24px_rgba(0,0,0,0.25)] dark:shadow-darker',
-				'flex justify-center items-center text-default',
+				'bg-card text-foreground rounded-full hairline-ring ring-foreground/10 shadow-md shadow-black/10 dark:ring-foreground/15',
+				'flex justify-center items-center outline-none transition-colors hover:bg-muted/50',
+				'focus-visible:ring-[3px] focus-visible:ring-ring/25',
 				className
 			)}
 			{...rest}
@@ -129,11 +131,17 @@ export function RoundedButton({ children, className, ...rest }: RoundedButtonPro
 export function BackButton({ onClick, className }: { onClick?: () => void; className?: string }) {
 	const t = useTranslations();
 	return (
-		<button type="button" className={clsxm('flex justify-start items-center text-sm', className)}>
-			<ArrowLeftIcon className="w-full max-w-[20px]" />
-			<span className="text-sm" onClick={onClick}>
-				{t('common.BACK')}
-			</span>
+		<button
+			type="button"
+			onClick={onClick}
+			className={clsxm(
+				'inline-flex items-center gap-1 rounded-md text-sm text-muted-foreground outline-none transition-colors',
+				'hover:text-foreground focus-visible:ring-[3px] focus-visible:ring-ring/25',
+				className
+			)}
+		>
+			<ChevronLeft className="size-4" />
+			<span>{t('common.BACK')}</span>
 		</button>
 	);
 }

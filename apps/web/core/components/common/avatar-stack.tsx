@@ -40,11 +40,11 @@ const AvatarStack: React.FC<AvatarStackProps> = ({ avatars, maxVisible = 5 }) =>
 									alt={avatar?.name}
 									width={32}
 									height={32}
-									className="object-cover border-2 border-white rounded-full size-full aspect-square"
+									className="object-cover ring-2 ring-card rounded-full size-full aspect-square"
 								/>
 							) : (
 								<div
-									className="flex items-center justify-center w-8 h-8 font-medium text-white bg-gray-500 border-2 border-white rounded-full"
+									className="flex items-center justify-center w-8 h-8 text-xs font-medium text-muted-foreground bg-muted ring-2 ring-card rounded-full"
 									role="img"
 									aria-label={`Avatar for ${avatar?.name}`}
 								>
@@ -53,14 +53,14 @@ const AvatarStack: React.FC<AvatarStackProps> = ({ avatars, maxVisible = 5 }) =>
 							)}
 						</div>
 						{/* Tooltip */}
-						<div className="absolute p-1.5 text-xs text-white transition transform -translate-x-1/2 bg-gray-800 rounded-sm shadow-lg opacity-0 bottom-12 left-1/2 group-hover:opacity-100 whitespace-nowrap">
+						<div className="absolute bottom-12 left-1/2 -translate-x-1/2 whitespace-nowrap rounded-lg bg-popover px-3 py-1.5 text-xs text-popover-foreground opacity-0 hairline-ring ring-border shadow-md shadow-black/6.5 transition-opacity group-hover:opacity-100">
 							{avatar?.name}
 						</div>
 					</div>
 				);
 			})}
 			{avatars.length > maxItemsToShow && (
-				<div className="flex items-center justify-center w-8 h-8 text-xs font-medium bg-gray-300 border-2 border-white rounded-full">
+				<div className="flex items-center justify-center w-8 h-8 text-xs font-medium tabular-nums text-muted-foreground bg-muted ring-2 ring-card rounded-full">
 					+{avatars.length - maxItemsToShow}
 				</div>
 			)}

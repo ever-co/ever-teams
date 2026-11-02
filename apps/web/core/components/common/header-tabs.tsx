@@ -1,62 +1,79 @@
-import { clsxm } from '@/core/lib/utils';
+import { SegmentedControl } from './segmented-control';
 import LinkWrapper from './link-wrapper';
-import { QueueListIcon, Squares2X2Icon, TableCellsIcon } from '@heroicons/react/20/solid';
-import KanbanIcon from '@/core/components/svgs/kanban';
+import { GridView, Kanban, ListView, Table } from '@/core/components/icons';
 import { IssuesView, LAST_SELECTED_TEAM_MEMBERS_VIEW_MODE } from '@/core/constants/config/constants';
 import { useAtom } from 'jotai';
 import { headerTabs } from '@/core/stores/common/header-tabs';
 import { DottedLanguageObjectStringPaths, useTranslations } from 'next-intl';
 import { Tooltip } from '../duplicated-components/tooltip';
 
+const VIEW_OPTIONS = [
+	{ label: 'CARDS', icon: ListView, view: IssuesView.CARDS },
+	{ label: 'TABLE', icon: Table, view: IssuesView.TABLE },
+	{ label: 'BLOCKS', icon: GridView, view: IssuesView.BLOCKS },
+	{ label: 'KANBAN', icon: Kanban, view: IssuesView.KANBAN }
+] as const;
+
+const KANBAN_ROUTE = '/kanban';
+
+function linksFor(linkAll: boolean) {
+	if (linkAll) {
+		return ['/', '/', '/', KANBAN_ROUTE];
+	}
+	return [undefined, undefined, undefined, KANBAN_ROUTE];
+}
+
+function activeViewOf(isKanbanPage: boolean, view: IssuesView) {
+	if (isKanbanPage) {
+		return IssuesView.KANBAN;
+	}
+	return view;
+}
+
+function setLastTeamMembersViewMode(viewMode: IssuesView) {
+	localStorage?.setItem(LAST_SELECTED_TEAM_MEMBERS_VIEW_MODE, viewMode);
+}
+
+/** The view switch of the team pages: the segmented control, its thumb sliding to the picked view. */
 const HeaderTabs = ({ linkAll, kanban = false }: { linkAll: boolean; kanban?: boolean }) => {
 	const t = useTranslations();
-	const options = [
-		{ label: 'CARDS', icon: QueueListIcon, view: IssuesView.CARDS },
-		{ label: 'TABLE', icon: TableCellsIcon, view: IssuesView.TABLE },
-		{ label: 'BLOCKS', icon: Squares2X2Icon, view: IssuesView.BLOCKS },
-		{ label: 'KANBAN', icon: KanbanIcon, view: IssuesView.KANBAN }
-	];
-	const links = linkAll ? ['/', '/', '/', '/kanban'] : [undefined, undefined, undefined, '/kanban'];
+	const links = linksFor(linkAll);
 	const [view, setView] = useAtom(headerTabs);
-	const activeView = kanban ? IssuesView.KANBAN : view;
+	const activeView = activeViewOf(kanban, view);
 
-	const setLastTeamMembersViewMode = (viewMode: IssuesView) => {
-		localStorage?.setItem(LAST_SELECTED_TEAM_MEMBERS_VIEW_MODE, viewMode);
+	const items = VIEW_OPTIONS.map(({ label, icon: Icon, view: optionView }) => ({
+		value: optionView,
+		icon: <Icon />,
+		ariaLabel: t(`common.${label}` as DottedLanguageObjectStringPaths)
+	}));
+
+	const handleViewChange = (nextView: IssuesView) => {
+		const isKanban = nextView === IssuesView.KANBAN;
+		if (isKanban) {
+			return;
+		}
+		setView(nextView);
+		setLastTeamMembersViewMode(nextView);
 	};
+
 	return (
-		<>
-			{options.map(({ label, icon: Icon, view: optionView }, index) => (
-				<Tooltip
-					key={label}
-					label={t(`common.${label}` as DottedLanguageObjectStringPaths)}
-					placement="top-start"
-					className="z-20"
-				>
-					<LinkWrapper isRoute={!!links[index]} href={links[index]}>
-						<button
-							className={clsxm(
-								'rounded-md p-2 text-gray-700 dark:text-gray-300',
-								activeView === optionView &&
-									'bg-gray-100 text-gray-900 dark:bg-muted dark:text-gray-100'
-							)}
-							onClick={() => {
-								if (links[index] !== '/kanban') {
-									setView(optionView);
-									setLastTeamMembersViewMode(optionView);
-								}
-							}}
-						>
-							<Icon
-								className={clsxm(
-									'w-5 h-5 inline text-gray-600 dark:text-gray-400',
-									activeView === optionView && 'dark:text-white text-gray-800'
-								)}
-							/>
-						</button>
-					</LinkWrapper>
-				</Tooltip>
-			))}
-		</>
+		<SegmentedControl
+			items={items}
+			value={activeView}
+			onValueChange={handleViewChange}
+			ariaLabel={t('common.VIEW')}
+			renderItem={(item, button) => {
+				const index = VIEW_OPTIONS.findIndex((option) => option.view === item.value);
+				const href = links[index];
+				return (
+					<Tooltip label={item.ariaLabel ?? ''} placement="top-start" className="z-20">
+						<LinkWrapper isRoute={Boolean(href)} href={href}>
+							{button}
+						</LinkWrapper>
+					</Tooltip>
+				);
+			}}
+		/>
 	);
 };
 

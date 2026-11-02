@@ -4,9 +4,14 @@ import { useCallbackRef } from '@/core/hooks';
 import { Transition, Popover, PopoverButton } from '@headlessui/react';
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { HexColorPicker } from 'react-colorful';
-import { CheckSquareOutlineIcon, EditPenUnderlineIcon, TrashIcon } from 'assets/svg';
+import { CheckSquareOutlineIcon } from 'assets/svg';
 import { PopoverTrigger, PopoverContent, Popover as PopoverDropdown } from '@/core/components/common/popover';
-import { LoaderCircle } from 'lucide-react';
+import { Edit, Spinner, Trash } from '@/core/components/icons';
+import { cn } from '@/core/lib/helpers';
+import { buttonVariants } from '@/core/components/duplicated-components/_button';
+import { controlGroupRecipe } from './input';
+
+const iconButtonClassName = buttonVariants({ variant: 'ghost', size: 'icon-sm' });
 
 export const ColorPicker = ({
 	defaultColor,
@@ -30,7 +35,7 @@ export const ColorPicker = ({
 	const buttonRef = useRef<HTMLButtonElement>(null);
 	const panelRef = useRef<HTMLDivElement>(null);
 	const [disabled, setDisabled] = useState<boolean>(true);
-	const [,setIsInternalUpdate] = useState(false);
+	const [, setIsInternalUpdate] = useState(false);
 	const [loading, setLoading] = useState(false);
 
 	const toggleDisabled = useCallback(() => {
@@ -109,6 +114,8 @@ export const ColorPicker = ({
 		}
 	}, [onSave]);
 
+	const isLocked = disabled || disableButton;
+
 	return fullWidthInput ? (
 		<Popover
 			className={'z-[1000] relative border-none no-underline w-full mt-3' + className}
@@ -124,28 +131,27 @@ export const ColorPicker = ({
 						as="div"
 					>
 						<div
-							className={`relative w-[100%] h-[48px] border rounded-[10px] flex items-center justify-between input-border ${
-								disabled || disableButton ? 'bg-[#FCFCFC]' : 'bg-light--theme-light'
-							}  dark:bg-dark--theme-light`}
+							className={cn(
+								controlGroupRecipe,
+								'relative h-9 justify-between',
+								isLocked && 'bg-muted/50'
+							)}
 						>
-							<div className={`flex items-center gap-[8px] h-[40px] pl-[15px]`}>
+							<div className="flex items-center gap-2 pl-2.5">
 								<div
-									className={`w-5 h-5 rounded-xl`}
+									className="size-4 rounded-full hairline-ring ring-foreground/10"
 									style={{
 										backgroundColor: color || undefined
 									}}
 								></div>
-								<div className="uppercase dark:text-white">{color || ''}</div>
+								<div className="text-sm uppercase tabular-nums text-foreground">{color || ''}</div>
 							</div>
 							{isTeamManager && (
-								<div className="flex mr-[0.5rem] gap-3">
+								<div className="flex mr-1 gap-1">
 									{open ? (
-										<button type="button" onClick={handleSave}>
+										<button type="button" onClick={handleSave} className={iconButtonClassName}>
 											{loading ? (
-												<LoaderCircle
-													className="w-[18px] h-[18px] animate-spin"
-													strokeWidth="1.4"
-												/>
+												<Spinner className="size-4 animate-spin" />
 											) : (
 												<CheckSquareOutlineIcon
 													className="w-[18px] h-[18px]"
@@ -156,21 +162,18 @@ export const ColorPicker = ({
 									) : (
 										<>
 											{loading ? (
-												<LoaderCircle
-													className="w-[18px] h-[18px] animate-spin"
-													strokeWidth="1.4"
-												/>
+												<Spinner className="size-4 animate-spin text-muted-foreground" />
 											) : (
 												<>
 													<button
 														disabled={loading}
-														className={`z-50 outline-none`}
+														className={cn(iconButtonClassName, 'z-50')}
 														onClick={() => {
 															setDisabled(!disabled);
 														}}
 														type="button"
 													>
-														<EditPenUnderlineIcon className="w-6 h-6 cursor-pointer" />
+														<Edit className="size-4 text-muted-foreground" />
 													</button>
 													<button
 														disabled={loading}
@@ -184,10 +187,10 @@ export const ColorPicker = ({
 																setIsInternalUpdate(false);
 															}, 0);
 														}}
-														className={`outline-none ${'cursor-pointer'}`}
+														className={iconButtonClassName}
 														type="button"
 													>
-														<TrashIcon className="w-5" />
+														<Trash className="size-4 text-muted-foreground" />
 													</button>
 												</>
 											)}
@@ -215,8 +218,7 @@ export const ColorPicker = ({
 										color={color || undefined}
 										onChange={handleColorChange}
 										key={color ? `color-picker-${color}` : 'color-picker-default'}
-									/>{' '}
-									as unknown as JSX.Element
+									/>
 								</div>
 							</PopoverTrigger>
 						</PopoverDropdown>
@@ -227,12 +229,15 @@ export const ColorPicker = ({
 	) : (
 		<PopoverDropdown>
 			<PopoverTrigger asChild>
-				<div className="flex w-full items-center px-2 space-x-2 h-14 rounded-xl cursor-pointer dark:bg-dark--theme-light input-border">
-					<span className="block w-5 h-5 rounded-full" style={{ backgroundColor: color || '#000' }} />
-					<span className="font-normal">{color || 'Color'}</span>
+				<div className={cn(controlGroupRecipe, 'h-9 cursor-pointer gap-2 px-2.5')}>
+					<span
+						className="block size-4 rounded-full hairline-ring ring-foreground/10"
+						style={{ backgroundColor: color || '#000' }}
+					/>
+					<span className="text-sm text-foreground">{color || 'Color'}</span>
 				</div>
 			</PopoverTrigger>
-			<PopoverContent align="end" side="bottom" className="w-fit dark:bg-dark--theme-light input-border">
+			<PopoverContent align="end" side="bottom" className="w-fit p-3">
 				{/* @ts-ignore */}
 				<HexColorPicker className="relative h-10" color={color || undefined} onChange={handleColorChange} />
 			</PopoverContent>

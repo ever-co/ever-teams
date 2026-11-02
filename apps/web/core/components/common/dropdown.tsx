@@ -1,14 +1,14 @@
 import { IClassName } from '@/core/types/interfaces/common/class-name';
 import { clsxm } from '@/core/lib/utils';
 import { cn } from '@/core/lib/helpers';
-import { ChevronDown, ChevronUp } from 'lucide-react';
+import { ChevronDown, ChevronUp } from '@/core/components/icons';
 import React, { Dispatch, PropsWithChildren, SetStateAction, useEffect, useState } from 'react';
 import { SpinnerLoader } from './loader';
+import { controlRecipe } from './input';
 import { useTranslations } from 'next-intl';
 import { ScrollArea } from '@/core/components/common/scroll-bar';
 import { EverCard } from '../common/ever-card';
-import { Popover, PopoverContent, PopoverTrigger } from './popover';
-import { PopoverClose } from '@radix-ui/react-popover';
+import { Popover, PopoverClose, PopoverContent, PopoverTrigger } from './popover';
 export type DropdownItem<D = Record<string | number | symbol, any>> = {
 	key: React.Key;
 	Label: React.ComponentType<{ active?: boolean; selected?: boolean }>;
@@ -83,9 +83,9 @@ export function Dropdown<T extends DropdownItem>({
 			<button
 				type="button"
 				className={clsxm(
-					'input-border',
-					'flex w-full items-center justify-between rounded-md px-3 py-1.5 text-sm',
-					'font-normal outline-none',
+					controlRecipe,
+					'flex items-center justify-between gap-2 px-3 py-1.5 text-left font-normal',
+					'disabled:pointer-events-auto disabled:cursor-default disabled:opacity-100',
 					buttonClassName
 				)}
 				onClick={() => !publicTeam && setOpen(!open)}
@@ -102,30 +102,26 @@ export function Dropdown<T extends DropdownItem>({
 					</div>
 				) : !publicTeam ? (
 					open ? (
-						<ChevronUp className="w-5 h-5 ml-2 transition-transform duration-150 ease-in-out dark:text-white" />
+						<ChevronUp className="size-4 shrink-0 text-muted-foreground" />
 					) : (
-						<ChevronDown className="w-5 h-5 ml-2 transition-transform duration-150 ease-in-out dark:text-white" />
+						<ChevronDown className="size-4 shrink-0 text-muted-foreground" />
 					)
 				) : null}
 			</button>
 
 			{/* Dropdown content */}
 			{open && (
-				<div className={clsxm('absolute z-40 min-w-full mt-2', optionsClassName)}>
+				<div className={clsxm('absolute z-40 min-w-full mt-1', optionsClassName)}>
 					<EverCard
-						shadow="custom"
-						className={clsxm(
-							'md:px-4 py-2 rounded-xl dark:bg-card dark:border-[0.125rem] border-[#0000001A] dark:border-border',
-							searchBar && 'w-96'
-						)}
-						style={{ boxShadow: '0px 14px 39px rgba(0, 0, 0, 0.12)' }}
+						shadow="bigger"
+						className={clsxm('bg-popover p-1 text-popover-foreground md:px-1', searchBar && 'w-96')}
 					>
 						{/* Search input */}
 						{searchBar && (
-							<div className="sticky top-0 z-40 mb-4 dark:bg-card bg-white border-b">
+							<div className="sticky top-0 z-40 mb-1 hairline-b border-border bg-popover">
 								<input
 									placeholder={t('pages.settingsPersonal.TIMEZONE_SEARCH_PLACEHOLDER')}
-									className="w-full h-7 focus:outline-0 rounded-md dark:bg-card dark:text-white"
+									className="h-9 w-full bg-transparent px-2 text-sm text-foreground outline-none placeholder:text-muted-foreground/75"
 									value={searchValue}
 									onChange={(e) => setSearchValue(e.target.value)}
 								/>
@@ -139,8 +135,8 @@ export function Dropdown<T extends DropdownItem>({
 									<div
 										key={Item.key ? Item.key : index}
 										className={cn(
-											'relative flex items-center  py-1 rounded-md cursor-pointer',
-											Value?.key === Item.key && 'bg-accent text-accent-foreground',
+											'relative flex cursor-pointer items-center rounded-md py-1 transition-colors hover:bg-foreground/5',
+											Value?.key === Item.key && 'bg-foreground/5 text-foreground',
 											Item.disabled && 'opacity-50 cursor-not-allowed'
 										)}
 										onClick={() => !Item.disabled && handleSelect(Item)}
@@ -177,23 +173,21 @@ export function ConfirmDropdown({
 	return (
 		<Popover>
 			<PopoverTrigger asChild>{children}</PopoverTrigger>
-			<PopoverContent
-				className={clsxm(
-					'z-10 border shadow-none h-fit bg-light--theme-light dark:bg-dark--theme-light rounded-[16px] px-4 p-4 border-light--theme-border dark:border-dark--theme-border',
-					className
-				)}
-				sideOffset={5}
-				align="end"
-			>
-				<ul className="flex flex-col p-2 gap-y-2.5">
-					<li className="w-full font-medium text-primary dark:text-white">
-						<button className="w-full text-left" onClick={onConfirm}>
+			<PopoverContent className={clsxm('h-fit w-auto min-w-40 p-1', className)} sideOffset={5} align="end">
+				<ul className="flex flex-col">
+					<li className="w-full">
+						<button
+							className="flex w-full items-center rounded-md px-2 py-1.5 text-left text-sm font-medium text-destructive-ink outline-none transition-colors hover:bg-destructive/10 focus-visible:bg-destructive/10"
+							onClick={onConfirm}
+						>
 							{confirmText}
 						</button>
 					</li>
-					<li className="w-full text-sm">
+					<li className="w-full">
 						<PopoverClose asChild>
-							<button className="w-full text-left text-red-500">Cancel</button>
+							<button className="flex w-full items-center rounded-md px-2 py-1.5 text-left text-sm text-foreground outline-none transition-colors hover:bg-foreground/5 focus-visible:bg-foreground/5">
+								Cancel
+							</button>
 						</PopoverClose>
 					</li>
 				</ul>

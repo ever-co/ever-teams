@@ -144,11 +144,11 @@ export function LanguageDropDownWithFlags({
 			>
 				{showFlag ? <ActiveFlag className="size-3 shrink-0 mr-2.5 " /> : null}
 
-				<span className="text-sm text-gray-500">
+				<span className="text-sm text-muted-foreground">
 					{items.find((v) => v.data?.code == pathArray[1])?.data?.name ?? 'English'}
 				</span>
 			</SelectTrigger>
-			<SelectContent className="bg-light--theme-light overflow-y-auto w-auto rounded-xl z-[1070] relative  rounded-x dark:bg-card dark:border-[0.125rem] border-[#0000001A] dark:border-border">
+			<SelectContent className="overflow-y-auto w-auto z-[1070] relative">
 				{items.map((item: any) => {
 					const Flag = converLanguageToObject[item.data.code].Flag;
 					return (

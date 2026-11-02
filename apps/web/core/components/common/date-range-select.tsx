@@ -2,7 +2,7 @@
 
 import * as React from 'react';
 import { endOfMonth, endOfWeek, format, isSameDay, startOfMonth, startOfWeek, subDays, subMonths } from 'date-fns';
-import { Calendar as CalendarIcon } from 'lucide-react';
+import { Calendar as CalendarIcon } from '@/core/components/icons';
 import { DateRange } from 'react-day-picker';
 import { cn } from '@/core/lib/helpers';
 import { Button } from '@/core/components/duplicated-components/_button';
@@ -44,14 +44,14 @@ export function DatePickerWithRange({
 					<Button
 						id="date"
 						variant={'outline'}
+						size="default"
 						className={cn(
-							'w-[16rem] h-[2.2rem] justify-start text-left font-light',
+							'w-[16rem] justify-start overflow-hidden text-clip text-left font-normal',
 							!date && 'text-muted-foreground',
-							'overflow-hidden  h-[2.2rem]  text-clip border border-gray-200 dark:border-gray-700 bg-white dark:bg-dark--theme-light focus:ring-2 focus:ring-transparent',
 							className
 						)}
 					>
-						<CalendarIcon />
+						<CalendarIcon className="text-muted-foreground" />
 						{date?.from ? (
 							date.to ? (
 								<>
@@ -76,13 +76,13 @@ export function DatePickerWithRange({
 						numberOfMonths={2}
 						showOutsideDays={true}
 					/>
-					<div className="flex flex-col gap-1 w-44 border-l">
+					<div className="flex w-44 flex-col gap-1 hairline-l border-border">
 						<PresetDates date={selectedDate} setDate={setSelectedDate} />
 						<div className="flex flex-1 gap-1 justify-between items-center p-2">
 							<Button
-								className="h-8 text-xs  grow"
+								className="grow"
 								variant={'outline'}
-								size={'sm'}
+								size="default"
 								onClick={() => {
 									setIsOpen(false);
 								}}
@@ -99,8 +99,8 @@ export function DatePickerWithRange({
 										console.warn('Invalid date range selected');
 									}
 								}}
-								className="h-8 text-xs  grow dark:text-white"
-								size={'sm'}
+								className="grow"
+								size="default"
 							>
 								{t('common.APPLY')}
 							</Button>
@@ -110,6 +110,14 @@ export function DatePickerWithRange({
 			</Popover>
 		</div>
 	);
+}
+
+function isSameRange(range: DateRange | undefined, target: { from: Date; to: Date }): boolean {
+	if (!range?.from) return false;
+	if (!range.to) return false;
+	const isSameStart = isSameDay(range.from, target.from);
+	const isSameEnd = isSameDay(range.to, target.to);
+	return isSameStart && isSameEnd;
 }
 
 /**
@@ -172,26 +180,15 @@ const PresetDates = ({
 	}, [date?.from, date?.to, presets, date]);
 
 	return (
-		<div className="flex flex-col gap-1 p-2 w-full">
+		<div className="flex w-full flex-col gap-0.5 p-1">
 			{presets.map((preset) => (
 				<Button
 					key={preset.label}
 					onClick={() => setDate(preset.range)}
-					variant={
-						selected?.from &&
-						selected.to &&
-						isSameDay(selected?.from, preset.range.from) &&
-						isSameDay(selected?.to, preset.range.to)
-							? 'default'
-							: 'outline'
-					}
+					variant="ghost"
 					className={cn(
-						' truncate text-left text-sm h-8 px-2 py-1 font-normal border rounded',
-						selected?.from &&
-							selected.to &&
-							isSameDay(selected?.from, preset.range.from) &&
-							isSameDay(selected?.to, preset.range.to) &&
-							'dark:text-white'
+						'justify-start truncate px-2 text-left text-sm font-normal',
+						isSameRange(selected, preset.range) && 'bg-foreground/5 font-medium text-foreground'
 					)}
 				>
 					{preset.label}
