@@ -13,8 +13,30 @@
  * - Comments: HTML comments are removed.
  */
 
-// Allowlist of safe tags for rich text content
-const ALLOWED_TAGS = new Set(['p', 'strong', 'b', 'em', 'i', 'u', 'code', 'br', 'span']);
+// Allowlist of safe tags for rich text content: the inline marks, plus the blocks the rich editor writes (lists,
+// headings, quotes, code blocks, dividers). None of them may keep an attribute other than class.
+const ALLOWED_TAGS = new Set([
+	'p',
+	'strong',
+	'b',
+	'em',
+	'i',
+	'u',
+	's',
+	'del',
+	'code',
+	'br',
+	'span',
+	'ul',
+	'ol',
+	'li',
+	'h1',
+	'h2',
+	'h3',
+	'blockquote',
+	'pre',
+	'hr'
+]);
 
 // Allowlist of safe attributes (currently none needed for basic formatting)
 const ALLOWED_ATTRIBUTES = new Set(['class']);

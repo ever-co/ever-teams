@@ -11,6 +11,15 @@ export function createTaskLinkedIssue(data: ITaskLinkedIssue, bearer_token: stri
 	});
 }
 
+export function deleteTaskLinkedIssue(linkedIssueId: string, bearer_token: string, tenantId?: string) {
+	return serverFetch<unknown>({
+		path: `/task-linked-issue/${linkedIssueId}/soft`,
+		method: 'DELETE',
+		bearer_token,
+		tenantId
+	});
+}
+
 export function updateTaskLinkedIssue(data: ITaskLinkedIssue, bearer_token: string, tenantId?: string) {
 	return serverFetch<ITaskLinkedIssue>({
 		path: `/task-linked-issue/${data.id}`,
