@@ -1,10 +1,21 @@
-import { Menu, Transition } from '@headlessui/react';
-import { Archive, Ellipsis, Eye, Pencil, Trash } from 'lucide-react';
+import { Menu, MenuButton, MenuItem, MenuItems, MenuSeparator } from '@headlessui/react';
+import type { ReactNode } from 'react';
 import { useTranslations } from 'next-intl';
-import { HorizontalSeparator } from '@/core/components/duplicated-components/separator';
+import { Archive, Eye, MoreHorizontal, Pencil, Trash } from '@/core/components/icons';
+import { buttonVariants } from '@/core/components/duplicated-components/_button';
+import { cn } from '@/core/lib/helpers';
+import { dataColorChipStyle, dataColorDotStyle } from '@/core/components/tasks/task-data-color';
 import { TOrganizationProject } from '@/core/types/schemas';
 import { useProjectActionModal } from '@/core/hooks/use-project-action-modal';
 import { useProjectPermissions } from '@/core/hooks/projects/use-project-permissions';
+import {
+	MENU_ANCHOR,
+	MENU_ANCHORED_PANEL,
+	MENU_ROW,
+	MENU_ROW_DESTRUCTIVE,
+	MENU_SEPARATOR,
+	MENU_SURFACE
+} from '@/core/components/common/menu-recipes';
 
 export type ProjectViewDataType = {
 	project: {
@@ -24,6 +35,39 @@ export type ProjectViewDataType = {
 	teams: TOrganizationProject['teams'];
 };
 
+const DARK_THEME_STATUS_COLOR = 'hsl(var(--muted-foreground))';
+
+export function projectStatusColor(resolvedTheme: string | undefined, statusColor: string | null | undefined) {
+	if (resolvedTheme === 'light') {
+		return statusColor ?? 'transparent';
+	}
+	return DARK_THEME_STATUS_COLOR;
+}
+
+export function ProjectStatusChip({
+	color,
+	children,
+	className
+}: Readonly<{ color: string; children: ReactNode; className?: string }>) {
+	return (
+		<span
+			style={dataColorChipStyle(color)}
+			className={cn(
+				'chip-3d inline-flex items-center gap-1.5 rounded-sm px-2 py-0.5 text-xs font-medium',
+				className
+			)}
+		>
+			<span style={dataColorDotStyle(color)} className="size-1.5 shrink-0 rounded-full" />
+			{children}
+		</span>
+	);
+}
+
+export const MENU_POPUP_RECIPE =
+	'rounded-xl bg-popover p-1 text-popover-foreground hairline-ring ring-border shadow-md shadow-black/6.5 focus:outline-none';
+
+export const MENU_ITEM_RECIPE = 'flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-sm transition-colors';
+
 /**
  * Project item actions menu (Edit, Archive, Delete)
  *
@@ -40,85 +84,64 @@ export function ProjectItemActions({ item }: { item: ProjectViewDataType }) {
 	const t = useTranslations();
 	const { canEdit, canArchive, canDelete } = useProjectPermissions({ members: item.members });
 
-	const showSeparator = canDelete && (canEdit || canArchive);
+	const showsManageGroup = canEdit || canArchive;
 
 	return (
 		<Menu as="div" className="inline-block relative text-left">
 			<div>
-				<Menu.Button>
-					<Ellipsis />
-				</Menu.Button>
+				<MenuButton
+					aria-label={t('common.MORE_OPTIONS')}
+					className={cn(buttonVariants({ variant: 'ghost', size: 'icon-sm' }), 'text-muted-foreground')}
+				>
+					<MoreHorizontal />
+				</MenuButton>
 			</div>
-			<Transition
-				as="div"
-				enter="transition ease-out duration-100"
-				enterFrom="transform opacity-0 scale-95"
-				enterTo="transform opacity-100 scale-100"
-				leave="transition ease-in duration-75"
-				leaveFrom="transform opacity-100 scale-100"
-				leaveTo="transform opacity-0 scale-95"
-			>
-				<Menu.Items className="absolute z-[999] right-0 mt-2 w-40 origin-top-right divide-y divide-gray-100 rounded-md bg-white dark:bg-dark-lighter shadow-lg ring-1 ring-black/5 focus:outline-none">
-					<div className="flex flex-col gap-1 p-1">
-						{/* View Info - Available to all users */}
-						<Menu.Item>
-							{({ active }) => (
-								<button
-									onClick={() => openViewInfoModal(item.project.id)}
-									className={`${active && 'bg-primary/10'} gap-2 group flex w-full items-center rounded-md px-2 py-2 text-xs`}
-								>
-									<Eye size={15} /> <span>{t('common.VIEW_INFO')}</span>
-								</button>
-							)}
-						</Menu.Item>
+			<MenuItems anchor={MENU_ANCHOR} transition className={cn(MENU_SURFACE, MENU_ANCHORED_PANEL)}>
+				{/* View Info - Available to all users */}
+				<MenuItem>
+					<button onClick={() => openViewInfoModal(item.project.id)} className={MENU_ROW}>
+						<Eye />
+						<span>{t('common.VIEW_INFO')}</span>
+					</button>
+				</MenuItem>
 
-						{/* Edit - Only for Admins or Project Managers */}
-						{canEdit && (
-							<Menu.Item>
-								{({ active }) => (
-									<button
-										onClick={() => openEditModal(item.project.id)}
-										className={`${active && 'bg-primary/10'} gap-2 group flex w-full items-center rounded-md px-2 py-2 text-xs`}
-									>
-										<Pencil size={15} /> <span>{t('common.EDIT')}</span>
-									</button>
-								)}
-							</Menu.Item>
-						)}
+				{showsManageGroup && <MenuSeparator className={MENU_SEPARATOR} />}
 
-						{/* Archive - Only for Admins or Project Managers */}
-						{canArchive && (
-							<Menu.Item>
-								{({ active }) => (
-									<button
-										onClick={() => openArchiveModal(item.project.id)}
-										className={`${active && 'bg-primary/10'} gap-2 group flex w-full items-center rounded-md px-2 py-2 text-xs`}
-									>
-										<Archive size={15} /> <span>{t('common.ARCHIVE')}</span>
-									</button>
-								)}
-							</Menu.Item>
-						)}
+				{/* Edit - Only for Admins or Project Managers */}
+				{canEdit && (
+					<MenuItem>
+						<button onClick={() => openEditModal(item.project.id)} className={MENU_ROW}>
+							<Pencil />
+							<span>{t('common.EDIT')}</span>
+						</button>
+					</MenuItem>
+				)}
 
-						{/* Separator - Only show if delete is available */}
-						{showSeparator && <HorizontalSeparator />}
+				{/* Archive - Only for Admins or Project Managers */}
+				{canArchive && (
+					<MenuItem>
+						<button onClick={() => openArchiveModal(item.project.id)} className={MENU_ROW}>
+							<Archive />
+							<span>{t('common.ARCHIVE')}</span>
+						</button>
+					</MenuItem>
+				)}
 
-						{/* Delete - Only for Admins or Project Managers */}
-						{canDelete && (
-							<Menu.Item>
-								{({ active }) => (
-									<button
-										onClick={() => openDeleteModal(item.project.id)}
-										className={`${active && 'bg-red-400/10'} gap-2 text-red-600 group flex w-full items-center rounded-md px-2 py-2 text-xs`}
-									>
-										<Trash size={15} /> <span>{t('common.DELETE')}</span>
-									</button>
-								)}
-							</Menu.Item>
-						)}
-					</div>
-				</Menu.Items>
-			</Transition>
+				{canDelete && <MenuSeparator className={MENU_SEPARATOR} />}
+
+				{/* Delete - Only for Admins or Project Managers */}
+				{canDelete && (
+					<MenuItem>
+						<button
+							onClick={() => openDeleteModal(item.project.id)}
+							className={cn(MENU_ROW, MENU_ROW_DESTRUCTIVE)}
+						>
+							<Trash />
+							<span>{t('common.DELETE')}</span>
+						</button>
+					</MenuItem>
+				)}
+			</MenuItems>
 		</Menu>
 	);
 }

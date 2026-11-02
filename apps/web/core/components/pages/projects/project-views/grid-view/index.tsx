@@ -36,7 +36,7 @@ export function ProjectsGridView(props: IProps) {
 
 	return (
 		<div key="grid" className="w-full h-full">
-			<div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-2">
+			<div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
 				{loading ? (
 					<ProjectsGridSkeleton />
 				) : currentItems.length > 0 ? (
@@ -49,13 +49,14 @@ export function ProjectsGridView(props: IProps) {
 						/>
 					))
 				) : (
-					<div className="col-span-full min-h-[600px]">
+					<div className="col-span-full flex min-h-[600px] items-center justify-center rounded-xl bg-card hairline-ring ring-border shadow-sm shadow-black/6.5">
 						<AnimatedEmptyState
 							title="No Projects Yet"
+							showBorder={false}
 							message={
 								<>
 									<p>Ready to start something amazing?</p>
-									<p className="text-sm text-gray-500 mt-1">
+									<p className="mt-1 text-sm text-muted-foreground">
 										Create your first project and begin collaborating with your team.
 									</p>
 								</>
@@ -64,7 +65,7 @@ export function ProjectsGridView(props: IProps) {
 					</div>
 				)}
 			</div>
-			<div className="dark:bg-dark--theme px-4 py-4 flex">
+			<div className="flex px-4 py-4">
 				<Paginate
 					total={total}
 					onPageChange={onPageChange}

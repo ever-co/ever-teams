@@ -1,82 +1,64 @@
+'use client';
+
+import { useCallback, useMemo, useState } from 'react';
+import { useTranslations } from 'next-intl';
+import { CircleCheck, RotateLeft, UsersGroup } from '@/core/components/icons';
+import { ProjectConfirmDialog, ProjectSummaryCard } from '@/core/components/projects/dialogs/project-confirm-dialog';
 import { useEditOrganizationProject } from '@/core/hooks/organizations/projects/use-edit-organization-project';
 import { useOrganizationProjectsQuery } from '@/core/hooks/organizations/projects/use-organization-projects-query';
-import { Button, Modal, Text } from '@/core/components';
-import { RotateCcw } from 'lucide-react';
-import { useTranslations } from 'next-intl';
-import { useCallback, useMemo } from 'react';
-import { EverCard } from '../../common/ever-card';
 
 interface IRestoreProjectModalProps {
 	open: boolean;
 	closeModal: () => void;
 	projectId: string;
 }
-/**
- * A modal to confirm the restoration of a project
- *
- * @param {Object} props - The props Object
- * @param {boolean} props.open - If true open the modal otherwise close the modal
- * @param {() => void} props.closeModal - A function to close the modal
- *
- * @returns {JSX.Element} The modal element
- */
-export function RestoreProjectModal(props: IRestoreProjectModalProps) {
+
+export function RestoreProjectModal({ open, closeModal, projectId }: IRestoreProjectModalProps) {
 	const t = useTranslations();
-	const { open, closeModal, projectId } = props;
 	const { organizationProjects } = useOrganizationProjectsQuery();
 	const { editOrganizationProject, editOrganizationProjectLoading } = useEditOrganizationProject();
+	const [hasFailed, setHasFailed] = useState(false);
 	const project = useMemo(
-		() => organizationProjects.find((project) => project.id === projectId),
+		() => organizationProjects.find((item) => item.id === projectId),
 		[organizationProjects, projectId]
 	);
 
 	const handleRestore = useCallback(async () => {
-		try {
-			const res = await editOrganizationProject(projectId, {
-				isArchived: false,
-				isActive: true,
-				archivedAt: null
-			});
-
-			if (res) {
-				closeModal();
-			}
-		} catch (err) {
-			console.error('Failed to restore project', err);
+		setHasFailed(false);
+		const res = await editOrganizationProject(projectId, {
+			isArchived: false,
+			isActive: true,
+			archivedAt: null
+		});
+		if (!res) {
+			setHasFailed(true);
+			return;
 		}
+		closeModal();
 	}, [closeModal, editOrganizationProject, projectId]);
 
+	const consequences = [
+		{ key: 'active', icon: <CircleCheck />, text: t('pages.projects.modals.restore.backToActive') },
+		{ key: 'kept', icon: <UsersGroup />, text: t('pages.projects.modals.restore.keepsSettings') }
+	];
+
+	let error: string | null = null;
+	if (hasFailed) {
+		error = t('pages.projects.modals.errors.restore');
+	}
+
 	return (
-		<Modal isOpen={open} closeModal={closeModal} alignCloseIcon>
-			<EverCard className=" sm:w-[33rem] w-[20rem]" shadow="custom">
-				<div className="flex justify-center items-center py-3 w-full text-primary">
-					<RotateCcw size={45} />
-				</div>
-
-				<div className="flex flex-col gap-5 justify-between items-center">
-					<Text.Heading as="h3" className="text-center">
-						{t('pages.projects.restoreModal.title')}
-					</Text.Heading>
-
-					<p className=" text-center text-[1rem] text-gray-600">
-						{t('pages.projects.restoreModal.description', { projectName: project?.name })}
-					</p>
-
-					<div className="flex justify-between items-center w-full">
-						<Button onClick={closeModal} className="h-[2.75rem]" variant="outline">
-							{t('common.CANCEL')}
-						</Button>
-						<Button
-							onClick={handleRestore}
-							loading={editOrganizationProjectLoading}
-							className="h-[2.75rem] bg-primary text-primary-foreground"
-							type="submit"
-						>
-							{t('common.RESTORE')}
-						</Button>
-					</div>
-				</div>
-			</EverCard>
-		</Modal>
+		<ProjectConfirmDialog
+			open={open}
+			onClose={closeModal}
+			icon={<RotateLeft />}
+			title={t('pages.projects.modals.restore.title', { name: project?.name ?? '' })}
+			subject={project && <ProjectSummaryCard project={project} />}
+			consequences={consequences}
+			confirmLabel={t('pages.projects.modals.restore.confirm')}
+			isPending={editOrganizationProjectLoading}
+			error={error}
+			onConfirm={handleRestore}
+		/>
 	);
 }

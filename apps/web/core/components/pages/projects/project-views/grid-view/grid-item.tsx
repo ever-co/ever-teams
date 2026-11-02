@@ -2,13 +2,14 @@ import { cn } from '@/core/lib/helpers';
 import { Checkbox } from '@/core/components/common/checkbox';
 import Image from 'next/image';
 import Link from 'next/link';
-import { CalendarDays, RotateCcw } from 'lucide-react';
 import { useCallback, useMemo } from 'react';
 import moment from 'moment';
 import AvatarStack from '@/core/components/common/avatar-stack';
 import { useTranslations } from 'next-intl';
 import { useTheme } from 'next-themes';
-import { ProjectItemActions, ProjectViewDataType } from '..';
+import { Button } from '@/core/components';
+import { Calendar, RotateLeft } from '@/core/components/icons';
+import { ProjectItemActions, ProjectStatusChip, ProjectViewDataType, projectStatusColor } from '..';
 import { useTaskStatusesQuery } from '@/core/hooks/tasks/use-task-statuses-query';
 import { useProjectActionModal } from '@/core/hooks/use-project-action-modal';
 
@@ -68,23 +69,21 @@ export default function GridItem(props: IGridItemProps) {
 	return (
 		<div
 			className={cn(
-				'overflow-hidden w-full bg-white rounded-lg border border-gray-200 dark:bg-dark--theme-light dark:border-dark--theme-light',
-				'transition-colors duration-200 hover:border-primary dark:hover:border-primary'
+				'w-full rounded-xl bg-card hairline-ring ring-border shadow-sm shadow-black/6.5',
+				isSelected && 'ring-primary/40'
 			)}
 		>
-			<div className="flex p-3 w-full shrink-0">
-				<Checkbox onCheckedChange={handleSelect} checked={isSelected} className="mt-1 shrink-0" />
-				<div className="flex flex-col gap-6 ml-3 h-full grow">
-					<div className="flex justify-between items-center w-full">
+			<div className="flex w-full shrink-0 gap-3 p-4">
+				<Checkbox onCheckedChange={handleSelect} checked={isSelected} className="mt-2 shrink-0" />
+				<div className="flex h-full min-w-0 grow flex-col gap-4">
+					<div className="flex w-full items-start justify-between gap-2">
 						<Link
 							href={`/projects/${data?.project?.id}`}
-							className="flex gap-2 items-start font-medium group"
+							className="group flex min-w-0 items-center gap-2.5 rounded-md font-medium outline-none focus-visible:ring-[3px] focus-visible:ring-ring/50"
 						>
 							<div
 								style={{ backgroundColor: data?.project?.color ?? undefined }}
-								className={cn(
-									'flex overflow-hidden flex-none justify-center items-center w-9 h-9 rounded-lg border'
-								)}
+								className="flex size-8 flex-none items-center justify-center overflow-hidden rounded-md text-xs font-medium hairline-ring ring-border"
 							>
 								{!data?.project?.imageUrl ? (
 									data?.project?.name?.substring(0, 2)
@@ -98,104 +97,100 @@ export default function GridItem(props: IGridItemProps) {
 									/>
 								)}
 							</div>
-							<p className="text-sm font-semibold group-hover:text-primary transition-colors">
+							<p className="line-clamp-2 text-sm font-medium transition-colors group-hover:text-primary-ink">
 								{data?.project?.name}
 							</p>
 						</Link>
 						{data?.isArchived ? (
-							<button
+							<Button
 								onClick={() => openRestoreModal(data.project.id)}
-								className="bg-gray-100 hover:bg-gray-200 text-primary gap-1.5 group flex items-center rounded-md px-2 py-1.5 text-xs font-medium transition-colors"
+								variant="outline"
+								size="default"
+								className="shrink-0"
 							>
-								<RotateCcw size={14} />
+								<RotateLeft />
 								<span>{t('common.RESTORE')}</span>
-							</button>
+							</Button>
 						) : (
 							<ProjectItemActions item={data} />
 						)}
 					</div>
 
 					{!data?.isArchived && (
-						<div className="flex gap-4 items-center w-full">
-							<p className="text-sm font-medium text-gray-600 dark:text-gray-300">{t('common.STATUS')}</p>
+						<div className="flex w-full items-center gap-2">
+							<p className="text-xs text-muted-foreground">{t('common.STATUS')}</p>
 							{data?.status ? (
-								<div
-									style={{
-										backgroundColor:
-											resolvedTheme === 'light'
-												? (statusColorsMap.get(data?.status) ?? 'transparent')
-												: '#6A7280'
-									}}
-									className="rounded px-3 py-0.5 text-xs font-medium text-white"
+								<ProjectStatusChip
+									color={projectStatusColor(resolvedTheme, statusColorsMap.get(data?.status))}
 								>
 									{data?.status}
-								</div>
+								</ProjectStatusChip>
 							) : (
-								<span className="text-sm text-gray-500">-</span>
+								<span className="text-sm text-muted-foreground">-</span>
 							)}
 						</div>
 					)}
 
-					<div className="flex gap-10 items-center w-full">
-						<div className="flex flex-col gap-2">
-							<p className="text-sm font-medium">{t('common.START_DATE')}</p>
-							<div className="flex gap-1 items-center">
+					<div className="grid w-full grid-cols-2 gap-4">
+						<div className="flex flex-col gap-1">
+							<p className="text-xs text-muted-foreground">{t('common.START_DATE')}</p>
+							<div className="flex items-center gap-1.5 text-sm tabular-nums">
 								{data?.startDate ? (
 									<>
-										<CalendarDays size={15} className="text-slate-400" />
+										<Calendar className="size-3.5 text-muted-foreground" />
 										<p>{moment(data?.startDate).format('D.MM.YYYY')}</p>
 									</>
 								) : (
-									<span className="text-sm text-gray-500">-</span>
+									<span className="text-sm text-muted-foreground">-</span>
 								)}
 							</div>
 						</div>
 
-						<div className="flex flex-col gap-2">
-							<p className="text-sm font-medium">{t('common.END_DATE')}</p>
-							<div className="flex gap-1 items-center">
+						<div className="flex flex-col gap-1">
+							<p className="text-xs text-muted-foreground">{t('common.END_DATE')}</p>
+							<div className="flex items-center gap-1.5 text-sm tabular-nums">
 								{data?.endDate ? (
 									<>
-										<CalendarDays size={15} className="text-slate-400" />
+										<Calendar className="size-3.5 text-muted-foreground" />
 										<p>{moment(data?.endDate).format('D.MM.YYYY')}</p>
 									</>
 								) : (
-									<span className="text-sm text-gray-500">-</span>
+									<span className="text-sm text-muted-foreground">-</span>
 								)}
 							</div>
 						</div>
 					</div>
 
-					<div className="flex justify-between items-center w-full">
-						<div className="flex flex-col gap-2 w-full">
-							<p className="text-sm font-medium">{t('common.MEMBERS')}</p>
+					<div className="grid w-full grid-cols-3 gap-4 hairline-t border-dashed border-border pt-4">
+						<div className="flex min-w-0 flex-col gap-1.5">
+							<p className="text-xs text-muted-foreground">{t('common.MEMBERS')}</p>
 							<div>
 								{members?.length > 0 ? (
 									<AvatarStack maxVisible={3} avatars={members} />
 								) : (
-									<span className="text-sm text-gray-500">-</span>
+									<span className="text-sm text-muted-foreground">-</span>
 								)}
 							</div>
 						</div>
 
-						<div className="flex flex-col gap-2 w-full">
-							<p className="text-sm font-medium">{t('common.TEAMS')}</p>
+						<div className="flex min-w-0 flex-col gap-1.5">
+							<p className="text-xs text-muted-foreground">{t('common.TEAMS')}</p>
 							<div>
 								{teams?.length > 0 ? (
 									<AvatarStack maxVisible={2} avatars={teams} />
 								) : (
-									<span className="text-sm text-gray-500">-</span>
+									<span className="text-sm text-muted-foreground">-</span>
 								)}
 							</div>
 						</div>
 
-						<div className="flex flex-col gap-2 w-full">
-							<p className="text-sm font-medium">{t('common.MANAGERS')}</p>
+						<div className="flex min-w-0 flex-col gap-1.5">
+							<p className="text-xs text-muted-foreground">{t('common.MANAGERS')}</p>
 							<div>
 								{managers?.length > 0 ? (
 									<AvatarStack maxVisible={2} avatars={managers} />
 								) : (
-									<span className="text-sm text-gray-500">-</span>
+									<span className="text-sm text-muted-foreground">-</span>
 								)}
 							</div>
 						</div>

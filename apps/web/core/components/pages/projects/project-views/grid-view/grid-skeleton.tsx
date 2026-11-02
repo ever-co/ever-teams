@@ -1,18 +1,16 @@
 import { FC } from 'react';
-import { GenericCardsGridSkeleton } from '@/core/components/common/skeleton/generic-card-skeleton';
 import { Skeleton } from '@/core/components/common/skeleton';
-import { cn } from '@/core/lib/helpers';
 
 /**
  * Project header component with skeleton elements for project icon and name.
  */
 const ProjectHeader: FC = () => (
 	<div className="flex justify-between items-center w-full">
-		<div className="flex gap-2 items-center">
-			<Skeleton className="w-8 h-8 rounded" />
-			<Skeleton className="w-24 h-4 rounded" />
+		<div className="flex gap-2.5 items-center">
+			<Skeleton className="size-8 rounded-md" />
+			<Skeleton className="w-24 h-4" />
 		</div>
-		<Skeleton className="w-6 h-6 rounded" />
+		<Skeleton className="size-7" />
 	</div>
 );
 
@@ -21,7 +19,8 @@ const ProjectHeader: FC = () => (
  */
 const ProjectStatus: FC = () => (
 	<div className="flex gap-2 items-center w-full">
-		<Skeleton className="w-16 h-5 rounded-full" />
+		<Skeleton className="w-10 h-3" />
+		<Skeleton className="w-16 h-5 rounded-sm" />
 	</div>
 );
 
@@ -29,14 +28,14 @@ const ProjectStatus: FC = () => (
  * Project dates component with skeleton elements.
  */
 const ProjectDates: FC = () => (
-	<div className="flex gap-4 items-center w-full">
+	<div className="grid grid-cols-2 gap-4 w-full">
 		<div className="flex flex-col gap-1">
-			<Skeleton className="w-16 h-4 rounded" />
-			<Skeleton className="w-20 h-4 rounded" />
+			<Skeleton className="w-16 h-3" />
+			<Skeleton className="w-20 h-4" />
 		</div>
 		<div className="flex flex-col gap-1">
-			<Skeleton className="w-16 h-4 rounded" />
-			<Skeleton className="w-20 h-4 rounded" />
+			<Skeleton className="w-16 h-3" />
+			<Skeleton className="w-20 h-4" />
 		</div>
 	</div>
 );
@@ -45,28 +44,25 @@ const ProjectDates: FC = () => (
  * Project team members component with skeleton elements.
  */
 const ProjectTeam: FC = () => (
-	<div className="flex justify-between items-center w-full">
-		<div className="flex flex-col gap-1">
-			<Skeleton className="w-16 h-4 rounded" />
+	<div className="grid grid-cols-3 gap-4 w-full hairline-t border-dashed border-border pt-4">
+		<div className="flex flex-col gap-1.5">
+			<Skeleton className="w-14 h-3" />
 			<div className="flex -space-x-2">
 				{[...Array(2)].map((_, i) => (
-					<Skeleton
-						key={i}
-						className="w-8 h-8 rounded-full border-2 border-white dark:border-dark--theme-light"
-					/>
+					<Skeleton key={i} className="size-8 rounded-full ring-2 ring-card" />
 				))}
 			</div>
 		</div>
-		<div className="flex flex-col gap-1">
-			<Skeleton className="w-12 h-4 rounded" />
+		<div className="flex flex-col gap-1.5">
+			<Skeleton className="w-12 h-3" />
 			<div className="flex -space-x-2">
-				<Skeleton className="w-8 h-8 rounded-full border-2 border-white dark:border-dark--theme-light" />
+				<Skeleton className="size-8 rounded-full ring-2 ring-card" />
 			</div>
 		</div>
-		<div className="flex flex-col gap-1">
-			<Skeleton className="w-16 h-4 rounded" />
+		<div className="flex flex-col gap-1.5">
+			<Skeleton className="w-14 h-3" />
 			<div className="flex -space-x-2">
-				<Skeleton className="w-8 h-8 rounded-full border-2 border-white dark:border-dark--theme-light" />
+				<Skeleton className="size-8 rounded-full ring-2 ring-card" />
 			</div>
 		</div>
 	</div>
@@ -76,15 +72,14 @@ const ProjectTeam: FC = () => (
  * Project grid item skeleton component.
  */
 export const ProjectGridItem: FC = () => (
-	<div
-		className={cn(
-			'flex flex-col gap-4 p-4 bg-white rounded-lg border border-gray-200 hover:border-primary dark:hover:border-primary dark:bg-dark--theme-light dark:border-dark--theme-light'
-		)}
-	>
-		<ProjectHeader />
-		<ProjectStatus />
-		<ProjectDates />
-		<ProjectTeam />
+	<div className="flex gap-3 p-4 w-full rounded-xl bg-card hairline-ring ring-border shadow-sm shadow-black/6.5">
+		<Skeleton className="mt-2 size-4 shrink-0 rounded-[4px]" />
+		<div className="flex flex-col gap-4 min-w-0 grow">
+			<ProjectHeader />
+			<ProjectStatus />
+			<ProjectDates />
+			<ProjectTeam />
+		</div>
 	</div>
 );
 
@@ -92,7 +87,9 @@ export const ProjectGridItem: FC = () => (
  * Projects grid skeleton component that displays multiple loading items.
  */
 export const ProjectsGridSkeleton: FC = () => (
-	<div className="w-full">
-		<GenericCardsGridSkeleton count={12} variant="project" />
+	<div className="grid col-span-full grid-cols-1 gap-4 w-full sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+		{[...Array(12)].map((_, i) => (
+			<ProjectGridItem key={i} />
+		))}
 	</div>
 );

@@ -1,74 +1,46 @@
-import { Modal } from '@/core/components';
-import { useMemo } from 'react';
-import { useRolesQuery } from '@/core/hooks/roles/use-roles-query';
+'use client';
+
+import dynamic from 'next/dynamic';
+import { ProjectTile } from '@/core/components/projects/project-cells';
+import { ProjectDialog } from '@/core/components/projects/dialogs/project-dialog';
+import { ProjectComposerSkeleton } from '@/core/components/projects/dialogs/project-dialog-skeletons';
 import { useOrganizationProjectsQuery } from '@/core/hooks/organizations/projects/use-organization-projects-query';
-import AddOrEditProjectForm from './add-or-edit-project';
-import { ERoleName } from '@/core/types/generics/enums/role';
-import { ITag } from '@/core/types/interfaces/tag/tag';
-import { ROLES } from '@/core/constants/config/constants';
+
+const LazyProjectComposer = dynamic(
+	() => import('@/core/components/projects/composer/project-composer').then((module) => module.ProjectComposer),
+	{ ssr: false, loading: () => <ProjectComposerSkeleton /> }
+);
 
 interface IEditProjectModalProps {
 	open: boolean;
 	closeModal: () => void;
 	projectId: string;
 }
-/**
- * A modal to edit a project
- *
- * @param {Object} props - The props Object
- * @param {boolean} props.open - If true open the modal otherwise close the modal
- * @param {() => void} props.closeModal - A function to close the modal
- *
- * @returns {JSX.Element} The modal element
- */
-export function EditProjectModal(props: IEditProjectModalProps) {
-	const { open, closeModal, projectId } = props;
+
+export function EditProjectModal({ open, closeModal, projectId }: IEditProjectModalProps) {
 	const { organizationProjects } = useOrganizationProjectsQuery();
-
-	const { roles: rolesFromApi } = useRolesQuery();
-
-	// Get role IDs with fallback to constants if API doesn't return roles
-	const { simpleMemberRoleId, managerRoleId } = useMemo(() => {
-		// Try to get from API first
-		if (rolesFromApi && rolesFromApi.length > 0) {
-			const simpleMemberRole = rolesFromApi.find((role) => role.name === ERoleName.EMPLOYEE);
-			const managerRole = rolesFromApi.find((role) => role.name === ERoleName.MANAGER);
-			return {
-				simpleMemberRoleId: simpleMemberRole?.id ? String(simpleMemberRole.id) : undefined,
-				managerRoleId: managerRole?.id ? String(managerRole.id) : undefined
-			};
-		}
-
-		// Fallback to ROLES constants with generated IDs
-		const simpleMemberRole = ROLES.find((role) => role.name === ERoleName.EMPLOYEE);
-		const managerRole = ROLES.find((role) => role.name === ERoleName.MANAGER);
-		return {
-			simpleMemberRoleId: simpleMemberRole ? `fallback-${simpleMemberRole.name}` : undefined,
-			managerRoleId: managerRole ? `fallback-${managerRole.name}` : undefined
-		};
-	}, [rolesFromApi]);
-
-	const data = useMemo(() => {
-		const project = organizationProjects.find((project) => project.id === projectId);
-
-		return project
-			? {
-					...project,
-					members:
-						project.members?.map((el) => ({
-							id: `${el.id}-${String(el.role)}`,
-							memberId: el.employeeId,
-							roleId: el.isManager ? managerRoleId : simpleMemberRoleId
-						})) || [],
-					tags: project.tags?.map((el: ITag) => el.id),
-					relations: []
-				}
-			: {};
-	}, [managerRoleId, organizationProjects, projectId, simpleMemberRoleId]);
+	const project = organizationProjects.find((item) => item.id === projectId);
+	const hasProject = Boolean(project);
+	const showsComposer = open && hasProject;
+	const showsSkeleton = open && !hasProject;
 
 	return (
-		<Modal className="w-[50rem]" isOpen={open} closeModal={closeModal} alignCloseIcon>
-			<AddOrEditProjectForm onFinish={closeModal} mode="edit" projectData={data} />
-		</Modal>
+		<ProjectDialog open={open} onClose={closeModal} width="lg" keepOpenOnOutsideClick>
+			{showsComposer && project && (
+				<LazyProjectComposer
+					key={project.id}
+					mode="edit"
+					project={project}
+					context={
+						<>
+							<ProjectTile project={project} size="sm" className="size-4 text-[7px]" />
+							<span className="truncate">{project.name}</span>
+						</>
+					}
+					onClose={closeModal}
+				/>
+			)}
+			{showsSkeleton && <ProjectComposerSkeleton />}
+		</ProjectDialog>
 	);
 }

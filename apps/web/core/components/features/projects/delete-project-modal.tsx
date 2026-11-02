@@ -1,81 +1,93 @@
-import { useDeleteOrganizationProject } from '@/core/hooks/organizations/projects/use-delete-organization-project';
+'use client';
 
-import { Button, Modal, Text } from '@/core/components';
+import { useCallback, useMemo } from 'react';
 import { useTranslations } from 'next-intl';
-import { useCallback } from 'react';
 import { toast } from 'sonner';
-import { EverCard } from '../../common/ever-card';
+import { Button } from '@/core/components/duplicated-components/_button';
+import { Alert, Archive, Trash } from '@/core/components/icons';
+import { ProjectConfirmDialog, ProjectSummaryCard } from '@/core/components/projects/dialogs/project-confirm-dialog';
+import { useDeleteOrganizationProject } from '@/core/hooks/organizations/projects/use-delete-organization-project';
+import { useOrganizationProjectsQuery } from '@/core/hooks/organizations/projects/use-organization-projects-query';
+import { useProjectActionModal } from '@/core/hooks/use-project-action-modal';
 
 interface IDeleteProjectModalProps {
 	open: boolean;
 	closeModal: () => void;
 	projectId: string;
 }
-/**
- * A modal to confirm the deletion of a project
- *
- * @param {Object} props - The props Object
- * @param {boolean} props.open - If true open the modal otherwise close the modal
- * @param {() => void} props.closeModal - A function to close the modal
- *
- * @returns {JSX.Element} The modal element
- */
-export function DeleteProjectConfirmModal(props: IDeleteProjectModalProps) {
+
+export function DeleteProjectConfirmModal({ open, closeModal, projectId }: IDeleteProjectModalProps) {
 	const t = useTranslations();
-	const { open, closeModal, projectId } = props;
+	const { organizationProjects } = useOrganizationProjectsQuery();
 	const { deleteOrganizationProject, deleteOrganizationProjectLoading } = useDeleteOrganizationProject();
+	const { openArchiveModal } = useProjectActionModal();
+	const project = useMemo(
+		() => organizationProjects.find((item) => item.id === projectId),
+		[organizationProjects, projectId]
+	);
+	const canArchiveInstead = Boolean(project) && !project?.isArchived;
+
+	const showDeleted = useCallback(
+		(projectName: string | null | undefined) => {
+			if (projectName) {
+				toast.success(t('toasts.projects.DELETED', { name: projectName }), { duration: 4000 });
+				return;
+			}
+			toast.success(t('toasts.projects.DELETED_UNNAMED'), { duration: 4000 });
+		},
+		[t]
+	);
 
 	const handleDelete = useCallback(async () => {
-		try {
-			const res = await deleteOrganizationProject(projectId);
-
-			if (res) {
-				closeModal();
-
-				// Show success toast
-				toast.success(t('common.DELETE_SUCCESS'), {
-					description: t('pages.projects.deleteModal.successDescription'),
-					duration: 4000
-				});
-			}
-		} catch (err) {
-			console.error('Failed to delete project', err);
-
-			// Show error toast
-			toast.error(t('common.DELETE_ERROR'), {
-				description: t('pages.projects.deleteModal.errorDescription'),
-				duration: 5000
-			});
+		const projectName = project?.name;
+		// useDeleteOrganizationProject swallows the error: the global mutation fallback reports a failed delete
+		const isDeleted = await deleteOrganizationProject(projectId);
+		if (!isDeleted) {
+			return;
 		}
-	}, [closeModal, deleteOrganizationProject, projectId, t]);
+		closeModal();
+		showDeleted(projectName);
+	}, [closeModal, deleteOrganizationProject, project?.name, projectId, showDeleted]);
+
+	let title = t('pages.projects.deleteModal.title');
+	if (project?.name) {
+		title = t('pages.projects.modals.delete.title', { name: project.name });
+	}
+
+	const consequences = [
+		{ key: 'gone', icon: <Trash />, text: t('pages.projects.modals.delete.removes'), tone: 'danger' as const },
+		{ key: 'final', icon: <Alert />, text: t('pages.projects.modals.delete.final'), tone: 'danger' as const }
+	];
 
 	return (
-		<Modal isOpen={open} closeModal={closeModal} alignCloseIcon>
-			<EverCard className=" sm:w-[33rem] w-[20rem]" shadow="custom">
-				<div className="flex flex-col items-center justify-between gap-8">
-					<Text.Heading as="h3" className="text-center">
-						{t('pages.projects.deleteModal.title')}
-					</Text.Heading>
-
-					<p className=" text-center text-[1rem] text-gray-600">
-						{t('pages.projects.deleteModal.description')}
-					</p>
-
-					<div className="flex items-center justify-between w-full">
-						<Button onClick={closeModal} className="h-[2.75rem]" variant="outline">
-							{t('common.CANCEL')}
-						</Button>
+		<ProjectConfirmDialog
+			open={open}
+			onClose={closeModal}
+			tone="danger"
+			icon={<Trash />}
+			title={title}
+			subject={project && <ProjectSummaryCard project={project} />}
+			consequences={consequences}
+			extra={
+				canArchiveInstead && (
+					<p className="flex flex-wrap items-center gap-x-1 text-xs text-muted-foreground">
+						{t('pages.projects.modals.delete.archiveHint')}
 						<Button
-							onClick={handleDelete}
-							loading={deleteOrganizationProjectLoading}
-							className="h-[2.75rem] bg-red-600"
-							type="submit"
+							type="button"
+							variant="link"
+							size="sm"
+							onClick={() => openArchiveModal(projectId)}
+							className="h-auto px-0 text-xs"
 						>
-							{t('common.DELETE')}
+							<Archive aria-hidden="true" className="size-3.5" />
+							{t('pages.projects.modals.delete.archiveInstead')}
 						</Button>
-					</div>
-				</div>
-			</EverCard>
-		</Modal>
+					</p>
+				)
+			}
+			confirmLabel={t('pages.projects.modals.delete.confirm')}
+			isPending={deleteOrganizationProjectLoading}
+			onConfirm={handleDelete}
+		/>
 	);
 }

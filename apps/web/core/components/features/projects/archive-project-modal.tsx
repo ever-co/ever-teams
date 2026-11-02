@@ -1,166 +1,141 @@
+'use client';
+
+import { useCallback, useMemo, useState } from 'react';
+import { useTranslations, type DottedLanguageObjectStringPaths } from 'next-intl';
+import moment from 'moment';
+import { toast } from 'sonner';
+import { AnimatedHeight } from '@/core/components/common/animated-height';
+import { Archive, ChevronDown, Link, RotateLeft } from '@/core/components/icons';
+import { ProjectConfirmDialog, ProjectSummaryCard } from '@/core/components/projects/dialogs/project-confirm-dialog';
+import { TaskPropertyIcon } from '@/core/components/tasks/task-property-icon';
 import { useUpdateTask } from '@/core/hooks';
 import { useEditOrganizationProject } from '@/core/hooks/organizations/projects/use-edit-organization-project';
 import { useOrganizationProjectsQuery } from '@/core/hooks/organizations/projects/use-organization-projects-query';
-import { ScrollArea, ScrollBar } from '@/core/components/common/scroll-bar';
-import { Button, Modal, Text } from '@/core/components';
-import { useTranslations } from 'next-intl';
-import { useCallback, useMemo } from 'react';
-import { clsxm } from '@/core/lib/utils';
-import moment from 'moment';
-import { toast } from 'sonner';
-import { EverCard } from '../../common/ever-card';
-import { TaskNameInfoDisplay } from '../../tasks/task-displays';
-
+import { cn } from '@/core/lib/helpers';
+import { errorReasonKeyOf } from '@/core/lib/utils/error-feedback';
+import type { TTask } from '@/core/types/schemas/task/task.schema';
 
 interface IArchiveProjectModalProps {
 	open: boolean;
 	closeModal: () => void;
 	projectId: string;
 }
-/**
- * A modal to archive a project
- *
- * @param {Object} props - The props Object
- * @param {boolean} props.open - If true open the modal otherwise close the modal
- * @param {() => void} props.closeModal - A function to close the modal
- * @param {string} props.projectId - The project id to operate on
- *
- * @returns {JSX.Element} The modal element
- */
-export function ArchiveProjectModal(props: IArchiveProjectModalProps) {
-	const t = useTranslations();
-	const { open, closeModal, projectId } = props;
 
+function AffectedTasks({ tasks }: Readonly<{ tasks: TTask[] }>) {
+	const t = useTranslations();
+	const [isOpen, setIsOpen] = useState(false);
+	return (
+		<div className="flex flex-col">
+			<button
+				type="button"
+				onClick={() => setIsOpen((open) => !open)}
+				aria-expanded={isOpen}
+				className="-mx-1.5 inline-flex h-7 w-fit items-center gap-1.5 rounded-md px-1.5 text-xs text-muted-foreground outline-none transition-colors hover:bg-foreground/5 hover:text-foreground focus-visible:ring-[3px] focus-visible:ring-ring/25"
+			>
+				<ChevronDown
+					aria-hidden="true"
+					className={cn('size-3.5 transition-transform duration-200', isOpen && 'rotate-180')}
+				/>
+				{t('pages.projects.modals.archive.showTasks', { count: tasks.length })}
+			</button>
+			<AnimatedHeight swapKey={String(isOpen)}>
+				{isOpen && (
+					<ul className="mt-1 flex max-h-56 flex-col overflow-y-auto overscroll-contain rounded-xl hairline-ring ring-border hairline-divide-y divide-border">
+						{tasks.map((task) => (
+							<li key={task.id} className="flex h-9 items-center gap-2 px-3">
+								<TaskPropertyIcon kind="issueType" name={task.issueType} className="size-3.5" />
+								<span className="shrink-0 text-xs text-muted-foreground tabular-nums">
+									#{task.number}
+								</span>
+								<span className="min-w-0 truncate text-[13px] text-foreground">{task.title}</span>
+							</li>
+						))}
+					</ul>
+				)}
+			</AnimatedHeight>
+		</div>
+	);
+}
+
+/** Archiving keeps the project and everything in it; its tasks are unlinked afterwards, as before. */
+export function ArchiveProjectModal({ open, closeModal, projectId }: IArchiveProjectModalProps) {
+	const t = useTranslations();
 	const { organizationProjects } = useOrganizationProjectsQuery();
 	const { editOrganizationProject, editOrganizationProjectLoading } = useEditOrganizationProject();
-
 	const { updateTask } = useUpdateTask();
 	const project = useMemo(
-		() => organizationProjects.find((project) => project.id === projectId),
+		() => organizationProjects.find((item) => item.id === projectId),
 		[organizationProjects, projectId]
 	);
-	const affectedTasks = useMemo(() => project?.tasks ?? [], [project]);
+	const affectedTasks = useMemo<TTask[]>(() => project?.tasks ?? [], [project]);
+	const hasAffectedTasks = affectedTasks.length > 0;
+	const projectName = project?.name ?? '';
 
 	const unlinkAffectedTasks = useCallback(async () => {
 		try {
-			if (affectedTasks.length) {
-				await Promise.all(
-					affectedTasks.map(async (task) => {
-						await updateTask({ ...task, projectId: undefined });
-					})
-				);
-			}
+			await Promise.all(affectedTasks.map((task) => updateTask({ ...task, projectId: undefined })));
 		} catch (err) {
 			console.error('Failed to unlink tasks from project', err);
+			const reasonKey = errorReasonKeyOf(err) as DottedLanguageObjectStringPaths;
+			toast.error(t('toasts.projects.TASKS_STILL_LINKED'), { description: t(reasonKey) });
 		}
-	}, [affectedTasks, updateTask]);
+	}, [affectedTasks, t, updateTask]);
+
+	const showArchived = useCallback(() => {
+		if (projectName) {
+			toast.success(t('toasts.projects.ARCHIVED', { name: projectName }), { duration: 4000 });
+			return;
+		}
+		toast.success(t('toasts.projects.ARCHIVED_UNNAMED'), { duration: 4000 });
+	}, [projectName, t]);
 
 	const handleArchive = useCallback(async () => {
 		try {
+			// useEditOrganizationProject swallows the error: the global mutation fallback reports a failed archive
 			const res = await editOrganizationProject(projectId, {
 				isArchived: true,
 				isActive: false,
 				archivedAt: moment(Date.now()).format()
 			});
-
-			if (res) {
-				closeModal();
-
-				if (affectedTasks.length) {
-					unlinkAffectedTasks();
-				}
-
-				// Show success toast
-				toast.success(t('common.ARCHIVE_SUCCESS'), {
-					description: t('pages.projects.archiveModal.successDescription', {
-						projectName: project?.name
-					}),
-					duration: 4000
-				});
+			if (!res) {
+				return;
 			}
+			closeModal();
+			if (hasAffectedTasks) {
+				void unlinkAffectedTasks();
+			}
+			showArchived();
 		} catch (err) {
 			console.error('Failed to archive project', err);
-
-			// Show error toast
-			toast.error(t('common.ARCHIVE_ERROR'), {
-				description: t('pages.projects.archiveModal.errorDescription'),
-				duration: 5000
-			});
+			const reasonKey = errorReasonKeyOf(err) as DottedLanguageObjectStringPaths;
+			toast.error(t('toasts.projects.ARCHIVE_FAILED'), { description: t(reasonKey) });
 		}
-	}, [
-		affectedTasks.length,
-		closeModal,
-		editOrganizationProject,
-		project?.name,
-		projectId,
-		t,
-		unlinkAffectedTasks
-	]);
+	}, [closeModal, editOrganizationProject, hasAffectedTasks, projectId, showArchived, t, unlinkAffectedTasks]);
 
-	// The height of affected tasks view
-	const scrollAreaHeight = useMemo(() => {
-		const scrollAreaItemHeight = 2.325; //rem
-		const maxItemsInScrollArea = 8;
-		const scrollAreaPadding_yAxis = 1.4; // rem
-
-		return `${scrollAreaItemHeight * Math.min(affectedTasks.length, maxItemsInScrollArea) + scrollAreaPadding_yAxis}rem`;
-	}, [affectedTasks.length]);
+	const consequences = [
+		{ key: 'moves', icon: <Archive />, text: t('pages.projects.modals.archive.moves') },
+		{ key: 'restore', icon: <RotateLeft />, text: t('pages.projects.modals.archive.restorable') }
+	];
+	if (hasAffectedTasks) {
+		consequences.splice(1, 0, {
+			key: 'tasks',
+			icon: <Link />,
+			text: t('pages.projects.modals.archive.unlinksTasks', { count: affectedTasks.length })
+		});
+	}
 
 	return (
-		<Modal isOpen={open} closeModal={closeModal} alignCloseIcon>
-			<EverCard className=" sm:w-[28rem] w-[16rem]" shadow="custom">
-				<div className="flex flex-col gap-8 justify-between items-center">
-					<Text.Heading as="h3" className="text-center">
-						{t('pages.projects.archiveModal.title', { projectName: project?.name })}
-					</Text.Heading>
-
-					{affectedTasks.length > 0 ? (
-						<>
-							<p className=" text-center text-[1rem] text-gray-600">
-								{t('pages.projects.archiveModal.description', {
-									affectedTasksCount: affectedTasks.length,
-									projectName: project?.name
-								})}
-							</p>
-
-							<ScrollArea style={{ height: scrollAreaHeight }} className="w-full">
-								<div className="flex flex-col gap-2 p-2 m-auto w-full h-full rounded-md border">
-									{affectedTasks.map((task) => (
-										<TaskNameInfoDisplay
-											key={task.id}
-											task={task}
-											className={clsxm('border')}
-											taskTitleClassName={clsxm('')}
-										/>
-									))}
-								</div>
-
-								<ScrollBar className="-pl-5" />
-							</ScrollArea>
-						</>
-					) : null}
-
-					<div className="flex gap-3 justify-between items-center w-full">
-						<Button
-							disabled={editOrganizationProjectLoading}
-							onClick={closeModal}
-							className="h-[2.75rem] flex-1"
-							variant="outline"
-						>
-							{t('common.CANCEL')}
-						</Button>
-						<Button
-							loading={editOrganizationProjectLoading}
-							disabled={editOrganizationProjectLoading}
-							onClick={handleArchive}
-							className="h-[2.75rem] flex-1 bg-red-600"
-							type="submit"
-						>
-							{t('common.ARCHIVE')}
-						</Button>
-					</div>
-				</div>
-			</EverCard>
-		</Modal>
+		<ProjectConfirmDialog
+			open={open}
+			onClose={closeModal}
+			icon={<Archive />}
+			title={t('pages.projects.archiveModal.title', { projectName })}
+			subject={project && <ProjectSummaryCard project={project} />}
+			consequences={consequences}
+			extra={hasAffectedTasks && <AffectedTasks tasks={affectedTasks} />}
+			confirmLabel={t('pages.projects.modals.archive.confirm')}
+			isPending={editOrganizationProjectLoading}
+			onConfirm={handleArchive}
+		/>
 	);
 }

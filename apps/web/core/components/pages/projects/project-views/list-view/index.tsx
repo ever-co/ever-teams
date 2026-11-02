@@ -22,7 +22,7 @@ export function ProjectsListView(props: IProps) {
 		usePagination<ProjectViewDataType>({ items: projects });
 
 	return (
-		<div key="list" className=" w-full h-full">
+		<div key="list" className="w-full h-full">
 			<ProjectsTable
 				columnVisibility={columnVisibility}
 				onColumnVisibilityChange={onColumnVisibilityChange}
@@ -31,7 +31,7 @@ export function ProjectsListView(props: IProps) {
 				selectedProjects={selectedProjects}
 				onSelectedProjectsChange={setSelectedProjects}
 			/>
-			<div className=" dark:bg-dark--theme px-4 py-4 flex">
+			<div className="flex px-4 py-4">
 				<Paginate
 					total={total}
 					onPageChange={onPageChange}
