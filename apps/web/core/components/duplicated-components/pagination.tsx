@@ -2,6 +2,14 @@
 
 import { Button } from '@/core/components/duplicated-components/_button';
 import { ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight } from 'lucide-react';
+import { cn } from '@/core/lib/helpers';
+
+function getPageButtonVariant(isCurrentPage: boolean): 'outline' | 'ghost' {
+	if (isCurrentPage) {
+		return 'outline';
+	}
+	return 'ghost';
+}
 
 interface PaginationProps {
 	currentPage: number;
@@ -70,16 +78,16 @@ export function Pagination({
 				<div className="flex gap-1 items-center overflow-x-auto max-w-[300px] p-1">
 					{getVisiblePages().map((page, index) =>
 						page === '...' ? (
-							<span key={`dot-${index}`} className="px-2">
+							<span key={`dot-${index}`} className="px-2 text-muted-foreground">
 								...
 							</span>
 						) : (
 							<Button
 								key={page}
-								variant="outline"
-								size="sm"
+								variant={getPageButtonVariant(currentPage === page)}
+								size="icon"
 								onClick={() => goToPage(page as number)}
-								className={currentPage === page ? 'bg-primary text-primary-foreground' : ''}
+								className={cn('tabular-nums', currentPage === page && 'font-semibold text-foreground')}
 							>
 								{page}
 							</Button>
@@ -94,7 +102,7 @@ export function Pagination({
 				</Button>
 			</div>
 			{totalItems !== undefined && (
-				<div className="text-sm text-center text-[#111827] dark:text-gray-400 sm:text-left">
+				<div className="text-sm text-center tabular-nums text-muted-foreground sm:text-left">
 					Showing {startIndex + 1} to {endIndex} of {totalItems} entries
 				</div>
 			)}

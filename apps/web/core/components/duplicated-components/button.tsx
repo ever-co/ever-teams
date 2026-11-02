@@ -1,17 +1,14 @@
+import { Button as ButtonPrimitive } from './_button';
+
 interface IButtonProps {
 	value: string;
 }
 
 const Button = ({ value }: IButtonProps) => {
 	return (
-		<button
-			className="w-full my-1 px-4 py-2 h-[45px] tracking-wide text-white
-        transition-colors duration-200 transform bg-primary
-        dark:border dark:border-white rounded-[12px] hover:text-white/90 font-bold focus:outline-none"
-			type="submit"
-		>
+		<ButtonPrimitive className="w-full my-1" size="lg" type="submit">
 			{value}
-		</button>
+		</ButtonPrimitive>
 	);
 };
 

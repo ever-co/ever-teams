@@ -1,6 +1,9 @@
 import dynamic from 'next/dynamic';
 import { ProjectListSkeleton } from '../pages/projects/project-views/list-view/list-skeleton';
 import { ProjectsGridSkeleton } from '../pages/projects/project-views/grid-view/grid-skeleton';
+import { ToolbarPills } from '../layouts/page-skeleton';
+
+const EXPORT_BUTTON_WIDTHS = ['w-24'];
 
 // Project Modals
 export const LazyFiltersCardModal = dynamic(
@@ -62,6 +65,6 @@ export const LazyProjectExportMenu = dynamic(
 	() => import('../pages/projects/project-export-menu').then((mod) => ({ default: mod.ProjectExportMenu })),
 	{
 		ssr: false,
-		loading: () => <div className="w-32 h-8 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded" />
+		loading: () => <ToolbarPills widths={EXPORT_BUTTON_WIDTHS} />
 	}
 );

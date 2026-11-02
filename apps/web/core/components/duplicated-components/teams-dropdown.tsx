@@ -1,8 +1,6 @@
 import { imgTitle } from '@/core/lib/helpers/img-title';
 import { Popover, PopoverButton, PopoverPanel, Transition } from '@headlessui/react';
-import { ChevronDownIcon } from '@heroicons/react/20/solid';
-import { XMarkIcon } from '@heroicons/react/24/outline';
-import { PlusIcon } from '@heroicons/react/24/solid';
+import { ChevronDown, Plus, X } from '@/core/components/icons';
 import { useState } from 'react';
 import { Spinner } from '../common/spinner';
 import { useTranslations } from 'next-intl';
@@ -23,28 +21,22 @@ export const TeamsDropDown = () => {
 			<Popover className="relative">
 				{({ open, close }) => (
 					<>
-						<PopoverButton
-							className={`w-[290px] h-12
-                ${open ? '' : 'text-white/90'}
-                group inline-flex items-center rounded-[12px] bg-[#E8EBF8] dark:bg-background px-3 py-2 text-base font-medium text-white hover:text-white/100 focus:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-white/75`}
-						>
+						<PopoverButton className="group inline-flex h-9 w-[290px] items-center rounded-md hairline-border border-transparent bg-card px-3 py-2 text-sm font-medium text-foreground hairline-ring ring-foreground/10 shadow-sm shadow-black/10 outline-none focus-visible:ring-[3px] focus-visible:ring-ring/25 dark:ring-foreground/15">
 							<div className="flex justify-between items-center w-full">
-								<div className="flex justify-center items-center space-x-4">
-									<div className="w-[32px] h-[32px] rounded-full bg-white text-primary flex justify-center items-center text-[10px]">
+								<div className="flex items-center justify-center gap-2">
+									<div className="flex size-6 items-center justify-center rounded-md bg-foreground/5 text-[10px] font-medium text-muted-foreground">
 										{activeTeam ? imgTitle(activeTeam.name) : ''}
 									</div>
-									<span className="text-[18px] text-primary text-normal dark:text-white">
-										{activeTeam?.name}
-									</span>
+									<span className="truncate text-sm text-foreground">{activeTeam?.name}</span>
 								</div>
 
 								{getOrganizationTeamsLoading ? (
 									<Spinner dark={false} />
 								) : (
-									<ChevronDownIcon
+									<ChevronDown
 										className={clsxm(
-											open ? '' : 'text-primary/70 dark:text-white/70',
-											'ml-2 w-5 h-5 transition duration-150 ease-in-out text-primary dark:text-white group-hover:text-primary/80 dark:group-hover:text-white/80'
+											'ml-2 size-4 text-muted-foreground transition-transform duration-150',
+											open && 'rotate-180'
 										)}
 										aria-hidden="true"
 									/>
@@ -61,26 +53,23 @@ export const TeamsDropDown = () => {
 							leaveTo="opacity-0 translate-y-1"
 						>
 							<PopoverPanel className="absolute left-1/2 z-10 mt-3 w-[290px] max-w-sm -translate-x-1/2 transform px-4 sm:px-0 lg:max-w-3xl">
-								<div className="overflow-hidden rounded-lg ring-1 ring-black/5 shadow-lg">
-									<div className="relative grid gap-[8px] bg-[#FFFFFF] dark:bg-background px-3 py-4 lg:grid-cols-1 w-full">
+								<div className="overflow-hidden rounded-xl bg-popover hairline-ring ring-border shadow-md shadow-black/6.5">
+									<div className="relative grid w-full gap-0.5 p-1 lg:grid-cols-1">
 										{teams.map((item) => {
-											const color = '#F5F6FB';
 											return (
 												<div
 													key={item.id}
-													className="font-light cursor-pointer"
+													className="cursor-pointer rounded-md px-2 py-1.5 transition-colors hover:bg-foreground/5"
 													onClick={() => {
 														setActiveTeam(item);
 														close();
 													}}
 												>
-													<div className="flex justify-start items-center space-x-4">
-														<div
-															className={`flex justify-center items-center font-bold rounded-full w-[32px] h-[32px] bg-[${color}] text-primary text-[10px]`}
-														>
+													<div className="flex items-center justify-start gap-2">
+														<div className="flex size-6 items-center justify-center rounded-md bg-foreground/5 text-[10px] font-medium text-muted-foreground">
 															{imgTitle(item.name)}
 														</div>
-														<span className="text-[16px] text-primary text-normal dark:text-white">
+														<span className="text-sm text-foreground">
 															{item.name} ({item.members?.length || 0})
 														</span>
 													</div>
@@ -91,16 +80,16 @@ export const TeamsDropDown = () => {
 									{edit === true ? (
 										<CreateNewTeam setEdit={setEdit} />
 									) : (
-										<div className="bg-white dark:bg-background p-4">
+										<div className="hairline-t border-border p-2">
 											<button
-												className="rounded-[8px] bg-[#D7E1EB] dark:bg-card text-[16px] text-primary dark:text-white font-medium text-center w-[261px] h-[40px]"
+												className="h-8 w-full rounded-md hairline-border border-transparent bg-card text-center text-xs font-medium text-foreground hairline-ring ring-foreground/10 shadow-sm shadow-black/10 transition-colors hover:bg-muted/50 dark:ring-foreground/15"
 												onClick={() => {
 													setEdit(true);
 												}}
 											>
-												<div className="flex justify-center items-center">
-													<span className="mr-[11px]">
-														<PlusIcon className="text-primary dark:text-white font-bold w-[16px] h-[16px]" />
+												<div className="flex items-center justify-center">
+													<span className="mr-2">
+														<Plus className="size-4" />
 													</span>
 													{t('team.creation.NEW')}
 												</div>
@@ -137,11 +126,11 @@ function CreateNewTeam({ setEdit }: { setEdit: (value: React.SetStateAction<bool
 	};
 
 	return (
-		<div className="bg-white dark:bg-card p-4 border-t border-[#9490A0]/10 ">
-			<form onSubmit={handleSubmit} className="relative text-gray-600 focus-within:text-gray-400">
+		<div className="hairline-t border-border p-2">
+			<form onSubmit={handleSubmit} className="relative text-muted-foreground">
 				<input
 					autoFocus
-					className="w-full h-[40px] pr-[20px] dark:text-white text-primary bg-[#EEEFF5] border border-[#EEEFF5] dark:bg-card placeholder-[#9490A0] placeholder:font-light placeholder:text-sm dark:placeholder-[#616164] rounded-[10px] pl-[10px] shadow-inner "
+					className="h-8 w-full rounded-md hairline-border border-transparent bg-background pl-2.5 pr-8 text-sm text-foreground hairline-ring ring-foreground/10 shadow-sm shadow-black/10 outline-none transition-[color,box-shadow] placeholder:text-muted-foreground/75 focus-visible:border-foreground/35 focus-visible:ring-[3px] focus-visible:ring-ring/25 dark:bg-foreground/5 dark:ring-foreground/15"
 					placeholder="Please enter your team name"
 					disabled={createOTeamLoading}
 					name="name"
@@ -151,17 +140,17 @@ function CreateNewTeam({ setEdit }: { setEdit: (value: React.SetStateAction<bool
 					{createOTeamLoading ? (
 						<Spinner dark={false} />
 					) : (
-						<XMarkIcon
-							className="flex justify-center items-center px-1 mr-1 w-6 h-6 rounded-lg cursor-pointer hover:bg-gray-300 hover:text-primary"
+						<X
+							className="mr-1 flex size-6 cursor-pointer items-center justify-center rounded-md px-1 transition-colors hover:bg-foreground/5 hover:text-foreground"
 							onClick={() => setEdit(false)}
 						/>
 					)}
 				</span>
 			</form>
 			{error ? (
-				<span className="text-xs text-red-400 pl-[10px]">{error}</span>
+				<span className="pl-2.5 text-xs text-destructive-ink">{error}</span>
 			) : (
-				<span className="text-xs text-[#9490A0] pl-[10px]">{t('placeholders.ENTER_TO_VALIDATE')}</span>
+				<span className="pl-2.5 text-xs text-muted-foreground">{t('placeholders.ENTER_TO_VALIDATE')}</span>
 			)}
 		</div>
 	);
