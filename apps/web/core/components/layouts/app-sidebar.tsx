@@ -1,6 +1,7 @@
 import * as React from 'react';
 import {
 	Bot,
+	Calendar,
 	Chart,
 	Clock,
 	Dashboard,
@@ -84,11 +85,15 @@ import { SettingsNav } from '../settings/kit/settings-nav';
 import { isSettingsPath } from '../settings/kit/settings-entries';
 import { stripLocalePrefix } from '@/core/lib/utils/navigation-path';
 import { useRememberAppPath } from '@/core/hooks/common/use-remember-app-path';
+import { useOrganizationAndTeamManagers } from '@/core/hooks/organizations/teams/use-organization-teams-managers';
 
 type AppSidebarProps = React.ComponentProps<typeof Sidebar> & { publicTeam: boolean | undefined };
 
 // Limit to 5 projects for sidebar display
 const MAX_SIDEBAR_PROJECTS = 5;
+
+// The All teams page sends back to the home page anyone who manages fewer teams
+const MIN_MANAGED_TEAMS_FOR_ALL_TEAMS = 2;
 
 function isInboxEnabled() {
 	const runtimeFlag = readRuntimeEnv('NEXT_PUBLIC_INBOX_ENABLED') || process.env.NEXT_PUBLIC_INBOX_ENABLED;
@@ -113,6 +118,8 @@ export function AppSidebar({ publicTeam, ...props }: AppSidebarProps) {
 	const activeTeam = useAtomValue(activeTeamState);
 	const pathname = usePathname();
 	const myWorkNavigation = getMyWorkNavigation(user?.id, username || undefined);
+	const { userManagedTeams } = useOrganizationAndTeamManagers();
+	const showsAllTeams = userManagedTeams.length >= MIN_MANAGED_TEAMS_FOR_ALL_TEAMS;
 
 	// The sidebar lists the projects of the team picked in the header. "All teams" is the
 	// /all-teams page (the header entry links there), not a cleared team: activeTeamState falls
@@ -182,12 +189,19 @@ export function AppSidebar({ publicTeam, ...props }: AppSidebarProps) {
 			icon: Home,
 			label: 'home'
 		};
+		const calendarEntry = {
+			title: t('common.CALENDAR'),
+			url: '/calendar',
+			selectable: true,
+			icon: Calendar,
+			label: 'calendar'
+		};
 		// /inbox has no page yet (404 for every user who clicks it). Gated, not removed: flip
 		// NEXT_PUBLIC_INBOX_ENABLED=true when the route ships (read at runtime: no rebuild of the image).
 		if (isInboxEnabled()) {
-			return [homeEntry, inboxEntry];
+			return [homeEntry, inboxEntry, calendarEntry];
 		}
-		return [homeEntry];
+		return [homeEntry, calendarEntry];
 	}, [t]);
 
 	const navMain = useMemo(() => {
@@ -298,6 +312,22 @@ export function AppSidebar({ publicTeam, ...props }: AppSidebarProps) {
 			]
 		};
 
+		const dashboardItems = [
+			{
+				title: t('sidebar.TEAM_DASHBOARD'),
+				url: `/dashboard/team-dashboard/${activeTeamId ?? userId}?name=${encodedUsername}`,
+				label: 'team dashboard'
+			},
+			{
+				title: t('sidebar.APPS_AND_URLS'),
+				url: `/dashboard/app-url/${userId}?name=${encodedUsername}`,
+				label: 'apps-urls'
+			}
+		];
+		if (showsAllTeams) {
+			dashboardItems.push({ title: t('common.ALL_TEAMS'), url: '/all-teams', label: 'all-teams' });
+		}
+
 		return [
 			{
 				title: t('sidebar.DASHBOARD'),
@@ -305,18 +335,7 @@ export function AppSidebar({ publicTeam, ...props }: AppSidebarProps) {
 				selectable: false,
 				icon: Dashboard,
 				label: 'dashboard',
-				items: [
-					{
-						title: t('sidebar.TEAM_DASHBOARD'),
-						url: `/dashboard/team-dashboard/${activeTeamId ?? userId}?name=${encodedUsername}`,
-						label: 'team dashboard'
-					},
-					{
-						title: t('sidebar.APPS_AND_URLS'),
-						url: `/dashboard/app-url/${userId}?name=${encodedUsername}`,
-						label: 'apps-urls'
-					}
-				]
+				items: dashboardItems
 			},
 			{
 				title: t('sidebar.FAVORITES'),
@@ -337,6 +356,11 @@ export function AppSidebar({ publicTeam, ...props }: AppSidebarProps) {
 						title: t('sidebar.TEAMTASKS'),
 						url: '/team/tasks',
 						label: 'team-tasks'
+					},
+					{
+						title: t('common.KANBAN'),
+						url: '/kanban',
+						label: 'kanban'
 					},
 					{
 						title: t('sidebar.MY_TASKS'),
@@ -391,7 +415,8 @@ export function AppSidebar({ publicTeam, ...props }: AppSidebarProps) {
 		encodedUsername,
 		myWorkNavigation.timeAndActivity,
 		myWorkNavigation.workDiary,
-		isTeamManager
+		isTeamManager,
+		showsAllTeams
 	]);
 
 	const showsSettingsNav = isSettingsPath(stripLocalePrefix(pathname ?? ''));
