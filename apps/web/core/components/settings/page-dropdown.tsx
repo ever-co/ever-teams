@@ -4,7 +4,10 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import { paginationPageSizeOptions } from '@/core/constants/config/constants';
 import { Popover, PopoverContent, PopoverTrigger } from '@radix-ui/react-popover';
 import { clsxm } from '@/core/lib/utils';
-import { ChevronDownIcon } from 'lucide-react';
+import { ChevronDown } from '@/core/components/icons';
+import { controlRecipe } from '@/core/components/common/input';
+
+const TRIGGER_CLASS = clsxm(controlRecipe, 'z-10 flex h-8 w-[145px] items-center justify-between gap-2 px-2.5 text-xs');
 
 interface IProps {
 	onChange: (value: number) => void;
@@ -61,30 +64,26 @@ export const PaginationItemsDropdown = ({ onChange, totalItems, itemsPerPage }: 
 
 	return (
 		<Popover open={open} onOpenChange={setOpen}>
-			<PopoverTrigger
-				className={clsxm(
-					'input-border',
-					'flex justify-between items-center px-3 py-2 w-full text-sm rounded-xl',
-					'font-normal outline-none',
-					'z-10 py-0 font-medium h-[45px] w-[145px] dark:bg-dark--theme-light'
-				)}
-			>
+			<PopoverTrigger className={TRIGGER_CLASS}>
 				<span className="text-xs">{`Show ${selected} item${selected > 1 ? 's' : ''}`}</span>
-				<ChevronDownIcon
+				<ChevronDown
 					className={clsxm(
-						'ml-2 h-5 w-5 dark:text-white transition duration-150 ease-in-out',
+						'size-4 shrink-0 text-muted-foreground transition-transform duration-150 ease-in-out',
 						open && 'rotate-180'
 					)}
 					aria-hidden="true"
 				/>
 			</PopoverTrigger>
 
-			<PopoverContent className="w-36 p-2 bg-light--theme-light shadow-sm dark:bg-dark--theme-light">
+			<PopoverContent className="z-50 w-36 rounded-xl bg-popover p-1 text-popover-foreground shadow-md shadow-black/6.5 hairline-ring ring-border">
 				{paginationOptions.map((item) => (
 					<div
 						key={item}
 						onClick={() => handleChange(item)}
-						className="cursor-pointer hover:bg-gray-100 dark:hover:bg-muted p-2 text-xs rounded"
+						className={clsxm(
+							'cursor-pointer rounded-md px-2 py-1.5 text-xs transition-colors hover:bg-foreground/5',
+							item === selected && 'bg-foreground/5 font-medium'
+						)}
 					>
 						{`Show ${item} item${item > 1 ? 's' : ''}`}
 					</div>

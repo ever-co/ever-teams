@@ -1,7 +1,16 @@
 import { Popover, PopoverButton, PopoverPanel, Transition } from '@headlessui/react';
 import { useTranslations } from 'next-intl';
 import { ConfirmationModal } from './confirmation-modal';
-import { ThreeCircleOutlineHorizontalIcon } from 'assets/svg';
+import { MoreHorizontal, Pencil, Timer, Trash } from '@/core/components/icons';
+import { clsxm } from '@/core/lib/utils';
+import {
+	MENU_ANCHOR,
+	MENU_ANCHORED_PANEL,
+	MENU_ROW,
+	MENU_ROW_DESTRUCTIVE,
+	MENU_SEPARATOR,
+	MENU_SURFACE
+} from '@/core/components/common/menu-recipes';
 import {
 	useEmployeeUpdate,
 	useMemberIdentity,
@@ -18,6 +27,12 @@ import { useAtomValue } from 'jotai';
 import { activeTeamManagersState } from '@/core/stores';
 import { useRolesQuery } from '@/core/hooks/roles/use-roles-query';
 import { useUserQuery } from '@/core/hooks/queries/user-user.query';
+
+const MENU_PANEL_CLASS =
+	'absolute z-10 flex flex-col rounded-xl bg-popover p-1 text-sm text-popover-foreground shadow-md shadow-black/6.5 hairline-ring ring-border';
+const MENU_ITEM_CLASS =
+	'flex h-8 w-auto cursor-pointer items-center rounded-md px-2 transition-colors hover:bg-foreground/5';
+const UNAVAILABLE_ROW_CLASS = 'cursor-default text-muted-foreground hover:bg-transparent';
 
 type Props = {
 	member: TOrganizationTeamEmployee;
@@ -54,6 +69,13 @@ export const TableActionPopover = ({ member, handleEdit, status }: Props) => {
 
 	const isCurrentUser = user?.employee?.id === identity.member?.employeeId;
 	const isManager = activeTeamManagers.findIndex((member) => member.employee?.user?.id === user?.id);
+	const isTrackingEnabled = member.employee?.isTrackingEnabled ?? false;
+	const handleDeleteClick = () => {
+		if (isCurrentUser) {
+			return;
+		}
+		openModal();
+	};
 	// const handleClick = () => {
 	// 	setIsOpen(!isOpen);
 	// };
@@ -61,96 +83,93 @@ export const TableActionPopover = ({ member, handleEdit, status }: Props) => {
 		<Popover className="relative w-full no-underline border-none">
 			{() => (
 				<>
-					<Transition
-						as="div"
-						enter="transition ease-out duration-200"
-						enterFrom="opacity-0 translate-y-1"
-						enterTo="opacity-100 translate-y-0"
-						leave="transition ease-in duration-150"
-						leaveFrom="opacity-100 translate-y-0"
-						leaveTo="opacity-0 translate-y-1"
+					<PopoverPanel
+						anchor={MENU_ANCHOR}
+						transition
+						className={clsxm(MENU_SURFACE, MENU_ANCHORED_PANEL, 'flex w-[13.5rem] flex-col')}
 					>
-						<PopoverPanel
-							className={`z-10 absolute ${status === 'profile' ? 'left-10' : 'right-10'} bg-white rounded-2xl w-[13.5rem] flex flex-col pl-5 pr-5 pt-2 pb-2 shadow-xl card dark:bg-card dark:border dark:border-[#FFFFFF33]`}
-						>
-							{/* TODO Dynamic */}
-							{/* Edit */}
-							{status === 'settings' && (
-								<div
-									className="flex items-center w-auto h-8 hover:cursor-pointer"
-									onClick={() => {
-										handleEdit && handleEdit(member);
-									}}
-								>
-									<span className="text-[#282048] text-xs font-semibold dark:text-white">
-										{t('common.EDIT')}
-									</span>
-								</div>
-							)}
+						{/* TODO Dynamic */}
+						{/* Edit */}
+						{status === 'settings' && (
+							<div
+								className={MENU_ROW}
+								onClick={() => {
+									handleEdit && handleEdit(member);
+								}}
+							>
+								<Pencil />
+								{t('common.EDIT')}
+							</div>
+						)}
 
-							{/* TODO Dynamic */}
-							{/* Change Role */}
-							{/* <div className="flex items-center w-auto h-8 hover:cursor-pointer">
+						{/* TODO Dynamic */}
+						{/* Change Role */}
+						{/* <div className="flex items-center w-auto h-8 hover:cursor-pointer">
 								<span className="text-[#282048] text-xs font-semibold dark:text-white">
 									Change Role
 								</span>
 							</div> */}
-							<RolePopover />
-							{isManager !== -1 && member.role?.name !== ERoleName.MANAGER && (
-								<div className="flex gap-x-2 justify-between items-center">
-									<span>Time tracking</span>
+						<RolePopover />
+						{isManager !== -1 && member.role?.name !== ERoleName.MANAGER && (
+							<div className="flex h-8 items-center justify-between gap-x-2 px-2 text-[13px]">
+								<span className="flex items-center gap-2.5">
+									<Timer className="size-4 shrink-0 text-muted-foreground" />
+									{t('pages.settingsTeam.TIME_TRACKING')}
+								</span>
+								<div
+									className={clsxm(
+										'flex h-6 w-16 cursor-pointer items-center rounded-full p-1 transition-colors',
+										isTrackingEnabled && 'bg-destructive/15',
+										!isTrackingEnabled && 'bg-success/15'
+									)}
+									onClick={() => {
+										updateEmployee({
+											data: {
+												isTrackingEnabled: !member.employee?.isTrackingEnabled,
+												id: member.employee?.id || '',
+												organizationId: member.employee?.organizationId,
+												isActive: member.employee?.isActive,
+												tenantId: member.employee?.tenantId
+											},
+											id: member.employee?.id ?? ''
+										});
+									}}
+								>
 									<div
-										className={`w-16 h-6 flex items-center   bg-[#6c57f4b7] rounded-full p-1 cursor-pointer `}
-										onClick={() => {
-											updateEmployee({
-												data: {
-													isTrackingEnabled: !member.employee?.isTrackingEnabled,
-													id: member.employee?.id || '',
-													organizationId: member.employee?.organizationId,
-													isActive: member.employee?.isActive,
-													tenantId: member.employee?.tenantId
-												},
-												id: member.employee?.id ?? ''
-											});
-										}}
-										style={
-											member.employee?.isTrackingEnabled
-												? { background: 'linear-gradient(to right, #ea31244d, #ea312479)' }
-												: { background: '#2ead805b' }
-										}
+										className={clsxm(
+											'flex size-4 items-center justify-center rounded-full text-white shadow-sm shadow-black/15 transition-transform',
+											isTrackingEnabled && 'translate-x-9 bg-destructive',
+											!isTrackingEnabled && 'translate-x-0 bg-success'
+										)}
 									>
-										<div
-											className={` ${member.employee?.isTrackingEnabled ? 'bg-[#ea3124]' : 'bg-[#2ead81]'} w-4 h-4 rounded-full shadow-md transform transition-transform ${member.employee?.isTrackingEnabled ? 'translate-x-9' : 'translate-x-0'}`}
-										>
-											{!isLoading &&
-												renderTrackingIcon(member.employee?.isTrackingEnabled ?? false)}
+										{!isLoading && renderTrackingIcon(member.employee?.isTrackingEnabled ?? false)}
 
-											{isLoading ? (
-												<svg
-													className="animate-spin"
-													width="15"
-													height="15"
-													viewBox="0 0 15 15"
-													fill="none"
-													xmlns="http://www.w3.org/2000/svg"
-												>
-													<path
-														d="M1.90321 7.29677C1.90321 10.341 4.11041 12.4147 6.58893 12.8439C6.87255 12.893 7.06266 13.1627 7.01355 13.4464C6.96444 13.73 6.69471 13.9201 6.41109 13.871C3.49942 13.3668 0.86084 10.9127 0.86084 7.29677C0.860839 5.76009 1.55996 4.55245 2.37639 3.63377C2.96124 2.97568 3.63034 2.44135 4.16846 2.03202L2.53205 2.03202C2.25591 2.03202 2.03205 1.80816 2.03205 1.53202C2.03205 1.25588 2.25591 1.03202 2.53205 1.03202L5.53205 1.03202C5.80819 1.03202 6.03205 1.25588 6.03205 1.53202L6.03205 4.53202C6.03205 4.80816 5.80819 5.03202 5.53205 5.03202C5.25591 5.03202 5.03205 4.80816 5.03205 4.53202L5.03205 2.68645L5.03054 2.68759L5.03045 2.68766L5.03044 2.68767L5.03043 2.68767C4.45896 3.11868 3.76059 3.64538 3.15554 4.3262C2.44102 5.13021 1.90321 6.10154 1.90321 7.29677ZM13.0109 7.70321C13.0109 4.69115 10.8505 2.6296 8.40384 2.17029C8.12093 2.11718 7.93465 1.84479 7.98776 1.56188C8.04087 1.27898 8.31326 1.0927 8.59616 1.14581C11.4704 1.68541 14.0532 4.12605 14.0532 7.70321C14.0532 9.23988 13.3541 10.4475 12.5377 11.3662C11.9528 12.0243 11.2837 12.5586 10.7456 12.968L12.3821 12.968C12.6582 12.968 12.8821 13.1918 12.8821 13.468C12.8821 13.7441 12.6582 13.968 12.3821 13.968L9.38205 13.968C9.10591 13.968 8.88205 13.7441 8.88205 13.468L8.88205 10.468C8.88205 10.1918 9.10591 9.96796 9.38205 9.96796C9.65819 9.96796 9.88205 10.1918 9.88205 10.468L9.88205 12.3135L9.88362 12.3123C10.4551 11.8813 11.1535 11.3546 11.7585 10.6738C12.4731 9.86976 13.0109 8.89844 13.0109 7.70321Z"
-														fill="currentColor"
-														fillRule="evenodd"
-														clipRule="evenodd"
-													></path>
-												</svg>
-											) : null}
-										</div>
+										{isLoading ? (
+											<svg
+												className="animate-spin"
+												width="15"
+												height="15"
+												viewBox="0 0 15 15"
+												fill="none"
+												xmlns="http://www.w3.org/2000/svg"
+											>
+												<path
+													d="M1.90321 7.29677C1.90321 10.341 4.11041 12.4147 6.58893 12.8439C6.87255 12.893 7.06266 13.1627 7.01355 13.4464C6.96444 13.73 6.69471 13.9201 6.41109 13.871C3.49942 13.3668 0.86084 10.9127 0.86084 7.29677C0.860839 5.76009 1.55996 4.55245 2.37639 3.63377C2.96124 2.97568 3.63034 2.44135 4.16846 2.03202L2.53205 2.03202C2.25591 2.03202 2.03205 1.80816 2.03205 1.53202C2.03205 1.25588 2.25591 1.03202 2.53205 1.03202L5.53205 1.03202C5.80819 1.03202 6.03205 1.25588 6.03205 1.53202L6.03205 4.53202C6.03205 4.80816 5.80819 5.03202 5.53205 5.03202C5.25591 5.03202 5.03205 4.80816 5.03205 4.53202L5.03205 2.68645L5.03054 2.68759L5.03045 2.68766L5.03044 2.68767L5.03043 2.68767C4.45896 3.11868 3.76059 3.64538 3.15554 4.3262C2.44102 5.13021 1.90321 6.10154 1.90321 7.29677ZM13.0109 7.70321C13.0109 4.69115 10.8505 2.6296 8.40384 2.17029C8.12093 2.11718 7.93465 1.84479 7.98776 1.56188C8.04087 1.27898 8.31326 1.0927 8.59616 1.14581C11.4704 1.68541 14.0532 4.12605 14.0532 7.70321C14.0532 9.23988 13.3541 10.4475 12.5377 11.3662C11.9528 12.0243 11.2837 12.5586 10.7456 12.968L12.3821 12.968C12.6582 12.968 12.8821 13.1918 12.8821 13.468C12.8821 13.7441 12.6582 13.968 12.3821 13.968L9.38205 13.968C9.10591 13.968 8.88205 13.7441 8.88205 13.468L8.88205 10.468C8.88205 10.1918 9.10591 9.96796 9.38205 9.96796C9.65819 9.96796 9.88205 10.1918 9.88205 10.468L9.88205 12.3135L9.88362 12.3123C10.4551 11.8813 11.1535 11.3546 11.7585 10.6738C12.4731 9.86976 13.0109 8.89844 13.0109 7.70321Z"
+													fill="currentColor"
+													fillRule="evenodd"
+													clipRule="evenodd"
+												></path>
+											</svg>
+										) : null}
 									</div>
 								</div>
-							)}
+							</div>
+						)}
 
-							{/* TODO Dynamic */}
-							{/* Need to integrate with API */}
-							{/* Permission */}
-							{/* <div className="flex items-center w-auto h-8 hover:cursor-pointer">
+						{/* TODO Dynamic */}
+						{/* Need to integrate with API */}
+						{/* Permission */}
+						{/* <div className="flex items-center w-auto h-8 hover:cursor-pointer">
 								<Link href={'/permissions'}>
 									<span className="text-[#282048] text-xs font-semibold dark:text-white">
 										Permission
@@ -158,28 +177,30 @@ export const TableActionPopover = ({ member, handleEdit, status }: Props) => {
 								</Link>
 							</div> */}
 
-							{/* Delete */}
-							{status === 'settings' && (
-								<div
-									className={`flex items-center h-8 w-auto ${
-										!isCurrentUser ? 'hover:cursor-pointer' : ''
-									}`}
-									onClick={isCurrentUser ? () => undefined : () => openModal()}
-								>
-									<span className={`${!isCurrentUser ? 'text-[#E27474]' : ''} text-xs font-semibold`}>
-										{t('common.DELETE')}
-									</span>
-								</div>
-							)}
-						</PopoverPanel>
-					</Transition>
+						{status === 'settings' && <div role="separator" className={MENU_SEPARATOR} />}
+
+						{/* Delete */}
+						{status === 'settings' && (
+							<div
+								className={clsxm(
+									MENU_ROW,
+									!isCurrentUser && MENU_ROW_DESTRUCTIVE,
+									isCurrentUser && UNAVAILABLE_ROW_CLASS
+								)}
+								onClick={handleDeleteClick}
+							>
+								<Trash />
+								{t('common.DELETE')}
+							</div>
+						)}
+					</PopoverPanel>
 					{(status === 'settings' ||
 						(status === 'profile' && isManager !== -1 && member.role?.name !== ERoleName.MANAGER)) && (
-						<PopoverButton className="mt-2 w-full outline-none">
-							<ThreeCircleOutlineHorizontalIcon
-								className="w-6 text-[#292D32] relative dark:text-white"
-								strokeWidth="2.5"
-							/>
+						<PopoverButton
+							aria-label={t('common.MORE_OPTIONS')}
+							className="flex w-full justify-center rounded-md text-muted-foreground outline-none transition-colors hover:text-foreground focus-visible:ring-[3px] focus-visible:ring-ring/25"
+						>
+							<MoreHorizontal className="size-5" />
 						</PopoverButton>
 					)}
 					<ConfirmationModal
@@ -202,20 +223,17 @@ const RolePopover = () => {
 		<Popover className="relative w-full no-underline border-none">
 			<Transition
 				as="div"
-				enter="transition ease-out duration-200"
-				enterFrom="opacity-0 translate-y-1"
-				enterTo="opacity-100 translate-y-0"
-				leave="transition ease-in duration-150"
-				leaveFrom="opacity-100 translate-y-0"
-				leaveTo="opacity-0 translate-y-1"
+				enter="transition-[opacity,scale] ease-out duration-150"
+				enterFrom="opacity-0 scale-95"
+				enterTo="opacity-100 scale-100"
+				leave="transition-[opacity,scale] ease-in duration-150"
+				leaveFrom="opacity-100 scale-100"
+				leaveTo="opacity-0 scale-95"
 			>
-				<PopoverPanel
-					className="z-10 absolute right-0 bg-white dark:bg-card rounded-2xl w-[9.5rem] flex flex-col pl-5 pr-5 pt-2 pb-2 mt-10 mr-10"
-					style={{ boxShadow: ' rgba(0, 0, 0, 0.12) -24px 17px 49px' }}
-				>
+				<PopoverPanel className={clsxm(MENU_PANEL_CLASS, 'right-0 mt-10 mr-10 w-[9.5rem]')}>
 					{roles.map((role) => (
-						<div className="flex items-center w-auto h-8 hover:cursor-pointer" key={role.id}>
-							<span className="text-[#282048] text-xs font-semibold dark:text-white">{role.name}</span>
+						<div className={MENU_ITEM_CLASS} key={role.id}>
+							<span className="text-foreground">{role.name}</span>
 						</div>
 					))}
 				</PopoverPanel>
