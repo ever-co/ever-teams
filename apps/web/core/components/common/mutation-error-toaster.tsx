@@ -5,6 +5,7 @@ import { type DottedLanguageObjectStringPaths, useTranslations } from 'next-intl
 import { useQueryClient, type Mutation } from '@tanstack/react-query';
 import { toast } from 'sonner';
 import { errorReasonKeyOf } from '@/core/lib/utils/error-feedback';
+import { IS_DEV_MODE } from '@/core/constants/config/constants';
 
 /** One toast for a burst of failures (a list saved row by row), replaced instead of stacked. */
 const MUTATION_ERROR_TOAST_ID = 'mutation-error';
@@ -40,7 +41,9 @@ export function MutationErrorToaster() {
 				return;
 			}
 			const { mutation } = event;
-			console.error('Mutation failed:', mutation.state.error);
+			if (IS_DEV_MODE) {
+				console.error('Mutation failed:', mutation.state.error);
+			}
 			if (!leavesErrorToFallback(mutation)) {
 				return;
 			}

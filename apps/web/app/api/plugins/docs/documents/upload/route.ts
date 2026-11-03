@@ -2,7 +2,13 @@ import { NextResponse } from 'next/server';
 import { authenticatedGuard } from '@/core/services/server/guards/authenticated-guard-app';
 import { gauzyErrorResponse } from '@/core/services/server/gauzy-error-response';
 import { uploadDocumentsRequest } from '@/core/services/server/requests/entity-files';
-import { ENTITY_FILES_PER_UPLOAD } from '@/core/types/schemas/documents/entity-file.schema';
+import { readCappedFormData } from '@/core/lib/auth/ever-id/body';
+import { ENTITY_FILE_MAX_BYTES, ENTITY_FILES_PER_UPLOAD } from '@/core/types/schemas/documents/entity-file.schema';
+
+/** Room for the multipart boundaries and part headers around the largest upload Gauzy accepts. */
+const MULTIPART_OVERHEAD_BYTES = 1024 * 1024;
+
+const MAX_UPLOAD_BYTES = ENTITY_FILES_PER_UPLOAD * ENTITY_FILE_MAX_BYTES + MULTIPART_OVERHEAD_BYTES;
 
 function isFile(part: FormDataEntryValue): part is File {
 	return part instanceof File;
@@ -18,7 +24,7 @@ export async function POST(req: Request) {
 
 	if (!user) return $res('Unauthorized');
 
-	const incoming = await req.formData().catch(() => null);
+	const incoming = await readCappedFormData(req, MAX_UPLOAD_BYTES);
 	const parts = incoming?.getAll('files') ?? [];
 	const files = parts.filter(isFile);
 	const hasFiles = files.length > 0;

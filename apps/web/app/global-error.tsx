@@ -48,7 +48,7 @@ export default function GlobalError({ error }: { error: Error & { digest?: strin
 							marginTop: '20px',
 							height: '36px',
 							padding: '0 16px',
-							backgroundColor: '#6366f1',
+							backgroundColor: '#4f46e5',
 							color: '#ffffff',
 							fontSize: '14px',
 							fontWeight: 500,

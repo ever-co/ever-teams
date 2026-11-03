@@ -3,6 +3,7 @@ import { authenticatedGuard } from '@/core/services/server/guards/authenticated-
 import { hasServerTranscription } from '@/core/lib/ai/server-providers';
 import { transcribeDictation } from '@/core/lib/ai/transcription';
 import { rateLimitedResponse, takeAiCall, type AiRateLimit } from '@/core/lib/ai/rate-limit';
+import { readCappedFormData } from '@/core/lib/auth/ever-id/body';
 import type { TDictationAvailability, TDictationErrorCode } from '@/core/types/schemas/ai/dictation.schema';
 
 export const runtime = 'nodejs';
@@ -41,16 +42,12 @@ function baseMediaTypeOf(type: string) {
 }
 
 async function audioFileOf(req: Request) {
-	try {
-		const form = await req.formData();
-		const audio = form.get('audio');
-		if (audio instanceof File) {
-			return audio;
-		}
-		return null;
-	} catch {
-		return null;
+	const form = await readCappedFormData(req, MAX_AUDIO_BYTES);
+	const audio = form?.get('audio');
+	if (audio instanceof File) {
+		return audio;
 	}
+	return null;
 }
 
 /** Tells the composer whether this deployment can turn speech into text, so it shows the microphone only then. */

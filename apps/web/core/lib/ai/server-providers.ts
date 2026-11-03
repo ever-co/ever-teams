@@ -8,8 +8,8 @@ import { createCloudflareWhisper } from './cloudflare-whisper';
 /**
  * The deployment's own AI providers, server env only (never NEXT_PUBLIC). Each one joins the chain only when its
  * key is set, so the code ships before any account exists. Every free provider kept here does not train on the
- * requests (checked on their official terms on 2026-10-31): Groq (Services Agreement 4.2, zero data retention on
- * by default), Cloudflare Workers AI (data-usage page), Deepgram only with `mip_opt_out=true` on each request.
+ * requests (checked on their official terms on 2026-10-31): Groq (Services Agreement 4.2; no retention by default,
+ * and Zero Data Retention, turned on in its console, also stops the reliability and abuse logs), Cloudflare Workers AI (data-usage page), Deepgram only with `mip_opt_out=true` on each request.
  * A `*_BASE_URL` override only exists so tests can point a provider at a stand-in.
  */
 

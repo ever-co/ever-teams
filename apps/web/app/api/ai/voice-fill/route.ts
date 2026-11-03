@@ -3,6 +3,7 @@ import { authenticatedGuard } from '@/core/services/server/guards/authenticated-
 import { hasServerLanguageModel, hasServerTranscription } from '@/core/lib/ai/server-providers';
 import { rateLimitedResponse, takeAiCall, type AiRateLimit } from '@/core/lib/ai/rate-limit';
 import { voiceFill } from '@/core/lib/ai/voice-fill';
+import { readCappedJsonObject } from '@/core/lib/auth/ever-id/body';
 import {
 	voiceFillRequestSchema,
 	type TVoiceFillAvailability,
@@ -18,16 +19,11 @@ const VOICE_FILL_RATE_LIMIT: AiRateLimit = {
 	windowMs: 10 * 60 * 1000
 };
 
+/** Well above the largest form snapshot the schema allows in practice (choices and current values included). */
+const MAX_BODY_BYTES = 1024 * 1024;
+
 function errorResponse(code: TVoiceFillErrorCode, status: number) {
 	return NextResponse.json({ error: code }, { status });
-}
-
-async function readJson(req: Request): Promise<unknown> {
-	try {
-		return await req.json();
-	} catch {
-		return null;
-	}
 }
 
 function canFillByVoice() {
@@ -58,7 +54,8 @@ export async function POST(req: Request) {
 	const verdict = takeAiCall(VOICE_FILL_RATE_LIMIT, guard.user.id, req.headers);
 	if (!verdict.allowed) return rateLimitedResponse(verdict);
 
-	const parsed = voiceFillRequestSchema.safeParse(await readJson(req));
+	const body = await readCappedJsonObject(req, MAX_BODY_BYTES);
+	const parsed = voiceFillRequestSchema.safeParse(body);
 	if (!parsed.success) return errorResponse('invalid_request', 400);
 
 	try {

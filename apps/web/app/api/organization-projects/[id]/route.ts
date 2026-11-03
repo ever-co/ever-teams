@@ -1,14 +1,7 @@
-import { z } from 'zod';
 import { authenticatedGuard } from '@/core/services/server/guards/authenticated-guard-app';
-import { gauzyErrorResponse } from '@/core/services/server/gauzy-error-response';
-import {
-	deleteOrganizationProjectRequest,
-	editOrganizationProjectsRequest,
-	getOrganizationProjectRequest
-} from '@/core/services/server/requests';
+import { forwardToGauzy } from '@/core/services/server/forward-to-gauzy';
+import { editOrganizationProjectsRequest, getOrganizationProjectRequest } from '@/core/services/server/requests';
 import { NextResponse } from 'next/server';
-
-const projectIdSchema = z.guid();
 
 export async function PUT(req: Request, { params }: { params: Promise<{ id: string }> }) {
 	const res = new NextResponse();
@@ -55,23 +48,13 @@ export async function GET(req: Request, { params }: { params: Promise<{ id: stri
 	return $res(response.data);
 }
 
-/**
- * The web client deletes a project through this route in proxy mode; without a handler the request ended in a 405.
- * Gauzy answers 204 and decides who may delete (project managers and holders of the project permission).
- */
+/** Proxy mode twin of Gauzy's `DELETE /organization-projects/:id`, which answers 204 with no body on success. */
 export async function DELETE(req: Request, { params }: { params: Promise<{ id: string }> }) {
-	const parsedId = projectIdSchema.safeParse((await params).id);
-	if (!parsedId.success) {
-		return NextResponse.json({ error: 'A project id is required' }, { status: 400 });
-	}
+	const { id } = await params;
 
-	const { $res, user, access_token, tenantId } = await authenticatedGuard(req, new NextResponse());
-	if (!user) return $res('Unauthorized');
+	// Encoded, so an id such as `../employee` stays one path segment instead of reaching another endpoint
+	const encodedId = encodeURIComponent(id);
+	const gauzyPath = `/organization-projects/${encodedId}`;
 
-	try {
-		await deleteOrganizationProjectRequest(parsedId.data, tenantId, access_token);
-		return new NextResponse(null, { status: 204 });
-	} catch (error) {
-		return gauzyErrorResponse(error, 'Project deletion failed');
-	}
+	return forwardToGauzy(req, gauzyPath);
 }

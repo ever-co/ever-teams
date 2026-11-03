@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { z } from 'zod';
 import { authenticatedGuard } from '@/core/services/server/guards/authenticated-guard-app';
 import { deleteTaskLinkedIssue } from '@/core/services/server/requests';
+import { gauzyErrorResponse } from '@/core/services/server/gauzy-error-response';
 import { INextParams } from '@/core/types/interfaces/common/data-response';
 
 const linkedIssueIdSchema = z.uuid();
@@ -19,7 +20,11 @@ export async function DELETE(req: Request, props: INextParams) {
 		return $res('Unauthorized');
 	}
 
-	const response = await deleteTaskLinkedIssue(parsedId.data, access_token || '', tenantId || '');
+	try {
+		const response = await deleteTaskLinkedIssue(parsedId.data, access_token || '', tenantId || '');
 
-	return $res(response.data);
+		return $res(response.data);
+	} catch (error) {
+		return gauzyErrorResponse(error, 'Linked issue removal failed');
+	}
 }

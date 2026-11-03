@@ -5,8 +5,10 @@ import {
 	getAllTeamInvitationsRequest,
 	inviteByEmailsRequest
 } from '@/core/services/server/requests';
-import { inviteEmailsBodySchema } from '@/core/lib/validation/invite';
+import { inviteEmailsBodySchema, MAX_EMAILS_PER_INVITE } from '@/core/lib/validation/invite';
 import { NextResponse } from 'next/server';
+
+const INVALID_INVITE_MESSAGE = `Send 1 to ${MAX_EMAILS_PER_INVITE} valid email addresses, and a valid role id when a role is picked`;
 
 export async function POST(req: Request) {
 	const res = new NextResponse();
@@ -20,7 +22,7 @@ export async function POST(req: Request) {
 	const requestBody: unknown = await req.json().catch(() => null);
 	const parsed = inviteEmailsBodySchema.safeParse(requestBody);
 	if (!parsed.success) {
-		return NextResponse.json({ errors: { email: 'Each address must be a valid email' } }, { status: 400 });
+		return NextResponse.json({ errors: { email: INVALID_INVITE_MESSAGE } }, { status: 400 });
 	}
 
 	// The role the inviter picked; Gauzy refuses one above the inviter's own. Without a choice, the employee role.

@@ -50,14 +50,17 @@ interface StoredWeek {
 	days: WorkingWeek;
 }
 
+let slotIdSequence = 0;
+
 export function createSlotId(): string {
 	const hasRandomUuid = typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function';
 	if (hasRandomUuid) {
 		return crypto.randomUUID();
 	}
+	slotIdSequence += 1;
 	const time = Date.now().toString(36);
-	const random = Math.random().toString(36).slice(2);
-	return `${time}-${random}`;
+	const sequence = slotIdSequence.toString(36);
+	return `${time}-${sequence}`;
 }
 
 export function workingHoursStorageKeyOf(userId: string): string {

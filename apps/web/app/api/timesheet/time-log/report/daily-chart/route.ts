@@ -43,6 +43,12 @@ export async function GET(req: Request) {
 		);
 	}
 
+	const requestedLogTypes = readArrayParam(searchParams, 'logType');
+	const hasOnlyKnownLogTypes = requestedLogTypes.every(isLogType);
+	if (!hasOnlyKnownLogTypes) {
+		return NextResponse.json({ error: `logType takes ${LOG_TYPES.join(', ')}` }, { status: 400 });
+	}
+
 	// Authenticate the request
 	const { $res, user, access_token } = await authenticatedGuard(req, res);
 	if (!user) return $res('Unauthorized');
@@ -66,9 +72,7 @@ export async function GET(req: Request) {
 			const values = readArrayParam(searchParams, key);
 			appendIndexed(query, key, values);
 		}
-		const requestedLogTypes = readArrayParam(searchParams, 'logType');
-		const logTypes = requestedLogTypes.filter(isLogType);
-		appendIndexed(query, 'logType', logTypes);
+		appendIndexed(query, 'logType', requestedLogTypes);
 
 		// Make the request to get daily chart data
 		const { data } = await serverFetch<ITimeLogReportDailyChart[]>({
