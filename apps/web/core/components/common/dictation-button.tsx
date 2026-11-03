@@ -107,8 +107,7 @@ export function DictationButton({
 
 	if (phase === 'transcribing') {
 		return (
-			<span
-				role="status"
+			<output
 				className={cn(
 					'inline-flex size-7 shrink-0 items-center justify-center text-muted-foreground',
 					className
@@ -116,7 +115,7 @@ export function DictationButton({
 			>
 				<Spinner className="size-4 animate-spin" aria-hidden="true" />
 				<span className="sr-only">{t('dictation.TRANSCRIBING')}</span>
-			</span>
+			</output>
 		);
 	}
 

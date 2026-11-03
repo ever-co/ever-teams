@@ -133,7 +133,7 @@ interface EntityFilesSectionProps {
  * The files of a task, a project or a comment: attach by button or by dropping them on the section, open one in a
  * new tab, take one off the record (with Undo). Absent when the server runs without Gauzy's Documents plugin.
  */
-export function EntityFilesSection({ entity, entityId, canEdit = true, className }: EntityFilesSectionProps) {
+export function EntityFilesSection({ entity, entityId, canEdit = true, className }: Readonly<EntityFilesSectionProps>) {
 	const t = useTranslations();
 	const files = useEntityFiles({ entity, entityId });
 	const inputRef = useRef<HTMLInputElement>(null);

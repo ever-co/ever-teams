@@ -103,7 +103,7 @@ export const TaskCardBlockSkeleton = () => (
 export const UserProfileTaskSkeleton: FC<SkeletonProps> = ({ className }) => {
 	const rowKeys = Array.from({ length: TASK_LIST_ROWS }, (_, index) => index);
 	return (
-		<div role="status" aria-busy="true" className={cn('w-full', className)}>
+		<output aria-busy="true" className={cn('block w-full', className)}>
 			<ul className={TASK_LIST_SURFACE}>
 				{rowKeys.map((key) => (
 					<li key={key}>
@@ -111,7 +111,7 @@ export const UserProfileTaskSkeleton: FC<SkeletonProps> = ({ className }) => {
 					</li>
 				))}
 			</ul>
-		</div>
+		</output>
 	);
 };
 

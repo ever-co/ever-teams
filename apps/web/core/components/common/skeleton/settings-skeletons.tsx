@@ -41,7 +41,7 @@ const SettingRowSkeleton: FC<{ labelWidth?: string; control?: ReactNode }> = ({ 
 	);
 };
 
-function TableCellSkeleton({ isFirst, isLast, showAvatar }: TableCellSkeletonProps) {
+function TableCellSkeleton({ isFirst, isLast, showAvatar }: Readonly<TableCellSkeletonProps>) {
 	const hasAvatar = showAvatar && isFirst;
 	let barClass = 'h-4 w-24';
 	if (isLast) {

@@ -59,7 +59,7 @@ function isSubmitShortcut(event: KeyboardEvent) {
 	return event.metaKey || event.ctrlKey;
 }
 
-function EntryLeading({ entry }: { entry: SuggestionEntry }) {
+function EntryLeading({ entry }: Readonly<{ entry: SuggestionEntry }>) {
 	if (entry.person) {
 		const person = { id: entry.id, name: entry.person.name, imageUrl: entry.person.imageUrl };
 		return <PersonAvatar person={person} className="ring-0" />;
@@ -79,11 +79,11 @@ function EmptyRow({
 	loading,
 	emptyLabel,
 	loadingLabel
-}: {
+}: Readonly<{
 	loading?: boolean;
 	emptyLabel: string;
 	loadingLabel: string;
-}) {
+}>) {
 	if (loading) {
 		return <p className="px-2 py-1.5 text-xs text-muted-foreground">{loadingLabel}</p>;
 	}

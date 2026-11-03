@@ -93,10 +93,10 @@ function ResendCodeButton({ isSending, onResend }: Readonly<{ isSending: boolean
 	const t = useTranslations();
 	if (isSending) {
 		return (
-			<span role="status" className="inline-flex items-center gap-1.5 text-xs text-muted-foreground">
+			<output className="inline-flex items-center gap-1.5 text-xs text-muted-foreground">
 				<SpinnerLoader size={12} />
 				{t('notifications.NOTICES.VERIFY_SENDING')}
-			</span>
+			</output>
 		);
 	}
 

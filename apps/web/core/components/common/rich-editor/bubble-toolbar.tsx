@@ -51,11 +51,11 @@ export function BubbleToolbar({
 	editor,
 	aiEnabled,
 	onAskAi
-}: {
+}: Readonly<{
 	editor: Editor;
 	aiEnabled: boolean;
 	onAskAi: () => void;
-}) {
+}>) {
 	const t = useTranslations();
 	const shortcutLabel = useShortcutLabel();
 	const [linkOpen, setLinkOpen] = useState(false);

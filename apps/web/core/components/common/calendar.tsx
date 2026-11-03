@@ -243,6 +243,15 @@ function CustomCaption({ displayMonth, onMonthChange }: CustomCaptionProps) {
 	);
 }
 
+const CalendarMonthChangeContext = React.createContext<((date: Date) => void) | undefined>(undefined);
+
+function CaptionWithMonthChange(captionProps: Readonly<CaptionProps>) {
+	const onMonthChange = React.useContext(CalendarMonthChangeContext);
+	return <CustomCaption {...captionProps} onMonthChange={onMonthChange} />;
+}
+
+const CALENDAR_COMPONENTS = { Caption: CaptionWithMonthChange };
+
 /**
  * Calendar component that extends react-day-picker with custom styling and functionality
  */
@@ -259,35 +268,35 @@ function Calendar({
 	const weekdayFormat = React.useMemo(() => new Intl.DateTimeFormat(locale, { weekday: 'short' }), [locale]);
 	const formatWeekdayName = React.useCallback((day: Date) => weekdayFormat.format(day), [weekdayFormat]);
 	return (
-		<DayPicker
-			weekStartsOn={1} // Start week on Monday
-			showOutsideDays={showOutsideDays}
-			captionLayout={captionLayout}
-			className={cn('p-3 bg-card rounded-lg', className)}
-			formatters={{ formatWeekdayName, ...formatters }}
-			classNames={{
-				months: compactCalendarClassNames.months,
-				month: compactCalendarClassNames.month,
-				caption: 'flex justify-between pt-1 relative items-center px-2',
-				caption_label: 'text-sm font-medium text-foreground',
-				table: cn('w-full border-collapse', WEEKEND_BAND),
-				head_row: 'flex w-full',
-				head_cell: compactCalendarClassNames.head_cell,
-				row: 'flex w-full',
-				cell: 'relative flex-1 p-0 py-0.5 text-center text-sm focus-within:relative focus-within:z-20',
-				day: compactCalendarClassNames.day,
-				day_selected: PICKED_DAY,
-				day_today: TODAY,
-				day_outside: 'text-muted-foreground/50',
-				day_disabled: 'text-muted-foreground/40 hover:bg-transparent',
-				day_hidden: 'invisible',
-				...classNames
-			}}
-			components={{
-				Caption: (captionProps) => <CustomCaption {...captionProps} onMonthChange={onMonthChange} />
-			}}
-			{...props}
-		/>
+		<CalendarMonthChangeContext.Provider value={onMonthChange}>
+			<DayPicker
+				weekStartsOn={1} // Start week on Monday
+				showOutsideDays={showOutsideDays}
+				captionLayout={captionLayout}
+				className={cn('p-3 bg-card rounded-lg', className)}
+				formatters={{ formatWeekdayName, ...formatters }}
+				classNames={{
+					months: compactCalendarClassNames.months,
+					month: compactCalendarClassNames.month,
+					caption: 'flex justify-between pt-1 relative items-center px-2',
+					caption_label: 'text-sm font-medium text-foreground',
+					table: cn('w-full border-collapse', WEEKEND_BAND),
+					head_row: 'flex w-full',
+					head_cell: compactCalendarClassNames.head_cell,
+					row: 'flex w-full',
+					cell: 'relative flex-1 p-0 py-0.5 text-center text-sm focus-within:relative focus-within:z-20',
+					day: compactCalendarClassNames.day,
+					day_selected: PICKED_DAY,
+					day_today: TODAY,
+					day_outside: 'text-muted-foreground/50',
+					day_disabled: 'text-muted-foreground/40 hover:bg-transparent',
+					day_hidden: 'invisible',
+					...classNames
+				}}
+				components={CALENDAR_COMPONENTS}
+				{...props}
+			/>
+		</CalendarMonthChangeContext.Provider>
 	);
 }
 

@@ -70,7 +70,7 @@ function DropdownMenuPortal({ children, ...props }: MenuPrimitive.Portal.Props) 
 DropdownMenuPortal.displayName = 'DropdownMenuPortal';
 
 /** A content wrapped in `DropdownMenuPortal` by the call site must not portal a second time. */
-function MenuPortalUnlessProvided({ children }: { children: React.ReactNode }) {
+function MenuPortalUnlessProvided({ children }: Readonly<{ children: React.ReactNode }>) {
 	const isInsidePortal = React.useContext(InsideMenuPortalContext);
 	if (isInsidePortal) {
 		return <>{children}</>;
@@ -183,6 +183,18 @@ const DropdownMenuSubContent = React.forwardRef<HTMLDivElement, DropdownMenuCont
 );
 DropdownMenuSubContent.displayName = 'DropdownMenuSubContent';
 
+type MenuClickEvent = Parameters<typeof stopBaseUIHandlerWhenDefaultPrevented>[0];
+
+function runMenuItemClick<TEvent extends MenuClickEvent>(
+	event: TEvent,
+	onClick: ((event: TEvent) => void) | undefined,
+	onSelect: ((event: Event) => void) | undefined
+) {
+	onClick?.(event);
+	onSelect?.(event.nativeEvent);
+	stopBaseUIHandlerWhenDefaultPrevented(event);
+}
+
 type MenuItemClickEvent = Parameters<NonNullable<MenuPrimitive.Item.Props['onClick']>>[0];
 
 interface DropdownMenuItemProps extends Omit<MenuPrimitive.Item.Props, 'onSelect'> {
@@ -216,11 +228,7 @@ const DropdownMenuItem = React.forwardRef<HTMLElement, DropdownMenuItemProps>(
 		const composed = renderFromAsChild({ asChild, children, render });
 		const resolvedNativeButton = nativeButton ?? composed.nativeButton;
 		const resolvedLabel = label ?? textValue;
-		const handleClick = (event: MenuItemClickEvent) => {
-			onClick?.(event);
-			onSelect?.(event.nativeEvent);
-			stopBaseUIHandlerWhenDefaultPrevented(event);
-		};
+		const handleClick = (event: MenuItemClickEvent) => runMenuItemClick(event, onClick, onSelect);
 		return (
 			<MenuPrimitive.Item
 				ref={ref}
@@ -268,11 +276,7 @@ interface DropdownMenuCheckboxItemProps extends Omit<MenuPrimitive.CheckboxItem.
 const DropdownMenuCheckboxItem = React.forwardRef<HTMLElement, DropdownMenuCheckboxItemProps>(
 	({ className, children, checked, closeOnClick = true, textValue, label, onSelect, onClick, ...props }, ref) => {
 		const resolvedLabel = label ?? textValue;
-		const handleClick = (event: MenuCheckboxItemClickEvent) => {
-			onClick?.(event);
-			onSelect?.(event.nativeEvent);
-			stopBaseUIHandlerWhenDefaultPrevented(event);
-		};
+		const handleClick = (event: MenuCheckboxItemClickEvent) => runMenuItemClick(event, onClick, onSelect);
 		return (
 			<MenuPrimitive.CheckboxItem
 				ref={ref}

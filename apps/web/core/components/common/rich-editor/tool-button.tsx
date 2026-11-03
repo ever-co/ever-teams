@@ -8,7 +8,7 @@ import { useDetectOS } from '@/core/hooks/common/use-detect-os';
 import { cn } from '@/core/lib/helpers';
 
 /** A shortcut as Tiptap binds it: "Mod" is ⌘ on a Mac and Ctrl elsewhere. */
-export type ToolShortcut = readonly ('Mod' | 'Shift' | string)[];
+export type ToolShortcut = readonly string[];
 
 const MAC_KEYS: Record<string, string> = { Mod: '⌘', Shift: '⇧' };
 
@@ -44,7 +44,7 @@ export function ToolButton({
 	disabled = false,
 	onPress,
 	className
-}: {
+}: Readonly<{
 	icon: IconComponent;
 	label: string;
 	shortcutLabel?: string;
@@ -52,7 +52,7 @@ export function ToolButton({
 	disabled?: boolean;
 	onPress: () => void;
 	className?: string;
-}) {
+}>) {
 	return (
 		<Tooltip>
 			<TooltipTrigger asChild>
@@ -78,6 +78,6 @@ export function ToolButton({
 	);
 }
 
-export function ToolDivider({ className }: { className?: string }) {
+export function ToolDivider({ className }: Readonly<{ className?: string }>) {
 	return <span aria-hidden="true" className={cn('mx-0.5 h-4 w-px shrink-0 bg-border', className)} />;
 }

@@ -16,6 +16,7 @@
 	--color-primary-foreground: var(--color-white);
 	--color-secondary: var(--color-sky-100);
 	--color-secondary-foreground: var(--color-sky-600);
+	--hairline: 1px;
 }
 html {
 	background: hsl(var(--sidebar-background));
@@ -359,7 +360,7 @@ html {
 }
 .search-border .input-border input::placeholder {
 	color: hsl(var(--muted-foreground) / 75%);
-	font-size: 14px !important;
+	font-size: 14px;
 }
 
 #file-upload input[type='file'] {
@@ -886,9 +887,6 @@ body.dark .PhoneInputCountrySelectOption:focus {
  * Tailwind's `border` and `ring-1` are a literal 1px (two device pixels on a Retina screen), so the
  * app uses these utilities instead; they still yield to `md:border-0`-style variants.
  */
-:root {
-	--hairline: 1px;
-}
 @media (min-resolution: 2dppx) {
 	:root {
 		--hairline: 0.5px;

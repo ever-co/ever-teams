@@ -1,6 +1,10 @@
 import { FC } from 'react';
 import { clsxm } from '@/core/lib/utils';
 
+const ACTIVITY_GROUP_KEYS = ['first-group', 'second-group', 'third-group'];
+
+const CONTENT_ROW_KEYS = ['first-row', 'second-row'];
+
 interface RichTextEditorSkeletonProps {
 	className?: string;
 }
@@ -73,8 +77,8 @@ export const TaskActivitySkeleton: FC<{ className?: string }> = ({ className }) 
 
 			{/* Activity items */}
 			<div className="space-y-3">
-				{[...Array(3)].map((_, i) => (
-					<div key={i} className="rounded-lg p-4 bg-foreground/[0.03]">
+				{ACTIVITY_GROUP_KEYS.map((groupKey) => (
+					<div key={groupKey} className="rounded-lg p-4 bg-foreground/[0.03]">
 						{/* Date header */}
 						<div className="w-32 h-4 bg-foreground/5 animate-pulse rounded-md mb-3" />
 
@@ -148,8 +152,8 @@ export const IssueCardSkeleton: FC<{ className?: string; title?: string }> = ({ 
 
 			{/* Content */}
 			<div className="py-4 space-y-3">
-				{[...Array(2)].map((_, i) => (
-					<div key={i} className="flex gap-3 items-center p-3 rounded-lg bg-foreground/[0.03]">
+				{CONTENT_ROW_KEYS.map((rowKey) => (
+					<div key={rowKey} className="flex gap-3 items-center p-3 rounded-lg bg-foreground/[0.03]">
 						<div className="w-6 h-6 bg-foreground/5 animate-pulse rounded-sm" />
 						<div className="flex-1 space-y-1">
 							<div className="w-48 h-4 bg-foreground/5 animate-pulse rounded-md" />

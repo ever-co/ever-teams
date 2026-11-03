@@ -18,7 +18,7 @@ const READ_SURFACES = {
 
 export type EditableRichTextSurface = keyof typeof READ_SURFACES;
 
-const LOADING_SURFACE = 'h-24 animate-pulse rounded-xl bg-foreground/[0.04]';
+const LOADING_SURFACE = 'block h-24 animate-pulse rounded-xl bg-foreground/[0.04]';
 
 function prepareEditor() {
 	void preloadRichEditor();
@@ -113,7 +113,7 @@ export function EditableRichText({
 					</Button>
 				)}
 			</div>
-			{showsLoading && <div role="status" className={LOADING_SURFACE} />}
+			{showsLoading && <output className={LOADING_SURFACE} />}
 			{showsEditor && (
 				<div className="p-1 rounded-xl bg-card hairline-ring ring-foreground/20">
 					{renderEditor(stopEditing)}

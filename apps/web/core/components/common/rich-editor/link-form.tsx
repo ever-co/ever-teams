@@ -64,12 +64,12 @@ export function LinkForm({
 	onApply,
 	onRemove,
 	onCancel
-}: {
+}: Readonly<{
 	initial: string;
 	onApply: (href: string) => void;
 	onRemove?: () => void;
 	onCancel: () => void;
-}) {
+}>) {
 	const t = useTranslations();
 	const [value, setValue] = useState(initial);
 	const [invalid, setInvalid] = useState(false);
@@ -102,7 +102,7 @@ export function LinkForm({
 	}
 
 	return (
-		<div className="flex min-w-0 flex-col gap-1" role="group" aria-label={t('richEditor.LINK')}>
+		<fieldset className="m-0 flex min-w-0 flex-col gap-1 border-0 p-0" aria-label={t('richEditor.LINK')}>
 			<div className="flex min-w-0 items-center gap-1">
 				<Input
 					type="url"
@@ -150,6 +150,6 @@ export function LinkForm({
 					{t('richEditor.LINK_INVALID')}
 				</p>
 			)}
-		</div>
+		</fieldset>
 	);
 }

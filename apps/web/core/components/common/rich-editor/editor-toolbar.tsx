@@ -127,7 +127,7 @@ function useCopiedFeedback() {
 }
 
 /** The emoji picker floats under the toolbar, inside the editor: a portal would leave a dialog that hosts it. */
-function EmojiPanel({ onPick, onClose }: { onPick: (emoji: string) => void; onClose: () => void }) {
+function EmojiPanel({ onPick, onClose }: Readonly<{ onPick: (emoji: string) => void; onClose: () => void }>) {
 	const { resolvedTheme } = useTheme();
 	const panelRef = useRef<HTMLDivElement>(null);
 
@@ -178,7 +178,7 @@ export function EditorToolbar({
 	leading,
 	onPickImage,
 	onAskAi
-}: {
+}: Readonly<{
 	editor: Editor;
 	aiEnabled: boolean;
 	imagesEnabled: boolean;
@@ -186,7 +186,7 @@ export function EditorToolbar({
 	leading?: ReactNode;
 	onPickImage: () => void;
 	onAskAi: () => void;
-}) {
+}>) {
 	const t = useTranslations();
 	const shortcutLabel = useShortcutLabel();
 	const [linkOpen, setLinkOpen] = useState(false);
@@ -469,6 +469,6 @@ export function EditorToolbar({
 	);
 }
 
-export function ToolbarPlaceholder({ className }: { className?: string }) {
+export function ToolbarPlaceholder({ className }: Readonly<{ className?: string }>) {
 	return <div aria-hidden="true" className={cn('min-h-10 hairline-b border-border', className)} />;
 }

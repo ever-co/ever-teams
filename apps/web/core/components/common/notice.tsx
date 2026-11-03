@@ -37,8 +37,7 @@ export function Notice({
 	const toneStyle = { '--notice-tone': orbToneColor(tone) } as CSSProperties;
 
 	return (
-		<div
-			role="status"
+		<output
 			style={toneStyle}
 			className={cn(
 				'flex flex-wrap items-start gap-x-3 gap-y-2 rounded-xl bg-card bg-[radial-gradient(120%_180%_at_0%_0%,color-mix(in_oklab,var(--notice-tone)_9%,transparent),transparent_45%)] px-3.5 py-3 hairline-ring ring-border shadow-sm shadow-black/6.5',
@@ -72,6 +71,6 @@ export function Notice({
 					<X className="size-3.5" />
 				</Button>
 			)}
-		</div>
+		</output>
 	);
 }

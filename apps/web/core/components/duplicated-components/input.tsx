@@ -42,7 +42,7 @@ const Input = ({
 					centered && 'text-center'
 				} hairline-b border-border bg-transparent pb-1 font-medium text-foreground outline-hidden placeholder:text-muted-foreground/75 focus:border-b-2 focus:border-primary`}
 			/>
-			{errors && errors[name] && <span className="text-sm text-destructive-ink">{errors[name]}</span>}
+			{errors?.[name] && <span className="text-sm text-destructive-ink">{errors[name]}</span>}
 		</div>
 	);
 };

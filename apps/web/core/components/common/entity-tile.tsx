@@ -34,7 +34,7 @@ interface EntityTileProps {
  * plate of its colour (or of the placeholder's colour, or of a hue derived from its name), the plate of the issue
  * types.
  */
-export function EntityTile({ name, color, imageUrl, className }: EntityTileProps) {
+export function EntityTile({ name, color, imageUrl, className }: Readonly<EntityTileProps>) {
 	const safeName = name ?? '';
 	const initials = imgTitle(safeName);
 	const placeholder = parseGeneratedAvatar(imageUrl);

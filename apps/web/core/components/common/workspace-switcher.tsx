@@ -448,7 +448,7 @@ export function WorkspacesSwitcher() {
 }
 
 /** The number of teams of a workspace as a key cap (the palette's), its full wording kept for the tooltip. */
-function WorkspaceTeamCount({ count }: { count: number }) {
+function WorkspaceTeamCount({ count }: Readonly<{ count: number }>) {
 	const t = useTranslations();
 	return (
 		<span className={cn(commandKeycapClass, 'tabular-nums')} title={t('switchers.TEAM_COUNT', { count })}>

@@ -24,6 +24,8 @@ const NoTeam = ({ className, ...rest }: Props) => {
 		if (teams.length < 1 && user?.isEmailVerified == true) openModal();
 	}, [closeModal, openModal, teams.length, user?.isEmailVerified]);
 
+	const isEmailUnverified = user?.isEmailVerified === false;
+
 	return (
 		<div className={clsxm('flex flex-col justify-center items-center mx-auto mt-8 xs:mt-32', className)} {...rest}>
 			<NoTeamIcon className="size-[70px] mb-4 bg-transparent" />
@@ -34,8 +36,8 @@ const NoTeam = ({ className, ...rest }: Props) => {
 				<p className="text-balance text-sm text-muted-foreground">{t('common.NO_TEAM_SUB')}</p>
 			</div>
 
-			<Tooltip placement="auto" label={t('common.NO_TEAM_TOOLTIP')} enabled={user?.isEmailVerified == false}>
-				<Button className="mt-6 capitalize" onClick={openModal} disabled={user?.isEmailVerified == false}>
+			<Tooltip placement="auto" label={t('common.NO_TEAM_TOOLTIP')} enabled={isEmailUnverified}>
+				<Button className="mt-6 capitalize" onClick={openModal} disabled={isEmailUnverified}>
 					{t('common.CREATE_TEAM')}
 				</Button>
 			</Tooltip>

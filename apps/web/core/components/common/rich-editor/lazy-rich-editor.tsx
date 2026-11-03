@@ -7,10 +7,10 @@ export const preloadRichEditor = () => import('./rich-editor');
 
 function RichEditorLoading() {
 	return (
-		<div role="status" aria-busy="true" className="flex min-h-24 flex-col gap-2 rounded-md px-3 py-2.5">
+		<output aria-busy="true" className="flex min-h-24 flex-col gap-2 rounded-md px-3 py-2.5">
 			<div className="h-3 w-2/3 animate-pulse rounded-md bg-foreground/[0.06]" />
 			<div className="h-3 w-1/2 animate-pulse rounded-md bg-foreground/[0.06]" />
-		</div>
+		</output>
 	);
 }
 

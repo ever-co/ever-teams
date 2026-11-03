@@ -9,9 +9,9 @@ type RenderElementProps = Record<string, unknown> & {
 type RenderElement = React.ReactElement<RenderElementProps>;
 
 interface AsChildInput<Render> {
-	asChild?: boolean | undefined;
+	asChild?: boolean;
 	children?: React.ReactNode;
-	render?: Render | undefined;
+	render?: Render;
 }
 
 interface AsChildOutput<Render> {

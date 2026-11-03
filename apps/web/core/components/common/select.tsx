@@ -77,7 +77,7 @@ function Select({
 	defaultOpen,
 	onOpenChange,
 	...props
-}: SelectProps) {
+}: Readonly<SelectProps>) {
 	const [internalValue, setInternalValue] = React.useState<SelectValueType>(() => toBaseValue(defaultValue));
 	const isControlled = value !== undefined;
 	let currentValue = internalValue;

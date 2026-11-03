@@ -29,7 +29,7 @@ function SettingsRowSkeleton() {
 	);
 }
 
-function SectionTitleSkeleton({ width }: { width: string }) {
+function SectionTitleSkeleton({ width }: Readonly<{ width: string }>) {
 	return (
 		<div className="flex h-6 items-center">
 			<div className={cn(BAR, 'h-4', width)} />
@@ -37,7 +37,7 @@ function SectionTitleSkeleton({ width }: { width: string }) {
 	);
 }
 
-function SettingsSectionSkeleton({ rows, titleWidth }: { rows: number; titleWidth: string }) {
+function SettingsSectionSkeleton({ rows, titleWidth }: Readonly<{ rows: number; titleWidth: string }>) {
 	const rowKeys = Array.from({ length: rows }, (_, index) => index);
 	return (
 		<section className="py-8">
@@ -77,7 +77,7 @@ function DangerSectionSkeleton() {
 	);
 }
 
-function MenuGroupSkeleton({ links }: { links: number }) {
+function MenuGroupSkeleton({ links }: Readonly<{ links: number }>) {
 	const linkKeys = Array.from({ length: links }, (_, index) => index);
 	return (
 		<section>

@@ -25,7 +25,7 @@ function preventTextSelectionOnRepeatedClick(event: React.MouseEvent<HTMLLabelEl
 	}
 }
 
-const Label = React.forwardRef<HTMLLabelElement, LabelProps>(({ className, onMouseDown, ...props }, ref) => {
+const Label = React.forwardRef<HTMLLabelElement, LabelProps>(({ className, htmlFor, onMouseDown, ...props }, ref) => {
 	const handleMouseDown = (event: React.MouseEvent<HTMLLabelElement>) => {
 		onMouseDown?.(event);
 		preventTextSelectionOnRepeatedClick(event);
@@ -34,6 +34,7 @@ const Label = React.forwardRef<HTMLLabelElement, LabelProps>(({ className, onMou
 		<label
 			ref={ref}
 			data-slot="label"
+			htmlFor={htmlFor}
 			className={cn(labelVariants(), className)}
 			onMouseDown={handleMouseDown}
 			{...props}

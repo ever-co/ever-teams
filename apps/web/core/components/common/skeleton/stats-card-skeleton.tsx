@@ -18,7 +18,7 @@ interface StatsCardSkeletonProps {
 	className?: string;
 }
 
-function StatCellSkeleton({ showProgress }: { showProgress: boolean }) {
+function StatCellSkeleton({ showProgress }: Readonly<{ showProgress: boolean }>) {
 	return (
 		<div className={STAT_CELL_CLASS_NAME}>
 			<div className="flex h-4 items-center">
@@ -33,7 +33,7 @@ function StatCellSkeleton({ showProgress }: { showProgress: boolean }) {
 }
 
 /** The four cells of TeamStatsGrid on one surface, split by dashed hairlines. */
-export function StatsCardSkeleton({ className }: StatsCardSkeletonProps) {
+export function StatsCardSkeleton({ className }: Readonly<StatsCardSkeletonProps>) {
 	return (
 		<Card className={cn('grid grid-cols-1 overflow-hidden sm:grid-cols-2 xl:grid-cols-4', className)}>
 			{STAT_CELLS.map((cell) => (

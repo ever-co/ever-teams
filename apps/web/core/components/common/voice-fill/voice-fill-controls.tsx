@@ -180,10 +180,10 @@ function WorkingRow({ voice }: Readonly<{ voice: VoiceFill }>) {
 	return (
 		<div className="flex items-center gap-2.5">
 			<Spinner className="size-4 animate-spin text-muted-foreground" aria-hidden="true" />
-			<span role="status" className="min-w-0 flex-1 text-[13px] text-foreground">
+			<output className="min-w-0 flex-1 text-[13px] text-foreground">
 				{isTranscribing && t('voiceFill.TRANSCRIBING')}
 				{!isTranscribing && t('voiceFill.FILLING')}
-			</span>
+			</output>
 			<Button type="button" variant="ghost" size="sm" onClick={voice.cancel}>
 				{t('common.CANCEL')}
 			</Button>

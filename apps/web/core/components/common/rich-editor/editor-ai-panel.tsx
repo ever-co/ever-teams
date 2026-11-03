@@ -73,7 +73,11 @@ function useFailureCopy() {
 	return messages;
 }
 
-function PanelHeader({ title, scopeLabel, onClose }: { title: string; scopeLabel: string; onClose: () => void }) {
+function PanelHeader({
+	title,
+	scopeLabel,
+	onClose
+}: Readonly<{ title: string; scopeLabel: string; onClose: () => void }>) {
 	const t = useTranslations();
 	return (
 		<div className="flex min-w-0 items-center gap-2">
@@ -100,11 +104,11 @@ function SetupScreen({
 	config,
 	onSaveConfig,
 	onClose
-}: {
+}: Readonly<{
 	config: ChatConfig | null;
 	onSaveConfig: (config: ChatConfig) => void;
 	onClose: () => void;
-}) {
+}>) {
 	const t = useTranslations();
 	const [showForm, setShowForm] = useState(false);
 	if (showForm) {
@@ -130,7 +134,7 @@ function SetupScreen({
 	);
 }
 
-function ModesScreen({ onRun }: { onRun: (mode: TEditorAiMode, instruction?: string) => void }) {
+function ModesScreen({ onRun }: Readonly<{ onRun: (mode: TEditorAiMode, instruction?: string) => void }>) {
 	const t = useTranslations();
 	const modeCopy = useModeCopy();
 	const [instruction, setInstruction] = useState('');
@@ -183,7 +187,7 @@ function BusyScreen() {
 	);
 }
 
-function ErrorScreen({ message, onBack }: { message: string; onBack: () => void }) {
+function ErrorScreen({ message, onBack }: Readonly<{ message: string; onBack: () => void }>) {
 	const t = useTranslations();
 	return (
 		<div className="mt-2 flex flex-col items-start gap-2">
@@ -202,12 +206,12 @@ function ResultActions({
 	onApply,
 	onBack,
 	onClose
-}: {
+}: Readonly<{
 	isContinue: boolean;
 	onApply: (how: 'replace' | 'insert') => void;
 	onBack: () => void;
 	onClose: () => void;
-}) {
+}>) {
 	const t = useTranslations();
 	return (
 		<div className="flex flex-wrap items-center gap-1.5">
@@ -243,12 +247,12 @@ function ResultScreen({
 	onApply,
 	onBack,
 	onClose
-}: {
+}: Readonly<{
 	state: AiPanelState;
 	onApply: (how: 'replace' | 'insert') => void;
 	onBack: () => void;
 	onClose: () => void;
-}) {
+}>) {
 	const isContinue = state.mode === 'continue';
 	const note = state.result?.note;
 	return (
@@ -300,7 +304,7 @@ export function EditorAiPanel({
 	onBack,
 	onClose,
 	onSaveConfig
-}: {
+}: Readonly<{
 	state: AiPanelState;
 	config: ChatConfig | null;
 	onRun: (mode: TEditorAiMode, instruction?: string) => void;
@@ -308,7 +312,7 @@ export function EditorAiPanel({
 	onBack: () => void;
 	onClose: () => void;
 	onSaveConfig: (config: ChatConfig) => void;
-}) {
+}>) {
 	const t = useTranslations();
 	const modeCopy = useModeCopy();
 	const failureCopy = useFailureCopy();
@@ -319,7 +323,7 @@ export function EditorAiPanel({
 	const showsError = isIdle && Boolean(state.error);
 	const showsResult = isIdle && Boolean(state.result);
 
-	function closeOnEscape(event: KeyboardEvent<HTMLDivElement>) {
+	function closeOnEscape(event: KeyboardEvent<HTMLElement>) {
 		if (event.key !== 'Escape') {
 			return;
 		}
@@ -342,14 +346,13 @@ export function EditorAiPanel({
 	}
 
 	return (
-		<div
-			role="region"
+		<section
 			aria-label={t('richEditor.ai.TITLE')}
 			className="hairline-t border-border bg-foreground/[0.02] px-2.5 py-2.5"
 			onKeyDown={closeOnEscape}
 		>
 			<PanelHeader title={title} scopeLabel={scopeLabel} onClose={onClose} />
 			{body}
-		</div>
+		</section>
 	);
 }

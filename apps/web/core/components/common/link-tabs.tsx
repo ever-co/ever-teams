@@ -48,7 +48,7 @@ function ariaCurrentFor(isActive: boolean) {
  * Tabs that are links: the picked tab takes the ink colour and one underline slides to it. The underline
  * follows the tap first, then the URL, so it moves at once even when the page takes a moment to answer.
  */
-export function LinkTabs({ label, items, activeKey, onSelect, className }: LinkTabsProps) {
+export function LinkTabs({ label, items, activeKey, onSelect, className }: Readonly<LinkTabsProps>) {
 	const [current, setCurrent] = useState(activeKey);
 	const [lastActiveKey, setLastActiveKey] = useState(activeKey);
 	const { listRef, activeRef, box } = useActiveIndicator<HTMLUListElement, HTMLAnchorElement>(current);

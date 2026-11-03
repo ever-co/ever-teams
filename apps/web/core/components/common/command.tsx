@@ -49,8 +49,8 @@ const CommandDialog = ({ children, ...props }: DialogProps) => {
 				<Command
 					className={cn(
 						'rounded-none bg-transparent',
-						'[&_[cmdk-input-wrapper]]:h-14 [&_[cmdk-input-wrapper]]:gap-3 [&_[cmdk-input-wrapper]]:px-5',
-						'[&_[cmdk-input-wrapper]>svg]:size-5 [&_[cmdk-input]]:h-14 [&_[cmdk-input]]:text-[15px]',
+						'[&_[data-cmdk-input-wrapper]]:h-14 [&_[data-cmdk-input-wrapper]]:gap-3 [&_[data-cmdk-input-wrapper]]:px-5',
+						'[&_[data-cmdk-input-wrapper]>svg]:size-5 [&_[cmdk-input]]:h-14 [&_[cmdk-input]]:text-[15px]',
 						'[&_[cmdk-list]]:max-h-[min(28rem,calc(100dvh-14rem))] [&_[cmdk-list]]:px-2 [&_[cmdk-list]]:pb-2'
 					)}
 				>
@@ -69,7 +69,7 @@ const CommandInput = React.forwardRef<React.ElementRef<typeof CommandPrimitive.I
 	({ className, shortcutKeys, ...props }, ref) => {
 		const hasShortcut = Boolean(shortcutKeys?.length);
 		return (
-			<div className="flex items-center gap-2 hairline-b border-border px-3" cmdk-input-wrapper="">
+			<div className="flex items-center gap-2 hairline-b border-border px-3" data-cmdk-input-wrapper="">
 				<Search className="size-4 shrink-0 text-muted-foreground" aria-hidden="true" />
 				<CommandPrimitive.Input
 					ref={ref}
@@ -117,7 +117,7 @@ function tabIndicatorStyle(box: IndicatorBox): React.CSSProperties {
 	return { transform: `translateX(${left}px)`, width };
 }
 
-function CommandTabs({ label, items, value, onValueChange, className }: CommandTabsProps) {
+function CommandTabs({ label, items, value, onValueChange, className }: Readonly<CommandTabsProps>) {
 	const { listRef, activeRef, box } = useActiveIndicator<HTMLDivElement, HTMLButtonElement>(value);
 	return (
 		<div className={cn('no-scrollbar overflow-x-auto hairline-b border-border px-3', className)}>

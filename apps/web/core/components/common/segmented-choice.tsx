@@ -15,7 +15,13 @@ interface SegmentedChoiceProps<T extends string> {
 const pillClass =
 	'bg-card from-primary/10 to-primary/10 ring-primary/30 dark:from-primary/15 dark:to-primary/15 dark:ring-primary/40 rounded-md bg-linear-to-r shadow-sm hairline-ring shadow-black/10';
 
-export function SegmentedChoice<T extends string>({ name, legend, options, value, onChange }: SegmentedChoiceProps<T>) {
+export function SegmentedChoice<T extends string>({
+	name,
+	legend,
+	options,
+	value,
+	onChange
+}: Readonly<SegmentedChoiceProps<T>>) {
 	const { listRef, activeRef, box } = useActiveIndicator<HTMLDivElement, HTMLLabelElement>(value);
 
 	return (

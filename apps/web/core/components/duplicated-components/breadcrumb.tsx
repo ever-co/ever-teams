@@ -14,6 +14,13 @@ type Props = {
 const CRUMB_LINK =
 	'rounded-sm text-muted-foreground transition-colors outline-none hover:text-foreground focus-visible:ring-[3px] focus-visible:ring-ring/25';
 
+function crumbKeyOf(path: Crumb) {
+	if (typeof path === 'object') {
+		return `${path.href}:${path.title}`;
+	}
+	return path;
+}
+
 function isCurrentCrumb(index: number, count: number) {
 	return index === count - 1;
 }
@@ -31,7 +38,7 @@ export function Breadcrumb({ paths, className }: Props) {
 					const hasTitle = Boolean(title);
 
 					return (
-						<React.Fragment key={index}>
+						<React.Fragment key={crumbKeyOf(path)}>
 							{!isFirst && (
 								<li aria-hidden="true" className="shrink-0">
 									<ChevronRight className="size-3.5 text-muted-foreground/70" />

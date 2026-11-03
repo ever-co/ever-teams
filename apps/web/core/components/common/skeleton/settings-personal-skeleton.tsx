@@ -17,7 +17,7 @@ const WORK_DAYS = 7;
 
 const DANGER_ROWS = 4;
 
-function SectionTitleSkeleton({ width }: { width: string }) {
+function SectionTitleSkeleton({ width }: Readonly<{ width: string }>) {
 	return (
 		<div className="flex h-6 items-center">
 			<div className={cn(BAR, 'h-4', width)} />
@@ -25,7 +25,7 @@ function SectionTitleSkeleton({ width }: { width: string }) {
 	);
 }
 
-function LabelSkeleton({ width }: { width: string }) {
+function LabelSkeleton({ width }: Readonly<{ width: string }>) {
 	return <div className={cn(BAR, 'h-4', width)} />;
 }
 

@@ -334,8 +334,8 @@ export default function ImageOverlapper({
 	return (
 		<div className="relative flex items-center min-w-fit">
 			<div className={cn('relative flex items-center', overlapClassName)}>
-				{firstArray.map((image, index) => (
-					<Link className={avatarSizeClassName} style={avatarStyle} key={index} href={onRedirect(image)}>
+				{firstArray.map((image) => (
+					<Link className={avatarSizeClassName} style={avatarStyle} key={image.id} href={onRedirect(image)}>
 						<div className={cn('w-full h-full [&:not(:hover)]:!z-0 hover:!z-[5] even:z-[1] odd:z-[2]')}>
 							<Tooltip
 								label={image.alt ?? 'avatar'}

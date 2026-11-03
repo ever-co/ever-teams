@@ -12,7 +12,7 @@ interface TabsProps extends TabsPrimitive.Root.Props {
 	activationMode?: TabsActivationMode;
 }
 
-function Tabs({ className, activationMode = 'automatic', ...props }: TabsProps) {
+function Tabs({ className, activationMode = 'automatic', ...props }: Readonly<TabsProps>) {
 	const activateOnFocus = activationMode !== 'manual';
 	return (
 		<TabsActivateOnFocusContext.Provider value={activateOnFocus}>

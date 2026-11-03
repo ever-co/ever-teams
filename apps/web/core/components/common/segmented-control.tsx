@@ -37,8 +37,8 @@ const COUNT_CLASS =
 
 const COUNT_ACTIVE_CLASS = 'bg-primary/10 text-primary-ink';
 
-const NEXT_KEYS = ['ArrowRight', 'ArrowDown'];
-const PREVIOUS_KEYS = ['ArrowLeft', 'ArrowUp'];
+const NEXT_KEYS = new Set(['ArrowRight', 'ArrowDown']);
+const PREVIOUS_KEYS = new Set(['ArrowLeft', 'ArrowUp']);
 
 function isIconOnly<T extends string>(item: SegmentedControlItem<T>) {
 	const hasIcon = Boolean(item.icon);
@@ -80,7 +80,7 @@ export function SegmentedControl<T extends string>({
 	ariaLabel,
 	renderItem,
 	className
-}: SegmentedControlProps<T>) {
+}: Readonly<SegmentedControlProps<T>>) {
 	const { listRef, activeRef, box } = useActiveIndicator<HTMLDivElement, HTMLButtonElement>(value);
 
 	const selectByOffset = useCallback(
@@ -100,8 +100,8 @@ export function SegmentedControl<T extends string>({
 
 	const handleKeyDown = useCallback(
 		(event: KeyboardEvent<HTMLDivElement>) => {
-			const goesNext = NEXT_KEYS.includes(event.key);
-			const goesPrevious = PREVIOUS_KEYS.includes(event.key);
+			const goesNext = NEXT_KEYS.has(event.key);
+			const goesPrevious = PREVIOUS_KEYS.has(event.key);
 			if (goesNext) {
 				event.preventDefault();
 				selectByOffset(1);

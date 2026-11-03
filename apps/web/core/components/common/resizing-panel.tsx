@@ -16,7 +16,7 @@ function heightStyle(height: number | null) {
 	return { height };
 }
 
-export function ResizingPanel({ children, className }: { children: ReactNode; className?: string }) {
+export function ResizingPanel({ children, className }: Readonly<{ children: ReactNode; className?: string }>) {
 	const innerRef = useRef<HTMLDivElement>(null);
 	const [height, setHeight] = useState<number | null>(null);
 

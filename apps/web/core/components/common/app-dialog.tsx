@@ -50,7 +50,7 @@ export function AppDialog({
 	dismissible = true,
 	className,
 	children
-}: AppDialogProps) {
+}: Readonly<AppDialogProps>) {
 	const popupRef = useRef<HTMLDivElement>(null);
 	const keepsOpenOnOverlay = keepOpenOnOutsideClick || !dismissible;
 	const handleOpenChange = (nextOpen: boolean) => {
@@ -86,7 +86,7 @@ interface AppDialogHeaderProps {
 	className?: string;
 }
 
-export function AppDialogHeader({ title, context, onClose, actions, className }: AppDialogHeaderProps) {
+export function AppDialogHeader({ title, context, onClose, actions, className }: Readonly<AppDialogHeaderProps>) {
 	const t = useTranslations();
 	const hasContext = Boolean(context);
 	const hasCloseButton = Boolean(onClose);

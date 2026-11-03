@@ -12,7 +12,13 @@ interface TooltipProviderProps extends TooltipPrimitive.Provider.Props {
 	skipDelayDuration?: number;
 }
 
-function TooltipProvider({ delayDuration, skipDelayDuration, delay, timeout, ...props }: TooltipProviderProps) {
+function TooltipProvider({
+	delayDuration,
+	skipDelayDuration,
+	delay,
+	timeout,
+	...props
+}: Readonly<TooltipProviderProps>) {
 	const resolvedDelay = delay ?? delayDuration;
 	const resolvedTimeout = timeout ?? skipDelayDuration;
 	return <TooltipPrimitive.Provider delay={resolvedDelay} timeout={resolvedTimeout} {...props} />;

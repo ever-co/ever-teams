@@ -24,7 +24,11 @@ interface HoverCardProps extends PreviewCardPrimitive.Root.Props {
 	closeDelay?: number;
 }
 
-function HoverCard({ openDelay = RADIX_OPEN_DELAY, closeDelay = RADIX_CLOSE_DELAY, ...props }: HoverCardProps) {
+function HoverCard({
+	openDelay = RADIX_OPEN_DELAY,
+	closeDelay = RADIX_CLOSE_DELAY,
+	...props
+}: Readonly<HoverCardProps>) {
 	const delays = React.useMemo(() => ({ openDelay, closeDelay }), [openDelay, closeDelay]);
 	return (
 		<HoverCardDelayContext.Provider value={delays}>

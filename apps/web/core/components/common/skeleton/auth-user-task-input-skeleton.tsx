@@ -15,7 +15,7 @@ const PROPERTY_PILL_SKELETON_KEYS = ['status', 'priority', 'size', 'labels'];
 export function AuthUserTaskInputSkeleton({ className }: IClassName) {
 	const t = useTranslations();
 	return (
-		<div role="status" className={clsxm('flex min-w-0 flex-1 flex-col gap-4 mt-8 lg:mt-0', className)}>
+		<output className={clsxm('flex min-w-0 flex-1 flex-col gap-4 mt-8 lg:mt-0', className)}>
 			<Skeleton className={clsxm(SKELETON_TONE, 'h-10 w-full rounded-lg')} />
 			<div className="ml-2 flex flex-row flex-wrap items-center gap-3 md:justify-between lg:justify-start lg:gap-4">
 				<div className="mb-4 flex items-center lg:mb-0">
@@ -28,6 +28,6 @@ export function AuthUserTaskInputSkeleton({ className }: IClassName) {
 					))}
 				</div>
 			</div>
-		</div>
+		</output>
 	);
 }

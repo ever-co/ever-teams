@@ -11,6 +11,8 @@ function getPageButtonVariant(isCurrentPage: boolean): 'outline' | 'ghost' {
 	return 'ghost';
 }
 
+type VisiblePage = number | { ellipsisAfter: number };
+
 interface PaginationProps {
 	currentPage: number;
 	totalPages: number;
@@ -41,9 +43,9 @@ export function Pagination({
 
 	const getVisiblePages = () => {
 		const delta = 2; // Number of pages to show before and after current page
-		const range = [];
-		const rangeWithDots = [];
-		let l;
+		const range: number[] = [];
+		const rangeWithDots: VisiblePage[] = [];
+		let l: number | undefined;
 
 		for (let i = 1; i <= totalPages; i++) {
 			if (i === 1 || i === totalPages || (i >= currentPage - delta && i <= currentPage + delta)) {
@@ -56,7 +58,7 @@ export function Pagination({
 				if (i - l === 2) {
 					rangeWithDots.push(l + 1);
 				} else if (i - l !== 1) {
-					rangeWithDots.push('...');
+					rangeWithDots.push({ ellipsisAfter: l });
 				}
 			}
 			rangeWithDots.push(i);
@@ -76,9 +78,9 @@ export function Pagination({
 					<ChevronLeft className="w-4 h-4" />
 				</Button>
 				<div className="flex gap-1 items-center overflow-x-auto max-w-[300px] p-1">
-					{getVisiblePages().map((page, index) =>
-						page === '...' ? (
-							<span key={`dot-${index}`} className="px-2 text-muted-foreground">
+					{getVisiblePages().map((page) =>
+						typeof page === 'object' ? (
+							<span key={`dot-after-${page.ellipsisAfter}`} className="px-2 text-muted-foreground">
 								...
 							</span>
 						) : (
@@ -86,7 +88,7 @@ export function Pagination({
 								key={page}
 								variant={getPageButtonVariant(currentPage === page)}
 								size="icon"
-								onClick={() => goToPage(page as number)}
+								onClick={() => goToPage(page)}
 								className={cn('tabular-nums', currentPage === page && 'font-semibold text-foreground')}
 							>
 								{page}

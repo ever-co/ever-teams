@@ -14,11 +14,11 @@ export function AnimatedHeight({
 	swapKey,
 	className,
 	children
-}: {
+}: Readonly<{
 	swapKey?: string;
 	className?: string;
 	children: ReactNode;
-}) {
+}>) {
 	const [firstKey] = useState(swapKey);
 	const [swapped, setSwapped] = useState(false);
 	if (!swapped && swapKey !== firstKey) setSwapped(true);

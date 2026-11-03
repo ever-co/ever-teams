@@ -2,6 +2,8 @@ import { FC } from 'react';
 import { Skeleton } from '@/core/components/common/skeleton';
 import { cn } from '@/core/lib/helpers';
 
+const TEAM_AVATAR_KEYS = ['first-avatar', 'second-avatar'];
+
 interface GenericCardSkeletonProps {
 	className?: string;
 	variant?: 'project' | 'team' | 'task' | 'simple';
@@ -126,8 +128,8 @@ export const GenericCardSkeleton: FC<GenericCardSkeletonProps> = ({
 					<div className="flex flex-col gap-1">
 						<Skeleton className="w-16 h-4" />
 						<div className="flex -space-x-2">
-							{[...Array(2)].map((_, i) => (
-								<Skeleton key={i} className="w-8 h-8 rounded-full ring-2 ring-card" />
+							{TEAM_AVATAR_KEYS.map((avatarKey) => (
+								<Skeleton key={avatarKey} className="w-8 h-8 rounded-full ring-2 ring-card" />
 							))}
 						</div>
 					</div>
