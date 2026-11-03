@@ -1,523 +1,371 @@
-/* eslint-disable no-mixed-spaces-and-tabs */
-import { CHARACTER_LIMIT_TO_SHOW } from '@/core/constants/config/constants';
-import { imgTitle } from '@/core/lib/helpers/index';
-import { useAuthenticateUser } from '@/core/hooks';
-import { activeTeamState, isTeamMemberState, publicState, timerStatusState } from '@/core/stores';
-import { clsxm, isValidUrl } from '@/core/lib/utils';
-import { Popover, PopoverButton, PopoverPanel, Transition } from '@headlessui/react';
-import { Divider, Text, ThemeToggler } from '@/core/components';
-
-import {
-	DevicesIcon,
-	LogoutRoundIcon,
-	MoonLightOutlineIcon as MoonIcon,
-	PeoplesIcon,
-	BriefCaseIcon,
-	SettingOutlineIcon
-} from 'assets/svg';
-import ThemesPopup from '@/core/components/common/themes-popup';
-import { useTheme } from 'next-themes';
-import Link from 'next/link';
 import { useMemo } from 'react';
+import Link from 'next/link';
+import { usePathname } from 'next/navigation';
 import { useAtomValue } from 'jotai';
-import stc from 'string-to-color';
+import { useTranslations } from 'next-intl';
+import { Popover, PopoverButton, PopoverPanel } from '@headlessui/react';
+import { useAuthenticateUser } from '@/core/hooks';
+import { activeTeamState, isTeamManagerState, isTeamMemberState, publicState, timerStatusState } from '@/core/stores';
+import { Briefcase, ChevronRight, ChevronsUpDown, Globe, LogOut, Moon, Settings, Users } from '@/core/components/icons';
 import { TimerStatus, getTimerStatusValue } from '../timer/timer-status';
 import Collaborate from '@/core/components/collaborate';
 import { TeamsDropDown } from '../teams/teams-dropdown';
 import { KeyboardShortcuts } from '@/core/components/common/keyboard-shortcuts';
-import { usePathname } from 'next/navigation';
-import { useTranslations } from 'next-intl';
-import { ChevronDown, ChevronsUpDown, Globe2Icon } from 'lucide-react';
 import { useSidebar } from '@/core/components/common/sidebar';
 import { LanguageDropDownWithFlags } from '@/core/components/common/language-dropdown-flags';
 import { signOutFunction } from '@/core/lib/helpers/social-logins';
-import { Avatar } from '../duplicated-components/avatar';
-import { EverCard } from '../common/ever-card';
-import { Tooltip } from '../duplicated-components/tooltip';
+import { Avatar, AvatarFallback, AvatarImage } from '@/core/components/common/avatar';
+import { EntityTile } from '@/core/components/common/entity-tile';
 import { ETimerStatus } from '@/core/types/generics/enums/timer';
-import { ThemeInterface } from '@/core/types/interfaces/common/theme';
 import { useUserQuery } from '@/core/hooks/queries/user-user.query';
+import { cn } from '@/core/lib/helpers';
+import { ThemeSwitch } from '@/core/components/common/theme-switch';
+import { MENU_ROW, MENU_ROW_DESTRUCTIVE, MENU_SEPARATOR, MENU_SURFACE } from '@/core/components/common/menu-recipes';
+import type { TOrganizationTeam } from '@/core/types/schemas/team/organization-team.schema';
+
+const MENU_SETTING_ROW =
+	"flex h-9 w-full items-center justify-between gap-3 rounded-md px-2 text-[13px] text-foreground [&>span>svg]:size-4 [&>span>svg]:shrink-0 [&>span>svg:not([class*='text-'])]:text-muted-foreground";
+
+const LANGUAGE_TRIGGER_CLASS_NAME =
+	'h-7 w-auto gap-1 border-none bg-transparent px-1.5 text-[13px] text-muted-foreground shadow-none ring-transparent hover:bg-foreground/5 hover:text-foreground';
+
+/** At rest a quiet row; open, the outlined raised look of the app's "..." buttons, so it reads as the menu's anchor. */
+const SIDEBAR_TRIGGER =
+	'group/account flex w-full items-center gap-2.5 rounded-lg hairline-border border-transparent p-1.5 text-left outline-none transition-[background-color,box-shadow] hover:bg-foreground/[0.045] focus-visible:ring-[3px] focus-visible:ring-ring/25 data-open:bg-card data-open:shadow-sm data-open:shadow-black/10 data-open:hairline-ring data-open:ring-foreground/10 dark:data-open:ring-foreground/15';
+
+const AVATAR_SIZE = {
+	sm: 'size-8 text-xs',
+	md: 'size-9 text-[13px]'
+} as const;
+
+type AccountUser = ReturnType<typeof useUserQuery>['data'];
+
+interface AccountIdentity {
+	fullName: string;
+	email: string;
+	imageUrl: string | null | undefined;
+	status: ETimerStatus;
+	isManager: boolean;
+	team: TOrganizationTeam | null;
+}
+
+function initialsOf(name: string) {
+	const words = name.trim().split(/\s+/).filter(Boolean);
+	const letters = words.slice(0, 2).map((word) => word[0]);
+	return letters.join('').toUpperCase();
+}
+
+function fullNameOf(user: AccountUser) {
+	const joinedName = `${user?.firstName || ''} ${user?.lastName || ''}`.trim();
+	if (joinedName) {
+		return joinedName;
+	}
+	return user?.name || user?.username || '';
+}
+
+function imageUrlOf(user: AccountUser) {
+	return user?.image?.thumbUrl || user?.image?.fullUrl || user?.imageUrl;
+}
+
+/** Who is signed in, their role in the active team and their presence, read once for the trigger and the menu. */
+function useAccountIdentity(): AccountIdentity {
+	const { data: user } = useUserQuery();
+	const timerStatus = useAtomValue(timerStatusState);
+	const activeTeam = useAtomValue(activeTeamState);
+	const publicTeam = useAtomValue(publicState);
+	const isManager = useAtomValue(isTeamManagerState);
+	const currentMember = activeTeam?.members?.find((member) => member.employee?.userId === user?.id);
+	const status = useMemo(
+		() => getTimerStatusValue(timerStatus, currentMember, publicTeam),
+		[timerStatus, currentMember, publicTeam]
+	);
+	return {
+		fullName: fullNameOf(user),
+		email: user?.email ?? '',
+		imageUrl: imageUrlOf(user),
+		status,
+		isManager,
+		team: activeTeam ?? null
+	};
+}
+
+/** The person's own photo or Gauzy's placeholder on the opaque avatar, with the presence icon used across the app. */
+function AccountAvatar({
+	identity,
+	size,
+	ringClassName
+}: Readonly<{ identity: AccountIdentity; size: keyof typeof AVATAR_SIZE; ringClassName: string }>) {
+	return (
+		<span className="relative shrink-0">
+			<Avatar className={AVATAR_SIZE[size]}>
+				<AvatarImage src={identity.imageUrl ?? undefined} alt={identity.fullName} />
+				<AvatarFallback className="text-[inherit]">{initialsOf(identity.fullName)}</AvatarFallback>
+			</Avatar>
+			<TimerStatus
+				status={identity.status}
+				size="sm"
+				className={cn('ring-2', ringClassName)}
+				tooltipClassName="absolute -right-1 -bottom-1"
+			/>
+		</span>
+	);
+}
+
+function RolePill({ isManager }: Readonly<{ isManager: boolean }>) {
+	const t = useTranslations();
+	if (isManager) {
+		return (
+			<span className="inline-flex h-4.5 shrink-0 items-center rounded-[5px] bg-primary/10 px-1.5 text-[10px] font-medium text-primary-ink">
+				{t('common.MANAGER')}
+			</span>
+		);
+	}
+	return (
+		<span className="inline-flex h-4.5 shrink-0 items-center rounded-[5px] bg-foreground/[0.06] px-1.5 text-[10px] font-medium text-muted-foreground">
+			{t('common.MEMBER')}
+		</span>
+	);
+}
+
+function IdentityLines({ identity, showsRole }: Readonly<{ identity: AccountIdentity; showsRole: boolean }>) {
+	const hasEmail = identity.email.length > 0;
+	return (
+		<span className="flex min-w-0 flex-1 flex-col gap-0.5">
+			<span className="flex min-w-0 items-center gap-1.5">
+				<span className="truncate text-[13px] font-medium leading-tight text-foreground">
+					{identity.fullName}
+				</span>
+				{showsRole && <RolePill isManager={identity.isManager} />}
+			</span>
+			{hasEmail && <span className="truncate text-xs leading-tight text-muted-foreground">{identity.email}</span>}
+		</span>
+	);
+}
+
+function MenuSeparator() {
+	return <div className={MENU_SEPARATOR} aria-hidden="true" />;
+}
 
 type UserNavAvatarProps = {
 	/**
-	 * `header`: the round avatar of the top bar (legacy placement).
-	 * `sidebar`: the avatar · name · e-mail row at the foot of the sidebar, menu opening upwards.
+	 * `header`: the round avatar of the top bar (phones).
+	 * `sidebar`: the avatar, name and e-mail row at the foot of the sidebar, menu opening upwards.
 	 */
 	variant?: 'header' | 'sidebar';
 };
 
 export function UserNavAvatar({ variant = 'header' }: Readonly<UserNavAvatarProps>) {
-	const { data: user } = useUserQuery();
-	const imageUrl = user?.image?.thumbUrl || user?.image?.fullUrl || user?.imageUrl;
-	const name = user?.name || user?.firstName || user?.lastName || user?.username || '';
-	const timerStatus = useAtomValue(timerStatusState);
-
-	const activeTeam = useAtomValue(activeTeamState);
-	const publicTeam = useAtomValue(publicState);
-	const members = activeTeam?.members || [];
-	const currentMember = members.find((m) => {
-		return m.employee?.userId === user?.id;
-	});
-	const timerStatusValue: ETimerStatus = useMemo(() => {
-		return getTimerStatusValue(timerStatus, currentMember, publicTeam);
-	}, [timerStatus, currentMember, publicTeam]);
+	const t = useTranslations();
+	const identity = useAccountIdentity();
 
 	if (variant === 'sidebar') {
-		return <SidebarUserNav user={user} imageUrl={imageUrl} name={name} timerStatusValue={timerStatusValue} />;
+		return <SidebarUserNav identity={identity} />;
 	}
 
 	return (
-		<Popover className="relative z-[60] flex items-center">
-			<PopoverButton className="outline-none">
-				<div
-					className={clsxm(
-						'size-12',
-						'flex justify-center items-center',
-						'rounded-full text-white',
-						'shadow-md text-[2.063rem] dark:text-[1.75rem] text-thin font-PlusJakartaSans '
-					)}
-					style={{
-						backgroundColor: `${stc(name || '')}80`
-					}}
-				>
-					{imageUrl && isValidUrl(imageUrl) ? (
-						<Avatar
-							size={48}
-							className="relative cursor-pointer dark:border-[0.25rem] dark:border-border"
-							imageUrl={imageUrl}
-							alt="Team Avatar"
-							imageTitle={name}
-						>
-							<TimerStatus
-								status={timerStatusValue}
-								className="size-[1.3rem] absolute bottom-3 -right-2 -mb-4 border-[0.125rem] border-white dark:border-border"
-								tooltipClassName="mt-10"
-							/>
-						</Avatar>
-					) : name ? (
-						<div className="size-12 flex justify-center items-center relative rounded-full dark:border-[0.25rem] dark:border-border text-white">
-							{imgTitle(name).charAt(0)}
-							<TimerStatus
-								status={timerStatusValue}
-								className="size-[1.3rem] absolute bottom-3 -right-2 -mb-4 border-[0.125rem] border-white dark:border-border"
-								tooltipClassName="mt-8"
-								labelContainerClassName="mr-8"
-							/>
-						</div>
-					) : (
-						''
-					)}
-				</div>
-			</PopoverButton>
-
-			<Transition
-				enter="transition duration-100 ease-out"
-				enterFrom="transform scale-95 opacity-0"
-				enterTo="transform scale-100 opacity-100"
-				leave="transition duration-75 ease-out"
-				leaveFrom="transform scale-100 opacity-100"
-				leaveTo="transform scale-95 opacity-0"
-			>
-				<PopoverPanel className="absolute right-0 z-[60] top-12 xl:-right-5">
-					<MenuIndicator />
-					<UserNavMenu />
-				</PopoverPanel>
-			</Transition>
-		</Popover>
-	);
-}
-
-/**
- * The sidebar-foot account row (Ever Works' pattern): a 32px avatar with the timer-status dot,
- * the name and e-mail beside it, and the same menu as the header avatar opening above it.
- * Collapsed to the icon rail only the avatar shows and the menu opens to its right.
- */
-function SidebarUserNav({
-	user,
-	imageUrl,
-	name,
-	timerStatusValue
-}: Readonly<{
-	user: ReturnType<typeof useUserQuery>['data'];
-	imageUrl?: string | null;
-	name: string;
-	timerStatusValue: ETimerStatus;
-}>) {
-	const { state, isMobile } = useSidebar();
-	const collapsed = state === 'collapsed' && !isMobile;
-	const fullName = `${user?.firstName || ''} ${user?.lastName || ''}`.trim() || name;
-
-	return (
-		<Popover className="relative flex w-full items-center">
+		<Popover className="relative flex items-center">
 			<PopoverButton
-				className={clsxm(
-					'flex w-full items-center gap-2.5 rounded-md p-1.5 text-left outline-none transition-colors',
-					'hover:bg-black/[0.04] dark:hover:bg-white/[0.04] focus-visible:ring-2 focus-visible:ring-sidebar-ring',
-					collapsed && 'justify-center p-1'
-				)}
-				title={collapsed ? fullName : undefined}
+				aria-label={t('accountMenu.OPEN')}
+				className="rounded-full outline-none focus-visible:ring-[3px] focus-visible:ring-ring/25"
 			>
-				<div
-					className="relative flex size-8 shrink-0 items-center justify-center rounded-full text-sm font-medium text-white"
-					style={{ backgroundColor: `${stc(name || '')}80` }}
-				>
-					{imageUrl && isValidUrl(imageUrl) ? (
-						<Avatar size={32} className="relative" imageUrl={imageUrl} alt={fullName} imageTitle={name}>
-							<TimerStatus
-								status={timerStatusValue}
-								showIcon={false}
-								className="absolute -bottom-px -right-px z-10 size-2.5 border-2 border-sidebar"
-								tooltipClassName="mt-2"
-							/>
-						</Avatar>
-					) : (
-						<>
-							{imgTitle(name).charAt(0)}
-							<TimerStatus
-								status={timerStatusValue}
-								showIcon={false}
-								className="absolute -bottom-px -right-px z-10 size-2.5 border-2 border-sidebar"
-								tooltipClassName="mt-2"
-							/>
-						</>
-					)}
-				</div>
-				{!collapsed && (
-					<>
-						<span className="flex min-w-0 flex-1 flex-col">
-							<span className="truncate text-sm font-medium leading-tight text-foreground">{fullName}</span>
-							<span className="truncate text-xs leading-tight text-muted-foreground">{user?.email}</span>
-						</span>
-						<ChevronsUpDown className="size-4 shrink-0 text-muted-foreground" aria-hidden="true" />
-					</>
-				)}
+				<AccountAvatar identity={identity} size="md" ringClassName="ring-card" />
 			</PopoverButton>
-
-			{/* Desktop: anchored = portaled to <body>, because the sidebar sits in its own stacking layer
-			    below the chat panel's edge handle and an in-tree panel had that handle painted through it.
-			    Phones: the sidebar is a modal sheet that blocks pointer events outside itself, so the panel
-			    stays in the sheet, opening upwards. */}
 			<PopoverPanel
-				anchor={isMobile ? undefined : collapsed ? { to: 'right end', gap: 8 } : { to: 'top start', gap: 8 }}
+				anchor={{ to: 'bottom end', gap: 8 }}
 				transition
-				className={clsxm(
-					'z-[1060] focus:outline-none',
-					isMobile ? 'absolute bottom-full left-0 mb-2 w-full' : 'w-[308px]',
-					'transition duration-100 ease-out data-[closed]:scale-95 data-[closed]:opacity-0'
-				)}
+				className="z-[1060] w-[18rem] transition duration-100 ease-out focus:outline-none data-closed:scale-95 data-closed:opacity-0"
 			>
-				<UserNavMenu placement="sidebar" />
+				<UserNavMenu identity={identity} showsIdentity />
 			</PopoverPanel>
 		</Popover>
 	);
 }
 
-function MenuIndicator() {
-	return (
-		<EverCard
-			className={clsxm(
-				'absolute right-0 top-4 bg-transparent -z-10 dark:bg-transparent',
-				'nav-items--shadow rounded-none !py-0 !px-0',
-				'w-0 h-0',
-				'border-l-[15px] border-r-[15px]',
-				'xl:border-l-[35px] border-l-transparent xl:border-r-[35px] border-r-transparent',
-				'border-solid border-b-light--theme-light dark:border-b-dark--theme-light border-b-[50px]'
-			)}
-			shadow="custom"
-		/>
-	);
-}
-
-function UserNavMenu({ placement = 'header' }: Readonly<{ placement?: 'header' | 'sidebar' }>) {
-	const { user, logOut } = useAuthenticateUser();
+/**
+ * The sidebar-foot account row: avatar with the presence icon, the name, the e-mail, and the menu opening above it. Collapsed to the icon rail only the avatar shows and the menu opens to its
+ * right. On phones the sidebar is a modal sheet that blocks pointer events outside itself, so the panel stays in it.
+ */
+function SidebarUserNav({ identity }: Readonly<{ identity: AccountIdentity }>) {
 	const t = useTranslations();
-	const imageUrl = user?.image?.thumbUrl || user?.image?.fullUrl || user?.imageUrl;
-	const name = user?.name || user?.firstName || user?.lastName || user?.username;
-	const timerStatus = useAtomValue(timerStatusState);
-
-	const activeTeam = useAtomValue(activeTeamState);
-	const isTeamMember = useAtomValue(isTeamMemberState);
-
-	const publicTeam = useAtomValue(publicState);
-
-	const members = activeTeam?.members || [];
-	const currentMember = members.find((m) => {
-		return m.employee?.userId === user?.id;
-	});
-
-	const pathname = usePathname();
-
-	const isTeamDropdownAllowed = useMemo(() => {
-		if (!pathname) {
-			return false;
-		}
-
-		const notAllowedList = ['/task/[id]', '/profile/[memberId]'];
-		return !notAllowedList.includes(pathname);
-	}, [pathname]);
-
-	const timerStatusValue: ETimerStatus = useMemo(() => {
-		return getTimerStatusValue(timerStatus, currentMember, publicTeam);
-	}, [timerStatus, currentMember, publicTeam]);
+	const { state, isMobile } = useSidebar();
+	const isCollapsed = state === 'collapsed' && !isMobile;
+	let anchor: { to: 'right end' | 'top start'; gap: number } | undefined = { to: 'top start', gap: 8 };
+	if (isCollapsed) {
+		anchor = { to: 'right end', gap: 8 };
+	}
+	if (isMobile) {
+		anchor = undefined;
+	}
+	let triggerTitle: string | undefined;
+	if (isCollapsed) {
+		triggerTitle = identity.fullName;
+	}
 
 	return (
-		<EverCard
-			shadow="custom"
-			className={clsxm(
-				'relative z-10 flex flex-col border border-border bg-popover shadow-lg dark:bg-popover',
-				placement === 'header' ? 'w-[308px] nav-items--shadow shadow-darker' : 'w-full rounded-lg !px-4 !py-4'
-			)}
-		>
-			<div className="flex flex-col justify-center items-center">
-				<Link href={`/settings/personal`}>
-					<div
-						className={clsxm(
-							'w-[72px] h-[72px]',
-							'flex relative justify-center items-center',
-							'text-xs text-white rounded-full',
-							'relative mb-5 text-5xl font-thin shadow-md cursor-pointer font-PlusJakartaSans'
-						)}
-						style={{
-							backgroundColor: `${stc(name || '')}80`
-						}}
-					>
-						{imageUrl && isValidUrl(imageUrl) ? (
-							<Avatar size={72} className="relative cursor-pointer" imageUrl={imageUrl} alt="Team Avatar">
-								<TimerStatus
-									status={timerStatusValue}
-									className="w-[1.3rem] h-[1.3rem] absolute z-20 bottom-3 -right-1 -mb-3 border-[0.125rem] border-white dark:border-border"
-									tooltipClassName="mt-10"
-								/>
-							</Avatar>
-						) : name ? (
-							<div className="relative w-[72px] h-[72px] flex justify-center items-center">
-								{imgTitle(name).charAt(0)}
-								<TimerStatus
-									status={timerStatusValue}
-									className="w-[1.3rem] h-[1.3rem] absolute z-20 bottom-3 -right-1 -mb-3 border-[0.125rem] border-white dark:border-border"
-									tooltipClassName="mt-2 "
-									labelContainerClassName="mr-14"
-								/>
-							</div>
-						) : (
-							''
-						)}
-					</div>
-				</Link>
-				<Link href={`/settings/personal`} className="w-full text-center">
-					<Tooltip
-						label={`${user?.firstName || ''} ${user?.lastName || ''}`.trim() || ''}
-						enabled={
-							`${user?.firstName || ''} ${user?.lastName || ''}`.trim().length > CHARACTER_LIMIT_TO_SHOW
-						}
-						placement="auto"
-					>
-						<Text.Heading as="h3" className="overflow-hidden whitespace-nowrap text-ellipsis">
-							{user?.firstName} {user?.lastName}
-						</Text.Heading>
-					</Tooltip>
-
-					<Tooltip
-						label={user?.email || ''}
-						enabled={`${user?.email}`.trim().length > CHARACTER_LIMIT_TO_SHOW}
-						placement="auto"
-					>
-						<Text className="text-sm overflow-hidden text-ellipsis whitespace-nowrap text-[#7E7991]">
-							{user?.email}
-						</Text>
-					</Tooltip>
-				</Link>
-				<Divider className="mt-6" />
-				<ul className="mt-4 w-full">
-					{/* Task menu */}
-					<li className="flex items-center h-10">
-						<Link
-							href={`/profile/${user?.id}?name=${name || ''}`}
-							className="flex items-center space-x-3 font-normal text-center"
-						>
-							<BriefCaseIcon className="w-5 h-5" strokeWidth="1.7" /> <span>{t('common.MY_TASKS')}</span>
-						</Link>
-					</li>
-					{/* Team menu */}
-					<li className="flex items-center h-10">
-						<Link href="/" className="flex items-center space-x-3 font-normal">
-							<PeoplesIcon strokeWidth="1.7" className="w-5 h-5 stroke-default dark:stroke-white" />{' '}
-							<span>{t('common.MY_TEAM')}</span>
-						</Link>
-					</li>
-					{/* Settings menu */}
-
-					<li className="flex items-center h-10">
-						<Link href={'/settings/personal'} className="flex items-center space-x-3 font-normal">
-							<SettingOutlineIcon strokeWidth="1.7" className="w-5 h-5" />{' '}
-							<span>{t('common.SETTINGS')}</span>
-						</Link>
-					</li>
-
-					{/* Darkmode menu */}
-					<li className="flex justify-between items-center mb-1 space-x-3 h-10 font-normal">
-						<div className="flex flex-1 items-center space-x-3">
-							<MoonIcon strokeWidth="1.3" className="w-5 h-5" /> <span>{t('common.DARK_MODE')}</span>
-						</div>
-						<ThemeToggler className="scale-75" />
-					</li>
-					<li className="flex justify-between items-center space-x-3 h-10 font-normal">
-						<div className="flex flex-1 items-center space-x-3">
-							<Globe2Icon className="w-5 h-5" strokeWidth="1.7" /> <span>{t('common.LANGUAGE')}</span>
-						</div>
-						<LanguageDropDownWithFlags
-							deferLoading
-							showFlag={false}
-							btnClassName="dark:bg-transparent border-none flex items-center justify-end w-[120px]"
-						/>
-					</li>
-
-					{/* 3D Mode menu */}
-					{/* TODO
-					- Uncomment it when we have 3D mode ready
-					*/}
-					{/* <li className="flex items-center space-x-3 font-normal">
-						<div className="flex flex-1 items-center space-x-3">
-							<BoxIcon className="w-5 h-5" />{' '}
-							<span>{trans.common['3D_MODE']}</span>
-						</div>
-						<TreeModeToggler className="scale-75" />
-					</li> */}
-
-					{/* Themes menu */}
-					<li className="flex justify-between items-center pr-3 space-x-3 w-full h-10 font-normal">
-						<div className="flex flex-1 space-x-3">
-							<DevicesIcon strokeWidth="1.7" className="w-5 h-5" /> <span>{t('common.THEMES')}</span>
-						</div>
-
-						<ThemeDropdown />
-					</li>
-				</ul>
-				<Divider className="mt-4" />
-				<ul className="flex flex-col gap-2 justify-start items-center md:hidden">
-					{!publicTeam && <Collaborate />}
-
-					{isTeamMember && isTeamDropdownAllowed ? <TeamsDropDown publicTeam={publicTeam || false} /> : null}
-
-					<KeyboardShortcuts />
-					<Divider className="mt-1 mb-3 w-full" />
-				</ul>
-				<ul className="py-4 w-full">
-					{/* Logout menu */}
-					<li>
-						<button
-							className="flex space-x-3 items-center font-normal text-[#DE437B]"
-							onClick={() => {
-								// signOut navigates away: let logOut stop the timer and clear the session first
-								void logOut().then(signOutFunction);
-							}}
-						>
-							<LogoutRoundIcon className="w-5 h-5 stroke-[#DE437B]" /> <span>{t('common.LOGOUT')}</span>
-						</button>
-					</li>
-				</ul>
-			</div>
-			{placement === 'header' && (
-				<div className="w-8 h-8 bg-inherit border-inherit rounded-none border shadow-inherit absolute [clip-path:polygon(0%_0%,100%_100%,_0%_100%)] -top-[0.95rem] right-8 rotate-[135deg] rounded-bl-md" />
-			)}
-		</EverCard>
-	);
-}
-
-function ThemeDropdown() {
-	const t = useTranslations();
-	const { theme, setTheme } = useTheme();
-
-	// Neutral, translated names: a deployment rebranded with `docker run -e APP_NAME=...` must not
-	// read someone else's product name in its own theme picker.
-	const themes: ThemeInterface[] = [
-		{
-			theme: 'light',
-			text: t('common.THEME_LIGHT'),
-			enabled: theme === 'light'
-		},
-		{
-			theme: 'dark',
-			text: t('common.THEME_DARK'),
-			enabled: theme === 'dark'
-		}
-	];
-
-	const selectedThemeText = themes.find((item: ThemeInterface): boolean => item.theme === theme)?.text;
-
-	return (
-		<Popover className="flex relative z-30 items-center h-full">
-			<PopoverButton className="flex items-center h-full text-sm font-light">
-				<p className="text-sm text-neutral">{selectedThemeText}</p>
-				<ChevronDown className="ml-2 w-4 h-4 opacity-50" />
-			</PopoverButton>
-			<Transition
-				enter="transition duration-100 ease-out"
-				enterFrom="transform scale-95 opacity-0"
-				enterTo="transform scale-100 opacity-100"
-				leave="transition duration-75 ease-out"
-				leaveFrom="transform scale-100 opacity-100"
-				leaveTo="transform scale-95 opacity-0"
+		<Popover className="relative flex w-full items-center">
+			<PopoverButton
+				aria-label={t('accountMenu.OPEN')}
+				title={triggerTitle}
+				className={cn(SIDEBAR_TRIGGER, isCollapsed && 'justify-center p-1')}
 			>
-				<PopoverPanel className="theme-popup-scrollbar absolute z-10 max-w-sm w-[360px] right-[-25px] rounded-xl top-[-50px] shadow-xl p-0">
-					<EverCard
-						shadow="bigger"
-						className="flex flex-col !px-5 !py-3 !overflow-auto h-[15.5rem] 3xl:h-auto gap-4"
-					>
-						{themes.map((item: ThemeInterface, index: number) => (
-							<ThemesPopup
-								currentTheme={theme}
-								key={index}
-								index={index}
-								theme={item.theme}
-								text={item.text}
-								enabled={item.enabled}
-								setTheme={setTheme}
-							/>
-						))}
-					</EverCard>
-				</PopoverPanel>
-			</Transition>
+				<AccountAvatar
+					identity={identity}
+					size="sm"
+					ringClassName="ring-sidebar group-data-open/account:ring-card"
+				/>
+				{!isCollapsed && (
+					<>
+						<IdentityLines identity={identity} showsRole={false} />
+						<ChevronsUpDown className="size-4 shrink-0 text-muted-foreground" aria-hidden="true" />
+					</>
+				)}
+			</PopoverButton>
+
+			<PopoverPanel
+				anchor={anchor}
+				transition
+				className={cn(
+					'z-[1060] focus:outline-none',
+					'transition duration-100 ease-out data-closed:scale-95 data-closed:opacity-0',
+					isMobile && 'absolute bottom-full left-0 mb-2 w-full',
+					!isMobile && 'w-[18rem]'
+				)}
+			>
+				<UserNavMenu identity={identity} showsIdentity={false} />
+			</PopoverPanel>
 		</Popover>
 	);
 }
 
-// function ThemeDropdown() {
-// 	const { theme, setTheme } = useTheme();
+function TeamMark({ team }: Readonly<{ team: TOrganizationTeam | null }>) {
+	if (!team) {
+		return null;
+	}
+	return (
+		<span className="ml-auto flex min-w-0 max-w-28 items-center gap-1.5 text-xs text-muted-foreground">
+			<EntityTile
+				name={team.name}
+				color={team.color}
+				imageUrl={team.image?.thumbUrl ?? team.image?.fullUrl}
+				className="size-4 text-[7px]"
+			/>
+			<span className="truncate">{team.name}</span>
+		</span>
+	);
+}
 
-// 	const themes = {
-// 		dark: 'Gauzy Dark',
-// 		light: 'Gauzy light',
-// 	};
+/**
+ * The account menu: where to go, the preferences, then Log out alone and last in destructive ink. Opened from the
+ * sidebar's foot it starts with the links, since the name and e-mail sit right under it; opened from the top bar's
+ * avatar it starts with who is signed in.
+ */
+function UserNavMenu({ identity, showsIdentity }: Readonly<{ identity: AccountIdentity; showsIdentity: boolean }>) {
+	const { user, logOut } = useAuthenticateUser();
+	const t = useTranslations();
+	const isTeamMember = useAtomValue(isTeamMemberState);
+	const publicTeam = useAtomValue(publicState);
+	const pathname = usePathname();
+	const name = user?.name || user?.firstName || user?.lastName || user?.username || '';
+	const isTeamDropdownAllowed = isTeamDropdownAllowedOn(pathname);
+	const showsTeamsDropdown = isTeamMember && isTeamDropdownAllowed;
 
-// 	const selected = themes[theme as keyof typeof themes];
+	return (
+		<div className={cn(MENU_SURFACE, 'flex w-full flex-col')}>
+			{showsIdentity && (
+				<>
+					<Link
+						href="/settings/personal"
+						className="group/identity flex items-center gap-3 rounded-lg px-2 py-2 outline-none transition-colors hover:bg-foreground/5 focus-visible:bg-foreground/5"
+					>
+						<AccountAvatar identity={identity} size="md" ringClassName="ring-popover" />
+						<IdentityLines identity={identity} showsRole />
+						<ChevronRight
+							aria-hidden="true"
+							className="size-4 shrink-0 text-muted-foreground/60 transition-colors group-hover/identity:text-muted-foreground"
+						/>
+					</Link>
+					<MenuSeparator />
+				</>
+			)}
 
-// 	return (
-// 		<div className="relative">
-// 			<Listbox value={selected} onChange={setTheme as any}>
-// 				<Listbox.Button className="flex items-center text-sm text-gray-500 dark:text-gray-300">
-// 					{selected}{' '}
-// 					<ChevronDownIcon
-// 						className={clsxm(
-// 							'ml-2 w-5 h-5 transition duration-150 ease-in-out dark:text-white group-hover:text-opacity-80'
-// 						)}
-// 						aria-hidden="true"
-// 					/>
-// 				</Listbox.Button>
-// 				<Listbox.Options className={'flex absolute inset-0 flex-col mt-6'}>
-// 					<EverCard className="!p-0" shadow="custom">
-// 						{Object.keys(themes).map((key) => (
-// 							<Listbox.Option
-// 								key={key}
-// 								value={key}
-// 								className="text-sm text-gray-600 cursor-pointer dark:text-white"
-// 							>
-// 								{themes[key as keyof typeof themes]}
-// 							</Listbox.Option>
-// 						))}
-// 					</EverCard>
-// 				</Listbox.Options>
-// 			</Listbox>
-// 		</div>
-// 	);
-// }
+			<ul className="flex w-full flex-col">
+				<li>
+					<Link href={`/profile/${user?.id}?name=${name}`} className={MENU_ROW}>
+						<Briefcase />
+						<span>{t('common.MY_TASKS')}</span>
+					</Link>
+				</li>
+				<li>
+					<Link href="/" className={MENU_ROW}>
+						<Users />
+						<span className="shrink-0">{t('common.MY_TEAM')}</span>
+						<TeamMark team={identity.team} />
+					</Link>
+				</li>
+				<li>
+					<Link href="/settings/personal" className={MENU_ROW}>
+						<Settings />
+						<span>{t('common.SETTINGS')}</span>
+					</Link>
+				</li>
+			</ul>
+
+			<MenuSeparator />
+
+			<ul className="flex w-full flex-col">
+				<li className={MENU_SETTING_ROW}>
+					<span className="flex flex-1 items-center gap-2.5">
+						<Moon />
+						<span>{t('common.THEME')}</span>
+					</span>
+					<ThemeSwitch />
+				</li>
+				<li className={MENU_SETTING_ROW}>
+					<span className="flex flex-1 items-center gap-2.5">
+						<Globe />
+						<span>{t('common.LANGUAGE')}</span>
+					</span>
+					<LanguageDropDownWithFlags
+						deferLoading
+						showFlag={false}
+						btnClassName={LANGUAGE_TRIGGER_CLASS_NAME}
+					/>
+				</li>
+			</ul>
+
+			<ul className="flex flex-col items-center justify-start gap-2 md:hidden">
+				<MenuSeparator />
+				{!publicTeam && <Collaborate />}
+				{showsTeamsDropdown && <TeamsDropDown publicTeam={publicTeam || false} />}
+				<KeyboardShortcuts />
+			</ul>
+
+			<MenuSeparator />
+
+			<ul className="w-full">
+				<li>
+					<button
+						type="button"
+						className={cn(MENU_ROW, MENU_ROW_DESTRUCTIVE)}
+						onClick={() => {
+							// signOut navigates away: let logOut stop the timer and clear the session first
+							void logOut().then(signOutFunction);
+						}}
+					>
+						<LogOut />
+						<span>{t('common.LOGOUT')}</span>
+					</button>
+				</li>
+			</ul>
+		</div>
+	);
+}
+
+const TEAM_DROPDOWN_HIDDEN_PATHS = ['/task/[id]', '/profile/[memberId]'];
+
+function isTeamDropdownAllowedOn(pathname: string | null) {
+	if (!pathname) {
+		return false;
+	}
+	return !TEAM_DROPDOWN_HIDDEN_PATHS.includes(pathname);
+}

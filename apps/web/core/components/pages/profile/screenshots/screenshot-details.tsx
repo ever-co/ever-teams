@@ -1,16 +1,259 @@
 'use client';
-import { Modal } from '@/core/components';
-import ScreenshotItem from './screenshot-item';
-import { useTranslations } from 'next-intl';
-import React, { useCallback, useEffect, useState } from 'react';
-import { useTaskQueries } from '@/core/hooks';
+
+import React, { type ReactNode, useEffect, useMemo, useState } from 'react';
 import Image from 'next/image';
+import { useLocale, useTranslations } from 'next-intl';
+import { useTaskQueries } from '@/core/hooks';
+import { useOrganizationProjectsQuery } from '@/core/hooks/organizations/projects/use-organization-projects-query';
+import { APP_DIALOG_BODY, AppDialog, AppDialogHeader } from '@/core/components/common/app-dialog';
+import { ActivityFigure } from '@/core/components/dashboards/kit/meters';
+import { webAddressOf } from '@/core/components/activities/activity-links';
 import { cn } from '@/core/lib/helpers';
-import { ProgressBar } from '@/core/components/duplicated-components/_progress-bar';
 import { TOrganizationProject, TTimeSlot } from '@/core/types/schemas';
 import { TTask } from '@/core/types/schemas/task/task.schema';
-import { useOrganizationProjectsQuery } from '@/core/hooks/organizations/projects/use-organization-projects-query';
+import { QUIET_SHOT_FRAME, SHOT_FRAME, SlotThumbnail } from './screenshot-item';
+import { formatDateValue, type SlotScreenshot, screenshotsOf, slotRangeTextOf } from './screenshot-slots';
 
+interface SlotTimeLog {
+	projectId?: string;
+	taskId?: string;
+	source?: string;
+	version?: string;
+}
+
+const NO_VALUE = '–';
+
+const SECTION_LABEL = 'text-xs font-medium text-muted-foreground';
+
+const PROPERTY_ROW = 'grid min-h-8 grid-cols-[6.75rem_minmax(0,1fr)] items-center gap-x-3 py-1';
+
+const VALUE_CHIP =
+	'inline-flex h-5 max-w-full items-center truncate rounded-md px-1.5 text-xs font-medium text-foreground hairline-ring ring-border';
+
+function firstTimeLogOf(slot: TTimeSlot): SlotTimeLog | undefined {
+	const timeLogs: SlotTimeLog[] = slot.timeLogs ?? [];
+	return timeLogs[0];
+}
+
+function useSlotProject(projectId: string | undefined) {
+	const { organizationProjects } = useOrganizationProjectsQuery();
+	return useMemo(() => {
+		if (!projectId) {
+			return null;
+		}
+		const project = organizationProjects.find((candidate) => candidate.id === projectId);
+		return project ?? null;
+	}, [organizationProjects, projectId]);
+}
+
+/** The slot's task, read only for the open detail; the result is kept under its id so a stale read never shows. */
+function useSlotTask(taskId: string | undefined) {
+	const { getTaskById } = useTaskQueries();
+	const [loadedTask, setLoadedTask] = useState<TTask | null>(null);
+
+	useEffect(() => {
+		if (!taskId) {
+			return;
+		}
+		let isCurrent = true;
+		getTaskById(taskId, false).then((task) => {
+			if (!isCurrent) {
+				return;
+			}
+			if (task) {
+				setLoadedTask(task as TTask);
+			}
+		});
+		return () => {
+			isCurrent = false;
+		};
+	}, [getTaskById, taskId]);
+
+	const isLoadedTask = loadedTask?.id === taskId;
+	if (!isLoadedTask) {
+		return null;
+	}
+	return loadedTask;
+}
+
+function PropertyRow({ label, children }: Readonly<{ label: string; children: ReactNode }>) {
+	return (
+		<div className={PROPERTY_ROW}>
+			<dt className="text-[13px] text-muted-foreground">{label}</dt>
+			<dd className="min-w-0 text-[13px] text-foreground">{children}</dd>
+		</div>
+	);
+}
+
+function MutedValue({ children }: Readonly<{ children: ReactNode }>) {
+	return <span className="text-muted-foreground">{children}</span>;
+}
+
+function SourceValue({ timeLog }: Readonly<{ timeLog: SlotTimeLog | undefined }>) {
+	const source = timeLog?.source;
+	const version = timeLog?.version;
+	const hasSource = Boolean(source);
+	const hasVersion = Boolean(version);
+	const hasNone = !hasSource && !hasVersion;
+	if (hasNone) {
+		return <MutedValue>{NO_VALUE}</MutedValue>;
+	}
+	return (
+		<span className="flex flex-wrap gap-1">
+			{hasSource && <span className={VALUE_CHIP}>{source}</span>}
+			{hasVersion && <span className={cn(VALUE_CHIP, 'font-normal text-muted-foreground')}>{version}</span>}
+		</span>
+	);
+}
+
+function ProjectTile({ project }: Readonly<{ project: TOrganizationProject }>) {
+	const name = project.name ?? '';
+	const initial = name.charAt(0);
+	if (project.imageUrl) {
+		return (
+			<span className="relative size-6 shrink-0 overflow-hidden rounded-md">
+				<Image src={project.imageUrl} alt="" width={48} height={48} className="size-full object-cover" />
+			</span>
+		);
+	}
+	return (
+		<span
+			aria-hidden="true"
+			className="flex size-6 shrink-0 items-center justify-center rounded-md bg-primary/10 text-xs font-medium uppercase text-primary-ink"
+		>
+			{initial}
+		</span>
+	);
+}
+
+function ProjectValue({ project }: Readonly<{ project: TOrganizationProject | null }>) {
+	const t = useTranslations();
+	if (!project) {
+		return <MutedValue>{t('common.NO_PROJECT')}</MutedValue>;
+	}
+	const membersCount = project.membersCount ?? NO_VALUE;
+	return (
+		<span className="flex min-w-0 items-center gap-2">
+			<ProjectTile project={project} />
+			<span className="flex min-w-0 flex-col">
+				<span className="truncate font-medium">{project.name}</span>
+				<span className="text-xs text-muted-foreground">
+					{t('common.MEMBERS_COUNT')}: {membersCount}
+				</span>
+			</span>
+		</span>
+	);
+}
+
+function ShotCard({ shot, format }: Readonly<{ shot: SlotScreenshot; format: Intl.DateTimeFormat }>) {
+	const t = useTranslations();
+	const timeText = formatDateValue(format, shot.recordedAt);
+	const alt = t('profile.activity.SCREENSHOT_ALT', { time: timeText });
+	const thumbUrl = shot.thumbUrl ?? '';
+	const viewSource = shot.fullUrl || thumbUrl;
+	const viewUrl = webAddressOf(viewSource);
+	const thumbnail = <SlotThumbnail imageUrl={thumbUrl} alt={alt} />;
+	return (
+		<div className="flex flex-col gap-1.5">
+			{viewUrl && (
+				<a
+					href={viewUrl}
+					target="_blank"
+					rel="noopener noreferrer"
+					aria-label={t('profile.activity.VIEW_FULL')}
+					className="group/thumb block rounded-md outline-none focus-visible:ring-[3px] focus-visible:ring-ring/25"
+				>
+					{thumbnail}
+				</a>
+			)}
+			{!viewUrl && thumbnail}
+			<span className="text-xs tabular-nums text-muted-foreground">{timeText}</span>
+		</div>
+	);
+}
+
+function ScreenshotStrip({ slot, format }: Readonly<{ slot: TTimeSlot; format: Intl.DateTimeFormat }>) {
+	const t = useTranslations();
+	const shots = screenshotsOf(slot);
+	const count = shots.length;
+	return (
+		<section className="flex flex-col gap-2">
+			<h3 className={cn(SECTION_LABEL, 'flex items-center gap-2')}>
+				<span>{t('common.SCREENSHOTS')}</span>
+				<span className="font-normal tabular-nums">{t('profile.activity.SCREENSHOT_COUNT', { count })}</span>
+			</h3>
+			{count === 0 && (
+				<span className={cn(SHOT_FRAME, QUIET_SHOT_FRAME, 'max-w-48')}>
+					{t('profile.activity.NO_SCREENSHOT')}
+				</span>
+			)}
+			{count > 0 && (
+				<ol className="-mx-5 flex gap-3 overflow-x-auto px-5 pt-1 pb-2">
+					{shots.map((shot, index) => (
+						<li key={shot.id ?? index} className="w-44 shrink-0">
+							<ShotCard shot={shot} format={format} />
+						</li>
+					))}
+				</ol>
+			)}
+		</section>
+	);
+}
+
+/** Mounted only while the dialog is open, so the projects read starts when a slot's detail opens. */
+function ScreenshotDetailsContent({ slot, onClose }: Readonly<{ slot: TTimeSlot; onClose: () => void }>) {
+	const t = useTranslations();
+	const locale = useLocale();
+	const formats = useMemo(
+		() => ({
+			day: new Intl.DateTimeFormat(locale, { weekday: 'long', day: 'numeric', month: 'long' }),
+			time: new Intl.DateTimeFormat(locale, { hour: 'numeric', minute: '2-digit' })
+		}),
+		[locale]
+	);
+	const timeLog = firstTimeLogOf(slot);
+	const project = useSlotProject(timeLog?.projectId);
+	const task = useSlotTask(timeLog?.taskId);
+	const dayText = formatDateValue(formats.day, slot.startedAt);
+	const rangeText = slotRangeTextOf(formats.time, slot.startedAt, slot.stoppedAt);
+	const percent = slot.percentage ?? 0;
+	const client = project?.owner;
+
+	return (
+		<>
+			<AppDialogHeader context={dayText} title={rangeText} onClose={onClose} />
+			<div className={cn(APP_DIALOG_BODY, 'flex flex-col gap-5 pb-5')}>
+				<dl className="flex flex-col">
+					<PropertyRow label={t('timer.TIME_ACTIVITY')}>
+						<ActivityFigure percent={percent} className="justify-start" />
+					</PropertyRow>
+				</dl>
+				<ScreenshotStrip slot={slot} format={formats.time} />
+				<section className="flex flex-col gap-1">
+					<h3 className={SECTION_LABEL}>{t('common.TIME_LOG')}</h3>
+					<dl className="flex flex-col">
+						<PropertyRow label={t('common.SOURCE')}>
+							<SourceValue timeLog={timeLog} />
+						</PropertyRow>
+						<PropertyRow label={t('common.CLIENT')}>
+							{client && <span className="truncate">{client}</span>}
+							{!client && <MutedValue>{t('common.NO_CLIENT')}</MutedValue>}
+						</PropertyRow>
+						<PropertyRow label={t('pages.taskDetails.PROJECT')}>
+							<ProjectValue project={project} />
+						</PropertyRow>
+						<PropertyRow label={t('common.TO_DO')}>
+							{task && <span className="line-clamp-2">{task.title}</span>}
+							{!task && <MutedValue>{NO_VALUE}</MutedValue>}
+						</PropertyRow>
+					</dl>
+				</section>
+			</div>
+		</>
+	);
+}
+
+/** A slot's detail: its day and range, the activity, its screenshots with their time, and its time log. */
 const ScreenshotDetailsModal = ({
 	open,
 	closeModal,
@@ -20,208 +263,10 @@ const ScreenshotDetailsModal = ({
 	closeModal: () => void;
 	slot?: TTimeSlot | null;
 }) => {
-	const t = useTranslations();
-
-	const timeInterval =
-		slot?.startedAt &&
-		slot?.stoppedAt &&
-		`
-			${new Date(slot?.startedAt).toLocaleTimeString('en-US', {
-				hour: '2-digit',
-				minute: '2-digit',
-				hour12: false
-			})}
-			-
-			${new Date(slot?.stoppedAt).toLocaleTimeString('en-US', {
-				hour: '2-digit',
-				minute: '2-digit',
-				hour12: false
-			})}
-`;
-
-	const [project, setProject] = useState<TOrganizationProject | null>(null);
-	const [task, setTask] = useState<TTask | null>(null);
-	const { organizationProjects } = useOrganizationProjectsQuery();
-
-	const { getTaskById } = useTaskQueries();
-
-	const getProject = useCallback(
-		async (projectId: string) => {
-			const project = organizationProjects?.find((p) => p.id === projectId);
-
-			if (!project) return null;
-
-			setProject(project);
-		},
-		[organizationProjects]
-	);
-
-	const getTask = useCallback(
-		async (taskId: string) => {
-			const task = await getTaskById(taskId);
-			task && setTask(task as TTask);
-		},
-		[getTaskById]
-	);
-
-	useEffect(() => {
-		if (!slot?.timeLogs?.[0]?.projectId) return;
-
-		getProject(slot.timeLogs[0]?.projectId);
-	}, [getProject, slot?.timeLogs]);
-
-	useEffect(() => {
-		if (!slot?.timeLogs?.[0]?.taskId) return;
-
-		getTask(slot.timeLogs[0]?.taskId);
-	}, [getTask, slot?.timeLogs]);
-
 	return (
-		<Modal
-			isOpen={open}
-			closeModal={closeModal}
-			className="bg-white dark:border-border dark:bg-background dark:border rounded-[1rem] h-[44rem] lg:w-[50rem]"
-		>
-			<div className="flex overflow-x-auto flex-col gap-5 p-5 w-full h-full">
-				<div className="flex flex-col gap-2 w-full">
-					<h4 className="space-x-2 text-lg font-semibold">
-						<span>
-							{new Date(slot?.startedAt ?? '').toLocaleDateString('en-US', {
-								weekday: 'long',
-								year: 'numeric',
-								month: 'long',
-								day: 'numeric'
-							})}
-						</span>
-						<span>{timeInterval}</span>
-					</h4>
-					<ProgressBar progress={slot ? `${slot?.percentage}%` : '0%'} width={'100%'} />
-					<span>{timeInterval}</span>
-				</div>
-
-				<div className="flex flex-col gap-3 w-full">
-					<h4 className="text-lg font-medium">{t('common.SCREENSHOTS')}</h4>
-
-					<div className="flex overflow-x-auto gap-2 w-full">
-						{slot?.screenshots?.map((screenshot, i) => (
-							<div className="w-[12rem] space-y-2 shrink-0" key={i}>
-								<ScreenshotItem
-									viewMode="screenShot-only"
-									idSlot={slot?.id}
-									endTime={slot?.stoppedAt || ''}
-									startTime={screenshot?.recordedAt || ''}
-									imageUrl={screenshot?.thumbUrl || ''}
-									percent={0}
-									showProgress={false}
-									onShow={() => null}
-								/>
-
-								<p className=" font-light text-[.6rem] px-2 text-center">
-									{new Date(slot?.startedAt || '').toLocaleDateString('en-US', {
-										weekday: 'long',
-										year: 'numeric',
-										month: 'long',
-										day: 'numeric'
-									})}
-									,{' '}
-									{new Date(screenshot?.recordedAt ?? '').toLocaleTimeString('en-US', {
-										hour: '2-digit',
-										minute: '2-digit',
-										hour12: false
-									})}
-								</p>
-							</div>
-						))}
-					</div>
-				</div>
-
-				<div className="flex flex-col gap-3 w-full">
-					<h4 className="text-lg font-medium">{t('common.TIME_LOG')}</h4>
-
-					<div className="w-full bg-[#E9E9E9] dark:bg-[#e9e9e90b] p-4 rounded-lg flex-col flex gap-3">
-						{/* Source */}
-						<div className="flex flex-col gap-2 w-full">
-							<p className="text-[#707070] font-medium">{t('common.SOURCE')} : </p>
-							<div className="flex gap-1">
-								{slot?.timeLogs?.[0]?.source && (
-									<div className="px-3 py-1  text-xs font-medium bg-[#4B2EFF] text-white rounded-sm">
-										{slot?.timeLogs?.[0]?.source}
-									</div>
-								)}
-
-								{slot?.timeLogs?.[0]?.version && (
-									<div className="px-3 py-1  text-xs font-medium text-white rounded-xs bg-[#A5A4FF]">
-										{slot?.timeLogs?.[0]?.version}
-									</div>
-								)}
-							</div>
-						</div>
-
-						{/* Client */}
-						<div className="flex flex-col gap-2 w-full">
-							<p className="text-[#707070] font-medium">{t('common.CLIENT')} : </p>
-							<div className="flex gap-1">
-								{project?.owner ? (
-									<div className="px-3 py-1  text-xs font-medium bg-[#FFA39D] text-white rounded-sm">
-										{project?.owner}
-									</div>
-								) : (
-									<div className="px-3 py-1  text-xs font-medium bg-[#FFA39D] text-white rounded-sm">
-										{t('common.NO_CLIENT')}
-									</div>
-								)}
-							</div>
-						</div>
-
-						{/* Project */}
-						<div className="flex flex-col gap-2 w-full">
-							<p className="text-[#707070] font-medium">{t('pages.taskDetails.PROJECT')} : </p>
-							{project ? (
-								<div className="flex gap-1">
-									<div className="flex gap-2 h-8">
-										<div
-											className={cn(
-												'w-8 overflow-hidden  h-full uppercase  rounded-xs flex items-center justify-center text-[1rem]',
-												!project?.imageUrl && 'bg-[#A5A4FF]'
-											)}
-										>
-											{project?.imageUrl ? (
-												<Image
-													src={project?.imageUrl}
-													alt={project?.name ?? ''}
-													width={400}
-													height={400}
-													className="object-cover w-full h-full"
-												/>
-											) : (
-												project?.name
-											)}
-										</div>
-
-										<div className=" h-full flex flex-col  justify-center gap-[.4rem]">
-											<p className="font-medium leading-3 font-xs">{project?.name}</p>
-											<p className=" text-[.6rem] leading-[.5rem]">
-												{t('common.MEMBERS_COUNT')} : {project?.membersCount ?? '-'}
-											</p>
-										</div>
-									</div>
-								</div>
-							) : (
-								<div className="px-3 py-1  w-fit text-xs font-medium bg-[#A5A4FF] text-white rounded-sm">
-									{t('common.NO_PROJECT')}
-								</div>
-							)}
-						</div>
-
-						{/* To do */}
-						<div className="flex flex-col gap-2 w-full">
-							<p className="text-[#707070] font-medium">{t('common.TO_DO')}</p>
-							<div className="flex gap-1 text-xs">{task?.title}</div>
-						</div>
-					</div>
-				</div>
-			</div>
-		</Modal>
+		<AppDialog open={open} onClose={closeModal} width="lg">
+			{slot && <ScreenshotDetailsContent slot={slot} onClose={closeModal} />}
+		</AppDialog>
 	);
 };
 

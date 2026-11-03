@@ -1,81 +1,27 @@
-import { useTimeDailyActivity } from '@/core/hooks/activities/use-time-daily-activity';
-import { groupAppsByHour } from '@/core/lib/helpers/array-data';
+'use client';
+
 import { useTranslations } from 'next-intl';
-import { useMemo } from 'react';
-import VisitedItem from '../visited-Item';
-import { VisitedItemSkeleton } from '../visited-item-skeleton';
-import { TrackingSourceEmptyState } from '../tracking-source-empty-state';
-// import { AppVisitedModal } from './components/app-visited-details';
+import { useTimeDailyActivity } from '@/core/hooks/activities/use-time-daily-activity';
+import { failureOfActivityRead } from '@/core/components/activities/activity-blocks';
+import { TDailyActivity } from '@/core/types/schemas';
+import { ActivityShareGroups } from '../activity-share-groups';
+
+const NO_ACTIVITIES: TDailyActivity[] = [];
 
 export function VisitedSitesTab() {
-	const { visitedSites, loading } = useTimeDailyActivity('SITE');
 	const t = useTranslations();
-	const sites = groupAppsByHour(visitedSites ?? []);
+	const dailyActivity = useTimeDailyActivity('SITE');
+	const failure = failureOfActivityRead(dailyActivity);
+	const visitedSites = dailyActivity.visitedSites ?? NO_ACTIVITIES;
 
-	const headers = useMemo(
-		() => [
-			{
-				title: t('timer.VISITED_SITES'),
-				width: '20%'
-			},
-			{
-				title: t('timer.VISITED_DATES'),
-				width: '25%'
-			},
-			{
-				title: t('timer.PERCENT_USED'),
-				width: '40%'
-			},
-			{
-				title: t('timer.TIME_SPENT_IN_HOURS'),
-				width: '15%'
-			}
-		],
-		[t]
-	);
 	return (
-		<div>
-			<div className="flex justify-end w-full">{/* TODO: Filters components */}</div>
-			<div className="w-full space-y-6">
-				<header className="bg-gray-200 dark:bg-muted rounded-[1rem] px-6 h-14 flex items-center">
-					{headers.map((header, i) => (
-						<div style={{ flexBasis: header.width }} key={i} className="border font-medium">
-							{header.title}
-						</div>
-					))}
-				</header>
-				<section className="space-y-6">
-					{sites?.map((site, i) => (
-						<div
-							key={i}
-							className="rounded-[1rem] p-[3px] bg-[linear-gradient(90deg,_rgba(185,147,230,1)_0%,_rgba(110,176,236,1)_100%)]"
-						>
-							<div className=" p-6 rounded-[1rem] bg-white dark:bg-muted">
-								{site?.apps?.map((item, i) => (
-									<div key={i} className="w-full">
-										<VisitedItem
-											app={item}
-											totalMilliseconds={site?.totalMilliseconds}
-											type="SITE"
-										/>
-									</div>
-								))}
-							</div>
-						</div>
-					))}
-				</section>
-				{visitedSites?.length < 1 && !loading && (
-					<div className="hover:dark:bg-muted border dark:border-border dark:bg-background p-4 py-16 rounded-md flex justify-center items-center my-2">
-						<TrackingSourceEmptyState label={t('timer.NO_VISITED_SITE_MESSAGE')} />
-					</div>
-				)}
-				{loading && visitedSites?.length < 1 && (
-					<>
-						<VisitedItemSkeleton />
-						<VisitedItemSkeleton />
-					</>
-				)}
-			</div>
-		</div>
+		<ActivityShareGroups
+			activities={visitedSites}
+			type="SITE"
+			loading={dailyActivity.loading}
+			failure={failure}
+			emptyLabel={t('timer.NO_VISITED_SITE_MESSAGE')}
+			errorTitle={t('profile.activity.SITES_ERROR')}
+		/>
 	);
 }

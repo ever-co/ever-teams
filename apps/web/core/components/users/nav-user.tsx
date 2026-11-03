@@ -1,6 +1,6 @@
 'use client';
 
-import { BadgeCheck, Bell, ChevronsUpDown, CreditCard, LogOut } from 'lucide-react';
+import { BadgeCheck, Bell, ChevronsUpDown, CreditCard, LogOut } from '@/core/components/icons';
 
 import { Avatar, AvatarFallback, AvatarImage } from '@/core/components/common/avatar';
 import {

@@ -1,169 +1,236 @@
 'use client';
 
-import { Fragment, useMemo, useState } from 'react';
-import { ResponsiveCalendar } from '@nivo/calendar';
-import moment from 'moment';
-import Separator from '@/core/components/common/separator';
-import { useTranslations } from 'next-intl';
+import { useMemo, useState } from 'react';
+import { useLocale, useTranslations } from 'next-intl';
+import { AnimatedHeight } from '@/core/components/common/animated-height';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/core/components/common/select';
-import { ActivityCalendarSkeleton } from '../common/skeleton/activity-calendar-skeleton';
+import { DASHBOARD_SURFACE } from '@/core/components/dashboards/kit/recipes';
+import { ShareMeter } from '@/core/components/dashboards/kit/meters';
+import { cn } from '@/core/lib/helpers';
+import { formatDurationShort, percentOf } from '@/core/lib/utils/dashboard-figures';
+import { ActivityCalendarBodySkeleton } from '../common/skeleton/activity-calendar-skeleton';
 import { getProfileActivityYearRange, useProfileActivity } from '@/core/hooks/activities/use-profile-activity';
-import type { TProfileActivityScope } from '@/core/types/schemas/activities/profile-activity.schema';
+import type {
+	TProfileActivityRequest,
+	TProfileActivityResponse,
+	TProfileActivityScope
+} from '@/core/types/schemas/activities/profile-activity.schema';
+import { ActivityBlockError, ActivityFigurePair } from './activity-blocks';
+import { ActivityYearGrid } from './activity-year-grid';
+import {
+	ACTIVITY_LEVEL_TONES,
+	type ActivityDayEntry,
+	bestMonthSecondsOf,
+	MONTH_ROW_GRID,
+	type MonthSummary,
+	monthSummariesOf,
+	todayKeyIn,
+	YEAR_CELL,
+	YEAR_FIGURES_LINE,
+	YEAR_SURFACE_BODY,
+	type YearFigures,
+	yearFiguresOf,
+	type YearLayout,
+	yearLayoutOf
+} from './activity-year';
 
 type ActivityCalendarProps = {
 	scope?: TProfileActivityScope;
 };
 
-type ActivityCalendarEntry = {
-	day: string;
-	value: number;
-};
+type ProfileActivityRange = Pick<TProfileActivityRequest, 'startDate' | 'endDate'>;
+
+const DEFAULT_TIME_ZONE = 'UTC';
+
+const NO_VALUE = '–';
+
+const YEAR_TRIGGER =
+	'-ml-1.5 h-8 w-auto shrink-0 gap-1 rounded-md bg-transparent px-1.5 text-[15px] font-semibold tabular-nums text-foreground shadow-none ring-0 hover:bg-foreground/[0.05] dark:bg-transparent';
 
 export function ActivityCalendar({ scope }: ActivityCalendarProps) {
 	return <ProfileActivityCalendar scope={scope} />;
 }
 
+function yearRequestOf(scope: TProfileActivityScope | undefined, range: ProfileActivityRange) {
+	if (!scope) {
+		return null;
+	}
+	return { ...scope, ...range, includeDaily: true };
+}
+
+/** The days of the read, only when it answers for the member on screen (a switch can leave the previous one's). */
+function dailyEntriesOf(
+	profileActivityData: TProfileActivityResponse | undefined,
+	employeeId: string | undefined
+): ActivityDayEntry[] {
+	if (!profileActivityData) {
+		return [];
+	}
+	const isScopedToEmployee = profileActivityData.employeeId === employeeId;
+	if (!isScopedToEmployee) {
+		return [];
+	}
+	const daily = profileActivityData.daily ?? [];
+	return daily.map(({ date, duration }) => ({
+		value: Number((duration / 3600).toPrecision(2)),
+		seconds: duration,
+		day: date
+	}));
+}
+
 function ProfileActivityCalendar({ scope }: ActivityCalendarProps) {
+	const t = useTranslations();
 	const [selectedYear, setSelectedYear] = useState(new Date().getFullYear());
-	const range = useMemo(
-		() => getProfileActivityYearRange(scope?.timeZone ?? 'UTC', selectedYear),
-		[scope?.timeZone, selectedYear]
-	);
-	const request = useMemo(() => (scope ? { ...scope, ...range, includeDaily: true } : null), [range, scope]);
+	const timeZone = scope?.timeZone ?? DEFAULT_TIME_ZONE;
+	const employeeId = scope?.employeeId;
+	const range = useMemo(() => getProfileActivityYearRange(timeZone, selectedYear), [timeZone, selectedYear]);
+	const request = useMemo(() => yearRequestOf(scope, range), [range, scope]);
 	const profileActivity = useProfileActivity(request, { enabled: scope !== undefined });
 	const profileActivityData = profileActivity.data;
-	const filteredData = useMemo(
-		() =>
-			profileActivityData && scope && profileActivityData.employeeId === scope.employeeId
-				? (profileActivityData.daily ?? []).map(({ date, duration }) => ({
-						value: Number((duration / 3600).toPrecision(2)),
-						day: date
-					}))
-				: [],
-		[profileActivityData, scope?.employeeId]
-	);
+	const entries = useMemo(() => dailyEntriesOf(profileActivityData, employeeId), [profileActivityData, employeeId]);
+	const todayKey = todayKeyIn(timeZone);
+	const layout = useMemo(() => yearLayoutOf(selectedYear, entries, todayKey), [selectedYear, entries, todayKey]);
+	const figures = useMemo(() => yearFiguresOf(layout.days), [layout]);
+	const months = useMemo(() => monthSummariesOf(layout.days), [layout]);
+	const refetchYear = profileActivity.refetch;
+	const retryYear = () => {
+		void refetchYear();
+	};
+
+	let body = <YearBody layout={layout} figures={figures} months={months} />;
+	if (profileActivity.isLoading) {
+		body = <ActivityCalendarBodySkeleton />;
+	}
+	if (profileActivity.isError) {
+		body = <ActivityBlockError title={t('profile.activity.YEAR_ERROR')} onRetry={retryYear} />;
+	}
 
 	return (
-		<ActivityCalendarView
-			data={filteredData}
-			isLoading={profileActivity.isLoading}
-			selectedYear={selectedYear}
-			setSelectedYear={setSelectedYear}
-		/>
+		<section className={cn(DASHBOARD_SURFACE, YEAR_SURFACE_BODY)}>
+			<div className="flex min-h-8 flex-wrap items-center justify-between gap-x-4 gap-y-2">
+				<YearMenu selectedYear={selectedYear} onSelectYear={setSelectedYear} />
+				<LevelLegend />
+			</div>
+			<AnimatedHeight>{body}</AnimatedHeight>
+		</section>
 	);
 }
 
-function ActivityCalendarView({
-	data,
-	isLoading,
-	selectedYear,
-	setSelectedYear
-}: {
-	data: ActivityCalendarEntry[];
-	isLoading: boolean;
-	selectedYear: number;
-	setSelectedYear: (year: number) => void;
-}) {
+/** The year, its figures, the grid and the months; a year without time keeps the empty grid and says so. */
+function YearBody({
+	layout,
+	figures,
+	months
+}: Readonly<{ layout: YearLayout; figures: YearFigures; months: MonthSummary[] }>) {
 	const t = useTranslations();
-
-	const colorRange = useMemo(
-		() => [
-			'#9370DB', // 0-4 hours
-			'#0000FF', // 4-10 hours
-			'#FFA500', // 10-18 hours
-			'#FF4500' // 18-24 hours
-		],
-		[]
-	);
-
+	const hasTime = figures.activeDays > 0;
+	const yearText = String(layout.year);
 	return (
-		<div className="flex flex-col space-y-4 w-full bg-white rounded-xl dark:bg-dark--theme">
-			<div className="overflow-hidden p-4 w-full md:p-6">
-				{isLoading ? (
-					<ActivityCalendarSkeleton />
-				) : (
-					<div className="flex flex-col space-y-4">
-						<ActivityLegend selectedYear={selectedYear} setSelectedYear={setSelectedYear} />
-						<div className="relative w-full min-h-[400px] md:h-[450px] lg:h-[500px]">
-							{/* @ts-ignore */}
-							<ResponsiveCalendar
-								tooltip={(value) => (
-									<div className="z-50 p-3 bg-white rounded-lg shadow-lg dark:bg-dark--theme">
-										<div className="text-sm font-medium text-gray-900 dark:text-gray-100">
-											<strong>
-												{t('timeActivity.HOURS_ON_DATE', {
-													hours: value.value || t('common.NO'),
-													date: moment(value.day).format('dddd, MMMM D, YYYY')
-												})}
-											</strong>
-										</div>
-									</div>
-								)}
-								data={data}
-								from={`${selectedYear}-01-01`}
-								to={`${selectedYear}-12-31`}
-								emptyColor="rgb(229, 231, 235)"
-								colors={colorRange}
-								yearSpacing={40}
-								monthSpacing={20}
-								monthBorderWidth={0}
-								dayBorderWidth={0}
-								daySpacing={2}
-								monthLegendPosition="before"
-								margin={{
-									top: 20,
-									right: 20,
-									bottom: 20,
-									left: 20
-								}}
-								theme={{
-									background: 'transparent',
-									text: {
-										fontSize: 14,
-										fill: '#9CA3AF', // gray-400
-										fontWeight: 600,
-										textTransform: 'capitalize'
-									},
-									tooltip: {
-										container: {
-											background: '#ffffff',
-											color: '#374151',
-											fontSize: '12px'
-										}
-									},
-									labels: {
-										text: {
-											fontSize: 14,
-											fontWeight: 'bold',
-											fill: '#9CA3AF', // gray-400
-											textTransform: 'capitalize'
-										}
-									}
-								}}
-								monthLegend={(year, month) => {
-									const monthName = new Date(year, month).toLocaleString('en-US', {
-										month: 'short'
-									});
-									return monthName;
-								}}
-								dayBorderColor="transparent"
-								legends={[]}
-								monthBorderColor="transparent"
-							/>
-						</div>
-					</div>
-				)}
-			</div>
+		<div className="flex flex-col gap-5">
+			{hasTime && <YearFiguresLine figures={figures} />}
+			{!hasTime && (
+				<p className="text-[13px] text-muted-foreground">
+					{t('profile.activity.EMPTY_YEAR', { year: yearText })}
+				</p>
+			)}
+			<ActivityYearGrid layout={layout} />
+			{hasTime && <MonthRows months={months} year={layout.year} />}
 		</div>
 	);
 }
 
-interface ActivityLegendProps {
-	selectedYear: number;
-	setSelectedYear: (year: number) => void;
+function YearFiguresLine({ figures }: Readonly<{ figures: YearFigures }>) {
+	const t = useTranslations();
+	const locale = useLocale();
+	const bestDayFormat = useMemo(
+		() => new Intl.DateTimeFormat(locale, { day: 'numeric', month: 'long', timeZone: 'UTC' }),
+		[locale]
+	);
+	const numberFormat = useMemo(() => new Intl.NumberFormat(locale), [locale]);
+	const bestDay = figures.bestDay;
+	return (
+		<dl className={YEAR_FIGURES_LINE}>
+			<ActivityFigurePair label={t('common.TOTAL')}>
+				{formatDurationShort(figures.totalSeconds)}
+			</ActivityFigurePair>
+			<ActivityFigurePair label={t('profile.activity.ACTIVE_DAYS')}>
+				{numberFormat.format(figures.activeDays)}
+			</ActivityFigurePair>
+			<ActivityFigurePair label={t('profile.activity.LONGEST_STREAK')}>
+				{t('profile.activity.DAY_COUNT', { count: figures.longestStreak })}
+			</ActivityFigurePair>
+			{bestDay && (
+				<ActivityFigurePair label={t('profile.activity.BEST_DAY')} hint={bestDayFormat.format(bestDay.date)}>
+					{formatDurationShort(bestDay.seconds)}
+				</ActivityFigurePair>
+			)}
+		</dl>
+	);
 }
 
-function ActivityLegend({ selectedYear, setSelectedYear }: ActivityLegendProps) {
+/** The twelve months as rows: a thin meter against the best month, the total and the active days. */
+function MonthRows({ months, year }: Readonly<{ months: MonthSummary[]; year: number }>) {
+	const t = useTranslations();
+	const locale = useLocale();
+	const monthFormat = useMemo(() => new Intl.DateTimeFormat(locale, { month: 'long', timeZone: 'UTC' }), [locale]);
+	const bestSeconds = bestMonthSecondsOf(months);
+	const yearText = String(year);
+	return (
+		<ul
+			aria-label={t('profile.activity.MONTHS_LABEL', { year: yearText })}
+			className="hairline-divide-y divide-border"
+		>
+			{months.map((summary) => {
+				const monthTime = Date.UTC(year, summary.month, 1);
+				const monthName = monthFormat.format(new Date(monthTime));
+				return (
+					<li key={summary.month} className={MONTH_ROW_GRID}>
+						<span className="truncate text-[13px] capitalize text-foreground">{monthName}</span>
+						<MonthMeter summary={summary} bestSeconds={bestSeconds} />
+						<MonthTotal summary={summary} />
+						<MonthActiveDays summary={summary} />
+					</li>
+				);
+			})}
+		</ul>
+	);
+}
+
+function MonthMeter({ summary, bestSeconds }: Readonly<{ summary: MonthSummary; bestSeconds: number }>) {
+	if (summary.isAhead) {
+		return <span className="max-sm:hidden" />;
+	}
+	const share = percentOf(summary.seconds, bestSeconds);
+	return <ShareMeter share={share} className="max-sm:hidden" />;
+}
+
+function MonthTotal({ summary }: Readonly<{ summary: MonthSummary }>) {
+	if (summary.isAhead) {
+		return <span className="text-right text-[13px] text-muted-foreground">{NO_VALUE}</span>;
+	}
+	return (
+		<span className="text-right text-[13px] font-medium tabular-nums text-foreground">
+			{formatDurationShort(summary.seconds)}
+		</span>
+	);
+}
+
+function MonthActiveDays({ summary }: Readonly<{ summary: MonthSummary }>) {
+	const t = useTranslations();
+	if (summary.isAhead) {
+		return <span className="text-right text-xs text-muted-foreground">{NO_VALUE}</span>;
+	}
+	return (
+		<span className="text-right text-xs tabular-nums text-muted-foreground">
+			{t('profile.activity.ACTIVE_DAY_COUNT', { count: summary.activeDays })}
+		</span>
+	);
+}
+
+function YearMenu({
+	selectedYear,
+	onSelectYear
+}: Readonly<{ selectedYear: number; onSelectYear: (year: number) => void }>) {
 	const t = useTranslations();
 
 	const years = useMemo(() => {
@@ -171,48 +238,46 @@ function ActivityLegend({ selectedYear, setSelectedYear }: ActivityLegendProps) 
 		return Array.from({ length: 5 }, (_, i) => currentYear - i);
 	}, []);
 
-	const legendItems = useMemo(
-		() => [
-			{ color: '#9370DB', label: `0 - 4 ${t('common.HOURS')}` },
-			{ color: '#0000FF', label: `4 - 10 ${t('common.HOURS')}` },
-			{ color: '#FFA500', label: `10 - 18 ${t('common.HOURS')}` },
-			{ color: '#FF4500', label: `18 - 24 ${t('common.HOURS')}` }
-		],
-		[t]
-	);
+	const handleValueChange = (value: string) => {
+		const year = Number.parseInt(value, 10);
+		if (Number.isNaN(year)) {
+			return;
+		}
+		onSelectYear(year);
+	};
 
 	return (
-		<div className="flex flex-col gap-4 justify-between p-3 bg-white rounded-lg shadow-xs sm:flex-row sm:items-center dark:bg-dark--theme-light">
-			<div className="flex flex-wrap gap-3 items-center">
-				<h3 className="text-base font-semibold whitespace-nowrap">{t('common.LEGEND')}</h3>
-				{legendItems.map(({ color, label }, index) => (
-					<Fragment key={color}>
-						{index > 0 && <Separator orientation="vertical" className="h-4" />}
-						<div className="flex gap-2 items-center">
-							<span className="w-3 h-3 rounded-sm" style={{ backgroundColor: color }} />
-							<span className="text-sm whitespace-nowrap">{label}</span>
-						</div>
-					</Fragment>
+		<Select value={String(selectedYear)} onValueChange={handleValueChange}>
+			<SelectTrigger aria-label={t('profile.activity.YEAR')} className={YEAR_TRIGGER}>
+				<SelectValue>{selectedYear}</SelectValue>
+			</SelectTrigger>
+			<SelectContent position="popper" sideOffset={4}>
+				{years.map((year) => (
+					<SelectItem key={year} value={String(year)} className="tabular-nums">
+						{year}
+					</SelectItem>
 				))}
-			</div>
-			<div className="flex gap-2 items-center ml-auto">
-				<span className="text-sm font-medium whitespace-nowrap">YEAR</span>
-				<Select
-					defaultValue={selectedYear.toString()}
-					onValueChange={(value) => setSelectedYear(Number(value))}
-				>
-					<SelectTrigger className="w-[100px]">
-						<SelectValue placeholder="Select year" />
-					</SelectTrigger>
-					<SelectContent>
-						{years.map((year) => (
-							<SelectItem key={year} value={year.toString()}>
-								{year}
-							</SelectItem>
-						))}
-					</SelectContent>
-				</Select>
-			</div>
+			</SelectContent>
+		</Select>
+	);
+}
+
+/** "Less" five steps "More", the scale written out for screen readers. */
+function LevelLegend() {
+	const t = useTranslations();
+	return (
+		<div
+			role="img"
+			aria-label={t('profile.activity.LEGEND_SCALE')}
+			className="flex items-center gap-1.5 text-[11px] text-muted-foreground"
+		>
+			<span>{t('profile.activity.LESS')}</span>
+			<span className="flex gap-[3px]">
+				{ACTIVITY_LEVEL_TONES.map((tone) => (
+					<span key={tone} className={cn(YEAR_CELL, tone)} />
+				))}
+			</span>
+			<span>{t('profile.activity.MORE')}</span>
 		</div>
 	);
 }

@@ -5,6 +5,7 @@ import { useTranslations } from 'next-intl';
 
 import { MultiSelect } from '../common/multi-select';
 import { Button } from '../duplicated-components/_button';
+import { clsxm } from '@/core/lib/utils';
 import { TEmployee, TOrganizationProject, TOrganizationTeam, TOrganizationTeamEmployee } from '@/core/types/schemas';
 import { TTask } from '@/core/types/schemas/task/task.schema';
 import { useAuthenticateUser } from '@/core/hooks/auth';
@@ -180,17 +181,19 @@ export const TimeActivityFilterPopover = React.memo(function TimeActivityFilterP
 		return (
 			<div
 				onClick={onClick}
-				className={`flex flex-col p-2 hover:cursor-pointer hover:bg-slate-50 dark:hover:bg-primary rounded-lg transition-colors ${
-					isSelected ? 'font-medium bg-slate-100 dark:bg-primary-light' : ''}`}
+				className={clsxm(
+					'flex flex-col p-2 rounded-md transition-colors hover:cursor-pointer hover:bg-foreground/5',
+					isSelected && 'font-medium bg-foreground/5'
+				)}
 			>
 				{taskNumber && (
 					<div className="flex gap-2 items-center">
-						<span className="text-xs font-mono text-gray-500 dark:text-gray-400 bg-gray-100 dark:bg-muted px-1.5 py-0.5 rounded">
+						<span className="px-1.5 py-0.5 font-mono text-xs tabular-nums rounded-sm text-muted-foreground bg-foreground/5">
 							{taskNumber}
 						</span>
 					</div>
 				)}
-				<span className="mt-1 text-sm text-gray-900 dark:text-white line-clamp-2">{title}</span>
+				<span className="mt-1 text-sm text-foreground line-clamp-2">{title}</span>
 			</div>
 		);
 	}, []);
@@ -247,17 +250,14 @@ export const TimeActivityFilterPopover = React.memo(function TimeActivityFilterP
 			<Popover>
 				<PopoverTrigger asChild>
 					<div>
-						<Button
-							variant="outline"
-							className="flex items-center justify-center h-[2.2rem] rounded-lg bg-white dark:bg-dark--theme-light border dark:border-gray-700 hover:bg-white p-3 gap-2"
-						>
-							<SettingFilterIcon className="text-gray-700 dark:text-white w-3.5" strokeWidth="1.8" />
-							<span className="text-gray-700 dark:text-white">{t('common.FILTER')}</span>
+						<Button variant="outline" className="flex gap-2 justify-center items-center">
+							<SettingFilterIcon className="w-3.5 text-muted-foreground" strokeWidth="1.8" />
+							<span className="text-foreground">{t('common.FILTER')}</span>
 							{totalFilteredItems > 0 && (
 								<span
 									role="status"
 									aria-label={`${totalFilteredItems} items filtered`}
-									className="ml-1 rounded-full bg-primary dark:bg-primary-light min-h-[1.75rem] min-w-[1.75rem] flex items-center justify-center text-white text-center text-[12px] font-medium shadow-xs transition-all"
+									className="flex justify-center items-center px-1.5 ml-1 h-5 min-w-5 text-xs font-medium tabular-nums text-center rounded-md bg-primary/10 text-primary-ink"
 								>
 									{totalFilteredItems > 100 ? '100+' : totalFilteredItems}
 								</span>
@@ -267,17 +267,17 @@ export const TimeActivityFilterPopover = React.memo(function TimeActivityFilterP
 				</PopoverTrigger>
 				<PopoverContent className="w-96 dark:bg-dark-high">
 					<div className="flex flex-col w-full">
-						<div className="flex gap-2 mb-3 text-xl font-bold">
-							<SettingFilterIcon className="w-4 text-gray-700 dark:text-white" strokeWidth="1.8" />
-							<span className="text-gray-700 dark:text-white">{t('common.FILTER')}</span>
+						<div className="flex gap-2 items-center mb-3 text-base font-semibold">
+							<SettingFilterIcon className="w-4 text-muted-foreground" strokeWidth="1.8" />
+							<span className="text-foreground">{t('common.FILTER')}</span>
 						</div>
 						<div className="grid gap-5">
 							<div className="">
-								<div className="flex justify-between mb-1 w-full text-sm text-gray-600">
+								<div className="flex justify-between mb-1 w-full text-sm text-muted-foreground">
 									<div className="flex gap-2 items-center">
 										<span className="text-[12px]">{t('common.TEAM')}</span>
 										{selectedTeams.length > 0 && (
-											<span className="text-[10px] px-1.5 py-0.5 rounded-full bg-primary/10 text-primary dark:text-primary-light">
+											<span className="px-1.5 py-0.5 text-xs font-medium tabular-nums rounded-md bg-primary/10 text-primary-ink">
 												{selectedTeams.length}
 											</span>
 										)}
@@ -285,7 +285,7 @@ export const TimeActivityFilterPopover = React.memo(function TimeActivityFilterP
 									{selectedTeams.length > 0 && (
 										<button
 											onClick={() => clearSpecificFilter('teams')}
-											className="text-primary dark:text-primary-light hover:opacity-80 cursor-pointer text-[12px] w-fit p-0"
+											className="p-0 w-fit text-xs cursor-pointer text-primary-ink hover:underline"
 										>
 											{t('common.CLEAR')}
 										</button>
@@ -299,15 +299,15 @@ export const TimeActivityFilterPopover = React.memo(function TimeActivityFilterP
 									itemId={(item) => item.id}
 									onValueChange={(selectedItems) => setSelectedTeams(selectedItems as any)}
 									multiSelect={true}
-									triggerClassName="dark:border-gray-700"
+									triggerClassName=""
 								/>
 							</div>
 							<div className="">
-								<div className="flex justify-between mb-1 w-full text-sm text-gray-600">
+								<div className="flex justify-between mb-1 w-full text-sm text-muted-foreground">
 									<div className="flex gap-2 items-center">
 										<span className="text-[12px]">{t('common.MEMBER')}</span>
 										{selectedMembers.length > 0 && (
-											<span className="text-[10px] px-1.5 py-0.5 rounded-full bg-primary/10 text-primary dark:text-primary-light">
+											<span className="px-1.5 py-0.5 text-xs font-medium tabular-nums rounded-md bg-primary/10 text-primary-ink">
 												{selectedMembers.length}
 											</span>
 										)}
@@ -315,7 +315,7 @@ export const TimeActivityFilterPopover = React.memo(function TimeActivityFilterP
 									{selectedMembers.length > 0 && (
 										<button
 											onClick={() => clearSpecificFilter('members')}
-											className="text-primary dark:text-primary-light hover:opacity-80 cursor-pointer text-[12px] w-fit p-0"
+											className="p-0 w-fit text-xs cursor-pointer text-primary-ink hover:underline"
 										>
 											{t('common.CLEAR')}
 										</button>
@@ -331,15 +331,15 @@ export const TimeActivityFilterPopover = React.memo(function TimeActivityFilterP
 										setSelectedMembers(selectedItems as TOrganizationTeamEmployee[])
 									}
 									multiSelect={true}
-									triggerClassName="dark:border-gray-700"
+									triggerClassName=""
 								/>
 							</div>
 							<div className="">
-								<div className="flex justify-between mb-1 w-full text-sm text-gray-600">
+								<div className="flex justify-between mb-1 w-full text-sm text-muted-foreground">
 									<div className="flex gap-2 items-center">
 										<span className="text-[12px]">{t('sidebar.PROJECTS')}</span>
 										{selectedProjects.length > 0 && (
-											<span className="text-[10px] px-1.5 py-0.5 rounded-full bg-primary/10 text-primary dark:text-primary-light">
+											<span className="px-1.5 py-0.5 text-xs font-medium tabular-nums rounded-md bg-primary/10 text-primary-ink">
 												{selectedProjects.length}
 											</span>
 										)}
@@ -347,7 +347,7 @@ export const TimeActivityFilterPopover = React.memo(function TimeActivityFilterP
 									{selectedProjects.length > 0 && (
 										<button
 											onClick={() => clearSpecificFilter('projects')}
-											className="text-primary dark:text-primary-light hover:opacity-80 cursor-pointer text-[12px] w-fit p-0"
+											className="p-0 w-fit text-xs cursor-pointer text-primary-ink hover:underline"
 										>
 											{t('common.CLEAR')}
 										</button>
@@ -361,15 +361,15 @@ export const TimeActivityFilterPopover = React.memo(function TimeActivityFilterP
 									itemId={(item) => item?.id}
 									onValueChange={(selectedItems) => setSelectedProjects(selectedItems as any)}
 									multiSelect={true}
-									triggerClassName="dark:border-gray-700"
+									triggerClassName=""
 								/>
 							</div>
 							<div className="">
-								<div className="flex justify-between mb-1 w-full text-sm text-gray-600">
+								<div className="flex justify-between mb-1 w-full text-sm text-muted-foreground">
 									<div className="flex gap-2 items-center">
 										<span className="text-[12px]">{t('hotkeys.TASK')}</span>
 										{selectedTasks.length > 0 && (
-											<span className="text-[10px] px-1.5 py-0.5 rounded-full bg-primary/10 text-primary dark:text-primary-light">
+											<span className="px-1.5 py-0.5 text-xs font-medium tabular-nums rounded-md bg-primary/10 text-primary-ink">
 												{selectedTasks.length}
 											</span>
 										)}
@@ -377,7 +377,7 @@ export const TimeActivityFilterPopover = React.memo(function TimeActivityFilterP
 									{selectedTasks.length > 0 && (
 										<button
 											onClick={() => clearSpecificFilter('tasks')}
-											className="text-primary dark:text-primary-light hover:opacity-80 cursor-pointer text-[12px] w-fit p-0"
+											className="p-0 w-fit text-xs cursor-pointer text-primary-ink hover:underline"
 										>
 											{t('common.CLEAR')}
 										</button>
@@ -391,7 +391,7 @@ export const TimeActivityFilterPopover = React.memo(function TimeActivityFilterP
 									itemId={(item) => item?.id}
 									onValueChange={(selectedItems) => setSelectedTasks(selectedItems as any)}
 									multiSelect={true}
-									triggerClassName="dark:border-gray-700"
+									triggerClassName=""
 									renderItem={renderTaskItem}
 									popoverClassName="max-h-[300px] overflow-y-auto"
 								/>
@@ -400,15 +400,12 @@ export const TimeActivityFilterPopover = React.memo(function TimeActivityFilterP
 								<Button
 									onClick={clearAllFilters}
 									variant={'outline'}
-									className="flex justify-center items-center h-10 text-sm rounded-lg transition-colors dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-muted"
+									size="lg"
 									disabled={!totalFilteredItems}
 								>
 									<span className="text-sm">{t('common.CLEAR_FILTER')}</span>
 								</Button>
-								<Button
-									onClick={applyFilters}
-									className="flex justify-center items-center h-10 text-sm rounded-lg transition-opacity bg-primary dark:bg-primary-light dark:text-gray-300 hover:opacity-90"
-								>
+								<Button onClick={applyFilters} size="lg">
 									<span className="text-sm">{t('common.APPLY_FILTER')}</span>
 								</Button>
 							</div>
