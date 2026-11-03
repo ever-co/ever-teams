@@ -4,6 +4,9 @@ import { MEET_DOMAIN } from '@/core/constants/config/constants';
 import { JitsiMeeting } from '@jitsi/react-sdk';
 import { useRouter } from 'next/navigation';
 import { useCallback, useEffect, useState } from 'react';
+import { Button } from '@/core/components/common/button';
+import { CircleAlert } from '@/core/components/icons';
+import { JitsiMeetPageSkeleton } from '@/core/components/pages/meet/meet-room-skeleton';
 
 interface MeetPageProps {
 	jwt: string;
@@ -63,15 +66,15 @@ export default function MeetPage({ jwt, roomName }: MeetPageProps) {
 
 	if (error) {
 		return (
-			<div className="flex flex-col items-center justify-center p-4">
-				<h2 className="text-xl font-semibold text-red-600 mb-2">Failed to initialize meeting</h2>
-				<p className="text-gray-600 mb-4">{error.message}</p>
-				<button
-					onClick={() => router.push('/')}
-					className="px-4 py-2 bg-blue-500 text-white rounded-sm hover:bg-blue-600"
-				>
+			<div className="flex flex-col items-center justify-center gap-1 p-4 text-center">
+				<div className="mb-2 flex size-10 items-center justify-center rounded-lg bg-destructive/10 text-destructive-ink">
+					<CircleAlert className="size-5" />
+				</div>
+				<h2 className="text-sm font-semibold text-balance text-foreground">Failed to initialize meeting</h2>
+				<p className="mb-3 text-sm text-balance text-muted-foreground">{error.message}</p>
+				<Button size="default" onClick={() => router.push('/')}>
 					Return Home
-				</button>
+				</Button>
 			</div>
 		);
 	}
@@ -95,6 +98,7 @@ export default function MeetPage({ jwt, roomName }: MeetPageProps) {
 				SHOW_CHROME_EXTENSION_BANNER: false
 			}}
 			jwt={jwt}
+			spinner={JitsiMeetPageSkeleton}
 			onApiReady={handleApiReady}
 			getIFrameRef={handleIFrameRef}
 		/>

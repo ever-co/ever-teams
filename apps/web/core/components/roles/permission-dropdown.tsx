@@ -1,17 +1,21 @@
 import { clsxm } from '@/core/lib/utils';
 import { Popover, PopoverButton, PopoverPanel, Transition } from '@headlessui/react';
-import { PlusIcon } from '@heroicons/react/24/solid';
 import { Button } from '@/core/components';
-import { EditPenUnderlineIcon, TrashIcon } from 'assets/svg';
+import { ChevronDown, Pencil, Plus, Trash } from '@/core/components/icons';
+import { controlRecipe } from '@/core/components/common/input';
 import { ChangeEvent, Dispatch, KeyboardEvent, SetStateAction, useCallback, useMemo, useState } from 'react';
 import { useTranslations } from 'next-intl';
-import { ChevronDownIcon } from 'assets/svg';
 import { useRolesQuery } from '@/core/hooks/roles/use-roles-query';
 import { useRolesMutations } from '@/core/hooks/roles/use-roles-mutations';
 import { PermissonItem } from './permission-item';
 import { EverCard } from '../common/ever-card';
 import { InputField } from '../duplicated-components/_input';
 import { TRole } from '@/core/types/schemas';
+
+const TRIGGER_CLASS = clsxm(
+	controlRecipe,
+	'flex h-9 items-center justify-between gap-2 px-2.5 text-muted-foreground md:min-w-[10.75rem]'
+);
 
 export const PermissionDropDown = ({
 	selectedRole,
@@ -96,34 +100,33 @@ export const PermissionDropDown = ({
 
 	return (
 		<>
-			<Popover className="relative bg-light--theme-light dark:bg-dark--theme-light">
-				<PopoverButton className="md:min-w-[10.75rem] flex justify-between items-center px-4 py-3 text-sm border text-[#B1AEBC] outline-hidden rounded-xl bg-light--theme-light dark:bg-dark--theme-light">
+			<Popover className="relative">
+				<PopoverButton className={TRIGGER_CLASS}>
 					{selectedRole ? selectedRole.name : t('pages.permissions.SELECT_ROLES')}
-					<ChevronDownIcon />
+					<ChevronDown className="size-4 shrink-0" />
 				</PopoverButton>
 
 				<Transition
 					as="div"
-					enter="transition duration-100 ease-out"
+					enter="transition duration-150 ease-out"
 					enterFrom="transform scale-95 opacity-0"
 					enterTo="transform scale-100 opacity-100"
-					leave="transition duration-75 ease-out"
+					leave="transition duration-150 ease-out"
 					leaveFrom="transform scale-100 opacity-100"
 					leaveTo="transform scale-95 opacity-0"
 				>
-					<PopoverPanel className="absolute w-full rounded-xl z-12 bg-light--theme-light dark:bg-dark--theme-light">
+					<PopoverPanel className="absolute z-12 mt-1 w-full">
 						{({ close }) => (
 							<EverCard
-								shadow="custom"
-								className="md:px-4 py-4 rounded-x md:min-w-[14.125rem] max-h-72 overflow-auto"
-								style={{ boxShadow: '0px 14px 39px rgba(0, 0, 0, 0.12)' }}
+								shadow="bigger"
+								className="max-h-72 overflow-auto py-2 md:min-w-[14.125rem] md:px-3"
 							>
 								{/* Search */}
 								<div className="flex justify-between items-center w-full">
 									<InputField
 										type="text"
 										placeholder={t('common.SEARCH')}
-										className="mb-0 h-11"
+										className="mb-0 h-8"
 										wrapperClassName={'mb-0'}
 										onChange={(e: ChangeEvent<HTMLInputElement>) => {
 											setFilterValue(e.target.value);
@@ -133,7 +136,10 @@ export const PermissionDropDown = ({
 								</div>
 
 								{rolesList.map((role) => (
-									<div className="flex justify-between py-3 w-full" key={role.name}>
+									<div
+										className="flex w-full items-center justify-between rounded-md px-2 py-1.5 transition-colors hover:bg-foreground/5"
+										key={role.name}
+									>
 										<div className="max-w-[90%]">
 											{editRole && editRole.id === role.id ? (
 												<InputField
@@ -165,7 +171,7 @@ export const PermissionDropDown = ({
 													handleEdit(role);
 												}}
 											>
-												<EditPenUnderlineIcon className="w-6 h-6 cursor-pointer text-[#888F97]" />
+												<Pencil className="size-4 cursor-pointer text-muted-foreground hover:text-foreground" />
 											</span>
 
 											<span
@@ -173,20 +179,21 @@ export const PermissionDropDown = ({
 													role.id && handleDeleteRole(role.id);
 												}}
 											>
-												<TrashIcon className="cursor-pointer w-3.5" />
+												<Trash className="size-4 cursor-pointer text-muted-foreground hover:text-destructive-ink" />
 											</span>
 										</div>
 									</div>
 								))}
 
 								<Button
-									className="mt-3 w-full text-xs rounded-xl dark:text-white dark:border-white"
+									className="mt-3 w-full"
 									variant="outline"
+									size="default"
 									onClick={handleCreateRole}
 									disabled={createRoleLoading || !filterValue.length}
 									loading={createRoleLoading}
 								>
-									<PlusIcon className="w-[16px] h-[16px]" />
+									<Plus className="size-4" />
 									{t('common.CREATE')}
 									{!rolesList.length ? ` "${filterValue}"` : ''}
 								</Button>

@@ -21,15 +21,14 @@ export function TimeSheetFilter({ closeModal, isOpen }: TimeSheetFilterProps) {
 				isOpen={isOpen}
 				closeModal={closeModal}
 				title={'Filters'}
-				className="bg-light--theme-light dark:bg-dark--theme-light p-5 rounded-xl !w-[350px]  md:w-40 md:min-w-[24rem] h-[auto] justify-start shadow-xl"
-				titleClass="font-bold"
+				className="!w-[350px] md:w-40 md:min-w-[24rem] justify-start"
 			>
 				<div className="flex flex-col w-full">
 					<div className="grid gap-5">
 						<div className="">
-							<label className="block mb-1 text-sm text-gray-600">
-								<span className="text-[12px]">Project</span>
-								<span className="text-[#de5505e1] ml-1 text-sm">*</span>
+							<label className="mb-1.5 block text-sm font-medium leading-none text-foreground">
+								<span>Project</span>
+								<span className="ml-1 text-destructive-ink">*</span>
 							</label>
 							<MultiSelect
 								items={activeTeam?.members ?? []}
@@ -37,13 +36,12 @@ export function TimeSheetFilter({ closeModal, isOpen }: TimeSheetFilterProps) {
 								itemId={(item) => item.id}
 								onValueChange={(selectedItems) => console.log(selectedItems)}
 								multiSelect={true} // Enable multi-select
-								triggerClassName="dark:border-gray-700"
 							/>
 						</div>
 						<div className="">
-							<label className="block mb-1 text-sm text-gray-600">
-								<span className="text-[12px]">Employee</span>
-								<span className="text-[#de5505e1] ml-1 text-sm">*</span>
+							<label className="mb-1.5 block text-sm font-medium leading-none text-foreground">
+								<span>Employee</span>
+								<span className="ml-1 text-destructive-ink">*</span>
 							</label>
 							<MultiSelect
 								items={activeTeam?.members ?? []}
@@ -51,13 +49,12 @@ export function TimeSheetFilter({ closeModal, isOpen }: TimeSheetFilterProps) {
 								itemId={(item) => item.id}
 								onValueChange={(selectedItems) => console.log(selectedItems)}
 								multiSelect={true} // Enable multi-select
-								triggerClassName="dark:border-gray-700"
 							/>
 						</div>
 						<div className="">
-							<label className="block mb-1 text-sm text-gray-600">
-								<span className="text-[12px]">Status</span>
-								<span className="text-[#de5505e1] ml-1 text-sm">*</span>
+							<label className="mb-1.5 block text-sm font-medium leading-none text-foreground">
+								<span>Status</span>
+								<span className="ml-1 text-destructive-ink">*</span>
 							</label>
 							<MultiSelect
 								items={statusOptions}
@@ -65,13 +62,12 @@ export function TimeSheetFilter({ closeModal, isOpen }: TimeSheetFilterProps) {
 								itemId={(item) => item.value}
 								onValueChange={(selectedItems) => console.log(selectedItems)}
 								multiSelect={true} // Enable multi-select
-								triggerClassName="dark:border-gray-700"
 							/>
 						</div>
 						<div className="">
-							<label className="block mb-1 text-sm text-gray-600">
-								<span className="text-[12px]">Task</span>
-								<span className="text-[#de5505e1] ml-1 text-sm">*</span>
+							<label className="mb-1.5 block text-sm font-medium leading-none text-foreground">
+								<span>Task</span>
+								<span className="ml-1 text-destructive-ink">*</span>
 							</label>
 							<MultiSelect
 								items={tasks}
@@ -79,13 +75,12 @@ export function TimeSheetFilter({ closeModal, isOpen }: TimeSheetFilterProps) {
 								itemId={(task) => (task ? task.id : '')}
 								itemToString={(task) => (task ? task.title : '')}
 								multiSelect={true} // Enable multi-select
-								triggerClassName="dark:border-gray-700"
 							/>
 						</div>
 						<div className="">
-							<label className="block mb-1 text-sm text-gray-600">
-								<span className="text-[12px]">Activity Level</span>
-								<span className="text-[#de5505e1] ml-1 text-sm">*</span>
+							<label className="mb-1.5 block text-sm font-medium leading-none text-foreground">
+								<span>Activity Level</span>
+								<span className="ml-1 text-destructive-ink">*</span>
 							</label>
 							<MultiSelect
 								items={activeTeam?.members ?? []}
@@ -93,40 +88,24 @@ export function TimeSheetFilter({ closeModal, isOpen }: TimeSheetFilterProps) {
 								itemId={(item) => item.id}
 								onValueChange={(selectedItems) => console.log(selectedItems)}
 								multiSelect={true} // Enable multi-select
-								triggerClassName="dark:border-gray-700"
 							/>
 						</div>
 						<div className="">
-							<label className="block mb-1 text-sm text-gray-600">
-								<span className="text-[12px]">Worked hours</span>
-								<span className="text-[#de5505e1] ml-1 text-sm">*</span>
+							<label className="mb-1.5 block text-sm font-medium leading-none text-foreground">
+								<span>Worked hours</span>
+								<span className="ml-1 text-destructive-ink">*</span>
 							</label>
 							<div className="flex gap-x-4 justify-between items-center w-full">
-								<Input
-									className="w-full border dark:border-gray-700"
-									placeholder="Time"
-									required
-									value=""
-									name="from"
-								/>
-								<span>to</span>
-								<Input
-									className="w-full border dark:border-gray-700"
-									placeholder="Time"
-									required
-									value=""
-									name="to"
-								/>
+								<Input className="w-full" placeholder="Time" required value="" name="from" />
+								<span className="text-sm text-muted-foreground">to</span>
+								<Input className="w-full" placeholder="Time" required value="" name="to" />
 							</div>
 						</div>
 						<div className="flex gap-x-4 justify-between items-center w-full">
-							<Button
-								variant={'outline'}
-								className="flex justify-center items-center w-full h-10 text-sm rounded-lg dark:text-gray-300"
-							>
+							<Button variant={'outline'} size="lg" className="w-full">
 								<span className="text-sm">Clear Filter</span>
 							</Button>
-							<Button className="flex justify-center items-center w-full h-10 text-sm rounded-lg bg-primary dark:bg-primary-light dark:text-gray-300">
+							<Button size="lg" className="w-full">
 								<span className="text-sm">Apply Filter</span>
 							</Button>
 						</div>

@@ -4,7 +4,8 @@ import { DataTableTimeSheet, SelectFilter } from '../../pages/timesheet/table-ti
 import { HeadTimeSheet } from '@/core/components/pages/calendar/page-component';
 import { statusOptions, timesheetCalendar } from '../../../lib/helpers/helper-calendar';
 import { StatusBadge } from './confirm-change-status';
-import { Trash2 } from 'lucide-react';
+import { Trash } from '@/core/components/icons';
+import { Button } from '@/core/components/duplicated-components/_button';
 import { useModal } from '@/core/hooks';
 
 interface ISetupTimeSheetProps {
@@ -14,20 +15,20 @@ interface ISetupTimeSheetProps {
 export function SetupTimeSheet({ timesheet }: ISetupTimeSheetProps) {
 	const { isOpen, openModal, closeModal } = useModal();
 	return (
-		<div className="flex flex-col overflow-hidden py-[32px]">
+		<div className="-mx-2 flex flex-col overflow-hidden px-2 py-8">
 			<div className="flex flex-col w-full">
-				<div className="border border-gray-100 dark:border-gray-700 w-full"></div>
+				<div className="h-px w-full bg-border"></div>
 				<HeadTimeSheet timesheet={timesheet} closeModal={closeModal} isOpen={isOpen} openModal={openModal} />
 			</div>
-			<div className="flex flex-col h-[780px] border border-gray-200 dark:border-gray-700 rounded-lg bg-white dark:bg-dark--theme-light p-4 shadow-lg shadow-gray-100  dark:shadow-gray-700">
+			<div className="flex flex-col h-[780px] rounded-xl bg-card p-4 hairline-ring ring-border shadow-sm shadow-black/6.5">
 				<div className="w-full pb-3 flex items-center gap-x-4 justify-between">
 					<div className="flex gap-x-4">
-						<span className="font-medium">123 Logs Selected</span>
+						<span className="text-sm font-medium">123 Logs Selected</span>
 						<SelectFilter selectedStatus="Rejected" />
-						<button className="border flex items-center gap-2 border-gray-200 dark:border-gray-700 text-red-500 h-8 px-2 rounded-md">
-							<Trash2 size="1em" />
-							<span className="!font-normal text-sm">Delete</span>
-						</button>
+						<Button variant="outline" size="default" className="text-destructive-ink">
+							<Trash />
+							<span>Delete</span>
+						</Button>
 					</div>
 					<div className="flex gap-x-2 h-6">
 						<StatusBadge selectedStatus="77:00h" />

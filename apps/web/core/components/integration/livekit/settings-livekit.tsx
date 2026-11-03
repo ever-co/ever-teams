@@ -59,7 +59,7 @@ export function SettingsMenu(props: SettingsMenuProps) {
 
 	return (
 		<div
-			className="fixed inset-0 items-center bg-light--theme-light dark:bg-dark--theme-light indent-0 justify-cent"
+			className="fixed inset-0 items-center bg-card indent-0 justify-cent"
 			style={{ width: '100%', height: '100%' }}
 			{...props}
 		>
@@ -145,11 +145,11 @@ export function SettingsMenu(props: SettingsMenuProps) {
 				className={`flex items-center w-full justify-between`}
 			>
 				<div className="flex flex-col items-start">
-					<span className="text-gray-600 px-7 dark:text-gray-400">
+					<span className="text-sm text-muted-foreground px-7">
 						You can invite your colleagues to join the meeting by sharing this link.
 					</span>
 					<button
-						className="flex items-center px-7 text-primary-light"
+						className="flex items-center gap-1 px-7 text-sm text-primary-ink hover:underline underline-offset-4"
 						onClick={() => {
 							navigator.clipboard.writeText(getTeamLink());
 							setCopied(true);

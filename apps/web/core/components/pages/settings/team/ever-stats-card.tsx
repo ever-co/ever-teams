@@ -6,6 +6,11 @@ import { useState } from 'react';
 import { EVER_TEAMS_REPOSITORY_URL } from '@/core/lib/build-info';
 import { useEverStatsLast, useEverStatsView, useSetEverStatsEnabled } from '@/core/hooks/ever-platform/use-ever-stats';
 import type { IEverStatsAttempt, IEverStatsStatus } from '@/core/types/interfaces/ever-platform/ever-platform';
+import { SWITCH_THUMB_CLASS, SWITCH_TRACK_CLASS } from '../switch-recipe';
+import { SETTINGS_SURFACE } from '@/core/components/settings/kit/settings-page';
+
+const TEXT_LINK_CLASS =
+	'rounded-sm text-[13px] font-medium text-primary-ink underline-offset-4 outline-none hover:underline focus-visible:ring-[3px] focus-visible:ring-ring/50';
 
 /** The public page that says what is sent, when and how to switch it off. */
 export const EVER_STATS_DOCS_URL = `${EVER_TEAMS_REPOSITORY_URL}/blob/develop/docs/ever-platform/anonymous-usage-statistics.md`;
@@ -21,12 +26,7 @@ const prettyPayload = (payload: string): string => {
 function DocsLink() {
 	const t = useTranslations();
 	return (
-		<a
-			href={EVER_STATS_DOCS_URL}
-			target="_blank"
-			rel="noopener noreferrer"
-			className="text-sm font-medium text-primary underline-offset-2 hover:underline dark:text-primary-light"
-		>
+		<a href={EVER_STATS_DOCS_URL} target="_blank" rel="noopener noreferrer" className={TEXT_LINK_CLASS}>
 			{t('pages.settingsTeam.everPlatform.STATS_DOCS_LINK')}
 		</a>
 	);
@@ -38,9 +38,10 @@ function AttemptView({ label, attempt }: Readonly<{ label: string; attempt: IEve
 		<div className="flex flex-col gap-2" data-testid="ever-stats-last-payload">
 			<p className="text-xs text-muted-foreground">
 				{label} · {t('pages.settingsTeam.everPlatform.STATS_SENT_AT')}: {attempt.sent_at ?? '-'} ·{' '}
-				{t('pages.settingsTeam.everPlatform.STATS_HTTP_STATUS')}: {attempt.http_status ?? attempt.outcome ?? '-'}
+				{t('pages.settingsTeam.everPlatform.STATS_HTTP_STATUS')}:{' '}
+				{attempt.http_status ?? attempt.outcome ?? '-'}
 			</p>
-			<pre className="max-h-80 overflow-auto rounded-md border border-border bg-muted/40 p-3 text-xs text-foreground">
+			<pre className="max-h-80 overflow-auto rounded-lg bg-foreground/[0.03] p-3 text-xs text-foreground">
 				{prettyPayload(attempt.payload)}
 			</pre>
 		</div>
@@ -83,11 +84,13 @@ function OperatorView({ status }: Readonly<{ status: IEverStatsStatus }>) {
 		<div className="flex flex-col gap-4">
 			<div className="flex items-center justify-between gap-4">
 				<div className="flex min-w-0 flex-col">
-					<span className="text-sm font-medium text-foreground">
+					<span className="text-[13px] font-medium text-foreground">
 						{t('pages.settingsTeam.everPlatform.STATS_TOGGLE_LABEL')}
 					</span>
 					<span className="mt-0.5 text-xs text-muted-foreground" data-testid="ever-stats-state">
-						{enabled ? t('pages.settingsTeam.everPlatform.STATS_ON') : t('pages.settingsTeam.everPlatform.STATS_OFF')}
+						{enabled
+							? t('pages.settingsTeam.everPlatform.STATS_ON')
+							: t('pages.settingsTeam.everPlatform.STATS_OFF')}
 						<ReasonText reason={status.reason} />
 					</span>
 				</div>
@@ -96,19 +99,16 @@ function OperatorView({ status }: Readonly<{ status: IEverStatsStatus }>) {
 					disabled={setEnabled.isPending}
 					onChange={(next: boolean) => setEnabled.mutate(next)}
 					data-testid="ever-stats-toggle"
-					className={`${enabled ? 'bg-primary' : 'bg-muted-foreground/30'}
-						relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus-visible:ring-2 focus-visible:ring-ring/40 disabled:opacity-60`}
+					className={SWITCH_TRACK_CLASS}
 				>
 					<span className="sr-only">{t('pages.settingsTeam.everPlatform.STATS_TOGGLE_LABEL')}</span>
-					<span
-						aria-hidden="true"
-						className={`${enabled ? 'translate-x-5' : 'translate-x-0'}
-							pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out`}
-					/>
+					<span aria-hidden="true" className={SWITCH_THUMB_CLASS} />
 				</Switch>
 			</div>
 			{setEnabled.isError ? (
-				<p className="text-xs text-destructive">{t('pages.settingsTeam.everPlatform.STATS_TOGGLE_ERROR')}</p>
+				<p className="text-xs text-destructive-ink">
+					{t('pages.settingsTeam.everPlatform.STATS_TOGGLE_ERROR')}
+				</p>
 			) : null}
 			<dl className="grid grid-cols-1 gap-2 text-xs sm:grid-cols-2">
 				<div>
@@ -124,11 +124,7 @@ function OperatorView({ status }: Readonly<{ status: IEverStatsStatus }>) {
 				</div>
 			</dl>
 			<div className="flex flex-wrap items-center gap-4">
-				<button
-					type="button"
-					className="text-sm font-medium text-primary underline-offset-2 hover:underline dark:text-primary-light"
-					onClick={() => setShowLast((value) => !value)}
-				>
+				<button type="button" className={TEXT_LINK_CLASS} onClick={() => setShowLast((value) => !value)}>
 					{t('pages.settingsTeam.everPlatform.STATS_LAST_PAYLOAD')}
 				</button>
 				<DocsLink />
@@ -150,16 +146,22 @@ export function EverStatsCard() {
 	if (!view.data || view.data.kind === 'off') return null;
 
 	return (
-		<section className="flex flex-col gap-3" data-testid="ever-stats-card">
-			<div className="flex flex-col gap-1">
-				<h3 className="text-sm font-semibold text-foreground">{t('pages.settingsTeam.everPlatform.STATS_TITLE')}</h3>
-				<p className="text-sm text-muted-foreground">{t('pages.settingsTeam.everPlatform.STATS_DESCRIPTION')}</p>
+		<section className={SETTINGS_SURFACE} data-testid="ever-stats-card">
+			<div className="flex flex-col gap-0.5 px-4 py-3">
+				<h3 className="text-[13px] font-medium text-foreground">
+					{t('pages.settingsTeam.everPlatform.STATS_TITLE')}
+				</h3>
+				<p className="text-xs text-pretty text-muted-foreground">
+					{t('pages.settingsTeam.everPlatform.STATS_DESCRIPTION')}
+				</p>
 			</div>
 			{view.data.kind === 'operator' ? (
-				<OperatorView status={view.data.status} />
+				<div className="px-4 py-4">
+					<OperatorView status={view.data.status} />
+				</div>
 			) : (
-				<div className="flex flex-col gap-2" data-testid="ever-stats-managed">
-					<p className="text-sm font-medium text-foreground">
+				<div className="flex flex-col gap-2 px-4 py-4" data-testid="ever-stats-managed">
+					<p className="text-[13px] font-medium text-foreground">
 						{view.data.managedBy === 'ever_cloud'
 							? t('pages.settingsTeam.everPlatform.STATS_MANAGED_CLOUD')
 							: t('pages.settingsTeam.everPlatform.STATS_MANAGED_OPERATOR')}

@@ -1,6 +1,9 @@
 'use client';
 import * as React from 'react';
-import { CalendarDaysIcon as CalendarIcon, ChevronLeft, ChevronRight } from 'lucide-react';
+import { Calendar, ChevronLeft, ChevronRight } from '@/core/components/icons';
+import { Button } from '@/core/components/duplicated-components/_button';
+import { controlGroupRecipe } from '@/core/components/common/input';
+import { clsxm } from '@/core/lib/utils';
 import FullCalendar from '@fullcalendar/react';
 import moment from 'moment';
 interface IYearDateFilter {
@@ -41,20 +44,20 @@ export function YearDateFilter({ calendarRef }: IYearDateFilter) {
 	}, [updateCurrentDate]); // deepscan-disable-line
 
 	return (
-		<div className="w-[200px] flex items-center !text-gray-800 dark:!text-slate-200 justify-between text-left font-normal h-10 border border-slate-200 rounded-lg px-2">
-			<div className="flex">
-				<CalendarIcon className="mr-2 h-5 w-5" />
+		<div className={clsxm(controlGroupRecipe, 'h-9 w-[200px] justify-between pl-2.5 pr-1 text-left')}>
+			<div className="flex items-center">
+				<Calendar className="mr-2 size-4 text-muted-foreground" />
 				<span>
 					{moment(currentDate).format('MMM')} {currentDate.getFullYear()}
 				</span>
 			</div>
-			<div className="flex items-center space-x-2">
-				<button onClick={goPrev}>
-					<ChevronLeft size="1em" />
-				</button>
-				<button onClick={goNext}>
-					<ChevronRight size="1em" />
-				</button>
+			<div className="flex items-center">
+				<Button variant="ghost" size="icon-sm" onClick={goPrev}>
+					<ChevronLeft />
+				</Button>
+				<Button variant="ghost" size="icon-sm" onClick={goNext}>
+					<ChevronRight />
+				</Button>
 			</div>
 		</div>
 	);

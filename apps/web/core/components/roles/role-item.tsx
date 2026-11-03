@@ -40,7 +40,7 @@ export function RoleItem({
 			aria-label={title}
 			className={clsxm('flex items-center justify-start space-x-2 text-sm cursor-pointer mb-4', className)}
 		>
-			<span className={clsxm('text-normal dark:text-white')} title={title}>
+			<span className={clsxm('text-foreground')} title={title}>
 				{title}
 			</span>
 		</div>
