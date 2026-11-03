@@ -192,10 +192,14 @@ function InnerItemList({
 								<div className="flex h-[180px] items-center justify-center rounded-lg hairline-border border-dashed border-foreground/10 text-sm text-muted-foreground">
 									{t('common.NOT_FOUND')}!
 								</div>
-								<div onClick={openModal} className={cn(addTaskRow, 'cursor-pointer')}>
+								<button
+									type="button"
+									onClick={openModal}
+									className={cn(addTaskRow, 'w-full cursor-pointer text-start')}
+								>
 									<Plus className="size-4" />
-									<p>{t('common.CREATE_TASK')}</p>
-								</div>
+									<span>{t('common.CREATE_TASK')}</span>
+								</button>
 							</div>
 						);
 					}
