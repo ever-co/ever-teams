@@ -449,6 +449,24 @@ function PairingItem<K extends Identifiable, V extends Identifiable>(props: IPai
 		[keyId]
 	);
 
+	const handleKeyChange = useCallback(
+		(nextKeyId: unknown) => {
+			const selectedKeyId = nextKeyId as string;
+			onKeyChange?.(id, selectedKeyId);
+			setKeyId(selectedKeyId);
+		},
+		[id, onKeyChange]
+	);
+
+	const handleValueChange = useCallback(
+		(nextValueId: unknown) => {
+			const selectedValueId = nextValueId as string;
+			onValueChange?.(id, selectedValueId);
+			setValueId(selectedValueId);
+		},
+		[id, onValueChange]
+	);
+
 	return (
 		<div className="flex items-center w-full gap-3">
 			<div className="w-full">
@@ -456,10 +474,7 @@ function PairingItem<K extends Identifiable, V extends Identifiable>(props: IPai
 					placeholder={keysLabel}
 					selectTriggerClassName="w-full"
 					options={keys}
-					onChange={(keyId) => {
-						onKeyChange?.(id, keyId as string);
-						setKeyId(keyId as string);
-					}}
+					onChange={handleKeyChange}
 					selected={keyId}
 					renderItem={renderKeyItem}
 				/>
@@ -470,10 +485,7 @@ function PairingItem<K extends Identifiable, V extends Identifiable>(props: IPai
 					placeholder={valuesLabel}
 					selectTriggerClassName="w-full"
 					options={values}
-					onChange={(valueId) => {
-						onValueChange?.(id, valueId as string);
-						setValueId(valueId as string);
-					}}
+					onChange={handleValueChange}
 					selected={valueId}
 				/>
 			</div>
