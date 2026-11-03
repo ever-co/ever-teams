@@ -85,15 +85,11 @@ import { SettingsNav } from '../settings/kit/settings-nav';
 import { isSettingsPath } from '../settings/kit/settings-entries';
 import { stripLocalePrefix } from '@/core/lib/utils/navigation-path';
 import { useRememberAppPath } from '@/core/hooks/common/use-remember-app-path';
-import { useOrganizationAndTeamManagers } from '@/core/hooks/organizations/teams/use-organization-teams-managers';
 
 type AppSidebarProps = React.ComponentProps<typeof Sidebar> & { publicTeam: boolean | undefined };
 
 // Limit to 5 projects for sidebar display
 const MAX_SIDEBAR_PROJECTS = 5;
-
-// The All teams page sends back to the home page anyone who manages fewer teams
-const MIN_MANAGED_TEAMS_FOR_ALL_TEAMS = 2;
 
 function isInboxEnabled() {
 	const runtimeFlag = readRuntimeEnv('NEXT_PUBLIC_INBOX_ENABLED') || process.env.NEXT_PUBLIC_INBOX_ENABLED;
@@ -118,8 +114,6 @@ export function AppSidebar({ publicTeam, ...props }: AppSidebarProps) {
 	const activeTeam = useAtomValue(activeTeamState);
 	const pathname = usePathname();
 	const myWorkNavigation = getMyWorkNavigation(user?.id, username || undefined);
-	const { userManagedTeams } = useOrganizationAndTeamManagers();
-	const showsAllTeams = userManagedTeams.length >= MIN_MANAGED_TEAMS_FOR_ALL_TEAMS;
 
 	// The sidebar lists the projects of the team picked in the header. "All teams" is the
 	// /all-teams page (the header entry links there), not a cleared team: activeTeamState falls
@@ -312,22 +306,6 @@ export function AppSidebar({ publicTeam, ...props }: AppSidebarProps) {
 			]
 		};
 
-		const dashboardItems = [
-			{
-				title: t('sidebar.TEAM_DASHBOARD'),
-				url: `/dashboard/team-dashboard/${activeTeamId ?? userId}?name=${encodedUsername}`,
-				label: 'team dashboard'
-			},
-			{
-				title: t('sidebar.APPS_AND_URLS'),
-				url: `/dashboard/app-url/${userId}?name=${encodedUsername}`,
-				label: 'apps-urls'
-			}
-		];
-		if (showsAllTeams) {
-			dashboardItems.push({ title: t('common.ALL_TEAMS'), url: '/all-teams', label: 'all-teams' });
-		}
-
 		return [
 			{
 				title: t('sidebar.DASHBOARD'),
@@ -335,7 +313,18 @@ export function AppSidebar({ publicTeam, ...props }: AppSidebarProps) {
 				selectable: false,
 				icon: Dashboard,
 				label: 'dashboard',
-				items: dashboardItems
+				items: [
+					{
+						title: t('sidebar.TEAM_DASHBOARD'),
+						url: `/dashboard/team-dashboard/${activeTeamId ?? userId}?name=${encodedUsername}`,
+						label: 'team dashboard'
+					},
+					{
+						title: t('sidebar.APPS_AND_URLS'),
+						url: `/dashboard/app-url/${userId}?name=${encodedUsername}`,
+						label: 'apps-urls'
+					}
+				]
 			},
 			{
 				title: t('sidebar.FAVORITES'),
@@ -415,8 +404,7 @@ export function AppSidebar({ publicTeam, ...props }: AppSidebarProps) {
 		encodedUsername,
 		myWorkNavigation.timeAndActivity,
 		myWorkNavigation.workDiary,
-		isTeamManager,
-		showsAllTeams
+		isTeamManager
 	]);
 
 	const showsSettingsNav = isSettingsPath(stripLocalePrefix(pathname ?? ''));
