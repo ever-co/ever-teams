@@ -51,7 +51,7 @@ const DropdownMenuTask: FC<{ task: TTask }> = ({ task }) => {
 	const activeTeam = useAtomValue(activeTeamState);
 	const router = useRouter();
 	const { user } = useAuthenticateUser();
-	const isAssigned = task?.members?.some((m) => m?.user?.id === user?.id);
+	const isAssigned = task.members?.some((m) => m?.user?.id === user?.id);
 	const member = activeTeam?.members?.find((m) => m?.employee?.user?.id === user?.id);
 	const { assignTask, unassignTask } = useTeamMemberMutations(member);
 	const taskEdition = useTMCardTaskEdit(task);

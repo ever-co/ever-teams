@@ -24,7 +24,7 @@ export function useStatusColors() {
 	const { taskStatuses } = useTaskStatusesQuery();
 	return useMemo(() => {
 		const colors = new Map<string, string | null | undefined>();
-		for (const status of taskStatuses ?? []) {
+		for (const status of taskStatuses) {
 			colors.set(status.id, status.color);
 		}
 		return colors;

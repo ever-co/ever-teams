@@ -219,9 +219,9 @@ export function AppSidebar({ publicTeam, ...props }: AppSidebarProps) {
 		const projectItems = displayedProjects.map((project) => {
 			const isTracked = project.id === trackedProjectId;
 			return {
-				title: project?.name ?? '',
+				title: project.name ?? '',
 				label: 'project',
-				url: `/projects/${project?.id}`,
+				url: `/projects/${project.id}`,
 				icon: <SidebarProjectTile project={project} />,
 				trailing: isTracked && <SidebarTrackingMark label={trackingLabel} />,
 				actions: <SidebarProjectMenu project={project} />

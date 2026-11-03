@@ -585,13 +585,11 @@ export const TaskInfo = React.memo(
 									taskTitleClassName={clsxm(taskTitleClassName)}
 									className="h-full"
 								/>
-								{task && (
-									<TaskDrawerLink
-										taskId={task.id}
-										className="absolute inset-0 opacity-0"
-										aria-label={task.title}
-									/>
-								)}
+								<TaskDrawerLink
+									taskId={task.id}
+									className="absolute inset-0 opacity-0"
+									aria-label={task.title}
+								/>
 							</div>
 						</div>
 					</div>

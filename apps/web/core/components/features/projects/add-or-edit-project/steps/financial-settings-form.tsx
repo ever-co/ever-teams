@@ -37,6 +37,16 @@ export default function FinancialSettingsForm(props: IStepElementProps) {
 	}));
 	const t = useTranslations();
 
+	// Select is memoized: a stable renderer keeps it from re-rendering on every keystroke of the form
+	const renderCurrencyValue = useCallback(() => {
+		const hasCurrency = Boolean(currency?.length);
+		let label: string = t('pages.projects.financialSettingsForm.formFields.currencyPlaceholder');
+		if (hasCurrency) {
+			label = currency;
+		}
+		return <span className={cn('capitalize', !hasCurrency && 'text-muted-foreground/75')}>{label}</span>;
+	}, [currency, t]);
+
 	const handleSubmit = (e: FormEvent) => {
 		e.preventDefault();
 		goToNext?.({
@@ -107,13 +117,7 @@ export default function FinancialSettingsForm(props: IStepElementProps) {
 									value: `${currency.isoCode} - ${currency.currency}`
 								}))}
 								searchEnabled
-								renderValue={() => (
-									<span className={cn('capitalize', !currency?.length && 'text-muted-foreground/75')}>
-										{currency
-											? `${currency}`
-											: t('pages.projects.financialSettingsForm.formFields.currencyPlaceholder')}
-									</span>
-								)}
+								renderValue={renderCurrencyValue}
 							/>
 						</div>
 					</div>

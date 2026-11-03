@@ -257,7 +257,7 @@ export const NavMain = memo(function NavMain({ items }: Readonly<{ items: NavIte
 															)}
 															key={key}
 														>
-															{subItem?.component || (
+															{subItem.component || (
 																<SidebarMenuSubButton
 																	key={`sub-${key}`}
 																	isActive={isSubItemActive}

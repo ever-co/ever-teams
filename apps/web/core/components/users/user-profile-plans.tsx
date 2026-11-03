@@ -300,7 +300,7 @@ export function UserProfilePlans(props: Readonly<IUserProfilePlansProps>) {
 		allRange
 	]);
 
-	const hasAnyPlan = employeeDailyPlans?.items?.length > 0;
+	const hasAnyPlan = employeeDailyPlans.items?.length > 0;
 	const isSettled = !isLoading;
 	const showsPlans = isSettled && hasAnyPlan;
 	// A failed refetch keeps the plans already on screen

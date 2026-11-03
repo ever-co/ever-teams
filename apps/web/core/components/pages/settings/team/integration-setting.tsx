@@ -302,15 +302,13 @@ export const IntegrationSetting = () => {
 						</Button>
 					)}
 
-					{hasRepositories && (
-						<InputField
-							onChange={debounce(handleEditSyncTag, 1000)}
-							defaultValue={syncTag}
-							placeholder={t('common.GITHUB_AUTO_SYNC_LABEL')}
-							className="h-9"
-							wrapperClassName="mb-0 w-full max-w-xs"
-						/>
-					)}
+					<InputField
+						onChange={debounce(handleEditSyncTag, 1000)}
+						defaultValue={syncTag}
+						placeholder={t('common.GITHUB_AUTO_SYNC_LABEL')}
+						className="h-9"
+						wrapperClassName="mb-0 w-full max-w-xs"
+					/>
 				</div>
 			)}
 		</div>

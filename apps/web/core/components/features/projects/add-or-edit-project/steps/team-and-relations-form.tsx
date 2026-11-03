@@ -425,6 +425,30 @@ function PairingItem<K extends Identifiable, V extends Identifiable>(props: IPai
 	const [keyId, setKeyId] = useState<string | null>(selected[0] || null);
 	const [valueId, setValueId] = useState<string | null>(selected[1] || null);
 
+	// Select is memoized: a stable renderer keeps it from re-rendering with every row of the form
+	const renderKeyItem = useCallback(
+		(item: K & { imgUrl?: string }, isSelected: boolean) => (
+			<div
+				className={cn(
+					'flex w-full h-full items-center gap-2 rounded-md p-1 px-2',
+					isSelected && 'bg-primary/10 font-medium text-primary-ink'
+				)}
+			>
+				{isSelected && <Check className="size-3" />}
+				<span className={cn('  flex items-center gap-2', keyId && !isSelected && 'pl-[18px]')}>
+					<Thumbnail
+						className="z-20 rounded-full bg-card text-foreground"
+						imgUrl={item?.imgUrl}
+						size={'20px'}
+						identifier={String(item?.value)}
+					/>
+					<span className="capitalize">{item?.value ?? '-'}</span>
+				</span>
+			</div>
+		),
+		[keyId]
+	);
+
 	return (
 		<div className="flex items-center w-full gap-3">
 			<div className="w-full">
@@ -437,27 +461,7 @@ function PairingItem<K extends Identifiable, V extends Identifiable>(props: IPai
 						setKeyId(keyId as string);
 					}}
 					selected={keyId}
-					renderItem={(item, isSelected) => {
-						return (
-							<div
-								className={cn(
-									'flex w-full h-full items-center gap-2 rounded-md p-1 px-2',
-									isSelected && 'bg-primary/10 font-medium text-primary-ink'
-								)}
-							>
-								{isSelected && <Check className="size-3" />}
-								<span className={cn('  flex items-center gap-2', keyId && !isSelected && 'pl-[18px]')}>
-									<Thumbnail
-										className="z-20 rounded-full bg-card text-foreground"
-										imgUrl={item?.imgUrl}
-										size={'20px'}
-										identifier={String(item?.value)}
-									/>
-									<span className="capitalize">{item?.value ?? '-'}</span>
-								</span>
-							</div>
-						);
-					}}
+					renderItem={renderKeyItem}
 				/>
 			</div>
 

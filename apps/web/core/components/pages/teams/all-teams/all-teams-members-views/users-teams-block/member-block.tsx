@@ -45,7 +45,7 @@ export default function UserTeamBlockCard({ member }: { member: any }) {
 
 			{member.teams.map((team: any, index: number) => (
 				<div key={team.team?.id ?? index} className="hairline-t border-dashed border-border">
-					<div className="px-4 pt-3 text-xs font-medium text-muted-foreground">{team.team.name}</div>
+					<div className="px-4 pt-3 text-xs font-medium text-muted-foreground">{team.team?.name}</div>
 					<UserTeamActiveBlockTaskInfo activeTaskId={team.activeTaskId || ''} />
 
 					<div className="grid grid-cols-2 hairline-divide-x divide-dashed divide-border hairline-t border-dashed border-border">

@@ -57,7 +57,7 @@ export function OutstandingAll({
 	const filteredPlans = useMemo(() => {
 		let filteredData = keepPickedPlans(outstandingPlans, pickedPlanIds);
 
-		if (filteredTaskIds && filteredData) {
+		if (filteredTaskIds) {
 			filteredData = filterDailyPlansByTasks(filteredData, filteredTaskIds);
 		}
 
