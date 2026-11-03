@@ -1,4 +1,4 @@
-import { ChevronUp } from '@/core/components/icons';
+import { ChevronDown } from '@/core/components/icons';
 import { cn } from '@/core/lib/helpers';
 import { Divider } from './divider';
 import { Text } from './typography';
@@ -25,7 +25,7 @@ export const Accordian = ({ children, title, className, isDanger, id, defaultOpe
 			>
 				<Accordion type="single" collapsible defaultValue={defaultValue}>
 					<AccordionItem value={accordionValue} className="border-none">
-						<AccordionTrigger className="flex h-auto w-full items-center justify-between px-5 py-3.5 text-left hover:bg-foreground/[0.025] hover:no-underline [&>svg]:hidden">
+						<AccordionTrigger className="flex h-auto w-full items-center justify-between px-5 py-3.5 text-left hover:bg-foreground/[0.025] hover:no-underline [&>svg:last-child]:hidden">
 							<>
 								<Text
 									className={cn(
@@ -35,7 +35,7 @@ export const Accordian = ({ children, title, className, isDanger, id, defaultOpe
 								>
 									{title}
 								</Text>
-								<ChevronUp className="size-4 text-muted-foreground transition-transform duration-200 data-[state=closed]:rotate-180" />
+								<ChevronDown className="size-4 text-muted-foreground transition-transform duration-200" />
 							</>
 						</AccordionTrigger>
 						<AccordionContent className="px-5 pb-5 pt-0 text-sm text-muted-foreground">

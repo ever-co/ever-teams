@@ -181,19 +181,23 @@ const PresetDates = ({
 
 	return (
 		<div className="flex w-full flex-col gap-0.5 p-1">
-			{presets.map((preset) => (
-				<Button
-					key={preset.label}
-					onClick={() => setDate(preset.range)}
-					variant="ghost"
-					className={cn(
-						'justify-start truncate px-2 text-left text-sm font-normal',
-						isSameRange(selected, preset.range) && 'bg-foreground/5 font-medium text-foreground'
-					)}
-				>
-					{preset.label}
-				</Button>
-			))}
+			{presets.map((preset) => {
+				const isActive = isSameRange(selected, preset.range);
+				return (
+					<Button
+						key={preset.label}
+						onClick={() => setDate(preset.range)}
+						variant="ghost"
+						aria-pressed={isActive}
+						className={cn(
+							'justify-start truncate px-2 text-left text-sm font-normal',
+							isActive && 'bg-foreground/5 font-medium text-foreground'
+						)}
+					>
+						{preset.label}
+					</Button>
+				);
+			})}
 		</div>
 	);
 };

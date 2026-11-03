@@ -469,7 +469,8 @@
 		"COPY_LINK": "Копировать ссылку",
 		"COPIED": "Скопировано",
 		"ACTIVITY_FOR_TODAY": "Активность за сегодня",
-		"MINUTES": "Минуты"
+		"MINUTES": "Минуты",
+		"SELECTED": "Выбрано"
 	},
 	"dashboard": {
 		"APPS_URLS_DASHBOARD": "Панель приложений и URL",

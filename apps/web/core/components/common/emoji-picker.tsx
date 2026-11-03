@@ -141,6 +141,7 @@ export const EmojiPicker = ({
 															setValue(null);
 															onChange('');
 														}}
+														type="button"
 														className={iconButtonClassName}
 													>
 														<Trash className="size-4 text-muted-foreground" />

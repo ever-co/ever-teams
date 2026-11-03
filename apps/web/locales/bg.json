@@ -469,7 +469,8 @@
 		"COPY_LINK": "Копирай връзката",
 		"COPIED": "Копирано",
 		"ACTIVITY_FOR_TODAY": "Активност за днес",
-		"MINUTES": "Минути"
+		"MINUTES": "Минути",
+		"SELECTED": "Избрано"
 	},
 	"dashboard": {
 		"APPS_URLS_DASHBOARD": "Табло за приложения и URL адреси",

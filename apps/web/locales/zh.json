@@ -469,7 +469,8 @@
 		"COPY_LINK": "复制链接",
 		"COPIED": "已复制",
 		"ACTIVITY_FOR_TODAY": "今日活动",
-		"MINUTES": "分钟"
+		"MINUTES": "分钟",
+		"SELECTED": "已选择"
 	},
 	"dashboard": {
 		"APPS_URLS_DASHBOARD": "应用和URL仪表板",

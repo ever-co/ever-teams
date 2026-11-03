@@ -56,6 +56,17 @@ export function DictationButton({
 	);
 	const { canDictate, phase, elapsedSeconds, start, stop, cancel } = useDictation({ onText, onError: showError });
 
+	const focusWhenFocusWasDropped = useCallback((button: HTMLButtonElement | null) => {
+		if (!button) {
+			return;
+		}
+		const activeElement = document.activeElement;
+		const focusWasDropped = activeElement === null || activeElement === document.body;
+		if (focusWasDropped) {
+			button.focus();
+		}
+	}, []);
+
 	const cancelOnEscape = (event: KeyboardEvent<HTMLButtonElement>) => {
 		if (event.key !== 'Escape') {
 			return;
@@ -73,6 +84,7 @@ export function DictationButton({
 		const stopLabel = t('dictation.STOP_AND_TRANSCRIBE');
 		return (
 			<button
+				ref={focusWhenFocusWasDropped}
 				type="button"
 				onClick={stop}
 				onKeyDown={cancelOnEscape}

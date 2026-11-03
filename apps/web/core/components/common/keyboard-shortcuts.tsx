@@ -27,7 +27,13 @@ export function KeyboardShortcuts() {
 	return (
 		<>
 			<Tooltip label={t('common.KEYBOARD_SHORTCUTS')} placement="auto">
-				<Button variant="ghost" size="icon" className="m-0 min-w-0 text-muted-foreground" onClick={toggle}>
+				<Button
+					variant="ghost"
+					size="icon"
+					className="m-0 min-w-0 text-muted-foreground"
+					onClick={toggle}
+					aria-label={t('common.KEYBOARD_SHORTCUTS')}
+				>
 					<Keyboard className="size-4" />
 				</Button>
 			</Tooltip>

@@ -1,5 +1,6 @@
+import { useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import { SegmentedControl } from './segmented-control';
-import LinkWrapper from './link-wrapper';
 import { GridView, Kanban, ListView, Table } from '@/core/components/icons';
 import { IssuesView, LAST_SELECTED_TEAM_MEMBERS_VIEW_MODE } from '@/core/constants/config/constants';
 import { useAtom } from 'jotai';
@@ -15,12 +16,16 @@ const VIEW_OPTIONS = [
 ] as const;
 
 const KANBAN_ROUTE = '/kanban';
+const TEAM_ROUTE = '/';
 
-function linksFor(linkAll: boolean) {
-	if (linkAll) {
-		return ['/', '/', '/', KANBAN_ROUTE];
+function routeOf(view: IssuesView, linkAll: boolean) {
+	if (view === IssuesView.KANBAN) {
+		return KANBAN_ROUTE;
 	}
-	return [undefined, undefined, undefined, KANBAN_ROUTE];
+	if (linkAll) {
+		return TEAM_ROUTE;
+	}
+	return undefined;
 }
 
 function activeViewOf(isKanbanPage: boolean, view: IssuesView) {
@@ -37,7 +42,7 @@ function setLastTeamMembersViewMode(viewMode: IssuesView) {
 /** The view switch of the team pages: the segmented control, its thumb sliding to the picked view. */
 const HeaderTabs = ({ linkAll, kanban = false }: { linkAll: boolean; kanban?: boolean }) => {
 	const t = useTranslations();
-	const links = linksFor(linkAll);
+	const router = useRouter();
 	const [view, setView] = useAtom(headerTabs);
 	const activeView = activeViewOf(kanban, view);
 
@@ -47,13 +52,23 @@ const HeaderTabs = ({ linkAll, kanban = false }: { linkAll: boolean; kanban?: bo
 		ariaLabel: t(`common.${label}` as DottedLanguageObjectStringPaths)
 	}));
 
+	useEffect(() => {
+		router.prefetch(KANBAN_ROUTE);
+		if (linkAll) {
+			router.prefetch(TEAM_ROUTE);
+		}
+	}, [router, linkAll]);
+
 	const handleViewChange = (nextView: IssuesView) => {
 		const isKanban = nextView === IssuesView.KANBAN;
-		if (isKanban) {
-			return;
+		if (!isKanban) {
+			setView(nextView);
+			setLastTeamMembersViewMode(nextView);
 		}
-		setView(nextView);
-		setLastTeamMembersViewMode(nextView);
+		const route = routeOf(nextView, linkAll);
+		if (route) {
+			router.push(route);
+		}
 	};
 
 	return (
@@ -62,17 +77,11 @@ const HeaderTabs = ({ linkAll, kanban = false }: { linkAll: boolean; kanban?: bo
 			value={activeView}
 			onValueChange={handleViewChange}
 			ariaLabel={t('common.VIEW')}
-			renderItem={(item, button) => {
-				const index = VIEW_OPTIONS.findIndex((option) => option.view === item.value);
-				const href = links[index];
-				return (
-					<Tooltip label={item.ariaLabel ?? ''} placement="top-start" className="z-20">
-						<LinkWrapper isRoute={Boolean(href)} href={href}>
-							{button}
-						</LinkWrapper>
-					</Tooltip>
-				);
-			}}
+			renderItem={(item, button) => (
+				<Tooltip label={item.ariaLabel ?? ''} placement="top-start" className="z-20">
+					{button}
+				</Tooltip>
+			)}
 		/>
 	);
 };

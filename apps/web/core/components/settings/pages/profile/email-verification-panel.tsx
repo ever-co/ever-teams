@@ -3,9 +3,11 @@
 import { FormEvent, useRef, useState } from 'react';
 import { type DottedLanguageObjectStringPaths, useTranslations } from 'next-intl';
 import { AuthCodeInputField, type AuthCodeRef } from '@/core/components/auth/auth-code-input';
+import { AUTH_CODE_SLOT_CLASS } from '@/core/components/auth/auth-code-recipe';
 import { Button } from '@/core/components/duplicated-components/_button';
 import { Spinner } from '@/core/components/icons';
 import { AUTH_CODE_LENGTH } from '@/core/constants/config/constants';
+import { cn } from '@/core/lib/helpers';
 import { errorReasonKeyOf } from '@/core/lib/utils/error-feedback';
 
 type EmailVerificationPanelProps = {
@@ -90,7 +92,7 @@ export function EmailVerificationPanel({
 						length={AUTH_CODE_LENGTH}
 						ariaLabel={t('settings.profile.EMAIL_CODE')}
 						containerClassName="flex w-full justify-between gap-1.5"
-						inputClassName="h-10 min-w-0 max-w-10 flex-1 bg-card px-0 text-center text-base font-medium tabular-nums"
+						inputClassName={cn(AUTH_CODE_SLOT_CLASS, 'bg-card')}
 						onChange={(value) => {
 							setCode(value);
 							setError(null);

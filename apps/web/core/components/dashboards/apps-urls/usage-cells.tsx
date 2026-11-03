@@ -83,7 +83,7 @@ export function ProjectMark({ project }: Readonly<{ project: UsageProject }>) {
 	}
 	if (isUsableImageUrl(project.imageUrl)) {
 		return (
-			<Avatar className="size-4 shrink-0 rounded-[5px] hairline-ring ring-foreground/10">
+			<Avatar className="size-4 shrink-0 rounded-[5px] bg-transparent hairline-ring ring-foreground/10">
 				<AvatarImage src={project.imageUrl} alt="" loading="lazy" className="object-cover" />
 				<AvatarFallback className="rounded-[5px] bg-transparent">
 					<ProjectDot color={project.color} />

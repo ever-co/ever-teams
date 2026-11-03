@@ -429,7 +429,8 @@
 		"COPY_LINK": "نسخ الرابط",
 		"COPIED": "تم النسخ",
 		"ACTIVITY_FOR_TODAY": "نشاط اليوم",
-		"MINUTES": "الدقائق"
+		"MINUTES": "الدقائق",
+		"SELECTED": "محدد"
 	},
 	"dashboard": {
 		"APPS_URLS_DASHBOARD": "لوحة تحكم التطبيقات والروابط",

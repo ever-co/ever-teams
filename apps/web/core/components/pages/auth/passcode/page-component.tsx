@@ -34,6 +34,7 @@ import {
 } from '@/core/constants/config/constants';
 import { cn } from '@/core/lib/helpers';
 import { AuthCodeInputField } from '@/core/components/auth/auth-code-input';
+import { AUTH_CODE_SLOT_CLASS } from '@/core/components/auth/auth-code-recipe';
 import { InputField } from '@/core/components/duplicated-components/_input';
 import { Avatar } from '@/core/components/duplicated-components/avatar';
 import { ISigninEmailConfirmWorkspaces } from '@/core/types/interfaces/auth/auth';
@@ -223,7 +224,7 @@ function PasscodeScreen({ form, className }: { form: TAuthenticationPasscode } &
 						length={AUTH_CODE_LENGTH}
 						ref={form.inputCodeRef}
 						containerClassName="flex w-full justify-between gap-1.5"
-						inputClassName="h-10 w-full min-w-0 max-w-10 flex-1 px-0 text-center text-base font-medium tabular-nums"
+						inputClassName={AUTH_CODE_SLOT_CLASS}
 						defaultValue={form.formValues.code}
 						autoComplete={code ? code : ''}
 						submitCode={autoSubmitForm}

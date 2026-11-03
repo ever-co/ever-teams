@@ -90,8 +90,11 @@ export function LinkTabs({ label, items, activeKey, onSelect, className }: LinkT
 								href={item.href}
 								scroll={false}
 								onClick={(event) => {
+									if (!isPlainClick(event)) {
+										return;
+									}
 									setCurrent(item.key);
-									if (onSelect && isPlainClick(event)) {
+									if (onSelect) {
 										event.preventDefault();
 										onSelect(item.key);
 									}
@@ -99,9 +102,9 @@ export function LinkTabs({ label, items, activeKey, onSelect, className }: LinkT
 								aria-current={ariaCurrentFor(isActive)}
 								data-testid={item.testId}
 								className={cn(
-									'focus-visible:ring-ring/25 relative flex items-center gap-1.5 pt-2 pb-3 text-sm whitespace-nowrap transition-[color] duration-300 outline-none focus-visible:rounded-sm focus-visible:ring-[3px]',
+									'focus-visible:ring-ring/25 relative flex items-center gap-1.5 pt-2 pb-3 text-sm font-medium whitespace-nowrap transition-[color] duration-300 outline-none focus-visible:rounded-sm focus-visible:ring-[3px]',
 									isActive && 'text-primary-ink',
-									!isActive && 'text-foreground/55 hover:text-foreground/80 font-medium'
+									!isActive && 'text-foreground/55 hover:text-foreground/80'
 								)}
 							>
 								{labelFor(item, isActive)}

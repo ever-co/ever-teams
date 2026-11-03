@@ -4,17 +4,19 @@ import { cn } from '@/core/lib/helpers';
 import { Button } from '@/core/components/duplicated-components/_button';
 import { OrbTone, orbToneColor, ToastOrb } from './toast-orb';
 
-interface NoticeProps {
+interface NoticeBaseProps {
 	tone: OrbTone;
 	glyph?: ReactNode;
 	title: ReactNode;
 	description?: ReactNode;
 	/** The main action (a pill) and, beside it, a quiet recovery link. */
 	actions?: ReactNode;
-	onDismiss?: () => void;
-	dismissLabel?: string;
 	className?: string;
 }
+
+type NoticeDismissProps = { onDismiss: () => void; dismissLabel: string } | { onDismiss?: never; dismissLabel?: never };
+
+type NoticeProps = NoticeBaseProps & NoticeDismissProps;
 
 /**
  * A message that belongs to the page it sits in: a white card on a hairline, washed with its tone from the corner as

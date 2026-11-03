@@ -4,7 +4,7 @@ interface CollaborateSkeletonProps {
 	className?: string;
 }
 
-/** The Collaborate pill while its chunk loads: same height, width and shape as the button. */
+/** The Collaborate pill while its chunk loads: same height and shape as the button, the width of its English label. */
 export function CollaborateSkeleton({ className }: CollaborateSkeletonProps) {
 	return (
 		<div

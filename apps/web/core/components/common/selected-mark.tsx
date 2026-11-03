@@ -1,3 +1,4 @@
+import { useTranslations } from 'next-intl';
 import { Check } from '@/core/components/icons';
 import { cn } from '@/core/lib/helpers';
 
@@ -6,15 +7,16 @@ import { cn } from '@/core/lib/helpers';
  * app's labels (`chip-3d`), so a selection reads as a value and not as a stray glyph.
  */
 export function SelectedMark({ className }: Readonly<{ className?: string }>) {
+	const t = useTranslations();
 	return (
 		<span
-			aria-hidden="true"
 			className={cn(
 				'chip-3d inline-flex size-[18px] shrink-0 items-center justify-center rounded-full [--chip:hsl(var(--primary))] [&_svg]:size-3 [&_svg]:stroke-[2.5]',
 				className
 			)}
 		>
-			<Check />
+			<Check aria-hidden="true" />
+			<span className="sr-only">{t('common.SELECTED')}</span>
 		</span>
 	);
 }

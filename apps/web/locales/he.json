@@ -469,7 +469,8 @@
 		"COPY_LINK": "העתק קישור",
 		"COPIED": "הועתק",
 		"ACTIVITY_FOR_TODAY": "פעילות להיום",
-		"MINUTES": "דקות"
+		"MINUTES": "דקות",
+		"SELECTED": "נבחר"
 	},
 	"dashboard": {
 		"APPS_URLS_DASHBOARD": "לוח מחוונים אפליקציות וכתובות URL",

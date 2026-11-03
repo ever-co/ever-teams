@@ -47,11 +47,11 @@ export function StagedFileChips({ files, onRemove }: Readonly<{ files: File[]; o
 	const locale = useLocale();
 	return (
 		<ul className="flex flex-wrap gap-1.5">
-			{files.map((file) => {
+			{files.map((file, index) => {
 				const kind = fileKindOf(file.type, file.name);
 				const removeLabel = t('entityFiles.REMOVE', { name: file.name });
 				return (
-					<li key={`${file.name}-${file.size}-${file.lastModified}`} className={cn(CHIP, 'pr-0.5')}>
+					<li key={`${file.name}-${file.size}-${file.lastModified}-${index}`} className={cn(CHIP, 'pr-0.5')}>
 						<FileGlyph kind={kind} size="sm" />
 						<span className="truncate font-medium">{file.name}</span>
 						<span className="shrink-0 tabular-nums text-muted-foreground">

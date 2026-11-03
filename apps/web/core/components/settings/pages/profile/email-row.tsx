@@ -3,6 +3,7 @@
 import { FormEvent, KeyboardEvent, useId, useRef, useState } from 'react';
 import { type DottedLanguageObjectStringPaths, useTranslations } from 'next-intl';
 import { AuthCodeInputField, type AuthCodeRef } from '@/core/components/auth/auth-code-input';
+import { AUTH_CODE_SLOT_CLASS } from '@/core/components/auth/auth-code-recipe';
 import { Input } from '@/core/components/common/input';
 import { Button } from '@/core/components/duplicated-components/_button';
 import { Spinner } from '@/core/components/icons';
@@ -21,8 +22,6 @@ import { EmailVerificationPanel } from './email-verification-panel';
 type EmailStep = 'read' | 'address' | 'code';
 
 const CODE_CONTAINER_CLASS = 'flex w-full justify-between gap-1.5';
-
-const CODE_SLOT_CLASS = 'h-10 min-w-0 max-w-10 flex-1 px-0 text-center text-base font-medium tabular-nums';
 
 const CHIP_BASE = 'inline-flex shrink-0 items-center rounded-md px-1.5 py-0.5 text-[11px] font-medium';
 
@@ -241,7 +240,7 @@ export function EmailRow() {
 						length={AUTH_CODE_LENGTH}
 						ariaLabel={t('settings.profile.EMAIL_CODE')}
 						containerClassName={CODE_CONTAINER_CLASS}
-						inputClassName={CODE_SLOT_CLASS}
+						inputClassName={AUTH_CODE_SLOT_CLASS}
 						onChange={(value) => {
 							setCode(value);
 							setError(null);

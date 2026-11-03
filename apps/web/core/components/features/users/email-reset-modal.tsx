@@ -5,6 +5,7 @@ import { useForm } from 'react-hook-form';
 import { type DottedLanguageObjectStringPaths, useTranslations } from 'next-intl';
 import { errorReasonKeyOf } from '@/core/lib/utils/error-feedback';
 import { AuthCodeInputField } from '../../auth/auth-code-input';
+import { AUTH_CODE_SLOT_CLASS } from '../../auth/auth-code-recipe';
 import { AUTH_CODE_LENGTH } from '@/core/constants/config/constants';
 import { InputField } from '../../duplicated-components/_input';
 
@@ -148,7 +149,7 @@ export function EmailResetModal({ open, closeModal, email }: { open: boolean; cl
 									allowedCharacters="alphanumeric"
 									length={AUTH_CODE_LENGTH}
 									containerClassName="flex w-full justify-between gap-1.5"
-									inputClassName="h-10 min-w-0 max-w-10 flex-1 px-0 text-center text-base font-medium tabular-nums"
+									inputClassName={AUTH_CODE_SLOT_CLASS}
 									onChange={(code) => {
 										setCode(code);
 									}}

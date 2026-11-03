@@ -469,7 +469,8 @@
 		"COPY_LINK": "Copia link",
 		"COPIED": "Copiato",
 		"ACTIVITY_FOR_TODAY": "Attività di oggi",
-		"MINUTES": "Minuti"
+		"MINUTES": "Minuti",
+		"SELECTED": "Selezionato"
 	},
 	"dashboard": {
 		"APPS_URLS_DASHBOARD": "Dashboard App e URL",

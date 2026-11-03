@@ -81,7 +81,7 @@ export function DateRangePicker({ className, onDateRangeChange, initialRange }: 
 						variant="ghost"
 						size="default"
 						className={cn(
-							'w-[196px] justify-between gap-2 rounded-r-none px-3 font-normal',
+							'w-[calc(100%-2rem)] justify-between gap-2 rounded-r-none px-3 font-normal',
 							!dateRange && 'text-muted-foreground',
 							className
 						)}
@@ -262,21 +262,25 @@ const PredefinedRanges = ({ handleDateRangeChange, t, dateRange }: PredefinedRan
 
 	return (
 		<div className="flex flex-col gap-0.5 p-1">
-			{predefinedRanges.map((range) => (
-				<Button
-					key={range.label}
-					variant="ghost"
-					className={cn(
-						'w-full justify-start px-2 text-sm font-normal',
-						range.isSelected(dateRange) && 'bg-foreground/5 font-medium text-foreground'
-					)}
-					onClick={() => {
-						range.action();
-					}}
-				>
-					{range.label}
-				</Button>
-			))}
+			{predefinedRanges.map((range) => {
+				const isActive = range.isSelected(dateRange);
+				return (
+					<Button
+						key={range.label}
+						variant="ghost"
+						aria-pressed={isActive}
+						className={cn(
+							'w-full justify-start px-2 text-sm font-normal',
+							isActive && 'bg-foreground/5 font-medium text-foreground'
+						)}
+						onClick={() => {
+							range.action();
+						}}
+					>
+						{range.label}
+					</Button>
+				);
+			})}
 		</div>
 	);
 };
