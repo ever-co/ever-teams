@@ -6,6 +6,7 @@ import { render, screen } from '@testing-library/react';
 import { TimerButton } from './timer-button';
 
 jest.mock('assets/svg', () => ({ TimerPlayIcon: () => null, TimerStopIcon: () => null }), { virtual: true });
+jest.mock('next-intl', () => ({ useTranslations: () => (key: string) => key }));
 jest.mock('@/core/lib/utils', () => ({ clsxm: (...values: string[]) => values.filter(Boolean).join(' ') }));
 jest.mock('@/core/components', () => ({
 	Button: ({ children, ...props }: React.ComponentProps<'button'>) => <button {...props}>{children}</button>
