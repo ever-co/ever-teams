@@ -3,6 +3,7 @@ import { DEFAULT_WORK_HOURS_PER_DAY } from '@/core/constants/config/constants';
 import moment from 'moment';
 import { JSX } from 'react';
 import { TTimeLimitReportByEmployee, TTimeLimitReportList } from '@/core/types/schemas';
+import { Card } from '@/core/components/common/card';
 
 export interface ITimeReportTableProps {
 	report: TTimeLimitReportList;
@@ -31,8 +32,8 @@ export const TimeReportTable = ({
 	indexTitle,
 	header
 }: ITimeReportTableProps) => (
-	<div className="w-full p-1" key={report.date}>
-		<div className="flex items-center h-12 px-4 border rounded-md bg-slate-100 dark:bg-muted dark:text-white">
+	<Card className="w-full overflow-hidden" key={report.date}>
+		<div className="flex items-center h-10 px-4 hairline-b border-border bg-foreground/2.5 text-foreground">
 			{header}
 		</div>
 		<div>
@@ -53,7 +54,7 @@ export const TimeReportTable = ({
 				indexTitle={indexTitle}
 			/>
 		</div>
-	</div>
+	</Card>
 );
 
 interface ITimeReportTableByMemberProps {
@@ -83,8 +84,8 @@ export const TimeReportTableByMember = ({
 	indexTitle,
 	header
 }: ITimeReportTableByMemberProps) => (
-	<div className="w-full p-1" key={report.employee.id}>
-		<div className="flex items-center h-12 px-4 border rounded-md bg-slate-100 dark:bg-muted dark:text-white">
+	<Card className="w-full overflow-hidden" key={report.employee.id}>
+		<div className="flex items-center h-10 px-4 hairline-b border-border bg-foreground/2.5 text-foreground">
 			{header}
 		</div>
 		<div>
@@ -108,7 +109,7 @@ export const TimeReportTableByMember = ({
 				indexTitle={indexTitle}
 			/>
 		</div>
-	</div>
+	</Card>
 );
 
 /**

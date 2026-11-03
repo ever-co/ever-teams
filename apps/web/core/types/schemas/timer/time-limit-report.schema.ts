@@ -24,7 +24,7 @@ export const timeLimitReportListSchema = z
 			z.object({
 				employee: z.lazy(() => employeeSchema),
 				duration: z.coerce.number().min(0),
-				durationPercentage: z.coerce.number().min(0).max(100),
+				durationPercentage: z.coerce.number().min(0),
 				limit: z.coerce.number().min(0)
 			})
 		)

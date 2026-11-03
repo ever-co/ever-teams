@@ -20,6 +20,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { useTranslations } from 'next-intl';
 import { formatIntegerToHour, formatTimeString } from '@/core/lib/helpers/index';
 import { ProgressBar } from '@/core/components/duplicated-components/_progress-bar';
+import { cn } from '@/core/lib/helpers';
 
 export type WeeklyLimitTableDataType = {
 	indexValue: string;
@@ -81,18 +82,18 @@ export function DataTableWeeklyLimits(props: {
 		},
 		{
 			accessorKey: 'timeSpent',
-			header: () => <div className="">{t('pages.timeLimitReport.TIME_SPENT')}</div>,
+			header: () => <div className="text-right">{t('pages.timeLimitReport.TIME_SPENT')}</div>,
 			cell: ({ row }) => (
-				<div className="lowercase">
+				<div className="lowercase text-right tabular-nums">
 					{formatTimeString(formatIntegerToHour(Number(row.getValue('timeSpent')) / 3600))}
 				</div>
 			)
 		},
 		{
 			accessorKey: 'limit',
-			header: () => <div className="">{t('pages.timeLimitReport.LIMIT')}</div>,
+			header: () => <div className="text-right">{t('pages.timeLimitReport.LIMIT')}</div>,
 			cell: ({ row }) => (
-				<div className="lowercase">
+				<div className="lowercase text-right tabular-nums text-muted-foreground">
 					{formatTimeString(formatIntegerToHour(Number(row.getValue('limit')) / 3600))}
 				</div>
 			)
@@ -101,20 +102,25 @@ export function DataTableWeeklyLimits(props: {
 			accessorKey: 'percentageUsed',
 			header: () => <div className="">{t('pages.timeLimitReport.PERCENTAGE_USED')}</div>,
 			cell: ({ row }) => (
-				<div className="lowercase flex gap-2 items-center">
+				<div className="lowercase flex gap-2 items-center tabular-nums">
 					<ProgressBar
 						width={'10rem'}
 						progress={`${Number(row.getValue('percentageUsed')) < 100 ? Number(row.getValue('percentageUsed')).toFixed(2) : 100}%`}
 					/>{' '}
-					<span>{`${Number(row.getValue('percentageUsed')).toFixed(2)}%`}</span>
+					<span className="w-16 text-right">{`${Number(row.getValue('percentageUsed')).toFixed(2)}%`}</span>
 				</div>
 			)
 		},
 		{
 			accessorKey: 'remaining',
-			header: () => <div className="">{t('pages.timeLimitReport.REMAINING')}</div>,
+			header: () => <div className="text-right">{t('pages.timeLimitReport.REMAINING')}</div>,
 			cell: ({ row }) => (
-				<div className="lowercase">
+				<div
+					className={cn(
+						'lowercase text-right tabular-nums',
+						Number(row.getValue('percentageUsed')) > 100 && 'text-destructive-ink'
+					)}
+				>
 					{Number(row.getValue('percentageUsed')) > 100 && '-'}
 					{formatTimeString(formatIntegerToHour(Number(row.getValue('remaining')) / 3600))}
 				</div>
@@ -152,7 +158,7 @@ export function DataTableWeeklyLimits(props: {
 									<TableRow key={headerGroup.id}>
 										{headerGroup.headers.map((header) => {
 											return (
-												<TableHead className=" capitalize" key={header.id}>
+												<TableHead className="capitalize" key={header.id}>
 													{header.isPlaceholder
 														? null
 														: (flexRender(
@@ -185,7 +191,10 @@ export function DataTableWeeklyLimits(props: {
 								))
 							) : (
 								<TableRow>
-									<TableCell colSpan={columns.length} className="h-24 text-center">
+									<TableCell
+										colSpan={columns.length}
+										className="h-24 text-center text-muted-foreground"
+									>
 										{t('common.NO_RESULT')}
 									</TableCell>
 								</TableRow>
@@ -195,7 +204,7 @@ export function DataTableWeeklyLimits(props: {
 				</div>
 			) : (
 				<div className="w-full h-12 flex items-center justify-center">
-					<span>{t('common.NO_RESULT')}</span>
+					<span className="text-sm text-muted-foreground">{t('common.NO_RESULT')}</span>
 				</div>
 			)}
 		</div>
