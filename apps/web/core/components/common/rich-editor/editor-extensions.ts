@@ -37,7 +37,7 @@ function ownMarkedInstance() {
 export function buildExtensions(options: EditorExtensionOptions): Extensions {
 	const extensions: Extensions = [
 		StarterKit.configure({
-			heading: { levels: [1, 2, 3] },
+			heading: { levels: [1, 2, 3, 4, 5, 6] },
 			dropcursor: { color: 'hsl(var(--primary))', width: 2 },
 			link: {
 				openOnClick: false,

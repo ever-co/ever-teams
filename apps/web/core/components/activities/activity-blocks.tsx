@@ -10,17 +10,14 @@ export interface ActivityReadFailure {
 	onRetry: () => void;
 }
 
-/** The part of a read hook's result the blocks look at; a hook that does not report failures yet has `loading` only. */
+/** The part of a read hook's result the blocks look at. */
 interface ActivityReadState {
 	loading: boolean;
 	isError?: boolean;
 	refetch?: () => unknown;
 }
 
-/**
- * A failure the block can show with a retry. The screenshots and the apps hooks do not return `isError` and
- * `refetch` yet: until they do, this stays undefined and the blocks keep their empty state on a failed read.
- */
+/** A failure the block can show with a retry when its read hook exposes `isError` and `refetch`. */
 export function failureOfActivityRead(state: ActivityReadState): ActivityReadFailure | undefined {
 	const refetch = state.refetch;
 	if (!state.isError) {

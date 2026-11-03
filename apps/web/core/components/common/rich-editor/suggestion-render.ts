@@ -60,7 +60,9 @@ export function suggestionRender<I extends SuggestionEntry>(options: {
 			},
 			onKeyDown(props) {
 				if (props.event.key === 'Escape') {
-					return false;
+					// A dialog hosting the editor dismisses itself on Escape at the document: the key only closes the list.
+					props.event.stopPropagation();
+					return true;
 				}
 				return component?.ref?.onKeyDown(props.event) ?? false;
 			},

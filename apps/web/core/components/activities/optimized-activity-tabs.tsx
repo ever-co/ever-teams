@@ -38,25 +38,12 @@ export const OptimizedAppsTab = memo(() => {
 	const t = useTranslations();
 	const appsGrouped = groupAppsByHour(visitedApps ?? []);
 
-	const headers = useMemo(
-		() => [
-			{
-				title: t('timer.APPS'),
-				width: '20%'
-			},
-			{
-				title: t('timer.VISITED_DATES'),
-				width: '25%'
-			},
-			{
-				title: t('timer.PERCENT_USED'),
-				width: '40%'
-			},
-			{
-				title: t('timer.TIME_SPENT_IN_HOURS'),
-				width: '15%'
-			}
-		],
+	const labels = useMemo(
+		() => ({
+			name: t('timer.APPS'),
+			share: t('dashboard.appsUrls.COLUMN_SHARE'),
+			time: t('dashboard.appsUrls.COLUMN_TIME')
+		}),
 		[t]
 	);
 
@@ -71,7 +58,7 @@ export const OptimizedAppsTab = memo(() => {
 	return (
 		<div>
 			<div className="flex justify-end w-full">{/* TODO: Filters components */}</div>
-			<ActivityListFrame headers={headers}>
+			<ActivityListFrame labels={labels}>
 				<section className="hairline-divide-y divide-border">
 					{appsGrouped?.map((app, i) => (
 						<div key={i} className="hairline-divide-y divide-border px-4">
@@ -111,25 +98,12 @@ export const OptimizedVisitedSitesTab = memo(() => {
 	const t = useTranslations();
 	const sitesGrouped = groupAppsByHour(sites ?? []);
 
-	const headers = useMemo(
-		() => [
-			{
-				title: t('timer.VISITED_SITES'),
-				width: '20%'
-			},
-			{
-				title: t('timer.VISITED_DATES'),
-				width: '25%'
-			},
-			{
-				title: t('timer.PERCENT_USED'),
-				width: '40%'
-			},
-			{
-				title: t('timer.TIME_SPENT_IN_HOURS'),
-				width: '15%'
-			}
-		],
+	const labels = useMemo(
+		() => ({
+			name: t('timer.VISITED_SITES'),
+			share: t('dashboard.appsUrls.COLUMN_SHARE'),
+			time: t('dashboard.appsUrls.COLUMN_TIME')
+		}),
 		[t]
 	);
 
@@ -144,7 +118,7 @@ export const OptimizedVisitedSitesTab = memo(() => {
 	return (
 		<div>
 			<div className="flex justify-end w-full">{/* TODO: Filters components */}</div>
-			<ActivityListFrame headers={headers}>
+			<ActivityListFrame labels={labels}>
 				<section className="hairline-divide-y divide-border">
 					{sitesGrouped?.map((site, i) => (
 						<div key={i} className="hairline-divide-y divide-border px-4">

@@ -1,15 +1,22 @@
 'use client';
 
-import { useState, type KeyboardEvent } from 'react';
+import { useId, useState, type KeyboardEvent } from 'react';
 import { useTranslations } from 'next-intl';
 import { Check, X } from '@/core/components/icons';
 import { Button } from '@/core/components/duplicated-components/_button';
 import { Input } from '@/core/components/common/input';
+import { hasUrlScheme } from '@/core/lib/utils/url-scheme';
 
 const SAFE_PROTOCOLS = new Set(['http:', 'https:', 'mailto:']);
 
+const BARE_EMAIL_PATTERN = /^[^\s@/:]+@[^\s@/:]+$/;
+
 function withScheme(value: string) {
-	const hasScheme = /^[a-z][a-z0-9+.-]*:/i.test(value);
+	const isBareEmail = BARE_EMAIL_PATTERN.test(value);
+	if (isBareEmail) {
+		return `mailto:${value}`;
+	}
+	const hasScheme = hasUrlScheme(value);
 	if (hasScheme) {
 		return value;
 	}
@@ -31,7 +38,7 @@ export function removeHandlerOf(hasLink: boolean, removeLink: () => void) {
 	return removeLink;
 }
 
-/** "example.com" becomes "https://example.com"; anything that is not a web or mail address becomes null. */
+/** "example.com" becomes "https://example.com" and "name@example.com" a mail link; anything that is not a web or mail address becomes null. */
 export function normalizeHref(raw: string): string | null {
 	const value = raw.trim();
 	if (!value) {
@@ -66,6 +73,11 @@ export function LinkForm({
 	const t = useTranslations();
 	const [value, setValue] = useState(initial);
 	const [invalid, setInvalid] = useState(false);
+	const errorId = useId();
+	let errorDescription: string | undefined;
+	if (invalid) {
+		errorDescription = errorId;
+	}
 
 	function apply() {
 		const href = normalizeHref(value);
@@ -90,45 +102,54 @@ export function LinkForm({
 	}
 
 	return (
-		<div className="flex min-w-0 items-center gap-1" role="group" aria-label={t('richEditor.LINK')}>
-			<Input
-				type="url"
-				inputMode="url"
-				autoFocus
-				value={value}
-				aria-label={t('richEditor.LINK_ADDRESS')}
-				aria-invalid={invalid || undefined}
-				placeholder={t('richEditor.LINK_PLACEHOLDER')}
-				onChange={(event) => {
-					setValue(event.target.value);
-					setInvalid(false);
-				}}
-				onKeyDown={handleKeyDown}
-				className="h-7 w-56 min-w-0 text-xs md:text-xs"
-			/>
-			{invalid && (
-				<span role="alert" className="sr-only">
-					{t('richEditor.LINK_INVALID')}
-				</span>
-			)}
-			<Button type="button" size="icon-sm" aria-label={t('richEditor.APPLY_LINK')} onClick={apply}>
-				<Check aria-hidden="true" />
-			</Button>
-			{onRemove && (
-				<Button type="button" variant="ghost" size="sm" className="text-muted-foreground" onClick={onRemove}>
-					{t('richEditor.REMOVE_LINK')}
+		<div className="flex min-w-0 flex-col gap-1" role="group" aria-label={t('richEditor.LINK')}>
+			<div className="flex min-w-0 items-center gap-1">
+				<Input
+					type="url"
+					inputMode="url"
+					autoFocus
+					value={value}
+					aria-label={t('richEditor.LINK_ADDRESS')}
+					aria-invalid={invalid || undefined}
+					aria-describedby={errorDescription}
+					placeholder={t('richEditor.LINK_PLACEHOLDER')}
+					onChange={(event) => {
+						setValue(event.target.value);
+						setInvalid(false);
+					}}
+					onKeyDown={handleKeyDown}
+					className="h-7 w-56 min-w-0 text-xs md:text-xs"
+				/>
+				<Button type="button" size="icon-sm" aria-label={t('richEditor.APPLY_LINK')} onClick={apply}>
+					<Check aria-hidden="true" />
 				</Button>
+				{onRemove && (
+					<Button
+						type="button"
+						variant="ghost"
+						size="sm"
+						className="text-muted-foreground"
+						onClick={onRemove}
+					>
+						{t('richEditor.REMOVE_LINK')}
+					</Button>
+				)}
+				<Button
+					type="button"
+					variant="ghost"
+					size="icon-sm"
+					aria-label={t('richEditor.CANCEL')}
+					className="text-muted-foreground"
+					onClick={onCancel}
+				>
+					<X aria-hidden="true" />
+				</Button>
+			</div>
+			{invalid && (
+				<p id={errorId} role="alert" className="px-1 text-xs text-destructive-ink">
+					{t('richEditor.LINK_INVALID')}
+				</p>
 			)}
-			<Button
-				type="button"
-				variant="ghost"
-				size="icon-sm"
-				aria-label={t('richEditor.CANCEL')}
-				className="text-muted-foreground"
-				onClick={onCancel}
-			>
-				<X aria-hidden="true" />
-			</Button>
 		</div>
 	);
 }

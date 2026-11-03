@@ -55,6 +55,10 @@ export function EditableRichText({
 	const [isEditing, setIsEditing] = useState(false);
 	const hasText = Boolean(value?.trim());
 	const isEditable = canEdit && isReady;
+	const isEditingOutOfReach = isEditing && !isEditable;
+	if (isEditingOutOfReach) {
+		setIsEditing(false);
+	}
 	const showsEditor = isEditing && isEditable;
 	const showsLoading = !isReady && !hasText;
 	const showsReader = !showsEditor && !showsLoading;

@@ -360,7 +360,7 @@ export function CommentComposer({
 
 	const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
 		event.preventDefault();
-		send();
+		void send();
 	};
 
 	const handleSuggestionKey = (event: KeyboardEvent<HTMLTextAreaElement>) => {
@@ -401,7 +401,7 @@ export function CommentComposer({
 		const isShortcut = isEnter && hasCommandKey;
 		if (isShortcut) {
 			event.preventDefault();
-			send();
+			void send();
 			return;
 		}
 		const isCancel = event.key === 'Escape' && Boolean(onCancel);
