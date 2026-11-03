@@ -19,7 +19,7 @@ function PropertyRowSkeleton({ valueWidth }: Readonly<{ valueWidth: string }>) {
 
 export function ProjectComposerSkeleton() {
 	return (
-		<div role="status" aria-busy="true" className="flex min-h-0 flex-1 flex-col">
+		<output aria-busy="true" className="flex min-h-0 flex-1 flex-col">
 			<div className="flex h-13 shrink-0 items-center gap-2 pl-5">
 				<span className={cn(BAR, 'h-6 w-24 rounded-md')} />
 				<span className={cn(BAR, 'h-3 w-20')} />
@@ -44,13 +44,13 @@ export function ProjectComposerSkeleton() {
 				<span className={cn(BAR, 'h-8 w-16')} />
 				<span className={cn(BAR, 'h-8 w-28')} />
 			</div>
-		</div>
+		</output>
 	);
 }
 
 export function ProjectInfoSheetSkeleton() {
 	return (
-		<div role="status" aria-busy="true" className="flex h-full min-h-0 flex-col">
+		<output aria-busy="true" className="flex h-full min-h-0 flex-col">
 			<div className="flex h-12 shrink-0 items-center gap-2 hairline-b border-border px-4">
 				<span className={cn(BAR, 'h-6 w-24 rounded-md')} />
 				<span className={cn(BAR, 'ml-auto h-7 w-24')} />
@@ -72,6 +72,6 @@ export function ProjectInfoSheetSkeleton() {
 				<span className={cn(BAR, 'h-3 w-5/6')} />
 				<span className={cn(BAR, 'h-3 w-2/3')} />
 			</div>
-		</div>
+		</output>
 	);
 }

@@ -17,7 +17,7 @@ interface IEditProjectModalProps {
 	projectId: string;
 }
 
-export function EditProjectModal({ open, closeModal, projectId }: IEditProjectModalProps) {
+export function EditProjectModal({ open, closeModal, projectId }: Readonly<IEditProjectModalProps>) {
 	const { organizationProjects } = useOrganizationProjectsQuery();
 	const project = organizationProjects.find((item) => item.id === projectId);
 	const hasProject = Boolean(project);

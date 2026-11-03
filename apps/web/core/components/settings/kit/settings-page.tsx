@@ -186,7 +186,7 @@ export function SettingsRowSkeleton({
 type SettingsSectionSkeletonProps = {
 	title?: string;
 	rows?: number;
-	control?: SettingsRowSkeletonProps['control'];
+	control?: NonNullable<SettingsRowSkeletonProps['control']>;
 	leading?: boolean;
 };
 

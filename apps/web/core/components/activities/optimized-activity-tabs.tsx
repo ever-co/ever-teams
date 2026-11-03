@@ -60,8 +60,8 @@ export const OptimizedAppsTab = memo(() => {
 			<div className="flex justify-end w-full">{/* TODO: Filters components */}</div>
 			<ActivityListFrame labels={labels}>
 				<section className="hairline-divide-y divide-border">
-					{appsGrouped?.map((app, i) => (
-						<div key={i} className="hairline-divide-y divide-border px-4">
+					{appsGrouped?.map((app) => (
+						<div key={app.hour} className="hairline-divide-y divide-border px-4">
 							{app?.apps?.map((item, i) => (
 								<div key={i} className="w-full">
 									<VisitedItem app={item} totalMilliseconds={app?.totalMilliseconds} type="APP" />
@@ -120,8 +120,8 @@ export const OptimizedVisitedSitesTab = memo(() => {
 			<div className="flex justify-end w-full">{/* TODO: Filters components */}</div>
 			<ActivityListFrame labels={labels}>
 				<section className="hairline-divide-y divide-border">
-					{sitesGrouped?.map((site, i) => (
-						<div key={i} className="hairline-divide-y divide-border px-4">
+					{sitesGrouped?.map((site) => (
+						<div key={site.hour} className="hairline-divide-y divide-border px-4">
 							{site?.apps?.map((item, i) => (
 								<div key={i} className="w-full">
 									<VisitedItem app={item} totalMilliseconds={site?.totalMilliseconds} type="SITE" />

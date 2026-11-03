@@ -101,7 +101,12 @@ interface ProjectTeamsPickerProps {
 	onToggle: (teamId: string) => void;
 }
 
-export function ProjectTeamsPicker({ teams, selectedTeamIds, canDeselect, onToggle }: ProjectTeamsPickerProps) {
+export function ProjectTeamsPicker({
+	teams,
+	selectedTeamIds,
+	canDeselect,
+	onToggle
+}: Readonly<ProjectTeamsPickerProps>) {
 	const t = useTranslations();
 	const selectedTeams = teams.filter((team) => selectedTeamIds.includes(team.id));
 	const canAddTeams = teams.length > selectedTeams.length;
@@ -141,8 +146,8 @@ export function ProjectTeamsPicker({ teams, selectedTeamIds, canDeselect, onTogg
 							<Tooltip>
 								<TooltipTrigger
 									render={
-										<span
-											tabIndex={0}
+										<button
+											type="button"
 											aria-label={t(
 												'pages.projects.teamAndRelationsForm.formFields.activeTeamLocked'
 											)}
@@ -207,7 +212,7 @@ export function ProjectPeoplePicker({
 	addLabel,
 	searchPlaceholder,
 	onToggle
-}: ProjectPeoplePickerProps) {
+}: Readonly<ProjectPeoplePickerProps>) {
 	const t = useTranslations();
 	const options = useMemo(() => people.map(personOptionOf), [people]);
 	const selectedPeople = people.filter((person) => selectedIds.includes(person.id));
@@ -276,7 +281,13 @@ interface ProjectTagsPickerProps {
 	onCreate: (name: string) => void;
 }
 
-export function ProjectTagsPicker({ tags, selectedTagIds, isCreating, onToggle, onCreate }: ProjectTagsPickerProps) {
+export function ProjectTagsPicker({
+	tags,
+	selectedTagIds,
+	isCreating,
+	onToggle,
+	onCreate
+}: Readonly<ProjectTagsPickerProps>) {
 	const t = useTranslations();
 	const options = useMemo<TaskPropertyMenuOption<string>[]>(
 		() => tags.map((tag) => ({ key: tag.id, value: tag.id, label: tag.name, icon: <TagDot color={tag.color} /> })),

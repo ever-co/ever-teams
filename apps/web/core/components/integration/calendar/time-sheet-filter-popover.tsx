@@ -5,6 +5,7 @@ import { MultiSelect } from '@/core/components/common/multi-select';
 import { Input } from '@/core/components/common/input';
 import { activeTeamState, tasksByTeamState } from '@/core/stores';
 import { useAtomValue } from 'jotai';
+import { useId } from 'react';
 interface TimeSheetFilterProps {
 	isOpen: boolean;
 	closeModal: () => void;
@@ -14,6 +15,7 @@ export function TimeSheetFilter({ closeModal, isOpen }: TimeSheetFilterProps) {
 	const activeTeam = useAtomValue(activeTeamState);
 
 	const tasks = useAtomValue(tasksByTeamState);
+	const workedHoursId = useId();
 	// const [taskId, setTaskId] = useState<TTask | TTask[] | null>([]);
 	return (
 		<>
@@ -26,10 +28,10 @@ export function TimeSheetFilter({ closeModal, isOpen }: TimeSheetFilterProps) {
 				<div className="flex flex-col w-full">
 					<div className="grid gap-5">
 						<div className="">
-							<label className="mb-1.5 block text-sm font-medium leading-none text-foreground">
+							<span className="mb-1.5 block text-sm font-medium leading-none text-foreground">
 								<span>Project</span>
 								<span className="ml-1 text-destructive-ink">*</span>
-							</label>
+							</span>
 							<MultiSelect
 								items={activeTeam?.members ?? []}
 								itemToString={(members) => (members ? members.employee?.fullName || '' : '')}
@@ -39,10 +41,10 @@ export function TimeSheetFilter({ closeModal, isOpen }: TimeSheetFilterProps) {
 							/>
 						</div>
 						<div className="">
-							<label className="mb-1.5 block text-sm font-medium leading-none text-foreground">
+							<span className="mb-1.5 block text-sm font-medium leading-none text-foreground">
 								<span>Employee</span>
 								<span className="ml-1 text-destructive-ink">*</span>
-							</label>
+							</span>
 							<MultiSelect
 								items={activeTeam?.members ?? []}
 								itemToString={(members) => (members ? members.employee?.fullName || '' : '')}
@@ -52,10 +54,10 @@ export function TimeSheetFilter({ closeModal, isOpen }: TimeSheetFilterProps) {
 							/>
 						</div>
 						<div className="">
-							<label className="mb-1.5 block text-sm font-medium leading-none text-foreground">
+							<span className="mb-1.5 block text-sm font-medium leading-none text-foreground">
 								<span>Status</span>
 								<span className="ml-1 text-destructive-ink">*</span>
-							</label>
+							</span>
 							<MultiSelect
 								items={statusOptions}
 								itemToString={(status) => (status ? status.value : '')}
@@ -65,10 +67,10 @@ export function TimeSheetFilter({ closeModal, isOpen }: TimeSheetFilterProps) {
 							/>
 						</div>
 						<div className="">
-							<label className="mb-1.5 block text-sm font-medium leading-none text-foreground">
+							<span className="mb-1.5 block text-sm font-medium leading-none text-foreground">
 								<span>Task</span>
 								<span className="ml-1 text-destructive-ink">*</span>
-							</label>
+							</span>
 							<MultiSelect
 								items={tasks}
 								onValueChange={(task) => task}
@@ -78,10 +80,10 @@ export function TimeSheetFilter({ closeModal, isOpen }: TimeSheetFilterProps) {
 							/>
 						</div>
 						<div className="">
-							<label className="mb-1.5 block text-sm font-medium leading-none text-foreground">
+							<span className="mb-1.5 block text-sm font-medium leading-none text-foreground">
 								<span>Activity Level</span>
 								<span className="ml-1 text-destructive-ink">*</span>
-							</label>
+							</span>
 							<MultiSelect
 								items={activeTeam?.members ?? []}
 								itemToString={(members) => (members ? members.employee?.fullName || '' : '')}
@@ -91,14 +93,31 @@ export function TimeSheetFilter({ closeModal, isOpen }: TimeSheetFilterProps) {
 							/>
 						</div>
 						<div className="">
-							<label className="mb-1.5 block text-sm font-medium leading-none text-foreground">
+							<span
+								id={workedHoursId}
+								className="mb-1.5 block text-sm font-medium leading-none text-foreground"
+							>
 								<span>Worked hours</span>
 								<span className="ml-1 text-destructive-ink">*</span>
-							</label>
+							</span>
 							<div className="flex gap-x-4 justify-between items-center w-full">
-								<Input className="w-full" placeholder="Time" required value="" name="from" />
+								<Input
+									aria-labelledby={workedHoursId}
+									className="w-full"
+									placeholder="Time"
+									required
+									value=""
+									name="from"
+								/>
 								<span className="text-sm text-muted-foreground">to</span>
-								<Input className="w-full" placeholder="Time" required value="" name="to" />
+								<Input
+									aria-labelledby={workedHoursId}
+									className="w-full"
+									placeholder="Time"
+									required
+									value=""
+									name="to"
+								/>
 							</div>
 						</div>
 						<div className="flex gap-x-4 justify-between items-center w-full">

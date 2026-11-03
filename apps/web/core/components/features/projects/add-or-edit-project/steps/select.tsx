@@ -197,6 +197,29 @@ function SelectComponent<T extends Identifiable, IsMulti extends boolean = false
 		onCreate?.(searchTerm);
 	}, [onCreate, searchTerm]);
 
+	const isItemSelected = (item: T) => {
+		if (isMulti) {
+			return (selected as string[]).includes(item?.id);
+		}
+		return selected === item?.id;
+	};
+
+	const renderItemContent = (item: T) => {
+		const itemSelected = isItemSelected(item);
+		if (renderItem) {
+			return renderItem(item, itemSelected, false);
+		}
+		if (isMulti) {
+			return (
+				<>
+					<Checkbox checked={itemSelected} />
+					<span className="capitalize">{item?.value ?? '-'}</span>
+				</>
+			);
+		}
+		return <span className="capitalize">{item?.value ?? '-'}</span>;
+	};
+
 	return (
 		<div className="relative">
 			<Popover>
@@ -267,22 +290,7 @@ function SelectComponent<T extends Identifiable, IsMulti extends boolean = false
 											isMulti && 'flex items-center gap-2'
 										)}
 									>
-										{renderItem ? (
-											renderItem(
-												item,
-												isMulti
-													? (selected as string[]).includes(item?.id)
-													: selected === item?.id,
-												false
-											)
-										) : isMulti ? (
-											<>
-												<Checkbox checked={(selected as string[]).includes(item?.id)} />
-												<span className="capitalize">{item?.value ?? '-'}</span>
-											</>
-										) : (
-											<span className="capitalize">{item?.value ?? '-'}</span>
-										)}
+										{renderItemContent(item)}
 									</CommandItem>
 								))}
 								<ScrollBar className="-ml-7" />

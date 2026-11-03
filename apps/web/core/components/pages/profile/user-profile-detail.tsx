@@ -307,8 +307,10 @@ function OwnTimerCard({ task, timer }: Readonly<{ task: TTask | null; timer: Rea
 }
 
 function readableStatusName(value: string | null | undefined) {
-	const text = value ?? '';
-	return text.split('-').join(' ');
+	if (!value) {
+		return '';
+	}
+	return value.split('-').join(' ');
 }
 
 /** The task's status as its glyph and name, read only: the status menu stays on the task's row below. */

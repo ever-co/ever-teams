@@ -167,7 +167,7 @@ export function TeamColorControl({ color, onSave }: Readonly<TeamColorControlPro
 				<ChevronDown aria-hidden="true" className="text-muted-foreground" />
 			</PopoverTrigger>
 			<PopoverContent align="end" sideOffset={6} className="flex w-64 flex-col gap-3 p-3">
-				<div role="group" aria-label={t('settings.teamGeneral.COLOR_LABEL')} className="grid grid-cols-6 gap-2">
+				<fieldset aria-label={t('settings.teamGeneral.COLOR_LABEL')} className="grid min-w-0 grid-cols-6 gap-2">
 					{PROJECT_COLOR_SWATCHES.map((swatch) => (
 						<Swatch
 							key={swatch}
@@ -188,7 +188,7 @@ export function TeamColorControl({ color, onSave }: Readonly<TeamColorControlPro
 					>
 						<Plus aria-hidden="true" />
 					</button>
-				</div>
+				</fieldset>
 				{showsPicker && (
 					<div className="[&_.react-colorful]:h-32 [&_.react-colorful]:w-full">
 						<HexColorPicker

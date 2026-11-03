@@ -26,10 +26,10 @@ import { ProjectDetailBodySkeleton, ProjectDetailToolbarSkeleton } from './proje
 
 const TAB_PARAM = 'tab';
 
-const DETAIL_TABS: ProjectDetailTab[] = ['overview', 'tasks', 'people'];
+const DETAIL_TABS: ReadonlySet<ProjectDetailTab> = new Set<ProjectDetailTab>(['overview', 'tasks', 'people']);
 
 function tabOf(value: string | null): ProjectDetailTab {
-	const isKnown = DETAIL_TABS.includes(value as ProjectDetailTab);
+	const isKnown = DETAIL_TABS.has(value as ProjectDetailTab);
 	if (isKnown) {
 		return value as ProjectDetailTab;
 	}

@@ -124,7 +124,7 @@ function picksOf(planPicks: PlanPicks, employeeId: string) {
 function PlansSkeleton() {
 	const t = useTranslations();
 	return (
-		<div role="status" className="flex flex-col gap-4">
+		<output className="flex flex-col gap-4">
 			<span className="sr-only">{t('common.LOADING')}</span>
 			<div className="flex h-8 w-80 max-w-full items-center gap-0.5 rounded-lg bg-foreground/[0.05] p-0.5">
 				<span className="h-7 w-20 rounded-md bg-card shadow-[0_1px_2px_rgb(0_0_0/0.08)]" />
@@ -141,7 +141,7 @@ function PlansSkeleton() {
 					))}
 				</div>
 			</div>
-		</div>
+		</output>
 	);
 }
 

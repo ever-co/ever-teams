@@ -108,7 +108,13 @@ export interface ProjectsListViewProps {
 	visibleProjectIds: string[];
 }
 
-export function ProjectsListView({ list, groups, statuses, taskStats, visibleProjectIds }: ProjectsListViewProps) {
+export function ProjectsListView({
+	list,
+	groups,
+	statuses,
+	taskStats,
+	visibleProjectIds
+}: Readonly<ProjectsListViewProps>) {
 	const columns = list.isColumnVisible;
 	const visibleColumns = PROJECT_COLUMNS.filter((column) => columns(column));
 	const gridStyle = gridStyleOf(visibleColumns);

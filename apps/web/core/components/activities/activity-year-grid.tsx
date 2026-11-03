@@ -220,11 +220,7 @@ function DayBubble({ day, columnCount, text }: Readonly<{ day: YearDay; columnCo
 		placement = 'translate-y-0';
 	}
 	return (
-		<div
-			role="presentation"
-			className={cn('pointer-events-none absolute z-10', alignment, placement)}
-			style={{ left, top }}
-		>
+		<div className={cn('pointer-events-none absolute z-10', alignment, placement)} style={{ left, top }}>
 			<div className={cn(TOOLTIP_SURFACE, 'max-w-none whitespace-nowrap tabular-nums')}>{text}</div>
 		</div>
 	);

@@ -99,7 +99,7 @@ function moveFocus(event: KeyboardEvent<HTMLElement>, container: HTMLElement | n
 		return;
 	}
 	event.preventDefault();
-	const current = rows.findIndex((row) => row === document.activeElement);
+	const current = rows.indexOf(document.activeElement as HTMLButtonElement);
 	const step = stepOf(isDown);
 	const lastIndex = rows.length - 1;
 	const wanted = current + step;
@@ -185,8 +185,14 @@ function TeamContext() {
 function CollaboratorRow({
 	person,
 	isPicked,
-	onToggle
-}: Readonly<{ person: Collaborator; isPicked: boolean; onToggle: (id: string) => void }>) {
+	onToggle,
+	onKeyDown
+}: Readonly<{
+	person: Collaborator;
+	isPicked: boolean;
+	onToggle: (id: string) => void;
+	onKeyDown: (event: KeyboardEvent<HTMLElement>) => void;
+}>) {
 	return (
 		<li>
 			<button
@@ -195,6 +201,7 @@ function CollaboratorRow({
 				aria-checked={isPicked}
 				data-collaborator-row=""
 				onClick={() => onToggle(person.id)}
+				onKeyDown={onKeyDown}
 				className="flex h-12 w-full cursor-pointer items-center gap-3 rounded-lg px-2.5 text-left outline-none transition-colors hover:bg-foreground/5 focus-visible:bg-foreground/5 focus-visible:ring-[3px] focus-visible:ring-ring/25"
 			>
 				<span className="relative shrink-0">
@@ -461,7 +468,6 @@ function CollaborateBody({ onClose }: Readonly<{ onClose: () => void }>) {
 						{hasMatches && (
 							<ul
 								ref={setListElement}
-								onKeyDown={(event) => moveFocus(event, listElement)}
 								className="flex max-h-[min(17.5rem,36dvh)] flex-col overflow-y-auto overscroll-contain p-1"
 							>
 								{visiblePeople.map((person) => (
@@ -470,6 +476,7 @@ function CollaborateBody({ onClose }: Readonly<{ onClose: () => void }>) {
 										person={person}
 										isPicked={pickedIds.includes(person.id)}
 										onToggle={togglePerson}
+										onKeyDown={(event) => moveFocus(event, listElement)}
 									/>
 								))}
 							</ul>

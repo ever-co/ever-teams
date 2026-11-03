@@ -16,7 +16,7 @@ interface IDeleteProjectModalProps {
 	projectId: string;
 }
 
-export function DeleteProjectConfirmModal({ open, closeModal, projectId }: IDeleteProjectModalProps) {
+export function DeleteProjectConfirmModal({ open, closeModal, projectId }: Readonly<IDeleteProjectModalProps>) {
 	const t = useTranslations();
 	const { organizationProjects } = useOrganizationProjectsQuery();
 	const { deleteOrganizationProject, deleteOrganizationProjectLoading } = useDeleteOrganizationProject();

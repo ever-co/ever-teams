@@ -13,7 +13,7 @@ interface IRestoreProjectModalProps {
 	projectId: string;
 }
 
-export function RestoreProjectModal({ open, closeModal, projectId }: IRestoreProjectModalProps) {
+export function RestoreProjectModal({ open, closeModal, projectId }: Readonly<IRestoreProjectModalProps>) {
 	const t = useTranslations();
 	const { organizationProjects } = useOrganizationProjectsQuery();
 	const { editOrganizationProject, editOrganizationProjectLoading } = useEditOrganizationProject();

@@ -285,6 +285,6 @@ export function startDayIndexOf(layout: YearLayout): number {
 		return today.index;
 	}
 	const activeDays = layout.days.filter((day) => day.seconds > 0);
-	const lastActive = activeDays[activeDays.length - 1];
+	const lastActive = activeDays.at(-1);
 	return lastActive?.index ?? 0;
 }

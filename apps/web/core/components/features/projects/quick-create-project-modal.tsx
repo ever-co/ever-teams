@@ -182,7 +182,7 @@ function QuickCreateForm({ closeModal, onSuccess }: Readonly<Omit<IQuickCreatePr
 	);
 }
 
-export function QuickCreateProjectModal({ open, closeModal, onSuccess }: IQuickCreateProjectModalProps) {
+export function QuickCreateProjectModal({ open, closeModal, onSuccess }: Readonly<IQuickCreateProjectModalProps>) {
 	return (
 		<ProjectDialog open={open} onClose={closeModal} width="md">
 			{open && <QuickCreateForm closeModal={closeModal} onSuccess={onSuccess} />}

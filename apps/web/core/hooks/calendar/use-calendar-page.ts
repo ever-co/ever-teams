@@ -48,7 +48,7 @@ function todayStart() {
 }
 
 function isCalendarView(value: string): value is CalendarView {
-	return CALENDAR_VIEWS.some((view) => view === value);
+	return (CALENDAR_VIEWS as readonly string[]).includes(value);
 }
 
 function viewOf(stored: string): CalendarView {

@@ -13,7 +13,7 @@ import type { CalendarMember, CalendarView } from '@/core/lib/utils/calendar-vie
 import { ENTRY_HATCHED, ENTRY_SOLID, PLANNED_OUTLINE } from './calendar-recipes';
 
 const GROUP =
-	'inline-flex h-8 shrink-0 items-center rounded-full bg-card p-0.5 hairline-ring ring-foreground/10 shadow-[0_1px_2px_rgb(0_0_0/0.06)] dark:bg-foreground/5';
+	'inline-flex h-8 min-w-0 shrink-0 items-center rounded-full bg-card p-0.5 hairline-ring ring-foreground/10 shadow-[0_1px_2px_rgb(0_0_0/0.06)] dark:bg-foreground/5';
 
 const STEP_BUTTON =
 	'inline-flex size-7 items-center justify-center rounded-full text-muted-foreground outline-none transition-colors hover:bg-foreground/5 hover:text-foreground focus-visible:ring-[3px] focus-visible:ring-ring/25 [&_svg]:size-4';
@@ -41,7 +41,7 @@ export function CalendarRangeStepper({
 	const t = useTranslations();
 	return (
 		<div className="flex min-w-0 items-center gap-2.5">
-			<div className={GROUP} role="group" aria-label={t('dashboard.calendar.RANGE_LABEL')}>
+			<fieldset className={GROUP} aria-label={t('dashboard.calendar.RANGE_LABEL')}>
 				<button
 					type="button"
 					className={STEP_BUTTON}
@@ -61,7 +61,7 @@ export function CalendarRangeStepper({
 				>
 					<ChevronRight />
 				</button>
-			</div>
+			</fieldset>
 			<h2 aria-live="polite" className="truncate text-[13px] font-medium tabular-nums text-foreground">
 				{rangeName}
 			</h2>

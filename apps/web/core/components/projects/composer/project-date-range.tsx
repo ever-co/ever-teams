@@ -58,7 +58,7 @@ interface DateSideProps {
 	onChange: (date: Date) => void;
 }
 
-function DateSide({ value, placeholder, ariaLabel, presets, minDate, onChange }: DateSideProps) {
+function DateSide({ value, placeholder, ariaLabel, presets, minDate, onChange }: Readonly<DateSideProps>) {
 	const locale = useLocale();
 	const [open, setOpen] = useState(false);
 	const currentYear = new Date().getFullYear();
@@ -124,7 +124,7 @@ interface ProjectDateRangeProps {
 	onEndChange: (date: Date) => void;
 }
 
-export function ProjectDateRange({ startDate, endDate, onStartChange, onEndChange }: ProjectDateRangeProps) {
+export function ProjectDateRange({ startDate, endDate, onStartChange, onEndChange }: Readonly<ProjectDateRangeProps>) {
 	const t = useTranslations();
 	const startPresets = useStartPresets();
 	const endPresets = useEndPresets(startDate);

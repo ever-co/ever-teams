@@ -108,17 +108,26 @@ const ConfirmationButtons = ({ onConfirm, onCancel }: { onConfirm?: () => void; 
 	</div>
 );
 
-const CommentInputArea = () => (
-	<>
-		<span className="text-center text-sm text-balance text-muted-foreground">
-			Add a comment for this change that the employee will see
-		</span>
-		<div className="flex flex-col gap-1.5 w-full mt-2">
-			<label className="block text-sm font-medium leading-none text-foreground">Comment (optional)</label>
-			<textarea placeholder="Add comment" className={clsxm(controlRecipe, 'h-32 resize-none p-3')} />
-		</div>
-	</>
-);
+const CommentInputArea = () => {
+	const commentId = React.useId();
+	return (
+		<>
+			<span className="text-center text-sm text-balance text-muted-foreground">
+				Add a comment for this change that the employee will see
+			</span>
+			<div className="flex flex-col gap-1.5 w-full mt-2">
+				<label htmlFor={commentId} className="block text-sm font-medium leading-none text-foreground">
+					Comment (optional)
+				</label>
+				<textarea
+					id={commentId}
+					placeholder="Add comment"
+					className={clsxm(controlRecipe, 'h-32 resize-none p-3')}
+				/>
+			</div>
+		</>
+	);
+};
 
 export function StatusBadge({ selectedStatus, filterNumber }: { selectedStatus?: string; filterNumber?: string }) {
 	const [selected] = React.useState(selectedStatus);

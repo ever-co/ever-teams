@@ -102,7 +102,7 @@ interface ProjectComposerProps {
 	onClose: () => void;
 }
 
-export function ProjectComposer({ mode, project, context, onClose }: ProjectComposerProps) {
+export function ProjectComposer({ mode, project, context, onClose }: Readonly<ProjectComposerProps>) {
 	const t = useTranslations();
 	const router = useRouter();
 	const mentions = useTeamMentionCandidates();

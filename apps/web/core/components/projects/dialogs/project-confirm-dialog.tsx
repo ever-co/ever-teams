@@ -156,7 +156,7 @@ export function ProjectConfirmDialog({
 	isPending,
 	error,
 	onConfirm
-}: ProjectConfirmDialogProps) {
+}: Readonly<ProjectConfirmDialogProps>) {
 	const t = useTranslations();
 	const hasConsequences = consequences.length > 0;
 	let confirmVariant: 'primary' | 'danger' = 'primary';

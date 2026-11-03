@@ -177,7 +177,7 @@ export const TableActionPopover = ({ member, handleEdit, status }: Props) => {
 								</Link>
 							</div> */}
 
-						{status === 'settings' && <div role="separator" className={MENU_SEPARATOR} />}
+						{status === 'settings' && <hr className={clsxm(MENU_SEPARATOR, 'border-0')} />}
 
 						{/* Delete */}
 						{status === 'settings' && (

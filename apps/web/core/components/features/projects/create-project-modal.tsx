@@ -30,7 +30,7 @@ function WorkspaceChip() {
 	);
 }
 
-export function CreateProjectModal({ open, closeModal }: ICreateProjectModalProps) {
+export function CreateProjectModal({ open, closeModal }: Readonly<ICreateProjectModalProps>) {
 	return (
 		<ProjectDialog open={open} onClose={closeModal} width="lg" keepOpenOnOutsideClick>
 			{open && <LazyProjectComposer mode="create" context={<WorkspaceChip />} onClose={closeModal} />}

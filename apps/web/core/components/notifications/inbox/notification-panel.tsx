@@ -107,7 +107,7 @@ function moveRowFocus(event: KeyboardEvent<HTMLDivElement>) {
 		return;
 	}
 	event.preventDefault();
-	const current = rows.findIndex((row) => row === document.activeElement);
+	const current = rows.indexOf(document.activeElement as HTMLButtonElement);
 	const target = current + stepOf(isDown);
 	const lastIndex = rows.length - 1;
 	const next = Math.min(lastIndex, Math.max(0, target));

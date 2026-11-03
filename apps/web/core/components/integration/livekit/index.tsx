@@ -15,7 +15,7 @@ type LiveKitPageProps = {
 	onLeave?: () => void;
 };
 
-export default function LiveKitPage({ userChoices, onLeave, token, liveKitUrl }: LiveKitPageProps) {
+export default function LiveKitPage({ userChoices, onLeave, token, liveKitUrl }: Readonly<LiveKitPageProps>) {
 	const [error, setError] = React.useState<string>();
 	const [isLoading, setIsLoading] = React.useState(true);
 

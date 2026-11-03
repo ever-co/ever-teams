@@ -102,7 +102,7 @@ export function ProjectTilePicker({
 	onImagePick,
 	onImageRemove,
 	size = 'lg'
-}: ProjectTilePickerProps) {
+}: Readonly<ProjectTilePickerProps>) {
 	const t = useTranslations();
 	const fileInputId = useId();
 	const [showsCustomColor, setShowsCustomColor] = useState(() => isCustomColor(color));

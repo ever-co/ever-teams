@@ -15,7 +15,7 @@ export function useIntegrationTenant(name?: string | null) {
 	const queryClient = useQueryClient();
 
 	// State to track current query name for React Query (only name is needed)
-	const [requestedName, setQueryName] = useState<string | null>(null);
+	const [requestedName, setRequestedName] = useState<string | null>(null);
 	const initialName = name ?? null;
 	const queryName = requestedName ?? initialName;
 
@@ -66,7 +66,7 @@ export function useIntegrationTenant(name?: string | null) {
 	const getIntegrationTenant = useCallback(
 		async (name: string) => {
 			// Set query name to trigger React Query
-			setQueryName(name);
+			setRequestedName(name);
 
 			// If we already have cached data for this name, return it immediately
 			const cachedData = integrationTenantQuery.data;

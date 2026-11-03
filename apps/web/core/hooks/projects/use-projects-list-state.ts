@@ -21,7 +21,6 @@ import {
 	urlWithParams,
 	type ProjectColumn,
 	type ProjectFilterField,
-	type ProjectFilters,
 	type ProjectGrouping,
 	type ProjectOrderField,
 	type ProjectOrdering,
@@ -29,7 +28,13 @@ import {
 	type ProjectsView
 } from '@/core/lib/utils/project-list';
 
-const ORDER_FIELDS: ProjectOrderField[] = ['name', 'status', 'startDate', 'endDate', 'createdAt'];
+const ORDER_FIELDS: ReadonlySet<ProjectOrderField> = new Set<ProjectOrderField>([
+	'name',
+	'status',
+	'startDate',
+	'endDate',
+	'createdAt'
+]);
 
 const DEFAULT_ORDERING: ProjectOrdering = { id: 'name', desc: false };
 
@@ -45,7 +50,7 @@ function orderingFromStorage(stored: ProjectOrdering[] | null | undefined): Proj
 	if (!first) {
 		return DEFAULT_ORDERING;
 	}
-	const isKnownField = ORDER_FIELDS.includes(first.id);
+	const isKnownField = ORDER_FIELDS.has(first.id);
 	if (!isKnownField) {
 		return { id: 'name', desc: Boolean(first.desc) };
 	}
@@ -106,8 +111,8 @@ export function useProjectsListState() {
 	);
 	const [hiddenColumns, setHiddenColumns] = useLocalStorageState<ProjectColumn[]>(PROJECTS_LIST_HIDDEN_COLUMNS, []);
 	const urlKey = params.toString();
-	const [selection, setSelectionState] = useState<KeyedSelection>({ urlKey, ids: [] });
-	const selectedIds = selectionFor(selection, urlKey);
+	const [selectionState, setSelectionState] = useState<KeyedSelection>({ urlKey, ids: [] });
+	const selectedIds = selectionFor(selectionState, urlKey);
 
 	const ordering = orderingFromStorage(storedSorting);
 
@@ -250,4 +255,4 @@ export function useProjectsListState() {
 
 export type ProjectsListState = ReturnType<typeof useProjectsListState>;
 
-export type { ProjectFilters };
+export type { ProjectFilters } from '@/core/lib/utils/project-list';

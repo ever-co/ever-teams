@@ -113,7 +113,7 @@ interface ChoiceGroupProps<T extends string> {
 }
 
 /** Two big cards: what the budget counts changes the whole field, so the choice reads before anything else. */
-function ChoiceCards<T extends string>({ name, legend, options, value, onChange }: ChoiceGroupProps<T>) {
+function ChoiceCards<T extends string>({ name, legend, options, value, onChange }: Readonly<ChoiceGroupProps<T>>) {
 	return (
 		<fieldset className="flex min-w-0 flex-col gap-2">
 			<legend className={cn(PANEL_LABEL, 'mb-2')}>{legend}</legend>
@@ -155,7 +155,7 @@ function ChoiceCards<T extends string>({ name, legend, options, value, onChange 
 }
 
 /** One row per option, its glyph, what it means and a radio mark: a single choice, readable at a glance. */
-function ChoiceRows<T extends string>({ name, legend, options, value, onChange }: ChoiceGroupProps<T>) {
+function ChoiceRows<T extends string>({ name, legend, options, value, onChange }: Readonly<ChoiceGroupProps<T>>) {
 	return (
 		<fieldset className="flex min-w-0 flex-col">
 			<legend className={cn(PANEL_LABEL, 'mb-2')}>{legend}</legend>
@@ -310,7 +310,7 @@ function BudgetPanel({
 	onBudgetTypeChange,
 	onCurrencyChange,
 	onBillingChange
-}: ProjectBudgetFieldProps) {
+}: Readonly<ProjectBudgetFieldProps>) {
 	const t = useTranslations();
 	const baseId = useId();
 	const budgetTypeOptions = useBudgetTypeOptions();
@@ -369,7 +369,7 @@ function BudgetPanel({
 	);
 }
 
-export function ProjectBudgetField(props: ProjectBudgetFieldProps) {
+export function ProjectBudgetField(props: Readonly<ProjectBudgetFieldProps>) {
 	const t = useTranslations();
 	const locale = useLocale();
 	const billingOptions = useBillingOptions();

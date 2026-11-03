@@ -68,7 +68,7 @@ type TaskRowViewType = 'default' | 'unassign';
 // Only the authenticated member's live total is computed here; another member's would be an invented zero.
 const NOT_COMPUTED_VALUE = '–';
 
-const TASK_LIST_TABS: ReadonlyArray<ITab> = ['worked', 'assigned', 'unassigned'];
+const TASK_LIST_TABS: ReadonlySet<ITab> = new Set<ITab>(['worked', 'assigned', 'unassigned']);
 
 const ACTIVITY_VIEW_ITEMS: ReadonlyArray<{ value: FilterTab; filter: ActivityFilters }> = [
 	{ value: 'Tasks', filter: ActivityFilters.TASKS },
@@ -84,7 +84,7 @@ const EMPTY_TAB_KEYS: Record<TaskListTab, DottedLanguageObjectStringPaths> = {
 };
 
 const PAGE_SCROLL_OWNER_SELECTOR = '[data-page-scroll-owner="true"]';
-const SCROLLING_OVERFLOWS = ['auto', 'scroll', 'overlay'];
+const SCROLLING_OVERFLOWS: ReadonlySet<string> = new Set(['auto', 'scroll', 'overlay']);
 const WIDE_ROW_CONTAINER_REM = 64;
 const WIDE_ROW_HEIGHT = 53;
 const STACKED_ROW_HEIGHT = 96;
@@ -98,7 +98,7 @@ function viewTypeFor(tab: ITab): TaskRowViewType {
 }
 
 function isTaskListTab(tab: ITab): tab is TaskListTab {
-	return TASK_LIST_TABS.includes(tab);
+	return TASK_LIST_TABS.has(tab);
 }
 
 function uniqueTasksOf(tasks: TTask[]) {
@@ -132,7 +132,7 @@ function noMatchTitleKey(isSearching: boolean, isFiltering: boolean): DottedLang
 
 function isScrollingElement(element: HTMLElement) {
 	const { overflowY } = window.getComputedStyle(element);
-	return SCROLLING_OVERFLOWS.includes(overflowY);
+	return SCROLLING_OVERFLOWS.has(overflowY);
 }
 
 /**

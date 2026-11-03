@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState, type ChangeEvent } from 'react';
+import { useEffect, useState, type ChangeEvent, type ReactNode } from 'react';
 import { useTranslations } from 'next-intl';
 import { DatePickerWithRange } from '@/core/components/common/date-range-select';
 import { controlGroupRecipe } from '@/core/components/common/input';
@@ -11,7 +11,6 @@ import type { PropertyFilterCategory } from '@/core/components/tasks/property-fi
 import type { ProjectsListState } from '@/core/hooks/projects/use-projects-list-state';
 import { cn } from '@/core/lib/helpers';
 import type { ProjectFilterField, ProjectScope } from '@/core/lib/utils/project-list';
-import type { ReactNode } from 'react';
 import { SegmentCountSkeleton } from '@/core/components/common/skeleton/segmented-control-skeleton';
 import { AppliedProjectFilters, ProjectsFilterMenu } from './projects-filters';
 import { ProjectsDisplayMenu } from './projects-display-menu';

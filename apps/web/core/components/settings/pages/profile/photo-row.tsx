@@ -146,18 +146,18 @@ function PhotoHint({
 
 	if (status === 'uploading') {
 		return (
-			<span id={id} role="status" className={cn(SETTINGS_ROW_DESCRIPTION, 'inline-flex items-center gap-1.5')}>
+			<output id={id} className={cn(SETTINGS_ROW_DESCRIPTION, 'inline-flex items-center gap-1.5')}>
 				<Spinner className="size-3 animate-spin" />
 				{t('settings.profile.PHOTO_UPLOADING')}
-			</span>
+			</output>
 		);
 	}
 	if (status === 'removing') {
 		return (
-			<span id={id} role="status" className={cn(SETTINGS_ROW_DESCRIPTION, 'inline-flex items-center gap-1.5')}>
+			<output id={id} className={cn(SETTINGS_ROW_DESCRIPTION, 'inline-flex items-center gap-1.5')}>
 				<Spinner className="size-3 animate-spin" />
 				{t('settings.profile.PHOTO_REMOVING')}
-			</span>
+			</output>
 		);
 	}
 	const isError = message?.tone === 'error';

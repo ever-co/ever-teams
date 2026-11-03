@@ -361,11 +361,11 @@ function UserNavMenu({ identity, showsIdentity }: Readonly<{ identity: AccountId
 	);
 }
 
-const TEAM_DROPDOWN_HIDDEN_PATHS = ['/task/[id]', '/profile/[memberId]'];
+const TEAM_DROPDOWN_HIDDEN_PATHS: ReadonlySet<string> = new Set(['/task/[id]', '/profile/[memberId]']);
 
 function isTeamDropdownAllowedOn(pathname: string | null) {
 	if (!pathname) {
 		return false;
 	}
-	return !TEAM_DROPDOWN_HIDDEN_PATHS.includes(pathname);
+	return !TEAM_DROPDOWN_HIDDEN_PATHS.has(pathname);
 }

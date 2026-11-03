@@ -63,7 +63,7 @@ interface ProjectInfoSheetProps {
 	onClose: () => void;
 }
 
-export function ProjectInfoSheet({ project, onClose }: ProjectInfoSheetProps) {
+export function ProjectInfoSheet({ project, onClose }: Readonly<ProjectInfoSheetProps>) {
 	const t = useTranslations();
 	const { taskStatuses } = useTaskStatusesQuery();
 	const { canEdit } = useProjectPermissions({ members: project.members });

@@ -44,7 +44,7 @@ const TAB_COUNT_PENDING_CLASS_NAME = 'inline-block h-2.5 w-3 animate-pulse round
 const TAB_COUNT_GROWING_CLASS_NAME = 'animate-pulse';
 
 /** The tabs whose counts are read from the team's tasks, which arrive page by page. */
-const TEAM_TASK_TABS: ITab[] = ['worked', 'assigned', 'unassigned'];
+const TEAM_TASK_TABS: ReadonlySet<ITab> = new Set<ITab>(['worked', 'assigned', 'unassigned']);
 
 type Props = { hook: I_TaskFilter; profile: I_UserProfilePage };
 
@@ -90,7 +90,7 @@ function TabsNav({ hook }: { hook: I_TaskFilter }) {
 			<TabsList className="w-auto gap-5 border-b-0">
 				{hook.tabs.map((item) => {
 					const active = item.tab === hook.tab;
-					const countsTeamTasks = TEAM_TASK_TABS.includes(item.tab);
+					const countsTeamTasks = TEAM_TASK_TABS.has(item.tab);
 					const isCountPending = countsTeamTasks && isTasksFirstLoad;
 					const isCountGrowing = countsTeamTasks && isLoadingMorePages;
 

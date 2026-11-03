@@ -58,7 +58,7 @@ function AffectedTasks({ tasks }: Readonly<{ tasks: TTask[] }>) {
 }
 
 /** Archiving keeps the project and everything in it; its tasks are unlinked afterwards, as before. */
-export function ArchiveProjectModal({ open, closeModal, projectId }: IArchiveProjectModalProps) {
+export function ArchiveProjectModal({ open, closeModal, projectId }: Readonly<IArchiveProjectModalProps>) {
 	const t = useTranslations();
 	const { organizationProjects } = useOrganizationProjectsQuery();
 	const { editOrganizationProject, editOrganizationProjectLoading } = useEditOrganizationProject();
