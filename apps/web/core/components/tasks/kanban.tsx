@@ -397,7 +397,7 @@ export const EmptyKanbanDroppable = ({
 														<Plus />
 														{t('hotkeys.CREATE_TASK')}
 													</button>
-													<div role="separator" className={MENU_SEPARATOR} />
+													<hr className={cn(MENU_SEPARATOR, 'border-0')} />
 													<StatusMenuItem
 														label={t('common.EXPAND_COLUMN')}
 														canEdit={canEditStatus}
@@ -551,7 +551,7 @@ const KanbanDraggableHeader = ({
 									<Plus />
 									{t('common.CREATE_TASK')}
 								</button>
-								<div role="separator" className={MENU_SEPARATOR} />
+								<hr className={cn(MENU_SEPARATOR, 'border-0')} />
 								<StatusMenuItem
 									label={t('common.COLLAPSE_COLUMN')}
 									canEdit={canEditStatus}

@@ -278,7 +278,7 @@ export function TeamTasksList({
 
 	const handleKeyDown = (event: KeyboardEvent<HTMLDivElement>) => {
 		const target = event.target as HTMLElement;
-		const taskId = target.getAttribute('data-task-id');
+		const taskId = target.dataset.taskId;
 		if (!taskId) {
 			return;
 		}
@@ -322,7 +322,7 @@ export function TeamTasksList({
 	const handleContextMenu = (event: MouseEvent<HTMLDivElement>) => {
 		const target = event.target as Element;
 		const row = target.closest<HTMLElement>('[data-task-id]');
-		const taskId = row?.getAttribute('data-task-id');
+		const taskId = row?.dataset.taskId;
 		if (!row || !taskId) {
 			return;
 		}
@@ -393,6 +393,7 @@ export function TeamTasksList({
 			<div
 				ref={scrollRef}
 				role="grid"
+				tabIndex={-1}
 				aria-label={t('sidebar.TEAMTASKS')}
 				aria-rowcount={rows.length}
 				aria-multiselectable={true}

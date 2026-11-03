@@ -166,17 +166,17 @@ export function CommentThreadView({
 
 export function CommentsSkeleton() {
 	return (
-		<ul role="status" className="flex flex-col gap-4">
+		<output className="flex flex-col gap-4">
 			{SKELETON_KEYS.map((key) => (
-				<li key={key} className="flex gap-3">
+				<span key={key} className="flex gap-3">
 					<span className="size-6 shrink-0 animate-pulse rounded-full bg-foreground/[0.06]" />
 					<span className="flex flex-1 flex-col gap-2 pt-1">
 						<span className="h-3 w-32 animate-pulse rounded-full bg-foreground/[0.06]" />
 						<span className="h-3 w-4/5 animate-pulse rounded-full bg-foreground/[0.06]" />
 					</span>
-				</li>
+				</span>
 			))}
-		</ul>
+		</output>
 	);
 }
 

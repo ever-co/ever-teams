@@ -231,7 +231,7 @@ function PlansList({
 	);
 }
 
-function PlannedTime({ hours }: { hours?: number | null }) {
+function PlannedTime({ hours }: Readonly<{ hours?: number | null }>) {
 	const t = useTranslations();
 	const hasPlannedTime = typeof hours === 'number';
 	if (!hasPlannedTime) {

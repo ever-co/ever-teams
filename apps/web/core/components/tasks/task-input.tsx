@@ -419,8 +419,6 @@ export function TaskInput(props: Props) {
 						/>
 					) : (
 						<TaskIssuesDropdown
-							taskStatusClassName="!px-1 py-1 rounded-sm"
-							showIssueLabels={false}
 							onValueChange={(v: any) => setTaskIssue(v)}
 							defaultValue={
 								defaultIssueType
@@ -432,7 +430,7 @@ export function TaskInput(props: Props) {
 
 					{!datas.hasCreateForm && (
 						<span className="text-sm tabular-nums text-muted-foreground">
-							#{(inputTask && inputTask.taskNumber) || ''}
+							#{inputTask?.taskNumber || ''}
 						</span>
 					)}
 				</div>

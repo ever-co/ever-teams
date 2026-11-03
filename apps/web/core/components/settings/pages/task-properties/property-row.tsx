@@ -23,7 +23,7 @@ import { dropEdgeOfState, propertyRowData, usePropertyRowDrag } from './property
 import { PROPERTY_DEFAULT_CHIP, PROPERTY_ROW, PROPERTY_ROW_LABEL } from './property-list-recipes';
 
 /** These kinds are stored as slugs (`in-progress`); labels and versions are free text and keep their case. */
-const KINDS_IN_TITLE_CASE: ReadonlyArray<TaskPropertySettingsKind> = ['status', 'priority', 'size', 'issueType'];
+const KINDS_IN_TITLE_CASE: ReadonlySet<TaskPropertySettingsKind> = new Set(['status', 'priority', 'size', 'issueType']);
 
 const HOVER_REVEAL =
 	'pointer-fine:opacity-0 pointer-fine:group-hover/row:opacity-100 pointer-fine:group-focus-within/row:opacity-100 pointer-fine:aria-expanded:opacity-100';
@@ -141,7 +141,7 @@ export const PropertyRow = memo(function PropertyRow(props: Readonly<PropertyRow
 	const { rowRef, handleRef, dragState } = usePropertyRowDrag(dragData, canReorder);
 	const isDragging = dragState.type === 'dragging';
 	const dropEdge = dropEdgeOfState(dragState);
-	const isTitleCase = KINDS_IN_TITLE_CASE.includes(kind);
+	const isTitleCase = KINDS_IN_TITLE_CASE.has(kind);
 
 	return (
 		<li

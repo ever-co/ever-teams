@@ -50,7 +50,7 @@ export function PropertyIconPanel({ kind, value, onPick }: Readonly<PropertyIcon
 				{filledGroups.map((entry) => {
 					const groupLabel = t(ICON_GROUP_LABEL_KEYS[entry.group]);
 					return (
-						<div key={entry.group} role="group" aria-label={groupLabel}>
+						<fieldset key={entry.group} aria-label={groupLabel} className="min-w-0">
 							<p className="px-2 pt-1.5 pb-1 text-xs font-medium text-muted-foreground">{groupLabel}</p>
 							{entry.options.map((option) => {
 								const isCurrent = option.path === value;
@@ -68,7 +68,7 @@ export function PropertyIconPanel({ kind, value, onPick }: Readonly<PropertyIcon
 									</button>
 								);
 							})}
-						</div>
+						</fieldset>
 					);
 				})}
 				{!hasResults && (

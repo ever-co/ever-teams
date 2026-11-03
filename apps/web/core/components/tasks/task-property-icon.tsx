@@ -152,7 +152,7 @@ function EpicTypeShape() {
 	return <path d="M8.3 1 2.75 8.1h3.8L5.7 13l5.55-7.1h-3.8Z" fill="currentColor" />;
 }
 
-function IssueTypeShape({ kind, name }: { kind: TaskPropertyKind; name: string }) {
+function IssueTypeShape({ kind, name }: Readonly<{ kind: TaskPropertyKind; name: string }>) {
 	const isEpic = kind === 'epic' || name === 'epic';
 	if (isEpic) {
 		return <EpicTypeShape />;
@@ -166,7 +166,7 @@ function IssueTypeShape({ kind, name }: { kind: TaskPropertyKind; name: string }
 	return <TaskTypeShape />;
 }
 
-function IssueTypeGlyph({ kind, name }: { kind: TaskPropertyKind; name: string }) {
+function IssueTypeGlyph({ kind, name }: Readonly<{ kind: TaskPropertyKind; name: string }>) {
 	return (
 		<svg viewBox="0 0 14 14" fill="none" aria-hidden="true" className="size-[68%]">
 			<IssueTypeShape kind={kind} name={name} />
@@ -181,12 +181,12 @@ function ringDashArray(dashed: boolean) {
 	return '1.5 1.51';
 }
 
-function Ring({ dashed = false }: { dashed?: boolean }) {
+function Ring({ dashed = false }: Readonly<{ dashed?: boolean }>) {
 	const dashArray = ringDashArray(dashed);
 	return <circle cx="7" cy="7" r="5.75" stroke="currentColor" strokeWidth="1.5" strokeDasharray={dashArray} />;
 }
 
-function StatusShape({ glyph }: { glyph: StatusGlyph }) {
+function StatusShape({ glyph }: Readonly<{ glyph: StatusGlyph }>) {
 	if (glyph === 'backlog') {
 		return <Ring dashed />;
 	}
@@ -266,7 +266,7 @@ function SizeFrame() {
 	);
 }
 
-function PriorityShape({ name }: { name: string }) {
+function PriorityShape({ name }: Readonly<{ name: string }>) {
 	const glyph = PRIORITY_GLYPH_BY_NAME[name];
 	if (glyph === 'none') {
 		return <NoPriorityShape />;
@@ -305,7 +305,7 @@ function PriorityShape({ name }: { name: string }) {
 	return <circle cx="7" cy="7" r="3.5" fill="currentColor" />;
 }
 
-function SizeShape({ name }: { name: string }) {
+function SizeShape({ name }: Readonly<{ name: string }>) {
 	const level = SIZE_LEVEL_BY_NAME[name];
 	if (!level) {
 		return <circle cx="7" cy="7" r="3.5" fill="currentColor" />;
@@ -320,7 +320,7 @@ function SizeShape({ name }: { name: string }) {
 	);
 }
 
-function DrawnGlyph({ kind, name }: { kind: TaskPropertyKind; name: string }) {
+function DrawnGlyph({ kind, name }: Readonly<{ kind: TaskPropertyKind; name: string }>) {
 	const statusGlyph = STATUS_GLYPH_BY_NAME[name] ?? 'todo';
 	return (
 		<svg viewBox="0 0 14 14" fill="none" aria-hidden="true" className="size-full">
@@ -332,7 +332,7 @@ function DrawnGlyph({ kind, name }: { kind: TaskPropertyKind; name: string }) {
 	);
 }
 
-function PropertyGlyph({ kind, name }: { kind: TaskPropertyKind; name: string }) {
+function PropertyGlyph({ kind, name }: Readonly<{ kind: TaskPropertyKind; name: string }>) {
 	if (kind === 'version') {
 		return <Tag className="size-full" aria-hidden="true" />;
 	}
@@ -345,7 +345,7 @@ function PropertyGlyph({ kind, name }: { kind: TaskPropertyKind; name: string })
 	return <DrawnGlyph kind={kind} name={name} />;
 }
 
-function PlaceholderGlyph({ kind }: { kind: TaskPropertyKind }) {
+function PlaceholderGlyph({ kind }: Readonly<{ kind: TaskPropertyKind }>) {
 	const isTagKind = kind === 'label' || kind === 'version';
 	const isIssueKind = kind === 'epic' || kind === 'issueType';
 	if (isTagKind) {
@@ -369,7 +369,10 @@ function PlaceholderGlyph({ kind }: { kind: TaskPropertyKind }) {
 	);
 }
 
-export function TaskPropertyPlaceholderIcon({ kind, className }: { kind: TaskPropertyKind; className?: string }) {
+export function TaskPropertyPlaceholderIcon({
+	kind,
+	className
+}: Readonly<{ kind: TaskPropertyKind; className?: string }>) {
 	return (
 		<span
 			data-slot="task-property-icon"
@@ -388,7 +391,7 @@ interface TaskPropertyIconProps {
 	className?: string;
 }
 
-export function TaskPropertyIcon({ kind, name, color, className }: TaskPropertyIconProps) {
+export function TaskPropertyIcon({ kind, name, color, className }: Readonly<TaskPropertyIconProps>) {
 	const normalizedName = normalizePropertyName(name);
 	const isIssueKind = kind === 'epic' || kind === 'issueType';
 

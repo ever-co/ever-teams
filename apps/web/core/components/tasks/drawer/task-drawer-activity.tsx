@@ -97,16 +97,16 @@ export function dayLabelOf(date: Date, t: Translate) {
 
 export function ActivitySkeleton() {
 	return (
-		<ul role="status" className="flex flex-col gap-4">
+		<output className="flex flex-col gap-4">
 			{SKELETON_KEYS.map((key) => (
-				<li key={key} className="flex gap-3">
+				<span key={key} className="flex gap-3">
 					<span className="size-6 shrink-0 animate-pulse rounded-full bg-foreground/[0.06]" />
 					<span className="flex flex-1 flex-col gap-2 pt-1">
 						<span className="h-3 w-3/4 animate-pulse rounded-full bg-foreground/[0.06]" />
 						<span className="h-2.5 w-10 animate-pulse rounded-full bg-foreground/[0.06]" />
 					</span>
-				</li>
+				</span>
 			))}
-		</ul>
+		</output>
 	);
 }

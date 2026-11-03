@@ -165,6 +165,7 @@ function MentionSuggestions({
 						key={candidate.employeeId}
 						id={`${listId}-${index}`}
 						role="option"
+						tabIndex={-1}
 						aria-selected={isActive}
 						data-highlighted={isActive || undefined}
 						onMouseDown={(event) => {

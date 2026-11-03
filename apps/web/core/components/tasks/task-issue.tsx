@@ -76,7 +76,7 @@ function issueTypeMenuOption(name: string, color: string | null | undefined): Ta
 	};
 }
 
-function IssueTypeTriggerGlyph({ name, color }: { name?: string; color?: string | null }) {
+function IssueTypeTriggerGlyph({ name, color }: Readonly<{ name?: string; color?: string | null }>) {
 	if (!name) {
 		return (
 			<span className="flex size-6 items-center justify-center rounded-md p-1.5 hairline-ring ring-foreground/10">
@@ -93,13 +93,7 @@ function IssueTypeTriggerGlyph({ name, color }: { name?: string; color?: string 
  * @param  - `className` - the class name for the dropdown
  * @returns A dropdown menu with a button that opens a modal.
  */
-export function TaskIssuesDropdown({
-	defaultValue,
-	onValueChange
-}: TTaskVersionsDropdown<'issueType'> & {
-	showIssueLabels?: boolean;
-	taskStatusClassName?: string;
-}) {
+export function TaskIssuesDropdown({ defaultValue, onValueChange }: TTaskVersionsDropdown<'issueType'>) {
 	const t = useTranslations();
 	const { isOpen, closeModal } = useModal();
 	const { issueTypes: taskIssues } = useIssueTypesQuery();

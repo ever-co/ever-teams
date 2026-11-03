@@ -59,7 +59,6 @@ type Props = {
 	closeable_fc?: () => void;
 	viewType?: 'input-trigger' | 'one-view';
 	createOnEnterClick?: boolean;
-	showTaskNumber?: boolean;
 	showCombobox?: boolean;
 	autoAssignTaskAuth?: boolean;
 	fullWidthCombobox?: boolean;
@@ -355,8 +354,6 @@ export function TaskInputKanban(props: Props) {
 			<TaskIssuesDropdown
 				key={issuePickerKey}
 				defaultValue={(voiceIssueType ?? undefined) as EIssueType | undefined}
-				taskStatusClassName="!px-1 py-1 rounded-sm"
-				showIssueLabels={false}
 				onValueChange={(v: any) => {
 					setTaskIssue(v);
 					setVoiceIssueType(v);
@@ -678,7 +675,7 @@ function isTaskCreationBlocked(datas: Partial<RTuseTaskInput>, timerRunningStatu
 	return hasNoCreateForm || isCreating || isUnverified || timerRunningStatus;
 }
 
-function PropertyColorDot({ color }: { color?: string }) {
+function PropertyColorDot({ color }: Readonly<{ color?: string }>) {
 	if (!isPaintableColor(color)) {
 		return (
 			<span aria-hidden="true" className="size-2 shrink-0 rounded-full hairline-border border-foreground/40" />
@@ -687,7 +684,7 @@ function PropertyColorDot({ color }: { color?: string }) {
 	return <span aria-hidden="true" className="size-2 shrink-0 rounded-full" style={dataColorDotStyle(color)} />;
 }
 
-function PropertyMenuRow({ name, color, isSelected }: { name: string; color?: string; isSelected: boolean }) {
+function PropertyMenuRow({ name, color, isSelected }: Readonly<{ name: string; color?: string; isSelected: boolean }>) {
 	return (
 		<span className="flex w-full items-center gap-2 text-[13px]">
 			<PropertyColorDot color={color} />
@@ -716,7 +713,7 @@ export function TaskPropertySelect({
 	onChange,
 	emptyLabel,
 	emptyIcon
-}: TaskPropertySelectProps) {
+}: Readonly<TaskPropertySelectProps>) {
 	const renderItem = useCallback(
 		(item: (typeof options)[number], isSelected: boolean) => (
 			<PropertyMenuRow name={item.name} color={item.color} isSelected={isSelected} />

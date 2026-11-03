@@ -15,7 +15,7 @@ interface TaskDetailSectionProps {
 	className?: string;
 }
 
-export function TaskDetailSection({ title, meta, actions, children, className }: TaskDetailSectionProps) {
+export function TaskDetailSection({ title, meta, actions, children, className }: Readonly<TaskDetailSectionProps>) {
 	const titleId = useId();
 	return (
 		<section aria-labelledby={titleId} className={cn('flex flex-col gap-2.5', className)}>
@@ -45,7 +45,7 @@ export function TaskDetailRailSection({
 	actions,
 	defaultOpen = true,
 	children
-}: TaskDetailRailSectionProps) {
+}: Readonly<TaskDetailRailSectionProps>) {
 	const [isOpen, setIsOpen] = useState(defaultOpen);
 	const contentId = useId();
 	return (

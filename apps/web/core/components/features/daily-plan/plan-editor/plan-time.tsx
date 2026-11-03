@@ -151,12 +151,9 @@ export function PlanTimeBar({ value, plannedHours, valueLabelKey }: Readonly<Pla
 export function PlanWarning({ messageKey }: Readonly<{ messageKey: DottedLanguageObjectStringPaths }>) {
 	const t = useTranslations();
 	return (
-		<p
-			role="status"
-			className="flex items-start gap-2 rounded-lg bg-warning/10 px-3 py-2 text-xs leading-relaxed text-warning-foreground"
-		>
+		<output className="flex items-start gap-2 rounded-lg bg-warning/10 px-3 py-2 text-xs leading-relaxed text-warning-foreground">
 			<CircleAlert aria-hidden="true" className="mt-px size-3.5 shrink-0" />
 			{t(messageKey)}
-		</p>
+		</output>
 	);
 }

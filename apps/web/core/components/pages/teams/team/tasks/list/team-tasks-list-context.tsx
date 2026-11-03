@@ -1,6 +1,6 @@
 'use client';
 
-import { createContext, ReactNode, useContext, useMemo } from 'react';
+import { createContext, ReactNode, useContext, useMemo, useState } from 'react';
 import { useAtomValue } from 'jotai';
 import { useLocale } from 'next-intl';
 import { useTaskPrioritiesValue } from '@/core/hooks/tasks/use-task-priorities-value';
@@ -202,7 +202,7 @@ export function TeamTasksListProvider({
 	}, [locale]);
 
 	// The day changes rarely; one value per mount keeps every row's due date tone in step.
-	const now = useMemo(() => new Date().getTime(), []);
+	const [now] = useState(() => Date.now());
 
 	const value = useMemo<TeamTasksListContextValue>(
 		() => ({

@@ -165,7 +165,7 @@ export function JoinTeamPage() {
 						<span className={LABEL} id="join-team-code-label">
 							{t('pages.joinTeam.CODE_LABEL')}
 						</span>
-						<div role="group" aria-labelledby="join-team-code-label">
+						<fieldset aria-labelledby="join-team-code-label" className="min-w-0">
 							<AuthCodeInputField
 								allowedCharacters="alphanumeric"
 								length={AUTH_CODE_LENGTH}
@@ -178,7 +178,7 @@ export function JoinTeamPage() {
 									setFormValues((values) => ({ ...values, code }));
 								}}
 							/>
-						</div>
+						</fieldset>
 						{codeError && <span className={FIELD_ERROR}>{codeError}</span>}
 					</div>
 				</FocusCard>

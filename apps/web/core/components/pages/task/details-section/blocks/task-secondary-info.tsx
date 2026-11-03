@@ -273,7 +273,7 @@ function projectChipStyle(project: TOrganizationProject) {
 	return dataColorChipStyle(project.color);
 }
 
-function ProjectGlyph({ project, className }: { project: TOrganizationProject; className?: string }) {
+function ProjectGlyph({ project, className }: Readonly<{ project: TOrganizationProject; className?: string }>) {
 	if (project.imageUrl) {
 		return (
 			<Image
@@ -292,11 +292,11 @@ function ProjectTriggerContent({
 	project,
 	emptyLabel,
 	isLoading
-}: {
+}: Readonly<{
 	project: TOrganizationProject | null;
 	emptyLabel: string;
 	isLoading: boolean;
-}) {
+}>) {
 	if (!project) {
 		return <TaskPropertyPill kind="project" label={emptyLabel} isLoading={isLoading} className="w-full" />;
 	}

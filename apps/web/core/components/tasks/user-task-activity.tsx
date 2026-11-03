@@ -105,8 +105,8 @@ export const UserTaskActivity = ({ timesheet }: { timesheet: TActivity }) => {
 											<div className="my-1 flex flex-wrap gap-1">
 												<span className={sourceChipClassName}>{timesheet.source}</span>
 												{Array.isArray(screenshot.apps) &&
-													screenshot.apps.map((app: string, i: number) => (
-														<span key={i} className={sourceChipClassName}>
+													screenshot.apps.map((app: string) => (
+														<span key={app} className={sourceChipClassName}>
 															{app}
 														</span>
 													))}

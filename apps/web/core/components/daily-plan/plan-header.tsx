@@ -1,5 +1,4 @@
 'use client';
-import { checkPastDate } from '@/core/lib/helpers';
 import { useTranslations } from 'next-intl';
 import { PropsWithChildren, useMemo } from 'react';
 
@@ -7,7 +6,7 @@ import { useAuthenticateUser, useCanSeeActivityScreen } from '@/core/hooks';
 
 import { FilterTabs } from '@/core/types/daily-plan-types';
 import { TDailyPlan } from '@/core/types/schemas';
-import { cn } from '@/core/lib/helpers';
+import { checkPastDate, cn } from '@/core/lib/helpers';
 import { formatDurationShort } from '@/core/lib/utils/dashboard-figures';
 import { useGetTimeLogs } from '@/core/hooks/activities/time-logs/use-get-time-logs';
 import { isTaskFinished } from '@/core/lib/helpers/task';
@@ -94,11 +93,11 @@ export function PlanHeader({
 	plan,
 	planMode,
 	isOpen = true
-}: {
+}: Readonly<{
 	plan: TDailyPlan;
 	planMode: FilterTabs;
 	isOpen?: boolean;
-}) {
+}>) {
 	const { isTeamManager } = useAuthenticateUser();
 	const canSeeActivity = useCanSeeActivityScreen();
 	const t = useTranslations();

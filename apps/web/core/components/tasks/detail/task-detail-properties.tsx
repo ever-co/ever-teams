@@ -73,7 +73,7 @@ interface TaskDetailPropertiesProps {
 }
 
 /** The estimate is not a row here: it lives with the time worked. */
-export function TaskDetailProperties({ task, columns = 'auto' }: TaskDetailPropertiesProps) {
+export function TaskDetailProperties({ task, columns = 'auto' }: Readonly<TaskDetailPropertiesProps>) {
 	const t = useTranslations();
 	const host = useTaskDetailHost();
 	const canCreate = allowsLegacyDialogs(host);

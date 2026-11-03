@@ -181,7 +181,7 @@ export function CreateDailyPlanFormModal({
 	}, [createDailyPlanLoading, handleCloseModal, rememberSubmitOption, planMode, date]);
 
 	const onSubmit = useCallback(
-		async (values: FieldValues) => {
+		(values: FieldValues) => {
 			if (isPastCustomDay(planMode, date)) {
 				setDate(getTomorrowDate());
 				return;

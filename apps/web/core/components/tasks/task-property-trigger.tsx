@@ -74,10 +74,10 @@ export function taskPropertyTriggerWidthStyle(largerWidth: boolean): CSSProperti
 export function TaskPropertyTriggerEnd({
 	isLoading = false,
 	showsChevron = true
-}: {
+}: Readonly<{
 	isLoading?: boolean;
 	showsChevron?: boolean;
-}) {
+}>) {
 	if (isLoading) {
 		return <SpinnerLoader size={12} variant="dark-white" />;
 	}
@@ -95,7 +95,7 @@ interface TaskPropertyPillProps {
 	className?: string;
 }
 
-export function TaskPropertyPill({ kind, label, isLoading, showsChevron, className }: TaskPropertyPillProps) {
+export function TaskPropertyPill({ kind, label, isLoading, showsChevron, className }: Readonly<TaskPropertyPillProps>) {
 	return (
 		<span className={cn(TASK_PROPERTY_PILL_RECIPE, 'text-muted-foreground', className)}>
 			<TaskPropertyPlaceholderIcon kind={kind} className="size-3.5" />
@@ -119,7 +119,7 @@ export function TaskPropertyCountChip({
 	isLoading,
 	showsChevron,
 	className
-}: TaskPropertyCountChipProps) {
+}: Readonly<TaskPropertyCountChipProps>) {
 	const paintableColors = colors.filter(isPaintableColor);
 	const shownColors = paintableColors.slice(0, MAX_SUMMARY_DOTS);
 	return (

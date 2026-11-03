@@ -35,10 +35,10 @@ function PropertyRowSkeleton() {
 
 export function TaskDetailSectionSkeleton() {
 	return (
-		<div role="status" className="flex flex-col gap-2.5">
+		<output className="flex flex-col gap-2.5">
 			<span className={cn('h-3 w-24', BAR)} />
 			<div className={cn('h-20', BOX)} />
-		</div>
+		</output>
 	);
 }
 
@@ -53,7 +53,7 @@ function TitleSkeleton() {
 
 export function TaskDetailColumnSkeleton() {
 	return (
-		<div role="status" className="flex flex-col gap-8 px-6 pt-6 pb-8 sm:px-7">
+		<output className="flex flex-col gap-8 px-6 pt-6 pb-8 sm:px-7">
 			<TitleSkeleton />
 			<div className="@container">
 				<div className="grid gap-x-6 @2xl:grid-cols-2">
@@ -64,13 +64,13 @@ export function TaskDetailColumnSkeleton() {
 			</div>
 			<div className={cn('h-24', BOX)} />
 			<TaskDetailSectionSkeleton />
-		</div>
+		</output>
 	);
 }
 
 export function TaskDetailPageSkeleton() {
 	return (
-		<div role="status" className="absolute inset-0 flex">
+		<output className="absolute inset-0 flex">
 			<div className="min-w-0 flex-1 overflow-hidden">
 				<div className="mx-auto flex w-full max-w-[46rem] flex-col gap-8 px-5 py-8 sm:px-8">
 					<span className={cn('h-7 w-3/4', BAR)} />
@@ -86,7 +86,7 @@ export function TaskDetailPageSkeleton() {
 					<PropertyRowSkeleton key={key} />
 				))}
 			</div>
-		</div>
+		</output>
 	);
 }
 

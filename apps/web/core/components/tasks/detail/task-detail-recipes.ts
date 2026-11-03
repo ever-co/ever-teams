@@ -1,4 +1,7 @@
-import { ADD_ROW_RECIPE, EMPTY_VALUE_RECIPE } from '@/core/components/common/surface-recipes';
+export {
+	ADD_ROW_RECIPE as DETAIL_ADD_ROW,
+	EMPTY_VALUE_RECIPE as DETAIL_EMPTY_VALUE
+} from '@/core/components/common/surface-recipes';
 
 export const DETAIL_SECTION_TITLE = 'text-[13px] font-semibold text-foreground';
 
@@ -8,8 +11,6 @@ export const DETAIL_MUTED_TEXT = 'text-[13px] text-muted-foreground';
 
 export const DETAIL_LIST_SURFACE =
 	'overflow-hidden rounded-xl bg-card hairline-ring ring-border hairline-divide-y divide-border';
-
-export const DETAIL_ADD_ROW = ADD_ROW_RECIPE;
 
 export const DETAIL_GHOST_ACTION =
 	'inline-flex h-7 shrink-0 items-center gap-1.5 rounded-md px-2 text-[13px] font-medium text-muted-foreground outline-none transition-colors hover:bg-foreground/5 hover:text-foreground focus-visible:ring-[3px] focus-visible:ring-ring/25 aria-expanded:bg-foreground/5 aria-expanded:text-foreground disabled:pointer-events-none disabled:opacity-50 [&_svg]:size-3.5 [&_svg]:shrink-0';
@@ -25,5 +26,3 @@ export const DETAIL_ISSUE_ROW =
 
 export const DETAIL_TASK_CHIP =
 	'inline-flex h-7 max-w-full min-w-0 items-center gap-1.5 rounded-md bg-card px-2 text-xs font-medium text-foreground hairline-ring ring-border shadow-[0_1px_1px_rgb(0_0_0/0.04)] outline-none transition-colors hover:bg-foreground/[0.03] focus-visible:ring-[3px] focus-visible:ring-ring/25';
-
-export const DETAIL_EMPTY_VALUE = EMPTY_VALUE_RECIPE;

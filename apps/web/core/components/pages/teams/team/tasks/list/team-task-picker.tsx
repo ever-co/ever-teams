@@ -100,7 +100,7 @@ function StatusPicker({ statuses, ...props }: PickerProps & { statuses: TTaskSta
 	);
 }
 
-function PriorityPicker(props: PickerProps) {
+function PriorityPicker(props: Readonly<PickerProps>) {
 	const t = useTranslations();
 	const { setPriority } = useTeamTaskUpdates();
 	const priorityValues = useTaskPrioritiesValue();
@@ -126,7 +126,7 @@ function PriorityPicker(props: PickerProps) {
 	);
 }
 
-function SizePicker(props: PickerProps) {
+function SizePicker(props: Readonly<PickerProps>) {
 	const t = useTranslations();
 	const { setSize } = useTeamTaskUpdates();
 	const sizeValues = useTaskSizesValue();
@@ -148,7 +148,7 @@ function SizePicker(props: PickerProps) {
 	);
 }
 
-function IssueTypePicker(props: PickerProps) {
+function IssueTypePicker(props: Readonly<PickerProps>) {
 	const t = useTranslations();
 	const { setIssueType } = useTeamTaskUpdates();
 	const task = props.tasks[0];
@@ -177,7 +177,7 @@ function IssueTypePicker(props: PickerProps) {
 	);
 }
 
-function LabelsPicker(props: PickerProps) {
+function LabelsPicker(props: Readonly<PickerProps>) {
 	const t = useTranslations();
 	const { toggleLabel } = useTeamTaskUpdates();
 	const labelValues = useTaskLabelsValue();
@@ -195,8 +195,8 @@ function LabelsPicker(props: PickerProps) {
 			}),
 		[labelValues]
 	);
-	const labelNames = (task?.tags ?? []).map((tag) => tag.name);
-	const isSelected = (name: string) => labelNames.includes(name);
+	const labelNames = new Set((task?.tags ?? []).map((tag) => tag.name));
+	const isSelected = (name: string) => labelNames.has(name);
 	const handleSelect = (name: string) => {
 		if (!task) {
 			return;
@@ -224,7 +224,7 @@ function teamMembersOf(members: TOrganizationTeamEmployee[] | null | undefined) 
 }
 
 /** One task: the members toggle on and off, each with the app's own assignment hook. */
-function TaskAssigneesPicker(props: PickerProps) {
+function TaskAssigneesPicker(props: Readonly<PickerProps>) {
 	const activeTeam = useAtomValue(activeTeamState);
 	const members = teamMembersOf(activeTeam?.members);
 	const task = props.tasks[0];
@@ -242,7 +242,7 @@ function TaskAssigneesPicker(props: PickerProps) {
 }
 
 /** A selection: the picked member is added to every task that does not have them yet. */
-function SelectionAssigneePicker(props: PickerProps) {
+function SelectionAssigneePicker(props: Readonly<PickerProps>) {
 	const t = useTranslations();
 	const activeTeam = useAtomValue(activeTeamState);
 	const { assignMember } = useTeamTaskUpdates();
@@ -325,7 +325,7 @@ interface DuePreset {
 }
 
 /** Presets first, as Linear does; the month grid only renders once "Custom date" is asked for. */
-function DueDatePicker(props: PickerProps) {
+function DueDatePicker(props: Readonly<PickerProps>) {
 	const t = useTranslations();
 	const locale = useLocale();
 	const { setDueDate } = useTeamTaskUpdates();

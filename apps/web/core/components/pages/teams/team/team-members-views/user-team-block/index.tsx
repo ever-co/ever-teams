@@ -48,7 +48,7 @@ function sumTodayTasksDuration(member: IUserTeamBlock['member']): number {
 }
 
 // Only the authenticated member's block subscribes to the per-second timer, as the card view does.
-function AuthUserTodayWorked({ member }: { member: IUserTeamBlock['member'] }) {
+function AuthUserTodayWorked({ member }: Readonly<{ member: IUserTeamBlock['member'] }>) {
 	const seconds = useAtomValue(timerSecondsState);
 	const statActiveTask = useAtomValue(activeTaskStatisticsState);
 	const activeTaskTotalStat = statActiveTask.total;

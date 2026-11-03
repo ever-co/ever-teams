@@ -72,9 +72,9 @@ export function MemberTotalCellSkeleton() {
 }
 
 /** A whole member row on the member grid, at the height of a loaded one, the same in the cards and table views. */
-export function MemberRowSkeleton({ className }: { className?: string }) {
+export function MemberRowSkeleton({ className }: Readonly<{ className?: string }>) {
 	return (
-		<div role="status" className={className}>
+		<output className={cn('block', className)}>
 			<div className={cn(MEMBER_GRID_FROM, MEMBER_CARD_PADDING, 'py-2')}>
 				<div className={cn(MEMBER_ROW_GRID, MEMBER_ROW_MIN_HEIGHT)}>
 					<div className={MEMBER_FIRST_CELL}>
@@ -99,14 +99,14 @@ export function MemberRowSkeleton({ className }: { className?: string }) {
 				<MemberIdentityCellSkeleton />
 				<MemberTaskCellSkeleton />
 			</div>
-		</div>
+		</output>
 	);
 }
 
 /** A pending invitation card: identity, then a short value in each column, at the same height as a member. */
-export function InvitationRowSkeleton({ className }: { className?: string }) {
+export function InvitationRowSkeleton({ className }: Readonly<{ className?: string }>) {
 	return (
-		<div role="status" className={className}>
+		<output className={cn('block', className)}>
 			<div className={cn(MEMBER_GRID_FROM, MEMBER_CARD_PADDING, 'py-2')}>
 				<div className={cn(MEMBER_ROW_GRID, MEMBER_ROW_MIN_HEIGHT)}>
 					<div className={MEMBER_FIRST_CELL}>
@@ -130,7 +130,7 @@ export function InvitationRowSkeleton({ className }: { className?: string }) {
 			<div className={cn(MEMBER_STACK_UNTIL, 'px-3 py-3')}>
 				<MemberIdentityCellSkeleton />
 			</div>
-		</div>
+		</output>
 	);
 }
 
@@ -141,7 +141,7 @@ const INVITATION_SKELETON_KEYS = ['invitation-1', 'invitation-2'];
  * The member list while it loads, in the shape of the cards or the table view, at the height of loaded rows: the
  * table keeps one surface split by hairlines with an actions column, the cards stay separate.
  */
-export function MemberListSkeleton({ view, className }: { view: IssuesView; className?: string }) {
+export function MemberListSkeleton({ view, className }: Readonly<{ view: IssuesView; className?: string }>) {
 	const isTableView = view === IssuesView.TABLE;
 	if (isTableView) {
 		return (
@@ -198,7 +198,7 @@ function planTaskRowClassName(index: number) {
 }
 
 /** A segmented control's light track with label-sized bars, the first option raised like the real thumb. */
-function SegmentedControlSkeleton({ labelWidths }: { labelWidths: string[] }) {
+function SegmentedControlSkeleton({ labelWidths }: Readonly<{ labelWidths: string[] }>) {
 	return (
 		<div className={SEGMENT_TRACK}>
 			{labelWidths.map((width, index) => (
@@ -211,7 +211,7 @@ function SegmentedControlSkeleton({ labelWidths }: { labelWidths: string[] }) {
 }
 
 /** An icon-only view switch: the pale track, the raised first option and one glyph slot per view. */
-export function ViewSwitchSkeleton({ iconCount = VIEW_SWITCH_ICON_COUNT }: { iconCount?: number }) {
+export function ViewSwitchSkeleton({ iconCount = VIEW_SWITCH_ICON_COUNT }: Readonly<{ iconCount?: number }>) {
 	const iconKeys = Array.from({ length: iconCount }, (_, index) => index);
 	return (
 		<div className={SEGMENT_TRACK}>
@@ -253,7 +253,7 @@ function PlanTaskRowSkeleton() {
  */
 export function MemberActivityPanelSkeleton() {
 	return (
-		<div role="status" className="flex flex-col">
+		<output className="flex flex-col">
 			<div className="pb-3 pt-4">
 				<SegmentedControlSkeleton labelWidths={ACTIVITY_SWITCH_LABELS} />
 			</div>
@@ -286,6 +286,6 @@ export function MemberActivityPanelSkeleton() {
 					</div>
 				))}
 			</div>
-		</div>
+		</output>
 	);
 }

@@ -17,7 +17,7 @@ function sumTodayTasksDuration(member: TOrganizationTeamEmployee | undefined): n
 }
 
 // Only the authenticated member's block subscribes to the per-second timer.
-function AuthUserTodayWorked({ member }: { member: TOrganizationTeamEmployee | undefined }) {
+function AuthUserTodayWorked({ member }: Readonly<{ member: TOrganizationTeamEmployee | undefined }>) {
 	const seconds = useAtomValue(timerSecondsState);
 	const statActiveTask = useAtomValue(activeTaskStatisticsState);
 	const activeTaskTotalStat = statActiveTask.total;

@@ -92,8 +92,8 @@ export function TeamInvitations(props: IProps) {
 						'flex flex-col hairline-divide-y divide-border overflow-visible'
 					)}
 				>
-					{pendingInvitations.map((invitation, index) => (
-						<li className="flex flex-wrap items-center gap-3 px-3 py-2" key={index}>
+					{pendingInvitations.map((invitation) => (
+						<li className="flex flex-wrap items-center gap-3 px-3 py-2" key={invitation.id}>
 							<Text className="min-w-0 flex-1 text-sm">
 								{t('pages.home.INVITATIONS')}{' '}
 								<span className="font-semibold">{invitation.teams?.[0]?.name}</span>

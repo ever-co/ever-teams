@@ -131,7 +131,7 @@ function OptionPopover({ setEdit, setEstimateEdit, children }: PropsWithChildren
 					<PopoverPanel anchor={MENU_ANCHOR} transition className={cn(MENU_SURFACE, MENU_ANCHORED_PANEL)}>
 						{optionGroups.map((groupOptions, groupIndex) => (
 							<React.Fragment key={OPTION_GROUP_ORDER[groupIndex]}>
-								{groupIndex > 0 && <div role="separator" className={MENU_SEPARATOR} />}
+								{groupIndex > 0 && <hr className={cn(MENU_SEPARATOR, 'border-0')} />}
 								{groupOptions.map((option) => {
 									const opensTaskList = Boolean(option.extramenu);
 									return (

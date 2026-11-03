@@ -26,7 +26,7 @@ const MEMBER_LINK_CLASS =
 function employeeNameOf(employee: IEmployee | undefined): string {
 	const user = employee?.user;
 	const candidates = [user?.name, user?.firstName, user?.lastName, user?.username];
-	const name = candidates.find((candidate) => Boolean(candidate));
+	const name = candidates.find(Boolean);
 
 	return name ?? '';
 }

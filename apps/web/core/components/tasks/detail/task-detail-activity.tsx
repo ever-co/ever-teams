@@ -82,7 +82,7 @@ function feedDaysOf(items: FeedItem[]): FeedDay[] {
 	const days: FeedDay[] = [];
 	for (const item of items) {
 		const key = moment(item.date).format('YYYY-MM-DD');
-		const lastDay = days[days.length - 1];
+		const lastDay = days.at(-1);
 		const isSameDay = lastDay?.key === key;
 		if (isSameDay) {
 			lastDay.items.push(item);
@@ -200,8 +200,10 @@ function useFeedTabs(commentCount: number, historyCount: number) {
 	const t = useTranslations();
 	return useMemo<SegmentedControlItem<FeedFilter>[]>(() => {
 		const tabs: SegmentedControlItem<FeedFilter>[] = [{ value: 'all', label: t('taskDetail.activity.ALL') }];
-		tabs.push({ value: 'comments', label: t('taskDrawer.COMMENTS'), count: countOrNothing(commentCount) });
-		tabs.push({ value: 'history', label: t('taskDetail.activity.HISTORY'), count: countOrNothing(historyCount) });
+		tabs.push(
+			{ value: 'comments', label: t('taskDrawer.COMMENTS'), count: countOrNothing(commentCount) },
+			{ value: 'history', label: t('taskDetail.activity.HISTORY'), count: countOrNothing(historyCount) }
+		);
 		return tabs;
 	}, [commentCount, historyCount, t]);
 }
@@ -228,7 +230,7 @@ interface TaskDetailActivityProps {
 	showsComposer: boolean;
 }
 
-export function TaskDetailActivity({ task, showsComposer }: TaskDetailActivityProps) {
+export function TaskDetailActivity({ task, showsComposer }: Readonly<TaskDetailActivityProps>) {
 	const t = useTranslations();
 	const { ref, hasComeNear } = useHasComeNear<HTMLDivElement>();
 	const [filter, setFilter] = useState<FeedFilter>('all');
@@ -390,7 +392,7 @@ function FeedEntry({
 	onReply,
 	onPostReply,
 	isPosting
-}: FeedEntryProps) {
+}: Readonly<FeedEntryProps>) {
 	if (item.kind === 'history') {
 		return <HistoryEntry activity={item.activity} connectsToNext={connectsToNext} />;
 	}

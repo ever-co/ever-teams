@@ -144,7 +144,14 @@ interface PagerProps {
 	keysEnabled?: boolean;
 }
 
-export function TaskDetailPager({ previousId, nextId, position, total, onNavigate, keysEnabled = true }: PagerProps) {
+export function TaskDetailPager({
+	previousId,
+	nextId,
+	position,
+	total,
+	onNavigate,
+	keysEnabled = true
+}: Readonly<PagerProps>) {
 	const t = useTranslations();
 	const pagerRef = useRef<HTMLDivElement>(null);
 	useTaskPagerKeys({ previousId, nextId, onNavigate, enabled: keysEnabled, hostRef: pagerRef });

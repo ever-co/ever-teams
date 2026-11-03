@@ -72,7 +72,7 @@ export const MENU_ROW_RECIPE =
 const TaskPropertyMenuCloseContext = createContext<() => void>(() => undefined);
 
 export function toggleMenuSelection(values: string[], pickedValue: string) {
-	const isAlreadySelected = values.some((selected) => selected === pickedValue);
+	const isAlreadySelected = values.includes(pickedValue);
 	if (isAlreadySelected) {
 		return values.filter((selected) => selected !== pickedValue);
 	}
@@ -195,12 +195,13 @@ function TaskPropertyMenuRow({
 	labelClassName,
 	onHighlight,
 	onPick
-}: TaskPropertyMenuRowProps) {
+}: Readonly<TaskPropertyMenuRowProps>) {
 	const hasShortcut = shortcut !== null;
 	return (
 		<div
 			id={id}
 			role="option"
+			tabIndex={-1}
 			aria-selected={isChecked}
 			data-highlighted={dataFlag(isHighlighted)}
 			onMouseMove={onHighlight}
@@ -237,7 +238,7 @@ export function TaskPropertyMenu<V>({
 	anchor,
 	searchShortcut,
 	digitShortcuts = true
-}: TaskPropertyMenuProps<V>) {
+}: Readonly<TaskPropertyMenuProps<V>>) {
 	const t = useTranslations();
 	const [uncontrolledOpen, setUncontrolledOpen] = useState(false);
 	const [query, setQuery] = useState('');
@@ -474,7 +475,12 @@ interface TaskPropertyMenuActionProps {
 	disabled?: boolean;
 }
 
-export function TaskPropertyMenuAction({ icon, children, onClick, disabled = false }: TaskPropertyMenuActionProps) {
+export function TaskPropertyMenuAction({
+	icon,
+	children,
+	onClick,
+	disabled = false
+}: Readonly<TaskPropertyMenuActionProps>) {
 	const closeMenu = useContext(TaskPropertyMenuCloseContext);
 
 	const handleClick = useCallback(() => {

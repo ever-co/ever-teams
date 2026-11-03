@@ -158,7 +158,7 @@ export function ActionMenuCell({ cell }: { cell: any }) {
 	return <ActionMenu active={active} />;
 }
 
-export function ActionMenu({ active }: { active: boolean }) {
+export function ActionMenu({ active }: Readonly<{ active: boolean }>) {
 	const { identity, memberTask, mutations, roleActions, taskEdition } = useTeamMemberRowContext();
 
 	const { collaborativeSelect, user_selected, onUserSelect } = useCollaborative(identity.memberUser);
@@ -198,7 +198,7 @@ interface TeamMemberTableRowProps {
  * One member of the table view on the member grid of the cards view, so the columns and their labels stay in place
  * when switching between the two views. Cells whose data is still loading show their skeleton.
  */
-export function TeamMemberTableRow({ publicTeam, active, statsPending }: TeamMemberTableRowProps) {
+export function TeamMemberTableRow({ publicTeam, active, statsPending }: Readonly<TeamMemberTableRowProps>) {
 	const { identity, memberTask, taskEdition } = useTeamMemberRowContext();
 	const tasksPagesLoading = useAtomValue(teamTasksPagesLoadingState);
 	const isTaskListPending = !memberTask && tasksPagesLoading;

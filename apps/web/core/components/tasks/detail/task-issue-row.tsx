@@ -88,7 +88,7 @@ interface TaskIssueRowProps {
 	trailing?: ReactNode;
 }
 
-export function TaskIssueRow({ task, statusColor, isLive = false, trailing }: TaskIssueRowProps) {
+export function TaskIssueRow({ task, statusColor, isLive = false, trailing }: Readonly<TaskIssueRowProps>) {
 	const t = useTranslations();
 	const openIssue = useOpenTask(task.id);
 	const number = taskNumberOf(task);

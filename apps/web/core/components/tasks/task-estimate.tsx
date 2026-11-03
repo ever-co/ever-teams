@@ -20,7 +20,6 @@ type Props = {
 	className?: string;
 	loadingRef?: RefObject<boolean>;
 	closeable_fc?: () => void;
-	wrapperClassName?: string;
 	showEditAndSaveButton?: boolean;
 	useActiveTeamTaskByDefault?: boolean;
 };
@@ -129,8 +128,8 @@ export function TaskEstimate({
 		}
 	}, [updateLoading, loadingRef, closeable_fcRef]);
 
-	const hours = wholeNumberOf(parseInt(value['hours']));
-	const minutes = wholeNumberOf(parseInt(value['minutes']));
+	const hours = wholeNumberOf(Number.parseInt(value['hours']));
+	const minutes = wholeNumberOf(Number.parseInt(value['minutes']));
 	const savedSeconds = task?.estimate ?? 0;
 	const hasSavedEstimate = savedSeconds > 0;
 	const hasEstimate = hours > 0 || minutes > 0;

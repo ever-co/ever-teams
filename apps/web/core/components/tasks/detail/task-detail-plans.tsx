@@ -61,7 +61,7 @@ function PlannedMemberRow({ member }: Readonly<{ member: PlannedMember }>) {
 	const [isOpen, setIsOpen] = useState(false);
 	const today = todayPlanDay();
 	const nextDay = nextPlannedDayOf(member.days, today);
-	const lastDay = member.days[member.days.length - 1];
+	const lastDay = member.days.at(-1) ?? today;
 	const otherCount = member.days.length - 1;
 	const hasOtherDays = otherCount > 0;
 	const person = { id: member.key, name: member.name, imageUrl: member.imageUrl };
@@ -141,7 +141,7 @@ export function TaskDetailPlans({ task }: Readonly<{ task: TTask }>) {
 
 	return (
 		<div className="flex flex-col gap-1">
-			{isLoading && <span role="status" className="h-8 w-full animate-pulse rounded-md bg-foreground/[0.04]" />}
+			{isLoading && <output className="h-8 w-full animate-pulse rounded-md bg-foreground/[0.04]" />}
 			{isError && (
 				<div className="flex items-center gap-2">
 					<span className={DETAIL_MUTED_TEXT}>{t('taskDetail.plans.LOAD_FAILED')}</span>

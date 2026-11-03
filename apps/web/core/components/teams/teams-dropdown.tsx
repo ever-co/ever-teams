@@ -295,12 +295,12 @@ function TeamTriggerContent({
 	count,
 	color,
 	imageUrl
-}: {
+}: Readonly<{
 	title?: string;
 	count?: number;
 	color?: string | null;
 	imageUrl?: string;
-}) {
+}>) {
 	return (
 		<>
 			<EntityTile name={title} color={color} imageUrl={imageUrl} className="size-5" />

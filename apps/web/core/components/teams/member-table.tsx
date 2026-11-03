@@ -183,14 +183,14 @@ export const MemberTable = ({ members }: { members: TOrganizationTeamEmployee[] 
 					</TableRow>
 				</TableHeader>
 				<TableBody>
-					{currentItems.map((member, index) => {
+					{currentItems.map((member) => {
 						const isEditing = Boolean(editMemberRef.current) && editMemberRef.current?.id === member.id;
 						const hasImage = Boolean(member.employee.user?.imageId);
 						const showsInitials = !hasImage && Boolean(member.employee.user?.name);
 						const fullName = member.employee.fullName.trim();
 						const email = (member.employee.user?.email || '').trim();
 						return (
-							<TableRow key={index}>
+							<TableRow key={member.id}>
 								<TableCell scope="row" className="whitespace-nowrap text-foreground">
 									<div className="flex items-center gap-3">
 										{hasImage && (

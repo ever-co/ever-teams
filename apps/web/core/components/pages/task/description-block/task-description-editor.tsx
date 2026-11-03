@@ -56,7 +56,7 @@ function useSaveOnLeave(pending: { current: PendingEdit }) {
  * the detailed task (`detailedTaskState`) and saves through the task update hook, as the previous editor did. The
  * host owns the read mode: the task page and the drawer show `RichTextView` and mount this only while editing.
  */
-export default function TaskDescriptionEditor({ onDone, autoFocus = true }: TaskDescriptionEditorProps) {
+export default function TaskDescriptionEditor({ onDone, autoFocus = true }: Readonly<TaskDescriptionEditorProps>) {
 	const t = useTranslations();
 	const task = useAtomValue(detailedTaskState);
 	const { updateDescription } = useUpdateTask();

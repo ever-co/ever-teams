@@ -412,7 +412,7 @@ function useTaskTimerControls(task: TTask) {
 // Above the card's layouts: its loading state and dialogs survive a resize across the layout breakpoint
 export function TaskTimerController({ task, children }: PropsWithChildren<{ task: TTask }>) {
 	const controls = useTaskTimerControls(task);
-	const value = { ...controls, task };
+	const value = useMemo(() => ({ ...controls, task }), [controls, task]);
 
 	return (
 		<TaskTimerControlsContext.Provider value={value}>

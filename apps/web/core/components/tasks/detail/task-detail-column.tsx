@@ -23,7 +23,7 @@ interface TaskDetailColumnProps {
 	showsComposer: boolean;
 }
 
-export function TaskDetailColumn({ task, isReady, showsComposer }: TaskDetailColumnProps) {
+export function TaskDetailColumn({ task, isReady, showsComposer }: Readonly<TaskDetailColumnProps>) {
 	const t = useTranslations();
 	return (
 		<div className="flex flex-col gap-8 px-6 pt-6 pb-8 sm:px-7">

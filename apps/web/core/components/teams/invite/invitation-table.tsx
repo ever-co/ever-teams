@@ -49,8 +49,8 @@ export const InvitationTable = ({ invitations }: { invitations: (TInvite | IJoin
 					</TableRow>
 				</TableHeader>
 				<TableBody>
-					{currentItems.map((invitation, index) => (
-						<TableRow key={index}>
+					{currentItems.map((invitation) => (
+						<TableRow key={invitation.id}>
 							<TableCell scope="row" className="whitespace-nowrap text-foreground">
 								<div className="flex items-center gap-3">
 									<div

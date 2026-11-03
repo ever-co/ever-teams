@@ -27,7 +27,7 @@ function CardSkeleton() {
 /** The board while the statuses load: lanes and cards at their real size, so nothing moves when data arrives. */
 export function KanbanBoardSkeleton() {
 	return (
-		<div role="status" className="flex h-full gap-3 overflow-hidden px-4 py-3">
+		<output className="flex h-full gap-3 overflow-hidden px-4 py-3">
 			{LANE_CARD_COUNTS.map((cardCount, laneIndex) => (
 				<div
 					key={laneIndex}
@@ -45,6 +45,6 @@ export function KanbanBoardSkeleton() {
 					</div>
 				</div>
 			))}
-		</div>
+		</output>
 	);
 }

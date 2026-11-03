@@ -262,7 +262,6 @@ export function EpicPropertiesDropdown({
 	onValueChange,
 	forDetails,
 	multiple,
-	sidebarUI = false,
 	children,
 	taskStatusClassName,
 	defaultValues
@@ -293,16 +292,13 @@ export function EpicPropertiesDropdown({
 	return (
 		<MultipleStatusDropdown
 			kind="epic"
-			sidebarUI={sidebarUI}
 			forDetails={forDetails}
 			className={className}
 			items={items}
 			value={item}
-			defaultItem={!item ? 'epic' : undefined}
 			onChange={onChange}
 			values={values}
 			taskStatusClassName={taskStatusClassName}
-			isVersion={false}
 		>
 			{children}
 		</MultipleStatusDropdown>
@@ -462,13 +458,11 @@ export function TaskLabelsDropdown({
 	onValueChange,
 	forDetails,
 	multiple,
-	sidebarUI = false,
 	children,
 	placeholder,
 	defaultValues,
 	taskStatusClassName,
 	latestLabels,
-	dropdownContentClassName,
 	isLoading = false
 }: TTaskStatusesDropdown<'label'> & { isLoading?: boolean }) {
 	const taskLabelsValue = useTaskLabelsValue();
@@ -492,17 +486,13 @@ export function TaskLabelsDropdown({
 		<MultipleStatusDropdown
 			kind="label"
 			placeholderLabel={placeholder}
-			sidebarUI={sidebarUI}
 			forDetails={forDetails}
 			className={className}
 			items={items}
 			value={item}
 			onChange={handleOnChange}
-			multiple={multiple}
 			values={values}
-			showButtonOnly
 			taskStatusClassName={taskStatusClassName}
-			dropdownContentClassName={dropdownContentClassName}
 			isLoading={isLoading}
 		>
 			{children}
@@ -709,7 +699,7 @@ export function TaskPropertyValue({
 	isEpic,
 	className,
 	titleClassName
-}: TaskPropertyValueProps) {
+}: Readonly<TaskPropertyValueProps>) {
 	const isPainted = isPaintableColor(item.bgColor);
 	return (
 		<TaskStatus
@@ -752,7 +742,7 @@ export function TaskPropertySelection({
 	showsChevron = true,
 	forDetails,
 	className
-}: TaskPropertySelectionProps) {
+}: Readonly<TaskPropertySelectionProps>) {
 	const t = useTranslations();
 	const selectedCount = selectedItems.length;
 

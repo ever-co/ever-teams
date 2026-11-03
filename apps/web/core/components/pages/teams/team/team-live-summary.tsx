@@ -43,9 +43,9 @@ export function TeamLiveSummary() {
 /** Holds the place of the team name and its figures, so the view switch stays at the right while the team loads. */
 export function TeamLiveSummarySkeleton() {
 	return (
-		<div role="status" className="flex h-7 items-center gap-3">
+		<output className="flex h-7 items-center gap-3">
 			<Skeleton className="h-5 w-32 bg-foreground/[0.06]" />
 			<Skeleton className="h-3.5 w-20 bg-foreground/[0.06]" />
-		</div>
+		</output>
 	);
 }

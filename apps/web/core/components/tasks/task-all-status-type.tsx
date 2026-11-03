@@ -168,8 +168,10 @@ export function TaskAllStatusTypes({
 							</span>
 						</div>
 					)}
-					{tags.map((tag, i) => {
-						return <TaskStatus key={i} {...tag} active={true} name={tag.name?.split('-').join(' ')} />;
+					{tags.map((tag) => {
+						return (
+							<TaskStatus key={tag.name} {...tag} active={true} name={tag.name?.split('-').join(' ')} />
+						);
 					})}
 				</div>
 			</div>

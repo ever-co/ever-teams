@@ -72,7 +72,7 @@ export function TaskPickerMenu({
 	footerActions,
 	align = 'start',
 	disabled = false
-}: TaskPickerMenuProps) {
+}: Readonly<TaskPickerMenuProps>) {
 	const t = useTranslations();
 	const options = useMemo(() => tasks.map(taskOption), [tasks]);
 	const canCreate = Boolean(onCreate);

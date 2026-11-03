@@ -78,7 +78,7 @@ export function PropertyColorField({ value, onChange, labelledBy }: Readonly<Pro
 	};
 
 	return (
-		<div role="group" aria-labelledby={labelledBy} className="flex flex-wrap items-center gap-1.5">
+		<fieldset aria-labelledby={labelledBy} className="flex min-w-0 flex-wrap items-center gap-1.5">
 			{TASK_PROPERTY_COLOR_SWATCHES.map((swatch) => {
 				const isSelected = isSameColor(value, swatch);
 				return (
@@ -132,6 +132,6 @@ export function PropertyColorField({ value, onChange, labelledBy }: Readonly<Pro
 				title={t('settings.taskProperties.HEX_HINT')}
 				className="ml-1 h-7 w-[5.5rem] px-2 font-mono text-base uppercase md:text-xs"
 			/>
-		</div>
+		</fieldset>
 	);
 }
