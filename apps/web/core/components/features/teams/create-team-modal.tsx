@@ -15,6 +15,7 @@ import { Dispatch, SetStateAction, useMemo, useState } from 'react';
 import { organizationTeamsState, timerStatusState } from '@/core/stores';
 import { useAtomValue } from 'jotai';
 import { useUserQuery } from '@/core/hooks/queries/user-user.query';
+import { useFocusOnMount } from '@/core/hooks/common/use-focus-on-mount';
 
 /**
  * Create team modal
@@ -29,6 +30,7 @@ export function CreateTeamModal({
 	joinTeamModal?: Dispatch<SetStateAction<boolean>>;
 }) {
 	const t = useTranslations();
+	const focusOnMount = useFocusOnMount<HTMLInputElement>();
 	const { data: user } = useUserQuery();
 	const workspaceName: string | undefined = user?.tenant?.name;
 
@@ -78,7 +80,7 @@ export function CreateTeamModal({
 					<input
 						type="text"
 						name="name"
-						autoFocus
+						ref={focusOnMount}
 						value={name}
 						onChange={(e) => setName(e.target.value)}
 						placeholder={t('form.TEAM_NAME_PLACEHOLDER')}

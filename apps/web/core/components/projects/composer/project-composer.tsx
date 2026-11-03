@@ -51,6 +51,7 @@ import {
 } from './project-property-pickers';
 import { ProjectTilePicker } from './project-tile-picker';
 import { toastMoment } from '@/core/components/common/toast-moment';
+import { useFocusOnMount } from '@/core/hooks/common/use-focus-on-mount';
 
 const DESCRIPTION_WORD_LIMIT = 5000;
 
@@ -104,6 +105,7 @@ interface ProjectComposerProps {
 
 export function ProjectComposer({ mode, project, context, onClose }: Readonly<ProjectComposerProps>) {
 	const t = useTranslations();
+	const focusOnMount = useFocusOnMount<HTMLInputElement>();
 	const router = useRouter();
 	const mentions = useTeamMentionCandidates();
 	const { taskStatuses } = useTaskStatusesQuery();
@@ -190,7 +192,7 @@ export function ProjectComposer({ mode, project, context, onClose }: Readonly<Pr
 					>
 						<input
 							id="project_title"
-							autoFocus
+							ref={focusOnMount}
 							data-initial-focus=""
 							value={draft.name}
 							onChange={(event) => composer.setName(event.target.value)}

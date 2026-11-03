@@ -12,6 +12,7 @@ import { PLAN_TASK_TITLE_MIN_LENGTH } from '@/core/hooks/daily-plans/use-plan-ta
 import { cn } from '@/core/lib/helpers';
 import { tasksByTeamState, teamTasksPagesLoadingState } from '@/core/stores';
 import type { TTask } from '@/core/types/schemas/task/task.schema';
+import { useFocusOnMount } from '@/core/hooks/common/use-focus-on-mount';
 
 /** Enough rows to find a task by eye; past this the person narrows the search instead of scrolling. */
 const SHOWN_RESULTS = 50;
@@ -179,6 +180,7 @@ export function PlanTaskSearch({
 	onCreate
 }: Readonly<PlanTaskSearchProps>) {
 	const t = useTranslations();
+	const focusOnMount = useFocusOnMount<HTMLInputElement>();
 	const teamTasks = useAtomValue(tasksByTeamState);
 	const isListLoading = useAtomValue(teamTasksPagesLoadingState);
 	const [query, setQuery] = useState('');
@@ -228,7 +230,7 @@ export function PlanTaskSearch({
 					<Search aria-hidden="true" className="size-4 shrink-0 text-muted-foreground" />
 					<input
 						type="text"
-						autoFocus
+						ref={focusOnMount}
 						data-initial-focus=""
 						value={query}
 						onChange={(event) => setQuery(event.target.value)}

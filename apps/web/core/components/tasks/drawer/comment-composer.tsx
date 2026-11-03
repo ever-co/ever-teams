@@ -37,6 +37,7 @@ import {
 	type MentionQuery,
 	type MentionSegment
 } from '@/core/lib/utils/comment-mentions';
+import { useFocusRefOnMount } from '@/core/hooks/common/use-focus-on-mount';
 
 const TOOL_BUTTON =
 	'flex size-7 items-center justify-center rounded-md text-muted-foreground outline-none transition-colors hover:bg-foreground/5 hover:text-foreground focus-visible:ring-[3px] focus-visible:ring-ring/25 data-[popup-open]:bg-foreground/5';
@@ -247,6 +248,7 @@ export function CommentComposer({
 	const [activeIndex, setActiveIndex] = useState(0);
 	const [stagedFiles, setStagedFiles] = useState<File[]>([]);
 	const fieldRef = useRef<HTMLTextAreaElement>(null);
+	useFocusRefOnMount(fieldRef, autoFocus);
 	const fileInputRef = useRef<HTMLInputElement>(null);
 	const mirrorRef = useRef<HTMLDivElement>(null);
 
@@ -458,7 +460,6 @@ export function CommentComposer({
 					<MentionMirror text={body} names={names} mirrorRef={mirrorRef} />
 					<textarea
 						ref={fieldRef}
-						autoFocus={autoFocus}
 						rows={2}
 						value={body}
 						onChange={handleChange}

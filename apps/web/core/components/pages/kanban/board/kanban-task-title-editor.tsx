@@ -6,10 +6,12 @@ import { toast } from 'sonner';
 import { useUpdateTask } from '@/core/hooks/organizations';
 import { errorReasonKeyOf } from '@/core/lib/utils/error-feedback';
 import type { TTask } from '@/core/types/schemas/task/task.schema';
+import { useFocusOnMount } from '@/core/hooks/common/use-focus-on-mount';
 
 /** Mounted only while the title is being edited, so idle cards carry no mutation hook. */
 export function KanbanTaskTitleEditor({ task, onDone }: Readonly<{ task: TTask; onDone: () => void }>) {
 	const t = useTranslations();
+	const focusOnMount = useFocusOnMount<HTMLTextAreaElement>();
 	const { updateTitle } = useUpdateTask();
 	const [title, setTitle] = useState(task.title);
 	const [isSaving, setIsSaving] = useState(false);
@@ -49,7 +51,7 @@ export function KanbanTaskTitleEditor({ task, onDone }: Readonly<{ task: TTask; 
 
 	return (
 		<textarea
-			autoFocus
+			ref={focusOnMount}
 			rows={2}
 			value={title}
 			disabled={isSaving}

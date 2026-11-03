@@ -44,6 +44,7 @@ import {
 	type TaskCardVoiceTarget,
 	type TaskCardVoiceValues
 } from '@/core/hooks/tasks/use-task-voice-fill';
+import { useFocusRefOnMount } from '@/core/hooks/common/use-focus-on-mount';
 
 type Props = {
 	task?: Nullable<TTask>;
@@ -121,6 +122,7 @@ export function TaskInputKanban(props: Props) {
 
 	const [taskName, setTaskName] = useState('');
 	const titleInputRef = useRef<HTMLInputElement>(null);
+	useFocusRefOnMount(titleInputRef, props.autoFocus);
 	const [voiceIssueType, setVoiceIssueType] = useState<string | null>(null);
 	const [issuePickerKey, setIssuePickerKey] = useState(0);
 	const voiceIssueTypeRef = useSyncRef(voiceIssueType);
@@ -313,7 +315,6 @@ export function TaskInputKanban(props: Props) {
 					ref={titleInputRef}
 					type="text"
 					disabled={timerRunningStatus}
-					autoFocus={props.autoFocus}
 					aria-label={titlePlaceholder}
 					placeholder={titlePlaceholder}
 					onFocus={(e) => {

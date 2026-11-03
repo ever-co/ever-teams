@@ -23,6 +23,7 @@ import { cn } from '@/core/lib/helpers';
 import { PROJECT_NAME_MAX_LENGTH } from '@/core/lib/utils/project-composer';
 import { activeTeamState, isTeamManagerState } from '@/core/stores';
 import type { TOrganizationProject } from '@/core/types/schemas';
+import { useFocusOnMount } from '@/core/hooks/common/use-focus-on-mount';
 
 interface IQuickCreateProjectModalProps {
 	open: boolean;
@@ -55,6 +56,7 @@ function teamsOf<T>(activeTeam: T | null | undefined): T[] {
  */
 function QuickCreateForm({ closeModal, onSuccess }: Readonly<Omit<IQuickCreateProjectModalProps, 'open'>>) {
 	const t = useTranslations();
+	const focusOnMount = useFocusOnMount<HTMLInputElement>();
 	const activeTeam = useAtomValue(activeTeamState);
 	const isTeamManager = useAtomValue(isTeamManagerState);
 	const { data: user } = useUserQuery();
@@ -119,7 +121,7 @@ function QuickCreateForm({ closeModal, onSuccess }: Readonly<Omit<IQuickCreatePr
 				<div className="flex items-center gap-3 pt-1">
 					<ProjectTileFace name={name} color={null} imageUrl={null} size="md" />
 					<input
-						autoFocus
+						ref={focusOnMount}
 						data-initial-focus=""
 						value={name}
 						onChange={(event) => setName(event.target.value)}

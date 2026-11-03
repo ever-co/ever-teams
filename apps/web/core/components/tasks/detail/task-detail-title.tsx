@@ -9,6 +9,7 @@ import { cn } from '@/core/lib/helpers';
 import { errorReasonKeyOf } from '@/core/lib/utils/error-feedback';
 import { keepKeyInside } from '@/core/lib/utils/keep-key-inside';
 import type { TTask } from '@/core/types/schemas/task/task.schema';
+import { useFocusOnMount } from '@/core/hooks/common/use-focus-on-mount';
 
 const TITLE_MAX_LENGTH = 255;
 
@@ -16,6 +17,7 @@ const TITLE_TEXT = 'text-[26px] font-semibold leading-8 text-balance text-foregr
 
 export function TaskDetailTitle({ task, className }: Readonly<{ task: TTask; className?: string }>) {
 	const t = useTranslations();
+	const focusOnMount = useFocusOnMount<HTMLTextAreaElement>();
 	const { updateTitle } = useUpdateTask();
 	const { getTaskById } = useTaskQueries();
 	const [draft, setDraft] = useState<string | null>(null);
@@ -61,7 +63,7 @@ export function TaskDetailTitle({ task, className }: Readonly<{ task: TTask; cla
 	if (isEditing) {
 		return (
 			<textarea
-				autoFocus
+				ref={focusOnMount}
 				rows={1}
 				value={draft}
 				aria-label={t('common.EDIT_TASK')}
