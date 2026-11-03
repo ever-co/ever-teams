@@ -6,13 +6,13 @@ import type { PropsWithChildren } from 'react';
 import { CHAT_PANEL_CONSTRAINTS } from '../constants/chat-panel-constraints.constant';
 import { useChatPanel } from '../hooks/use-chat-panel';
 import { ChatView } from './chat-view';
-import { Bot, ChevronLeft, ChevronRight, GripVertical } from 'lucide-react';
+import { Bot, ChevronLeft, ChevronRight, DragHandle } from '@/core/components/icons';
 import { useTranslations } from 'next-intl';
 import { APP_NAME } from '@/core/constants/config/constants';
 
 /** A 20px round hairline button on the panel edge: quiet until hovered. */
 const EDGE_BUTTON =
-	'flex size-5 items-center justify-center rounded-full border border-border bg-background text-muted-foreground transition-colors hover:border-foreground/30 hover:text-foreground dark:hover:text-white';
+	'flex size-5 items-center justify-center rounded-full hairline-border border-transparent bg-card text-muted-foreground shadow-sm shadow-black/10 hairline-ring ring-foreground/10 outline-none transition-colors hover:bg-muted hover:text-foreground focus-visible:ring-[3px] focus-visible:ring-ring/25 dark:ring-foreground/15';
 
 export function ChatPanelLayout({ children }: PropsWithChildren) {
 	const chatPanel = useChatPanel();
@@ -42,7 +42,7 @@ export function ChatPanelLayout({ children }: PropsWithChildren) {
 					onCollapse={chatPanel.closePanel}
 					onExpand={chatPanel.openPanel}
 					onResize={chatPanel.handleResize}
-					className={cn('bg-background border-r border-border', 'z-60 relative overflow-hidden')}
+					className={cn('bg-background hairline-r border-border', 'z-60 relative overflow-hidden')}
 				>
 					<div ref={chatPanel.chatPanelDomRef} className="flex h-full flex-col">
 						<ChatView />
@@ -86,7 +86,7 @@ export function ChatPanelLayout({ children }: PropsWithChildren) {
 						title={t('chatView.STANDARD_ASSISTANT_WIDTH')}
 						aria-label={t('chatView.STANDARD_ASSISTANT_WIDTH')}
 					>
-						<GripVertical className="size-3.5" />
+						<DragHandle className="size-3.5" />
 					</button>
 					<button
 						type="button"
@@ -105,7 +105,10 @@ export function ChatPanelLayout({ children }: PropsWithChildren) {
 				<button
 					type="button"
 					onClick={chatPanel.openPanel}
-					className={cn(EDGE_BUTTON, 'absolute left-2 top-1/2 z-[1030] size-8 -translate-y-1/2 shadow-sm md:hidden')}
+					className={cn(
+						EDGE_BUTTON,
+						'absolute left-2 top-1/2 z-[1030] size-8 -translate-y-1/2 shadow-md md:hidden'
+					)}
 					title={openAssistantLabel}
 					aria-label={openAssistantLabel}
 				>

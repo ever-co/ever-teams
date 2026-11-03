@@ -1,10 +1,11 @@
 'use client';
 
 import { memo, useMemo } from 'react';
-import { Bot, User } from 'lucide-react';
+import { Bot, User } from '@/core/components/icons';
 import { cn } from '@/core/lib/helpers';
 import { marked } from 'marked';
-import type { Message } from '@ai-sdk/react';
+import type { UIMessage } from 'ai';
+import { textOfChatMessage } from '../chat-history';
 import DOMPurify from 'dompurify';
 
 // Configure marked for safe rendering
@@ -14,33 +15,35 @@ marked.setOptions({
 });
 
 interface ChatMessageItemProps {
-	message: Message;
+	message: UIMessage;
 }
 
 export const ChatMessageItem = memo(function ChatMessageItem({ message }: ChatMessageItemProps) {
 	const isUser = message.role === 'user';
+	const text = textOfChatMessage(message);
 
 	const htmlContent = useMemo(() => {
 		if (isUser) return null;
-		const rawHtml = marked.parse(message.content) as string;
+		const rawHtml = marked.parse(text) as string;
 		return DOMPurify.sanitize(rawHtml);
-	}, [message.content, isUser]);
+	}, [text, isUser]);
 
 	return (
 		<div className={cn('flex gap-2 py-2', isUser ? 'justify-end' : 'justify-start')}>
 			{!isUser && (
-				<div className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-primary/10 dark:bg-primary-light/10">
-					<Bot className="h-3.5 w-3.5 text-primary dark:text-primary-light" />
+				<div className="flex size-6 shrink-0 items-center justify-center rounded-full bg-primary/10">
+					<Bot className="size-3.5 text-primary-ink" />
 				</div>
 			)}
 			<div
 				className={cn(
 					'max-w-[85%] rounded-lg px-3 py-2 text-sm',
-					isUser ? 'bg-primary text-primary-foreground dark:bg-primary-light' : 'bg-muted text-foreground'
+					isUser && 'bg-primary text-primary-foreground',
+					!isUser && 'bg-muted text-foreground'
 				)}
 			>
 				{isUser ? (
-					<p className="whitespace-pre-wrap wrap-break-word">{message.content}</p>
+					<p className="whitespace-pre-wrap wrap-break-word">{text}</p>
 				) : (
 					<div
 						className={cn(
@@ -67,8 +70,8 @@ export const ChatMessageItem = memo(function ChatMessageItem({ message }: ChatMe
 				)}
 			</div>
 			{isUser && (
-				<div className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-primary/10 dark:bg-primary-light/10">
-					<User className="h-3.5 w-3.5 text-primary dark:text-primary-light" />
+				<div className="flex size-6 shrink-0 items-center justify-center rounded-full bg-primary/10">
+					<User className="size-3.5 text-primary-ink" />
 				</div>
 			)}
 		</div>
