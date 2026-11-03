@@ -3,7 +3,8 @@
 import React from 'react';
 import { Modal } from '@/core/components';
 import { Button } from '@/core/components/duplicated-components/_button';
-import { CheckCircle2, XCircle, Download, Loader2 } from 'lucide-react';
+import { XCircle, Download } from 'lucide-react';
+import { CheckCircle2, Spinner } from '@/core/components/icons';
 import { ExportProgress } from '@/core/hooks/activities/use-export-progress';
 
 export interface ExportProgressModalProps {
@@ -22,22 +23,22 @@ export function ExportProgressModal({
 	onRetry
 }: ExportProgressModalProps) {
 	const getProgressColor = () => {
-		if (exportProgress.error) return 'bg-red-500';
-		if (exportProgress.success) return 'bg-green-500';
-		return 'bg-blue-500';
+		if (exportProgress.error) return 'bg-destructive';
+		if (exportProgress.success) return 'bg-success';
+		return 'bg-primary';
 	};
 
 	const getProgressIcon = () => {
 		if (exportProgress.error) {
-			return <XCircle className="w-6 h-6 text-red-500" />;
+			return <XCircle className="size-5 text-destructive-ink" />;
 		}
 		if (exportProgress.success) {
-			return <CheckCircle2 className="w-6 h-6 text-green-500" />;
+			return <CheckCircle2 className="size-5 text-success-foreground" />;
 		}
 		if (exportProgress.isExporting) {
-			return <Loader2 className="w-6 h-6 text-blue-500 animate-spin" />;
+			return <Spinner className="size-5 text-muted-foreground animate-spin" />;
 		}
-		return <Download className="w-6 h-6 text-gray-500" />;
+		return <Download className="size-5 text-muted-foreground" />;
 	};
 
 	const getTitle = () => {
@@ -65,26 +66,26 @@ export function ExportProgressModal({
 
 	return (
 		<Modal isOpen={isOpen} closeModal={onClose} className="max-w-md">
-			<div className="p-6">
+			<div>
 				{/* Header */}
 				<div className="flex gap-3 items-center mb-4">
 					{getProgressIcon()}
 					<div>
-						<h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">{getTitle()}</h3>
-						<p className="text-sm text-gray-600 dark:text-gray-400">{getDescription()}</p>
+						<h3 className="text-lg font-semibold text-foreground">{getTitle()}</h3>
+						<p className="text-sm text-muted-foreground">{getDescription()}</p>
 					</div>
 				</div>
 
 				{/* Progress Bar */}
 				{(exportProgress.isExporting || exportProgress.success) && (
 					<div className="mb-4">
-						<div className="flex justify-between mb-2 text-sm text-gray-600 dark:text-gray-400">
+						<div className="flex justify-between mb-2 text-xs tabular-nums text-muted-foreground">
 							<span>Progress</span>
 							<span>{exportProgress.progress}%</span>
 						</div>
-						<div className="w-full h-2 bg-gray-200 rounded-full dark:bg-muted">
+						<div className="w-full h-1.5 rounded-full bg-foreground/10">
 							<div
-								className={`h-2 rounded-full transition-all duration-300 ${getProgressColor()}`}
+								className={`h-1.5 rounded-full transition-[width] duration-300 ${getProgressColor()}`}
 								style={{ width: `${exportProgress.progress}%` }}
 							/>
 						</div>
@@ -93,32 +94,32 @@ export function ExportProgressModal({
 
 				{/* Current Step */}
 				{exportProgress.isExporting && (
-					<div className="p-3 mb-4 bg-blue-50 rounded-lg dark:bg-blue-900/20">
-						<p className="text-sm text-blue-700 dark:text-blue-300">{exportProgress.currentStep}</p>
+					<div className="p-3 mb-4 rounded-lg bg-info/10">
+						<p className="text-sm text-info-foreground">{exportProgress.currentStep}</p>
 					</div>
 				)}
 
 				{/* Error Details */}
 				{exportProgress.error && (
-					<div className="p-3 mb-4 bg-red-50 rounded-lg dark:bg-red-900/20">
-						<p className="text-sm text-red-700 dark:text-red-300">{exportProgress.error}</p>
+					<div className="p-3 mb-4 rounded-lg bg-destructive/10">
+						<p className="text-sm text-destructive-ink">{exportProgress.error}</p>
 					</div>
 				)}
 
 				{/* Success Message */}
 				{exportProgress.success && (
-					<div className="p-3 mb-4 bg-green-50 rounded-lg dark:bg-green-900/20">
-						<p className="text-sm text-green-700 dark:text-green-300">
+					<div className="p-3 mb-4 rounded-lg bg-success/10">
+						<p className="text-sm text-success-foreground">
 							Export {exportType.toUpperCase()} completed successfully
 						</p>
 					</div>
 				)}
 
 				{/* Actions */}
-				<div className="flex gap-3 justify-end">
+				<div className="flex gap-2 justify-end">
 					{exportProgress.error && onRetry && (
-						<Button variant="outline" onClick={onRetry} className="flex gap-2 items-center">
-							<Download className="w-4 h-4" />
+						<Button variant="outline" onClick={onRetry}>
+							<Download />
 							Retry
 						</Button>
 					)}
@@ -132,9 +133,9 @@ export function ExportProgressModal({
 
 				{/* Export Tips */}
 				{exportProgress.isExporting && (
-					<div className="p-3 mt-4 bg-gray-50 rounded-lg dark:bg-muted">
-						<h4 className="mb-2 text-sm font-medium text-gray-900 dark:text-gray-100">Export Tips</h4>
-						<ul className="space-y-1 text-xs text-gray-600 dark:text-gray-400">
+					<div className="p-3 mt-4 rounded-lg bg-foreground/3">
+						<h4 className="mb-2 text-sm font-medium text-foreground">Export Tips</h4>
+						<ul className="space-y-1 text-xs text-muted-foreground">
 							<li>• Don't close the browser</li>
 							<li>• Large datasets may take longer to export</li>
 							<li>• Use the browser's download feature</li>
