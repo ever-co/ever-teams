@@ -34,7 +34,7 @@ export function ProductivityTable({ data, isLoading }: { data?: IActivityReport[
 
 	if (isLoading) {
 		return (
-			<Card className="bg-white rounded-md border border-gray-100 dark:border-gray-700 dark:bg-dark--theme-light min-h-[600px]">
+			<Card className="min-h-[600px] overflow-hidden">
 				<Table>
 					<TableHeader>
 						<TableRow>
@@ -79,15 +79,16 @@ export function ProductivityTable({ data, isLoading }: { data?: IActivityReport[
 					title={t('common.NO_ACTIVITY_DATA')}
 					message={t('common.SELECT_DIFFERENT_DATE')}
 					showBorder={false}
+					noBg
 				/>
 			</Card>
 		);
 	}
 
 	return (
-		<Card className="bg-white rounded-md border border-gray-100 dark:border-gray-700 dark:bg-dark--theme-light min-h-[600px]">
+		<Card className="min-h-[600px] overflow-hidden">
 			<Table>
-				<TableHeader className="bg-gray-50 dark:bg-dark--theme-light">
+				<TableHeader className="bg-foreground/2.5">
 					<TableRow>
 						{tableColumns.map((column) => (
 							<TableHead key={column.key}>
@@ -127,16 +128,13 @@ export function ProductivityTable({ data, isLoading }: { data?: IActivityReport[
 									<TableRow>
 										<TableCell
 											colSpan={5}
-											className="px-6 py-4 font-medium bg-gray-50 dark:bg-muted"
+											className="px-4 py-2.5 text-sm font-medium bg-foreground/2.5"
 										>
 											{format(parseISO(dayData.date), 'EEEE dd MMM yyyy')}
 										</TableCell>
 									</TableRow>
 									<TableRow>
-										<TableCell
-											colSpan={5}
-											className="py-4 text-center text-gray-500 dark:text-gray-400"
-										>
+										<TableCell colSpan={5} className="py-4 text-center text-muted-foreground">
 											No activities recorded for this day
 										</TableCell>
 									</TableRow>
@@ -149,7 +147,7 @@ export function ProductivityTable({ data, isLoading }: { data?: IActivityReport[
 								<TableRow>
 									<TableCell
 										colSpan={5}
-										className="px-6 py-4 font-medium bg-gray-50 dark:bg-muted"
+										className="px-4 py-2.5 text-sm font-medium bg-foreground/2.5"
 									>
 										{format(parseISO(dayData.date), 'EEEE dd MMM yyyy')}
 									</TableCell>
@@ -181,16 +179,20 @@ export function ProductivityTable({ data, isLoading }: { data?: IActivityReport[
 											)}
 											<TableCell>{getProjectName(activity)}</TableCell>
 											<TableCell>{activity.title}</TableCell>
-											<TableCell>{formatDuration(activity.duration.toString())}</TableCell>
+											<TableCell className="tabular-nums">
+												{formatDuration(activity.duration.toString())}
+											</TableCell>
 											<TableCell>
 												<div className="flex gap-2 items-center">
-													<div className="overflow-hidden w-full h-2 bg-gray-200 rounded-full">
+													<div className="overflow-hidden w-full h-1.5 rounded-full bg-foreground/10">
 														<div
-															className="h-full bg-blue-500"
+															className="h-full rounded-full bg-primary"
 															style={{ width: `${activity.duration_percentage}%` }}
 														/>
 													</div>
-													<span>{Math.round(parseFloat(activity.duration_percentage))}%</span>
+													<span className="w-10 text-right tabular-nums text-muted-foreground">
+														{Math.round(parseFloat(activity.duration_percentage))}%
+													</span>
 												</div>
 											</TableCell>
 										</TableRow>
@@ -201,7 +203,7 @@ export function ProductivityTable({ data, isLoading }: { data?: IActivityReport[
 					})}
 				</TableBody>
 			</Table>
-			<div className="p-2 mt-4">
+			<div className="hairline-t border-border px-4 py-3">
 				<Paginate
 					total={total}
 					onPageChange={onPageChange}

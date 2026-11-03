@@ -1,5 +1,7 @@
 import React from 'react';
 import { useTranslations } from 'next-intl';
+import { cn } from '@/core/lib/helpers';
+import { CHART_COLORS } from './productivity-chart';
 
 interface ProductivityStatsProps {
 	productivePercentage: number;
@@ -15,41 +17,53 @@ export const ProductivityStats: React.FC<ProductivityStatsProps> = ({
 	const t = useTranslations();
 
 	return (
-		<section aria-label="Productivity Statistics" className="flex gap-4">
-			<article className="flex flex-col items-start justify-center border-l border-l-gray-100 dark:border-l-gray-700 gap-2 h-[105px] w-[176px] px-4">
+		<section aria-label="Productivity Statistics" className="flex">
+			<article className="flex flex-col items-start justify-center hairline-l border-l-border gap-1 h-[105px] w-[176px] px-6">
 				<h2
-					className="text-[32px] font-bold"
+					className="text-2xl font-semibold tabular-nums"
 					aria-label={`${t('common.PRODUCTIVE')} percentage: ${productivePercentage}%`}
 				>
 					{productivePercentage}%
 				</h2>
 				<div className="flex gap-2 items-center" role="presentation">
-					<div className="w-3 h-3 bg-blue-600 rounded" role="presentation" aria-hidden="true"></div>
-					<span className="text-[#60646C]">{t('common.PRODUCTIVE')}</span>
+					<div
+						className={cn('size-2 rounded-full', CHART_COLORS.productive)}
+						role="presentation"
+						aria-hidden="true"
+					></div>
+					<span className="text-xs text-muted-foreground">{t('common.PRODUCTIVE')}</span>
 				</div>
 			</article>
-			<article className="flex flex-col items-start justify-center border-l border-l-gray-100 dark:border-l-gray-700 gap-2 h-[105px] w-[176px] px-4">
+			<article className="flex flex-col items-start justify-center hairline-l border-l-border gap-1 h-[105px] w-[176px] px-6">
 				<h2
-					className="text-[32px] font-bold"
+					className="text-2xl font-semibold tabular-nums"
 					aria-label={`${t('common.NEUTRAL')} percentage: ${neutralPercentage}%`}
 				>
 					{neutralPercentage}%
 				</h2>
 				<div className="flex gap-2 items-center" role="presentation">
-					<div className="w-3 h-3 bg-yellow-400 rounded" role="presentation" aria-hidden="true"></div>
-					<span className="text-[#60646C]">{t('common.NEUTRAL')}</span>
+					<div
+						className={cn('size-2 rounded-full', CHART_COLORS.neutral)}
+						role="presentation"
+						aria-hidden="true"
+					></div>
+					<span className="text-xs text-muted-foreground">{t('common.NEUTRAL')}</span>
 				</div>
 			</article>
-			<article className="flex flex-col items-start justify-center border-l border-l-gray-100 dark:border-l-gray-700 gap-2 h-[105px] w-[176px] px-4">
+			<article className="flex flex-col items-start justify-center hairline-l border-l-border gap-1 h-[105px] w-[176px] px-6">
 				<h2
-					className="text-[32px] font-bold"
+					className="text-2xl font-semibold tabular-nums"
 					aria-label={`${t('common.UNPRODUCTIVE')} percentage: ${unproductivePercentage}%`}
 				>
 					{unproductivePercentage}%
 				</h2>
 				<div className="flex gap-2 items-center" role="presentation">
-					<div className="w-3 h-3 bg-red-500 rounded" role="presentation" aria-hidden="true"></div>
-					<span className="text-[#60646C]">{t('common.UNPRODUCTIVE')}</span>
+					<div
+						className={cn('size-2 rounded-full', CHART_COLORS.unproductive)}
+						role="presentation"
+						aria-hidden="true"
+					></div>
+					<span className="text-xs text-muted-foreground">{t('common.UNPRODUCTIVE')}</span>
 				</div>
 			</article>
 		</section>

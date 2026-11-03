@@ -33,7 +33,7 @@ export function ProductivityApplicationTable({ data, isLoading }: { data?: IActi
 
 	if (isLoading) {
 		return (
-			<Card className="bg-white rounded-md border border-gray-100 dark:border-gray-700 dark:bg-dark--theme-light min-h-[600px]">
+			<Card className="min-h-[600px] overflow-hidden">
 				<Table>
 					<TableHeader>
 						<TableRow>
@@ -77,6 +77,7 @@ export function ProductivityApplicationTable({ data, isLoading }: { data?: IActi
 					title={t('common.NO_ACTIVITY_DATA')}
 					message={t('common.SELECT_DIFFERENT_DATE')}
 					showBorder={false}
+					noBg
 					iconContainerSize="md"
 					iconSize="lg"
 				/>
@@ -109,7 +110,7 @@ export function ProductivityApplicationTable({ data, isLoading }: { data?: IActi
 	);
 
 	return (
-		<Card className="bg-white rounded-md border border-gray-100 dark:border-gray-700 dark:bg-dark--theme-light min-h-[600px]">
+		<Card className="min-h-[600px] overflow-hidden">
 			<Table>
 				<TableHeader>
 					<TableRow>
@@ -130,7 +131,7 @@ export function ProductivityApplicationTable({ data, isLoading }: { data?: IActi
 						<React.Fragment key={`${appName}-${index}`}>
 							{/* Application Header */}
 							<TableRow>
-								<TableCell colSpan={5} className="px-6 py-4 font-medium bg-gray-50 dark:bg-muted">
+								<TableCell colSpan={5} className="px-4 py-2.5 text-sm font-medium bg-foreground/2.5">
 									{appName}
 								</TableCell>
 							</TableRow>
@@ -140,7 +141,7 @@ export function ProductivityApplicationTable({ data, isLoading }: { data?: IActi
 									<TableCell>{format(parseISO(date), 'EEEE dd MMM yyyy')}</TableCell>
 									<TableCell>
 										<div className="flex gap-2 items-center">
-											<Avatar className="object-contain w-8 h-8">
+											<Avatar className="object-contain size-8">
 												<AvatarImage src={APP_LOGO_SRC} alt={APP_NAME} />
 												<AvatarFallback>ET</AvatarFallback>
 											</Avatar>
@@ -164,16 +165,20 @@ export function ProductivityApplicationTable({ data, isLoading }: { data?: IActi
 											<span>{employee.fullName}</span>
 										</div>
 									</TableCell>
-									<TableCell>{formatDuration(activity.duration.toString())}</TableCell>
+									<TableCell className="tabular-nums">
+										{formatDuration(activity.duration.toString())}
+									</TableCell>
 									<TableCell>
 										<div className="flex gap-2 items-center">
-											<div className="overflow-hidden w-full h-2 bg-gray-200 rounded-full">
+											<div className="overflow-hidden w-full h-1.5 rounded-full bg-foreground/10">
 												<div
-													className="h-full bg-blue-500"
+													className="h-full rounded-full bg-primary"
 													style={{ width: `${activity.duration_percentage}%` }}
 												/>
 											</div>
-											<span>{Math.round(parseFloat(activity.duration_percentage))}%</span>
+											<span className="w-10 text-right tabular-nums text-muted-foreground">
+												{Math.round(parseFloat(activity.duration_percentage))}%
+											</span>
 										</div>
 									</TableCell>
 								</TableRow>
@@ -182,7 +187,7 @@ export function ProductivityApplicationTable({ data, isLoading }: { data?: IActi
 					))}
 				</TableBody>
 			</Table>
-			<div className="p-2 mt-4">
+			<div className="hairline-t border-border px-4 py-3">
 				<Paginate
 					total={total}
 					onPageChange={onPageChange}
