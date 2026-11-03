@@ -102,6 +102,7 @@ function PromptInput({
 	return (
 		<PromptInputContext.Provider value={contextValue}>
 			<div
+				role="presentation"
 				onClick={handleClick}
 				className={cn(promptInputRecipe, disabled && 'cursor-not-allowed', className)}
 				{...props}

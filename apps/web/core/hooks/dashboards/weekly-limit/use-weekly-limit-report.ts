@@ -171,7 +171,7 @@ export function useWeeklyLimitReport({ unnamedLabel }: Readonly<{ unnamedLabel: 
 	const teamId = activeTeam?.id ?? '';
 
 	const request = useMemo<WeeklyLimitRequest>(() => {
-		const employeeIds = [...reportedEmployeeIds].sort();
+		const employeeIds = [...reportedEmployeeIds].sort((first, second) => first.localeCompare(second));
 		return {
 			params: {
 				employeeIds,

@@ -1,15 +1,10 @@
 import { cn } from '@/core/lib/helpers';
+import { LANE_SURFACE, LANE_WIDTH } from '@/core/components/tasks/kanban-lane-recipes';
 import { KanbanColumnLoadingSkeleton } from './kanban-column-loading-skeleton';
 
 const BAR = 'animate-pulse rounded-md bg-foreground/5';
 
 const LANE_COUNT = 5;
-
-const LANE_WIDTH = 'w-[18.5rem]';
-
-/** The lane tone of `tasks/kanban.tsx`: a few percent of foreground mixed on the card colour of the page panel. */
-const LANE_SURFACE =
-	'bg-[color-mix(in_oklab,hsl(var(--foreground))_3%,hsl(var(--card)))] dark:bg-[color-mix(in_oklab,hsl(var(--foreground))_4%,hsl(var(--card)))]';
 
 interface KanbanViewSkeletonProps {
 	className?: string;
@@ -30,7 +25,7 @@ function KanbanLaneSkeleton() {
 				</div>
 			</div>
 			<div className="flex flex-col pt-2">
-				<KanbanColumnLoadingSkeleton className="static" />
+				<KanbanColumnLoadingSkeleton />
 				<div className={cn(BAR, 'h-9 w-full rounded-lg')} />
 			</div>
 		</div>

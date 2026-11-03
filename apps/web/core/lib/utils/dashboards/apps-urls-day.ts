@@ -48,7 +48,7 @@ export function activeDayKeysOf(rows: ReadonlyArray<AppUsageRow>, employeeId: st
 			keys.add(row.dateKey.slice(0, 10));
 		}
 	}
-	return [...keys].sort();
+	return [...keys].sort((first, second) => first.localeCompare(second));
 }
 
 /** A report day key ("2026-11-03") as that day's local midnight. */

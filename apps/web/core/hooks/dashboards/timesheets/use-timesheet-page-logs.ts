@@ -38,7 +38,7 @@ export function useTimesheetPageLogs(period: Period, scope: TimesheetPageLogsSco
 	const startDate = localDayKeyOf(period.from);
 	const endDate = localDayKeyOf(period.to);
 	const timeZone = timeZoneNameOf(scope.userTimeZone);
-	const employeeIds = [...scope.employeeIds].sort();
+	const employeeIds = [...scope.employeeIds].sort((first, second) => first.localeCompare(second));
 	const hasTenant = Boolean(scope.tenantId);
 	const hasOrganization = Boolean(scope.organizationId);
 	const isReady = hasTenant && hasOrganization;

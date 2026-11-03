@@ -38,7 +38,10 @@ export function useTeamPeriodLogs({
 	const timeZone = useMemo(() => getDefaultTimezone(), []);
 	const requestRange = useMemo(() => requestRangeOf(period, new Date()), [period]);
 	const { startDate, endDate } = requestDaysOf(requestRange);
-	const sortedIds = useMemo(() => [...employeeIds].sort(), [employeeIds]);
+	const sortedIds = useMemo(
+		() => [...employeeIds].sort((first, second) => first.localeCompare(second)),
+		[employeeIds]
+	);
 	const hasScope = Boolean(tenantId) && Boolean(organizationId);
 	const hasMembers = sortedIds.length > 0;
 	const isReady = hasScope && hasMembers;

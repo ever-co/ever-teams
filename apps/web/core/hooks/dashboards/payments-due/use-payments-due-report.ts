@@ -233,7 +233,7 @@ export function usePaymentsDueReport({ unnamedLabel }: Readonly<{ unnamedLabel: 
 	const teamId = activeTeam?.id ?? '';
 
 	const request = useMemo<PaymentsDueRequest>(() => {
-		const employeeIds = [...reportedEmployeeIds].sort();
+		const employeeIds = [...reportedEmployeeIds].sort((first, second) => first.localeCompare(second));
 		const requestPeriod = { from: startOfDay(period.from), to: endOfDay(period.to) };
 		return {
 			range: { from: requestPeriod.from, to: requestPeriod.to, timeZone, employeeIds },

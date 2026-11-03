@@ -164,6 +164,7 @@ export function InviteEmailField({
 
 	return (
 		<div
+			role="presentation"
 			onClick={focusInput}
 			className={cn(controlGroupRecipe, 'min-h-9 cursor-text items-start gap-1 py-1 pl-1 pr-1')}
 		>

@@ -104,9 +104,9 @@ function trackedRequestOf(input: RequestInput, isEnabled: boolean): TimeActivity
 
 function reportedEmployeeIdsOf(appliedIds: string[], allIds: string[]) {
 	if (appliedIds.length > 0) {
-		return [...appliedIds].sort();
+		return [...appliedIds].sort((first, second) => first.localeCompare(second));
 	}
-	return [...allIds].sort();
+	return [...allIds].sort((first, second) => first.localeCompare(second));
 }
 
 function axisFormatOptionsOf(dayCount: number): Intl.DateTimeFormatOptions {

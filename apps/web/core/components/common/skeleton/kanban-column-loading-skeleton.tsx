@@ -8,7 +8,7 @@ interface KanbanColumnLoadingSkeletonProps {
 /** The cards of a lane while its tasks load; the lane keeps its own header and its add-task row. */
 export function KanbanColumnLoadingSkeleton({ className }: KanbanColumnLoadingSkeletonProps) {
 	return (
-		<div className={cn('absolute flex w-full flex-col', className)}>
+		<div className={cn('flex w-full flex-col', className)}>
 			<KanbanCardSkeleton />
 			<KanbanCardSkeleton />
 		</div>

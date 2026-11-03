@@ -157,7 +157,7 @@ export function plannedMembersOf(plans: TDailyPlan[]): PlannedMember[] {
 	}
 	const members = [...byOwner.values()];
 	for (const member of members) {
-		member.days.sort();
+		member.days.sort((first, second) => first.localeCompare(second));
 	}
 	return members;
 }

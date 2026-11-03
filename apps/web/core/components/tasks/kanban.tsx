@@ -30,14 +30,9 @@ import { LazyCreateTaskModal, LazyEditStatusModal } from '@/core/components/opti
 import { TTask } from '@/core/types/schemas/task/task.schema';
 import { dataColorChipStyle, dataColorDotStyle } from './task-data-color';
 import { TaskPropertyIcon } from './task-property-icon';
+import { LANE_SURFACE, LANE_WIDTH } from './kanban-lane-recipes';
 
 const grid = 8;
-
-/** Opaque so the sticky column header hides the cards scrolling under it; mixed on the card tone of the page panel. */
-const laneSurface =
-	'bg-[color-mix(in_oklab,hsl(var(--foreground))_3%,hsl(var(--card)))] dark:bg-[color-mix(in_oklab,hsl(var(--foreground))_4%,hsl(var(--card)))]';
-
-const LANE_WIDTH = 'w-[18.5rem]';
 
 const COLUMN_MENU_PANEL = 'w-auto min-w-48 p-1';
 
@@ -193,7 +188,7 @@ function InnerItemList({
 					// Show empty state only if items array is empty
 					if (items.length === 0) {
 						return (
-							<div className={cn(laneSurface, 'absolute flex w-full flex-col gap-2')}>
+							<div className={cn(LANE_SURFACE, 'absolute flex w-full flex-col gap-2')}>
 								<div className="flex h-[180px] items-center justify-center rounded-lg hairline-border border-dashed border-foreground/10 text-sm text-muted-foreground">
 									{t('common.NOT_FOUND')}!
 								</div>
@@ -366,7 +361,7 @@ export const EmptyKanbanDroppable = ({
 									<header
 										className={cn(
 											'flex relative flex-col gap-8 px-2 py-3 h-full text-center rounded-xl items-between w-fit min-h-[20rem] transition-colors',
-											laneSurface,
+											LANE_SURFACE,
 											snapshot.isDragging &&
 												'bg-card shadow-md shadow-black/6.5 hairline-ring ring-primary/40'
 										)}
@@ -390,10 +385,14 @@ export const EmptyKanbanDroppable = ({
 													</Button>
 												</PopoverTrigger>
 												<PopoverContent align="start" className={COLUMN_MENU_PANEL}>
-													<div className={MENU_ROW} onClick={() => openModal()}>
+													<button
+														type="button"
+														className={cn(MENU_ROW, 'w-full text-start')}
+														onClick={() => openModal()}
+													>
 														<Plus />
 														{t('hotkeys.CREATE_TASK')}
-													</div>
+													</button>
 													<div role="separator" className={MENU_SEPARATOR} />
 													<StatusMenuItem
 														label={t('common.EXPAND_COLUMN')}
@@ -505,7 +504,7 @@ const KanbanDraggableHeader = ({
 				<header
 					className={cn(
 						'flex sticky inset-x-0 top-0 z-10 flex-row justify-between items-center gap-2 rounded-lg px-2 py-1.5 transition-colors',
-						laneSurface,
+						LANE_SURFACE,
 						snapshot.isDragging && 'bg-card shadow-md shadow-black/6.5 hairline-ring ring-primary/40'
 					)}
 				>
@@ -540,10 +539,14 @@ const KanbanDraggableHeader = ({
 								</Button>
 							</PopoverTrigger>
 							<PopoverContent align="start" className={COLUMN_MENU_PANEL}>
-								<div className={MENU_ROW} onClick={() => createTask()}>
+								<button
+									type="button"
+									className={cn(MENU_ROW, 'w-full text-start')}
+									onClick={() => createTask()}
+								>
 									<Plus />
 									{t('common.CREATE_TASK')}
-								</div>
+								</button>
 								<div role="separator" className={MENU_SEPARATOR} />
 								<StatusMenuItem
 									label={t('common.COLLAPSE_COLUMN')}
@@ -629,7 +632,7 @@ const KanbanDraggable = ({
 							className={cn(
 								'relative flex h-fit min-h-[840px] flex-col rounded-xl px-1 py-2',
 								LANE_WIDTH,
-								laneSurface
+								LANE_SURFACE
 							)}
 							style={{
 								height: `840px`,

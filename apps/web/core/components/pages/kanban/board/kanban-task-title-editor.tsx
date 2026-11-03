@@ -1,8 +1,10 @@
 'use client';
 
 import { KeyboardEvent, useState } from 'react';
-import { useTranslations } from 'next-intl';
+import { useTranslations, type DottedLanguageObjectStringPaths } from 'next-intl';
+import { toast } from 'sonner';
 import { useUpdateTask } from '@/core/hooks/organizations';
+import { errorReasonKeyOf } from '@/core/lib/utils/error-feedback';
 import type { TTask } from '@/core/types/schemas/task/task.schema';
 
 /** Mounted only while the title is being edited, so idle cards carry no mutation hook. */
@@ -23,6 +25,9 @@ export function KanbanTaskTitleEditor({ task, onDone }: Readonly<{ task: TTask; 
 		setIsSaving(true);
 		try {
 			await updateTitle({ newTitle: trimmedTitle, task });
+		} catch (error) {
+			const reasonKey = errorReasonKeyOf(error) as DottedLanguageObjectStringPaths;
+			toast.error(t('toasts.tasks.TITLE_SAVE_FAILED'), { description: t(reasonKey) });
 		} finally {
 			setIsSaving(false);
 			onDone();
@@ -33,7 +38,7 @@ export function KanbanTaskTitleEditor({ task, onDone }: Readonly<{ task: TTask; 
 		const isSubmit = event.key === 'Enter' && !event.shiftKey;
 		if (isSubmit) {
 			event.preventDefault();
-			save();
+			void save();
 			return;
 		}
 		if (event.key === 'Escape') {

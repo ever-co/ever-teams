@@ -1,6 +1,6 @@
 'use client';
 
-import { type CSSProperties, type MouseEvent, useCallback, useMemo } from 'react';
+import { type CSSProperties, useCallback, useMemo } from 'react';
 import { useAtomValue } from 'jotai';
 import { useTranslations } from 'next-intl';
 import { CommandGroup, CommandItem } from '@/core/components/common/command';
@@ -113,14 +113,6 @@ interface PaletteTaskRowProps {
 function PaletteTaskRow({ task, teamName, status, priority, onOpenTask }: PaletteTaskRowProps) {
 	const t = useTranslations();
 	const openTask = useCallback(() => onOpenTask(task.id), [onOpenTask, task.id]);
-	const handleClick = useCallback(
-		(event: MouseEvent<HTMLDivElement>) => {
-			event.stopPropagation();
-			event.preventDefault();
-			openTask();
-		},
-		[openTask]
-	);
 	const labels = [numberLabelOf(task)];
 	if (teamName) {
 		labels.push(t('commandPalette.results.inTeam', { team: teamName }));
@@ -128,21 +120,19 @@ function PaletteTaskRow({ task, teamName, status, priority, onOpenTask }: Palett
 	const subtitle = labels.filter(Boolean).join(' · ');
 
 	return (
-		<div onClick={handleClick} className="w-full cursor-pointer">
-			<CommandItem value={searchValueOf(task)} onSelect={openTask} className="min-h-14 gap-3 rounded-lg px-2">
-				<span className="flex size-8 shrink-0 items-center justify-center">
-					<TaskPropertyIcon kind="issueType" name={task.issueType} className="size-6" />
-				</span>
-				<span className="flex min-w-0 flex-1 flex-col gap-0.5">
-					<span className="truncate text-sm text-foreground">{task.title}</span>
-					{subtitle && <span className="truncate text-xs text-muted-foreground">{subtitle}</span>}
-				</span>
-				<span className="hidden shrink-0 items-center gap-1.5 sm:flex">
-					{status && <PaletteChip item={status} />}
-					{priority && <PaletteChip item={priority} />}
-				</span>
-			</CommandItem>
-		</div>
+		<CommandItem value={searchValueOf(task)} onSelect={openTask} className="min-h-14 gap-3 rounded-lg px-2">
+			<span className="flex size-8 shrink-0 items-center justify-center">
+				<TaskPropertyIcon kind="issueType" name={task.issueType} className="size-6" />
+			</span>
+			<span className="flex min-w-0 flex-1 flex-col gap-0.5">
+				<span className="truncate text-sm text-foreground">{task.title}</span>
+				{subtitle && <span className="truncate text-xs text-muted-foreground">{subtitle}</span>}
+			</span>
+			<span className="hidden shrink-0 items-center gap-1.5 sm:flex">
+				{status && <PaletteChip item={status} />}
+				{priority && <PaletteChip item={priority} />}
+			</span>
+		</CommandItem>
 	);
 }
 

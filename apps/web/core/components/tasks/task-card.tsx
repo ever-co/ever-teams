@@ -838,13 +838,9 @@ export function TaskCardMenu({
 								{showRemoveEntries ? (
 									<div>
 										<DropdownMenuSeparator />
-										<DropdownMenuItem variant="destructive" className="cursor-pointer">
-											<RemoveTaskFromPlan member={profile?.member} task={task} plan={plan} />
-										</DropdownMenuItem>
+										<RemoveTaskFromPlan member={profile?.member} task={task} plan={plan} />
 										{isTaskPlannedMultipleTimes && (
-											<DropdownMenuItem variant="destructive" className="cursor-pointer">
-												<RemoveManyTaskFromPlan task={task} member={profile?.member} />
-											</DropdownMenuItem>
+											<RemoveManyTaskFromPlan task={task} member={profile?.member} />
 										)}
 									</div>
 								) : (
@@ -974,14 +970,20 @@ export function AddTaskToPlanComponent({ task, employee }: { task: TTask; employ
 	const t = useTranslations();
 	const { closeModal, isOpen, openModal } = useModal();
 	return (
-		<span className={clsxm('whitespace-nowrap transition-colors', 'cursor-pointer')} onClick={openModal}>
+		<>
+			<button
+				type="button"
+				className={clsxm('whitespace-nowrap transition-colors', 'cursor-pointer')}
+				onClick={openModal}
+			>
+				{t('dailyPlan.ADD_TASK_TO_PLAN')}
+			</button>
 			<AddTaskToPlan closeModal={closeModal} open={isOpen} task={task} employee={employee} />
-			{t('dailyPlan.ADD_TASK_TO_PLAN')}
-		</span>
+		</>
 	);
 }
 
-const REMOVE_FROM_PLAN_ROW = 'flex w-full cursor-pointer items-center gap-2.5 whitespace-nowrap text-destructive-ink';
+const REMOVE_FROM_PLAN_ROW = 'cursor-pointer whitespace-nowrap';
 
 export function RemoveTaskFromPlan({
 	task,
@@ -1002,10 +1004,10 @@ export function RemoveTaskFromPlan({
 		removeTaskFromPlan(data, plan?.id ?? '');
 	};
 	return (
-		<span className={REMOVE_FROM_PLAN_ROW} onClick={onClick}>
+		<DropdownMenuItem variant="destructive" className={REMOVE_FROM_PLAN_ROW} onSelect={onClick}>
 			<Trash />
 			{t('dailyPlan.REMOVE_FROM_THIS_PLAN')}
-		</span>
+		</DropdownMenuItem>
 	);
 }
 
@@ -1020,9 +1022,9 @@ export function RemoveManyTaskFromPlan({ task, member }: { task: TTask; member?:
 		removeManyTaskPlans(data, task.id ?? '');
 	};
 	return (
-		<span className={REMOVE_FROM_PLAN_ROW} onClick={onClick}>
+		<DropdownMenuItem variant="destructive" className={REMOVE_FROM_PLAN_ROW} onSelect={onClick}>
 			<Trash />
 			{t('dailyPlan.REMOVE_FROM_ALL_PLANS')}
-		</span>
+		</DropdownMenuItem>
 	);
 }

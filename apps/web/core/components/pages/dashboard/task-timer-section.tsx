@@ -58,12 +58,17 @@ export function TaskTimerSection({ isTrackingEnabled }: Readonly<{ isTrackingEna
 					!isTrackingEnabled && TASK_INPUT_WITHOUT_TIMER_CLASS_NAME
 				)}
 			/>
-			<div onClick={() => setShowInput((p) => !p)} className={TASK_INPUT_TOGGLE_CLASS_NAME}>
+			<button
+				type="button"
+				aria-expanded={showInput}
+				onClick={() => setShowInput((p) => !p)}
+				className={TASK_INPUT_TOGGLE_CLASS_NAME}
+			>
 				<ChevronDown
 					className={clsxm('size-5 transition-transform', showInput && 'rotate-180')}
 					aria-label={showInput ? 'hide the issue input' : 'show the issue input'}
 				/>
-			</div>
+			</button>
 			{/* shrink-0: the timer keeps its natural width; the task-input column (min-w-0) is what gives way,
 			    so the play button stays inside the viewport at 1280/1366px with the sidebar open. */}
 			{isTrackingEnabled ? (
