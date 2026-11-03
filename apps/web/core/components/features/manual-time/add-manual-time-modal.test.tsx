@@ -53,8 +53,17 @@ jest.mock('@/core/hooks/organizations/teams/use-team-member', () => ({
 	useIsMemberManager: () => ({ isTeamManager: true })
 }));
 
+// The keys stand for the texts; the list of missing fields is appended so each message stays distinct
+function translate(key: string, values?: { fields?: string }) {
+	if (values?.fields) {
+		return `${key} ${values.fields}`;
+	}
+	return key;
+}
+
 jest.mock('next-intl', () => ({
-	useTranslations: () => (key: string) => key
+	useTranslations: () => translate,
+	useLocale: () => 'en'
 }));
 
 jest.mock('lucide-react', () => ({
@@ -233,7 +242,7 @@ describe('AddManualTimeModal team of the saved time', () => {
 		submitDialog();
 
 		expect(mockAddManualTime).not.toHaveBeenCalled();
-		expect(screen.getByText('Please complete: Task')).toBeTruthy();
+		expect(screen.getByText('manualTime.FILL_IN manualTime.TASK')).toBeTruthy();
 
 		pickInSelect('task', 'task-shared');
 		submitDialog();
@@ -287,7 +296,7 @@ describe('AddManualTimeModal team of the saved time', () => {
 
 		expect(selectedValue('teams')).toBe('team-b');
 		expect(mockAddManualTime).not.toHaveBeenCalled();
-		expect(screen.getByText('Please complete: Task')).toBeTruthy();
+		expect(screen.getByText('manualTime.FILL_IN manualTime.TASK')).toBeTruthy();
 
 		pickInSelect('task', 'task-b');
 		submitDialog();
@@ -320,7 +329,7 @@ describe('AddManualTimeModal team of the saved time', () => {
 		submitDialog();
 
 		expect(mockAddManualTime).not.toHaveBeenCalled();
-		expect(screen.getByText('Please complete: Employee')).toBeTruthy();
+		expect(screen.getByText('manualTime.FILL_IN manualTime.EMPLOYEE')).toBeTruthy();
 
 		clickButton('pick employee-b');
 		submitDialog();

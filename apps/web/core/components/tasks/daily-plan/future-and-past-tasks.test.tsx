@@ -11,6 +11,47 @@ let mockPlans: { id: string; date: string; tasks: [] }[] = [];
 
 const profile = {} as I_UserProfilePage;
 
+const DAY_WORDS: Record<string, string> = {
+	'common.TODAY': 'Today',
+	'common.TOMORROW': 'Tomorrow',
+	'common.YESTERDAY': 'Yesterday'
+};
+
+function translate(key: string) {
+	return DAY_WORDS[key] ?? key;
+}
+
+function formatDateTime(date: Date, options: Intl.DateTimeFormatOptions) {
+	return new Intl.DateTimeFormat('en-US', options).format(date);
+}
+
+jest.mock('next-intl', () => ({
+	useTranslations: () => translate,
+	useFormatter: () => ({ dateTime: formatDateTime }),
+	useLocale: () => 'en'
+}));
+
+// The rows, the plan header and the pending additions are not what these tests are about
+jest.mock('@/core/components/daily-plan/plan-header', () => ({ PlanHeader: () => null }));
+
+jest.mock('@/core/components/features/daily-plan/pending-plan-tasks', () => ({
+	PendingPlanCardsFor: () => null,
+	PendingPlanDayBlocks: () => null
+}));
+
+jest.mock('@/core/hooks/daily-plans/use-pending-plan-additions', () => ({ usePendingPlanDays: () => [] }));
+
+jest.mock('@/core/components/tasks/task-list-member-context', () => ({
+	TaskListMemberProvider: ({ children }: { children: React.ReactNode }) => <>{children}</>
+}));
+
+jest.mock('./day-group', () => ({
+	DAY_GROUP_LIST_CLASS_NAME: '',
+	PlanTaskDraggable: () => null,
+	droppableDirectionFor: () => 'vertical',
+	planTaskListClassName: () => ''
+}));
+
 jest.mock('@/core/hooks/daily-plans/use-employee-daily-plans', () => ({
 	useEmployeeDailyPlans: () => ({ employeeFuturePlans: mockPlans, employeePastPlans: mockPlans })
 }));
@@ -28,7 +69,18 @@ jest.mock('@/core/hooks/daily-plans/use-filter-date-range', () => ({
 jest.mock('@/core/hooks/daily-plans/use-date-range', () => ({ useDateRange: () => ({ date: undefined }) }));
 
 // The table view keeps the open plans free of drag and drop
-jest.mock('jotai', () => ({ useAtomValue: () => 'TABLE' }));
+jest.mock('jotai', () => {
+	const actualJotai = jest.requireActual('jotai');
+	return {
+		...actualJotai,
+		useAtomValue: (atomOrKey: unknown) => {
+			if (atomOrKey === 'daily-plan-view') {
+				return 'TABLE';
+			}
+			return actualJotai.useAtomValue(atomOrKey);
+		}
+	};
+});
 
 jest.mock('@/core/stores/common/header-tabs', () => ({ dailyPlanViewHeaderTabs: 'daily-plan-view' }));
 
@@ -83,15 +135,15 @@ describe('Future Tasks and Past Tasks default open plan', () => {
 		];
 		render(<FutureTasks profile={profile} employeeId="employee-1" />);
 
-		expect(isPlanOpen('Tomorrow (0)')).toBe('true');
-		expect(isPlanOpen('Tuesday, October 20, 2026 (0)')).toBe('false');
+		expect(isPlanOpen('Tomorrow')).toBe('true');
+		expect(isPlanOpen('Tuesday, October 20')).toBe('false');
 	});
 
 	it("opens tomorrow's plan saved with the time it was created at", () => {
 		mockPlans = [{ id: 'plan-tomorrow', date: '2026-10-15T22:30:00.000Z', tasks: [] }];
 		render(<FutureTasks profile={profile} employeeId="employee-1" />);
 
-		expect(isPlanOpen('Tomorrow (0)')).toBe('true');
+		expect(isPlanOpen('Tomorrow')).toBe('true');
 	});
 
 	it("opens the new tomorrow's plan on a render after midnight", () => {
@@ -100,23 +152,23 @@ describe('Future Tasks and Past Tasks default open plan', () => {
 			{ id: 'plan-17', date: '2026-10-17T00:00:00.000Z', tasks: [] }
 		];
 		const { rerender } = render(<FutureTasks profile={profile} employeeId="employee-1" />);
-		expect(isPlanOpen('Saturday, October 17, 2026 (0)')).toBe('false');
+		expect(isPlanOpen('Saturday, October 17')).toBe('false');
 
 		clock = nextMorning;
 		mockPlans = [{ id: 'plan-17', date: '2026-10-17T00:00:00.000Z', tasks: [] }];
 		rerender(<FutureTasks profile={profile} employeeId="employee-1" />);
 
-		expect(isPlanOpen('Tomorrow (0)')).toBe('true');
+		expect(isPlanOpen('Tomorrow')).toBe('true');
 	});
 
 	it('keeps a plan the user closed on a later render the same day', () => {
 		mockPlans = [{ id: 'plan-16', date: '2026-10-16T00:00:00.000Z', tasks: [] }];
 		const { rerender } = render(<FutureTasks profile={profile} employeeId="employee-1" />);
-		fireEvent.click(screen.getByText('Tomorrow (0)'));
+		fireEvent.click(screen.getByText('Tomorrow'));
 
 		rerender(<FutureTasks profile={profile} employeeId="employee-1" />);
 
-		expect(isPlanOpen('Tomorrow (0)')).toBe('false');
+		expect(isPlanOpen('Tomorrow')).toBe('false');
 	});
 
 	it("opens yesterday's plan of the current day", () => {
@@ -126,15 +178,15 @@ describe('Future Tasks and Past Tasks default open plan', () => {
 		];
 		render(<PastTasks profile={profile} employeeId="employee-1" />);
 
-		expect(isPlanOpen('Yesterday (0)')).toBe('true');
-		expect(isPlanOpen('Saturday, October 10, 2026 (0)')).toBe('false');
+		expect(isPlanOpen('Yesterday')).toBe('true');
+		expect(isPlanOpen('Saturday, October 10')).toBe('false');
 	});
 
 	it("opens yesterday's plan saved with the time it was created at", () => {
 		mockPlans = [{ id: 'plan-yesterday', date: '2026-10-13T22:30:00.000Z', tasks: [] }];
 		render(<PastTasks profile={profile} employeeId="employee-1" />);
 
-		expect(isPlanOpen('Yesterday (0)')).toBe('true');
+		expect(isPlanOpen('Yesterday')).toBe('true');
 	});
 
 	it("opens the new yesterday's plan on a render after midnight", () => {
@@ -148,6 +200,6 @@ describe('Future Tasks and Past Tasks default open plan', () => {
 		];
 		rerender(<PastTasks profile={profile} employeeId="employee-1" />);
 
-		expect(isPlanOpen('Yesterday (0)')).toBe('true');
+		expect(isPlanOpen('Yesterday')).toBe('true');
 	});
 });
