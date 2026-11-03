@@ -20,6 +20,7 @@ import {
 import { Button } from '@/core/components/common/button';
 import { DatePicker } from '@/core/components/common/date-picker';
 import { cn } from '@/core/lib/helpers';
+import { controlGroupRecipe } from '@/core/components/common/input';
 import { format } from 'date-fns';
 import { useTimelogFilterOptions } from '@/core/hooks';
 import { IconsCalendarMonthOutline } from '@/core/components/icons';
@@ -39,7 +40,7 @@ export function FrequencySelect() {
 
 	return (
 		<Select value={timesheetGroupByDays} onValueChange={handleSelectChange}>
-			<SelectTrigger className="min-w-24 w-fit overflow-hidden  h-[2.2rem]  text-clip border border-gray-200 dark:border-gray-700 bg-white dark:bg-dark--theme-light focus:ring-2 focus:ring-transparent">
+			<SelectTrigger className="h-8 min-w-24 w-fit overflow-hidden text-clip">
 				<SelectValue placeholder="Select a daily" />
 			</SelectTrigger>
 			<SelectContent className="w-fit">
@@ -58,23 +59,23 @@ export const FilterTaskActionMenu = () => {
 		<DropdownMenu>
 			<DropdownMenuTrigger asChild>
 				<div className="w-[120px]">
-					<Button variant="ghost" className="text-sm font-normal">
+					<Button variant="ghost" size="default" className="font-normal">
 						<span className="sr-only">Open menu</span>
 						<span className="">20-10-20</span>
 					</Button>
 				</div>
 			</DropdownMenuTrigger>
 			<DropdownMenuContent align="end">
-				<DropdownMenuItem onClick={(e) => e.preventDefault()} className="cursor-pointer hover:bg-primary">
+				<DropdownMenuItem onClick={(e) => e.preventDefault()} className="cursor-pointer">
 					Today
 				</DropdownMenuItem>
-				<DropdownMenuItem onClick={(e) => e.preventDefault()} className="cursor-pointer hover:bg-primary">
+				<DropdownMenuItem onClick={(e) => e.preventDefault()} className="cursor-pointer">
 					Last 7 days
 				</DropdownMenuItem>
-				<DropdownMenuItem onClick={(e) => e.preventDefault()} className="cursor-pointer hover:bg-primary">
+				<DropdownMenuItem onClick={(e) => e.preventDefault()} className="cursor-pointer">
 					Last 30 days
 				</DropdownMenuItem>
-				<DropdownMenuItem onClick={(e) => e.preventDefault()} className="cursor-pointer hover:bg-primary">
+				<DropdownMenuItem onClick={(e) => e.preventDefault()} className="cursor-pointer">
 					This year ({new Date().getFullYear()})
 				</DropdownMenuItem>
 				<CustomDateRange />
@@ -112,16 +113,22 @@ export const CustomDateRange = () => {
 				<span>Custom Date Range</span>
 			</DropdownMenuSubTrigger>
 			<DropdownMenuPortal>
-				<DropdownMenuSubContent className="bg-white hover:bg-white">
-					<DropdownMenuItem className="bg-white cursor-pointer hover:bg-white">
+				<DropdownMenuSubContent>
+					<DropdownMenuItem className="cursor-pointer data-highlighted:bg-transparent">
 						<div className="flex flex-col gap-3">
 							<DynamicDatePicker label="From" date={dateRange.from} setDate={handleFromChange} />
 							<DynamicDatePicker label="To" date={dateRange.to} setDate={handleToChange} />
 							<div className="flex justify-end w-full gap-4">
-								<button className="text-primary" onClick={cancelChanges}>
+								<button
+									className="rounded-sm text-sm text-primary-ink hover:underline underline-offset-4"
+									onClick={cancelChanges}
+								>
 									Cancel
 								</button>
-								<button className="text-primary" onClick={applyChanges}>
+								<button
+									className="rounded-sm text-sm text-primary-ink hover:underline underline-offset-4"
+									onClick={applyChanges}
+								>
 									Apply
 								</button>
 							</div>
@@ -137,14 +144,11 @@ const DatePickerInput: React.FC<DatePickerInputProps> = ({ date, label }) => (
 	<>
 		<Button
 			variant="outline"
-			className={cn(
-				'w-[150px] justify-start text-left font-normal text-black h-10 border border-transparent dark:border-transparent',
-				!date && 'text-muted-foreground'
-			)}
+			className={cn('w-[150px] justify-start text-left font-normal', !date && 'text-muted-foreground')}
 		>
 			{date ? format(date, 'LLL dd, y') : <span>{label}</span>}
 		</Button>
-		<IconsCalendarMonthOutline className="w-5 h-5 dark:text-gray-500" />
+		<IconsCalendarMonthOutline className="size-4 text-muted-foreground" />
 	</>
 );
 
@@ -162,10 +166,11 @@ export function DynamicDatePicker({
 			<DatePicker
 				buttonVariant={'link'}
 				// @ts-ignore
-				className="bg-white rounded-lg dark:bg-dark--theme-light"
-				buttonClassName={
-					'decoration-transparent flex items-center w-full bg-white dark:bg-dark--theme-light border-gray-300 justify-start text-left font-normal text-black h-10 border dark:border-slate-600 rounded-md'
-				}
+				className="rounded-lg bg-popover"
+				buttonClassName={cn(
+					controlGroupRecipe,
+					'decoration-transparent h-9 justify-start px-1 text-left font-normal'
+				)}
 				customInput={<DatePickerInput date={date} label={label} />}
 				mode="single"
 				numberOfMonths={1}

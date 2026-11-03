@@ -2,6 +2,7 @@ import { ETimesheetStatus } from '@/core/types/generics/enums/timesheet';
 import { clsxm } from '@/core/lib/utils';
 import { TranslationHooks } from 'next-intl';
 import { ReactNode } from 'react';
+import { Button } from '@/core/components/duplicated-components/_button';
 import { ApproveSelectedIcon, DeleteSelectedIcon, RejectSelectedIcon } from './timesheet-icons';
 import { ETimeFrequency } from '@/core/types/generics/enums/date';
 type ITimesheetButton = {
@@ -19,15 +20,23 @@ export const TimesheetButton = ({ className, icon, onClick, title, disabled }: I
 		}
 	};
 	return (
-		<button
+		<Button
+			variant="ghost"
+			size="default"
 			disabled={disabled}
 			onClick={handleClick}
-			className={clsxm('flex items-center gap-1 text-gray-400 font-normal leading-3', className)}
+			className={clsxm('text-muted-foreground', className)}
 		>
-			<div className="w-[16px] h-[16px] text-[#293241]">{icon}</div>
+			<div className="size-4 shrink-0">{icon}</div>
 			<span>{title}</span>
-		</button>
+		</Button>
 	);
+};
+
+const ACTION_TONE_CLASS: Record<StatusAction, string> = {
+	Approved: 'text-success-foreground hover:bg-success/10 hover:text-success-foreground',
+	Denied: 'text-destructive-ink hover:bg-destructive/10 hover:text-destructive-ink',
+	Deleted: 'hover:bg-destructive/10 hover:text-destructive-ink'
 };
 
 export type StatusType = 'PENDING' | 'APPROVED' | 'Denied';
@@ -44,41 +53,41 @@ export const getTimesheetButtons = (
 	const buttonsConfig: Record<StatusType, { icon: ReactNode; title: string; action: StatusAction }[]> = {
 		PENDING: [
 			{
-				icon: <ApproveSelectedIcon className="dark:!text-gray-400 rounded" />,
+				icon: <ApproveSelectedIcon className="size-4" />,
 				title: t('pages.timesheet.TIMESHEET_ACTION_APPROVE_SELECTED'),
 				action: 'Approved'
 			},
 			{
-				icon: <RejectSelectedIcon className="dark:!text-gray-400 rounded" />,
+				icon: <RejectSelectedIcon className="size-4" />,
 				title: t('pages.timesheet.TIMESHEET_ACTION_REJECT_SELECTED'),
 				action: 'Denied'
 			},
 			{
-				icon: <DeleteSelectedIcon className="dark:!text-gray-400 rounded" />,
+				icon: <DeleteSelectedIcon className="size-4" />,
 				title: t('pages.timesheet.TIMESHEET_ACTION_DELETE_SELECTED'),
 				action: 'Deleted'
 			}
 		],
 		APPROVED: [
 			{
-				icon: <RejectSelectedIcon className="dark:!text-gray-400 rounded" />,
+				icon: <RejectSelectedIcon className="size-4" />,
 				title: t('pages.timesheet.TIMESHEET_ACTION_REJECT_SELECTED'),
 				action: 'Denied'
 			},
 			{
-				icon: <DeleteSelectedIcon className="dark:!text-gray-400 rounded" />,
+				icon: <DeleteSelectedIcon className="size-4" />,
 				title: t('pages.timesheet.TIMESHEET_ACTION_DELETE_SELECTED'),
 				action: 'Deleted'
 			}
 		],
 		Denied: [
 			{
-				icon: <ApproveSelectedIcon className="dark:!text-gray-400 rounded" />,
+				icon: <ApproveSelectedIcon className="size-4" />,
 				title: t('pages.timesheet.TIMESHEET_ACTION_APPROVE_SELECTED'),
 				action: 'Approved'
 			},
 			{
-				icon: <DeleteSelectedIcon className="dark:!text-gray-400 rounded" />,
+				icon: <DeleteSelectedIcon className="size-4" />,
 				title: t('pages.timesheet.TIMESHEET_ACTION_DELETE_SELECTED'),
 				action: 'Deleted'
 			}
@@ -97,7 +106,7 @@ export const getTimesheetButtons = (
 
 	return buttons.map((button, index) => (
 		<TimesheetButton
-			className="gap-2 text-sm hover:underline"
+			className={ACTION_TONE_CLASS[button.action]}
 			disabled={disabled}
 			key={index}
 			icon={button.icon}

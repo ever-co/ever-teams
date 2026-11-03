@@ -1,27 +1,26 @@
-import { clsxm } from '@/core/lib/utils';
+import { TabsTrigger } from '@/core/components/common/tabs';
 import { TranslationHooks } from 'next-intl';
 
 type TimesheetViewMode = 'ListView' | 'CalendarView';
 export type TimesheetDetailMode = 'Pending' | 'MenHours' | 'MemberWork';
 type ViewToggleButtonProps = {
 	mode: TimesheetViewMode;
-	active: boolean;
 	icon: React.ReactNode;
 	onClick: () => void;
 	t: TranslationHooks;
 };
 
-export const ViewToggleButton: React.FC<ViewToggleButtonProps> = ({ mode, active, icon, onClick, t }) => (
-	<button
-		onClick={onClick}
-		className={clsxm(
-			'box-border text-[#7E7991]  font-medium min-w-40 w-fit h-fit flex items-center gap-x-4 text-sm p-2',
-			active &&
-				'border-b-primary text-primary border-b-2 dark:text-primary-light dark:border-b-primary-light bg-[#F1F5F9] dark:bg-muted font-medium'
-		)}
-	>
+function viewLabel(mode: TimesheetViewMode, t: TranslationHooks) {
+	if (mode === 'ListView') {
+		return t('pages.timesheet.VIEWS.LIST');
+	}
+	return t('pages.timesheet.VIEWS.CALENDAR');
+}
+
+export const ViewToggleButton: React.FC<ViewToggleButtonProps> = ({ mode, icon, onClick, t }) => (
+	<TabsTrigger value={mode} onClick={onClick}>
 		{icon}
-		<span>{mode === 'ListView' ? t('pages.timesheet.VIEWS.LIST') : t('pages.timesheet.VIEWS.CALENDAR')}</span>
-	</button>
+		<span>{viewLabel(mode, t)}</span>
+	</TabsTrigger>
 );
 ViewToggleButton.displayName = 'ViewToggleButton';

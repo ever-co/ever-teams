@@ -4,26 +4,21 @@ import { useTranslations } from 'next-intl';
 import { useParams } from 'next/navigation';
 import React, { Suspense, use, useMemo, useState } from 'react';
 
-import { Container } from '@/core/components';
 import { PageLayout } from '@/core/components/layouts/default-layout';
 
 import { useLocalStorageState, useModal } from '@/core/hooks';
 import { useAtomValue } from 'jotai';
 
-import {
-	CalendarViewIcon,
-	ListViewIcon,
-	MemberWorkIcon,
-	MenHoursIcon,
-	PendingTaskIcon,
-	SelectedTimesheet
-} from '@/core/components/timesheet';
-import { ArrowLeftIcon } from 'assets/svg';
+import { SelectedTimesheet } from '@/core/components/timesheet';
 import { TimesheetDetailModalSkeleton } from '@/core/components/common/skeleton/timesheet-skeletons';
 import { AnimatedEmptyState } from '@/core/components/common/empty-state';
 import { Breadcrumb } from '@/core/components/duplicated-components/breadcrumb';
-import { IconsSearch } from '@/core/components/icons';
+import { Calendar, Clock, ListView, Search, Task, Users } from '@/core/components/icons';
 import { ViewToggleButton } from '@/core/components/timesheet/timesheet-toggle-view';
+import { Tabs, TabsList } from '@/core/components/common/tabs';
+import { Card } from '@/core/components/common/card';
+import { controlGroupRecipe } from '@/core/components/common/input';
+import { cn } from '@/core/lib/helpers';
 import { useTimesheetQuery } from '@/core/hooks/timesheet/use-timesheet-query';
 import { useTimesheetFilters } from '@/core/hooks/activities/use-timesheet-filters';
 import { useTimesheetPagination } from '@/core/hooks/activities/use-timesheet-pagination';
@@ -209,131 +204,131 @@ export function TimeSheetPageContent({ params }: { params: { memberId: string } 
 		timesheetNavigator === 'ListView' ||
 		(timesheetGroupByDays === 'Daily' && timesheetNavigator === 'CalendarView');
 
+	let membersWorkedCount = 0;
+	if (statusTimesheet) {
+		membersWorkedCount = Object.values(statusTimesheet)
+			.flat()
+			.map((entry) => entry.employee?.id)
+			.filter((id, index, array) => array.indexOf(id) === index).length;
+	}
+
+	const greetingTile = (
+		<div className="flex min-w-0 flex-1 flex-col justify-center gap-1 p-4">
+			<h2 className="truncate text-base font-semibold text-foreground">
+				{getGreeting(t)}, {username} !
+			</h2>
+			<p className="text-xs text-muted-foreground text-balance">{t('pages.timesheet.HEADING_DESCRIPTION')}</p>
+		</div>
+	);
+
 	return (
 		<>
 			<PageLayout
 				showTimer={isTrackingEnabled}
-				className="items-start pb-1 !overflow-hidden w-full"
-				childrenClassName="w-full"
+				breadcrumb={
+					<div className="flex min-w-0 items-center gap-2">
+						<Clock className="size-4 shrink-0 text-muted-foreground" aria-hidden="true" />
+						<Breadcrumb paths={breadcrumbPath} className="min-w-0 text-sm" />
+					</div>
+				}
 				mainHeaderSlot={
-					<div className="flex flex-col py-4 bg-gray-100 dark:bg-dark--theme">
-						<Container className="flex flex-col gap-y-3">
-							<div className="flex flex-row justify-between items-start">
-								<div className="flex gap-8 justify-center items-center h-10">
-									<ArrowLeftIcon className="text-dark dark:text-[#6b7280] h-6 w-6" />
-									<Breadcrumb paths={breadcrumbPath} className="text-sm" />
-								</div>
-							</div>
-							<div className="flex flex-col gap-y-2 justify-start items-start">
-								<h1 className="!text-[23px] font-bold text-[#282048] dark:text-white">
-									{getGreeting(t)}, {username} !
-								</h1>
-								<span className="text-sm text-[#3D5A80] dark:text-gray-500">
-									{t('pages.timesheet.HEADING_DESCRIPTION')}
-								</span>
-							</div>
-							<div className="flex gap-6 justify-between items-center mb-4 w-full">
-								<LazyTimesheetCard
-									count={statusTimesheet?.PENDING?.length || 0}
-									title={t('common.PENDING_TASKS')}
-									description="Tasks waiting for your approval"
-									icon={<PendingTaskIcon />}
-									classNameIcon="bg-[#FBB650] shadow-[#fbb75095]"
-									onClick={() => {
-										setTimesheetDetailMode('Pending');
-										openTimesheetDetail();
-									}}
-									key="pending-card"
-								/>
-								<LazyTimesheetCard
-									hours={`${String(hours).padStart(2, '0')}:${String(minute).padStart(2, '0')}`}
-									title={t('common.MEN_HOURS')}
-									date={`${moment(dateRange.from).format('YYYY-MM-DD')} - ${moment(dateRange.to).format('YYYY-MM-DD')}`}
-									icon={<MenHoursIcon />}
-									classNameIcon="bg-[#3D5A80] shadow-[#3d5a809c] "
-									onClick={() => {
-										setTimesheetDetailMode('MenHours');
-										openTimesheetDetail();
-									}}
-									key="hours-card"
-								/>
-								{isManage && (
-									<LazyTimesheetCard
-										count={
-											statusTimesheet
-												? Object.values(statusTimesheet)
-														.flat()
-														.map((entry) => entry.employee?.id)
-														.filter((id, index, array) => array.indexOf(id) === index)
-														.length
-												: 0
-										}
-										title={t('common.MEMBERS_WORKED')}
-										description="People worked since last time"
-										icon={<MemberWorkIcon />}
-										classNameIcon="bg-[#30B366] shadow-[#30b3678f]"
-										onClick={() => {
-											setTimesheetDetailMode('MemberWork');
-											openTimesheetDetail();
-										}}
-										key="members-card"
-									/>
-								)}
-							</div>
-							<div className="flex overflow-hidden justify-between items-center w-full">
-								<div className="flex w-full">
+					<div className="px-4">
+						{/*  Use lazy loaded TimesheetFilter */}
+						<LazyTimesheetFilter
+							user={user}
+							data={statusData}
+							onChangeStatus={setActiveStatus}
+							filterStatus={activeStatus}
+							initDate={{
+								initialRange: dateRange,
+								onChange: React.useCallback((range: { from: Date | null; to: Date | null }) => {
+									setDateRange(range);
+								}, [])
+							}}
+							closeModal={closeManualTimeModal}
+							openModal={openManualTimeModal}
+							isOpen={isManualTimeModalOpen}
+							t={t}
+						>
+							<h1 className="truncate text-lg font-semibold text-foreground">
+								{t('pages.timesheet.TIMESHEET_TITLE')}
+							</h1>
+						</LazyTimesheetFilter>
+						<div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+							<Tabs value={timesheetNavigator} activationMode="manual" className="gap-0">
+								<TabsList className="border-b-0">
 									<ViewToggleButton
-										icon={<ListViewIcon />}
+										icon={<ListView />}
 										mode="ListView"
-										active={timesheetNavigator === 'ListView'}
 										onClick={() => setTimesheetNavigator('ListView')}
 										t={t}
 									/>
 									<ViewToggleButton
-										icon={<CalendarViewIcon />}
+										icon={<Calendar />}
 										mode="CalendarView"
-										active={timesheetNavigator === 'CalendarView'}
 										onClick={() => setTimesheetNavigator('CalendarView')}
 										t={t}
 									/>
-								</div>
-								<div className="flex items-center !h-[2.2rem] w-[700px] bg-white dark:bg-dark--theme-light gap-x-2 px-2 border border-gray-200 dark:border-gray-700 rounded-xs mb-2">
-									<IconsSearch className="text-[#7E7991]" />
-									<input
-										onChange={(v) => setSearch(v.target.value)}
-										role="searchbox"
-										aria-label="Search timesheet"
-										type="search"
-										name="timesheet-search"
-										id="timesheet-search"
-										className="!h-[2.2rem] w-full bg-transparent focus:border-transparent focus:ring-2 focus:ring-transparent placeholder-gray-500 placeholder:font-medium shadow-xs outline-none"
-										placeholder={t('common.SEARCH')}
-									/>
-								</div>
+								</TabsList>
+							</Tabs>
+							<div className={cn(controlGroupRecipe, 'mb-2 h-8 gap-x-2 px-2.5 sm:w-80 lg:w-96')}>
+								<Search className="size-4 shrink-0 text-muted-foreground" />
+								<input
+									onChange={(v) => setSearch(v.target.value)}
+									role="searchbox"
+									aria-label="Search timesheet"
+									type="search"
+									name="timesheet-search"
+									id="timesheet-search"
+									className="h-full w-full min-w-0 bg-transparent text-sm outline-none placeholder:text-muted-foreground/75"
+									placeholder={t('common.SEARCH')}
+								/>
 							</div>
-							{/*  Use lazy loaded TimesheetFilter */}
-							<LazyTimesheetFilter
-								user={user}
-								data={statusData}
-								onChangeStatus={setActiveStatus}
-								filterStatus={activeStatus}
-								initDate={{
-									initialRange: dateRange,
-									onChange: React.useCallback((range: { from: Date | null; to: Date | null }) => {
-										setDateRange(range);
-									}, [])
-								}}
-								closeModal={closeManualTimeModal}
-								openModal={openManualTimeModal}
-								isOpen={isManualTimeModalOpen}
-								t={t}
-							/>
-						</Container>
+						</div>
 					</div>
 				}
 			>
-				<div className="flex flex-col w-full border-1 rounded-lg bg-[#FFFFFF] dark:bg-dark--theme mt-6">
-					<div className="rounded-lg border border-gray-200 dark:border-gray-800">
+				<div className="flex w-full flex-col gap-4">
+					<Card className="flex flex-col hairline-divide-y divide-dashed divide-border overflow-hidden md:flex-row md:hairline-divide-x md:divide-y-0">
+						{greetingTile}
+						<LazyTimesheetCard
+							count={statusTimesheet?.PENDING?.length || 0}
+							title={t('common.PENDING_TASKS')}
+							description={t('pages.timesheet.PENDING_TASKS_DESCRIPTION')}
+							icon={<Task />}
+							classNameIcon="bg-warning/10 text-warning-foreground"
+							onClick={() => {
+								setTimesheetDetailMode('Pending');
+								openTimesheetDetail();
+							}}
+							key="pending-card"
+						/>
+						<LazyTimesheetCard
+							hours={`${String(hours).padStart(2, '0')}:${String(minute).padStart(2, '0')}`}
+							title={t('common.MEN_HOURS')}
+							date={`${moment(dateRange.from).format('YYYY-MM-DD')} - ${moment(dateRange.to).format('YYYY-MM-DD')}`}
+							icon={<Clock />}
+							onClick={() => {
+								setTimesheetDetailMode('MenHours');
+								openTimesheetDetail();
+							}}
+							key="hours-card"
+						/>
+						{isManage && (
+							<LazyTimesheetCard
+								count={membersWorkedCount}
+								title={t('common.MEMBERS_WORKED')}
+								description={t('pages.timesheet.MEMBERS_WORKED_DESCRIPTION')}
+								icon={<Users />}
+								onClick={() => {
+									setTimesheetDetailMode('MemberWork');
+									openTimesheetDetail();
+								}}
+								key="members-card"
+							/>
+						)}
+					</Card>
+					<Card className="overflow-x-auto">
 						{/* Use lazy loaded components with conditional rendering */}
 						{/* A failed load shows an error instead of an empty range */}
 						{hasLogsLoadError && (
@@ -342,6 +337,8 @@ export function TimeSheetPageContent({ params }: { params: { memberId: string } 
 								message={t('pages.error.HEADING_DESCRIPTION')}
 								actionLabel={t('pages.unauthorized.TRY_AGAIN')}
 								onAction={() => timesheetLogsQuery.refetch()}
+								showBorder={false}
+								noBg
 							/>
 						)}
 						{!hasLogsLoadError && timesheetNavigator === 'ListView' && (
@@ -385,7 +382,7 @@ export function TimeSheetPageContent({ params }: { params: { memberId: string } 
 								key={`pagination-${currentPage}-${totalPages}`}
 							/>
 						)}
-					</div>
+					</Card>
 				</div>
 
 				{/* Use lazy loaded modal with conditional rendering and Suspense */}

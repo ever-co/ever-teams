@@ -1,12 +1,13 @@
 'use client';
 
 import { useCallback } from 'react';
-import { useMutation } from '@tanstack/react-query';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { timeLogService } from '@/core/services/client/api/timesheets/time-log.service';
 import { timeSheetService } from '@/core/services/client/api/timesheets/timesheet.service';
 import { IUpdateTimesheetRequest } from '@/core/types/interfaces/timesheet/timesheet';
 import { ETimesheetStatus } from '@/core/types/generics/enums/timesheet';
 import { useAuthenticateUser } from '../auth';
+import { queryKeys } from '@/core/query/keys';
 import { useTimesheetInvalidation } from './use-timesheet-invalidation';
 
 /**
@@ -16,6 +17,9 @@ import { useTimesheetInvalidation } from './use-timesheet-invalidation';
 export function useUpdateTimesheet() {
 	const { user } = useAuthenticateUser();
 	const { invalidateTimesheetData } = useTimesheetInvalidation();
+	const queryClient = useQueryClient();
+	// The dashboards read the same time logs through the activity reports, which stay fresh for 10 minutes.
+	const invalidateDashboardFigures = () => queryClient.invalidateQueries({ queryKey: queryKeys.activities.all });
 
 	const updateTimesheetMutation = useMutation({
 		mutationFn: async (timesheet: IUpdateTimesheetRequest) => {
@@ -23,6 +27,7 @@ export function useUpdateTimesheet() {
 		},
 		onSuccess: () => {
 			invalidateTimesheetData();
+			invalidateDashboardFigures();
 		}
 	});
 
@@ -41,6 +46,7 @@ export function useUpdateTimesheet() {
 		},
 		onSuccess: () => {
 			invalidateTimesheetData();
+			invalidateDashboardFigures();
 		}
 	});
 
@@ -84,4 +90,3 @@ export function useUpdateTimesheet() {
 		loadingUpdateTimesheetStatus: updateTimesheetStatusMutation.isPending
 	};
 }
-

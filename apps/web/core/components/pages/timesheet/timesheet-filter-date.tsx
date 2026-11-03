@@ -3,12 +3,12 @@ import { checkPastDate, cn } from '@/core/lib/helpers';
 import { DatePicker } from '@/core/components/common/date-picker';
 import { Button } from '@/core/components/duplicated-components/_button';
 import { Popover, PopoverContent, PopoverTrigger } from '@/core/components/common/popover';
-import { CalendarIcon } from '@radix-ui/react-icons';
 import { format, isAfter, isToday, startOfToday } from 'date-fns';
 import { TranslationHooks } from 'next-intl';
 import React, { Dispatch, useEffect, useState, SetStateAction, useCallback, useMemo, memo } from 'react';
 import moment from 'moment';
-import { CalendarDays, ChevronDown, ChevronRight } from 'lucide-react';
+import { Calendar, ChevronDown, ChevronRight } from '@/core/components/icons';
+import { controlGroupRecipe } from '@/core/components/common/input';
 import { ITimeLog } from '@/core/types/interfaces/timer/time-log/time-log';
 
 interface DatePickerInputProps {
@@ -25,14 +25,7 @@ export interface TimesheetFilterDateProps {
 	data?: ITimeLog[];
 }
 
-export function TimesheetFilterDate({
-	onChange,
-	initialRange,
-	minDate,
-	maxDate,
-	data,
-	t
-}: Readonly<TimesheetFilterDateProps>) {
+export function TimesheetFilterDate({ onChange, initialRange, maxDate, data, t }: Readonly<TimesheetFilterDateProps>) {
 	// Fix for system date being in future (2025)
 	const today = startOfToday();
 
@@ -108,8 +101,7 @@ export function TimesheetFilterDate({
 		}
 	}, [dateRange]); // Removed onChange from dependencies to prevent infinite loop
 
-	const actionButtonClass =
-		'h-4 border-none dark:bg-dark--theme-light text-primary hover:bg-transparent hover:underline';
+	const actionButtonClass = 'px-2';
 
 	return (
 		<>
@@ -117,15 +109,16 @@ export function TimesheetFilterDate({
 				<PopoverTrigger asChild>
 					<Button
 						variant={'outline'}
+						size="default"
 						role="combobox"
 						aria-label="Select date range"
 						aria-expanded="false"
 						className={cn(
-							'min-w-36 w-fit justify-start dark:bg-dark--theme-light dark:text-gray-300 h-[2.2rem] items-center gap-x-2 text-left font-normal overflow-hidden text-clip',
+							'min-w-36 w-fit justify-start gap-x-2 overflow-hidden text-clip text-left font-normal tabular-nums',
 							!dateRange.from && 'text-muted-foreground'
 						)}
 					>
-						<CalendarIcon />
+						<Calendar className="text-muted-foreground" />
 						{dateRange.from ? (
 							dateRange.to ? (
 								<>
@@ -139,7 +132,7 @@ export function TimesheetFilterDate({
 						)}
 					</Button>
 				</PopoverTrigger>
-				<PopoverContent className="flex p-0 w-auto dark:bg-dark--theme-light">
+				<PopoverContent className="flex p-0 w-auto">
 					{isVisible && (
 						<div className="flex flex-col gap-2 justify-between p-2 translate-x-0">
 							<div className="flex flex-col gap-2">
@@ -159,8 +152,9 @@ export function TimesheetFilterDate({
 							</div>
 							<div className="flex justify-end items-end w-full">
 								<Button
-									variant={'outline'}
-									className={cn(actionButtonClass, 'hover:text-primary')}
+									variant="link"
+									size="sm"
+									className={actionButtonClass}
 									onClick={() => {
 										setDateRange(initialRange ?? { from: new Date(), to: new Date() });
 										setIsVisible(false);
@@ -169,8 +163,9 @@ export function TimesheetFilterDate({
 									{t('common.CANCEL')}
 								</Button>
 								<Button
-									variant={'outline'}
-									className={cn(actionButtonClass, 'hover:text-primary')}
+									variant="link"
+									size="sm"
+									className={actionButtonClass}
 									onClick={() => {
 										onChange?.(dateRange);
 										setIsVisible(false);
@@ -181,8 +176,8 @@ export function TimesheetFilterDate({
 							</div>
 						</div>
 					)}
-					{isVisible && <div className="my-1 border border-slate-100 dark:border-gray-800"></div>}
-					<div className="flex flex-col p-2">
+					{isVisible && <div className="my-2 w-px shrink-0 bg-border"></div>}
+					<div className="flex flex-col gap-0.5 p-1">
 						{[
 							t('common.FILTER_TODAY'),
 							t('common.FILTER_LAST_7_DAYS'),
@@ -192,20 +187,21 @@ export function TimesheetFilterDate({
 						].map((label, index) => (
 							<Button
 								key={index}
-								variant="outline"
-								className={clsxm(
-									'flex justify-between items-center h-7 text-xs text-gray-700 border-none group dark:bg-dark--theme-light dark:text-gray-300 hover:bg-primary hover:text-white hover:dark:bg-primary-light'
-								)}
+								variant="ghost"
+								size="sm"
+								className={clsxm('group w-full justify-between font-normal text-foreground')}
 								onClick={() => {
 									label === t('common.FILTER_CUSTOM_RANGE') && setIsVisible((prev) => !prev);
 									handlePresetClick(label);
 								}}
 							>
 								<div className="flex gap-x-2 items-center">
-									<ChevronDown />
+									<ChevronDown className="text-muted-foreground" />
 									<span> {label}</span>
 								</div>
-								{label === t('common.FILTER_CUSTOM_RANGE') && <ChevronRight />}
+								{label === t('common.FILTER_CUSTOM_RANGE') && (
+									<ChevronRight className="text-muted-foreground" />
+								)}
 							</Button>
 						))}
 					</div>
@@ -218,15 +214,16 @@ export function TimesheetFilterDate({
 const DatePickerInput: React.FC<DatePickerInputProps> = ({ date, label }) => (
 	<>
 		<Button
-			variant="outline"
+			variant="ghost"
+			size="default"
 			className={cn(
-				'w-[150px] justify-start text-left font-normal bg-transparent hover:bg-transparent text-black dark:text-gray-100 h-8 border border-transparent dark:border-transparent',
+				'w-[150px] justify-start text-left font-normal hover:bg-transparent',
 				!date && 'text-muted-foreground'
 			)}
 		>
 			{date ? format(date, 'LLL dd, y') : <span>{label}</span>}
 		</Button>
-		<CalendarDays className="w-5 h-5 dark:text-gray-500" />
+		<Calendar className="size-4 shrink-0 text-muted-foreground" />
 	</>
 );
 
@@ -313,9 +310,10 @@ export function DatePickerFilter({
 					day_range_middle: 'rounded-none',
 					day_hidden: 'invisible'
 				}}
-				buttonClassName={
-					'decoration-transparent flex items-center w-full h-[2.2em] bg-white dark:text-gray-200 dark:bg-dark--theme-light border-gray-300 justify-start text-left font-normal text-black  h-[2.2rem] border dark:border-slate-600 rounded-md hover:border-primary'
-				}
+				buttonClassName={cn(
+					controlGroupRecipe,
+					'decoration-transparent h-9 justify-start px-1 text-left font-normal'
+				)}
 				customInput={<DatePickerInput date={date} label={label} />}
 				mode="single"
 				numberOfMonths={1}
@@ -328,8 +326,8 @@ export function DatePickerFilter({
 					today: (day: Date) => isToday(day)
 				}}
 				modifiersClassNames={{
-					selected: clsxm('bg-primary after:hidden text-white !rounded-full'),
-					today: clsxm('border-2 !border-yellow-700 rounded')
+					selected: clsxm('bg-primary after:hidden text-primary-foreground rounded-md'),
+					today: clsxm('hairline-ring ring-inset ring-primary/40 rounded-md')
 				}}
 				disabled={[
 					...(minDate ? [{ before: minDate }] : []),
@@ -353,7 +351,8 @@ export function DatePickerFilter({
 								disabled={isDayDisabled}
 								{...props}
 								className={cn(
-									`h-9 w-9 rounded-sm ${isSelected ? 'bg-primary dark:bg-primary-light text-primary-foreground dark:text-white' : ''}`
+									'h-9 w-9 rounded-md tabular-nums transition-colors hover:bg-foreground/5 disabled:opacity-50',
+									isSelected && 'bg-primary text-primary-foreground hover:bg-primary'
 								)}
 								onClick={() => handleSelect(dayDate)}
 							>
@@ -375,13 +374,7 @@ export function DatePickerFilter({
 }
 const DayIndicators = ({ entries }: { entries: ITimeLog[] }) => {
 	if (entries.length === 1) {
-		return (
-			<span
-				className="w-1 h-1 bg-green-500 rounded-full dark:bg-primary-light"
-				role="status"
-				aria-label="1 time entry for this day"
-			/>
-		);
+		return <span className="size-1 rounded-full bg-primary" role="status" aria-label="1 time entry for this day" />;
 	}
 	return (
 		<div
@@ -390,7 +383,7 @@ const DayIndicators = ({ entries }: { entries: ITimeLog[] }) => {
 			aria-label={`${entries.length} time entries for this day`}
 		>
 			{[...Array(3)].map((_, index) => (
-				<span key={index} className="w-1 h-1 bg-green-500 rounded-full dark:bg-primary-light" />
+				<span key={index} className="size-1 rounded-full bg-primary" />
 			))}
 		</div>
 	);
@@ -418,9 +411,9 @@ export const FilterCalendar = memo(function FuturePlansCalendar<T extends { date
 	plans,
 	pastPlans,
 	bookedDayClassName = 'relative after:absolute after:bottom-0 after:left-1/2 after:-translate-x-1/2 after:w-1.5 after:h-1.5 after:bg-primary after:rounded-full',
-	selectedDayClassName = 'bg-primary after:hidden text-white !rounded-full',
-	pastDayClassName = 'relative after:absolute after:bottom-0 after:left-1/2 after:-translate-x-1/2 after:w-1.5 after:h-1.5 after:bg-yellow-600 after:rounded-full',
-	currentDayClassName = 'border-2 !border-yellow-700 rounded',
+	selectedDayClassName = 'bg-primary after:hidden text-primary-foreground rounded-md',
+	pastDayClassName = 'relative after:absolute after:bottom-0 after:left-1/2 after:-translate-x-1/2 after:w-1.5 after:h-1.5 after:bg-warning after:rounded-full',
+	currentDayClassName = 'hairline-ring ring-inset ring-primary/40 rounded-md',
 	startYear,
 	endYear
 }: ICalendarProps<T>) {
@@ -445,10 +438,11 @@ export const FilterCalendar = memo(function FuturePlansCalendar<T extends { date
 			mode="single"
 			buttonVariant={'link'}
 			// @ts-ignore
-			className={'bg-white rounded-lg dark:bg-dark--theme-light dark:text-gray-200'}
-			buttonClassName={
-				'decoration-transparent flex items-center w-full h-[2.2em] bg-white dark:text-gray-200 dark:bg-dark--theme-light border-gray-300 justify-start text-left font-normal text-black  h-[2.2rem] border dark:border-slate-600 rounded-md'
-			}
+			className={'rounded-lg bg-popover'}
+			buttonClassName={cn(
+				controlGroupRecipe,
+				'decoration-transparent h-9 justify-start px-1 text-left font-normal'
+			)}
 			numberOfMonths={1}
 			initialFocus
 			customInput={<DatePickerInput date={new Date()} label={''} />}
