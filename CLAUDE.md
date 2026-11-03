@@ -246,7 +246,7 @@ Use [Conventional Commits](https://www.conventionalcommits.org/):
 | Framework        | Next.js 16 (App Router)              |
 | Language         | TypeScript                           |
 | Styling          | Tailwind CSS 4                       |
-| UI Components    | Base UI (`@base-ui/react`) behind the `core/components/common` wrappers, shadcn/ui patterns; Radix remains for slot and toast |
+| UI Components    | Base UI (`@base-ui/react`) behind the `core/components/common` wrappers, shadcn/ui patterns; Radix remains in a few legacy spots (slot, toast, label, popover, the dialog props type, icons) |
 | State Management | Jotai                                |
 | Data Fetching    | TanStack Query (React Query)         |
 | Forms            | React Hook Form + Zod                |

@@ -6,7 +6,7 @@ import { useParams } from 'next/navigation';
 import { useAtomValue } from 'jotai';
 import { useTranslations } from 'next-intl';
 import { Button } from '@/core/components';
-import { FileSearch, Task } from '@/core/components/icons';
+import { Task } from '@/core/components/icons';
 import { Breadcrumb } from '@/core/components/duplicated-components/breadcrumb';
 import { withAuthentication } from '@/core/components/layouts/app/authenticator';
 import { PageLayout } from '@/core/components/layouts/default-layout';
@@ -14,6 +14,7 @@ import { TaskDetailPageBand } from '@/core/components/pages/task/task-detail-pag
 import { TaskDetailPageBody } from '@/core/components/pages/task/task-detail-page-body';
 import { TaskPageSkeleton } from '@/core/components/pages/task/task-page-skeleton';
 import { TaskDetailBandSkeleton, TaskDetailPageSkeleton } from '@/core/components/tasks/detail/task-detail-skeleton';
+import { TaskLoadFailedState, TaskNotFoundState } from '@/core/components/tasks/detail/task-load-states';
 import { taskNumberOf } from '@/core/components/tasks/detail/task-picker-menu';
 import { useTaskQueries } from '@/core/hooks';
 import { useTeamDailyPlansOwner } from '@/core/hooks/bootstrap/use-feature-data';
@@ -22,40 +23,12 @@ import type { TTask } from '@/core/types/schemas/task/task.schema';
 
 function TaskNotFound() {
 	const t = useTranslations();
-	return (
-		<div className="flex min-h-100 flex-col items-center justify-center p-8 text-center">
-			<div className="mb-4 flex size-10 items-center justify-center rounded-lg bg-foreground/5">
-				<FileSearch className="size-5 text-muted-foreground" />
-			</div>
-			<h2 className="mb-1 text-sm font-semibold text-balance text-foreground">
-				{t('pages.taskDetails.TASK_NOT_FOUND')}
-			</h2>
-			<p className="mb-4 max-w-md text-sm text-muted-foreground">
-				{t('pages.taskDetails.TASK_NOT_FOUND_DESCRIPTION')}
-			</p>
-			<Button variant="outline" size="default" asChild>
-				<Link href="/">{t('pages.taskDetails.GO_BACK_HOME')}</Link>
-			</Button>
-		</div>
+	const homeLink = (
+		<Button variant="outline" size="default" asChild>
+			<Link href="/">{t('pages.taskDetails.GO_BACK_HOME')}</Link>
+		</Button>
 	);
-}
-
-function TaskLoadFailed({ onRetry, isRetrying }: Readonly<{ onRetry: () => void; isRetrying: boolean }>) {
-	const t = useTranslations();
-	return (
-		<div className="flex min-h-100 flex-col items-center justify-center p-8 text-center">
-			<div className="mb-4 flex size-10 items-center justify-center rounded-lg bg-foreground/5">
-				<FileSearch className="size-5 text-muted-foreground" />
-			</div>
-			<h2 className="mb-1 text-sm font-semibold text-balance text-foreground">
-				{t('pages.error.HEADING_TITLE')}
-			</h2>
-			<p className="mb-4 max-w-md text-sm text-muted-foreground">{t('pages.error.HEADING_DESCRIPTION')}</p>
-			<Button variant="outline" size="default" onClick={onRetry} loading={isRetrying} disabled={isRetrying}>
-				{t('pages.unauthorized.TRY_AGAIN')}
-			</Button>
-		</div>
-	);
+	return <TaskNotFoundState action={homeLink} />;
 }
 
 function currentCrumbOf(task: TTask | null) {
@@ -158,7 +131,7 @@ const TaskDetails = () => {
 			{isLoading && <TaskDetailPageSkeleton />}
 			{task && <TaskDetailPageBody key={task.id} task={task} />}
 			{isMissing && <TaskNotFound />}
-			{isLoadError && <TaskLoadFailed onRetry={retry} isRetrying={isRetrying} />}
+			{isLoadError && <TaskLoadFailedState onRetry={retry} isRetrying={isRetrying} />}
 		</PageLayout>
 	);
 };

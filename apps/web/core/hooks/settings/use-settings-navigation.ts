@@ -67,14 +67,20 @@ export function useLegacySettingsHash() {
 	const router = useRouter();
 
 	useEffect(() => {
-		const { hash, search } = window.location;
-		const path = stripLocalePrefix(pathname ?? '');
-		const hashTarget = legacyHashTargetOf(path, hash);
-		const returnTarget = everConnectReturnTargetOf(path, search);
-		const target = hashTarget ?? returnTarget;
-		if (!target) {
-			return;
-		}
-		router.replace(`${target}${search}`);
+		const redirectLegacyUrl = () => {
+			const { hash, search } = window.location;
+			const path = stripLocalePrefix(pathname ?? '');
+			const hashTarget = legacyHashTargetOf(path, hash);
+			const returnTarget = everConnectReturnTargetOf(path, search);
+			const target = hashTarget ?? returnTarget;
+			if (!target) {
+				return;
+			}
+			router.replace(`${target}${search}`);
+		};
+		redirectLegacyUrl();
+		// A legacy link opened on its own page changes only the hash, which the router does not see
+		window.addEventListener('hashchange', redirectLegacyUrl);
+		return () => window.removeEventListener('hashchange', redirectLegacyUrl);
 	}, [pathname, router]);
 }

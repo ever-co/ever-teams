@@ -105,6 +105,17 @@ function isNavItemActive(pathname: string | null, item: NavItem) {
 	return isOwnPageActive || hasActiveSubItem;
 }
 
+/** A group opens on the page of one of its rows, until the reader closes it. */
+function isGroupOpen(item: NavItem, readerChoice: boolean | undefined, hasActiveSubItem: boolean) {
+	if (item.isActive) {
+		return true;
+	}
+	if (readerChoice !== undefined) {
+		return readerChoice;
+	}
+	return hasActiveSubItem;
+}
+
 function NavItemContent({ item, isCollapsed }: { item: NavItem; isCollapsed: boolean }) {
 	return (
 		<>
@@ -129,10 +140,10 @@ export const NavMain = memo(function NavMain({ items }: Readonly<{ items: NavIte
 	const [, setActiveMenuIndex] = useAtom(activeMenuIndexState);
 	const [, setActiveSubMenuIndex] = useAtom(activeSubMenuIndexState);
 
-	const handleMenuToggle = (label: string, index: number) => {
+	const handleMenuToggle = (label: string, index: number, open: boolean) => {
 		setOpenMenus((prev) => ({
 			...prev,
-			[label]: !prev[label] // Reverses the opening state of the selected menu
+			[label]: open
 		}));
 
 		// Close all other sub-menus
@@ -162,6 +173,8 @@ export const NavMain = memo(function NavMain({ items }: Readonly<{ items: NavIte
 					const isActive = isNavItemActive(pathname, item);
 					const activeSubItemIndex = findActiveSubItemIndex(pathname, item.items);
 					const hasSubItems = Boolean(item.items?.length);
+					const hasActiveSubItem = activeSubItemIndex >= 0;
+					const isOpen = isGroupOpen(item, openMenus[item.title], hasActiveSubItem);
 					const rowClassName = cn(
 						NAV_ROW_RECIPE,
 						isCollapsed && 'justify-center',
@@ -173,8 +186,8 @@ export const NavMain = memo(function NavMain({ items }: Readonly<{ items: NavIte
 							key={item.title}
 							asChild
 							defaultOpen={item.isActive}
-							open={item.isActive || openMenus[item.title] || false}
-							onOpenChange={() => handleMenuToggle(item.title, index)}
+							open={isOpen}
+							onOpenChange={(open) => handleMenuToggle(item.title, index, open)}
 						>
 							<SidebarMenuItem>
 								{hasSubItems && (

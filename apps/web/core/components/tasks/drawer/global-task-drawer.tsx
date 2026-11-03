@@ -22,7 +22,7 @@ export function GlobalTaskDrawerContent({ taskId }: Readonly<{ taskId: string }>
 	}
 
 	if (!task) {
-		return <TaskDrawerLoading taskId={taskId} />;
+		return <TaskDrawerLoading taskId={taskId} onClose={closeTaskDrawer} />;
 	}
 	return <TaskDrawerBody key={task.id} task={task} onClose={closeTaskDrawer} />;
 }

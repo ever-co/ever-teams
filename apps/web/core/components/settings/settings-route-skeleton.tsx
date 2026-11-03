@@ -13,7 +13,6 @@ import { NotificationsSettingsSkeleton } from './pages/notifications/notificatio
 import { TeamGeneralSettingsSkeleton } from './pages/team-general/team-general-settings-skeleton';
 import { MembersSettingsSkeleton } from './pages/members/members-settings-skeleton';
 import { IntegrationsSettingsSkeleton } from './pages/integrations/integrations-settings-skeleton';
-import { PermissionsContentSkeleton } from '@/core/components/pages/permissions/permissions-page-skeleton';
 import { StatusesSettingsSkeleton } from './pages/task-properties/statuses-settings-skeleton';
 import { PrioritiesSettingsSkeleton } from './pages/task-properties/priorities-settings-skeleton';
 import { SizesSettingsSkeleton } from './pages/task-properties/sizes-settings-skeleton';
@@ -21,7 +20,14 @@ import { LabelsSettingsSkeleton } from './pages/task-properties/labels-settings-
 import { IssueTypesSettingsSkeleton } from './pages/task-properties/issue-types-settings-skeleton';
 import { VersionsSettingsSkeleton } from './pages/task-properties/versions-settings-skeleton';
 
-const PAGE_SKELETONS: Readonly<Record<SettingsEntryId, ComponentType>> = {
+/** The roles entry links to `/permissions`, outside this layout, which has its own loading skeleton. */
+type SettingsPageId = Exclude<SettingsEntryId, 'permissions'>;
+
+function isSettingsPageId(id: SettingsEntryId): id is SettingsPageId {
+	return id !== 'permissions';
+}
+
+const PAGE_SKELETONS: Readonly<Record<SettingsPageId, ComponentType>> = {
 	profile: ProfileSettingsSkeleton,
 	preferences: PreferencesSettingsSkeleton,
 	workingHours: WorkingHoursSettingsSkeleton,
@@ -29,7 +35,6 @@ const PAGE_SKELETONS: Readonly<Record<SettingsEntryId, ComponentType>> = {
 	teamGeneral: TeamGeneralSettingsSkeleton,
 	members: MembersSettingsSkeleton,
 	integrations: IntegrationsSettingsSkeleton,
-	permissions: PermissionsContentSkeleton,
 	statuses: StatusesSettingsSkeleton,
 	priorities: PrioritiesSettingsSkeleton,
 	sizes: SizesSettingsSkeleton,
@@ -44,7 +49,11 @@ export function SettingsContentSkeleton() {
 	if (!entry) {
 		return <SettingsIndexSkeleton />;
 	}
-	const PageSkeleton = PAGE_SKELETONS[entry.id];
+	const entryId = entry.id;
+	if (!isSettingsPageId(entryId)) {
+		return <SettingsIndexSkeleton />;
+	}
+	const PageSkeleton = PAGE_SKELETONS[entryId];
 	return <PageSkeleton />;
 }
 

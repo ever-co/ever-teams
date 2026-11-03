@@ -1,9 +1,11 @@
 import {
 	addDays,
+	addMilliseconds,
 	addMinutes,
 	addMonths,
 	addWeeks,
 	endOfDay,
+	max,
 	min,
 	endOfWeek,
 	isSameMonth,
@@ -106,8 +108,12 @@ export interface CalendarEntry {
 	log: ITimeLog;
 	start: Date;
 	end: Date;
+	/** The local day this entry is drawn on: a log crossing midnight gives one entry per day it covers. */
 	dayKey: string;
+	/** The whole log, shown on each of its days. */
 	durationSeconds: number;
+	/** The part of the log inside `dayKey`, the one the day's totals count. */
+	daySeconds: number;
 	isManual: boolean;
 	isRunning: boolean;
 	isBillable: boolean;
@@ -173,7 +179,7 @@ export function visibleRangeOf(view: CalendarView, anchor: Date, weekStartsOn: W
 
 /**
  * The days sent to Gauzy: the time-log list reads its bounds as midnight UTC of the dates, so one more day on each
- * side covers every time zone, and the entries are then kept by their local start.
+ * side covers every time zone, and the entries are then kept by the local days they cover.
  */
 export function requestDaysOf(range: Period) {
 	const firstDay = addDays(range.from, -1);
@@ -310,6 +316,7 @@ function entryOf(log: ITimeLog, start: Date, now: Date): CalendarEntry {
 		end,
 		dayKey: localDayKeyOf(start),
 		durationSeconds,
+		daySeconds: durationSeconds,
 		isManual: isManualLog(log),
 		isRunning,
 		isBillable: log.isBillable === true,
@@ -320,8 +327,55 @@ function entryOf(log: ITimeLog, start: Date, now: Date): CalendarEntry {
 	};
 }
 
+function overlapsRange(entry: CalendarEntry, range: Period) {
+	if (isInRange(entry.start, range)) {
+		return true;
+	}
+	const startsBeforeRange = entry.start.getTime() < range.from.getTime();
+	const endsInsideRange = entry.end.getTime() > range.from.getTime();
+	return startsBeforeRange && endsInsideRange;
+}
+
+/** An entry ending at midnight belongs to the day before, not to the next one. */
+function lastMomentOf(entry: CalendarEntry) {
+	const hasLength = entry.end.getTime() > entry.start.getTime();
+	if (!hasLength) {
+		return entry.start;
+	}
+	return addMilliseconds(entry.end, -1);
+}
+
+function daySegmentOf(entry: CalendarEntry, dayStart: Date): CalendarEntry {
+	const nextDayStart = addDays(dayStart, 1);
+	const segmentStart = max([entry.start, dayStart]);
+	const segmentEnd = min([entry.end, nextDayStart]);
+	const daySeconds = secondsBetween(segmentStart, segmentEnd);
+	const dayKey = localDayKeyOf(dayStart);
+	return { ...entry, dayKey, daySeconds };
+}
+
+/** One entry per visible local day the log covers, each counting only its own part of the log. */
+function daySegmentsOf(entry: CalendarEntry, range: Period): CalendarEntry[] {
+	const shownStart = max([entry.start, range.from]);
+	const shownLastMoment = min([lastMomentOf(entry), range.to]);
+	const firstDay = startOfDay(shownStart);
+	const lastDay = startOfDay(shownLastMoment);
+	const startDay = startOfDay(entry.start);
+	const isOnStartDay = firstDay.getTime() === startDay.getTime();
+	const isOneDay = firstDay.getTime() === lastDay.getTime();
+	if (isOnStartDay && isOneDay) {
+		return [entry];
+	}
+	const segments: CalendarEntry[] = [];
+	for (let day = firstDay; day.getTime() <= lastDay.getTime(); day = addDays(day, 1)) {
+		const segment = daySegmentOf(entry, day);
+		segments.push(segment);
+	}
+	return segments;
+}
+
 /**
- * The member's logs that start inside the visible days. Logs of anyone else are dropped: Gauzy answers a caller who
+ * The member's logs that cover the visible days, a log crossing midnight on each of its days. Logs of anyone else are dropped: Gauzy answers a caller who
  * may not read the asked member with the caller's own logs, and those must never be drawn under another name.
  */
 export function calendarEntriesOf(
@@ -340,11 +394,12 @@ export function calendarEntriesOf(
 		if (!start) {
 			continue;
 		}
-		if (!isInRange(start, range)) {
+		const entry = entryOf(log, start, now);
+		if (!overlapsRange(entry, range)) {
 			continue;
 		}
-		const entry = entryOf(log, start, now);
-		entries.push(entry);
+		const segments = daySegmentsOf(entry, range);
+		entries.push(...segments);
 	}
 	entries.sort((first, second) => first.start.getTime() - second.start.getTime());
 	return entries;
@@ -450,9 +505,9 @@ function totalsOf(entries: ReadonlyArray<CalendarEntry>) {
 	let trackedSeconds = 0;
 	let manualSeconds = 0;
 	for (const entry of entries) {
-		trackedSeconds += entry.durationSeconds;
+		trackedSeconds += entry.daySeconds;
 		if (entry.isManual) {
-			manualSeconds += entry.durationSeconds;
+			manualSeconds += entry.daySeconds;
 		}
 	}
 	return { trackedSeconds, manualSeconds };
