@@ -64,7 +64,9 @@ export function useTeamInvitationsQuery({ enabled = true }: UseTeamInvitationsQu
 		data: teamInvitationsData,
 		isLoading: teamInvitationsLoading,
 		isFetching: teamInvitationsFetching,
-		isSuccess: teamInvitationsSuccess
+		isSuccess: teamInvitationsSuccess,
+		isError: teamInvitationsError,
+		refetch: refetchTeamInvitations
 	} = useQuery({
 		queryKey,
 		meta: CREDENTIAL_SCOPED_QUERY_META,
@@ -90,6 +92,8 @@ export function useTeamInvitationsQuery({ enabled = true }: UseTeamInvitationsQu
 		// A cached empty list is not authoritative while a background refetch is pending.
 		fetchingInvitations: teamInvitationsFetching,
 		isLoading: teamInvitationsLoading,
-		isSuccess: teamInvitationsSuccess
+		isSuccess: teamInvitationsSuccess,
+		isError: teamInvitationsError,
+		refetch: refetchTeamInvitations
 	};
 }

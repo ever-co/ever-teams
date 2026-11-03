@@ -1,11 +1,11 @@
 import { INVITE_CALLBACK_URL, INVITE_CALLBACK_PATH } from '@/core/constants/config/constants';
-import { validateForm } from '@/core/lib/helpers/validations';
 import { authenticatedGuard } from '@/core/services/server/guards/authenticated-guard-app';
 import {
 	getEmployeeRoleRequest,
 	getAllTeamInvitationsRequest,
 	inviteByEmailsRequest
 } from '@/core/services/server/requests';
+import { inviteEmailsBodySchema } from '@/core/lib/validation/invite';
 import { NextResponse } from 'next/server';
 
 export async function POST(req: Request) {
@@ -17,30 +17,29 @@ export async function POST(req: Request) {
 
 	const callbackUrl = `${origin}${INVITE_CALLBACK_PATH}`;
 
-	const body = await req.json();
-
-	const { errors, isValid: formValid } = validateForm(['email', 'name'], body);
-
-	if (!formValid) {
-		return NextResponse.json({ errors }, { status: 400 });
+	const requestBody: unknown = await req.json().catch(() => null);
+	const parsed = inviteEmailsBodySchema.safeParse(requestBody);
+	if (!parsed.success) {
+		return NextResponse.json({ errors: { email: 'Each address must be a valid email' } }, { status: 400 });
 	}
 
-	const { data: employeeRole } = await getEmployeeRoleRequest({
-		tenantId,
-		role: 'EMPLOYEE',
-		bearer_token: access_token
-	});
-
-	// The role picked in the invite form, EMPLOYEE when none is sent. Gauzy checks that the inviter may grant it.
-	const defaultRoleId = employeeRole?.id || '';
-	const roleId = body.roleId || defaultRoleId;
+	// The role the inviter picked; Gauzy refuses one above the inviter's own. Without a choice, the employee role.
+	let roleId = parsed.data.roleId;
+	if (!roleId) {
+		const { data: employeeRole } = await getEmployeeRoleRequest({
+			tenantId,
+			role: 'EMPLOYEE',
+			bearer_token: access_token
+		});
+		roleId = employeeRole?.id || '';
+	}
 
 	const date = new Date();
 	date.setDate(date.getDate() - 1);
 
 	await inviteByEmailsRequest(
 		{
-			emailIds: [body.email],
+			emailIds: parsed.data.emails,
 			projectIds: [],
 			departmentIds: [],
 			organizationContactIds: [],
@@ -49,7 +48,6 @@ export async function POST(req: Request) {
 			invitationExpirationPeriod: 'Never',
 			inviteType: 'TEAM',
 			appliedDate: null,
-			fullName: body.name,
 			callbackUrl: INVITE_CALLBACK_URL || callbackUrl,
 			organizationId,
 			tenantId,

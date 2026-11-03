@@ -41,7 +41,8 @@ export interface IInviteCreate {
 	invitationExpirationPeriod: 'Never' | number;
 	roleId: string;
 	organizationId: string;
-	fullName: string;
+	/** Optional for Gauzy: it only prefills the name when the person accepts, and one value serves every address. */
+	fullName?: string;
 	callbackUrl?: string;
 	startedWorkOn: string;
 }
@@ -60,9 +61,9 @@ export interface IInviteVerified {
 	};
 	isExpired: boolean;
 }
+/** One invitation request for several people: Gauzy's `POST /invite/emails` takes a list of addresses. */
 export interface IInviteRequest {
-	email: string;
-	name: string;
+	emails: string[];
 	teamId: string;
 	organizationId: string;
 	roleId?: string;
