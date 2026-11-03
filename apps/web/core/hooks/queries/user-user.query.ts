@@ -9,6 +9,7 @@ export const useUserQuery = () => {
 		const token = getAccessTokenCookie();
 		return typeof token === 'string' && token.length > 0;
 	}, [getAccessTokenCookie]);
+	const hasToken = checkTokenExist();
 	return useQuery({
 		queryKey: queryKeys.users.me,
 		queryFn: async () => {
@@ -17,7 +18,7 @@ export const useUserQuery = () => {
 		staleTime: 1000 * 60 * 15,
 		gcTime: 1000 * 60 * 30,
 		refetchOnWindowFocus: true,
-		refetchOnReconnect: checkTokenExist(),
-		enabled: checkTokenExist()
+		refetchOnReconnect: hasToken,
+		enabled: hasToken
 	});
 };

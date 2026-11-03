@@ -394,7 +394,41 @@ export const queryKeys = {
 				employeeId ?? null
 			] as const,
 		activity: (taskId: string | undefined | null) => ['tasks', ...(taskId ? [taskId] : []), 'activity'] as const,
-		linked: (taskId: string | undefined | null) => ['tasks', ...(taskId ? [taskId] : []), 'linked'] as const
+		linked: (taskId: string | undefined | null) => ['tasks', ...(taskId ? [taskId] : []), 'linked'] as const,
+		// Under `tasks` on purpose: the task mutations invalidate `tasks.all`, so an edit refreshes its activity log.
+		activityLog: (
+			tenantId: string | undefined | null,
+			organizationId: string | undefined | null,
+			taskId: string | undefined | null
+		) => ['tasks', 'activity-log', tenantId ?? null, organizationId ?? null, taskId ?? null] as const
+	},
+
+	notifications: {
+		all: ['notifications'] as const,
+		inbox: (
+			tenantId: string | undefined | null,
+			organizationId: string | undefined | null,
+			employeeId: string | undefined | null
+		) => ['notifications', 'inbox', tenantId ?? null, organizationId ?? null, employeeId ?? null] as const,
+		unreadCount: (
+			tenantId: string | undefined | null,
+			organizationId: string | undefined | null,
+			employeeId: string | undefined | null
+		) => ['notifications', 'unread-count', tenantId ?? null, organizationId ?? null, employeeId ?? null] as const,
+		settings: (
+			tenantId: string | undefined | null,
+			organizationId: string | undefined | null,
+			employeeId: string | undefined | null
+		) => ['notifications', 'settings', tenantId ?? null, organizationId ?? null, employeeId ?? null] as const
+	},
+
+	taskComments: {
+		all: ['task-comments'] as const,
+		byTask: (
+			tenantId: string | undefined | null,
+			organizationId: string | undefined | null,
+			taskId: string | undefined | null
+		) => ['task-comments', 'by-task', tenantId ?? null, organizationId ?? null, taskId ?? null] as const
 	},
 
 	taskMetadata: {
@@ -627,6 +661,14 @@ export const queryKeys = {
 	// Keys related to the Timesheet / Timer
 	timesheet: {
 		all: ['timesheet'] as const,
+		// Under `timesheet` so the invalidation every time-log mutation runs also refreshes the reports.
+		reports: {
+			all: ['timesheet', 'reports'] as const,
+			changedLogs: (params: Record<string, unknown>) => ['timesheet', 'reports', 'changed-logs', params] as const,
+			owedAmounts: (params: Record<string, unknown>) => ['timesheet', 'reports', 'owed-amounts', params] as const,
+			projectBudgets: (params: Record<string, unknown>) =>
+				['timesheet', 'reports', 'project-budgets', params] as const
+		},
 		dailyReport: (date: string | null | undefined) =>
 			['timesheet', 'daily-report', ...(date ? [date] : [])] as const,
 		timerLogsDailyReport: (
@@ -853,5 +895,20 @@ export const queryKeys = {
 			last: (tenantId: string | undefined | null, userId: string | undefined | null) =>
 				['ever-platform', 'stats', 'last', tenantId ?? null, userId ?? null] as const
 		}
+	},
+	// Writing help of the rich editors: whether the deployment holds its own AI key (no id, one answer per server)
+	editorAssist: {
+		availability: ['editor-assist', 'availability'] as const
+	},
+	dictation: {
+		availability: ['dictation', 'availability'] as const
+	},
+	voiceFill: {
+		availability: ['voice-fill', 'availability'] as const
+	},
+	entityFiles: {
+		all: ['entity-files'] as const,
+		byEntity: (organizationId: string, entity: string, entityId: string) =>
+			['entity-files', organizationId, entity, entityId] as const
 	}
 };

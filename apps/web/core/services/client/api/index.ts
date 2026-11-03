@@ -19,3 +19,6 @@ export * from './timers';
 export * from './timesheets';
 export * from './users';
 export * from './favorites';
+export * from './comments';
+export * from './activity-logs';
+export * from './notifications';

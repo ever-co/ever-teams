@@ -1325,6 +1325,11 @@
       "count": 1
     }
   },
+  "core/components/pages/teams/team/tasks/list/team-tasks-list.tsx": {
+    "react-hooks/incompatible-library": {
+      "count": 1
+    }
+  },
   "core/components/pages/teams/team/tasks/tasks-data-table.tsx": {
     "react-hooks/incompatible-library": {
       "count": 1
