@@ -13,11 +13,9 @@ import {
 	TTimerSlotDataRequest
 } from '@/core/types/schemas';
 import { taskStatisticsSchema, TTaskStatistics } from '@/core/types/schemas/activities/statistics.schema';
-import {
-	profileActivityRequestSchema,
-	profileActivityResponseSchema,
-	type TProfileActivityRequest,
-	type TProfileActivityResponse
+import type {
+	TProfileActivityRequest,
+	TProfileActivityResponse
 } from '@/core/types/schemas/activities/profile-activity.schema';
 import { scopedReadConfig, type ScopedReadOptions } from '../../api-request-scope';
 
@@ -60,6 +58,10 @@ class StatisticsService extends APIService {
 		request: TProfileActivityRequest,
 		signal?: AbortSignal
 	): Promise<TProfileActivityResponse> => {
+		// Its schemas check time zones with moment-timezone and all its zone data: fetched on the first profile activity
+		// read, not with the shell, which reaches this service for the active task statistics
+		const { profileActivityRequestSchema, profileActivityResponseSchema } =
+			await import('@/core/types/schemas/activities/profile-activity.schema');
 		const validated = profileActivityRequestSchema.parse(request);
 		const { tenantId, ...queryParams } = validated;
 		const query = qs.stringify(queryParams, { encode: true });
