@@ -36,8 +36,8 @@ const CustomTooltip = ({ active, payload, label }: TooltipProps) => {
 		return (
 			<div className="rounded-lg bg-popover px-3 py-2 text-popover-foreground hairline-ring ring-border shadow-md shadow-black/6.5">
 				<p className="mb-1 text-xs text-muted-foreground">{label}</p>
-				{payload.map((item, index) => (
-					<p key={index} className="flex gap-2 items-center text-xs tabular-nums">
+				{payload.map((item) => (
+					<p key={item.name} className="flex gap-2 items-center text-xs tabular-nums">
 						<span className="size-2 rounded-full" style={{ backgroundColor: item.color }}></span>
 						{item.name.charAt(0).toUpperCase() + item.name.slice(1)}: {Math.round(item.value * 100) / 100}h
 					</p>

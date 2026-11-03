@@ -95,6 +95,28 @@ function dayLookupOf(days: ReadonlyArray<TimesheetDay>) {
 	return lookup;
 }
 
+interface PageMetaFacts {
+	periodText: string;
+	showsError: boolean;
+	showsMember: boolean;
+	totalSeconds: number;
+	memberCount: number;
+}
+
+function pageMetaOf(facts: PageMetaFacts, t: ReturnType<typeof useTranslations>) {
+	const metaParts = [facts.periodText];
+	if (!facts.showsError) {
+		const totalText = formatDurationShort(facts.totalSeconds);
+		metaParts.push(totalText);
+	}
+	const showsMemberCount = facts.showsMember && !facts.showsError;
+	if (showsMemberCount) {
+		const memberCountText = t('dashboard.timesheets.MEMBER_COUNT', { count: facts.memberCount });
+		metaParts.push(memberCountText);
+	}
+	return metaParts.join(META_SEPARATOR);
+}
+
 /**
  * Timesheets and work diary: the time logs of a period for a manager to review (or for a member, their own diary).
  * The status cards filter every view; the default view is the week sheet of one member at a time, with the member
@@ -129,17 +151,16 @@ export function TimesheetsPage({ params }: Readonly<{ params: Promise<{ memberId
 	const diaryMembers = useMemo(() => sheetMembersOf(diaryLogs), [diaryLogs]);
 	const filteredMemberId = filteredMemberIdOf(page.filters.members);
 
-	const metaParts = [page.periodText];
-	if (!page.showsError) {
-		const totalText = formatDurationShort(page.periodFigures.totalSeconds);
-		metaParts.push(totalText);
-	}
-	const showsMemberCount = showsMember && !page.showsError;
-	if (showsMemberCount) {
-		const memberCountText = t('dashboard.timesheets.MEMBER_COUNT', { count: page.periodFigures.memberCount });
-		metaParts.push(memberCountText);
-	}
-	const meta = metaParts.join(META_SEPARATOR);
+	const meta = pageMetaOf(
+		{
+			periodText: page.periodText,
+			showsError: page.showsError,
+			showsMember,
+			totalSeconds: page.periodFigures.totalSeconds,
+			memberCount: page.periodFigures.memberCount
+		},
+		t
+	);
 
 	const { changeStatus, setBillable, deleteLogs, isChangingStatus, isDeleting } = actions;
 	const { openReject, openEdit, openDelete } = dialogs;

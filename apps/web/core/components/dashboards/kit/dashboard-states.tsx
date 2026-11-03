@@ -93,22 +93,23 @@ export function RowsSkeleton({
 	/** Per value cell, after the name cell: the same breakpoint classes as the real cells (`max-sm:hidden`). */
 	valueCellClassNames?: ReadonlyArray<string | undefined>;
 }>) {
-	const valueCells = Array.from({ length: Math.max(cellCount - 1, 0) });
+	const valueCellKeys = Array.from({ length: Math.max(cellCount - 1, 0) }, (_, cellIndex) => `cell-${cellIndex}`);
+	const rowKeys = Array.from({ length: rows }, (_, rowIndex) => `row-${rowIndex}`);
 	return (
 		<div className="hairline-divide-y divide-border" aria-hidden="true">
-			{Array.from({ length: rows }).map((_, rowIndex) => {
+			{rowKeys.map((rowKey, rowIndex) => {
 				const nameWidth = `${Math.max(35, 80 - rowIndex * 8)}%`;
 				return (
-					<div key={rowIndex} className={cn(gridClassName, 'min-h-11')}>
+					<div key={rowKey} className={cn(gridClassName, 'min-h-11')}>
 						<span className="flex min-w-0 items-center gap-2">
 							{withAvatar && (
 								<span className="size-6 shrink-0 animate-pulse rounded-full bg-foreground/[0.06]" />
 							)}
 							<span className={cn('h-2.5', SKELETON_BAR)} style={{ width: nameWidth }} />
 						</span>
-						{valueCells.map((__, cellIndex) => (
+						{valueCellKeys.map((cellKey, cellIndex) => (
 							<span
-								key={cellIndex}
+								key={cellKey}
 								className={cn('ml-auto h-2.5 w-12', SKELETON_BAR, valueCellClassNames[cellIndex])}
 							/>
 						))}

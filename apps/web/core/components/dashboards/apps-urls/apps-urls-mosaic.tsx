@@ -278,9 +278,9 @@ function placeholderStyleOf(rect: MosaicRect): CSSProperties {
 function PlaceholderTiles({ tileClassName }: Readonly<{ tileClassName: string }>) {
 	return (
 		<>
-			{PLACEHOLDER_RECTS.map((rect, index) => (
+			{PLACEHOLDER_RECTS.map((rect) => (
 				<span
-					key={index}
+					key={`${rect.x}-${rect.y}`}
 					aria-hidden="true"
 					className={cn('absolute rounded-lg', tileClassName)}
 					style={placeholderStyleOf(rect)}

@@ -50,6 +50,7 @@ const WIDE_CELL = 'max-md:hidden';
 const NUMBER = 'text-right text-[13px] tabular-nums';
 
 const VISIBLE_ROWS = 5;
+const SKELETON_ROW_KEYS = Array.from({ length: VISIBLE_ROWS }, (_, index) => `row-${index}`);
 
 /** Rows of figures are the one place for lines (DESIGN-SYSTEM 20): solid hairlines between rows, none around. */
 const ROWS = 'hairline-divide-y divide-border';
@@ -330,8 +331,8 @@ export function TeamMembersTableSkeleton() {
 		<TeamCard title={t('dashboard.team.cards.TEAM_MEMBERS')} className={FULL_SPAN}>
 			<TableHeader sort={DEFAULT_MEMBER_SORT} onSort={() => undefined} />
 			<ul aria-hidden="true" className={ROWS}>
-				{Array.from({ length: VISIBLE_ROWS }).map((_, index) => (
-					<li key={index} className={cn(TABLE_GRID, 'min-h-13 px-2')}>
+				{SKELETON_ROW_KEYS.map((slotKey) => (
+					<li key={slotKey} className={cn(TABLE_GRID, 'min-h-13 px-2')}>
 						<span className="flex items-center gap-2.5">
 							<span className="size-8 shrink-0 animate-pulse rounded-full bg-foreground/[0.06]" />
 							<span className="flex flex-col gap-1.5">

@@ -211,10 +211,16 @@ const SKELETON_CARDS = [
 	{ key: 'fourth', nameWidth: 'w-20', lineCount: 4 }
 ];
 
-const SKELETON_LINE_WIDTHS = ['w-24', 'w-20', 'w-28', 'w-16', 'w-24'];
+const SKELETON_LINES = [
+	{ key: 'line-1', width: 'w-24' },
+	{ key: 'line-2', width: 'w-20' },
+	{ key: 'line-3', width: 'w-28' },
+	{ key: 'line-4', width: 'w-16' },
+	{ key: 'line-5', width: 'w-24' }
+];
 
 function StatementCardSkeleton({ nameWidth, lineCount }: Readonly<{ nameWidth: string; lineCount: number }>) {
-	const lineWidths = SKELETON_LINE_WIDTHS.slice(0, lineCount);
+	const lines = SKELETON_LINES.slice(0, lineCount);
 	return (
 		<div className={cn(DASHBOARD_SURFACE, 'flex flex-col')}>
 			<div className={STATEMENT_HEADER}>
@@ -225,9 +231,9 @@ function StatementCardSkeleton({ nameWidth, lineCount }: Readonly<{ nameWidth: s
 				<span className={cn('h-3.5 w-16', SKELETON_BAR)} />
 			</div>
 			<div className={cn(STATEMENT_BODY, 'flex flex-col')}>
-				{lineWidths.map((width, index) => (
-					<span key={index} className="flex min-h-8 items-center gap-3">
-						<span className={cn('h-2.5', width, SKELETON_BAR)} />
+				{lines.map((line) => (
+					<span key={line.key} className="flex min-h-8 items-center gap-3">
+						<span className={cn('h-2.5', line.width, SKELETON_BAR)} />
 						<span className="flex-1" />
 						<span className={cn('h-2.5 w-14', SKELETON_BAR)} />
 					</span>

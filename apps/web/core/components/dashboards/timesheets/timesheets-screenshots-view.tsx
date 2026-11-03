@@ -43,10 +43,13 @@ const SLOT_GRID = 'grid grid-cols-2 gap-x-3 gap-y-4 sm:grid-cols-3 lg:grid-cols-
 const SHOT_FRAME = 'relative block aspect-[16/10] w-full overflow-hidden rounded-md';
 
 const SKELETON_HOURS = 2;
+const SKELETON_HOUR_KEYS = Array.from({ length: SKELETON_HOURS }, (_, index) => `hour-${index}`);
 
 const SLOTS_PER_HOUR = 6;
+const SKELETON_SLOT_KEYS = Array.from({ length: SLOTS_PER_HOUR }, (_, index) => `slot-${index}`);
 
 const STRIP_SKELETON_DAYS = 7;
+const STRIP_SKELETON_DAY_KEYS = Array.from({ length: STRIP_SKELETON_DAYS }, (_, index) => `day-${index}`);
 
 function DayStrip({
 	days,
@@ -75,7 +78,7 @@ function DayStrip({
 	const firstKey = localDayKeyOf(period.from);
 	const lastKey = localDayKeyOf(period.to);
 	const firstShownKey = localDayKeyOf(days[0] ?? day);
-	const lastShownKey = localDayKeyOf(days[days.length - 1] ?? day);
+	const lastShownKey = localDayKeyOf(days.at(-1) ?? day);
 	const canGoBack = firstShownKey > firstKey;
 	const canGoForward = lastShownKey < lastKey;
 	return (
@@ -298,12 +301,12 @@ function HourGroup({
 function HoursSkeleton() {
 	return (
 		<div aria-hidden="true" className="flex flex-col gap-6">
-			{Array.from({ length: SKELETON_HOURS }).map((_, hourIndex) => (
-				<div key={hourIndex} className="flex flex-col gap-2">
+			{SKELETON_HOUR_KEYS.map((hourKey) => (
+				<div key={hourKey} className="flex flex-col gap-2">
 					<span className={cn('h-3 w-24', SKELETON_BAR)} />
 					<div className={SLOT_GRID}>
-						{Array.from({ length: SLOTS_PER_HOUR }).map((_, index) => (
-							<div key={index} className="flex flex-col gap-1.5">
+						{SKELETON_SLOT_KEYS.map((slotKey) => (
+							<div key={slotKey} className="flex flex-col gap-1.5">
 								<span className={cn('h-2.5 w-12', SKELETON_BAR)} />
 								<span className={cn(SHOT_FRAME, 'animate-pulse bg-foreground/[0.04]')} />
 							</div>
@@ -333,8 +336,8 @@ export function TimesheetsScreenshotsSkeleton() {
 				</div>
 				<div className="flex flex-col gap-4 px-4 pb-4">
 					<div className="flex gap-1">
-						{Array.from({ length: STRIP_SKELETON_DAYS }).map((_, index) => (
-							<span key={index} className="h-12 w-11 animate-pulse rounded-md bg-foreground/[0.04]" />
+						{STRIP_SKELETON_DAY_KEYS.map((slotKey) => (
+							<span key={slotKey} className="h-12 w-11 animate-pulse rounded-md bg-foreground/[0.04]" />
 						))}
 					</div>
 					<HoursSkeleton />

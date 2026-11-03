@@ -191,7 +191,6 @@ function ChartTooltip({
 	const locale = useLocale();
 	return (
 		<div
-			role="presentation"
 			className={cn('pointer-events-none absolute z-10 -translate-y-full pb-3', placement.alignment)}
 			style={{ left: placement.left, top: placement.top }}
 		>

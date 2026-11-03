@@ -1,6 +1,6 @@
 'use client';
 
-import type { CSSProperties } from 'react';
+import type { CSSProperties, ReactNode } from 'react';
 import { type DottedLanguageObjectStringPaths, useLocale, useTranslations } from 'next-intl';
 import { Avatar, AvatarFallback, AvatarImage } from '@/core/components/common/avatar';
 import { cn } from '@/core/lib/helpers';
@@ -232,6 +232,10 @@ function leadWordOf(relative: RelativeDay, weekday: string, t: ReturnType<typeof
 	return weekday;
 }
 
+function boldLead(chunks: ReactNode) {
+	return <span className="font-semibold">{chunks}</span>;
+}
+
 /** "Today" and "Yesterday" take the weekday's place for the two latest days. */
 export function DayLabel({ day, dayKey, className }: Readonly<{ day: Date; dayKey: string; className?: string }>) {
 	const t = useTranslations();
@@ -244,7 +248,7 @@ export function DayLabel({ day, dayKey, className }: Readonly<{ day: Date; dayKe
 			{t.rich('dashboard.actualExpected.DAY_LABEL', {
 				weekday: leadWord,
 				date,
-				lead: (chunks) => <span className="font-semibold">{chunks}</span>
+				lead: boldLead
 			})}
 		</span>
 	);
@@ -254,7 +258,7 @@ function lastInitialOf(words: string[]) {
 	if (words.length < 2) {
 		return '';
 	}
-	const lastWord = words[words.length - 1];
+	const lastWord = words.at(-1);
 	return lastWord?.[0] ?? '';
 }
 

@@ -143,6 +143,10 @@ function FoldedLines({
 	);
 }
 
+function trackedFigureInk(chunks: ReactNode) {
+	return <span className="text-[13px] font-medium tabular-nums text-foreground">{chunks}</span>;
+}
+
 function TrackedFigure({ seconds }: Readonly<{ seconds: number }>) {
 	const t = useTranslations();
 	const duration = formatDurationShort(seconds);
@@ -150,9 +154,7 @@ function TrackedFigure({ seconds }: Readonly<{ seconds: number }>) {
 		<p className="text-xs text-muted-foreground">
 			{t.rich('dashboard.paymentsDue.statements.TRACKED_FIGURE', {
 				duration,
-				figure: (chunks) => (
-					<span className="text-[13px] font-medium tabular-nums text-foreground">{chunks}</span>
-				)
+				figure: trackedFigureInk
 			})}
 		</p>
 	);

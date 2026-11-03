@@ -24,6 +24,8 @@ const LEGEND_LEVELS = [1, 2, 3, 4];
 const HEAT_GRID = 'grid grid-cols-[2.25rem_repeat(7,minmax(0,1fr))] gap-1';
 
 const SKELETON_ROWS = 10;
+const SKELETON_CELLS = SKELETON_ROWS * 8;
+const SKELETON_CELL_KEYS = Array.from({ length: SKELETON_CELLS }, (_, index) => `cell-${index}`);
 
 function weekdayDateOf(weekday: number) {
 	const date = new Date(MONDAY_REFERENCE);
@@ -96,8 +98,8 @@ export function TeamHourHeatmapSkeleton() {
 	return (
 		<TeamCard title={t('dashboard.team.heatmap.TITLE')} className={NARROW_SPAN} isBusy>
 			<div className={HEAT_GRID} aria-hidden="true">
-				{Array.from({ length: SKELETON_ROWS * 8 }).map((_, index) => (
-					<span key={index} className={cn('h-4', SKELETON_BAR, 'rounded-[3px]')} />
+				{SKELETON_CELL_KEYS.map((cellKey) => (
+					<span key={cellKey} className={cn('h-4', SKELETON_BAR, 'rounded-[3px]')} />
 				))}
 			</div>
 		</TeamCard>

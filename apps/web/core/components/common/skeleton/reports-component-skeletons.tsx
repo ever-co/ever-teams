@@ -19,7 +19,7 @@ interface LimitTableSkeletonProps {
 	indexWidth: string;
 }
 
-function LimitTableHeadSkeleton({ indexWidth }: { indexWidth: string }) {
+function LimitTableHeadSkeleton({ indexWidth }: Readonly<{ indexWidth: string }>) {
 	return (
 		<TableHeader>
 			<TableRow className="hover:bg-transparent">
@@ -43,7 +43,7 @@ function LimitTableHeadSkeleton({ indexWidth }: { indexWidth: string }) {
 	);
 }
 
-function LimitTableRowSkeleton({ indexWidth }: { indexWidth: string }) {
+function LimitTableRowSkeleton({ indexWidth }: Readonly<{ indexWidth: string }>) {
 	return (
 		<TableRow className="hover:bg-transparent">
 			<TableCell>
@@ -68,7 +68,7 @@ function LimitTableRowSkeleton({ indexWidth }: { indexWidth: string }) {
 	);
 }
 
-function LimitTableSkeleton({ className, headerWidth, indexWidth }: LimitTableSkeletonProps) {
+function LimitTableSkeleton({ className, headerWidth, indexWidth }: Readonly<LimitTableSkeletonProps>) {
 	const rowKeys = Array.from({ length: LIMIT_TABLE_ROWS }, (_, index) => index);
 	return (
 		<Card className={cn('w-full overflow-hidden', className)}>

@@ -56,10 +56,10 @@ interface StatItem {
 export function TeamStatsGrid({
 	statisticsCounts,
 	loadingTimesheetStatisticsCounts
-}: {
+}: Readonly<{
 	statisticsCounts: ITimesheetCountsStatistics | null;
 	loadingTimesheetStatisticsCounts: boolean;
-}) {
+}>) {
 	const t = useTranslations();
 
 	const stats: StatItem[] = useMemo(

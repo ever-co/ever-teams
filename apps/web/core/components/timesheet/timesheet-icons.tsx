@@ -7,7 +7,7 @@
  * <MemberWorkIcon />
  */
 export const MemberWorkIcon = () => (
-	<svg width="44" height="44" viewBox="0 0 44 44" fill="none" xmlns="http://www.w3.org/2000/svg">
+	<svg aria-hidden="true" width="44" height="44" viewBox="0 0 44 44" fill="none" xmlns="http://www.w3.org/2000/svg">
 		<path
 			d="M16.4959 3.66602C11.6926 3.66602 7.7876 7.57102 7.7876 12.3743C7.7876 17.086 11.4726 20.8993 16.2759 21.0643C16.4226 21.046 16.5693 21.046 16.6793 21.0643C16.7159 21.0643 16.7343 21.0643 16.7709 21.0643C16.7893 21.0643 16.7893 21.0643 16.8076 21.0643C21.5009 20.8993 25.1859 17.086 25.2043 12.3743C25.2043 7.57102 21.2993 3.66602 16.4959 3.66602Z"
 			fill="white"
@@ -28,7 +28,7 @@ export const MemberWorkIcon = () => (
 );
 
 export const MenHoursIcon = () => (
-	<svg width="44" height="44" viewBox="0 0 44 44" fill="none" xmlns="http://www.w3.org/2000/svg">
+	<svg aria-hidden="true" width="44" height="44" viewBox="0 0 44 44" fill="none" xmlns="http://www.w3.org/2000/svg">
 		<path
 			d="M40.3298 21.9994C40.3298 32.1194 32.1164 40.3327 21.9964 40.3327C11.8764 40.3327 3.66309 32.1194 3.66309 21.9994C3.66309 11.8794 11.8764 3.66602 21.9964 3.66602C32.1164 3.66602 40.3298 11.8794 40.3298 21.9994Z"
 			stroke="white"
@@ -54,7 +54,7 @@ export const MenHoursIcon = () => (
  * @returns {React.ReactElement} - pending task icon
  */
 export const PendingTaskIcon = () => (
-	<svg width="44" height="44" viewBox="0 0 44 44" fill="none" xmlns="http://www.w3.org/2000/svg">
+	<svg aria-hidden="true" width="44" height="44" viewBox="0 0 44 44" fill="none" xmlns="http://www.w3.org/2000/svg">
 		<path
 			d="M22.6748 16.2773H32.2998"
 			stroke="white"
@@ -101,7 +101,7 @@ export const PendingTaskIcon = () => (
  * @returns {React.ReactElement} - list view icon
  */
 export const ListViewIcon = () => (
-	<svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+	<svg aria-hidden="true" width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
 		<path d="M7.3291 13H13.9958" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" />
 		<path d="M7.3291 8.33398H13.9958" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" />
 		<path d="M7.3291 3.66602H13.9958" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" />
@@ -135,7 +135,7 @@ export const ListViewIcon = () => (
  */
 
 export const CalendarViewIcon = () => (
-	<svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+	<svg aria-hidden="true" width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
 		<path
 			d="M5.3291 1.33398V3.33398"
 			stroke="currentColor"
@@ -196,7 +196,7 @@ export const CalendarViewIcon = () => (
  * @returns {React.ReactElement} - SVG element representing a filter icon
  */
 export const FilterIcon = () => (
-	<svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+	<svg aria-hidden="true" width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
 		<path
 			d="M4.26552 10.1129L4.2627 10.1113C3.96984 9.94516 3.80269 9.65634 3.80269 9.33285V6.95284C3.80269 6.77752 3.75064 6.59423 3.69345 6.44971C3.6891 6.43872 3.6846 6.42764 3.67994 6.41649C3.75846 6.59769 3.80933 6.78853 3.80933 6.95284V9.33285C3.80933 9.7813 4.10204 10.0211 4.28124 10.1144C4.40425 10.1812 4.58362 10.2388 4.78091 10.2305C4.75919 10.2321 4.73755 10.2328 4.71602 10.2328C4.56041 10.2328 4.40692 10.1943 4.26552 10.1129ZM3.4322 5.99519C3.44477 6.01115 3.45723 6.02764 3.46955 6.04462C3.45743 6.02872 3.44499 6.01313 3.43221 5.99792L3.4223 5.98613L3.41169 5.97497L2.29729 4.80308L3.4322 5.99519ZM1.72933 1.48012V1.48652C1.47548 1.66367 1.32935 1.97035 1.32935 2.27952V2.27285C1.32935 1.92979 1.48879 1.645 1.72933 1.48012ZM1.44805 3.77811C1.50437 3.90382 1.59178 4.06024 1.71231 4.1888C1.61383 4.09013 1.51522 3.9414 1.44106 3.76921C1.40894 3.69463 1.38407 3.62188 1.36605 3.55378C1.38938 3.63797 1.42032 3.71621 1.44805 3.77811ZM8.16268 1.32617C8.65986 1.32617 9.06266 1.72898 9.06266 2.22618C9.06266 1.73007 8.65885 1.32617 8.16268 1.32617Z"
 			fill="currentColor"
@@ -235,7 +235,7 @@ export const FilterIcon = () => (
  */
 
 export const SearchIcon = () => (
-	<svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+	<svg aria-hidden="true" width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
 		<path
 			d="M7.66244 14.0007C11.1602 14.0007 13.9958 11.1651 13.9958 7.66732C13.9958 4.16951 11.1602 1.33398 7.66244 1.33398C4.16463 1.33398 1.3291 4.16951 1.3291 7.66732C1.3291 11.1651 4.16463 14.0007 7.66244 14.0007Z"
 			stroke="currentColor"
@@ -255,6 +255,7 @@ export const SearchIcon = () => (
  */
 export const ApproveSelectedIcon = ({ className }: { className?: string }) => (
 	<svg
+		aria-hidden="true"
 		className={className}
 		width="16"
 		height="16"
@@ -287,6 +288,7 @@ export const ApproveSelectedIcon = ({ className }: { className?: string }) => (
  */
 export const RejectSelectedIcon = ({ className }: { className?: string }) => (
 	<svg
+		aria-hidden="true"
 		className={className}
 		width="16"
 		height="16"
@@ -316,6 +318,7 @@ export const RejectSelectedIcon = ({ className }: { className?: string }) => (
 
 export const DeleteSelectedIcon = ({ className }: { className?: string }) => (
 	<svg
+		aria-hidden="true"
 		className={className}
 		width="16"
 		height="16"
@@ -356,6 +359,7 @@ export const DeleteSelectedIcon = ({ className }: { className?: string }) => (
  */
 export const PlusIcon = ({ className }: { className?: string }) => (
 	<svg
+		aria-hidden="true"
 		className={className}
 		width="16"
 		height="16"
@@ -382,7 +386,7 @@ export const PlusIcon = ({ className }: { className?: string }) => (
  * @returns {React.ReactElement} - The rendered arrow left icon component.
  */
 export const ArrowLeftIcon = () => (
-	<svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+	<svg aria-hidden="true" width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
 		<path
 			d="M6.95345 8.02279L6.95346 8.02278C6.96648 8.00977 6.96648 7.98868 6.95346 7.97566L6.95345 7.97566L2.68679 3.70899L2.68678 3.70898C2.67376 3.69597 2.65267 3.69597 2.63966 3.70898L2.63964 3.709C2.62663 3.72201 2.62663 3.7431 2.63964 3.75611L2.63965 3.75612L6.52919 7.64567L6.88274 7.99922L6.52919 8.35278L2.63968 12.2422C2.63967 12.2423 2.63966 12.2423 2.63965 12.2423M6.95345 8.02279L2.2861 12.6431C2.07781 12.4347 2.07781 12.097 2.2861 11.8887L2.63965 12.2423M6.95345 8.02279L2.68684 12.2895M6.95345 8.02279L2.6396 12.2895M2.63965 12.2423C2.62664 12.2553 2.62663 12.2764 2.6396 12.2895M2.63965 12.2423L2.6396 12.2895M2.6396 12.2895C2.65263 12.3025 2.67381 12.3025 2.68684 12.2895M2.68684 12.2895L2.68678 12.2895L3.04034 12.6431L2.68684 12.2895ZM9.08679 3.70899L9.08678 3.70898C9.07376 3.69597 9.05267 3.69597 9.03966 3.70898L9.03964 3.709C9.02663 3.72201 9.02663 3.7431 9.03964 3.75611L9.03965 3.75612L12.9292 7.64567L13.2828 7.99922L12.9292 8.35278L9.03968 12.2422C9.02662 12.2553 9.02662 12.2765 9.03968 12.2895C9.0527 12.3025 9.07378 12.3025 9.08679 12.2895L9.08679 3.70899ZM9.08679 3.70899L13.3535 7.9756M9.08679 3.70899L13.3535 7.9756M13.3535 7.9756L13.3535 7.97566C13.3665 7.98867 13.3665 8.00977 13.3535 8.02279L13.3535 7.9756ZM13.3535 8.02284L9.08684 12.2895L13.3535 8.02284Z"
 			fill="currentColor"
@@ -391,12 +395,4 @@ export const ArrowLeftIcon = () => (
 	</svg>
 );
 
-export const ArrowRightIcon = () => (
-	<svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
-		<path
-			d="M6.95345 8.02279L6.95346 8.02278C6.96648 8.00977 6.96648 7.98868 6.95346 7.97566L6.95345 7.97566L2.68679 3.70899L2.68678 3.70898C2.67376 3.69597 2.65267 3.69597 2.63966 3.70898L2.63964 3.709C2.62663 3.72201 2.62663 3.7431 2.63964 3.75611L2.63965 3.75612L6.52919 7.64567L6.88274 7.99922L6.52919 8.35278L2.63968 12.2422C2.63967 12.2423 2.63966 12.2423 2.63965 12.2423M6.95345 8.02279L2.2861 12.6431C2.07781 12.4347 2.07781 12.097 2.2861 11.8887L2.63965 12.2423M6.95345 8.02279L2.68684 12.2895M6.95345 8.02279L2.6396 12.2895M2.63965 12.2423C2.62664 12.2553 2.62663 12.2764 2.6396 12.2895M2.63965 12.2423L2.6396 12.2895M2.6396 12.2895C2.65263 12.3025 2.67381 12.3025 2.68684 12.2895M2.68684 12.2895L2.68678 12.2895L3.04034 12.6431L2.68684 12.2895ZM9.08679 3.70899L9.08678 3.70898C9.07376 3.69597 9.05267 3.69597 9.03966 3.70898L9.03964 3.709C9.02663 3.72201 9.02663 3.7431 9.03964 3.75611L9.03965 3.75612L12.9292 7.64567L13.2828 7.99922L12.9292 8.35278L9.03968 12.2422C9.02662 12.2553 9.02662 12.2765 9.03968 12.2895C9.0527 12.3025 9.07378 12.3025 9.08679 12.2895L9.08679 3.70899ZM9.08679 3.70899L13.3535 7.9756M9.08679 3.70899L13.3535 7.9756M13.3535 7.9756L13.3535 7.97566C13.3665 7.98867 13.3665 8.00977 13.3535 8.02279L13.3535 7.9756ZM13.3535 8.02284L9.08684 12.2895L13.3535 8.02284Z"
-			fill="currentColor"
-			stroke="currentColor"
-		/>
-	</svg>
-);
+export const ArrowRightIcon = ArrowLeftIcon;

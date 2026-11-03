@@ -20,7 +20,7 @@ import { ITimerEmployeeLog, ITimeLogGroupedDailyReport } from '@/core/types/inte
 import { Paginate } from '@/core/components/duplicated-components/_pagination';
 
 const getProgressColor = (activityLevel: number) => {
-	if (isNaN(activityLevel) || activityLevel < 0) return 'bg-foreground/20';
+	if (Number.isNaN(activityLevel) || activityLevel < 0) return 'bg-foreground/20';
 	if (activityLevel > 100) return 'bg-success';
 	if (activityLevel <= 20) return 'bg-destructive';
 	if (activityLevel <= 50) return 'bg-warning';

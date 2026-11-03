@@ -246,6 +246,10 @@ function relativeDayOf(dateKey: string, text: BreakdownText) {
 	return null;
 }
 
+function keyedDayPartsOf(parts: Intl.DateTimeFormatPart[]) {
+	return parts.map((part, position) => ({ key: `${part.type}-${position}`, part }));
+}
+
 function dayPartClassOf(part: Intl.DateTimeFormatPart) {
 	if (part.type === 'weekday') {
 		return 'font-semibold';
@@ -266,10 +270,11 @@ function DayLabel({ dateKey, text }: Readonly<{ dateKey: string; text: Breakdown
 		);
 	}
 	const parts = text.dayFormat.formatToParts(date);
+	const keyedParts = keyedDayPartsOf(parts);
 	return (
 		<span className="truncate">
-			{parts.map((part, index) => (
-				<span key={index} className={dayPartClassOf(part)}>
+			{keyedParts.map(({ key, part }) => (
+				<span key={key} className={dayPartClassOf(part)}>
 					{part.value}
 				</span>
 			))}
@@ -767,6 +772,7 @@ function BreakdownEmpty({
 }
 
 const SKELETON_ROW_COUNT = 6;
+const SKELETON_ROW_KEYS = Array.from({ length: SKELETON_ROW_COUNT }, (_, index) => `row-${index}`);
 
 function SkeletonRow({ index, columns }: Readonly<{ index: number; columns: BreakdownColumns }>) {
 	const nameShare = Math.max(35, 75 - index * 8);
@@ -802,8 +808,8 @@ function SkeletonRow({ index, columns }: Readonly<{ index: number; columns: Brea
 function BreakdownRowsSkeleton({ columns }: Readonly<{ columns: BreakdownColumns }>) {
 	return (
 		<div className="hairline-divide-y divide-border" aria-hidden="true">
-			{Array.from({ length: SKELETON_ROW_COUNT }).map((_, index) => (
-				<SkeletonRow key={index} index={index} columns={columns} />
+			{SKELETON_ROW_KEYS.map((slotKey, index) => (
+				<SkeletonRow key={slotKey} index={index} columns={columns} />
 			))}
 		</div>
 	);

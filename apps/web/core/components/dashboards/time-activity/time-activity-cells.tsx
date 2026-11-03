@@ -113,7 +113,7 @@ function lastInitialOf(words: string[]) {
 	if (words.length < 2) {
 		return '';
 	}
-	const lastWord = words[words.length - 1];
+	const lastWord = words.at(-1);
 	return lastWord?.[0] ?? '';
 }
 

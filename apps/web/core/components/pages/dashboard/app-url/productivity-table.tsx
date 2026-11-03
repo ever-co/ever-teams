@@ -191,7 +191,7 @@ export function ProductivityTable({ data, isLoading }: { data?: IActivityReport[
 														/>
 													</div>
 													<span className="w-10 text-right tabular-nums text-muted-foreground">
-														{Math.round(parseFloat(activity.duration_percentage))}%
+														{Math.round(Number.parseFloat(activity.duration_percentage))}%
 													</span>
 												</div>
 											</TableCell>

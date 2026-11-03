@@ -32,6 +32,7 @@ const SECTION_HEADING = 'text-[13px] font-medium text-foreground';
 const FACT_ROW = 'grid min-h-8 grid-cols-[7rem_minmax(0,1fr)] items-center gap-3 text-[13px]';
 
 const SKELETON_APP_ROWS = 3;
+const SKELETON_APP_ROW_KEYS = Array.from({ length: SKELETON_APP_ROWS }, (_, index) => `app-row-${index}`);
 
 function shareRowsOf(shares: ReadonlyArray<AppShare>): ShareRow<AppShare>[] {
 	return shares.map((share) => ({
@@ -60,8 +61,8 @@ function renderAppName(share: AppShare) {
 function AppsSkeleton() {
 	return (
 		<ul aria-hidden="true" className="flex flex-col gap-3 py-1">
-			{Array.from({ length: SKELETON_APP_ROWS }).map((_, index) => (
-				<li key={index} className="flex items-center gap-3">
+			{SKELETON_APP_ROW_KEYS.map((slotKey) => (
+				<li key={slotKey} className="flex items-center gap-3">
 					<span className={cn('h-2.5 w-8', SKELETON_BAR)} />
 					<span className={cn('h-2.5 flex-1', SKELETON_BAR)} />
 					<span className={cn('h-2.5 w-10', SKELETON_BAR)} />

@@ -44,6 +44,7 @@ const STATUS_CELL = 'flex min-w-0 items-center justify-center px-2 2xl:justify-s
 const SKELETON_ROWS = [0, 1, 2, 3];
 
 const SKELETON_DAY_COUNT = 7;
+const SKELETON_DAY_KEYS = Array.from({ length: SKELETON_DAY_COUNT }, (_, index) => `day-${index}`);
 
 /** Which cells of a skeleton row hold a bar, so the frame reads as a sheet with gaps rather than a solid block. */
 const SKELETON_FILLED_CELLS = [
@@ -459,11 +460,14 @@ function SkeletonRow({ cells, gridStyle }: Readonly<{ cells: ReadonlyArray<boole
 					<span className={cn('h-2 w-1/2', SKELETON_BAR)} />
 				</span>
 			</span>
-			{cells.map((isFilled, index) => (
-				<span key={index} className="flex items-center justify-center">
-					{isFilled && <span className={cn('h-2.5 w-10', SKELETON_BAR)} />}
-				</span>
-			))}
+			{SKELETON_DAY_KEYS.map((dayKey, index) => {
+				const isFilled = cells[index];
+				return (
+					<span key={dayKey} className="flex items-center justify-center">
+						{isFilled && <span className={cn('h-2.5 w-10', SKELETON_BAR)} />}
+					</span>
+				);
+			})}
 			<span className={TOTAL_CELL}>
 				<span className={cn('h-2.5 w-12', SKELETON_BAR)} />
 			</span>

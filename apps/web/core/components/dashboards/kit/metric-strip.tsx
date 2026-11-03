@@ -50,8 +50,8 @@ const VALUE_TONES: Record<MetricTone, string> = {
 	destructive: 'text-destructive-ink'
 };
 
-const NEXT_KEYS = ['ArrowRight', 'ArrowDown'];
-const PREVIOUS_KEYS = ['ArrowLeft', 'ArrowUp'];
+const NEXT_KEYS = new Set(['ArrowRight', 'ArrowDown']);
+const PREVIOUS_KEYS = new Set(['ArrowLeft', 'ArrowUp']);
 
 function wrappedIndex(index: number, length: number) {
 	return (index + length) % length;
@@ -144,8 +144,8 @@ export function MetricStrip<K extends string>({
 			if (!isSelectable) {
 				return;
 			}
-			const goesNext = NEXT_KEYS.includes(event.key);
-			const goesPrevious = PREVIOUS_KEYS.includes(event.key);
+			const goesNext = NEXT_KEYS.has(event.key);
+			const goesPrevious = PREVIOUS_KEYS.has(event.key);
 			if (goesNext) {
 				event.preventDefault();
 				selectByOffset(1);

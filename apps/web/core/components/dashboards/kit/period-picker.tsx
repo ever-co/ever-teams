@@ -3,8 +3,7 @@
 import { useMemo, useState } from 'react';
 import type { DateRange } from 'react-day-picker';
 import { type DottedLanguageObjectStringPaths, useLocale, useTranslations } from 'next-intl';
-import { Calendar } from '@/core/components/common/calendar';
-import { compactCalendarClassNames } from '@/core/components/common/calendar';
+import { Calendar, compactCalendarClassNames } from '@/core/components/common/calendar';
 import { MENU_ROW } from '@/core/components/common/menu-recipes';
 import { Popover, PopoverContent, PopoverTrigger } from '@/core/components/common/popover';
 import { SelectedMark } from '@/core/components/common/selected-mark';

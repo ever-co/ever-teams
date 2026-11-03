@@ -30,6 +30,21 @@ export type WeeklyLimitTableDataType = {
 	remaining: number;
 };
 
+function TimeSpentHeader() {
+	const t = useTranslations();
+	return <div className="text-right">{t('pages.timeLimitReport.TIME_SPENT')}</div>;
+}
+
+function LimitHeader() {
+	const t = useTranslations();
+	return <div className="text-right">{t('pages.timeLimitReport.LIMIT')}</div>;
+}
+
+function RemainingHeader() {
+	const t = useTranslations();
+	return <div className="text-right">{t('pages.timeLimitReport.REMAINING')}</div>;
+}
+
 /**
  * Renders a data table displaying weekly time limits and usage for team members.
  *
@@ -82,7 +97,7 @@ export function DataTableWeeklyLimits(props: {
 		},
 		{
 			accessorKey: 'timeSpent',
-			header: () => <div className="text-right">{t('pages.timeLimitReport.TIME_SPENT')}</div>,
+			header: TimeSpentHeader,
 			cell: ({ row }) => (
 				<div className="lowercase text-right tabular-nums">
 					{formatTimeString(formatIntegerToHour(Number(row.getValue('timeSpent')) / 3600))}
@@ -91,7 +106,7 @@ export function DataTableWeeklyLimits(props: {
 		},
 		{
 			accessorKey: 'limit',
-			header: () => <div className="text-right">{t('pages.timeLimitReport.LIMIT')}</div>,
+			header: LimitHeader,
 			cell: ({ row }) => (
 				<div className="lowercase text-right tabular-nums text-muted-foreground">
 					{formatTimeString(formatIntegerToHour(Number(row.getValue('limit')) / 3600))}
@@ -113,7 +128,7 @@ export function DataTableWeeklyLimits(props: {
 		},
 		{
 			accessorKey: 'remaining',
-			header: () => <div className="text-right">{t('pages.timeLimitReport.REMAINING')}</div>,
+			header: RemainingHeader,
 			cell: ({ row }) => (
 				<div
 					className={cn(

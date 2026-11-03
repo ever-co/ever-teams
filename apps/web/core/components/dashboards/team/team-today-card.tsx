@@ -22,6 +22,7 @@ const CARD_CLASS = cn(NARROW_SPAN, TALL_ROW);
 const ROW = 'flex min-h-12 min-w-0 items-center gap-3 py-2';
 
 const SKELETON_ROWS = 5;
+const SKELETON_ROW_KEYS = Array.from({ length: SKELETON_ROWS }, (_, index) => `row-${index}`);
 
 function stateMetaOf(counts: LiveCounts, t: Translate) {
 	const parts: string[] = [];
@@ -71,8 +72,8 @@ export function TeamTodayCardSkeleton() {
 	return (
 		<TeamCard title={t('dashboard.team.cards.TEAM_TODAY')} className={CARD_CLASS}>
 			<ul aria-hidden="true" className="flex flex-col">
-				{Array.from({ length: SKELETON_ROWS }).map((_, index) => (
-					<li key={index} className={ROW}>
+				{SKELETON_ROW_KEYS.map((slotKey) => (
+					<li key={slotKey} className={ROW}>
 						<span className="size-7 shrink-0 animate-pulse rounded-full bg-foreground/[0.06]" />
 						<span className="flex flex-1 flex-col gap-1.5">
 							<span className={cn('h-2.5 w-24', SKELETON_BAR)} />

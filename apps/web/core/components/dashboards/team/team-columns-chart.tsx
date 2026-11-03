@@ -230,7 +230,6 @@ function ColumnTooltip({
 	const foot = tooltipFootOf(datum, formatMembers, formatActivity);
 	return (
 		<div
-			role="presentation"
 			className={cn('pointer-events-none absolute z-10 -translate-y-full pb-2', alignment)}
 			style={{ left, top }}
 		>

@@ -9,7 +9,7 @@ interface TimesheetStatusBadgeProps {
 	className?: string;
 }
 
-export function TimesheetStatusBadge({ status, children, className }: TimesheetStatusBadgeProps) {
+export function TimesheetStatusBadge({ status, children, className }: Readonly<TimesheetStatusBadgeProps>) {
 	const tone = timesheetStatusTone(status);
 	const dotClass = timesheetStatusDotClass(status);
 	return (
@@ -26,7 +26,7 @@ interface TimesheetTotalBadgeProps {
 	className?: string;
 }
 
-export function TimesheetTotalBadge({ label, children, className }: TimesheetTotalBadgeProps) {
+export function TimesheetTotalBadge({ label, children, className }: Readonly<TimesheetTotalBadgeProps>) {
 	return (
 		<Badge variant="outline" className={cn('gap-1.5 tabular-nums', className)}>
 			<span className="text-muted-foreground">{label}</span>

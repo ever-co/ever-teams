@@ -372,9 +372,11 @@ export function DatePickerFilter({
 		</div>
 	);
 }
+const DAY_INDICATOR_DOT_KEYS = ['dot-1', 'dot-2', 'dot-3'];
+
 const DayIndicators = ({ entries }: { entries: ITimeLog[] }) => {
 	if (entries.length === 1) {
-		return <span className="size-1 rounded-full bg-primary" role="status" aria-label="1 time entry for this day" />;
+		return <output className="size-1 rounded-full bg-primary" aria-label="1 time entry for this day" />;
 	}
 	return (
 		<div
@@ -382,8 +384,8 @@ const DayIndicators = ({ entries }: { entries: ITimeLog[] }) => {
 			role="status"
 			aria-label={`${entries.length} time entries for this day`}
 		>
-			{[...Array(3)].map((_, index) => (
-				<span key={index} className="size-1 rounded-full bg-primary" />
+			{DAY_INDICATOR_DOT_KEYS.map((dotKey) => (
+				<span key={dotKey} className="size-1 rounded-full bg-primary" />
 			))}
 		</div>
 	);

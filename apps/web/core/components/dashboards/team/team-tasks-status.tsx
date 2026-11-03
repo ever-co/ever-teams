@@ -19,6 +19,7 @@ const CARD_CLASS = FULL_SPAN;
 
 /** The in-progress list shows as many rows as the status list beside it, so neither column leaves a gap. */
 const MIN_SHOWN_IN_PROGRESS = 4;
+const SKELETON_IN_PROGRESS_KEYS = Array.from({ length: MIN_SHOWN_IN_PROGRESS }, (_, index) => `in-progress-${index}`);
 
 const BODY_GRID = 'grid min-h-0 gap-x-6 gap-y-4 md:grid-cols-2';
 
@@ -30,6 +31,7 @@ const IN_PROGRESS_ROW = 'grid min-h-8 grid-cols-[minmax(0,1fr)_4.75rem_6.5rem] i
 const PART_LABEL = 'pb-1 text-xs font-medium text-muted-foreground';
 
 const SKELETON_ROWS = 5;
+const SKELETON_ROW_KEYS = Array.from({ length: SKELETON_ROWS }, (_, index) => `row-${index}`);
 
 const StatusBreakdownRow = memo(function StatusBreakdownRow({ row }: Readonly<{ row: StatusRow }>) {
 	const label = statusLabelOf(row.status);
@@ -72,8 +74,8 @@ const InProgressRow = memo(function InProgressRow({ laneTask }: Readonly<{ laneT
 function InProgressSkeleton() {
 	return (
 		<ul aria-hidden="true" className="flex flex-col">
-			{Array.from({ length: MIN_SHOWN_IN_PROGRESS }).map((_, index) => (
-				<li key={index} className={IN_PROGRESS_ROW}>
+			{SKELETON_IN_PROGRESS_KEYS.map((slotKey) => (
+				<li key={slotKey} className={IN_PROGRESS_ROW}>
 					<span className={cn('h-2.5 w-3/5', SKELETON_BAR)} />
 					<span className="ml-auto size-5 animate-pulse rounded-full bg-foreground/[0.06]" />
 					<span className={cn('ml-auto h-2.5 w-14', SKELETON_BAR)} />
@@ -86,8 +88,8 @@ function InProgressSkeleton() {
 function RowsSkeleton() {
 	return (
 		<ul aria-hidden="true" className="flex flex-col">
-			{Array.from({ length: SKELETON_ROWS }).map((_, index) => (
-				<li key={index} className={STATUS_ROW}>
+			{SKELETON_ROW_KEYS.map((slotKey) => (
+				<li key={slotKey} className={STATUS_ROW}>
 					<span className="flex items-center gap-2">
 						<span className="size-5 animate-pulse rounded-md bg-foreground/[0.06]" />
 						<span className={cn('h-2.5 w-20', SKELETON_BAR)} />

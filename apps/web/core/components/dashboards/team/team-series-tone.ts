@@ -15,7 +15,7 @@ const NO_PROJECT_TONE = 'hsl(var(--foreground) / 0.34)';
 const OTHER_TONE = 'hsl(var(--foreground) / 0.14)';
 
 function rampToneOf(step: number) {
-	const lastTone = RAMP_TONES[RAMP_TONES.length - 1];
+	const lastTone = RAMP_TONES.at(-1);
 	return RAMP_TONES[step] ?? lastTone;
 }
 

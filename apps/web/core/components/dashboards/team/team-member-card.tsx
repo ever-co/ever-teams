@@ -124,7 +124,7 @@ export function MicroColumns({
 	const t = useTranslations();
 	const highest = highestSecondsOf(columns);
 	const first = columns[0];
-	const last = columns[columns.length - 1];
+	const last = columns.at(-1);
 	const hasSeveral = columns.length > 1;
 	let firstLabel = '';
 	let lastLabel = '';

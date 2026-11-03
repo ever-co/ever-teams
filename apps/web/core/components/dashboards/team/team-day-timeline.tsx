@@ -29,6 +29,7 @@ const LANE_GRID = 'grid grid-cols-1 gap-x-4 gap-y-1.5 sm:grid-cols-[12rem_minmax
 const NO_PROJECT_TONE = 'hsl(var(--foreground) / 0.28)';
 
 const SKELETON_LANES = 3;
+const SKELETON_LANE_KEYS = Array.from({ length: SKELETON_LANES }, (_, index) => `lane-${index}`);
 
 function isNamedProject(project: TimelineProject) {
 	const isWithoutProject = isNoProjectKey(project.key);
@@ -185,8 +186,8 @@ export function TeamDayTimelineSkeleton() {
 		<TeamCard title={t('dashboard.team.timeline.TITLE')} className={FULL_SPAN} isBusy>
 			<div className="flex flex-col gap-2" aria-hidden="true">
 				<span className={cn('ml-auto h-2.5 w-2/3', SKELETON_BAR)} />
-				{Array.from({ length: SKELETON_LANES }).map((_, index) => (
-					<div key={index} className={LANE_GRID}>
+				{SKELETON_LANE_KEYS.map((laneKey) => (
+					<div key={laneKey} className={LANE_GRID}>
 						<span className={cn('h-3 w-32', SKELETON_BAR)} />
 						<span className="h-7 animate-pulse rounded-md bg-foreground/[0.04]" />
 					</div>

@@ -20,6 +20,7 @@ const CARD_CLASS = cn(NARROW_SPAN, TALL_ROW);
 const LINES_STEP = 8;
 
 const SKELETON_LINES = 6;
+const SKELETON_LINE_KEYS = Array.from({ length: SKELETON_LINES }, (_, index) => `line-${index}`);
 
 function taskTextOf(line: RecentLine) {
 	if (!line.taskNumberLabel) {
@@ -78,8 +79,8 @@ export function TeamRecentCardSkeleton() {
 	return (
 		<TeamCard title={t('dashboard.team.recent.TITLE')} className={CARD_CLASS}>
 			<ul aria-hidden="true" className="flex flex-col">
-				{Array.from({ length: SKELETON_LINES }).map((_, index) => (
-					<li key={index} className="flex items-start gap-2.5 py-2">
+				{SKELETON_LINE_KEYS.map((slotKey) => (
+					<li key={slotKey} className="flex items-start gap-2.5 py-2">
 						<span className="size-5 shrink-0 animate-pulse rounded-full bg-foreground/[0.06]" />
 						<span className="flex flex-1 flex-col gap-1.5 pt-0.5">
 							<span className={cn('h-2.5 w-2/3', SKELETON_BAR)} />

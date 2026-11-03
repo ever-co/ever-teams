@@ -63,7 +63,7 @@ function membershipFallbackOf(segment: string | null): ReactNode {
 	return <ReportSkeleton />;
 }
 
-export default function ReportsLayout({ children }: { children: ReactNode }) {
+export default function ReportsLayout({ children }: Readonly<{ children: ReactNode }>) {
 	const segment = useSelectedLayoutSegment();
 	const fallback = membershipFallbackOf(segment);
 	return (

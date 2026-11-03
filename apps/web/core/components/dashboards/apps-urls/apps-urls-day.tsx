@@ -24,6 +24,7 @@ const HOUR_ROW = 'grid min-h-9 w-full grid-cols-[3.5rem_minmax(0,1fr)_4.5rem] it
 const SHOWN_NAMES = 3;
 
 const SKELETON_HOUR_ROWS = 4;
+const SKELETON_HOUR_ROW_KEYS = Array.from({ length: SKELETON_HOUR_ROWS }, (_, index) => `hour-row-${index}`);
 
 type ToneMap = ReadonlyMap<string, string>;
 
@@ -250,8 +251,8 @@ function DaySkeleton() {
 			</div>
 			<span className={cn('h-2.5 w-2/3', SKELETON_BAR)} />
 			<div className="flex flex-col gap-2">
-				{Array.from({ length: SKELETON_HOUR_ROWS }).map((_, index) => (
-					<span key={index} className={cn('h-3 w-full', SKELETON_BAR)} />
+				{SKELETON_HOUR_ROW_KEYS.map((rowKey) => (
+					<span key={rowKey} className={cn('h-3 w-full', SKELETON_BAR)} />
 				))}
 			</div>
 		</div>

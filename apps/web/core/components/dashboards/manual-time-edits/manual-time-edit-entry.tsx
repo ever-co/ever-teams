@@ -153,6 +153,14 @@ function sentenceKeyOf(entry: ManualTimeEntry, hasTask: boolean) {
  * belongs to. Gauzy keeps neither the editor of a log nor its previous start and end, so an edit is told in the
  * passive, with when it happened on its own line.
  */
+function inkActor(chunks: ReactNode) {
+	return <span className={INK}>{chunks}</span>;
+}
+
+function inkFigure(chunks: ReactNode) {
+	return <span className={cn(INK, 'tabular-nums')}>{chunks}</span>;
+}
+
 function EntrySentence({ entry }: Readonly<{ entry: ManualTimeEntry }>) {
 	const t = useTranslations();
 	const taskId = taskIdOf(entry);
@@ -178,8 +186,8 @@ function EntrySentence({ entry }: Readonly<{ entry: ManualTimeEntry }>) {
 				name: entry.memberName,
 				duration: formatDurationShort(entry.seconds),
 				task: taskTitle ?? '',
-				actor: (chunks) => <span className={INK}>{chunks}</span>,
-				figure: (chunks) => <span className={cn(INK, 'tabular-nums')}>{chunks}</span>,
+				actor: inkActor,
+				figure: inkFigure,
 				link: renderLink
 			})}
 		</>

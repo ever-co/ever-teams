@@ -19,6 +19,7 @@ type Translate = ReturnType<typeof useTranslations>;
 const LINES_STEP = 8;
 
 const SKELETON_LINES = 5;
+const SKELETON_LINE_KEYS = Array.from({ length: SKELETON_LINES }, (_, index) => `line-${index}`);
 
 const STRONG = 'font-medium text-foreground';
 
@@ -152,8 +153,8 @@ export function TeamRecentWorkSkeleton() {
 	return (
 		<RecentFrame>
 			<ul aria-hidden="true" className="py-2">
-				{Array.from({ length: SKELETON_LINES }).map((_, index) => (
-					<li key={index} className="flex items-start gap-2.5 px-4 py-2">
+				{SKELETON_LINE_KEYS.map((slotKey) => (
+					<li key={slotKey} className="flex items-start gap-2.5 px-4 py-2">
 						<span className="size-6 shrink-0 animate-pulse rounded-full bg-foreground/[0.06]" />
 						<span className="flex flex-1 flex-col gap-1.5 pt-1">
 							<span className={cn('h-2.5 w-11/12', SKELETON_BAR)} />

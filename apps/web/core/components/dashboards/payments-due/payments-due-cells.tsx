@@ -1,6 +1,6 @@
 'use client';
 
-import { memo } from 'react';
+import { memo, type ReactNode } from 'react';
 import { useLocale, useTranslations } from 'next-intl';
 import { cn } from '@/core/lib/helpers';
 import { formatDurationShort } from '@/core/lib/utils/dashboard-figures';
@@ -84,6 +84,10 @@ export function OwedFormula({
 	);
 }
 
+function boldDayName(chunks: ReactNode) {
+	return <span className="font-semibold">{chunks}</span>;
+}
+
 export function DayName({ day, className }: Readonly<{ day: Date; className?: string }>) {
 	const t = useTranslations();
 	const locale = useLocale();
@@ -92,7 +96,7 @@ export function DayName({ day, className }: Readonly<{ day: Date; className?: st
 	const label = t.rich('dashboard.paymentsDue.DAY_LABEL', {
 		day: name,
 		date,
-		name: (chunks) => <span className="font-semibold">{chunks}</span>
+		name: boldDayName
 	});
 	return <span className={cn('truncate text-[13px] tabular-nums text-foreground', className)}>{label}</span>;
 }

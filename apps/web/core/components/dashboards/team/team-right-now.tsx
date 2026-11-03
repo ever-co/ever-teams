@@ -30,6 +30,7 @@ type Translate = ReturnType<typeof useTranslations>;
 const SHOWN_MEMBERS = 8;
 
 const SKELETON_ROWS = 6;
+const SKELETON_ROW_KEYS = Array.from({ length: SKELETON_ROWS }, (_, index) => `row-${index}`);
 
 const ROW_GRID =
 	'grid min-h-13 grid-cols-[minmax(0,1fr)_auto] items-center gap-x-3 px-4 py-2 sm:grid-cols-[minmax(0,1fr)_4.5rem_6.5rem]';
@@ -172,8 +173,8 @@ export function TeamRightNowSkeleton() {
 	return (
 		<DashboardSection title={t('dashboard.team.live.TITLE')} ariaLabel={t('dashboard.team.live.TITLE')}>
 			<ul aria-hidden="true" className="hairline-divide-y divide-border">
-				{Array.from({ length: SKELETON_ROWS }).map((_, index) => (
-					<li key={index} className={ROW_GRID}>
+				{SKELETON_ROW_KEYS.map((slotKey) => (
+					<li key={slotKey} className={ROW_GRID}>
 						<span className="flex items-center gap-3">
 							<span className="size-8 shrink-0 animate-pulse rounded-full bg-foreground/[0.06]" />
 							<span className="flex flex-col gap-1.5">

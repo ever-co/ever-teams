@@ -312,7 +312,6 @@ function VarianceTooltip({
 }: Readonly<{ day: VarianceDay; left: number; top: number; alignment: string }>) {
 	return (
 		<div
-			role="presentation"
 			className={cn('pointer-events-none absolute z-10 -translate-y-full pb-2', alignment)}
 			style={{ left, top }}
 		>
@@ -624,8 +623,8 @@ export function VarianceChartSkeleton() {
 			</div>
 			<div className="relative flex pb-6">
 				<span className="absolute inset-x-0 top-[calc(50%-12px)] h-px bg-foreground/15" />
-				{SKELETON_COLUMNS.map((column, index) => (
-					<div key={index} className="grid flex-1 grid-rows-2 px-[14%]">
+				{SKELETON_COLUMNS.map((column) => (
+					<div key={`${column.up}-${column.down}`} className="grid flex-1 grid-rows-2 px-[14%]">
 						<span className="flex items-end justify-center pb-px">
 							<span
 								className="block w-full max-w-7 animate-pulse rounded-t-[4px] bg-foreground/[0.05]"

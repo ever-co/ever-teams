@@ -129,20 +129,22 @@ export function useTimesheetFilterCategories({
 				options: memberOptionsOf(members)
 			});
 		}
-		categories.push({
-			field: 'projects',
-			keepsCase: true,
-			icon: <Folder />,
-			label: t('dashboard.timesheets.PROJECTS'),
-			options: projectOptionsOf(logs, t('dashboard.timesheets.NO_PROJECT'))
-		});
-		categories.push({
-			field: 'tasks',
-			keepsCase: true,
-			icon: <Task />,
-			label: t('common.TASKS'),
-			options: taskOptionsOf(logs, t('dashboard.timesheets.NO_TASK'))
-		});
+		categories.push(
+			{
+				field: 'projects',
+				keepsCase: true,
+				icon: <Folder />,
+				label: t('dashboard.timesheets.PROJECTS'),
+				options: projectOptionsOf(logs, t('dashboard.timesheets.NO_PROJECT'))
+			},
+			{
+				field: 'tasks',
+				keepsCase: true,
+				icon: <Task />,
+				label: t('common.TASKS'),
+				options: taskOptionsOf(logs, t('dashboard.timesheets.NO_TASK'))
+			}
+		);
 		return categories;
 	}, [isManage, logs, members, t]);
 }

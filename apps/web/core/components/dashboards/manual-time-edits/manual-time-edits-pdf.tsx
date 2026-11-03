@@ -119,7 +119,14 @@ function TableHeader({ columns }: Readonly<{ columns: string[] }>) {
 	);
 }
 
-function GroupBlock({ group }: Readonly<{ group: EditsPdfGroup }>) {
+function cellsOf(row: EditsPdfRow, columns: string[]) {
+	return row.cells.map((text, index) => {
+		const column = columns[index] ?? `column-${index}`;
+		return { column, text, width: widthOf(index) };
+	});
+}
+
+function GroupBlock({ group, columns }: Readonly<{ group: EditsPdfGroup; columns: string[] }>) {
 	return (
 		<View>
 			<View style={styles.groupRow} wrap={false}>
@@ -128,9 +135,9 @@ function GroupBlock({ group }: Readonly<{ group: EditsPdfGroup }>) {
 			</View>
 			{group.rows.map((row) => (
 				<View key={row.key} style={styles.row} wrap={false}>
-					{row.cells.map((cell, index) => (
-						<Text key={index} style={[styles.cell, { width: widthOf(index) }]}>
-							{cell}
+					{cellsOf(row, columns).map((cell) => (
+						<Text key={cell.column} style={[styles.cell, { width: cell.width }]}>
+							{cell.text}
 						</Text>
 					))}
 				</View>
@@ -151,7 +158,7 @@ export function buildManualTimeEditsPdf(content: EditsPdfContent): ReactElement<
 				<SummaryBand summary={content.summary} />
 				<TableHeader columns={content.columns} />
 				{content.groups.map((group) => (
-					<GroupBlock key={group.key} group={group} />
+					<GroupBlock key={group.key} group={group} columns={content.columns} />
 				))}
 				<View style={styles.footer} fixed>
 					<Text>{content.footer}</Text>

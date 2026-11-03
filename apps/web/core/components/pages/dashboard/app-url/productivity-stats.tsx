@@ -26,11 +26,7 @@ export const ProductivityStats: React.FC<ProductivityStatsProps> = ({
 					{productivePercentage}%
 				</h2>
 				<div className="flex gap-2 items-center" role="presentation">
-					<div
-						className={cn('size-2 rounded-full', CHART_COLORS.productive)}
-						role="presentation"
-						aria-hidden="true"
-					></div>
+					<div className={cn('size-2 rounded-full', CHART_COLORS.productive)} aria-hidden="true"></div>
 					<span className="text-xs text-muted-foreground">{t('common.PRODUCTIVE')}</span>
 				</div>
 			</article>
@@ -42,11 +38,7 @@ export const ProductivityStats: React.FC<ProductivityStatsProps> = ({
 					{neutralPercentage}%
 				</h2>
 				<div className="flex gap-2 items-center" role="presentation">
-					<div
-						className={cn('size-2 rounded-full', CHART_COLORS.neutral)}
-						role="presentation"
-						aria-hidden="true"
-					></div>
+					<div className={cn('size-2 rounded-full', CHART_COLORS.neutral)} aria-hidden="true"></div>
 					<span className="text-xs text-muted-foreground">{t('common.NEUTRAL')}</span>
 				</div>
 			</article>
@@ -58,11 +50,7 @@ export const ProductivityStats: React.FC<ProductivityStatsProps> = ({
 					{unproductivePercentage}%
 				</h2>
 				<div className="flex gap-2 items-center" role="presentation">
-					<div
-						className={cn('size-2 rounded-full', CHART_COLORS.unproductive)}
-						role="presentation"
-						aria-hidden="true"
-					></div>
+					<div className={cn('size-2 rounded-full', CHART_COLORS.unproductive)} aria-hidden="true"></div>
 					<span className="text-xs text-muted-foreground">{t('common.UNPRODUCTIVE')}</span>
 				</div>
 			</article>

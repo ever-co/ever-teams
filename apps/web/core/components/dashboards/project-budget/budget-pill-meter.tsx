@@ -11,16 +11,23 @@ const PILL_TONES: Record<PillTone, string> = {
 
 const SEGMENT = 'h-full min-w-0 flex-1 rounded-[2px]';
 
+function pillSlotsOf(tones: PillTone[]) {
+	return tones.map((tone, slot) => ({ key: `pill-${slot}`, tone }));
+}
+
 /** Twenty pills of the budget; the figure and the verdict are written beside it, colour is never the only signal. */
 export const BudgetPillMeter = memo(function BudgetPillMeter({
 	amounts,
 	className
 }: Readonly<{ amounts: BudgetAmounts; className?: string }>) {
-	const tones = useMemo(() => pillTonesOf(amounts), [amounts]);
+	const pills = useMemo(() => {
+		const tones = pillTonesOf(amounts);
+		return pillSlotsOf(tones);
+	}, [amounts]);
 	return (
 		<span aria-hidden="true" className={cn('flex h-3 w-full gap-0.5', className)}>
-			{tones.map((tone, index) => (
-				<span key={index} className={cn(SEGMENT, PILL_TONES[tone])} />
+			{pills.map((pill) => (
+				<span key={pill.key} className={cn(SEGMENT, PILL_TONES[pill.tone])} />
 			))}
 		</span>
 	);

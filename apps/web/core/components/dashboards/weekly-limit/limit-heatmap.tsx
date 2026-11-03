@@ -386,7 +386,6 @@ function CellBubble({
 	const style: CSSProperties = { left: anchor.left, top: anchor.top };
 	return (
 		<div
-			role="presentation"
 			className={cn(
 				'pointer-events-none absolute z-10 -translate-y-full pb-1.5',
 				BUBBLE_SHIFTS[anchor.alignment]
@@ -701,21 +700,16 @@ function HeatLegend() {
 			</span>
 			<span className="flex items-center gap-1.5">
 				<span>{t('dashboard.weeklyLimit.LEGEND_LESS')}</span>
-				<span role="list" className="flex items-center gap-0.5">
+				<ul className="flex items-center gap-0.5">
 					{LEGEND_STEPS.map((step) => {
 						const stepLabel = t(LEGEND_STEP_KEYS[step]);
 						return (
-							<span
-								key={step}
-								role="listitem"
-								title={stepLabel}
-								className={cn(LEGEND_SWATCH, HEAT_STEP_CLASSES[step])}
-							>
+							<li key={step} title={stepLabel} className={cn(LEGEND_SWATCH, HEAT_STEP_CLASSES[step])}>
 								<span className="sr-only">{stepLabel}</span>
-							</span>
+							</li>
 						);
 					})}
-				</span>
+				</ul>
 				<span>{t('dashboard.weeklyLimit.LEGEND_MORE')}</span>
 			</span>
 			<span aria-hidden="true">·</span>

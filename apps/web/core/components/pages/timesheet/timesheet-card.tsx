@@ -4,7 +4,7 @@ import { Button } from '@/core/components';
 import { useTranslations } from 'next-intl';
 import { ReactNode } from 'react';
 import { EmployeeAvatar } from '../../timesheet/compact-timesheet-component';
-import { getStatusTimesheet, groupByDate } from '@/core/lib/helpers/timesheet-grouping';
+import { getStatusTimesheet, groupByDate, type GroupedTimesheet } from '@/core/lib/helpers/timesheet-grouping';
 import { useTimelogFilterOptions } from '@/core/hooks';
 import { ETimesheetStatus } from '@/core/types/generics/enums/timesheet';
 import { cn } from '@/core/lib/helpers';
@@ -66,6 +66,11 @@ export function TimesheetCard({ ...props }: ITimesheetCard) {
 	);
 }
 
+function groupKeyOf(group: GroupedTimesheet) {
+	const timesheetId = group.tasks[0]?.timesheet?.id;
+	return `${group.date}-${timesheetId}`;
+}
+
 export const TimesheetCardDetail = ({ data }: { data?: Record<ETimesheetStatus, ITimeLog[]> }) => {
 	// getStatusTimesheet & groupByDate imported as pure functions from timesheet-grouping
 	const { timesheetGroupByDays } = useTimelogFilterOptions();
@@ -75,7 +80,7 @@ export const TimesheetCardDetail = ({ data }: { data?: Record<ETimesheetStatus, 
 		<div className="overflow-hidden rounded-xl hairline-ring ring-border">
 			{timesheetGroupByDate.map((plan, index) => {
 				return (
-					<div key={index} className="hairline-b border-border last:border-b-0">
+					<div key={groupKeyOf(plan)} className="hairline-b border-border last:border-b-0">
 						<div
 							className={cn(
 								'flex h-10 w-full items-center justify-between gap-3 px-4',

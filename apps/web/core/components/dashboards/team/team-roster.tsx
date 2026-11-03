@@ -27,6 +27,7 @@ const ROSTER_GRID = 'grid items-start gap-3 md:grid-cols-2 xl:grid-cols-3';
 const ROSTER_ITEM = '-m-1 p-1 [content-visibility:auto] [contain-intrinsic-size:auto_17rem]';
 
 const SKELETON_CARDS = 6;
+const SKELETON_CARD_KEYS = Array.from({ length: SKELETON_CARDS }, (_, index) => `card-${index}`);
 
 function rosterTitleOf(view: TeamTableView, t: Translate) {
 	if (view === 'member') {
@@ -103,8 +104,8 @@ function RosterEmpty({ dashboard, formats }: Readonly<{ dashboard: TeamDashboard
 function RosterCardsSkeleton() {
 	return (
 		<ul aria-hidden="true" className={ROSTER_GRID}>
-			{Array.from({ length: SKELETON_CARDS }).map((_, index) => (
-				<li key={index}>
+			{SKELETON_CARD_KEYS.map((slotKey) => (
+				<li key={slotKey}>
 					<TeamMemberCardSkeleton />
 				</li>
 			))}

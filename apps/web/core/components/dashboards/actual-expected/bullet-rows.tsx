@@ -467,8 +467,8 @@ const SKELETON_ROWS = [
 function BulletRowsSkeleton() {
 	return (
 		<div className="hairline-divide-y divide-border" aria-hidden="true">
-			{SKELETON_ROWS.map((row, index) => (
-				<div key={index} className={cn(BULLET_GRID, 'min-h-14')}>
+			{SKELETON_ROWS.map((row) => (
+				<div key={`${row.name}-${row.track}`} className={cn(BULLET_GRID, 'min-h-14')}>
 					<span className={cn(LEAD_CELL, LINE_LEAD, 'flex items-center gap-2.5')}>
 						<span className="size-6 shrink-0 rounded-full bg-foreground/[0.06]" />
 						<span className={cn('h-2.5', SKELETON_BAR)} style={{ width: `${row.name}%` }} />

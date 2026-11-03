@@ -1,6 +1,6 @@
 'use client';
 
-import { memo } from 'react';
+import { memo, type ReactNode } from 'react';
 import { useLocale, useTranslations } from 'next-intl';
 import { Checkbox } from '@/core/components/common/checkbox';
 import {
@@ -60,6 +60,10 @@ function dayNameOf(day: Date, locale: string, t: Translate, formatters: Timeshee
 	return capitalizedOf(weekday, locale);
 }
 
+function boldDay(chunks: ReactNode) {
+	return <span className="font-semibold">{chunks}</span>;
+}
+
 export function DayName({
 	day,
 	formatters,
@@ -74,7 +78,7 @@ export function DayName({
 			{t.rich('dashboard.manualTimeEdits.DAY_LABEL', {
 				day: name,
 				date,
-				strong: (chunks) => <span className="font-semibold">{chunks}</span>
+				strong: boldDay
 			})}
 		</span>
 	);

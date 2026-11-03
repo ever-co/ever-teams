@@ -35,6 +35,7 @@ const CARD =
 const COUNT_CHIP = 'rounded-md bg-foreground/5 px-1.5 py-0.5 text-xs font-medium tabular-nums text-muted-foreground';
 
 const SKELETON_LANES = 3;
+const SKELETON_LANE_KEYS = Array.from({ length: SKELETON_LANES }, (_, index) => `lane-${index}`);
 
 export function statusLabelOf(status: TTaskStatus) {
 	const name = status.name ?? '';
@@ -238,8 +239,8 @@ export function TeamTaskLanesSkeleton() {
 		<section aria-label={t('dashboard.team.tasks.TITLE')} aria-busy="true" className="flex min-w-0 flex-col gap-2">
 			<LanesHeader />
 			<div aria-hidden="true" className={LANES_ROW}>
-				{Array.from({ length: SKELETON_LANES }).map((_, laneIndex) => (
-					<div key={laneIndex} className={LANE}>
+				{SKELETON_LANE_KEYS.map((laneKey) => (
+					<div key={laneKey} className={LANE}>
 						<span className="flex min-h-7 items-center gap-2 px-1">
 							<span className="size-5 animate-pulse rounded-md bg-foreground/[0.06]" />
 							<span className={cn('h-2.5 w-20', SKELETON_BAR)} />
