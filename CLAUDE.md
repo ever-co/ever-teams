@@ -246,7 +246,7 @@ Use [Conventional Commits](https://www.conventionalcommits.org/):
 | Framework        | Next.js 16 (App Router)              |
 | Language         | TypeScript                           |
 | Styling          | Tailwind CSS 4                       |
-| UI Components    | Radix UI, shadcn/ui patterns         |
+| UI Components    | Base UI (`@base-ui/react`) behind the `core/components/common` wrappers, shadcn/ui patterns; Radix remains for slot and toast |
 | State Management | Jotai                                |
 | Data Fetching    | TanStack Query (React Query)         |
 | Forms            | React Hook Form + Zod                |
@@ -254,7 +254,7 @@ Use [Conventional Commits](https://www.conventionalcommits.org/):
 | Auth             | NextAuth.js v5 (beta)                |
 | Monitoring       | Sentry                               |
 | Build            | Turbo + Nx                           |
-| Icons            | Lucide React, Heroicons, React Icons |
+| Icons            | Hugeicons through the central module `core/components/icons/` (Lucide and Heroicons are legacy) |
 
 ## 9. Safe Command & Editing Guidelines
 
