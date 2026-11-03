@@ -3614,6 +3614,10 @@
 				"TITLE": "التكاملات",
 				"DESCRIPTION": "GitHub وEver Platform لهذا الفريق."
 			},
+			"permissions": {
+				"TITLE": "الأدوار والصلاحيات",
+				"DESCRIPTION": "ما يُسمح لكل دور في المؤسسة بفعله."
+			},
 			"statuses": {
 				"TITLE": "الحالات",
 				"DESCRIPTION": "المراحل التي تمر بها المهمة في هذا الفريق."

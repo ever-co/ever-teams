@@ -3614,6 +3614,10 @@
 				"TITLE": "Integrazioni",
 				"DESCRIPTION": "GitHub ed Ever Platform per questo team."
 			},
+			"permissions": {
+				"TITLE": "Ruoli e permessi",
+				"DESCRIPTION": "Cosa può fare ogni ruolo nell'organizzazione."
+			},
 			"statuses": {
 				"TITLE": "Stati",
 				"DESCRIPTION": "I passaggi che un'attività attraversa in questo team."

@@ -3614,6 +3614,10 @@
 				"TITLE": "שילובים",
 				"DESCRIPTION": "GitHub ו-Ever Platform עבור הצוות הזה."
 			},
+			"permissions": {
+				"TITLE": "תפקידים והרשאות",
+				"DESCRIPTION": "מה מותר לכל תפקיד בארגון לעשות."
+			},
 			"statuses": {
 				"TITLE": "סטטוסים",
 				"DESCRIPTION": "השלבים שמשימה עוברת בצוות הזה."

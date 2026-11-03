@@ -7,6 +7,7 @@ import {
 	Preferences,
 	Ruler,
 	Settings,
+	ShieldUser,
 	StatusCircle,
 	Tag,
 	UserCircle,
@@ -26,6 +27,7 @@ export type SettingsEntryId =
 	| 'teamGeneral'
 	| 'members'
 	| 'integrations'
+	| 'permissions'
 	| 'statuses'
 	| 'priorities'
 	| 'sizes'
@@ -43,6 +45,8 @@ export interface SettingsEntry {
 
 export const SETTINGS_ROOT = '/settings';
 
+const PERMISSIONS_PATH = '/permissions';
+
 export const SETTINGS_ENTRIES: ReadonlyArray<SettingsEntry> = [
 	{ id: 'profile', group: 'account', href: '/settings/personal', icon: UserCircle },
 	{ id: 'preferences', group: 'account', href: '/settings/personal/preferences', icon: Preferences },
@@ -51,6 +55,8 @@ export const SETTINGS_ENTRIES: ReadonlyArray<SettingsEntry> = [
 	{ id: 'teamGeneral', group: 'team', href: '/settings/team', icon: Settings },
 	{ id: 'members', group: 'team', href: '/settings/team/members', icon: Users, managerOnly: true },
 	{ id: 'integrations', group: 'team', href: '/settings/team/integrations', icon: Integration, managerOnly: true },
+	// The roles page keeps its own route, so links to it still work; the settings sidebar stays on it.
+	{ id: 'permissions', group: 'team', href: PERMISSIONS_PATH, icon: ShieldUser, managerOnly: true },
 	{ id: 'statuses', group: 'taskProperties', href: '/settings/team/statuses', icon: StatusCircle },
 	{ id: 'priorities', group: 'taskProperties', href: '/settings/team/priorities', icon: FlagPriority },
 	{ id: 'sizes', group: 'taskProperties', href: '/settings/team/sizes', icon: Ruler },
@@ -112,7 +118,8 @@ export function entriesOfGroup(group: SettingsGroupId, isTeamManager: boolean): 
 export function isSettingsPath(strippedPathname: string): boolean {
 	const isRoot = strippedPathname === SETTINGS_ROOT;
 	const isBelow = strippedPathname.startsWith(`${SETTINGS_ROOT}/`);
-	return isRoot || isBelow;
+	const isPermissions = strippedPathname === PERMISSIONS_PATH;
+	return isRoot || isBelow || isPermissions;
 }
 
 export function activeSettingsEntry(strippedPathname: string): SettingsEntry | null {

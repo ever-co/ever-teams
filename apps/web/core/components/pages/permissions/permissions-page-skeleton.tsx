@@ -49,17 +49,23 @@ export function SelectRolePrompt() {
 	);
 }
 
+export function PermissionsContentSkeleton() {
+	return (
+		<div className={PERMISSIONS_GRID}>
+			<div className={ROLE_LIST}>
+				<RoleListSkeleton />
+			</div>
+			<div className="flex w-full min-w-0 flex-col">
+				<SelectRolePrompt />
+			</div>
+		</div>
+	);
+}
+
 export function PermissionsPageSkeleton() {
 	return (
 		<PageSkeletonFrame className="items-start" toolbar={<PermissionsToolbar />}>
-			<div className={PERMISSIONS_GRID}>
-				<div className={ROLE_LIST}>
-					<RoleListSkeleton />
-				</div>
-				<div className="flex w-full min-w-0 flex-col">
-					<SelectRolePrompt />
-				</div>
-			</div>
+			<PermissionsContentSkeleton />
 		</PageSkeletonFrame>
 	);
 }

@@ -3614,6 +3614,10 @@
 				"TITLE": "集成",
 				"DESCRIPTION": "此团队的 GitHub 和 Ever Platform。"
 			},
+			"permissions": {
+				"TITLE": "角色与权限",
+				"DESCRIPTION": "组织中每个角色可以执行的操作。"
+			},
 			"statuses": {
 				"TITLE": "状态",
 				"DESCRIPTION": "任务在此团队中经历的各个阶段。"

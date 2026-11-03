@@ -3614,6 +3614,10 @@
 				"TITLE": "Интеграции",
 				"DESCRIPTION": "GitHub и Ever Platform за този екип."
 			},
+			"permissions": {
+				"TITLE": "Роли и права",
+				"DESCRIPTION": "Какво може да прави всяка роля в организацията."
+			},
 			"statuses": {
 				"TITLE": "Статуси",
 				"DESCRIPTION": "Етапите, през които минава задача в този екип."
