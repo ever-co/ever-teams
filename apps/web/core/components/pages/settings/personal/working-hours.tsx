@@ -1,13 +1,17 @@
 import React from 'react';
 import { TimePicker } from '@/core/components/common/time-picker';
 import { TimezoneDropDown } from '../../../settings/timezone-dropdown';
+import { Button } from '@/core/components/duplicated-components/_button';
+import { Plus, X } from '@/core/components/icons';
+import { SWITCH_THUMB_CLASS, SWITCH_TRACK_CLASS } from '../switch-recipe';
+import { SETTINGS_LABEL_CLASS, SETTINGS_ROW_CLASS } from '../settings-section';
 import { useUserQuery } from '@/core/hooks/queries/user-user.query';
 import {
 	getActiveLanguageIdCookie,
 	getActiveTimezoneIdCookie,
-	setActiveTimezoneCookie,
-	userTimezone
+	setActiveTimezoneCookie
 } from '@/core/lib/helpers/index';
+import { userTimezone } from '@/core/lib/helpers/user-timezone';
 import { useForm } from 'react-hook-form';
 
 import { useTranslations } from 'next-intl';
@@ -129,42 +133,42 @@ export const WorkingHours: React.FC<WorkScheduleProps> = ({ initialSchedule }) =
 	};
 
 	return (
-		<div className="w-full">
-			<div>
-				<div className="grid grid-cols-[10rem_minmax(0,1fr)] items-center gap-3 pb-4">
-					<p className="text-sm font-medium text-muted-foreground">{t('common.TIME_ZONE')}</p>
-					<div className="max-w-sm">
-						<TimezoneDropDown
-							currentTimezone={currentTimezone}
-							onChange={(t: string) => {
-								handleChangeTimezone(t);
-							}}
-						/>
-					</div>
+		<div className="flex w-full flex-col gap-4">
+			<div className={SETTINGS_ROW_CLASS}>
+				<p className={SETTINGS_LABEL_CLASS}>{t('common.TIME_ZONE')}</p>
+				<div className="max-w-sm">
+					<TimezoneDropDown
+						currentTimezone={currentTimezone}
+						onChange={(t: string) => {
+							handleChangeTimezone(t);
+						}}
+					/>
 				</div>
+			</div>
+			<div className="flex flex-col hairline-divide-y divide-border">
 				{schedule.map((workDay, dayIndex) => (
 					<div key={workDay.day} className={WORKDAY_ROW_CLASS}>
 						<div className="pt-1">
-							<div>
-								<ToggleSwitch
-									enabled={workDay.enabled}
-									onToggle={() => handleToggleDay(dayIndex)}
-									label={workDay.day}
-									ariaLabel={t('pages.settingsPersonal.TOGGLE_AVAILABILITY_FOR', {
-										day: workDay.day
-									})}
-								/>
-							</div>
+							<ToggleSwitch
+								enabled={workDay.enabled}
+								onToggle={() => handleToggleDay(dayIndex)}
+								label={workDay.day}
+								ariaLabel={t('pages.settingsPersonal.TOGGLE_AVAILABILITY_FOR', {
+									day: workDay.day
+								})}
+							/>
 						</div>
 						{workDay.enabled && (
-							<button
+							<Button
 								type="button"
+								variant="outline"
+								size="icon-sm"
 								onClick={() => handleAddTimeSlot(dayIndex)}
-								className="col-start-2 row-start-1 ml-auto flex size-7 items-center justify-center rounded-md border border-border text-muted-foreground hover:bg-muted hover:text-foreground sm:col-start-3"
+								className="col-start-2 row-start-1 ml-auto text-muted-foreground sm:col-start-3"
 								aria-label={t('pages.settingsPersonal.ADD_HOURS_FOR', { day: workDay.day })}
 							>
-								<span className="text-base leading-none">+</span>
-							</button>
+								<Plus />
+							</Button>
 						)}
 						{workDay.enabled &&
 							workDay.timeSlots.map((timeSlot, slotIndex) => (
@@ -175,25 +179,27 @@ export const WorkingHours: React.FC<WorkScheduleProps> = ({ initialSchedule }) =
 									<TimePicker
 										value={timeSlot.startTime}
 										onChange={(value) => handleTimeChange(dayIndex, slotIndex, 'startTime', value)}
-										className="h-9 w-full rounded-md border border-border bg-card text-sm sm:w-24"
+										className="h-9 w-full rounded-md hairline-border border-border bg-card text-sm sm:w-24"
 									/>
 									<span className="mx-1 text-muted-foreground">–</span>
 									<TimePicker
 										value={timeSlot.endTime}
 										onChange={(value) => handleTimeChange(dayIndex, slotIndex, 'endTime', value)}
-										className="h-9 w-full rounded-md border border-border bg-card text-sm sm:w-24"
+										className="h-9 w-full rounded-md hairline-border border-border bg-card text-sm sm:w-24"
 									/>
 									{workDay.timeSlots.length > 1 && (
-										<button
+										<Button
 											type="button"
+											variant="ghost"
+											size="icon-sm"
 											onClick={() => handleRemoveTimeSlot(dayIndex, slotIndex)}
-											className="flex size-7 items-center justify-center rounded-md text-muted-foreground hover:bg-muted hover:text-foreground"
+											className="text-muted-foreground"
 											aria-label={t('pages.settingsPersonal.REMOVE_HOURS_FOR', {
 												day: workDay.day
 											})}
 										>
-											<span className="text-xl font-medium leading-none">×</span>
-										</button>
+											<X />
+										</Button>
 									)}
 								</div>
 							))}
@@ -223,17 +229,15 @@ const ToggleSwitch: React.FC<ToggleSwitchProps> = ({ enabled, onToggle, label, a
 			role="switch"
 			aria-checked={enabled}
 			aria-label={ariaLabel}
-			className={`relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 ${enabled ? 'bg-[#DBD3FA] dark:bg-purple-400/30' : 'bg-[#EDEDED] dark:bg-gray-600'}`}
+			className={SWITCH_TRACK_CLASS}
 			onClick={onToggle}
 		>
-			<span
-				className={`${enabled ? 'bg-[#3826A6] dark:bg-purple-500' : 'bg-white dark:bg-gray-300'} pointer-events-none absolute left-0.5 top-0.5 inline-block h-4 w-4 transform rounded-full shadow-xs ring-0 transition duration-200 ease-in-out ${enabled ? 'translate-x-5' : 'translate-x-0'}`}
-			/>
+			<span className={SWITCH_THUMB_CLASS} />
 		</button>
 		{label && (
 			<button
 				type="button"
-				className="ml-2 text-sm font-medium text-foreground"
+				className="ml-2 rounded-sm text-sm font-medium text-foreground outline-none focus-visible:ring-[3px] focus-visible:ring-ring/25"
 				onClick={onToggle}
 			>
 				{label}

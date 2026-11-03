@@ -15,11 +15,7 @@ type ActionFunction = () => Promise<unknown> | undefined;
 
 /** One line per irreversible action: what it does on the left, a quiet outlined danger button on the right. */
 const DANGER_ROW =
-	'flex flex-col gap-3 border-t border-border py-4 first:border-t-0 first:pt-0 sm:flex-row sm:items-center sm:justify-between';
-const DANGER_BUTTON =
-	'h-9 shrink-0 whitespace-nowrap rounded-md border border-destructive/40 bg-transparent px-3 text-sm font-medium text-destructive hover:bg-destructive/10 dark:bg-transparent';
-const LINK_BUTTON =
-	'inline-flex h-9 shrink-0 items-center whitespace-nowrap rounded-md border border-border px-3 text-sm font-medium text-foreground hover:bg-muted';
+	'flex flex-col gap-3 hairline-t border-border py-4 first:border-t-0 first:pt-0 sm:flex-row sm:items-center sm:justify-between';
 
 /**
  * Settings → Personal → Danger Zone.
@@ -42,9 +38,8 @@ export const DangerZone = () => {
 	const [removeModalType, setRemoveModalType] = useState<RemoveModalType>('');
 
 	const { deleteUser, deleteUserLoading } = useUser();
-	const { preview, previewLoading, previewError, retryPreview, deleteMyAccount, deleteMyAccountLoading } = useDeleteMyAccount(
-		isOpen && removeModalType === 'DELETE_ALL'
-	);
+	const { preview, previewLoading, previewError, retryPreview, deleteMyAccount, deleteMyAccountLoading } =
+		useDeleteMyAccount(isOpen && removeModalType === 'DELETE_ALL');
 	const { data: user } = useUserQuery();
 
 	const { removeUserFromAllTeam, removeUserFromAllTeamLoading } = useDeleteOrganizationTeam();
@@ -107,8 +102,9 @@ export const DangerZone = () => {
 						</div>
 						<Button
 							variant="outline-danger"
+							size="default"
 							type="button"
-							className={DANGER_BUTTON}
+							className="shrink-0"
 							onClick={() => {
 								setRemoveModalType(row.type);
 								openModal();
@@ -128,9 +124,11 @@ export const DangerZone = () => {
 							{t('pages.accountDeletion.DANGER_ZONE_DESCRIPTION')}
 						</p>
 					</div>
-					<Link href={ACCOUNT_DELETION_PATH} className={LINK_BUTTON} data-testid="danger-zone-delete-by-email">
-						{t('pages.accountDeletion.DELETE_BY_EMAIL_LINK')}
-					</Link>
+					<Button asChild variant="outline" size="default" className="shrink-0">
+						<Link href={ACCOUNT_DELETION_PATH} data-testid="danger-zone-delete-by-email">
+							{t('pages.accountDeletion.DELETE_BY_EMAIL_LINK')}
+						</Link>
+					</Button>
 				</div>
 
 				<RemoveModal
@@ -140,7 +138,8 @@ export const DangerZone = () => {
 					onAction={onAction}
 					loading={deleteUserLoading || removeUserFromAllTeamLoading || deleteMyAccountLoading}
 					confirmDisabled={
-						removeModalType === 'DELETE_ALL' && (previewLoading || !!previewError || !preview?.accounts?.length)
+						removeModalType === 'DELETE_ALL' &&
+						(previewLoading || !!previewError || !preview?.accounts?.length)
 					}
 				>
 					{removeModalType === 'DELETE_ALL' && (
