@@ -55,8 +55,8 @@ export function ColorItem({
 					className={clsxm(
 						'w-[17px] h-[17px]',
 						'flex justify-center items-center',
-						'rounded-full text-xs text-default dark:text-white',
-						'shadow-md',
+						'rounded-full text-xs text-foreground',
+						'hairline-ring ring-inset ring-foreground/10',
 						disabled && ['dark:text-default']
 					)}
 					style={{ backgroundColor: color }}

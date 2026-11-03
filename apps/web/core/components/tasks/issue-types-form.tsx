@@ -4,7 +4,7 @@ import { useCreateIssueType } from '@/core/hooks/tasks/use-create-issue-type';
 import { useEditIssueType } from '@/core/hooks/tasks/use-edit-issue-type';
 import { useDeleteIssueType } from '@/core/hooks/tasks/use-delete-issue-type';
 import { Spinner } from '@/core/components/common/spinner';
-import { PlusIcon } from '@heroicons/react/20/solid';
+import { Plus as PlusIcon } from '@/core/components/icons';
 import { Button, ColorPicker, Text } from '@/core/components';
 import { useCallback, useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
@@ -96,7 +96,7 @@ export const IssueTypesForm = () => {
 			<form className="w-full" onSubmit={handleSubmit(onSubmit)} autoComplete="off">
 				<div className="flex">
 					<div className="rounded-md m-h-64 p-[32px] flex gap-x-[2rem] flex-col sm:flex-row items-center sm:items-start">
-						<Text className="flex-none grow-0 text-md text-gray-400 font-medium mb-2 w-[200px] text-center sm:text-left">
+						<Text className="flex-none grow-0 text-sm text-muted-foreground font-medium mb-2 w-[200px] text-center sm:text-left">
 							{t('pages.settingsTeam.ISSUE_TYPES')}
 						</Text>
 
@@ -104,14 +104,14 @@ export const IssueTypesForm = () => {
 							{!createNew && !edit && (
 								<Button
 									variant="outline"
-									className="font-normal justify-start border-2 rounded-[10px] text-md w-[230px] gap-0 h-[46px]"
+									className="justify-start w-[230px] gap-1.5"
 									onClick={() => {
 										setEdit(null);
 										setCreateNew(true);
 									}}
 								>
 									<span className="mr-[11px]">
-										<PlusIcon className=" font-normal w-[16px] h-[16px]" />
+										<PlusIcon className="size-4" />
 									</span>
 									{t('pages.settingsTeam.CREATE_NEW_ISSUE_TYPES')}
 								</Button>
@@ -119,7 +119,7 @@ export const IssueTypesForm = () => {
 
 							{(createNew || edit) && (
 								<>
-									<Text className="flex-none mb-2 font-normal text-gray-400 grow-0 text-md">
+									<Text className="flex-none mb-2 text-sm font-medium text-muted-foreground grow-0">
 										{createNew && t('common.NEW')}
 										{edit && t('common.EDIT')} {t('common.ISSUE_TYPE')}
 									</Text>
@@ -171,7 +171,7 @@ export const IssueTypesForm = () => {
 								</>
 							)}
 
-							<Text className="flex-none grow-0 text-md text-gray-400 font-medium mb-[1rem] w-full mt-[2.4rem] text-center sm:text-left">
+							<Text className="flex-none grow-0 text-sm text-muted-foreground font-medium mb-[1rem] w-full mt-[2.4rem] text-center sm:text-left">
 								{t('pages.settingsTeam.LIST_OF_STATUSES')}
 							</Text>
 							<div className="flex flex-wrap gap-3 justify-center w-full sm:justify-start">

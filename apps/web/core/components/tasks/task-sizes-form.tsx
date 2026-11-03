@@ -9,7 +9,7 @@ import { useTaskSettingsAccess } from '@/core/hooks/tasks/use-task-settings-acce
 import { useUserQuery } from '@/core/hooks/queries/user-user.query';
 import { clsxm } from '@/core/lib/utils';
 import { Spinner } from '@/core/components/common/spinner';
-import { PlusIcon } from '@heroicons/react/20/solid';
+import { Plus as PlusIcon } from '@/core/components/icons';
 import { Button, ColorPicker, Text } from '@/core/components';
 import { useCallback, useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
@@ -32,7 +32,8 @@ const PRIMARY_BUTTON = 'h-9 shrink-0 rounded-md px-3 py-0 text-sm font-medium ho
 const CANCEL_BUTTON = 'h-9 shrink-0 rounded-md px-3 py-0 text-sm font-medium';
 // The icon and colour pickers draw their own 54px box; this sizes them like the other controls of the
 // row without touching the shared picker components.
-const PICKER = 'shrink-0 [&_.input-border]:h-9 [&_.input-border]:rounded-md [&_.rounded-xl]:h-9 [&_.rounded-xl]:rounded-md';
+const PICKER =
+	'shrink-0 [&_.input-border]:h-9 [&_.input-border]:rounded-md [&_.rounded-xl]:h-9 [&_.rounded-xl]:rounded-md';
 
 type StatusForm = {
 	formOnly?: boolean;
@@ -61,13 +62,7 @@ export const TaskSizesForm = ({ formOnly = false, onCreated }: StatusForm) => {
 		'blocked',
 		'completed'
 	]);
-	const taskSizesIconList: IIcon[] = generateIconList('task-sizes', [
-		'x-large',
-		'large',
-		'medium',
-		'small',
-		'tiny',
-	]);
+	const taskSizesIconList: IIcon[] = generateIconList('task-sizes', ['x-large', 'large', 'medium', 'small', 'tiny']);
 	const taskPrioritiesIconList: IIcon[] = generateIconList('task-priorities', ['urgent', 'high', 'medium', 'low']);
 
 	const iconList: IIcon[] = [...taskStatusIconList, ...taskSizesIconList, ...taskPrioritiesIconList];
@@ -228,7 +223,9 @@ export const TaskSizesForm = ({ formOnly = false, onCreated }: StatusForm) => {
 
 						{!formOnly && taskSizes?.length > 0 && (
 							<>
-								<Text className={clsxm(SUB_LABEL, 'pt-1')}>{t('pages.settingsTeam.LIST_OF_SIZES')}</Text>
+								<Text className={clsxm(SUB_LABEL, 'pt-1')}>
+									{t('pages.settingsTeam.LIST_OF_SIZES')}
+								</Text>
 								<div className="flex w-full flex-wrap gap-2">
 									{loading && !taskSizes && <Spinner dark={false} />}
 									{taskSizes && taskSizes?.length ? (

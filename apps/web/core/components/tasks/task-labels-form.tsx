@@ -7,7 +7,7 @@ import { useDeleteTaskLabel } from '@/core/hooks/tasks/use-delete-task-label';
 import { clsxm } from '@/core/lib/utils';
 import { useUserQuery } from '@/core/hooks/queries/user-user.query';
 import { Spinner } from '@/core/components/common/spinner';
-import { PlusIcon } from '@heroicons/react/20/solid';
+import { Plus as PlusIcon } from '@/core/components/icons';
 import { Button, ColorPicker, Text } from '@/core/components';
 import { useCallback, useEffect, useState, useRef } from 'react';
 import { useForm } from 'react-hook-form';
@@ -29,7 +29,8 @@ const PRIMARY_BUTTON = 'h-9 shrink-0 rounded-md px-3 py-0 text-sm font-medium ho
 const CANCEL_BUTTON = 'h-9 shrink-0 rounded-md px-3 py-0 text-sm font-medium';
 // The icon and colour pickers draw their own 54px box; this sizes them like the other controls of the
 // row without touching the shared picker components.
-const PICKER = 'shrink-0 [&_.input-border]:h-9 [&_.input-border]:rounded-md [&_.rounded-xl]:h-9 [&_.rounded-xl]:rounded-md';
+const PICKER =
+	'shrink-0 [&_.input-border]:h-9 [&_.input-border]:rounded-md [&_.rounded-xl]:h-9 [&_.rounded-xl]:rounded-md';
 
 type StatusForm = {
 	formOnly?: boolean;

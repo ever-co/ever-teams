@@ -8,7 +8,7 @@ import { useEditTaskVersion } from '@/core/hooks/tasks/use-edit-task-version';
 import { useDeleteTaskVersion } from '@/core/hooks/tasks/use-delete-task-version';
 import { useTaskSettingsAccess } from '@/core/hooks/tasks/use-task-settings-access';
 import { Spinner } from '@/core/components/common/spinner';
-import { PlusIcon } from '@heroicons/react/20/solid';
+import { Plus as PlusIcon } from '@/core/components/icons';
 import { useCallback, useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 
@@ -192,7 +192,9 @@ export const TaskVersionForm = ({ formOnly = false, onCreated, onVersionCreated 
 
 						{!formOnly && taskVersions?.length > 0 && (
 							<>
-								<Text className={clsxm(SUB_LABEL, 'pt-1')}>{t('pages.settingsTeam.LIST_OF_VERSONS')}</Text>
+								<Text className={clsxm(SUB_LABEL, 'pt-1')}>
+									{t('pages.settingsTeam.LIST_OF_VERSONS')}
+								</Text>
 								<div className="flex w-full flex-wrap gap-2">
 									{loading && !taskVersions?.length && <Spinner dark={false} />}
 									{taskVersions && taskVersions?.length ? (
