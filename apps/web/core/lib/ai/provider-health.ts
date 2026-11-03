@@ -30,9 +30,7 @@ const store = globalThis as ProviderHealthStore;
  * after a cold start, and no failed call ever waits on a database write.
  */
 function pausedUntil() {
-	if (!store.__everTeamsAiPausedUntil) {
-		store.__everTeamsAiPausedUntil = new Map<string, number>();
-	}
+	store.__everTeamsAiPausedUntil ??= new Map<string, number>();
 	return store.__everTeamsAiPausedUntil;
 }
 

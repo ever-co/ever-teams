@@ -51,8 +51,8 @@ export function editorAssistUserPrompt(request: TEditorAssistRequest) {
 	return lines.join('\n');
 }
 
-const RESULT_TAG = /<result>\s*([\s\S]*?)\s*<\/result>/i;
-const NOTE_TAG = /<note>\s*([\s\S]*?)\s*<\/note>/i;
+const RESULT_TAG = /<result>([\s\S]*?)<\/result>/i;
+const NOTE_TAG = /<note>([\s\S]*?)<\/note>/i;
 const WHOLE_CODE_FENCE = /^```[a-z]*\n([\s\S]*?)\n```$/i;
 
 function withoutWholeCodeFence(text: string) {
@@ -66,7 +66,7 @@ function withoutWholeCodeFence(text: string) {
 function resultTextOf(answer: string) {
 	const tagged = RESULT_TAG.exec(answer);
 	if (tagged) {
-		return tagged[1];
+		return tagged[1].trim();
 	}
 	return answer.replace(NOTE_TAG, '');
 }

@@ -710,8 +710,10 @@ export interface VarianceAxis {
 	ticks: number[];
 }
 
+const LARGEST_VARIANCE_HOUR_STEP = 48;
+
 /** Hour steps that keep the signed axis to five lines at most, zero included. */
-const VARIANCE_HOUR_STEPS = [1, 2, 4, 6, 8, 12, 24, 48];
+const VARIANCE_HOUR_STEPS = [1, 2, 4, 6, 8, 12, 24, LARGEST_VARIANCE_HOUR_STEP];
 
 const MAX_VARIANCE_STEPS = 4;
 
@@ -741,8 +743,7 @@ function stepCountOf(seconds: number, stepHours: number) {
 export function varianceAxisOf(days: ReadonlyArray<VarianceDay>): VarianceAxis {
 	const largestOver = largestOverOf(days);
 	const largestUnder = largestUnderOf(days);
-	const lastStep = VARIANCE_HOUR_STEPS[VARIANCE_HOUR_STEPS.length - 1];
-	let stepHours = lastStep;
+	let stepHours = LARGEST_VARIANCE_HOUR_STEP;
 	for (const candidate of VARIANCE_HOUR_STEPS) {
 		const upSteps = stepCountOf(largestOver, candidate);
 		const downSteps = stepCountOf(largestUnder, candidate);

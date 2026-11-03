@@ -1,4 +1,5 @@
 import type { TVoiceFillChoice, TVoiceFillValue } from '@/core/types/schemas/ai/voice-fill.schema';
+import { replaceHtmlTags } from './html-tags';
 
 export interface VoiceChoiceItem {
 	value: string;
@@ -158,7 +159,7 @@ export function dictatedTextToHtml(text: string) {
 /** The editor's HTML as the plain text the model reads back on a second dictation. */
 export function htmlToDictationText(html: string) {
 	const withBreaks = html.replace(/<\/(p|li|h[1-6])>/gi, '\n').replace(/<br\s*\/?>/gi, '\n');
-	const withoutTags = withBreaks.replace(/<[^>]*>/g, '');
+	const withoutTags = replaceHtmlTags(withBreaks, '');
 	const decoded = withoutTags
 		.replace(/&nbsp;/g, ' ')
 		.replace(/&lt;/g, '<')

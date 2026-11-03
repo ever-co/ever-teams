@@ -104,8 +104,8 @@ function matchesLabels(task: TTask, labels: string[]) {
 	if (labels.length === 0) {
 		return true;
 	}
-	const tagNames = (task.tags ?? []).map((tag) => tag.name);
-	return labels.some((label) => tagNames.includes(label));
+	const tagNames = new Set((task.tags ?? []).map((tag) => tag.name));
+	return labels.some((label) => tagNames.has(label));
 }
 
 /** An epic filter keeps the epic itself and every task under it. */

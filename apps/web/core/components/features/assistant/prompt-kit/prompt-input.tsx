@@ -4,8 +4,10 @@
 import {
 	createContext,
 	createRef,
+	useCallback,
 	useContext,
 	useLayoutEffect,
+	useMemo,
 	useRef,
 	useState,
 	type ChangeEvent,
@@ -77,10 +79,13 @@ function PromptInput({
 	const internalTextareaRef = useRef<HTMLTextAreaElement>(null);
 	const textareaRef = providedTextareaRef ?? internalTextareaRef;
 
-	const handleChange = (newValue: string) => {
-		setInternalValue(newValue);
-		onValueChange?.(newValue);
-	};
+	const handleChange = useCallback(
+		(newValue: string) => {
+			setInternalValue(newValue);
+			onValueChange?.(newValue);
+		},
+		[onValueChange]
+	);
 
 	const handleClick: MouseEventHandler<HTMLDivElement> = (event) => {
 		if (!disabled) {
@@ -89,15 +94,18 @@ function PromptInput({
 		onClick?.(event);
 	};
 
-	const contextValue: PromptInputContextType = {
-		isLoading,
-		value: value ?? internalValue,
-		setValue: onValueChange ?? handleChange,
-		maxHeight,
-		onSubmit,
-		disabled,
-		textareaRef
-	};
+	const contextValue = useMemo<PromptInputContextType>(
+		() => ({
+			isLoading,
+			value: value ?? internalValue,
+			setValue: onValueChange ?? handleChange,
+			maxHeight,
+			onSubmit,
+			disabled,
+			textareaRef
+		}),
+		[isLoading, value, internalValue, onValueChange, handleChange, maxHeight, onSubmit, disabled, textareaRef]
+	);
 
 	return (
 		<PromptInputContext.Provider value={contextValue}>

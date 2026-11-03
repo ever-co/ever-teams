@@ -32,7 +32,7 @@ import {
 } from '@/core/components/common/sidebar';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { isPathActive } from '@/core/lib/utils/navigation-path';
+import { isPathActive, stripLocalePrefix } from '@/core/lib/utils/navigation-path';
 import { NAV_ROW_ACTIVE_RECIPE, NAV_ROW_RECIPE } from './nav-row-recipe';
 import { cn } from '@/core/lib/helpers';
 import { isValidProjectForDisplay, projectBelongsToTeam } from '@/core/lib/helpers/type-guards';
@@ -83,7 +83,6 @@ import { CommandPaletteTrigger } from './default-layout/header/command-palette-t
 import { DefaultCreateAction } from '../features/layouts/header/create-default-action';
 import { SettingsNav } from '../settings/kit/settings-nav';
 import { isSettingsPath } from '../settings/kit/settings-entries';
-import { stripLocalePrefix } from '@/core/lib/utils/navigation-path';
 import { useRememberAppPath } from '@/core/hooks/common/use-remember-app-path';
 
 type AppSidebarProps = React.ComponentProps<typeof Sidebar> & { publicTeam: boolean | undefined };

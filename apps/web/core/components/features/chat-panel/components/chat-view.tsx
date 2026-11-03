@@ -18,7 +18,7 @@ interface ChatViewProps {
 	pageContext?: string;
 }
 
-export function ChatView(_props: ChatViewProps) {
+export function ChatView(_props: Readonly<ChatViewProps>) {
 	const t = useTranslations();
 	const locale = useLocale();
 	const {

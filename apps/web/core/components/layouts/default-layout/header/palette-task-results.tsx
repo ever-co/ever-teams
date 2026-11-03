@@ -63,7 +63,7 @@ interface PaletteTaskResultsProps {
  * The tasks of the active team inside the command palette: the five most recently updated ones while the field is
  * empty, every task once the user types (the palette filters them), each with its status and priority as 3D labels.
  */
-export function PaletteTaskResults({ search, onOpenTask, className }: PaletteTaskResultsProps) {
+export function PaletteTaskResults({ search, onOpenTask, className }: Readonly<PaletteTaskResultsProps>) {
 	const t = useTranslations();
 	const tasks = useAtomValue(tasksByTeamState);
 	const activeTeam = useAtomValue(activeTeamState);
@@ -110,7 +110,7 @@ interface PaletteTaskRowProps {
 	onOpenTask: (taskId: string) => void;
 }
 
-function PaletteTaskRow({ task, teamName, status, priority, onOpenTask }: PaletteTaskRowProps) {
+function PaletteTaskRow({ task, teamName, status, priority, onOpenTask }: Readonly<PaletteTaskRowProps>) {
 	const t = useTranslations();
 	const openTask = useCallback(() => onOpenTask(task.id), [onOpenTask, task.id]);
 	const labels = [numberLabelOf(task)];
@@ -136,7 +136,7 @@ function PaletteTaskRow({ task, teamName, status, priority, onOpenTask }: Palett
 	);
 }
 
-function PaletteChip({ item }: { item: TStatusItem }) {
+function PaletteChip({ item }: Readonly<{ item: TStatusItem }>) {
 	return (
 		<span
 			style={chipStyleOf(item)}

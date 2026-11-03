@@ -453,9 +453,9 @@ function compareByTime(first: UsageGroup, second: UsageGroup) {
 /** Without a picked column, days read newest first and everything else longest first. */
 function naturalComparator(view: AppsUrlsView) {
 	if (view === 'date') {
-		return (first: UsageGroup, second: UsageGroup) => compareByName(second, first);
+		return (left: UsageGroup, right: UsageGroup) => compareByName(right, left);
 	}
-	return (first: UsageGroup, second: UsageGroup) => compareByTime(second, first);
+	return (left: UsageGroup, right: UsageGroup) => compareByTime(right, left);
 }
 
 const COLUMN_COMPARATORS: Record<GroupSortColumn, (first: UsageGroup, second: UsageGroup) => number> = {
@@ -468,7 +468,7 @@ function pickedComparator(sort: GroupSort) {
 	if (sort.direction === 'asc') {
 		return compare;
 	}
-	return (first: UsageGroup, second: UsageGroup) => compare(second, first);
+	return (left: UsageGroup, right: UsageGroup) => compare(right, left);
 }
 
 function comparatorOf(view: AppsUrlsView, sort: GroupSort | null) {

@@ -12,24 +12,42 @@ export const isHtml = (value: string): boolean => {
 	return htmlRegex.test(value);
 };
 
+function lineHasMarkdownLink(line: string) {
+	const textStart = line.indexOf('[');
+	if (textStart < 0) {
+		return false;
+	}
+	const urlStart = line.indexOf('](', textStart + 1);
+	if (urlStart < 0) {
+		return false;
+	}
+	return line.includes(')', urlStart + 2);
+}
+
+/** `[text](url)` on one line, as `/\[.*?\]\(.*?\)/` matched it, without rescanning the line from every `[`. */
+function hasMarkdownLink(value: string) {
+	const lines = value.split(/[\r\n\u2028\u2029]/);
+	return lines.some(lineHasMarkdownLink);
+}
+
 export const isMarkdown = (value: string): boolean => {
 	if (!value || typeof value !== 'string') return false;
 
 	const markdownPatterns = [
-		/^#{1,6}\s+.+$/m, // Headers: # ## ### etc.
+		/^#{1,6}\s+./m, // Headers: # ## ### etc.
 		/\*\*.*?\*\*/, // Bold: **text**
 		/\*.*?\*/, // Italic: *text*
 		/`.*?`/, // Inline code: `code`
 		/```[\s\S]*?```/, // Code blocks: ```code```
-		/^\s*[-*+]\s+/m, // Unordered lists: - * +
-		/^\s*\d+\.\s+/m, // Ordered lists: 1. 2. 3.
-		/\[.*?\]\(.*?\)/, // Links: [text](url)
+		/^[^\S\r\n\u2028\u2029]*[-*+]\s/m, // Unordered lists: - * +
+		/^[^\S\r\n\u2028\u2029]*\d+\.\s/m, // Ordered lists: 1. 2. 3.
 		/!\[.*?\]\(.*?\)/, // Images: ![alt](url)
-		/^\s*>\s+/m, // Blockquotes: > text
-		/^\s*---+\s*$/m, // Horizontal rules: ---
+		/^[^\S\r\n\u2028\u2029]*>\s/m, // Blockquotes: > text
+		/^[^\S\r\n\u2028\u2029]*---+[^\S\r\n\u2028\u2029]*$/m, // Horizontal rules: ---
 		/~~.*?~~/ // Strikethrough: ~~text~~
 	];
-	return markdownPatterns.some((pattern) => pattern.test(value));
+	const matchesPattern = markdownPatterns.some((pattern) => pattern.test(value));
+	return matchesPattern || hasMarkdownLink(value);
 };
 
 export const isValidSlateObject = (value: unknown): boolean => {
@@ -254,7 +272,7 @@ function checklistsToTaskLists(html: string) {
 			continue;
 		}
 		const list = doc.createElement('ul');
-		list.setAttribute('data-type', 'taskList');
+		list.dataset.type = 'taskList';
 		container.before(list);
 		let current: Element | null = container;
 		while (isChecklistDiv(current)) {

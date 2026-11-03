@@ -305,8 +305,10 @@ export function useCommentFileAttacher() {
 					const linking: Promise<TEntityFileLink>[] = [];
 					for (const result of uploaded.results) {
 						const documentId = result.document.id;
-						linking.push(entityFilesService.linkFile(documentId, commentTarget));
-						linking.push(entityFilesService.linkFile(documentId, taskTarget, { commentId }));
+						linking.push(
+							entityFilesService.linkFile(documentId, commentTarget),
+							entityFilesService.linkFile(documentId, taskTarget, { commentId })
+						);
 					}
 					await Promise.all(linking);
 					const refused = uploaded.rejected.map((rejection) => rejection.fileName);

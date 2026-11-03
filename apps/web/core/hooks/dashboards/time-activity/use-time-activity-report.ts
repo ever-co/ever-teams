@@ -37,7 +37,7 @@ import {
 } from './use-time-activity-queries';
 import { useTimeActivitySettings } from './use-time-activity-settings';
 
-const MANAGING_ROLES: ReadonlyArray<string> = [ERoleName.SUPER_ADMIN, ERoleName.MANAGER, ERoleName.ADMIN];
+const MANAGING_ROLES: ReadonlySet<string> = new Set([ERoleName.SUPER_ADMIN, ERoleName.MANAGER, ERoleName.ADMIN]);
 
 const EMPTY_REPORT: ITimeLogGroupedDailyReport[] = [];
 
@@ -49,7 +49,7 @@ interface ReportAccess {
 
 function hasOrganizationWideRole(user: TUser | null | undefined) {
 	const roleName = user?.role?.name ?? '';
-	return MANAGING_ROLES.includes(roleName);
+	return MANAGING_ROLES.has(roleName);
 }
 
 /** The rule of the previous page: organisation roles, or a manager of a team, see everyone's figures and earnings. */

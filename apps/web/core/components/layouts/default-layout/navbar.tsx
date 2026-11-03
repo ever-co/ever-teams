@@ -26,7 +26,7 @@ import { CollaborateSkeleton } from '@/core/components/common/skeleton/collabora
 import { useUserQuery } from '@/core/hooks/queries/user-user.query';
 import { NotificationBell } from '@/core/components/notifications/inbox/notification-bell';
 
-const TEAM_DROPDOWN_HIDDEN_PATHS = ['/task/[id]', '/profile/[memberId]'];
+const TEAM_DROPDOWN_HIDDEN_PATHS = new Set(['/task/[id]', '/profile/[memberId]']);
 
 const CONTROL_SKELETON = 'h-8 shrink-0 animate-pulse rounded-full bg-foreground/[0.05]';
 
@@ -76,7 +76,7 @@ export function Navbar({
 		if (!pathname) {
 			return false;
 		}
-		return !TEAM_DROPDOWN_HIDDEN_PATHS.includes(pathname);
+		return !TEAM_DROPDOWN_HIDDEN_PATHS.has(pathname);
 	}, [pathname]);
 
 	const isPublicTeam = publicTeam || false;

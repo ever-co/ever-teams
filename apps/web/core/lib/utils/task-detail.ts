@@ -255,21 +255,23 @@ export function relationCandidatesOf(task: TTask, teamTasks: TTask[]) {
 	});
 }
 
-export function acceptsStartDate(date: Date, dueDate: Date | string | null | undefined) {
+type StoredDate = Date | string | null | undefined;
+
+export function acceptsStartDate(date: Date, dueDate: StoredDate) {
 	if (!dueDate) {
 		return true;
 	}
 	return date <= new Date(dueDate);
 }
 
-export function acceptsDueDate(date: Date, startDate: Date | string | null | undefined) {
+export function acceptsDueDate(date: Date, startDate: StoredDate) {
 	if (!startDate) {
 		return true;
 	}
 	return date >= new Date(startDate);
 }
 
-export function daysUntilDue(dueDate: Date | string | null | undefined, now: Date = new Date()) {
+export function daysUntilDue(dueDate: StoredDate, now: Date = new Date()) {
 	if (!dueDate) {
 		return null;
 	}

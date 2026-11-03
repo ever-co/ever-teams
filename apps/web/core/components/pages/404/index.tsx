@@ -30,7 +30,7 @@ const DEFAULT_LABELS: NotFoundLabels = {
 	action: 'Go back to home'
 };
 
-function NotFound({ labels = DEFAULT_LABELS }: { labels?: NotFoundLabels }) {
+function NotFound({ labels = DEFAULT_LABELS }: Readonly<{ labels?: NotFoundLabels }>) {
 	const canSoftNavigate = moduleConstantsSawRuntimeEnv();
 	return (
 		<SystemPageFrame className="min-h-[60dvh] justify-center">

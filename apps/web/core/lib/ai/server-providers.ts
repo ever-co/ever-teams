@@ -173,10 +173,16 @@ export function hasServerLanguageModel() {
  * Deepgram trains on requests by default and its provider only offers the opt-out for speech synthesis: every
  * transcription request gets `mip_opt_out=true` here. Do not remove it, the user's voice must never train a model.
  */
-function deepgramWithoutTraining(baseURL: string | undefined): typeof fetch {
-	const origin = baseURL ?? 'https://api.deepgram.com';
+function requestUrlOf(input: RequestInfo | URL): string {
+	if (input instanceof Request) {
+		return input.url;
+	}
+	return input.toString();
+}
+
+function deepgramWithoutTraining(origin = 'https://api.deepgram.com'): typeof fetch {
 	return (input, init) => {
-		const requested = new URL(String(input));
+		const requested = new URL(requestUrlOf(input));
 		const target = new URL(`${origin}${requested.pathname}${requested.search}`);
 		target.searchParams.set('mip_opt_out', 'true');
 		return fetch(target, init);

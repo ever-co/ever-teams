@@ -43,7 +43,7 @@ export const TIMESHEET_VIEWS: ReadonlyArray<TimesheetView> = ['sheet', 'list', '
 export const NO_PROJECT_VALUE = '__no-project__';
 export const NO_TASK_VALUE = '__no-task__';
 
-const ORGANIZATION_ROLES: ReadonlyArray<string> = [ERoleName.SUPER_ADMIN, ERoleName.ADMIN, ERoleName.MANAGER];
+const ORGANIZATION_ROLES: ReadonlySet<string> = new Set([ERoleName.SUPER_ADMIN, ERoleName.ADMIN, ERoleName.MANAGER]);
 
 const SECONDS_PER_MINUTE = 60;
 const SECONDS_PER_HOUR = 3600;
@@ -53,18 +53,20 @@ const MILLISECONDS_PER_SECOND = 1000;
 export const DELETE_BATCH_SIZE = 100;
 
 export function isTimesheetView(value: unknown): value is TimesheetView {
-	return TIMESHEET_VIEWS.some((view) => view === value);
+	const views: ReadonlyArray<unknown> = TIMESHEET_VIEWS;
+	return views.includes(value);
 }
 
 export function isOrganizationRole(roleName: string | null | undefined) {
 	if (!roleName) {
 		return false;
 	}
-	return ORGANIZATION_ROLES.includes(roleName);
+	return ORGANIZATION_ROLES.has(roleName);
 }
 
 function isTimesheetStatus(value: unknown): value is ETimesheetStatus {
-	return TIMESHEET_STATUS_ORDER.some((status) => status === value);
+	const statuses: ReadonlyArray<unknown> = TIMESHEET_STATUS_ORDER;
+	return statuses.includes(value);
 }
 
 export function statusOfLog(log: ITimeLog): ETimesheetStatus | null {

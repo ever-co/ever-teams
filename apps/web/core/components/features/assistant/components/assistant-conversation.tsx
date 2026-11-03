@@ -26,10 +26,10 @@ type AssistantConversationProps = {
 function ThinkingRow() {
 	const t = useTranslations();
 	return (
-		<div role="status" className="flex items-center gap-2 px-0.5 text-[13px] text-muted-foreground">
+		<output className="flex items-center gap-2 px-0.5 text-[13px] text-muted-foreground">
 			<TypingLoader size="sm" />
 			<span>{t('chatView.THINKING')}</span>
-		</div>
+		</output>
 	);
 }
 
@@ -38,12 +38,12 @@ function ErrorRow({
 	isConfigured,
 	onRetry,
 	onOpenConfig
-}: {
+}: Readonly<{
 	error: Error;
 	isConfigured: boolean;
 	onRetry: () => void;
 	onOpenConfig: () => void;
-}) {
+}>) {
 	const t = useTranslations();
 	const fallback = t('chatView.ERROR_FALLBACK');
 	const message = readableChatError(error, fallback);
@@ -89,7 +89,7 @@ export function AssistantConversation({
 	isConfigured,
 	onRetry,
 	onOpenConfig
-}: AssistantConversationProps) {
+}: Readonly<AssistantConversationProps>) {
 	const t = useTranslations();
 
 	return (

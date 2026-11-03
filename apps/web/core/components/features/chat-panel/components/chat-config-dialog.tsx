@@ -59,7 +59,7 @@ interface ChatConfigFormProps {
  * The AI configuration fields with their Cancel and Save actions. The assistant shows them in a dialog; the editors'
  * writing help shows them in place, inside its own panel.
  */
-export function ChatConfigForm({ config, onSave, onCancel }: ChatConfigFormProps) {
+export function ChatConfigForm({ config, onSave, onCancel }: Readonly<ChatConfigFormProps>) {
 	const [syncedConfig, setSyncedConfig] = useState(config);
 	const [apiKey, setApiKey] = useState(config?.apiKey ?? '');
 	const [provider, setProvider] = useState<ChatConfig['provider']>(config?.provider ?? DEFAULT_PROVIDER);

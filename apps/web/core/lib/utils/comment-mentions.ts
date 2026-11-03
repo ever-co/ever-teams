@@ -99,7 +99,7 @@ export function filterMentionCandidates(candidates: MentionablePerson[], query: 
 }
 
 function escapeForRegExp(text: string) {
-	return text.replace(REGEX_SPECIAL_CHARACTERS, '\\$&');
+	return text.replace(REGEX_SPECIAL_CHARACTERS, String.raw`\$&`);
 }
 
 function mentionPatternOf(names: string[]) {
@@ -109,7 +109,7 @@ function mentionPatternOf(names: string[]) {
 	}
 	const longestFirst = [...usableNames].sort((first, second) => second.length - first.length);
 	const alternatives = longestFirst.map(escapeForRegExp).join('|');
-	return new RegExp(`(?<=^|\\s)${MENTION_TRIGGER}(?:${alternatives})`, 'g');
+	return new RegExp(String.raw`(?<=^|\s)${MENTION_TRIGGER}(?:${alternatives})`, 'g');
 }
 
 /** The text cut around the "@Full Name" of known people, so a view can draw each mention as a chip. */

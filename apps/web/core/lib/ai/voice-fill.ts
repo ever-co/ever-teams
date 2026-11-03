@@ -185,12 +185,25 @@ function cleanText(value: unknown, maxLength: number) {
 	return trimmed.slice(0, maxLength);
 }
 
+function isDotOrSpace(character: string) {
+	return /[.\s]/.test(character);
+}
+
+/** Same result as `text.replace(/[.\s]+$/, '')`, without the regex rescanning every run of dots and spaces. */
+function withoutTrailingDotsAndSpaces(text: string) {
+	let end = text.length;
+	while (end > 0 && isDotOrSpace(text[end - 1])) {
+		end--;
+	}
+	return text.slice(0, end);
+}
+
 function cleanTitle(value: unknown) {
 	const text = cleanText(value, TITLE_MAX_LENGTH);
 	if (!text) {
 		return null;
 	}
-	return text.replace(/[.\s]+$/, '');
+	return withoutTrailingDotsAndSpaces(text);
 }
 
 function cleanDate(value: unknown) {

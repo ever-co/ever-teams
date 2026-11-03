@@ -86,7 +86,7 @@ function transcriptionLinkRunner(link: TranscriptionLink, audio: DictationAudio)
 			const result = await transcribe({
 				model: link.model,
 				audio: IN_MEMORY_AUDIO_URL,
-				download: async () => ({ data: audio.bytes, mediaType: audio.mediaType }),
+				download: () => Promise.resolve({ data: audio.bytes, mediaType: audio.mediaType }),
 				providerOptions: providerOptionsFor(link),
 				abortSignal: signal,
 				maxRetries: 0

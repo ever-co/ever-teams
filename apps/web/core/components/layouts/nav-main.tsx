@@ -116,7 +116,7 @@ function isGroupOpen(item: NavItem, readerChoice: boolean | undefined, hasActive
 	return hasActiveSubItem;
 }
 
-function NavItemContent({ item, isCollapsed }: { item: NavItem; isCollapsed: boolean }) {
+function NavItemContent({ item, isCollapsed }: Readonly<{ item: NavItem; isCollapsed: boolean }>) {
 	return (
 		<>
 			{isCollapsed && (

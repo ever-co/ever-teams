@@ -37,12 +37,12 @@ function TopBarAction({
 	onClick,
 	children,
 	className
-}: {
+}: Readonly<{
 	label: string;
 	onClick: () => void;
 	children: ReactNode;
 	className?: string;
-}) {
+}>) {
 	return (
 		<Tooltip>
 			<TooltipTrigger asChild>
@@ -74,12 +74,12 @@ function SessionRow({
 	isCurrent,
 	locale,
 	onSelect
-}: {
+}: Readonly<{
 	session: ChatSession;
 	isCurrent: boolean;
 	locale: string;
 	onSelect: (session: ChatSession) => void;
-}) {
+}>) {
 	const time = formatSessionTime(session.updatedAt, locale);
 	const ariaCurrent = ariaCurrentFor(isCurrent);
 	const handleSelect = () => onSelect(session);
@@ -172,7 +172,7 @@ export function AssistantTopBar({
 	onClearConversation,
 	onSelectSession,
 	onOpenConfig
-}: AssistantTopBarProps) {
+}: Readonly<AssistantTopBarProps>) {
 	const t = useTranslations();
 	const newChatLabel = t('chatView.NEW_CHAT');
 	const shownTitle = titleOrDefault(title, newChatLabel);

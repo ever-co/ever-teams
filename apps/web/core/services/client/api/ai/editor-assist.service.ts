@@ -18,7 +18,8 @@ export type TEditorAssistFailure =
 export type TEditorAssistResult = { ok: true; data: TEditorAssistAnswer } | { ok: false; reason: TEditorAssistFailure };
 
 function isKnownErrorCode(value: unknown): value is TEditorAssistErrorCode {
-	return EDITOR_ASSIST_ERROR_CODES.some((code) => code === value);
+	const codes: ReadonlyArray<unknown> = EDITOR_ASSIST_ERROR_CODES;
+	return codes.includes(value);
 }
 
 function isAbort(error: unknown) {

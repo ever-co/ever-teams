@@ -37,9 +37,7 @@ interface ChainStore {
 const store = globalThis as ChainStore;
 
 function groupTurns() {
-	if (!store.__everTeamsAiGroupTurns) {
-		store.__everTeamsAiGroupTurns = new Map<string, number>();
-	}
+	store.__everTeamsAiGroupTurns ??= new Map<string, number>();
 	return store.__everTeamsAiGroupTurns;
 }
 
@@ -233,17 +231,14 @@ function causeOf(failure: unknown) {
 	return failure;
 }
 
-/**
- * The streaming twin of `firstAnswer`: free links first under the same budget, then the paid links. Returns
- * whether a link answered; the caller writes its own error chunk when none did.
- */
-export async function streamFirstAnswer(
+type FreeStreamRound = 'answered' | 'aborted' | 'exhausted';
+
+async function streamFreeLinks(
 	freeLinks: StreamLink[],
-	paidLinks: StreamLink[],
 	budget: ChainBudget,
 	callerSignal: AbortSignal,
 	write: (chunk: UIMessageChunk) => void
-): Promise<boolean> {
+): Promise<FreeStreamRound> {
 	const deadline = Date.now() + budget.totalMs;
 	for (const link of availableFreeLinks(freeLinks)) {
 		const remainingMs = deadline - Date.now();
@@ -254,17 +249,26 @@ export async function streamFirstAnswer(
 		try {
 			await tryStreamLink(link, callerSignal, budgetMs, write);
 			clearProviderPause(link.id);
-			return true;
+			return 'answered';
 		} catch (failure) {
 			if (!(failure instanceof StreamAttemptError)) {
 				throw failure;
 			}
 			recordFailure(link.id, causeOf(failure), callerSignal);
 			if (callerSignal.aborted) {
-				return false;
+				return 'aborted';
 			}
 		}
 	}
+	return 'exhausted';
+}
+
+async function streamPaidLinks(
+	paidLinks: StreamLink[],
+	budget: ChainBudget,
+	callerSignal: AbortSignal,
+	write: (chunk: UIMessageChunk) => void
+): Promise<boolean> {
 	for (const link of paidLinks) {
 		try {
 			await tryStreamLink(link, callerSignal, budget.paidAttemptMs, write);
@@ -280,4 +284,25 @@ export async function streamFirstAnswer(
 		}
 	}
 	return false;
+}
+
+/**
+ * The streaming twin of `firstAnswer`: free links first under the same budget, then the paid links. Returns
+ * whether a link answered; the caller writes its own error chunk when none did.
+ */
+export async function streamFirstAnswer(
+	freeLinks: StreamLink[],
+	paidLinks: StreamLink[],
+	budget: ChainBudget,
+	callerSignal: AbortSignal,
+	write: (chunk: UIMessageChunk) => void
+): Promise<boolean> {
+	const freeRound = await streamFreeLinks(freeLinks, budget, callerSignal, write);
+	if (freeRound === 'answered') {
+		return true;
+	}
+	if (freeRound === 'aborted') {
+		return false;
+	}
+	return streamPaidLinks(paidLinks, budget, callerSignal, write);
 }

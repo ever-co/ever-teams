@@ -239,16 +239,16 @@ export function isNoProjectKey(key: string) {
 	return key === NO_PROJECT_KEY;
 }
 
-/** Today's tracked blocks, one lane per member who tracked today, on the hour window that holds them. */
-export function dayTimelineOf(
+type DayPiece = { log: ITimeLog; person: DayPerson; start: Date; end: Date };
+
+function dayPiecesOf(
 	logs: ReadonlyArray<ITimeLog>,
 	day: Date,
 	now: Date,
 	known: ReadonlyMap<string, DayPerson>
-): DayTimeline {
-	const dayStart = startOfDay(day);
+): DayPiece[] {
 	const dayEnd = endOfDay(day);
-	const pieces: { log: ITimeLog; person: DayPerson; start: Date; end: Date }[] = [];
+	const pieces: DayPiece[] = [];
 	for (const log of logs) {
 		const start = startOfLog(log);
 		if (!start) {
@@ -270,6 +270,18 @@ export function dayTimelineOf(
 		const clippedEnd = new Date(clippedTime);
 		pieces.push({ log, person, start, end: clippedEnd });
 	}
+	return pieces;
+}
+
+/** Today's tracked blocks, one lane per member who tracked today, on the hour window that holds them. */
+export function dayTimelineOf(
+	logs: ReadonlyArray<ITimeLog>,
+	day: Date,
+	now: Date,
+	known: ReadonlyMap<string, DayPerson>
+): DayTimeline {
+	const dayStart = startOfDay(day);
+	const pieces = dayPiecesOf(logs, day, now, known);
 	const starts = pieces.map((piece) => piece.start);
 	const ends = pieces.map((piece) => piece.end);
 	const isTodayShown = isSameDay(now, day);

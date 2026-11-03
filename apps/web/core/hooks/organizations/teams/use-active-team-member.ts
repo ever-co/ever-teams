@@ -39,11 +39,10 @@ export function useIsTrackingEnabledFor(userId: string | undefined) {
 		() =>
 			selectAtom(activeTeamState, (activeTeam) => {
 				const members = activeTeam?.members ?? [];
-				const trackingMember = members.find((member) => {
+				return members.some((member) => {
 					const isUser = member.employee?.userId === userId;
-					return isUser && member.isTrackingEnabled;
+					return isUser && Boolean(member.isTrackingEnabled);
 				});
-				return Boolean(trackingMember);
 			}),
 		[userId]
 	);

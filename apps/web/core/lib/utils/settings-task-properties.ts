@@ -435,10 +435,15 @@ export function orderEntriesOf(ids: ReadonlyArray<string>): StatusOrderEntry[] {
 }
 
 /** Kinds whose built-in rows Gauzy refuses to delete (`delete ... where isSystem = false`). */
-const KINDS_WITH_PROTECTED_ROWS: ReadonlyArray<TaskPropertySettingsKind> = ['status', 'priority', 'size', 'issueType'];
+const KINDS_WITH_PROTECTED_ROWS: ReadonlySet<TaskPropertySettingsKind> = new Set([
+	'status',
+	'priority',
+	'size',
+	'issueType'
+]);
 
 export function isDeletionRefused(kind: TaskPropertySettingsKind, item: PropertyListItem): boolean {
-	const kindProtectsRows = KINDS_WITH_PROTECTED_ROWS.includes(kind);
+	const kindProtectsRows = KINDS_WITH_PROTECTED_ROWS.has(kind);
 	return kindProtectsRows && item.isSystem;
 }
 

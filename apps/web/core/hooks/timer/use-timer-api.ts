@@ -450,53 +450,61 @@ export function useTimerApi({
 	// ==================== START TIMER ====================
 
 	const startTimerMutate = startTimerMutation.mutateAsync;
+
+	// Check if the user is tracking time in another tab or device
+	const canStartWithoutTrackingConflict = useCallback(async (): Promise<boolean> => {
+		try {
+			const userData = await refreshUserData();
+			if (userData?.employee.isTrackingTime) {
+				// Cross-check with timer status to detect desync
+				// (employee.isTrackingTime stuck at true while timer is actually stopped)
+				const timerRunning = timerStatusRef.current?.running;
+
+				if (timerRunning) {
+					// Timer is genuinely running — block as expected
+					toast.warning(t('timer.ALREADY_TRACKING_MESSAGE'), { id: ALREADY_TRACKING_TOAST_ID });
+					return false;
+				}
+
+				// Desync detected: isTrackingTime=true but timer not running
+				// Force a stop call to reset the employee flag on the server
+				logErrorInDev(
+					'startTimer',
+					'Desync detected: employee.isTrackingTime=true but timer not running. Auto-healing...'
+				);
+				try {
+					// A TEAMS timer left behind by a closed tab is credited up to its last heartbeat, not now
+					const stoppedStale = await stopStaleTeamsTimer(userData.employee.id);
+					if (!stoppedStale) {
+						await timerService.stopTimer({
+							source: timerStatusRef.current?.lastLog?.source || ETimeLogSource.TEAMS
+						});
+					}
+					// Refresh user data to confirm the flag was reset
+					const refreshed = await refreshUserData();
+					if (refreshed?.employee.isTrackingTime) {
+						// Flag still stuck after stop — cannot auto-heal, block with toast
+						toast.warning(t('timer.ALREADY_TRACKING_MESSAGE'), { id: ALREADY_TRACKING_TOAST_ID });
+						return false;
+					}
+				} catch (healError) {
+					logErrorInDev('[startTimer] Auto-heal stop failed:', healError);
+					// Still allow start attempt — the server start endpoint may handle it
+				}
+			}
+			return true;
+		} catch (error) {
+			const reasonKey = errorReasonKeyOf(error) as DottedLanguageObjectStringPaths;
+			toast.error(t('toasts.timer.START_FAILED'), { id: 'timer-start-failed', description: t(reasonKey) });
+			logErrorInDev('Failed to verify tracking status', error);
+			return false;
+		}
+	}, [refreshUserData, stopStaleTeamsTimer, t, timerStatusRef]);
+
 	const runStartTimer = useCallback(
 		async (explicitTask?: TTask, onRequestLanded?: () => void): Promise<TimerStartOutcome> => {
-			// Check if the user is tracking time in another tab or device
-			try {
-				const userData = await refreshUserData();
-				if (userData?.employee.isTrackingTime) {
-					// Cross-check with timer status to detect desync
-					// (employee.isTrackingTime stuck at true while timer is actually stopped)
-					const timerRunning = timerStatusRef.current?.running;
-
-					if (timerRunning) {
-						// Timer is genuinely running — block as expected
-						toast.warning(t('timer.ALREADY_TRACKING_MESSAGE'), { id: ALREADY_TRACKING_TOAST_ID });
-						return 'blocked';
-					}
-
-					// Desync detected: isTrackingTime=true but timer not running
-					// Force a stop call to reset the employee flag on the server
-					logErrorInDev(
-						'startTimer',
-						'Desync detected: employee.isTrackingTime=true but timer not running. Auto-healing...'
-					);
-					try {
-						// A TEAMS timer left behind by a closed tab is credited up to its last heartbeat, not now
-						const stoppedStale = await stopStaleTeamsTimer(userData.employee.id);
-						if (!stoppedStale) {
-							await timerService.stopTimer({
-								source: timerStatusRef.current?.lastLog?.source || ETimeLogSource.TEAMS
-							});
-						}
-						// Refresh user data to confirm the flag was reset
-						const refreshed = await refreshUserData();
-						if (refreshed?.employee.isTrackingTime) {
-							// Flag still stuck after stop — cannot auto-heal, block with toast
-							toast.warning(t('timer.ALREADY_TRACKING_MESSAGE'), { id: ALREADY_TRACKING_TOAST_ID });
-							return 'blocked';
-						}
-						// Flag reset successfully — continue with start
-					} catch (healError) {
-						logErrorInDev('[startTimer] Auto-heal stop failed:', healError);
-						// Still allow start attempt — the server start endpoint may handle it
-					}
-				}
-			} catch (error) {
-				const reasonKey = errorReasonKeyOf(error) as DottedLanguageObjectStringPaths;
-				toast.error(t('toasts.timer.START_FAILED'), { id: 'timer-start-failed', description: t(reasonKey) });
-				logErrorInDev('Failed to verify tracking status', error);
+			const isClearToStart = await canStartWithoutTrackingConflict();
+			if (!isClearToStart) {
 				return 'blocked';
 			}
 
@@ -636,8 +644,7 @@ export function useTimerApi({
 			user?.employee?.id,
 			updateOrganizationTeamEmployeeActiveTask,
 			t,
-			refreshUserData,
-			stopStaleTeamsTimer,
+			canStartWithoutTrackingConflict,
 			queryClient,
 			activeTeamId,
 			isCurrentScope,

@@ -50,7 +50,7 @@ export function encodeRoomName(roomName: string): string {
 	const bytes = new TextEncoder().encode(roomName);
 	let binary = '';
 	for (const byte of bytes) {
-		binary += String.fromCharCode(byte);
+		binary += String.fromCodePoint(byte);
 	}
 
 	return btoa(binary);

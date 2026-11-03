@@ -8,7 +8,7 @@ import { ASSISTANT_COLUMN } from '../assistant-helpers';
 import { ASSISTANT_EXAMPLES } from '../assistant-examples';
 import { PromptSuggestion } from '../prompt-kit/prompt-suggestion';
 
-function MissingKeyNotice({ onOpenConfig }: { onOpenConfig: () => void }) {
+function MissingKeyNotice({ onOpenConfig }: Readonly<{ onOpenConfig: () => void }>) {
 	const t = useTranslations();
 	return (
 		<div className="flex flex-col gap-3 rounded-xl bg-card p-3.5 text-left shadow-sm shadow-black/6.5 hairline-ring ring-border sm:flex-row sm:items-center">
@@ -37,7 +37,7 @@ type AssistantWelcomeProps = {
 	onOpenConfig: () => void;
 };
 
-export function AssistantWelcome({ isConfigured, onOpenConfig }: AssistantWelcomeProps) {
+export function AssistantWelcome({ isConfigured, onOpenConfig }: Readonly<AssistantWelcomeProps>) {
 	const t = useTranslations();
 	return (
 		<div className="flex flex-1 flex-col justify-end px-4 pt-10 pb-6">
@@ -58,7 +58,7 @@ type AssistantExamplesProps = {
 	onPickExample: (prompt: string) => void;
 };
 
-export function AssistantExamples({ onPickExample }: AssistantExamplesProps) {
+export function AssistantExamples({ onPickExample }: Readonly<AssistantExamplesProps>) {
 	const t = useTranslations();
 	return (
 		<section aria-labelledby="assistant-examples-label" className="flex-1 px-4 pt-5 pb-10">

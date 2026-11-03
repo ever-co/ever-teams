@@ -70,7 +70,7 @@ export function emailChangeProblemOf(
 export function avatarUrlOf(user: TUser | null | undefined): string | undefined {
 	const image = user?.image;
 	const candidates = [image?.thumbUrl, image?.fullUrl, user?.imageUrl];
-	const url = candidates.find((candidate) => Boolean(candidate));
+	const url = candidates.find(Boolean);
 	return url ?? undefined;
 }
 

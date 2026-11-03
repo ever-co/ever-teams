@@ -3,6 +3,7 @@ import type { TOrganizationProject } from '@/core/types/schemas';
 import type { TTaskStatus } from '@/core/types/schemas/task/task-status.schema';
 import type { TTask } from '@/core/types/schemas/task/task.schema';
 import { projectBelongsToTeam, projectHasNoTeams } from '@/core/lib/helpers/type-guards';
+import { replaceHtmlTags } from './html-tags';
 
 export type ProjectScope = 'active' | 'archived';
 
@@ -72,8 +73,10 @@ const STARTED_STATUS_NAMES = new Set([
 	'blocked'
 ]);
 
+type StoredDate = string | Date | null | undefined;
+
 /** Gauzy stores "no date" as the epoch, so a 1970 date reads as unset. */
-export function realDateOf(date: string | Date | null | undefined): Date | null {
+export function realDateOf(date: StoredDate): Date | null {
 	if (!date) {
 		return null;
 	}
@@ -311,7 +314,7 @@ function compareText(a: string | null | undefined, b: string | null | undefined)
 	return left.localeCompare(right, undefined, { sensitivity: 'base' });
 }
 
-function timeOf(date: string | Date | null | undefined) {
+function timeOf(date: StoredDate) {
 	const real = realDateOf(date);
 	if (!real) {
 		return null;
@@ -320,7 +323,7 @@ function timeOf(date: string | Date | null | undefined) {
 }
 
 /** Unset dates sort last whatever the direction, so the projects that carry the value lead. */
-function compareDates(a: string | Date | null | undefined, b: string | Date | null | undefined, desc: boolean) {
+function compareDates(a: StoredDate, b: StoredDate, desc: boolean) {
 	const left = timeOf(a);
 	const right = timeOf(b);
 	if (left === null && right === null) {
@@ -489,7 +492,7 @@ export function plainTextOf(html: string | null | undefined) {
 	if (!html) {
 		return '';
 	}
-	const withoutTags = html.replace(/<[^>]*>/g, ' ');
+	const withoutTags = replaceHtmlTags(html, ' ');
 	const decoded = withoutTags
 		.replace(/&nbsp;/g, ' ')
 		.replace(/&amp;/g, '&')

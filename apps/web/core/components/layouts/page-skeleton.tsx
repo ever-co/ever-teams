@@ -18,13 +18,9 @@ export function PageUpdatingBar({ isUpdating, label }: Readonly<{ isUpdating: bo
 		return null;
 	}
 	return (
-		<span
-			role="status"
-			aria-label={label}
-			className="pointer-events-none absolute inset-x-0 bottom-0 h-0.5 overflow-hidden"
-		>
+		<output aria-label={label} className="pointer-events-none absolute inset-x-0 bottom-0 h-0.5 overflow-hidden">
 			<span className="block h-full w-1/3 animate-[shimmer_1.1s_ease-in-out_infinite] rounded-full bg-primary/70" />
-		</span>
+		</output>
 	);
 }
 

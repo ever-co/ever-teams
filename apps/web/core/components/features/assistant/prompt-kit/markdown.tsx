@@ -116,7 +116,7 @@ const MemoizedMarkdownBlock = memo(
 
 MemoizedMarkdownBlock.displayName = 'MemoizedMarkdownBlock';
 
-function MarkdownComponent({ children, id, className, components = INITIAL_COMPONENTS }: MarkdownProps) {
+function MarkdownComponent({ children, id, className, components = INITIAL_COMPONENTS }: Readonly<MarkdownProps>) {
 	const generatedId = useId();
 	const blockId = id ?? generatedId;
 	const blocks = useMemo(() => parseMarkdownIntoBlocks(children), [children]);

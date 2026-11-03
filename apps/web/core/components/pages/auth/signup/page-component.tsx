@@ -69,12 +69,9 @@ function AuthSignup() {
 		>
 			<div className="w-full overflow-x-hidden overflow-y-clip p-1.5">
 				{verifyEmailSentTo && (
-					<p
-						role="status"
-						className="mb-4 rounded-lg bg-primary/5 p-3 text-sm text-balance hairline-ring ring-primary/15"
-					>
+					<output className="mb-4 block rounded-lg bg-primary/5 p-3 text-sm text-balance hairline-ring ring-primary/15">
 						{t('pages.auth.SIGNUP_VERIFY_EMAIL', { email: verifyEmailSentTo })}
-					</p>
+					</output>
 				)}
 				<form onSubmit={handleSubmit} autoComplete="off" className="w-full">
 					<div

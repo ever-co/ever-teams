@@ -76,7 +76,13 @@ const INPUT_CLASS = 'text-base md:text-sm';
 const PASSWORD_TOGGLE_CLASS =
 	'absolute right-2 top-1/2 flex size-6 -translate-y-1/2 cursor-pointer items-center justify-center rounded-sm text-muted-foreground outline-none transition-colors hover:text-foreground focus-visible:ring-[3px] focus-visible:ring-ring/50';
 
-function LoginFormFields({ form, showPassword, togglePasswordVisibility, t, required = false }: LoginFormFieldsProps) {
+function LoginFormFields({
+	form,
+	showPassword,
+	togglePasswordVisibility,
+	t,
+	required = false
+}: Readonly<LoginFormFieldsProps>) {
 	return (
 		<div className="space-y-4">
 			<div className="space-y-2.5">

@@ -11,12 +11,11 @@ import { cn } from '@/core/lib/helpers';
 import {
 	invitationDateOf as dateOf,
 	invitationStateOf as stateOf,
-	isOpenInvitation,
 	type InvitationState,
 	type PendingInvitation
 } from '@/core/lib/utils/invitation-state';
 
-export { isOpenInvitation, type PendingInvitation };
+export { isOpenInvitation, type PendingInvitation } from '@/core/lib/utils/invitation-state';
 
 const SHOWN_INVITATIONS = 4;
 const REVOKE_ARMED_MS = 4000;

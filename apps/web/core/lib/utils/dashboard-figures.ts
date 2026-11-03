@@ -54,8 +54,9 @@ export function formatPercent(value: number, locale?: string): string {
 	return new Intl.NumberFormat(locale, { style: 'percent', maximumFractionDigits: 0 }).format(rounded / 100);
 }
 
+const LARGEST_HOUR_STEP = 168;
 /** Hour steps that keep a time axis to three or four lines whatever the longest day. */
-const HOUR_STEPS = [1, 2, 4, 6, 8, 12, 24, 48, 96, 168];
+const HOUR_STEPS = [1, 2, 4, 6, 8, 12, 24, 48, 96, LARGEST_HOUR_STEP];
 const MAX_TICK_COUNT = 4;
 
 export interface TimeAxis {
@@ -66,13 +67,13 @@ export interface TimeAxis {
 export function timeAxisOf(maxSeconds: number): TimeAxis {
 	const maxHours = Math.max(maxSeconds, 0) / SECONDS_PER_HOUR;
 	const fittingStep = HOUR_STEPS.find((step) => maxHours <= step * MAX_TICK_COUNT);
-	const step = fittingStep ?? HOUR_STEPS[HOUR_STEPS.length - 1];
+	const step = fittingStep ?? LARGEST_HOUR_STEP;
 	const tickCount = Math.max(1, Math.ceil(maxHours / step));
 	const ticks: number[] = [];
 	for (let index = 0; index <= tickCount; index += 1) {
 		ticks.push(index * step * SECONDS_PER_HOUR);
 	}
-	const max = ticks[ticks.length - 1];
+	const max = ticks.at(-1) ?? 0;
 	return { max, ticks };
 }
 
@@ -92,7 +93,8 @@ export function valueAxisOf(maxValue: number): TimeAxis {
 	for (let index = 0; index <= tickCount; index += 1) {
 		ticks.push(index * step);
 	}
-	return { max: ticks[ticks.length - 1], ticks };
+	const max = ticks.at(-1) ?? 0;
+	return { max, ticks };
 }
 
 export interface ShareRow<T> {

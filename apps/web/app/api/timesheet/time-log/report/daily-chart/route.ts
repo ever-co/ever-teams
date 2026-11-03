@@ -54,8 +54,8 @@ export async function GET(req: Request) {
 	if (!user) return $res('Unauthorized');
 
 	try {
-		const activityStart = parseInt(activityLevelStart || '0');
-		const activityEnd = parseInt(activityLevelEnd || '100');
+		const activityStart = Number.parseInt(activityLevelStart || '0');
+		const activityEnd = Number.parseInt(activityLevelEnd || '100');
 		const query = new URLSearchParams({
 			organizationId,
 			tenantId,

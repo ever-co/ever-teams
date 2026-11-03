@@ -13,7 +13,7 @@ export function canRecordInThisBrowser() {
 	if (typeof window === 'undefined') {
 		return false;
 	}
-	const hasRecorder = typeof window.MediaRecorder !== 'undefined';
+	const hasRecorder = window.MediaRecorder !== undefined;
 	const hasMicrophoneApi = Boolean(navigator.mediaDevices?.getUserMedia);
 	return hasRecorder && hasMicrophoneApi;
 }

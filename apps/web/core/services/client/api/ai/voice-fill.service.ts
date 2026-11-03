@@ -12,7 +12,8 @@ export type TVoiceFillFailure = TVoiceFillErrorCode | 'unauthorized' | 'service_
 export type TVoiceFillResult = { ok: true; fields: TVoiceFillFields } | { ok: false; reason: TVoiceFillFailure };
 
 function isKnownErrorCode(value: unknown): value is TVoiceFillErrorCode {
-	return VOICE_FILL_ERROR_CODES.some((code) => code === value);
+	const codes: ReadonlyArray<unknown> = VOICE_FILL_ERROR_CODES;
+	return codes.includes(value);
 }
 
 function isAbort(error: unknown) {

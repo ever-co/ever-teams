@@ -193,28 +193,26 @@ export function Timer({ className, showTimerButton = true, compact = false }: IC
 				</div>
 			</div>
 			{showTimerButton && (
-				<>
-					<div className="flex h-fit shrink-0 items-center justify-center">
-						<Tooltip
-							label={!canRunTimer ? t('timer.START_TIMER') : osSpecificTimerTooltipLabel}
-							placement="top-start"
-							// If timer is running at some other source and user may or may not have selected the task
-							// enabled={
-							// 	!canRunTimer && timerStatus?.lastLog?.source !== TimerSource.TEAMS
-							// }
-						>
-							<TimerButton
-								onClick={startStopTimerHandler}
-								running={displayRunning}
-								disabled={!hydrated || actionDisabled}
-								className={timerButtonClassName}
-								emphasized
-							/>
-						</Tooltip>
+				<div className="flex h-fit shrink-0 items-center justify-center">
+					<Tooltip
+						label={!canRunTimer ? t('timer.START_TIMER') : osSpecificTimerTooltipLabel}
+						placement="top-start"
+						// If timer is running at some other source and user may or may not have selected the task
+						// enabled={
+						// 	!canRunTimer && timerStatus?.lastLog?.source !== TimerSource.TEAMS
+						// }
+					>
+						<TimerButton
+							onClick={startStopTimerHandler}
+							running={displayRunning}
+							disabled={!hydrated || actionDisabled}
+							className={timerButtonClassName}
+							emphasized
+						/>
+					</Tooltip>
 
-						<TimerPlanDialogs modals={modals} />
-					</div>
-				</>
+					<TimerPlanDialogs modals={modals} />
+				</div>
 			)}
 		</div>
 	);

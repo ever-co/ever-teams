@@ -664,7 +664,7 @@ export interface LimitMonthSegment {
 export function limitMonthSegmentsOf(columns: ReadonlyArray<LimitColumn>): LimitMonthSegment[] {
 	const segments: LimitMonthSegment[] = [];
 	columns.forEach((column, index) => {
-		const last = segments[segments.length - 1];
+		const last = segments.at(-1);
 		const monthKey = column.key.slice(0, 7);
 		const isSameMonth = last?.key === monthKey;
 		if (last && isSameMonth) {

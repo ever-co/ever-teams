@@ -7,7 +7,8 @@ export type TDictationFailure = TDictationErrorCode | 'unauthorized' | 'service_
 export type TDictationResult = { ok: true; text: string } | { ok: false; reason: TDictationFailure };
 
 function isKnownErrorCode(value: unknown): value is TDictationErrorCode {
-	return DICTATION_ERROR_CODES.some((code) => code === value);
+	const codes: ReadonlyArray<unknown> = DICTATION_ERROR_CODES;
+	return codes.includes(value);
 }
 
 function isAbort(error: unknown) {

@@ -123,7 +123,7 @@ export function useTeamDashboard({ routeTeamId }: Readonly<{ routeTeamId?: strin
 	const [filters, setFilters] = useState<TeamFilters>(NO_FILTERS);
 	const [view, setView] = useState<TeamTableView>('member');
 	const [figure, setFigure] = useState<TeamFigureKey>('tracked');
-	const [pickedGranularity, setGranularity] = useState<ChartGranularity>('day');
+	const [pickedGranularity, setPickedGranularity] = useState<ChartGranularity>('day');
 	const [sorts, setSorts] = useState(DEFAULT_TEAM_SORTS);
 
 	const canManage = Boolean(isManage);
@@ -349,7 +349,7 @@ export function useTeamDashboard({ routeTeamId }: Readonly<{ routeTeamId?: strin
 		setFigure,
 		granularity,
 		granularityOptions,
-		setGranularity,
+		setGranularity: setPickedGranularity,
 		filters,
 		setFilter,
 		removeFilterValue,

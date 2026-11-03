@@ -182,8 +182,8 @@ export function groupNotificationEntriesByDay(
 	const groups: NotificationGroup[] = [];
 	for (const entry of entries) {
 		const group = dayGroupOf(entry.createdAt, now);
-		const last = groups[groups.length - 1];
-		const continuesLastGroup = last !== undefined && last.group === group;
+		const last = groups.at(-1);
+		const continuesLastGroup = last?.group === group;
 		if (continuesLastGroup) {
 			last.entries.push(entry);
 			continue;

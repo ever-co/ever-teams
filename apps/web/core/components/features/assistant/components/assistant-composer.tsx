@@ -38,7 +38,7 @@ function ModelButton({
 	hasUserConfig,
 	model,
 	onOpenConfig
-}: Pick<AssistantComposerProps, 'isConfigured' | 'hasUserConfig' | 'model' | 'onOpenConfig'>) {
+}: Readonly<Pick<AssistantComposerProps, 'isConfigured' | 'hasUserConfig' | 'model' | 'onOpenConfig'>>) {
 	const t = useTranslations();
 	const modelLabel = modelLabelOf(hasUserConfig, model, t('chatView.DEFAULT_MODEL'));
 
@@ -79,12 +79,12 @@ function SubmitButton({
 	canSend,
 	onSubmit,
 	onStop
-}: {
+}: Readonly<{
 	isBusy: boolean;
 	canSend: boolean;
 	onSubmit: () => void;
 	onStop: () => void;
-}) {
+}>) {
 	const t = useTranslations();
 
 	if (isBusy) {
@@ -131,7 +131,7 @@ export function AssistantComposer({
 	model,
 	textareaRef,
 	className
-}: AssistantComposerProps) {
+}: Readonly<AssistantComposerProps>) {
 	const t = useTranslations();
 	const trimmedValue = value.trim();
 	const hasText = trimmedValue.length > 0;

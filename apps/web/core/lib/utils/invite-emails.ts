@@ -39,7 +39,8 @@ export function splitEmailInput(text: string): string[] {
 	return addresses;
 }
 
-const EMBEDDED_ADDRESS = /[^\s,;<>"'()]+@[^\s,;<>"'()]+/g;
+// Matches from the start of a token only, so a long token is scanned once instead of once per character.
+const EMBEDDED_ADDRESS = /(?<![^\s,;<>"'()])[^\s,;<>"'()][^\s,;<>"'()@]*@[^\s,;<>"'()]+/g;
 
 /**
  * The addresses inside pasted text, so a list copied from a mail client ("Ana Silva <ana@acme.com>, ...") gives

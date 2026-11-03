@@ -31,7 +31,7 @@ function textContent(children: ReactNode) {
 	return '';
 }
 
-function HighlightedText({ content, highlight }: { content: string; highlight: string }) {
+function HighlightedText({ content, highlight }: Readonly<{ content: string; highlight: string }>) {
 	const contentLower = content.toLowerCase();
 	const highlightLower = highlight.toLowerCase();
 	const index = contentLower.indexOf(highlightLower);

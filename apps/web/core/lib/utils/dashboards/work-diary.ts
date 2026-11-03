@@ -125,9 +125,7 @@ export function diarySlotOf(slot: TTimeSlotsData): DiarySlot | null {
 		return null;
 	}
 	let end = validDateOf(slot.stoppedAt);
-	if (!end) {
-		end = addMinutes(start, SLOT_MINUTES);
-	}
+	end ??= addMinutes(start, SLOT_MINUTES);
 	const reported = Number(slot.duration) || 0;
 	return {
 		id: slot.id,

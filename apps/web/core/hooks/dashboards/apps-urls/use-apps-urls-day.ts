@@ -16,7 +16,7 @@ function shownDayKeyOf(dayKeys: ReadonlyArray<string>, pickedKey: string | null)
 	if (isAvailable) {
 		return pickedKey;
 	}
-	return dayKeys[dayKeys.length - 1] ?? null;
+	return dayKeys.at(-1) ?? null;
 }
 
 /**

@@ -26,7 +26,7 @@ function boundedWaitOf(teamsSettled: boolean) {
 }
 
 /** Restricts report content to team managers and tenant-wide administrators. */
-export default function MustBeAManager({ children, redirectTo = '/', useRedirect = true, fallback }: Props) {
+export default function MustBeAManager({ children, redirectTo = '/', useRedirect = true, fallback }: Readonly<Props>) {
 	// All hooks must be called before any conditional returns
 	const { user, userLoading: isUserLoading, isTeamManager } = useAuthenticateUser();
 	const { getOrganizationTeamsLoading: isTeamsLoading, teams, activeTeam } = useOrganizationTeamsQuery();

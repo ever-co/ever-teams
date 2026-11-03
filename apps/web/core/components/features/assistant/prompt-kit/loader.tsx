@@ -38,14 +38,14 @@ const DOT_ROW_HEIGHTS: Record<LoaderSize, string> = {
 
 const DOT_DELAYS = ['0ms', '150ms', '300ms'];
 
-function LoaderLabel({ label }: { label?: string }) {
+function LoaderLabel({ label }: Readonly<{ label?: string }>) {
 	if (!label) {
 		return null;
 	}
 	return <span className="sr-only">{label}</span>;
 }
 
-export function CircularLoader({ className, size = 'md', label }: VariantLoaderProps) {
+export function CircularLoader({ className, size = 'md', label }: Readonly<VariantLoaderProps>) {
 	return (
 		<div
 			className={cn(
@@ -59,7 +59,7 @@ export function CircularLoader({ className, size = 'md', label }: VariantLoaderP
 	);
 }
 
-export function TypingLoader({ className, size = 'md', label }: VariantLoaderProps) {
+export function TypingLoader({ className, size = 'md', label }: Readonly<VariantLoaderProps>) {
 	return (
 		<div className={cn('flex items-center gap-1', DOT_ROW_HEIGHTS[size], className)}>
 			{DOT_DELAYS.map((delay) => (
@@ -75,7 +75,7 @@ export function TypingLoader({ className, size = 'md', label }: VariantLoaderPro
 	);
 }
 
-function Loader({ variant = 'circular', size = 'md', label, className }: LoaderProps) {
+function Loader({ variant = 'circular', size = 'md', label, className }: Readonly<LoaderProps>) {
 	if (variant === 'typing') {
 		return <TypingLoader size={size} label={label} className={className} />;
 	}

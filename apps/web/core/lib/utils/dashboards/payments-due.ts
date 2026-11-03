@@ -833,7 +833,7 @@ export function owedSegmentsOf(amount: number, currency: string | null, locale: 
 	const segments: AmountSegment[] = [];
 	for (const part of parts) {
 		const isMinor = isMinorPart(part);
-		const lastSegment = segments[segments.length - 1];
+		const lastSegment = segments.at(-1);
 		const continuesLast = lastSegment?.isMinor === isMinor;
 		if (lastSegment !== undefined && continuesLast) {
 			lastSegment.text += part.value;

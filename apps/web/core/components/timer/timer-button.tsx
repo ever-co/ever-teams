@@ -30,7 +30,7 @@ function timerButtonGlow(running: boolean | undefined) {
 	return 'shadow-[0_6px_16px_-6px_hsl(var(--primary)/0.55)]';
 }
 
-function TimerButtonIcon({ running }: { running: boolean | undefined }) {
+function TimerButtonIcon({ running }: Readonly<{ running: boolean | undefined }>) {
 	if (running) {
 		return <TimerStopIcon className="size-1/2" />;
 	}

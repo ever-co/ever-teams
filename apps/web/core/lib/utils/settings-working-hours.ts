@@ -7,9 +7,9 @@ export const WEEKDAYS = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday',
 
 export type Weekday = (typeof WEEKDAYS)[number];
 
-const WORKDAYS: readonly Weekday[] = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday'];
+const WORKDAYS: ReadonlySet<Weekday> = new Set(['monday', 'tuesday', 'wednesday', 'thursday', 'friday']);
 
-const COPIED_WEEKDAYS: readonly Weekday[] = ['tuesday', 'wednesday', 'thursday', 'friday'];
+const COPIED_WEEKDAYS: ReadonlySet<Weekday> = new Set(['tuesday', 'wednesday', 'thursday', 'friday']);
 
 export interface WorkingSlot {
 	id: string;
@@ -73,7 +73,7 @@ function slotOf(start: string, end: string): WorkingSlot {
 
 export function defaultWorkingWeek(): WorkingWeek {
 	return WEEKDAYS.map((day) => {
-		const isWorking = WORKDAYS.includes(day);
+		const isWorking = WORKDAYS.has(day);
 		if (!isWorking) {
 			return { day, isWorking, slots: [] };
 		}
@@ -165,7 +165,7 @@ export function daySeconds(day: WorkingDay): number {
 }
 
 function nextSlotOf(day: WorkingDay): WorkingSlot {
-	const lastSlot = day.slots[day.slots.length - 1];
+	const lastSlot = day.slots.at(-1);
 	const lastBounds = slotBounds(lastSlot);
 	if (!lastBounds) {
 		return slotOf(DEFAULT_START, DEFAULT_END);
@@ -240,7 +240,7 @@ export function withMondayCopiedToWeekdays(week: WorkingWeek): WorkingWeek {
 		return week;
 	}
 	return week.map((day) => {
-		const isCopied = COPIED_WEEKDAYS.includes(day.day);
+		const isCopied = COPIED_WEEKDAYS.has(day.day);
 		if (!isCopied) {
 			return day;
 		}
@@ -250,7 +250,8 @@ export function withMondayCopiedToWeekdays(week: WorkingWeek): WorkingWeek {
 }
 
 function isWeekday(value: unknown): value is Weekday {
-	return WEEKDAYS.some((day) => day === value);
+	const weekdays: ReadonlyArray<unknown> = WEEKDAYS;
+	return weekdays.includes(value);
 }
 
 function isStoredSlot(value: unknown): value is WorkingSlot {

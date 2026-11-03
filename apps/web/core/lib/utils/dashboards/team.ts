@@ -46,11 +46,15 @@ export const DEFAULT_TEAM_SORTS: Record<TeamTableView, TeamSort> = {
 
 const REGROUPABLE_PERIOD_DAYS = 14;
 
-const ORGANIZATION_WIDE_ROLES: ReadonlyArray<string> = [ERoleName.SUPER_ADMIN, ERoleName.ADMIN, ERoleName.MANAGER];
+const ORGANIZATION_WIDE_ROLES: ReadonlySet<string> = new Set([
+	ERoleName.SUPER_ADMIN,
+	ERoleName.ADMIN,
+	ERoleName.MANAGER
+]);
 
 export function isOrganizationWideRole(roleName: string | null | undefined) {
 	const normalizedName = roleName?.toUpperCase() ?? '';
-	return ORGANIZATION_WIDE_ROLES.includes(normalizedName);
+	return ORGANIZATION_WIDE_ROLES.has(normalizedName);
 }
 
 export interface TeamPerson {
@@ -581,7 +585,7 @@ export function countAxisOf(maxValue: number): TimeAxis {
 	for (let index = 0; index <= tickCount; index += 1) {
 		ticks.push(index * step);
 	}
-	const max = ticks[ticks.length - 1];
+	const max = ticks.at(-1) ?? 0;
 	return { max, ticks };
 }
 
@@ -713,7 +717,7 @@ export function projectSeriesOf(rows: ReadonlyArray<DailyReportRow>): ProjectSer
 	}));
 }
 
-function leadingSeriesKeysOf(series: ReadonlyArray<ProjectSeries>) {
+function leadingSeriesKeysOf(series: ReadonlyArray<Pick<ProjectSeries | MemberSeries, 'key' | 'isOther'>>) {
 	const keys = new Set<string>();
 	for (const entry of series) {
 		if (entry.isOther) {
@@ -1000,14 +1004,14 @@ export function timesheetPathOf(userId: string, name: string) {
 	return `/reports/timesheet/${userId}?name=${encodedName}`;
 }
 
-const TIMESHEET_ADMIN_ROLES: ReadonlyArray<string> = [ERoleName.ADMIN, ERoleName.SUPER_ADMIN];
+const TIMESHEET_ADMIN_ROLES: ReadonlySet<string> = new Set([ERoleName.ADMIN, ERoleName.SUPER_ADMIN]);
 
 /** The roles the reports layout lets through besides a manager of the active team (`MustBeAManager`). */
 export function isTenantAdminRole(roleName: string | null | undefined) {
 	if (!roleName) {
 		return false;
 	}
-	return TIMESHEET_ADMIN_ROLES.includes(roleName);
+	return TIMESHEET_ADMIN_ROLES.has(roleName);
 }
 
 export interface ScopeMemberCountInput {
@@ -1124,17 +1128,6 @@ export function memberSeriesOf(rows: ReadonlyArray<DailyReportRow>): MemberSerie
 	return shareRows.map(memberSeriesOfShareRow);
 }
 
-function leadingMemberKeysOf(series: ReadonlyArray<MemberSeries>) {
-	const keys = new Set<string>();
-	for (const entry of series) {
-		if (entry.isOther) {
-			continue;
-		}
-		keys.add(entry.key);
-	}
-	return keys;
-}
-
 function memberSeriesKeyOfRow(row: DailyReportRow, leadingKeys: ReadonlySet<string>) {
 	if (leadingKeys.has(row.employeeId)) {
 		return row.employeeId;
@@ -1148,7 +1141,7 @@ export function memberColumnStacksOf(
 	granularity: ChartGranularity,
 	series: ReadonlyArray<MemberSeries>
 ): ColumnStack[] {
-	const leadingKeys = leadingMemberKeysOf(series);
+	const leadingKeys = leadingSeriesKeysOf(series);
 	return stacksBy(rows, buckets, granularity, (row) => memberSeriesKeyOfRow(row, leadingKeys));
 }
 

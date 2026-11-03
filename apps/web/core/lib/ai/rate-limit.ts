@@ -20,9 +20,7 @@ const store = globalThis as RateLimitStore;
 
 /** Kept in process memory, like the provider pauses: each instance counts its own calls, no database write. */
 function callsByKey() {
-	if (!store.__everTeamsAiCalls) {
-		store.__everTeamsAiCalls = new Map<string, number[]>();
-	}
+	store.__everTeamsAiCalls ??= new Map<string, number[]>();
 	return store.__everTeamsAiCalls;
 }
 

@@ -11,8 +11,7 @@ import {
 } from '@/core/components/common/dropdown-menu';
 
 import { useMemo } from 'react';
-import { AddUserIcon, ProjectIcon, TaskIcon, TeamIcon } from '../../../icons';
-import { Plus } from '../../../icons';
+import { AddUserIcon, Plus, ProjectIcon, TaskIcon, TeamIcon } from '../../../icons';
 import { useAuthenticateUser, useModal } from '@/core/hooks';
 import { useCanInviteToActiveTeam } from '@/core/hooks/invitations/use-can-invite-to-active-team';
 import { useTranslations } from 'next-intl';

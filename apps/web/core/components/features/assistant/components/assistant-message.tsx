@@ -11,7 +11,7 @@ import { Message, MessageAction, MessageActions, MessageContent } from '../promp
 
 const COPIED_FEEDBACK_MS = 1500;
 
-function CopyMessageButton({ text }: { text: string }) {
+function CopyMessageButton({ text }: Readonly<{ text: string }>) {
 	const t = useTranslations();
 	const [copied, setCopied] = useState(false);
 
@@ -55,7 +55,7 @@ function CopyMessageButton({ text }: { text: string }) {
 	);
 }
 
-function UserMessage({ content, authorName }: { content: string; authorName: string }) {
+function UserMessage({ content, authorName }: Readonly<{ content: string; authorName: string }>) {
 	return (
 		<Message className="flex-col gap-1 rounded-xl bg-card px-3.5 py-2.5 shadow-sm shadow-black/6.5 hairline-ring ring-border">
 			<span className="text-xs font-medium text-muted-foreground">{authorName}</span>
@@ -69,12 +69,12 @@ function AnswerMessage({
 	content,
 	authorName,
 	isStreaming
-}: {
+}: Readonly<{
 	id: string;
 	content: string;
 	authorName: string;
 	isStreaming: boolean;
-}) {
+}>) {
 	const hasContent = content.length > 0;
 	const canCopy = hasContent && !isStreaming;
 	const isWaitingForFirstToken = !hasContent && isStreaming;
