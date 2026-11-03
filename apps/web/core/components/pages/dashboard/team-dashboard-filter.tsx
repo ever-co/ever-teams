@@ -2,7 +2,7 @@ import { Popover, PopoverContent, PopoverTrigger } from '@/core/components/commo
 import React from 'react';
 import { useTranslations } from 'next-intl';
 import { Button } from '@/core/components/duplicated-components/_button';
-import { SettingFilterIcon } from '@/assets/svg';
+import { Filter } from '@/core/components/icons';
 
 import { useOrganizationAndTeamManagers } from '@/core/hooks/organizations/teams/use-organization-teams-managers';
 import { useTimelogFilterOptions } from '@/core/hooks';
@@ -43,36 +43,33 @@ export const TeamDashboardFilter = React.memo(function TeamDashboardFilter({
 		<div>
 			<Popover modal open={isOpen} onOpenChange={setIsOpen}>
 				<PopoverTrigger asChild>
-					<Button
-						variant="outline"
-						className="flex items-center justify-center  h-[2.2rem] rounded-lg bg-white dark:bg-dark--theme-light border dark:border-gray-700 hover:bg-white p-3 gap-2"
-					>
-						<SettingFilterIcon className="text-gray-700 dark:text-white w-3.5" strokeWidth="1.8" />
-						<span className="text-gray-700 dark:text-white">{t('common.FILTER')}</span>
+					<Button variant="outline" size="default">
+						<Filter className="text-muted-foreground" />
+						<span>{t('common.FILTER')}</span>
 						{totalFilteredItems > 0 && (
 							<span
 								role="status"
 								aria-label={`${totalFilteredItems} items filtered`}
-								className="rounded-full bg-primary dark:bg-primary-light h-7 w-7 flex items-center justify-center text-white text-center text-[12px]"
+								className="inline-flex h-5 min-w-5 items-center justify-center rounded-full bg-primary/10 px-1.5 text-[11px] font-medium tabular-nums text-primary-ink"
 							>
 								{totalFilteredItems > 100 ? '100+' : totalFilteredItems}
 							</span>
 						)}
 					</Button>
 				</PopoverTrigger>
-				<PopoverContent className="w-96 dark:bg-dark--theme-light">
+				<PopoverContent className="w-96">
 					<div className="flex flex-col w-full">
-						<div className="flex gap-2 mb-3 text-xl font-bold">
-							<SettingFilterIcon className="w-4 text-gray-700 dark:text-white" strokeWidth="1.8" />
-							<span className="text-gray-700 dark:text-white">{t('common.FILTER')}</span>
+						<div className="flex items-center gap-2 mb-3 text-sm font-semibold">
+							<Filter className="size-4 text-muted-foreground" />
+							<span>{t('common.FILTER')}</span>
 						</div>
 						<div className="grid gap-5">
 							<div className="">
-								<label className="flex justify-between mb-1 text-sm text-gray-600">
+								<label className="flex items-center justify-between mb-1.5 text-xs font-medium text-muted-foreground">
 									<div className="flex gap-2 items-center">
-										<span className="text-[12px]">{t('manualTime.TEAM')}</span>
+										<span>{t('manualTime.TEAM')}</span>
 										{allteamsState.length > 0 && (
-											<span className="text-[10px] px-1.5 py-0.5 rounded-full bg-primary/10 text-primary dark:text-primary-light">
+											<span className="text-[11px] px-1.5 py-0.5 rounded-full bg-primary/10 tabular-nums text-primary-ink">
 												{allteamsState.length}
 											</span>
 										)}
@@ -80,7 +77,7 @@ export const TeamDashboardFilter = React.memo(function TeamDashboardFilter({
 									{allteamsState.length > 0 && (
 										<button
 											onClick={() => setAllTeamsState([])}
-											className="text-primary dark:text-primary-light hover:opacity-80 cursor-pointer text-[12px]"
+											className="rounded-sm text-xs text-primary-ink underline-offset-4 hover:underline cursor-pointer"
 										>
 											{t('common.CLEAR')}
 										</button>
@@ -92,18 +89,17 @@ export const TeamDashboardFilter = React.memo(function TeamDashboardFilter({
 									itemId={(item) => item.id}
 									onValueChange={(selectedItems) => setAllTeamsState(selectedItems as any)}
 									multiSelect
-									triggerClassName="dark:border-gray-700"
 									value={allteamsState as any}
 								/>
 							</div>
 
 							{isManage && (
 								<div className="">
-									<label className="flex justify-between mb-1 text-sm text-gray-600">
+									<label className="flex items-center justify-between mb-1.5 text-xs font-medium text-muted-foreground">
 										<div className="flex gap-2 items-center">
-											<span className="text-[12px]">{t('manualTime.EMPLOYEE')}</span>
+											<span>{t('manualTime.EMPLOYEE')}</span>
 											{alluserState.length > 0 && (
-												<span className="text-[10px] px-1.5 py-0.5 rounded-full bg-primary/10 text-primary dark:text-primary-light">
+												<span className="text-[11px] px-1.5 py-0.5 rounded-full bg-primary/10 tabular-nums text-primary-ink">
 													{alluserState.length}
 												</span>
 											)}
@@ -111,7 +107,7 @@ export const TeamDashboardFilter = React.memo(function TeamDashboardFilter({
 										{alluserState.length > 0 && (
 											<button
 												onClick={() => setAllUserState([])}
-												className="text-primary dark:text-primary-light hover:opacity-80 cursor-pointer text-[12px]"
+												className="rounded-sm text-xs text-primary-ink underline-offset-4 hover:underline cursor-pointer"
 											>
 												{t('common.CLEAR')}
 											</button>
@@ -129,28 +125,24 @@ export const TeamDashboardFilter = React.memo(function TeamDashboardFilter({
 										itemId={(item) => item.id}
 										onValueChange={(selectedItems) => setAllUserState(selectedItems as any)}
 										multiSelect={true}
-										triggerClassName="dark:border-gray-700"
 										value={alluserState as any}
 									/>
 								</div>
 							)}
 
-							<div className="flex gap-x-4 justify-end items-center w-full">
+							<div className="flex gap-x-2 justify-end items-center w-full">
 								<Button
 									onClick={() => {
 										setAllTeamsState([]);
 										setAllUserState([]);
 									}}
 									variant={'outline'}
-									className="flex justify-center items-center h-10 text-sm rounded-lg dark:text-gray-300"
+									size="lg"
 								>
-									<span className="text-sm">{t('common.CLEAR_FILTER')}</span>
+									<span>{t('common.CLEAR_FILTER')}</span>
 								</Button>
-								<Button
-									onClick={applyFilters}
-									className="flex justify-center items-center h-10 text-sm rounded-lg bg-primary dark:bg-primary-light dark:text-gray-300"
-								>
-									<span className="text-sm">{t('common.APPLY_FILTER')}</span>
+								<Button onClick={applyFilters} size="lg">
+									<span>{t('common.APPLY_FILTER')}</span>
 								</Button>
 							</div>
 						</div>
