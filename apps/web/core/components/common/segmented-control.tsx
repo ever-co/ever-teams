@@ -119,6 +119,7 @@ export function SegmentedControl<T extends string>({
 		<div
 			ref={listRef}
 			role="tablist"
+			tabIndex={-1}
 			aria-label={ariaLabel}
 			onKeyDown={handleKeyDown}
 			className={cn('relative inline-flex items-center gap-0.5 rounded-lg bg-foreground/[0.05] p-0.5', className)}

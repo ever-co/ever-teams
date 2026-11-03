@@ -257,7 +257,10 @@ function ChooseModeForm({
 		<div className={cn('space-y-6 w-full', className)}>
 			<div className="space-y-3">
 				{/* Solo Option */}
-				<label className={cn(START_MODE_OPTION_CLASS, isSoloMode && START_MODE_OPTION_CHECKED_CLASS)}>
+				<label
+					aria-label={t('pages.authTeam.START_SOLO')}
+					className={cn(START_MODE_OPTION_CLASS, isSoloMode && START_MODE_OPTION_CHECKED_CLASS)}
+				>
 					<input
 						type="radio"
 						name="startMode"
@@ -273,7 +276,10 @@ function ChooseModeForm({
 				</label>
 
 				{/* Team Option */}
-				<label className={cn(START_MODE_OPTION_CLASS, isTeamMode && START_MODE_OPTION_CHECKED_CLASS)}>
+				<label
+					aria-label={t('pages.authTeam.CREATE_TEAM_NOW')}
+					className={cn(START_MODE_OPTION_CLASS, isTeamMode && START_MODE_OPTION_CHECKED_CLASS)}
+				>
 					<input
 						type="radio"
 						name="startMode"

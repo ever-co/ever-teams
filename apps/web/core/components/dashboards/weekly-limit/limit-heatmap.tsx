@@ -984,6 +984,7 @@ export function LimitHeatmap({
 					<div
 						ref={gridRef}
 						role="grid"
+						tabIndex={-1}
 						aria-label={title}
 						aria-busy={isUpdating}
 						aria-describedby={keysHintId}

@@ -29,6 +29,7 @@ import {
 	type YearDay,
 	type YearLayout
 } from './activity-year';
+import { chartSliderValue } from '@/core/lib/utils/chart-slider';
 
 type Translate = ReturnType<typeof useTranslations>;
 
@@ -305,6 +306,10 @@ export const ActivityYearGrid = memo(function ActivityYearGrid({ layout }: Reado
 	const movedByKeyRef = useRef(false);
 	const dayCount = layout.days.length;
 	const activeDay = dayAt(layout.days, activeIndex);
+	let activeDayText: string | undefined;
+	if (activeDay) {
+		activeDayText = dayTextOf(activeDay, formats.day, t);
+	}
 
 	useEffect(() => {
 		const scroller = scrollerRef.current;
@@ -374,6 +379,7 @@ export const ActivityYearGrid = memo(function ActivityYearGrid({ layout }: Reado
 	const yearText = String(layout.year);
 	const ariaLabel = t('profile.activity.GRID_LABEL', { year: yearText });
 
+	const slider = chartSliderValue(activeIndex, dayCount, activeDayText);
 	return (
 		<div className="flex flex-col">
 			<div ref={scrollerRef} className={YEAR_SCROLLER}>
@@ -384,7 +390,12 @@ export const ActivityYearGrid = memo(function ActivityYearGrid({ layout }: Reado
 						<div
 							ref={cellsRef}
 							tabIndex={0}
-							role="group"
+							role="slider"
+							aria-orientation="horizontal"
+							aria-valuemin={slider.min}
+							aria-valuemax={slider.max}
+							aria-valuenow={slider.now}
+							aria-valuetext={slider.text}
 							aria-label={ariaLabel}
 							onPointerMove={handlePointer}
 							onPointerDown={handlePointer}

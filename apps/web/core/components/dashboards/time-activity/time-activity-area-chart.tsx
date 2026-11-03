@@ -20,6 +20,7 @@ import {
 	timeAxisOf
 } from '@/core/lib/utils/dashboard-figures';
 import { dayActivityPercentOf, hasActivityIn, maxSecondsOf } from '@/core/lib/utils/dashboards/time-activity';
+import { chartSliderValue } from '@/core/lib/utils/chart-slider';
 
 const MARGIN = { top: 12, bottom: 24, left: 44 };
 const RIGHT_MARGIN_WITH_AXIS = 40;
@@ -443,12 +444,18 @@ export const TimeActivityAreaChart = memo(function TimeActivityAreaChart({
 		[count, days]
 	);
 
+	const slider = chartSliderValue(activeIndex, days.length, activeDay?.label);
 	return (
 		<div className="flex flex-col">
 			<div
 				ref={parentRef}
 				tabIndex={0}
-				role="group"
+				role="slider"
+				aria-orientation="horizontal"
+				aria-valuemin={slider.min}
+				aria-valuemax={slider.max}
+				aria-valuenow={slider.now}
+				aria-valuetext={slider.text}
 				aria-label={labels.ariaLabel}
 				onFocus={handleFocus}
 				onBlur={handlePointerLeave}

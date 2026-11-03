@@ -17,6 +17,7 @@ import {
 	type VarianceAxis,
 	type VarianceDay
 } from '@/core/lib/utils/dashboards/actual-expected';
+import { chartSliderValue } from '@/core/lib/utils/chart-slider';
 
 type Translate = ReturnType<typeof useTranslations>;
 
@@ -500,12 +501,18 @@ export const VarianceChart = memo(function VarianceChart({
 		[count, days]
 	);
 
+	const slider = chartSliderValue(activeIndex, days.length, activeDay?.label);
 	return (
 		<div className="flex flex-col">
 			<div
 				ref={parentRef}
 				tabIndex={0}
-				role="group"
+				role="slider"
+				aria-orientation="horizontal"
+				aria-valuemin={slider.min}
+				aria-valuemax={slider.max}
+				aria-valuenow={slider.now}
+				aria-valuetext={slider.text}
 				aria-label={ariaLabel}
 				onFocus={handleFocus}
 				onBlur={handlePointerLeave}

@@ -10,6 +10,7 @@ import { BarRounded } from '@visx/shape';
 import { TOOLTIP_SURFACE } from '@/core/components/common/menu-recipes';
 import { cn } from '@/core/lib/helpers';
 import type { TimeAxis } from '@/core/lib/utils/dashboard-figures';
+import { chartSliderValue } from '@/core/lib/utils/chart-slider';
 
 export interface DayBarDatum {
 	key: string;
@@ -359,12 +360,18 @@ export const DayBarsChart = memo(function DayBarsChart({
 
 	const limitY = yScale(limit ?? 0);
 
+	const slider = chartSliderValue(activeIndex, data.length, activeDatum?.label);
 	return (
 		<div className="flex flex-col">
 			<div
 				ref={parentRef}
 				tabIndex={0}
-				role="group"
+				role="slider"
+				aria-orientation="horizontal"
+				aria-valuemin={slider.min}
+				aria-valuemax={slider.max}
+				aria-valuenow={slider.now}
+				aria-valuetext={slider.text}
 				aria-label={ariaLabel}
 				onFocus={handleFocus}
 				onBlur={handlePointerLeave}
