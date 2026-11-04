@@ -1,7 +1,7 @@
 import type { EverApp } from '@/core/constants/config/ever-apps';
 import { cn } from '@/core/lib/helpers';
 
-const GLYPH_BASE = 'shrink-0 select-none rounded-[28%] object-cover';
+const GLYPH_BASE = 'shrink-0 select-none rounded-[28%] object-cover ring-1 ring-foreground/10 dark:ring-foreground/20';
 
 const GLYPH_SIZES = {
 	sm: { pixels: 24, className: 'size-6' },
