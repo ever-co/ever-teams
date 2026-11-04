@@ -7,6 +7,7 @@ import { AddTaskModal } from './add-mask-modal';
 const mockCreateTimesheet = jest.fn();
 const mockAtomValues: Record<string, unknown> = {};
 const mockProjects: Array<{ id: string; billable?: boolean }> = [];
+const mockProjectsQuery = { loading: false };
 
 type MockCustomSelectProps = {
 	ariaLabel?: string;
@@ -44,7 +45,10 @@ jest.mock('@/core/hooks', () => ({
 }));
 
 jest.mock('@/core/hooks/organizations/projects/use-organization-projects-query', () => ({
-	useOrganizationProjectsQuery: () => ({ organizationProjects: mockProjects })
+	useOrganizationProjectsQuery: () => ({
+		organizationProjects: mockProjects,
+		getOrganizationProjectsLoading: mockProjectsQuery.loading
+	})
 }));
 
 jest.mock('@/core/hooks/timesheet/use-create-timesheet', () => ({
@@ -232,6 +236,7 @@ describe('AddTaskModal project of the saved time', () => {
 		mockAtomValues.activeTeamState = teamA;
 		mockAtomValues.tasksByTeamState = [taskInSite, taskWithoutProject];
 		mockProjects.splice(0, mockProjects.length, siteProject, mobileProject);
+		mockProjectsQuery.loading = false;
 	});
 
 	it("saves the time on the task's own project, billable as that project is, from Ever Teams", () => {
@@ -267,6 +272,23 @@ describe('AddTaskModal project of the saved time', () => {
 		expect(mockCreateTimesheet).toHaveBeenCalledWith(
 			expect.objectContaining({ taskId: 'task-site', projectId: 'project-site', isBillable: true })
 		);
+	});
+
+	it("keeps Save off while the task's project is still loading", () => {
+		mockProjects.splice(0, mockProjects.length);
+		mockProjectsQuery.loading = true;
+		const { rerender } = renderAddTimeForm();
+
+		pickTaskAndEmployee('task-site', 'employee-a');
+		const saveButton = screen.getByRole('button', { name: 'common.SAVE' }) as HTMLButtonElement;
+
+		expect(saveButton.disabled).toBe(true);
+
+		mockProjects.push(siteProject, mobileProject);
+		mockProjectsQuery.loading = false;
+		rerender(<AddTaskModal isOpen closeModal={closeModal} />);
+
+		expect(saveButton.disabled).toBe(false);
 	});
 
 	it("saves the task's current project when it changed while the form was open", () => {
