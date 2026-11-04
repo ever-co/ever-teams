@@ -72,18 +72,16 @@ function TimeActivityHeader({
 	const currentViewOptions = externalViewOptions || internalViewOptions;
 
 	return (
-		<div className="flex justify-between items-center w-full dark:bg-dar">
-			<h1 className="text-2xl font-semibold">{t('timeActivity.TIME_AND_ACTIVITY')}</h1>
-			<div className="flex gap-4 items-center">
+		<div className="flex flex-wrap justify-between items-center gap-3 w-full">
+			<h1 className="text-lg font-semibold text-balance">{t('timeActivity.TIME_AND_ACTIVITY')}</h1>
+			<div className="flex flex-wrap gap-2 items-center">
 				<GroupBySelectTimeActivity onGroupByChange={props.onGroupByChange} groupByType={props.groupByType} />
 				<TimeActivityFilterPopover {...props} />
 				<ViewSelect viewOptions={currentViewOptions} onChange={handleViewOptionsChange} />
 				<DateRangePickerTimeActivity
 					onDateRangeChange={handleDateRangeChange}
 					initialRange={
-						props.startDate && props.endDate
-							? { from: props.startDate, to: props.endDate }
-							: undefined
+						props.startDate && props.endDate ? { from: props.startDate, to: props.endDate } : undefined
 					}
 				/>
 				<TimeActivityExportMenu

@@ -1,6 +1,7 @@
 'use client';
 
-import { Folder, Forward, MoreHorizontal, Trash2, type LucideIcon, PlusIcon } from 'lucide-react';
+import { Forward, type LucideIcon } from 'lucide-react';
+import { Folder, MoreHorizontal, Plus, Trash } from '@/core/components/icons';
 import Link from 'next/link';
 
 import {
@@ -62,7 +63,7 @@ export function NavProjects({
 										</SidebarMenuAction>
 									</DropdownMenuTrigger>
 									<DropdownMenuContent
-										className="w-48 rounded-lg"
+										className="w-48"
 										side={isMobile ? 'bottom' : 'right'}
 										align={isMobile ? 'end' : 'start'}
 									>
@@ -76,7 +77,7 @@ export function NavProjects({
 										</DropdownMenuItem>
 										<DropdownMenuSeparator />
 										<DropdownMenuItem>
-											<Trash2 className="text-muted-foreground" />
+											<Trash className="text-muted-foreground" />
 											<span>{t('common.DELETE_PROJECT')}</span>
 										</DropdownMenuItem>
 									</DropdownMenuContent>
@@ -94,11 +95,12 @@ export function NavProjects({
 					<SidebarMenuItem className="w-full max-w-[230px]">
 						<SidebarMenuSubButton asChild>
 							<Button
-								className="w-full text-xs mt-3 dark:text-white rounded-xl border-[0.0938rem] max-w-[230px]"
+								className="mt-3 w-full max-w-[230px]"
 								variant="outline"
+								size="default"
 								disabled={!user?.isEmailVerified}
 							>
-								<PlusIcon className="w-4 h-4" />
+								<Plus className="size-4" />
 								{t('common.CREATE_PROJECT')}
 							</Button>
 						</SidebarMenuSubButton>

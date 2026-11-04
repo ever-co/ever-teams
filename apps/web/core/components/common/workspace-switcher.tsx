@@ -1,6 +1,7 @@
 'use client';
 import * as React from 'react';
-import { ChevronsUpDown, Plus, Loader2, AlertTriangle } from 'lucide-react';
+import { Alert, ChevronsUpDown, Plus, Spinner, Timer } from '@/core/components/icons';
+import { SelectedMark } from './selected-mark';
 
 import {
 	DropdownMenu,
@@ -12,7 +13,6 @@ import {
 } from '@/core/components/common/dropdown-menu';
 import { SidebarMenu, SidebarMenuButton, SidebarMenuItem, useSidebar } from '@/core/components/common/sidebar';
 import { useWorkspaces, useWorkspaceSwitcher } from '@/core/hooks/auth';
-import { Avatar, AvatarFallback, AvatarImage } from './avatar';
 import {
 	Dialog,
 	DialogContent,
@@ -32,6 +32,11 @@ import { timerStatusState } from '@/core/stores';
 import { toast } from 'sonner';
 import { useTranslations } from 'next-intl';
 import { Tooltip } from '../duplicated-components/tooltip';
+import { EntityTile } from './entity-tile';
+import { commandKeycapClass } from './command';
+import { cn } from '@/core/lib/helpers';
+
+const WORKSPACE_SWITCH_BLOCKED_TOAST_ID = 'workspace-switch-blocked-timer-running';
 
 // Fallback for workspace icon
 const DefaultWorkspaceIcon = ({ className }: { className?: string }) => (
@@ -82,7 +87,7 @@ const WorkspaceSwitchConfirmModal: React.FC<WorkspaceSwitchConfirmModalProps> = 
 			>
 				<DialogHeader>
 					<DialogTitle id="workspace-switch-title" className="flex gap-2 items-center">
-						<AlertTriangle className="w-5 h-5 text-amber-500" aria-hidden="true" />
+						<Alert className="size-5 text-warning-foreground" aria-hidden="true" />
 						{t('common.WORKSPACE_SWITCH_CONFIRM_TITLE')}
 					</DialogTitle>
 					<DialogDescription id="workspace-switch-description" className="space-y-3">
@@ -92,12 +97,9 @@ const WorkspaceSwitchConfirmModal: React.FC<WorkspaceSwitchConfirmModalProps> = 
 								targetWorkspace: targetWorkspace?.user.tenant.name ?? t('common.TARGET_WORKSPACE')
 							})}
 						</div>
-						<div className="flex gap-3 items-center p-3 bg-amber-50 rounded-md border border-amber-200 dark:bg-amber-950/20 dark:border-amber-800">
-							<AlertTriangle
-								className="w-4 h-4 text-amber-600 shrink-0 dark:text-amber-400"
-								aria-hidden="true"
-							/>
-							<span className="text-sm text-amber-800 dark:text-amber-200">
+						<div className="flex items-center gap-3 rounded-lg bg-warning/10 p-3">
+							<Alert className="size-4 shrink-0 text-warning-foreground" aria-hidden="true" />
+							<span className="text-sm text-warning-foreground">
 								{t('common.WORKSPACE_SWITCH_CONFIRM_WARNING')}
 							</span>
 						</div>
@@ -106,14 +108,16 @@ const WorkspaceSwitchConfirmModal: React.FC<WorkspaceSwitchConfirmModalProps> = 
 				<DialogFooter className="flex-col-reverse sm:flex-row sm:justify-between sm:gap-2">
 					<Button
 						variant="outline"
+						size="lg"
 						onClick={onClose}
 						disabled={isLoading}
-						className="mt-2 text-red-500 border border-red-500 sm:mt-0"
+						className="mt-2 sm:mt-0"
 						aria-label={t('common.WORKSPACE_SWITCH_CANCEL_ARIA')}
 					>
 						{t('common.CANCEL')}
 					</Button>
 					<Button
+						size="lg"
 						onClick={onConfirm}
 						disabled={isLoading}
 						className="min-w-[140px]"
@@ -123,7 +127,7 @@ const WorkspaceSwitchConfirmModal: React.FC<WorkspaceSwitchConfirmModalProps> = 
 					>
 						{isLoading ? (
 							<>
-								<Loader2 className="mr-2 w-4 h-4 animate-spin" aria-hidden="true" />
+								<Spinner className="mr-2 size-4 animate-spin" aria-hidden="true" />
 								{t('common.WORKSPACE_SWITCH_CHANGING')}
 							</>
 						) : (
@@ -142,24 +146,24 @@ const WorkspaceSkeleton: React.FC = () => {
 		<>
 			{/* Icon skeleton - matches exact dimensions and styling */}
 			<div
-				className="flex justify-center items-center rounded-lg animate-pulse aspect-square size-6 bg-sidebar-primary text-sidebar-primary-foreground"
+				className="flex aspect-square size-6 animate-pulse items-center justify-center rounded-md bg-foreground/5"
 				aria-hidden="true"
 				role="presentation"
 			>
-				<div className="rounded animate-pulse size-4 bg-sidebar-primary-foreground/20" />
+				<div className="size-4 animate-pulse rounded-sm bg-foreground/5" />
 			</div>
 
 			{/* Text content skeleton - matches exact layout and dimensions */}
 			<div className="grid flex-1 space-y-1 text-sm leading-tight text-left" role="presentation">
 				{/* Main title skeleton */}
 				<div
-					className="h-[1.25rem] bg-sidebar-foreground/10 rounded-sm animate-pulse"
+					className="h-5 animate-pulse rounded-md bg-foreground/5"
 					style={{ width: '70%' }}
 					aria-hidden="true"
 				/>
 				{/* Subtitle skeleton */}
 				<div
-					className="h-[0.75rem] bg-sidebar-foreground/10 rounded-sm animate-pulse"
+					className="h-3 animate-pulse rounded-md bg-foreground/5"
 					style={{ width: '40%' }}
 					aria-hidden="true"
 				/>
@@ -235,7 +239,9 @@ export function WorkspacesSwitcher() {
 		(workspaceId: string) => {
 			// Prevent workspace switching when timer is running
 			if (timerRunningStatus) {
-				toast.error(t('common.WORKSPACE_SWITCH_DISABLED_MESSAGE_WHEN_TIMER_RUNNING'));
+				toast.warning(t('common.WORKSPACE_SWITCH_DISABLED_MESSAGE_WHEN_TIMER_RUNNING'), {
+					id: WORKSPACE_SWITCH_BLOCKED_TOAST_ID
+				});
 				return;
 			}
 
@@ -274,6 +280,12 @@ export function WorkspacesSwitcher() {
 		setTargetWorkspace(null);
 	}, [closeConfirmModal, setTargetWorkspace]);
 
+	const hasNoOtherWorkspace = workspaces.length > 0 && availableWorkspaces.length === 0;
+	let menuSide: 'bottom' | 'right' = 'right';
+	if (isMobile) {
+		menuSide = 'bottom';
+	}
+
 	// Determine loading state with comprehensive logic
 	const isWorkspaceLoading = React.useMemo(() => {
 		// Check if we're in initial loading state
@@ -294,27 +306,16 @@ export function WorkspacesSwitcher() {
 		if (actualCurrentWorkspace) {
 			return (
 				<>
-					<div className="flex size-7 shrink-0 items-center justify-center overflow-hidden rounded-md bg-sidebar-primary text-sidebar-primary-foreground">
-						{actualCurrentWorkspace.user.tenant.logo || actualCurrentWorkspace.user.tenant.name ? (
-							<Avatar className="size-7 rounded-md">
-								<AvatarImage
-									width={24}
-									height={24}
-									src={actualCurrentWorkspace.user.tenant.logo}
-									alt={actualCurrentWorkspace.user.tenant.name}
-								/>
-								<AvatarFallback>{actualCurrentWorkspace.user.tenant.name.charAt(0)}</AvatarFallback>
-							</Avatar>
-						) : (
-							<DefaultWorkspaceIcon className="size-4" />
-						)}
-					</div>
+					<EntityTile
+						name={actualCurrentWorkspace.user.tenant.name}
+						imageUrl={actualCurrentWorkspace.user.tenant.logo}
+						className="size-7"
+					/>
 					<div className="grid flex-1 text-sm leading-tight text-left group-data-[collapsible=icon]:hidden">
 						<span className="font-semibold truncate">{actualCurrentWorkspace.user.tenant.name}</span>
 						{actualCurrentWorkspace.current_teams.length > 0 && (
 							<span className="text-xs text-muted-foreground">
-								{actualCurrentWorkspace.current_teams.length} team
-								{actualCurrentWorkspace.current_teams.length > 1 ? 's' : ''}
+								{t('switchers.TEAM_COUNT', { count: actualCurrentWorkspace.current_teams.length })}
 							</span>
 						)}
 					</div>
@@ -325,7 +326,7 @@ export function WorkspacesSwitcher() {
 		// Final fallback - default workspace display
 		return (
 			<>
-				<div className="flex justify-center items-center rounded-lg aspect-square size-6 bg-sidebar-primary text-sidebar-primary-foreground">
+				<div className="flex aspect-square size-6 items-center justify-center rounded-md bg-foreground/5 text-foreground">
 					<DefaultWorkspaceIcon className="!size-6" />
 				</div>
 				<div className="grid flex-1 text-sm leading-tight text-left group-data-[collapsible=icon]:hidden">
@@ -365,91 +366,64 @@ export function WorkspacesSwitcher() {
 								>
 									{renderActiveWorkspace()}
 									{isSwitching ? (
-										<Loader2 className="ml-auto size-4 animate-spin group-data-[collapsible=icon]:hidden" />
+										<Spinner className="ml-auto size-4 animate-spin text-muted-foreground group-data-[collapsible=icon]:hidden" />
 									) : (
 										<ChevronsUpDown className="ml-auto size-4 text-muted-foreground group-data-[collapsible=icon]:hidden" />
 									)}
 								</SidebarMenuButton>
 							</DropdownMenuTrigger>
 						</Tooltip>
-						<DropdownMenuContent
-							className="w-[var(--radix-dropdown-menu-trigger-width)] min-w-56 rounded-lg"
-							align="start"
-							side={isMobile ? 'bottom' : 'right'}
-							sideOffset={4}
-							role="menu"
-							aria-label="List of available workspaces"
-						>
-							<DropdownMenuLabel className="text-xs text-muted-foreground">Workspaces</DropdownMenuLabel>
-
-							{/* Timer warning banner */}
+						<DropdownMenuContent className="w-72" align="start" side={menuSide} sideOffset={6}>
 							{timerRunningStatus && (
-								<div className="px-3 py-2 mb-1 text-xs text-amber-600 bg-amber-50 border-b border-amber-200 dark:text-amber-400 dark:bg-amber-900/20 dark:border-amber-800">
-									⏱️ {t('common.WORKSPACE_SWITCH_DISABLED_MESSAGE_WHEN_TIMER_RUNNING')}
+								<div className="mx-1 mb-1 flex items-start gap-2 rounded-md bg-warning/10 px-2 py-1.5 text-xs text-warning-foreground">
+									<Timer className="mt-px size-3.5 shrink-0" aria-hidden="true" />
+									<span>{t('common.WORKSPACE_SWITCH_DISABLED_MESSAGE_WHEN_TIMER_RUNNING')}</span>
 								</div>
 							)}
 
-							{/* Display other workspaces (not current) */}
-							{availableWorkspaces.length > 0 && (
-								<>
-									{
-										// Only show OTHER workspaces
-										availableWorkspaces.map((workspace) => {
-											// Note: current_teams doesn't have members data, so we show team count only
-											const teamCount = workspace.current_teams.length;
-											return (
-												<DropdownMenuItem
-													key={workspace.user.tenant.id}
-													onClick={() => handleWorkspaceClick(workspace.user.tenant.id)}
-													className={`gap-2 p-2 ${timerRunningStatus ? 'opacity-50 cursor-not-allowed' : ''}`}
-													disabled={isSwitching || timerRunningStatus}
-													role="menuitem"
-													aria-label={`Change to the workspace ${workspace.user.tenant.name} with ${teamCount} team${teamCount > 1 ? 's' : ''}`}
-												>
-													<div className="flex justify-center items-center border rounded-xs size-8">
-														{workspace.user.tenant.logo ? (
-															<Avatar className="rounded !size-6">
-																<AvatarImage
-																	src={workspace.user.tenant.logo}
-																	alt={workspace.user.tenant.name}
-																/>
-																<AvatarFallback>
-																	{workspace.user.tenant.name.charAt(0)}
-																</AvatarFallback>
-															</Avatar>
-														) : (
-															<DefaultWorkspaceIcon className="size-4" />
-														)}
-													</div>
-													<div className="flex-1">
-														<div className="font-medium">{workspace.user.tenant.name}</div>
-														<div className="text-xs text-muted-foreground">
-															{teamCount} team{teamCount > 1 ? 's' : ''}
-														</div>
-													</div>
-												</DropdownMenuItem>
-											);
-										})
-									}
-								</>
-							)}
+							<DropdownMenuLabel>{t('switchers.WORKSPACES')}</DropdownMenuLabel>
 
-							{/* Message if no other workspaces */}
-							{workspaces.length > 0 && availableWorkspaces.length === 0 && (
-								<DropdownMenuItem disabled className="gap-2 p-2 text-muted-foreground">
-									<div className="flex justify-center items-center border rounded-xs size-6">
-										<DefaultWorkspaceIcon className="size-4" />
-									</div>
-									No other workspace available
+							{actualCurrentWorkspace && (
+								<DropdownMenuItem className="h-9 gap-2.5">
+									<EntityTile
+										name={actualCurrentWorkspace.user.tenant.name}
+										imageUrl={actualCurrentWorkspace.user.tenant.logo}
+									/>
+									<span className="min-w-0 flex-1 truncate">
+										{actualCurrentWorkspace.user.tenant.name}
+									</span>
+									<WorkspaceTeamCount count={actualCurrentWorkspace.current_teams.length} />
+									<SelectedMark />
 								</DropdownMenuItem>
 							)}
 
+							{availableWorkspaces.map((workspace) => (
+								<DropdownMenuItem
+									key={workspace.user.tenant.id}
+									onClick={() => handleWorkspaceClick(workspace.user.tenant.id)}
+									disabled={isSwitching || timerRunningStatus}
+									className="h-9 gap-2.5"
+								>
+									<EntityTile
+										name={workspace.user.tenant.name}
+										imageUrl={workspace.user.tenant.logo}
+									/>
+									<span className="min-w-0 flex-1 truncate">{workspace.user.tenant.name}</span>
+									<WorkspaceTeamCount count={workspace.current_teams.length} />
+									<span className="size-4 shrink-0" aria-hidden="true" />
+								</DropdownMenuItem>
+							))}
+
+							{hasNoOtherWorkspace && (
+								<p className="px-2 py-1.5 text-xs text-muted-foreground">
+									{t('switchers.NO_OTHER_WORKSPACE')}
+								</p>
+							)}
+
 							<DropdownMenuSeparator />
-							<DropdownMenuItem className="gap-2 p-2" disabled>
-								<div className="flex justify-center items-center rounded-md border size-6 bg-background">
-									<Plus className="size-4" />
-								</div>
-								<div className="font-medium text-muted-foreground">Add workspace</div>
+							<DropdownMenuItem disabled className="h-8">
+								<Plus />
+								<span>{t('switchers.ADD_WORKSPACE')}</span>
 							</DropdownMenuItem>
 						</DropdownMenuContent>
 					</DropdownMenu>
@@ -470,5 +444,15 @@ export function WorkspacesSwitcher() {
 				</Suspense>
 			)}
 		</>
+	);
+}
+
+/** The number of teams of a workspace as a key cap (the palette's), its full wording kept for the tooltip. */
+function WorkspaceTeamCount({ count }: Readonly<{ count: number }>) {
+	const t = useTranslations();
+	return (
+		<span className={cn(commandKeycapClass, 'tabular-nums')} title={t('switchers.TEAM_COUNT', { count })}>
+			{count}
+		</span>
 	);
 }

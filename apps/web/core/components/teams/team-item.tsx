@@ -2,7 +2,7 @@ import { CHARACTER_LIMIT_TO_SHOW } from '@/core/constants/config/constants';
 import { imgTitle } from '@/core/lib/helpers/index';
 import { clsxm, isValidUrl } from '@/core/lib/utils';
 import { DropdownItem } from '@/core/components';
-import { SettingOutlineIcon } from 'assets/svg';
+import { Settings } from '@/core/components/icons';
 import { useTheme } from 'next-themes';
 import Link from 'next/link';
 import { readableColor } from 'polished';
@@ -37,7 +37,7 @@ export function mapTeamItems(teams: TOrganizationTeam[], onChangeActiveTeam: (it
 							</div>
 
 							<Link
-								className="flex justify-center items-center"
+								className="flex size-7 shrink-0 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-foreground/5 hover:text-foreground"
 								onClick={(e) => {
 									onChangeActiveTeam({
 										data: team
@@ -46,7 +46,7 @@ export function mapTeamItems(teams: TOrganizationTeam[], onChangeActiveTeam: (it
 								}}
 								href="/settings/team"
 							>
-								<SettingOutlineIcon className="w-5 h-5 cursor-pointer" />
+								<Settings className="size-4 cursor-pointer" />
 							</Link>
 						</div>
 					</Tooltip>
@@ -109,21 +109,14 @@ export function TeamItem({
 	const readableColorHex = readableColor(color || (theme === 'light' ? '#FFF' : '#000'));
 
 	return (
-		<div
-			className={clsxm(
-				'flex justify-start items-center space-x-2 text-sm',
-				'max-w-full cursor-pointer',
-				className
-			)}
-		>
+		<div className={clsxm('flex max-w-full cursor-pointer items-center justify-start gap-2 text-sm', className)}>
 			<div>
 				<div
 					className={clsxm(
 						'size-6',
 						'flex justify-center items-center',
-						'rounded-full text-xs text-default dark:text-white',
-						'shadow-none',
-						disabled && ['dark:text-default']
+						'rounded-md text-xs font-medium text-foreground',
+						disabled && ['text-muted-foreground']
 					)}
 					style={{
 						background: color || `${stc(title)}80`,
@@ -132,7 +125,13 @@ export function TeamItem({
 					}}
 				>
 					{logo && isValidUrl(logo) ? (
-						<Avatar size={24} className="relative cursor-pointer" imageUrl={logo} alt="user avatar" />
+						<Avatar
+							size={24}
+							shape="square"
+							className="relative cursor-pointer"
+							imageUrl={logo}
+							alt="user avatar"
+						/>
 					) : title ? (
 						imgTitle(title)
 					) : (
@@ -141,13 +140,9 @@ export function TeamItem({
 				</div>
 			</div>
 			<div className="flex gap-1">
+				<span className="overflow-hidden text-ellipsis whitespace-nowrap md:max-w-[100px]">{title}</span>
 				<span
-					className={clsxm('text-normal md:max-w-[100px]', 'overflow-hidden whitespace-nowrap text-ellipsis')}
-				>
-					{title}
-				</span>
-				<span
-					className={clsxm('text-normal')}
+					className="tabular-nums text-muted-foreground"
 					style={{
 						marginLeft: 0
 					}}
@@ -162,30 +157,22 @@ export function TeamItem({
 export function AllTeamItem({ title, count }: { title: string; count: number }) {
 	return (
 		<Link className="h-full flex items-center " href="/all-teams">
-			<div className={clsxm('flex justify-start items-center space-x-2 text-sm', ' max-w-full cursor-pointer')}>
+			<div className="flex max-w-full cursor-pointer items-center justify-start gap-2 text-sm">
 				<div>
 					<div
 						className={clsxm(
 							'size-6',
 							'flex justify-center items-center',
-							'text-xs rounded-full text-default dark:text-white',
-							'shadow-none'
+							'rounded-md bg-foreground/5 text-xs font-medium text-muted-foreground'
 						)}
 					>
 						{imgTitle(title)}
 					</div>
 				</div>
 				<div className="flex gap-1">
+					<span className="overflow-hidden text-ellipsis whitespace-nowrap md:max-w-[100px]">{title}</span>
 					<span
-						className={clsxm(
-							'text-normal md:max-w-[100px]',
-							'overflow-hidden whitespace-nowrap text-ellipsis'
-						)}
-					>
-						{title}
-					</span>
-					<span
-						className={clsxm('text-normal')}
+						className="tabular-nums text-muted-foreground"
 						style={{
 							marginLeft: 0
 						}}

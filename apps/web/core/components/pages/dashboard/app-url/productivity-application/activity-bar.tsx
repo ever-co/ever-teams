@@ -14,13 +14,12 @@ export const ActivityBar: React.FC<ActivityBarProps> = ({ percentage, title }) =
 			<Tooltip>
 				<TooltipTrigger asChild>
 					<div className="flex gap-2 items-center">
-						<div className="overflow-hidden w-full h-2 bg-gray-200 rounded-full dark:bg-muted">
-							<div
-								className="h-full bg-blue-500 dark:bg-blue-600"
-								style={{ width: `${percentageValue}%` }}
-							/>
+						<div className="overflow-hidden w-full h-1.5 rounded-full bg-foreground/10">
+							<div className="h-full rounded-full bg-primary" style={{ width: `${percentageValue}%` }} />
 						</div>
-						<span className="text-sm text-gray-600 dark:text-gray-300">{percentageValue}%</span>
+						<span className="w-10 text-right text-sm tabular-nums text-muted-foreground">
+							{percentageValue}%
+						</span>
 					</div>
 				</TooltipTrigger>
 				<TooltipContent>

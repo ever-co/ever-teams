@@ -25,11 +25,21 @@ import { useTranslations } from 'next-intl';
 import { cn } from '@/core/lib/helpers';
 import { memo, useEffect, useMemo } from 'react';
 import moment from 'moment';
-import { ChevronDown, ChevronUp, EyeOff, MoveDown, MoveUp, RotateCcw } from 'lucide-react';
+import { MoveDown, MoveUp } from 'lucide-react';
+import { ChevronDown, ChevronUp, EyeOff, RotateLeft } from '@/core/components/icons';
+import { Button } from '@/core/components';
+import { Badge } from '@/core/components/common/badge';
 import AvatarStack from '@/core/components/common/avatar-stack';
 import { PROJECTS_TABLE_VIEW_LAST_SORTING } from '@/core/constants/config/constants';
 import { useTheme } from 'next-themes';
-import { ProjectItemActions, ProjectViewDataType } from '..';
+import {
+	MENU_ITEM_RECIPE,
+	MENU_POPUP_RECIPE,
+	ProjectItemActions,
+	ProjectStatusChip,
+	ProjectViewDataType,
+	projectStatusColor
+} from '..';
 import { Menu, Transition } from '@headlessui/react';
 import { ProjectListSkeleton } from './list-skeleton';
 import { HorizontalSeparator } from '@/core/components/duplicated-components/separator';
@@ -142,13 +152,11 @@ export const ProjectsTable = memo(
 						<div className="">
 							<Link
 								href={`/projects/${row.original?.project?.id}`}
-								className="flex items-center gap-2 font-medium group"
+								className="group flex items-center gap-2.5 rounded-md font-medium outline-none focus-visible:ring-[3px] focus-visible:ring-ring/50"
 							>
 								<div
 									style={{ backgroundColor: row.original?.project?.color ?? undefined }}
-									className={cn(
-										'flex object-cover overflow-hidden justify-center items-center rounded-full border size-9 shrink-0'
-									)}
+									className="flex size-8 shrink-0 items-center justify-center overflow-hidden rounded-md text-xs font-medium hairline-ring ring-border"
 								>
 									{!row.original?.project?.imageUrl ? (
 										row.original?.project?.name?.substring(0, 2)
@@ -157,12 +165,12 @@ export const ProjectsTable = memo(
 											alt={row.original?.project?.name ?? ''}
 											height={40}
 											width={40}
-											className="flex-none rounded-full min-w-9 aspect-square shrink-0"
+											className="flex-none rounded-md min-w-8 aspect-square shrink-0 object-cover"
 											src={row.original?.project?.imageUrl}
 										/>
 									)}
 								</div>
-								<p className="transition-colors group-hover:text-primary">
+								<p className="transition-colors group-hover:text-primary-ink">
 									{row.original?.project?.name}
 								</p>
 							</Link>
@@ -205,18 +213,14 @@ export const ProjectsTable = memo(
 
 					return (
 						<div className="flex items-center capitalize">
-							<div
-								style={{
-									backgroundColor:
-										resolvedTheme === 'light'
-											? (statusColorsMap.get(row.original?.status as ETaskStatusName) ??
-												'transparent')
-											: '#6A7280'
-								}}
-								className="px-4 py-1 text-xs text-white rounded"
+							<ProjectStatusChip
+								color={projectStatusColor(
+									resolvedTheme,
+									statusColorsMap.get(row.original?.status as ETaskStatusName)
+								)}
 							>
 								{row.original?.status}
-							</div>
+							</ProjectStatusChip>
 						</div>
 					);
 				}
@@ -345,7 +349,7 @@ export const ProjectsTable = memo(
 							})) || [];
 
 					if (members.length === 0) {
-						return <span className="text-sm text-gray-500">No members assigned</span>;
+						return <span className="text-xs text-muted-foreground">No members assigned</span>;
 					}
 
 					return <AvatarStack avatars={members} />;
@@ -370,18 +374,15 @@ export const ProjectsTable = memo(
 					const teams = row.original?.teams || [];
 
 					if (teams.length === 0) {
-						return <span className="text-sm text-gray-500">No team assigned</span>;
+						return <span className="text-xs text-muted-foreground">No team assigned</span>;
 					}
 
 					return (
 						<div className="flex flex-wrap gap-1">
 							{teams.map((team, index) => (
-								<span
-									key={team.id || index}
-									className="inline-flex items-center px-2 py-1 text-xs font-medium text-blue-800 bg-blue-100 rounded-full dark:bg-blue-900 dark:text-blue-200"
-								>
+								<Badge key={team.id || index} variant="secondary">
 									{team.name}
-								</span>
+								</Badge>
 							))}
 						</div>
 					);
@@ -425,12 +426,13 @@ export const ProjectsTable = memo(
 				id: 'restore',
 				cell: function Cell({ row }) {
 					return (
-						<button
+						<Button
 							onClick={() => openRestoreModal(row.original?.project?.id)}
-							className={` bg-[#E2E8F0] text-[#3E1DAD] gap-2 group flex items-center rounded-md px-2 py-2 text-xs`}
+							variant="outline"
+							size="default"
 						>
-							<RotateCcw size={15} /> <span>{t('common.RESTORE')}</span>
-						</button>
+							<RotateLeft /> <span>{t('common.RESTORE')}</span>
+						</Button>
 					);
 				},
 				enableHiding: false
@@ -480,7 +482,7 @@ export const ProjectsTable = memo(
 				{loading ? (
 					<ProjectListSkeleton />
 				) : table?.getRowModel()?.rows.length ? (
-					<div className="border rounded-md">
+					<div className="rounded-xl bg-card hairline-ring ring-border shadow-sm shadow-black/6.5">
 						<Table>
 							<TableHeader>
 								{table.getHeaderGroups().map((headerGroup) => (
@@ -525,7 +527,7 @@ export const ProjectsTable = memo(
 												message={
 													<>
 														<p>Ready to start something amazing?</p>
-														<p className="mt-1 text-sm text-gray-500">
+														<p className="mt-1 text-sm text-muted-foreground">
 															Create your first project and begin collaborating with your
 															team.
 														</p>
@@ -539,14 +541,14 @@ export const ProjectsTable = memo(
 						</Table>
 					</div>
 				) : (
-					<div className="w-full min-h-[600px] flex items-center justify-center">
+					<div className="flex w-full min-h-[600px] items-center justify-center rounded-xl bg-card hairline-ring ring-border shadow-sm shadow-black/6.5">
 						<AnimatedEmptyState
 							title="No Projects Yet"
 							showBorder={false}
 							message={
 								<div className="space-y-2">
 									<div className="text-base font-medium">Ready to start something amazing?</div>
-									<p className="text-sm text-gray-500">
+									<p className="text-sm text-muted-foreground">
 										Create your first project and begin collaborating with your team.
 									</p>
 								</div>
@@ -570,21 +572,29 @@ function ColumnHandlerDropdown(args: {
 	const t = useTranslations();
 
 	const isSort = column.entity.getIsSorted();
+	const isSortedAsc = isSort == 'asc';
+	const isSortedDesc = isSort == 'desc';
 
 	return (
 		<Menu as="div" className="relative inline-block text-left">
 			<div>
-				<Menu.Button>
-					<div className="flex items-center gap-2 cursor-pointer">
-						<span className="text-xs text-nowrap">{column.name}</span>
+				<Menu.Button className="rounded-sm outline-none focus-visible:ring-[3px] focus-visible:ring-ring/50">
+					<div className="flex items-center gap-1.5 cursor-pointer">
+						<span className="text-xs font-medium text-nowrap">{column.name}</span>
 						<div className="flex flex-col items-center">
 							<ChevronUp
-								size={15}
-								className={cn('-mb-[.125rem]', isSort == 'asc' ? 'text-primary' : 'text-gray-300')}
+								className={cn(
+									'-mb-[.125rem] size-3.5',
+									isSortedAsc && 'text-primary-ink',
+									!isSortedAsc && 'text-muted-foreground/40'
+								)}
 							/>
 							<ChevronDown
-								size={15}
-								className={cn('-mt-[.125rem]', isSort == 'desc' ? 'text-primary' : 'text-gray-300')}
+								className={cn(
+									'-mt-[.125rem] size-3.5',
+									isSortedDesc && 'text-primary-ink',
+									!isSortedDesc && 'text-muted-foreground/40'
+								)}
 							/>
 						</div>
 					</div>
@@ -599,8 +609,10 @@ function ColumnHandlerDropdown(args: {
 				leaveFrom="transform opacity-100 scale-100"
 				leaveTo="transform opacity-0 scale-95"
 			>
-				<Menu.Items className="absolute z-[999] left-1/2 -translate-x-1/2 mt-2 w-36 origin-top-right divide-y divide-gray-100 rounded-md bg-white dark:bg-dark-lighter shadow-lg ring-1 ring-black/5 focus:outline-none">
-					<div className="flex flex-col gap-1 p-1">
+				<Menu.Items
+					className={cn('absolute z-[999] left-1/2 -translate-x-1/2 mt-2 w-36 origin-top', MENU_POPUP_RECIPE)}
+				>
+					<div className="flex flex-col">
 						{column.entity.getCanSort() && sorting && (
 							<>
 								<Menu.Item>
@@ -608,11 +620,12 @@ function ColumnHandlerDropdown(args: {
 										<button
 											onClick={() => column.entity.toggleSorting(false)}
 											className={cn(
-												`${active && 'bg-primary/10'} gap-2 group flex w-full items-center rounded-md px-2 py-2 text-xs`,
-												isSort == 'asc' && 'bg-primary/10'
+												MENU_ITEM_RECIPE,
+												active && 'bg-foreground/5',
+												isSortedAsc && 'font-medium text-primary-ink'
 											)}
 										>
-											<MoveUp size={12} /> <span>{sorting.ascLabel}</span>
+											<MoveUp className="size-4" /> <span>{sorting.ascLabel}</span>
 										</button>
 									)}
 								</Menu.Item>
@@ -621,11 +634,12 @@ function ColumnHandlerDropdown(args: {
 										<button
 											onClick={() => column.entity.toggleSorting(true)}
 											className={cn(
-												`${active && 'bg-primary/10'} gap-2 group flex w-full items-center rounded-md px-2 py-2 text-xs`,
-												isSort == 'desc' && 'bg-primary/10'
+												MENU_ITEM_RECIPE,
+												active && 'bg-foreground/5',
+												isSortedDesc && 'font-medium text-primary-ink'
 											)}
 										>
-											<MoveDown size={12} /> <span>{sorting.descLabel}</span>
+											<MoveDown className="size-4" /> <span>{sorting.descLabel}</span>
 										</button>
 									)}
 								</Menu.Item>
@@ -634,15 +648,16 @@ function ColumnHandlerDropdown(args: {
 
 						{column.entity.getCanHide() && (
 							<>
-								{sorting && <HorizontalSeparator className="border-t" />}
+								{sorting && <HorizontalSeparator className="my-1" />}
 
 								<Menu.Item>
 									{({ active }) => (
 										<button
 											onClick={column.entity.getToggleVisibilityHandler()}
-											className={`${active && 'bg-primary/10'} gap-2 group flex w-full items-center rounded-md px-2 py-2 text-xs`}
+											className={cn(MENU_ITEM_RECIPE, active && 'bg-foreground/5')}
 										>
-											<EyeOff size={12} /> <span>{t('common.HIDE')}</span>
+											<EyeOff className="size-4 text-muted-foreground" />{' '}
+											<span>{t('common.HIDE')}</span>
 										</button>
 									)}
 								</Menu.Item>

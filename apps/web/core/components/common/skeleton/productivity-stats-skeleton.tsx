@@ -13,20 +13,20 @@ export const ProductivityStatsSkeleton: FC<ProductivityStatsSkeletonProps> = ({ 
 		<div className={`flex gap-6 ${className || ''}`}>
 			{/* Productive */}
 			<div className="flex flex-col items-center gap-2">
-				<div className="w-16 h-4 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded" />
-				<div className="w-12 h-8 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded" />
+				<div className="w-16 h-4 bg-foreground/5 animate-pulse rounded-md" />
+				<div className="w-12 h-8 bg-foreground/5 animate-pulse rounded-md" />
 			</div>
-			
+
 			{/* Neutral */}
 			<div className="flex flex-col items-center gap-2">
-				<div className="w-16 h-4 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded" />
-				<div className="w-12 h-8 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded" />
+				<div className="w-16 h-4 bg-foreground/5 animate-pulse rounded-md" />
+				<div className="w-12 h-8 bg-foreground/5 animate-pulse rounded-md" />
 			</div>
-			
+
 			{/* Unproductive */}
 			<div className="flex flex-col items-center gap-2">
-				<div className="w-20 h-4 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded" />
-				<div className="w-12 h-8 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded" />
+				<div className="w-20 h-4 bg-foreground/5 animate-pulse rounded-md" />
+				<div className="w-12 h-8 bg-foreground/5 animate-pulse rounded-md" />
 			</div>
 		</div>
 	);

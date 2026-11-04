@@ -7,6 +7,7 @@ import { queryKeys } from '@/core/query/keys';
 import { useFirstLoad } from '../common/use-first-load';
 import { useInvalidateIssueTypes } from './use-invalidate-issue-types';
 import { useTaskMetadataBootstrapQuery } from './use-task-metadata-bootstrap-query';
+import { useTaskMetadataReadState } from './use-task-metadata-read-state';
 
 /**
  * Hook for reading issue types data.
@@ -39,6 +40,11 @@ export function useIssueTypesQuery() {
 	// Memoized to prevent infinite re-renders (stable reference)
 	const issueTypes = useMemo(() => issueTypesData?.items ?? [], [issueTypesData?.items]);
 	const issueTypesLoading = taskMetadataQuery.useBootstrap ? taskMetadataQuery.isLoading : issueTypesQuery.isLoading;
+	const { isError, refetch } = useTaskMetadataReadState(
+		taskMetadataQuery.useBootstrap,
+		taskMetadataQuery,
+		issueTypesQuery
+	);
 
 	// Legacy backward compat
 	const loadIssueTypes = useCallback(async () => {
@@ -54,6 +60,8 @@ export function useIssueTypesQuery() {
 		issueTypes,
 		loading: issueTypesLoading,
 		getIssueTypesLoading: issueTypesLoading,
+		isError,
+		refetch,
 		loadIssueTypes,
 		firstLoadIssueTypeData: handleFirstLoad
 	};

@@ -1,7 +1,7 @@
 import React from 'react';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuTrigger } from '@/core/components/common/dropdown-menu';
 import { Button } from '@/core/components/duplicated-components/_button';
-import { Check } from 'lucide-react';
+import { Check } from '@/core/components/icons';
 import { useTranslations } from 'next-intl';
 
 export interface ViewOption {
@@ -30,7 +30,7 @@ export default function ViewSelect({ viewOptions, onChange }: ViewSelectProps) {
 	return (
 		<DropdownMenu>
 			<DropdownMenuTrigger asChild>
-				<Button variant="outline" className="gap-2 -white dark:bg-dark--theme-light">
+				<Button variant="outline" className="gap-2">
 					<svg
 						width="24"
 						height="24"
@@ -51,24 +51,24 @@ export default function ViewSelect({ viewOptions, onChange }: ViewSelectProps) {
 					{t('timeActivity.VIEW')}
 				</Button>
 			</DropdownMenuTrigger>
-			<DropdownMenuContent className="p-2 w-56 dark:bg-dark-high">
+			<DropdownMenuContent className="w-56">
 				{viewOptions.map((option) => (
 					<div
 						key={option.id}
 						role="menuitem"
 						tabIndex={0}
-						className="flex items-center p-2 space-x-2 cursor-pointer hover:bg-gray-100 dark:hover:bg-muted rounded-sm transition-colors focus:outline-none focus:ring-2 focus:ring-primary/20"
+						className="flex items-center gap-2 rounded-md px-2 py-1.5 cursor-pointer outline-none transition-colors hover:bg-foreground/5 focus-visible:bg-foreground/5"
 						data-state={option.checked ? 'checked' : 'unchecked'}
 						onClick={() => handleCheckChange(option.id)}
 						onKeyDown={(e) => e.key === 'Enter' && handleCheckChange(option.id)}
 					>
-						<div className="flex items-center justify-center w-4 h-4 text-gray-700 dark:text-white transition-colors">
+						<div className="flex items-center justify-center size-4 text-foreground">
 							<Check
 								className={`w-4 h-4 transition-opacity ${option.checked ? 'opacity-100' : 'opacity-0'}`}
 							/>
 						</div>
 						<span
-							className="text-sm transition-colors data-[state=checked]:text-blue-600 dark:data-[state=checked]:text-blue-400"
+							className="text-sm transition-colors data-[state=checked]:text-primary-ink"
 							data-state={option.checked ? 'checked' : 'unchecked'}
 						>
 							{option.label}

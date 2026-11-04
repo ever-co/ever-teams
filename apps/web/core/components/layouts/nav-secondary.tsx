@@ -23,6 +23,7 @@ export function NavSecondary({
 	}[];
 } & React.ComponentPropsWithoutRef<typeof SidebarGroup>) {
 	const { state } = useSidebar();
+	const isCollapsed = state === 'collapsed';
 	return (
 		<SidebarGroup {...props}>
 			<SidebarGroupContent>
@@ -34,8 +35,9 @@ export function NavSecondary({
 									<item.icon className="size-4" />
 									<span
 										className={cn(
-											'transition-all',
-											state === 'collapsed' ? 'opacity-0 hidden' : 'opacity-100'
+											'transition-opacity',
+											isCollapsed && 'hidden opacity-0',
+											!isCollapsed && 'opacity-100'
 										)}
 									>
 										{item.title}

@@ -4,8 +4,8 @@ import { activeTeamManagersState } from '@/core/stores';
 import { useRolesQuery } from '@/core/hooks/roles/use-roles-query';
 import NotFound from '@/core/components/pages/404';
 import { withAuthentication } from '@/core/components/layouts/app/authenticator';
-import { CommonToggle, Container, Divider, Text } from '@/core/components';
-import { MainHeader, PageLayout } from '@/core/components/layouts/default-layout';
+import { CommonToggle, Text } from '@/core/components';
+import { PageLayout } from '@/core/components/layouts/default-layout';
 import { useCallback, useMemo, useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { useAtomValue } from 'jotai';
@@ -13,9 +13,25 @@ import { useIsMemberManager } from '@/core/hooks/organizations';
 import { useRolePermissionsQuery } from '@/core/hooks/roles/use-role-permissions-query';
 import { useUpdateRolePermission } from '@/core/hooks/roles/use-update-role-permission';
 import { Breadcrumb } from '../../duplicated-components/breadcrumb';
-import { EverCard } from '../../common/ever-card';
+import { ShieldUser } from '@/core/components/icons';
 import { TRole } from '@/core/types/schemas';
 import { useUserQuery } from '@/core/hooks/queries/user-user.query';
+import { clsxm } from '@/core/lib/utils';
+import {
+	PERMISSIONS_GRID,
+	PermissionsPageSkeleton,
+	PermissionsToolbar,
+	ROLE_LIST,
+	RoleListSkeleton,
+	SelectRolePrompt
+} from './permissions-page-skeleton';
+
+const ROLE_ITEM =
+	'flex h-8 w-full shrink-0 cursor-pointer items-center rounded-md px-3 text-sm text-muted-foreground transition-colors hover:bg-foreground/5 hover:text-foreground';
+const ROLE_ITEM_ACTIVE = 'bg-foreground/5 font-medium text-foreground';
+const PERMISSION_ROW = 'flex w-full items-center justify-between gap-6 py-1';
+const PERMISSION_LABEL = 'min-w-0 text-sm font-medium text-foreground';
+const PERMISSION_CONTROL = 'flex shrink-0 items-center';
 
 const Permissions = () => {
 	// Translations
@@ -30,10 +46,10 @@ const Permissions = () => {
 	// Hooks with data fetching
 	const activeTeamManagers = useAtomValue(activeTeamManagersState);
 	const selectedRoleId = selectedRole?.id;
-	const { rolePermissionsFormated } = useRolePermissionsQuery(selectedRoleId);
+	const { rolePermissionsFormated, isLoading: isRolePermissionsLoading } = useRolePermissionsQuery(selectedRoleId);
 	const { updateRolePermission } = useUpdateRolePermission(selectedRoleId);
 	const { isTeamManager } = useIsMemberManager(user);
-	const { roles } = useRolesQuery({ adminOnly: true });
+	const { roles, isLoading: isRolesLoading } = useRolesQuery({ adminOnly: true });
 
 	// Memoized values
 	const canAccessPermissions = useMemo(() => {
@@ -57,26 +73,39 @@ const Permissions = () => {
 	if (!canAccessPermissions) {
 		return (
 			<PageLayout className="items-start">
-				<NotFound />
+				<NotFound
+					labels={{
+						title: t('pages.page404.HEADING_TITLE'),
+						description: t('pages.page404.HEADING_DESCRIPTION'),
+						action: t('pages.taskDetails.GO_BACK_HOME')
+					}}
+				/>
 			</PageLayout>
 		);
 	}
 
 	return (
-		<PageLayout className="items-start">
-			<MainHeader>
-				<Breadcrumb paths={['Dashboard', 'Roles & Permissions']} className="text-sm" />
-			</MainHeader>
-			<Container className="flex">
-				<EverCard className="w-[90vw] h-[90vh] min-w-fit flex my-5 py-0 gap-8" shadow="custom">
-					<div className="flex flex-col w-[35%] overflow-auto gap-2 mt-5">
-						{roles.map((role) => (
+		<PageLayout
+			className="items-start"
+			breadcrumb={
+				<div className="flex min-w-0 items-center gap-2">
+					<ShieldUser className="size-4 shrink-0 text-muted-foreground" />
+					<Breadcrumb
+						paths={[t('sidebar.DASHBOARD'), t('pages.permissions.TITLE')]}
+						className="min-w-0 text-sm"
+					/>
+				</div>
+			}
+			mainHeaderSlot={<PermissionsToolbar isUpdating={isRolePermissionsLoading} />}
+		>
+			<div className={PERMISSIONS_GRID}>
+				<div className={ROLE_LIST}>
+					{isRolesLoading && <RoleListSkeleton />}
+					{roles.map((role) => {
+						const isSelected = Boolean(selectedRole) && selectedRole?.id === role.id;
+						return (
 							<div
-								className={`flex items-center justify-between w-full py-2 px-5 rounded-xl cursor-pointer ${
-									selectedRole && selectedRole.id === role.id
-										? 'bg-primary dark:bg-primary-light text-white'
-										: ''
-								}`}
+								className={clsxm(ROLE_ITEM, isSelected && ROLE_ITEM_ACTIVE)}
 								key={role?.id}
 								onClick={() => {
 									setSelectedRole(role);
@@ -84,218 +113,184 @@ const Permissions = () => {
 							>
 								{role?.name}
 							</div>
-						))}
-					</div>
+						);
+					})}
+				</div>
 
-					<Divider type="VERTICAL" />
-
-					<div className="flex overflow-auto flex-col pt-3 pl-5 w-full">
-						{selectedRole && (
-							<div className="overflow-y-auto">
-								<div className="flex w-full items-center justify-between gap-[2rem]">
-									<Text className="flex-none grow-0 w-1/2 text-base font-normal text-gray-400 md-2">
-										{t('pages.settingsTeam.TRACK_TIME')}
-									</Text>
-									<div className="flex flex-row grow-0 justify-between items-center w-full">
-										<CommonToggle
-											enabledText="Activated"
-											disabledText="Deactivated"
-											enabled={rolePermissionsFormated?.['TIME_TRACKER']?.enabled || false}
-											onChange={() => {
-												handleToggleRolePermission('TIME_TRACKER');
-											}}
-										/>
-									</div>
-								</div>
-								<div className="flex w-full items-center justify-between gap-[2rem]">
-									<Text className="flex-none grow-0 w-1/2 text-base font-normal text-gray-400 md-2">
-										{t('pages.settingsTeam.ESTIMATE_ISSUE')}
-									</Text>
-									<div className="flex flex-row grow-0 justify-between items-center w-full">
-										<CommonToggle
-											enabledText="Activated"
-											disabledText="Deactivated"
-											enabled={
-												(rolePermissionsFormated?.['ORG_TASK_ADD']?.enabled &&
-													rolePermissionsFormated?.['ORG_TASK_EDIT']?.enabled) ||
-												false
-											}
-											onChange={() => {
-												handleToggleRolePermission('ORG_TASK_ADD');
-												handleToggleRolePermission('ORG_TASK_EDIT');
-											}}
-										/>
-									</div>
-								</div>
-								<div className="flex w-full items-center justify-between gap-[2rem]">
-									<Text className="flex-none grow-0 w-1/2 text-base font-normal text-gray-400 md-2">
-										{t('pages.settingsTeam.EPICS_CREATE_CLOSE')}
-									</Text>
-									<div className="flex flex-row grow-0 justify-between items-center w-full">
-										<CommonToggle
-											enabledText="Activated"
-											disabledText="Deactivated"
-											enabled={
-												(rolePermissionsFormated?.['ORG_TASK_ADD']?.enabled &&
-													rolePermissionsFormated?.['ORG_TASK_EDIT']?.enabled) ||
-												false
-											}
-											onChange={() => {
-												handleToggleRolePermission('ORG_TASK_ADD');
-												handleToggleRolePermission('ORG_TASK_EDIT');
-											}}
-										/>
-									</div>
-								</div>
-								<div className="flex w-full items-center justify-between gap-[2rem]">
-									<Text className="flex-none grow-0 w-1/2 text-base font-normal text-gray-400 md-2">
-										{t('pages.settingsTeam.ISSUE_CREATE_CLOSE')}
-									</Text>
-									<div className="flex flex-row grow-0 justify-between items-center w-full">
-										<CommonToggle
-											enabledText="Activated"
-											disabledText="Deactivated"
-											enabled={
-												(rolePermissionsFormated?.['ORG_TASK_ADD']?.enabled &&
-													rolePermissionsFormated?.['ORG_TASK_EDIT']?.enabled) ||
-												false
-											}
-											onChange={() => {
-												handleToggleRolePermission('ORG_TASK_ADD');
-												handleToggleRolePermission('ORG_TASK_EDIT');
-											}}
-										/>
-									</div>
-								</div>
-								<div className="flex w-full items-center justify-between gap-[2rem]">
-									<Text className="flex-none grow-0 w-1/2 text-base font-normal text-gray-400 md-2">
-										{t('pages.settingsTeam.ISSUE_ASSIGN_UNASSIGN')}
-									</Text>
-									<div className="flex flex-row grow-0 justify-between items-center w-full">
-										<CommonToggle
-											enabledText="Activated"
-											disabledText="Deactivated"
-											enabled={
-												(rolePermissionsFormated?.['ORG_TASK_ADD']?.enabled &&
-													rolePermissionsFormated?.['ORG_TASK_EDIT']?.enabled) ||
-												false
-											}
-											onChange={() => {
-												handleToggleRolePermission('ORG_TASK_ADD');
-												handleToggleRolePermission('ORG_TASK_EDIT');
-											}}
-										/>
-									</div>
-								</div>
-								<div className="flex w-full items-center justify-between gap-[2rem]">
-									<Text className="flex-none grow-0 w-1/2 text-base font-normal text-gray-400 md-2">
-										{t('pages.settingsTeam.INVITE_MEMBERS')}
-									</Text>
-									<div className="flex flex-row grow-0 justify-between items-center w-full">
-										<CommonToggle
-											enabledText="Activated"
-											disabledText="Deactivated"
-											enabled={rolePermissionsFormated?.['ORG_INVITE_EDIT']?.enabled || false}
-											onChange={() => {
-												handleToggleRolePermission('ORG_INVITE_EDIT');
-											}}
-										/>
-									</div>
-								</div>
-								<div className="flex w-full items-center justify-between gap-[2rem]">
-									<Text className="flex-none grow-0 w-1/2 text-base font-normal text-gray-400 md-2">
-										{t('pages.settingsTeam.REMOVE_MEMBERS')}
-									</Text>
-									<div className="flex flex-row grow-0 justify-between items-center w-full">
-										<CommonToggle
-											enabledText="Activated"
-											disabledText="Deactivated"
-											enabled={
-												(rolePermissionsFormated?.['ORG_EMPLOYEES_EDIT']?.enabled &&
-													rolePermissionsFormated?.['CHANGE_SELECTED_EMPLOYEE']?.enabled) ||
-												false
-											}
-											onChange={() => {
-												handleToggleRolePermission('ORG_EMPLOYEES_EDIT');
-												handleToggleRolePermission('CHANGE_SELECTED_EMPLOYEE');
-											}}
-										/>
-									</div>
-								</div>
-								<div className="flex w-full items-center justify-between gap-[2rem]">
-									<Text className="flex-none grow-0 w-1/2 text-base font-normal text-gray-400 md-2">
-										{t('pages.settingsTeam.HANDLE_REQUESTS')}
-									</Text>
-									<div className="flex flex-row grow-0 justify-between items-center w-full">
-										<CommonToggle
-											enabledText="Activated"
-											disabledText="Deactivated"
-											enabled={
-												rolePermissionsFormated?.['ORG_TEAM_JOIN_REQUEST_EDIT']?.enabled ||
-												false
-											}
-											onChange={() => {
-												handleToggleRolePermission('ORG_TEAM_JOIN_REQUEST_EDIT');
-											}}
-										/>
-									</div>
-								</div>
-								<div className="flex w-full items-center justify-between gap-[2rem]">
-									<Text className="flex-none grow-0 w-1/2 text-base font-normal text-gray-400 md-2">
-										{t('pages.settingsTeam.ROLES_POSITIONS_CHANGE')}
-									</Text>
-									<div className="flex flex-row grow-0 justify-between items-center w-full">
-										<CommonToggle
-											enabledText="Activated"
-											disabledText="Deactivated"
-											enabled={rolePermissionsFormated?.['ORG_EMPLOYEES_EDIT']?.enabled || false}
-											onChange={() => {
-												handleToggleRolePermission('ORG_EMPLOYEES_EDIT');
-											}}
-										/>
-									</div>
-								</div>
-								<div className="flex w-full items-center justify-between gap-[2rem]">
-									<Text className="flex-none grow-0 w-1/2 text-base font-normal text-gray-400 md-2">
-										{t('pages.settingsTeam.VIEW_DETAILS')}
-									</Text>
-									<div className="flex flex-row grow-0 justify-between items-center w-full">
-										<CommonToggle
-											enabledText="Activated"
-											disabledText="Deactivated"
-											enabled={rolePermissionsFormated?.['ORG_TASK_VIEW']?.enabled || false}
-											onChange={() => {
-												handleToggleRolePermission('ORG_TASK_VIEW');
-											}}
-										/>
-									</div>
+				<div className="flex w-full min-w-0 flex-col">
+					{selectedRole && (
+						<div className="flex flex-col hairline-divide-y divide-border">
+							<div className={PERMISSION_ROW}>
+								<Text className={PERMISSION_LABEL}>{t('pages.settingsTeam.TRACK_TIME')}</Text>
+								<div className={PERMISSION_CONTROL}>
+									<CommonToggle
+										enabledText={t('common.ACTIVATED')}
+										disabledText={t('common.DEACTIVATED')}
+										enabled={rolePermissionsFormated?.['TIME_TRACKER']?.enabled || false}
+										onChange={() => {
+											handleToggleRolePermission('TIME_TRACKER');
+										}}
+									/>
 								</div>
 							</div>
-						)}
-						{!selectedRole && <SelectRole />}
-					</div>
-				</EverCard>
-			</Container>
+							<div className={PERMISSION_ROW}>
+								<Text className={PERMISSION_LABEL}>{t('pages.settingsTeam.ESTIMATE_ISSUE')}</Text>
+								<div className={PERMISSION_CONTROL}>
+									<CommonToggle
+										enabledText={t('common.ACTIVATED')}
+										disabledText={t('common.DEACTIVATED')}
+										enabled={
+											(rolePermissionsFormated?.['ORG_TASK_ADD']?.enabled &&
+												rolePermissionsFormated?.['ORG_TASK_EDIT']?.enabled) ||
+											false
+										}
+										onChange={() => {
+											handleToggleRolePermission('ORG_TASK_ADD');
+											handleToggleRolePermission('ORG_TASK_EDIT');
+										}}
+									/>
+								</div>
+							</div>
+							<div className={PERMISSION_ROW}>
+								<Text className={PERMISSION_LABEL}>{t('pages.settingsTeam.EPICS_CREATE_CLOSE')}</Text>
+								<div className={PERMISSION_CONTROL}>
+									<CommonToggle
+										enabledText={t('common.ACTIVATED')}
+										disabledText={t('common.DEACTIVATED')}
+										enabled={
+											(rolePermissionsFormated?.['ORG_TASK_ADD']?.enabled &&
+												rolePermissionsFormated?.['ORG_TASK_EDIT']?.enabled) ||
+											false
+										}
+										onChange={() => {
+											handleToggleRolePermission('ORG_TASK_ADD');
+											handleToggleRolePermission('ORG_TASK_EDIT');
+										}}
+									/>
+								</div>
+							</div>
+							<div className={PERMISSION_ROW}>
+								<Text className={PERMISSION_LABEL}>{t('pages.settingsTeam.ISSUE_CREATE_CLOSE')}</Text>
+								<div className={PERMISSION_CONTROL}>
+									<CommonToggle
+										enabledText={t('common.ACTIVATED')}
+										disabledText={t('common.DEACTIVATED')}
+										enabled={
+											(rolePermissionsFormated?.['ORG_TASK_ADD']?.enabled &&
+												rolePermissionsFormated?.['ORG_TASK_EDIT']?.enabled) ||
+											false
+										}
+										onChange={() => {
+											handleToggleRolePermission('ORG_TASK_ADD');
+											handleToggleRolePermission('ORG_TASK_EDIT');
+										}}
+									/>
+								</div>
+							</div>
+							<div className={PERMISSION_ROW}>
+								<Text className={PERMISSION_LABEL}>
+									{t('pages.settingsTeam.ISSUE_ASSIGN_UNASSIGN')}
+								</Text>
+								<div className={PERMISSION_CONTROL}>
+									<CommonToggle
+										enabledText={t('common.ACTIVATED')}
+										disabledText={t('common.DEACTIVATED')}
+										enabled={
+											(rolePermissionsFormated?.['ORG_TASK_ADD']?.enabled &&
+												rolePermissionsFormated?.['ORG_TASK_EDIT']?.enabled) ||
+											false
+										}
+										onChange={() => {
+											handleToggleRolePermission('ORG_TASK_ADD');
+											handleToggleRolePermission('ORG_TASK_EDIT');
+										}}
+									/>
+								</div>
+							</div>
+							<div className={PERMISSION_ROW}>
+								<Text className={PERMISSION_LABEL}>{t('pages.settingsTeam.INVITE_MEMBERS')}</Text>
+								<div className={PERMISSION_CONTROL}>
+									<CommonToggle
+										enabledText={t('common.ACTIVATED')}
+										disabledText={t('common.DEACTIVATED')}
+										enabled={rolePermissionsFormated?.['ORG_INVITE_EDIT']?.enabled || false}
+										onChange={() => {
+											handleToggleRolePermission('ORG_INVITE_EDIT');
+										}}
+									/>
+								</div>
+							</div>
+							<div className={PERMISSION_ROW}>
+								<Text className={PERMISSION_LABEL}>{t('pages.settingsTeam.REMOVE_MEMBERS')}</Text>
+								<div className={PERMISSION_CONTROL}>
+									<CommonToggle
+										enabledText={t('common.ACTIVATED')}
+										disabledText={t('common.DEACTIVATED')}
+										enabled={
+											(rolePermissionsFormated?.['ORG_EMPLOYEES_EDIT']?.enabled &&
+												rolePermissionsFormated?.['CHANGE_SELECTED_EMPLOYEE']?.enabled) ||
+											false
+										}
+										onChange={() => {
+											handleToggleRolePermission('ORG_EMPLOYEES_EDIT');
+											handleToggleRolePermission('CHANGE_SELECTED_EMPLOYEE');
+										}}
+									/>
+								</div>
+							</div>
+							<div className={PERMISSION_ROW}>
+								<Text className={PERMISSION_LABEL}>{t('pages.settingsTeam.HANDLE_REQUESTS')}</Text>
+								<div className={PERMISSION_CONTROL}>
+									<CommonToggle
+										enabledText={t('common.ACTIVATED')}
+										disabledText={t('common.DEACTIVATED')}
+										enabled={
+											rolePermissionsFormated?.['ORG_TEAM_JOIN_REQUEST_EDIT']?.enabled || false
+										}
+										onChange={() => {
+											handleToggleRolePermission('ORG_TEAM_JOIN_REQUEST_EDIT');
+										}}
+									/>
+								</div>
+							</div>
+							<div className={PERMISSION_ROW}>
+								<Text className={PERMISSION_LABEL}>
+									{t('pages.settingsTeam.ROLES_POSITIONS_CHANGE')}
+								</Text>
+								<div className={PERMISSION_CONTROL}>
+									<CommonToggle
+										enabledText={t('common.ACTIVATED')}
+										disabledText={t('common.DEACTIVATED')}
+										enabled={rolePermissionsFormated?.['ORG_EMPLOYEES_EDIT']?.enabled || false}
+										onChange={() => {
+											handleToggleRolePermission('ORG_EMPLOYEES_EDIT');
+										}}
+									/>
+								</div>
+							</div>
+							<div className={PERMISSION_ROW}>
+								<Text className={PERMISSION_LABEL}>{t('pages.settingsTeam.VIEW_DETAILS')}</Text>
+								<div className={PERMISSION_CONTROL}>
+									<CommonToggle
+										enabledText={t('common.ACTIVATED')}
+										disabledText={t('common.DEACTIVATED')}
+										enabled={rolePermissionsFormated?.['ORG_TASK_VIEW']?.enabled || false}
+										onChange={() => {
+											handleToggleRolePermission('ORG_TASK_VIEW');
+										}}
+									/>
+								</div>
+							</div>
+						</div>
+					)}
+					{!selectedRole && <SelectRolePrompt />}
+				</div>
+			</div>
 		</PageLayout>
 	);
 };
 
-function SelectRole() {
-	const t = useTranslations();
-
-	return (
-		<div className="mt-28">
-			<div className="m-auto w-[218px] h-[218px] rounded-full relative flex justify-center items-center text-center p-5 bg-[#6755c933] dark:bg-light--theme-light">
-				<Text className="text-6xl font-semibold text-primary">!</Text>
-			</div>
-
-			<Text className="text-2xl font-normal text-center mt-10 text-[#282048] dark:text-light--theme">
-				{t('common.SELECT_ROLE')}
-			</Text>
-		</div>
-	);
-}
-
 export default withAuthentication(Permissions, {
-	displayName: 'PermissionPage'
+	displayName: 'PermissionPage',
+	skeleton: PermissionsPageSkeleton
 });

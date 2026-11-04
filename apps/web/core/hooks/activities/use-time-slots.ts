@@ -15,8 +15,11 @@ import { useMyRolePermissionsQuery } from '@/core/hooks/roles/use-my-role-permis
 import { queryKeys } from '@/core/query/keys';
 import { TGetTimeSlotsStatisticsRequest, TDeleteTimeSlotsRequest } from '@/core/types/schemas';
 import { toast } from 'sonner';
+import { useTranslations, type DottedLanguageObjectStringPaths } from 'next-intl';
+import { errorReasonKeyOf } from '@/core/lib/utils/error-feedback';
 
 export function useTimeSlots(hasFilter?: boolean) {
+	const t = useTranslations();
 	const { user, isTeamManager } = useAuthenticateUser();
 	const { myPermissions } = useMyRolePermissionsQuery();
 	// The API lets a holder of CHANGE_SELECTED_EMPLOYEE act on (and delete) any employee's time slots
@@ -52,7 +55,13 @@ export function useTimeSlots(hasFilter?: boolean) {
 				isTeamManager ||
 				user?.role?.name?.toUpperCase() === 'MANAGER')
 		);
-	}, [queryParams?.employeeId, activityFilter.member?.employeeId, user?.employee?.id, user?.role?.name, isTeamManager]);
+	}, [
+		queryParams?.employeeId,
+		activityFilter.member?.employeeId,
+		user?.employee?.id,
+		user?.role?.name,
+		isTeamManager
+	]);
 	const invalidateTimeSlots = useCallback(() => {
 		queryClient.invalidateQueries({ queryKey: queryKeys.timer.timeSlots.all });
 	}, [queryClient]);
@@ -77,13 +86,14 @@ export function useTimeSlots(hasFilter?: boolean) {
 	const deleteTimeSlotsMutation = useMutation({
 		mutationFn: (params: TDeleteTimeSlotsRequest) => timeSlotService.deleteTimeSlots(params),
 		mutationKey: queryKeys.timer.timeSlots.operations.delete(undefined),
-		onSuccess: () => {
+		onSuccess: (_data, variables) => {
 			invalidateTimeSlots();
-			toast.success('Time slots deleted successfully');
+			toast.success(t('toasts.time.SLOTS_DELETED', { count: variables.ids.length }));
 		},
 		onError: (error, variables) => {
-			toast.error(`Failed to delete time slots ${variables.ids.length}`, {
-				description: error.message
+			const reasonKey = errorReasonKeyOf(error) as DottedLanguageObjectStringPaths;
+			toast.error(t('toasts.time.SLOTS_DELETE_FAILED', { count: variables.ids.length }), {
+				description: t(reasonKey)
 			});
 		}
 	});
@@ -181,6 +191,8 @@ export function useTimeSlots(hasFilter?: boolean) {
 		ownEmployeeId,
 		canActForOthers,
 		loadingDelete: deleteTimeSlotsMutation.isPending,
-		loading: timeSlotsQuery.isLoading
+		loading: timeSlotsQuery.isLoading,
+		isError: timeSlotsQuery.isError,
+		refetch: timeSlotsQuery.refetch
 	};
 }

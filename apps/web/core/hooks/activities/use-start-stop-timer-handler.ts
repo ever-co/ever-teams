@@ -7,7 +7,7 @@ import {
 	DAILY_PLAN_ESTIMATE_HOURS_MODAL_DATE
 } from '@/core/constants/config/constants';
 import { estimatedTotalTime } from '@/core/hooks/daily-plans/daily-plan-totals';
-import { useTimerPlanStatus } from '../timer';
+import { useTimerPlanStatus } from '../timer/use-timer-plan-status';
 import { useAtomValue } from 'jotai';
 import { timerStatusFetchingState } from '@/core/stores';
 import { getTimerAction, hasSeenModalToday, type TimerPolicyState } from '@/core/lib/helpers/timer-policy';
@@ -226,6 +226,7 @@ export function useStartStopTimerHandler({ startTimer, stopTimer }: UseStartStop
 			openSuggestDailyPlanModal,
 			isEnforceTaskSoftModalOpen,
 			enforceTaskSoftCloseModal,
+			dismissEnforceTaskSoftModal: _enforceTaskSoftCloseModal,
 			openEnforcePlannedTaskSoftModal
 		},
 		actionDisabled,

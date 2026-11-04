@@ -11,6 +11,8 @@ export const useEmailReset = () => {
 	const emailResetRequestMutation = useMutation({
 		mutationFn: (email: string) => emailResetService.resetEmail(email),
 		mutationKey: queryKeys.users.emailReset.request(undefined), // Use undefined for mutation key
+		// Both callers (the settings e-mail row and EmailResetModal) show the failure where the code is typed
+		meta: { handlesOwnError: true },
 		onSuccess: () => {
 			// Optionally invalidate related queries if needed
 			queryClient.invalidateQueries({ queryKey: queryKeys.users.emailReset.all });
@@ -21,6 +23,7 @@ export const useEmailReset = () => {
 	const verifyChangeEmailRequestMutation = useMutation({
 		mutationFn: (code: string) => emailResetService.verifyChangeEmail(code),
 		mutationKey: queryKeys.users.emailReset.verify(undefined), // Use undefined for mutation key
+		meta: { handlesOwnError: true },
 		onSuccess: () => {
 			// Optionally invalidate related queries if needed
 			queryClient.invalidateQueries({ queryKey: queryKeys.users.emailReset.all });

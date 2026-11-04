@@ -1,10 +1,11 @@
-import { Button } from '@/core/components';
+import { Button, modalFooterClass, modalPrimaryActionClass, modalSecondaryActionClass } from '@/core/components';
 import { Fragment, ReactNode, useCallback, useMemo } from 'react';
-import { Calendar, Clipboard } from 'lucide-react';
+import { Calendar, Link } from '@/core/components/icons';
+import { cn } from '@/core/lib/helpers';
 import { Thumbnail } from './basic-information-form';
 import { ScrollArea, ScrollBar } from '@/core/components/common/scroll-area';
 import { format } from 'date-fns';
-import { sanitizeHtml } from '@/core/lib/helpers/sanitize-html';
+import { RichTextView } from '@/core/components/common/rich-editor/rich-text-view';
 
 import { IStepElementProps } from '../container';
 import { useLocale, useTranslations } from 'next-intl';
@@ -173,7 +174,7 @@ export default function FinalReview(props: IStepElementProps) {
 		<form onSubmit={handleSubmit} className="flex flex-col pt-4 w-full">
 			<ScrollArea className="w-full max-h-[65vh] pr-4">
 				<div className="flex flex-col gap-6 pb-32 w-full">
-					<h2 className="text-xl font-medium">{t('common.REVIEW')}</h2>
+					<h2 className="text-sm font-medium text-foreground">{t('common.REVIEW')}</h2>
 					<div className="flex flex-col gap-8 w-full">
 						<BasicInformation
 							projectTitle={finalData?.name ?? '-'}
@@ -210,11 +211,13 @@ export default function FinalReview(props: IStepElementProps) {
 				</div>
 				<ScrollBar orientation="vertical" />
 			</ScrollArea>
-			<div className="flex justify-between items-center pt-4 w-full border-t">
+			<div className={cn(modalFooterClass, 'hairline-t border-border pt-4')}>
 				<Button
 					disabled={createOrganizationProjectLoading || editOrganizationProjectLoading}
 					onClick={handlePrevious}
-					className=" h-[2.5rem]"
+					variant="ghost"
+					size="default"
+					className={modalSecondaryActionClass}
 					type="button"
 				>
 					{t('common.BACK')}
@@ -224,7 +227,8 @@ export default function FinalReview(props: IStepElementProps) {
 						loading={editOrganizationProjectLoading}
 						disabled={editOrganizationProjectLoading}
 						type="submit"
-						className=" h-[2.5rem]"
+						size="default"
+						className={modalPrimaryActionClass}
 					>
 						{t('common.SAVE_CHANGES')}
 					</Button>
@@ -233,7 +237,8 @@ export default function FinalReview(props: IStepElementProps) {
 						loading={createOrganizationProjectLoading}
 						disabled={createOrganizationProjectLoading}
 						type="submit"
-						className=" h-[2.5rem]"
+						size="default"
+						className={modalPrimaryActionClass}
 					>
 						{t('pages.projects.addOrEditModal.steps.createProject')}
 					</Button>
@@ -251,9 +256,9 @@ interface IAttribute {
 function Attribute(props: IAttribute) {
 	const { _key, value, icon } = props;
 	return (
-		<div className="flex min-w-[6rem] text-xs flex-col justify-between  gap-2 items-start">
-			<div className="font-medium">{_key}</div>
-			<div className="flex gap-1 items-center text-gray-500">
+		<div className="flex min-w-[6rem] flex-col justify-between gap-1 items-start">
+			<div className="text-xs text-muted-foreground">{_key}</div>
+			<div className="flex gap-1.5 items-center text-sm font-medium text-foreground">
 				{value ? (
 					<>
 						{icon ? icon : null} <span>{value}</span>
@@ -290,8 +295,16 @@ function BasicInformation(props: IBasicInformationProps) {
 					value={projectTitle}
 				/>
 				<VerticalSeparator />
-				<Attribute _key={t('common.START_DATE')} value={startDate} icon={<Calendar size={10} />} />
-				<Attribute _key={t('common.END_DATE')} value={endDate} icon={<Calendar size={10} />} />
+				<Attribute
+					_key={t('common.START_DATE')}
+					value={startDate}
+					icon={<Calendar className="size-3.5 text-muted-foreground" />}
+				/>
+				<Attribute
+					_key={t('common.END_DATE')}
+					value={endDate}
+					icon={<Calendar className="size-3.5 text-muted-foreground" />}
+				/>
 				<VerticalSeparator />
 				<Attribute
 					_key={t('pages.projects.basicInformationForm.formFields.websiteUrl')}
@@ -299,7 +312,7 @@ function BasicInformation(props: IBasicInformationProps) {
 						<div className="flex gap-1 items-center">
 							{websiteUrl ? (
 								<>
-									<Clipboard size={10} /> <span>{websiteUrl}</span>
+									<Link className="size-3.5 text-muted-foreground" /> <span>{websiteUrl}</span>
 								</>
 							) : (
 								<span>-</span>
@@ -310,15 +323,12 @@ function BasicInformation(props: IBasicInformationProps) {
 			</div>
 
 			<div className="flex flex-col gap-2 w-full">
-				<span className="text-xs font-medium">{t('common.DESCRIPTION')}</span>
-				{description ? (
-					<div
-						className="p-3 text-xs rounded-lg border min-h-20 [&_strong]:font-bold [&_em]:italic [&_u]:underline [&_code]:bg-gray-200 [&_code]:dark:bg-muted [&_code]:px-1 [&_code]:rounded [&_p]:mb-1 [&_p:last-child]:mb-0"
-						dangerouslySetInnerHTML={{ __html: sanitizeHtml(description) }}
-					/>
-				) : (
-					<span>-</span>
-				)}
+				<span className="text-xs text-muted-foreground">{t('common.DESCRIPTION')}</span>
+				<RichTextView
+					value={description}
+					emptyState={<span>-</span>}
+					className="min-h-20 rounded-lg bg-foreground/[0.03] p-3 text-sm"
+				/>
 			</div>
 		</div>
 	);
@@ -393,8 +403,14 @@ function Categorization(props: ICategorizationProps) {
 	const t = useTranslations();
 
 	const ItemWithColor = ({ label, color }: { label: string; color?: string | null }) => (
-		<div key={label} className="px-1 shrink-0  text-[.7rem] border flex items-center gap-2 rounded">
-			<span style={{ backgroundColor: color ?? '#6B7280' }} className="h-[10px] w-[10px] rounded-full" />
+		<div
+			key={label}
+			className="inline-flex gap-1.5 items-center px-2 py-0.5 text-xs font-medium rounded-sm shrink-0 bg-foreground/5 text-foreground"
+		>
+			<span
+				style={{ backgroundColor: color ?? 'hsl(var(--muted-foreground))' }}
+				className="rounded-full size-1.5"
+			/>
 			<span>{label}</span>
 		</div>
 	);
@@ -402,8 +418,10 @@ function Categorization(props: ICategorizationProps) {
 	return (
 		<div className="flex flex-wrap gap-8 items-center w-full">
 			<div className="flex flex-col gap-2">
-				<p className="text-xs font-medium">{t('pages.projects.categorizationForm.formFields.tags')}</p>
-				<div className="flex gap-2 items-center w-full wrap">
+				<p className="text-xs text-muted-foreground">
+					{t('pages.projects.categorizationForm.formFields.tags')}
+				</p>
+				<div className="flex flex-wrap gap-2 items-center w-full">
 					{tags?.length ? (
 						tags?.map((el) => {
 							return <ItemWithColor key={el.name} label={el.name} color={el.color} />;
@@ -414,7 +432,9 @@ function Categorization(props: ICategorizationProps) {
 				</div>
 			</div>
 			<div className="flex flex-col gap-2">
-				<p className="text-xs font-medium">{t('pages.projects.categorizationForm.formFields.colorCode')}</p>
+				<p className="text-xs text-muted-foreground">
+					{t('pages.projects.categorizationForm.formFields.colorCode')}
+				</p>
 				<ItemWithColor color={colorCode ?? 'black'} label={colorCode ?? '-'} />
 			</div>
 		</div>
@@ -464,7 +484,7 @@ function TeamAndRelations(props: ITeamAndRelationsProps) {
 	const Item = ({ name, imgUrl }: { name: string; imgUrl?: string }) => (
 		<div className="flex gap-2 items-center">
 			<Thumbnail className="rounded-full" size={'24px'} identifier={name} imgUrl={imgUrl} />
-			<span className="text-xs font-medium">{name}</span>
+			<span className="text-sm font-medium">{name}</span>
 		</div>
 	);
 
@@ -472,28 +492,30 @@ function TeamAndRelations(props: ITeamAndRelationsProps) {
 		<div className="flex flex-col gap-8 w-full">
 			{/* Teams Section */}
 			<div className="flex flex-col gap-2">
-				<p className="text-xs font-medium">{t('pages.projects.teamAndRelationsForm.formFields.assignTeams')}</p>
+				<p className="text-xs text-muted-foreground">
+					{t('pages.projects.teamAndRelationsForm.formFields.assignTeams')}
+				</p>
 				<div className="flex flex-wrap gap-2 items-center w-full">
 					{selectedTeams?.length ? (
 						selectedTeams.map((team) => (
 							<div
 								key={team.id}
-								className="flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-medium bg-primary/10 border border-primary/20"
+								className="flex gap-1.5 items-center px-2 py-0.5 text-xs font-medium rounded-sm bg-foreground/5 text-foreground"
 							>
 								{team.emoji && <span>{team.emoji}</span>}
 								<span>{team.name}</span>
 							</div>
 						))
 					) : (
-						<span className="text-xs text-gray-500">-</span>
+						<span className="text-xs text-muted-foreground">-</span>
 					)}
 				</div>
 			</div>
 
 			{/* Managers Section */}
 			<div className="flex flex-col gap-2">
-				<p className="text-xs font-medium">{t('common.MANAGERS')}</p>
-				<div className="flex gap-2 items-center w-full wrap">
+				<p className="text-xs text-muted-foreground">{t('common.MANAGERS')}</p>
+				<div className="flex flex-wrap gap-2 items-center w-full">
 					{managerIds?.length ? (
 						managerIds?.map((managerId) => {
 							const member = allMembers?.find((el) => el?.employeeId === managerId);
@@ -516,8 +538,8 @@ function TeamAndRelations(props: ITeamAndRelationsProps) {
 				</div>
 			</div>
 			<div className="flex flex-col gap-2">
-				<p className="text-xs font-medium">Members</p>
-				<div className="flex gap-2 items-center w-full wrap">
+				<p className="text-xs text-muted-foreground">Members</p>
+				<div className="flex flex-wrap gap-2 items-center w-full">
 					{memberIds?.length ? (
 						memberIds?.map((memberId) => {
 							const member = allMembers?.find((el) => el?.employeeId === memberId);
@@ -543,7 +565,9 @@ function TeamAndRelations(props: ITeamAndRelationsProps) {
 				// Will be implemented later on the api side (we keep this here)
 			}
 			<div className="hidden flex-col gap-2">
-				<p className="text-xs font-medium">{t('pages.projects.teamAndRelationsForm.formFields.relations')}</p>
+				<p className="text-xs text-muted-foreground">
+					{t('pages.projects.teamAndRelationsForm.formFields.relations')}
+				</p>
 				<div className="flex flex-col gap-2 w-full">
 					{relations?.length ? (
 						relations?.map((relation) => {
@@ -551,7 +575,7 @@ function TeamAndRelations(props: ITeamAndRelationsProps) {
 							return (
 								<div key={project?.id} className="flex gap-3 items-center">
 									<Item name={projectTitle ?? '-'} imgUrl={projectImageUrl} />
-									<span className="text-xs italic text-gray-500 min-w-20">
+									<span className="text-xs italic text-muted-foreground min-w-20">
 										{relation.relationType}
 									</span>
 									<Item imgUrl={project?.imageUrl ?? undefined} name={project?.name ?? '-'} />

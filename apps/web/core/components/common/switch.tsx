@@ -9,6 +9,12 @@ import { ERoleName } from '@/core/types/generics/enums/role';
 import { useAtomValue } from 'jotai';
 import { activeTeamState } from '@/core/stores';
 
+export const SWITCH_TRACK_RECIPE =
+	'group relative inline-flex h-6 w-10.5 shrink-0 cursor-pointer items-center rounded-full hairline-border border-transparent bg-foreground/10 p-0.5 shadow-sm shadow-black/10 hairline-ring ring-foreground/10 outline-none transition-[color,box-shadow,background-color] focus-visible:ring-[3px] focus-visible:ring-ring/25 data-checked:bg-primary dark:ring-foreground/15';
+
+export const SWITCH_THUMB_RECIPE =
+	'pointer-events-none block size-4.5 rounded-full bg-white shadow-sm shadow-black/15 transition-transform duration-200 group-data-checked:translate-x-4.5';
+
 export default function TimeTrackingToggle({ activeManager }: { activeManager: IEmployee | undefined }) {
 	const t = useTranslations();
 	const [enabled, setEnabled] = useState(activeManager?.isTrackingEnabled);
@@ -33,23 +39,20 @@ export default function TimeTrackingToggle({ activeManager }: { activeManager: I
 	}, [activeManager]);
 
 	return (
-		<div className="flex items-center gap-x-[10px]">
+		<div className="flex items-center gap-x-2.5">
 			<Switch
 				checked={enabled}
 				onChange={() => {
 					handleChange();
 				}}
-				className={`${enabled ? 'bg-[#DBD3FA]' : 'bg-[#80808061]'}
-          relative inline-flex h-[38px] w-[74px] shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus-visible:ring-2  focus-visible:ring-white focus-visible:ring-white/75`}
+				className={SWITCH_TRACK_RECIPE}
 			>
 				<span className="sr-only">{t('common.USE_SETTING')}</span>
-				<span
-					aria-hidden="true"
-					className={`${enabled ? 'translate-x-9 bg-[#3826A6]' : 'bg-white translate-x-1'}
-            pointer-events-none inline-block h-[30px] w-[30px] mt-[2.5px] transform rounded-full bg-[#3826A6] shadow-lg ring-0 transition duration-200 ease-in-out`}
-				/>
+				<span aria-hidden="true" className={SWITCH_THUMB_RECIPE} />
 			</Switch>
-			<Text className="text-gray-400">{enabled ? t('common.ACTIVATED') : t('common.DEACTIVATED')}</Text>
+			<Text className="text-sm text-muted-foreground">
+				{enabled ? t('common.ACTIVATED') : t('common.DEACTIVATED')}
+			</Text>
 		</div>
 	);
 }
@@ -89,23 +92,20 @@ export function ShareProfileViewsToggle() {
 	}, [activeTeam?.shareProfileView]);
 
 	return (
-		<div className="flex items-center gap-x-[10px]">
+		<div className="flex items-center gap-x-2.5">
 			<Switch
 				checked={enabled}
 				onChange={() => {
 					handleChange();
 				}}
-				className={`${enabled ? 'bg-[#DBD3FA]' : 'bg-[#80808061]'}
-          relative inline-flex h-[38px] w-[74px] shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus-visible:ring-2  focus-visible:ring-white focus-visible:ring-white/75`}
+				className={SWITCH_TRACK_RECIPE}
 			>
 				<span className="sr-only">{t('common.USE_SETTING')}</span>
-				<span
-					aria-hidden="true"
-					className={`${enabled ? 'translate-x-9 bg-[#3826A6]' : 'bg-white translate-x-1'}
-            pointer-events-none inline-block h-[30px] w-[30px] mt-[2.5px] transform rounded-full bg-[#3826A6] shadow-lg ring-0 transition duration-200 ease-in-out`}
-				/>
+				<span aria-hidden="true" className={SWITCH_THUMB_RECIPE} />
 			</Switch>
-			<Text className="text-gray-400">{enabled ? t('common.ACTIVATED') : t('common.DEACTIVATED')}</Text>
+			<Text className="text-sm text-muted-foreground">
+				{enabled ? t('common.ACTIVATED') : t('common.DEACTIVATED')}
+			</Text>
 		</div>
 	);
 }
@@ -147,23 +147,20 @@ export function RequireDailyPlanToTrack() {
 	}, [activeTeam?.requirePlanToTrack]);
 
 	return (
-		<div className="flex items-center gap-x-[10px]">
+		<div className="flex items-center gap-x-2.5">
 			<Switch
 				checked={enabled}
 				onChange={() => {
 					handleChange();
 				}}
-				className={`${enabled ? 'bg-[#DBD3FA]' : 'bg-[#80808061]'}
-          relative inline-flex h-[38px] w-[74px] shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus-visible:ring-2  focus-visible:ring-white focus-visible:ring-white/75`}
+				className={SWITCH_TRACK_RECIPE}
 			>
 				<span className="sr-only">{t('common.USE_SETTING')}</span>
-				<span
-					aria-hidden="true"
-					className={`${enabled ? 'translate-x-9 bg-[#3826A6]' : 'bg-white translate-x-1'}
-            pointer-events-none inline-block h-[30px] w-[30px] mt-[2.5px] transform rounded-full bg-[#3826A6] shadow-lg ring-0 transition duration-200 ease-in-out`}
-				/>
+				<span aria-hidden="true" className={SWITCH_THUMB_RECIPE} />
 			</Switch>
-			<Text className="text-gray-400">{enabled ? t('common.ACTIVATED') : t('common.DEACTIVATED')}</Text>
+			<Text className="text-sm text-muted-foreground">
+				{enabled ? t('common.ACTIVATED') : t('common.DEACTIVATED')}
+			</Text>
 		</div>
 	);
 }

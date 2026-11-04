@@ -1,11 +1,9 @@
 import dynamic from 'next/dynamic';
 import { ActivityCalendarSkeleton } from '../common/skeleton/activity-calendar-skeleton';
-import {
-	UserProfileDetailSkeleton,
-	TaskCardBlockSkeleton,
-	UserTeamActivitySkeleton
-} from '../common/skeleton/profile-component-skeletons';
+import { TaskCardBlockSkeleton, UserTeamActivitySkeleton } from '../common/skeleton/profile-component-skeletons';
+import { ProfileBandSkeleton } from '../pages/profile/profile-band-skeleton';
 import { AppSidebarSkeleton } from '../common/skeleton/app-sidebar-skeleton';
+import { BoardPageSkeleton } from '../pages/board/board-page-skeleton';
 
 // Common Components
 export const LazyActivityCalendar = dynamic(
@@ -23,7 +21,7 @@ export const LazyUserProfileDetail = dynamic(
 		})),
 	{
 		ssr: false,
-		loading: () => <UserProfileDetailSkeleton />
+		loading: () => <ProfileBandSkeleton />
 	}
 );
 
@@ -93,11 +91,7 @@ export const LazyChatwootWidget = dynamic(() => import('@/core/components/integr
 // Board Components
 export const LazyBoard = dynamic(() => import('@/core/components/integration/boards/exalidraw'), {
 	ssr: false,
-	loading: () => (
-		<div className="flex justify-center items-center h-96">
-			<div className="text-gray-500">Loading Board...</div>
-		</div>
-	)
+	loading: () => <BoardPageSkeleton />
 });
 
 // Empty State Components
@@ -107,8 +101,8 @@ export const LazyAnimatedEmptyState = dynamic(
 		ssr: false,
 		loading: () => (
 			<div className="grow w-full min-h-[600px] flex items-center justify-center flex-col">
-				<div className="w-32 h-32 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded-full mb-4" />
-				<div className="w-48 h-4 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded" />
+				<div className="w-32 h-32 bg-foreground/5 animate-pulse rounded-full mb-4" />
+				<div className="w-48 h-4 bg-foreground/5 animate-pulse rounded-md" />
 			</div>
 		)
 	}

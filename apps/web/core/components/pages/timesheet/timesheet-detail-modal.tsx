@@ -1,17 +1,18 @@
 import { ETimesheetStatus } from '@/core/types/generics/enums/timesheet';
-import { Modal, statusColor } from '@/core/components';
+import { Modal } from '@/core/components';
 import { AnimatedEmptyState } from '@/core/components/common/empty-state';
 import { TimesheetCardDetail } from './timesheet-card';
 import { TranslationHooks, useTranslations } from 'next-intl';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/core/components/common/accordion';
 import { cn } from '@/core/lib/helpers';
 import { getStatusTimesheet } from '@/core/lib/helpers/timesheet-grouping';
-import { Badge } from '@/core/components/common/badge';
 import { EmployeeAvatar, ProjectLogo } from '../../timesheet/compact-timesheet-component';
 import { groupBy } from '@/core/lib/helpers/array-data';
 import { TaskNameInfoDisplay, TotalTimeDisplay } from '../../tasks/task-displays';
 import { ITimeLog } from '@/core/types/interfaces/timer/time-log/time-log';
 import { TimesheetDetailMode } from './timesheet-page-content';
+import { TimesheetStatusBadge, TimesheetTotalBadge } from '../../timesheet/timesheet-status-badge';
+import { timesheetStatusLabel } from '../../timesheet/timesheet-status-tone';
 
 export interface IAddTaskModalProps {
 	isOpen: boolean;
@@ -36,10 +37,10 @@ function TimesheetDetailModal({ closeModal, isOpen, timesheet, timesheetDetailMo
 			closeModal={closeModal}
 			title={title}
 			showCloseIcon
-			className="bg-light--theme-light dark:bg-dark--theme-light p-5 rounded-sm w-full md:w-40 md:min-w-[35rem]"
-			titleClass="font-bold flex justify-start w-full text-xl dark:text-white"
+			className="w-full md:w-40 md:min-w-[35rem]"
+			titleClass="flex justify-start w-full"
 		>
-			<div className="py-4 w-full">
+			<div className="w-full">
 				<div className="flex flex-col  w-full  gap-4  h-[60vh] max-h-[60vh]  overflow-y-auto ">
 					{(() => {
 						switch (timesheetDetailMode) {
@@ -97,33 +98,30 @@ const MembersWorkedCard = ({ element, t }: { element: ITimeLog[]; t: Translation
 			{memberWorkItems.map((timesheet, index) => {
 				return (
 					<Accordion key={index} type="single" collapsible>
-						<AccordionItem value={timesheet.employeeId} className="p-1 rounded">
+						<AccordionItem value={timesheet.employeeId} className="border-border">
 							<AccordionTrigger
 								type="button"
 								className={cn(
-									'flex flex-row-reverse gap-x-2 justify-end items-center px-2 w-full h-12 rounded-xs hover:no-underline'
+									'flex h-14 w-full flex-row-reverse items-center justify-end gap-x-2 rounded-md px-2 py-0',
+									'transition-colors hover:bg-foreground/2.5 hover:no-underline'
 								)}
 							>
-								<div className="flex justify-between items-center w-full">
-									<div className="flex gap-2 items-center">
+								<div className="flex justify-between items-center gap-3 w-full">
+									<div className="flex gap-2 items-center min-w-0">
 										<EmployeeAvatar
-											className="w-10 h-10 rounded-full border shadow-md"
+											className="size-8 rounded-full object-cover hairline-ring ring-border"
 											imageUrl={timesheet.element[0].employee?.user?.imageUrl ?? ''}
 										/>
-										<span className="font-bold">{timesheet.element[0].employee?.fullName}</span>
-									</div>
-									<Badge
-										variant={'outline'}
-										className="box-border flex flex-row items-center px-2 py-1 gap-2 w-[108px] h-[30px] bg-[rgba(247,247,247,0.6)] border border-gray-300 rounded-lg flex-none order-1 grow-0"
-									>
-										<span className="text-[#5f5f61] text-[14px] font-[700px]">
-											{t('timer.TOTAL_HOURS').split(' ')[0]}:
+										<span className="truncate text-sm font-medium text-foreground">
+											{timesheet.element[0].employee?.fullName}
 										</span>
+									</div>
+									<TimesheetTotalBadge label={<>{t('timer.TOTAL_HOURS').split(' ')[0]}:</>}>
 										<TotalTimeDisplay
 											timesheetLog={timesheet.element}
-											className="text-[#293241] text-[14px]"
+											className="text-foreground"
 										/>
-									</Badge>
+									</TimesheetTotalBadge>
 								</div>
 							</AccordionTrigger>
 							<AccordionContent className="w-full">
@@ -135,81 +133,61 @@ const MembersWorkedCard = ({ element, t }: { element: ITimeLog[]; t: Translation
 												<AccordionItem
 													key={status}
 													value={status === 'DENIED' ? 'REJECTED' : status}
-													className="p-1 rounded"
+													className="border-b-0 pl-4"
 												>
 													<AccordionTrigger
-														style={{ backgroundColor: statusColor(status).bgOpacity }}
 														type="button"
 														className={cn(
-															'flex flex-row-reverse justify-end items-center w-full h-12 rounded-xs gap-x-2 hover:no-underline px-2',
-															statusColor(status).text
+															'flex h-11 w-full flex-row-reverse items-center justify-end gap-x-2 rounded-md px-2 py-0',
+															'text-muted-foreground transition-colors hover:bg-foreground/2.5 hover:no-underline'
 														)}
 													>
-														<div className="flex justify-between items-center space-x-1 w-full">
-															<div className="flex items-center space-x-1">
-																<div
-																	className={cn(
-																		'p-2 rounded',
-																		statusColor(status).bg
-																	)}
-																></div>
-																<div className="flex gap-x-1 items-center">
-																	<span className="text-base font-normal text-gray-400 uppercase">
-																		{status === 'DENIED' ? 'REJECTED' : status}
-																	</span>
-																	<span className="text-gray-400 text-[14px]">
+														<div className="flex justify-between items-center gap-3 w-full">
+															<div className="flex items-center gap-2">
+																<TimesheetStatusBadge status={status}>
+																	<span>{timesheetStatusLabel(status)}</span>
+																	<span className="tabular-nums">
 																		({rows.length})
 																	</span>
-																</div>
-																<Badge
-																	variant={'outline'}
-																	className="box-border flex flex-row items-center px-2 py-1 gap-2 w-[108px] h-[30px] bg-[rgba(247,247,247,0.6)] border border-gray-300 rounded-lg flex-none order-1 grow-0"
+																</TimesheetStatusBadge>
+																<TimesheetTotalBadge
+																	label={<>{t('timer.TOTAL_HOURS').split(' ')[0]}:</>}
 																>
-																	<span className="text-[#5f5f61] text-[14px] font-[700px]">
-																		{t('timer.TOTAL_HOURS').split(' ')[0]}:
-																	</span>
 																	<TotalTimeDisplay
 																		timesheetLog={rows}
-																		className="text-[#293241] text-[14px]"
+																		className="text-foreground"
 																	/>
-																</Badge>
+																</TimesheetTotalBadge>
 															</div>
 														</div>
 													</AccordionTrigger>
-													<AccordionContent className="w-full">
+													<AccordionContent className="w-full pb-2">
 														{rows.map((items) => (
 															<div
 																key={items.id}
-																style={{
-																	backgroundColor: statusColor(status).bgOpacity,
-																	borderBottomColor: statusColor(status).bg
-																}}
 																className={cn(
-																	'flex items-center p-1 space-x-4 border-b border-b-gray-200 dark:border-b-gray-600 h-[60px]'
+																	'flex min-h-12 items-center gap-4 hairline-t border-border px-2 py-2',
+																	'transition-colors hover:bg-foreground/2.5'
 																)}
 															>
-																<div className="flex-[2]">
+																<div className="min-w-0 flex-2">
 																	<TaskNameInfoDisplay
 																		task={items.task}
-																		className={cn(
-																			'rounded-sm h-auto !px-[0.3312rem] py-[0.2875rem] shadow-[0px_0px_15px_0px_#e2e8f0] dark:shadow-transparent'
-																		)}
-																		taskTitleClassName={cn(
-																			'text-sm text-ellipsis overflow-hidden '
-																		)}
+																		className="min-w-0"
+																		taskTitleClassName="text-sm text-foreground"
 																		showSize={false}
 																		dash
-																		taskNumberClassName="text-sm"
+																		taskNumberClassName="text-sm text-muted-foreground"
 																	/>
 																</div>
-																<div className="flex flex-1 gap-2 items-center">
+																<div className="flex flex-1 gap-2 items-center min-w-0">
 																	{items.project?.imageUrl && (
 																		<ProjectLogo
-																			className="w-[28px] h-[28px] drop-shadow-[25%] rounded-[8px]"
+																			className="size-6 rounded-md object-cover hairline-ring ring-border"
 																			imageUrl={items.project.imageUrl}
 																		/>
 																	)}
-																	<span className="font-medium">
+																	<span className="truncate text-sm">
 																		{items.project?.name}
 																	</span>
 																</div>
@@ -265,42 +243,26 @@ const MenHoursCard = ({ element, t }: MenHoursCardProps) => {
 			{menHoursItems.map((timesheet, index) => {
 				return (
 					<Accordion key={index} type="single" collapsible>
-						<AccordionItem value={timesheet.status} className="p-1 rounded">
+						<AccordionItem value={timesheet.status} className="border-border">
 							<AccordionTrigger
-								style={{
-									backgroundColor: statusColor(timesheet.element[0].timesheet?.status || '').bgOpacity
-								}}
 								type="button"
 								className={cn(
-									'flex flex-row-reverse gap-x-2 justify-end items-center px-2 w-full h-12 rounded-xs hover:no-underline'
+									'flex h-12 w-full flex-row-reverse items-center justify-end gap-x-2 rounded-md px-2 py-0',
+									'transition-colors hover:bg-foreground/2.5 hover:no-underline'
 								)}
 							>
-								<div className="flex justify-between items-center w-full">
+								<div className="flex justify-between items-center gap-3 w-full">
 									<div className="flex gap-2 items-center">
-										<div
-											className={cn(
-												'p-2 rounded-[3px] gap-2 w-[20px] h-[20px]',
-												statusColor(timesheet.element[0].timesheet?.status || '').bg
-											)}
-										></div>
-										<span className="font-bold">
-											{timesheet.element[0].timesheet?.status === ETimesheetStatus.DENIED
-												? 'REJECTED'
-												: timesheet.element[0].timesheet?.status}
-										</span>
+										<TimesheetStatusBadge status={timesheet.element[0].timesheet?.status}>
+											<span>{timesheetStatusLabel(timesheet.element[0].timesheet?.status)}</span>
+										</TimesheetStatusBadge>
 									</div>
-									<Badge
-										variant={'outline'}
-										className="box-border flex flex-row items-center px-2 py-1 gap-2 w-[108px] h-[30px] bg-[rgba(247,247,247,0.6)] border border-gray-300 rounded-lg flex-none order-1 grow-0"
-									>
-										<span className="text-[#5f5f61] text-[14px] font-[700px]">
-											{t('timer.TOTAL_HOURS').split(' ')[0]}:
-										</span>
+									<TimesheetTotalBadge label={<>{t('timer.TOTAL_HOURS').split(' ')[0]}:</>}>
 										<TotalTimeDisplay
 											timesheetLog={timesheet.element}
-											className="text-[#293241] text-[14px]"
+											className="text-foreground"
 										/>
-									</Badge>
+									</TimesheetTotalBadge>
 								</div>
 							</AccordionTrigger>
 							<AccordionContent className="w-full">
@@ -312,81 +274,61 @@ const MenHoursCard = ({ element, t }: MenHoursCardProps) => {
 												<AccordionItem
 													key={status}
 													value={status === 'DENIED' ? 'REJECTED' : status}
-													className="p-1 rounded"
+													className="border-b-0 pl-4"
 												>
 													<AccordionTrigger
-														style={{ backgroundColor: statusColor(status).bgOpacity }}
 														type="button"
 														className={cn(
-															'flex flex-row-reverse justify-end items-center w-full h-12 rounded-xs gap-x-2 hover:no-underline px-2',
-															statusColor(status).text
+															'flex h-11 w-full flex-row-reverse items-center justify-end gap-x-2 rounded-md px-2 py-0',
+															'text-muted-foreground transition-colors hover:bg-foreground/2.5 hover:no-underline'
 														)}
 													>
-														<div className="flex justify-between items-center space-x-1 w-full">
-															<div className="flex items-center space-x-1">
-																<div
-																	className={cn(
-																		'p-2 rounded',
-																		statusColor(status).bg
-																	)}
-																></div>
-																<div className="flex gap-x-1 items-center">
-																	<span className="text-base font-normal text-gray-400 uppercase">
-																		{status === 'DENIED' ? 'REJECTED' : status}
-																	</span>
-																	<span className="text-gray-400 text-[14px]">
+														<div className="flex justify-between items-center gap-3 w-full">
+															<div className="flex items-center gap-2">
+																<TimesheetStatusBadge status={status}>
+																	<span>{timesheetStatusLabel(status)}</span>
+																	<span className="tabular-nums">
 																		({rows.length})
 																	</span>
-																</div>
-																<Badge
-																	variant={'outline'}
-																	className="box-border flex flex-row items-center px-2 py-1 gap-2 w-[108px] h-[30px] bg-[rgba(247,247,247,0.6)] border border-gray-300 rounded-lg flex-none order-1 grow-0"
+																</TimesheetStatusBadge>
+																<TimesheetTotalBadge
+																	label={<>{t('timer.TOTAL_HOURS').split(' ')[0]}:</>}
 																>
-																	<span className="text-[#5f5f61] text-[14px] font-[700px]">
-																		{t('timer.TOTAL_HOURS').split(' ')[0]}:
-																	</span>
 																	<TotalTimeDisplay
 																		timesheetLog={rows}
-																		className="text-[#293241] text-[14px]"
+																		className="text-foreground"
 																	/>
-																</Badge>
+																</TimesheetTotalBadge>
 															</div>
 														</div>
 													</AccordionTrigger>
-													<AccordionContent className="w-full">
+													<AccordionContent className="w-full pb-2">
 														{rows.map((items) => (
 															<div
 																key={items.id}
-																style={{
-																	backgroundColor: statusColor(status).bgOpacity,
-																	borderBottomColor: statusColor(status).bg
-																}}
 																className={cn(
-																	'flex items-center p-1 space-x-4 border-b border-b-gray-200 dark:border-b-gray-600 h-[60px]'
+																	'flex min-h-12 items-center gap-4 hairline-t border-border px-2 py-2',
+																	'transition-colors hover:bg-foreground/2.5'
 																)}
 															>
-																<div className="flex-[2]">
+																<div className="min-w-0 flex-2">
 																	<TaskNameInfoDisplay
 																		task={items.task}
-																		className={cn(
-																			'rounded-sm h-auto !px-[0.3312rem] py-[0.2875rem] shadow-[0px_0px_15px_0px_#e2e8f0] dark:shadow-transparent'
-																		)}
-																		taskTitleClassName={cn(
-																			'text-sm !text-ellipsis !overflow-hidden '
-																		)}
+																		className="min-w-0"
+																		taskTitleClassName="text-sm text-foreground"
 																		showSize={false}
 																		dash
-																		taskNumberClassName="text-sm"
+																		taskNumberClassName="text-sm text-muted-foreground"
 																	/>
 																</div>
-																<div className="flex flex-1 gap-2 items-center">
+																<div className="flex flex-1 gap-2 items-center min-w-0">
 																	{items.project?.imageUrl && (
 																		<ProjectLogo
-																			className="w-[28px] h-[28px] drop-shadow-[25%] rounded-[8px]"
+																			className="size-6 rounded-md object-cover hairline-ring ring-border"
 																			imageUrl={items.project.imageUrl}
 																		/>
 																	)}
-																	<span className="font-medium">
+																	<span className="truncate text-sm">
 																		{items.project?.name}
 																	</span>
 																</div>

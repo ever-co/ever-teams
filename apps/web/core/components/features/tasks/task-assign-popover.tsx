@@ -50,7 +50,16 @@ export function TaskUnOrAssignPopover({
 			onTaskClick,
 			onTaskCreated
 		});
-	}, [setModalState, tasks, tasksComplete, pagesLoading, userProfile, usersTaskCreatedAssignTo, onTaskClick, onTaskCreated]);
+	}, [
+		setModalState,
+		tasks,
+		tasksComplete,
+		pagesLoading,
+		userProfile,
+		usersTaskCreatedAssignTo,
+		onTaskClick,
+		onTaskCreated
+	]);
 
 	const closeModal = useCallback(() => {
 		setModalState((prev) => ({ ...prev, isOpen: false }));
@@ -92,7 +101,7 @@ export function TaskUnOrAssignPopover({
 			onClick={handleClick}
 			onKeyDown={handleKeyDown}
 			className={clsxm(
-				'flex items-center mb-1.5 outline-hidden border-none cursor-pointer rounded-xl bg-transparent',
+				'flex items-center mb-1.5 outline-hidden border-none cursor-pointer rounded-md bg-transparent focus-visible:ring-[3px] focus-visible:ring-ring/25',
 				buttonClassName
 			)}
 		>

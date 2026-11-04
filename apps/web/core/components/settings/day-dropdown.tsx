@@ -45,11 +45,8 @@ export const DayDropdown = ({ setValue, active }: { setValue: UseFormSetValue<Fi
 	return (
 		<>
 			<Dropdown
-				className="min-w-fit max-w-sm bg-[#FFFFFF] dark:bg-dark--theme-light w-1"
-				buttonClassName={clsxm(
-					'py-0 font-medium h-14 w-[12rem] text-[#282048] dark:text-white',
-					DayList.length === 0 && ['py-2']
-				)}
+				className="min-w-fit max-w-sm bg-card w-1"
+				buttonClassName={clsxm('h-9 w-[12rem] py-0 text-foreground', DayList.length === 0 && ['py-2'])}
 				value={DayItem}
 				onChange={onChangeActiveTeam}
 				items={items}

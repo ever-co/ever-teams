@@ -202,15 +202,45 @@ export function removeAuthCookies() {
 }
 
 // Access Token
-export function getAccessTokenCookie(ctx?: NextCtx): string | null {
+function nonEmptyStringOrNull(value: unknown): string | null {
+	if (typeof value !== 'string') {
+		return null;
+	}
+	if (value.length === 0) {
+		return null;
+	}
+	return value;
+}
+
+function readAccessTokenCookie(ctx?: NextCtx): string | null {
 	const totalChunksCookie = getTotalChunksCookie(TOKEN_COOKIE_NAME, ctx);
 	if (totalChunksCookie) {
 		const full = getLargeStringFromCookies(TOKEN_COOKIE_NAME, ctx);
-		return typeof full === 'string' && full.length > 0 ? full : null;
+		return nonEmptyStringOrNull(full);
 	}
 
 	const single = getCookie(TOKEN_COOKIE_NAME, ctx);
-	return typeof single === 'string' && single.length > 0 ? single : null;
+	return nonEmptyStringOrNull(single);
+}
+
+// Read on almost every render; in the browser the result depends only on the cookie string, so it is kept
+// until that string changes.
+let lastCookieString: string | null = null;
+let lastAccessToken: string | null = null;
+
+export function getAccessTokenCookie(ctx?: NextCtx): string | null {
+	const isBrowserRead = !ctx && typeof document !== 'undefined';
+	if (!isBrowserRead) {
+		return readAccessTokenCookie(ctx);
+	}
+	const cookieString = document.cookie;
+	if (cookieString === lastCookieString) {
+		return lastAccessToken;
+	}
+	const accessToken = readAccessTokenCookie();
+	lastCookieString = cookieString;
+	lastAccessToken = accessToken;
+	return accessToken;
 }
 
 export function getTotalChunksCookie(COOKIE_NAME: string, ctx?: NextCtx) {

@@ -1,10 +1,12 @@
 import '@/styles/style.css';
 
 import { format } from 'date-fns';
-import { Button, Modal } from '@/core/components';
+import { Button, Modal, modalFooterClass, modalPrimaryActionClass, modalSecondaryActionClass } from '@/core/components';
 import { cn } from '@/core/lib/helpers';
-import { CalendarDays, Clock7 } from 'lucide-react';
-import { DottedLanguageObjectStringPaths, useTranslations } from 'next-intl';
+import { Calendar, Clock } from '@/core/components/icons';
+import { Input, controlGroupRecipe, controlRecipe } from '@/core/components/common/input';
+import { DottedLanguageObjectStringPaths, useLocale, useTranslations } from 'next-intl';
+import { errorReasonKeyOf } from '@/core/lib/utils/error-feedback';
 import { FormEvent, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 import { manualTimeReasons } from '@/core/constants/config/constants';
@@ -37,6 +39,14 @@ interface IAddManualTimeModalProps {
 	params: 'AddManuelTime' | 'AddTime';
 	timeSheetStatus?: 'ManagerTimesheet' | 'TeamMemberTimesheet';
 	closeModal: () => void;
+	/** Where the entry starts when the dialog opens (a calendar slot); now when not given. */
+	initialStart?: Date;
+	/** Where the entry ends when the dialog opens; the start when not given. */
+	initialEnd?: Date;
+}
+
+function clockTimeOf(date: Date) {
+	return date.toTimeString().slice(0, 5);
 }
 
 /** Whether the listed task belongs to the team, so time is never saved with a team and a task of another team. */
@@ -59,8 +69,9 @@ function isEmployeeOfTeam(team: TOrganizationTeam | null | undefined, employeeId
 }
 
 export function AddManualTimeModal(props: Readonly<IAddManualTimeModalProps>) {
-	const { closeModal, isOpen, params, timeSheetStatus } = props;
+	const { closeModal, isOpen, params, timeSheetStatus, initialStart, initialEnd } = props;
 	const t = useTranslations();
+	const locale = useLocale();
 	const [isBillable, setIsBillable] = useState<boolean>(false);
 	const [description, setDescription] = useState<string>('');
 	const [reason, setReason] = useState<string>('');
@@ -89,17 +100,20 @@ export function AddManualTimeModal(props: Readonly<IAddManualTimeModalProps>) {
 		addManualTimeLoading,
 		addManualTimeSuccess,
 		addManualTimeError,
-		addManualTimeErrorMessage,
+		addManualTimeFailure,
 		timeLog
 	} = useManualTime();
 
-	useEffect(() => {
-		const now = new Date();
-		const currentTime = now.toTimeString().slice(0, 5);
+	const initialRangeRef = useRef({ start: initialStart, end: initialEnd });
 
-		setDate(now);
-		setStartTime(currentTime);
-		setEndTime(currentTime);
+	useEffect(() => {
+		const { start, end } = initialRangeRef.current;
+		const startAt = start ?? new Date();
+		const endAt = end ?? startAt;
+
+		setDate(startAt);
+		setStartTime(clockTimeOf(startAt));
+		setEndTime(clockTimeOf(endAt));
 	}, []);
 
 	// Picks are only sent when set, so an empty pick keeps the hook defaults
@@ -145,13 +159,14 @@ export function AddManualTimeModal(props: Readonly<IAddManualTimeModalProps>) {
 
 			if (!isValidForm) {
 				const missingFields = [];
-				if (!date) missingFields.push('Date');
-				if (!startTime) missingFields.push('Start Time');
-				if (!endTime) missingFields.push('End Time');
-				if (!team && !activeTeam) missingFields.push('Team');
-				if (!taskId) missingFields.push('Task');
+				if (!date) missingFields.push(t('manualTime.DATE'));
+				if (!startTime) missingFields.push(t('manualTime.START_TIME'));
+				if (!endTime) missingFields.push(t('manualTime.END_TIME'));
+				if (!team && !activeTeam) missingFields.push(t('manualTime.TEAM'));
+				if (!taskId) missingFields.push(t('manualTime.TASK'));
 
-				setErrorMsg(`Please complete: ${missingFields.join(', ')}`);
+				const fields = new Intl.ListFormat(locale, { type: 'conjunction' }).format(missingFields);
+				setErrorMsg(t('manualTime.FILL_IN', { fields }));
 				return;
 			}
 
@@ -159,7 +174,7 @@ export function AddManualTimeModal(props: Readonly<IAddManualTimeModalProps>) {
 			// picked before it belongs to the previous team
 			const isTaskOfTeamToSave = isTaskOfTeam(tasks, taskId, teamToSave?.id);
 			if (!isTaskOfTeamToSave) {
-				setErrorMsg('Please complete: Task');
+				setErrorMsg(t('manualTime.FILL_IN', { fields: t('manualTime.TASK') }));
 				return;
 			}
 
@@ -167,12 +182,12 @@ export function AddManualTimeModal(props: Readonly<IAddManualTimeModalProps>) {
 			const hasPickedEmployee = employeeId !== '';
 			const isEmployeeOfTeamToSave = isEmployeeOfTeam(teamToSave, employeeId);
 			if (hasPickedEmployee && !isEmployeeOfTeamToSave) {
-				setErrorMsg('Please complete: Employee');
+				setErrorMsg(t('manualTime.FILL_IN', { fields: t('manualTime.EMPLOYEE') }));
 				return;
 			}
 
 			if (endTime <= startTime) {
-				setErrorMsg('End time must be after start time');
+				setErrorMsg(t('manualTime.END_AFTER_START'));
 				return;
 			}
 
@@ -193,7 +208,9 @@ export function AddManualTimeModal(props: Readonly<IAddManualTimeModalProps>) {
 			activeTeam,
 			teamToSave,
 			tasks,
-			employeeId
+			employeeId,
+			t,
+			locale
 		]
 	);
 
@@ -238,11 +255,12 @@ export function AddManualTimeModal(props: Readonly<IAddManualTimeModalProps>) {
 
 	// Handle manual time addition errors - keep modal open and show error
 	useEffect(() => {
-		if (addManualTimeError && addManualTimeErrorMessage) {
-			// Set error message from API response
-			setErrorMsg(addManualTimeErrorMessage);
+		if (addManualTimeError && addManualTimeFailure) {
+			// The reason in words, never the server's own text
+			const reasonKey = errorReasonKeyOf(addManualTimeFailure) as DottedLanguageObjectStringPaths;
+			setErrorMsg(t(reasonKey));
 		}
-	}, [addManualTimeError, addManualTimeErrorMessage]);
+	}, [addManualTimeError, addManualTimeFailure, t]);
 
 	// Reset states when modal opens - use ref to prevent infinite loops
 	const isOpenRef = useRef(isOpen);
@@ -427,29 +445,31 @@ export function AddManualTimeModal(props: Readonly<IAddManualTimeModalProps>) {
 			isOpen={isOpen}
 			closeModal={closeModal}
 			title={t('common.ADD_TIME')}
-			className="bg-light--theme-light dark:bg-dark--theme-light p-5 rounded-xl w-full md:w-40 md:min-w-[24rem] h-[auto] justify-start"
-			titleClass="font-bold"
+			breadcrumb={activeTeam?.name}
+			className="w-full md:w-40 md:min-w-[24rem] h-[auto] justify-start"
 		>
-			<form onSubmit={handleSubmit} className="text-sm w-[90%] md:w-full  flex flex-col justify-between gap-2.5">
+			<form onSubmit={handleSubmit} className="text-sm w-[90%] md:w-full flex flex-col justify-between gap-4">
 				<div className="flex flex-col">
-					<label className="block mb-1 text-xs text-gray-500">
+					<label className="mb-1.5 block text-xs font-medium leading-none text-muted-foreground">
 						{t('manualTime.DATE')}
-						<span className="text-[#de5505e1] ml-1 text-xs">*</span>
+						<span className="ml-1 text-destructive-ink">*</span>
 					</label>
 					<DatePicker
 						buttonVariant={'link'}
 						//@ts-ignore
-						className="dark:bg-dark--theme-light"
-						buttonClassName={
-							'decoration-transparent  w-full flex items-center w-full border-gray-300 justify-start text-left font-normal text-black  h-10 border  dark:border-slate-600 rounded-md"'
-						}
+						className="bg-popover"
+						buttonClassName={cn(
+							controlGroupRecipe,
+							'decoration-transparent h-9 justify-start gap-2 px-2.5 text-left font-normal text-foreground'
+						)}
 						customInput={
 							<>
-								<CalendarDays className="w-5 h-5 dark:text-gray-700" />
+								<Calendar className="size-4 shrink-0 text-muted-foreground" />
 								<Button
-									variant={'outline'}
+									variant="ghost"
+									size="default"
 									className={cn(
-										'w-[230px] justify-start text-left font-normal text-black  h-10 border border-transparent dark:border-transparent text-sm',
+										'w-[230px] justify-start px-0 text-left text-sm font-normal text-foreground hover:bg-transparent',
 										!date && 'text-muted-foreground'
 									)}
 								>
@@ -466,62 +486,64 @@ export function AddManualTimeModal(props: Readonly<IAddManualTimeModalProps>) {
 				</div>
 				<div className="flex items-center">
 					<div className=" w-[48%] mr-[4%]">
-						<label className="block mb-1 text-xs text-gray-500">
+						<label className="mb-1.5 block text-xs font-medium leading-none text-muted-foreground">
 							{t('manualTime.START_TIME')}
-							<span className="text-[#de5505e1] ml-1 text-xs">*</span>
+							<span className="ml-1 text-destructive-ink">*</span>
 						</label>
-						<input
+						<Input
 							type="time"
 							value={startTime}
 							onChange={(e) => setStartTime(e.target.value)}
-							className="w-full p-2 text-sm font-normal border rounded-md border-slate-300 dark:border-slate-600 dark:bg-dark--theme-light"
+							className="tabular-nums"
 							required
 						/>
 					</div>
 
 					<div className=" w-[48%]">
-						<label className="block mb-1 text-xs text-gray-500">
+						<label className="mb-1.5 block text-xs font-medium leading-none text-muted-foreground">
 							{t('manualTime.END_TIME')}
-							<span className="text-[#de5505e1] ml-1 text-xs">*</span>
+							<span className="ml-1 text-destructive-ink">*</span>
 						</label>
 
-						<input
+						<Input
 							type="time"
 							value={endTime}
 							onChange={(e) => setEndTime(e.target.value)}
-							className="w-full p-2 font-normal border rounded-md border-slate-300 dark:border-slate-600 dark:bg-dark--theme-light"
+							className="tabular-nums"
 							required
 						/>
 					</div>
 				</div>
 				<div className="flex justify-between">
 					<div className="flex items-center">
-						<label className="block mr-2 text-xs text-gray-500">
+						<label className="mr-2 block text-[13px] text-foreground">
 							{t('pages.timesheet.BILLABLE.BILLABLE')}
 						</label>
 						<div
-							className={`w-12 h-6 flex items-center bg-[#6c57f4b7] rounded-full p-1 cursor-pointer `}
+							className={clsxm(
+								'flex h-6 w-10.5 shrink-0 cursor-pointer items-center rounded-full p-0.5 hairline-ring ring-foreground/10 transition-colors dark:ring-foreground/15',
+								isBillable && 'bg-primary',
+								!isBillable && 'bg-foreground/10'
+							)}
 							onClick={() => setIsBillable(!isBillable)}
-							style={
-								isBillable
-									? { background: 'linear-gradient(to right, #9d91efb7, #8a7bedb7)' }
-									: { background: '#6c57f4b7' }
-							}
 						>
 							<div
-								className={` bg-[#3826A6] w-4 h-4 rounded-full shadow-md transform transition-transform ${isBillable ? 'translate-x-6' : 'translate-x-0'}`}
+								className={clsxm(
+									'size-4.5 rounded-full bg-white shadow-sm shadow-black/15 transition-transform duration-200',
+									isBillable && 'translate-x-4.5'
+								)}
 							/>
 						</div>
 					</div>
 
 					<div className="flex items-center">
-						<label className="block mb-1 text-xs text-primary">
+						<label className="block text-xs text-muted-foreground">
 							{`${params === 'AddManuelTime' ? t('timer.TOTAL_HOURS') : t('manualTime.ADDED_HOURS')}`}
 							:{' '}
 						</label>
-						<div className="ml-[10px] p-1 flex items-center font-semibold text-sm dark:border-regal-rose  pr-3">
-							<div className="mr-[10px] bg-gradient-to-tl text-[#3826A6]  rounded-full ">
-								<Clock7 size={20} className="rounded-full text-primary dark:text-[#8a7bedb7]" />
+						<div className="ml-2 flex items-center gap-1.5 text-sm font-semibold tabular-nums">
+							<div className="text-muted-foreground">
+								<Clock className="size-4" />
 							</div>
 							{timeDifference}
 						</div>
@@ -539,31 +561,31 @@ export function AddManualTimeModal(props: Readonly<IAddManualTimeModalProps>) {
 							itemToValue={itemToValue}
 						/>
 						<div className="flex flex-col">
-							<label className="block text-xs text-gray-500 shrink-0">
+							<label className="mb-1.5 block shrink-0 text-xs font-medium leading-none text-muted-foreground">
 								{t('manualTime.DESCRIPTION')} ({t('manualTime.OPTIONAL')})
 							</label>
 							<textarea
 								value={description}
-								placeholder="What did you worked on..."
+								placeholder={t('modals.manualTime.descriptionPlaceholder')}
 								onChange={(e) => setDescription(e.target.value)}
-								className="w-full h-32 p-2 border border-gray-300 rounded-md resize-none grow dark:border-slate-600 dark:bg-dark--theme-light"
+								className={cn(controlRecipe, 'h-32 w-full grow resize-none p-3')}
 							/>
 						</div>
 					</>
 				) : (
 					<>
 						<div className="">
-							<label className="block mb-1 text-xs text-gray-500">
+							<label className="mb-1.5 block text-xs font-medium leading-none text-muted-foreground">
 								{t('manualTime.TEAM')}
-								<span className="text-[#de5505e1] ml-1 text-xs">*</span>
+								<span className="ml-1 text-destructive-ink">*</span>
 							</label>
 							<CustomSelect
 								valueKey="id"
 								// Shows the team the time is saved with, also when the active team changes under the form
 								value={teamToSave?.id ?? ''}
-								classNameGroup="max-h-[40vh] dark:!text-white "
+								classNameGroup="max-h-[40vh]"
 								ariaLabel="teams"
-								className="w-full text-sm border-gray-300 dark:border-slate-600 dark:text-white"
+								className="w-full text-sm"
 								options={teams}
 								onChange={(value) => {
 									// CustomSelect passes the picked team's id
@@ -584,17 +606,17 @@ export function AddManualTimeModal(props: Readonly<IAddManualTimeModalProps>) {
 							/>
 						</div>
 						<div className="">
-							<label className="block mb-1 text-xs text-gray-500">
+							<label className="mb-1.5 block text-xs font-medium leading-none text-muted-foreground">
 								{t('manualTime.TASK')}
-								<span className="text-[#de5505e1] ml-1 text-xs">*</span>
+								<span className="ml-1 text-destructive-ink">*</span>
 							</label>
 							<CustomSelect
 								valueKey="id"
 								// Controlled, so a task cleared on a team change is cleared in the select too
 								value={taskId}
-								classNameGroup="max-h-[40vh] overflow-x-hidden max-w-[420px] dark:!text-white "
+								classNameGroup="max-h-[40vh] overflow-x-hidden max-w-[420px]"
 								ariaLabel="task"
-								className="w-full text-sm border-gray-300 dark:border-slate-600 dark:text-white"
+								className="w-full text-sm"
 								options={team ? selectedTeamTasks : activeTeamTasks}
 								renderOption={(task: TTask) => {
 									return task?.title ?? task?.label ?? '(no-title)';
@@ -616,25 +638,25 @@ export function AddManualTimeModal(props: Readonly<IAddManualTimeModalProps>) {
 						</div>
 
 						<div className="flex flex-col">
-							<label className="block text-xs text-gray-500 shrink-0">
+							<label className="mb-1.5 block shrink-0 text-xs font-medium leading-none text-muted-foreground">
 								{t('manualTime.DESCRIPTION')} ({t('manualTime.OPTIONAL')})
 							</label>
 							<textarea
 								value={description}
-								placeholder="What worked on? "
+								placeholder={t('modals.manualTime.descriptionPlaceholder')}
 								onChange={(e) => setDescription(e.target.value)}
-								className="w-full p-2 text-sm border border-gray-300 rounded-md resize-none min-h-20 grow dark:border-slate-600 dark:bg-dark--theme-light"
+								className={cn(controlRecipe, 'min-h-20 w-full grow resize-none p-3')}
 							/>
 						</div>
 
 						<div className="">
-							<label className="block mb-1 text-xs text-gray-500">
+							<label className="mb-1.5 block text-xs font-medium leading-none text-muted-foreground">
 								{t('manualTime.REASON')} ({t('manualTime.OPTIONAL')})
 							</label>
 							<CustomSelect
-								classNameGroup="max-h-[40vh] dark:!text-white "
+								classNameGroup="max-h-[40vh]"
 								ariaLabel="REASON"
-								className="w-full text-sm border-gray-300 dark:border-slate-600 dark:text-white"
+								className="w-full text-sm"
 								options={manualTimeReasons.map((reason) =>
 									t(`manualTime.reasons.${reason}` as DottedLanguageObjectStringPaths)
 								)}
@@ -646,36 +668,23 @@ export function AddManualTimeModal(props: Readonly<IAddManualTimeModalProps>) {
 					</>
 				)}
 
-				<div
-					className={clsxm(
-						'flex items-center w-full pt-2',
-						params === 'AddManuelTime' ? 'justify-center' : 'justify-between'
-					)}
-				>
-					<>
-						{params === 'AddTime' && (
-							<Button
-								variant="outline"
-								type="button"
-								className="text-sm font-medium border-gray-300 dark:text-primary dark:border-slate-600 dark:bg-dark--theme-light"
-							>
-								{t('common.VIEW_TIMESHEET')}
-							</Button>
-						)}
-						<Button
-							loading={addManualTimeLoading}
-							disabled={addManualTimeLoading}
-							type="submit"
-							className={clsxm(
-								'bg-[#3826A6] font-medium flex items-center text-sm text-white',
-								`${params === 'AddManuelTime' && 'w-full'}`
-							)}
-						>
-							{t('common.ADD_TIME')}
+				<div className={modalFooterClass}>
+					{params === 'AddTime' && (
+						<Button variant="ghost" size="default" className={modalSecondaryActionClass} type="button">
+							{t('common.VIEW_TIMESHEET')}
 						</Button>
-					</>
+					)}
+					<Button
+						loading={addManualTimeLoading}
+						disabled={addManualTimeLoading}
+						type="submit"
+						size="default"
+						className={modalPrimaryActionClass}
+					>
+						{t('common.ADD_TIME')}
+					</Button>
 				</div>
-				{errorMsg && <div className="m-2 text-[#ff6a00de] text-xs">{errorMsg}</div>}
+				{errorMsg && <div className="m-2 text-xs text-destructive-ink">{errorMsg}</div>}
 			</form>
 		</Modal>
 	);

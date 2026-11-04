@@ -5,27 +5,20 @@ const TeamInvitationsSkeleton = ({ className }: { className?: string }) => {
 	return (
 		<div className={clsxm('mt-6', className)}>
 			{/* Single invitation card skeleton */}
-			<EverCard
-				shadow="bigger"
-				className={clsxm(
-					'w-full mt-2 flex justify-between',
-					'border dark:border-border dark:shadow-lg dark:bg-card',
-					'pt-2 pb-2'
-				)}
-			>
+			<EverCard shadow="bigger" className={clsxm('w-full mt-2 flex justify-between', 'pt-2 pb-2')}>
 				{/* Invitation text */}
 				<div className="mt-auto mb-auto">
-					<div className="w-48 h-4 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded" />
+					<div className="w-48 h-4 bg-foreground/5 animate-pulse rounded-md" />
 				</div>
 
 				{/* Action buttons */}
 				<div className="flex flex-row gap-3 ml-auto mr-5 justify-items-end">
-					<div className="w-20 h-8 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded-xl" />
-					<div className="w-20 h-8 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded-xl" />
+					<div className="w-20 h-9 bg-foreground/5 animate-pulse rounded-md" />
+					<div className="w-20 h-9 bg-foreground/5 animate-pulse rounded-md" />
 				</div>
 
 				{/* Close button */}
-				<div className="w-5 h-5 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded" />
+				<div className="w-5 h-5 bg-foreground/5 animate-pulse rounded-sm" />
 			</EverCard>
 		</div>
 	);

@@ -1,574 +1,453 @@
-import { Modal, NoData, SpinnerLoader } from '@/core/components';
-import { Dispatch, memo, SetStateAction, useCallback, useMemo, useRef, useState } from 'react';
-import { clsxm } from '@/core/lib/utils';
-import { Text } from '@/core/components';
-import { ChevronRightIcon } from 'assets/svg';
-import { AddTasksEstimationHoursModal } from '../features/daily-plan/add-task-estimation-hours-modal';
-import { useEmployeeDailyPlans } from '@/core/hooks/daily-plans/use-employee-daily-plans';
-import { useCreateDailyPlan } from '@/core/hooks/daily-plans/use-create-daily-plan';
-import { useUserQuery } from '@/core/hooks/queries/user-user.query';
-import { useIsMemberManager } from '@/core/hooks/organizations/teams/use-team-member';
-import { Button } from '@/core/components/duplicated-components/_button';
-import { Calendar } from '@/core/components/common/calendar';
+'use client';
+
+import { memo, useCallback, useMemo, useRef, useState } from 'react';
 import moment from 'moment';
-import { ValueNoneIcon } from '@radix-ui/react-icons';
-import { checkPastDate } from '@/core/lib/helpers';
+import { useFormatter, useTranslations, type DottedLanguageObjectStringPaths } from 'next-intl';
+import type { ActiveModifiers } from 'react-day-picker';
+import { APP_DIALOG_BODY, APP_DIALOG_FOOTER, AppDialog, AppDialogHeader } from '@/core/components/common/app-dialog';
+import { Button } from '@/core/components/common/button';
+import { Calendar } from '@/core/components/common/calendar';
+import { EmptyState } from '@/core/components/common/empty-state';
+import { BRAND_WASH_PANEL } from '@/core/components/common/surface-recipes';
+import { Tabs, TabsList, TabsTrigger } from '@/core/components/common/tabs';
+import { ChevronLeft, ChevronRight } from '@/core/components/icons';
+import {
+	AddTasksEstimationHoursModal,
+	PlanDayChip
+} from '@/core/components/features/daily-plan/add-task-estimation-hours-modal';
+import { PAST_PLAN_DAY_MARK, PLANNED_DAY_MARK } from '@/core/components/features/daily-plan/plan-editor/plan-day-marks';
+import { useCreateDailyPlan } from '@/core/hooks/daily-plans/use-create-daily-plan';
+import { useEmployeeDailyPlans } from '@/core/hooks/daily-plans/use-employee-daily-plans';
+import { useIsMemberManager } from '@/core/hooks/organizations/teams/use-team-member';
+import { useUserQuery } from '@/core/hooks/queries/user-user.query';
+import { checkPastDate, cn } from '@/core/lib/helpers';
 import { getDailyPlanDay } from '@/core/lib/helpers/daily-plan-day';
-import { useTranslations } from 'next-intl';
-import { ActiveModifiers } from 'react-day-picker';
-import { EverCard } from '../common/ever-card';
-import { Tooltip } from '../duplicated-components/tooltip';
-import { VerticalSeparator } from '../duplicated-components/separator';
+import { isSameDay } from '@/core/lib/utils/daily-plan-editor';
 import { EDailyPlanStatus } from '@/core/types/generics/enums/daily-plan';
 import { ERoleName } from '@/core/types/generics/enums/role';
-import { TDailyPlan } from '@/core/types/schemas/task/daily-plan.schema';
+import type { TDailyPlan } from '@/core/types/schemas/task/daily-plan.schema';
 
 interface IAllPlansModal {
 	closeModal: () => void;
 	isOpen: boolean;
-	employeeId?: string | null; //  Optional employeeId to view plans for a specific employee
+	/** Whose plans to show; the signed-in person's when absent. */
+	employeeId?: string | null;
 }
 
-type TCalendarTab = 'Today' | 'Tomorrow' | 'Calendar';
-type TNavigationMode = 'DATE' | 'PLAN';
+type PlanTab = 'today' | 'tomorrow' | 'calendar';
 
-/**
- * A modal that displays all the plans available to the user (Today, Tomorrow and Future).
- *
- *
- * @param {Object} props - The props Object
- * @param {boolean} props.open - If true open the modal otherwise close the modal
- * @param {() => void} props.closeModal - A function to close the modal
- *
- * @returns {JSX.Element} The modal element
- */
-export const AllPlansModal = memo(function AllPlansModal(props: IAllPlansModal) {
-	// Utility function for checking if two dates are the same
-	const isSameDate = useCallback((date1: Date | number | string, date2: Date | number | string) => {
-		return getDailyPlanDay(date1) === getDailyPlanDay(date2);
-	}, []);
+/** `day` is a plan opened from the calendar or reached with the arrows; it lives under the Calendar tab. */
+type PlanView = PlanTab | 'day';
 
-	const { isOpen, closeModal, employeeId } = props;
-	const [showCalendar, setShowCalendar] = useState(false);
-	const [showCustomPlan, setShowCustomPlan] = useState(false);
-	const [customDate, setCustomDate] = useState<Date>(moment().toDate());
+const PLAN_TABS: PlanTab[] = ['today', 'tomorrow', 'calendar'];
 
-	//  Use specialized hooks with employeeId to get the correct employee's plans
-	const { employeeDailyPlans, employeePastPlans } = useEmployeeDailyPlans(employeeId ?? null);
-	const { createDailyPlan, createDailyPlanLoading } = useCreateDailyPlan();
-	const t = useTranslations();
-	const [navigationMode, setNavigationMode] = useState<TNavigationMode>('PLAN');
-	const sortedPlans = useMemo(
-		() =>
-			[...(employeeDailyPlans?.items || [])].sort((plan1, plan2) =>
-				new Date(plan1.date).getTime() > new Date(plan2.date).getTime() ? 1 : -1
-			),
-		[employeeDailyPlans?.items]
-	);
-	const currentPlanIndex = useMemo(
-		() => sortedPlans.findIndex((plan) => isSameDate(plan.date, moment(customDate).toDate())),
-		// eslint-disable-next-line react-hooks/exhaustive-deps
-		[customDate, employeeDailyPlans?.items]
-	);
-	const nextPlan = useMemo(
-		() =>
-			currentPlanIndex >= 0 && currentPlanIndex < employeeDailyPlans?.items?.length - 1
-				? sortedPlans[currentPlanIndex + 1]
-				: null,
-		[currentPlanIndex, employeeDailyPlans?.items?.length, sortedPlans]
-	);
-	const previousPlan = useMemo(
-		() => (currentPlanIndex > 0 ? sortedPlans[currentPlanIndex - 1] : null),
-		[currentPlanIndex, sortedPlans]
-	);
+const TAB_LABEL_KEYS: Record<PlanTab, DottedLanguageObjectStringPaths> = {
+	today: 'common.TODAY',
+	tomorrow: 'common.TOMORROW',
+	calendar: 'common.CALENDAR'
+};
 
-	// Memoize today, tomorrow, and future plans
-	const todayPlan = useMemo(
-		() => employeeDailyPlans?.items?.find((plan: TDailyPlan) => isSameDate(plan.date, moment().toDate())),
-		[isSameDate, employeeDailyPlans?.items]
-	);
+const ADMIN_ROLES = new Set<string>([ERoleName.ADMIN, ERoleName.SUPER_ADMIN]);
 
-	const tomorrowPlan = useMemo(
-		() =>
-			employeeDailyPlans?.items?.find((plan: TDailyPlan) =>
-				isSameDate(plan.date, moment().add(1, 'days').toDate())
-			),
-		[isSameDate, employeeDailyPlans?.items]
-	);
+/** Two clicks on the same day within this delay open its plan, as the previous calendar did. */
+const DOUBLE_CLICK_MS = 300;
 
-	const selectedPlan = useMemo(
-		() =>
-			customDate &&
-			employeeDailyPlans?.items?.find((plan: TDailyPlan) => {
-				return isSameDate(plan.date, customDate.setHours(0, 0, 0, 0));
-			}),
-		[customDate, employeeDailyPlans?.items, isSameDate]
-	);
+function startOfToday() {
+	return moment().startOf('day').toDate();
+}
 
-	// Handle modal close
-	const handleCloseModal = useCallback(() => {
-		closeModal();
-	}, [closeModal]);
+function startOfTomorrow() {
+	return moment().add(1, 'day').startOf('day').toDate();
+}
 
-	// Define tabs for plan selection
-	const tabs: TCalendarTab[] = useMemo(() => ['Today', 'Tomorrow', 'Calendar'], []);
+function dayOf(plan: TDailyPlan) {
+	return moment(getDailyPlanDay(plan.date)).toDate();
+}
 
-	// State to track the active tab
-	const [selectedTab, setSelectedTab] = useState(tabs[0]);
+function shiftedDay(date: Date, days: number) {
+	return moment(date).add(days, 'day').startOf('day').toDate();
+}
 
-	// Handle tab switching
-	const handleTabClick = (tab: TCalendarTab) => {
-		if (tab === 'Today') {
-			setCustomDate(moment().toDate());
-			setNavigationMode('PLAN');
-		} else if (tab === 'Tomorrow') {
-			setCustomDate(moment().add(1, 'days').toDate());
-			setNavigationMode('PLAN');
-		}
-		setSelectedTab(tab);
-		setShowCalendar(tab === 'Calendar');
-		setShowCustomPlan(false);
+function viewForDate(date: Date): PlanView {
+	if (isSameDay(date, startOfToday())) {
+		return 'today';
+	}
+	if (isSameDay(date, startOfTomorrow())) {
+		return 'tomorrow';
+	}
+	return 'day';
+}
 
-		if (tab === 'Calendar') {
-			setNavigationMode('DATE');
-		}
-	};
+function tabOf(view: PlanView): PlanTab {
+	if (view === 'day') {
+		return 'calendar';
+	}
+	return view;
+}
 
-	// Determine which plan to display based on the selected tab
-	const plan = useMemo(() => {
-		switch (selectedTab) {
-			case 'Today':
-				return todayPlan;
-			case 'Tomorrow':
-				return tomorrowPlan;
-			case 'Calendar':
-				return selectedPlan;
-			default:
-				return undefined;
-		}
-	}, [selectedTab, todayPlan, tomorrowPlan, selectedPlan]);
+function sortedByDay(plans: TDailyPlan[]) {
+	return [...plans].sort((first, second) => getDailyPlanDay(first.date).localeCompare(getDailyPlanDay(second.date)));
+}
 
-	const { data: user } = useUserQuery();
-	const { isTeamManager } = useIsMemberManager(user);
+function lastPlanBefore(sortedPlans: TDailyPlan[], date: Date) {
+	const dayKey = getDailyPlanDay(date);
+	const earlier = sortedPlans.filter((plan) => getDailyPlanDay(plan.date) < dayKey);
+	return earlier.at(-1);
+}
 
-	const targetEmployeeId = employeeId ?? user?.employee?.id ?? null;
-	const isSelf = !targetEmployeeId || targetEmployeeId === user?.employee?.id;
+function firstPlanAfter(sortedPlans: TDailyPlan[], date: Date) {
+	const dayKey = getDailyPlanDay(date);
+	return sortedPlans.find((plan) => getDailyPlanDay(plan.date) > dayKey);
+}
 
-	const isAdmin = user?.role?.name
-		? [ERoleName.ADMIN, ERoleName.SUPER_ADMIN].includes(user.role.name as ERoleName)
-		: false;
+function isAdminRole(roleName: string | null | undefined) {
+	if (!roleName) {
+		return false;
+	}
+	return ADMIN_ROLES.has(roleName);
+}
 
-	const canEditPlans = isSelf || isTeamManager || isAdmin;
+function yearOf(plan: TDailyPlan | undefined, fallback: number) {
+	if (!plan?.date) {
+		return fallback;
+	}
+	return new Date(plan.date).getFullYear();
+}
 
-	// Set the related tab for today and tomorrow dates
-	const handleCalendarSelect = useCallback(() => {
-		if (customDate) {
-			if (isSameDate(customDate, moment().startOf('day').toDate())) {
-				setSelectedTab('Today');
-				setCustomDate(moment().toDate());
-			} else if (isSameDate(customDate, moment().add(1, 'days').startOf('day').toDate())) {
-				setSelectedTab('Tomorrow');
-				setCustomDate(moment().add(1, 'days').toDate());
-			} else {
-				setShowCalendar(false);
-				setShowCustomPlan(true);
-			}
-
-			setNavigationMode('PLAN');
-		}
-	}, [customDate, isSameDate]);
-
-	const createEmptyPlan = useCallback(async () => {
-		if (!canEditPlans) return;
-
-		try {
-			await createDailyPlan({
-				workTimePlanned: 0,
-				date: moment(customDate).format('YYYY-MM-DD'),
-				status: EDailyPlanStatus.OPEN,
-				tenantId: user?.tenantId ?? '',
-				employeeId: targetEmployeeId ?? undefined,
-				organizationId: user?.employee?.organizationId!
-			});
-
-			handleCalendarSelect();
-		} catch (error) {
-			console.log(error);
-		}
-	}, [
-		canEditPlans,
-		createDailyPlan,
-		customDate,
-		handleCalendarSelect,
-		targetEmployeeId,
-		user?.employee?.organizationId,
-		user?.tenantId
-	]);
-
-	// Handle narrow navigation
-	const arrowNavigationHandler = useCallback(
-		async (date: Date) => {
-			const existPlan = employeeDailyPlans?.items?.find((plan: TDailyPlan) => {
-				return isSameDate(plan.date, date.setHours(0, 0, 0, 0));
-			});
-
-			setCustomDate(date);
-
-			if (selectedPlan) {
-				if (isSameDate(date, moment().startOf('day').toDate())) {
-					navigationMode == 'PLAN' && setSelectedTab('Today');
-				} else if (isSameDate(date, moment().add(1, 'days').startOf('day').toDate())) {
-					navigationMode == 'PLAN' && setSelectedTab('Tomorrow');
-				} else {
-					setSelectedTab('Calendar');
-					if (existPlan && navigationMode == 'PLAN') {
-						setShowCalendar(false);
-						setShowCustomPlan(true);
-					} else {
-						setCustomDate(date);
-						setShowCalendar(true);
-						setShowCustomPlan(false);
-					}
-				}
-			}
-		},
-		[isSameDate, employeeDailyPlans?.items, navigationMode, selectedPlan]
-	);
-
-	// Handle navigation  between plans
-	const moveBetweenPlans = useCallback(
-		(direction: boolean) => {
-			if (direction) {
-				// Select the next plan
-				if (nextPlan) {
-					setCustomDate(moment(getDailyPlanDay(nextPlan.date)).toDate());
-					setSelectedTab('Calendar');
-					setShowCalendar(false);
-					setShowCustomPlan(true);
-				}
-			} else {
-				// Select the previous plan
-				if (previousPlan) {
-					setCustomDate(moment(getDailyPlanDay(previousPlan.date)).toDate());
-					setSelectedTab('Calendar');
-					setShowCalendar(false);
-					setShowCustomPlan(true);
-				}
-			}
-		},
-		[nextPlan, previousPlan]
-	);
-
-	// A handler function to display the plan title
-	const displayPlanTitle = (selectedTab: TCalendarTab, selectedPlan?: TDailyPlan) => {
-		const isCalendarTab = selectedTab === 'Calendar';
-		const planDate = selectedPlan?.date ? moment(getDailyPlanDay(selectedPlan.date)).format('DD/MM/YYYY') : '';
-		const hasTasks = selectedPlan?.tasks?.length;
-		const isTodayOrTomorrow =
-			selectedTab === 'Today'
-				? t('common.plan.FOR_TODAY')
-				: selectedTab === 'Tomorrow'
-					? t('common.plan.FOR_TOMORROW')
-					: '';
-
-		return isCalendarTab
-			? showCustomPlan && selectedPlan
-				? hasTasks
-					? t('common.plan.FOR_DATE', { date: planDate })
-					: planDate
-				: t('common.plan.PLURAL')
-			: isTodayOrTomorrow;
-	};
-
-	return (
-		<Modal
-			isOpen={isOpen}
-			customCloseModal={handleCloseModal}
-			closeModal={() => null}
-			className={clsxm('px-3 py-4 w-full max-w-2xl min-w-xl md:px-6 md:py-5')}
-		>
-			<EverCard className="overflow-hidden w-full h-full p-0!" shadow="custom">
-				<div className="flex flex-col gap-3 w-full">
-					<div className="flex relative justify-center items-center w-full h-12">
-						{selectedTab === 'Calendar' && showCustomPlan && (
-							<Tooltip label="Go back to the calendar">
-								<button
-									onClick={() => {
-										setShowCustomPlan(false);
-										setShowCalendar(true);
-									}}
-									className="flex absolute left-0 top-1/2 gap-3 items-center -translate-y-1/2"
-								>
-									<span className="rotate-180">
-										<ChevronRightIcon className="w-4  h-4 stroke-[#B1AEBC]" />
-									</span>
-									<span>{t('common.BACK')}</span>
-								</button>
-							</Tooltip>
-						)}
-
-						<Text.Heading as="h3" className="text-center uppercase">
-							{displayPlanTitle(selectedTab, selectedPlan)}
-						</Text.Heading>
-					</div>
-					<div className="flex justify-between items-center w-full h-12">
-						<ul className="flex gap-3 items-center w-full">
-							{tabs.map((tab, index) => (
-								<li
-									key={index}
-									className={`flex justify-center gap-4 items-center hover:text-primary cursor-pointer ${selectedTab === tab ? 'text-primary font-medium' : ''}`}
-									onClick={() => handleTabClick(tab)}
-								>
-									<span>
-										{tab === 'Today'
-											? t('common.TODAY')
-											: tab === 'Tomorrow'
-												? t('common.TOMORROW')
-												: t('common.CALENDAR')}
-									</span>
-									{index + 1 < tabs.length && <VerticalSeparator className="w-full" />}
-								</li>
-							))}
-						</ul>
-						<div className="flex justify-between items-center h-8 rounded-sm border">
-							<span
-								onClick={() =>
-									navigationMode === 'DATE'
-										? arrowNavigationHandler(moment(customDate).subtract(1, 'days').toDate())
-										: moveBetweenPlans(false)
-								}
-								className="flex justify-center items-center px-2 h-full rotate-180 cursor-pointer"
-							>
-								<ChevronRightIcon className="w-6  h-4 stroke-[#B1AEBC]" />
-							</span>
-							<VerticalSeparator />
-							<span
-								onClick={() =>
-									navigationMode === 'DATE'
-										? arrowNavigationHandler(moment(customDate).add(1, 'days').toDate())
-										: moveBetweenPlans(true)
-								}
-								className="flex justify-center items-center px-2 h-full cursor-pointer"
-							>
-								<ChevronRightIcon className="w-6  h-4 stroke-[#B1AEBC]" />
-							</span>
-						</div>
-					</div>
-
-					<div className="w-full flex flex-col items-center h-[34rem]">
-						{selectedTab === 'Calendar' && showCalendar ? (
-							<div className="flex flex-col justify-between items-center w-full h-full">
-								<div className="w-full grow">
-									<div className="flex flex-col gap-4 justify-center items-center w-full h-full">
-										<p className="text-sm font-medium">{t('common.plan.CHOOSE_DATE')}</p>
-										<div className="flex justify-center items-center p-3 rounded-md border">
-											<FuturePlansCalendar
-												selectedPlan={customDate}
-												setSelectedPlan={setCustomDate}
-												plans={employeeDailyPlans?.items}
-												pastPlans={employeePastPlans}
-												handleCalendarSelect={handleCalendarSelect}
-												createEmptyPlan={createEmptyPlan}
-											/>
-										</div>
-									</div>
-								</div>
-
-								<div className="flex justify-between items-center w-full h-14">
-									<Button
-										variant="outline"
-										type="submit"
-										className="py-3 px-5 min-w-[8rem] rounded-md font-light text-md dark:text-white dark:bg-slate-700 dark:border-slate-600"
-										onClick={handleCloseModal}
-									>
-										{t('common.CANCEL')}
-									</Button>
-									<Button
-										disabled={!customDate || createDailyPlanLoading || !canEditPlans}
-										variant="default"
-										type="submit"
-										className={clsxm(
-											'px-5 py-3 font-light rounded-md min-w-[8rem] text-md dark:text-white'
-										)}
-										onClick={selectedPlan ? handleCalendarSelect : createEmptyPlan}
-									>
-										{selectedPlan ? (
-											t('common.SELECT')
-										) : createDailyPlanLoading ? (
-											<SpinnerLoader variant="light" size={20} />
-										) : (
-											t('common.plan.ADD_PLAN')
-										)}
-									</Button>
-								</div>
-							</div>
-						) : (
-							<>
-								{selectedPlan ? (
-									<AddTasksEstimationHoursModal
-										plan={plan}
-										tasks={plan?.tasks ?? []}
-										isRenderedInSoftFlow={false}
-										isOpen={isOpen}
-										closeModal={handleCloseModal}
-										selectedDate={customDate}
-										employeeId={employeeId}
-										canEdit={canEditPlans}
-									/>
-								) : customDate ? (
-									<AddTasksEstimationHoursModal
-										tasks={[]}
-										isRenderedInSoftFlow={false}
-										isOpen={isOpen}
-										closeModal={handleCloseModal}
-										selectedDate={customDate}
-										employeeId={employeeId}
-										canEdit={canEditPlans}
-									/>
-								) : (
-									<div className="flex justify-center items-center h-full">
-										<NoData component={<ValueNoneIcon />} text={t('common.plan.PLAN_NOT_FOUND')} />
-									</div>
-								)}
-							</>
-						)}
-					</div>
-				</div>
-			</EverCard>
-		</Modal>
-	);
-});
-
-/**
- * -------------------------------------------------------
- * 		----------------- Calendar ------------------
- * -------------------------------------------------------
- */
-
-interface ICalendarProps {
-	setSelectedPlan: Dispatch<SetStateAction<Date>>;
-	selectedPlan: Date | undefined;
+interface PlansCalendarProps {
+	date: Date;
 	plans: TDailyPlan[];
 	pastPlans: TDailyPlan[];
-	handleCalendarSelect: () => void;
-	createEmptyPlan: () => Promise<void>;
+	onSelect: (date: Date) => void;
+	onOpenDay: (date: Date) => void;
 }
 
-/**
- * The component that handles the selection of a plan
- *
- * @param {Object} props - The props object
- * @param {Dispatch<SetStateAction<TDailyPlan>>} props.setSelectedPlan - A function that set the selected plan
- * @param {TDailyPlan} props.selectedPlan - The selected plan
- * @param {TDailyPlan[]} props.plans - Available plans
- * @param {TDailyPlan[]} props.pastPlans - Past plans
- * @param {() => void} props.handleCalendarSelect - Handle plan selection
- * @param {() => Promise<void>} props.createEmptyPlan - Create empty plan
- *
- * @returns {JSX.Element} The Calendar component.
- */
-const FuturePlansCalendar = memo(function FuturePlansCalendar(props: ICalendarProps) {
-	const { selectedPlan, setSelectedPlan, plans, pastPlans, createEmptyPlan, handleCalendarSelect } = props;
-	const clickTimeoutRef = useRef<NodeJS.Timeout | null>(null);
-	const clickCountRef = useRef<number>(0);
+const PLANS_CALENDAR_PANEL = cn('mx-auto w-full max-w-[22rem] px-4 pt-3 pb-3', BRAND_WASH_PANEL);
 
-	const sortedPlans = useMemo(
-		() =>
-			[...plans].sort((plan1, plan2) =>
-				new Date(plan1.date).getTime() < new Date(plan2.date).getTime() ? 1 : -1
-			),
-		[plans]
-	);
+const PlansCalendar = memo(function PlansCalendar({
+	date,
+	plans,
+	pastPlans,
+	onSelect,
+	onOpenDay
+}: Readonly<PlansCalendarProps>) {
+	const t = useTranslations();
+	const lastClickRef = useRef<{ day: string; at: number } | null>(null);
+	const sortedPlans = useMemo(() => sortedByDay(plans), [plans]);
+	const plannedDays = useMemo(() => plans.map(dayOf), [plans]);
+	const pastPlanDays = useMemo(() => pastPlans.map(dayOf), [pastPlans]);
+	const plannedKeys = useMemo(() => new Set(plans.map((plan) => getDailyPlanDay(plan.date))), [plans]);
 
-	/**
-	 * A helper function that checks if a given date has not a plan
-	 *
-	 * @param {Date} date - The date to check
-	 *
-	 * @returns {boolean} true if the date has a plan, false otherwise
-	 */
-	const isDateUnplanned = useCallback(
-		(dateToCheck: Date) => {
-			return !plans
-				.map((plan) => {
-					return getDailyPlanDay(plan.date);
-				})
-				.some((date) => {
-					return date === moment(dateToCheck).format('YYYY-MM-DD');
-				});
+	/** A day that is over and never had a plan has nothing to show or to plan. */
+	const isUnreachable = useCallback(
+		(day: Date) => {
+			const isOver = checkPastDate(day);
+			const hasPlan = plannedKeys.has(getDailyPlanDay(day));
+			return isOver && !hasPlan;
 		},
-		[plans]
+		[plannedKeys]
 	);
 
-	/**
-	 * onDayClick handler - A function that handles clicks on a day (date)
-	 *
-	 * @param {Date} day - The clicked date
-	 * @param {ActiveModifiers} activeModifiers - The active modifiers
-	 * @param {React.MouseEvent} e - The event
-	 *
-	 * @returns {void} Nothing
-	 */
 	const handleDayClick = useCallback(
-		(day: Date, activeModifiers: ActiveModifiers, e: React.MouseEvent) => {
-			if (activeModifiers.disabled) return;
-
-			clickCountRef.current += 1;
-
-			if (clickCountRef.current === 1) {
-				clickTimeoutRef.current = setTimeout(() => {
-					// Single click
-					clickCountRef.current = 0;
-				}, 300);
-			} else if (clickCountRef.current === 2) {
-				if (clickTimeoutRef.current) clearTimeout(clickTimeoutRef.current);
-				// Double click
-				if (selectedPlan) {
-					handleCalendarSelect();
-				} else {
-					setSelectedPlan(moment(day).toDate());
-					createEmptyPlan();
-				}
-				clickCountRef.current = 0;
+		(day: Date, modifiers: ActiveModifiers) => {
+			if (modifiers.disabled) {
+				return;
+			}
+			const dayKey = getDailyPlanDay(day);
+			const now = Date.now();
+			const lastClick = lastClickRef.current;
+			const isSameDayClick = lastClick?.day === dayKey;
+			const isQuick = now - (lastClick?.at ?? 0) < DOUBLE_CLICK_MS;
+			const isDoubleClick = isSameDayClick && isQuick;
+			lastClickRef.current = { day: dayKey, at: now };
+			if (isDoubleClick) {
+				lastClickRef.current = null;
+				onOpenDay(day);
 			}
 		},
-		[createEmptyPlan, handleCalendarSelect, selectedPlan, setSelectedPlan]
+		[onOpenDay]
 	);
 
+	const currentYear = new Date().getFullYear();
 	return (
-		<Calendar
-			mode="single"
-			onDayClick={handleDayClick}
-			captionLayout="dropdown"
-			selected={selectedPlan ? selectedPlan : undefined}
-			onSelect={(date: Date | undefined) => {
-				if (date) {
-					setSelectedPlan(moment(date).toDate());
-				}
-			}}
-			initialFocus
-			disabled={(date: Date) => {
-				return checkPastDate(date) && isDateUnplanned(date);
-			}}
-			modifiers={{
-				booked: sortedPlans?.map((plan) => moment(getDailyPlanDay(plan.date)).toDate()),
-				pastDay: pastPlans?.map((plan) => moment(getDailyPlanDay(plan.date)).toDate())
-			}}
-			modifiersClassNames={{
-				booked: clsxm(
-					'relative after:absolute after:bottom-0 after:left-1/2 after:-translate-x-1/2 after:w-1.5 after:h-1.5 after:bg-primary after:rounded-full'
-				),
-				selected: clsxm('bg-primary after:hidden text-white !rounded-full'),
-
-				pastDay: clsxm(
-					'relative after:absolute after:bottom-0 after:left-1/2 after:-translate-x-1/2 after:w-1.5 after:h-1.5 after:bg-yellow-600 after:rounded-full'
-				),
-				today: clsxm('border-2 !border-yellow-700 rounded')
-			}}
-			fromYear={new Date(sortedPlans?.[0]?.date ?? Date.now())?.getFullYear()}
-			toYear={new Date(sortedPlans?.[sortedPlans?.length - 1]?.date ?? Date.now())?.getFullYear() + 5}
-		/>
+		<div className="flex flex-col gap-3 py-2">
+			<p className="text-center text-[13px] text-muted-foreground">{t('common.plan.CHOOSE_DATE')}</p>
+			<div className={PLANS_CALENDAR_PANEL}>
+				<Calendar
+					mode="single"
+					selected={date}
+					onSelect={(day) => {
+						if (day) {
+							onSelect(day);
+						}
+					}}
+					onDayClick={handleDayClick}
+					captionLayout="dropdown"
+					disabled={isUnreachable}
+					modifiers={{ planned: plannedDays, pastPlan: pastPlanDays }}
+					modifiersClassNames={{ planned: PLANNED_DAY_MARK, pastPlan: PAST_PLAN_DAY_MARK }}
+					fromYear={yearOf(sortedPlans[0], currentYear)}
+					toYear={yearOf(sortedPlans.at(-1), currentYear) + 5}
+					className="bg-transparent p-0"
+				/>
+				<div className="-mx-4 mt-3 flex items-center justify-center gap-4 hairline-t border-border px-4 pt-3 text-xs text-muted-foreground">
+					<span className="flex items-center gap-1.5">
+						<span aria-hidden="true" className="size-1.5 rounded-full bg-primary" />
+						{t('dailyPlan.editor.PLANNED_DAY')}
+					</span>
+					<span className="flex items-center gap-1.5">
+						<span aria-hidden="true" className="size-1.5 rounded-full bg-warning" />
+						{t('dailyPlan.editor.PAST_PLAN')}
+					</span>
+				</div>
+			</div>
+		</div>
 	);
 });
 
-FuturePlansCalendar.displayName = 'FuturePlansCalendar';
+function PlansSkeleton() {
+	return (
+		<div className="flex flex-col gap-3 py-2" aria-hidden="true">
+			<div className="h-8 w-full animate-pulse rounded-md bg-foreground/5" />
+			<div className="h-2 w-full animate-pulse rounded-md bg-foreground/5" />
+			<div className="h-11 w-full animate-pulse rounded-md bg-foreground/5" />
+			<div className="h-11 w-full animate-pulse rounded-md bg-foreground/5" />
+		</div>
+	);
+}
+
+/**
+ * Every plan of one person in one dialog: today, tomorrow, or any day from the calendar, with arrows that jump
+ * between plans (or between days while the calendar shows). Managers and admins edit the plans of their reports.
+ */
+export const AllPlansModal = memo(function AllPlansModal({ isOpen, closeModal, employeeId }: IAllPlansModal) {
+	const t = useTranslations();
+	const format = useFormatter();
+	const { employeeDailyPlans, employeePastPlans, isLoading, isError } = useEmployeeDailyPlans(employeeId ?? null);
+	const { createDailyPlan, createDailyPlanLoading } = useCreateDailyPlan();
+	const { data: user } = useUserQuery();
+	const { isTeamManager } = useIsMemberManager(user);
+	const [view, setView] = useState<PlanView>('today');
+	const [date, setDate] = useState<Date>(startOfToday);
+
+	const plans = employeeDailyPlans.items;
+	const sortedPlans = useMemo(() => sortedByDay(plans ?? []), [plans]);
+	const planOfDate = useMemo(() => sortedPlans.find((plan) => isSameDay(plan.date, date)), [date, sortedPlans]);
+	const previousPlan = useMemo(() => lastPlanBefore(sortedPlans, date), [date, sortedPlans]);
+	const nextPlan = useMemo(() => firstPlanAfter(sortedPlans, date), [date, sortedPlans]);
+
+	const targetEmployeeId = employeeId ?? user?.employee?.id ?? null;
+	const organizationId = user?.employee?.organizationId as string;
+	const tenantId = user?.tenantId ?? '';
+	const isSelf = !targetEmployeeId || targetEmployeeId === user?.employee?.id;
+	const canEditPlans = isSelf || isTeamManager || isAdminRole(user?.role?.name);
+
+	const isCalendarView = view === 'calendar';
+	const hasPlanOnDate = Boolean(planOfDate);
+	const isDateOver = checkPastDate(date);
+	const canCreatePlan = canEditPlans && !isDateOver;
+	const hasNoPlans = sortedPlans.length === 0;
+	const isFirstLoad = isLoading && hasNoPlans;
+	const showsError = isError && hasNoPlans;
+	const isReady = !isFirstLoad && !showsError;
+	const showsCalendar = isReady && isCalendarView;
+	const showsPlan = isReady && !isCalendarView;
+
+	const showDate = useCallback((next: Date) => {
+		setDate(next);
+		setView(viewForDate(next));
+	}, []);
+
+	const selectTab = (tab: PlanTab) => {
+		if (tab === 'today') {
+			showDate(startOfToday());
+			return;
+		}
+		if (tab === 'tomorrow') {
+			showDate(startOfTomorrow());
+			return;
+		}
+		setView('calendar');
+	};
+
+	const goToPrevious = () => {
+		if (isCalendarView) {
+			setDate(shiftedDay(date, -1));
+			return;
+		}
+		if (previousPlan) {
+			showDate(dayOf(previousPlan));
+		}
+	};
+
+	const goToNext = () => {
+		if (isCalendarView) {
+			setDate(shiftedDay(date, 1));
+			return;
+		}
+		if (nextPlan) {
+			showDate(dayOf(nextPlan));
+		}
+	};
+
+	const createEmptyPlan = useCallback(
+		async (day: Date) => {
+			if (!canEditPlans) {
+				return;
+			}
+			try {
+				await createDailyPlan({
+					workTimePlanned: 0,
+					date: moment(day).format('YYYY-MM-DD'),
+					status: EDailyPlanStatus.OPEN,
+					tenantId,
+					employeeId: targetEmployeeId ?? undefined,
+					organizationId
+				});
+				showDate(day);
+			} catch (error) {
+				console.error(error);
+			}
+		},
+		[canEditPlans, createDailyPlan, organizationId, showDate, targetEmployeeId, tenantId]
+	);
+
+	const openDay = useCallback(
+		(day: Date) => {
+			const hasPlan = sortedPlans.some((plan) => isSameDay(plan.date, day));
+			if (hasPlan) {
+				showDate(day);
+				return;
+			}
+			void createEmptyPlan(day);
+		},
+		[createEmptyPlan, showDate, sortedPlans]
+	);
+
+	let title = t('common.plan.PLURAL');
+	if (view === 'today') {
+		title = t('common.plan.FOR_TODAY');
+	}
+	if (view === 'tomorrow') {
+		title = t('common.plan.FOR_TOMORROW');
+	}
+	if (view === 'day') {
+		title = t('dailyPlan.editor.PLAN_FOR_DATE', { date: format.dateTime(date, { dateStyle: 'long' }) });
+	}
+
+	let previousLabel = t('dailyPlan.editor.PREVIOUS_PLAN');
+	let nextLabel = t('dailyPlan.editor.NEXT_PLAN');
+	if (isCalendarView) {
+		previousLabel = t('dailyPlan.editor.PREVIOUS_DAY');
+		nextLabel = t('dailyPlan.editor.NEXT_DAY');
+	}
+	const canGoPrevious = isCalendarView || Boolean(previousPlan);
+	const canGoNext = isCalendarView || Boolean(nextPlan);
+
+	let calendarActionLabel = t('common.plan.ADD_PLAN');
+	if (hasPlanOnDate) {
+		calendarActionLabel = t('common.SELECT');
+	}
+	const isCalendarActionDisabled = !hasPlanOnDate && !canCreatePlan;
+
+	return (
+		<AppDialog open={isOpen} onClose={closeModal} width="lg" keepOpenOnOutsideClick>
+			<AppDialogHeader
+				title={title}
+				context={!isCalendarView && <PlanDayChip date={date} />}
+				onClose={closeModal}
+			/>
+			<div className="flex shrink-0 items-end justify-between gap-3 hairline-b border-border px-5">
+				<Tabs value={tabOf(view)} onValueChange={(tab) => selectTab(tab as PlanTab)} className="min-w-0 gap-0">
+					<TabsList className="w-auto gap-5 border-b-0">
+						{PLAN_TABS.map((tab) => (
+							<TabsTrigger key={tab} value={tab}>
+								{t(TAB_LABEL_KEYS[tab])}
+							</TabsTrigger>
+						))}
+					</TabsList>
+				</Tabs>
+				<div className="mb-1.5 flex items-center gap-0.5">
+					<Button
+						type="button"
+						variant="ghost"
+						size="icon-sm"
+						onClick={goToPrevious}
+						disabled={!canGoPrevious}
+						aria-label={previousLabel}
+						title={previousLabel}
+						className="text-muted-foreground"
+					>
+						<ChevronLeft />
+					</Button>
+					<Button
+						type="button"
+						variant="ghost"
+						size="icon-sm"
+						onClick={goToNext}
+						disabled={!canGoNext}
+						aria-label={nextLabel}
+						title={nextLabel}
+						className="text-muted-foreground"
+					>
+						<ChevronRight />
+					</Button>
+				</div>
+			</div>
+
+			{isFirstLoad && (
+				<div className={cn(APP_DIALOG_BODY, 'pb-5')}>
+					<PlansSkeleton />
+				</div>
+			)}
+
+			{showsError && (
+				<div className={cn(APP_DIALOG_BODY, 'pb-5')}>
+					<EmptyState type="error" size="sm" variant="subtle" />
+				</div>
+			)}
+
+			{showsCalendar && (
+				<>
+					<div className={cn(APP_DIALOG_BODY, 'pb-5')}>
+						<PlansCalendar
+							date={date}
+							plans={sortedPlans}
+							pastPlans={employeePastPlans}
+							onSelect={setDate}
+							onOpenDay={openDay}
+						/>
+					</div>
+					<div className={APP_DIALOG_FOOTER}>
+						<Button type="button" variant="ghost" size="default" onClick={closeModal} className="ml-auto">
+							{t('common.CANCEL')}
+						</Button>
+						<Button
+							type="button"
+							size="default"
+							onClick={() => openDay(date)}
+							disabled={isCalendarActionDisabled}
+							loading={createDailyPlanLoading}
+						>
+							{calendarActionLabel}
+						</Button>
+					</div>
+				</>
+			)}
+
+			{showsPlan && (
+				<AddTasksEstimationHoursModal
+					key={getDailyPlanDay(date)}
+					plan={planOfDate}
+					tasks={planOfDate?.tasks ?? []}
+					isRenderedInSoftFlow={false}
+					isOpen={isOpen}
+					closeModal={closeModal}
+					selectedDate={date}
+					employeeId={employeeId}
+					canEdit={canEditPlans}
+				/>
+			)}
+		</AppDialog>
+	);
+});

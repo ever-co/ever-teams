@@ -10,10 +10,16 @@ import { AuthLayout } from '@/core/components/layouts/default-layout/auth-layout
 import { InputField } from '@/core/components/duplicated-components/_input';
 import { authService } from '@/core/services/client/api/auth/auth.service';
 import { cn } from '@/core/lib/helpers';
-import { ArrowLeft, CheckCircle2, Eye, EyeOff } from 'lucide-react';
+import { ArrowLeft, CheckCircle2, Eye, EyeOff } from '@/core/components/icons';
 
-const INPUT_CLASS =
-	'dark:bg-foreground/5 ring-foreground/10 placeholder:text-muted-foreground/75 selection:bg-primary selection:text-primary-foreground flex h-9 w-full min-w-0 rounded-md border border-transparent bg-white px-3 py-1 text-base shadow-sm outline-none ring-1 transition-[color,box-shadow] md:text-sm focus-visible:border-foreground/35 focus-visible:ring-ring/25 dark:focus-visible:border-foreground/25 focus-visible:ring-[3px]';
+/** iOS zooms the page into any field under 16 px on focus: auth fields stay 16 px below `md`. */
+const INPUT_CLASS = 'text-base md:text-sm';
+
+const PASSWORD_TOGGLE_CLASS =
+	'absolute right-2 top-1/2 flex size-6 -translate-y-1/2 cursor-pointer items-center justify-center rounded-sm text-muted-foreground outline-none transition-colors hover:text-foreground focus-visible:ring-[3px] focus-visible:ring-ring/50';
+
+const TEXT_LINK_CLASS =
+	'inline-flex items-center gap-2 rounded-sm text-sm font-medium text-primary-ink underline-offset-4 outline-none hover:underline focus-visible:ring-[3px] focus-visible:ring-ring/50';
 
 export default function ResetPasswordForm({ isTokenExpired }: Readonly<{ isTokenExpired: boolean }>) {
 	const t = useTranslations();
@@ -80,54 +86,50 @@ export default function ResetPasswordForm({ isTokenExpired }: Readonly<{ isToken
 					/* Missing or expired token - show error */
 					<div className="flex flex-col gap-6 items-center py-4">
 						<div className="flex flex-col gap-2 items-center text-center">
-							<h3 className="text-lg font-semibold">
+							<h3 className="text-lg font-semibold text-balance">
 								{t('pages.authResetPassword.INVALID_LINK_TITLE')}
 							</h3>
-							<p className="max-w-sm text-sm lg:max-w-md text-muted-foreground">
+							<p className="max-w-sm text-sm text-balance lg:max-w-md text-muted-foreground">
 								{t('pages.authResetPassword.TOKEN_EXPIRED')}
 							</p>
 						</div>
 
-						<Link
-							href="/auth/forgot-password"
-							className="inline-flex gap-2 items-center text-sm font-medium text-primary hover:underline"
-						>
+						<Link href="/auth/forgot-password" className={TEXT_LINK_CLASS}>
 							{t('pages.authResetPassword.REQUEST_NEW_LINK')}
 						</Link>
 					</div>
 				) : success ? (
 					/* Success state */
 					<div className="flex flex-col gap-6 items-center py-4">
-						<div className="flex justify-center items-center w-16 h-16 bg-green-100 rounded-full dark:bg-green-900/30">
-							<CheckCircle2 className="w-8 h-8 text-green-600 dark:text-green-400" />
+						<div className="flex size-10 items-center justify-center rounded-lg bg-success/10 text-success-foreground">
+							<CheckCircle2 className="size-5" />
 						</div>
 
 						<div className="flex flex-col gap-2 items-center text-center">
-							<h3 className="text-lg font-semibold">
+							<h3 className="text-lg font-semibold text-balance">
 								{t('pages.authResetPassword.SUCCESS_TITLE')}
 							</h3>
-							<p className="max-w-sm text-sm text-muted-foreground">
+							<p className="max-w-sm text-sm text-balance text-muted-foreground">
 								{t('pages.authResetPassword.SUCCESS_MESSAGE')}
 							</p>
 						</div>
 
-						<Link
-							href="/auth/password"
-							className="inline-flex gap-2 items-center mt-2 text-sm font-medium text-primary hover:underline"
-						>
-							<ArrowLeft className="w-4 h-4" />
+						<Link href="/auth/password" className={TEXT_LINK_CLASS}>
+							<ArrowLeft className="size-4" />
 							{t('pages.authResetPassword.GO_TO_LOGIN')}
 						</Link>
 					</div>
 				) : (
 					/* Form state */
 					<form onSubmit={handleSubmit} className="space-y-6">
-						<p className="text-sm text-muted-foreground">
-							{t('pages.authResetPassword.FORM_DESCRIPTION')}
-						</p>
+						<p className="text-sm text-muted-foreground">{t('pages.authResetPassword.FORM_DESCRIPTION')}</p>
 
 						<div className="space-y-2.5">
-							<label data-slot="label" className="block text-sm font-medium leading-none select-none" htmlFor="reset-password">
+							<label
+								data-slot="label"
+								className="block text-sm font-medium leading-none select-none"
+								htmlFor="reset-password"
+							>
 								{t('pages.authResetPassword.NEW_PASSWORD')}
 							</label>
 							<div className="relative">
@@ -145,17 +147,22 @@ export default function ResetPasswordForm({ isTokenExpired }: Readonly<{ isToken
 								/>
 								<button
 									type="button"
-									className="absolute right-3 top-1/2 transition-colors -translate-y-1/2 cursor-pointer text-muted-foreground hover:text-foreground"
+									className={PASSWORD_TOGGLE_CLASS}
 									onClick={() => setShowPassword(!showPassword)}
 								>
-									{showPassword ? <Eye size={16} /> : <EyeOff size={16} />}
+									{showPassword && <Eye className="size-4" />}
+									{!showPassword && <EyeOff className="size-4" />}
 								</button>
 							</div>
-							{errors.password && <Text.Error className="text-xs">{errors.password}</Text.Error>}
+							{errors.password && <Text.Error>{errors.password}</Text.Error>}
 						</div>
 
 						<div className="space-y-2.5">
-							<label data-slot="label" className="block text-sm font-medium leading-none select-none" htmlFor="reset-confirm">
+							<label
+								data-slot="label"
+								className="block text-sm font-medium leading-none select-none"
+								htmlFor="reset-confirm"
+							>
 								{t('pages.authResetPassword.CONFIRM_PASSWORD')}
 							</label>
 							<div className="relative">
@@ -175,33 +182,26 @@ export default function ResetPasswordForm({ isTokenExpired }: Readonly<{ isToken
 								/>
 								<button
 									type="button"
-									className="absolute right-3 top-1/2 transition-colors -translate-y-1/2 cursor-pointer text-muted-foreground hover:text-foreground"
+									className={PASSWORD_TOGGLE_CLASS}
 									onClick={() => setShowConfirmPassword(!showConfirmPassword)}
 								>
-									{showConfirmPassword ? <Eye size={16} /> : <EyeOff size={16} />}
+									{showConfirmPassword && <Eye className="size-4" />}
+									{!showConfirmPassword && <EyeOff className="size-4" />}
 								</button>
 							</div>
-							{errors.confirmPassword && <Text.Error className="text-xs">{errors.confirmPassword}</Text.Error>}
+							{errors.confirmPassword && <Text.Error>{errors.confirmPassword}</Text.Error>}
 						</div>
 
-						{errors.form && <Text.Error className="text-xs">{errors.form}</Text.Error>}
+						{errors.form && <Text.Error>{errors.form}</Text.Error>}
 
 						<div className="space-y-4">
-							<Button
-								type="submit"
-								loading={loading}
-								disabled={loading}
-								className="cursor-pointer inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium transition-all focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 shadow-md border-[0.5px] border-white/10 shadow-black/15 [&_svg]:drop-shadow-sm bg-primary ring-1 ring-(--ring-color) [--ring-color:color-mix(in_oklab,black_15%,var(--color-primary))] dark:border-transparent dark:[--ring-color:color-mix(in_oklab,white_15%,var(--color-primary))] text-primary-foreground hover:bg-primary/90 h-9 px-4 py-2 w-full"
-							>
+							<Button type="submit" loading={loading} disabled={loading} className="w-full">
 								{t('pages.authResetPassword.RESET_PASSWORD')}
 							</Button>
 
-							<div className="mt-1 text-center">
-								<Link
-									href="/auth/password"
-									className="inline-flex gap-2 items-center text-sm font-medium text-primary hover:underline"
-								>
-									<ArrowLeft className="w-4 h-4" />
+							<div className="text-center">
+								<Link href="/auth/password" className={TEXT_LINK_CLASS}>
+									<ArrowLeft className="size-4" />
 									{t('pages.authResetPassword.GO_TO_LOGIN')}
 								</Link>
 							</div>

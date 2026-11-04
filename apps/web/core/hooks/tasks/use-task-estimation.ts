@@ -9,6 +9,19 @@ import { TTask } from '@/core/types/schemas/task/task.schema';
 import { useAtomValue } from 'jotai';
 import { activeTeamTaskState } from '@/core/stores';
 
+/** The fields' text for an estimate: empty rather than zero, minutes on two digits. */
+function fieldValuesOf(hours: number, minutes: number) {
+	let hoursText = '';
+	if (hours) {
+		hoursText = String(hours);
+	}
+	let minutesText = '';
+	if (minutes) {
+		minutesText = pad(minutes).toString();
+	}
+	return { hours: hoursText, minutes: minutesText };
+}
+
 export function useTaskEstimation(task?: Nullable<TTask>, useActiveTeamTaskByDefault = true) {
 	const activeTeamTask = useAtomValue(activeTeamTaskState);
 	const { updateTask, updateLoading } = useUpdateTask();
@@ -19,13 +32,20 @@ export function useTaskEstimation(task?: Nullable<TTask>, useActiveTeamTaskByDef
 
 	const $task = useActiveTeamTaskByDefault ? task || activeTeamTask : task;
 
-	useEffect(() => {
+	const savedValue = useCallback(() => {
 		const { hours: h, minutes: m } = secondsToTime($task?.estimate || 0);
-		setValue({
-			hours: h ? h.toString() : '',
-			minutes: m ? pad(m).toString() : ''
-		});
+		return fieldValuesOf(h, m);
 	}, [$task?.estimate]);
+
+	useEffect(() => {
+		setValue(savedValue());
+	}, [savedValue]);
+
+	/** Escape: the fields go back to the saved estimate and close. */
+	const cancelEdition = useCallback(() => {
+		setValue(savedValue());
+		setEditableMode(false);
+	}, [savedValue]);
 
 	const onChange = useCallback((c: keyof typeof value) => {
 		return (e: ChangeEvent<HTMLInputElement>) => {
@@ -100,30 +120,36 @@ export function useTaskEstimation(task?: Nullable<TTask>, useActiveTeamTaskByDef
 		editMode.current = false;
 	}, [$task, activeTeamId]);
 
-	const handleSubmit = useCallback(() => {
-		if (!$task) return;
+	/** Saves a given estimate (a preset, Clear) the way the fields save theirs; an unchanged one only closes. */
+	const saveEstimate = useCallback(
+		(hours: number, minutes: number) => {
+			if (!$task) return;
+			const { hours: estimateHours, minutes: estimateMinutes } = secondsToTime($task.estimate || 0);
+			const isUnchanged = hours === estimateHours && minutes === estimateMinutes;
+			if (isUnchanged) {
+				setEditableMode(false);
+				return;
+			}
+			setValue(fieldValuesOf(hours, minutes));
+			updateTask({
+				...$task,
+				estimateHours: hours,
+				estimateMinutes: minutes,
+				estimate: hours * 60 * 60 + minutes * 60 // time seconds
+			});
+			setEditableMode(false);
+		},
+		[$task, updateTask]
+	);
 
+	const handleSubmit = useCallback(() => {
 		const hours = +value['hours'];
 		const minutes = +value['minutes'];
 		if (isNaN(hours) || isNaN(minutes)) {
 			return;
 		}
-
-		const { hours: estimateHours, minutes: estimateMinutes } = secondsToTime($task.estimate || 0);
-
-		if (hours === estimateHours && minutes === estimateMinutes) {
-			return;
-		}
-
-		updateTask({
-			...$task,
-			estimateHours: hours,
-			estimateMinutes: minutes,
-			estimate: hours * 60 * 60 + minutes * 60 // time seconds
-		});
-
-		setEditableMode(false);
-	}, [$task, updateTask, value]);
+		saveEstimate(hours, minutes);
+	}, [saveEstimate, value]);
 
 	const handleOutsideClick = useCallback(() => {
 		if (updateLoading || !editableMode) return;
@@ -145,6 +171,8 @@ export function useTaskEstimation(task?: Nullable<TTask>, useActiveTeamTaskByDef
 		handleSubmit,
 		task: $task,
 		setEditableMode,
+		cancelEdition,
+		saveEstimate,
 		updateLoading
 	};
 }

@@ -1,126 +1,193 @@
-import { useCreateOrganizationProject } from '@/core/hooks/organizations/projects/use-create-organization-project';
-import { Button, Modal, Text } from '@/core/components';
+'use client';
+
+import { useCallback, useState, type FormEvent } from 'react';
 import { useTranslations } from 'next-intl';
-import { useCallback, useEffect, useState } from 'react';
-import { InputField } from '../../duplicated-components/_input';
-import { EverCard } from '../../common/ever-card';
-import { TOrganizationProject } from '@/core/types/schemas';
 import { useAtomValue } from 'jotai';
-import { activeTeamState, isTeamManagerState } from '@/core/stores';
+import { DictationButton } from '@/core/components/common/dictation-button';
+import { EntityTile } from '@/core/components/common/entity-tile';
+import { Button } from '@/core/components/common/button';
+import { PersonFace, teamImageOf } from '@/core/components/projects/project-cells';
+import { ProjectTileFace } from '@/core/components/projects/composer/project-tile-picker';
+import { ENTITY_CHIP, PERSON_CHIP, VALUE_CHIP } from '@/core/components/projects/composer/composer-recipes';
+import {
+	PROJECT_DIALOG_BODY,
+	PROJECT_DIALOG_FOOTER,
+	ProjectDialog,
+	ProjectDialogHeader,
+	ProjectDialogShortcut
+} from '@/core/components/projects/dialogs/project-dialog';
+import { useCreateOrganizationProject } from '@/core/hooks/organizations/projects/use-create-organization-project';
 import { useUserQuery } from '@/core/hooks/queries/user-user.query';
+import { appendDictatedText } from '@/core/hooks/ai/use-dictation';
+import { cn } from '@/core/lib/helpers';
+import { PROJECT_NAME_MAX_LENGTH } from '@/core/lib/utils/project-composer';
+import { activeTeamState, isTeamManagerState } from '@/core/stores';
+import type { TOrganizationProject } from '@/core/types/schemas';
+import { useFocusOnMount } from '@/core/hooks/common/use-focus-on-mount';
 
 interface IQuickCreateProjectModalProps {
 	open: boolean;
 	closeModal: () => void;
 	onSuccess?: (project: TOrganizationProject) => void;
 }
-/**
- * A modal that allow to create a new project
- *
- * Quick Create automatically:
- * - Assigns the activeTeam to the project
- * - Assigns the connected user as a member
- * - If the user is a manager, also assigns them as manager
- *
- * @param {Object} props - The props Object
- * @param {boolean} props.open - If true open the modal otherwise close the modal
- * @param {() => void} props.closeModal - A function to close the modal
- *
- * @returns {JSX.Element} The modal element
- */
-export function QuickCreateProjectModal(props: IQuickCreateProjectModalProps) {
-	const t = useTranslations();
-	const { open, closeModal, onSuccess } = props;
-	const { createOrganizationProject, createOrganizationProjectLoading } = useCreateOrganizationProject();
-	const [name, setName] = useState('');
 
-	// Get active team and current user info
+const NAME_FIELD =
+	'w-full min-w-0 border-0 bg-transparent p-0 text-lg font-semibold text-foreground outline-none placeholder:font-semibold placeholder:text-muted-foreground/50';
+
+function idsWhen(isWanted: boolean, id: string | null | undefined) {
+	const hasId = Boolean(id);
+	const keepsId = isWanted && hasId;
+	if (!keepsId) {
+		return [];
+	}
+	return [id as string];
+}
+
+function teamsOf<T>(activeTeam: T | null | undefined): T[] {
+	if (!activeTeam) {
+		return [];
+	}
+	return [activeTeam];
+}
+
+/**
+ * Quick create sets the project up on its own: the active team, the user as a member, and the user as a manager
+ * when they manage the team. The dialog says so under the name, so nothing is assigned behind the user's back.
+ */
+function QuickCreateForm({ closeModal, onSuccess }: Readonly<Omit<IQuickCreateProjectModalProps, 'open'>>) {
+	const t = useTranslations();
+	const focusOnMount = useFocusOnMount<HTMLInputElement>();
 	const activeTeam = useAtomValue(activeTeamState);
 	const isTeamManager = useAtomValue(isTeamManagerState);
 	const { data: user } = useUserQuery();
+	const { createOrganizationProject, createOrganizationProjectLoading } = useCreateOrganizationProject();
+	const [name, setName] = useState('');
+	const [hasFailed, setHasFailed] = useState(false);
 
-	// Cleanup
-	useEffect(() => {
-		return () => {
-			setName('');
-		};
+	const employeeId = user?.employee?.id ?? user?.employeeId ?? null;
+	const userName = user?.employee?.fullName || user?.name || '';
+	const trimmedName = name.trim();
+	const hasName = trimmedName.length > 0;
+	const canCreate = hasName && !createOrganizationProjectLoading;
+	let roleLabel = t('pages.projects.modals.quick.asMember');
+	if (isTeamManager) {
+		roleLabel = t('pages.projects.modals.quick.asManager');
+	}
+
+	const appendDictatedName = useCallback((text: string) => {
+		setName((current) => appendDictatedText(current, text));
 	}, []);
 
-	const handleCreateProject = useCallback(async () => {
-		try {
-			if (name.trim() === '') {
-				return;
-			}
-
-			// Get the current employee ID
-			const employeeId = user?.employee?.id || user?.employeeId;
-
-			// Build project creation data with auto-assignment
-			const projectData: Parameters<typeof createOrganizationProject>[0] = {
-				name,
-				// Auto-assign to activeTeam if available
-				teams: activeTeam ? [activeTeam] : [],
-				// Auto-assign current user as member if employee ID is available
-				memberIds: employeeId ? [employeeId] : [],
-				// Auto-assign current user as manager if they are a team manager
-				managerIds: isTeamManager && employeeId ? [employeeId] : []
-			};
-
-			const data = await createOrganizationProject(projectData);
-
-			if (data) {
-				onSuccess?.(data);
-			}
-
-			closeModal();
-		} catch (error) {
-			console.error(error);
+	const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
+		event.preventDefault();
+		if (!canCreate) {
+			return;
 		}
-	}, [closeModal, createOrganizationProject, name, onSuccess, activeTeam, isTeamManager, user]);
+		setHasFailed(false);
+		const project = await createOrganizationProject({
+			name: trimmedName,
+			teams: teamsOf(activeTeam),
+			memberIds: idsWhen(true, employeeId),
+			managerIds: idsWhen(isTeamManager, employeeId)
+		});
+		if (!project) {
+			setHasFailed(true);
+			return;
+		}
+		onSuccess?.(project);
+		closeModal();
+	};
 
 	return (
-		<Modal isOpen={open} closeModal={closeModal} alignCloseIcon>
-			<EverCard className=" sm:w-[33rem] w-[20rem]" shadow="custom">
-				<div className="flex flex-col items-center justify-between gap-8">
-					<Text.Heading as="h3" className="text-center">
-						{t('common.CREATE_PROJECT')}
-					</Text.Heading>
-
-					<div className="w-full">
-						<InputField
-							name="name"
-							autoCustomFocus
-							value={name}
-							onChange={(e) => setName(e.target.value)}
-							placeholder={'Please enter the project name'}
-							required
-							className="w-full"
-							wrapperClassName=" h-full border border-blue-500"
-							noWrapper
-						/>
-					</div>
-
-					<div className="flex items-center justify-between w-full">
-						<Button
-							disabled={createOrganizationProjectLoading}
-							onClick={closeModal}
-							className="h-[2.75rem]"
-							variant="outline"
-						>
-							{t('common.CANCEL')}
-						</Button>
-						<Button
-							disabled={createOrganizationProjectLoading}
-							loading={createOrganizationProjectLoading}
-							className="h-[2.75rem]"
-							type="submit"
-							onClick={handleCreateProject}
-						>
-							{t('common.CREATE')}
-						</Button>
-					</div>
+		<form noValidate onSubmit={handleSubmit} className="flex min-h-0 flex-1 flex-col">
+			<ProjectDialogHeader
+				title={t('modals.project.createTitle')}
+				context={
+					activeTeam && (
+						<>
+							<EntityTile
+								name={activeTeam.name}
+								color={activeTeam.color}
+								imageUrl={teamImageOf(activeTeam)}
+								className="size-4 text-[7px]"
+							/>
+							<span className="truncate">{activeTeam.name}</span>
+						</>
+					)
+				}
+				onClose={closeModal}
+			/>
+			<div className={cn(PROJECT_DIALOG_BODY, 'pb-5')}>
+				<div className="flex items-center gap-3 pt-1">
+					<ProjectTileFace name={name} color={null} imageUrl={null} size="md" />
+					<input
+						ref={focusOnMount}
+						data-initial-focus=""
+						value={name}
+						onChange={(event) => setName(event.target.value)}
+						maxLength={PROJECT_NAME_MAX_LENGTH}
+						placeholder={t('modals.project.namePlaceholder')}
+						aria-label={t('modals.project.namePlaceholder')}
+						className={NAME_FIELD}
+					/>
+					<DictationButton onText={appendDictatedName} />
 				</div>
-			</EverCard>
-		</Modal>
+				<div className="mt-4 flex flex-wrap items-center gap-1.5">
+					<span className="mr-1 text-xs text-muted-foreground">{t('pages.projects.modals.quick.setUp')}</span>
+					{activeTeam && (
+						<span className={cn(VALUE_CHIP, ENTITY_CHIP, 'pr-2')}>
+							<EntityTile
+								name={activeTeam.name}
+								color={activeTeam.color}
+								imageUrl={teamImageOf(activeTeam)}
+								className="size-4 text-[7px]"
+							/>
+							<span className="truncate">{activeTeam.name}</span>
+						</span>
+					)}
+					{employeeId && (
+						<span className={cn(VALUE_CHIP, PERSON_CHIP, 'pr-2')}>
+							<PersonFace
+								person={{ id: employeeId, name: userName, imageUrl: user?.imageUrl }}
+								className="size-5"
+							/>
+							<span className="truncate">{roleLabel}</span>
+						</span>
+					)}
+				</div>
+			</div>
+			<div className={PROJECT_DIALOG_FOOTER}>
+				{hasFailed && (
+					<p role="alert" className="mr-auto text-xs text-destructive-ink">
+						{t('pages.projects.modals.errors.save')}
+					</p>
+				)}
+				{!hasFailed && (
+					<span className="mr-auto">
+						<ProjectDialogShortcut keys={['↵']} label={t('pages.projects.list.CREATE_PROJECT')} />
+					</span>
+				)}
+				<Button
+					type="button"
+					variant="ghost"
+					size="default"
+					onClick={closeModal}
+					disabled={createOrganizationProjectLoading}
+				>
+					{t('common.CANCEL')}
+				</Button>
+				<Button type="submit" size="default" loading={createOrganizationProjectLoading} disabled={!canCreate}>
+					{t('pages.projects.list.CREATE_PROJECT')}
+				</Button>
+			</div>
+		</form>
+	);
+}
+
+export function QuickCreateProjectModal({ open, closeModal, onSuccess }: Readonly<IQuickCreateProjectModalProps>) {
+	return (
+		<ProjectDialog open={open} onClose={closeModal} width="md">
+			{open && <QuickCreateForm closeModal={closeModal} onSuccess={onSuccess} />}
+		</ProjectDialog>
 	);
 }

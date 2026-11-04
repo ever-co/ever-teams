@@ -1,7 +1,7 @@
 'use client';
 
 import { taskService } from '@/core/services/client/api';
-import { activeTeamState } from '@/core/stores';
+import { activeTeamScopeState } from '@/core/stores';
 import { useCallback, useState } from 'react';
 import { useAtomValue } from 'jotai';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
@@ -18,7 +18,7 @@ import { queryKeys } from '@/core/query/keys';
  */
 export function useTasksByEmployeeQuery(initialEmployeeId?: string, initialOrganizationTeamId?: string) {
 	const queryClient = useQueryClient();
-	const activeTeam = useAtomValue(activeTeamState);
+	const activeTeam = useAtomValue(activeTeamScopeState);
 
 	const [selectedEmployeeId, setSelectedEmployeeId] = useState(initialEmployeeId);
 	const [selectedOrganizationTeamId, setSelectedOrganizationTeamId] = useState(initialOrganizationTeamId);

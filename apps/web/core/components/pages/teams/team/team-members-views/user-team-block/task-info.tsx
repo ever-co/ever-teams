@@ -1,6 +1,6 @@
 import { I_TMCardTaskEditHook } from '@/core/hooks';
+import { useTaskDrawer } from '@/core/hooks/tasks/use-task-drawer';
 import { clsxm } from '@/core/lib/utils';
-import { useRouter } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 import { TaskAllStatusTypes } from '@/core/components/tasks/task-all-status-type';
 import { FilterTabs } from '@/core/components/users/user-profile-plans';
@@ -17,24 +17,19 @@ type Props = IClassName & {
 
 export function TaskInfo({ className, edition, publicTeam, tab, dayPlanTab }: Props) {
 	return (
-		<div className={clsxm('h-full flex flex-col items-start justify-between gap-[1.0625rem]', className)}>
+		<div className={clsxm('flex h-full flex-col items-start justify-between gap-2', className)}>
 			{/* task */}
 			<div className={clsxm('w-full h-10', edition.editMode ? [''] : ['overflow-hidden'])}>
 				{edition.task && (
-					<TaskDetailAndEdition
-						edition={edition}
-						publicTeam={publicTeam}
-						tab={tab}
-						dayPlanTab={dayPlanTab}
-					/>
+					<TaskDetailAndEdition edition={edition} publicTeam={publicTeam} tab={tab} dayPlanTab={dayPlanTab} />
 				)}
-				{!edition.task && <div className="text-center">--</div>}
+				{!edition.task && <div className="text-center text-sm text-muted-foreground">--</div>}
 			</div>
 
 			{edition.task && (
 				<TaskAllStatusTypes showStatus={true} task={edition.task} tab={tab} dayPlanTab={dayPlanTab} />
 			)}
-			{!edition.task && <div className="self-center text-center">--</div>}
+			{!edition.task && <div className="self-center text-center text-sm text-muted-foreground">--</div>}
 		</div>
 	);
 }
@@ -42,20 +37,15 @@ export function TaskInfo({ className, edition, publicTeam, tab, dayPlanTab }: Pr
 export function TaskBlockInfo({ className, edition, publicTeam, tab, dayPlanTab }: Props) {
 	const t = useTranslations();
 	return (
-		<div className={clsxm('h-full flex flex-col items-start justify-between gap-[1.0625rem]', className)}>
+		<div className={clsxm('flex h-full flex-col items-start justify-between gap-2', className)}>
 			{/* task */}
 			<div className={clsxm('w-full h-12', edition.editMode ? [''] : ['overflow-hidden'])}>
 				{edition.task && (
-					<TaskDetailAndEdition
-						edition={edition}
-						publicTeam={publicTeam}
-						tab={tab}
-						dayPlanTab={dayPlanTab}
-					/>
+					<TaskDetailAndEdition edition={edition} publicTeam={publicTeam} tab={tab} dayPlanTab={dayPlanTab} />
 				)}
 				{!edition.task && (
 					<div className="text-center">
-						<p>{t('common.THERE_IS_NO_TASK_ASSIGNED')}</p>
+						<p className="text-sm text-muted-foreground">{t('common.THERE_IS_NO_TASK_ASSIGNED')}</p>
 					</div>
 				)}
 			</div>
@@ -80,7 +70,15 @@ export function TaskBlockInfo({ className, edition, publicTeam, tab, dayPlanTab 
 function TaskDetailAndEdition({ edition, publicTeam }: Props) {
 	const task = edition.task;
 	const hasEditMode = edition.editMode && task;
-	const router = useRouter();
+	const { openTaskDrawer } = useTaskDrawer();
+	const openTaskInDrawer = () => {
+		if (publicTeam) {
+			return;
+		}
+		if (task) {
+			openTaskDrawer(task.id);
+		}
+	};
 
 	edition.taskEditIgnoreElement.onOutsideClick(() => {
 		edition.setEditMode(false);
@@ -92,10 +90,10 @@ function TaskDetailAndEdition({ edition, publicTeam }: Props) {
 			<div
 				ref={edition.taskEditIgnoreElement.targetEl}
 				className={clsxm(
-					'text-xs lg:text-sm text-ellipsis overflow-hidden cursor-pointer w-full',
+					'w-full cursor-pointer overflow-hidden text-ellipsis text-sm',
 					hasEditMode && ['hidden']
 				)}
-				onClick={publicTeam ? () => null : () => task && router.push(`/task/${task?.id}`)}
+				onClick={openTaskInDrawer}
 			>
 				<TaskNameInfoDisplay
 					showSize={true}
@@ -108,7 +106,10 @@ function TaskDetailAndEdition({ edition, publicTeam }: Props) {
 			</div>
 
 			{/* Show task input combobox when in edit mode */}
-			<div ref={edition.taskEditIgnoreElement.ignoreElementRef} className={clsxm(!hasEditMode && ['hidden'],'w-full')}>
+			<div
+				ref={edition.taskEditIgnoreElement.ignoreElementRef}
+				className={clsxm(!hasEditMode && ['hidden'], 'w-full')}
+			>
 				{hasEditMode && (
 					<TaskInput
 						task={task}

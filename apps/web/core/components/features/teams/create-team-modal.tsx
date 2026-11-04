@@ -1,13 +1,21 @@
 'use client';
 
 import { useCreateOrganizationTeam } from '@/core/hooks';
-import { BackButton, Button, Modal, Text } from '@/core/components';
+import {
+	Button,
+	Modal,
+	Text,
+	modalFooterClass,
+	modalPrimaryActionClass,
+	modalSecondaryActionClass,
+	modalTitleFieldClass
+} from '@/core/components';
 import { useTranslations } from 'next-intl';
 import { Dispatch, SetStateAction, useMemo, useState } from 'react';
-import { EverCard } from '../../common/ever-card';
-import { InputField } from '../../duplicated-components/_input';
 import { organizationTeamsState, timerStatusState } from '@/core/stores';
 import { useAtomValue } from 'jotai';
+import { useUserQuery } from '@/core/hooks/queries/user-user.query';
+import { useFocusOnMount } from '@/core/hooks/common/use-focus-on-mount';
 
 /**
  * Create team modal
@@ -22,6 +30,9 @@ export function CreateTeamModal({
 	joinTeamModal?: Dispatch<SetStateAction<boolean>>;
 }) {
 	const t = useTranslations();
+	const focusOnMount = useFocusOnMount<HTMLInputElement>();
+	const { data: user } = useUserQuery();
+	const workspaceName: string | undefined = user?.tenant?.name;
 
 	const timerStatus = useAtomValue(timerStatusState);
 	const timerRunningStatus = useMemo(() => {
@@ -54,55 +65,70 @@ export function CreateTeamModal({
 		);
 	}, [createOTeamLoading, name, teams]);
 
+	const hasNameError = Boolean(error);
+
 	return (
-		<Modal isOpen={open} closeModal={closeModal} alignCloseIcon>
-			<form className="sm:w-[530px] w-[330px]" autoComplete="off" onSubmit={handleSubmit}>
-				<EverCard className="w-full" shadow="custom">
-					<div className="flex flex-col justify-between items-center">
-						<Text.Heading as="h3" className="text-center">
-							{t('common.CREATE_TEAM')}
-						</Text.Heading>
+		<Modal
+			isOpen={open}
+			closeModal={closeModal}
+			alignCloseIcon
+			title={t('common.CREATE_TEAM')}
+			breadcrumb={workspaceName}
+		>
+			<form className="flex w-full flex-col gap-5 sm:w-md" autoComplete="off" onSubmit={handleSubmit}>
+				<div className="flex flex-col gap-1.5">
+					<input
+						type="text"
+						name="name"
+						ref={focusOnMount}
+						value={name}
+						onChange={(e) => setName(e.target.value)}
+						placeholder={t('form.TEAM_NAME_PLACEHOLDER')}
+						aria-label={t('form.TEAM_NAME_PLACEHOLDER')}
+						aria-invalid={hasNameError}
+						onKeyUp={() => setError(null)}
+						className={modalTitleFieldClass}
+						required
+					/>
+					{hasNameError && <Text.Error className="self-start justify-self-start">{error}</Text.Error>}
+				</div>
 
-						<div className="mt-5 w-full">
-							<InputField
-								name="name"
-								autoCustomFocus
-								value={name}
-								onChange={(e) => setName(e.target.value)}
-								placeholder={t('form.TEAM_NAME_PLACEHOLDER')}
-								errors={error ? { name: error } : undefined}
-								onKeyUp={() => setError(null)}
-								required
-							/>
-						</div>
+				<div className="flex w-full items-center justify-between gap-3">
+					{joinTeamModal && (
+						<button
+							type="button"
+							className="cursor-pointer text-[13px] font-normal text-primary-ink"
+							onClick={() => {
+								joinTeamModal(true);
+							}}
+						>
+							{t('pages.auth.JOIN_TEAM')}
+						</button>
+					)}
 
-						<div className="flex justify-between items-center mt-3 w-full">
-							{!joinTeamModal && <BackButton onClick={closeModal} />}
-
-							{joinTeamModal && (
-								<button
-									type="button"
-									className="text-xs font-normal text-gray-500 cursor-pointer dark:text-gray-400"
-									onClick={() => {
-										joinTeamModal(true);
-									}}
-								>
-									<span className="text-primary dark:text-primary-light">
-										{t('pages.auth.JOIN_TEAM')}
-									</span>
-								</button>
-							)}
-
+					<div className={`${modalFooterClass} ml-auto pt-0`}>
+						{!joinTeamModal && (
 							<Button
-								type="submit"
-								disabled={disabled || timerRunningStatus}
-								loading={createOTeamLoading}
+								type="button"
+								variant="ghost"
+								size="default"
+								className={modalSecondaryActionClass}
+								onClick={closeModal}
 							>
-								{t('common.CREATE')}
+								{t('common.CANCEL')}
 							</Button>
-						</div>
+						)}
+						<Button
+							type="submit"
+							size="default"
+							className={modalPrimaryActionClass}
+							disabled={disabled || timerRunningStatus}
+							loading={createOTeamLoading}
+						>
+							{t('common.CREATE')}
+						</Button>
 					</div>
-				</EverCard>
+				</div>
 			</form>
 		</Modal>
 	);

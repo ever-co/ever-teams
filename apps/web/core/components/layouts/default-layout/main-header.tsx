@@ -6,13 +6,7 @@ import { PropsWithChildren } from 'react';
 export function MainHeader({ children, className }: PropsWithChildren<IClassName>) {
 	return (
 		<>
-			<div
-				className={clsxm(
-					'bg-white dark:bg-dark-high  pt-20 -mt-8 pb-4',
-					className,
-					'border-[#eeeeeee9]  border-b-[0.125rem] dark:border-b-border dark:shadow-lg '
-				)}
-			>
+			<div className={clsxm('bg-background pt-20 -mt-8 pb-4', className, 'hairline-b border-border')}>
 				<Container>{children}</Container>
 			</div>
 			{/* <Divider /> */}

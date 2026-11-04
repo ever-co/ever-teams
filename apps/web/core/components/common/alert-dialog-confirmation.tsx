@@ -9,8 +9,9 @@ import {
 	AlertDialogTitle
 } from '@/core/components/common/alert-dialog';
 import { Button, Modal, Text } from '@/core/components';
-import { ReloadIcon } from '@radix-ui/react-icons';
-import { EverCard } from '../common/ever-card';
+import { Spinner } from '@/core/components/icons';
+import { buttonVariants } from '@/core/components/duplicated-components/_button';
+import { useTranslations } from 'next-intl';
 
 interface AlertDialogConfirmationProps {
 	title: string;
@@ -27,14 +28,23 @@ interface AlertDialogConfirmationProps {
 export function AlertDialogConfirmation({
 	title,
 	description,
-	confirmText = 'Continue',
-	cancelText = 'Cancel',
+	confirmText,
+	cancelText,
 	onConfirm,
 	onCancel,
 	isOpen,
 	onOpenChange,
 	loading
 }: AlertDialogConfirmationProps) {
+	const t = useTranslations();
+	const confirmLabel = confirmText ?? t('common.CONTINUE');
+	const cancelLabel = cancelText ?? t('common.CANCEL');
+	let actionAriaLabel = confirmLabel;
+	let actionText = confirmLabel;
+	if (loading) {
+		actionAriaLabel = t('modals.confirmation.CONFIRMING');
+		actionText = t('common.PROCESSING');
+	}
 	return (
 		<AlertDialog open={isOpen} onOpenChange={onOpenChange} defaultOpen={false}>
 			<AlertDialogContent>
@@ -44,16 +54,16 @@ export function AlertDialogConfirmation({
 				</AlertDialogHeader>
 				<AlertDialogFooter>
 					<AlertDialogCancel onClick={onCancel} autoFocus>
-						{cancelText}
+						{cancelLabel}
 					</AlertDialogCancel>
 					<AlertDialogAction
-						className="px-4 py-2 text-sm hover:bg-red-600 hover:text-white font-medium text-red-600 border border-red-600 rounded-md bg-light--theme-light dark:!bg-dark--theme-light"
-						aria-label={loading ? 'Confirming action...' : confirmText}
+						className={buttonVariants({ variant: 'destructive', size: 'lg' })}
+						aria-label={actionAriaLabel}
 						disabled={loading}
 						onClick={onConfirm}
 					>
-						{loading && <ReloadIcon className="w-4 h-4 mr-2 animate-spin" />}
-						{loading ? 'Processing...' : confirmText}
+						{loading && <Spinner className="size-4 animate-spin" />}
+						{actionText}
 					</AlertDialogAction>
 				</AlertDialogFooter>
 			</AlertDialogContent>
@@ -68,8 +78,8 @@ export const AlertConfirmationModal = ({
 	description,
 	onAction,
 	loading,
-	confirmText = 'Continue',
-	cancelText = 'Cancel',
+	confirmText,
+	cancelText,
 	countID = 0
 }: {
 	open: boolean;
@@ -82,39 +92,35 @@ export const AlertConfirmationModal = ({
 	cancelText?: string;
 	countID?: number;
 }) => {
+	const t = useTranslations();
+	const confirmLabel = confirmText ?? t('common.CONTINUE');
+	const cancelLabel = cancelText ?? t('common.CANCEL');
 	return (
 		<>
 			<Modal isOpen={open} closeModal={close} showCloseIcon={false}>
-				<EverCard className="w-full md:min-w-[480px]" shadow="custom">
+				<div className="w-full md:min-w-[480px]">
 					<div className="flex flex-col items-center justify-between">
 						<div className="flex flex-col">
-							<Text.Heading as="h3" className="text-2xl text-center">
+							<Text.Heading as="h3" className="text-lg font-semibold text-center text-balance">
 								{title}
 							</Text.Heading>
 							<div className="flex items-center gap-x-2">
-								<span className="text-center">{description}</span>
+								<span className="text-center text-sm text-muted-foreground">{description}</span>
 								{countID > 0 && (
-									<span className="flex items-center justify-center text-xl font-bold text-center text-white rounded-full  h-7 w-7 bg-primary dark:bg-primary-light">
+									<span className="flex items-center justify-center h-7 min-w-7 px-1.5 rounded-full bg-primary/10 text-sm font-semibold text-center tabular-nums text-primary-ink">
 										{' '}
 										{countID}
 									</span>
 								)}
 							</div>
 						</div>
-						<div className="flex items-center justify-end w-full mt-4 gap-x-5">
-							<Button
-								type="button"
-								onClick={close}
-								className={
-									'px-4 py-2 text-sm font-medium text-gray-700 dark:text-red-600 border rounded-md bg-light--theme-light dark:!bg-dark--theme-light'
-								}
-							>
-								{cancelText}
+						<div className="flex items-center justify-end w-full mt-4 gap-x-2">
+							<Button type="button" variant="outline" onClick={close}>
+								{cancelLabel}
 							</Button>
 							<Button
 								variant="danger"
 								type="submit"
-								className="px-4 py-2 text-sm hover:bg-red-600 hover:text-white font-medium text-red-600 border border-red-600 rounded-md bg-light--theme-light dark:!bg-dark--theme-light"
 								disabled={loading}
 								loading={loading}
 								onClick={() => {
@@ -123,11 +129,11 @@ export const AlertConfirmationModal = ({
 									});
 								}}
 							>
-								{confirmText}
+								{confirmLabel}
 							</Button>
 						</div>
 					</div>
-				</EverCard>
+				</div>
 			</Modal>
 		</>
 	);

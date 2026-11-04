@@ -31,9 +31,18 @@ const mockProfileMember = {
 const mockActiveTeam = { id: 'team-1', members: [mockProfileMember] };
 const mockAtomValues: Record<string, unknown> = { 'active-team': mockActiveTeam };
 
-jest.mock('jotai', () => ({
-	useAtomValue: (atom: string) => mockAtomValues[atom]
-}));
+jest.mock('jotai', () => {
+	const actualJotai = jest.requireActual('jotai');
+	return {
+		...actualJotai,
+		useAtomValue: (atom: unknown) => {
+			if (typeof atom === 'string') {
+				return mockAtomValues[atom];
+			}
+			return actualJotai.useAtomValue(atom);
+		}
+	};
+});
 jest.mock('@/core/stores', () => ({
 	activeTaskStatisticsState: 'active-task-statistics',
 	activeTeamState: 'active-team',
@@ -43,7 +52,11 @@ jest.mock('@/core/stores', () => ({
 jest.mock('@/core/hooks', () => ({
 	// The viewer manages the active team, so the menu offers the plan entries for a teammate
 	useCanSeeActivityScreen: () => true,
-	useModal: () => ({ isOpen: false, openModal: jest.fn(), closeModal: jest.fn() }),
+	useModal: () => {
+		const { useState } = jest.requireActual('react');
+		const [isOpen, setIsOpen] = useState(false);
+		return { isOpen, openModal: () => setIsOpen(true), closeModal: () => setIsOpen(false) };
+	},
 	useTMCardTaskEdit: () => ({}),
 	useMemberIdentity: () => ({}),
 	useMemberActiveTask: () => null,
@@ -133,6 +146,15 @@ jest.mock('@/core/lib/helpers/index', () => ({
 	secondsToTime: () => ({ hours: 0, minutes: 0 })
 }));
 jest.mock('@/core/lib/utils', () => ({ clsxm: (...values: unknown[]) => values.filter(Boolean).join(' ') }));
+jest.mock('@/core/components/features/daily-plan/timer-plan-dialogs', () => ({ TimerPlanDialogs: () => null }));
+// The stores are mocked as keys, which the selectAtom of this hook cannot read
+jest.mock('./drawer/task-drawer-link', () => ({ TaskDrawerLink: () => null }));
+jest.mock('@/core/hooks/organizations/teams/use-active-team-member', () => ({
+	useActiveTeamMember: () => undefined,
+	useActiveTeamMemberOfUser: () => mockProfileMember,
+	useActiveTeamMemberUserId: () => undefined,
+	useIsTrackingEnabledFor: () => true
+}));
 jest.mock('assets/svg', () => ({ SixSquareGridIcon: () => null, ThreeCircleOutlineVerticalIcon: () => null }), {
 	virtual: true
 });
@@ -150,7 +172,7 @@ const profile = { member: mockProfileMember, userProfile: { id: PROFILE_USER_ID 
 
 type CardOptions = { viewType: 'default' | 'dailyplan'; planMode?: 'Outstanding' };
 
-// Below the lg breakpoint (1024px) the visible card is the one hidden from lg up
+// The card lays out from its own width now: one tree serves every size
 function renderCompactCard({ viewType, planMode }: CardOptions) {
 	const { container } = render(
 		<TaskCard
@@ -162,11 +184,7 @@ function renderCompactCard({ viewType, planMode }: CardOptions) {
 			planMode={planMode}
 		/>
 	);
-	const compactCard = container.querySelector<HTMLElement>('section.lg\\:hidden');
-	if (!compactCard) {
-		throw new Error('The compact task card was not rendered');
-	}
-	return within(compactCard);
+	return within(container);
 }
 
 describe('TaskCard compact layout menu', () => {
@@ -189,8 +207,13 @@ describe('TaskCard compact layout menu', () => {
 		}
 	);
 
-	it('gives the selected day form the profile member', () => {
+	it('gives the selected day form the profile member', async () => {
 		const compactCard = renderCompactCard({ viewType: 'default' });
+		// The form mounts the first time the selected day entry opens it
+		const someDayButton = compactCard.getByRole('button', { name: 'dailyPlan.PLAN_FOR_SOME_DAY' });
+		await act(async () => {
+			fireEvent.click(someDayButton);
+		});
 		const planForm = compactCard.getByTestId('create-daily-plan-form');
 
 		expect(planForm.getAttribute('data-employee-id')).toBe(PROFILE_EMPLOYEE_ID);

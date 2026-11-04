@@ -1,4 +1,10 @@
-import { Button } from '@/core/components';
+import {
+	Button,
+	modalFieldLabelClass,
+	modalFooterClass,
+	modalPrimaryActionClass,
+	modalSecondaryActionClass
+} from '@/core/components';
 import { FormEvent, useCallback, useState } from 'react';
 import { Select } from './basic-information-form';
 import { IStepElementProps } from '../container';
@@ -31,6 +37,16 @@ export default function FinancialSettingsForm(props: IStepElementProps) {
 	}));
 	const t = useTranslations();
 
+	// Select is memoized: a stable renderer keeps it from re-rendering on every keystroke of the form
+	const renderCurrencyValue = useCallback(() => {
+		const hasCurrency = Boolean(currency?.length);
+		let label: string = t('pages.projects.financialSettingsForm.formFields.currencyPlaceholder');
+		if (hasCurrency) {
+			label = currency;
+		}
+		return <span className={cn('capitalize', !hasCurrency && 'text-muted-foreground/75')}>{label}</span>;
+	}, [currency, t]);
+
 	const handleSubmit = (e: FormEvent) => {
 		e.preventDefault();
 		goToNext?.({
@@ -54,8 +70,8 @@ export default function FinancialSettingsForm(props: IStepElementProps) {
 		<form onSubmit={handleSubmit} className="w-full space-y-5 pt-4">
 			<div className="w-full flex gap-4">
 				<div className="flex-1 flex flex-col gap-5">
-					<div className="flex flex-1 gap-1 flex-col">
-						<label className=" text-xs font-medium">
+					<div className="flex flex-col flex-1 gap-2">
+						<label className={modalFieldLabelClass}>
 							{t('pages.projects.financialSettingsForm.formFields.budgetType')}
 						</label>
 						<div className="w-full">
@@ -67,8 +83,8 @@ export default function FinancialSettingsForm(props: IStepElementProps) {
 							/>
 						</div>
 					</div>
-					<div className="flex gap-1 flex-col">
-						<label htmlFor="budget_amount" className=" text-xs font-medium">
+					<div className="flex flex-col gap-2">
+						<label htmlFor="budget_amount" className={modalFieldLabelClass}>
 							{t('pages.projects.financialSettingsForm.formFields.budgetAmount')}
 						</label>
 						<div className="w-full">
@@ -80,7 +96,6 @@ export default function FinancialSettingsForm(props: IStepElementProps) {
 								placeholder={t(
 									'pages.projects.financialSettingsForm.formFields.budgetAmountPlaceholder'
 								)}
-								className=" text-xs border dark:border-white   h-[2.2rem] px-4 rounded-lg bg-transparent dark:bg-transparent"
 								noWrapper
 							/>
 						</div>
@@ -88,8 +103,8 @@ export default function FinancialSettingsForm(props: IStepElementProps) {
 				</div>
 
 				<div className="flex-1 flex flex-col gap-5">
-					<div className="flex flex-1 gap-1 flex-col">
-						<label className=" text-xs font-medium">
+					<div className="flex flex-col flex-1 gap-2">
+						<label className={modalFieldLabelClass}>
 							{t('pages.projects.financialSettingsForm.formFields.currency')}
 						</label>
 						<div className="w-full">
@@ -102,18 +117,12 @@ export default function FinancialSettingsForm(props: IStepElementProps) {
 									value: `${currency.isoCode} - ${currency.currency}`
 								}))}
 								searchEnabled
-								renderValue={() => (
-									<span className={cn(' capitalize', !currency?.length && 'text-gray-400')}>
-										{currency
-											? `${currency}`
-											: t('pages.projects.financialSettingsForm.formFields.currencyPlaceholder')}
-									</span>
-								)}
+								renderValue={renderCurrencyValue}
 							/>
 						</div>
 					</div>
-					<div className="flex gap-1 flex-col">
-						<label htmlFor="project_title" className=" text-xs font-medium">
+					<div className="flex flex-col gap-2">
+						<label htmlFor="project_title" className={modalFieldLabelClass}>
 							{t('pages.projects.financialSettingsForm.formFields.billing')}
 						</label>
 						<div className="w-full">
@@ -127,11 +136,17 @@ export default function FinancialSettingsForm(props: IStepElementProps) {
 					</div>
 				</div>
 			</div>
-			<div className="w-full flex items-center justify-between">
-				<Button onClick={handlePrevious} className=" h-[2.5rem]" type="button">
+			<div className={cn(modalFooterClass, 'hairline-t border-border pt-4')}>
+				<Button
+					onClick={handlePrevious}
+					variant="ghost"
+					size="default"
+					className={modalSecondaryActionClass}
+					type="button"
+				>
 					{t('common.BACK')}
 				</Button>
-				<Button type="submit" className=" h-[2.5rem]">
+				<Button type="submit" size="default" className={modalPrimaryActionClass}>
 					{t('common.NEXT')}
 				</Button>
 			</div>

@@ -21,7 +21,7 @@ export function TaskSizesDropdown({
 	isMultiple = false
 }: TTaskStatusesDropdown<'size'>) {
 	const { taskSizes } = useTaskSizesQuery();
-	const taskSizesValue = useMapToTaskStatusValues(taskSizes as TTaskStatus[], false);
+	const taskSizesValue = useMapToTaskStatusValues(taskSizes as TTaskStatus[], 'size');
 
 	const { item, items, onChange, values } = useStatusValue<'size'>({
 		status: taskSizesValue,

@@ -1,24 +1,22 @@
 import { formatDate } from '@/core/lib/helpers/index';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/core/components/common/accordion';
-import { Badge } from '@/core/components/common/badge';
-import { ArrowRightIcon } from 'assets/svg';
-import { Button, statusColor } from '@/core/components';
+import { Button } from '@/core/components';
 import { useTranslations } from 'next-intl';
 import { ReactNode } from 'react';
 import { EmployeeAvatar } from '../../timesheet/compact-timesheet-component';
-import { getStatusTimesheet, groupByDate } from '@/core/lib/helpers/timesheet-grouping';
+import { getStatusTimesheet, groupByDate, type GroupedTimesheet } from '@/core/lib/helpers/timesheet-grouping';
 import { useTimelogFilterOptions } from '@/core/hooks';
 import { ETimesheetStatus } from '@/core/types/generics/enums/timesheet';
 import { cn } from '@/core/lib/helpers';
-import { PlusIcon } from '../../timesheet/timesheet-icons';
+import { ChevronRight } from '@/core/components/icons';
 import {
 	DisplayTimeForTimesheet,
 	TaskNameInfoDisplay,
 	TotalDurationByDate,
 	TotalTimeDisplay
 } from '../../tasks/task-displays';
-import { EverCard } from '../../common/ever-card';
 import { ITimeLog } from '@/core/types/interfaces/timer/time-log/time-log';
+import { TimesheetStatusBadge, TimesheetTotalBadge } from '../../timesheet/timesheet-status-badge';
 
 interface ITimesheetCard {
 	title?: string;
@@ -36,52 +34,41 @@ export function TimesheetCard({ ...props }: ITimesheetCard) {
 	const { icon, title, date, description, hours, count, onClick, classNameIcon } = props;
 	const t = useTranslations();
 	return (
-		<EverCard
-			aria-label={`Timesheet card for ${title}`}
-			shadow="custom"
-			className="flex w-full gap-2 !p-5 border border-gray-200 rounded-md shadow-sm min-h-40 h-fit dark:border-gray-600 shadow-gray-100 dark:shadow-transparent"
-		>
-			<div className="flex flex-col w-full gap-2 ">
-				<div className="flex flex-col items-start justify-start gap-1">
-					<h1 className="text-2xl md:text-[25px] font-bold truncate w-full">{hours ?? count}</h1>
-					<h2 className="text-base md:text-[16px] font-medium text-[#282048] dark:text-gray-400 truncate w-full">
-						{title}
-					</h2>
-					<span className="text-sm md:text-[14px] text-[#3D5A80] dark:text-gray-400 truncate w-full">
-						{date ?? description}
-					</span>
-				</div>
-				<Button
-					variant="outline"
-					className={cn(
-						'h-9 px-2 py-2 w-fit',
-						'border border-gray-200 ',
-						'text-[#282048] text-sm',
-						'flex items-center',
-						'hover:bg-gray-50 hover:dark:bg-primary-light/40 focus:ring-2 focus:ring-offset-2 focus:ring-gray-200 dark:border-gray-600'
-					)}
-					aria-label="View timesheet details"
-					onClick={onClick}
-				>
-					<PlusIcon className='dark:text-[#6b7280] text-[#282048] '/>
-					<span>{t('pages.timesheet.TIMESHEET_VIEW_DETAILS')}</span>
-					<ArrowRightIcon className={cn('h-6 w-6', 'text-[#282048] dark:text-[#6b7280]')} />
-				</Button>
-			</div>
+		<div aria-label={`Timesheet card for ${title}`} className="flex min-w-0 flex-1 items-start gap-3 p-4">
 			<div
 				className={cn(
-					'p-5 w-16 h-16 rounded-lg',
-					'flex justify-center items-center',
-					'text-sm font-bold text-white',
-					'shadow-lg dark:shadow-gray-800',
+					'flex size-9 shrink-0 items-center justify-center rounded-lg',
+					'bg-foreground/5 text-muted-foreground [&_svg]:size-4.5',
 					classNameIcon
 				)}
 				aria-hidden="true"
 			>
 				{icon}
 			</div>
-		</EverCard>
+			<div className="flex min-w-0 flex-1 flex-col gap-1">
+				<span className="w-full truncate text-xs text-muted-foreground">{title}</span>
+				<span className="w-full truncate text-2xl font-semibold tabular-nums text-foreground">
+					{hours ?? count}
+				</span>
+				<span className="w-full truncate text-xs text-muted-foreground">{date ?? description}</span>
+				<Button
+					variant="ghost"
+					size="default"
+					className="-ml-3 mt-1 w-fit text-muted-foreground"
+					aria-label="View timesheet details"
+					onClick={onClick}
+				>
+					<span>{t('pages.timesheet.TIMESHEET_VIEW_DETAILS')}</span>
+					<ChevronRight />
+				</Button>
+			</div>
+		</div>
 	);
+}
+
+function groupKeyOf(group: GroupedTimesheet) {
+	const timesheetId = group.tasks[0]?.timesheet?.id;
+	return `${group.date}-${timesheetId}`;
 }
 
 export const TimesheetCardDetail = ({ data }: { data?: Record<ETimesheetStatus, ITimeLog[]> }) => {
@@ -90,22 +77,25 @@ export const TimesheetCardDetail = ({ data }: { data?: Record<ETimesheetStatus, 
 	const timesheetGroupByDate = groupByDate(data?.PENDING || []);
 	const t = useTranslations();
 	return (
-		<div className="rounded-md">
+		<div className="overflow-hidden rounded-xl hairline-ring ring-border">
 			{timesheetGroupByDate.map((plan, index) => {
 				return (
-					<div key={index}>
+					<div key={groupKeyOf(plan)} className="hairline-b border-border last:border-b-0">
 						<div
 							className={cn(
-								'h-[48px] flex justify-between items-center w-full',
-								'bg-[#ffffffcc] dark:bg-dark--theme rounded-md border-1',
-								'border-gray-400 px-5 text-[#71717A] font-medium'
+								'flex h-10 w-full items-center justify-between gap-3 px-4',
+								'bg-foreground/2.5 text-sm font-medium text-foreground'
 							)}
 						>
 							<div className="flex gap-x-3">
 								{timesheetGroupByDays === 'Weekly' && <span>Week {index + 1}</span>}
 								<span>{formatDate(plan.date)}</span>
 							</div>
-							<TotalDurationByDate timesheetLog={plan.tasks} createdAt={formatDate(plan.date)} />
+							<TotalDurationByDate
+								timesheetLog={plan.tasks}
+								createdAt={formatDate(plan.date)}
+								className="tabular-nums text-foreground"
+							/>
 						</div>
 						<Accordion type="single" collapsible>
 							{Object.entries(getStatusTimesheet(plan.tasks)).map(([status, rows]) => {
@@ -115,78 +105,68 @@ export const TimesheetCardDetail = ({ data }: { data?: Record<ETimesheetStatus, 
 										<AccordionItem
 											key={status}
 											value={status === 'DENIED' ? 'REJECTED' : status}
-											className={cn('p-1 rounded')}
+											className="hairline-t border-b-0 border-border"
 										>
 											<AccordionTrigger
-												style={{ backgroundColor: statusColor(status).bgOpacity }}
 												type="button"
 												className={cn(
-													'flex flex-row-reverse justify-end items-center w-full h-12 rounded-xs gap-x-2 hover:no-underline px-2',
-													statusColor(status).text
+													'flex h-11 w-full flex-row-reverse items-center justify-end gap-x-2 px-4 py-0',
+													'text-muted-foreground transition-colors hover:bg-foreground/2.5 hover:no-underline'
 												)}
 											>
-												<div className="flex items-center justify-between w-full space-x-1">
-													<div className="flex items-center space-x-1">
-														<div
-															className={cn('p-2 rounded', statusColor(status).bg)}
-														></div>
-														<div className="flex items-center gap-x-1">
-															<span className="text-base font-normal text-gray-400 uppercase">
-																{status === 'DENIED' ? 'REJECTED' : status}
-															</span>
-															<span className="text-gray-400 text-[14px]">
-																({rows.length})
-															</span>
-														</div>
-														<Badge
-															variant={'outline'}
-															className="box-border flex flex-row items-center px-2 py-1 gap-2 w-[108px] h-[30px] bg-[rgba(247,247,247,0.6)] border border-gray-300 rounded-lg flex-none order-1 grow-0"
+												<div className="flex w-full items-center justify-between gap-2">
+													<div className="flex items-center gap-2">
+														<TimesheetStatusBadge status={status}>
+															<span>{status === 'DENIED' ? 'REJECTED' : status}</span>
+															<span className="tabular-nums">({rows.length})</span>
+														</TimesheetStatusBadge>
+														<TimesheetTotalBadge
+															label={
+																<>
+																	{t('timer.TOTAL_HOURS').split(' ')[0]}
+																	{':'}
+																</>
+															}
 														>
-															<span className="text-[#5f5f61]">
-																{t('timer.TOTAL_HOURS').split(' ')[0]}
-																{':'}
-															</span>
 															<TotalTimeDisplay
 																timesheetLog={rows}
-																className="text-[#293241] text-[14px]"
+																className="text-foreground"
 															/>
-														</Badge>
+														</TimesheetTotalBadge>
 													</div>
 												</div>
 											</AccordionTrigger>
-											<AccordionContent className="flex flex-col w-full">
+											<AccordionContent className="flex w-full flex-col pb-0">
 												{rows.map((task) => (
 													<div
 														key={task.id}
-														style={{
-															backgroundColor: statusColor(status).bgOpacity,
-															borderBottomColor: statusColor(status).bg
-														}}
 														className={cn(
-															'flex items-center p-1 space-x-4 border-b border-b-gray-200 dark:border-b-gray-600 h-[60px]'
+															'flex min-h-14 items-center gap-4 hairline-t border-border px-4 py-2',
+															'transition-colors hover:bg-foreground/2.5'
 														)}
 													>
-														<div className="flex-[2]">
+														<div className="min-w-0 flex-2">
 															<TaskNameInfoDisplay
 																task={task.task}
-																className={cn(
-																	'rounded-sm !h-auto !px-[0.3312rem] py-[0.2875rem] shadow-[0px_0px_15px_0px_#e2e8f0] dark:shadow-transparent'
-																)}
-																taskTitleClassName={cn(
-																	'text-sm !text-ellipsis !overflow-hidden text-sm'
-																)}
+																className="min-w-0"
+																taskTitleClassName="text-sm text-foreground"
 																showSize={false}
 																dash
-																taskNumberClassName="text-sm"
+																taskNumberClassName="text-sm text-muted-foreground"
 															/>
 														</div>
-														<div className="flex items-center flex-1 gap-x-2">
-															<EmployeeAvatar imageUrl={task.employee?.user.imageUrl!} />
-															<span className="flex-1 font-medium text-[12px] overflow-hidden">
+														<div className="flex min-w-0 flex-1 items-center gap-x-2">
+															<EmployeeAvatar
+																className="size-7 rounded-full object-cover hairline-ring ring-border"
+																imageUrl={task.employee?.user.imageUrl!}
+															/>
+															<span className="flex-1 truncate text-sm font-medium">
 																{task.employee?.fullName}
 															</span>
 														</div>
-														<DisplayTimeForTimesheet timesheetLog={task} />
+														<div className="ml-auto flex shrink-0 justify-end tabular-nums">
+															<DisplayTimeForTimesheet timesheetLog={task} />
+														</div>
 													</div>
 												))}
 											</AccordionContent>

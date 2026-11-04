@@ -48,9 +48,9 @@ const UserWorkedTaskTab = ({ member, useVirtualization = false }: { member?: any
 		() => (
 			<div className="flex gap-2 justify-center items-center">
 				<span className="sr-only">Loading...</span>
-				<div className="size-2 bg-purple-500 rounded-full animate-bounce [animation-delay:-0.3s]" />
-				<div className="size-2 bg-purple-500 rounded-full animate-bounce [animation-delay:-0.15s]" />
-				<div className="bg-purple-500 rounded-full animate-bounce size-2" />
+				<div className="size-2 rounded-full bg-primary animate-bounce [animation-delay:-0.3s]" />
+				<div className="size-2 rounded-full bg-primary animate-bounce [animation-delay:-0.15s]" />
+				<div className="size-2 rounded-full bg-primary animate-bounce" />
 			</div>
 		),
 		[]

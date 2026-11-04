@@ -2,11 +2,12 @@
 
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { DropResult } from '@hello-pangea/dnd';
-import { useTranslations } from 'next-intl';
+import { useTranslations, type DottedLanguageObjectStringPaths } from 'next-intl';
 import { toast } from 'sonner';
 import { handleDragAndDrop } from '@/core/lib/helpers/drag-and-drop';
 import { movePlanTask, orderPlanTasks } from '@/core/lib/helpers/daily-plan-task-order';
 import { logErrorInDev } from '@/core/lib/helpers/error-message';
+import { errorReasonKeyOf } from '@/core/lib/utils/error-feedback';
 import { TDailyPlan } from '@/core/types/schemas/task/daily-plan.schema';
 import { OUTSTANDING_NO_PLAN_ID } from './use-daily-plan-calculations';
 import { useUpdateDailyPlan } from './use-update-daily-plan';
@@ -26,7 +27,7 @@ const keepPendingPlans = (loaded: TDailyPlan[], shown: TDailyPlan[], pendingIds:
  */
 export function useDailyPlanTaskOrder(plans: TDailyPlan[] | undefined) {
 	const t = useTranslations();
-	const { updateDailyPlan } = useUpdateDailyPlan();
+	const { updateDailyPlan } = useUpdateDailyPlan({ handlesOwnError: true });
 	const [dragPlans, setDragPlans] = useState<TDailyPlan[]>(plans ?? []);
 	const loadedPlans = useRef(plans);
 	// Per plan id: its chain of saves and how many of them are not finished yet
@@ -80,7 +81,11 @@ export function useDailyPlanTaskOrder(plans: TDailyPlan[] | undefined) {
 							[...saves.current.keys()].filter((id) => id !== planId)
 						);
 						setDragPlans((current) => keepPendingPlans(loaded, current, pendingIds));
-						toast.error(t('dailyPlan.TASK_ORDER_SAVE_FAILED'));
+						const reasonKey = errorReasonKeyOf(error) as DottedLanguageObjectStringPaths;
+						toast.error(t('toasts.plans.ORDER_SAVE_FAILED'), {
+							id: 'plan-order-save-failed',
+							description: t(reasonKey)
+						});
 					}
 				} finally {
 					save.pending -= 1;

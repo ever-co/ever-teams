@@ -121,6 +121,8 @@ export function useTimeDailyActivity(type?: string) {
 		visitedSites,
 		// visitedAppDetail,
 		getVisitedApps,
-		loading: dailyActivitiesQuery.isLoading
+		loading: dailyActivitiesQuery.isLoading,
+		isError: dailyActivitiesQuery.isError,
+		refetch: dailyActivitiesQuery.refetch
 	};
 }

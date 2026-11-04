@@ -1,11 +1,89 @@
 'use client';
-import { clsxm } from '@/core/lib/utils';
-import ScreenshotDetailsModal from './screenshot-details';
-import { useModal } from '@/core/hooks';
-import ScreenshotItem from './screenshot-item';
-import React, { useCallback, useEffect } from 'react';
-import { TTimeSlot } from '@/core/types/schemas';
 
+import React, { memo, useCallback } from 'react';
+import { useModal } from '@/core/hooks';
+import { TASK_GROUP_LABEL, TASK_GROUP_STACK } from '@/core/components/tasks/task-row-recipes';
+import { cn } from '@/core/lib/helpers';
+import { TTimeSlot } from '@/core/types/schemas';
+import ScreenshotDetailsModal from './screenshot-details';
+import ScreenshotItem from './screenshot-item';
+import { type ScreenshotSlotActions, screenshotsOf } from './screenshot-slots';
+
+export type ScreenshotDensity = 'regular' | 'dense';
+
+/** Tiles fill the width they get, a page or a member card, without a breakpoint of their own. */
+const SLOT_GRIDS: Record<ScreenshotDensity, string> = {
+	regular: 'grid grid-cols-[repeat(auto-fill,minmax(10rem,1fr))] gap-x-3 gap-y-5',
+	dense: 'grid grid-cols-[repeat(auto-fill,minmax(8.5rem,1fr))] gap-x-3 gap-y-4'
+};
+
+function densityOf(isTeamPage: boolean): ScreenshotDensity {
+	if (isTeamPage) {
+		return 'dense';
+	}
+	return 'regular';
+}
+
+const SlotTile = memo(function SlotTile({
+	slot,
+	slotActions,
+	onOpenSlot,
+	isTeamPage
+}: Readonly<{
+	slot: TTimeSlot;
+	slotActions?: ScreenshotSlotActions;
+	onOpenSlot: (slot: TTimeSlot) => void;
+	isTeamPage: boolean;
+}>) {
+	const shots = screenshotsOf(slot);
+	const firstShot = shots[0];
+	const showSlot = useCallback(() => onOpenSlot(slot), [onOpenSlot, slot]);
+	return (
+		<ScreenshotItem
+			idSlot={slot.id}
+			startTime={slot.startedAt}
+			endTime={slot.stoppedAt ?? ''}
+			imageUrl={firstShot?.thumbUrl ?? ''}
+			fullImageUrl={firstShot?.fullUrl}
+			screenshotCount={shots.length}
+			percent={slot.percentage ?? 0}
+			onShow={showSlot}
+			slotActions={slotActions}
+			isTeamPage={isTeamPage}
+		/>
+	);
+});
+
+/** One hour of a day: its range as a label outside, then the grid of its slots. */
+export const ScreenshotHourGroup = memo(function ScreenshotHourGroup({
+	label,
+	slots,
+	slotActions,
+	onOpenSlot,
+	density = 'regular'
+}: Readonly<{
+	label: string;
+	slots: ReadonlyArray<TTimeSlot>;
+	slotActions?: ScreenshotSlotActions;
+	onOpenSlot: (slot: TTimeSlot) => void;
+	density?: ScreenshotDensity;
+}>) {
+	const isDense = density === 'dense';
+	return (
+		<section className={TASK_GROUP_STACK} aria-label={label}>
+			<h3 className={cn(TASK_GROUP_LABEL, 'tabular-nums')}>{label}</h3>
+			<ol className={SLOT_GRIDS[density]}>
+				{slots.map((slot) => (
+					<li key={slot.id} className="min-w-0">
+						<SlotTile slot={slot} slotActions={slotActions} onOpenSlot={onOpenSlot} isTeamPage={isDense} />
+					</li>
+				))}
+			</ol>
+		</section>
+	);
+});
+
+/** An hour of screenshots rendered on its own, with its own detail dialog. */
 export const ScreenshotPerHour = ({
 	timeSlots,
 	startedAt,
@@ -28,64 +106,17 @@ export const ScreenshotPerHour = ({
 		[openModal]
 	);
 
-	useEffect(() => {
-		if (timeSlots && timeSlots.length > 0) {
-			console.log('First slot screenshots:', timeSlots[0]?.screenshots);
-		}
-	}, [timeSlots]);
-
-	const containerClasses = isTeamPage
-		? 'p-4 my-4 rounded-md dark:bg-card border-[0.125rem] bg-light--theme dark:border-[#FFFFFF0D]'
-		: 'p-5 my-4 rounded-[1rem] space-y-5 dark:bg-card border-[.2rem] dark:border-[#FFFFFF0D] border-[#B993E6]';
-
-	const headingClasses = isTeamPage ? 'px-4' : 'font-medium';
-
-	const contentClasses = isTeamPage ? 'flex justify-start items-start flex-wrap' : 'flex gap-5 flex-wrap';
-
+	const label = `${startedAt} – ${stoppedAt}`;
 	return (
-		<div className={containerClasses}>
-			<h3 className={headingClasses}>
-				{startedAt} - {stoppedAt}
-			</h3>
-			<div className={contentClasses}>
-				{timeSlots.map((el, i) => {
-					if (isTeamPage) {
-						return (
-							<div key={i} className={clsxm('min-w-[15rem] xl:w-1/6 p-4')}>
-								<ScreenshotItem
-									endTime={el.stoppedAt || ''}
-									startTime={el.startedAt || ''}
-									percent={el.percentage || 0}
-									imageUrl={
-										(el.screenshots && el.screenshots[0]?.thumbUrl) ||
-										'/assets/jpeg/placeholder-image.jpeg'
-									}
-									onShow={() => openScreenModal(el)}
-									idSlot={el.id}
-									isTeamPage={isTeamPage}
-								/>
-							</div>
-						);
-					}
-
-					return (
-						<ScreenshotItem
-							key={i}
-							endTime={el.stoppedAt || ''}
-							startTime={el.startedAt || ''}
-							percent={el.percentage || 0}
-							imageUrl={
-								(el.screenshots && el.screenshots[0]?.thumbUrl) || '/assets/jpeg/placeholder-image.jpeg'
-							}
-							onShow={() => openScreenModal(el)}
-							idSlot={el.id}
-							isTeamPage={isTeamPage}
-						/>
-					);
-				})}
-				<ScreenshotDetailsModal open={isOpen} closeModal={closeModal} slot={selectedElement} />
-			</div>
-		</div>
+		<>
+			<ScreenshotHourGroup
+				label={label}
+				slots={timeSlots}
+				onOpenSlot={openScreenModal}
+				density={densityOf(isTeamPage)}
+			/>
+			<ScreenshotDetailsModal open={isOpen} closeModal={closeModal} slot={selectedElement} />
+		</>
 	);
 };
 

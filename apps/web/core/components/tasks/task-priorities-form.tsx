@@ -14,7 +14,7 @@ import { StatusesListCard } from '../settings/list-card';
 
 import { clsxm } from '@/core/lib/utils';
 import { Spinner } from '@/core/components/common/spinner';
-import { PlusIcon } from '@heroicons/react/20/solid';
+import { Plus as PlusIcon } from '@/core/components/icons';
 import { useTranslations } from 'next-intl';
 import { generateIconList, IIcon } from '../settings/icon-items';
 import IconPopover from '../settings/icon-popover';
@@ -32,7 +32,8 @@ const PRIMARY_BUTTON = 'h-9 shrink-0 rounded-md px-3 py-0 text-sm font-medium ho
 const CANCEL_BUTTON = 'h-9 shrink-0 rounded-md px-3 py-0 text-sm font-medium';
 // The icon and colour pickers draw their own 54px box; this sizes them like the other controls of the
 // row without touching the shared picker components.
-const PICKER = 'shrink-0 [&_.input-border]:h-9 [&_.input-border]:rounded-md [&_.rounded-xl]:h-9 [&_.rounded-xl]:rounded-md';
+const PICKER =
+	'shrink-0 [&_.input-border]:h-9 [&_.input-border]:rounded-md [&_.rounded-xl]:h-9 [&_.rounded-xl]:rounded-md';
 
 type StatusForm = {
 	formOnly?: boolean;
@@ -227,7 +228,9 @@ export const TaskPrioritiesForm = ({ formOnly = false, onCreated }: StatusForm) 
 
 						{!formOnly && taskPriorities?.length > 0 && (
 							<>
-								<Text className={clsxm(SUB_LABEL, 'pt-1')}>{t('pages.settingsTeam.LIST_OF_PRIORITIES')}</Text>
+								<Text className={clsxm(SUB_LABEL, 'pt-1')}>
+									{t('pages.settingsTeam.LIST_OF_PRIORITIES')}
+								</Text>
 								<div className="flex w-full flex-wrap gap-2">
 									{loading && !taskPriorities?.length && <Spinner dark={false} />}
 									{taskPriorities && taskPriorities?.length ? (

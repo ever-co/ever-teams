@@ -57,11 +57,8 @@ export const NotifyDropdown = ({
 	return (
 		<>
 			<Dropdown
-				className="min-w-max max-w-sm bg-[#FFFFFF] dark:bg-dark--theme-light "
-				buttonClassName={clsxm(
-					'py-0 font-medium h-14 w-[14.7rem] text-[#282048] dark:text-white',
-					NotifyList.length === 0 && ['py-2']
-				)}
+				className="min-w-max max-w-sm bg-card"
+				buttonClassName={clsxm('h-9 w-[14.7rem] py-0 text-foreground', NotifyList.length === 0 && ['py-2'])}
 				value={NotifyItem}
 				onChange={onChangeActiveTeam}
 				items={items}

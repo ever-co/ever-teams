@@ -1,302 +1,143 @@
 'use client';
-import { EditPenBoxIcon, CheckCircleTickIcon as TickSaveIcon } from 'assets/svg';
-import { checkPastDate } from '@/core/lib/helpers';
 import { useTranslations } from 'next-intl';
-import { useCallback, useMemo, useState } from 'react';
+import { PropsWithChildren, useMemo } from 'react';
 
-import {
-	formatIntegerToHour,
-	hoursToHMM,
-	parseStringInputToHours,
-	type THoursInputErrorCode
-} from '@/core/lib/helpers/index';
 import { useAuthenticateUser, useCanSeeActivityScreen } from '@/core/hooks';
 
 import { FilterTabs } from '@/core/types/daily-plan-types';
-import { useUpdateDailyPlan } from '@/core/hooks/daily-plans/use-update-daily-plan';
-import { useDeleteDailyPlan } from '@/core/hooks/daily-plans/use-delete-daily-plan';
 import { TDailyPlan } from '@/core/types/schemas';
-import { clsxm } from '@/core/lib/utils';
-import { ReloadIcon } from '@radix-ui/react-icons';
-
-import { VerticalSeparator } from '../duplicated-components/separator';
-import { ProgressBar } from '../duplicated-components/_progress-bar';
-import { TTask } from '@/core/types/schemas/task/task.schema';
-import { Button } from '../duplicated-components/_button';
-import { AlertPopup } from '../common/alert-popup';
-import { toast } from 'sonner';
+import { checkPastDate, cn } from '@/core/lib/helpers';
+import { formatDurationShort } from '@/core/lib/utils/dashboard-figures';
 import { useGetTimeLogs } from '@/core/hooks/activities/time-logs/use-get-time-logs';
 import { isTaskFinished } from '@/core/lib/helpers/task';
+import { TASK_ROW_SKELETON_BAR } from '@/core/components/tasks/task-row-recipes';
+import { PlannedTimeField } from './planned-time-field';
+import { PlanMenu } from './plan-menu';
 
-// The parser's own messages are English, its error code picks the translated one
-function getInvalidTimeMessageKey(errorCode?: THoursInputErrorCode) {
-	if (errorCode === 'MINUTES_OUT_OF_RANGE') {
-		return 'dailyPlan.toastMessages.MINUTES_OUT_OF_RANGE';
-	}
-	return 'dailyPlan.toastMessages.INVALID_TIME_FORMAT';
+const DONE_METER_TICKS = 5;
+
+const FIGURES_CLASS_NAME =
+	'order-last flex basis-full flex-wrap items-center gap-x-4 gap-y-1 sm:order-none sm:ml-auto sm:basis-auto sm:justify-end';
+
+const FIGURE_LABEL_CLASS_NAME = 'text-xs text-muted-foreground';
+
+const FIGURE_VALUE_CLASS_NAME = 'text-[13px] font-medium tabular-nums text-foreground';
+
+function PlanFigure({ label, children }: PropsWithChildren<{ label: string }>) {
+	return (
+		<span className="inline-flex h-6 items-center gap-1.5 whitespace-nowrap">
+			<span className={FIGURE_LABEL_CLASS_NAME}>{label}</span>
+			{children}
+		</span>
+	);
 }
 
-// String(error) would put an English "Error:" prefix in the translated toast
-function getErrorText(error: unknown) {
-	if (error instanceof Error && error.message) {
-		return error.message;
+function filledTicksOf(done: number, total: number) {
+	if (total <= 0) {
+		return 0;
 	}
-	return String(error);
+	return Math.round((done / total) * DONE_METER_TICKS);
 }
 
-export function PlanHeader({ plan, planMode }: { plan: TDailyPlan; planMode: FilterTabs }) {
-	const [editTime, setEditTime] = useState<boolean>(false);
-	const [time, setTime] = useState<number>(plan.workTimePlanned || 0);
-	const [inputValue, setInputValue] = useState<string>(hoursToHMM(plan.workTimePlanned || 0));
-	const [popupOpen, setPopupOpen] = useState(false);
-	const { updateDailyPlan, updateDailyPlanLoading } = useUpdateDailyPlan();
-	const { deleteDailyPlan, deleteDailyPlanLoading } = useDeleteDailyPlan();
+function DoneMeter({ done, total }: Readonly<{ done: number; total: number }>) {
+	const filledTicks = filledTicksOf(done, total);
+	return (
+		<span aria-hidden="true" className="inline-flex items-center gap-0.5">
+			{Array.from({ length: DONE_METER_TICKS }, (_, index) => (
+				<span
+					key={index}
+					className={cn('h-2.5 w-1.5 rounded-[1px] bg-foreground/10', index < filledTicks && 'bg-primary')}
+				/>
+			))}
+		</span>
+	);
+}
+
+/** Time logged on the plan's tasks that day; mounted only while the group is open, since it is one read per plan. */
+function PlanWorkedFigure({ plan }: Readonly<{ plan: TDailyPlan }>) {
+	const t = useTranslations();
+	const timeLogsQuery = useGetTimeLogs({
+		startDate: plan.date,
+		endDate: plan.date,
+		taskIds: plan.tasks?.map((task) => task.id) || []
+	});
+	const timeLogs = timeLogsQuery.data;
+	const totalWorkedSeconds = useMemo(() => {
+		return timeLogs?.reduce((total, log) => total + (log.duration || 0), 0) || 0;
+	}, [timeLogs]);
+	const isPending = timeLogsQuery.isLoading;
+	const hasFailed = timeLogsQuery.isError;
+	const showsValue = !isPending && !hasFailed;
+
+	return (
+		<PlanFigure label={t('common.WORKED')}>
+			{isPending && <span className={cn(TASK_ROW_SKELETON_BAR, 'h-3 w-10')} />}
+			{hasFailed && <span className={FIGURE_VALUE_CLASS_NAME}>–</span>}
+			{showsValue && <span className={FIGURE_VALUE_CLASS_NAME}>{formatDurationShort(totalWorkedSeconds)}</span>}
+		</PlanFigure>
+	);
+}
+
+function estimatedSecondsOf(plan: TDailyPlan) {
+	const tasks = plan.tasks ?? [];
+	return tasks.reduce((total, task) => {
+		const estimate = task.estimate;
+		if (typeof estimate === 'number') {
+			return total + estimate;
+		}
+		return total;
+	}, 0);
+}
+
+export function PlanHeader({
+	plan,
+	planMode,
+	isOpen = true
+}: Readonly<{
+	plan: TDailyPlan;
+	planMode: FilterTabs;
+	isOpen?: boolean;
+}>) {
 	const { isTeamManager } = useAuthenticateUser();
 	const canSeeActivity = useCanSeeActivityScreen();
 	const t = useTranslations();
 
-	// Helper function to sum times
-	const sumTimes = useCallback((tasks: TTask[], key: keyof TTask) => {
-		return (
-			tasks?.reduce((previousValue, currentValue) => {
-				const value = currentValue[key];
-				return previousValue + (typeof value === 'number' ? value : 0);
-			}, 0) || 0
-		);
-	}, []);
-
-	// Get all tasks's estimations time
-	const estimatedTime = useMemo(() => sumTimes(plan.tasks || [], 'estimate'), [plan.tasks, sumTimes]);
-
-	// Get completed tasks
+	const estimatedSeconds = useMemo(() => estimatedSecondsOf(plan), [plan]);
 	const completedTasks = useMemo(
 		() => plan.tasks?.filter((task) => isTaskFinished(task.status))?.length || 0,
 		[plan.tasks]
 	);
+	const totalTasks = plan.tasks?.length || 0;
 
-	// Get ready tasks
-	const readyTasks = useMemo(() => plan.tasks?.filter((task) => task.status === 'ready')?.length || 0, [plan.tasks]);
-
-	// Get total tasks
-	const totalTasks = useMemo(() => plan.tasks?.length || 0, [plan.tasks]);
-
-	// Completion percent
-	const completionPercent = totalTasks > 0 ? ((completedTasks * 100) / totalTasks).toFixed(0) : '0.0';
-
-	// Smart layout: use justify-between only when delete button is present
-	const shouldShowDeleteButton = planMode === 'Future Tasks' && canSeeActivity;
-	const layoutClass = shouldShowDeleteButton ? 'justify-between' : 'justify-start';
-
-	const handleSave = useCallback(async () => {
-		if (updateDailyPlanLoading) return;
-
-		try {
-			const { hours, error: parseError, errorCode } = parseStringInputToHours(inputValue);
-			if (parseError || hours === undefined || !Number.isFinite(hours) || hours < 0) {
-				const invalidTimeMessageKey = getInvalidTimeMessageKey(errorCode);
-				const invalidTimeMessage = t(invalidTimeMessageKey);
-				throw new Error(invalidTimeMessage);
-			}
-
-			if (plan.workTimePlanned === hours) {
-				setInputValue(String(hours));
-				setTime(hours);
-				setEditTime(false);
-				return;
-			}
-			setTime(hours);
-
-			// Server requires employeeId in the payload, to correctly check permissions
-			await updateDailyPlan({ workTimePlanned: hours, employeeId: plan.employeeId || undefined }, plan.id ?? '');
-
-			setEditTime(false);
-			toast.success(t('dailyPlan.toastMessages.PLAN_UPDATED'));
-		} catch (err) {
-			setTime(plan.workTimePlanned ?? 0);
-			setInputValue(hoursToHMM(plan.workTimePlanned ?? 0));
-			setEditTime(false);
-			const errorText = getErrorText(err);
-			const updateFailedMessage = t('dailyPlan.toastMessages.PLAN_UPDATE_FAILED_WITH_ERROR', {
-				error: errorText
-			});
-			toast.error(updateFailedMessage);
-		}
-	}, [
-		inputValue,
-		parseStringInputToHours,
-		plan.workTimePlanned,
-		plan.id,
-		plan.employeeId,
-		updateDailyPlan,
-		updateDailyPlanLoading,
-		setTime,
-		setInputValue,
-		setEditTime,
-		t
-	]);
-
-	// Get time logs for the plan
-	const timeLogs = useGetTimeLogs({
-		startDate: plan.date,
-		endDate: plan.date,
-		taskIds: plan.tasks?.map((task) => task.id) || []
-	}).data;
-
-	const totalWorkedTime = useMemo(() => {
-		return timeLogs?.reduce((total, log) => total + (log.duration || 0), 0) || 0;
-	}, [timeLogs]);
-	// Main content component - reusable for both layouts
-	const MainContent = () => (
-		<>
-			{/* Planned Time */}
-			<div className="flex gap-2 items-center">
-				{!editTime && !updateDailyPlanLoading ? (
-					<>
-						<div>
-							<span className="font-medium">{t('dailyPlan.PLANNED_TIME')} : </span>
-							<span className="font-semibold">{formatIntegerToHour(time)}</span>
-						</div>
-						{(!checkPastDate(plan.date) || isTeamManager) && (
-							<EditPenBoxIcon
-								className={clsxm('cursor-pointer lg:h-4 lg:w-4 w-2 h-2', 'dark:stroke-[#B1AEBC]')}
-								onClick={() => {
-									setInputValue(hoursToHMM(time));
-									setEditTime(true);
-								}}
-							/>
-						)}
-					</>
-				) : (
-					<div className="flex">
-						<input
-							value={inputValue}
-							type="text"
-							className={clsxm(
-								'p-0 text-xs font-medium text-center bg-transparent border-b outline-hidden max-w-[54px]'
-							)}
-							onChange={(e) => setInputValue(e.target.value)}
-						/>
-						<span>
-							{updateDailyPlanLoading ? (
-								<ReloadIcon className="mr-2 w-4 h-4 animate-spin" />
-							) : (
-								<TickSaveIcon className="w-5 cursor-pointer" onClick={handleSave} />
-							)}
-						</span>
-					</div>
-				)}
-			</div>
-
-			{/* Total estimated time based on tasks */}
-			<VerticalSeparator className="h-10" />
-
-			<div className="flex gap-2 items-center">
-				<span className="font-medium">{t('dailyPlan.ESTIMATED_TIME')} : </span>
-				<span className="font-semibold">{formatIntegerToHour(estimatedTime / 3600)}</span>
-			</div>
-
-			{/* Conditional content based on planMode */}
-			{planMode !== 'Future Tasks' && (
-				<>
-					<VerticalSeparator />
-					{/* Total worked time for the plan */}
-					<div className="flex gap-2 items-center">
-						<span className="font-medium">{t('dailyPlan.TOTAL_TIME_WORKED')} : </span>
-						<span className="font-semibold">{formatIntegerToHour(totalWorkedTime / 3600)}</span>
-					</div>
-
-					<VerticalSeparator />
-					{/* Completed tasks */}
-					<div>
-						<div className="flex gap-2 items-center">
-							<span className="font-medium">{t('dailyPlan.COMPLETED_TASKS')} : </span>
-							<span className="font-medium">{`${completedTasks}/${totalTasks}`}</span>
-						</div>
-						<div className="flex gap-2 items-center">
-							<span className="font-medium">{t('dailyPlan.READY')}: </span>
-							<span className="font-medium">{readyTasks}</span>
-						</div>
-						<div className="flex gap-2 items-center">
-							<span className="font-medium">{t('dailyPlan.LEFT')}: </span>
-							<span className="font-semibold">{totalTasks - completedTasks - readyTasks}</span>
-						</div>
-					</div>
-
-					<VerticalSeparator />
-					{/* Completion progress */}
-					<div className="flex flex-col gap-3">
-						<div className="flex gap-2 items-center">
-							<span className="font-medium">{t('dailyPlan.COMPLETION')}: </span>
-							<span className="font-semibold">{completionPercent}%</span>
-						</div>
-						<ProgressBar progress={`${completionPercent || 0}%`} showPercents={false} width="100%" />
-					</div>
-				</>
-			)}
-
-			{/* Future tasks total plan */}
-			{planMode === 'Future Tasks' && (
-				<div>
-					<div className="flex gap-2 items-center">
-						<span className="font-medium">{t('dailyPlan.PLANNED_TASKS')}: </span>
-						<span className="font-semibold">{totalTasks}</span>
-					</div>
-				</div>
-			)}
-		</>
-	);
+	const isFuturePlan = planMode === 'Future Tasks';
+	const showsWorked = !isFuturePlan && isOpen;
+	const showsDone = !isFuturePlan;
+	const showsPlanMenu = isFuturePlan && canSeeActivity;
+	// Past plans stay editable for a team manager only
+	const canEditPlannedTime = !checkPastDate(plan.date) || isTeamManager;
 
 	return (
-		<div className={`flex gap-5 items-center mb-5 ${layoutClass}`}>
-			{/* Main content - conditionally wrapped for Future Tasks */}
-			{shouldShowDeleteButton ? <div className="flex gap-5 items-center">{MainContent()}</div> : MainContent()}
-
-			{/* Delete Plan Button - Only for Future Tasks */}
-			{shouldShowDeleteButton && (
-				<div>
-					<AlertPopup
-						open={popupOpen}
-						buttonOpen={
-							<Button
-								onClick={() => {
-									setPopupOpen((prev) => !prev);
-								}}
-								variant="outline"
-								className="px-4 py-2 text-sm font-medium text-red-600 border border-red-600 rounded-md bg-light--theme-light dark:!bg-dark--theme-light"
-							>
-								{t('common.plan.DELETE_THIS_PLAN')}
-							</Button>
-						}
-					>
-						<Button
-							disabled={deleteDailyPlanLoading}
-							onClick={async () => {
-								try {
-									if (plan?.id) {
-										await deleteDailyPlan(plan.id);
-									}
-								} catch (error) {
-									console.error(error);
-								} finally {
-									setPopupOpen(false);
-								}
-							}}
-							variant="destructive"
-							className="flex justify-center items-center px-4 py-2 text-sm font-medium text-white bg-red-600 rounded-md hover:bg-red-700 disabled:bg-red-400"
-						>
-							{deleteDailyPlanLoading && <ReloadIcon className="mr-2 w-4 h-4 animate-spin" />}
-							{t('common.DELETE')}
-						</Button>
-						<Button
-							onClick={() => setPopupOpen(false)}
-							variant="outline"
-							className="px-4 py-2 text-sm font-medium text-red-600 border border-red-600 rounded-md bg-light--theme-light dark:!bg-dark--theme-light"
-						>
-							{t('common.CANCEL')}
-						</Button>
-					</AlertPopup>
-				</div>
+		<>
+			<div className={FIGURES_CLASS_NAME}>
+				<PlanFigure label={t('dashboard.actualExpected.PLANNED')}>
+					<PlannedTimeField plan={plan} canEdit={canEditPlannedTime} />
+				</PlanFigure>
+				<PlanFigure label={t('common.ESTIMATED')}>
+					<span className={FIGURE_VALUE_CLASS_NAME}>{formatDurationShort(estimatedSeconds)}</span>
+				</PlanFigure>
+				{showsWorked && <PlanWorkedFigure plan={plan} />}
+				{showsDone && (
+					<PlanFigure label={t('pages.teamTasks.SCOPE_DONE')}>
+						<span className={FIGURE_VALUE_CLASS_NAME}>{`${completedTasks} / ${totalTasks}`}</span>
+						<DoneMeter done={completedTasks} total={totalTasks} />
+					</PlanFigure>
+				)}
+			</div>
+			{showsPlanMenu && (
+				<span className="ml-auto inline-flex sm:ml-0">
+					<PlanMenu plan={plan} />
+				</span>
 			)}
-		</div>
+		</>
 	);
 }

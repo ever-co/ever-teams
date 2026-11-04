@@ -45,7 +45,7 @@ export const TransferTeamDropdown = ({
 		<>
 			<AutoCompleteDropdown
 				className="min-w-[150px]"
-				buttonClassName={clsxm('font-normal h-[54px]')}
+				buttonClassName={clsxm('h-9 font-normal')}
 				value={memberItem}
 				onChange={onChangeActiveTeam}
 				items={items}

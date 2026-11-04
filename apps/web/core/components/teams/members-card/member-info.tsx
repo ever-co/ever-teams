@@ -27,7 +27,7 @@ export function MemberInfo({
 							alt="User Icon"
 							width={48}
 							height={48}
-							className="rounded-[50%] cursor-pointer h-full w-full object-cover"
+							className="rounded-full cursor-pointer h-full w-full object-cover"
 						/>
 					</div>
 				</Link>
@@ -40,7 +40,7 @@ export function MemberInfo({
 						name="memberName"
 						onChange={onChangeName}
 						onKeyDown={(event) => event.key === 'Enter' && onSubmitName && onSubmitName()}
-						className="w-full h-10 rounded-lg px-2 shadow-inner border border-[#D7E1EB] dark:border-border"
+						className="w-full h-10 rounded-lg px-2 shadow-sm shadow-black/10 hairline-border border-border"
 					/>
 				) : (
 					<Link href={`/profile/${member?.id}`}>

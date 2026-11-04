@@ -8,7 +8,7 @@ import {
 	organizationTeamsState,
 	teamTasksState
 } from '@/core/stores';
-import { useCallback } from 'react';
+import { createElement, useCallback } from 'react';
 import { useAtom, useSetAtom } from 'jotai';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { syncTokenOrganization } from '@/core/lib/auth/token-organization';
@@ -18,10 +18,12 @@ import { useAuthenticateUser } from '../../auth';
 import { TOrganizationTeam } from '@/core/types/schemas';
 import { ZodValidationError } from '@/core/types/schemas/utils/validation';
 import { queryKeys } from '@/core/query/keys';
-import { toast } from 'sonner';
+import { useTranslations } from 'next-intl';
 import { useCacheInvalidation } from '../../common/use-cache-invalidation';
 import { LAST_WORKSPACE_AND_TEAM } from '@/core/constants/config/constants';
 import { useSettings } from '../../users';
+import { toastMoment } from '@/core/components/common/toast-moment';
+import { UsersGroup } from '@/core/components/icons';
 
 /**
  *Creates a custom hook for creating an organization team.
@@ -37,6 +39,7 @@ export function useCreateOrganizationTeam() {
 	const teamsRef = useSyncRef(teams);
 	const setActiveTeamId = useSetAtom(activeTeamIdState);
 	const { refreshToken, user } = useAuthenticateUser();
+	const t = useTranslations();
 
 	const [isTeamMember, setIsTeamMember] = useAtom(isTeamMemberState);
 	const setActiveTeamTask = useSetAtom(activeTeamTaskState);
@@ -88,6 +91,7 @@ export function useCreateOrganizationTeam() {
 		},
 		mutationKey: queryKeys.organizationTeams.mutations.create(null),
 		onSuccess: async (response, { name }) => {
+			let isAnnounced = false;
 			try {
 				const dt = response.data.items || [];
 				const created = dt.find((t: TOrganizationTeam) => t.name === name);
@@ -112,34 +116,29 @@ export function useCreateOrganizationTeam() {
 
 					// 5. Success notification (no cache invalidation needed since we already have fresh data)
 					// Note: Removed queryClient.invalidateQueries to prevent conflicts with manual state updates
-					toast.success('Team created successfully', {
-						description: `Team "${name}" has been created and you are now a member.`
-					});
+					toastMoment(t('toasts.teams.CREATED', { name }), createElement(UsersGroup));
+					isAnnounced = true;
 					// Cache invalidation using semantic hook - much cleaner and more maintainable!
 					await smartInvalidate('team-creation');
 				}
 			} catch (error) {
 				console.error('Error in team creation success handler:', error);
-				// Still show success since team was created
-				toast.success('Team created successfully');
+				// The team exists even though the steps after its creation failed
+				if (!isAnnounced) {
+					toastMoment(t('toasts.teams.CREATED', { name }), createElement(UsersGroup), {
+						description: t('toasts.teams.CREATED_NOT_SHOWN_YET')
+					});
+				}
 			}
 		},
+		// No toast: both create forms show the failure next to the name field
 		onError: (error) => {
-			// Enhanced error handling with Zod validation errors
 			if (error instanceof ZodValidationError) {
-				toast.error('Create team validation failed:', {
-					description: JSON.stringify({
-						message: error.message,
-						issues: error.issues
-					})
-				});
 				console.error('Create team validation failed:', {
 					message: error.message,
 					issues: error.issues
 				});
-				return;
 			}
-			toast.error('Create team validation failed');
 			// Original error will be thrown and handled by calling code
 		}
 	});

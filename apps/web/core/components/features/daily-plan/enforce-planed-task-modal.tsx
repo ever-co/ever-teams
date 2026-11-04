@@ -1,116 +1,43 @@
-import { useAuthenticateUser } from '@/core/hooks';
-import { useTimerPlanStatus } from '@/core/hooks/timer';
-import { useUpdateDailyPlan } from '@/core/hooks/daily-plans/use-update-daily-plan';
-import { Button, Modal, Text } from '@/core/components';
+import { APP_DIALOG_BODY, APP_DIALOG_FOOTER, AppDialog } from '@/core/components/common/app-dialog';
+import { Button } from '@/core/components/common/button';
+import { DialogTitle } from '@/core/components/common/dialog';
+import { HueIconTile } from '@/core/components/common/value-glyphs';
+import { TaskDaily } from '@/core/components/icons';
+import { cn } from '@/core/lib/helpers';
 import { useTranslations } from 'next-intl';
-import { ReactNode, useCallback, useMemo } from 'react';
-import { EverCard } from '../../common/ever-card';
-import { TTask } from '@/core/types/schemas/task/task.schema';
-import { TDailyPlan } from '@/core/types/schemas/task/daily-plan.schema';
-import { useAtomValue } from 'jotai';
-import { activeTeamState } from '@/core/stores';
+import { ReactNode } from 'react';
 
 interface IEnforcePlannedTaskModalProps {
 	open: boolean;
+	/** "No": the timer's own way out, which may still open today's plan. */
 	closeModal: () => void;
-	task: TTask;
-	plan: TDailyPlan;
 	content: ReactNode;
-	onOK?: () => void | Promise<unknown>;
-	openDailyPlanModal?: () => void;
+	/** "Yes": the owner puts the task in today's plan and shows that plan. */
+	onConfirm: () => void;
 }
 
 export function EnforcePlanedTaskModal(props: IEnforcePlannedTaskModalProps) {
-	const { closeModal, task, open, plan, content, onOK, openDailyPlanModal } = props;
-	const { addTaskToPlan, addTaskToPlanLoading } = useUpdateDailyPlan();
-	const { user } = useAuthenticateUser();
+	const { closeModal, open, content, onConfirm } = props;
 	const t = useTranslations();
 
-	const { hasPlan } = useTimerPlanStatus();
-
-	const activeTeam = useAtomValue(activeTeamState);
-
-	const requirePlan = useMemo(() => activeTeam?.requirePlanToTrack, [activeTeam?.requirePlanToTrack]);
-
-	const hasWorkedHours = useMemo(
-		() => hasPlan?.workTimePlanned && hasPlan?.workTimePlanned > 0,
-		[hasPlan?.workTimePlanned]
-	);
-	const areAllTasksEstimated = useMemo(
-		() => hasPlan?.tasks?.every((el) => typeof el?.estimate === 'number' && el?.estimate > 0),
-		[hasPlan?.tasks]
-	);
-
-	const handleAddTaskToPlan = useCallback(() => {
-		if (user?.employee && task && plan.id && plan.employeeId) {
-			addTaskToPlan(
-				{
-					taskId: task.id,
-					// Always assign the plan owner, never fall back to the current user
-					employeeId: plan.employeeId,
-					organizationId: plan.organizationId ?? user.employee.organizationId
-				},
-				plan.id
-			).then(() => {
-				closeModal();
-				// onOK may start the timer, which reports its own failure; this only keeps the rejection from going unhandled
-				const runOnOK = () => {
-					Promise.resolve(onOK?.()).catch(() => undefined);
-				};
-				if (requirePlan) {
-					if (hasWorkedHours && areAllTasksEstimated && task.estimate) {
-						runOnOK();
-					} else {
-						openDailyPlanModal?.();
-					}
-				} else {
-					runOnOK();
-				}
-			});
-		}
-	}, [
-		addTaskToPlan,
-		areAllTasksEstimated,
-		closeModal,
-		hasWorkedHours,
-		onOK,
-		openDailyPlanModal,
-		plan.id,
-		plan.employeeId,
-		plan.organizationId,
-		requirePlan,
-		task,
-		user?.employee
-	]);
-
 	return (
-		<Modal isOpen={open} closeModal={closeModal} className="w-[98%] md:w-[530px] relative" showCloseIcon={false}>
-			<EverCard className="w-full" shadow="custom">
-				<div className="flex flex-col gap-6 justify-between w-full">
-					<Text.Heading as="h5" className="mb-3 text-center">
-						{content}
-					</Text.Heading>
-					<div className="flex justify-evenly items-center w-full">
-						<Button
-							variant="outline"
-							type="button"
-							onClick={closeModal}
-							className="font-light rounded-md text-md dark:text-white dark:bg-slate-700 dark:border-slate-600"
-						>
-							{t('common.NO')}
-						</Button>
-						<Button
-							onClick={handleAddTaskToPlan}
-							loading={addTaskToPlanLoading}
-							variant="primary"
-							type="submit"
-							className="font-light rounded-md text-md dark:text-white"
-						>
-							{t('common.YES')}
-						</Button>
-					</div>
-				</div>
-			</EverCard>
-		</Modal>
+		<AppDialog open={open} onClose={closeModal} width="sm" keepOpenOnOutsideClick>
+			<div className={cn(APP_DIALOG_BODY, 'flex flex-col items-start py-5')}>
+				<HueIconTile hue="primary" className="size-9 rounded-[10px] [&_svg]:size-4.5">
+					<TaskDaily />
+				</HueIconTile>
+				<DialogTitle className="mt-3 text-[15px] font-semibold text-balance text-foreground">
+					{content}
+				</DialogTitle>
+			</div>
+			<div className={APP_DIALOG_FOOTER}>
+				<Button type="button" variant="ghost" size="default" onClick={closeModal} className="ml-auto">
+					{t('common.NO')}
+				</Button>
+				<Button type="button" size="default" onClick={onConfirm} data-initial-focus="">
+					{t('common.YES')}
+				</Button>
+			</div>
+		</AppDialog>
 	);
 }

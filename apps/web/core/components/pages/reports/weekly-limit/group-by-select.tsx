@@ -1,7 +1,9 @@
 import { DottedLanguageObjectStringPaths, useTranslations } from 'next-intl';
 import { useMemo, useState, useCallback } from 'react';
 import { Listbox, Transition } from '@headlessui/react';
-import { CheckIcon, ChevronUpDownIcon } from '@heroicons/react/20/solid';
+import { Check, ChevronsUpDown } from '@/core/components/icons';
+import { controlRecipe } from '@/core/components/common/input';
+import { clsxm } from '@/core/lib/utils';
 import { Badge } from '@/core/components/common/badge';
 
 export type TGroupByOption = 'date' | 'week' | 'member';
@@ -57,15 +59,13 @@ export function GroupBySelect({ defaultValues, onChange }: IProps) {
 
 	return (
 		<Listbox multiple value={selected} onChange={handleChange}>
-			<div className="relative h-[2.2rem] w-[12rem]">
-				<Listbox.Button className="relative w-full h-full cursor-default rounded-lg bg-white dark:border-gray-700 dark:bg-dark--theme-light py-2 pl-1 pr-6 text-left border focus:outline-none focus-visible:border-primary focus-visible:ring-2 focus-visible:ring-white/75 focus-visible:ring-offset-2 focus-visible:ring-offset-primary sm:text-sm">
+			<div className="relative h-8 w-[12rem]">
+				<Listbox.Button
+					className={clsxm(controlRecipe, 'relative h-full cursor-default py-1 pl-1 pr-7 text-left')}
+				>
 					<div className=" items-center w-full h-full flex gap-1">
 						{selected.map((option) => (
-							<Badge
-								key={option}
-								className=" capitalize rounded-sm flex gap-1 font-light"
-								variant={'outline'}
-							>
+							<Badge key={option} className="capitalize" variant={'secondary'}>
 								{t(
 									`common.${(option == 'date' ? 'date' : option).toUpperCase()}` as DottedLanguageObjectStringPaths
 								)}
@@ -73,7 +73,7 @@ export function GroupBySelect({ defaultValues, onChange }: IProps) {
 						))}
 					</div>
 					<span className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-2">
-						<ChevronUpDownIcon className="h-5 w-5 text-gray-400" aria-hidden="true" />
+						<ChevronsUpDown className="size-4 text-muted-foreground" aria-hidden="true" />
 					</span>
 				</Listbox.Button>
 				<Transition
@@ -82,7 +82,7 @@ export function GroupBySelect({ defaultValues, onChange }: IProps) {
 					leaveFrom="opacity-100"
 					leaveTo="opacity-0"
 				>
-					<Listbox.Options className="absolute mt-1 max-h-60 w-full z-[999] overflow-auto rounded-md bg-white dark:bg-dark--theme-light  py-1 text-base shadow-lg ring-1 ring-black/5 focus:outline-none sm:text-sm">
+					<Listbox.Options className="absolute z-[999] mt-1 max-h-60 w-full overflow-auto rounded-xl bg-popover p-1 text-sm text-popover-foreground hairline-ring ring-border shadow-md shadow-black/6.5 focus:outline-none">
 						{options.map((option, index) => (
 							<Listbox.Option
 								disabled={
@@ -90,12 +90,11 @@ export function GroupBySelect({ defaultValues, onChange }: IProps) {
 									selected.includes(option) && selected.length == 1
 								}
 								key={index}
-								className={({ active, selected }) =>
-									`relative cursor-default select-none py-2 pl-10 pr-4 ${
-										active
-											? 'bg-primary/10 text-primary dark:text-white dark:bg-primary/10'
-											: 'text-gray-900 dark:text-white'
-									} ${selected && 'dark:bg-primary/10'}`
+								className={({ active }) =>
+									clsxm(
+										'relative cursor-default select-none rounded-md py-1.5 pl-8 pr-2 text-foreground',
+										active && 'bg-foreground/5'
+									)
 								}
 								value={option}
 							>
@@ -105,8 +104,8 @@ export function GroupBySelect({ defaultValues, onChange }: IProps) {
 											{option}
 										</span>
 										{selected ? (
-											<span className="absolute inset-y-0 left-0 flex items-center pl-3 text-primary">
-												<CheckIcon className="h-5 w-5" aria-hidden="true" />
+											<span className="absolute inset-y-0 left-0 flex items-center pl-2 text-primary-ink">
+												<Check className="size-4" aria-hidden="true" />
 											</span>
 										) : null}
 									</div>

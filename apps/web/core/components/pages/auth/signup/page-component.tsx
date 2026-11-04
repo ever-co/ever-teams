@@ -18,6 +18,17 @@ import { cn } from '@/core/lib/helpers';
 import { Checkbox } from '@/core/components/common/checkbox';
 import type { IEverIdSignupPrefill } from '@/core/types/interfaces/auth/ever-id';
 
+/** iOS zooms the page into any field under 16 px on focus: auth fields stay 16 px below `md`. */
+const INPUT_CLASS = 'text-base md:text-sm';
+
+const START_MODE_OPTION_CLASS =
+	'flex items-start gap-3 rounded-lg p-4 cursor-pointer hairline-ring ring-foreground/10 transition-colors hover:bg-foreground/2.5 has-[:focus-visible]:ring-[3px] has-[:focus-visible]:ring-ring/25 dark:ring-foreground/15';
+
+const START_MODE_OPTION_CHECKED_CLASS = 'bg-primary/5 ring-primary/30 hover:bg-primary/5 dark:ring-primary/40';
+
+const TEXT_LINK_CLASS =
+	'rounded-sm font-medium text-primary-ink underline underline-offset-4 outline-none focus-visible:ring-[3px] focus-visible:ring-ring/50';
+
 /** The Ever ID part of the sign-up form (null for the usual sign-up). */
 type TEverIdSignup = {
 	prefill: IEverIdSignupPrefill | null;
@@ -58,14 +69,14 @@ function AuthSignup() {
 		>
 			<div className="w-full overflow-x-hidden overflow-y-clip p-1.5">
 				{verifyEmailSentTo && (
-					<p role="status" className="mb-4 rounded-md border border-primary/30 p-3 text-sm">
+					<output className="mb-4 block rounded-lg bg-primary/5 p-3 text-sm text-balance hairline-ring ring-primary/15">
 						{t('pages.auth.SIGNUP_VERIFY_EMAIL', { email: verifyEmailSentTo })}
-					</p>
+					</output>
 				)}
 				<form onSubmit={handleSubmit} autoComplete="off" className="w-full">
 					<div
 						className={cn(
-							'w-[200%] flex flex-row transition-[transform] duration-500',
+							'w-[200%] flex flex-row transition-[transform] duration-300 ease-[cubic-bezier(0.22,1,0.36,1)]',
 							step !== FIRST_STEP && '-translate-x-[50%]'
 						)}
 					>
@@ -83,7 +94,7 @@ function AuthSignup() {
 						{/* Step 2: Choose Mode (Solo or Team) */}
 						<div
 							className={cn(
-								'w-1/2 transition-[visibility] ease-out duration-700',
+								'w-1/2 transition-[visibility] ease-out duration-300',
 								step === FIRST_STEP && 'invisible'
 							)}
 						>
@@ -157,9 +168,6 @@ function FillUserDataForm({
 		}
 	};
 
-	const INPUT_CLASS =
-		'dark:bg-foreground/5 ring-foreground/10 placeholder:text-muted-foreground/75 selection:bg-primary selection:text-primary-foreground flex h-9 w-full min-w-0 rounded-md border border-transparent bg-white px-3 py-1 text-base shadow-sm outline-none ring-1 transition-[color,box-shadow] md:text-sm focus-visible:border-foreground/35 focus-visible:ring-ring/25 dark:focus-visible:border-foreground/25 focus-visible:ring-[3px]';
-
 	return (
 		<div className={cn('space-y-6 w-full', className)}>
 			<div className="space-y-4">
@@ -183,7 +191,7 @@ function FillUserDataForm({
 						noWrapper
 						className={INPUT_CLASS}
 					/>
-					{errors?.name && <Text.Error className="text-xs">{errors.name}</Text.Error>}
+					{errors?.name && <Text.Error>{errors.name}</Text.Error>}
 				</div>
 
 				<div className="space-y-2.5">
@@ -207,7 +215,7 @@ function FillUserDataForm({
 						noWrapper
 						className={INPUT_CLASS}
 					/>
-					{errors?.email && <Text.Error className="text-xs">{errors.email}</Text.Error>}
+					{errors?.email && <Text.Error>{errors.email}</Text.Error>}
 				</div>
 
 				{everId && <EverIdSignupConfirmation everId={everId} error={errors?.everId} />}
@@ -215,12 +223,7 @@ function FillUserDataForm({
 				{renderCaptcha()}
 			</div>
 
-			{/* Submit button — template exact classes */}
-			<Button
-				type="submit"
-				disabled={loading || !!everId?.loading}
-				className="cursor-pointer inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium transition-all focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 shadow-md border-[0.5px] border-white/10 shadow-black/15 [&_svg]:drop-shadow-sm bg-primary ring-1 ring-(--ring-color) [--ring-color:color-mix(in_oklab,black_15%,var(--color-primary))] dark:border-transparent dark:[--ring-color:color-mix(in_oklab,white_15%,var(--color-primary))] text-primary-foreground hover:bg-primary/90 h-9 px-4 py-2 w-full"
-			>
+			<Button type="submit" disabled={loading || !!everId?.loading} className="w-full">
 				{t('pages.authTeam.CONTINUE')}
 			</Button>
 		</div>
@@ -247,21 +250,16 @@ function ChooseModeForm({
 	onStartModeChange: (mode: TStartMode) => void;
 } & IClassName) {
 	const t = useTranslations();
-
-	const INPUT_CLASS =
-		'dark:bg-foreground/5 ring-foreground/10 placeholder:text-muted-foreground/75 selection:bg-primary selection:text-primary-foreground flex h-9 w-full min-w-0 rounded-md border border-transparent bg-white px-3 py-1 text-base shadow-sm outline-none ring-1 transition-[color,box-shadow] md:text-sm focus-visible:border-foreground/35 focus-visible:ring-ring/25 dark:focus-visible:border-foreground/25 focus-visible:ring-[3px]';
+	const isSoloMode = startMode === 'solo';
+	const isTeamMode = startMode === 'team';
 
 	return (
 		<div className={cn('space-y-6 w-full', className)}>
 			<div className="space-y-3">
 				{/* Solo Option */}
 				<label
-					className={cn(
-						'flex items-start p-4 rounded-lg cursor-pointer transition-all border ring-1',
-						startMode === 'solo'
-							? 'border-primary ring-primary/25 bg-primary/5'
-							: 'border-transparent ring-foreground/10 hover:bg-muted/50'
-					)}
+					aria-label={t('pages.authTeam.START_SOLO')}
+					className={cn(START_MODE_OPTION_CLASS, isSoloMode && START_MODE_OPTION_CHECKED_CLASS)}
 				>
 					<input
 						type="radio"
@@ -269,22 +267,18 @@ function ChooseModeForm({
 						value="solo"
 						checked={startMode === 'solo'}
 						onChange={() => onStartModeChange('solo')}
-						className="mt-1 mr-3 w-4 h-4 accent-primary"
+						className="mt-0.5 size-4 shrink-0 accent-primary"
 					/>
 					<div className="flex-1">
-						<span className="font-medium">{t('pages.authTeam.START_SOLO')}</span>
+						<span className="text-sm font-medium">{t('pages.authTeam.START_SOLO')}</span>
 						<p className="mt-1 text-sm text-muted-foreground">{t('pages.authTeam.START_SOLO_NOTE')}</p>
 					</div>
 				</label>
 
 				{/* Team Option */}
 				<label
-					className={cn(
-						'flex items-start p-4 rounded-lg cursor-pointer transition-all border ring-1',
-						startMode === 'team'
-							? 'border-primary ring-primary/25 bg-primary/5'
-							: 'border-transparent ring-foreground/10 hover:bg-muted/50'
-					)}
+					aria-label={t('pages.authTeam.CREATE_TEAM_NOW')}
+					className={cn(START_MODE_OPTION_CLASS, isTeamMode && START_MODE_OPTION_CHECKED_CLASS)}
 				>
 					<input
 						type="radio"
@@ -292,10 +286,10 @@ function ChooseModeForm({
 						value="team"
 						checked={startMode === 'team'}
 						onChange={() => onStartModeChange('team')}
-						className="mt-1 mr-3 w-4 h-4 accent-primary"
+						className="mt-0.5 size-4 shrink-0 accent-primary"
 					/>
 					<div className="flex-1">
-						<span className="font-medium">{t('pages.authTeam.CREATE_TEAM_NOW')}</span>
+						<span className="text-sm font-medium">{t('pages.authTeam.CREATE_TEAM_NOW')}</span>
 					</div>
 				</label>
 
@@ -321,17 +315,13 @@ function ChooseModeForm({
 							className={INPUT_CLASS}
 							required
 						/>
-						{errors?.team && <Text.Error className="text-xs">{errors.team}</Text.Error>}
+						{errors?.team && <Text.Error>{errors.team}</Text.Error>}
 					</div>
 				)}
 			</div>
 
-			<div className="flex flex-col gap-1.5 items-center w-full">
-				<Button
-					type="submit"
-					disabled={loading}
-					className="cursor-pointer inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium transition-all focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 shadow-md border-[0.5px] border-white/10 shadow-black/15 [&_svg]:drop-shadow-sm bg-primary ring-1 ring-(--ring-color) [--ring-color:color-mix(in_oklab,black_15%,var(--color-primary))] dark:border-transparent dark:[--ring-color:color-mix(in_oklab,white_15%,var(--color-primary))] text-primary-foreground hover:bg-primary/90 h-9 px-4 py-2"
-				>
+			<div className="flex flex-col gap-3 items-center w-full">
+				<Button type="submit" disabled={loading} className="w-full">
 					{t('pages.authTeam.GET_STARTED')}
 				</Button>
 				<BackButton onClick={onPreviousStep} />
@@ -351,11 +341,11 @@ function EverIdSignupConfirmation({ everId, error }: Readonly<{ everId: NonNulla
 	const message = error || everId.error;
 
 	return (
-		<div className="p-3 space-y-3 text-sm rounded-md ring-1 ring-foreground/10">
+		<div className="p-3 space-y-3 text-sm rounded-lg hairline-ring ring-border">
 			{prefill?.checkoutUrl && (
 				<p className="text-muted-foreground">
 					{t('pages.auth.everId.SIGNUP_CHECKOUT')}{' '}
-					<a href={prefill.checkoutUrl} className="font-medium underline text-primary">
+					<a href={prefill.checkoutUrl} className={TEXT_LINK_CLASS}>
 						{t('pages.auth.everId.CONTINUE_TO_CHECKOUT')}
 					</a>
 				</p>
@@ -388,12 +378,7 @@ function EverIdSignupConfirmation({ everId, error }: Readonly<{ everId: NonNulla
 						{prefill.terms.map((document) => (
 							<li key={`${document.documentId}:${document.version}`}>
 								{document.url ? (
-									<a
-										href={document.url}
-										target="_blank"
-										rel="noreferrer"
-										className="underline text-primary"
-									>
+									<a href={document.url} target="_blank" rel="noreferrer" className={TEXT_LINK_CLASS}>
 										{document.title || document.documentId}
 									</a>
 								) : (
@@ -404,7 +389,7 @@ function EverIdSignupConfirmation({ everId, error }: Readonly<{ everId: NonNulla
 					</ul>
 				</div>
 			)}
-			{message && <Text.Error className="text-xs">{message}</Text.Error>}
+			{message && <Text.Error>{message}</Text.Error>}
 		</div>
 	);
 }

@@ -1,13 +1,18 @@
-import { formatDayPlanDate } from '@/core/lib/helpers/index';
 import { useEmployeeDailyPlans } from '@/core/hooks/daily-plans/use-employee-daily-plans';
 import { cn } from '@/core/lib/helpers';
-import { CircleIcon } from 'assets/svg';
-import { PropsWithChildren, useEffect, useMemo, useState } from 'react';
-import { Check, ChevronDown, ChevronUp } from 'lucide-react';
-import { Tooltip } from '../../duplicated-components/tooltip';
+import { PropsWithChildren, useMemo, useState } from 'react';
+import { useTranslations } from 'next-intl';
+import { Check, ChevronDown, ListTodo } from '@/core/components/icons';
 import { Popover, PopoverContent, PopoverTrigger } from '../../common/popover';
 import { Command, CommandEmpty, CommandGroup, CommandItem, CommandList } from '../../common/command';
-import { Button } from '../../common/button';
+import { SelectedMark } from '../../common/selected-mark';
+import { buttonVariants } from '../../duplicated-components/_button';
+import { usePlanDayLabel } from './plan-day-label';
+
+const FILTER_FIELD_CLASS_NAME =
+	'flex h-8 w-full min-w-[190px] items-center justify-between rounded-md bg-card px-2.5 text-xs text-foreground shadow-sm shadow-black/10 hairline-ring ring-foreground/10 transition-colors hover:bg-muted/50 dark:ring-foreground/15';
+
+const NO_PICKS: string[] = [];
 
 export function DailyPlanDropDownItem({
 	children,
@@ -23,118 +28,106 @@ export function DailyPlanDropDownItem({
 	showIcon?: boolean;
 	icon?: React.ReactNode;
 }>) {
+	const isIconShown = showIcon && active;
+	const visibleIcon = isIconShown && icon;
 	return (
-		<div
-			className={cn(
-				'bg-[#F2F2F2] dark:bg-dark--theme-light rounded-xl text-xs px-3 py-1 flex items-center justify-between w-full min-w-[190px]'
-			)}
-		>
-			<div
-				className={cn(
-					'flex items-center space-x-2 text-gray-700 whitespace-nowrap text-ellipsis dark:text-gray-200'
-				)}
-			>
-				{checked ? (
-					<Check className="w-4 h-4 text-gray-700 dark:text-white" />
-				) : (
-					<>{showIcon && active && icon}</>
-				)}
-				<div className="text-sm font-normal text-gray-400 dark:text-gray-300">{label}</div>
+		<div className={cn(FILTER_FIELD_CLASS_NAME)}>
+			<div className={cn('flex items-center space-x-2 text-foreground whitespace-nowrap text-ellipsis')}>
+				{checked && <Check className="size-4 text-foreground" />}
+				{!checked && visibleIcon}
+				<div className="text-xs font-medium text-muted-foreground">{label}</div>
 			</div>
 			{children}
 		</div>
 	);
 }
 
-export function DailyPlanFilter({ employeeId }: { employeeId: string }) {
-	const [selectedPlans, setSelectedPlans] = useState<string[]>([]);
+interface DailyPlanFilterProps {
+	employeeId: string;
+	/** The picked plan ids, when the caller narrows its views with them; the picker keeps its own pick otherwise. */
+	pickedPlanIds?: string[];
+	onPickedPlanIdsChange?: (planIds: string[]) => void;
+}
 
-	// Get employee plans from React Query (not global atom)
-	const { employeeDailyPlans, getEmployeeDailyPlans } = useEmployeeDailyPlans(employeeId);
+function toggledPick(picks: string[], planId: string) {
+	if (picks.includes(planId)) {
+		return picks.filter((id) => id !== planId);
+	}
+	return [...picks, planId];
+}
+
+export function DailyPlanFilter({ employeeId, pickedPlanIds, onPickedPlanIdsChange }: Readonly<DailyPlanFilterProps>) {
+	const t = useTranslations();
+	const dayLabelOf = usePlanDayLabel();
+	const [ownPicks, setOwnPicks] = useState<string[]>(NO_PICKS);
 	const [open, setOpen] = useState(false);
+	const { employeeSortedPlans } = useEmployeeDailyPlans(employeeId);
 
-	// Load employee plans on mount
-	useEffect(() => {
-		if (selectedPlans.length === 0) {
-			getEmployeeDailyPlans(employeeId);
+	const isControlled = pickedPlanIds !== undefined;
+	const picks = pickedPlanIds ?? ownPicks;
+	const plans = useMemo(() => [...employeeSortedPlans].reverse(), [employeeSortedPlans]);
+	const pickedCount = plans.filter((plan) => picks.includes(plan.id ?? '')).length;
+	const hasPicks = pickedCount > 0;
+
+	let triggerLabel = t('common.plan.PLURAL');
+	if (hasPicks) {
+		triggerLabel = t('profile.plans.PICKED_PLANS', { count: pickedCount });
+	}
+
+	const changePicks = (nextPicks: string[]) => {
+		if (!isControlled) {
+			setOwnPicks(nextPicks);
 		}
-	}, [selectedPlans, getEmployeeDailyPlans, employeeId]);
-
-	// Filter plans locally without modifying global atoms.
-	// NOTE: This prevents data conflicts when multiple components view different employees.
-	const filteredPlans = useMemo(() => {
-		return selectedPlans.length > 0
-			? employeeDailyPlans.items.filter((plan) => selectedPlans.includes(plan.date.toString()))
-			: employeeDailyPlans.items;
-	}, [employeeDailyPlans.items, selectedPlans]);
-
-	const togglePlanSelection = (planDate: string) => {
-		setSelectedPlans((current) => {
-			if (current.includes(planDate)) {
-				return current.filter((date) => date !== planDate);
-			} else {
-				return [...current, planDate];
-			}
-		});
+		onPickedPlanIdsChange?.(nextPicks);
 	};
 
 	return (
-		<Tooltip label="Select plan to filter" placement="auto" enabled={false}>
-			<div className="relative">
-				<Popover open={open} onOpenChange={setOpen}>
-					<PopoverTrigger asChild>
-						<Button
-							variant="ghost"
-							className="p-0 h-auto w-full max-w-[190px] outline-hidden hover:bg-transparent focus:bg-transparent"
+		<Popover open={open} onOpenChange={setOpen}>
+			<PopoverTrigger
+				className={cn(buttonVariants({ variant: 'outline', size: 'default' }), hasPicks && 'text-primary-ink')}
+			>
+				<ListTodo aria-hidden="true" className="text-muted-foreground" />
+				{triggerLabel}
+				<ChevronDown aria-hidden="true" className="size-3.5 text-muted-foreground" />
+			</PopoverTrigger>
+			<PopoverContent align="end" sideOffset={6} className="w-64 p-0">
+				<Command className="bg-transparent">
+					<CommandList className="max-h-72 overflow-y-auto">
+						<CommandEmpty>{t('profile.plans.NO_PLANS_TO_PICK')}</CommandEmpty>
+						<CommandGroup>
+							{plans.map((plan) => {
+								const planId = plan.id ?? '';
+								const isPicked = picks.includes(planId);
+								return (
+									<CommandItem
+										key={planId}
+										value={planId}
+										onSelect={() => changePicks(toggledPick(picks, planId))}
+										className="cursor-pointer"
+									>
+										<span className="min-w-0 flex-1 truncate">{dayLabelOf(plan.date)}</span>
+										<span className="text-xs tabular-nums text-muted-foreground">
+											{plan.tasks?.length ?? 0}
+										</span>
+										{isPicked && <SelectedMark />}
+									</CommandItem>
+								);
+							})}
+						</CommandGroup>
+					</CommandList>
+				</Command>
+				{hasPicks && (
+					<div className="hairline-t border-border p-1">
+						<button
+							type="button"
+							onClick={() => changePicks(NO_PICKS)}
+							className="flex h-8 w-full items-center rounded-md px-2 text-left text-[13px] text-muted-foreground outline-none transition-colors hover:bg-foreground/5 hover:text-foreground focus-visible:bg-foreground/5"
 						>
-							<DailyPlanDropDownItem
-								label={selectedPlans.length > 0 ? `Items(${selectedPlans.length})` : 'Plans'}
-								icon={
-									<span>
-										<CircleIcon className="w-4 h-4" />
-									</span>
-								}
-								active={true}
-							>
-								{open ? (
-									<ChevronUp className="w-4 h-4 text-gray-400 dark:text-gray-500" />
-								) : (
-									<ChevronDown className="w-4 h-4 text-gray-400 dark:text-gray-500" />
-								)}
-							</DailyPlanDropDownItem>
-						</Button>
-					</PopoverTrigger>
-					<PopoverContent
-						className="p-0 min-w-[220px] border-none shadow-md dark:shadow-lg dark:bg-card dark:border dark:border-[#FFFFFF33]"
-						align="center"
-						sideOffset={5}
-					>
-						<Command className="rounded-lg overflow-hidden dark:bg-card">
-							<CommandList className="max-h-[300px] overflow-auto dark:bg-card">
-								<CommandEmpty className="dark:text-gray-300">No plans found.</CommandEmpty>
-								<CommandGroup className="dark:text-white">
-									{filteredPlans.map((item) => (
-										<CommandItem
-											key={item.id}
-											onSelect={() => togglePlanSelection(item.date.toString())}
-											className="flex items-center gap-2 cursor-pointer data-[selected=true]:bg-accent dark:data-[selected=true]:bg-gray-700 dark:hover:bg-muted dark:text-white whitespace-nowrap text-ellipsis"
-										>
-											<div className="flex items-center flex-1 whitespace-nowrap text-ellipsis">
-												{selectedPlans?.includes(item.date.toString()) && (
-													<Check className="w-4 h-4 mr-2 text-primary dark:text-white" />
-												)}
-												<span className="text-sm text-gray-600 dark:text-gray-300">
-													{formatDayPlanDate(item.date.toString())}
-												</span>
-											</div>
-										</CommandItem>
-									))}
-								</CommandGroup>
-							</CommandList>
-						</Command>
-					</PopoverContent>
-				</Popover>
-			</div>
-		</Tooltip>
+							{t('profile.plans.SHOW_EVERY_PLAN')}
+						</button>
+					</div>
+				)}
+			</PopoverContent>
+		</Popover>
 	);
 }

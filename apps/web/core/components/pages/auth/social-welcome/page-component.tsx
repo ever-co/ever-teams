@@ -47,7 +47,7 @@ export default function Welcome() {
 
 	if (verifyEmail !== null) {
 		return (
-			<p role="status" className="m-auto max-w-md p-6 text-center text-sm">
+			<p role="status" className="m-auto max-w-md p-6 text-center text-sm text-balance">
 				{t('pages.auth.SIGNUP_VERIFY_EMAIL', { email: verifyEmail })}
 			</p>
 		);

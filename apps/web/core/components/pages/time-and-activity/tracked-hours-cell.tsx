@@ -5,11 +5,9 @@ interface TrackedHoursCellProps {
 
 export function TrackedHoursCell({ duration, formatDuration }: TrackedHoursCellProps) {
 	return (
-		<div className="flex items-center gap-2">
-			<div className="w-2.5 h-2.5 rounded-full bg-success-light"></div>
-			<span className="text-gray-900 dark:text-gray-100 font-medium">
-				{formatDuration(duration)}
-			</span>
+		<div className="inline-flex items-center gap-2">
+			<div className="size-2 shrink-0 rounded-full bg-success"></div>
+			<span className="font-medium tabular-nums text-foreground">{formatDuration(duration)}</span>
 		</div>
 	);
 }

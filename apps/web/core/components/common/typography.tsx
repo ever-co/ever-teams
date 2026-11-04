@@ -42,10 +42,11 @@ Text.Link = forwardRef<HTMLAnchorElement, LinkProps>(
 				href={href}
 				className={clsxm(
 					[
-						variant === 'primary' && ['text-primary dark:text-primary-light'],
-						variant === 'dark' && ['text-default dark:text-white'],
-						variant === 'light' && ['text-white dark:text-default'],
-						underline && ['underline']
+						'rounded-sm outline-none focus-visible:ring-[3px] focus-visible:ring-ring/50',
+						variant === 'primary' && ['text-primary-ink'],
+						variant === 'dark' && ['text-foreground'],
+						variant === 'light' && ['text-white dark:text-foreground'],
+						underline && ['underline underline-offset-4']
 					],
 					className
 				)}
@@ -78,11 +79,7 @@ Text.Div.displayName = 'TextDiv';
 Text.Error = forwardRef<HTMLSpanElement, Props & React.ComponentPropsWithRef<'span'>>(
 	({ children, className, ...rest }, ref) => {
 		return (
-			<span
-				ref={ref}
-				className={clsxm('text-xs text-red-600 dark:text-[#FF9494] font-normal', className)}
-				{...rest}
-			>
+			<span ref={ref} className={clsxm('text-xs font-normal text-destructive-ink', className)} {...rest}>
 				{children}
 			</span>
 		);
@@ -100,8 +97,9 @@ type HeadingProps = { as: 'h1' | 'h2' | 'h3' | 'h4' | 'h5' | 'h6' } & Props &
 Text.Heading = forwardRef<HTMLHeadingElement, HeadingProps>(({ children, className, as: asel, ...rest }, ref) => {
 	const elClassName = clsxm(
 		[
-			asel === 'h1' && ['text-3xl font-medium text-[#282048] dark:text-white'],
-			asel === 'h3' && ['text-lg font-medium text-default dark:text-white']
+			'text-balance text-foreground',
+			asel === 'h1' && ['text-2xl font-semibold sm:text-3xl'],
+			asel === 'h3' && ['text-lg font-semibold']
 		],
 		className
 	);
@@ -155,7 +153,7 @@ Text.Label = forwardRef<HTMLLabelElement, Props & React.ComponentPropsWithRef<'l
 		return (
 			<label
 				ref={ref}
-				className={clsxm('ml-2 text-sm font-medium text-gray-900 dark:text-gray-300', className)}
+				className={clsxm('ml-2 text-sm font-medium leading-none text-foreground', className)}
 				{...rest}
 			>
 				{children}

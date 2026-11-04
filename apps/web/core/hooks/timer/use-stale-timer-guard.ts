@@ -44,13 +44,13 @@ export function useStopStaleTeamsTimer() {
 				if (!(ApiErrorService.isApiError(error) && error.hasHttpResponseStatus(406))) throw error;
 			}
 
-			toast.info(t('timer.TEAM_SWITCH.STOPPED_TIMER_TOAST_TITLE'), {
-				description: t('timer.STALE_TIMER_STOPPED_DESCRIPTION', {
-					stoppedAt: new Date(lastLog.stoppedAt).toLocaleString(locale, {
-						dateStyle: 'medium',
-						timeStyle: 'short'
-					})
-				})
+			const stoppedAt = new Date(lastLog.stoppedAt).toLocaleString(locale, {
+				dateStyle: 'medium',
+				timeStyle: 'short'
+			});
+			toast.info(t('toasts.timer.STALE_STOPPED', { stoppedAt }), {
+				id: 'timer-stale-stopped',
+				description: t('toasts.timer.STALE_STOPPED_HINT')
 			});
 			void queryClient.invalidateQueries({ queryKey: queryKeys.timer.all });
 			void queryClient.invalidateQueries({ queryKey: queryKeys.organizationTeams.all });

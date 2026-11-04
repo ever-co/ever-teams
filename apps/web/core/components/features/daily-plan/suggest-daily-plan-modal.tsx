@@ -1,5 +1,3 @@
-import { Modal, Text } from '@/core/components';
-import { Button } from '@/core/components/duplicated-components/_button';
 import { useCallback, useMemo } from 'react';
 import {
 	DAILY_PLAN_SUGGESTION_MODAL_DATE,
@@ -9,18 +7,32 @@ import { useTranslations } from 'next-intl';
 import Link from 'next/link';
 import { useTimerPlanStatus } from '@/core/hooks/timer';
 import { usePathname } from 'next/navigation';
-import { EverCard } from '../../common/ever-card';
 import { useAtomValue } from 'jotai';
+import {
+	APP_DIALOG_BODY,
+	APP_DIALOG_FOOTER,
+	AppDialog,
+	AppDialogDescription,
+	AppDialogHeader
+} from '@/core/components/common/app-dialog';
+import { Button } from '@/core/components/common/button';
+import { EntityTile } from '@/core/components/common/entity-tile';
+import { HueIconTile } from '@/core/components/common/value-glyphs';
+import { TaskDaily } from '@/core/components/icons';
+import { teamImageOf } from '@/core/components/projects/project-cells';
+import { cn } from '@/core/lib/helpers';
 import { activeTeamState } from '@/core/stores';
 import { useUserQuery } from '@/core/hooks/queries/user-user.query';
 
 interface ISuggestDailyPlanModalProps {
 	closeModal: () => void;
 	isOpen: boolean;
+	/** Plans the timer's task for today in place; without it the button opens the profile's plans. */
+	onPlanDay?: () => void;
 }
 
 export function SuggestDailyPlanModal(props: ISuggestDailyPlanModalProps) {
-	const { isOpen, closeModal } = props;
+	const { isOpen, closeModal, onPlanDay } = props;
 	const { hasPlan } = useTimerPlanStatus();
 
 	const activeTeam = useAtomValue(activeTeamState);
@@ -36,47 +48,89 @@ export function SuggestDailyPlanModal(props: ISuggestDailyPlanModalProps) {
 	const currentDate = useMemo(() => new Date().toISOString().split('T')[0], []);
 
 	const handleCloseModal = useCallback(() => {
-		if (!requirePlan || (requirePlan && hasPlan)) {
+		const isPlanOptional = !requirePlan;
+		const hasRequiredPlan = Boolean(requirePlan) && Boolean(hasPlan);
+		const canStopSuggesting = isPlanOptional || hasRequiredPlan;
+		if (canStopSuggesting) {
 			localStorage.setItem(HAS_SEEN_DAILY_PLAN_SUGGESTION_MODAL, currentDate);
 		}
-		if (path.split('/')[1] == 'profile') {
-			if (!requirePlan || (requirePlan && hasPlan)) {
+		const firstPathSegment = path.split('/')[1];
+		const isOnProfilePage = firstPathSegment === 'profile';
+		if (isOnProfilePage) {
+			if (canStopSuggesting) {
 				localStorage.setItem(DAILY_PLAN_SUGGESTION_MODAL_DATE, currentDate);
 			}
 		}
 		closeModal();
 	}, [closeModal, currentDate, hasPlan, path, requirePlan]);
 
-	return (
-		<Modal
-			closeOnOutsideClick={requirePlan}
-			isOpen={isOpen}
-			closeModal={handleCloseModal}
-			showCloseIcon={requirePlan}
-		>
-			<EverCard className="w-full" shadow="custom">
-				<div className="flex flex-col justify-between items-center">
-					<div className="mb-7">
-						<Text.Heading as="h3" className="mb-3 text-center">
-							{t('dailyPlan.CREATE_A_PLAN_FOR_TODAY')}
-						</Text.Heading>
+	const planDayHere = useCallback(() => {
+		handleCloseModal();
+		onPlanDay?.();
+	}, [handleCloseModal, onPlanDay]);
 
-						<Text className="text-sm text-center text-gray-500">{t('dailyPlan.TODAY_PLAN_SUB_TITLE')}</Text>
-						<Text className="text-sm text-center text-gray-500">
-							{t('dailyPlan.DAILY_PLAN_DESCRIPTION')}
-						</Text>
+	const isDismissible = Boolean(requirePlan);
+	let closeFromHeader: (() => void) | undefined;
+	if (isDismissible) {
+		closeFromHeader = handleCloseModal;
+	}
+
+	const teamContext = activeTeam && (
+		<>
+			<EntityTile
+				name={activeTeam.name}
+				color={activeTeam.color}
+				imageUrl={teamImageOf(activeTeam)}
+				className="size-4 text-[7px]"
+			/>
+			<span className="truncate">{activeTeam.name}</span>
+		</>
+	);
+
+	return (
+		<AppDialog open={isOpen} onClose={handleCloseModal} width="sm" dismissible={isDismissible}>
+			<AppDialogHeader
+				title={t('dailyPlan.CREATE_A_PLAN_FOR_TODAY')}
+				context={teamContext}
+				onClose={closeFromHeader}
+			/>
+			<div className={cn(APP_DIALOG_BODY, 'pb-5')}>
+				<div className="flex items-start gap-3 pt-1">
+					<HueIconTile hue="primary">
+						<TaskDaily />
+					</HueIconTile>
+					<div className="flex min-w-0 flex-col gap-0.5">
+						<AppDialogDescription className="text-[13px] font-medium text-foreground">
+							{t('dailyPlan.TODAY_PLAN_SUB_TITLE')}
+						</AppDialogDescription>
+						<p className="text-[13px] text-muted-foreground">{t('dailyPlan.DAILY_PLAN_DESCRIPTION')}</p>
 					</div>
-					<Link href={`/profile/${user?.id}?name=${name || ''}`} className="flex flex-col gap-3 w-full">
-						<Button
-							variant="default"
-							className="p-7 font-normal rounded-xl text-md"
-							onClick={handleCloseModal}
-						>
-							{t('dailyPlan.labels.OK')}
-						</Button>
-					</Link>
 				</div>
-			</EverCard>
-		</Modal>
+			</div>
+			<div className={APP_DIALOG_FOOTER}>
+				{onPlanDay && (
+					<Button
+						type="button"
+						size="default"
+						className="ml-auto"
+						onClick={planDayHere}
+						data-initial-focus=""
+					>
+						{t('modals.dailyPlan.planMyDay')}
+					</Button>
+				)}
+				{!onPlanDay && (
+					<Button asChild size="default" className="ml-auto">
+						<Link
+							href={`/profile/${user?.id}?name=${name || ''}`}
+							onClick={handleCloseModal}
+							data-initial-focus=""
+						>
+							{t('modals.dailyPlan.planMyDay')}
+						</Link>
+					</Button>
+				)}
+			</div>
+		</AppDialog>
 	);
 }

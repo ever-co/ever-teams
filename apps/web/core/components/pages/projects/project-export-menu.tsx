@@ -1,6 +1,6 @@
 import { Button } from '@/core/components/duplicated-components/_button';
 import { PDFDownloadLink } from '@react-pdf/renderer';
-import { ChevronDown } from 'lucide-react';
+import { ChevronDown } from '@/core/components/icons';
 import { useTranslations } from 'next-intl';
 import { PDFDocument } from '@/core/components/pages/projects/export-formats/pdf';
 import { ProjectViewDataType } from './project-views';
@@ -75,13 +75,9 @@ export function ProjectExportMenu(props: IProps) {
 	return (
 		<DropdownMenu open={isOpen} onOpenChange={setIsOpen}>
 			<DropdownMenuTrigger asChild>
-				<Button
-					type="button"
-					className="border-gray-200 text-sm hover:bg-slate-100 min-w-fit text-black h-[2.2rem] font-light hover:dark:bg-transparent"
-					variant="outline"
-				>
+				<Button type="button" variant="outline" size="default">
 					<span>{t('common.EXPORT')}</span>
-					<ChevronDown size={15} />
+					<ChevronDown className="text-muted-foreground" />
 				</Button>
 			</DropdownMenuTrigger>
 			<DropdownMenuContent className="w-40" align="center">

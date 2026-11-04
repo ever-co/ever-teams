@@ -28,12 +28,17 @@ export default function GlobalError({ error }: { error: Error & { digest?: strin
 						alignItems: 'center',
 						justifyContent: 'center',
 						minHeight: '100vh',
-						fontFamily: 'system-ui, sans-serif',
-						padding: '20px'
+						fontFamily:
+							"-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, 'Noto Sans', sans-serif",
+						padding: '20px',
+						backgroundColor: '#fafafa',
+						color: '#0f172a'
 					}}
 				>
-					<h1 style={{ fontSize: '24px', marginBottom: '16px' }}>Something went wrong!</h1>
-					<p style={{ color: '#666', textAlign: 'center', maxWidth: '400px' }}>
+					<h1 style={{ fontSize: '24px', fontWeight: 600, marginBottom: '8px', textAlign: 'center' }}>
+						Something went wrong!
+					</h1>
+					<p style={{ color: '#64748b', fontSize: '14px', textAlign: 'center', maxWidth: '400px' }}>
 						An unexpected error occurred. Please try refreshing the page or contact support if the problem
 						persists.
 					</p>
@@ -41,11 +46,15 @@ export default function GlobalError({ error }: { error: Error & { digest?: strin
 						onClick={() => window.location.reload()}
 						style={{
 							marginTop: '20px',
-							padding: '10px 20px',
-							backgroundColor: '#0070f3',
-							color: 'white',
+							height: '36px',
+							padding: '0 16px',
+							backgroundColor: '#4f46e5',
+							color: '#ffffff',
+							fontSize: '14px',
+							fontWeight: 500,
 							border: 'none',
-							borderRadius: '5px',
+							borderRadius: '8px',
+							boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.15)',
 							cursor: 'pointer'
 						}}
 					>

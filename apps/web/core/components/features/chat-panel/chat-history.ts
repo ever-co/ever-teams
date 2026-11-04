@@ -52,6 +52,50 @@ function conversationTitle(messages: ChatHistoryMessage[]) {
 	return firstUserMessage.length > 52 ? `${firstUserMessage.slice(0, 49)}...` : firstUserMessage;
 }
 
+type TextPart = { type: 'text'; text: string };
+
+function isTextPart(part: { type?: string; text?: string }): part is TextPart {
+	const isText = part.type === 'text';
+	const hasText = typeof part.text === 'string';
+	return isText && hasText;
+}
+
+/** The text a message shows, from its parts (AI SDK 5 and later) or the `content` of history saved before. */
+export function textOfChatMessage(message: Pick<ChatHistoryMessage, 'content' | 'parts'>) {
+	const textParts = (message.parts ?? []).filter(isTextPart);
+	if (textParts.length > 0) {
+		return textParts.map((part) => part.text).join('');
+	}
+	return message.content ?? '';
+}
+
+export type ChatUiMessage = { id: string; role: 'user' | 'assistant'; parts: TextPart[] };
+
+function isConversationRole(role: string): role is ChatUiMessage['role'] {
+	const isUser = role === 'user';
+	const isAssistant = role === 'assistant';
+	return isUser || isAssistant;
+}
+
+/**
+ * Saved conversations as the chat reads them now: one text part per message, whatever the format they were saved
+ * in. Other roles and empty messages, which the chat never shows, are left out.
+ */
+export function toChatUiMessages(messages: ChatHistoryMessage[]): ChatUiMessage[] {
+	const converted: ChatUiMessage[] = [];
+	for (const message of messages) {
+		if (!isConversationRole(message.role)) {
+			continue;
+		}
+		const text = textOfChatMessage(message);
+		if (!text) {
+			continue;
+		}
+		converted.push({ id: message.id, role: message.role, parts: [{ type: 'text', text }] });
+	}
+	return converted;
+}
+
 export function createChatSession(messages: ChatHistoryMessage[], id = `chat-${Date.now()}`): ChatSession {
 	return {
 		id,

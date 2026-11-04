@@ -42,15 +42,15 @@ export const EditUserRoleDropdown = ({
 	return (
 		<>
 			<Dropdown
-				className="min-w-fit max-w-sm bg-[#FFFFFF] dark:bg-dark--theme-light w-1"
-				buttonClassName={clsxm('py-0 font-medium h-12 w-[12rem] text-[#282048] dark:text-white')}
+				className="min-w-fit max-w-sm bg-card w-1"
+				buttonClassName={clsxm('h-9 w-[12rem] py-0 text-foreground')}
 				value={roleItem}
 				onChange={onChange}
 				items={items}
 				loading={isLoading}
 			>
 				{!isLoading && !items.length && (
-					<p className="px-1 text-sm text-gray-500 dark:text-gray-400">{t('common.NO_RESULT')}</p>
+					<p className="px-1 text-sm text-muted-foreground">{t('common.NO_RESULT')}</p>
 				)}
 			</Dropdown>
 		</>

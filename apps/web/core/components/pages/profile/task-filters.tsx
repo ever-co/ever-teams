@@ -1,21 +1,16 @@
 'use client';
 
 /* eslint-disable no-mixed-spaces-and-tabs */
-import { I_UserProfilePage, useModal } from '@/core/hooks';
+import { I_UserProfilePage } from '@/core/hooks';
 import { clsxm } from '@/core/lib/utils';
-import { Transition } from '@headlessui/react';
 import { Button } from '@/core/components';
-import { SearchNormalIcon } from 'assets/svg';
+import { Search } from '@/core/components/icons';
 import { useState } from 'react';
 import { useAtomValue } from 'jotai';
-import { TaskUnOrAssignPopover } from '../../features/tasks/task-assign-popover';
 import { TaskLabelsDropdown, TaskPropertiesDropdown, TaskStatusDropdown } from '@/core/components/tasks/task-status';
 import { useTranslations } from 'next-intl';
-import { SettingFilterIcon } from 'assets/svg';
 import { DailyPlanFilter } from '../../tasks/daily-plan/daily-plan-filter';
-import { Divider } from '@/core/components';
 
-import { AddManualTimeModalSkeleton } from '@/core/components/common/skeleton/calendar-component-skeletons';
 import { useDateRange } from '@/core/hooks/daily-plans/use-date-range';
 import { dailyPlanVisibleTabsState } from '@/core/stores';
 import { useLocalStorageState } from '@/core/hooks/common/use-local-storage-state';
@@ -23,206 +18,112 @@ import { TaskDatePickerWithRange } from '../../tasks/task-date-range';
 import { DateRange } from 'react-day-picker';
 import '@/styles/style.css';
 import { useTaskFilter } from '@/core/hooks/tasks/use-task-filter';
+import { TaskFilterMenu } from './task-filter-menu';
 import { useEmployeeDailyPlans } from '@/core/hooks/daily-plans/use-employee-daily-plans';
 import { VerticalSeparator } from '../../duplicated-components/separator';
 import { Tooltip } from '../../duplicated-components/tooltip';
 import { InputField } from '../../duplicated-components/_input';
 import { IClassName } from '@/core/types/interfaces/common/class-name';
 import { TaskSizesDropdown } from '../../tasks/task-sizes-dropdown';
-import { LazyAddManualTimeModal } from '@/core/components/optimized-components';
-import { Suspense } from 'react';
+import { Tabs, TabsList, TabsTrigger } from '@/core/components/common/tabs';
+import { TaskSearchField } from '@/core/components/tasks/task-search-field';
+import { useTeamTasksLoadState } from '@/core/hooks/tasks/use-team-tasks-load-state';
 export type ITab = 'worked' | 'assigned' | 'unassigned' | 'dailyplan' | 'stats';
 
 export type I_TaskFilter = ReturnType<typeof useTaskFilter>;
 
-/**
- * It's a wrapper for two components, one of which is a wrapper for another component
- * @param  - IClassName & { hook: I_TaskFilter }
- * @returns A div with a className of 'flex justify-between' and a className of whatever is passed in.
- */
+const TAB_COUNT_CHIP_CLASS_NAME =
+	'rounded-sm bg-foreground/5 px-1.5 py-0.5 text-xs font-medium tabular-nums text-muted-foreground';
+
+const ACTIVE_TAB_COUNT_CHIP_CLASS_NAME = 'bg-primary/10 text-primary-ink';
+
+/** A count the team's tasks have not given yet: a pulse in the chip, never a zero. */
+const TAB_COUNT_PENDING_CLASS_NAME = 'inline-block h-2.5 w-3 animate-pulse rounded-sm bg-foreground/10 align-middle';
+
+/** A count still growing while more pages of the team's tasks arrive: the number itself breathes, nothing is added. */
+const TAB_COUNT_GROWING_CLASS_NAME = 'animate-pulse';
+
+/** The tabs whose counts are read from the team's tasks, which arrive page by page. */
+const TEAM_TASK_TABS: ReadonlySet<ITab> = new Set<ITab>(['worked', 'assigned', 'unassigned']);
 
 type Props = { hook: I_TaskFilter; profile: I_UserProfilePage };
-export function TaskFilter({ className, hook, profile }: IClassName & Props) {
+
+/**
+ * The tab row of the profile and the controls of the list under it: the search and the filter menu. What the
+ * viewer does for the person (add time, assign a task) sits in the identity band above.
+ */
+export function TaskFilter({ className, hook }: IClassName & Props) {
+	const t = useTranslations();
 	return (
 		<div className="relative z-10 w-full">
-			<div
-				className={clsxm(
-					'flex w-full flex-wrap items-center justify-between gap-x-4 gap-y-2',
-					className
-				)}
-			>
+			<div className={clsxm('flex w-full flex-wrap items-end justify-between gap-x-4 gap-y-2', className)}>
 				<TabsNav hook={hook} />
-				<InputFilters profile={profile} hook={hook} />
-			</div>
-
-			{/*  It's a transition component that is used to animate the transition of the TaskStatusFilter
-		component. */}
-			<Transition
-				as="div"
-				show={hook.filterType !== undefined}
-				enter="transition duration-100 ease-out"
-				enterFrom="transform scale-95 opacity-0"
-				enterTo="transform scale-100 opacity-100"
-				leave="transition duration-75 ease-out"
-				leaveFrom="transform scale-100 opacity-100"
-				leaveTo="transform scale-95 opacity-0 ease-out"
-				className="w-full mt-5"
-				ref={hook.tab !== 'dailyplan' ? hook.outclickFilterCard.targetEl : null}
-			>
-				{hook.filterType !== undefined && <Divider className="mt-1" />}
-				{hook.filterType === 'status' && (
-					<TaskStatusFilter hook={hook} employeeId={profile.member?.employeeId || ''} />
-				)}
-				{hook.filterType === 'search' && (
-					<TaskNameFilter
+				<div className="flex shrink-0 items-center gap-2 pb-2 max-md:w-full">
+					<TaskSearchField
 						value={hook.taskName}
-						setValue={hook.setTaskName}
-						close={() => {
-							hook.toggleFilterType('search');
-						}}
+						onChange={hook.setTaskName}
+						placeholder={t('profile.page.SEARCH_TASKS')}
+						focusKey={true}
+						className="max-md:flex-1"
 					/>
-				)}
-			</Transition>
+					<TaskFilterMenu hook={hook} />
+				</div>
+			</div>
 		</div>
 	);
 }
 
 /**
- * It renders a search icon, a vertical separator, a filter button, and an assign task button
- * @returns A div with a button, a vertical separator, a button, and a button.
+ * The underlined tabs of the profile, one sliding indicator, a quiet count chip per tab. A count pulses before the
+ * team's tasks arrive, and carries a small pulsing dot while more pages of them are still coming, so a number that
+ * grows reads as loading.
  */
-function InputFilters({ hook, profile }: Props) {
-	const t = useTranslations();
-	const [loading, setLoading] = useState(false);
-
-	const {
-		isOpen: isManualTimeModalOpen,
-		openModal: openManualTimeModal,
-		closeModal: closeManualTimeModal
-	} = useModal();
-
-	const osSpecificAssignTaskTooltipLabel = 'A';
-
-	return (
-		<div className="flex shrink-0 items-center gap-x-2">
-			<button
-				ref={hook.outclickFilterCard.ignoreElementRef}
-				className={clsxm('outline-none')}
-				onClick={() => hook.toggleFilterType('search')}
-			>
-				<SearchNormalIcon
-					className={clsxm(
-						'dark:stroke-white w-4 h-4',
-						hook.filterType === 'search' && ['stroke-primary-light dark:stroke-primary-light']
-					)}
-				/>
-			</button>
-			<VerticalSeparator />
-			<button
-				ref={hook.outclickFilterCard.ignoreElementRef}
-				className={clsxm(
-					'flex h-9 items-center gap-2 rounded-md border border-border bg-card px-3 text-sm',
-					hook.filterType === 'status' && ['bg-muted'],
-					'shrink-0'
-				)}
-				onClick={() => hook.toggleFilterType('status')}
-			>
-				<SettingFilterIcon className="dark:text-white w-3.5" strokeWidth="1.8" />
-				<span>{t('common.FILTER')}</span>
-			</button>
-			<Button
-				onClick={() => openManualTimeModal()}
-				className={clsxm(
-					'bg-primary text-white dark:border-from-regal-rose dark:border-to-regal-blue dark:text-transparent dark:bg-clip-text dark:bg-gradient-to-tl  dark:from-regal-rose dark:to-regal-blue h-9 px-3 py-0 rounded-md text-sm flex items-center gap-x-1 dark:border-gradient-dark dark:border-regal-rose dark:border',
-					'min-w-fit w-fit shrink-0 !text-nowrap whitespace-nowrap'
-				)}
-			>
-				<span className="text-base leading-none">+</span>
-				{t('common.ADD_TIME')}
-			</Button>
-
-			{/* Assign task combobox */}
-			<TaskUnOrAssignPopover
-				onTaskClick={(task, close) => {
-					setLoading(true);
-					close();
-					profile.assignTask(task).finally(() => setLoading(false));
-				}}
-				tasks={hook.tasksGrouped.unassignedTasks}
-				buttonClassName="mb-0 h-full"
-				onTaskCreated={(_, close) => close()}
-				usersTaskCreatedAssignTo={profile.member?.employeeId ? [{ id: profile.member?.employeeId }] : undefined}
-				userProfile={profile.member}
-			>
-				<Tooltip label={osSpecificAssignTaskTooltipLabel} placement="auto">
-					<Button
-						loading={loading}
-						className={clsxm(
-							'dark:bg-gradient-to-tl dark:from-regal-rose dark:to-regal-blue h-9 px-3 py-0 rounded-md text-sm',
-							'min-w-fit shrink-0 !text-white text-nowrap whitespace-nowrap'
-						)}
-					>
-						{t('common.ASSIGN_TASK')}
-					</Button>
-				</Tooltip>
-			</TaskUnOrAssignPopover>
-
-			{isManualTimeModalOpen && (
-				<Suspense fallback={<AddManualTimeModalSkeleton />}>
-					<LazyAddManualTimeModal
-						closeModal={closeManualTimeModal}
-						isOpen={isManualTimeModalOpen}
-						params="AddTime"
-					/>
-				</Suspense>
-			)}
-		</div>
-	);
-}
-
-/* It's a function that returns a nav element. */
 function TabsNav({ hook }: { hook: I_TaskFilter }) {
+	const t = useTranslations();
+	const { isFirstLoad: isTasksFirstLoad, isLoadingMorePages } = useTeamTasksLoadState();
 	return (
-		<nav className="flex max-w-full items-center gap-1 overflow-x-auto md:gap-3">
-			{hook.tabs.map((item, i) => {
-				const active = item.tab === hook.tab;
+		<Tabs
+			value={hook.tab}
+			onValueChange={(tab) => hook.setTab(tab as ITab)}
+			className="min-w-0 max-w-full gap-0 max-md:order-last max-md:w-full"
+		>
+			<TabsList className="w-auto gap-5 border-b-0">
+				{hook.tabs.map((item) => {
+					const active = item.tab === hook.tab;
+					const countsTeamTasks = TEAM_TASK_TABS.has(item.tab);
+					const isCountPending = countsTeamTasks && isTasksFirstLoad;
+					const isCountGrowing = countsTeamTasks && isLoadingMorePages;
 
-				return (
-					<Tooltip key={i} placement="top-start" label={item.description} className="">
-						<button
-							onClick={() => hook.setTab(item.tab)}
-							className={clsxm(
-								'relative flex shrink-0 items-center gap-1.5 whitespace-nowrap px-2 py-2 text-sm font-normal text-muted-foreground outline-hidden',
-								active && ['text-primary dark:text-white']
-							)}
-						>
-							{item.name}{' '}
-							<span
-								className={clsxm(
-									'rounded-md bg-muted px-1.5 py-0.5 !text-xs',
-									active && ['bg-primary dark:bg-muted text-white']
-								)}
-							>
-								{item.count}
-							</span>
-							{active && (
-								<div
+					return (
+						<Tooltip key={item.tab} placement="top-start" label={item.description} className="">
+							<TabsTrigger value={item.tab} className="shrink-0">
+								{item.name}{' '}
+								<span
 									className={clsxm(
-										'bg-primary dark:bg-white',
-										'absolute inset-x-0 -bottom-2 h-0.5 rounded-full'
+										TAB_COUNT_CHIP_CLASS_NAME,
+										active && [ACTIVE_TAB_COUNT_CHIP_CLASS_NAME]
 									)}
-								/>
-							)}
-						</button>
-					</Tooltip>
-				);
-			})}
-		</nav>
+								>
+									{isCountPending && <span className={TAB_COUNT_PENDING_CLASS_NAME} />}
+									{!isCountPending && (
+										<span className={clsxm(isCountGrowing && TAB_COUNT_GROWING_CLASS_NAME)}>
+											{item.count}
+										</span>
+									)}
+									{isCountGrowing && (
+										<span className="sr-only">{t('profile.page.COUNT_STILL_LOADING')}</span>
+									)}
+								</span>
+							</TabsTrigger>
+						</Tooltip>
+					);
+				})}
+			</TabsList>
+		</Tabs>
 	);
 }
 /**
- * It renders a divider, a div with a flexbox layout, and filters buttons
- * @returns A React component
+ * The status filter panel: one row of property dropdowns, then Apply, Reset and Close.
  */
 export function TaskStatusFilter({ hook, employeeId }: { hook: I_TaskFilter; employeeId: string }) {
 	const [key, setKey] = useState(0);
@@ -247,12 +148,12 @@ export function TaskStatusFilter({ hook, employeeId }: { hook: I_TaskFilter; emp
 	const planData = mapFilter[dailyPlanTab] ?? employeeSortedPlans;
 
 	return (
-		<div className="flex flex-col items-center pt-2 mt-4 space-x-2 md:justify-between md:flex-row">
-			<div className="flex flex-wrap justify-center flex-1 mb-2 space-x-3 h-9 md:justify-start">
+		<div className="flex flex-col items-center py-3 md:flex-row md:justify-between">
+			<div className="flex flex-1 flex-wrap items-center justify-center gap-2 md:justify-start">
 				<TaskStatusDropdown
 					key={key + 1}
 					onValueChange={(_, values) => hook.onChangeStatusFilter('status', values || [])}
-					className="min-w-fit lg:max-w-[170px] mt-4 mb-2 lg:mb-0 lg:mt-0 h-7"
+					className="min-w-fit lg:max-w-[170px] h-7"
 					multiple={true}
 					isMultiple={false}
 				/>
@@ -260,7 +161,7 @@ export function TaskStatusFilter({ hook, employeeId }: { hook: I_TaskFilter; emp
 				<TaskPropertiesDropdown
 					key={key + 2}
 					onValueChange={(_, values) => hook.onChangeStatusFilter('priority', values || [])}
-					className="min-w-fit lg:max-w-[170px] mt-4 mb-2 lg:mb-0 lg:mt-0 h-7"
+					className="min-w-fit lg:max-w-[170px] h-7"
 					multiple={true}
 					isMultiple={false}
 				/>
@@ -268,7 +169,7 @@ export function TaskStatusFilter({ hook, employeeId }: { hook: I_TaskFilter; emp
 				<TaskSizesDropdown
 					key={key + 3}
 					onValueChange={(_, values) => hook.onChangeStatusFilter('size', values || [])}
-					className="min-w-fit lg:max-w-[170px] mt-4 mb-2 lg:mb-0 lg:mt-0 h-7"
+					className="min-w-fit lg:max-w-[170px] h-7"
 					multiple={true}
 					isMultiple={false}
 				/>
@@ -276,7 +177,7 @@ export function TaskStatusFilter({ hook, employeeId }: { hook: I_TaskFilter; emp
 				<TaskLabelsDropdown
 					key={key + 4}
 					onValueChange={(_, values) => hook.onChangeStatusFilter('label', values || [])}
-					className="min-w-fit lg:max-w-[170px] mt-4 mb-2 lg:mb-0 lg:mt-0 h-7 !rounded-[8px] text-dark dark:text-white bg-[#F2F2F2] dark:bg-dark--theme-light"
+					className="min-w-fit lg:max-w-[170px] h-7 !rounded-md text-foreground bg-foreground/5"
 					multiple={true}
 					isMultiple={false}
 				/>
@@ -288,18 +189,19 @@ export function TaskStatusFilter({ hook, employeeId }: { hook: I_TaskFilter; emp
 						date={date}
 						onSelect={(range: DateRange | undefined) => setDate(range)}
 						label="Planned date"
-						className="min-w-fit lg:max-w-[170px] mt-4 mb-2 lg:mb-0 lg:mt-0 h-7"
+						className="min-w-fit lg:max-w-[170px] h-7"
 						contentClassName="h-7"
 					/>
 				)}
-				<VerticalSeparator />
+				<VerticalSeparator className="h-4 self-center" />
 
-				<Button className="py-2 md:px-3 px-2 min-w-[6.25rem] rounded-xl h-7" onClick={hook.applyStatusFilter}>
+				<Button size="sm" className="min-w-[6.25rem]" onClick={hook.applyStatusFilter}>
 					{t('common.APPLY')}
 				</Button>
 				<Button
-					className="py-2 md:px-3 px-2 min-w-[6.25rem] rounded-xl h-7"
-					variant="grey"
+					size="sm"
+					className="min-w-[6.25rem]"
+					variant="outline"
 					onClick={() => {
 						setKey((k) => k + 1);
 						hook.onResetStatusFilter();
@@ -308,8 +210,9 @@ export function TaskStatusFilter({ hook, employeeId }: { hook: I_TaskFilter; emp
 					{t('common.RESET')}
 				</Button>
 				<Button
-					className="py-2 md:px-3 px-2 min-w-[6.25rem] rounded-xl h-7"
-					variant="outline-danger"
+					size="sm"
+					className="min-w-[6.25rem]"
+					variant="ghost"
 					onClick={() => {
 						hook.toggleFilterType('status');
 					}}
@@ -325,12 +228,14 @@ export function TaskNameFilter({
 	value,
 	setValue,
 	close,
-	fullWidth = false
+	fullWidth = false,
+	className
 }: {
 	value: string;
 	setValue: (v: string) => void;
 	close: () => void;
 	fullWidth?: boolean;
+	className?: string;
 }) {
 	const t = useTranslations();
 
@@ -353,15 +258,17 @@ export function TaskNameFilter({
 	};
 
 	return (
-		<div className={clsxm('flex flex-row w-full md:w-1/2 gap-2 mt-0 ml-auto my-6', fullWidth && '!w-full')}>
+		<div className={clsxm('ml-auto flex w-full flex-row gap-2 py-3 md:w-1/2', fullWidth && '!w-full', className)}>
 			<InputField
 				value={tempValue}
 				autoFocus={true}
 				onChange={(e) => handleInputChange(e)}
 				placeholder={t('common.TYPE_SOMETHING') + '...'}
-				wrapperClassName="mb-0 dark:bg-transparent !w-full rounded-xl"
+				leadingNode={<Search className="ml-2.5 size-4 text-muted-foreground" />}
+				wrapperClassName="mb-0 !w-full"
+				className="h-8 px-2"
 			/>
-			<Button className="py-1 md:px-3 px-1 min-w-[5rem] rounded-xl" variant="outline-danger" onClick={close}>
+			<Button className="min-w-[5rem]" variant="outline" size="default" onClick={close}>
 				{t('common.CLOSE')}
 			</Button>
 		</div>

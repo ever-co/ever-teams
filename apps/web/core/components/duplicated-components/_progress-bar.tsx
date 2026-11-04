@@ -4,23 +4,21 @@ import { JSX, memo, useMemo } from 'react';
 // Memoized utility function for colors
 const getProgressColor = (progress: number): string => {
 	// Neutral state when no estimation exists
-	if (progress === 0) return 'bg-gray-400 dark:bg-gray-500';
-	if (progress < 25) return 'bg-red-600 dark:bg-red-400';
-	if (progress >= 25 && progress < 50) return 'bg-yellow-600 dark:bg-yellow-400';
-	if (progress >= 50 && progress < 75) return 'bg-blue-600 dark:bg-blue-400';
-	return 'bg-green-600 dark:bg-green-400';
+	if (progress === 0) return 'bg-foreground/25';
+	if (progress < 25) return 'bg-destructive';
+	if (progress >= 25 && progress < 50) return 'bg-warning';
+	if (progress >= 50 && progress < 75) return 'bg-info';
+	return 'bg-success';
 };
 
 // Memoized component for displaying percentages
 const PercentageDisplay = memo(({ progress }: { progress: number | string }) => (
-	<div className="not-italic font-medium text-[0.625rem] leading-[140%] tracking-[-0.02em] ml-2 text-[#28204880] dark:text-white">
-		{progress}
-	</div>
+	<div className="ml-2 text-[11px] font-medium tabular-nums text-muted-foreground">{progress}</div>
 ));
 
 // Memoized component for an individual segment
 const ProgressSegment = memo(({ isActive, colorClass }: { isActive: boolean; colorClass: string }) => (
-	<div className={clsxm('h-2 rounded-xs w-[.3rem]', isActive ? colorClass : 'bg-[#dfdfdf] dark:bg-muted')} />
+	<div className={clsxm('h-2 rounded-xs w-[.3rem] bg-foreground/10', isActive && colorClass)} />
 ));
 
 export const ProgressBar = memo(function ProgressBar({
@@ -54,7 +52,7 @@ export const ProgressBar = memo(function ProgressBar({
 	);
 
 	const progressBarClassName = useMemo(
-		() => clsxm('h-2 rounded-full absolute z-[1] bg-black', progressColorClass),
+		() => clsxm('h-2 rounded-full absolute z-[1]', progressColorClass),
 		[progressColorClass]
 	);
 
@@ -62,7 +60,7 @@ export const ProgressBar = memo(function ProgressBar({
 		<>
 			<div className={containerClassName} style={containerStyle}>
 				<div className={progressBarClassName} style={progressStyle} />
-				<div style={backgroundStyle} className="bg-[#dfdfdf] dark:bg-muted h-2 rounded-full w-full" />
+				<div style={backgroundStyle} className="bg-foreground/10 h-2 rounded-full w-full" />
 			</div>
 			{showPercents && <PercentageDisplay progress={progress} />}
 		</>
@@ -174,7 +172,7 @@ export const SegmentedProgressBarVirtualized = memo(function SegmentedProgressBa
 
 	const activeSegmentClassName = useMemo(() => clsxm('inline-block', colorClass), [colorClass]);
 
-	const inactiveSegmentClassName = 'inline-block bg-[#dfdfdf] dark:bg-muted';
+	const inactiveSegmentClassName = 'inline-block bg-foreground/10';
 
 	// Optimized render with fragments to reduce DOM nodes
 	const segments = useMemo(() => {

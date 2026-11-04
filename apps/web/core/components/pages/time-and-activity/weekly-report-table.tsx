@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useState } from 'react';
 import { addDays, addWeeks, endOfWeek, format, isSameWeek, startOfWeek } from 'date-fns';
-import { ChevronLeft, ChevronRight } from 'lucide-react';
+import { ChevronLeft, ChevronRight } from '@/core/components/icons';
 import { useLocale, useTranslations } from 'next-intl';
 import { Button } from '@/core/components/duplicated-components/_button';
 import { Avatar } from '@/core/components/duplicated-components/avatar';
@@ -10,6 +10,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { Skeleton } from '@/core/components/common/skeleton';
 import { AnimatedEmptyState } from '@/core/components/common/empty-state';
 import { secondsToTime } from '@/core/lib/helpers/date-and-time';
+import { cn } from '@/core/lib/helpers';
 import { UseReportActivityProps } from '@/core/hooks/activities/use-activity-filters';
 import { useActivityWeeklyReportQuery } from '@/core/hooks/activities/queries/use-activity-weekly-report-query';
 
@@ -91,6 +92,8 @@ export function WeeklyReportTable({ mergedProps, enabled, initialDate }: Readonl
 					message={t('timeActivity.WEEKLY_REPORT_ERROR_MESSAGE')}
 					actionLabel={t('pages.unauthorized.TRY_AGAIN')}
 					onAction={() => refetch()}
+					showBorder={false}
+					noBg
 				/>
 			);
 		}
@@ -100,6 +103,8 @@ export function WeeklyReportTable({ mergedProps, enabled, initialDate }: Readonl
 				<AnimatedEmptyState
 					title={t('timeActivity.NO_ACTIVITY_DATA')}
 					message={t('timeActivity.NO_ACTIVITY_DATA_MESSAGE')}
+					showBorder={false}
+					noBg
 				/>
 			);
 		}
@@ -108,19 +113,14 @@ export function WeeklyReportTable({ mergedProps, enabled, initialDate }: Readonl
 			<div className="overflow-x-auto">
 				<Table>
 					<TableHeader>
-						<TableRow className="border-b border-gray-200 dark:border-gray-600">
-							<TableHead className="px-6 text-sm text-gray-500 whitespace-nowrap dark:text-gray-400">
-								{t('common.MEMBER')}
-							</TableHead>
+						<TableRow>
+							<TableHead className="px-4 whitespace-nowrap">{t('common.MEMBER')}</TableHead>
 							{days.map((day) => (
-								<TableHead
-									key={day.toISOString()}
-									className="px-4 text-sm text-right text-gray-500 whitespace-nowrap dark:text-gray-400"
-								>
+								<TableHead key={day.toISOString()} className="px-4 text-right whitespace-nowrap">
 									{dayFormat.format(day)}
 								</TableHead>
 							))}
-							<TableHead className="px-6 text-sm text-right text-gray-500 whitespace-nowrap dark:text-gray-400">
+							<TableHead className="px-4 text-right whitespace-nowrap bg-foreground/2.5">
 								{t('common.TOTAL')}
 							</TableHead>
 						</TableRow>
@@ -129,11 +129,11 @@ export function WeeklyReportTable({ mergedProps, enabled, initialDate }: Readonl
 						{isLoading
 							? Array.from({ length: 3 }, (_, rowIndex) => (
 									<TableRow key={rowIndex}>
-										<TableCell className="px-6 py-4">
+										<TableCell className="px-4 py-3">
 											<Skeleton className="w-32 h-4" />
 										</TableCell>
 										{Array.from({ length: days.length + 1 }, (_, cellIndex) => (
-											<TableCell key={cellIndex} className="px-4 py-4">
+											<TableCell key={cellIndex} className="px-4 py-3">
 												<Skeleton className="ml-auto w-12 h-4" />
 											</TableCell>
 										))}
@@ -141,7 +141,7 @@ export function WeeklyReportTable({ mergedProps, enabled, initialDate }: Readonl
 								))
 							: rows.map((row) => (
 									<TableRow key={row.id}>
-										<TableHead scope="row" className="px-6 py-4">
+										<TableHead scope="row" className="px-4 py-2.5 font-normal">
 											<div className="flex gap-3 items-center">
 												<Avatar
 													size={32}
@@ -150,7 +150,7 @@ export function WeeklyReportTable({ mergedProps, enabled, initialDate }: Readonl
 													alt={row.name}
 													className="shrink-0"
 												/>
-												<span className="font-medium text-gray-900 whitespace-nowrap dark:text-gray-100">
+												<span className="font-medium text-foreground whitespace-nowrap">
 													{row.name}
 												</span>
 											</div>
@@ -158,16 +158,15 @@ export function WeeklyReportTable({ mergedProps, enabled, initialDate }: Readonl
 										{row.durations.map((duration, index) => (
 											<TableCell
 												key={days[index].toISOString()}
-												className={
-													duration
-														? 'px-4 py-4 text-right text-gray-900 whitespace-nowrap dark:text-gray-100'
-														: 'px-4 py-4 text-right text-gray-400 whitespace-nowrap dark:text-gray-500'
-												}
+												className={cn(
+													'px-4 py-2.5 text-right tabular-nums whitespace-nowrap text-foreground',
+													!duration && 'text-muted-foreground'
+												)}
 											>
 												{formatDuration(duration)}
 											</TableCell>
 										))}
-										<TableCell className="px-6 py-4 font-medium text-right text-gray-900 whitespace-nowrap dark:text-gray-100">
+										<TableCell className="px-4 py-2.5 text-right font-semibold tabular-nums whitespace-nowrap text-foreground bg-foreground/2.5">
 											{formatDuration(row.total)}
 										</TableCell>
 									</TableRow>
@@ -179,19 +178,18 @@ export function WeeklyReportTable({ mergedProps, enabled, initialDate }: Readonl
 	};
 
 	return (
-		<div className="flex flex-col gap-4 p-3">
-			<div className="flex gap-4 justify-between items-center">
+		<div className="flex flex-col">
+			<div className="flex gap-4 justify-between items-center hairline-b border-border px-4 py-3">
 				<Button
 					variant="outline"
 					size="icon"
 					onClick={() => setWeekStart((current) => addWeeks(current, -1))}
 					aria-label={t('timeActivity.PREVIOUS_WEEK')}
 					title={t('timeActivity.PREVIOUS_WEEK')}
-					className="dark:bg-dark--theme-light dark:border-border"
 				>
 					<ChevronLeft />
 				</Button>
-				<span className="text-base font-medium text-gray-900 dark:text-gray-100">
+				<span className="text-sm font-semibold tabular-nums text-foreground">
 					{weekFormat.formatRange(weekStart, weekEnd)}
 				</span>
 				<Button
@@ -201,7 +199,6 @@ export function WeeklyReportTable({ mergedProps, enabled, initialDate }: Readonl
 					disabled={isCurrentWeek}
 					aria-label={t('timeActivity.NEXT_WEEK')}
 					title={t('timeActivity.NEXT_WEEK')}
-					className="dark:bg-dark--theme-light dark:border-border"
 				>
 					<ChevronRight />
 				</Button>

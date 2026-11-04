@@ -1,166 +1,71 @@
-import React, { FC } from 'react';
-import { Container } from '@/core/components';
+import { FC } from 'react';
 import { PageLayout } from '@/core/components/layouts/default-layout';
-import { KanbanColumnLoadingSkeleton } from '../../common/skeleton/kanban-column-loading-skeleton';
+import { cn } from '@/core/lib/helpers';
+import { KanbanFiltersSkeleton } from '../../common/skeleton/kanban-filters-skeleton';
+import { KanbanViewSkeleton } from '../../common/skeleton/kanban-view-skeleton';
+
+const BAR = 'animate-pulse rounded-md bg-foreground/5';
+
+const TEAM_AVATARS = 4;
+
+const DATE_TAB_WIDTHS = ['w-12', 'w-14', 'w-20', 'w-20'];
 
 interface KanbanPageSkeletonProps {
 	className?: string;
 	showTimer?: boolean;
 }
 
-/**
- * Complete page-level skeleton for Kanban page
- * Integrates seamlessly with PageLayout structure without swallowing it up
- * Matches exact layout: mainHeaderSlot (3 sections: breadcrumb + title/actions + tabs/filters) + main content (kanban board)
- */
+/** The kanban page: breadcrumb in the top bar, the title row and the tabs with filters in the band, the lanes in the body. */
 export const KanbanPageSkeleton: FC<KanbanPageSkeletonProps> = ({ className, showTimer = false }) => {
+	const avatarKeys = Array.from({ length: TEAM_AVATARS }, (_, index) => index);
 	return (
 		<PageLayout
-			title="Kanban Board"
 			showTimer={showTimer}
-			footerClassName="pr-20"
-			className="!px-0"
-			childrenClassName="flex flex-col h-full w-full !mx-0 !px-0 overflow-x-auto"
+			className={className}
+			breadcrumb={
+				<div className="flex min-w-0 items-center gap-2">
+					<div className={cn(BAR, 'size-4 shrink-0 rounded-sm')} />
+					<div className={cn(BAR, 'h-4 w-16')} />
+					<div className={cn(BAR, 'size-3.5 rounded-sm')} />
+					<div className={cn(BAR, 'h-4 w-20')} />
+					<div className={cn(BAR, 'size-3.5 rounded-sm')} />
+					<div className={cn(BAR, 'h-4 w-16')} />
+				</div>
+			}
 			mainHeaderSlot={
-				<div className="flex flex-col min-h-fit border-b-[1px] dark:border-border mx-[0px] w-full bg-white dark:bg-dark-high">
-					<Container className="!pt-0">
-						{/* SKELETON: Section 1 - Breadcrumb + Navigation */}
-						<div className="flex flex-row justify-between items-start mt-4 bg-white dark:bg-dark-high">
-							<div className="flex gap-8 justify-center items-center h-10">
-								{/* People Icon */}
-								<div className="w-6 h-6 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded" />
-								{/* Breadcrumb */}
-								<div className="flex gap-2 items-center">
-									<div className="w-12 h-4 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded" />
-									<div className="w-1 h-1 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded-full" />
-									<div className="w-20 h-4 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded" />
-									<div className="w-1 h-1 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded-full" />
-									<div className="w-16 h-4 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded" />
-								</div>
-							</div>
-							<div className="flex gap-1 justify-center items-center h-10 w-fit">
-								{/* Header Tabs */}
-								{[...Array(4)].map((_, index) => (
-									<div
-										key={index}
-										className="w-16 h-8 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded"
-									/>
+				<div className="px-4">
+					<div className="flex flex-wrap items-center justify-between gap-3 py-3">
+						<div className="flex min-w-0 flex-wrap items-center gap-x-3 gap-y-1">
+							<div className={cn(BAR, 'h-5 w-36')} />
+							<div className={cn(BAR, 'h-4 w-24')} />
+						</div>
+						<div className="flex min-w-fit flex-wrap items-center gap-x-2">
+							<div className={cn(BAR, 'h-8 w-30.5')} />
+							<div className="h-4 w-px shrink-0 bg-border" />
+							<div className="flex -space-x-2">
+								{avatarKeys.map((key) => (
+									<div key={key} className={cn(BAR, 'size-8 rounded-full ring-2 ring-card')} />
 								))}
 							</div>
+							<div className="h-4 w-px shrink-0 bg-border" />
+							<div className={cn(BAR, 'size-8')} />
 						</div>
-
-						{/* SKELETON: Section 2 - Title + Actions + Team Members */}
-						<div className="flex justify-between items-center mt-4 bg-white dark:bg-dark-high">
-							{/* Page Title */}
-							<div className="w-64 h-10 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded" />
-
-							{/* Actions Section */}
-							<div className="flex gap-x-2 items-center min-w-fit">
-								{/* Timezone */}
-								<div className="w-20 h-4 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded" />
-
-								{/* Separator */}
-								<div className="w-px h-6 bg-gray-200 dark:bg-gray-600" />
-
-								{/* Team Members Avatars */}
-								<div className="flex -space-x-2">
-									{[...Array(4)].map((_, index) => (
-										<div
-											key={index}
-											className="w-8 h-8 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded-full border-2 border-white dark:border-gray-800"
-										/>
-									))}
+					</div>
+					<div className="flex flex-col items-start justify-between gap-3 pb-3 xl:flex-row xl:items-end">
+						<div className="flex w-full items-end gap-6 hairline-b border-border xl:w-auto">
+							{DATE_TAB_WIDTHS.map((width, index) => (
+								<div key={index} className="pb-3 pt-2">
+									<div className={cn(BAR, 'h-5', width)} />
 								</div>
-
-								{/* Separator */}
-								<div className="w-px h-6 bg-gray-200 dark:bg-gray-600" />
-
-								{/* Add Button */}
-								<div className="w-10 h-10 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded-full border-2 border-gray-200 dark:border-gray-600" />
-							</div>
+							))}
 						</div>
-
-						{/* SKELETON: Section 3 - Tabs + Complex Filters */}
-						<div className="flex flex-col-reverse justify-between items-center pt-6 -mb-1 bg-white xl:flex-row dark:bg-dark-high">
-							{/* Date Tabs */}
-							<div className="flex flex-row">
-								{['Today', 'Yesterday', 'Tomorrow'].map((tab, index) => (
-									<div key={index} className="cursor-pointer pt-2 px-5 pb-[30px]">
-										<div className="w-16 h-6 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded" />
-										{/* Active tab indicator */}
-										{index === 0 && (
-											<div className="w-full h-1 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded-sm mt-2" />
-										)}
-									</div>
-								))}
-							</div>
-
-							{/* Complex Filters Section */}
-							<div className="flex gap-5 mt-4 max-h-10 lg:mt-0 min-h-8">
-								{/* Epic Properties Dropdown */}
-								<div className="min-w-fit lg:mt-0 input-border flex flex-col justify-center rounded-xl bg-[#F2F2F2] dark:bg-dark--theme-light min-h-6 px-2 max-h-full">
-									<div className="w-24 h-6 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded" />
-								</div>
-
-								{/* Issues Dropdown with Complex Structure */}
-								<div className="relative z-10 flex items-center justify-center min-w-28 max-w-fit lg:mt-0 input-border flex-col bg-[#F2F2F2] dark:bg-dark--theme-light min-h-6 px-4 max-h-full rounded-[8px]">
-									<div className="flex gap-2 items-center">
-										<div className="w-4 h-4 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded-full" />
-										<div className="w-16 h-4 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded" />
-										<div className="w-4 h-4 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded" />
-									</div>
-								</div>
-
-								{/* Task Labels Dropdown */}
-								<div className="relative min-w-fit lg:mt-0 input-border flex flex-col justify-center rounded-xl bg-[#F2F2F2] dark:bg-dark--theme-light min-h-6 px-2 max-h-full">
-									<div className="w-20 h-6 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded" />
-								</div>
-
-								{/* Task Properties Dropdown */}
-								<div className="min-w-fit lg:mt-0 input-border rounded-xl bg-[#F2F2F2] dark:bg-dark--theme-light flex flex-col justify-center">
-									<div className="w-24 h-6 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded-sm mx-2" />
-								</div>
-
-								{/* Task Sizes Dropdown */}
-								<div className="relative min-w-fit lg:mt-0 input-border flex flex-col justify-center rounded-xl bg-[#F2F2F2] dark:bg-dark--theme-light min-h-6 px-2 max-h-full">
-									<div className="w-20 h-6 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded" />
-								</div>
-
-								{/* Separator */}
-								<div className="w-px h-10 bg-gray-200 dark:bg-gray-600" />
-
-								{/* Search Bar */}
-								<div className="min-w-fit lg:mt-0 input-border flex flex-col justify-center rounded-xl bg-[#F2F2F2] dark:bg-dark--theme-light min-h-6 px-2 max-h-full">
-									<div className="w-32 h-6 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded" />
-								</div>
-							</div>
-						</div>
-					</Container>
+						<KanbanFiltersSkeleton className="w-full xl:w-auto" />
+					</div>
 				</div>
 			}
 		>
-			{/* SKELETON: Main Content Area - Kanban Board */}
-			<div className="container overflow-x-hidden px-0 mx-0 w-full">
-				<div className="w-[1280px] xl:w-[1500px] 2xl:w-[1600px] mt-6 relative bg-transparent dark:bg-background min-h-svh h-svh px-3">
-					<div className="flex flex-row flex-1 gap-4 px-8 w-full h-full min-h-fit lg:px-0">
-						{/* Kanban Columns */}
-						{[...Array(5)].map((_, index) => (
-							<div key={index} className="flex flex-col gap-[10px] min-w-[325px]">
-								{/* Column Header Skeleton */}
-								<div className="h-10 w-full bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded-lg" />
-								{/* Tasks Skeleton */}
-								<div className="flex flex-col gap-[5px]">
-									{[...Array(2)].map((_, taskIndex) => (
-										<KanbanColumnLoadingSkeleton className="static" key={taskIndex} />
-									))}
-
-									{/* Add Task Button Skeleton */}
-									<div className="h-14 w-full bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded-lg" />
-								</div>
-							</div>
-						))}
-					</div>
-				</div>
+			<div className="w-full">
+				<KanbanViewSkeleton />
 			</div>
 		</PageLayout>
 	);

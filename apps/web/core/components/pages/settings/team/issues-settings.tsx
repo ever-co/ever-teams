@@ -14,9 +14,8 @@ import { activeSettingTeamTab } from '@/core/stores/common/setting';
 import { InteractionObserverVisible } from '@/core/components/pages/settings/interaction-observer';
 
 // Settings row (still hidden until these settings exist): label column on the left, control on the right.
-const HIDDEN_ROW =
-	'hidden w-full grid-cols-1 gap-2 sm:grid-cols-[10rem_minmax(0,1fr)] sm:items-center sm:gap-4';
-const LABEL = 'text-sm font-medium text-muted-foreground';
+const HIDDEN_ROW = 'hidden w-full grid-cols-1 gap-2 sm:grid-cols-[10rem_minmax(0,1fr)] sm:items-center sm:gap-4';
+const LABEL = 'text-sm font-medium text-foreground';
 const CONTROL = 'flex min-w-0 flex-wrap items-center gap-2';
 // The visible sections are separated by a hairline; the first starts at the top of the block, the
 // last ends at its bottom.
@@ -139,7 +138,7 @@ export const IssuesSettings = () => {
 				</div>
 			</div>
 
-			<div className="flex w-full flex-col divide-y divide-border">
+			<div className="flex w-full flex-col hairline-divide-y divide-border">
 				<div className={SECTION_FIRST}>
 					<TaskVersionForm />
 				</div>

@@ -59,8 +59,8 @@ export function useOrganizationProjectsQuery({ enabled = true }: UseOrganization
 		enabled: queryEnabled
 	});
 	const organizationProjects = useMemo(
-		() => organizationProjectsQuery?.data?.items ?? [],
-		[organizationProjectsQuery?.data?.items]
+		() => organizationProjectsQuery.data?.items ?? [],
+		[organizationProjectsQuery.data?.items]
 	);
 
 	// Filtered query: fetch projects matching search queries
@@ -99,11 +99,11 @@ export function useOrganizationProjectsQuery({ enabled = true }: UseOrganization
 			if (!enabled || !user || !queryEnabled) return;
 			if (organizationProjects?.length) return;
 
-			return await organizationProjectsQuery?.refetch();
+			return await organizationProjectsQuery.refetch();
 		} catch (error) {
 			console.error('Failed to load organization projects', error);
 		}
-	}, [enabled, organizationProjects, organizationProjectsQuery?.refetch, queryEnabled, user]);
+	}, [enabled, organizationProjects, organizationProjectsQuery.refetch, queryEnabled, user]);
 
 	const handleFirstLoad = useCallback(async () => {
 		await loadOrganizationProjects();
@@ -111,7 +111,9 @@ export function useOrganizationProjectsQuery({ enabled = true }: UseOrganization
 
 	return {
 		organizationProjects,
-		getOrganizationProjectsLoading: organizationProjectsQuery?.isLoading,
+		getOrganizationProjectsLoading: organizationProjectsQuery.isLoading,
+		isOrganizationProjectsError: organizationProjectsQuery.isError,
+		refetchOrganizationProjects: organizationProjectsQuery.refetch,
 		getOrganizationProject,
 		firstLoadOrganizationProjectsData: handleFirstLoad,
 		setSearchQueries,

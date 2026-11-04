@@ -25,10 +25,10 @@ type TDragRenderProps = { children: (provided: object, snapshot: object) => Reac
 
 jest.mock('next-intl', () => ({ useTranslations: () => (key: string) => key }));
 jest.mock('next/image', () => ({ __esModule: true, default: () => null }));
-// The component imports 'assets/svg' through the tsconfig baseUrl: the alias resolves to the same file
-jest.mock('@/assets/svg', () => ({
-	...jest.requireActual('@/assets/svg'),
-	ChevronLeftIcon: () => <span>chevron</span>
+// The column toggle has no text of its own: the mocked chevron gives the test a name to find it by
+jest.mock('@/core/components/icons', () => ({
+	...jest.requireActual('@/core/components/icons'),
+	ChevronLeft: () => <span>chevron</span>
 }));
 jest.mock('@hello-pangea/dnd', () => {
 	const provided = {

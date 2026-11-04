@@ -1,18 +1,16 @@
 import { clsxm } from '@/core/lib/utils';
 
+/** The outstanding plans notice while its chunk loads: the `Notice` card with its mark, two lines and an action. */
 const TeamNotificationsSkeleton = ({ className }: { className?: string }) => {
 	return (
-		<div className={clsxm('flex flex-col gap-1', className)}>
-			{/* Outstanding notification skeleton */}
-			<div className="flex justify-between items-center px-4 py-2.5 mb-2 text-xs rounded-xl border dark:border-dark--theme-light">
-				<div className="flex-1">
-					<div className="w-64 h-4 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded-sm mb-2" />
-					<div className="w-32 h-3 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded" />
+		<div aria-hidden="true" className={clsxm('mb-1 flex flex-col gap-2', className)}>
+			<div className="flex items-center gap-3 rounded-xl bg-card px-3.5 py-3 hairline-ring ring-border shadow-sm shadow-black/6.5">
+				<span className="size-[18px] shrink-0 animate-pulse rounded-full bg-foreground/[0.06]" />
+				<div className="flex min-w-0 flex-1 flex-col gap-2">
+					<span className="h-2.5 w-64 max-w-full animate-pulse rounded-full bg-foreground/[0.07]" />
+					<span className="h-2 w-40 max-w-full animate-pulse rounded-full bg-foreground/[0.05]" />
 				</div>
-				<div className="flex items-center gap-2">
-					<div className="w-16 h-6 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded" />
-					<div className="w-4 h-4 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded" />
-				</div>
+				<span className="h-7 w-24 shrink-0 animate-pulse rounded-full bg-foreground/[0.05]" />
 			</div>
 		</div>
 	);

@@ -1,15 +1,15 @@
 'use client';
 import { useAtomValue, useSetAtom } from 'jotai';
-import { AlertPopup, Container } from '@/core/components';
+import { AlertPopup } from '@/core/components';
 import { DottedLanguageObjectStringPaths, useTranslations } from 'next-intl';
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState, type ReactNode } from 'react';
 import { useCanSeeActivityScreen, useUserProfilePage } from '@/core/hooks';
 import { useTimerPlanStatus } from '@/core/hooks/timer';
 import { useEmployeeDailyPlans } from '@/core/hooks/daily-plans/use-employee-daily-plans';
 import { useDeleteDailyPlan } from '@/core/hooks/daily-plans/use-delete-daily-plan';
 import { useUserQuery } from '@/core/hooks/queries/user-user.query';
 import { useDateRange } from '@/core/hooks/daily-plans/use-date-range';
-import { filterDailyPlan } from '@/core/hooks/daily-plans/use-filter-date-range';
+import { filterDailyPlan, filterDailyPlansByTasks } from '@/core/hooks/daily-plans/use-filter-date-range';
 import { estimatedTotalTime, getTotalTasks } from '@/core/hooks/daily-plans/daily-plan-totals';
 import { useLocalStorageState } from '@/core/hooks/common/use-local-storage-state';
 import {
@@ -19,30 +19,130 @@ import {
 } from '@/core/constants/config/constants';
 import { TDailyPlan, TUser } from '@/core/types/schemas';
 import { activeTeamState, dailyPlanVisibleTabsState } from '@/core/stores';
-import { clsxm } from '@/core/lib/utils';
+import { allPlansModalState } from '@/core/stores/all-plans-modal';
 import { Button } from '@/core/components/duplicated-components/_button';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/core/components/common/select';
-import { ReloadIcon, StarIcon } from '@radix-ui/react-icons';
+import { Spinner as ReloadIcon } from '@/core/components/icons';
+import { SegmentedControl } from '@/core/components/common/segmented-control';
+import { DashboardErrorNotice } from '@/core/components/dashboards/kit/dashboard-states';
+import { TaskCardSkeleton } from '@/core/components/common/skeleton/profile-component-skeletons';
+import {
+	TASK_GROUP_STACK,
+	TASK_LIST_STACK,
+	TASK_LIST_SURFACE,
+	TASK_ROW_SKELETON_BAR
+} from '@/core/components/tasks/task-row-recipes';
+import { cn } from '@/core/lib/helpers';
+import { isProfilePathname } from '@/core/lib/utils/profile-path';
+import { logErrorInDev } from '@/core/lib/helpers/error-message';
 
-import { Outstanding, OutstandingAll, OutstandingFilterDate, PastTasks } from '../tasks/daily-plan';
+import { OutstandingAll, OutstandingFilterDate, PastTasks } from '../tasks/daily-plan';
 import { FutureTasks } from '../tasks/daily-plan/future-tasks';
 import ViewsHeaderTabs from '../tasks/daily-plan/views-header-tabs';
+import { DailyPlanFilter } from '../tasks/daily-plan/daily-plan-filter';
+import { keepPickedPlans } from '../tasks/daily-plan/plan-picks';
+import { TaskDatePickerWithRange } from '../tasks/task-date-range';
+import { DateRange } from 'react-day-picker';
 import moment from 'moment';
 import { usePathname } from 'next/navigation';
-import { IconsCalendarMonthOutline } from '@/core/components/icons';
-import { VerticalSeparator } from '../duplicated-components/separator';
 import { AllPlans, EmptyPlans } from '@/core/components/daily-plan';
 import { TTask } from '@/core/types/schemas/task/task.schema';
-import { filterDailyPlansByTasks } from '@/core/hooks';
 
 export type FilterTabs = 'Today Tasks' | 'Future Tasks' | 'Past Tasks' | 'All Tasks' | 'Outstanding';
+
 type FilterOutstanding = 'ALL' | 'DATE';
 
-function getOutstandingFilterLabelKey(filter: string) {
-	if (filter === 'DATE') {
-		return 'dailyPlan.labels.FILTER_DATE';
+const PLAN_VIEWS: FilterTabs[] = ['Today Tasks', 'Future Tasks', 'Past Tasks', 'All Tasks', 'Outstanding'];
+
+const PLAN_VIEW_LABEL_KEYS: Record<FilterTabs, DottedLanguageObjectStringPaths> = {
+	'Today Tasks': 'common.TODAY',
+	'Future Tasks': 'profile.plans.FUTURE',
+	'Past Tasks': 'profile.plans.PAST',
+	'All Tasks': 'common.FILTER_ALL',
+	Outstanding: 'task.tabFilter.OUTSTANDING'
+};
+
+const OUTSTANDING_GROUPINGS: FilterOutstanding[] = ['DATE', 'ALL'];
+
+const OUTSTANDING_LABEL_KEYS: Record<FilterOutstanding, DottedLanguageObjectStringPaths> = {
+	DATE: 'dashboard.weeklyLimit.GROUPING_PERIOD',
+	ALL: 'common.FILTER_ALL'
+};
+
+const NO_PICKS: string[] = [];
+
+const SKELETON_ROWS = [0, 1, 2];
+
+/** The plan tabs that can be narrowed to a planned date range, with the plans their picker offers. */
+function rangeTabPlansOf(
+	tab: FilterTabs,
+	plans: { future: TDailyPlan[]; past: TDailyPlan[]; all: TDailyPlan[] }
+): TDailyPlan[] | null {
+	if (tab === 'Future Tasks') {
+		return plans.future;
 	}
-	return 'dailyPlan.labels.FILTER_ALL';
+	if (tab === 'Past Tasks') {
+		return plans.past;
+	}
+	if (tab === 'All Tasks') {
+		return plans.all;
+	}
+	return null;
+}
+
+function narrowPlans(plans: TDailyPlan[], filteredTaskIds: string[] | undefined, pickedPlanIds: string[]) {
+	const pickedPlans = keepPickedPlans(plans, pickedPlanIds);
+	if (filteredTaskIds) {
+		return filterDailyPlansByTasks(pickedPlans, filteredTaskIds);
+	}
+	return pickedPlans;
+}
+
+function tasksOfMember(tasks: TTask[], user: TUser | undefined) {
+	if (!user) {
+		return tasks;
+	}
+	return tasks.filter((task) => task.members?.some((member) => member.userId === user.id));
+}
+
+function todayIsoDay() {
+	return new Date().toISOString().split('T')[0];
+}
+
+/** The picks belong to the employee they were made on, so another profile starts with every plan. */
+interface PlanPicks {
+	employeeId: string;
+	planIds: string[];
+}
+
+function picksOf(planPicks: PlanPicks, employeeId: string) {
+	if (planPicks.employeeId === employeeId) {
+		return planPicks.planIds;
+	}
+	return NO_PICKS;
+}
+
+function PlansSkeleton() {
+	const t = useTranslations();
+	return (
+		<output className="flex flex-col gap-4">
+			<span className="sr-only">{t('common.LOADING')}</span>
+			<div className="flex h-8 w-80 max-w-full items-center gap-0.5 rounded-lg bg-foreground/[0.05] p-0.5">
+				<span className="h-7 w-20 rounded-md bg-card shadow-[0_1px_2px_rgb(0_0_0/0.08)]" />
+			</div>
+			<div className={TASK_GROUP_STACK}>
+				<div className="flex min-h-9 items-center gap-2">
+					<span className={cn(TASK_ROW_SKELETON_BAR, 'h-3 w-24')} />
+					<span className={cn(TASK_ROW_SKELETON_BAR, 'h-3 w-6')} />
+					<span className={cn(TASK_ROW_SKELETON_BAR, 'ml-auto h-3 w-40 max-sm:hidden')} />
+				</div>
+				<div className={TASK_LIST_SURFACE}>
+					{SKELETON_ROWS.map((row) => (
+						<TaskCardSkeleton key={row} />
+					))}
+				</div>
+			</div>
+		</output>
+	);
 }
 
 interface IUserProfilePlansProps {
@@ -51,7 +151,7 @@ interface IUserProfilePlansProps {
 	filteredTasks?: TTask[];
 }
 
-export function UserProfilePlans(props: IUserProfilePlansProps) {
+export function UserProfilePlans(props: Readonly<IUserProfilePlansProps>) {
 	const t = useTranslations();
 
 	const { user, employeeId: propsEmployeeId, filteredTasks } = props;
@@ -60,23 +160,18 @@ export function UserProfilePlans(props: IUserProfilePlansProps) {
 
 	const profile = useUserProfilePage();
 	const { data: authUser } = useUserQuery();
+	const authEmployeeId = authUser?.employee?.id ?? authUser?.employeeId ?? '';
 
+	// The card of a member passes its employee; the profile page resolves it, so "See plans" and this tab agree
 	const targetEmployeeId = useMemo(() => {
-		// PRIORITY 1: Use employeeId from props if provided (from UserTeamCard)
 		if (propsEmployeeId) {
 			return propsEmployeeId;
 		}
-
-		// PRIORITY 2: Calculate from user context (for profile pages)
-		const employeeId = profile.isAuthUser
-			? (authUser?.employee?.id ?? authUser?.employeeId ?? '')
-			: (user?.employee?.id ?? user?.employeeId ?? '');
-
-		// NOTE: Centralizing employeeId resolution here replaces older implicit
-		// assumptions based on the authenticated user only, so "See Plans" and
-		// Profile "Plans" tab always target the same employee
-		return employeeId;
-	}, [profile.isAuthUser, authUser, user, propsEmployeeId]);
+		if (profile.isAuthUser) {
+			return authEmployeeId;
+		}
+		return user?.employee?.id ?? user?.employeeId ?? '';
+	}, [profile.isAuthUser, authEmployeeId, user, propsEmployeeId]);
 
 	const {
 		employeeFuturePlans,
@@ -85,16 +180,20 @@ export function UserProfilePlans(props: IUserProfilePlansProps) {
 		employeeOutstandingPlans,
 		employeeSortedPlans,
 		employeeDailyPlans,
-		isLoading
+		isLoading,
+		isError,
+		loadEmployeeDailyPlans
 	} = useEmployeeDailyPlans(targetEmployeeId);
 	const { deleteDailyPlan, deleteDailyPlanLoading } = useDeleteDailyPlan();
 	const [currentOutstanding, setCurrentOutstanding] = useLocalStorageState<FilterOutstanding>('outstanding', 'DATE');
 	const [currentTab, setCurrentTab] = useLocalStorageState<FilterTabs>('daily-plan-tab', 'Today Tasks');
-	const { setDate } = useDateRange(currentTab, targetEmployeeId);
+	const { date: currentRange, setDate } = useDateRange(currentTab, targetEmployeeId);
 	const { date: futureRange } = useDateRange('Future Tasks', targetEmployeeId);
 	const { date: pastRange } = useDateRange('Past Tasks', targetEmployeeId);
 	const { date: allRange } = useDateRange('All Tasks', targetEmployeeId);
 	const setVisibleTabs = useSetAtom(dailyPlanVisibleTabsState);
+	const setAllPlansModal = useSetAtom(allPlansModalState);
+	const [planPicks, setPlanPicks] = useState<PlanPicks>({ employeeId: '', planIds: NO_PICKS });
 
 	// The date picker of the profile filter bar lives in another tree: tell it which tab is on screen
 	useEffect(() => {
@@ -103,59 +202,28 @@ export function UserProfilePlans(props: IUserProfilePlansProps) {
 		);
 	}, [setVisibleTabs, targetEmployeeId, currentTab]);
 
+	// A picked plan that was deleted in the meantime must not empty every view
+	const pickedPlanIds = useMemo(() => {
+		const picks = picksOf(planPicks, targetEmployeeId);
+		if (picks.length === 0) {
+			return NO_PICKS;
+		}
+		const existingIds = new Set(employeeDailyPlans.items.map((plan) => plan.id));
+		return picks.filter((planId) => existingIds.has(planId));
+	}, [planPicks, targetEmployeeId, employeeDailyPlans.items]);
+
+	const setPickedPlanIds = useCallback(
+		(planIds: string[]) => setPlanPicks({ employeeId: targetEmployeeId, planIds }),
+		[targetEmployeeId]
+	);
+	const clearPicks = useCallback(() => setPickedPlanIds(NO_PICKS), [setPickedPlanIds]);
+
 	const filterPlanAndTask = useCallback(
-		(plans: TDailyPlan[]) => (filteredTaskIds ? filterDailyPlansByTasks(plans, filteredTaskIds) : plans),
-		[filteredTaskIds]
+		(plans: TDailyPlan[]) => narrowPlans(plans, filteredTaskIds, pickedPlanIds),
+		[filteredTaskIds, pickedPlanIds]
 	);
 
-	const screenOutstanding = {
-		ALL: (
-			<OutstandingAll
-				profile={profile}
-				user={user}
-				outstandingPlans={employeeOutstandingPlans}
-				filteredTaskIds={filteredTaskIds}
-			/>
-		),
-		DATE: (
-			<OutstandingFilterDate
-				profile={profile}
-				user={user}
-				outstandingPlans={employeeOutstandingPlans}
-				filterByEmployee
-				filteredTaskIds={filteredTaskIds}
-			/>
-		)
-	};
-	const tabsScreens = {
-		'Today Tasks': (
-			<AllPlans
-				profile={profile}
-				currentTab={currentTab}
-				user={user}
-				filteredTaskIds={filteredTaskIds}
-				employeeId={targetEmployeeId}
-			/>
-		),
-		'Future Tasks': (
-			<FutureTasks
-				profile={profile}
-				user={user}
-				filteredTaskIds={filteredTaskIds}
-				employeeId={targetEmployeeId}
-			/>
-		),
-		'Past Tasks': (
-			<PastTasks profile={profile} user={user} filteredTaskIds={filteredTaskIds} employeeId={targetEmployeeId} />
-		),
-		'All Tasks': (
-			<AllPlans profile={profile} user={user} filteredTaskIds={filteredTaskIds} employeeId={targetEmployeeId} />
-		),
-		Outstanding: <Outstanding filter={screenOutstanding[currentOutstanding]} />
-	};
-	const dailyPlanSuggestionModalDate = window && window?.localStorage.getItem(DAILY_PLAN_SUGGESTION_MODAL_DATE);
 	const path = usePathname();
-	const haveSeenDailyPlanSuggestionModal = window?.localStorage.getItem(HAS_SEEN_DAILY_PLAN_SUGGESTION_MODAL);
 	const { hasPlan } = useTimerPlanStatus();
 
 	const activeTeam = useAtomValue(activeTeamState);
@@ -163,20 +231,24 @@ export function UserProfilePlans(props: IUserProfilePlansProps) {
 	const [popupOpen, setPopupOpen] = useState(false);
 	const canSeeActivity = useCanSeeActivityScreen();
 
-	// Set the tab plan tab to outstanding if user has no daily plan and there are outstanding tasks (on first load)
+	// On the first load of a profile, outstanding work opens the Outstanding view, once a day
 	useEffect(() => {
-		if (dailyPlanSuggestionModalDate != new Date().toISOString().split('T')[0] && path.split('/')[1] == 'profile') {
-			if (estimatedTotalTime(employeeOutstandingPlans).totalTasks) {
-				setCurrentTab('Outstanding');
-			}
-			if (haveSeenDailyPlanSuggestionModal == new Date().toISOString().split('T')[0]) {
-				if (!requirePlan || (requirePlan && hasPlan)) {
-					window.localStorage.setItem(
-						DAILY_PLAN_SUGGESTION_MODAL_DATE,
-						new Date().toISOString().split('T')[0]
-					);
-				}
-			}
+		const today = todayIsoDay();
+		const suggestionDate = window.localStorage.getItem(DAILY_PLAN_SUGGESTION_MODAL_DATE);
+		const seenSuggestionDate = window.localStorage.getItem(HAS_SEEN_DAILY_PLAN_SUGGESTION_MODAL);
+		const wasSuggestedToday = suggestionDate === today;
+		const isOnProfile = isProfilePathname(path);
+		if (wasSuggestedToday || !isOnProfile) {
+			return;
+		}
+		if (estimatedTotalTime(employeeOutstandingPlans).totalTasks) {
+			setCurrentTab('Outstanding');
+		}
+		const sawSuggestionToday = seenSuggestionDate === today;
+		const meetsPlanRule = !requirePlan || Boolean(hasPlan);
+		const stopsSuggestingToday = sawSuggestionToday && meetsPlanRule;
+		if (stopsSuggestingToday) {
+			window.localStorage.setItem(DAILY_PLAN_SUGGESTION_MODAL_DATE, today);
 		}
 
 		// eslint-disable-next-line react-hooks/exhaustive-deps
@@ -196,31 +268,23 @@ export function UserProfilePlans(props: IUserProfilePlansProps) {
 			console.error('Error updating outstanding tasks visit date:', error);
 		}
 	}, [currentTab]);
-	// Use data directly from useEmployeeDailyPlans instead of local states to prevent stale data
-	// when targetEmployeeId changes (e.g., when viewing different user profiles)
+
 	const totalTasksDailyPlansMap = useMemo(() => {
-		// Filter each count by the range of its own tab, so it matches what that tab shows
 		const filteredFuturePlans = filterDailyPlan(futureRange, filterPlanAndTask(employeeFuturePlans));
 		const filteredPastPlans = filterDailyPlan(pastRange, filterPlanAndTask(employeePastPlans));
 		const filteredAllPlans = filterDailyPlan(allRange, filterPlanAndTask(employeeSortedPlans));
+		const outstandingTasks = filterPlanAndTask(employeeOutstandingPlans).map((plan) =>
+			tasksOfMember(plan.tasks ?? [], user)
+		);
+		const pickedTodayPlans = keepPickedPlans(employeeTodayPlan, pickedPlanIds);
 
 		return {
-			// filterByEmployee = false: show ALL tasks in daily plans (not just assigned to user)
-			'Today Tasks': getTotalTasks(employeeTodayPlan, user, false),
+			// Today and Future count every task of the plan, Past and All only the member's
+			'Today Tasks': getTotalTasks(pickedTodayPlans, user, false),
 			'Future Tasks': getTotalTasks(filteredFuturePlans, user, false),
 			'Past Tasks': getTotalTasks(filteredPastPlans, user, true),
 			'All Tasks': getTotalTasks(filteredAllPlans, user, true),
-			// For Outstanding, ALWAYS filter by user (same logic as OutstandingAll component)
-			// This ensures the count matches what's actually displayed
-			Outstanding: estimatedTotalTime(
-				filterPlanAndTask(employeeOutstandingPlans).map((plan) => {
-					const tasks = plan.tasks ?? [];
-					// Filter by user if user exists (privacy/security - same as OutstandingAll)
-					return user
-						? tasks.filter((task) => task.members?.some((member) => member.userId === user.id))
-						: tasks;
-				})
-			).totalTasks
+			Outstanding: estimatedTotalTime(outstandingTasks).totalTasks
 		};
 	}, [
 		employeeTodayPlan,
@@ -229,203 +293,219 @@ export function UserProfilePlans(props: IUserProfilePlansProps) {
 		filterPlanAndTask,
 		employeeSortedPlans,
 		employeeOutstandingPlans,
+		pickedPlanIds,
 		user,
 		futureRange,
 		pastRange,
 		allRange
 	]);
-	/*
-	 * DAILY PLANS DISPLAY LOGIC FIX
-	 *
-	 * Original Problem: The component used a simple check `profileDailyPlans?.items?.length > 0`
-	 * which caused the daily plans interface to never show during loading states, and would
-	 * immediately fall back to EmptyPlans even when data was being fetched.
-	 *
-	 * Solution: Implemented shouldShowDailyPlans logic that:
-	 * 1. Shows the daily plans interface during loading (with loading indicator)
-	 * 2. Shows the daily plans interface when user has plans
-	 * 3. Only falls back to EmptyPlans when loading is complete AND no plans exist
-	 *
-	 * Impact: Eliminates the flash between interfaces and ensures users see the
-	 * appropriate daily plans interface with proper loading states.
-	 */
 
-	const shouldShowDailyPlans = useMemo(() => {
-		if (isLoading) {
-			return true;
+	const hasAnyPlan = employeeDailyPlans.items?.length > 0;
+	const isSettled = !isLoading;
+	const showsPlans = isSettled && hasAnyPlan;
+	// A failed refetch keeps the plans already on screen
+	const isSettledWithoutPlans = isSettled && !hasAnyPlan;
+	const showsError = isSettledWithoutPlans && isError;
+	const showsNoPlanAtAll = isSettledWithoutPlans && !isError;
+
+	const isOwnPlans = Boolean(targetEmployeeId) && targetEmployeeId === authEmployeeId;
+	const hasPicks = pickedPlanIds.length > 0;
+	const todayPlan = employeeTodayPlan[0];
+	const isTodayView = currentTab === 'Today Tasks';
+	const hasTodayPlan = Boolean(todayPlan);
+	const showsDeleteTodayPlan = isTodayView && hasTodayPlan && canSeeActivity;
+	const showsOutstandingGrouping = currentTab === 'Outstanding';
+	const plansOfRangeTab = rangeTabPlansOf(currentTab, {
+		future: employeeFuturePlans,
+		past: employeePastPlans,
+		all: employeeSortedPlans
+	});
+	const showsPlannedDateRange = plansOfRangeTab !== null;
+
+	const openPlansDialog = useCallback(() => {
+		setAllPlansModal({ isOpen: true, employeeId: targetEmployeeId });
+	}, [setAllPlansModal, targetEmployeeId]);
+
+	const changeTab = useCallback(
+		(tab: FilterTabs) => {
+			setDate(undefined);
+			setCurrentTab(tab);
+		},
+		[setDate, setCurrentTab]
+	);
+
+	const deleteTodayPlan = async () => {
+		try {
+			if (requirePlan) {
+				localStorage.removeItem(DAILY_PLAN_SUGGESTION_MODAL_DATE);
+			}
+			if (todayPlan?.id) {
+				await deleteDailyPlan(todayPlan.id);
+			}
+		} catch (error) {
+			logErrorInDev('Failed to delete the plan of today', error);
+		} finally {
+			setPopupOpen(false);
 		}
-		return employeeDailyPlans?.items?.length > 0;
-	}, [employeeDailyPlans?.items?.length, isLoading]);
+	};
+
+	const planViewItems = PLAN_VIEWS.map((view) => ({
+		value: view,
+		label: t(PLAN_VIEW_LABEL_KEYS[view]),
+		count: totalTasksDailyPlansMap[view]
+	}));
+
+	const outstandingGroupingItems = OUTSTANDING_GROUPINGS.map((grouping) => ({
+		value: grouping,
+		label: t(OUTSTANDING_LABEL_KEYS[grouping])
+	}));
+
+	const planMyDayAction = isOwnPlans && (
+		<Button type="button" variant="outline" size="default" onClick={openPlansDialog}>
+			{t('modals.dailyPlan.planMyDay')}
+		</Button>
+	);
+
+	let viewEmptyState: ReactNode = undefined;
+	if (hasPicks) {
+		viewEmptyState = (
+			<EmptyPlans
+				title={t('profile.plans.NO_PICKED_PLAN_HERE')}
+				action={
+					<Button type="button" variant="outline" size="default" onClick={clearPicks}>
+						{t('profile.plans.SHOW_EVERY_PLAN')}
+					</Button>
+				}
+			/>
+		);
+	}
+	let todayEmptyState = viewEmptyState;
+	const offersPlanMyDayToday = !hasPicks && isOwnPlans;
+	if (offersPlanMyDayToday) {
+		todayEmptyState = <EmptyPlans action={planMyDayAction} />;
+	}
+
+	const viewProps = {
+		profile,
+		user,
+		filteredTaskIds,
+		employeeId: targetEmployeeId,
+		pickedPlanIds,
+		emptyState: viewEmptyState
+	};
+
+	const outstandingViews: Record<FilterOutstanding, ReactNode> = {
+		ALL: (
+			<OutstandingAll
+				profile={profile}
+				user={user}
+				outstandingPlans={employeeOutstandingPlans}
+				filteredTaskIds={filteredTaskIds}
+				pickedPlanIds={pickedPlanIds}
+				emptyState={viewEmptyState}
+			/>
+		),
+		DATE: (
+			<OutstandingFilterDate
+				profile={profile}
+				user={user}
+				outstandingPlans={employeeOutstandingPlans}
+				filterByEmployee
+				filteredTaskIds={filteredTaskIds}
+				pickedPlanIds={pickedPlanIds}
+				emptyState={viewEmptyState}
+			/>
+		)
+	};
+
+	const planViews: Record<FilterTabs, ReactNode> = {
+		'Today Tasks': <AllPlans {...viewProps} currentTab={currentTab} emptyState={todayEmptyState} />,
+		'Future Tasks': <FutureTasks {...viewProps} />,
+		'Past Tasks': <PastTasks {...viewProps} />,
+		'All Tasks': <AllPlans {...viewProps} />,
+		Outstanding: outstandingViews[currentOutstanding]
+	};
 
 	return (
-		<div ref={profile.loadTaskStatsIObserverRef}>
-			<Container className="">
-				<>
-					{/*
-					 * CONDITIONAL RENDERING WITH LOADING STATES
-					 *
-					 * This replaces the original simple condition that only checked for
-					 * profileDailyPlans?.items?.length > 0, which caused the interface
-					 * to immediately show EmptyPlans during loading.
-					 *
-					 * Now properly handles three states:
-					 * 1. Loading: Shows spinner with loading message
-					 * 2. Has Plans: Shows full daily plans interface with tabs
-					 * 3. No Plans: Shows EmptyPlans component
-					 */}
-					{shouldShowDailyPlans ? (
-						<div className="space-y-4">
-							{isLoading ? (
-								<div className="flex justify-center items-center py-8">
-									<ReloadIcon className="w-6 h-6 animate-spin" />
-									<span className="ml-2">{t('common.LOADING')}</span>
-								</div>
-							) : (
-								<>
-									<div className="flex items-center justify-between w-full min-w-fit max-w-[78svw]">
-										<div className={clsxm('flex gap-4 items-center')}>
-											{Object.keys(tabsScreens).map((filter, i) => (
-												<div
-													key={i}
-													className="flex gap-4 justify-start items-center cursor-pointer"
-												>
-													{i !== 0 && <VerticalSeparator className="border-slate-400" />}
-													<div
-														className={clsxm(
-															'text-gray-500 flex gap-2 items-center',
-															currentTab == filter &&
-																'text-blue-600 dark:text-white font-medium'
-														)}
-														onClick={() => {
-															setDate(undefined);
-															setCurrentTab(filter as FilterTabs);
-														}}
-													>
-														{t(
-															`task.tabFilter.${filter
-																.toUpperCase()
-																.replace(' ', '_')}` as DottedLanguageObjectStringPaths
-														)}
-														<span
-															className={clsxm(
-																'text-xs bg-gray-200 dark:bg-dark--theme-light text-foreground dark:text-gray-200 p-2 rounded-sm py-1',
-																currentTab == filter && 'dark:bg-gray-600'
-															)}
-														>
-															{totalTasksDailyPlansMap[filter as FilterTabs]}
-														</span>
-													</div>
-												</div>
-											))}
-										</div>
-										<div className="flex gap-2 items-center">
-											{currentTab === 'Today Tasks' && employeeTodayPlan[0] && (
-												<>
-													{canSeeActivity ? (
-														<div className="flex justify-end">
-															<AlertPopup
-																open={popupOpen}
-																buttonOpen={
-																	//button open popup
-																	<Button
-																		onClick={() => {
-																			setPopupOpen((prev) => !prev);
-																		}}
-																		variant="outline"
-																		className="px-4 py-2 text-sm font-medium text-red-600 border border-red-600 rounded-md bg-light--theme-light dark:!bg-dark--theme-light"
-																	>
-																		{t('common.plan.DELETE_THIS_PLAN')}
-																	</Button>
-																}
-															>
-																{/*button confirm*/}
-																<Button
-																	disabled={deleteDailyPlanLoading}
-																	onClick={async () => {
-																		try {
-																			if (requirePlan) {
-																				localStorage.removeItem(
-																					DAILY_PLAN_SUGGESTION_MODAL_DATE
-																				);
-																			}
-																			employeeTodayPlan[0].id &&
-																				(await deleteDailyPlan(
-																					employeeTodayPlan[0].id
-																				));
-																		} catch (error) {
-																			console.error(error);
-																		} finally {
-																			setPopupOpen(false);
-																		}
-																	}}
-																	variant="destructive"
-																	className="flex justify-center items-center px-4 py-2 text-sm font-medium text-white bg-red-600 rounded-md hover:bg-red-700 disabled:bg-red-400"
-																>
-																	{deleteDailyPlanLoading && (
-																		<ReloadIcon className="mr-2 w-4 h-4 animate-spin" />
-																	)}
-																	{t('common.DELETE')}
-																</Button>
-																{/*button cancel*/}
-																<Button
-																	onClick={() => setPopupOpen(false)}
-																	variant="outline"
-																	className="px-4 py-2 text-sm font-medium text-red-600 border border-red-600 rounded-md bg-light--theme-light dark:!bg-dark--theme-light"
-																>
-																	{t('common.CANCEL')}
-																</Button>
-															</AlertPopup>
-														</div>
-													) : (
-														<></>
-													)}
-												</>
-											)}
-											{currentTab === 'Outstanding' && (
-												<Select
-													onValueChange={(value) => {
-														setCurrentOutstanding(value as FilterOutstanding);
-													}}
-												>
-													<SelectTrigger className="h-9 w-fit dark:border-dark--theme-light dark:bg-dark-high">
-														<SelectValue placeholder={t('common.FILTER')} />
-													</SelectTrigger>
-													<SelectContent className="border-none cursor-pointer dark:bg-dark--theme-light dark:border-dark--theme-light">
-														{Object.keys(screenOutstanding).map((item, index) => (
-															<SelectItem key={index} value={item}>
-																<div className="flex items-center space-x-1">
-																	{item == 'DATE' ? (
-																		<IconsCalendarMonthOutline className="w-4 h-4" />
-																	) : (
-																		<StarIcon className="w-4 h-4" />
-																	)}
-																	<span className="capitalize">
-																		{t(getOutstandingFilterLabelKey(item))}
-																	</span>
-																</div>
-															</SelectItem>
-														))}
-													</SelectContent>
-												</Select>
-											)}
-											<ViewsHeaderTabs />
-										</div>
-									</div>
-									{tabsScreens[currentTab]}
-								</>
-							)}
+		<div ref={profile.loadTaskStatsIObserverRef} className="w-full">
+			{isLoading && <PlansSkeleton />}
+			{showsError && (
+				<DashboardErrorNotice
+					title={t('profile.plans.LOAD_FAILED')}
+					onRetry={() => void loadEmployeeDailyPlans()}
+				/>
+			)}
+			{showsPlans && (
+				<div className={TASK_LIST_STACK}>
+					<div className="flex w-full flex-wrap items-center justify-between gap-x-3 gap-y-2">
+						<div className="-m-1 min-w-0 max-w-full overflow-x-auto p-1 no-scrollbar">
+							<SegmentedControl
+								items={planViewItems}
+								value={currentTab}
+								onValueChange={changeTab}
+								ariaLabel={t('profile.plans.VIEWS_LABEL')}
+							/>
 						</div>
-					) : (
-						/*
-						 * FALLBACK STATE: Only show EmptyPlans when loading is complete
-						 * and user genuinely has no daily plans configured.
-						 * This prevents the flash of empty state during data loading.
-						 */
-
-						<EmptyPlans />
-					)}
-				</>
-			</Container>
+						<div className="flex flex-wrap items-center gap-2">
+							{showsOutstandingGrouping && (
+								<SegmentedControl
+									items={outstandingGroupingItems}
+									value={currentOutstanding}
+									onValueChange={setCurrentOutstanding}
+									ariaLabel={t('profile.plans.OUTSTANDING_GROUPING')}
+								/>
+							)}
+							{showsDeleteTodayPlan && (
+								<AlertPopup
+									open={popupOpen}
+									buttonOpen={
+										<Button
+											type="button"
+											onClick={() => {
+												setPopupOpen((prev) => !prev);
+											}}
+											variant="outline"
+											className="text-destructive-ink"
+										>
+											{t('common.plan.DELETE_THIS_PLAN')}
+										</Button>
+									}
+								>
+									<Button
+										type="button"
+										disabled={deleteDailyPlanLoading}
+										onClick={() => void deleteTodayPlan()}
+										variant="destructive"
+									>
+										{deleteDailyPlanLoading && <ReloadIcon className="size-4 animate-spin" />}
+										{t('common.DELETE')}
+									</Button>
+									<Button type="button" onClick={() => setPopupOpen(false)} variant="outline">
+										{t('common.CANCEL')}
+									</Button>
+								</AlertPopup>
+							)}
+							{showsPlannedDateRange && (
+								<TaskDatePickerWithRange
+									data={plansOfRangeTab ?? undefined}
+									date={currentRange}
+									onSelect={(range: DateRange | undefined) => setDate(range)}
+									label={t('profile.plans.PLANNED_DATE')}
+									contentClassName="mt-0 mb-0 h-8 w-auto lg:mt-0"
+								/>
+							)}
+							<DailyPlanFilter
+								employeeId={targetEmployeeId}
+								pickedPlanIds={pickedPlanIds}
+								onPickedPlanIdsChange={setPickedPlanIds}
+							/>
+							<ViewsHeaderTabs />
+						</div>
+					</div>
+					{planViews[currentTab]}
+				</div>
+			)}
+			{showsNoPlanAtAll && <EmptyPlans action={planMyDayAction} />}
 		</div>
 	);
 }

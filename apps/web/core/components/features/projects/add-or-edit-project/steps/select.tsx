@@ -1,5 +1,5 @@
 import { CSSProperties, useCallback, useEffect, useMemo, useState, memo, useRef } from 'react';
-import { ChevronDown, Loader2 } from 'lucide-react';
+import { ChevronDown, Spinner } from '@/core/components/icons';
 import { useTranslations } from 'next-intl';
 import { cn } from '@/core/lib/helpers';
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem } from '@/core/components/common/command';
@@ -7,6 +7,7 @@ import { Popover, PopoverContent, PopoverTrigger } from '@/core/components/commo
 import { ScrollArea, ScrollBar } from '@/core/components/common/scroll-area';
 import { Checkbox } from '@/core/components/common/checkbox';
 import { Button } from '@/core/components/duplicated-components/_button';
+import { controlRecipe } from '@/core/components/common/input';
 
 export interface Identifiable {
 	id: string;
@@ -196,8 +197,31 @@ function SelectComponent<T extends Identifiable, IsMulti extends boolean = false
 		onCreate?.(searchTerm);
 	}, [onCreate, searchTerm]);
 
+	const isItemSelected = (item: T) => {
+		if (isMulti) {
+			return (selected as string[]).includes(item?.id);
+		}
+		return selected === item?.id;
+	};
+
+	const renderItemContent = (item: T) => {
+		const itemSelected = isItemSelected(item);
+		if (renderItem) {
+			return renderItem(item, itemSelected, false);
+		}
+		if (isMulti) {
+			return (
+				<>
+					<Checkbox checked={itemSelected} />
+					<span className="capitalize">{item?.value ?? '-'}</span>
+				</>
+			);
+		}
+		return <span className="capitalize">{item?.value ?? '-'}</span>;
+	};
+
 	return (
-		<div className="relative dark:bg-dark--theme-light">
+		<div className="relative">
 			<Popover>
 				<PopoverTrigger asChild>
 					<Button
@@ -205,36 +229,38 @@ function SelectComponent<T extends Identifiable, IsMulti extends boolean = false
 						variant="outline"
 						role="combobox"
 						className={cn(
-							'flex justify-between items-center px-3 py-2 w-full h-10 text-sm text-left rounded-lg border dark:bg-dark--theme-light dark:border-white/20 dark:text-white',
+							controlRecipe,
+							'flex h-9 items-center justify-between gap-2 px-3 py-1.5 text-left font-normal',
 							selectTriggerClassName
 						)}
 					>
 						{renderValue ? (
 							renderValue(selected)
 						) : (
-							<span className={cn('capitalize', !selected?.length && 'text-gray-400 dark:text-gray-500')}>
+							<span
+								className={cn('truncate capitalize', !selected?.length && 'text-muted-foreground/75')}
+							>
 								{isMulti ? placeholder : options?.find((el) => el.id == selected)?.value || placeholder}
 							</span>
 						)}
-						{showChevronDownIcon ? (
-							<ChevronDown className="ml-2 w-4 h-4 opacity-50 shrink-0 dark:text-white" />
-						) : null}
+						{showChevronDownIcon && <ChevronDown className="size-4 shrink-0 text-muted-foreground" />}
 					</Button>
 				</PopoverTrigger>
 				<PopoverContent
-					className={cn(
-						'p-0 w-[var(--radix-popover-trigger-width)] dark:bg-dark--theme-light dark:border-white/20',
-						selectOptionsListClassName
-					)}
+					className={cn('p-0 w-[var(--radix-popover-trigger-width)]', selectOptionsListClassName)}
 					align={alignOptionsList}
 				>
-					<Command className="w-full dark:bg-dark--theme-light" shouldFilter={false}>
+					<Command className="w-full" shouldFilter={false}>
 						{searchEnabled && (
 							<CommandInput
-								placeholder={items?.length == 0 ? t('pages.projects.basicInformationForm.common.typeNew') : t('pages.projects.basicInformationForm.common.search')}
+								placeholder={
+									items?.length == 0
+										? t('pages.projects.basicInformationForm.common.typeNew')
+										: t('pages.projects.basicInformationForm.common.search')
+								}
 								value={searchTerm}
 								onValueChange={handleSearchTermChange}
-								className="h-9 text-sm dark:bg-dark--theme-light dark:text-white dark:placeholder:text-gray-500"
+								className="h-9 text-sm"
 							/>
 						)}
 						<CommandEmpty>
@@ -244,14 +270,15 @@ function SelectComponent<T extends Identifiable, IsMulti extends boolean = false
 									disabled={createLoading}
 									onClick={handleCreateNew}
 									variant="outline"
-									className="w-full h-9 text-sm dark:border-white/20 dark:text-white hover:dark:bg-dark--theme"
+									size="lg"
+									className="w-full"
 								>
-									{createLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+									{createLoading && <Spinner className="animate-spin" />}
 									{t('pages.projects.basicInformationForm.common.addNew')}
 								</Button>
 							)}
 						</CommandEmpty>
-						<CommandGroup className="dark:bg-dark--theme-light">
+						<CommandGroup>
 							<ScrollArea style={{ height: listHeight }}>
 								{items?.map((item, index) => (
 									<CommandItem
@@ -259,30 +286,14 @@ function SelectComponent<T extends Identifiable, IsMulti extends boolean = false
 										value={item?.id}
 										onSelect={() => handleItemSelect(item)}
 										className={cn(
-											'text-sm cursor-pointer rounded-sm px-2 py-1.5 dark:text-white dark:hover:bg-dark--theme',
+											'cursor-pointer rounded-md px-2 py-1.5 text-sm',
 											isMulti && 'flex items-center gap-2'
 										)}
 									>
-										{renderItem ? (
-											renderItem(
-												item,
-												isMulti ? (selected as string[]).includes(item?.id) : selected === item?.id,
-												false
-											)
-										) : isMulti ? (
-											<>
-												<Checkbox
-													checked={(selected as string[]).includes(item?.id)}
-													className="w-4 h-4 dark:border-white/20"
-												/>
-												<span className="capitalize dark:text-white">{item?.value ?? '-'}</span>
-											</>
-										) : (
-											<span className="capitalize dark:text-white">{item?.value ?? '-'}</span>
-										)}
+										{renderItemContent(item)}
 									</CommandItem>
 								))}
-								<ScrollBar className="-ml-7 dark:bg-dark--theme" />
+								<ScrollBar className="-ml-7" />
 							</ScrollArea>
 						</CommandGroup>
 					</Command>

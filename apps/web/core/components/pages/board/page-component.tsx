@@ -4,6 +4,7 @@ import { withAuthentication } from '@/core/components/layouts/app/authenticator'
 import { Meta } from '@/core/components';
 import '@excalidraw/excalidraw/index.css';
 import { LazyBoard as Board } from '@/core/components/optimized-components/common';
+import { BoardPageSkeleton } from './board-page-skeleton';
 
 function BoardPage() {
 	return (
@@ -17,5 +18,6 @@ function BoardPage() {
 }
 
 export default withAuthentication(BoardPage, {
-	displayName: 'BoardIntegrationPage'
+	displayName: 'BoardIntegrationPage',
+	skeleton: BoardPageSkeleton
 });

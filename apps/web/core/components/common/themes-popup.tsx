@@ -2,28 +2,33 @@ import { ThemesPopup as IThemesPopup } from '@/core/types/interfaces/common/them
 import { Switch } from '@headlessui/react';
 import { useTranslations } from 'next-intl';
 import { ThemePreview } from './theme-preview';
+import { clsxm } from '@/core/lib/utils';
 
 const ThemesPopup = ({ theme, currentTheme, text, enabled, setTheme, index }: IThemesPopup) => {
 	const t = useTranslations();
 	return (
 		<div
 			onClick={() => setTheme(theme)}
-			className="text-sm font-normal rounded-lg bg-light--theme dark:bg-dark--theme-light"
+			className="cursor-pointer rounded-lg bg-foreground/[0.03] text-sm font-normal"
 		>
 			<div className="flex justify-between px-4 my-4">
 				<h3 className="font-medium">{text}</h3>
 				<Switch
 					checked={enabled}
 					onChange={() => setTheme(theme)}
-					className={`${
-						enabled ? 'bg-primary dark:bg-primary-light' : 'bg-gray-300'
-					} relative inline-flex h-4 w-7 items-center rounded-full`}
+					className={clsxm(
+						'relative inline-flex h-4 w-7 items-center rounded-full transition-colors',
+						enabled && 'bg-primary',
+						!enabled && 'bg-foreground/15'
+					)}
 				>
 					<span className="sr-only">{t('form.SET_THEME')}</span>
 					<span
-						className={`${
-							enabled ? 'translate-x-3' : 'translate-x-1'
-						} inline-block h-3 w-3 transform rounded-full bg-white transition`}
+						className={clsxm(
+							'inline-block size-3 rounded-full bg-white transition-transform',
+							enabled && 'translate-x-3',
+							!enabled && 'translate-x-1'
+						)}
 					/>
 				</Switch>
 			</div>

@@ -2,7 +2,7 @@
 
 import React, { Suspense, useCallback, useMemo, useRef, useState } from 'react';
 import { Button } from '@/core/components/duplicated-components/_button';
-import { ChevronDown } from 'lucide-react';
+import { ChevronDown } from '@/core/components/icons';
 import { PDFDownloadLink } from '@react-pdf/renderer';
 import { startOfMonth, endOfMonth } from 'date-fns';
 import { useTranslations } from 'next-intl';
@@ -87,7 +87,7 @@ export function TimeActivityExportMenu({
 	startDate,
 	endDate,
 	groupByType = 'daily',
-	buttonClassName = 'w-[100px] border border-[#E4E4E7] dark:border-border dark:bg-dark--theme-light py-1 h-9'
+	buttonClassName = 'min-w-[100px]'
 }: TimeActivityExportMenuProps) {
 	const t = useTranslations();
 	const [showProgressModal, setShowProgressModal] = useState(false);
@@ -366,8 +366,8 @@ export function TimeActivityExportMenu({
 			<DropdownMenu>
 				<DropdownMenuTrigger asChild>
 					<Button type="button" className={buttonClassName} variant="outline">
-						<span className="text-sm">{t('common.EXPORT')}</span>
-						<ChevronDown size={15} />
+						<span>{t('common.EXPORT')}</span>
+						<ChevronDown className="text-muted-foreground" />
 					</Button>
 				</DropdownMenuTrigger>
 				<DropdownMenuContent className="w-[100px]" align="center">

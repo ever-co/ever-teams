@@ -10,6 +10,11 @@ export default function MemberInfo() {
 		setEnabled(!enabled);
 	}, [enabled]);
 
+	let stateLabel = t('common.DEACTIVATED');
+	if (enabled) {
+		stateLabel = t('common.ACTIVATED');
+	}
+
 	return (
 		<div className=" flex items-center gap-x-[10px]">
 			<Switch
@@ -27,7 +32,7 @@ export default function MemberInfo() {
             pointer-events-none inline-block h-[30px] w-[30px] mt-[2.5px] transform rounded-full bg-white shadow-lg ring-0 transition duration-200 ease-in-out`}
 				/>
 			</Switch>
-			<Text className="text-gray-400 dark:text-white">{enabled ? 'Activated' : 'Deactivated'}</Text>
+			<Text className="text-muted-foreground">{stateLabel}</Text>
 		</div>
 	);
 }

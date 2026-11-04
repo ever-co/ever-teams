@@ -8,6 +8,7 @@ import {
 } from '@/core/components/common/pagination';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/core/components/common/select';
 import { IconsDoubleAltArrowLeftOutline, IconsDoubleArrowRounded } from '@/core/components/icons';
+import { Button } from '@/core/components/duplicated-components/_button';
 interface TimesheetPaginationProps {
 	totalPages?: number;
 	onPageChange?: (page: number) => void;
@@ -54,23 +55,23 @@ function TimesheetPagination({
 		// totalPages > 1
 		<>
 			{totalPages && totalPages > 1 && (
-				<Pagination className="flex flex-row justify-between items-center gap-4 w-full h-[64px] rounded-b-[6px] p-2">
-					<div className="flex items-center gap-4 text-[#7E7991] font-medium">
-						<span className="text-[#71717A] text-[12px] whitespace-nowrap">
+				<Pagination className="flex flex-row justify-between items-center gap-4 w-full hairline-t border-border px-4 py-3">
+					<div className="flex items-center gap-4 text-muted-foreground">
+						<span className="text-xs tabular-nums whitespace-nowrap">
 							{dates?.length || 0} of {totalGroups || 0} row(s) selected
 						</span>
 					</div>
 					<PaginationContent className="flex justify-end w-full">
-						<div className="flex gap-x-3 justify-start items-center pr-2">
-							<span className="text-sm whitespace-nowrap">Rows per page</span>
+						<div className="flex gap-x-3 justify-start items-center pr-2 text-xs text-muted-foreground">
+							<span className="whitespace-nowrap">Rows per page</span>
 							<Select
 								value={pageSize?.toString()}
 								onValueChange={(value) => onPageSizeChange?.(Number(value))}
 							>
-								<SelectTrigger className="w-[80px] border border-gray-200 dark:border-gray-800 shadow-xs rounded-[6px] dark:bg-dark--theme-light bg-white">
+								<SelectTrigger className="h-8 w-[80px] tabular-nums text-foreground">
 									<SelectValue placeholder="Page size" />
 								</SelectTrigger>
-								<SelectContent className="bg-white dark:bg-dark--theme-light">
+								<SelectContent>
 									{pageSizeOptions.map((size) => (
 										<SelectItem key={size} value={size.toString()}>
 											{size}
@@ -78,26 +79,22 @@ function TimesheetPagination({
 									))}
 								</SelectContent>
 							</Select>
-							<span className="text-sm whitespace-nowrap">
+							<span className="tabular-nums whitespace-nowrap">
 								Page {currentPage} of {totalPages}
 							</span>
 						</div>
 						<PaginationItem>
-							<button
-								className="box-border flex flex-row justify-center items-center p-2 gap-2 w-8 h-8 bg-white dark:bg-dark--theme-light border border-gray-200 dark:border-gray-800 shadow-xs rounded-[6px]"
-								onClick={previousPage}
-								disabled={currentPage === 1}
-							>
-								<IconsDoubleAltArrowLeftOutline className="h-5 w-5 dark:text-gray-500" />
-							</button>
+							<Button variant="outline" size="icon" onClick={previousPage} disabled={currentPage === 1}>
+								<IconsDoubleAltArrowLeftOutline className="size-4" />
+							</Button>
 						</PaginationItem>
 						{getPageNumbers().map((pageNumber, index) => (
 							<PaginationItem key={index}>
 								{pageNumber === '...' ? (
-									<PaginationEllipsis className="box-border cursor-pointer flex flex-row justify-center items-center p-2 gap-2 w-8 h-8 dark:bg-dark--theme-light border border-gray-200 dark:border-gray-800  shadow-xs rounded-[6px]" />
+									<PaginationEllipsis className="size-8 text-muted-foreground" />
 								) : (
 									<PaginationLink
-										className="box-border cursor-pointer flex flex-row justify-center items-center p-2 gap-2 w-8 h-8 dark:bg-dark--theme-light border border-gray-200 dark:border-gray-800 shadow-xs rounded-[6px]"
+										className="cursor-pointer tabular-nums"
 										isActive={currentPage === pageNumber}
 										onClick={() => goToPage(pageNumber as number)}
 									>
@@ -107,13 +104,14 @@ function TimesheetPagination({
 							</PaginationItem>
 						))}
 						<PaginationItem>
-							<button
+							<Button
+								variant="outline"
+								size="icon"
 								disabled={currentPage === totalPages}
-								className="box-border flex flex-row justify-center items-center p-2 gap-2 w-8 h-8 dark:bg-dark--theme-light border border-gray-200 dark:border-gray-800 shadow-xs rounded-[6px]"
 								onClick={nextPage}
 							>
-								<IconsDoubleArrowRounded className="h-5 w-5 dark:text-gray-500" />
-							</button>
+								<IconsDoubleArrowRounded className="size-4" />
+							</Button>
 						</PaginationItem>
 					</PaginationContent>
 				</Pagination>

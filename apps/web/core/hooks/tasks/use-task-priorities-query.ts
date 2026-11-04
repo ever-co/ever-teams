@@ -9,6 +9,7 @@ import { useInvalidateTaskPriorities } from './use-invalidate-task-priorities';
 import { TTaskPriority } from '@/core/types/schemas';
 import { useTaskMetadataBootstrapQuery } from './use-task-metadata-bootstrap-query';
 import { updateTaskMetadataSectionCaches } from './task-metadata-cache';
+import { useTaskMetadataReadState } from './use-task-metadata-read-state';
 
 /**
  * Hook for reading task priorities data.
@@ -43,6 +44,11 @@ export function useTaskPrioritiesQuery() {
 	const taskPrioritiesLoading = taskMetadataQuery.useBootstrap
 		? taskMetadataQuery.isLoading
 		: taskPrioritiesQuery.isLoading;
+	const { isError, refetch } = useTaskMetadataReadState(
+		taskMetadataQuery.useBootstrap,
+		taskMetadataQuery,
+		taskPrioritiesQuery
+	);
 
 	/**
 	 * Optimistic cache updater — supports functional updater pattern:
@@ -78,6 +84,8 @@ export function useTaskPrioritiesQuery() {
 		taskPriorities,
 		loading: taskPrioritiesLoading,
 		getTaskPrioritiesLoading: taskPrioritiesLoading,
+		isError,
+		refetch,
 		setTaskPriorities,
 		loadTaskPriorities,
 		firstLoadTaskPrioritiesData: handleFirstLoad

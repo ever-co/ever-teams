@@ -91,34 +91,24 @@ export const TimePicker: React.FC<TimePickerProps> = ({ value, onChange, disable
 						}
 					}}
 				>
-					<SelectTrigger
-						className={cn(
-							'w-full bg-white dark:bg-dark--theme-light rounded-md border border-gray-200 dark:border-gray-600 hover:border-gray-300 dark:hover:border-gray-600 focus:border-purple-500 focus:ring-1 focus:ring-purple-500 text-gray-700 dark:text-gray-300 text-sm font-normal transition-colors',
-							className
-						)}
-						onClick={() => setIsEditing(true)}
-					>
+					<SelectTrigger className={cn('w-full tabular-nums', className)} onClick={() => setIsEditing(true)}>
 						<SelectValue placeholder="Select time">{value}</SelectValue>
 					</SelectTrigger>
-					<SelectContent className="max-h-[200px] overflow-y-auto bg-white dark:bg-dark--theme-light border border-gray-200 dark:border-gray-600 rounded-md shadow-lg">
-						<div className="p-2 border-b">
+					<SelectContent className="max-h-[200px] overflow-y-auto">
+						<div className="p-2 hairline-b border-border">
 							<Input
 								type="text"
 								value={inputValue}
 								onChange={handleInputChange}
 								onBlur={handleInputBlur}
 								placeholder="HH:MM"
-								className="mb-2 bg-light--theme-light dark:bg-dark--theme-light dark:text-white font-normal "
+								className="mb-2 tabular-nums"
 								maxLength={5}
 							/>
 						</div>
 						<div className="overflow-y-auto">
 							{timeOptions.map((time) => (
-								<SelectItem
-									key={time}
-									value={time}
-									className="hover:bg-gray-100 dark:hover:bg-muted bg-light--theme-light dark:bg-dark--theme-light dark:text-white font-normal "
-								>
+								<SelectItem key={time} value={time} className="tabular-nums">
 									{time}
 								</SelectItem>
 							))}

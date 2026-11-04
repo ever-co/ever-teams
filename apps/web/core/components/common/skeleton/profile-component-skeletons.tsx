@@ -1,4 +1,29 @@
 import React, { FC } from 'react';
+import { cn } from '@/core/lib/helpers';
+import { ToolbarPills } from '@/core/components/layouts/page-skeleton';
+import {
+	TASK_LIST_SURFACE,
+	TASK_ROW,
+	TASK_ROW_CHIPS_CELL,
+	TASK_ROW_DETAIL_CELL,
+	TASK_ROW_MENU_CELL,
+	TASK_ROW_META,
+	TASK_ROW_SKELETON_BAR,
+	TASK_ROW_STATUS_CELL,
+	TASK_ROW_TASK_CELL,
+	TASK_ROW_TIMER_CELL,
+	TASK_ROW_TIMES,
+	TASK_ROW_WORKED_CELL
+} from '@/core/components/tasks/task-row-recipes';
+
+const BAR = 'animate-pulse rounded-md bg-foreground/[0.06]';
+
+const TASK_LIST_ROWS = 6;
+
+const FILTER_TAB_LABEL_WIDTHS = ['w-12', 'w-16', 'w-20', 'w-14', 'w-10'];
+
+/** Filter, Add time and Assign task, at their loaded widths. */
+const FILTER_ACTION_WIDTHS = ['w-21', 'w-28', 'w-25'];
 
 /**
  * Individual component skeletons for Profile page progressive loading
@@ -9,242 +34,110 @@ interface SkeletonProps {
 	className?: string;
 }
 
-/**
- * Skeleton for UserProfileDetail component
- * Matches user profile information with avatar and details
- */
+/** The member's identity in the profile toolbar: the 56px avatar, the name line with its menu, the e-mail. */
 export const UserProfileDetailSkeleton: FC<SkeletonProps> = ({ className }) => {
 	return (
-		<div className={`flex items-center gap-4 ${className || ''}`}>
-			{/* Avatar */}
-			<div className="w-20 h-20 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded-full" />
-
-			{/* Profile Info */}
-			<div className="flex flex-col gap-2">
-				<div className="w-32 h-6 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded" />
-				<div className="w-24 h-4 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded" />
-				<div className="w-28 h-4 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded" />
+		<div className={cn('flex min-w-0 items-center gap-4', className)}>
+			<div className={cn(BAR, 'size-14 shrink-0 rounded-full')} />
+			<div className="flex min-w-0 flex-col gap-0.5">
+				<div className="flex h-8 items-center">
+					<div className={cn(BAR, 'h-4 w-36')} />
+				</div>
+				<div className="flex h-4 items-center">
+					<div className={cn(BAR, 'h-3 w-44')} />
+				</div>
 			</div>
 		</div>
 	);
 };
 
 /**
- * Skeleton for TaskCard component - PIXEL PERFECT
- * Matches exact TaskCard structure with all sub-components
+ * A task row of `TaskCard` while it loads, on the row's own grid: one line from a 64rem list, two below it. The timer
+ * and menu cells stay empty, the other cells hold thin bars at the height of what replaces them.
  */
 export const TaskCardSkeleton: FC<SkeletonProps> = ({ className }) => {
 	return (
-		<div
-			className={`relative flex justify-between py-3 px-4 bg-white dark:bg-dark--theme-light rounded-lg border border-gray-200 dark:border-gray-600 shadow-xs ${className || ''}`}
-		>
-			{/* Large screen layout */}
-			<div className="items-center justify-between hidden w-full lg:flex">
-				{/* Task Info Section */}
-				<div className="flex flex-row justify-between flex-1 min-w-36 max-w-64">
-					<div className="w-full px-4">
-						{/* Task Issue Status + Task Number */}
-						<div className="flex items-center gap-2 mb-2">
-							<div className="w-6 h-6 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded" />
-							<div className="w-16 h-4 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded" />
-						</div>
-						{/* Task Title */}
-						<div className="w-28 h-5 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded-sm mb-1" />
-						{/* Task Status */}
-						<div className="w-16 h-4 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded" />
-					</div>
+		<div className={cn(TASK_ROW, className)} aria-hidden="true">
+			<div className={TASK_ROW_TIMER_CELL} />
+			<div className={TASK_ROW_TASK_CELL}>
+				<span className={cn(TASK_ROW_SKELETON_BAR, 'size-4 shrink-0 rounded-[28%]')} />
+				<span className={cn(TASK_ROW_SKELETON_BAR, 'h-2.5 w-3/5 max-w-72')} />
+			</div>
+			<div className={TASK_ROW_META}>
+				<div className={cn(TASK_ROW_CHIPS_CELL, 'flex h-5 items-center gap-1')}>
+					<span className={cn(TASK_ROW_SKELETON_BAR, 'h-5 w-16 rounded-[5px]')} />
+					<span className={cn(TASK_ROW_SKELETON_BAR, 'h-5 w-12 rounded-[5px]')} />
 				</div>
-
-				{/* Vertical Separator */}
-				<div className="w-px h-12 bg-gray-200 dark:bg-gray-600" />
-
-				{/* Task Estimate Info Section */}
-				<div className="flex items-center flex-col justify-center lg:flex-row w-[20%]">
-					<div className="flex flex-col items-center gap-2">
-						{/* Estimate Progress Circle */}
-						<div className="w-12 h-12 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded-full" />
-						{/* Estimate Text */}
-						<div className="w-12 h-3 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded" />
-					</div>
+				<div className={cn(TASK_ROW_WORKED_CELL, TASK_ROW_TIMES)}>
+					<span className="flex h-4 items-center">
+						<span className={cn(TASK_ROW_SKELETON_BAR, 'h-2 w-20')} />
+					</span>
+					<span className="flex h-4 items-center">
+						<span className={cn(TASK_ROW_SKELETON_BAR, 'h-2 w-16')} />
+					</span>
 				</div>
-
-				{/* Vertical Separator */}
-				<div className="w-px h-12 bg-gray-200 dark:bg-gray-600" />
-
-				{/* Users Assigned Section */}
-				<div className="flex items-center justify-center gap-[1.125rem] min-w-fit px-5 w-max lg:px-3 2xl:max-w-52 3xl:max-w-72">
-					<div className="flex -space-x-2">
-						{[...Array(3)].map((_, index) => (
-							<div
-								key={index}
-								className="w-6 h-6 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded-full border-2 border-white dark:border-gray-800"
-							/>
-						))}
-					</div>
-					<div className="w-6 h-6 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded-full" />
+				<div className={cn(TASK_ROW_DETAIL_CELL, 'flex h-9 items-center')}>
+					<span className={cn(TASK_ROW_SKELETON_BAR, 'h-2.5 w-28')} />
 				</div>
-
-				{/* Vertical Separator */}
-				<div className="w-px h-12 bg-gray-200 dark:bg-gray-600" />
-
-				{/* Task Times Section */}
-				<div className="flex items-center justify-between gap-[1.125rem] min-w-fit px-5 w-max lg:px-3 2xl:max-w-52 3xl:max-w-72">
-					<div className="flex flex-col gap-2">
-						{/* Today Time */}
-						<div className="flex items-center gap-x-4">
-							<div className="w-10 h-3 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded" />
-							<div className="w-12 h-4 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded" />
-						</div>
-						{/* Total Time */}
-						<div className="flex items-center gap-x-4">
-							<div className="w-10 h-3 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded" />
-							<div className="w-12 h-4 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded" />
-						</div>
-					</div>
-					{/* Timer Button */}
-					<div className="w-9 h-9 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded-full" />
-				</div>
-
-				{/* Vertical Separator */}
-				<div className="w-px h-12 bg-gray-200 dark:bg-gray-600" />
-
-				{/* Status & Actions Section */}
-				<div className="flex items-center justify-center w-1/5 h-full min-w-fit xl:justify-between lg:px-3 2xl:max-w-52 3xl:max-w-72">
-					{/* Status Dropdown */}
-					<div className="flex items-center justify-center">
-						<div className="w-36 h-8 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded-sm border border-gray-200 dark:border-gray-600" />
-					</div>
-					{/* Task Menu */}
-					<div className="flex items-end justify-end mt-2 shrink-0 xl:mt-0">
-						<div className="w-6 h-6 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded" />
-					</div>
+				<div className={cn(TASK_ROW_STATUS_CELL, 'flex h-7 items-center')}>
+					<span className={cn(TASK_ROW_SKELETON_BAR, 'h-2.5 w-20')} />
 				</div>
 			</div>
-
-			{/* Small screen layout */}
-			<div className="flex flex-col w-full lg:hidden">
-				{/* Top Section */}
-				<div className="flex justify-between mb-4 ml-2">
-					<div className="flex flex-col gap-2">
-						<div className="w-12 h-4 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded" />
-						<div className="w-10 h-3 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded" />
-					</div>
-				</div>
-
-				{/* Task Info Section */}
-				<div className="flex flex-wrap items-start justify-between pb-4 border-b border-gray-200 dark:border-gray-600">
-					<div className="w-full px-4 mb-4">
-						<div className="flex items-center gap-2 mb-2">
-							<div className="w-6 h-6 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded" />
-							<div className="w-12 h-4 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded" />
-						</div>
-						<div className="w-full h-5 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded-sm mb-1" />
-						<div className="w-12 h-4 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded" />
-					</div>
-					<div className="flex items-end py-4 mx-auto space-x-2">
-						<div className="w-36 h-12 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded" />
-					</div>
-				</div>
-
-				{/* Bottom Section */}
-				<div className="flex items-center justify-between mt-4 mb-4 space-x-5">
-					<div className="flex space-x-4">
-						<div className="flex flex-col gap-1">
-							<div className="w-12 h-4 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded" />
-							<div className="w-10 h-3 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded" />
-						</div>
-						<div className="w-9 h-9 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded-full" />
-					</div>
-					<div className="w-28 h-8 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded-sm border border-gray-200 dark:border-gray-600" />
-					<div className="w-6 h-6 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded" />
-				</div>
-			</div>
+			<div className={TASK_ROW_MENU_CELL} />
 		</div>
 	);
 };
+
 export const TaskCardBlockSkeleton = () => (
 	<div className="flex flex-col gap-y-4">
 		{[...Array(5)].map((_, index) => (
-			<TaskCardSkeleton key={index} />
+			<TaskCardSkeleton
+				key={index}
+				className="rounded-xl bg-card hairline-ring ring-border shadow-sm shadow-black/6.5"
+			/>
 		))}
 	</div>
 );
 
-/**
- * Skeleton for UserProfileTask component - PIXEL PERFECT
- * Matches task list structure with TaskCard skeletons
- */
+/** The profile task list while it loads: one surface of task rows split by hairlines, as the loaded list. */
 export const UserProfileTaskSkeleton: FC<SkeletonProps> = ({ className }) => {
+	const rowKeys = Array.from({ length: TASK_LIST_ROWS }, (_, index) => index);
 	return (
-		<div className={`w-full ${className || ''}`}>
-			{/* Task Cards */}
-			<div className="space-y-4">
-				{[...Array(5)].map((_, index) => (
-					<TaskCardSkeleton key={index} />
+		<output aria-busy="true" className={cn('block w-full', className)}>
+			<ul className={TASK_LIST_SURFACE}>
+				{rowKeys.map((key) => (
+					<li key={key}>
+						<TaskCardSkeleton />
+					</li>
 				))}
-			</div>
-
-			{/* Pagination */}
-			<div className="flex items-center justify-between p-4 mt-6">
-				{/* Left Info */}
-				<div className="flex items-center gap-2">
-					<div className="w-16 h-4 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded" />
-					<div className="w-12 h-8 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded-sm border border-gray-200 dark:border-gray-600" />
-					<div className="w-20 h-4 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded" />
-				</div>
-
-				{/* Right Navigation */}
-				<div className="flex items-center gap-2">
-					<div className="w-8 h-8 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded-sm border border-gray-200 dark:border-gray-600" />
-					<div className="w-8 h-8 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded-sm border border-gray-200 dark:border-gray-600" />
-					<div className="w-8 h-8 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded-sm border border-gray-200 dark:border-gray-600" />
-					<div className="w-8 h-8 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded-sm border border-gray-200 dark:border-gray-600" />
-				</div>
-			</div>
-		</div>
+			</ul>
+		</output>
 	);
 };
 
 /**
- * Skeleton for AppsTab component
- * Matches visited apps table structure
+ * The apps and visited sites lists while their chunk loads: one hour label, then a surface of ranked share rows
+ * (share, name over its visit, a meter from a 28rem row, the time), the geometry of `ActivityShareGroups`.
  */
 export const AppsTabSkeleton: FC<SkeletonProps> = ({ className }) => {
+	const rowKeys = [0, 1, 2];
 	return (
-		<div className={`w-full ${className || ''}`}>
-			{/* Table Header */}
-			<div className="p-4 border-b border-gray-200 bg-gray-50 dark:bg-white/5 dark:border-gray-600">
-				<div className="grid grid-cols-4 gap-4">
-					{['Apps', 'Visited Dates', 'Percent Used', 'Time Spent'].map((header, index) => (
-						<div key={index} className="w-24 h-4 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded" />
-					))}
-				</div>
+		<div className={cn('flex w-full flex-col gap-2', className)} aria-hidden="true">
+			<div className="flex min-h-8 items-center">
+				<span className={cn('h-2.5 w-28', TASK_ROW_SKELETON_BAR)} />
 			</div>
-
-			{/* Table Rows */}
-			<div className="p-4">
-				{[...Array(6)].map((_, rowIndex) => (
-					<div
-						key={rowIndex}
-						className="grid grid-cols-4 gap-4 py-3 border-b border-gray-100 dark:border-gray-700"
-					>
-						{/* App Name with Icon */}
-						<div className="flex items-center gap-3">
-							<div className="w-6 h-6 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded" />
-							<div className="w-24 h-4 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded" />
+			<div className="rounded-xl bg-card px-4 py-1 hairline-ring ring-border shadow-[0_1px_2px_rgb(0_0_0/0.04)]">
+				{rowKeys.map((key) => (
+					<div key={key} className="@container">
+						<div className="grid min-h-11 grid-cols-[2.75rem_minmax(0,1fr)_4.5rem] items-center gap-x-3 py-2 @md:grid-cols-[2.75rem_minmax(0,1fr)_minmax(4rem,9rem)_4.5rem]">
+							<span className={cn('h-2.5 w-7', TASK_ROW_SKELETON_BAR)} />
+							<span className="flex min-w-0 flex-col gap-2 py-0.5">
+								<span className={cn('h-2.5 w-2/3', TASK_ROW_SKELETON_BAR)} />
+								<span className={cn('h-2 w-1/3', TASK_ROW_SKELETON_BAR)} />
+							</span>
+							<span className={cn('h-1 w-full @max-md:hidden', TASK_ROW_SKELETON_BAR)} />
+							<span className={cn('ml-auto h-2.5 w-12', TASK_ROW_SKELETON_BAR)} />
 						</div>
-
-						{/* Visited Dates */}
-						<div className="w-20 h-4 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded" />
-
-						{/* Percent Used with Progress Bar */}
-						<div className="flex items-center gap-2">
-							<div className="w-20 h-2 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded-full" />
-							<div className="w-8 h-4 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded" />
-						</div>
-
-						{/* Time Spent */}
-						<div className="w-16 h-4 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded" />
 					</div>
 				))}
 			</div>
@@ -252,154 +145,72 @@ export const AppsTabSkeleton: FC<SkeletonProps> = ({ className }) => {
 	);
 };
 
-/**
- * Skeleton for VisitedSitesTab component
- * Matches visited sites table structure
- */
+/** The visited sites list shares the apps list's geometry. */
 export const VisitedSitesTabSkeleton: FC<SkeletonProps> = ({ className }) => {
-	return (
-		<div className={`w-full ${className || ''}`}>
-			{/* Table Header */}
-			<div className="p-4 border-b border-gray-200 bg-gray-50 dark:bg-white/5 dark:border-gray-600">
-				<div className="grid grid-cols-4 gap-4">
-					{['Sites', 'Visited Dates', 'Percent Used', 'Time Spent'].map((header, index) => (
-						<div key={index} className="w-24 h-4 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded" />
-					))}
-				</div>
-			</div>
-
-			{/* Table Rows */}
-			<div className="p-4">
-				{[...Array(6)].map((_, rowIndex) => (
-					<div
-						key={rowIndex}
-						className="grid grid-cols-4 gap-4 py-3 border-b border-gray-100 dark:border-gray-700"
-					>
-						{/* Site Name with Favicon */}
-						<div className="flex items-center gap-3">
-							<div className="w-4 h-4 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded" />
-							<div className="w-32 h-4 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded" />
-						</div>
-
-						{/* Visited Dates */}
-						<div className="w-20 h-4 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded" />
-
-						{/* Percent Used with Progress Bar */}
-						<div className="flex items-center gap-2">
-							<div className="w-20 h-2 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded-full" />
-							<div className="w-8 h-4 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded" />
-						</div>
-
-						{/* Time Spent */}
-						<div className="w-16 h-4 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded" />
-					</div>
-				))}
-			</div>
-		</div>
-	);
+	return <AppsTabSkeleton className={className} />;
 };
 
 /**
- * Skeleton for ScreenshootTab component
- * Matches screenshots grid structure
+ * The screenshots view while its chunk loads: the day's two figures, then one hour of slot tiles (frame, range and
+ * activity, actions), the geometry of `ScreenshootTab`.
  */
 export const ScreenshootTabSkeleton: FC<SkeletonProps> = ({ className }) => {
+	const figureWidths = ['w-20', 'w-16'];
+	const tileKeys = [0, 1, 2, 3];
 	return (
-		<div className={`w-full ${className || ''}`}>
-			{/* Screenshots Grid */}
-			<div className="grid grid-cols-2 gap-4 p-4 md:grid-cols-3 lg:grid-cols-4">
-				{[...Array(8)].map((_, index) => (
-					<div key={index} className="flex flex-col gap-2">
-						{/* Screenshot Image */}
-						<div className="w-full h-32 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded-lg" />
-
-						{/* Screenshot Info */}
-						<div className="flex flex-col gap-1">
-							<div className="w-20 h-3 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded" />
-							<div className="w-16 h-3 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded" />
-						</div>
+		<div className={cn('flex w-full flex-col gap-5', className)} aria-hidden="true">
+			<div className="flex flex-wrap items-end gap-x-8 gap-y-3">
+				{figureWidths.map((width) => (
+					<div key={width} className="flex flex-col gap-2 py-0.5">
+						<span className={cn('h-2.5 w-14', TASK_ROW_SKELETON_BAR)} />
+						<span className={cn('h-3.5', width, TASK_ROW_SKELETON_BAR)} />
 					</div>
 				))}
+			</div>
+			<div className="flex flex-col gap-2">
+				<div className="flex min-h-8 items-center">
+					<span className={cn('h-2.5 w-24', TASK_ROW_SKELETON_BAR)} />
+				</div>
+				<div className="grid grid-cols-[repeat(auto-fill,minmax(10rem,1fr))] gap-x-3 gap-y-5">
+					{tileKeys.map((key) => (
+						<div key={key} className="flex flex-col gap-1.5">
+							<span className="block aspect-[16/10] w-full animate-pulse rounded-md bg-foreground/[0.04]" />
+							<div className="flex min-h-5 items-center justify-between gap-2">
+								<span className={cn('h-2.5 w-20', TASK_ROW_SKELETON_BAR)} />
+								<span className={cn('h-2.5 w-14', TASK_ROW_SKELETON_BAR)} />
+							</div>
+							<div className="flex h-7 items-center gap-3">
+								<span className={cn('h-2.5 w-14', TASK_ROW_SKELETON_BAR)} />
+								<span className={cn('h-2.5 w-10', TASK_ROW_SKELETON_BAR)} />
+							</div>
+						</div>
+					))}
+				</div>
 			</div>
 		</div>
 	);
 };
 
 /**
- * Skeleton for TaskFilter component - PIXEL PERFECT
- * Matches exact TaskFilter structure with tabs and input filters
+ * The profile's tab row while the tasks load: the five tabs with their count chips, then search, Filter, Add time and
+ * Assign task. No tab is marked: the active one is only known once the filter has loaded.
  */
 export const TaskFilterSkeleton: FC<SkeletonProps> = ({ className }) => {
 	return (
-		<div className={`relative z-10 w-full ${className || ''}`}>
-			<div className="flex flex-col flex-wrap-reverse items-center justify-between w-full xs:flex-row lg:flex-nowrap">
-				{/* TabsNav Section */}
-				<nav className="flex items-center justify-center w-full gap-1 -mb-1 md:justify-start md:gap-4 md:mt-0">
-					{[...Array(5)].map((_, index) => (
-						<div
-							key={index}
-							className="flex flex-col md:flex-row gap-1 items-center px-[1rem] relative mt-4 md:mt-0 w-full md:min-w-[10.625rem]"
-						>
-							{/* Tab Name */}
-							<div className="w-16 h-4 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded" />
-							{/* Tab Count Badge */}
-							<div className="w-8 h-6 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded-md" />
-							{/* Active Tab Indicator */}
-							{index === 0 && (
-								<div className="bg-[#F0F0F0] dark:bg-white/8 animate-pulse h-[0.1875rem] absolute -bottom-8 left-0 right-0 w-full rounded" />
-							)}
+		<div className={cn('relative z-10 w-full', className)} aria-hidden="true">
+			<div className="flex w-full flex-wrap items-end justify-between gap-x-4 gap-y-2">
+				<div className="flex min-w-0 items-end gap-5 max-md:order-last max-md:w-full">
+					{FILTER_TAB_LABEL_WIDTHS.map((width) => (
+						<div key={width} className="flex h-10 shrink-0 items-center gap-1.5 pb-1">
+							<div className={cn(BAR, 'h-3', width)} />
+							<div className={cn(BAR, 'h-5 w-6 rounded-sm')} />
 						</div>
 					))}
-				</nav>
-
-				{/* InputFilters Section */}
-				<div className="flex items-center mt-8 gap-x-2 lg:gap-x-5 xs:mt-4">
-					{/* Search Icon */}
-					<div className="w-4 h-4 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded" />
-
-					{/* Vertical Separator */}
-					<div className="w-px h-6 bg-gray-200 dark:bg-gray-600" />
-
-					{/* Filter Button */}
-					<div className="w-20 h-[2.75rem] bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded-xl border border-gray-200 dark:border-gray-600" />
-
-					{/* Add Time Button */}
-					<div className="w-[8.25rem] h-[2.75rem] bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded-xl" />
-
-					{/* Assign Task Button */}
-					<div className="w-[8.25rem] h-[2.75rem] bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded-xl" />
 				</div>
-			</div>
-
-			{/* Filter Status Section (Conditional) */}
-			<div className="w-full mt-4">
-				<div className="w-full h-px bg-gray-200 dark:bg-gray-600" />
-				<div className="flex flex-col items-center pt-2 mt-4 space-x-2 md:justify-between md:flex-row">
-					<div className="flex flex-wrap justify-center flex-1 space-x-3 md:justify-start">
-						{/* Status Dropdown */}
-						<div className="w-[170px] h-10 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded-xl border border-gray-200 dark:border-gray-600" />
-
-						{/* Priority Dropdown */}
-						<div className="w-[170px] h-10 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded-xl border border-gray-200 dark:border-gray-600" />
-
-						{/* Size Dropdown */}
-						<div className="w-[170px] h-10 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded-xl border border-gray-200 dark:border-gray-600" />
-
-						{/* Labels Dropdown */}
-						<div className="w-[170px] h-10 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded-xl border border-gray-200 dark:border-gray-600" />
-
-						{/* Vertical Separator */}
-						<div className="w-px h-6 bg-gray-200 dark:bg-gray-600" />
-
-						{/* Apply Button */}
-						<div className="w-[6.25rem] h-7 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded-xl" />
-
-						{/* Reset Button */}
-						<div className="w-[6.25rem] h-7 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded-xl" />
-
-						{/* Close Button */}
-						<div className="w-[6.25rem] h-7 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded-xl" />
-					</div>
+				<div className="flex shrink-0 items-center gap-x-2 pb-2">
+					<ToolbarPills widths={['w-8']} />
+					<span className="h-4 w-px bg-border" />
+					<ToolbarPills widths={FILTER_ACTION_WIDTHS} />
 				</div>
 			</div>
 		</div>
@@ -413,26 +224,26 @@ export const TaskFilterSkeleton: FC<SkeletonProps> = ({ className }) => {
 export const UserTeamActivitySkeleton: FC<SkeletonProps> = ({ className }) => {
 	return (
 		<div className={`w-full ${className || ''}`}>
-			<div className="flex flex-col justify-center w-full transition-all gap-y-4">
+			<div className="flex flex-col justify-center w-full gap-y-4">
 				{/* HorizontalSeparator skeleton */}
-				<div className="h-px my-4 bg-gray-200 dark:bg-muted animate-pulse"></div>
+				<div className="h-px my-4 bg-border"></div>
 
 				{/* Title skeleton */}
 				<div className="py-2">
-					<div className="w-48 bg-gray-300 rounded-sm h-7 dark:bg-gray-600 animate-pulse"></div>
+					<div className="w-48 bg-foreground/10 rounded-md h-7 animate-pulse"></div>
 				</div>
 
 				<div className="flex flex-col justify-between w-full overflow-hidden gap-y-5">
 					{/* Activity percentage card skeleton */}
 					<div className="flex items-center w-full gap-3">
-						<div className="shadow basis-1/4 min-w-56 max-w-80 rounded-md p-4 h-32 bg-light--theme-light dark:bg-muted animate-pulse">
+						<div className="basis-1/4 min-w-56 max-w-80 rounded-xl p-4 h-32 bg-card hairline-ring ring-border shadow-sm shadow-black/6.5 animate-pulse">
 							{/* TIME_ACTIVITY label */}
-							<div className="w-24 h-4 mb-3 bg-gray-300 rounded-sm dark:bg-gray-600"></div>
+							<div className="w-24 h-4 mb-3 bg-foreground/10 rounded-md"></div>
 							{/* Percentage value */}
-							<div className="w-20 mb-3 bg-gray-300 rounded-sm h-9 dark:bg-gray-600"></div>
+							<div className="w-20 mb-3 bg-foreground/10 rounded-md h-9"></div>
 							{/* Progress bar */}
-							<div className="w-4/5 h-2 bg-gray-300 rounded-full dark:bg-gray-600">
-								<div className="w-1/3 h-2 bg-gray-400 rounded-full dark:bg-gray-500"></div>
+							<div className="w-4/5 h-2 bg-foreground/10 rounded-full">
+								<div className="w-1/3 h-2 bg-foreground/15 rounded-full"></div>
 							</div>
 						</div>
 					</div>
@@ -440,24 +251,25 @@ export const UserTeamActivitySkeleton: FC<SkeletonProps> = ({ className }) => {
 					{/* Tabs section skeleton */}
 					<div className="flex-1 w-full overflow-hidden">
 						{/* Tab list skeleton */}
-						<div className="w-full flex space-x-1 rounded-xl bg-gray-200 dark:bg-[#FFFFFF14] gap-2 p-2">
+						<div className="w-full flex gap-6 hairline-b border-border">
 							{/* 4 tabs: Tasks, Screenshots, Apps, Visited Sites */}
-							{Array.from({ length: 4 }).map((_, index) => (
-								<div
-									key={index}
-									className={`w-full rounded-lg py-2.5 px-4 animate-pulse ${
-										index === 0 ? 'bg-white dark:bg-card shadow' : 'bg-transparent'
-									}`}
-								>
-									<div
-										className={`h-4 rounded-sm mx-auto ${
-											index === 0
-												? 'bg-blue-300 dark:bg-blue-600 w-12'
-												: 'bg-gray-300 dark:bg-gray-600 w-16'
-										}`}
-									></div>
-								</div>
-							))}
+							{Array.from({ length: 4 }).map((_, index) => {
+								const isFirstTab = index === 0;
+								return (
+									<div key={index} className="relative pt-2 pb-3 animate-pulse">
+										<div
+											className={cn(
+												'h-4 rounded-md bg-foreground/10',
+												isFirstTab && 'w-12',
+												!isFirstTab && 'w-16'
+											)}
+										></div>
+										{isFirstTab && (
+											<div className="absolute inset-x-0 bottom-0 h-0.75 rounded-t-full bg-foreground/15" />
+										)}
+									</div>
+								);
+							})}
 						</div>
 
 						{/* Tab content skeleton */}
@@ -467,15 +279,15 @@ export const UserTeamActivitySkeleton: FC<SkeletonProps> = ({ className }) => {
 								<div className="flex flex-col gap-4 p-4">
 									{/* Active task skeleton */}
 									<div className="animate-pulse">
-										<div className="flex items-center p-4 space-x-4 bg-white border border-gray-200 rounded-lg dark:border-gray-700 dark:bg-muted">
-											<div className="w-10 h-10 bg-gray-300 rounded-full dark:bg-gray-600"></div>
+										<div className="flex items-center p-4 space-x-4 bg-card rounded-xl hairline-ring ring-border shadow-sm shadow-black/6.5">
+											<div className="w-10 h-10 bg-foreground/10 rounded-full"></div>
 											<div className="flex-1 space-y-2">
-												<div className="w-3/4 h-4 bg-gray-300 rounded-sm dark:bg-gray-600"></div>
-												<div className="w-1/2 h-3 bg-gray-300 rounded-sm dark:bg-gray-600"></div>
+												<div className="w-3/4 h-4 bg-foreground/10 rounded-md"></div>
+												<div className="w-1/2 h-3 bg-foreground/10 rounded-md"></div>
 											</div>
 											<div className="flex space-x-2">
-												<div className="w-16 h-6 bg-gray-300 rounded-sm dark:bg-gray-600"></div>
-												<div className="w-20 h-6 bg-gray-300 rounded-sm dark:bg-gray-600"></div>
+												<div className="w-16 h-6 bg-foreground/10 rounded-md"></div>
+												<div className="w-20 h-6 bg-foreground/10 rounded-md"></div>
 											</div>
 										</div>
 									</div>
@@ -483,15 +295,15 @@ export const UserTeamActivitySkeleton: FC<SkeletonProps> = ({ className }) => {
 									{/* Other tasks skeleton */}
 									{Array.from({ length: 3 }).map((_, index) => (
 										<div key={index} className="animate-pulse">
-											<div className="flex items-center p-4 space-x-4 border border-gray-200 rounded-lg dark:border-gray-700">
-												<div className="w-10 h-10 bg-gray-300 rounded-full dark:bg-gray-600"></div>
+											<div className="flex items-center p-4 space-x-4 bg-card rounded-xl hairline-ring ring-border shadow-sm shadow-black/6.5">
+												<div className="w-10 h-10 bg-foreground/10 rounded-full"></div>
 												<div className="flex-1 space-y-2">
-													<div className="w-2/3 h-4 bg-gray-300 rounded-sm dark:bg-gray-600"></div>
-													<div className="w-1/3 h-3 bg-gray-300 rounded-sm dark:bg-gray-600"></div>
+													<div className="w-2/3 h-4 bg-foreground/10 rounded-md"></div>
+													<div className="w-1/3 h-3 bg-foreground/10 rounded-md"></div>
 												</div>
 												<div className="flex space-x-2">
-													<div className="w-12 h-6 bg-gray-300 rounded-sm dark:bg-gray-600"></div>
-													<div className="w-16 h-6 bg-gray-300 rounded-sm dark:bg-gray-600"></div>
+													<div className="w-12 h-6 bg-foreground/10 rounded-md"></div>
+													<div className="w-16 h-6 bg-foreground/10 rounded-md"></div>
 												</div>
 											</div>
 										</div>

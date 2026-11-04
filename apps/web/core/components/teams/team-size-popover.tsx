@@ -4,7 +4,8 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { EditPenUnderlineIcon } from 'assets/svg';
 import { sizeOption } from '@/core/constants/config/constants';
-import { LoaderCircle } from 'lucide-react';
+import { Spinner } from '@/core/components/icons';
+import { clsxm } from '@/core/lib/utils';
 
 const TeamSize = ({
 	defaultValue,
@@ -17,14 +18,14 @@ const TeamSize = ({
 	onChange: (teamSize: string) => void;
 	isTeamManager: boolean;
 	disabled?: boolean;
-	onSave? : (data? : Record<string, any>) => Promise<void>
+	onSave?: (data?: Record<string, any>) => Promise<void>;
 }) => {
 	const t = useTranslations();
 	const [value, setValue] = useState(defaultValue || 'Only me');
 	const buttonRef = useRef<HTMLButtonElement>(null);
 	const panelRef = useRef<HTMLDivElement>(null);
 	const [disabled, setDisabled] = useState<boolean>(true);
-	const [loading, setLoading] = useState(false)
+	const [loading, setLoading] = useState(false);
 
 	const toggleDisabled = useCallback(() => {
 		setDisabled(!disabled);
@@ -46,7 +47,7 @@ const TeamSize = ({
 		} catch (error) {
 			console.error('Error saving team size:', error);
 		} finally {
-		setLoading(false);
+			setLoading(false);
 		}
 		setDisabled(true);
 	}, [onSave]);
@@ -85,15 +86,19 @@ const TeamSize = ({
 
 	return (
 		<div
-			className={`group px-3 relative w-[100%] h-[48px] border rounded-[10px] flex gap-1 items-center justify-between input-border  dark:bg-dark--theme-light ${
-				disabled ? 'bg-[#FCFCFC]' : 'bg-light--theme-light'
-			}`}
+			className={clsxm(
+				'group relative flex h-9 w-full items-center justify-between gap-1 rounded-md hairline-border border-transparent px-3 text-sm',
+				'hairline-ring ring-foreground/10 shadow-sm shadow-black/10 dark:ring-foreground/15',
+				disabled && 'bg-foreground/[0.025]',
+				!disabled && 'bg-card'
+			)}
 		>
 			<span className="w-[5rem] shrink-0 text-left ">{defaultValue}</span>
 			<Popover className="group grow">
 				{() => (
 					<>
-						<PopoverButton className="w-full flex items-center gap-2 justify-end h-full outline-none"
+						<PopoverButton
+							className="w-full flex items-center gap-2 justify-end h-full outline-none"
 							ref={buttonRef}
 							disabled={disableButton}
 							onClick={toggleDisabled}
@@ -107,7 +112,7 @@ const TeamSize = ({
 										setDisabled(!disabled);
 									}}
 								>
-									<EditPenUnderlineIcon className="w-6 h-6 text-inherit" />
+									<EditPenUnderlineIcon className="size-4 text-muted-foreground" />
 								</button>
 							)}
 						</PopoverButton>
@@ -124,28 +129,29 @@ const TeamSize = ({
 							<PopoverPanel
 								ref={panelRef}
 								anchor="bottom end"
-								className="z-50 mt-5 bg-light--theme-light dark:bg-dark--theme-light border p-3 rounded-xl shadow-xlcard flex flex-col gap-3"
+								className="z-50 mt-2 flex flex-col gap-2 rounded-xl bg-popover p-3 text-popover-foreground hairline-ring ring-border shadow-md shadow-black/6.5"
 							>
-								<div className="text-lg text-[#7E7991] dark:text-gray-400 font-[500]">
+								<div className="text-sm font-medium text-muted-foreground">
 									{t('form.SELECT_TEAM_SIZE')}
 								</div>
 								{/* Divider */}
-								<div className="h-[0.0625rem] bg-[#E5E5E5] dark:bg-[#FFFFFF14]"></div>
+								<div className="h-px bg-border"></div>
 								<div className="flex flex-col hover:cursor-pointer">
 									{sizeOption.map((size, index) => {
 										return (
 											<div
 												key={index}
-												className={`flex gap-3 items-center rounded-xl px-5 py-2 ${
-													size.name === value && 'bg-primary dark:bg-primary-light'
-												}`}
-												style={{ gap: 15 }}
+												className={clsxm(
+													'flex items-center gap-3 rounded-md px-3 py-1.5 transition-colors hover:bg-foreground/5',
+													size.name === value && 'bg-primary/10 hover:bg-primary/10'
+												)}
 												onClick={() => onSelect(size.name)}
 											>
 												<div
-													className={`text-base font-[600] text-[#282048] dark:text-white ${
-														size.name === value && '!text-white'
-													}`}
+													className={clsxm(
+														'text-sm font-medium text-foreground',
+														size.name === value && 'text-primary-ink'
+													)}
 												>
 													{size.name}
 												</div>
@@ -154,13 +160,13 @@ const TeamSize = ({
 									})}
 								</div>
 								{/* Divider */}
-								<div className="h-[0.0625rem] bg-[#E5E5E5] dark:bg-[#FFFFFF14]"></div>
-								<div className="flex items-center justify-end space-x-2">
+								<div className="h-px bg-border"></div>
+								<div className="flex items-center justify-end gap-2">
 									<Button
-										variant="primary"
-										className="font-normal rounded-xl text-md min-w-[90px] bg-[#E6E6E9] text-[#1A1C1E]"
+										variant="outline"
+										size="default"
+										className="min-w-[90px]"
 										type="submit"
-										style={{ background: '#E6E6E9' }}
 										onClick={handleClose}
 										disabled={loading}
 									>
@@ -168,12 +174,14 @@ const TeamSize = ({
 									</Button>
 									<Button
 										variant="primary"
-										className="font-normal rounded-xl text-sm min-w-[90px] h-[48px]"
+										size="default"
+										className="min-w-[90px]"
 										type="submit"
 										onClick={handleSave}
 										disabled={loading}
 									>
-										{loading ? <LoaderCircle className="w-[18px] h-[18px] animate-spin" strokeWidth="1.4" /> : t('common.SAVE')}
+										{loading && <Spinner className="size-4 animate-spin" />}
+										{!loading && t('common.SAVE')}
 									</Button>
 								</div>
 							</PopoverPanel>

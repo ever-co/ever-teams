@@ -79,21 +79,21 @@ export function CompleteInvitationRegistrationForm(props: {
 	}, []);
 
 	return (
-		<div className="w-full flex flex-col gap-10 dark:bg-transparent rounded-2xl md:w-[35rem] ">
-			<div className="w-full px-8 flex flex-col gap-2 text-center">
-				<h2 className="font-medium text-3xl">
+		<div className="mx-auto w-full max-w-sm flex flex-col gap-6">
+			<div className="w-full flex flex-col gap-2 text-center">
+				<h2 className="text-xl font-semibold text-balance">
 					{t('pages.invite.acceptInvite.ACCEPT_INVITATION_TO_TEAM', {
 						team: invitationData.organization.name
 					})}
 				</h2>
-				<p className=" text-lg text-gray-400">
+				<p className="text-sm text-balance text-muted-foreground">
 					{t('pages.invite.acceptInvite.COMPLETE_REGISTRATION', { userEmail: invitationData.email })}
 				</p>
 			</div>
-			<EverCard className={cn('w-full  bg-[#ffffff] dark:bg-muted')} shadow="custom">
-				<form className="flex flex-col gap-1 items-center justify-between" onSubmit={handleSubmit}>
-					<div className="w-full flex flex-col items-center gap-8">
-						<Text.Heading as="h3" className="text-center">
+			<EverCard className="w-full p-5 md:p-6" shadow="custom">
+				<form className="flex flex-col gap-4 items-center justify-between" onSubmit={handleSubmit}>
+					<div className="w-full flex flex-col items-center gap-5">
+						<Text.Heading as="h3" className="text-center text-base">
 							{t('pages.invite.acceptInvite.USER_DETAILS')}
 						</Text.Heading>
 						<div className="w-full">
@@ -105,8 +105,6 @@ export function CompleteInvitationRegistrationForm(props: {
 								errors={errors}
 								onChange={(e) => setUserDetails({ ...userDetails, fullName: e.target.value })}
 								autoComplete="off"
-								wrapperClassName="dark:bg-muted"
-								className="dark:bg-muted"
 								required
 							/>
 
@@ -114,8 +112,6 @@ export function CompleteInvitationRegistrationForm(props: {
 								type="password"
 								name="password"
 								placeholder={t('form.PASSWORD_PLACEHOLDER')}
-								className="dark:bg-muted"
-								wrapperClassName="dark:bg-muted"
 								value={userDetails.password}
 								errors={errors}
 								onChange={(e) => setUserDetails({ ...userDetails, password: e.target.value })}
@@ -126,8 +122,7 @@ export function CompleteInvitationRegistrationForm(props: {
 								type="password"
 								name="confirmPassword"
 								placeholder={t('form.CONFIRM_PASSWORD_PLACEHOLDER')}
-								className="dark:bg-muted"
-								wrapperClassName="mb-5 dark:bg-muted"
+								wrapperClassName="mb-0"
 								value={userDetails.confirmPassword}
 								errors={errors}
 								onChange={(e) => {
@@ -145,8 +140,9 @@ export function CompleteInvitationRegistrationForm(props: {
 
 					<div
 						className={cn(
-							'flex items-center w-full',
-							requiresTermsAgreement ? 'justify-between' : 'justify-end'
+							'flex items-center gap-3 w-full',
+							requiresTermsAgreement && 'justify-between',
+							!requiresTermsAgreement && 'justify-end'
 						)}
 					>
 						{requiresTermsAgreement && (
@@ -159,13 +155,13 @@ export function CompleteInvitationRegistrationForm(props: {
 								{/* A real label: clicking the "Agree to" text toggles the (16px) checkbox — it did not before. */}
 								<label
 									htmlFor="accept-invite-agree-terms"
-									className="space-x-2 dark:text-gray-300 cursor-pointer"
+									className="cursor-pointer text-sm text-muted-foreground"
 								>
 									{t('form.AGREE_TO')}{' '}
 									<a
 										href={TERMS_LINK}
 										target="_blank"
-										className="text-primary dark:text-gray-300 dark:font-medium"
+										className="rounded-sm font-medium text-primary-ink underline-offset-4 outline-none hover:underline focus-visible:ring-[3px] focus-visible:ring-ring/50"
 										rel="noreferrer"
 									>
 										{t('layout.footer.TERMS_AND_CONDITIONS')}
@@ -179,7 +175,7 @@ export function CompleteInvitationRegistrationForm(props: {
 							disabled={
 								acceptInvitationLoading || (requiresTermsAgreement && !agreeToTerms) || loadingWorkspace
 							}
-							className="px-6"
+							className="shrink-0"
 							type="submit"
 						>
 							{t('common.JOIN_REQUEST')}

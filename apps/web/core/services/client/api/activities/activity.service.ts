@@ -5,9 +5,11 @@ import { getDefaultTimezone } from '@/core/lib/helpers/date-and-time';
 import { IActivitiesReportRequest, IActivityReport } from '@/core/types/interfaces/activity/activity-report';
 import { validateApiResponse, ZodValidationError } from '@/core/types/schemas';
 import {
+	activityEntrySchema,
 	activitySchema,
 	dailyActivitySchema,
 	TActivity,
+	type TActivityEntry,
 	TDailyActivity
 } from '@/core/types/schemas/activities/activity.schema';
 
@@ -20,6 +22,24 @@ function toGauzyActivityType(type: string): string {
 }
 
 class ActivityService extends APIService {
+	/** Every app and site entry the members recorded between the two moments, each with its own start and duration. */
+	getActivitiesInRange = async (range: {
+		employeeIds: ReadonlyArray<string>;
+		startDate: Date;
+		endDate: Date;
+	}): Promise<TActivityEntry[]> => {
+		const params = {
+			tenantId: this.tenantId,
+			organizationId: this.organizationId,
+			employeeIds: [...range.employeeIds],
+			startDate: range.startDate.toISOString(),
+			endDate: range.endDate.toISOString()
+		};
+		const query = qs.stringify(params, { arrayFormat: 'indices' });
+		const response = await this.get<unknown>(`/timesheet/activity?${query}`, { tenantId: this.tenantId });
+		return validateApiResponse(activityEntrySchema.array(), response.data ?? [], 'getActivitiesInRange response');
+	};
+
 	getActivities = async ({
 		taskId,
 		defaultRange,

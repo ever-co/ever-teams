@@ -8,9 +8,7 @@ import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { queryKeys } from '@/core/query/keys';
 import { orderTasksInPlans } from '@/core/lib/helpers/daily-plan-task-order';
 import { useDailyPlanCalculations } from './use-daily-plan-calculations';
-import { useTranslations } from 'next-intl';
-import { toast } from 'sonner';
-import { getErrorMessage, logErrorInDev } from '@/core/lib/helpers/error-message';
+import { logErrorInDev } from '@/core/lib/helpers/error-message';
 
 export interface UseEmployeeDailyPlansOptions {
 	/**
@@ -51,7 +49,6 @@ export interface UseEmployeeDailyPlansOptions {
  * ```
  */
 export function useEmployeeDailyPlans(employeeId: string | null, options?: UseEmployeeDailyPlansOptions) {
-	const t = useTranslations();
 	const activeTeam = useAtomValue(activeTeamState);
 	const allTeamTasks = useAtomValue(tasksByTeamState);
 	const queryClient = useQueryClient();
@@ -123,18 +120,10 @@ export function useEmployeeDailyPlans(employeeId: string | null, options?: UseEm
 
 					return res;
 				} else {
-					toast.warning(t('dailyPlan.toastMessages.MISSING_EMPLOYEE_ID'));
+					logErrorInDev('getEmployeeDailyPlans: No employee ID provided or available in state', null);
 					return null;
 				}
 			} catch (error) {
-				const failedEmployeeId = newEmployeeId || internalEmployeeId;
-				const fetchFailedMessage = t('dailyPlan.toastMessages.EMPLOYEE_PLANS_FETCH_FAILED', {
-					employeeId: failedEmployeeId
-				});
-				const fetchFailedFallback = t('dailyPlan.toastMessages.PLANS_FETCH_FAILED');
-				toast.error(fetchFailedMessage, {
-					description: getErrorMessage(error, fetchFailedFallback)
-				});
 				logErrorInDev(
 					`Error when fetching day plans for employee: ${newEmployeeId || internalEmployeeId}`,
 					error
@@ -142,7 +131,7 @@ export function useEmployeeDailyPlans(employeeId: string | null, options?: UseEm
 				return null; // Return null on error to maintain consistent return type
 			}
 		},
-		[queryClient, activeTeam?.id, internalEmployeeId, t]
+		[queryClient, activeTeam?.id, internalEmployeeId]
 	);
 
 	const loadEmployeeDailyPlans = useCallback(async () => {

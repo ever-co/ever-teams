@@ -3,7 +3,7 @@
 import { useTranslations, useFormatter } from 'next-intl';
 import { useState } from 'react';
 import Link from 'next/link';
-import { AlertTriangle, ArrowLeft, CheckCircle2, LinkIcon } from 'lucide-react';
+import { Alert, ArrowLeft, CheckCircle2, Link as LinkGlyph } from '@/core/components/icons';
 import { Button } from '@/core/components/common/button';
 import { Checkbox } from '@/core/components/common/checkbox';
 import { SpinnerLoader } from '@/core/components/common/loader';
@@ -19,19 +19,20 @@ import {
 import { AccountDeletionRow } from './account-deletion-row';
 import { useAccountDeletionConfirm } from '@/core/hooks/auth/use-account-deletion';
 
-const SECONDARY_LINK = 'inline-flex gap-2 items-center text-sm font-medium text-primary hover:underline';
-const INPUT =
-	'dark:bg-foreground/5 ring-foreground/10 placeholder:text-muted-foreground/75 flex h-9 w-full min-w-0 rounded-md border border-transparent bg-white px-3 py-1 text-base shadow-sm outline-none ring-1 transition-[color,box-shadow] md:text-sm focus-visible:border-foreground/35 focus-visible:ring-ring/25 dark:focus-visible:border-foreground/25 focus-visible:ring-[3px] font-mono tracking-widest';
+const SECONDARY_LINK =
+	'inline-flex items-center gap-2 rounded-sm text-sm font-medium text-primary-ink underline-offset-4 outline-none hover:underline focus-visible:ring-[3px] focus-visible:ring-ring/50';
+/** iOS zooms the page into any field under 16 px on focus: auth fields stay 16 px below `md`. */
+const INPUT = 'text-base md:text-sm font-mono';
 
 /** The one answer for an unusable link (invalid, used, replaced or expired: 410), with a way to ask for a new one. */
 function InvalidLink() {
 	const t = useTranslations();
 	return (
 		<div className="flex flex-col gap-5 items-center py-4 text-center" data-testid="delete-account-invalid">
-			<div className="flex justify-center items-center w-14 h-14 rounded-full bg-muted">
-				<LinkIcon className="w-6 h-6 text-muted-foreground" />
+			<div className="flex size-10 items-center justify-center rounded-lg bg-foreground/5 text-muted-foreground">
+				<LinkGlyph className="size-5" />
 			</div>
-			<p className="max-w-sm text-sm text-muted-foreground" role="alert">
+			<p className="max-w-sm text-sm text-balance text-muted-foreground" role="alert">
 				{t('pages.accountDeletion.INVALID_LINK')}
 			</p>
 			<Link href={ACCOUNT_DELETION_PATH} className={SECONDARY_LINK}>
@@ -77,11 +78,11 @@ function ConfirmForm({
 		>
 			{planChanged && (
 				<p
-					className="flex gap-1.5 items-start p-2.5 text-xs rounded-md bg-amber-500/10 text-amber-700 dark:text-amber-300"
+					className="flex gap-1.5 items-start p-2.5 text-xs rounded-md bg-warning/10 text-warning-foreground"
 					role="alert"
 					data-testid="delete-account-plan-changed"
 				>
-					<AlertTriangle className="mt-px w-3.5 h-3.5 shrink-0" />
+					<Alert className="mt-px size-3.5 shrink-0" />
 					<span>{t('pages.accountDeletion.PLAN_CHANGED')}</span>
 				</p>
 			)}
@@ -140,16 +141,14 @@ function ConfirmForm({
 
 				{confirmFailed && (
 					<div
-						className="flex flex-wrap gap-2 justify-between items-center p-2.5 rounded-md bg-destructive/5"
+						className="flex flex-wrap gap-2 justify-between items-center p-2.5 rounded-lg bg-destructive/5"
 						data-testid="delete-account-confirm-failed"
 					>
-						<Text.Error className="text-xs" role="alert">
-							{t('pages.accountDeletion.CONFIRM_ERROR')}
-						</Text.Error>
+						<Text.Error role="alert">{t('pages.accountDeletion.CONFIRM_ERROR')}</Text.Error>
 						<Button
 							type="button"
 							variant="outline"
-							className="px-3 py-1 h-8 text-xs"
+							size="default"
 							disabled={deleting || !confirmed}
 							onClick={onConfirm}
 						>
@@ -163,7 +162,7 @@ function ConfirmForm({
 					variant="danger"
 					loading={deleting}
 					disabled={!confirmed || deleting}
-					className="w-full h-9 text-sm font-medium rounded-md"
+					className="w-full"
 					data-testid="delete-account-submit"
 				>
 					{t('pages.accountDeletion.CONFIRM_BUTTON')}
@@ -171,7 +170,7 @@ function ConfirmForm({
 
 				<div className="text-center">
 					<Link href={DEFAULT_APP_PATH} className={SECONDARY_LINK}>
-						<ArrowLeft className="w-4 h-4" />
+						<ArrowLeft className="size-4" />
 						{t('pages.accountDeletion.KEEP_ACCOUNT')}
 					</Link>
 				</div>
@@ -205,7 +204,7 @@ export default function DeleteAccountConfirm() {
 				<p className="text-sm text-muted-foreground" role="alert">
 					{t('pages.accountDeletion.GENERIC_ERROR')}
 				</p>
-				<Button type="button" variant="outline" className="h-9 text-sm" onClick={retry}>
+				<Button type="button" variant="outline" onClick={retry}>
 					{t('pages.accountDeletion.TRY_AGAIN')}
 				</Button>
 				<Link href={ACCOUNT_DELETION_PATH} className={SECONDARY_LINK}>
@@ -216,8 +215,8 @@ export default function DeleteAccountConfirm() {
 	} else if (phase === 'deleted') {
 		content = (
 			<div className="flex flex-col gap-5 items-center py-4 text-center" data-testid="delete-account-deleted">
-				<div className="flex justify-center items-center w-16 h-16 bg-green-100 rounded-full dark:bg-green-900/30">
-					<CheckCircle2 className="w-8 h-8 text-green-600 dark:text-green-400" />
+				<div className="flex size-10 items-center justify-center rounded-lg bg-success/10 text-success-foreground">
+					<CheckCircle2 className="size-5" />
 				</div>
 				<div className="space-y-2">
 					<output className="block max-w-sm text-sm text-muted-foreground">
@@ -227,11 +226,13 @@ export default function DeleteAccountConfirm() {
 						})}
 					</output>
 					{sessionCleared && (
-						<p className="max-w-sm text-sm text-muted-foreground">{t('pages.accountDeletion.SIGNED_OUT')}</p>
+						<p className="max-w-sm text-sm text-muted-foreground">
+							{t('pages.accountDeletion.SIGNED_OUT')}
+						</p>
 					)}
 				</div>
 				<Link href={DEFAULT_APP_PATH} className={SECONDARY_LINK}>
-					<ArrowLeft className="w-4 h-4" />
+					<ArrowLeft className="size-4" />
 					{t('pages.accountDeletion.BACK_TO_SIGN_IN')}
 				</Link>
 			</div>

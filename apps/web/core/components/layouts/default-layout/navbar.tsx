@@ -2,51 +2,58 @@
 
 import { useModal } from '@/core/hooks';
 import { IClassName } from '@/core/types/interfaces/common/class-name';
-import { isTeamMemberState } from '@/core/stores';
+import { isTeamMemberState, organizationTeamsState } from '@/core/stores';
 import { cn } from '@/core/lib/helpers';
-import { Button, Container } from '@/core/components';
+import { Button } from '@/core/components';
 import { usePathname } from 'next/navigation';
 import { useMemo, Suspense } from 'react';
+import { atom, useAtomValue } from 'jotai';
+import { MinTimerSkeleton } from '@/core/components/common/skeleton/min-timer-skeleton';
+import { pathCarriesItsOwnTimer } from './timer-paths';
 import { useTranslations } from 'next-intl';
-import Skeleton from 'react-loading-skeleton';
-import { useAtomValue } from 'jotai';
-// dynamic import removed - using optimized components
-import { DefaultCreateAction } from '../../features/layouts/header/create-default-action';
 import { KeyboardShortcuts } from '../../common/keyboard-shortcuts';
-// Lazy load RequestToJoinModal for performance optimization
 import { ModalSkeleton } from '@/core/components/common/skeleton/modal-skeleton';
-
-// Import optimized components from centralized location
-import { LazyMinTimerFrame, LazyCollaborate, LazyUserNavAvatar } from '@/core/components/optimized-components/dashboard';
+import {
+	LazyMinTimerFrame,
+	LazyCollaborate,
+	LazyUserNavAvatar
+} from '@/core/components/optimized-components/dashboard';
 import { UserNavAvatarSkeleton } from '@/core/components/common/skeleton/user-nav-avatar-skeleton';
 import { LazyRequestToJoinModal, LazyTeamsDropDown } from '@/core/components/optimized-components/teams';
 import { CommandPaletteTrigger } from './header/command-palette-trigger';
-
-// Import skeletons
 import { TeamsDropDownSkeleton } from '@/core/components/common/skeleton/teams-dropdown-skeleton';
 import { CollaborateSkeleton } from '@/core/components/common/skeleton/collaborate-skeleton';
-import { TimerSkeleton } from '@/core/components/common/skeleton/timer-skeleton';
 import { useUserQuery } from '@/core/hooks/queries/user-user.query';
+import { NotificationBell } from '@/core/components/notifications/inbox/notification-bell';
 
-const HeaderSkeleton = () => {
+const TEAM_DROPDOWN_HIDDEN_PATHS = new Set(['/task/[id]', '/profile/[memberId]']);
+
+const CONTROL_SKELETON = 'h-8 shrink-0 animate-pulse rounded-full bg-foreground/[0.05]';
+
+/**
+ * The controls of the top bar while the user loads, each at the size of the control it stands for (timer, inbox,
+ * Collaborate, team switcher, shortcuts), so they fill in place instead of appearing one by one.
+ */
+function HeaderSkeleton({ showTimer }: Readonly<{ showTimer: boolean }>) {
 	return (
-		<nav className="w-full bg-background">
-			<Container>
-				<div className="flex h-16 w-full items-center justify-between">
-					<Skeleton height={32} width={120} borderRadius={6} className="dark:bg-muted" />
-					<div className="flex items-center space-x-5">
-						<div className="hidden sm:block">
-							<Skeleton height={32} width={160} borderRadius={6} className="dark:bg-muted" />
-						</div>
-
-						<Skeleton height={32} width={180} borderRadius={6} className="dark:bg-muted" />
-					</div>
-				</div>
-			</Container>
-		</nav>
+		<div className="flex items-center gap-2" aria-hidden="true">
+			{showTimer && <MinTimerSkeleton />}
+			<span className={cn(CONTROL_SKELETON, 'w-8')} />
+			<span className={cn(CONTROL_SKELETON, 'hidden w-[120px] md:block')} />
+			<span className={cn(CONTROL_SKELETON, 'hidden w-[160px] md:block')} />
+			<span className={cn(CONTROL_SKELETON, 'hidden w-8 md:block')} />
+		</div>
 	);
-};
+}
 
+/** Whether the active team is known yet (its tracking setting decides whether the top bar shows the timer). */
+const teamsSettledAtom = atom((get) => {
+	const hasTeams = get(organizationTeamsState).length > 0;
+	const hasNoTeam = !get(isTeamMemberState);
+	return hasTeams || hasNoTeam;
+});
+
+/** The global controls at the end of the top bar: timer, inbox, collaborate, team switcher, shortcuts, account on phones. */
 export function Navbar({
 	className,
 	showTimer,
@@ -69,61 +76,72 @@ export function Navbar({
 		if (!pathname) {
 			return false;
 		}
-		const notAllowedList = ['/task/[id]', '/profile/[memberId]'];
-		return !notAllowedList.includes(pathname);
+		return !TEAM_DROPDOWN_HIDDEN_PATHS.has(pathname);
 	}, [pathname]);
 
-	return (!user && !notFound && !publicTeam) || isLoading ? (
-		<HeaderSkeleton />
-	) : (
-		<nav className={cn('flex gap-3 items-center', className)}>
-			<DefaultCreateAction publicTeam={publicTeam} />
+	const isPublicTeam = publicTeam || false;
+	const isNotFound = notFound || false;
+	const waitsForUser = !user && !isNotFound && !isPublicTeam;
+	const showSkeleton = waitsForUser || isLoading;
+	const showTeamDropdown = isTeamMember && isTeamDropdownAllowed;
+	const areTeamsSettled = useAtomValue(teamsSettledAtom);
+	const pageCarriesItsOwnTimer = pathCarriesItsOwnTimer(pathname ?? '');
+	const keepsTimerSlot = !showTimer && !areTeamsSettled && !pageCarriesItsOwnTimer;
 
-			{!notFound && (
-				<div className="ml-auto flex items-center gap-3">
-					{publicTeam && (
-						<Button className="h-8 gap-2 rounded-md px-3 py-0 text-xs outline-none" onClick={openModal}>
-							{t('common.JOIN_REQUEST')}
-						</Button>
-					)}
-					{showTimer && (
-						<Suspense fallback={<TimerSkeleton />}>
-							<LazyMinTimerFrame />
-						</Suspense>
-					)}
+	if (showSkeleton) {
+		return <HeaderSkeleton showTimer={Boolean(showTimer)} />;
+	}
 
-					{/* The command palette trigger lives here, left of Collaborate, as Ever Works keeps its
-					    search in the top bar; outside the md-only group so phones keep it. The palette itself
-					    is mounted once for the shell (app-sidebar.tsx). */}
-					<CommandPaletteTrigger />
+	if (isNotFound) {
+		return null;
+	}
 
-					<div className="hidden items-center gap-2 md:flex">
-						{!publicTeam && (
-							<Suspense fallback={<CollaborateSkeleton />}>
-								<LazyCollaborate />
-							</Suspense>
-						)}
+	return (
+		<nav className={cn('flex items-center gap-2', className)}>
+			{isPublicTeam && (
+				<Button size="default" onClick={openModal}>
+					{t('common.JOIN_REQUEST')}
+				</Button>
+			)}
 
-						{isTeamMember && isTeamDropdownAllowed ? (
-							<Suspense fallback={<TeamsDropDownSkeleton />}>
-								<LazyTeamsDropDown publicTeam={publicTeam || false} />
-							</Suspense>
-						) : null}
+			{showTimer && (
+				<Suspense fallback={<MinTimerSkeleton />}>
+					<LazyMinTimerFrame />
+				</Suspense>
+			)}
+			{keepsTimerSlot && <MinTimerSkeleton />}
 
-						<KeyboardShortcuts />
-					</div>
+			{/* Phones only: the sidebar is a sheet there, so the palette keeps a trigger in the bar. */}
+			<CommandPaletteTrigger variant="icon" className="md:hidden" />
 
-					{/* Phones only: the account menu (with Collaborate, team switcher and shortcuts) stays in the
-					    header there; from md up it lives at the foot of the sidebar. */}
-					{!publicTeam && (
-						<div className="md:hidden">
-							<Suspense fallback={<UserNavAvatarSkeleton />}>
-								<LazyUserNavAvatar />
-							</Suspense>
-						</div>
-					)}
+			{!isPublicTeam && <NotificationBell />}
+
+			<div className="hidden items-center gap-2 md:flex">
+				{!isPublicTeam && (
+					<Suspense fallback={<CollaborateSkeleton />}>
+						<LazyCollaborate />
+					</Suspense>
+				)}
+
+				{showTeamDropdown && (
+					<Suspense fallback={<TeamsDropDownSkeleton />}>
+						<LazyTeamsDropDown publicTeam={isPublicTeam} />
+					</Suspense>
+				)}
+
+				<KeyboardShortcuts />
+			</div>
+
+			{/* Phones only: the account menu (with Collaborate, team switcher and shortcuts) stays in the bar;
+			    from md up it lives at the foot of the sidebar. */}
+			{!isPublicTeam && (
+				<div className="md:hidden">
+					<Suspense fallback={<UserNavAvatarSkeleton />}>
+						<LazyUserNavAvatar />
+					</Suspense>
 				</div>
 			)}
+
 			{isOpen && (
 				<Suspense fallback={<ModalSkeleton size="md" />}>
 					<LazyRequestToJoinModal open={isOpen} closeModal={closeModal} />

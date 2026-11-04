@@ -1,10 +1,9 @@
 import { useUpdateTask } from '@/core/hooks';
 import { useDeleteTaskStatus } from '@/core/hooks/tasks/use-delete-task-status';
 import { useTaskStatusesQuery } from '@/core/hooks/tasks/use-task-statuses-query';
-import { Button, Modal, Text } from '@/core/components';
+import { Button, Modal, modalFooterClass, modalPrimaryActionClass, modalSecondaryActionClass } from '@/core/components';
 import { useTranslations } from 'next-intl';
 import { useCallback, useMemo } from 'react';
-import { EverCard } from '../../common/ever-card';
 import { ETaskStatusName } from '@/core/types/generics/enums/task';
 import { TTaskStatus } from '@/core/types/schemas';
 import { useAtomValue } from 'jotai';
@@ -78,23 +77,22 @@ export function DeleteTaskStatusConfirmationModal(props: DeleteTaskStatusModalPr
 		<Modal
 			isOpen={open}
 			closeModal={closeModal}
-			className="w-[98%] md:w-[530px] relative"
+			className="relative w-[98%] md:w-[28rem]"
 			showCloseIcon={false}
+			title={t('pages.taskStatus.DELETE_STATUS_CONFIRMATION', { statusName: status.name })}
 			aria-labelledby="delete-status-modal-title"
 			aria-describedby="delete-status-modal-description"
 		>
-			<EverCard className="w-full" shadow="custom">
-				<div className="flex flex-col gap-6 justify-between w-full">
-					<Text.Heading as="h5" id="delete-status-modal-title" className="mb-3 text-center">
-						{t('pages.taskStatus.DELETE_STATUS_CONFIRMATION', { statusName: status.name })}
-					</Text.Heading>
-					<div className="flex justify-evenly items-center w-full">
+			<div className="w-full">
+				<div className="flex w-full flex-col justify-between gap-6">
+					<div className={modalFooterClass}>
 						<Button
 							disabled={deleteTaskStatusLoading}
-							variant="outline"
+							variant="ghost"
+							size="default"
+							className={modalSecondaryActionClass}
 							type="button"
 							onClick={handleCloseModal}
-							className="font-light rounded-md text-md dark:text-white dark:bg-slate-700 dark:border-slate-600"
 						>
 							{t('common.NO')}
 						</Button>
@@ -103,14 +101,15 @@ export function DeleteTaskStatusConfirmationModal(props: DeleteTaskStatusModalPr
 							disabled={deleteTaskStatusLoading}
 							onClick={handleDeleteTaskStatus}
 							variant="primary"
+							size="default"
+							className={modalPrimaryActionClass}
 							type="submit"
-							className="font-light rounded-md text-md dark:text-white"
 						>
 							{t('common.YES')}
 						</Button>
 					</div>
 				</div>
-			</EverCard>
+			</div>
 		</Modal>
 	);
 }

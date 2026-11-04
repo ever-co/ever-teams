@@ -4,11 +4,7 @@ import { useEffect } from 'react';
 import { useCallbackRef } from './use-callback-ref';
 import { useAtom, useSetAtom } from 'jotai';
 import { dataSyncModeState, isDataSyncState } from '@/core/stores/common/data-sync';
-
-enum ESyncMode {
-	PULL = 'PULL',
-	REAL_TIME = 'REAL_TIME'
-}
+import { readStoredDataSync, readStoredDataSyncMode } from '@/core/lib/utils/settings-data-sync';
 
 export function useRefreshIntervalV2(callback: any, delay: number, ...params: any[]) {
 	const setDataSyncMode = useSetAtom(dataSyncModeState);
@@ -20,8 +16,10 @@ export function useRefreshIntervalV2(callback: any, delay: number, ...params: an
 	useEffect(() => {
 		try {
 			if (typeof window !== 'undefined') {
-				setDataSync(JSON.parse(window.localStorage.getItem('conf-is-data-sync') || 'true'));
-				setDataSyncMode((window.localStorage.getItem('conf-data-sync-mode') as ESyncMode) ?? 'PULL');
+				const storedIsOn = readStoredDataSync(window.localStorage);
+				const storedMode = readStoredDataSyncMode(window.localStorage);
+				setDataSync(storedIsOn);
+				setDataSyncMode(storedMode);
 			}
 		} catch (error) {
 			console.error(error);

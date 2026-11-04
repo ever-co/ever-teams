@@ -26,10 +26,7 @@ const Input = ({
 	return (
 		<div>
 			{value.length > 0 && (
-				<label
-					htmlFor={name}
-					className={`block ${centered && 'text-center'} text-[14px] font-light text-[#ACB3BB]`}
-				>
+				<label htmlFor={name} className={`block ${centered && 'text-center'} text-sm text-muted-foreground`}>
 					{label}
 				</label>
 			)}
@@ -41,13 +38,11 @@ const Input = ({
 				placeholder={placeholder}
 				required={required}
 				onChange={onChange}
-				className={`w-full py-[9px] text-[16px] ${
+				className={`w-full py-[9px] text-base ${
 					centered && 'text-center'
-				} border-b placeholder:font-light focus:border-b-2 focus:border-[#1B005D]
-         border-[#D7E1EB] dark:focus:border-[#D7E1EB] bg-white pb-1
-        font-medium text-primary dark:text-white outline-hidden dark:bg-transparent`}
+				} hairline-b border-border bg-transparent pb-1 font-medium text-foreground outline-hidden placeholder:text-muted-foreground/75 focus:border-b-2 focus:border-primary`}
 			/>
-			{errors && errors[name] && <span className="text-sm text-red-600 font-light">{errors[name]}</span>}
+			{errors?.[name] && <span className="text-sm text-destructive-ink">{errors[name]}</span>}
 		</div>
 	);
 };

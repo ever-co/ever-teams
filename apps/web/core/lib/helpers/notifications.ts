@@ -3,7 +3,7 @@ import { NOTIFICATION_CONFIG } from '@/core/constants/config/notification';
 import { INotificationState } from '@/core/types/interfaces/common/notification';
 import { TTask } from '@/core/types/schemas/task/task.schema';
 import moment from 'moment';
-import { toast } from 'sonner';
+import { logErrorInDev } from '@/core/lib/helpers/error-message';
 
 export const getNotificationState = (key: string): INotificationState => {
 	try {
@@ -29,8 +29,8 @@ export const getNotificationState = (key: string): INotificationState => {
 export const setNotificationState = (key: string, state: INotificationState): void => {
 	try {
 		localStorage.setItem(key, JSON.stringify(state));
-	} catch {
-		toast.error('Failed to set notification state');
+	} catch (error) {
+		logErrorInDev('Notification state could not be saved', error);
 	}
 };
 

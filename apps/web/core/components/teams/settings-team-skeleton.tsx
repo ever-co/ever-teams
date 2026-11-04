@@ -10,7 +10,7 @@ import { InputField } from '../duplicated-components/_input';
 const SettingsTeamSkeleton = () => {
 	return (
 		<PageLayout>
-			<div className="pt-16 pb-4 -mt-8 bg-white dark:bg-dark--theme">
+			<div className="pt-16 pb-4 -mt-8 bg-background">
 				<Container>
 					<Skeleton height={20} width={180} borderRadius={10} className="dark:bg-muted" />
 				</Container>
@@ -19,11 +19,11 @@ const SettingsTeamSkeleton = () => {
 				<div className="flex w-full">
 					<LeftSideSettingMenuSkeleton />
 					<div className="flex flex-col w-full dark:bg-card">
-						<EverCard className="dark:bg-dark--theme p-[32px] mt-[36px]" shadow="bigger">
+						<EverCard className="p-[32px] mt-[36px]" shadow="bigger">
 							<Text className="mb-2 text-4xl font-medium">
 								<Skeleton width={200} borderRadius={20} className="dark:bg-muted" />
 							</Text>
-							<Text className="text-base font-normal text-gray-400">
+							<Text className="text-base font-normal text-muted-foreground">
 								<Skeleton width={300} borderRadius={20} className="dark:bg-muted" />
 							</Text>
 							<div className="w-[98%] md:w-[930px]">
@@ -39,11 +39,7 @@ const SettingsTeamSkeleton = () => {
 											</div>
 											<div className="flex items-center justify-between w-full gap-12 mt-8">
 												<div className="flex flex-col justify-between">
-													<Skeleton
-														width={200}
-														borderRadius={20}
-														className="dark:bg-muted"
-													/>
+													<Skeleton width={200} borderRadius={20} className="dark:bg-muted" />
 													<Skeleton
 														width={200}
 														borderRadius={20}
@@ -51,11 +47,7 @@ const SettingsTeamSkeleton = () => {
 													/>
 												</div>
 												<div className="flex flex-col">
-													<Skeleton
-														width={200}
-														borderRadius={20}
-														className="dark:bg-muted"
-													/>
+													<Skeleton width={200} borderRadius={20} className="dark:bg-muted" />
 													<Skeleton
 														width={200}
 														borderRadius={20}
@@ -91,12 +83,8 @@ const SettingsTeamSkeleton = () => {
 												</div>
 											</div>
 											<div className="flex flex-col float-right mr-8">
-												<Text className="flex-none grow-0 text-md text-gray-400 font-medium mb-[1rem] w-full mt-[2.4rem]">
-													<Skeleton
-														width={200}
-														borderRadius={20}
-														className="dark:bg-muted"
-													/>
+												<Text className="flex-none grow-0 text-md text-muted-foreground font-medium mb-[1rem] w-full mt-[2.4rem]">
+													<Skeleton width={200} borderRadius={20} className="dark:bg-muted" />
 												</Text>
 												<div className="flex gap-3 mt-4">
 													<InputField
@@ -143,8 +131,8 @@ const SettingsTeamSkeleton = () => {
 								</div>
 							</div>
 						</EverCard>
-						<EverCard className="dark:bg-dark--theme p-[32px] mt-[36px]" shadow="bigger">
-							<Text className="text-2xl text-[#EB6961] font-normal">
+						<EverCard className="p-[32px] mt-[36px]" shadow="bigger">
+							<Text className="text-2xl text-destructive-ink font-normal">
 								<Skeleton width={200} borderRadius={20} height={25} className="dark:bg-muted" />
 							</Text>
 							<DangerZoneSkeleton />

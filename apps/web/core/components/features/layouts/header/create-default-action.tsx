@@ -10,22 +10,31 @@ import {
 	DropdownMenuTrigger
 } from '@/core/components/common/dropdown-menu';
 
-import { useState, useMemo } from 'react';
-import { AddUserIcon, ProjectIcon, TaskIcon, TeamIcon } from '../../../icons';
+import { useMemo } from 'react';
+import { AddUserIcon, Plus, ProjectIcon, TaskIcon, TeamIcon } from '../../../icons';
 import { useAuthenticateUser, useModal } from '@/core/hooks';
 import { useCanInviteToActiveTeam } from '@/core/hooks/invitations/use-can-invite-to-active-team';
 import { useTranslations } from 'next-intl';
 import { useAtomValue } from 'jotai';
 import { timerStatusState } from '@/core/stores';
 import { toast } from 'sonner';
+import { cn } from '@/core/lib/helpers';
 import { Tooltip } from '../../../duplicated-components/tooltip';
 import { Modal } from '../../../common/modal';
 import CreateTaskModal from '../../tasks/create-task-modal';
 import { InviteFormModal } from '../../teams/invite-form-modal';
 import { CreateTeamModal } from '../../teams/create-team-modal';
 import { CreateProjectModal } from '../../projects/create-project-modal';
-export const DefaultCreateAction = ({ publicTeam }: { publicTeam?: boolean }) => {
-	const [open, setOpen] = useState<boolean>(false);
+
+const CREATE_BLOCKED_TOAST_ID = 'create-blocked-timer-running';
+
+type DefaultCreateActionProps = {
+	publicTeam?: boolean;
+	className?: string;
+};
+
+/** The quick-create menu of the sidebar header: task, team, project, and invite when allowed. */
+export const DefaultCreateAction = ({ publicTeam, className }: DefaultCreateActionProps) => {
 	const t = useTranslations();
 	const { user } = useAuthenticateUser();
 	// The API refuses an invitation into a team the user does not manage (403): offer Invite only to who may send it.
@@ -36,16 +45,14 @@ export const DefaultCreateAction = ({ publicTeam }: { publicTeam?: boolean }) =>
 
 	const { isOpen: projectIsOpen, closeModal: projectCloseModal, openModal: projectOpenModal } = useModal();
 
-	// Timer protection logic - similar to teams-dropdown.tsx
 	const timerStatus = useAtomValue(timerStatusState);
 	const timerRunningStatus = useMemo(() => {
 		return Boolean(timerStatus?.running);
 	}, [timerStatus]);
 
-	// Protected action handlers
 	const handleCreateTaskClick = () => {
 		if (timerRunningStatus) {
-			toast.error(t('common.CREATE_DISABLED_MESSAGE_WHEN_TIMER_RUNNING'));
+			toast.warning(t('common.CREATE_DISABLED_MESSAGE_WHEN_TIMER_RUNNING'), { id: CREATE_BLOCKED_TOAST_ID });
 			return;
 		}
 		createTaskOpenModal();
@@ -53,47 +60,51 @@ export const DefaultCreateAction = ({ publicTeam }: { publicTeam?: boolean }) =>
 
 	const handleCreateTeamClick = () => {
 		if (timerRunningStatus) {
-			toast.error(t('common.CREATE_DISABLED_MESSAGE_WHEN_TIMER_RUNNING'));
+			toast.warning(t('common.CREATE_DISABLED_MESSAGE_WHEN_TIMER_RUNNING'), { id: CREATE_BLOCKED_TOAST_ID });
 			return;
 		}
 		openModal();
 	};
+
+	const quickCreateLabel = t('sidebar.QUICK_CREATE');
+	const isEmailVerified = Boolean(user?.isEmailVerified);
+	const teamItemDisabled = !isEmailVerified || timerRunningStatus;
+
+	let teamItemTitle: string | undefined;
+	if (timerRunningStatus) {
+		teamItemTitle = t('common.CREATE_DISABLED_MESSAGE_WHEN_TIMER_RUNNING');
+	} else if (!isEmailVerified) {
+		teamItemTitle = t('common.VERIFY_ACCOUNT_MSG');
+	}
+
+	let taskItemTitle: string | undefined;
+	if (timerRunningStatus) {
+		taskItemTitle = t('common.CREATE_DISABLED_MESSAGE_WHEN_TIMER_RUNNING');
+	}
+
+	let teamTooltipLabel = t('common.VERIFY_ACCOUNT_MSG');
+	if (timerRunningStatus) {
+		teamTooltipLabel = t('common.CREATE_DISABLED_MESSAGE_WHEN_TIMER_RUNNING');
+	}
+
 	return (
-		<div>
+		<div className={cn('shrink-0', className)}>
 			<DropdownMenu>
 				<DropdownMenuTrigger asChild>
 					<Button
-						className="group h-8 shrink-0 gap-1.5 whitespace-nowrap rounded-md border-border bg-card px-3 text-xs font-medium text-foreground hover:bg-muted dark:bg-card dark:hover:bg-muted"
 						variant="outline"
-						aria-expanded={open}
-						aria-label={open ? 'Close menu' : 'Open menu'}
-						onClick={() => setOpen((prevState) => !prevState)}
+						size="icon"
+						className="text-muted-foreground hover:text-foreground aria-expanded:text-foreground"
+						aria-label={quickCreateLabel}
+						title={quickCreateLabel}
 					>
-						<svg
-							aria-hidden="true"
-							xmlns="http://www.w3.org/2000/svg"
-							className="size-4 text-primary transition-transform duration-500 ease-out group-aria-expanded:rotate-[135deg]"
-							width={24}
-							height={24}
-							viewBox="0 0 24 24"
-							fill="none"
-						>
-							<path
-								d="M12 2C6.49 2 2 6.49 2 12s4.49 10 10 10 10-4.49 10-10S17.51 2 12 2Zm4 10.75h-3.25V16c0 .41-.34.75-.75.75s-.75-.34-.75-.75v-3.25H8c-.41 0-.75-.34-.75-.75s.34-.75.75-.75h3.25V8c0-.41.34-.75.75-.75s.75.34.75.75v3.25H16c.41 0 .75.34.75.75s-.34.75-.75.75Z"
-								fill="currentColor"
-							/>
-						</svg>
-						{t('sidebar.QUICK_CREATE')}
+						<Plus className="size-4" aria-hidden="true" />
 					</Button>
 				</DropdownMenuTrigger>
-				<DropdownMenuContent
-					className="right-0 w-56 z-[1000] dark:bg-black/80 backdrop-blur-md"
-					side="right"
-					align="start"
-				>
+				<DropdownMenuContent className="w-56" side="bottom" align="start">
 					{timerRunningStatus && (
-						<div className="px-3 py-2 mb-1 text-xs text-amber-600 bg-amber-50 border-b border-amber-200 dark:text-amber-400 dark:bg-amber-900/20 dark:border-amber-800">
-							⏱️ {t('common.CREATE_DISABLED_MESSAGE_WHEN_TIMER_RUNNING')}
+						<div className="mb-1 rounded-md bg-warning/10 px-2 py-1.5 text-xs text-warning-foreground">
+							{t('common.CREATE_DISABLED_MESSAGE_WHEN_TIMER_RUNNING')}
 						</div>
 					)}
 					<DropdownMenuGroup>
@@ -106,12 +117,8 @@ export const DefaultCreateAction = ({ publicTeam }: { publicTeam?: boolean }) =>
 							<DropdownMenuItem
 								onClick={handleCreateTaskClick}
 								disabled={timerRunningStatus}
-								className={timerRunningStatus ? 'opacity-50 cursor-not-allowed' : ''}
-								title={
-									timerRunningStatus
-										? t('common.CREATE_DISABLED_MESSAGE_WHEN_TIMER_RUNNING')
-										: undefined
-								}
+								className={cn(timerRunningStatus && 'cursor-not-allowed opacity-50')}
+								title={taskItemTitle}
 							>
 								<TaskIcon />
 								Task
@@ -119,26 +126,16 @@ export const DefaultCreateAction = ({ publicTeam }: { publicTeam?: boolean }) =>
 							</DropdownMenuItem>
 						</Tooltip>
 						<Tooltip
-							enabled={!user?.isEmailVerified || timerRunningStatus}
-							label={
-								timerRunningStatus
-									? t('common.CREATE_DISABLED_MESSAGE_WHEN_TIMER_RUNNING')
-									: t('common.VERIFY_ACCOUNT_MSG')
-							}
+							enabled={teamItemDisabled}
+							label={teamTooltipLabel}
 							placement="bottom"
 							labelContainerClassName="z-[1100] w-fit max-w-xs"
 						>
 							<DropdownMenuItem
 								onClick={handleCreateTeamClick}
-								disabled={!user?.isEmailVerified || timerRunningStatus}
-								className={timerRunningStatus ? 'opacity-50 cursor-not-allowed' : ''}
-								title={
-									timerRunningStatus
-										? t('common.CREATE_DISABLED_MESSAGE_WHEN_TIMER_RUNNING')
-										: !user?.isEmailVerified
-											? t('common.VERIFY_ACCOUNT_MSG')
-											: undefined
-								}
+								disabled={teamItemDisabled}
+								className={cn(timerRunningStatus && 'cursor-not-allowed opacity-50')}
+								title={teamItemTitle}
 							>
 								<TeamIcon /> Team
 								<DropdownMenuShortcut>⌘CM</DropdownMenuShortcut>
@@ -153,9 +150,9 @@ export const DefaultCreateAction = ({ publicTeam }: { publicTeam?: boolean }) =>
 						<>
 							<DropdownMenuSeparator />
 
-							<DropdownMenuItem onClick={inviteOpenModal} className="!text-indigo-500">
-								<AddUserIcon className="!text-indigo-500" /> Invite
-								<DropdownMenuShortcut className="!text-indigo-500">⌘CI</DropdownMenuShortcut>
+							<DropdownMenuItem onClick={inviteOpenModal} className="text-primary-ink">
+								<AddUserIcon className="text-primary-ink" /> Invite
+								<DropdownMenuShortcut className="text-primary-ink">⌘CI</DropdownMenuShortcut>
 							</DropdownMenuItem>
 						</>
 					)}
@@ -172,14 +169,11 @@ export const DefaultCreateAction = ({ publicTeam }: { publicTeam?: boolean }) =>
 				/>
 			</Modal>
 			{!publicTeam && (
-				<CreateTeamModal
-					open={isOpen && !!user?.isEmailVerified && !timerRunningStatus}
-					closeModal={closeModal}
-				/>
+				<CreateTeamModal open={isOpen && isEmailVerified && !timerRunningStatus} closeModal={closeModal} />
 			)}
 
-			<InviteFormModal open={inviteIsOpen && !!user?.isEmailVerified} closeModal={inviteCloseModal} />
-			<CreateProjectModal open={projectIsOpen && !!user?.isEmailVerified} closeModal={projectCloseModal} />
+			<InviteFormModal open={inviteIsOpen && isEmailVerified} closeModal={inviteCloseModal} />
+			<CreateProjectModal open={projectIsOpen && isEmailVerified} closeModal={projectCloseModal} />
 		</div>
 	);
 };

@@ -4,7 +4,6 @@ import { useCallback } from 'react';
 import { useMutation } from '@tanstack/react-query';
 import { taskVersionService } from '@/core/services/client/api/tasks/task-version.service';
 import { TTaskVersionUpdate } from '@/core/types/schemas';
-import { toast } from 'sonner';
 import { useInvalidateTaskVersions } from './use-invalidate-task-versions';
 
 /**
@@ -20,13 +19,7 @@ export function useEditTaskVersion() {
 	const editTaskVersionMutation = useMutation({
 		mutationFn: ({ id, data }: { id: string; data: TTaskVersionUpdate }) =>
 			taskVersionService.updateTaskVersion({ taskVersionId: id, data }),
-		onSuccess: () => {
-			toast.success('Task version updated successfully');
-			invalidateTaskVersionsData();
-		},
-		onError: (error) => {
-			console.error('Error editing task version:', error);
-		}
+		onSuccess: () => invalidateTaskVersionsData()
 	});
 
 	const editTaskVersionMutate = editTaskVersionMutation.mutateAsync;
@@ -40,4 +33,3 @@ export function useEditTaskVersion() {
 		editTaskVersionLoading: editTaskVersionMutation.isPending
 	};
 }
-

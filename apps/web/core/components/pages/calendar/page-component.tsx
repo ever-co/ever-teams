@@ -1,7 +1,6 @@
-import { clsxm } from '@/core/lib/utils';
+import { useTranslations } from 'next-intl';
 import { DatePicker } from '@/core/components/common/date-picker';
-import { QueueListIcon } from '@heroicons/react/20/solid';
-import { addDays, format } from 'date-fns';
+import { format } from 'date-fns';
 import { Button } from '@/core/components';
 import { TimeSheetFilter, timesheetCalendar } from '@/core/components/integration/calendar';
 import {
@@ -13,48 +12,53 @@ import {
 	SelectValue
 } from '@/core/components/common/select';
 import { cn } from '@/core/lib/helpers';
-import { CalendarDays } from 'lucide-react';
 import React from 'react';
 import { DateRange } from 'react-day-picker';
-import { Input } from '@/core/components/common/input';
-import { SettingFilterIcon } from 'assets/svg';
-import { IconsCalendarMonthOutline } from '@/core/components/icons';
+import { Input, controlGroupRecipe } from '@/core/components/common/input';
+import { Calendar, Filter, ListView } from '@/core/components/icons';
+import { SegmentedControl } from '@/core/components/common/segmented-control';
 
 export function HeadCalendar({
 	openModal,
 	timesheet,
-	setCalendarTimeSheet
+	setCalendarTimeSheet,
+	children
 }: {
 	openModal?: () => void;
 	timesheet: timesheetCalendar;
 	setCalendarTimeSheet: React.Dispatch<React.SetStateAction<timesheetCalendar>>;
+	/** The team view switch, rendered with the page controls at the right of the title row. */
+	children?: React.ReactNode;
 }) {
+	const t = useTranslations();
+	const isCalendarView = timesheet === 'Calendar';
+	let title = t('pages.timesheet.TIMESHEET_TITLE');
+	if (isCalendarView) {
+		title = t('common.CALENDAR');
+	}
 	return (
-		<div className="flex justify-between items-center mt-10 bg-white dark:bg-dark-high py-2">
-			<h1 className="text-4xl font-semibold">{timesheet === 'Calendar' ? 'Calendar' : 'Timesheet'}</h1>
-			<div className="flex items-center space-x-3">
-				<button
-					onClick={() => setCalendarTimeSheet('TimeSheet')}
-					className={clsxm(
-						'hover:bg-gray-200 dark:hover:bg-muted text-xl h-10 w-10 rounded-lg flex items-center justify-center',
-						`${timesheet === 'TimeSheet' ? 'bg-gray-200 dark:bg-muted' : ''}`
-					)}
-				>
-					<QueueListIcon className={clsxm('w-5 h-5')} />
-				</button>
-				<button
-					onClick={() => setCalendarTimeSheet('Calendar')}
-					className={clsxm(
-						'hover:bg-gray-200 dark:hover:bg-muted text-xl h-10 w-10 rounded-lg flex items-center justify-center',
-						`${timesheet === 'Calendar' ? 'bg-gray-200 dark:bg-muted' : ''}`
-					)}
-				>
-					<IconsCalendarMonthOutline className={clsxm('w-5 h-5')} strokeWidth="1.8" />
-				</button>
-				<Button onClick={openModal} variant="primary" className="bg-primary dark:bg-primary-light">
-					Add Time
-				</Button>
+		<div className="flex flex-col gap-3 py-3">
+			<div className="flex flex-wrap items-center justify-between gap-3">
+				<h1 className="text-lg font-semibold text-balance">{title}</h1>
+				<div className="flex flex-wrap items-center gap-2">
+					{children}
+					<SegmentedControl
+						items={[
+							{ value: 'TimeSheet', icon: <ListView />, ariaLabel: t('pages.timesheet.TIMESHEET_TITLE') },
+							{ value: 'Calendar', icon: <Calendar />, ariaLabel: t('common.CALENDAR') }
+						]}
+						value={timesheet}
+						onValueChange={setCalendarTimeSheet}
+						ariaLabel={t('common.VIEW')}
+					/>
+					<Button onClick={openModal} variant="primary" size="default">
+						{t('common.ADD_TIME')}
+					</Button>
+				</div>
 			</div>
+			<p className="rounded-lg bg-info/10 px-3 py-2 text-sm text-info-foreground">
+				{t('common.CALENDAR_SAMPLE_DATA')}
+			</p>
 		</div>
 	);
 }
@@ -70,43 +74,37 @@ export function HeadTimeSheet({
 	openModal?: () => void;
 	closeModal?: () => void;
 }) {
-	const [date, setDate] = React.useState<DateRange | undefined>({
-		from: new Date(2022, 0, 20),
-		to: addDays(new Date(2022, 0, 20), 20)
-	});
+	// Nothing is preselected: no range is applied to the data until the user picks one.
+	const [date, setDate] = React.useState<DateRange | undefined>(undefined);
 	return (
 		<div>
 			{closeModal ? <TimeSheetFilter closeModal={closeModal} isOpen={isOpen ?? false} /> : <></>}
 
-			<div className="flex items-center justify-between w-full  dark:!bg-dark--theme h-28">
+			<div className="flex items-center justify-between w-full h-28">
 				{timesheet === 'TimeSheet' && (
-					<div className="flex justify-between items-center w-full p-2  gap-x-3">
-						<Input
-							className="border w-1/4 dark:border-gray-700"
-							placeholder="Filter time logs"
-							required
-							value=""
-							name="filter"
-						/>
+					<div className="flex justify-between items-center w-full p-2 gap-x-3">
+						<Input className="h-8 w-1/4" placeholder="Filter time logs" required value="" name="filter" />
 
-						<div className="flex items-center justify-end space-x-5 dark:!bg-dark--theme  w-full p-2 ">
+						<div className="flex items-center justify-end gap-2 w-full p-2">
 							<div>
 								<CustomSelect />
 							</div>
 							<div className="">
 								<DatePicker
 									buttonVariant={'link'}
-									className="dark:bg-dark--theme-light rounded-lg"
-									buttonClassName={
-										'decoration-transparent flex items-center w-full bg-white dark:bg-dark--theme-light border-gray-300 justify-start text-left font-normal text-black  h-10 border  dark:border-slate-600 rounded-md"'
-									}
+									className="rounded-lg bg-popover"
+									buttonClassName={cn(
+										controlGroupRecipe,
+										'decoration-transparent h-8 justify-start gap-2 px-2.5 text-left font-normal text-foreground'
+									)}
 									customInput={
 										<>
-											<CalendarDays className="h-5 w-5 dark:text-gray-500" />
+											<Calendar className="size-4 shrink-0 text-muted-foreground" />
 											<Button
-												variant={'outline'}
+												variant="ghost"
+												size="sm"
 												className={cn(
-													'w-[260px] justify-start text-left font-normal text-black  h-10 border border-transparent dark:border-transparent ',
+													'w-[260px] justify-start px-0 text-left font-normal text-foreground hover:bg-transparent',
 													!date && 'text-muted-foreground'
 												)}
 											>
@@ -137,19 +135,10 @@ export function HeadTimeSheet({
 								/>
 							</div>
 							<div>
-								<Button
-									onClick={openModal}
-									className="flex items-center justify-center h-10 rounded-lg bg-white dark:bg-dark--theme-light gap-x-3 border dark:border-gray-700 hover:bg-white"
-								>
-									<SettingFilterIcon
-										className="text-gray-700 dark:text-white w-3.5"
-										strokeWidth="1.8"
-									/>
+								<Button onClick={openModal} variant="outline" size="default">
+									<Filter className="text-muted-foreground" />
 									<div className="gap-x-2 flex items-center w-full">
-										<span className="text-gray-700 dark:text-white">Filter</span>
-										<div className="bg-gray-700 dark:bg-white h-6 w-6 rounded-full flex items-center  justify-center text-whiten dark:text-gray-700">
-											<span>6</span>
-										</div>
+										<span>Filter</span>
 									</div>
 								</Button>
 							</div>
@@ -162,6 +151,7 @@ export function HeadTimeSheet({
 }
 
 export function CustomSelect() {
+	const t = useTranslations();
 	const [selectedValue, setSelectedValue] = React.useState<string | undefined>(undefined);
 
 	const handleSelectChange = (value: string) => {
@@ -170,14 +160,14 @@ export function CustomSelect() {
 
 	return (
 		<Select value={selectedValue} onValueChange={handleSelectChange}>
-			<SelectTrigger className="w-[180px] border border-gray-200 dark:border-gray-700 bg-white dark:bg-dark--theme-light">
+			<SelectTrigger className="h-8 w-[180px]">
 				<SelectValue placeholder="Select a daily" />
 			</SelectTrigger>
 			<SelectContent>
 				<SelectGroup>
-					<SelectItem value="daily">Daily</SelectItem>
-					<SelectItem value="weekly">Weekly</SelectItem>
-					<SelectItem value="monthly">Monthly</SelectItem>
+					<SelectItem value="daily">{t('dashboard.DAILY')}</SelectItem>
+					<SelectItem value="weekly">{t('dashboard.WEEKLY')}</SelectItem>
+					<SelectItem value="monthly">{t('dashboard.MONTHLY')}</SelectItem>
 				</SelectGroup>
 			</SelectContent>
 		</Select>

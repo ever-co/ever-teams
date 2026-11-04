@@ -3,6 +3,8 @@
 import { useCallback, useMemo } from 'react';
 import { useMutation } from '@tanstack/react-query';
 import { toast } from 'sonner';
+import { useTranslations, type DottedLanguageObjectStringPaths } from 'next-intl';
+import { errorReasonKeyOf } from '@/core/lib/utils/error-feedback';
 import { useWorkspaces } from './use-workspaces';
 import { workspaceService } from '@/core/services/client/api/auth';
 import { TWorkspace } from '@/core/types/schemas/team/organization-team.schema';
@@ -14,6 +16,15 @@ import { setAuthCookies, getOrganizationIdCookie, getActiveLanguageIdCookie } fr
 export function useWorkspaceSwitcher() {
 	const { data: user } = useUserQuery();
 	const { workspaces } = useWorkspaces();
+	const t = useTranslations();
+
+	const showSwitchError = useCallback(
+		(error: unknown) => {
+			const reasonKey = errorReasonKeyOf(error) as DottedLanguageObjectStringPaths;
+			toast.error(t('toasts.workspace.SWITCH_FAILED'), { description: t(reasonKey) });
+		},
+		[t]
+	);
 
 	/**
 	 * Get last team ID with recent logout logic (from password component)
@@ -109,9 +120,6 @@ export function useWorkspaceSwitcher() {
 			// Updating states while components are mounted causes "Maximum update depth exceeded"
 			// The page reload will reinitialize all states automatically from cookies
 
-			// Show success message
-			toast.success('Workspace changed successfully');
-
 			// NOTE_CRITICAL: Use hard navigation (window.location) instead of router.push()
 			// This forces a full page reload which:
 			// 1. Clears all React Query cache automatically
@@ -122,9 +130,9 @@ export function useWorkspaceSwitcher() {
 				window.location.href = '/';
 			}
 		},
-		onError: (error: any) => {
+		onError: (error: unknown) => {
 			console.error('Error switching workspace:', error);
-			toast.error(error.message || 'Error switching workspace');
+			showSwitchError(error);
 		}
 	});
 
@@ -137,7 +145,7 @@ export function useWorkspaceSwitcher() {
 	const switchToWorkspace = useCallback(
 		(workspace: TWorkspace) => {
 			if (!user?.email) {
-				toast.error('User not authenticated');
+				showSwitchError(undefined);
 				return;
 			}
 
@@ -153,11 +161,12 @@ export function useWorkspaceSwitcher() {
 
 				// Execute the switch using the proven flow
 				switchWorkspaceMutate({ workspace, selectedTeam });
-			} catch (error: any) {
-				toast.error(error.message || 'Error preparing workspace switch');
+			} catch (error) {
+				console.error('Error preparing workspace switch:', error);
+				showSwitchError(error);
 			}
 		},
-		[user, getSmartTeamSelection, switchWorkspaceMutate]
+		[user, getSmartTeamSelection, switchWorkspaceMutate, showSwitchError]
 	);
 
 	return {

@@ -4,8 +4,9 @@ import * as React from 'react';
 import { Button } from '@/core/components/duplicated-components/_button';
 import { Calendar } from '@/core/components/common/calendar';
 import { Popover, PopoverContent, PopoverTrigger } from '@/core/components/common/popover';
-import { ChevronDown } from 'lucide-react';
+import { Calendar as CalendarIcon, ChevronDown } from '@/core/components/icons';
 import { cn } from '@/core/lib/helpers';
+import { controlGroupRecipe } from './input';
 import {
 	format,
 	startOfWeek,
@@ -25,7 +26,6 @@ import { DateRange } from 'react-day-picker';
 import { useTranslations } from 'next-intl';
 import { SettingsIcon } from './team-icon';
 import { TranslationHooks } from 'next-intl';
-import { CalendarIcon } from '@radix-ui/react-icons';
 
 interface DateRangePickerProps {
 	className?: string;
@@ -76,18 +76,19 @@ export function DateRangePicker({ className, onDateRangeChange, initialRange }: 
 	return (
 		<Popover open={isPopoverOpen} onOpenChange={setIsPopoverOpen}>
 			<PopoverTrigger asChild>
-				<div className="flex items-center border border-[#E4E4E7] dark:border-border rounded-md w-[225px]">
+				<div className={cn(controlGroupRecipe, 'w-[225px]')}>
 					<Button
-						variant="outline"
+						variant="ghost"
+						size="default"
 						className={cn(
-							'flex items-center justify-between gap-2 px-3 py-1 w-[196px] h-[36px] bg-white dark:bg-dark--theme-light rounded-r-none',
+							'w-[calc(100%-2rem)] justify-between gap-2 rounded-r-none px-3 font-normal',
 							!dateRange && 'text-muted-foreground',
 							className
 						)}
 					>
-						<CalendarIcon className="w-4 h-4" />
+						<CalendarIcon className="size-4 text-muted-foreground" />
 						{dateRange ? formatDateRange(dateRange) : t('common.SELECT')}
-						<ChevronDown className="w-4 h-4" />
+						<ChevronDown className="size-4 text-muted-foreground" />
 					</Button>
 					<Button
 						variant="ghost"
@@ -103,7 +104,7 @@ export function DateRangePicker({ className, onDateRangeChange, initialRange }: 
 						title="Open date settings"
 						aria-label="Open date settings"
 						size="icon"
-						className="flex items-center justify-center w-[36px] h-[36px] bg-white dark:bg-dark--theme-light border-l border-l-[#E4E4E7] dark:border-l-border rounded-r-md hover:bg-gray-50 dark:hover:bg-muted"
+						className="size-8 rounded-l-none hairline-l border-border text-muted-foreground"
 					>
 						<SettingsIcon />
 					</Button>
@@ -113,7 +114,7 @@ export function DateRangePicker({ className, onDateRangeChange, initialRange }: 
 				onClick={(e) => e.stopPropagation()}
 				onMouseDown={(e) => e.stopPropagation()}
 				onChange={(e) => e.stopPropagation()}
-				className="p-0 w-auto dark:bg-dark--theme-light dark:border-border border border-[#E4E4E7] rounded-md shadow-lg"
+				className="w-auto p-0"
 				align="center"
 			>
 				<div className="flex">
@@ -135,14 +136,14 @@ export function DateRangePicker({ className, onDateRangeChange, initialRange }: 
 							disabled={(date: Date) => date > endOfDay(new Date())}
 						/>
 					</div>
-					<div className="p-1 space-y-1 border-l max-w-36">
+					<div className="max-w-36 space-y-1 hairline-l border-border p-1">
 						<PredefinedRanges handleDateRangeChange={handleDateRangeChange} t={t} dateRange={dateRange} />
 					</div>
 				</div>
-				<div className="flex gap-1 justify-end p-0.5 border-t">
+				<div className="flex justify-end gap-2 hairline-t border-border p-2">
 					<Button
 						variant="outline"
-						size="sm"
+						size="default"
 						onClick={() => {
 							handleDateRangeChange(undefined);
 							setIsPopoverOpen(false);
@@ -151,7 +152,7 @@ export function DateRangePicker({ className, onDateRangeChange, initialRange }: 
 						{t('common.CLEAR')}
 					</Button>
 					<Button
-						size="sm"
+						size="default"
 						onClick={() => {
 							setIsPopoverOpen(false);
 						}}
@@ -260,22 +261,26 @@ const PredefinedRanges = ({ handleDateRangeChange, t, dateRange }: PredefinedRan
 	);
 
 	return (
-		<div className="flex flex-col gap-2 p-2">
-			{predefinedRanges.map((range) => (
-				<Button
-					key={range.label}
-					variant={range.isSelected(dateRange) ? 'default' : 'ghost'}
-					className={cn(
-						'justify-start w-full font-normal dark:text-gray-100 border rounded',
-						range.isSelected(dateRange) && 'bg-primary text-primary-foreground hover:bg-primary/90'
-					)}
-					onClick={() => {
-						range.action();
-					}}
-				>
-					{range.label}
-				</Button>
-			))}
+		<div className="flex flex-col gap-0.5 p-1">
+			{predefinedRanges.map((range) => {
+				const isActive = range.isSelected(dateRange);
+				return (
+					<Button
+						key={range.label}
+						variant="ghost"
+						aria-pressed={isActive}
+						className={cn(
+							'w-full justify-start px-2 text-sm font-normal',
+							isActive && 'bg-foreground/5 font-medium text-foreground'
+						)}
+						onClick={() => {
+							range.action();
+						}}
+					>
+						{range.label}
+					</Button>
+				);
+			})}
 		</div>
 	);
 };

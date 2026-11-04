@@ -143,5 +143,5 @@ export function useStatusValue<T extends ITaskStatusField>({
 
 export function useTaskStatusValue() {
 	const { taskStatuses } = useTaskStatusesQuery();
-	return useMapToTaskStatusValues(taskStatuses);
+	return useMapToTaskStatusValues(taskStatuses, 'status');
 }

@@ -3,9 +3,8 @@ import { getNoTeamPopupShowCookie, setNoTeamPopupShowCookie } from '@/core/lib/h
 import { isTeamMemberState, userState } from '@/core/stores';
 import { GetServerSidePropsContext, NextPage, PreviewData } from 'next';
 import { ParsedUrlQuery } from 'querystring';
-import { Suspense, useCallback, useEffect, useState } from 'react';
+import { type ComponentType, Suspense, useCallback, useEffect, useState } from 'react';
 import { useAtom } from 'jotai';
-import { BackdropLoader } from '@/core/components';
 import GlobalSkeleton from '../../common/global-skeleton';
 import { ModalSkeleton } from '../../common/skeleton/modal-skeleton';
 import { LazyCreateTeamModal, LazyJoinTeamModal } from '../../optimized-components';
@@ -14,7 +13,13 @@ import { useUserQuery } from '@/core/hooks/queries/user-user.query';
 type Params = {
 	displayName: string;
 	pageTitle?: string;
+	/** No effect: the wait shows `skeleton` (or the generic one), never a full-screen loader. Kept for callers. */
 	showPageSkeleton?: boolean;
+	/**
+	 * The page's own skeleton, the one its route `loading.tsx` shows, so the wait for the user is the same picture
+	 * as the route loading before it and the page's first load after it.
+	 */
+	skeleton?: ComponentType;
 };
 
 /** Wraps a protected page with user loading, authentication state, and team-join/create modal handling. */
@@ -53,16 +58,10 @@ export function withAuthentication(Component: NextPage<any, any>, params: Params
 
 		// REMOVED: fetchUserData is now redundant since useEffect above handles sync
 
-		// Show proper loading state instead of empty fragment
-		// SIMPLIFIED: Only use useUserQuery states
-		if (!userQuery.data || userQuery.isLoading) {
-			if (params.showPageSkeleton) {
-				// For pages that support page skeleton, show BackdropLoader
-				// This prevents blank pages and browser crashes during direct URL access
-				return <BackdropLoader show={true} title="Loading..." />;
-			}
-			// For pages without page skeleton support, show BackdropLoader
-			return <GlobalSkeleton />;
+		const isUserPending = !userQuery.data || userQuery.isLoading;
+		if (isUserPending) {
+			const PageSkeleton = params.skeleton ?? GlobalSkeleton;
+			return <PageSkeleton />;
 		}
 
 		return (

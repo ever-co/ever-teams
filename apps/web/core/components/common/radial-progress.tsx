@@ -19,7 +19,7 @@ export default function RadialProgress({
 			>
 				<svg className="w-12 h-12">
 					<circle
-						className="text-gray-300"
+						className="text-foreground/10"
 						strokeWidth="8"
 						stroke="currentColor"
 						fill="none"
@@ -28,7 +28,7 @@ export default function RadialProgress({
 						cy={cy}
 					/>
 					<circle
-						className="text-[#27AE60]"
+						className="text-success"
 						strokeWidth="8"
 						strokeDasharray={circumference}
 						strokeDashoffset={`calc(${circumference} - ${(percentage / 100) * circumference})`}
@@ -41,7 +41,7 @@ export default function RadialProgress({
 					/>
 				</svg>
 				<span
-					className="absolute text-xs font-normal text-black rotate-90 dark:text-white"
+					className="absolute text-xs font-normal tabular-nums text-foreground rotate-90"
 					x-text={`${percentage}%`}
 				>
 					{percentage}%

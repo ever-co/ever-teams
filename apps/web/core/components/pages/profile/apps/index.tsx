@@ -1,73 +1,27 @@
-import { useTimeDailyActivity } from '@/core/hooks/activities/use-time-daily-activity';
-import { groupAppsByHour } from '@/core/lib/helpers/array-data';
+'use client';
+
 import { useTranslations } from 'next-intl';
-import { useMemo } from 'react';
-import VisitedItem from '../visited-Item';
-import { VisitedItemSkeleton } from '../visited-item-skeleton';
-import { TrackingSourceEmptyState } from '../tracking-source-empty-state';
+import { useTimeDailyActivity } from '@/core/hooks/activities/use-time-daily-activity';
+import { failureOfActivityRead } from '@/core/components/activities/activity-blocks';
+import { TDailyActivity } from '@/core/types/schemas';
+import { ActivityShareGroups } from '../activity-share-groups';
+
+const NO_ACTIVITIES: TDailyActivity[] = [];
 
 export function AppsTab() {
-	const { visitedApps, loading } = useTimeDailyActivity('APP');
 	const t = useTranslations();
-	const apps = groupAppsByHour(visitedApps ?? []);
+	const dailyActivity = useTimeDailyActivity('APP');
+	const failure = failureOfActivityRead(dailyActivity);
+	const visitedApps = dailyActivity.visitedApps ?? NO_ACTIVITIES;
 
-	const headers = useMemo(
-		() => [
-			{
-				title: t('timer.APPS'),
-				width: '20%'
-			},
-			{
-				title: t('timer.VISITED_DATES'),
-				width: '25%'
-			},
-			{
-				title: t('timer.PERCENT_USED'),
-				width: '40%'
-			},
-			{
-				title: t('timer.TIME_SPENT_IN_HOURS'),
-				width: '15%'
-			}
-		],
-		[t]
-	);
 	return (
-		<div>
-			<div className="flex justify-end w-full">{/* TODO: Filters components */}</div>
-			<div className="w-full space-y-6">
-				<header className="bg-gray-200 dark:bg-muted rounded-[1rem] px-6 h-14 flex items-center">
-					{headers.map((header, i) => (
-						<div style={{ flexBasis: header.width }} key={i} className="border font-medium">
-							{header.title}
-						</div>
-					))}
-				</header>
-				<section className="space-y-6">
-					{apps?.map((app, i) => (
-						<div key={i} className=" p-6 rounded-[1rem] bg-white dark:bg-muted">
-							{app?.apps?.map((item, i) => (
-								<div key={i} className="w-full">
-									{/* <AppVisitedModal> */}
-									<VisitedItem app={item} totalMilliseconds={app?.totalMilliseconds} type="APP" />
-									{/* </AppVisitedModal> */}
-								</div>
-							))}
-						</div>
-					))}
-				</section>
-				{visitedApps?.length < 1 && !loading && (
-					<div className="hover:dark:bg-muted border dark:border-border dark:bg-background p-4 py-16 rounded-md flex justify-center items-center my-2">
-						<TrackingSourceEmptyState label={t('timer.THERE_IS_NO_APPS_VISITED')} />
-					</div>
-				)}
-				{loading && visitedApps?.length < 1 && (
-					<>
-						<VisitedItemSkeleton />
-						<VisitedItemSkeleton />
-					</>
-				)}
-			</div>
-		</div>
+		<ActivityShareGroups
+			activities={visitedApps}
+			type="APP"
+			loading={dailyActivity.loading}
+			failure={failure}
+			emptyLabel={t('timer.THERE_IS_NO_APPS_VISITED')}
+			errorTitle={t('profile.activity.APPS_ERROR')}
+		/>
 	);
 }

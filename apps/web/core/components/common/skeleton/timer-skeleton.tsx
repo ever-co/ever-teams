@@ -1,31 +1,31 @@
 import { clsxm } from '@/core/lib/utils';
-import { VerticalSeparator } from '../../duplicated-components/separator';
 
+const BAR = 'animate-pulse bg-foreground/[0.06]';
+
+/**
+ * The timer while its chunk or its data loads, box for box with `Timer`: the digits line, the progress track under
+ * it, the empty slot of the tracking-source icon and the 44px button. Give it the className the `Timer` receives, so
+ * both resolve to the same width and padding.
+ */
 export const TimerSkeleton = ({ className }: { className?: string }) => {
 	return (
 		<div
-			className={clsxm(
-				'flex justify-center items-center p-2 space-x-2 space-y-5 lg:flex-col xl:flex-row xl:space-y-0 min-w-[260px]',
-				className
-			)}
+			aria-hidden="true"
+			className={clsxm('flex min-w-65 flex-row items-center justify-between gap-4 p-2', className)}
 		>
-			<div className="flex justify-center items-center pr-2 space-x-2 w-full xl:w-4/5">
-				<div className="flex justify-between items-start w-full">
-					<div className="mx-auto w-full">
-						{/* Timer display */}
-						<div className="w-[200px] h-12 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded-lg" />
-
-						{/* Timer status */}
-						<div className="mt-2 w-24 h-4 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded" />
+			<div className="flex min-w-0 items-center gap-2">
+				<div className="flex min-w-0 items-start gap-2">
+					<div className="flex min-w-0 flex-col">
+						<div className="flex h-9 w-38 items-center">
+							<span className={clsxm(BAR, 'h-7 w-full rounded-md')} />
+						</div>
+						<span className="mt-2 h-2 w-full rounded-full bg-foreground/10" />
 					</div>
+					<div />
 				</div>
 			</div>
-
-			<VerticalSeparator />
-
-			<div className="flex justify-center items-center w-1/4 xl:w-2/5 h-fit">
-				{/* Timer button */}
-				<div className="w-12 h-12 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded-full" />
+			<div className="flex h-fit shrink-0 items-center justify-center">
+				<span className={clsxm(BAR, 'size-11 rounded-full')} />
 			</div>
 		</div>
 	);

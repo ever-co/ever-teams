@@ -112,3 +112,24 @@ export type TUrlMetaData = z.infer<typeof urlMetaDataSchema>;
 export type TTimeSlot = z.infer<typeof timeSlotSchema>;
 // Note: TOrganizationTeamEmployee, TRelationalEmployee, TRelationalOrganizationProject
 // are already exported from their respective schema files
+
+/**
+ * One app or site entry of `GET /timesheet/activity`, reduced to what the day views read. Lenient on purpose: one
+ * row the desktop app wrote without a description must not fail the whole read, as the full schema would.
+ */
+export const activityEntrySchema = z
+	.object({
+		id: z.string(),
+		title: z.string().nullish(),
+		description: z.string().nullish(),
+		date: z.string().nullish(),
+		time: z.string().nullish(),
+		duration: z.coerce.number().nullish(),
+		type: z.string().nullish(),
+		employeeId: z.string().nullish(),
+		timeSlotId: z.string().nullish(),
+		recordedAt: z.coerce.date().nullish()
+	})
+	.passthrough();
+
+export type TActivityEntry = z.infer<typeof activityEntrySchema>;

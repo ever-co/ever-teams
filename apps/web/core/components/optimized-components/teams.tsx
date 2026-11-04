@@ -1,4 +1,11 @@
 import dynamic from 'next/dynamic';
+import { TeamsDropDownSkeleton } from '@/core/components/common/skeleton/teams-dropdown-skeleton';
+import { CurrentViewMembersSkeleton } from '@/core/components/common/skeleton/team-members-skeleton';
+import {
+	CurrentViewHeaderSkeleton,
+	TeamMemberHeaderSkeleton
+} from '@/core/components/common/skeleton/team-member-header-skeleton';
+import { IssuesView } from '@/core/constants/config/constants';
 // import { TeamsDropDownSkeleton } from '../common/skeleton/teams-dropdown-skeleton';
 // import { ModalSkeleton } from '../common/skeleton/modal-skeleton';
 
@@ -9,18 +16,17 @@ export const LazyTeamOutstandingNotifications = dynamic(
 			default: mod.TeamOutstandingNotifications
 		})),
 	{
-		ssr: false
-		// Note: Removed loading here to avoid double loading states
-		// Suspense fallback will handle all loading states uniformly
+		ssr: false,
+		loading: () => <TeamsDropDownSkeleton />
 	}
 );
 
 export const LazyTeamMembers = dynamic(
 	() => import('@/core/components/pages/teams/team/team-members').then((mod) => ({ default: mod.TeamMembers })),
 	{
-		ssr: false
-		// Note: Removed loading here to avoid double loading states
-		// Suspense fallback will handle all loading states uniformly
+		ssr: false,
+		// next/dynamic never suspends to the page's Suspense: without its own loader the list is blank meanwhile
+		loading: () => <CurrentViewMembersSkeleton />
 	}
 );
 
@@ -40,18 +46,16 @@ export const LazyUserTeamCardHeader = dynamic(
 			default: mod.UserTeamCardHeader
 		})),
 	{
-		ssr: false
-		// Note: Removed loading here to avoid double loading states
-		// Parent component's Suspense fallback will handle all loading states uniformly
+		ssr: false,
+		loading: () => <TeamMemberHeaderSkeleton view={IssuesView.CARDS} />
 	}
 );
 
 export const LazyUserTeamTableHeader = dynamic(
 	() => import('../pages/teams/team/team-members-views/user-team-table/user-team-table-header'),
 	{
-		ssr: false
-		// Note: Removed loading here to avoid double loading states
-		// Parent component's Suspense fallback will handle all loading states uniformly
+		ssr: false,
+		loading: () => <TeamMemberHeaderSkeleton view={IssuesView.TABLE} />
 	}
 );
 
@@ -61,9 +65,8 @@ export const LazyUserTeamBlockHeader = dynamic(
 			default: mod.UserTeamBlockHeader
 		})),
 	{
-		ssr: false
-		// Note: Removed loading here to avoid double loading states
-		// Parent component's Suspense fallback will handle all loading states uniformly
+		ssr: false,
+		loading: () => <TeamMemberHeaderSkeleton view={IssuesView.BLOCKS} />
 	}
 );
 
@@ -78,9 +81,8 @@ export const LazyJoinTeamModal = dynamic(
 
 // Team Member Header (Main Component)
 export const LazyTeamMemberHeader = dynamic(() => import('@/core/components/teams/team-member-header'), {
-	ssr: false
-	// Note: Removed loading here to avoid double loading states
-	// Suspense fallback will handle all loading states uniformly
+	ssr: false,
+	loading: () => <CurrentViewHeaderSkeleton />
 });
 
 // Teams Dropdown Components
