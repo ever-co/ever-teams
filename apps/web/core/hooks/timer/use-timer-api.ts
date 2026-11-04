@@ -111,6 +111,8 @@ export type TimerStartOutcome = 'started' | 'blocked';
 /** Shared by every place that refuses a start because time is tracked elsewhere, so repeated tries replace it. */
 export const ALREADY_TRACKING_TOAST_ID = 'timer-already-tracking';
 
+const TRACKING_DISABLED_TOAST_ID = 'timer-tracking-disabled';
+
 const AUTOMATIC_STOP_TOAST_ID = 'timer-automatic-stop';
 
 // ==================== SHARED REQUEST GUARDS ====================
@@ -455,6 +457,13 @@ export function useTimerApi({
 	const canStartWithoutTrackingConflict = useCallback(async (): Promise<boolean> => {
 		try {
 			const userData = await refreshUserData();
+			// Gauzy refuses the start with a 403 that reads like a role problem; the team data may be older than this read
+			const isEmployeeTrackingOff = userData?.employee?.isTrackingEnabled === false;
+			if (isEmployeeTrackingOff) {
+				toast.warning(t('timer.TRACKING_DISABLED_MESSAGE'), { id: TRACKING_DISABLED_TOAST_ID });
+				queryClient.invalidateQueries({ queryKey: queryKeys.organizationTeams.all });
+				return false;
+			}
 			if (userData?.employee.isTrackingTime) {
 				// Cross-check with timer status to detect desync
 				// (employee.isTrackingTime stuck at true while timer is actually stopped)
@@ -499,7 +508,7 @@ export function useTimerApi({
 			logErrorInDev('Failed to verify tracking status', error);
 			return false;
 		}
-	}, [refreshUserData, stopStaleTeamsTimer, t, timerStatusRef]);
+	}, [queryClient, refreshUserData, stopStaleTeamsTimer, t, timerStatusRef]);
 
 	const runStartTimer = useCallback(
 		async (explicitTask?: TTask, onRequestLanded?: () => void): Promise<TimerStartOutcome> => {

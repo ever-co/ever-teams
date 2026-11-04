@@ -2454,6 +2454,7 @@
 	"timer": {
 		"START_TIMER": "Por favor, selecione ou crie uma nova tarefa para começar a rastrear o tempo ou crie um plano",
 		"ALREADY_TRACKING_MESSAGE": "Você já está rastreando o tempo em outra aba ou dispositivo.",
+		"TRACKING_DISABLED_MESSAGE": "O registro de tempo está desativado para você. Um administrador da organização pode ativá-lo.",
 		"TASK_CLOSED": "A tarefa está fechada",
 		"PLAN_REQUIRED_TO_START": "Adicione esta tarefa ao plano de hoje para começar",
 		"STARTING_TIMER": "Iniciando temporizador...",

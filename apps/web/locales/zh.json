@@ -2454,6 +2454,7 @@
 	"timer": {
 		"START_TIMER": "请选择或创建新任务以开始计时 或製定計劃",
 		"ALREADY_TRACKING_MESSAGE": "您已经在另一个标签页或设备上跟踪时间。",
+		"TRACKING_DISABLED_MESSAGE": "您的时间跟踪已关闭。组织管理员可以将其开启。",
 		"TASK_CLOSED": "任务已关闭",
 		"PLAN_REQUIRED_TO_START": "将此任务添加到今日计划后即可开始",
 		"STARTING_TIMER": "正在启动计时器...",

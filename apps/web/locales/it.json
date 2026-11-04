@@ -2454,6 +2454,7 @@
 	"timer": {
 		"START_TIMER": "Per favore, seleziona o crea un nuovo compito per iniziare a tracciare il tempo o creare un piano",
 		"ALREADY_TRACKING_MESSAGE": "Stai già tracciando il tempo in un'altra scheda o dispositivo.",
+		"TRACKING_DISABLED_MESSAGE": "Il monitoraggio del tempo è disattivato per te. Un amministratore dell'organizzazione può attivarlo.",
 		"TASK_CLOSED": "L'attività è chiusa",
 		"PLAN_REQUIRED_TO_START": "Aggiungi questa attività al piano di oggi per iniziare",
 		"STARTING_TIMER": "Avvio del timer...",
