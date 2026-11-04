@@ -41,7 +41,7 @@ interface Shift {
 }
 
 interface FormState {
-	isBillable: boolean;
+	billableChoice: boolean | null;
 	notes: string;
 	projectId: string;
 	taskId: string;
@@ -101,6 +101,14 @@ function findProject(projectId: string | null | undefined, projects: TOrganizati
 	return projects.find((project) => project.id === projectId);
 }
 
+/** The billable value picked by hand, or else the entry's project's own setting. */
+function billableOf(billableChoice: boolean | null, project: TOrganizationProject | null): boolean {
+	if (billableChoice !== null) {
+		return billableChoice;
+	}
+	return project?.billable === true;
+}
+
 /** A task's time goes to the task's own project: when the task has one, it is the only project offered. */
 function projectChoicesFor(taskProject: TOrganizationProject | undefined, projects: TOrganizationProject[]) {
 	if (taskProject) {
@@ -122,7 +130,7 @@ export function AddTaskModal({ closeModal, isOpen }: IAddTaskModalProps) {
 
 	const [formState, setFormState] = React.useState({
 		notes: '',
-		isBillable: false,
+		billableChoice: null as boolean | null,
 		taskId: '',
 		employeeId: '',
 		projectId: '',
@@ -149,25 +157,24 @@ export function AddTaskModal({ closeModal, isOpen }: IAddTaskModalProps) {
 	const selectedTask = tasks.find((task) => task.id === formState.taskId);
 	const taskProject = findProject(selectedTask?.projectId, projects);
 	const selectedProject = findProject(formState.projectId, projects) ?? null;
+	const isBillable = billableOf(formState.billableChoice, selectedProject);
 
 	const pickTask = useCallback(
 		(taskId: string) => {
 			const pickedTask = tasks.find((task) => task.id === taskId);
 			const pickedTaskProjectId = pickedTask?.projectId;
 			if (!pickedTaskProjectId) {
-				setFormState((prevState) => ({ ...prevState, taskId }));
+				setFormState((prevState) => ({ ...prevState, taskId, billableChoice: null }));
 				return;
 			}
-			const pickedTaskProject = findProject(pickedTaskProjectId, organizationProjects || []);
-			const isProjectBillable = pickedTaskProject?.billable === true;
 			setFormState((prevState) => ({
 				...prevState,
 				taskId,
 				projectId: pickedTaskProjectId,
-				isBillable: isProjectBillable
+				billableChoice: null
 			}));
 		},
-		[organizationProjects, tasks]
+		[tasks]
 	);
 
 	const projectItemsLists = useMemo(
@@ -223,7 +230,7 @@ export function AddTaskModal({ closeModal, isOpen }: IAddTaskModalProps) {
 
 	const handleAddTimesheet = async (formState: FormState) => {
 		const payload = {
-			isBillable: formState.isBillable,
+			isBillable,
 			description: formState.notes,
 			projectId: formState.projectId,
 			logType: ETimeLogType.MANUAL as any,
@@ -360,13 +367,13 @@ export function AddTaskModal({ closeModal, isOpen }: IAddTaskModalProps) {
 					</label>
 					<div className="flex gap-3 items-start">
 						<ToggleButton
-							isActive={formState.isBillable}
-							onClick={() => updateFormState('isBillable', true)}
+							isActive={isBillable}
+							onClick={() => updateFormState('billableChoice', true)}
 							label={t('pages.timesheet.BILLABLE.YES')}
 						/>
 						<ToggleButton
-							isActive={!formState.isBillable}
-							onClick={() => updateFormState('isBillable', false)}
+							isActive={!isBillable}
+							onClick={() => updateFormState('billableChoice', false)}
 							label={t('pages.timesheet.BILLABLE.NO')}
 						/>
 					</div>
