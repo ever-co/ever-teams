@@ -36,6 +36,7 @@ import { ILocalTimerStatus, ITimerStatus } from '@/core/types/interfaces/timer/t
 import { TDailyPlan } from '@/core/types/schemas/task/daily-plan.schema';
 import { TTask } from '@/core/types/schemas/task/task.schema';
 import { TUser } from '@/core/types/schemas/user/user.schema';
+import type { TOrganizationTeam } from '@/core/types/schemas';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 
 import { useAuthenticateUser } from '../auth/use-authenticate-user';
@@ -112,6 +113,14 @@ export type TimerStartOutcome = 'started' | 'blocked';
 export const ALREADY_TRACKING_TOAST_ID = 'timer-already-tracking';
 
 const TRACKING_DISABLED_TOAST_ID = 'timer-tracking-disabled';
+
+// The team data may be older than the user read: only the team switch it states is trusted, not a missing one
+function isTrackingTurnedOff(user: TUser | null | undefined, team: TOrganizationTeam | null | undefined): boolean {
+	const isEmployeeTrackingOff = user?.employee?.isTrackingEnabled === false;
+	const member = team?.members?.find((candidate) => candidate.employee?.userId === user?.id);
+	const isTeamTrackingOff = member?.isTrackingEnabled === false;
+	return isEmployeeTrackingOff || isTeamTrackingOff;
+}
 
 const AUTOMATIC_STOP_TOAST_ID = 'timer-automatic-stop';
 
@@ -216,6 +225,7 @@ export function useTimerApi({
 	// ==================== REFS ====================
 
 	const timerStatusRef = useSyncRef(timerStatus);
+	const activeTeamRef = useSyncRef(activeTeam);
 	const localTimerStatusRef = useSyncRef(localTimerStatus);
 	const taskId = useSyncRef(activeTeamTask?.id);
 	const activeTeamTaskRef = useSyncRef(activeTeamTask);
@@ -456,12 +466,18 @@ export function useTimerApi({
 	// Check if the user is tracking time in another tab or device
 	const canStartWithoutTrackingConflict = useCallback(async (): Promise<boolean> => {
 		try {
+			// Gauzy refuses the start with a 403 that reads like a role problem, so a start it would refuse is not sent
+			const refuseWhenTrackingIsOff = (user: TUser | null | undefined) => {
+				const isTurnedOff = isTrackingTurnedOff(user, activeTeamRef.current);
+				if (isTurnedOff) {
+					toast.warning(t('timer.TRACKING_DISABLED_MESSAGE'), { id: TRACKING_DISABLED_TOAST_ID });
+					queryClient.invalidateQueries({ queryKey: queryKeys.organizationTeams.all });
+				}
+				return isTurnedOff;
+			};
+
 			const userData = await refreshUserData();
-			// Gauzy refuses the start with a 403 that reads like a role problem; the team data may be older than this read
-			const isEmployeeTrackingOff = userData?.employee?.isTrackingEnabled === false;
-			if (isEmployeeTrackingOff) {
-				toast.warning(t('timer.TRACKING_DISABLED_MESSAGE'), { id: TRACKING_DISABLED_TOAST_ID });
-				queryClient.invalidateQueries({ queryKey: queryKeys.organizationTeams.all });
+			if (refuseWhenTrackingIsOff(userData)) {
 				return false;
 			}
 			if (userData?.employee.isTrackingTime) {
@@ -491,6 +507,9 @@ export function useTimerApi({
 					}
 					// Refresh user data to confirm the flag was reset
 					const refreshed = await refreshUserData();
+					if (refuseWhenTrackingIsOff(refreshed)) {
+						return false;
+					}
 					if (refreshed?.employee.isTrackingTime) {
 						// Flag still stuck after stop — cannot auto-heal, block with toast
 						toast.warning(t('timer.ALREADY_TRACKING_MESSAGE'), { id: ALREADY_TRACKING_TOAST_ID });
@@ -508,7 +527,7 @@ export function useTimerApi({
 			logErrorInDev('Failed to verify tracking status', error);
 			return false;
 		}
-	}, [queryClient, refreshUserData, stopStaleTeamsTimer, t, timerStatusRef]);
+	}, [activeTeamRef, queryClient, refreshUserData, stopStaleTeamsTimer, t, timerStatusRef]);
 
 	const runStartTimer = useCallback(
 		async (explicitTask?: TTask, onRequestLanded?: () => void): Promise<TimerStartOutcome> => {
