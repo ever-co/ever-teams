@@ -1,9 +1,6 @@
 import { atom } from 'jotai';
 
-export type TTimerBillableChoice = {
-	taskId: string;
-	isBillable: boolean;
-};
+export type TTimerBillableChoices = Record<string, boolean>;
 
-/** The billable value picked by hand before a start; it only applies to the task it was picked for. */
-export const timerBillableChoiceState = atom<TTimerBillableChoice | null>(null);
+/** The billable value picked by hand before a start, by task id; a task without one starts from its project's. */
+export const timerBillableChoicesState = atom<TTimerBillableChoices>({});

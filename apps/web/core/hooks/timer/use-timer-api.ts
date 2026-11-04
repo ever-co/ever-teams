@@ -523,7 +523,7 @@ export function useTimerApi({
 				return 'blocked';
 			}
 
-			const isBillableToUse = resolveTimerBillable(taskToUse);
+			const isBillableToUse = await resolveTimerBillable(taskToUse);
 
 			updateLocalTimerStatus({
 				lastTaskId: taskIdToUse,

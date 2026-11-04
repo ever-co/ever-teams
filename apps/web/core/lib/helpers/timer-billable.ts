@@ -1,34 +1,40 @@
-import type { TTimerBillableChoice } from '@/core/stores/timer/timer-billable';
+import type { TTimerBillableChoices } from '@/core/stores/timer/timer-billable';
 import type { TOrganizationProject } from '@/core/types/schemas/organization/organization-project.schema';
 import type { TTask } from '@/core/types/schemas/task/task.schema';
 
 type TBillableTask = Pick<TTask, 'id' | 'projectId'>;
 
-export function isProjectBillable(projectId: string | null | undefined, projects: TOrganizationProject[]): boolean {
-	if (!projectId) {
-		return false;
+/** The value picked by hand for the task, or undefined when the task starts from its project's. */
+export function pickedBillableOf(task: TBillableTask, choices: TTimerBillableChoices): boolean | undefined {
+	const picked = choices[task.id];
+	if (typeof picked === 'boolean') {
+		return picked;
 	}
-	const project = projects.find((item) => item.id === projectId);
-	return project?.billable === true;
+	return undefined;
+}
+
+export function findTaskProject(
+	task: TBillableTask,
+	projects: TOrganizationProject[]
+): TOrganizationProject | undefined {
+	if (!task.projectId) {
+		return undefined;
+	}
+	return projects.find((project) => project.id === task.projectId);
 }
 
 export function timerBillableOf(
 	task: TBillableTask | null | undefined,
 	projects: TOrganizationProject[],
-	choice: TTimerBillableChoice | null
+	choices: TTimerBillableChoices
 ): boolean {
 	if (!task) {
 		return false;
 	}
-	if (choice && choice.taskId === task.id) {
-		return choice.isBillable;
+	const picked = pickedBillableOf(task, choices);
+	if (picked !== undefined) {
+		return picked;
 	}
-	return isProjectBillable(task.projectId, projects);
-}
-
-export function choiceKeptForTask(choice: TTimerBillableChoice | null, taskId: string): TTimerBillableChoice | null {
-	if (choice?.taskId === taskId) {
-		return choice;
-	}
-	return null;
+	const project = findTaskProject(task, projects);
+	return project?.billable === true;
 }
