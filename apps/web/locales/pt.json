@@ -3884,6 +3884,7 @@
 			"LAST_NAME": "Sobrenome",
 			"FIRST_NAME_REQUIRED": "Digite um nome.",
 			"TRACK_TIME": "Registrar tempo",
+			"TRACKING_OFF_BY_ADMIN": "Desativado por um administrador da organização",
 			"REMOVE": "Remover da equipe",
 			"REMOVE_TITLE": "Remover {name} de {team}?",
 			"REMOVE_CONSEQUENCE_LIST": "{name} deixa de estar entre os membros da equipe.",

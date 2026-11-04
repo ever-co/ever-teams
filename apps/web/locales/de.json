@@ -3884,6 +3884,7 @@
 			"LAST_NAME": "Nachname",
 			"FIRST_NAME_REQUIRED": "Gib einen Vornamen ein.",
 			"TRACK_TIME": "Zeit erfassen",
+			"TRACKING_OFF_BY_ADMIN": "Von einem Administrator der Organisation deaktiviert",
 			"REMOVE": "Aus dem Team entfernen",
 			"REMOVE_TITLE": "{name} aus {team} entfernen?",
 			"REMOVE_CONSEQUENCE_LIST": "{name} gehört nicht mehr zu den Mitgliedern des Teams.",

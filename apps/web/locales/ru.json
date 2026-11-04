@@ -3884,6 +3884,7 @@
 			"LAST_NAME": "Фамилия",
 			"FIRST_NAME_REQUIRED": "Введите имя.",
 			"TRACK_TIME": "Учёт времени",
+			"TRACKING_OFF_BY_ADMIN": "Отключено администратором организации",
 			"REMOVE": "Удалить из команды",
 			"REMOVE_TITLE": "Удалить {name} из команды {team}?",
 			"REMOVE_CONSEQUENCE_LIST": "{name} больше не будет среди участников команды.",

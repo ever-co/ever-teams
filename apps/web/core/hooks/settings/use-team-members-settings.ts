@@ -32,6 +32,9 @@ import { useDeleteTask } from '@/core/hooks/organizations/teams/use-delete-task'
 import { useEditOrganizationTeam } from '@/core/hooks/organizations/teams/use-edit-organization-team';
 import { useGetActiveTeam } from '@/core/hooks/organizations/teams/use-get-active-team';
 import { useUserQuery } from '@/core/hooks/queries/user-user.query';
+import { useOrganizationEmployeeTeams } from '@/core/hooks/organizations/teams/use-organization-teams-employee';
+import { useMyRolePermissionsQuery } from '@/core/hooks/roles/use-my-role-permissions-query';
+import { canMemberTrackTime } from '@/core/lib/helpers/team-member-tracking';
 import type { TOrganizationTeamEmployee } from '@/core/types/schemas';
 import type { TUpdateEmployee } from '@/core/types/schemas/organization/employee.schema';
 
@@ -50,6 +53,7 @@ export interface MemberRowModel {
 	canEditName: boolean;
 	showsTracking: boolean;
 	isTrackingEnabled: boolean;
+	isTrackingLocked: boolean;
 	isRolePending: boolean;
 	isTrackingPending: boolean;
 }
@@ -87,7 +91,13 @@ function roleOf(member: TOrganizationTeamEmployee): TeamRole {
 }
 
 function isTrackingEnabledOf(member: TOrganizationTeamEmployee): boolean {
-	return memberEmployeeOf(member)?.isTrackingEnabled ?? false;
+	return canMemberTrackTime(member);
+}
+
+// A team manager switches the member's tracking in this team; the employee's own switch is an organization admin's
+function isTrackingLockedFor(member: TOrganizationTeamEmployee, canEditEmployees: boolean): boolean {
+	const isEmployeeTrackingOff = memberEmployeeOf(member)?.isTrackingEnabled === false;
+	return isEmployeeTrackingOff && !canEditEmployees;
 }
 
 export function useTeamMembersSettings() {
@@ -102,6 +112,9 @@ export function useTeamMembersSettings() {
 	const { deleteEmployeeFromTasks } = useDeleteTask();
 	const { updateAvatar } = useSettings();
 	const { updateEmployeeAsync } = useEmployeeUpdate();
+	const { updateOrganizationTeamEmployee } = useOrganizationEmployeeTeams();
+	const { myPermissions } = useMyRolePermissionsQuery();
+	const canEditEmployees = myPermissions.includes('ORG_EMPLOYEES_EDIT');
 
 	const [roleOverrides, setRoleOverrides] = useState<Overrides<TeamRole>>({});
 	const [trackingOverrides, setTrackingOverrides] = useState<Overrides<boolean>>({});
@@ -162,12 +175,22 @@ export function useTeamMembersSettings() {
 				canEditName: Boolean(memberUserId),
 				showsTracking: isListedManager && !isManagerRole && hasEmployee,
 				isTrackingEnabled,
+				isTrackingLocked: isTrackingLockedFor(member, canEditEmployees),
 				isRolePending: pendingRoles.has(rowId),
 				isTrackingPending: pendingTracking.has(rowId)
 			});
 		}
 		return models;
-	}, [isListedManager, members, pendingRoles, pendingTracking, roleOverrides, trackingOverrides, userId]);
+	}, [
+		canEditEmployees,
+		isListedManager,
+		members,
+		pendingRoles,
+		pendingTracking,
+		roleOverrides,
+		trackingOverrides,
+		userId
+	]);
 
 	const showFailure = useCallback(
 		(titleKey: DottedLanguageObjectStringPaths, values: Record<string, string>, error: unknown) => {
@@ -263,16 +286,23 @@ export function useTeamMembersSettings() {
 			setTrackingOverrides((current) => ({ ...current, [rowId]: enabled }));
 			setPendingTracking((current) => new Set(current).add(rowId));
 			try {
-				const { member, employeeId } = findMember(rowId);
-				const employee = member.employee;
-				const data: TUpdateEmployee = {
-					isTrackingEnabled: enabled,
-					id: employeeId,
-					organizationId: employee?.organizationId,
-					isActive: employee?.isActive,
-					tenantId: employee?.tenantId
-				};
-				await updateEmployeeAsync({ id: employeeId, data });
+				const { team, member, employeeId } = findMember(rowId);
+				await updateOrganizationTeamEmployee(rowId, {
+					organizationId: team.organizationId,
+					organizationTeamId: team.id,
+					isTrackingEnabled: enabled
+				});
+				if (canEditEmployees) {
+					const employee = member.employee;
+					const data: TUpdateEmployee = {
+						isTrackingEnabled: enabled,
+						id: employeeId,
+						organizationId: employee?.organizationId,
+						isActive: employee?.isActive,
+						tenantId: employee?.tenantId
+					};
+					await updateEmployeeAsync({ id: employeeId, data });
+				}
 				// The row reads the employee through the team: without this it keeps the old value
 				await queryClient.invalidateQueries({ queryKey: queryKeys.organizationTeams.all });
 			} catch {
@@ -285,7 +315,7 @@ export function useTeamMembersSettings() {
 				});
 			}
 		},
-		[findMember, queryClient, updateEmployeeAsync]
+		[canEditEmployees, findMember, queryClient, updateEmployeeAsync, updateOrganizationTeamEmployee]
 	);
 
 	return {
