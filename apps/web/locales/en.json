@@ -2461,6 +2461,7 @@
 		"TIMER_START_FAILED": "Failed to start timer",
 		"STALE_TIMER_STOPPED_DESCRIPTION": "Your timer kept running after the app was closed, so it was stopped at the last moment the app was open ({stoppedAt}). If you worked after that, add the time manually.",
 		"TIMER_STOP_FAILED": "Failed to stop timer. Please try again.",
+		"BILLABLE": "Billable",
 		"TEAM_SWITCH": {
 			"STOPPED_TIMER_TOAST_TITLE": "Timer Stopped",
 			"STOPPED_TIMER_TOAST_DESCRIPTION": "Timer Stopped due to Team Switch"

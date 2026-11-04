@@ -2461,6 +2461,7 @@
 		"TIMER_START_FAILED": "כישלון בהפעלת טיימר",
 		"STALE_TIMER_STOPPED_DESCRIPTION": "הטיימר המשיך לרוץ לאחר סגירת האפליקציה, ולכן הוא הופסק ברגע האחרון שבו האפליקציה הייתה פתוחה ({stoppedAt}). אם עבדת לאחר מכן, הוסף את הזמן באופן ידני.",
 		"TIMER_STOP_FAILED": "כישלון בעצירת טיימר. אנא נסה שוב.",
+		"BILLABLE": "לחיוב",
 		"TEAM_SWITCH": {
 			"STOPPED_TIMER_TOAST_TITLE": "טיימר הופסק",
 			"STOPPED_TIMER_TOAST_DESCRIPTION": "הטיימר הופסק בגלל מעבר צוות"

@@ -2461,6 +2461,7 @@
 		"TIMER_START_FAILED": "فشل بدء المؤقت",
 		"STALE_TIMER_STOPPED_DESCRIPTION": "استمر المؤقت في العمل بعد إغلاق التطبيق، لذلك تم إيقافه عند آخر لحظة كان فيها التطبيق مفتوحًا ({stoppedAt}). إذا عملت بعد ذلك، فأضف الوقت يدويًا.",
 		"TIMER_STOP_FAILED": "فشل إيقاف المؤقت. يرجى المحاولة مرة أخرى.",
+		"BILLABLE": "قابل للفوترة",
 		"TEAM_SWITCH": {
 			"STOPPED_TIMER_TOAST_TITLE": "توقف المؤقت",
 			"STOPPED_TIMER_TOAST_DESCRIPTION": "توقف المؤقت بسبب التبديل بين الفرق"
