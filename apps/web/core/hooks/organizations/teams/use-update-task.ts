@@ -102,8 +102,16 @@ export function useUpdateTask() {
 
 	// Update mutation
 	const updateTaskMutation = useMutation({
-		mutationFn: async ({ taskId, taskData }: { taskId: string; taskData: Partial<TTask> }) => {
-			return await taskService.updateTask({ taskId, data: taskData });
+		mutationFn: async ({
+			taskId,
+			taskData,
+			moveTimeLogs
+		}: {
+			taskId: string;
+			taskData: Partial<TTask>;
+			moveTimeLogs?: boolean;
+		}) => {
+			return await taskService.updateTask({ taskId, data: taskData, moveTimeLogs });
 		},
 		onMutate: async ({ taskId, taskData }) => {
 			// Cancel any outgoing refetches (so they don't overwrite our optimistic update)
@@ -174,11 +182,12 @@ export function useUpdateTask() {
 
 	const updateTaskMutateAsync = updateTaskMutation.mutateAsync;
 	const updateTask = useCallback(
-		async (task: Partial<TTask> & { id: string }) => {
+		async (task: Partial<TTask> & { id: string }, options?: { moveTimeLogs?: boolean }) => {
 			try {
 				const res = await updateTaskMutateAsync({
 					taskId: task.id,
-					taskData: task
+					taskData: task,
+					moveTimeLogs: options?.moveTimeLogs
 				});
 
 				setActive({
