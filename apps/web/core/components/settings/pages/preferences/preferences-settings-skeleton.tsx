@@ -12,7 +12,7 @@ import { cn } from '@/core/lib/helpers';
 
 const TILE_KEYS = ['light', 'dark', 'system'];
 
-function ThemeTilesSkeleton() {
+function PreviewTilesSkeleton() {
 	return (
 		<div aria-hidden="true" className="grid grid-cols-3 gap-3 p-4">
 			{TILE_KEYS.map((key) => (
@@ -34,7 +34,15 @@ function PreferencesSectionsSkeleton() {
 				description={t('settings.preferences.SECTION_THEME_DESCRIPTION')}
 			>
 				<SettingsSurface>
-					<ThemeTilesSkeleton />
+					<PreviewTilesSkeleton />
+				</SettingsSurface>
+			</SettingsSection>
+			<SettingsSection
+				title={t('settings.preferences.SECTION_APP_SWITCHER')}
+				description={t('settings.preferences.SECTION_APP_SWITCHER_DESCRIPTION')}
+			>
+				<SettingsSurface>
+					<PreviewTilesSkeleton />
 				</SettingsSurface>
 			</SettingsSection>
 			<SettingsSection title={t('settings.preferences.SECTION_REGION')}>
