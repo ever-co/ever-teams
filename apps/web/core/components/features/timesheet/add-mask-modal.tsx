@@ -120,7 +120,7 @@ function projectChoicesFor(taskProject: TOrganizationProject | undefined, projec
 export function AddTaskModal({ closeModal, isOpen }: IAddTaskModalProps) {
 	const tasks = useAtomValue(tasksByTeamState);
 	const { generateTimeOptions } = useTimelogFilterOptions();
-	const { organizationProjects } = useOrganizationProjectsQuery();
+	const { organizationProjects, getOrganizationProjectsLoading } = useOrganizationProjectsQuery();
 
 	const activeTeam = useAtomValue(activeTeamState);
 	const { createTimesheet, loadingCreateTimesheet } = useCreateTimesheet();
@@ -161,6 +161,10 @@ export function AddTaskModal({ closeModal, isOpen }: IAddTaskModalProps) {
 	const entryProjectId = taskProjectId || formState.projectId;
 	const selectedProject = findProject(entryProjectId, projects) ?? null;
 	const isBillable = billableOf(formState.billableChoice, selectedProject);
+	// Its billable default is unknown until the entry's project has loaded
+	const hasUnloadedProject = Boolean(entryProjectId) && !selectedProject;
+	const waitsForProject = hasUnloadedProject && getOrganizationProjectsLoading;
+	const isSaveDisabled = loadingCreateTimesheet || waitsForProject;
 
 	const pickTask = useCallback(
 		(taskId: string) => {
@@ -408,7 +412,7 @@ export function AddTaskModal({ closeModal, isOpen }: IAddTaskModalProps) {
 					</Button>
 					<Button
 						size="lg"
-						disabled={loadingCreateTimesheet}
+						disabled={isSaveDisabled}
 						onClick={() => handleAddTimesheet(formState as any)}
 						type="submit"
 					>
