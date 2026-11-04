@@ -297,7 +297,7 @@ export function useTeamMembersSettings() {
 						organizationTeamId: team.id,
 						isTrackingEnabled
 					});
-				const previousTeamTracking = member.isTrackingEnabled !== false;
+				const previousTeamTracking = Boolean(member.isTrackingEnabled);
 				await saveTeamTracking(enabled);
 				if (canEditEmployees) {
 					const employee = member.employee;
