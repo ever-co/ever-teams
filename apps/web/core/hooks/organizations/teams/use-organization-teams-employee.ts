@@ -74,6 +74,7 @@ export function useOrganizationEmployeeTeams() {
 				await loadTeamsData();
 			} catch (error) {
 				logErrorInDev('[Teams] Reload after a member update failed:', error);
+				toast.error(t('toasts.teams.TEAMS_RELOAD_FAILED'), { description: t('toasts.teams.REFRESH_PAGE') });
 			}
 		},
 		onError: (error) => {
