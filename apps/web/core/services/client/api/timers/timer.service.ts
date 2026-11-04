@@ -21,6 +21,14 @@ const getTodayRangeQuery = () => {
 	});
 };
 
+// Reports read the project from the time log, never from its task: a log saved without it shows under no project
+const projectFieldOf = (projectId?: string | null): { projectId?: string } => {
+	if (!projectId) {
+		return {};
+	}
+	return { projectId };
+};
+
 class TimerService extends APIService {
 	// Last time-slot sync, tied to the time log (timer run) it was measured for.
 	private lastTimeSlotSync: { at: number; timeLogId?: string } | null = null;
@@ -54,14 +62,16 @@ class TimerService extends APIService {
 		return api.post<ITimerStatus>(`/timer/toggle?${getTodayRangeQuery()}`, body);
 	};
 
-	startTimer = async ({ taskId }: { taskId: string }) => {
+	startTimer = async ({ taskId, projectId }: { taskId: string; projectId?: string | null }) => {
 		const startedAt = Date.now();
+		const projectField = projectFieldOf(projectId);
 
 		if (GAUZY_API_BASE_SERVER_URL.value) {
 			await this.post('/timesheet/timer/start', {
 				tenantId: this.tenantId,
 				organizationId: this.organizationId,
 				taskId,
+				...projectField,
 				logType: 'TRACKED',
 				source: ETimeLogSource.TEAMS,
 				tags: [],
@@ -74,7 +84,7 @@ class TimerService extends APIService {
 		const api = await getFallbackAPI();
 		return this.resetTimeSlotSync(
 			startedAt,
-			await api.post<ITimerStatus>(`/timer/start?${getTodayRangeQuery()}`, { taskId })
+			await api.post<ITimerStatus>(`/timer/start?${getTodayRangeQuery()}`, { taskId, ...projectField })
 		);
 	};
 
