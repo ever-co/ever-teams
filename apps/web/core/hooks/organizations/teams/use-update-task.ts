@@ -21,6 +21,7 @@ import { flattenTaskPages } from '@/core/lib/utils/task.utils';
 import { useInvalidateTeamTasks } from './use-invalidate-team-tasks';
 import { useTaskQueries } from './use-task-queries';
 import { refreshAfterTaskUpdate } from './task-update-refresh';
+import { useTimesheetInvalidation } from '@/core/hooks/timesheet/use-timesheet-invalidation';
 
 /**
  * Hook for updating team tasks (UPDATE operations only).
@@ -97,6 +98,7 @@ export function useUpdateTask() {
 	const setActive = useSetAtom(activeTeamTaskId);
 
 	const { invalidateTeamTasksData } = useInvalidateTeamTasks();
+	const { invalidateTimesheetData } = useTimesheetInvalidation();
 
 	const { getTaskById } = useTaskQueries();
 
@@ -170,7 +172,11 @@ export function useUpdateTask() {
 				}
 			}
 		},
-		onSettled: (data, error, { taskId }) => {
+		onSettled: (data, error, { taskId, moveTimeLogs }) => {
+			// The time logs may have moved with the task, so the timesheets and reports that list them are read again
+			if (moveTimeLogs) {
+				invalidateTimesheetData();
+			}
 			// A failed update reads every task list and plan again, to be sure of what the server holds
 			if (error) {
 				invalidateTeamTasksData(taskId);
