@@ -254,6 +254,21 @@ describe('AddTaskModal project of the saved time', () => {
 		);
 	});
 
+	it('takes the billable setting of a project that loads after the task was picked', () => {
+		mockProjects.splice(0, mockProjects.length);
+		const { rerender } = renderAddTimeForm();
+
+		pickTaskAndEmployee('task-site', 'employee-a');
+		mockProjects.push(siteProject, mobileProject);
+		rerender(<AddTaskModal isOpen closeModal={closeModal} />);
+		fillShiftTimes();
+		save();
+
+		expect(mockCreateTimesheet).toHaveBeenCalledWith(
+			expect.objectContaining({ taskId: 'task-site', projectId: 'project-site', isBillable: true })
+		);
+	});
+
 	it('keeps the project picked by hand for a task without one', () => {
 		renderAddTimeForm();
 
