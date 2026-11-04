@@ -3074,7 +3074,11 @@
 		"TEAM_COUNT": "{count, plural, zero {لا فرق} one {فريق واحد} two {فريقان} few {# فرق} many {# فريقًا} other {# فريق}}",
 		"NO_OTHER_WORKSPACE": "لا توجد مساحات عمل أخرى",
 		"ADD_WORKSPACE": "إضافة مساحة عمل",
-		"TEAM_SETTINGS": "إعدادات الفريق"
+		"TEAM_SETTINGS": "إعدادات الفريق",
+		"APPS": "التطبيقات",
+		"SWITCH_APP": "الانتقال إلى تطبيق Ever آخر",
+		"EVER_APPS": "تطبيقات Ever",
+		"CURRENT_APP": "{app}، التطبيق الذي تستخدمه"
 	},
 	"todayActivity": {
 		"ACTIVE_TASK": "المهمة النشطة",
@@ -3990,6 +3994,11 @@
 			"SECTION_THEME": "المظهر",
 			"SECTION_THEME_DESCRIPTION": "ينطبق على هذا المتصفح فقط.",
 			"THEME_SYSTEM": "النظام",
+			"SECTION_APP_SWITCHER": "مبدّل التطبيقات",
+			"SECTION_APP_SWITCHER_DESCRIPTION": "مكان الوصول إلى تطبيقات Ever الأخرى. يُطبَّق على هذا المتصفح فقط.",
+			"APP_SWITCHER_SIDEBAR": "الشريط الجانبي",
+			"APP_SWITCHER_HEADER": "الشريط العلوي",
+			"APP_SWITCHER_RAIL": "الشريط الأيسر",
 			"SECTION_REGION": "اللغة والمنطقة الزمنية",
 			"LANGUAGE": "اللغة",
 			"LANGUAGE_DESCRIPTION": "لغة القوائم والرسائل، وتُحفظ في حسابك.",

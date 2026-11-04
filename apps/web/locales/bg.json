@@ -3074,7 +3074,11 @@
 		"TEAM_COUNT": "{count, plural, one {# екип} other {# екипа}}",
 		"NO_OTHER_WORKSPACE": "Няма други работни пространства",
 		"ADD_WORKSPACE": "Добави работно пространство",
-		"TEAM_SETTINGS": "Настройки на екипа"
+		"TEAM_SETTINGS": "Настройки на екипа",
+		"APPS": "Приложения",
+		"SWITCH_APP": "Към друго приложение на Ever",
+		"EVER_APPS": "Приложения на Ever",
+		"CURRENT_APP": "{app}, приложението, в което сте"
 	},
 	"todayActivity": {
 		"ACTIVE_TASK": "Активна задача",
@@ -3990,6 +3994,11 @@
 			"SECTION_THEME": "Тема",
 			"SECTION_THEME_DESCRIPTION": "Важи само за този браузър.",
 			"THEME_SYSTEM": "Системна",
+			"SECTION_APP_SWITCHER": "Превключвател на приложения",
+			"SECTION_APP_SWITCHER_DESCRIPTION": "Къде стои достъпът до другите приложения на Ever. Важи само за този браузър.",
+			"APP_SWITCHER_SIDEBAR": "Странична лента",
+			"APP_SWITCHER_HEADER": "Горна лента",
+			"APP_SWITCHER_RAIL": "Лява лента",
 			"SECTION_REGION": "Език и часова зона",
 			"LANGUAGE": "Език",
 			"LANGUAGE_DESCRIPTION": "Езикът на менютата и съобщенията, запазен в акаунта ви.",

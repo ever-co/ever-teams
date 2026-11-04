@@ -3074,7 +3074,11 @@
 		"TEAM_COUNT": "{count, plural, one {# équipe} other {# équipes}}",
 		"NO_OTHER_WORKSPACE": "Aucun autre espace de travail",
 		"ADD_WORKSPACE": "Ajouter un espace de travail",
-		"TEAM_SETTINGS": "Paramètres de l'équipe"
+		"TEAM_SETTINGS": "Paramètres de l'équipe",
+		"APPS": "Applications",
+		"SWITCH_APP": "Passer à une autre application Ever",
+		"EVER_APPS": "Applications Ever",
+		"CURRENT_APP": "{app}, l'application où vous êtes"
 	},
 	"todayActivity": {
 		"ACTIVE_TASK": "Tâche active",
@@ -3990,6 +3994,11 @@
 			"SECTION_THEME": "Thème",
 			"SECTION_THEME_DESCRIPTION": "S'applique à ce navigateur uniquement.",
 			"THEME_SYSTEM": "Système",
+			"SECTION_APP_SWITCHER": "Sélecteur d'applications",
+			"SECTION_APP_SWITCHER_DESCRIPTION": "Où se trouve l'accès aux autres applications Ever. S'applique à ce navigateur uniquement.",
+			"APP_SWITCHER_SIDEBAR": "Barre latérale",
+			"APP_SWITCHER_HEADER": "Barre du haut",
+			"APP_SWITCHER_RAIL": "Rail à gauche",
 			"SECTION_REGION": "Langue et fuseau horaire",
 			"LANGUAGE": "Langue",
 			"LANGUAGE_DESCRIPTION": "La langue des menus et des messages, enregistrée dans votre compte.",

@@ -3074,7 +3074,11 @@
 		"TEAM_COUNT": "{count, plural, other {# 个团队}}",
 		"NO_OTHER_WORKSPACE": "没有其他工作区",
 		"ADD_WORKSPACE": "添加工作区",
-		"TEAM_SETTINGS": "团队设置"
+		"TEAM_SETTINGS": "团队设置",
+		"APPS": "应用",
+		"SWITCH_APP": "切换到其他 Ever 应用",
+		"EVER_APPS": "Ever 应用",
+		"CURRENT_APP": "{app}，你当前所在的应用"
 	},
 	"todayActivity": {
 		"ACTIVE_TASK": "当前任务",
@@ -3990,6 +3994,11 @@
 			"SECTION_THEME": "主题",
 			"SECTION_THEME_DESCRIPTION": "仅对此浏览器生效。",
 			"THEME_SYSTEM": "跟随系统",
+			"SECTION_APP_SWITCHER": "应用切换器",
+			"SECTION_APP_SWITCHER_DESCRIPTION": "前往其他 Ever 应用的入口所在位置。仅对此浏览器生效。",
+			"APP_SWITCHER_SIDEBAR": "侧边栏",
+			"APP_SWITCHER_HEADER": "顶部栏",
+			"APP_SWITCHER_RAIL": "左侧栏",
 			"SECTION_REGION": "语言和时区",
 			"LANGUAGE": "语言",
 			"LANGUAGE_DESCRIPTION": "菜单和消息使用的语言，保存在你的账户中。",
