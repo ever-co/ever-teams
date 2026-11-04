@@ -69,8 +69,12 @@ export function useOrganizationEmployeeTeams() {
 				queryKey: queryKeys.organizationTeams.all
 			});
 
-			// Preserve original behavior - call loadTeamsData
-			await loadTeamsData();
+			// The member is saved by now: a failed reload must not turn the save into a failure for the caller
+			try {
+				await loadTeamsData();
+			} catch (error) {
+				logErrorInDev('[Teams] Reload after a member update failed:', error);
+			}
 		},
 		onError: (error) => {
 			showFailure('toasts.teams.MEMBER_NOT_SAVED', error);
