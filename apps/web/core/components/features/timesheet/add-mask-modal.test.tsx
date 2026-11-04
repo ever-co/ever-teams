@@ -306,6 +306,22 @@ describe('AddTaskModal project of the saved time', () => {
 		);
 	});
 
+	it('keeps the project shown when moving on to a task without one after the first task moved', () => {
+		const { rerender } = renderAddTimeForm();
+
+		pickTaskAndEmployee('task-site', 'employee-a');
+		const movedTask = { ...taskInSite, projectId: 'project-mobile' };
+		mockAtomValues.tasksByTeamState = [movedTask, taskWithoutProject];
+		rerender(<AddTaskModal isOpen closeModal={closeModal} />);
+		pickTaskAndEmployee('task-loose', 'employee-a');
+		fillShiftTimes();
+		save();
+
+		expect(mockCreateTimesheet).toHaveBeenCalledWith(
+			expect.objectContaining({ taskId: 'task-loose', projectId: 'project-mobile' })
+		);
+	});
+
 	it('keeps the project picked by hand for a task without one', () => {
 		renderAddTimeForm();
 
