@@ -3078,7 +3078,9 @@
 		"APPS": "App",
 		"SWITCH_APP": "Passa a un'altra app Ever",
 		"EVER_APPS": "App Ever",
-		"CURRENT_APP": "{app}, l'app in cui ti trovi"
+		"CURRENT_APP": "{app}, l'app in cui ti trovi",
+		"OPENS_IN_NEW_TAB": "(si apre in una nuova scheda)",
+		"APP_OPENS_IN_NEW_TAB": "{app} (si apre in una nuova scheda)"
 	},
 	"todayActivity": {
 		"ACTIVE_TASK": "Attività attiva",

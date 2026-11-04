@@ -47,6 +47,9 @@ function CurrentAppTile({ app }: Readonly<{ app: EverApp }>) {
 }
 
 function OtherAppTile({ app }: Readonly<{ app: EverApp }>) {
+	const t = useTranslations();
+	const label = t('switchers.APP_OPENS_IN_NEW_TAB', { app: app.shortName });
+
 	return (
 		<Tooltip>
 			<TooltipTrigger asChild delay={TOOLTIP_DELAY_MS}>
@@ -54,7 +57,7 @@ function OtherAppTile({ app }: Readonly<{ app: EverApp }>) {
 					href={app.url}
 					target="_blank"
 					rel="noopener noreferrer"
-					aria-label={app.shortName}
+					aria-label={label}
 					className={cn(RAIL_SLOT, RAIL_LINK)}
 				>
 					<AppGlyph app={app} size="md" />

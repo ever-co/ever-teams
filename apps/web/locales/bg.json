@@ -3078,7 +3078,9 @@
 		"APPS": "Приложения",
 		"SWITCH_APP": "Към друго приложение на Ever",
 		"EVER_APPS": "Приложения на Ever",
-		"CURRENT_APP": "{app}, приложението, в което сте"
+		"CURRENT_APP": "{app}, приложението, в което сте",
+		"OPENS_IN_NEW_TAB": "(отваря се в нов раздел)",
+		"APP_OPENS_IN_NEW_TAB": "{app} (отваря се в нов раздел)"
 	},
 	"todayActivity": {
 		"ACTIVE_TASK": "Активна задача",

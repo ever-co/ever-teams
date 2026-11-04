@@ -3078,7 +3078,9 @@
 		"APPS": "אפליקציות",
 		"SWITCH_APP": "מעבר לאפליקציית Ever אחרת",
 		"EVER_APPS": "אפליקציות Ever",
-		"CURRENT_APP": "{app}, האפליקציה שבה אתם נמצאים"
+		"CURRENT_APP": "{app}, האפליקציה שבה אתם נמצאים",
+		"OPENS_IN_NEW_TAB": "(נפתח בכרטיסייה חדשה)",
+		"APP_OPENS_IN_NEW_TAB": "{app} (נפתח בכרטיסייה חדשה)"
 	},
 	"todayActivity": {
 		"ACTIVE_TASK": "משימה פעילה",

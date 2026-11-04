@@ -42,6 +42,7 @@ function AppRowContent({ app }: Readonly<{ app: EverApp }>) {
 }
 
 function AppRow({ app }: Readonly<{ app: EverApp }>) {
+	const t = useTranslations();
 	const isCurrent = isCurrentEverApp(app);
 
 	if (isCurrent) {
@@ -56,6 +57,7 @@ function AppRow({ app }: Readonly<{ app: EverApp }>) {
 		<DropdownMenuItem asChild className={APP_ROW}>
 			<a href={app.url} target="_blank" rel="noopener noreferrer">
 				<AppRowContent app={app} />
+				<span className="sr-only">{t('switchers.OPENS_IN_NEW_TAB')}</span>
 			</a>
 		</DropdownMenuItem>
 	);

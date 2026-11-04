@@ -3078,7 +3078,9 @@
 		"APPS": "应用",
 		"SWITCH_APP": "切换到其他 Ever 应用",
 		"EVER_APPS": "Ever 应用",
-		"CURRENT_APP": "{app}，你当前所在的应用"
+		"CURRENT_APP": "{app}，你当前所在的应用",
+		"OPENS_IN_NEW_TAB": "（在新标签页中打开）",
+		"APP_OPENS_IN_NEW_TAB": "{app}（在新标签页中打开）"
 	},
 	"todayActivity": {
 		"ACTIVE_TASK": "当前任务",
