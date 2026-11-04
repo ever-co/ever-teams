@@ -26,6 +26,7 @@ import { ETimeLogType, ETimeLogSource } from '@/core/types/generics/enums/timer'
 import { useAtomValue } from 'jotai';
 import { activeTeamState, tasksByTeamState } from '@/core/stores';
 import { useOrganizationProjectsQuery } from '@/core/hooks/organizations/projects/use-organization-projects-query';
+import type { TOrganizationProject } from '@/core/types/schemas/organization/organization-project.schema';
 
 export interface IAddTaskModalProps {
 	isOpen: boolean;
@@ -93,6 +94,21 @@ const clearSkippedTimes = (shift: Shift, day: Date) => {
 	if (clearStart || clearEnd) shift.totalHours = '00:00h';
 };
 
+function findProject(projectId: string | null | undefined, projects: TOrganizationProject[]) {
+	if (!projectId) {
+		return undefined;
+	}
+	return projects.find((project) => project.id === projectId);
+}
+
+/** A task's time goes to the task's own project: when the task has one, it is the only project offered. */
+function projectChoicesFor(taskProject: TOrganizationProject | undefined, projects: TOrganizationProject[]) {
+	if (taskProject) {
+		return [taskProject];
+	}
+	return projects;
+}
+
 export function AddTaskModal({ closeModal, isOpen }: IAddTaskModalProps) {
 	const tasks = useAtomValue(tasksByTeamState);
 	const { generateTimeOptions } = useTimelogFilterOptions();
@@ -106,7 +122,7 @@ export function AddTaskModal({ closeModal, isOpen }: IAddTaskModalProps) {
 
 	const [formState, setFormState] = React.useState({
 		notes: '',
-		isBillable: true,
+		isBillable: false,
 		taskId: '',
 		employeeId: '',
 		projectId: '',
@@ -129,11 +145,36 @@ export function AddTaskModal({ closeModal, isOpen }: IAddTaskModalProps) {
 		}));
 	}, []);
 
+	const projects = useMemo(() => organizationProjects || [], [organizationProjects]);
+	const selectedTask = tasks.find((task) => task.id === formState.taskId);
+	const taskProject = findProject(selectedTask?.projectId, projects);
+	const selectedProject = findProject(formState.projectId, projects) ?? null;
+
+	const pickTask = useCallback(
+		(taskId: string) => {
+			const pickedTask = tasks.find((task) => task.id === taskId);
+			const pickedTaskProjectId = pickedTask?.projectId;
+			if (!pickedTaskProjectId) {
+				setFormState((prevState) => ({ ...prevState, taskId }));
+				return;
+			}
+			const pickedTaskProject = findProject(pickedTaskProjectId, organizationProjects || []);
+			const isProjectBillable = pickedTaskProject?.billable === true;
+			setFormState((prevState) => ({
+				...prevState,
+				taskId,
+				projectId: pickedTaskProjectId,
+				isBillable: isProjectBillable
+			}));
+		},
+		[organizationProjects, tasks]
+	);
+
 	const projectItemsLists = useMemo(
 		() => ({
-			Project: organizationProjects || []
+			Project: projectChoicesFor(taskProject, projects)
 		}),
-		[organizationProjects]
+		[projects, taskProject]
 	);
 
 	const handleSelectedValuesChange = useCallback(
@@ -161,9 +202,9 @@ export function AddTaskModal({ closeModal, isOpen }: IAddTaskModalProps) {
 
 	const selectedValues = useMemo(
 		() => ({
-			Project: null
+			Project: selectedProject
 		}),
-		[]
+		[selectedProject]
 	);
 
 	const fields = useMemo(
@@ -186,7 +227,7 @@ export function AddTaskModal({ closeModal, isOpen }: IAddTaskModalProps) {
 			description: formState.notes,
 			projectId: formState.projectId,
 			logType: ETimeLogType.MANUAL as any,
-			source: ETimeLogSource.BROWSER as any,
+			source: ETimeLogSource.TEAMS as any,
 			taskId: formState.taskId,
 			employeeId: formState.employeeId,
 			organizationTeamId: activeTeam?.id
@@ -246,9 +287,7 @@ export function AddTaskModal({ closeModal, isOpen }: IAddTaskModalProps) {
 					</label>
 					<CustomSelect
 						value={formState.taskId}
-						onChange={(value) => {
-							updateFormState('taskId', value);
-						}}
+						onChange={pickTask}
 						classNameGroup="h-[40vh]"
 						ariaLabel="Task issues"
 						className="w-full font-medium"
