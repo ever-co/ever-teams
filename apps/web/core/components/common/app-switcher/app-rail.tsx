@@ -50,7 +50,13 @@ function OtherAppTile({ app }: Readonly<{ app: EverApp }>) {
 	return (
 		<Tooltip>
 			<TooltipTrigger asChild delay={TOOLTIP_DELAY_MS}>
-				<a href={app.url} aria-label={app.shortName} className={cn(RAIL_SLOT, RAIL_LINK)}>
+				<a
+					href={app.url}
+					target="_blank"
+					rel="noopener noreferrer"
+					aria-label={app.shortName}
+					className={cn(RAIL_SLOT, RAIL_LINK)}
+				>
 					<AppGlyph app={app} size="md" />
 				</a>
 			</TooltipTrigger>

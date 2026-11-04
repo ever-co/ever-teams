@@ -54,7 +54,7 @@ function AppRow({ app }: Readonly<{ app: EverApp }>) {
 
 	return (
 		<DropdownMenuItem asChild className={APP_ROW}>
-			<a href={app.url}>
+			<a href={app.url} target="_blank" rel="noopener noreferrer">
 				<AppRowContent app={app} />
 			</a>
 		</DropdownMenuItem>
