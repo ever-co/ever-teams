@@ -23,6 +23,13 @@ export async function POST(req: Request) {
 		return NextResponse.json({ error: 'Request body must be a JSON object' }, { status: 400 });
 	}
 
+	const bodyIsBillable = (body as { isBillable?: unknown }).isBillable;
+	const isBillableMalformed = bodyIsBillable !== undefined && typeof bodyIsBillable !== 'boolean';
+	if (isBillableMalformed) {
+		return NextResponse.json({ error: 'isBillable must be a boolean' }, { status: 400 });
+	}
+	const isBillable = bodyIsBillable === true;
+
 	const bodyTaskId = (body as { taskId?: unknown }).taskId;
 	const hasBodyTaskId = typeof bodyTaskId === 'string' && bodyTaskId.trim() !== '';
 	if (bodyTaskId !== undefined && !hasBodyTaskId) {
@@ -39,6 +46,7 @@ export async function POST(req: Request) {
 			logType: 'TRACKED',
 			source: ETimeLogSource.TEAMS,
 			tags: [],
+			isBillable,
 			organizationTeamId
 		},
 		access_token || ''

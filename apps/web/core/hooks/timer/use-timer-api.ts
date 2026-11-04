@@ -49,6 +49,7 @@ import { useTaskStatusesQuery } from '../tasks/use-task-statuses-query';
 import type { ApiRequestScope } from '@/core/services/client/api-request-scope';
 import { useScopeGuard } from '../bootstrap/use-scope-guard';
 import { useStopStaleTeamsTimer } from './use-stale-timer-guard';
+import { useResolveTimerBillable } from './use-timer-billable';
 
 // ==================== TYPES ====================
 
@@ -229,6 +230,7 @@ export function useTimerApi({
 	const { updateOrganizationTeamEmployeeActiveTask } = useOrganizationEmployeeTeams();
 	const { user, $user, refreshUserData } = useAuthenticateUser();
 	const stopStaleTeamsTimer = useStopStaleTeamsTimer();
+	const resolveTimerBillable = useResolveTimerBillable();
 	const { myDailyPlans, isSuccess: plansResolved } = useMyDailyPlans({
 		enabled: enabled && plansEnabled,
 		...(statusEnabled && scope ? { scope, refetchInterval: plansRefetchInterval } : {})
@@ -277,8 +279,8 @@ export function useTimerApi({
 	}, [isCurrentScope, scopedStatusQuery.data, setTimerStatus, statusEnabled, timerStatusRef]);
 
 	const startTimerMutation = useMutation({
-		mutationFn: async ({ taskId }: { taskId: string }) => {
-			return await timerService.startTimer({ taskId });
+		mutationFn: async ({ taskId, isBillable }: { taskId: string; isBillable: boolean }) => {
+			return await timerService.startTimer({ taskId, isBillable });
 		},
 		// runStartTimer shows the translated TIMER_START_FAILED toast; this keeps the raw global
 		// "Mutation Error" toast from showing a second one
@@ -521,6 +523,8 @@ export function useTimerApi({
 				return 'blocked';
 			}
 
+			const isBillableToUse = resolveTimerBillable(taskToUse);
+
 			updateLocalTimerStatus({
 				lastTaskId: taskIdToUse,
 				runnedDateTime: Date.now(),
@@ -528,7 +532,8 @@ export function useTimerApi({
 			});
 
 			if (!statusEnabled || isCurrentScope()) setTimerStatusFetching(true);
-			const promise = trackTimerCommand(startTimerMutate({ taskId: taskIdToUse })).then(async (res) => {
+			const startRequest = startTimerMutate({ taskId: taskIdToUse, isBillable: isBillableToUse });
+			const promise = trackTimerCommand(startRequest).then(async (res) => {
 				res.data &&
 					(!statusEnabled || isCurrentScope()) &&
 					!isEqual(timerStatus, res.data) &&
@@ -645,6 +650,7 @@ export function useTimerApi({
 			updateOrganizationTeamEmployeeActiveTask,
 			t,
 			canStartWithoutTrackingConflict,
+			resolveTimerBillable,
 			queryClient,
 			activeTeamId,
 			isCurrentScope,
