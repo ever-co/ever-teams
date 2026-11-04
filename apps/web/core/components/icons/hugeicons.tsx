@@ -53,6 +53,7 @@ import {
 	Copy01Icon,
 	CreditCardIcon,
 	CubeIcon,
+	DashboardCircleIcon,
 	DashboardSquare01Icon,
 	Delete02Icon,
 	DollarCircleIcon,
@@ -207,6 +208,7 @@ function icon(glyph: HugeiconsProps['icon'], name: string): IconComponent {
 }
 
 // Navigation and chrome
+export const AppsGrid = /*#__PURE__*/ icon(DashboardCircleIcon, 'AppsGrid');
 export const ArrowLeft = /*#__PURE__*/ icon(ArrowLeft02Icon, 'ArrowLeft');
 export const ArrowRight = /*#__PURE__*/ icon(ArrowRight02Icon, 'ArrowRight');
 export const ArrowUpRight = /*#__PURE__*/ icon(ArrowUpRight01Icon, 'ArrowUpRight');
