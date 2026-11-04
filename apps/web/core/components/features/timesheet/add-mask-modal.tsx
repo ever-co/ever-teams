@@ -155,8 +155,11 @@ export function AddTaskModal({ closeModal, isOpen }: IAddTaskModalProps) {
 
 	const projects = useMemo(() => organizationProjects || [], [organizationProjects]);
 	const selectedTask = tasks.find((task) => task.id === formState.taskId);
-	const taskProject = findProject(selectedTask?.projectId, projects);
-	const selectedProject = findProject(formState.projectId, projects) ?? null;
+	const taskProjectId = selectedTask?.projectId;
+	const taskProject = findProject(taskProjectId, projects);
+	// The task's project as it is now: it may have changed since the task was picked
+	const entryProjectId = taskProjectId || formState.projectId;
+	const selectedProject = findProject(entryProjectId, projects) ?? null;
 	const isBillable = billableOf(formState.billableChoice, selectedProject);
 
 	const pickTask = useCallback(
@@ -232,7 +235,7 @@ export function AddTaskModal({ closeModal, isOpen }: IAddTaskModalProps) {
 		const payload = {
 			isBillable,
 			description: formState.notes,
-			projectId: formState.projectId,
+			projectId: entryProjectId,
 			logType: ETimeLogType.MANUAL as any,
 			source: ETimeLogSource.TEAMS as any,
 			taskId: formState.taskId,
