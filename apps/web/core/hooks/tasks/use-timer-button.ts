@@ -8,25 +8,9 @@ import { useTimerOptimisticUI } from '@/core/hooks/activities/use-timer-optimist
 import { toast } from 'sonner';
 import { useTranslations } from 'next-intl';
 import { TTask } from '@/core/types/schemas/task/task.schema';
-import type { TDailyPlan } from '@/core/types/schemas/task/daily-plan.schema';
 import { activeTeamRequiresPlanState, activeTeamTaskState, timerStatusState } from '@/core/stores';
 import { useAtomValue } from 'jotai';
-
-function isTaskInPlan(plan: TDailyPlan | undefined, taskId: string): boolean {
-	const plannedTasks = plan?.tasks ?? [];
-	return plannedTasks.some((plannedTask) => plannedTask.id === taskId);
-}
-
-/** A team that requires a plan lets a card start only a task of today's plan, as the main Start does. */
-function canTrackTask(canTrack: boolean, requirePlan: boolean, plan: TDailyPlan | undefined, taskId: string): boolean {
-	if (!canTrack) {
-		return false;
-	}
-	if (!requirePlan) {
-		return true;
-	}
-	return isTaskInPlan(plan, taskId);
-}
+import { canTrackTask } from '@/core/lib/helpers/timer-policy';
 
 // Custom hook to extract TimerButtonCall business logic
 export function useTimerButtonLogic({ task }: { task: TTask }) {
