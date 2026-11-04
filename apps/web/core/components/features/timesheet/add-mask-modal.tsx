@@ -101,6 +101,15 @@ function findProject(projectId: string | null | undefined, projects: TOrganizati
 	return projects.find((project) => project.id === projectId);
 }
 
+/** The project of an entry on this task: the task's own project as it is now, or else the one picked by hand. */
+function entryProjectIdOf(task: { projectId?: string | null } | undefined, pickedProjectId: string): string {
+	const taskProjectId = task?.projectId;
+	if (taskProjectId) {
+		return taskProjectId;
+	}
+	return pickedProjectId;
+}
+
 /** The billable value picked by hand, or else the entry's project's own setting. */
 function billableOf(billableChoice: boolean | null, project: TOrganizationProject | null): boolean {
 	if (billableChoice !== null) {
@@ -155,10 +164,8 @@ export function AddTaskModal({ closeModal, isOpen }: IAddTaskModalProps) {
 
 	const projects = useMemo(() => organizationProjects || [], [organizationProjects]);
 	const selectedTask = tasks.find((task) => task.id === formState.taskId);
-	const taskProjectId = selectedTask?.projectId;
-	const taskProject = findProject(taskProjectId, projects);
-	// The task's project as it is now: it may have changed since the task was picked
-	const entryProjectId = taskProjectId || formState.projectId;
+	const taskProject = findProject(selectedTask?.projectId, projects);
+	const entryProjectId = entryProjectIdOf(selectedTask, formState.projectId);
 	const selectedProject = findProject(entryProjectId, projects) ?? null;
 	const isBillable = billableOf(formState.billableChoice, selectedProject);
 	// Its billable default is unknown until the entry's project has loaded
@@ -171,7 +178,12 @@ export function AddTaskModal({ closeModal, isOpen }: IAddTaskModalProps) {
 			const pickedTask = tasks.find((task) => task.id === taskId);
 			const pickedTaskProjectId = pickedTask?.projectId;
 			if (!pickedTaskProjectId) {
-				setFormState((prevState) => ({ ...prevState, taskId, billableChoice: null }));
+				// Keep the project shown so far, which follows the previous task if it moved meanwhile
+				setFormState((prevState) => {
+					const previousTask = tasks.find((task) => task.id === prevState.taskId);
+					const shownProjectId = entryProjectIdOf(previousTask, prevState.projectId);
+					return { ...prevState, taskId, projectId: shownProjectId, billableChoice: null };
+				});
 				return;
 			}
 			setFormState((prevState) => ({
