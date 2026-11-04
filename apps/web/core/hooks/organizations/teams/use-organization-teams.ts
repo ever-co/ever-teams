@@ -11,6 +11,7 @@
  */
 
 import { setActiveProjectIdCookie } from '@/core/lib/helpers/cookies';
+import { canMemberTrackTime } from '@/core/lib/helpers/team-member-tracking';
 import { useUserQuery } from '@/core/hooks/queries/user-user.query';
 import {
 	activeTeamManagersState,
@@ -82,11 +83,10 @@ export function useOrganizationTeams() {
 	const memberActiveTaskId =
 		(timerStatus?.running && timerStatus?.lastLog?.taskId) || currentUser?.activeTaskId || null;
 
-	const isTrackingEnabled = activeTeam?.members?.find(
-		(member) => member.employee?.userId === user?.id && member.isTrackingEnabled
-	)
-		? true
-		: false;
+	const isTrackingEnabled = members.some((member) => {
+		const isUser = member.employee?.userId === user?.id;
+		return isUser && canMemberTrackTime(member);
+	});
 
 	// Sync memberActiveTaskId to global atom for use by other hooks (e.g., use-team-tasks.ts)
 	const setMemberActiveTaskId = useSetAtom(memberActiveTaskIdState);
