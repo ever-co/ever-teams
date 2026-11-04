@@ -2,7 +2,7 @@
 
 import { useAtom, useAtomValue, useStore } from 'jotai';
 import { useCallback } from 'react';
-import { useQueryClient } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 
 import { getAccessTokenCookie, getOrganizationIdCookie, getTenantIdCookie } from '@/core/lib/helpers/cookies';
 import { logErrorInDev } from '@/core/lib/helpers/error-message';
@@ -18,6 +18,40 @@ import type { TTask } from '@/core/types/schemas/task/task.schema';
 import { useOrganizationProjectsQuery } from '../organizations/projects/use-organization-projects-query';
 
 const NO_PROJECTS: TOrganizationProject[] = [];
+
+/** One read of a project for the start and the switch alike, so both land in the same cache entry. */
+function projectQueryOptions(projectId: string, tenantId: string, organizationId: string) {
+	const accessToken = getAccessTokenCookie();
+	const scope = { tenantId, organizationId, accessToken };
+	return {
+		queryKey: queryKeys.organizationProjects.detailByScope(tenantId, organizationId, projectId),
+		meta: CREDENTIAL_SCOPED_QUERY_META,
+		queryFn: ({ signal }: { signal: AbortSignal }) =>
+			organizationProjectService.getOrganizationProject(projectId, { scope, signal })
+	};
+}
+
+function projectsWithUnlisted(
+	projects: TOrganizationProject[],
+	unlistedProject: TOrganizationProject | undefined
+): TOrganizationProject[] {
+	if (!unlistedProject) {
+		return projects;
+	}
+	return [...projects, unlistedProject];
+}
+
+/** The task's project when the projects list does not hold it, to read on its own. */
+function unlistedProjectIdOf(task: TTask | null | undefined, projects: TOrganizationProject[]): string | undefined {
+	if (!task?.projectId) {
+		return undefined;
+	}
+	const listedProject = findTaskProject(task, projects);
+	if (listedProject) {
+		return undefined;
+	}
+	return task.projectId;
+}
 
 function displayedBillableOf(
 	isRunning: boolean,
@@ -44,15 +78,8 @@ export function useResolveTimerBillable() {
 
 	const fetchProject = useCallback(
 		async (projectId: string, tenantId: string, organizationId: string) => {
-			const accessToken = getAccessTokenCookie();
-			const scope = { tenantId, organizationId, accessToken };
 			try {
-				return await queryClient.fetchQuery({
-					queryKey: queryKeys.organizationProjects.detailByScope(tenantId, organizationId, projectId),
-					meta: CREDENTIAL_SCOPED_QUERY_META,
-					queryFn: ({ signal }) =>
-						organizationProjectService.getOrganizationProject(projectId, { scope, signal })
-				});
+				return await queryClient.fetchQuery(projectQueryOptions(projectId, tenantId, organizationId));
 			} catch (error) {
 				logErrorInDev('[Timer] Reading the project billable setting failed:', error);
 				return undefined;
@@ -96,10 +123,19 @@ export function useTimerBillable() {
 	const timerStatus = useAtomValue(timerStatusState);
 	const [choices, setChoices] = useAtom(timerBillableChoicesState);
 	const { organizationProjects } = useOrganizationProjectsQuery();
+	const tenantId = getTenantIdCookie();
+	const organizationId = getOrganizationIdCookie();
+	const unlistedProjectId = unlistedProjectIdOf(activeTask, organizationProjects);
+	const readsUnlistedProject = Boolean(unlistedProjectId);
+	const unlistedProjectQuery = useQuery({
+		...projectQueryOptions(unlistedProjectId ?? '', tenantId, organizationId),
+		enabled: readsUnlistedProject
+	});
+	const knownProjects = projectsWithUnlisted(organizationProjects, unlistedProjectQuery.data);
 
 	const activeTaskId = activeTask?.id;
 	const isTimerRunning = timerStatus?.running === true;
-	const pickedBillable = timerBillableOf(activeTask, organizationProjects, choices);
+	const pickedBillable = timerBillableOf(activeTask, knownProjects, choices);
 	const runningLogBillable = timerStatus?.lastLog?.isBillable;
 	const isBillable = displayedBillableOf(isTimerRunning, runningLogBillable, pickedBillable);
 	const hasActiveTask = Boolean(activeTaskId);
