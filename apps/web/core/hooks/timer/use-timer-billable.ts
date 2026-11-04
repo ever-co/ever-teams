@@ -15,6 +15,7 @@ import type { PaginationResponse } from '@/core/types/interfaces/common/data-res
 import type { TOrganizationProject } from '@/core/types/schemas/organization/organization-project.schema';
 import type { TTask } from '@/core/types/schemas/task/task.schema';
 
+import { useReactiveAccessTokenCookie } from '../auth/use-reactive-access-token-cookie';
 import { useOrganizationProjectsQuery } from '../organizations/projects/use-organization-projects-query';
 
 const NO_PROJECTS: TOrganizationProject[] = [];
@@ -125,8 +126,12 @@ export function useTimerBillable() {
 	const { organizationProjects } = useOrganizationProjectsQuery();
 	const tenantId = getTenantIdCookie();
 	const organizationId = getOrganizationIdCookie();
+	const accessToken = useReactiveAccessTokenCookie();
 	const unlistedProjectId = unlistedProjectIdOf(activeTask, organizationProjects);
-	const readsUnlistedProject = Boolean(unlistedProjectId);
+	const hasProjectToRead = Boolean(unlistedProjectId);
+	const hasWorkspace = Boolean(tenantId && organizationId);
+	const isSignedIn = Boolean(accessToken);
+	const readsUnlistedProject = hasProjectToRead && hasWorkspace && isSignedIn;
 	const unlistedProjectQuery = useQuery({
 		...projectQueryOptions(unlistedProjectId ?? '', tenantId, organizationId),
 		enabled: readsUnlistedProject
