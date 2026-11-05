@@ -1992,6 +1992,11 @@
 				"SIGN_IN_AGAIN": "Accedi di nuovo con Ever ID",
 				"LOGIN_WITH_EVER_ID": "Accedi con <wordmark>Ever ID</wordmark>"
 			},
+			"provider": {
+				"ACCOUNT_UNCONFIRMED_TITLE": "Conferma prima il tuo indirizzo e-mail",
+				"ACCOUNT_UNCONFIRMED_BODY": "Un account usa già questo indirizzo e-mail ma non l'ha ancora confermato. Accedi con il tuo indirizzo e-mail, poi confermalo dall'avviso nella tua pagina iniziale. Dopo, funzionerà anche questo metodo di accesso.",
+				"SIGN_IN_WITH_EMAIL": "Accedi con la mia e-mail"
+			},
 			"CHOOSE_YOUR_WORKSPACE": "Scegli il tuo spazio di lavoro"
 		},
 		"authPasscode": {

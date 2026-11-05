@@ -1992,6 +1992,11 @@
 				"SIGN_IN_AGAIN": "התחברות מחדש עם Ever ID",
 				"LOGIN_WITH_EVER_ID": "התחברות עם <wordmark>Ever ID</wordmark>"
 			},
+			"provider": {
+				"ACCOUNT_UNCONFIRMED_TITLE": "אשרו קודם את כתובת הדוא״ל",
+				"ACCOUNT_UNCONFIRMED_BODY": "חשבון כבר משתמש בכתובת הדוא״ל הזו אך עדיין לא אישר אותה. התחברו עם כתובת הדוא״ל שלכם, ואז אשרו אותה מההודעה בדף הבית. לאחר מכן גם דרך ההתחברות הזו תעבוד.",
+				"SIGN_IN_WITH_EMAIL": "התחברות עם הדוא״ל שלי"
+			},
 			"CHOOSE_YOUR_WORKSPACE": "בחר את סביבת העבודה שלך"
 		},
 		"authPasscode": {
