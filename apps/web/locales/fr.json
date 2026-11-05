@@ -1946,6 +1946,7 @@
 			"UNRECEIVED_CODE": "Vous n'avez pas reçu de code ?",
 			"JOIN_TEAM": "Rejoindre l'équipe",
 			"INPUT_INVITE_CODE": "Saisissez le code d'invitation.",
+			"INPUT_SIGN_IN_CODE": "Saisissez le code de connexion",
 			"INPUT_INVITE_CODE_DESC": "Entrez le code d'invitation que nous avons envoyé à votre adresse e-mail.",
 			"INVALID_INVITE_CODE_MESSAGE": "Code invalide",
 			"WELCOME_TEAMS": "Bienvenue sur {appName}",

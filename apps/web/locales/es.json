@@ -1628,6 +1628,7 @@
 			"UNRECEIVED_CODE": "¿No recibiste el código?",
 			"JOIN_TEAM": "Unirse al equipo",
 			"INPUT_INVITE_CODE": "Ingresar código de invitación.",
+			"INPUT_SIGN_IN_CODE": "Introduce el código de inicio de sesión",
 			"INPUT_INVITE_CODE_DESC": "Ingresa el código de invitación que enviamos a tu correo electrónico.",
 			"INVALID_INVITE_CODE_MESSAGE": "Código inválido",
 			"WELCOME_TEAMS": "Bienvenido a Equipos Siempre",

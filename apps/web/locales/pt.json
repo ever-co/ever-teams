@@ -1946,6 +1946,7 @@
 			"UNRECEIVED_CODE": "Não recebeu o código?",
 			"JOIN_TEAM": "Participar da Equipe",
 			"INPUT_INVITE_CODE": "Digite o código de convite.",
+			"INPUT_SIGN_IN_CODE": "Digite o código de acesso",
 			"INPUT_INVITE_CODE_DESC": "Insira o código de convite que enviamos para o seu e-mail.",
 			"INVALID_INVITE_CODE_MESSAGE": "Código Inválido",
 			"WELCOME_TEAMS": "Clareza em Tempo Real, Realidade em Tempo Real™.",

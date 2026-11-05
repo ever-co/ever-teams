@@ -245,7 +245,7 @@
 		"TRANSFER_TEAM": "Team übertragen",
 		"TEAM_MEMBERS": "Teammitglieder",
 		"NO_TEAM": "Erstellen Sie Ihr eigenes Team oder treten Sie einem bestehenden bei",
-		"NO_TEAM_SUB": "Erstelle ein Team und lade die Personen ein, mit denen du arbeitest.",
+		"NO_TEAM_SUB": "Erstellen Sie ein Team und laden Sie die Personen ein, mit denen Sie arbeiten.",
 		"NO_TEAM_TOOLTIP": "Sie müssen Ihre E-Mail-Adresse bestätigen",
 		"CANCEL": "Abbrechen",
 		"DISCARD": "Verwerfen",
@@ -1946,11 +1946,12 @@
 			"UNRECEIVED_CODE": "Keinen Code erhalten?",
 			"JOIN_TEAM": "Team beitreten",
 			"INPUT_INVITE_CODE": "Einladungscode eingeben.",
+			"INPUT_SIGN_IN_CODE": "Geben Sie den Anmeldecode ein",
 			"INPUT_INVITE_CODE_DESC": "Geben Sie den Einladungscode ein, den wir Ihnen per E-Mail geschickt haben.",
 			"INVALID_INVITE_CODE_MESSAGE": "Ungültiger Code",
 			"WELCOME_TEAMS": "Willkommen bei {appName}",
 			"COVER_TITLE": "Verfolgen Sie den Arbeitsfortschritt Ihrer Teams in Echtzeit!",
-			"COVER_DESCRIPTION": "Erfasse Zeit und Aktivität, verwalte Aufgaben und Projekte und sieh, woran dein Team arbeitet. Funktioniert mit GitHub und Jira.",
+			"COVER_DESCRIPTION": "Erfassen Sie Zeit und Aktivität, verwalten Sie Aufgaben und Projekte und sehen Sie, woran Ihr Team arbeitet. Funktioniert mit GitHub und Jira.",
 			"LOGIN": "Anmelden",
 			"SELECT_WORKSPACE": "Arbeitsbereich auswählen",
 			"ENTER_EMAIL": "E-Mail-Adresse eingeben",
@@ -2319,7 +2320,7 @@
 		"error": {
 			"TITLE": "Fehler",
 			"HEADING_TITLE": "Etwas ist schiefgelaufen",
-			"HEADING_DESCRIPTION": "If the problem persists, send a distress signal to our support team."
+			"HEADING_DESCRIPTION": "Wenn das Problem weiterhin besteht, wenden Sie sich an unser Support-Team."
 		},
 		"maintenance": {
 			"HEADING_TITLE": "Wir führen Wartungsarbeiten durch",
