@@ -1109,6 +1109,7 @@
 			"UPDATING": "Atualizando os pagamentos devidos",
 			"NOTE": "Valores devidos pelo tempo registrado, à taxa atual de cada membro. O Ever Teams não registra pagamentos.",
 			"NO_RATE": "Sem taxa definida",
+			"PAY_RATE_NOT_SET": "Taxa de remuneração não definida, mostrando a taxa de faturamento",
 			"HOUR_UNIT": "/h",
 			"FORMULA": "{duration} × {rate}/h",
 			"DAY_LABEL": "<name>{day}</name>, {date}",

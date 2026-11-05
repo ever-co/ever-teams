@@ -1109,6 +1109,7 @@
 			"UPDATING": "正在更新应付款项",
 			"NOTE": "按每位成员当前费率计算的已记录时间应付金额。Ever Teams 不记录付款。",
 			"NO_RATE": "未设置费率",
+			"PAY_RATE_NOT_SET": "未设置薪酬费率，显示计费费率",
 			"HOUR_UNIT": "/小时",
 			"FORMULA": "{duration} × {rate}/小时",
 			"DAY_LABEL": "{date} <name>{day}</name>",

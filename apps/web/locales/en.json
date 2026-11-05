@@ -1109,6 +1109,7 @@
 			"UPDATING": "Updating payments due",
 			"NOTE": "Amounts owed for tracked time at each member's current rate. Payments are not recorded in Ever Teams.",
 			"NO_RATE": "No rate set",
+			"PAY_RATE_NOT_SET": "Pay rate not set, showing the billing rate",
 			"HOUR_UNIT": "/h",
 			"FORMULA": "{duration} × {rate}/h",
 			"DAY_LABEL": "<name>{day}</name>, {date}",

@@ -4,9 +4,36 @@ import { memo, type ReactNode } from 'react';
 import { useLocale, useTranslations } from 'next-intl';
 import { cn } from '@/core/lib/helpers';
 import { formatDurationShort } from '@/core/lib/utils/dashboard-figures';
-import { dayDateOf, dayNameOf, formatOwed } from '@/core/lib/utils/dashboards/payments-due';
+import {
+	dayDateOf,
+	dayNameOf,
+	fallsBackToBillingRate,
+	formatOwed,
+	type OwedRateSource
+} from '@/core/lib/utils/dashboards/payments-due';
 
 export const MISSING_FIGURE = '–';
+
+/** "Pay rate not set, showing the billing rate" for a line or member the billing rate priced, else nothing. */
+export function useBillingRateNote(rateSource: OwedRateSource | null): string | undefined {
+	const t = useTranslations();
+	const fallsBack = fallsBackToBillingRate(rateSource);
+	if (!fallsBack) {
+		return undefined;
+	}
+	return t('dashboard.paymentsDue.PAY_RATE_NOT_SET');
+}
+
+/** The member's meta line with the billing rate note after it, when there is one. */
+export function metaWithNote(meta: string | undefined, note: string | undefined): string | undefined {
+	if (!note) {
+		return meta;
+	}
+	if (!meta) {
+		return note;
+	}
+	return `${meta} · ${note}`;
+}
 
 const FIGURE_TEXT = 'truncate text-right text-[13px] tabular-nums';
 

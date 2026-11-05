@@ -1109,6 +1109,7 @@
 			"UPDATING": "Fällige Zahlungen werden aktualisiert",
 			"NOTE": "Geschuldete Beträge für erfasste Zeit zum aktuellen Satz jedes Mitglieds. Zahlungen werden in Ever Teams nicht erfasst.",
 			"NO_RATE": "Kein Satz festgelegt",
+			"PAY_RATE_NOT_SET": "Kein Lohnsatz festgelegt, Abrechnungssatz angezeigt",
 			"HOUR_UNIT": "/Std.",
 			"FORMULA": "{duration} × {rate}/Std.",
 			"DAY_LABEL": "<name>{day}</name>, {date}",

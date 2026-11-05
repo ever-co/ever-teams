@@ -6,6 +6,9 @@ import type { TOwedReportDay, TOwedReportEmployee } from '@/core/types/schemas/t
 
 export type PaymentsGrouping = 'member' | 'day';
 
+/** Which of the member's rates priced the line: their pay rate, or their billing rate while no pay rate is set. */
+export type OwedRateSource = 'pay' | 'billing';
+
 export const PAYMENTS_WEEK_START = 1;
 
 const SECONDS_PER_HOUR = 3600;
@@ -34,6 +37,8 @@ export interface OwedLine {
 	rate: number | null;
 	currency: string | null;
 	amount: number | null;
+	/** Null when the server does not say, as before pay rates existed: the billing rate priced it, with no note. */
+	rateSource: OwedRateSource | null;
 }
 
 export interface OwedMemberGroup {
@@ -45,6 +50,7 @@ export interface OwedMemberGroup {
 	currency: string | null;
 	seconds: number;
 	amount: number | null;
+	rateSource: OwedRateSource | null;
 	lines: OwedLine[];
 }
 
@@ -191,6 +197,72 @@ function amountOf(rate: number | null, reportedAmount: number) {
 	return finiteOrZero(reportedAmount);
 }
 
+export function rateSourceOf(value: unknown): OwedRateSource | null {
+	if (value === 'pay') {
+		return 'pay';
+	}
+	if (value === 'billing') {
+		return 'billing';
+	}
+	return null;
+}
+
+/** The pay rate falls back to the billing rate, which the screen says, only when the server states it. */
+export function fallsBackToBillingRate(rateSource: OwedRateSource | null) {
+	return rateSource === 'billing';
+}
+
+type OwedReportEntry = TOwedReportDay['employees'][number];
+
+function isPaidAtPayRate(entry: OwedReportEntry) {
+	return rateSourceOf(entry.rateSource) === 'pay';
+}
+
+const CENTS = 100;
+
+function roundedToCents(value: number) {
+	return Math.round(value * CENTS) / CENTS;
+}
+
+/**
+ * The pay rate behind each member's lines. The report states the amount and its currency, never the pay rate, which
+ * no team or report read returns. One rate prices all of a member's lines, so it is their amount over their hours,
+ * summed over the period so the rounding of each day's amount does not show.
+ */
+function payRatesOf(report: ReadonlyArray<TOwedReportDay>) {
+	const totals = new Map<string, { amount: number; seconds: number }>();
+	for (const reportDay of report) {
+		for (const entry of reportDay.employees ?? []) {
+			const employeeId = entry.employee?.id;
+			const isPayLine = isPaidAtPayRate(entry);
+			if (!employeeId || !isPayLine) {
+				continue;
+			}
+			const total = totals.get(employeeId) ?? { amount: 0, seconds: 0 };
+			total.amount += finiteOrZero(entry.amount);
+			total.seconds += finiteOrZero(entry.duration);
+			totals.set(employeeId, total);
+		}
+	}
+	const rates = new Map<string, number>();
+	for (const [employeeId, total] of totals) {
+		if (total.seconds <= 0) {
+			continue;
+		}
+		const hours = total.seconds / SECONDS_PER_HOUR;
+		rates.set(employeeId, roundedToCents(total.amount / hours));
+	}
+	return rates;
+}
+
+function lineCurrencyOf(entry: OwedReportEntry, employee: TOwedReportEmployee, organizationCurrency: string | null) {
+	const reportedCurrency = trimmedOrNull(entry.currency);
+	if (reportedCurrency) {
+		return reportedCurrency;
+	}
+	return currencyOf(employee.billRateCurrency, organizationCurrency);
+}
+
 export function owedLinesOf({
 	report,
 	members,
@@ -203,6 +275,7 @@ export function owedLinesOf({
 	unnamedLabel: string;
 }>): OwedLine[] {
 	const lines: OwedLine[] = [];
+	const payRates = payRatesOf(report);
 	for (const reportDay of report) {
 		const rawDate = String(reportDay.date ?? '');
 		const dateKey = rawDate.slice(0, 10);
@@ -216,7 +289,13 @@ export function owedLinesOf({
 				continue;
 			}
 			const member = members.get(employee.id);
-			const rate = rateOf(employee.billRateValue);
+			const rateSource = rateSourceOf(entry.rateSource);
+			let rate = rateOf(employee.billRateValue);
+			let amount = amountOf(rate, entry.amount);
+			if (rateSource === 'pay') {
+				rate = payRates.get(employee.id) ?? null;
+				amount = finiteOrZero(entry.amount);
+			}
 			lines.push({
 				key: `${dateKey}:${employee.id}`,
 				dateKey,
@@ -226,8 +305,9 @@ export function owedLinesOf({
 				imageUrl: imageOf(employee, member),
 				seconds: finiteOrZero(entry.duration),
 				rate,
-				currency: currencyOf(employee.billRateCurrency, organizationCurrency),
-				amount: amountOf(rate, entry.amount)
+				currency: lineCurrencyOf(entry, employee, organizationCurrency),
+				amount,
+				rateSource
 			});
 		}
 	}
@@ -407,6 +487,7 @@ function memberGroupOf(firstLine: OwedLine): OwedMemberGroup {
 		currency: firstLine.currency,
 		seconds: 0,
 		amount: null,
+		rateSource: firstLine.rateSource,
 		lines: []
 	};
 }

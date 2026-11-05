@@ -1109,6 +1109,7 @@
 			"UPDATING": "Te betalen bedragen worden bijgewerkt",
 			"NOTE": "Verschuldigde bedragen voor geregistreerde tijd, tegen het huidige tarief van elk lid. Betalingen worden niet vastgelegd in Ever Teams.",
 			"NO_RATE": "Geen tarief ingesteld",
+			"PAY_RATE_NOT_SET": "Geen loontarief ingesteld, factuurtarief getoond",
 			"HOUR_UNIT": "/u",
 			"FORMULA": "{duration} × {rate}/u",
 			"DAY_LABEL": "<name>{day}</name> {date}",

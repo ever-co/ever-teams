@@ -31,7 +31,9 @@ export const owedReportDaySchema = z
 				.object({
 					employee: owedReportEmployeeSchema.nullable(),
 					amount: z.coerce.number().catch(0),
-					duration: z.coerce.number().min(0).catch(0)
+					duration: z.coerce.number().min(0).catch(0),
+					rateSource: z.string().nullable().optional(),
+					currency: z.string().nullable().optional()
 				})
 				.passthrough()
 		)

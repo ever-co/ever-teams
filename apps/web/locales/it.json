@@ -1109,6 +1109,7 @@
 			"UPDATING": "Aggiornamento dei pagamenti dovuti",
 			"NOTE": "Importi dovuti per il tempo registrato, alla tariffa attuale di ogni membro. Ever Teams non registra i pagamenti.",
 			"NO_RATE": "Nessuna tariffa",
+			"PAY_RATE_NOT_SET": "Tariffa di retribuzione non impostata, viene mostrata la tariffa di fatturazione",
 			"HOUR_UNIT": "/h",
 			"FORMULA": "{duration} × {rate}/h",
 			"DAY_LABEL": "<name>{day}</name> {date}",

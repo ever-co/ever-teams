@@ -1109,6 +1109,7 @@
 			"UPDATING": "Mise à jour des paiements dus",
 			"NOTE": "Montants dus pour le temps suivi, au taux actuel de chaque membre. Les paiements ne sont pas enregistrés dans Ever Teams.",
 			"NO_RATE": "Aucun taux",
+			"PAY_RATE_NOT_SET": "Taux de rémunération non défini, taux de facturation affiché",
 			"HOUR_UNIT": "/h",
 			"FORMULA": "{duration} × {rate}/h",
 			"DAY_LABEL": "<name>{day}</name> {date}",
