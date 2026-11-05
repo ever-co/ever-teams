@@ -51,6 +51,10 @@ export function playStepArrival(element: HTMLElement | null, travel: Travel, sca
 	if (!element) {
 		return;
 	}
+	// No Web Animations API (an old browser, jsdom): the step just shows
+	if (typeof element.animate !== 'function') {
+		return;
+	}
 	if (prefersReducedMotion()) {
 		return;
 	}

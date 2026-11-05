@@ -47,11 +47,16 @@ function errorRefOf(hasError: boolean, errorId: string) {
 	return undefined;
 }
 
-function settleSlot(slot: HTMLInputElement | undefined) {
-	if (!slot) {
-		return;
+/** No Web Animations API (an old browser, jsdom): the code still reaches the form, only the motion is skipped. */
+function canAnimate(element: HTMLElement | null | undefined): element is HTMLElement {
+	if (!element || typeof element.animate !== 'function') {
+		return false;
 	}
-	if (prefersReducedMotion()) {
+	return !prefersReducedMotion();
+}
+
+function settleSlot(slot: HTMLInputElement | undefined) {
+	if (!canAnimate(slot)) {
 		return;
 	}
 	slot.animate(SETTLE_KEYFRAMES, SETTLE_TIMING);
@@ -102,10 +107,7 @@ export function AuthCodeField({
 		if (status !== 'error') {
 			return;
 		}
-		if (!group) {
-			return;
-		}
-		if (prefersReducedMotion()) {
+		if (!canAnimate(group)) {
 			return;
 		}
 		group.animate(SHAKE_KEYFRAMES, SHAKE_TIMING);
