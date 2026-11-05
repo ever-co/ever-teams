@@ -4255,7 +4255,9 @@
 		},
 		"password": {
 			"RULE_MATCH": "Les deux mots de passe correspondent",
+			"RULE_MET": "Condition remplie",
 			"RULE_MIN_LENGTH": "{count, plural, one {Au moins # caractère} other {Au moins # caractères}}",
+			"RULE_NOT_MET": "Condition non remplie",
 			"STRENGTH_FAIR": "Moyen",
 			"STRENGTH_GOOD": "Bon",
 			"STRENGTH_STRONG": "Fort",

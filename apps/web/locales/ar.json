@@ -4255,7 +4255,9 @@
 		},
 		"password": {
 			"RULE_MATCH": "كلمتا المرور متطابقتان",
+			"RULE_MET": "الشرط مستوفى",
 			"RULE_MIN_LENGTH": "{count, plural, zero {# حرف على الأقل} one {# حرف على الأقل} two {# حرفان على الأقل} few {# أحرف على الأقل} many {# حرفًا على الأقل} other {# حرف على الأقل}}",
+			"RULE_NOT_MET": "الشرط غير مستوفى",
 			"STRENGTH_FAIR": "مقبولة",
 			"STRENGTH_GOOD": "جيدة",
 			"STRENGTH_STRONG": "قوية",

@@ -4255,7 +4255,9 @@
 		},
 		"password": {
 			"RULE_MATCH": "两次输入的密码一致",
+			"RULE_MET": "已满足要求",
 			"RULE_MIN_LENGTH": "{count, plural, other {至少 # 个字符}}",
+			"RULE_NOT_MET": "未满足要求",
 			"STRENGTH_FAIR": "一般",
 			"STRENGTH_GOOD": "良好",
 			"STRENGTH_STRONG": "强",

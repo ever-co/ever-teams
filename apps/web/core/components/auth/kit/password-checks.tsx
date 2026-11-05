@@ -69,7 +69,17 @@ function StrengthMeter({ strength }: Readonly<{ strength: PasswordStrength }>) {
 	);
 }
 
+function ruleStateKeyOf(isMet: boolean) {
+	if (isMet) {
+		return 'auth.password.RULE_MET' as const;
+	}
+	return 'auth.password.RULE_NOT_MET' as const;
+}
+
 function RuleRow({ isMet, label }: Readonly<{ isMet: boolean; label: string }>) {
+	const t = useTranslations();
+	const stateKey = ruleStateKeyOf(isMet);
+
 	return (
 		<li
 			className={cn('flex items-center gap-2 text-xs transition-colors duration-200', isMet && 'text-foreground')}
@@ -93,6 +103,7 @@ function RuleRow({ isMet, label }: Readonly<{ isMet: boolean; label: string }>) 
 				</span>
 			</span>
 			<span>{label}</span>
+			<span className="sr-only">{t(stateKey)}</span>
 		</li>
 	);
 }

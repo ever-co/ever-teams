@@ -4255,7 +4255,9 @@
 		},
 		"password": {
 			"RULE_MATCH": "שתי הסיסמאות תואמות",
+			"RULE_MET": "הדרישה מתקיימת",
 			"RULE_MIN_LENGTH": "{count, plural, one {לפחות # תו} two {לפחות # תווים} other {לפחות # תווים}}",
+			"RULE_NOT_MET": "הדרישה לא מתקיימת",
 			"STRENGTH_FAIR": "סבירה",
 			"STRENGTH_GOOD": "טובה",
 			"STRENGTH_STRONG": "חזקה",

@@ -4255,7 +4255,9 @@
 		},
 		"password": {
 			"RULE_MATCH": "Двете пароли съвпадат",
+			"RULE_MET": "Изискването е изпълнено",
 			"RULE_MIN_LENGTH": "{count, plural, one {Поне # символ} other {Поне # символа}}",
+			"RULE_NOT_MET": "Изискването не е изпълнено",
 			"STRENGTH_FAIR": "Средна",
 			"STRENGTH_GOOD": "Добра",
 			"STRENGTH_STRONG": "Силна",

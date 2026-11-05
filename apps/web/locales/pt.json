@@ -4255,7 +4255,9 @@
 		},
 		"password": {
 			"RULE_MATCH": "As duas senhas coincidem",
+			"RULE_MET": "Requisito cumprido",
 			"RULE_MIN_LENGTH": "{count, plural, one {Pelo menos # caractere} other {Pelo menos # caracteres}}",
+			"RULE_NOT_MET": "Requisito não cumprido",
 			"STRENGTH_FAIR": "Razoável",
 			"STRENGTH_GOOD": "Boa",
 			"STRENGTH_STRONG": "Forte",

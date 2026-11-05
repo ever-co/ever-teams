@@ -4255,7 +4255,9 @@
 		},
 		"password": {
 			"RULE_MATCH": "Oba hasła są zgodne",
+			"RULE_MET": "Wymaganie spełnione",
 			"RULE_MIN_LENGTH": "{count, plural, one {Co najmniej # znak} few {Co najmniej # znaki} many {Co najmniej # znaków} other {Co najmniej # znaków}}",
+			"RULE_NOT_MET": "Wymaganie niespełnione",
 			"STRENGTH_FAIR": "Średnie",
 			"STRENGTH_GOOD": "Dobre",
 			"STRENGTH_STRONG": "Silne",
