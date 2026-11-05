@@ -1,6 +1,6 @@
 import { useIsMemberManager, useModal, useOrganizationEmployeeTeams } from '@/core/hooks';
 import { Transition } from '@headlessui/react';
-import React, { memo, useCallback, useMemo } from 'react';
+import React, { memo, useCallback, useMemo, useState } from 'react';
 import { useSyncRef } from '@/core/hooks/common/use-sync-ref';
 import { InviteUserTeamSkeleton, UserTeamCardSkeleton } from './team-members-header';
 import { UserTeamCard } from './user-team-card';
@@ -12,6 +12,11 @@ import { useTeamInvitationsQuery } from '@/core/hooks/invitations/use-team-invit
 import { useUserQuery } from '@/core/hooks/queries/user-user.query';
 import { clsxm } from '@/core/lib/utils';
 import { MEMBER_CARD } from '@/core/components/teams/member-row-grid';
+import {
+	membersWithPendingOrders,
+	ordersAfterSwap,
+	type TPendingMemberOrders
+} from '@/core/lib/helpers/team-member-order';
 
 interface Props {
 	teamMembers: TOrganizationTeamEmployee[];
@@ -29,8 +34,11 @@ const OWN_MEMBER_CARD =
 
 const INVITE_SLOT_CARD = 'rounded-xl hairline-border border-dashed border-foreground/15';
 
+// The viewer's own card sits outside the ordered list, so it is neither dragged nor dropped on
+const noDragHandler = () => null;
+
 const TeamMembersCardView: React.FC<Props> = memo(
-	({ teamMembers: members, currentUser, teamsFetching = false, publicTeam = false, statsPending = false }) => {
+	({ teamMembers, currentUser, teamsFetching = false, publicTeam = false, statsPending = false }) => {
 		const { data: user } = useUserQuery();
 
 		const { isTeamManager } = useIsMemberManager(user);
@@ -39,29 +47,43 @@ const TeamMembersCardView: React.FC<Props> = memo(
 
 		const { updateOrganizationTeamEmployeeOrderOnList } = useOrganizationEmployeeTeams();
 
-		// TODO: sort teamMembers by index
 		const dragTeamMember = React.useRef<number>(0);
 		const draggedOverTeamMember = React.useRef<number>(0);
 
-		const handleChangeOrder = useCallback(
-			(employee: TOrganizationTeamEmployee, order: number) => {
-				updateOrganizationTeamEmployeeOrderOnList(employee, order);
-			},
-			[updateOrganizationTeamEmployeeOrderOnList]
+		// A drop shows at once with the orders being saved, and holds until they have all settled; one drop at a
+		// time, so overlapping saves never mix their orders
+		const [pendingOrders, setPendingOrders] = useState<TPendingMemberOrders | null>(null);
+		const isSavingOrder = pendingOrders !== null;
+		const members = useMemo(
+			() => membersWithPendingOrders(teamMembers, pendingOrders),
+			[teamMembers, pendingOrders]
 		);
 
-		// Read through a ref so handleSort keeps its identity and does not re-render every memoized card
+		// Read through refs so handleSort keeps its identity and does not re-render every memoized card
 		const membersRef = useSyncRef(members);
+		const isSavingOrderRef = useSyncRef(isSavingOrder);
 
 		const handleSort = useCallback(() => {
-			const peopleClone = [...membersRef.current];
-			const temp = peopleClone[dragTeamMember.current];
-			peopleClone[dragTeamMember.current] = peopleClone[draggedOverTeamMember.current];
-			peopleClone[draggedOverTeamMember.current] = temp;
-			// TODO: update teamMembers index
-			handleChangeOrder(peopleClone[dragTeamMember.current], draggedOverTeamMember.current);
-			handleChangeOrder(peopleClone[draggedOverTeamMember.current], dragTeamMember.current);
-		}, [membersRef, dragTeamMember, draggedOverTeamMember, handleChangeOrder]);
+			const draggedIndex = dragTeamMember.current;
+			const targetIndex = draggedOverTeamMember.current;
+			const draggedMember = membersRef.current[draggedIndex];
+			const targetMember = membersRef.current[targetIndex];
+			const isMemberMissing = !draggedMember || !targetMember;
+			const isSameMember = draggedMember?.id === targetMember?.id;
+			const hasNothingToMove = isMemberMissing || isSameMember;
+			if (hasNothingToMove || isSavingOrderRef.current) {
+				return;
+			}
+			const nextOrders = ordersAfterSwap(membersRef.current, draggedIndex, targetIndex);
+			setPendingOrders(nextOrders);
+			const reorderedMembers = membersRef.current.filter((member) => member.id in nextOrders);
+			const saves = reorderedMembers.map((member) =>
+				updateOrganizationTeamEmployeeOrderOnList(member, nextOrders[member.id])
+			);
+			// Each save reloads the teams as it settles (a failure also shows its message), so once all have settled
+			// the list reads the order the API holds
+			void Promise.allSettled(saves).then(() => setPendingOrders(null));
+		}, [membersRef, isSavingOrderRef, updateOrganizationTeamEmployeeOrderOnList]);
 
 		const handleDragOver = useCallback((e: React.DragEvent<HTMLDivElement>) => e.preventDefault(), []);
 
@@ -90,11 +112,11 @@ const TeamMembersCardView: React.FC<Props> = memo(
 								active
 								publicTeam={publicTeam}
 								statsPending={statsPending}
-								draggable={true}
+								draggable={false}
 								currentExit={false}
-								onDragStart={dragHandlers[0].onDragStart}
-								onDragEnter={dragHandlers[0].onDragEnter}
-								onDragEnd={handleSort}
+								onDragStart={noDragHandler}
+								onDragEnter={noDragHandler}
+								onDragEnd={noDragHandler}
 								onDragOver={handleDragOver}
 							/>
 						</li>
@@ -109,7 +131,7 @@ const TeamMembersCardView: React.FC<Props> = memo(
 									publicTeam={publicTeam}
 									statsPending={statsPending}
 									currentExit={draggedOverTeamMember.current == i}
-									draggable={isTeamManager}
+									draggable={isTeamManager && !isSavingOrder}
 									onDragStart={dragHandlers[i].onDragStart}
 									onDragEnter={dragHandlers[i].onDragEnter}
 									onDragEnd={handleSort}

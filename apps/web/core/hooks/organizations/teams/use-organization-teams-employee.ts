@@ -105,8 +105,10 @@ export function useOrganizationEmployeeTeams() {
 			// Preserve original behavior - call loadTeamsData
 			await loadTeamsData();
 		},
-		onError: (error) => {
+		onError: async (error) => {
 			showFailure('toasts.teams.MEMBER_ORDER_NOT_SAVED', error);
+			// Part of the drop may have been saved: read the order the API really holds before the list goes back
+			await queryClient.invalidateQueries({ queryKey: queryKeys.organizationTeams.all });
 		}
 	});
 

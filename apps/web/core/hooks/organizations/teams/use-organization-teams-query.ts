@@ -211,7 +211,7 @@ export function useOrganizationTeamsQuery(options: UseOrganizationTeamsQueryOpti
 			const latestSignature = latestTeams
 				.map((t) => {
 					const memberRolesSignature =
-						t.members?.map((m) => `${m.id}:${m.role?.name ?? 'none'}`).join(',') || '';
+						t.members?.map((m) => `${m.id}:${m.role?.name ?? 'none'}:${m.order ?? ''}`).join(',') || '';
 					// Timer presence (other clients) and the presence heartbeat both have to change the signature
 					const memberPresenceSignature = `${t.members?.map(getMemberPresenceSignature).join(',') || ''}:${getMembersPresenceSignature(t.members)}`;
 					return `${t.id}:${t.updatedAt ?? ''}:${t.name}:${t.shareProfileView ?? ''}:${t.requirePlanToTrack ?? ''}:${t.public ?? ''}:${t.color ?? ''}:${t.emoji ?? ''}:${t.prefix ?? ''}:${t.members?.length ?? 0}:${memberRolesSignature}:${memberPresenceSignature}`;
@@ -319,7 +319,8 @@ export function useOrganizationTeamsQuery(options: UseOrganizationTeamsQueryOpti
 			const newTeam = organizationTeamQuery.data.data;
 
 			const memberActiveTaskIds = newTeam.members?.map((m) => m.activeTaskId || 'null').join(',') || '';
-			const memberRoles = newTeam.members?.map((m) => `${m.id}:${m.role?.name ?? 'none'}`).join(',') || '';
+			const memberRoles =
+				newTeam.members?.map((m) => `${m.id}:${m.role?.name ?? 'none'}:${m.order ?? ''}`).join(',') || '';
 			// Timer presence (other clients) and the presence heartbeat both have to change the signature
 			const memberPresence = `${newTeam.members?.map(getMemberPresenceSignature).join(',') || ''}:${getMembersPresenceSignature(newTeam.members)}`;
 			const newSignature = `${newTeam.id}:${newTeam.updatedAt ?? ''}:${newTeam.members?.length ?? 0}:${memberActiveTaskIds}:${memberRoles}:${memberPresence}`;
