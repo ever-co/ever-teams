@@ -112,6 +112,13 @@ function rowStateClass(isSelected: boolean, isEmpty: boolean) {
 	return 'hover:bg-foreground/[0.03]';
 }
 
+/** Enter in the search box would submit the form, signing in to the selected workspace rather than a match. */
+function keepSearchFromSubmitting(event: KeyboardEvent<HTMLInputElement>) {
+	if (event.key === 'Enter') {
+		event.preventDefault();
+	}
+}
+
 function focusNeighbourRow(event: KeyboardEvent<HTMLDivElement>, offset: number) {
 	const rows = Array.from(event.currentTarget.querySelectorAll<HTMLButtonElement>('[data-picker-row]'));
 	const current = rows.indexOf(document.activeElement as HTMLButtonElement);
@@ -239,6 +246,7 @@ export function WorkspacePicker(props: Readonly<WorkspacePickerProps>) {
 						type="search"
 						value={query}
 						onChange={(event) => setQuery(event.target.value)}
+						onKeyDown={keepSearchFromSubmitting}
 						placeholder={t('auth.workspace.SEARCH')}
 						className="h-full min-w-0 flex-1 bg-transparent text-base outline-none placeholder:text-muted-foreground/75 md:text-sm"
 					/>
