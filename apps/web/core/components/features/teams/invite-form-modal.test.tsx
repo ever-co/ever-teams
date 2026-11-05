@@ -9,6 +9,8 @@ const mockResendTeamInvitation = jest.fn();
 const mockUseRolesQuery = jest.fn();
 const mockUseTeamInvitationsQuery = jest.fn();
 const mockActiveTeam = { name: 'Team', members: [] };
+let mockCanManageTeam = true;
+const mockPendingListProps = jest.fn();
 
 jest.mock('@/core/hooks/roles/use-roles-query', () => ({
 	useRolesQuery: (options: { enabled?: boolean }) => mockUseRolesQuery(options)
@@ -39,11 +41,20 @@ jest.mock('@/core/hooks/queries/user-user.query', () => ({
 	useUserQuery: () => ({ data: { role: { name: 'ADMIN' } } })
 }));
 
-jest.mock('jotai', () => ({
-	useAtomValue: () => mockActiveTeam
+jest.mock('@/core/stores', () => ({
+	activeTeamState: Symbol('active-team'),
+	canManageActiveTeamState: Symbol('can-manage-active-team')
 }));
 
-jest.mock('@/core/stores', () => ({ activeTeamState: Symbol('active-team') }));
+jest.mock('jotai', () => ({
+	useAtomValue: (atom: symbol) => {
+		const { canManageActiveTeamState } = jest.requireMock('@/core/stores') as { canManageActiveTeamState: symbol };
+		if (atom === canManageActiveTeamState) {
+			return mockCanManageTeam;
+		}
+		return mockActiveTeam;
+	}
+}));
 
 jest.mock('next-intl', () => ({
 	useTranslations: () => (key: string) => key
@@ -68,7 +79,10 @@ jest.mock('@/core/components/common/app-dialog', () => ({
 }));
 
 jest.mock('./invite/invite-pending-list', () => ({
-	InvitePendingList: () => null,
+	InvitePendingList: (props: { canRevoke: boolean }) => {
+		mockPendingListProps(props);
+		return null;
+	},
 	isOpenInvitation: (invitation: { status?: string | null }) => invitation.status !== 'ACCEPTED'
 }));
 
@@ -257,5 +271,24 @@ describe('InviteFormModal addresses', () => {
 			expect(mockInviteUsers).toHaveBeenCalledWith(['ana@example.com', 'bob@example.com'], 'employee-role')
 		);
 		expect(mockInviteUsers).toHaveBeenCalledTimes(1);
+	});
+});
+
+describe('InviteFormModal pending invitations', () => {
+	beforeEach(() => {
+		jest.clearAllMocks();
+		mockUseRolesQuery.mockReturnValue(noRoles);
+		mockUseTeamInvitationsQuery.mockReturnValue(noInvitations);
+	});
+
+	it.each([
+		['shows the revoke buttons to someone who manages the team, an organization admin included', true],
+		['hides them from a plain member', false]
+	])('%s', (_label, canManageTeam) => {
+		mockCanManageTeam = canManageTeam;
+
+		render(<InviteFormModal open closeModal={jest.fn()} />);
+
+		expect(mockPendingListProps).toHaveBeenLastCalledWith(expect.objectContaining({ canRevoke: canManageTeam }));
 	});
 });

@@ -11,6 +11,7 @@
  */
 
 import { setActiveProjectIdCookie } from '@/core/lib/helpers/cookies';
+import { canMemberTrackTime } from '@/core/lib/helpers/team-member-tracking';
 import { useUserQuery } from '@/core/hooks/queries/user-user.query';
 import {
 	activeTeamManagersState,
@@ -31,6 +32,7 @@ import { useCreateOrganizationTeam } from './use-create-organization-team';
 import { useUpdateOrganizationTeam } from './use-update-organization-team';
 import { useEditOrganizationTeam } from './use-edit-organization-team';
 import { useDeleteOrganizationTeam } from './use-delete-organization-team';
+import { teamDefaultProjectId } from '@/core/lib/helpers/team-default-project';
 
 /**
  * @deprecated Use specialized hooks instead:
@@ -82,11 +84,10 @@ export function useOrganizationTeams() {
 	const memberActiveTaskId =
 		(timerStatus?.running && timerStatus?.lastLog?.taskId) || currentUser?.activeTaskId || null;
 
-	const isTrackingEnabled = activeTeam?.members?.find(
-		(member) => member.employee?.userId === user?.id && member.isTrackingEnabled
-	)
-		? true
-		: false;
+	const isTrackingEnabled = members.some((member) => {
+		const isUser = member.employee?.userId === user?.id;
+		return isUser && canMemberTrackTime(member);
+	});
 
 	// Sync memberActiveTaskId to global atom for use by other hooks (e.g., use-team-tasks.ts)
 	const setMemberActiveTaskId = useSetAtom(memberActiveTaskIdState);
@@ -97,8 +98,9 @@ export function useOrganizationTeams() {
 	// ==================== SIDE EFFECTS ====================
 
 	useEffect(() => {
-		if (activeTeam?.projects && activeTeam?.projects?.length) {
-			setActiveProjectIdCookie(activeTeam?.projects[0]?.id);
+		const defaultProjectId = teamDefaultProjectId(activeTeam);
+		if (defaultProjectId) {
+			setActiveProjectIdCookie(defaultProjectId);
 		}
 		setIsTrackingEnabledState(isTrackingEnabled);
 		// eslint-disable-next-line react-hooks/exhaustive-deps

@@ -2,13 +2,18 @@ import { GAUZY_API_BASE_SERVER_URL } from '@/core/constants/config/constants';
 import { APIService } from '@/core/services/client/api.service';
 import {
 	validateApiResponse,
-	organizationTeamEmployeeSchema,
 	ZodValidationError,
 	TOrganizationTeamEmployee,
 	TOrganizationTeamEmployeeUpdate,
 	organizationTeamEmployeeUpdateSchema
 } from '@/core/types/schemas';
 import { updateActiveTaskSchema } from '@/core/types/schemas/task/task.schema';
+import { z } from 'zod';
+
+/** Gauzy's answer to a membership update: an update result, which says how many rows it changed. */
+const membershipUpdateResultSchema = z.object({ affected: z.number().nullable().optional() }).passthrough();
+
+type TMembershipUpdateResult = z.infer<typeof membershipUpdateResultSchema>;
 
 class OrganizationTeamEmployeeService extends APIService {
 	deleteOrganizationTeamEmployee = async ({
@@ -130,13 +135,13 @@ class OrganizationTeamEmployeeService extends APIService {
 	}: {
 		organizationTeamEmployeeId: string;
 		data: { order: number };
-	}): Promise<TOrganizationTeamEmployee> => {
+	}): Promise<TMembershipUpdateResult> => {
 		try {
 			const endpoint = GAUZY_API_BASE_SERVER_URL.value
 				? `/organization-team-employee/${organizationTeamEmployeeId}`
 				: `/organization-team/employee/${organizationTeamEmployeeId}`;
 
-			const response = await this.put<TOrganizationTeamEmployee>(
+			const response = await this.put<TMembershipUpdateResult>(
 				endpoint,
 				{
 					...data,
@@ -148,12 +153,17 @@ class OrganizationTeamEmployeeService extends APIService {
 				}
 			);
 
-			// Validate API response using utility function
-			return validateApiResponse(
-				organizationTeamEmployeeSchema,
+			const result = validateApiResponse(
+				membershipUpdateResultSchema,
 				response.data,
 				'editOrganizationTeamEmployeeOrder API response'
 			);
+			// No row changed: the membership is not in this team or organization any more
+			const changedNoRow = result.affected === 0;
+			if (changedNoRow) {
+				throw new Error('The member order was not saved: no team membership matched.');
+			}
+			return result;
 		} catch (error) {
 			if (error instanceof ZodValidationError) {
 				this.logger.error(

@@ -6,6 +6,8 @@ import { AddTaskModal } from './add-mask-modal';
 
 const mockCreateTimesheet = jest.fn();
 const mockAtomValues: Record<string, unknown> = {};
+const mockProjects: Array<{ id: string; billable?: boolean }> = [];
+const mockProjectsQuery = { loading: false };
 
 type MockCustomSelectProps = {
 	ariaLabel?: string;
@@ -16,6 +18,14 @@ type MockCustomSelectProps = {
 };
 
 type MockChildrenProps = { children?: React.ReactNode };
+
+type MockProject = { id: string };
+
+type MockProjectPickerProps = {
+	itemsLists: Record<string, MockProject[] | undefined>;
+	selectedValues: Record<string, MockProject | null>;
+	onSelectedValuesChange: (values: Record<string, MockProject | null>) => void;
+};
 
 jest.mock('jotai', () => ({
 	useAtomValue: (atom: string) => mockAtomValues[atom]
@@ -35,7 +45,10 @@ jest.mock('@/core/hooks', () => ({
 }));
 
 jest.mock('@/core/hooks/organizations/projects/use-organization-projects-query', () => ({
-	useOrganizationProjectsQuery: () => ({ organizationProjects: [] })
+	useOrganizationProjectsQuery: () => ({
+		organizationProjects: mockProjects,
+		getOrganizationProjectsLoading: mockProjectsQuery.loading
+	})
 }));
 
 jest.mock('@/core/hooks/timesheet/use-create-timesheet', () => ({
@@ -52,7 +65,28 @@ jest.mock('@/core/components', () => ({
 
 jest.mock('@/core/components/teams/manage-member-component', () => ({
 	getNestedValue: () => '',
-	ManageOrMemberComponent: () => null
+	ManageOrMemberComponent: ({ itemsLists, selectedValues, onSelectedValuesChange }: MockProjectPickerProps) => {
+		const offeredProjects = itemsLists.Project ?? [];
+		const selectedProjectId = selectedValues.Project?.id ?? '';
+		const pickProject = (projectId: string) => {
+			const pickedProject = offeredProjects.find((project) => project.id === projectId) ?? null;
+			onSelectedValuesChange({ Project: pickedProject });
+		};
+		return (
+			<select
+				aria-label="project"
+				value={selectedProjectId}
+				onChange={(event) => pickProject(event.target.value)}
+			>
+				<option value="">Select a project</option>
+				{offeredProjects.map((project) => (
+					<option key={project.id} value={project.id}>
+						{project.id}
+					</option>
+				))}
+			</select>
+		);
+	}
 }));
 
 jest.mock('@/core/components/common/accordion', () => ({
@@ -202,5 +236,140 @@ describe('AddTaskModal team of the saved time', () => {
 
 		pickTaskAndEmployee('task-a', 'employee-a');
 		expect(saveButton).toHaveProperty('disabled', false);
+	});
+});
+
+describe('AddTaskModal project of the saved time', () => {
+	const siteProject = { id: 'project-site', billable: true };
+	const mobileProject = { id: 'project-mobile', billable: false };
+	const taskInSite = { id: 'task-site', title: 'Homepage mockup', projectId: 'project-site' };
+	const taskWithoutProject = { id: 'task-loose', title: 'Loose task', projectId: null };
+
+	const offeredProjectIds = () => {
+		const projectSelect = screen.getByLabelText('project') as HTMLSelectElement;
+		const options = Array.from(projectSelect.options);
+		return options.map((option) => option.value);
+	};
+
+	beforeEach(() => {
+		mockCreateTimesheet.mockReset();
+		mockCreateTimesheet.mockResolvedValue(undefined);
+		mockAtomValues.activeTeamState = teamA;
+		mockAtomValues.tasksByTeamState = [taskInSite, taskWithoutProject];
+		mockProjects.splice(0, mockProjects.length, siteProject, mobileProject);
+		mockProjectsQuery.loading = false;
+	});
+
+	it("saves the time on the task's own project, billable as that project is, from Ever Teams", () => {
+		renderAddTimeForm();
+
+		pickTaskAndEmployee('task-site', 'employee-a');
+
+		expect(offeredProjectIds()).toEqual(['', 'project-site']);
+
+		fillShiftTimes();
+		save();
+
+		expect(mockCreateTimesheet).toHaveBeenCalledWith(
+			expect.objectContaining({
+				taskId: 'task-site',
+				projectId: 'project-site',
+				isBillable: true,
+				source: 'TEAMS'
+			})
+		);
+	});
+
+	it('takes the billable setting of a project that loads after the task was picked', () => {
+		mockProjects.splice(0, mockProjects.length);
+		const { rerender } = renderAddTimeForm();
+
+		pickTaskAndEmployee('task-site', 'employee-a');
+		mockProjects.push(siteProject, mobileProject);
+		rerender(<AddTaskModal isOpen closeModal={closeModal} />);
+		fillShiftTimes();
+		save();
+
+		expect(mockCreateTimesheet).toHaveBeenCalledWith(
+			expect.objectContaining({ taskId: 'task-site', projectId: 'project-site', isBillable: true })
+		);
+	});
+
+	it("keeps Save off while the task's project is still loading", () => {
+		mockProjects.splice(0, mockProjects.length);
+		mockProjectsQuery.loading = true;
+		const { rerender } = renderAddTimeForm();
+
+		pickTaskAndEmployee('task-site', 'employee-a');
+		const saveButton = screen.getByRole('button', { name: 'common.SAVE' }) as HTMLButtonElement;
+
+		expect(saveButton.disabled).toBe(true);
+
+		mockProjects.push(siteProject, mobileProject);
+		mockProjectsQuery.loading = false;
+		rerender(<AddTaskModal isOpen closeModal={closeModal} />);
+
+		expect(saveButton.disabled).toBe(false);
+	});
+
+	it("saves the task's current project when it changed while the form was open", () => {
+		const { rerender } = renderAddTimeForm();
+
+		pickTaskAndEmployee('task-site', 'employee-a');
+		const movedTask = { ...taskInSite, projectId: 'project-mobile' };
+		mockAtomValues.tasksByTeamState = [movedTask, taskWithoutProject];
+		rerender(<AddTaskModal isOpen closeModal={closeModal} />);
+		fillShiftTimes();
+		save();
+
+		expect(mockCreateTimesheet).toHaveBeenCalledWith(
+			expect.objectContaining({ taskId: 'task-site', projectId: 'project-mobile', isBillable: false })
+		);
+	});
+
+	it('keeps the project shown when moving on to a task without one after the first task moved', () => {
+		const { rerender } = renderAddTimeForm();
+
+		pickTaskAndEmployee('task-site', 'employee-a');
+		const movedTask = { ...taskInSite, projectId: 'project-mobile' };
+		mockAtomValues.tasksByTeamState = [movedTask, taskWithoutProject];
+		rerender(<AddTaskModal isOpen closeModal={closeModal} />);
+		pickTaskAndEmployee('task-loose', 'employee-a');
+		fillShiftTimes();
+		save();
+
+		expect(mockCreateTimesheet).toHaveBeenCalledWith(
+			expect.objectContaining({ taskId: 'task-loose', projectId: 'project-mobile' })
+		);
+	});
+
+	it('keeps the project picked by hand for a task without one', () => {
+		renderAddTimeForm();
+
+		fireEvent.change(screen.getByLabelText('project'), { target: { value: 'project-mobile' } });
+		pickTaskAndEmployee('task-loose', 'employee-a');
+		fillShiftTimes();
+		save();
+
+		expect(mockCreateTimesheet).toHaveBeenCalledWith(
+			expect.objectContaining({ taskId: 'task-loose', projectId: 'project-mobile', isBillable: false })
+		);
+	});
+
+	it("offers no other project for a task whose project is not in the list, and saves the task's own", () => {
+		const taskInArchivedProject = { id: 'task-archived', title: 'Old task', projectId: 'project-archived' };
+		mockAtomValues.tasksByTeamState = [taskInArchivedProject, taskWithoutProject];
+		renderAddTimeForm();
+
+		pickTaskAndEmployee('task-archived', 'employee-a');
+
+		expect(offeredProjectIds()).toEqual(['']);
+
+		fillShiftTimes();
+		save();
+
+		expect(mockCreateTimesheet).toHaveBeenCalledWith(
+			expect.objectContaining({ taskId: 'task-archived', projectId: 'project-archived' })
+		);
 	});
 });

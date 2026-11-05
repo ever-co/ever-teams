@@ -30,10 +30,13 @@ export type IUpdateTimerStatusParams = {
 	organizationId: string;
 	tenantId: string;
 	taskId?: string;
+	projectId?: string;
 	logType: 'TRACKED';
 	source: ETimeLogSource;
 	tags: any[];
 	organizationTeamId?: string;
+	isBillable?: boolean;
+	planDay?: string;
 };
 export type IToggleTimerStatusParams = IGetTimerStatusParams & {
 	logType?: 'TRACKED';

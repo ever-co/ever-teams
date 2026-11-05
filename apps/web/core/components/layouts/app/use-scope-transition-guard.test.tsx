@@ -186,7 +186,7 @@ describe('useScopeTransitionGuard', () => {
 		store.set(timerStatusState, { running: true } as any);
 		rerender({ current: { ...scope, projectId: 'project-2' } });
 		expect(store.get(teamTasksState)).toEqual([]);
-		expect(store.get(activeTeamTaskState)).toBeNull();
+		expect(store.get(activeTeamTaskState)).toEqual({ id: 'task-1' });
 		expect(store.get(timerStatusState)).toEqual({ running: true });
 
 		store.set(timerStatusState, { running: true } as any);

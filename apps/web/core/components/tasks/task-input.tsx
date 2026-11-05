@@ -805,7 +805,7 @@ function TaskCard({
 
 					{!forParentChildRelationship && (
 						<LazyRender items={datas.filteredTasks || []}>
-							{(task, i) => {
+							{(task) => {
 								const active = datas.inputTask === task;
 
 								return (

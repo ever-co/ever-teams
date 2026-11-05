@@ -3,6 +3,8 @@ import { imgTitle } from '@/core/lib/helpers/index';
 import { useSettings, useSyncRef } from '@/core/hooks';
 import { usePagination } from '@/core/hooks/common/use-pagination';
 import { activeTeamIdState, activeTeamState, organizationTeamsState } from '@/core/stores';
+import { isTeamManagerMember } from '@/core/stores/teams/organization-team';
+import { employeeIdOf, rosterWithRole, teamRosterOf } from '@/core/lib/utils/settings-team';
 import { clsxm } from '@/core/lib/utils';
 import { Text } from '@/core/components';
 import cloneDeep from 'lodash/cloneDeep';
@@ -20,7 +22,6 @@ import { Tooltip } from '../duplicated-components/tooltip';
 import { Paginate } from '../duplicated-components/_pagination';
 import { TOrganizationTeamEmployee, TRole } from '@/core/types/schemas';
 import { useUpdateOrganizationTeam } from '@/core/hooks/organizations/teams/use-update-organization-team';
-import { ERoleName } from '@/core/types/generics/enums/role';
 import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from '@/core/components/common/table';
 
 const HEAD_CELL = 'whitespace-nowrap';
@@ -73,31 +74,17 @@ export const MemberTable = ({ members }: { members: TOrganizationTeamEmployee[] 
 
 	const handleManagerRoleUpdate = useCallback(
 		(employeeId: string, isPromotingToManager: boolean) => {
-			if (!activeTeamRef.current) return;
+			if (!activeTeamRef.current || !employeeId) return;
 
-			// Get current managers
-			const currentManagers: string[] =
-				activeTeamRef.current?.members
-					?.filter((member) => member.role?.name === ERoleName.MANAGER)
-					.map((manager) => manager.employee?.id || '') || [];
+			// Both lists go with the team, in employee ids: the API reads a list the body leaves out as empty, so
+			// managers sent alone would take every other member out of the team
+			const roster = teamRosterOf(activeTeamRef.current.members ?? [], isTeamManagerMember);
+			const role = isPromotingToManager ? 'manager' : 'member';
 
-			if (isPromotingToManager) {
-				// Add new manager
-				const updatedManagerIds = [...new Set([...currentManagers, employeeId])];
-
-				return updateOrganizationTeam(activeTeamRef.current, {
-					...activeTeamRef.current,
-					managerIds: updatedManagerIds
-				});
-			} else {
-				// Remove manager
-				const updatedManagerIds = currentManagers.filter((id) => id !== employeeId);
-
-				return updateOrganizationTeam(activeTeamRef.current, {
-					...activeTeamRef.current,
-					managerIds: updatedManagerIds
-				});
-			}
+			return updateOrganizationTeam(activeTeamRef.current, {
+				...activeTeamRef.current,
+				...rosterWithRole(roster, employeeId, role)
+			});
 		},
 		[updateOrganizationTeam, activeTeamRef]
 	);
@@ -106,10 +93,11 @@ export const MemberTable = ({ members }: { members: TOrganizationTeamEmployee[] 
 		(newRole: TRole) => {
 			if (!editMemberRef.current || !activeTeamRef.current) return;
 
-			const { employeeId = '', role } = editMemberRef.current;
+			const { role } = editMemberRef.current;
+			const employeeId = employeeIdOf(editMemberRef.current) ?? '';
 
 			const isPromotingToManager = role?.name !== 'MANAGER' && newRole?.name === 'MANAGER';
-			handleManagerRoleUpdate(employeeId!, isPromotingToManager);
+			handleManagerRoleUpdate(employeeId, isPromotingToManager);
 
 			// Update Organization Team
 			// const updatedMember = { ...editMemberRef.current, roleId: !isPromotingToManager ? '' :  };

@@ -80,6 +80,15 @@ interface ManageOrMemberComponentProps {
 	itemToValue: (item: Item | null, valueKey: string) => string;
 
 	classNameTitle?: string;
+
+	/** Classes of the wrapper around the fields. */
+	className?: string;
+
+	/** Classes of each field, merged over its default bottom margin. */
+	fieldClassName?: string;
+
+	/** Classes of each field's label, merged over its default ones. */
+	labelClassName?: string;
 }
 
 /**
@@ -96,7 +105,10 @@ const ManageOrMemberComponentBase = (props: ManageOrMemberComponentProps): React
 		handleChange,
 		itemToString,
 		itemToValue,
-		classNameTitle
+		classNameTitle,
+		className,
+		fieldClassName,
+		labelClassName
 	} = props;
 
 	/**
@@ -116,12 +128,12 @@ const ManageOrMemberComponentBase = (props: ManageOrMemberComponentProps): React
 	};
 
 	return (
-		<div>
-			{fields.map((field, index) => (
-				<div key={index} className="mb-4">
-					<label className="mb-1 block text-sm font-medium text-foreground">
+		<div className={className}>
+			{fields.map((field) => (
+				<div key={field.element} className={clsxm('mb-4', fieldClassName)}>
+					<label className={clsxm('mb-1 block text-sm font-medium text-foreground', labelClassName)}>
 						<span className={clsxm('text-[14px]', classNameTitle)}>{field.label}</span>
-						{field.isRequired && <span className="ml-1 text-sm text-destructive-ink">*</span>}
+						{field.isRequired && <span className="ml-1 text-destructive-ink">*</span>}
 					</label>
 					<CustomCombobox
 						defaultValue={field.defaultValue}

@@ -7,7 +7,7 @@ import { EverPlatformSettings } from '@/core/components/optimized-components/set
 import { SettingsPage, SettingsSection } from '@/core/components/settings/kit/settings-page';
 import { TeamSettingsGate } from '@/core/components/settings/kit/team-settings-gate';
 import { useGithubIntegrationSettings } from '@/core/hooks/settings/use-github-integration-settings';
-import { isTeamManagerState } from '@/core/stores';
+import { canManageActiveTeamState } from '@/core/stores';
 import { GithubProviderSection } from './github-provider';
 import { IntegrationsSettingsSkeleton } from './integrations-settings-skeleton';
 
@@ -30,7 +30,7 @@ function frameEverPlatform(content: ReactNode) {
 
 function IntegrationsSettingsContent() {
 	const t = useTranslations();
-	const isTeamManager = useAtomValue(isTeamManagerState);
+	const canManageTeam = useAtomValue(canManageActiveTeamState);
 	const github = useGithubIntegrationSettings();
 
 	return (
@@ -39,7 +39,7 @@ function IntegrationsSettingsContent() {
 			description={t('settings.entries.integrations.DESCRIPTION')}
 		>
 			<GithubProviderSection github={github} />
-			<EverPlatformSettings isTeamManager={isTeamManager} frame={frameEverPlatform} />
+			<EverPlatformSettings isTeamManager={canManageTeam} frame={frameEverPlatform} />
 		</SettingsPage>
 	);
 }

@@ -5,7 +5,7 @@ import enLanguage from '@/locales/en.json';
 import { BG, CN, DE, ES, FR, IS, IT, NL, PL, PT, RU, SA, US } from 'country-flag-icons/react/1x1';
 import { EManualTimeReasons } from '@/core/types/generics/enums/timer';
 import { EInviteStatus } from '@/core/types/generics/enums/invite';
-import { Shield, User2, UserCog } from 'lucide-react';
+import { Shield, User, UserSettings } from '@/core/components/icons';
 import {
 	DEMO_ACCOUNTS_WARNING,
 	parseDemoAccountsJson,
@@ -223,9 +223,9 @@ export const IS_DEMO_MODE = (readRuntimeEnv('NEXT_PUBLIC_DEMO') || process.env.N
 
 /** How each demo account type is presented (the labels are translated, so only these types exist). */
 const DEMO_ACCOUNT_TYPES = {
-	SUPER_ADMIN: { translationKey: 'DEMO_SUPER_ADMIN', role: 'Super Admin', icon: UserCog },
+	SUPER_ADMIN: { translationKey: 'DEMO_SUPER_ADMIN', role: 'Super Admin', icon: UserSettings },
 	ADMIN: { translationKey: 'DEMO_ADMIN', role: 'Admin', icon: Shield },
-	EMPLOYEE: { translationKey: 'DEMO_EMPLOYEE', role: 'Employee', icon: User2 }
+	EMPLOYEE: { translationKey: 'DEMO_EMPLOYEE', role: 'Employee', icon: User }
 } as const;
 
 /**
@@ -433,10 +433,28 @@ export const BRANDING_LINKS_SET_BY_OPERATOR = {
 	privacy: Boolean(readRuntimeEnv('PRIVACY_POLICY_LINK') || process.env.PRIVACY_POLICY_LINK)
 };
 
+// The defaults stay written inline: test/architecture/self-hosting-docs.test.ts reads each branding default from the
+// `readRuntimeEnv('X') || process.env.X || '<default>'` line and checks the compose files and .env.docker against it.
 export const MAIN_PICTURE =
 	readRuntimeEnv('MAIN_PICTURE') || process.env.MAIN_PICTURE || '/assets/cover/auth-bg-cover.png';
 export const MAIN_PICTURE_DARK =
 	readRuntimeEnv('MAIN_PICTURE_DARK') || process.env.MAIN_PICTURE_DARK || '/assets/cover/auth-bg-cover-dark.png';
+
+const BUILT_IN_MAIN_PICTURE = '/assets/cover/auth-bg-cover.png';
+const BUILT_IN_MAIN_PICTURE_DARK = '/assets/cover/auth-bg-cover-dark.png';
+
+/**
+ * Whether the operator chose the auth pictures. The built-in covers are a screenshot of the 2022 interface, so the
+ * auth pages draw their own scene unless a deployment sets other pictures. The env samples, the demo compose file and
+ * the k8s manifests write the built-in paths explicitly: those values count as not chosen.
+ */
+function isOperatorPicture(value: string, builtIn: string) {
+	const hasValue = Boolean(value);
+	const isBuiltIn = value === builtIn;
+	return hasValue && !isBuiltIn;
+}
+export const MAIN_PICTURE_SET_BY_OPERATOR = isOperatorPicture(MAIN_PICTURE, BUILT_IN_MAIN_PICTURE);
+export const MAIN_PICTURE_DARK_SET_BY_OPERATOR = isOperatorPicture(MAIN_PICTURE_DARK, BUILT_IN_MAIN_PICTURE_DARK);
 // The browser tab icon: a path served by this app or an absolute URL.
 export const APP_FAVICON_URL = readRuntimeEnv('APP_FAVICON_URL') || process.env.APP_FAVICON_URL || '/favicon.ico';
 
@@ -1105,7 +1123,11 @@ export const TIMER_STATUS_CONSTANTS = {
 export const EMPLOYEE_PRESENCE_ENABLED = getNextPublicEnv('NEXT_PUBLIC_EMPLOYEE_PRESENCE_ENABLED', {
 	default: process.env.NEXT_PUBLIC_EMPLOYEE_PRESENCE_ENABLED,
 	map(value) {
-		return String(value ?? '').trim().toLowerCase() !== 'false';
+		return (
+			String(value ?? '')
+				.trim()
+				.toLowerCase() !== 'false'
+		);
 	}
 });
 

@@ -12,6 +12,7 @@ import { currentOrganizationState } from '@/core/stores/user/user-organizations'
 import { flattenDailyReport } from '@/core/lib/utils/daily-report-figures';
 import { localDayKeyOf } from '@/core/lib/utils/dashboard-export';
 import { type Period, periodLengthInDays, periodOfPreset } from '@/core/lib/utils/dashboard-period';
+import { isTenantAdminRole } from '@/core/lib/utils/roles';
 import {
 	type ChartGranularity,
 	chartBucketsOf,
@@ -20,7 +21,6 @@ import {
 	daySortValueOf,
 	daySummariesOf,
 	isOrganizationWideRole,
-	isTenantAdminRole,
 	memberColumnStacksOf,
 	memberSeriesOf,
 	memberSortValueOf,

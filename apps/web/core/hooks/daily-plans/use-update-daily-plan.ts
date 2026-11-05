@@ -22,6 +22,7 @@ import { errorReasonKeyOf } from '@/core/lib/utils/error-feedback';
 import { queryKeys } from '@/core/query/keys';
 import { useDailyPlanInvalidation } from './use-daily-plan-invalidation';
 import { useTrackPlanAddition } from './use-pending-plan-additions';
+import { teamDefaultProjectId } from '@/core/lib/helpers/team-default-project';
 
 interface UseUpdateDailyPlanOptions {
 	/** Set when the caller reports every failure of these mutations itself: the global fallback then stays silent. */
@@ -85,7 +86,7 @@ export function useUpdateDailyPlan({ handlesOwnError = false }: UseUpdateDailyPl
 						activeTeam?.tenantId,
 						activeTeam?.organizationId,
 						activeTeam?.id,
-						activeTeam?.projects?.[0]?.id ?? null
+						teamDefaultProjectId(activeTeam)
 					)
 				);
 

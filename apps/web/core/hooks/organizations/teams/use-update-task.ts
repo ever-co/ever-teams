@@ -21,6 +21,8 @@ import { flattenTaskPages } from '@/core/lib/utils/task.utils';
 import { useInvalidateTeamTasks } from './use-invalidate-team-tasks';
 import { useTaskQueries } from './use-task-queries';
 import { refreshAfterTaskUpdate } from './task-update-refresh';
+import { useTimesheetInvalidation } from '@/core/hooks/timesheet/use-timesheet-invalidation';
+import { teamDefaultProjectId } from '@/core/lib/helpers/team-default-project';
 
 /**
  * Hook for updating team tasks (UPDATE operations only).
@@ -82,13 +84,13 @@ export function useUpdateTask() {
 		activeTeam?.tenantId,
 		activeTeam?.organizationId,
 		activeTeam?.id,
-		activeTeam?.projects?.[0]?.id ?? null
+		teamDefaultProjectId(activeTeam)
 	);
 	const scopeFingerprint = JSON.stringify([
 		activeTeam?.tenantId ?? null,
 		activeTeam?.organizationId ?? null,
 		activeTeam?.id ?? null,
-		activeTeam?.projects?.[0]?.id ?? null
+		teamDefaultProjectId(activeTeam)
 	]);
 	const currentScopeFingerprintRef = useRef(scopeFingerprint);
 	currentScopeFingerprintRef.current = scopeFingerprint;
@@ -97,13 +99,22 @@ export function useUpdateTask() {
 	const setActive = useSetAtom(activeTeamTaskId);
 
 	const { invalidateTeamTasksData } = useInvalidateTeamTasks();
+	const { invalidateTimesheetData } = useTimesheetInvalidation();
 
 	const { getTaskById } = useTaskQueries();
 
 	// Update mutation
 	const updateTaskMutation = useMutation({
-		mutationFn: async ({ taskId, taskData }: { taskId: string; taskData: Partial<TTask> }) => {
-			return await taskService.updateTask({ taskId, data: taskData });
+		mutationFn: async ({
+			taskId,
+			taskData,
+			moveTimeLogs
+		}: {
+			taskId: string;
+			taskData: Partial<TTask>;
+			moveTimeLogs?: boolean;
+		}) => {
+			return await taskService.updateTask({ taskId, data: taskData, moveTimeLogs });
 		},
 		onMutate: async ({ taskId, taskData }) => {
 			// Cancel any outgoing refetches (so they don't overwrite our optimistic update)
@@ -162,7 +173,11 @@ export function useUpdateTask() {
 				}
 			}
 		},
-		onSettled: (data, error, { taskId }) => {
+		onSettled: (data, error, { taskId, moveTimeLogs }) => {
+			// The time logs may have moved with the task, so the timesheets and reports that list them are read again
+			if (moveTimeLogs) {
+				invalidateTimesheetData();
+			}
 			// A failed update reads every task list and plan again, to be sure of what the server holds
 			if (error) {
 				invalidateTeamTasksData(taskId);
@@ -174,11 +189,12 @@ export function useUpdateTask() {
 
 	const updateTaskMutateAsync = updateTaskMutation.mutateAsync;
 	const updateTask = useCallback(
-		async (task: Partial<TTask> & { id: string }) => {
+		async (task: Partial<TTask> & { id: string }, options?: { moveTimeLogs?: boolean }) => {
 			try {
 				const res = await updateTaskMutateAsync({
 					taskId: task.id,
-					taskData: task
+					taskData: task,
+					moveTimeLogs: options?.moveTimeLogs
 				});
 
 				setActive({

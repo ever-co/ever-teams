@@ -1,22 +1,29 @@
 'use client';
 
 import { useTranslations } from 'next-intl';
-import { useCallback, useState } from 'react';
+import { useCallback, useState, type FormEvent } from 'react';
 import Link from 'next/link';
-import { MailCheck } from 'lucide-react';
-import { ArrowLeft, Mail } from '@/core/components/icons';
+import { ArrowLeft, Mail, UserRemove } from '@/core/components/icons';
 import { Button } from '@/core/components/common/button';
-import { Text } from '@/core/components/common/typography';
 import { AuthLayout } from '@/core/components/layouts/default-layout/auth-layout';
-import { InputField } from '@/core/components/duplicated-components/_input';
 import { APP_NAME, DEFAULT_APP_PATH } from '@/core/constants/config/constants';
 import { ACCOUNT_DELETION_LINK_TTL_MINUTES } from '@/core/lib/auth/account-deletion';
 import { useAccountDeletionRequest } from '@/core/hooks/auth/use-account-deletion';
+import { AuthHeading, AuthMark } from '@/core/components/auth/kit/auth-heading';
+import { AuthField } from '@/core/components/auth/kit/auth-field';
+import { emailErrorOf } from '@/core/components/auth/kit/auth-email';
+import { AuthNotice } from '@/core/components/auth/kit/auth-notice';
+import { AuthAddress, AuthState } from '@/core/components/auth/kit/auth-state';
+import { AuthSteps } from '@/core/components/auth/kit/auth-step';
+import { AUTH_HINT, AUTH_QUIET_LINK } from '@/core/components/auth/kit/auth-recipes';
+import { cn } from '@/core/lib/helpers';
 
-/** iOS zooms the page into any field under 16 px on focus: auth fields stay 16 px below `md`. */
-const EMAIL_INPUT = 'text-base md:text-sm';
-const TEXT_LINK_CLASS =
-	'inline-flex items-center gap-2 rounded-sm text-sm font-medium text-primary-ink underline-offset-4 outline-none hover:underline focus-visible:ring-[3px] focus-visible:ring-ring/50';
+function stepOf(sent: boolean) {
+	if (sent) {
+		return { name: 'sent', order: 1 };
+	}
+	return { name: 'form', order: 0 };
+}
 
 /**
  * `/delete-account`: public, no sign-in. Asks for the e-mail address and sends a deletion link. The answer is the same
@@ -25,100 +32,103 @@ const TEXT_LINK_CLASS =
 export default function DeleteAccountRequestForm() {
 	const t = useTranslations();
 	const [email, setEmail] = useState('');
-	const [emptyEmail, setEmptyEmail] = useState(false);
+	const [emailError, setEmailError] = useState<string | null>(null);
+	const [sentTo, setSentTo] = useState('');
 	const { requestLink, loading, sent, error } = useAccountDeletionRequest();
+	const step = stepOf(sent);
 
 	const handleSubmit = useCallback(
-		async (e: React.FormEvent<HTMLFormElement>) => {
+		async (e: FormEvent<HTMLFormElement>) => {
 			e.preventDefault();
-			setEmptyEmail(!email.trim());
-			if (!email.trim()) return;
-			await requestLink(email);
+			const address = email.trim();
+			const problem = emailErrorOf(address, t);
+			setEmailError(problem);
+			if (problem) {
+				return;
+			}
+			setSentTo(address);
+			await requestLink(address);
 		},
-		[email, requestLink]
+		[email, requestLink, t]
+	);
+
+	const backToSignIn = (
+		<Link href={DEFAULT_APP_PATH} className={cn(AUTH_QUIET_LINK, 'self-center')}>
+			<ArrowLeft aria-hidden="true" />
+			{t('pages.accountDeletion.BACK_TO_SIGN_IN')}
+		</Link>
 	);
 
 	return (
 		<AuthLayout
-			title={t('pages.accountDeletion.REQUEST_TITLE')}
-			description={t('pages.accountDeletion.REQUEST_DESCRIPTION', { appName: APP_NAME })}
-			headerLinkText={t('pages.accountDeletion.BACK_TO_SIGN_IN')}
-			headerLinkHref={DEFAULT_APP_PATH}
 			// Added after the egress audit's UI baseline: no built-in Ever links
 			operatorLinksOnly
 		>
-			<div className="overflow-x-hidden w-full overflow-y-clip p-1.5" data-testid="delete-account-request">
-				{sent ? (
-					<div className="flex flex-col gap-6 items-center py-4" data-testid="delete-account-request-sent">
-						<div className="flex size-10 items-center justify-center rounded-lg bg-primary/10 text-primary-ink">
-							<MailCheck className="size-5" />
-						</div>
-
-						<div className="flex flex-col gap-2 items-center text-center">
-							<h3 className="text-lg font-semibold text-balance">
-								{t('pages.accountDeletion.SENT_TITLE')}
-							</h3>
-							<output className="block max-w-sm text-sm text-balance lg:max-w-md text-muted-foreground">
-								{t('pages.accountDeletion.SENT_MESSAGE', {
+			<div data-testid="delete-account-request">
+				<AuthSteps step={step.name} order={step.order}>
+					{sent && (
+						<div data-testid="delete-account-request-sent">
+							<AuthState
+								tone="brand"
+								glyph={<Mail aria-hidden="true" />}
+								title={t('pages.accountDeletion.SENT_TITLE')}
+								description={t('pages.accountDeletion.SENT_MESSAGE', {
 									minutes: ACCOUNT_DELETION_LINK_TTL_MINUTES
 								})}
-							</output>
-						</div>
-
-						<div className="flex items-center gap-2 rounded-lg bg-foreground/5 px-3 py-2">
-							<Mail className="size-4 shrink-0 text-muted-foreground" />
-							<span className="text-sm font-medium break-all">{email.trim()}</span>
-						</div>
-
-						<Link href={DEFAULT_APP_PATH} className={TEXT_LINK_CLASS}>
-							<ArrowLeft className="size-4" />
-							{t('pages.accountDeletion.BACK_TO_SIGN_IN')}
-						</Link>
-					</div>
-				) : (
-					<form onSubmit={handleSubmit} className="space-y-6">
-						<p className="text-sm text-muted-foreground">
-							{t('pages.accountDeletion.REQUEST_WHO_FOR', { appName: APP_NAME })}
-						</p>
-
-						<div className="space-y-2.5">
-							<label
-								data-slot="label"
-								className="block text-sm font-medium leading-none select-none"
-								htmlFor="delete-account-email"
+								actions={backToSignIn}
 							>
-								{t('form.EMAIL_PLACEHOLDER')}
-							</label>
-							<InputField
-								id="delete-account-email"
-								name="email"
-								type="email"
-								placeholder={t('form.EMAIL_PLACEHOLDER')}
-								value={email}
-								onChange={(e: React.ChangeEvent<HTMLInputElement>) => setEmail(e.target.value)}
-								autoComplete="email"
-								noWrapper
-								className={EMAIL_INPUT}
-								required
+								<AuthAddress email={sentTo} />
+							</AuthState>
+						</div>
+					)}
+
+					{!sent && (
+						<div className="flex flex-col">
+							<AuthHeading
+								mark={
+									<AuthMark>
+										<UserRemove />
+									</AuthMark>
+								}
+								title={t('pages.accountDeletion.REQUEST_TITLE')}
+								description={t('pages.accountDeletion.REQUEST_DESCRIPTION', { appName: APP_NAME })}
+								className="mb-7"
 							/>
-							{emptyEmail && <Text.Error>{t('form.EMAIL_REQUIRED')}</Text.Error>}
-							{error && <Text.Error role="alert">{t('pages.accountDeletion.REQUEST_ERROR')}</Text.Error>}
+							<form onSubmit={handleSubmit} className="flex flex-col gap-5" noValidate>
+								<p className={AUTH_HINT}>
+									{t('pages.accountDeletion.REQUEST_WHO_FOR', { appName: APP_NAME })}
+								</p>
+								<AuthField
+									id="delete-account-email"
+									name="email"
+									type="email"
+									label={t('auth.field.EMAIL_LABEL')}
+									placeholder={t('auth.field.EMAIL_PLACEHOLDER')}
+									icon={<Mail />}
+									value={email}
+									onChange={(e) => {
+										setEmail(e.target.value);
+										setEmailError(null);
+									}}
+									error={emailError}
+									autoComplete="email"
+									inputMode="email"
+									required
+								/>
+								{error && <AuthNotice tone="error" title={t('pages.accountDeletion.REQUEST_ERROR')} />}
+								<Button
+									type="submit"
+									loading={loading}
+									disabled={loading}
+									className="w-full max-sm:h-11"
+								>
+									{t('pages.accountDeletion.SEND_LINK')}
+								</Button>
+								{backToSignIn}
+							</form>
 						</div>
-
-						<div className="space-y-4">
-							<Button type="submit" loading={loading} disabled={loading} className="w-full">
-								{t('pages.accountDeletion.SEND_LINK')}
-							</Button>
-
-							<div className="text-center">
-								<Link href={DEFAULT_APP_PATH} className={TEXT_LINK_CLASS}>
-									<ArrowLeft className="size-4" />
-									{t('pages.accountDeletion.BACK_TO_SIGN_IN')}
-								</Link>
-							</div>
-						</div>
-					</form>
-				)}
+					)}
+				</AuthSteps>
 			</div>
 		</AuthLayout>
 	);

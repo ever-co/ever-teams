@@ -104,6 +104,34 @@ function assignmentMenuLabelKey(isAssigned: boolean) {
 	return 'common.ASSIGN_TASK_TO_ME' as const;
 }
 
+function memberAssignmentMenuLabelKey(isAssigned: boolean) {
+	if (isAssigned) {
+		return 'common.UNASSIGN_TASK_FROM_MEMBER' as const;
+	}
+	return 'common.ASSIGN_TASK_TO_MEMBER' as const;
+}
+
+/** On a teammate's profile the task menu acts on that teammate; anywhere else on the viewer. */
+function menuMutationsOf(
+	profile: I_UserProfilePage | undefined,
+	profileMemberMutations: I_TeamMemberMutationsHook,
+	viewerMutations: I_TeamMemberMutationsHook
+): I_TeamMemberMutationsHook {
+	const isTeammateProfile = getTeammateEmployeeId(profile) !== null;
+	if (isTeammateProfile) {
+		return profileMemberMutations;
+	}
+	return viewerMutations;
+}
+
+function profileMemberNameOf(profile?: I_UserProfilePage): string {
+	const employeeName = profile?.member?.employee?.fullName;
+	if (employeeName) {
+		return employeeName;
+	}
+	return profile?.userProfile?.firstName ?? '';
+}
+
 function assignmentErrorKey(isAssigning: boolean) {
 	if (isAssigning) {
 		return 'common.TASK_ASSIGN_ERROR' as const;
@@ -273,7 +301,8 @@ function TaskRow({ member, ...props }: Props & { member: TaskListMemberValue }) 
 						<TaskCardMenu
 							task={task}
 							loading={loading}
-							mutations={authMutations}
+							mutations={menuMutationsOf(profile, memberInfo, authMutations)}
+							viewerMutations={authMutations}
 							viewType={viewType}
 							profile={profile}
 							plan={plan}
@@ -649,6 +678,7 @@ export function TaskCardMenu({
 	task,
 	loading,
 	mutations,
+	viewerMutations,
 	viewType,
 	profile,
 	plan,
@@ -658,6 +688,11 @@ export function TaskCardMenu({
 	task: TTask;
 	loading?: boolean;
 	mutations?: I_TeamMemberMutationsHook;
+	/**
+	 * The viewer's own assignment actions. On a teammate's profile a viewer who may not act for the teammate keeps
+	 * the "to me" entry with them, as before; without them the menu shows no assignment entry there.
+	 */
+	viewerMutations?: I_TeamMemberMutationsHook;
 	viewType: 'default' | 'unassign' | 'dailyplan';
 	profile?: I_UserProfilePage;
 	plan?: TDailyPlan;
@@ -683,22 +718,49 @@ export function TaskCardMenu({
 		return task.members.some((member) => member.userId === user.id || member.user?.id === user.id);
 	}, [user?.id, task.members]);
 
+	const canSeeActivity = useCanSeeActivityScreen();
+	const { myPermissions } = useMyRolePermissionsQuery();
+
+	// The API lets only the team's managers, or a holder of CHANGE_SELECTED_EMPLOYEE, change another member's plans
+	const canActForOthers = myPermissions.includes('CHANGE_SELECTED_EMPLOYEE');
+	const canPlanForTeammate = canSeeActivity || canActForOthers;
+
+	const { isTeammateProfile, ensurePlans, todayPlans, futurePlans, isPlansLoading } = useMenuPlans(
+		profile,
+		canPlanForTeammate
+	);
+
+	// On a teammate's profile the menu acts on that teammate for a viewer who may plan for them, so the entry names
+	// them; any other viewer keeps the "to me" entry, acting on themselves, when the caller passed their actions
+	const actsForTeammate = isTeammateProfile && canPlanForTeammate;
+	const keepsViewerEntry = isTeammateProfile && !canPlanForTeammate && Boolean(viewerMutations);
+	let assignmentMutations = mutations;
+	if (keepsViewerEntry) {
+		assignmentMutations = viewerMutations;
+	}
+	const profileEmployeeId = profile?.member?.employeeId;
+	const isProfileMemberOnTask = Boolean(task.members?.some((member) => member.id === profileEmployeeId));
+	let isAssigned = isUserAssignedToTask;
+	if (actsForTeammate) {
+		isAssigned = isProfileMemberOnTask;
+	}
+
 	// Loading state for assignment action
 	const [isAssigning, setIsAssigning] = useState(false);
 
 	const handleAssignment = useCallback(() => {
 		// Guard clause: if mutations is not available, we cannot assign/unassign
-		if (!mutations) {
+		if (!assignmentMutations) {
 			console.warn('[TaskCardMenu] mutations is undefined, cannot assign/unassign task');
 			return;
 		}
 
-		// Use dynamic check: if user is already assigned, unassign; otherwise assign
-		const shouldAssign = !isUserAssignedToTask;
+		// Use dynamic check: if the member is already assigned, unassign; otherwise assign
+		const shouldAssign = !isAssigned;
 
 		setIsAssigning(true);
 
-		const promise = shouldAssign ? mutations.assignTask(task) : mutations.unassignTask(task);
+		const promise = shouldAssign ? assignmentMutations.assignTask(task) : assignmentMutations.unassignTask(task);
 
 		promise
 			.catch((error: unknown) => {
@@ -711,22 +773,17 @@ export function TaskCardMenu({
 			.finally(() => {
 				setIsAssigning(false);
 			});
-	}, [mutations, task, isUserAssignedToTask, t]);
+	}, [assignmentMutations, task, isAssigned, t]);
 
-	const canSeeActivity = useCanSeeActivityScreen();
-	const { myPermissions } = useMyRolePermissionsQuery();
-
-	// The API lets only the team's managers, or a holder of CHANGE_SELECTED_EMPLOYEE, change another member's plans
-	const canActForOthers = myPermissions.includes('CHANGE_SELECTED_EMPLOYEE');
-	const canPlanForTeammate = canSeeActivity || canActForOthers;
-
-	const { isTeammateProfile, ensurePlans, todayPlans, futurePlans, isPlansLoading } = useMenuPlans(
-		profile,
-		canPlanForTeammate
-	);
 	const canPlanForProfileMember = !isTeammateProfile || canPlanForTeammate;
 	const canRemoveForTeammate = isTeammateProfile && canPlanForTeammate;
 	const showRemoveEntries = canSeeActivity || canRemoveForTeammate;
+	// Assigning a teammate is the managers' action, as planning for them is
+	const showAssignmentEntry = !isTeammateProfile || canPlanForTeammate || keepsViewerEntry;
+	let assignmentLabel = t(assignmentMenuLabelKey(isAssigned));
+	if (actsForTeammate) {
+		assignmentLabel = t(memberAssignmentMenuLabelKey(isAssigned), { name: profileMemberNameOf(profile) });
+	}
 
 	const isOutstandingTab = viewType === 'dailyplan' && planMode === 'Outstanding';
 	const isPlanEntriesView = viewType === 'default' || isOutstandingTab;
@@ -795,10 +852,16 @@ export function TaskCardMenu({
 								{t(favoriteMenuLabelKey(isFavoriteTask(task.id)))}
 							</span>
 						</DropdownMenuItem>
-						<DropdownMenuItem className="cursor-pointer" onSelect={handleAssignment} disabled={isAssigning}>
-							{assignmentMenuIcon(isAssigning, isUserAssignedToTask)}
-							<span className="whitespace-nowrap">{t(assignmentMenuLabelKey(isUserAssignedToTask))}</span>
-						</DropdownMenuItem>
+						{showAssignmentEntry && (
+							<DropdownMenuItem
+								className="cursor-pointer"
+								onSelect={handleAssignment}
+								disabled={isAssigning}
+							>
+								{assignmentMenuIcon(isAssigning, isAssigned)}
+								<span className="whitespace-nowrap">{assignmentLabel}</span>
+							</DropdownMenuItem>
+						)}
 
 						{showPlanEntries && (
 							<>

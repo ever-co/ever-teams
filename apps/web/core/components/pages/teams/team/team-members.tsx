@@ -17,6 +17,7 @@ import { useUserQuery } from '@/core/hooks/queries/user-user.query';
 import { TeamMemberFilterType } from '@/core/lib/utils/team-members.utils';
 import { useFuseMemberSearch } from '@/core/hooks/teams/use-fuse-member-search';
 import { useTeamDailyPlansOwner, useTeamPresenceView } from '@/core/hooks/bootstrap/use-feature-data';
+import { sortByOrder } from '@/core/lib/helpers/team-member-order';
 
 // Types for better performance and security
 
@@ -35,26 +36,6 @@ interface TeamMembersViewProps {
 	isMemberActive?: boolean;
 	statsPending?: boolean;
 }
-
-// Utility function for sorting by order (kept local as it's specific to this component)
-// FIX: Added secondary sort by ID to ensure stable ordering when order values are equal or missing
-// This prevents visual glitches during role changes or data refetches
-const sortByOrder = (a: TOrganizationTeamEmployee, b: TOrganizationTeamEmployee): number => {
-	// Primary sort: by order property (descending - higher order first)
-	if (a.order && b.order) {
-		if (b.order !== a.order) {
-			return b.order - a.order;
-		}
-		// Same order value, fall through to secondary sort
-	} else if (a.order) {
-		return -1;
-	} else if (b.order) {
-		return 1;
-	}
-
-	// Secondary sort: by ID for stable ordering when order is equal or missing
-	return (a.id || '').localeCompare(b.id || '');
-};
 
 // Main component optimized with refactored hooks
 export const TeamMembers = memo<TeamMembersProps>(({ publicTeam = false, kanbanView: view = IssuesView.CARDS }) => {

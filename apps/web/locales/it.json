@@ -128,6 +128,8 @@
 		"ASSIGN_TASK_TO": "Assegna attività",
 		"ASSIGN_TASK_TO_ME": "Assegna l'attività a me",
 		"UNASSIGN_TASK_FROM_ME": "Rimuovimi dall'attività",
+		"ASSIGN_TASK_TO_MEMBER": "Assegna a {name}",
+		"UNASSIGN_TASK_FROM_MEMBER": "Rimuovi {name} dall'attività",
 		"TASK_ASSIGNED_TO_ME": "Attività assegnata a te",
 		"TASK_UNASSIGNED_FROM_ME": "Attività rimossa da te",
 		"TASK_ASSIGN_ERROR": "Impossibile assegnare l'attività",
@@ -175,7 +177,7 @@
 		"PRIVATE_TASK": "Questo compito è Privato",
 		"PUBLIC_TASK_LABEL": "Rendi pubblico",
 		"PRIVATE_TASK_LABEL": "Rendi privato",
-		"CREATE_TASK": "Crea Nuovo Compito",
+		"CREATE_TASK": "Crea attività",
 		"REMOVE_FAVORITE_TASK": "Rimuovi attività dai preferiti",
 		"ADD_FAVORITE_TASK": "Aggiungi attività ai preferiti",
 		"NO_PROJECT": "Nessun progetto",
@@ -245,7 +247,7 @@
 		"TRANSFER_TEAM": "Trasferisci Team",
 		"TEAM_MEMBERS": "Membri del Team",
 		"NO_TEAM": "Crea il tuo team o unisciti a uno esistente",
-		"NO_TEAM_SUB": "È fantastico lavorare con gli altri, quindi crea un team e invita tutti a collaborare!",
+		"NO_TEAM_SUB": "Crea un team e invita le persone con cui lavori.",
 		"NO_TEAM_TOOLTIP": "È necessario verificare il tuo indirizzo email",
 		"CANCEL": "Annulla",
 		"DISCARD": "Scarta",
@@ -254,7 +256,7 @@
 		"BACK": "Indietro",
 		"TEAM_MEMBER_EMAIL_ADDRESS": "Indirizzo email del membro del team",
 		"DONT_HAVE_ACCOUNT": "Non hai un account?",
-		"REGISTER": "Registrati Ora!",
+		"REGISTER": "Registrati",
 		"JOIN_REQUEST": "Richiesta di Partecipazione",
 		"PERMISSION": "Autorizzazione",
 		"SEARCH": "Cerca",
@@ -300,7 +302,7 @@
 		"KEYBOARD_SHORTCUTS": "Scorciatoie da Tastiera",
 		"GITHUB_INTEGRATION_SUBTITLE_TEXT": "Attiva l'integrazione di GitHub per la sincronizzazione del progetto e del repository",
 		"GITHUB_LOADING_TEXT": "Stiamo installando la tua integrazione GitHub, attendi...",
-		"GITHUB_INTEGRATION_AUTO_SYNC_TASK_TEXT": "Sincronizza automaticamente le attività nella tua applicazione per aggiornamenti senza intoppi ed efficienti.",
+		"GITHUB_INTEGRATION_AUTO_SYNC_TASK_TEXT": "Sincronizza automaticamente i compiti con il repository collegato.",
 		"GITHUB_INTEGRATION_LABEL_SYNC_TASK_TEXT": "Sincronizza le attività in modo selettivo associandole a un'etichetta specifica.",
 		"GITHUB_AUTO_SYNC_LABEL": "Seleziona etichetta di sincronizzazione automatica",
 		"THERE_IS_NO_TASK_ASSIGNED": "Non è stato assegnato alcun compito",
@@ -1479,7 +1481,7 @@
 		"STOP_TIMER": "Ferma Timer",
 		"TASK": "Compito",
 		"ASSIGN_TASK": "Assegna Compito",
-		"CREATE_TASK": "Crea Compito"
+		"CREATE_TASK": "Crea attività"
 	},
 	"alerts": {
 		"ACTION_FAILED": "L'azione non è riuscita.",
@@ -1550,7 +1552,7 @@
 			"WEEKLY_LIMIT": "Limite settimanale"
 		},
 		"home": {
-			"BREADCRUMB": "[\"Pannello di controllo\"]",
+			"BREADCRUMB": "[\"Home\"]",
 			"SENT_EMAIL_VERIFICATION": "Il codice di verifica è stato inviato alla tua email",
 			"SENT_EMAIL_VERIFICATION_YOU_NEED_TO": "È necessario ",
 			"SENT_EMAIL_VERIFICATION_YOUR_EMAIL_ADDRESS": " la tua email. Il codice di verifica dovrebbe essere già stato inviato alla tua email, ma sentiti libero di cliccare ",
@@ -1599,7 +1601,7 @@
 			"basicInformationForm": {
 				"formFields": {
 					"title": "Titolo del Progetto",
-					"titlePlaceholder": "Progetto Cliente #1...",
+					"titlePlaceholder": "Progetto Cliente #1",
 					"description": "Descrizione",
 					"datePickerPlaceholder": "Seleziona una data",
 					"websiteUrl": "URL del sito web",
@@ -1617,12 +1619,12 @@
 					"endDateRequired": "La data di fine è obbligatoria.",
 					"endDateAfterStart": "La data di fine deve essere successiva alla data di inizio.",
 					"invalidUrl": "Inserisci un URL valido.",
-					"uploadError": "Si è verificato un errore durante il caricamento dell'immagine del progetto, riprova!",
+					"uploadError": "L'immagine del progetto non è stata caricata. Riprova.",
 					"descriptionWordLimit": "La descrizione deve contenere 5000 parole o meno."
 				},
 				"common": {
-					"search": "Cerca ...",
-					"typeNew": "Digita nuovo ...",
+					"search": "Cerca",
+					"typeNew": "Digita nuovo",
 					"addNew": "Aggiungi nuovo",
 					"uploadingImage": "Caricamento dell'immagine del progetto"
 				}
@@ -1630,9 +1632,9 @@
 			"categorizationForm": {
 				"formFields": {
 					"labels": "Etichette",
-					"labelsPlaceholder": "Seleziona etichette...",
+					"labelsPlaceholder": "Seleziona etichette",
 					"tags": "Tag",
-					"tagsPlaceholder": "Seleziona tag...",
+					"tagsPlaceholder": "Seleziona tag",
 					"colorCode": "Codice colore"
 				}
 			},
@@ -1641,11 +1643,11 @@
 					"budgetType": "Tipo di budget",
 					"budgetTypePlaceholder": "Seleziona tipo di budget",
 					"budgetAmount": "Importo del budget",
-					"budgetAmountPlaceholder": "10 000$...",
+					"budgetAmountPlaceholder": "10 000$",
 					"currency": "Selezione valuta",
-					"currencyPlaceholder": "Seleziona una valuta...",
+					"currencyPlaceholder": "Seleziona una valuta",
 					"billing": "Tipo di fatturazione",
-					"billingPlaceholder": "Seleziona intervallo..."
+					"billingPlaceholder": "Seleziona intervallo"
 				}
 			},
 			"teamAndRelationsForm": {
@@ -1656,13 +1658,13 @@
 					"assignMembers": "Assegna Membri e Manager",
 					"noMembers": "Nessun membro o manager",
 					"addMember": "Aggiungi Membro",
-					"selectMember": "Seleziona un membro...",
-					"selectRole": "Seleziona un ruolo...",
+					"selectMember": "Seleziona un membro",
+					"selectRole": "Seleziona un ruolo",
 					"relations": "Relazioni",
 					"noRelations": "Nessuna relazione",
 					"addRelation": "Aggiungi Relazione",
-					"selectProject": "Seleziona un progetto...",
-					"selectRelationType": "Scegli tipo di relazione...",
+					"selectProject": "Seleziona un progetto",
+					"selectRelationType": "Scegli tipo di relazione",
 					"activeTeamLocked": "Il team attuale è obbligatorio e non può essere rimosso"
 				},
 				"errors": {
@@ -1791,7 +1793,7 @@
 				"created": "{name} è stato creato",
 				"saved": "Le modifiche a {name} sono state salvate",
 				"done": "Fatto",
-				"descriptionPlaceholder": "Aggiungi una descrizione, un brief o gli obiettivi del progetto…",
+				"descriptionPlaceholder": "Aggiungi una descrizione, un brief o gli obiettivi del progetto",
 				"removeItem": "Rimuovi {name}",
 				"showMore": "Mostra altri {count}",
 				"showLess": "Mostra meno",
@@ -1813,12 +1815,12 @@
 				},
 				"teams": {
 					"add": "Aggiungi un team",
-					"search": "Cerca un team…"
+					"search": "Cerca un team"
 				},
 				"people": {
 					"addManagers": "Aggiungi manager",
 					"addMembers": "Aggiungi membri",
-					"search": "Cerca una persona…"
+					"search": "Cerca una persona"
 				},
 				"tags": {
 					"add": "Aggiungi tag",
@@ -1956,19 +1958,22 @@
 			"UNRECEIVED_CODE": "Non hai ricevuto il codice?",
 			"JOIN_TEAM": "Unisciti al Team",
 			"INPUT_INVITE_CODE": "Inserisci il codice di invito.",
+			"INPUT_SIGN_IN_CODE": "Inserisci il codice di accesso",
 			"INPUT_INVITE_CODE_DESC": "Inserisci il codice di invito che abbiamo inviato alla tua email.",
 			"INVALID_INVITE_CODE_MESSAGE": "Codice non valido",
 			"WELCOME_TEAMS": "Chiarezza in tempo reale, Realtà in tempo reale™.",
 			"COVER_TITLE": "Piattaforma di Gestione del Lavoro e dei Progetti Aperta",
-			"COVER_DESCRIPTION": "Gestione del Lavoro e della Forza Lavoro, Gestione del Tempo, Tracciamento del Tempo, Tracciamento dell'Attività, Tracciamento della Produttività e Metriche, Gestione di Progetti/Compiti e Problemi, Organizzazioni e Team, Integrazioni (GitHub, JIRA, ...) e Altro!",
+			"COVER_DESCRIPTION": "Registra tempo e attività, gestisci compiti e progetti e vedi su cosa lavora il tuo team. Funziona con GitHub e Jira.",
 			"LOGIN": "Accesso",
 			"SELECT_WORKSPACE": "Seleziona Spazio di Lavoro",
+			"WORKSPACE_OPEN_FAILED": "Impossibile aprire questo spazio di lavoro. Scegline uno dall'elenco.",
 			"ENTER_EMAIL": "Inserisci l'Email",
 			"WORKSPACES_NOT_FOUND": "Spazi di Lavoro Non Trovati",
 			"INVALID_CODE_TRY_AGAIN": "Codice non valido. Riprova.",
 			"EMPTY_WORKSPACE_WARNING_TITLE": "Questo spazio di lavoro non ha team",
 			"EMPTY_WORKSPACE_WARNING_MESSAGE": "Ti verrà chiesto di creare un team dopo l'accesso.",
 			"NO_TEAMS_BADGE": "Nessun team",
+			"WORKSPACE_NOT_SET_UP": "Nuovo spazio di lavoro, non ancora configurato",
 			"TEAM_COUNT_SINGULAR": "team",
 			"TEAM_COUNT_PLURAL": "team",
 			"FORGOT_PASSWORD": "Password dimenticata?",
@@ -1976,6 +1981,8 @@
 			"PRIVACY_POLICY": "Informativa sulla privacy",
 			"OR_CONTINUE_WITH": "o continua con",
 			"SIGNUP_VERIFY_EMAIL": "Il tuo account è stato creato. Apri il link nell'e-mail inviata a {email} per attivarlo, poi accedi con la tua e-mail.",
+			"EXISTING_ACCOUNT_HINT": "Hai già un account con questa e-mail?",
+			"SIGN_IN_INSTEAD": "Accedi con quello",
 			"everId": {
 				"NO_WORKSPACE_TITLE": "Ancora nessuno spazio di lavoro per questo Ever ID",
 				"NO_WORKSPACE_BODY": "Nessuno spazio di lavoro è ancora collegato a questo Ever ID. Accedi in un altro modo oppure chiedi un invito all'amministratore del tuo spazio di lavoro.",
@@ -2002,6 +2009,13 @@
 				"SIGN_IN_AGAIN": "Accedi di nuovo con Ever ID",
 				"LOGIN_WITH_EVER_ID": "Accedi con <wordmark>Ever ID</wordmark>"
 			},
+			"provider": {
+				"ACCOUNT_UNCONFIRMED_TITLE": "Conferma prima il tuo indirizzo e-mail",
+				"ACCOUNT_UNCONFIRMED_BODY": "Un account usa già questo indirizzo e-mail ma non l'ha ancora confermato. Accedi con il tuo indirizzo e-mail, poi confermalo dall'avviso nella tua pagina iniziale. Dopo, funzionerà anche questo metodo di accesso.",
+				"ACCOUNT_NOT_SET_UP_TITLE": "Completa la configurazione del tuo account",
+				"ACCOUNT_NOT_SET_UP_BODY": "Il tuo account con questa e-mail non ha ancora uno spazio di lavoro. Accedi con il tuo indirizzo e-mail per completarne la configurazione. Dopo, funzionerà anche questo metodo di accesso.",
+				"SIGN_IN_WITH_EMAIL": "Accedi con la mia e-mail"
+			},
 			"CHOOSE_YOUR_WORKSPACE": "Scegli il tuo spazio di lavoro"
 		},
 		"authPasscode": {
@@ -2010,7 +2024,7 @@
 		},
 		"authLogin": {
 			"HEADING_TITLE": "Accedi al Team",
-			"HEADING_DESCRIPTION": "Inserisci l'email e il codice di invito per accedere.",
+			"HEADING_DESCRIPTION": "Inserisci la tua email e ti invieremo un codice di accesso.",
 			"WORKSPACE": "Spazio di Lavoro",
 			"HEADING_WORKSPACE_LINE1": "L'email è associata a più spazi di lavoro,",
 			"HEADING_WORKSPACE_LINE2": "seleziona uno per continuare",
@@ -2211,8 +2225,8 @@
 			"HANDLE_REQUESTS": "Gestisci Richieste",
 			"ROLES_POSITIONS_CHANGE": "Cambio Ruoli/Posizioni",
 			"VIEW_DETAILS": "Visualizza Dettagli",
-			"NO_INVITATIONS": "Al momento non ci sono inviti!",
-			"NO_MEMBERS": "Al momento non ci sono membri!",
+			"NO_INVITATIONS": "Nessun invito in sospeso",
+			"NO_MEMBERS": "Ancora nessun membro",
 			"GO_TO_PERSONAL_SETTINGS": "Vai alle impostazioni personali",
 			"SHARE_MEMBERS_PROFILE_VIEWS": "Condividi visualizzazioni del profilo dei membri",
 			"everPlatform": {
@@ -2311,24 +2325,24 @@
 		},
 		"unauthorized": {
 			"TITLE": "Non autorizzato",
-			"HEADING_TITLE": "Non sei autorizzato ad accedere a questa pagina !",
-			"HEADING_DESCRIPTION": "Ci scusiamo per il disagio ma non sei autorizzato ad accedere a questa pagina. Se ritieni che questo sia un errore. Accedere prego.",
+			"HEADING_TITLE": "Non hai accesso a questa pagina",
+			"HEADING_DESCRIPTION": "Il tuo account non può aprire questa pagina. Se pensi che sia un errore, accedi di nuovo o chiedi al responsabile del tuo team.",
 			"TRY_AGAIN": "Riprova"
 		},
 		"page404": {
-			"HEADING_TITLE": "Non Trovato",
-			"HEADING_DESCRIPTION": "Risorsa non trovata!",
+			"HEADING_TITLE": "Pagina non trovata",
+			"HEADING_DESCRIPTION": "Questa pagina non esiste o è stata spostata.",
 			"LINK_LABEL": "Vai alla homepage"
 		},
 		"offline": {
-			"HEADING_TITLE": "Connessione di rete interrotta!",
+			"HEADING_TITLE": "Sei offline",
 			"HEADING_SUB_DESCRIPTION": "Ops, ti abbiamo perso. Non preoccuparti, il tuo tempo è ancora in tracciamento.",
 			"HEADING_DESCRIPTION": "Potrai continuare a lavorare nell'app web una volta ripristinata la connessione.",
-			"STATUS_NETWORK": "Offline!"
+			"STATUS_NETWORK": "Offline"
 		},
 		"error": {
-			"TITLE": "Errore!",
-			"HEADING_TITLE": "Qualcosa è andato storto !",
+			"TITLE": "Errore",
+			"HEADING_TITLE": "Qualcosa è andato storto",
 			"HEADING_DESCRIPTION": "Se il problema persiste, invia un segnale di soccorso al nostro team di supporto."
 		},
 		"maintenance": {
@@ -2386,7 +2400,7 @@
 			"END_AFTER_START": "L'ora di fine deve essere successiva all'ora di inizio."
 		},
 		"teamTasks": {
-			"SEARCH_TASKS": "Cerca attività...",
+			"SEARCH_TASKS": "Cerca attività",
 			"TYPE_AND_NUMBER": "Tipo + Numero",
 			"NO_ISSUE_TYPE": "Nessun tipo di problema",
 			"NO_USER_ASSIGNED": "Nessun utente assegnato",
@@ -2412,7 +2426,7 @@
 			"ME": "tu",
 			"META_TASKS": "{count, plural, one {# attività} other {# attività}}",
 			"META_TRACKED": "{count, plural, one {# tracciata ora} other {# tracciate ora}}",
-			"NEW_TASK": "Nuova attività",
+			"NEW_TASK": "Crea attività",
 			"NO_ASSIGNEE": "Nessun assegnatario",
 			"NO_MATCH_TITLE": "Nessuna attività corrisponde",
 			"NO_MATCH_MESSAGE": "Modifica la ricerca o i filtri, oppure cancellali per vedere tutte le attività.",
@@ -2464,6 +2478,7 @@
 	"timer": {
 		"START_TIMER": "Per favore, seleziona o crea un nuovo compito per iniziare a tracciare il tempo o creare un piano",
 		"ALREADY_TRACKING_MESSAGE": "Stai già tracciando il tempo in un'altra scheda o dispositivo.",
+		"TRACKING_DISABLED_MESSAGE": "Il monitoraggio del tempo è disattivato per te. Un amministratore dell'organizzazione può attivarlo.",
 		"TASK_CLOSED": "L'attività è chiusa",
 		"PLAN_REQUIRED_TO_START": "Aggiungi questa attività al piano di oggi per iniziare",
 		"STARTING_TIMER": "Avvio del timer...",
@@ -2471,6 +2486,7 @@
 		"TIMER_START_FAILED": "Impossibile avviare il Timer",
 		"STALE_TIMER_STOPPED_DESCRIPTION": "Il timer ha continuato a funzionare dopo la chiusura dell'app. È stato quindi fermato all'ultimo momento in cui l'app era aperta ({stoppedAt}). Se hai lavorato dopo, aggiungi il tempo manualmente.",
 		"TIMER_STOP_FAILED": "Impossibile fermare il Timer. Riprova.",
+		"BILLABLE": "Fatturabile",
 		"TEAM_SWITCH": {
 			"STOPPED_TIMER_TOAST_TITLE": "Timer Fermato",
 			"STOPPED_TIMER_TOAST_DESCRIPTION": "Il timer è stato fermato a causa del cambio di team"
@@ -2791,7 +2807,7 @@
 	},
 	"placeholders": {
 		"ENTER_TO_VALIDATE": "Premi Invio per convalidare",
-		"ENTER_A_COMMAND": "Inserisci un comando..."
+		"ENTER_A_COMMAND": "Inserisci un comando"
 	},
 	"team": {
 		"BACK_LABEL": "Torna al Team",
@@ -2858,8 +2874,8 @@
 		"EMPTY_NOT_CONFIGURED": "Configura la tua chiave API per iniziare.",
 		"CONFIGURE_BUTTON": "Configura",
 		"ERROR_FALLBACK": "Si è verificato un errore. Controlla la tua configurazione.",
-		"INPUT_PLACEHOLDER_READY": "Il tuo messaggio...",
-		"INPUT_PLACEHOLDER_NO_KEY": "Configura la tua chiave API...",
+		"INPUT_PLACEHOLDER_READY": "Il tuo messaggio",
+		"INPUT_PLACEHOLDER_NO_KEY": "Configura la tua chiave API",
 		"STOP": "Ferma",
 		"SEND": "Invia",
 		"NEW_CHAT": "Nuova chat",
@@ -2871,7 +2887,7 @@
 		"EXPAND_ASSISTANT": "Espandi assistente",
 		"OPEN_ASSISTANT": "Apri l’assistente {appName}",
 		"ASSISTANT": "Assistente",
-		"ASK_PLACEHOLDER": "Chiedi a {appName}…",
+		"ASK_PLACEHOLDER": "Chiedi a {appName}",
 		"COMPOSER_LABEL": "Messaggio per l'assistente",
 		"EMPTY_TITLE": "Come posso aiutarti?",
 		"EXAMPLES_LABEL": "Inizia da un esempio",
@@ -2939,7 +2955,7 @@
 		}
 	},
 	"commandPalette": {
-		"searchPlaceholder": "Digita un comando o cerca…",
+		"searchPlaceholder": "Digita un comando o cerca",
 		"tabsLabel": "Gruppi di comandi",
 		"empty": "Nessun risultato.",
 		"tabs": {
@@ -2957,7 +2973,7 @@
 			"inviteUser": "Invita utente",
 			"assignToMe": "Assegna a me",
 			"toggleTheme": "Cambia tema",
-			"createTask": "Nuova attività",
+			"createTask": "Crea attività",
 			"searchTasks": "Cerca attività",
 			"createTeam": "Nuovo team",
 			"searchTeams": "Cerca team",
@@ -2996,10 +3012,13 @@
 		},
 		"timeLog": {
 			"forMember": "per",
-			"notesPlaceholder": "Aggiungi le note qui…"
+			"notesPlaceholder": "Aggiungi le note qui"
 		},
 		"manualTime": {
-			"descriptionPlaceholder": "Su cosa hai lavorato?"
+			"descriptionPlaceholder": "Su cosa hai lavorato?",
+			"PROJECT": "Progetto",
+			"SELECT_EMPLOYEE": "Seleziona un dipendente",
+			"SELECT_TASK": "Seleziona un'attività"
 		},
 		"dailyPlan": {
 			"planMyDay": "Pianifica la mia giornata",
@@ -3010,7 +3029,7 @@
 			"tasksWithoutEstimate": "Attività senza stima del tempo",
 			"correctHoursWarning": "Correggi le ore previste o stima di nuovo le attività.",
 			"moreOptions": "Altre opzioni",
-			"searchMember": "Cerca un membro…",
+			"searchMember": "Cerca un membro",
 			"noMemberFound": "Nessun membro trovato.",
 			"selectOrCreateTask": "Scegli o crea un’attività per il piano"
 		},
@@ -3022,7 +3041,7 @@
 			"addToPlan": "Aggiungi al piano",
 			"createNewPlan": "Crea un nuovo piano",
 			"useExistingPlan": "Aggiungi a un piano esistente",
-			"searchPlan": "Cerca un piano…",
+			"searchPlan": "Cerca un piano",
 			"noPlanFound": "Nessun piano trovato.",
 			"plannedTime": "Tempo previsto: {hours} h"
 		},
@@ -3084,7 +3103,13 @@
 		"TEAM_COUNT": "{count, plural, one {# team} other {# team}}",
 		"NO_OTHER_WORKSPACE": "Nessun altro spazio di lavoro",
 		"ADD_WORKSPACE": "Aggiungi spazio di lavoro",
-		"TEAM_SETTINGS": "Impostazioni del team"
+		"TEAM_SETTINGS": "Impostazioni del team",
+		"APPS": "App",
+		"SWITCH_APP": "Passa a un'altra app Ever",
+		"EVER_APPS": "App Ever",
+		"CURRENT_APP": "{app}, l'app in cui ti trovi",
+		"OPENS_IN_NEW_TAB": "(si apre in una nuova scheda)",
+		"APP_OPENS_IN_NEW_TAB": "{app} (si apre in una nuova scheda)"
 	},
 	"todayActivity": {
 		"ACTIVE_TASK": "Attività attiva",
@@ -3466,6 +3491,8 @@
 			"COLOR_NOT_SAVED": "Il colore del team non è stato salvato",
 			"EMOJI_NOT_SAVED": "L’emoji del team non è stata salvata",
 			"SIZE_NOT_SAVED": "La dimensione del team non è stata salvata",
+			"DEFAULT_PROJECT_NOT_SAVED": "Il progetto predefinito non è stato salvato",
+			"DEFAULT_PROJECT_NOT_SUPPORTED": "Questo server non salva ancora un progetto predefinito per il team.",
 			"TYPE_NOT_SAVED": "Il tipo di team non è stato salvato",
 			"LEFT_TEAM": "Hai lasciato il team",
 			"LEAVE_FAILED": "Fai ancora parte del team",
@@ -3868,7 +3895,11 @@
 			"DELETE_CONSEQUENCE_SIGN_OUT": "Esci dall'account per scegliere un altro spazio di lavoro.",
 			"QUIT_TITLE": "Lasciare {team}?",
 			"QUIT_CONSEQUENCE_LIST": "Il team sparisce dal tuo elenco di team.",
-			"QUIT_CONSEQUENCE_BACK": "Un manager potrà invitarti di nuovo più avanti."
+			"QUIT_CONSEQUENCE_BACK": "Un manager potrà invitarti di nuovo più avanti.",
+			"PROJECTS_SECTION": "Progetti",
+			"DEFAULT_PROJECT_LABEL": "Progetto predefinito",
+			"DEFAULT_PROJECT_DESCRIPTION": "Le nuove attività e i timer di questo team vanno in questo progetto.",
+			"DEFAULT_PROJECT_PLACEHOLDER": "Scegli un progetto"
 		},
 		"members": {
 			"UNVERIFIED_TITLE": "Verifica il tuo indirizzo email per invitare persone",
@@ -3894,6 +3925,7 @@
 			"LAST_NAME": "Cognome",
 			"FIRST_NAME_REQUIRED": "Inserisci un nome.",
 			"TRACK_TIME": "Monitora il tempo",
+			"TRACKING_OFF_BY_ADMIN": "Disattivato da un amministratore dell'organizzazione",
 			"REMOVE": "Rimuovi dal team",
 			"REMOVE_TITLE": "Rimuovere {name} da {team}?",
 			"REMOVE_CONSEQUENCE_LIST": "{name} non fa più parte dei membri del team.",
@@ -4000,6 +4032,11 @@
 			"SECTION_THEME": "Tema",
 			"SECTION_THEME_DESCRIPTION": "Vale solo per questo browser.",
 			"THEME_SYSTEM": "Sistema",
+			"SECTION_APP_SWITCHER": "Selettore di app",
+			"SECTION_APP_SWITCHER_DESCRIPTION": "Dove si trova l'accesso alle altre app Ever. Vale solo per questo browser.",
+			"APP_SWITCHER_SIDEBAR": "Barra laterale",
+			"APP_SWITCHER_HEADER": "Barra superiore",
+			"APP_SWITCHER_RAIL": "Barra a sinistra",
 			"SECTION_REGION": "Lingua e fuso orario",
 			"LANGUAGE": "Lingua",
 			"LANGUAGE_DESCRIPTION": "La lingua di menu e messaggi, salvata nel tuo account.",
@@ -4065,9 +4102,9 @@
 			"ADD_PARENT": "Aggiungi attività padre",
 			"CHANGE_PARENT": "Cambia attività padre",
 			"REMOVE_PARENT": "Rimuovi attività padre",
-			"SEARCH_PARENT": "Cerca un’attività padre...",
+			"SEARCH_PARENT": "Cerca un’attività padre",
 			"NO_ASSIGNEE": "Ancora nessuno",
-			"SEARCH_PEOPLE": "Cerca un collega...",
+			"SEARCH_PEOPLE": "Cerca un collega",
 			"MANAGE_ASSIGNEES": "Assegna persone",
 			"ADD_LABEL": "Aggiungi etichetta",
 			"EDIT_LABELS": "Modifica etichette",
@@ -4102,12 +4139,12 @@
 			"LOAD_FAILED": "Non è stato possibile caricare i piani."
 		},
 		"subtasks": {
-			"SEARCH": "Cerca un’attività da aggiungere...",
+			"SEARCH": "Cerca un’attività da aggiungere",
 			"REMOVE": "Rimuovi da questa attività"
 		},
 		"relations": {
-			"SEARCH": "Cerca un’attività da collegare...",
-			"SEARCH_KIND": "Cerca una relazione...",
+			"SEARCH": "Cerca un’attività da collegare",
+			"SEARCH_KIND": "Cerca una relazione",
 			"CHANGE_KIND": "Cambia la relazione",
 			"REMOVE": "Rimuovi il collegamento"
 		},
@@ -4133,6 +4170,8 @@
 	"profile": {
 		"page": {
 			"BACK_TO_TEAM": "Torna al team",
+			"MANAGER_RIGHTS_UNCONFIRMED_TITLE": "I tuoi diritti di manager sui membri di questo team non sono ancora confermati",
+			"MANAGER_RIGHTS_UNCONFIRMED_DESCRIPTION": "I loro piani, il tempo e l'attività restano nascosti finché un amministratore dell'organizzazione non ti conferma come manager di questo team nelle impostazioni del team.",
 			"SEARCH_TASKS": "Cerca attività",
 			"COUNT_STILL_LOADING": "Altre attività sono ancora in caricamento",
 			"COPY_EMAIL": "Copia email",
@@ -4207,5 +4246,161 @@
 	},
 	"accountMenu": {
 		"OPEN": "Menu dell’account"
+	},
+	"auth": {
+		"code": {
+			"CHANGE_EMAIL": "Usa un'altra email",
+			"CLEAR": "Cancella",
+			"DESCRIPTION": "Abbiamo inviato un codice di {length} caratteri a <address>{email}</address>.",
+			"LABEL": "Codice di accesso",
+			"NOT_RECEIVED": "Niente nella posta in arrivo?",
+			"RESEND": "Invia un nuovo codice",
+			"RESEND_IN": "Nuovo codice tra {countdown}",
+			"SUBMIT": "Accedi",
+			"TITLE": "Controlla la tua email"
+		},
+		"deleteAccount": {
+			"INVALID_TITLE": "Questo link non funziona più"
+		},
+		"demo": {
+			"CREDENTIALS": "Account demo",
+			"EMAIL": "Email:",
+			"PASSWORD": "Password:"
+		},
+		"field": {
+			"CAPS_LOCK_ON": "Blocco maiuscole attivo",
+			"CONFIRM_PASSWORD_LABEL": "Conferma la password",
+			"EMAIL_INVALID": "Inserisci un indirizzo email valido.",
+			"EMAIL_LABEL": "Email",
+			"EMAIL_PLACEHOLDER": "nome@azienda.com",
+			"HIDE_PASSWORD": "Nascondi la password",
+			"NAME_LABEL": "Nome completo",
+			"NAME_PLACEHOLDER": "Giulia Rossi",
+			"NEW_PASSWORD_LABEL": "Password",
+			"PASSWORD_LABEL": "Password",
+			"PASSWORD_PLACEHOLDER": "La tua password",
+			"SHOW_PASSWORD": "Mostra la password",
+			"TEAM_LABEL": "Nome del team",
+			"TEAM_PLACEHOLDER": "Team design"
+		},
+		"forgot": {
+			"BACK_TO_SIGN_IN": "Torna all'accesso",
+			"DESCRIPTION": "Inserisci l'email del tuo account e ti invieremo un link per scegliere una nuova password.",
+			"SENT_TEXT": "Apri il link nell'email che ti abbiamo appena inviato per scegliere una nuova password.",
+			"SENT_TITLE": "Controlla la tua email",
+			"SUBMIT": "Invia il link",
+			"TITLE": "Password dimenticata?",
+			"USE_ANOTHER_EMAIL": "Usa un'altra email"
+		},
+		"invite": {
+			"CHECKING": "Stiamo verificando il tuo invito",
+			"DESCRIPTION": "L'invito è stato inviato a <address>{email}</address>. Scegli il tuo nome e una password per unirti.",
+			"FAILED": "Non siamo riusciti ad accettare l'invito. Riprova tra un momento.",
+			"TITLE": "Unisciti a {organization}"
+		},
+		"method": {
+			"CODE": "Codice via email",
+			"LABEL": "Come accedere",
+			"PASSWORD": "Password"
+		},
+		"password": {
+			"RULE_MATCH": "Le due password coincidono",
+			"RULE_MET": "Requisito soddisfatto",
+			"RULE_MIN_LENGTH": "{count, plural, one {Almeno # carattere} other {Almeno # caratteri}}",
+			"RULE_NOT_MET": "Requisito non soddisfatto",
+			"STRENGTH_FAIR": "Discreta",
+			"STRENGTH_GOOD": "Buona",
+			"STRENGTH_STRONG": "Forte",
+			"STRENGTH_WEAK": "Debole"
+		},
+		"reset": {
+			"CONFIRM_LABEL": "Conferma la nuova password",
+			"DESCRIPTION": "Scegli la password con cui accederai d'ora in poi.",
+			"DONE_TEXT": "Accedi con la tua nuova password.",
+			"DONE_TITLE": "Password cambiata",
+			"INVALID_TITLE": "Questo link non funziona più",
+			"NEW_LABEL": "Nuova password",
+			"SUBMIT": "Salva la password",
+			"TITLE": "Scegli una nuova password"
+		},
+		"scene": {
+			"ACCOUNT_TEXT": "Il tuo timer, le tue attività e il tuo piano del giorno, accanto ai tuoi colleghi.",
+			"ACCOUNT_TITLE": "Il tuo posto nel team",
+			"INBOX_ACTIVATE_TEXT": "Apri il suo link per attivare il tuo account, poi accedi con la tua email.",
+			"INBOX_ACTIVATE_TITLE": "L'email da cercare",
+			"INBOX_CODE_TEXT": "Inserisci il codice che contiene per accedere.",
+			"INBOX_CODE_TITLE": "L'email da cercare",
+			"INBOX_RESET_TEXT": "Il suo link apre la pagina in cui scegli una nuova password.",
+			"INBOX_RESET_TITLE": "L'email da cercare",
+			"INVITE_LATER": "Invita un collega più tardi",
+			"INVITE_TEXT": "Compari nel team appena ti unisci.",
+			"INVITE_TITLE": "Un posto per te nel team",
+			"MAIL_ACTION_ACTIVATE": "Attiva il mio account",
+			"MAIL_ACTION_CODE": "Accedi",
+			"MAIL_ACTION_RESET": "Scegli una nuova password",
+			"MANAGER": "Manager",
+			"MEMBER_COUNT": "{count, plural, one {# membro} other {# membri}}",
+			"NOW": "ora",
+			"SUBJECT_ACTIVATE": "Attiva il tuo account",
+			"SUBJECT_CODE": "Il tuo codice di accesso",
+			"SUBJECT_RESET": "Reimposta la tua password",
+			"TEAM_TEXT": "Lo gestisci tu. Invita altre persone quando vuoi.",
+			"TEAM_TITLE": "Il tuo team, all'inizio",
+			"TO": "a {email}",
+			"WORKSPACE_TEXT": "Lo spazio di lavoro e il team che scegli si aprono per primi. Puoi cambiare più tardi.",
+			"WORKSPACE_TITLE": "Dove arrivi"
+		},
+		"signIn": {
+			"CODE_DESCRIPTION": "Inserisci la tua email e ti invieremo un codice di accesso. Nessuna password necessaria.",
+			"CREATE_ACCOUNT": "Crea un account",
+			"FORGOT_PASSWORD": "Password dimenticata?",
+			"NEW_HERE": "Prima volta su {appName}?",
+			"PASSWORD_DESCRIPTION": "Accedi con la tua email e la tua password.",
+			"SEND_CODE": "Inviami un codice",
+			"SUBMIT_PASSWORD": "Accedi",
+			"TITLE": "Accedi a {appName}"
+		},
+		"signUp": {
+			"CREATING": "Creazione del tuo spazio di lavoro",
+			"CREATING_TEXT": "Stiamo preparando {team}. Ci vogliono pochi secondi.",
+			"DESCRIPTION": "Registra il tuo tempo e il lavoro del tuo team in un unico posto.",
+			"GET_STARTED": "Crea il mio spazio di lavoro",
+			"HAVE_ACCOUNT": "Hai già un account?",
+			"MODE_DESCRIPTION": "Puoi creare altri team e invitare persone più tardi.",
+			"MODE_TITLE": "Come vuoi iniziare?",
+			"SENT_TEXT": "Apri il link nell'email che ti abbiamo appena inviato per attivare il tuo account, poi accedi con la tua email.",
+			"SENT_TITLE": "Attiva il tuo account",
+			"SIGN_IN": "Accedi",
+			"SOLO": "Per conto mio",
+			"SOLO_TEXT": "Un team personale con il tuo nome. Invita persone quando vuoi.",
+			"STEP": "Passaggio {step} di {total}",
+			"TEAM": "Con il mio team",
+			"TEAM_TEXT": "Dai subito un nome al tuo team. Ne sarai il manager.",
+			"TITLE": "Crea il tuo account",
+			"USE_ANOTHER_EMAIL": "Usa un'altra email"
+		},
+		"social": {
+			"OPENING": "Accesso in corso",
+			"OPENING_TEXT": "Un momento, stiamo aprendo il tuo spazio di lavoro."
+		},
+		"workspace": {
+			"DESCRIPTION": "Scegli lo spazio di lavoro e il team da aprire ora. Puoi cambiare più tardi.",
+			"NOT_YOU": "Non sei tu?",
+			"NO_MATCH_TEXT": "Controlla come l'hai scritto o chiedi a un collega di invitarti.",
+			"NO_MATCH_TITLE": "Nessuno spazio di lavoro corrisponde a «{query}»",
+			"OPENING": "Apertura del tuo spazio di lavoro",
+			"OPENING_TEXT": "Accesso a {workspace} in corso.",
+			"SEARCH": "Cerca spazi di lavoro",
+			"SIGNED_IN_AS": "Accesso eseguito come",
+			"TEAMS_OF": "Team di {workspace}",
+			"TEAM_COUNT": "{count, plural, one {# team} other {# team}}",
+			"TITLE": "Scegli uno spazio di lavoro"
+		},
+		"error": {
+			"TITLE": "Accesso non riuscito",
+			"TEXT": "L'accesso non è stato completato. Riprova oppure accedi con la tua e-mail.",
+			"RETRY": "Torna all'accesso",
+			"CODE": "Codice di errore: {code}"
+		}
 	}
 }

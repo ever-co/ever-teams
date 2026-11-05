@@ -23,6 +23,7 @@ export async function createOrganizationTeamRequest(datas: IOrganizationTeamCrea
 	);
 
 	datas.projects = [project];
+	datas.defaultProjectId = project.id;
 
 	try {
 		return await serverFetch<IOrganizationTeam>({

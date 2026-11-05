@@ -15,12 +15,18 @@ export const getDailyPlanDay = (date: moment.MomentInput): string => {
 };
 
 /**
+ * The member's current day ('YYYY-MM-DD'), in the browser's zone: the day the timer checks read plans for and the
+ * day a timer start sends, so the API holds the start to the same plan.
+ */
+export const getTodayPlanDay = (): string => moment().format('YYYY-MM-DD');
+
+/**
  * Today's plan, when it holds tasks, and tomorrow's plan: the two plans the timer checks read.
  */
 export const findTimerPlans = <T extends { date: moment.MomentInput; tasks?: unknown[] | null }>(
 	plans: T[] | undefined
 ): { hasPlan: T | undefined; hasPlanForTomorrow: T | undefined } => {
-	const today = moment().format('YYYY-MM-DD');
+	const today = getTodayPlanDay();
 	const tomorrow = moment().add(1, 'days').format('YYYY-MM-DD');
 
 	return {

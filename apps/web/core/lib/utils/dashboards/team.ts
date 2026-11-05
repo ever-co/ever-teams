@@ -1004,16 +1004,6 @@ export function timesheetPathOf(userId: string, name: string) {
 	return `/reports/timesheet/${userId}?name=${encodedName}`;
 }
 
-const TIMESHEET_ADMIN_ROLES: ReadonlySet<string> = new Set([ERoleName.ADMIN, ERoleName.SUPER_ADMIN]);
-
-/** The roles the reports layout lets through besides a manager of the active team (`MustBeAManager`). */
-export function isTenantAdminRole(roleName: string | null | undefined) {
-	if (!roleName) {
-		return false;
-	}
-	return TIMESHEET_ADMIN_ROLES.has(roleName);
-}
-
 export interface ScopeMemberCountInput {
 	isManage: boolean;
 	isOrganizationWide: boolean;

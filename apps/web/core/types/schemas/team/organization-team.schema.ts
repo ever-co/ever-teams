@@ -32,7 +32,8 @@ export const baseTeamPropertiesSchema = basePerTenantAndOrganizationEntitySchema
 		public: z.boolean().nullable().optional(),
 		profile_link: z.string().optional().nullable(),
 		image: imageAssetSchema.optional().nullable(),
-		imageId: z.string().optional().nullable()
+		imageId: z.string().optional().nullable(),
+		defaultProjectId: z.string().optional().nullable()
 	})
 	.merge(taggableSchema);
 
@@ -121,6 +122,7 @@ export const organizationTeamUpdateSchema = z.object({
 	emoji: z.string().nullable().optional(),
 	teamSize: z.string().nullable().optional(),
 	projects: z.array(organizationProjectSchema).optional().nullable(),
+	defaultProjectId: z.string().optional().nullable(),
 	id: z.string().optional(),
 	name: z.string().optional()
 });
@@ -131,7 +133,8 @@ export const organizationTeamCreateSchema = z.object({
 	organizationId: z.string().uuid(),
 	managerIds: z.array(z.string()).optional(),
 	public: z.boolean().nullable(),
-	projects: z.array(z.any()).optional()
+	projects: z.array(z.any()).optional(),
+	defaultProjectId: z.string().optional().nullable()
 });
 // Team request params schema
 export const teamRequestParamsSchema = z.object({
