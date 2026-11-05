@@ -38,8 +38,10 @@ import { AUTH_CODE_SLOT_CLASS } from '@/core/components/auth/auth-code-recipe';
 import { InputField } from '@/core/components/duplicated-components/_input';
 import { Avatar } from '@/core/components/duplicated-components/avatar';
 import { ISigninEmailConfirmWorkspaces } from '@/core/types/interfaces/auth/auth';
-import { hasTeams, getFirstTeamId, findWorkspaceIndexByTeamId } from '@/core/lib/utils/workspace.utils';
+import { hasTeams, getFirstTeamId } from '@/core/lib/utils/workspace.utils';
 import { useWorkspaceAnalysis } from '@/core/hooks/auth/use-workspace-analysis';
+import { useRememberedTeamContinue } from '@/core/hooks/auth/use-remembered-team-continue';
+import { firstListedTeam } from '@/core/lib/auth/remembered-team';
 import { useResendCooldown } from '@/core/hooks/auth/use-resend-cooldown';
 
 /** iOS zooms the page into any field under 16 px on focus: auth fields stay 16 px below `md`. */
@@ -305,16 +307,23 @@ function WorkSpaceScreen({ form, className }: { form: TAuthenticationPasscode } 
 	const [selectedWorkspace, setSelectedWorkspace] = useState<number>(0);
 	const [selectedTeam, setSelectedTeam] = useState('');
 	const router = useRouter();
+	const rememberedTeam = useRememberedTeamContinue({ workspaces: form.workspaces, email: form.formValues.email });
+	const rememberedTeamId = rememberedTeam.rememberedPick?.teamId;
 
 	const signInToWorkspace = useCallback(
 		(e: any) => {
 			if (typeof selectedWorkspace !== 'undefined') {
-				form.handleWorkspaceSubmit(e, form.workspaces[selectedWorkspace].token, selectedTeam);
+				form.handleWorkspaceSubmit(
+					e,
+					form.workspaces[selectedWorkspace].token,
+					selectedTeam,
+					rememberedTeam.onContinueFailed
+				);
 				window && window?.localStorage.removeItem(USER_SAW_OUTSTANDING_NOTIFICATION);
 				window && window?.localStorage.setItem(LAST_WORKSPACE_AND_TEAM, selectedTeam);
 			}
 		},
-		[selectedWorkspace, selectedTeam, form]
+		[selectedWorkspace, selectedTeam, form, rememberedTeam.onContinueFailed]
 	);
 
 	const lastSelectedTeamFromAPI = form.getLastTeamIdWithRecentLogout();
@@ -338,35 +347,26 @@ function WorkSpaceScreen({ form, className }: { form: TAuthenticationPasscode } 
 				setSelectedTeam(firstTeamId);
 			}
 		} else {
-			// Try to restore last selected team or use default
 			const storedTeam = window.localStorage.getItem(LAST_WORKSPACE_AND_TEAM);
 			const fallbackTeamId = getFirstTeamId(firstWorkspace);
-			const lastSelectedTeam =
-				storedTeam || lastSelectedTeamFromAPI || form.defaultTeamId || fallbackTeamId || '';
+			const listedTeam = firstListedTeam(form.workspaces, [
+				rememberedTeamId,
+				storedTeam,
+				lastSelectedTeamFromAPI,
+				form.defaultTeamId,
+				fallbackTeamId
+			]);
 
-			// Find workspace containing the last selected team
-			const lastSelectedWorkspaceIndex = findWorkspaceIndexByTeamId(form.workspaces, lastSelectedTeam);
-
-			// Only set selectedTeam if the team actually exists in current_teams
-			if (lastSelectedWorkspaceIndex >= 0) {
-				setSelectedTeam(lastSelectedTeam);
-				setSelectedWorkspace(lastSelectedWorkspaceIndex);
+			if (listedTeam) {
+				setSelectedTeam(listedTeam.teamId);
+				setSelectedWorkspace(listedTeam.workspaceIndex);
 			} else {
-				// Team doesn't exist (user was removed from team)
-				// Set workspace to first one but leave selectedTeam empty
-				// This prevents 401 errors when trying to sign in with a non-existent team
+				// No team to sign in with: an empty team is sent instead of one Gauzy would refuse
 				setSelectedWorkspace(0);
 				setSelectedTeam('');
 			}
 		}
-
-		// Only auto-submit if shouldAutoSubmit is true (1 workspace with exactly 1 team)
-		if (workspaceAnalysis.shouldAutoSubmit) {
-			setTimeout(() => {
-				document.getElementById('continue-to-workspace')?.click();
-			}, 100);
-		}
-	}, [form.defaultTeamId, form.workspaces, lastSelectedTeamFromAPI, workspaceAnalysis]);
+	}, [form.defaultTeamId, form.workspaces, lastSelectedTeamFromAPI, rememberedTeamId, workspaceAnalysis]);
 
 	useEffect(() => {
 		if (form.authScreen.screen === 'workspace') {
@@ -386,8 +386,8 @@ function WorkSpaceScreen({ form, className }: { form: TAuthenticationPasscode } 
 
 	return (
 		<>
-			{/* Show workspace component unless we're auto-submitting (1 workspace with exactly 1 team) */}
-			<div className={cn('w-full', workspaceAnalysis.shouldAutoSubmit && 'hidden')}>
+			{/* Show workspace component unless we're auto-submitting (its only team, or the remembered one) */}
+			<div className={cn('w-full', rememberedTeam.autoContinue && 'hidden')}>
 				<WorkSpaceComponent
 					className={className}
 					workspaces={form.workspaces}
@@ -406,8 +406,8 @@ function WorkSpaceScreen({ form, className }: { form: TAuthenticationPasscode } 
 				/>
 			</div>
 
-			{/* Only show loader when auto-submitting (1 workspace with exactly 1 team) */}
-			{workspaceAnalysis.shouldAutoSubmit && (
+			{/* Only show loader when auto-submitting (its only team, or the remembered one) */}
+			{rememberedTeam.autoContinue && (
 				<div>
 					<BackdropLoader show={true} title={t('pages.authTeam.REDIRECT_TO_WORSPACE_LOADING')} />
 				</div>

@@ -1953,6 +1953,7 @@
 			"COVER_DESCRIPTION": "Gestione del Lavoro e della Forza Lavoro, Gestione del Tempo, Tracciamento del Tempo, Tracciamento dell'Attività, Tracciamento della Produttività e Metriche, Gestione di Progetti/Compiti e Problemi, Organizzazioni e Team, Integrazioni (GitHub, JIRA, ...) e Altro!",
 			"LOGIN": "Accesso",
 			"SELECT_WORKSPACE": "Seleziona Spazio di Lavoro",
+			"WORKSPACE_OPEN_FAILED": "Impossibile aprire questo spazio di lavoro. Scegline uno dall'elenco.",
 			"ENTER_EMAIL": "Inserisci l'Email",
 			"WORKSPACES_NOT_FOUND": "Spazi di Lavoro Non Trovati",
 			"INVALID_CODE_TRY_AGAIN": "Codice non valido. Riprova.",

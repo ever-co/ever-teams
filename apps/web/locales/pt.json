@@ -1953,6 +1953,7 @@
 			"COVER_DESCRIPTION": "Gestão Abrangente de Trabalho e da Força de Trabalho, Gestão de Tempo, Rastreamento de Tempo, Rastreamento de Atividades, Rastreamento de Produtividade e Métricas, Gestão de Projetos / Tarefas e Problemas, Organizações e Equipes, Integrações (GitHub, JIRA, ...) e Mais!",
 			"LOGIN": "Login",
 			"SELECT_WORKSPACE": "Selecionar Espaço de Trabalho",
+			"WORKSPACE_OPEN_FAILED": "Não foi possível abrir este espaço de trabalho. Escolha um da lista.",
 			"ENTER_EMAIL": "Inserir E-mail",
 			"WORKSPACES_NOT_FOUND": "Espaços de trabalho não encontrados",
 			"INVALID_CODE_TRY_AGAIN": "Código inválido. Por favor, tente novamente.",

@@ -1953,6 +1953,7 @@
 			"COVER_DESCRIPTION": "一站式工作和人力管理，时间管理，时间跟踪，活动跟踪，生产力跟踪和指标，项目/任务和问题管理，组织和团队，集成（GitHub，JIRA，...）等等！",
 			"LOGIN": "登录",
 			"SELECT_WORKSPACE": "选择工作区",
+			"WORKSPACE_OPEN_FAILED": "无法打开此工作区。请从列表中选择一个。",
 			"ENTER_EMAIL": "输入电子邮箱",
 			"WORKSPACES_NOT_FOUND": "工作区未找到",
 			"INVALID_CODE_TRY_AGAIN": "无效的代码。请重试。",

@@ -1953,6 +1953,7 @@
 			"COVER_DESCRIPTION": "نص تجريبي هنا",
 			"LOGIN": "تسجيل الدخول",
 			"SELECT_WORKSPACE": "تحديد مساحة العمل",
+			"WORKSPACE_OPEN_FAILED": "تعذّر فتح مساحة العمل هذه. اختر واحدة من القائمة.",
 			"ENTER_EMAIL": "أدخل البريد الإلكتروني",
 			"WORKSPACES_NOT_FOUND": "لم يتم العثور على مساحات عمل",
 			"INVALID_CODE_TRY_AGAIN": "رمز غير صالح. الرجاء المحاولة مرة أخرى.",

@@ -1953,6 +1953,7 @@
 			"COVER_DESCRIPTION": "Gestion du travail et de la main-d'œuvre tout-en-un, gestion du temps, suivi du temps, suivi de l'activité, suivi de la productivité et des métriques, gestion des projets/tâches et des problèmes, organisations et équipes, intégrations (GitHub, JIRA, ...) et plus encore !",
 			"LOGIN": "Connexion",
 			"SELECT_WORKSPACE": "Sélectionner un espace de travail",
+			"WORKSPACE_OPEN_FAILED": "Impossible d'ouvrir cet espace de travail. Choisissez-en un dans la liste.",
 			"ENTER_EMAIL": "Saisissez votre adresse e-mail",
 			"WORKSPACES_NOT_FOUND": "Aucun espace de travail trouvé",
 			"INVALID_CODE_TRY_AGAIN": "Code invalide. Veuillez réessayer.",

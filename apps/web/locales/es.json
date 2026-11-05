@@ -1635,6 +1635,7 @@
 			"COVER_DESCRIPTION": "Gestión de trabajo y fuerza laboral todo en uno, gestión del tiempo, seguimiento del tiempo, seguimiento de la actividad, seguimiento de la productividad y métricas, gestión de proyectos/tareas y problemas, organizaciones y equipos, integraciones (GitHub, JIRA, ...) y más!",
 			"LOGIN": "Iniciar sesión",
 			"SELECT_WORKSPACE": "Seleccionar espacio de trabajo",
+			"WORKSPACE_OPEN_FAILED": "No se pudo abrir este espacio de trabajo. Elige uno de la lista.",
 			"ENTER_EMAIL": "Ingresar correo electrónico",
 			"WORKSPACES_NOT_FOUND": "Espacios de trabajo no encontrados",
 			"INVALID_CODE_TRY_AGAIN": "Código inválido. Por favor, inténtelo de nuevo.",
