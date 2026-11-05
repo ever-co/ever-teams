@@ -4,6 +4,7 @@ import { useSearchParams } from 'next/navigation';
 import UnauthorizedPage from '@/core/components/pages/unauthorized';
 import { FocusShell } from '@/core/components/layouts/focus/focus-shell';
 import ErrorPageComponent from '@/core/components/pages/error/error';
+import { SignInError } from '@/core/components/pages/auth/sign-in-error';
 import EverIdNoWorkspace from '@/core/components/pages/auth/ever-id-no-workspace';
 import EverIdVerifyEmail from '@/core/components/pages/auth/ever-id-verify-email';
 
@@ -36,5 +37,7 @@ const errorMap = {
 export default function Page() {
 	const search = useSearchParams();
 	const error = search?.get('error') as Error;
-	return <FocusShell>{errorMap[error]}</FocusShell>;
+	// next-auth also sends OAuthSignin, OAuthCallback, Verification, Default...: they get the generic sign-in error
+	const page = errorMap[error] ?? <SignInError code={error} />;
+	return <FocusShell>{page}</FocusShell>;
 }
