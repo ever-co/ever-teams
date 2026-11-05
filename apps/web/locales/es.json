@@ -1111,6 +1111,7 @@
 			"UPDATING": "Actualizando los pagos pendientes",
 			"NOTE": "Importes adeudados por el tiempo registrado, a la tarifa actual de cada miembro. Ever Teams no registra los pagos.",
 			"NO_RATE": "Sin tarifa",
+			"PAY_RATE_NOT_SET": "Tarifa de pago sin definir, se muestra la tarifa de facturación",
 			"HOUR_UNIT": "/h",
 			"FORMULA": "{duration} × {rate}/h",
 			"DAY_LABEL": "<name>{day}</name>, {date}",
@@ -3347,7 +3348,8 @@
 			"INVITATION": "<b>{name}</b> te invitó",
 			"MESSAGE": "<b>{name}</b> te envió un mensaje",
 			"BROADCAST": "<b>{name}</b> publicó un anuncio",
-			"PAYMENT": "Se registró un pago para ti"
+			"PAYMENT": "Se registró un pago para ti",
+			"RATE_CHANGE_REQUEST": "<b>{name}</b> pidió un cambio de tarifa"
 		},
 		"TYPES": {
 			"ASSIGNMENT": "Asignación",
@@ -3356,7 +3358,8 @@
 			"INVITATION": "Invitación",
 			"MESSAGE": "Mensaje",
 			"BROADCAST": "Anuncio",
-			"PAYMENT": "Pago"
+			"PAYMENT": "Pago",
+			"RATE_CHANGE_REQUEST": "Solicitud de cambio de tarifa"
 		},
 		"SOMEONE": "Alguien",
 		"MARK_READ": "Marcar como leída",
@@ -4247,6 +4250,45 @@
 	"accountMenu": {
 		"OPEN": "Menú de la cuenta"
 	},
+	"rates": {
+		"PER_HOUR": "{amount}/h",
+		"EDIT_RATE": "Editar tarifa",
+		"EDIT_RATE_OF": "Editar la tarifa de {name}",
+		"BILLING_RATE": "Tarifa de facturación",
+		"PAY_RATE": "Tarifa de pago",
+		"PAY_CURRENCY": "Moneda de pago",
+		"PAY_RATE_HINT": "Lo que se paga al miembro por hora. Es distinta de la tarifa de facturación y de las tarifas al cliente.",
+		"OWN_PAY_RATE_HINT": "Lo que te pagan por hora.",
+		"CURRENCY": "Moneda",
+		"WEEKLY_LIMIT": "Límite de horas semanales",
+		"NOT_SET": "Sin definir",
+		"NUMBER_INVALID": "Escribe un número, por ejemplo 45 o 45,50.",
+		"NUMBER_NEGATIVE": "Escribe 0 o más.",
+		"WEEKLY_LIMIT_WHOLE_HOURS": "Escribe horas enteras, por ejemplo 40.",
+		"ADD_RATE": "Tarifa",
+		"PROJECT_RATES_SECTION": "Tarifas al cliente",
+		"PROJECT_RATE": "Tarifa al cliente",
+		"MOST_SPECIFIC_WINS": "Lo que se factura al cliente por este proyecto. La tarifa al cliente de un miembro va primero, luego esta y luego su propia tarifa. No cambia lo que se paga a los miembros.",
+		"PROJECT_RATE_HINT": "Vacía: se aplica la tarifa al cliente del miembro en este proyecto o, si no hay, su propia tarifa.",
+		"RATE_ON_PROJECT_OF": "Tarifa al cliente de {name} en este proyecto",
+		"MEMBER_RATE_HINT": "Vacía: se aplica la tarifa al cliente del proyecto o, si no hay, su propia tarifa. No cambia lo que se le paga.",
+		"RATES_RETRY": "Volver a cargar las tarifas",
+		"OWN_SECTION": "Tarifa",
+		"OWN_SECTION_HINT": "La fijan los administradores de tu organización. Pídeles aquí un cambio si hace falta.",
+		"OWN_SECTION_EDIT_HINT": "Tu rol te permite cambiar tus propias tarifas.",
+		"WEEKLY_LIMIT_VALUE": "{hours} h por semana",
+		"REQUEST_CHANGE": "Solicitar un cambio de tarifa",
+		"REQUEST_CHANGE_HINT": "Los administradores de tu organización reciben un aviso y lo aplican.",
+		"REQUEST_CHANGE_ACTION": "Solicitar un cambio",
+		"REQUESTED_RATE": "Tarifa por hora solicitada",
+		"REQUESTED_RATE_REQUIRED": "Escribe la tarifa que solicitas.",
+		"REQUEST_REASON": "Motivo (opcional)",
+		"REQUEST_SEND": "Enviar solicitud",
+		"REQUEST_SENT": "Solicitud enviada. Se avisó a los administradores de tu organización.",
+		"REQUEST_NOBODY": "Tu organización aún no tiene administradores a quienes avisar. Pregunta directamente al propietario del espacio de trabajo.",
+		"REQUEST_UNAVAILABLE": "Este servidor aún no acepta solicitudes de cambio de tarifa. Pregunta directamente a tu administrador.",
+		"REQUEST_FAILED": "La solicitud no se envió."
+	},
 	"auth": {
 		"code": {
 			"CHANGE_EMAIL": "Usar otro correo",
@@ -4304,10 +4346,14 @@
 			"PASSWORD": "Contraseña"
 		},
 		"password": {
+			"RULE_DIGIT": "Un número (0-9)",
+			"RULE_LOWERCASE": "Una minúscula (a-z)",
 			"RULE_MATCH": "Las dos contraseñas coinciden",
 			"RULE_MET": "Requisito cumplido",
 			"RULE_MIN_LENGTH": "{count, plural, one {Al menos # carácter} other {Al menos # caracteres}}",
 			"RULE_NOT_MET": "Requisito no cumplido",
+			"RULE_SYMBOL": "Un símbolo, como ! @ # o -",
+			"RULE_UPPERCASE": "Una mayúscula (A-Z)",
 			"STRENGTH_FAIR": "Aceptable",
 			"STRENGTH_GOOD": "Buena",
 			"STRENGTH_STRONG": "Fuerte",

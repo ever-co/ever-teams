@@ -206,6 +206,46 @@ describe('scoped organization-team ownership', () => {
 		expect(view.result.current.teams[0]?.members).toEqual([]);
 		expect(JSON.stringify(store.get(organizationTeamsState))).not.toContain('member-user-a');
 	});
+
+	it("shows a member's new rate once the team is read again, though the team itself did not change", async () => {
+		const client = new QueryClient({ defaultOptions: { queries: { retry: false } } });
+		const store = createStore();
+		const teamWithRate = (billRateValue: number) => ({
+			id: 'team-a',
+			name: 'Team A',
+			organizationId: 'organization-a',
+			tenantId: 'tenant-a',
+			updatedAt: '2026-11-05T08:00:00.000Z',
+			members: [
+				{ id: 'member-ana', employeeId: 'employee-ana', employee: { id: 'employee-ana', billRateValue } }
+			],
+			projects: []
+		});
+		mockGetOrganizationTeams.mockResolvedValue({ data: { items: [teamWithRate(40)], total: 1 } });
+		const wrapper = ({ children }: PropsWithChildren) => (
+			<QueryClientProvider client={client}>
+				<Provider store={store}>{children}</Provider>
+			</QueryClientProvider>
+		);
+		const scope = {
+			tenantId: 'tenant-a',
+			organizationId: 'organization-a',
+			userId: 'user-a',
+			accessToken: 'token-a'
+		};
+		const view = renderHook(() => useOrganizationTeamsQuery({ scope }), { wrapper });
+		const rateOfAna = () => view.result.current.teams[0]?.members?.[0]?.employee?.billRateValue;
+
+		await waitFor(() => expect(rateOfAna()).toBe(40));
+
+		await act(async () => {
+			client.setQueryData(queryKeys.organizationTeams.listByScope('tenant-a', 'organization-a', 'user-a'), {
+				data: { items: [teamWithRate(55)], total: 1 }
+			});
+		});
+
+		await waitFor(() => expect(rateOfAna()).toBe(55));
+	});
 });
 
 describe('the active project cookie when the team is chosen', () => {

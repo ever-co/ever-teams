@@ -2,6 +2,7 @@
 
 import { type KeyboardEvent, type ReactNode, useCallback, useMemo, useState } from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { useAtomValue } from 'jotai';
 import { type DottedLanguageObjectStringPaths, useLocale, useTranslations } from 'next-intl';
 import { toast } from 'sonner';
@@ -153,6 +154,7 @@ export function NotificationPanel({ onClose, unreadCount }: Readonly<{ onClose: 
 	const { entries, hasMoreThanLoaded, isLoading, isError, retry } = useNotificationInbox(true);
 	const { setRead, archive, unarchive, markAllAsRead, isMarkingAll } = useNotificationActions();
 	const { openTaskDrawer } = useTaskDrawer();
+	const router = useRouter();
 	const taskContexts = useTaskContexts();
 	const filterItems = useFilterItems(unreadCount);
 
@@ -172,13 +174,18 @@ export function NotificationPanel({ onClose, unreadCount }: Readonly<{ onClose: 
 			if (entry.isUnread) {
 				setRead(entry.id, true).catch(reportFailure);
 			}
+			if (entry.href) {
+				onClose();
+				router.push(entry.href);
+				return;
+			}
 			if (!entry.taskId) {
 				return;
 			}
 			onClose();
 			openTaskDrawer(entry.taskId);
 		},
-		[onClose, openTaskDrawer, reportFailure, setRead]
+		[onClose, openTaskDrawer, reportFailure, router, setRead]
 	);
 
 	const handleToggleRead = useCallback(

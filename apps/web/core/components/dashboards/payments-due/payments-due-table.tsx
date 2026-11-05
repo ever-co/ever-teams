@@ -32,7 +32,8 @@ import {
 	OwedFormula,
 	OwedValue,
 	RateValue,
-	TrackedValue
+	TrackedValue,
+	useBillingRateNote
 } from './payments-due-cells';
 import {
 	FORMULA_CELL,
@@ -81,17 +82,23 @@ const MemberGroupBlock = memo(function MemberGroupBlock({
 	const t = useTranslations();
 	const handleToggle = useCallback(() => onToggle(group.key, isOpen), [group.key, isOpen, onToggle]);
 	const dayCountLabel = t('dashboard.paymentsDue.DAYS_COUNT', { count: group.lines.length });
+	const billingRateNote = useBillingRateNote(group.rateNote);
 
 	const header = (
 		<>
 			<span role="cell" className={cn(ROW_LEAD, 'flex items-center gap-2')}>
 				<GroupToggle isOpen={isOpen} onToggle={handleToggle} className="min-w-0">
-					<MemberCell name={group.name} imageUrl={group.imageUrl} />
+					<MemberCell name={group.name} imageUrl={group.imageUrl} meta={billingRateNote} />
 				</GroupToggle>
 				<span className={GROUP_META}>{dayCountLabel}</span>
 			</span>
 			<span role="cell" className={RATE_CELL}>
-				<RateValue rate={group.rate} currency={group.currency} />
+				<RateValue
+					rate={group.rate}
+					currency={group.currency}
+					rateSource={group.rateSource}
+					ratePending={group.ratePending}
+				/>
 			</span>
 			<span role="cell" className={TRACKED_CELL}>
 				<TrackedValue seconds={group.seconds} />
@@ -114,13 +121,19 @@ const MemberGroupBlock = memo(function MemberGroupBlock({
 });
 
 const DayMemberRow = memo(function DayMemberRow({ line }: Readonly<{ line: OwedLine }>) {
+	const billingRateNote = useBillingRateNote(line.rateNote);
 	return (
 		<div role="row" className={cn(PAYMENTS_GRID, PAYMENTS_ROW_HEIGHT)}>
 			<span role="cell" className={NESTED_LEAD}>
-				<MemberCell name={line.name} imageUrl={line.imageUrl} />
+				<MemberCell name={line.name} imageUrl={line.imageUrl} meta={billingRateNote} />
 			</span>
 			<span role="cell" className={RATE_CELL}>
-				<RateValue rate={line.rate} currency={line.currency} />
+				<RateValue
+					rate={line.rate}
+					currency={line.currency}
+					rateSource={line.rateSource}
+					ratePending={line.ratePending}
+				/>
 			</span>
 			<span role="cell" className={TRACKED_CELL}>
 				<TrackedValue seconds={line.seconds} />

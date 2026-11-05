@@ -1111,6 +1111,7 @@
 			"UPDATING": "Mise à jour des paiements dus",
 			"NOTE": "Montants dus pour le temps suivi, au taux actuel de chaque membre. Les paiements ne sont pas enregistrés dans Ever Teams.",
 			"NO_RATE": "Aucun taux",
+			"PAY_RATE_NOT_SET": "Taux de rémunération non défini, taux de facturation affiché",
 			"HOUR_UNIT": "/h",
 			"FORMULA": "{duration} × {rate}/h",
 			"DAY_LABEL": "<name>{day}</name> {date}",
@@ -3347,7 +3348,8 @@
 			"INVITATION": "<b>{name}</b> vous a invité",
 			"MESSAGE": "<b>{name}</b> vous a envoyé un message",
 			"BROADCAST": "<b>{name}</b> a publié une annonce",
-			"PAYMENT": "Un paiement a été enregistré pour vous"
+			"PAYMENT": "Un paiement a été enregistré pour vous",
+			"RATE_CHANGE_REQUEST": "<b>{name}</b> demande un changement de taux"
 		},
 		"TYPES": {
 			"ASSIGNMENT": "Assignation",
@@ -3356,7 +3358,8 @@
 			"INVITATION": "Invitation",
 			"MESSAGE": "Message",
 			"BROADCAST": "Annonce",
-			"PAYMENT": "Paiement"
+			"PAYMENT": "Paiement",
+			"RATE_CHANGE_REQUEST": "Demande de changement de taux"
 		},
 		"SOMEONE": "Quelqu'un",
 		"MARK_READ": "Marquer comme lue",
@@ -4247,6 +4250,45 @@
 	"accountMenu": {
 		"OPEN": "Menu du compte"
 	},
+	"rates": {
+		"PER_HOUR": "{amount}/h",
+		"EDIT_RATE": "Modifier le taux",
+		"EDIT_RATE_OF": "Modifier le taux de {name}",
+		"BILLING_RATE": "Taux de facturation",
+		"PAY_RATE": "Taux de rémunération",
+		"PAY_CURRENCY": "Devise de rémunération",
+		"PAY_RATE_HINT": "Ce que le membre est payé par heure. Distinct du taux de facturation et des taux clients.",
+		"OWN_PAY_RATE_HINT": "Ce que vous êtes payé par heure.",
+		"CURRENCY": "Devise",
+		"WEEKLY_LIMIT": "Limite d'heures par semaine",
+		"NOT_SET": "Non défini",
+		"NUMBER_INVALID": "Saisissez un nombre, par exemple 45 ou 45,50.",
+		"NUMBER_NEGATIVE": "Saisissez 0 ou plus.",
+		"WEEKLY_LIMIT_WHOLE_HOURS": "Saisissez un nombre d'heures entier, par exemple 40.",
+		"ADD_RATE": "Taux",
+		"PROJECT_RATES_SECTION": "Taux clients",
+		"PROJECT_RATE": "Taux client",
+		"MOST_SPECIFIC_WINS": "Ce qui est facturé au client pour ce projet. Le taux client d'un membre passe en premier, puis celui-ci, puis son propre taux. Il ne change pas la rémunération des membres.",
+		"PROJECT_RATE_HINT": "Vide : le taux client d'un membre sur ce projet s'applique, sinon son propre taux.",
+		"RATE_ON_PROJECT_OF": "Taux client de {name} sur ce projet",
+		"MEMBER_RATE_HINT": "Vide : le taux client du projet s'applique, sinon son propre taux. Il ne change pas sa rémunération.",
+		"RATES_RETRY": "Recharger les taux",
+		"OWN_SECTION": "Taux",
+		"OWN_SECTION_HINT": "Défini par les admins de votre organisation. Demandez-leur ici s'il doit changer.",
+		"OWN_SECTION_EDIT_HINT": "Votre rôle vous permet de modifier vos propres taux.",
+		"WEEKLY_LIMIT_VALUE": "{hours} h par semaine",
+		"REQUEST_CHANGE": "Demander un changement de taux",
+		"REQUEST_CHANGE_HINT": "Les admins de votre organisation sont prévenus et l'appliquent.",
+		"REQUEST_CHANGE_ACTION": "Demander un changement",
+		"REQUESTED_RATE": "Taux horaire demandé",
+		"REQUESTED_RATE_REQUIRED": "Saisissez le taux que vous demandez.",
+		"REQUEST_REASON": "Raison (facultatif)",
+		"REQUEST_SEND": "Envoyer la demande",
+		"REQUEST_SENT": "Demande envoyée. Les admins de votre organisation ont été prévenus.",
+		"REQUEST_NOBODY": "Votre organisation n'a pas encore d'admin à prévenir. Demandez directement au propriétaire de l'espace de travail.",
+		"REQUEST_UNAVAILABLE": "Ce serveur ne prend pas encore les demandes de changement de taux. Demandez directement à votre admin.",
+		"REQUEST_FAILED": "La demande n'a pas été envoyée."
+	},
 	"auth": {
 		"code": {
 			"CHANGE_EMAIL": "Utiliser un autre e-mail",
@@ -4304,10 +4346,14 @@
 			"PASSWORD": "Mot de passe"
 		},
 		"password": {
+			"RULE_DIGIT": "Un chiffre (0-9)",
+			"RULE_LOWERCASE": "Une minuscule (a-z)",
 			"RULE_MATCH": "Les deux mots de passe correspondent",
 			"RULE_MET": "Condition remplie",
 			"RULE_MIN_LENGTH": "{count, plural, one {Au moins # caractère} other {Au moins # caractères}}",
 			"RULE_NOT_MET": "Condition non remplie",
+			"RULE_SYMBOL": "Un symbole, comme ! @ # ou -",
+			"RULE_UPPERCASE": "Une majuscule (A-Z)",
 			"STRENGTH_FAIR": "Moyen",
 			"STRENGTH_GOOD": "Bon",
 			"STRENGTH_STRONG": "Fort",

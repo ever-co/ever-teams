@@ -1111,6 +1111,7 @@
 			"UPDATING": "מעדכן תשלומים לפירעון",
 			"NOTE": "סכומים לתשלום עבור זמן שנרשם, לפי התעריף הנוכחי של כל חבר. Ever Teams לא רושם תשלומים.",
 			"NO_RATE": "לא הוגדר תעריף",
+			"PAY_RATE_NOT_SET": "לא הוגדר תעריף שכר, מוצג תעריף החיוב",
 			"HOUR_UNIT": "/שעה",
 			"FORMULA": "{duration} × {rate}/שעה",
 			"DAY_LABEL": "<name>{day}</name>, {date}",
@@ -3347,7 +3348,8 @@
 			"INVITATION": "<b>{name}</b> הזמין/ה אותך",
 			"MESSAGE": "<b>{name}</b> שלח/ה לך הודעה",
 			"BROADCAST": "<b>{name}</b> פרסם/ה הודעה לכולם",
-			"PAYMENT": "נרשם עבורך תשלום"
+			"PAYMENT": "נרשם עבורך תשלום",
+			"RATE_CHANGE_REQUEST": "<b>{name}</b> ביקש/ה שינוי תעריף"
 		},
 		"TYPES": {
 			"ASSIGNMENT": "שיוך",
@@ -3356,7 +3358,8 @@
 			"INVITATION": "הזמנה",
 			"MESSAGE": "הודעה",
 			"BROADCAST": "הכרזה",
-			"PAYMENT": "תשלום"
+			"PAYMENT": "תשלום",
+			"RATE_CHANGE_REQUEST": "בקשה לשינוי תעריף"
 		},
 		"SOMEONE": "מישהו",
 		"MARK_READ": "סימון כנקראה",
@@ -4247,6 +4250,45 @@
 	"accountMenu": {
 		"OPEN": "תפריט החשבון"
 	},
+	"rates": {
+		"PER_HOUR": "{amount} לשעה",
+		"EDIT_RATE": "עריכת תעריף",
+		"EDIT_RATE_OF": "עריכת התעריף של {name}",
+		"BILLING_RATE": "תעריף חיוב",
+		"PAY_RATE": "תעריף שכר",
+		"PAY_CURRENCY": "מטבע השכר",
+		"PAY_RATE_HINT": "כמה משולם לחבר לשעה. נפרד מתעריף החיוב ומתעריפי הלקוח.",
+		"OWN_PAY_RATE_HINT": "כמה משולם לכם לשעה.",
+		"CURRENCY": "מטבע",
+		"WEEKLY_LIMIT": "מגבלת שעות שבועית",
+		"NOT_SET": "לא הוגדר",
+		"NUMBER_INVALID": "הזינו מספר, למשל 45 או 45.50.",
+		"NUMBER_NEGATIVE": "הזינו 0 ומעלה.",
+		"WEEKLY_LIMIT_WHOLE_HOURS": "הזינו מספר שעות שלם, למשל 40.",
+		"ADD_RATE": "תעריף",
+		"PROJECT_RATES_SECTION": "תעריפי לקוח",
+		"PROJECT_RATE": "תעריף לקוח",
+		"MOST_SPECIFIC_WINS": "מה שהלקוח מחויב עבור הפרויקט הזה. קודם חל תעריף הלקוח של החבר, אחר כך התעריף הזה, ואחר כך התעריף שלו. זה לא משנה את התשלום לחברים.",
+		"PROJECT_RATE_HINT": "ריק: חל תעריף הלקוח של החבר בפרויקט הזה, ואם אין, התעריף שלו.",
+		"RATE_ON_PROJECT_OF": "תעריף הלקוח של {name} בפרויקט הזה",
+		"MEMBER_RATE_HINT": "ריק: חל תעריף הלקוח של הפרויקט, ואם אין, התעריף שלו. זה לא משנה את התשלום שלו.",
+		"RATES_RETRY": "טעינת התעריפים מחדש",
+		"OWN_SECTION": "תעריף",
+		"OWN_SECTION_HINT": "נקבע על ידי מנהלי הארגון שלכם. בקשו כאן אם צריך לשנות אותו.",
+		"OWN_SECTION_EDIT_HINT": "התפקיד שלכם מאפשר לכם לשנות את התעריפים שלכם.",
+		"WEEKLY_LIMIT_VALUE": "{hours} שעות בשבוע",
+		"REQUEST_CHANGE": "בקשה לשינוי תעריף",
+		"REQUEST_CHANGE_HINT": "מנהלי הארגון שלכם מקבלים התראה ומחילים את השינוי.",
+		"REQUEST_CHANGE_ACTION": "בקשת שינוי",
+		"REQUESTED_RATE": "תעריף לשעה מבוקש",
+		"REQUESTED_RATE_REQUIRED": "הזינו את התעריף שאתם מבקשים.",
+		"REQUEST_REASON": "סיבה (לא חובה)",
+		"REQUEST_SEND": "שליחת הבקשה",
+		"REQUEST_SENT": "הבקשה נשלחה. מנהלי הארגון שלכם קיבלו התראה.",
+		"REQUEST_NOBODY": "בארגון שלכם עדיין אין מנהל שאפשר להתריע לו. פנו ישירות לבעלי סביבת העבודה.",
+		"REQUEST_UNAVAILABLE": "השרת הזה עדיין לא מקבל בקשות לשינוי תעריף. פנו ישירות למנהל.",
+		"REQUEST_FAILED": "הבקשה לא נשלחה."
+	},
 	"auth": {
 		"code": {
 			"CHANGE_EMAIL": "שימוש בדוא״ל אחר",
@@ -4304,10 +4346,14 @@
 			"PASSWORD": "סיסמה"
 		},
 		"password": {
+			"RULE_DIGIT": "ספרה (0-9)",
+			"RULE_LOWERCASE": "אות לטינית קטנה (a-z)",
 			"RULE_MATCH": "שתי הסיסמאות תואמות",
 			"RULE_MET": "הדרישה מתקיימת",
 			"RULE_MIN_LENGTH": "{count, plural, one {לפחות # תו} two {לפחות # תווים} other {לפחות # תווים}}",
 			"RULE_NOT_MET": "הדרישה לא מתקיימת",
+			"RULE_SYMBOL": "סימן, כמו ! @ # או -",
+			"RULE_UPPERCASE": "אות לטינית גדולה (A-Z)",
 			"STRENGTH_FAIR": "סבירה",
 			"STRENGTH_GOOD": "טובה",
 			"STRENGTH_STRONG": "חזקה",

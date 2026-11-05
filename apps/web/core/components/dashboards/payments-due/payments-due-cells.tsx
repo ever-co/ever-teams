@@ -4,9 +4,40 @@ import { memo, type ReactNode } from 'react';
 import { useLocale, useTranslations } from 'next-intl';
 import { cn } from '@/core/lib/helpers';
 import { formatDurationShort } from '@/core/lib/utils/dashboard-figures';
-import { dayDateOf, dayNameOf, formatOwed } from '@/core/lib/utils/dashboards/payments-due';
+import { SKELETON_BAR } from '@/core/components/dashboards/kit/recipes';
+import {
+	dayDateOf,
+	dayNameOf,
+	formatOwed,
+	rateShownOf,
+	type OwedRateNote,
+	type OwedRateSource
+} from '@/core/lib/utils/dashboards/payments-due';
 
 export const MISSING_FIGURE = '–';
+
+/** The text of a line or member the billing rate priced, else nothing. */
+export function useBillingRateNote(rateNote: OwedRateNote | null): string | undefined {
+	const t = useTranslations();
+	if (rateNote === 'payRateNotSet') {
+		return t('dashboard.paymentsDue.PAY_RATE_NOT_SET');
+	}
+	if (rateNote === 'billingRate') {
+		return t('rates.BILLING_RATE');
+	}
+	return undefined;
+}
+
+/** The member's meta line with the billing rate note after it, when there is one. */
+export function metaWithNote(meta: string | undefined, note: string | undefined): string | undefined {
+	if (!note) {
+		return meta;
+	}
+	if (!meta) {
+		return note;
+	}
+	return `${meta} · ${note}`;
+}
 
 const FIGURE_TEXT = 'truncate text-right text-[13px] tabular-nums';
 
@@ -24,14 +55,40 @@ export function NoRateChip({ className }: Readonly<{ className?: string }>) {
 	);
 }
 
-/** "$45.00/h" with the unit muted, or the "No rate set" chip: a missing rate is never written as `$0`. */
+export function RatePlaceholder({ className }: Readonly<{ className?: string }>) {
+	return <span aria-hidden="true" className={cn(SKELETON_BAR, 'ml-auto block h-3 w-14', className)} />;
+}
+
+export function HiddenRate({ className }: Readonly<{ className?: string }>) {
+	return <span className={cn(FIGURE_TEXT, 'text-muted-foreground', className)}>{MISSING_FIGURE}</span>;
+}
+
+/**
+ * "$45.00/h" with the unit muted. A billing rate that is missing shows the "No rate set" chip, never `$0`; a pay rate
+ * still being read shows a placeholder, and one that cannot be read shows nothing.
+ */
 export const RateValue = memo(function RateValue({
 	rate,
 	currency,
+	rateSource = null,
+	ratePending = false,
 	className
-}: Readonly<{ rate: number | null; currency: string | null; className?: string }>) {
+}: Readonly<{
+	rate: number | null;
+	currency: string | null;
+	rateSource?: OwedRateSource | null;
+	ratePending?: boolean;
+	className?: string;
+}>) {
 	const t = useTranslations();
 	const locale = useLocale();
+	const shown = rateShownOf({ rate, rateSource, ratePending });
+	if (shown === 'loading') {
+		return <RatePlaceholder className={className} />;
+	}
+	if (shown === 'hidden') {
+		return <HiddenRate className={className} />;
+	}
 	if (rate === null) {
 		return <NoRateChip className={className} />;
 	}

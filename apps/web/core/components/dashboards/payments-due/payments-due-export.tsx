@@ -15,6 +15,7 @@ import {
 	type OwedExportRow,
 	type OwedFigures,
 	type OwedMemberGroup,
+	rateShownOf,
 	roundedAmountOf
 } from '@/core/lib/utils/dashboards/payments-due';
 import type { PaymentsPdfContent, PaymentsPdfRow, PaymentsPdfTotal } from './payments-due-pdf';
@@ -56,8 +57,12 @@ function csvColumnsOf(t: Translate): CsvColumn<OwedExportRow>[] {
 }
 
 function pdfRateOf(group: OwedMemberGroup, locale: string, t: Translate) {
-	if (group.rate === null) {
+	const shown = rateShownOf(group);
+	if (shown === 'noRate') {
 		return t('dashboard.paymentsDue.NO_RATE');
+	}
+	if (group.rate === null) {
+		return MISSING_FIGURE;
 	}
 	const rate = formatOwed(group.rate, group.currency, locale);
 	const unit = t('dashboard.paymentsDue.HOUR_UNIT');

@@ -8,6 +8,9 @@ import { Users } from '@/core/components/icons';
 import { PersonAvatar } from '@/core/components/teams/people-avatars';
 import { teamImageOf } from '@/core/components/projects/project-cells';
 import { contributorsOf, managersOf, personFromProjectMember, type ProjectPerson } from '@/core/lib/utils/project-list';
+import { Button } from '@/core/components/common/button';
+import { RateValueField } from '@/core/components/rates/rate-value-field';
+import { useProjectPeopleRates } from '@/core/hooks/organizations/rates/use-project-people-rates';
 import type { TOrganizationProject } from '@/core/types/schemas';
 
 const GROUP_SURFACE =
@@ -24,7 +27,13 @@ function GroupHeading({ label, count }: Readonly<{ label: string; count: number 
 	);
 }
 
-function PersonRow({ person, role }: Readonly<{ person: ProjectPerson; role: ReactNode }>) {
+type TrailingOf = (person: ProjectPerson) => ReactNode;
+
+function PersonRow({
+	person,
+	role,
+	trailing
+}: Readonly<{ person: ProjectPerson; role: ReactNode; trailing?: ReactNode }>) {
 	return (
 		<li className="flex min-h-14 items-center gap-3 px-4 py-2">
 			<PersonAvatar person={person} size="md" className="size-8 ring-0" />
@@ -33,11 +42,17 @@ function PersonRow({ person, role }: Readonly<{ person: ProjectPerson; role: Rea
 				{person.email && <span className="truncate text-xs text-muted-foreground">{person.email}</span>}
 			</span>
 			{role}
+			{trailing}
 		</li>
 	);
 }
 
-function PeopleGroup({ label, people, role }: Readonly<{ label: string; people: ProjectPerson[]; role: ReactNode }>) {
+function PeopleGroup({
+	label,
+	people,
+	role,
+	trailingOf
+}: Readonly<{ label: string; people: ProjectPerson[]; role: ReactNode; trailingOf?: TrailingOf }>) {
 	if (people.length === 0) {
 		return null;
 	}
@@ -46,7 +61,7 @@ function PeopleGroup({ label, people, role }: Readonly<{ label: string; people: 
 			<GroupHeading label={label} count={people.length} />
 			<ul className={GROUP_SURFACE}>
 				{people.map((person) => (
-					<PersonRow key={person.id} person={person} role={role} />
+					<PersonRow key={person.id} person={person} role={role} trailing={trailingOf?.(person)} />
 				))}
 			</ul>
 		</section>
@@ -85,8 +100,47 @@ function TeamRow({ team }: Readonly<{ team: ProjectTeam }>) {
 	);
 }
 
+type ProjectPeopleRates = ReturnType<typeof useProjectPeopleRates>;
+
+const RATE_ROW_SKELETON = 'h-4 w-40 animate-pulse rounded-full bg-foreground/[0.07]';
+
+function ProjectRatesSection({ rates }: Readonly<{ rates: ProjectPeopleRates }>) {
+	const t = useTranslations();
+	return (
+		<section className="flex flex-col gap-2">
+			<h2 className="text-[13px] font-semibold text-foreground">{t('rates.PROJECT_RATES_SECTION')}</h2>
+			<div className={GROUP_SURFACE}>
+				<div className="flex min-h-14 items-center gap-3 px-4 py-2">
+					<span className="flex min-w-0 flex-1 flex-col">
+						<span className="text-[13px] font-medium text-foreground">{t('rates.PROJECT_RATE')}</span>
+						<span className="text-xs text-pretty text-muted-foreground">
+							{t('rates.MOST_SPECIFIC_WINS')}
+						</span>
+					</span>
+					{rates.isLoading && <span aria-hidden="true" className={RATE_ROW_SKELETON} />}
+					{rates.failed && (
+						<Button type="button" variant="outline" size="sm" onClick={() => void rates.retry()}>
+							{t('rates.RATES_RETRY')}
+						</Button>
+					)}
+					{rates.hasRates && (
+						<RateValueField
+							label={t('rates.PROJECT_RATE')}
+							value={rates.projectRate}
+							currency={rates.currency}
+							hint={t('rates.PROJECT_RATE_HINT')}
+							onSave={rates.saveProjectRate}
+						/>
+					)}
+				</div>
+			</div>
+		</section>
+	);
+}
+
 export function ProjectPeopleTab({ project }: Readonly<{ project: TOrganizationProject }>) {
 	const t = useTranslations();
+	const rates = useProjectPeopleRates(project);
 	const managers = managersOf(project).map(personFromProjectMember);
 	const members = contributorsOf(project).map(personFromProjectMember);
 	const teams = project.teams ?? [];
@@ -111,10 +165,30 @@ export function ProjectPeopleTab({ project }: Readonly<{ project: TOrganizationP
 		</span>
 	);
 
+	let memberRateField: TrailingOf | undefined = undefined;
+	if (rates.hasRates) {
+		memberRateField = (person) => (
+			<RateValueField
+				label={t('rates.RATE_ON_PROJECT_OF', { name: person.name })}
+				value={rates.memberRateOf(person.id)}
+				currency={rates.currency}
+				hint={t('rates.MEMBER_RATE_HINT')}
+				readOnly={!rates.canEditMemberRate(person.id)}
+				onSave={(billRateValue) => rates.saveMemberRateOf(person.id, billRateValue)}
+			/>
+		);
+	}
+
 	return (
 		<div className="mx-auto flex w-full max-w-3xl flex-col gap-8">
-			<PeopleGroup label={t('common.MANAGERS')} people={managers} role={managerRole} />
-			<PeopleGroup label={t('common.MEMBERS')} people={members} role={null} />
+			{rates.showsRates && <ProjectRatesSection rates={rates} />}
+			<PeopleGroup
+				label={t('common.MANAGERS')}
+				people={managers}
+				role={managerRole}
+				trailingOf={memberRateField}
+			/>
+			<PeopleGroup label={t('common.MEMBERS')} people={members} role={null} trailingOf={memberRateField} />
 			{hasTeams && (
 				<section className="flex flex-col gap-2">
 					<GroupHeading label={t('common.TEAMS')} count={teams.length} />

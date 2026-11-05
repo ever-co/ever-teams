@@ -2,6 +2,7 @@ import type { ReactNode } from 'react';
 import {
 	AtSign,
 	Comment,
+	DollarCircle,
 	Mail,
 	Megaphone,
 	MessageCircle,
@@ -24,7 +25,8 @@ const TYPE_LOOK: Record<EEmployeeNotificationType, TypeLook> = {
 	[EEmployeeNotificationType.Invitation]: { glyph: <Mail />, hue: '[--chip:hsl(var(--warning))]' },
 	[EEmployeeNotificationType.Message]: { glyph: <MessageCircle />, hue: '[--chip:hsl(var(--info))]' },
 	[EEmployeeNotificationType.Broadcast]: { glyph: <Megaphone />, hue: '[--chip:hsl(var(--muted-foreground))]' },
-	[EEmployeeNotificationType.Payment]: { glyph: <Wallet />, hue: '[--chip:hsl(var(--success))]' }
+	[EEmployeeNotificationType.Payment]: { glyph: <Wallet />, hue: '[--chip:hsl(var(--success))]' },
+	[EEmployeeNotificationType.RateChangeRequest]: { glyph: <DollarCircle />, hue: '[--chip:hsl(var(--warning))]' }
 };
 
 const UNKNOWN_LOOK: TypeLook = { glyph: <Notification />, hue: '[--chip:hsl(var(--muted-foreground))]' };

@@ -1071,6 +1071,7 @@
 			"UPDATING": "جارٍ تحديث المبالغ المستحقة",
 			"NOTE": "مبالغ مستحقة عن الوقت المسجَّل وفق السعر الحالي لكل عضو. لا يسجّل Ever Teams المدفوعات.",
 			"NO_RATE": "لم يُحدَّد سعر",
+			"PAY_RATE_NOT_SET": "لم يُحدَّد أجر الدفع، يُعرض أجر الفوترة",
 			"HOUR_UNIT": "/ساعة",
 			"FORMULA": "{duration} × {rate}/ساعة",
 			"DAY_LABEL": "<name>{day}</name>، {date}",
@@ -3347,7 +3348,8 @@
 			"INVITATION": "دعاك <b>{name}</b>",
 			"MESSAGE": "أرسل إليك <b>{name}</b> رسالة",
 			"BROADCAST": "نشر <b>{name}</b> إعلانًا",
-			"PAYMENT": "تم تسجيل دفعة لك"
+			"PAYMENT": "تم تسجيل دفعة لك",
+			"RATE_CHANGE_REQUEST": "طلب <b>{name}</b> تغيير الأجر"
 		},
 		"TYPES": {
 			"ASSIGNMENT": "إسناد",
@@ -3356,7 +3358,8 @@
 			"INVITATION": "دعوة",
 			"MESSAGE": "رسالة",
 			"BROADCAST": "إعلان",
-			"PAYMENT": "دفعة"
+			"PAYMENT": "دفعة",
+			"RATE_CHANGE_REQUEST": "طلب تغيير الأجر"
 		},
 		"SOMEONE": "شخص ما",
 		"MARK_READ": "تعليم كمقروء",
@@ -4247,6 +4250,45 @@
 	"accountMenu": {
 		"OPEN": "قائمة الحساب"
 	},
+	"rates": {
+		"PER_HOUR": "{amount}/ساعة",
+		"EDIT_RATE": "تعديل الأجر",
+		"EDIT_RATE_OF": "تعديل أجر {name}",
+		"BILLING_RATE": "أجر الفوترة",
+		"PAY_RATE": "أجر الدفع",
+		"PAY_CURRENCY": "عملة الدفع",
+		"PAY_RATE_HINT": "ما يُدفع للعضو في الساعة، وهو منفصل عن أجر الفوترة وأجور العميل.",
+		"OWN_PAY_RATE_HINT": "ما يُدفع لك في الساعة.",
+		"CURRENCY": "العملة",
+		"WEEKLY_LIMIT": "الحد الأسبوعي للساعات",
+		"NOT_SET": "غير محدد",
+		"NUMBER_INVALID": "أدخل رقمًا، مثل 45 أو 45.50.",
+		"NUMBER_NEGATIVE": "أدخل 0 أو أكثر.",
+		"WEEKLY_LIMIT_WHOLE_HOURS": "أدخل عددًا صحيحًا من الساعات، مثل 40.",
+		"ADD_RATE": "أجر",
+		"PROJECT_RATES_SECTION": "أجور العميل",
+		"PROJECT_RATE": "أجر العميل",
+		"MOST_SPECIFIC_WINS": "ما يُفوتَر على العميل عن هذا المشروع. يُطبَّق أولًا أجر العميل الخاص بالعضو، ثم هذا الأجر، ثم أجره الخاص. لا يغيّر ما يُدفع للأعضاء.",
+		"PROJECT_RATE_HINT": "فارغ: يُطبَّق أجر العميل الخاص بالعضو في هذا المشروع، وإلا فأجره الخاص.",
+		"RATE_ON_PROJECT_OF": "أجر العميل لـ {name} في هذا المشروع",
+		"MEMBER_RATE_HINT": "فارغ: يُطبَّق أجر العميل للمشروع، وإلا فأجره الخاص. لا يغيّر ما يُدفع له.",
+		"RATES_RETRY": "إعادة تحميل الأجور",
+		"OWN_SECTION": "الأجر",
+		"OWN_SECTION_HINT": "يحدده مسؤولو مؤسستك. اطلب منهم تغييره من هنا عند الحاجة.",
+		"OWN_SECTION_EDIT_HINT": "يتيح لك دورك تغيير أجورك بنفسك.",
+		"WEEKLY_LIMIT_VALUE": "{hours} ساعة أسبوعيًا",
+		"REQUEST_CHANGE": "طلب تغيير الأجر",
+		"REQUEST_CHANGE_HINT": "يُبلَّغ مسؤولو مؤسستك ويطبّقون التغيير.",
+		"REQUEST_CHANGE_ACTION": "طلب تغيير",
+		"REQUESTED_RATE": "الأجر بالساعة المطلوب",
+		"REQUESTED_RATE_REQUIRED": "أدخل الأجر الذي تطلبه.",
+		"REQUEST_REASON": "السبب (اختياري)",
+		"REQUEST_SEND": "إرسال الطلب",
+		"REQUEST_SENT": "أُرسل الطلب. أُبلغ مسؤولو مؤسستك.",
+		"REQUEST_NOBODY": "لا يوجد بعد مسؤول في مؤسستك لإبلاغه. اسأل مالك مساحة العمل مباشرة.",
+		"REQUEST_UNAVAILABLE": "لا يقبل هذا الخادم طلبات تغيير الأجر بعد. اسأل المسؤول مباشرة.",
+		"REQUEST_FAILED": "لم يُرسل الطلب."
+	},
 	"auth": {
 		"code": {
 			"CHANGE_EMAIL": "استخدام بريد آخر",
@@ -4304,10 +4346,14 @@
 			"PASSWORD": "كلمة المرور"
 		},
 		"password": {
+			"RULE_DIGIT": "رقم (0-9)",
+			"RULE_LOWERCASE": "حرف لاتيني صغير (a-z)",
 			"RULE_MATCH": "كلمتا المرور متطابقتان",
 			"RULE_MET": "الشرط مستوفى",
 			"RULE_MIN_LENGTH": "{count, plural, zero {# حرف على الأقل} one {# حرف على الأقل} two {# حرفان على الأقل} few {# أحرف على الأقل} many {# حرفًا على الأقل} other {# حرف على الأقل}}",
 			"RULE_NOT_MET": "الشرط غير مستوفى",
+			"RULE_SYMBOL": "رمز، مثل ! @ # أو -",
+			"RULE_UPPERCASE": "حرف لاتيني كبير (A-Z)",
 			"STRENGTH_FAIR": "مقبولة",
 			"STRENGTH_GOOD": "جيدة",
 			"STRENGTH_STRONG": "قوية",

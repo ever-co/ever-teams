@@ -14,7 +14,15 @@ import type {
 	OwedMemberGroup
 } from '@/core/lib/utils/dashboards/payments-due';
 import { OwedAmount, RateChip } from './payments-due-amount';
-import { DayName, NoRateChip, OwedFormula, OwedValue, TrackedValue } from './payments-due-cells';
+import {
+	DayName,
+	metaWithNote,
+	NoRateChip,
+	OwedFormula,
+	OwedValue,
+	TrackedValue,
+	useBillingRateNote
+} from './payments-due-cells';
 import {
 	FOOTER_AMOUNT,
 	LINE_FIGURE,
@@ -72,11 +80,12 @@ const MemberDayLine = memo(function MemberDayLine({ line }: Readonly<{ line: Owe
 });
 
 const DayMemberLine = memo(function DayMemberLine({ line }: Readonly<{ line: OwedLine }>) {
+	const billingRateNote = useBillingRateNote(line.rateNote);
 	const isPriced = line.amount !== null;
 	if (!isPriced) {
 		return (
 			<li className={cn(STATEMENT_LINE, MEMBER_LINE)}>
-				<MemberCell name={line.name} imageUrl={line.imageUrl} />
+				<MemberCell name={line.name} imageUrl={line.imageUrl} meta={billingRateNote} />
 				<span className={cn(LINE_FORMULA, MEMBER_FORMULA, 'flex')}>
 					<NoRateChip />
 				</span>
@@ -87,7 +96,7 @@ const DayMemberLine = memo(function DayMemberLine({ line }: Readonly<{ line: Owe
 	}
 	return (
 		<li className={cn(STATEMENT_LINE, MEMBER_LINE)}>
-			<MemberCell name={line.name} imageUrl={line.imageUrl} />
+			<MemberCell name={line.name} imageUrl={line.imageUrl} meta={billingRateNote} />
 			<OwedFormula
 				seconds={line.seconds}
 				rate={line.rate}
@@ -210,14 +219,21 @@ export const MemberStatementCard = memo(function MemberStatementCard({
 		[t]
 	);
 	const daysLabel = t('dashboard.paymentsDue.DAYS_COUNT', { count: group.lines.length });
+	const billingRateNote = useBillingRateNote(group.rateNote);
+	const headerMeta = metaWithNote(daysLabel, billingRateNote);
 	return (
 		<article
 			aria-label={t('dashboard.paymentsDue.statements.MEMBER_LABEL', { name: group.name })}
 			className={STATEMENT_CARD}
 		>
 			<header className={STATEMENT_HEADER}>
-				<MemberCell name={group.name} imageUrl={group.imageUrl} meta={daysLabel} />
-				<RateChip rate={group.rate} currency={group.currency} />
+				<MemberCell name={group.name} imageUrl={group.imageUrl} meta={headerMeta} />
+				<RateChip
+					rate={group.rate}
+					currency={group.currency}
+					rateSource={group.rateSource}
+					ratePending={group.ratePending}
+				/>
 			</header>
 			<FoldedLines
 				lines={group.lines}

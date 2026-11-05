@@ -1,3 +1,5 @@
+import { minLength } from 'class-validator';
+
 /**
  * The app's password policy: Gauzy's reset and registration refuse anything shorter. Same value as
  * `PASSWORD_MINIMUM_LENGTH` in packages/constants; not imported from there because that package's types are only
@@ -55,4 +57,41 @@ export function meetsPasswordMinLength(password: string) {
 export function passwordsMatch(password: string, confirmation: string) {
 	const hasConfirmation = confirmation.length > 0;
 	return hasConfirmation && password === confirmation;
+}
+
+/**
+ * Gauzy's reset rule, `MinLength(8)` and `IsStrongPassword` in its ChangePasswordRequestDTO. validator.js counts only
+ * A-Z, a-z, 0-9 and this symbol set, so an accented letter or a euro sign fills none of them.
+ */
+const UPPERCASE_LETTER = /[A-Z]/;
+const LOWERCASE_LETTER = /[a-z]/;
+const DIGIT = /[0-9]/;
+const RESET_SYMBOL = /[-#!$@£%^&*()_+|~=`{}[\]:";'<>?,./\\ ]/;
+
+export type ResetPasswordRule = 'minLength' | 'uppercase' | 'lowercase' | 'digit' | 'symbol';
+
+export const RESET_PASSWORD_RULES: readonly ResetPasswordRule[] = [
+	'minLength',
+	'uppercase',
+	'lowercase',
+	'digit',
+	'symbol'
+];
+
+const RESET_RULE_TESTS: Record<ResetPasswordRule, (password: string) => boolean> = {
+	minLength: (password) => minLength(password, PASSWORD_MIN_LENGTH),
+	uppercase: (password) => UPPERCASE_LETTER.test(password),
+	lowercase: (password) => LOWERCASE_LETTER.test(password),
+	digit: (password) => DIGIT.test(password),
+	symbol: (password) => RESET_SYMBOL.test(password)
+};
+
+export function meetsResetPasswordRule(password: string, rule: ResetPasswordRule) {
+	const test = RESET_RULE_TESTS[rule];
+	return test(password);
+}
+
+/** The reset rules a password still misses, in the order the form lists them. */
+export function unmetResetPasswordRulesOf(password: string) {
+	return RESET_PASSWORD_RULES.filter((rule) => !meetsResetPasswordRule(password, rule));
 }

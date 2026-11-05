@@ -10,7 +10,8 @@ export enum EEmployeeNotificationType {
 	Mention = 'Mention',
 	Comment = 'Comment',
 	Message = 'Message',
-	Broadcast = 'Broadcast'
+	Broadcast = 'Broadcast',
+	RateChangeRequest = 'RateChangeRequest'
 }
 
 export interface IEmployeeNotification {

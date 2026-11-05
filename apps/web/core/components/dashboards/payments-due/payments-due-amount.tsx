@@ -4,8 +4,14 @@ import { memo, useMemo } from 'react';
 import { useLocale, useTranslations } from 'next-intl';
 import { hueStyle } from '@/core/components/common/value-glyphs';
 import { cn } from '@/core/lib/helpers';
-import { type AmountSegment, formatOwed, owedSegmentsOf } from '@/core/lib/utils/dashboards/payments-due';
-import { NoRateChip } from './payments-due-cells';
+import {
+	type AmountSegment,
+	formatOwed,
+	owedSegmentsOf,
+	rateShownOf,
+	type OwedRateSource
+} from '@/core/lib/utils/dashboards/payments-due';
+import { HiddenRate, NoRateChip, RatePlaceholder } from './payments-due-cells';
 
 const NEUTRAL_CHIP_STYLE = hueStyle('neutral');
 
@@ -53,10 +59,24 @@ export const OwedAmount = memo(function OwedAmount({
 /** The member's rate as an assigned value, "$45.00/h"; a missing rate is the warning chip, never `$0`. */
 export const RateChip = memo(function RateChip({
 	rate,
-	currency
-}: Readonly<{ rate: number | null; currency: string | null }>) {
+	currency,
+	rateSource = null,
+	ratePending = false
+}: Readonly<{
+	rate: number | null;
+	currency: string | null;
+	rateSource?: OwedRateSource | null;
+	ratePending?: boolean;
+}>) {
 	const t = useTranslations();
 	const locale = useLocale();
+	const shown = rateShownOf({ rate, rateSource, ratePending });
+	if (shown === 'loading') {
+		return <RatePlaceholder className="ml-0" />;
+	}
+	if (shown === 'hidden') {
+		return <HiddenRate />;
+	}
 	if (rate === null) {
 		return <NoRateChip />;
 	}

@@ -906,6 +906,19 @@ export const queryKeys = {
 	voiceFill: {
 		availability: ['voice-fill', 'availability'] as const
 	},
+	rates: {
+		all: ['rates'] as const,
+		project: (
+			tenantId: string | undefined | null,
+			organizationId: string | undefined | null,
+			projectId: string | undefined | null
+		) => ['rates', 'project', tenantId ?? null, organizationId ?? null, projectId ?? null] as const,
+		payRate: (
+			tenantId: string | undefined | null,
+			organizationId: string | undefined | null,
+			employeeId: string | undefined | null
+		) => ['rates', 'pay', tenantId ?? null, organizationId ?? null, employeeId ?? null] as const
+	},
 	entityFiles: {
 		all: ['entity-files'] as const,
 		byEntity: (organizationId: string, entity: string, entityId: string) =>
