@@ -18,7 +18,11 @@ import { shouldRetryQuery } from '@/core/lib/helpers/retry-utils';
 import { canRunTimerForState } from '@/core/lib/helpers/timer-policy';
 import { timerStartProjectId } from '@/core/lib/helpers/team-default-project';
 import { errorReasonKeyOf } from '@/core/lib/utils/error-feedback';
-import { isTrackingOffRefusal } from '@/core/lib/helpers/timer-errors';
+import {
+	isTrackingOffRefusal,
+	requiredTrackingFieldsMessageKeyOf,
+	requiredTrackingFieldsOf
+} from '@/core/lib/helpers/timer-errors';
 import { isTimerTaskOfTeam } from '@/core/lib/utils/task.utils';
 import { queryKeys } from '@/core/query/keys';
 import { ApiErrorService } from '@/core/services/client/api-error.service';
@@ -633,6 +637,15 @@ export function useTimerApi({
 					if (isTrackingOffRefusal(error)) {
 						toast.warning(t('timer.TRACKING_DISABLED_MESSAGE'), { id: TRACKING_DISABLED_TOAST_ID });
 						queryClient.invalidateQueries({ queryKey: queryKeys.organizationTeams.all });
+						return;
+					}
+					const requiredFields = requiredTrackingFieldsOf(error);
+					if (requiredFields) {
+						const messageKey = requiredTrackingFieldsMessageKeyOf(requiredFields);
+						toast.error(t('toasts.timer.START_FAILED'), {
+							id: 'timer-start-failed',
+							description: t(messageKey)
+						});
 						return;
 					}
 					const reasonKey = errorReasonKeyOf(error) as DottedLanguageObjectStringPaths;
