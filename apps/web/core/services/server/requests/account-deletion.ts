@@ -1,5 +1,12 @@
 import { NextResponse } from 'next/server';
-import { GAUZY_API_SERVER_URL } from '@/core/constants/config/constants';
+import { readRuntimeEnv } from '@/env-config';
+import {
+	APPLICATION_DEFAULT_LANGUAGE,
+	APPLICATION_LANGUAGES_CODE,
+	GAUZY_API_SERVER_URL
+} from '@/core/constants/config/constants';
+import { accountDeletionConfirmUrl } from '@/core/lib/auth/account-deletion';
+import { appEmailBranding } from '@/core/lib/helpers/app-email-branding';
 import { clientIpHeaders } from '../client-ip';
 
 export type TAccountDeletionStep = 'request' | 'verify' | 'confirm';
@@ -10,30 +17,95 @@ export interface IAccountDeletionProxyResult {
 	data: unknown;
 }
 
-/** The body fields each step forwards (strings only); anything else in the browser's body is dropped. */
+/**
+ * The body fields each step takes from the browser (strings only); anything else in the browser's body is dropped.
+ *
+ * `request` takes no link and no branding from the caller: this route is public, and the e-mail it triggers carries a
+ * token that deletes every account of the address. The confirmation link (`callbackUrl`) and the e-mail branding are
+ * built here, from this app's own origin and configuration (withServerBuiltLinks).
+ */
 const FORWARDED_FIELDS: Record<TAccountDeletionStep, readonly string[]> = {
-	request: [
-		'email',
-		'callbackUrl',
-		'locale',
-		'appName',
-		'appLogo',
-		'appSignature',
-		'appLink',
-		'companyLink',
-		'companyName'
-	],
+	request: ['email', 'locale'],
+	verify: ['token'],
+	// planHash: Gauzy deletes only what the preview with that hash showed (409 otherwise), and requires it
+	confirm: ['token', 'planHash']
+};
+
+const REQUIRED_FIELDS: Record<TAccountDeletionStep, readonly string[]> = {
+	request: ['email'],
 	verify: ['token'],
 	confirm: ['token', 'planHash']
 };
 
-const REQUIRED_FIELD: Record<TAccountDeletionStep, string> = {
-	request: 'email',
-	verify: 'token',
-	confirm: 'token'
-};
-
 const NO_STORE = { 'Cache-Control': 'no-store' };
+
+/** The longest a Gauzy call is waited for: the browser's own call gives up after 60 s (account-deletion.service). */
+export const ACCOUNT_DELETION_UPSTREAM_TIMEOUT_MS = 60_000;
+
+/**
+ * The signal of an upstream call: aborted when the browser's request goes away (`req.signal`) or after
+ * ACCOUNT_DELETION_UPSTREAM_TIMEOUT_MS, so a Gauzy call that hangs does not hold the route open.
+ */
+export function accountDeletionUpstreamSignal(req?: Request): AbortSignal {
+	const timeout = AbortSignal.timeout(ACCOUNT_DELETION_UPSTREAM_TIMEOUT_MS);
+	return req?.signal ? AbortSignal.any([req.signal, timeout]) : timeout;
+}
+
+/** The first value of a header a proxy may have appended to (`a, b`). */
+function firstHeaderValue(value: string | null): string | undefined {
+	const first = value?.split(',')[0]?.trim();
+	return first || undefined;
+}
+
+/** The origin of an absolute http(s) URL, or null. */
+function httpOrigin(value: string | undefined): string | null {
+	if (!value) return null;
+	try {
+		const url = new URL(value);
+		const isHttp = url.protocol === 'https:' || url.protocol === 'http:';
+		return isHttp ? url.origin : null;
+	} catch {
+		return null;
+	}
+}
+
+/**
+ * This app's public origin: the configured one (NEXT_PUBLIC_WEB_APP_URL, read at runtime) when set, otherwise the one
+ * the request reached (the protocol a TLS-terminating proxy reports in x-forwarded-proto, and the host it was sent to).
+ * Never the caller's `Origin` header or a URL from the body, which any client can set.
+ */
+export function appPublicOrigin(req: Request): string | null {
+	const configured = httpOrigin(readRuntimeEnv('NEXT_PUBLIC_WEB_APP_URL') || process.env.NEXT_PUBLIC_WEB_APP_URL?.trim());
+	if (configured) return configured;
+
+	const url = new URL(req.url);
+	const forwardedProto = firstHeaderValue(req.headers.get('x-forwarded-proto'))?.toLowerCase();
+	const protocol = forwardedProto === 'https' || forwardedProto === 'http' ? forwardedProto : url.protocol.slice(0, -1);
+	const host = firstHeaderValue(req.headers.get('x-forwarded-host')) ?? req.headers.get('host') ?? url.host;
+	return httpOrigin(`${protocol}://${host}`);
+}
+
+/**
+ * The confirmation page the e-mailed link opens, `<this app>/[locale/]delete-account/confirm`, built from this app's
+ * origin and a supported locale: a caller-supplied URL could make the victim's genuine e-mail deliver the token to
+ * another site. (Gauzy also accepts only an origin the deployment lists, and otherwise links to its own page.)
+ */
+export function accountDeletionCallbackUrl(req: Request, locale: unknown): string | undefined {
+	const origin = appPublicOrigin(req);
+	if (!origin) return undefined;
+	const isSupportedLocale = typeof locale === 'string' && APPLICATION_LANGUAGES_CODE.includes(locale);
+	return accountDeletionConfirmUrl(
+		origin,
+		isSupportedLocale ? locale : APPLICATION_DEFAULT_LANGUAGE,
+		APPLICATION_DEFAULT_LANGUAGE
+	);
+}
+
+/** A `request` body with the link and the branding this app builds itself. */
+function withServerBuiltLinks(req: Request, body: Record<string, unknown>): Record<string, unknown> {
+	const callbackUrl = accountDeletionCallbackUrl(req, body.locale);
+	return { ...appEmailBranding(), ...body, ...(callbackUrl ? { callbackUrl } : {}) };
+}
 
 /**
  * Forwards one account deletion call to Gauzy (`POST /api/account-deletion/<step>`) for the proxy-mode routes.
@@ -43,7 +115,8 @@ const NO_STORE = { 'Cache-Control': 'no-store' };
  */
 export async function accountDeletionRequest(
 	step: TAccountDeletionStep,
-	body: Record<string, unknown>
+	body: Record<string, unknown>,
+	signal?: AbortSignal
 ): Promise<IAccountDeletionProxyResult> {
 	// The browser's address for Gauzy's per-IP limits, when EVER_TEAMS_CLIENT_IP_SECRET is set (client-ip.ts)
 	const ipHeaders = await clientIpHeaders();
@@ -51,7 +124,8 @@ export async function accountDeletionRequest(
 		method: 'POST',
 		headers: { 'Content-Type': 'application/json', Accept: 'application/json', ...ipHeaders },
 		body: JSON.stringify(body),
-		cache: 'no-store'
+		cache: 'no-store',
+		signal: signal ?? accountDeletionUpstreamSignal()
 	});
 	const data = await response.json().catch(() => null);
 	return { status: response.status, data };
@@ -63,21 +137,20 @@ export async function accountDeletionRequest(
  */
 export async function proxyAccountDeletion(step: TAccountDeletionStep, req: Request): Promise<NextResponse> {
 	const raw = ((await req.json().catch(() => null)) ?? {}) as Record<string, unknown>;
-	const body: Record<string, unknown> = {};
+	let body: Record<string, unknown> = {};
 	for (const field of FORWARDED_FIELDS[step]) {
 		const value = raw[field];
 		if (typeof value === 'string' && value.trim()) body[field] = value.trim();
 	}
-	if (!body[REQUIRED_FIELD[step]]) {
-		return NextResponse.json(
-			{ message: `${REQUIRED_FIELD[step]} is required` },
-			{ status: 400, headers: NO_STORE }
-		);
+	const missing = REQUIRED_FIELDS[step].find((field) => !body[field]);
+	if (missing) {
+		return NextResponse.json({ message: `${missing} is required` }, { status: 400, headers: NO_STORE });
 	}
+	if (step === 'request') body = withServerBuiltLinks(req, body);
 	if (step === 'confirm') body.confirm = true;
 
 	try {
-		const { status, data } = await accountDeletionRequest(step, body);
+		const { status, data } = await accountDeletionRequest(step, body, accountDeletionUpstreamSignal(req));
 		return NextResponse.json(data ?? {}, { status, headers: NO_STORE });
 	} catch {
 		return NextResponse.json(

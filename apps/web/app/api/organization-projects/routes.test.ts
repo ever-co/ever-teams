@@ -97,6 +97,23 @@ describe('GET /api/organization-projects', () => {
 		expect(forwarded.get('relations[0]')).toBe('teams');
 	});
 
+	it.each([
+		['an operator on the organization', 'where[organizationId][ne]', 'organization-1'],
+		['a list of organizations', 'where[organizationId][]', 'other-organization'],
+		['an operator on the tenant', 'where[tenantId][in][0]', 'other-tenant'],
+		['a percent-encoded key', 'where%5BorganizationId%5D%5Bne%5D', 'organization-1']
+	])('drops a nested client filter on the scope (%s), so it cannot widen the query', async (_case, key, value) => {
+		await list(`?${key}=${value}&where[members][employeeId]=employee-1`);
+
+		const forwarded = upstreamUrl().searchParams;
+		const scopeKeys = [...forwarded.keys()].filter((name) => /^where\[(organizationId|tenantId)\]/.test(name));
+		expect(scopeKeys).toEqual(['where[organizationId]', 'where[tenantId]']);
+		expect(forwarded.getAll('where[organizationId]')).toEqual(['organization-1']);
+		expect(forwarded.getAll('where[tenantId]')).toEqual(['tenant-1']);
+		// Other filters still reach Gauzy
+		expect(forwarded.get('where[members][employeeId]')).toBe('employee-1');
+	});
+
 	it('asks Gauzy exactly as before when the client sends no query', async () => {
 		await list();
 

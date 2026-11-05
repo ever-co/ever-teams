@@ -167,4 +167,21 @@ describe('useAccountDeletionConfirm', () => {
 		expect(result.current.result).toBeNull();
 		expect(window.location.hash).toBe('');
 	});
+
+	it('sends no deletion for a preview without its planHash: what is deleted must be what was shown', async () => {
+		window.history.replaceState(null, '', '/delete-account/confirm#token=tok');
+		const { planHash: _omitted, ...withoutHash } = preview('plan-x');
+		mockVerify.mockResolvedValue(withoutHash);
+
+		const { result } = renderHook(() => useAccountDeletionConfirm(), { wrapper });
+		await waitFor(() => expect(result.current.phase).toBe('ready'));
+
+		await act(async () => {
+			await result.current.confirm();
+		});
+
+		expect(mockConfirm).not.toHaveBeenCalled();
+		expect(result.current.confirmFailed).toBe(true);
+		expect(result.current.phase).toBe('ready');
+	});
 });

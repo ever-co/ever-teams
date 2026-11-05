@@ -52,27 +52,40 @@ async function acceptAndSignIn(req: Request, input: AcceptInviteParams) {
 	const origin = appOriginOf(req);
 	const { data: accepted, response: acceptance } = await acceptInviteRequest(input, origin);
 
+	// From here on the invitation is used up: a failed read below must not cost the invitee their session (they could
+	// not retry the closed link), so each read is best-effort and the session is opened with what is known.
 	const tenantId = accepted.user?.tenantId || '';
 	const userId = accepted.user?.id;
 
-	const { data: organizations } = await getUserOrganizationsRequest({ tenantId, userId }, accepted.token);
-	const organization = pickInvitedOrganization(organizations?.items, invitedOrganizationName);
-	if (!organization) {
-		const message = `Your account is not yet ready to be used on the ${APP_NAME} Platform`;
-		return NextResponse.json({ statusCode: 400, message }, { status: 400 });
+	const organizations = await bestEffort('organizations', () =>
+		getUserOrganizationsRequest({ tenantId, userId }, accepted.token)
+	);
+	let organizationId: string;
+	if (organizations) {
+		const organization = pickInvitedOrganization(organizations.items, invitedOrganizationName);
+		if (!organization) {
+			const message = `Your account is not yet ready to be used on the ${APP_NAME} Platform`;
+			return NextResponse.json({ statusCode: 400, message }, { status: 400 });
+		}
+		organizationId = organization.organizationId || '';
+	} else {
+		// The organization the accepted token was minted for; the app asks again on load (token-organization.ts)
+		organizationId = decodeJWT(accepted.token)?.organizationId || '';
 	}
 
-	const organizationId = organization.organizationId || '';
 	const tokens = await tokensInOrganization(accepted, { organizationId, tenantId });
 	const access_token = tokens.token;
-	const { data: teams } = await getAllOrganizationTeamRequest({ tenantId, organizationId }, access_token);
-	const team = teams.items[0];
+	const teams = await bestEffort('teams', () =>
+		getAllOrganizationTeamRequest({ tenantId, organizationId }, access_token)
+	);
+	const team = teams?.items?.[0];
 
 	// Once the tokens are moved, the accepted refresh token no longer refreshes: the body hands out the session's
 	const body = { ...accepted, ...tokens };
 	// The cookies go on the response that is returned, or the browser never receives them
 	const res = NextResponse.json(body, { status: acceptance.status });
-	if (!team) {
+	// Only a team list that was read can say there is no team (an unread one leaves it to the app)
+	if (teams && !team) {
 		setNoTeamPopupShowCookie(true, { req, res });
 	}
 
@@ -93,6 +106,20 @@ async function acceptAndSignIn(req: Request, input: AcceptInviteParams) {
 	);
 
 	return res;
+}
+
+/**
+ * A read made after the accept, with the new session: its data, or undefined when it fails (logged, never thrown).
+ */
+async function bestEffort<T>(what: string, read: () => Promise<{ data: T }>): Promise<T | undefined> {
+	try {
+		const { data } = await read();
+		return data ?? undefined;
+	} catch (error) {
+		const reason = await unwrapRejection(error);
+		console.error(`[WEB][API] POST /invite/accept: the ${what} read after the accept failed`, reason);
+		return undefined;
+	}
 }
 
 /**

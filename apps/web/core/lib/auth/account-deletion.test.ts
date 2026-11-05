@@ -61,13 +61,22 @@ describe('takeAccountDeletionToken', () => {
 		expect(history.calls).toEqual([{ state: null, url: '/delete-account/confirm' }]);
 	});
 
-	it('also accepts and removes a token in the query string, keeping the other parameters', () => {
+	it('removes a token in the query string, keeping the other parameters, but never uses it (it reached the server)', () => {
 		const history = fakeHistory();
 
-		expect(takeAccountDeletionToken(fakeLocation('/fr/delete-account/confirm?utm=mail&token=xyz'), history)).toBe(
-			'xyz'
-		);
+		expect(
+			takeAccountDeletionToken(fakeLocation('/fr/delete-account/confirm?utm=mail&token=xyz'), history)
+		).toBeNull();
 		expect(history.calls).toEqual([{ state: null, url: '/fr/delete-account/confirm?utm=mail' }]);
+	});
+
+	it('reads the fragment token even when the query string carries another one', () => {
+		const history = fakeHistory();
+
+		expect(takeAccountDeletionToken(fakeLocation('/delete-account/confirm?token=query#token=fragment'), history)).toBe(
+			'fragment'
+		);
+		expect(history.calls).toEqual([{ state: null, url: '/delete-account/confirm' }]);
 	});
 
 	it('returns null, and leaves the address alone, without a token', () => {

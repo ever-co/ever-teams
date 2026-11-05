@@ -38,8 +38,15 @@ export const DangerZone = () => {
 	const [removeModalType, setRemoveModalType] = useState<RemoveModalType>('');
 
 	const { deleteUser, deleteUserLoading } = useUser();
-	const { preview, previewLoading, previewError, retryPreview, deleteMyAccount, deleteMyAccountLoading } =
-		useDeleteMyAccount(isOpen && removeModalType === 'DELETE_ALL');
+	const {
+		preview,
+		previewLoading,
+		previewError,
+		retryPreview,
+		deleteMyAccount,
+		deleteMyAccountLoading,
+		canDeleteMyAccount
+	} = useDeleteMyAccount(isOpen && removeModalType === 'DELETE_ALL');
 	const { data: user } = useUserQuery();
 
 	const { removeUserFromAllTeam, removeUserFromAllTeamLoading } = useDeleteOrganizationTeam();
@@ -139,7 +146,7 @@ export const DangerZone = () => {
 					loading={deleteUserLoading || removeUserFromAllTeamLoading || deleteMyAccountLoading}
 					confirmDisabled={
 						removeModalType === 'DELETE_ALL' &&
-						(previewLoading || !!previewError || !preview?.accounts?.length)
+						(previewLoading || !!previewError || !preview?.accounts?.length || !canDeleteMyAccount)
 					}
 				>
 					{removeModalType === 'DELETE_ALL' && (
