@@ -4197,5 +4197,158 @@
 	},
 	"accountMenu": {
 		"OPEN": "账户菜单"
+	},
+	"auth": {
+		"code": {
+			"CHANGE_EMAIL": "使用其他邮箱",
+			"CLEAR": "清除",
+			"DESCRIPTION": "我们已向 <address>{email}</address> 发送了 {length} 位验证码。点击同一封邮件中的链接也能直接登录。",
+			"LABEL": "登录验证码",
+			"NOT_RECEIVED": "没有收到邮件？",
+			"RESEND": "发送新验证码",
+			"RESEND_IN": "{countdown} 后可获取新验证码",
+			"SUBMIT": "登录",
+			"TITLE": "请查收邮件"
+		},
+		"deleteAccount": {
+			"INVALID_TITLE": "此链接已失效"
+		},
+		"demo": {
+			"CREDENTIALS": "演示账户",
+			"EMAIL": "邮箱：",
+			"PASSWORD": "密码："
+		},
+		"field": {
+			"CAPS_LOCK_ON": "大写锁定已开启",
+			"CONFIRM_PASSWORD_LABEL": "确认密码",
+			"EMAIL_LABEL": "邮箱",
+			"EMAIL_PLACEHOLDER": "you@company.com",
+			"HIDE_PASSWORD": "隐藏密码",
+			"NAME_LABEL": "姓名",
+			"NAME_PLACEHOLDER": "张晓雯",
+			"NEW_PASSWORD_LABEL": "密码",
+			"PASSWORD_LABEL": "密码",
+			"PASSWORD_PLACEHOLDER": "你的密码",
+			"SHOW_PASSWORD": "显示密码",
+			"TEAM_LABEL": "团队名称",
+			"TEAM_PLACEHOLDER": "设计团队"
+		},
+		"forgot": {
+			"BACK_TO_SIGN_IN": "返回登录",
+			"DESCRIPTION": "输入你账户的邮箱，我们会发送一个链接，供你设置新密码。",
+			"SENT_TEXT": "打开我们刚发送的邮件中的链接，设置新密码。",
+			"SENT_TITLE": "请查收邮件",
+			"SUBMIT": "发送链接",
+			"TITLE": "忘记密码了？",
+			"USE_ANOTHER_EMAIL": "使用其他邮箱"
+		},
+		"invite": {
+			"CHECKING": "正在核对你的邀请",
+			"DESCRIPTION": "邀请已发送至 <address>{email}</address>。设置你的姓名和密码即可加入。",
+			"FAILED": "无法接受邀请。请稍后重试。",
+			"TITLE": "加入 {organization}"
+		},
+		"method": {
+			"CODE": "邮箱验证码",
+			"LABEL": "登录方式",
+			"PASSWORD": "密码"
+		},
+		"password": {
+			"RULE_MATCH": "两次输入的密码一致",
+			"RULE_MIN_LENGTH": "{count, plural, other {至少 # 个字符}}",
+			"STRENGTH_FAIR": "一般",
+			"STRENGTH_GOOD": "良好",
+			"STRENGTH_STRONG": "强",
+			"STRENGTH_WEAK": "弱"
+		},
+		"reset": {
+			"CONFIRM_LABEL": "确认新密码",
+			"DESCRIPTION": "设置今后登录时使用的密码。",
+			"DONE_TEXT": "请使用新密码登录。",
+			"DONE_TITLE": "密码已更改",
+			"INVALID_TITLE": "此链接已失效",
+			"NEW_LABEL": "新密码",
+			"SUBMIT": "保存密码",
+			"TITLE": "设置新密码"
+		},
+		"scene": {
+			"ACCOUNT_TEXT": "你的计时器、任务和今日计划，与队友的并排呈现。",
+			"ACCOUNT_TITLE": "你在团队中的位置",
+			"INBOX_ACTIVATE_TEXT": "打开其中的链接激活账户，然后用邮箱登录。",
+			"INBOX_ACTIVATE_TITLE": "要找的那封邮件",
+			"INBOX_CODE_TEXT": "输入其中的验证码，或打开其中的链接：两种方式都能登录。",
+			"INBOX_CODE_TITLE": "要找的那封邮件",
+			"INBOX_RESET_TEXT": "其中的链接会打开设置新密码的页面。",
+			"INBOX_RESET_TITLE": "要找的那封邮件",
+			"INVITE_LATER": "稍后邀请队友",
+			"INVITE_TEXT": "你一加入，就会出现在团队中。",
+			"INVITE_TITLE": "团队里你的席位",
+			"MAIL_ACTION_ACTIVATE": "激活我的账户",
+			"MAIL_ACTION_CODE": "登录",
+			"MAIL_ACTION_RESET": "设置新密码",
+			"MANAGER": "经理",
+			"MEMBER_COUNT": "{count, plural, other {# 名成员}}",
+			"NOW": "刚刚",
+			"SUBJECT_ACTIVATE": "激活你的账户",
+			"SUBJECT_CODE": "你的登录验证码",
+			"SUBJECT_RESET": "重置你的密码",
+			"TEAM_TEXT": "由你管理。准备好后随时邀请成员。",
+			"TEAM_TITLE": "你的团队，刚刚起步",
+			"TO": "发送至 {email}",
+			"WORKSPACE_TEXT": "你选择的工作区和团队会最先打开。之后可以切换。",
+			"WORKSPACE_TITLE": "登录后进入哪里"
+		},
+		"signIn": {
+			"CODE_DESCRIPTION": "输入你的邮箱，我们会发送登录验证码。无需密码。",
+			"CREATE_ACCOUNT": "创建账户",
+			"FORGOT_PASSWORD": "忘记密码？",
+			"NEW_HERE": "初次使用 {appName}？",
+			"PASSWORD_DESCRIPTION": "使用你的邮箱和密码登录。",
+			"SEND_CODE": "发送验证码",
+			"SUBMIT_PASSWORD": "登录",
+			"TITLE": "登录 {appName}"
+		},
+		"signUp": {
+			"CREATING": "正在创建你的工作区",
+			"CREATING_TEXT": "正在设置 {team}，只需几秒钟。",
+			"DESCRIPTION": "在一个地方记录你的时间和团队的工作。",
+			"GET_STARTED": "创建我的工作区",
+			"HAVE_ACCOUNT": "已有账户？",
+			"MODE_DESCRIPTION": "之后可以创建其他团队并邀请成员。",
+			"MODE_TITLE": "你想如何开始？",
+			"SENT_TEXT": "打开我们刚发送的邮件中的链接激活账户，然后用邮箱登录。",
+			"SENT_TITLE": "激活你的账户",
+			"SIGN_IN": "登录",
+			"SOLO": "独自使用",
+			"SOLO_TEXT": "以你的名字命名的个人团队。随时可以邀请成员。",
+			"STEP": "第 {step} 步，共 {total} 步",
+			"TEAM": "和我的团队一起",
+			"TEAM_TEXT": "现在为团队命名。你将担任团队经理。",
+			"TITLE": "创建你的账户",
+			"USE_ANOTHER_EMAIL": "使用其他邮箱"
+		},
+		"social": {
+			"OPENING": "正在登录",
+			"OPENING_TEXT": "请稍候，正在打开你的工作区。"
+		},
+		"workspace": {
+			"DESCRIPTION": "选择现在要打开的工作区和团队。之后可以切换。",
+			"NOT_YOU": "不是你？",
+			"NO_MATCH_TEXT": "请检查拼写，或请队友邀请你。",
+			"NO_MATCH_TITLE": "没有与“{query}”匹配的工作区",
+			"OPENING": "正在打开你的工作区",
+			"OPENING_TEXT": "正在登录 {workspace}。",
+			"SEARCH": "搜索工作区",
+			"SIGNED_IN_AS": "当前登录账号",
+			"TEAMS_OF": "{workspace} 的团队",
+			"TEAM_COUNT": "{count, plural, other {# 个团队}}",
+			"TITLE": "选择工作区"
+		},
+		"error": {
+			"TITLE": "无法登录",
+			"TEXT": "登录未完成。请重试，或使用电子邮件登录。",
+			"RETRY": "返回登录",
+			"CODE": "错误代码：{code}"
+		}
 	}
 }

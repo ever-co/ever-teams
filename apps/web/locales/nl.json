@@ -4197,5 +4197,158 @@
 	},
 	"accountMenu": {
 		"OPEN": "Accountmenu"
+	},
+	"auth": {
+		"code": {
+			"CHANGE_EMAIL": "Ander e-mailadres gebruiken",
+			"CLEAR": "Wissen",
+			"DESCRIPTION": "We hebben een code van {length} tekens gestuurd naar <address>{email}</address>. Met de link in dezelfde e-mail kun je ook inloggen.",
+			"LABEL": "Inlogcode",
+			"NOT_RECEIVED": "Niets in je inbox?",
+			"RESEND": "Nieuwe code sturen",
+			"RESEND_IN": "Nieuwe code over {countdown}",
+			"SUBMIT": "Inloggen",
+			"TITLE": "Kijk in je inbox"
+		},
+		"deleteAccount": {
+			"INVALID_TITLE": "Deze link werkt niet meer"
+		},
+		"demo": {
+			"CREDENTIALS": "Demo-accounts",
+			"EMAIL": "E-mail:",
+			"PASSWORD": "Wachtwoord:"
+		},
+		"field": {
+			"CAPS_LOCK_ON": "Caps Lock staat aan",
+			"CONFIRM_PASSWORD_LABEL": "Wachtwoord bevestigen",
+			"EMAIL_LABEL": "E-mail",
+			"EMAIL_PLACEHOLDER": "you@bedrijf.com",
+			"HIDE_PASSWORD": "Wachtwoord verbergen",
+			"NAME_LABEL": "Volledige naam",
+			"NAME_PLACEHOLDER": "Sanne de Vries",
+			"NEW_PASSWORD_LABEL": "Wachtwoord",
+			"PASSWORD_LABEL": "Wachtwoord",
+			"PASSWORD_PLACEHOLDER": "Je wachtwoord",
+			"SHOW_PASSWORD": "Wachtwoord tonen",
+			"TEAM_LABEL": "Teamnaam",
+			"TEAM_PLACEHOLDER": "Designteam"
+		},
+		"forgot": {
+			"BACK_TO_SIGN_IN": "Terug naar inloggen",
+			"DESCRIPTION": "Vul het e-mailadres van je account in. We sturen je een link om een nieuw wachtwoord te kiezen.",
+			"SENT_TEXT": "Open de link in de e-mail die we net hebben gestuurd om een nieuw wachtwoord te kiezen.",
+			"SENT_TITLE": "Kijk in je inbox",
+			"SUBMIT": "Link sturen",
+			"TITLE": "Wachtwoord vergeten?",
+			"USE_ANOTHER_EMAIL": "Ander e-mailadres gebruiken"
+		},
+		"invite": {
+			"CHECKING": "We controleren je uitnodiging",
+			"DESCRIPTION": "De uitnodiging is gestuurd naar <address>{email}</address>. Kies je naam en een wachtwoord om lid te worden.",
+			"FAILED": "We konden de uitnodiging niet accepteren. Probeer het zo meteen opnieuw.",
+			"TITLE": "Word lid van {organization}"
+		},
+		"method": {
+			"CODE": "Code per e-mail",
+			"LABEL": "Inlogmethode",
+			"PASSWORD": "Wachtwoord"
+		},
+		"password": {
+			"RULE_MATCH": "Beide wachtwoorden komen overeen",
+			"RULE_MIN_LENGTH": "{count, plural, one {Minstens # teken} other {Minstens # tekens}}",
+			"STRENGTH_FAIR": "Redelijk",
+			"STRENGTH_GOOD": "Goed",
+			"STRENGTH_STRONG": "Sterk",
+			"STRENGTH_WEAK": "Zwak"
+		},
+		"reset": {
+			"CONFIRM_LABEL": "Nieuw wachtwoord bevestigen",
+			"DESCRIPTION": "Kies het wachtwoord waarmee je voortaan inlogt.",
+			"DONE_TEXT": "Log in met je nieuwe wachtwoord.",
+			"DONE_TITLE": "Wachtwoord gewijzigd",
+			"INVALID_TITLE": "Deze link werkt niet meer",
+			"NEW_LABEL": "Nieuw wachtwoord",
+			"SUBMIT": "Wachtwoord opslaan",
+			"TITLE": "Kies een nieuw wachtwoord"
+		},
+		"scene": {
+			"ACCOUNT_TEXT": "Je timer, je taken en je dagplanning, naast je teamgenoten.",
+			"ACCOUNT_TITLE": "Jouw plek in het team",
+			"INBOX_ACTIVATE_TEXT": "Open de link erin om je account te activeren en log daarna in met je e-mail.",
+			"INBOX_ACTIVATE_TITLE": "Zoek naar deze e-mail",
+			"INBOX_CODE_TEXT": "Typ de code die erin staat of open de link: met allebei log je in.",
+			"INBOX_CODE_TITLE": "Zoek naar deze e-mail",
+			"INBOX_RESET_TEXT": "De link erin opent de pagina waar je een nieuw wachtwoord kiest.",
+			"INBOX_RESET_TITLE": "Zoek naar deze e-mail",
+			"INVITE_LATER": "Later een teamgenoot uitnodigen",
+			"INVITE_TEXT": "Je verschijnt in het team zodra je lid wordt.",
+			"INVITE_TITLE": "Je plaats in het team",
+			"MAIL_ACTION_ACTIVATE": "Mijn account activeren",
+			"MAIL_ACTION_CODE": "Inloggen",
+			"MAIL_ACTION_RESET": "Nieuw wachtwoord kiezen",
+			"MANAGER": "Manager",
+			"MEMBER_COUNT": "{count, plural, one {# lid} other {# leden}}",
+			"NOW": "nu",
+			"SUBJECT_ACTIVATE": "Activeer je account",
+			"SUBJECT_CODE": "Je inlogcode",
+			"SUBJECT_RESET": "Stel je wachtwoord opnieuw in",
+			"TEAM_TEXT": "Jij beheert het team. Nodig mensen uit zodra je er klaar voor bent.",
+			"TEAM_TITLE": "Je team bij de start",
+			"TO": "aan {email}",
+			"WORKSPACE_TEXT": "De werkruimte en het team die je kiest, gaan als eerste open. Je kunt later wisselen.",
+			"WORKSPACE_TITLE": "Waar je terechtkomt"
+		},
+		"signIn": {
+			"CODE_DESCRIPTION": "Vul je e-mailadres in en we sturen je een inlogcode. Geen wachtwoord nodig.",
+			"CREATE_ACCOUNT": "Account aanmaken",
+			"FORGOT_PASSWORD": "Wachtwoord vergeten?",
+			"NEW_HERE": "Nieuw bij {appName}?",
+			"PASSWORD_DESCRIPTION": "Log in met je e-mailadres en je wachtwoord.",
+			"SEND_CODE": "Stuur me een code",
+			"SUBMIT_PASSWORD": "Inloggen",
+			"TITLE": "Inloggen bij {appName}"
+		},
+		"signUp": {
+			"CREATING": "We maken je werkruimte aan",
+			"CREATING_TEXT": "{team} wordt ingericht. Dit duurt een paar seconden.",
+			"DESCRIPTION": "Volg je tijd en het werk van je team op één plek.",
+			"GET_STARTED": "Mijn werkruimte maken",
+			"HAVE_ACCOUNT": "Heb je al een account?",
+			"MODE_DESCRIPTION": "Je kunt later andere teams maken en mensen uitnodigen.",
+			"MODE_TITLE": "Hoe wil je beginnen?",
+			"SENT_TEXT": "Open de link in de e-mail die we net hebben gestuurd om je account te activeren en log daarna in met je e-mail.",
+			"SENT_TITLE": "Activeer je account",
+			"SIGN_IN": "Inloggen",
+			"SOLO": "In mijn eentje",
+			"SOLO_TEXT": "Een persoonlijk team met je eigen naam. Nodig mensen uit wanneer je wilt.",
+			"STEP": "Stap {step} van {total}",
+			"TEAM": "Met mijn team",
+			"TEAM_TEXT": "Geef je team nu een naam. Jij wordt de manager.",
+			"TITLE": "Maak je account aan",
+			"USE_ANOTHER_EMAIL": "Ander e-mailadres gebruiken"
+		},
+		"social": {
+			"OPENING": "We loggen je in",
+			"OPENING_TEXT": "Een moment, we openen je werkruimte."
+		},
+		"workspace": {
+			"DESCRIPTION": "Kies de werkruimte en het team dat je nu wilt openen. Je kunt later wisselen.",
+			"NOT_YOU": "Niet jij?",
+			"NO_MATCH_TEXT": "Controleer de spelling of vraag een teamgenoot om je uit te nodigen.",
+			"NO_MATCH_TITLE": "Geen werkruimte gevonden voor “{query}”",
+			"OPENING": "We openen je werkruimte",
+			"OPENING_TEXT": "We loggen je in bij {workspace}.",
+			"SEARCH": "Werkruimtes zoeken",
+			"SIGNED_IN_AS": "Ingelogd als",
+			"TEAMS_OF": "Teams van {workspace}",
+			"TEAM_COUNT": "{count, plural, one {# team} other {# teams}}",
+			"TITLE": "Kies een werkruimte"
+		},
+		"error": {
+			"TITLE": "We konden je niet aanmelden",
+			"TEXT": "Het aanmelden is niet voltooid. Probeer het opnieuw of meld je aan met je e-mail.",
+			"RETRY": "Terug naar aanmelden",
+			"CODE": "Foutcode: {code}"
+		}
 	}
 }

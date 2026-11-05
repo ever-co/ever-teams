@@ -4197,5 +4197,158 @@
 	},
 	"accountMenu": {
 		"OPEN": "תפריט החשבון"
+	},
+	"auth": {
+		"code": {
+			"CHANGE_EMAIL": "שימוש בדוא״ל אחר",
+			"CLEAR": "ניקוי",
+			"DESCRIPTION": "שלחנו קוד בן {length} תווים אל <address>{email}</address>. גם הקישור שבאותה הודעה מחבר אתכם.",
+			"LABEL": "קוד התחברות",
+			"NOT_RECEIVED": "לא הגיע שום דבר?",
+			"RESEND": "שליחת קוד חדש",
+			"RESEND_IN": "קוד חדש בעוד {countdown}",
+			"SUBMIT": "התחברות",
+			"TITLE": "בדקו את תיבת הדואר"
+		},
+		"deleteAccount": {
+			"INVALID_TITLE": "הקישור הזה כבר לא תקף"
+		},
+		"demo": {
+			"CREDENTIALS": "חשבונות הדגמה",
+			"EMAIL": "דוא״ל:",
+			"PASSWORD": "סיסמה:"
+		},
+		"field": {
+			"CAPS_LOCK_ON": "מקש Caps Lock פעיל",
+			"CONFIRM_PASSWORD_LABEL": "אימות הסיסמה",
+			"EMAIL_LABEL": "דוא״ל",
+			"EMAIL_PLACEHOLDER": "you@company.com",
+			"HIDE_PASSWORD": "הסתרת הסיסמה",
+			"NAME_LABEL": "שם מלא",
+			"NAME_PLACEHOLDER": "נועה כהן",
+			"NEW_PASSWORD_LABEL": "סיסמה",
+			"PASSWORD_LABEL": "סיסמה",
+			"PASSWORD_PLACEHOLDER": "הסיסמה שלך",
+			"SHOW_PASSWORD": "הצגת הסיסמה",
+			"TEAM_LABEL": "שם הצוות",
+			"TEAM_PLACEHOLDER": "צוות עיצוב"
+		},
+		"forgot": {
+			"BACK_TO_SIGN_IN": "חזרה להתחברות",
+			"DESCRIPTION": "הזינו את כתובת הדוא״ל של החשבון ונשלח אליכם קישור לבחירת סיסמה חדשה.",
+			"SENT_TEXT": "פתחו את הקישור בהודעה ששלחנו זה עתה כדי לבחור סיסמה חדשה.",
+			"SENT_TITLE": "בדקו את תיבת הדואר",
+			"SUBMIT": "שליחת הקישור",
+			"TITLE": "שכחתם את הסיסמה?",
+			"USE_ANOTHER_EMAIL": "שימוש בדוא״ל אחר"
+		},
+		"invite": {
+			"CHECKING": "בודקים את ההזמנה שלכם",
+			"DESCRIPTION": "ההזמנה נשלחה אל <address>{email}</address>. בחרו שם וסיסמה כדי להצטרף.",
+			"FAILED": "לא הצלחנו לקבל את ההזמנה. נסו שוב בעוד רגע.",
+			"TITLE": "הצטרפות אל {organization}"
+		},
+		"method": {
+			"CODE": "קוד בדוא״ל",
+			"LABEL": "אופן ההתחברות",
+			"PASSWORD": "סיסמה"
+		},
+		"password": {
+			"RULE_MATCH": "שתי הסיסמאות תואמות",
+			"RULE_MIN_LENGTH": "{count, plural, one {לפחות # תו} two {לפחות # תווים} other {לפחות # תווים}}",
+			"STRENGTH_FAIR": "סבירה",
+			"STRENGTH_GOOD": "טובה",
+			"STRENGTH_STRONG": "חזקה",
+			"STRENGTH_WEAK": "חלשה"
+		},
+		"reset": {
+			"CONFIRM_LABEL": "אימות הסיסמה החדשה",
+			"DESCRIPTION": "בחרו את הסיסמה שבה תתחברו מעכשיו.",
+			"DONE_TEXT": "התחברו עם הסיסמה החדשה.",
+			"DONE_TITLE": "הסיסמה שונתה",
+			"INVALID_TITLE": "הקישור הזה כבר לא תקף",
+			"NEW_LABEL": "סיסמה חדשה",
+			"SUBMIT": "שמירת הסיסמה",
+			"TITLE": "בחירת סיסמה חדשה"
+		},
+		"scene": {
+			"ACCOUNT_TEXT": "הטיימר, המשימות ותוכנית היום שלכם, לצד חברי הצוות.",
+			"ACCOUNT_TITLE": "המקום שלכם בצוות",
+			"INBOX_ACTIVATE_TEXT": "פתחו את הקישור שבה כדי להפעיל את החשבון, ואז התחברו עם הדוא״ל שלכם.",
+			"INBOX_ACTIVATE_TITLE": "ההודעה שצריך לחפש",
+			"INBOX_CODE_TEXT": "הקלידו את הקוד שבה, או פתחו את הקישור שלה: שתי הדרכים מחברות אתכם.",
+			"INBOX_CODE_TITLE": "ההודעה שצריך לחפש",
+			"INBOX_RESET_TEXT": "הקישור שבה פותח את הדף שבו בוחרים סיסמה חדשה.",
+			"INBOX_RESET_TITLE": "ההודעה שצריך לחפש",
+			"INVITE_LATER": "הזמנת חבר צוות בהמשך",
+			"INVITE_TEXT": "תופיעו בצוות מיד כשתצטרפו.",
+			"INVITE_TITLE": "יש לכם מקום בצוות",
+			"MAIL_ACTION_ACTIVATE": "הפעלת החשבון שלי",
+			"MAIL_ACTION_CODE": "התחברות",
+			"MAIL_ACTION_RESET": "בחירת סיסמה חדשה",
+			"MANAGER": "מנהל",
+			"MEMBER_COUNT": "{count, plural, one {# חבר} two {# חברים} other {# חברים}}",
+			"NOW": "עכשיו",
+			"SUBJECT_ACTIVATE": "הפעלת החשבון שלכם",
+			"SUBJECT_CODE": "קוד ההתחברות שלכם",
+			"SUBJECT_RESET": "איפוס הסיסמה שלכם",
+			"TEAM_TEXT": "הניהול בידיכם. הזמינו אנשים כשתהיו מוכנים.",
+			"TEAM_TITLE": "הצוות שלכם, בתחילת דרכו",
+			"TO": "אל {email}",
+			"WORKSPACE_TEXT": "סביבת העבודה והצוות שתבחרו ייפתחו ראשונים. אפשר להחליף בהמשך.",
+			"WORKSPACE_TITLE": "לאן תגיעו"
+		},
+		"signIn": {
+			"CODE_DESCRIPTION": "הזינו את כתובת הדוא״ל ונשלח אליכם קוד התחברות. אין צורך בסיסמה.",
+			"CREATE_ACCOUNT": "יצירת חשבון",
+			"FORGOT_PASSWORD": "שכחתם סיסמה?",
+			"NEW_HERE": "חדשים ב-{appName}?",
+			"PASSWORD_DESCRIPTION": "התחברו עם כתובת הדוא״ל והסיסמה שלכם.",
+			"SEND_CODE": "שלחו לי קוד",
+			"SUBMIT_PASSWORD": "התחברות",
+			"TITLE": "התחברות ל-{appName}"
+		},
+		"signUp": {
+			"CREATING": "יוצרים את סביבת העבודה שלכם",
+			"CREATING_TEXT": "מכינים את {team}. זה לוקח כמה שניות.",
+			"DESCRIPTION": "עקבו אחר הזמן שלכם ואחר עבודת הצוות במקום אחד.",
+			"GET_STARTED": "יצירת סביבת העבודה שלי",
+			"HAVE_ACCOUNT": "כבר יש לכם חשבון?",
+			"MODE_DESCRIPTION": "אפשר ליצור צוותים נוספים ולהזמין אנשים בהמשך.",
+			"MODE_TITLE": "איך תרצו להתחיל?",
+			"SENT_TEXT": "פתחו את הקישור בהודעה ששלחנו זה עתה כדי להפעיל את החשבון, ואז התחברו עם הדוא״ל שלכם.",
+			"SENT_TITLE": "הפעילו את החשבון",
+			"SIGN_IN": "התחברות",
+			"SOLO": "לבד",
+			"SOLO_TEXT": "צוות אישי שנקרא על שמכם. הזמינו אנשים מתי שתרצו.",
+			"STEP": "שלב {step} מתוך {total}",
+			"TEAM": "עם הצוות שלי",
+			"TEAM_TEXT": "תנו שם לצוות עכשיו. הניהול שלו יהיה בידיכם.",
+			"TITLE": "צרו את החשבון שלכם",
+			"USE_ANOTHER_EMAIL": "שימוש בדוא״ל אחר"
+		},
+		"social": {
+			"OPENING": "מחברים אתכם",
+			"OPENING_TEXT": "רק רגע, פותחים את סביבת העבודה שלכם."
+		},
+		"workspace": {
+			"DESCRIPTION": "בחרו את סביבת העבודה והצוות שייפתחו עכשיו. אפשר להחליף בהמשך.",
+			"NOT_YOU": "לא את/ה?",
+			"NO_MATCH_TEXT": "בדקו את האיות, או בקשו מחבר צוות להזמין אתכם.",
+			"NO_MATCH_TITLE": "אין סביבת עבודה שתואמת „{query}”",
+			"OPENING": "פותחים את סביבת העבודה שלכם",
+			"OPENING_TEXT": "מחברים אתכם אל {workspace}.",
+			"SEARCH": "חיפוש סביבות עבודה",
+			"SIGNED_IN_AS": "מחובר/ת בתור",
+			"TEAMS_OF": "הצוותים של {workspace}",
+			"TEAM_COUNT": "{count, plural, one {# צוות} two {# צוותים} other {# צוותים}}",
+			"TITLE": "בחירת סביבת עבודה"
+		},
+		"error": {
+			"TITLE": "לא הצלחנו להכניס אותך",
+			"TEXT": "הכניסה לא הושלמה. נסו שוב, או היכנסו באמצעות האימייל שלכם.",
+			"RETRY": "חזרה לכניסה",
+			"CODE": "קוד שגיאה: {code}"
+		}
 	}
 }

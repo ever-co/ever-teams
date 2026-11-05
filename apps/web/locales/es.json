@@ -4197,5 +4197,158 @@
 	},
 	"accountMenu": {
 		"OPEN": "Menú de la cuenta"
+	},
+	"auth": {
+		"code": {
+			"CHANGE_EMAIL": "Usar otro correo",
+			"CLEAR": "Borrar",
+			"DESCRIPTION": "Enviamos un código de {length} caracteres a <address>{email}</address>. El enlace del mismo correo también inicia tu sesión.",
+			"LABEL": "Código de acceso",
+			"NOT_RECEIVED": "¿Nada en tu bandeja de entrada?",
+			"RESEND": "Enviar un código nuevo",
+			"RESEND_IN": "Código nuevo en {countdown}",
+			"SUBMIT": "Iniciar sesión",
+			"TITLE": "Revisa tu correo"
+		},
+		"deleteAccount": {
+			"INVALID_TITLE": "Este enlace ya no funciona"
+		},
+		"demo": {
+			"CREDENTIALS": "Cuentas de demostración",
+			"EMAIL": "Correo:",
+			"PASSWORD": "Contraseña:"
+		},
+		"field": {
+			"CAPS_LOCK_ON": "Bloq Mayús está activado",
+			"CONFIRM_PASSWORD_LABEL": "Confirma la contraseña",
+			"EMAIL_LABEL": "Correo electrónico",
+			"EMAIL_PLACEHOLDER": "nombre@empresa.com",
+			"HIDE_PASSWORD": "Ocultar la contraseña",
+			"NAME_LABEL": "Nombre completo",
+			"NAME_PLACEHOLDER": "Lucía García",
+			"NEW_PASSWORD_LABEL": "Contraseña",
+			"PASSWORD_LABEL": "Contraseña",
+			"PASSWORD_PLACEHOLDER": "Tu contraseña",
+			"SHOW_PASSWORD": "Mostrar la contraseña",
+			"TEAM_LABEL": "Nombre del equipo",
+			"TEAM_PLACEHOLDER": "Equipo de diseño"
+		},
+		"forgot": {
+			"BACK_TO_SIGN_IN": "Volver al inicio de sesión",
+			"DESCRIPTION": "Escribe el correo de tu cuenta y te enviaremos un enlace para elegir una contraseña nueva.",
+			"SENT_TEXT": "Abre el enlace del correo que acabamos de enviarte para elegir una contraseña nueva.",
+			"SENT_TITLE": "Revisa tu correo",
+			"SUBMIT": "Enviar el enlace",
+			"TITLE": "¿Olvidaste tu contraseña?",
+			"USE_ANOTHER_EMAIL": "Usar otro correo"
+		},
+		"invite": {
+			"CHECKING": "Comprobando tu invitación",
+			"DESCRIPTION": "La invitación se envió a <address>{email}</address>. Elige tu nombre y una contraseña para unirte.",
+			"FAILED": "No pudimos aceptar la invitación. Inténtalo de nuevo en un momento.",
+			"TITLE": "Únete a {organization}"
+		},
+		"method": {
+			"CODE": "Código por correo",
+			"LABEL": "Cómo iniciar sesión",
+			"PASSWORD": "Contraseña"
+		},
+		"password": {
+			"RULE_MATCH": "Las dos contraseñas coinciden",
+			"RULE_MIN_LENGTH": "{count, plural, one {Al menos # carácter} other {Al menos # caracteres}}",
+			"STRENGTH_FAIR": "Aceptable",
+			"STRENGTH_GOOD": "Buena",
+			"STRENGTH_STRONG": "Fuerte",
+			"STRENGTH_WEAK": "Débil"
+		},
+		"reset": {
+			"CONFIRM_LABEL": "Confirma la contraseña nueva",
+			"DESCRIPTION": "Elige la contraseña con la que iniciarás sesión a partir de ahora.",
+			"DONE_TEXT": "Inicia sesión con tu contraseña nueva.",
+			"DONE_TITLE": "Contraseña cambiada",
+			"INVALID_TITLE": "Este enlace ya no funciona",
+			"NEW_LABEL": "Contraseña nueva",
+			"SUBMIT": "Guardar la contraseña",
+			"TITLE": "Elige una contraseña nueva"
+		},
+		"scene": {
+			"ACCOUNT_TEXT": "Tu temporizador, tus tareas y tu plan del día, junto a tus compañeros.",
+			"ACCOUNT_TITLE": "Tu lugar en el equipo",
+			"INBOX_ACTIVATE_TEXT": "Abre su enlace para activar tu cuenta y luego inicia sesión con tu correo.",
+			"INBOX_ACTIVATE_TITLE": "El correo que debes buscar",
+			"INBOX_CODE_TEXT": "Escribe el código que contiene o abre su enlace: ambos inician tu sesión.",
+			"INBOX_CODE_TITLE": "El correo que debes buscar",
+			"INBOX_RESET_TEXT": "Su enlace abre la página donde eliges una contraseña nueva.",
+			"INBOX_RESET_TITLE": "El correo que debes buscar",
+			"INVITE_LATER": "Invitar a un compañero más tarde",
+			"INVITE_TEXT": "Apareces en el equipo en cuanto te unes.",
+			"INVITE_TITLE": "Tu sitio en el equipo",
+			"MAIL_ACTION_ACTIVATE": "Activar mi cuenta",
+			"MAIL_ACTION_CODE": "Iniciar sesión",
+			"MAIL_ACTION_RESET": "Elegir una contraseña nueva",
+			"MANAGER": "Manager",
+			"MEMBER_COUNT": "{count, plural, one {# miembro} other {# miembros}}",
+			"NOW": "ahora",
+			"SUBJECT_ACTIVATE": "Activa tu cuenta",
+			"SUBJECT_CODE": "Tu código de acceso",
+			"SUBJECT_RESET": "Restablece tu contraseña",
+			"TEAM_TEXT": "Tú lo gestionas. Invita a otras personas cuando quieras.",
+			"TEAM_TITLE": "Tu equipo, al empezar",
+			"TO": "para {email}",
+			"WORKSPACE_TEXT": "El espacio de trabajo y el equipo que elijas se abren primero. Puedes cambiar más tarde.",
+			"WORKSPACE_TITLE": "Dónde empiezas"
+		},
+		"signIn": {
+			"CODE_DESCRIPTION": "Escribe tu correo y te enviaremos un código de acceso. No necesitas contraseña.",
+			"CREATE_ACCOUNT": "Crear una cuenta",
+			"FORGOT_PASSWORD": "¿Olvidaste tu contraseña?",
+			"NEW_HERE": "¿Primera vez en {appName}?",
+			"PASSWORD_DESCRIPTION": "Inicia sesión con tu correo y tu contraseña.",
+			"SEND_CODE": "Enviarme un código",
+			"SUBMIT_PASSWORD": "Iniciar sesión",
+			"TITLE": "Inicia sesión en {appName}"
+		},
+		"signUp": {
+			"CREATING": "Creando tu espacio de trabajo",
+			"CREATING_TEXT": "Preparando {team}. Tarda unos segundos.",
+			"DESCRIPTION": "Registra tu tiempo y el trabajo de tu equipo en un solo lugar.",
+			"GET_STARTED": "Crear mi espacio de trabajo",
+			"HAVE_ACCOUNT": "¿Ya tienes una cuenta?",
+			"MODE_DESCRIPTION": "Puedes crear otros equipos e invitar a personas más tarde.",
+			"MODE_TITLE": "¿Cómo quieres empezar?",
+			"SENT_TEXT": "Abre el enlace del correo que acabamos de enviarte para activar tu cuenta y luego inicia sesión con tu correo.",
+			"SENT_TITLE": "Activa tu cuenta",
+			"SIGN_IN": "Iniciar sesión",
+			"SOLO": "Por mi cuenta",
+			"SOLO_TEXT": "Un equipo personal con tu nombre. Invita a personas cuando quieras.",
+			"STEP": "Paso {step} de {total}",
+			"TEAM": "Con mi equipo",
+			"TEAM_TEXT": "Ponle nombre a tu equipo ahora. Tú serás su manager.",
+			"TITLE": "Crea tu cuenta",
+			"USE_ANOTHER_EMAIL": "Usar otro correo"
+		},
+		"social": {
+			"OPENING": "Iniciando tu sesión",
+			"OPENING_TEXT": "Un momento, estamos abriendo tu espacio de trabajo."
+		},
+		"workspace": {
+			"DESCRIPTION": "Elige el espacio de trabajo y el equipo que quieres abrir ahora. Puedes cambiar más tarde.",
+			"NOT_YOU": "¿No eres tú?",
+			"NO_MATCH_TEXT": "Revisa cómo lo escribiste o pide a un compañero que te invite.",
+			"NO_MATCH_TITLE": "Ningún espacio de trabajo coincide con «{query}»",
+			"OPENING": "Abriendo tu espacio de trabajo",
+			"OPENING_TEXT": "Iniciando tu sesión en {workspace}.",
+			"SEARCH": "Buscar espacios de trabajo",
+			"SIGNED_IN_AS": "Sesión iniciada como",
+			"TEAMS_OF": "Equipos de {workspace}",
+			"TEAM_COUNT": "{count, plural, one {# equipo} other {# equipos}}",
+			"TITLE": "Elige un espacio de trabajo"
+		},
+		"error": {
+			"TITLE": "No pudimos iniciar tu sesión",
+			"TEXT": "El inicio de sesión no se completó. Vuelve a intentarlo o inicia sesión con tu correo.",
+			"RETRY": "Volver al inicio de sesión",
+			"CODE": "Código de error: {code}"
+		}
 	}
 }

@@ -4197,5 +4197,158 @@
 	},
 	"accountMenu": {
 		"OPEN": "Account menu"
+	},
+	"auth": {
+		"code": {
+			"CHANGE_EMAIL": "Use another e-mail",
+			"CLEAR": "Clear",
+			"DESCRIPTION": "We sent an {length}-character code to <address>{email}</address>. The link in the same e-mail signs you in too.",
+			"LABEL": "Sign-in code",
+			"NOT_RECEIVED": "Nothing in your inbox?",
+			"RESEND": "Send a new code",
+			"RESEND_IN": "New code in {countdown}",
+			"SUBMIT": "Sign in",
+			"TITLE": "Check your inbox"
+		},
+		"deleteAccount": {
+			"INVALID_TITLE": "This link no longer works"
+		},
+		"demo": {
+			"CREDENTIALS": "Demo accounts",
+			"EMAIL": "E-mail:",
+			"PASSWORD": "Password:"
+		},
+		"field": {
+			"CAPS_LOCK_ON": "Caps Lock is on",
+			"CONFIRM_PASSWORD_LABEL": "Confirm the password",
+			"EMAIL_LABEL": "E-mail",
+			"EMAIL_PLACEHOLDER": "you@company.com",
+			"HIDE_PASSWORD": "Hide the password",
+			"NAME_LABEL": "Full name",
+			"NAME_PLACEHOLDER": "Jane Cooper",
+			"NEW_PASSWORD_LABEL": "Password",
+			"PASSWORD_LABEL": "Password",
+			"PASSWORD_PLACEHOLDER": "Your password",
+			"SHOW_PASSWORD": "Show the password",
+			"TEAM_LABEL": "Team name",
+			"TEAM_PLACEHOLDER": "Design team"
+		},
+		"forgot": {
+			"BACK_TO_SIGN_IN": "Back to sign in",
+			"DESCRIPTION": "Enter the e-mail of your account and we will send you a link to choose a new password.",
+			"SENT_TEXT": "Open the link in the e-mail we just sent to choose a new password.",
+			"SENT_TITLE": "Check your inbox",
+			"SUBMIT": "Send the link",
+			"TITLE": "Forgot your password?",
+			"USE_ANOTHER_EMAIL": "Use another e-mail"
+		},
+		"invite": {
+			"CHECKING": "Checking your invitation",
+			"DESCRIPTION": "The invitation was sent to <address>{email}</address>. Choose your name and a password to join.",
+			"FAILED": "We could not accept the invitation. Try again in a moment.",
+			"TITLE": "Join {organization}"
+		},
+		"method": {
+			"CODE": "E-mail code",
+			"LABEL": "How to sign in",
+			"PASSWORD": "Password"
+		},
+		"password": {
+			"RULE_MATCH": "Both passwords match",
+			"RULE_MIN_LENGTH": "{count, plural, one {At least # character} other {At least # characters}}",
+			"STRENGTH_FAIR": "Fair",
+			"STRENGTH_GOOD": "Good",
+			"STRENGTH_STRONG": "Strong",
+			"STRENGTH_WEAK": "Weak"
+		},
+		"reset": {
+			"CONFIRM_LABEL": "Confirm the new password",
+			"DESCRIPTION": "Choose the password you will sign in with from now on.",
+			"DONE_TEXT": "Sign in with your new password.",
+			"DONE_TITLE": "Password changed",
+			"INVALID_TITLE": "This link no longer works",
+			"NEW_LABEL": "New password",
+			"SUBMIT": "Save the password",
+			"TITLE": "Choose a new password"
+		},
+		"scene": {
+			"ACCOUNT_TEXT": "Your timer, your tasks and your plan for the day, next to your teammates.",
+			"ACCOUNT_TITLE": "Your place in the team",
+			"INBOX_ACTIVATE_TEXT": "Open its link to activate your account, then sign in with your e-mail.",
+			"INBOX_ACTIVATE_TITLE": "The e-mail to look for",
+			"INBOX_CODE_TEXT": "Type the code it holds, or open its link: both sign you in.",
+			"INBOX_CODE_TITLE": "The e-mail to look for",
+			"INBOX_RESET_TEXT": "Its link opens the page where you choose a new password.",
+			"INBOX_RESET_TITLE": "The e-mail to look for",
+			"INVITE_LATER": "Invite a teammate later",
+			"INVITE_TEXT": "You appear in the team as soon as you join.",
+			"INVITE_TITLE": "Your seat in the team",
+			"MAIL_ACTION_ACTIVATE": "Activate my account",
+			"MAIL_ACTION_CODE": "Sign in",
+			"MAIL_ACTION_RESET": "Choose a new password",
+			"MANAGER": "Manager",
+			"MEMBER_COUNT": "{count, plural, one {# member} other {# members}}",
+			"NOW": "now",
+			"SUBJECT_ACTIVATE": "Activate your account",
+			"SUBJECT_CODE": "Your sign-in code",
+			"SUBJECT_RESET": "Reset your password",
+			"TEAM_TEXT": "You manage it. Invite people whenever you are ready.",
+			"TEAM_TITLE": "Your team, as it starts",
+			"TO": "to {email}",
+			"WORKSPACE_TEXT": "The workspace and the team you pick open first. You can switch later.",
+			"WORKSPACE_TITLE": "Where you land"
+		},
+		"signIn": {
+			"CODE_DESCRIPTION": "Enter your e-mail and we will send you a sign-in code. No password needed.",
+			"CREATE_ACCOUNT": "Create an account",
+			"FORGOT_PASSWORD": "Forgot password?",
+			"NEW_HERE": "New to {appName}?",
+			"PASSWORD_DESCRIPTION": "Sign in with your e-mail and your password.",
+			"SEND_CODE": "Send me a code",
+			"SUBMIT_PASSWORD": "Sign in",
+			"TITLE": "Sign in to {appName}"
+		},
+		"signUp": {
+			"CREATING": "Creating your workspace",
+			"CREATING_TEXT": "Setting up {team}. This takes a few seconds.",
+			"DESCRIPTION": "Track your time and your team's work in one place.",
+			"GET_STARTED": "Create my workspace",
+			"HAVE_ACCOUNT": "Already have an account?",
+			"MODE_DESCRIPTION": "You can create other teams and invite people later.",
+			"MODE_TITLE": "How do you want to start?",
+			"SENT_TEXT": "Open the link in the e-mail we just sent to activate your account, then sign in with your e-mail.",
+			"SENT_TITLE": "Activate your account",
+			"SIGN_IN": "Sign in",
+			"SOLO": "On my own",
+			"SOLO_TEXT": "A personal team named after you. Invite people whenever you want.",
+			"STEP": "Step {step} of {total}",
+			"TEAM": "With my team",
+			"TEAM_TEXT": "Name your team now. You will be its manager.",
+			"TITLE": "Create your account",
+			"USE_ANOTHER_EMAIL": "Use another e-mail"
+		},
+		"social": {
+			"OPENING": "Signing you in",
+			"OPENING_TEXT": "One moment, we are opening your workspace."
+		},
+		"workspace": {
+			"DESCRIPTION": "Pick the workspace and the team to open now. You can switch later.",
+			"NOT_YOU": "Not you?",
+			"NO_MATCH_TEXT": "Check the spelling, or ask a teammate to invite you.",
+			"NO_MATCH_TITLE": "No workspace matches “{query}”",
+			"OPENING": "Opening your workspace",
+			"OPENING_TEXT": "Signing you in to {workspace}.",
+			"SEARCH": "Search workspaces",
+			"SIGNED_IN_AS": "Signed in as",
+			"TEAMS_OF": "Teams of {workspace}",
+			"TEAM_COUNT": "{count, plural, one {# team} other {# teams}}",
+			"TITLE": "Choose a workspace"
+		},
+		"error": {
+			"TITLE": "We could not sign you in",
+			"TEXT": "The sign-in did not complete. Try again, or sign in with your e-mail.",
+			"RETRY": "Back to sign in",
+			"CODE": "Error code: {code}"
+		}
 	}
 }

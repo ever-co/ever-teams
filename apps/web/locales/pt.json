@@ -4197,5 +4197,158 @@
 	},
 	"accountMenu": {
 		"OPEN": "Menu da conta"
+	},
+	"auth": {
+		"code": {
+			"CHANGE_EMAIL": "Usar outro e-mail",
+			"CLEAR": "Limpar",
+			"DESCRIPTION": "Enviamos um código de {length} caracteres para <address>{email}</address>. Você também pode entrar pelo link desse e-mail.",
+			"LABEL": "Código de acesso",
+			"NOT_RECEIVED": "Nada na caixa de entrada?",
+			"RESEND": "Enviar novo código",
+			"RESEND_IN": "Novo código em {countdown}",
+			"SUBMIT": "Entrar",
+			"TITLE": "Verifique seu e-mail"
+		},
+		"deleteAccount": {
+			"INVALID_TITLE": "Este link não funciona mais"
+		},
+		"demo": {
+			"CREDENTIALS": "Contas de demonstração",
+			"EMAIL": "E-mail:",
+			"PASSWORD": "Senha:"
+		},
+		"field": {
+			"CAPS_LOCK_ON": "Caps Lock ativado",
+			"CONFIRM_PASSWORD_LABEL": "Confirme a senha",
+			"EMAIL_LABEL": "E-mail",
+			"EMAIL_PLACEHOLDER": "you@empresa.com",
+			"HIDE_PASSWORD": "Ocultar senha",
+			"NAME_LABEL": "Nome completo",
+			"NAME_PLACEHOLDER": "Ana Oliveira",
+			"NEW_PASSWORD_LABEL": "Senha",
+			"PASSWORD_LABEL": "Senha",
+			"PASSWORD_PLACEHOLDER": "Sua senha",
+			"SHOW_PASSWORD": "Mostrar senha",
+			"TEAM_LABEL": "Nome da equipe",
+			"TEAM_PLACEHOLDER": "Equipe de design"
+		},
+		"forgot": {
+			"BACK_TO_SIGN_IN": "Voltar para o login",
+			"DESCRIPTION": "Digite o e-mail da sua conta e enviaremos um link para você escolher uma nova senha.",
+			"SENT_TEXT": "Abra o link do e-mail que acabamos de enviar para escolher uma nova senha.",
+			"SENT_TITLE": "Verifique seu e-mail",
+			"SUBMIT": "Enviar link",
+			"TITLE": "Esqueceu sua senha?",
+			"USE_ANOTHER_EMAIL": "Usar outro e-mail"
+		},
+		"invite": {
+			"CHECKING": "Verificando seu convite",
+			"DESCRIPTION": "O convite foi enviado para <address>{email}</address>. Escolha seu nome e uma senha para participar.",
+			"FAILED": "Não foi possível aceitar o convite. Tente novamente em instantes.",
+			"TITLE": "Junte-se a {organization}"
+		},
+		"method": {
+			"CODE": "Código por e-mail",
+			"LABEL": "Como entrar",
+			"PASSWORD": "Senha"
+		},
+		"password": {
+			"RULE_MATCH": "As duas senhas coincidem",
+			"RULE_MIN_LENGTH": "{count, plural, one {Pelo menos # caractere} other {Pelo menos # caracteres}}",
+			"STRENGTH_FAIR": "Razoável",
+			"STRENGTH_GOOD": "Boa",
+			"STRENGTH_STRONG": "Forte",
+			"STRENGTH_WEAK": "Fraca"
+		},
+		"reset": {
+			"CONFIRM_LABEL": "Confirme a nova senha",
+			"DESCRIPTION": "Escolha a senha que você usará para entrar a partir de agora.",
+			"DONE_TEXT": "Entre com sua nova senha.",
+			"DONE_TITLE": "Senha alterada",
+			"INVALID_TITLE": "Este link não funciona mais",
+			"NEW_LABEL": "Nova senha",
+			"SUBMIT": "Salvar senha",
+			"TITLE": "Escolha uma nova senha"
+		},
+		"scene": {
+			"ACCOUNT_TEXT": "Seu temporizador, suas tarefas e seu plano do dia, ao lado dos seus colegas.",
+			"ACCOUNT_TITLE": "Seu lugar na equipe",
+			"INBOX_ACTIVATE_TEXT": "Abra o link dele para ativar sua conta e depois entre com seu e-mail.",
+			"INBOX_ACTIVATE_TITLE": "Procure este e-mail",
+			"INBOX_CODE_TEXT": "Digite o código que ele contém ou abra o link: os dois fazem você entrar.",
+			"INBOX_CODE_TITLE": "Procure este e-mail",
+			"INBOX_RESET_TEXT": "O link dele abre a página onde você escolhe uma nova senha.",
+			"INBOX_RESET_TITLE": "Procure este e-mail",
+			"INVITE_LATER": "Convidar um colega depois",
+			"INVITE_TEXT": "Você aparece na equipe assim que entrar.",
+			"INVITE_TITLE": "Sua vaga na equipe",
+			"MAIL_ACTION_ACTIVATE": "Ativar minha conta",
+			"MAIL_ACTION_CODE": "Entrar",
+			"MAIL_ACTION_RESET": "Escolher nova senha",
+			"MANAGER": "Gerente",
+			"MEMBER_COUNT": "{count, plural, one {# membro} other {# membros}}",
+			"NOW": "agora",
+			"SUBJECT_ACTIVATE": "Ative sua conta",
+			"SUBJECT_CODE": "Seu código de acesso",
+			"SUBJECT_RESET": "Redefina sua senha",
+			"TEAM_TEXT": "Você a gerencia. Convide pessoas quando achar melhor.",
+			"TEAM_TITLE": "Sua equipe no começo",
+			"TO": "para {email}",
+			"WORKSPACE_TEXT": "O espaço de trabalho e a equipe que você escolher abrem primeiro. Você pode trocar depois.",
+			"WORKSPACE_TITLE": "Onde você chega"
+		},
+		"signIn": {
+			"CODE_DESCRIPTION": "Digite seu e-mail e enviaremos um código de acesso. Não precisa de senha.",
+			"CREATE_ACCOUNT": "Criar uma conta",
+			"FORGOT_PASSWORD": "Esqueceu a senha?",
+			"NEW_HERE": "Primeira vez no {appName}?",
+			"PASSWORD_DESCRIPTION": "Entre com seu e-mail e sua senha.",
+			"SEND_CODE": "Me envie um código",
+			"SUBMIT_PASSWORD": "Entrar",
+			"TITLE": "Entrar no {appName}"
+		},
+		"signUp": {
+			"CREATING": "Criando seu espaço de trabalho",
+			"CREATING_TEXT": "Configurando {team}. Isso leva alguns segundos.",
+			"DESCRIPTION": "Acompanhe seu tempo e o trabalho da sua equipe em um só lugar.",
+			"GET_STARTED": "Criar meu espaço de trabalho",
+			"HAVE_ACCOUNT": "Já tem uma conta?",
+			"MODE_DESCRIPTION": "Você pode criar outras equipes e convidar pessoas depois.",
+			"MODE_TITLE": "Como você quer começar?",
+			"SENT_TEXT": "Abra o link do e-mail que acabamos de enviar para ativar sua conta e depois entre com seu e-mail.",
+			"SENT_TITLE": "Ative sua conta",
+			"SIGN_IN": "Entrar",
+			"SOLO": "Por conta própria",
+			"SOLO_TEXT": "Uma equipe pessoal com o seu nome. Convide pessoas quando quiser.",
+			"STEP": "Etapa {step} de {total}",
+			"TEAM": "Com minha equipe",
+			"TEAM_TEXT": "Dê um nome à sua equipe agora. Você vai gerenciá-la.",
+			"TITLE": "Crie sua conta",
+			"USE_ANOTHER_EMAIL": "Usar outro e-mail"
+		},
+		"social": {
+			"OPENING": "Entrando na sua conta",
+			"OPENING_TEXT": "Um momento, estamos abrindo seu espaço de trabalho."
+		},
+		"workspace": {
+			"DESCRIPTION": "Escolha o espaço de trabalho e a equipe para abrir agora. Você pode trocar depois.",
+			"NOT_YOU": "Não é você?",
+			"NO_MATCH_TEXT": "Confira a ortografia ou peça a um colega para convidar você.",
+			"NO_MATCH_TITLE": "Nenhum espaço de trabalho corresponde a “{query}”",
+			"OPENING": "Abrindo seu espaço de trabalho",
+			"OPENING_TEXT": "Entrando em {workspace}.",
+			"SEARCH": "Buscar espaços de trabalho",
+			"SIGNED_IN_AS": "Conectado como",
+			"TEAMS_OF": "Equipes de {workspace}",
+			"TEAM_COUNT": "{count, plural, one {# equipe} other {# equipes}}",
+			"TITLE": "Escolha um espaço de trabalho"
+		},
+		"error": {
+			"TITLE": "Não foi possível iniciar a sessão",
+			"TEXT": "O início de sessão não foi concluído. Tente novamente ou entre com o seu e-mail.",
+			"RETRY": "Voltar ao início de sessão",
+			"CODE": "Código de erro: {code}"
+		}
 	}
 }

@@ -4197,5 +4197,158 @@
 	},
 	"accountMenu": {
 		"OPEN": "Menu konta"
+	},
+	"auth": {
+		"code": {
+			"CHANGE_EMAIL": "Użyj innego e-maila",
+			"CLEAR": "Wyczyść",
+			"DESCRIPTION": "Wysłaliśmy {length}-znakowy kod na <address>{email}</address>. Link w tej samej wiadomości też Cię zaloguje.",
+			"LABEL": "Kod logowania",
+			"NOT_RECEIVED": "Nic nie przyszło?",
+			"RESEND": "Wyślij nowy kod",
+			"RESEND_IN": "Nowy kod za {countdown}",
+			"SUBMIT": "Zaloguj się",
+			"TITLE": "Sprawdź pocztę"
+		},
+		"deleteAccount": {
+			"INVALID_TITLE": "Ten link już nie działa"
+		},
+		"demo": {
+			"CREDENTIALS": "Konta demo",
+			"EMAIL": "E-mail:",
+			"PASSWORD": "Hasło:"
+		},
+		"field": {
+			"CAPS_LOCK_ON": "Caps Lock jest włączony",
+			"CONFIRM_PASSWORD_LABEL": "Potwierdź hasło",
+			"EMAIL_LABEL": "E-mail",
+			"EMAIL_PLACEHOLDER": "you@firma.com",
+			"HIDE_PASSWORD": "Ukryj hasło",
+			"NAME_LABEL": "Imię i nazwisko",
+			"NAME_PLACEHOLDER": "Anna Kowalska",
+			"NEW_PASSWORD_LABEL": "Hasło",
+			"PASSWORD_LABEL": "Hasło",
+			"PASSWORD_PLACEHOLDER": "Twoje hasło",
+			"SHOW_PASSWORD": "Pokaż hasło",
+			"TEAM_LABEL": "Nazwa zespołu",
+			"TEAM_PLACEHOLDER": "Zespół projektowy"
+		},
+		"forgot": {
+			"BACK_TO_SIGN_IN": "Wróć do logowania",
+			"DESCRIPTION": "Podaj e-mail swojego konta, a wyślemy Ci link do ustawienia nowego hasła.",
+			"SENT_TEXT": "Otwórz link w wiadomości, którą właśnie wysłaliśmy, aby ustawić nowe hasło.",
+			"SENT_TITLE": "Sprawdź pocztę",
+			"SUBMIT": "Wyślij link",
+			"TITLE": "Nie pamiętasz hasła?",
+			"USE_ANOTHER_EMAIL": "Użyj innego e-maila"
+		},
+		"invite": {
+			"CHECKING": "Sprawdzamy Twoje zaproszenie",
+			"DESCRIPTION": "Zaproszenie wysłano na <address>{email}</address>. Wpisz swoje imię i ustaw hasło, aby dołączyć.",
+			"FAILED": "Nie udało się przyjąć zaproszenia. Spróbuj ponownie za chwilę.",
+			"TITLE": "Dołącz do {organization}"
+		},
+		"method": {
+			"CODE": "Kod e-mailem",
+			"LABEL": "Sposób logowania",
+			"PASSWORD": "Hasło"
+		},
+		"password": {
+			"RULE_MATCH": "Oba hasła są zgodne",
+			"RULE_MIN_LENGTH": "{count, plural, one {Co najmniej # znak} few {Co najmniej # znaki} many {Co najmniej # znaków} other {Co najmniej # znaków}}",
+			"STRENGTH_FAIR": "Średnie",
+			"STRENGTH_GOOD": "Dobre",
+			"STRENGTH_STRONG": "Silne",
+			"STRENGTH_WEAK": "Słabe"
+		},
+		"reset": {
+			"CONFIRM_LABEL": "Potwierdź nowe hasło",
+			"DESCRIPTION": "Ustaw hasło, którym od teraz będziesz się logować.",
+			"DONE_TEXT": "Zaloguj się nowym hasłem.",
+			"DONE_TITLE": "Hasło zmienione",
+			"INVALID_TITLE": "Ten link już nie działa",
+			"NEW_LABEL": "Nowe hasło",
+			"SUBMIT": "Zapisz hasło",
+			"TITLE": "Ustaw nowe hasło"
+		},
+		"scene": {
+			"ACCOUNT_TEXT": "Twój timer, zadania i plan dnia, obok osób z zespołu.",
+			"ACCOUNT_TITLE": "Twoje miejsce w zespole",
+			"INBOX_ACTIVATE_TEXT": "Otwórz link z wiadomości, aby aktywować konto, a potem zaloguj się e-mailem.",
+			"INBOX_ACTIVATE_TITLE": "Szukaj tej wiadomości",
+			"INBOX_CODE_TEXT": "Wpisz kod z wiadomości albo otwórz link: oba sposoby Cię zalogują.",
+			"INBOX_CODE_TITLE": "Szukaj tej wiadomości",
+			"INBOX_RESET_TEXT": "Link z wiadomości otwiera stronę, na której ustawisz nowe hasło.",
+			"INBOX_RESET_TITLE": "Szukaj tej wiadomości",
+			"INVITE_LATER": "Zaproś kogoś z zespołu później",
+			"INVITE_TEXT": "Pojawisz się w zespole, gdy tylko dołączysz.",
+			"INVITE_TITLE": "Miejsce dla Ciebie w zespole",
+			"MAIL_ACTION_ACTIVATE": "Aktywuj moje konto",
+			"MAIL_ACTION_CODE": "Zaloguj się",
+			"MAIL_ACTION_RESET": "Ustaw nowe hasło",
+			"MANAGER": "Menadżer",
+			"MEMBER_COUNT": "{count, plural, one {# członek} few {# członków} many {# członków} other {# członków}}",
+			"NOW": "teraz",
+			"SUBJECT_ACTIVATE": "Aktywuj konto",
+			"SUBJECT_CODE": "Twój kod logowania",
+			"SUBJECT_RESET": "Zresetuj hasło",
+			"TEAM_TEXT": "Ty nim zarządzasz. Zaproś innych, gdy będzie Ci to pasować.",
+			"TEAM_TITLE": "Twój zespół na start",
+			"TO": "do {email}",
+			"WORKSPACE_TEXT": "Wybrana przestrzeń robocza i zespół otworzą się jako pierwsze. Później możesz to zmienić.",
+			"WORKSPACE_TITLE": "Gdzie trafisz"
+		},
+		"signIn": {
+			"CODE_DESCRIPTION": "Podaj e-mail, a wyślemy Ci kod logowania. Hasło nie jest potrzebne.",
+			"CREATE_ACCOUNT": "Utwórz konto",
+			"FORGOT_PASSWORD": "Nie pamiętasz hasła?",
+			"NEW_HERE": "Pierwszy raz w {appName}?",
+			"PASSWORD_DESCRIPTION": "Zaloguj się e-mailem i hasłem.",
+			"SEND_CODE": "Wyślij mi kod",
+			"SUBMIT_PASSWORD": "Zaloguj się",
+			"TITLE": "Zaloguj się do {appName}"
+		},
+		"signUp": {
+			"CREATING": "Tworzymy Twoją przestrzeń roboczą",
+			"CREATING_TEXT": "Przygotowujemy {team}. To potrwa kilka sekund.",
+			"DESCRIPTION": "Śledź swój czas i pracę zespołu w jednym miejscu.",
+			"GET_STARTED": "Utwórz przestrzeń roboczą",
+			"HAVE_ACCOUNT": "Masz już konto?",
+			"MODE_DESCRIPTION": "Później możesz tworzyć kolejne zespoły i zapraszać innych.",
+			"MODE_TITLE": "Jak chcesz zacząć?",
+			"SENT_TEXT": "Otwórz link w wiadomości, którą właśnie wysłaliśmy, aby aktywować konto, a potem zaloguj się e-mailem.",
+			"SENT_TITLE": "Aktywuj konto",
+			"SIGN_IN": "Zaloguj się",
+			"SOLO": "Samodzielnie",
+			"SOLO_TEXT": "Osobisty zespół z Twoim imieniem. Zaproś innych, kiedy zechcesz.",
+			"STEP": "Krok {step} z {total}",
+			"TEAM": "Z moim zespołem",
+			"TEAM_TEXT": "Nazwij teraz swój zespół. Będziesz nim zarządzać.",
+			"TITLE": "Utwórz konto",
+			"USE_ANOTHER_EMAIL": "Użyj innego e-maila"
+		},
+		"social": {
+			"OPENING": "Logujemy Cię",
+			"OPENING_TEXT": "Chwileczkę, otwieramy Twoją przestrzeń roboczą."
+		},
+		"workspace": {
+			"DESCRIPTION": "Wybierz przestrzeń roboczą i zespół, które chcesz teraz otworzyć. Później możesz to zmienić.",
+			"NOT_YOU": "To nie Ty?",
+			"NO_MATCH_TEXT": "Sprawdź pisownię albo poproś kogoś z zespołu o zaproszenie.",
+			"NO_MATCH_TITLE": "Żadna przestrzeń robocza nie pasuje do „{query}”",
+			"OPENING": "Otwieramy Twoją przestrzeń roboczą",
+			"OPENING_TEXT": "Logujemy Cię do {workspace}.",
+			"SEARCH": "Szukaj przestrzeni roboczych",
+			"SIGNED_IN_AS": "Zalogowano jako",
+			"TEAMS_OF": "Zespoły w {workspace}",
+			"TEAM_COUNT": "{count, plural, one {# zespół} few {# zespoły} many {# zespołów} other {# zespołów}}",
+			"TITLE": "Wybierz przestrzeń roboczą"
+		},
+		"error": {
+			"TITLE": "Nie udało się zalogować",
+			"TEXT": "Logowanie nie zostało ukończone. Spróbuj ponownie albo zaloguj się przez e-mail.",
+			"RETRY": "Wróć do logowania",
+			"CODE": "Kod błędu: {code}"
+		}
 	}
 }
