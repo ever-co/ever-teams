@@ -4223,6 +4223,7 @@
 		"WEEKLY_LIMIT_VALUE": "{hours} h a week",
 		"UNNAMED_PROJECT": "Untitled project",
 		"PROJECT_RATES_HINT": "What your time counts at on each of your projects.",
+		"PROJECT_RATES_ERROR": "Your project rates could not be loaded.",
 		"REQUEST_CHANGE": "Request a rate change",
 		"REQUEST_CHANGE_HINT": "Your organization's admins are notified and apply it.",
 		"REQUEST_CHANGE_ACTION": "Request a change",

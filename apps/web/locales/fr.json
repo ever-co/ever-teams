@@ -4223,6 +4223,7 @@
 		"WEEKLY_LIMIT_VALUE": "{hours} h par semaine",
 		"UNNAMED_PROJECT": "Projet sans nom",
 		"PROJECT_RATES_HINT": "Le taux auquel votre temps compte sur chacun de vos projets.",
+		"PROJECT_RATES_ERROR": "Vos taux par projet n'ont pas pu être chargés.",
 		"REQUEST_CHANGE": "Demander un changement de taux",
 		"REQUEST_CHANGE_HINT": "Les admins de votre organisation sont prévenus et l'appliquent.",
 		"REQUEST_CHANGE_ACTION": "Demander un changement",

@@ -4223,6 +4223,7 @@
 		"WEEKLY_LIMIT_VALUE": "{hours} Std. pro Woche",
 		"UNNAMED_PROJECT": "Projekt ohne Namen",
 		"PROJECT_RATES_HINT": "Zu welchem Satz Ihre Zeit in jedem Ihrer Projekte zählt.",
+		"PROJECT_RATES_ERROR": "Ihre Projektsätze konnten nicht geladen werden.",
 		"REQUEST_CHANGE": "Satzänderung anfragen",
 		"REQUEST_CHANGE_HINT": "Die Admins Ihrer Organisation werden benachrichtigt und übernehmen sie.",
 		"REQUEST_CHANGE_ACTION": "Änderung anfragen",

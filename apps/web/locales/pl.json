@@ -4223,6 +4223,7 @@
 		"WEEKLY_LIMIT_VALUE": "{hours} godz. tygodniowo",
 		"UNNAMED_PROJECT": "Projekt bez nazwy",
 		"PROJECT_RATES_HINT": "Według jakiej stawki liczy się Twój czas w każdym z Twoich projektów.",
+		"PROJECT_RATES_ERROR": "Nie udało się wczytać Twoich stawek w projektach.",
 		"REQUEST_CHANGE": "Poproś o zmianę stawki",
 		"REQUEST_CHANGE_HINT": "Administratorzy Twojej organizacji dostaną powiadomienie i wprowadzą zmianę.",
 		"REQUEST_CHANGE_ACTION": "Poproś o zmianę",

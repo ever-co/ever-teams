@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { useLocale, useTranslations } from 'next-intl';
+import { Notice } from '@/core/components/common/notice';
 import { Button } from '@/core/components/duplicated-components/_button';
 import {
 	SETTINGS_SKELETON_BAR,
@@ -56,7 +57,7 @@ export function ProfileRatesSection({ employee }: Readonly<{ employee: OwnEmploy
 	const t = useTranslations();
 	const locale = useLocale();
 	const [isRequesting, setIsRequesting] = useState(false);
-	const { data: projectRates, isLoading, isUnavailable } = useMyProjectRates(true);
+	const { data: projectRates, isLoading, isError, isUnavailable, refetch } = useMyProjectRates(true);
 
 	const currency = employee.billRateCurrency || null;
 	const rateAmount = rateAmountTextOf(employee.billRateValue, currency, locale);
@@ -72,6 +73,8 @@ export function ProfileRatesSection({ employee }: Readonly<{ employee: OwnEmploy
 
 	const listsProjectRates = !isUnavailable && Boolean(projectRates?.length);
 	const loadsProjectRates = isLoading && !isUnavailable;
+	const hasNoProjectRatesYet = projectRates === undefined;
+	const failsProjectRates = isError && !isUnavailable && hasNoProjectRatesYet;
 
 	return (
 		<SettingsSection id="rate" title={t('rates.OWN_SECTION')} description={t('rates.OWN_SECTION_HINT')}>
@@ -101,6 +104,17 @@ export function ProfileRatesSection({ employee }: Readonly<{ employee: OwnEmploy
 						<span aria-hidden="true" className={cn(SETTINGS_SKELETON_BAR, 'block h-3.5 w-16')} />
 					</SettingsRow>
 				</SettingsSurface>
+			)}
+			{failsProjectRates && (
+				<Notice
+					tone="error"
+					title={t('rates.PROJECT_RATES_ERROR')}
+					actions={
+						<Button type="button" variant="outline" onClick={() => void refetch()}>
+							{t('notifications.RETRY')}
+						</Button>
+					}
+				/>
 			)}
 			{listsProjectRates && (
 				<div className="flex flex-col gap-2">
