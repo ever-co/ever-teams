@@ -9,6 +9,9 @@ import type { IEmployeeRatesInput } from '@/core/types/schemas/organization/rate
  */
 export const RATE_ADMIN_PERMISSIONS: ReadonlyArray<string> = ['ORG_EMPLOYEES_EDIT', 'CHANGE_SELECTED_EMPLOYEE'];
 
+/** Gauzy reads and sets a pay rate for holders of this permission only (and lets an employee read their own). */
+export const PAY_RATE_PERMISSION = 'ORG_EMPLOYEES_EDIT';
+
 export const RATE_REASON_MAX_LENGTH = 500;
 
 export type RateInputProblem = 'invalid' | 'negative';
@@ -102,12 +105,38 @@ export function changedEmployeeRatesOf(
 	return changes;
 }
 
+export interface PayRateValues {
+	value: number | null;
+	currency: string;
+}
+
+/** The pay rate fields an admin changed, the others left out, as for the billing rate. */
+export function changedPayRateOf(
+	initial: Readonly<PayRateValues>,
+	edited: Readonly<PayRateValues>
+): IEmployeeRatesInput {
+	const changes: IEmployeeRatesInput = {};
+	const isRateChanged = edited.value !== initial.value;
+	if (isRateChanged) {
+		changes.payRateValue = edited.value;
+	}
+	const isCurrencyChanged = edited.currency !== initial.currency;
+	if (isCurrencyChanged) {
+		changes.payRateCurrency = edited.currency;
+	}
+	return changes;
+}
+
 export function rateInputTextOf(value: unknown): string {
 	const rate = rateValueOf(value);
 	if (rate === null) {
 		return '';
 	}
 	return String(rate);
+}
+
+export function holdsPayRatePermission(permissions: ReadonlyArray<string>): boolean {
+	return permissions.includes(PAY_RATE_PERMISSION);
 }
 
 export function holdsRateAdminPermission(permissions: ReadonlyArray<string>): boolean {

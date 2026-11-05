@@ -8,11 +8,16 @@ import { Button } from '@/core/components/duplicated-components/_button';
 import { Spinner } from '@/core/components/icons';
 import { CurrencySelect } from '@/core/components/rates/currency-select';
 import { errorReasonKeyOf } from '@/core/lib/utils/error-feedback';
+import { SETTINGS_SKELETON_BAR } from '@/core/components/settings/kit/settings-page';
+import { useEmployeePayRate } from '@/core/hooks/organizations/rates/use-rates';
+import { cn } from '@/core/lib/helpers';
 import {
 	changedEmployeeRatesOf,
+	changedPayRateOf,
 	parseRateInput,
 	rateAmountTextOf,
 	rateInputTextOf,
+	rateValueOf,
 	type RateInputProblem
 } from '@/core/lib/utils/rates';
 import { currentOrganizationState } from '@/core/stores/user/user-organizations';
@@ -54,6 +59,16 @@ function shownCurrencyOf(ownCurrency: string | null, organizationCurrency: strin
 	return DEFAULT_CURRENCY;
 }
 
+function PayRateText({ value, currency }: Readonly<{ value: number | null; currency: string | null }>) {
+	const t = useTranslations();
+	const locale = useLocale();
+	const amount = rateAmountTextOf(value, currency, locale);
+	if (amount === null) {
+		return <span className="text-[13px] text-muted-foreground">{t('rates.NOT_SET')}</span>;
+	}
+	return <span className="text-[13px] text-foreground tabular-nums">{t('rates.PER_HOUR', { amount })}</span>;
+}
+
 function describedByOf(error: string | null, errorId: string) {
 	if (!error) {
 		return undefined;
@@ -74,6 +89,8 @@ export function MemberRateEditor({
 	const rateId = useId();
 	const currencyId = useId();
 	const limitId = useId();
+	const payRateId = useId();
+	const payCurrencyId = useId();
 	const errorId = useId();
 	const [rateText, setRateText] = useState(() => rateInputTextOf(row.rate.value));
 	const organization = useAtomValue(currentOrganizationState);
@@ -84,6 +101,18 @@ export function MemberRateEditor({
 	const [isSaving, setIsSaving] = useState(false);
 	const hasError = Boolean(error);
 
+	const payRate = useEmployeePayRate(row.employeeId ?? undefined, row.showsPayRate);
+	const payRateData = payRate.data;
+	const loadsPayRate = row.showsPayRate && payRate.isLoading;
+	const showsPayRate = row.showsPayRate && Boolean(payRateData);
+	const editsPayRate = showsPayRate && row.canEditPayRate;
+	const storedPayRate = rateValueOf(payRateData?.payRateValue);
+	const initialPayCurrency = shownCurrencyOf(payRateData?.payRateCurrency ?? null, payRateData?.currency);
+	const [payTextChoice, setPayTextChoice] = useState<string | null>(null);
+	const [payCurrencyChoice, setPayCurrencyChoice] = useState<string | null>(null);
+	const payText = payTextChoice ?? rateInputTextOf(storedPayRate);
+	const payCurrency = payCurrencyChoice ?? initialPayCurrency;
+
 	const save = async (event: FormEvent) => {
 		event.preventDefault();
 		if (isSaving) {
@@ -91,15 +120,24 @@ export function MemberRateEditor({
 		}
 		const rate = parseRateInput(rateText);
 		const limit = parseRateInput(limitText);
-		const problem = rate.problem ?? limit.problem;
+		const pay = parseRateInput(payText);
+		const problem = rate.problem ?? limit.problem ?? pay.problem;
 		if (problem) {
 			setError(t(PROBLEM_KEYS[problem]));
 			return;
 		}
-		const changes = changedEmployeeRatesOf(
+		const billingChanges = changedEmployeeRatesOf(
 			{ value: row.rate.value, currency: initialCurrency, weeklyLimit: row.rate.weeklyLimit },
 			{ value: rate.value, currency, weeklyLimit: limit.value }
 		);
+		let payChanges: IEmployeeRatesInput = {};
+		if (editsPayRate) {
+			payChanges = changedPayRateOf(
+				{ value: storedPayRate, currency: initialPayCurrency },
+				{ value: pay.value, currency: payCurrency }
+			);
+		}
+		const changes = { ...billingChanges, ...payChanges };
 		const hasChanges = Object.keys(changes).length > 0;
 		if (!hasChanges) {
 			onCancel();
@@ -144,7 +182,7 @@ export function MemberRateEditor({
 				<div className="grid min-w-0 flex-1 grid-cols-2 gap-2 sm:grid-cols-[1fr_1.4fr_1fr]">
 					<div className="flex min-w-0 flex-col gap-1">
 						<label htmlFor={rateId} className={FIELD_LABEL}>
-							{t('rates.HOURLY_RATE')}
+							{t('rates.BILLING_RATE')}
 						</label>
 						<Input
 							id={rateId}
@@ -185,6 +223,56 @@ export function MemberRateEditor({
 							className="h-8 tabular-nums"
 						/>
 					</div>
+					{loadsPayRate && (
+						<span
+							aria-hidden="true"
+							className={cn(SETTINGS_SKELETON_BAR, 'col-span-2 mt-5 block h-4 w-40 sm:col-span-3')}
+						/>
+					)}
+					{editsPayRate && (
+						<>
+							<div className="flex min-w-0 flex-col gap-1">
+								<label htmlFor={payRateId} className={FIELD_LABEL}>
+									{t('rates.PAY_RATE')}
+								</label>
+								<Input
+									id={payRateId}
+									value={payText}
+									inputMode="decimal"
+									autoComplete="off"
+									placeholder={t('rates.NOT_SET')}
+									aria-invalid={hasError || undefined}
+									aria-describedby={describedByOf(error, errorId)}
+									onChange={(event) => {
+										setPayTextChoice(event.target.value);
+										clearError();
+									}}
+									className="h-8 tabular-nums"
+								/>
+							</div>
+							<div className="flex min-w-0 flex-col gap-1">
+								<label htmlFor={payCurrencyId} className={FIELD_LABEL}>
+									{t('rates.PAY_CURRENCY')}
+								</label>
+								<CurrencySelect
+									id={payCurrencyId}
+									value={payCurrency}
+									onChange={setPayCurrencyChoice}
+									disabled={isSaving}
+								/>
+							</div>
+							<p className="col-span-2 self-end text-xs text-pretty text-muted-foreground sm:col-span-1">
+								{t('rates.PAY_RATE_HINT')}
+							</p>
+						</>
+					)}
+					{showsPayRate && !editsPayRate && (
+						<div className="col-span-2 flex min-w-0 flex-col gap-1 sm:col-span-3">
+							<span className={FIELD_LABEL}>{t('rates.PAY_RATE')}</span>
+							<PayRateText value={storedPayRate} currency={payRateData?.currency ?? null} />
+							<span className="text-xs text-muted-foreground">{t('rates.OWN_PAY_RATE_LOCKED')}</span>
+						</div>
+					)}
 					{error && (
 						<p id={errorId} role="alert" className="col-span-2 text-xs text-destructive-ink sm:col-span-3">
 							{error}

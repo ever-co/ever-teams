@@ -2,8 +2,10 @@ import {
 	canEditMemberRateOnProject,
 	canManageProjectRates,
 	changedEmployeeRatesOf,
+	changedPayRateOf,
 	currencyCodesOf,
 	currencyLabelOf,
+	holdsPayRatePermission,
 	holdsRateAdminPermission,
 	rateAmountTextOf,
 	effectiveBillRate,
@@ -175,5 +177,27 @@ describe('changedEmployeeRatesOf', () => {
 
 	it('sends nothing when nothing changed', () => {
 		expect(changedEmployeeRatesOf(initial, { ...initial })).toEqual({});
+	});
+});
+
+describe('changedPayRateOf', () => {
+	const initial = { value: 30, currency: 'EUR' };
+
+	it('sends only the pay rate fields the admin changed', () => {
+		expect(changedPayRateOf(initial, { ...initial, value: 32 })).toEqual({ payRateValue: 32 });
+		expect(changedPayRateOf(initial, { ...initial, currency: 'USD' })).toEqual({ payRateCurrency: 'USD' });
+	});
+
+	it('clears the pay rate with null and sends nothing when nothing changed', () => {
+		expect(changedPayRateOf(initial, { ...initial, value: null })).toEqual({ payRateValue: null });
+		expect(changedPayRateOf(initial, { ...initial })).toEqual({});
+	});
+});
+
+describe('holdsPayRatePermission', () => {
+	it('is ORG_EMPLOYEES_EDIT only, the permission Gauzy asks for to read or set a pay rate', () => {
+		expect(holdsPayRatePermission(['ORG_EMPLOYEES_EDIT'])).toBe(true);
+		expect(holdsPayRatePermission(['CHANGE_SELECTED_EMPLOYEE'])).toBe(false);
+		expect(holdsPayRatePermission([])).toBe(false);
 	});
 });

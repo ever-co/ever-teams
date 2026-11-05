@@ -34,7 +34,7 @@ import { useGetActiveTeam } from '@/core/hooks/organizations/teams/use-get-activ
 import { useUserQuery } from '@/core/hooks/queries/user-user.query';
 import { useMyRolePermissionsQuery } from '@/core/hooks/roles/use-my-role-permissions-query';
 import { useEmployeeRatesMutation } from '@/core/hooks/organizations/rates/use-rates';
-import { holdsRateAdminPermission, rateValueOf } from '@/core/lib/utils/rates';
+import { holdsPayRatePermission, holdsRateAdminPermission, rateValueOf } from '@/core/lib/utils/rates';
 import type { IEmployeeRatesInput } from '@/core/types/schemas/organization/rates.schema';
 import type { TOrganizationTeamEmployee } from '@/core/types/schemas';
 import type { TUpdateEmployee } from '@/core/types/schemas/organization/employee.schema';
@@ -64,6 +64,9 @@ export interface MemberRowModel {
 	isTrackingPending: boolean;
 	rate: MemberRate;
 	canEditRate: boolean;
+	employeeId: string | null;
+	showsPayRate: boolean;
+	canEditPayRate: boolean;
 }
 
 type Overrides<T> = Readonly<Record<string, T>>;
@@ -127,6 +130,7 @@ export function useTeamMembersSettings() {
 	const { myPermissions } = useMyRolePermissionsQuery();
 	const { saveEmployeeRates } = useEmployeeRatesMutation();
 	const canEditRates = holdsRateAdminPermission(myPermissions);
+	const readsPayRates = holdsPayRatePermission(myPermissions);
 
 	const [roleOverrides, setRoleOverrides] = useState<Overrides<TeamRole>>({});
 	const [trackingOverrides, setTrackingOverrides] = useState<Overrides<boolean>>({});
@@ -168,7 +172,9 @@ export function useTeamMembersSettings() {
 			}
 			const memberUserId = memberUserIdOf(member);
 			const isYou = memberUserId === userId;
-			const hasEmployee = Boolean(employeeIdOf(member));
+			const employeeId = employeeIdOf(member);
+			const hasEmployee = Boolean(employeeId);
+			const showsPayRate = readsPayRates && hasEmployee;
 			const isManagerRole = member.role?.name === ERoleName.MANAGER;
 			const role = roleOverrides[rowId] ?? roleOf(member);
 			const isTrackingEnabled = trackingOverrides[rowId] ?? isTrackingEnabledOf(member);
@@ -190,12 +196,16 @@ export function useTeamMembersSettings() {
 				isRolePending: pendingRoles.has(rowId),
 				isTrackingPending: pendingTracking.has(rowId),
 				rate: memberRateOf(member),
-				canEditRate: canEditRates && hasEmployee
+				canEditRate: canEditRates && hasEmployee,
+				employeeId,
+				showsPayRate,
+				canEditPayRate: showsPayRate && !isYou
 			});
 		}
 		return models;
 	}, [
 		canEditRates,
+		readsPayRates,
 		isListedManager,
 		members,
 		pendingRoles,
