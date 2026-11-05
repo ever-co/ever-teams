@@ -157,4 +157,19 @@ describe('useAuthenticationPasscode → handleWorkspaceSubmit', () => {
 		expect(onError).not.toHaveBeenCalled();
 		expect(mockPush).toHaveBeenCalledWith('/');
 	});
+
+	it('reports an invalid e-mail to the chooser without signing in', async () => {
+		const onError = jest.fn();
+		const { result } = renderHook(() => useAuthenticationPasscode());
+		act(() => result.current.setFormValues({ email: 'not-an-email', code: '' }));
+
+		await act(async () => {
+			result.current.handleWorkspaceSubmit({ preventDefault() {} }, 'workspace-token', 'team-1', onError);
+			await new Promise((r) => setTimeout(r, 0));
+		});
+
+		expect(onError).toHaveBeenCalledWith({ email: 'Please provide a properly formatted email address' });
+		expect(mockSignInWorkspace).not.toHaveBeenCalled();
+		expect(mockPush).not.toHaveBeenCalled();
+	});
 });
