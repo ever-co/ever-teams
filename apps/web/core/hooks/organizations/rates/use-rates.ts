@@ -9,6 +9,7 @@ import { isRatesReadUnavailable, rateValueOf } from '@/core/lib/utils/rates';
 import { useUserQuery } from '@/core/hooks/queries/user-user.query';
 import type {
 	IEmployeeRatesInput,
+	IOwnProfileRatesInput,
 	IRateChangeRequestInput,
 	TEmployeePayRate
 } from '@/core/types/schemas/organization/rates.schema';
@@ -142,6 +143,43 @@ export function useEmployeeRatesMutation() {
 		meta: { handlesOwnError: true }
 	});
 	return { saveEmployeeRates: mutation.mutateAsync };
+}
+
+function ownProfileRatesOf(rates: IEmployeeRatesInput): IOwnProfileRatesInput {
+	const profileRates: IOwnProfileRatesInput = {};
+	if (rates.billRateValue !== undefined) {
+		profileRates.billRateValue = rates.billRateValue;
+	}
+	if (rates.billRateCurrency !== undefined) {
+		profileRates.billRateCurrency = rates.billRateCurrency;
+	}
+	if (rates.reWeeklyLimit !== undefined) {
+		profileRates.reWeeklyLimit = rates.reWeeklyLimit;
+	}
+	return profileRates;
+}
+
+/**
+ * One's own rates, for a holder of CHANGE_OWN_RATES. A holder of ORG_EMPLOYEES_EDIT saves them, pay rate included,
+ * through `PUT /employee/:id`; anyone else through their own profile, which takes no pay rate.
+ */
+export function useOwnRatesMutation(editsEmployees: boolean) {
+	const queryClient = useQueryClient();
+	const mutation = useMutation({
+		mutationFn: ({ employeeId, rates }: { employeeId: string; rates: IEmployeeRatesInput }) => {
+			if (editsEmployees) {
+				return rateService.updateEmployeeRates(employeeId, rates);
+			}
+			return rateService.updateOwnProfileRates(employeeId, ownProfileRatesOf(rates));
+		},
+		onSuccess: async () => {
+			await queryClient.invalidateQueries({ queryKey: queryKeys.users.me });
+			await queryClient.invalidateQueries({ queryKey: queryKeys.organizationTeams.all });
+			await queryClient.invalidateQueries({ queryKey: queryKeys.rates.all });
+		},
+		meta: { handlesOwnError: true }
+	});
+	return { saveOwnRates: mutation.mutateAsync };
 }
 
 export function useRateChangeRequest() {

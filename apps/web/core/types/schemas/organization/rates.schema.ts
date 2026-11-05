@@ -48,6 +48,9 @@ export interface IEmployeeRatesInput {
 	payRateCurrency?: string | null;
 }
 
+/** The rates one changes on one's own profile (`PUT /employee/:id/profile`), which never takes a pay rate. */
+export type IOwnProfileRatesInput = Pick<IEmployeeRatesInput, 'billRateValue' | 'billRateCurrency' | 'reWeeklyLimit'>;
+
 export interface IRateChangeRequestInput {
 	billRateValue: number;
 	billRateCurrency?: string;

@@ -7,6 +7,7 @@ import {
 	projectRatesSchema,
 	rateChangeRequestResultSchema,
 	type IEmployeeRatesInput,
+	type IOwnProfileRatesInput,
 	type IRateChangeRequestInput,
 	type TEmployeePayRate,
 	type TProjectRates,
@@ -63,6 +64,10 @@ class RateService extends APIService {
 		});
 		const result = response.data ?? {};
 		return validateApiResponse(rateChangeRequestResultSchema, result, 'requestRateChange API response');
+	};
+
+	updateOwnProfileRates = async (employeeId: string, rates: IOwnProfileRatesInput): Promise<void> => {
+		await this.put(`/employee/${encodeURIComponent(employeeId)}/profile`, rates);
 	};
 
 	updateEmployeeRates = async (employeeId: string, rates: IEmployeeRatesInput): Promise<void> => {
