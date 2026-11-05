@@ -260,6 +260,9 @@ function lineCurrencyOf(entry: OwedReportEntry, employee: TOwedReportEmployee, o
 	if (reportedCurrency) {
 		return reportedCurrency;
 	}
+	if (isPaidAtPayRate(entry)) {
+		return null;
+	}
 	return currencyOf(employee.billRateCurrency, organizationCurrency);
 }
 

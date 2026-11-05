@@ -56,6 +56,13 @@ describe('owedLinesOf', () => {
 		expect(line.rate).toBe(30);
 	});
 
+	it('never labels a pay amount with the billing currency when the report states none', () => {
+		const [line] = linesOf([{ date: '2026-11-03', employees: [entry('ana', 3600, 30, { rateSource: 'pay' })] }]);
+
+		expect(line.currency).toBeNull();
+		expect(line.amount).toBe(30);
+	});
+
 	it('notes the billing rate when the server says no pay rate is set', () => {
 		const [line] = linesOf([
 			{ date: '2026-11-03', employees: [entry('ben', 3600, 80, { rateSource: 'billing', currency: 'USD' })] }
