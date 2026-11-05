@@ -41,6 +41,18 @@ function CooldownRing({ secondsLeft }: Readonly<{ secondsLeft: number }>) {
 	);
 }
 
+const READY_RESEND_CLASS = cn(AUTH_TEXT_LINK, 'inline-flex items-center gap-1');
+
+const LOCKED_RESEND_CLASS =
+	'inline-flex cursor-default items-center gap-1.5 rounded-sm text-muted-foreground tabular-nums outline-none focus-visible:ring-[3px] focus-visible:ring-ring/25';
+
+function resendClassOf(isLocked: boolean) {
+	if (isLocked) {
+		return LOCKED_RESEND_CLASS;
+	}
+	return READY_RESEND_CLASS;
+}
+
 /** The countdown lives here, so only this line renders again every second. */
 export function ResendCode({
 	startLocked,
@@ -57,11 +69,12 @@ export function ResendCode({
 	const t = useTranslations();
 	const cooldown = useResendCooldown(startLocked);
 	const secondsLeft = secondsOf(cooldown.countdown);
-	const canResend = !cooldown.locked;
+	const isLocked = cooldown.locked || sending;
+	const canResend = !isLocked;
 	const isWaiting = cooldown.locked && !sending;
 
 	const resend = async () => {
-		if (cooldown.locked) {
+		if (isLocked) {
 			return;
 		}
 		const wasSent = await onResend();
@@ -74,19 +87,32 @@ export function ResendCode({
 	return (
 		<div className={cn('flex min-h-5 flex-wrap items-center gap-x-1.5 gap-y-1 text-[13px]', className)}>
 			<span className="text-muted-foreground">{t('auth.code.NOT_RECEIVED')}</span>
-			{sending && <SpinnerLoader size={14} />}
-			{isWaiting && (
-				<span className="inline-flex items-center gap-1.5 text-muted-foreground tabular-nums">
-					<CooldownRing secondsLeft={secondsLeft} />
-					{t('auth.code.RESEND_IN', { countdown: cooldown.countdown })}
-				</span>
-			)}
-			{canResend && !sending && (
-				<button type="button" onClick={resend} className={cn(AUTH_TEXT_LINK, 'inline-flex items-center gap-1')}>
-					<RotateLeft aria-hidden="true" className="size-3.5" />
-					{t('auth.code.RESEND')}
-				</button>
-			)}
+			{/* One button through sending and waiting, so the focus a keyboard put on it stays there */}
+			<button
+				type="button"
+				onClick={resend}
+				aria-disabled={isLocked || undefined}
+				className={resendClassOf(isLocked)}
+			>
+				{sending && (
+					<>
+						<SpinnerLoader size={14} />
+						<span className="sr-only">{t('auth.code.RESEND')}</span>
+					</>
+				)}
+				{isWaiting && (
+					<>
+						<CooldownRing secondsLeft={secondsLeft} />
+						{t('auth.code.RESEND_IN', { countdown: cooldown.countdown })}
+					</>
+				)}
+				{canResend && (
+					<>
+						<RotateLeft aria-hidden="true" className="size-3.5" />
+						{t('auth.code.RESEND')}
+					</>
+				)}
+			</button>
 		</div>
 	);
 }

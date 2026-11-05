@@ -31,4 +31,34 @@ describe('ResendCode', () => {
 		expect(screen.queryByText('auth.code.RESEND_IN')).toBeNull();
 		expect(screen.getByRole('button', { name: 'auth.code.RESEND' })).toBeTruthy();
 	});
+
+	it('keeps the focused button through the send and the wait', async () => {
+		const onResend = jest.fn().mockResolvedValue(true);
+		const { rerender } = render(<ResendCode startLocked={false} sending={false} onResend={onResend} />);
+		const button = screen.getByRole('button', { name: 'auth.code.RESEND' });
+		button.focus();
+
+		fireEvent.click(button);
+		rerender(<ResendCode startLocked={false} sending onResend={onResend} />);
+
+		expect(document.activeElement).toBe(button);
+		expect(button.getAttribute('aria-disabled')).toBe('true');
+
+		await act(async () => {
+			rerender(<ResendCode startLocked={false} sending={false} onResend={onResend} />);
+		});
+
+		expect(document.activeElement).toBe(button);
+		expect(button.textContent).toContain('auth.code.RESEND_IN');
+		expect(button.getAttribute('aria-disabled')).toBe('true');
+	});
+
+	it('sends nothing while a code is already on its way', () => {
+		const onResend = jest.fn().mockResolvedValue(true);
+		render(<ResendCode startLocked={false} sending onResend={onResend} />);
+
+		fireEvent.click(screen.getByRole('button'));
+
+		expect(onResend).not.toHaveBeenCalled();
+	});
 });
