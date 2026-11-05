@@ -14,10 +14,10 @@ import { clsxm } from '@/core/lib/utils';
 import { MEMBER_CARD } from '@/core/components/teams/member-row-grid';
 import {
 	membersWithPendingOrders,
+	mergedDropOrders,
 	ordersAfterSwap,
-	unsavedPendingOrders,
-	withoutDropOrders,
-	type TPendingMemberOrders
+	unsettledDrops,
+	type TPendingDrop
 } from '@/core/lib/helpers/team-member-order';
 
 interface Props {
@@ -53,21 +53,19 @@ const TeamMembersCardView: React.FC<Props> = memo(
 		const draggedOverTeamMember = React.useRef<number>(0);
 
 		// A drop shows at once with the orders being saved; a failed save puts the list back as the API has it
-		const [pendingOrders, setPendingOrders] = useState<TPendingMemberOrders | null>(null);
-		const members = useMemo(
-			() => membersWithPendingOrders(teamMembers, pendingOrders),
-			[teamMembers, pendingOrders]
-		);
+		const [pendingDrops, setPendingDrops] = useState<TPendingDrop[]>([]);
+		const nextDropId = React.useRef(0);
+		const members = useMemo(() => {
+			const pendingOrders = mergedDropOrders(pendingDrops);
+			return membersWithPendingOrders(teamMembers, pendingOrders);
+		}, [teamMembers, pendingDrops]);
 
 		useEffect(() => {
-			if (!pendingOrders) {
-				return;
+			const remainingDrops = unsettledDrops(teamMembers, pendingDrops);
+			if (remainingDrops !== pendingDrops) {
+				setPendingDrops(remainingDrops);
 			}
-			const remainingOrders = unsavedPendingOrders(teamMembers, pendingOrders);
-			if (remainingOrders !== pendingOrders) {
-				setPendingOrders(remainingOrders);
-			}
-		}, [teamMembers, pendingOrders]);
+		}, [teamMembers, pendingDrops]);
 
 		// Read through a ref so handleSort keeps its identity and does not re-render every memoized card
 		const membersRef = useSyncRef(members);
@@ -83,15 +81,17 @@ const TeamMembersCardView: React.FC<Props> = memo(
 				return;
 			}
 			const nextOrders = ordersAfterSwap(membersRef.current, draggedIndex, targetIndex);
-			// A drop made while an earlier one is still saving adds to its preview instead of replacing it
-			setPendingOrders((currentOrders) => ({ ...currentOrders, ...nextOrders }));
+			nextDropId.current += 1;
+			const dropId = nextDropId.current;
+			// Each drop keeps its own orders, so a failure takes back only its own, not a later drop's
+			setPendingDrops((currentDrops) => [...currentDrops, { id: dropId, orders: nextOrders }]);
 			const reorderedMembers = membersRef.current.filter((member) => member.id in nextOrders);
 			const saves = reorderedMembers.map((member) =>
 				updateOrganizationTeamEmployeeOrderOnList(member, nextOrders[member.id])
 			);
 			// The failure toast comes from the mutation; the list only has to go back
 			Promise.all(saves).catch(() =>
-				setPendingOrders((currentOrders) => withoutDropOrders(currentOrders, nextOrders))
+				setPendingDrops((currentDrops) => currentDrops.filter((drop) => drop.id !== dropId))
 			);
 		}, [membersRef, updateOrganizationTeamEmployeeOrderOnList]);
 

@@ -92,17 +92,38 @@ export function unsavedPendingOrders(
 	return Object.fromEntries(unsavedEntries);
 }
 
-/** The pending orders without those of a failed drop, keeping any a later drop gave the same members. */
-export function withoutDropOrders(
-	pendingOrders: TPendingMemberOrders | null,
-	dropOrders: TPendingMemberOrders
-): TPendingMemberOrders | null {
-	if (!pendingOrders) {
+/** One drop's orders while its saves are on their way, apart from the drops made before or after it. */
+export type TPendingDrop = { id: number; orders: TPendingMemberOrders };
+
+/** The orders the shown list follows: a later drop's order wins over an earlier one for the same member. */
+export function mergedDropOrders(drops: TPendingDrop[]): TPendingMemberOrders | null {
+	if (drops.length === 0) {
 		return null;
 	}
-	const keptEntries = Object.entries(pendingOrders).filter(([memberId, order]) => dropOrders[memberId] !== order);
-	if (keptEntries.length === 0) {
-		return null;
+	const orders: TPendingMemberOrders = {};
+	for (const drop of drops) {
+		Object.assign(orders, drop.orders);
 	}
-	return Object.fromEntries(keptEntries);
+	return orders;
+}
+
+/** The drops still waiting for an order: the same array when none has settled, so a caller can tell. */
+export function unsettledDrops(members: TOrganizationTeamEmployee[], drops: TPendingDrop[]): TPendingDrop[] {
+	let hasSettled = false;
+	const keptDrops: TPendingDrop[] = [];
+	for (const drop of drops) {
+		const remainingOrders = unsavedPendingOrders(members, drop.orders);
+		if (remainingOrders === drop.orders) {
+			keptDrops.push(drop);
+			continue;
+		}
+		hasSettled = true;
+		if (remainingOrders) {
+			keptDrops.push({ ...drop, orders: remainingOrders });
+		}
+	}
+	if (!hasSettled) {
+		return drops;
+	}
+	return keptDrops;
 }
