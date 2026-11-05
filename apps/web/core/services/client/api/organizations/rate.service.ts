@@ -67,7 +67,11 @@ class RateService extends APIService {
 	};
 
 	updateOwnProfileRates = async (employeeId: string, rates: IOwnProfileRatesInput): Promise<void> => {
-		await this.put(`/employee/${encodeURIComponent(employeeId)}/profile`, rates);
+		await this.put(`/employee/${encodeURIComponent(employeeId)}/profile`, {
+			organizationId: this.organizationId,
+			tenantId: this.tenantId,
+			...rates
+		});
 	};
 
 	updateEmployeeRates = async (employeeId: string, rates: IEmployeeRatesInput): Promise<void> => {

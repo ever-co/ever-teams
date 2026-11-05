@@ -10,7 +10,7 @@ export async function PUT(req: Request, { params }: { params: Promise<{ id: stri
 		return NextResponse.json({ message: 'An employee id is required' }, { status: 400 });
 	}
 
-	const { $res, user, access_token, tenantId } = await authenticatedGuard(req, new NextResponse());
+	const { $res, user, access_token, tenantId, organizationId } = await authenticatedGuard(req, new NextResponse());
 	if (!user) return $res('Unauthorized');
 
 	const body: unknown = await req.json().catch(() => null);
@@ -24,7 +24,8 @@ export async function PUT(req: Request, { params }: { params: Promise<{ id: stri
 			employeeId: parsedId.data,
 			rates: parsedBody.data,
 			bearer_token: access_token,
-			tenantId
+			tenantId,
+			organizationId
 		});
 		return $res(data);
 	} catch (error) {

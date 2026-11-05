@@ -115,6 +115,18 @@ export function parseRateInput(text: string): ParsedRateInput {
 	return { value: number, problem: null };
 }
 
+/**
+ * A rate field read on save: one left as it opened keeps its stored value, so a stored rate the input rule refuses
+ * (45.555) never blocks a save of another field, hidden or not.
+ */
+export function parseChangedRateInput(text: string, storedValue: number | null): ParsedRateInput {
+	const isUnchanged = text === rateInputTextOf(storedValue);
+	if (isUnchanged) {
+		return { value: storedValue, problem: null };
+	}
+	return parseRateInput(text);
+}
+
 interface EmployeeRatesValues {
 	value: number | null;
 	currency: string;

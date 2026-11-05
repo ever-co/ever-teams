@@ -83,12 +83,13 @@ export function updateOwnProfileRatesRequest({
 	employeeId,
 	rates,
 	bearer_token,
-	tenantId
-}: Omit<IGauzyCall, 'organizationId'> & { employeeId: string; rates: IOwnProfileRatesInput }) {
+	tenantId,
+	organizationId
+}: IGauzyCall & { employeeId: string; rates: IOwnProfileRatesInput }) {
 	return serverFetch<unknown>({
 		path: `/employee/${encodeURIComponent(employeeId)}/profile`,
 		method: 'PUT',
-		body: rates,
+		body: { organizationId, tenantId, ...rates },
 		bearer_token,
 		tenantId
 	});

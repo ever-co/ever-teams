@@ -58,7 +58,8 @@ it('saves only the billing rate, its currency and the weekly limit, never a pay 
 		employeeId: EMPLOYEE_ID,
 		rates: { billRateValue: 55, billRateCurrency: 'EUR', reWeeklyLimit: 30 },
 		bearer_token: 'access-token',
-		tenantId: 'tenant-1'
+		tenantId: 'tenant-1',
+		organizationId: 'organization-1'
 	});
 });
 

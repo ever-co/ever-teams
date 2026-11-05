@@ -14,7 +14,7 @@ import { cn } from '@/core/lib/helpers';
 import {
 	changedEmployeeRatesOf,
 	changedPayRateOf,
-	parseRateInput,
+	parseChangedRateInput,
 	rateAmountTextOf,
 	rateInputTextOf,
 	rateValueOf,
@@ -106,9 +106,9 @@ export function MemberRateEditor({
 		if (isSaving) {
 			return;
 		}
-		const rate = parseRateInput(rateText);
-		const limit = parseRateInput(limitText);
-		const pay = parseRateInput(payText);
+		const rate = parseChangedRateInput(rateText, initialRates.value);
+		const limit = parseChangedRateInput(limitText, initialRates.weeklyLimit);
+		const pay = parseChangedRateInput(payText, storedPayRate);
 		const problem = rate.problem ?? limit.problem ?? pay.problem;
 		if (problem) {
 			setError(t(PROBLEM_KEYS[problem]));

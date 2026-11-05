@@ -509,9 +509,17 @@ function compareLinesByDay(first: OwedLine, second: OwedLine) {
 	return first.dateKey.localeCompare(second.dateKey);
 }
 
+/**
+ * A member's lines priced in another currency or by another of their rates (a pay rate set mid-period) form a group of
+ * their own: a group adds its lines' amounts and states one rate and one currency.
+ */
+function memberGroupKeyOf(line: OwedLine) {
+	return [line.employeeId, line.rateSource ?? '', line.currency ?? ''].join('|');
+}
+
 function memberGroupOf(firstLine: OwedLine): OwedMemberGroup {
 	return {
-		key: firstLine.employeeId,
+		key: memberGroupKeyOf(firstLine),
 		employeeId: firstLine.employeeId,
 		name: firstLine.name,
 		imageUrl: firstLine.imageUrl,
@@ -537,11 +545,12 @@ function addedAmount(current: number | null, amount: number | null) {
 export function memberGroupsOf(lines: ReadonlyArray<OwedLine>, rankOf: CurrencyRank): OwedMemberGroup[] {
 	const byMember = new Map<string, OwedMemberGroup>();
 	for (const line of lines) {
-		const group = byMember.get(line.employeeId) ?? memberGroupOf(line);
+		const groupKey = memberGroupKeyOf(line);
+		const group = byMember.get(groupKey) ?? memberGroupOf(line);
 		group.seconds += line.seconds;
 		group.amount = addedAmount(group.amount, line.amount);
 		group.lines.push(line);
-		byMember.set(line.employeeId, group);
+		byMember.set(groupKey, group);
 	}
 	const groups = [...byMember.values()];
 	for (const group of groups) {

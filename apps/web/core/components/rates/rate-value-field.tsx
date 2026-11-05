@@ -99,6 +99,11 @@ export function RateValueField({
 		if (isSaving) {
 			return;
 		}
+		const isUnchanged = draft === rateInputTextOf(value);
+		if (isUnchanged) {
+			setIsOpen(false);
+			return;
+		}
 		const parsed = parseRateInput(draft);
 		if (parsed.problem) {
 			setError(t(PROBLEM_KEYS[parsed.problem]));

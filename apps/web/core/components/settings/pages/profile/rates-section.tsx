@@ -1,6 +1,7 @@
 'use client';
 
 import { type ReactNode, useState } from 'react';
+import { useAtomValue } from 'jotai';
 import { useLocale, useTranslations } from 'next-intl';
 import { Button } from '@/core/components/duplicated-components/_button';
 import {
@@ -19,6 +20,7 @@ import {
 } from '@/core/lib/utils/rates';
 import type { IEmployeeRatesInput } from '@/core/types/schemas/organization/rates.schema';
 import { MemberRateEditor, type RateEditorSubject } from '../members/member-rate-editor';
+import { currentOrganizationState } from '@/core/stores/user/user-organizations';
 import { RateChangeRequestForm } from './rate-change-request-form';
 
 interface OwnEmployeeRates {
@@ -58,7 +60,7 @@ function OwnPayRateRow({ employeeId }: Readonly<{ employeeId: string | undefined
 	if (!payRateData) {
 		return null;
 	}
-	const amount = rateAmountTextOf(payRateData.payRateValue, payRateData.currency, locale);
+	const amount = rateAmountTextOf(payRateData.payRateValue, payRateData.payRateCurrency || payRateData.currency, locale);
 	let text: string | null = null;
 	if (amount !== null) {
 		text = t('rates.PER_HOUR', { amount });
@@ -98,8 +100,10 @@ export function ProfileRatesSection({
 	const employeeId = employee.id ?? null;
 	const canEditOwnRates = changesOwnRates && Boolean(employeeId);
 
+	const organization = useAtomValue(currentOrganizationState);
+	// Shown in the organization's currency when the member has none of their own; saves keep it unset
 	const currency = employee.billRateCurrency || null;
-	const rateAmount = rateAmountTextOf(employeeRateValueOf(employee.billRateValue), currency, locale);
+	const rateAmount = rateAmountTextOf(employeeRateValueOf(employee.billRateValue), currency || organization?.currency || null, locale);
 	let rateText: string | null = null;
 	if (rateAmount !== null) {
 		rateText = t('rates.PER_HOUR', { amount: rateAmount });
