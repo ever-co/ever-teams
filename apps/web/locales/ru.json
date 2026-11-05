@@ -475,6 +475,7 @@
 		"SELECTED": "Выбрано"
 	},
 	"dashboard": {
+		"NO_TEAM_GROUP": "Без команды",
 		"APPS_URLS_DASHBOARD": "Панель приложений и URL",
 		"TEAM_DASHBOARD": "Панель команды",
 		"PRODUCTIVITY_BREAKDOWN": "Разбивка продуктивности за {month}",

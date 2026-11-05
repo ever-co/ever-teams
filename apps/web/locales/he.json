@@ -475,6 +475,7 @@
 		"SELECTED": "נבחר"
 	},
 	"dashboard": {
+		"NO_TEAM_GROUP": "ללא צוות",
 		"APPS_URLS_DASHBOARD": "לוח מחוונים אפליקציות וכתובות URL",
 		"TEAM_DASHBOARD": "לוח מחוונים של הצוות",
 		"PRODUCTIVITY_BREAKDOWN": "פירוט פרודוקטיביות עבור {month}",

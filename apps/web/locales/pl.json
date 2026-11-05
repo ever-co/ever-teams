@@ -475,6 +475,7 @@
 		"SELECTED": "Wybrane"
 	},
 	"dashboard": {
+		"NO_TEAM_GROUP": "Bez zespołu",
 		"APPS_URLS_DASHBOARD": "Panel Aplikacji i URL",
 		"TEAM_DASHBOARD": "Panel Zespołu",
 		"PRODUCTIVITY_BREAKDOWN": "Podział produktywności dla {month}",

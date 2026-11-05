@@ -475,6 +475,7 @@
 		"SELECTED": "已选择"
 	},
 	"dashboard": {
+		"NO_TEAM_GROUP": "无团队",
 		"APPS_URLS_DASHBOARD": "应用和URL仪表板",
 		"TEAM_DASHBOARD": "团队仪表板",
 		"PRODUCTIVITY_BREAKDOWN": "{month}的生产力分解",

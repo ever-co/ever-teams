@@ -475,6 +475,7 @@
 		"SELECTED": "Selected"
 	},
 	"dashboard": {
+		"NO_TEAM_GROUP": "No team",
 		"APPS_URLS_DASHBOARD": "Apps & URLs dashboard",
 		"TEAM_DASHBOARD": "Team dashboard",
 		"PRODUCTIVITY_BREAKDOWN": "Productivity breakdown for {month}",

@@ -475,6 +475,7 @@
 		"SELECTED": "Geselecteerd"
 	},
 	"dashboard": {
+		"NO_TEAM_GROUP": "Zonder team",
 		"APPS_URLS_DASHBOARD": "Apps & URLs Dashboard",
 		"TEAM_DASHBOARD": "Team Dashboard",
 		"PRODUCTIVITY_BREAKDOWN": "Productiviteitsuitsplitsing voor {month}",
