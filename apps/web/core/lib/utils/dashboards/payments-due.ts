@@ -6,8 +6,11 @@ import type { TOwedReportDay, TOwedReportEmployee } from '@/core/types/schemas/t
 
 export type PaymentsGrouping = 'member' | 'day';
 
-/** Which of the member's rates priced the line: their pay rate, or their billing rate while no pay rate is set. */
+/** Which of the member's rates priced the line: their pay rate, or their billing rate. */
 export type OwedRateSource = 'pay' | 'billing';
+
+/** What a line priced at the billing rate says: that no pay rate is set, or only that it is the billing rate. */
+export type OwedRateNote = 'payRateNotSet' | 'billingRate';
 
 export const PAYMENTS_WEEK_START = 1;
 
@@ -39,6 +42,7 @@ export interface OwedLine {
 	amount: number | null;
 	/** Null when the server does not say, as before pay rates existed: the billing rate priced it, with no note. */
 	rateSource: OwedRateSource | null;
+	rateNote: OwedRateNote | null;
 }
 
 export interface OwedMemberGroup {
@@ -51,6 +55,7 @@ export interface OwedMemberGroup {
 	seconds: number;
 	amount: number | null;
 	rateSource: OwedRateSource | null;
+	rateNote: OwedRateNote | null;
 	lines: OwedLine[];
 }
 
@@ -207,9 +212,18 @@ export function rateSourceOf(value: unknown): OwedRateSource | null {
 	return null;
 }
 
-/** The pay rate falls back to the billing rate, which the screen says, only when the server states it. */
-export function fallsBackToBillingRate(rateSource: OwedRateSource | null) {
-	return rateSource === 'billing';
+/**
+ * The note of a line the billing rate priced, only when the server states it. Gauzy prices other people's time at
+ * their billing rate for a caller who may not read pay rates, so only a pay rate reader is told none is set.
+ */
+export function rateNoteOf(rateSource: OwedRateSource | null, readsPayRates: boolean): OwedRateNote | null {
+	if (rateSource !== 'billing') {
+		return null;
+	}
+	if (readsPayRates) {
+		return 'payRateNotSet';
+	}
+	return 'billingRate';
 }
 
 type OwedReportEntry = TOwedReportDay['employees'][number];
@@ -270,12 +284,14 @@ export function owedLinesOf({
 	report,
 	members,
 	organizationCurrency,
-	unnamedLabel
+	unnamedLabel,
+	readsPayRates
 }: Readonly<{
 	report: ReadonlyArray<TOwedReportDay>;
 	members: ReadonlyMap<string, PaymentsMember>;
 	organizationCurrency: string | null;
 	unnamedLabel: string;
+	readsPayRates: boolean;
 }>): OwedLine[] {
 	const lines: OwedLine[] = [];
 	const payRates = payRatesOf(report);
@@ -310,7 +326,8 @@ export function owedLinesOf({
 				rate,
 				currency: lineCurrencyOf(entry, employee, organizationCurrency),
 				amount,
-				rateSource
+				rateSource,
+				rateNote: rateNoteOf(rateSource, readsPayRates)
 			});
 		}
 	}
@@ -491,6 +508,7 @@ function memberGroupOf(firstLine: OwedLine): OwedMemberGroup {
 		seconds: 0,
 		amount: null,
 		rateSource: firstLine.rateSource,
+		rateNote: firstLine.rateNote,
 		lines: []
 	};
 }

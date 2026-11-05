@@ -11,6 +11,8 @@ import {
 	type TimeLogReportRange
 } from '@/core/services/client/api/timesheets/time-log-report.service';
 import { activeTeamState } from '@/core/stores';
+import { useMyRolePermissionsQuery } from '@/core/hooks/roles/use-my-role-permissions-query';
+import { holdsPayRatePermission } from '@/core/lib/utils/rates';
 import { currentOrganizationState } from '@/core/stores/user/user-organizations';
 import { getOrganizationIdCookie, getTenantIdCookie } from '@/core/lib/helpers/cookies';
 import { getDefaultTimezone } from '@/core/lib/helpers/date-and-time';
@@ -266,6 +268,8 @@ export function usePaymentsDueReport({ unnamedLabel }: Readonly<{ unnamedLabel: 
 
 	const result = query.data;
 	const organizationCurrency = organization?.currency ?? null;
+	const { myPermissions } = useMyRolePermissionsQuery();
+	const readsPayRates = holdsPayRatePermission(myPermissions);
 
 	const shown = useMemo<PaymentsDueShown | null>(() => {
 		if (!result) {
@@ -275,7 +279,8 @@ export function usePaymentsDueReport({ unnamedLabel }: Readonly<{ unnamedLabel: 
 			report: result.report,
 			members: membersById,
 			organizationCurrency,
-			unnamedLabel
+			unnamedLabel,
+			readsPayRates
 		});
 		const figures = owedFiguresOf(lines);
 		const rankOf = currencyRankOf(figures.currencies);
@@ -286,7 +291,7 @@ export function usePaymentsDueReport({ unnamedLabel }: Readonly<{ unnamedLabel: 
 			dayGroups: dayGroupsOf(lines, rankOf),
 			lines
 		};
-	}, [membersById, organizationCurrency, result, unnamedLabel]);
+	}, [membersById, organizationCurrency, readsPayRates, result, unnamedLabel]);
 
 	const shownFigures = shown?.figures;
 	const figureCurrencies = useMemo(() => figureCurrenciesOf(shownFigures), [shownFigures]);

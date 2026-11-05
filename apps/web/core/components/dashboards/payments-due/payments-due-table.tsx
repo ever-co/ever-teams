@@ -82,7 +82,7 @@ const MemberGroupBlock = memo(function MemberGroupBlock({
 	const t = useTranslations();
 	const handleToggle = useCallback(() => onToggle(group.key, isOpen), [group.key, isOpen, onToggle]);
 	const dayCountLabel = t('dashboard.paymentsDue.DAYS_COUNT', { count: group.lines.length });
-	const billingRateNote = useBillingRateNote(group.rateSource);
+	const billingRateNote = useBillingRateNote(group.rateNote);
 
 	const header = (
 		<>
@@ -116,7 +116,7 @@ const MemberGroupBlock = memo(function MemberGroupBlock({
 });
 
 const DayMemberRow = memo(function DayMemberRow({ line }: Readonly<{ line: OwedLine }>) {
-	const billingRateNote = useBillingRateNote(line.rateSource);
+	const billingRateNote = useBillingRateNote(line.rateNote);
 	return (
 		<div role="row" className={cn(PAYMENTS_GRID, PAYMENTS_ROW_HEIGHT)}>
 			<span role="cell" className={NESTED_LEAD}>

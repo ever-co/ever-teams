@@ -1,5 +1,5 @@
 import type { TOwedReportDay } from '@/core/types/schemas/timer/time-log-reports.schema';
-import { fallsBackToBillingRate, owedFiguresOf, owedLinesOf, type PaymentsMember } from './payments-due';
+import { owedFiguresOf, owedLinesOf, type PaymentsMember } from './payments-due';
 
 type Entry = TOwedReportDay['employees'][number];
 
@@ -12,12 +12,13 @@ function entry(employeeId: string, seconds: number, amount: number, extra: Parti
 	};
 }
 
-function linesOf(days: Array<{ date: string; employees: Entry[] }>) {
+function linesOf(days: Array<{ date: string; employees: Entry[] }>, readsPayRates = true) {
 	return owedLinesOf({
 		report: days,
 		members: new Map<string, PaymentsMember>(),
 		organizationCurrency: 'EUR',
-		unnamedLabel: 'Unnamed'
+		unnamedLabel: 'Unnamed',
+		readsPayRates
 	});
 }
 
@@ -29,7 +30,8 @@ describe('owedLinesOf', () => {
 		expect(line.currency).toBe('USD');
 		expect(line.amount).toBe(80);
 		expect(line.rateSource).toBeNull();
-		expect(fallsBackToBillingRate(line.rateSource)).toBe(false);
+		expect(line.rateNote).toBeNull();
+		expect(linesOf([{ date: '2026-11-03', employees: [entry('ana', 3600, 80)] }], false)[0].rateNote).toBeNull();
 	});
 
 	it("shows the pay rate and the line's currency when the pay rate priced it", () => {
@@ -63,14 +65,23 @@ describe('owedLinesOf', () => {
 		expect(line.amount).toBe(30);
 	});
 
-	it('notes the billing rate when the server says no pay rate is set', () => {
+	it('tells a pay rate reader that no pay rate is set on a line the billing rate priced', () => {
 		const [line] = linesOf([
 			{ date: '2026-11-03', employees: [entry('ben', 3600, 80, { rateSource: 'billing', currency: 'USD' })] }
 		]);
 
 		expect(line.rate).toBe(80);
 		expect(line.amount).toBe(80);
-		expect(fallsBackToBillingRate(line.rateSource)).toBe(true);
+		expect(line.rateNote).toBe('payRateNotSet');
+	});
+
+	it('only says "billing rate" to someone who may not read pay rates, with no claim about the pay rate', () => {
+		const billingLine = entry('ben', 3600, 80, { rateSource: 'billing', currency: 'USD' });
+
+		const [line] = linesOf([{ date: '2026-11-03', employees: [billingLine] }], false);
+
+		expect(line.rate).toBe(80);
+		expect(line.rateNote).toBe('billingRate');
 	});
 });
 

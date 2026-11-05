@@ -80,7 +80,7 @@ const MemberDayLine = memo(function MemberDayLine({ line }: Readonly<{ line: Owe
 });
 
 const DayMemberLine = memo(function DayMemberLine({ line }: Readonly<{ line: OwedLine }>) {
-	const billingRateNote = useBillingRateNote(line.rateSource);
+	const billingRateNote = useBillingRateNote(line.rateNote);
 	const isPriced = line.amount !== null;
 	if (!isPriced) {
 		return (
@@ -219,7 +219,7 @@ export const MemberStatementCard = memo(function MemberStatementCard({
 		[t]
 	);
 	const daysLabel = t('dashboard.paymentsDue.DAYS_COUNT', { count: group.lines.length });
-	const billingRateNote = useBillingRateNote(group.rateSource);
+	const billingRateNote = useBillingRateNote(group.rateNote);
 	const headerMeta = metaWithNote(daysLabel, billingRateNote);
 	return (
 		<article
