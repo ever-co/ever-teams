@@ -9,6 +9,7 @@ import { authService } from '@/core/services/client/api/auth/auth.service';
 import { ArrowLeft, Key, Mail } from '@/core/components/icons';
 import { AuthHeading, AuthMark } from '@/core/components/auth/kit/auth-heading';
 import { AuthField } from '@/core/components/auth/kit/auth-field';
+import { emailErrorOf } from '@/core/components/auth/kit/auth-email';
 import { AuthAddress, AuthState } from '@/core/components/auth/kit/auth-state';
 import { AuthSteps } from '@/core/components/auth/kit/auth-step';
 import { AUTH_QUIET_LINK } from '@/core/components/auth/kit/auth-recipes';
@@ -30,22 +31,29 @@ export default function ForgotPasswordForm() {
 	const [loading, setLoading] = useState(false);
 	const [sent, setSent] = useState(false);
 	const [error, setError] = useState('');
+	const [sentTo, setSentTo] = useState('');
 	const step = stepOf(sent);
-	const sentTo = email.trim();
+	let shownAddress = email.trim();
+	if (sent) {
+		shownAddress = sentTo;
+	}
 
 	const handleSubmit = useCallback(
 		async (e: FormEvent<HTMLFormElement>) => {
 			e.preventDefault();
 			setError('');
 
-			if (!email.trim()) {
-				setError(t('form.EMAIL_REQUIRED'));
+			const address = email.trim();
+			const emailError = emailErrorOf(address, t);
+			if (emailError) {
+				setError(emailError);
 				return;
 			}
 
 			setLoading(true);
 			try {
-				await authService.requestPassword(email.trim());
+				await authService.requestPassword(address);
+				setSentTo(address);
 				setSent(true);
 			} catch {
 				setError(t('pages.authForgotPassword.ERROR_MESSAGE'));
@@ -60,7 +68,7 @@ export default function ForgotPasswordForm() {
 		<InboxScene
 			title={t('auth.scene.INBOX_RESET_TITLE')}
 			description={t('auth.scene.INBOX_RESET_TEXT')}
-			email={sentTo}
+			email={shownAddress}
 			message="reset"
 		/>
 	);
@@ -114,7 +122,10 @@ export default function ForgotPasswordForm() {
 								placeholder={t('auth.field.EMAIL_PLACEHOLDER')}
 								icon={<Mail />}
 								value={email}
-								onChange={(e) => setEmail(e.target.value)}
+								onChange={(e) => {
+									setEmail(e.target.value);
+									setError('');
+								}}
 								error={error}
 								autoComplete="email"
 								inputMode="email"

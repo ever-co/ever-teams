@@ -68,12 +68,22 @@ function darkPictureOf() {
 	return MAIN_PICTURE;
 }
 
+/** The light side: the operator's own picture; with only a dark one set, the page's scene, else the built-in cover. */
+function lightPictureOf(alt: string, scene: ReactNode) {
+	const keepsScene = !MAIN_PICTURE_SET_BY_OPERATOR && Boolean(scene);
+	if (keepsScene) {
+		return <div className="contents dark:hidden">{scene}</div>;
+	}
+	return <Image src={MAIN_PICTURE} alt={alt} fill sizes="40vw" className="object-cover dark:hidden" />;
+}
+
 /** No priority preload: only the picture of the current theme shows. */
-function OperatorPicture({ alt }: Readonly<{ alt: string }>) {
+function OperatorPicture({ alt, scene }: Readonly<{ alt: string; scene: ReactNode }>) {
 	const darkPicture = darkPictureOf();
+	const lightPicture = lightPictureOf(alt, scene);
 	return (
 		<>
-			<Image src={MAIN_PICTURE} alt={alt} fill sizes="40vw" className="object-cover dark:hidden" />
+			{lightPicture}
 			<Image src={darkPicture} alt={alt} fill sizes="40vw" className="hidden object-cover dark:block" />
 		</>
 	);
@@ -157,7 +167,8 @@ export function AuthLayout({
 		operatorLinksOnly
 	);
 
-	const showsOperatorPicture = MAIN_PICTURE_SET_BY_OPERATOR && !IS_DEMO_MODE;
+	const hasOperatorPicture = MAIN_PICTURE_SET_BY_OPERATOR || MAIN_PICTURE_DARK_SET_BY_OPERATOR;
+	const showsOperatorPicture = hasOperatorPicture && !IS_DEMO_MODE;
 	const hasScene = Boolean(aside) && !IS_DEMO_MODE;
 	const hasAside = showsOperatorPicture || hasScene;
 	const hasHeading = Boolean(title || description);
@@ -211,7 +222,7 @@ export function AuthLayout({
 									aria-hidden="true"
 									className="relative m-2 ml-0 hidden overflow-hidden rounded-[14px] bg-foreground/[0.03] lg:block dark:bg-foreground/[0.025]"
 								>
-									{showsOperatorPicture && <OperatorPicture alt={pictureAlt} />}
+									{showsOperatorPicture && <OperatorPicture alt={pictureAlt} scene={aside} />}
 									{!showsOperatorPicture && aside}
 								</aside>
 							)}

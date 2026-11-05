@@ -88,6 +88,7 @@ export const AuthField = forwardRef<HTMLInputElement, AuthFieldProps>(function A
 			{hasError && (
 				<p
 					id={errorId}
+					role="alert"
 					className={cn('flex items-start gap-1.5 text-xs text-destructive-ink', AUTH_LINE_ARRIVAL)}
 				>
 					<CircleAlert aria-hidden="true" className="mt-px size-3.5 shrink-0" />
@@ -177,7 +178,6 @@ export const PasswordField = forwardRef<HTMLInputElement, PasswordFieldProps>(fu
 		<button
 			type="button"
 			aria-label={revealLabel}
-			aria-pressed={isRevealed}
 			onClick={() => setIsRevealed((current) => !current)}
 			className={REVEAL_BUTTON_CLASS}
 		>

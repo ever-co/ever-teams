@@ -4251,7 +4251,7 @@
 		"code": {
 			"CHANGE_EMAIL": "Use another e-mail",
 			"CLEAR": "Clear",
-			"DESCRIPTION": "We sent an {length}-character code to <address>{email}</address>. The link in the same e-mail signs you in too.",
+			"DESCRIPTION": "We sent an {length}-character code to <address>{email}</address>.",
 			"LABEL": "Sign-in code",
 			"NOT_RECEIVED": "Nothing in your inbox?",
 			"RESEND": "Send a new code",
@@ -4270,6 +4270,7 @@
 		"field": {
 			"CAPS_LOCK_ON": "Caps Lock is on",
 			"CONFIRM_PASSWORD_LABEL": "Confirm the password",
+			"EMAIL_INVALID": "Enter a valid e-mail address.",
 			"EMAIL_LABEL": "E-mail",
 			"EMAIL_PLACEHOLDER": "you@company.com",
 			"HIDE_PASSWORD": "Hide the password",
@@ -4304,7 +4305,9 @@
 		},
 		"password": {
 			"RULE_MATCH": "Both passwords match",
+			"RULE_MET": "Requirement met",
 			"RULE_MIN_LENGTH": "{count, plural, one {At least # character} other {At least # characters}}",
+			"RULE_NOT_MET": "Requirement not met",
 			"STRENGTH_FAIR": "Fair",
 			"STRENGTH_GOOD": "Good",
 			"STRENGTH_STRONG": "Strong",
@@ -4325,7 +4328,7 @@
 			"ACCOUNT_TITLE": "Your place in the team",
 			"INBOX_ACTIVATE_TEXT": "Open its link to activate your account, then sign in with your e-mail.",
 			"INBOX_ACTIVATE_TITLE": "The e-mail to look for",
-			"INBOX_CODE_TEXT": "Type the code it holds, or open its link: both sign you in.",
+			"INBOX_CODE_TEXT": "Type the code it holds to sign in.",
 			"INBOX_CODE_TITLE": "The e-mail to look for",
 			"INBOX_RESET_TEXT": "Its link opens the page where you choose a new password.",
 			"INBOX_RESET_TITLE": "The e-mail to look for",

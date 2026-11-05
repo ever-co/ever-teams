@@ -220,6 +220,10 @@ export function PasswordWorkspaceStep({
 	const lastSelectedTeamFromAPI = form.getLastTeamIdWithRecentLogout();
 
 	useEffect(() => {
+		// The selection outlives this step: another account's answer must not keep an index of the last one
+		setSelectedWorkspace(0);
+		setSelectedTeam('');
+
 		const currentTeams = form.workspaces.find((el) => el.current_teams && el.current_teams.length)?.current_teams;
 		const firstTeamId = currentTeams?.[0]?.team_id;
 		const storedTeam = window.localStorage.getItem(LAST_WORKSPACE_AND_TEAM);

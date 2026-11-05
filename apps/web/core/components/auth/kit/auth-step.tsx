@@ -1,7 +1,7 @@
 'use client';
 
-import { useEffect, useRef, useState, type ReactNode } from 'react';
-import { prefersReducedMotion } from '@/core/lib/utils/motion';
+import { useLayoutEffect, useRef, useState, type ReactNode } from 'react';
+import { canAnimate } from '@/core/lib/utils/motion';
 
 export type Travel = 'forward' | 'backward';
 
@@ -51,7 +51,7 @@ export function playStepArrival(element: HTMLElement | null, travel: Travel, sca
 	if (!element) {
 		return;
 	}
-	if (prefersReducedMotion()) {
+	if (!canAnimate(element)) {
 		return;
 	}
 	const keyframes = arrivalKeyframesOf(travel, scale);
@@ -71,7 +71,7 @@ export function AuthSteps({ step, order, children }: Readonly<{ step: string; or
 		setShown({ step, order, travel });
 	}
 
-	useEffect(() => {
+	useLayoutEffect(() => {
 		if (!shown.travel) {
 			return;
 		}

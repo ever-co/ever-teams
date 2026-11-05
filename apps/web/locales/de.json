@@ -4251,7 +4251,7 @@
 		"code": {
 			"CHANGE_EMAIL": "Andere E-Mail verwenden",
 			"CLEAR": "Leeren",
-			"DESCRIPTION": "Wir haben einen {length}-stelligen Code an <address>{email}</address> gesendet. Der Link in derselben E-Mail meldet dich ebenfalls an.",
+			"DESCRIPTION": "Wir haben einen {length}-stelligen Code an <address>{email}</address> gesendet.",
 			"LABEL": "Anmeldecode",
 			"NOT_RECEIVED": "Nichts im Posteingang?",
 			"RESEND": "Neuen Code senden",
@@ -4270,6 +4270,7 @@
 		"field": {
 			"CAPS_LOCK_ON": "Feststelltaste ist aktiv",
 			"CONFIRM_PASSWORD_LABEL": "Passwort bestätigen",
+			"EMAIL_INVALID": "Gib eine gültige E-Mail-Adresse ein.",
 			"EMAIL_LABEL": "E-Mail",
 			"EMAIL_PLACEHOLDER": "name@firma.de",
 			"HIDE_PASSWORD": "Passwort ausblenden",
@@ -4304,7 +4305,9 @@
 		},
 		"password": {
 			"RULE_MATCH": "Beide Passwörter stimmen überein",
+			"RULE_MET": "Anforderung erfüllt",
 			"RULE_MIN_LENGTH": "{count, plural, one {Mindestens # Zeichen} other {Mindestens # Zeichen}}",
+			"RULE_NOT_MET": "Anforderung nicht erfüllt",
 			"STRENGTH_FAIR": "Mittel",
 			"STRENGTH_GOOD": "Gut",
 			"STRENGTH_STRONG": "Stark",
@@ -4325,7 +4328,7 @@
 			"ACCOUNT_TITLE": "Dein Platz im Team",
 			"INBOX_ACTIVATE_TEXT": "Öffne den Link darin, um dein Konto zu aktivieren, und melde dich dann mit deiner E-Mail an.",
 			"INBOX_ACTIVATE_TITLE": "Die gesuchte E-Mail",
-			"INBOX_CODE_TEXT": "Gib den Code darin ein oder öffne den Link: Beides meldet dich an.",
+			"INBOX_CODE_TEXT": "Gib den Code darin ein, um dich anzumelden.",
 			"INBOX_CODE_TITLE": "Die gesuchte E-Mail",
 			"INBOX_RESET_TEXT": "Der Link darin öffnet die Seite, auf der du ein neues Passwort wählst.",
 			"INBOX_RESET_TITLE": "Die gesuchte E-Mail",
@@ -4395,7 +4398,7 @@
 		},
 		"error": {
 			"TITLE": "Anmeldung fehlgeschlagen",
-			"TEXT": "Die Anmeldung wurde nicht abgeschlossen. Versuchen Sie es erneut oder melden Sie sich mit Ihrer E-Mail an.",
+			"TEXT": "Die Anmeldung wurde nicht abgeschlossen. Versuch es erneut oder melde dich mit deiner E-Mail an.",
 			"RETRY": "Zurück zur Anmeldung",
 			"CODE": "Fehlercode: {code}"
 		}

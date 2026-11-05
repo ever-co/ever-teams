@@ -13,3 +13,10 @@ export function scrollBehavior(): ScrollBehavior {
 	}
 	return 'smooth';
 }
+
+export function canAnimate(element: Element) {
+	if (typeof element.animate !== 'function') {
+		return false;
+	}
+	return !prefersReducedMotion();
+}

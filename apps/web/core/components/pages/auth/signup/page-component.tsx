@@ -417,7 +417,10 @@ function StartModeOption({
 				<span className="text-[13px] font-medium text-foreground">{title}</span>
 				<span className="text-xs text-pretty text-muted-foreground">{description}</span>
 			</span>
-			<kbd className="keycap-3d mt-0.5 hidden h-5 min-w-5 items-center justify-center rounded-[5px] px-1 font-sans text-[11px] font-medium text-muted-foreground sm:inline-flex">
+			<kbd
+				aria-hidden="true"
+				className="keycap-3d mt-0.5 hidden h-5 min-w-5 items-center justify-center rounded-[5px] px-1 font-sans text-[11px] font-medium text-muted-foreground sm:inline-flex"
+			>
 				{keyLabel}
 			</kbd>
 		</label>
@@ -459,7 +462,7 @@ function ExistingAccountHint() {
  * Step 2: on my own (a team named after the person) or with a team named now. Keys 1 and 2 pick, the team field
  * opens under its choice.
  */
-function ChooseModeForm({
+export function ChooseModeForm({
 	form,
 	errors,
 	handleOnChange,
@@ -495,9 +498,22 @@ function ChooseModeForm({
 		return () => window.removeEventListener('keydown', pickWithKey);
 	}, [onStartModeChange]);
 
+	// Arrow keys move the choice inside the radio group: only a click takes the focus on to the team field
+	const choosesWithPointer = useRef(false);
+
+	const notePointerChoice = () => {
+		choosesWithPointer.current = true;
+	};
+
+	const forgetPointerChoice = () => {
+		choosesWithPointer.current = false;
+	};
+
 	const chooseMode = (mode: TStartMode) => {
 		onStartModeChange(mode);
-		if (mode === 'team') {
+		const focusesTeamField = mode === 'team' && choosesWithPointer.current;
+		choosesWithPointer.current = false;
+		if (focusesTeamField) {
 			requestAnimationFrame(() => teamFieldRef.current?.focus());
 		}
 	};
@@ -514,7 +530,7 @@ function ChooseModeForm({
 				description={t('auth.signUp.MODE_DESCRIPTION')}
 				className="mb-7"
 			/>
-			<fieldset className="flex flex-col gap-2">
+			<fieldset className="flex flex-col gap-2" onPointerDown={notePointerChoice} onKeyDown={forgetPointerChoice}>
 				<legend className="sr-only">{t('auth.signUp.MODE_TITLE')}</legend>
 				<StartModeOption
 					mode="solo"

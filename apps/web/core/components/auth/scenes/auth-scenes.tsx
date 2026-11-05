@@ -314,23 +314,24 @@ export function TeamScene({
 	email
 }: Readonly<{ title: string; description: string; teamName: string; name: string; email: string }>) {
 	const t = useTranslations();
-	const hasTeamName = Boolean(teamName.trim());
+	const shownTeamName = teamName.trim();
+	const hasTeamName = Boolean(shownTeamName);
 
 	return (
 		<AuthScene title={title} description={description}>
 			<AppSheet
 				sidebar={
 					<>
-						<SceneWorkspace name={teamName.trim()} />
+						<SceneWorkspace name={shownTeamName} />
 						<SceneNavRows count={4} />
 					</>
 				}
 			>
 				<div className="flex items-center gap-2.5">
-					{hasTeamName && <EntityTile name={teamName} className="size-7 text-[10px]" />}
+					{hasTeamName && <EntityTile name={shownTeamName} className="size-7 text-[10px]" />}
 					<div className="flex min-w-0 flex-col gap-0.5">
 						<SceneText
-							text={teamName.trim()}
+							text={shownTeamName}
 							className="text-[13px] font-semibold text-foreground"
 							barClassName="w-24"
 						/>

@@ -4251,7 +4251,7 @@
 		"code": {
 			"CHANGE_EMAIL": "Използвай друг имейл",
 			"CLEAR": "Изчисти",
-			"DESCRIPTION": "Изпратихме код от {length} символа до <address>{email}</address>. С връзката в същия имейл също можете да влезете.",
+			"DESCRIPTION": "Изпратихме код от {length} символа до <address>{email}</address>.",
 			"LABEL": "Код за вход",
 			"NOT_RECEIVED": "Няма нищо в пощата ви?",
 			"RESEND": "Изпрати нов код",
@@ -4270,6 +4270,7 @@
 		"field": {
 			"CAPS_LOCK_ON": "Caps Lock е включен",
 			"CONFIRM_PASSWORD_LABEL": "Потвърдете паролата",
+			"EMAIL_INVALID": "Въведете валиден имейл адрес.",
 			"EMAIL_LABEL": "Имейл",
 			"EMAIL_PLACEHOLDER": "you@company.com",
 			"HIDE_PASSWORD": "Скрий паролата",
@@ -4304,7 +4305,9 @@
 		},
 		"password": {
 			"RULE_MATCH": "Двете пароли съвпадат",
+			"RULE_MET": "Изискването е изпълнено",
 			"RULE_MIN_LENGTH": "{count, plural, one {Поне # символ} other {Поне # символа}}",
+			"RULE_NOT_MET": "Изискването не е изпълнено",
 			"STRENGTH_FAIR": "Средна",
 			"STRENGTH_GOOD": "Добра",
 			"STRENGTH_STRONG": "Силна",
@@ -4325,7 +4328,7 @@
 			"ACCOUNT_TITLE": "Вашето място в екипа",
 			"INBOX_ACTIVATE_TEXT": "Отворете връзката в него, за да активирате акаунта си, след което влезте с имейла си.",
 			"INBOX_ACTIVATE_TITLE": "Имейлът, който да потърсите",
-			"INBOX_CODE_TEXT": "Въведете кода от него или отворете връзката му: и с двете влизате.",
+			"INBOX_CODE_TEXT": "Въведете кода от него, за да влезете.",
 			"INBOX_CODE_TITLE": "Имейлът, който да потърсите",
 			"INBOX_RESET_TEXT": "Връзката в него отваря страницата, където избирате нова парола.",
 			"INBOX_RESET_TITLE": "Имейлът, който да потърсите",

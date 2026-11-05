@@ -4251,7 +4251,7 @@
 		"code": {
 			"CHANGE_EMAIL": "Usa un'altra email",
 			"CLEAR": "Cancella",
-			"DESCRIPTION": "Abbiamo inviato un codice di {length} caratteri a <address>{email}</address>. Anche il link nella stessa email ti fa accedere.",
+			"DESCRIPTION": "Abbiamo inviato un codice di {length} caratteri a <address>{email}</address>.",
 			"LABEL": "Codice di accesso",
 			"NOT_RECEIVED": "Niente nella posta in arrivo?",
 			"RESEND": "Invia un nuovo codice",
@@ -4270,6 +4270,7 @@
 		"field": {
 			"CAPS_LOCK_ON": "Blocco maiuscole attivo",
 			"CONFIRM_PASSWORD_LABEL": "Conferma la password",
+			"EMAIL_INVALID": "Inserisci un indirizzo email valido.",
 			"EMAIL_LABEL": "Email",
 			"EMAIL_PLACEHOLDER": "nome@azienda.com",
 			"HIDE_PASSWORD": "Nascondi la password",
@@ -4304,7 +4305,9 @@
 		},
 		"password": {
 			"RULE_MATCH": "Le due password coincidono",
+			"RULE_MET": "Requisito soddisfatto",
 			"RULE_MIN_LENGTH": "{count, plural, one {Almeno # carattere} other {Almeno # caratteri}}",
+			"RULE_NOT_MET": "Requisito non soddisfatto",
 			"STRENGTH_FAIR": "Discreta",
 			"STRENGTH_GOOD": "Buona",
 			"STRENGTH_STRONG": "Forte",
@@ -4325,7 +4328,7 @@
 			"ACCOUNT_TITLE": "Il tuo posto nel team",
 			"INBOX_ACTIVATE_TEXT": "Apri il suo link per attivare il tuo account, poi accedi con la tua email.",
 			"INBOX_ACTIVATE_TITLE": "L'email da cercare",
-			"INBOX_CODE_TEXT": "Inserisci il codice che contiene o apri il suo link: entrambi ti fanno accedere.",
+			"INBOX_CODE_TEXT": "Inserisci il codice che contiene per accedere.",
 			"INBOX_CODE_TITLE": "L'email da cercare",
 			"INBOX_RESET_TEXT": "Il suo link apre la pagina in cui scegli una nuova password.",
 			"INBOX_RESET_TITLE": "L'email da cercare",

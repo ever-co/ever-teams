@@ -13,7 +13,7 @@ import { PasswordField } from '@/core/components/auth/kit/auth-field';
 import { AuthNotice } from '@/core/components/auth/kit/auth-notice';
 import { AuthState } from '@/core/components/auth/kit/auth-state';
 import { AuthSteps } from '@/core/components/auth/kit/auth-step';
-import { PasswordChecks } from '@/core/components/auth/kit/password-checks';
+import { minLengthRuleOf, PasswordChecks } from '@/core/components/auth/kit/password-checks';
 import { AUTH_QUIET_LINK } from '@/core/components/auth/kit/auth-recipes';
 import { meetsPasswordMinLength } from '@/core/lib/utils/password-strength';
 import { cn } from '@/core/lib/helpers';
@@ -59,7 +59,7 @@ export default function ResetPasswordForm({ isTokenExpired }: Readonly<{ isToken
 		const found: ResetErrors = {};
 
 		if (!meetsPasswordMinLength(password)) {
-			found.password = t('pages.authResetPassword.PASSWORD_TOO_SHORT');
+			found.password = minLengthRuleOf(t);
 		}
 
 		if (password !== confirmPassword) {

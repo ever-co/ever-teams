@@ -11,6 +11,7 @@ import { ACCOUNT_DELETION_LINK_TTL_MINUTES } from '@/core/lib/auth/account-delet
 import { useAccountDeletionRequest } from '@/core/hooks/auth/use-account-deletion';
 import { AuthHeading, AuthMark } from '@/core/components/auth/kit/auth-heading';
 import { AuthField } from '@/core/components/auth/kit/auth-field';
+import { emailErrorOf } from '@/core/components/auth/kit/auth-email';
 import { AuthNotice } from '@/core/components/auth/kit/auth-notice';
 import { AuthAddress, AuthState } from '@/core/components/auth/kit/auth-state';
 import { AuthSteps } from '@/core/components/auth/kit/auth-step';
@@ -24,13 +25,6 @@ function stepOf(sent: boolean) {
 	return { name: 'form', order: 0 };
 }
 
-function emailErrorOf(emptyEmail: boolean, message: string) {
-	if (emptyEmail) {
-		return message;
-	}
-	return null;
-}
-
 /**
  * `/delete-account`: public, no sign-in. Asks for the e-mail address and sends a deletion link. The answer is the same
  * whether or not an account exists for the address, so the page cannot be used to find out who has an account.
@@ -38,19 +32,24 @@ function emailErrorOf(emptyEmail: boolean, message: string) {
 export default function DeleteAccountRequestForm() {
 	const t = useTranslations();
 	const [email, setEmail] = useState('');
-	const [emptyEmail, setEmptyEmail] = useState(false);
+	const [emailError, setEmailError] = useState<string | null>(null);
+	const [sentTo, setSentTo] = useState('');
 	const { requestLink, loading, sent, error } = useAccountDeletionRequest();
 	const step = stepOf(sent);
-	const sentTo = email.trim();
 
 	const handleSubmit = useCallback(
 		async (e: FormEvent<HTMLFormElement>) => {
 			e.preventDefault();
-			setEmptyEmail(!email.trim());
-			if (!email.trim()) return;
-			await requestLink(email);
+			const address = email.trim();
+			const problem = emailErrorOf(address, t);
+			setEmailError(problem);
+			if (problem) {
+				return;
+			}
+			setSentTo(address);
+			await requestLink(address);
 		},
-		[email, requestLink]
+		[email, requestLink, t]
 	);
 
 	const backToSignIn = (
@@ -107,8 +106,11 @@ export default function DeleteAccountRequestForm() {
 									placeholder={t('auth.field.EMAIL_PLACEHOLDER')}
 									icon={<Mail />}
 									value={email}
-									onChange={(e) => setEmail(e.target.value)}
-									error={emailErrorOf(emptyEmail, t('form.EMAIL_REQUIRED'))}
+									onChange={(e) => {
+										setEmail(e.target.value);
+										setEmailError(null);
+									}}
+									error={emailError}
 									autoComplete="email"
 									inputMode="email"
 									required

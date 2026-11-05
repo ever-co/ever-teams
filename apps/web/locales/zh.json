@@ -4251,7 +4251,7 @@
 		"code": {
 			"CHANGE_EMAIL": "使用其他邮箱",
 			"CLEAR": "清除",
-			"DESCRIPTION": "我们已向 <address>{email}</address> 发送了 {length} 位验证码。点击同一封邮件中的链接也能直接登录。",
+			"DESCRIPTION": "我们已向 <address>{email}</address> 发送了 {length} 位验证码。",
 			"LABEL": "登录验证码",
 			"NOT_RECEIVED": "没有收到邮件？",
 			"RESEND": "发送新验证码",
@@ -4270,6 +4270,7 @@
 		"field": {
 			"CAPS_LOCK_ON": "大写锁定已开启",
 			"CONFIRM_PASSWORD_LABEL": "确认密码",
+			"EMAIL_INVALID": "请输入有效的邮箱地址。",
 			"EMAIL_LABEL": "邮箱",
 			"EMAIL_PLACEHOLDER": "you@company.com",
 			"HIDE_PASSWORD": "隐藏密码",
@@ -4304,7 +4305,9 @@
 		},
 		"password": {
 			"RULE_MATCH": "两次输入的密码一致",
+			"RULE_MET": "已满足要求",
 			"RULE_MIN_LENGTH": "{count, plural, other {至少 # 个字符}}",
+			"RULE_NOT_MET": "未满足要求",
 			"STRENGTH_FAIR": "一般",
 			"STRENGTH_GOOD": "良好",
 			"STRENGTH_STRONG": "强",
@@ -4325,7 +4328,7 @@
 			"ACCOUNT_TITLE": "你在团队中的位置",
 			"INBOX_ACTIVATE_TEXT": "打开其中的链接激活账户，然后用邮箱登录。",
 			"INBOX_ACTIVATE_TITLE": "要找的那封邮件",
-			"INBOX_CODE_TEXT": "输入其中的验证码，或打开其中的链接：两种方式都能登录。",
+			"INBOX_CODE_TEXT": "输入其中的验证码即可登录。",
 			"INBOX_CODE_TITLE": "要找的那封邮件",
 			"INBOX_RESET_TEXT": "其中的链接会打开设置新密码的页面。",
 			"INBOX_RESET_TITLE": "要找的那封邮件",

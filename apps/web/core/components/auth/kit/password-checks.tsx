@@ -11,6 +11,8 @@ import {
 	type PasswordStrength
 } from '@/core/lib/utils/password-strength';
 
+type Translate = ReturnType<typeof useTranslations>;
+
 const SEGMENTS = [1, 2, 3, 4] as const;
 
 const STRENGTH_FILL: Record<PasswordStrength, string> = {
@@ -69,7 +71,22 @@ function StrengthMeter({ strength }: Readonly<{ strength: PasswordStrength }>) {
 	);
 }
 
+/** The length rule, also the error of a password that is too short. */
+export function minLengthRuleOf(t: Translate) {
+	return t('auth.password.RULE_MIN_LENGTH', { count: PASSWORD_MIN_LENGTH });
+}
+
+function ruleStateKeyOf(isMet: boolean) {
+	if (isMet) {
+		return 'auth.password.RULE_MET' as const;
+	}
+	return 'auth.password.RULE_NOT_MET' as const;
+}
+
 function RuleRow({ isMet, label }: Readonly<{ isMet: boolean; label: string }>) {
+	const t = useTranslations();
+	const stateKey = ruleStateKeyOf(isMet);
+
 	return (
 		<li
 			className={cn('flex items-center gap-2 text-xs transition-colors duration-200', isMet && 'text-foreground')}
@@ -93,6 +110,7 @@ function RuleRow({ isMet, label }: Readonly<{ isMet: boolean; label: string }>) 
 				</span>
 			</span>
 			<span>{label}</span>
+			<span className="sr-only">{t(stateKey)}</span>
 		</li>
 	);
 }
@@ -116,10 +134,7 @@ export function PasswordChecks({
 		<div className="flex flex-col gap-2.5">
 			<StrengthMeter strength={strength} />
 			<ul className="flex flex-col gap-1.5 text-muted-foreground">
-				<RuleRow
-					isMet={isLongEnough}
-					label={t('auth.password.RULE_MIN_LENGTH', { count: PASSWORD_MIN_LENGTH })}
-				/>
+				<RuleRow isMet={isLongEnough} label={minLengthRuleOf(t)} />
 				{hasConfirmationField && <RuleRow isMet={doesMatch} label={t('auth.password.RULE_MATCH')} />}
 			</ul>
 		</div>

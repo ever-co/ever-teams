@@ -112,6 +112,24 @@ function rowStateClass(isSelected: boolean, isEmpty: boolean) {
 	return 'hover:bg-foreground/[0.03]';
 }
 
+/** A row without a team list opens nothing, so it states no expanded state. */
+function expandedStateOf(showsTeams: boolean, hasTeamList: boolean) {
+	if (!hasTeamList) {
+		return undefined;
+	}
+	return showsTeams;
+}
+
+/** Enter in the search would sign in to the selected workspace, which the query may be hiding. */
+function keepSearchFromSubmitting(event: KeyboardEvent<HTMLInputElement>) {
+	const isEnter = event.key === 'Enter';
+	const isComposing = event.nativeEvent.isComposing;
+	if (!isEnter || isComposing) {
+		return;
+	}
+	event.preventDefault();
+}
+
 function focusNeighbourRow(event: KeyboardEvent<HTMLDivElement>, offset: number) {
 	const rows = Array.from(event.currentTarget.querySelectorAll<HTMLButtonElement>('[data-picker-row]'));
 	const current = rows.indexOf(document.activeElement as HTMLButtonElement);
@@ -148,8 +166,8 @@ export function WorkspacePicker(props: Readonly<WorkspacePickerProps>) {
 	const isSelectedEmpty = Boolean(selectedItem && !selectedItem.hasTeams);
 	const accountEmail = pickable[0]?.workspace.user?.email ?? '';
 	const isSubmitting = Boolean(props.signInWorkspaceLoading);
-	const hasNoSelection = !props.selectedWorkspace && props.selectedWorkspace !== 0;
-	const isContinueDisabled = isSubmitting || hasNoSelection;
+	const hasListedSelection = Boolean(selectedItem);
+	const isContinueDisabled = isSubmitting || !hasListedSelection;
 
 	const selectWorkspace = (item: PickableWorkspace) => {
 		const isAlreadySelected = props.selectedWorkspace === item.originalIndex;
@@ -239,6 +257,7 @@ export function WorkspacePicker(props: Readonly<WorkspacePickerProps>) {
 						type="search"
 						value={query}
 						onChange={(event) => setQuery(event.target.value)}
+						onKeyDown={keepSearchFromSubmitting}
 						placeholder={t('auth.workspace.SEARCH')}
 						className="h-full min-w-0 flex-1 bg-transparent text-base outline-none placeholder:text-muted-foreground/75 md:text-sm"
 					/>
@@ -270,6 +289,7 @@ export function WorkspacePicker(props: Readonly<WorkspacePickerProps>) {
 					const teams = (workspace.current_teams ?? []).filter((team) => team && team.team_name);
 					const hasTeamList = teams.length > 0 && !props.teamsUnavailable;
 					const showsKeyCap = !isSelected && hasKeyCap;
+					const expandedState = expandedStateOf(showsTeams, hasTeamList);
 
 					return (
 						<div
@@ -280,7 +300,7 @@ export function WorkspacePicker(props: Readonly<WorkspacePickerProps>) {
 								type="button"
 								data-picker-row=""
 								aria-pressed={isSelected}
-								aria-expanded={showsTeams}
+								aria-expanded={expandedState}
 								disabled={isSubmitting}
 								onClick={() => selectWorkspace(item)}
 								className={cn(
@@ -310,7 +330,10 @@ export function WorkspacePicker(props: Readonly<WorkspacePickerProps>) {
 								</span>
 								{isSelected && <SelectedMark />}
 								{showsKeyCap && (
-									<kbd className="hidden h-5 min-w-5 items-center justify-center rounded-[5px] px-1 font-sans text-[11px] font-medium text-muted-foreground keycap-3d sm:inline-flex">
+									<kbd
+										aria-hidden="true"
+										className="hidden h-5 min-w-5 items-center justify-center rounded-[5px] px-1 font-sans text-[11px] font-medium text-muted-foreground keycap-3d sm:inline-flex"
+									>
 										{keyLabel}
 									</kbd>
 								)}

@@ -1,16 +1,15 @@
 'use client';
 
-import { useEffect, useRef, type MutableRefObject, type ReactNode, type Ref } from 'react';
+import { useEffect, useRef, type FormEvent, type MutableRefObject, type ReactNode, type Ref } from 'react';
 import { CircleAlert } from '@/core/components/icons';
 import { AuthCodeInputField, type AuthCodeRef } from '@/core/components/auth/auth-code-input';
-import { AUTH_CODE_LENGTH } from '@/core/constants/config/constants';
 import { cn } from '@/core/lib/helpers';
-import { prefersReducedMotion } from '@/core/lib/utils/motion';
+import { canAnimate } from '@/core/lib/utils/motion';
 import { AUTH_LABEL, AUTH_LINE_ARRIVAL } from './auth-recipes';
 
 export type AuthCodeStatus = 'idle' | 'loading' | 'success' | 'error';
 
-/** The dash sits at the centre of the row: the gaps are symmetric, so it always lands in the wider middle gap. */
+/** The AUTH_CODE_LENGTH slots split 4 + 4: the dash sits at the centre of the row, in the wider middle gap. */
 const GROUPED_ROW = 'flex w-full justify-between gap-1.5 [&>input:nth-child(4)]:mr-4';
 
 /** The placeholder is a space so `:placeholder-shown` tells an empty slot from a filled one. */
@@ -51,7 +50,7 @@ function settleSlot(slot: HTMLInputElement | undefined) {
 	if (!slot) {
 		return;
 	}
-	if (prefersReducedMotion()) {
+	if (!canAnimate(slot)) {
 		return;
 	}
 	slot.animate(SETTLE_KEYFRAMES, SETTLE_TIMING);
@@ -71,7 +70,6 @@ type AuthCodeFieldProps = {
 	autoFocus?: boolean;
 	submitCode?: () => void;
 	onChange: (code: string) => void;
-	length?: number;
 };
 
 export function AuthCodeField({
@@ -86,13 +84,13 @@ export function AuthCodeField({
 	autoComplete,
 	autoFocus = true,
 	submitCode,
-	onChange,
-	length = AUTH_CODE_LENGTH
+	onChange
 }: Readonly<AuthCodeFieldProps>) {
 	const ownSlots = useRef<HTMLInputElement[]>([]);
 	const slotsRef = inputReference ?? ownSlots;
 	const groupRef = useRef<HTMLDivElement>(null);
 	const typedLength = useRef(0);
+	const typedSlot = useRef<HTMLInputElement | null>(null);
 	const labelId = `${id}-label`;
 	const errorId = `${id}-error`;
 	const hasError = Boolean(error);
@@ -105,18 +103,25 @@ export function AuthCodeField({
 		if (!group) {
 			return;
 		}
-		if (prefersReducedMotion()) {
+		if (!canAnimate(group)) {
 			return;
 		}
 		group.animate(SHAKE_KEYFRAMES, SHAKE_TIMING);
 	}, [status]);
 
+	const noteTypedSlot = (event: FormEvent<HTMLDivElement>) => {
+		typedSlot.current = event.target as HTMLInputElement;
+	};
+
+	/** A paste or a code from the link fills the slots from the first one, and fires no input event. */
 	const handleChange = (code: string) => {
 		const grew = code.length > typedLength.current;
 		typedLength.current = code.length;
+		const lastFilledSlot = slotsRef.current[code.length - 1];
+		const changedSlot = typedSlot.current ?? lastFilledSlot;
+		typedSlot.current = null;
 		if (grew) {
-			const lastSlot = slotsRef.current[code.length - 1];
-			settleSlot(lastSlot);
+			settleSlot(changedSlot);
 		}
 		onChange(code);
 	};
@@ -130,12 +135,11 @@ export function AuthCodeField({
 				{labelAside}
 			</div>
 			<fieldset aria-labelledby={labelId} aria-describedby={errorRefOf(hasError, errorId)} className="min-w-0">
-				<div ref={groupRef} className="relative">
+				<div ref={groupRef} className="relative" onInput={noteTypedSlot}>
 					<AuthCodeInputField
 						ref={codeRef}
 						inputReference={slotsRef}
 						allowedCharacters="alphanumeric"
-						length={length}
 						containerClassName={GROUPED_ROW}
 						inputClassName={GROUPED_SLOT}
 						placeholder=" "

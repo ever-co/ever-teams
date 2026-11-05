@@ -4251,7 +4251,7 @@
 		"code": {
 			"CHANGE_EMAIL": "Usar otro correo",
 			"CLEAR": "Borrar",
-			"DESCRIPTION": "Enviamos un código de {length} caracteres a <address>{email}</address>. El enlace del mismo correo también inicia tu sesión.",
+			"DESCRIPTION": "Enviamos un código de {length} caracteres a <address>{email}</address>.",
 			"LABEL": "Código de acceso",
 			"NOT_RECEIVED": "¿Nada en tu bandeja de entrada?",
 			"RESEND": "Enviar un código nuevo",
@@ -4270,6 +4270,7 @@
 		"field": {
 			"CAPS_LOCK_ON": "Bloq Mayús está activado",
 			"CONFIRM_PASSWORD_LABEL": "Confirma la contraseña",
+			"EMAIL_INVALID": "Escribe un correo electrónico válido.",
 			"EMAIL_LABEL": "Correo electrónico",
 			"EMAIL_PLACEHOLDER": "nombre@empresa.com",
 			"HIDE_PASSWORD": "Ocultar la contraseña",
@@ -4304,7 +4305,9 @@
 		},
 		"password": {
 			"RULE_MATCH": "Las dos contraseñas coinciden",
+			"RULE_MET": "Requisito cumplido",
 			"RULE_MIN_LENGTH": "{count, plural, one {Al menos # carácter} other {Al menos # caracteres}}",
+			"RULE_NOT_MET": "Requisito no cumplido",
 			"STRENGTH_FAIR": "Aceptable",
 			"STRENGTH_GOOD": "Buena",
 			"STRENGTH_STRONG": "Fuerte",
@@ -4325,7 +4328,7 @@
 			"ACCOUNT_TITLE": "Tu lugar en el equipo",
 			"INBOX_ACTIVATE_TEXT": "Abre su enlace para activar tu cuenta y luego inicia sesión con tu correo.",
 			"INBOX_ACTIVATE_TITLE": "El correo que debes buscar",
-			"INBOX_CODE_TEXT": "Escribe el código que contiene o abre su enlace: ambos inician tu sesión.",
+			"INBOX_CODE_TEXT": "Escribe el código que contiene para iniciar sesión.",
 			"INBOX_CODE_TITLE": "El correo que debes buscar",
 			"INBOX_RESET_TEXT": "Su enlace abre la página donde eliges una contraseña nueva.",
 			"INBOX_RESET_TITLE": "El correo que debes buscar",

@@ -61,9 +61,17 @@ export function CodeStep({ form }: Readonly<{ form: TAuthenticationPasscode }>) 
 		form.setErrors({});
 	};
 
-	const resend = () => {
+	const resend = async () => {
 		const sending = form.sendAuthCodeHandler();
-		sending?.catch(() => undefined);
+		if (!sending) {
+			return false;
+		}
+		try {
+			await sending;
+			return true;
+		} catch {
+			return false;
+		}
 	};
 
 	let description: ReactNode = t.rich('auth.code.DESCRIPTION', {

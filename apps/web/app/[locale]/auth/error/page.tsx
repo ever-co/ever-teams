@@ -35,6 +35,14 @@ const errorMap = {
 	[Error.AccessDenied]: <UnauthorizedPage />
 };
 
+/** Own keys only: `?error=__proto__` or `?error=toString` would read the members of Object.prototype. */
+function isKnownError(error: string | null): error is Error {
+	if (!error) {
+		return false;
+	}
+	return Object.hasOwn(errorMap, error);
+}
+
 /**
  * Error page
  *
@@ -43,8 +51,11 @@ const errorMap = {
  */
 export default function Page() {
 	const search = useSearchParams();
-	const error = search?.get('error') as Error;
+	const error = search?.get('error') ?? null;
 	// next-auth also sends OAuthSignin, OAuthCallback, Verification, Default...: they get the generic sign-in error
-	const page = errorMap[error] ?? <SignInError code={error} />;
+	let page = <SignInError code={error} />;
+	if (isKnownError(error)) {
+		page = errorMap[error];
+	}
 	return <FocusShell>{page}</FocusShell>;
 }
