@@ -3,6 +3,11 @@ const SECRET_BODY_FIELDS = new Set(['hash', 'password', 'confirmPassword']);
 
 const HIDDEN = '[hidden]';
 
+/** A text body that is not JSON cannot be checked for a password, so the log leaves it out. */
+const UNREADABLE_BODY = '[not logged]';
+
+const ALREADY_SHOWN = '[circular]';
+
 function isPlainObject(value: unknown): value is Record<string, unknown> {
 	if (typeof value !== 'object') {
 		return false;
@@ -16,18 +21,49 @@ function isPlainObject(value: unknown): value is Record<string, unknown> {
 	return isObjectLiteral || hasNoPrototype;
 }
 
-function hiddenWhenSecret([field, value]: [string, unknown]): [string, unknown] {
+function hideSecrets(value: unknown, seen: WeakSet<object>): unknown {
+	const isArray = Array.isArray(value);
+	const isObject = isPlainObject(value);
+	const isContainer = isArray || isObject;
+	if (!isContainer) {
+		return value;
+	}
+	const container = value as object;
+	if (seen.has(container)) {
+		return ALREADY_SHOWN;
+	}
+	seen.add(container);
+	if (isArray) {
+		return (value as unknown[]).map((item) => hideSecrets(item, seen));
+	}
+	const entries = Object.entries(value as Record<string, unknown>).map(([field, item]) =>
+		hiddenEntryOf(field, item, seen)
+	);
+	return Object.fromEntries(entries);
+}
+
+function hiddenEntryOf(field: string, item: unknown, seen: WeakSet<object>): [string, unknown] {
 	if (SECRET_BODY_FIELDS.has(field)) {
 		return [field, HIDDEN];
 	}
-	return [field, value];
+	const shown = hideSecrets(item, seen);
+	return [field, shown];
 }
 
-/** A request body as the development log shows it: same fields, never a password. */
-export function requestBodyForLog(data: unknown): unknown {
-	if (!isPlainObject(data)) {
-		return data;
+function textBodyForLog(body: string): unknown {
+	let parsed: unknown;
+	try {
+		parsed = JSON.parse(body);
+	} catch {
+		return UNREADABLE_BODY;
 	}
-	const entries = Object.entries(data).map(hiddenWhenSecret);
-	return Object.fromEntries(entries);
+	return hideSecrets(parsed, new WeakSet());
+}
+
+/** A request body as the development log shows it: same fields at any depth, never a password. */
+export function requestBodyForLog(data: unknown): unknown {
+	if (typeof data === 'string') {
+		return textBodyForLog(data);
+	}
+	return hideSecrets(data, new WeakSet());
 }

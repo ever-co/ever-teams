@@ -53,11 +53,39 @@ describe('requestBodyForLog', () => {
 		});
 	});
 
-	it('leaves a body that is not a plain object as it is', () => {
+	it('hides password fields at any depth, inside objects and lists', () => {
+		const body = {
+			user: { email: 'a@b.co', password: 'p' },
+			accounts: [{ hash: 'h', name: 'Acme' }]
+		};
+
+		expect(requestBodyForLog(body)).toEqual({
+			user: { email: 'a@b.co', password: '[hidden]' },
+			accounts: [{ hash: '[hidden]', name: 'Acme' }]
+		});
+	});
+
+	it('reads a body already serialized as JSON and hides its passwords', () => {
+		const body = JSON.stringify({ email: 'a@b.co', user: { confirmPassword: 'p' } });
+
+		expect(requestBodyForLog(body)).toEqual({ email: 'a@b.co', user: { confirmPassword: '[hidden]' } });
+	});
+
+	it('leaves out a text body it cannot read', () => {
+		expect(requestBodyForLog('password=p&email=a')).toBe('[not logged]');
+	});
+
+	it('stops on a body that refers to itself', () => {
+		const body: Record<string, unknown> = { password: 'p' };
+		body.self = body;
+
+		expect(requestBodyForLog(body)).toEqual({ password: '[hidden]', self: '[circular]' });
+	});
+
+	it('leaves other bodies as they are', () => {
 		const form = new URLSearchParams('a=1');
 
 		expect(requestBodyForLog(form)).toBe(form);
-		expect(requestBodyForLog('raw')).toBe('raw');
 		expect(requestBodyForLog(undefined)).toBeUndefined();
 	});
 });
