@@ -3885,6 +3885,7 @@
 			"LAST_NAME": "اسم العائلة",
 			"FIRST_NAME_REQUIRED": "أدخل الاسم الأول.",
 			"TRACK_TIME": "تتبع الوقت",
+			"TRACKING_OFF_BY_ADMIN": "عطّله مسؤول المؤسسة",
 			"REMOVE": "إزالة من الفريق",
 			"REMOVE_TITLE": "إزالة {name} من {team}؟",
 			"REMOVE_CONSEQUENCE_LIST": "لن يبقى {name} بين أعضاء الفريق.",

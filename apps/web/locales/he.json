@@ -3885,6 +3885,7 @@
 			"LAST_NAME": "שם משפחה",
 			"FIRST_NAME_REQUIRED": "יש להזין שם פרטי.",
 			"TRACK_TIME": "מעקב זמן",
+			"TRACKING_OFF_BY_ADMIN": "כובה על ידי מנהל הארגון",
 			"REMOVE": "הסרה מהצוות",
 			"REMOVE_TITLE": "להסיר את {name} מ־{team}?",
 			"REMOVE_CONSEQUENCE_LIST": "{name} כבר לא בין חברי הצוות.",

@@ -3885,6 +3885,7 @@
 			"LAST_NAME": "姓",
 			"FIRST_NAME_REQUIRED": "请输入名字。",
 			"TRACK_TIME": "追踪时间",
+			"TRACKING_OFF_BY_ADMIN": "已被组织管理员关闭",
 			"REMOVE": "从团队中移除",
 			"REMOVE_TITLE": "将 {name} 从 {team} 中移除？",
 			"REMOVE_CONSEQUENCE_LIST": "{name} 将不再是团队成员。",

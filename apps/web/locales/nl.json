@@ -3885,6 +3885,7 @@
 			"LAST_NAME": "Achternaam",
 			"FIRST_NAME_REQUIRED": "Voer een voornaam in.",
 			"TRACK_TIME": "Tijd registreren",
+			"TRACKING_OFF_BY_ADMIN": "Uitgeschakeld door een beheerder van de organisatie",
 			"REMOVE": "Uit het team verwijderen",
 			"REMOVE_TITLE": "{name} uit {team} verwijderen?",
 			"REMOVE_CONSEQUENCE_LIST": "{name} hoort niet meer bij de leden van het team.",

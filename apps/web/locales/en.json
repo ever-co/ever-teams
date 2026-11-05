@@ -3885,6 +3885,7 @@
 			"LAST_NAME": "Last name",
 			"FIRST_NAME_REQUIRED": "Enter a first name.",
 			"TRACK_TIME": "Track time",
+			"TRACKING_OFF_BY_ADMIN": "Turned off by an organization admin",
 			"REMOVE": "Remove from the team",
 			"REMOVE_TITLE": "Remove {name} from {team}?",
 			"REMOVE_CONSEQUENCE_LIST": "{name} leaves the team's members.",
