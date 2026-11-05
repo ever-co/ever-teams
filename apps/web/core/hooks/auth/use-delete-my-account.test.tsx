@@ -34,9 +34,12 @@ const preview = (planHash?: string) => ({
 	accounts: [{ workspace: 'Acme', outcome: 'account-removed' as const }]
 });
 
-function wrapper({ children }: { children: ReactNode }) {
+/** One QueryClient per test, kept across re-renders. */
+function createWrapper() {
 	const client = new QueryClient({ defaultOptions: { queries: { retry: false }, mutations: { retry: false } } });
-	return <QueryClientProvider client={client}>{children}</QueryClientProvider>;
+	return function Wrapper({ children }: { children: ReactNode }) {
+		return <QueryClientProvider client={client}>{children}</QueryClientProvider>;
+	};
 }
 
 beforeEach(() => {
@@ -49,7 +52,7 @@ describe('useDeleteMyAccount', () => {
 	it('refuses to delete without the preview planHash, and says it cannot be confirmed', async () => {
 		mockPreviewMe.mockResolvedValue(preview());
 
-		const { result } = renderHook(() => useDeleteMyAccount(true), { wrapper });
+		const { result } = renderHook(() => useDeleteMyAccount(true), { wrapper: createWrapper() });
 		await waitFor(() => expect(result.current.preview).toBeDefined());
 
 		expect(result.current.canDeleteMyAccount).toBe(false);
@@ -69,7 +72,7 @@ describe('useDeleteMyAccount', () => {
 				})
 		);
 
-		const { result } = renderHook(() => useDeleteMyAccount(true), { wrapper });
+		const { result } = renderHook(() => useDeleteMyAccount(true), { wrapper: createWrapper() });
 		await waitFor(() => expect(result.current.canDeleteMyAccount).toBe(true));
 
 		let deleting: Promise<unknown> = Promise.resolve();
