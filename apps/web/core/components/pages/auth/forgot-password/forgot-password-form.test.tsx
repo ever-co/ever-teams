@@ -59,4 +59,24 @@ describe('ForgotPasswordForm', () => {
 
 		expect(mockRequestPassword).toHaveBeenCalledWith('alice@example.com');
 	});
+
+	it('confirms the address the link went to, even if the field changed meanwhile', async () => {
+		let answer: () => void = () => undefined;
+		mockRequestPassword.mockReturnValue(
+			new Promise<void>((resolve) => {
+				answer = resolve;
+			})
+		);
+		render(<ForgotPasswordForm />);
+		fireEvent.change(emailField(), { target: { value: 'alice@example.com' } });
+		await submit();
+
+		fireEvent.change(emailField(), { target: { value: 'bob@example.com' } });
+		await act(async () => {
+			answer();
+		});
+
+		expect(screen.getByText('alice@example.com')).toBeTruthy();
+		expect(screen.queryByText('bob@example.com')).toBeNull();
+	});
 });

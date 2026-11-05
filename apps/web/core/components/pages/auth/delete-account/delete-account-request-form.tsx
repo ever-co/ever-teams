@@ -33,9 +33,9 @@ export default function DeleteAccountRequestForm() {
 	const t = useTranslations();
 	const [email, setEmail] = useState('');
 	const [emailError, setEmailError] = useState<string | null>(null);
+	const [sentTo, setSentTo] = useState('');
 	const { requestLink, loading, sent, error } = useAccountDeletionRequest();
 	const step = stepOf(sent);
-	const sentTo = email.trim();
 
 	const handleSubmit = useCallback(
 		async (e: FormEvent<HTMLFormElement>) => {
@@ -46,7 +46,8 @@ export default function DeleteAccountRequestForm() {
 			if (problem) {
 				return;
 			}
-			await requestLink(email);
+			setSentTo(address);
+			await requestLink(address);
 		},
 		[email, requestLink, t]
 	);

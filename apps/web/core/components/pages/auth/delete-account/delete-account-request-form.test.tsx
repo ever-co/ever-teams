@@ -11,9 +11,19 @@ jest.mock('next-intl', () => ({
 jest.mock('@/core/components/layouts/default-layout/auth-layout', () => ({
 	AuthLayout: ({ children }: { children: ReactNode }) => <div>{children}</div>
 }));
-jest.mock('@/core/hooks/auth/use-account-deletion', () => ({
-	useAccountDeletionRequest: () => ({ requestLink: mockRequestLink, loading: false, sent: false, error: false })
-}));
+jest.mock('@/core/hooks/auth/use-account-deletion', () => {
+	const { useState } = jest.requireActual('react');
+	return {
+		useAccountDeletionRequest: () => {
+			const [sent, setSent] = useState(false);
+			const requestLink = async (email: string) => {
+				await mockRequestLink(email);
+				setSent(true);
+			};
+			return { requestLink, loading: false, sent, error: false };
+		}
+	};
+});
 
 beforeEach(() => {
 	window.matchMedia = jest.fn().mockReturnValue({ matches: true }) as unknown as typeof window.matchMedia;
@@ -57,5 +67,25 @@ describe('DeleteAccountRequestForm', () => {
 		await submit();
 
 		expect(mockRequestLink).toHaveBeenCalledWith('alice@example.com');
+	});
+
+	it('confirms the address the link went to, even if the field changed meanwhile', async () => {
+		let answer: () => void = () => undefined;
+		mockRequestLink.mockReturnValue(
+			new Promise<void>((resolve) => {
+				answer = resolve;
+			})
+		);
+		render(<DeleteAccountRequestForm />);
+		fireEvent.change(emailField(), { target: { value: 'alice@example.com' } });
+		await submit();
+
+		fireEvent.change(emailField(), { target: { value: 'bob@example.com' } });
+		await act(async () => {
+			answer();
+		});
+
+		expect(screen.getByText('alice@example.com')).toBeTruthy();
+		expect(screen.queryByText('bob@example.com')).toBeNull();
 	});
 });

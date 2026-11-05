@@ -31,8 +31,12 @@ export default function ForgotPasswordForm() {
 	const [loading, setLoading] = useState(false);
 	const [sent, setSent] = useState(false);
 	const [error, setError] = useState('');
+	const [sentTo, setSentTo] = useState('');
 	const step = stepOf(sent);
-	const sentTo = email.trim();
+	let shownAddress = email.trim();
+	if (sent) {
+		shownAddress = sentTo;
+	}
 
 	const handleSubmit = useCallback(
 		async (e: FormEvent<HTMLFormElement>) => {
@@ -48,7 +52,8 @@ export default function ForgotPasswordForm() {
 
 			setLoading(true);
 			try {
-				await authService.requestPassword(email.trim());
+				await authService.requestPassword(address);
+				setSentTo(address);
 				setSent(true);
 			} catch {
 				setError(t('pages.authForgotPassword.ERROR_MESSAGE'));
@@ -63,7 +68,7 @@ export default function ForgotPasswordForm() {
 		<InboxScene
 			title={t('auth.scene.INBOX_RESET_TITLE')}
 			description={t('auth.scene.INBOX_RESET_TEXT')}
-			email={sentTo}
+			email={shownAddress}
 			message="reset"
 		/>
 	);
