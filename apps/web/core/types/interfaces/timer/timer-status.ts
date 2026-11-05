@@ -34,6 +34,7 @@ export type IUpdateTimerStatusParams = {
 	source: ETimeLogSource;
 	tags: any[];
 	organizationTeamId?: string;
+	planDay?: string;
 };
 export type IToggleTimerStatusParams = IGetTimerStatusParams & {
 	logType?: 'TRACKED';
