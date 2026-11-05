@@ -7,6 +7,7 @@ import { toast } from 'sonner';
 import { useTranslations, type DottedLanguageObjectStringPaths } from 'next-intl';
 import { errorReasonKeyOf } from '@/core/lib/utils/error-feedback';
 import { getActiveTeamIdCookie } from '@/core/lib/helpers/cookies';
+import { isTenantAdminRole } from '@/core/lib/utils/roles';
 import { useIsMemberManager } from '../organizations/teams/use-team-member';
 import { useUserQuery } from '../queries/user-user.query';
 import { useInvitationInvalidation } from './use-invitation-invalidation';
@@ -23,6 +24,8 @@ export function useRemoveTeamInvitation() {
 	const activeTeamId = getActiveTeamIdCookie();
 	const { data: user } = useUserQuery();
 	const { isTeamManager } = useIsMemberManager(user);
+	const isOrganizationAdmin = isTenantAdminRole(user?.role?.name);
+	const managesInvitations = isTeamManager || isOrganizationAdmin;
 	const t = useTranslations();
 
 	// ===== REMOVE INVITATION =====
@@ -49,12 +52,15 @@ export function useRemoveTeamInvitation() {
 	const removeInvitationMutateAsync = removeInvitationMutation.mutateAsync;
 	const removeTeamInvitation = useCallback(
 		(invitationId: string, email?: string) => {
-			if (!(activeTeamId && isTeamManager && user?.tenantId)) {
+			const hasActiveTeam = Boolean(activeTeamId);
+			const hasTenant = Boolean(user?.tenantId);
+			const mayRemove = hasActiveTeam && managesInvitations && hasTenant;
+			if (!mayRemove) {
 				return Promise.resolve();
 			}
 			return removeInvitationMutateAsync({ invitationId, email });
 		},
-		[removeInvitationMutateAsync, activeTeamId, isTeamManager, user]
+		[removeInvitationMutateAsync, activeTeamId, managesInvitations, user]
 	);
 
 	// ===== RETURN =====
