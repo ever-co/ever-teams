@@ -129,6 +129,8 @@
 		"ASSIGN_TASK_TO": "Przypisz zadanie do",
 		"ASSIGN_TASK_TO_ME": "Przypisz zadanie do mnie",
 		"UNASSIGN_TASK_FROM_ME": "Usuń mnie z zadania",
+		"ASSIGN_TASK_TO_MEMBER": "Przypisz do: {name}",
+		"UNASSIGN_TASK_FROM_MEMBER": "Usuń przypisanie: {name}",
 		"TASK_ASSIGNED_TO_ME": "Zadanie przypisane do Ciebie",
 		"TASK_UNASSIGNED_FROM_ME": "Zadanie usunięte z Ciebie",
 		"TASK_ASSIGN_ERROR": "Nie udało się przypisać zadania",

@@ -128,6 +128,8 @@
 		"ASSIGN_TASK_TO": "Taak toewijzen",
 		"ASSIGN_TASK_TO_ME": "Wijs taak aan mij toe",
 		"UNASSIGN_TASK_FROM_ME": "Verwijder mij van de taak",
+		"ASSIGN_TASK_TO_MEMBER": "Toewijzen aan {name}",
+		"UNASSIGN_TASK_FROM_MEMBER": "{name} verwijderen",
 		"TASK_ASSIGNED_TO_ME": "Taak aan u toegewezen",
 		"TASK_UNASSIGNED_FROM_ME": "Taak van u verwijderd",
 		"TASK_ASSIGN_ERROR": "Taak toewijzen mislukt",

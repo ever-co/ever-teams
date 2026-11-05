@@ -125,6 +125,8 @@
 		"ASSIGN_TASK_TO": "Asignar tarea a",
 		"ASSIGN_TASK_TO_ME": "Asignarme la tarea",
 		"UNASSIGN_TASK_FROM_ME": "Desasignarme de la tarea",
+		"ASSIGN_TASK_TO_MEMBER": "Asignar a {name}",
+		"UNASSIGN_TASK_FROM_MEMBER": "Desasignar a {name}",
 		"TASK_ASSIGNED_TO_ME": "Tarea asignada a ti",
 		"TASK_UNASSIGNED_FROM_ME": "Tarea desasignada de ti",
 		"TASK_ASSIGN_ERROR": "Error al asignar la tarea",

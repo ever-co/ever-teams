@@ -128,6 +128,8 @@
 		"ASSIGN_TASK_TO": "Assegna attività",
 		"ASSIGN_TASK_TO_ME": "Assegna l'attività a me",
 		"UNASSIGN_TASK_FROM_ME": "Rimuovimi dall'attività",
+		"ASSIGN_TASK_TO_MEMBER": "Assegna a {name}",
+		"UNASSIGN_TASK_FROM_MEMBER": "Rimuovi {name}",
 		"TASK_ASSIGNED_TO_ME": "Attività assegnata a te",
 		"TASK_UNASSIGNED_FROM_ME": "Attività rimossa da te",
 		"TASK_ASSIGN_ERROR": "Impossibile assegnare l'attività",

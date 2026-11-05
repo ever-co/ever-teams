@@ -88,6 +88,8 @@
 		"ASSIGN_TASK_TO": "تعيين المهمة إلى",
 		"ASSIGN_TASK_TO_ME": "تعيين المهمة لي",
 		"UNASSIGN_TASK_FROM_ME": "إلغاء تعييني من المهمة",
+		"ASSIGN_TASK_TO_MEMBER": "إسناد إلى {name}",
+		"UNASSIGN_TASK_FROM_MEMBER": "إلغاء إسناد {name}",
 		"TASK_ASSIGNED_TO_ME": "تم تعيين المهمة لك",
 		"TASK_UNASSIGNED_FROM_ME": "تم إلغاء تعيينك من المهمة",
 		"TASK_ASSIGN_ERROR": "فشل في تعيين المهمة",

@@ -128,6 +128,8 @@
 		"ASSIGN_TASK_TO": "Aufgabe zuweisen an",
 		"ASSIGN_TASK_TO_ME": "Mir die Aufgabe zuweisen",
 		"UNASSIGN_TASK_FROM_ME": "Mich von der Aufgabe entfernen",
+		"ASSIGN_TASK_TO_MEMBER": "{name} zuweisen",
+		"UNASSIGN_TASK_FROM_MEMBER": "{name} entfernen",
 		"TASK_ASSIGNED_TO_ME": "Aufgabe wurde Ihnen zugewiesen",
 		"TASK_UNASSIGNED_FROM_ME": "Aufgabe wurde von Ihnen entfernt",
 		"TASK_ASSIGN_ERROR": "Aufgabe konnte nicht zugewiesen werden",
