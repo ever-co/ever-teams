@@ -1479,7 +1479,7 @@
 		"STOP_TIMER": "Ferma Timer",
 		"TASK": "Compito",
 		"ASSIGN_TASK": "Assegna Compito",
-		"CREATE_TASK": "Crea Compito"
+		"CREATE_TASK": "Crea attività"
 	},
 	"alerts": {
 		"ACTION_FAILED": "L'azione non è riuscita.",
