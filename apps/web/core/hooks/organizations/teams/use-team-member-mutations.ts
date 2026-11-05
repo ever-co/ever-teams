@@ -8,6 +8,7 @@ import { useSetActiveTask } from './use-team-tasks-state';
 import { TOrganizationTeamEmployee } from '@/core/types/schemas';
 import { TTask } from '@/core/types/schemas/task/task.schema';
 import { useUserQuery } from '../../queries/user-user.query';
+import { useSyncRef } from '../../common/use-sync-ref';
 
 /**
  * Provides task assignment/unassignment mutations for a given team member.
@@ -27,6 +28,8 @@ export function useTeamMemberMutations(member: TOrganizationTeamEmployee | undef
 	const { setActiveTask } = useSetActiveTask();
 	const tasks = useAtomValue(tasksByTeamState);
 	const activeTeamTask = useAtomValue(activeTeamTaskState);
+	// Read when an unassignment lands: the active task may have changed while it was saving
+	const activeTeamTaskRef = useSyncRef(activeTeamTask);
 
 	const [assignTaskLoading, setAssignTaskLoading] = useState(false);
 	const [unAssignTaskLoading, setUnAssignTaskLoading] = useState(false);
@@ -90,7 +93,7 @@ export function useTeamMemberMutations(member: TOrganizationTeamEmployee | undef
 				members: task.members?.filter((m) => m.id !== member.employeeId)
 			})
 				.then(() => {
-					const isActiveTask = activeTeamTask?.id === task.id;
+					const isActiveTask = activeTeamTaskRef.current?.id === task.id;
 					const leavesOwnActiveTask = isAuthUser && isActiveTask;
 					if (leavesOwnActiveTask) {
 						unassignAuthActiveTask();
@@ -100,7 +103,7 @@ export function useTeamMemberMutations(member: TOrganizationTeamEmployee | undef
 					setUnAssignTaskLoading(false);
 				});
 		},
-		[updateTask, member, isAuthUser, activeTeamTask, unassignAuthActiveTask]
+		[updateTask, member, isAuthUser, activeTeamTaskRef, unassignAuthActiveTask]
 	);
 
 	return {
