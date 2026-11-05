@@ -17,6 +17,8 @@ const PROFILE_USER_ID = 'profile-user';
 const PROFILE_EMPLOYEE_ID = 'profile-employee';
 
 const mockCreateDailyPlan = jest.fn();
+// Which member's assignment the menu changed, by employee id
+const mockAssignedEmployeeIds: string[] = [];
 
 // A manager on a teammate's profile: the plan must target the profile member, never the viewer
 const mockViewer = {
@@ -28,7 +30,11 @@ const mockProfileMember = {
 	employeeId: PROFILE_EMPLOYEE_ID,
 	employee: { id: PROFILE_EMPLOYEE_ID, userId: PROFILE_USER_ID, user: { id: PROFILE_USER_ID } }
 };
-const mockActiveTeam = { id: 'team-1', members: [mockProfileMember] };
+const mockViewerMember = {
+	employeeId: VIEWER_EMPLOYEE_ID,
+	employee: { id: VIEWER_EMPLOYEE_ID, userId: VIEWER_USER_ID, user: { id: VIEWER_USER_ID } }
+};
+const mockActiveTeam = { id: 'team-1', members: [mockProfileMember, mockViewerMember] };
 const mockAtomValues: Record<string, unknown> = { 'active-team': mockActiveTeam };
 
 jest.mock('jotai', () => {
@@ -60,7 +66,13 @@ jest.mock('@/core/hooks', () => ({
 	useTMCardTaskEdit: () => ({}),
 	useMemberIdentity: () => ({}),
 	useMemberActiveTask: () => null,
-	useTeamMemberMutations: () => ({}),
+	useTeamMemberMutations: (member?: { employeeId?: string }) => ({
+		assignTask: async () => {
+			mockAssignedEmployeeIds.push(member?.employeeId ?? 'none');
+			return true;
+		},
+		unassignTask: async () => undefined
+	}),
 	useTeamMemberRoleActions: () => ({})
 }));
 jest.mock('@/core/hooks/daily-plans/use-my-daily-plans', () => ({
@@ -101,7 +113,16 @@ jest.mock('@/core/components/common/dropdown-menu', () => ({
 	DropdownMenuTrigger: ({ children }: React.PropsWithChildren) => <>{children}</>,
 	DropdownMenuPortal: ({ children }: React.PropsWithChildren) => <>{children}</>,
 	DropdownMenuContent: ({ children }: React.PropsWithChildren) => <div>{children}</div>,
-	DropdownMenuItem: ({ children }: React.PropsWithChildren) => <>{children}</>,
+	DropdownMenuItem: ({ children, onSelect }: React.PropsWithChildren<{ onSelect?: () => void }>) => {
+		if (!onSelect) {
+			return <>{children}</>;
+		}
+		return (
+			<div role="menuitem" onClick={() => onSelect()}>
+				{children}
+			</div>
+		);
+	},
 	DropdownMenuSeparator: () => null
 }));
 jest.mock('../common/ever-card', () => ({
@@ -151,7 +172,12 @@ jest.mock('@/core/components/features/daily-plan/timer-plan-dialogs', () => ({ T
 jest.mock('./drawer/task-drawer-link', () => ({ TaskDrawerLink: () => null }));
 jest.mock('@/core/hooks/organizations/teams/use-active-team-member', () => ({
 	useActiveTeamMember: () => undefined,
-	useActiveTeamMemberOfUser: () => mockProfileMember,
+	useActiveTeamMemberOfUser: (userId?: string) => {
+		if (userId === VIEWER_USER_ID) {
+			return mockViewerMember;
+		}
+		return mockProfileMember;
+	},
 	useActiveTeamMemberUserId: () => undefined,
 	useIsTrackingEnabledFor: () => true
 }));
@@ -224,5 +250,17 @@ describe('TaskCard compact layout menu', () => {
 		const planButton = compactCard.queryByRole('button', { name: 'dailyPlan.PLAN_FOR_TODAY' });
 
 		expect(planButton).not.toBeNull();
+	});
+
+	it("assigns the teammate, not the viewer, from the teammate's profile", async () => {
+		mockAssignedEmployeeIds.length = 0;
+		const compactCard = renderCompactCard({ viewType: 'default' });
+		const assignEntry = compactCard.getByText('common.ASSIGN_TASK_TO_MEMBER');
+
+		await act(async () => {
+			fireEvent.click(assignEntry);
+		});
+
+		expect(mockAssignedEmployeeIds).toEqual([PROFILE_EMPLOYEE_ID]);
 	});
 });

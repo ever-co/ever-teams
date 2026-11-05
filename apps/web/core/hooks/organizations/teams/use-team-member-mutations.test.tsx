@@ -31,6 +31,7 @@ describe('useTeamMemberMutations.unassignTask for the viewer', () => {
 	const otherTask = { id: 'task-other', members: [{ id: 'employee-viewer' }] } as unknown as TTask;
 
 	beforeEach(() => {
+		mockUnassignAuthActiveTask.mockClear();
 		mockAtomValues['tasks-by-team'] = [activeTask, otherTask];
 		mockAtomValues['active-team-task'] = activeTask;
 	});
@@ -50,5 +51,29 @@ describe('useTeamMemberMutations.unassignTask for the viewer', () => {
 		await act(() => result.current.unassignTask(activeTask));
 
 		expect(mockUnassignAuthActiveTask).toHaveBeenCalledTimes(1);
+	});
+
+	it('leaves a task made active while the unassignment was saving', async () => {
+		let finishSave: () => void = () => undefined;
+		mockUpdateTask.mockImplementationOnce(
+			() =>
+				new Promise<undefined>((resolve) => {
+					finishSave = () => resolve(undefined);
+				})
+		);
+		const { result, rerender } = renderHook(() => useTeamMemberMutations(viewer));
+
+		let unassignment: Promise<unknown> = Promise.resolve();
+		act(() => {
+			unassignment = result.current.unassignTask(activeTask);
+		});
+		mockAtomValues['active-team-task'] = otherTask;
+		rerender();
+		await act(async () => {
+			finishSave();
+			await unassignment;
+		});
+
+		expect(mockUnassignAuthActiveTask).not.toHaveBeenCalled();
 	});
 });
