@@ -1,8 +1,9 @@
 import { ISigninEmailConfirmWorkspaces } from '@/core/types/interfaces/auth/auth';
 import { findMostRecentWorkspace, safeTimestamp } from '@/core/lib/utils/date-comparison.utils';
+import { findWorkspaceIndexByTeamId } from '@/core/lib/utils/workspace.utils';
 
 /** Past this many days without use, a sign-in shows the workspace list again. */
-export const REMEMBERED_TEAM_MAX_AGE_DAYS = 30;
+const REMEMBERED_TEAM_MAX_AGE_DAYS = 30;
 
 const DAY_IN_MS = 24 * 60 * 60 * 1000;
 const REMEMBERED_TEAM_MAX_AGE_MS = REMEMBERED_TEAM_MAX_AGE_DAYS * DAY_IN_MS;
@@ -10,12 +11,12 @@ const REMEMBERED_TEAM_MAX_AGE_MS = REMEMBERED_TEAM_MAX_AGE_DAYS * DAY_IN_MS;
 export const REMEMBERED_TEAMS_STORAGE_KEY = 'remembered-teams';
 
 /** The team this browser last opened for one e-mail address; no team once an automatic continue to it failed. */
-export type RememberedTeamRecord = {
+type RememberedTeamRecord = {
 	teamId: string | null;
 	usedAt: number;
 };
 
-export type TeamPick = {
+type TeamPick = {
 	workspaceIndex: number;
 	teamId: string;
 };
@@ -62,11 +63,11 @@ function listsTeam(workspace: ISigninEmailConfirmWorkspaces, teamId: string): bo
 	return teams.some((team) => team?.team_id === teamId);
 }
 
-export function findListedTeam(workspaces: ISigninEmailConfirmWorkspaces[], teamId: MaybeTeamId): TeamPick | null {
+function findListedTeam(workspaces: ISigninEmailConfirmWorkspaces[], teamId: MaybeTeamId): TeamPick | null {
 	if (!teamId) {
 		return null;
 	}
-	const workspaceIndex = workspaces.findIndex((workspace) => listsTeam(workspace, teamId));
+	const workspaceIndex = findWorkspaceIndexByTeamId(workspaces, teamId);
 	if (workspaceIndex < 0) {
 		return null;
 	}
