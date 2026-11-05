@@ -1,19 +1,9 @@
 import { authenticatedGuard } from '@/core/services/server/guards/authenticated-guard-app';
 import { updateTaskRequest, getTaskByIdRequest } from '@/core/services/server/requests';
-import { unwrapRejection } from '@/core/services/server/fetch';
+import { getApiErrorStatus, unwrapRejection } from '@/core/services/server/fetch';
 import { INextParams } from '@/core/types/interfaces/common/data-response';
 import { ITask } from '@/core/types/interfaces/task/task';
 import { NextResponse } from 'next/server';
-
-/** Gauzy's HTTP status in an unwrapped serverFetch rejection, or undefined when the API gave no error answer. */
-function getApiErrorStatus(error: unknown): number | undefined {
-	const statusCode = (error as { statusCode?: unknown } | null | undefined)?.statusCode;
-	const isErrorStatus = typeof statusCode === 'number' && statusCode >= 400;
-	if (!isErrorStatus) {
-		return undefined;
-	}
-	return statusCode;
-}
 
 export async function GET(req: Request, props: INextParams) {
 	const params = await props.params;

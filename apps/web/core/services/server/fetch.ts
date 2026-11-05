@@ -74,6 +74,16 @@ export function serverFetch<T>({
 		});
 }
 
+/** Gauzy's HTTP status in an unwrapped serverFetch rejection, or undefined when the API gave no error answer. */
+export function getApiErrorStatus(error: unknown): number | undefined {
+	const statusCode = (error as { statusCode?: unknown } | null | undefined)?.statusCode;
+	const isErrorStatus = typeof statusCode === 'number' && statusCode >= 400;
+	if (!isErrorStatus) {
+		return undefined;
+	}
+	return statusCode;
+}
+
 // serverFetch rejects a non-2xx answer with Promise.reject(data), so Gauzy's error body sits inside
 // that promise; a network failure rejects with a plain error that carries no status code.
 export async function unwrapRejection(error: unknown): Promise<unknown> {
