@@ -4210,7 +4210,6 @@
 		"PAY_CURRENCY": "Waluta wynagrodzenia",
 		"PAY_RATE_HINT": "Ile członek otrzymuje za godzinę. To coś innego niż stawka rozliczeniowa i stawki dla klienta.",
 		"OWN_PAY_RATE_HINT": "Ile otrzymujesz za godzinę.",
-		"OWN_PAY_RATE_LOCKED": "Twoją stawkę wynagrodzenia ustala inny administrator.",
 		"CURRENCY": "Waluta",
 		"WEEKLY_LIMIT": "Tygodniowy limit godzin",
 		"NOT_SET": "Nie ustawiono",

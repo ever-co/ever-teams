@@ -4210,7 +4210,6 @@
 		"PAY_CURRENCY": "Loonvaluta",
 		"PAY_RATE_HINT": "Wat het lid per uur betaald krijgt. Los van het factuurtarief en de klanttarieven.",
 		"OWN_PAY_RATE_HINT": "Wat je per uur betaald krijgt.",
-		"OWN_PAY_RATE_LOCKED": "Je loontarief wordt door een andere beheerder ingesteld.",
 		"CURRENCY": "Valuta",
 		"WEEKLY_LIMIT": "Limiet uren per week",
 		"NOT_SET": "Niet ingesteld",

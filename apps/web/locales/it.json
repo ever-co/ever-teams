@@ -4210,7 +4210,6 @@
 		"PAY_CURRENCY": "Valuta di retribuzione",
 		"PAY_RATE_HINT": "Quanto viene pagato il membro all'ora. È distinta dalla tariffa di fatturazione e dalle tariffe cliente.",
 		"OWN_PAY_RATE_HINT": "Quanto vieni pagato all'ora.",
-		"OWN_PAY_RATE_LOCKED": "La tua tariffa di retribuzione la imposta un altro amministratore.",
 		"CURRENCY": "Valuta",
 		"WEEKLY_LIMIT": "Limite di ore settimanali",
 		"NOT_SET": "Non impostata",

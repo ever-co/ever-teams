@@ -4210,7 +4210,6 @@
 		"PAY_CURRENCY": "Pay currency",
 		"PAY_RATE_HINT": "What the member is paid per hour. It is separate from the billing rate and from client rates.",
 		"OWN_PAY_RATE_HINT": "What you are paid per hour.",
-		"OWN_PAY_RATE_LOCKED": "Another admin sets your pay rate.",
 		"CURRENCY": "Currency",
 		"WEEKLY_LIMIT": "Weekly hours limit",
 		"NOT_SET": "Not set",

@@ -4210,7 +4210,6 @@
 		"PAY_CURRENCY": "薪酬货币",
 		"PAY_RATE_HINT": "成员每小时的报酬，与计费费率和客户费率分开。",
 		"OWN_PAY_RATE_HINT": "你每小时的报酬。",
-		"OWN_PAY_RATE_LOCKED": "你的薪酬费率由其他管理员设置。",
 		"CURRENCY": "货币",
 		"WEEKLY_LIMIT": "每周工时上限",
 		"NOT_SET": "未设置",

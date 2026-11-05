@@ -65,7 +65,6 @@ export interface MemberRowModel {
 	rate: MemberRate;
 	canEditRate: boolean;
 	employeeId: string | null;
-	showsPayRate: boolean;
 	canEditPayRate: boolean;
 }
 
@@ -174,7 +173,6 @@ export function useTeamMembersSettings() {
 			const isYou = memberUserId === userId;
 			const employeeId = employeeIdOf(member);
 			const hasEmployee = Boolean(employeeId);
-			const showsPayRate = readsPayRates && hasEmployee;
 			const isManagerRole = member.role?.name === ERoleName.MANAGER;
 			const role = roleOverrides[rowId] ?? roleOf(member);
 			const isTrackingEnabled = trackingOverrides[rowId] ?? isTrackingEnabledOf(member);
@@ -198,8 +196,7 @@ export function useTeamMembersSettings() {
 				rate: memberRateOf(member),
 				canEditRate: canEditRates && hasEmployee,
 				employeeId,
-				showsPayRate,
-				canEditPayRate: showsPayRate && !isYou
+				canEditPayRate: readsPayRates && hasEmployee
 			});
 		}
 		return models;

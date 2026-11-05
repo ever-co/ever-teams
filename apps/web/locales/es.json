@@ -4210,7 +4210,6 @@
 		"PAY_CURRENCY": "Moneda de pago",
 		"PAY_RATE_HINT": "Lo que se paga al miembro por hora. Es distinta de la tarifa de facturación y de las tarifas al cliente.",
 		"OWN_PAY_RATE_HINT": "Lo que te pagan por hora.",
-		"OWN_PAY_RATE_LOCKED": "Otro administrador fija tu tarifa de pago.",
 		"CURRENCY": "Moneda",
 		"WEEKLY_LIMIT": "Límite de horas semanales",
 		"NOT_SET": "Sin definir",

@@ -4210,7 +4210,6 @@
 		"PAY_CURRENCY": "Devise de rémunération",
 		"PAY_RATE_HINT": "Ce que le membre est payé par heure. Distinct du taux de facturation et des taux clients.",
 		"OWN_PAY_RATE_HINT": "Ce que vous êtes payé par heure.",
-		"OWN_PAY_RATE_LOCKED": "Un autre administrateur fixe votre taux de rémunération.",
 		"CURRENCY": "Devise",
 		"WEEKLY_LIMIT": "Limite d'heures par semaine",
 		"NOT_SET": "Non défini",

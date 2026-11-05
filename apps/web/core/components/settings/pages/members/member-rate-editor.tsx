@@ -59,16 +59,6 @@ function shownCurrencyOf(ownCurrency: string | null, organizationCurrency: strin
 	return DEFAULT_CURRENCY;
 }
 
-function PayRateText({ value, currency }: Readonly<{ value: number | null; currency: string | null }>) {
-	const t = useTranslations();
-	const locale = useLocale();
-	const amount = rateAmountTextOf(value, currency, locale);
-	if (amount === null) {
-		return <span className="text-[13px] text-muted-foreground">{t('rates.NOT_SET')}</span>;
-	}
-	return <span className="text-[13px] text-foreground tabular-nums">{t('rates.PER_HOUR', { amount })}</span>;
-}
-
 function describedByOf(error: string | null, errorId: string) {
 	if (!error) {
 		return undefined;
@@ -101,11 +91,10 @@ export function MemberRateEditor({
 	const [isSaving, setIsSaving] = useState(false);
 	const hasError = Boolean(error);
 
-	const payRate = useEmployeePayRate(row.employeeId ?? undefined, row.showsPayRate);
+	const payRate = useEmployeePayRate(row.employeeId ?? undefined, row.canEditPayRate);
 	const payRateData = payRate.data;
-	const loadsPayRate = row.showsPayRate && payRate.isLoading;
-	const showsPayRate = row.showsPayRate && Boolean(payRateData);
-	const editsPayRate = showsPayRate && row.canEditPayRate;
+	const loadsPayRate = row.canEditPayRate && payRate.isLoading;
+	const editsPayRate = row.canEditPayRate && Boolean(payRateData);
 	const storedPayRate = rateValueOf(payRateData?.payRateValue);
 	const initialPayCurrency = shownCurrencyOf(payRateData?.payRateCurrency ?? null, payRateData?.currency);
 	const [payTextChoice, setPayTextChoice] = useState<string | null>(null);
@@ -265,13 +254,6 @@ export function MemberRateEditor({
 								{t('rates.PAY_RATE_HINT')}
 							</p>
 						</>
-					)}
-					{showsPayRate && !editsPayRate && (
-						<div className="col-span-2 flex min-w-0 flex-col gap-1 sm:col-span-3">
-							<span className={FIELD_LABEL}>{t('rates.PAY_RATE')}</span>
-							<PayRateText value={storedPayRate} currency={payRateData?.currency ?? null} />
-							<span className="text-xs text-muted-foreground">{t('rates.OWN_PAY_RATE_LOCKED')}</span>
-						</div>
 					)}
 					{error && (
 						<p id={errorId} role="alert" className="col-span-2 text-xs text-destructive-ink sm:col-span-3">

@@ -4210,7 +4210,6 @@
 		"PAY_CURRENCY": "Lohnwährung",
 		"PAY_RATE_HINT": "Was das Mitglied pro Stunde bezahlt bekommt. Getrennt vom Abrechnungssatz und von den Kundensätzen.",
 		"OWN_PAY_RATE_HINT": "Was Sie pro Stunde bezahlt bekommen.",
-		"OWN_PAY_RATE_LOCKED": "Ihren Lohnsatz legt ein anderer Administrator fest.",
 		"CURRENCY": "Währung",
 		"WEEKLY_LIMIT": "Wöchentliches Stundenlimit",
 		"NOT_SET": "Nicht festgelegt",
