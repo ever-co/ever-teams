@@ -54,5 +54,8 @@ it('forwards the new password to Gauzy for the signed-in account', async () => {
 it("passes Gauzy's refusal on with its status", async () => {
 	mockUpdateUser.mockImplementation(() => gauzyRefusal({ statusCode: 403, message: 'Forbidden' }));
 
-	expect((await putUser({ hash: 'new-password' })).status).toBe(403);
+	const response = await putUser({ hash: 'new-password' });
+
+	expect(response.status).toBe(403);
+	expect(await response.json()).toEqual({ statusCode: 403, message: 'Forbidden' });
 });

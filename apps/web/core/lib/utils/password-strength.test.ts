@@ -42,6 +42,7 @@ describe('newPasswordProblemOf', () => {
 
 	it('names the length first, then the confirmation', () => {
 		expect(newPasswordProblemOf('1234567', '1234567')).toBe('tooShort');
+		expect(newPasswordProblemOf('1234567', 'different')).toBe('tooShort');
 		expect(newPasswordProblemOf('12345678', '12345679')).toBe('mismatch');
 		expect(newPasswordProblemOf('12345678', '')).toBe('mismatch');
 	});
