@@ -80,6 +80,16 @@ export function CompleteInvitationRegistrationForm(props: {
 		onNameChange?.(fullName);
 	};
 
+	const changePassword = (password: string) => {
+		setUserDetails((details) => ({ ...details, password }));
+		setErrors((current) => ({ ...current, password: '' }));
+	};
+
+	const changeConfirmation = (confirmPassword: string) => {
+		setUserDetails((details) => ({ ...details, confirmPassword }));
+		setErrors((current) => ({ ...current, confirmPassword: '' }));
+	};
+
 	const needsAgreement = requiresTermsAgreement && !agreeToTerms;
 	const isJoinDisabled = acceptInvitationLoading || needsAgreement || loadingWorkspace;
 
@@ -113,7 +123,7 @@ export function CompleteInvitationRegistrationForm(props: {
 				placeholder={t('auth.field.PASSWORD_PLACEHOLDER')}
 				icon={<Lock />}
 				value={userDetails.password}
-				onChange={(e) => setUserDetails((details) => ({ ...details, password: e.target.value }))}
+				onChange={(e) => changePassword(e.target.value)}
 				error={errors.password}
 				autoComplete="new-password"
 			/>
@@ -124,7 +134,7 @@ export function CompleteInvitationRegistrationForm(props: {
 				placeholder={t('auth.field.PASSWORD_PLACEHOLDER')}
 				icon={<Lock />}
 				value={userDetails.confirmPassword}
-				onChange={(e) => setUserDetails((details) => ({ ...details, confirmPassword: e.target.value }))}
+				onChange={(e) => changeConfirmation(e.target.value)}
 				error={errors.confirmPassword}
 				autoComplete="new-password"
 			/>

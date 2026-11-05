@@ -65,4 +65,27 @@ describe('CompleteInvitationRegistrationForm', () => {
 			expect.objectContaining({ fullName: 'Jane Cooper', password: 'long enough' })
 		);
 	});
+
+	it('clears the mismatch error once the confirmation is edited', async () => {
+		renderForm();
+		typePasswords('long enough', 'long enougj');
+		await join();
+		expect(screen.getByRole('alert').textContent).toBe('errors.PASSWORDS_DO_NOT_MATCH');
+
+		fireEvent.change(screen.getByLabelText('auth.field.CONFIRM_PASSWORD_LABEL'), {
+			target: { value: 'long enough' }
+		});
+
+		expect(screen.queryByRole('alert')).toBeNull();
+	});
+
+	it('clears the length error once the password is edited', async () => {
+		renderForm();
+		typePasswords('short', 'short');
+		await join();
+
+		fireEvent.change(screen.getByLabelText('auth.field.NEW_PASSWORD_LABEL'), { target: { value: 'shorter' } });
+
+		expect(screen.queryByRole('alert')).toBeNull();
+	});
 });
