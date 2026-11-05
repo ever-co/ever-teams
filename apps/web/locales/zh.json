@@ -4128,6 +4128,8 @@
 	"profile": {
 		"page": {
 			"BACK_TO_TEAM": "返回团队",
+			"MANAGER_RIGHTS_UNCONFIRMED_TITLE": "您对该团队成员的管理权限尚未确认",
+			"MANAGER_RIGHTS_UNCONFIRMED_DESCRIPTION": "在组织管理员于团队设置中确认您为该团队的经理之前，他们的计划、时间和活动对您不可见。",
 			"SEARCH_TASKS": "搜索任务",
 			"COUNT_STILL_LOADING": "更多任务仍在加载",
 			"COPY_EMAIL": "复制邮箱",

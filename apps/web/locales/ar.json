@@ -4128,6 +4128,8 @@
 	"profile": {
 		"page": {
 			"BACK_TO_TEAM": "العودة إلى الفريق",
+			"MANAGER_RIGHTS_UNCONFIRMED_TITLE": "لم يتم تأكيد صلاحياتك كمدير على أعضاء هذا الفريق بعد",
+			"MANAGER_RIGHTS_UNCONFIRMED_DESCRIPTION": "تبقى خططهم ووقتهم ونشاطهم مخفية عنك حتى يؤكدك مسؤول المؤسسة مديرًا لهذا الفريق في إعدادات الفريق.",
 			"SEARCH_TASKS": "البحث في المهام",
 			"COUNT_STILL_LOADING": "لا يزال تحميل مهام أخرى جاريًا",
 			"COPY_EMAIL": "نسخ البريد الإلكتروني",

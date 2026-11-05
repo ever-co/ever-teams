@@ -4128,6 +4128,8 @@
 	"profile": {
 		"page": {
 			"BACK_TO_TEAM": "Back to team",
+			"MANAGER_RIGHTS_UNCONFIRMED_TITLE": "Your manager rights for this team's members are not confirmed yet",
+			"MANAGER_RIGHTS_UNCONFIRMED_DESCRIPTION": "Their plans, time and activity stay hidden from you until an organization admin confirms you as a manager of this team in the team settings.",
 			"SEARCH_TASKS": "Search tasks",
 			"COUNT_STILL_LOADING": "More tasks are still loading",
 			"COPY_EMAIL": "Copy email",

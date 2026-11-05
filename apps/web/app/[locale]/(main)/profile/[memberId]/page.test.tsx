@@ -18,6 +18,7 @@ const mockUseProfileActivity = jest.fn();
 let mockShareProfileView = false;
 let mockIsAuthUser = false;
 let mockTrackingEnabled = false;
+let mockManagerRightsUnconfirmed = false;
 let mockManagers: Array<{ employee: { user: { id: string } } }> = [];
 
 const mockUser = {
@@ -77,6 +78,12 @@ jest.mock('@/core/hooks/activities/use-profile-activity', () => ({
 	useProfileActivity: (...args: unknown[]) => mockUseProfileActivity(...args)
 }));
 jest.mock('@/core/hooks/bootstrap/use-feature-data', () => ({ useTeamDailyPlansOwner: jest.fn() }));
+jest.mock('@/core/hooks/organizations/teams/use-manager-rights-unconfirmed', () => ({
+	useManagerRightsUnconfirmed: () => mockManagerRightsUnconfirmed
+}));
+jest.mock('@/core/components/common/notice', () => ({
+	Notice: ({ title }: { title: React.ReactNode }) => <p>{title}</p>
+}));
 
 jest.mock('@/core/stores', () => ({
 	activeTeamManagersState: 'active-team-managers',
@@ -150,6 +157,7 @@ describe('profile activity access parity', () => {
 		mockShareProfileView = false;
 		mockIsAuthUser = false;
 		mockTrackingEnabled = false;
+		mockManagerRightsUnconfirmed = false;
 		mockManagers = [];
 		mockUseProfileActivity.mockReturnValue({ data: undefined });
 		jest.spyOn(React, 'use').mockImplementation((value: any) => value);
@@ -206,6 +214,7 @@ describe('profile top bar timer', () => {
 		mockShareProfileView = false;
 		mockIsAuthUser = false;
 		mockTrackingEnabled = true;
+		mockManagerRightsUnconfirmed = false;
 		mockManagers = [];
 		mockUseProfileActivity.mockReturnValue({ data: undefined });
 		jest.spyOn(React, 'use').mockImplementation((value: any) => value);
@@ -235,5 +244,45 @@ describe('profile top bar timer', () => {
 		renderProfile(TEAMMATE_USER_ID);
 
 		expect(headerTimerShown()).toBe('false');
+	});
+});
+
+describe('profile notice for unconfirmed manager rights', () => {
+	const NOTICE = 'profile.page.MANAGER_RIGHTS_UNCONFIRMED_TITLE';
+
+	beforeEach(() => {
+		mockShareProfileView = false;
+		mockIsAuthUser = false;
+		mockTrackingEnabled = false;
+		mockManagerRightsUnconfirmed = true;
+		mockManagers = [];
+		mockUseProfileActivity.mockReturnValue({ data: undefined });
+		jest.spyOn(React, 'use').mockImplementation((value: any) => value);
+	});
+
+	afterEach(() => {
+		jest.restoreAllMocks();
+	});
+
+	it("says why a teammate's data stays empty when the manager rights are not confirmed", () => {
+		renderProfile(TEAMMATE_USER_ID);
+
+		expect(screen.queryByText(NOTICE)).not.toBeNull();
+	});
+
+	it("shows nothing on the viewer's own profile", () => {
+		mockIsAuthUser = true;
+
+		renderProfile(USER_ID);
+
+		expect(screen.queryByText(NOTICE)).toBeNull();
+	});
+
+	it('shows nothing once the rights are confirmed', () => {
+		mockManagerRightsUnconfirmed = false;
+
+		renderProfile(TEAMMATE_USER_ID);
+
+		expect(screen.queryByText(NOTICE)).toBeNull();
 	});
 });

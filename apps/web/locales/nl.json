@@ -4128,6 +4128,8 @@
 	"profile": {
 		"page": {
 			"BACK_TO_TEAM": "Terug naar team",
+			"MANAGER_RIGHTS_UNCONFIRMED_TITLE": "Je managerrechten voor de leden van dit team zijn nog niet bevestigd",
+			"MANAGER_RIGHTS_UNCONFIRMED_DESCRIPTION": "Hun plannen, tijd en activiteit blijven verborgen totdat een beheerder van de organisatie je in de teaminstellingen bevestigt als manager van dit team.",
 			"SEARCH_TASKS": "Taken zoeken",
 			"COUNT_STILL_LOADING": "Er worden nog meer taken geladen",
 			"COPY_EMAIL": "E-mail kopiëren",
