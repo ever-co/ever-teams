@@ -3882,6 +3882,7 @@
 			"REQUIRE_DESCRIPTION_LABEL": "Изисквай описание",
 			"REQUIRE_DESCRIPTION_DESCRIPTION": "Проверява се само от приложенията на Gauzy за компютър и уеб.",
 			"REQUIREMENT_NOT_SAVED": "Изискването не беше запазено.",
+			"REQUIREMENTS_LOAD_FAILED": "Изискванията не можаха да се заредят.",
 			"ON": "Вкл.",
 			"OFF": "Изкл.",
 			"DANGER_SECTION": "Опасна зона",

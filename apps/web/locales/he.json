@@ -3882,6 +3882,7 @@
 			"REQUIRE_DESCRIPTION_LABEL": "לדרוש תיאור",
 			"REQUIRE_DESCRIPTION_DESCRIPTION": "נבדק רק באפליקציות Gauzy לשולחן העבודה ולווב.",
 			"REQUIREMENT_NOT_SAVED": "הדרישה לא נשמרה.",
+			"REQUIREMENTS_LOAD_FAILED": "לא ניתן היה לטעון את הדרישות.",
 			"ON": "פועל",
 			"OFF": "כבוי",
 			"DANGER_SECTION": "אזור מסוכן",

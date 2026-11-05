@@ -12,7 +12,11 @@ const mockUpdateOrganization = jest.fn();
 
 jest.mock('next-intl', () => ({ useTranslations: () => (key: string) => key }));
 jest.mock('sonner', () => ({ toast: { error: jest.fn() } }));
-jest.mock('@/core/hooks/auth/use-current-organization', () => ({ useGetCurrentOrganization: jest.fn() }));
+const mockOrganizationRead = { isError: false, refetch: jest.fn() };
+
+jest.mock('@/core/hooks/auth/use-current-organization', () => ({
+	useGetCurrentOrganization: () => mockOrganizationRead
+}));
 jest.mock('@/core/lib/helpers/cookies', () => ({ getTenantIdCookie: () => 'tenant-a' }));
 jest.mock('@/core/services/client/api/organizations', () => ({
 	organizationService: { updateOrganization: (...args: unknown[]) => mockUpdateOrganization(...args) }
@@ -67,6 +71,16 @@ describe('saving an organization tracking requirement', () => {
 		});
 
 		expect(cachedOrganization(client)).toEqual({ ...organization, requireTeam: true, requireProject: true });
+	});
+
+	it('says when the organization could not be read and reads it again on retry', () => {
+		mockOrganizationRead.isError = true;
+		const { view } = renderRequirements();
+
+		expect(view.result.current.isLoadFailed).toBe(true);
+		view.result.current.retryLoad();
+		expect(mockOrganizationRead.refetch).toHaveBeenCalled();
+		mockOrganizationRead.isError = false;
 	});
 
 	it('tells why a refused save failed, keeps the stored value and throws so the switch goes back', async () => {

@@ -3882,6 +3882,7 @@
 			"REQUIRE_DESCRIPTION_LABEL": "Exigir uma descrição",
 			"REQUIRE_DESCRIPTION_DESCRIPTION": "Verificado apenas pelos aplicativos Gauzy de desktop e web.",
 			"REQUIREMENT_NOT_SAVED": "O requisito não foi salvo.",
+			"REQUIREMENTS_LOAD_FAILED": "Não foi possível carregar os requisitos.",
 			"ON": "Ligado",
 			"OFF": "Desligado",
 			"DANGER_SECTION": "Zona de perigo",

@@ -3882,6 +3882,7 @@
 			"REQUIRE_DESCRIPTION_LABEL": "Require a description",
 			"REQUIRE_DESCRIPTION_DESCRIPTION": "Checked by the Gauzy desktop and web apps only.",
 			"REQUIREMENT_NOT_SAVED": "The requirement was not saved.",
+			"REQUIREMENTS_LOAD_FAILED": "The requirements could not load.",
 			"ON": "On",
 			"OFF": "Off",
 			"DANGER_SECTION": "Danger zone",

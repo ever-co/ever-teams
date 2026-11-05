@@ -3882,6 +3882,7 @@
 			"REQUIRE_DESCRIPTION_LABEL": "要求描述",
 			"REQUIRE_DESCRIPTION_DESCRIPTION": "仅由 Gauzy 桌面版和网页版应用检查。",
 			"REQUIREMENT_NOT_SAVED": "要求未保存。",
+			"REQUIREMENTS_LOAD_FAILED": "无法加载这些要求。",
 			"ON": "开",
 			"OFF": "关",
 			"DANGER_SECTION": "危险区域",

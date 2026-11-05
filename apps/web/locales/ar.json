@@ -3882,6 +3882,7 @@
 			"REQUIRE_DESCRIPTION_LABEL": "اشتراط وصف",
 			"REQUIRE_DESCRIPTION_DESCRIPTION": "تتحقق منه تطبيقات Gauzy لسطح المكتب والويب فقط.",
 			"REQUIREMENT_NOT_SAVED": "لم يُحفظ الشرط.",
+			"REQUIREMENTS_LOAD_FAILED": "تعذّر تحميل المتطلبات.",
 			"ON": "مُفعّل",
 			"OFF": "متوقف",
 			"DANGER_SECTION": "منطقة الخطر",

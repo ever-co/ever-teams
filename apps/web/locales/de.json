@@ -3882,6 +3882,7 @@
 			"REQUIRE_DESCRIPTION_LABEL": "Beschreibung verlangen",
 			"REQUIRE_DESCRIPTION_DESCRIPTION": "Wird nur von den Gauzy-Apps für Desktop und Web geprüft.",
 			"REQUIREMENT_NOT_SAVED": "Die Anforderung wurde nicht gespeichert.",
+			"REQUIREMENTS_LOAD_FAILED": "Die Anforderungen konnten nicht geladen werden.",
 			"ON": "An",
 			"OFF": "Aus",
 			"DANGER_SECTION": "Gefahrenbereich",

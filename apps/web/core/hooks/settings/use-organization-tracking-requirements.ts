@@ -36,7 +36,7 @@ export const TRACKING_REQUIREMENTS: ReadonlyArray<TTrackingRequirement> = [
 export function useOrganizationTrackingRequirements() {
 	const t = useTranslations();
 	const queryClient = useQueryClient();
-	useGetCurrentOrganization({ enabled: true });
+	const organizationRead = useGetCurrentOrganization({ enabled: true });
 	const organization = useAtomValue(currentOrganizationState);
 
 	const saveRequirement = useCallback(
@@ -63,5 +63,10 @@ export function useOrganizationTrackingRequirements() {
 		[organization, queryClient, t]
 	);
 
-	return { organization, saveRequirement };
+	const retryRead = organizationRead.refetch;
+	const retryLoad = useCallback(() => {
+		void retryRead();
+	}, [retryRead]);
+
+	return { organization, saveRequirement, isLoadFailed: organizationRead.isError, retryLoad };
 }

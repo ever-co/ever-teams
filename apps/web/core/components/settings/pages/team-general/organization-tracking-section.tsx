@@ -14,6 +14,7 @@ import {
 	SettingsSurface
 } from '@/core/components/settings/kit/settings-page';
 import { SwitchRow } from '@/core/components/settings/kit/settings-switch';
+import { Button } from '@/core/components/duplicated-components/_button';
 import type { TOrganization } from '@/core/types/schemas';
 
 const REQUIREMENT_TEXT = {
@@ -77,8 +78,21 @@ function requirementsServedBy(organization: TOrganization): TTrackingRequirement
 /** The organization's tracking requirements, which only its admins see and change. */
 export function OrganizationTrackingSection() {
 	const t = useTranslations();
-	const { organization, saveRequirement } = useOrganizationTrackingRequirements();
+	const { organization, saveRequirement, isLoadFailed, retryLoad } = useOrganizationTrackingRequirements();
 	const title = t('settings.teamGeneral.ORGANIZATION_TRACKING_SECTION');
+	const showsLoadFailure = !organization && isLoadFailed;
+	if (showsLoadFailure) {
+		return (
+			<SettingsSection id="organization-tracking" title={title}>
+				<p role="alert" className="flex items-center gap-2 text-xs text-destructive-ink">
+					{t('settings.teamGeneral.REQUIREMENTS_LOAD_FAILED')}
+					<Button type="button" variant="outline" size="sm" onClick={retryLoad}>
+						{t('notifications.RETRY')}
+					</Button>
+				</p>
+			</SettingsSection>
+		);
+	}
 	if (!organization) {
 		return <SettingsSectionSkeleton title={title} rows={TRACKING_REQUIREMENTS.length} />;
 	}

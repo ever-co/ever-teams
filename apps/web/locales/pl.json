@@ -3882,6 +3882,7 @@
 			"REQUIRE_DESCRIPTION_LABEL": "Wymagaj opisu",
 			"REQUIRE_DESCRIPTION_DESCRIPTION": "Sprawdzane tylko przez aplikacje Gauzy na komputer i w przeglądarce.",
 			"REQUIREMENT_NOT_SAVED": "Wymaganie nie zostało zapisane.",
+			"REQUIREMENTS_LOAD_FAILED": "Nie udało się wczytać wymagań.",
 			"ON": "Włączone",
 			"OFF": "Wyłączone",
 			"DANGER_SECTION": "Strefa zagrożenia",

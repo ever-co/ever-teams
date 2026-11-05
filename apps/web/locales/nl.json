@@ -3882,6 +3882,7 @@
 			"REQUIRE_DESCRIPTION_LABEL": "Beschrijving verplichten",
 			"REQUIRE_DESCRIPTION_DESCRIPTION": "Alleen gecontroleerd door de Gauzy-apps voor desktop en web.",
 			"REQUIREMENT_NOT_SAVED": "De vereiste is niet opgeslagen.",
+			"REQUIREMENTS_LOAD_FAILED": "De vereisten konden niet worden geladen.",
 			"ON": "Aan",
 			"OFF": "Uit",
 			"DANGER_SECTION": "Gevarenzone",
