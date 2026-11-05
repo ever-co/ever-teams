@@ -11,6 +11,15 @@ import {
 } from '@/core/lib/validation/zod-validators';
 import { scopedReadConfig, type ScopedReadOptions } from '../../api-request-scope';
 
+// The flag is no task field, so it joins the body after the task validation. Gauzy keeps a time log on the project it
+// was tracked under unless the update asks for the task's time to follow it.
+function withTimeLogMove<T extends object>(body: T, moveTimeLogs: boolean | undefined): T & { moveTimeLogs?: true } {
+	if (!moveTimeLogs) {
+		return body;
+	}
+	return { ...body, moveTimeLogs: true };
+}
+
 /**
  * Enhanced Task Service with Zod validation
  *
@@ -254,7 +263,15 @@ class TaskService extends APIService {
 	 * @throws ValidationError if input or response data doesn't match schema
 	 */
 
-	updateTask = async ({ taskId, data }: { taskId: string; data: Partial<TTask> }): Promise<TTask> => {
+	updateTask = async ({
+		taskId,
+		data,
+		moveTimeLogs
+	}: {
+		taskId: string;
+		data: Partial<TTask>;
+		moveTimeLogs?: boolean;
+	}): Promise<TTask> => {
 		try {
 			// Normalize member structures to prevent FK constraint violations
 			const cleanedData: Partial<TTask> = { ...data };
@@ -273,13 +290,15 @@ class TaskService extends APIService {
 				const nBody = { ...validatedInput };
 				delete nBody.selectedTeam;
 				delete nBody.rootEpic;
+				const directBody = withTimeLogMove(nBody, moveTimeLogs);
 
-				const response = await this.put<TTask>(`/tasks/${taskId}`, nBody);
+				const response = await this.put<TTask>(`/tasks/${taskId}`, directBody);
 
 				return zodStrictApiResponseValidate(taskSchema, response.data, 'updateTask API response');
 			}
 
-			const response = await this.put<TTask>(`/tasks/${taskId}`, validatedInput);
+			const proxyBody = withTimeLogMove(validatedInput, moveTimeLogs);
+			const response = await this.put<TTask>(`/tasks/${taskId}`, proxyBody);
 
 			// Validate the response data
 			return zodStrictApiResponseValidate(taskSchema, response.data, 'updateTask API response');

@@ -178,3 +178,51 @@ describe('useUpdateTask authoritative task cache', () => {
 		expect(mockSetAllTasks).not.toHaveBeenCalled();
 	});
 });
+
+describe('useUpdateTask moving the time logs with the task', () => {
+	const timesheetKey = [...queryKeys.timesheet.all, 'week'];
+	const timeLogsKey = [...queryKeys.timeLogs.all, 'week'];
+
+	function seededClient() {
+		const client = createQueryClient();
+		client.setQueryData(scopedKey, pagedList('Before'));
+		client.setQueryData(timesheetKey, []);
+		client.setQueryData(timeLogsKey, []);
+		return client;
+	}
+
+	function isInvalidated(client: QueryClient, queryKey: readonly unknown[]) {
+		return client.getQueryState(queryKey)?.isInvalidated === true;
+	}
+
+	beforeEach(() => {
+		jest.clearAllMocks();
+		mockUpdateTask.mockImplementation(async ({ data }) => data);
+	});
+
+	it('asks Gauzy to move the time logs and reads the timesheets and time logs again', async () => {
+		const client = seededClient();
+		const { result } = renderHook(() => useUpdateTask(), { wrapper: createWrapper(client) });
+
+		await act(async () => {
+			await result.current.updateTask({ ...originalTask, projectId: 'project-2' }, { moveTimeLogs: true });
+		});
+
+		expect(mockUpdateTask).toHaveBeenCalledWith(expect.objectContaining({ moveTimeLogs: true }));
+		await waitFor(() => expect(isInvalidated(client, timesheetKey)).toBe(true));
+		expect(isInvalidated(client, timeLogsKey)).toBe(true);
+	});
+
+	it('leaves the timesheets and time logs cached for an edit that moves no time', async () => {
+		const client = seededClient();
+		const { result } = renderHook(() => useUpdateTask(), { wrapper: createWrapper(client) });
+
+		await act(async () => {
+			await result.current.updateTask({ ...originalTask, title: 'After' });
+		});
+
+		expect(mockUpdateTask).toHaveBeenCalledWith(expect.objectContaining({ moveTimeLogs: undefined }));
+		expect(isInvalidated(client, timesheetKey)).toBe(false);
+		expect(isInvalidated(client, timeLogsKey)).toBe(false);
+	});
+});
