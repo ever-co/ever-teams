@@ -7,16 +7,16 @@ import type { IEmployeeRatesInput } from '@/core/types/schemas/organization/rate
  * The permissions that let a caller manage every project's client rates, as Gauzy's rates routes accept either. A
  * member's own billing and pay rates need ORG_EMPLOYEES_EDIT alone (`EMPLOYEE_RATES_PERMISSION`).
  */
-export const RATE_ADMIN_PERMISSIONS: ReadonlyArray<string> = ['ORG_EMPLOYEES_EDIT', 'CHANGE_SELECTED_EMPLOYEE'];
+const RATE_ADMIN_PERMISSIONS: ReadonlyArray<string> = ['ORG_EMPLOYEES_EDIT', 'CHANGE_SELECTED_EMPLOYEE'];
 
 /**
  * Gauzy's `PUT /employee/:id`, which sets a member's billing and pay rates, asks for this permission, and the pay rate
  * read too (an employee also reads their own).
  */
-export const EMPLOYEE_RATES_PERMISSION = 'ORG_EMPLOYEES_EDIT';
+const EMPLOYEE_RATES_PERMISSION = 'ORG_EMPLOYEES_EDIT';
 
 /** Gauzy lets someone change their own rates only with this permission, held by super admins and admins by default. */
-export const OWN_RATES_PERMISSION = 'CHANGE_OWN_RATES';
+const OWN_RATES_PERMISSION = 'CHANGE_OWN_RATES';
 
 export const RATE_REASON_MAX_LENGTH = 500;
 
@@ -38,7 +38,7 @@ export function shownCurrencyOf(
 
 export type RateInputProblem = 'invalid' | 'negative';
 
-export interface ParsedRateInput {
+interface ParsedRateInput {
 	value: number | null;
 	problem: RateInputProblem | null;
 }
@@ -115,7 +115,7 @@ export function parseRateInput(text: string): ParsedRateInput {
 	return { value: number, problem: null };
 }
 
-export interface EmployeeRatesValues {
+interface EmployeeRatesValues {
 	value: number | null;
 	currency: string;
 	weeklyLimit: number | null;
@@ -145,7 +145,7 @@ export function changedEmployeeRatesOf(
 	return changes;
 }
 
-export interface PayRateValues {
+interface PayRateValues {
 	value: number | null;
 	currency: string;
 }

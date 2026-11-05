@@ -24,7 +24,7 @@ export interface NotificationEntry {
 }
 
 /** A rate change request is answered in Members settings, where an admin edits the member's rate. */
-export const RATE_CHANGE_REQUEST_HREF = '/settings/team/members';
+const RATE_CHANGE_REQUEST_HREF = '/settings/team/members';
 
 /** The verbs of Gauzy's title templates (`employee-notification.helper.ts`), in the order they are tried. */
 const TITLE_ACTION_WORDS = [

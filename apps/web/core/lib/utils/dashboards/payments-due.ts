@@ -205,7 +205,7 @@ function amountOf(rate: number | null, reportedAmount: number) {
 	return finiteOrZero(reportedAmount);
 }
 
-export function rateSourceOf(value: unknown): OwedRateSource | null {
+function rateSourceOf(value: unknown): OwedRateSource | null {
 	if (value === 'pay') {
 		return 'pay';
 	}
@@ -219,7 +219,7 @@ export function rateSourceOf(value: unknown): OwedRateSource | null {
  * The note of a line the billing rate priced, only when the server states it. Gauzy prices other people's time at
  * their billing rate for a caller who may not read pay rates, so only a pay rate reader is told none is set.
  */
-export function rateNoteOf(rateSource: OwedRateSource | null, readsPayRates: boolean): OwedRateNote | null {
+function rateNoteOf(rateSource: OwedRateSource | null, readsPayRates: boolean): OwedRateNote | null {
 	if (rateSource !== 'billing') {
 		return null;
 	}

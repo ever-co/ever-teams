@@ -3,7 +3,7 @@ import { z } from 'zod';
 /** Gauzy's decimal columns come back as numbers or as strings ("45.00") depending on the database. */
 const rateFieldSchema = z.union([z.number(), z.string()]).nullable().optional();
 
-export const projectMemberRateSchema = z
+const projectMemberRateSchema = z
 	.object({
 		employeeId: z.string(),
 		billRateValue: rateFieldSchema
@@ -35,7 +35,7 @@ export const rateChangeRequestResultSchema = z
 	})
 	.passthrough();
 
-export type TProjectMemberRate = z.infer<typeof projectMemberRateSchema>;
+type TProjectMemberRate = z.infer<typeof projectMemberRateSchema>;
 export type TProjectRates = z.infer<typeof projectRatesSchema>;
 export type TRateChangeRequestResult = z.infer<typeof rateChangeRequestResultSchema>;
 export type TEmployeePayRate = z.infer<typeof employeePayRateSchema>;
