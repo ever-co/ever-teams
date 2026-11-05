@@ -110,6 +110,16 @@ function rowStateClass(isSelected: boolean, isEmpty: boolean) {
 	return 'hover:bg-foreground/[0.03]';
 }
 
+/** Enter in the search would sign in to the selected workspace, which the query may be hiding. */
+function keepSearchFromSubmitting(event: KeyboardEvent<HTMLInputElement>) {
+	const isEnter = event.key === 'Enter';
+	const isComposing = event.nativeEvent.isComposing;
+	if (!isEnter || isComposing) {
+		return;
+	}
+	event.preventDefault();
+}
+
 function focusNeighbourRow(event: KeyboardEvent<HTMLDivElement>, offset: number) {
 	const rows = Array.from(event.currentTarget.querySelectorAll<HTMLButtonElement>('[data-picker-row]'));
 	const current = rows.indexOf(document.activeElement as HTMLButtonElement);
@@ -146,8 +156,8 @@ export function WorkspacePicker(props: Readonly<WorkspacePickerProps>) {
 	const isSelectedEmpty = Boolean(selectedItem && !selectedItem.hasTeams);
 	const accountEmail = pickable[0]?.workspace.user?.email ?? '';
 	const isSubmitting = Boolean(props.signInWorkspaceLoading);
-	const hasNoSelection = !props.selectedWorkspace && props.selectedWorkspace !== 0;
-	const isContinueDisabled = isSubmitting || hasNoSelection;
+	const hasListedSelection = Boolean(selectedItem);
+	const isContinueDisabled = isSubmitting || !hasListedSelection;
 
 	const selectWorkspace = (item: PickableWorkspace) => {
 		const isAlreadySelected = props.selectedWorkspace === item.originalIndex;
@@ -237,6 +247,7 @@ export function WorkspacePicker(props: Readonly<WorkspacePickerProps>) {
 						type="search"
 						value={query}
 						onChange={(event) => setQuery(event.target.value)}
+						onKeyDown={keepSearchFromSubmitting}
 						placeholder={t('auth.workspace.SEARCH')}
 						className="h-full min-w-0 flex-1 bg-transparent text-base outline-none placeholder:text-muted-foreground/75 md:text-sm"
 					/>
