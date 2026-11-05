@@ -433,12 +433,15 @@ export const BRANDING_LINKS_SET_BY_OPERATOR = {
 	privacy: Boolean(readRuntimeEnv('PRIVACY_POLICY_LINK') || process.env.PRIVACY_POLICY_LINK)
 };
 
+// The defaults stay written inline: test/architecture/self-hosting-docs.test.ts reads each branding default from the
+// `readRuntimeEnv('X') || process.env.X || '<default>'` line and checks the compose files and .env.docker against it.
+export const MAIN_PICTURE =
+	readRuntimeEnv('MAIN_PICTURE') || process.env.MAIN_PICTURE || '/assets/cover/auth-bg-cover.png';
+export const MAIN_PICTURE_DARK =
+	readRuntimeEnv('MAIN_PICTURE_DARK') || process.env.MAIN_PICTURE_DARK || '/assets/cover/auth-bg-cover-dark.png';
+
 const BUILT_IN_MAIN_PICTURE = '/assets/cover/auth-bg-cover.png';
 const BUILT_IN_MAIN_PICTURE_DARK = '/assets/cover/auth-bg-cover-dark.png';
-
-export const MAIN_PICTURE = readRuntimeEnv('MAIN_PICTURE') || process.env.MAIN_PICTURE || BUILT_IN_MAIN_PICTURE;
-export const MAIN_PICTURE_DARK =
-	readRuntimeEnv('MAIN_PICTURE_DARK') || process.env.MAIN_PICTURE_DARK || BUILT_IN_MAIN_PICTURE_DARK;
 
 /**
  * Whether the operator chose the auth pictures. The built-in covers are a screenshot of the 2022 interface, so the
