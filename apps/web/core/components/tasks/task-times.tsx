@@ -9,6 +9,7 @@ import { Tooltip } from '../duplicated-components/tooltip';
 import { TOrganizationTeamEmployee } from '@/core/types/schemas';
 import { TTask } from '@/core/types/schemas/task/task.schema';
 import { useActiveTeamMember } from '@/core/hooks/organizations/teams/use-active-team-member';
+import { useTodaySecondsWithoutTeam } from '@/core/hooks/organizations/teams/use-today-seconds-without-team';
 import { TTaskStatistic } from '@/core/types/schemas/activities/statistics.schema';
 
 /**
@@ -209,18 +210,22 @@ function TimeBlockInfo({
 	);
 }
 
+function sumTodayTasksSeconds(todayTasks: TTaskStatistic[] | undefined): number {
+	let total = 0;
+	for (const taskStatistic of todayTasks ?? []) {
+		total += taskStatistic?.duration || 0;
+	}
+	return total;
+}
+
 export function TodayWorkedTime({ className, memberInfo }: Omit<Props, 'task' | 'activeAuthTask'>) {
 	// Get current timer seconds
 
 	const currentMember = useActiveTeamMember(memberInfo?.member?.id);
-	const { hours: h, minutes: m } = secondsToTime(
-		(currentMember?.totalTodayTasks &&
-			currentMember?.totalTodayTasks.reduce(
-				(previousValue: number, currentValue: TTaskStatistic) => previousValue + (currentValue?.duration || 0),
-				0
-			)) ||
-			0
-	);
+	const secondsWithoutTeam = useTodaySecondsWithoutTeam(currentMember?.employeeId);
+	const todayTasksSeconds = sumTodayTasksSeconds(currentMember?.totalTodayTasks);
+	const todaySeconds = todayTasksSeconds + secondsWithoutTeam;
+	const { hours: h, minutes: m } = secondsToTime(todaySeconds);
 
 	return (
 		<div className={clsxm('font-normal text-center', className)}>
