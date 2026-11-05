@@ -50,7 +50,8 @@ export function ResendCode({
 }: Readonly<{
 	startLocked: boolean;
 	sending: boolean;
-	onResend: () => void;
+	/** Resolves true once a code went out: only then does the wait start. */
+	onResend: () => Promise<boolean>;
 	className?: string;
 }>) {
 	const t = useTranslations();
@@ -59,11 +60,14 @@ export function ResendCode({
 	const canResend = !cooldown.locked;
 	const isWaiting = cooldown.locked && !sending;
 
-	const resend = () => {
+	const resend = async () => {
 		if (cooldown.locked) {
 			return;
 		}
-		onResend();
+		const wasSent = await onResend();
+		if (!wasSent) {
+			return;
+		}
 		cooldown.start();
 	};
 
