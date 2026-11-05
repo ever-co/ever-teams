@@ -1,13 +1,5 @@
 import type { TOrganizationTeamEmployee } from '@/core/types/schemas';
-import {
-	membersWithPendingOrders,
-	mergedDropOrders,
-	ordersAfterSwap,
-	sortByOrder,
-	unsavedPendingOrders,
-	unsettledDrops,
-	type TPendingDrop
-} from './team-member-order';
+import { membersWithPendingOrders, ordersAfterSwap, sortByOrder } from './team-member-order';
 
 const member = (id: string, order?: number) => ({ id, order }) as TOrganizationTeamEmployee;
 
@@ -22,45 +14,6 @@ describe('team member order', () => {
 
 	it('keeps the list as it is without pending orders', () => {
 		expect(membersWithPendingOrders(members, null)).toBe(members);
-	});
-
-	it('drops the pending orders the members read back already carry', () => {
-		const pending = { ada: 1, cy: 3 };
-		const readBack = [member('cy', 3), member('bob', 2), member('ada', 1)];
-		const halfSaved = [member('ada', 1), member('bob', 2), member('cy', 1)];
-
-		expect(unsavedPendingOrders(members, pending)).toBe(pending);
-		expect(unsavedPendingOrders(halfSaved, pending)).toEqual({ cy: 3 });
-		expect(unsavedPendingOrders(readBack, pending)).toBeNull();
-	});
-
-	it('lets a later drop win for a member both drops moved', () => {
-		const drops: TPendingDrop[] = [
-			{ id: 1, orders: { ada: 1, cy: 3 } },
-			{ id: 2, orders: { bob: 3, cy: 2 } }
-		];
-
-		expect(mergedDropOrders(drops)).toEqual({ ada: 1, cy: 2, bob: 3 });
-		expect(mergedDropOrders([])).toBeNull();
-	});
-
-	it('keeps a later drop that gave a member the same order as a failed one', () => {
-		const laterDrop = { id: 2, orders: { ada: 1 } };
-		const drops: TPendingDrop[] = [{ id: 1, orders: { ada: 1, cy: 3 } }, laterDrop];
-
-		const afterFailure = drops.filter((drop) => drop.id !== 1);
-
-		expect(mergedDropOrders(afterFailure)).toEqual({ ada: 1 });
-	});
-
-	it('drops the settled orders of each drop, and the same array when none settled', () => {
-		const drops: TPendingDrop[] = [
-			{ id: 1, orders: { ada: 1 } },
-			{ id: 2, orders: { cy: 3 } }
-		];
-
-		expect(unsettledDrops(members, drops)).toBe(drops);
-		expect(unsettledDrops([member('ada', 1), member('cy', 1)], drops)).toEqual([{ id: 2, orders: { cy: 3 } }]);
 	});
 
 	it('ranks every member from the top when the orders are equal or missing', () => {
@@ -82,11 +35,5 @@ describe('team member order', () => {
 		const shown = membersWithPendingOrders(ranked, orders);
 
 		expect(shown.map((shownMember) => shownMember.id)).toEqual(['cy', 'bob', 'ada', 'dee']);
-	});
-
-	it('stops waiting for a member that left the team', () => {
-		const stayed = [member('ada', 1), member('bob', 2)];
-
-		expect(unsavedPendingOrders(stayed, { ada: 1, cy: 3 })).toBeNull();
 	});
 });
