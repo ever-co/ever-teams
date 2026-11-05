@@ -3,6 +3,20 @@ import { getTimerStatusRequest, readTodayRange, startTimerRequest } from '@/core
 import { ETimeLogSource } from '@/core/types/generics/enums/timer';
 import { NextResponse } from 'next/server';
 
+const PLAN_DAY_PATTERN = /^\d{4}-\d{2}-\d{2}$/;
+
+// Gauzy refuses a malformed plan day with a 400, while an absent one keeps its older rule: anything else is not sent.
+function planDayOf(body: object): string | undefined {
+	const planDay = (body as { planDay?: unknown }).planDay;
+	if (typeof planDay !== 'string') {
+		return undefined;
+	}
+	if (!PLAN_DAY_PATTERN.test(planDay)) {
+		return undefined;
+	}
+	return planDay;
+}
+
 export async function POST(req: Request) {
 	const res = new NextResponse();
 	const {
@@ -39,7 +53,8 @@ export async function POST(req: Request) {
 			logType: 'TRACKED',
 			source: ETimeLogSource.TEAMS,
 			tags: [],
-			organizationTeamId
+			organizationTeamId,
+			planDay: planDayOf(body)
 		},
 		access_token || ''
 	);
