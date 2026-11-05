@@ -18,7 +18,7 @@ import { EntityTile } from '@/core/components/common/entity-tile';
 import { NAV_ROW_ACTIVE_RECIPE, NAV_ROW_RECIPE } from '@/core/components/layouts/nav-row-recipe';
 import { cn } from '@/core/lib/helpers';
 import { stripLocalePrefix } from '@/core/lib/utils/navigation-path';
-import { activeTeamState, isTeamManagerState } from '@/core/stores';
+import { activeTeamState, canManageActiveTeamState } from '@/core/stores';
 import { lastAppPathState } from '@/core/stores/common/setting';
 import { TOrganizationTeam } from '@/core/types/schemas';
 import { activeSettingsEntry, entriesOfGroup, SettingsEntry, SettingsGroupId } from './settings-entries';
@@ -86,10 +86,10 @@ function TeamGroupLabel() {
 function SettingsNavGroup({
 	group,
 	currentHref,
-	isTeamManager
-}: Readonly<{ group: SettingsGroupId; currentHref: string | null; isTeamManager: boolean }>) {
+	canManageTeam
+}: Readonly<{ group: SettingsGroupId; currentHref: string | null; canManageTeam: boolean }>) {
 	const t = useTranslations();
-	const entries = entriesOfGroup(group, isTeamManager);
+	const entries = entriesOfGroup(group, canManageTeam);
 	const isTeamGroup = group === 'team';
 
 	return (
@@ -108,7 +108,7 @@ function SettingsNavGroup({
 export const SettingsNav = memo(function SettingsNav() {
 	const t = useTranslations();
 	const pathname = usePathname();
-	const isTeamManager = useAtomValue(isTeamManagerState);
+	const canManageTeam = useAtomValue(canManageActiveTeamState);
 	const lastAppPath = useAtomValue(lastAppPathState);
 	const { state } = useSidebar();
 	const isCollapsed = state === 'collapsed';
@@ -134,9 +134,9 @@ export const SettingsNav = memo(function SettingsNav() {
 					</SidebarMenuItem>
 				</SidebarMenu>
 			</SidebarGroup>
-			<SettingsNavGroup group="account" currentHref={currentHref} isTeamManager={isTeamManager} />
-			<SettingsNavGroup group="team" currentHref={currentHref} isTeamManager={isTeamManager} />
-			<SettingsNavGroup group="taskProperties" currentHref={currentHref} isTeamManager={isTeamManager} />
+			<SettingsNavGroup group="account" currentHref={currentHref} canManageTeam={canManageTeam} />
+			<SettingsNavGroup group="team" currentHref={currentHref} canManageTeam={canManageTeam} />
+			<SettingsNavGroup group="taskProperties" currentHref={currentHref} canManageTeam={canManageTeam} />
 		</nav>
 	);
 });

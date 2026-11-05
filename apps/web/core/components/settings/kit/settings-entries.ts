@@ -100,17 +100,17 @@ export function legacySettingsTarget(scope: 'personal' | 'team', hash: string): 
 	return target;
 }
 
-export function isEntryVisible(entry: SettingsEntry, isTeamManager: boolean): boolean {
+export function isEntryVisible(entry: SettingsEntry, canManageTeam: boolean): boolean {
 	if (!entry.managerOnly) {
 		return true;
 	}
-	return isTeamManager;
+	return canManageTeam;
 }
 
-export function entriesOfGroup(group: SettingsGroupId, isTeamManager: boolean): SettingsEntry[] {
+export function entriesOfGroup(group: SettingsGroupId, canManageTeam: boolean): SettingsEntry[] {
 	return SETTINGS_ENTRIES.filter((entry) => {
 		const isInGroup = entry.group === group;
-		const isVisible = isEntryVisible(entry, isTeamManager);
+		const isVisible = isEntryVisible(entry, canManageTeam);
 		return isInGroup && isVisible;
 	});
 }

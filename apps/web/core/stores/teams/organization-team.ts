@@ -1,5 +1,6 @@
 import { atom } from 'jotai';
 import { selectAtom } from 'jotai/utils';
+import { isTenantAdminRole } from '@/core/lib/utils/roles';
 import { indexTaskTotalWorkedDurations } from '@/core/lib/utils/task.utils';
 import { ERoleName } from '@/core/types/generics/enums/role';
 import { TOrganizationTeam, TOrganizationTeamEmployee } from '@/core/types/schemas';
@@ -168,6 +169,18 @@ export const isTeamManagerState = atom((get) => {
 	const manager = findTeamManagerOfUser(managers, userId);
 	// Team creator should automatically be considered a manager (business logic fix)
 	return Boolean(manager) || isTeamCreatorUser(createdByUserId, userId);
+});
+
+export const isOrganizationAdminState = atom((get) => {
+	const roleName = get(userState)?.role?.name;
+	return isTenantAdminRole(roleName);
+});
+
+/** An organization admin runs every team, so they manage its settings as its own managers do. */
+export const canManageActiveTeamState = atom((get) => {
+	const isTeamManager = get(isTeamManagerState);
+	const isOrganizationAdmin = get(isOrganizationAdminState);
+	return isTeamManager || isOrganizationAdmin;
 });
 
 /** Built once per team update so components rendered per task only do a map lookup. */
