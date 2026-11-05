@@ -69,6 +69,11 @@ function RequirementRow({ requirement, organization, saveRequirement }: Readonly
 	);
 }
 
+// A Gauzy that predates a switch answers the organization without it, and refuses to save it
+function requirementsServedBy(organization: TOrganization): TTrackingRequirement[] {
+	return TRACKING_REQUIREMENTS.filter((requirement) => requirement in organization);
+}
+
 /** The organization's tracking requirements, which only its admins see and change. */
 export function OrganizationTrackingSection() {
 	const t = useTranslations();
@@ -87,7 +92,7 @@ export function OrganizationTrackingSection() {
 			})}
 		>
 			<SettingsSurface>
-				{TRACKING_REQUIREMENTS.map((requirement) => (
+				{requirementsServedBy(organization).map((requirement) => (
 					<RequirementRow
 						key={requirement}
 						requirement={requirement}

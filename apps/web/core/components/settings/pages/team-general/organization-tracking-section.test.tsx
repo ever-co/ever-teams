@@ -24,7 +24,15 @@ describe('OrganizationTrackingSection', () => {
 	});
 
 	it('shows each requirement as the organization stores it', () => {
-		mockOrganization = { id: 'organization-a', name: 'Acme', requireTeam: true, requireProject: true };
+		mockOrganization = {
+			id: 'organization-a',
+			name: 'Acme',
+			requireTeam: true,
+			requireProject: true,
+			requireTask: false,
+			requireClient: false,
+			requireDescription: false
+		};
 
 		render(<OrganizationTrackingSection />);
 
@@ -33,6 +41,15 @@ describe('OrganizationTrackingSection', () => {
 		expect(switchOf('requireTask').getAttribute('aria-checked')).toBe('false');
 		expect(switchOf('requireClient').getAttribute('aria-checked')).toBe('false');
 		expect(switchOf('requireDescription').getAttribute('aria-checked')).toBe('false');
+	});
+
+	it('leaves out the team switch of a Gauzy that does not serve it yet', () => {
+		mockOrganization = { id: 'organization-a', name: 'Acme', requireProject: false, requireTask: false };
+
+		render(<OrganizationTrackingSection />);
+
+		expect(switchOf('requireTeam')).toBeNull();
+		expect(switchOf('requireProject')).not.toBeNull();
 	});
 
 	it('saves the switch an admin turns off', async () => {
