@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback } from 'react';
+import { useMemo } from 'react';
 import { useMutation, useQueries, useQuery, useQueryClient, type UseQueryResult } from '@tanstack/react-query';
 import { queryKeys } from '@/core/query/keys';
 import { rateService } from '@/core/services/client/api/organizations/rate.service';
@@ -58,23 +58,28 @@ export interface EmployeePayRates {
 	pendingIds: ReadonlySet<string>;
 }
 
-function payRatesOf(
-	employeeIds: ReadonlyArray<string>,
-	results: ReadonlyArray<UseQueryResult<TEmployeePayRate>>
-): EmployeePayRates {
+interface PayRateReadState {
+	rate: number | null;
+	isLoading: boolean;
+}
+
+function payRateReadStatesOf(results: ReadonlyArray<UseQueryResult<TEmployeePayRate>>): PayRateReadState[] {
+	return results.map((result) => ({ rate: rateValueOf(result.data?.payRateValue), isLoading: result.isLoading }));
+}
+
+function payRatesOf(employeeIds: ReadonlyArray<string>, states: ReadonlyArray<PayRateReadState>): EmployeePayRates {
 	const rates = new Map<string, number>();
 	const pendingIds = new Set<string>();
-	results.forEach((result, index) => {
+	states.forEach((state, index) => {
 		const employeeId = employeeIds[index];
-		if (result.isLoading) {
+		if (state.isLoading) {
 			pendingIds.add(employeeId);
 			return;
 		}
-		const rate = rateValueOf(result.data?.payRateValue);
-		if (rate === null) {
+		if (state.rate === null) {
 			return;
 		}
-		rates.set(employeeId, rate);
+		rates.set(employeeId, state.rate);
 	});
 	return { rates, pendingIds };
 }
@@ -83,11 +88,7 @@ export function useEmployeePayRates(employeeIds: ReadonlyArray<string>): Employe
 	const tenantId = getTenantIdCookie();
 	const organizationId = getOrganizationIdCookie();
 	const hasScope = Boolean(tenantId && organizationId);
-	const combine = useCallback(
-		(results: ReadonlyArray<UseQueryResult<TEmployeePayRate>>) => payRatesOf(employeeIds, results),
-		[employeeIds]
-	);
-	return useQueries({
+	const states = useQueries({
 		queries: employeeIds.map((employeeId) => ({
 			queryKey: queryKeys.rates.payRate(tenantId, organizationId, employeeId),
 			queryFn: () => rateService.getEmployeePayRate(employeeId),
@@ -95,8 +96,9 @@ export function useEmployeePayRates(employeeIds: ReadonlyArray<string>): Employe
 			retry: retriesRatesRead,
 			staleTime: PAY_RATES_STALE_TIME_MS
 		})),
-		combine
+		combine: payRateReadStatesOf
 	});
+	return useMemo(() => payRatesOf(employeeIds, states), [employeeIds, states]);
 }
 
 export function useProjectRateMutations(projectId: string) {
