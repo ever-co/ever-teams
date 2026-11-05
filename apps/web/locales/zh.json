@@ -4197,5 +4197,16 @@
 	},
 	"accountMenu": {
 		"OPEN": "账户菜单"
+	},
+	"rates": {
+		"PER_HOUR": "{amount}/小时",
+		"EDIT_RATE": "编辑费率",
+		"EDIT_RATE_OF": "编辑 {name} 的费率",
+		"HOURLY_RATE": "小时费率",
+		"CURRENCY": "货币",
+		"WEEKLY_LIMIT": "每周工时上限",
+		"NOT_SET": "未设置",
+		"NUMBER_INVALID": "请输入数字，例如 45 或 45.50。",
+		"NUMBER_NEGATIVE": "请输入 0 或更大的数。"
 	}
 }

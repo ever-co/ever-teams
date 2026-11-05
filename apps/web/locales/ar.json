@@ -4197,5 +4197,16 @@
 	},
 	"accountMenu": {
 		"OPEN": "قائمة الحساب"
+	},
+	"rates": {
+		"PER_HOUR": "{amount}/ساعة",
+		"EDIT_RATE": "تعديل الأجر",
+		"EDIT_RATE_OF": "تعديل أجر {name}",
+		"HOURLY_RATE": "الأجر بالساعة",
+		"CURRENCY": "العملة",
+		"WEEKLY_LIMIT": "الحد الأسبوعي للساعات",
+		"NOT_SET": "غير محدد",
+		"NUMBER_INVALID": "أدخل رقمًا، مثل 45 أو 45.50.",
+		"NUMBER_NEGATIVE": "أدخل 0 أو أكثر."
 	}
 }

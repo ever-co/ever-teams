@@ -4197,5 +4197,16 @@
 	},
 	"accountMenu": {
 		"OPEN": "Menu dell’account"
+	},
+	"rates": {
+		"PER_HOUR": "{amount}/h",
+		"EDIT_RATE": "Modifica tariffa",
+		"EDIT_RATE_OF": "Modifica la tariffa di {name}",
+		"HOURLY_RATE": "Tariffa oraria",
+		"CURRENCY": "Valuta",
+		"WEEKLY_LIMIT": "Limite di ore settimanali",
+		"NOT_SET": "Non impostata",
+		"NUMBER_INVALID": "Inserisci un numero, ad esempio 45 o 45,50.",
+		"NUMBER_NEGATIVE": "Inserisci 0 o più."
 	}
 }

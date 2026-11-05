@@ -4197,5 +4197,16 @@
 	},
 	"accountMenu": {
 		"OPEN": "Меню аккаунта"
+	},
+	"rates": {
+		"PER_HOUR": "{amount}/ч",
+		"EDIT_RATE": "Изменить ставку",
+		"EDIT_RATE_OF": "Изменить ставку: {name}",
+		"HOURLY_RATE": "Почасовая ставка",
+		"CURRENCY": "Валюта",
+		"WEEKLY_LIMIT": "Лимит часов в неделю",
+		"NOT_SET": "Не задано",
+		"NUMBER_INVALID": "Введите число, например 45 или 45,50.",
+		"NUMBER_NEGATIVE": "Введите 0 или больше."
 	}
 }

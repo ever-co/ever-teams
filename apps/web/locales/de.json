@@ -4197,5 +4197,16 @@
 	},
 	"accountMenu": {
 		"OPEN": "Kontomenü"
+	},
+	"rates": {
+		"PER_HOUR": "{amount}/Std.",
+		"EDIT_RATE": "Satz bearbeiten",
+		"EDIT_RATE_OF": "Satz von {name} bearbeiten",
+		"HOURLY_RATE": "Stundensatz",
+		"CURRENCY": "Währung",
+		"WEEKLY_LIMIT": "Wöchentliches Stundenlimit",
+		"NOT_SET": "Nicht festgelegt",
+		"NUMBER_INVALID": "Geben Sie eine Zahl ein, zum Beispiel 45 oder 45,50.",
+		"NUMBER_NEGATIVE": "Geben Sie 0 oder mehr ein."
 	}
 }

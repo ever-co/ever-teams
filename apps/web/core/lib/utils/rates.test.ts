@@ -1,5 +1,9 @@
 import {
 	canManageProjectRates,
+	currencyCodesOf,
+	currencyLabelOf,
+	holdsRateAdminPermission,
+	rateAmountTextOf,
 	effectiveBillRate,
 	isRatesReadUnavailable,
 	parseRateInput,
@@ -97,5 +101,34 @@ describe('isRatesReadUnavailable', () => {
 	it('keeps any other failure an error', () => {
 		expect(isRatesReadUnavailable({ response: { status: 500 } })).toBe(false);
 		expect(isRatesReadUnavailable(new Error('offline'))).toBe(false);
+	});
+});
+
+describe('currency and amount text', () => {
+	it('lists current ISO codes, sorted, and keeps an unlisted current value selectable', () => {
+		const codes = currencyCodesOf(null);
+		expect(codes).toContain('USD');
+		expect(codes).toContain('EUR');
+		expect(codes).toEqual([...codes].sort());
+		expect(currencyCodesOf('XYZ')).toContain('XYZ');
+	});
+
+	it('names a currency in the page language, and falls back to the code', () => {
+		expect(currencyLabelOf('EUR', 'en')).toBe('EUR · Euro');
+		expect(currencyLabelOf('not-a-code', 'en')).toBe('not-a-code');
+	});
+
+	it('writes a rate as money when its currency is known, and nothing without a rate', () => {
+		expect(rateAmountTextOf('45.5', 'USD', 'en-US')).toBe('$45.50');
+		expect(rateAmountTextOf(45, null, 'en-US')).toBe('45');
+		expect(rateAmountTextOf(null, 'USD', 'en-US')).toBeNull();
+	});
+});
+
+describe('holdsRateAdminPermission', () => {
+	it('lets an organization admin edit member rates, and not a team manager without the permission', () => {
+		expect(holdsRateAdminPermission(['ORG_EMPLOYEES_EDIT'])).toBe(true);
+		expect(holdsRateAdminPermission(['ORG_TEAM_EDIT', 'PROFILE_EDIT'])).toBe(false);
+		expect(holdsRateAdminPermission([])).toBe(false);
 	});
 });

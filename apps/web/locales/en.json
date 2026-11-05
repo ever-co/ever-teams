@@ -4197,5 +4197,16 @@
 	},
 	"accountMenu": {
 		"OPEN": "Account menu"
+	},
+	"rates": {
+		"PER_HOUR": "{amount}/h",
+		"EDIT_RATE": "Edit rate",
+		"EDIT_RATE_OF": "Edit the rate of {name}",
+		"HOURLY_RATE": "Hourly rate",
+		"CURRENCY": "Currency",
+		"WEEKLY_LIMIT": "Weekly hours limit",
+		"NOT_SET": "Not set",
+		"NUMBER_INVALID": "Enter a number, for example 45 or 45.50.",
+		"NUMBER_NEGATIVE": "Enter 0 or more."
 	}
 }

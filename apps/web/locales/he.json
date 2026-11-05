@@ -4197,5 +4197,16 @@
 	},
 	"accountMenu": {
 		"OPEN": "תפריט החשבון"
+	},
+	"rates": {
+		"PER_HOUR": "{amount} לשעה",
+		"EDIT_RATE": "עריכת תעריף",
+		"EDIT_RATE_OF": "עריכת התעריף של {name}",
+		"HOURLY_RATE": "תעריף לשעה",
+		"CURRENCY": "מטבע",
+		"WEEKLY_LIMIT": "מגבלת שעות שבועית",
+		"NOT_SET": "לא הוגדר",
+		"NUMBER_INVALID": "הזינו מספר, למשל 45 או 45.50.",
+		"NUMBER_NEGATIVE": "הזינו 0 ומעלה."
 	}
 }

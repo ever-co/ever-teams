@@ -4197,5 +4197,16 @@
 	},
 	"accountMenu": {
 		"OPEN": "Accountmenu"
+	},
+	"rates": {
+		"PER_HOUR": "{amount}/u",
+		"EDIT_RATE": "Tarief bewerken",
+		"EDIT_RATE_OF": "Tarief van {name} bewerken",
+		"HOURLY_RATE": "Uurtarief",
+		"CURRENCY": "Valuta",
+		"WEEKLY_LIMIT": "Limiet uren per week",
+		"NOT_SET": "Niet ingesteld",
+		"NUMBER_INVALID": "Vul een getal in, bijvoorbeeld 45 of 45,50.",
+		"NUMBER_NEGATIVE": "Vul 0 of meer in."
 	}
 }

@@ -1,4 +1,6 @@
 import { errorStatusOf } from '@/core/lib/utils/error-feedback';
+import { formatAmount } from '@/core/lib/utils/daily-report-figures';
+import { ECurrencies } from '@/core/types/generics/enums/currency';
 
 /**
  * The permissions that let a caller set any member's rate and every project's rates. Gauzy's `PUT /employee/:id`
@@ -124,4 +126,57 @@ export function isRatesReadUnavailable(error: unknown): boolean {
 		return false;
 	}
 	return UNAVAILABLE_STATUSES.includes(status);
+}
+
+function supportedCurrencyCodes(): ReadonlySet<string> | null {
+	const intl = Intl as typeof Intl & { supportedValuesOf?: (key: 'currency') => string[] };
+	if (typeof intl.supportedValuesOf !== 'function') {
+		return null;
+	}
+	return new Set(intl.supportedValuesOf('currency'));
+}
+
+/**
+ * The currency codes a rate can be set in: Gauzy's list (`ECurrencies`, keyed by ISO code) without the historic
+ * codes the browser no longer knows, and always the current value so an old one stays selectable.
+ */
+export function currencyCodesOf(current: string | null | undefined): string[] {
+	const supported = supportedCurrencyCodes();
+	const codes = Object.keys(ECurrencies).filter((code) => {
+		if (!supported) {
+			return true;
+		}
+		return supported.has(code);
+	});
+	const hasCurrent = Boolean(current);
+	const isListed = hasCurrent && codes.includes(current as string);
+	if (hasCurrent && !isListed) {
+		codes.push(current as string);
+	}
+	return codes.sort();
+}
+
+export function currencyLabelOf(code: string, locale: string): string {
+	try {
+		const names = new Intl.DisplayNames([locale], { type: 'currency' });
+		const name = names.of(code);
+		if (!name || name === code) {
+			return code;
+		}
+		return `${code} · ${name}`;
+	} catch {
+		return code;
+	}
+}
+
+/** A rate as money when its currency is known, else as a bare number; null when there is no rate. */
+export function rateAmountTextOf(value: unknown, currency: string | null | undefined, locale: string): string | null {
+	const rate = rateValueOf(value);
+	if (rate === null) {
+		return null;
+	}
+	if (!currency) {
+		return new Intl.NumberFormat(locale, { maximumFractionDigits: 2 }).format(rate);
+	}
+	return formatAmount({ currency, amount: rate }, locale);
 }
