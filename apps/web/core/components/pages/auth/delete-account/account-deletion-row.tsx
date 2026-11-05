@@ -5,9 +5,26 @@ import { Alert, Building, UserRemove } from '@/core/components/icons';
 import { leavesWorkspaceWithoutAdmin, type IAccountDeletionAccount } from '@/core/lib/auth/account-deletion';
 import { cn } from '@/core/lib/helpers';
 
-/** `SUPER_ADMIN` → `Super admin`. */
-function roleLabel(role?: string | null): string | null {
-	if (!role) return null;
+/** Gauzy's role names (RolesEnum) → their translated label under `pages.accountDeletion.roles`. */
+const ROLE_LABEL_KEYS = {
+	SUPER_ADMIN: 'superAdmin',
+	ADMIN: 'admin',
+	MANAGER: 'manager',
+	EMPLOYEE: 'employee',
+	DATA_ENTRY: 'dataEntry',
+	VIEWER: 'viewer',
+	CANDIDATE: 'candidate',
+	INTERVIEWER: 'interviewer'
+} as const;
+
+type TKnownRole = keyof typeof ROLE_LABEL_KEYS;
+
+function isKnownRole(role: string): role is TKnownRole {
+	return Object.prototype.hasOwnProperty.call(ROLE_LABEL_KEYS, role);
+}
+
+/** A role a deployment named itself, which has no translation: `CUSTOM_ROLE` → `Custom role`. */
+function humanizedRole(role: string): string {
 	const words = role.toLowerCase().replace(/_/g, ' ');
 	return words.charAt(0).toUpperCase() + words.slice(1);
 }
@@ -19,7 +36,13 @@ function roleLabel(role?: string | null): string | null {
 export function AccountDeletionRow({ account }: Readonly<{ account: IAccountDeletionAccount }>) {
 	const t = useTranslations();
 	const workspaceDeleted = account.outcome === 'workspace-deleted';
-	const role = roleLabel(account.role);
+	const roleName = account.role?.trim().toUpperCase();
+	let role: string | null = null;
+	if (roleName) {
+		role = isKnownRole(roleName)
+			? t(`pages.accountDeletion.roles.${ROLE_LABEL_KEYS[roleName]}`)
+			: humanizedRole(roleName);
+	}
 	const organizations = account.organizations?.filter(Boolean) ?? [];
 
 	return (

@@ -1528,7 +1528,17 @@
 			"CHECKING_ACCOUNT": "Es wird geprüft, was gelöscht wird…",
 			"PREVIEW_ERROR": "Wir konnten nicht laden, was gelöscht wird.",
 			"SIGN_OUT_AFTER": "Sie werden direkt danach abgemeldet.",
-			"PLAN_CHANGED": "Was gelöscht wird, hat sich seit dem Laden dieser Seite geändert (jemand ist beigetreten oder gegangen). Es wurde nichts gelöscht: Prüfen Sie die neue Übersicht und bestätigen Sie erneut."
+			"PLAN_CHANGED": "Was gelöscht wird, hat sich seit dem Laden dieser Seite geändert (jemand ist beigetreten oder gegangen). Es wurde nichts gelöscht: Prüfen Sie die neue Übersicht und bestätigen Sie erneut.",
+			"roles": {
+				"superAdmin": "Super-Admin",
+				"admin": "Admin",
+				"manager": "Manager",
+				"employee": "Mitarbeiter",
+				"dataEntry": "Dateneingabe",
+				"viewer": "Betrachter",
+				"candidate": "Kandidat",
+				"interviewer": "Interviewer"
+			}
 		},
 		"timeLimitReport": {
 			"TIME_SPENT": "Verbrachte Zeit",

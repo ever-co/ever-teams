@@ -1528,7 +1528,17 @@
 			"CHECKING_ACCOUNT": "Sprawdzamy, co zostanie usunięte…",
 			"PREVIEW_ERROR": "Nie udało się wczytać, co zostanie usunięte.",
 			"SIGN_OUT_AFTER": "Zaraz potem zostaniesz wylogowany.",
-			"PLAN_CHANGED": "To, co zostanie usunięte, zmieniło się od załadowania tej strony (ktoś dołączył lub odszedł). Nic nie zostało usunięte: sprawdź nowe podsumowanie i potwierdź ponownie."
+			"PLAN_CHANGED": "To, co zostanie usunięte, zmieniło się od załadowania tej strony (ktoś dołączył lub odszedł). Nic nie zostało usunięte: sprawdź nowe podsumowanie i potwierdź ponownie.",
+			"roles": {
+				"superAdmin": "Superadministrator",
+				"admin": "Administrator",
+				"manager": "Menedżer",
+				"employee": "Pracownik",
+				"dataEntry": "Wprowadzanie danych",
+				"viewer": "Przeglądający",
+				"candidate": "Kandydat",
+				"interviewer": "Rekruter"
+			}
 		},
 		"timeLimitReport": {
 			"TIME_SPENT": "Czas spędzony",

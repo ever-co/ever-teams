@@ -1528,7 +1528,17 @@
 			"CHECKING_ACCOUNT": "正在检查将被删除的内容…",
 			"PREVIEW_ERROR": "无法加载将被删除的内容。",
 			"SIGN_OUT_AFTER": "随后您将立即退出登录。",
-			"PLAN_CHANGED": "自此页面加载以来，将被删除的内容已发生变化（有人加入或离开）。尚未删除任何内容：请查看新的摘要并再次确认。"
+			"PLAN_CHANGED": "自此页面加载以来，将被删除的内容已发生变化（有人加入或离开）。尚未删除任何内容：请查看新的摘要并再次确认。",
+			"roles": {
+				"superAdmin": "超级管理员",
+				"admin": "管理员",
+				"manager": "经理",
+				"employee": "员工",
+				"dataEntry": "数据录入",
+				"viewer": "查看者",
+				"candidate": "候选人",
+				"interviewer": "面试官"
+			}
 		},
 		"timeLimitReport": {
 			"TIME_SPENT": "花费时间",

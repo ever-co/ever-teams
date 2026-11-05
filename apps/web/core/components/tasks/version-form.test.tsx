@@ -16,7 +16,7 @@ const TEAM_ID = 'team-1';
 const READ_ONLY_HINT = 'pages.settingsTeam.TASK_SETTINGS_READ_ONLY';
 
 const mockUser = { id: 'user-1', tenantId: 'tenant-1', employee: { id: 'employee-1', organizationId: 'org-1' } };
-const mockPermissions = { myPermissions: [] as string[], isSuccess: true };
+const mockPermissions = { myPermissions: [] as string[], isSuccess: true, isLoaded: true };
 const mockVersions = [{ id: 'version-1', name: 'v1', value: 'v1', organizationTeamId: TEAM_ID as string | null }];
 
 type TButtonProps = ButtonHTMLAttributes<HTMLButtonElement>;

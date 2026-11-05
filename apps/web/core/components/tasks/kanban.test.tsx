@@ -18,7 +18,7 @@ const COLUMN_TITLE = 'open';
 const READ_ONLY_HINT = 'pages.settingsTeam.TASK_SETTINGS_READ_ONLY';
 
 const mockUser = { id: 'user-1', employee: { id: 'employee-1' } };
-const mockPermissions = { myPermissions: [] as string[], isSuccess: true };
+const mockPermissions = { myPermissions: [] as string[], isSuccess: true, isLoaded: true };
 
 type TChildrenProps = { children?: ReactNode };
 type TDragRenderProps = { children: (provided: object, snapshot: object) => ReactNode };

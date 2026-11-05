@@ -27,6 +27,17 @@ jest.mock('jotai', () => ({
 	useAtomValue: (atom: string) => mockAtomValues[atom]
 }));
 
+// The task list of a picked team that is not the active one (the store holds the active team's only)
+const mockPickedTeamTasksQuery: { data?: { items: unknown[] } } = {};
+const mockUseQuery = jest.fn((_options: { queryKey: unknown; enabled?: boolean }) => mockPickedTeamTasksQuery);
+jest.mock('@tanstack/react-query', () => ({
+	useQuery: (options: { queryKey: unknown; enabled?: boolean }) => mockUseQuery(options)
+}));
+jest.mock('@/core/services/client/api/tasks/task.service', () => ({ taskService: { getTasks: jest.fn() } }));
+jest.mock('@/core/hooks/auth/use-reactive-access-token-cookie', () => ({
+	useReactiveAccessTokenCookie: () => 'access-token'
+}));
+
 jest.mock('@/core/stores', () => ({
 	activeTeamState: 'activeTeamState',
 	activeTeamTaskState: 'activeTeamTaskState',
@@ -219,6 +230,7 @@ function submitDialog() {
 describe('AddManualTimeModal team of the saved time', () => {
 	beforeEach(() => {
 		mockAddManualTime.mockReset();
+		mockPickedTeamTasksQuery.data = undefined;
 		mockAtomValues.activeTeamState = teamA;
 		mockAtomValues.activeTeamTaskState = taskA;
 		mockAtomValues.organizationTeamsState = [teamA, teamB];
@@ -250,6 +262,31 @@ describe('AddManualTimeModal team of the saved time', () => {
 		expect(mockAddManualTime).toHaveBeenCalledWith(
 			expect.objectContaining({ organizationTeamId: 'team-b', taskId: 'task-shared' })
 		);
+	});
+
+	it("lists the picked team's own tasks, read for that team, and saves one with it", () => {
+		const { rerender } = renderAddTimeDialog();
+
+		pickInSelect('teams', 'team-b');
+		expect(mockUseQuery).toHaveBeenLastCalledWith(
+			expect.objectContaining({ queryKey: ['tasks', 'by-team', 'team-b'], enabled: true })
+		);
+		// The team-b list arrives
+		mockPickedTeamTasksQuery.data = { items: teamBTasks() };
+		rerender(<AddManualTimeModal isOpen params="AddTime" closeModal={closeModal} />);
+
+		pickInSelect('task', 'task-b');
+		submitDialog();
+
+		expect(mockAddManualTime).toHaveBeenCalledWith(
+			expect.objectContaining({ organizationTeamId: 'team-b', taskId: 'task-b' })
+		);
+	});
+
+	it('reads no other task list while the active team is the one picked', () => {
+		renderAddTimeDialog();
+
+		expect(mockUseQuery).toHaveBeenLastCalledWith(expect.objectContaining({ enabled: false }));
 	});
 
 	it('keeps a task the picked team shares', () => {

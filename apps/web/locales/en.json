@@ -1528,7 +1528,17 @@
 			"CHECKING_ACCOUNT": "Checking what will be deleted…",
 			"PREVIEW_ERROR": "We could not load what will be deleted.",
 			"SIGN_OUT_AFTER": "You will be signed out right after.",
-			"PLAN_CHANGED": "What will be deleted changed since this page was loaded (someone joined or left). Nothing was deleted: review the new summary and confirm again."
+			"PLAN_CHANGED": "What will be deleted changed since this page was loaded (someone joined or left). Nothing was deleted: review the new summary and confirm again.",
+			"roles": {
+				"superAdmin": "Super admin",
+				"admin": "Admin",
+				"manager": "Manager",
+				"employee": "Employee",
+				"dataEntry": "Data entry",
+				"viewer": "Viewer",
+				"candidate": "Candidate",
+				"interviewer": "Interviewer"
+			}
 		},
 		"timeLimitReport": {
 			"TIME_SPENT": "Time spent",

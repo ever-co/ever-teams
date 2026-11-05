@@ -121,4 +121,14 @@ describe('ActivityService.getDailyActivities', () => {
 			}
 		]);
 	});
+
+	it.each([
+		['an empty object', {}],
+		['an unrelated object', { id: 'activity-1', description: 'not a grouped row' }],
+		['a row without its employee', { sessions: '1', duration: '45', date: '2026-10-25', title: 'x' }]
+	])('refuses %s instead of reading it as an empty day', async (_case, row) => {
+		mockDailyRows([row]);
+
+		await expect(activityService.getDailyActivities(dailyRequest('SITE'))).rejects.toThrow();
+	});
 });
