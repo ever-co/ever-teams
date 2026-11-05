@@ -1,6 +1,6 @@
 import { authenticatedGuard } from '@/core/services/server/guards/authenticated-guard-app';
 import { getTimerStatusRequest, readTodayRange, startTimerRequest } from '@/core/services/server/requests';
-import { getApiErrorStatus, unwrapRejection } from '@/core/services/server/fetch';
+import { gauzyErrorResponse } from '@/core/services/server/gauzy-error-response';
 import { ETimeLogSource } from '@/core/types/generics/enums/timer';
 import { NextResponse } from 'next/server';
 
@@ -47,13 +47,8 @@ export async function POST(req: Request) {
 		);
 	} catch (error) {
 		// Gauzy's refusal goes back with its status and message (403 when tracking is off) instead of a 500, so the
-		// timer can tell the user why. Anything else is rethrown as before.
-		const apiError = await unwrapRejection(error);
-		const status = getApiErrorStatus(apiError);
-		if (status === undefined) {
-			throw error;
-		}
-		return NextResponse.json(apiError, { status });
+		// timer can tell the user why
+		return gauzyErrorResponse(error, 'The timer could not be started.');
 	}
 
 	const { data: timerStatus } = await getTimerStatusRequest(

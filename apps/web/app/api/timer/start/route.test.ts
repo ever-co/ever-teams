@@ -1,7 +1,7 @@
 /**
  * POST /api/timer/start is the proxy-mode twin of Gauzy's POST /timesheet/timer/start. When Gauzy refuses the start
  * (403 while time tracking is off), the handler used to throw and the browser got a 500, so the timer could not say
- * why. It now gets Gauzy's status and body; a Gauzy it cannot reach still fails.
+ * why. It now gets Gauzy's status and body; a Gauzy it cannot reach gives a 502.
  */
 import { signedIn } from '@/test/auth/guard-answers';
 
@@ -45,10 +45,12 @@ describe('POST /api/timer/start', () => {
 		await expect(response.json()).resolves.toEqual(refusal);
 	});
 
-	it('still fails when Gauzy cannot be reached', async () => {
+	it('answers a 502 when Gauzy cannot be reached', async () => {
 		const networkFailure = new TypeError('fetch failed');
 		global.fetch = jest.fn().mockRejectedValue(networkFailure);
 
-		await expect(startTimer()).rejects.toThrow('fetch failed');
+		const response = await startTimer();
+
+		expect(response.status).toBe(502);
 	});
 });
