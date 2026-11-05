@@ -4268,7 +4268,7 @@
 		"PROJECT_RATES_SECTION": "Kundensätze",
 		"PROJECT_RATE": "Kundensatz",
 		"MOST_SPECIFIC_WINS": "Was dem Kunden für dieses Projekt berechnet wird. Der Kundensatz eines Mitglieds gilt zuerst, dann dieser, dann sein eigener Satz. Die Bezahlung der Mitglieder ändert sich dadurch nicht.",
-		"PROJECT_RATE_HINT": "Leer: Die Zeit jedes Mitglieds wird zu seinem eigenen Satz berechnet.",
+		"PROJECT_RATE_HINT": "Leer: Der Kundensatz eines Mitglieds in diesem Projekt gilt, sonst sein eigener Satz.",
 		"RATE_ON_PROJECT_OF": "Kundensatz von {name} in diesem Projekt",
 		"MEMBER_RATE_HINT": "Leer: Der Kundensatz des Projekts gilt, sonst der eigene Satz. Die Bezahlung ändert sich dadurch nicht.",
 		"RATES_RETRY": "Sätze neu laden",

@@ -4268,7 +4268,7 @@
 		"PROJECT_RATES_SECTION": "Klanttarieven",
 		"PROJECT_RATE": "Klanttarief",
 		"MOST_SPECIFIC_WINS": "Wat de klant voor dit project wordt gefactureerd. Het klanttarief van een lid gaat voor, dan dit tarief, dan het eigen tarief. Het verandert niet wat leden betaald krijgen.",
-		"PROJECT_RATE_HINT": "Leeg: de tijd van elk lid wordt tegen het eigen tarief gefactureerd.",
+		"PROJECT_RATE_HINT": "Leeg: het klanttarief van een lid op dit project geldt, anders het eigen tarief.",
 		"RATE_ON_PROJECT_OF": "Klanttarief van {name} op dit project",
 		"MEMBER_RATE_HINT": "Leeg: het klanttarief van het project geldt, anders het eigen tarief. Het verandert niet wat dit lid betaald krijgt.",
 		"RATES_RETRY": "Tarieven opnieuw laden",

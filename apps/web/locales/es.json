@@ -4268,7 +4268,7 @@
 		"PROJECT_RATES_SECTION": "Tarifas al cliente",
 		"PROJECT_RATE": "Tarifa al cliente",
 		"MOST_SPECIFIC_WINS": "Lo que se factura al cliente por este proyecto. La tarifa al cliente de un miembro va primero, luego esta y luego su propia tarifa. No cambia lo que se paga a los miembros.",
-		"PROJECT_RATE_HINT": "Vacía: el tiempo de cada miembro se factura con su propia tarifa.",
+		"PROJECT_RATE_HINT": "Vacía: se aplica la tarifa al cliente del miembro en este proyecto o, si no hay, su propia tarifa.",
 		"RATE_ON_PROJECT_OF": "Tarifa al cliente de {name} en este proyecto",
 		"MEMBER_RATE_HINT": "Vacía: se aplica la tarifa al cliente del proyecto o, si no hay, su propia tarifa. No cambia lo que se le paga.",
 		"RATES_RETRY": "Volver a cargar las tarifas",

@@ -4268,7 +4268,7 @@
 		"PROJECT_RATES_SECTION": "Client rates",
 		"PROJECT_RATE": "Client rate",
 		"MOST_SPECIFIC_WINS": "What the client is billed for this project. A member's client rate comes first, then this one, then their own rate. It does not change what members are paid.",
-		"PROJECT_RATE_HINT": "Empty: each member's time is billed at their own rate.",
+		"PROJECT_RATE_HINT": "Empty: a member's client rate on this project applies, else their own rate.",
 		"RATE_ON_PROJECT_OF": "{name}'s client rate on this project",
 		"MEMBER_RATE_HINT": "Empty: the project's client rate applies, else their own rate. It does not change their pay.",
 		"RATES_RETRY": "Load the rates again",

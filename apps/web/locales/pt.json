@@ -4268,7 +4268,7 @@
 		"PROJECT_RATES_SECTION": "Taxas do cliente",
 		"PROJECT_RATE": "Taxa do cliente",
 		"MOST_SPECIFIC_WINS": "O que é cobrado do cliente por este projeto. A taxa do cliente de um membro vem primeiro, depois esta e depois a taxa dele. Não muda o que os membros recebem.",
-		"PROJECT_RATE_HINT": "Vazia: o tempo de cada membro é cobrado pela própria taxa.",
+		"PROJECT_RATE_HINT": "Vazia: vale a taxa do cliente do membro neste projeto ou, sem ela, a taxa dele.",
 		"RATE_ON_PROJECT_OF": "Taxa do cliente de {name} neste projeto",
 		"MEMBER_RATE_HINT": "Vazia: vale a taxa do cliente do projeto ou, sem ela, a taxa do membro. Não muda o que ele recebe.",
 		"RATES_RETRY": "Carregar as taxas de novo",

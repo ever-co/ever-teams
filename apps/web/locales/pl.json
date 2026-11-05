@@ -4268,7 +4268,7 @@
 		"PROJECT_RATES_SECTION": "Stawki dla klienta",
 		"PROJECT_RATE": "Stawka dla klienta",
 		"MOST_SPECIFIC_WINS": "Kwota fakturowana klientowi za ten projekt. Najpierw liczy się stawka dla klienta danego członka, potem ta, a na końcu jego własna. Nie zmienia wynagrodzenia członków.",
-		"PROJECT_RATE_HINT": "Pusta: czas każdego członka jest fakturowany według jego własnej stawki.",
+		"PROJECT_RATE_HINT": "Pusta: obowiązuje stawka dla klienta członka w tym projekcie, a bez niej jego własna.",
 		"RATE_ON_PROJECT_OF": "Stawka dla klienta {name} w tym projekcie",
 		"MEMBER_RATE_HINT": "Pusta: obowiązuje stawka dla klienta projektu, a bez niej stawka własna. Nie zmienia wynagrodzenia.",
 		"RATES_RETRY": "Wczytaj stawki ponownie",
