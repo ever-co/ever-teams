@@ -2198,7 +2198,7 @@
 			"COPY_NUMBER": "Copy number",
 			"IN_PROGRESS": "In Progress",
 			"FINAL": "Final",
-			"DISPOSE_TEAM": "Remove this team?",
+			"DISPOSE_TEAM": "Delete this team?",
 			"QUIT_TEAM": "Leave this team?",
 			"TEAM_COLOR": "Team color",
 			"TEAM_SIZE": "Team size",

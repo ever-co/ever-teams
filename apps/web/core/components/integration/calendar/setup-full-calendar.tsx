@@ -1,6 +1,5 @@
 'use client';
 import { useState, useRef, JSX } from 'react';
-import { Timer } from '@/core/components/icons';
 import FullCalendar from '@fullcalendar/react';
 import { format } from 'date-fns';
 import Image from 'next/image';
@@ -15,7 +14,8 @@ import {
 	Clock,
 	Filter,
 	IconsAlarmOutline,
-	IconsCalendarMonthOutline
+	IconsCalendarMonthOutline,
+	Timer
 } from '@/core/components/icons';
 import { controlGroupRecipe } from '@/core/components/common/input';
 import { clsxm } from '@/core/lib/utils';
