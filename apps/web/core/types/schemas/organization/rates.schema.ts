@@ -19,6 +19,16 @@ export const projectRatesSchema = z
 	})
 	.passthrough();
 
+/** What an employee is paid, read only by the employee and by holders of ORG_EMPLOYEES_EDIT. */
+export const employeePayRateSchema = z
+	.object({
+		employeeId: z.string(),
+		payRateValue: rateFieldSchema,
+		payRateCurrency: z.string().nullable().optional(),
+		currency: z.string().nullable().optional()
+	})
+	.passthrough();
+
 export const rateChangeRequestResultSchema = z
 	.object({
 		notified: z.number().optional()
@@ -28,11 +38,14 @@ export const rateChangeRequestResultSchema = z
 export type TProjectMemberRate = z.infer<typeof projectMemberRateSchema>;
 export type TProjectRates = z.infer<typeof projectRatesSchema>;
 export type TRateChangeRequestResult = z.infer<typeof rateChangeRequestResultSchema>;
+export type TEmployeePayRate = z.infer<typeof employeePayRateSchema>;
 
 export interface IEmployeeRatesInput {
 	billRateValue?: number | null;
 	billRateCurrency?: string | null;
 	reWeeklyLimit?: number | null;
+	payRateValue?: number | null;
+	payRateCurrency?: string | null;
 }
 
 export interface IRateChangeRequestInput {

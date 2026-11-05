@@ -3,17 +3,19 @@ import { APIService } from '../../api.service';
 import { GAUZY_API_BASE_SERVER_URL } from '@/core/constants/config/constants';
 import { validateApiResponse } from '@/core/types/schemas';
 import {
+	employeePayRateSchema,
 	projectRatesSchema,
 	rateChangeRequestResultSchema,
 	type IEmployeeRatesInput,
 	type IRateChangeRequestInput,
+	type TEmployeePayRate,
 	type TProjectRates,
 	type TRateChangeRequestResult
 } from '@/core/types/schemas/organization/rates.schema';
 
 /**
- * Rates: an employee's own rate (`PUT /employee/:id`), the client rates of a project and of each member on it, and
- * the rate change request an employee sends to the organization's admins.
+ * Rates: an employee's billing and pay rates (`PUT /employee/:id`), the pay rate read, the client rates of a project
+ * and of each member on it, and the rate change request an employee sends to the organization's admins.
  */
 class RateService extends APIService {
 	getProjectRates = async (projectId: string): Promise<TProjectRates> => {
@@ -43,6 +45,15 @@ class RateService extends APIService {
 			organizationId: this.organizationId,
 			billRateValue
 		});
+	};
+
+	getEmployeePayRate = async (employeeId: string): Promise<TEmployeePayRate> => {
+		const query = qs.stringify({ organizationId: this.organizationId, tenantId: this.tenantId });
+		const response = await this.get<TEmployeePayRate>(
+			`/employee/${encodeURIComponent(employeeId)}/pay-rate?${query}`,
+			{ tenantId: this.tenantId }
+		);
+		return validateApiResponse(employeePayRateSchema, response.data, 'getEmployeePayRate API response');
 	};
 
 	requestRateChange = async (input: IRateChangeRequestInput): Promise<TRateChangeRequestResult> => {

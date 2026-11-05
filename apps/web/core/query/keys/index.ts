@@ -912,7 +912,12 @@ export const queryKeys = {
 			tenantId: string | undefined | null,
 			organizationId: string | undefined | null,
 			projectId: string | undefined | null
-		) => ['rates', 'project', tenantId ?? null, organizationId ?? null, projectId ?? null] as const
+		) => ['rates', 'project', tenantId ?? null, organizationId ?? null, projectId ?? null] as const,
+		payRate: (
+			tenantId: string | undefined | null,
+			organizationId: string | undefined | null,
+			employeeId: string | undefined | null
+		) => ['rates', 'pay', tenantId ?? null, organizationId ?? null, employeeId ?? null] as const
 	},
 	entityFiles: {
 		all: ['entity-files'] as const,

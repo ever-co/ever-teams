@@ -29,6 +29,21 @@ export function useProjectRates(projectId: string | undefined, enabled: boolean)
 	return { ...query, isUnavailable };
 }
 
+/** An employee's pay rate. A 404 (a Gauzy without pay rates) or a 403 leaves it unavailable, never an error. */
+export function useEmployeePayRate(employeeId: string | undefined, enabled: boolean) {
+	const tenantId = getTenantIdCookie();
+	const organizationId = getOrganizationIdCookie();
+	const hasScope = Boolean(tenantId && organizationId && employeeId);
+	const query = useQuery({
+		queryKey: queryKeys.rates.payRate(tenantId, organizationId, employeeId),
+		queryFn: () => rateService.getEmployeePayRate(employeeId as string),
+		enabled: enabled && hasScope,
+		retry: retriesRatesRead
+	});
+	const isUnavailable = isRatesReadUnavailable(query.error);
+	return { ...query, isUnavailable };
+}
+
 export function useProjectRateMutations(projectId: string) {
 	const queryClient = useQueryClient();
 	const invalidateRates = () => queryClient.invalidateQueries({ queryKey: queryKeys.rates.all });

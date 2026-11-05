@@ -2,6 +2,7 @@ import qs from 'qs';
 import { serverFetch } from '../fetch';
 import type {
 	IRateChangeRequestInput,
+	TEmployeePayRate,
 	TProjectRates,
 	TRateChangeRequestResult
 } from '@/core/types/schemas/organization/rates.schema';
@@ -57,6 +58,21 @@ export function updateProjectMemberRateRequest({
 		path: `/organization-projects/${projectSegment}/members/${employeeSegment}/rate`,
 		method: 'PUT',
 		body: { organizationId, tenantId, billRateValue },
+		bearer_token,
+		tenantId
+	});
+}
+
+export function getEmployeePayRateRequest({
+	employeeId,
+	organizationId,
+	bearer_token,
+	tenantId
+}: IGauzyCall & { employeeId: string }) {
+	const query = qs.stringify({ organizationId, tenantId });
+	return serverFetch<TEmployeePayRate>({
+		path: `/employee/${encodeURIComponent(employeeId)}/pay-rate?${query}`,
+		method: 'GET',
 		bearer_token,
 		tenantId
 	});
