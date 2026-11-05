@@ -20,6 +20,7 @@ import { userOrganizationService } from '../../client/api/users/user-organizatio
 import { EProvider } from '@/core/types/generics/enums/social-accounts';
 import { everIdUserByAccount, isEverIdCallbackRequest } from '@/core/services/server/ever-id/sign-in';
 import { pickTokenOrganization } from '@/core/lib/auth/jwt-utils';
+import { unwrapRejection } from '@/core/services/server/fetch';
 
 export function GauzyAdapter(req: NextRequest): Adapter {
 	return {
@@ -202,13 +203,43 @@ async function signIn(provider: EProvider, access_token: string) {
 	}
 }
 
-export async function signInCallback(provider: EProvider, access_token: string): Promise<boolean> {
-	try {
-		const { gauzyUser, organization } = await signIn(provider, access_token);
-		return !!gauzyUser && !!organization;
-	} catch (error: any) {
-		return false;
+// Gauzy sends no reason code with this 401, only its fixed message (ever-gauzy social-signin-verified-account.ts).
+const UNCONFIRMED_ACCOUNT_MESSAGE = /confirm the email address of your account/i;
+
+export const PROVIDER_ACCOUNT_UNCONFIRMED_PATH = '/auth/error?error=ProviderAccountUnconfirmed';
+
+type GauzyRefusal = { statusCode?: unknown; message?: unknown } | null | undefined;
+
+function signInRejectionOf(error: unknown): unknown {
+	if (error instanceof Error) {
+		return error.cause;
 	}
+	return error;
+}
+
+async function isUnconfirmedAccountRefusal(error: unknown): Promise<boolean> {
+	const rejection = signInRejectionOf(error);
+	const body = (await unwrapRejection(rejection)) as GauzyRefusal;
+	const isUnauthorized = body?.statusCode === 401;
+	const message = String(body?.message ?? '');
+	const asksToConfirmTheAddress = UNCONFIRMED_ACCOUNT_MESSAGE.test(message);
+	return isUnauthorized && asksToConfirmTheAddress;
+}
+
+/**
+ * next-auth's signIn answer for a provider other than Ever ID. Any other failure still lets next-auth go on: for an
+ * address Gauzy does not know, the adapter registers the account (the provider sign-up). An address that only has
+ * accounts which have not confirmed it must stop here, or the adapter registers a second account for it.
+ */
+export async function signInCallback(provider: EProvider, access_token: string): Promise<true | string> {
+	try {
+		await signIn(provider, access_token);
+	} catch (error) {
+		if (await isUnconfirmedAccountRefusal(error)) {
+			return PROVIDER_ACCOUNT_UNCONFIRMED_PATH;
+		}
+	}
+	return true;
 }
 
 export async function jwtCallback(provider: EProvider, access_token: string) {

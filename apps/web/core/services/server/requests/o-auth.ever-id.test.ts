@@ -661,6 +661,13 @@ describe('GauzyAdapter for Ever ID', () => {
 	});
 });
 
+/** A non-2xx Gauzy answer as serverFetch rejects it: a handled rejected promise of the body. */
+function gauzyRefusal(body: unknown): Promise<never> {
+	const inner = Promise.reject(body);
+	inner.catch(() => undefined);
+	return Promise.reject(inner);
+}
+
 describe('the other providers keep their path', () => {
 	it('signs a Google account in through the social sign-in with its access token', async () => {
 		mockSocialSignin.mockResolvedValue({
@@ -689,6 +696,39 @@ describe('the other providers keep their path', () => {
 		expect(mockSocialSignin).toHaveBeenCalledWith('google', 'ya29.google-token');
 		expect(mockSignWithEverId).not.toHaveBeenCalled();
 		expect(token.authCookie).toEqual(expect.objectContaining({ access_token: 'gauzy-access', teamId: 'team-1' }));
+	});
+
+	it('stops a GitHub sign-in on its own page, before any account is made, when the address only has unconfirmed accounts', async () => {
+		mockSocialSignin.mockImplementation(() =>
+			gauzyRefusal({
+				statusCode: 401,
+				message: 'Confirm the email address of your account before signing in with this provider.',
+				error: 'Unauthorized'
+			})
+		);
+		const { config } = await loadAuth({}, new Request('https://teams.example.test/api/auth/callback/github'));
+		const account = { provider: 'github', type: 'oauth', providerAccountId: 'gh-1', access_token: 'gho_token' };
+
+		const answer = await config.callbacks.signIn({ account, profile: {} });
+
+		expect(answer).toBe('/auth/error?error=ProviderAccountUnconfirmed');
+		expect(mockSigninWorkspace).not.toHaveBeenCalled();
+	});
+
+	it('lets a provider sign-up go on for an address Gauzy does not know', async () => {
+		mockSocialSignin.mockImplementation(() => gauzyRefusal({ statusCode: 401, message: 'Unauthorized' }));
+		const { config } = await loadAuth({}, new Request('https://teams.example.test/api/auth/callback/google'));
+		const account = { provider: 'google', type: 'oauth', providerAccountId: 'g-2', access_token: 'ya29.new' };
+
+		expect(await config.callbacks.signIn({ account, profile: {} })).toBe(true);
+	});
+
+	it('lets the sign-in go on as before when Gauzy cannot be reached', async () => {
+		mockSocialSignin.mockRejectedValue(new TypeError('fetch failed'));
+		const { config } = await loadAuth({}, new Request('https://teams.example.test/api/auth/callback/google'));
+		const account = { provider: 'google', type: 'oauth', providerAccountId: 'g-3', access_token: 'ya29.down' };
+
+		expect(await config.callbacks.signIn({ account, profile: {} })).toBe(true);
 	});
 
 	it('still looks a social account up and links it through the API', async () => {
