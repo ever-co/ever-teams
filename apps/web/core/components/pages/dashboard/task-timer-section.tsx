@@ -4,6 +4,7 @@ import { clsxm } from '@/core/lib/utils';
 import { useState } from 'react';
 import { useAtomValue } from 'jotai';
 import { timerStatusState } from '@/core/stores';
+import { teamTimerStatusState } from '@/core/stores/timer/team-timer-status';
 import { ChevronDown } from '@/core/components/icons';
 import { TimerSkeleton } from '@/core/components/common/skeleton/timer-skeleton';
 import { AuthUserTaskInputSkeleton } from '@/core/components/common/skeleton/auth-user-task-input-skeleton';
@@ -49,8 +50,10 @@ export function TaskTimerSection({ isTrackingEnabled }: Readonly<{ isTrackingEna
 	const [showInput, setShowInput] = useState(false);
 	const timerStatus = useAtomValue(timerStatusState);
 	const isTimerRunning = Boolean(timerStatus?.running);
-	// A timer still running when tracking was turned off keeps its stop control
-	const showsTimer = isTrackingEnabled || isTimerRunning;
+	// A timer of this team still running when tracking was turned off keeps its stop control
+	const teamTimerStatus = useAtomValue(teamTimerStatusState);
+	const isTeamTimerRunning = Boolean(teamTimerStatus?.running);
+	const showsTimer = isTrackingEnabled || isTeamTimerRunning;
 	return (
 		<EverCard shadow="custom" className={TASK_BLOCK_CLASS_NAME}>
 			<TaskBlockInput
