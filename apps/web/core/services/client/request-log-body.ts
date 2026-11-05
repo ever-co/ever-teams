@@ -3,7 +3,7 @@ const SECRET_BODY_FIELDS = new Set(['hash', 'password', 'confirmPassword']);
 
 const HIDDEN = '[hidden]';
 
-/** A text body that is not JSON cannot be checked for a password, so the log leaves it out. */
+/** A text body that is not JSON, or an object that is not plain data, cannot be checked for a password. */
 const UNREADABLE_BODY = '[not logged]';
 
 const ALREADY_SHOWN = '[circular]';
@@ -21,12 +21,25 @@ function isPlainObject(value: unknown): value is Record<string, unknown> {
 	return isObjectLiteral || hasNoPrototype;
 }
 
+function isPrimitive(value: unknown): boolean {
+	if (value === null) {
+		return true;
+	}
+	const kind = typeof value;
+	const isObjectLike = kind === 'object';
+	const isFunction = kind === 'function';
+	return !isObjectLike && !isFunction;
+}
+
 function hideSecrets(value: unknown, seen: WeakSet<object>): unknown {
+	if (isPrimitive(value)) {
+		return value;
+	}
 	const isArray = Array.isArray(value);
 	const isObject = isPlainObject(value);
 	const isContainer = isArray || isObject;
 	if (!isContainer) {
-		return value;
+		return UNREADABLE_BODY;
 	}
 	const container = value as object;
 	if (seen.has(container)) {

@@ -82,10 +82,20 @@ describe('requestBodyForLog', () => {
 		expect(requestBodyForLog(body)).toEqual({ password: '[hidden]', self: '[circular]' });
 	});
 
-	it('leaves other bodies as they are', () => {
-		const form = new URLSearchParams('a=1');
+	it('leaves out any object that is not plain data, at any depth', () => {
+		const form = new URLSearchParams('email=a@b.co&password=p');
 
-		expect(requestBodyForLog(form)).toBe(form);
+		expect(requestBodyForLog(form)).toBe('[not logged]');
+		expect(requestBodyForLog({ email: 'a@b.co', form })).toEqual({ email: 'a@b.co', form: '[not logged]' });
+		expect(JSON.stringify(requestBodyForLog([form]))).not.toContain('password=p');
+	});
+
+	it('keeps primitives as they are', () => {
 		expect(requestBodyForLog(undefined)).toBeUndefined();
+		expect(requestBodyForLog({ count: 2, active: true, note: null })).toEqual({
+			count: 2,
+			active: true,
+			note: null
+		});
 	});
 });
