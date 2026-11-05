@@ -4,6 +4,7 @@ import React from 'react';
 import { act, fireEvent, render, screen } from '@testing-library/react';
 
 const mockSavePassword = jest.fn();
+let mockIsSaving = false;
 
 jest.mock('next-intl', () => ({
 	useTranslations: () => (key: string, values?: Record<string, unknown>) => {
@@ -19,7 +20,7 @@ jest.mock('next/link', () => ({
 }));
 jest.mock('@/core/components/icons', () => ({ Check: () => null, Spinner: () => null }));
 jest.mock('@/core/hooks/settings/use-account-password', () => ({
-	useAccountPassword: () => ({ savePassword: mockSavePassword, isSavingPassword: false })
+	useAccountPassword: () => ({ savePassword: mockSavePassword, isSavingPassword: mockIsSaving })
 }));
 
 import { PasswordRow } from './password-row';
@@ -42,7 +43,10 @@ async function submit() {
 }
 
 describe('PasswordRow', () => {
-	beforeEach(() => mockSavePassword.mockReset());
+	beforeEach(() => {
+		mockSavePassword.mockReset();
+		mockIsSaving = false;
+	});
 
 	it("says it sets this workspace's password only and points to Forgot password for the others", () => {
 		render(<PasswordRow />);
@@ -91,7 +95,27 @@ describe('PasswordRow', () => {
 
 		await submit();
 
-		expect(screen.getByRole('alert').textContent).toContain('settings.profile.PASSWORD_SAVE_FAILED');
+		expect(screen.getByRole('alert').textContent).toBe(
+			'settings.profile.PASSWORD_SAVE_FAILED {"reason":"toasts.REASONS.PERMISSION"}'
+		);
 		expect(screen.getByLabelText('settings.profile.PASSWORD_NEW')).toBeTruthy();
+	});
+
+	it('keeps the fields and the form while a save is under way', () => {
+		mockIsSaving = true;
+		openForm();
+
+		fireEvent.keyDown(screen.getByLabelText('settings.profile.PASSWORD_NEW'), { key: 'Escape' });
+
+		expect((screen.getByLabelText('settings.profile.PASSWORD_NEW') as HTMLInputElement).disabled).toBe(true);
+		expect((screen.getByLabelText('settings.profile.PASSWORD_CONFIRM') as HTMLInputElement).disabled).toBe(true);
+	});
+
+	it('closes the form on Escape when nothing is being saved', () => {
+		openForm();
+
+		fireEvent.keyDown(screen.getByLabelText('settings.profile.PASSWORD_NEW'), { key: 'Escape' });
+
+		expect(screen.queryByLabelText('settings.profile.PASSWORD_NEW')).toBeNull();
 	});
 });

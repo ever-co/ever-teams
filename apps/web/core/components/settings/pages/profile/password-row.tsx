@@ -97,6 +97,9 @@ export function PasswordRow() {
 			return;
 		}
 		event.stopPropagation();
+		if (isSavingPassword) {
+			return;
+		}
 		reset();
 	};
 
@@ -124,6 +127,7 @@ export function PasswordRow() {
 						type="password"
 						value={password}
 						autoFocus
+						disabled={isSavingPassword}
 						autoComplete="new-password"
 						aria-invalid={Boolean(error) || undefined}
 						aria-describedby={describedByOf(error, errorId)}
@@ -140,6 +144,7 @@ export function PasswordRow() {
 						id={confirmationId}
 						type="password"
 						value={confirmation}
+						disabled={isSavingPassword}
 						autoComplete="new-password"
 						aria-invalid={Boolean(error) || undefined}
 						aria-describedby={describedByOf(error, errorId)}
