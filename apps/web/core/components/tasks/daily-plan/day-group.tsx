@@ -41,6 +41,8 @@ const LIFTED_ROW_CLASS_NAME = 'rounded-lg shadow-md shadow-black/10 hairline-rin
 const DRAG_GRIP_CLASS_NAME =
 	'flex w-5 shrink-0 cursor-grab items-center justify-center rounded-sm text-muted-foreground/70 opacity-0 outline-none transition-opacity hover:text-foreground focus-visible:opacity-100 focus-visible:ring-[3px] focus-visible:ring-ring/25 group-hover/plan-row:opacity-100 data-[dragging=true]:opacity-100 [@media(hover:none)]:opacity-100 [&_svg]:size-3.5';
 
+// Every view stacks its day groups the same way today; the view stays in the signature for its callers
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 export function dayGroupClassName(_view: IssuesView) {
 	return TASK_GROUP_STACK;
 }

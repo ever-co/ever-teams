@@ -152,6 +152,9 @@ function renderProfile(memberId: string) {
 	return render(<ProfilePage params={{ memberId } as any} />);
 }
 
+// React.use on an already resolved value: the page's params arrive as a plain object in these tests
+const resolvedUse = ((value: unknown) => value) as typeof React.use;
+
 describe('profile activity access parity', () => {
 	beforeEach(() => {
 		mockShareProfileView = false;
@@ -160,7 +163,7 @@ describe('profile activity access parity', () => {
 		mockManagerRightsUnconfirmed = false;
 		mockManagers = [];
 		mockUseProfileActivity.mockReturnValue({ data: undefined });
-		jest.spyOn(React, 'use').mockImplementation((value: any) => value);
+		jest.spyOn(React, 'use').mockImplementation(resolvedUse);
 	});
 
 	afterEach(() => {
@@ -217,7 +220,7 @@ describe('profile top bar timer', () => {
 		mockManagerRightsUnconfirmed = false;
 		mockManagers = [];
 		mockUseProfileActivity.mockReturnValue({ data: undefined });
-		jest.spyOn(React, 'use').mockImplementation((value: any) => value);
+		jest.spyOn(React, 'use').mockImplementation(resolvedUse);
 	});
 
 	afterEach(() => {
@@ -257,7 +260,7 @@ describe('profile notice for unconfirmed manager rights', () => {
 		mockManagerRightsUnconfirmed = true;
 		mockManagers = [];
 		mockUseProfileActivity.mockReturnValue({ data: undefined });
-		jest.spyOn(React, 'use').mockImplementation((value: any) => value);
+		jest.spyOn(React, 'use').mockImplementation(resolvedUse);
 	});
 
 	afterEach(() => {
