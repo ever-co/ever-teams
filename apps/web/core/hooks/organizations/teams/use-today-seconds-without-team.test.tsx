@@ -72,17 +72,18 @@ describe('useTodaySecondsWithoutTeam', () => {
 		expect(mockGetLastTimerLogsOf).toHaveBeenCalledWith(['employee-a', 'employee-b']);
 	});
 
-	it('reads the last logs again every minute while a member tracks outside the team', async () => {
-		jest.useFakeTimers({ now: new Date(2026, 10, 5, 12, 0, 0), doNotFake: ['setTimeout'] });
+	it('reads the last logs again every minute and counts the minute, even when the log is the same', async () => {
+		jest.useFakeTimers({ now: new Date(2026, 10, 5, 12, 0, 0) });
 		mockGetLastTimerLogsOf.mockResolvedValue({ data: [runningSince('employee-a', 90, null)] });
 
-		renderFor([member('employee-a', tracking, 'pause')]);
-		await waitFor(() => expect(mockGetLastTimerLogsOf).toHaveBeenCalledTimes(1));
+		const { result } = renderFor([member('employee-a', tracking, 'pause')]);
+		await waitFor(() => expect(result.current).toEqual([90 * 60, 0]));
 		await act(async () => {
 			jest.advanceTimersByTime(ONE_MINUTE);
 		});
 
 		await waitFor(() => expect(mockGetLastTimerLogsOf).toHaveBeenCalledTimes(2));
+		await waitFor(() => expect(result.current).toEqual([91 * 60, 0]));
 	});
 
 	it('reads nothing when no member tracks outside the team', () => {

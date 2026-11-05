@@ -23,7 +23,7 @@ const trackingOutsideTeamAtom = selectAtom(
 export function useTodaySecondsWithoutTeam(employeeId: string | null | undefined): number {
 	const employeeIds = useAtomValue(trackingOutsideTeamAtom);
 	const employeeIdsKey = employeeIds.join(',');
-	const { data: statuses } = useQuery({
+	const { data: statuses, dataUpdatedAt } = useQuery({
 		queryKey: queryKeys.timer.lastLogsOf(employeeIdsKey),
 		queryFn: async () => {
 			const response = await timerService.getLastTimerLogsOf(employeeIds);
@@ -44,5 +44,7 @@ export function useTodaySecondsWithoutTeam(employeeId: string | null | undefined
 	}
 
 	const status = statuses?.find((memberStatus) => memberStatus.lastLog?.employeeId === employeeId);
-	return todaySecondsWithoutTeam(status, new Date());
+	// Counted up to the last read: a read that returns the same log keeps the data, but still moves this clock
+	const readAt = new Date(dataUpdatedAt);
+	return todaySecondsWithoutTeam(status, readAt);
 }
