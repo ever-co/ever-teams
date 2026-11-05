@@ -73,6 +73,17 @@ it('keeps the form with the reason when Gauzy refuses the request', async () => 
 	expect(screen.getByRole('alert').textContent).toBe('rates.REQUEST_FAILED toasts.REASONS.PERMISSION');
 });
 
+it('shows the input error, not the last refusal, when the next try has no valid rate', async () => {
+	mockRequestRateChange.mockRejectedValue({ response: { status: 403 } });
+	renderForm();
+
+	await send('55');
+	await send('');
+
+	expect(screen.getByRole('alert').textContent).toBe('rates.REQUESTED_RATE_REQUIRED');
+	expect(mockRequestRateChange).toHaveBeenCalledTimes(1);
+});
+
 it('asks for a valid rate before sending anything', async () => {
 	renderForm();
 

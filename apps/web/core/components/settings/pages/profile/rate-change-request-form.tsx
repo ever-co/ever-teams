@@ -62,6 +62,8 @@ export function RateChangeRequestForm({ currentCurrency, onClose }: Readonly<Rat
 		if (isSending) {
 			return;
 		}
+		setOutcome(null);
+		setFailureReason(null);
 		const parsed = parseRateInput(rateText);
 		if (parsed.problem) {
 			setProblem(t(PROBLEM_KEYS[parsed.problem]));
