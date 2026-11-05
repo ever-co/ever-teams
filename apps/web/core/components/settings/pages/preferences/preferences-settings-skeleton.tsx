@@ -8,6 +8,7 @@ import {
 	SettingsSection,
 	SettingsSurface
 } from '@/core/components/settings/kit/settings-page';
+import { HAS_EVER_APP_SWITCHER } from '@/core/constants/config/ever-apps';
 import { cn } from '@/core/lib/helpers';
 
 const TILE_KEYS = ['light', 'dark', 'system'];
@@ -37,14 +38,16 @@ function PreferencesSectionsSkeleton() {
 					<PreviewTilesSkeleton />
 				</SettingsSurface>
 			</SettingsSection>
-			<SettingsSection
-				title={t('settings.preferences.SECTION_APP_SWITCHER')}
-				description={t('settings.preferences.SECTION_APP_SWITCHER_DESCRIPTION')}
-			>
-				<SettingsSurface>
-					<PreviewTilesSkeleton />
-				</SettingsSurface>
-			</SettingsSection>
+			{HAS_EVER_APP_SWITCHER && (
+				<SettingsSection
+					title={t('settings.preferences.SECTION_APP_SWITCHER')}
+					description={t('settings.preferences.SECTION_APP_SWITCHER_DESCRIPTION')}
+				>
+					<SettingsSurface>
+						<PreviewTilesSkeleton />
+					</SettingsSurface>
+				</SettingsSection>
+			)}
 			<SettingsSection title={t('settings.preferences.SECTION_REGION')}>
 				<SettingsSurface>
 					<SettingsRowSkeleton labelWidth="w-20" control="select" />
