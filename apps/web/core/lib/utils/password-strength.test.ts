@@ -1,6 +1,11 @@
 // cspell:ignore Pässwörd ÄBCDEFG abcdéfg
 import { isStrongPassword, minLength } from 'class-validator';
-import { meetsPasswordMinLength, PASSWORD_MIN_LENGTH, unmetResetPasswordRulesOf } from './password-strength';
+import {
+	meetsPasswordMinLength,
+	newPasswordProblemOf,
+	PASSWORD_MIN_LENGTH,
+	unmetResetPasswordRulesOf
+} from './password-strength';
 
 /** Gauzy's ChangePasswordRequestDTO: MinLength(8) and IsStrongPassword with these options. */
 const GAUZY_STRONG_PASSWORD = { minLength: 8, minLowercase: 1, minUppercase: 1, minNumbers: 1, minSymbols: 1 };
@@ -27,6 +32,18 @@ describe('password minimum length', () => {
 		expect(fourEmoji.length).toBe(8);
 		expect(minLength(fourEmoji, 8)).toBe(false);
 		expect(meetsPasswordMinLength(fourEmoji)).toBe(false);
+	});
+});
+
+describe('newPasswordProblemOf', () => {
+	it('accepts what Gauzy accepts once both fields match', () => {
+		expect(newPasswordProblemOf('12345678', '12345678')).toBeNull();
+	});
+
+	it('names the length first, then the confirmation', () => {
+		expect(newPasswordProblemOf('1234567', '1234567')).toBe('tooShort');
+		expect(newPasswordProblemOf('12345678', '12345679')).toBe('mismatch');
+		expect(newPasswordProblemOf('12345678', '')).toBe('mismatch');
 	});
 });
 

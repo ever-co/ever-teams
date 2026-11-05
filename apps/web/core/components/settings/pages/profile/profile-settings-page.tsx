@@ -11,6 +11,7 @@ import { nameProblemOf, NameProblem, PROFILE_NAME_MAX_LENGTH } from '@/core/lib/
 import type { TUser } from '@/core/types/schemas';
 import { AccountDangerSection } from './account-danger-section';
 import { EmailRow } from './email-row';
+import { PasswordRow } from './password-row';
 import { PhoneRow } from './phone-row';
 import { PhotoRow } from './photo-row';
 import { ProfileSectionsSkeleton } from './profile-settings-skeleton';
@@ -87,6 +88,7 @@ export function ProfileSettingsPage() {
 								onSave={(value) => saveField('lastName', value)}
 							/>
 							<EmailRow />
+							<PasswordRow />
 							<PhoneRow
 								value={user.phoneNumber ?? ''}
 								onSave={(value) => saveField('phoneNumber', value)}

@@ -60,6 +60,19 @@ export function passwordsMatch(password: string, confirmation: string) {
 	return hasConfirmation && password === confirmation;
 }
 
+export type NewPasswordProblem = 'tooShort' | 'mismatch';
+
+/** What stops a new password from being saved: Gauzy's length rule first, then the confirmation. */
+export function newPasswordProblemOf(password: string, confirmation: string): NewPasswordProblem | null {
+	if (!meetsPasswordMinLength(password)) {
+		return 'tooShort';
+	}
+	if (!passwordsMatch(password, confirmation)) {
+		return 'mismatch';
+	}
+	return null;
+}
+
 /**
  * Gauzy's reset rule, `MinLength(8)` and `IsStrongPassword` in its ChangePasswordRequestDTO. validator.js counts only
  * A-Z, a-z, 0-9 and this symbol set, so an accented letter or a euro sign fills none of them.
