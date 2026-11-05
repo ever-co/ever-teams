@@ -16,6 +16,7 @@ import { findTimerPlans } from '@/core/lib/helpers/daily-plan-day';
 import { logErrorInDev } from '@/core/lib/helpers/error-message';
 import { shouldRetryQuery } from '@/core/lib/helpers/retry-utils';
 import { canRunTimerForState } from '@/core/lib/helpers/timer-policy';
+import { timerStartProjectId } from '@/core/lib/helpers/team-default-project';
 import { errorReasonKeyOf } from '@/core/lib/utils/error-feedback';
 import { isTrackingOffRefusal } from '@/core/lib/helpers/timer-errors';
 import { isTimerTaskOfTeam } from '@/core/lib/utils/task.utils';
@@ -553,7 +554,7 @@ export function useTimerApi({
 			const pageTask = pathname?.startsWith('/task/') ? detailedTask : null;
 			const taskToUse = explicitTask || pageTask || activeTeamTaskRef.current;
 			const taskIdToUse = taskToUse?.id;
-			const projectIdToUse = taskToUse?.projectId;
+			const projectIdToUse = timerStartProjectId(taskToUse, activeTeamRef.current);
 
 			if (pageTask) setActiveTask(pageTask);
 
@@ -686,6 +687,7 @@ export function useTimerApi({
 			setTimerStatusFetching,
 			startTimerMutate,
 			activeTeamTaskRef,
+			activeTeamRef,
 			timerStatus,
 			setTimerStatus,
 			taskStatuses,
