@@ -96,6 +96,9 @@ export function MemberRateEditor({
 			return;
 		}
 		event.stopPropagation();
+		if (isSaving) {
+			return;
+		}
 		onCancel();
 	};
 
