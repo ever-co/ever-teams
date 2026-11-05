@@ -31,6 +31,11 @@ jest.mock('./use-update-task', () => ({ useUpdateTask: () => ({ updateTask: mock
 jest.mock('../../queries/user-user.query', () => ({
 	useUserQuery: () => ({ data: { id: 'user-a', employee: { id: 'employee-a' } } })
 }));
+const mockGetTaskById = jest.fn();
+jest.mock('@/core/services/client/api', () => ({
+	...jest.requireActual('@/core/services/client/api'),
+	taskService: { getTaskById: (taskId: string) => mockGetTaskById(taskId) }
+}));
 
 import { useTeamTasksState } from './use-team-tasks-state';
 
@@ -82,16 +87,36 @@ describe('useTeamTasksState when the team task list moves to another default pro
 		expect(store.get(activeTeamTaskState)).toBeNull();
 	});
 
-	it('leaves the held task when the member switches to another task', async () => {
+	it('leaves the held task from a fresh read when the member switches to another task', async () => {
 		const { store, view } = renderWithActiveTask('task-a');
-		const heldTask = { ...teamTask('task-a'), members: [{ id: 'employee-a' }, { id: 'employee-b' }] } as TTask;
+		const heldCopy = { ...teamTask('task-a'), title: 'Old title', members: [{ id: 'employee-a' }] } as TTask;
+		const freshTask = {
+			...teamTask('task-a'),
+			title: 'Renamed by a teammate',
+			members: [{ id: 'employee-a' }, { id: 'employee-b' }]
+		} as TTask;
+		mockGetTaskById.mockResolvedValue(freshTask);
 		act(() => {
-			store.set(activeTeamTaskState, heldTask);
+			store.set(activeTeamTaskState, heldCopy);
 			store.set(teamTasksState, [teamTask('task-of-the-new-project')]);
 		});
 
 		await act(() => view.result.current.setActiveTask(teamTask('task-of-the-new-project')));
 
-		expect(mockUpdateTask).toHaveBeenCalledWith({ ...heldTask, members: [{ id: 'employee-b' }] });
+		expect(mockGetTaskById).toHaveBeenCalledWith('task-a');
+		expect(mockUpdateTask).toHaveBeenCalledWith({ ...freshTask, members: [{ id: 'employee-b' }] });
+	});
+
+	it('still switches, without touching the held task, when it cannot be read again', async () => {
+		const { store, view } = renderWithActiveTask('task-a');
+		mockGetTaskById.mockRejectedValue(new Error('offline'));
+		act(() => {
+			store.set(teamTasksState, [teamTask('task-of-the-new-project')]);
+		});
+
+		await act(() => view.result.current.setActiveTask(teamTask('task-of-the-new-project')));
+
+		expect(mockUpdateTask).not.toHaveBeenCalled();
+		expect(store.get(activeTeamTaskState)?.id).toBe('task-of-the-new-project');
 	});
 });
