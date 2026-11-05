@@ -1,6 +1,6 @@
 import { EBaseEntityEnum } from '@/core/types/generics/enums/entity';
 import { EEmployeeNotificationType, IEmployeeNotification } from '@/core/types/interfaces/common/employee-notification';
-import { RATE_CHANGE_REQUEST_HREF, toNotificationEntry } from './notification-inbox';
+import { toNotificationEntry } from './notification-inbox';
 
 function notification(overrides: Partial<IEmployeeNotification>): IEmployeeNotification {
 	return {
@@ -20,7 +20,7 @@ describe('toNotificationEntry for a rate change request', () => {
 		);
 
 		expect(entry.type).toBe(EEmployeeNotificationType.RateChangeRequest);
-		expect(entry.href).toBe(RATE_CHANGE_REQUEST_HREF);
+		expect(entry.href).toBe('/settings/team/members');
 		expect(entry.taskId).toBeNull();
 		expect(entry.message).toBe('Current rate: 40 USD/h. Requested: 55 USD/h.');
 	});
