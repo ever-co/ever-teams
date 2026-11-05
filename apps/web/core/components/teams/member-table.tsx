@@ -3,6 +3,7 @@ import { imgTitle } from '@/core/lib/helpers/index';
 import { useSettings, useSyncRef } from '@/core/hooks';
 import { usePagination } from '@/core/hooks/common/use-pagination';
 import { activeTeamIdState, activeTeamState, organizationTeamsState } from '@/core/stores';
+import { isTeamManagerMember } from '@/core/stores/teams/organization-team';
 import { clsxm } from '@/core/lib/utils';
 import { Text } from '@/core/components';
 import cloneDeep from 'lodash/cloneDeep';
@@ -20,7 +21,6 @@ import { Tooltip } from '../duplicated-components/tooltip';
 import { Paginate } from '../duplicated-components/_pagination';
 import { TOrganizationTeamEmployee, TRole } from '@/core/types/schemas';
 import { useUpdateOrganizationTeam } from '@/core/hooks/organizations/teams/use-update-organization-team';
-import { ERoleName } from '@/core/types/generics/enums/role';
 import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from '@/core/components/common/table';
 
 const HEAD_CELL = 'whitespace-nowrap';
@@ -78,7 +78,7 @@ export const MemberTable = ({ members }: { members: TOrganizationTeamEmployee[] 
 			// Get current managers
 			const currentManagers: string[] =
 				activeTeamRef.current?.members
-					?.filter((member) => member.role?.name === ERoleName.MANAGER)
+					?.filter(isTeamManagerMember)
 					.map((manager) => manager.employee?.id || '') || [];
 
 			if (isPromotingToManager) {
