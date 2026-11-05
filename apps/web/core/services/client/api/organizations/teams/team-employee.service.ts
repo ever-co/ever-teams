@@ -2,7 +2,6 @@ import { GAUZY_API_BASE_SERVER_URL } from '@/core/constants/config/constants';
 import { APIService } from '@/core/services/client/api.service';
 import {
 	validateApiResponse,
-	organizationTeamEmployeeSchema,
 	ZodValidationError,
 	TOrganizationTeamEmployee,
 	TOrganizationTeamEmployeeUpdate,
@@ -130,13 +129,13 @@ class OrganizationTeamEmployeeService extends APIService {
 	}: {
 		organizationTeamEmployeeId: string;
 		data: { order: number };
-	}): Promise<TOrganizationTeamEmployee> => {
+	}): Promise<TOrganizationTeamEmployeeUpdate> => {
 		try {
 			const endpoint = GAUZY_API_BASE_SERVER_URL.value
 				? `/organization-team-employee/${organizationTeamEmployeeId}`
 				: `/organization-team/employee/${organizationTeamEmployeeId}`;
 
-			const response = await this.put<TOrganizationTeamEmployee>(
+			const response = await this.put<TOrganizationTeamEmployeeUpdate>(
 				endpoint,
 				{
 					...data,
@@ -148,9 +147,9 @@ class OrganizationTeamEmployeeService extends APIService {
 				}
 			);
 
-			// Validate API response using utility function
+			// Gauzy answers the order update with an update result, not the membership: only its own fields are kept
 			return validateApiResponse(
-				organizationTeamEmployeeSchema,
+				organizationTeamEmployeeUpdateSchema,
 				response.data,
 				'editOrganizationTeamEmployeeOrder API response'
 			);
