@@ -236,7 +236,7 @@
 		"MILESTONES": "אבני דרך",
 		"DONT_HAVE_ACCOUNT": "אין לך חשבון?",
 		"DELETE_ALL_DATA": "מחק את כל הנתונים",
-		"REGISTER": "הרשם עכשיו!",
+		"REGISTER": "הרשמה",
 		"THEME": "ערכת עיצוב",
 		"TIME_ZONE": "אזור זמן",
 		"EDIT": "ערוך",
@@ -247,7 +247,7 @@
 		"TRANSFER_TEAM": "העבר צוות",
 		"TEAM_MEMBERS": "חברי צוות",
 		"NO_TEAM": "צור צוות משלך או הצטרף לקיים",
-		"NO_TEAM_SUB": "זה נהדר לעבוד עם אחרים, לכן צור צוות והזמן את כולם לשתף פעולה!",
+		"NO_TEAM_SUB": "צרו צוות והזמינו את האנשים שאתם עובדים איתם.",
 		"NO_TEAM_TOOLTIP": "עליך לאמת את כתובת האימייל שלך",
 		"CANCEL": "בטל",
 		"DISCARD": "בטל",
@@ -299,7 +299,7 @@
 		"FILTER_UNSUBSCRIBE": "בטל מנוי",
 		"KEYBOARD_SHORTCUTS": "קיצורי מקלדת",
 		"GITHUB_LOADING_TEXT": "אנו מתקינים כעת את אינטגרציית ה-GitHub שלך, המתינו.",
-		"GITHUB_INTEGRATION_AUTO_SYNC_TASK_TEXT": "סנכרן משימות באופן אוטומטי באפליקציה שלך לעדכונים חלקים ויעילים.",
+		"GITHUB_INTEGRATION_AUTO_SYNC_TASK_TEXT": "מסנכרן משימות עם המאגר המקושר באופן אוטומטי.",
 		"GITHUB_INTEGRATION_LABEL_SYNC_TASK_TEXT": "סנכרן משימות באופן בררני על ידי הקשרתן לתג מסוים.",
 		"GITHUB_AUTO_SYNC_LABEL": "בחר תגית אוטומטית לסנכרון",
 		"GITHUB_INTEGRATION_SUBTITLE_TEXT": "הפעל אינטגרציה של GitHub עבור סנכרון פרויקטים ומאגרים",
@@ -1601,7 +1601,7 @@
 					"endDateRequired": "תאריך סיום נדרש.",
 					"endDateAfterStart": "תאריך הסיום חייב להיות אחרי תאריך ההתחלה.",
 					"invalidUrl": "אנא הזן כתובת אתר חוקית.",
-					"uploadError": "משהו השתבש בעת העלאת תמונת הפרויקט, אנא נסה שוב!",
+					"uploadError": "תמונת הפרויקט לא הועלתה. נסו שוב.",
 					"descriptionWordLimit": "התיאור חייב להכיל 5000 מילים או פחות."
 				},
 				"common": {
@@ -1950,7 +1950,7 @@
 			"INVALID_INVITE_CODE_MESSAGE": "קוד לאתקין",
 			"WELCOME_TEAMS": "ברוך הבא ל-{appName}",
 			"COVER_TITLE": "עקוב אחר התקדמות העבודה של הצוותים שלך בזמן אמת!",
-			"COVER_DESCRIPTION": "ניהול עבודה וכוח עבודה הכל-באחד, ניהול זמן, מעקב אחר זמן, מעקב אחר פעילות, מעקב ומדדים של פרודוקטיביות, ניהול פרויקטים/משימות ובעיות, ארגונים וצוותים, אינטגרציות (GitHub, JIRA,...) ועוד!",
+			"COVER_DESCRIPTION": "עקבו אחר זמן ופעילות, נהלו משימות ופרויקטים, וראו על מה הצוות שלכם עובד. עובד עם GitHub ו-Jira.",
 			"LOGIN": "התחברות",
 			"SELECT_WORKSPACE": "בחר סביבת עבודה",
 			"ENTER_EMAIL": "הכנס אימייל",
@@ -2000,7 +2000,7 @@
 		},
 		"authLogin": {
 			"HEADING_TITLE": "התחבר לצוות",
-			"HEADING_DESCRIPTION": "אנא הכנס אימייל וקוד הזמנה כדי להתחבר.",
+			"HEADING_DESCRIPTION": "הזינו את כתובת האימייל ונשלח אליכם קוד כניסה.",
 			"WORKSPACE": "סביבת עבודה",
 			"HEADING_WORKSPACE_LINE1": "האימייל משויך למספר סביבות עבודה,",
 			"HEADING_WORKSPACE_LINE2": "אנא בחר אחת כדי להמשיך",
@@ -2201,8 +2201,8 @@
 			"HANDLE_REQUESTS": "טפל בבקשות",
 			"ROLES_POSITIONS_CHANGE": "שינוי תפקידים/תחנות",
 			"VIEW_DETAILS": "צפה בפרטים",
-			"NO_INVITATIONS": "אין הזמנות כרגע!",
-			"NO_MEMBERS": "אין חברים כרגע!",
+			"NO_INVITATIONS": "אין הזמנות ממתינות",
+			"NO_MEMBERS": "אין עדיין חברים",
 			"GO_TO_PERSONAL_SETTINGS": "עבור להגדרות האישיות",
 			"SHARE_MEMBERS_PROFILE_VIEWS": "שתף תצוגות פרופיל של חברים",
 			"everPlatform": {
@@ -2301,20 +2301,20 @@
 		},
 		"unauthorized": {
 			"TITLE": "לא מורשה",
-			"HEADING_TITLE": "אתה לא מורשה להיכנס לדף זה ",
-			"HEADING_DESCRIPTION": "אנו מתנצלים על אי הנוחות, אך אינך מורשה לגשת לדף זה. אם אתה מאמין שזו טעות. אנא התחבר",
+			"HEADING_TITLE": "אין לך גישה לדף הזה",
+			"HEADING_DESCRIPTION": "החשבון שלך לא יכול לפתוח את הדף הזה. אם לדעתך זו טעות, התחברו שוב או פנו למנהל הצוות.",
 			"TRY_AGAIN": "נסה שוב"
 		},
 		"page404": {
 			"HEADING_TITLE": "לא נמצא",
-			"HEADING_DESCRIPTION": "המשאב שאתה מחפש לא נמצא!",
+			"HEADING_DESCRIPTION": "הדף הזה לא קיים או שהועבר.",
 			"LINK_LABEL": "לך לדף הבית"
 		},
 		"offline": {
-			"HEADING_TITLE": "החיבור נותק!",
+			"HEADING_TITLE": "אין חיבור לרשת",
 			"HEADING_SUB_DESCRIPTION": "אופס, איבדנו אותך. אל דאגה, הזמן שלך עדיין עוקב.",
 			"HEADING_DESCRIPTION": "תוכל להמשיך לעבוד באפליקציית האינטרנט לאחר שחיבורך ישוחזר.",
-			"STATUS_NETWORK": "לא מקוון!"
+			"STATUS_NETWORK": "לא מקוון"
 		},
 		"error": {
 			"TITLE": "שגיאה",

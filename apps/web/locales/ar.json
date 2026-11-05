@@ -189,7 +189,7 @@
 		"MY_TEAM": "فريقي",
 		"FULL_NAME": "الاسم الكامل",
 		"USER_AVATAR": "صورة المستخدم",
-		"REGISTER": "سجل الآن!",
+		"REGISTER": "إنشاء حساب",
 		"CONTACT": "جهة الاتصال",
 		"ENABLED": "يُمكَِن",
 		"DISABLED": "معطل",
@@ -207,7 +207,7 @@
 		"TRANSFER_TEAM": "نقل الفريق",
 		"TEAM_MEMBERS": "أعضاء الفريق",
 		"NO_TEAM": "أنشئ فريقك الخاص أو انضم إلى فريق موجود",
-		"NO_TEAM_SUB": "من الرائع العمل مع الآخرين، لذا قم بإنشاء فريق وادعو الجميع للتعاون!",
+		"NO_TEAM_SUB": "أنشئ فريقًا وادعُ الأشخاص الذين تعمل معهم.",
 		"NO_TEAM_TOOLTIP": "تحتاج إلى التحقق من عنوان بريدك الإلكتروني",
 		"CANCEL": "إلغاء",
 		"DISCARD": "تجاهل",
@@ -259,7 +259,7 @@
 		"FILTER_UNSUBSCRIBE": "إلغاء الاشتراك",
 		"KEYBOARD_SHORTCUTS": "اختصارات لوحة المفاتيح",
 		"GITHUB_LOADING_TEXT": "نحن الآن في عملية تثبيت التكامل الخاص بك على GitHub، توكّل.",
-		"GITHUB_INTEGRATION_AUTO_SYNC_TASK_TEXT": "قم بمزامنة المهام تلقائيًا في تطبيقك لتحديثات سلسة وفعّالة.",
+		"GITHUB_INTEGRATION_AUTO_SYNC_TASK_TEXT": "يزامن المهام مع المستودع المرتبط تلقائيًا.",
 		"GITHUB_INTEGRATION_LABEL_SYNC_TASK_TEXT": "تزامن المهام بشكل انتقائي عن طريق ربطها بتصنيف معين.",
 		"GITHUB_AUTO_SYNC_LABEL": "اختر تسمية التزامن التلقائي",
 		"GITHUB_INTEGRATION_SUBTITLE_TEXT": "قم بتفعيل تكامل GitHub لمزامنة المشروع والمستودع",
@@ -1601,7 +1601,7 @@
 					"endDateRequired": "تاريخ الانتهاء مطلوب.",
 					"endDateAfterStart": "يجب أن يكون تاريخ الانتهاء بعد تاريخ البدء.",
 					"invalidUrl": "يرجى إدخال رابط صالح.",
-					"uploadError": "حدث خطأ أثناء تحميل صورة المشروع، يرجى المحاولة مرة أخرى!",
+					"uploadError": "لم يتم رفع صورة المشروع. حاول مرة أخرى.",
 					"descriptionWordLimit": "يجب أن يكون الوصف 5000 كلمة أو أقل."
 				},
 				"common": {
@@ -1950,7 +1950,7 @@
 			"INVALID_INVITE_CODE_MESSAGE": "رمز غير صالح",
 			"WELCOME_TEAMS": "مرحبًا بك في إيفر تيمز",
 			"COVER_TITLE": "تابع تقدم عمل فرقك في الوقت الفعلي!",
-			"COVER_DESCRIPTION": "نص تجريبي هنا",
+			"COVER_DESCRIPTION": "تتبّع الوقت والنشاط، وأدِر المهام والمشاريع، واعرف ما يعمل عليه فريقك. يعمل مع GitHub وJira.",
 			"LOGIN": "تسجيل الدخول",
 			"SELECT_WORKSPACE": "تحديد مساحة العمل",
 			"ENTER_EMAIL": "أدخل البريد الإلكتروني",
@@ -2000,7 +2000,7 @@
 		},
 		"authLogin": {
 			"HEADING_TITLE": "تسجيل الدخول إلى الفريق",
-			"HEADING_DESCRIPTION": "يرجى إدخال البريد الإلكتروني ورمز الدعوة لتسجيل الدخول.",
+			"HEADING_DESCRIPTION": "أدخل بريدك الإلكتروني وسنرسل إليك رمز تسجيل الدخول.",
 			"WORKSPACE": "مساحة العمل",
 			"HEADING_WORKSPACE_LINE1": "البريد الإلكتروني المرتبط بمساحات عمل متعددة،",
 			"HEADING_WORKSPACE_LINE2": "يرجى تحديد واحدة للمتابعة",
@@ -2201,8 +2201,8 @@
 			"HANDLE_REQUESTS": "التعامل مع الطلبات",
 			"ROLES_POSITIONS_CHANGE": "تغيير الأدوار/المناصب",
 			"VIEW_DETAILS": "عرض التفاصيل",
-			"NO_INVITATIONS": "لا توجد دعوات حاليًا!",
-			"NO_MEMBERS": "لا يوجد أعضاء حاليًا!",
+			"NO_INVITATIONS": "لا توجد دعوات معلّقة",
+			"NO_MEMBERS": "لا يوجد أعضاء بعد",
 			"GO_TO_PERSONAL_SETTINGS": "الانتقال إلى الإعدادات الشخصية",
 			"SHARE_MEMBERS_PROFILE_VIEWS": "مشاركة مشاهدات ملفات تعريف الأعضاء",
 			"everPlatform": {
@@ -2301,24 +2301,24 @@
 		},
 		"unauthorized": {
 			"TITLE": "غير مصرح",
-			"HEADING_TITLE": "أنت غير مفوض لدخول هذه الصفحة !",
-			"HEADING_DESCRIPTION": "عتذر عن الإزعاج، لكن غير مسموح لك بالدخول إلى هذه الصفحة. إذا كنت تعتقد أن هذا خطأ. الرجاء تسجيل الدخول.",
+			"HEADING_TITLE": "ليس لديك صلاحية الوصول إلى هذه الصفحة",
+			"HEADING_DESCRIPTION": "لا يستطيع حسابك فتح هذه الصفحة. إذا كنت تعتقد أن ذلك خطأ، سجّل الدخول مرة أخرى أو اسأل مدير فريقك.",
 			"TRY_AGAIN": "حاول ثانية"
 		},
 		"page404": {
 			"HEADING_TITLE": "غير موجود",
-			"HEADING_DESCRIPTION": "المورد الذي تبحث عنه غير موجود!",
+			"HEADING_DESCRIPTION": "هذه الصفحة غير موجودة أو تم نقلها.",
 			"LINK_LABEL": "الذهاب إلى الصفحة الرئيسية"
 		},
 		"offline": {
-			"HEADING_TITLE": "تم قطع الشبكة!",
+			"HEADING_TITLE": "لا يوجد اتصال بالشبكة",
 			"HEADING_SUB_DESCRIPTION": "عفوًا، فقدناك. لا تقلق، الوقت ما زال يتم تتبعه.",
 			"HEADING_DESCRIPTION": "ستتمكن من متابعة العمل في تطبيق الويب بمجرد استعادة الاتصال.",
-			"STATUS_NETWORK": "غير متصل!"
+			"STATUS_NETWORK": "غير متصل"
 		},
 		"error": {
 			"TITLE": "خطأ",
-			"HEADING_TITLE": "هناك خطأ ما ",
+			"HEADING_TITLE": "حدث خطأ ما",
 			"HEADING_DESCRIPTION": "إذا استمرت المشكلة، قم بإرسال إشارة استغاثة إلى فريق الدعم لدينا."
 		},
 		"maintenance": {

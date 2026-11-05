@@ -245,7 +245,7 @@
 		"TRANSFER_TEAM": "Прехвърляне на отбор",
 		"TEAM_MEMBERS": "Членове на отбора",
 		"NO_TEAM": "Създайте собствен отбор или се присъединете към съществуващ",
-		"NO_TEAM_SUB": "Прекрасно е да се работи с други, затова създайте екип и поканете всички за сътрудничество!",
+		"NO_TEAM_SUB": "Създайте екип и поканете хората, с които работите.",
 		"NO_TEAM_TOOLTIP": "You need to verify your email address",
 		"CANCEL": "Отказ",
 		"DISCARD": "Изхвърляне",
@@ -300,7 +300,7 @@
 		"KEYBOARD_SHORTCUTS": "Клавишни комбинации",
 		"GITHUB_INTEGRATION_SUBTITLE_TEXT": "Активирайте интеграцията с GitHub за синхронизация на проекта и хранилището",
 		"GITHUB_LOADING_TEXT": "В момента инсталираме вашия GitHub интеграция, изчакайте...",
-		"GITHUB_INTEGRATION_AUTO_SYNC_TASK_TEXT": "Автоматично синхронизирайте задачите в приложението си за безпроблемни и ефективни актуализации.",
+		"GITHUB_INTEGRATION_AUTO_SYNC_TASK_TEXT": "Синхронизира задачите със свързаното хранилище автоматично.",
 		"GITHUB_INTEGRATION_LABEL_SYNC_TASK_TEXT": "Синхронизирайте задачите избирателно, като ги свържете с конкретен етикет.",
 		"GITHUB_AUTO_SYNC_LABEL": "Изберете етикет за автоматична синхронизация",
 		"THERE_IS_NO_TASK_ASSIGNED": "Няма възложени задачи",
@@ -1601,7 +1601,7 @@
 					"endDateRequired": "Дата на завършване е задължителна.",
 					"endDateAfterStart": "Дата на завършване трябва да бъде след дата на започване.",
 					"invalidUrl": "Моля, въведете валиден URL.",
-					"uploadError": "Възникна грешка при качването на изображението на проекта, моля опитайте отново!",
+					"uploadError": "Изображението на проекта не беше качено. Опитайте отново.",
 					"descriptionWordLimit": "Описанието трябва да бъде до 5000 думи."
 				},
 				"common": {
@@ -1950,7 +1950,7 @@
 			"INVALID_INVITE_CODE_MESSAGE": "Невалиден код",
 			"WELCOME_TEAMS": "Добре дошли в {appName}",
 			"COVER_TITLE": "Следете напредъка на работата на отборите си в реално време!",
-			"COVER_DESCRIPTION": "All-In-One Work & Workforce Management, Time Management, Time Tracking, Activity Tracking, Productivity Tracking & Metrics, Projects / Tasks & Issues Management, Organizations & Teams, Integrations (GitHub, JIRA, ...) and More!",
+			"COVER_DESCRIPTION": "Отчитайте време и активност, управлявайте задачи и проекти и вижте по какво работи екипът ви. Работи с GitHub и Jira.",
 			"LOGIN": "Вход",
 			"SELECT_WORKSPACE": "Избери работно пространство",
 			"ENTER_EMAIL": "Въведи имейл",
@@ -2000,7 +2000,7 @@
 		},
 		"authLogin": {
 			"HEADING_TITLE": "Вход в отбора",
-			"HEADING_DESCRIPTION": "Моля, въведете имейл и покана за вход.",
+			"HEADING_DESCRIPTION": "Въведете имейла си и ще ви изпратим код за вход.",
 			"WORKSPACE": "Работно пространство",
 			"HEADING_WORKSPACE_LINE1": "Имейлът, свързан с множество работни пространства,",
 			"HEADING_WORKSPACE_LINE2": "моля, изберете едно за продължаване",
@@ -2201,8 +2201,8 @@
 			"HANDLE_REQUESTS": "Обработване на заявки",
 			"ROLES_POSITIONS_CHANGE": "Промяна на роли/позиции",
 			"VIEW_DETAILS": "Преглед на детайли",
-			"NO_INVITATIONS": "В момента няма покани!",
-			"NO_MEMBERS": "В момента няма членове!",
+			"NO_INVITATIONS": "Няма чакащи покани",
+			"NO_MEMBERS": "Все още няма членове",
 			"GO_TO_PERSONAL_SETTINGS": "Отидете в лични настройки",
 			"SHARE_MEMBERS_PROFILE_VIEWS": "Споделете прегледите на профилите на членовете",
 			"everPlatform": {
@@ -2301,24 +2301,24 @@
 		},
 		"unauthorized": {
 			"TITLE": "Неразрешено",
-			"HEADING_TITLE": "Нямате право за достъп до тази страница!",
-			"HEADING_DESCRIPTION": "Извиняваме се за неудобството, но не сте оторизирани за достъп до тази страница. Ако смятате, че това е грешка. Моля влезте.",
+			"HEADING_TITLE": "Нямате достъп до тази страница",
+			"HEADING_DESCRIPTION": "Профилът ви не може да отвори тази страница. Ако смятате, че трябва, влезте отново или попитайте мениджъра на екипа.",
 			"TRY_AGAIN": "Опитай пак"
 		},
 		"page404": {
 			"HEADING_TITLE": "Ненамерено",
-			"HEADING_DESCRIPTION": "Търсеният ресурс не беше намерен!",
+			"HEADING_DESCRIPTION": "Тази страница не съществува или е преместена.",
 			"LINK_LABEL": "Отиди на началната страница"
 		},
 		"offline": {
-			"HEADING_TITLE": "Мрежата е прекъсната!",
+			"HEADING_TITLE": "Няма връзка с мрежата",
 			"HEADING_SUB_DESCRIPTION": "Опа, изгубихме ви. Не се притеснявайте, времето ви все още се отчита.",
 			"HEADING_DESCRIPTION": "Ще можете да продължите да работите в уеб приложението, след като връзката ви бъде възстановена.",
-			"STATUS_NETWORK": "Офлайн!"
+			"STATUS_NETWORK": "Офлайн"
 		},
 		"error": {
-			"TITLE": "грешка!",
-			"HEADING_TITLE": "Нещо се обърка !",
+			"TITLE": "Грешка",
+			"HEADING_TITLE": "Нещо се обърка",
 			"HEADING_DESCRIPTION": "Ако проблемът продължава, изпратете сигнал за помощ до нашия екип за поддръжка."
 		},
 		"maintenance": {

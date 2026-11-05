@@ -200,7 +200,7 @@ function FillUserDataForm({
 						className="block text-sm font-medium leading-none select-none"
 						htmlFor="signup-email"
 					>
-						{t('form.EMAIL_PLACEHOLDER')}
+						{t('common.EMAIL')}
 					</label>
 					<InputField
 						id="signup-email"

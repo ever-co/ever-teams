@@ -245,7 +245,7 @@
 		"TRANSFER_TEAM": "Przenieś Zespół",
 		"TEAM_MEMBERS": "Członkowie Zespołu",
 		"NO_TEAM": "Stwórz swój własny zespół lub dołącz do istniejącego",
-		"NO_TEAM_SUB": "Świetnie jest pracować z innymi, więc stwórz zespół i zaproś wszystkich do współpracy!",
+		"NO_TEAM_SUB": "Utwórz zespół i zaproś osoby, z którymi pracujesz.",
 		"NO_TEAM_TOOLTIP": "Musisz zweryfikować swój adres e-mail",
 		"CANCEL": "Anuluj",
 		"DISCARD": "Odrzuć",
@@ -254,7 +254,7 @@
 		"BACK": "Powrót",
 		"DONT_HAVE_ACCOUNT": "Nie masz konta?",
 		"TEAM_MEMBER_EMAIL_ADDRESS": "Adres e-mail członka zespołu",
-		"REGISTER": "Zarejestruj się teraz!",
+		"REGISTER": "Zarejestruj się",
 		"JOIN_REQUEST": "Prośba o Dołączenie",
 		"PERMISSION": "Uprawnienia",
 		"SEARCH": "Szukaj",
@@ -300,7 +300,7 @@
 		"KEYBOARD_SHORTCUTS": "Skróty klawiszowe",
 		"GITHUB_INTEGRATION_SUBTITLE_TEXT": "Aktywuj integrację GitHub dla synchronizacji projektu i repozytorium",
 		"GITHUB_LOADING_TEXT": "Aktualnie instalujemy integrację GitHub, proszę czekać...",
-		"GITHUB_INTEGRATION_AUTO_SYNC_TASK_TEXT": "Automatycznie synchronizuj zadania w swojej aplikacji, aby uzyskać płynne i efektywne aktualizacje.",
+		"GITHUB_INTEGRATION_AUTO_SYNC_TASK_TEXT": "Automatycznie synchronizuje zadania z połączonym repozytorium.",
 		"GITHUB_INTEGRATION_LABEL_SYNC_TASK_TEXT": "Synchronizuj zadania selektywnie, łącząc je z konkretną etykietą.",
 		"GITHUB_AUTO_SYNC_LABEL": "Wybierz etykietę automatycznej synchronizacji",
 		"THERE_IS_NO_TASK_ASSIGNED": "Nie ma przypisanego zadania",
@@ -1651,7 +1651,7 @@
 					"endDateRequired": "Data zakończenia jest wymagana.",
 					"endDateAfterStart": "Data zakończenia musi być po dacie rozpoczęcia.",
 					"invalidUrl": "Proszę podać prawidłowy URL.",
-					"uploadError": "Wystąpił błąd podczas przesyłania obrazu projektu, spróbuj ponownie!",
+					"uploadError": "Nie udało się przesłać obrazu projektu. Spróbuj ponownie.",
 					"descriptionWordLimit": "Opis musi zawierać 5000 słów lub mniej."
 				},
 				"common": {
@@ -1950,7 +1950,7 @@
 			"INVALID_INVITE_CODE_MESSAGE": "Nieprawidłowy Kod",
 			"WELCOME_TEAMS": "Prawdziwa Klarowność na Żywo, Prawdziwa Rzeczywistość na Żywo™.",
 			"COVER_TITLE": "Otwarta Platforma Zarządzania Pracą i Projektami",
-			"COVER_DESCRIPTION": "Wszystko w Jednym: Zarządzanie Pracą i Zespołem, Zarządzanie Czasem, Śledzenie Czasu, Śledzenie Aktywności, Śledzenie Produktywności i Metryki, Zarządzanie Projektami / Zadaniami i Problemami, Organizacje i Zespoły, Integracje (GitHub, JIRA, ...) i więcej!",
+			"COVER_DESCRIPTION": "Rejestruj czas i aktywność, zarządzaj zadaniami i projektami i sprawdzaj, nad czym pracuje Twój zespół. Działa z GitHub i Jira.",
 			"LOGIN": "Zaloguj się",
 			"SELECT_WORKSPACE": "Wybierz Przestrzeń Roboczą",
 			"ENTER_EMAIL": "Wprowadź E-mail",
@@ -2000,7 +2000,7 @@
 		},
 		"authLogin": {
 			"HEADING_TITLE": "Zaloguj się do Zespołu",
-			"HEADING_DESCRIPTION": "Proszę podać adres e-mail oraz kod zaproszenia, aby się zalogować.",
+			"HEADING_DESCRIPTION": "Podaj adres e-mail, a wyślemy Ci kod logowania.",
 			"WORKSPACE": "Przestrzeń Robocza",
 			"HEADING_WORKSPACE_LINE1": "E-mail powiązany z wieloma przestrzeniami roboczymi,",
 			"HEADING_WORKSPACE_LINE2": "proszę wybrać jedną, aby kontynuować",
@@ -2201,8 +2201,8 @@
 			"HANDLE_REQUESTS": "Obsługa Żądań",
 			"ROLES_POSITIONS_CHANGE": "Zmiana Ról/Pozycji",
 			"VIEW_DETAILS": "Pokaż Szczegóły",
-			"NO_INVITATIONS": "Obecnie nie ma żadnych zaproszeń!",
-			"NO_MEMBERS": "Obecnie nie ma żadnych członków!",
+			"NO_INVITATIONS": "Brak oczekujących zaproszeń",
+			"NO_MEMBERS": "Brak członków",
 			"GO_TO_PERSONAL_SETTINGS": "Przejdź do ustawień osobistych",
 			"SHARE_MEMBERS_PROFILE_VIEWS": "Udostępnij widoki profili członków",
 			"everPlatform": {
@@ -2301,24 +2301,24 @@
 		},
 		"unauthorized": {
 			"TITLE": "Nieautoryzowany",
-			"HEADING_TITLE": "Nie masz uprawnień, aby uzyskać dostęp do tej strony !",
-			"HEADING_DESCRIPTION": "Przepraszamy za niedogodności, ale nie masz uprawnień dostępu do tej strony. Jeśli uważasz, że to błąd. Proszę się zalogować.",
+			"HEADING_TITLE": "Nie masz dostępu do tej strony",
+			"HEADING_DESCRIPTION": "Twoje konto nie może otworzyć tej strony. Jeśli uważasz, że to błąd, zaloguj się ponownie lub zapytaj menedżera zespołu.",
 			"TRY_AGAIN": "Spróbuj ponownie"
 		},
 		"page404": {
-			"HEADING_TITLE": "Nie Znaleziono",
-			"HEADING_DESCRIPTION": "Nie znaleziono szukanego zasobu!",
+			"HEADING_TITLE": "Nie znaleziono strony",
+			"HEADING_DESCRIPTION": "Ta strona nie istnieje lub została przeniesiona.",
 			"LINK_LABEL": "Przejdź do strony głównej"
 		},
 		"offline": {
-			"HEADING_TITLE": "Sieć rozłączona!",
+			"HEADING_TITLE": "Jesteś offline",
 			"HEADING_SUB_DESCRIPTION": "Ups, straciliśmy cię. Nie martw się, twój czas jest nadal śledzony.",
 			"HEADING_DESCRIPTION": "Będziesz mógł kontynuować pracę w aplikacji internetowej, gdy połączenie zostanie przywrócone.",
-			"STATUS_NETWORK": "Offline!"
+			"STATUS_NETWORK": "Offline"
 		},
 		"error": {
-			"TITLE": "Błąd !",
-			"HEADING_TITLE": "Coś poszło nie tak !",
+			"TITLE": "Błąd",
+			"HEADING_TITLE": "Coś poszło nie tak",
 			"HEADING_DESCRIPTION": "Jeśli problem będzie się powtarzał, wyślij sygnał o niebezpieczeństwie do naszego zespołu wsparcia."
 		},
 		"maintenance": {

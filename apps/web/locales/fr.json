@@ -246,7 +246,7 @@
 		"TRANSFER_TEAM": "Transférer l'équipe",
 		"TEAM_MEMBERS": "Membres de l'équipe",
 		"NO_TEAM": "Créez votre propre équipe ou rejoignez une équipe existante",
-		"NO_TEAM_SUB": "Il est génial de travailler avec d'autres, alors créez une équipe et invitez tout le monde à collaborer !",
+		"NO_TEAM_SUB": "Créez une équipe et invitez les personnes avec qui vous travaillez.",
 		"NO_TEAM_TOOLTIP": "Vous devez vérifier votre adresse e-mail",
 		"CANCEL": "Annuler",
 		"DISCARD": "Annuler",
@@ -299,7 +299,7 @@
 		"FILTER_UNSUBSCRIBE": "Se désabonner",
 		"KEYBOARD_SHORTCUTS": "Raccourcis clavier",
 		"GITHUB_LOADING_TEXT": "Nous installons actuellement votre intégration GitHub, veuillez patienter...",
-		"GITHUB_INTEGRATION_AUTO_SYNC_TASK_TEXT": "Synchronisez automatiquement les tâches dans votre application pour des mises à jour fluides et efficaces.",
+		"GITHUB_INTEGRATION_AUTO_SYNC_TASK_TEXT": "Synchronise automatiquement les tâches avec le dépôt lié.",
 		"GITHUB_INTEGRATION_LABEL_SYNC_TASK_TEXT": "Synchronisez sélectivement les tâches en les associant à une étiquette spécifique.",
 		"GITHUB_AUTO_SYNC_LABEL": "Sélectionner l'étiquette de synchronisation automatique",
 		"GITHUB_INTEGRATION_SUBTITLE_TEXT": "Activez l'intégration GitHub pour la synchronisation des projets et des dépôts",
@@ -1648,7 +1648,7 @@
 					"endDateRequired": "La date de fin est obligatoire.",
 					"endDateAfterStart": "La date de fin doit être après la date de début.",
 					"invalidUrl": "Veuillez entrer une URL valide.",
-					"uploadError": "Une erreur s'est produite lors du téléchargement de l'image du projet, veuillez réessayer!",
+					"uploadError": "L'image du projet n'a pas été envoyée. Réessayez.",
 					"descriptionWordLimit": "La description doit contenir 5000 mots ou moins."
 				},
 				"common": {
@@ -1950,7 +1950,7 @@
 			"INVALID_INVITE_CODE_MESSAGE": "Code invalide",
 			"WELCOME_TEAMS": "Bienvenue sur {appName}",
 			"COVER_TITLE": "Suivez en temps réel le progrès du travail de vos équipes !",
-			"COVER_DESCRIPTION": "Gestion du travail et de la main-d'œuvre tout-en-un, gestion du temps, suivi du temps, suivi de l'activité, suivi de la productivité et des métriques, gestion des projets/tâches et des problèmes, organisations et équipes, intégrations (GitHub, JIRA, ...) et plus encore !",
+			"COVER_DESCRIPTION": "Suivez le temps et l'activité, gérez les tâches et les projets, et voyez sur quoi travaille votre équipe. Fonctionne avec GitHub et Jira.",
 			"LOGIN": "Connexion",
 			"SELECT_WORKSPACE": "Sélectionner un espace de travail",
 			"ENTER_EMAIL": "Saisissez votre adresse e-mail",
@@ -2000,7 +2000,7 @@
 		},
 		"authLogin": {
 			"HEADING_TITLE": "Se connecter à l'équipe",
-			"HEADING_DESCRIPTION": "Veuillez entrer votre adresse e-mail et le code d'invitation pour vous connecter.",
+			"HEADING_DESCRIPTION": "Saisissez votre e-mail, nous vous enverrons un code de connexion.",
 			"WORKSPACE": "Espace de travail",
 			"HEADING_WORKSPACE_LINE1": "L'adresse e-mail est associée à plusieurs espaces de travail,",
 			"HEADING_WORKSPACE_LINE2": "veuillez en sélectionner un pour continuer.",
@@ -2201,8 +2201,8 @@
 			"HANDLE_REQUESTS": "Gérer les demandes",
 			"ROLES_POSITIONS_CHANGE": "Changer les rôles/positions",
 			"VIEW_DETAILS": "Voir les détails",
-			"NO_INVITATIONS": "Il n'y a pas d'invitation pour le moment !",
-			"NO_MEMBERS": "Il n'y a pas de membres pour le moment !",
+			"NO_INVITATIONS": "Aucune invitation en attente",
+			"NO_MEMBERS": "Aucun membre pour l'instant",
 			"GO_TO_PERSONAL_SETTINGS": "Aller aux paramètres personnels",
 			"SHARE_MEMBERS_PROFILE_VIEWS": "Partager les vues de profil des membres",
 			"everPlatform": {
@@ -2301,24 +2301,24 @@
 		},
 		"unauthorized": {
 			"TITLE": "Non autorisé",
-			"HEADING_TITLE": "Vous n'êtes pas autorisé à accéder à cette page !",
-			"HEADING_DESCRIPTION": "Nous nous excusons pour la gêne occasionnée, mais vous n'êtes pas autorisé à accéder à cette page. Si vous pensez que c'est une erreur. Veuillez vous connecter.",
+			"HEADING_TITLE": "Vous n'avez pas accès à cette page",
+			"HEADING_DESCRIPTION": "Votre compte ne peut pas ouvrir cette page. Si vous pensez que c'est une erreur, reconnectez-vous ou demandez au responsable de votre équipe.",
 			"TRY_AGAIN": "Réessayer"
 		},
 		"page404": {
-			"HEADING_TITLE": "Page non trouvée",
-			"HEADING_DESCRIPTION": "La ressource que vous recherchez est introuvable !",
+			"HEADING_TITLE": "Page introuvable",
+			"HEADING_DESCRIPTION": "Cette page n'existe pas ou a été déplacée.",
 			"LINK_LABEL": "Aller à la page d'accueil"
 		},
 		"offline": {
-			"HEADING_TITLE": "Réseau déconnecté !",
+			"HEADING_TITLE": "Vous êtes hors ligne",
 			"HEADING_SUB_DESCRIPTION": "Oups, nous vous avons perdu. Ne vous inquiétez pas, votre temps est toujours suivi.",
 			"HEADING_DESCRIPTION": "Vous pourrez continuer à travailler dans l'application web une fois votre connexion rétablie.",
-			"STATUS_NETWORK": "Hors ligne !"
+			"STATUS_NETWORK": "Hors ligne"
 		},
 		"error": {
-			"TITLE": "Erreur !",
-			"HEADING_TITLE": "Quelque chose s'est mal passé !",
+			"TITLE": "Erreur",
+			"HEADING_TITLE": "Une erreur s'est produite",
 			"HEADING_DESCRIPTION": "Si le problème persiste, envoyez un signal de détresse à notre équipe d'assistance."
 		},
 		"maintenance": {
