@@ -917,7 +917,15 @@
 		"purecatamphetamine",
 		"tolower",
 		"NOERROR",
-		"vitest"
+		"vitest",
+		"Deepgram",
+		"OPENROUTER",
+		"keycap",
+		"pickable",
+		"hugeicons",
+		"Subline",
+		"Paintable",
+		"REGROUPABLE"
 ],
 	"useGitignore": true,
 	"ignorePaths": [

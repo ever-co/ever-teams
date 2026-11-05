@@ -68,6 +68,7 @@ describe('CompleteInvitationRegistrationForm', () => {
 
 	it('clears the mismatch error once the confirmation is edited', async () => {
 		renderForm();
+		// cspell:disable-next-line -- a deliberately mistyped confirmation
 		typePasswords('long enough', 'long enougj');
 		await join();
 		expect(screen.getByRole('alert').textContent).toBe('errors.PASSWORDS_DO_NOT_MATCH');
