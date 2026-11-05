@@ -1630,7 +1630,7 @@
 			"basicInformationForm": {
 				"formFields": {
 					"title": "Projecttitel",
-					"titlePlaceholder": "Klantproject #1...",
+					"titlePlaceholder": "Klantproject #1",
 					"description": "Beschrijving",
 					"datePickerPlaceholder": "Kies een datum",
 					"websiteUrl": "Website-URL",
@@ -1652,8 +1652,8 @@
 					"descriptionWordLimit": "De beschrijving mag maximaal 5000 woorden bevatten."
 				},
 				"common": {
-					"search": "Zoeken ...",
-					"typeNew": "Typ nieuw ...",
+					"search": "Zoeken",
+					"typeNew": "Typ nieuw",
 					"addNew": "Nieuw toevoegen",
 					"uploadingImage": "Projectafbeelding wordt geüpload"
 				}
@@ -1661,9 +1661,9 @@
 			"categorizationForm": {
 				"formFields": {
 					"labels": "Labels",
-					"labelsPlaceholder": "Selecteer labels...",
+					"labelsPlaceholder": "Selecteer labels",
 					"tags": "Tags",
-					"tagsPlaceholder": "Selecteer tags...",
+					"tagsPlaceholder": "Selecteer tags",
 					"colorCode": "Kleurcode"
 				}
 			},
@@ -1672,11 +1672,11 @@
 					"budgetType": "Budgettype",
 					"budgetTypePlaceholder": "Selecteer budgettype",
 					"budgetAmount": "Budgetbedrag",
-					"budgetAmountPlaceholder": "10 000$...",
+					"budgetAmountPlaceholder": "10 000$",
 					"currency": "Valutaselectie",
-					"currencyPlaceholder": "Selecteer een valuta...",
+					"currencyPlaceholder": "Selecteer een valuta",
 					"billing": "Facturatietype",
-					"billingPlaceholder": "Selecteer interval..."
+					"billingPlaceholder": "Selecteer interval"
 				}
 			},
 			"teamAndRelationsForm": {
@@ -1687,13 +1687,13 @@
 					"assignMembers": "Leden & Managers toewijzen",
 					"noMembers": "Geen leden of managers",
 					"addMember": "Lid toevoegen",
-					"selectMember": "Selecteer een lid...",
-					"selectRole": "Selecteer een rol...",
+					"selectMember": "Selecteer een lid",
+					"selectRole": "Selecteer een rol",
 					"relations": "Relaties",
 					"noRelations": "Geen relaties",
 					"addRelation": "Relatie toevoegen",
-					"selectProject": "Selecteer een project...",
-					"selectRelationType": "Kies een relatietype...",
+					"selectProject": "Selecteer een project",
+					"selectRelationType": "Kies een relatietype",
 					"activeTeamLocked": "Het huidige team is vereist en kan niet worden verwijderd"
 				},
 				"errors": {
@@ -1822,7 +1822,7 @@
 				"created": "{name} is aangemaakt",
 				"saved": "Wijzigingen aan {name} zijn opgeslagen",
 				"done": "Klaar",
-				"descriptionPlaceholder": "Voeg een beschrijving, briefing of de doelen van het project toe…",
+				"descriptionPlaceholder": "Voeg een beschrijving, briefing of de doelen van het project toe",
 				"removeItem": "{name} verwijderen",
 				"showMore": "Nog {count} tonen",
 				"showLess": "Minder tonen",
@@ -1844,12 +1844,12 @@
 				},
 				"teams": {
 					"add": "Team toevoegen",
-					"search": "Zoek een team…"
+					"search": "Zoek een team"
 				},
 				"people": {
 					"addManagers": "Managers toevoegen",
 					"addMembers": "Leden toevoegen",
-					"search": "Zoek een persoon…"
+					"search": "Zoek een persoon"
 				},
 				"tags": {
 					"add": "Tags toevoegen",
@@ -2376,7 +2376,7 @@
 			"END_AFTER_START": "De eindtijd moet na de begintijd liggen."
 		},
 		"teamTasks": {
-			"SEARCH_TASKS": "Taken zoeken...",
+			"SEARCH_TASKS": "Taken zoeken",
 			"TYPE_AND_NUMBER": "Type + Nummer",
 			"NO_ISSUE_TYPE": "Geen probleemtype",
 			"NO_USER_ASSIGNED": "Geen gebruiker toegewezen",
@@ -2781,7 +2781,7 @@
 	},
 	"placeholders": {
 		"ENTER_TO_VALIDATE": "Druk op Enter om te valideren",
-		"ENTER_A_COMMAND": "Voer een opdracht in..."
+		"ENTER_A_COMMAND": "Voer een opdracht in"
 	},
 	"team": {
 		"BACK_LABEL": "Terug naar team",
@@ -2848,8 +2848,8 @@
 		"EMPTY_NOT_CONFIGURED": "Configureer uw API-sleutel om te beginnen.",
 		"CONFIGURE_BUTTON": "Configureren",
 		"ERROR_FALLBACK": "Er is een fout opgetreden. Controleer uw configuratie.",
-		"INPUT_PLACEHOLDER_READY": "Uw bericht...",
-		"INPUT_PLACEHOLDER_NO_KEY": "Configureer uw API-sleutel...",
+		"INPUT_PLACEHOLDER_READY": "Uw bericht",
+		"INPUT_PLACEHOLDER_NO_KEY": "Configureer uw API-sleutel",
 		"STOP": "Stoppen",
 		"SEND": "Verzenden",
 		"NEW_CHAT": "Nieuwe chat",
@@ -2861,7 +2861,7 @@
 		"EXPAND_ASSISTANT": "Assistent uitbreiden",
 		"OPEN_ASSISTANT": "{appName} Assistent openen",
 		"ASSISTANT": "Assistent",
-		"ASK_PLACEHOLDER": "Vraag het {appName}…",
+		"ASK_PLACEHOLDER": "Vraag het {appName}",
 		"COMPOSER_LABEL": "Bericht aan de assistent",
 		"EMPTY_TITLE": "Waarmee kan ik u helpen?",
 		"EXAMPLES_LABEL": "Begin met een voorbeeld",
@@ -2929,7 +2929,7 @@
 		}
 	},
 	"commandPalette": {
-		"searchPlaceholder": "Typ een opdracht of zoek…",
+		"searchPlaceholder": "Typ een opdracht of zoek",
 		"tabsLabel": "Opdrachtgroepen",
 		"empty": "Geen resultaten.",
 		"tabs": {
@@ -2986,7 +2986,7 @@
 		},
 		"timeLog": {
 			"forMember": "voor",
-			"notesPlaceholder": "Voeg hier notities toe…"
+			"notesPlaceholder": "Voeg hier notities toe"
 		},
 		"manualTime": {
 			"descriptionPlaceholder": "Waar heb je aan gewerkt?"
@@ -3000,7 +3000,7 @@
 			"tasksWithoutEstimate": "Taken zonder tijdsinschatting",
 			"correctHoursWarning": "Corrigeer de geplande uren of schat de taken opnieuw in.",
 			"moreOptions": "Meer opties",
-			"searchMember": "Zoek een lid…",
+			"searchMember": "Zoek een lid",
 			"noMemberFound": "Geen lid gevonden.",
 			"selectOrCreateTask": "Kies of maak een taak voor het plan"
 		},
@@ -3012,7 +3012,7 @@
 			"addToPlan": "Aan plan toevoegen",
 			"createNewPlan": "Nieuw plan aanmaken",
 			"useExistingPlan": "Aan een bestaand plan toevoegen",
-			"searchPlan": "Zoek een plan…",
+			"searchPlan": "Zoek een plan",
 			"noPlanFound": "Geen plan gevonden.",
 			"plannedTime": "Geplande tijd: {hours} u"
 		},
@@ -4055,9 +4055,9 @@
 			"ADD_PARENT": "Bovenliggende taak toevoegen",
 			"CHANGE_PARENT": "Bovenliggende taak wijzigen",
 			"REMOVE_PARENT": "Bovenliggende taak verwijderen",
-			"SEARCH_PARENT": "Bovenliggende taak zoeken...",
+			"SEARCH_PARENT": "Bovenliggende taak zoeken",
 			"NO_ASSIGNEE": "Nog niemand",
-			"SEARCH_PEOPLE": "Teamgenoot zoeken...",
+			"SEARCH_PEOPLE": "Teamgenoot zoeken",
 			"MANAGE_ASSIGNEES": "Mensen toewijzen",
 			"ADD_LABEL": "Label toevoegen",
 			"EDIT_LABELS": "Labels bewerken",
@@ -4092,12 +4092,12 @@
 			"LOAD_FAILED": "De plannen konden niet worden geladen."
 		},
 		"subtasks": {
-			"SEARCH": "Taak zoeken om toe te voegen...",
+			"SEARCH": "Taak zoeken om toe te voegen",
 			"REMOVE": "Uit deze taak verwijderen"
 		},
 		"relations": {
-			"SEARCH": "Taak zoeken om te koppelen...",
-			"SEARCH_KIND": "Relatie zoeken...",
+			"SEARCH": "Taak zoeken om te koppelen",
+			"SEARCH_KIND": "Relatie zoeken",
 			"CHANGE_KIND": "Relatie wijzigen",
 			"REMOVE": "Koppeling verwijderen"
 		},

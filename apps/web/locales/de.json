@@ -1633,7 +1633,7 @@
 			"basicInformationForm": {
 				"formFields": {
 					"title": "Projekt Titel",
-					"titlePlaceholder": "Kundenprojekt #1...",
+					"titlePlaceholder": "Kundenprojekt #1",
 					"description": "Beschreibung",
 					"datePickerPlaceholder": "Wählen Sie ein Datum",
 					"websiteUrl": "Website URL",
@@ -1655,8 +1655,8 @@
 					"descriptionWordLimit": "Die Beschreibung darf maximal 5000 Wörter enthalten."
 				},
 				"common": {
-					"search": "Suchen ...",
-					"typeNew": "Neues eingeben ...",
+					"search": "Suchen",
+					"typeNew": "Neues eingeben",
 					"addNew": "Neu hinzufügen",
 					"uploadingImage": "Projektbild wird hochgeladen"
 				}
@@ -1666,19 +1666,19 @@
 					"budgetType": "Budgettyp",
 					"budgetTypePlaceholder": "Wählen Sie einen Budgettyp",
 					"budgetAmount": "Budgetbetrag",
-					"budgetAmountPlaceholder": "10 000$...",
+					"budgetAmountPlaceholder": "10 000$",
 					"currency": "Währungsauswahl",
-					"currencyPlaceholder": "Wählen Sie eine Währung...",
+					"currencyPlaceholder": "Wählen Sie eine Währung",
 					"billing": "Abrechnungsart",
-					"billingPlaceholder": "Wählen Sie einen Intervall..."
+					"billingPlaceholder": "Wählen Sie einen Intervall"
 				}
 			},
 			"categorizationForm": {
 				"formFields": {
 					"labels": "Bezeichnungen",
-					"labelsPlaceholder": "Bezeichnungen auswählen...",
+					"labelsPlaceholder": "Bezeichnungen auswählen",
 					"tags": "Tags",
-					"tagsPlaceholder": "Tags auswählen...",
+					"tagsPlaceholder": "Tags auswählen",
 					"colorCode": "Farbcode"
 				}
 			},
@@ -1690,13 +1690,13 @@
 					"assignMembers": "Mitglieder & Manager zuweisen",
 					"noMembers": "Keine Mitglieder oder Manager",
 					"addMember": "Mitglied hinzufügen",
-					"selectMember": "Mitglied auswählen...",
-					"selectRole": "Rolle auswählen...",
+					"selectMember": "Mitglied auswählen",
+					"selectRole": "Rolle auswählen",
 					"relations": "Beziehungen",
 					"noRelations": "Keine Beziehungen",
 					"addRelation": "Beziehung hinzufügen",
-					"selectProject": "Projekt auswählen...",
-					"selectRelationType": "Beziehungstyp auswählen...",
+					"selectProject": "Projekt auswählen",
+					"selectRelationType": "Beziehungstyp auswählen",
 					"activeTeamLocked": "Das aktuelle Team ist erforderlich und kann nicht entfernt werden"
 				},
 				"errors": {
@@ -1825,7 +1825,7 @@
 				"created": "{name} wurde erstellt",
 				"saved": "Änderungen an {name} wurden gespeichert",
 				"done": "Fertig",
-				"descriptionPlaceholder": "Beschreibung, Briefing oder Ziele des Projekts hinzufügen…",
+				"descriptionPlaceholder": "Beschreibung, Briefing oder Ziele des Projekts hinzufügen",
 				"removeItem": "{name} entfernen",
 				"showMore": "{count} weitere anzeigen",
 				"showLess": "Weniger anzeigen",
@@ -1847,12 +1847,12 @@
 				},
 				"teams": {
 					"add": "Team hinzufügen",
-					"search": "Team suchen…"
+					"search": "Team suchen"
 				},
 				"people": {
 					"addManagers": "Manager hinzufügen",
 					"addMembers": "Mitglieder hinzufügen",
-					"search": "Person suchen…"
+					"search": "Person suchen"
 				},
 				"tags": {
 					"add": "Tags hinzufügen",
@@ -2376,7 +2376,7 @@
 			"END_AFTER_START": "Die Endzeit muss nach der Startzeit liegen."
 		},
 		"teamTasks": {
-			"SEARCH_TASKS": "Aufgaben suchen...",
+			"SEARCH_TASKS": "Aufgaben suchen",
 			"TYPE_AND_NUMBER": "Typ + Nummer",
 			"NO_ISSUE_TYPE": "Kein Ticket Typ",
 			"NO_USER_ASSIGNED": "Kein Benutzer zugewiesen",
@@ -2781,7 +2781,7 @@
 	},
 	"placeholders": {
 		"ENTER_TO_VALIDATE": "Enter drücken, um zu validieren",
-		"ENTER_A_COMMAND": "Befehl eingeben..."
+		"ENTER_A_COMMAND": "Befehl eingeben"
 	},
 	"team": {
 		"BACK_LABEL": "Zurück zum Team",
@@ -2848,8 +2848,8 @@
 		"EMPTY_NOT_CONFIGURED": "Konfigurieren Sie Ihren API-Schlüssel, um zu beginnen.",
 		"CONFIGURE_BUTTON": "Konfigurieren",
 		"ERROR_FALLBACK": "Ein Fehler ist aufgetreten. Bitte überprüfen Sie Ihre Konfiguration.",
-		"INPUT_PLACEHOLDER_READY": "Ihre Nachricht...",
-		"INPUT_PLACEHOLDER_NO_KEY": "Konfigurieren Sie Ihren API-Schlüssel...",
+		"INPUT_PLACEHOLDER_READY": "Ihre Nachricht",
+		"INPUT_PLACEHOLDER_NO_KEY": "Konfigurieren Sie Ihren API-Schlüssel",
 		"STOP": "Stoppen",
 		"SEND": "Senden",
 		"NEW_CHAT": "Neuer Chat",
@@ -2861,7 +2861,7 @@
 		"EXPAND_ASSISTANT": "Assistenten erweitern",
 		"OPEN_ASSISTANT": "{appName} Assistenten öffnen",
 		"ASSISTANT": "Assistent",
-		"ASK_PLACEHOLDER": "{appName} fragen…",
+		"ASK_PLACEHOLDER": "{appName} fragen",
 		"COMPOSER_LABEL": "Nachricht an den Assistenten",
 		"EMPTY_TITLE": "Wobei kann ich Ihnen helfen?",
 		"EXAMPLES_LABEL": "Mit einem Beispiel beginnen",
@@ -2929,7 +2929,7 @@
 		}
 	},
 	"commandPalette": {
-		"searchPlaceholder": "Befehl eingeben oder suchen…",
+		"searchPlaceholder": "Befehl eingeben oder suchen",
 		"tabsLabel": "Befehlsgruppen",
 		"empty": "Keine Ergebnisse.",
 		"tabs": {
@@ -2986,7 +2986,7 @@
 		},
 		"timeLog": {
 			"forMember": "für",
-			"notesPlaceholder": "Notizen hier eingeben…"
+			"notesPlaceholder": "Notizen hier eingeben"
 		},
 		"manualTime": {
 			"descriptionPlaceholder": "Woran haben Sie gearbeitet?"
@@ -3000,7 +3000,7 @@
 			"tasksWithoutEstimate": "Aufgaben ohne Zeitschätzung",
 			"correctHoursWarning": "Korrigieren Sie die geplanten Stunden oder schätzen Sie die Aufgaben neu.",
 			"moreOptions": "Weitere Optionen",
-			"searchMember": "Mitglied suchen…",
+			"searchMember": "Mitglied suchen",
 			"noMemberFound": "Kein Mitglied gefunden.",
 			"selectOrCreateTask": "Aufgabe für den Plan wählen oder erstellen"
 		},
@@ -3012,7 +3012,7 @@
 			"addToPlan": "Zum Plan hinzufügen",
 			"createNewPlan": "Neuen Plan erstellen",
 			"useExistingPlan": "Zu einem bestehenden Plan hinzufügen",
-			"searchPlan": "Plan suchen…",
+			"searchPlan": "Plan suchen",
 			"noPlanFound": "Kein Plan gefunden.",
 			"plannedTime": "Geplante Zeit: {hours} Std."
 		},
@@ -4055,9 +4055,9 @@
 			"ADD_PARENT": "Übergeordnete Aufgabe hinzufügen",
 			"CHANGE_PARENT": "Übergeordnete Aufgabe ändern",
 			"REMOVE_PARENT": "Übergeordnete Aufgabe entfernen",
-			"SEARCH_PARENT": "Übergeordnete Aufgabe suchen...",
+			"SEARCH_PARENT": "Übergeordnete Aufgabe suchen",
 			"NO_ASSIGNEE": "Noch niemand",
-			"SEARCH_PEOPLE": "Teammitglied suchen...",
+			"SEARCH_PEOPLE": "Teammitglied suchen",
 			"MANAGE_ASSIGNEES": "Personen zuweisen",
 			"ADD_LABEL": "Label hinzufügen",
 			"EDIT_LABELS": "Labels bearbeiten",
@@ -4092,12 +4092,12 @@
 			"LOAD_FAILED": "Die Pläne konnten nicht geladen werden."
 		},
 		"subtasks": {
-			"SEARCH": "Aufgabe zum Hinzufügen suchen...",
+			"SEARCH": "Aufgabe zum Hinzufügen suchen",
 			"REMOVE": "Aus dieser Aufgabe entfernen"
 		},
 		"relations": {
-			"SEARCH": "Aufgabe zum Verknüpfen suchen...",
-			"SEARCH_KIND": "Beziehung suchen...",
+			"SEARCH": "Aufgabe zum Verknüpfen suchen",
+			"SEARCH_KIND": "Beziehung suchen",
 			"CHANGE_KIND": "Beziehung ändern",
 			"REMOVE": "Verknüpfung entfernen"
 		},

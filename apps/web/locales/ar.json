@@ -1583,7 +1583,7 @@
 			"basicInformationForm": {
 				"formFields": {
 					"title": "عنوان المشروع",
-					"titlePlaceholder": "مشروع العميل #1...",
+					"titlePlaceholder": "مشروع العميل #1",
 					"description": "الوصف",
 					"datePickerPlaceholder": "اختر تاريخًا",
 					"websiteUrl": "رابط الموقع",
@@ -1605,8 +1605,8 @@
 					"descriptionWordLimit": "يجب أن يكون الوصف 5000 كلمة أو أقل."
 				},
 				"common": {
-					"search": "بحث ...",
-					"typeNew": "اكتب جديد ...",
+					"search": "بحث",
+					"typeNew": "اكتب جديد",
 					"addNew": "إضافة جديد",
 					"uploadingImage": "جارٍ تحميل صورة المشروع"
 				}
@@ -1616,19 +1616,19 @@
 					"budgetType": "نوع الميزانية",
 					"budgetTypePlaceholder": "اختر نوع الميزانية",
 					"budgetAmount": "مقدار الميزانية",
-					"budgetAmountPlaceholder": "10 000$...",
+					"budgetAmountPlaceholder": "10 000$",
 					"currency": "اختيار العملة",
-					"currencyPlaceholder": "اختر عملة...",
+					"currencyPlaceholder": "اختر عملة",
 					"billing": "نوع الفاتورة",
-					"billingPlaceholder": "اختر الفاصل الزمني..."
+					"billingPlaceholder": "اختر الفاصل الزمني"
 				}
 			},
 			"categorizationForm": {
 				"formFields": {
 					"labels": "التصنيفات",
-					"labelsPlaceholder": "حدد التصنيفات...",
+					"labelsPlaceholder": "حدد التصنيفات",
 					"tags": "الوسوم",
-					"tagsPlaceholder": "حدد الوسوم...",
+					"tagsPlaceholder": "حدد الوسوم",
 					"colorCode": "رمز اللون"
 				}
 			},
@@ -1640,13 +1640,13 @@
 					"assignMembers": "تعيين الأعضاء والمديرين",
 					"noMembers": "لا يوجد أعضاء أو مديرين",
 					"addMember": "إضافة عضو",
-					"selectMember": "اختر عضو...",
-					"selectRole": "اختر دور...",
+					"selectMember": "اختر عضو",
+					"selectRole": "اختر دور",
 					"relations": "العلاقات",
 					"noRelations": "لا توجد علاقات",
 					"addRelation": "إضافة علاقة",
-					"selectProject": "اختر مشروع...",
-					"selectRelationType": "اختر نوع العلاقة...",
+					"selectProject": "اختر مشروع",
+					"selectRelationType": "اختر نوع العلاقة",
 					"activeTeamLocked": "الفريق الحالي مطلوب ولا يمكن إزالته"
 				},
 				"errors": {
@@ -1775,7 +1775,7 @@
 				"created": "تم إنشاء {name}",
 				"saved": "تم حفظ التغييرات على {name}",
 				"done": "تم",
-				"descriptionPlaceholder": "أضف وصفًا أو ملخصًا أو أهداف المشروع…",
+				"descriptionPlaceholder": "أضف وصفًا أو ملخصًا أو أهداف المشروع",
 				"removeItem": "إزالة {name}",
 				"showMore": "عرض {count} أخرى",
 				"showLess": "عرض أقل",
@@ -1797,12 +1797,12 @@
 				},
 				"teams": {
 					"add": "إضافة فريق",
-					"search": "ابحث عن فريق…"
+					"search": "ابحث عن فريق"
 				},
 				"people": {
 					"addManagers": "إضافة مديرين",
 					"addMembers": "إضافة أعضاء",
-					"search": "ابحث عن شخص…"
+					"search": "ابحث عن شخص"
 				},
 				"tags": {
 					"add": "إضافة وسوم",
@@ -2376,7 +2376,7 @@
 			"END_AFTER_START": "يجب أن يكون وقت الانتهاء بعد وقت البدء."
 		},
 		"teamTasks": {
-			"SEARCH_TASKS": "البحث في المهام...",
+			"SEARCH_TASKS": "البحث في المهام",
 			"TYPE_AND_NUMBER": "النوع + الرقم",
 			"NO_ISSUE_TYPE": "لا يوجد نوع قضية",
 			"NO_USER_ASSIGNED": "لم يتم تعيين مستخدم",
@@ -2781,7 +2781,7 @@
 	},
 	"placeholders": {
 		"ENTER_TO_VALIDATE": "اضغط إدخال للتحقق",
-		"ENTER_A_COMMAND": "أدخل أمرًا..."
+		"ENTER_A_COMMAND": "أدخل أمرًا"
 	},
 	"team": {
 		"BACK_LABEL": "العودة إلى الفريق",
@@ -2848,8 +2848,8 @@
 		"EMPTY_NOT_CONFIGURED": "قم بتهيئة مفتاح API للبدء.",
 		"CONFIGURE_BUTTON": "تهيئة",
 		"ERROR_FALLBACK": "حدث خطأ. يرجى التحقق من الإعدادات.",
-		"INPUT_PLACEHOLDER_READY": "رسالتك...",
-		"INPUT_PLACEHOLDER_NO_KEY": "قم بتهيئة مفتاح API...",
+		"INPUT_PLACEHOLDER_READY": "رسالتك",
+		"INPUT_PLACEHOLDER_NO_KEY": "قم بتهيئة مفتاح API",
 		"STOP": "إيقاف",
 		"SEND": "إرسال",
 		"NEW_CHAT": "محادثة جديدة",
@@ -2861,7 +2861,7 @@
 		"EXPAND_ASSISTANT": "توسيع المساعد",
 		"OPEN_ASSISTANT": "فتح مساعد {appName}",
 		"ASSISTANT": "المساعد",
-		"ASK_PLACEHOLDER": "اسأل {appName}…",
+		"ASK_PLACEHOLDER": "اسأل {appName}",
 		"COMPOSER_LABEL": "رسالة إلى المساعد",
 		"EMPTY_TITLE": "كيف يمكنني مساعدتك؟",
 		"EXAMPLES_LABEL": "ابدأ بمثال",
@@ -2929,7 +2929,7 @@
 		}
 	},
 	"commandPalette": {
-		"searchPlaceholder": "اكتب أمرًا أو ابحث…",
+		"searchPlaceholder": "اكتب أمرًا أو ابحث",
 		"tabsLabel": "مجموعات الأوامر",
 		"empty": "لا توجد نتائج.",
 		"tabs": {
@@ -2986,7 +2986,7 @@
 		},
 		"timeLog": {
 			"forMember": "لـ",
-			"notesPlaceholder": "أضف ملاحظاتك هنا…"
+			"notesPlaceholder": "أضف ملاحظاتك هنا"
 		},
 		"manualTime": {
 			"descriptionPlaceholder": "على ماذا عملت؟"
@@ -3000,7 +3000,7 @@
 			"tasksWithoutEstimate": "مهام بلا تقدير للوقت",
 			"correctHoursWarning": "صحّح ساعات العمل المخطط لها أو أعد تقدير المهام.",
 			"moreOptions": "خيارات أخرى",
-			"searchMember": "ابحث عن عضو…",
+			"searchMember": "ابحث عن عضو",
 			"noMemberFound": "لم يُعثر على أي عضو.",
 			"selectOrCreateTask": "اختر مهمة للخطة أو أنشئ واحدة"
 		},
@@ -3012,7 +3012,7 @@
 			"addToPlan": "إضافة إلى الخطة",
 			"createNewPlan": "إنشاء خطة جديدة",
 			"useExistingPlan": "إضافة إلى خطة موجودة",
-			"searchPlan": "ابحث عن خطة…",
+			"searchPlan": "ابحث عن خطة",
 			"noPlanFound": "لم يُعثر على أي خطة.",
 			"plannedTime": "الوقت المخطط: {hours} س"
 		},
@@ -4055,9 +4055,9 @@
 			"ADD_PARENT": "إضافة مهمة رئيسية",
 			"CHANGE_PARENT": "تغيير المهمة الرئيسية",
 			"REMOVE_PARENT": "إزالة المهمة الرئيسية",
-			"SEARCH_PARENT": "ابحث عن مهمة رئيسية...",
+			"SEARCH_PARENT": "ابحث عن مهمة رئيسية",
 			"NO_ASSIGNEE": "لا أحد بعد",
-			"SEARCH_PEOPLE": "ابحث عن زميل...",
+			"SEARCH_PEOPLE": "ابحث عن زميل",
 			"MANAGE_ASSIGNEES": "إسناد إلى أشخاص",
 			"ADD_LABEL": "إضافة تصنيف",
 			"EDIT_LABELS": "تعديل التصنيفات",
@@ -4092,12 +4092,12 @@
 			"LOAD_FAILED": "تعذّر تحميل الخطط."
 		},
 		"subtasks": {
-			"SEARCH": "ابحث عن مهمة لإضافتها...",
+			"SEARCH": "ابحث عن مهمة لإضافتها",
 			"REMOVE": "إزالة من هذه المهمة"
 		},
 		"relations": {
-			"SEARCH": "ابحث عن مهمة لربطها...",
-			"SEARCH_KIND": "ابحث عن علاقة...",
+			"SEARCH": "ابحث عن مهمة لربطها",
+			"SEARCH_KIND": "ابحث عن علاقة",
 			"CHANGE_KIND": "تغيير العلاقة",
 			"REMOVE": "إزالة الرابط"
 		},

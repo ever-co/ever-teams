@@ -1583,7 +1583,7 @@
 			"basicInformationForm": {
 				"formFields": {
 					"title": "כותרת הפרויקט",
-					"titlePlaceholder": "פרויקט לקוח #1...",
+					"titlePlaceholder": "פרויקט לקוח #1",
 					"description": "תיאור",
 					"datePickerPlaceholder": "בחר תאריך",
 					"websiteUrl": "כתובת אתר",
@@ -1605,8 +1605,8 @@
 					"descriptionWordLimit": "התיאור חייב להכיל 5000 מילים או פחות."
 				},
 				"common": {
-					"search": "חפש ...",
-					"typeNew": "הקלד חדש ...",
+					"search": "חפש",
+					"typeNew": "הקלד חדש",
 					"addNew": "הוסף חדש",
 					"uploadingImage": "מעלה את תמונת הפרויקט"
 				}
@@ -1614,9 +1614,9 @@
 			"categorizationForm": {
 				"formFields": {
 					"labels": "תוויות",
-					"labelsPlaceholder": "בחר תוויות...",
+					"labelsPlaceholder": "בחר תוויות",
 					"tags": "תגיות",
-					"tagsPlaceholder": "בחר תגיות...",
+					"tagsPlaceholder": "בחר תגיות",
 					"colorCode": "קוד צבע"
 				}
 			},
@@ -1625,11 +1625,11 @@
 					"budgetType": "סוג תקציב",
 					"budgetTypePlaceholder": "בחר סוג תקציב",
 					"budgetAmount": "סכום תקציב",
-					"budgetAmountPlaceholder": "10 000$...",
+					"budgetAmountPlaceholder": "10 000$",
 					"currency": "בחירת מטבע",
-					"currencyPlaceholder": "בחר מטבע...",
+					"currencyPlaceholder": "בחר מטבע",
 					"billing": "סוג חיוב",
-					"billingPlaceholder": "בחר מרווח..."
+					"billingPlaceholder": "בחר מרווח"
 				}
 			},
 			"teamAndRelationsForm": {
@@ -1640,13 +1640,13 @@
 					"assignMembers": "הקצאת חברים ומנהלים",
 					"noMembers": "אין חברים או מנהלים",
 					"addMember": "הוסף חבר",
-					"selectMember": "בחר חבר...",
-					"selectRole": "בחר תפקיד...",
+					"selectMember": "בחר חבר",
+					"selectRole": "בחר תפקיד",
 					"relations": "קשרים",
 					"noRelations": "אין קשרים",
 					"addRelation": "הוסף קשר",
-					"selectProject": "בחר פרויקט...",
-					"selectRelationType": "בחר סוג קשר...",
+					"selectProject": "בחר פרויקט",
+					"selectRelationType": "בחר סוג קשר",
 					"activeTeamLocked": "הצוות הנוכחי נדרש ולא ניתן להסירו"
 				},
 				"errors": {
@@ -1775,7 +1775,7 @@
 				"created": "הפרויקט {name} נוצר",
 				"saved": "השינויים ב־{name} נשמרו",
 				"done": "סיום",
-				"descriptionPlaceholder": "הוסיפו תיאור, תקציר או את מטרות הפרויקט…",
+				"descriptionPlaceholder": "הוסיפו תיאור, תקציר או את מטרות הפרויקט",
 				"removeItem": "הסרת {name}",
 				"showMore": "הצגת {count} נוספים",
 				"showLess": "הצגת פחות",
@@ -1797,12 +1797,12 @@
 				},
 				"teams": {
 					"add": "הוספת צוות",
-					"search": "חיפוש צוות…"
+					"search": "חיפוש צוות"
 				},
 				"people": {
 					"addManagers": "הוספת מנהלים",
 					"addMembers": "הוספת חברים",
-					"search": "חיפוש אדם…"
+					"search": "חיפוש אדם"
 				},
 				"tags": {
 					"add": "הוספת תגיות",
@@ -2376,7 +2376,7 @@
 			"END_AFTER_START": "שעת הסיום חייבת להיות אחרי שעת ההתחלה."
 		},
 		"teamTasks": {
-			"SEARCH_TASKS": "חיפוש משימות...",
+			"SEARCH_TASKS": "חיפוש משימות",
 			"TYPE_AND_NUMBER": "סוג + מספר",
 			"NO_ISSUE_TYPE": "אין סוג בעיה",
 			"NO_USER_ASSIGNED": "לא הוקצה משתמש",
@@ -2781,7 +2781,7 @@
 	},
 	"placeholders": {
 		"ENTER_TO_VALIDATE": "לחץ Enter כדי לאמת",
-		"ENTER_A_COMMAND": "הזן פקודה..."
+		"ENTER_A_COMMAND": "הזן פקודה"
 	},
 	"team": {
 		"BACK_LABEL": "חזור לצוות",
@@ -2848,8 +2848,8 @@
 		"EMPTY_NOT_CONFIGURED": "הגדר את מפתח ה-API שלך כדי להתחיל.",
 		"CONFIGURE_BUTTON": "הגדרה",
 		"ERROR_FALLBACK": "אירעה שגיאה. אנא בדוק את ההגדרות שלך.",
-		"INPUT_PLACEHOLDER_READY": "ההודעה שלך...",
-		"INPUT_PLACEHOLDER_NO_KEY": "הגדר את מפתח ה-API שלך...",
+		"INPUT_PLACEHOLDER_READY": "ההודעה שלך",
+		"INPUT_PLACEHOLDER_NO_KEY": "הגדר את מפתח ה-API שלך",
 		"STOP": "עצור",
 		"SEND": "שלח",
 		"NEW_CHAT": "צ'אט חדש",
@@ -2861,7 +2861,7 @@
 		"EXPAND_ASSISTANT": "הרחב את העוזר",
 		"OPEN_ASSISTANT": "פתח את עוזר {appName}",
 		"ASSISTANT": "עוזר",
-		"ASK_PLACEHOLDER": "שאל את {appName}…",
+		"ASK_PLACEHOLDER": "שאל את {appName}",
 		"COMPOSER_LABEL": "הודעה לעוזר",
 		"EMPTY_TITLE": "במה אפשר לעזור?",
 		"EXAMPLES_LABEL": "התחל מדוגמה",
@@ -2929,7 +2929,7 @@
 		}
 	},
 	"commandPalette": {
-		"searchPlaceholder": "הקלידו פקודה או חפשו…",
+		"searchPlaceholder": "הקלידו פקודה או חפשו",
 		"tabsLabel": "קבוצות פקודות",
 		"empty": "לא נמצאו תוצאות.",
 		"tabs": {
@@ -2986,7 +2986,7 @@
 		},
 		"timeLog": {
 			"forMember": "עבור",
-			"notesPlaceholder": "הוסיפו הערות כאן…"
+			"notesPlaceholder": "הוסיפו הערות כאן"
 		},
 		"manualTime": {
 			"descriptionPlaceholder": "על מה עבדתם?"
@@ -3000,7 +3000,7 @@
 			"tasksWithoutEstimate": "משימות ללא הערכת זמן",
 			"correctHoursWarning": "תקנו את שעות העבודה המתוכננות או העריכו מחדש את המשימות.",
 			"moreOptions": "אפשרויות נוספות",
-			"searchMember": "חיפוש חבר צוות…",
+			"searchMember": "חיפוש חבר צוות",
 			"noMemberFound": "לא נמצא חבר צוות.",
 			"selectOrCreateTask": "בחרו או צרו משימה לתוכנית"
 		},
@@ -3012,7 +3012,7 @@
 			"addToPlan": "הוספה לתוכנית",
 			"createNewPlan": "יצירת תוכנית חדשה",
 			"useExistingPlan": "הוספה לתוכנית קיימת",
-			"searchPlan": "חיפוש תוכנית…",
+			"searchPlan": "חיפוש תוכנית",
 			"noPlanFound": "לא נמצאה תוכנית.",
 			"plannedTime": "זמן מתוכנן: {hours} ש׳"
 		},
@@ -4055,9 +4055,9 @@
 			"ADD_PARENT": "הוספת משימת אב",
 			"CHANGE_PARENT": "שינוי משימת האב",
 			"REMOVE_PARENT": "הסרת משימת האב",
-			"SEARCH_PARENT": "חיפוש משימת אב...",
+			"SEARCH_PARENT": "חיפוש משימת אב",
 			"NO_ASSIGNEE": "עדיין אף אחד",
-			"SEARCH_PEOPLE": "חיפוש חבר צוות...",
+			"SEARCH_PEOPLE": "חיפוש חבר צוות",
 			"MANAGE_ASSIGNEES": "שיוך אנשים",
 			"ADD_LABEL": "הוספת תווית",
 			"EDIT_LABELS": "עריכת תוויות",
@@ -4092,12 +4092,12 @@
 			"LOAD_FAILED": "לא ניתן היה לטעון את התוכניות."
 		},
 		"subtasks": {
-			"SEARCH": "חיפוש משימה להוספה...",
+			"SEARCH": "חיפוש משימה להוספה",
 			"REMOVE": "הסרה מהמשימה הזו"
 		},
 		"relations": {
-			"SEARCH": "חיפוש משימה לקישור...",
-			"SEARCH_KIND": "חיפוש סוג קשר...",
+			"SEARCH": "חיפוש משימה לקישור",
+			"SEARCH_KIND": "חיפוש סוג קשר",
 			"CHANGE_KIND": "שינוי סוג הקשר",
 			"REMOVE": "הסרת הקישור"
 		},

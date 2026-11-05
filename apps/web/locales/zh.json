@@ -1571,7 +1571,7 @@
 			"basicInformationForm": {
 				"formFields": {
 					"title": "项目标题",
-					"titlePlaceholder": "客户项目 #1...",
+					"titlePlaceholder": "客户项目 #1",
 					"description": "描述",
 					"datePickerPlaceholder": "选择日期",
 					"websiteUrl": "网站URL",
@@ -1593,8 +1593,8 @@
 					"descriptionWordLimit": "描述不能超过5000字。"
 				},
 				"common": {
-					"search": "搜索 ...",
-					"typeNew": "输入新的 ...",
+					"search": "搜索",
+					"typeNew": "输入新的",
 					"addNew": "添加新项",
 					"uploadingImage": "正在上传项目图片"
 				}
@@ -1602,9 +1602,9 @@
 			"categorizationForm": {
 				"formFields": {
 					"labels": "标签",
-					"labelsPlaceholder": "选择标签...",
+					"labelsPlaceholder": "选择标签",
 					"tags": "标记",
-					"tagsPlaceholder": "选择标记...",
+					"tagsPlaceholder": "选择标记",
 					"colorCode": "颜色代码"
 				}
 			},
@@ -1613,11 +1613,11 @@
 					"budgetType": "预算类型",
 					"budgetTypePlaceholder": "选择预算类型",
 					"budgetAmount": "预算金额",
-					"budgetAmountPlaceholder": "10 000$...",
+					"budgetAmountPlaceholder": "10 000$",
 					"currency": "货币选择",
-					"currencyPlaceholder": "选择货币...",
+					"currencyPlaceholder": "选择货币",
 					"billing": "账单类型",
-					"billingPlaceholder": "选择间隔..."
+					"billingPlaceholder": "选择间隔"
 				}
 			},
 			"teamAndRelationsForm": {
@@ -1628,13 +1628,13 @@
 					"assignMembers": "分配成员和管理员",
 					"noMembers": "没有成员或管理员",
 					"addMember": "添加成员",
-					"selectMember": "选择成员...",
-					"selectRole": "选择角色...",
+					"selectMember": "选择成员",
+					"selectRole": "选择角色",
 					"relations": "关系",
 					"noRelations": "没有关系",
 					"addRelation": "添加关系",
-					"selectProject": "选择项目...",
-					"selectRelationType": "选择关系类型...",
+					"selectProject": "选择项目",
+					"selectRelationType": "选择关系类型",
 					"activeTeamLocked": "当前团队是必需的，无法移除"
 				},
 				"errors": {
@@ -1763,7 +1763,7 @@
 				"created": "已创建 {name}",
 				"saved": "已保存对 {name} 的更改",
 				"done": "完成",
-				"descriptionPlaceholder": "添加项目的描述、简介或目标…",
+				"descriptionPlaceholder": "添加项目的描述、简介或目标",
 				"removeItem": "移除 {name}",
 				"showMore": "再显示 {count} 个",
 				"showLess": "收起",
@@ -1785,12 +1785,12 @@
 				},
 				"teams": {
 					"add": "添加团队",
-					"search": "查找团队…"
+					"search": "查找团队"
 				},
 				"people": {
 					"addManagers": "添加经理",
 					"addMembers": "添加成员",
-					"search": "查找人员…"
+					"search": "查找人员"
 				},
 				"tags": {
 					"add": "添加标签",
@@ -2376,7 +2376,7 @@
 			"END_AFTER_START": "结束时间必须晚于开始时间。"
 		},
 		"teamTasks": {
-			"SEARCH_TASKS": "搜索任务...",
+			"SEARCH_TASKS": "搜索任务",
 			"TYPE_AND_NUMBER": "类型 + 编号",
 			"NO_ISSUE_TYPE": "无议题类型",
 			"NO_USER_ASSIGNED": "未分配用户",
@@ -2781,7 +2781,7 @@
 	},
 	"placeholders": {
 		"ENTER_TO_VALIDATE": "按Enter键验证",
-		"ENTER_A_COMMAND": "输入命令..."
+		"ENTER_A_COMMAND": "输入命令"
 	},
 	"team": {
 		"BACK_LABEL": "返回团队",
@@ -2848,8 +2848,8 @@
 		"EMPTY_NOT_CONFIGURED": "配置您的 API 密钥以开始。",
 		"CONFIGURE_BUTTON": "配置",
 		"ERROR_FALLBACK": "发生错误。请检查您的配置。",
-		"INPUT_PLACEHOLDER_READY": "您的消息...",
-		"INPUT_PLACEHOLDER_NO_KEY": "配置您的 API 密钥...",
+		"INPUT_PLACEHOLDER_READY": "您的消息",
+		"INPUT_PLACEHOLDER_NO_KEY": "配置您的 API 密钥",
 		"STOP": "停止",
 		"SEND": "发送",
 		"NEW_CHAT": "新聊天",
@@ -2861,7 +2861,7 @@
 		"EXPAND_ASSISTANT": "展开助手",
 		"OPEN_ASSISTANT": "打开 {appName} 助手",
 		"ASSISTANT": "助手",
-		"ASK_PLACEHOLDER": "向 {appName} 提问…",
+		"ASK_PLACEHOLDER": "向 {appName} 提问",
 		"COMPOSER_LABEL": "发给助手的消息",
 		"EMPTY_TITLE": "有什么可以帮你？",
 		"EXAMPLES_LABEL": "从示例开始",
@@ -2929,7 +2929,7 @@
 		}
 	},
 	"commandPalette": {
-		"searchPlaceholder": "输入命令或搜索…",
+		"searchPlaceholder": "输入命令或搜索",
 		"tabsLabel": "命令分组",
 		"empty": "没有结果。",
 		"tabs": {
@@ -2986,7 +2986,7 @@
 		},
 		"timeLog": {
 			"forMember": "成员",
-			"notesPlaceholder": "在此添加备注…"
+			"notesPlaceholder": "在此添加备注"
 		},
 		"manualTime": {
 			"descriptionPlaceholder": "您做了哪些工作？"
@@ -3000,7 +3000,7 @@
 			"tasksWithoutEstimate": "未估算时间的任务",
 			"correctHoursWarning": "请修正计划工时或重新估算任务。",
 			"moreOptions": "更多选项",
-			"searchMember": "搜索成员…",
+			"searchMember": "搜索成员",
 			"noMemberFound": "未找到成员。",
 			"selectOrCreateTask": "为计划选择或创建任务"
 		},
@@ -3012,7 +3012,7 @@
 			"addToPlan": "加入计划",
 			"createNewPlan": "新建计划",
 			"useExistingPlan": "加入现有计划",
-			"searchPlan": "搜索计划…",
+			"searchPlan": "搜索计划",
 			"noPlanFound": "未找到计划。",
 			"plannedTime": "计划时长：{hours} 小时"
 		},
@@ -4055,9 +4055,9 @@
 			"ADD_PARENT": "添加父任务",
 			"CHANGE_PARENT": "更换父任务",
 			"REMOVE_PARENT": "移除父任务",
-			"SEARCH_PARENT": "查找父任务...",
+			"SEARCH_PARENT": "查找父任务",
 			"NO_ASSIGNEE": "暂无负责人",
-			"SEARCH_PEOPLE": "查找队友...",
+			"SEARCH_PEOPLE": "查找队友",
 			"MANAGE_ASSIGNEES": "分配人员",
 			"ADD_LABEL": "添加标签",
 			"EDIT_LABELS": "编辑标签",
@@ -4092,12 +4092,12 @@
 			"LOAD_FAILED": "无法加载计划。"
 		},
 		"subtasks": {
-			"SEARCH": "查找要添加的任务...",
+			"SEARCH": "查找要添加的任务",
 			"REMOVE": "从此任务中移除"
 		},
 		"relations": {
-			"SEARCH": "查找要关联的任务...",
-			"SEARCH_KIND": "查找关系...",
+			"SEARCH": "查找要关联的任务",
+			"SEARCH_KIND": "查找关系",
 			"CHANGE_KIND": "更改关系",
 			"REMOVE": "移除关联"
 		},

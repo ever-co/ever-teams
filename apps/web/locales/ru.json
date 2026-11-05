@@ -1630,7 +1630,7 @@
 			"basicInformationForm": {
 				"formFields": {
 					"title": "Название проекта",
-					"titlePlaceholder": "Клиентский проект #1...",
+					"titlePlaceholder": "Клиентский проект #1",
 					"description": "Описание",
 					"datePickerPlaceholder": "Выберите дату",
 					"websiteUrl": "URL сайта",
@@ -1652,8 +1652,8 @@
 					"descriptionWordLimit": "Описание должно содержать не более 5000 слов."
 				},
 				"common": {
-					"search": "Поиск ...",
-					"typeNew": "Введите новое ...",
+					"search": "Поиск",
+					"typeNew": "Введите новое",
 					"addNew": "Добавить новое",
 					"uploadingImage": "Загрузка изображения проекта"
 				}
@@ -1661,9 +1661,9 @@
 			"categorizationForm": {
 				"formFields": {
 					"labels": "Метки",
-					"labelsPlaceholder": "Выберите метки...",
+					"labelsPlaceholder": "Выберите метки",
 					"tags": "Теги",
-					"tagsPlaceholder": "Выберите теги...",
+					"tagsPlaceholder": "Выберите теги",
 					"colorCode": "Цветовой код"
 				}
 			},
@@ -1672,11 +1672,11 @@
 					"budgetType": "Тип бюджета",
 					"budgetTypePlaceholder": "Выберите тип бюджета",
 					"budgetAmount": "Сумма бюджета",
-					"budgetAmountPlaceholder": "10 000$...",
+					"budgetAmountPlaceholder": "10 000$",
 					"currency": "Выбор валюты",
-					"currencyPlaceholder": "Выберите валюту...",
+					"currencyPlaceholder": "Выберите валюту",
 					"billing": "Тип биллинга",
-					"billingPlaceholder": "Выберите интервал..."
+					"billingPlaceholder": "Выберите интервал"
 				}
 			},
 			"teamAndRelationsForm": {
@@ -1687,13 +1687,13 @@
 					"assignMembers": "Назначить участников и менеджеров",
 					"noMembers": "Нет участников или менеджеров",
 					"addMember": "Добавить участника",
-					"selectMember": "Выберите участника...",
-					"selectRole": "Выберите роль...",
+					"selectMember": "Выберите участника",
+					"selectRole": "Выберите роль",
 					"relations": "Связи",
 					"noRelations": "Нет связей",
 					"addRelation": "Добавить связь",
-					"selectProject": "Выберите проект...",
-					"selectRelationType": "Выберите тип связи...",
+					"selectProject": "Выберите проект",
+					"selectRelationType": "Выберите тип связи",
 					"activeTeamLocked": "Текущая команда обязательна и не может быть удалена"
 				},
 				"errors": {
@@ -1822,7 +1822,7 @@
 				"created": "Проект {name} создан",
 				"saved": "Изменения в {name} сохранены",
 				"done": "Готово",
-				"descriptionPlaceholder": "Добавьте описание, бриф или цели проекта…",
+				"descriptionPlaceholder": "Добавьте описание, бриф или цели проекта",
 				"removeItem": "Убрать {name}",
 				"showMore": "Показать ещё {count}",
 				"showLess": "Свернуть",
@@ -1844,12 +1844,12 @@
 				},
 				"teams": {
 					"add": "Добавить команду",
-					"search": "Найти команду…"
+					"search": "Найти команду"
 				},
 				"people": {
 					"addManagers": "Добавить менеджеров",
 					"addMembers": "Добавить участников",
-					"search": "Найти человека…"
+					"search": "Найти человека"
 				},
 				"tags": {
 					"add": "Добавить теги",
@@ -2376,7 +2376,7 @@
 			"END_AFTER_START": "Время окончания должно быть позже времени начала."
 		},
 		"teamTasks": {
-			"SEARCH_TASKS": "Поиск задач...",
+			"SEARCH_TASKS": "Поиск задач",
 			"TYPE_AND_NUMBER": "Тип + номер",
 			"NO_ISSUE_TYPE": "Нет типа задачи",
 			"NO_USER_ASSIGNED": "Исполнитель не назначен",
@@ -2781,7 +2781,7 @@
 	},
 	"placeholders": {
 		"ENTER_TO_VALIDATE": "Нажмите Enter для подтверждения",
-		"ENTER_A_COMMAND": "Введите команду..."
+		"ENTER_A_COMMAND": "Введите команду"
 	},
 	"team": {
 		"BACK_LABEL": "Вернуться в Команду",
@@ -2848,8 +2848,8 @@
 		"EMPTY_NOT_CONFIGURED": "Настройте ключ API, чтобы начать.",
 		"CONFIGURE_BUTTON": "Настроить",
 		"ERROR_FALLBACK": "Произошла ошибка. Проверьте свою конфигурацию.",
-		"INPUT_PLACEHOLDER_READY": "Ваше сообщение...",
-		"INPUT_PLACEHOLDER_NO_KEY": "Настройте ключ API...",
+		"INPUT_PLACEHOLDER_READY": "Ваше сообщение",
+		"INPUT_PLACEHOLDER_NO_KEY": "Настройте ключ API",
 		"STOP": "Остановить",
 		"SEND": "Отправить",
 		"NEW_CHAT": "Новый чат",
@@ -2861,7 +2861,7 @@
 		"EXPAND_ASSISTANT": "Развернуть ассистента",
 		"OPEN_ASSISTANT": "Открыть ассистента {appName}",
 		"ASSISTANT": "Ассистент",
-		"ASK_PLACEHOLDER": "Спросите {appName}…",
+		"ASK_PLACEHOLDER": "Спросите {appName}",
 		"COMPOSER_LABEL": "Сообщение ассистенту",
 		"EMPTY_TITLE": "Чем я могу помочь?",
 		"EXAMPLES_LABEL": "Начните с примера",
@@ -2929,7 +2929,7 @@
 		}
 	},
 	"commandPalette": {
-		"searchPlaceholder": "Введите команду или запрос…",
+		"searchPlaceholder": "Введите команду или запрос",
 		"tabsLabel": "Группы команд",
 		"empty": "Ничего не найдено.",
 		"tabs": {
@@ -2986,7 +2986,7 @@
 		},
 		"timeLog": {
 			"forMember": "для",
-			"notesPlaceholder": "Добавьте заметки…"
+			"notesPlaceholder": "Добавьте заметки"
 		},
 		"manualTime": {
 			"descriptionPlaceholder": "Над чем вы работали?"
@@ -3000,7 +3000,7 @@
 			"tasksWithoutEstimate": "Задачи без оценки времени",
 			"correctHoursWarning": "Исправьте запланированные часы или переоцените задачи.",
 			"moreOptions": "Другие варианты",
-			"searchMember": "Найти участника…",
+			"searchMember": "Найти участника",
 			"noMemberFound": "Участник не найден.",
 			"selectOrCreateTask": "Выберите или создайте задачу для плана"
 		},
@@ -3012,7 +3012,7 @@
 			"addToPlan": "Добавить в план",
 			"createNewPlan": "Создать новый план",
 			"useExistingPlan": "Добавить в существующий план",
-			"searchPlan": "Найти план…",
+			"searchPlan": "Найти план",
 			"noPlanFound": "План не найден.",
 			"plannedTime": "Запланировано: {hours} ч"
 		},
@@ -4055,9 +4055,9 @@
 			"ADD_PARENT": "Добавить родительскую задачу",
 			"CHANGE_PARENT": "Сменить родительскую задачу",
 			"REMOVE_PARENT": "Убрать родительскую задачу",
-			"SEARCH_PARENT": "Найти родительскую задачу...",
+			"SEARCH_PARENT": "Найти родительскую задачу",
 			"NO_ASSIGNEE": "Пока никого",
-			"SEARCH_PEOPLE": "Найти участника...",
+			"SEARCH_PEOPLE": "Найти участника",
 			"MANAGE_ASSIGNEES": "Назначить людей",
 			"ADD_LABEL": "Добавить метку",
 			"EDIT_LABELS": "Изменить метки",
@@ -4092,12 +4092,12 @@
 			"LOAD_FAILED": "Не удалось загрузить планы."
 		},
 		"subtasks": {
-			"SEARCH": "Найти задачу для добавления...",
+			"SEARCH": "Найти задачу для добавления",
 			"REMOVE": "Убрать из этой задачи"
 		},
 		"relations": {
-			"SEARCH": "Найти задачу для связи...",
-			"SEARCH_KIND": "Найти тип связи...",
+			"SEARCH": "Найти задачу для связи",
+			"SEARCH_KIND": "Найти тип связи",
 			"CHANGE_KIND": "Изменить тип связи",
 			"REMOVE": "Удалить связь"
 		},

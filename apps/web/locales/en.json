@@ -1552,7 +1552,7 @@
 			"basicInformationForm": {
 				"formFields": {
 					"title": "Project Title",
-					"titlePlaceholder": "Client Project #1...",
+					"titlePlaceholder": "Client Project #1",
 					"description": "Description",
 					"datePickerPlaceholder": "Pick a date",
 					"websiteUrl": "Website URL",
@@ -1574,8 +1574,8 @@
 					"descriptionWordLimit": "Description must be 5000 words or less."
 				},
 				"common": {
-					"search": "Search ...",
-					"typeNew": "Type new ...",
+					"search": "Search",
+					"typeNew": "Type new",
 					"addNew": "Add new",
 					"uploadingImage": "Uploading the project image"
 				}
@@ -1583,9 +1583,9 @@
 			"categorizationForm": {
 				"formFields": {
 					"labels": "Labels",
-					"labelsPlaceholder": "Select labels...",
+					"labelsPlaceholder": "Select labels",
 					"tags": "Tags",
-					"tagsPlaceholder": "Select tags...",
+					"tagsPlaceholder": "Select tags",
 					"colorCode": "Color Code"
 				}
 			},
@@ -1594,11 +1594,11 @@
 					"budgetType": "Budget Type",
 					"budgetTypePlaceholder": "Select a budget type",
 					"budgetAmount": "Budget Amount",
-					"budgetAmountPlaceholder": "10 000$...",
+					"budgetAmountPlaceholder": "10 000$",
 					"currency": "Currency Selection",
-					"currencyPlaceholder": "Select a currency...",
+					"currencyPlaceholder": "Select a currency",
 					"billing": "Billing Type",
-					"billingPlaceholder": "Select interval..."
+					"billingPlaceholder": "Select interval"
 				}
 			},
 			"teamAndRelationsForm": {
@@ -1609,13 +1609,13 @@
 					"assignMembers": "Assign Members & Managers",
 					"noMembers": "No members or managers",
 					"addMember": "Add Member",
-					"selectMember": "Select a member...",
-					"selectRole": "Select role...",
+					"selectMember": "Select a member",
+					"selectRole": "Select role",
 					"relations": "Relations",
 					"noRelations": "No relations",
 					"addRelation": "Add Relation",
-					"selectProject": "Select a project...",
-					"selectRelationType": "Choose a relation type...",
+					"selectProject": "Select a project",
+					"selectRelationType": "Choose a relation type",
 					"activeTeamLocked": "Current team is required and cannot be removed"
 				},
 				"errors": {
@@ -1744,7 +1744,7 @@
 				"created": "{name} was created",
 				"saved": "Changes to {name} were saved",
 				"done": "Done",
-				"descriptionPlaceholder": "Add a description, a brief or the goals of this project…",
+				"descriptionPlaceholder": "Add a description, a brief or the goals of this project",
 				"removeItem": "Remove {name}",
 				"showMore": "Show {count} more",
 				"showLess": "Show less",
@@ -1766,12 +1766,12 @@
 				},
 				"teams": {
 					"add": "Add a team",
-					"search": "Find a team…"
+					"search": "Find a team"
 				},
 				"people": {
 					"addManagers": "Add managers",
 					"addMembers": "Add members",
-					"search": "Find a person…"
+					"search": "Find a person"
 				},
 				"tags": {
 					"add": "Add tags",
@@ -2376,7 +2376,7 @@
 			"END_AFTER_START": "The end time must be after the start time."
 		},
 		"teamTasks": {
-			"SEARCH_TASKS": "Search tasks...",
+			"SEARCH_TASKS": "Search tasks",
 			"TYPE_AND_NUMBER": "Type + Number",
 			"NO_ISSUE_TYPE": "No issue Type",
 			"NO_USER_ASSIGNED": "No user assigned",
@@ -2781,7 +2781,7 @@
 	},
 	"placeholders": {
 		"ENTER_TO_VALIDATE": "Press Enter to validate",
-		"ENTER_A_COMMAND": "Enter a command..."
+		"ENTER_A_COMMAND": "Enter a command"
 	},
 	"team": {
 		"BACK_LABEL": "Back to Team",
@@ -2848,8 +2848,8 @@
 		"EMPTY_NOT_CONFIGURED": "Configure your API key to get started.",
 		"CONFIGURE_BUTTON": "Configure",
 		"ERROR_FALLBACK": "An error occurred. Please check your configuration.",
-		"INPUT_PLACEHOLDER_READY": "Your message...",
-		"INPUT_PLACEHOLDER_NO_KEY": "Configure your API key...",
+		"INPUT_PLACEHOLDER_READY": "Your message",
+		"INPUT_PLACEHOLDER_NO_KEY": "Configure your API key",
 		"STOP": "Stop",
 		"SEND": "Send",
 		"NEW_CHAT": "New chat",
@@ -2861,7 +2861,7 @@
 		"EXPAND_ASSISTANT": "Expand assistant",
 		"OPEN_ASSISTANT": "Open {appName} Assistant",
 		"ASSISTANT": "Assistant",
-		"ASK_PLACEHOLDER": "Ask {appName}…",
+		"ASK_PLACEHOLDER": "Ask {appName}",
 		"COMPOSER_LABEL": "Message to the assistant",
 		"EMPTY_TITLE": "What can I help you with?",
 		"EXAMPLES_LABEL": "Start from an example",
@@ -2929,7 +2929,7 @@
 		}
 	},
 	"commandPalette": {
-		"searchPlaceholder": "Type a command or search…",
+		"searchPlaceholder": "Type a command or search",
 		"tabsLabel": "Command groups",
 		"empty": "No results found.",
 		"tabs": {
@@ -2986,7 +2986,7 @@
 		},
 		"timeLog": {
 			"forMember": "for",
-			"notesPlaceholder": "Add notes here…"
+			"notesPlaceholder": "Add notes here"
 		},
 		"manualTime": {
 			"descriptionPlaceholder": "What did you work on?"
@@ -3000,7 +3000,7 @@
 			"tasksWithoutEstimate": "Tasks with no time estimate",
 			"correctHoursWarning": "Correct the planned work hours or re-estimate the tasks.",
 			"moreOptions": "More options",
-			"searchMember": "Search a member…",
+			"searchMember": "Search a member",
 			"noMemberFound": "No member found.",
 			"selectOrCreateTask": "Select or create a task for the plan"
 		},
@@ -3012,7 +3012,7 @@
 			"addToPlan": "Add to plan",
 			"createNewPlan": "Create a new plan",
 			"useExistingPlan": "Add to an existing plan",
-			"searchPlan": "Search a plan…",
+			"searchPlan": "Search a plan",
 			"noPlanFound": "No plan found.",
 			"plannedTime": "Planned time: {hours} h"
 		},
@@ -4055,9 +4055,9 @@
 			"ADD_PARENT": "Add parent",
 			"CHANGE_PARENT": "Change parent",
 			"REMOVE_PARENT": "Remove parent",
-			"SEARCH_PARENT": "Find a parent task...",
+			"SEARCH_PARENT": "Find a parent task",
 			"NO_ASSIGNEE": "No one yet",
-			"SEARCH_PEOPLE": "Find a teammate...",
+			"SEARCH_PEOPLE": "Find a teammate",
 			"MANAGE_ASSIGNEES": "Assign people",
 			"ADD_LABEL": "Add label",
 			"EDIT_LABELS": "Edit labels",
@@ -4092,12 +4092,12 @@
 			"LOAD_FAILED": "The plans could not be loaded."
 		},
 		"subtasks": {
-			"SEARCH": "Find a task to add...",
+			"SEARCH": "Find a task to add",
 			"REMOVE": "Remove from this task"
 		},
 		"relations": {
-			"SEARCH": "Find a task to link...",
-			"SEARCH_KIND": "Find a relation...",
+			"SEARCH": "Find a task to link",
+			"SEARCH_KIND": "Find a relation",
 			"CHANGE_KIND": "Change the relation",
 			"REMOVE": "Remove the link"
 		},
