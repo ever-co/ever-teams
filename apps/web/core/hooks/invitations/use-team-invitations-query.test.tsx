@@ -2,7 +2,7 @@
 
 import { renderHook } from '@testing-library/react';
 
-const mockUseQuery = jest.fn((_options: { enabled?: boolean }) => ({
+const mockUseQuery = jest.fn<unknown, [{ enabled?: boolean }]>(() => ({
 	data: { items: [] },
 	isLoading: false,
 	isFetching: true,
