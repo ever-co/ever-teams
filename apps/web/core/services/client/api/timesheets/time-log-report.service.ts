@@ -71,7 +71,7 @@ class TimeLogReportService extends APIService {
 		return response.data ?? [];
 	};
 
-	/** Per day and per member: the tracked duration and that time at the member's bill rate, in the rate's currency. */
+	/** Per day and per member: the tracked time and what it is owed, at the pay rate once set, else the billing rate. */
 	getOwedAmountReport = async (range: TimeLogReportRange): Promise<TOwedReportDay[]> => {
 		const query = qs.stringify(this.rangeParamsOf(range));
 		const response = await this.get<unknown>(`/timesheet/time-log/report/owed-report?${query}`, {
