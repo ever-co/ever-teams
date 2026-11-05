@@ -88,4 +88,14 @@ describe('CompleteInvitationRegistrationForm', () => {
 
 		expect(screen.queryByRole('alert')).toBeNull();
 	});
+
+	it('shows the error and stays when the invitation is refused', async () => {
+		renderForm(jest.fn().mockRejectedValue(new Error('Invitation expired')));
+		typePasswords('long enough', 'long enough');
+
+		await join();
+
+		expect(screen.getByRole('alert').textContent).toBe('auth.invite.FAILED');
+		expect(mockPush).not.toHaveBeenCalled();
+	});
 });
