@@ -562,7 +562,23 @@ export function useTimerApi({
 				return 'blocked';
 			}
 
-			const isBillableToUse = await resolveTimerBillable(taskToUse);
+			const teamIdAtStart = activeTeamRef.current?.id;
+			let isBillableToUse: boolean;
+			try {
+				isBillableToUse = await resolveTimerBillable(taskToUse);
+			} catch (error) {
+				// The task's project could not be read: a start without it would record billable time as non-billable
+				const reasonKey = errorReasonKeyOf(error) as DottedLanguageObjectStringPaths;
+				toast.error(t('toasts.timer.START_FAILED'), { id: 'timer-start-failed', description: t(reasonKey) });
+				return 'blocked';
+			}
+			// The person switched task or team while the project was read: the start they asked for no longer applies
+			const isTaskStillChosen =
+				Boolean(explicitTask) || Boolean(pageTask) || activeTeamTaskRef.current?.id === taskIdToUse;
+			const isSameTeam = activeTeamRef.current?.id === teamIdAtStart;
+			if (!isTaskStillChosen || !isSameTeam) {
+				return 'blocked';
+			}
 
 			updateLocalTimerStatus({
 				lastTaskId: taskIdToUse,
@@ -686,6 +702,7 @@ export function useTimerApi({
 			setTimerStatusFetching,
 			startTimerMutate,
 			activeTeamTaskRef,
+			activeTeamRef,
 			timerStatus,
 			setTimerStatus,
 			taskStatuses,
