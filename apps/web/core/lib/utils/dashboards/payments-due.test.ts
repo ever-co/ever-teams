@@ -1,5 +1,5 @@
 import type { TOwedReportDay } from '@/core/types/schemas/timer/time-log-reports.schema';
-import { owedFiguresOf, owedLinesOf, payLineEmployeeIdsOf, type PaymentsMember } from './payments-due';
+import { owedFiguresOf, owedLinesOf, payLineEmployeeIdsOf, rateShownOf, type PaymentsMember } from './payments-due';
 
 type Entry = TOwedReportDay['employees'][number];
 
@@ -15,7 +15,8 @@ function entry(employeeId: string, seconds: number, amount: number, extra: Parti
 function linesOf(
 	days: Array<{ date: string; employees: Entry[] }>,
 	readsPayRates = true,
-	knownPayRates: ReadonlyMap<string, number> = new Map()
+	knownPayRates: ReadonlyMap<string, number> = new Map(),
+	pendingPayRates: ReadonlySet<string> = new Set()
 ) {
 	return owedLinesOf({
 		report: days,
@@ -23,7 +24,8 @@ function linesOf(
 		organizationCurrency: 'EUR',
 		unnamedLabel: 'Unnamed',
 		readsPayRates,
-		knownPayRates
+		knownPayRates,
+		pendingPayRates
 	});
 }
 
@@ -39,11 +41,15 @@ describe('owedLinesOf', () => {
 		expect(linesOf([{ date: '2026-11-03', employees: [entry('ana', 3600, 80)] }], false)[0].rateNote).toBeNull();
 	});
 
-	it("shows the pay rate and the line's currency when the pay rate priced it", () => {
-		const lines = linesOf([
-			{ date: '2026-11-03', employees: [entry('ana', 7200, 60, { rateSource: 'pay', currency: 'EUR' })] },
-			{ date: '2026-11-04', employees: [entry('ana', 3600, 30, { rateSource: 'pay', currency: 'EUR' })] }
-		]);
+	it("shows the stored pay rate and the line's currency when the pay rate priced it", () => {
+		const lines = linesOf(
+			[
+				{ date: '2026-11-03', employees: [entry('ana', 7200, 60, { rateSource: 'pay', currency: 'EUR' })] },
+				{ date: '2026-11-04', employees: [entry('ana', 3600, 30, { rateSource: 'pay', currency: 'EUR' })] }
+			],
+			true,
+			new Map([['ana', 30]])
+		);
 
 		for (const line of lines) {
 			expect(line.rate).toBe(30);
@@ -53,22 +59,48 @@ describe('owedLinesOf', () => {
 		expect(lines.map((line) => line.amount)).toEqual([60, 30]);
 	});
 
-	it('shows the pay rate read from Gauzy rather than the one a short, rounded amount implies', () => {
+	it('never shows a rate worked out from rounded amounts: a placeholder while the pay rate is read', () => {
 		const shortDay = entry('ana', 60, 0.83, { rateSource: 'pay', currency: 'USD' });
 
-		const [implied] = linesOf([{ date: '2026-11-03', employees: [shortDay] }]);
-		const [read] = linesOf([{ date: '2026-11-03', employees: [shortDay] }], true, new Map([['ana', 50]]));
+		const [line] = linesOf([{ date: '2026-11-03', employees: [shortDay] }], true, new Map(), new Set(['ana']));
 
-		expect(implied.rate).toBe(49.8);
-		expect(read.rate).toBe(50);
-		expect(read.amount).toBe(0.83);
+		expect(line.rate).toBeNull();
+		expect(line.amount).toBe(0.83);
+		expect(rateShownOf(line)).toBe('loading');
+	});
+
+	it('shows no rate, and keeps the amount, when the pay rate read failed or came back empty', () => {
+		const shortDay = entry('ana', 60, 0.83, { rateSource: 'pay', currency: 'USD' });
+
+		const [line] = linesOf([{ date: '2026-11-03', employees: [shortDay] }]);
+
+		expect(line.rate).toBeNull();
+		expect(line.amount).toBe(0.83);
+		expect(rateShownOf(line)).toBe('hidden');
+	});
+
+	it('shows the stored pay rate once read, for a short day too', () => {
+		const shortDay = entry('ana', 60, 0.83, { rateSource: 'pay', currency: 'USD' });
+
+		const [line] = linesOf([{ date: '2026-11-03', employees: [shortDay] }], true, new Map([['ana', 50]]));
+
+		expect(line.rate).toBe(50);
+		expect(rateShownOf(line)).toBe('rate');
+	});
+
+	it('still says "No rate" for a billing line without a rate', () => {
+		const noBillingRate = { ...entry('ben', 3600, 0), employee: { id: 'ben', billRateValue: null } };
+
+		const [line] = linesOf([{ date: '2026-11-03', employees: [noBillingRate] }]);
+
+		expect(rateShownOf(line)).toBe('noRate');
 	});
 
 	it('keeps the amount of a pay line even when the member has no billing rate', () => {
 		const payLine = entry('ana', 3600, 30, { rateSource: 'pay', currency: 'EUR' });
 		const withoutBillingRate = { ...payLine, employee: { id: 'ana', billRateValue: null } };
 
-		const [line] = linesOf([{ date: '2026-11-03', employees: [withoutBillingRate] }]);
+		const [line] = linesOf([{ date: '2026-11-03', employees: [withoutBillingRate] }], true, new Map([['ana', 30]]));
 
 		expect(line.amount).toBe(30);
 		expect(line.rate).toBe(30);

@@ -1,5 +1,6 @@
 'use client';
 
+import { useCallback } from 'react';
 import { useMutation, useQueries, useQuery, useQueryClient, type UseQueryResult } from '@tanstack/react-query';
 import { queryKeys } from '@/core/query/keys';
 import { rateService } from '@/core/services/client/api/organizations/rate.service';
@@ -50,27 +51,42 @@ export function useEmployeePayRate(employeeId: string | undefined, enabled: bool
 
 const PAY_RATES_STALE_TIME_MS = 5 * 60 * 1000;
 
-function payRatesByEmployeeOf(results: ReadonlyArray<UseQueryResult<TEmployeePayRate>>): ReadonlyMap<string, number> {
-	const rates = new Map<string, number>();
-	for (const result of results) {
-		const payRate = result.data;
-		if (!payRate) {
-			continue;
-		}
-		const rate = rateValueOf(payRate.payRateValue);
-		if (rate === null) {
-			continue;
-		}
-		rates.set(payRate.employeeId, rate);
-	}
-	return rates;
+export interface EmployeePayRates {
+	/** The pay rates read, by employee id; one that is not set or cannot be read (403, 404) is left out. */
+	rates: ReadonlyMap<string, number>;
+	/** The employees whose pay rate read has not answered yet. */
+	pendingIds: ReadonlySet<string>;
 }
 
-/** The pay rates of several employees, by employee id; one that cannot be read (403, 404) is left out. */
-export function useEmployeePayRates(employeeIds: ReadonlyArray<string>): ReadonlyMap<string, number> {
+function payRatesOf(
+	employeeIds: ReadonlyArray<string>,
+	results: ReadonlyArray<UseQueryResult<TEmployeePayRate>>
+): EmployeePayRates {
+	const rates = new Map<string, number>();
+	const pendingIds = new Set<string>();
+	results.forEach((result, index) => {
+		const employeeId = employeeIds[index];
+		if (result.isLoading) {
+			pendingIds.add(employeeId);
+			return;
+		}
+		const rate = rateValueOf(result.data?.payRateValue);
+		if (rate === null) {
+			return;
+		}
+		rates.set(employeeId, rate);
+	});
+	return { rates, pendingIds };
+}
+
+export function useEmployeePayRates(employeeIds: ReadonlyArray<string>): EmployeePayRates {
 	const tenantId = getTenantIdCookie();
 	const organizationId = getOrganizationIdCookie();
 	const hasScope = Boolean(tenantId && organizationId);
+	const combine = useCallback(
+		(results: ReadonlyArray<UseQueryResult<TEmployeePayRate>>) => payRatesOf(employeeIds, results),
+		[employeeIds]
+	);
 	return useQueries({
 		queries: employeeIds.map((employeeId) => ({
 			queryKey: queryKeys.rates.payRate(tenantId, organizationId, employeeId),
@@ -79,7 +95,7 @@ export function useEmployeePayRates(employeeIds: ReadonlyArray<string>): Readonl
 			retry: retriesRatesRead,
 			staleTime: PAY_RATES_STALE_TIME_MS
 		})),
-		combine: payRatesByEmployeeOf
+		combine
 	});
 }
 

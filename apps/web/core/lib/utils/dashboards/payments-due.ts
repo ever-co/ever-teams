@@ -43,6 +43,8 @@ export interface OwedLine {
 	/** Null when the server does not say, as before pay rates existed: the billing rate priced it, with no note. */
 	rateSource: OwedRateSource | null;
 	rateNote: OwedRateNote | null;
+	/** A pay line whose stored pay rate is still being read. */
+	ratePending: boolean;
 }
 
 export interface OwedMemberGroup {
@@ -56,6 +58,7 @@ export interface OwedMemberGroup {
 	amount: number | null;
 	rateSource: OwedRateSource | null;
 	rateNote: OwedRateNote | null;
+	ratePending: boolean;
 	lines: OwedLine[];
 }
 
@@ -232,10 +235,25 @@ function isPaidAtPayRate(entry: OwedReportEntry) {
 	return rateSourceOf(entry.rateSource) === 'pay';
 }
 
-const CENTS = 100;
+export type RateShown = 'rate' | 'loading' | 'hidden' | 'noRate';
 
-function roundedToCents(value: number) {
-	return Math.round(value * CENTS) / CENTS;
+/**
+ * How a line's rate shows. A pay line never shows a rate worked out from its amounts: its stored pay rate, a
+ * placeholder while it is read, or nothing when it cannot be read. Only a billing line without a rate says "No rate".
+ */
+export function rateShownOf(
+	figure: Readonly<{ rate: number | null; rateSource: OwedRateSource | null; ratePending: boolean }>
+): RateShown {
+	if (figure.rate !== null) {
+		return 'rate';
+	}
+	if (figure.ratePending) {
+		return 'loading';
+	}
+	if (figure.rateSource === 'pay') {
+		return 'hidden';
+	}
+	return 'noRate';
 }
 
 /** The members whose lines the pay rate priced, whose pay rate the viewer may read (Gauzy prices no other one). */
@@ -252,37 +270,6 @@ export function payLineEmployeeIdsOf(report: ReadonlyArray<TOwedReportDay>): str
 		}
 	}
 	return [...employeeIds].sort((first, second) => first.localeCompare(second));
-}
-
-/**
- * The pay rate each member's lines imply, while their pay rate read has not answered: the report states the amount and
- * its currency, never the pay rate. One rate prices all of a member's lines, so it is their amount over their hours,
- * summed over the period, which a short period with rounded daily amounts can still skew.
- */
-function payRatesOf(report: ReadonlyArray<TOwedReportDay>) {
-	const totals = new Map<string, { amount: number; seconds: number }>();
-	for (const reportDay of report) {
-		for (const entry of reportDay.employees ?? []) {
-			const employeeId = entry.employee?.id;
-			const isPayLine = isPaidAtPayRate(entry);
-			if (!employeeId || !isPayLine) {
-				continue;
-			}
-			const total = totals.get(employeeId) ?? { amount: 0, seconds: 0 };
-			total.amount += finiteOrZero(entry.amount);
-			total.seconds += finiteOrZero(entry.duration);
-			totals.set(employeeId, total);
-		}
-	}
-	const rates = new Map<string, number>();
-	for (const [employeeId, total] of totals) {
-		if (total.seconds <= 0) {
-			continue;
-		}
-		const hours = total.seconds / SECONDS_PER_HOUR;
-		rates.set(employeeId, roundedToCents(total.amount / hours));
-	}
-	return rates;
 }
 
 function lineCurrencyOf(entry: OwedReportEntry, employee: TOwedReportEmployee, organizationCurrency: string | null) {
@@ -302,18 +289,20 @@ export function owedLinesOf({
 	organizationCurrency,
 	unnamedLabel,
 	readsPayRates,
-	knownPayRates
+	knownPayRates,
+	pendingPayRates
 }: Readonly<{
 	report: ReadonlyArray<TOwedReportDay>;
 	members: ReadonlyMap<string, PaymentsMember>;
 	organizationCurrency: string | null;
 	unnamedLabel: string;
 	readsPayRates: boolean;
-	/** Pay rates read from Gauzy, by employee id: they win over the rate the report implies. */
+	/** Stored pay rates read from Gauzy, by employee id: the report states the amount, never the pay rate. */
 	knownPayRates: ReadonlyMap<string, number>;
+	/** The employees whose pay rate read has not answered yet. */
+	pendingPayRates: ReadonlySet<string>;
 }>): OwedLine[] {
 	const lines: OwedLine[] = [];
-	const impliedPayRates = payRatesOf(report);
 	for (const reportDay of report) {
 		const rawDate = String(reportDay.date ?? '');
 		const dateKey = rawDate.slice(0, 10);
@@ -330,11 +319,12 @@ export function owedLinesOf({
 			const rateSource = rateSourceOf(entry.rateSource);
 			let rate = rateOf(employee.billRateValue);
 			let amount = amountOf(rate, entry.amount);
+			let ratePending = false;
 			if (rateSource === 'pay') {
-				const knownPayRate = knownPayRates.get(employee.id);
-				const impliedPayRate = impliedPayRates.get(employee.id) ?? null;
-				rate = knownPayRate ?? impliedPayRate;
+				rate = knownPayRates.get(employee.id) ?? null;
 				amount = finiteOrZero(entry.amount);
+				const isUnknown = rate === null;
+				ratePending = isUnknown && pendingPayRates.has(employee.id);
 			}
 			lines.push({
 				key: `${dateKey}:${employee.id}`,
@@ -348,7 +338,8 @@ export function owedLinesOf({
 				currency: lineCurrencyOf(entry, employee, organizationCurrency),
 				amount,
 				rateSource,
-				rateNote: rateNoteOf(rateSource, readsPayRates)
+				rateNote: rateNoteOf(rateSource, readsPayRates),
+				ratePending
 			});
 		}
 	}
@@ -530,6 +521,7 @@ function memberGroupOf(firstLine: OwedLine): OwedMemberGroup {
 		amount: null,
 		rateSource: firstLine.rateSource,
 		rateNote: firstLine.rateNote,
+		ratePending: firstLine.ratePending,
 		lines: []
 	};
 }
