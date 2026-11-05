@@ -1,5 +1,35 @@
 import { organizationService } from './organization.service';
 
+describe('OrganizationService.createOrganization', () => {
+	afterEach(() => {
+		jest.restoreAllMocks();
+	});
+
+	it('creates the organization with a team and a project required on every time entry', async () => {
+		const post = jest
+			.spyOn(organizationService, 'post')
+			.mockResolvedValue({ data: { id: 'organization-a' } } as never);
+
+		await organizationService.createOrganization(
+			{ currency: 'USD', name: 'Acme', tenantId: 'tenant-a', invitesAllowed: true },
+			'access-token'
+		);
+
+		expect(post).toHaveBeenCalledWith(
+			'/organization',
+			{
+				currency: 'USD',
+				name: 'Acme',
+				tenantId: 'tenant-a',
+				invitesAllowed: true,
+				requireTeam: true,
+				requireProject: true
+			},
+			expect.anything()
+		);
+	});
+});
+
 describe('OrganizationService.updateOrganization', () => {
 	afterEach(() => {
 		jest.restoreAllMocks();
