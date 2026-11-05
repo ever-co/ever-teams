@@ -12,7 +12,7 @@ import {
 } from '@/core/services/client/api/timesheets/time-log-report.service';
 import { activeTeamState } from '@/core/stores';
 import { useMyRolePermissionsQuery } from '@/core/hooks/roles/use-my-role-permissions-query';
-import { holdsPayRatePermission } from '@/core/lib/utils/rates';
+import { holdsEmployeeRatesPermission } from '@/core/lib/utils/rates';
 import { currentOrganizationState } from '@/core/stores/user/user-organizations';
 import { getOrganizationIdCookie, getTenantIdCookie } from '@/core/lib/helpers/cookies';
 import { getDefaultTimezone } from '@/core/lib/helpers/date-and-time';
@@ -269,7 +269,7 @@ export function usePaymentsDueReport({ unnamedLabel }: Readonly<{ unnamedLabel: 
 	const result = query.data;
 	const organizationCurrency = organization?.currency ?? null;
 	const { myPermissions } = useMyRolePermissionsQuery();
-	const readsPayRates = holdsPayRatePermission(myPermissions);
+	const readsPayRates = holdsEmployeeRatesPermission(myPermissions);
 
 	const shown = useMemo<PaymentsDueShown | null>(() => {
 		if (!result) {

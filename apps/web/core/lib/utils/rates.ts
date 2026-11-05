@@ -4,13 +4,16 @@ import { ECurrencies } from '@/core/types/generics/enums/currency';
 import type { IEmployeeRatesInput } from '@/core/types/schemas/organization/rates.schema';
 
 /**
- * The permissions that let a caller set any member's rate and every project's rates. Gauzy's `PUT /employee/:id`
- * asks for ORG_EMPLOYEES_EDIT; a holder of CHANGE_SELECTED_EMPLOYEE acts for every employee anyway.
+ * The permissions that let a caller manage every project's client rates, as Gauzy's rates routes accept either. A
+ * member's own billing and pay rates need ORG_EMPLOYEES_EDIT alone (`EMPLOYEE_RATES_PERMISSION`).
  */
 export const RATE_ADMIN_PERMISSIONS: ReadonlyArray<string> = ['ORG_EMPLOYEES_EDIT', 'CHANGE_SELECTED_EMPLOYEE'];
 
-/** Gauzy reads and sets a pay rate for holders of this permission only (and lets an employee read their own). */
-export const PAY_RATE_PERMISSION = 'ORG_EMPLOYEES_EDIT';
+/**
+ * Gauzy's `PUT /employee/:id`, which sets a member's billing and pay rates, asks for this permission, and the pay rate
+ * read too (an employee also reads their own).
+ */
+export const EMPLOYEE_RATES_PERMISSION = 'ORG_EMPLOYEES_EDIT';
 
 export const RATE_REASON_MAX_LENGTH = 500;
 
@@ -151,8 +154,14 @@ export function rateInputTextOf(value: unknown): string {
 	return String(rate);
 }
 
-export function holdsPayRatePermission(permissions: ReadonlyArray<string>): boolean {
-	return permissions.includes(PAY_RATE_PERMISSION);
+export function holdsEmployeeRatesPermission(permissions: ReadonlyArray<string>): boolean {
+	return permissions.includes(EMPLOYEE_RATES_PERMISSION);
+}
+
+/** Whether the members rate editor opens on a member: CHANGE_SELECTED_EMPLOYEE alone would not get the save through. */
+export function canEditMemberRates(permissions: ReadonlyArray<string>, hasEmployee: boolean): boolean {
+	const holdsPermission = holdsEmployeeRatesPermission(permissions);
+	return holdsPermission && hasEmployee;
 }
 
 export function holdsRateAdminPermission(permissions: ReadonlyArray<string>): boolean {

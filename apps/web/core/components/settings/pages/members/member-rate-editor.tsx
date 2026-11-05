@@ -79,10 +79,10 @@ export function MemberRateEditor({
 	const [isSaving, setIsSaving] = useState(false);
 	const hasError = Boolean(error);
 
-	const payRate = useEmployeePayRate(row.employeeId ?? undefined, row.canEditPayRate);
+	const payRate = useEmployeePayRate(row.employeeId ?? undefined, row.canEditRate);
 	const payRateData = payRate.data;
-	const loadsPayRate = row.canEditPayRate && payRate.isLoading;
-	const editsPayRate = row.canEditPayRate && Boolean(payRateData);
+	const loadsPayRate = row.canEditRate && payRate.isLoading;
+	const editsPayRate = row.canEditRate && Boolean(payRateData);
 	const storedPayRate = rateValueOf(payRateData?.payRateValue);
 	const initialPayCurrency = shownCurrencyOf(payRateData?.payRateCurrency ?? null, payRateData?.currency);
 	const [payTextChoice, setPayTextChoice] = useState<string | null>(null);

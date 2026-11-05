@@ -5,7 +5,8 @@ import {
 	changedPayRateOf,
 	currencyCodesOf,
 	currencyLabelOf,
-	holdsPayRatePermission,
+	canEditMemberRates,
+	holdsEmployeeRatesPermission,
 	holdsRateAdminPermission,
 	rateAmountTextOf,
 	effectiveBillRate,
@@ -200,10 +201,21 @@ describe('changedPayRateOf', () => {
 	});
 });
 
-describe('holdsPayRatePermission', () => {
-	it('is ORG_EMPLOYEES_EDIT only, the permission Gauzy asks for to read or set a pay rate', () => {
-		expect(holdsPayRatePermission(['ORG_EMPLOYEES_EDIT'])).toBe(true);
-		expect(holdsPayRatePermission(['CHANGE_SELECTED_EMPLOYEE'])).toBe(false);
-		expect(holdsPayRatePermission([])).toBe(false);
+describe('holdsEmployeeRatesPermission', () => {
+	it("is ORG_EMPLOYEES_EDIT only, the permission Gauzy asks for to set a member's rates or read a pay rate", () => {
+		expect(holdsEmployeeRatesPermission(['ORG_EMPLOYEES_EDIT'])).toBe(true);
+		expect(holdsEmployeeRatesPermission(['CHANGE_SELECTED_EMPLOYEE'])).toBe(false);
+		expect(holdsEmployeeRatesPermission([])).toBe(false);
+	});
+});
+
+describe('canEditMemberRates', () => {
+	it('opens the members rate editor to ORG_EMPLOYEES_EDIT holders on a member with an employee', () => {
+		expect(canEditMemberRates(['ORG_EMPLOYEES_EDIT'], true)).toBe(true);
+		expect(canEditMemberRates(['ORG_EMPLOYEES_EDIT'], false)).toBe(false);
+	});
+
+	it('keeps it closed with CHANGE_SELECTED_EMPLOYEE alone, which Gauzy refuses for an employee update', () => {
+		expect(canEditMemberRates(['CHANGE_SELECTED_EMPLOYEE'], true)).toBe(false);
 	});
 });

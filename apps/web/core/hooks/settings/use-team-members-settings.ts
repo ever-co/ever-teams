@@ -37,7 +37,7 @@ import { useOrganizationEmployeeTeams } from '@/core/hooks/organizations/teams/u
 import { useMyRolePermissionsQuery } from '@/core/hooks/roles/use-my-role-permissions-query';
 import { canMemberTrackTime } from '@/core/lib/helpers/team-member-tracking';
 import { useEmployeeRatesMutation } from '@/core/hooks/organizations/rates/use-rates';
-import { holdsPayRatePermission, holdsRateAdminPermission, rateValueOf } from '@/core/lib/utils/rates';
+import { canEditMemberRates, rateValueOf } from '@/core/lib/utils/rates';
 import type { IEmployeeRatesInput } from '@/core/types/schemas/organization/rates.schema';
 import type { TOrganizationTeamEmployee } from '@/core/types/schemas';
 import type { TUpdateEmployee } from '@/core/types/schemas/organization/employee.schema';
@@ -69,7 +69,6 @@ export interface MemberRowModel {
 	rate: MemberRate;
 	canEditRate: boolean;
 	employeeId: string | null;
-	canEditPayRate: boolean;
 }
 
 type Overrides<T> = Readonly<Record<string, T>>;
@@ -140,8 +139,6 @@ export function useTeamMembersSettings() {
 	const { myPermissions, isSuccess: arePermissionsLoaded } = useMyRolePermissionsQuery();
 	const canEditEmployees = myPermissions.includes('ORG_EMPLOYEES_EDIT');
 	const { saveEmployeeRates } = useEmployeeRatesMutation();
-	const canEditRates = holdsRateAdminPermission(myPermissions);
-	const readsPayRates = holdsPayRatePermission(myPermissions);
 
 	const [roleOverrides, setRoleOverrides] = useState<Overrides<TeamRole>>({});
 	const [trackingOverrides, setTrackingOverrides] = useState<Overrides<boolean>>({});
@@ -212,17 +209,15 @@ export function useTeamMembersSettings() {
 				isRolePending: pendingRoles.has(rowId),
 				isTrackingPending: isSavingTracking || waitsForPermissions,
 				rate: memberRateOf(member),
-				canEditRate: canEditRates && hasEmployee,
-				employeeId,
-				canEditPayRate: readsPayRates && hasEmployee
+				canEditRate: canEditMemberRates(myPermissions, hasEmployee),
+				employeeId
 			});
 		}
 		return models;
 	}, [
 		arePermissionsLoaded,
 		canEditEmployees,
-		canEditRates,
-		readsPayRates,
+		myPermissions,
 		members,
 		pendingRoles,
 		pendingTracking,
