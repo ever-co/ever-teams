@@ -1,5 +1,5 @@
 import type { TOrganizationTeamEmployee } from '@/core/types/schemas';
-import { arePendingOrdersSaved, membersWithPendingOrders, sortByOrder } from './team-member-order';
+import { membersWithPendingOrders, sortByOrder, unsavedPendingOrders, withoutDropOrders } from './team-member-order';
 
 const member = (id: string, order?: number) => ({ id, order }) as TOrganizationTeamEmployee;
 
@@ -16,10 +16,23 @@ describe('team member order', () => {
 		expect(membersWithPendingOrders(members, null)).toBe(members);
 	});
 
-	it('tells when the members read back carry the pending orders', () => {
+	it('drops the pending orders the members read back already carry', () => {
+		const pending = { ada: 1, cy: 3 };
 		const readBack = [member('cy', 3), member('bob', 2), member('ada', 1)];
+		const halfSaved = [member('ada', 1), member('bob', 2), member('cy', 1)];
 
-		expect(arePendingOrdersSaved(readBack, { ada: 1, cy: 3 })).toBe(true);
-		expect(arePendingOrdersSaved(members, { ada: 1, cy: 3 })).toBe(false);
+		expect(unsavedPendingOrders(members, pending)).toBe(pending);
+		expect(unsavedPendingOrders(halfSaved, pending)).toEqual({ cy: 3 });
+		expect(unsavedPendingOrders(readBack, pending)).toBeNull();
+	});
+
+	it("takes back only a failed drop's orders, not those of a later drop", () => {
+		const firstDrop = { ada: 1, cy: 3 };
+		const laterDrop = { bob: 3, cy: 2 };
+		const pending = { ...firstDrop, ...laterDrop };
+
+		expect(withoutDropOrders(pending, firstDrop)).toEqual({ bob: 3, cy: 2 });
+		expect(withoutDropOrders(firstDrop, firstDrop)).toBeNull();
+		expect(withoutDropOrders(null, firstDrop)).toBeNull();
 	});
 });
