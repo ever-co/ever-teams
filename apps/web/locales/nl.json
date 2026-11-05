@@ -1994,6 +1994,13 @@
 				"SIGN_IN_AGAIN": "Opnieuw inloggen met Ever ID",
 				"LOGIN_WITH_EVER_ID": "Inloggen met <wordmark>Ever ID</wordmark>"
 			},
+			"provider": {
+				"ACCOUNT_UNCONFIRMED_TITLE": "Bevestig eerst je e-mailadres",
+				"ACCOUNT_UNCONFIRMED_BODY": "Een account gebruikt dit e-mailadres al, maar heeft het nog niet bevestigd. Log in met je e-mailadres en bevestig het daarna via de melding op je startpagina. Daarna werkt deze manier van inloggen ook.",
+				"ACCOUNT_NOT_SET_UP_TITLE": "Rond het instellen van je account af",
+				"ACCOUNT_NOT_SET_UP_BODY": "Je account met dit e-mailadres heeft nog geen werkruimte. Log in met je e-mailadres om het instellen af te ronden. Daarna werkt deze manier van inloggen ook.",
+				"SIGN_IN_WITH_EMAIL": "Inloggen met mijn e-mail"
+			},
 			"CHOOSE_YOUR_WORKSPACE": "Kies je werkruimte"
 		},
 		"authPasscode": {

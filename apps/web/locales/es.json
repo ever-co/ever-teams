@@ -1676,6 +1676,13 @@
 				"SIGN_IN_AGAIN": "Iniciar sesión con Ever ID de nuevo",
 				"LOGIN_WITH_EVER_ID": "Iniciar sesión con <wordmark>Ever ID</wordmark>"
 			},
+			"provider": {
+				"ACCOUNT_UNCONFIRMED_TITLE": "Confirma primero tu dirección de correo",
+				"ACCOUNT_UNCONFIRMED_BODY": "Una cuenta ya usa esta dirección de correo, pero aún no la ha confirmado. Inicia sesión con tu dirección de correo y luego confírmala desde el aviso de tu página de inicio. Después, esta forma de iniciar sesión también funcionará.",
+				"ACCOUNT_NOT_SET_UP_TITLE": "Termina de configurar tu cuenta",
+				"ACCOUNT_NOT_SET_UP_BODY": "Tu cuenta con este correo aún no tiene espacio de trabajo. Inicia sesión con tu dirección de correo para terminar de configurarla. Después, esta forma de iniciar sesión también funcionará.",
+				"SIGN_IN_WITH_EMAIL": "Iniciar sesión con mi correo"
+			},
 			"CHOOSE_YOUR_WORKSPACE": "Elige tu espacio de trabajo"
 		},
 		"projects": {

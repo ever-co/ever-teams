@@ -1994,6 +1994,13 @@
 				"SIGN_IN_AGAIN": "Sign in with Ever ID again",
 				"LOGIN_WITH_EVER_ID": "Login with <wordmark>Ever ID</wordmark>"
 			},
+			"provider": {
+				"ACCOUNT_UNCONFIRMED_TITLE": "Confirm your e-mail address first",
+				"ACCOUNT_UNCONFIRMED_BODY": "An account already uses this e-mail address but has not confirmed it yet. Sign in with your e-mail address, then confirm it from the notice on your home page. After that, this sign-in option works too.",
+				"ACCOUNT_NOT_SET_UP_TITLE": "Finish setting up your account",
+				"ACCOUNT_NOT_SET_UP_BODY": "Your account with this e-mail address has no workspace yet. Sign in with your e-mail address to finish setting it up. After that, this sign-in option works too.",
+				"SIGN_IN_WITH_EMAIL": "Sign in with my e-mail"
+			},
 			"CHOOSE_YOUR_WORKSPACE": "Choose your workspace"
 		},
 		"authPasscode": {

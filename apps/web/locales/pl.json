@@ -1994,6 +1994,13 @@
 				"SIGN_IN_AGAIN": "Zaloguj się ponownie przez Ever ID",
 				"LOGIN_WITH_EVER_ID": "Zaloguj się przez <wordmark>Ever ID</wordmark>"
 			},
+			"provider": {
+				"ACCOUNT_UNCONFIRMED_TITLE": "Najpierw potwierdź swój adres e-mail",
+				"ACCOUNT_UNCONFIRMED_BODY": "Konto korzystające z tego adresu e-mail jeszcze go nie potwierdziło. Zaloguj się za pomocą adresu e-mail, a następnie potwierdź go w komunikacie na stronie głównej. Potem ten sposób logowania też zadziała.",
+				"ACCOUNT_NOT_SET_UP_TITLE": "Dokończ konfigurację konta",
+				"ACCOUNT_NOT_SET_UP_BODY": "Twoje konto z tym adresem e-mail nie ma jeszcze przestrzeni roboczej. Zaloguj się za pomocą adresu e-mail, aby dokończyć konfigurację. Potem ten sposób logowania też zadziała.",
+				"SIGN_IN_WITH_EMAIL": "Zaloguj się przez e-mail"
+			},
 			"CHOOSE_YOUR_WORKSPACE": "Wybierz swoją przestrzeń roboczą"
 		},
 		"authPasscode": {

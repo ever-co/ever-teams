@@ -1994,6 +1994,13 @@
 				"SIGN_IN_AGAIN": "Erneut mit Ever ID anmelden",
 				"LOGIN_WITH_EVER_ID": "Mit <wordmark>Ever ID</wordmark> anmelden"
 			},
+			"provider": {
+				"ACCOUNT_UNCONFIRMED_TITLE": "Bestätigen Sie zuerst Ihre E-Mail-Adresse",
+				"ACCOUNT_UNCONFIRMED_BODY": "Ein Konto verwendet diese E-Mail-Adresse bereits, hat sie aber noch nicht bestätigt. Melden Sie sich mit Ihrer E-Mail-Adresse an und bestätigen Sie sie dann über den Hinweis auf Ihrer Startseite. Danach funktioniert auch diese Anmeldeart.",
+				"ACCOUNT_NOT_SET_UP_TITLE": "Schließen Sie die Einrichtung Ihres Kontos ab",
+				"ACCOUNT_NOT_SET_UP_BODY": "Ihr Konto mit dieser E-Mail-Adresse hat noch keinen Arbeitsbereich. Melden Sie sich mit Ihrer E-Mail-Adresse an, um die Einrichtung abzuschließen. Danach funktioniert auch diese Anmeldeart.",
+				"SIGN_IN_WITH_EMAIL": "Mit meiner E-Mail anmelden"
+			},
 			"CHOOSE_YOUR_WORKSPACE": "Wähle deinen Arbeitsbereich"
 		},
 		"authPasscode": {

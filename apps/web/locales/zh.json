@@ -1994,6 +1994,13 @@
 				"SIGN_IN_AGAIN": "再次使用 Ever ID 登录",
 				"LOGIN_WITH_EVER_ID": "使用 <wordmark>Ever ID</wordmark> 登录"
 			},
+			"provider": {
+				"ACCOUNT_UNCONFIRMED_TITLE": "请先确认您的邮箱地址",
+				"ACCOUNT_UNCONFIRMED_BODY": "已有账户使用此邮箱地址，但尚未确认该地址。请使用您的邮箱地址登录，然后通过主页上的提示确认地址。之后，此登录方式也可以使用。",
+				"ACCOUNT_NOT_SET_UP_TITLE": "完成账户设置",
+				"ACCOUNT_NOT_SET_UP_BODY": "您使用此邮箱的账户还没有工作区。请使用您的邮箱地址登录以完成设置。之后，此登录方式也可以使用。",
+				"SIGN_IN_WITH_EMAIL": "使用我的邮箱登录"
+			},
 			"CHOOSE_YOUR_WORKSPACE": "选择您的工作区"
 		},
 		"authPasscode": {

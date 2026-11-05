@@ -6,6 +6,7 @@ import { FocusShell } from '@/core/components/layouts/focus/focus-shell';
 import ErrorPageComponent from '@/core/components/pages/error/error';
 import EverIdNoWorkspace from '@/core/components/pages/auth/ever-id-no-workspace';
 import EverIdVerifyEmail from '@/core/components/pages/auth/ever-id-verify-email';
+import ProviderAccountUnconfirmed from '@/core/components/pages/auth/provider-account-unconfirmed';
 
 enum Error {
 	// Ever ID sign-in without a workspace it may enter (nothing is created)
@@ -14,6 +15,10 @@ enum Error {
 	EverIdWorkspaceBlocked = 'EverIdWorkspaceBlocked',
 	// Ever ID sign-in refused until Ever ID has verified the e-mail address
 	EverIdEmailUnverified = 'EverIdEmailUnverified',
+	// Provider sign-in refused: the address only has accounts that have not confirmed it (no second account is made)
+	ProviderAccountUnconfirmed = 'ProviderAccountUnconfirmed',
+	// Provider sign-in of an account that has no workspace yet (no second account is made)
+	ProviderAccountNotSetUp = 'ProviderAccountNotSetUp',
 	Configuration = 'Configuration',
 	AccessDenied = 'AccessDenied'
 }
@@ -23,6 +28,8 @@ const errorMap = {
 	[Error.EverIdNoWorkspaceSignup]: <EverIdNoWorkspace offerSignup />,
 	[Error.EverIdWorkspaceBlocked]: <EverIdNoWorkspace reason="blocked" />,
 	[Error.EverIdEmailUnverified]: <EverIdVerifyEmail />,
+	[Error.ProviderAccountUnconfirmed]: <ProviderAccountUnconfirmed />,
+	[Error.ProviderAccountNotSetUp]: <ProviderAccountUnconfirmed reason="not-set-up" />,
 	[Error.Configuration]: <ErrorPageComponent />,
 	[Error.AccessDenied]: <UnauthorizedPage />
 };
