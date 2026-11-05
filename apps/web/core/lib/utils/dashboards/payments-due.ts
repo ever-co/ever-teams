@@ -184,40 +184,6 @@ function imageOf(employee: TOwedReportEmployee, member: PaymentsMember | undefin
 	return employee.user?.imageUrl ?? null;
 }
 
-/** How far an amount may stray from hours times the member's own rate and still be priced at it (Gauzy rounds). */
-const OWN_RATE_TOLERANCE = 0.01;
-
-function roundedToCents(value: number) {
-	return Math.round(value * 100) / 100;
-}
-
-/**
- * The rate Gauzy priced a member's day at. Gauzy counts each log at the most specific rate (the member's rate on its
- * project, then the project's, then the member's own), so a day on projects with their own rates is not hours times
- * the member's rate: it is then the amount over the hours. A day that matches the own rate, or that Gauzy did not
- * price, keeps the own rate, as before.
- */
-export function pricedRateOf(ownRate: number | null, seconds: number, reportedAmount: unknown): number | null {
-	const amount = finiteOrZero(reportedAmount);
-	const hours = seconds / SECONDS_PER_HOUR;
-	const isPricedTime = amount > 0 && hours > 0;
-	if (!isPricedTime) {
-		return ownRate;
-	}
-	if (ownRate !== null) {
-		const ownAmount = ownRate * hours;
-		const gap = Math.abs(ownAmount - amount);
-		const relativeTolerance = amount * 0.001;
-		const tolerance = Math.max(OWN_RATE_TOLERANCE, relativeTolerance);
-		const matchesOwnRate = gap <= tolerance;
-		if (matchesOwnRate) {
-			return ownRate;
-		}
-	}
-	const averageRate = amount / hours;
-	return roundedToCents(averageRate);
-}
-
 function amountOf(rate: number | null, reportedAmount: number) {
 	if (rate === null) {
 		return null;
@@ -250,9 +216,7 @@ export function owedLinesOf({
 				continue;
 			}
 			const member = members.get(employee.id);
-			const ownRate = rateOf(employee.billRateValue);
-			const seconds = finiteOrZero(entry.duration);
-			const rate = pricedRateOf(ownRate, seconds, entry.amount);
+			const rate = rateOf(employee.billRateValue);
 			lines.push({
 				key: `${dateKey}:${employee.id}`,
 				dateKey,
@@ -260,7 +224,7 @@ export function owedLinesOf({
 				employeeId: employee.id,
 				name: nameOf(employee, member, unnamedLabel),
 				imageUrl: imageOf(employee, member),
-				seconds,
+				seconds: finiteOrZero(entry.duration),
 				rate,
 				currency: currencyOf(employee.billRateCurrency, organizationCurrency),
 				amount: amountOf(rate, entry.amount)
@@ -447,16 +411,6 @@ function memberGroupOf(firstLine: OwedLine): OwedMemberGroup {
 	};
 }
 
-/** One rate for the member's whole period: the rate every day shares, else the amount over the hours. */
-function groupRateOf(group: OwedMemberGroup): number | null {
-	const rates = new Set(group.lines.map((line) => line.rate));
-	const sharesOneRate = rates.size <= 1;
-	if (sharesOneRate) {
-		return group.rate;
-	}
-	return pricedRateOf(null, group.seconds, group.amount);
-}
-
 function addedAmount(current: number | null, amount: number | null) {
 	if (amount === null) {
 		return current;
@@ -477,7 +431,6 @@ export function memberGroupsOf(lines: ReadonlyArray<OwedLine>, rankOf: CurrencyR
 	const groups = [...byMember.values()];
 	for (const group of groups) {
 		group.lines.sort(compareLinesByDay);
-		group.rate = groupRateOf(group);
 	}
 	groups.sort((first, second) => compareOwedFigures(first, second, rankOf));
 	return groups;
