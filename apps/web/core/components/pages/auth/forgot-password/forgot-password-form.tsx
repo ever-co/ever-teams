@@ -9,6 +9,7 @@ import { authService } from '@/core/services/client/api/auth/auth.service';
 import { ArrowLeft, Key, Mail } from '@/core/components/icons';
 import { AuthHeading, AuthMark } from '@/core/components/auth/kit/auth-heading';
 import { AuthField } from '@/core/components/auth/kit/auth-field';
+import { emailErrorOf } from '@/core/components/auth/kit/auth-email';
 import { AuthAddress, AuthState } from '@/core/components/auth/kit/auth-state';
 import { AuthSteps } from '@/core/components/auth/kit/auth-step';
 import { AUTH_QUIET_LINK } from '@/core/components/auth/kit/auth-recipes';
@@ -38,8 +39,10 @@ export default function ForgotPasswordForm() {
 			e.preventDefault();
 			setError('');
 
-			if (!email.trim()) {
-				setError(t('form.EMAIL_REQUIRED'));
+			const address = email.trim();
+			const emailError = emailErrorOf(address, t);
+			if (emailError) {
+				setError(emailError);
 				return;
 			}
 
@@ -114,7 +117,10 @@ export default function ForgotPasswordForm() {
 								placeholder={t('auth.field.EMAIL_PLACEHOLDER')}
 								icon={<Mail />}
 								value={email}
-								onChange={(e) => setEmail(e.target.value)}
+								onChange={(e) => {
+									setEmail(e.target.value);
+									setError('');
+								}}
 								error={error}
 								autoComplete="email"
 								inputMode="email"

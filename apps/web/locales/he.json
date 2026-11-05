@@ -4221,6 +4221,7 @@
 		"field": {
 			"CAPS_LOCK_ON": "מקש Caps Lock פעיל",
 			"CONFIRM_PASSWORD_LABEL": "אימות הסיסמה",
+			"EMAIL_INVALID": "יש להזין כתובת אימייל תקינה.",
 			"EMAIL_LABEL": "דוא״ל",
 			"EMAIL_PLACEHOLDER": "you@company.com",
 			"HIDE_PASSWORD": "הסתרת הסיסמה",

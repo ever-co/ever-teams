@@ -4221,6 +4221,7 @@
 		"field": {
 			"CAPS_LOCK_ON": "Caps Lock jest włączony",
 			"CONFIRM_PASSWORD_LABEL": "Potwierdź hasło",
+			"EMAIL_INVALID": "Wpisz poprawny adres e-mail.",
 			"EMAIL_LABEL": "E-mail",
 			"EMAIL_PLACEHOLDER": "you@firma.com",
 			"HIDE_PASSWORD": "Ukryj hasło",

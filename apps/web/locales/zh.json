@@ -4221,6 +4221,7 @@
 		"field": {
 			"CAPS_LOCK_ON": "大写锁定已开启",
 			"CONFIRM_PASSWORD_LABEL": "确认密码",
+			"EMAIL_INVALID": "请输入有效的邮箱地址。",
 			"EMAIL_LABEL": "邮箱",
 			"EMAIL_PLACEHOLDER": "you@company.com",
 			"HIDE_PASSWORD": "隐藏密码",

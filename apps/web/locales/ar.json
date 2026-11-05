@@ -4221,6 +4221,7 @@
 		"field": {
 			"CAPS_LOCK_ON": "مفتاح Caps Lock مفعّل",
 			"CONFIRM_PASSWORD_LABEL": "تأكيد كلمة المرور",
+			"EMAIL_INVALID": "أدخل بريدًا إلكترونيًا صالحًا.",
 			"EMAIL_LABEL": "البريد الإلكتروني",
 			"EMAIL_PLACEHOLDER": "you@company.com",
 			"HIDE_PASSWORD": "إخفاء كلمة المرور",

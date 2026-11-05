@@ -4221,6 +4221,7 @@
 		"field": {
 			"CAPS_LOCK_ON": "Bloq Mayús está activado",
 			"CONFIRM_PASSWORD_LABEL": "Confirma la contraseña",
+			"EMAIL_INVALID": "Escribe un correo electrónico válido.",
 			"EMAIL_LABEL": "Correo electrónico",
 			"EMAIL_PLACEHOLDER": "nombre@empresa.com",
 			"HIDE_PASSWORD": "Ocultar la contraseña",

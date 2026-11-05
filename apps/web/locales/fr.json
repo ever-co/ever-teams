@@ -4221,6 +4221,7 @@
 		"field": {
 			"CAPS_LOCK_ON": "Majuscules verrouillées",
 			"CONFIRM_PASSWORD_LABEL": "Confirmez le mot de passe",
+			"EMAIL_INVALID": "Saisissez une adresse e-mail valide.",
 			"EMAIL_LABEL": "E-mail",
 			"EMAIL_PLACEHOLDER": "nom@entreprise.com",
 			"HIDE_PASSWORD": "Masquer le mot de passe",

@@ -4221,6 +4221,7 @@
 		"field": {
 			"CAPS_LOCK_ON": "Feststelltaste ist aktiv",
 			"CONFIRM_PASSWORD_LABEL": "Passwort bestätigen",
+			"EMAIL_INVALID": "Gib eine gültige E-Mail-Adresse ein.",
 			"EMAIL_LABEL": "E-Mail",
 			"EMAIL_PLACEHOLDER": "name@firma.de",
 			"HIDE_PASSWORD": "Passwort ausblenden",

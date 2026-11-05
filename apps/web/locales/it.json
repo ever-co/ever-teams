@@ -4221,6 +4221,7 @@
 		"field": {
 			"CAPS_LOCK_ON": "Blocco maiuscole attivo",
 			"CONFIRM_PASSWORD_LABEL": "Conferma la password",
+			"EMAIL_INVALID": "Inserisci un indirizzo email valido.",
 			"EMAIL_LABEL": "Email",
 			"EMAIL_PLACEHOLDER": "nome@azienda.com",
 			"HIDE_PASSWORD": "Nascondi la password",

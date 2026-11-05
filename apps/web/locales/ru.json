@@ -4221,6 +4221,7 @@
 		"field": {
 			"CAPS_LOCK_ON": "Включён Caps Lock",
 			"CONFIRM_PASSWORD_LABEL": "Повторите пароль",
+			"EMAIL_INVALID": "Введите корректный адрес почты.",
 			"EMAIL_LABEL": "Эл. почта",
 			"EMAIL_PLACEHOLDER": "you@company.com",
 			"HIDE_PASSWORD": "Скрыть пароль",
