@@ -34,13 +34,17 @@ jest.mock('@/core/hooks/daily-plans/use-my-daily-plans', () => ({
 		isLoading: false
 	})
 }));
+const mockUseEmployeeDailyPlans = jest.fn();
 jest.mock('@/core/hooks/daily-plans/use-employee-daily-plans', () => ({
-	useEmployeeDailyPlans: () => ({
-		employeeTodayPlan: mockTeammateTodayPlans,
-		employeeFuturePlans: mockTeammateFuturePlans,
-		ensureEmployeeDailyPlans: mockEnsureEmployeeDailyPlans,
-		isLoading: false
-	})
+	useEmployeeDailyPlans: (...args: unknown[]) => {
+		mockUseEmployeeDailyPlans(...args);
+		return {
+			employeeTodayPlan: mockTeammateTodayPlans,
+			employeeFuturePlans: mockTeammateFuturePlans,
+			ensureEmployeeDailyPlans: mockEnsureEmployeeDailyPlans,
+			isLoading: false
+		};
+	}
 }));
 jest.mock('@/core/hooks/daily-plans/use-create-daily-plan', () => ({
 	useCreateDailyPlan: () => ({ createDailyPlan: jest.fn(), createDailyPlanLoading: false })
@@ -183,18 +187,20 @@ describe('TaskCardMenu plan entries on a profile', () => {
 		expect(isShown('dailyPlan.PLAN_FOR_TOMORROW')).toBe(true);
 	});
 
-	it('shows no plan entry to a member who may not plan for the teammate', () => {
+	it('shows no plan entry to a member who may not plan for the teammate, and reads no teammate plans', () => {
 		renderMenu();
 
 		expect(isShown('dailyPlan.PLAN_FOR_TODAY')).toBe(false);
 		expect(isShown('dailyPlan.PLAN_FOR_TOMORROW')).toBe(false);
 		expect(isShown('dailyPlan.PLAN_FOR_SOME_DAY')).toBe(false);
+		expect(mockUseEmployeeDailyPlans).toHaveBeenLastCalledWith(expect.any(String), { enabled: false });
 	});
 
 	it('offers the plan entries to a holder of CHANGE_SELECTED_EMPLOYEE', () => {
 		mockPermissions = ['CHANGE_SELECTED_EMPLOYEE'];
 
 		renderMenu();
+		expect(mockUseEmployeeDailyPlans).toHaveBeenLastCalledWith(expect.any(String), { enabled: true });
 
 		expect(isShown('dailyPlan.PLAN_FOR_TODAY')).toBe(true);
 		expect(isShown('dailyPlan.PLAN_FOR_SOME_DAY')).toBe(true);

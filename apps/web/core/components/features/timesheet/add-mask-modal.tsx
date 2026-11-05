@@ -165,6 +165,9 @@ export function AddTaskModal({ closeModal, isOpen }: IAddTaskModalProps) {
 		setFormState((prevState) => ({ ...prevState, taskId: '', employeeId: '' }));
 	}
 
+	// The required task and employee: Save stays disabled until both are picked
+	const hasTaskAndEmployee = Boolean(formState.taskId) && Boolean(formState.employeeId);
+
 	const updateFormState = useCallback((field: keyof typeof formState, value: any) => {
 		setFormState((prevState) => ({
 			...prevState,
@@ -270,6 +273,10 @@ export function AddTaskModal({ closeModal, isOpen }: IAddTaskModalProps) {
 			organizationTeamId: activeTeam?.id
 		};
 		try {
+			// Both are required (the form marks them): one cleared by a team switch must be picked again first
+			if (!formState.taskId || !formState.employeeId) {
+				throw new Error('A task and an employee are required.');
+			}
 			if (!formState.shifts || formState.shifts.length === 0) {
 				throw new Error('No shifts provided.');
 			}
@@ -435,7 +442,7 @@ export function AddTaskModal({ closeModal, isOpen }: IAddTaskModalProps) {
 					</Button>
 					<Button
 						size="lg"
-						disabled={isSaveDisabled}
+						disabled={isSaveDisabled || !hasTaskAndEmployee}
 						onClick={() => handleAddTimesheet(formState as any)}
 						type="submit"
 					>

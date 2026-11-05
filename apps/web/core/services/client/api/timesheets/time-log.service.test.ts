@@ -60,4 +60,22 @@ describe('TimeLogService weekly limit report day bounds', () => {
 		expect(query.get('startDate')).toBe('2026-10-19T04:00:00.000Z');
 		expect(query.get('endDate')).toBe('2026-10-26T03:59:59.999Z');
 	});
+
+	it("takes the bounds in the zone it sends, not the browser's, when the user's zone differs", async () => {
+		realProcess.env.TZ = 'Asia/Tokyo';
+		try {
+			// The calendar hands over the Tokyo midnight of October 19 and of October 25
+			const firstDay = new Date('2026-10-18T15:00:00.000Z');
+			const lastDay = new Date('2026-10-24T15:00:00.000Z');
+
+			const query = await requestTimeLimits(firstDay, lastDay);
+
+			// October 19 to 25 in New York, the zone Gauzy lists the days in
+			expect(query.get('startDate')).toBe('2026-10-19T04:00:00.000Z');
+			expect(query.get('endDate')).toBe('2026-10-26T03:59:59.999Z');
+			expect(query.get('timeZone')).toBe(NEW_YORK);
+		} finally {
+			realProcess.env.TZ = NEW_YORK;
+		}
+	});
 });

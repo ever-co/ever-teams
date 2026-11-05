@@ -74,6 +74,20 @@ export function getOrganizationProjectRequest({
 	});
 }
 
+/** The `where` keys the session decides: a client filter on them could widen the query beyond its organization. */
+const SCOPE_FILTER_FIELDS = ['organizationId', 'tenantId'];
+
+/**
+ * Whether a query key filters on the organization or the tenant, read the way Gauzy's query parser (qs) reads it:
+ * `where[organizationId]`, `where[organizationId][ne]`, `where[tenantId][]` and the like.
+ */
+export function isScopeFilterKey(key: string): boolean {
+	const parsed = qs.parse(`${encodeURIComponent(key)}=1`) as { where?: unknown };
+	const where = parsed.where;
+	if (typeof where !== 'object' || where === null) return false;
+	return SCOPE_FILTER_FIELDS.some((field) => Object.prototype.hasOwnProperty.call(where, field));
+}
+
 export function getOrganizationProjectsRequest({
 	tenantId,
 	organizationId,
@@ -92,10 +106,11 @@ export function getOrganizationProjectsRequest({
 	const scopeQuery = qs.stringify(obj);
 
 	// The relations, paging and filters the client sends reach Gauzy as in direct mode; the organization and
-	// tenant stay the session's.
-	const clientParams = new URLSearchParams(searchParams);
-	clientParams.delete('where[organizationId]');
-	clientParams.delete('where[tenantId]');
+	// tenant stay the session's: every client filter on them goes, nested ones (`where[organizationId][ne]`) too.
+	const clientParams = new URLSearchParams();
+	for (const [key, value] of new URLSearchParams(searchParams)) {
+		if (!isScopeFilterKey(key)) clientParams.append(key, value);
+	}
 	const clientQuery = clientParams.toString();
 
 	const queries = [scopeQuery, clientQuery];

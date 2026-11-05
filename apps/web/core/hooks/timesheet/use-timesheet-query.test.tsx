@@ -2,10 +2,10 @@
 
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { Provider, createStore } from 'jotai';
-import { renderHook, waitFor } from '@testing-library/react';
+import { act, renderHook, waitFor } from '@testing-library/react';
 import type { PropsWithChildren } from 'react';
 
-import { timesheetFilterStatusState } from '@/core/stores';
+import { selectTimesheetIdState, timesheetFilterStatusState } from '@/core/stores';
 import { ETimesheetStatus } from '@/core/types/generics/enums/timesheet';
 import type { ITimeLog } from '@/core/types/interfaces/timer/time-log/time-log';
 
@@ -53,9 +53,8 @@ function logIds(logs: ITimeLog[]): string[] {
 	return logs.map((log) => log.id);
 }
 
-function renderTimesheetQuery(pickedRows: StatusTableRow[]) {
+function renderTimesheetQuery(pickedRows: StatusTableRow[], store = createStore()) {
 	const client = new QueryClient({ defaultOptions: { queries: { retry: false } } });
-	const store = createStore();
 	store.set(timesheetFilterStatusState, pickedRows as unknown as StatusFilterOption[]);
 	const wrapper = ({ children }: PropsWithChildren) => (
 		<QueryClientProvider client={client}>
@@ -95,5 +94,22 @@ describe('useTimesheetQuery Status filter of the Filter popover', () => {
 		const rowIds = logIds(result.current.timesheet);
 		const loadedIds = logIds(loadedLogs);
 		expect(rowIds).toEqual(loadedIds);
+	});
+
+	it('drops from the bulk selection the selected logs the picked statuses now hide', async () => {
+		const store = createStore();
+		const [approvedLog, pendingLog] = loadedLogs;
+		store.set(selectTimesheetIdState, [approvedLog, pendingLog]);
+		const { result } = renderTimesheetQuery([], store);
+		await waitFor(() => expect(result.current.timesheetLogsQuery.isSuccess).toBe(true));
+		// No status picked: every row is shown, the selection is kept
+		expect(logIds(store.get(selectTimesheetIdState))).toEqual(['approved-log', 'pending-log']);
+
+		act(() => {
+			store.set(timesheetFilterStatusState, [approvedRow] as unknown as StatusFilterOption[]);
+		});
+
+		await waitFor(() => expect(logIds(store.get(selectTimesheetIdState))).toEqual(['approved-log']));
+		expect(logIds(result.current.selectTimesheetId)).toEqual(['approved-log']);
 	});
 });

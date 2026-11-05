@@ -1530,7 +1530,17 @@
 			"CHECKING_ACCOUNT": "בודקים מה יימחק…",
 			"PREVIEW_ERROR": "לא הצלחנו לטעון מה יימחק.",
 			"SIGN_OUT_AFTER": "תנותק מיד לאחר מכן.",
-			"PLAN_CHANGED": "מה שיימחק השתנה מאז שהדף נטען (מישהו הצטרף או עזב). שום דבר לא נמחק: עיין בסיכום החדש ואשר שוב."
+			"PLAN_CHANGED": "מה שיימחק השתנה מאז שהדף נטען (מישהו הצטרף או עזב). שום דבר לא נמחק: עיין בסיכום החדש ואשר שוב.",
+			"roles": {
+				"superAdmin": "מנהל-על",
+				"admin": "מנהל מערכת",
+				"manager": "מנהל",
+				"employee": "עובד",
+				"dataEntry": "הזנת נתונים",
+				"viewer": "צופה",
+				"candidate": "מועמד",
+				"interviewer": "מראיין"
+			}
 		},
 		"timeLimitReport": {
 			"TIME_SPENT": "הזמן שהושקע",
@@ -2700,11 +2710,11 @@
 		"ADD_TASK_TO_TODAY_PLAN_QUESTION": "להוסיף את משימה #{number} לתוכנית של היום?",
 		"toastMessages": {
 			"PLAN_CREATION_FAILED": "נכשל ליצור את התוכנית היומית",
-			"PLAN_CREATION_MISSING_TENANT": "לא ניתן ליצור תוכנית יומית: חסר tenantId",
-			"MISSING_TENANT_ID": "חסר tenantId",
+			"PLAN_CREATION_MISSING_TENANT": "לא ניתן ליצור תוכנית יומית: סביבת העבודה עדיין לא נטענה",
+			"MISSING_TENANT_ID": "סביבת העבודה עדיין לא נטענה",
 			"EMPLOYEE_ASSIGNED_TO_TASK": "העובד הוקצה למשימה",
 			"EMPLOYEE_AUTO_ASSIGN_FAILED": "נכשל להקצות את העובד למשימה באופן אוטומטי",
-			"MISSING_EMPLOYEE_ID": "getEmployeeDailyPlans: לא סופק מזהה עובד והוא אינו זמין במצב",
+			"MISSING_EMPLOYEE_ID": "לא נבחר חבר צוות לטעינת התוכניות היומיות",
 			"EMPLOYEE_PLANS_FETCH_FAILED": "שגיאה בטעינת התוכניות היומיות של העובד: {employeeId}",
 			"PLANS_FETCH_FAILED": "לא ניתן לטעון את התוכניות היומיות",
 			"INVALID_TIME_FORMAT": "פורמט זמן לא תקין, השתמש ב-H:MM או במספר עשרוני (לדוגמה 4.5).",

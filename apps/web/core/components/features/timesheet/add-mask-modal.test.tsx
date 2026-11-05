@@ -210,11 +210,32 @@ describe('AddTaskModal team of the saved time', () => {
 		expect(taskSelect.value).toBe('');
 		expect(employeeSelect.value).toBe('');
 
+		// The cleared task and employee are required: nothing is saved until they are picked again
+		expect(screen.getByRole('button', { name: 'common.SAVE' })).toHaveProperty('disabled', true);
+		save();
+		expect(mockCreateTimesheet).not.toHaveBeenCalled();
+
+		pickTaskAndEmployee('task-b', 'employee-b');
 		save();
 
 		expect(mockCreateTimesheet).toHaveBeenCalledWith(
-			expect.objectContaining({ organizationTeamId: 'team-b', taskId: '', employeeId: '' })
+			expect.objectContaining({ organizationTeamId: 'team-b', taskId: 'task-b', employeeId: 'employee-b' })
 		);
+	});
+
+	it('keeps Save disabled until both the task and the employee are picked', () => {
+		renderAddTimeForm();
+		fillShiftTimes();
+
+		const saveButton = screen.getByRole('button', { name: 'common.SAVE' });
+		expect(saveButton).toHaveProperty('disabled', true);
+
+		const [taskSelect] = taskAndEmployeeSelects();
+		fireEvent.change(taskSelect, { target: { value: 'task-a' } });
+		expect(saveButton).toHaveProperty('disabled', true);
+
+		pickTaskAndEmployee('task-a', 'employee-a');
+		expect(saveButton).toHaveProperty('disabled', false);
 	});
 });
 

@@ -62,6 +62,18 @@ describe.each([
 		});
 	});
 
+	it.each([
+		['missing', new URLSearchParams()],
+		['blank', new URLSearchParams({ integrationId: ' ' })]
+	])('answers 400 without asking Gauzy when the integration id is %s', async (_case, query) => {
+		const request = new Request(`https://app.ever.team/api/integration/github/${resource}?${query}`);
+
+		const response = await handler(request);
+
+		expect(response.status).toBe(400);
+		expect(fetchMock).not.toHaveBeenCalled();
+	});
+
 	it('keeps the integration id in one path segment', async () => {
 		await handler(proxyRequest(resource, 'integration/1'));
 

@@ -14,8 +14,15 @@ export function useAccountDangerZone(openAction: AccountDangerAction | null) {
 	const { deleteUser, deleteUserLoading } = useUser();
 	const { removeUserFromAllTeam, removeUserFromAllTeamLoading } = useDeleteOrganizationTeam();
 	const isDeletionPreviewOpen = openAction === 'deleteAllData';
-	const { preview, previewLoading, previewError, retryPreview, deleteMyAccount, deleteMyAccountLoading } =
-		useDeleteMyAccount(isDeletionPreviewOpen);
+	const {
+		preview,
+		previewLoading,
+		previewError,
+		retryPreview,
+		deleteMyAccount,
+		deleteMyAccountLoading,
+		canDeleteMyAccount
+	} = useDeleteMyAccount(isDeletionPreviewOpen);
 	const userId = user?.id;
 
 	const leaveTeams = useCallback(async () => {
@@ -37,7 +44,8 @@ export function useAccountDangerZone(openAction: AccountDangerAction | null) {
 	const hasPreviewAccounts = accountCount > 0;
 	const isPreviewSettled = !previewLoading;
 	const hasPreviewError = Boolean(previewError);
-	const isPreviewReady = isPreviewSettled && !hasPreviewError && hasPreviewAccounts;
+	// The preview's planHash too: without it the deletion would not be the one shown (useDeleteMyAccount refuses it)
+	const isPreviewReady = isPreviewSettled && !hasPreviewError && hasPreviewAccounts && canDeleteMyAccount;
 
 	return {
 		user,

@@ -8,7 +8,8 @@ import { NextResponse } from 'next/server';
 /** Gauzy's HTTP status in an unwrapped serverFetch rejection, or undefined when the API gave no error answer. */
 function getApiErrorStatus(error: unknown): number | undefined {
 	const statusCode = (error as { statusCode?: unknown } | null | undefined)?.statusCode;
-	const isErrorStatus = typeof statusCode === 'number' && statusCode >= 400;
+	// NextResponse refuses a status outside 200-599 (RangeError): such a body is no usable HTTP error status
+	const isErrorStatus = typeof statusCode === 'number' && statusCode >= 400 && statusCode <= 599;
 	if (!isErrorStatus) {
 		return undefined;
 	}
@@ -43,6 +44,8 @@ export async function GET(req: Request, props: INextParams) {
 		if (status === undefined) {
 			throw error;
 		}
+		// Gauzy's 5xx stays visible in the server logs, as it was when it was rethrown
+		if (status >= 500) console.error('[WEB][API] GET /api/tasks/[id]: Gauzy answered with an error', status);
 		return NextResponse.json(apiError, { status });
 	}
 }

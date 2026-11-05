@@ -217,6 +217,17 @@ export function useTimesheetQuery({ startDate, endDate, timesheetViewMode, input
 		return keepLogsWithStatuses(logs, selectedStatuses);
 	}, [timesheetLogsQuery.data, timesheet, selectedStatuses]);
 
+	// A selected log the status filter now hides leaves the shared bulk selection too: approve, reject and delete act on
+	// the selection, which must not hold rows the person can no longer see. Decided by each log's own status, so every
+	// instance of this hook prunes the same way whatever logs it loaded.
+	useEffect(() => {
+		if (selectedStatuses.length === 0) return;
+		setSelectTimesheetId((selected) => {
+			const shown = keepLogsWithStatuses(selected, selectedStatuses);
+			return shown.length === selected.length ? selected : shown;
+		});
+	}, [selectedStatuses, setSelectTimesheetId]);
+
 	// ─── Status Timesheet (memoized) ─────────────────────────────────────────
 	const statusTimesheet = useMemo(() => getStatusTimesheet(statusFilteredLogs), [statusFilteredLogs]);
 
