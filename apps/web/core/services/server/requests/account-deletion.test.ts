@@ -31,10 +31,24 @@ function post(
 	});
 }
 
-const originalWebAppUrl = process.env.NEXT_PUBLIC_WEB_APP_URL;
+// The configured public origin of the app: the only source of the e-mailed link
+const ORIGIN_KEYS = ['NEXT_PUBLIC_WEB_APP_URL', 'AUTH_URL', 'NEXTAUTH_URL'] as const;
+const originalOrigins = ORIGIN_KEYS.map((key) => process.env[key]);
+
+function configureOrigin(values: Partial<Record<(typeof ORIGIN_KEYS)[number], string>>) {
+	for (const key of ORIGIN_KEYS) {
+		if (values[key] === undefined) delete process.env[key];
+		else process.env[key] = values[key];
+	}
+}
+
+beforeEach(() => configureOrigin({ NEXT_PUBLIC_WEB_APP_URL: 'https://app.ever.team' }));
 afterEach(() => {
-	if (originalWebAppUrl === undefined) delete process.env.NEXT_PUBLIC_WEB_APP_URL;
-	else process.env.NEXT_PUBLIC_WEB_APP_URL = originalWebAppUrl;
+	ORIGIN_KEYS.forEach((key, index) => {
+		const original = originalOrigins[index];
+		if (original === undefined) delete process.env[key];
+		else process.env[key] = original;
+	});
 });
 
 function gauzyAnswers(status: number, body: unknown) {
@@ -48,7 +62,6 @@ function forwarded(): { url: string; init: RequestInit & { headers: Record<strin
 
 describe('proxyAccountDeletion', () => {
 	it('forwards a request with the e-mail and locale only, its link and branding built here, and the client IP headers', async () => {
-		delete process.env.NEXT_PUBLIC_WEB_APP_URL;
 		gauzyAnswers(202, { status: 'accepted' });
 
 		const res = await proxyAccountDeletion(
@@ -80,7 +93,6 @@ describe('proxyAccountDeletion', () => {
 	});
 
 	it('never forwards a caller-supplied confirmation link or branding link (the e-mailed token must stay on this app)', async () => {
-		delete process.env.NEXT_PUBLIC_WEB_APP_URL;
 		gauzyAnswers(202, { status: 'accepted' });
 
 		await proxyAccountDeletion(
@@ -105,24 +117,35 @@ describe('proxyAccountDeletion', () => {
 		expect(body.appName).toBe(appEmailBranding().appName);
 	});
 
-	it('builds the link on the configured public origin (NEXT_PUBLIC_WEB_APP_URL) before the request host', () => {
-		process.env.NEXT_PUBLIC_WEB_APP_URL = 'https://teams.example.com/';
+	it('builds the link on the configured public origin, NEXT_PUBLIC_WEB_APP_URL first, then AUTH_URL', () => {
+		configureOrigin({
+			NEXT_PUBLIC_WEB_APP_URL: 'https://teams.example.com/',
+			AUTH_URL: 'https://auth.example.com'
+		});
+		expect(accountDeletionCallbackUrl('de')).toBe('https://teams.example.com/de/delete-account/confirm');
 
-		expect(
-			accountDeletionCallbackUrl(post({}, {}, 'http://internal:3030/api/account-deletion/request'), 'de')
-		).toBe('https://teams.example.com/de/delete-account/confirm');
+		configureOrigin({ AUTH_URL: 'https://auth.example.com/api/auth' });
+		expect(accountDeletionCallbackUrl('xx/../evil')).toBe('https://auth.example.com/delete-account/confirm');
 	});
 
-	it('uses the protocol and host a TLS-terminating proxy reports, and the default locale for an unknown one', () => {
-		delete process.env.NEXT_PUBLIC_WEB_APP_URL;
-		const req = post(
-			{},
-			{ 'x-forwarded-proto': 'https, http', 'x-forwarded-host': 'teams.example.com' },
-			'http://internal:3030/api/account-deletion/request'
+	it('sends no link without a configured origin, whatever host headers the caller sends', async () => {
+		configureOrigin({});
+		jest.spyOn(console, 'warn').mockImplementation(() => undefined);
+		gauzyAnswers(202, { status: 'accepted' });
+
+		await proxyAccountDeletion(
+			'request',
+			post(
+				{ email: 'victim@example.com', locale: 'en' },
+				{ host: 'attacker.example', 'x-forwarded-host': 'attacker.example', 'x-forwarded-proto': 'https' },
+				'https://attacker.example/api/account-deletion/request'
+			)
 		);
 
-		expect(accountDeletionCallbackUrl(req, 'xx/../evil')).toBe('https://teams.example.com/delete-account/confirm');
-		expect(accountDeletionCallbackUrl(req, 'en')).toBe('https://teams.example.com/delete-account/confirm');
+		const body = JSON.parse(String(forwarded().init.body));
+		// Gauzy then links to the confirmation page it is configured with
+		expect(body).not.toHaveProperty('callbackUrl');
+		expect(JSON.stringify(body)).not.toContain('attacker.example');
 	});
 
 	it('passes the 410 of a dead link through, unchanged', async () => {

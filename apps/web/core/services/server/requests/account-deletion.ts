@@ -51,12 +51,6 @@ export function accountDeletionUpstreamSignal(req?: Request): AbortSignal {
 	return req?.signal ? AbortSignal.any([req.signal, timeout]) : timeout;
 }
 
-/** The first value of a header a proxy may have appended to (`a, b`). */
-function firstHeaderValue(value: string | null): string | undefined {
-	const first = value?.split(',')[0]?.trim();
-	return first || undefined;
-}
-
 /** The origin of an absolute http(s) URL, or null. */
 function httpOrigin(value: string | undefined): string | null {
 	if (!value) return null;
@@ -69,33 +63,43 @@ function httpOrigin(value: string | undefined): string | null {
 	}
 }
 
-/**
- * This app's public origin: the configured one (NEXT_PUBLIC_WEB_APP_URL, read at runtime) when set, otherwise the one
- * the request reached (the protocol a TLS-terminating proxy reports in x-forwarded-proto, and the host it was sent to).
- * Never the caller's `Origin` header or a URL from the body, which any client can set.
- */
-export function appPublicOrigin(req: Request): string | null {
-	const configured = httpOrigin(
-		readRuntimeEnv('NEXT_PUBLIC_WEB_APP_URL') || process.env.NEXT_PUBLIC_WEB_APP_URL?.trim()
-	);
-	if (configured) return configured;
+let warnedNoConfiguredOrigin = false;
 
-	const url = new URL(req.url);
-	const forwardedProto = firstHeaderValue(req.headers.get('x-forwarded-proto'))?.toLowerCase();
-	const protocol =
-		forwardedProto === 'https' || forwardedProto === 'http' ? forwardedProto : url.protocol.slice(0, -1);
-	const host = firstHeaderValue(req.headers.get('x-forwarded-host')) ?? req.headers.get('host') ?? url.host;
-	return httpOrigin(`${protocol}://${host}`);
+/**
+ * This app's public origin, from its configuration only: NEXT_PUBLIC_WEB_APP_URL (read at runtime), else AUTH_URL /
+ * NEXTAUTH_URL. Never from the request: its `Host`, `X-Forwarded-Host` and `Origin` headers, like its body, are
+ * whatever the caller sends, and the link carries a token that deletes every account of the address.
+ */
+export function appPublicOrigin(): string | null {
+	const configured = [
+		readRuntimeEnv('NEXT_PUBLIC_WEB_APP_URL') || process.env.NEXT_PUBLIC_WEB_APP_URL?.trim(),
+		process.env.AUTH_URL?.trim(),
+		process.env.NEXTAUTH_URL?.trim()
+	];
+	for (const value of configured) {
+		const origin = httpOrigin(value);
+		if (origin) return origin;
+	}
+	return null;
 }
 
 /**
  * The confirmation page the e-mailed link opens, `<this app>/[locale/]delete-account/confirm`, built from this app's
- * origin and a supported locale: a caller-supplied URL could make the victim's genuine e-mail deliver the token to
- * another site. (Gauzy also accepts only an origin the deployment lists, and otherwise links to its own page.)
+ * configured origin and a supported locale: a caller-supplied URL could make the victim's genuine e-mail deliver the
+ * token to another site. Without a configured origin no link is sent, and Gauzy links to its own confirmation page
+ * (ACCOUNT_DELETION_CONFIRM_URL, else its app). Gauzy also accepts only an origin the deployment lists explicitly.
  */
-export function accountDeletionCallbackUrl(req: Request, locale: unknown): string | undefined {
-	const origin = appPublicOrigin(req);
-	if (!origin) return undefined;
+export function accountDeletionCallbackUrl(locale: unknown): string | undefined {
+	const origin = appPublicOrigin();
+	if (!origin) {
+		if (!warnedNoConfiguredOrigin) {
+			warnedNoConfiguredOrigin = true;
+			console.warn(
+				'[WEB][API] account deletion: NEXT_PUBLIC_WEB_APP_URL is not set; the e-mailed link opens the page Gauzy uses'
+			);
+		}
+		return undefined;
+	}
 	const isSupportedLocale = typeof locale === 'string' && APPLICATION_LANGUAGES_CODE.includes(locale);
 	return accountDeletionConfirmUrl(
 		origin,
@@ -105,8 +109,8 @@ export function accountDeletionCallbackUrl(req: Request, locale: unknown): strin
 }
 
 /** A `request` body with the link and the branding this app builds itself. */
-function withServerBuiltLinks(req: Request, body: Record<string, unknown>): Record<string, unknown> {
-	const callbackUrl = accountDeletionCallbackUrl(req, body.locale);
+function withServerBuiltLinks(body: Record<string, unknown>): Record<string, unknown> {
+	const callbackUrl = accountDeletionCallbackUrl(body.locale);
 	return { ...appEmailBranding(), ...body, ...(callbackUrl ? { callbackUrl } : {}) };
 }
 
@@ -149,7 +153,7 @@ export async function proxyAccountDeletion(step: TAccountDeletionStep, req: Requ
 	if (missing) {
 		return NextResponse.json({ message: `${missing} is required` }, { status: 400, headers: NO_STORE });
 	}
-	if (step === 'request') body = withServerBuiltLinks(req, body);
+	if (step === 'request') body = withServerBuiltLinks(body);
 	if (step === 'confirm') body.confirm = true;
 
 	try {
