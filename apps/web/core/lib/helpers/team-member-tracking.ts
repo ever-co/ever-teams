@@ -1,4 +1,4 @@
-import { differenceInSeconds, max, startOfDay } from 'date-fns';
+import { differenceInSeconds, isValid, max, startOfDay } from 'date-fns';
 import type { TOrganizationTeamEmployee } from '@/core/types/schemas';
 import type { ITimerStatus } from '@/core/types/interfaces/timer/timer-status';
 import { ETimerStatus } from '@/core/types/generics/enums/timer';
@@ -40,6 +40,9 @@ export function todaySecondsWithoutTeam(status: ITimerStatus | undefined, now: D
 	}
 
 	const startedAt = new Date(lastLog.startedAt);
+	if (!isValid(startedAt)) {
+		return 0;
+	}
 	const todayStart = startOfDay(now);
 	const countedFrom = max([startedAt, todayStart]);
 	const seconds = differenceInSeconds(now, countedFrom);

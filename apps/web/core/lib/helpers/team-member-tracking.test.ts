@@ -62,6 +62,12 @@ describe('today seconds of a running log with no team', () => {
 		expect(todaySecondsWithoutTeam(undefined, now)).toBe(0);
 	});
 
+	it('counts nothing for a start time that does not read as a date', () => {
+		const status = runningLog({ startedAt: 'not a date', organizationTeamId: null });
+
+		expect(todaySecondsWithoutTeam(status, now)).toBe(0);
+	});
+
 	it('never counts below zero when the browser clock is behind the start', () => {
 		const status = runningLog({ startedAt: new Date(2026, 10, 5, 10, 5, 0) });
 
