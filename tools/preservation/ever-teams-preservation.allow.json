@@ -278,5 +278,21 @@
 	{
 		"id": "removed:overlayComponents:apps/web/core/components/users/user-profile-plans.tsx::haveSeenDailyPlanSuggestionModal",
 		"reason": "Renamed seenSuggestionDate and read inside the first-load effect; the rule is unchanged (outstanding plans open the Outstanding view, and a suggestion seen today with no plan requirement, or with a plan, stops the daily prompt), and it now works on every locale."
+	},
+	{
+		"id": "removed:navigation:apps/web/core/components/pages/auth/passcode/page-component.tsx::href=/auth/password::#1",
+		"reason": "#4914 puts code and password sign-in on one page (pages/auth/sign-in/sign-in-page.tsx). The link to /auth/password became the in-page method switch, which keeps the typed address; /auth/password still renders the same page with the password method."
+	},
+	{
+		"id": "removed:navigation:apps/web/core/components/pages/auth/passcode/page-component.tsx::router.replace=/::#1",
+		"reason": "Moved with the code sign-in into pages/auth/sign-in/sign-in-page.tsx (#4914), which sends a signed-in visitor home the same way."
+	},
+	{
+		"id": "removed:navigation:apps/web/core/components/pages/auth/passcode/page-component.tsx::router.replace=/::#2",
+		"reason": "Moved with the code sign-in into pages/auth/sign-in/sign-in-page.tsx (#4914), the second home redirect of that page."
+	},
+	{
+		"id": "removed:navigation:apps/web/core/components/pages/auth/password/page-component.tsx::href=/auth/forgot-password::#1",
+		"reason": "Moved with the password sign-in into pages/auth/sign-in/credentials-step.tsx (#4914), which links to /auth/forgot-password."
 	}
 ]
