@@ -1,6 +1,7 @@
 import { authenticatedGuard } from '@/core/services/server/guards/authenticated-guard-app';
 import { getTimerStatusRequest, readTodayRange, startTimerRequest } from '@/core/services/server/requests';
 import { ETimeLogSource } from '@/core/types/generics/enums/timer';
+import type { IUpdateTimerStatusParams } from '@/core/types/interfaces/timer/timer-status';
 import { NextResponse } from 'next/server';
 
 export async function POST(req: Request) {
@@ -29,20 +30,31 @@ export async function POST(req: Request) {
 		return NextResponse.json({ error: 'taskId must be a non-empty string' }, { status: 400 });
 	}
 
+	const bodyProjectId = (body as { projectId?: unknown }).projectId;
+	const hasBodyProjectId = typeof bodyProjectId === 'string' && bodyProjectId.trim() !== '';
+	if (bodyProjectId !== undefined && !hasBodyProjectId) {
+		return NextResponse.json({ error: 'projectId must be a non-empty string' }, { status: 400 });
+	}
+
 	const taskId = hasBodyTaskId ? bodyTaskId : activeTaskIdCookie;
 
-	await startTimerRequest(
-		{
-			tenantId: tenantId || '',
-			organizationId: organizationId || '',
-			taskId: taskId || '',
-			logType: 'TRACKED',
-			source: ETimeLogSource.TEAMS,
-			tags: [],
-			organizationTeamId
-		},
-		access_token || ''
-	);
+	const startParams: IUpdateTimerStatusParams = {
+		tenantId: tenantId || '',
+		organizationId: organizationId || '',
+		taskId: taskId || '',
+		logType: 'TRACKED',
+		source: ETimeLogSource.TEAMS,
+		tags: [],
+		organizationTeamId
+	};
+
+	// The project is the one of the task the body names: a start that falls back to the cookie's task sends none
+	const forwardsProject = hasBodyTaskId && hasBodyProjectId;
+	if (forwardsProject) {
+		startParams.projectId = bodyProjectId;
+	}
+
+	await startTimerRequest(startParams, access_token || '');
 
 	const { data: timerStatus } = await getTimerStatusRequest(
 		{ tenantId: tenantId || '', organizationId: organizationId || '', ...readTodayRange(req) },

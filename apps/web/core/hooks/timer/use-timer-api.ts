@@ -277,8 +277,8 @@ export function useTimerApi({
 	}, [isCurrentScope, scopedStatusQuery.data, setTimerStatus, statusEnabled, timerStatusRef]);
 
 	const startTimerMutation = useMutation({
-		mutationFn: async ({ taskId }: { taskId: string }) => {
-			return await timerService.startTimer({ taskId });
+		mutationFn: async ({ taskId, projectId }: { taskId: string; projectId?: string | null }) => {
+			return await timerService.startTimer({ taskId, projectId });
 		},
 		// runStartTimer shows the translated TIMER_START_FAILED toast; this keeps the raw global
 		// "Mutation Error" toast from showing a second one
@@ -513,6 +513,7 @@ export function useTimerApi({
 			const pageTask = pathname?.startsWith('/task/') ? detailedTask : null;
 			const taskToUse = explicitTask || pageTask || activeTeamTaskRef.current;
 			const taskIdToUse = taskToUse?.id;
+			const projectIdToUse = taskToUse?.projectId;
 
 			if (pageTask) setActiveTask(pageTask);
 
@@ -528,7 +529,8 @@ export function useTimerApi({
 			});
 
 			if (!statusEnabled || isCurrentScope()) setTimerStatusFetching(true);
-			const promise = trackTimerCommand(startTimerMutate({ taskId: taskIdToUse })).then(async (res) => {
+			const startRequest = startTimerMutate({ taskId: taskIdToUse, projectId: projectIdToUse });
+			const promise = trackTimerCommand(startRequest).then(async (res) => {
 				res.data &&
 					(!statusEnabled || isCurrentScope()) &&
 					!isEqual(timerStatus, res.data) &&

@@ -30,6 +30,7 @@ export type IUpdateTimerStatusParams = {
 	organizationId: string;
 	tenantId: string;
 	taskId?: string;
+	projectId?: string;
 	logType: 'TRACKED';
 	source: ETimeLogSource;
 	tags: any[];
