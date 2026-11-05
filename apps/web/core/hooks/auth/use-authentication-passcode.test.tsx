@@ -13,6 +13,7 @@ const mockReplace = jest.fn();
 const mockPush = jest.fn();
 const mockConfirm = jest.fn();
 const mockInvite = jest.fn();
+const mockSignInWorkspace = jest.fn();
 
 jest.mock('next/navigation', () => ({
 	useRouter: () => ({ replace: mockReplace, push: mockPush }),
@@ -25,7 +26,7 @@ jest.mock('@/core/services/client/api/auth/auth.service', () => ({
 		sendAuthCode: jest.fn(),
 		signInEmail: jest.fn(),
 		signInEmailConfirm: (...a: unknown[]) => mockConfirm(...a),
-		signInWorkspace: jest.fn(),
+		signInWorkspace: (...a: unknown[]) => mockSignInWorkspace(...a),
 		signInWithEmailAndCode: (...a: unknown[]) => mockInvite(...a)
 	}
 }));
@@ -116,5 +117,44 @@ describe('useAuthenticationPasscode → verifySignInEmailConfirmRequest (Q17 ord
 		await flush();
 		expect(result.current.status).toBe('error');
 		expect(result.current.errors).toEqual({ code: 'expired' });
+	});
+});
+
+describe('useAuthenticationPasscode → handleWorkspaceSubmit', () => {
+	beforeEach(() => {
+		mockPush.mockReset();
+		mockSignInWorkspace.mockReset();
+	});
+
+	it('hands a refused workspace sign-in to the chooser, which gives the list back', async () => {
+		const refusal = { isAxiosError: true, response: { status: 401, data: {} } };
+		mockSignInWorkspace.mockRejectedValue(refusal);
+		const onError = jest.fn();
+		const { result } = renderHook(() => useAuthenticationPasscode());
+		act(() => result.current.setFormValues({ email: 'a@b.co', code: '' }));
+
+		await act(async () => {
+			result.current.handleWorkspaceSubmit({ preventDefault() {} }, 'workspace-token', 'team-1', onError);
+			await new Promise((r) => setTimeout(r, 0));
+		});
+
+		expect(mockSignInWorkspace).toHaveBeenCalledWith(expect.objectContaining({ selectedTeam: 'team-1' }));
+		expect(onError).toHaveBeenCalledWith(refusal);
+		expect(mockPush).not.toHaveBeenCalled();
+	});
+
+	it('does not report a sign-in that opened the workspace', async () => {
+		mockSignInWorkspace.mockResolvedValue({ data: {} });
+		const onError = jest.fn();
+		const { result } = renderHook(() => useAuthenticationPasscode());
+		act(() => result.current.setFormValues({ email: 'a@b.co', code: '' }));
+
+		await act(async () => {
+			result.current.handleWorkspaceSubmit({ preventDefault() {} }, 'workspace-token', 'team-1', onError);
+			await new Promise((r) => setTimeout(r, 0));
+		});
+
+		expect(onError).not.toHaveBeenCalled();
+		expect(mockPush).toHaveBeenCalledWith('/');
 	});
 });
