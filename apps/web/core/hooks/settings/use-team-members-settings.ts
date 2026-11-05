@@ -9,6 +9,7 @@ import { activeTeamManagersState, activeTeamState, isTeamManagerMember, organiza
 import { queryKeys } from '@/core/query/keys';
 import { ERoleName } from '@/core/types/generics/enums/role';
 import { errorReasonKeyOf } from '@/core/lib/utils/error-feedback';
+import { isTenantAdminRole } from '@/core/lib/utils/roles';
 import { logErrorInDev } from '@/core/lib/helpers/error-message';
 import {
 	employeeIdOf,
@@ -111,6 +112,8 @@ export function useTeamMembersSettings() {
 	const members = useMemo(() => activeTeam?.members ?? [], [activeTeam?.members]);
 	const userId = user?.id;
 	const isListedManager = managers.some((manager) => memberUserIdOf(manager) === userId);
+	const isOrganizationAdmin = isTenantAdminRole(user?.role?.name);
+	const setsMemberTracking = isListedManager || isOrganizationAdmin;
 
 	useEffect(() => {
 		const memberById = new Map(members.map((member) => [member.id ?? '', member]));
@@ -160,14 +163,14 @@ export function useTeamMembersSettings() {
 				canChangeRole: hasEmployee && !isYou,
 				canRemove: hasEmployee && !isYou,
 				canEditName: Boolean(memberUserId),
-				showsTracking: isListedManager && !isManagerRole && hasEmployee,
+				showsTracking: setsMemberTracking && !isManagerRole && hasEmployee,
 				isTrackingEnabled,
 				isRolePending: pendingRoles.has(rowId),
 				isTrackingPending: pendingTracking.has(rowId)
 			});
 		}
 		return models;
-	}, [isListedManager, members, pendingRoles, pendingTracking, roleOverrides, trackingOverrides, userId]);
+	}, [members, pendingRoles, pendingTracking, roleOverrides, setsMemberTracking, trackingOverrides, userId]);
 
 	const showFailure = useCallback(
 		(titleKey: DottedLanguageObjectStringPaths, values: Record<string, string>, error: unknown) => {
