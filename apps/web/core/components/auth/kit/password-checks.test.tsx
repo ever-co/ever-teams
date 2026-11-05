@@ -41,6 +41,10 @@ describe('PasswordChecks', () => {
 		expect(ruleText('auth.password.RULE_DIGIT')).toContain('auth.password.RULE_MET');
 		expect(ruleText('auth.password.RULE_SYMBOL')).toContain('auth.password.RULE_MET');
 		expect(ruleText('auth.password.RULE_MIN_LENGTH')).toContain('auth.password.RULE_MET');
+
+		rerender(<PasswordChecks password="ABCDEF1!" confirmation="" policy="reset" />);
+
+		expect(ruleText('auth.password.RULE_LOWERCASE')).toContain('auth.password.RULE_NOT_MET');
 	});
 
 	it('keeps an invitation to the length rule', () => {

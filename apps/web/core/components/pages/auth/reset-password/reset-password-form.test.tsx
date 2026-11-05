@@ -51,6 +51,16 @@ describe('ResetPasswordForm', () => {
 		expect(mockResetPassword).not.toHaveBeenCalled();
 	});
 
+	it('names the first missing rule, in the order the list shows them', async () => {
+		render(<ResetPasswordForm isTokenExpired={false} />);
+		typePasswords('abcdefgh');
+
+		await submit();
+
+		expect(screen.getByRole('alert').textContent).toBe('auth.password.RULE_UPPERCASE');
+		expect(mockResetPassword).not.toHaveBeenCalled();
+	});
+
 	it('sends a password that meets every rule', async () => {
 		render(<ResetPasswordForm isTokenExpired={false} />);
 		typePasswords('Abcdef1!');
