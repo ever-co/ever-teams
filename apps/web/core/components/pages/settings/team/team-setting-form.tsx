@@ -1,6 +1,7 @@
 import { useIsMemberManager, useOrganizationTeamsQuery, useEditOrganizationTeam } from '@/core/hooks';
 import { activeTeamState, organizationTeamsState } from '@/core/stores';
 import { isTeamManagerMember } from '@/core/stores/teams/organization-team';
+import { teamRosterOf } from '@/core/lib/utils/settings-team';
 import { Button, ColorPicker, Text } from '@/core/components';
 import { EmojiPicker } from '@/core/components/common/emoji-picker';
 import TimeTrackingToggle, { RequireDailyPlanToTrack, ShareProfileViewsToggle } from '@/core/components/common/switch';
@@ -132,6 +133,7 @@ export const TeamSettingForm = () => {
 			}
 
 			try {
+				const roster = teamRosterOf(activeTeam.members ?? [], isTeamManagerMember);
 				const inputData: Partial<TOrganizationTeamUpdate> = {
 					...activeTeam,
 					id: activeTeam?.id,
@@ -143,13 +145,8 @@ export const TeamSettingForm = () => {
 					emoji: values.emoji || null,
 					shareProfileView: activeTeam.shareProfileView,
 					teamSize: values.teamSize || null,
-					memberIds: activeTeam.members
-						?.map((t) => t.id)
-						.filter((value: string, index: number, array: string[]) => array.indexOf(value) === index), // To make the array Unique list of ids
-					managerIds: activeTeam.members
-						?.filter(isTeamManagerMember)
-						.map((t) => t.id)
-						.filter((value: string, index: number, array: string[]) => array.indexOf(value) === index) // To make the array Unique list of ids
+					memberIds: roster.memberIds,
+					managerIds: roster.managerIds
 				};
 				await editOrganizationTeam(inputData);
 
