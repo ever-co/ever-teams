@@ -155,8 +155,9 @@ export function useEmployeeDailyPlans(employeeId: string | null, options?: UseEm
 				// Callers keep the cached plans, a retry would only delay them
 				retry: false
 			});
-		} catch {
-			// The cached plans stay on screen
+		} catch (error) {
+			// The cached plans stay on screen; the failure stays visible in development
+			logErrorInDev(`ensureEmployeeDailyPlans: refreshing the day plans of employee ${internalEmployeeId} failed`, error);
 		}
 	}, [activeTeamId, enabled, internalEmployeeId, queryClient]);
 

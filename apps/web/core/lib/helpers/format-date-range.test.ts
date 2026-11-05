@@ -93,3 +93,63 @@ describe('formatStartAndEndDateRange', () => {
 		});
 	});
 });
+
+describe('formatStartAndEndDateRange in the time zone the request sends', () => {
+	// The browser is in Tokyo; the request sends the user's profile zone, whose days the API lists the logs in
+	beforeEach(() => setTimeZone('Asia/Tokyo'));
+
+	it('runs over the days of the zone it is given, not the browser ones', () => {
+		expect(formatStartAndEndDateRange('2026-10-25', '2026-10-25', 'America/Los_Angeles')).toEqual({
+			start: '2026-10-25T07:00:00.000Z',
+			end: '2026-10-26T06:59:59.999Z'
+		});
+		expect(formatStartAndEndDateRange('2026-10-23', '2026-10-25', 'UTC')).toEqual({
+			start: '2026-10-23T00:00:00.000Z',
+			end: '2026-10-25T23:59:59.999Z'
+		});
+	});
+
+	it('keeps the day the date stands for in the app (a picked browser day, a UTC-midnight plan date)', () => {
+		// The date picker hands over the browser midnight of the picked day: October 25 in Tokyo
+		const pickedDay = new Date('2026-10-24T15:00:00.000Z');
+		expect(formatStartAndEndDateRange(pickedDay, pickedDay, 'America/Los_Angeles')).toEqual({
+			start: '2026-10-25T07:00:00.000Z',
+			end: '2026-10-26T06:59:59.999Z'
+		});
+
+		const planDate = new Date('2026-10-24T00:00:00.000Z');
+		expect(formatStartAndEndDateRange(planDate, planDate, 'America/Los_Angeles')).toEqual({
+			start: '2026-10-24T07:00:00.000Z',
+			end: '2026-10-25T06:59:59.999Z'
+		});
+	});
+
+	it('covers the whole 23-hour and 25-hour days of a DST change in that zone', () => {
+		expect(formatStartAndEndDateRange('2026-03-08', '2026-03-08', 'America/New_York')).toEqual({
+			start: '2026-03-08T05:00:00.000Z',
+			end: '2026-03-09T03:59:59.999Z'
+		});
+		expect(formatStartAndEndDateRange('2026-11-01', '2026-11-01', 'America/New_York')).toEqual({
+			start: '2026-11-01T04:00:00.000Z',
+			end: '2026-11-02T04:59:59.999Z'
+		});
+	});
+
+	it('starts a day whose midnight the clocks skip at 01:00, and ends one whose midnight they repeat at the second', () => {
+		expect(formatStartAndEndDateRange('2026-04-04', '2026-04-04', 'America/Santiago')).toEqual({
+			start: '2026-04-04T03:00:00.000Z',
+			end: '2026-04-05T03:59:59.999Z'
+		});
+		expect(formatStartAndEndDateRange('2026-09-06', '2026-09-06', 'America/Santiago')).toEqual({
+			start: '2026-09-06T04:00:00.000Z',
+			end: '2026-09-07T02:59:59.999Z'
+		});
+	});
+
+	it('falls back to the browser days for a zone the runtime does not know', () => {
+		expect(formatStartAndEndDateRange('2026-10-25', '2026-10-25', 'Not/AZone')).toEqual({
+			start: '2026-10-24T15:00:00.000Z',
+			end: '2026-10-25T14:59:59.999Z'
+		});
+	});
+});
