@@ -9,6 +9,21 @@ jest.mock('@/core/constants/config/constants', () => ({
 	GAUZY_API_BASE_SERVER_URL: { value: undefined }
 }));
 
+// The browser runs three hours east of UTC, whatever zone the suite itself runs in: the member's day is computed in
+// that zone, so a UTC day would be the day before.
+const mockBrowserOffsetMinutes = 3 * 60;
+
+jest.mock('moment', () => {
+	const actualMoment = jest.requireActual('moment');
+	function browserMoment(...args: unknown[]) {
+		if (args.length > 0) {
+			return actualMoment(...args);
+		}
+		return actualMoment().utcOffset(mockBrowserOffsetMinutes);
+	}
+	return Object.assign(browserMoment, actualMoment);
+});
+
 const mockFallbackPost = jest.fn();
 
 jest.mock('../../api.service', () => ({
@@ -22,9 +37,9 @@ import { timerService } from './timer.service';
 const publishedApiOrigin = GAUZY_API_BASE_SERVER_URL as { value: string | undefined };
 
 beforeEach(() => {
-	// Just after the member's midnight, local time: their day is the 5th, while east of UTC it is still the 4th in UTC.
+	// 01:30 on the 5th in the browser, still the 4th in UTC.
 	jest.useFakeTimers({
-		now: new Date(2026, 10, 5, 0, 30),
+		now: new Date('2026-11-04T22:30:00.000Z'),
 		doNotFake: ['nextTick', 'setImmediate', 'queueMicrotask']
 	});
 	mockFallbackPost.mockResolvedValue({ data: {} });
