@@ -38,7 +38,12 @@ import { AUTH_CODE_SLOT_CLASS } from '@/core/components/auth/auth-code-recipe';
 import { InputField } from '@/core/components/duplicated-components/_input';
 import { Avatar } from '@/core/components/duplicated-components/avatar';
 import { ISigninEmailConfirmWorkspaces } from '@/core/types/interfaces/auth/auth';
-import { hasTeams, getFirstTeamId, findWorkspaceIndexByTeamId } from '@/core/lib/utils/workspace.utils';
+import {
+	hasTeams,
+	getFirstTeamId,
+	findWorkspaceIndexByTeamId,
+	isWorkspaceNotSetUp
+} from '@/core/lib/utils/workspace.utils';
 import { useWorkspaceAnalysis } from '@/core/hooks/auth/use-workspace-analysis';
 import { useResendCooldown } from '@/core/hooks/auth/use-resend-cooldown';
 
@@ -50,6 +55,17 @@ function teamCountLabel(teamCount: number, t: ReturnType<typeof useTranslations>
 		return t('pages.auth.TEAM_COUNT_SINGULAR');
 	}
 	return t('pages.auth.TEAM_COUNT_PLURAL');
+}
+
+function workspaceLabelOf(
+	workspace: ISigninEmailConfirmWorkspaces,
+	isNotSetUp: boolean,
+	t: ReturnType<typeof useTranslations>
+) {
+	if (isNotSetUp) {
+		return t('pages.auth.WORKSPACE_NOT_SET_UP');
+	}
+	return workspace.user.tenant.name || workspace.user.name || 'Workspace';
 }
 
 function AuthPasscode() {
@@ -403,6 +419,7 @@ function WorkSpaceScreen({ form, className }: { form: TAuthenticationPasscode } 
 					selectedTeam={selectedTeam}
 					signInWorkspaceLoading={form.signInWorkspaceLoading}
 					teamsUnavailable={form.everIdTeamsUnavailable}
+					notSetUpIndices={form.everIdTenantless}
 				/>
 			</div>
 
@@ -428,6 +445,8 @@ type IWorkSpace = {
 	selectedTeam: string;
 	/** The workspaces carry no team list (an Ever ID sign-in): list them without empty-workspace warnings. */
 	teamsUnavailable?: boolean;
+	/** The workspaces with no tenant yet, when the list cannot show it (an Ever ID sign-in fills a missing tenant). */
+	notSetUpIndices?: readonly number[];
 };
 
 export function WorkSpaceComponent(props: IWorkSpace) {
@@ -523,7 +542,8 @@ export function WorkSpaceComponent(props: IWorkSpace) {
 								const isSelectedWithTeams = isSelected && !isEmpty;
 								const isSelectedEmpty = isSelected && isEmpty;
 								const showsTeamCount = !isEmpty && teamCount > 0;
-								const workspaceName = workspace.user.tenant?.name || workspace.user.name || 'Workspace';
+								const isNotSetUp = isWorkspaceNotSetUp(workspace, originalIndex, props.notSetUpIndices);
+								const workspaceName = workspaceLabelOf(workspace, isNotSetUp, t);
 
 								return (
 									<div

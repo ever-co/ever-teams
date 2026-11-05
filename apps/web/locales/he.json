@@ -1961,6 +1961,7 @@
 			"EMPTY_WORKSPACE_WARNING_TITLE": "סביבת עבודה זו אין לה צוותים",
 			"EMPTY_WORKSPACE_WARNING_MESSAGE": "תתבקש ליצור צוות לאחר ההתחברות.",
 			"NO_TEAMS_BADGE": "אין צוותים",
+			"WORKSPACE_NOT_SET_UP": "סביבת עבודה חדשה, עדיין לא הוגדרה",
 			"TEAM_COUNT_SINGULAR": "צוות",
 			"TEAM_COUNT_PLURAL": "צוותים",
 			"FORGOT_PASSWORD": "שכחת סיסמה?",
@@ -1968,6 +1969,8 @@
 			"PRIVACY_POLICY": "מדיניות פרטיות",
 			"OR_CONTINUE_WITH": "או המשך עם",
 			"SIGNUP_VERIFY_EMAIL": "החשבון שלך נוצר. פתח את הקישור בדוא\"ל ששלחנו אל {email} כדי להפעיל אותו, ואז התחבר עם הדוא\"ל שלך.",
+			"EXISTING_ACCOUNT_HINT": "כבר יש לכם חשבון עם הדוא״ל הזה?",
+			"SIGN_IN_INSTEAD": "התחברו אליו במקום זאת",
 			"everId": {
 				"NO_WORKSPACE_TITLE": "עדיין אין סביבת עבודה עבור Ever ID זה",
 				"NO_WORKSPACE_BODY": "עדיין לא מקושרת סביבת עבודה ל-Ever ID זה. התחבר בדרך אחרת, או בקש הזמנה ממנהל סביבת העבודה שלך.",

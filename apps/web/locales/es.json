@@ -1643,6 +1643,7 @@
 			"EMPTY_WORKSPACE_WARNING_TITLE": "Este espacio de trabajo no tiene equipos",
 			"EMPTY_WORKSPACE_WARNING_MESSAGE": "Se le pedirá que cree un equipo después de iniciar sesión.",
 			"NO_TEAMS_BADGE": "Sin equipos",
+			"WORKSPACE_NOT_SET_UP": "Espacio de trabajo nuevo, aún sin configurar",
 			"TEAM_COUNT_SINGULAR": "equipo",
 			"TEAM_COUNT_PLURAL": "equipos",
 			"FORGOT_PASSWORD": "¿Olvidaste tu contraseña?",
@@ -1650,6 +1651,8 @@
 			"PRIVACY_POLICY": "Política de privacidad",
 			"OR_CONTINUE_WITH": "o continuar con",
 			"SIGNUP_VERIFY_EMAIL": "Tu cuenta ha sido creada. Abre el enlace del correo que enviamos a {email} para activarla y luego inicia sesión con tu correo.",
+			"EXISTING_ACCOUNT_HINT": "¿Ya tienes una cuenta con este correo?",
+			"SIGN_IN_INSTEAD": "Inicia sesión con ella",
 			"everId": {
 				"NO_WORKSPACE_TITLE": "Todavía no hay un espacio de trabajo para este Ever ID",
 				"NO_WORKSPACE_BODY": "Todavía no hay ningún espacio de trabajo vinculado a este Ever ID. Inicie sesión de otra forma o pida una invitación al administrador de su espacio de trabajo.",

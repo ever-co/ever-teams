@@ -1961,6 +1961,7 @@
 			"EMPTY_WORKSPACE_WARNING_TITLE": "مساحة العمل هذه لا تحتوي على فرق",
 			"EMPTY_WORKSPACE_WARNING_MESSAGE": "ستتم مطالبتك بإنشاء فريق بعد تسجيل الدخول.",
 			"NO_TEAMS_BADGE": "لا توجد فرق",
+			"WORKSPACE_NOT_SET_UP": "مساحة عمل جديدة، لم تُعدّ بعد",
 			"TEAM_COUNT_SINGULAR": "فريق",
 			"TEAM_COUNT_PLURAL": "فرق",
 			"FORGOT_PASSWORD": "هل نسيت كلمة المرور؟",
@@ -1968,6 +1969,8 @@
 			"PRIVACY_POLICY": "سياسة الخصوصية",
 			"OR_CONTINUE_WITH": "أو تابع باستخدام",
 			"SIGNUP_VERIFY_EMAIL": "تم إنشاء حسابك. افتح الرابط في البريد الإلكتروني الذي أرسلناه إلى {email} لتفعيله، ثم سجّل الدخول ببريدك الإلكتروني.",
+			"EXISTING_ACCOUNT_HINT": "لديك حساب بهذا البريد الإلكتروني بالفعل؟",
+			"SIGN_IN_INSTEAD": "سجّل الدخول إليه بدلاً من ذلك",
 			"everId": {
 				"NO_WORKSPACE_TITLE": "لا توجد مساحة عمل لهذا الـ Ever ID بعد",
 				"NO_WORKSPACE_BODY": "لا توجد مساحة عمل مرتبطة بهذا الـ Ever ID بعد. سجّل الدخول بطريقة أخرى، أو اطلب دعوة من مسؤول مساحة العمل.",

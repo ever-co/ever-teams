@@ -1961,6 +1961,7 @@
 			"EMPTY_WORKSPACE_WARNING_TITLE": "Este espaço de trabalho não tem equipes",
 			"EMPTY_WORKSPACE_WARNING_MESSAGE": "Você será solicitado a criar uma equipe após o login.",
 			"NO_TEAMS_BADGE": "Sem equipes",
+			"WORKSPACE_NOT_SET_UP": "Novo espaço de trabalho, ainda não configurado",
 			"TEAM_COUNT_SINGULAR": "equipe",
 			"TEAM_COUNT_PLURAL": "equipes",
 			"FORGOT_PASSWORD": "Esqueceu a senha?",
@@ -1968,6 +1969,8 @@
 			"PRIVACY_POLICY": "Política de privacidade",
 			"OR_CONTINUE_WITH": "ou continue com",
 			"SIGNUP_VERIFY_EMAIL": "A sua conta foi criada. Abra o link no e-mail enviado para {email} para ativá-la e depois inicie sessão com o seu e-mail.",
+			"EXISTING_ACCOUNT_HINT": "Já tem uma conta com este e-mail?",
+			"SIGN_IN_INSTEAD": "Entre com ela",
 			"everId": {
 				"NO_WORKSPACE_TITLE": "Ainda não há espaço de trabalho para este Ever ID",
 				"NO_WORKSPACE_BODY": "Ainda não há nenhum espaço de trabalho vinculado a este Ever ID. Entre de outra forma ou peça um convite ao administrador do seu espaço de trabalho.",

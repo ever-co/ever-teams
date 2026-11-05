@@ -1961,6 +1961,7 @@
 			"EMPTY_WORKSPACE_WARNING_TITLE": "Dieser Arbeitsbereich hat keine Teams",
 			"EMPTY_WORKSPACE_WARNING_MESSAGE": "Sie werden nach der Anmeldung aufgefordert, ein Team zu erstellen.",
 			"NO_TEAMS_BADGE": "Keine Teams",
+			"WORKSPACE_NOT_SET_UP": "Neuer Arbeitsbereich, noch nicht eingerichtet",
 			"TEAM_COUNT_SINGULAR": "Team",
 			"TEAM_COUNT_PLURAL": "Teams",
 			"FORGOT_PASSWORD": "Passwort vergessen?",
@@ -1968,6 +1969,8 @@
 			"PRIVACY_POLICY": "Datenschutzrichtlinie",
 			"OR_CONTINUE_WITH": "oder weiter mit",
 			"SIGNUP_VERIFY_EMAIL": "Ihr Konto wurde erstellt. Öffnen Sie den Link in der E-Mail an {email}, um es zu aktivieren, und melden Sie sich dann mit Ihrer E-Mail an.",
+			"EXISTING_ACCOUNT_HINT": "Haben Sie bereits ein Konto mit dieser E-Mail-Adresse?",
+			"SIGN_IN_INSTEAD": "Melden Sie sich stattdessen an",
 			"everId": {
 				"NO_WORKSPACE_TITLE": "Noch kein Arbeitsbereich für diese Ever ID",
 				"NO_WORKSPACE_BODY": "Mit dieser Ever ID ist noch kein Arbeitsbereich verknüpft. Melden Sie sich auf andere Weise an oder bitten Sie den Administrator Ihres Arbeitsbereichs um eine Einladung.",

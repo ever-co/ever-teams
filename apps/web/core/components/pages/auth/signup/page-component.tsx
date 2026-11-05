@@ -10,6 +10,7 @@ import { SiteReCAPTCHA } from '@/core/components/duplicated-components/recaptcha
 import { AuthLayout } from '@/core/components/layouts/default-layout/auth-layout';
 import { useState } from 'react';
 import { useTranslations } from 'next-intl';
+import Link from 'next/link';
 import SocialLogins from '@/core/components/auth/social-logins-buttons';
 import HCaptcha from '@hcaptcha/react-hcaptcha';
 import Turnstile from 'react-turnstile';
@@ -70,7 +71,7 @@ function AuthSignup() {
 			<div className="w-full overflow-x-hidden overflow-y-clip p-1.5">
 				{verifyEmailSentTo && (
 					<output className="mb-4 block rounded-lg bg-primary/5 p-3 text-sm text-balance hairline-ring ring-primary/15">
-						{t('pages.auth.SIGNUP_VERIFY_EMAIL', { email: verifyEmailSentTo })}
+						{t('pages.auth.SIGNUP_VERIFY_EMAIL', { email: verifyEmailSentTo })} <ExistingAccountHint />
 					</output>
 				)}
 				<form onSubmit={handleSubmit} autoComplete="off" className="w-full">
@@ -88,6 +89,7 @@ function AuthSignup() {
 								form={formValues}
 								loading={loading}
 								everId={everId}
+								showsExistingAccountHint={!verifyEmailSentTo}
 							/>
 						</div>
 
@@ -127,12 +129,15 @@ function FillUserDataForm({
 	handleOnChange,
 	loading,
 	className,
-	everId = null
+	everId = null,
+	showsExistingAccountHint = true
 }: IStepProps & {
 	errors: Record<string, string>;
 	loading?: boolean;
 	everId?: TEverIdSignup;
+	showsExistingAccountHint?: boolean;
 } & IClassName) {
+	const hintUnderEmail = showsExistingAccountHint && !everId;
 	const t = useTranslations();
 
 	const renderCaptcha = () => {
@@ -216,6 +221,11 @@ function FillUserDataForm({
 						className={INPUT_CLASS}
 					/>
 					{errors?.email && <Text.Error>{errors.email}</Text.Error>}
+					{hintUnderEmail && (
+						<p className="text-sm text-muted-foreground">
+							<ExistingAccountHint />
+						</p>
+					)}
 				</div>
 
 				{everId && <EverIdSignupConfirmation everId={everId} error={errors?.everId} />}
@@ -227,6 +237,24 @@ function FillUserDataForm({
 				{t('pages.authTeam.CONTINUE')}
 			</Button>
 		</div>
+	);
+}
+
+/**
+ * Gauzy allows several accounts on one address and answers a sign-up the same way whether the address is known or
+ * not (no account enumeration), so the form cannot refuse an address that already has an account. The person is
+ * reminded instead, before and after submitting, that signing in keeps their existing workspace.
+ */
+function ExistingAccountHint() {
+	const t = useTranslations();
+
+	return (
+		<>
+			{t('pages.auth.EXISTING_ACCOUNT_HINT')}{' '}
+			<Link href={DEFAULT_APP_PATH} className={TEXT_LINK_CLASS}>
+				{t('pages.auth.SIGN_IN_INSTEAD')}
+			</Link>
+		</>
 	);
 }
 
