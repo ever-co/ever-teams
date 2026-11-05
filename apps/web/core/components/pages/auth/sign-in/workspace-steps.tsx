@@ -213,6 +213,10 @@ export function PasswordWorkspaceStep({
 	const workspaceAnalysis = useWorkspaceAnalysis(form.workspaces);
 
 	useEffect(() => {
+		// The selection outlives this step: another account's answer must not keep an index of the last one
+		setSelectedWorkspace(0);
+		setSelectedTeam('');
+
 		// Only auto-submit if shouldAutoSubmit is true (1 workspace with exactly 1 team)
 		if (workspaceAnalysis.shouldAutoSubmit) {
 			setTimeout(() => {
