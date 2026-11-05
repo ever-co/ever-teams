@@ -4239,7 +4239,7 @@
 		"code": {
 			"CHANGE_EMAIL": "Ander e-mailadres gebruiken",
 			"CLEAR": "Wissen",
-			"DESCRIPTION": "We hebben een code van {length} tekens gestuurd naar <address>{email}</address>. Met de link in dezelfde e-mail kun je ook inloggen.",
+			"DESCRIPTION": "We hebben een code van {length} tekens gestuurd naar <address>{email}</address>.",
 			"LABEL": "Inlogcode",
 			"NOT_RECEIVED": "Niets in je inbox?",
 			"RESEND": "Nieuwe code sturen",
@@ -4313,7 +4313,7 @@
 			"ACCOUNT_TITLE": "Jouw plek in het team",
 			"INBOX_ACTIVATE_TEXT": "Open de link erin om je account te activeren en log daarna in met je e-mail.",
 			"INBOX_ACTIVATE_TITLE": "Zoek naar deze e-mail",
-			"INBOX_CODE_TEXT": "Typ de code die erin staat of open de link: met allebei log je in.",
+			"INBOX_CODE_TEXT": "Typ de code die erin staat om in te loggen.",
 			"INBOX_CODE_TITLE": "Zoek naar deze e-mail",
 			"INBOX_RESET_TEXT": "De link erin opent de pagina waar je een nieuw wachtwoord kiest.",
 			"INBOX_RESET_TITLE": "Zoek naar deze e-mail",
