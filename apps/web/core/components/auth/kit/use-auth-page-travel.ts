@@ -1,6 +1,6 @@
 'use client';
 
-import { useLayoutEffect, type RefObject } from 'react';
+import { useLayoutEffect, useRef, type RefObject } from 'react';
 import { canAnimate } from '@/core/lib/utils/motion';
 import { playStepArrival, type Travel } from './auth-step';
 
@@ -53,6 +53,14 @@ function isRecent(previous: LeftPage | null): previous is LeftPage {
 	return elapsed < TRAVEL_WINDOW_MS;
 }
 
+/** Strict Mode runs the cleanup and the effect again on mount: the record that cleanup left is not a page left. */
+function isFromAnotherPage(previous: LeftPage | null, ownLeave: LeftPage | null): previous is LeftPage {
+	if (!isRecent(previous)) {
+		return false;
+	}
+	return previous !== ownLeave;
+}
+
 function sizeChanged(previous: LeftPage, rect: DOMRect) {
 	const widthChanged = Math.abs(previous.width - rect.width) > 1;
 	const heightChanged = Math.abs(previous.height - rect.height) > 1;
@@ -88,6 +96,8 @@ export function useAuthPageTravel({
 	frameRef: RefObject<HTMLElement | null>;
 	formRef: RefObject<HTMLElement | null>;
 }>) {
+	const ownLeave = useRef<LeftPage | null>(null);
+
 	useLayoutEffect(() => {
 		const frame = frameRef.current;
 		if (!frame) {
@@ -97,7 +107,7 @@ export function useAuthPageTravel({
 		const previous = leftPage;
 		leftPage = null;
 
-		const travelsFromAnotherPage = isRecent(previous) && canAnimate(frame);
+		const travelsFromAnotherPage = isFromAnotherPage(previous, ownLeave.current) && canAnimate(frame);
 		if (travelsFromAnotherPage && previous) {
 			const rect = frame.getBoundingClientRect();
 			const travel = travelBetween(previous.order, order);
@@ -107,7 +117,9 @@ export function useAuthPageTravel({
 
 		return () => {
 			const rect = frame.getBoundingClientRect();
-			leftPage = { order, width: rect.width, height: rect.height, leftAt: performance.now() };
+			const left = { order, width: rect.width, height: rect.height, leftAt: performance.now() };
+			leftPage = left;
+			ownLeave.current = left;
 		};
 	}, [frameRef, formRef]);
 }
