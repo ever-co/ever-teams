@@ -128,6 +128,8 @@
 		"ASSIGN_TASK_TO": "Atribuir Tarefa a",
 		"ASSIGN_TASK_TO_ME": "Atribuir tarefa a mim",
 		"UNASSIGN_TASK_FROM_ME": "Remover-me da tarefa",
+		"ASSIGN_TASK_TO_MEMBER": "Atribuir a {name}",
+		"UNASSIGN_TASK_FROM_MEMBER": "Remover {name} da tarefa",
 		"TASK_ASSIGNED_TO_ME": "Tarefa atribuída a você",
 		"TASK_UNASSIGNED_FROM_ME": "Tarefa removida de você",
 		"TASK_ASSIGN_ERROR": "Falha ao atribuir tarefa",

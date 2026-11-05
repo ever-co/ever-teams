@@ -128,6 +128,8 @@
 		"ASSIGN_TASK_TO": "הקצה משימה ל-",
 		"ASSIGN_TASK_TO_ME": "הקצה לי את המשימה",
 		"UNASSIGN_TASK_FROM_ME": "בטל הקצאתי מהמשימה",
+		"ASSIGN_TASK_TO_MEMBER": "הקצה ל{name}",
+		"UNASSIGN_TASK_FROM_MEMBER": "בטל הקצאה מ{name}",
 		"TASK_ASSIGNED_TO_ME": "המשימה הוקצתה לך",
 		"TASK_UNASSIGNED_FROM_ME": "המשימה בוטלה ממך",
 		"TASK_ASSIGN_ERROR": "הקצאת המשימה נכשלה",

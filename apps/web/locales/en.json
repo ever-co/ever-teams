@@ -154,6 +154,8 @@
 		"ASSIGN_TASK_TO": "Assign Task",
 		"ASSIGN_TASK_TO_ME": "Assign Task to Me",
 		"UNASSIGN_TASK_FROM_ME": "Unassign Task from Me",
+		"ASSIGN_TASK_TO_MEMBER": "Assign to {name}",
+		"UNASSIGN_TASK_FROM_MEMBER": "Unassign from {name}",
 		"TASK_ASSIGNED_TO_ME": "Task assigned to you",
 		"TASK_UNASSIGNED_FROM_ME": "Task unassigned from you",
 		"TASK_ASSIGN_ERROR": "Failed to assign task",

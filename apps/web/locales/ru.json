@@ -128,6 +128,8 @@
 		"ASSIGN_TASK_TO": "Назначить задачу",
 		"ASSIGN_TASK_TO_ME": "Назначить задачу мне",
 		"UNASSIGN_TASK_FROM_ME": "Снять меня с задачи",
+		"ASSIGN_TASK_TO_MEMBER": "Назначить: {name}",
+		"UNASSIGN_TASK_FROM_MEMBER": "Снять назначение: {name}",
 		"TASK_ASSIGNED_TO_ME": "Задача назначена вам",
 		"TASK_UNASSIGNED_FROM_ME": "Задача снята с вас",
 		"TASK_ASSIGN_ERROR": "Не удалось назначить задачу",
