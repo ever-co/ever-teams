@@ -22,6 +22,8 @@ jest.mock('jotai', () => ({
 	useStore: () => ({ get: () => latestStoredUser() })
 }));
 
+jest.mock('@/core/lib/helpers/cookies', () => ({ getAccessTokenCookie: () => null }));
+
 jest.mock('@/core/stores', () => ({
 	userState: {},
 	isTeamMemberState: {}

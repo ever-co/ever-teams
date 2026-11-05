@@ -10,6 +10,8 @@ import { ModalSkeleton } from '../../common/skeleton/modal-skeleton';
 import { LazyCreateTeamModal, LazyJoinTeamModal } from '../../optimized-components';
 import { useUserQuery } from '@/core/hooks/queries/user-user.query';
 import { shouldReplaceStoredUser } from '@/core/lib/utils/stored-user';
+import { decodeJWT } from '@/core/lib/auth/jwt-utils';
+import { getAccessTokenCookie } from '@/core/lib/helpers/cookies';
 
 type Params = {
 	displayName: string;
@@ -22,6 +24,15 @@ type Params = {
 	 */
 	skeleton?: ComponentType;
 };
+
+function sessionUserIdOf(): string | null {
+	const token = getAccessTokenCookie();
+	if (!token) {
+		return null;
+	}
+	const payload = decodeJWT(token);
+	return payload?.id ?? null;
+}
 
 /** Wraps a protected page with user loading, authentication state, and team-join/create modal handling. */
 export function withAuthentication(Component: NextPage<any, any>, params: Params) {
@@ -41,7 +52,7 @@ export function withAuthentication(Component: NextPage<any, any>, params: Params
 				return;
 			}
 			const storedUser = store.get(userState);
-			const replacesStoredUser = shouldReplaceStoredUser(storedUser, queriedUser);
+			const replacesStoredUser = shouldReplaceStoredUser(storedUser, queriedUser, sessionUserIdOf());
 			if (replacesStoredUser) {
 				setUser(queriedUser);
 			}
