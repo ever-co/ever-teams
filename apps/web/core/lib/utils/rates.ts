@@ -195,3 +195,23 @@ export function rateAmountTextOf(value: unknown, currency: string | null | undef
 	}
 	return formatAmount({ currency, amount: rate }, locale);
 }
+
+export type RateRequestOutcome = 'sent' | 'nobody' | 'unavailable' | 'failed';
+
+/** A request Gauzy accepted: sent to the admins, or to nobody when the organization has no admin to notify. */
+export function rateRequestSentOutcomeOf(notified: number | undefined): RateRequestOutcome {
+	const notifiedNobody = notified === 0;
+	if (notifiedNobody) {
+		return 'nobody';
+	}
+	return 'sent';
+}
+
+/** A request Gauzy did not take: a 404 means the server has no rate change requests yet. */
+export function rateRequestFailureOutcomeOf(error: unknown): RateRequestOutcome {
+	const status = errorStatusOf(error);
+	if (status === 404) {
+		return 'unavailable';
+	}
+	return 'failed';
+}

@@ -4215,6 +4215,22 @@
 		"PROJECT_RATE_HINT": "Empty: each member is counted at their own rate.",
 		"RATE_ON_PROJECT_OF": "{name}'s rate on this project",
 		"MEMBER_RATE_HINT": "Empty: the project rate applies, else their own rate.",
-		"RATES_RETRY": "Load the rates again"
+		"RATES_RETRY": "Load the rates again",
+		"OWN_SECTION": "Rate",
+		"OWN_SECTION_HINT": "Set by your organization's admins. Ask them here if it should change.",
+		"WEEKLY_LIMIT_VALUE": "{hours} h a week",
+		"UNNAMED_PROJECT": "Untitled project",
+		"PROJECT_RATES_HINT": "What your time counts at on each of your projects.",
+		"REQUEST_CHANGE": "Request a rate change",
+		"REQUEST_CHANGE_HINT": "Your organization's admins are notified and apply it.",
+		"REQUEST_CHANGE_ACTION": "Request a change",
+		"REQUESTED_RATE": "Requested hourly rate",
+		"REQUESTED_RATE_REQUIRED": "Enter the rate you are asking for.",
+		"REQUEST_REASON": "Reason (optional)",
+		"REQUEST_SEND": "Send request",
+		"REQUEST_SENT": "Request sent. Your organization's admins were notified.",
+		"REQUEST_NOBODY": "Your organization has no admin to notify yet. Ask your workspace owner directly.",
+		"REQUEST_UNAVAILABLE": "This server cannot take rate change requests yet. Ask your admin directly.",
+		"REQUEST_FAILED": "The request was not sent."
 	}
 }

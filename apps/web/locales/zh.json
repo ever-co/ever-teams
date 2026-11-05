@@ -4215,6 +4215,22 @@
 		"PROJECT_RATE_HINT": "留空：每位成员按其个人费率计算。",
 		"RATE_ON_PROJECT_OF": "{name} 在此项目上的费率",
 		"MEMBER_RATE_HINT": "留空：使用项目费率，没有则使用其个人费率。",
-		"RATES_RETRY": "重新加载费率"
+		"RATES_RETRY": "重新加载费率",
+		"OWN_SECTION": "费率",
+		"OWN_SECTION_HINT": "由所在组织的管理员设置。如需调整，可在此申请。",
+		"WEEKLY_LIMIT_VALUE": "每周 {hours} 小时",
+		"UNNAMED_PROJECT": "未命名项目",
+		"PROJECT_RATES_HINT": "你的工时在各个项目上按什么费率计算。",
+		"REQUEST_CHANGE": "申请调整费率",
+		"REQUEST_CHANGE_HINT": "组织管理员会收到通知并进行调整。",
+		"REQUEST_CHANGE_ACTION": "申请调整",
+		"REQUESTED_RATE": "申请的小时费率",
+		"REQUESTED_RATE_REQUIRED": "请输入你申请的费率。",
+		"REQUEST_REASON": "原因（可选）",
+		"REQUEST_SEND": "发送申请",
+		"REQUEST_SENT": "申请已发送，已通知组织管理员。",
+		"REQUEST_NOBODY": "你的组织还没有可通知的管理员。请直接联系工作区所有者。",
+		"REQUEST_UNAVAILABLE": "此服务器暂不支持费率调整申请。请直接联系管理员。",
+		"REQUEST_FAILED": "申请未发送。"
 	}
 }

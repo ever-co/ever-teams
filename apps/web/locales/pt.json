@@ -4215,6 +4215,22 @@
 		"PROJECT_RATE_HINT": "Vazia: cada membro é contado pela própria taxa.",
 		"RATE_ON_PROJECT_OF": "Taxa de {name} neste projeto",
 		"MEMBER_RATE_HINT": "Vazia: vale a taxa do projeto ou, sem ela, a taxa do membro.",
-		"RATES_RETRY": "Carregar as taxas de novo"
+		"RATES_RETRY": "Carregar as taxas de novo",
+		"OWN_SECTION": "Taxa",
+		"OWN_SECTION_HINT": "Definida pelos admins da sua organização. Peça aqui se ela deve mudar.",
+		"WEEKLY_LIMIT_VALUE": "{hours} h por semana",
+		"UNNAMED_PROJECT": "Projeto sem nome",
+		"PROJECT_RATES_HINT": "Quanto o seu tempo vale em cada um dos seus projetos.",
+		"REQUEST_CHANGE": "Pedir mudança de taxa",
+		"REQUEST_CHANGE_HINT": "Os admins da sua organização são avisados e aplicam a mudança.",
+		"REQUEST_CHANGE_ACTION": "Pedir mudança",
+		"REQUESTED_RATE": "Taxa por hora pedida",
+		"REQUESTED_RATE_REQUIRED": "Digite a taxa que você está pedindo.",
+		"REQUEST_REASON": "Motivo (opcional)",
+		"REQUEST_SEND": "Enviar pedido",
+		"REQUEST_SENT": "Pedido enviado. Os admins da sua organização foram avisados.",
+		"REQUEST_NOBODY": "Sua organização ainda não tem admin para avisar. Pergunte diretamente ao dono do espaço de trabalho.",
+		"REQUEST_UNAVAILABLE": "Este servidor ainda não aceita pedidos de mudança de taxa. Pergunte diretamente ao seu admin.",
+		"REQUEST_FAILED": "O pedido não foi enviado."
 	}
 }

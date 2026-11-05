@@ -14,6 +14,7 @@ import { EmailRow } from './email-row';
 import { PhoneRow } from './phone-row';
 import { PhotoRow } from './photo-row';
 import { ProfileSectionsSkeleton } from './profile-settings-skeleton';
+import { ProfileRatesSection } from './rates-section';
 
 type ProfileField = 'firstName' | 'lastName' | 'phoneNumber';
 
@@ -92,6 +93,7 @@ export function ProfileSettingsPage() {
 							/>
 						</SettingsSurface>
 					</SettingsSection>
+					{user.employee && <ProfileRatesSection employee={user.employee} />}
 					<AccountDangerSection />
 				</>
 			)}

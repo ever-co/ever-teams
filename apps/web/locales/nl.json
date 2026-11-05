@@ -4215,6 +4215,22 @@
 		"PROJECT_RATE_HINT": "Leeg: elk lid telt tegen het eigen tarief.",
 		"RATE_ON_PROJECT_OF": "Tarief van {name} op dit project",
 		"MEMBER_RATE_HINT": "Leeg: het projecttarief geldt, anders het eigen tarief.",
-		"RATES_RETRY": "Tarieven opnieuw laden"
+		"RATES_RETRY": "Tarieven opnieuw laden",
+		"OWN_SECTION": "Tarief",
+		"OWN_SECTION_HINT": "Ingesteld door de admins van je organisatie. Vraag hier om een wijziging.",
+		"WEEKLY_LIMIT_VALUE": "{hours} u per week",
+		"UNNAMED_PROJECT": "Naamloos project",
+		"PROJECT_RATES_HINT": "Waartegen je tijd telt op elk van je projecten.",
+		"REQUEST_CHANGE": "Tariefwijziging aanvragen",
+		"REQUEST_CHANGE_HINT": "De admins van je organisatie krijgen een melding en voeren het door.",
+		"REQUEST_CHANGE_ACTION": "Wijziging aanvragen",
+		"REQUESTED_RATE": "Gevraagd uurtarief",
+		"REQUESTED_RATE_REQUIRED": "Vul het tarief in dat je vraagt.",
+		"REQUEST_REASON": "Reden (optioneel)",
+		"REQUEST_SEND": "Aanvraag versturen",
+		"REQUEST_SENT": "Aanvraag verstuurd. De admins van je organisatie hebben een melding gekregen.",
+		"REQUEST_NOBODY": "Je organisatie heeft nog geen admin om te melden. Vraag het direct aan de eigenaar van de werkruimte.",
+		"REQUEST_UNAVAILABLE": "Deze server neemt nog geen aanvragen voor tariefwijziging aan. Vraag het direct aan je admin.",
+		"REQUEST_FAILED": "De aanvraag is niet verstuurd."
 	}
 }

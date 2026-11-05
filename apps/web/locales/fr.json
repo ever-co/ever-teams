@@ -4215,6 +4215,22 @@
 		"PROJECT_RATE_HINT": "Vide : chaque membre est compté à son propre taux.",
 		"RATE_ON_PROJECT_OF": "Taux de {name} sur ce projet",
 		"MEMBER_RATE_HINT": "Vide : le taux du projet s'applique, sinon son propre taux.",
-		"RATES_RETRY": "Recharger les taux"
+		"RATES_RETRY": "Recharger les taux",
+		"OWN_SECTION": "Taux",
+		"OWN_SECTION_HINT": "Défini par les admins de votre organisation. Demandez-leur ici s'il doit changer.",
+		"WEEKLY_LIMIT_VALUE": "{hours} h par semaine",
+		"UNNAMED_PROJECT": "Projet sans nom",
+		"PROJECT_RATES_HINT": "Le taux auquel votre temps compte sur chacun de vos projets.",
+		"REQUEST_CHANGE": "Demander un changement de taux",
+		"REQUEST_CHANGE_HINT": "Les admins de votre organisation sont prévenus et l'appliquent.",
+		"REQUEST_CHANGE_ACTION": "Demander un changement",
+		"REQUESTED_RATE": "Taux horaire demandé",
+		"REQUESTED_RATE_REQUIRED": "Saisissez le taux que vous demandez.",
+		"REQUEST_REASON": "Raison (facultatif)",
+		"REQUEST_SEND": "Envoyer la demande",
+		"REQUEST_SENT": "Demande envoyée. Les admins de votre organisation ont été prévenus.",
+		"REQUEST_NOBODY": "Votre organisation n'a pas encore d'admin à prévenir. Demandez directement au propriétaire de l'espace de travail.",
+		"REQUEST_UNAVAILABLE": "Ce serveur ne prend pas encore les demandes de changement de taux. Demandez directement à votre admin.",
+		"REQUEST_FAILED": "La demande n'a pas été envoyée."
 	}
 }

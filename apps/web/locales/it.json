@@ -4215,6 +4215,22 @@
 		"PROJECT_RATE_HINT": "Vuota: ogni membro è conteggiato con la propria tariffa.",
 		"RATE_ON_PROJECT_OF": "Tariffa di {name} su questo progetto",
 		"MEMBER_RATE_HINT": "Vuota: vale la tariffa del progetto, altrimenti la sua tariffa.",
-		"RATES_RETRY": "Ricarica le tariffe"
+		"RATES_RETRY": "Ricarica le tariffe",
+		"OWN_SECTION": "Tariffa",
+		"OWN_SECTION_HINT": "La stabiliscono gli admin della tua organizzazione. Chiedi qui se deve cambiare.",
+		"WEEKLY_LIMIT_VALUE": "{hours} h a settimana",
+		"UNNAMED_PROJECT": "Progetto senza nome",
+		"PROJECT_RATES_HINT": "A quanto conta il tuo tempo su ciascuno dei tuoi progetti.",
+		"REQUEST_CHANGE": "Chiedi un cambio di tariffa",
+		"REQUEST_CHANGE_HINT": "Gli admin della tua organizzazione ricevono un avviso e lo applicano.",
+		"REQUEST_CHANGE_ACTION": "Chiedi un cambio",
+		"REQUESTED_RATE": "Tariffa oraria richiesta",
+		"REQUESTED_RATE_REQUIRED": "Inserisci la tariffa che chiedi.",
+		"REQUEST_REASON": "Motivo (facoltativo)",
+		"REQUEST_SEND": "Invia richiesta",
+		"REQUEST_SENT": "Richiesta inviata. Gli admin della tua organizzazione sono stati avvisati.",
+		"REQUEST_NOBODY": "La tua organizzazione non ha ancora un admin da avvisare. Chiedi direttamente al proprietario dello spazio di lavoro.",
+		"REQUEST_UNAVAILABLE": "Questo server non accetta ancora richieste di cambio tariffa. Chiedi direttamente al tuo admin.",
+		"REQUEST_FAILED": "La richiesta non è stata inviata."
 	}
 }

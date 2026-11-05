@@ -4215,6 +4215,22 @@
 		"PROJECT_RATE_HINT": "Pusta: każdy członek jest liczony według własnej stawki.",
 		"RATE_ON_PROJECT_OF": "Stawka {name} w tym projekcie",
 		"MEMBER_RATE_HINT": "Pusta: obowiązuje stawka projektu, a bez niej stawka własna.",
-		"RATES_RETRY": "Wczytaj stawki ponownie"
+		"RATES_RETRY": "Wczytaj stawki ponownie",
+		"OWN_SECTION": "Stawka",
+		"OWN_SECTION_HINT": "Ustalają ją administratorzy Twojej organizacji. Tutaj możesz poprosić o zmianę.",
+		"WEEKLY_LIMIT_VALUE": "{hours} godz. tygodniowo",
+		"UNNAMED_PROJECT": "Projekt bez nazwy",
+		"PROJECT_RATES_HINT": "Według jakiej stawki liczy się Twój czas w każdym z Twoich projektów.",
+		"REQUEST_CHANGE": "Poproś o zmianę stawki",
+		"REQUEST_CHANGE_HINT": "Administratorzy Twojej organizacji dostaną powiadomienie i wprowadzą zmianę.",
+		"REQUEST_CHANGE_ACTION": "Poproś o zmianę",
+		"REQUESTED_RATE": "Oczekiwana stawka godzinowa",
+		"REQUESTED_RATE_REQUIRED": "Wpisz stawkę, o którą prosisz.",
+		"REQUEST_REASON": "Powód (opcjonalnie)",
+		"REQUEST_SEND": "Wyślij prośbę",
+		"REQUEST_SENT": "Prośba wysłana. Administratorzy Twojej organizacji zostali powiadomieni.",
+		"REQUEST_NOBODY": "Twoja organizacja nie ma jeszcze administratora do powiadomienia. Zapytaj bezpośrednio właściciela obszaru roboczego.",
+		"REQUEST_UNAVAILABLE": "Ten serwer nie przyjmuje jeszcze próśb o zmianę stawki. Zapytaj bezpośrednio administratora.",
+		"REQUEST_FAILED": "Prośba nie została wysłana."
 	}
 }
