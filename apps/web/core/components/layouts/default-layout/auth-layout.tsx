@@ -38,6 +38,8 @@ type Props = {
 	aside?: ReactNode;
 	/** A wider form column, for the demo accounts beside the password form. */
 	wide?: boolean;
+	/** Forms that grow in place (a field opening) start at the top, so what is above the new field never moves. */
+	contentAlign?: 'center' | 'top';
 	/** Footer link to the public account deletion request (/delete-account), for people who cannot sign in. */
 	showDeleteAccountLink?: boolean;
 	/**
@@ -102,6 +104,13 @@ function columnHeightOf(hasAside: boolean) {
 	return undefined;
 }
 
+function columnAlignOf(contentAlign: 'center' | 'top') {
+	if (contentAlign === 'top') {
+		return 'justify-start';
+	}
+	return 'justify-center';
+}
+
 function columnWidthOf(wide: boolean) {
 	if (wide) {
 		return 'max-w-2xl';
@@ -130,6 +139,7 @@ export function AuthLayout({
 	headerLinkHref,
 	aside,
 	wide = false,
+	contentAlign = 'center',
 	showDeleteAccountLink = false,
 	hideLanguageSwitcher = false,
 	operatorLinksOnly = false
@@ -161,6 +171,7 @@ export function AuthLayout({
 	const stageGrid = stageGridOf(hasAside);
 	const columnWidth = columnWidthOf(wide);
 	const columnHeight = columnHeightOf(hasAside);
+	const columnAlign = columnAlignOf(contentAlign);
 	const pictureAlt = t('TITLE', { appName: APP_NAME });
 	const year = new Date().getFullYear();
 
@@ -187,9 +198,7 @@ export function AuthLayout({
 								stageGrid
 							)}
 						>
-							<div
-								className={cn('flex flex-col justify-center px-5 py-8 sm:px-10 sm:py-10', columnHeight)}
-							>
+							<div className={cn('flex flex-col px-5 py-8 sm:px-10 sm:py-10', columnAlign, columnHeight)}>
 								<div ref={formRef} className={cn('mx-auto flex w-full flex-col', columnWidth)}>
 									{showsHeading && (
 										<AuthHeading title={title} description={description} className="mb-8" />
