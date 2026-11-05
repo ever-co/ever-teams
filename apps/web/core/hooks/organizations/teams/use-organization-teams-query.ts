@@ -343,15 +343,6 @@ export function useOrganizationTeamsQuery(options: UseOrganizationTeamsQueryOpti
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [organizationTeamQuery.dataUpdatedAt, setTeamsUpdate, activeTeam, canHydrateSharedState, detailCurrent]);
 
-	// The list read can bring another default project before the detail read does, and the task list follows it at
-	// once: new tasks, which read the cookie, follow it too.
-	const activeTeamDefaultProjectId = teamDefaultProjectId(activeTeam);
-	useEffect(() => {
-		if (canHydrateSharedState && activeTeamDefaultProjectId) {
-			setActiveProjectIdCookie(activeTeamDefaultProjectId);
-		}
-	}, [activeTeamDefaultProjectId, canHydrateSharedState]);
-
 	// ==================== QUERY FUNCTIONS ====================
 
 	const loadTeamsData = useCallback(async () => {

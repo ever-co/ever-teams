@@ -78,29 +78,10 @@ export function useTeamGeneralSettings() {
 	// next team read.
 	const saveDefaultProject = useCallback(
 		async (defaultProjectId: string) => {
-			if (!teamId) {
-				throw new Error('No active team');
-			}
-			const savedTeamId = teamId;
-			try {
-				const response = await editOrganizationTeam({ id: savedTeamId, defaultProjectId });
-				// An API without the field drops it and still answers: the team read back after the save is the proof
-				const keptDefaultProjectId = response?.data?.defaultProjectId;
-				if (keptDefaultProjectId !== defaultProjectId) {
-					throw new Error('The team did not keep its default project');
-				}
-			} catch (error) {
-				showFailure('toasts.teams.DEFAULT_PROJECT_NOT_SAVED', error);
-				// The PUT may have landed even though the read that follows it failed
-				queryClient.invalidateQueries({ queryKey: queryKeys.organizationTeams.all });
-				throw error;
-			}
-			// A save that ends after a switch to another team must not file that team's new tasks under this project
-			if (getActiveTeam()?.id === savedTeamId) {
-				setActiveProjectIdCookie(defaultProjectId);
-			}
+			await saveField({ defaultProjectId }, 'toasts.teams.DEFAULT_PROJECT_NOT_SAVED');
+			setActiveProjectIdCookie(defaultProjectId);
 		},
-		[editOrganizationTeam, getActiveTeam, queryClient, showFailure, teamId]
+		[saveField]
 	);
 
 	const saveVisibility = useCallback(
@@ -123,8 +104,7 @@ export function useTeamGeneralSettings() {
 				throw new Error('No active team');
 			}
 			const image = await createImageAssets(file, TEAM_AVATAR_FOLDER);
-			// Only the avatar: a team read before the upload would send back fields another manager changed meanwhile
-			await editOrganizationTeam({ id: team.id, imageId: image.id, image });
+			await editOrganizationTeam({ ...team, imageId: image.id, image });
 		},
 		[createImageAssets, editOrganizationTeam, getActiveTeam]
 	);
@@ -134,7 +114,7 @@ export function useTeamGeneralSettings() {
 		if (!team) {
 			throw new Error('No active team');
 		}
-		await editOrganizationTeam({ id: team.id, imageId: null, image: null });
+		await editOrganizationTeam({ ...team, imageId: null, image: null });
 	}, [editOrganizationTeam, getActiveTeam]);
 
 	// Gauzy rewrites the member set only when the body names `memberIds` or `managerIds`, so a rule sent alone

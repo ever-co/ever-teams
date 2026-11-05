@@ -16,14 +16,6 @@ function teamProjectsOf(team: TOrganizationTeam): TeamProject[] {
 	return projects.map((project) => ({ id: project.id, name: project.name }));
 }
 
-/**
- * An API that keeps a team's default project names it on every team it returns, as null when there is none. One
- * without it (Gauzy before organization_team.defaultProjectId) leaves the field out and drops it on save.
- */
-function keepsDefaultProject(team: TOrganizationTeam): boolean {
-	return team.defaultProjectId !== undefined;
-}
-
 function projectNameOf(projects: TeamProject[], projectId: string | null): string | null {
 	const project = projects.find((candidate) => candidate.id === projectId);
 	return project?.name ?? null;
@@ -102,7 +94,7 @@ export function TeamDefaultProjectSection({
 	const projects = teamProjectsOf(team);
 	const projectId = teamDefaultProjectId(team);
 	const hasProjects = projects.length > 0;
-	const canChoose = canEdit && hasProjects && keepsDefaultProject(team);
+	const canChoose = canEdit && hasProjects;
 
 	let control = <DefaultProjectValue name={projectNameOf(projects, projectId)} />;
 	let labelTarget: string | undefined = undefined;

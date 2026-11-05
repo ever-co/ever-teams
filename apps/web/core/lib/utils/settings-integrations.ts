@@ -8,7 +8,6 @@ import type {
 	TOrganizationProject,
 	TOrganizationTeam
 } from '@/core/types/schemas';
-import { teamDefaultProjectId } from '@/core/lib/helpers/team-default-project';
 
 export const GITHUB_INTEGRATION_TENANT_NAME = 'Github';
 
@@ -118,14 +117,15 @@ export function firstIntegrationIdOf(items: ReadonlyArray<TIntegrationTenantList
 }
 
 /**
- * The team's default project, the one its task list and new tasks use. Not the active project cookie: it keeps the
- * previous team's project when the new team has none, and is missing until a team has been picked.
+ * Not the active project cookie: it keeps the previous team's project when the new team has none, and is missing
+ * until a team has been picked.
  */
 export function teamGithubProjectOf(team: TOrganizationTeam | null | undefined): TOrganizationProject | null {
-	const projectId = teamDefaultProjectId(team);
-	const projects = team?.projects ?? [];
-	const project = projects.find((candidate) => candidate.id === projectId);
-	return project ?? null;
+	const first = team?.projects?.[0];
+	if (!first) {
+		return null;
+	}
+	return first;
 }
 
 interface LinkedRepository {

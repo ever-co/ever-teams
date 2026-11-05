@@ -65,14 +65,6 @@ describe('TeamDefaultProjectSection', () => {
 		expect(screen.getByText('Support project')).toBeTruthy();
 	});
 
-	it('offers a manager no picker while the API does not keep a default project, and shows the one in use', () => {
-		const teamFromApiWithoutDefault = { id: TEAM.id, name: TEAM.name, projects: TEAM.projects };
-		renderSection(teamFromApiWithoutDefault, true);
-
-		expect(screen.getByText('Support project')).toBeTruthy();
-		expect(screen.queryByTestId('default-project-select')).toBeNull();
-	});
-
 	it('says the default is not set, with no picker, for a team without projects', () => {
 		renderSection({ ...TEAM, defaultProjectId: null, projects: [] }, true);
 
