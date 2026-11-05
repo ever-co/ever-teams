@@ -5,6 +5,7 @@ import qs from 'qs';
 import { APIService, getFallbackAPI } from '../../api.service';
 
 import { getActiveTaskIdCookie } from '@/core/lib/helpers/cookies';
+import { getTodayPlanDay } from '@/core/lib/helpers/daily-plan-day';
 import { toTimeSlotDuration } from '@/core/lib/helpers/timer';
 import { ITimerStatus, IToggleTimerStatusParams } from '@/core/types/interfaces/timer/timer-status';
 import { TUser } from '@/core/types/schemas';
@@ -73,6 +74,7 @@ class TimerService extends APIService {
 	}) => {
 		const startedAt = Date.now();
 		const projectField = projectFieldOf(projectId);
+		const planDay = getTodayPlanDay();
 
 		if (GAUZY_API_BASE_SERVER_URL.value) {
 			await this.post('/timesheet/timer/start', {
@@ -84,7 +86,8 @@ class TimerService extends APIService {
 				source: ETimeLogSource.TEAMS,
 				tags: [],
 				isBillable,
-				organizationTeamId: this.activeTeamId
+				organizationTeamId: this.activeTeamId,
+				planDay
 			});
 
 			return this.resetTimeSlotSync(startedAt, await this.getTimerStatus());
@@ -93,7 +96,12 @@ class TimerService extends APIService {
 		const api = await getFallbackAPI();
 		return this.resetTimeSlotSync(
 			startedAt,
-			await api.post<ITimerStatus>(`/timer/start?${getTodayRangeQuery()}`, { taskId, ...projectField, isBillable })
+			await api.post<ITimerStatus>(`/timer/start?${getTodayRangeQuery()}`, {
+				taskId,
+				...projectField,
+				isBillable,
+				planDay
+			})
 		);
 	};
 
