@@ -89,6 +89,7 @@ function AuthSignup() {
 								form={formValues}
 								loading={loading}
 								everId={everId}
+								showsExistingAccountHint={!verifyEmailSentTo}
 							/>
 						</div>
 
@@ -128,12 +129,15 @@ function FillUserDataForm({
 	handleOnChange,
 	loading,
 	className,
-	everId = null
+	everId = null,
+	showsExistingAccountHint = true
 }: IStepProps & {
 	errors: Record<string, string>;
 	loading?: boolean;
 	everId?: TEverIdSignup;
+	showsExistingAccountHint?: boolean;
 } & IClassName) {
+	const hintUnderEmail = showsExistingAccountHint && !everId;
 	const t = useTranslations();
 
 	const renderCaptcha = () => {
@@ -217,7 +221,7 @@ function FillUserDataForm({
 						className={INPUT_CLASS}
 					/>
 					{errors?.email && <Text.Error>{errors.email}</Text.Error>}
-					{!everId && (
+					{hintUnderEmail && (
 						<p className="text-sm text-muted-foreground">
 							<ExistingAccountHint />
 						</p>
