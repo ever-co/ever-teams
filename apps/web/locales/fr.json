@@ -1994,7 +1994,7 @@
 			},
 			"provider": {
 				"ACCOUNT_UNCONFIRMED_TITLE": "Confirmez d'abord votre adresse e-mail",
-				"ACCOUNT_UNCONFIRMED_BODY": "Un compte utilise déjà cette adresse e-mail mais ne l'a pas encore confirmée. Connectez-vous avec votre adresse e-mail, puis confirmez-la depuis l'avis de votre page d'accueil. Ensuite, ce mode de connexion fonctionnera aussi.",
+				"ACCOUNT_UNCONFIRMED_BODY": "Un compte utilise déjà cette adresse e-mail mais ne l'a pas encore confirmée. Connectez-vous avec votre adresse e-mail, puis confirmez-la depuis le bandeau de votre page d'accueil. Ensuite, ce mode de connexion fonctionnera aussi.",
 				"SIGN_IN_WITH_EMAIL": "Me connecter avec mon e-mail"
 			},
 			"CHOOSE_YOUR_WORKSPACE": "Choisissez votre espace de travail"
