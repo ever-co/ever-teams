@@ -730,6 +730,29 @@ describe('the other providers keep their path', () => {
 		expect(mockRegisterUser).not.toHaveBeenCalled();
 	});
 
+	it('stops a sign-in Gauzy recognized but that lists no workspace at all', async () => {
+		mockSocialSignin.mockResolvedValue({ data: { confirmed_email: 'person@example.test', workspaces: [] } });
+		const { config } = await loadAuth({}, new Request('https://teams.example.test/api/auth/callback/google'));
+		const account = { provider: 'google', type: 'oauth', providerAccountId: 'g-5', access_token: 'ya29.none' };
+
+		expect(await config.callbacks.signIn({ account, profile: {} })).toBe(
+			'/auth/error?error=ProviderAccountNotSetUp'
+		);
+		expect(mockSigninWorkspace).not.toHaveBeenCalled();
+	});
+
+	it('stops on the generic error page when the workspace sign-in fails after Gauzy recognized the account', async () => {
+		mockSocialSignin.mockResolvedValue({
+			data: { confirmed_email: 'person@example.test', workspaces: [{ token: 'w', current_teams: [] }] }
+		});
+		mockSigninWorkspace.mockRejectedValue(new TypeError('fetch failed'));
+		const { config } = await loadAuth({}, new Request('https://teams.example.test/api/auth/callback/google'));
+		const account = { provider: 'google', type: 'oauth', providerAccountId: 'g-6', access_token: 'ya29.flaky' };
+
+		expect(await config.callbacks.signIn({ account, profile: {} })).toBe('/auth/error?error=Configuration');
+		expect(mockRegisterUser).not.toHaveBeenCalled();
+	});
+
 	it('lets a provider sign-up go on for an address Gauzy does not know', async () => {
 		mockSocialSignin.mockImplementation(() => gauzyRefusal({ statusCode: 401, message: 'Unauthorized' }));
 		const { config } = await loadAuth({}, new Request('https://teams.example.test/api/auth/callback/google'));

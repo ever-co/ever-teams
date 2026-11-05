@@ -163,6 +163,21 @@ export function GauzyAdapter(req: NextRequest): Adapter {
 }
 
 const ACCOUNT_NOT_SET_UP = 'account-not-set-up';
+const RECOGNIZED_ACCOUNT_FAILED = 'recognized-account-failed';
+
+async function signInRecognizedAccount(email: string, workspaceToken: string) {
+	const data = await signinService.signInWorkspace({ email, token: workspaceToken });
+	const tenantId = data.user?.tenantId || '';
+	const token = data.token;
+	const userId = data.user?.id;
+
+	const { data: organizations } = await userOrganizationService.getUserOrganizations({
+		tenantId,
+		userId,
+		token
+	});
+	return { data, organizations, tenantId, token, userId };
+}
 
 async function signIn(provider: EProvider, access_token: string) {
 	try {
@@ -177,19 +192,23 @@ async function signIn(provider: EProvider, access_token: string) {
 			});
 		}
 
-		const data = await signinService.signInWorkspace({
-			email: gauzyUser?.data.confirmed_email,
-			token: gauzyUser?.data.workspaces[0].token
-		});
-		const tenantId = data.user?.tenantId || '';
-		const token = data.token;
-		const userId = data.user?.id;
+		const workspaceToken = gauzyUser.data?.workspaces?.[0]?.token;
+		if (!workspaceToken) {
+			return Promise.reject({
+				reason: ACCOUNT_NOT_SET_UP,
+				errors: {
+					email: 'Your account isn’t fully set up yet'
+				}
+			});
+		}
 
-		const { data: organizations } = await userOrganizationService.getUserOrganizations({
-			tenantId,
-			userId,
-			token
-		});
+		let signedIn: Awaited<ReturnType<typeof signInRecognizedAccount>>;
+		try {
+			signedIn = await signInRecognizedAccount(gauzyUser.data.confirmed_email, workspaceToken);
+		} catch (error) {
+			return Promise.reject({ reason: RECOGNIZED_ACCOUNT_FAILED, cause: error });
+		}
+		const { data, organizations, tenantId, token, userId } = signedIn;
 
 		const organization = pickTokenOrganization(organizations?.items, token);
 
@@ -214,6 +233,9 @@ export const PROVIDER_ACCOUNT_UNCONFIRMED_PATH = '/auth/error?error=ProviderAcco
 
 export const PROVIDER_ACCOUNT_NOT_SET_UP_PATH = '/auth/error?error=ProviderAccountNotSetUp';
 
+// The generic "Something went wrong, try again" page: a transient failure once Gauzy recognized the account.
+export const PROVIDER_SIGN_IN_FAILED_PATH = '/auth/error?error=Configuration';
+
 type GauzyRefusal = { statusCode?: unknown; message?: unknown } | null | undefined;
 
 function signInRejectionOf(error: unknown): unknown {
@@ -223,9 +245,9 @@ function signInRejectionOf(error: unknown): unknown {
 	return error;
 }
 
-function isAccountNotSetUpRefusal(error: unknown): boolean {
+function signInRefusalReasonOf(error: unknown): unknown {
 	const rejection = signInRejectionOf(error) as { reason?: unknown } | null | undefined;
-	return rejection?.reason === ACCOUNT_NOT_SET_UP;
+	return rejection?.reason;
 }
 
 async function isUnconfirmedAccountRefusal(error: unknown): Promise<boolean> {
@@ -238,10 +260,10 @@ async function isUnconfirmedAccountRefusal(error: unknown): Promise<boolean> {
 }
 
 /**
- * next-auth's signIn answer for a provider other than Ever ID. Any other failure still lets next-auth go on: for an
- * address Gauzy does not know, the adapter registers the account (the provider sign-up). An address whose accounts have
- * not confirmed it, or whose account Gauzy signed in but that has no workspace yet, must stop here, or the adapter
- * registers a second account for it.
+ * next-auth's signIn answer for a provider other than Ever ID. A refusal of the provider sign-in itself still lets
+ * next-auth go on: for an address Gauzy does not know, the adapter registers the account (the provider sign-up). Once
+ * the address has an account (unconfirmed, recognized but without a workspace, or recognized and then failing), the
+ * sign-in stops here, or the adapter registers a second account for it.
  */
 export async function signInCallback(provider: EProvider, access_token: string): Promise<true | string> {
 	try {
@@ -250,8 +272,12 @@ export async function signInCallback(provider: EProvider, access_token: string):
 		if (await isUnconfirmedAccountRefusal(error)) {
 			return PROVIDER_ACCOUNT_UNCONFIRMED_PATH;
 		}
-		if (isAccountNotSetUpRefusal(error)) {
+		const reason = signInRefusalReasonOf(error);
+		if (reason === ACCOUNT_NOT_SET_UP) {
 			return PROVIDER_ACCOUNT_NOT_SET_UP_PATH;
+		}
+		if (reason === RECOGNIZED_ACCOUNT_FAILED) {
+			return PROVIDER_SIGN_IN_FAILED_PATH;
 		}
 	}
 	return true;
