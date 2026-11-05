@@ -69,12 +69,18 @@ export function useProjectRateMutations(projectId: string) {
 
 export function useEmployeeRatesMutation() {
 	const queryClient = useQueryClient();
+	const { data: user } = useUserQuery();
+	const ownEmployeeId = user?.employee?.id;
 	const mutation = useMutation({
 		mutationFn: ({ employeeId, rates }: { employeeId: string; rates: IEmployeeRatesInput }) =>
 			rateService.updateEmployeeRates(employeeId, rates),
-		onSuccess: async () => {
+		onSuccess: async (_updated, { employeeId }) => {
 			await queryClient.invalidateQueries({ queryKey: queryKeys.organizationTeams.all });
 			await queryClient.invalidateQueries({ queryKey: queryKeys.rates.all });
+			const savesOwnRate = employeeId === ownEmployeeId;
+			if (savesOwnRate) {
+				await queryClient.invalidateQueries({ queryKey: queryKeys.users.me });
+			}
 		},
 		meta: { handlesOwnError: true }
 	});
