@@ -1,10 +1,13 @@
+'use client';
+
 import { Text } from '@/core/components/common/typography';
 import { OutsideHeader } from '@/core/components/layouts/outside/outside-header';
 import { AuthHeading } from '@/core/components/auth/kit/auth-heading';
+import { useAuthPageTravel } from '@/core/components/auth/kit/use-auth-page-travel';
 import { useTranslations } from 'next-intl';
 import Image from 'next/image';
 import Link from 'next/link';
-import { PropsWithChildren, ReactNode } from 'react';
+import { PropsWithChildren, ReactNode, useRef } from 'react';
 
 import {
 	APP_NAME,
@@ -132,6 +135,10 @@ export function AuthLayout({
 	operatorLinksOnly = false
 }: Props) {
 	const t = useTranslations();
+	const frameRef = useRef<HTMLDivElement>(null);
+	const formRef = useRef<HTMLDivElement>(null);
+	const sceneRef = useRef<HTMLElement>(null);
+	useAuthPageTravel({ frameRef, formRef, sceneRef });
 	const appLink = linkAllowed(APP_LINK, BRANDING_LINKS_SET_BY_OPERATOR.app, operatorLinksOnly);
 	const companyLink = linkAllowed(COMPANY_LINK, BRANDING_LINKS_SET_BY_OPERATOR.company, operatorLinksOnly);
 	const termsLink = linkAllowed(TERMS_LINK, BRANDING_LINKS_SET_BY_OPERATOR.terms, operatorLinksOnly);
@@ -169,6 +176,7 @@ export function AuthLayout({
 
 				{isAuthPage && (
 					<div
+						ref={frameRef}
 						className={cn(
 							'flex w-full flex-col sm:rounded-[22px] sm:bg-foreground/[0.035] sm:p-1.5',
 							trayWidth
@@ -183,7 +191,7 @@ export function AuthLayout({
 							<div
 								className={cn('flex flex-col justify-center px-5 py-8 sm:px-10 sm:py-10', columnHeight)}
 							>
-								<div className={cn('mx-auto flex w-full flex-col', columnWidth)}>
+								<div ref={formRef} className={cn('mx-auto flex w-full flex-col', columnWidth)}>
 									{showsHeading && (
 										<AuthHeading title={title} description={description} className="mb-8" />
 									)}
@@ -192,6 +200,7 @@ export function AuthLayout({
 							</div>
 							{hasAside && (
 								<aside
+									ref={sceneRef}
 									aria-hidden="true"
 									className="relative m-2 ml-0 hidden overflow-hidden rounded-[14px] bg-foreground/[0.03] lg:block dark:bg-foreground/[0.025]"
 								>
