@@ -1,6 +1,7 @@
 import { errorStatusOf } from '@/core/lib/utils/error-feedback';
 import { formatAmount } from '@/core/lib/utils/daily-report-figures';
 import { ECurrencies } from '@/core/types/generics/enums/currency';
+import type { IEmployeeRatesInput } from '@/core/types/schemas/organization/rates.schema';
 
 /**
  * The permissions that let a caller set any member's rate and every project's rates. Gauzy's `PUT /employee/:id`
@@ -69,6 +70,36 @@ export function parseRateInput(text: string): ParsedRateInput {
 		return { value: null, problem: 'negative' };
 	}
 	return { value: number, problem: null };
+}
+
+export interface EmployeeRatesValues {
+	value: number | null;
+	currency: string;
+	weeklyLimit: number | null;
+}
+
+/**
+ * The rate fields an admin changed, the others left out: a save never writes back a value another admin changed in the
+ * meantime, and a member without a currency of their own keeps following the organization's until one is picked.
+ */
+export function changedEmployeeRatesOf(
+	initial: Readonly<EmployeeRatesValues>,
+	edited: Readonly<EmployeeRatesValues>
+): IEmployeeRatesInput {
+	const changes: IEmployeeRatesInput = {};
+	const isRateChanged = edited.value !== initial.value;
+	if (isRateChanged) {
+		changes.billRateValue = edited.value;
+	}
+	const isCurrencyChanged = edited.currency !== initial.currency;
+	if (isCurrencyChanged) {
+		changes.billRateCurrency = edited.currency;
+	}
+	const isWeeklyLimitChanged = edited.weeklyLimit !== initial.weeklyLimit;
+	if (isWeeklyLimitChanged) {
+		changes.reWeeklyLimit = edited.weeklyLimit;
+	}
+	return changes;
 }
 
 export function rateInputTextOf(value: unknown): string {

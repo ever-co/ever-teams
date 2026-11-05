@@ -30,9 +30,9 @@ export type TProjectRates = z.infer<typeof projectRatesSchema>;
 export type TRateChangeRequestResult = z.infer<typeof rateChangeRequestResultSchema>;
 
 export interface IEmployeeRatesInput {
-	billRateValue: number | null;
-	billRateCurrency: string | null;
-	reWeeklyLimit: number | null;
+	billRateValue?: number | null;
+	billRateCurrency?: string | null;
+	reWeeklyLimit?: number | null;
 }
 
 export interface IRateChangeRequestInput {

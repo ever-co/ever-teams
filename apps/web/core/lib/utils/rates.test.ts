@@ -1,6 +1,7 @@
 import {
 	canEditMemberRateOnProject,
 	canManageProjectRates,
+	changedEmployeeRatesOf,
 	currencyCodesOf,
 	currencyLabelOf,
 	holdsRateAdminPermission,
@@ -148,5 +149,31 @@ describe('canEditMemberRateOnProject', () => {
 		expect(
 			canEditMemberRateOnProject({ isAdmin: true, callerEmployeeId: 'emp-1', memberEmployeeId: 'emp-1' })
 		).toBe(true);
+	});
+});
+
+describe('changedEmployeeRatesOf', () => {
+	const initial = { value: 40, currency: 'EUR', weeklyLimit: 35 };
+
+	it('sends only the weekly limit when that is all the admin changed', () => {
+		expect(changedEmployeeRatesOf(initial, { ...initial, weeklyLimit: 20 })).toEqual({ reWeeklyLimit: 20 });
+	});
+
+	it('leaves the currency out when the admin kept the one shown, so a member without one keeps none', () => {
+		const changes = changedEmployeeRatesOf(initial, { ...initial, value: 55 });
+
+		expect(changes).toEqual({ billRateValue: 55 });
+		expect('billRateCurrency' in changes).toBe(false);
+	});
+
+	it('sends a picked currency and a cleared rate', () => {
+		expect(changedEmployeeRatesOf(initial, { ...initial, value: null, currency: 'USD' })).toEqual({
+			billRateValue: null,
+			billRateCurrency: 'USD'
+		});
+	});
+
+	it('sends nothing when nothing changed', () => {
+		expect(changedEmployeeRatesOf(initial, { ...initial })).toEqual({});
 	});
 });

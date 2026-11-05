@@ -1,13 +1,21 @@
 'use client';
 
 import { FormEvent, KeyboardEvent, useId, useState } from 'react';
+import { useAtomValue } from 'jotai';
 import { useLocale, useTranslations, type DottedLanguageObjectStringPaths } from 'next-intl';
 import { Input } from '@/core/components/common/input';
 import { Button } from '@/core/components/duplicated-components/_button';
 import { Spinner } from '@/core/components/icons';
 import { CurrencySelect } from '@/core/components/rates/currency-select';
 import { errorReasonKeyOf } from '@/core/lib/utils/error-feedback';
-import { parseRateInput, rateAmountTextOf, rateInputTextOf, type RateInputProblem } from '@/core/lib/utils/rates';
+import {
+	changedEmployeeRatesOf,
+	parseRateInput,
+	rateAmountTextOf,
+	rateInputTextOf,
+	type RateInputProblem
+} from '@/core/lib/utils/rates';
+import { currentOrganizationState } from '@/core/stores/user/user-organizations';
 import type { MemberRate, MemberRowModel } from '@/core/hooks/settings/use-team-members-settings';
 import type { IEmployeeRatesInput } from '@/core/types/schemas/organization/rates.schema';
 import { MemberAvatar } from './people-parts';
@@ -35,6 +43,17 @@ export function MemberRateText({ rate }: Readonly<{ rate: MemberRate }>) {
 	);
 }
 
+/** A member without a currency of their own is paid in the organization's, so the select starts on it. */
+function shownCurrencyOf(ownCurrency: string | null, organizationCurrency: string | null | undefined): string {
+	if (ownCurrency) {
+		return ownCurrency;
+	}
+	if (organizationCurrency) {
+		return organizationCurrency;
+	}
+	return DEFAULT_CURRENCY;
+}
+
 function describedByOf(error: string | null, errorId: string) {
 	if (!error) {
 		return undefined;
@@ -57,7 +76,9 @@ export function MemberRateEditor({
 	const limitId = useId();
 	const errorId = useId();
 	const [rateText, setRateText] = useState(() => rateInputTextOf(row.rate.value));
-	const [currency, setCurrency] = useState(row.rate.currency ?? DEFAULT_CURRENCY);
+	const organization = useAtomValue(currentOrganizationState);
+	const [initialCurrency] = useState(() => shownCurrencyOf(row.rate.currency, organization?.currency));
+	const [currency, setCurrency] = useState(initialCurrency);
 	const [limitText, setLimitText] = useState(() => rateInputTextOf(row.rate.weeklyLimit));
 	const [error, setError] = useState<string | null>(null);
 	const [isSaving, setIsSaving] = useState(false);
@@ -75,13 +96,18 @@ export function MemberRateEditor({
 			setError(t(PROBLEM_KEYS[problem]));
 			return;
 		}
+		const changes = changedEmployeeRatesOf(
+			{ value: row.rate.value, currency: initialCurrency, weeklyLimit: row.rate.weeklyLimit },
+			{ value: rate.value, currency, weeklyLimit: limit.value }
+		);
+		const hasChanges = Object.keys(changes).length > 0;
+		if (!hasChanges) {
+			onCancel();
+			return;
+		}
 		setIsSaving(true);
 		try {
-			await onSaveRates(row.id, {
-				billRateValue: rate.value,
-				billRateCurrency: currency,
-				reWeeklyLimit: limit.value
-			});
+			await onSaveRates(row.id, changes);
 			onCancel();
 		} catch (saveError) {
 			const reasonKey = errorReasonKeyOf(saveError) as DottedLanguageObjectStringPaths;
