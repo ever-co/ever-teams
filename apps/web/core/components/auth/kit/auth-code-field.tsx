@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useRef, type MutableRefObject, type ReactNode, type Ref } from 'react';
+import { useEffect, useRef, type FormEvent, type MutableRefObject, type ReactNode, type Ref } from 'react';
 import { CircleAlert } from '@/core/components/icons';
 import { AuthCodeInputField, type AuthCodeRef } from '@/core/components/auth/auth-code-input';
 import { AUTH_CODE_LENGTH } from '@/core/constants/config/constants';
@@ -93,6 +93,7 @@ export function AuthCodeField({
 	const slotsRef = inputReference ?? ownSlots;
 	const groupRef = useRef<HTMLDivElement>(null);
 	const typedLength = useRef(0);
+	const typedSlot = useRef<HTMLInputElement | null>(null);
 	const labelId = `${id}-label`;
 	const errorId = `${id}-error`;
 	const hasError = Boolean(error);
@@ -111,12 +112,19 @@ export function AuthCodeField({
 		group.animate(SHAKE_KEYFRAMES, SHAKE_TIMING);
 	}, [status]);
 
+	const noteTypedSlot = (event: FormEvent<HTMLDivElement>) => {
+		typedSlot.current = event.target as HTMLInputElement;
+	};
+
+	/** A paste or a code from the link fills the slots from the first one, and fires no input event. */
 	const handleChange = (code: string) => {
 		const grew = code.length > typedLength.current;
 		typedLength.current = code.length;
+		const lastFilledSlot = slotsRef.current[code.length - 1];
+		const changedSlot = typedSlot.current ?? lastFilledSlot;
+		typedSlot.current = null;
 		if (grew) {
-			const lastSlot = slotsRef.current[code.length - 1];
-			settleSlot(lastSlot);
+			settleSlot(changedSlot);
 		}
 		onChange(code);
 	};
@@ -130,7 +138,7 @@ export function AuthCodeField({
 				{labelAside}
 			</div>
 			<fieldset aria-labelledby={labelId} aria-describedby={errorRefOf(hasError, errorId)} className="min-w-0">
-				<div ref={groupRef} className="relative">
+				<div ref={groupRef} className="relative" onInput={noteTypedSlot}>
 					<AuthCodeInputField
 						ref={codeRef}
 						inputReference={slotsRef}
