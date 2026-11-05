@@ -144,7 +144,9 @@ export function useTimerBillable() {
 	const runningLogBillable = timerStatus?.lastLog?.isBillable;
 	const isBillable = displayedBillableOf(isTimerRunning, runningLogBillable, pickedBillable);
 	const hasActiveTask = Boolean(activeTaskId);
-	const isLocked = isTimerRunning || !hasActiveTask;
+	// Until the task's project is read, the switch shows off while a start would send that project's value
+	const isReadingProject = readsUnlistedProject && unlistedProjectQuery.isPending;
+	const isLocked = isTimerRunning || !hasActiveTask || isReadingProject;
 
 	const setIsBillable = useCallback(
 		(nextIsBillable: boolean) => {
