@@ -1,3 +1,4 @@
+// cspell:ignore Pässwörd ÄBCDEFG abcdéfg
 import { isStrongPassword, minLength } from 'class-validator';
 import { meetsPasswordMinLength, PASSWORD_MIN_LENGTH, unmetResetPasswordRulesOf } from './password-strength';
 
@@ -44,6 +45,7 @@ describe('reset password rules', () => {
 		'abcdéfg1!',
 		'Ab1!😀😀😀😀',
 		'Ab1!😀😀😀',
+		// cspell:disable-next-line
 		'Ab1!x️x️x️x',
 		'Aa1~`{}[]',
 		'Aa1\\/<>?,.',
