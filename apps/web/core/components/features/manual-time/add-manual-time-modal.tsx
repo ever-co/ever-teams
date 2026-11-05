@@ -11,9 +11,10 @@ import { cn } from '@/core/lib/helpers';
 import { Calendar, CircleAlert, Clock } from '@/core/components/icons';
 import { Input, controlGroupRecipe, controlRecipe } from '@/core/components/common/input';
 import { BillableSwitch } from '@/core/components/common/billable-switch';
+import { DialogFieldLabel } from '@/core/components/common/dialog-field-label';
 import { DottedLanguageObjectStringPaths, useLocale, useTranslations } from 'next-intl';
 import { errorReasonKeyOf } from '@/core/lib/utils/error-feedback';
-import { FormEvent, ReactNode, useCallback, useEffect, useId, useMemo, useRef, useState } from 'react';
+import { FormEvent, useCallback, useEffect, useId, useMemo, useRef, useState } from 'react';
 
 import { manualTimeReasons } from '@/core/constants/config/constants';
 import { useManualTime } from '@/core/hooks/activities/use-manual-time';
@@ -54,28 +55,9 @@ function clockTimeOf(date: Date) {
 	return date.toTimeString().slice(0, 5);
 }
 
-const FIELD_LABEL_CLASS_NAME = 'mb-1.5 block leading-none';
-
 const DESCRIPTION_FIELD_CLASS_NAME = 'field-sizing-content max-h-[6lh] min-h-20 w-full resize-none p-3';
 
 const PICKER_LABEL_CLASS_NAME = 'mb-1.5 leading-none';
-
-function FieldLabel({
-	children,
-	htmlFor,
-	isRequired = false,
-	optionalLabel
-}: Readonly<{ children: ReactNode; htmlFor?: string; isRequired?: boolean; optionalLabel?: string }>) {
-	const hasOptionalLabel = Boolean(optionalLabel);
-
-	return (
-		<label htmlFor={htmlFor} className={cn(modalFieldLabelClass, FIELD_LABEL_CLASS_NAME)}>
-			{children}
-			{isRequired && <span className="ml-1 text-destructive-ink">*</span>}
-			{hasOptionalLabel && <span className="ml-1 font-normal text-muted-foreground/75">({optionalLabel})</span>}
-		</label>
-	);
-}
 
 function dateLabelOf(date: Date | undefined, locale: string, placeholder: string): string {
 	if (!date) {
@@ -502,7 +484,7 @@ export function AddManualTimeModal(props: Readonly<IAddManualTimeModalProps>) {
 				<div className="flex flex-col gap-2">
 					<div className="grid grid-cols-2 gap-3 sm:grid-cols-[minmax(0,1.4fr)_minmax(0,1fr)_minmax(0,1fr)]">
 						<div className="col-span-2 flex min-w-0 flex-col sm:col-span-1">
-							<FieldLabel isRequired>{t('manualTime.DATE')}</FieldLabel>
+							<DialogFieldLabel isRequired>{t('manualTime.DATE')}</DialogFieldLabel>
 							<DatePicker
 								buttonVariant={'link'}
 								//@ts-ignore
@@ -529,9 +511,9 @@ export function AddManualTimeModal(props: Readonly<IAddManualTimeModalProps>) {
 							/>
 						</div>
 						<div className="flex min-w-0 flex-col">
-							<FieldLabel htmlFor={startTimeId} isRequired>
+							<DialogFieldLabel htmlFor={startTimeId} isRequired>
 								{t('manualTime.START_TIME')}
-							</FieldLabel>
+							</DialogFieldLabel>
 							<Input
 								id={startTimeId}
 								type="time"
@@ -542,9 +524,9 @@ export function AddManualTimeModal(props: Readonly<IAddManualTimeModalProps>) {
 							/>
 						</div>
 						<div className="flex min-w-0 flex-col">
-							<FieldLabel htmlFor={endTimeId} isRequired>
+							<DialogFieldLabel htmlFor={endTimeId} isRequired>
 								{t('manualTime.END_TIME')}
-							</FieldLabel>
+							</DialogFieldLabel>
 							<Input
 								id={endTimeId}
 								type="time"
@@ -579,9 +561,9 @@ export function AddManualTimeModal(props: Readonly<IAddManualTimeModalProps>) {
 							itemToValue={itemToValue}
 						/>
 						<div className="flex flex-col">
-							<FieldLabel htmlFor={descriptionId} optionalLabel={optionalLabel}>
+							<DialogFieldLabel htmlFor={descriptionId} optionalLabel={optionalLabel}>
 								{t('manualTime.DESCRIPTION')}
-							</FieldLabel>
+							</DialogFieldLabel>
 							<textarea
 								id={descriptionId}
 								value={description}
@@ -594,7 +576,7 @@ export function AddManualTimeModal(props: Readonly<IAddManualTimeModalProps>) {
 				) : (
 					<>
 						<div className="flex flex-col">
-							<FieldLabel isRequired>{t('manualTime.TEAM')}</FieldLabel>
+							<DialogFieldLabel isRequired>{t('manualTime.TEAM')}</DialogFieldLabel>
 							<CustomSelect
 								valueKey="id"
 								// Shows the team the time is saved with, also when the active team changes under the form
@@ -622,7 +604,7 @@ export function AddManualTimeModal(props: Readonly<IAddManualTimeModalProps>) {
 							/>
 						</div>
 						<div className="flex flex-col">
-							<FieldLabel isRequired>{t('manualTime.TASK')}</FieldLabel>
+							<DialogFieldLabel isRequired>{t('manualTime.TASK')}</DialogFieldLabel>
 							<CustomSelect
 								valueKey="id"
 								// Controlled, so a task cleared on a team change is cleared in the select too
@@ -651,9 +633,9 @@ export function AddManualTimeModal(props: Readonly<IAddManualTimeModalProps>) {
 						</div>
 
 						<div className="flex flex-col">
-							<FieldLabel htmlFor={descriptionId} optionalLabel={optionalLabel}>
+							<DialogFieldLabel htmlFor={descriptionId} optionalLabel={optionalLabel}>
 								{t('manualTime.DESCRIPTION')}
-							</FieldLabel>
+							</DialogFieldLabel>
 							<textarea
 								id={descriptionId}
 								value={description}
@@ -664,7 +646,7 @@ export function AddManualTimeModal(props: Readonly<IAddManualTimeModalProps>) {
 						</div>
 
 						<div className="flex flex-col">
-							<FieldLabel optionalLabel={optionalLabel}>{t('manualTime.REASON')}</FieldLabel>
+							<DialogFieldLabel optionalLabel={optionalLabel}>{t('manualTime.REASON')}</DialogFieldLabel>
 							<CustomSelect
 								classNameGroup="max-h-[40vh]"
 								ariaLabel="REASON"
