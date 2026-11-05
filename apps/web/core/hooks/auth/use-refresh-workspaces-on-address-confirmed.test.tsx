@@ -26,6 +26,33 @@ describe('useRefreshWorkspacesOnAddressConfirmed', () => {
 
 		expect(mockInvalidateQueries).toHaveBeenCalledTimes(1);
 		expect(mockInvalidateQueries).toHaveBeenCalledWith({ queryKey: ['workspaces'] });
+
+		rerender({ isEmailVerified: undefined });
+		rerender({ isEmailVerified: true });
+		expect(mockInvalidateQueries).toHaveBeenCalledTimes(1);
+	});
+
+	it('reads the user again on tab return while the address is unconfirmed', () => {
+		const { rerender, unmount } = renderWith(false);
+
+		document.dispatchEvent(new Event('visibilitychange'));
+		expect(mockInvalidateQueries).toHaveBeenCalledWith({ queryKey: ['users', 'me'] });
+
+		mockInvalidateQueries.mockReset();
+		rerender({ isEmailVerified: true });
+		mockInvalidateQueries.mockReset();
+		document.dispatchEvent(new Event('visibilitychange'));
+		expect(mockInvalidateQueries).not.toHaveBeenCalled();
+		unmount();
+	});
+
+	it('stops listening once unmounted', () => {
+		const { unmount } = renderWith(false);
+		unmount();
+
+		document.dispatchEvent(new Event('visibilitychange'));
+
+		expect(mockInvalidateQueries).not.toHaveBeenCalled();
 	});
 
 	it('waits for the confirmed address while the user is read again', () => {

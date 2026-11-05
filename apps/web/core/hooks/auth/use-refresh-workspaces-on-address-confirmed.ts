@@ -13,6 +13,22 @@ export function useRefreshWorkspacesOnAddressConfirmed(isEmailVerified: boolean 
 	const queryClient = useQueryClient();
 	const wasUnconfirmed = useRef(false);
 
+	// The user is kept fresh for 15 minutes, and a fresh query is not read again on tab return: a confirmation made in
+	// another tab would stay unseen here
+	useEffect(() => {
+		if (isEmailVerified !== false) {
+			return;
+		}
+		const readUserOnReturn = () => {
+			if (document.visibilityState !== 'visible') {
+				return;
+			}
+			void queryClient.invalidateQueries({ queryKey: queryKeys.users.me });
+		};
+		document.addEventListener('visibilitychange', readUserOnReturn);
+		return () => document.removeEventListener('visibilitychange', readUserOnReturn);
+	}, [isEmailVerified, queryClient]);
+
 	useEffect(() => {
 		if (isEmailVerified === false) {
 			wasUnconfirmed.current = true;
