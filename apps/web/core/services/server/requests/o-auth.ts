@@ -234,12 +234,12 @@ async function signIn(provider: EProvider, access_token: string) {
 // Gauzy sends no reason code with this 401, only its fixed message (ever-gauzy social-signin-verified-account.ts).
 const UNCONFIRMED_ACCOUNT_MESSAGE = /confirm the email address of your account/i;
 
-export const PROVIDER_ACCOUNT_UNCONFIRMED_PATH = '/auth/error?error=ProviderAccountUnconfirmed';
+const PROVIDER_ACCOUNT_UNCONFIRMED_PATH = '/auth/error?error=ProviderAccountUnconfirmed';
 
-export const PROVIDER_ACCOUNT_NOT_SET_UP_PATH = '/auth/error?error=ProviderAccountNotSetUp';
+const PROVIDER_ACCOUNT_NOT_SET_UP_PATH = '/auth/error?error=ProviderAccountNotSetUp';
 
 // The generic "Something went wrong, try again" page: a transient failure once Gauzy recognized the account.
-export const PROVIDER_SIGN_IN_FAILED_PATH = '/auth/error?error=Configuration';
+const PROVIDER_SIGN_IN_FAILED_PATH = '/auth/error?error=Configuration';
 
 type GauzyRefusal = { statusCode?: unknown; message?: unknown } | null | undefined;
 

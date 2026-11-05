@@ -397,8 +397,10 @@ export const Bot = /*#__PURE__*/ icon(BotIcon, 'Bot');
 export const ArrowUp = /*#__PURE__*/ icon(ArrowUp02Icon, 'ArrowUp');
 export const ArrowDown = /*#__PURE__*/ icon(ArrowDown02Icon, 'ArrowDown');
 export const ChevronsDown = /*#__PURE__*/ icon(ArrowDownDoubleIcon, 'ChevronsDown');
+/** @public Part of the icon set; no screen uses it since the sweep of 2026-11-05 (#4905, #4914). */
 export const Refresh = /*#__PURE__*/ icon(RefreshIcon, 'Refresh');
 export const CircleX = /*#__PURE__*/ icon(CancelCircleIcon, 'CircleX');
+/** @public Part of the icon set; no screen uses it since the sweep of 2026-11-05 (#4905, #4914). */
 export const MailCheck = /*#__PURE__*/ icon(MailValidation01Icon, 'MailCheck');
 export const Shield = /*#__PURE__*/ icon(Shield01Icon, 'Shield');
 export const UserSettings = /*#__PURE__*/ icon(UserSettings01Icon, 'UserSettings');
