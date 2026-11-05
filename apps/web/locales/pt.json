@@ -4251,7 +4251,7 @@
 		"code": {
 			"CHANGE_EMAIL": "Usar outro e-mail",
 			"CLEAR": "Limpar",
-			"DESCRIPTION": "Enviamos um código de {length} caracteres para <address>{email}</address>.",
+			"DESCRIPTION": "Enviamos um código de {length} caracteres para <address>{email}</address>. Você também pode entrar pelo link desse e-mail.",
 			"LABEL": "Código de acesso",
 			"NOT_RECEIVED": "Nada na caixa de entrada?",
 			"RESEND": "Enviar novo código",
@@ -4325,7 +4325,7 @@
 			"ACCOUNT_TITLE": "Seu lugar na equipe",
 			"INBOX_ACTIVATE_TEXT": "Abra o link dele para ativar sua conta e depois entre com seu e-mail.",
 			"INBOX_ACTIVATE_TITLE": "Procure este e-mail",
-			"INBOX_CODE_TEXT": "Digite o código que ele contém para entrar.",
+			"INBOX_CODE_TEXT": "Digite o código que ele contém ou abra o link: os dois fazem você entrar.",
 			"INBOX_CODE_TITLE": "Procure este e-mail",
 			"INBOX_RESET_TEXT": "O link dele abre a página onde você escolhe uma nova senha.",
 			"INBOX_RESET_TITLE": "Procure este e-mail",

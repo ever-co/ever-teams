@@ -4251,7 +4251,7 @@
 		"code": {
 			"CHANGE_EMAIL": "שימוש בדוא״ל אחר",
 			"CLEAR": "ניקוי",
-			"DESCRIPTION": "שלחנו קוד בן {length} תווים אל <address>{email}</address>.",
+			"DESCRIPTION": "שלחנו קוד בן {length} תווים אל <address>{email}</address>. גם הקישור שבאותה הודעה מחבר אתכם.",
 			"LABEL": "קוד התחברות",
 			"NOT_RECEIVED": "לא הגיע שום דבר?",
 			"RESEND": "שליחת קוד חדש",
@@ -4325,7 +4325,7 @@
 			"ACCOUNT_TITLE": "המקום שלכם בצוות",
 			"INBOX_ACTIVATE_TEXT": "פתחו את הקישור שבה כדי להפעיל את החשבון, ואז התחברו עם הדוא״ל שלכם.",
 			"INBOX_ACTIVATE_TITLE": "ההודעה שצריך לחפש",
-			"INBOX_CODE_TEXT": "הקלידו את הקוד שבה כדי להתחבר.",
+			"INBOX_CODE_TEXT": "הקלידו את הקוד שבה, או פתחו את הקישור שלה: שתי הדרכים מחברות אתכם.",
 			"INBOX_CODE_TITLE": "ההודעה שצריך לחפש",
 			"INBOX_RESET_TEXT": "הקישור שבה פותח את הדף שבו בוחרים סיסמה חדשה.",
 			"INBOX_RESET_TITLE": "ההודעה שצריך לחפש",

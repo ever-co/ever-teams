@@ -95,8 +95,7 @@ export default function DeleteAccountRequestForm() {
 								description={t('pages.accountDeletion.REQUEST_DESCRIPTION', { appName: APP_NAME })}
 								className="mb-7"
 							/>
-							{/* The browser checks the address format: the submit handler only refuses an empty one */}
-							<form onSubmit={handleSubmit} className="flex flex-col gap-5">
+							<form onSubmit={handleSubmit} className="flex flex-col gap-5" noValidate>
 								<p className={AUTH_HINT}>
 									{t('pages.accountDeletion.REQUEST_WHO_FOR', { appName: APP_NAME })}
 								</p>

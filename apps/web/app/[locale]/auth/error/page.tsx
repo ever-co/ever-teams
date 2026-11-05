@@ -35,24 +35,6 @@ const errorMap = {
 	[Error.AccessDenied]: <UnauthorizedPage />
 };
 
-/** The shape of a next-auth code (OAuthSignin, Verification...): any other value is not shown on the page. */
-const ERROR_CODE = /^[A-Za-z]{1,40}$/;
-
-/** Only the map's own codes: `toString` or `__proto__` would otherwise read Object.prototype. */
-function errorPageOf(error: string) {
-	if (Object.prototype.hasOwnProperty.call(errorMap, error)) {
-		return errorMap[error as Error];
-	}
-	return null;
-}
-
-function shownCodeOf(error: string) {
-	if (ERROR_CODE.test(error)) {
-		return error;
-	}
-	return null;
-}
-
 /**
  * Error page
  *
@@ -61,8 +43,8 @@ function shownCodeOf(error: string) {
  */
 export default function Page() {
 	const search = useSearchParams();
-	const error = search?.get('error') ?? '';
+	const error = search?.get('error') as Error;
 	// next-auth also sends OAuthSignin, OAuthCallback, Verification, Default...: they get the generic sign-in error
-	const page = errorPageOf(error) ?? <SignInError code={shownCodeOf(error)} />;
+	const page = errorMap[error] ?? <SignInError code={error} />;
 	return <FocusShell>{page}</FocusShell>;
 }

@@ -6,7 +6,7 @@ import { prefersReducedMotion } from '@/core/lib/utils/motion';
 export type Travel = 'forward' | 'backward';
 
 /** A step inside a page clears from a small blur; a whole page only fades in and slides, so nothing flickers. */
-type ArrivalScale = 'step' | 'page';
+export type ArrivalScale = 'step' | 'page';
 
 const TRAVEL_PIXELS: Record<ArrivalScale, number> = {
 	step: 6,
@@ -49,10 +49,6 @@ function arrivalKeyframesOf(travel: Travel, scale: ArrivalScale): Keyframe[] {
 /** The arrival of a step that stays mounted while hidden (a form whose fields must keep their state). */
 export function playStepArrival(element: HTMLElement | null, travel: Travel, scale: ArrivalScale = 'step') {
 	if (!element) {
-		return;
-	}
-	// No Web Animations API (an old browser, jsdom): the step just shows
-	if (typeof element.animate !== 'function') {
 		return;
 	}
 	if (prefersReducedMotion()) {

@@ -105,8 +105,7 @@ export default function ForgotPasswordForm() {
 							description={t('auth.forgot.DESCRIPTION')}
 							className="mb-7"
 						/>
-						{/* The browser checks the address format: the submit handler only refuses an empty one */}
-						<form onSubmit={handleSubmit} className="flex flex-col gap-5">
+						<form onSubmit={handleSubmit} className="flex flex-col gap-5" noValidate>
 							<AuthField
 								id="forgot-email"
 								name="email"

@@ -16,7 +16,7 @@ import { AUTH_CONTROL_HEIGHT, AUTH_HINT, AUTH_LABEL, AUTH_LINE_ARRIVAL } from '.
 
 type NativeInputProps = Omit<ComponentPropsWithoutRef<'input'>, 'id' | 'className'>;
 
-type AuthFieldProps = {
+export type AuthFieldProps = {
 	id: string;
 	label: ReactNode;
 	labelAside?: ReactNode;
@@ -136,7 +136,7 @@ const REVEAL_BUTTON_CLASS =
 
 const REVEAL_GLYPH_CLASS = 'absolute size-4 transition-[opacity,transform] duration-150 ease-out';
 
-type PasswordFieldProps = Omit<AuthFieldProps, 'type' | 'trailing'>;
+export type PasswordFieldProps = Omit<AuthFieldProps, 'type' | 'trailing'>;
 
 /** Caps Lock is read from key events: a browser exposes it nowhere else. */
 export const PasswordField = forwardRef<HTMLInputElement, PasswordFieldProps>(function PasswordField(

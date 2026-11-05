@@ -242,9 +242,6 @@ export function PasswordWorkspaceStep({
 	useRefreshWithToken(form.authScreen.screen === 'workspace');
 
 	const goBack = () => {
-		// The pick outlives this step (the page holds it): the next account starts from its own first workspace
-		setSelectedWorkspace(0);
-		setSelectedTeam('');
 		form.authScreen.setScreen('login');
 		form.setErrors({});
 	};

@@ -4251,7 +4251,7 @@
 		"code": {
 			"CHANGE_EMAIL": "Use another e-mail",
 			"CLEAR": "Clear",
-			"DESCRIPTION": "We sent an {length}-character code to <address>{email}</address>.",
+			"DESCRIPTION": "We sent an {length}-character code to <address>{email}</address>. The link in the same e-mail signs you in too.",
 			"LABEL": "Sign-in code",
 			"NOT_RECEIVED": "Nothing in your inbox?",
 			"RESEND": "Send a new code",
@@ -4325,7 +4325,7 @@
 			"ACCOUNT_TITLE": "Your place in the team",
 			"INBOX_ACTIVATE_TEXT": "Open its link to activate your account, then sign in with your e-mail.",
 			"INBOX_ACTIVATE_TITLE": "The e-mail to look for",
-			"INBOX_CODE_TEXT": "Type the code it holds to sign in.",
+			"INBOX_CODE_TEXT": "Type the code it holds, or open its link: both sign you in.",
 			"INBOX_CODE_TITLE": "The e-mail to look for",
 			"INBOX_RESET_TEXT": "Its link opens the page where you choose a new password.",
 			"INBOX_RESET_TITLE": "The e-mail to look for",

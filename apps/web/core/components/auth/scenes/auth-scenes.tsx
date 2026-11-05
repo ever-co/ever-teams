@@ -182,7 +182,7 @@ function MaskedCode() {
 	);
 }
 
-type InboxMessage = 'code' | 'reset' | 'activate';
+export type InboxMessage = 'code' | 'reset' | 'activate';
 
 const SUBJECT_KEY = {
 	code: 'auth.scene.SUBJECT_CODE',
@@ -241,7 +241,7 @@ export function InboxScene({
 	);
 }
 
-function WorkspaceScene({
+export function WorkspaceScene({
 	title,
 	description,
 	workspaceName,
