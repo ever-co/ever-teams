@@ -13,9 +13,9 @@ function useFailureToast() {
 	const t = useTranslations();
 
 	return useCallback(
-		(titleKey: DottedLanguageObjectStringPaths, error: unknown) => {
+		(titleKey: DottedLanguageObjectStringPaths, error: unknown, toastId?: string) => {
 			const reasonKey = errorReasonKeyOf(error) as DottedLanguageObjectStringPaths;
-			toast.error(t(titleKey), { description: t(reasonKey) });
+			toast.error(t(titleKey), { id: toastId, description: t(reasonKey) });
 		},
 		[t]
 	);
@@ -106,7 +106,8 @@ export function useOrganizationEmployeeTeams() {
 			await loadTeamsData();
 		},
 		onError: async (error) => {
-			showFailure('toasts.teams.MEMBER_ORDER_NOT_SAVED', error);
+			// A drop saves one order per member: their failures share one message instead of stacking one each
+			showFailure('toasts.teams.MEMBER_ORDER_NOT_SAVED', error, 'member-order-not-saved');
 			// Part of the drop may have been saved: read the order the API really holds before the list goes back
 			await queryClient.invalidateQueries({ queryKey: queryKeys.organizationTeams.all });
 		}

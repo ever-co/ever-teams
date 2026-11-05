@@ -15,8 +15,10 @@ import { MEMBER_CARD } from '@/core/components/teams/member-row-grid';
 import {
 	membersWithPendingOrders,
 	ordersAfterSwap,
+	sortByOrder,
 	type TPendingMemberOrders
 } from '@/core/lib/helpers/team-member-order';
+import { TEAM_MEMBER_CONSTANTS } from '@/core/lib/utils/team-members.utils';
 
 interface Props {
 	teamMembers: TOrganizationTeamEmployee[];
@@ -61,6 +63,7 @@ const TeamMembersCardView: React.FC<Props> = memo(
 
 		// Read through refs so handleSort keeps its identity and does not re-render every memoized card
 		const membersRef = useSyncRef(members);
+		const currentUserRef = useSyncRef(currentUser);
 		const isSavingOrderRef = useSyncRef(isSavingOrder);
 
 		const handleSort = useCallback(() => {
@@ -74,16 +77,30 @@ const TeamMembersCardView: React.FC<Props> = memo(
 			if (hasNothingToMove || isSavingOrderRef.current) {
 				return;
 			}
-			const nextOrders = ordersAfterSwap(membersRef.current, draggedIndex, targetIndex);
+			// The viewer's own card is shown apart but holds a place in the team's order that the other members see:
+			// it is ranked with them where it sorts, or every drop would leave it unranked and last for the team. A
+			// placeholder card (a viewer the team does not list yet) has no membership to save.
+			const viewer = currentUserRef.current;
+			const viewerId = viewer?.id ?? '';
+			const isListedViewer = viewerId !== '' && !viewerId.startsWith(TEAM_MEMBER_CONSTANTS.TEMP_ID_PREFIX);
+			let rankedMembers = membersRef.current;
+			if (viewer && isListedViewer) {
+				rankedMembers = [...membersRef.current, viewer].sort(sortByOrder);
+			}
+			const nextOrders = ordersAfterSwap(
+				rankedMembers,
+				rankedMembers.indexOf(draggedMember),
+				rankedMembers.indexOf(targetMember)
+			);
 			setPendingOrders(nextOrders);
-			const reorderedMembers = membersRef.current.filter((member) => member.id in nextOrders);
+			const reorderedMembers = rankedMembers.filter((member) => member.id in nextOrders);
 			const saves = reorderedMembers.map((member) =>
 				updateOrganizationTeamEmployeeOrderOnList(member, nextOrders[member.id])
 			);
 			// Each save reloads the teams as it settles (a failure also shows its message), so once all have settled
 			// the list reads the order the API holds
 			void Promise.allSettled(saves).then(() => setPendingOrders(null));
-		}, [membersRef, isSavingOrderRef, updateOrganizationTeamEmployeeOrderOnList]);
+		}, [membersRef, currentUserRef, isSavingOrderRef, updateOrganizationTeamEmployeeOrderOnList]);
 
 		const handleDragOver = useCallback((e: React.DragEvent<HTMLDivElement>) => e.preventDefault(), []);
 
