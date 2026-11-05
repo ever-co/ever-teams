@@ -13,8 +13,9 @@ import { useUserQuery } from '@/core/hooks/queries/user-user.query';
 import { clsxm } from '@/core/lib/utils';
 import { MEMBER_CARD } from '@/core/components/teams/member-row-grid';
 import {
-	arePendingOrdersSaved,
 	membersWithPendingOrders,
+	unsavedPendingOrders,
+	withoutDropOrders,
 	type TPendingMemberOrders
 } from '@/core/lib/helpers/team-member-order';
 
@@ -58,8 +59,9 @@ const TeamMembersCardView: React.FC<Props> = memo(
 			if (!pendingOrders) {
 				return;
 			}
-			if (arePendingOrdersSaved(teamMembers, pendingOrders)) {
-				setPendingOrders(null);
+			const remainingOrders = unsavedPendingOrders(teamMembers, pendingOrders);
+			if (remainingOrders !== pendingOrders) {
+				setPendingOrders(remainingOrders);
 			}
 		}, [teamMembers, pendingOrders]);
 
@@ -81,13 +83,16 @@ const TeamMembersCardView: React.FC<Props> = memo(
 				[targetMember.id]: targetIndex,
 				[draggedMember.id]: draggedIndex
 			};
-			setPendingOrders(nextOrders);
+			// A drop made while an earlier one is still saving adds to its preview instead of replacing it
+			setPendingOrders((currentOrders) => ({ ...currentOrders, ...nextOrders }));
 			const saves = [
 				updateOrganizationTeamEmployeeOrderOnList(targetMember, targetIndex),
 				updateOrganizationTeamEmployeeOrderOnList(draggedMember, draggedIndex)
 			];
 			// The failure toast comes from the mutation; the list only has to go back
-			Promise.all(saves).catch(() => setPendingOrders(null));
+			Promise.all(saves).catch(() =>
+				setPendingOrders((currentOrders) => withoutDropOrders(currentOrders, nextOrders))
+			);
 		}, [membersRef, updateOrganizationTeamEmployeeOrderOnList]);
 
 		const handleDragOver = useCallback((e: React.DragEvent<HTMLDivElement>) => e.preventDefault(), []);

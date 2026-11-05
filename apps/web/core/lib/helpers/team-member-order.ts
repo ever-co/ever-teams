@@ -39,13 +39,42 @@ export function membersWithPendingOrders(
 	return patchedMembers.sort(sortByOrder);
 }
 
-/** Whether the members read from the API already carry every pending order. */
-export function arePendingOrdersSaved(
+function isOrderSaved(members: TOrganizationTeamEmployee[], memberId: string, order: number): boolean {
+	const member = members.find((candidate) => candidate.id === memberId);
+	return member?.order === order;
+}
+
+/**
+ * The pending orders the members read from the API do not carry yet: the same object when none has landed, so a
+ * caller can tell nothing changed, and null once all have.
+ */
+export function unsavedPendingOrders(
 	members: TOrganizationTeamEmployee[],
 	pendingOrders: TPendingMemberOrders
-): boolean {
-	return Object.entries(pendingOrders).every(([memberId, order]) => {
-		const member = members.find((candidate) => candidate.id === memberId);
-		return member?.order === order;
-	});
+): TPendingMemberOrders | null {
+	const pendingEntries = Object.entries(pendingOrders);
+	const unsavedEntries = pendingEntries.filter(([memberId, order]) => !isOrderSaved(members, memberId, order));
+	const hasNoneSaved = unsavedEntries.length === pendingEntries.length;
+	if (hasNoneSaved) {
+		return pendingOrders;
+	}
+	if (unsavedEntries.length === 0) {
+		return null;
+	}
+	return Object.fromEntries(unsavedEntries);
+}
+
+/** The pending orders without those of a failed drop, keeping any a later drop gave the same members. */
+export function withoutDropOrders(
+	pendingOrders: TPendingMemberOrders | null,
+	dropOrders: TPendingMemberOrders
+): TPendingMemberOrders | null {
+	if (!pendingOrders) {
+		return null;
+	}
+	const keptEntries = Object.entries(pendingOrders).filter(([memberId, order]) => dropOrders[memberId] !== order);
+	if (keptEntries.length === 0) {
+		return null;
+	}
+	return Object.fromEntries(keptEntries);
 }
