@@ -80,4 +80,30 @@ describe('withAuthentication', () => {
 
 		expect(mockSetUser).not.toHaveBeenCalled();
 	});
+
+	it('follows a newer version of the signed-in user that the query reads after sign-in', () => {
+		mockStoredUser = { id: 'authenticated-user', updatedAt: new Date('2026-11-05T08:00:00Z') };
+		mockQueriedUser = { id: 'authenticated-user', updatedAt: new Date('2026-11-05T08:00:00Z') };
+		const AuthenticatedPage = withAuthentication(() => null, { displayName: 'ProtectedPage' });
+		const view = render(<AuthenticatedPage />);
+		expect(mockSetUser).not.toHaveBeenCalled();
+
+		mockQueriedUser = { id: 'authenticated-user', updatedAt: new Date('2026-11-05T09:00:00Z') };
+		view.rerender(<AuthenticatedPage />);
+
+		expect(mockSetUser).toHaveBeenCalledTimes(1);
+		expect(mockSetUser).toHaveBeenCalledWith(mockQueriedUser);
+	});
+
+	it('ignores an older version of the signed-in user that the query reads after sign-in', () => {
+		mockStoredUser = { id: 'authenticated-user', updatedAt: new Date('2026-11-05T09:00:00Z') };
+		mockQueriedUser = { id: 'authenticated-user', updatedAt: new Date('2026-11-05T09:00:00Z') };
+		const AuthenticatedPage = withAuthentication(() => null, { displayName: 'ProtectedPage' });
+		const view = render(<AuthenticatedPage />);
+
+		mockQueriedUser = { id: 'authenticated-user', updatedAt: new Date('2026-11-05T08:00:00Z') };
+		view.rerender(<AuthenticatedPage />);
+
+		expect(mockSetUser).not.toHaveBeenCalled();
+	});
 });
