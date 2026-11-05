@@ -78,10 +78,29 @@ export function useTeamGeneralSettings() {
 	// next team read.
 	const saveDefaultProject = useCallback(
 		async (defaultProjectId: string) => {
-			await saveField({ defaultProjectId }, 'toasts.teams.DEFAULT_PROJECT_NOT_SAVED');
-			setActiveProjectIdCookie(defaultProjectId);
+			if (!teamId) {
+				throw new Error('No active team');
+			}
+			const savedTeamId = teamId;
+			try {
+				const response = await editOrganizationTeam({ id: savedTeamId, defaultProjectId });
+				// An API without the field drops it and still answers: the team read back after the save is the proof
+				const keptDefaultProjectId = response?.data?.defaultProjectId;
+				if (keptDefaultProjectId !== defaultProjectId) {
+					throw new Error('The team did not keep its default project');
+				}
+			} catch (error) {
+				showFailure('toasts.teams.DEFAULT_PROJECT_NOT_SAVED', error);
+				// The PUT may have landed even though the read that follows it failed
+				queryClient.invalidateQueries({ queryKey: queryKeys.organizationTeams.all });
+				throw error;
+			}
+			// A save that ends after a switch to another team must not file that team's new tasks under this project
+			if (getActiveTeam()?.id === savedTeamId) {
+				setActiveProjectIdCookie(defaultProjectId);
+			}
 		},
-		[saveField]
+		[editOrganizationTeam, getActiveTeam, queryClient, showFailure, teamId]
 	);
 
 	const saveVisibility = useCallback(
