@@ -334,4 +334,21 @@ describe('AddTaskModal project of the saved time', () => {
 			expect.objectContaining({ taskId: 'task-loose', projectId: 'project-mobile', isBillable: false })
 		);
 	});
+
+	it("offers no other project for a task whose project is not in the list, and saves the task's own", () => {
+		const taskInArchivedProject = { id: 'task-archived', title: 'Old task', projectId: 'project-archived' };
+		mockAtomValues.tasksByTeamState = [taskInArchivedProject, taskWithoutProject];
+		renderAddTimeForm();
+
+		pickTaskAndEmployee('task-archived', 'employee-a');
+
+		expect(offeredProjectIds()).toEqual(['']);
+
+		fillShiftTimes();
+		save();
+
+		expect(mockCreateTimesheet).toHaveBeenCalledWith(
+			expect.objectContaining({ taskId: 'task-archived', projectId: 'project-archived' })
+		);
+	});
 });

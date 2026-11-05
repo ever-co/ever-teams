@@ -118,12 +118,22 @@ function billableOf(billableChoice: boolean | null, project: TOrganizationProjec
 	return project?.billable === true;
 }
 
-/** A task's time goes to the task's own project: when the task has one, it is the only project offered. */
-function projectChoicesFor(taskProject: TOrganizationProject | undefined, projects: TOrganizationProject[]) {
+/**
+ * A task's time goes to the task's own project: when the task has one, it is the only project offered. A task
+ * project missing from the list (archived, or not loaded yet) offers none, since another pick would not be saved.
+ */
+function projectChoicesFor(
+	taskProjectId: string | null | undefined,
+	taskProject: TOrganizationProject | undefined,
+	projects: TOrganizationProject[]
+) {
+	if (!taskProjectId) {
+		return projects;
+	}
 	if (taskProject) {
 		return [taskProject];
 	}
-	return projects;
+	return [];
 }
 
 export function AddTaskModal({ closeModal, isOpen }: IAddTaskModalProps) {
@@ -196,11 +206,12 @@ export function AddTaskModal({ closeModal, isOpen }: IAddTaskModalProps) {
 		[tasks]
 	);
 
+	const selectedTaskProjectId = selectedTask?.projectId;
 	const projectItemsLists = useMemo(
 		() => ({
-			Project: projectChoicesFor(taskProject, projects)
+			Project: projectChoicesFor(selectedTaskProjectId, taskProject, projects)
 		}),
-		[projects, taskProject]
+		[projects, selectedTaskProjectId, taskProject]
 	);
 
 	const handleSelectedValuesChange = useCallback(
