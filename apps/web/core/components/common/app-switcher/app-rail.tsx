@@ -9,13 +9,14 @@ import { AppGlyph } from './app-glyph';
 
 const TOOLTIP_DELAY_MS = 400;
 
-export const APP_RAIL_WIDTH_CLASS = 'w-12';
-
 /**
- * The fixed sidebar moves right by the rail's `w-12` and, while expanded, drops its own left padding, so the
- * rail and the sidebar read as one column (owner, 2026-11-05: less room between them).
+ * The rail and the sidebar read as one column (owner, 2026-11-05: less room between them). The rail is `w-12`;
+ * the sidebar after it drops its left padding and, collapsed to icons, narrows its icon column from 4rem to 3rem.
  */
-export const APP_RAIL_SIDEBAR_CLASS = 'md:left-12 md:group-data-[state=expanded]:pl-0';
+export const APP_RAIL_WIDTH_CLASS = 'w-12 md:[&~.peer]:[--sidebar-width-icon:3rem]';
+
+/** The fixed sidebar moves right by the rail's width. */
+export const APP_RAIL_SIDEBAR_CLASS = 'md:left-12 md:pl-0';
 
 const RAIL_SLOT = 'flex size-10 items-center justify-center rounded-lg';
 
