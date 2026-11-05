@@ -14,6 +14,11 @@
       "source": "router"
     },
     {
+      "path": "/:locale/assistant",
+      "file": "apps/web/app/[locale]/(main)/assistant/page.tsx",
+      "source": "router"
+    },
+    {
       "path": "/:locale/auth/accept-invite",
       "file": "apps/web/app/[locale]/auth/accept-invite/page.tsx",
       "source": "router"
