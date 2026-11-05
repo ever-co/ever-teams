@@ -317,7 +317,8 @@ export function useOrganizationTeamsQuery(options: UseOrganizationTeamsQueryOpti
 			const newTeam = organizationTeamQuery.data.data;
 
 			const memberActiveTaskIds = newTeam.members?.map((m) => m.activeTaskId || 'null').join(',') || '';
-			const memberRoles = newTeam.members?.map((m) => `${m.id}:${m.role?.name ?? 'none'}`).join(',') || '';
+			const memberRoles =
+				newTeam.members?.map((m) => `${m.id}:${m.role?.name ?? 'none'}:${m.order ?? ''}`).join(',') || '';
 			// Timer presence (other clients) and the presence heartbeat both have to change the signature
 			const memberPresence = `${newTeam.members?.map(getMemberPresenceSignature).join(',') || ''}:${getMembersPresenceSignature(newTeam.members)}`;
 			const newSignature = `${newTeam.id}:${newTeam.updatedAt ?? ''}:${newTeam.members?.length ?? 0}:${memberActiveTaskIds}:${memberRoles}:${memberPresence}`;
