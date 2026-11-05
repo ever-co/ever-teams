@@ -156,6 +156,15 @@ const ZONED_RANGES: Array<[string, string | Date, string | Date, string, string,
 		'2026-09-07T02:59:59.999Z'
 	],
 	[
+		// Amman fell back from 01:00 to 00:00 on October 29, 2021: midnight came twice, the day starts at the first
+		'a day whose midnight comes twice',
+		'2021-10-29',
+		'2021-10-29',
+		'Asia/Amman',
+		'2021-10-28T21:00:00.000Z',
+		'2021-10-29T21:59:59.999Z'
+	],
+	[
 		'the browser days for a zone the runtime does not know',
 		'2026-10-25',
 		'2026-10-25',

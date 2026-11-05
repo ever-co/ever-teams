@@ -61,6 +61,8 @@ function dayInZone(formatter: Intl.DateTimeFormat, instant: number): string {
 	return new Date(wallClockAsUtc(formatter, instant)).toISOString().slice(0, 10);
 }
 
+const DAY_MS = 24 * 60 * 60 * 1000;
+
 /** The day after a 'YYYY-MM-DD' day. */
 function nextDay(day: string): string {
 	const [year, month, date] = day.split('-').map(Number);
@@ -68,17 +70,22 @@ function nextDay(day: string): string {
 }
 
 /**
- * The first instant of a 'YYYY-MM-DD' day in the formatter's zone: its midnight, or the first instant after it when
- * the clocks skip midnight (that day then starts at 01:00), the earlier one when they repeat it.
+ * The first instant of a 'YYYY-MM-DD' day in the formatter's zone: its midnight (the first one when the clocks repeat
+ * midnight), or the first instant after it when they skip midnight (that day then starts at 01:00).
  */
 function zoneDayStart(formatter: Intl.DateTimeFormat, day: string): number {
 	const [year, month, date] = day.split('-').map(Number);
 	const wallMidnight = Date.UTC(year, month - 1, date);
 	const offsetAt = (instant: number) => wallClockAsUtc(formatter, instant) - Math.floor(instant / 1000) * 1000;
-	const first = wallMidnight - offsetAt(wallMidnight);
-	const second = wallMidnight - offsetAt(first);
-	const onTheDay = [first, second].filter((instant) => dayInZone(formatter, instant) === day);
-	return onTheDay.length > 0 ? Math.min(...onTheDay) : Math.min(first, second);
+	// The offsets in force a day before, at and a day after the wall midnight: a change of the clocks around that
+	// midnight (at most one) is between them, so the instants they give hold every midnight of the day
+	const offsets = new Set([-DAY_MS, 0, DAY_MS].map((shift) => offsetAt(wallMidnight + shift)));
+	const candidates = [...offsets].map((offset) => wallMidnight - offset);
+	const midnights = candidates.filter((instant) => wallClockAsUtc(formatter, instant) === wallMidnight);
+	if (midnights.length > 0) return Math.min(...midnights);
+	// The clocks skip midnight: the day starts at the first instant they show on it
+	const onTheDay = candidates.filter((instant) => dayInZone(formatter, instant) === day);
+	return onTheDay.length > 0 ? Math.min(...onTheDay) : Math.min(...candidates);
 }
 
 /**
