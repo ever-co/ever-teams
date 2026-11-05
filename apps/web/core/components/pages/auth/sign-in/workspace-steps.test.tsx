@@ -29,7 +29,9 @@ function passwordFormWith(workspaces: ISigninEmailConfirmWorkspaces[]) {
 		handleWorkspaceSubmit: jest.fn(),
 		signInWorkspaceLoading: false,
 		authScreen: { screen: 'workspace', setScreen: jest.fn() },
-		setErrors: jest.fn()
+		setErrors: jest.fn(),
+		// #4922's remembered team reads the signed-in address
+		formValues: { email: 'jane@example.test', password: '' }
 	} as unknown as TAuthenticationPassword;
 }
 

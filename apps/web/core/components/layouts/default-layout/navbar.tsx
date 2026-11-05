@@ -25,6 +25,7 @@ import { TeamsDropDownSkeleton } from '@/core/components/common/skeleton/teams-d
 import { CollaborateSkeleton } from '@/core/components/common/skeleton/collaborate-skeleton';
 import { useUserQuery } from '@/core/hooks/queries/user-user.query';
 import { NotificationBell } from '@/core/components/notifications/inbox/notification-bell';
+import { HeaderAppSwitcher } from '@/core/components/common/app-switcher/header-app-switcher';
 
 const TEAM_DROPDOWN_HIDDEN_PATHS = new Set(['/task/[id]', '/profile/[memberId]']);
 
@@ -53,7 +54,7 @@ const teamsSettledAtom = atom((get) => {
 	return hasTeams || hasNoTeam;
 });
 
-/** The global controls at the end of the top bar: timer, inbox, collaborate, team switcher, shortcuts, account on phones. */
+/** The global controls at the end of the top bar: timer, inbox, collaborate, team switcher, shortcuts, apps, account on phones. */
 export function Navbar({
 	className,
 	showTimer,
@@ -131,6 +132,8 @@ export function Navbar({
 
 				<KeyboardShortcuts />
 			</div>
+
+			<HeaderAppSwitcher />
 
 			{/* Phones only: the account menu (with Collaborate, team switcher and shortcuts) stays in the bar;
 			    from md up it lives at the foot of the sidebar. */}

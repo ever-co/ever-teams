@@ -79,7 +79,9 @@ jest.mock('@/core/components/common/dropdown-menu', () => ({
 	DropdownMenuTrigger: ({ children }: React.PropsWithChildren) => <>{children}</>,
 	DropdownMenuPortal: ({ children }: React.PropsWithChildren) => <>{children}</>,
 	DropdownMenuContent: ({ children }: React.PropsWithChildren) => <div>{children}</div>,
-	DropdownMenuItem: ({ children }: React.PropsWithChildren) => <div>{children}</div>,
+	DropdownMenuItem: ({ children, onSelect }: React.PropsWithChildren<{ onSelect?: () => void }>) => (
+		<div onClick={() => onSelect?.()}>{children}</div>
+	),
 	DropdownMenuSeparator: () => <hr />
 }));
 
@@ -87,7 +89,11 @@ jest.mock('@/core/lib/helpers/index', () => ({
 	getDailyPlanDay: jest.requireActual('@/core/lib/helpers/daily-plan-day').getDailyPlanDay,
 	secondsToTime: () => ({ hours: 0, minutes: 0, seconds: 0 })
 }));
-jest.mock('@/core/lib/utils', () => ({ clsxm: (...values: string[]) => values.filter(Boolean).join(' ') }));
+// task.utils builds a Queue from this module when it loads
+jest.mock('@/core/lib/utils', () => ({
+	clsxm: (...values: string[]) => values.filter(Boolean).join(' '),
+	Queue: class {}
+}));
 jest.mock('@/core/stores', () => ({
 	activeTaskStatisticsState: 'active-task-statistics',
 	activeTeamState: 'active-team',
@@ -211,7 +217,7 @@ describe('TaskCardMenu plan entries on a profile', () => {
 		renderMenu({ viewType: 'dailyplan', planMode: 'Today Tasks', plan });
 
 		expect(isShown('dailyPlan.REMOVE_FROM_THIS_PLAN')).toBe(true);
-		expect(isShown('dailyPlan.labels.REMOVE_FROM_ALL_PLANS')).toBe(true);
+		expect(isShown('dailyPlan.REMOVE_FROM_ALL_PLANS')).toBe(true);
 	});
 
 	it("refreshes the teammate's plans when the menu opens", () => {
@@ -235,5 +241,75 @@ describe('TaskCardMenu plan entries on a profile', () => {
 		expect(isShown('dailyPlan.PLAN_FOR_TOMORROW')).toBe(true);
 		expect(mockEnsureMyDailyPlans).toHaveBeenCalledTimes(1);
 		expect(mockEnsureEmployeeDailyPlans).not.toHaveBeenCalled();
+	});
+});
+
+describe('TaskCardMenu assignment entry on a profile', () => {
+	const mockAssignTask = jest.fn(async () => true);
+	const mockUnassignTask = jest.fn(async () => undefined);
+	const mutations = {
+		assignTask: mockAssignTask,
+		unassignTask: mockUnassignTask
+	} as unknown as MenuProps['mutations'];
+	const teammateTask = {
+		id: TASK_ID,
+		title: 'Task X',
+		members: [{ id: TEAMMATE_EMPLOYEE_ID, userId: 'user-teammate' }]
+	} as unknown as MenuProps['task'];
+
+	beforeEach(() => {
+		mockCanSeeActivity = false;
+		mockPermissions = [];
+		mockAssignTask.mockClear();
+		mockUnassignTask.mockClear();
+	});
+
+	it('names the teammate and unassigns them, for a manager on their profile', () => {
+		mockCanSeeActivity = true;
+		renderMenu({ task: teammateTask, mutations });
+
+		expect(isShown('common.UNASSIGN_TASK_FROM_ME')).toBe(false);
+		fireEvent.click(screen.getByText('common.UNASSIGN_TASK_FROM_MEMBER'));
+
+		expect(mockUnassignTask).toHaveBeenCalledWith(teammateTask);
+		expect(mockAssignTask).not.toHaveBeenCalled();
+	});
+
+	it('offers to assign the teammate when they are not on the task', () => {
+		mockCanSeeActivity = true;
+		renderMenu({ mutations });
+
+		expect(isShown('common.ASSIGN_TASK_TO_MEMBER')).toBe(true);
+		expect(isShown('common.ASSIGN_TASK_TO_ME')).toBe(false);
+	});
+
+	it("shows no assignment entry on a teammate's profile to a member who may not act for them", () => {
+		renderMenu({ task: teammateTask, mutations });
+
+		expect(isShown('common.UNASSIGN_TASK_FROM_MEMBER')).toBe(false);
+		expect(isShown('common.UNASSIGN_TASK_FROM_ME')).toBe(false);
+		expect(isShown('common.ASSIGN_TASK_TO_ME')).toBe(false);
+	});
+
+	it('keeps the "to me" entry on the viewer\'s own profile', () => {
+		renderMenu({ profile: ownProfile, mutations });
+
+		expect(isShown('common.ASSIGN_TASK_TO_ME')).toBe(true);
+	});
+
+	it('keeps the viewer\'s own "to me" entry on a teammate\'s profile for a member who may not act for them', () => {
+		const mockViewerAssignTask = jest.fn(async () => true);
+		const viewerMutations = {
+			assignTask: mockViewerAssignTask,
+			unassignTask: jest.fn(async () => undefined)
+		} as unknown as MenuProps['viewerMutations'];
+		renderMenu({ task: teammateTask, mutations, viewerMutations });
+
+		expect(isShown('common.UNASSIGN_TASK_FROM_MEMBER')).toBe(false);
+		fireEvent.click(screen.getByText('common.ASSIGN_TASK_TO_ME'));
+
+		expect(mockViewerAssignTask).toHaveBeenCalledWith(teammateTask);
+		expect(mockAssignTask).not.toHaveBeenCalled();
+		expect(mockUnassignTask).not.toHaveBeenCalled();
 	});
 });

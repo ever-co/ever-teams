@@ -20,7 +20,7 @@ const NotFoundPage = () => {
 				{/* Runtime APP_FAVICON_URL (default /favicon.ico), so a reused image can carry its own icon. */}
 				<link rel="icon" href={APP_FAVICON_URL} />
 			</head>
-			<body>
+			<body className="flex min-h-dvh flex-col bg-background p-4">
 				<NotFound />
 			</body>
 		</html>

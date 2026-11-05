@@ -17,6 +17,8 @@ import { logErrorInDev } from '@/core/lib/helpers/error-message';
 import { shouldRetryQuery } from '@/core/lib/helpers/retry-utils';
 import { canRunTimerForState } from '@/core/lib/helpers/timer-policy';
 import { errorReasonKeyOf } from '@/core/lib/utils/error-feedback';
+import { isTrackingOffRefusal } from '@/core/lib/helpers/timer-errors';
+import { isTimerTaskOfTeam } from '@/core/lib/utils/task.utils';
 import { queryKeys } from '@/core/query/keys';
 import { ApiErrorService } from '@/core/services/client/api-error.service';
 import { timerService } from '@/core/services/client/api/timers';
@@ -36,6 +38,7 @@ import { ILocalTimerStatus, ITimerStatus } from '@/core/types/interfaces/timer/t
 import { TDailyPlan } from '@/core/types/schemas/task/daily-plan.schema';
 import { TTask } from '@/core/types/schemas/task/task.schema';
 import { TUser } from '@/core/types/schemas/user/user.schema';
+import type { TOrganizationTeam } from '@/core/types/schemas';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 
 import { useAuthenticateUser } from '../auth/use-authenticate-user';
@@ -49,6 +52,7 @@ import { useTaskStatusesQuery } from '../tasks/use-task-statuses-query';
 import type { ApiRequestScope } from '@/core/services/client/api-request-scope';
 import { useScopeGuard } from '../bootstrap/use-scope-guard';
 import { useStopStaleTeamsTimer } from './use-stale-timer-guard';
+import { useResolveTimerBillable } from './use-timer-billable';
 
 // ==================== TYPES ====================
 
@@ -110,6 +114,16 @@ export type TimerStartOutcome = 'started' | 'blocked';
 
 /** Shared by every place that refuses a start because time is tracked elsewhere, so repeated tries replace it. */
 export const ALREADY_TRACKING_TOAST_ID = 'timer-already-tracking';
+
+const TRACKING_DISABLED_TOAST_ID = 'timer-tracking-disabled';
+
+// The team data may be older than the user read: only the team switch it states is trusted, not a missing one
+function isTrackingTurnedOff(user: TUser | null | undefined, team: TOrganizationTeam | null | undefined): boolean {
+	const isEmployeeTrackingOff = user?.employee?.isTrackingEnabled === false;
+	const member = team?.members?.find((candidate) => candidate.employee?.userId === user?.id);
+	const isTeamTrackingOff = member?.isTrackingEnabled === false;
+	return isEmployeeTrackingOff || isTeamTrackingOff;
+}
 
 const AUTOMATIC_STOP_TOAST_ID = 'timer-automatic-stop';
 
@@ -214,6 +228,7 @@ export function useTimerApi({
 	// ==================== REFS ====================
 
 	const timerStatusRef = useSyncRef(timerStatus);
+	const activeTeamRef = useSyncRef(activeTeam);
 	const localTimerStatusRef = useSyncRef(localTimerStatus);
 	const taskId = useSyncRef(activeTeamTask?.id);
 	const activeTeamTaskRef = useSyncRef(activeTeamTask);
@@ -229,6 +244,7 @@ export function useTimerApi({
 	const { updateOrganizationTeamEmployeeActiveTask } = useOrganizationEmployeeTeams();
 	const { user, $user, refreshUserData } = useAuthenticateUser();
 	const stopStaleTeamsTimer = useStopStaleTeamsTimer();
+	const resolveTimerBillable = useResolveTimerBillable();
 	const { myDailyPlans, isSuccess: plansResolved } = useMyDailyPlans({
 		enabled: enabled && plansEnabled,
 		...(statusEnabled && scope ? { scope, refetchInterval: plansRefetchInterval } : {})
@@ -277,8 +293,16 @@ export function useTimerApi({
 	}, [isCurrentScope, scopedStatusQuery.data, setTimerStatus, statusEnabled, timerStatusRef]);
 
 	const startTimerMutation = useMutation({
-		mutationFn: async ({ taskId }: { taskId: string }) => {
-			return await timerService.startTimer({ taskId });
+		mutationFn: async ({
+			taskId,
+			projectId,
+			isBillable
+		}: {
+			taskId: string;
+			projectId?: string | null;
+			isBillable: boolean;
+		}) => {
+			return await timerService.startTimer({ taskId, projectId, isBillable });
 		},
 		// runStartTimer shows the translated TIMER_START_FAILED toast; this keeps the raw global
 		// "Mutation Error" toast from showing a second one
@@ -454,7 +478,20 @@ export function useTimerApi({
 	// Check if the user is tracking time in another tab or device
 	const canStartWithoutTrackingConflict = useCallback(async (): Promise<boolean> => {
 		try {
+			// Gauzy refuses the start with a 403 that reads like a role problem, so a start it would refuse is not sent
+			const refuseWhenTrackingIsOff = (user: TUser | null | undefined) => {
+				const isTurnedOff = isTrackingTurnedOff(user, activeTeamRef.current);
+				if (isTurnedOff) {
+					toast.warning(t('timer.TRACKING_DISABLED_MESSAGE'), { id: TRACKING_DISABLED_TOAST_ID });
+					queryClient.invalidateQueries({ queryKey: queryKeys.organizationTeams.all });
+				}
+				return isTurnedOff;
+			};
+
 			const userData = await refreshUserData();
+			if (refuseWhenTrackingIsOff(userData)) {
+				return false;
+			}
 			if (userData?.employee.isTrackingTime) {
 				// Cross-check with timer status to detect desync
 				// (employee.isTrackingTime stuck at true while timer is actually stopped)
@@ -482,6 +519,9 @@ export function useTimerApi({
 					}
 					// Refresh user data to confirm the flag was reset
 					const refreshed = await refreshUserData();
+					if (refuseWhenTrackingIsOff(refreshed)) {
+						return false;
+					}
 					if (refreshed?.employee.isTrackingTime) {
 						// Flag still stuck after stop — cannot auto-heal, block with toast
 						toast.warning(t('timer.ALREADY_TRACKING_MESSAGE'), { id: ALREADY_TRACKING_TOAST_ID });
@@ -499,7 +539,7 @@ export function useTimerApi({
 			logErrorInDev('Failed to verify tracking status', error);
 			return false;
 		}
-	}, [refreshUserData, stopStaleTeamsTimer, t, timerStatusRef]);
+	}, [activeTeamRef, queryClient, refreshUserData, stopStaleTeamsTimer, t, timerStatusRef]);
 
 	const runStartTimer = useCallback(
 		async (explicitTask?: TTask, onRequestLanded?: () => void): Promise<TimerStartOutcome> => {
@@ -513,6 +553,7 @@ export function useTimerApi({
 			const pageTask = pathname?.startsWith('/task/') ? detailedTask : null;
 			const taskToUse = explicitTask || pageTask || activeTeamTaskRef.current;
 			const taskIdToUse = taskToUse?.id;
+			const projectIdToUse = taskToUse?.projectId;
 
 			if (pageTask) setActiveTask(pageTask);
 
@@ -521,6 +562,8 @@ export function useTimerApi({
 				return 'blocked';
 			}
 
+			const isBillableToUse = await resolveTimerBillable(taskToUse);
+
 			updateLocalTimerStatus({
 				lastTaskId: taskIdToUse,
 				runnedDateTime: Date.now(),
@@ -528,7 +571,12 @@ export function useTimerApi({
 			});
 
 			if (!statusEnabled || isCurrentScope()) setTimerStatusFetching(true);
-			const promise = trackTimerCommand(startTimerMutate({ taskId: taskIdToUse })).then(async (res) => {
+			const startRequest = startTimerMutate({
+				taskId: taskIdToUse,
+				projectId: projectIdToUse,
+				isBillable: isBillableToUse
+			});
+			const promise = trackTimerCommand(startRequest).then(async (res) => {
 				res.data &&
 					(!statusEnabled || isCurrentScope()) &&
 					!isEqual(timerStatus, res.data) &&
@@ -580,12 +628,17 @@ export function useTimerApi({
 						runnedDateTime: 0,
 						running: false
 					});
+					logErrorInDev('startTimer', error);
+					if (isTrackingOffRefusal(error)) {
+						toast.warning(t('timer.TRACKING_DISABLED_MESSAGE'), { id: TRACKING_DISABLED_TOAST_ID });
+						queryClient.invalidateQueries({ queryKey: queryKeys.organizationTeams.all });
+						return;
+					}
 					const reasonKey = errorReasonKeyOf(error) as DottedLanguageObjectStringPaths;
 					toast.error(t('toasts.timer.START_FAILED'), {
 						id: 'timer-start-failed',
 						description: t(reasonKey)
 					});
-					logErrorInDev('startTimer', error);
 				})
 				.finally(() => {
 					if (!statusEnabled || isCurrentScope()) setTimerStatusFetching(false);
@@ -645,6 +698,7 @@ export function useTimerApi({
 			updateOrganizationTeamEmployeeActiveTask,
 			t,
 			canStartWithoutTrackingConflict,
+			resolveTimerBillable,
 			queryClient,
 			activeTeamId,
 			isCurrentScope,
@@ -942,8 +996,7 @@ export function useTimerApi({
 		const currentTaskId = timerStatus.lastLog?.taskId;
 		if (!currentTaskId) return timerStatus;
 
-		// Check if task exists in current team's tasks
-		const taskBelongsToCurrentTeam = teamTasks.some((task) => task.id === currentTaskId);
+		const taskBelongsToCurrentTeam = isTimerTaskOfTeam(currentTaskId, teamTasks, activeTeamTask);
 
 		// If task doesn't belong to current team, return timer as stopped
 		if (!taskBelongsToCurrentTeam) {
@@ -954,7 +1007,7 @@ export function useTimerApi({
 		}
 
 		return timerStatus;
-	}, [timerStatus, teamTasks]);
+	}, [timerStatus, teamTasks, activeTeamTask]);
 
 	// ==================== RETURN ====================
 

@@ -36,6 +36,7 @@ import { useInvalidateTeamTasks } from './use-invalidate-team-tasks';
 import { useTasksByEmployeeQuery } from './use-tasks-by-employee-query';
 import { EIssueType, ETaskPriority, ETaskSize } from '@/core/types/generics/enums/task';
 import { useTaskStatusesQuery } from '../../tasks/use-task-statuses-query';
+import { teamDefaultProjectId } from '@/core/lib/helpers/team-default-project';
 
 /**
  * A React hook that provides functionality for managing team tasks, including creating, updating, deleting, and fetching tasks.
@@ -128,7 +129,7 @@ export function useTeamTasks() {
 			if (!activeTeam?.id) {
 				throw new Error('Required parameters missing');
 			}
-			const projectId = activeTeam?.projects && activeTeam?.projects.length > 0 ? activeTeam.projects[0].id : '';
+			const projectId = teamDefaultProjectId(activeTeam) ?? '';
 			return await taskService.getTasks({ projectId });
 		},
 		enabled: !!activeTeam?.id,

@@ -14,6 +14,7 @@ import { useTimesheetDialogs } from '@/core/hooks/dashboards/timesheets/use-time
 import { useTimesheetLogActions } from '@/core/hooks/dashboards/timesheets/use-timesheet-log-actions';
 import { useTimesheetSheet } from '@/core/hooks/dashboards/timesheets/use-timesheet-sheet';
 import { canEditLog, useTimesheetsPage } from '@/core/hooks/dashboards/timesheets/use-timesheets-page';
+import { canMemberTrackTime } from '@/core/lib/helpers/team-member-tracking';
 import { formatDurationShort } from '@/core/lib/utils/dashboard-figures';
 import {
 	sheetMembersOf,
@@ -50,8 +51,7 @@ function isTrackingEnabledFor(team: TOrganizationTeam | null | undefined, userId
 	const members = team?.members ?? NO_MEMBERS;
 	return members.some((member) => {
 		const isCurrentUser = member.employee?.userId === userId;
-		const isTracking = Boolean(member.isTrackingEnabled);
-		return isCurrentUser && isTracking;
+		return isCurrentUser && canMemberTrackTime(member);
 	});
 }
 

@@ -11,6 +11,28 @@ export function hasTeams(workspace: ISigninEmailConfirmWorkspaces | null | undef
 }
 
 /**
+ * Gauzy sends no tenant for an account that was never set up, often a second sign-up on an address that already has
+ * an account. Shown under the person's own name, it looked like their real workspace.
+ */
+export function isWorkspaceSetUp(workspace: ISigninEmailConfirmWorkspaces): boolean {
+	return Boolean(workspace.user.tenant);
+}
+
+/**
+ * Whether the chooser labels the workspace at `index` as not set up: it has no tenant, or the list says so where it
+ * cannot show it (an Ever ID sign-in fills a missing tenant with an empty one).
+ */
+export function isWorkspaceNotSetUp(
+	workspace: ISigninEmailConfirmWorkspaces,
+	index: number,
+	notSetUpIndices: readonly number[] = []
+): boolean {
+	const listedNotSetUp = notSetUpIndices.includes(index);
+	const hasTenant = isWorkspaceSetUp(workspace);
+	return listedNotSetUp || !hasTenant;
+}
+
+/**
  * Get the number of teams in a workspace
  * @param workspace - The workspace to check
  * @returns The number of teams in the workspace

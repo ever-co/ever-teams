@@ -128,6 +128,8 @@
 		"ASSIGN_TASK_TO": "הקצה משימה ל-",
 		"ASSIGN_TASK_TO_ME": "הקצה לי את המשימה",
 		"UNASSIGN_TASK_FROM_ME": "בטל הקצאתי מהמשימה",
+		"ASSIGN_TASK_TO_MEMBER": "הקצה ל{name}",
+		"UNASSIGN_TASK_FROM_MEMBER": "בטל הקצאה מ{name}",
 		"TASK_ASSIGNED_TO_ME": "המשימה הוקצתה לך",
 		"TASK_UNASSIGNED_FROM_ME": "המשימה בוטלה ממך",
 		"TASK_ASSIGN_ERROR": "הקצאת המשימה נכשלה",
@@ -174,7 +176,7 @@
 		"PRIVATE_TASK": "משימה זו פרטית",
 		"PUBLIC_TASK_LABEL": "הפוך לפומבית",
 		"PRIVATE_TASK_LABEL": "הפוך לפרטית",
-		"CREATE_TASK": "צור משימה חדשה",
+		"CREATE_TASK": "צור משימה",
 		"REMOVE_FAVORITE_TASK": "הסר משימה מהמועדפים",
 		"ADD_FAVORITE_TASK": "הוסף משימה למועדפים",
 		"NO_PROJECT": "אין פרויקט",
@@ -236,7 +238,7 @@
 		"MILESTONES": "אבני דרך",
 		"DONT_HAVE_ACCOUNT": "אין לך חשבון?",
 		"DELETE_ALL_DATA": "מחק את כל הנתונים",
-		"REGISTER": "הרשם עכשיו!",
+		"REGISTER": "הרשמה",
 		"THEME": "ערכת עיצוב",
 		"TIME_ZONE": "אזור זמן",
 		"EDIT": "ערוך",
@@ -247,7 +249,7 @@
 		"TRANSFER_TEAM": "העבר צוות",
 		"TEAM_MEMBERS": "חברי צוות",
 		"NO_TEAM": "צור צוות משלך או הצטרף לקיים",
-		"NO_TEAM_SUB": "זה נהדר לעבוד עם אחרים, לכן צור צוות והזמן את כולם לשתף פעולה!",
+		"NO_TEAM_SUB": "צור צוות והזמן את האנשים שאתה עובד איתם.",
 		"NO_TEAM_TOOLTIP": "עליך לאמת את כתובת האימייל שלך",
 		"CANCEL": "בטל",
 		"DISCARD": "בטל",
@@ -299,7 +301,7 @@
 		"FILTER_UNSUBSCRIBE": "בטל מנוי",
 		"KEYBOARD_SHORTCUTS": "קיצורי מקלדת",
 		"GITHUB_LOADING_TEXT": "אנו מתקינים כעת את אינטגרציית ה-GitHub שלך, המתינו.",
-		"GITHUB_INTEGRATION_AUTO_SYNC_TASK_TEXT": "סנכרן משימות באופן אוטומטי באפליקציה שלך לעדכונים חלקים ויעילים.",
+		"GITHUB_INTEGRATION_AUTO_SYNC_TASK_TEXT": "מסנכרן משימות עם המאגר המקושר באופן אוטומטי.",
 		"GITHUB_INTEGRATION_LABEL_SYNC_TASK_TEXT": "סנכרן משימות באופן בררני על ידי הקשרתן לתג מסוים.",
 		"GITHUB_AUTO_SYNC_LABEL": "בחר תגית אוטומטית לסנכרון",
 		"GITHUB_INTEGRATION_SUBTITLE_TEXT": "הפעל אינטגרציה של GitHub עבור סנכרון פרויקטים ומאגרים",
@@ -1550,7 +1552,7 @@
 			"WEEKLY_LIMIT": "הגבלה שבועית"
 		},
 		"home": {
-			"BREADCRUMB": "[\"לוח מחוונים\"]",
+			"BREADCRUMB": "[\"בית\"]",
 			"SENT_EMAIL_VERIFICATION": "אימות קוד נשלח לאימייל שלך",
 			"SENT_EMAIL_VERIFICATION_YOU_NEED_TO": "עליך ",
 			"SENT_EMAIL_VERIFICATION_YOUR_EMAIL_ADDRESS": " את כתובת האימייל שלך. קוד האימות כבר היה אמור להישלח לאימייל שלך, אבל אל תהסס ללחוץ על ",
@@ -1593,7 +1595,7 @@
 			"basicInformationForm": {
 				"formFields": {
 					"title": "כותרת הפרויקט",
-					"titlePlaceholder": "פרויקט לקוח #1...",
+					"titlePlaceholder": "פרויקט לקוח #1",
 					"description": "תיאור",
 					"datePickerPlaceholder": "בחר תאריך",
 					"websiteUrl": "כתובת אתר",
@@ -1611,12 +1613,12 @@
 					"endDateRequired": "תאריך סיום נדרש.",
 					"endDateAfterStart": "תאריך הסיום חייב להיות אחרי תאריך ההתחלה.",
 					"invalidUrl": "אנא הזן כתובת אתר חוקית.",
-					"uploadError": "משהו השתבש בעת העלאת תמונת הפרויקט, אנא נסה שוב!",
+					"uploadError": "תמונת הפרויקט לא הועלתה. נסו שוב.",
 					"descriptionWordLimit": "התיאור חייב להכיל 5000 מילים או פחות."
 				},
 				"common": {
-					"search": "חפש ...",
-					"typeNew": "הקלד חדש ...",
+					"search": "חפש",
+					"typeNew": "הקלד חדש",
 					"addNew": "הוסף חדש",
 					"uploadingImage": "מעלה את תמונת הפרויקט"
 				}
@@ -1624,9 +1626,9 @@
 			"categorizationForm": {
 				"formFields": {
 					"labels": "תוויות",
-					"labelsPlaceholder": "בחר תוויות...",
+					"labelsPlaceholder": "בחר תוויות",
 					"tags": "תגיות",
-					"tagsPlaceholder": "בחר תגיות...",
+					"tagsPlaceholder": "בחר תגיות",
 					"colorCode": "קוד צבע"
 				}
 			},
@@ -1635,11 +1637,11 @@
 					"budgetType": "סוג תקציב",
 					"budgetTypePlaceholder": "בחר סוג תקציב",
 					"budgetAmount": "סכום תקציב",
-					"budgetAmountPlaceholder": "10 000$...",
+					"budgetAmountPlaceholder": "10 000$",
 					"currency": "בחירת מטבע",
-					"currencyPlaceholder": "בחר מטבע...",
+					"currencyPlaceholder": "בחר מטבע",
 					"billing": "סוג חיוב",
-					"billingPlaceholder": "בחר מרווח..."
+					"billingPlaceholder": "בחר מרווח"
 				}
 			},
 			"teamAndRelationsForm": {
@@ -1650,13 +1652,13 @@
 					"assignMembers": "הקצאת חברים ומנהלים",
 					"noMembers": "אין חברים או מנהלים",
 					"addMember": "הוסף חבר",
-					"selectMember": "בחר חבר...",
-					"selectRole": "בחר תפקיד...",
+					"selectMember": "בחר חבר",
+					"selectRole": "בחר תפקיד",
 					"relations": "קשרים",
 					"noRelations": "אין קשרים",
 					"addRelation": "הוסף קשר",
-					"selectProject": "בחר פרויקט...",
-					"selectRelationType": "בחר סוג קשר...",
+					"selectProject": "בחר פרויקט",
+					"selectRelationType": "בחר סוג קשר",
 					"activeTeamLocked": "הצוות הנוכחי נדרש ולא ניתן להסירו"
 				},
 				"errors": {
@@ -1785,7 +1787,7 @@
 				"created": "הפרויקט {name} נוצר",
 				"saved": "השינויים ב־{name} נשמרו",
 				"done": "סיום",
-				"descriptionPlaceholder": "הוסיפו תיאור, תקציר או את מטרות הפרויקט…",
+				"descriptionPlaceholder": "הוסיפו תיאור, תקציר או את מטרות הפרויקט",
 				"removeItem": "הסרת {name}",
 				"showMore": "הצגת {count} נוספים",
 				"showLess": "הצגת פחות",
@@ -1807,12 +1809,12 @@
 				},
 				"teams": {
 					"add": "הוספת צוות",
-					"search": "חיפוש צוות…"
+					"search": "חיפוש צוות"
 				},
 				"people": {
 					"addManagers": "הוספת מנהלים",
 					"addMembers": "הוספת חברים",
-					"search": "חיפוש אדם…"
+					"search": "חיפוש אדם"
 				},
 				"tags": {
 					"add": "הוספת תגיות",
@@ -1956,19 +1958,22 @@
 			"UNRECEIVED_CODE": "לא קיבלת קוד?",
 			"JOIN_TEAM": "הצטרף לצוות",
 			"INPUT_INVITE_CODE": "הכנס קוד הזמנה.",
+			"INPUT_SIGN_IN_CODE": "הזינו את קוד ההתחברות",
 			"INPUT_INVITE_CODE_DESC": "הכנס את קוד ההזמנה ששלחנו לאימייל שלך.",
 			"INVALID_INVITE_CODE_MESSAGE": "קוד לאתקין",
 			"WELCOME_TEAMS": "ברוך הבא ל-{appName}",
 			"COVER_TITLE": "עקוב אחר התקדמות העבודה של הצוותים שלך בזמן אמת!",
-			"COVER_DESCRIPTION": "ניהול עבודה וכוח עבודה הכל-באחד, ניהול זמן, מעקב אחר זמן, מעקב אחר פעילות, מעקב ומדדים של פרודוקטיביות, ניהול פרויקטים/משימות ובעיות, ארגונים וצוותים, אינטגרציות (GitHub, JIRA,...) ועוד!",
+			"COVER_DESCRIPTION": "עקבו אחר זמן ופעילות, נהלו משימות ופרויקטים, וראו על מה הצוות שלכם עובד. עובד עם GitHub ו-Jira.",
 			"LOGIN": "התחברות",
 			"SELECT_WORKSPACE": "בחר סביבת עבודה",
+			"WORKSPACE_OPEN_FAILED": "לא ניתן לפתוח את סביבת העבודה הזו. בחר אחת מהרשימה.",
 			"ENTER_EMAIL": "הכנס אימייל",
 			"WORKSPACES_NOT_FOUND": "סביבות עבודה לא נמצאו",
 			"INVALID_CODE_TRY_AGAIN": "קוד לא תקין. אנא נסה שוב.",
 			"EMPTY_WORKSPACE_WARNING_TITLE": "סביבת עבודה זו אין לה צוותים",
 			"EMPTY_WORKSPACE_WARNING_MESSAGE": "תתבקש ליצור צוות לאחר ההתחברות.",
 			"NO_TEAMS_BADGE": "אין צוותים",
+			"WORKSPACE_NOT_SET_UP": "סביבת עבודה חדשה, עדיין לא הוגדרה",
 			"TEAM_COUNT_SINGULAR": "צוות",
 			"TEAM_COUNT_PLURAL": "צוותים",
 			"FORGOT_PASSWORD": "שכחת סיסמה?",
@@ -1976,6 +1981,8 @@
 			"PRIVACY_POLICY": "מדיניות פרטיות",
 			"OR_CONTINUE_WITH": "או המשך עם",
 			"SIGNUP_VERIFY_EMAIL": "החשבון שלך נוצר. פתח את הקישור בדוא\"ל ששלחנו אל {email} כדי להפעיל אותו, ואז התחבר עם הדוא\"ל שלך.",
+			"EXISTING_ACCOUNT_HINT": "כבר יש לכם חשבון עם הדוא״ל הזה?",
+			"SIGN_IN_INSTEAD": "התחברו אליו במקום זאת",
 			"everId": {
 				"NO_WORKSPACE_TITLE": "עדיין אין סביבת עבודה עבור Ever ID זה",
 				"NO_WORKSPACE_BODY": "עדיין לא מקושרת סביבת עבודה ל-Ever ID זה. התחבר בדרך אחרת, או בקש הזמנה ממנהל סביבת העבודה שלך.",
@@ -2002,6 +2009,13 @@
 				"SIGN_IN_AGAIN": "התחברות מחדש עם Ever ID",
 				"LOGIN_WITH_EVER_ID": "התחברות עם <wordmark>Ever ID</wordmark>"
 			},
+			"provider": {
+				"ACCOUNT_UNCONFIRMED_TITLE": "אשרו קודם את כתובת הדוא״ל",
+				"ACCOUNT_UNCONFIRMED_BODY": "חשבון כבר משתמש בכתובת הדוא״ל הזו אך עדיין לא אישר אותה. התחברו עם כתובת הדוא״ל שלכם, ואז אשרו אותה מההודעה בדף הבית. לאחר מכן גם דרך ההתחברות הזו תעבוד.",
+				"ACCOUNT_NOT_SET_UP_TITLE": "סיימו את הגדרת החשבון",
+				"ACCOUNT_NOT_SET_UP_BODY": "לחשבון שלכם עם כתובת הדוא״ל הזו עדיין אין סביבת עבודה. התחברו עם כתובת הדוא״ל שלכם כדי לסיים את ההגדרה. לאחר מכן גם דרך ההתחברות הזו תעבוד.",
+				"SIGN_IN_WITH_EMAIL": "התחברות עם הדוא״ל שלי"
+			},
 			"CHOOSE_YOUR_WORKSPACE": "בחר את סביבת העבודה שלך"
 		},
 		"authPasscode": {
@@ -2010,7 +2024,7 @@
 		},
 		"authLogin": {
 			"HEADING_TITLE": "התחבר לצוות",
-			"HEADING_DESCRIPTION": "אנא הכנס אימייל וקוד הזמנה כדי להתחבר.",
+			"HEADING_DESCRIPTION": "הזינו את כתובת האימייל ונשלח אליכם קוד כניסה.",
 			"WORKSPACE": "סביבת עבודה",
 			"HEADING_WORKSPACE_LINE1": "האימייל משויך למספר סביבות עבודה,",
 			"HEADING_WORKSPACE_LINE2": "אנא בחר אחת כדי להמשיך",
@@ -2211,8 +2225,8 @@
 			"HANDLE_REQUESTS": "טפל בבקשות",
 			"ROLES_POSITIONS_CHANGE": "שינוי תפקידים/תחנות",
 			"VIEW_DETAILS": "צפה בפרטים",
-			"NO_INVITATIONS": "אין הזמנות כרגע!",
-			"NO_MEMBERS": "אין חברים כרגע!",
+			"NO_INVITATIONS": "אין הזמנות ממתינות",
+			"NO_MEMBERS": "אין עדיין חברים",
 			"GO_TO_PERSONAL_SETTINGS": "עבור להגדרות האישיות",
 			"SHARE_MEMBERS_PROFILE_VIEWS": "שתף תצוגות פרופיל של חברים",
 			"everPlatform": {
@@ -2311,20 +2325,20 @@
 		},
 		"unauthorized": {
 			"TITLE": "לא מורשה",
-			"HEADING_TITLE": "אתה לא מורשה להיכנס לדף זה ",
-			"HEADING_DESCRIPTION": "אנו מתנצלים על אי הנוחות, אך אינך מורשה לגשת לדף זה. אם אתה מאמין שזו טעות. אנא התחבר",
+			"HEADING_TITLE": "אין לך גישה לדף הזה",
+			"HEADING_DESCRIPTION": "החשבון שלך לא יכול לפתוח את הדף הזה. אם לדעתך זו טעות, התחברו שוב או פנו למנהל הצוות.",
 			"TRY_AGAIN": "נסה שוב"
 		},
 		"page404": {
 			"HEADING_TITLE": "לא נמצא",
-			"HEADING_DESCRIPTION": "המשאב שאתה מחפש לא נמצא!",
+			"HEADING_DESCRIPTION": "הדף הזה לא קיים או שהועבר.",
 			"LINK_LABEL": "לך לדף הבית"
 		},
 		"offline": {
-			"HEADING_TITLE": "החיבור נותק!",
+			"HEADING_TITLE": "אין חיבור לרשת",
 			"HEADING_SUB_DESCRIPTION": "אופס, איבדנו אותך. אל דאגה, הזמן שלך עדיין עוקב.",
 			"HEADING_DESCRIPTION": "תוכל להמשיך לעבוד באפליקציית האינטרנט לאחר שחיבורך ישוחזר.",
-			"STATUS_NETWORK": "לא מקוון!"
+			"STATUS_NETWORK": "לא מקוון"
 		},
 		"error": {
 			"TITLE": "שגיאה",
@@ -2386,7 +2400,7 @@
 			"END_AFTER_START": "שעת הסיום חייבת להיות אחרי שעת ההתחלה."
 		},
 		"teamTasks": {
-			"SEARCH_TASKS": "חיפוש משימות...",
+			"SEARCH_TASKS": "חיפוש משימות",
 			"TYPE_AND_NUMBER": "סוג + מספר",
 			"NO_ISSUE_TYPE": "אין סוג בעיה",
 			"NO_USER_ASSIGNED": "לא הוקצה משתמש",
@@ -2412,7 +2426,7 @@
 			"ME": "את/ה",
 			"META_TASKS": "{count, plural, one {משימה אחת} two {שתי משימות} other {# משימות}}",
 			"META_TRACKED": "{count, plural, one {משימה אחת במעקב כעת} two {שתי משימות במעקב כעת} other {# משימות במעקב כעת}}",
-			"NEW_TASK": "משימה חדשה",
+			"NEW_TASK": "צור משימה",
 			"NO_ASSIGNEE": "ללא אחראי",
 			"NO_MATCH_TITLE": "אין משימות תואמות",
 			"NO_MATCH_MESSAGE": "שנו את החיפוש או את המסננים, או נקו אותם כדי לראות את כל המשימות.",
@@ -2464,6 +2478,7 @@
 	"timer": {
 		"START_TIMER": "אנא בחר או צור משימה חדשה כדי להתחיל לעקוב אחר הזמן או ליצור תוכנית",
 		"ALREADY_TRACKING_MESSAGE": "אתה כבר עוקב אחר הזמן בכרטיסייה או במכשיר אחר.",
+		"TRACKING_DISABLED_MESSAGE": "מעקב הזמן כבוי עבורך. מנהל הארגון יכול להפעיל אותו.",
 		"TASK_CLOSED": "המשימה סגורה",
 		"PLAN_REQUIRED_TO_START": "הוסף משימה זו לתוכנית של היום כדי להתחיל",
 		"STARTING_TIMER": "הפעלת טיימר...",
@@ -2471,6 +2486,7 @@
 		"TIMER_START_FAILED": "כישלון בהפעלת טיימר",
 		"STALE_TIMER_STOPPED_DESCRIPTION": "הטיימר המשיך לרוץ לאחר סגירת האפליקציה, ולכן הוא הופסק ברגע האחרון שבו האפליקציה הייתה פתוחה ({stoppedAt}). אם עבדת לאחר מכן, הוסף את הזמן באופן ידני.",
 		"TIMER_STOP_FAILED": "כישלון בעצירת טיימר. אנא נסה שוב.",
+		"BILLABLE": "לחיוב",
 		"TEAM_SWITCH": {
 			"STOPPED_TIMER_TOAST_TITLE": "טיימר הופסק",
 			"STOPPED_TIMER_TOAST_DESCRIPTION": "הטיימר הופסק בגלל מעבר צוות"
@@ -2791,7 +2807,7 @@
 	},
 	"placeholders": {
 		"ENTER_TO_VALIDATE": "לחץ Enter כדי לאמת",
-		"ENTER_A_COMMAND": "הזן פקודה..."
+		"ENTER_A_COMMAND": "הזן פקודה"
 	},
 	"team": {
 		"BACK_LABEL": "חזור לצוות",
@@ -2858,8 +2874,8 @@
 		"EMPTY_NOT_CONFIGURED": "הגדר את מפתח ה-API שלך כדי להתחיל.",
 		"CONFIGURE_BUTTON": "הגדרה",
 		"ERROR_FALLBACK": "אירעה שגיאה. אנא בדוק את ההגדרות שלך.",
-		"INPUT_PLACEHOLDER_READY": "ההודעה שלך...",
-		"INPUT_PLACEHOLDER_NO_KEY": "הגדר את מפתח ה-API שלך...",
+		"INPUT_PLACEHOLDER_READY": "ההודעה שלך",
+		"INPUT_PLACEHOLDER_NO_KEY": "הגדר את מפתח ה-API שלך",
 		"STOP": "עצור",
 		"SEND": "שלח",
 		"NEW_CHAT": "צ'אט חדש",
@@ -2871,7 +2887,7 @@
 		"EXPAND_ASSISTANT": "הרחב את העוזר",
 		"OPEN_ASSISTANT": "פתח את עוזר {appName}",
 		"ASSISTANT": "עוזר",
-		"ASK_PLACEHOLDER": "שאל את {appName}…",
+		"ASK_PLACEHOLDER": "שאל את {appName}",
 		"COMPOSER_LABEL": "הודעה לעוזר",
 		"EMPTY_TITLE": "במה אפשר לעזור?",
 		"EXAMPLES_LABEL": "התחל מדוגמה",
@@ -2939,7 +2955,7 @@
 		}
 	},
 	"commandPalette": {
-		"searchPlaceholder": "הקלידו פקודה או חפשו…",
+		"searchPlaceholder": "הקלידו פקודה או חפשו",
 		"tabsLabel": "קבוצות פקודות",
 		"empty": "לא נמצאו תוצאות.",
 		"tabs": {
@@ -2957,7 +2973,7 @@
 			"inviteUser": "הזמנת משתמש",
 			"assignToMe": "הקצאה אליי",
 			"toggleTheme": "החלפת ערכת נושא",
-			"createTask": "משימה חדשה",
+			"createTask": "צור משימה",
 			"searchTasks": "חיפוש משימות",
 			"createTeam": "צוות חדש",
 			"searchTeams": "חיפוש צוותים",
@@ -2996,10 +3012,13 @@
 		},
 		"timeLog": {
 			"forMember": "עבור",
-			"notesPlaceholder": "הוסיפו הערות כאן…"
+			"notesPlaceholder": "הוסיפו הערות כאן"
 		},
 		"manualTime": {
-			"descriptionPlaceholder": "על מה עבדתם?"
+			"descriptionPlaceholder": "על מה עבדתם?",
+			"PROJECT": "פרויקט",
+			"SELECT_EMPLOYEE": "בחר עובד",
+			"SELECT_TASK": "בחר משימה"
 		},
 		"dailyPlan": {
 			"planMyDay": "לתכנן את היום שלי",
@@ -3010,7 +3029,7 @@
 			"tasksWithoutEstimate": "משימות ללא הערכת זמן",
 			"correctHoursWarning": "תקנו את שעות העבודה המתוכננות או העריכו מחדש את המשימות.",
 			"moreOptions": "אפשרויות נוספות",
-			"searchMember": "חיפוש חבר צוות…",
+			"searchMember": "חיפוש חבר צוות",
 			"noMemberFound": "לא נמצא חבר צוות.",
 			"selectOrCreateTask": "בחרו או צרו משימה לתוכנית"
 		},
@@ -3022,7 +3041,7 @@
 			"addToPlan": "הוספה לתוכנית",
 			"createNewPlan": "יצירת תוכנית חדשה",
 			"useExistingPlan": "הוספה לתוכנית קיימת",
-			"searchPlan": "חיפוש תוכנית…",
+			"searchPlan": "חיפוש תוכנית",
 			"noPlanFound": "לא נמצאה תוכנית.",
 			"plannedTime": "זמן מתוכנן: {hours} ש׳"
 		},
@@ -3084,7 +3103,13 @@
 		"TEAM_COUNT": "{count, plural, one {צוות אחד} other {# צוותים}}",
 		"NO_OTHER_WORKSPACE": "אין סביבות עבודה נוספות",
 		"ADD_WORKSPACE": "הוספת סביבת עבודה",
-		"TEAM_SETTINGS": "הגדרות הצוות"
+		"TEAM_SETTINGS": "הגדרות הצוות",
+		"APPS": "אפליקציות",
+		"SWITCH_APP": "מעבר לאפליקציית Ever אחרת",
+		"EVER_APPS": "אפליקציות Ever",
+		"CURRENT_APP": "{app}, האפליקציה שבה אתם נמצאים",
+		"OPENS_IN_NEW_TAB": "(נפתח בכרטיסייה חדשה)",
+		"APP_OPENS_IN_NEW_TAB": "{app} (נפתח בכרטיסייה חדשה)"
 	},
 	"todayActivity": {
 		"ACTIVE_TASK": "משימה פעילה",
@@ -3466,6 +3491,8 @@
 			"COLOR_NOT_SAVED": "צבע הצוות לא נשמר",
 			"EMOJI_NOT_SAVED": "האימוג׳י של הצוות לא נשמר",
 			"SIZE_NOT_SAVED": "גודל הצוות לא נשמר",
+			"DEFAULT_PROJECT_NOT_SAVED": "פרויקט ברירת המחדל לא נשמר",
+			"DEFAULT_PROJECT_NOT_SUPPORTED": "השרת הזה עדיין לא שומר פרויקט ברירת מחדל לצוות.",
 			"TYPE_NOT_SAVED": "סוג הצוות לא נשמר",
 			"LEFT_TEAM": "עזבת את הצוות",
 			"LEAVE_FAILED": "עדיין נשארת בצוות",
@@ -3868,7 +3895,11 @@
 			"DELETE_CONSEQUENCE_SIGN_OUT": "מתבצעת יציאה מהחשבון כדי לבחור סביבת עבודה אחרת.",
 			"QUIT_TITLE": "לעזוב את {team}?",
 			"QUIT_CONSEQUENCE_LIST": "הצוות נעלם מרשימת הצוותים שלך.",
-			"QUIT_CONSEQUENCE_BACK": "מנהל יוכל להזמין אותך שוב בהמשך."
+			"QUIT_CONSEQUENCE_BACK": "מנהל יוכל להזמין אותך שוב בהמשך.",
+			"PROJECTS_SECTION": "פרויקטים",
+			"DEFAULT_PROJECT_LABEL": "פרויקט ברירת מחדל",
+			"DEFAULT_PROJECT_DESCRIPTION": "משימות וטיימרים חדשים בצוות הזה נכנסים לפרויקט הזה.",
+			"DEFAULT_PROJECT_PLACEHOLDER": "בחירת פרויקט"
 		},
 		"members": {
 			"UNVERIFIED_TITLE": "יש לאמת את כתובת האימייל כדי להזמין אנשים",
@@ -3894,6 +3925,7 @@
 			"LAST_NAME": "שם משפחה",
 			"FIRST_NAME_REQUIRED": "יש להזין שם פרטי.",
 			"TRACK_TIME": "מעקב זמן",
+			"TRACKING_OFF_BY_ADMIN": "כובה על ידי מנהל הארגון",
 			"REMOVE": "הסרה מהצוות",
 			"REMOVE_TITLE": "להסיר את {name} מ־{team}?",
 			"REMOVE_CONSEQUENCE_LIST": "{name} כבר לא בין חברי הצוות.",
@@ -4000,6 +4032,11 @@
 			"SECTION_THEME": "ערכת נושא",
 			"SECTION_THEME_DESCRIPTION": "חל על הדפדפן הזה בלבד.",
 			"THEME_SYSTEM": "מערכת",
+			"SECTION_APP_SWITCHER": "מחליף אפליקציות",
+			"SECTION_APP_SWITCHER_DESCRIPTION": "המקום של הגישה לאפליקציות Ever האחרות. חל על דפדפן זה בלבד.",
+			"APP_SWITCHER_SIDEBAR": "סרגל צד",
+			"APP_SWITCHER_HEADER": "סרגל עליון",
+			"APP_SWITCHER_RAIL": "פס שמאלי",
 			"SECTION_REGION": "שפה ואזור זמן",
 			"LANGUAGE": "שפה",
 			"LANGUAGE_DESCRIPTION": "שפת התפריטים וההודעות, נשמרת בחשבון שלך.",
@@ -4065,9 +4102,9 @@
 			"ADD_PARENT": "הוספת משימת אב",
 			"CHANGE_PARENT": "שינוי משימת האב",
 			"REMOVE_PARENT": "הסרת משימת האב",
-			"SEARCH_PARENT": "חיפוש משימת אב...",
+			"SEARCH_PARENT": "חיפוש משימת אב",
 			"NO_ASSIGNEE": "עדיין אף אחד",
-			"SEARCH_PEOPLE": "חיפוש חבר צוות...",
+			"SEARCH_PEOPLE": "חיפוש חבר צוות",
 			"MANAGE_ASSIGNEES": "שיוך אנשים",
 			"ADD_LABEL": "הוספת תווית",
 			"EDIT_LABELS": "עריכת תוויות",
@@ -4102,12 +4139,12 @@
 			"LOAD_FAILED": "לא ניתן היה לטעון את התוכניות."
 		},
 		"subtasks": {
-			"SEARCH": "חיפוש משימה להוספה...",
+			"SEARCH": "חיפוש משימה להוספה",
 			"REMOVE": "הסרה מהמשימה הזו"
 		},
 		"relations": {
-			"SEARCH": "חיפוש משימה לקישור...",
-			"SEARCH_KIND": "חיפוש סוג קשר...",
+			"SEARCH": "חיפוש משימה לקישור",
+			"SEARCH_KIND": "חיפוש סוג קשר",
 			"CHANGE_KIND": "שינוי סוג הקשר",
 			"REMOVE": "הסרת הקישור"
 		},
@@ -4133,6 +4170,8 @@
 	"profile": {
 		"page": {
 			"BACK_TO_TEAM": "חזרה לצוות",
+			"MANAGER_RIGHTS_UNCONFIRMED_TITLE": "הרשאות המנהל שלך על חברי הצוות הזה עדיין לא אושרו",
+			"MANAGER_RIGHTS_UNCONFIRMED_DESCRIPTION": "התוכניות, הזמן והפעילות שלהם יישארו מוסתרים עד שמנהל הארגון יאשר אותך כמנהל של הצוות הזה בהגדרות הצוות.",
 			"SEARCH_TASKS": "חיפוש משימות",
 			"COUNT_STILL_LOADING": "משימות נוספות עדיין נטענות",
 			"COPY_EMAIL": "העתקת האימייל",

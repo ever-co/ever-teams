@@ -26,6 +26,7 @@ import { ETimeLogType, ETimeLogSource } from '@/core/types/generics/enums/timer'
 import { useAtomValue } from 'jotai';
 import { activeTeamState, tasksByTeamState } from '@/core/stores';
 import { useOrganizationProjectsQuery } from '@/core/hooks/organizations/projects/use-organization-projects-query';
+import type { TOrganizationProject } from '@/core/types/schemas/organization/organization-project.schema';
 
 export interface IAddTaskModalProps {
 	isOpen: boolean;
@@ -40,7 +41,7 @@ interface Shift {
 }
 
 interface FormState {
-	isBillable: boolean;
+	billableChoice: boolean | null;
 	notes: string;
 	projectId: string;
 	taskId: string;
@@ -93,10 +94,52 @@ const clearSkippedTimes = (shift: Shift, day: Date) => {
 	if (clearStart || clearEnd) shift.totalHours = '00:00h';
 };
 
+function findProject(projectId: string | null | undefined, projects: TOrganizationProject[]) {
+	if (!projectId) {
+		return undefined;
+	}
+	return projects.find((project) => project.id === projectId);
+}
+
+/** The project of an entry on this task: the task's own project as it is now, or else the one picked by hand. */
+function entryProjectIdOf(task: { projectId?: string | null } | undefined, pickedProjectId: string): string {
+	const taskProjectId = task?.projectId;
+	if (taskProjectId) {
+		return taskProjectId;
+	}
+	return pickedProjectId;
+}
+
+/** The billable value picked by hand, or else the entry's project's own setting. */
+function billableOf(billableChoice: boolean | null, project: TOrganizationProject | null): boolean {
+	if (billableChoice !== null) {
+		return billableChoice;
+	}
+	return project?.billable === true;
+}
+
+/**
+ * A task's time goes to the task's own project: when the task has one, it is the only project offered. A task
+ * project missing from the list (archived, or not loaded yet) offers none, since another pick would not be saved.
+ */
+function projectChoicesFor(
+	taskProjectId: string | null | undefined,
+	taskProject: TOrganizationProject | undefined,
+	projects: TOrganizationProject[]
+) {
+	if (!taskProjectId) {
+		return projects;
+	}
+	if (taskProject) {
+		return [taskProject];
+	}
+	return [];
+}
+
 export function AddTaskModal({ closeModal, isOpen }: IAddTaskModalProps) {
 	const tasks = useAtomValue(tasksByTeamState);
 	const { generateTimeOptions } = useTimelogFilterOptions();
-	const { organizationProjects } = useOrganizationProjectsQuery();
+	const { organizationProjects, getOrganizationProjectsLoading } = useOrganizationProjectsQuery();
 
 	const activeTeam = useAtomValue(activeTeamState);
 	const { createTimesheet, loadingCreateTimesheet } = useCreateTimesheet();
@@ -106,7 +149,7 @@ export function AddTaskModal({ closeModal, isOpen }: IAddTaskModalProps) {
 
 	const [formState, setFormState] = React.useState({
 		notes: '',
-		isBillable: true,
+		billableChoice: null as boolean | null,
 		taskId: '',
 		employeeId: '',
 		projectId: '',
@@ -132,11 +175,46 @@ export function AddTaskModal({ closeModal, isOpen }: IAddTaskModalProps) {
 		}));
 	}, []);
 
+	const projects = useMemo(() => organizationProjects || [], [organizationProjects]);
+	const selectedTask = tasks.find((task) => task.id === formState.taskId);
+	const taskProject = findProject(selectedTask?.projectId, projects);
+	const entryProjectId = entryProjectIdOf(selectedTask, formState.projectId);
+	const selectedProject = findProject(entryProjectId, projects) ?? null;
+	const isBillable = billableOf(formState.billableChoice, selectedProject);
+	// Its billable default is unknown until the entry's project has loaded
+	const hasUnloadedProject = Boolean(entryProjectId) && !selectedProject;
+	const waitsForProject = hasUnloadedProject && getOrganizationProjectsLoading;
+	const isSaveDisabled = loadingCreateTimesheet || waitsForProject;
+
+	const pickTask = useCallback(
+		(taskId: string) => {
+			const pickedTask = tasks.find((task) => task.id === taskId);
+			const pickedTaskProjectId = pickedTask?.projectId;
+			if (!pickedTaskProjectId) {
+				// Keep the project shown so far, which follows the previous task if it moved meanwhile
+				setFormState((prevState) => {
+					const previousTask = tasks.find((task) => task.id === prevState.taskId);
+					const shownProjectId = entryProjectIdOf(previousTask, prevState.projectId);
+					return { ...prevState, taskId, projectId: shownProjectId, billableChoice: null };
+				});
+				return;
+			}
+			setFormState((prevState) => ({
+				...prevState,
+				taskId,
+				projectId: pickedTaskProjectId,
+				billableChoice: null
+			}));
+		},
+		[tasks]
+	);
+
+	const selectedTaskProjectId = selectedTask?.projectId;
 	const projectItemsLists = useMemo(
 		() => ({
-			Project: organizationProjects || []
+			Project: projectChoicesFor(selectedTaskProjectId, taskProject, projects)
 		}),
-		[organizationProjects]
+		[projects, selectedTaskProjectId, taskProject]
 	);
 
 	const handleSelectedValuesChange = useCallback(
@@ -164,9 +242,9 @@ export function AddTaskModal({ closeModal, isOpen }: IAddTaskModalProps) {
 
 	const selectedValues = useMemo(
 		() => ({
-			Project: null
+			Project: selectedProject
 		}),
-		[]
+		[selectedProject]
 	);
 
 	const fields = useMemo(
@@ -185,11 +263,11 @@ export function AddTaskModal({ closeModal, isOpen }: IAddTaskModalProps) {
 
 	const handleAddTimesheet = async (formState: FormState) => {
 		const payload = {
-			isBillable: formState.isBillable,
+			isBillable,
 			description: formState.notes,
-			projectId: formState.projectId,
+			projectId: entryProjectId,
 			logType: ETimeLogType.MANUAL as any,
-			source: ETimeLogSource.BROWSER as any,
+			source: ETimeLogSource.TEAMS as any,
 			taskId: formState.taskId,
 			employeeId: formState.employeeId,
 			organizationTeamId: activeTeam?.id
@@ -253,9 +331,7 @@ export function AddTaskModal({ closeModal, isOpen }: IAddTaskModalProps) {
 					</label>
 					<CustomSelect
 						value={formState.taskId}
-						onChange={(value) => {
-							updateFormState('taskId', value);
-						}}
+						onChange={pickTask}
 						classNameGroup="h-[40vh]"
 						ariaLabel="Task issues"
 						className="w-full font-medium"
@@ -328,13 +404,13 @@ export function AddTaskModal({ closeModal, isOpen }: IAddTaskModalProps) {
 					</label>
 					<div className="flex gap-3 items-start">
 						<ToggleButton
-							isActive={formState.isBillable}
-							onClick={() => updateFormState('isBillable', true)}
+							isActive={isBillable}
+							onClick={() => updateFormState('billableChoice', true)}
 							label={t('pages.timesheet.BILLABLE.YES')}
 						/>
 						<ToggleButton
-							isActive={!formState.isBillable}
-							onClick={() => updateFormState('isBillable', false)}
+							isActive={!isBillable}
+							onClick={() => updateFormState('billableChoice', false)}
 							label={t('pages.timesheet.BILLABLE.NO')}
 						/>
 					</div>
@@ -366,7 +442,7 @@ export function AddTaskModal({ closeModal, isOpen }: IAddTaskModalProps) {
 					</Button>
 					<Button
 						size="lg"
-						disabled={loadingCreateTimesheet || !hasTaskAndEmployee}
+						disabled={isSaveDisabled || !hasTaskAndEmployee}
 						onClick={() => handleAddTimesheet(formState as any)}
 						type="submit"
 					>

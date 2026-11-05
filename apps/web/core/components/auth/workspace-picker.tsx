@@ -20,7 +20,7 @@ import { AuthHeading, AuthMark } from '@/core/components/auth/kit/auth-heading';
 import { AuthNotice } from '@/core/components/auth/kit/auth-notice';
 import { AUTH_CONTROL_HEIGHT, AUTH_QUIET_LINK } from '@/core/components/auth/kit/auth-recipes';
 import { ISigninEmailConfirmWorkspaces } from '@/core/types/interfaces/auth/auth';
-import { getFirstTeamId, hasTeams, workspaceHasTeam } from '@/core/lib/utils/workspace.utils';
+import { getFirstTeamId, hasTeams, isWorkspaceNotSetUp, workspaceHasTeam } from '@/core/lib/utils/workspace.utils';
 import { cn } from '@/core/lib/helpers';
 
 export type WorkspacePickerProps = {
@@ -35,6 +35,8 @@ export type WorkspacePickerProps = {
 	selectedTeam: string;
 	/** The workspaces carry no team list (an Ever ID sign-in): list them without empty-workspace warnings. */
 	teamsUnavailable?: boolean;
+	/** The workspaces with no tenant yet, when the list cannot show it (an Ever ID sign-in fills a missing tenant). */
+	notSetUpIndices?: readonly number[];
 };
 
 type PickableWorkspace = {
@@ -279,7 +281,8 @@ export function WorkspacePicker(props: Readonly<WorkspacePickerProps>) {
 					const isExpanded = expandedWorkspace === originalIndex;
 					const showsTeams = isExpanded && !props.teamsUnavailable;
 					const showsTeamCount = !isEmpty && item.teamCount > 0;
-					const workspaceName = workspaceNameOf(workspace);
+					const isNotSetUp = isWorkspaceNotSetUp(workspace, originalIndex, props.notSetUpIndices);
+					const workspaceName = isNotSetUp ? t('pages.auth.WORKSPACE_NOT_SET_UP') : workspaceNameOf(workspace);
 					const keyLabel = position + 1;
 					const hasKeyCap = keyLabel <= 9;
 					const isDimmed = isSubmitting && !isSelected;

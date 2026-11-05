@@ -5,6 +5,7 @@ import qs from 'qs';
 import { APIService, getFallbackAPI } from '../../api.service';
 
 import { getActiveTaskIdCookie } from '@/core/lib/helpers/cookies';
+import { getTodayPlanDay } from '@/core/lib/helpers/daily-plan-day';
 import { toTimeSlotDuration } from '@/core/lib/helpers/timer';
 import { ITimerStatus, IToggleTimerStatusParams } from '@/core/types/interfaces/timer/timer-status';
 import { TUser } from '@/core/types/schemas';
@@ -19,6 +20,14 @@ const getTodayRangeQuery = () => {
 		todayStart: now.clone().startOf('day').toISOString(),
 		todayEnd: now.clone().endOf('day').toISOString()
 	});
+};
+
+// Reports read the project from the time log, never from its task: a log saved without it shows under no project
+const projectFieldOf = (projectId?: string | null): { projectId?: string } => {
+	if (!projectId) {
+		return {};
+	}
+	return { projectId };
 };
 
 class TimerService extends APIService {
@@ -54,18 +63,31 @@ class TimerService extends APIService {
 		return api.post<ITimerStatus>(`/timer/toggle?${getTodayRangeQuery()}`, body);
 	};
 
-	startTimer = async ({ taskId }: { taskId: string }) => {
+	startTimer = async ({
+		taskId,
+		projectId,
+		isBillable
+	}: {
+		taskId: string;
+		projectId?: string | null;
+		isBillable: boolean;
+	}) => {
 		const startedAt = Date.now();
+		const projectField = projectFieldOf(projectId);
+		const planDay = getTodayPlanDay();
 
 		if (GAUZY_API_BASE_SERVER_URL.value) {
 			await this.post('/timesheet/timer/start', {
 				tenantId: this.tenantId,
 				organizationId: this.organizationId,
 				taskId,
+				...projectField,
 				logType: 'TRACKED',
 				source: ETimeLogSource.TEAMS,
 				tags: [],
-				organizationTeamId: this.activeTeamId
+				isBillable,
+				organizationTeamId: this.activeTeamId,
+				planDay
 			});
 
 			return this.resetTimeSlotSync(startedAt, await this.getTimerStatus());
@@ -74,7 +96,12 @@ class TimerService extends APIService {
 		const api = await getFallbackAPI();
 		return this.resetTimeSlotSync(
 			startedAt,
-			await api.post<ITimerStatus>(`/timer/start?${getTodayRangeQuery()}`, { taskId })
+			await api.post<ITimerStatus>(`/timer/start?${getTodayRangeQuery()}`, {
+				taskId,
+				...projectField,
+				isBillable,
+				planDay
+			})
 		);
 	};
 

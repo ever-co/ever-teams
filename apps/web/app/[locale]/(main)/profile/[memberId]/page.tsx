@@ -38,6 +38,8 @@ import type {
 import type { ProfileValidationResult } from '@/core/hooks/users/use-profile-validation';
 import { personFullName } from '@/core/lib/utils/profile-figures';
 import { useTeamDailyPlansOwner } from '@/core/hooks/bootstrap/use-feature-data';
+import { useManagerRightsUnconfirmed } from '@/core/hooks/organizations/teams/use-manager-rights-unconfirmed';
+import { Notice } from '@/core/components/common/notice';
 
 export type FilterTab = 'Tasks' | 'Screenshots' | 'Apps' | 'Visited Sites';
 
@@ -187,6 +189,7 @@ const Profile = React.memo(function ProfilePage({ params }: { params: { memberId
 
 	const activityScreen = activityScreens[activityFilter] ?? null;
 	const profileIsAuthUser = useMemo(() => profile.isAuthUser, [profile.isAuthUser]);
+	const managerRightsUnconfirmed = useManagerRightsUnconfirmed();
 
 	const changeActivityFilter = useCallback(
 		(filter: FilterTab) => {
@@ -237,7 +240,11 @@ const Profile = React.memo(function ProfilePage({ params }: { params: { memberId
 	}
 
 	const isActivityViewVisible = hook.tab === 'worked' && canSeeActivity;
+	// Only a teammate's profile reads member data the API may refuse; one's own profile always shows
+	const showsManagerRightsNotice = managerRightsUnconfirmed && !profileIsAuthUser;
 	const showsTimer = profileIsAuthUser && isTrackingEnabled;
+	// A teammate's profile draws no timer of its own, so the viewer keeps the compact one in the top bar
+	const showsHeaderTimer = !profileIsAuthUser && isTrackingEnabled;
 	let timerSlot: React.ReactNode = null;
 	if (showsTimer) {
 		timerSlot = <ProfileTimer />;
@@ -251,6 +258,7 @@ const Profile = React.memo(function ProfilePage({ params }: { params: { memberId
 
 	return (
 		<PageLayout
+			showTimer={showsHeaderTimer}
 			breadcrumb={
 				<div className="flex gap-2 items-center min-w-0">
 					<Link href="/" aria-label={t('profile.page.BACK_TO_TEAM')} className={BACK_LINK_CLASS_NAME}>
@@ -274,6 +282,14 @@ const Profile = React.memo(function ProfilePage({ params }: { params: { memberId
 				</div>
 			}
 		>
+			{showsManagerRightsNotice && (
+				<Notice
+					tone="warning"
+					className="mx-4 mb-4"
+					title={t('profile.page.MANAGER_RIGHTS_UNCONFIRMED_TITLE')}
+					description={t('profile.page.MANAGER_RIGHTS_UNCONFIRMED_DESCRIPTION')}
+				/>
+			)}
 			<div className="mb-10">
 				<LazyUserProfileTask
 					profile={profile}

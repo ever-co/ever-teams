@@ -1,23 +1,27 @@
 'use client';
 
+import { useAtomValue } from 'jotai';
 import { useTranslations } from 'next-intl';
 import { useTeamGeneralSettings } from '@/core/hooks/settings/use-team-general-settings';
+import { isOrganizationAdminState } from '@/core/stores';
 import { SettingsPage } from '@/core/components/settings/kit/settings-page';
 import { TeamSettingsGate } from '@/core/components/settings/kit/team-settings-gate';
 import { TeamGeneralSettingsSkeleton } from './team-general-settings-skeleton';
 import { TeamIdentitySection } from './team-identity-section';
 import { TeamVisibilitySection } from './team-visibility-section';
 import { TeamTrackingSection } from './team-tracking-section';
+import { TeamDefaultProjectSection } from './team-default-project-section';
 import { TeamDangerSection } from './team-danger-section';
 
 function TeamGeneralContent() {
 	const t = useTranslations();
 	const settings = useTeamGeneralSettings();
+	const isOrganizationAdmin = useAtomValue(isOrganizationAdminState);
 	const team = settings.activeTeam;
 	if (!team) {
 		return <TeamGeneralSettingsSkeleton />;
 	}
-	const canEdit = settings.isTeamManager;
+	const canEdit = settings.isTeamManager || isOrganizationAdmin;
 
 	return (
 		<SettingsPage
@@ -40,6 +44,12 @@ function TeamGeneralContent() {
 				team={team}
 				canEdit={canEdit}
 				saveVisibility={settings.saveVisibility}
+			/>
+			<TeamDefaultProjectSection
+				key={`projects-${team.id}`}
+				team={team}
+				canEdit={canEdit}
+				saveDefaultProject={settings.saveDefaultProject}
 			/>
 			<TeamTrackingSection
 				key={`tracking-${team.id}`}

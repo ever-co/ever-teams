@@ -3,6 +3,7 @@
 import { useMemo } from 'react';
 import { useAtomValue } from 'jotai';
 import { selectAtom } from 'jotai/utils';
+import { canMemberTrackTime } from '@/core/lib/helpers/team-member-tracking';
 import { activeTeamState } from '@/core/stores';
 
 /**
@@ -41,7 +42,7 @@ export function useIsTrackingEnabledFor(userId: string | undefined) {
 				const members = activeTeam?.members ?? [];
 				return members.some((member) => {
 					const isUser = member.employee?.userId === userId;
-					return isUser && Boolean(member.isTrackingEnabled);
+					return isUser && canMemberTrackTime(member);
 				});
 			}),
 		[userId]

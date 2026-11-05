@@ -214,22 +214,44 @@ export function ProjectDatesCell({
 		return <span className={MUTED_VALUE}>-</span>;
 	}
 	const notSet = t('pages.projects.list.NOT_SET');
+	const startLabel = start ? formatRangeStart(start, end, locale) : null;
+	const endLabel = end ? formatProjectDay(end, locale) : null;
 	return (
-		<span className={cn('inline-flex items-center gap-1.5 text-[13px] tabular-nums text-foreground', className)}>
-			<DateSide date={start} locale={locale} fallback={notSet} />
+		<span
+			className={cn(
+				'inline-flex flex-wrap items-center gap-x-1.5 gap-y-0.5 whitespace-nowrap text-[13px] tabular-nums text-foreground',
+				className
+			)}
+		>
+			<DateSide label={startLabel} fallback={notSet} />
 			<span aria-hidden="true" className="text-muted-foreground">
 				→
 			</span>
-			<DateSide date={end} locale={locale} fallback={notSet} />
+			<DateSide label={endLabel} fallback={notSet} />
 		</span>
 	);
 }
 
-function DateSide({ date, locale, fallback }: Readonly<{ date: Date | null; locale: string; fallback: string }>) {
-	if (!date) {
+function sharesYearWith(date: Date, other: Date | null) {
+	if (!other) {
+		return false;
+	}
+	return date.getFullYear() === other.getFullYear();
+}
+
+/** A range that starts and ends in the same year names that year once, after its end. */
+function formatRangeStart(start: Date, end: Date | null, locale: string) {
+	if (!sharesYearWith(start, end)) {
+		return formatProjectDay(start, locale);
+	}
+	return new Intl.DateTimeFormat(locale, { month: 'short', day: 'numeric' }).format(start);
+}
+
+function DateSide({ label, fallback }: Readonly<{ label: string | null; fallback: string }>) {
+	if (!label) {
 		return <span className="text-muted-foreground/70">{fallback}</span>;
 	}
-	return <span>{formatProjectDay(date, locale)}</span>;
+	return <span>{label}</span>;
 }
 
 function formatAmount(locale: string, amount: number, currency: string | null | undefined) {

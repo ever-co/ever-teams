@@ -11,11 +11,4 @@ export const AUTH_QUIET_LINK =
 /** The control height of every auth field and button: 36px, 44px on phones for touch. */
 export const AUTH_CONTROL_HEIGHT = 'h-9 max-sm:h-11';
 
-export const AUTH_COLUMN = 'mx-auto flex w-full max-w-[22rem] flex-col';
-
-export const AUTH_STEP_FORWARD =
-	'animate-in fade-in-0 slide-in-from-right-2 duration-300 ease-[cubic-bezier(0.22,1,0.36,1)]';
-export const AUTH_STEP_BACKWARD =
-	'animate-in fade-in-0 slide-in-from-left-2 duration-300 ease-[cubic-bezier(0.22,1,0.36,1)]';
-
 export const AUTH_LINE_ARRIVAL = 'animate-in fade-in-0 slide-in-from-top-0.5 duration-150';

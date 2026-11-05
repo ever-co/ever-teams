@@ -1,6 +1,7 @@
 import { STALE_TIMER_THRESHOLD } from '@/core/constants/config/constants';
 import { ETimeLogSource } from '@/core/types/generics/enums/timer';
 import { ITimeLog } from '@/core/types/interfaces/timer/time-log/time-log';
+import type { TDailyPlan } from '@/core/types/schemas/task/daily-plan.schema';
 
 // ==================== TYPES ====================
 
@@ -16,6 +17,27 @@ export function canRunTimerForState(state: TimerEligibilityState): boolean {
 	if (!state.isEmailVerified) return false;
 	if (state.hasActiveTask && !state.isActiveTaskClosed) return true;
 	return state.isTimerRunning && state.timerSource !== ETimeLogSource.TEAMS;
+}
+
+function isTaskInPlan(plan: TDailyPlan | undefined, taskId: string): boolean {
+	const plannedTasks = plan?.tasks ?? [];
+	return plannedTasks.some((plannedTask) => plannedTask.id === taskId);
+}
+
+/** A team that requires a plan lets a task card start only a task of today's plan, as the main Start does. */
+export function canTrackTask(
+	canTrack: boolean,
+	requirePlan: boolean,
+	plan: TDailyPlan | undefined,
+	taskId: string
+): boolean {
+	if (!canTrack) {
+		return false;
+	}
+	if (!requirePlan) {
+		return true;
+	}
+	return isTaskInPlan(plan, taskId);
 }
 
 export function isRunningTeamsLog(lastLog: ITimeLog | null | undefined): lastLog is ITimeLog {

@@ -86,6 +86,8 @@ const INITIAL_COMPONENTS: Partial<Components> = {
 	pre: function PreComponent({ children }) {
 		return <>{children}</>;
 	},
+	// `node` is taken out so it is not spread onto the anchor
+	// eslint-disable-next-line @typescript-eslint/no-unused-vars
 	a: function LinkComponent({ children, node: _node, ...props }) {
 		return (
 			<a {...props} target="_blank" rel="noopener noreferrer">

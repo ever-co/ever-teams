@@ -201,7 +201,7 @@ function InnerItemList({
 						return (
 							<div className={cn(LANE_SURFACE, 'absolute flex w-full flex-col gap-2')}>
 								<div className="flex h-[180px] items-center justify-center rounded-lg hairline-border border-dashed border-foreground/10 text-sm text-muted-foreground">
-									{t('common.NOT_FOUND')}!
+									{t('common.NOT_FOUND')}
 								</div>
 								<button
 									type="button"

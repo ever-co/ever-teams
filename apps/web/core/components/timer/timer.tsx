@@ -10,15 +10,10 @@ import { clsxm } from '@/core/lib/utils/clsxm';
 import { Text } from '@/core/components/common/typography';
 import { useTranslations } from 'next-intl';
 import { TimerButton } from './timer-button';
+import { TimerBillableSwitch } from './timer-billable-switch';
 import { Transition } from '@headlessui/react';
 
-import {
-	ArrowUturnUpIcon,
-	ComputerDesktopIcon,
-	DevicePhoneMobileIcon,
-	GlobeAltIcon,
-	LifebuoyIcon
-} from '@heroicons/react/24/outline';
+import { ArrowTurnUp, Desktop, Globe, Lifebuoy, Smartphone } from '@/core/components/icons';
 import { HotkeysEvent } from 'hotkeys-js';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { toast } from 'sonner';
@@ -96,6 +91,7 @@ export function Timer({ className, showTimerButton = true, compact = false }: IC
 
 	// Display optimistic state if available, otherwise use real state
 	const displayRunning = optimisticRunning ?? timerStatus?.running;
+	const isBillableLocked = Boolean(displayRunning);
 
 	const { os } = useDetectOS();
 
@@ -194,22 +190,25 @@ export function Timer({ className, showTimerButton = true, compact = false }: IC
 			</div>
 			{showTimerButton && (
 				<div className="flex h-fit shrink-0 items-center justify-center">
-					<Tooltip
-						label={!canRunTimer ? t('timer.START_TIMER') : osSpecificTimerTooltipLabel}
-						placement="top-start"
-						// If timer is running at some other source and user may or may not have selected the task
-						// enabled={
-						// 	!canRunTimer && timerStatus?.lastLog?.source !== TimerSource.TEAMS
-						// }
-					>
-						<TimerButton
-							onClick={startStopTimerHandler}
-							running={displayRunning}
-							disabled={!hydrated || actionDisabled}
-							className={timerButtonClassName}
-							emphasized
-						/>
-					</Tooltip>
+					<div className="flex items-center gap-3">
+						<TimerBillableSwitch locked={isBillableLocked} />
+						<Tooltip
+							label={!canRunTimer ? t('timer.START_TIMER') : osSpecificTimerTooltipLabel}
+							placement="top-start"
+							// If timer is running at some other source and user may or may not have selected the task
+							// enabled={
+							// 	!canRunTimer && timerStatus?.lastLog?.source !== TimerSource.TEAMS
+							// }
+						>
+							<TimerButton
+								onClick={startStopTimerHandler}
+								running={displayRunning}
+								disabled={!hydrated || actionDisabled}
+								className={timerButtonClassName}
+								emphasized
+							/>
+						</Tooltip>
+					</div>
 
 					<TimerPlanDialogs modals={modals} />
 				</div>
@@ -296,17 +295,17 @@ export function MinTimerFrame({ className }: IClassName) {
 export function TimerRunningSourceIcon({ source }: { source: ETimeLogSource }) {
 	switch (source) {
 		case ETimeLogSource.MOBILE:
-			return <DevicePhoneMobileIcon className="size-4 animate-pulse text-muted-foreground" />;
+			return <Smartphone aria-hidden="true" className="size-4 animate-pulse text-muted-foreground" />;
 		case ETimeLogSource.BROWSER:
-			return <GlobeAltIcon className="size-4 animate-pulse" />;
+			return <Globe aria-hidden="true" className="size-4 animate-pulse" />;
 		case ETimeLogSource.BROWSER_EXTENSION:
-			return <GlobeAltIcon className="size-4 animate-pulse text-muted-foreground" />;
+			return <Globe aria-hidden="true" className="size-4 animate-pulse text-muted-foreground" />;
 		case ETimeLogSource.DESKTOP:
-			return <ComputerDesktopIcon className="size-4 animate-pulse text-muted-foreground" />;
+			return <Desktop aria-hidden="true" className="size-4 animate-pulse text-muted-foreground" />;
 		case ETimeLogSource.UPWORK:
-			return <ArrowUturnUpIcon className="size-4 animate-pulse text-muted-foreground" />;
+			return <ArrowTurnUp aria-hidden="true" className="size-4 animate-pulse text-muted-foreground" />;
 		case ETimeLogSource.HUBSTAFF:
-			return <LifebuoyIcon className="size-4 animate-pulse text-muted-foreground" />;
+			return <Lifebuoy aria-hidden="true" className="size-4 animate-pulse text-muted-foreground" />;
 		default:
 			return <></>;
 	}

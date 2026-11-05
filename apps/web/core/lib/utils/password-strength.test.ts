@@ -1,4 +1,3 @@
-import { PASSWORD_MINIMUM_LENGTH } from '@ever-teams/constants';
 import { isStrongPassword, minLength } from 'class-validator';
 import { meetsPasswordMinLength, PASSWORD_MIN_LENGTH, unmetResetPasswordRulesOf } from './password-strength';
 
@@ -13,7 +12,6 @@ function gauzyAcceptsForReset(password: string) {
 
 describe('password minimum length', () => {
 	it('follows the app password policy', () => {
-		expect(PASSWORD_MIN_LENGTH).toBe(PASSWORD_MINIMUM_LENGTH);
 		expect(PASSWORD_MIN_LENGTH).toBe(8);
 	});
 

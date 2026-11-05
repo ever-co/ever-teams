@@ -237,7 +237,9 @@ describe('DEMO_ACCOUNTS_CONFIG', () => {
 		const constants = loadConstants();
 
 		expect(summary(constants)).toEqual(DEFAULT_ACCOUNTS);
-		expect(constants.DEMO_ACCOUNTS_CONFIG.every((account) => typeof account.icon === 'object')).toBe(true);
+		// A React component: lucide's forwardRef objects before, the central icons module's function components now
+		const isComponent = (icon: unknown) => typeof icon === 'function' || (typeof icon === 'object' && icon !== null);
+		expect(constants.DEMO_ACCOUNTS_CONFIG.every((account) => isComponent(account.icon))).toBe(true);
 		expect(warn).not.toHaveBeenCalled();
 	});
 

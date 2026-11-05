@@ -115,8 +115,6 @@ function TimeInfo({
 	total,
 	showDaily = true,
 	showTotal = true,
-	currentUser,
-	task,
 	valueClassName
 }: {
 	daily: { h: number; m: number };

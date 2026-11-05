@@ -184,6 +184,9 @@ function AuthSignup() {
 					}
 				>
 					<AuthAddress email={verifyEmailSentTo ?? ''} />
+					<p className={AUTH_HINT}>
+						<ExistingAccountHint />
+					</p>
 				</AuthState>
 			)}
 
@@ -207,6 +210,7 @@ function AuthSignup() {
 								form={formValues}
 								loading={loading}
 								everId={everId}
+								showsExistingAccountHint={!verifyEmailSentTo}
 							/>
 						</div>
 						{!isFirstStep && (
@@ -265,13 +269,16 @@ function FillUserDataForm({
 	errors,
 	handleOnChange,
 	loading,
-	everId = null
+	everId = null,
+	showsExistingAccountHint = true
 }: IStepProps & {
 	errors: Record<string, string>;
 	loading?: boolean;
 	everId?: TEverIdSignup;
+	showsExistingAccountHint?: boolean;
 }) {
 	const t = useTranslations();
+	const hintUnderEmail = showsExistingAccountHint && !everId;
 	const isNameLocked = Boolean(everId?.nameVerified) || Boolean(everId?.loading);
 	const isEmailLocked = Boolean(everId);
 	const isContinueDisabled = Boolean(loading) || Boolean(everId?.loading);
@@ -347,6 +354,7 @@ function FillUserDataForm({
 					readOnly={isEmailLocked}
 					autoComplete="email"
 					inputMode="email"
+					hint={hintUnderEmail ? <ExistingAccountHint /> : undefined}
 				/>
 
 				{everId && <EverIdSignupConfirmation everId={everId} error={errors?.everId} />}
@@ -430,6 +438,24 @@ function isTypingTarget(target: EventTarget | null) {
 	}
 	const isTextInput = target instanceof HTMLInputElement && target.type !== 'radio';
 	return isTextInput || target.isContentEditable;
+}
+
+/**
+ * Gauzy allows several accounts on one address and answers a sign-up the same way whether the address is known or
+ * not (no account enumeration), so the form cannot refuse an address that already has an account. The person is
+ * reminded instead, before and after submitting, that signing in keeps their existing workspace.
+ */
+function ExistingAccountHint() {
+	const t = useTranslations();
+
+	return (
+		<>
+			{t('pages.auth.EXISTING_ACCOUNT_HINT')}{' '}
+			<Link href={DEFAULT_APP_PATH} className={AUTH_TEXT_LINK}>
+				{t('pages.auth.SIGN_IN_INSTEAD')}
+			</Link>
+		</>
+	);
 }
 
 /**

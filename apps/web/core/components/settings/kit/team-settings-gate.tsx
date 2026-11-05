@@ -7,7 +7,7 @@ import Link from 'next/link';
 import NoTeam from '@/core/components/common/no-team';
 import { Button } from '@/core/components/duplicated-components/_button';
 import { Lock } from '@/core/components/icons';
-import { activeTeamState, isTeamManagerState, isTeamMemberState } from '@/core/stores';
+import { activeTeamState, canManageActiveTeamState, isTeamMemberState } from '@/core/stores';
 import { SETTINGS_COLUMN } from './settings-page';
 
 type TeamSettingsGateProps = {
@@ -39,9 +39,9 @@ function ManagersOnly() {
 export function TeamSettingsGate({ skeleton, requiresManager = false, children }: Readonly<TeamSettingsGateProps>) {
 	const isTeamMember = useAtomValue(isTeamMemberState);
 	const activeTeam = useAtomValue(activeTeamState);
-	const isTeamManager = useAtomValue(isTeamManagerState);
+	const canManageTeam = useAtomValue(canManageActiveTeamState);
 	const isTeamLoading = !activeTeam?.id;
-	const isRefused = requiresManager && !isTeamManager;
+	const isRefused = requiresManager && !canManageTeam;
 
 	if (!isTeamMember) {
 		return <NoTeam className="mt-0 py-8 xs:mt-0" />;

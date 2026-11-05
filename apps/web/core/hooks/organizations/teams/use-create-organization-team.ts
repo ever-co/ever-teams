@@ -24,6 +24,7 @@ import { LAST_WORKSPACE_AND_TEAM } from '@/core/constants/config/constants';
 import { useSettings } from '../../users';
 import { toastMoment } from '@/core/components/common/toast-moment';
 import { UsersGroup } from '@/core/components/icons';
+import { teamDefaultProjectId } from '@/core/lib/helpers/team-default-project';
 
 /**
  *Creates a custom hook for creating an organization team.
@@ -63,10 +64,9 @@ export function useCreateOrganizationTeam() {
 				if (switched) queryClient.invalidateQueries({ queryKey: queryKeys.users.me });
 			});
 
-			// Set Project Id to cookie
-			// TODO: Make it dynamic when we add Dropdown in Navbar
-			if (team && team?.projects && team.projects.length) {
-				setActiveProjectIdCookie(team.projects[0].id);
+			const defaultProjectId = teamDefaultProjectId(team);
+			if (defaultProjectId) {
+				setActiveProjectIdCookie(defaultProjectId);
 			}
 			globalThis.window && globalThis.window?.localStorage.setItem(LAST_WORKSPACE_AND_TEAM, team.id);
 			// Only update user last team if it's different to avoid unnecessary API calls

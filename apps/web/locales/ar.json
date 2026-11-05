@@ -88,6 +88,8 @@
 		"ASSIGN_TASK_TO": "تعيين المهمة إلى",
 		"ASSIGN_TASK_TO_ME": "تعيين المهمة لي",
 		"UNASSIGN_TASK_FROM_ME": "إلغاء تعييني من المهمة",
+		"ASSIGN_TASK_TO_MEMBER": "إسناد إلى {name}",
+		"UNASSIGN_TASK_FROM_MEMBER": "إلغاء إسناد {name}",
 		"TASK_ASSIGNED_TO_ME": "تم تعيين المهمة لك",
 		"TASK_UNASSIGNED_FROM_ME": "تم إلغاء تعيينك من المهمة",
 		"TASK_ASSIGN_ERROR": "فشل في تعيين المهمة",
@@ -136,7 +138,7 @@
 		"PRIVATE_TASK": "هذه المهمة خاصة",
 		"PUBLIC_TASK_LABEL": "جعل عامة",
 		"PRIVATE_TASK_LABEL": "جعل خاصة",
-		"CREATE_TASK": "إنشاء مهمة جديدة",
+		"CREATE_TASK": "إنشاء مهمة",
 		"REMOVE_FAVORITE_TASK": "إزالة المهمة من المفضلة",
 		"ADD_FAVORITE_TASK": "إضافة المهمة إلى المفضلة",
 		"NO_PROJECT": "لا يوجد مشروع",
@@ -189,7 +191,7 @@
 		"MY_TEAM": "فريقي",
 		"FULL_NAME": "الاسم الكامل",
 		"USER_AVATAR": "صورة المستخدم",
-		"REGISTER": "سجل الآن!",
+		"REGISTER": "إنشاء حساب",
 		"CONTACT": "جهة الاتصال",
 		"ENABLED": "يُمكَِن",
 		"DISABLED": "معطل",
@@ -207,7 +209,7 @@
 		"TRANSFER_TEAM": "نقل الفريق",
 		"TEAM_MEMBERS": "أعضاء الفريق",
 		"NO_TEAM": "أنشئ فريقك الخاص أو انضم إلى فريق موجود",
-		"NO_TEAM_SUB": "من الرائع العمل مع الآخرين، لذا قم بإنشاء فريق وادعو الجميع للتعاون!",
+		"NO_TEAM_SUB": "أنشئ فريقًا وادعُ الأشخاص الذين تعمل معهم.",
 		"NO_TEAM_TOOLTIP": "تحتاج إلى التحقق من عنوان بريدك الإلكتروني",
 		"CANCEL": "إلغاء",
 		"DISCARD": "تجاهل",
@@ -259,7 +261,7 @@
 		"FILTER_UNSUBSCRIBE": "إلغاء الاشتراك",
 		"KEYBOARD_SHORTCUTS": "اختصارات لوحة المفاتيح",
 		"GITHUB_LOADING_TEXT": "نحن الآن في عملية تثبيت التكامل الخاص بك على GitHub، توكّل.",
-		"GITHUB_INTEGRATION_AUTO_SYNC_TASK_TEXT": "قم بمزامنة المهام تلقائيًا في تطبيقك لتحديثات سلسة وفعّالة.",
+		"GITHUB_INTEGRATION_AUTO_SYNC_TASK_TEXT": "يزامن المهام مع المستودع المرتبط تلقائيًا.",
 		"GITHUB_INTEGRATION_LABEL_SYNC_TASK_TEXT": "تزامن المهام بشكل انتقائي عن طريق ربطها بتصنيف معين.",
 		"GITHUB_AUTO_SYNC_LABEL": "اختر تسمية التزامن التلقائي",
 		"GITHUB_INTEGRATION_SUBTITLE_TEXT": "قم بتفعيل تكامل GitHub لمزامنة المشروع والمستودع",
@@ -1550,7 +1552,7 @@
 			"WEEKLY_LIMIT": "الحد الأسبوعي"
 		},
 		"home": {
-			"BREADCRUMB": "[\"لوحة التحكم\"]",
+			"BREADCRUMB": "[\"الصفحة الرئيسية\"]",
 			"SENT_EMAIL_VERIFICATION": "تم إرسال تحقق الرمز إلى بريدك الإلكتروني",
 			"SENT_EMAIL_VERIFICATION_YOU_NEED_TO": "تحتاج إلى",
 			"SENT_EMAIL_VERIFICATION_YOUR_EMAIL_ADDRESS": " عنوان بريدك الإلكتروني. يجب أن يكون الرمز التحقق قد أُرسل بالفعل إلى بريدك الإلكتروني، ولكن يمكنك النقر فوق",
@@ -1593,7 +1595,7 @@
 			"basicInformationForm": {
 				"formFields": {
 					"title": "عنوان المشروع",
-					"titlePlaceholder": "مشروع العميل #1...",
+					"titlePlaceholder": "مشروع العميل #1",
 					"description": "الوصف",
 					"datePickerPlaceholder": "اختر تاريخًا",
 					"websiteUrl": "رابط الموقع",
@@ -1611,12 +1613,12 @@
 					"endDateRequired": "تاريخ الانتهاء مطلوب.",
 					"endDateAfterStart": "يجب أن يكون تاريخ الانتهاء بعد تاريخ البدء.",
 					"invalidUrl": "يرجى إدخال رابط صالح.",
-					"uploadError": "حدث خطأ أثناء تحميل صورة المشروع، يرجى المحاولة مرة أخرى!",
+					"uploadError": "لم يتم رفع صورة المشروع. حاول مرة أخرى.",
 					"descriptionWordLimit": "يجب أن يكون الوصف 5000 كلمة أو أقل."
 				},
 				"common": {
-					"search": "بحث ...",
-					"typeNew": "اكتب جديد ...",
+					"search": "بحث",
+					"typeNew": "اكتب جديد",
 					"addNew": "إضافة جديد",
 					"uploadingImage": "جارٍ تحميل صورة المشروع"
 				}
@@ -1626,19 +1628,19 @@
 					"budgetType": "نوع الميزانية",
 					"budgetTypePlaceholder": "اختر نوع الميزانية",
 					"budgetAmount": "مقدار الميزانية",
-					"budgetAmountPlaceholder": "10 000$...",
+					"budgetAmountPlaceholder": "10 000$",
 					"currency": "اختيار العملة",
-					"currencyPlaceholder": "اختر عملة...",
+					"currencyPlaceholder": "اختر عملة",
 					"billing": "نوع الفاتورة",
-					"billingPlaceholder": "اختر الفاصل الزمني..."
+					"billingPlaceholder": "اختر الفاصل الزمني"
 				}
 			},
 			"categorizationForm": {
 				"formFields": {
 					"labels": "التصنيفات",
-					"labelsPlaceholder": "حدد التصنيفات...",
+					"labelsPlaceholder": "حدد التصنيفات",
 					"tags": "الوسوم",
-					"tagsPlaceholder": "حدد الوسوم...",
+					"tagsPlaceholder": "حدد الوسوم",
 					"colorCode": "رمز اللون"
 				}
 			},
@@ -1650,13 +1652,13 @@
 					"assignMembers": "تعيين الأعضاء والمديرين",
 					"noMembers": "لا يوجد أعضاء أو مديرين",
 					"addMember": "إضافة عضو",
-					"selectMember": "اختر عضو...",
-					"selectRole": "اختر دور...",
+					"selectMember": "اختر عضو",
+					"selectRole": "اختر دور",
 					"relations": "العلاقات",
 					"noRelations": "لا توجد علاقات",
 					"addRelation": "إضافة علاقة",
-					"selectProject": "اختر مشروع...",
-					"selectRelationType": "اختر نوع العلاقة...",
+					"selectProject": "اختر مشروع",
+					"selectRelationType": "اختر نوع العلاقة",
 					"activeTeamLocked": "الفريق الحالي مطلوب ولا يمكن إزالته"
 				},
 				"errors": {
@@ -1785,7 +1787,7 @@
 				"created": "تم إنشاء {name}",
 				"saved": "تم حفظ التغييرات على {name}",
 				"done": "تم",
-				"descriptionPlaceholder": "أضف وصفًا أو ملخصًا أو أهداف المشروع…",
+				"descriptionPlaceholder": "أضف وصفًا أو ملخصًا أو أهداف المشروع",
 				"removeItem": "إزالة {name}",
 				"showMore": "عرض {count} أخرى",
 				"showLess": "عرض أقل",
@@ -1807,12 +1809,12 @@
 				},
 				"teams": {
 					"add": "إضافة فريق",
-					"search": "ابحث عن فريق…"
+					"search": "ابحث عن فريق"
 				},
 				"people": {
 					"addManagers": "إضافة مديرين",
 					"addMembers": "إضافة أعضاء",
-					"search": "ابحث عن شخص…"
+					"search": "ابحث عن شخص"
 				},
 				"tags": {
 					"add": "إضافة وسوم",
@@ -1956,19 +1958,22 @@
 			"UNRECEIVED_CODE": "لم تتلقى الرمز؟",
 			"JOIN_TEAM": "انضمام للفريق",
 			"INPUT_INVITE_CODE": "إدخال رمز الدعوة.",
+			"INPUT_SIGN_IN_CODE": "أدخل رمز تسجيل الدخول",
 			"INPUT_INVITE_CODE_DESC": "أدخل رمز الدعوة الذي أرسلناه إلى بريدك الإلكتروني.",
 			"INVALID_INVITE_CODE_MESSAGE": "رمز غير صالح",
 			"WELCOME_TEAMS": "مرحبًا بك في إيفر تيمز",
 			"COVER_TITLE": "تابع تقدم عمل فرقك في الوقت الفعلي!",
-			"COVER_DESCRIPTION": "نص تجريبي هنا",
+			"COVER_DESCRIPTION": "تتبّع الوقت والنشاط، وأدِر المهام والمشاريع، واعرف ما يعمل عليه فريقك. يعمل مع GitHub وJira.",
 			"LOGIN": "تسجيل الدخول",
 			"SELECT_WORKSPACE": "تحديد مساحة العمل",
+			"WORKSPACE_OPEN_FAILED": "تعذّر فتح مساحة العمل هذه. اختر واحدة من القائمة.",
 			"ENTER_EMAIL": "أدخل البريد الإلكتروني",
 			"WORKSPACES_NOT_FOUND": "لم يتم العثور على مساحات عمل",
 			"INVALID_CODE_TRY_AGAIN": "رمز غير صالح. الرجاء المحاولة مرة أخرى.",
 			"EMPTY_WORKSPACE_WARNING_TITLE": "مساحة العمل هذه لا تحتوي على فرق",
 			"EMPTY_WORKSPACE_WARNING_MESSAGE": "ستتم مطالبتك بإنشاء فريق بعد تسجيل الدخول.",
 			"NO_TEAMS_BADGE": "لا توجد فرق",
+			"WORKSPACE_NOT_SET_UP": "مساحة عمل جديدة، لم تُعدّ بعد",
 			"TEAM_COUNT_SINGULAR": "فريق",
 			"TEAM_COUNT_PLURAL": "فرق",
 			"FORGOT_PASSWORD": "هل نسيت كلمة المرور؟",
@@ -1976,6 +1981,8 @@
 			"PRIVACY_POLICY": "سياسة الخصوصية",
 			"OR_CONTINUE_WITH": "أو تابع باستخدام",
 			"SIGNUP_VERIFY_EMAIL": "تم إنشاء حسابك. افتح الرابط في البريد الإلكتروني الذي أرسلناه إلى {email} لتفعيله، ثم سجّل الدخول ببريدك الإلكتروني.",
+			"EXISTING_ACCOUNT_HINT": "لديك حساب بهذا البريد الإلكتروني بالفعل؟",
+			"SIGN_IN_INSTEAD": "سجّل الدخول إليه بدلاً من ذلك",
 			"everId": {
 				"NO_WORKSPACE_TITLE": "لا توجد مساحة عمل لهذا الـ Ever ID بعد",
 				"NO_WORKSPACE_BODY": "لا توجد مساحة عمل مرتبطة بهذا الـ Ever ID بعد. سجّل الدخول بطريقة أخرى، أو اطلب دعوة من مسؤول مساحة العمل.",
@@ -2002,6 +2009,13 @@
 				"SIGN_IN_AGAIN": "تسجيل الدخول باستخدام Ever ID مرة أخرى",
 				"LOGIN_WITH_EVER_ID": "تسجيل الدخول باستخدام <wordmark>Ever ID</wordmark>"
 			},
+			"provider": {
+				"ACCOUNT_UNCONFIRMED_TITLE": "أكّد عنوان بريدك الإلكتروني أولاً",
+				"ACCOUNT_UNCONFIRMED_BODY": "يوجد حساب يستخدم عنوان البريد الإلكتروني هذا لكنه لم يؤكده بعد. سجّل الدخول باستخدام عنوان بريدك الإلكتروني، ثم أكّده من التنبيه في صفحتك الرئيسية. بعد ذلك ستعمل طريقة تسجيل الدخول هذه أيضاً.",
+				"ACCOUNT_NOT_SET_UP_TITLE": "أكمل إعداد حسابك",
+				"ACCOUNT_NOT_SET_UP_BODY": "لا يملك حسابك بهذا البريد الإلكتروني مساحة عمل بعد. سجّل الدخول باستخدام عنوان بريدك الإلكتروني لإكمال إعداده. بعد ذلك ستعمل طريقة تسجيل الدخول هذه أيضاً.",
+				"SIGN_IN_WITH_EMAIL": "تسجيل الدخول ببريدي الإلكتروني"
+			},
 			"CHOOSE_YOUR_WORKSPACE": "اختر مساحة العمل الخاصة بك"
 		},
 		"authPasscode": {
@@ -2010,7 +2024,7 @@
 		},
 		"authLogin": {
 			"HEADING_TITLE": "تسجيل الدخول إلى الفريق",
-			"HEADING_DESCRIPTION": "يرجى إدخال البريد الإلكتروني ورمز الدعوة لتسجيل الدخول.",
+			"HEADING_DESCRIPTION": "أدخل بريدك الإلكتروني وسنرسل إليك رمز تسجيل الدخول.",
 			"WORKSPACE": "مساحة العمل",
 			"HEADING_WORKSPACE_LINE1": "البريد الإلكتروني المرتبط بمساحات عمل متعددة،",
 			"HEADING_WORKSPACE_LINE2": "يرجى تحديد واحدة للمتابعة",
@@ -2211,8 +2225,8 @@
 			"HANDLE_REQUESTS": "التعامل مع الطلبات",
 			"ROLES_POSITIONS_CHANGE": "تغيير الأدوار/المناصب",
 			"VIEW_DETAILS": "عرض التفاصيل",
-			"NO_INVITATIONS": "لا توجد دعوات حاليًا!",
-			"NO_MEMBERS": "لا يوجد أعضاء حاليًا!",
+			"NO_INVITATIONS": "لا توجد دعوات معلّقة",
+			"NO_MEMBERS": "لا يوجد أعضاء بعد",
 			"GO_TO_PERSONAL_SETTINGS": "الانتقال إلى الإعدادات الشخصية",
 			"SHARE_MEMBERS_PROFILE_VIEWS": "مشاركة مشاهدات ملفات تعريف الأعضاء",
 			"everPlatform": {
@@ -2311,24 +2325,24 @@
 		},
 		"unauthorized": {
 			"TITLE": "غير مصرح",
-			"HEADING_TITLE": "أنت غير مفوض لدخول هذه الصفحة !",
-			"HEADING_DESCRIPTION": "عتذر عن الإزعاج، لكن غير مسموح لك بالدخول إلى هذه الصفحة. إذا كنت تعتقد أن هذا خطأ. الرجاء تسجيل الدخول.",
+			"HEADING_TITLE": "ليس لديك صلاحية الوصول إلى هذه الصفحة",
+			"HEADING_DESCRIPTION": "لا يستطيع حسابك فتح هذه الصفحة. إذا كنت تعتقد أن ذلك خطأ، سجّل الدخول مرة أخرى أو اسأل مدير فريقك.",
 			"TRY_AGAIN": "حاول ثانية"
 		},
 		"page404": {
 			"HEADING_TITLE": "غير موجود",
-			"HEADING_DESCRIPTION": "المورد الذي تبحث عنه غير موجود!",
+			"HEADING_DESCRIPTION": "هذه الصفحة غير موجودة أو تم نقلها.",
 			"LINK_LABEL": "الذهاب إلى الصفحة الرئيسية"
 		},
 		"offline": {
-			"HEADING_TITLE": "تم قطع الشبكة!",
+			"HEADING_TITLE": "لا يوجد اتصال بالشبكة",
 			"HEADING_SUB_DESCRIPTION": "عفوًا، فقدناك. لا تقلق، الوقت ما زال يتم تتبعه.",
 			"HEADING_DESCRIPTION": "ستتمكن من متابعة العمل في تطبيق الويب بمجرد استعادة الاتصال.",
-			"STATUS_NETWORK": "غير متصل!"
+			"STATUS_NETWORK": "غير متصل"
 		},
 		"error": {
 			"TITLE": "خطأ",
-			"HEADING_TITLE": "هناك خطأ ما ",
+			"HEADING_TITLE": "حدث خطأ ما",
 			"HEADING_DESCRIPTION": "إذا استمرت المشكلة، قم بإرسال إشارة استغاثة إلى فريق الدعم لدينا."
 		},
 		"maintenance": {
@@ -2386,7 +2400,7 @@
 			"END_AFTER_START": "يجب أن يكون وقت الانتهاء بعد وقت البدء."
 		},
 		"teamTasks": {
-			"SEARCH_TASKS": "البحث في المهام...",
+			"SEARCH_TASKS": "البحث في المهام",
 			"TYPE_AND_NUMBER": "النوع + الرقم",
 			"NO_ISSUE_TYPE": "لا يوجد نوع قضية",
 			"NO_USER_ASSIGNED": "لم يتم تعيين مستخدم",
@@ -2412,7 +2426,7 @@
 			"ME": "أنت",
 			"META_TASKS": "{count, plural, zero {لا مهام} one {مهمة واحدة} two {مهمتان} few {# مهام} many {# مهمة} other {# مهمة}}",
 			"META_TRACKED": "{count, plural, zero {لا تتبّع الآن} one {مهمة واحدة يُتتبّع وقتها الآن} two {مهمتان يُتتبّع وقتهما الآن} few {# مهام يُتتبّع وقتها الآن} many {# مهمة يُتتبّع وقتها الآن} other {# مهمة يُتتبّع وقتها الآن}}",
-			"NEW_TASK": "مهمة جديدة",
+			"NEW_TASK": "إنشاء مهمة",
 			"NO_ASSIGNEE": "بلا مُسند إليه",
 			"NO_MATCH_TITLE": "لا توجد مهام مطابقة",
 			"NO_MATCH_MESSAGE": "غيّر البحث أو عوامل التصفية، أو امسحها لرؤية كل المهام.",
@@ -2464,6 +2478,7 @@
 	"timer": {
 		"START_TIMER": "يرجى تحديد أو إنشاء مهمة جديدة لبدء تتبع الوقت أو وضع خطة",
 		"ALREADY_TRACKING_MESSAGE": "أنت تتبع الوقت بالفعل في علامة تبويب أو جهاز آخر.",
+		"TRACKING_DISABLED_MESSAGE": "تتبع الوقت معطّل لك. يمكن لمسؤول المؤسسة تفعيله.",
 		"TASK_CLOSED": "المهمة مغلقة",
 		"PLAN_REQUIRED_TO_START": "أضف هذه المهمة إلى خطة اليوم للبدء",
 		"STARTING_TIMER": "جاري بدء المؤقت...",
@@ -2471,6 +2486,7 @@
 		"TIMER_START_FAILED": "فشل بدء المؤقت",
 		"STALE_TIMER_STOPPED_DESCRIPTION": "استمر المؤقت في العمل بعد إغلاق التطبيق، لذلك تم إيقافه عند آخر لحظة كان فيها التطبيق مفتوحًا ({stoppedAt}). إذا عملت بعد ذلك، فأضف الوقت يدويًا.",
 		"TIMER_STOP_FAILED": "فشل إيقاف المؤقت. يرجى المحاولة مرة أخرى.",
+		"BILLABLE": "قابل للفوترة",
 		"TEAM_SWITCH": {
 			"STOPPED_TIMER_TOAST_TITLE": "توقف المؤقت",
 			"STOPPED_TIMER_TOAST_DESCRIPTION": "توقف المؤقت بسبب التبديل بين الفرق"
@@ -2791,7 +2807,7 @@
 	},
 	"placeholders": {
 		"ENTER_TO_VALIDATE": "اضغط إدخال للتحقق",
-		"ENTER_A_COMMAND": "أدخل أمرًا..."
+		"ENTER_A_COMMAND": "أدخل أمرًا"
 	},
 	"team": {
 		"BACK_LABEL": "العودة إلى الفريق",
@@ -2858,8 +2874,8 @@
 		"EMPTY_NOT_CONFIGURED": "قم بتهيئة مفتاح API للبدء.",
 		"CONFIGURE_BUTTON": "تهيئة",
 		"ERROR_FALLBACK": "حدث خطأ. يرجى التحقق من الإعدادات.",
-		"INPUT_PLACEHOLDER_READY": "رسالتك...",
-		"INPUT_PLACEHOLDER_NO_KEY": "قم بتهيئة مفتاح API...",
+		"INPUT_PLACEHOLDER_READY": "رسالتك",
+		"INPUT_PLACEHOLDER_NO_KEY": "قم بتهيئة مفتاح API",
 		"STOP": "إيقاف",
 		"SEND": "إرسال",
 		"NEW_CHAT": "محادثة جديدة",
@@ -2871,7 +2887,7 @@
 		"EXPAND_ASSISTANT": "توسيع المساعد",
 		"OPEN_ASSISTANT": "فتح مساعد {appName}",
 		"ASSISTANT": "المساعد",
-		"ASK_PLACEHOLDER": "اسأل {appName}…",
+		"ASK_PLACEHOLDER": "اسأل {appName}",
 		"COMPOSER_LABEL": "رسالة إلى المساعد",
 		"EMPTY_TITLE": "كيف يمكنني مساعدتك؟",
 		"EXAMPLES_LABEL": "ابدأ بمثال",
@@ -2939,7 +2955,7 @@
 		}
 	},
 	"commandPalette": {
-		"searchPlaceholder": "اكتب أمرًا أو ابحث…",
+		"searchPlaceholder": "اكتب أمرًا أو ابحث",
 		"tabsLabel": "مجموعات الأوامر",
 		"empty": "لا توجد نتائج.",
 		"tabs": {
@@ -2957,7 +2973,7 @@
 			"inviteUser": "دعوة مستخدم",
 			"assignToMe": "إسناد إليّ",
 			"toggleTheme": "تبديل السمة",
-			"createTask": "مهمة جديدة",
+			"createTask": "إنشاء مهمة",
 			"searchTasks": "البحث في المهام",
 			"createTeam": "فريق جديد",
 			"searchTeams": "البحث في الفرق",
@@ -2996,10 +3012,13 @@
 		},
 		"timeLog": {
 			"forMember": "لـ",
-			"notesPlaceholder": "أضف ملاحظاتك هنا…"
+			"notesPlaceholder": "أضف ملاحظاتك هنا"
 		},
 		"manualTime": {
-			"descriptionPlaceholder": "على ماذا عملت؟"
+			"descriptionPlaceholder": "على ماذا عملت؟",
+			"PROJECT": "المشروع",
+			"SELECT_EMPLOYEE": "اختر موظفًا",
+			"SELECT_TASK": "اختر مهمة"
 		},
 		"dailyPlan": {
 			"planMyDay": "خطّط ليومي",
@@ -3010,7 +3029,7 @@
 			"tasksWithoutEstimate": "مهام بلا تقدير للوقت",
 			"correctHoursWarning": "صحّح ساعات العمل المخطط لها أو أعد تقدير المهام.",
 			"moreOptions": "خيارات أخرى",
-			"searchMember": "ابحث عن عضو…",
+			"searchMember": "ابحث عن عضو",
 			"noMemberFound": "لم يُعثر على أي عضو.",
 			"selectOrCreateTask": "اختر مهمة للخطة أو أنشئ واحدة"
 		},
@@ -3022,7 +3041,7 @@
 			"addToPlan": "إضافة إلى الخطة",
 			"createNewPlan": "إنشاء خطة جديدة",
 			"useExistingPlan": "إضافة إلى خطة موجودة",
-			"searchPlan": "ابحث عن خطة…",
+			"searchPlan": "ابحث عن خطة",
 			"noPlanFound": "لم يُعثر على أي خطة.",
 			"plannedTime": "الوقت المخطط: {hours} س"
 		},
@@ -3084,7 +3103,13 @@
 		"TEAM_COUNT": "{count, plural, zero {لا فرق} one {فريق واحد} two {فريقان} few {# فرق} many {# فريقًا} other {# فريق}}",
 		"NO_OTHER_WORKSPACE": "لا توجد مساحات عمل أخرى",
 		"ADD_WORKSPACE": "إضافة مساحة عمل",
-		"TEAM_SETTINGS": "إعدادات الفريق"
+		"TEAM_SETTINGS": "إعدادات الفريق",
+		"APPS": "التطبيقات",
+		"SWITCH_APP": "الانتقال إلى تطبيق Ever آخر",
+		"EVER_APPS": "تطبيقات Ever",
+		"CURRENT_APP": "{app}، التطبيق الذي تستخدمه",
+		"OPENS_IN_NEW_TAB": "(يُفتح في علامة تبويب جديدة)",
+		"APP_OPENS_IN_NEW_TAB": "{app} (يُفتح في علامة تبويب جديدة)"
 	},
 	"todayActivity": {
 		"ACTIVE_TASK": "المهمة النشطة",
@@ -3466,6 +3491,8 @@
 			"COLOR_NOT_SAVED": "لم يتم حفظ لون الفريق",
 			"EMOJI_NOT_SAVED": "لم يتم حفظ الرمز التعبيري للفريق",
 			"SIZE_NOT_SAVED": "لم يتم حفظ حجم الفريق",
+			"DEFAULT_PROJECT_NOT_SAVED": "لم يتم حفظ المشروع الافتراضي",
+			"DEFAULT_PROJECT_NOT_SUPPORTED": "هذا الخادم لا يحفظ بعد مشروعًا افتراضيًا للفريق.",
 			"TYPE_NOT_SAVED": "لم يتم حفظ نوع الفريق",
 			"LEFT_TEAM": "غادرت الفريق",
 			"LEAVE_FAILED": "ما زلت في الفريق",
@@ -3868,7 +3895,11 @@
 			"DELETE_CONSEQUENCE_SIGN_OUT": "يُسجَّل خروجك لتختار مساحة عمل أخرى.",
 			"QUIT_TITLE": "مغادرة {team}؟",
 			"QUIT_CONSEQUENCE_LIST": "يختفي الفريق من قائمة فرقك.",
-			"QUIT_CONSEQUENCE_BACK": "يستطيع مدير دعوتك من جديد لاحقًا."
+			"QUIT_CONSEQUENCE_BACK": "يستطيع مدير دعوتك من جديد لاحقًا.",
+			"PROJECTS_SECTION": "المشاريع",
+			"DEFAULT_PROJECT_LABEL": "المشروع الافتراضي",
+			"DEFAULT_PROJECT_DESCRIPTION": "تذهب المهام الجديدة والمؤقتات في هذا الفريق إلى هذا المشروع.",
+			"DEFAULT_PROJECT_PLACEHOLDER": "اختر مشروعًا"
 		},
 		"members": {
 			"UNVERIFIED_TITLE": "أكّد بريدك الإلكتروني لتدعو أشخاصًا",
@@ -3894,6 +3925,7 @@
 			"LAST_NAME": "اسم العائلة",
 			"FIRST_NAME_REQUIRED": "أدخل الاسم الأول.",
 			"TRACK_TIME": "تتبع الوقت",
+			"TRACKING_OFF_BY_ADMIN": "عطّله مسؤول المؤسسة",
 			"REMOVE": "إزالة من الفريق",
 			"REMOVE_TITLE": "إزالة {name} من {team}؟",
 			"REMOVE_CONSEQUENCE_LIST": "لن يبقى {name} بين أعضاء الفريق.",
@@ -4000,6 +4032,11 @@
 			"SECTION_THEME": "المظهر",
 			"SECTION_THEME_DESCRIPTION": "ينطبق على هذا المتصفح فقط.",
 			"THEME_SYSTEM": "النظام",
+			"SECTION_APP_SWITCHER": "مبدّل التطبيقات",
+			"SECTION_APP_SWITCHER_DESCRIPTION": "مكان الوصول إلى تطبيقات Ever الأخرى. يُطبَّق على هذا المتصفح فقط.",
+			"APP_SWITCHER_SIDEBAR": "الشريط الجانبي",
+			"APP_SWITCHER_HEADER": "الشريط العلوي",
+			"APP_SWITCHER_RAIL": "الشريط الأيسر",
 			"SECTION_REGION": "اللغة والمنطقة الزمنية",
 			"LANGUAGE": "اللغة",
 			"LANGUAGE_DESCRIPTION": "لغة القوائم والرسائل، وتُحفظ في حسابك.",
@@ -4065,9 +4102,9 @@
 			"ADD_PARENT": "إضافة مهمة رئيسية",
 			"CHANGE_PARENT": "تغيير المهمة الرئيسية",
 			"REMOVE_PARENT": "إزالة المهمة الرئيسية",
-			"SEARCH_PARENT": "ابحث عن مهمة رئيسية...",
+			"SEARCH_PARENT": "ابحث عن مهمة رئيسية",
 			"NO_ASSIGNEE": "لا أحد بعد",
-			"SEARCH_PEOPLE": "ابحث عن زميل...",
+			"SEARCH_PEOPLE": "ابحث عن زميل",
 			"MANAGE_ASSIGNEES": "إسناد إلى أشخاص",
 			"ADD_LABEL": "إضافة تصنيف",
 			"EDIT_LABELS": "تعديل التصنيفات",
@@ -4102,12 +4139,12 @@
 			"LOAD_FAILED": "تعذّر تحميل الخطط."
 		},
 		"subtasks": {
-			"SEARCH": "ابحث عن مهمة لإضافتها...",
+			"SEARCH": "ابحث عن مهمة لإضافتها",
 			"REMOVE": "إزالة من هذه المهمة"
 		},
 		"relations": {
-			"SEARCH": "ابحث عن مهمة لربطها...",
-			"SEARCH_KIND": "ابحث عن علاقة...",
+			"SEARCH": "ابحث عن مهمة لربطها",
+			"SEARCH_KIND": "ابحث عن علاقة",
 			"CHANGE_KIND": "تغيير العلاقة",
 			"REMOVE": "إزالة الرابط"
 		},
@@ -4133,6 +4170,8 @@
 	"profile": {
 		"page": {
 			"BACK_TO_TEAM": "العودة إلى الفريق",
+			"MANAGER_RIGHTS_UNCONFIRMED_TITLE": "لم يتم تأكيد صلاحياتك كمدير على أعضاء هذا الفريق بعد",
+			"MANAGER_RIGHTS_UNCONFIRMED_DESCRIPTION": "تبقى خططهم ووقتهم ونشاطهم مخفية عنك حتى يؤكدك مسؤول المؤسسة مديرًا لهذا الفريق في إعدادات الفريق.",
 			"SEARCH_TASKS": "البحث في المهام",
 			"COUNT_STILL_LOADING": "لا يزال تحميل مهام أخرى جاريًا",
 			"COPY_EMAIL": "نسخ البريد الإلكتروني",
