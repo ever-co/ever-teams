@@ -3004,7 +3004,10 @@
 			"notesPlaceholder": "Voeg hier notities toe"
 		},
 		"manualTime": {
-			"descriptionPlaceholder": "Waar heb je aan gewerkt?"
+			"descriptionPlaceholder": "Waar heb je aan gewerkt?",
+			"PROJECT": "Project",
+			"SELECT_EMPLOYEE": "Selecteer een medewerker",
+			"SELECT_TASK": "Selecteer een taak"
 		},
 		"dailyPlan": {
 			"planMyDay": "Mijn dag plannen",

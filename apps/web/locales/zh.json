@@ -3004,7 +3004,10 @@
 			"notesPlaceholder": "在此添加备注"
 		},
 		"manualTime": {
-			"descriptionPlaceholder": "您做了哪些工作？"
+			"descriptionPlaceholder": "您做了哪些工作？",
+			"PROJECT": "项目",
+			"SELECT_EMPLOYEE": "选择员工",
+			"SELECT_TASK": "选择任务"
 		},
 		"dailyPlan": {
 			"planMyDay": "规划我的一天",

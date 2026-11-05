@@ -3004,7 +3004,10 @@
 			"notesPlaceholder": "הוסיפו הערות כאן"
 		},
 		"manualTime": {
-			"descriptionPlaceholder": "על מה עבדתם?"
+			"descriptionPlaceholder": "על מה עבדתם?",
+			"PROJECT": "פרויקט",
+			"SELECT_EMPLOYEE": "בחר עובד",
+			"SELECT_TASK": "בחר משימה"
 		},
 		"dailyPlan": {
 			"planMyDay": "לתכנן את היום שלי",

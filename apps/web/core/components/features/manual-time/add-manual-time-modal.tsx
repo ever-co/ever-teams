@@ -1,18 +1,24 @@
 import '@/styles/style.css';
 
-import { format } from 'date-fns';
-import { Button, Modal, modalFooterClass, modalPrimaryActionClass, modalSecondaryActionClass } from '@/core/components';
+import {
+	Button,
+	Modal,
+	modalFieldLabelClass,
+	modalPrimaryActionClass,
+	modalSecondaryActionClass
+} from '@/core/components';
 import { cn } from '@/core/lib/helpers';
-import { Calendar, Clock } from '@/core/components/icons';
+import { Calendar, CircleAlert, Clock } from '@/core/components/icons';
 import { Input, controlGroupRecipe, controlRecipe } from '@/core/components/common/input';
+import { BillableSwitch } from '@/core/components/common/billable-switch';
+import { DialogFieldLabel } from '@/core/components/common/dialog-field-label';
 import { DottedLanguageObjectStringPaths, useLocale, useTranslations } from 'next-intl';
 import { errorReasonKeyOf } from '@/core/lib/utils/error-feedback';
-import { FormEvent, useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { FormEvent, useCallback, useEffect, useId, useMemo, useRef, useState } from 'react';
 
 import { manualTimeReasons } from '@/core/constants/config/constants';
 import { useManualTime } from '@/core/hooks/activities/use-manual-time';
 import { useIsMemberManager } from '@/core/hooks/organizations/teams/use-team-member';
-import { clsxm } from '@/core/lib/utils';
 import { DatePicker } from '@/core/components/common/date-picker';
 import { getNestedValue, Item, ManageOrMemberComponent } from '../../teams/manage-member-component';
 import { CustomSelect } from '../../common/multiple-select';
@@ -47,6 +53,25 @@ interface IAddManualTimeModalProps {
 
 function clockTimeOf(date: Date) {
 	return date.toTimeString().slice(0, 5);
+}
+
+const DESCRIPTION_FIELD_CLASS_NAME = 'field-sizing-content max-h-[6lh] min-h-20 w-full resize-none p-3';
+
+const PICKER_LABEL_CLASS_NAME = 'mb-1.5 leading-none';
+
+function dateLabelOf(date: Date | undefined, locale: string, placeholder: string): string {
+	if (!date) {
+		return placeholder;
+	}
+	const formatter = new Intl.DateTimeFormat(locale, { dateStyle: 'medium' });
+	return formatter.format(date);
+}
+
+function durationLabelKeyOf(params: IAddManualTimeModalProps['params']) {
+	if (params === 'AddManuelTime') {
+		return 'timer.TOTAL_HOURS';
+	}
+	return 'manualTime.ADDED_HOURS';
 }
 
 /** Whether the listed task belongs to the team, so time is never saved with a team and a task of another team. */
@@ -103,6 +128,13 @@ export function AddManualTimeModal(props: Readonly<IAddManualTimeModalProps>) {
 		addManualTimeFailure,
 		timeLog
 	} = useManualTime();
+
+	const startTimeId = useId();
+	const endTimeId = useId();
+	const descriptionId = useId();
+	const dateLabel = dateLabelOf(date, locale, t('manualTime.PICK_A_DATE'));
+	const durationLabel = t(durationLabelKeyOf(params));
+	const optionalLabel = t('manualTime.OPTIONAL');
 
 	const initialRangeRef = useRef({ start: initialStart, end: initialEnd });
 
@@ -386,8 +418,8 @@ export function AddManualTimeModal(props: Readonly<IAddManualTimeModalProps>) {
 	const fields = useMemo(
 		() => [
 			{
-				label: 'Project',
-				placeholder: 'Select a project',
+				label: t('modals.manualTime.PROJECT'),
+				placeholder: t('common.SELECT_A_PROJECT'),
 				isRequired: true,
 				valueKey: 'id',
 				displayKey: 'name',
@@ -397,7 +429,7 @@ export function AddManualTimeModal(props: Readonly<IAddManualTimeModalProps>) {
 				? [
 						{
 							label: t('manualTime.EMPLOYEE'),
-							placeholder: 'Select an employee',
+							placeholder: t('modals.manualTime.SELECT_EMPLOYEE'),
 							isRequired: true,
 							valueKey: 'id',
 							displayKey: 'employee.fullName',
@@ -407,7 +439,7 @@ export function AddManualTimeModal(props: Readonly<IAddManualTimeModalProps>) {
 				: []),
 			{
 				label: t('manualTime.TASK'),
-				placeholder: 'Select a Task',
+				placeholder: t('modals.manualTime.SELECT_TASK'),
 				isRequired: true,
 				valueKey: 'id',
 				displayKey: 'title',
@@ -446,112 +478,80 @@ export function AddManualTimeModal(props: Readonly<IAddManualTimeModalProps>) {
 			closeModal={closeModal}
 			title={t('common.ADD_TIME')}
 			breadcrumb={activeTeam?.name}
-			className="w-full md:w-40 md:min-w-[24rem] h-[auto] justify-start"
+			className="max-h-[calc(100dvh-2rem)] w-full max-w-lg overflow-y-auto"
 		>
-			<form onSubmit={handleSubmit} className="text-sm w-[90%] md:w-full flex flex-col justify-between gap-4">
-				<div className="flex flex-col">
-					<label className="mb-1.5 block text-xs font-medium leading-none text-muted-foreground">
-						{t('manualTime.DATE')}
-						<span className="ml-1 text-destructive-ink">*</span>
-					</label>
-					<DatePicker
-						buttonVariant={'link'}
-						//@ts-ignore
-						className="bg-popover"
-						buttonClassName={cn(
-							controlGroupRecipe,
-							'decoration-transparent h-9 justify-start gap-2 px-2.5 text-left font-normal text-foreground'
-						)}
-						customInput={
-							<>
-								<Calendar className="size-4 shrink-0 text-muted-foreground" />
-								<Button
-									variant="ghost"
-									size="default"
-									className={cn(
-										'w-[230px] justify-start px-0 text-left text-sm font-normal text-foreground hover:bg-transparent',
-										!date && 'text-muted-foreground'
-									)}
-								>
-									{date ? format(date, 'PPP') : <span>{t('manualTime.PICK_A_DATE')}</span>}
-								</Button>
-							</>
-						}
-						selected={date}
-						onSelect={(value) => {
-							value && setDate(value);
-						}}
-						mode={'single'}
-					/>
-				</div>
-				<div className="flex items-center">
-					<div className=" w-[48%] mr-[4%]">
-						<label className="mb-1.5 block text-xs font-medium leading-none text-muted-foreground">
-							{t('manualTime.START_TIME')}
-							<span className="ml-1 text-destructive-ink">*</span>
-						</label>
-						<Input
-							type="time"
-							value={startTime}
-							onChange={(e) => setStartTime(e.target.value)}
-							className="tabular-nums"
-							required
-						/>
-					</div>
-
-					<div className=" w-[48%]">
-						<label className="mb-1.5 block text-xs font-medium leading-none text-muted-foreground">
-							{t('manualTime.END_TIME')}
-							<span className="ml-1 text-destructive-ink">*</span>
-						</label>
-
-						<Input
-							type="time"
-							value={endTime}
-							onChange={(e) => setEndTime(e.target.value)}
-							className="tabular-nums"
-							required
-						/>
-					</div>
-				</div>
-				<div className="flex justify-between">
-					<div className="flex items-center">
-						<label className="mr-2 block text-[13px] text-foreground">
-							{t('pages.timesheet.BILLABLE.BILLABLE')}
-						</label>
-						<div
-							className={clsxm(
-								'flex h-6 w-10.5 shrink-0 cursor-pointer items-center rounded-full p-0.5 hairline-ring ring-foreground/10 transition-colors dark:ring-foreground/15',
-								isBillable && 'bg-primary',
-								!isBillable && 'bg-foreground/10'
-							)}
-							onClick={() => setIsBillable(!isBillable)}
-						>
-							<div
-								className={clsxm(
-									'size-4.5 rounded-full bg-white shadow-sm shadow-black/15 transition-transform duration-200',
-									isBillable && 'translate-x-4.5'
+			<form onSubmit={handleSubmit} className="flex w-full flex-col gap-4 text-sm">
+				<div className="flex flex-col gap-2">
+					<div className="grid grid-cols-2 gap-3 sm:grid-cols-[minmax(0,1.4fr)_minmax(0,1fr)_minmax(0,1fr)]">
+						<div className="col-span-2 flex min-w-0 flex-col sm:col-span-1">
+							<DialogFieldLabel isRequired>{t('manualTime.DATE')}</DialogFieldLabel>
+							<DatePicker
+								buttonVariant={'link'}
+								//@ts-ignore
+								className="bg-popover"
+								buttonClassName={cn(
+									controlGroupRecipe,
+									'decoration-transparent h-9 w-full justify-start gap-2 px-2.5 text-left font-normal text-foreground'
 								)}
+								customInput={
+									<span className="flex min-w-0 items-center gap-2">
+										<span className="sr-only">{t('manualTime.DATE')}</span>
+										<Calendar
+											className="size-4 shrink-0 text-muted-foreground"
+											aria-hidden="true"
+										/>
+										<span className="truncate text-sm tabular-nums">{dateLabel}</span>
+									</span>
+								}
+								selected={date}
+								onSelect={(value) => {
+									value && setDate(value);
+								}}
+								mode={'single'}
+							/>
+						</div>
+						<div className="flex min-w-0 flex-col">
+							<DialogFieldLabel htmlFor={startTimeId} isRequired>
+								{t('manualTime.START_TIME')}
+							</DialogFieldLabel>
+							<Input
+								id={startTimeId}
+								type="time"
+								value={startTime}
+								onChange={(e) => setStartTime(e.target.value)}
+								className="tabular-nums"
+								required
+							/>
+						</div>
+						<div className="flex min-w-0 flex-col">
+							<DialogFieldLabel htmlFor={endTimeId} isRequired>
+								{t('manualTime.END_TIME')}
+							</DialogFieldLabel>
+							<Input
+								id={endTimeId}
+								type="time"
+								value={endTime}
+								onChange={(e) => setEndTime(e.target.value)}
+								className="tabular-nums"
+								required
 							/>
 						</div>
 					</div>
-
-					<div className="flex items-center">
-						<label className="block text-xs text-muted-foreground">
-							{`${params === 'AddManuelTime' ? t('timer.TOTAL_HOURS') : t('manualTime.ADDED_HOURS')}`}
-							:{' '}
-						</label>
-						<div className="ml-2 flex items-center gap-1.5 text-sm font-semibold tabular-nums">
-							<div className="text-muted-foreground">
-								<Clock className="size-4" />
-							</div>
+					<div className="flex items-center justify-between gap-3 rounded-lg bg-foreground/[0.03] px-3 py-2">
+						<span className="text-xs text-muted-foreground">{durationLabel}</span>
+						<span className="flex items-center gap-1.5 text-[13px] font-medium tabular-nums text-foreground">
+							<Clock className="size-3.5 text-muted-foreground" aria-hidden="true" />
 							{timeDifference}
-						</div>
+						</span>
 					</div>
 				</div>
 				{params === 'AddManuelTime' ? (
 					<>
 						<ManageOrMemberComponent
+							className="flex flex-col gap-4"
+							fieldClassName="mb-0"
+							labelClassName={cn(modalFieldLabelClass, PICKER_LABEL_CLASS_NAME)}
+							classNameTitle="text-xs"
 							fields={fields}
 							itemsLists={memberItemsLists}
 							selectedValues={selectedValues}
@@ -561,24 +561,22 @@ export function AddManualTimeModal(props: Readonly<IAddManualTimeModalProps>) {
 							itemToValue={itemToValue}
 						/>
 						<div className="flex flex-col">
-							<label className="mb-1.5 block shrink-0 text-xs font-medium leading-none text-muted-foreground">
-								{t('manualTime.DESCRIPTION')} ({t('manualTime.OPTIONAL')})
-							</label>
+							<DialogFieldLabel htmlFor={descriptionId} optionalLabel={optionalLabel}>
+								{t('manualTime.DESCRIPTION')}
+							</DialogFieldLabel>
 							<textarea
+								id={descriptionId}
 								value={description}
 								placeholder={t('modals.manualTime.descriptionPlaceholder')}
 								onChange={(e) => setDescription(e.target.value)}
-								className={cn(controlRecipe, 'h-32 w-full grow resize-none p-3')}
+								className={cn(controlRecipe, DESCRIPTION_FIELD_CLASS_NAME)}
 							/>
 						</div>
 					</>
 				) : (
 					<>
-						<div className="">
-							<label className="mb-1.5 block text-xs font-medium leading-none text-muted-foreground">
-								{t('manualTime.TEAM')}
-								<span className="ml-1 text-destructive-ink">*</span>
-							</label>
+						<div className="flex flex-col">
+							<DialogFieldLabel isRequired>{t('manualTime.TEAM')}</DialogFieldLabel>
 							<CustomSelect
 								valueKey="id"
 								// Shows the team the time is saved with, also when the active team changes under the form
@@ -605,11 +603,8 @@ export function AddManualTimeModal(props: Readonly<IAddManualTimeModalProps>) {
 								}}
 							/>
 						</div>
-						<div className="">
-							<label className="mb-1.5 block text-xs font-medium leading-none text-muted-foreground">
-								{t('manualTime.TASK')}
-								<span className="ml-1 text-destructive-ink">*</span>
-							</label>
+						<div className="flex flex-col">
+							<DialogFieldLabel isRequired>{t('manualTime.TASK')}</DialogFieldLabel>
 							<CustomSelect
 								valueKey="id"
 								// Controlled, so a task cleared on a team change is cleared in the select too
@@ -638,21 +633,20 @@ export function AddManualTimeModal(props: Readonly<IAddManualTimeModalProps>) {
 						</div>
 
 						<div className="flex flex-col">
-							<label className="mb-1.5 block shrink-0 text-xs font-medium leading-none text-muted-foreground">
-								{t('manualTime.DESCRIPTION')} ({t('manualTime.OPTIONAL')})
-							</label>
+							<DialogFieldLabel htmlFor={descriptionId} optionalLabel={optionalLabel}>
+								{t('manualTime.DESCRIPTION')}
+							</DialogFieldLabel>
 							<textarea
+								id={descriptionId}
 								value={description}
 								placeholder={t('modals.manualTime.descriptionPlaceholder')}
 								onChange={(e) => setDescription(e.target.value)}
-								className={cn(controlRecipe, 'min-h-20 w-full grow resize-none p-3')}
+								className={cn(controlRecipe, DESCRIPTION_FIELD_CLASS_NAME)}
 							/>
 						</div>
 
-						<div className="">
-							<label className="mb-1.5 block text-xs font-medium leading-none text-muted-foreground">
-								{t('manualTime.REASON')} ({t('manualTime.OPTIONAL')})
-							</label>
+						<div className="flex flex-col">
+							<DialogFieldLabel optionalLabel={optionalLabel}>{t('manualTime.REASON')}</DialogFieldLabel>
 							<CustomSelect
 								classNameGroup="max-h-[40vh]"
 								ariaLabel="REASON"
@@ -668,23 +662,35 @@ export function AddManualTimeModal(props: Readonly<IAddManualTimeModalProps>) {
 					</>
 				)}
 
-				<div className={modalFooterClass}>
-					{params === 'AddTime' && (
-						<Button variant="ghost" size="default" className={modalSecondaryActionClass} type="button">
-							{t('common.VIEW_TIMESHEET')}
+				{errorMsg && (
+					<p role="alert" className="flex items-start gap-1.5 text-[13px] text-destructive-ink">
+						<CircleAlert className="mt-0.5 size-3.5 shrink-0" aria-hidden="true" />
+						{errorMsg}
+					</p>
+				)}
+				<div className="flex flex-wrap items-center justify-between gap-3 pt-1">
+					<BillableSwitch
+						isBillable={isBillable}
+						onChange={setIsBillable}
+						label={t('dashboard.timesheets.BILLABLE')}
+					/>
+					<div className="ml-auto flex items-center gap-2">
+						{params === 'AddTime' && (
+							<Button variant="ghost" size="default" className={modalSecondaryActionClass} type="button">
+								{t('common.VIEW_TIMESHEET')}
+							</Button>
+						)}
+						<Button
+							loading={addManualTimeLoading}
+							disabled={addManualTimeLoading}
+							type="submit"
+							size="default"
+							className={modalPrimaryActionClass}
+						>
+							{t('common.ADD_TIME')}
 						</Button>
-					)}
-					<Button
-						loading={addManualTimeLoading}
-						disabled={addManualTimeLoading}
-						type="submit"
-						size="default"
-						className={modalPrimaryActionClass}
-					>
-						{t('common.ADD_TIME')}
-					</Button>
+					</div>
 				</div>
-				{errorMsg && <div className="m-2 text-xs text-destructive-ink">{errorMsg}</div>}
 			</form>
 		</Modal>
 	);

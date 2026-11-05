@@ -3004,7 +3004,10 @@
 			"notesPlaceholder": "Добавете бележки тук"
 		},
 		"manualTime": {
-			"descriptionPlaceholder": "Върху какво работихте?"
+			"descriptionPlaceholder": "Върху какво работихте?",
+			"PROJECT": "Проект",
+			"SELECT_EMPLOYEE": "Изберете служител",
+			"SELECT_TASK": "Изберете задача"
 		},
 		"dailyPlan": {
 			"planMyDay": "Планирай деня ми",

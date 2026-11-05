@@ -3004,7 +3004,10 @@
 			"notesPlaceholder": "Notizen hier eingeben"
 		},
 		"manualTime": {
-			"descriptionPlaceholder": "Woran haben Sie gearbeitet?"
+			"descriptionPlaceholder": "Woran haben Sie gearbeitet?",
+			"PROJECT": "Projekt",
+			"SELECT_EMPLOYEE": "Mitarbeiter auswählen",
+			"SELECT_TASK": "Aufgabe auswählen"
 		},
 		"dailyPlan": {
 			"planMyDay": "Meinen Tag planen",
