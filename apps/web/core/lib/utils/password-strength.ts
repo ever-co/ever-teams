@@ -50,8 +50,9 @@ export function passwordStrengthOf(password: string): PasswordStrength {
 	return Math.min(strength, 4) as PasswordStrength;
 }
 
+/** Gauzy's `MinLength(8)` counts characters, so a symbol made of two UTF-16 units counts once, as here. */
 export function meetsPasswordMinLength(password: string) {
-	return password.length >= PASSWORD_MIN_LENGTH;
+	return minLength(password, PASSWORD_MIN_LENGTH);
 }
 
 export function passwordsMatch(password: string, confirmation: string) {

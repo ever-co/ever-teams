@@ -20,6 +20,14 @@ describe('password minimum length', () => {
 		expect(meetsPasswordMinLength('1234567')).toBe(false);
 		expect(meetsPasswordMinLength('12345678')).toBe(true);
 	});
+
+	it('counts characters the way Gauzy does, not UTF-16 units', () => {
+		const fourEmoji = '\u{1F512}\u{1F511}\u{1F510}\u{1F513}';
+
+		expect(fourEmoji.length).toBe(8);
+		expect(minLength(fourEmoji, 8)).toBe(false);
+		expect(meetsPasswordMinLength(fourEmoji)).toBe(false);
+	});
 });
 
 describe('reset password rules', () => {
