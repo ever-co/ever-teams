@@ -1,7 +1,7 @@
 'use client';
 
 import { useTranslations } from 'next-intl';
-import { AppsGrid } from '@/core/components/icons/hugeicons';
+import { EverStar } from '@/core/components/icons/ever-star';
 import { buttonVariants } from '@/core/components/duplicated-components/_button';
 import {
 	DropdownMenu,
@@ -15,8 +15,11 @@ import { EVER_APPS, isCurrentEverApp, type EverApp } from '@/core/constants/conf
 import { cn } from '@/core/lib/helpers';
 import { AppGlyph } from './app-glyph';
 
-const TRIGGER_RECIPE =
-	'text-muted-foreground data-popup-open:bg-foreground/5 data-popup-open:text-foreground [&_svg]:size-4';
+const TRIGGER_RECIPE = 'data-popup-open:bg-foreground/5';
+
+const HOVER_OPEN_DELAY_MS = 120;
+
+const HOVER_CLOSE_DELAY_MS = 200;
 
 const APP_ROW = 'h-9 gap-2.5';
 
@@ -70,11 +73,13 @@ export function AppSwitcherMenu({ side, align, size, className }: Readonly<AppSw
 	return (
 		<DropdownMenu>
 			<DropdownMenuTrigger
+				openOnHover
+				delay={HOVER_OPEN_DELAY_MS}
+				closeDelay={HOVER_CLOSE_DELAY_MS}
 				aria-label={label}
-				title={label}
 				className={cn(buttonVariants({ variant: 'ghost', size }), TRIGGER_RECIPE, className)}
 			>
-				<AppsGrid aria-hidden="true" />
+				<EverStar className="size-5 motion-safe:animate-[spin_9s_linear_infinite]" />
 			</DropdownMenuTrigger>
 			<DropdownMenuContent side={side} align={align} sideOffset={6} collisionPadding={8} className="w-64">
 				<DropdownMenuLabel>{t('switchers.APPS')}</DropdownMenuLabel>
