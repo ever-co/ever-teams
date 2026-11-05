@@ -14,14 +14,25 @@ jest.mock('@/core/services/server/guards/authenticated-guard-app', () => ({
 import { POST } from './route';
 
 const TASK_ID = '11111111-1111-4111-8111-111111111111';
+const PROJECT_ID = '22222222-2222-4222-8222-222222222222';
 const originalFetch = global.fetch;
 
-function startTimer() {
+function startTimerWith(body: unknown) {
 	const request = new Request('https://app.ever.team/api/timer/start', {
 		method: 'POST',
-		body: JSON.stringify({ taskId: TASK_ID })
+		body: JSON.stringify(body)
 	});
 	return POST(request);
+}
+
+function startTimer() {
+	return startTimerWith({ taskId: TASK_ID });
+}
+
+/** The body the route sent to Gauzy's POST /timesheet/timer/start. */
+function sentStartBody(fetchMock: jest.Mock) {
+	const startCall = fetchMock.mock.calls.find(([url]) => String(url).endsWith('/timesheet/timer/start'));
+	return JSON.parse(String(startCall?.[1]?.body));
 }
 
 beforeEach(() => {
@@ -52,5 +63,48 @@ describe('POST /api/timer/start', () => {
 		const response = await startTimer();
 
 		expect(response.status).toBe(502);
+	});
+});
+
+describe('POST /api/timer/start body sent to Gauzy', () => {
+	let fetchMock: jest.Mock;
+
+	beforeEach(() => {
+		// A fresh answer per call: the start, then the status read
+		fetchMock = jest.fn().mockImplementation(() => Promise.resolve(Response.json({ running: true })));
+		global.fetch = fetchMock;
+	});
+
+	it("forwards the task's project and the billable value", async () => {
+		const response = await startTimerWith({ taskId: TASK_ID, projectId: PROJECT_ID, isBillable: true });
+
+		expect(response.status).toBe(200);
+		expect(sentStartBody(fetchMock)).toEqual(
+			expect.objectContaining({ taskId: TASK_ID, projectId: PROJECT_ID, isBillable: true })
+		);
+	});
+
+	it('sends no project and a non-billable start for a body that names neither', async () => {
+		await startTimerWith({ taskId: TASK_ID });
+
+		const sentBody = sentStartBody(fetchMock);
+		expect(sentBody).not.toHaveProperty('projectId');
+		expect(sentBody.isBillable).toBe(false);
+	});
+
+	it("sends no project when the task comes from the cookie, which may name another task's project", async () => {
+		await startTimerWith({ projectId: PROJECT_ID });
+
+		expect(sentStartBody(fetchMock)).not.toHaveProperty('projectId');
+	});
+
+	it.each([
+		['a billable value that is not a boolean', { taskId: TASK_ID, isBillable: 'yes' }],
+		['an empty project', { taskId: TASK_ID, projectId: '' }]
+	])('refuses %s with a 400, without calling Gauzy', async (_, body) => {
+		const response = await startTimerWith(body);
+
+		expect(response.status).toBe(400);
+		expect(fetchMock).not.toHaveBeenCalled();
 	});
 });
