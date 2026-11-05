@@ -1,14 +1,7 @@
 'use client';
 
-import { useEffect, useRef, type ReactNode } from 'react';
+import type { ReactNode } from 'react';
 import { cn } from '@/core/lib/helpers';
-import { prefersReducedMotion } from '@/core/lib/utils/motion';
-
-const ARRIVAL_KEYFRAMES: Keyframe[] = [
-	{ opacity: 0, filter: 'blur(4px)', transform: 'translateY(8px) scale(0.985)' },
-	{ opacity: 1, filter: 'blur(0)', transform: 'translateY(0) scale(1)' }
-];
-const ARRIVAL_TIMING: KeyframeAnimationOptions = { duration: 340, easing: 'cubic-bezier(0.2, 0, 0, 1)' };
 
 /** A bar standing for something not known yet: pressed into the surface, never pulsing (nothing is loading). */
 export function SceneBar({ className }: Readonly<{ className?: string }>) {
@@ -29,40 +22,19 @@ export function SceneDot({ className }: Readonly<{ className?: string }>) {
 	);
 }
 
-/** A new `sceneKey` brings the sheet in again; typing inside a scene only updates its text. */
+/** The scene updates in place: it never moves when the step or the page changes. */
 export function AuthScene({
-	sceneKey,
 	title,
 	description,
 	children
-}: Readonly<{ sceneKey: string; title: ReactNode; description?: ReactNode; children: ReactNode }>) {
-	const sheetRef = useRef<HTMLDivElement>(null);
-	const previousKey = useRef(sceneKey);
-
-	useEffect(() => {
-		if (previousKey.current === sceneKey) {
-			return;
-		}
-		previousKey.current = sceneKey;
-		const sheet = sheetRef.current;
-		if (!sheet) {
-			return;
-		}
-		if (prefersReducedMotion()) {
-			return;
-		}
-		sheet.animate(ARRIVAL_KEYFRAMES, ARRIVAL_TIMING);
-	}, [sceneKey]);
-
+}: Readonly<{ title: ReactNode; description?: ReactNode; children: ReactNode }>) {
 	return (
 		<div aria-hidden="true" className="relative flex h-full min-h-[30rem] flex-col overflow-hidden select-none">
 			<div className="flex max-w-xs flex-col gap-1 px-8 pt-8">
 				<p className="text-[13px] font-medium text-foreground">{title}</p>
 				{description && <p className="text-xs text-pretty text-muted-foreground">{description}</p>}
 			</div>
-			<div ref={sheetRef} className="absolute top-32 right-0 bottom-0 left-8">
-				{children}
-			</div>
+			<div className="absolute top-32 right-0 bottom-0 left-8">{children}</div>
 		</div>
 	);
 }

@@ -137,8 +137,7 @@ export function AuthLayout({
 	const t = useTranslations();
 	const frameRef = useRef<HTMLDivElement>(null);
 	const formRef = useRef<HTMLDivElement>(null);
-	const sceneRef = useRef<HTMLElement>(null);
-	useAuthPageTravel({ frameRef, formRef, sceneRef });
+	useAuthPageTravel({ frameRef, formRef });
 	const appLink = linkAllowed(APP_LINK, BRANDING_LINKS_SET_BY_OPERATOR.app, operatorLinksOnly);
 	const companyLink = linkAllowed(COMPANY_LINK, BRANDING_LINKS_SET_BY_OPERATOR.company, operatorLinksOnly);
 	const termsLink = linkAllowed(TERMS_LINK, BRANDING_LINKS_SET_BY_OPERATOR.terms, operatorLinksOnly);
@@ -200,7 +199,6 @@ export function AuthLayout({
 							</div>
 							{hasAside && (
 								<aside
-									ref={sceneRef}
 									aria-hidden="true"
 									className="relative m-2 ml-0 hidden overflow-hidden rounded-[14px] bg-foreground/[0.03] lg:block dark:bg-foreground/[0.025]"
 								>

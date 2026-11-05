@@ -35,9 +35,8 @@ function ScenePerson({ initials, className }: Readonly<{ initials: string; class
 	}
 	return (
 		<span
-			key={initials}
 			className={cn(
-				'flex size-8 shrink-0 animate-in items-center justify-center rounded-full bg-primary/10 text-[11px] font-semibold text-primary-ink fade-in-0 zoom-in-90 duration-150 hairline-ring ring-primary/25',
+				'flex size-8 shrink-0 items-center justify-center rounded-full bg-primary/10 text-[11px] font-semibold text-primary-ink hairline-ring ring-primary/25',
 				className
 			)}
 		>
@@ -133,7 +132,7 @@ export function AccountScene({
 	email
 }: Readonly<{ title: string; description: string; name?: string; email: string }>) {
 	return (
-		<AuthScene sceneKey="account" title={title} description={description}>
+		<AuthScene title={title} description={description}>
 			<AppSheet
 				sidebar={
 					<>
@@ -210,7 +209,7 @@ export function InboxScene({
 	const action = t(ACTION_KEY[message]);
 
 	return (
-		<AuthScene sceneKey={`inbox-${message}`} title={title} description={description}>
+		<AuthScene title={title} description={description}>
 			<MailSheet>
 				<div className="flex items-start gap-3">
 					<EntityTile name={APP_NAME} className="size-8 text-[11px]" />
@@ -265,7 +264,7 @@ export function WorkspaceScene({
 	const placeholderRows = [0, 1, 2];
 
 	return (
-		<AuthScene sceneKey="workspace" title={title} description={description}>
+		<AuthScene title={title} description={description}>
 			<AppSheet
 				sidebar={
 					<>
@@ -318,7 +317,7 @@ export function TeamScene({
 	const hasTeamName = Boolean(teamName.trim());
 
 	return (
-		<AuthScene sceneKey="team" title={title} description={description}>
+		<AuthScene title={title} description={description}>
 			<AppSheet
 				sidebar={
 					<>
@@ -366,7 +365,7 @@ export function InviteScene({
 	email: string;
 }>) {
 	return (
-		<AuthScene sceneKey="invite" title={title} description={description}>
+		<AuthScene title={title} description={description}>
 			<AppSheet
 				sidebar={
 					<>

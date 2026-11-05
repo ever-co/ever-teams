@@ -33,12 +33,6 @@ const TRAVEL_WINDOW_MS = 2000;
 
 const RESIZE_TIMING: KeyframeAnimationOptions = { duration: 320, easing: 'cubic-bezier(0.23, 1, 0.32, 1)' };
 
-const SCENE_ARRIVAL: Keyframe[] = [
-	{ opacity: 0, filter: 'blur(4px)', transform: 'translateY(8px) scale(0.985)' },
-	{ opacity: 1, filter: 'blur(0)', transform: 'translateY(0) scale(1)' }
-];
-const SCENE_TIMING: KeyframeAnimationOptions = { duration: 340, easing: 'cubic-bezier(0.2, 0, 0, 1)' };
-
 function pageOrderOf(pathname: string) {
 	const path = pathname.replace(LOCALE_PREFIX, '');
 	return PAGE_ORDER[path] ?? 0;
@@ -92,16 +86,14 @@ function resizeFrom(frame: HTMLElement, previous: LeftPage, rect: DOMRect) {
 
 /**
  * Moving between auth pages (code to password, back to sign in, on to sign up): the frame resizes from the page that
- * was left, the form arrives from the side of the travel and the scene settles in again. A first load stays still.
+ * was left, the form arrives from the side of the travel. The scene beside it never moves. A first load stays still.
  */
 export function useAuthPageTravel({
 	frameRef,
-	formRef,
-	sceneRef
+	formRef
 }: Readonly<{
 	frameRef: RefObject<HTMLElement | null>;
 	formRef: RefObject<HTMLElement | null>;
-	sceneRef: RefObject<HTMLElement | null>;
 }>) {
 	useLayoutEffect(() => {
 		const frame = frameRef.current;
@@ -118,12 +110,11 @@ export function useAuthPageTravel({
 			const travel = travelBetween(previous.order, order);
 			resizeFrom(frame, previous, rect);
 			playStepArrival(formRef.current, travel, 'page');
-			sceneRef.current?.animate(SCENE_ARRIVAL, SCENE_TIMING);
 		}
 
 		return () => {
 			const rect = frame.getBoundingClientRect();
 			leftPage = { order, width: rect.width, height: rect.height, leftAt: performance.now() };
 		};
-	}, [frameRef, formRef, sceneRef]);
+	}, [frameRef, formRef]);
 }
