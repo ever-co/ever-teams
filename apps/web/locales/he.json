@@ -4124,7 +4124,7 @@
 		"page": {
 			"BACK_TO_TEAM": "חזרה לצוות",
 			"MANAGER_RIGHTS_UNCONFIRMED_TITLE": "הרשאות המנהל שלך על חברי הצוות הזה עדיין לא אושרו",
-			"MANAGER_RIGHTS_UNCONFIRMED_DESCRIPTION": "התוכניות, הזמן והפעילות שלהם יישארו מוסתרים עד שמנהל הארגון ישמור את מנהלי הצוות בהגדרות הצוות.",
+			"MANAGER_RIGHTS_UNCONFIRMED_DESCRIPTION": "התוכניות, הזמן והפעילות שלהם יישארו מוסתרים עד שמנהל הארגון יאשר אותך כמנהל של הצוות הזה בהגדרות הצוות.",
 			"SEARCH_TASKS": "חיפוש משימות",
 			"COUNT_STILL_LOADING": "משימות נוספות עדיין נטענות",
 			"COPY_EMAIL": "העתקת האימייל",
