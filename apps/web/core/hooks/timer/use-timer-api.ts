@@ -16,7 +16,7 @@ import { findTimerPlans } from '@/core/lib/helpers/daily-plan-day';
 import { logErrorInDev } from '@/core/lib/helpers/error-message';
 import { shouldRetryQuery } from '@/core/lib/helpers/retry-utils';
 import { canRunTimerForState } from '@/core/lib/helpers/timer-policy';
-import { timerStartProjectId } from '@/core/lib/helpers/team-default-project';
+import { taskOnStartProject, timerStartProjectId } from '@/core/lib/helpers/team-default-project';
 import { errorReasonKeyOf } from '@/core/lib/utils/error-feedback';
 import {
 	isTrackingOffRefusal,
@@ -567,7 +567,8 @@ export function useTimerApi({
 				return 'blocked';
 			}
 
-			const isBillableToUse = await resolveTimerBillable(taskToUse);
+			const taskOnItsStartProject = taskOnStartProject(taskToUse, activeTeamRef.current);
+			const isBillableToUse = await resolveTimerBillable(taskOnItsStartProject);
 
 			updateLocalTimerStatus({
 				lastTaskId: taskIdToUse,

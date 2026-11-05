@@ -32,3 +32,15 @@ export function timerStartProjectId(
 	}
 	return teamDefaultProjectId(team);
 }
+
+/** The task as a timer start files it, under the project `timerStartProjectId` picks, so its billable value follows. */
+export function taskOnStartProject<T extends { projectId?: string | null }>(
+	task: T | null | undefined,
+	team: TeamWithProjects | null | undefined
+): T | null {
+	if (!task) {
+		return null;
+	}
+	const projectId = timerStartProjectId(task, team);
+	return { ...task, projectId };
+}
