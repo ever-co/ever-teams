@@ -16,16 +16,15 @@ import {
 	teamTasksCompleteState,
 	teamTasksState
 } from '@/core/stores';
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useRef, useState } from 'react';
 import { useAtomValue, useSetAtom, useStore } from 'jotai';
 import isEqual from 'lodash/isEqual';
 import { useUpdateEmployeeActiveTask } from './use-organization-teams-employee';
 import { useConditionalUpdateEffect } from '../../common/use-has-mounted';
 import { useSyncRef } from '../../common/use-sync-ref';
-import { TOrganizationTeamEmployee, TUser } from '@/core/types/schemas';
+import { TOrganizationTeamEmployee } from '@/core/types/schemas';
 import { TTask } from '@/core/types/schemas/task/task.schema';
 import { useUserQuery } from '../../queries/user-user.query';
-import { useUpdateTask } from './use-update-task';
 
 type ActiveUserTaskCookieValue = { taskId: string; userId: string };
 
@@ -73,18 +72,6 @@ function setActiveTeamTaskIfChanged(store: JotaiStore, task: TTask | null) {
 	store.set(activeTeamTaskState, task);
 }
 
-/** The signed-in user as last loaded: kept while the user query refetches or briefly has no data. */
-function useLastAuthUser() {
-	const { data: userData } = useUserQuery();
-	const lastUserRef = useRef<TUser | null>(userData ?? null);
-	useEffect(() => {
-		if (userData) {
-			lastUserRef.current = userData;
-		}
-	}, [userData]);
-	return { authUser: userData, lastUserRef };
-}
-
 /**
  * setActiveTask and its local guard, without the server sync effects. The team, the tasks and the member's active
  * task id are read when the call runs, so the component holding it does not re-render on their refreshes.
@@ -92,8 +79,7 @@ function useLastAuthUser() {
 function useActiveTaskSetter() {
 	const store = useStore();
 	const { updateOrganizationTeamEmployeeActiveTask } = useUpdateEmployeeActiveTask();
-	const { updateTask } = useUpdateTask();
-	const { authUser, lastUserRef } = useLastAuthUser();
+	const { data: authUser } = useUserQuery();
 	const authUserRef = useSyncRef(authUser);
 	const setActiveTeamTask = useSetAtom(activeTeamTaskState);
 	const [isUpdatingActiveTask, setIsUpdatingActiveTask] = useState(false);
@@ -117,27 +103,6 @@ function useActiveTaskSetter() {
 			setIsUpdatingActiveTask(true);
 
 			try {
-				const memberActiveTaskId = store.get(memberActiveTaskIdState);
-				const signedInUser = lastUserRef.current;
-				/**
-				 * Unassign previous active task
-				 */
-				if (memberActiveTaskId && signedInUser && memberActiveTaskId !== task?.id) {
-					const _task = store.get(tasksByTeamState).find((t) => t.id === memberActiveTaskId);
-
-					if (_task) {
-						try {
-							await updateTask({
-								..._task,
-								members: _task.members?.filter((m) => m.id !== signedInUser.employee?.id)
-							});
-						} catch (error) {
-							logErrorInDev('[setActiveTask] Failed to unassign previous task', error);
-							// Continue execution - do not block switching to new task
-						}
-					}
-				}
-
 				const previousTask = store.get(activeTeamTaskState);
 				const previousTaskId = getActiveTaskIdCookie();
 
@@ -216,15 +181,7 @@ function useActiveTaskSetter() {
 				setIsUpdatingActiveTask(false);
 			}
 		},
-		[
-			store,
-			setActiveTeamTask,
-			setActiveUserTaskCookieCb,
-			updateOrganizationTeamEmployeeActiveTask,
-			authUserRef,
-			lastUserRef,
-			updateTask
-		]
+		[store, setActiveTeamTask, setActiveUserTaskCookieCb, updateOrganizationTeamEmployeeActiveTask, authUserRef]
 	);
 
 	return { setActiveTask, isUpdatingActiveTask, expectedActiveTaskIdRef, authUserRef, store };
