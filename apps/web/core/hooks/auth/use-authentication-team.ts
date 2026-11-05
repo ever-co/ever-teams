@@ -14,6 +14,7 @@ import { useLocale, useTranslations } from 'next-intl';
 import { EVER_ID_STEP_PARAM, isEverIdStep } from '@/core/lib/auth/ever-id/step';
 import { everIdService } from '@/core/services/client/api/auth/ever-id.service';
 import type { IEverIdSignupPrefill } from '@/core/types/interfaces/auth/ever-id';
+import { defaultTeamNameOf } from '@/core/lib/utils/default-team-name';
 
 // Step 1: User info (name, email, captcha)
 // Step 2: Choose mode (solo or team)
@@ -218,15 +219,6 @@ export function useAuthenticationTeam() {
 		[locale, router, t]
 	);
 
-	/**
-	 * Generate default team name for solo mode
-	 */
-	const generateDefaultTeamName = useCallback((userName: string): string => {
-		const trimmedName = userName.trim();
-		if (!trimmedName) return 'My Team';
-		return `${trimmedName}'s Team`;
-	}, []);
-
 	const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
 		e.preventDefault();
 
@@ -265,7 +257,7 @@ export function useAuthenticationTeam() {
 		// Build submission data without mutating state
 		const submissionData: IRegisterDataAPI = {
 			...formValues,
-			team: startMode === 'team' ? formValues.team : generateDefaultTeamName(formValues.name),
+			team: startMode === 'team' ? formValues.team : defaultTeamNameOf(formValues.name),
 			timezone: userTimezone()
 		};
 
