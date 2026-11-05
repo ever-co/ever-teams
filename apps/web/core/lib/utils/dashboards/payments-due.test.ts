@@ -1,5 +1,5 @@
 import type { TOwedReportDay } from '@/core/types/schemas/timer/time-log-reports.schema';
-import { owedFiguresOf, owedLinesOf, type PaymentsMember } from './payments-due';
+import { owedFiguresOf, owedLinesOf, payLineEmployeeIdsOf, type PaymentsMember } from './payments-due';
 
 type Entry = TOwedReportDay['employees'][number];
 
@@ -12,13 +12,18 @@ function entry(employeeId: string, seconds: number, amount: number, extra: Parti
 	};
 }
 
-function linesOf(days: Array<{ date: string; employees: Entry[] }>, readsPayRates = true) {
+function linesOf(
+	days: Array<{ date: string; employees: Entry[] }>,
+	readsPayRates = true,
+	knownPayRates: ReadonlyMap<string, number> = new Map()
+) {
 	return owedLinesOf({
 		report: days,
 		members: new Map<string, PaymentsMember>(),
 		organizationCurrency: 'EUR',
 		unnamedLabel: 'Unnamed',
-		readsPayRates
+		readsPayRates,
+		knownPayRates
 	});
 }
 
@@ -46,6 +51,17 @@ describe('owedLinesOf', () => {
 			expect(line.rateSource).toBe('pay');
 		}
 		expect(lines.map((line) => line.amount)).toEqual([60, 30]);
+	});
+
+	it('shows the pay rate read from Gauzy rather than the one a short, rounded amount implies', () => {
+		const shortDay = entry('ana', 60, 0.83, { rateSource: 'pay', currency: 'USD' });
+
+		const [implied] = linesOf([{ date: '2026-11-03', employees: [shortDay] }]);
+		const [read] = linesOf([{ date: '2026-11-03', employees: [shortDay] }], true, new Map([['ana', 50]]));
+
+		expect(implied.rate).toBe(49.8);
+		expect(read.rate).toBe(50);
+		expect(read.amount).toBe(0.83);
 	});
 
 	it('keeps the amount of a pay line even when the member has no billing rate', () => {
@@ -106,5 +122,22 @@ describe('owedFiguresOf', () => {
 				['USD', 80]
 			])
 		);
+	});
+});
+
+describe('payLineEmployeeIdsOf', () => {
+	it('lists each member the pay rate priced once, and no one else', () => {
+		const report = [
+			{
+				date: '2026-11-03',
+				employees: [
+					entry('ana', 3600, 30, { rateSource: 'pay' }),
+					entry('ben', 3600, 80, { rateSource: 'billing' })
+				]
+			},
+			{ date: '2026-11-04', employees: [entry('ana', 3600, 30, { rateSource: 'pay' }), entry('cid', 3600, 80)] }
+		];
+
+		expect(payLineEmployeeIdsOf(report)).toEqual(['ana']);
 	});
 });

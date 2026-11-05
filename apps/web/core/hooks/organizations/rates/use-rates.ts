@@ -1,12 +1,16 @@
 'use client';
 
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { useMutation, useQueries, useQuery, useQueryClient, type UseQueryResult } from '@tanstack/react-query';
 import { queryKeys } from '@/core/query/keys';
 import { rateService } from '@/core/services/client/api/organizations/rate.service';
 import { getOrganizationIdCookie, getTenantIdCookie } from '@/core/lib/helpers/cookies';
-import { isRatesReadUnavailable } from '@/core/lib/utils/rates';
+import { isRatesReadUnavailable, rateValueOf } from '@/core/lib/utils/rates';
 import { useUserQuery } from '@/core/hooks/queries/user-user.query';
-import type { IEmployeeRatesInput, IRateChangeRequestInput } from '@/core/types/schemas/organization/rates.schema';
+import type {
+	IEmployeeRatesInput,
+	IRateChangeRequestInput,
+	TEmployeePayRate
+} from '@/core/types/schemas/organization/rates.schema';
 
 function retriesRatesRead(failureCount: number, error: unknown): boolean {
 	if (isRatesReadUnavailable(error)) {
@@ -42,6 +46,41 @@ export function useEmployeePayRate(employeeId: string | undefined, enabled: bool
 	});
 	const isUnavailable = isRatesReadUnavailable(query.error);
 	return { ...query, isUnavailable };
+}
+
+const PAY_RATES_STALE_TIME_MS = 5 * 60 * 1000;
+
+function payRatesByEmployeeOf(results: ReadonlyArray<UseQueryResult<TEmployeePayRate>>): ReadonlyMap<string, number> {
+	const rates = new Map<string, number>();
+	for (const result of results) {
+		const payRate = result.data;
+		if (!payRate) {
+			continue;
+		}
+		const rate = rateValueOf(payRate.payRateValue);
+		if (rate === null) {
+			continue;
+		}
+		rates.set(payRate.employeeId, rate);
+	}
+	return rates;
+}
+
+/** The pay rates of several employees, by employee id; one that cannot be read (403, 404) is left out. */
+export function useEmployeePayRates(employeeIds: ReadonlyArray<string>): ReadonlyMap<string, number> {
+	const tenantId = getTenantIdCookie();
+	const organizationId = getOrganizationIdCookie();
+	const hasScope = Boolean(tenantId && organizationId);
+	return useQueries({
+		queries: employeeIds.map((employeeId) => ({
+			queryKey: queryKeys.rates.payRate(tenantId, organizationId, employeeId),
+			queryFn: () => rateService.getEmployeePayRate(employeeId),
+			enabled: hasScope,
+			retry: retriesRatesRead,
+			staleTime: PAY_RATES_STALE_TIME_MS
+		})),
+		combine: payRatesByEmployeeOf
+	});
 }
 
 export function useProjectRateMutations(projectId: string) {

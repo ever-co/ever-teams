@@ -238,10 +238,26 @@ function roundedToCents(value: number) {
 	return Math.round(value * CENTS) / CENTS;
 }
 
+/** The members whose lines the pay rate priced, whose pay rate the viewer may read (Gauzy prices no other one). */
+export function payLineEmployeeIdsOf(report: ReadonlyArray<TOwedReportDay>): string[] {
+	const employeeIds = new Set<string>();
+	for (const reportDay of report) {
+		for (const entry of reportDay.employees ?? []) {
+			const employeeId = entry.employee?.id;
+			const isPayLine = isPaidAtPayRate(entry);
+			if (!employeeId || !isPayLine) {
+				continue;
+			}
+			employeeIds.add(employeeId);
+		}
+	}
+	return [...employeeIds].sort((first, second) => first.localeCompare(second));
+}
+
 /**
- * The pay rate behind each member's lines. The report states the amount and its currency, never the pay rate, which
- * no team or report read returns. One rate prices all of a member's lines, so it is their amount over their hours,
- * summed over the period so the rounding of each day's amount does not show.
+ * The pay rate each member's lines imply, while their pay rate read has not answered: the report states the amount and
+ * its currency, never the pay rate. One rate prices all of a member's lines, so it is their amount over their hours,
+ * summed over the period, which a short period with rounded daily amounts can still skew.
  */
 function payRatesOf(report: ReadonlyArray<TOwedReportDay>) {
 	const totals = new Map<string, { amount: number; seconds: number }>();
@@ -285,16 +301,19 @@ export function owedLinesOf({
 	members,
 	organizationCurrency,
 	unnamedLabel,
-	readsPayRates
+	readsPayRates,
+	knownPayRates
 }: Readonly<{
 	report: ReadonlyArray<TOwedReportDay>;
 	members: ReadonlyMap<string, PaymentsMember>;
 	organizationCurrency: string | null;
 	unnamedLabel: string;
 	readsPayRates: boolean;
+	/** Pay rates read from Gauzy, by employee id: they win over the rate the report implies. */
+	knownPayRates: ReadonlyMap<string, number>;
 }>): OwedLine[] {
 	const lines: OwedLine[] = [];
-	const payRates = payRatesOf(report);
+	const impliedPayRates = payRatesOf(report);
 	for (const reportDay of report) {
 		const rawDate = String(reportDay.date ?? '');
 		const dateKey = rawDate.slice(0, 10);
@@ -312,7 +331,9 @@ export function owedLinesOf({
 			let rate = rateOf(employee.billRateValue);
 			let amount = amountOf(rate, entry.amount);
 			if (rateSource === 'pay') {
-				rate = payRates.get(employee.id) ?? null;
+				const knownPayRate = knownPayRates.get(employee.id);
+				const impliedPayRate = impliedPayRates.get(employee.id) ?? null;
+				rate = knownPayRate ?? impliedPayRate;
 				amount = finiteOrZero(entry.amount);
 			}
 			lines.push({
