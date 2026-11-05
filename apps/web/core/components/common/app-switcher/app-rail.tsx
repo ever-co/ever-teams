@@ -9,8 +9,13 @@ import { AppGlyph } from './app-glyph';
 
 const TOOLTIP_DELAY_MS = 400;
 
-/** Must match the rail's `w-14`: the fixed sidebar moves right by the rail's width. */
-export const APP_RAIL_SIDEBAR_OFFSET = 'md:left-14';
+export const APP_RAIL_WIDTH_CLASS = 'w-12';
+
+/**
+ * The fixed sidebar moves right by the rail's `w-12` and, while expanded, drops its own left padding, so the
+ * rail and the sidebar read as one column (owner, 2026-11-05: less room between them).
+ */
+export const APP_RAIL_SIDEBAR_CLASS = 'md:left-12 md:group-data-[state=expanded]:pl-0';
 
 const RAIL_SLOT = 'flex size-10 items-center justify-center rounded-lg';
 
@@ -89,7 +94,7 @@ export function AppRail() {
 	return (
 		<nav
 			aria-label={t('switchers.EVER_APPS')}
-			className="hidden h-dvh w-14 shrink-0 flex-col overflow-y-auto pt-4 pb-2 md:flex"
+			className={cn('hidden h-dvh shrink-0 flex-col overflow-y-auto pt-4 pb-2 md:flex', APP_RAIL_WIDTH_CLASS)}
 		>
 			<ul className="flex flex-col items-center gap-1">
 				{EVER_APPS.map((app) => (
