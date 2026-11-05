@@ -5,7 +5,7 @@
  * manager of the team or an ORG_TASK_SETTING holder): Edit status, and collapse or expand, which store the collapsed
  * state on the status for the whole team. Anyone else gets them read-only instead of a 403, and still creates tasks.
  */
-import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
+import { act, cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { Provider, createStore, useAtomValue } from 'jotai';
 import type { ReactNode } from 'react';
 
@@ -18,14 +18,14 @@ const COLUMN_TITLE = 'open';
 const READ_ONLY_HINT = 'pages.settingsTeam.TASK_SETTINGS_READ_ONLY';
 
 const mockUser = { id: 'user-1', employee: { id: 'employee-1' } };
-const mockPermissions = { myPermissions: [] as string[], isSuccess: true };
+const mockPermissions = { myPermissions: [] as string[], isSuccess: true, isLoaded: true };
 
 type TChildrenProps = { children?: ReactNode };
 type TDragRenderProps = { children: (provided: object, snapshot: object) => ReactNode };
 
 jest.mock('next-intl', () => ({ useTranslations: () => (key: string) => key }));
 jest.mock('next/image', () => ({ __esModule: true, default: () => null }));
-// The column toggle has no text of its own: the mocked chevron gives the test a name to find it by
+// The column toggle has no text of its own: its aria-label names it (the mocked chevron stays hidden from it)
 jest.mock('@/core/components/icons', () => ({
 	...jest.requireActual('@/core/components/icons'),
 	ChevronLeft: () => <span>chevron</span>
@@ -170,8 +170,11 @@ function ActiveTeamBoard({ toggleColumn }: Readonly<{ toggleColumn: jest.Mock }>
 	);
 }
 
+/** The icon-only toggle of the column: the button around the (mocked) chevron. */
 function chevronButton() {
-	return screen.getByRole('button', { name: 'chevron' });
+	const toggle = screen.getByText('chevron').closest('button');
+	if (!toggle) throw new Error('No column toggle');
+	return toggle;
 }
 
 function clickText(text: string) {
@@ -212,6 +215,24 @@ describe('Kanban column controls task settings access', () => {
 		expect(screen.queryByText('edit status form')).toBeNull();
 	});
 
+	it('opens only the create task form from a collapsed column for a manager too', async () => {
+		await renderCollapsedColumnAs(true, jest.fn());
+
+		clickText('hotkeys.CREATE_TASK');
+
+		expect(screen.getByText('create task form')).toBeTruthy();
+		expect(screen.queryByText('edit status form')).toBeNull();
+	});
+
+	it('names the icon-only toggle by its action, editable or read-only', async () => {
+		await renderCollapsedColumnAs(true, jest.fn());
+		expect(chevronButton().getAttribute('aria-label')).toBe('common.EXPAND_COLUMN');
+		cleanup();
+
+		await renderCollapsedColumnAs(false, jest.fn());
+		expect(chevronButton().getAttribute('aria-label')).toBe('common.EXPAND_COLUMN');
+	});
+
 	it('lets a manager of the team expand a collapsed column and edit its status', async () => {
 		const toggleColumn = jest.fn();
 		await renderCollapsedColumnAs(true, toggleColumn);
@@ -250,7 +271,11 @@ describe('Kanban column controls task settings access', () => {
 	it('renders the column menu entries a manager may use as buttons, so keyboard users reach them', () => {
 		renderOpenColumnAs(true, jest.fn());
 
-		expect(screen.getByRole('button', { name: 'common.COLLAPSE_COLUMN' })).toBeTruthy();
+		// The menu entry, and the icon-only toggle, which carries the same action as its name
+		const collapseButtons = screen.getAllByRole('button', { name: 'common.COLLAPSE_COLUMN' });
+		const menuEntry = collapseButtons.find((button) => button.textContent === 'common.COLLAPSE_COLUMN');
+		expect(collapseButtons).toHaveLength(2);
+		expect(menuEntry).toBeTruthy();
 		expect(screen.getByRole('button', { name: 'common.EDIT_STATUS' })).toBeTruthy();
 	});
 
@@ -278,7 +303,8 @@ describe('Kanban column controls task settings access', () => {
 				<ActiveTeamBoard toggleColumn={toggleColumn} />
 			</Provider>
 		);
-		const memberTeamToggle = await screen.findByRole('button', { name: 'chevron' });
+		await screen.findByText('chevron');
+		const memberTeamToggle = chevronButton();
 		expect(memberTeamToggle).toHaveProperty('disabled', true);
 
 		act(() => store.set(activeTeamIdState, OTHER_TEAM_ID));

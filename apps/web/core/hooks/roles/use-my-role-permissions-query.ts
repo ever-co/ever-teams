@@ -25,11 +25,12 @@ export function useMyRolePermissionsQuery() {
 		enabled: !!tenantId
 	});
 
+	// Read at least once: a later refresh that fails keeps the rows last read (React Query keeps them as `data`
+	// while `isSuccess` turns false), so a failed refetch does not make every permission look missing
+	const isLoaded = myRolePermissionsData !== undefined;
+
 	// Stable memoized array reference
-	const myRolePermissions = useMemo(
-		() => (isSuccess ? (myRolePermissionsData ?? []) : []),
-		[myRolePermissionsData, isSuccess]
-	);
+	const myRolePermissions = useMemo(() => myRolePermissionsData ?? [], [myRolePermissionsData]);
 
 	// Computed permission strings — replaces derived atom `myPermissionsState`
 	const myPermissions = useMemo(() => {
@@ -41,7 +42,9 @@ export function useMyRolePermissionsQuery() {
 		myRolePermissions,
 		myPermissions,
 		isLoading,
-		isSuccess
+		isSuccess,
+		/** The permissions were read at least once (they still decide after a failed refresh). */
+		isLoaded
 	};
 }
 

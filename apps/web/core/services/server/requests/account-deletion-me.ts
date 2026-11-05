@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { GAUZY_API_SERVER_URL } from '@/core/constants/config/constants';
 import { authenticatedGuard } from '../guards/authenticated-guard-app';
 import { clientIpHeaders } from '../client-ip';
+import { accountDeletionUpstreamSignal } from './account-deletion';
 
 /** The fields a POST forwards to Gauzy besides `confirm`: the previewed `planHash` and the app's e-mail branding. */
 const ME_FORWARDED_FIELDS = [
@@ -89,7 +90,9 @@ export async function proxyAccountDeletionMe(method: 'GET' | 'POST', req: Reques
 				...ipHeaders
 			},
 			...(method === 'POST' ? { body: JSON.stringify({ ...forwarded, confirm: true }) } : {}),
-			cache: 'no-store'
+			cache: 'no-store',
+			// Released when the browser goes away or Gauzy hangs past the browser's own 60 s timeout
+			signal: accountDeletionUpstreamSignal(req)
 		});
 		const data = await response.json().catch(() => null);
 		return NextResponse.json(data ?? {}, { status: response.status, headers: NO_STORE });

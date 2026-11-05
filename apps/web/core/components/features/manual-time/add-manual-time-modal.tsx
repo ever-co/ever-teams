@@ -21,7 +21,11 @@ import { TOrganizationTeam } from '@/core/types/schemas';
 import { TTask } from '@/core/types/schemas/task/task.schema';
 import { useUserQuery } from '@/core/hooks/queries/user-user.query';
 import { useAtomValue } from 'jotai';
+import { useQuery } from '@tanstack/react-query';
 import { activeTeamState, activeTeamTaskState, organizationTeamsState, tasksByTeamState } from '@/core/stores';
+import { queryKeys } from '@/core/query/keys';
+import { taskService } from '@/core/services/client/api/tasks/task.service';
+import { useReactiveAccessTokenCookie } from '@/core/hooks/auth/use-reactive-access-token-cookie';
 
 /**
  * Interface for the properties of the `AddManualTimeModal` component.
@@ -88,12 +92,46 @@ export function AddManualTimeModal(props: Readonly<IAddManualTimeModalProps>) {
 	const [timeDifference, setTimeDifference] = useState<string>('');
 
 	const activeTeamTask = useAtomValue(activeTeamTaskState);
-	const tasks = useAtomValue(tasksByTeamState);
+	const activeTeamTaskList = useAtomValue(tasksByTeamState);
 	const activeTeam = useAtomValue(activeTeamState);
 	const teams = useAtomValue(organizationTeamsState);
 	const { data: user } = useUserQuery();
 	const { isTeamManager } = useIsMemberManager(user);
 	const teamToSave = team ?? activeTeam;
+	const accessToken = useReactiveAccessTokenCookie();
+
+	// The store lists the active team's tasks only: a picked team that is not the active one gets its own list, read
+	// as the team's task board reads it, so its tasks can be picked and saved with it
+	const pickedTeamId = team?.id;
+	const isOtherTeamPicked = !!pickedTeamId && pickedTeamId !== activeTeam?.id;
+	const pickedTeamTasksQuery = useQuery({
+		queryKey: queryKeys.tasks.byTeam(pickedTeamId),
+		queryFn: ({ signal }) =>
+			taskService.getTasks({
+				projectId: team?.projects?.[0]?.id ?? '',
+				options: {
+					scope: {
+						tenantId: team?.tenantId ?? user?.tenantId,
+						organizationId: team?.organizationId,
+						teamId: pickedTeamId,
+						accessToken
+					},
+					signal
+				}
+			}),
+		enabled: isOpen && isOtherTeamPicked && !!accessToken,
+		staleTime: 60_000
+	});
+	// The picked team's tasks, with the active team's (a task can belong to both teams): its shared tasks can be
+	// picked before its own list arrives, and every listed task carries the teams it belongs to
+	const pickedTeamTaskItems = pickedTeamTasksQuery.data?.items;
+	const tasks = useMemo(() => {
+		if (!isOtherTeamPicked) return activeTeamTaskList;
+		const pickedTeamTasks = pickedTeamTaskItems ?? [];
+		const pickedTeamTaskIds = new Set(pickedTeamTasks.map((task) => task.id));
+		const otherKnownTasks = activeTeamTaskList.filter((task) => !pickedTeamTaskIds.has(task.id));
+		return [...pickedTeamTasks, ...otherKnownTasks];
+	}, [isOtherTeamPicked, pickedTeamTaskItems, activeTeamTaskList]);
 
 	const {
 		addManualTime,
@@ -331,8 +369,8 @@ export function AddManualTimeModal(props: Readonly<IAddManualTimeModalProps>) {
 
 	// Get tasks filtered by active team
 	const activeTeamTasks = useMemo(
-		() => filterTasksByTeamAndRole(tasks, activeTeam?.id, isTaskInActiveTeam),
-		[tasks, activeTeam?.id, filterTasksByTeamAndRole, isTaskInActiveTeam]
+		() => filterTasksByTeamAndRole(activeTeamTaskList, activeTeam?.id, isTaskInActiveTeam),
+		[activeTeamTaskList, activeTeam?.id, filterTasksByTeamAndRole, isTaskInActiveTeam]
 	);
 
 	// Get tasks filtered by selected team and assigned to current user (for team selection mode)

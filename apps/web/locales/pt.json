@@ -1528,7 +1528,17 @@
 			"CHECKING_ACCOUNT": "Verificando o que será excluído…",
 			"PREVIEW_ERROR": "Não foi possível carregar o que será excluído.",
 			"SIGN_OUT_AFTER": "Você será desconectado logo em seguida.",
-			"PLAN_CHANGED": "O que será excluído mudou desde que esta página foi carregada (alguém entrou ou saiu). Nada foi excluído: revise o novo resumo e confirme novamente."
+			"PLAN_CHANGED": "O que será excluído mudou desde que esta página foi carregada (alguém entrou ou saiu). Nada foi excluído: revise o novo resumo e confirme novamente.",
+			"roles": {
+				"superAdmin": "Superadministrador",
+				"admin": "Administrador",
+				"manager": "Gerente",
+				"employee": "Funcionário",
+				"dataEntry": "Entrada de dados",
+				"viewer": "Visualizador",
+				"candidate": "Candidato",
+				"interviewer": "Entrevistador"
+			}
 		},
 		"timeLimitReport": {
 			"TIME_SPENT": "Tempo gasto",
@@ -2684,11 +2694,11 @@
 		"ADD_TASK_TO_TODAY_PLAN_QUESTION": "Adicionar a tarefa #{number} ao plano de hoje?",
 		"toastMessages": {
 			"PLAN_CREATION_FAILED": "Falha ao criar o plano diário",
-			"PLAN_CREATION_MISSING_TENANT": "Não é possível criar o plano diário: tenantId ausente",
-			"MISSING_TENANT_ID": "tenantId ausente",
+			"PLAN_CREATION_MISSING_TENANT": "Não é possível criar o plano diário: o espaço de trabalho ainda não foi carregado",
+			"MISSING_TENANT_ID": "O espaço de trabalho ainda não foi carregado",
 			"EMPLOYEE_ASSIGNED_TO_TASK": "Funcionário atribuído à tarefa",
 			"EMPLOYEE_AUTO_ASSIGN_FAILED": "Falha ao atribuir automaticamente o funcionário à tarefa",
-			"MISSING_EMPLOYEE_ID": "getEmployeeDailyPlans: nenhum ID de funcionário fornecido ou disponível no estado",
+			"MISSING_EMPLOYEE_ID": "Nenhum membro da equipe selecionado para carregar os planos diários",
 			"EMPLOYEE_PLANS_FETCH_FAILED": "Erro ao buscar os planos diários do funcionário: {employeeId}",
 			"PLANS_FETCH_FAILED": "Não foi possível buscar os planos diários",
 			"INVALID_TIME_FORMAT": "Formato de hora inválido, use H:MM ou um número decimal (ex.: 4.5).",

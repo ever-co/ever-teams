@@ -1528,7 +1528,17 @@
 			"CHECKING_ACCOUNT": "正在检查将被删除的内容…",
 			"PREVIEW_ERROR": "无法加载将被删除的内容。",
 			"SIGN_OUT_AFTER": "随后您将立即退出登录。",
-			"PLAN_CHANGED": "自此页面加载以来，将被删除的内容已发生变化（有人加入或离开）。尚未删除任何内容：请查看新的摘要并再次确认。"
+			"PLAN_CHANGED": "自此页面加载以来，将被删除的内容已发生变化（有人加入或离开）。尚未删除任何内容：请查看新的摘要并再次确认。",
+			"roles": {
+				"superAdmin": "超级管理员",
+				"admin": "管理员",
+				"manager": "经理",
+				"employee": "员工",
+				"dataEntry": "数据录入",
+				"viewer": "查看者",
+				"candidate": "候选人",
+				"interviewer": "面试官"
+			}
 		},
 		"timeLimitReport": {
 			"TIME_SPENT": "花费时间",
@@ -2684,11 +2694,11 @@
 		"ADD_TASK_TO_TODAY_PLAN_QUESTION": "将任务 #{number} 加入今天的计划？",
 		"toastMessages": {
 			"PLAN_CREATION_FAILED": "每日计划创建失败",
-			"PLAN_CREATION_MISSING_TENANT": "无法创建每日计划：缺少 tenantId",
-			"MISSING_TENANT_ID": "缺少 tenantId",
+			"PLAN_CREATION_MISSING_TENANT": "无法创建每日计划：工作区尚未加载",
+			"MISSING_TENANT_ID": "工作区尚未加载",
 			"EMPLOYEE_ASSIGNED_TO_TASK": "已将员工分配到任务",
 			"EMPLOYEE_AUTO_ASSIGN_FAILED": "自动将员工分配到任务失败",
-			"MISSING_EMPLOYEE_ID": "getEmployeeDailyPlans：未提供员工 ID，状态中也没有",
+			"MISSING_EMPLOYEE_ID": "未选择要加载每日计划的团队成员",
 			"EMPLOYEE_PLANS_FETCH_FAILED": "获取员工的每日计划时出错：{employeeId}",
 			"PLANS_FETCH_FAILED": "无法获取每日计划",
 			"INVALID_TIME_FORMAT": "时间格式无效，请使用 H:MM 或小数（例如 4.5）。",

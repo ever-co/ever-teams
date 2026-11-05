@@ -9,13 +9,15 @@ export async function GET(req: Request) {
 
 	const { searchParams } = new URL(req.url);
 
-	const integrationId = searchParams.get('integrationId') || undefined;
+	const integrationId = searchParams.get('integrationId')?.trim();
+	// Without it Gauzy would be asked for /integration/github/undefined/...
+	if (!integrationId) return NextResponse.json({ message: 'integrationId is required' }, { status: 400 });
 
 	const response = await getGithubIntegrationMetadataRequest(
 		{
 			tenantId,
 			organizationId,
-			integrationId: integrationId as string
+			integrationId
 		},
 		access_token
 	);

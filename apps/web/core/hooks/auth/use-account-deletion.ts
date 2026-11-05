@@ -202,6 +202,11 @@ export function useAccountDeletionConfirm() {
 			setPhase('invalid');
 			return;
 		}
+		// No planHash, no deletion: what is deleted must be the preview the person saw (the API answers 409 otherwise)
+		if (!planHash) {
+			setConfirmFailed(true);
+			return;
+		}
 		setConfirmFailed(false);
 		setPlanChanged(false);
 		setPhase('deleting');

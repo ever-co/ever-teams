@@ -1528,7 +1528,17 @@
 			"CHECKING_ACCOUNT": "Vérification de ce qui sera supprimé…",
 			"PREVIEW_ERROR": "Impossible de charger ce qui sera supprimé.",
 			"SIGN_OUT_AFTER": "Vous serez déconnecté juste après.",
-			"PLAN_CHANGED": "Ce qui sera supprimé a changé depuis le chargement de cette page (quelqu'un a rejoint ou quitté). Rien n'a été supprimé : vérifiez le nouveau résumé et confirmez à nouveau."
+			"PLAN_CHANGED": "Ce qui sera supprimé a changé depuis le chargement de cette page (quelqu'un a rejoint ou quitté). Rien n'a été supprimé : vérifiez le nouveau résumé et confirmez à nouveau.",
+			"roles": {
+				"superAdmin": "Super administrateur",
+				"admin": "Administrateur",
+				"manager": "Gestionnaire",
+				"employee": "Employé",
+				"dataEntry": "Saisie de données",
+				"viewer": "Lecteur",
+				"candidate": "Candidat",
+				"interviewer": "Recruteur"
+			}
 		},
 		"timeLimitReport": {
 			"TIME_SPENT": "Temps passé",
@@ -2684,11 +2694,11 @@
 		"ADD_TASK_TO_TODAY_PLAN_QUESTION": "Ajouter la tâche n° {number} au plan du jour ?",
 		"toastMessages": {
 			"PLAN_CREATION_FAILED": "Échec de la création du plan quotidien",
-			"PLAN_CREATION_MISSING_TENANT": "Impossible de créer le plan quotidien : tenantId manquant",
-			"MISSING_TENANT_ID": "tenantId manquant",
+			"PLAN_CREATION_MISSING_TENANT": "Impossible de créer le plan quotidien : votre espace de travail n'est pas encore chargé",
+			"MISSING_TENANT_ID": "Votre espace de travail n'est pas encore chargé",
 			"EMPLOYEE_ASSIGNED_TO_TASK": "Employé attribué à la tâche",
 			"EMPLOYEE_AUTO_ASSIGN_FAILED": "Échec de l'attribution automatique de l'employé à la tâche",
-			"MISSING_EMPLOYEE_ID": "getEmployeeDailyPlans : aucun ID d'employé fourni ni disponible dans l'état",
+			"MISSING_EMPLOYEE_ID": "Impossible de charger les plans quotidiens : aucun membre sélectionné",
 			"EMPLOYEE_PLANS_FETCH_FAILED": "Erreur lors de la récupération des plans quotidiens de l'employé : {employeeId}",
 			"PLANS_FETCH_FAILED": "Impossible de récupérer les plans quotidiens",
 			"INVALID_TIME_FORMAT": "Format d'heure invalide, utilisez H:MM ou un nombre décimal (ex. 4.5).",

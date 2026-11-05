@@ -93,3 +93,82 @@ describe('formatStartAndEndDateRange', () => {
 		});
 	});
 });
+
+// The browser is in Tokyo; each request sends another zone, whose days the API lists the logs in. Each row: what it
+// shows, the first and last day (a 'YYYY-MM-DD' string, or the Date the app holds), the zone, and the bounds expected.
+const ZONED_RANGES: Array<[string, string | Date, string | Date, string, string, string]> = [
+	[
+		'the days of the zone it is given',
+		'2026-10-25',
+		'2026-10-25',
+		'America/Los_Angeles',
+		'2026-10-25T07:00:00.000Z',
+		'2026-10-26T06:59:59.999Z'
+	],
+	['several UTC days', '2026-10-23', '2026-10-25', 'UTC', '2026-10-23T00:00:00.000Z', '2026-10-25T23:59:59.999Z'],
+	// The date picker hands over the browser midnight of the picked day: October 25 in Tokyo
+	[
+		'a picked browser day',
+		new Date('2026-10-24T15:00:00.000Z'),
+		new Date('2026-10-24T15:00:00.000Z'),
+		'America/Los_Angeles',
+		'2026-10-25T07:00:00.000Z',
+		'2026-10-26T06:59:59.999Z'
+	],
+	[
+		'a plan date stored at UTC midnight',
+		new Date('2026-10-24T00:00:00.000Z'),
+		new Date('2026-10-24T00:00:00.000Z'),
+		'America/Los_Angeles',
+		'2026-10-24T07:00:00.000Z',
+		'2026-10-25T06:59:59.999Z'
+	],
+	[
+		'a 23-hour DST day',
+		'2026-03-08',
+		'2026-03-08',
+		'America/New_York',
+		'2026-03-08T05:00:00.000Z',
+		'2026-03-09T03:59:59.999Z'
+	],
+	[
+		'a 25-hour DST day',
+		'2026-11-01',
+		'2026-11-01',
+		'America/New_York',
+		'2026-11-01T04:00:00.000Z',
+		'2026-11-02T04:59:59.999Z'
+	],
+	[
+		'a day whose midnight the clocks repeat',
+		'2026-04-04',
+		'2026-04-04',
+		'America/Santiago',
+		'2026-04-04T03:00:00.000Z',
+		'2026-04-05T03:59:59.999Z'
+	],
+	[
+		'a day whose midnight the clocks skip (it starts at 01:00)',
+		'2026-09-06',
+		'2026-09-06',
+		'America/Santiago',
+		'2026-09-06T04:00:00.000Z',
+		'2026-09-07T02:59:59.999Z'
+	],
+	[
+		'the browser days for a zone the runtime does not know',
+		'2026-10-25',
+		'2026-10-25',
+		'Not/AZone',
+		'2026-10-24T15:00:00.000Z',
+		'2026-10-25T14:59:59.999Z'
+	]
+];
+
+describe('formatStartAndEndDateRange in the time zone the request sends', () => {
+	beforeEach(() => setTimeZone('Asia/Tokyo'));
+
+	it.each(ZONED_RANGES)('runs over %s', (_case, first, last, timeZone, start, end) => {
+		expect(formatStartAndEndDateRange(first, last, timeZone)).toEqual({ start, end });
+	});
+});
