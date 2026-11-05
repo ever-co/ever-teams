@@ -15,6 +15,9 @@ const MANAGER_ROLE = 'MANAGER';
 /** A task status, priority, size or version, as far as the team it belongs to goes. */
 type TTaskSettingRow = { organizationTeamId?: string | null };
 
+/** The team list of the store: none before the first read of it. */
+type TLoadedTeams = { items?: IOrganizationTeamList[] } | null | undefined;
+
 /** Whether a permission row grants the task settings: only an enabled one does, as the web reader counts them. */
 function grantsTaskSettings(row: IRolePermission): boolean {
 	const isEnabled = row.enabled === true;
@@ -77,12 +80,23 @@ function isManagedTeam(teamId: string | null | undefined, managedTeamIds: Set<st
 }
 
 /**
+ * Whether the team list, whose memberships decide who manages a team, is loaded for the active team. A sign-in sets the
+ * active team before the list arrives, and a sign-out leaves an empty list behind: only a list holding the active team
+ * is the one read for it. A user of no team has no active team, so this never holds for them.
+ */
+function holdsActiveTeam(teams: TLoadedTeams, activeTeamId: string): boolean {
+	const loadedTeams = teams?.items ?? [];
+	return !!activeTeamId && loadedTeams.some((team) => team.id === activeTeamId);
+}
+
+/**
  * Who may change the task settings (statuses, priorities, sizes and versions), by the rule the API enforces on those
  * writes: a holder of ORG_TASK_SETTING changes every row; anyone else only the rows of a team they manage. A row of no
  * team, such as a system default, needs the permission. A team's creator is its manager through that membership.
  *
- * Until the role's permissions, the user and the active team are loaded, nothing is shown read-only: the API still
- * decides every write. Once read, the permissions keep deciding when a later refresh of them fails.
+ * Until the role's permissions, the user, the active team and the team list holding it are loaded, nothing is shown
+ * read-only: the API still decides every write. Once read, the permissions keep deciding when a later refresh of them
+ * fails.
  *
  * The user and the memberships come from the MobX stores: a component calling this hook is an `observer`, so its
  * controls follow a membership change.
@@ -106,7 +120,8 @@ export function useTaskSettingsAccess() {
 	const holdsPermission = holdsTaskSettingPermission(rolePermissions);
 	// A failed refresh keeps the rows last read as the query's data, so they still decide
 	const permissionsLoaded = rolePermissions !== undefined;
-	const membershipsLoaded = !!user && !!activeTeam;
+	// The managed teams are read from the team list: before it arrives a manager would see their own rows read-only
+	const membershipsLoaded = !!user && !!activeTeam && holdsActiveTeam(teams, activeTeamId);
 	const isDecided = permissionsLoaded && membershipsLoaded;
 	const writesEveryRow = holdsPermission || !isDecided;
 

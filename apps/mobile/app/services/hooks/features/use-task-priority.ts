@@ -38,7 +38,7 @@ export const useTaskPriority = () => {
 			bearer_token: authToken
 		});
 		queryClient.invalidateQueries({ queryKey: ['priorities'] });
-	}, []);
+	}, [authToken, tenantId, queryClient]);
 
 	// Update the priority
 
@@ -47,21 +47,21 @@ export const useTaskPriority = () => {
 			id,
 			tenantId,
 			datas: data,
-			bearer_token: authToken
+			bearer_token: authToken ?? ''
 		});
 		queryClient.invalidateQueries({ queryKey: ['priorities'] });
-	}, []);
+	}, [authToken, tenantId, queryClient]);
 
-	// Create the priority
+	// Create the priority, filed under the team active now: a team switch must reach this callback
 
 	const createPriority = useCallback(async (data: ITaskPriorityCreate) => {
 		await createPriorityRequest({
 			tenantId,
 			datas: { ...data, organizationId, organizationTeamId: activeTeamId },
-			bearer_token: authToken
+			bearer_token: authToken ?? ''
 		});
 		queryClient.invalidateQueries({ queryKey: ['priorities'] });
-	}, []);
+	}, [authToken, tenantId, organizationId, activeTeamId, queryClient]);
 
 	useEffect(() => {
 		if (isSuccess) {
