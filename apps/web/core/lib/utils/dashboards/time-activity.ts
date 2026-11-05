@@ -508,6 +508,7 @@ interface ExportRowContext {
 	project: string | null;
 	activity: number;
 	memberRate: MemberRate;
+	withoutTeamLabel: string | null;
 }
 
 function exportRowOf(
@@ -530,6 +531,15 @@ function exportRowOf(
 	};
 }
 
+// The page lists the time logged without a team under its own name rather than its project, and so does the export
+function contextOfTask(context: ExportRowContext, taskLog: TaskLog): ExportRowContext {
+	const isWithoutTeam = taskLog?.organizationTeamId === null;
+	if (!isWithoutTeam) {
+		return context;
+	}
+	return { ...context, project: context.withoutTeamLabel };
+}
+
 function exportRowsOfEmployeeLog(context: ExportRowContext, employeeLog: EmployeeLog): TimeActivityExportRow[] {
 	const tasks = employeeLog.tasks ?? [];
 	if (tasks.length === 0) {
@@ -538,7 +548,8 @@ function exportRowsOfEmployeeLog(context: ExportRowContext, employeeLog: Employe
 	}
 	return tasks.map((taskLog) => {
 		const seconds = finiteOrZero(taskLog?.duration);
-		return exportRowOf(context, taskTitleOf(taskLog), taskStatusOf(taskLog), seconds);
+		const taskContext = contextOfTask(context, taskLog);
+		return exportRowOf(taskContext, taskTitleOf(taskLog), taskStatusOf(taskLog), seconds);
 	});
 }
 
@@ -560,7 +571,8 @@ function compareExportRows(first: TimeActivityExportRow, second: TimeActivityExp
  */
 export function exportRowsOf(
 	report: ReadonlyArray<ITimeLogGroupedDailyReport>,
-	onlyEmployeeId: string | null
+	onlyEmployeeId: string | null,
+	withoutTeamLabel: string | null = null
 ): TimeActivityExportRow[] {
 	const rows: TimeActivityExportRow[] = [];
 	for (const day of report) {
@@ -583,7 +595,8 @@ export function exportRowsOf(
 					member: memberNameOf(employeeLog),
 					project,
 					activity: finiteOrZero(employeeLog.activity),
-					memberRate: rateOf(employeeLog)
+					memberRate: rateOf(employeeLog),
+					withoutTeamLabel
 				};
 				rows.push(...exportRowsOfEmployeeLog(context, employeeLog));
 			}

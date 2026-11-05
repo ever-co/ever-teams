@@ -74,7 +74,8 @@ function onlyEmployeeIdOf(context: ExportContext) {
 
 function namedRowsOf(context: ExportContext): NamedRow[] {
 	const { t } = context;
-	const rows = exportRowsOf(context.report, onlyEmployeeIdOf(context));
+	const withoutTeamLabel = t('dashboard.NO_TEAM_GROUP');
+	const rows = exportRowsOf(context.report, onlyEmployeeIdOf(context), withoutTeamLabel);
 	const unnamed = t('timeActivity.UNNAMED_EMPLOYEE');
 	const noProject = t('common.NO_PROJECT');
 	const noTask = t('dashboard.timeActivity.export.NO_TASK');
