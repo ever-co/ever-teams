@@ -148,7 +148,8 @@ function NoMembers({ onInvite, canInvite }: Readonly<{ onInvite: () => void; can
 export function MembersSection({ onInvite, canInvite }: Readonly<{ onInvite: () => void; canInvite: boolean }>) {
 	const t = useTranslations();
 	const format = useFormatter();
-	const { teamName, rows, changeRole, removeMember, renameMember, setMemberTracking } = useTeamMembersSettings();
+	const { teamName, rows, changeRole, removeMember, renameMember, setMemberTracking, saveMemberRates } =
+		useTeamMembersSettings();
 	const [query, setQuery] = useState('');
 	const [removing, setRemoving] = useState<MemberRowModel | null>(null);
 	const mountsRemoveDialog = useHasBeenOpen(Boolean(removing));
@@ -172,9 +173,10 @@ export function MembersSection({ onInvite, canInvite }: Readonly<{ onInvite: () 
 				void setMemberTracking(rowId, enabled);
 			},
 			onRequestRemove: setRemoving,
-			onRename: renameMember
+			onRename: renameMember,
+			onSaveRates: saveMemberRates
 		}),
-		[changeRole, renameMember, setMemberTracking]
+		[changeRole, renameMember, saveMemberRates, setMemberTracking]
 	);
 
 	let body = <NoMembers onInvite={onInvite} canInvite={canInvite} />;

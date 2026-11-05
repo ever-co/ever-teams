@@ -34,7 +34,8 @@ const EVENT_KEYS: Record<EEmployeeNotificationType, DottedLanguageObjectStringPa
 	[EEmployeeNotificationType.Invitation]: 'notifications.EVENTS.INVITATION',
 	[EEmployeeNotificationType.Message]: 'notifications.EVENTS.MESSAGE',
 	[EEmployeeNotificationType.Broadcast]: 'notifications.EVENTS.BROADCAST',
-	[EEmployeeNotificationType.Payment]: 'notifications.EVENTS.PAYMENT'
+	[EEmployeeNotificationType.Payment]: 'notifications.EVENTS.PAYMENT',
+	[EEmployeeNotificationType.RateChangeRequest]: 'notifications.EVENTS.RATE_CHANGE_REQUEST'
 };
 
 const TYPE_KEYS: Record<EEmployeeNotificationType, DottedLanguageObjectStringPaths> = {
@@ -44,7 +45,8 @@ const TYPE_KEYS: Record<EEmployeeNotificationType, DottedLanguageObjectStringPat
 	[EEmployeeNotificationType.Invitation]: 'notifications.TYPES.INVITATION',
 	[EEmployeeNotificationType.Message]: 'notifications.TYPES.MESSAGE',
 	[EEmployeeNotificationType.Broadcast]: 'notifications.TYPES.BROADCAST',
-	[EEmployeeNotificationType.Payment]: 'notifications.TYPES.PAYMENT'
+	[EEmployeeNotificationType.Payment]: 'notifications.TYPES.PAYMENT',
+	[EEmployeeNotificationType.RateChangeRequest]: 'notifications.TYPES.RATE_CHANGE_REQUEST'
 };
 
 const ROW_ACTION_CLASS =

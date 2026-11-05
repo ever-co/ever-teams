@@ -36,8 +36,17 @@ import { useUserQuery } from '@/core/hooks/queries/user-user.query';
 import { useOrganizationEmployeeTeams } from '@/core/hooks/organizations/teams/use-organization-teams-employee';
 import { useMyRolePermissionsQuery } from '@/core/hooks/roles/use-my-role-permissions-query';
 import { canMemberTrackTime } from '@/core/lib/helpers/team-member-tracking';
+import { useEmployeeRatesMutation } from '@/core/hooks/organizations/rates/use-rates';
+import { canEditMemberRates, rateValueOf } from '@/core/lib/utils/rates';
+import type { IEmployeeRatesInput } from '@/core/types/schemas/organization/rates.schema';
 import type { TOrganizationTeamEmployee } from '@/core/types/schemas';
 import type { TUpdateEmployee } from '@/core/types/schemas/organization/employee.schema';
+
+export interface MemberRate {
+	value: number | null;
+	currency: string | null;
+	weeklyLimit: number | null;
+}
 
 export interface MemberRowModel {
 	id: string;
@@ -57,6 +66,9 @@ export interface MemberRowModel {
 	isTrackingLocked: boolean;
 	isRolePending: boolean;
 	isTrackingPending: boolean;
+	rate: MemberRate;
+	canEditRate: boolean;
+	employeeId: string | null;
 }
 
 type Overrides<T> = Readonly<Record<string, T>>;
@@ -101,6 +113,16 @@ function isTrackingLockedFor(member: TOrganizationTeamEmployee, canEditEmployees
 	return isEmployeeTrackingOff && !canEditEmployees;
 }
 
+function memberRateOf(member: TOrganizationTeamEmployee): MemberRate {
+	const employee = memberEmployeeOf(member);
+	const currency = employee?.billRateCurrency || null;
+	return {
+		value: rateValueOf(employee?.billRateValue),
+		currency,
+		weeklyLimit: rateValueOf(employee?.reWeeklyLimit)
+	};
+}
+
 export function useTeamMembersSettings() {
 	const t = useTranslations();
 	const queryClient = useQueryClient();
@@ -116,6 +138,7 @@ export function useTeamMembersSettings() {
 	const { updateOrganizationTeamEmployee } = useOrganizationEmployeeTeams();
 	const { myPermissions, isSuccess: arePermissionsLoaded } = useMyRolePermissionsQuery();
 	const canEditEmployees = myPermissions.includes('ORG_EMPLOYEES_EDIT');
+	const { saveEmployeeRates } = useEmployeeRatesMutation();
 
 	const [roleOverrides, setRoleOverrides] = useState<Overrides<TeamRole>>({});
 	const [trackingOverrides, setTrackingOverrides] = useState<Overrides<boolean>>({});
@@ -159,7 +182,8 @@ export function useTeamMembersSettings() {
 			}
 			const memberUserId = memberUserIdOf(member);
 			const isYou = memberUserId === userId;
-			const hasEmployee = Boolean(employeeIdOf(member));
+			const employeeId = employeeIdOf(member);
+			const hasEmployee = Boolean(employeeId);
 			const isManagerRole = member.role?.name === ERoleName.MANAGER;
 			const role = roleOverrides[rowId] ?? roleOf(member);
 			const isTrackingEnabled = trackingOverrides[rowId] ?? isTrackingEnabledOf(member);
@@ -183,13 +207,17 @@ export function useTeamMembersSettings() {
 				isTrackingEnabled,
 				isTrackingLocked: isTrackingLockedFor(member, canEditEmployees),
 				isRolePending: pendingRoles.has(rowId),
-				isTrackingPending: isSavingTracking || waitsForPermissions
+				isTrackingPending: isSavingTracking || waitsForPermissions,
+				rate: memberRateOf(member),
+				canEditRate: canEditMemberRates(myPermissions, hasEmployee),
+				employeeId
 			});
 		}
 		return models;
 	}, [
 		arePermissionsLoaded,
 		canEditEmployees,
+		myPermissions,
 		members,
 		pendingRoles,
 		pendingTracking,
@@ -334,12 +362,21 @@ export function useTeamMembersSettings() {
 		[canEditEmployees, findMember, queryClient, updateEmployeeAsync, updateOrganizationTeamEmployee]
 	);
 
+	const saveMemberRates = useCallback(
+		async (rowId: string, rates: IEmployeeRatesInput) => {
+			const { employeeId } = findMember(rowId);
+			await saveEmployeeRates({ employeeId, rates });
+		},
+		[findMember, saveEmployeeRates]
+	);
+
 	return {
 		teamName: activeTeam?.name ?? '',
 		rows,
 		changeRole,
 		removeMember,
 		renameMember,
-		setMemberTracking
+		setMemberTracking,
+		saveMemberRates
 	};
 }

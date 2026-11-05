@@ -18,11 +18,24 @@ export interface NotificationEntry {
 	rawTitle: string;
 	message: string | null;
 	taskId: string | null;
+	/** Where opening the notification leads when it is not about a task. */
+	href: string | null;
 	createdAt: Date;
 }
 
+/** A rate change request is answered in Members settings, where an admin edits the member's rate. */
+export const RATE_CHANGE_REQUEST_HREF = '/settings/team/members';
+
 /** The verbs of Gauzy's title templates (`employee-notification.helper.ts`), in the order they are tried. */
-const TITLE_ACTION_WORDS = [' Assigned ', ' Mentioned ', ' Commented ', ' Invited ', ' published ', ' sent '];
+const TITLE_ACTION_WORDS = [
+	' Assigned ',
+	' Mentioned ',
+	' Commented ',
+	' Invited ',
+	' published ',
+	' sent ',
+	' asked for '
+];
 
 function firstFilled(candidates: ReadonlyArray<string | null | undefined>): string | null {
 	for (const candidate of candidates) {
@@ -78,6 +91,14 @@ function knownTypeOf(value: IEmployeeNotification['type']): EEmployeeNotificatio
 	return value as EEmployeeNotificationType;
 }
 
+function hrefOf(type: EEmployeeNotificationType | null): string | null {
+	const isRateChangeRequest = type === EEmployeeNotificationType.RateChangeRequest;
+	if (isRateChangeRequest) {
+		return RATE_CHANGE_REQUEST_HREF;
+	}
+	return null;
+}
+
 function taskIdOf(notification: IEmployeeNotification): string | null {
 	const pointsAtTask = notification.entity === EBaseEntityEnum.Task;
 	if (!pointsAtTask) {
@@ -105,10 +126,11 @@ export function toNotificationEntry(notification: IEmployeeNotification): Notifi
 	const sender = notification.sentByEmployee;
 	const senderName = firstFilled([sender?.fullName, sender?.user?.name, senderNameFromTitle(rawTitle)]);
 	const subject = quotedSubjectOf(rawTitle);
+	const type = knownTypeOf(notification.type);
 
 	return {
 		id: notification.id,
-		type: knownTypeOf(notification.type),
+		type,
 		isUnread: notification.isRead !== true,
 		senderName,
 		senderImageUrl: firstFilled([sender?.user?.imageUrl]),
@@ -116,6 +138,7 @@ export function toNotificationEntry(notification: IEmployeeNotification): Notifi
 		rawTitle,
 		message: distinctMessageOf(notification, subject),
 		taskId: taskIdOf(notification),
+		href: hrefOf(type),
 		createdAt: new Date(notification.createdAt)
 	};
 }

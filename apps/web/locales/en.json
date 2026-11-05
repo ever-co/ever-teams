@@ -1111,6 +1111,7 @@
 			"UPDATING": "Updating payments due",
 			"NOTE": "Amounts owed for tracked time at each member's current rate. Payments are not recorded in Ever Teams.",
 			"NO_RATE": "No rate set",
+			"PAY_RATE_NOT_SET": "Pay rate not set, showing the billing rate",
 			"HOUR_UNIT": "/h",
 			"FORMULA": "{duration} × {rate}/h",
 			"DAY_LABEL": "<name>{day}</name>, {date}",
@@ -3347,7 +3348,8 @@
 			"INVITATION": "<b>{name}</b> invited you",
 			"MESSAGE": "<b>{name}</b> sent you a message",
 			"BROADCAST": "<b>{name}</b> published an announcement",
-			"PAYMENT": "A payment was recorded for you"
+			"PAYMENT": "A payment was recorded for you",
+			"RATE_CHANGE_REQUEST": "<b>{name}</b> asked for a rate change"
 		},
 		"TYPES": {
 			"ASSIGNMENT": "Assignment",
@@ -3356,7 +3358,8 @@
 			"INVITATION": "Invitation",
 			"MESSAGE": "Message",
 			"BROADCAST": "Announcement",
-			"PAYMENT": "Payment"
+			"PAYMENT": "Payment",
+			"RATE_CHANGE_REQUEST": "Rate change request"
 		},
 		"SOMEONE": "Someone",
 		"MARK_READ": "Mark as read",
@@ -4246,6 +4249,43 @@
 	},
 	"accountMenu": {
 		"OPEN": "Account menu"
+	},
+	"rates": {
+		"PER_HOUR": "{amount}/h",
+		"EDIT_RATE": "Edit rate",
+		"EDIT_RATE_OF": "Edit the rate of {name}",
+		"BILLING_RATE": "Billing rate",
+		"PAY_RATE": "Pay rate",
+		"PAY_CURRENCY": "Pay currency",
+		"PAY_RATE_HINT": "What the member is paid per hour. It is separate from the billing rate and from client rates.",
+		"OWN_PAY_RATE_HINT": "What you are paid per hour.",
+		"CURRENCY": "Currency",
+		"WEEKLY_LIMIT": "Weekly hours limit",
+		"NOT_SET": "Not set",
+		"NUMBER_INVALID": "Enter a number, for example 45 or 45.50.",
+		"NUMBER_NEGATIVE": "Enter 0 or more.",
+		"ADD_RATE": "Rate",
+		"PROJECT_RATES_SECTION": "Client rates",
+		"PROJECT_RATE": "Client rate",
+		"MOST_SPECIFIC_WINS": "What the client is billed for this project. A member's client rate comes first, then this one, then their own rate. It does not change what members are paid.",
+		"PROJECT_RATE_HINT": "Empty: each member's time is billed at their own rate.",
+		"RATE_ON_PROJECT_OF": "{name}'s client rate on this project",
+		"MEMBER_RATE_HINT": "Empty: the project's client rate applies, else their own rate. It does not change their pay.",
+		"RATES_RETRY": "Load the rates again",
+		"OWN_SECTION": "Rate",
+		"OWN_SECTION_HINT": "Set by your organization's admins. Ask them here if it should change.",
+		"WEEKLY_LIMIT_VALUE": "{hours} h a week",
+		"REQUEST_CHANGE": "Request a rate change",
+		"REQUEST_CHANGE_HINT": "Your organization's admins are notified and apply it.",
+		"REQUEST_CHANGE_ACTION": "Request a change",
+		"REQUESTED_RATE": "Requested hourly rate",
+		"REQUESTED_RATE_REQUIRED": "Enter the rate you are asking for.",
+		"REQUEST_REASON": "Reason (optional)",
+		"REQUEST_SEND": "Send request",
+		"REQUEST_SENT": "Request sent. Your organization's admins were notified.",
+		"REQUEST_NOBODY": "Your organization has no admin to notify yet. Ask your workspace owner directly.",
+		"REQUEST_UNAVAILABLE": "This server cannot take rate change requests yet. Ask your admin directly.",
+		"REQUEST_FAILED": "The request was not sent."
 	},
 	"auth": {
 		"code": {

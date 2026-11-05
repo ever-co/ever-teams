@@ -13,10 +13,12 @@ import {
 import { SelectedMark } from '@/core/components/common/selected-mark';
 import { Input } from '@/core/components/common/input';
 import { Button } from '@/core/components/duplicated-components/_button';
-import { ChevronDown, MoreHorizontal, Pencil, Spinner, UserRemove } from '@/core/components/icons';
+import { ChevronDown, MoreHorizontal, Pencil, Spinner, UserRemove, Wallet } from '@/core/components/icons';
 import { PROFILE_NAME_MAX_LENGTH } from '@/core/lib/utils/settings-profile';
 import type { TeamRole } from '@/core/lib/utils/settings-team';
 import type { MemberRowModel } from '@/core/hooks/settings/use-team-members-settings';
+import type { IEmployeeRatesInput } from '@/core/types/schemas/organization/rates.schema';
+import { MemberRateEditor, MemberRateText } from './member-rate-editor';
 import { MemberAvatar, PERSON_ROW, PersonChip, PersonLines } from './people-parts';
 
 const ROLES: ReadonlyArray<TeamRole> = ['manager', 'member'];
@@ -36,6 +38,7 @@ export interface MemberRowActions {
 	onToggleTracking: (rowId: string, enabled: boolean) => void;
 	onRequestRemove: (row: MemberRowModel) => void;
 	onRename: (rowId: string, firstName: string, lastName: string) => Promise<void>;
+	onSaveRates: (rowId: string, rates: IEmployeeRatesInput) => Promise<void>;
 }
 
 function RoleControl({
@@ -89,17 +92,19 @@ function RoleControl({
 }
 
 function hasMenuActions(row: MemberRowModel): boolean {
-	return row.canEditName || row.showsTracking || row.canRemove;
+	return row.canEditName || row.canEditRate || row.showsTracking || row.canRemove;
 }
 
 function RowMenu({
 	row,
 	onEditName,
+	onEditRate,
 	onToggleTracking,
 	onRequestRemove
 }: Readonly<{
 	row: MemberRowModel;
 	onEditName: () => void;
+	onEditRate: () => void;
 	onToggleTracking: MemberRowActions['onToggleTracking'];
 	onRequestRemove: MemberRowActions['onRequestRemove'];
 }>) {
@@ -126,6 +131,12 @@ function RowMenu({
 					<DropdownMenuItem onSelect={onEditName}>
 						<Pencil />
 						{t('settings.members.EDIT_NAME')}
+					</DropdownMenuItem>
+				)}
+				{row.canEditRate && (
+					<DropdownMenuItem onSelect={onEditRate}>
+						<Wallet />
+						{t('rates.EDIT_RATE')}
 					</DropdownMenuItem>
 				)}
 				{row.showsTracking && (
@@ -278,10 +289,14 @@ export function MemberRow({
 	actions
 }: Readonly<{ row: MemberRowModel; formatJoined: Formatter; actions: MemberRowActions }>) {
 	const t = useTranslations();
-	const [isEditing, setIsEditing] = useState(false);
+	const [editing, setEditing] = useState<'name' | 'rate' | null>(null);
+	const stopEditing = () => setEditing(null);
 
-	if (isEditing) {
-		return <MemberNameEditor row={row} onCancel={() => setIsEditing(false)} onRename={actions.onRename} />;
+	if (editing === 'name') {
+		return <MemberNameEditor row={row} onCancel={stopEditing} onRename={actions.onRename} />;
+	}
+	if (editing === 'rate') {
+		return <MemberRateEditor row={row} onCancel={stopEditing} onSaveRates={actions.onSaveRates} />;
 	}
 
 	const youChip = row.isYou && <PersonChip hue="neutral">{t('settings.members.YOU')}</PersonChip>;
@@ -295,10 +310,12 @@ export function MemberRow({
 					{formatJoined(row.joinedAt)}
 				</span>
 			)}
+			<MemberRateText rate={row.rate} />
 			<RoleControl row={row} onChangeRole={actions.onChangeRole} />
 			<RowMenu
 				row={row}
-				onEditName={() => setIsEditing(true)}
+				onEditName={() => setEditing('name')}
+				onEditRate={() => setEditing('rate')}
 				onToggleTracking={actions.onToggleTracking}
 				onRequestRemove={actions.onRequestRemove}
 			/>

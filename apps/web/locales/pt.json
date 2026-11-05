@@ -1111,6 +1111,7 @@
 			"UPDATING": "Atualizando os pagamentos devidos",
 			"NOTE": "Valores devidos pelo tempo registrado, à taxa atual de cada membro. O Ever Teams não registra pagamentos.",
 			"NO_RATE": "Sem taxa definida",
+			"PAY_RATE_NOT_SET": "Taxa de remuneração não definida, mostrando a taxa de faturamento",
 			"HOUR_UNIT": "/h",
 			"FORMULA": "{duration} × {rate}/h",
 			"DAY_LABEL": "<name>{day}</name>, {date}",
@@ -3347,7 +3348,8 @@
 			"INVITATION": "<b>{name}</b> convidou você",
 			"MESSAGE": "<b>{name}</b> enviou uma mensagem para você",
 			"BROADCAST": "<b>{name}</b> publicou um anúncio",
-			"PAYMENT": "Um pagamento foi registrado para você"
+			"PAYMENT": "Um pagamento foi registrado para você",
+			"RATE_CHANGE_REQUEST": "<b>{name}</b> pediu uma mudança de taxa"
 		},
 		"TYPES": {
 			"ASSIGNMENT": "Atribuição",
@@ -3356,7 +3358,8 @@
 			"INVITATION": "Convite",
 			"MESSAGE": "Mensagem",
 			"BROADCAST": "Anúncio",
-			"PAYMENT": "Pagamento"
+			"PAYMENT": "Pagamento",
+			"RATE_CHANGE_REQUEST": "Pedido de mudança de taxa"
 		},
 		"SOMEONE": "Alguém",
 		"MARK_READ": "Marcar como lida",
@@ -4246,6 +4249,43 @@
 	},
 	"accountMenu": {
 		"OPEN": "Menu da conta"
+	},
+	"rates": {
+		"PER_HOUR": "{amount}/h",
+		"EDIT_RATE": "Editar taxa",
+		"EDIT_RATE_OF": "Editar a taxa de {name}",
+		"BILLING_RATE": "Taxa de faturamento",
+		"PAY_RATE": "Taxa de remuneração",
+		"PAY_CURRENCY": "Moeda de remuneração",
+		"PAY_RATE_HINT": "O que o membro recebe por hora. É diferente da taxa de faturamento e das taxas do cliente.",
+		"OWN_PAY_RATE_HINT": "O que você recebe por hora.",
+		"CURRENCY": "Moeda",
+		"WEEKLY_LIMIT": "Limite de horas semanais",
+		"NOT_SET": "Não definida",
+		"NUMBER_INVALID": "Digite um número, por exemplo 45 ou 45,50.",
+		"NUMBER_NEGATIVE": "Digite 0 ou mais.",
+		"ADD_RATE": "Taxa",
+		"PROJECT_RATES_SECTION": "Taxas do cliente",
+		"PROJECT_RATE": "Taxa do cliente",
+		"MOST_SPECIFIC_WINS": "O que é cobrado do cliente por este projeto. A taxa do cliente de um membro vem primeiro, depois esta e depois a taxa dele. Não muda o que os membros recebem.",
+		"PROJECT_RATE_HINT": "Vazia: o tempo de cada membro é cobrado pela própria taxa.",
+		"RATE_ON_PROJECT_OF": "Taxa do cliente de {name} neste projeto",
+		"MEMBER_RATE_HINT": "Vazia: vale a taxa do cliente do projeto ou, sem ela, a taxa do membro. Não muda o que ele recebe.",
+		"RATES_RETRY": "Carregar as taxas de novo",
+		"OWN_SECTION": "Taxa",
+		"OWN_SECTION_HINT": "Definida pelos admins da sua organização. Peça aqui se ela deve mudar.",
+		"WEEKLY_LIMIT_VALUE": "{hours} h por semana",
+		"REQUEST_CHANGE": "Pedir mudança de taxa",
+		"REQUEST_CHANGE_HINT": "Os admins da sua organização são avisados e aplicam a mudança.",
+		"REQUEST_CHANGE_ACTION": "Pedir mudança",
+		"REQUESTED_RATE": "Taxa por hora pedida",
+		"REQUESTED_RATE_REQUIRED": "Digite a taxa que você está pedindo.",
+		"REQUEST_REASON": "Motivo (opcional)",
+		"REQUEST_SEND": "Enviar pedido",
+		"REQUEST_SENT": "Pedido enviado. Os admins da sua organização foram avisados.",
+		"REQUEST_NOBODY": "Sua organização ainda não tem admin para avisar. Pergunte diretamente ao dono do espaço de trabalho.",
+		"REQUEST_UNAVAILABLE": "Este servidor ainda não aceita pedidos de mudança de taxa. Pergunte diretamente ao seu admin.",
+		"REQUEST_FAILED": "O pedido não foi enviado."
 	},
 	"auth": {
 		"code": {

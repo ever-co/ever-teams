@@ -43,8 +43,8 @@ interface UseOrganizationTeamsQueryOptions {
 	detailRefetchOnWindowFocus?: boolean;
 }
 
-// Presence changes never move team.updatedAt: a start or stop only touches the employee row, and Gauzy
-// computes the timer fields on each read. Worked durations stay out because they grow on every read
+// Presence and rate changes never move team.updatedAt: a start, a stop or a rate save only touches the employee
+// row, and Gauzy computes the timer fields on each read. Worked durations stay out because they grow on every read
 // while a timer runs, which would rebuild the active team on each poll.
 const getMemberPresenceSignature = (member: TOrganizationTeamEmployee) =>
 	[
@@ -55,7 +55,10 @@ const getMemberPresenceSignature = (member: TOrganizationTeamEmployee) =>
 		member.employee?.isTrackingTime,
 		member.employee?.isActive,
 		member.isTrackingEnabled,
-		member.employee?.isTrackingEnabled
+		member.employee?.isTrackingEnabled,
+		member.employee?.billRateValue,
+		member.employee?.billRateCurrency,
+		member.employee?.reWeeklyLimit
 	].join(':');
 
 /**

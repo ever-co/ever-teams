@@ -1111,6 +1111,7 @@
 			"UPDATING": "Te betalen bedragen worden bijgewerkt",
 			"NOTE": "Verschuldigde bedragen voor geregistreerde tijd, tegen het huidige tarief van elk lid. Betalingen worden niet vastgelegd in Ever Teams.",
 			"NO_RATE": "Geen tarief ingesteld",
+			"PAY_RATE_NOT_SET": "Geen loontarief ingesteld, factuurtarief getoond",
 			"HOUR_UNIT": "/u",
 			"FORMULA": "{duration} × {rate}/u",
 			"DAY_LABEL": "<name>{day}</name> {date}",
@@ -3347,7 +3348,8 @@
 			"INVITATION": "<b>{name}</b> heeft je uitgenodigd",
 			"MESSAGE": "<b>{name}</b> heeft je een bericht gestuurd",
 			"BROADCAST": "<b>{name}</b> heeft een aankondiging geplaatst",
-			"PAYMENT": "Er is een betaling voor je geregistreerd"
+			"PAYMENT": "Er is een betaling voor je geregistreerd",
+			"RATE_CHANGE_REQUEST": "<b>{name}</b> vroeg om een tariefwijziging"
 		},
 		"TYPES": {
 			"ASSIGNMENT": "Toewijzing",
@@ -3356,7 +3358,8 @@
 			"INVITATION": "Uitnodiging",
 			"MESSAGE": "Bericht",
 			"BROADCAST": "Aankondiging",
-			"PAYMENT": "Betaling"
+			"PAYMENT": "Betaling",
+			"RATE_CHANGE_REQUEST": "Aanvraag tariefwijziging"
 		},
 		"SOMEONE": "Iemand",
 		"MARK_READ": "Markeren als gelezen",
@@ -4246,6 +4249,43 @@
 	},
 	"accountMenu": {
 		"OPEN": "Accountmenu"
+	},
+	"rates": {
+		"PER_HOUR": "{amount}/u",
+		"EDIT_RATE": "Tarief bewerken",
+		"EDIT_RATE_OF": "Tarief van {name} bewerken",
+		"BILLING_RATE": "Factuurtarief",
+		"PAY_RATE": "Loontarief",
+		"PAY_CURRENCY": "Loonvaluta",
+		"PAY_RATE_HINT": "Wat het lid per uur betaald krijgt. Los van het factuurtarief en de klanttarieven.",
+		"OWN_PAY_RATE_HINT": "Wat je per uur betaald krijgt.",
+		"CURRENCY": "Valuta",
+		"WEEKLY_LIMIT": "Limiet uren per week",
+		"NOT_SET": "Niet ingesteld",
+		"NUMBER_INVALID": "Vul een getal in, bijvoorbeeld 45 of 45,50.",
+		"NUMBER_NEGATIVE": "Vul 0 of meer in.",
+		"ADD_RATE": "Tarief",
+		"PROJECT_RATES_SECTION": "Klanttarieven",
+		"PROJECT_RATE": "Klanttarief",
+		"MOST_SPECIFIC_WINS": "Wat de klant voor dit project wordt gefactureerd. Het klanttarief van een lid gaat voor, dan dit tarief, dan het eigen tarief. Het verandert niet wat leden betaald krijgen.",
+		"PROJECT_RATE_HINT": "Leeg: de tijd van elk lid wordt tegen het eigen tarief gefactureerd.",
+		"RATE_ON_PROJECT_OF": "Klanttarief van {name} op dit project",
+		"MEMBER_RATE_HINT": "Leeg: het klanttarief van het project geldt, anders het eigen tarief. Het verandert niet wat dit lid betaald krijgt.",
+		"RATES_RETRY": "Tarieven opnieuw laden",
+		"OWN_SECTION": "Tarief",
+		"OWN_SECTION_HINT": "Ingesteld door de admins van je organisatie. Vraag hier om een wijziging.",
+		"WEEKLY_LIMIT_VALUE": "{hours} u per week",
+		"REQUEST_CHANGE": "Tariefwijziging aanvragen",
+		"REQUEST_CHANGE_HINT": "De admins van je organisatie krijgen een melding en voeren het door.",
+		"REQUEST_CHANGE_ACTION": "Wijziging aanvragen",
+		"REQUESTED_RATE": "Gevraagd uurtarief",
+		"REQUESTED_RATE_REQUIRED": "Vul het tarief in dat je vraagt.",
+		"REQUEST_REASON": "Reden (optioneel)",
+		"REQUEST_SEND": "Aanvraag versturen",
+		"REQUEST_SENT": "Aanvraag verstuurd. De admins van je organisatie hebben een melding gekregen.",
+		"REQUEST_NOBODY": "Je organisatie heeft nog geen admin om te melden. Vraag het direct aan de eigenaar van de werkruimte.",
+		"REQUEST_UNAVAILABLE": "Deze server neemt nog geen aanvragen voor tariefwijziging aan. Vraag het direct aan je admin.",
+		"REQUEST_FAILED": "De aanvraag is niet verstuurd."
 	},
 	"auth": {
 		"code": {

@@ -1111,6 +1111,7 @@
 			"UPDATING": "正在更新应付款项",
 			"NOTE": "按每位成员当前费率计算的已记录时间应付金额。Ever Teams 不记录付款。",
 			"NO_RATE": "未设置费率",
+			"PAY_RATE_NOT_SET": "未设置薪酬费率，显示计费费率",
 			"HOUR_UNIT": "/小时",
 			"FORMULA": "{duration} × {rate}/小时",
 			"DAY_LABEL": "{date} <name>{day}</name>",
@@ -3347,7 +3348,8 @@
 			"INVITATION": "<b>{name}</b> 邀请了你",
 			"MESSAGE": "<b>{name}</b> 给你发了一条消息",
 			"BROADCAST": "<b>{name}</b> 发布了一则公告",
-			"PAYMENT": "已为你登记一笔付款"
+			"PAYMENT": "已为你登记一笔付款",
+			"RATE_CHANGE_REQUEST": "<b>{name}</b> 申请调整费率"
 		},
 		"TYPES": {
 			"ASSIGNMENT": "分配",
@@ -3356,7 +3358,8 @@
 			"INVITATION": "邀请",
 			"MESSAGE": "消息",
 			"BROADCAST": "公告",
-			"PAYMENT": "付款"
+			"PAYMENT": "付款",
+			"RATE_CHANGE_REQUEST": "费率调整申请"
 		},
 		"SOMEONE": "有人",
 		"MARK_READ": "标为已读",
@@ -4246,6 +4249,43 @@
 	},
 	"accountMenu": {
 		"OPEN": "账户菜单"
+	},
+	"rates": {
+		"PER_HOUR": "{amount}/小时",
+		"EDIT_RATE": "编辑费率",
+		"EDIT_RATE_OF": "编辑 {name} 的费率",
+		"BILLING_RATE": "计费费率",
+		"PAY_RATE": "薪酬费率",
+		"PAY_CURRENCY": "薪酬货币",
+		"PAY_RATE_HINT": "成员每小时的报酬，与计费费率和客户费率分开。",
+		"OWN_PAY_RATE_HINT": "你每小时的报酬。",
+		"CURRENCY": "货币",
+		"WEEKLY_LIMIT": "每周工时上限",
+		"NOT_SET": "未设置",
+		"NUMBER_INVALID": "请输入数字，例如 45 或 45.50。",
+		"NUMBER_NEGATIVE": "请输入 0 或更大的数。",
+		"ADD_RATE": "费率",
+		"PROJECT_RATES_SECTION": "客户费率",
+		"PROJECT_RATE": "客户费率",
+		"MOST_SPECIFIC_WINS": "此项目向客户计费的费率。先按成员在此项目上的客户费率，其次是此费率，最后是其个人费率。不影响成员的报酬。",
+		"PROJECT_RATE_HINT": "留空：每位成员的工时按其个人费率计费。",
+		"RATE_ON_PROJECT_OF": "{name} 在此项目上的客户费率",
+		"MEMBER_RATE_HINT": "留空：使用项目的客户费率，没有则使用其个人费率。不影响其报酬。",
+		"RATES_RETRY": "重新加载费率",
+		"OWN_SECTION": "费率",
+		"OWN_SECTION_HINT": "由所在组织的管理员设置。如需调整，可在此申请。",
+		"WEEKLY_LIMIT_VALUE": "每周 {hours} 小时",
+		"REQUEST_CHANGE": "申请调整费率",
+		"REQUEST_CHANGE_HINT": "组织管理员会收到通知并进行调整。",
+		"REQUEST_CHANGE_ACTION": "申请调整",
+		"REQUESTED_RATE": "申请的小时费率",
+		"REQUESTED_RATE_REQUIRED": "请输入你申请的费率。",
+		"REQUEST_REASON": "原因（可选）",
+		"REQUEST_SEND": "发送申请",
+		"REQUEST_SENT": "申请已发送，已通知组织管理员。",
+		"REQUEST_NOBODY": "你的组织还没有可通知的管理员。请直接联系工作区所有者。",
+		"REQUEST_UNAVAILABLE": "此服务器暂不支持费率调整申请。请直接联系管理员。",
+		"REQUEST_FAILED": "申请未发送。"
 	},
 	"auth": {
 		"code": {

@@ -17,6 +17,9 @@ interface MemberEmployee {
 	tenantId?: string | null;
 	isActive?: boolean | null;
 	isTrackingEnabled?: boolean | null;
+	billRateValue?: number | string | null;
+	billRateCurrency?: string | null;
+	reWeeklyLimit?: number | string | null;
 	user?: {
 		id?: string | null;
 		name?: string | null;

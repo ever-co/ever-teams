@@ -1111,6 +1111,7 @@
 			"UPDATING": "Aktualizowanie należnych płatności",
 			"NOTE": "Kwoty należne za śledzony czas według bieżącej stawki każdego członka. Płatności nie są rejestrowane w Ever Teams.",
 			"NO_RATE": "Brak stawki",
+			"PAY_RATE_NOT_SET": "Brak stawki wynagrodzenia, pokazano stawkę rozliczeniową",
 			"HOUR_UNIT": "/godz.",
 			"FORMULA": "{duration} × {rate}/godz.",
 			"DAY_LABEL": "<name>{day}</name>, {date}",
@@ -3347,7 +3348,8 @@
 			"INVITATION": "<b>{name}</b> zaprosił(a) Cię",
 			"MESSAGE": "<b>{name}</b> wysłał(a) Ci wiadomość",
 			"BROADCAST": "<b>{name}</b> opublikował(a) ogłoszenie",
-			"PAYMENT": "Zarejestrowano dla Ciebie płatność"
+			"PAYMENT": "Zarejestrowano dla Ciebie płatność",
+			"RATE_CHANGE_REQUEST": "<b>{name}</b> prosi o zmianę stawki"
 		},
 		"TYPES": {
 			"ASSIGNMENT": "Przypisanie",
@@ -3356,7 +3358,8 @@
 			"INVITATION": "Zaproszenie",
 			"MESSAGE": "Wiadomość",
 			"BROADCAST": "Ogłoszenie",
-			"PAYMENT": "Płatność"
+			"PAYMENT": "Płatność",
+			"RATE_CHANGE_REQUEST": "Prośba o zmianę stawki"
 		},
 		"SOMEONE": "Ktoś",
 		"MARK_READ": "Oznacz jako przeczytane",
@@ -4246,6 +4249,43 @@
 	},
 	"accountMenu": {
 		"OPEN": "Menu konta"
+	},
+	"rates": {
+		"PER_HOUR": "{amount}/godz.",
+		"EDIT_RATE": "Edytuj stawkę",
+		"EDIT_RATE_OF": "Edytuj stawkę: {name}",
+		"BILLING_RATE": "Stawka rozliczeniowa",
+		"PAY_RATE": "Stawka wynagrodzenia",
+		"PAY_CURRENCY": "Waluta wynagrodzenia",
+		"PAY_RATE_HINT": "Ile członek otrzymuje za godzinę. To coś innego niż stawka rozliczeniowa i stawki dla klienta.",
+		"OWN_PAY_RATE_HINT": "Ile otrzymujesz za godzinę.",
+		"CURRENCY": "Waluta",
+		"WEEKLY_LIMIT": "Tygodniowy limit godzin",
+		"NOT_SET": "Nie ustawiono",
+		"NUMBER_INVALID": "Wpisz liczbę, na przykład 45 lub 45,50.",
+		"NUMBER_NEGATIVE": "Wpisz 0 lub więcej.",
+		"ADD_RATE": "Stawka",
+		"PROJECT_RATES_SECTION": "Stawki dla klienta",
+		"PROJECT_RATE": "Stawka dla klienta",
+		"MOST_SPECIFIC_WINS": "Kwota fakturowana klientowi za ten projekt. Najpierw liczy się stawka dla klienta danego członka, potem ta, a na końcu jego własna. Nie zmienia wynagrodzenia członków.",
+		"PROJECT_RATE_HINT": "Pusta: czas każdego członka jest fakturowany według jego własnej stawki.",
+		"RATE_ON_PROJECT_OF": "Stawka dla klienta {name} w tym projekcie",
+		"MEMBER_RATE_HINT": "Pusta: obowiązuje stawka dla klienta projektu, a bez niej stawka własna. Nie zmienia wynagrodzenia.",
+		"RATES_RETRY": "Wczytaj stawki ponownie",
+		"OWN_SECTION": "Stawka",
+		"OWN_SECTION_HINT": "Ustalają ją administratorzy Twojej organizacji. Tutaj możesz poprosić o zmianę.",
+		"WEEKLY_LIMIT_VALUE": "{hours} godz. tygodniowo",
+		"REQUEST_CHANGE": "Poproś o zmianę stawki",
+		"REQUEST_CHANGE_HINT": "Administratorzy Twojej organizacji dostaną powiadomienie i wprowadzą zmianę.",
+		"REQUEST_CHANGE_ACTION": "Poproś o zmianę",
+		"REQUESTED_RATE": "Oczekiwana stawka godzinowa",
+		"REQUESTED_RATE_REQUIRED": "Wpisz stawkę, o którą prosisz.",
+		"REQUEST_REASON": "Powód (opcjonalnie)",
+		"REQUEST_SEND": "Wyślij prośbę",
+		"REQUEST_SENT": "Prośba wysłana. Administratorzy Twojej organizacji zostali powiadomieni.",
+		"REQUEST_NOBODY": "Twoja organizacja nie ma jeszcze administratora do powiadomienia. Zapytaj bezpośrednio właściciela obszaru roboczego.",
+		"REQUEST_UNAVAILABLE": "Ten serwer nie przyjmuje jeszcze próśb o zmianę stawki. Zapytaj bezpośrednio administratora.",
+		"REQUEST_FAILED": "Prośba nie została wysłana."
 	},
 	"auth": {
 		"code": {
