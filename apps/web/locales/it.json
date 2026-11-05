@@ -4207,6 +4207,14 @@
 		"WEEKLY_LIMIT": "Limite di ore settimanali",
 		"NOT_SET": "Non impostata",
 		"NUMBER_INVALID": "Inserisci un numero, ad esempio 45 o 45,50.",
-		"NUMBER_NEGATIVE": "Inserisci 0 o più."
+		"NUMBER_NEGATIVE": "Inserisci 0 o più.",
+		"ADD_RATE": "Tariffa",
+		"PROJECT_RATES_SECTION": "Tariffe",
+		"PROJECT_RATE": "Tariffa del progetto",
+		"MOST_SPECIFIC_WINS": "La tariffa di un membro su questo progetto viene prima, poi questa tariffa, poi la sua tariffa.",
+		"PROJECT_RATE_HINT": "Vuota: ogni membro è conteggiato con la propria tariffa.",
+		"RATE_ON_PROJECT_OF": "Tariffa di {name} su questo progetto",
+		"MEMBER_RATE_HINT": "Vuota: vale la tariffa del progetto, altrimenti la sua tariffa.",
+		"RATES_RETRY": "Ricarica le tariffe"
 	}
 }

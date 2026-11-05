@@ -4207,6 +4207,14 @@
 		"WEEKLY_LIMIT": "Limite d'heures par semaine",
 		"NOT_SET": "Non défini",
 		"NUMBER_INVALID": "Saisissez un nombre, par exemple 45 ou 45,50.",
-		"NUMBER_NEGATIVE": "Saisissez 0 ou plus."
+		"NUMBER_NEGATIVE": "Saisissez 0 ou plus.",
+		"ADD_RATE": "Taux",
+		"PROJECT_RATES_SECTION": "Taux",
+		"PROJECT_RATE": "Taux du projet",
+		"MOST_SPECIFIC_WINS": "Le taux d'un membre sur ce projet passe en premier, puis ce taux, puis son propre taux.",
+		"PROJECT_RATE_HINT": "Vide : chaque membre est compté à son propre taux.",
+		"RATE_ON_PROJECT_OF": "Taux de {name} sur ce projet",
+		"MEMBER_RATE_HINT": "Vide : le taux du projet s'applique, sinon son propre taux.",
+		"RATES_RETRY": "Recharger les taux"
 	}
 }

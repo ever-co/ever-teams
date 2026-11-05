@@ -4207,6 +4207,14 @@
 		"WEEKLY_LIMIT": "الحد الأسبوعي للساعات",
 		"NOT_SET": "غير محدد",
 		"NUMBER_INVALID": "أدخل رقمًا، مثل 45 أو 45.50.",
-		"NUMBER_NEGATIVE": "أدخل 0 أو أكثر."
+		"NUMBER_NEGATIVE": "أدخل 0 أو أكثر.",
+		"ADD_RATE": "أجر",
+		"PROJECT_RATES_SECTION": "الأجور",
+		"PROJECT_RATE": "أجر المشروع",
+		"MOST_SPECIFIC_WINS": "يُطبَّق أولًا أجر العضو في هذا المشروع، ثم هذا الأجر، ثم أجره الخاص.",
+		"PROJECT_RATE_HINT": "فارغ: يُحتسب كل عضو بأجره الخاص.",
+		"RATE_ON_PROJECT_OF": "أجر {name} في هذا المشروع",
+		"MEMBER_RATE_HINT": "فارغ: يُطبَّق أجر المشروع، وإلا فأجره الخاص.",
+		"RATES_RETRY": "إعادة تحميل الأجور"
 	}
 }

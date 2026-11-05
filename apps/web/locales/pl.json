@@ -4207,6 +4207,14 @@
 		"WEEKLY_LIMIT": "Tygodniowy limit godzin",
 		"NOT_SET": "Nie ustawiono",
 		"NUMBER_INVALID": "Wpisz liczbę, na przykład 45 lub 45,50.",
-		"NUMBER_NEGATIVE": "Wpisz 0 lub więcej."
+		"NUMBER_NEGATIVE": "Wpisz 0 lub więcej.",
+		"ADD_RATE": "Stawka",
+		"PROJECT_RATES_SECTION": "Stawki",
+		"PROJECT_RATE": "Stawka projektu",
+		"MOST_SPECIFIC_WINS": "Najpierw liczy się stawka członka w tym projekcie, potem ta stawka, a na końcu jego własna.",
+		"PROJECT_RATE_HINT": "Pusta: każdy członek jest liczony według własnej stawki.",
+		"RATE_ON_PROJECT_OF": "Stawka {name} w tym projekcie",
+		"MEMBER_RATE_HINT": "Pusta: obowiązuje stawka projektu, a bez niej stawka własna.",
+		"RATES_RETRY": "Wczytaj stawki ponownie"
 	}
 }

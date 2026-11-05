@@ -4207,6 +4207,14 @@
 		"WEEKLY_LIMIT": "Limite de horas semanais",
 		"NOT_SET": "Não definida",
 		"NUMBER_INVALID": "Digite um número, por exemplo 45 ou 45,50.",
-		"NUMBER_NEGATIVE": "Digite 0 ou mais."
+		"NUMBER_NEGATIVE": "Digite 0 ou mais.",
+		"ADD_RATE": "Taxa",
+		"PROJECT_RATES_SECTION": "Taxas",
+		"PROJECT_RATE": "Taxa do projeto",
+		"MOST_SPECIFIC_WINS": "A taxa de um membro neste projeto vem primeiro, depois esta taxa e depois a taxa dele.",
+		"PROJECT_RATE_HINT": "Vazia: cada membro é contado pela própria taxa.",
+		"RATE_ON_PROJECT_OF": "Taxa de {name} neste projeto",
+		"MEMBER_RATE_HINT": "Vazia: vale a taxa do projeto ou, sem ela, a taxa do membro.",
+		"RATES_RETRY": "Carregar as taxas de novo"
 	}
 }

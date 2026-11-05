@@ -4207,6 +4207,14 @@
 		"WEEKLY_LIMIT": "Limiet uren per week",
 		"NOT_SET": "Niet ingesteld",
 		"NUMBER_INVALID": "Vul een getal in, bijvoorbeeld 45 of 45,50.",
-		"NUMBER_NEGATIVE": "Vul 0 of meer in."
+		"NUMBER_NEGATIVE": "Vul 0 of meer in.",
+		"ADD_RATE": "Tarief",
+		"PROJECT_RATES_SECTION": "Tarieven",
+		"PROJECT_RATE": "Projecttarief",
+		"MOST_SPECIFIC_WINS": "Het tarief van een lid op dit project gaat voor, dan dit tarief, dan het eigen tarief.",
+		"PROJECT_RATE_HINT": "Leeg: elk lid telt tegen het eigen tarief.",
+		"RATE_ON_PROJECT_OF": "Tarief van {name} op dit project",
+		"MEMBER_RATE_HINT": "Leeg: het projecttarief geldt, anders het eigen tarief.",
+		"RATES_RETRY": "Tarieven opnieuw laden"
 	}
 }

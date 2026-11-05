@@ -114,6 +114,21 @@ export function canManageProjectRates({
 	return rows.some((member) => isCurrentManagerRow(member, employeeId));
 }
 
+/**
+ * Whether the caller may change one member's rate on a project they may manage. Gauzy refuses a project manager who
+ * is not an organization admin their own rate there: they would set their own pay.
+ */
+export function canEditMemberRateOnProject({
+	isAdmin,
+	callerEmployeeId,
+	memberEmployeeId
+}: Readonly<{ isAdmin: boolean; callerEmployeeId: string | null; memberEmployeeId: string }>): boolean {
+	if (isAdmin) {
+		return true;
+	}
+	return memberEmployeeId !== callerEmployeeId;
+}
+
 const UNAVAILABLE_STATUSES: ReadonlyArray<number> = [403, 404];
 
 /**

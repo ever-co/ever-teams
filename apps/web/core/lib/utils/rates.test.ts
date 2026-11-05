@@ -1,4 +1,5 @@
 import {
+	canEditMemberRateOnProject,
 	canManageProjectRates,
 	currencyCodesOf,
 	currencyLabelOf,
@@ -130,5 +131,22 @@ describe('holdsRateAdminPermission', () => {
 		expect(holdsRateAdminPermission(['ORG_EMPLOYEES_EDIT'])).toBe(true);
 		expect(holdsRateAdminPermission(['ORG_TEAM_EDIT', 'PROFILE_EDIT'])).toBe(false);
 		expect(holdsRateAdminPermission([])).toBe(false);
+	});
+});
+
+describe('canEditMemberRateOnProject', () => {
+	it("keeps a project manager who is not an admin off their own rate, and lets them set the others'", () => {
+		expect(
+			canEditMemberRateOnProject({ isAdmin: false, callerEmployeeId: 'emp-1', memberEmployeeId: 'emp-1' })
+		).toBe(false);
+		expect(
+			canEditMemberRateOnProject({ isAdmin: false, callerEmployeeId: 'emp-1', memberEmployeeId: 'emp-2' })
+		).toBe(true);
+	});
+
+	it("lets an admin set anyone's rate on a project, their own included", () => {
+		expect(
+			canEditMemberRateOnProject({ isAdmin: true, callerEmployeeId: 'emp-1', memberEmployeeId: 'emp-1' })
+		).toBe(true);
 	});
 });

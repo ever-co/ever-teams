@@ -4207,6 +4207,14 @@
 		"WEEKLY_LIMIT": "מגבלת שעות שבועית",
 		"NOT_SET": "לא הוגדר",
 		"NUMBER_INVALID": "הזינו מספר, למשל 45 או 45.50.",
-		"NUMBER_NEGATIVE": "הזינו 0 ומעלה."
+		"NUMBER_NEGATIVE": "הזינו 0 ומעלה.",
+		"ADD_RATE": "תעריף",
+		"PROJECT_RATES_SECTION": "תעריפים",
+		"PROJECT_RATE": "תעריף הפרויקט",
+		"MOST_SPECIFIC_WINS": "קודם חל התעריף של החבר בפרויקט הזה, אחר כך התעריף הזה, ואחר כך התעריף שלו.",
+		"PROJECT_RATE_HINT": "ריק: כל חבר נספר לפי התעריף שלו.",
+		"RATE_ON_PROJECT_OF": "התעריף של {name} בפרויקט הזה",
+		"MEMBER_RATE_HINT": "ריק: חל תעריף הפרויקט, ואם אין, התעריף שלו.",
+		"RATES_RETRY": "טעינת התעריפים מחדש"
 	}
 }
