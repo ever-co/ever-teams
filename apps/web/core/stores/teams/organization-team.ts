@@ -170,6 +170,18 @@ export const isTeamManagerState = atom((get) => {
 	return Boolean(manager) || isTeamCreatorUser(createdByUserId, userId);
 });
 
+/**
+ * Whether the signed-in user's own row of the active team carries the manager flag. The API lets a team manager act
+ * for the members (their plans, time and activity) only with that flag; the role or having created the team is not
+ * enough there.
+ */
+export const isFlaggedTeamManagerState = atom((get) => {
+	const userId = get(userState)?.id;
+	const managers = get(activeTeamManagersState);
+	const manager = findTeamManagerOfUser(managers, userId);
+	return manager?.isManager === true;
+});
+
 /** Built once per team update so components rendered per task only do a map lookup. */
 export const activeTeamWorkedDurationByTaskState = atom((get) =>
 	indexTaskTotalWorkedDurations(get(activeTeamState)?.members)
