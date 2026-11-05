@@ -3,7 +3,7 @@
  */
 
 import React from 'react';
-import { render } from '@testing-library/react';
+import { render, screen } from '@testing-library/react';
 import ProfilePage from './page';
 
 const USER_ID = '11111111-1111-4111-8111-111111111111';
@@ -17,6 +17,7 @@ const ORGANIZATION_ID = '77777777-7777-4777-8777-777777777777';
 const mockUseProfileActivity = jest.fn();
 let mockShareProfileView = false;
 let mockIsAuthUser = false;
+let mockTrackingEnabled = false;
 let mockManagers: Array<{ employee: { user: { id: string } } }> = [];
 
 const mockUser = {
@@ -95,7 +96,7 @@ jest.mock('jotai', () => ({
 			};
 		}
 		if (atom === 'active-team-managers') return mockManagers;
-		if (atom === 'tracking-enabled') return false;
+		if (atom === 'tracking-enabled') return mockTrackingEnabled;
 		if (atom === 'full-width') return false;
 		return undefined;
 	},
@@ -105,8 +106,12 @@ jest.mock('jotai', () => ({
 jest.mock('@/core/components', () => ({ Container: ({ children }: React.PropsWithChildren) => <div>{children}</div> }));
 jest.mock('@/core/components/layouts/default-layout', () => ({
 	MainHeader: ({ children }: React.PropsWithChildren) => <header>{children}</header>,
-	PageLayout: ({ children, mainHeaderSlot }: React.PropsWithChildren<{ mainHeaderSlot?: React.ReactNode }>) => (
-		<main>
+	PageLayout: ({
+		children,
+		mainHeaderSlot,
+		showTimer
+	}: React.PropsWithChildren<{ mainHeaderSlot?: React.ReactNode; showTimer?: boolean }>) => (
+		<main data-testid="page-layout" data-shows-header-timer={String(Boolean(showTimer))}>
 			{mainHeaderSlot}
 			{children}
 		</main>
@@ -144,6 +149,7 @@ describe('profile activity access parity', () => {
 	beforeEach(() => {
 		mockShareProfileView = false;
 		mockIsAuthUser = false;
+		mockTrackingEnabled = false;
 		mockManagers = [];
 		mockUseProfileActivity.mockReturnValue({ data: undefined });
 		jest.spyOn(React, 'use').mockImplementation((value: any) => value);
@@ -190,5 +196,44 @@ describe('profile activity access parity', () => {
 		renderProfile(TEAMMATE_USER_ID);
 
 		expect(mockUseProfileActivity).toHaveBeenCalledWith(null, { enabled: false });
+	});
+});
+
+describe('profile top bar timer', () => {
+	const headerTimerShown = () => screen.getByTestId('page-layout').getAttribute('data-shows-header-timer');
+
+	beforeEach(() => {
+		mockShareProfileView = false;
+		mockIsAuthUser = false;
+		mockTrackingEnabled = true;
+		mockManagers = [];
+		mockUseProfileActivity.mockReturnValue({ data: undefined });
+		jest.spyOn(React, 'use').mockImplementation((value: any) => value);
+	});
+
+	afterEach(() => {
+		jest.restoreAllMocks();
+	});
+
+	it("keeps the viewer's compact timer in the top bar on a teammate's profile", () => {
+		renderProfile(TEAMMATE_USER_ID);
+
+		expect(headerTimerShown()).toBe('true');
+	});
+
+	it("leaves the top bar to the page timer on the viewer's own profile", () => {
+		mockIsAuthUser = true;
+
+		renderProfile(USER_ID);
+
+		expect(headerTimerShown()).toBe('false');
+	});
+
+	it('shows no timer to a viewer whose tracking is off', () => {
+		mockTrackingEnabled = false;
+
+		renderProfile(TEAMMATE_USER_ID);
+
+		expect(headerTimerShown()).toBe('false');
 	});
 });
