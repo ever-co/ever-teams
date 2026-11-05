@@ -4264,6 +4264,7 @@
 		"NOT_SET": "Not set",
 		"NUMBER_INVALID": "Enter a number, for example 45 or 45.50.",
 		"NUMBER_NEGATIVE": "Enter 0 or more.",
+		"WEEKLY_LIMIT_WHOLE_HOURS": "Enter whole hours, for example 40.",
 		"ADD_RATE": "Rate",
 		"PROJECT_RATES_SECTION": "Client rates",
 		"PROJECT_RATE": "Client rate",

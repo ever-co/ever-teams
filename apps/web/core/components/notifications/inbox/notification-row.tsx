@@ -185,7 +185,10 @@ export const NotificationRow = memo(function NotificationRow({
 						</time>
 					</span>
 					{entry.message && (
-						<span className="mt-1 line-clamp-2 rounded-md bg-foreground/[0.025] px-2 py-1.5 text-xs leading-snug text-foreground/80 hairline-ring ring-border">
+						<span
+							title={entry.message}
+							className="mt-1 line-clamp-2 rounded-md bg-foreground/[0.025] px-2 py-1.5 text-xs leading-snug text-foreground/80 hairline-ring ring-border"
+						>
 							{entry.message}
 						</span>
 					)}

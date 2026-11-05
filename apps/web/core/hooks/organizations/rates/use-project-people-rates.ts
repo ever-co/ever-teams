@@ -19,7 +19,7 @@ import { useProjectRateMutations, useProjectRates } from './use-rates';
  */
 export function useProjectPeopleRates(project: TOrganizationProject) {
 	const { data: user } = useUserQuery();
-	const { myPermissions, isSuccess: permissionsLoaded } = useMyRolePermissionsQuery();
+	const { myPermissions, isLoaded: permissionsLoaded } = useMyRolePermissionsQuery();
 	const employeeId: string | null = user?.employee?.id ?? null;
 	const canManage = canManageProjectRates({ permissions: myPermissions, members: project.members, employeeId });
 	const readsRates = permissionsLoaded && canManage;

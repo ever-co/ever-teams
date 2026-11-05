@@ -4264,6 +4264,7 @@
 		"NOT_SET": "Не задано",
 		"NUMBER_INVALID": "Введите число, например 45 или 45,50.",
 		"NUMBER_NEGATIVE": "Введите 0 или больше.",
+		"WEEKLY_LIMIT_WHOLE_HOURS": "Введите целое число часов, например 40.",
 		"ADD_RATE": "Ставка",
 		"PROJECT_RATES_SECTION": "Ставки для клиента",
 		"PROJECT_RATE": "Ставка для клиента",

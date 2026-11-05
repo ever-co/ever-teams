@@ -4264,6 +4264,7 @@
 		"NOT_SET": "Nie ustawiono",
 		"NUMBER_INVALID": "Wpisz liczbę, na przykład 45 lub 45,50.",
 		"NUMBER_NEGATIVE": "Wpisz 0 lub więcej.",
+		"WEEKLY_LIMIT_WHOLE_HOURS": "Wpisz pełne godziny, na przykład 40.",
 		"ADD_RATE": "Stawka",
 		"PROJECT_RATES_SECTION": "Stawki dla klienta",
 		"PROJECT_RATE": "Stawka dla klienta",

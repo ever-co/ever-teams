@@ -37,7 +37,7 @@ import { useOrganizationEmployeeTeams } from '@/core/hooks/organizations/teams/u
 import { useMyRolePermissionsQuery } from '@/core/hooks/roles/use-my-role-permissions-query';
 import { canMemberTrackTime } from '@/core/lib/helpers/team-member-tracking';
 import { useEmployeeRatesMutation } from '@/core/hooks/organizations/rates/use-rates';
-import { canEditMemberRates, rateValueOf } from '@/core/lib/utils/rates';
+import { canEditMemberRates, employeeRateValueOf } from '@/core/lib/utils/rates';
 import type { IEmployeeRatesInput } from '@/core/types/schemas/organization/rates.schema';
 import type { TOrganizationTeamEmployee } from '@/core/types/schemas';
 import type { TUpdateEmployee } from '@/core/types/schemas/organization/employee.schema';
@@ -117,9 +117,9 @@ function memberRateOf(member: TOrganizationTeamEmployee): MemberRate {
 	const employee = memberEmployeeOf(member);
 	const currency = employee?.billRateCurrency || null;
 	return {
-		value: rateValueOf(employee?.billRateValue),
+		value: employeeRateValueOf(employee?.billRateValue),
 		currency,
-		weeklyLimit: rateValueOf(employee?.reWeeklyLimit)
+		weeklyLimit: employeeRateValueOf(employee?.reWeeklyLimit)
 	};
 }
 

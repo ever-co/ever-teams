@@ -84,6 +84,7 @@ export function MemberRateEditor({
 	const payRateData = payRate.data;
 	const loadsPayRate = row.canEditRate && payRate.isLoading;
 	const editsPayRate = row.canEditRate && Boolean(payRateData);
+	const payRateReadFailed = row.canEditRate && payRate.isError && !payRate.isUnavailable && !payRateData;
 	const storedPayRate = rateValueOf(payRateData?.payRateValue);
 	const initialPayCurrency = shownCurrencyOf(payRateData?.payRateCurrency ?? null, payRateData?.currency);
 	const [payTextChoice, setPayTextChoice] = useState<string | null>(null);
@@ -102,6 +103,12 @@ export function MemberRateEditor({
 		const problem = rate.problem ?? limit.problem ?? pay.problem;
 		if (problem) {
 			setError(t(PROBLEM_KEYS[problem]));
+			return;
+		}
+		// Gauzy keeps the limit in whole hours and would cut 37.5 to 37 without a word
+		const isPartHour = limit.value !== null && !Number.isInteger(limit.value);
+		if (isPartHour) {
+			setError(t('rates.WEEKLY_LIMIT_WHOLE_HOURS'));
 			return;
 		}
 		const billingChanges = changedEmployeeRatesOf(
@@ -206,6 +213,17 @@ export function MemberRateEditor({
 							aria-hidden="true"
 							className={cn(SETTINGS_SKELETON_BAR, 'col-span-2 mt-5 block h-4 w-40 sm:col-span-3')}
 						/>
+					)}
+					{payRateReadFailed && (
+						<Button
+							type="button"
+							variant="outline"
+							size="sm"
+							onClick={() => void payRate.refetch()}
+							className="col-span-2 justify-self-start sm:col-span-3"
+						>
+							{t('rates.RATES_RETRY')}
+						</Button>
 					)}
 					{editsPayRate && (
 						<>

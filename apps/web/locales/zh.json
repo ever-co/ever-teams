@@ -4264,6 +4264,7 @@
 		"NOT_SET": "未设置",
 		"NUMBER_INVALID": "请输入数字，例如 45 或 45.50。",
 		"NUMBER_NEGATIVE": "请输入 0 或更大的数。",
+		"WEEKLY_LIMIT_WHOLE_HOURS": "请输入整数小时,例如 40。",
 		"ADD_RATE": "费率",
 		"PROJECT_RATES_SECTION": "客户费率",
 		"PROJECT_RATE": "客户费率",

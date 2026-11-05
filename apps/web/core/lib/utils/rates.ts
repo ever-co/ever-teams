@@ -59,6 +59,18 @@ export function rateValueOf(value: unknown): number | null {
 }
 
 /**
+ * A member's own billing rate or weekly limit: Gauzy stores a cleared one as 0, so 0 means not set here. Pay and client
+ * rates keep their 0.
+ */
+export function employeeRateValueOf(value: unknown): number | null {
+	const rate = rateValueOf(value);
+	if (rate === 0) {
+		return null;
+	}
+	return rate;
+}
+
+/**
  * The rate a member's time is billed to the client at: their client rate on the project, else the project's, else
  * their own.
  */
@@ -77,6 +89,9 @@ export function effectiveBillRate({
 	return null;
 }
 
+/** A comma is a decimal mark with at most two places, so "1,000" and "1.000" are refused instead of read as 1. */
+const RATE_INPUT_PATTERN = /^\d*\.?\d{0,2}$/;
+
 /** Reads what a person typed in a rate field. An empty field clears the rate. */
 export function parseRateInput(text: string): ParsedRateInput {
 	const trimmed = text.trim();
@@ -90,6 +105,9 @@ export function parseRateInput(text: string): ParsedRateInput {
 	}
 	if (number < 0) {
 		return { value: null, problem: 'negative' };
+	}
+	if (!RATE_INPUT_PATTERN.test(normalized)) {
+		return { value: null, problem: 'invalid' };
 	}
 	return { value: number, problem: null };
 }

@@ -4264,6 +4264,7 @@
 		"NOT_SET": "לא הוגדר",
 		"NUMBER_INVALID": "הזינו מספר, למשל 45 או 45.50.",
 		"NUMBER_NEGATIVE": "הזינו 0 ומעלה.",
+		"WEEKLY_LIMIT_WHOLE_HOURS": "הזינו מספר שעות שלם, למשל 40.",
 		"ADD_RATE": "תעריף",
 		"PROJECT_RATES_SECTION": "תעריפי לקוח",
 		"PROJECT_RATE": "תעריף לקוח",

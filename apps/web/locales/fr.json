@@ -4264,6 +4264,7 @@
 		"NOT_SET": "Non défini",
 		"NUMBER_INVALID": "Saisissez un nombre, par exemple 45 ou 45,50.",
 		"NUMBER_NEGATIVE": "Saisissez 0 ou plus.",
+		"WEEKLY_LIMIT_WHOLE_HOURS": "Saisissez un nombre d'heures entier, par exemple 40.",
 		"ADD_RATE": "Taux",
 		"PROJECT_RATES_SECTION": "Taux clients",
 		"PROJECT_RATE": "Taux client",

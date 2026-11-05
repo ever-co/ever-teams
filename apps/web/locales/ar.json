@@ -4264,6 +4264,7 @@
 		"NOT_SET": "غير محدد",
 		"NUMBER_INVALID": "أدخل رقمًا، مثل 45 أو 45.50.",
 		"NUMBER_NEGATIVE": "أدخل 0 أو أكثر.",
+		"WEEKLY_LIMIT_WHOLE_HOURS": "أدخل عددًا صحيحًا من الساعات، مثل 40.",
 		"ADD_RATE": "أجر",
 		"PROJECT_RATES_SECTION": "أجور العميل",
 		"PROJECT_RATE": "أجر العميل",

@@ -4264,6 +4264,7 @@
 		"NOT_SET": "Não definida",
 		"NUMBER_INVALID": "Digite um número, por exemplo 45 ou 45,50.",
 		"NUMBER_NEGATIVE": "Digite 0 ou mais.",
+		"WEEKLY_LIMIT_WHOLE_HOURS": "Digite horas inteiras, por exemplo 40.",
 		"ADD_RATE": "Taxa",
 		"PROJECT_RATES_SECTION": "Taxas do cliente",
 		"PROJECT_RATE": "Taxa do cliente",

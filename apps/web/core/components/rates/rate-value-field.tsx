@@ -70,6 +70,10 @@ export function RateValueField({
 	}
 
 	const open = (isNextOpen: boolean) => {
+		// A failed save reports here only: the field stays open until the save has answered
+		if (!isNextOpen && isSaving) {
+			return;
+		}
 		if (isNextOpen) {
 			setDraft(rateInputTextOf(value));
 			setError(null);

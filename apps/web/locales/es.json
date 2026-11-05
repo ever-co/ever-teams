@@ -4264,6 +4264,7 @@
 		"NOT_SET": "Sin definir",
 		"NUMBER_INVALID": "Escribe un número, por ejemplo 45 o 45,50.",
 		"NUMBER_NEGATIVE": "Escribe 0 o más.",
+		"WEEKLY_LIMIT_WHOLE_HOURS": "Escribe horas enteras, por ejemplo 40.",
 		"ADD_RATE": "Tarifa",
 		"PROJECT_RATES_SECTION": "Tarifas al cliente",
 		"PROJECT_RATE": "Tarifa al cliente",

@@ -134,6 +134,7 @@ export function useEmployeeRatesMutation() {
 		onSuccess: async (_updated, { employeeId }) => {
 			await queryClient.invalidateQueries({ queryKey: queryKeys.organizationTeams.all });
 			await queryClient.invalidateQueries({ queryKey: queryKeys.rates.all });
+			await queryClient.invalidateQueries({ queryKey: queryKeys.timesheet.reports.all });
 			const savesOwnRate = employeeId === ownEmployeeId;
 			if (savesOwnRate) {
 				await queryClient.invalidateQueries({ queryKey: queryKeys.users.me });

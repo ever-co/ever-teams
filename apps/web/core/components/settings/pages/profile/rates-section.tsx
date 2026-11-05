@@ -5,7 +5,7 @@ import { useLocale, useTranslations } from 'next-intl';
 import { Button } from '@/core/components/duplicated-components/_button';
 import { SettingsRow, SettingsSection, SettingsSurface } from '@/core/components/settings/kit/settings-page';
 import { useEmployeePayRate } from '@/core/hooks/organizations/rates/use-rates';
-import { rateAmountTextOf, rateValueOf } from '@/core/lib/utils/rates';
+import { employeeRateValueOf, rateAmountTextOf, rateValueOf } from '@/core/lib/utils/rates';
 import { RateChangeRequestForm } from './rate-change-request-form';
 
 interface OwnEmployeeRates {
@@ -64,12 +64,12 @@ export function ProfileRatesSection({ employee }: Readonly<{ employee: OwnEmploy
 	const [isRequesting, setIsRequesting] = useState(false);
 
 	const currency = employee.billRateCurrency || null;
-	const rateAmount = rateAmountTextOf(employee.billRateValue, currency, locale);
+	const rateAmount = rateAmountTextOf(employeeRateValueOf(employee.billRateValue), currency, locale);
 	let rateText: string | null = null;
 	if (rateAmount !== null) {
 		rateText = t('rates.PER_HOUR', { amount: rateAmount });
 	}
-	const weeklyLimit = rateValueOf(employee.reWeeklyLimit);
+	const weeklyLimit = employeeRateValueOf(employee.reWeeklyLimit);
 	let weeklyLimitText: string | null = null;
 	if (weeklyLimit !== null) {
 		weeklyLimitText = t('rates.WEEKLY_LIMIT_VALUE', { hours: weeklyLimit });

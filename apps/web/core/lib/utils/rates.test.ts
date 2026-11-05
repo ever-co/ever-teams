@@ -63,6 +63,15 @@ describe('parseRateInput', () => {
 		expect(parseRateInput('-3')).toEqual({ value: null, problem: 'negative' });
 	});
 
+	it('refuses a thousands separator instead of reading 1,000 as 1', () => {
+		for (const text of ['1,000', '1.000', '1,500', '1e3', '0x10']) {
+			expect(parseRateInput(text)).toEqual({ value: null, problem: 'invalid' });
+		}
+		expect(parseRateInput('1000')).toEqual({ value: 1000, problem: null });
+		expect(parseRateInput('45.50')).toEqual({ value: 45.5, problem: null });
+		expect(parseRateInput('.5')).toEqual({ value: 0.5, problem: null });
+	});
+
 	it('writes a stored rate back as the field text', () => {
 		expect(rateInputTextOf('45.00')).toBe('45');
 		expect(rateInputTextOf(null)).toBe('');
