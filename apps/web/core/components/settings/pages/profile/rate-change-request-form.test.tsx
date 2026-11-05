@@ -2,6 +2,9 @@
 
 import React from 'react';
 import { act, fireEvent, render, screen } from '@testing-library/react';
+import { createStore, Provider } from 'jotai';
+import { currentOrganizationState } from '@/core/stores/user/user-organizations';
+import type { TOrganization } from '@/core/types/schemas';
 import { RateChangeRequestForm } from './rate-change-request-form';
 
 const mockRequestRateChange = jest.fn();
@@ -82,6 +85,21 @@ it('shows the input error, not the last refusal, when the next try has no valid 
 
 	expect(screen.getByRole('alert').textContent).toBe('rates.REQUESTED_RATE_REQUIRED');
 	expect(mockRequestRateChange).toHaveBeenCalledTimes(1);
+});
+
+it("asks in the organization's currency when the employee has no currency of their own", async () => {
+	mockRequestRateChange.mockResolvedValue({ notified: 1 });
+	const store = createStore();
+	store.set(currentOrganizationState, { id: 'organization-1', currency: 'CAD' } as unknown as TOrganization);
+	render(
+		<Provider store={store}>
+			<RateChangeRequestForm currentCurrency={null} onClose={jest.fn()} />
+		</Provider>
+	);
+
+	await send('55');
+
+	expect(mockRequestRateChange).toHaveBeenCalledWith(expect.objectContaining({ billRateCurrency: 'CAD' }));
 });
 
 it('asks for a valid rate before sending anything', async () => {

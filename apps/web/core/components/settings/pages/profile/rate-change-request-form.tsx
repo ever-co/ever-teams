@@ -1,6 +1,7 @@
 'use client';
 
 import { FormEvent, useId, useState } from 'react';
+import { useAtomValue } from 'jotai';
 import { useTranslations, type DottedLanguageObjectStringPaths } from 'next-intl';
 import { controlRecipe, Input } from '@/core/components/common/input';
 import { Button } from '@/core/components/duplicated-components/_button';
@@ -13,12 +14,12 @@ import {
 	RATE_REASON_MAX_LENGTH,
 	rateRequestFailureOutcomeOf,
 	rateRequestSentOutcomeOf,
+	shownCurrencyOf,
 	type RateInputProblem,
 	type RateRequestOutcome
 } from '@/core/lib/utils/rates';
 import { cn } from '@/core/lib/helpers';
-
-const DEFAULT_CURRENCY = 'USD';
+import { currentOrganizationState } from '@/core/stores/user/user-organizations';
 
 const PROBLEM_KEYS: Record<RateInputProblem, DottedLanguageObjectStringPaths> = {
 	invalid: 'rates.NUMBER_INVALID',
@@ -51,7 +52,8 @@ export function RateChangeRequestForm({ currentCurrency, onClose }: Readonly<Rat
 	const errorId = useId();
 	const { requestRateChange, isSending } = useRateChangeRequest();
 	const [rateText, setRateText] = useState('');
-	const [currency, setCurrency] = useState(currentCurrency ?? DEFAULT_CURRENCY);
+	const organization = useAtomValue(currentOrganizationState);
+	const [currency, setCurrency] = useState(() => shownCurrencyOf(currentCurrency, organization?.currency));
 	const [reason, setReason] = useState('');
 	const [problem, setProblem] = useState<string | null>(null);
 	const [outcome, setOutcome] = useState<RateRequestOutcome | null>(null);

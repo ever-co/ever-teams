@@ -14,6 +14,22 @@ export const PAY_RATE_PERMISSION = 'ORG_EMPLOYEES_EDIT';
 
 export const RATE_REASON_MAX_LENGTH = 500;
 
+const DEFAULT_RATE_CURRENCY = 'USD';
+
+/** A rate without a currency of its own is in the organization's, so a currency select starts on it. */
+export function shownCurrencyOf(
+	ownCurrency: string | null | undefined,
+	organizationCurrency: string | null | undefined
+): string {
+	if (ownCurrency) {
+		return ownCurrency;
+	}
+	if (organizationCurrency) {
+		return organizationCurrency;
+	}
+	return DEFAULT_RATE_CURRENCY;
+}
+
 export type RateInputProblem = 'invalid' | 'negative';
 
 export interface ParsedRateInput {

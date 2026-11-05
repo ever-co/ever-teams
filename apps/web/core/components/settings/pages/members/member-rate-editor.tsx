@@ -18,14 +18,13 @@ import {
 	rateAmountTextOf,
 	rateInputTextOf,
 	rateValueOf,
+	shownCurrencyOf,
 	type RateInputProblem
 } from '@/core/lib/utils/rates';
 import { currentOrganizationState } from '@/core/stores/user/user-organizations';
 import type { MemberRate, MemberRowModel } from '@/core/hooks/settings/use-team-members-settings';
 import type { IEmployeeRatesInput } from '@/core/types/schemas/organization/rates.schema';
 import { MemberAvatar } from './people-parts';
-
-const DEFAULT_CURRENCY = 'USD';
 
 const PROBLEM_KEYS: Record<RateInputProblem, DottedLanguageObjectStringPaths> = {
 	invalid: 'rates.NUMBER_INVALID',
@@ -46,17 +45,6 @@ export function MemberRateText({ rate }: Readonly<{ rate: MemberRate }>) {
 			{t('rates.PER_HOUR', { amount })}
 		</span>
 	);
-}
-
-/** A member without a currency of their own is paid in the organization's, so the select starts on it. */
-function shownCurrencyOf(ownCurrency: string | null, organizationCurrency: string | null | undefined): string {
-	if (ownCurrency) {
-		return ownCurrency;
-	}
-	if (organizationCurrency) {
-		return organizationCurrency;
-	}
-	return DEFAULT_CURRENCY;
 }
 
 function describedByOf(error: string | null, errorId: string) {
