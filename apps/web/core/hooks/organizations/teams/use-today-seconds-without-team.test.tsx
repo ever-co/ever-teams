@@ -1,7 +1,7 @@
 /** @jest-environment jsdom */
 
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { renderHook, waitFor } from '@testing-library/react';
+import { act, renderHook, waitFor } from '@testing-library/react';
 import { Provider, createStore } from 'jotai';
 import type { PropsWithChildren } from 'react';
 
@@ -16,6 +16,8 @@ jest.mock('@/core/services/client/api/timers', () => ({
 import { useTodaySecondsWithoutTeam } from './use-today-seconds-without-team';
 
 const tracking = { isOnline: true, isTrackingTime: true };
+
+const ONE_MINUTE = 60_000;
 
 const member = (employeeId: string, employee: Record<string, unknown>, timerStatus: string) => ({
 	id: `member-${employeeId}`,
@@ -68,6 +70,19 @@ describe('useTodaySecondsWithoutTeam', () => {
 
 		await waitFor(() => expect(result.current).toEqual([90 * 60, 0]));
 		expect(mockGetLastTimerLogsOf).toHaveBeenCalledWith(['employee-a', 'employee-b']);
+	});
+
+	it('reads the last logs again every minute while a member tracks outside the team', async () => {
+		jest.useFakeTimers({ now: new Date(2026, 10, 5, 12, 0, 0), doNotFake: ['setTimeout'] });
+		mockGetLastTimerLogsOf.mockResolvedValue({ data: [runningSince('employee-a', 90, null)] });
+
+		renderFor([member('employee-a', tracking, 'pause')]);
+		await waitFor(() => expect(mockGetLastTimerLogsOf).toHaveBeenCalledTimes(1));
+		await act(async () => {
+			jest.advanceTimersByTime(ONE_MINUTE);
+		});
+
+		await waitFor(() => expect(mockGetLastTimerLogsOf).toHaveBeenCalledTimes(2));
 	});
 
 	it('reads nothing when no member tracks outside the team', () => {

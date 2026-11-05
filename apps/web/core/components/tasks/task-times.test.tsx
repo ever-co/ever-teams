@@ -11,8 +11,13 @@ jest.mock('../duplicated-components/tooltip', () => ({ Tooltip: () => null }));
 jest.mock('@/core/hooks/organizations/teams/use-active-team-member', () => ({
 	useActiveTeamMember: () => mockMember
 }));
+const mockUseTodaySecondsWithoutTeam = jest.fn();
+
 jest.mock('@/core/hooks/organizations/teams/use-today-seconds-without-team', () => ({
-	useTodaySecondsWithoutTeam: () => mockSecondsWithoutTeam
+	useTodaySecondsWithoutTeam: (employeeId: string) => {
+		mockUseTodaySecondsWithoutTeam(employeeId);
+		return mockSecondsWithoutTeam;
+	}
 }));
 
 import { TodayWorkedTime } from './task-times';
@@ -29,6 +34,7 @@ describe('TodayWorkedTime', () => {
 		render(<TodayWorkedTime isAuthUser={false} memberInfo={{ member: { id: 'member-1' } as never }} />);
 
 		expect(screen.getByText('1h 40m')).toBeTruthy();
+		expect(mockUseTodaySecondsWithoutTeam).toHaveBeenCalledWith('employee-1');
 	});
 
 	it('reads 0h 0m for a member with no time today', () => {
