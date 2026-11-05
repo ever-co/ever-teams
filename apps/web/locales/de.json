@@ -4349,7 +4349,7 @@
 		},
 		"error": {
 			"TITLE": "Anmeldung fehlgeschlagen",
-			"TEXT": "Die Anmeldung wurde nicht abgeschlossen. Versuchen Sie es erneut oder melden Sie sich mit Ihrer E-Mail an.",
+			"TEXT": "Die Anmeldung wurde nicht abgeschlossen. Versuch es erneut oder melde dich mit deiner E-Mail an.",
 			"RETRY": "Zurück zur Anmeldung",
 			"CODE": "Fehlercode: {code}"
 		}

@@ -4289,7 +4289,7 @@
 			"MAIL_ACTION_ACTIVATE": "Aktywuj moje konto",
 			"MAIL_ACTION_CODE": "Zaloguj się",
 			"MAIL_ACTION_RESET": "Ustaw nowe hasło",
-			"MANAGER": "Menadżer",
+			"MANAGER": "Menedżer",
 			"MEMBER_COUNT": "{count, plural, one {# członek} few {# członków} many {# członków} other {# członków}}",
 			"NOW": "teraz",
 			"SUBJECT_ACTIVATE": "Aktywuj konto",
