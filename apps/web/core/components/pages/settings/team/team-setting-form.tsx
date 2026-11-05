@@ -1,6 +1,6 @@
 import { useIsMemberManager, useOrganizationTeamsQuery, useEditOrganizationTeam } from '@/core/hooks';
-import { ERoleName } from '@/core/types/generics/enums/role';
 import { activeTeamState, organizationTeamsState } from '@/core/stores';
+import { isTeamManagerMember } from '@/core/stores/teams/organization-team';
 import { Button, ColorPicker, Text } from '@/core/components';
 import { EmojiPicker } from '@/core/components/common/emoji-picker';
 import TimeTrackingToggle, { RequireDailyPlanToTrack, ShareProfileViewsToggle } from '@/core/components/common/switch';
@@ -147,13 +147,7 @@ export const TeamSettingForm = () => {
 						?.map((t) => t.id)
 						.filter((value: string, index: number, array: string[]) => array.indexOf(value) === index), // To make the array Unique list of ids
 					managerIds: activeTeam.members
-						?.filter(
-							(m) =>
-								m.role &&
-								(m.role.name === ERoleName.MANAGER ||
-									m.role.name === ERoleName.SUPER_ADMIN ||
-									m.role.name === ERoleName.ADMIN)
-						)
+						?.filter(isTeamManagerMember)
 						.map((t) => t.id)
 						.filter((value: string, index: number, array: string[]) => array.indexOf(value) === index) // To make the array Unique list of ids
 				};
