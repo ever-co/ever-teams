@@ -1,7 +1,7 @@
 import { IOrganization, IOrganizationCreate } from '@/core/types/interfaces/organization/organization';
 import { APIService } from '../../api.service';
 import { GAUZY_API_BASE_SERVER_URL } from '@/core/constants/config/constants';
-import { organizationSchema, validateApiResponse, ZodValidationError } from '@/core/types/schemas';
+import { organizationSchema, validateApiResponse, ZodValidationError, type TOrganization } from '@/core/types/schemas';
 import { scopedReadConfig, ScopedReadOptions } from '../../api-request-scope';
 
 class OrganizationService extends APIService {
@@ -9,6 +9,18 @@ class OrganizationService extends APIService {
 		return this.post<IOrganization>('/organization', data, {
 			headers: { Authorization: `Bearer ${bearer_token}` }
 		}).then(({ data }) => data);
+	};
+
+	// Gauzy validates an update as a whole organization, so its name and currency go along with any change
+	updateOrganization = async (
+		organization: Pick<TOrganization, 'id' | 'name' | 'currency'>,
+		changes: Partial<IOrganization>
+	) => {
+		const body = { name: organization.name, currency: organization.currency, ...changes };
+		const response = await this.put<IOrganization>(`/organization/${organization.id}`, body, {
+			tenantId: this.tenantId
+		});
+		return response.data;
 	};
 
 	getOrganizationById = async (id: string, options?: ScopedReadOptions) => {
