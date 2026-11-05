@@ -13,8 +13,7 @@ import HCaptcha from '@hcaptcha/react-hcaptcha';
 import Turnstile from 'react-turnstile';
 import { cn } from '@/core/lib/helpers';
 import { Checkbox } from '@/core/components/common/checkbox';
-import { AnimatedHeight } from '@/core/components/common/animated-height';
-import { ResizingPanel } from '@/core/components/common/resizing-panel';
+import { AuthReveal } from '@/core/components/auth/kit/auth-reveal';
 import { ArrowLeft, Mail, User, UserAdd, Users } from '@/core/components/icons';
 import { AuthHeading, AuthMark } from '@/core/components/auth/kit/auth-heading';
 import { AuthField } from '@/core/components/auth/kit/auth-field';
@@ -161,6 +160,7 @@ function AuthSignup() {
 			headerLinkText={t('auth.signUp.SIGN_IN')}
 			headerLinkHref={DEFAULT_APP_PATH}
 			aside={scene}
+			contentAlign="top"
 		>
 			{showsSentState && (
 				<AuthState
@@ -198,34 +198,30 @@ function AuthSignup() {
 			<div className={cn((loading || showsSentState) && 'hidden')}>
 				<StepCounter current={stepNumberOf(isFirstStep)} />
 				<form onSubmit={handleSubmit} autoComplete="on" noValidate>
-					<div className="-m-1">
-						<ResizingPanel>
-							<div className="p-1">
-								{/* Kept mounted on step 2: the captcha keeps its answer when the person comes back */}
-								<div ref={firstStepRef} hidden={!isFirstStep}>
-									<FillUserDataForm
-										errors={errorList}
-										handleOnChange={handleOnChange}
-										form={formValues}
-										loading={loading}
-										everId={everId}
-									/>
-								</div>
-								{!isFirstStep && (
-									<div ref={secondStepRef}>
-										<ChooseModeForm
-											errors={errorList}
-											handleOnChange={handleOnChange}
-											form={formValues}
-											onPreviousStep={() => setStep(FIRST_STEP)}
-											loading={loading}
-											startMode={startMode}
-											onStartModeChange={handleStartModeChange}
-										/>
-									</div>
-								)}
+					<div>
+						{/* Kept mounted on step 2: the captcha keeps its answer when the person comes back */}
+						<div ref={firstStepRef} hidden={!isFirstStep}>
+							<FillUserDataForm
+								errors={errorList}
+								handleOnChange={handleOnChange}
+								form={formValues}
+								loading={loading}
+								everId={everId}
+							/>
+						</div>
+						{!isFirstStep && (
+							<div ref={secondStepRef}>
+								<ChooseModeForm
+									errors={errorList}
+									handleOnChange={handleOnChange}
+									form={formValues}
+									onPreviousStep={() => setStep(FIRST_STEP)}
+									loading={loading}
+									startMode={startMode}
+									onStartModeChange={handleStartModeChange}
+								/>
 							</div>
-						</ResizingPanel>
+						)}
 					</div>
 				</form>
 				{isFirstStep && <SocialLogins />}
@@ -514,24 +510,21 @@ function ChooseModeForm({
 				/>
 			</fieldset>
 
-			<AnimatedHeight>
-				{isTeamMode && (
-					<AuthField
-						ref={teamFieldRef}
-						id="signup-team"
-						name="team"
-						label={t('auth.field.TEAM_LABEL')}
-						placeholder={t('auth.field.TEAM_PLACEHOLDER')}
-						icon={<Users />}
-						value={form.team}
-						error={errors?.team}
-						onChange={handleOnChange}
-						autoComplete="organization"
-						className="pt-4"
-						required
-					/>
-				)}
-			</AnimatedHeight>
+			<AuthReveal isOpen={isTeamMode}>
+				<AuthField
+					ref={teamFieldRef}
+					id="signup-team"
+					name="team"
+					label={t('auth.field.TEAM_LABEL')}
+					placeholder={t('auth.field.TEAM_PLACEHOLDER')}
+					icon={<Users />}
+					value={form.team}
+					error={errors?.team}
+					onChange={handleOnChange}
+					autoComplete="organization"
+					required
+				/>
+			</AuthReveal>
 
 			<div className="mt-7 flex items-center justify-between gap-3">
 				<button type="button" onClick={onPreviousStep} className={AUTH_QUIET_LINK}>
