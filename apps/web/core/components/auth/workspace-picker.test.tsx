@@ -61,4 +61,18 @@ describe('WorkspacePicker', () => {
 
 		expect(continueButton.hasAttribute('disabled')).toBe(false);
 	});
+
+	it('states no expanded state on a workspace without a team list', () => {
+		renderPicker([workspaceNamed('Empty', 0), workspaceNamed('Other', 0)], 0);
+
+		const row = screen.getByText('Empty').closest('button');
+		expect(row?.hasAttribute('aria-expanded')).toBe(false);
+	});
+
+	it('states the expanded state of a workspace with teams', () => {
+		renderPicker([workspaceNamed('Acme', 2)], 0);
+
+		const row = screen.getByText('Acme').closest('button');
+		expect(row?.getAttribute('aria-expanded')).toBe('true');
+	});
 });

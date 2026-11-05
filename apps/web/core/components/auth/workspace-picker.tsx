@@ -110,6 +110,14 @@ function rowStateClass(isSelected: boolean, isEmpty: boolean) {
 	return 'hover:bg-foreground/[0.03]';
 }
 
+/** A row without a team list opens nothing, so it states no expanded state. */
+function expandedStateOf(showsTeams: boolean, hasTeamList: boolean) {
+	if (!hasTeamList) {
+		return undefined;
+	}
+	return showsTeams;
+}
+
 /** Enter in the search would sign in to the selected workspace, which the query may be hiding. */
 function keepSearchFromSubmitting(event: KeyboardEvent<HTMLInputElement>) {
 	const isEnter = event.key === 'Enter';
@@ -278,6 +286,7 @@ export function WorkspacePicker(props: Readonly<WorkspacePickerProps>) {
 					const teams = (workspace.current_teams ?? []).filter((team) => team && team.team_name);
 					const hasTeamList = teams.length > 0 && !props.teamsUnavailable;
 					const showsKeyCap = !isSelected && hasKeyCap;
+					const expandedState = expandedStateOf(showsTeams, hasTeamList);
 
 					return (
 						<div
@@ -288,7 +297,7 @@ export function WorkspacePicker(props: Readonly<WorkspacePickerProps>) {
 								type="button"
 								data-picker-row=""
 								aria-pressed={isSelected}
-								aria-expanded={showsTeams}
+								aria-expanded={expandedState}
 								disabled={isSubmitting}
 								onClick={() => selectWorkspace(item)}
 								className={cn(
