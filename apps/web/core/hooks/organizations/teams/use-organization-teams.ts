@@ -31,6 +31,7 @@ import { useCreateOrganizationTeam } from './use-create-organization-team';
 import { useUpdateOrganizationTeam } from './use-update-organization-team';
 import { useEditOrganizationTeam } from './use-edit-organization-team';
 import { useDeleteOrganizationTeam } from './use-delete-organization-team';
+import { teamDefaultProjectId } from '@/core/lib/helpers/team-default-project';
 
 /**
  * @deprecated Use specialized hooks instead:
@@ -97,8 +98,9 @@ export function useOrganizationTeams() {
 	// ==================== SIDE EFFECTS ====================
 
 	useEffect(() => {
-		if (activeTeam?.projects && activeTeam?.projects?.length) {
-			setActiveProjectIdCookie(activeTeam?.projects[0]?.id);
+		const defaultProjectId = teamDefaultProjectId(activeTeam);
+		if (defaultProjectId) {
+			setActiveProjectIdCookie(defaultProjectId);
 		}
 		setIsTrackingEnabledState(isTrackingEnabled);
 		// eslint-disable-next-line react-hooks/exhaustive-deps
