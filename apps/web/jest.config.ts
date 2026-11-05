@@ -1,6 +1,7 @@
 import type { Config } from 'jest';
 import nextJest from 'next/jest.js';
-import { resolve } from 'node:path';
+import { createRequire } from 'node:module';
+import { dirname, resolve } from 'node:path';
 
 /**
  * Unit-test harness for apps/web.
@@ -12,6 +13,18 @@ import { resolve } from 'node:path';
  * Test dependencies are declared by the web workspace so the harness is reproducible in isolation.
  */
 const webDirectory = typeof __dirname === 'string' ? __dirname : resolve(process.cwd(), 'apps/web');
+
+/**
+ * The React that react-dom renders with. The `@tiptap/**` nohoist can leave a second React under
+ * apps/web/node_modules: a component importing that copy under the root react-dom reads a null hooks
+ * dispatcher ("Cannot read properties of null (reading 'useState')"), which failed about 100 suites on a
+ * fresh Linux install. Every import of react goes to the copy react-dom uses.
+ */
+const requireFromWeb = createRequire(resolve(webDirectory, 'package.json'));
+const reactDomDirectory = dirname(requireFromWeb.resolve('react-dom/package.json'));
+const requireFromReactDom = createRequire(resolve(reactDomDirectory, 'package.json'));
+const reactEntry = requireFromReactDom.resolve('react');
+const reactDirectory = dirname(requireFromReactDom.resolve('react/package.json'));
 const createJestConfig = nextJest({ dir: webDirectory });
 
 const config: Config = {
@@ -27,7 +40,9 @@ const config: Config = {
 		'^@/lib/(.*)$': '<rootDir>/lib/$1',
 		'^@/app/(.*)$': '<rootDir>/app/$1',
 		'^@app/(.*)$': '<rootDir>/app/$1',
-		'^@/(.*)$': '<rootDir>/$1'
+		'^@/(.*)$': '<rootDir>/$1',
+		'^react$': reactEntry,
+		'^react/(.*)$': `${reactDirectory}/$1`
 	}
 };
 
