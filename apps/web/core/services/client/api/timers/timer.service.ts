@@ -62,7 +62,15 @@ class TimerService extends APIService {
 		return api.post<ITimerStatus>(`/timer/toggle?${getTodayRangeQuery()}`, body);
 	};
 
-	startTimer = async ({ taskId, projectId }: { taskId: string; projectId?: string | null }) => {
+	startTimer = async ({
+		taskId,
+		projectId,
+		isBillable
+	}: {
+		taskId: string;
+		projectId?: string | null;
+		isBillable: boolean;
+	}) => {
 		const startedAt = Date.now();
 		const projectField = projectFieldOf(projectId);
 
@@ -75,6 +83,7 @@ class TimerService extends APIService {
 				logType: 'TRACKED',
 				source: ETimeLogSource.TEAMS,
 				tags: [],
+				isBillable,
 				organizationTeamId: this.activeTeamId
 			});
 
@@ -84,7 +93,7 @@ class TimerService extends APIService {
 		const api = await getFallbackAPI();
 		return this.resetTimeSlotSync(
 			startedAt,
-			await api.post<ITimerStatus>(`/timer/start?${getTodayRangeQuery()}`, { taskId, ...projectField })
+			await api.post<ITimerStatus>(`/timer/start?${getTodayRangeQuery()}`, { taskId, ...projectField, isBillable })
 		);
 	};
 

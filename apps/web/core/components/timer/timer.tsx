@@ -10,6 +10,7 @@ import { clsxm } from '@/core/lib/utils/clsxm';
 import { Text } from '@/core/components/common/typography';
 import { useTranslations } from 'next-intl';
 import { TimerButton } from './timer-button';
+import { TimerBillableSwitch } from './timer-billable-switch';
 import { Transition } from '@headlessui/react';
 
 import {
@@ -96,6 +97,7 @@ export function Timer({ className, showTimerButton = true, compact = false }: IC
 
 	// Display optimistic state if available, otherwise use real state
 	const displayRunning = optimisticRunning ?? timerStatus?.running;
+	const isBillableLocked = Boolean(displayRunning);
 
 	const { os } = useDetectOS();
 
@@ -194,22 +196,25 @@ export function Timer({ className, showTimerButton = true, compact = false }: IC
 			</div>
 			{showTimerButton && (
 				<div className="flex h-fit shrink-0 items-center justify-center">
-					<Tooltip
-						label={!canRunTimer ? t('timer.START_TIMER') : osSpecificTimerTooltipLabel}
-						placement="top-start"
-						// If timer is running at some other source and user may or may not have selected the task
-						// enabled={
-						// 	!canRunTimer && timerStatus?.lastLog?.source !== TimerSource.TEAMS
-						// }
-					>
-						<TimerButton
-							onClick={startStopTimerHandler}
-							running={displayRunning}
-							disabled={!hydrated || actionDisabled}
-							className={timerButtonClassName}
-							emphasized
-						/>
-					</Tooltip>
+					<div className="flex items-center gap-3">
+						<TimerBillableSwitch locked={isBillableLocked} />
+						<Tooltip
+							label={!canRunTimer ? t('timer.START_TIMER') : osSpecificTimerTooltipLabel}
+							placement="top-start"
+							// If timer is running at some other source and user may or may not have selected the task
+							// enabled={
+							// 	!canRunTimer && timerStatus?.lastLog?.source !== TimerSource.TEAMS
+							// }
+						>
+							<TimerButton
+								onClick={startStopTimerHandler}
+								running={displayRunning}
+								disabled={!hydrated || actionDisabled}
+								className={timerButtonClassName}
+								emphasized
+							/>
+						</Tooltip>
+					</div>
 
 					<TimerPlanDialogs modals={modals} />
 				</div>
