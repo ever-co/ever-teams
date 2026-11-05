@@ -4202,7 +4202,7 @@
 		"code": {
 			"CHANGE_EMAIL": "Andere E-Mail verwenden",
 			"CLEAR": "Leeren",
-			"DESCRIPTION": "Wir haben einen {length}-stelligen Code an <address>{email}</address> gesendet. Der Link in derselben E-Mail meldet dich ebenfalls an.",
+			"DESCRIPTION": "Wir haben einen {length}-stelligen Code an <address>{email}</address> gesendet.",
 			"LABEL": "Anmeldecode",
 			"NOT_RECEIVED": "Nichts im Posteingang?",
 			"RESEND": "Neuen Code senden",
@@ -4279,7 +4279,7 @@
 			"ACCOUNT_TITLE": "Dein Platz im Team",
 			"INBOX_ACTIVATE_TEXT": "Öffne den Link darin, um dein Konto zu aktivieren, und melde dich dann mit deiner E-Mail an.",
 			"INBOX_ACTIVATE_TITLE": "Die gesuchte E-Mail",
-			"INBOX_CODE_TEXT": "Gib den Code darin ein oder öffne den Link: Beides meldet dich an.",
+			"INBOX_CODE_TEXT": "Gib den Code darin ein, um dich anzumelden.",
 			"INBOX_CODE_TITLE": "Die gesuchte E-Mail",
 			"INBOX_RESET_TEXT": "Der Link darin öffnet die Seite, auf der du ein neues Passwort wählst.",
 			"INBOX_RESET_TITLE": "Die gesuchte E-Mail",

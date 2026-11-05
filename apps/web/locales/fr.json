@@ -4202,7 +4202,7 @@
 		"code": {
 			"CHANGE_EMAIL": "Utiliser un autre e-mail",
 			"CLEAR": "Effacer",
-			"DESCRIPTION": "Nous avons envoyé un code de {length} caractères à <address>{email}</address>. Le lien du même e-mail vous connecte aussi.",
+			"DESCRIPTION": "Nous avons envoyé un code de {length} caractères à <address>{email}</address>.",
 			"LABEL": "Code de connexion",
 			"NOT_RECEIVED": "Rien dans votre boîte de réception ?",
 			"RESEND": "Envoyer un nouveau code",
@@ -4279,7 +4279,7 @@
 			"ACCOUNT_TITLE": "Votre place dans l'équipe",
 			"INBOX_ACTIVATE_TEXT": "Ouvrez son lien pour activer votre compte, puis connectez-vous avec votre e-mail.",
 			"INBOX_ACTIVATE_TITLE": "L'e-mail à chercher",
-			"INBOX_CODE_TEXT": "Saisissez le code qu'il contient ou ouvrez son lien : les deux vous connectent.",
+			"INBOX_CODE_TEXT": "Saisissez le code qu'il contient pour vous connecter.",
 			"INBOX_CODE_TITLE": "L'e-mail à chercher",
 			"INBOX_RESET_TEXT": "Son lien ouvre la page où vous choisissez un nouveau mot de passe.",
 			"INBOX_RESET_TITLE": "L'e-mail à chercher",

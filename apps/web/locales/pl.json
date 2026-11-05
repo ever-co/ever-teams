@@ -4202,7 +4202,7 @@
 		"code": {
 			"CHANGE_EMAIL": "Użyj innego e-maila",
 			"CLEAR": "Wyczyść",
-			"DESCRIPTION": "Wysłaliśmy {length}-znakowy kod na <address>{email}</address>. Link w tej samej wiadomości też Cię zaloguje.",
+			"DESCRIPTION": "Wysłaliśmy {length}-znakowy kod na <address>{email}</address>.",
 			"LABEL": "Kod logowania",
 			"NOT_RECEIVED": "Nic nie przyszło?",
 			"RESEND": "Wyślij nowy kod",
@@ -4279,7 +4279,7 @@
 			"ACCOUNT_TITLE": "Twoje miejsce w zespole",
 			"INBOX_ACTIVATE_TEXT": "Otwórz link z wiadomości, aby aktywować konto, a potem zaloguj się e-mailem.",
 			"INBOX_ACTIVATE_TITLE": "Szukaj tej wiadomości",
-			"INBOX_CODE_TEXT": "Wpisz kod z wiadomości albo otwórz link: oba sposoby Cię zalogują.",
+			"INBOX_CODE_TEXT": "Wpisz kod z wiadomości, aby się zalogować.",
 			"INBOX_CODE_TITLE": "Szukaj tej wiadomości",
 			"INBOX_RESET_TEXT": "Link z wiadomości otwiera stronę, na której ustawisz nowe hasło.",
 			"INBOX_RESET_TITLE": "Szukaj tej wiadomości",
