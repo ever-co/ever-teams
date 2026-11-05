@@ -52,9 +52,13 @@ export function useOrganizationTrackingRequirements() {
 				toast.error(t('settings.teamGeneral.REQUIREMENT_NOT_SAVED'), { description: t(reasonKey) });
 				throw error;
 			}
-			const savedOrganization: TOrganization = { ...organization, ...changes };
+			// Onto the latest cached organization: a save that ran alongside this one has already landed there
+			const withThisChange = (cached: TOrganization | undefined): TOrganization => {
+				const latest = cached ?? organization;
+				return { ...latest, ...changes };
+			};
 			const queryKey = queryKeys.workspaces.currentOrganizationByScope(getTenantIdCookie(), organization.id);
-			queryClient.setQueryData(queryKey, savedOrganization);
+			queryClient.setQueryData<TOrganization>(queryKey, withThisChange);
 		},
 		[organization, queryClient, t]
 	);

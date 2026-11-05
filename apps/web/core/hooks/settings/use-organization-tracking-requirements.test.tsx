@@ -57,6 +57,18 @@ describe('saving an organization tracking requirement', () => {
 		expect(cachedOrganization(client)).toEqual({ ...organization, requireTeam: true });
 	});
 
+	it('keeps both switches when two saves run at the same time', async () => {
+		mockUpdateOrganization.mockResolvedValue({});
+		const { view, client } = renderRequirements();
+
+		await act(async () => {
+			const { saveRequirement } = view.result.current;
+			await Promise.all([saveRequirement('requireTeam', true), saveRequirement('requireProject', true)]);
+		});
+
+		expect(cachedOrganization(client)).toEqual({ ...organization, requireTeam: true, requireProject: true });
+	});
+
 	it('tells why a refused save failed, keeps the stored value and throws so the switch goes back', async () => {
 		mockUpdateOrganization.mockRejectedValue(new Error('Forbidden'));
 		const { view, client } = renderRequirements();
