@@ -4265,10 +4265,14 @@
 			"PASSWORD": "Contraseña"
 		},
 		"password": {
+			"RULE_DIGIT": "Un número (0-9)",
+			"RULE_LOWERCASE": "Una minúscula (a-z)",
 			"RULE_MATCH": "Las dos contraseñas coinciden",
 			"RULE_MET": "Requisito cumplido",
 			"RULE_MIN_LENGTH": "{count, plural, one {Al menos # carácter} other {Al menos # caracteres}}",
 			"RULE_NOT_MET": "Requisito no cumplido",
+			"RULE_SYMBOL": "Un símbolo, como ! @ # o -",
+			"RULE_UPPERCASE": "Una mayúscula (A-Z)",
 			"STRENGTH_FAIR": "Aceptable",
 			"STRENGTH_GOOD": "Buena",
 			"STRENGTH_STRONG": "Fuerte",

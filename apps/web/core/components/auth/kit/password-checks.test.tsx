@@ -25,4 +25,28 @@ describe('PasswordChecks', () => {
 		expect(ruleText('auth.password.RULE_MIN_LENGTH')).toContain('auth.password.RULE_MET');
 		expect(ruleText('auth.password.RULE_MATCH')).toContain('auth.password.RULE_NOT_MET');
 	});
+
+	it('lists every reset rule and ticks each one once it is met', () => {
+		const { rerender } = render(<PasswordChecks password="abc" confirmation="" policy="reset" />);
+
+		expect(ruleText('auth.password.RULE_UPPERCASE')).toContain('auth.password.RULE_NOT_MET');
+		expect(ruleText('auth.password.RULE_LOWERCASE')).toContain('auth.password.RULE_MET');
+		expect(ruleText('auth.password.RULE_DIGIT')).toContain('auth.password.RULE_NOT_MET');
+		expect(ruleText('auth.password.RULE_SYMBOL')).toContain('auth.password.RULE_NOT_MET');
+		expect(ruleText('auth.password.RULE_MIN_LENGTH')).toContain('auth.password.RULE_NOT_MET');
+
+		rerender(<PasswordChecks password="Abcdef1!" confirmation="" policy="reset" />);
+
+		expect(ruleText('auth.password.RULE_UPPERCASE')).toContain('auth.password.RULE_MET');
+		expect(ruleText('auth.password.RULE_DIGIT')).toContain('auth.password.RULE_MET');
+		expect(ruleText('auth.password.RULE_SYMBOL')).toContain('auth.password.RULE_MET');
+		expect(ruleText('auth.password.RULE_MIN_LENGTH')).toContain('auth.password.RULE_MET');
+	});
+
+	it('keeps an invitation to the length rule', () => {
+		render(<PasswordChecks password="abc" confirmation="" />);
+
+		expect(screen.queryByText('auth.password.RULE_SYMBOL')).toBeNull();
+		expect(screen.getByText('auth.password.RULE_MIN_LENGTH')).toBeTruthy();
+	});
 });

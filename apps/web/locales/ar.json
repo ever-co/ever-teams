@@ -4265,10 +4265,14 @@
 			"PASSWORD": "كلمة المرور"
 		},
 		"password": {
+			"RULE_DIGIT": "رقم (0-9)",
+			"RULE_LOWERCASE": "حرف لاتيني صغير (a-z)",
 			"RULE_MATCH": "كلمتا المرور متطابقتان",
 			"RULE_MET": "الشرط مستوفى",
 			"RULE_MIN_LENGTH": "{count, plural, zero {# حرف على الأقل} one {# حرف على الأقل} two {# حرفان على الأقل} few {# أحرف على الأقل} many {# حرفًا على الأقل} other {# حرف على الأقل}}",
 			"RULE_NOT_MET": "الشرط غير مستوفى",
+			"RULE_SYMBOL": "رمز، مثل ! @ # أو -",
+			"RULE_UPPERCASE": "حرف لاتيني كبير (A-Z)",
 			"STRENGTH_FAIR": "مقبولة",
 			"STRENGTH_GOOD": "جيدة",
 			"STRENGTH_STRONG": "قوية",

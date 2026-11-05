@@ -4265,10 +4265,14 @@
 			"PASSWORD": "Senha"
 		},
 		"password": {
+			"RULE_DIGIT": "Um número (0-9)",
+			"RULE_LOWERCASE": "Uma letra minúscula (a-z)",
 			"RULE_MATCH": "As duas senhas coincidem",
 			"RULE_MET": "Requisito cumprido",
 			"RULE_MIN_LENGTH": "{count, plural, one {Pelo menos # caractere} other {Pelo menos # caracteres}}",
 			"RULE_NOT_MET": "Requisito não cumprido",
+			"RULE_SYMBOL": "Um símbolo, como ! @ # ou -",
+			"RULE_UPPERCASE": "Uma letra maiúscula (A-Z)",
 			"STRENGTH_FAIR": "Razoável",
 			"STRENGTH_GOOD": "Boa",
 			"STRENGTH_STRONG": "Forte",

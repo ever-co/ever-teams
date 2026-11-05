@@ -13,9 +13,9 @@ import { PasswordField } from '@/core/components/auth/kit/auth-field';
 import { AuthNotice } from '@/core/components/auth/kit/auth-notice';
 import { AuthState } from '@/core/components/auth/kit/auth-state';
 import { AuthSteps } from '@/core/components/auth/kit/auth-step';
-import { minLengthRuleOf, PasswordChecks } from '@/core/components/auth/kit/password-checks';
+import { PasswordChecks, resetRuleLabelOf } from '@/core/components/auth/kit/password-checks';
 import { AUTH_QUIET_LINK } from '@/core/components/auth/kit/auth-recipes';
-import { meetsPasswordMinLength } from '@/core/lib/utils/password-strength';
+import { unmetResetPasswordRulesOf } from '@/core/lib/utils/password-strength';
 import { cn } from '@/core/lib/helpers';
 
 const SIGN_IN_PATH = '/auth/password';
@@ -58,8 +58,10 @@ export default function ResetPasswordForm({ isTokenExpired }: Readonly<{ isToken
 	const validate = useCallback(() => {
 		const found: ResetErrors = {};
 
-		if (!meetsPasswordMinLength(password)) {
-			found.password = minLengthRuleOf(t);
+		const unmetRules = unmetResetPasswordRulesOf(password);
+		const firstUnmetRule = unmetRules[0];
+		if (firstUnmetRule) {
+			found.password = resetRuleLabelOf(firstUnmetRule, t);
 		}
 
 		if (password !== confirmPassword) {
@@ -137,7 +139,7 @@ export default function ResetPasswordForm({ isTokenExpired }: Readonly<{ isToken
 					autoComplete="new-password"
 					required
 				/>
-				<PasswordChecks password={password} confirmation={confirmPassword} />
+				<PasswordChecks password={password} confirmation={confirmPassword} policy="reset" />
 				{errors.form && <AuthNotice tone="error" title={errors.form} />}
 				<Button type="submit" loading={loading} disabled={loading} className="w-full max-sm:h-11">
 					{t('auth.reset.SUBMIT')}

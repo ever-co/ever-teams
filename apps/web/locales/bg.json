@@ -4265,10 +4265,14 @@
 			"PASSWORD": "Парола"
 		},
 		"password": {
+			"RULE_DIGIT": "Цифра (0-9)",
+			"RULE_LOWERCASE": "Малка латинска буква (a-z)",
 			"RULE_MATCH": "Двете пароли съвпадат",
 			"RULE_MET": "Изискването е изпълнено",
 			"RULE_MIN_LENGTH": "{count, plural, one {Поне # символ} other {Поне # символа}}",
 			"RULE_NOT_MET": "Изискването не е изпълнено",
+			"RULE_SYMBOL": "Символ, например ! @ # или -",
+			"RULE_UPPERCASE": "Главна латинска буква (A-Z)",
 			"STRENGTH_FAIR": "Средна",
 			"STRENGTH_GOOD": "Добра",
 			"STRENGTH_STRONG": "Силна",

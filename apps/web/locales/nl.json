@@ -4265,10 +4265,14 @@
 			"PASSWORD": "Wachtwoord"
 		},
 		"password": {
+			"RULE_DIGIT": "Een cijfer (0-9)",
+			"RULE_LOWERCASE": "Een kleine letter (a-z)",
 			"RULE_MATCH": "Beide wachtwoorden komen overeen",
 			"RULE_MET": "Eis voldaan",
 			"RULE_MIN_LENGTH": "{count, plural, one {Minstens # teken} other {Minstens # tekens}}",
 			"RULE_NOT_MET": "Eis niet voldaan",
+			"RULE_SYMBOL": "Een symbool, zoals ! @ # of -",
+			"RULE_UPPERCASE": "Een hoofdletter (A-Z)",
 			"STRENGTH_FAIR": "Redelijk",
 			"STRENGTH_GOOD": "Goed",
 			"STRENGTH_STRONG": "Sterk",

@@ -4265,10 +4265,14 @@
 			"PASSWORD": "Password"
 		},
 		"password": {
+			"RULE_DIGIT": "A digit (0-9)",
+			"RULE_LOWERCASE": "A lowercase letter (a-z)",
 			"RULE_MATCH": "Both passwords match",
 			"RULE_MET": "Requirement met",
 			"RULE_MIN_LENGTH": "{count, plural, one {At least # character} other {At least # characters}}",
 			"RULE_NOT_MET": "Requirement not met",
+			"RULE_SYMBOL": "A symbol, like ! @ # or -",
+			"RULE_UPPERCASE": "An uppercase letter (A-Z)",
 			"STRENGTH_FAIR": "Fair",
 			"STRENGTH_GOOD": "Good",
 			"STRENGTH_STRONG": "Strong",
