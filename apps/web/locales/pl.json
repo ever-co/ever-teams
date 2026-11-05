@@ -4275,6 +4275,7 @@
 		"RATES_RETRY": "Wczytaj stawki ponownie",
 		"OWN_SECTION": "Stawka",
 		"OWN_SECTION_HINT": "Ustalają ją administratorzy Twojej organizacji. Tutaj możesz poprosić o zmianę.",
+		"OWN_SECTION_EDIT_HINT": "Twoja rola pozwala ci zmieniać własne stawki.",
 		"WEEKLY_LIMIT_VALUE": "{hours} godz. tygodniowo",
 		"REQUEST_CHANGE": "Poproś o zmianę stawki",
 		"REQUEST_CHANGE_HINT": "Administratorzy Twojej organizacji dostaną powiadomienie i wprowadzą zmianę.",

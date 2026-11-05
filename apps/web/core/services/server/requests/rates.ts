@@ -1,6 +1,7 @@
 import qs from 'qs';
 import { serverFetch } from '../fetch';
 import type {
+	IOwnProfileRatesInput,
 	IRateChangeRequestInput,
 	TEmployeePayRate,
 	TProjectRates,
@@ -73,6 +74,21 @@ export function getEmployeePayRateRequest({
 	return serverFetch<TEmployeePayRate>({
 		path: `/employee/${encodeURIComponent(employeeId)}/pay-rate?${query}`,
 		method: 'GET',
+		bearer_token,
+		tenantId
+	});
+}
+
+export function updateOwnProfileRatesRequest({
+	employeeId,
+	rates,
+	bearer_token,
+	tenantId
+}: Omit<IGauzyCall, 'organizationId'> & { employeeId: string; rates: IOwnProfileRatesInput }) {
+	return serverFetch<unknown>({
+		path: `/employee/${encodeURIComponent(employeeId)}/profile`,
+		method: 'PUT',
+		body: rates,
 		bearer_token,
 		tenantId
 	});

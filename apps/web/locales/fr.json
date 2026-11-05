@@ -4275,6 +4275,7 @@
 		"RATES_RETRY": "Recharger les taux",
 		"OWN_SECTION": "Taux",
 		"OWN_SECTION_HINT": "Défini par les admins de votre organisation. Demandez-leur ici s'il doit changer.",
+		"OWN_SECTION_EDIT_HINT": "Votre rôle vous permet de modifier vos propres taux.",
 		"WEEKLY_LIMIT_VALUE": "{hours} h par semaine",
 		"REQUEST_CHANGE": "Demander un changement de taux",
 		"REQUEST_CHANGE_HINT": "Les admins de votre organisation sont prévenus et l'appliquent.",

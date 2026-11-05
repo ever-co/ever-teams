@@ -4275,6 +4275,7 @@
 		"RATES_RETRY": "Ricarica le tariffe",
 		"OWN_SECTION": "Tariffa",
 		"OWN_SECTION_HINT": "La stabiliscono gli admin della tua organizzazione. Chiedi qui se deve cambiare.",
+		"OWN_SECTION_EDIT_HINT": "Il tuo ruolo ti permette di modificare le tue tariffe.",
 		"WEEKLY_LIMIT_VALUE": "{hours} h a settimana",
 		"REQUEST_CHANGE": "Chiedi un cambio di tariffa",
 		"REQUEST_CHANGE_HINT": "Gli admin della tua organizzazione ricevono un avviso e lo applicano.",

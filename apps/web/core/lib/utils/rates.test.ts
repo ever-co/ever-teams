@@ -7,6 +7,7 @@ import {
 	currencyLabelOf,
 	canEditMemberRates,
 	holdsEmployeeRatesPermission,
+	holdsOwnRatesPermission,
 	holdsRateAdminPermission,
 	rateAmountTextOf,
 	effectiveBillRate,
@@ -219,12 +220,31 @@ describe('holdsEmployeeRatesPermission', () => {
 });
 
 describe('canEditMemberRates', () => {
-	it('opens the members rate editor to ORG_EMPLOYEES_EDIT holders on a member with an employee', () => {
-		expect(canEditMemberRates(['ORG_EMPLOYEES_EDIT'], true)).toBe(true);
-		expect(canEditMemberRates(['ORG_EMPLOYEES_EDIT'], false)).toBe(false);
+	const ADMIN = ['ORG_EMPLOYEES_EDIT', 'CHANGE_OWN_RATES'];
+
+	it("opens the members rate editor on someone else's row to ORG_EMPLOYEES_EDIT holders", () => {
+		expect(canEditMemberRates({ permissions: ['ORG_EMPLOYEES_EDIT'], hasEmployee: true, isYou: false })).toBe(true);
+		expect(canEditMemberRates({ permissions: ['ORG_EMPLOYEES_EDIT'], hasEmployee: false, isYou: false })).toBe(
+			false
+		);
 	});
 
 	it('keeps it closed with CHANGE_SELECTED_EMPLOYEE alone, which Gauzy refuses for an employee update', () => {
-		expect(canEditMemberRates(['CHANGE_SELECTED_EMPLOYEE'], true)).toBe(false);
+		expect(canEditMemberRates({ permissions: ['CHANGE_SELECTED_EMPLOYEE'], hasEmployee: true, isYou: false })).toBe(
+			false
+		);
+	});
+
+	it('opens it on your own row only with CHANGE_OWN_RATES as well', () => {
+		expect(canEditMemberRates({ permissions: ADMIN, hasEmployee: true, isYou: true })).toBe(true);
+		expect(canEditMemberRates({ permissions: ['ORG_EMPLOYEES_EDIT'], hasEmployee: true, isYou: true })).toBe(false);
+		expect(canEditMemberRates({ permissions: ['CHANGE_OWN_RATES'], hasEmployee: true, isYou: true })).toBe(false);
+	});
+});
+
+describe('holdsOwnRatesPermission', () => {
+	it("is CHANGE_OWN_RATES, which Gauzy asks for to change one's own rates", () => {
+		expect(holdsOwnRatesPermission(['CHANGE_OWN_RATES'])).toBe(true);
+		expect(holdsOwnRatesPermission(['ORG_EMPLOYEES_EDIT'])).toBe(false);
 	});
 });

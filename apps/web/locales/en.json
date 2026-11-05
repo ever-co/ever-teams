@@ -4275,6 +4275,7 @@
 		"RATES_RETRY": "Load the rates again",
 		"OWN_SECTION": "Rate",
 		"OWN_SECTION_HINT": "Set by your organization's admins. Ask them here if it should change.",
+		"OWN_SECTION_EDIT_HINT": "Your role lets you change your own rates.",
 		"WEEKLY_LIMIT_VALUE": "{hours} h a week",
 		"REQUEST_CHANGE": "Request a rate change",
 		"REQUEST_CHANGE_HINT": "Your organization's admins are notified and apply it.",

@@ -19,4 +19,13 @@ export const rateChangeRequestBodySchema = z
 	})
 	.strip();
 
+/** One's own rates saved through one's profile: billing rate, currency and weekly limit, never a pay rate. */
+export const ownProfileRatesBodySchema = z
+	.object({
+		billRateValue: rateValueSchema.nullable().optional(),
+		billRateCurrency: z.string().trim().min(3).max(3).nullable().optional(),
+		reWeeklyLimit: rateValueSchema.nullable().optional()
+	})
+	.strip();
+
 export const rateRouteIdSchema = z.guid();

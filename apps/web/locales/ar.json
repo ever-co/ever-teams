@@ -4275,6 +4275,7 @@
 		"RATES_RETRY": "إعادة تحميل الأجور",
 		"OWN_SECTION": "الأجر",
 		"OWN_SECTION_HINT": "يحدده مسؤولو مؤسستك. اطلب منهم تغييره من هنا عند الحاجة.",
+		"OWN_SECTION_EDIT_HINT": "يتيح لك دورك تغيير أجورك بنفسك.",
 		"WEEKLY_LIMIT_VALUE": "{hours} ساعة أسبوعيًا",
 		"REQUEST_CHANGE": "طلب تغيير الأجر",
 		"REQUEST_CHANGE_HINT": "يُبلَّغ مسؤولو مؤسستك ويطبّقون التغيير.",

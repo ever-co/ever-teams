@@ -4275,6 +4275,7 @@
 		"RATES_RETRY": "Carregar as taxas de novo",
 		"OWN_SECTION": "Taxa",
 		"OWN_SECTION_HINT": "Definida pelos admins da sua organização. Peça aqui se ela deve mudar.",
+		"OWN_SECTION_EDIT_HINT": "Sua função permite alterar suas próprias taxas.",
 		"WEEKLY_LIMIT_VALUE": "{hours} h por semana",
 		"REQUEST_CHANGE": "Pedir mudança de taxa",
 		"REQUEST_CHANGE_HINT": "Os admins da sua organização são avisados e aplicam a mudança.",

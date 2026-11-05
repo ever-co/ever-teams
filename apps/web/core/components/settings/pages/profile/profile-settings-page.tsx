@@ -93,7 +93,13 @@ export function ProfileSettingsPage() {
 							/>
 						</SettingsSurface>
 					</SettingsSection>
-					{user.employee && <ProfileRatesSection employee={user.employee} />}
+					{user.employee && (
+						<ProfileRatesSection
+							employee={user.employee}
+							name={user.name ?? ''}
+							imageUrl={user.imageUrl ?? null}
+						/>
+					)}
 					<AccountDangerSection />
 				</>
 			)}

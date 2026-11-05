@@ -4275,6 +4275,7 @@
 		"RATES_RETRY": "Sätze neu laden",
 		"OWN_SECTION": "Satz",
 		"OWN_SECTION_HINT": "Wird von den Admins Ihrer Organisation festgelegt. Bitten Sie hier um eine Änderung.",
+		"OWN_SECTION_EDIT_HINT": "Ihre Rolle erlaubt Ihnen, Ihre eigenen Sätze zu ändern.",
 		"WEEKLY_LIMIT_VALUE": "{hours} Std. pro Woche",
 		"REQUEST_CHANGE": "Satzänderung anfragen",
 		"REQUEST_CHANGE_HINT": "Die Admins Ihrer Organisation werden benachrichtigt und übernehmen sie.",

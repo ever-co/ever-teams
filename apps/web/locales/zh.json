@@ -4275,6 +4275,7 @@
 		"RATES_RETRY": "重新加载费率",
 		"OWN_SECTION": "费率",
 		"OWN_SECTION_HINT": "由所在组织的管理员设置。如需调整，可在此申请。",
+		"OWN_SECTION_EDIT_HINT": "你的角色可以修改你自己的费率。",
 		"WEEKLY_LIMIT_VALUE": "每周 {hours} 小时",
 		"REQUEST_CHANGE": "申请调整费率",
 		"REQUEST_CHANGE_HINT": "组织管理员会收到通知并进行调整。",
