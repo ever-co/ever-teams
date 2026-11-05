@@ -35,7 +35,10 @@ export function rateValueOf(value: unknown): number | null {
 	return number;
 }
 
-/** The rate a member's time is counted at: their rate on the project, else the project's, else their own. */
+/**
+ * The rate a member's time is billed to the client at: their client rate on the project, else the project's, else
+ * their own.
+ */
 export function effectiveBillRate({
 	memberRate,
 	projectRate,
@@ -94,7 +97,10 @@ function isCurrentManagerRow(member: ProjectMemberLike, employeeId: string): boo
 	return isEmployee && isManager && isCurrent;
 }
 
-/** Whether the caller may read and change a project's rates: an organization admin, or a manager of that project. */
+/**
+ * Whether the caller may read and change a project's client rates: an organization admin, or a manager of that
+ * project.
+ */
 export function canManageProjectRates({
 	permissions,
 	members,
@@ -115,8 +121,8 @@ export function canManageProjectRates({
 }
 
 /**
- * Whether the caller may change one member's rate on a project they may manage. Gauzy refuses a project manager who
- * is not an organization admin their own rate there: they would set their own pay.
+ * Whether the caller may change one member's client rate on a project they may manage. Gauzy refuses a project
+ * manager who is not an organization admin their own client rate there.
  */
 export function canEditMemberRateOnProject({
 	isAdmin,

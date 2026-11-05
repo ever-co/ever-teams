@@ -13,8 +13,9 @@ import type { TOrganizationProject } from '@/core/types/schemas';
 import { useProjectRateMutations, useProjectRates } from './use-rates';
 
 /**
- * The rates of one project for its People tab. Only an organization admin or a manager of the project reads them
- * (Gauzy refuses anyone else); before the Gauzy rates are deployed the read answers 404 and the tab shows no rates.
+ * The client rates of one project for its People tab: what the client is billed, not what members are paid. Only an
+ * organization admin or a manager of the project reads them (Gauzy refuses anyone else); before the Gauzy rates are
+ * deployed the read answers 404 and the tab shows no rates.
  */
 export function useProjectPeopleRates(project: TOrganizationProject) {
 	const { data: user } = useUserQuery();
