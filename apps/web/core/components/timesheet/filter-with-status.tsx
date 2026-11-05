@@ -51,40 +51,36 @@ export function FilterWithStatus({
 	}, [data]);
 
 	return (
-		<div
-			className={clsxm(
-				'relative flex h-[36px] items-center bg-[#e2e8f0aa] dark:bg-muted rounded-[8px] border-[1px] overflow-hidden',
-				'w-fit max-w-full',
-				className
-			)}
-		>
-			<div className="flex w-full gap-x-0.5 overflow-x-auto scrollbar-thin scrollbar-thumb-gray-300 dark:scrollbar-thumb-gray-600 scrollbar-track-transparent">
-				{buttonData.map(({ label, count, icon }, index) => (
-					<Button
-						key={index}
-						className={clsxm(
-							'group flex gap-1 items-center justify-start h-[36px] rounded-[8px] shrink-0',
-							'min-w-20 sm:min-w-fit',
-							'px-2 sm:px-3',
-							'dark:bg-muted dark:border-primary-light bg-transparent text-[#71717A]',
-							'transition-colors duration-200 ease-in-out',
-							'hover:bg-gray-50 dark:hover:bg-muted',
-							activeStatus === label &&
-								'text-primary bg-white shadow-2xl dark:text-primary-light font-bold border'
-						)}
-						onClick={() => onToggle(label)}
-					>
-						<span
+		<div className={clsxm('relative flex items-center w-fit max-w-full', className)}>
+			<div className="flex w-full gap-x-1 overflow-x-auto no-scrollbar">
+				{buttonData.map(({ label, count }, index) => {
+					const isActive = activeStatus === label;
+					return (
+						<Button
+							key={index}
+							variant="ghost"
+							size="sm"
 							className={clsxm(
-								'font-medium text-xs sm:text-sm text-gray-500 dark:text-gray-200 whitespace-nowrap',
-								activeStatus === label && 'text-primary font-bold dark:text-primary-light'
+								'group shrink-0 justify-start gap-1.5 rounded-full px-3',
+								'text-muted-foreground hover:text-foreground',
+								isActive &&
+									'bg-foreground text-background shadow-sm hairline-ring ring-foreground/5 hover:bg-foreground hover:text-background'
 							)}
+							onClick={() => onToggle(label)}
 						>
-							{label}
-						</span>
-						<span className="text-xs font-medium text-gray-500 sm:text-sm dark:text-gray-400">{count}</span>
-					</Button>
-				))}
+							<span className="whitespace-nowrap">{label}</span>
+							<span
+								className={clsxm(
+									'tabular-nums',
+									isActive && 'text-background/70',
+									!isActive && 'text-muted-foreground'
+								)}
+							>
+								{count}
+							</span>
+						</Button>
+					);
+				})}
 			</div>
 		</div>
 	);

@@ -14,28 +14,16 @@ import {
 	useRef,
 	useState
 } from 'react';
-import dynamic from 'next/dynamic';
 import { IconsEmojiEmotions } from '@/core/components/icons';
 import { useOutsideClick } from '@/core/hooks/common/use-outside-click';
 import { Text } from '../common/typography';
 import { SpinnerLoader } from '../common/loader';
+import { LazyEmojiPicker, loadEmojiPicker } from '../common/lazy-emoji-picker';
+import { controlGroupRecipe, controlRecipe } from '../common/input';
 
 // InputField also renders on the auth pages, so the picker and its emoji dataset (over 400 KB) are fetched on first
 // use instead of with the page. The dataset is resolved before the picker mounts: emoji-mart's own async `data`
 // option initializes the shared dataset twice when two pickers mount before it settles.
-const loadEmojiPicker = () => Promise.all([import('@emoji-mart/react'), import('@emoji-mart/data')]);
-
-const LazyEmojiPicker = dynamic(
-	() =>
-		loadEmojiPicker().then(
-			([{ default: Picker }, { default: data }]) =>
-				function EmojiMartPicker(props: Record<string, unknown>) {
-					return <Picker data={data} {...props} />;
-				}
-		),
-	{ ssr: false, loading: () => <SpinnerLoader size={20} /> }
-);
-
 type Props = {
 	readonly errors?: Record<string, string>;
 	readonly setErrors?: Dispatch<SetStateAction<Record<string, string>>>;
@@ -137,11 +125,9 @@ export const InputField = forwardRef<HTMLInputElement, Props>(
 				name={name}
 				ref={mergeRefs([ref, inputRef])}
 				className={clsxm(
-					'bg-light--theme-light dark:bg-dark--theme-light dark:text-white',
-					noWrapper && ['input-border'],
-					'py-2 px-3 rounded-lg',
-					'text-sm outline-hidden ',
-					'h-10 w-full',
+					noWrapper && controlRecipe,
+					!noWrapper && 'bg-transparent text-foreground outline-none placeholder:text-muted-foreground/75',
+					'h-9 w-full px-3 py-1.5 rounded-md text-base md:text-sm',
 					className
 				)}
 				onKeyUp={onKeyUp}
@@ -164,16 +150,12 @@ export const InputField = forwardRef<HTMLInputElement, Props>(
 		return noWrapper ? (
 			inputElement
 		) : (
-			<div
-				className={clsxm(
-					'relative mb-3 w-full bg-light--theme-light dark:bg-dark--theme-light',
-					wrapperClassName
-				)}
-			>
+			<div className={clsxm('relative mb-3 w-full', wrapperClassName)}>
 				<div
 					className={clsxm(
-						notValidBorder ? 'border border-red-500' : 'input-border',
-						'flex justify-between items-center h-auto rounded-lg bg-light--theme-light dark:bg-transparent'
+						controlGroupRecipe,
+						'justify-between h-auto',
+						notValidBorder && 'border-destructive ring-destructive/20 dark:ring-destructive/40'
 					)}
 				>
 					{leadingNode && <div className="flex items-center">{leadingNode}</div>}
@@ -242,7 +224,7 @@ export const TimeInputField = forwardRef<HTMLInputElement, ITimeProps>(
 						{...res}
 						className={clsxm('p-0 w-full text-center bg-transparent outline-none', className)}
 					/>
-					<span className="absolute left-0 w-full text-center -z-10 dark:text-[#7E7991] mt-1">{dash}</span>
+					<span className="absolute left-0 w-full text-center -z-10 text-muted-foreground mt-1">{dash}</span>
 				</div>
 
 				{loading && <SpinnerLoader size={15} />}
@@ -275,9 +257,8 @@ export const RadioButtonField = forwardRef<HTMLInputElement, Props>(
 				name={name}
 				ref={ref}
 				className={clsxm(
-					'w-4 h-4',
-					'text-[#3826A6] bg-gray-100 border-gray-300 focus:ring-[#3826A6]',
-					'dark:focus:ring-[#3826A6] dark:ring-offset-gray-800 focus:ring-2 dark:bg-muted dark:border-gray-600',
+					'size-4 accent-primary',
+					'outline-none focus-visible:ring-[3px] focus-visible:ring-ring/25',
 					className
 				)}
 				onKeyUp={() => setError(undefined)}

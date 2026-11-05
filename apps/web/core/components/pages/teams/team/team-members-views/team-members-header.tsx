@@ -1,94 +1,61 @@
 import { Tooltip } from '@/core/components/duplicated-components/tooltip';
+import { cn } from '@/core/lib/helpers';
 import { useTranslations } from 'next-intl';
+import { InvitationRowSkeleton, MemberRowSkeleton } from '@/core/components/teams/member-row-skeleton';
+import {
+	MEMBER_CARD_PADDING,
+	MEMBER_CELL_CENTER,
+	MEMBER_GRID_FROM,
+	MEMBER_ROW_GRID
+} from '@/core/components/teams/member-row-grid';
 
 export function UserTeamCardSkeleton() {
-	return (
-		<div
-			role="status"
-			className="p-4 rounded-xl border divide-y divide-gray-200 shadow-sm animate-pulse dark:divide-gray-700 md:p-6 dark:border-gray-700"
-		>
-			<div className="flex justify-between items-center">
-				<div className="flex items-center space-x-3">
-					<div className="w-5 h-5 mr-8 rounded-[50%] bg-gray-200 dark:bg-muted"></div>
-					<div className="w-14 h-14 rounded-[50%] bg-gray-200 dark:bg-muted"></div>
-					<div>
-						<div className="mb-2 w-32 h-3 bg-gray-200 rounded-full dark:bg-muted"></div>
-					</div>
-				</div>
-				<div className="h-2.5 bg-gray-300 rounded-full dark:bg-gray-600 w-24"></div>
-				<div className="h-2.5 bg-gray-300 rounded-full dark:bg-gray-600 w-24"></div>
-				<div className="h-2.5 bg-gray-300 rounded-full dark:bg-gray-600 w-24"></div>
-				<div className="h-2.5 bg-gray-300 rounded-full dark:bg-muted w-24"></div>
-			</div>
-		</div>
-	);
+	return <MemberRowSkeleton />;
 }
 
 export function InviteUserTeamSkeleton() {
-	return (
-		<div
-			role="status"
-			className="p-4 mt-3 rounded-xl border divide-y divide-gray-200 shadow-sm animate-pulse dark:divide-gray-700 md:p-6 dark:border-gray-700"
-		>
-			<div className="flex justify-between items-center">
-				<div className="flex items-center space-x-3">
-					<div className="w-5 h-5 mr-8 rounded-[50%] bg-gray-200 dark:bg-muted"></div>
-					<div className="w-24 h-9 bg-gray-200 rounded-xl dark:bg-muted"></div>
-				</div>
-			</div>
-		</div>
-	);
+	return <InvitationRowSkeleton />;
 }
 
+/** The column labels of the cards view, on the member grid: each label starts where its cells start. */
 export function UserTeamCardHeader() {
+	return <MemberColumnsHeader />;
+}
+
+/**
+ * The labels shared by the cards and the table views, on the member grid. Both views show the same columns, the row
+ * menu in the narrow last one, so switching views moves nothing.
+ */
+export function MemberColumnsHeader() {
 	const t = useTranslations();
 	return (
-		<div className="z-50 m-0 -mt-1 h-10 w-full px-8 text-xs font-medium uppercase tracking-wider text-muted-foreground">
-			<div className="px-4 ml-4 w-full h-full md:px-8">
-				<div className="flex relative items-center m-0 w-full h-full">
-					<div className="flex justify-center items-center ml-6 w-72">
-						<span className="text-nowrap">
-							{t('common.TEAM')} {t('common.MEMBER')}
-						</span>
-					</div>
+		<div className={cn(MEMBER_GRID_FROM, 'w-full px-4')}>
+			<div className={cn(MEMBER_ROW_GRID, MEMBER_CARD_PADDING, 'h-9 text-xs font-medium text-muted-foreground')}>
+				<span className={cn(HEADER_FIRST_LABEL, 'text-nowrap')}>
+					{t('common.TEAM')} {t('common.MEMBER')}
+				</span>
 
-					<div className="w-1 self-stretch border-l-[0.125rem] border-l-transparent" />
+				<span className={cn(HEADER_LABEL, 'text-nowrap')}>{t('common.TASK')}</span>
 
-					<div className="flex-1 flex justify-center md:min-w-[25%] xl:min-w-[30%] !max-w-[250px] px-2 lg:px-4">
-						<span className="text-center text-nowrap">{t('common.TASK')}</span>
-					</div>
+				<span className={cn(HEADER_LABEL, MEMBER_CELL_CENTER, 'text-nowrap capitalize')}>
+					<Tooltip label={t('task.taskTableHead.TOTAL_WORKED_TODAY_HEADER_TOOLTIP')}>
+						{t('dailyPlan.TASK_TIME')}
+					</Tooltip>
+				</span>
 
-					<div className="w-1 self-stretch border-l-[0.125rem] border-l-transparent" />
+				<span className={cn(HEADER_LABEL, MEMBER_CELL_CENTER, 'text-nowrap')}>{t('common.ESTIMATE')}</span>
 
-					<div className="2xl:w-48 3xl:w-[12rem] w-1/5 lg:px-4 px-2 flex justify-center items-center pl-6">
-						<Tooltip
-							label={t('task.taskTableHead.WORKED_ON_TASK_HEADER_TOOLTIP')}
-							className="capitalize text-nowrap"
-						>
-							{t('dailyPlan.TASK_TIME')}
-						</Tooltip>
-					</div>
+				<span className={cn(HEADER_LABEL, MEMBER_CELL_CENTER, 'text-nowrap')}>
+					<Tooltip label={t('task.taskTableHead.WORKED_ON_TASK_HEADER_TOOLTIP')}>
+						{t('dailyPlan.TOTAL_TODAY')}
+					</Tooltip>
+				</span>
 
-					<div className="w-1 self-stretch border-l-[0.125rem] border-l-transparent" />
-
-					<div className="flex justify-center items-center pl-6 2xl:w-52 3xl:w-64">
-						<span className="text-nowrap">{t('common.ESTIMATE')}</span>
-					</div>
-
-					<div className="w-1 self-stretch border-l-[0.125rem] border-l-transparent" />
-
-					<div className="w-1/5 2xl:w-52 max-w-[13rem] flex justify-end">
-						<Tooltip
-							label={t('task.taskTableHead.TOTAL_WORKED_TODAY_HEADER_TOOLTIP')}
-							className="text-nowrap"
-						>
-							{t('dailyPlan.TOTAL_TODAY')}
-						</Tooltip>
-					</div>
-
-					<div className="w-10"></div>
-				</div>
+				<span aria-hidden="true" />
 			</div>
 		</div>
 	);
 }
+
+const HEADER_FIRST_LABEL = 'flex items-center pr-4';
+const HEADER_LABEL = 'flex items-center px-4';

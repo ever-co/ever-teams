@@ -1,7 +1,9 @@
 'use client';
 
 import { mergeRefs, secondsToTime } from '@/core/lib/helpers/index';
-import { I_TMCardTaskEditHook, useAuthenticateUser } from '@/core/hooks';
+import { I_TMCardTaskEditHook } from '@/core/hooks';
+import { useUserQuery } from '@/core/hooks/queries/user-user.query';
+import { useTeamManagerRole } from '@/core/hooks/organizations/teams/use-team-member';
 import { IClassName } from '@/core/types/interfaces/common/class-name';
 import { clsxm } from '@/core/lib/utils';
 import { SpinnerLoader, Text } from '@/core/components';
@@ -48,7 +50,6 @@ export function TaskEstimateInfo({
 	const t = useTranslations();
 	const loadingRef = useRef<boolean>(false);
 	const task = edition.task || memberInfo.memberTask;
-	const hasEditMode = edition.estimateEditMode && task;
 	const closeFn = () => {
 		setTimeout(() => {
 			!loadingRef.current && edition.setEstimateEditMode(false);
@@ -57,12 +58,10 @@ export function TaskEstimateInfo({
 
 	return (
 		<div className={className}>
-			<div className="flex items-center flex-col gap-y-[2rem] w-full px-2 justify-center">
+			<div className="flex w-full flex-col justify-center gap-y-1">
 				{showTime && (
-					<div className="flex space-x-2 items-center w-full font-normal lg:text-sm text-xs min-w-[120px]">
-						<span className={clsxm('text-gray-500', hasEditMode && ['hidden'])}>
-							{t('common.ESTIMATED')}:
-						</span>
+					<div className="flex min-h-7 w-full min-w-0 items-center gap-2">
+						<span className="shrink-0 text-xs text-muted-foreground">{t('common.ESTIMATED')}</span>
 						<TaskEstimate
 							_task={task}
 							loadingRef={loadingRef}
@@ -92,7 +91,9 @@ export function TaskEstimateInput({ memberInfo, edition, plan }: Omit<Props, 'cl
 	const t = useTranslations();
 	const loadingRef = useRef<boolean>(false);
 	const task = edition.task || memberInfo.memberTask;
-	const { isTeamManager } = useAuthenticateUser();
+	// The signed-in user's role alone: the session hook would re-render this per-row cell on every team refresh
+	const { data: authUser } = useUserQuery();
+	const { isTeamManager } = useTeamManagerRole(authUser?.id);
 	const hasEditMode = edition.estimateEditMode && task;
 
 	const closeFn = () => {
@@ -130,11 +131,11 @@ export function TaskEstimateInput({ memberInfo, edition, plan }: Omit<Props, 'cl
 
 			<div
 				className={clsxm(
-					'flex space-x-2 items-center font-normal lg:text-sm text-xs',
+					'flex items-center gap-x-2 text-xs font-normal tabular-nums lg:text-sm',
 					hasEditMode && ['hidden']
 				)}
 			>
-				<span className="text-gray-500">{t('common.ESTIMATED')}:</span>
+				<span className="text-muted-foreground">{t('common.ESTIMATED')}:</span>
 				<Text>
 					{h}h {m}m
 				</Text>
@@ -158,7 +159,7 @@ export function TaskEstimateInput({ memberInfo, edition, plan }: Omit<Props, 'cl
 										className={clsxm(
 											'cursor-pointer lg:h-4 lg:w-4 w-2 h-2',
 											!task && ['opacity-40 cursor-default'],
-											'dark:stroke-[#B1AEBC]'
+											'text-muted-foreground'
 										)}
 									/>
 								)}

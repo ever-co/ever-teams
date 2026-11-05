@@ -15,7 +15,9 @@ import {
 } from '@/core/components/common/select';
 import { useCreateTimesheet } from '@/core/hooks/timesheet/use-create-timesheet';
 import { toUTC } from '@/core/lib/helpers/index';
-import { PlusIcon, ReloadIcon } from '@radix-ui/react-icons';
+import { Plus, Spinner } from '@/core/components/icons';
+import { Button } from '@/core/components/duplicated-components/_button';
+import { controlGroupRecipe, controlRecipe } from '@/core/components/common/input';
 import { CustomSelect } from '../../common/multiple-select';
 import { TaskNameInfoDisplay } from '../../tasks/task-displays';
 import { ToggleButton } from '../tasks/edit-task-modal';
@@ -24,6 +26,7 @@ import { ETimeLogType, ETimeLogSource } from '@/core/types/generics/enums/timer'
 import { useAtomValue } from 'jotai';
 import { activeTeamState, tasksByTeamState } from '@/core/stores';
 import { useOrganizationProjectsQuery } from '@/core/hooks/organizations/projects/use-organization-projects-query';
+import type { TOrganizationProject } from '@/core/types/schemas/organization/organization-project.schema';
 
 export interface IAddTaskModalProps {
 	isOpen: boolean;
@@ -38,7 +41,7 @@ interface Shift {
 }
 
 interface FormState {
-	isBillable: boolean;
+	billableChoice: boolean | null;
 	notes: string;
 	projectId: string;
 	taskId: string;
@@ -91,10 +94,52 @@ const clearSkippedTimes = (shift: Shift, day: Date) => {
 	if (clearStart || clearEnd) shift.totalHours = '00:00h';
 };
 
+function findProject(projectId: string | null | undefined, projects: TOrganizationProject[]) {
+	if (!projectId) {
+		return undefined;
+	}
+	return projects.find((project) => project.id === projectId);
+}
+
+/** The project of an entry on this task: the task's own project as it is now, or else the one picked by hand. */
+function entryProjectIdOf(task: { projectId?: string | null } | undefined, pickedProjectId: string): string {
+	const taskProjectId = task?.projectId;
+	if (taskProjectId) {
+		return taskProjectId;
+	}
+	return pickedProjectId;
+}
+
+/** The billable value picked by hand, or else the entry's project's own setting. */
+function billableOf(billableChoice: boolean | null, project: TOrganizationProject | null): boolean {
+	if (billableChoice !== null) {
+		return billableChoice;
+	}
+	return project?.billable === true;
+}
+
+/**
+ * A task's time goes to the task's own project: when the task has one, it is the only project offered. A task
+ * project missing from the list (archived, or not loaded yet) offers none, since another pick would not be saved.
+ */
+function projectChoicesFor(
+	taskProjectId: string | null | undefined,
+	taskProject: TOrganizationProject | undefined,
+	projects: TOrganizationProject[]
+) {
+	if (!taskProjectId) {
+		return projects;
+	}
+	if (taskProject) {
+		return [taskProject];
+	}
+	return [];
+}
+
 export function AddTaskModal({ closeModal, isOpen }: IAddTaskModalProps) {
 	const tasks = useAtomValue(tasksByTeamState);
 	const { generateTimeOptions } = useTimelogFilterOptions();
-	const { organizationProjects } = useOrganizationProjectsQuery();
+	const { organizationProjects, getOrganizationProjectsLoading } = useOrganizationProjectsQuery();
 
 	const activeTeam = useAtomValue(activeTeamState);
 	const { createTimesheet, loadingCreateTimesheet } = useCreateTimesheet();
@@ -104,7 +149,7 @@ export function AddTaskModal({ closeModal, isOpen }: IAddTaskModalProps) {
 
 	const [formState, setFormState] = React.useState({
 		notes: '',
-		isBillable: true,
+		billableChoice: null as boolean | null,
 		taskId: '',
 		employeeId: '',
 		projectId: '',
@@ -120,6 +165,9 @@ export function AddTaskModal({ closeModal, isOpen }: IAddTaskModalProps) {
 		setFormState((prevState) => ({ ...prevState, taskId: '', employeeId: '' }));
 	}
 
+	// The required task and employee: Save stays disabled until both are picked
+	const hasTaskAndEmployee = Boolean(formState.taskId) && Boolean(formState.employeeId);
+
 	const updateFormState = useCallback((field: keyof typeof formState, value: any) => {
 		setFormState((prevState) => ({
 			...prevState,
@@ -127,11 +175,46 @@ export function AddTaskModal({ closeModal, isOpen }: IAddTaskModalProps) {
 		}));
 	}, []);
 
+	const projects = useMemo(() => organizationProjects || [], [organizationProjects]);
+	const selectedTask = tasks.find((task) => task.id === formState.taskId);
+	const taskProject = findProject(selectedTask?.projectId, projects);
+	const entryProjectId = entryProjectIdOf(selectedTask, formState.projectId);
+	const selectedProject = findProject(entryProjectId, projects) ?? null;
+	const isBillable = billableOf(formState.billableChoice, selectedProject);
+	// Its billable default is unknown until the entry's project has loaded
+	const hasUnloadedProject = Boolean(entryProjectId) && !selectedProject;
+	const waitsForProject = hasUnloadedProject && getOrganizationProjectsLoading;
+	const isSaveDisabled = loadingCreateTimesheet || waitsForProject;
+
+	const pickTask = useCallback(
+		(taskId: string) => {
+			const pickedTask = tasks.find((task) => task.id === taskId);
+			const pickedTaskProjectId = pickedTask?.projectId;
+			if (!pickedTaskProjectId) {
+				// Keep the project shown so far, which follows the previous task if it moved meanwhile
+				setFormState((prevState) => {
+					const previousTask = tasks.find((task) => task.id === prevState.taskId);
+					const shownProjectId = entryProjectIdOf(previousTask, prevState.projectId);
+					return { ...prevState, taskId, projectId: shownProjectId, billableChoice: null };
+				});
+				return;
+			}
+			setFormState((prevState) => ({
+				...prevState,
+				taskId,
+				projectId: pickedTaskProjectId,
+				billableChoice: null
+			}));
+		},
+		[tasks]
+	);
+
+	const selectedTaskProjectId = selectedTask?.projectId;
 	const projectItemsLists = useMemo(
 		() => ({
-			Project: organizationProjects || []
+			Project: projectChoicesFor(selectedTaskProjectId, taskProject, projects)
 		}),
-		[organizationProjects]
+		[projects, selectedTaskProjectId, taskProject]
 	);
 
 	const handleSelectedValuesChange = useCallback(
@@ -159,9 +242,9 @@ export function AddTaskModal({ closeModal, isOpen }: IAddTaskModalProps) {
 
 	const selectedValues = useMemo(
 		() => ({
-			Project: null
+			Project: selectedProject
 		}),
-		[]
+		[selectedProject]
 	);
 
 	const fields = useMemo(
@@ -180,16 +263,20 @@ export function AddTaskModal({ closeModal, isOpen }: IAddTaskModalProps) {
 
 	const handleAddTimesheet = async (formState: FormState) => {
 		const payload = {
-			isBillable: formState.isBillable,
+			isBillable,
 			description: formState.notes,
-			projectId: formState.projectId,
+			projectId: entryProjectId,
 			logType: ETimeLogType.MANUAL as any,
-			source: ETimeLogSource.BROWSER as any,
+			source: ETimeLogSource.TEAMS as any,
 			taskId: formState.taskId,
 			employeeId: formState.employeeId,
 			organizationTeamId: activeTeam?.id
 		};
 		try {
+			// Both are required (the form marks them): one cleared by a team switch must be picked again first
+			if (!formState.taskId || !formState.employeeId) {
+				throw new Error('A task and an employee are required.');
+			}
 			if (!formState.shifts || formState.shifts.length === 0) {
 				throw new Error('No shifts provided.');
 			}
@@ -233,20 +320,18 @@ export function AddTaskModal({ closeModal, isOpen }: IAddTaskModalProps) {
 			closeModal={closeModal}
 			title={`+ ${t('common.ADD_TIME_ENTRY')}`}
 			showCloseIcon
-			className="bg-light--theme-light dark:bg-dark--theme-light p-5 rounded-xl w-full md:w-40 md:min-w-[32rem] justify-start h-[auto]"
-			titleClass="font-bold flex justify-start w-full"
+			className="w-full md:w-40 md:min-w-[32rem] justify-start h-[auto]"
+			titleClass="flex justify-start w-full"
 		>
-			<div className="flex flex-col w-full gap-4 justify-start md:w-40 md:min-w-[30rem] p-4">
+			<div className="flex flex-col w-full gap-4 justify-start md:w-40 md:min-w-[30rem]">
 				<div className=" w-full mr-[4%]">
-					<label className="block text-[#282048] dark:text-gray-400 font-medium mb-1">
+					<label className="block mb-1.5 text-sm font-medium leading-none text-foreground">
 						{t('sidebar.TASKS')}
-						<span className="text-[#de5505e1] ml-1">*</span>
+						<span className="ml-1 text-destructive-ink">*</span>
 					</label>
 					<CustomSelect
 						value={formState.taskId}
-						onChange={(value) => {
-							updateFormState('taskId', value);
-						}}
+						onChange={pickTask}
 						classNameGroup="h-[40vh]"
 						ariaLabel="Task issues"
 						className="w-full font-medium"
@@ -255,29 +340,27 @@ export function AddTaskModal({ closeModal, isOpen }: IAddTaskModalProps) {
 							<div className="flex overflow-y-auto gap-x-2 items-center">
 								<TaskNameInfoDisplay
 									task={option as any}
-									className={clsxm(
-										'rounded-sm h-auto !px-[0.3312rem] py-[0.2875rem] shadow-[0px_0px_15px_0px_#e2e8f0] dark:shadow-transparent'
-									)}
-									taskTitleClassName={clsxm('text-sm text-ellipsis overflow-hidden')}
+									className="min-w-0"
+									taskTitleClassName="text-sm text-foreground"
 									showSize={true}
 									dash
-									taskNumberClassName="text-sm"
+									taskNumberClassName="text-sm text-muted-foreground"
 								/>
 							</div>
 						)}
 					/>
 				</div>
-				<div className="block text-[#282048] dark:text-gray-400 font-medium mb-1">
-					<label className="block text-[#282048] dark:text-gray-400  mb-1 px-2">
+				<div className="block">
+					<label className="block mb-1.5 text-sm font-medium leading-none text-foreground">
 						{t('manualTime.EMPLOYEE')}
-						<span className="text-[#de5505e1] ml-1">*</span>:
+						<span className="ml-1 text-destructive-ink">*</span>:
 					</label>
 					<CustomSelect
 						valueKey="employeeId"
 						value={formState.employeeId}
-						classNameGroup="max-h-[40vh] dark:!text-white "
+						classNameGroup="max-h-[40vh]"
 						ariaLabel="Task issues"
-						className="w-full font-medium dark:text-white"
+						className="w-full font-medium"
 						options={activeTeam?.members || []}
 						onChange={(value) => {
 							updateFormState('employeeId', value);
@@ -285,7 +368,7 @@ export function AddTaskModal({ closeModal, isOpen }: IAddTaskModalProps) {
 						renderOption={(option) => (
 							<div className="flex gap-x-2 items-center">
 								<img
-									className="w-6 h-6 rounded-full"
+									className="size-6 rounded-full object-cover hairline-ring ring-border"
 									src={option.employee.user.imageUrl}
 									alt={option.employee.fullName}
 								/>
@@ -305,7 +388,7 @@ export function AddTaskModal({ closeModal, isOpen }: IAddTaskModalProps) {
 
 				<div className="flex flex-col w-full">
 					<ManageOrMemberComponent
-						classNameTitle="text-[#282048] dark:text-gray-400 font-medium mr-12 capitalize"
+						classNameTitle="text-sm font-medium text-foreground mr-12 capitalize"
 						fields={fields}
 						itemsLists={projectItemsLists}
 						selectedValues={selectedValues}
@@ -316,65 +399,56 @@ export function AddTaskModal({ closeModal, isOpen }: IAddTaskModalProps) {
 					/>
 				</div>
 				<div className="flex flex-col items-start w-full">
-					<label className="text-[#282048] dark:text-gray-400 font-medium mr-12 capitalize">
+					<label className="mb-1.5 text-sm font-medium text-foreground mr-12 capitalize">
 						{t('pages.timesheet.BILLABLE.BILLABLE').toLowerCase()}
 					</label>
 					<div className="flex gap-3 items-start">
 						<ToggleButton
-							isActive={formState.isBillable}
-							onClick={() => updateFormState('isBillable', true)}
+							isActive={isBillable}
+							onClick={() => updateFormState('billableChoice', true)}
 							label={t('pages.timesheet.BILLABLE.YES')}
 						/>
 						<ToggleButton
-							isActive={!formState.isBillable}
-							onClick={() => updateFormState('isBillable', false)}
+							isActive={!isBillable}
+							onClick={() => updateFormState('billableChoice', false)}
 							label={t('pages.timesheet.BILLABLE.NO')}
 						/>
 					</div>
 				</div>
 
 				<div className="flex flex-col w-full">
-					<span className="text-[#282048] dark:text-gray-400 font-medium">{t('common.NOTES')}</span>
+					<span className="mb-1.5 text-sm font-medium text-foreground">{t('common.NOTES')}</span>
 					<textarea
 						value={formState.notes}
 						onChange={(e) => updateFormState('notes', e.target.value)}
 						placeholder="Insert notes here..."
 						className={clsxm(
-							'bg-transparent focus:border-transparent focus:ring-2 focus:ring-transparent',
-							'placeholder-gray-300 placeholder:font-normal resize-none p-2 grow w-full',
-							'border border-gray-200 dark:border-slate-600 dark:bg-dark--theme-light rounded-md h-36 bg-[#FBB6500D]',
-							formState.notes.trim().length === 0 && 'border-red-500'
+							controlRecipe,
+							'h-36 w-full grow resize-none p-3',
+							formState.notes.trim().length === 0 && 'border-destructive ring-destructive/20'
 						)}
 						maxLength={120}
 						minLength={0}
 						aria-label="Insert notes here"
 						required
 					/>
-					<div className="text-sm text-[#282048] dark:text-gray-400 font-medium text-right">
+					<div className="mt-1 text-xs tabular-nums text-muted-foreground text-right">
 						{formState.notes.length}/{120}
 					</div>
 				</div>
 				<div className="flex gap-x-2 justify-end items-center w-full">
-					<button
-						type="button"
-						onClick={closeModal}
-						className={clsxm(
-							'text-primary dark:text-primary-light h-[2.3rem] w-[5.5rem] border px-2 rounded-lg border-gray-300 dark:border-slate-600 font-normal dark:bg-dark--theme-light'
-						)}
-					>
+					<Button variant="outline" size="lg" type="button" onClick={closeModal}>
 						{t('common.CANCEL')}
-					</button>
-					<button
-						disabled={loadingCreateTimesheet}
+					</Button>
+					<Button
+						size="lg"
+						disabled={isSaveDisabled || !hasTaskAndEmployee}
 						onClick={() => handleAddTimesheet(formState as any)}
 						type="submit"
-						className={clsxm(
-							'bg-primary dark:bg-primary-light h-[2.3rem] w-[5.5rem] justify-center font-normal flex items-center text-white px-2 rounded-lg'
-						)}
 					>
-						{loadingCreateTimesheet && <ReloadIcon className="mr-2 w-4 h-4 animate-spin" />}
+						{loadingCreateTimesheet && <Spinner className="animate-spin" />}
 						{t('common.SAVE')}
-					</button>
+					</Button>
 				</div>
 			</div>
 		</Modal>
@@ -399,17 +473,17 @@ const ShiftTimingSelect = ({
 	value,
 	isTimeDisabled
 }: ShiftTimingSelectProps) => (
-	<div className="flex gap-2 items-center w-full rounded-sm border border-gray-200 dark:border-gray-700">
+	<div className={clsxm(controlGroupRecipe, 'h-9 overflow-hidden')}>
 		<button
 			className={clsxm(
-				'flex items-center px-2 py-2 font-medium text-center border-r hover:bg-gray-200 dark:hover:bg-muted focus:outline-none',
+				'flex h-full shrink-0 items-center hairline-r border-border px-2.5 text-xs font-medium text-muted-foreground focus:outline-none',
 				className
 			)}
 		>
 			{label}
 		</button>
 		<Select onValueChange={onChange} value={value}>
-			<SelectTrigger className="w-full bg-white rounded-none border-transparent text-ellipsis dark:bg-dark--theme-light focus:ring-2 focus:ring-transparent">
+			<SelectTrigger className="h-full w-full rounded-none border-transparent bg-transparent text-ellipsis tabular-nums shadow-none ring-0 focus-visible:ring-0 dark:bg-transparent">
 				<SelectValue placeholder={placeholder} />
 			</SelectTrigger>
 			<SelectContent className="z-[1001] max-h-60 overflow-y-auto">
@@ -419,7 +493,7 @@ const ShiftTimingSelect = ({
 							key={time}
 							value={time}
 							disabled={isTimeDisabled?.(time)}
-							className="hover:bg-primary focus:bg-primary hover:!text-white  py-1 cursor-pointer"
+							className="cursor-pointer tabular-nums"
 						>
 							{time}
 						</SelectItem>
@@ -502,23 +576,23 @@ const OptimizedAccordion = ({
 		<>
 			{shifts.map((element, index) => {
 				return (
-					<Accordion key={index} type="single" collapsible className="p-1 w-full">
-						<AccordionItem value={`item-${index}`} className="rounded border">
-							<AccordionTrigger className="flex flex-row-reverse justify-end items-center p-1 h-10 hover:no-underline">
+					<Accordion key={index} type="single" collapsible className="w-full">
+						<AccordionItem value={`item-${index}`} className="rounded-lg border-b-0 bg-foreground/3">
+							<AccordionTrigger className="flex flex-row-reverse justify-end items-center gap-2 px-3 py-0 h-10 hover:no-underline">
 								<div className="flex justify-between items-center w-full">
-									<label className="block text-[#282048] dark:text-gray-400 mb-1 px-2">
+									<label className="block text-sm font-medium text-foreground">
 										{t('common.DATE_AND_TIME')}
-										<span className="text-[#de5505e1] ml-1">*</span>:
+										<span className="ml-1 text-destructive-ink">*</span>:
 									</label>
 									<span
 										onClick={() => handleRemoveShift(index)}
-										className="font-normal cursor-pointer hover:underline text-primary dark:text-primary-light"
+										className="text-sm font-normal cursor-pointer text-destructive-ink underline-offset-4 hover:underline"
 									>
 										{t('common.REMOVE_PERIOD')}
 									</span>
 								</div>
 							</AccordionTrigger>
-							<AccordionContent className="p-2">
+							<AccordionContent className="px-3 pb-3">
 								<div className="flex flex-col gap-2">
 									<ShiftManagement
 										t={t}
@@ -533,14 +607,15 @@ const OptimizedAccordion = ({
 					</Accordion>
 				);
 			})}
-			<button onClick={handleAddShift} className="flex gap-2 justify-start items-center cursor-pointer">
-				<div className="bg-[#3826A6] dark:bg-primary-light p-[0.5] rounded-sm text-white">
-					<PlusIcon />
-				</div>
-				<span className="text-[#3826A6] dark:text-primary-light hover:underline">
-					{t('common.ADD_ANOTHER_PERIOD')}
-				</span>
-			</button>
+			<Button
+				variant="ghost"
+				size="default"
+				onClick={handleAddShift}
+				className="w-fit justify-start text-primary-ink hover:text-primary-ink"
+			>
+				<Plus />
+				<span>{t('common.ADD_ANOTHER_PERIOD')}</span>
+			</Button>
 		</>
 	);
 };
@@ -565,7 +640,7 @@ const ShiftManagement = ({
 	return (
 		<>
 			<div className="w-[212px]">
-				<span>{t('manualTime.DATE')}</span>
+				<span className="mb-1.5 block text-xs font-medium text-muted-foreground">{t('manualTime.DATE')}</span>
 				<DatePickerFilter
 					label={value.dateFrom ? value.dateFrom.toLocaleString() : t('common.SELECT_DATE')}
 					date={value.dateFrom as Date}
@@ -573,13 +648,13 @@ const ShiftManagement = ({
 				/>
 			</div>
 			<div className="flex flex-col gap-2 items-start w-full">
-				<span className="font-medium">{t('common.SHIFT_TIMING')}</span>
-				<div className="flex gap-4 justify-between items-center mb-4 w-full">
+				<span className="text-xs font-medium text-muted-foreground">{t('common.SHIFT_TIMING')}</span>
+				<div className="flex gap-2 justify-between items-center mb-1 w-full">
 					<ShiftTimingSelect
 						label="Start"
 						timeOptions={timeOptions}
 						placeholder="00:00:00"
-						className="bg-[#30B3661A]"
+						className="bg-foreground/5"
 						value={value.startTime}
 						onChange={(value) => onChange(index, 'startTime', value)}
 						isTimeDisabled={isTimeDisabled}
@@ -588,12 +663,12 @@ const ShiftManagement = ({
 						label="End"
 						timeOptions={timeOptions}
 						placeholder="00:00:00"
-						className="bg-[#DA27271A]"
+						className="bg-foreground/5"
 						value={value.endTime}
 						onChange={(value) => onChange(index, 'endTime', value)}
 						isTimeDisabled={isTimeDisabled}
 					/>
-					<button className="flex items-center px-2 py-2 font-medium text-center bg-gray-100 border-r dark:bg-muted hover:bg-gray-200 dark:hover:bg-muted focus:outline-none">
+					<button className="flex h-9 shrink-0 items-center rounded-md bg-foreground/5 px-2.5 text-sm font-medium tabular-nums focus:outline-none">
 						{value.totalHours}
 					</button>
 				</div>

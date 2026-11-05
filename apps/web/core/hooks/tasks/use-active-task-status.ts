@@ -7,6 +7,8 @@ import { TStatus, IActiveTaskStatuses } from '@/core/types/interfaces/task/task-
 import { taskUpdateQueue } from '@/core/lib/utils/task.utils';
 import { useCallback, useState, useEffect } from 'react';
 import { toast } from 'sonner';
+import { useTranslations, type DottedLanguageObjectStringPaths } from 'next-intl';
+import { errorReasonKeyOf } from '@/core/lib/utils/error-feedback';
 import { useAtomValue, useSetAtom } from 'jotai';
 import {
 	setOptimisticValueAtom,
@@ -76,6 +78,7 @@ export function useActiveTaskStatus<T extends ITaskStatusField>(
 	status: TStatus<ITaskStatusStack[T]>,
 	field: T
 ) {
+	const t = useTranslations();
 	const activeTeamTask = useAtomValue(activeTeamTaskState);
 	const { handleStatusUpdate } = useUpdateTask();
 	const { taskLabels } = useTaskLabelsQuery();
@@ -131,24 +134,16 @@ export function useActiveTaskStatus<T extends ITaskStatusField>(
 		}
 
 		taskUpdateQueue.task((task) => {
-			const previousValue = task.current ? (task.current as any)[field] : undefined;
 			return handleStatusUpdate(status, updatedField || field, taskStatusId, task.current, true)
-				?.then(() => {
-					// Success - keep optimistic value and show success toast with context
-					const fieldDisplayName = field === 'issueType' ? 'issue type' : field;
-					toast.success(`Task ${fieldDisplayName} updated successfully`, {
-						description: previousValue
-							? `Changed from "${previousValue}" to "${status}"`
-							: `Set to "${status}"`
-					});
-				})
-				.catch((error) => {
+				?.catch((error: unknown) => {
 					// Error - revert optimistic value and show error toast
 					if ($task.current?.id) {
 						clearOptimisticValue({ taskId: $task.current.id, field });
 					}
-					toast.error(`Failed to update task ${field}`, {
-						description: (error as any)?.message || 'Please try again'
+					const reasonKey = errorReasonKeyOf(error) as DottedLanguageObjectStringPaths;
+					toast.error(t('toasts.tasks.PROPERTY_UPDATE_FAILED', { field }), {
+						id: `task-property-failed-${field}`,
+						description: t(reasonKey)
 					});
 					console.error(`Error updating task ${field}:`, error);
 				})

@@ -1,7 +1,7 @@
 'use client';
 
 import { useIsMemberManager, useLeftSettingData } from '@/core/hooks';
-import { PeoplesIcon, UserOutlineIcon } from 'assets/svg';
+import { User, Users } from '@/core/components/icons';
 import { useParams, usePathname } from 'next/navigation';
 import { useCallback, useEffect, useMemo } from 'react';
 import { useTranslations } from 'next-intl';
@@ -21,6 +21,20 @@ type SettingsLink = {
 	everPlatform?: boolean;
 };
 
+const SECTION_ROW_CLASS =
+	'flex h-8 items-center rounded-md px-3 text-sm text-muted-foreground outline-none transition-colors hover:bg-foreground/5 hover:text-foreground focus-visible:ring-[3px] focus-visible:ring-ring/25';
+const SECTION_ROW_ACTIVE_CLASS = 'bg-foreground/5 font-medium text-foreground';
+const SECTION_ROW_DANGER_CLASS = 'text-destructive-ink hover:text-destructive-ink';
+const GROUP_LINK_CLASS =
+	'flex h-8 items-center gap-2 rounded-md px-3 text-xs font-medium text-muted-foreground outline-none transition-colors hover:text-foreground focus-visible:ring-[3px] focus-visible:ring-ring/25';
+
+function ariaCurrentFor(active: boolean): 'location' | undefined {
+	if (active) {
+		return 'location';
+	}
+	return undefined;
+}
+
 export const LeftSideSettingMenu = ({ className }: { className?: string }) => {
 	const t = useTranslations();
 	const pathname = usePathname();
@@ -32,6 +46,8 @@ export const LeftSideSettingMenu = ({ className }: { className?: string }) => {
 	const { data: user } = useUserQuery();
 	const { isTeamManager } = useIsMemberManager(user);
 	const everPlatform = useEverPlatformSection(Boolean(user) && isTeamManager);
+	const isPersonalPage = Boolean(pathname?.endsWith('/settings/personal'));
+	const isTeamPage = Boolean(pathname?.endsWith('/settings/team'));
 
 	useEffect(() => {
 		const hash = typeof window !== 'undefined' ? window.location.hash : '';
@@ -58,17 +74,18 @@ export const LeftSideSettingMenu = ({ className }: { className?: string }) => {
 			.filter((item) => !item.everPlatform || everPlatform.visible)
 			.map((item) => {
 				const active = `#${activeHash}` === item.href;
+				const isDangerLink = Boolean(item.color) && item.href.includes('danger');
 				return (
 					<Link
 						key={`${scope}-${item.href}`}
 						href={`/${locale}/settings/${scope}${item.href}`}
 						onClick={onLinkClick}
-						aria-current={active ? 'location' : undefined}
+						aria-current={ariaCurrentFor(active)}
 						className={clsxm(
-							'flex min-h-8 items-center rounded-md px-3 py-1.5 text-sm text-muted-foreground transition-colors hover:bg-muted/60 hover:text-foreground',
-							active && 'bg-muted font-medium text-foreground'
+							SECTION_ROW_CLASS,
+							active && SECTION_ROW_ACTIVE_CLASS,
+							isDangerLink && SECTION_ROW_DANGER_CLASS
 						)}
-						style={item.color && item.href.includes('danger') ? { color: item.color } : undefined}
 					>
 						{item.title}
 					</Link>
@@ -76,42 +93,31 @@ export const LeftSideSettingMenu = ({ className }: { className?: string }) => {
 			});
 
 	return (
-		<nav
-			className={clsxm('w-full', className)}
-			aria-label={t('common.SETTINGS')}
-		>
-			<div className="px-3 pb-3">
-				<h1 className="text-2xl font-semibold tracking-tight">{t('common.SETTINGS')}</h1>
-				<p className="mt-1 text-sm text-muted-foreground">{t('pages.settings.HEADING_DESCRIPTION')}</p>
-			</div>
-			<div className="space-y-2">
+		<nav className={clsxm('w-full', className)} aria-label={t('common.SETTINGS')}>
+			<div className="flex flex-col gap-4">
 				<section>
 					<Link
 						href={`/${locale}/settings/personal`}
-						className={clsxm(
-							'flex items-center gap-2 px-3 pb-1.5 pt-3 text-[11px] font-medium uppercase tracking-wider text-muted-foreground/70 [&>svg]:size-3.5',
-							pathname?.endsWith('/settings/personal') && 'text-foreground'
-						)}
+						className={clsxm(GROUP_LINK_CLASS, isPersonalPage && 'text-foreground')}
 					>
-						<UserOutlineIcon className="h-4 w-4" />
+						<User className="size-4" />
 						{t('common.PERSONAL')}
 					</Link>
-					<div className="space-y-0.5">
+					<div className="mt-1 flex flex-col gap-0.5">
 						{renderLinks('personal', PersonalAccordianData, activePersonalMenu)}
 					</div>
 				</section>
 				<section>
 					<Link
 						href={`/${locale}/settings/team`}
-						className={clsxm(
-							'flex items-center gap-2 px-3 pb-1.5 pt-3 text-[11px] font-medium uppercase tracking-wider text-muted-foreground/70 [&>svg]:size-3.5',
-							pathname?.endsWith('/settings/team') && 'text-foreground'
-						)}
+						className={clsxm(GROUP_LINK_CLASS, isTeamPage && 'text-foreground')}
 					>
-						<PeoplesIcon className="h-4 w-4" />
+						<Users className="size-4" />
 						{t('common.TEAM')}
 					</Link>
-					<div className="space-y-0.5">{renderLinks('team', TeamAccordianData, activeTeamMenu)}</div>
+					<div className="mt-1 flex flex-col gap-0.5">
+						{renderLinks('team', TeamAccordianData, activeTeamMenu)}
+					</div>
 				</section>
 			</div>
 		</nav>

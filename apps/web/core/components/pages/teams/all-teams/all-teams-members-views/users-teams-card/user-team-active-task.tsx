@@ -29,12 +29,12 @@ export default function UserTeamActiveTaskInfo({
 			{activeTask?.id ? (
 				<TaskInfo
 					edition={{ ...taskEdition, task: activeTask }}
-					className={cn('overflow-y-hidden flex-1 px-2 w-full lg:px-4 max-w-fit', className)}
+					className={cn('w-full min-w-0 flex-1 overflow-y-hidden', className)}
 					publicTeam={false}
 					tab="default"
 				/>
 			) : (
-				<div className="px-6 w-full text-start">--</div>
+				<div className="w-full text-start text-sm text-muted-foreground">--</div>
 			)}
 		</>
 	);

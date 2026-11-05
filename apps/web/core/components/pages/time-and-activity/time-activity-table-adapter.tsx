@@ -37,22 +37,18 @@ export const TimeActivityTableAdapter: FC<TimeActivityTableAdapterProps<any>> = 
 	return (
 		<div className="space-y-6">
 			{data.map((group, groupIndex) => (
-				<Card key={groupIndex} className="bg-white dark:bg-dark--theme-light">
+				<Card key={groupIndex} className="overflow-hidden">
 					{/* Group Header */}
-					<div className="p-4 border-b border-gray-200 dark:border-gray-700">
-						<div className="flex items-center gap-4 text-[14px] text-[#71717A] dark:text-gray-300">
-							<span className="text-base font-normal">{group.dateRange}</span>
+					<div className="px-4 py-3 hairline-b border-border bg-foreground/2.5">
+						<div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-sm text-muted-foreground">
+							<span className="font-medium text-foreground">{group.dateRange}</span>
 							{group.headers.map((header, index) => (
 								<div
 									key={index}
-									className="flex items-center gap-2 text-[14px] h-[30px] bg-white dark:bg-dark--theme-light border rounded-full p-2"
+									className="flex items-center gap-1.5 h-6 rounded-md bg-card px-2 text-xs hairline-ring ring-border"
 								>
-									<span className="text-[#71717A] dark:text-gray-300 font-normal">
-										{header.label}:
-									</span>
-									<span className="text-[#71717A] dark:text-gray-300 font-normal">
-										{header.value}
-									</span>
+									<span className="text-muted-foreground">{header.label}:</span>
+									<span className="font-medium tabular-nums text-foreground">{header.value}</span>
 								</div>
 							))}
 						</div>

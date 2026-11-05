@@ -2,20 +2,45 @@ import { useAuthenticateUser, useModal, useTeamMemberMutations, useCreateTask } 
 import { useTaskStatusesQuery } from '@/core/hooks/tasks/use-task-statuses-query';
 import { activeTeamState, activeTeamTaskId } from '@/core/stores';
 import { Popover, PopoverContent, PopoverTrigger } from '@/core/components/common/popover';
-import { ThreeCircleOutlineVerticalIcon } from 'assets/svg';
+import {
+	ArrowRight,
+	ArrowUp,
+	Calendar,
+	Check,
+	ChevronsUpDown,
+	Copy,
+	Layers,
+	Link,
+	MoreVertical,
+	Pencil,
+	Share,
+	Timer,
+	UserAdd,
+	UserRemove,
+	Users
+} from '@/core/components/icons';
 import { SpinnerLoader } from '@/core/components';
 import { PlanTask } from '@/core/components/tasks/task-card';
 import { useTranslations } from 'next-intl';
 import { useAtomValue, useSetAtom } from 'jotai';
 import { Combobox, Transition } from '@headlessui/react';
 import React, { JSX, useCallback } from 'react';
-import { CheckIcon, ChevronUpDownIcon } from '@heroicons/react/20/solid';
 import { HorizontalSeparator } from '../../duplicated-components/separator';
 import { EDailyPlanMode } from '@/core/types/generics/enums/daily-plan';
 import { TOrganizationTeamEmployee } from '@/core/types/schemas';
 import { TTask } from '@/core/types/schemas/task/task.schema';
 import { EIssueType, ETaskPriority } from '@/core/types/generics/enums/task';
 import { CreateDailyPlanFormModal } from '../../features/daily-plan/create-daily-plan-form-modal';
+import { cn } from '@/core/lib/helpers';
+import { Button } from '@/core/components/duplicated-components/_button';
+
+const MENU_ROW_CLASS =
+	'flex justify-between px-2 py-1.5 w-full text-sm text-left capitalize whitespace-nowrap rounded-md transition-colors hover:bg-foreground/5';
+
+const MENU_ICON_CLASS = 'size-4 shrink-0 text-muted-foreground';
+
+/** `PlanTask` renders its own button, which the row can only style from outside. */
+const PLAN_ROW_CLASS = cn(MENU_ROW_CLASS, '[&_button]:flex [&_button]:items-center [&_button]:gap-2.5');
 
 export default function MenuKanbanCard({ item: task, member }: { item: TTask; member: any }) {
 	const t = useTranslations();
@@ -34,6 +59,7 @@ export default function MenuKanbanCard({ item: task, member }: { item: TTask; me
 	const menu = [
 		{
 			name: t('common.EDIT_TASK'),
+			icon: <Pencil className={MENU_ICON_CLASS} />,
 			closable: true,
 			action: 'edit',
 			active: true,
@@ -45,6 +71,7 @@ export default function MenuKanbanCard({ item: task, member }: { item: TTask; me
 		},
 		{
 			name: t('common.ESTIMATE'),
+			icon: <Timer className={MENU_ICON_CLASS} />,
 			closable: true,
 			action: 'estimate',
 			onClick: () => {
@@ -54,6 +81,7 @@ export default function MenuKanbanCard({ item: task, member }: { item: TTask; me
 		},
 		{
 			name: t('common.ASSIGN_TASK'),
+			icon: <UserAdd className={MENU_ICON_CLASS} />,
 			action: 'assign',
 			active: true,
 			onClick: () => {
@@ -63,6 +91,7 @@ export default function MenuKanbanCard({ item: task, member }: { item: TTask; me
 		},
 		{
 			name: t('common.UNASSIGN_TASK'),
+			icon: <UserRemove className={MENU_ICON_CLASS} />,
 			action: 'unassign',
 			closable: true,
 			active: true,
@@ -73,6 +102,7 @@ export default function MenuKanbanCard({ item: task, member }: { item: TTask; me
 		},
 		{
 			name: t('common.COPY_ISSUE_LINK'),
+			icon: <Link className={MENU_ICON_CLASS} />,
 			closable: true,
 			action: 'copy_issue_link',
 			active: true,
@@ -87,6 +117,7 @@ export default function MenuKanbanCard({ item: task, member }: { item: TTask; me
 		},
 		{
 			name: t('common.MAKE_A_COPY'),
+			icon: <Copy className={MENU_ICON_CLASS} />,
 			closable: true,
 			action: 'male_a_copy',
 			active: true,
@@ -108,12 +139,14 @@ export default function MenuKanbanCard({ item: task, member }: { item: TTask; me
 		},
 		{
 			name: t('common.ASSIGNEE'),
+			icon: <Users className={MENU_ICON_CLASS} />,
 			closable: true,
 			action: 'assignee',
 			active: true
 		},
 		{
 			name: t('common.CHANGE_PARENT'),
+			icon: <Layers className={MENU_ICON_CLASS} />,
 			closable: true,
 			action: 'change_parent',
 			onClick: () => {
@@ -123,6 +156,7 @@ export default function MenuKanbanCard({ item: task, member }: { item: TTask; me
 		},
 		{
 			name: t('common.CHANGE_RELATIONS'),
+			icon: <Share className={MENU_ICON_CLASS} />,
 			closable: true,
 			action: 'change_relations',
 			onClick: () => {
@@ -132,6 +166,7 @@ export default function MenuKanbanCard({ item: task, member }: { item: TTask; me
 		},
 		{
 			name: t('common.SET_AS_NEXT'),
+			icon: <ArrowUp className={MENU_ICON_CLASS} />,
 			closable: true,
 			action: 'set_as_next',
 			onClick: () => {
@@ -141,6 +176,7 @@ export default function MenuKanbanCard({ item: task, member }: { item: TTask; me
 		},
 		{
 			name: t('common.MOVE_TO'),
+			icon: <ArrowRight className={MENU_ICON_CLASS} />,
 			closable: true,
 			action: 'move_to',
 			onClick: () => {
@@ -154,20 +190,24 @@ export default function MenuKanbanCard({ item: task, member }: { item: TTask; me
 		<>
 			<Popover>
 				<PopoverTrigger asChild>
-					<button>
-						<ThreeCircleOutlineVerticalIcon className="z-50 w-4 h-4" />
-					</button>
+					<Button
+						type="button"
+						variant="ghost"
+						size="icon-sm"
+						className="text-muted-foreground"
+						aria-label={t('common.MORE_OPTIONS')}
+					>
+						<MoreVertical className="z-50 size-4" />
+					</Button>
 				</PopoverTrigger>
-				<PopoverContent
-					align="end"
-					className=" w-44 border-[0.125rem] dark:border-border bg-white dark:bg-dark--theme-light p-0"
-				>
+				<PopoverContent align="end" className="w-48 p-1">
 					<ul>
 						{menu.map((item) => {
 							return (
 								<li key={item.name} onClick={async () => await item?.onClick?.()}>
 									{item.action == 'assignee' ? (
-										<div className="flex justify-between px-2 py-1 w-full text-sm font-normal text-left capitalize whitespace-nowrap hover:bg-secondary-foreground/20">
+										<div className={cn(MENU_ROW_CLASS, 'items-center gap-2.5')}>
+											{item.icon}
 											<TeamMembersSelect
 												key={item.name}
 												task={task}
@@ -175,8 +215,11 @@ export default function MenuKanbanCard({ item: task, member }: { item: TTask; me
 											/>
 										</div>
 									) : (
-										<button className="flex justify-between items-center px-2 py-1 w-full text-sm font-normal text-left capitalize whitespace-nowrap hover:bg-secondary-foreground/20 hover:font-semibold hover:transition-all">
-											<p>{item.name}</p>
+										<button className={cn(MENU_ROW_CLASS, 'items-center')}>
+											<span className="flex items-center gap-2.5">
+												{item.icon}
+												<span>{item.name}</span>
+											</span>
 											{item.loading && <SpinnerLoader size={15} />}
 										</button>
 									)}
@@ -184,28 +227,31 @@ export default function MenuKanbanCard({ item: task, member }: { item: TTask; me
 							);
 						})}
 					</ul>
-					<HorizontalSeparator />
+					<HorizontalSeparator className="my-1" />
 					<ul className="list-none">
-						<li className="flex justify-between px-2 py-1 w-full text-sm font-normal text-left capitalize whitespace-nowrap hover:bg-secondary-foreground/20 hover:font-semibold hover:transition-all">
+						<li className={PLAN_ROW_CLASS}>
 							<PlanTask
 								planMode={EDailyPlanMode.TODAY}
+								icon={<Calendar className={MENU_ICON_CLASS} />}
 								taskId={task.id}
 								employeeId={employeeId}
 								chooseMember={true}
 							/>
 						</li>
-						<li className="flex justify-between px-2 py-1 w-full text-sm font-normal text-left capitalize whitespace-nowrap hover:bg-secondary-foreground/20 hover:font-semibold hover:transition-all">
+						<li className={PLAN_ROW_CLASS}>
 							<PlanTask
 								planMode={EDailyPlanMode.TOMORROW}
+								icon={<Calendar className={MENU_ICON_CLASS} />}
 								taskId={task.id}
 								employeeId={employeeId}
 								chooseMember={true}
 							/>
 						</li>
-						<li className="flex justify-between px-2 py-1 w-full text-sm font-normal text-left capitalize whitespace-nowrap hover:bg-secondary-foreground/20 hover:font-semibold hover:transition-all">
+						<li className={PLAN_ROW_CLASS}>
 							<PlanTask
 								openModal={openModal}
 								planMode={EDailyPlanMode.CUSTOM}
+								icon={<Calendar className={MENU_ICON_CLASS} />}
 								taskId={task.id}
 								employeeId={employeeId}
 								chooseMember={true}
@@ -255,11 +301,11 @@ export function TeamMembersSelect(props: ITeamMemberSelectProps): JSX.Element {
 		<div className="w-full">
 			<Combobox multiple={true}>
 				<div className="relative">
-					<div className="overflow-hidden relative w-full text-left rounded-lg cursor-default focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 sm:text-sm">
+					<div className="overflow-hidden relative w-full text-left rounded-md cursor-default focus:outline-none focus-visible:ring-[3px] focus-visible:ring-ring/25 sm:text-sm">
 						<Combobox.Input readOnly className="w-0 h-0" />
-						<Combobox.Button className="flex absolute inset-y-0 right-0 justify-between items-center pr-2 w-full hover:font-semibold hover:transition-all">
+						<Combobox.Button className="flex absolute inset-y-0 right-0 justify-between items-center pr-0.5 w-full">
 							<span>{t('common.ASSIGNEE')}</span>
-							<ChevronUpDownIcon className="w-5 h-5 text-gray-400" aria-hidden="true" />
+							<ChevronsUpDown className="size-4 text-muted-foreground" aria-hidden="true" />
 						</Combobox.Button>
 					</div>
 					<Transition
@@ -268,14 +314,15 @@ export function TeamMembersSelect(props: ITeamMemberSelectProps): JSX.Element {
 						leaveFrom="opacity-100"
 						leaveTo="opacity-0"
 					>
-						<Combobox.Options className="overflow-auto absolute py-1 mt-1 w-full h-auto max-h-60 text-base bg-white rounded-md ring-1 shadow-lg ring-black/5 focus:outline-none sm:text-sm">
+						<Combobox.Options className="overflow-auto absolute p-1 mt-1 w-full h-auto max-h-60 text-sm bg-popover text-popover-foreground rounded-xl hairline-ring ring-border shadow-md shadow-black/6.5 focus:outline-none">
 							{teamMembers.map((member) => (
 								<Combobox.Option
 									key={member.id}
 									className={({ active }) =>
-										`relative cursor-default select-none py-2 pl-10 pr-4 ${
-											active ? 'bg-primary/5' : 'text-gray-900'
-										}`
+										cn(
+											'relative cursor-default select-none rounded-md py-1.5 pl-9 pr-3 text-foreground transition-colors',
+											active && 'bg-foreground/5'
+										)
 									}
 									value={member}
 								>
@@ -326,13 +373,13 @@ function TeamMemberOption({ isAssignee, member, task }: ITeamMemberOptionProps):
 		<div className="cursor-pointer" onClick={handleAssignTask}>
 			<span className="block truncate">{member?.employee?.fullName}</span>
 			{!(assignTaskLoading || unAssignTaskLoading) && isAssignee ? (
-				<span className="flex absolute inset-y-0 left-0 items-center pl-3">
-					<CheckIcon className="w-5 h-5" aria-hidden="true" />
+				<span className="flex absolute inset-y-0 left-0 items-center pl-2.5">
+					<Check className="size-4" aria-hidden="true" />
 				</span>
 			) : null}
 
 			{(assignTaskLoading || unAssignTaskLoading) && (
-				<span className="flex absolute inset-y-0 left-0 items-center pl-3">
+				<span className="flex absolute inset-y-0 left-0 items-center pl-2.5">
 					<SpinnerLoader size={15} />
 				</span>
 			)}

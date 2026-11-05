@@ -1,149 +1,139 @@
 'use client';
 
-import { useTaskQueries, useUserProfilePage } from '@/core/hooks';
-import { withAuthentication } from '@/core/components/layouts/app/authenticator';
-import { Button, Container } from '@/core/components';
-import { ArrowLeftIcon } from 'assets/svg';
-import { PageLayout } from '@/core/components/layouts/default-layout';
-import { useRouter, useParams } from 'next/navigation';
-import { useEffect, useMemo, useState } from 'react';
-import { useTranslations } from 'next-intl';
-
-import { useAtomValue } from 'jotai';
-import { Breadcrumb } from '@/core/components/duplicated-components/breadcrumb';
-import { TaskDetailsPageSkeleton } from '@/core/components/common/skeleton/task-details-page-skeleton';
-import { AnimatedEmptyState } from '@/core/components/common/empty-state';
-import { DocumentMagnifyingGlassIcon } from '@heroicons/react/20/solid';
-import { clsxm } from '@/core/lib/utils';
+import { useCallback, useEffect, useEffectEvent, useState } from 'react';
 import Link from 'next/link';
-
-// Import optimized components from centralized location
-import { LazyTaskDetailsComponent } from '@/core/components/optimized-components';
-import { activeTeamState, detailedTaskState, isTrackingEnabledState } from '@/core/stores';
+import { useParams } from 'next/navigation';
+import { useAtomValue } from 'jotai';
+import { useTranslations } from 'next-intl';
+import { Button } from '@/core/components';
+import { Task } from '@/core/components/icons';
+import { Breadcrumb } from '@/core/components/duplicated-components/breadcrumb';
+import { withAuthentication } from '@/core/components/layouts/app/authenticator';
+import { PageLayout } from '@/core/components/layouts/default-layout';
+import { TaskDetailPageBand } from '@/core/components/pages/task/task-detail-page-band';
+import { TaskDetailPageBody } from '@/core/components/pages/task/task-detail-page-body';
+import { TaskPageSkeleton } from '@/core/components/pages/task/task-page-skeleton';
+import { TaskDetailBandSkeleton, TaskDetailPageSkeleton } from '@/core/components/tasks/detail/task-detail-skeleton';
+import { TaskLoadFailedState, TaskNotFoundState } from '@/core/components/tasks/detail/task-load-states';
+import { taskNumberOf } from '@/core/components/tasks/detail/task-picker-menu';
+import { useTaskQueries } from '@/core/hooks';
 import { useTeamDailyPlansOwner } from '@/core/hooks/bootstrap/use-feature-data';
+import { activeTeamState, detailedTaskState, isTrackingEnabledState } from '@/core/stores';
+import type { TTask } from '@/core/types/schemas/task/task.schema';
+
+function TaskNotFound() {
+	const t = useTranslations();
+	const homeLink = (
+		<Button variant="outline" size="default" asChild>
+			<Link href="/">{t('pages.taskDetails.GO_BACK_HOME')}</Link>
+		</Button>
+	);
+	return <TaskNotFoundState action={homeLink} />;
+}
+
+function currentCrumbOf(task: TTask | null) {
+	if (!task) {
+		return '';
+	}
+	const number = taskNumberOf(task);
+	if (!number) {
+		return task.title;
+	}
+	return `#${number} ${task.title}`;
+}
+
+function useRequestedTask(taskId: string | undefined) {
+	const detailedTask = useAtomValue(detailedTaskState);
+	const { getTaskById, getTasksByIdLoading, getTaskByIdError } = useTaskQueries();
+	const [attemptedTaskId, setAttemptedTaskId] = useState<string | null>(null);
+	const [missingTaskId, setMissingTaskId] = useState<string | null>(null);
+	// A failed load wins over the store, which can still hold the team list copy getTaskById puts there first
+	const hasLoadFailed = Boolean(taskId) && getTaskByIdError?.taskId === taskId;
+	const isTaskNotFound = getTaskByIdError?.isTaskNotFound === true;
+	const isLoadError = hasLoadFailed && !isTaskNotFound;
+	const isStoredTask = Boolean(detailedTask) && detailedTask?.id === taskId;
+	const isRequestedTask = isStoredTask && !hasLoadFailed;
+	const hasAttemptedLoad = Boolean(taskId) && attemptedTaskId === taskId;
+	const isKnownMissing = Boolean(taskId) && missingTaskId === taskId;
+
+	const loadTask = useEffectEvent(async (id: string) => {
+		setAttemptedTaskId(id);
+		const loaded = await getTaskById(id);
+		if (!loaded) {
+			setMissingTaskId(id);
+		}
+	});
+
+	// After a failed load only the retry button sends it again, never every end of loading
+	useEffect(() => {
+		const canLoad = !isRequestedTask && !getTasksByIdLoading;
+		const needsLoad = canLoad && !isKnownMissing;
+		if (needsLoad && taskId) {
+			void loadTask(taskId);
+		}
+	}, [getTasksByIdLoading, isKnownMissing, isRequestedTask, taskId]);
+
+	const retry = useCallback(() => {
+		if (taskId) {
+			void getTaskById(taskId);
+		}
+	}, [getTaskById, taskId]);
+
+	let task: TTask | null = null;
+	if (isRequestedTask) {
+		task = detailedTask;
+	}
+	const isWaiting = getTasksByIdLoading || !hasAttemptedLoad;
+	const isLoading = !task && !hasLoadFailed && isWaiting;
+	const isMissing = !task && !isLoading && !isLoadError;
+	return { task, isLoading, isMissing, isLoadError, retry, isRetrying: getTasksByIdLoading };
+}
 
 const TaskDetails = () => {
 	useTeamDailyPlansOwner();
-	const profile = useUserProfilePage();
 	const t = useTranslations();
-	const router = useRouter();
 	const params = useParams();
-
+	const taskId = params?.id as string | undefined;
 	const activeTeam = useAtomValue(activeTeamState);
 	const isTrackingEnabled = useAtomValue(isTrackingEnabledState);
-	const detailedTask = useAtomValue(detailedTaskState);
-	const { getTaskById, getTasksByIdLoading, getTaskByIdError } = useTaskQueries();
-
-	// State to track if we've already tried to load the task
-	const [hasAttemptedLoad, setHasAttemptedLoad] = useState(false);
-
-	const id = params?.id;
-
-	// A failed load wins over the store, which can still hold the task opened before, or the team list copy of
-	// this one that getTaskById puts there before it asks for the full task
-	const hasLoadFailed = getTaskByIdError !== null && getTaskByIdError.taskId === id;
-	const isTaskNotFound = getTaskByIdError?.isTaskNotFound === true;
-	const isLoadErrorShown = hasLoadFailed && !isTaskNotFound;
+	const { task, isLoading, isMissing, isLoadError, retry, isRetrying } = useRequestedTask(taskId);
+	const pageTitle = JSON.parse(t('pages.taskDetails.BREADCRUMB'));
 
 	const breadcrumb = [
 		{ title: activeTeam?.name || '', href: '/' },
-		{
-			title: JSON.parse(t('pages.taskDetails.BREADCRUMB')),
-			href: `/task/${id}`
-		}
+		{ title: t('common.TASKS'), href: '/team/tasks' },
+		{ title: currentCrumbOf(task), href: `/task/${taskId}` }
 	];
 
-	useEffect(() => {
-		// Either no task or task id doesn't match query id
-		const isTaskMissing = !detailedTask || detailedTask.id !== id;
-		// After a failed load only the retry button sends it again, not every end of loading
-		const canLoadTask = !getTasksByIdLoading && !hasLoadFailed;
-		// If id is passed in query param
-		if (router && id && isTaskMissing && canLoadTask) {
-			getTaskById(id as string);
-			setHasAttemptedLoad(true);
-		}
-	}, [getTaskById, router, detailedTask, getTasksByIdLoading, hasLoadFailed, id]);
-
-	// Optimized render logic
-	const renderContent = useMemo(() => {
-		// The load failed for another reason than a missing task: say so and offer a retry
-		if (isLoadErrorShown) {
-			return (
-				<AnimatedEmptyState
-					title={t('pages.error.HEADING_TITLE')}
-					message={t('pages.error.HEADING_DESCRIPTION')}
-					actionLabel={t('pages.unauthorized.TRY_AGAIN')}
-					onAction={() => getTaskById(id as string)}
-				/>
-			);
-		}
-
-		// If we're loading or haven't tried to load yet
-		if ((getTasksByIdLoading || !hasAttemptedLoad) && !detailedTask) {
-			return <TaskDetailsPageSkeleton />;
-		}
-
-		// If we've finished loading and have a task
-		if (detailedTask && !hasLoadFailed) {
-			return <LazyTaskDetailsComponent task={detailedTask} />;
-		}
-
-		// If we've finished loading and don't have a task (after trying)
-		return (
-			<div
-				className={clsxm(
-					'flex flex-col items-center justify-center min-h-[400px] p-8 text-center',
-					'bg-white dark:bg-dark--theme rounded-xl border border-[#00000014] dark:border-border',
-					'mt-6 mb-10'
-				)}
-			>
-				<DocumentMagnifyingGlassIcon className="mb-4 w-16 h-16 text-gray-400 dark:text-gray-500" />
-
-				<h2 className="mb-2 text-2xl font-semibold text-gray-900 dark:text-white">Task not found</h2>
-
-				<p className="mb-6 max-w-md text-gray-600 dark:text-gray-400">
-					The task you are looking for does not exist.
-				</p>
-
-				<div className="flex gap-3">
-					<Link href="/">
-						<Button variant="outline">Go back home</Button>
-					</Link>
-				</div>
-			</div>
-		);
-	}, [getTasksByIdLoading, hasAttemptedLoad, detailedTask, isLoadErrorShown, hasLoadFailed, getTaskById, id, t]);
+	let documentTitle = pageTitle;
+	if (task) {
+		documentTitle = task.title;
+	}
 
 	return (
 		<PageLayout
-			showTimer={!profile.isAuthUser && isTrackingEnabled}
-			childrenClassName="bg-white dark:bg-dark--theme"
-			mainHeaderSlot={
-				<div ref={profile.loadTaskStatsIObserverRef} className="py-5 bg-white dark:bg-dark--theme">
-					<Container>
-						<div className="flex gap-8 items-center">
-							<span
-								className="cursor-pointer"
-								onClick={() => {
-									router.replace('/');
-								}}
-							>
-								<ArrowLeftIcon className="w-6 h-6" />
-							</span>
-
-							<Breadcrumb paths={breadcrumb} className="text-sm" />
-						</div>
-					</Container>
+			title={documentTitle}
+			showTimer={isTrackingEnabled}
+			className="min-h-0 flex-1 p-0"
+			breadcrumb={
+				<div className="flex min-w-0 items-center gap-2">
+					<Task className="size-4 shrink-0 text-muted-foreground" aria-hidden="true" />
+					<Breadcrumb paths={breadcrumb} className="min-w-0 text-sm" />
 				</div>
 			}
+			mainHeaderSlot={
+				<>
+					{task && <TaskDetailPageBand task={task} />}
+					{!task && isLoading && <TaskDetailBandSkeleton />}
+				</>
+			}
 		>
-			<Container className="mt-6 mb-10">
-				{renderContent}
-				{/* <IssueModal task={task} /> */}
-			</Container>
+			{isLoading && <TaskDetailPageSkeleton />}
+			{task && <TaskDetailPageBody key={task.id} task={task} />}
+			{isMissing && <TaskNotFound />}
+			{isLoadError && <TaskLoadFailedState onRetry={retry} isRetrying={isRetrying} />}
 		</PageLayout>
 	);
 };
 
-export default withAuthentication(TaskDetails, { displayName: 'TaskDetails' });
+export default withAuthentication(TaskDetails, { displayName: 'TaskDetails', skeleton: TaskPageSkeleton });

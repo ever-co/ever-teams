@@ -1,5 +1,4 @@
 import moment from 'moment';
-import * as momentTimezone from 'moment-timezone';
 import { TranslationHooks } from 'next-intl';
 import { getDailyPlanDay } from './daily-plan-day';
 
@@ -28,13 +27,6 @@ export function changeTimezone(date: Date, ianatz?: string) {
 	const diff = date.getTime() - invdate.getTime();
 
 	return new Date(date.getTime() - diff);
-}
-
-export function userTimezone() {
-	const userTimezone = momentTimezone.tz.guess();
-	const offset = momentTimezone.tz(userTimezone).format('Z');
-	const formattedTimezone = `${userTimezone.replace(/_/, ' ')} (UTC ${offset})`;
-	return formattedTimezone;
 }
 
 export function addHours(numOfHours: number, date = new Date()) {
@@ -160,14 +152,6 @@ export const formatDateString = (dateTimeString?: string) => {
 	}
 
 	return '';
-};
-
-export const calculateRemainingDays = (startDate: string, endDate: string): number | undefined => {
-	if (!endDate || !startDate) {
-		return undefined;
-	}
-
-	return moment(endDate).diff(startDate, 'days');
 };
 
 /**

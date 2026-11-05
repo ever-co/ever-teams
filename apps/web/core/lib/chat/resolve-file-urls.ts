@@ -1,7 +1,7 @@
 import { pipeline, Readable, Transform } from 'node:stream';
 import type { ReadableStream as NodeReadableStream } from 'node:stream/web';
 import { constants, createBrotliDecompress, createGunzip, createInflate, createZstdDecompress } from 'node:zlib';
-import { convertToCoreMessages, coreMessageSchema, type CoreMessage, type Message } from 'ai';
+import type { Experimental_DownloadFunction, ModelMessage } from 'ai';
 import { createGuardedFetch } from './guarded-fetch';
 
 /**
@@ -13,7 +13,8 @@ import { createGuardedFetch } from './guarded-fetch';
  * and downloads nothing (SSRF).
  *
  * Messages without such a file come back unchanged. Image parts are left as they are: the chat models take
- * image URLs as they are, so the SDK does not download them.
+ * image URLs as they are, so the SDK does not download them. Anything else the SDK would still download goes
+ * through `createGuardedDownload`.
  */
 
 /** Above the file sizes OpenAI-compatible providers take in a request. */
@@ -48,8 +49,8 @@ const NOT_PUBLIC = 'File URLs in chat messages must be valid http or https URLs 
 const TOO_LARGE = `Files in chat messages must be ${MAX_FILE_BYTES / 1024 / 1024} MB or smaller.`;
 const FAILED = 'A file in the chat messages could not be downloaded.';
 
-export type FileUrlsResolution<T> =
-	| { ok: true; messages: T | CoreMessage[] }
+export type FileUrlsResolution =
+	| { ok: true; messages: ModelMessage[] }
 	| { ok: false; status: 400 | 502; error: string };
 
 class FileDownloadError extends Error {
@@ -61,36 +62,44 @@ class FileDownloadError extends Error {
 	}
 }
 
-/** The SDK's test for file data it downloads (a URL object only comes from an http(s) attachment). */
-function isHttpUrl(data: unknown): data is string | URL {
-	if (typeof data === 'string') return data.startsWith('http:') || data.startsWith('https:');
-	return data instanceof URL && (data.protocol === 'http:' || data.protocol === 'https:');
+function isHttpProtocol(protocol: string) {
+	const isHttp = protocol === 'http:';
+	const isHttps = protocol === 'https:';
+	return isHttp || isHttps;
 }
 
-/** A quick test that lets messages without any file or attachment through untouched. */
-function mayHoldFileUrl(message: unknown): boolean {
-	if (typeof message !== 'object' || message === null) return false;
-	const { content, experimental_attachments: attachments } = message as {
-		content?: unknown;
-		experimental_attachments?: unknown;
-	};
-	return (
-		(Array.isArray(content) && content.some((part) => part?.type === 'file')) ||
-		(Array.isArray(attachments) && attachments.length > 0)
-	);
+/** The URL a file part's data points to (a bare URL, an http(s) string or the tagged `{ type: 'url' }` shape). */
+function httpUrlOf(data: unknown): string | null {
+	if (data instanceof URL) {
+		return httpHrefOf(data);
+	}
+	if (typeof data === 'string') {
+		return httpStringOf(data);
+	}
+	if (typeof data !== 'object' || data === null) {
+		return null;
+	}
+	const tagged = data as { type?: unknown; url?: unknown };
+	if (tagged.type !== 'url') {
+		return null;
+	}
+	return httpUrlOf(tagged.url);
 }
 
-/** The SDK's test for UI messages (`useChat`), which it converts to core messages. */
-function isUiMessage(message: unknown): boolean {
-	if (typeof message !== 'object' || message === null) return false;
-	const { role } = message as { role?: unknown };
-	return (
-		role === 'function' ||
-		role === 'data' ||
-		'toolInvocations' in message ||
-		'parts' in message ||
-		'experimental_attachments' in message
-	);
+function httpHrefOf(url: URL) {
+	if (!isHttpProtocol(url.protocol)) {
+		return null;
+	}
+	return url.href;
+}
+
+function httpStringOf(value: string) {
+	const isHttp = value.startsWith('http:');
+	const isHttps = value.startsWith('https:');
+	if (isHttp || isHttps) {
+		return value;
+	}
+	return null;
 }
 
 /** Passes the bytes through and fails once more than `MAX_FILE_BYTES` went by. */
@@ -158,7 +167,21 @@ async function readBody(response: Response): Promise<Uint8Array> {
 	}
 }
 
-async function download(href: string, signal: AbortSignal | undefined): Promise<Uint8Array> {
+interface DownloadedFile {
+	data: Uint8Array;
+	mediaType: string | undefined;
+}
+
+function mediaTypeOf(response: Response) {
+	const contentType = response.headers.get('content-type');
+	if (!contentType) {
+		return undefined;
+	}
+	const [mediaType] = contentType.split(';');
+	return mediaType.trim() || undefined;
+}
+
+async function download(href: string, signal: AbortSignal | undefined): Promise<DownloadedFile> {
 	let url: URL;
 	try {
 		url = new URL(href);
@@ -173,7 +196,7 @@ async function download(href: string, signal: AbortSignal | undefined): Promise<
 		const response = await guardedFetch(url, { headers: DOWNLOAD_HEADERS, signal });
 		const location = response.headers.get('location');
 		if (!REDIRECT_STATUSES.has(response.status) || location === null) {
-			if (response.ok) return readBody(response);
+			if (response.ok) return { data: await readBody(response), mediaType: mediaTypeOf(response) };
 			await response.body?.cancel();
 			throw new FileDownloadError(502, FAILED);
 		}
@@ -185,112 +208,94 @@ async function download(href: string, signal: AbortSignal | undefined): Promise<
 	}
 }
 
-/** The http(s) file URLs of the user messages, the ones the SDK downloads. */
-function fileUrls(prompt: CoreMessage[]): Set<string> {
+function isImageFile(part: { mediaType?: string }) {
+	return Boolean(part.mediaType?.startsWith('image/'));
+}
+
+/** The http(s) URLs of the non-image files of the user messages, the ones the SDK downloads. */
+function fileUrls(prompt: ModelMessage[]): Set<string> {
 	const urls = new Set<string>();
 	for (const message of prompt) {
 		if (message.role !== 'user' || !Array.isArray(message.content)) continue;
 		for (const part of message.content) {
-			if (part.type === 'file' && isHttpUrl(part.data)) urls.add(String(part.data));
+			if (part.type !== 'file' || isImageFile(part)) continue;
+			const url = httpUrlOf(part.data);
+			if (url) urls.add(url);
 		}
 	}
 	return urls;
 }
 
 /** The prompt with the downloaded bytes in place of the file URLs. */
-function withFileBytes(prompt: CoreMessage[], files: Map<string, Uint8Array>): CoreMessage[] {
-	return prompt.map((message) =>
-		message.role === 'user' && Array.isArray(message.content)
-			? {
-					...message,
-					content: message.content.map((part) =>
-						part.type === 'file' && isHttpUrl(part.data)
-							? { ...part, data: files.get(String(part.data)) ?? part.data }
-							: part
-					)
-				}
-			: message
-	);
+function withFileBytes(prompt: ModelMessage[], files: Map<string, DownloadedFile>): ModelMessage[] {
+	return prompt.map((message) => {
+		if (message.role !== 'user' || !Array.isArray(message.content)) return message;
+		const content = message.content.map((part) => {
+			if (part.type !== 'file') return part;
+			const url = httpUrlOf(part.data);
+			if (!url) return part;
+			const file = files.get(url);
+			if (!file) return part;
+			return { ...part, data: file.data };
+		});
+		return { ...message, content };
+	});
 }
 
 /**
  * The model the OpenAI provider builds for `gpt-3.5-turbo-instruct` is a completion model: it takes no image URL,
- * so the SDK downloads every image URL of the prompt with the global fetch (SSRF), and only then refuses images.
+ * so the SDK would download every image URL of the prompt, and only then refuse images.
  */
 const COMPLETION_MODEL_IDS: ReadonlySet<string> = new Set(['gpt-3.5-turbo-instruct']);
 
 const NO_IMAGES = 'This model does not take images.';
 
-/**
- * Whether an image part's value is an http(s) URL the SDK would download. The SDK parses a string image with
- * `new URL()`, which accepts `HTTP://…` and surrounding whitespace, so the check parses it the same way.
- */
-function isHttpImageUrl(image: unknown): boolean {
-	if (image instanceof URL) return image.protocol === 'http:' || image.protocol === 'https:';
-	if (typeof image !== 'string') return false;
-	try {
-		const { protocol } = new URL(image);
-		return protocol === 'http:' || protocol === 'https:';
-	} catch {
+function isImageUrlPart(part: { type: string; image?: unknown; data?: unknown; mediaType?: string }) {
+	if (part.type === 'image') {
+		const imageUrl = httpUrlOf(part.image);
+		return imageUrl !== null;
+	}
+	const isFile = part.type === 'file';
+	if (!isFile || !isImageFile(part)) {
 		return false;
 	}
+	const fileUrl = httpUrlOf(part.data);
+	return fileUrl !== null;
 }
 
-/**
- * Whether the user messages carry an image given as an http(s) URL (an image part, or an image attachment of a UI
- * message), which the SDK downloads for a model that takes no image URL.
- */
-function holdsImageUrl(messages: unknown): boolean {
-	if (!Array.isArray(messages) || messages.length === 0) return false;
-	let prompt: CoreMessage[];
-	try {
-		prompt = messages.some(isUiMessage)
-			? convertToCoreMessages(messages as Array<Omit<Message, 'id'>>)
-			: (messages as CoreMessage[]);
-	} catch {
+function userMessageHoldsImageUrl(message: ModelMessage) {
+	const isUserMessage = message.role === 'user';
+	if (!isUserMessage || !Array.isArray(message.content)) {
 		return false;
 	}
-	return prompt.some(
-		(message) =>
-			message.role === 'user' &&
-			Array.isArray(message.content) &&
-			message.content.some((part) => part.type === 'image' && isHttpImageUrl(part.image))
-	);
+	return message.content.some(isImageUrlPart);
+}
+
+/** Whether the user messages carry an image given as an http(s) URL. */
+function holdsImageUrl(prompt: ModelMessage[]): boolean {
+	return prompt.some(userMessageHoldsImageUrl);
 }
 
 /** The 400 answer for image URLs sent to a model that takes no image (see {@link COMPLETION_MODEL_IDS}). */
-export function refuseImageUrls<T>(messages: T, modelId: string): FileUrlsResolution<T> | null {
-	return COMPLETION_MODEL_IDS.has(modelId) && holdsImageUrl(messages)
-		? { ok: false, status: 400, error: NO_IMAGES }
-		: null;
+export function refuseImageUrls(prompt: ModelMessage[], modelId: string): FileUrlsResolution | null {
+	const isCompletionModel = COMPLETION_MODEL_IDS.has(modelId);
+	if (!isCompletionModel) return null;
+	if (!holdsImageUrl(prompt)) return null;
+	return { ok: false, status: 400, error: NO_IMAGES };
 }
 
 /**
- * Downloads, through the guard, the files the SDK would download for these messages, and returns the
- * messages with the bytes in place of the URLs, or the 400/502 answer when a file cannot be had.
+ * Downloads, through the guard, the files the SDK would download for this prompt, and returns the prompt with the
+ * bytes in place of the URLs, or the 400/502 answer when a file cannot be had.
  */
-export async function resolveFileUrls<T>(messages: T, signal?: AbortSignal): Promise<FileUrlsResolution<T>> {
-	if (!Array.isArray(messages) || !messages.some(mayHoldFileUrl)) return { ok: true, messages };
-
-	// The prompt streamText builds (the route passes no tools). One it refuses is left to it: it refuses
-	// before downloading anything.
-	let prompt: CoreMessage[];
-	try {
-		prompt = messages.some(isUiMessage)
-			? convertToCoreMessages(messages as Array<Omit<Message, 'id'>>)
-			: (messages as CoreMessage[]);
-	} catch {
-		return { ok: true, messages };
-	}
-	if (!coreMessageSchema.array().safeParse(prompt).success) return { ok: true, messages };
-
+export async function resolveFileUrls(prompt: ModelMessage[], signal?: AbortSignal): Promise<FileUrlsResolution> {
 	const urls = fileUrls(prompt);
-	if (urls.size === 0) return { ok: true, messages };
+	if (urls.size === 0) return { ok: true, messages: prompt };
 
 	// A file that cannot be had ends the other downloads too, instead of leaving them to finish for nothing.
 	const failed = new AbortController();
 	const downloadSignal = signal ? AbortSignal.any([signal, failed.signal]) : failed.signal;
-	let files: Map<string, Uint8Array>;
+	let files: Map<string, DownloadedFile>;
 	try {
 		files = new Map(
 			await Promise.all([...urls].map(async (url) => [url, await download(url, downloadSignal)] as const))
@@ -305,4 +310,18 @@ export async function resolveFileUrls<T>(messages: T, signal?: AbortSignal): Pro
 	}
 
 	return { ok: true, messages: withFileBytes(prompt, files) };
+}
+
+/**
+ * The SDK's own downloads, through the same guard: a URL the model fetches itself is left to it, any other one is
+ * downloaded here, public addresses only and within the size limit.
+ */
+export function createGuardedDownload(signal?: AbortSignal): Experimental_DownloadFunction {
+	return (requests) =>
+		Promise.all(
+			requests.map(async ({ url, isUrlSupportedByModel }) => {
+				if (isUrlSupportedByModel) return null;
+				return download(url.href, signal);
+			})
+		);
 }

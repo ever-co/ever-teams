@@ -3,7 +3,7 @@
 import RichTextEditor from '../text-editor';
 // import { Calendar } from '@/core/components/ui/calendar';
 import { cn } from '@/core/lib/helpers';
-import { CalendarIcon, X, Loader2 } from 'lucide-react';
+import { Calendar as CalendarIcon, Spinner, Upload, X } from '@/core/components/icons';
 import { differenceInDays, format, isAfter, isEqual, addDays } from 'date-fns';
 import { FormEvent, useCallback, useMemo, useState } from 'react';
 import { IStepElementProps } from '../container';
@@ -16,23 +16,33 @@ import { useImageAssets } from '@/core/hooks/common/use-image-assets';
 import { Popover, PopoverContent, PopoverTrigger } from '@/core/components/common/popover';
 import { getInitialValue } from '@/core/lib/helpers/create-project';
 import { InputField } from '@/core/components/duplicated-components/_input';
-import { Button as ShadcnButton } from '@/core/components/duplicated-components/_button';
+import { DictationButton } from '@/core/components/common/dictation-button';
+import { appendDictatedText } from '@/core/hooks/ai/use-dictation';
+import { Button as ShadcnButton, type ButtonSize } from '@/core/components/duplicated-components/_button';
 import { Calendar } from '@/core/components/common/calendar';
+import {
+	modalFieldLabelClass,
+	modalFooterClass,
+	modalPrimaryActionClass,
+	modalTitleFieldClass
+} from '@/core/components/common/modal';
 
 interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
 	loading?: boolean;
 	variant?: 'default' | 'destructive' | 'outline' | 'secondary' | 'ghost' | 'link';
+	size?: ButtonSize;
 }
 
 const Button = ({ children, loading, className, ...props }: ButtonProps) => {
 	return (
 		<ShadcnButton className={cn('relative', className)} disabled={loading} {...props}>
-			{loading && <Loader2 className="mr-2 w-4 h-4 animate-spin" />}
+			{loading && <Spinner className="animate-spin" />}
 			{children}
 		</ShadcnButton>
 	);
 };
 
+const PROJECT_TITLE_MAX_LENGTH = 100;
 type BasicInfoErrorKeys = 'dateRange' | 'websiteUrl' | 'projectTitle' | 'projectImage' | 'description';
 
 export default function BasicInformationForm(props: IStepElementProps) {
@@ -43,6 +53,12 @@ export default function BasicInformationForm(props: IStepElementProps) {
 	const [endDate, setEndDate] = useState(() => getInitialValue(currentData, 'endDate', addDays(new Date(), 7)));
 	const [projectTitle, setProjectTitle] = useState(() => getInitialValue(currentData, 'name', ''));
 	const [description, setDescription] = useState(() => getInitialValue(currentData, 'description', ''));
+	const appendDictatedTitle = (text: string) => {
+		setProjectTitle((current: string) => {
+			const nextTitle = appendDictatedText(current, text);
+			return nextTitle.slice(0, PROJECT_TITLE_MAX_LENGTH);
+		});
+	};
 	const [projectImageFile, setProjectImageFile] = useState<File | null>(null);
 	const [websiteUrl, setWebsiteUrl] = useState<string>(() => getInitialValue(currentData, 'projectUrl', ''));
 	const [errors, setErrors] = useState<Map<BasicInfoErrorKeys, string>>(new Map());
@@ -248,21 +264,22 @@ export default function BasicInformationForm(props: IStepElementProps) {
 			<ScrollArea className="w-full max-h-[65vh] pr-4">
 				<div className="space-y-5 pb-32">
 					<div className="flex flex-col gap-2 w-full">
-						<label htmlFor="project_title" className="text-xs font-medium">
+						<label htmlFor="project_title" className="sr-only">
 							{t('pages.projects.basicInformationForm.formFields.title')}
 						</label>
-						<div className="w-full">
+						<div className="flex w-full items-center gap-2">
 							<InputField
 								onChange={(el) => setProjectTitle(el.target.value)}
 								required
-								maxLength={100}
+								maxLength={PROJECT_TITLE_MAX_LENGTH}
 								minLength={3}
 								value={projectTitle}
 								id="project_title"
 								placeholder={t('pages.projects.basicInformationForm.formFields.titlePlaceholder')}
-								className=" text-xs border dark:border-white   h-[2.2rem] px-4 rounded-lg bg-transparent dark:bg-transparent"
+								className={modalTitleFieldClass}
 								noWrapper
 							/>
+							<DictationButton onText={appendDictatedTitle} />
 						</div>
 					</div>
 					<div className="w-full flex flex-col gap-1">
@@ -270,15 +287,16 @@ export default function BasicInformationForm(props: IStepElementProps) {
 							defaultValue={description}
 							onChange={(value) => setDescription(value)}
 							onValidityChange={setDescriptionValid}
+							title={projectTitle}
 						/>
 						{errors?.get('description') && (
-							<p className="text-xs font-light text-red-600">{errors.get('description')}</p>
+							<p className="text-xs text-destructive-ink">{errors.get('description')}</p>
 						)}
 					</div>
-					<div className="flex flex-col w-full">
-						<div className="flex gap-2 w-full">
-							<div className="flex flex-col gap-1 w-full">
-								<label htmlFor="project_start_date" className="text-xs font-medium">
+					<div className="flex flex-col gap-1 w-full">
+						<div className="flex gap-3 w-full">
+							<div className="flex flex-col gap-2 w-full">
+								<label htmlFor="project_start_date" className={modalFieldLabelClass}>
 									{t('common.START_DATE')}
 								</label>
 								<DatePicker
@@ -303,7 +321,7 @@ export default function BasicInformationForm(props: IStepElementProps) {
 								/>
 							</div>
 							<div className="flex flex-col gap-2 w-full">
-								<label htmlFor="project_end_date" className="text-xs font-medium">
+								<label htmlFor="project_end_date" className={modalFieldLabelClass}>
 									{t('common.END_DATE')}
 								</label>
 								<DatePicker
@@ -322,11 +340,11 @@ export default function BasicInformationForm(props: IStepElementProps) {
 							</div>
 						</div>
 						{errors?.get('dateRange') && (
-							<p className="text-xs font-light text-red-600">{errors.get('dateRange')}</p>
+							<p className="text-xs text-destructive-ink">{errors.get('dateRange')}</p>
 						)}
 					</div>
 					<div className="flex flex-col gap-2 w-full">
-						<label htmlFor="website_url" className="text-xs font-medium">
+						<label htmlFor="website_url" className={modalFieldLabelClass}>
 							{t('pages.projects.basicInformationForm.formFields.websiteUrl')}
 						</label>
 						<div className="w-full">
@@ -336,20 +354,19 @@ export default function BasicInformationForm(props: IStepElementProps) {
 								type="url"
 								id="website_url"
 								placeholder={t('pages.projects.basicInformationForm.formFields.websiteUrlPlaceholder')}
-								className=" text-xs border dark:border-white   h-[2.2rem] px-4 rounded-lg bg-transparent dark:bg-transparent"
 								noWrapper
 							/>
 						</div>
 					</div>
 
 					<div className="flex flex-col gap-2 w-full">
-						<span className="text-xs font-medium">
+						<span className={modalFieldLabelClass}>
 							{t('pages.projects.basicInformationForm.formFields.projectThumbnail')}
 						</span>
 						<div className="flex flex-col gap-1 w-full">
-							<div className="flex gap-5 items-center w-full">
+							<div className="flex gap-4 items-center w-full">
 								{projectImageUrl && (
-									<div className="overflow-hidden relative w-20 h-20 rounded-lg group">
+									<div className="overflow-hidden relative w-20 h-20 rounded-lg hairline-ring ring-border group">
 										<Image
 											height={50}
 											width={50}
@@ -357,11 +374,7 @@ export default function BasicInformationForm(props: IStepElementProps) {
 											src={projectImageUrl}
 											alt={projectTitle}
 										/>
-										<div
-											className={cn(
-												' h-[0%] w-[0%] transition-all group-hover:w-full cursor-pointer group-hover:h-full bg-black/30 flex items-center justify-center absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2'
-											)}
-										>
+										<div className="flex absolute inset-0 justify-center items-center transition-colors group-hover:bg-black/40">
 											<X
 												onClick={() => {
 													setProjectImageFile(null);
@@ -372,8 +385,7 @@ export default function BasicInformationForm(props: IStepElementProps) {
 														return newErrors;
 													});
 												}}
-												size={20}
-												className={cn('text-white')}
+												className="text-white cursor-pointer size-5"
 											/>
 										</div>
 									</div>
@@ -381,27 +393,11 @@ export default function BasicInformationForm(props: IStepElementProps) {
 
 								<label
 									htmlFor="dropzone-file"
-									className={cn(
-										'flex flex-col justify-center items-center w-full h-20 bg-gray-50 rounded-lg border-2 border-gray-300 border-dashed cursor-pointer grow dark:hover:bg-muted dark:bg-muted hover:bg-gray-100 dark:border-gray-600 dark:hover:border-gray-500'
-									)}
+									className="flex flex-col justify-center items-center w-full h-20 rounded-lg hairline-border border-dashed transition-colors cursor-pointer grow border-border bg-foreground/[0.02] hover:bg-foreground/[0.04]"
 								>
-									<div className="flex gap-3 justify-center items-center grow">
-										<svg
-											className="w-6 h-6 text-gray-500 dark:text-gray-400"
-											aria-hidden="true"
-											xmlns="http://www.w3.org/2000/svg"
-											fill="none"
-											viewBox="0 0 20 16"
-										>
-											<path
-												stroke="currentColor"
-												strokeLinecap="round"
-												strokeLinejoin="round"
-												strokeWidth="1"
-												d="M13 13h3a3 3 0 0 0 0-6h-.025A5.56 5.56 0 0 0 16 6.5 5.5 5.5 0 0 0 5.207 5.021C5.137 5.017 5.071 5 5 5a4 4 0 0 0 0 8h2.167M10 15V6m0 0L8 8m2-2 2 2"
-											/>
-										</svg>
-										<p className="text-sm text-gray-500 dark:text-gray-400">
+									<div className="flex gap-2 justify-center items-center grow">
+										<Upload className="size-5 text-muted-foreground" aria-hidden="true" />
+										<p className="text-sm text-muted-foreground">
 											<span className="text-xs">
 												{t('pages.projects.basicInformationForm.formFields.uploadPhoto')}
 											</span>
@@ -417,15 +413,15 @@ export default function BasicInformationForm(props: IStepElementProps) {
 								</label>
 							</div>
 							{errors?.get('projectImage') && (
-								<p className="text-xs font-light text-red-600">{errors?.get('projectImage')}</p>
+								<p className="text-xs text-destructive-ink">{errors?.get('projectImage')}</p>
 							)}
 						</div>
 					</div>
 				</div>
 				<ScrollBar orientation="vertical" />
 			</ScrollArea>
-			<div className="flex justify-end items-center w-full pt-4 border-t">
-				<Button loading={createImageAssetLoading} className=" h-[2.5rem]">
+			<div className={cn(modalFooterClass, 'hairline-t border-border pt-4')}>
+				<Button loading={createImageAssetLoading} size="default" className={modalPrimaryActionClass}>
 					{createImageAssetLoading
 						? t('pages.projects.basicInformationForm.common.uploadingImage')
 						: t('common.NEXT')}
@@ -505,18 +501,20 @@ export function DatePicker(props: IDatePickerProps) {
 			<PopoverTrigger asChild>
 				<Button
 					variant="outline"
+					size="lg"
 					className={cn(
-						'w-full flex items-center justify-between text-left dark:bg-dark--theme-light',
-						!value && 'text-muted-foreground border dark:border-white ',
+						'w-full justify-between px-3 font-normal text-left',
+						!value && 'text-muted-foreground',
 						className
 					)}
 					disabled={disabled}
 				>
-					{value ? format(value, 'PPP') : <span className="text-xs">{placeholder}</span>}
-					<CalendarIcon size={15} />
+					{value && format(value, 'PPP')}
+					{!value && <span>{placeholder}</span>}
+					<CalendarIcon className="text-muted-foreground" />
 				</Button>
 			</PopoverTrigger>
-			<PopoverContent className="p-0 w-auto dark:bg-dark--theme-light" align="start">
+			<PopoverContent className="p-0 w-auto" align="start">
 				<Calendar
 					id={id}
 					required={required}
@@ -558,7 +556,7 @@ export function Thumbnail(props: IThumbnailProps) {
 			}}
 			className={cn(
 				'rounded-md flex items-center justify-center overflow-hidden',
-				!imgUrl && 'border',
+				!imgUrl && 'hairline-border',
 				className
 			)}
 		>

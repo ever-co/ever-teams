@@ -8,6 +8,7 @@ import { useTimesheetReview } from '@/core/hooks/timesheet/use-timesheet-review'
 import { useModal } from '@/core/hooks';
 import { RejectSelectedModal } from '../../features/timesheet/reject-selected-modal';
 import { AlertConfirmationModal } from '@/core/components/common/alert-dialog-confirmation';
+import { Button } from '@/core/components/duplicated-components/_button';
 
 type ActionButtonProps = {
 	label: string;
@@ -15,12 +16,9 @@ type ActionButtonProps = {
 };
 
 const ActionButton = ({ label, onClick }: ActionButtonProps) => (
-	<button
-		className="bg-white font-semibold h-8 px-3 rounded-lg text-[#282048] dark:text-white dark:bg-primary-light"
-		onClick={onClick}
-	>
+	<Button variant="outline" size="default" onClick={onClick}>
 		{label}
-	</button>
+	</Button>
 );
 
 interface SelectionBarProps {
@@ -34,10 +32,10 @@ interface SelectionBarProps {
 export const SelectionBar = ({ selectedCount, onApprove, onReject, onDelete, onClearSelection }: SelectionBarProps) => {
 	const t = useTranslations();
 	return (
-		<div className="bg-[#E2E2E2CC] fixed dark:bg-slate-800 opacity-85 h-16 z-50 bottom-5 left-1/2 transform -translate-x-1/2 shadow-lg rounded-2xl flex items-center justify-between gap-x-4 px-4">
-			<div className="flex gap-x-4 justify-start items-center">
-				<div className="flex items-center justify-center gap-x-2 text-[#282048] dark:text-[#7a62d8]">
-					<div className="flex justify-center items-center w-7 h-7 font-bold text-white rounded-full bg-primary dark:bg-primary-light">
+		<div className="fixed bottom-5 left-1/2 z-50 flex h-14 -translate-x-1/2 items-center justify-between gap-x-4 rounded-xl bg-popover px-3 text-popover-foreground hairline-ring ring-border shadow-md shadow-black/6.5">
+			<div className="flex gap-x-2 justify-start items-center">
+				<div className="flex items-center justify-center gap-x-2 pr-2 text-sm text-muted-foreground">
+					<div className="flex h-6 min-w-6 items-center justify-center rounded-full bg-primary/10 px-1.5 text-xs font-semibold tabular-nums text-primary-ink">
 						<span>{selectedCount}</span>
 					</div>
 					<span>selected</span>
@@ -50,13 +48,15 @@ export const SelectionBar = ({ selectedCount, onApprove, onReject, onDelete, onC
 				)}
 				<ActionButton label={t('pages.timesheet.TIMESHEET_ACTION_DELETE_SELECTED')} onClick={onDelete} />
 			</div>
-			<button
+			<Button
+				variant="ghost"
+				size="default"
 				onClick={onClearSelection}
-				className="font-semibold h-8 px-3 rounded-lg text-[#3826A6] dark:text-primary-light"
+				className="text-primary-ink hover:text-primary-ink"
 				aria-label="Clear Selection"
 			>
 				Clear Selection
-			</button>
+			</Button>
 		</div>
 	);
 };

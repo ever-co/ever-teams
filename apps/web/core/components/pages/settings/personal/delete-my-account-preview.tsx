@@ -38,11 +38,14 @@ export function DeleteMyAccountPreview({
 	if (error || !preview?.accounts?.length) {
 		const reason = error instanceof Error && error.message ? ` ${error.message}` : '';
 		return (
-			<div className="flex flex-wrap gap-2 justify-between items-center" data-testid="delete-my-account-preview-error">
+			<div
+				className="flex flex-wrap gap-2 justify-between items-center"
+				data-testid="delete-my-account-preview-error"
+			>
 				<Text.Error className="text-xs" role="alert">
 					{`${t('pages.accountDeletion.PREVIEW_ERROR')}${reason}`}
 				</Text.Error>
-				<Button type="button" variant="outline" className="px-3 py-1 h-8 text-xs" onClick={onRetry}>
+				<Button type="button" variant="outline" size="default" onClick={onRetry}>
 					{t('pages.accountDeletion.TRY_AGAIN')}
 				</Button>
 			</div>

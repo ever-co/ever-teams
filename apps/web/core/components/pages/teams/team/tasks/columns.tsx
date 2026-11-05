@@ -1,144 +1,84 @@
+import { useMemo } from 'react';
+import { useTranslations } from 'next-intl';
 import { ColumnDef } from '@tanstack/react-table';
-import { Bug } from 'lucide-react';
 import AssigneeUser from './assignee-user';
 import DropdownMenuTask from './dropdown-menu-task';
 import { ActiveTaskStatusDropdown } from '@/core/components/tasks/task-status';
-import { EIssueType } from '@/core/types/generics/enums/task';
+import { TaskIssueStatus } from '@/core/components/tasks/task-issue';
 import { TTask } from '@/core/types/schemas/task/task.schema';
 
 // Columns that can be hidden in the team tasks table
 export const hidableColumnNames = ['type_and_number', 'assignee', 'status', 'teams'];
 
-export const columns: ColumnDef<TTask>[] = [
-	{
-		accessorKey: 'typeNumber',
-		header: 'Type + Number',
-		id: 'type_and_number',
-		cell: ({ row }) => (
-			<div className="flex items-center h-full gap-2.5">
-				{row.original.issueType ? (
-					<>
-						<span
-							className={`w-5 h-5 rounded-full flex items-center justify-center ${
-								row.original.issueType === EIssueType.BUG
-									? 'bg-red-500'
-									: row.original.issueType === EIssueType.STORY
-										? 'bg-orange-400'
-										: 'bg-green-400'
-							}`}
-						>
-							{row.original.issueType === EIssueType.BUG ? (
-								<Bug className="w-3 h-3 text-white" />
-							) : row.original.issueType === EIssueType.STORY ? (
-								<svg
-									width={12}
-									height={12}
-									className="w-3 h-3 text-white"
-									viewBox="0 0 10 10"
-									fill="none"
-									xmlns="http://www.w3.org/2000/svg"
-								>
-									<path
-										d="M3.45824 7.5167V7.03337C2.4999 6.4542 1.7124 5.32503 1.7124 4.12503C1.7124 2.06253 3.60824 0.445866 5.7499 0.912532C6.69157 1.12087 7.51657 1.74587 7.94574 2.60837C8.81657 4.35837 7.8999 6.2167 6.55407 7.0292V7.51253C6.55407 7.63337 6.5999 7.91253 6.15407 7.91253H3.85824C3.3999 7.9167 3.45824 7.73753 3.45824 7.5167Z"
-										stroke="currentColor"
-										strokeLinecap="round"
-										strokeLinejoin="round"
-									/>
-									<path
-										d="M3.54175 9.16663C4.49591 8.89579 5.50425 8.89579 6.45841 9.16663"
-										stroke="currentColor"
-										strokeLinecap="round"
-										strokeLinejoin="round"
-									/>
-								</svg>
-							) : (
-								<svg
-									className="w-3 h-3 text-white"
-									width={12}
-									height={12}
-									viewBox="0 0 10 10"
-									fill="none"
-									xmlns="http://www.w3.org/2000/svg"
-								>
-									<path
-										d="M5.15405 3.69995H7.34155"
-										stroke="currentColor"
-										strokeLinecap="round"
-										strokeLinejoin="round"
-									/>
-									<path
-										d="M2.65845 3.69995L2.97095 4.01245L3.90845 3.07495"
-										stroke="currentColor"
-										strokeLinecap="round"
-										strokeLinejoin="round"
-									/>
-									<path
-										d="M5.15405 6.6167H7.34155"
-										stroke="currentColor"
-										strokeLinecap="round"
-										strokeLinejoin="round"
-									/>
-									<path
-										d="M2.65845 6.6167L2.97095 6.9292L3.90845 5.9917"
-										stroke="currentColor"
-										strokeLinecap="round"
-										strokeLinejoin="round"
-									/>
-									<path
-										d="M3.74992 9.16671H6.24992C8.33325 9.16671 9.16659 8.33337 9.16659 6.25004V3.75004C9.16659 1.66671 8.33325 0.833374 6.24992 0.833374H3.74992C1.66659 0.833374 0.833252 1.66671 0.833252 3.75004V6.25004C0.833252 8.33337 1.66659 9.16671 3.74992 9.16671Z"
-										stroke="currentColor"
-										strokeLinecap="round"
-										strokeLinejoin="round"
-									/>
-								</svg>
-							)}
-						</span>
+export function useTaskColumns(): ColumnDef<TTask>[] {
+	const t = useTranslations();
 
-						<span className="text-sm font-medium text-[#BAB8C4] dark:text-stone-300">
-							#{row.original.number}
-						</span>
-					</>
-				) : (
-					<span className="text-sm font-medium text-[#BAB8C4] dark:text-stone-300">No issue Type</span>
-				)}
-			</div>
-		)
-	},
-	{
-		accessorKey: 'title',
-		header: 'Title',
-		id: 'title',
-		cell: ({ row }) => (
-			<div className="overflow-x-hidden text-sm font-medium text-indigo-950 dark:text-gray-200 max-w-96 text-ellipsis text-nowrap min-w-80">
-				{row.original.title}
-			</div>
-		),
-		enableColumnFilter: true
-	},
-	{
-		accessorKey: 'user',
-		header: 'Assignee',
-		id: 'assignee',
-		cell: ({ row }) => <AssigneeUser users={row.original.members} />
-	},
-	{
-		accessorKey: 'status',
-		header: 'Status',
-		id: 'status',
-		cell: ({ row }) => (
-			<ActiveTaskStatusDropdown
-				task={row.original}
-				defaultValue={row.original.status ?? undefined}
-				className="lg:max-w-[190px] w-full"
-				taskStatusClassName="text-xs py-1.5 w-full"
-			/>
-		)
-	},
-	{
-		id: 'actions',
-		header: 'Action',
-		cell: ({ row }) => {
-			return <DropdownMenuTask task={row.original} />;
-		}
-	}
-];
+	return useMemo<ColumnDef<TTask>[]>(
+		() => [
+			{
+				accessorKey: 'typeNumber',
+				header: t('pages.teamTasks.TYPE_AND_NUMBER'),
+				id: 'type_and_number',
+				cell: ({ row }) => {
+					const hasIssueType = Boolean(row.original.issueType);
+					return (
+						<div className="flex h-full items-center gap-2.5">
+							{hasIssueType && (
+								<>
+									<TaskIssueStatus task={row.original} showIssueLabels={false} className="shrink-0" />
+
+									<span className="text-sm tabular-nums text-muted-foreground">
+										#{row.original.number}
+									</span>
+								</>
+							)}
+							{!hasIssueType && (
+								<span className="text-sm font-medium text-muted-foreground">
+									{t('pages.teamTasks.NO_ISSUE_TYPE')}
+								</span>
+							)}
+						</div>
+					);
+				}
+			},
+			{
+				accessorKey: 'title',
+				header: t('common.TITLE'),
+				id: 'title',
+				cell: ({ row }) => (
+					<div className="min-w-80 max-w-96 truncate text-sm font-medium text-foreground">
+						{row.original.title}
+					</div>
+				),
+				enableColumnFilter: true
+			},
+			{
+				accessorKey: 'user',
+				header: t('common.ASSIGNEE'),
+				id: 'assignee',
+				cell: ({ row }) => <AssigneeUser users={row.original.members} />
+			},
+			{
+				accessorKey: 'status',
+				header: t('common.STATUS'),
+				id: 'status',
+				cell: ({ row }) => (
+					<ActiveTaskStatusDropdown
+						task={row.original}
+						defaultValue={row.original.status ?? undefined}
+						className="lg:max-w-[190px] w-full"
+						taskStatusClassName="text-xs py-1.5 w-full"
+					/>
+				)
+			},
+			{
+				id: 'actions',
+				header: t('common.ACTION'),
+				cell: ({ row }) => {
+					return <DropdownMenuTask task={row.original} />;
+				}
+			}
+		],
+		[t]
+	);
+}

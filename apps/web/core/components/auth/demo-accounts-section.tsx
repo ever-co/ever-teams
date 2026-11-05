@@ -31,39 +31,36 @@ export function DemoAccountsSection({ onDemoLogin, className }: DemoAccountsSect
 	return (
 		<div
 			className={cn(
-				'p-6 rounded-[16px]',
-				'bg-gradient-to-br from-indigo-600 to-purple-700',
-				'dark:from-indigo-700 dark:to-purple-800',
-				'w-min shadow-lg min-w-36',
+				'p-5 rounded-xl bg-card hairline-ring ring-border shadow-sm shadow-black/6.5',
+				'w-min min-w-36',
 				className
 			)}
 		>
 			{/* Header */}
-			<div className="mb-6 text-left text-pretty">
-				<h3 className="mb-2 text-lg font-semibold text-white">{t('pages.authLogin.DEMO_ACCOUNTS_TITLE')}</h3>
-				<p className="text-sm text-indigo-100">{t('pages.authLogin.DEMO_ACCOUNTS_SUBTITLE')}</p>
+			<div className="mb-4 text-left text-pretty">
+				<h3 className="mb-1 text-base font-semibold text-balance text-foreground">
+					{t('pages.authLogin.DEMO_ACCOUNTS_TITLE')}
+				</h3>
+				<p className="text-sm text-muted-foreground">{t('pages.authLogin.DEMO_ACCOUNTS_SUBTITLE')}</p>
 			</div>
 
 			{/* Quick Access Buttons */}
-			<div className="flex flex-col gap-y-3">
+			<div className="flex flex-col gap-y-2">
 				{DEMO_ACCOUNTS_CONFIG.map((account) => {
 					const Icon = account.icon || null;
 					return (
 						<Button
 							key={account.type}
 							type="button"
+							variant="outline"
+							size="default"
 							onClick={() => onDemoLogin(account.email, account.password)}
-							className={cn(
-								'flex gap-2 justify-start items-center text-left px-3 text-nowrap whitespace-nowrap w-full py-1.5',
-								'bg-white hover:bg-gray-50',
-								'font-medium text-indigo-700',
-								'rounded-lg border-0',
-								'transition-all duration-200',
-								'text-xs shadow-sm hover:shadow-md dark:text-white'
-							)}
+							className="justify-start w-full text-left"
 						>
-							<Icon className="w-4 h-4 fill-current" />
-							<span>{t(`pages.authLogin.${account.translationKey}` as DottedLanguageObjectStringPaths)}</span>
+							<Icon className="size-4 fill-current" />
+							<span>
+								{t(`pages.authLogin.${account.translationKey}` as DottedLanguageObjectStringPaths)}
+							</span>
 						</Button>
 					);
 				})}

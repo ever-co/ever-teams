@@ -42,7 +42,7 @@ export function MembersSelect(props: IProps) {
 
 	return (
 		<Select value={selected} onValueChange={handleChange}>
-			<SelectTrigger className="w-48 truncate overflow-hidden  h-[2.2rem]  text-clip border border-gray-200 dark:border-gray-700 bg-white dark:bg-dark--theme-light focus:ring-2 focus:ring-transparent">
+			<SelectTrigger className="h-8 w-48 truncate overflow-hidden text-clip">
 				<SelectValue className="truncate" placeholder="Select a member" />
 			</SelectTrigger>
 			<SelectContent>

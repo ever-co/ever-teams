@@ -1,6 +1,6 @@
 import { useModal } from '@/core/hooks';
 import { Button, NoData, Text } from '@/core/components';
-import { SearchNormalIcon } from 'assets/svg';
+import { Search } from '@/core/components/icons';
 import { InviteFormModal } from '@/core/components/features/teams/invite-form-modal';
 import { ChangeEvent, useMemo, useState } from 'react';
 import { useTranslations } from 'next-intl';
@@ -9,6 +9,7 @@ import { InputField } from '@/core/components/duplicated-components/_input';
 import { activeTeamState } from '@/core/stores';
 import { useAtomValue } from 'jotai';
 import { useUserQuery } from '@/core/hooks/queries/user-user.query';
+import { LIST_SURFACE_CLASS } from '@/core/components/teams/list-surface';
 
 export const MemberSetting = () => {
 	const t = useTranslations();
@@ -28,23 +29,25 @@ export const MemberSetting = () => {
 			) || []
 		);
 	}, [activeTeam, filterString]);
+	const hasMembers = members.length > 0;
 
 	return (
-		<div className="flex flex-col gap-3">
-			<Text className="text-sm font-semibold text-foreground">{t('pages.settingsTeam.MEMBER_AND_ROLES')}</Text>
-			<div className="flex w-full flex-wrap items-center justify-between gap-2">
+		<div className="flex flex-col gap-4">
+			<div className="flex w-full flex-wrap items-center justify-between gap-3">
+				<Text className="text-sm font-medium text-foreground">{t('pages.settingsTeam.MEMBER_AND_ROLES')}</Text>
 				<InputField
 					type="text"
 					placeholder={t('pages.settingsTeam.SEARCH_MEMBER')}
-					className="mb-0 h-9 pl-1"
-					wrapperClassName="mb-0 w-full max-w-xs"
+					className="mb-0 h-8 pl-1"
+					wrapperClassName="mb-0 w-full sm:max-w-xs"
 					leadingNode={
 						<Button
 							variant="ghost"
-							className="ml-1 size-7 min-w-0 shrink-0 rounded-md p-0 text-muted-foreground"
+							size="icon-sm"
+							className="ml-1 shrink-0 text-muted-foreground"
 							type="submit"
 						>
-							<SearchNormalIcon className="size-4" />
+							<Search className="size-4" />
 						</Button>
 					}
 					onChange={(e: ChangeEvent<HTMLInputElement>) => {
@@ -53,11 +56,10 @@ export const MemberSetting = () => {
 				/>
 			</div>
 
-			{members.length > 0 ? (
-				<MemberTable members={members as any} />
-			) : (
-				<NoData text={t('pages.settingsTeam.NO_MEMBERS')} />
-			)}
+			<div className={LIST_SURFACE_CLASS}>
+				{hasMembers && <MemberTable members={members as any} />}
+				{!hasMembers && <NoData text={t('pages.settingsTeam.NO_MEMBERS')} />}
+			</div>
 
 			{/* TODO Dynamic */}
 			{/* <div className="mb-9 bg-[#E8E7EB] w-full h-[1px]"></div>

@@ -1,31 +1,39 @@
 import * as React from 'react';
 import {
-	MonitorSmartphone,
-	SquareActivity,
-	X,
-	Command,
-	AudioWaveform,
-	GalleryVerticalEnd,
-	FolderKanban,
-	LoaderCircle,
-	Bot
-} from 'lucide-react';
-import { chatPanelOpenAtom } from '@/core/components/features/chat-panel/atoms/chat-panel-open.atom';
-import Image from 'next/image';
+	Bot,
+	Calendar,
+	Chart,
+	Clock,
+	Dashboard,
+	Folder,
+	Home,
+	Inbox,
+	LayoutGrid,
+	Archive,
+	Plus,
+	Spinner,
+	Star,
+	Task,
+	X
+} from '@/core/components/icons/hugeicons';
 
 import {
 	Sidebar,
 	SidebarContent,
+	SidebarGroup,
 	SidebarHeader,
+	SidebarMenu,
+	SidebarMenuButton,
+	SidebarMenuItem,
 	SidebarRail,
 	SidebarTrigger,
-	useSidebar,
 	SidebarMenuSubButton,
-	SidebarFooter,
-	SidebarSeparator
+	SidebarFooter
 } from '@/core/components/common/sidebar';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
+import { isPathActive, stripLocalePrefix } from '@/core/lib/utils/navigation-path';
+import { NAV_ROW_ACTIVE_RECIPE, NAV_ROW_RECIPE } from './nav-row-recipe';
 import { cn } from '@/core/lib/helpers';
 import { isValidProjectForDisplay, projectBelongsToTeam } from '@/core/lib/helpers/type-guards';
 import { useModal } from '@/core/hooks';
@@ -35,10 +43,11 @@ import { SidebarOptInForm } from './sidebar-opt-in-form';
 import { LazyUserNavAvatar } from '@/core/components/optimized-components/dashboard';
 import { UserNavAvatarSkeleton } from '@/core/components/common/skeleton/user-nav-avatar-skeleton';
 import { useMemo } from 'react';
-import { DashboardIcon, FavoriteIcon, HomeIcon, InboxIcon, SidebarTaskIcon } from '../icons';
 import { TaskIssueStatus } from '../tasks/task-issue';
 import { WorkspacesSwitcher } from '../common/workspace-switcher';
-// Import optimized components from centralized location
+import { AppRail, APP_RAIL_SIDEBAR_CLASS } from '../common/app-switcher/app-rail';
+import { SidebarAppSwitcher } from '../common/app-switcher/sidebar-app-switcher';
+import { useAppSwitcherPlacement } from '@/core/hooks/common/use-app-switcher-placement';
 import { LazyCreateTeamModal } from '@/core/components/optimized-components/teams';
 import { LazySidebarCommandModal } from '@/core/components/optimized-components/common';
 import { NavHome } from '../nav-home';
@@ -47,9 +56,24 @@ import { Suspense } from 'react';
 import { ModalSkeleton } from '@/core/components/common/skeleton/modal-skeleton';
 import { EBaseEntityEnum } from '@/core/types/generics/enums/entity';
 import { TTask } from '@/core/types/schemas/task/task.schema';
-import { useAtom, useAtomValue } from 'jotai';
+import { useAtomValue } from 'jotai';
 import { useFavoritesQuery } from '@/core/hooks/favorites/use-favorites-query';
-import { activeTeamState, isTeamManagerState, tasksByTeamState } from '@/core/stores';
+import {
+	activeTeamState,
+	activeTeamTaskState,
+	isTeamManagerState,
+	tasksByTeamState,
+	timerStatusState
+} from '@/core/stores';
+import { CreateProjectModal } from '../features/projects/create-project-modal';
+import { useHasBeenOpen } from '@/core/hooks/common/use-has-been-open';
+import {
+	SidebarCount,
+	SidebarCreateProjectRow,
+	SidebarProjectMenu,
+	SidebarProjectTile,
+	SidebarTrackingMark
+} from './sidebar-projects';
 import { useUserQuery } from '@/core/hooks/queries/user-user.query';
 import { APP_NAME } from '@/core/constants/config/constants';
 import { GlobalAllPlansModal } from '../daily-plan';
@@ -58,13 +82,32 @@ import { GlobalProjectActionModal } from '../features/projects/global-project-ac
 import { useSidebarDataOwner } from '@/core/hooks/bootstrap/use-feature-data';
 import { getMyWorkNavigation } from './my-work-navigation';
 import { readRuntimeEnv } from '@/env-config';
+import { CommandPaletteTrigger } from './default-layout/header/command-palette-trigger';
+import { DefaultCreateAction } from '../features/layouts/header/create-default-action';
+import { SettingsNav } from '../settings/kit/settings-nav';
+import { isSettingsPath } from '../settings/kit/settings-entries';
+import { useRememberAppPath } from '@/core/hooks/common/use-remember-app-path';
+
 type AppSidebarProps = React.ComponentProps<typeof Sidebar> & { publicTeam: boolean | undefined };
+
+// Limit to 5 projects for sidebar display
+const MAX_SIDEBAR_PROJECTS = 5;
+
+function isInboxEnabled() {
+	const runtimeFlag = readRuntimeEnv('NEXT_PUBLIC_INBOX_ENABLED') || process.env.NEXT_PUBLIC_INBOX_ENABLED;
+	return runtimeFlag === 'true';
+}
+
+/**
+ * The sidebar sits on the window background (variant `inset`): the pages render in the rounded panel
+ * beside it. Its header carries the workspace switcher with the collapse button, then the palette
+ * search, the quick-create menu and the assistant; the account menu closes it at the foot.
+ */
 export function AppSidebar({ publicTeam, ...props }: AppSidebarProps) {
 	const { data: user } = useUserQuery();
 	const username = user?.name || user?.firstName || user?.lastName || user?.username;
 
 	const isTeamManager = useAtomValue(isTeamManagerState);
-	const { state } = useSidebar();
 	const { currentEmployeeFavorites } = useFavoritesQuery();
 	const tasks = useAtomValue(tasksByTeamState);
 	const { isOpen, closeModal } = useModal();
@@ -80,7 +123,6 @@ export function AppSidebar({ publicTeam, ...props }: AppSidebarProps) {
 	const showAllTeams = Boolean(pathname?.includes('/all-teams'));
 	const validProjects = useMemo(() => {
 		return organizationProjects.filter((project) => {
-			// Base validation using type-guard helper
 			if (!isValidProjectForDisplay(project)) return false;
 
 			if (showAllTeams || !activeTeam?.id) return true;
@@ -92,10 +134,28 @@ export function AppSidebar({ publicTeam, ...props }: AppSidebarProps) {
 		});
 	}, [organizationProjects, activeTeam, showAllTeams]);
 
-	// Limit to 5 projects for sidebar display
-	const MAX_SIDEBAR_PROJECTS = 5;
+	const archivedProjectsCount = useMemo(() => {
+		const archivedProjects = organizationProjects.filter((project) => {
+			const isArchivedProject = isValidProjectForDisplay(project, true);
+			if (!isArchivedProject) return false;
+			if (showAllTeams || !activeTeam?.id) return true;
+			if (project.teams === undefined) return true;
+			return projectBelongsToTeam(project, activeTeam.id);
+		});
+		return archivedProjects.length;
+	}, [organizationProjects, activeTeam, showAllTeams]);
+
 	const displayedProjects = useMemo(() => validProjects.slice(0, MAX_SIDEBAR_PROJECTS), [validProjects]);
-	const remainingProjectsCount = validProjects.length - MAX_SIDEBAR_PROJECTS;
+	const projectsCount = validProjects.length;
+
+	const timerStatus = useAtomValue(timerStatusState);
+	const activeTeamTask = useAtomValue(activeTeamTaskState);
+	const trackedProjectId = trackedProjectIdOf(Boolean(timerStatus?.running), activeTeamTask?.projectId);
+
+	const createProjectModal = useModal();
+	const hasOpenedCreateProject = useHasBeenOpen(createProjectModal.isOpen);
+	const openCreateProject = createProjectModal.openModal;
+	const canCreateProject = Boolean(user?.isEmailVerified);
 
 	const currentEmployeeFavoritesTasks = useMemo(() => {
 		const taskIds = currentEmployeeFavorites
@@ -105,97 +165,165 @@ export function AppSidebar({ publicTeam, ...props }: AppSidebarProps) {
 		return tasks.filter((task) => taskIds.includes(task.id));
 	}, [tasks, currentEmployeeFavorites]);
 
-	// This is sample data.
-	const data = {
-		workspaces: [
-			{
-				name: APP_NAME,
-				logo: ({ className }: { className?: string }) => (
-					<svg
-						xmlns="http://www.w3.org/2000/svg"
-						width={25}
-						height={26}
-						viewBox="0 0 25 26"
-						fill="none"
-						className={cn('size-5', className)}
-					>
-						<path
-							fillRule="evenodd"
-							clipRule="evenodd"
-							d="M.55 18.186l.325-.773 2.04-4.855-.007-.012-1.555-3.127-.167 6.846-.437-.01.173-7.14.283.006-.463-.93-.376-.756.814-.222 4.758-1.298L8.187.935l.348-.773.688.494.805.579.055-.27 7.701 1.565-.057.283 1.34-.367.915-.25-.039.947-.049 1.188.262-.13 3.286 6.604-.392.195-3.168-6.366-.164 4.005 4.177 3.116.701.524-.67.563-4.023 3.38v.003l-.018.015-.123 4.096 3.26-6.716.395.191-3.43 7.063-.238-.116-.03.997-.024.822-.806-.163-5.184-1.047-3.92 3.117-.67.533-.383-.767-.497-.999-.249.317-5.856-4.61.27-.344L8.2 23.177 6.324 19.41 1.37 18.36l-.82-.173zM13.743 3.905L10.35 1.466 17.408 2.9l-3.666 1.005zM2.479 17.177l1.25-2.98 1.806 3.627-3.056-.647zm4.788 1.015l.018.036 6.066 1.617 5.147-4.258-.17-6.256-.025-.018.002-.051-4.86-3.844-6.516 1.67-2.484 5.433 2.821 5.67zm2.325 4.673l-1.484-2.982 3.92 1.045-2.436 1.937zm8.766-1.973l-3.293-.665 3.397-2.81-.104 3.475zm4.005-8.549l-2.508 2.108-.111-4.063 2.62 1.955zM18.52 4.034l-.144 3.515-3.264-2.581 3.408-.934zM9.102 2.277l2.894 2.08-4.335 1.111 1.441-3.19zM2.359 8.33l2.83-.773-1.539 3.367L2.36 8.33zm-.087-1.78l5.134-4.742-.297-.322-5.134 4.742.297.322zm15.641 16.259l-6.936 1.61-.099-.426 6.936-1.61.1.426z"
-							fill="url(#paint0_linear_11058_107682)"
-						/>
-						<defs>
-							<linearGradient
-								id="paint0_linear_11058_107682"
-								x1="-2.65811"
-								y1="11.7373"
-								x2="11.928"
-								y2="4.38343"
-								gradientUnits="userSpaceOnUse"
-							>
-								<stop stopColor="#D24F39" />
-								<stop offset={1} stopColor="#791EEC" />
-							</linearGradient>
-						</defs>
-					</svg>
-				),
-				plan: 'Enterprise'
-			},
-			{
-				name: 'Ever Gauzy',
-				logo: AudioWaveform,
-				plan: 'Startup'
-			},
-			{
-				name: 'Ever Teams',
-				logo: GalleryVerticalEnd,
-				plan: 'Free'
-			},
-			{
-				name: 'Ever Rec',
-				logo: Command,
-				plan: 'Free'
-			}
-		],
-		home: [
-			{
-				title: t('sidebar.HOME'),
-				url: '/',
-				selectable: true,
-				icon: HomeIcon,
-				label: 'home'
-			},
-			// /inbox has no page yet (404 for every user who clicks it). Gated, not removed — flip
-			// NEXT_PUBLIC_INBOX_ENABLED=true when the route ships (read at runtime: no rebuild of the image).
-			...((readRuntimeEnv('NEXT_PUBLIC_INBOX_ENABLED') || process.env.NEXT_PUBLIC_INBOX_ENABLED) === 'true'
-				? [
-						{
-							title: t('sidebar.INBOX'),
-							url: '/inbox',
-							selectable: true,
-							icon: InboxIcon,
-							label: 'inbox'
-						}
-					]
-				: [])
-		],
-		navMain: [
+	const encodedUsername = encodeURIComponent(username || '');
+	const hasFavoriteTasks = currentEmployeeFavoritesTasks.length > 0;
+	const userId = user?.id;
+	const activeTeamId = activeTeam?.id;
+
+	const homeEntries = useMemo(() => {
+		const inboxEntry = {
+			title: t('sidebar.INBOX'),
+			url: '/inbox',
+			selectable: true,
+			icon: Inbox,
+			label: 'inbox'
+		};
+		const homeEntry = {
+			title: t('sidebar.HOME'),
+			url: '/',
+			selectable: true,
+			icon: Home,
+			label: 'home'
+		};
+		const calendarEntry = {
+			title: t('common.CALENDAR'),
+			url: '/calendar',
+			selectable: true,
+			icon: Calendar,
+			label: 'calendar'
+		};
+		// /inbox has no page yet (404 for every user who clicks it). Gated, not removed: flip
+		// NEXT_PUBLIC_INBOX_ENABLED=true when the route ships (read at runtime: no rebuild of the image).
+		if (isInboxEnabled()) {
+			return [homeEntry, inboxEntry, calendarEntry];
+		}
+		return [homeEntry, calendarEntry];
+	}, [t]);
+
+	const navMain = useMemo(() => {
+		const favoriteItems = hasFavoriteTasks
+			? currentEmployeeFavoritesTasks
+					.sort((a, b) => a.title.toLowerCase().localeCompare(b.title.toLowerCase()))
+					.map((task) => ({
+						title: task?.title,
+						url: '#',
+						component: <FavoriteTaskItem task={task} />
+					}))
+			: [
+					{
+						title: t('common.NO_FAVORITE_TASK'),
+						url: '#',
+						label: 'no-task'
+					}
+				];
+
+		const trackingLabel = t('sidebar.TRACKING_PROJECT');
+		const projectItems = displayedProjects.map((project) => {
+			const isTracked = project.id === trackedProjectId;
+			return {
+				title: project.name ?? '',
+				label: 'project',
+				url: `/projects/${project.id}`,
+				icon: <SidebarProjectTile project={project} />,
+				trailing: isTracked && <SidebarTrackingMark label={trackingLabel} />,
+				actions: <SidebarProjectMenu project={project} />
+			};
+		});
+
+		const hasProjects = projectsCount > 0;
+		const showsCreateProjectRow = !hasProjects && canCreateProject;
+		const createProjectItems = [];
+		if (showsCreateProjectRow) {
+			createProjectItems.push({
+				title: t('sidebar.CREATE_PROJECT'),
+				url: '#',
+				label: 'create-project',
+				component: <SidebarCreateProjectRow onCreate={openCreateProject} />
+			});
+		}
+
+		let createProjectAction: { label: string; icon: React.ReactNode; onClick: () => void } | undefined;
+		if (canCreateProject) {
+			createProjectAction = { label: t('sidebar.CREATE_PROJECT'), icon: <Plus />, onClick: openCreateProject };
+		}
+
+		const allProjectsItem = {
+			title: t('sidebar.ALL_PROJECTS'),
+			url: '/projects',
+			label: 'view-all-projects',
+			icon: <LayoutGrid className="size-4 text-foreground/55" />,
+			trailing: hasProjects && <SidebarCount value={projectsCount} />
+		};
+
+		const archivedProjectsItem = {
+			title: t('sidebar.ARCHIVED_PROJECTS'),
+			url: '/projects?archived=true',
+			label: 'archived-projects',
+			icon: <Archive className="size-4 text-foreground/55" />,
+			trailing: archivedProjectsCount > 0 && <SidebarCount value={archivedProjectsCount} />
+		};
+
+		const reportsEntry = {
+			title: t('sidebar.REPORTS'),
+			label: 'reports',
+			url: '#',
+			selectable: false,
+			icon: Chart,
+			items: [
+				{
+					title: t('sidebar.TIMESHEETS'),
+					url: `/reports/timesheet/${userId}?name=${encodedUsername}`,
+					label: 'reports-timesheets'
+				},
+				{
+					title: t('sidebar.MANUAL_TIME_EDIT'),
+					label: 'reports-manual-time-edit',
+					url: '/reports/manual-time-edits'
+				},
+				{
+					title: t('sidebar.WEEKLY_LIMIT'),
+					label: 'reports-weekly-limit',
+					url: '/reports/weekly-limit'
+				},
+				{
+					title: t('sidebar.ACTUAL_AND_EXPECTED_HOURS'),
+					label: 'reports-actual-and-expected-hours',
+					url: '/reports/actual-and-expected-hours'
+				},
+				{
+					title: t('sidebar.PAYMENTS_DUE'),
+					label: 'reports-payments-due',
+					url: '/reports/payments-due'
+				},
+				{
+					title: t('sidebar.PROJECT_BUDGET'),
+					label: 'reports-project-budget',
+					url: '/reports/project-budget'
+				},
+				{
+					title: t('sidebar.TIME_AND_ACTIVITY'),
+					label: 'reports-time-and-activity',
+					url: '/reports/time-and-activity'
+				}
+			]
+		};
+
+		return [
 			{
 				title: t('sidebar.DASHBOARD'),
 				url: '#',
 				selectable: false,
-				icon: DashboardIcon,
+				icon: Dashboard,
 				label: 'dashboard',
 				items: [
 					{
 						title: t('sidebar.TEAM_DASHBOARD'),
-						url: `/dashboard/team-dashboard/${activeTeam?.id ?? user?.id}?name=${encodeURIComponent(username || '')}`,
+						url: `/dashboard/team-dashboard/${activeTeamId ?? userId}?name=${encodedUsername}`,
 						label: 'team dashboard'
 					},
 					{
 						title: t('sidebar.APPS_AND_URLS'),
-						url: `/dashboard/app-url/${user?.id}?name=${encodeURIComponent(username || '')}`,
+						url: `/dashboard/app-url/${userId}?name=${encodedUsername}`,
 						label: 'apps-urls'
 					}
 				]
@@ -204,30 +332,15 @@ export function AppSidebar({ publicTeam, ...props }: AppSidebarProps) {
 				title: t('sidebar.FAVORITES'),
 				url: '#',
 				selectable: false,
-				icon: FavoriteIcon,
+				icon: Star,
 				label: 'favorites',
-				items:
-					currentEmployeeFavoritesTasks && currentEmployeeFavoritesTasks.length > 0
-						? currentEmployeeFavoritesTasks
-								.sort((a, b) => a.title.toLowerCase().localeCompare(b.title.toLowerCase()))
-								.map((task) => ({
-									title: task?.title,
-									url: '#',
-									component: <FavoriteTaskItem task={task} />
-								}))
-						: [
-								{
-									title: t('common.NO_FAVORITE_TASK'),
-									url: '#',
-									label: 'no-task'
-								}
-							]
+				items: favoriteItems
 			},
 			{
 				title: t('sidebar.TASKS'),
 				url: '#',
 				selectable: false,
-				icon: SidebarTaskIcon,
+				icon: Task,
 				label: 'tasks',
 				items: [
 					{
@@ -236,8 +349,13 @@ export function AppSidebar({ publicTeam, ...props }: AppSidebarProps) {
 						label: 'team-tasks'
 					},
 					{
+						title: t('common.KANBAN'),
+						url: '/kanban',
+						label: 'kanban'
+					},
+					{
 						title: t('sidebar.MY_TASKS'),
-						url: `/profile/${user?.id}?name=${encodeURIComponent(username || '')}`,
+						url: `/profile/${userId}?name=${encodedUsername}`,
 						label: 'my-tasks'
 					}
 				]
@@ -245,69 +363,18 @@ export function AppSidebar({ publicTeam, ...props }: AppSidebarProps) {
 			{
 				title: t('sidebar.PROJECTS'),
 				url: '/projects',
-				selectable: false, // Changed to false - dropdown should open, not redirect
-				icon: FolderKanban,
+				// The group opens its list; the page itself is reached through "View".
+				selectable: false,
+				icon: Folder,
 				label: 'projects',
-				items: [
-					// Display limited projects (max 5)
-					...(displayedProjects
-						? displayedProjects.map((project) => {
-								return {
-									title: project?.name ?? '',
-									label: 'project',
-									url: `/projects/${project?.id}`,
-									icon: (
-										<div
-											key={project?.name}
-											style={{ backgroundColor: project?.color || undefined }}
-											className={cn(
-												'flex size-5 flex-none shrink-0 items-center justify-center overflow-hidden rounded-md border border-border text-[10px] font-medium uppercase'
-											)}
-										>
-											{!project?.imageUrl ? (
-												project?.name?.substring(0, 2)
-											) : (
-												<Image
-													alt={project?.name ?? ''}
-													height={20}
-													width={20}
-													className="w-full h-full"
-													src={project?.imageUrl}
-												/>
-											)}
-										</div>
-									)
-								};
-							})
-						: []),
-					// Show "View all projects" if there are more projects
-					...(remainingProjectsCount > 0
-						? [
-								{
-									title: `${t('common.VIEW')} (+${remainingProjectsCount})`,
-									url: '/projects',
-									label: 'view-all-projects'
-								}
-							]
-						: [
-								{
-									title: `${t('pages.projects.accessDenied.viewAllProjects')}`,
-									url: '/projects',
-									label: 'view-all-projects'
-								}
-							]),
-					{
-						title: t('common.ARCHIVE'),
-						url: '/projects?archived=true',
-						label: 'archived-projects'
-					}
-				]
+				action: createProjectAction,
+				items: [...projectItems, ...createProjectItems, allProjectsItem, archivedProjectsItem]
 			},
 			{
 				title: t('sidebar.MY_WORKS'),
 				url: '#',
 				selectable: false,
-				icon: MonitorSmartphone,
+				icon: Clock,
 				label: 'my-work',
 				items: [
 					{
@@ -322,90 +389,67 @@ export function AppSidebar({ publicTeam, ...props }: AppSidebarProps) {
 					}
 				]
 			},
-			...(isTeamManager
-				? [
-						{
-							title: t('sidebar.REPORTS'),
-							label: 'reports',
-							url: '#',
-							selectable: false,
-							icon: SquareActivity,
-							items: [
-								{
-									title: t('sidebar.TIMESHEETS'),
-									url: `/reports/timesheet/${user?.id}?name=${encodeURIComponent(username || '')}`,
-									label: 'reports-timesheets'
-								},
-								{
-									title: t('sidebar.MANUAL_TIME_EDIT'),
-									label: 'reports-manual-time-edit',
-									url: '#'
-								},
-								{
-									title: t('sidebar.WEEKLY_LIMIT'),
-									label: 'reports-weekly-limit',
-									url: '/reports/weekly-limit'
-								},
-								{
-									title: t('sidebar.ACTUAL_AND_EXPECTED_HOURS'),
-									label: 'reports-actual-and-expected-hours',
-									url: '#'
-								},
-								{
-									title: t('sidebar.PAYMENTS_DUE'),
-									label: 'reports-payments-due',
-									url: '#'
-								},
-								{
-									title: t('sidebar.PROJECT_BUDGET'),
-									label: 'reports-project-budget',
-									url: '#'
-								},
-								{
-									title: t('sidebar.TIME_AND_ACTIVITY'),
-									label: 'reports-time-and-activity',
-									url: '/reports/time-and-activity'
-								}
-							]
-						}
-					]
-				: [])
-		],
-		projects: []
-	};
+			...(isTeamManager ? [reportsEntry] : [])
+		];
+	}, [
+		t,
+		hasFavoriteTasks,
+		currentEmployeeFavoritesTasks,
+		displayedProjects,
+		projectsCount,
+		archivedProjectsCount,
+		trackedProjectId,
+		canCreateProject,
+		openCreateProject,
+		userId,
+		activeTeamId,
+		encodedUsername,
+		myWorkNavigation.timeAndActivity,
+		myWorkNavigation.workDiary,
+		isTeamManager
+	]);
+
+	const showsSettingsNav = isSettingsPath(stripLocalePrefix(pathname ?? ''));
+	useRememberAppPath(pathname, showsSettingsNav);
+
+	const showAccountMenu = !publicTeam;
+	const showCreateTeamModal = !publicTeam && isOpen && Boolean(user?.isEmailVerified);
+	const appSwitcherPlacement = useAppSwitcherPlacement();
+	const showsAppRail = appSwitcherPlacement === 'rail';
+	const sidebarClassName = cn('z-1000', showsAppRail && APP_RAIL_SIDEBAR_CLASS);
 
 	return (
 		<>
-			<Sidebar
-				className={cn('z-1000', state === 'collapsed' ? 'items-center' : '')}
-				collapsible="icon"
-				{...props}
-			>
-				<SidebarTrigger
-					className={cn(
-						'absolute top-4 z-[1030] bg-sidebar transition-all duration-300',
-						state === 'collapsed' ? '-right-7' : '-right-3'
-					)}
-				/>
-				<ChatPanelOpenButton />
-				<SidebarHeader className={cn(state === 'collapsed' ? 'items-center' : '')}>
-					<WorkspacesSwitcher />
+			<AppRail />
+			<Sidebar variant="inset" collapsible="icon" className={sidebarClassName} {...props}>
+				<SidebarHeader className="gap-2 p-2 group-data-[collapsible=icon]:items-center">
+					<div className="flex items-center gap-1 group-data-[collapsible=icon]:flex-col">
+						<SidebarAppSwitcher />
+						<div className="min-w-0 flex-1 group-data-[collapsible=icon]:flex-none">
+							<WorkspacesSwitcher />
+						</div>
+						<SidebarTrigger className="shrink-0" />
+					</div>
 
-					<SidebarSeparator />
-					{/* The command palette trigger moved to the header (navbar.tsx), left of Collaborate. */}
-					<NavHome homeData={data.home} />
-					<SidebarSeparator />
+					<div className="flex items-center gap-1.5 group-data-[collapsible=icon]:flex-col">
+						<CommandPaletteTrigger className="min-w-0 flex-1 group-data-[collapsible=icon]:flex-none" />
+						<DefaultCreateAction publicTeam={publicTeam} />
+					</div>
 				</SidebarHeader>
-				<SidebarContent>
-					<NavMain items={data.navMain} />
+
+				<SidebarContent className="gap-0">
+					{showsSettingsNav && <SettingsNav />}
+					{!showsSettingsNav && <NavHome homeData={homeEntries} />}
+					{!showsSettingsNav && <AssistantNavItem />}
+					{!showsSettingsNav && <NavMain items={navMain} />}
 				</SidebarContent>
 
 				<SidebarFooter className="mt-auto gap-2 p-2">
 					<SidebarOptInForm />
 					{/* The account menu lives here, at the foot of the sidebar, as in Ever Works. On phones the
 					    sidebar is a modal sheet that would cover the menu's dialogs, so there the header keeps it. */}
-					{!publicTeam && (
-						<div className="hidden border-t border-sidebar-border pt-2 md:block">
+					{showAccountMenu && (
+						<div className="hidden hairline-t border-border pt-2 md:block">
 							<Suspense fallback={<UserNavAvatarSkeleton variant="sidebar" />}>
 								<LazyUserNavAvatar variant="sidebar" />
 							</Suspense>
@@ -415,112 +459,121 @@ export function AppSidebar({ publicTeam, ...props }: AppSidebarProps) {
 				<SidebarRail />
 			</Sidebar>
 
-			{!publicTeam && isOpen && user?.isEmailVerified && (
+			{showCreateTeamModal && (
 				<Suspense fallback={<ModalSkeleton size="md" />}>
 					<LazyCreateTeamModal open={isOpen} closeModal={closeModal} />
 				</Suspense>
 			)}
 
 			{/* Command palette - rendered once for the entire app (outside the mobile sheet), so its
-			    shortcuts work on every page; the header's CommandPaletteTrigger opens it. */}
+			    shortcuts work on every page; the sidebar's CommandPaletteTrigger opens it. */}
 			<Suspense fallback={null}>
 				<LazySidebarCommandModal publicTeam={publicTeam || false} variant="none" />
 			</Suspense>
 
-			{/* Global AllPlansModal - rendered once for the entire app */}
+			{/* Rendered once for the entire app. */}
 			<GlobalAllPlansModal />
 
-			{/* Global AssignTaskModal - rendered once for the entire app */}
-			{/* This fixes the issue where the modal was closing immediately when opened from a Popover */}
+			{/* Rendered once for the entire app: a modal opened from a Popover used to close at once. */}
 			<GlobalAssignTaskModal />
 
-			{/* Global ProjectActionModal - rendered once for the entire app */}
-			{/* This fixes the "Maximum update depth exceeded" error on /projects page */}
+			{/* Rendered once for the entire app: avoids the "Maximum update depth exceeded" error on /projects. */}
 			<GlobalProjectActionModal />
+
+			{hasOpenedCreateProject && (
+				<CreateProjectModal open={createProjectModal.isOpen} closeModal={createProjectModal.closeModal} />
+			)}
 		</>
 	);
 }
 
-/**
- * Opens the AI chat panel: a 24px round button centred on the sidebar's right edge, as Ever Works
- * draws it. Shown only while the panel is closed; it sets the shared atom and the panel layout
- * expands itself (useChatPanel keeps the panel in step with the atom).
- */
-function ChatPanelOpenButton() {
+/** The assistant has a page of its own, like Linear's Agent: a nav row under Home. */
+function AssistantNavItem() {
 	const t = useTranslations();
-	const [chatOpen, setChatOpen] = useAtom(chatPanelOpenAtom);
+	const pathname = usePathname();
 	const label = t('chatView.OPEN_ASSISTANT', { appName: APP_NAME });
-
-	if (chatOpen) return null;
+	const isActive = isPathActive(pathname, ASSISTANT_PATH);
 
 	return (
-		<button
-			type="button"
-			onClick={() => setChatOpen(true)}
-			title={label}
-			aria-label={label}
-			className={cn(
-				'absolute -right-3 top-1/2 z-[1030] hidden size-6 -translate-y-1/2 items-center justify-center rounded-full md:flex',
-				'border border-border bg-sidebar text-muted-foreground shadow-sm transition-colors',
-				'hover:border-foreground/30 hover:text-foreground dark:hover:text-white'
-			)}
-		>
-			<Bot className="size-3.5" aria-hidden="true" />
-		</button>
+		<SidebarGroup className="-mt-3">
+			<SidebarMenu className="w-full gap-y-0.5 group-data-[collapsible=icon]:items-center">
+				<SidebarMenuItem>
+					<SidebarMenuButton
+						asChild
+						isActive={isActive}
+						tooltip={label}
+						className={cn(
+							NAV_ROW_RECIPE,
+							'group-data-[collapsible=icon]:justify-center',
+							isActive && NAV_ROW_ACTIVE_RECIPE
+						)}
+					>
+						<Link href={ASSISTANT_PATH} aria-current={ariaCurrentFor(isActive)}>
+							<Bot aria-hidden="true" />
+							<span className="truncate group-data-[collapsible=icon]:hidden">
+								{t('chatView.ASSISTANT')}
+							</span>
+						</Link>
+					</SidebarMenuButton>
+				</SidebarMenuItem>
+			</SidebarMenu>
+		</SidebarGroup>
 	);
+}
+
+const ASSISTANT_PATH = '/assistant';
+
+function trackedProjectIdOf(isTimerRunning: boolean, projectId: string | null | undefined) {
+	if (!isTimerRunning) {
+		return null;
+	}
+	return projectId ?? null;
+}
+
+function ariaCurrentFor(isActive: boolean) {
+	if (isActive) {
+		return 'page' as const;
+	}
+	return undefined;
 }
 
 /**
  * Sidebar | Favorite Task item
  */
-
 const FavoriteTaskItem = ({ task }: { task: TTask }) => {
+	const t = useTranslations();
 	const { deleteFavorite, deleteFavoriteLoading } = useDeleteFavorite();
 
 	return (
 		<SidebarMenuSubButton
 			key={task?.id}
-			className={cn(
-				'flex h-8 min-h-8 items-center rounded-md text-muted-foreground transition-colors first:mt-0.5 last:mb-0.5 hover:bg-black/[0.04] hover:text-foreground dark:hover:bg-white/[0.04]'
-			)}
+			className="group/favorite flex h-8 min-h-8 items-center rounded-md text-muted-foreground transition-colors first:mt-0.5 last:mb-0.5 hover:bg-foreground/5 hover:text-foreground"
 			asChild
 		>
-			<span className="flex justify-between items-center w-full min-w-fit">
-				<Link href={`/task/${task?.id}`} className="flex items-center">
-					{task && (
-						// Show task issue and task number
-						<TaskIssueStatus
-							showIssueLabels={false}
-							className={cn(
-								'flex gap-1 items-center px-2 mr-1 size-full rounded-full! p-1.5! aspect-square'
-							)}
-							task={task}
-						/>
-					)}
-					<span className={cn('flex items-center font-normal')}>
-						<small className={cn('mr-1 text-xs font-normal text-muted-foreground/70 whitespace-nowrap text-nowrap')}>
-							#{task?.taskNumber}
-						</small>
-						<span
-							className={cn(
-								'text-nowrap text-sm max-w-[100px] whitespace-nowrap text-ellipsis overflow-hidden'
-							)}
-						>
-							{task?.title}
-						</span>
+			<span className="flex w-full min-w-0 items-center gap-1">
+				<Link href={`/task/${task?.id}`} className="flex min-w-0 flex-1 items-center gap-2">
+					{task && <TaskIssueStatus showIssueLabels={false} className="shrink-0" task={task} />}
+					<span className="shrink-0 text-xs font-normal tabular-nums text-muted-foreground/70">
+						#{task?.taskNumber}
 					</span>
+					<span className="min-w-0 truncate text-[13px] font-normal">{task?.title}</span>
 				</Link>
-				{deleteFavoriteLoading ? (
-					<LoaderCircle className="animate-spin" size={15} />
-				) : (
-					<X
-						className="size-4 cursor-pointer text-muted-foreground hover:text-foreground"
-						onClick={async () => {
-							await deleteFavorite(task.id);
-						}}
-					/>
+				{deleteFavoriteLoading && <Spinner className="size-3.5 shrink-0 animate-spin" />}
+				{!deleteFavoriteLoading && (
+					<button
+						type="button"
+						aria-label={t('common.REMOVE_FAVORITE_TASK')}
+						onClick={() => deleteFavorite(task.id)}
+						className={FAVORITE_REMOVE_BUTTON}
+					>
+						<X className="size-3.5" />
+					</button>
 				)}
 			</span>
 		</SidebarMenuSubButton>
 	);
 };
+
+/** Shown on the row's hover and on keyboard focus, like the row actions of Linear's sidebar. */
+const FAVORITE_REMOVE_BUTTON =
+	'flex size-5 shrink-0 items-center justify-center rounded text-muted-foreground opacity-0 outline-none transition-[opacity,color,background-color] hover:bg-foreground/5 hover:text-foreground focus-visible:opacity-100 focus-visible:ring-[3px] focus-visible:ring-ring/25 group-hover/favorite:opacity-100';

@@ -21,7 +21,7 @@ interface LegendProps {
 }
 
 // Constants
-const CHART_COLORS = {
+export const CHART_COLORS = {
 	productive: 'bg-[#1554E0]',
 	neutral: 'bg-[#F5B458]',
 	unproductive: 'bg-[#F56D58]'
@@ -49,13 +49,13 @@ const Legend: React.FC<LegendProps> = ({ productivePercentage, neutralPercentage
 
 	return (
 		<div>
-			<div className="mb-2 text-sm text-gray-600 dark:text-gray-400">{formattedDate}</div>
+			<div className="mb-2 text-xs text-muted-foreground">{formattedDate}</div>
 			<div className="space-y-2">
 				{legendItems.map(({ label, percentage, color }) => (
 					<div key={label} className="flex gap-2 items-center">
-						<div className={cn('w-4 h-4 rounded', color)} />
-						<span className="text-sm text-gray-600 dark:text-gray-400">{label}</span>
-						<span className="ml-auto text-sm text-gray-600 dark:text-gray-400">{percentage}%</span>
+						<div className={cn('size-2.5 rounded-sm', color)} />
+						<span className="text-sm text-foreground">{label}</span>
+						<span className="ml-auto pl-4 text-sm tabular-nums text-muted-foreground">{percentage}%</span>
 					</div>
 				))}
 			</div>
@@ -92,7 +92,7 @@ const ChartBar: React.FC<{
 		</div>
 		{isHovered && (
 			<div className="absolute top-1/2 left-1/2 z-10 transform -translate-x-1/2 -translate-y-1/2">
-				<div className="p-3 whitespace-nowrap bg-white rounded-lg border border-gray-200 shadow-lg dark:bg-dark--theme-light dark:border-gray-700">
+				<div className="rounded-lg bg-popover px-3 py-2 whitespace-nowrap text-popover-foreground hairline-ring ring-border shadow-md shadow-black/6.5">
 					<Legend
 						productivePercentage={day.productive}
 						neutralPercentage={day.neutral}
@@ -124,7 +124,7 @@ export const ProductivityChart: React.FC<ProductivityChartProps> = ({ data }) =>
 					{data.map((day) => (
 						<div
 							key={`label-${day.date}`}
-							className="flex-1 text-xs text-center text-gray-500 dark:text-gray-400"
+							className="flex-1 text-xs text-center tabular-nums text-muted-foreground"
 						>
 							{getDateNumber(day.date)}
 						</div>

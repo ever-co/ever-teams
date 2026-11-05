@@ -5,13 +5,14 @@ import { redactCaptureResult } from '@/core/lib/helpers/analytics-redaction';
 import { isAccountDeletionPath } from '@/core/lib/auth/account-deletion';
 import posthog from 'posthog-js';
 import { PostHogProvider } from 'posthog-js/react';
+import { POSTHOG_LANDING_PATHNAME } from './posthog-config';
 
 const key = POSTHOG_KEY.value;
 const host = POSTHOG_HOST.value;
 
 // A page load that starts on the account deletion pages leaves PostHog off (uninitialized, every call a no-op): it
 // records the address it starts on, and the e-mailed link carries a deletion token in it (isAccountDeletionPath).
-if (typeof window !== 'undefined' && key && host && !isAccountDeletionPath(window.location.pathname)) {
+if (typeof window !== 'undefined' && key && host && !isAccountDeletionPath(POSTHOG_LANDING_PATHNAME)) {
 	posthog.init(key, {
 		api_host: host,
 		person_profiles: 'identified_only',

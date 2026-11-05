@@ -1,16 +1,41 @@
 import { ETaskStatusName } from '@/core/types/generics/enums/task';
-import { Combobox, Transition } from '@headlessui/react';
-import { ChevronDownIcon } from '@heroicons/react/20/solid';
-import { useCallback, useEffect, useState } from 'react';
-import { Spinner } from '../common/spinner';
-import { StatusIcon, statusIcons } from './status-icons';
+import { ReactElement, useCallback, useEffect, useMemo, useState } from 'react';
+import { statusIcons } from './status-icons';
 import { useTranslations } from 'next-intl';
 import { useUpdateTask } from '@/core/hooks/organizations';
 import { TTask } from '@/core/types/schemas/task/task.schema';
 import { useAtomValue } from 'jotai';
 import { activeTeamTaskState } from '@/core/stores';
+import { TStatusItem } from '@/core/types/interfaces/task/task-card';
+import { TaskPropertyIcon } from './task-property-icon';
+import { TaskPropertyMenu, TaskPropertyMenuOption } from './task-property-menu';
+import { TaskPropertyPill } from './task-property-trigger';
+import { TaskPropertyValue } from './task-status';
 
 const statusKeys = Object.keys(statusIcons) as ETaskStatusName[];
+
+function statusIconColor(status: string) {
+	const statusIcon = statusIcons[status] as ReactElement<{ color?: string }> | undefined;
+	return statusIcon?.props.color;
+}
+
+function statusOption(status: string): TaskPropertyMenuOption<string> {
+	return {
+		key: status,
+		value: status,
+		label: status,
+		icon: <TaskPropertyIcon kind="status" name={status} color={statusIconColor(status)} />
+	};
+}
+
+function selectedStatusItem(status: string): TStatusItem {
+	const color = statusIconColor(status);
+	return {
+		name: status,
+		bgColor: color,
+		icon: <TaskPropertyIcon kind="status" name={status} color={color} />
+	};
+}
 
 const StatusDropdown = () => {
 	const activeTeamTask = useAtomValue(activeTeamTaskState);
@@ -22,6 +47,7 @@ export function RawStatusDropdown({ task }: { task: TTask | null }) {
 	const { updateTask, updateLoading } = useUpdateTask();
 	const t = useTranslations();
 	const [selected, setSelected] = useState<string | null>(task?.status || null);
+	const hasTask = Boolean(task);
 
 	useEffect(() => {
 		setSelected(task?.status || null);
@@ -49,89 +75,37 @@ export function RawStatusDropdown({ task }: { task: TTask | null }) {
 		[task, updateTask]
 	);
 
+	const options = useMemo(() => statusKeys.map(statusOption), []);
+
+	const isStatusSelected = useCallback((status: string) => status === selected, [selected]);
+
 	return (
-		<div className="w-[145px] max-w-[150px] h-[30px]">
-			<Combobox value={selected} onChange={handleChange} disabled={task ? false : true}>
-				<div
-					className={`relative w-full cursor-default overflow-hidden rounded-lg  ${
-						task ? 'bg-[#EEEFF5]' : 'bg-white'
-					} dark:bg-card text-left shadow-md focus:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-white/75 focus-visible:ring-offset-2 focus-visible:ring-offset-teal-300 sm:text-sm`}
-				>
-					<div className="flex px-[10px] items-center justify-center">
-						{selected && (
-							<Combobox.Label className="mr-1">
-								<StatusIcon status={selected} />
-							</Combobox.Label>
-						)}
-						<Combobox.Input
-							className={`h-[30px] ${
-								task ? 'bg-[#F0ECFD]' : 'bg-white'
-							} dark:bg-card placeholder-[#9490A0] dark:placeholder-[#616164] w-full rounded-[10px] outline-hidden py-1`}
-							displayValue={(status: ETaskStatusName) => status}
-							onChange={() => {
-								//
-							}}
-							readOnly
-							placeholder={t('common.STATUS')}
-						/>
-					</div>
-					<Combobox.Button className="flex absolute inset-y-0 right-0 items-center pr-2">
-						{updateLoading ? (
-							<span className="ml-2 w-5 h-5">
-								<Spinner dark={false} />
-							</span>
-						) : (
-							<ChevronDownIcon
-								className={`ml-2 w-5 h-5 transition duration-150 ease-in-out text-primary dark:text-white group-hover:text-primary/80 dark:group-hover:text-white/80`}
-								aria-hidden="true"
-							/>
-						)}
-					</Combobox.Button>
-				</div>
-				<Transition
-					as="div"
-					leave="transition ease-in duration-100"
-					leaveFrom="opacity-100"
-					leaveTo="opacity-0"
-				>
-					<Combobox.Options className="absolute z-10 mt-1 max-h-60 w-[141px] overflow-auto rounded-md bg-[#FFFFFF] dark:bg-card py-1 text-base shadow-lg ring-1 ring-black/5 focus:outline-none sm:text-sm">
-						{statusKeys.map((status) => {
-							return (
-								<Combobox.Option
-									key={status}
-									value={status}
-									className={({ active }) =>
-										`relative cursor-pointer select-none py-2 pl-5 pr-4 ${
-											active
-												? 'bg-muted text-primary dark:text-white cursor-pointer'
-												: ` dark:text-white`
-										}`
-									}
-								>
-									{({ selected }) => (
-										<>
-											<span
-												className={`truncate h-[20px] flex items-center ${
-													selected ? 'font-medium' : 'font-normal'
-												}`}
-											>
-												<div
-													className={`flex items-center justify-start w-full text-xs text-[#8F97A1]`}
-												>
-													<div className="mr-[9px]">
-														<StatusIcon status={status} />
-													</div>
-													{status}
-												</div>
-											</span>
-										</>
-									)}
-								</Combobox.Option>
-							);
-						})}
-					</Combobox.Options>
-				</Transition>
-			</Combobox>
+		<div className="w-[145px] max-w-[150px]">
+			<TaskPropertyMenu
+				options={options}
+				isSelected={isStatusSelected}
+				onSelect={handleChange}
+				searchPlaceholder={t('taskMenus.search.status')}
+				disabled={!hasTask}
+				triggerClassName="flex w-full rounded-md"
+			>
+				{selected && (
+					<TaskPropertyValue
+						item={selectedStatusItem(selected)}
+						isLoading={updateLoading}
+						showsChevron={true}
+						className="w-full max-w-full"
+					/>
+				)}
+				{!selected && (
+					<TaskPropertyPill
+						kind="status"
+						label={t('common.STATUS')}
+						isLoading={updateLoading}
+						className="w-full justify-between"
+					/>
+				)}
+			</TaskPropertyMenu>
 		</div>
 	);
 }

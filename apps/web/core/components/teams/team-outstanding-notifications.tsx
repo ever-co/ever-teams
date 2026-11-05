@@ -1,11 +1,12 @@
 'use client';
 import { useAuthenticateUser } from '@/core/hooks';
-import { Cross2Icon, EyeOpenIcon } from '@radix-ui/react-icons';
+import { Clock, Users } from '@/core/components/icons';
+import { Button } from '@/core/components/duplicated-components/_button';
+import { Notice } from '@/core/components/common/notice';
 import { useTranslations } from 'next-intl';
 import Link from 'next/link';
-import { memo, useCallback, useEffect, useMemo, useState } from 'react';
+import { Fragment, memo, useCallback, useEffect, useMemo, useState } from 'react';
 import moment from 'moment';
-import { Tooltip } from '../duplicated-components/tooltip';
 import { IEmployee } from '@/core/types/interfaces/organization/employee';
 import { TDailyPlan, TUser } from '@/core/types/schemas';
 import { ETaskStatusName } from '@/core/types/generics/enums/task';
@@ -19,6 +20,17 @@ import { NOTIFICATION_KEYS } from '@/core/constants/config/notification';
 import { TTask } from '@/core/types/schemas/task/task.schema';
 import { isTaskFinished } from '@/core/lib/helpers/task';
 
+const MEMBER_LINK_CLASS =
+	'rounded-sm font-medium text-foreground underline decoration-foreground/25 underline-offset-2 outline-none transition-colors hover:decoration-foreground focus-visible:ring-[3px] focus-visible:ring-ring/50';
+
+function employeeNameOf(employee: IEmployee | undefined): string {
+	const user = employee?.user;
+	const candidates = [user?.name, user?.firstName, user?.lastName, user?.username];
+	const name = candidates.find(Boolean);
+
+	return name ?? '';
+}
+
 export function TeamOutstandingNotifications({
 	outstandingPlans,
 	dailyPlan,
@@ -31,7 +43,7 @@ export function TeamOutstandingNotifications({
 	user: TUser | null;
 }) {
 	return (
-		<div className="flex flex-col gap-1 mb-1">
+		<div className="mb-1 flex flex-col gap-2">
 			{outstandingPlans.length > 0 && (
 				<UserOutstandingNotification outstandingPlans={outstandingPlans} user={user} />
 			)}
@@ -73,32 +85,35 @@ const UserOutstandingNotification = memo(function UserOutstandingNotification({
 		markOutstandingTasksVisited();
 	}, []);
 
-	return visible && outStandingTasksCount > 0 ? (
-		<div className="flex justify-between items-center px-4 py-2 text-xs rounded-xl border dark:border-dark--theme-light">
-			<div>
-				{t('pages.home.OUTSTANDING_NOTIFICATIONS.SUBJECT')} {outStandingTasksCount}{' '}
-				{t('pages.home.OUTSTANDING_NOTIFICATIONS.USER_LABEL')}{' '}
-				<span className="font-medium">{t('pages.home.OUTSTANDING_NOTIFICATIONS.OUTSTANDING_VIEW')}</span>
-			</div>
-			<div className="flex gap-5 items-center">
-				<Link
-					href={`/profile/${user?.id}?name=${name || ''}`}
-					className="flex gap-2 items-center px-2.5 py-1 text-white rounded-xl bg-primary"
-					onClick={() => {
-						onClose();
-						localStorage.setItem('task-tab', 'dailyplan');
-						localStorage.setItem('daily-plan-tab', 'Outstanding');
-					}}
-				>
-					<EyeOpenIcon />
-					<span>{t('pages.home.OUTSTANDING_NOTIFICATIONS.VIEW_BUTTON')}</span>
-				</Link>
-				<Tooltip label={t('common.CLOSE')}>
-					<Cross2Icon className="text-xl cursor-pointer" onClick={onClose} />
-				</Tooltip>
-			</div>
-		</div>
-	) : null;
+	const isShown = visible && outStandingTasksCount > 0;
+	if (!isShown) {
+		return null;
+	}
+
+	return (
+		<Notice
+			tone="warning"
+			glyph={<Clock />}
+			title={t('notifications.NOTICES.OUTSTANDING_TITLE', { count: outStandingTasksCount })}
+			description={t('notifications.NOTICES.OUTSTANDING_TEXT')}
+			actions={
+				<Button asChild variant="outline" size="sm">
+					<Link
+						href={`/profile/${user?.id}?name=${name || ''}`}
+						onClick={() => {
+							onClose();
+							localStorage.setItem('task-tab', 'dailyplan');
+							localStorage.setItem('daily-plan-tab', 'Outstanding');
+						}}
+					>
+						{t('notifications.NOTICES.OUTSTANDING_ACTION')}
+					</Link>
+				</Button>
+			}
+			onDismiss={onClose}
+			dismissLabel={t('notifications.NOTICES.DISMISS')}
+		/>
+	);
 });
 
 const ManagerOutstandingUsersNotification = memo(function ManagerOutstandingUsersNotification({
@@ -149,34 +164,33 @@ const ManagerOutstandingUsersNotification = memo(function ManagerOutstandingUser
 		markOutstandingTasksVisited();
 	}, []);
 
-	return uniqueEmployees.length > 0 && visible ? (
-		<div className="flex justify-between items-center px-4 py-2.5 mb-2 text-xs rounded-xl border dark:border-dark--theme-light">
-			<div>
-				{t('pages.home.OUTSTANDING_NOTIFICATIONS.SUBJECT')} {uniqueEmployees.length} team member(s) with
-				uncompleted tasks, please see{' '}
-				{uniqueEmployees.map((em, i) => {
-					const name =
-						em.employee?.user?.name ||
-						em.employee?.user?.firstName ||
-						em.employee?.user?.lastName ||
-						em.employee?.user?.username;
-					return (
-						<Link
-							key={em.employeeId}
-							href={`/profile/${em.employee?.user?.id}?name=${name}`}
-							className="font-semibold underline text-primary"
-						>
-							{name}
-							{i !== uniqueEmployees.length - 1 && ', '}
-						</Link>
-					);
-				})}
-			</div>
-			<div className="flex gap-5 items-center">
-				<Tooltip label={t('common.CLOSE')}>
-					<Cross2Icon className="text-xl cursor-pointer" onClick={onClose} />
-				</Tooltip>
-			</div>
-		</div>
-	) : null;
+	const isShown = uniqueEmployees.length > 0 && visible;
+	if (!isShown) {
+		return null;
+	}
+
+	const lastIndex = uniqueEmployees.length - 1;
+	const memberLinks = uniqueEmployees.map((em, i) => {
+		const memberName = employeeNameOf(em.employee);
+		const isLast = i === lastIndex;
+		return (
+			<Fragment key={em.employeeId}>
+				<Link href={`/profile/${em.employee?.user?.id}?name=${memberName}`} className={MEMBER_LINK_CLASS}>
+					{memberName}
+				</Link>
+				{!isLast && ', '}
+			</Fragment>
+		);
+	});
+
+	return (
+		<Notice
+			tone="info"
+			glyph={<Users />}
+			title={t('notifications.NOTICES.MANAGER_TITLE', { count: uniqueEmployees.length })}
+			description={memberLinks}
+			onDismiss={onClose}
+			dismissLabel={t('notifications.NOTICES.DISMISS')}
+		/>
+	);
 });

@@ -4,179 +4,192 @@ import React from 'react';
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { InviteFormModal } from './invite-form-modal';
 
-const mockInviteUser = jest.fn();
+const mockInviteUsers = jest.fn();
 const mockResendTeamInvitation = jest.fn();
-const mockUseInviteDataOwner = jest.fn();
-const mockActiveTeam = { members: [] };
+const mockUseRolesQuery = jest.fn();
+const mockUseTeamInvitationsQuery = jest.fn();
+const mockActiveTeam = { name: 'Team', members: [] };
+let mockCanManageTeam = true;
+const mockPendingListProps = jest.fn();
 
-jest.mock('@/core/hooks/bootstrap/use-feature-data', () => ({
-	useInviteDataOwner: (open: boolean) => mockUseInviteDataOwner(open)
+jest.mock('@/core/hooks/roles/use-roles-query', () => ({
+	useRolesQuery: (options: { enabled?: boolean }) => mockUseRolesQuery(options)
+}));
+
+jest.mock('@/core/hooks/invitations/use-team-invitations-query', () => ({
+	useTeamInvitationsQuery: (options: { enabled?: boolean }) => mockUseTeamInvitationsQuery(options)
 }));
 
 jest.mock('@/core/hooks/invitations/use-send-team-invitation', () => ({
 	useSendTeamInvitation: () => ({
-		inviteUser: mockInviteUser,
+		inviteUsers: mockInviteUsers,
 		inviteLoading: false,
 		resendTeamInvitation: mockResendTeamInvitation,
 		resendInviteLoading: false
 	})
 }));
 
+jest.mock('@/core/hooks/invitations/use-remove-team-invitation', () => ({
+	useRemoveTeamInvitation: () => ({ removeTeamInvitation: jest.fn(), removeInviteLoading: false })
+}));
+
+jest.mock('@/core/hooks/organizations/teams/use-team-member', () => ({
+	useIsMemberManager: () => ({ isTeamManager: true })
+}));
+
 jest.mock('@/core/hooks/queries/user-user.query', () => ({
 	useUserQuery: () => ({ data: { role: { name: 'ADMIN' } } })
 }));
 
-jest.mock('jotai', () => ({
-	useAtomValue: () => mockActiveTeam
+jest.mock('@/core/stores', () => ({
+	activeTeamState: Symbol('active-team'),
+	canManageActiveTeamState: Symbol('can-manage-active-team')
 }));
 
-jest.mock('@/core/stores', () => ({ activeTeamState: Symbol('active-team') }));
+jest.mock('jotai', () => ({
+	useAtomValue: (atom: symbol) => {
+		const { canManageActiveTeamState } = jest.requireMock('@/core/stores') as { canManageActiveTeamState: symbol };
+		if (atom === canManageActiveTeamState) {
+			return mockCanManageTeam;
+		}
+		return mockActiveTeam;
+	}
+}));
 
 jest.mock('next-intl', () => ({
 	useTranslations: () => (key: string) => key
 }));
 
-jest.mock('sonner', () => ({
-	toast: { success: jest.fn(), error: jest.fn() }
+jest.mock('@/core/components/common/toast-moment', () => ({ toastMoment: jest.fn() }));
+
+jest.mock('@/core/components/common/entity-tile', () => ({ EntityTile: () => null }));
+
+jest.mock('@/core/components/common/app-dialog', () => ({
+	AppDialog: ({ open, children }: { open: boolean; children: React.ReactNode }) => {
+		if (!open) {
+			return null;
+		}
+		return <div>{children}</div>;
+	},
+	AppDialogHeader: ({ title }: { title: string }) => <h2>{title}</h2>,
+	AppDialogDescription: ({ children }: { children: React.ReactNode }) => <p>{children}</p>,
+	AppDialogShortcut: () => null,
+	APP_DIALOG_BODY: '',
+	APP_DIALOG_FOOTER: ''
 }));
 
-jest.mock('@/core/components', () => {
-	const Text = ({ children }: { children: React.ReactNode }) => <div>{children}</div>;
-	Text.Heading = ({ children }: { children: React.ReactNode }) => <h3>{children}</h3>;
-
-	return {
-		BackButton: () => <button type="button">Back</button>,
-		Button: ({
-			loading: _loading,
-			...props
-		}: React.ButtonHTMLAttributes<HTMLButtonElement> & { loading?: boolean }) => <button {...props} />,
-		Modal: ({ children }: { children: React.ReactNode }) => <>{children}</>,
-		Text
-	};
-});
-
-jest.mock('@/core/components/common/ever-card', () => ({
-	EverCard: ({ children }: { children: React.ReactNode }) => <div>{children}</div>
+jest.mock('./invite/invite-pending-list', () => ({
+	InvitePendingList: (props: { canRevoke: boolean }) => {
+		mockPendingListProps(props);
+		return null;
+	},
+	isOpenInvitation: (invitation: { status?: string | null }) => invitation.status !== 'ACCEPTED'
 }));
 
-jest.mock('../../teams/invite/invite-email-dropdown', () => ({
-	InviteEmailDropdown: ({
-		setSelectedEmail
+jest.mock('./invite/invite-role-select', () => ({
+	InviteRoleSelect: ({
+		roles,
+		value,
+		onChange
 	}: {
-		setSelectedEmail: (email: { title: string; name: string }) => void;
+		roles: { id: string; name: string }[];
+		value?: string;
+		onChange: (roleId: string) => void;
 	}) => (
-		<button
-			type="button"
-			data-testid="choose-email"
-			onClick={() => setSelectedEmail({ title: 'new@example.com', name: 'New User' })}
-		>
-			Choose email
-		</button>
+		<select data-testid="role-select" value={value ?? ''} onChange={(event) => onChange(event.target.value)}>
+			<option value="">Choose role</option>
+			{roles.map((role) => (
+				<option key={role.id} value={role.id}>
+					{role.name}
+				</option>
+			))}
+		</select>
 	)
 }));
 
-jest.mock('../../duplicated-components/_input', () => ({
-	InputField: React.forwardRef<
-		HTMLInputElement,
-		React.InputHTMLAttributes<HTMLInputElement> & { setErrors?: unknown; noWrapper?: boolean; errors?: unknown }
-	>(({ setErrors: _setErrors, noWrapper: _noWrapper, errors: _errors, ...props }, ref) => (
-		<input {...props} ref={ref} />
-	))
-}));
-
-jest.mock('../../common/select', () => ({
-	Select: ({ value, onValueChange }: { value?: string; onValueChange: (value: string) => void }) => (
-		<select data-testid="role-select" value={value ?? ''} onChange={(event) => onValueChange(event.target.value)}>
-			<option value="">Choose role</option>
-			<option value="employee-role">Employee</option>
-			<option value="manager-role">Manager</option>
-			<option value="employee-role-b">Employee B</option>
-			<option value="manager-role-b">Manager B</option>
-		</select>
-	),
-	SelectContent: () => null,
-	SelectGroup: ({ children }: { children: React.ReactNode }) => <>{children}</>,
-	SelectItem: () => null,
-	SelectTrigger: ({ children }: { children: React.ReactNode }) => <>{children}</>,
-	SelectValue: () => null
-}));
-
-const noInviteData = {
-	roles: [],
-	teamInvitations: [],
-	workingEmployees: [],
-	rolesLoading: false,
-	rolesSuccess: true
-};
-const loadedInviteData = {
+const noRoles = { roles: [], isLoading: false, isSuccess: true };
+const loadedRoles = {
 	roles: [
 		{ id: 'employee-role', name: 'EMPLOYEE' },
 		{ id: 'manager-role', name: 'MANAGER' }
 	],
-	teamInvitations: [],
-	workingEmployees: [],
-	rolesLoading: false,
-	rolesSuccess: true
+	isLoading: false,
+	isSuccess: true
 };
-const selectedRoleValue = () => (screen.getByTestId('role-select') as HTMLSelectElement).value;
+const noInvitations = { teamInvitations: [], fetchingInvitations: false };
+
+function selectedRoleValue() {
+	const select = screen.queryByTestId('role-select') as HTMLSelectElement | null;
+	return select?.value ?? '';
+}
+
+function emailInput() {
+	return screen.getByLabelText('modals.invite.EMAILS_LABEL') as HTMLInputElement;
+}
+
+function addAddress(address: string) {
+	const input = emailInput();
+	fireEvent.change(input, { target: { value: address } });
+	fireEvent.keyDown(input, { key: 'Enter' });
+}
+
+function submitForm() {
+	fireEvent.submit(emailInput().closest('form')!);
+}
 
 describe('InviteFormModal role selection', () => {
 	beforeEach(() => {
 		jest.clearAllMocks();
-		mockInviteUser.mockResolvedValue(undefined);
+		mockInviteUsers.mockResolvedValue(undefined);
 		mockResendTeamInvitation.mockResolvedValue(undefined);
-		mockUseInviteDataOwner.mockReturnValue(noInviteData);
+		mockUseRolesQuery.mockReturnValue(noRoles);
+		mockUseTeamInvitationsQuery.mockReturnValue(noInvitations);
 	});
 
 	it('selects the employee role when deferred roles arrive after a cold open', async () => {
 		const { rerender } = render(<InviteFormModal open={false} closeModal={jest.fn()} />);
 
-		mockUseInviteDataOwner.mockReturnValue(loadedInviteData);
+		mockUseRolesQuery.mockReturnValue(loadedRoles);
 		rerender(<InviteFormModal open closeModal={jest.fn()} />);
 
 		await waitFor(() => expect(selectedRoleValue()).toBe('employee-role'));
-		fireEvent.click(screen.getByTestId('choose-email'));
-		fireEvent.submit(screen.getByTestId('role-select').closest('form')!);
+		addAddress('new@example.com');
+		submitForm();
 
-		await waitFor(() =>
-			expect(mockInviteUser).toHaveBeenCalledWith('new@example.com', 'New User', 'employee-role')
-		);
+		await waitFor(() => expect(mockInviteUsers).toHaveBeenCalledWith(['new@example.com'], 'employee-role'));
 	});
 
 	it('does not replace an explicit role choice when roles refresh', async () => {
 		const { rerender } = render(<InviteFormModal open={false} closeModal={jest.fn()} />);
-		mockUseInviteDataOwner.mockReturnValue(loadedInviteData);
+		mockUseRolesQuery.mockReturnValue(loadedRoles);
 		rerender(<InviteFormModal open closeModal={jest.fn()} />);
 
 		await waitFor(() => expect(selectedRoleValue()).toBe('employee-role'));
 		fireEvent.change(screen.getByTestId('role-select'), { target: { value: 'manager-role' } });
-		mockUseInviteDataOwner.mockReturnValue({
-			...loadedInviteData,
-			roles: [...loadedInviteData.roles]
-		});
+		mockUseRolesQuery.mockReturnValue({ ...loadedRoles, roles: [...loadedRoles.roles] });
 		rerender(<InviteFormModal open closeModal={jest.fn()} />);
 
 		expect(selectedRoleValue()).toBe('manager-role');
-		fireEvent.click(screen.getByTestId('choose-email'));
-		fireEvent.submit(screen.getByTestId('role-select').closest('form')!);
+		addAddress('new@example.com');
+		submitForm();
 
-		await waitFor(() => expect(mockInviteUser).toHaveBeenCalledWith('new@example.com', 'New User', 'manager-role'));
+		await waitFor(() => expect(mockInviteUsers).toHaveBeenCalledWith(['new@example.com'], 'manager-role'));
 	});
 
 	it('drops a stale selection and chooses the new scope employee role', async () => {
 		const { rerender } = render(<InviteFormModal open={false} closeModal={jest.fn()} />);
-		mockUseInviteDataOwner.mockReturnValue(loadedInviteData);
+		mockUseRolesQuery.mockReturnValue(loadedRoles);
 		rerender(<InviteFormModal open closeModal={jest.fn()} />);
 
 		await waitFor(() => expect(selectedRoleValue()).toBe('employee-role'));
 		fireEvent.change(screen.getByTestId('role-select'), { target: { value: 'manager-role' } });
 
-		mockUseInviteDataOwner.mockReturnValue(noInviteData);
+		mockUseRolesQuery.mockReturnValue(noRoles);
 		rerender(<InviteFormModal open closeModal={jest.fn()} />);
 		await waitFor(() => expect(selectedRoleValue()).toBe(''));
 
-		mockUseInviteDataOwner.mockReturnValue({
-			...loadedInviteData,
+		mockUseRolesQuery.mockReturnValue({
+			...loadedRoles,
 			roles: [
 				{ id: 'employee-role-b', name: 'EMPLOYEE' },
 				{ id: 'manager-role-b', name: 'MANAGER' }
@@ -188,65 +201,94 @@ describe('InviteFormModal role selection', () => {
 	});
 
 	it('waits for invite prerequisites and resends a matching resolved invitation without creating another', async () => {
-		mockUseInviteDataOwner.mockReturnValue({
-			...loadedInviteData,
-			teamInvitations: [],
-			fetchingInvitations: true,
-			getWorkingEmployeeLoading: false
-		});
+		mockUseRolesQuery.mockReturnValue(loadedRoles);
+		mockUseTeamInvitationsQuery.mockReturnValue({ teamInvitations: [], fetchingInvitations: true });
 		const { rerender } = render(<InviteFormModal open closeModal={jest.fn()} />);
 		await waitFor(() => expect(selectedRoleValue()).toBe('employee-role'));
-		fireEvent.click(screen.getByTestId('choose-email'));
-		const form = screen.getByTestId('choose-email').closest('form')!;
+		addAddress('new@example.com');
 
-		fireEvent.submit(form);
+		submitForm();
 		expect(mockResendTeamInvitation).not.toHaveBeenCalled();
-		expect(mockInviteUser).not.toHaveBeenCalled();
+		expect(mockInviteUsers).not.toHaveBeenCalled();
 
-		mockUseInviteDataOwner.mockReturnValue({
-			...loadedInviteData,
+		const pendingInvitation = {
 			teamInvitations: [{ id: 'invite-1', email: 'new@example.com' }],
-			fetchingInvitations: false,
-			getWorkingEmployeeLoading: true
-		});
+			fetchingInvitations: false
+		};
+		mockUseRolesQuery.mockReturnValue({ ...loadedRoles, isLoading: true, isSuccess: false });
+		mockUseTeamInvitationsQuery.mockReturnValue(pendingInvitation);
 		rerender(<InviteFormModal open closeModal={jest.fn()} />);
-		fireEvent.submit(form);
-		expect(mockInviteUser).not.toHaveBeenCalled();
+		submitForm();
+		expect(mockInviteUsers).not.toHaveBeenCalled();
 		expect(mockResendTeamInvitation).not.toHaveBeenCalled();
 
-		mockUseInviteDataOwner.mockReturnValue({
-			...noInviteData,
-			teamInvitations: [{ id: 'invite-1', email: 'new@example.com' }],
-			fetchingInvitations: false,
-			getWorkingEmployeeLoading: false
-		});
+		mockUseRolesQuery.mockReturnValue(noRoles);
 		rerender(<InviteFormModal open closeModal={jest.fn()} />);
 		await waitFor(() => expect(selectedRoleValue()).toBe(''));
-		fireEvent.submit(form);
+		submitForm();
 		await waitFor(() => expect(mockResendTeamInvitation).toHaveBeenCalledWith('invite-1'));
-		expect(mockInviteUser).not.toHaveBeenCalled();
+		expect(mockInviteUsers).not.toHaveBeenCalled();
 		mockResendTeamInvitation.mockClear();
 
-		mockUseInviteDataOwner.mockReturnValue({
-			...loadedInviteData,
-			teamInvitations: [{ id: 'invite-1', email: 'new@example.com' }],
-			fetchingInvitations: false,
-			getWorkingEmployeeLoading: false
-		});
+		mockUseRolesQuery.mockReturnValue(loadedRoles);
 		rerender(<InviteFormModal open closeModal={jest.fn()} />);
 		await waitFor(() => expect(selectedRoleValue()).toBe('employee-role'));
-		fireEvent.submit(form);
+		addAddress('new@example.com');
+		submitForm();
 
 		await waitFor(() => expect(mockResendTeamInvitation).toHaveBeenCalledWith('invite-1'));
-		expect(mockInviteUser).not.toHaveBeenCalled();
+		expect(mockInviteUsers).not.toHaveBeenCalled();
 	});
 
 	it('uses the invitation service fallback when an admin has no selectable roles', async () => {
-		mockUseInviteDataOwner.mockReturnValue(noInviteData);
 		render(<InviteFormModal open closeModal={jest.fn()} />);
-		fireEvent.click(screen.getByTestId('choose-email'));
-		fireEvent.submit(screen.getByTestId('choose-email').closest('form')!);
+		addAddress('new@example.com');
+		submitForm();
 
-		await waitFor(() => expect(mockInviteUser).toHaveBeenCalledWith('new@example.com', 'New User', undefined));
+		await waitFor(() => expect(mockInviteUsers).toHaveBeenCalledWith(['new@example.com'], undefined));
+	});
+});
+
+describe('InviteFormModal addresses', () => {
+	beforeEach(() => {
+		jest.clearAllMocks();
+		mockInviteUsers.mockResolvedValue(undefined);
+		mockResendTeamInvitation.mockResolvedValue(undefined);
+		mockUseRolesQuery.mockReturnValue(loadedRoles);
+		mockUseTeamInvitationsQuery.mockReturnValue(noInvitations);
+	});
+
+	it('invites every valid address of a pasted list in one request and leaves invalid ones out', async () => {
+		render(<InviteFormModal open closeModal={jest.fn()} />);
+		await waitFor(() => expect(selectedRoleValue()).toBe('employee-role'));
+
+		fireEvent.paste(emailInput(), {
+			clipboardData: { getData: () => 'Ana Silva <ana@example.com>, bob@example.com; not-an-address' }
+		});
+		submitForm();
+
+		await waitFor(() =>
+			expect(mockInviteUsers).toHaveBeenCalledWith(['ana@example.com', 'bob@example.com'], 'employee-role')
+		);
+		expect(mockInviteUsers).toHaveBeenCalledTimes(1);
+	});
+});
+
+describe('InviteFormModal pending invitations', () => {
+	beforeEach(() => {
+		jest.clearAllMocks();
+		mockUseRolesQuery.mockReturnValue(noRoles);
+		mockUseTeamInvitationsQuery.mockReturnValue(noInvitations);
+	});
+
+	it.each([
+		['shows the revoke buttons to someone who manages the team, an organization admin included', true],
+		['hides them from a plain member', false]
+	])('%s', (_label, canManageTeam) => {
+		mockCanManageTeam = canManageTeam;
+
+		render(<InviteFormModal open closeModal={jest.fn()} />);
+
+		expect(mockPendingListProps).toHaveBeenLastCalledWith(expect.objectContaining({ canRevoke: canManageTeam }));
 	});
 });

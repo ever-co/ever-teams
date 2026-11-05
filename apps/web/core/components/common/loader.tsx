@@ -23,9 +23,11 @@ export function SpinnerLoader({
 						'dark:border-t-white dark:border-r-white dark:border-b-transparent dark:border-l-white'
 					],
 					variant === 'light' && ['border-t-white border-r-white border-b-transparent border-l-white'],
-					variant === 'dark' && ['border-t-default border-r-default border-b-transparent border-l-default'],
+					variant === 'dark' && [
+						'border-t-foreground border-r-foreground border-b-transparent border-l-foreground'
+					],
 					variant === 'dark-white' && [
-						'border-t-default border-r-default border-b-transparent border-l-default',
+						'border-t-foreground border-r-foreground border-b-transparent border-l-foreground',
 						'dark:border-t-white dark:border-r-white dark:border-b-transparent dark:border-l-white'
 					]
 				],
@@ -59,20 +61,19 @@ export function BackdropLoader({
 
 	const content = (
 		<div
-			className={clsxm(
-				'fixed inset-0 z-[1000]',
-				'backdrop-brightness-90 backdrop-blur-xs',
-				'flex justify-center items-center',
-				[show ? [fadeIn ? ['fade-in'] : ['opacity-100'], 'h-full w-full'] : ['fade-out h-0 w-0']]
-			)}
+			className={clsxm('fixed inset-0 z-[1000]', 'bg-black/40', 'flex justify-center items-center', [
+				show ? [fadeIn ? ['fade-in'] : ['opacity-100'], 'h-full w-full'] : ['fade-out h-0 w-0']
+			])}
 		>
 			<div>
-				<EverCard className="w-[98%] md:min-w-[130px] flex items-center justify-center" shadow="custom">
-					<div className="flex items-center space-x-4">
+				<EverCard className="w-[98%] md:min-w-[130px] flex items-center justify-center" shadow="bigger">
+					<div className="flex items-center gap-3">
 						<div className="w-[31px] h-[31px]">
-							<SpinnerLoader className="mr-1" />
+							<SpinnerLoader />
 						</div>
-						{title && <div className="text-xs whitespace-nowrap text-ellipsis">{title}</div>}
+						{title && (
+							<div className="text-sm text-muted-foreground whitespace-nowrap text-ellipsis">{title}</div>
+						)}
 					</div>
 				</EverCard>
 			</div>

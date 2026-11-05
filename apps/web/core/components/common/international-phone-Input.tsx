@@ -28,6 +28,7 @@ const CustomCountrySelect = ({
 	iconComponent: React.ComponentType<{ country: Country; label: string }>;
 	disabled?: boolean;
 }) => {
+	const t = useTranslations();
 	const [isOpen, setIsOpen] = useState(false);
 	const [searchValue, setSearchValue] = useState('');
 	const [filteredOptions, setFilteredOptions] = useState<Option[]>(options);
@@ -108,7 +109,7 @@ const CustomCountrySelect = ({
 						<input
 							type="text"
 							className="phoneinput-search-input"
-							placeholder="Search countries..."
+							placeholder={t('settings.profile.PHONE_COUNTRY_SEARCH')}
 							value={searchValue}
 							onChange={(e) => setSearchValue(e.target.value)}
 							autoFocus
@@ -158,7 +159,7 @@ const CustomCountrySelect = ({
 								</li>
 							))}
 							{filteredOptions.length === 0 && (
-								<li className="phoneinput-no-results">No results found</li>
+								<li className="phoneinput-no-results">{t('settings.profile.PHONE_COUNTRY_EMPTY')}</li>
 							)}
 						</ul>
 					</div>
@@ -244,8 +245,8 @@ const InternationalPhoneInput = <T extends Record<string, any>>({
 		const finalValue = newValue || '';
 		setPhoneValue(finalValue);
 
-		// react-hook-form
-		formOnChange?.({ target: { value: finalValue } });
+		// react-hook-form finds the field by the event target's name: without it the typed value never reached the form
+		formOnChange?.({ target: { name, value: finalValue }, type: 'change' });
 
 		// external callback
 		onChange?.(finalValue);
@@ -260,8 +261,8 @@ const InternationalPhoneInput = <T extends Record<string, any>>({
 	return (
 		<div className={`phoneinput-container ${wrapperClassName}`}>
 			{label && (
-				<label htmlFor={inputId} className="phoneinput-label dark:bg-dark--theme-light">
-					{label} {required && <span className="phoneinput-required dark:bg-dark--theme-light">*</span>}
+				<label htmlFor={inputId} className="phoneinput-label dark:bg-card">
+					{label} {required && <span className="phoneinput-required dark:bg-card">*</span>}
 				</label>
 			)}
 

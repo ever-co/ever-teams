@@ -8,15 +8,15 @@ export const LoadingSkeleton: React.FC = () => {
 	const t = useTranslations();
 
 	return (
-		<Card className="bg-white rounded-md border border-gray-100 dark:border-gray-800 dark:bg-dark--theme-light min-h-[600px] w-full">
+		<Card className="min-h-[600px] w-full overflow-hidden">
 			<Table>
 				<TableHeader>
-					<TableRow className="bg-gray-50 dark:bg-muted">
-						<TableHead className="font-semibold">{t('common.DATE')}</TableHead>
-						<TableHead className="font-semibold">{t('common.MEMBER')}</TableHead>
-						<TableHead className="font-semibold">{t('common.APPLICATION')}</TableHead>
-						<TableHead className="font-semibold">{t('common.TIME_SPENT')}</TableHead>
-						<TableHead className="font-semibold">{t('common.PERCENT_USED')}</TableHead>
+					<TableRow className="bg-foreground/2.5 hover:bg-foreground/2.5">
+						<TableHead>{t('common.DATE')}</TableHead>
+						<TableHead>{t('common.MEMBER')}</TableHead>
+						<TableHead>{t('common.APPLICATION')}</TableHead>
+						<TableHead>{t('common.TIME_SPENT')}</TableHead>
+						<TableHead>{t('common.PERCENT_USED')}</TableHead>
 					</TableRow>
 				</TableHeader>
 				<TableBody>
@@ -67,6 +67,7 @@ export const EmptyState: React.FC<EmptyStateProps> = ({ selectedDate, t }) => {
 		<Card className="grow w-full min-h-[600px]">
 			<AnimatedEmptyState
 				showBorder={false}
+				noBg
 				title={t('common.NO_ACTIVITY_DATA')}
 				message={
 					<>

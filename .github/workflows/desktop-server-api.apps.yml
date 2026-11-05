@@ -941,7 +941,13 @@ jobs:
 
     strategy:
       matrix:
-        os: [[self-hosted, Windows, X64]]
+        # Our own Windows machines through the ever-co org variable RUNNER_WINDOWS_X64
+        # (JSON label list, today ["self-hosted","Windows","X64"]: the same runners as before).
+        # Forks have no such variable and take the GitHub-hosted image instead of
+        # waiting forever for a runner they cannot reach (owner rule 2026-11-04).
+        # `include`, not a list axis: an axis would split the label array into one job per label.
+        include:
+          - os: ${{ vars.RUNNER_WINDOWS_X64 && fromJSON(vars.RUNNER_WINDOWS_X64) || 'windows-2022' }}
 
     steps:
       - name: Check out Git repository
@@ -1076,7 +1082,8 @@ jobs:
           verdaccio-registry: ${{ vars.VERDACCIO_REGISTRY }}
           verdaccio-token: ${{ secrets.VERDACCIO_TOKEN }}
           force-public: ${{ vars.VERDACCIO_FORCE_PUBLIC }}
-          expect-vip: 'true'
+          # In-network only on our own runners; a fork on the hosted fallback is not.
+          expect-vip: ${{ contains(matrix.os, 'self-hosted') }}
 
       - name: Install Yarn dependencies
         # yarn 1 does NOT retry a failed git-dependency tarball fetch, so one transient

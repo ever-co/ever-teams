@@ -1,5 +1,6 @@
 import { Disclosure } from '@headlessui/react';
-import { ChevronUpIcon } from '@heroicons/react/20/solid';
+import { ChevronUp as ChevronUpIcon } from '@/core/components/icons';
+import { clsxm } from '@/core/lib/utils';
 import { Text } from '../common/typography';
 
 interface isProps {
@@ -14,8 +15,20 @@ interface isProps {
 	onHeaderClick?: () => void;
 }
 
-const panelClassName =
-	'px-4 pt-4 pb-2 text-sm text-gray-500 dark:bg-dark--theme shadow-[0px_14px_34px_rgba(0,0,0,0.05)] bg-light--theme-light dark:bg-dark--theme-light';
+const panelClassName = 'px-4 pt-2 pb-2 text-sm text-muted-foreground';
+
+function headerButtonClassName(open: boolean, wrapperClassName?: string) {
+	return clsxm(
+		'flex w-full items-center justify-between rounded-md px-4 py-2 text-left font-medium transition-colors',
+		wrapperClassName,
+		'pt-[0.15rem] pb-0',
+		open && 'bg-foreground/5 text-primary-ink'
+	);
+}
+
+function chevronClassName(open: boolean) {
+	return clsxm('size-4 text-muted-foreground transition-transform duration-150', !open && 'rotate-180');
+}
 
 export const SidebarAccordian = ({
 	children,
@@ -33,28 +46,25 @@ export const SidebarAccordian = ({
 	if (isControlled) {
 		return (
 			<div className="w-full">
-				<div
-					className={`rounded-2xl bg-[transparent]  ${className} shadow-[0px_14px_34px_rgba(0,0,0,0.05)] dark:bg-dark--theme `}
-				>
+				<div className={clsxm('rounded-xl bg-transparent', className)}>
 					<div>
 						<button
 							type="button"
 							aria-expanded={open}
 							onClick={() => onHeaderClick?.()}
-							className={`flex w-full justify-between rounded-lg px-4 py-2 text-left font-medium items-center ${wrapperClassName} pt-[0.15rem] pb-0 ${open ? 'text-[#3826a6] border-l-solid border-l-primary bg-[#E9E5F9] dark:bg-primary' : 'border-l-transparent'}`}
+							className={headerButtonClassName(Boolean(open), wrapperClassName)}
 						>
 							<Text
-								className={`flex gap-2 items-center text-base text-center dark:text-white sm:text-left ${textClassName}`}
+								className={clsxm(
+									'flex items-center gap-2 text-center text-sm sm:text-left',
+									textClassName
+								)}
 							>
 								{title}
 							</Text>
-							<ChevronUpIcon
-								className={`${!open ? 'transform rotate-180' : ''} h-5 w-5 text-[#292D32] dark:text-white`}
-							/>
+							<ChevronUpIcon className={chevronClassName(Boolean(open))} />
 						</button>
-						{children && open && (
-							<div className={panelClassName}>{children}</div>
-						)}
+						{children && open && <div className={panelClassName}>{children}</div>}
 					</div>
 				</div>
 			</div>
@@ -63,33 +73,26 @@ export const SidebarAccordian = ({
 
 	return (
 		<div className="w-full">
-			<div
-				className={`rounded-2xl bg-[transparent]  ${className} shadow-[0px_14px_34px_rgba(0,0,0,0.05)] dark:bg-dark--theme `}
-			>
+			<div className={clsxm('rounded-xl bg-transparent', className)}>
 				<Disclosure defaultOpen={defaultOpen}>
 					{({ open }) => (
 						<div>
 							<Disclosure.Button
 								onClick={() => onHeaderClick?.()}
-								className={`flex w-full justify-between rounded-lg px-4 py-2 text-left font-medium items-center ${wrapperClassName} pt-[0.15rem] pb-0 ${open ? 'text-[#3826a6] border-l-solid border-l-primary bg-[#E9E5F9] dark:bg-primary' : 'border-l-transparent'}`}
+								className={headerButtonClassName(Boolean(open), wrapperClassName)}
 							>
 								<Text
-									className={`flex gap-2 items-center text-base text-center dark:text-white sm:text-left ${textClassName}`}
+									className={clsxm(
+										'flex items-center gap-2 text-center text-sm sm:text-left',
+										textClassName
+									)}
 								>
 									{title}
 								</Text>
 
-								<ChevronUpIcon
-									className={`${
-										!open ? 'transform rotate-180' : ''
-									} h-5 w-5 text-[#292D32] dark:text-white`}
-								/>
+								<ChevronUpIcon className={chevronClassName(Boolean(open))} />
 							</Disclosure.Button>
-							{children && (
-								<Disclosure.Panel className={panelClassName}>
-									{children}
-								</Disclosure.Panel>
-							)}
+							{children && <Disclosure.Panel className={panelClassName}>{children}</Disclosure.Panel>}
 						</div>
 					)}
 				</Disclosure>

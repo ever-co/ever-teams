@@ -83,15 +83,19 @@ export const activitySchema = basePerTenantAndOrganizationEntitySchema
 	});
 
 // Grouped row of GET /timesheet/activity/daily (per date, time, title and employee), with no id or description.
-// PostgreSQL and MySQL send COUNT and SUM as strings, and the MikroORM branch of Gauzy selects no time.
+// Both Gauzy branches (TypeORM and MikroORM) select sessions, duration, employeeId, date and title, so those are
+// required: an empty or unrelated object is refused instead of reading as an empty day. PostgreSQL and MySQL send
+// COUNT and SUM as strings; SUM is null when no row has a duration, the title is null for a row without one, and the
+// MikroORM branch selects no time. Other keys are kept (loose, not strict): a field a newer Gauzy adds must not fail
+// the whole read.
 export const dailyActivitySchema = z
 	.object({
-		title: z.string().nullable().optional(),
-		date: z.string().nullable().optional(),
+		title: z.string().nullable(),
+		date: z.string(),
 		time: z.string().nullable().optional(),
-		duration: z.coerce.number().nullable().optional(),
-		sessions: z.coerce.number().nullable().optional(),
-		employeeId: z.string().nullable().optional()
+		duration: z.coerce.number().nullable(),
+		sessions: z.coerce.number(),
+		employeeId: z.string()
 	})
 	.loose();
 
@@ -112,3 +116,24 @@ export type TUrlMetaData = z.infer<typeof urlMetaDataSchema>;
 export type TTimeSlot = z.infer<typeof timeSlotSchema>;
 // Note: TOrganizationTeamEmployee, TRelationalEmployee, TRelationalOrganizationProject
 // are already exported from their respective schema files
+
+/**
+ * One app or site entry of `GET /timesheet/activity`, reduced to what the day views read. Lenient on purpose: one
+ * row the desktop app wrote without a description must not fail the whole read, as the full schema would.
+ */
+export const activityEntrySchema = z
+	.object({
+		id: z.string(),
+		title: z.string().nullish(),
+		description: z.string().nullish(),
+		date: z.string().nullish(),
+		time: z.string().nullish(),
+		duration: z.coerce.number().nullish(),
+		type: z.string().nullish(),
+		employeeId: z.string().nullish(),
+		timeSlotId: z.string().nullish(),
+		recordedAt: z.coerce.date().nullish()
+	})
+	.passthrough();
+
+export type TActivityEntry = z.infer<typeof activityEntrySchema>;

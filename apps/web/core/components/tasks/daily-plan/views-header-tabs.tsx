@@ -1,48 +1,39 @@
 import { IssuesView } from '@/core/constants/config/constants';
 import { dailyPlanViewHeaderTabs } from '@/core/stores/common/header-tabs';
-import { clsxm } from '@/core/lib/utils';
-import { QueueListIcon, Squares2X2Icon, TableCellsIcon } from '@heroicons/react/20/solid';
+import { GridView, ListView, Table } from '@/core/components/icons';
 import { DottedLanguageObjectStringPaths, useTranslations } from 'next-intl';
 import { useAtom } from 'jotai';
 import { Tooltip } from '../../duplicated-components/tooltip';
+import { SegmentedControl } from '@/core/components/common/segmented-control';
 
+const VIEW_OPTIONS = [
+	{ label: 'CARDS', icon: ListView, view: IssuesView.CARDS },
+	{ label: 'TABLE', icon: Table, view: IssuesView.TABLE },
+	{ label: 'BLOCKS', icon: GridView, view: IssuesView.BLOCKS }
+] as const;
+
+/** The view switch of the daily plans: the segmented control, its thumb sliding to the picked view. */
 export default function ViewsHeaderTabs() {
 	const t = useTranslations();
-	const options = [
-		{ label: 'CARDS', icon: QueueListIcon, view: IssuesView.CARDS },
-		{ label: 'TABLE', icon: TableCellsIcon, view: IssuesView.TABLE },
-		{ label: 'BLOCKS', icon: Squares2X2Icon, view: IssuesView.BLOCKS }
-	];
-
 	const [view, setView] = useAtom(dailyPlanViewHeaderTabs);
 
+	const items = VIEW_OPTIONS.map(({ label, icon: Icon, view: optionView }) => ({
+		value: optionView,
+		icon: <Icon />,
+		ariaLabel: t(`common.${label}` as DottedLanguageObjectStringPaths)
+	}));
+
 	return (
-		<div className="flex items-center gap-1">
-			{options.map(({ label, icon: Icon, view: optionView }) => (
-				<Tooltip
-					key={label}
-					className="z-20"
-					label={t(`common.${label}` as DottedLanguageObjectStringPaths)}
-					placement="top-start"
-				>
-					<button
-						className={clsxm(
-							'rounded-md p-2 text-gray-700 dark:text-gray-300',
-							view === optionView && 'bg-gray-100 text-gray-900 dark:bg-muted dark:text-gray-100'
-						)}
-						onClick={() => {
-							setView(optionView);
-						}}
-					>
-						<Icon
-							className={clsxm(
-								'w-5 h-5 inline text-gray-600 dark:text-gray-400',
-								view === optionView && 'dark:text-white text-gray-800'
-							)}
-						/>
-					</button>
+		<SegmentedControl
+			items={items}
+			value={view}
+			onValueChange={setView}
+			ariaLabel={t('common.VIEW')}
+			renderItem={(item, button) => (
+				<Tooltip label={item.ariaLabel ?? ''} placement="top-start" className="z-20">
+					{button}
 				</Tooltip>
-			))}
-		</div>
+			)}
+		/>
 	);
 }

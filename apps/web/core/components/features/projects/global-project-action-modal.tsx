@@ -1,53 +1,77 @@
 'use client';
 
 import { useAtom } from 'jotai';
-import { Suspense, useCallback } from 'react';
-import { projectActionModalState } from '@/core/stores/project-action-modal';
+import { useCallback, useState } from 'react';
+import { projectActionModalState, type ProjectActionType } from '@/core/stores/project-action-modal';
 import { DeleteProjectConfirmModal } from './delete-project-modal';
 import { EditProjectModal } from './edit-project-modal';
 import { ArchiveProjectModal } from './archive-project-modal';
 import { RestoreProjectModal } from './restore-project-modal';
 import { ViewProjectInfoModal } from './view-project-info-modal';
-import { ModalSkeleton } from '@/core/components/common/skeleton/modal-skeleton';
+
+interface OpenedAction {
+	action: ProjectActionType;
+	projectId: string;
+}
+
+function isSameAction(left: OpenedAction | null, right: OpenedAction) {
+	if (!left) {
+		return false;
+	}
+	const isSameKind = left.action === right.action;
+	const isSameProject = left.projectId === right.projectId;
+	return isSameKind && isSameProject;
+}
 
 /**
- * Global instance of Project Action Modals (Edit, Archive, Delete, Restore)
- *
- * This component should be rendered ONCE at a root level component
- * to ensure only one modal instance exists across the entire app.
- *
- * This pattern fixes the "Maximum update depth exceeded" error caused by
- * rendering N modals for N project items in ProjectItemActions.
- *
+ * Global instance of the project action dialogs (edit, archive, delete, restore, view info), rendered once at the
+ * root so N project rows never mount N dialogs ("Maximum update depth exceeded" before). The last action stays
+ * mounted after it closes, so its dialog plays its closing transition.
  */
 export function GlobalProjectActionModal() {
 	const [modalState, setModalState] = useAtom(projectActionModalState);
+	const [lastAction, setLastAction] = useState<OpenedAction | null>(null);
+
+	if (modalState.isOpen) {
+		const openedAction = { action: modalState.action, projectId: modalState.projectId };
+		if (!isSameAction(lastAction, openedAction)) {
+			setLastAction(openedAction);
+		}
+	}
 
 	const closeModal = useCallback(() => {
 		setModalState({ isOpen: false });
 	}, [setModalState]);
 
-	if (!modalState.isOpen) {
+	if (!lastAction) {
 		return null;
 	}
 
+	const isOpen = modalState.isOpen;
+	const { action, projectId } = lastAction;
+
 	return (
-		<Suspense fallback={<ModalSkeleton />}>
-			{modalState.action === 'delete' && (
-				<DeleteProjectConfirmModal projectId={modalState.projectId} open={true} closeModal={closeModal} />
+		<>
+			{action === 'delete' && (
+				<DeleteProjectConfirmModal
+					key={projectId}
+					projectId={projectId}
+					open={isOpen}
+					closeModal={closeModal}
+				/>
 			)}
-			{modalState.action === 'edit' && (
-				<EditProjectModal projectId={modalState.projectId} open={true} closeModal={closeModal} />
+			{action === 'edit' && (
+				<EditProjectModal key={projectId} projectId={projectId} open={isOpen} closeModal={closeModal} />
 			)}
-			{modalState.action === 'archive' && (
-				<ArchiveProjectModal projectId={modalState.projectId} open={true} closeModal={closeModal} />
+			{action === 'archive' && (
+				<ArchiveProjectModal key={projectId} projectId={projectId} open={isOpen} closeModal={closeModal} />
 			)}
-			{modalState.action === 'restore' && (
-				<RestoreProjectModal projectId={modalState.projectId} open={true} closeModal={closeModal} />
+			{action === 'restore' && (
+				<RestoreProjectModal key={projectId} projectId={projectId} open={isOpen} closeModal={closeModal} />
 			)}
-			{modalState.action === 'view-info' && (
-				<ViewProjectInfoModal projectId={modalState.projectId} open={true} closeModal={closeModal} />
+			{action === 'view-info' && (
+				<ViewProjectInfoModal key={projectId} projectId={projectId} open={isOpen} closeModal={closeModal} />
 			)}
-		</Suspense>
+		</>
 	);
 }

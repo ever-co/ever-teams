@@ -1,6 +1,7 @@
 import React from 'react';
 import { Disclosure } from '@headlessui/react';
-import { ChevronUpIcon } from '@heroicons/react/20/solid';
+import { ChevronUp as ChevronUpIcon } from '@/core/components/icons';
+import { clsxm } from '@/core/lib/utils';
 import { ScrollArea, ScrollBar } from '@/core/components/common/scroll-bar';
 
 /**
@@ -21,16 +22,19 @@ export default function NotificationsDropdown(props: { children: React.ReactNode
 
 	if (childrenArray[0]) {
 		return (
-			<div className="w-full h-auto border border-green-700">
+			<div className="h-auto w-full rounded-lg hairline-ring ring-border">
 				{childrenArray.length > 1 ? (
 					<Disclosure>
 						{({ open }) => (
 							<>
 								<div className="w-full h-auto flex">
-									<div className="w-full bg-red-600">{childrenArray[0]}</div>
+									<div className="w-full">{childrenArray[0]}</div>
 									<Disclosure.Button className="flex w-6 h-6 justify-center items-center">
 										<ChevronUpIcon
-											className={`${open ? 'rotate-180 transform' : ''} h-5 w-5 text-primary`}
+											className={clsxm(
+												'size-4 text-muted-foreground transition-transform duration-150',
+												open && 'rotate-180'
+											)}
 										/>
 									</Disclosure.Button>
 								</div>

@@ -7,8 +7,12 @@ import { ETimeLogType } from '@/core/types/generics/enums/timer';
 import { TAddManualTimeRequest, TTimeLog } from '@/core/types/schemas';
 import { useTimesheetInvalidation } from '@/core/hooks/timesheet/use-timesheet-invalidation';
 import { toast } from 'sonner';
+import { useLocale, useTranslations } from 'next-intl';
+import { logErrorInDev } from '@/core/lib/helpers/error-message';
 
 export function useManualTime() {
+	const t = useTranslations();
+	const locale = useLocale();
 	const { user } = useAuthenticateUser();
 	const { invalidateTimesheetData } = useTimesheetInvalidation();
 	const [timeLog, setTimeLog] = useState<TTimeLog>();
@@ -23,22 +27,19 @@ export function useManualTime() {
 			// Invalidate related queries to refresh data
 			invalidateTimesheetData();
 
-			// Format dates for display
 			const startDate = new Date(data.startedAt);
 			const endDate = new Date(data.stoppedAt);
-			const dateStr = startDate.toLocaleDateString();
-			const startTimeStr = startDate.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-			const endTimeStr = endDate.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+			const date = startDate.toLocaleDateString(locale, { dateStyle: 'medium' });
+			const start = startDate.toLocaleTimeString(locale, { hour: '2-digit', minute: '2-digit' });
+			const end = endDate.toLocaleTimeString(locale, { hour: '2-digit', minute: '2-digit' });
 
-			toast.success('Time added successfully', {
-				description: `Time added successfully for ${user?.firstName} ${user?.lastName} on ${dateStr} from ${startTimeStr} to ${endTimeStr}`
+			toast.success(t('toasts.time.MANUAL_ADDED'), {
+				description: t('toasts.time.MANUAL_ADDED_RANGE', { date, start, end })
 			});
 		},
+		// The modal shows the failure next to its form, so no toast repeats it
 		onError: (error) => {
-			console.log(error);
-			toast.error('Add manual time failed', {
-				description: error.message
-			});
+			logErrorInDev('Add manual time failed', error);
 		}
 	});
 
@@ -69,6 +70,7 @@ export function useManualTime() {
 		addManualTimeSuccess: addManualTimeMutation.isSuccess,
 		addManualTimeError: addManualTimeMutation.isError,
 		addManualTimeErrorMessage: addManualTimeMutation.error?.message,
+		addManualTimeFailure: addManualTimeMutation.error,
 		addManualTime,
 		timeLog,
 		// Reset function to clear states when modal reopens

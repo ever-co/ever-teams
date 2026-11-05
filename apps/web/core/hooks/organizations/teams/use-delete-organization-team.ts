@@ -6,6 +6,8 @@ import { organizationTeamService } from '@/core/services/client/api/organization
 import { ZodValidationError } from '@/core/types/schemas/utils/validation';
 import { queryKeys } from '@/core/query/keys';
 import { toast } from 'sonner';
+import { useTranslations, type DottedLanguageObjectStringPaths } from 'next-intl';
+import { errorReasonKeyOf } from '@/core/lib/utils/error-feedback';
 import { useAuthenticateUser } from '../../auth';
 import { useOrganizationTeamsQuery } from './use-organization-teams-query';
 
@@ -23,6 +25,7 @@ export function useDeleteOrganizationTeam() {
 	const queryClient = useQueryClient();
 	const { logOut, refreshToken, refreshUserData } = useAuthenticateUser();
 	const { loadTeamsData } = useOrganizationTeamsQuery();
+	const t = useTranslations();
 
 	const deleteOrganizationTeamTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
@@ -48,8 +51,8 @@ export function useDeleteOrganizationTeam() {
 		},
 		mutationKey: queryKeys.organizationTeams.mutations.delete(null),
 		onSuccess: async (response) => {
-			toast.success('Team deleted successfully', {
-				description: `Team "${response.data.name}" has been deleted. You will be logged out of the application to choose a new workspace.`
+			toast.success(t('toasts.teams.DELETED', { name: response.data.name }), {
+				description: t('toasts.teams.DELETED_SIGNING_OUT')
 			});
 
 			// Clear previous timeout if any
@@ -68,19 +71,13 @@ export function useDeleteOrganizationTeam() {
 		},
 		onError: (error) => {
 			if (error instanceof ZodValidationError) {
-				toast.error('Delete team validation failed', {
-					description: JSON.stringify({
-						message: error.message,
-						issues: error.issues
-					})
-				});
 				console.error('Delete team validation failed:', {
 					message: error.message,
 					issues: error.issues
 				});
-				return;
 			}
-			toast.error('Delete team failed');
+			const reasonKey = errorReasonKeyOf(error) as DottedLanguageObjectStringPaths;
+			toast.error(t('toasts.teams.DELETE_FAILED'), { description: t(reasonKey) });
 		}
 	});
 
@@ -99,7 +96,7 @@ export function useDeleteOrganizationTeam() {
 				await loadTeamsData();
 			} catch (error) {
 				console.error('Failed to reload teams after removing user from team:', error);
-				toast.error('Failed to reload teams data. Please refresh the page.');
+				toast.error(t('toasts.teams.TEAMS_RELOAD_FAILED'), { description: t('toasts.teams.REFRESH_PAGE') });
 				// Intentionally skip auth refresh due to data inconsistency
 				return;
 			}
@@ -109,7 +106,7 @@ export function useDeleteOrganizationTeam() {
 				await refreshToken();
 				await refreshUserData();
 			} catch (error) {
-				toast.error('Failed to refresh token after removing user from team');
+				toast.warning(t('toasts.teams.LEFT_ALL_REFRESH'));
 				console.error('Failed to refresh token after removing user from team:', error);
 			} finally {
 				// 3. Always invalidate for cache consistency
@@ -119,9 +116,8 @@ export function useDeleteOrganizationTeam() {
 			}
 		},
 		onError: (error) => {
-			toast.error('Remove user from all teams failed', {
-				description: error.message
-			});
+			const reasonKey = errorReasonKeyOf(error) as DottedLanguageObjectStringPaths;
+			toast.error(t('toasts.teams.LEAVE_ALL_FAILED'), { description: t(reasonKey) });
 			console.error('Remove user from all teams failed:', error);
 		}
 	});

@@ -1,7 +1,9 @@
 import { cn } from '@/core/lib/helpers';
 import { ScrollArea, ScrollBar } from '@/core/components/common/scroll-bar';
 import { Popover, PopoverButton, PopoverPanel } from '@headlessui/react';
-import { Check, ChevronDown, Search } from 'lucide-react';
+import { Check, ChevronDown, Search } from '@/core/components/icons';
+import { controlRecipe } from '@/core/components/common/input';
+import { popoverSurfaceRecipe } from '@/core/components/common/popover';
 import { ChangeEvent, useCallback, useEffect, useState } from 'react';
 
 interface IProps<TItem> {
@@ -46,12 +48,13 @@ export function MultiSelectWithSearch<T extends { value: string | number; id: st
 		<Popover className={'relative '}>
 			<div className="w-full flex ">
 				{searchEnabled && (
-					<Search size={15} className=" text-slate-400 z-10 absolute top-1/2 -translate-y-1/2 left-3" />
+					<Search className="size-4 text-muted-foreground z-10 absolute top-1/2 -translate-y-1/2 left-3" />
 				)}
 				<PopoverButton
 					className={cn(
-						'border relative grow rounded-lg w-full bg-transparent text-xs px-3 py-2',
-						searchEnabled && ' pl-9'
+						controlRecipe,
+						'relative grow h-9 px-3 py-1 pr-9 text-left text-sm',
+						searchEnabled && 'pl-9'
 					)}
 					{...(searchEnabled
 						? {
@@ -63,13 +66,17 @@ export function MultiSelectWithSearch<T extends { value: string | number; id: st
 							}
 						: {
 								as: 'button',
-								children: <div className="w-full text-xs text-slate-400 text-left">{placeholder}</div>
+								children: (
+									<div className="w-full text-sm text-muted-foreground/75 text-left">
+										{placeholder}
+									</div>
+								)
 							})}
 				></PopoverButton>
-				<ChevronDown size={20} className=" text-slate-400  absolute top-1/2 -translate-y-1/2 right-3" />
+				<ChevronDown className="size-4 text-muted-foreground absolute top-1/2 -translate-y-1/2 right-3" />
 			</div>
-			<PopoverPanel className={'absolute w-full mt-1 z-20 bg-white dark:bg-muted rounded-md shadow-md'}>
-				<ul className="w-full flex flex-col h-52 gap-[.125rem] p-[.125rem]">
+			<PopoverPanel className={cn('absolute w-full mt-1 z-20', popoverSurfaceRecipe)}>
+				<ul className="w-full flex flex-col h-52 gap-0.5 p-1">
 					<ScrollArea>
 						{options
 							?.filter((option) => String(option.value).toLowerCase().includes(searchTerm.toLowerCase()))
@@ -81,8 +88,8 @@ export function MultiSelectWithSearch<T extends { value: string | number; id: st
 										onClick={() => handleSelect(option)}
 										key={option.id}
 										className={cn(
-											'w-full  cursor-pointer flex gap-2  px-4 py-2 rounded-xs text-sm',
-											isSelected ? 'bg-primary text-white' : 'hover:bg-primary/10'
+											'w-full cursor-pointer flex items-center gap-2 px-2 py-1.5 rounded-md text-sm transition-colors hover:bg-foreground/5',
+											isSelected && 'bg-foreground/5 font-medium'
 										)}
 									>
 										<Check
@@ -92,7 +99,7 @@ export function MultiSelectWithSearch<T extends { value: string | number; id: st
 											)}
 											size={15}
 										/>
-										<span className=" text-xs grow truncate overflow-hidden whitespace-nowrap ">
+										<span className="text-sm grow truncate overflow-hidden whitespace-nowrap">
 											{String(option.value)}
 										</span>
 									</li>

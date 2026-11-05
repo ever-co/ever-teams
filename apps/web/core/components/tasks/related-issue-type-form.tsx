@@ -9,7 +9,7 @@ import { useCreateTaskRelatedIssueType } from '@/core/hooks/tasks/use-create-tas
 import { useEditTaskRelatedIssueType } from '@/core/hooks/tasks/use-edit-task-related-issue-type';
 import { useDeleteTaskRelatedIssueType } from '@/core/hooks/tasks/use-delete-task-related-issue-type';
 import { Spinner } from '@/core/components/common/spinner';
-import { PlusIcon } from '@heroicons/react/20/solid';
+import { Plus as PlusIcon } from '@/core/components/icons';
 import { useCallback, useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { InputField } from '../duplicated-components/_input';
@@ -25,7 +25,7 @@ const SECONDARY_BUTTON =
 const PRIMARY_BUTTON = 'h-9 shrink-0 rounded-md px-3 py-0 text-sm font-medium hover:bg-primary/90';
 const CANCEL_BUTTON = 'h-9 shrink-0 rounded-md px-3 py-0 text-sm font-medium';
 
-export const RelatedIssueTypeForm =({ formOnly = false } = {}) => {
+export const RelatedIssueTypeForm = ({ formOnly = false } = {}) => {
 	const t = useTranslations();
 
 	const { data: user } = useUserQuery();
@@ -159,7 +159,9 @@ export const RelatedIssueTypeForm =({ formOnly = false } = {}) => {
 
 						{!formOnly && taskRelatedIssueTypes?.length > 0 && (
 							<>
-								<Text className={`${SUB_LABEL} pt-1`}>{t('pages.settingsTeam.LIST_OF_RELATED_TYPE')}</Text>
+								<Text className={`${SUB_LABEL} pt-1`}>
+									{t('pages.settingsTeam.LIST_OF_RELATED_TYPE')}
+								</Text>
 								<div className="flex w-full flex-wrap gap-2">
 									{loading && !taskRelatedIssueTypes?.length && <Spinner dark={false} />}
 									{taskRelatedIssueTypes && taskRelatedIssueTypes?.length ? (

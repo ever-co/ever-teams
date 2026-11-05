@@ -12,9 +12,7 @@ export const ProductivityApplicationTableSkeleton: FC<ProductivityApplicationTab
 	const t = useTranslations();
 
 	return (
-		<Card
-			className={`bg-white rounded-md border border-gray-100 dark:border-gray-700 dark:bg-dark--theme-light min-h-[600px] ${className || ''}`}
-		>
+		<Card className={`min-h-[600px] ${className || ''}`}>
 			<Table>
 				<TableHeader>
 					<TableRow>
@@ -31,7 +29,7 @@ export const ProductivityApplicationTableSkeleton: FC<ProductivityApplicationTab
 						<Fragment key={`app-group-${appIndex}`}>
 							{/* Application Header Row */}
 							<TableRow key={`app-header-${appIndex}`}>
-								<TableCell colSpan={5} className="px-6 py-4 font-medium bg-gray-50 dark:bg-muted">
+								<TableCell colSpan={5} className="px-6 py-4 font-medium bg-muted/50">
 									<Skeleton className="w-40 h-5" />
 								</TableCell>
 							</TableRow>

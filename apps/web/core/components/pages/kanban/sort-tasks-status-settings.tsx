@@ -62,9 +62,11 @@ const SortTasksStatusSettings = ({ arr, onClose }: { arr: TTaskStatus[]; onClose
 		}
 	};
 	return (
-		<div className="w-[500px] h-[700px] bg-[#f2f2f2] dark:bg-background rounded-lg flex flex-col justify-between items-center">
+		<div className="w-[500px] h-[700px] flex flex-col justify-between items-center">
 			<div className="w-full grow flex flex-col items-center justify-center">
-				<h2 className="text-2xl font-bold text-center mb-4">{t('pages.settingsTeam.SORT_TASK_STATUSES')}</h2>
+				<h2 className="text-lg font-semibold text-center text-balance mb-4">
+					{t('pages.settingsTeam.SORT_TASK_STATUSES')}
+				</h2>
 				<div className="h-[450px] w-full flex items-center justify-center">
 					<ScrollArea className="h-full">
 						<DragDropContext onDragEnd={onDragEnd}>
@@ -76,13 +78,13 @@ const SortTasksStatusSettings = ({ arr, onClose }: { arr: TTaskStatus[]; onClose
 												<Draggable key={item.id} draggableId={item.id} index={index}>
 													{(provided) => (
 														<div
-															className="py-2 text-base rounded-md w-80"
+															className="w-80 py-0.5 text-sm"
 															{...provided.draggableProps}
 															ref={provided.innerRef}
 														>
-															<div className="border flex justify-start items-center p-4 text-base rounded-md w-80">
+															<div className="flex w-80 items-center justify-start gap-2 rounded-md bg-foreground/[0.025] px-3 py-2 text-sm">
 																<div {...provided.dragHandleProps}>
-																	<SixSquareGridIcon className="w-6 h-6" />
+																	<SixSquareGridIcon className="size-5 text-muted-foreground" />
 																</div>
 																<p className="capitalize">
 																	{item.name?.split('-').join(' ')}
@@ -103,18 +105,13 @@ const SortTasksStatusSettings = ({ arr, onClose }: { arr: TTaskStatus[]; onClose
 			</div>
 
 			<div className=" shrink-0 w-full p-2 flex justify-end gap-2">
-				<Button
-					onClick={onClose}
-					disabled={reOrderTaskStatusLoading}
-					variant={'outline'}
-					className="p-4 w-28 !h-14 border-none"
-				>
+				<Button onClick={onClose} disabled={reOrderTaskStatusLoading} variant={'outline'} className="w-28">
 					{t('common.CANCEL')}
 				</Button>
 				<Button
 					onClick={saveOrder}
 					disabled={reOrderTaskStatusLoading}
-					className="dark:text-white flex items-center justify-center w-28 !h-14 gap-2"
+					className="flex items-center justify-center w-28 gap-2"
 				>
 					{t('common.SAVE')} {reOrderTaskStatusLoading && <Spinner />}
 				</Button>

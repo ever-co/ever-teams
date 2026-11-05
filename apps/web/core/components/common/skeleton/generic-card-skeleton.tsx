@@ -2,6 +2,8 @@ import { FC } from 'react';
 import { Skeleton } from '@/core/components/common/skeleton';
 import { cn } from '@/core/lib/helpers';
 
+const TEAM_AVATAR_KEYS = ['first-avatar', 'second-avatar'];
+
 interface GenericCardSkeletonProps {
 	className?: string;
 	variant?: 'project' | 'team' | 'task' | 'simple';
@@ -75,9 +77,8 @@ export const GenericCardSkeleton: FC<GenericCardSkeletonProps> = ({
 	return (
 		<div
 			className={cn(
-				'bg-white min-w-72 w-fit hover:border-primary dark:hover:border-primary dark:bg-dark--theme-light',
-				'flex flex-col gap-4 p-4 rounded-lg border border-gray-200 dark:border-dark--theme-light',
-				'animate-pulse',
+				'bg-card min-w-72 w-fit',
+				'flex flex-col gap-4 p-4 rounded-xl hairline-ring ring-border shadow-sm shadow-black/6.5',
 				className
 			)}
 		>
@@ -85,10 +86,10 @@ export const GenericCardSkeleton: FC<GenericCardSkeletonProps> = ({
 			{config.showHeader && (
 				<div className="flex justify-between items-center w-full">
 					<div className="flex gap-2 items-center">
-						<Skeleton className="w-8 h-8 rounded" />
-						<Skeleton className="w-24 h-4 rounded" />
+						<Skeleton className="w-8 h-8" />
+						<Skeleton className="w-24 h-4" />
 					</div>
-					{config.showActions && <Skeleton className="w-6 h-6 rounded" />}
+					{config.showActions && <Skeleton className="w-6 h-6 rounded-sm" />}
 				</div>
 			)}
 
@@ -102,8 +103,8 @@ export const GenericCardSkeleton: FC<GenericCardSkeletonProps> = ({
 			{/* Description Section */}
 			{config.showDescription && (
 				<div className="space-y-2 w-full">
-					<Skeleton className="w-full h-4 rounded" />
-					<Skeleton className="w-3/4 h-4 rounded" />
+					<Skeleton className="w-full h-4" />
+					<Skeleton className="w-3/4 h-4" />
 				</div>
 			)}
 
@@ -111,12 +112,12 @@ export const GenericCardSkeleton: FC<GenericCardSkeletonProps> = ({
 			{config.showDates && (
 				<div className="flex gap-4 items-center w-full">
 					<div className="flex flex-col gap-1">
-						<Skeleton className="w-16 h-4 rounded" />
-						<Skeleton className="w-20 h-4 rounded" />
+						<Skeleton className="w-16 h-4" />
+						<Skeleton className="w-20 h-4" />
 					</div>
 					<div className="flex flex-col gap-1">
-						<Skeleton className="w-16 h-4 rounded" />
-						<Skeleton className="w-20 h-4 rounded" />
+						<Skeleton className="w-16 h-4" />
+						<Skeleton className="w-20 h-4" />
 					</div>
 				</div>
 			)}
@@ -125,26 +126,23 @@ export const GenericCardSkeleton: FC<GenericCardSkeletonProps> = ({
 			{config.showTeam && (
 				<div className="flex justify-between items-center w-full">
 					<div className="flex flex-col gap-1">
-						<Skeleton className="w-16 h-4 rounded" />
+						<Skeleton className="w-16 h-4" />
 						<div className="flex -space-x-2">
-							{[...Array(2)].map((_, i) => (
-								<Skeleton
-									key={i}
-									className="w-8 h-8 rounded-full border-2 border-white dark:border-dark--theme-light"
-								/>
+							{TEAM_AVATAR_KEYS.map((avatarKey) => (
+								<Skeleton key={avatarKey} className="w-8 h-8 rounded-full ring-2 ring-card" />
 							))}
 						</div>
 					</div>
 					<div className="flex flex-col gap-1">
-						<Skeleton className="w-12 h-4 rounded" />
+						<Skeleton className="w-12 h-4" />
 						<div className="flex -space-x-2">
-							<Skeleton className="w-8 h-8 rounded-full border-2 border-white dark:border-dark--theme-light" />
+							<Skeleton className="w-8 h-8 rounded-full ring-2 ring-card" />
 						</div>
 					</div>
 					<div className="flex flex-col gap-1">
-						<Skeleton className="w-16 h-4 rounded" />
+						<Skeleton className="w-16 h-4" />
 						<div className="flex -space-x-2">
-							<Skeleton className="w-8 h-8 rounded-full border-2 border-white dark:border-dark--theme-light" />
+							<Skeleton className="w-8 h-8 rounded-full ring-2 ring-card" />
 						</div>
 					</div>
 				</div>

@@ -1,13 +1,30 @@
 'use client';
 
 import { useTranslations } from 'next-intl';
-import { AlertTriangle, Building2, UserMinus } from 'lucide-react';
+import { Alert, Building, UserRemove } from '@/core/components/icons';
 import { leavesWorkspaceWithoutAdmin, type IAccountDeletionAccount } from '@/core/lib/auth/account-deletion';
 import { cn } from '@/core/lib/helpers';
 
-/** `SUPER_ADMIN` → `Super admin`. */
-function roleLabel(role?: string | null): string | null {
-	if (!role) return null;
+/** Gauzy's role names (RolesEnum) → their translated label under `pages.accountDeletion.roles`. */
+const ROLE_LABEL_KEYS = {
+	SUPER_ADMIN: 'superAdmin',
+	ADMIN: 'admin',
+	MANAGER: 'manager',
+	EMPLOYEE: 'employee',
+	DATA_ENTRY: 'dataEntry',
+	VIEWER: 'viewer',
+	CANDIDATE: 'candidate',
+	INTERVIEWER: 'interviewer'
+} as const;
+
+type TKnownRole = keyof typeof ROLE_LABEL_KEYS;
+
+function isKnownRole(role: string): role is TKnownRole {
+	return Object.prototype.hasOwnProperty.call(ROLE_LABEL_KEYS, role);
+}
+
+/** A role a deployment named itself, which has no translation: `CUSTOM_ROLE` → `Custom role`. */
+function humanizedRole(role: string): string {
 	const words = role.toLowerCase().replace(/_/g, ' ');
 	return words.charAt(0).toUpperCase() + words.slice(1);
 }
@@ -19,25 +36,33 @@ function roleLabel(role?: string | null): string | null {
 export function AccountDeletionRow({ account }: Readonly<{ account: IAccountDeletionAccount }>) {
 	const t = useTranslations();
 	const workspaceDeleted = account.outcome === 'workspace-deleted';
-	const role = roleLabel(account.role);
+	const roleName = account.role?.trim().toUpperCase();
+	let role: string | null = null;
+	if (roleName) {
+		role = isKnownRole(roleName)
+			? t(`pages.accountDeletion.roles.${ROLE_LABEL_KEYS[roleName]}`)
+			: humanizedRole(roleName);
+	}
 	const organizations = account.organizations?.filter(Boolean) ?? [];
 
 	return (
-		<li className="p-3 rounded-lg ring-1 ring-foreground/10 bg-muted/30" data-testid="delete-account-row">
+		<li className="p-3 rounded-lg bg-foreground/3" data-testid="delete-account-row">
 			<div className="flex gap-3 items-start">
 				<div
 					className={cn(
-						'flex justify-center items-center mt-0.5 w-8 h-8 rounded-md shrink-0',
-						workspaceDeleted ? 'bg-destructive/10 text-destructive' : 'bg-muted text-muted-foreground'
+						'flex justify-center items-center mt-0.5 size-8 rounded-md shrink-0',
+						workspaceDeleted && 'bg-destructive/10 text-destructive-ink',
+						!workspaceDeleted && 'bg-foreground/5 text-muted-foreground'
 					)}
 				>
-					{workspaceDeleted ? <Building2 className="w-4 h-4" /> : <UserMinus className="w-4 h-4" />}
+					{workspaceDeleted && <Building className="size-4" />}
+					{!workspaceDeleted && <UserRemove className="size-4" />}
 				</div>
 				<div className="space-y-1 min-w-0">
 					<p className="flex flex-wrap gap-2 items-center text-sm font-medium text-foreground">
 						<span className="break-all">{account.workspace}</span>
 						{role && (
-							<span className="px-1.5 py-0.5 text-[11px] font-medium rounded bg-muted text-muted-foreground">
+							<span className="px-1.5 py-0.5 text-[11px] font-medium rounded-sm bg-foreground/5 text-muted-foreground">
 								{role}
 							</span>
 						)}
@@ -56,11 +81,11 @@ export function AccountDeletionRow({ account }: Readonly<{ account: IAccountDele
 					</p>
 					{leavesWorkspaceWithoutAdmin(account) && (
 						<p
-							className="flex gap-1.5 items-start p-2 mt-1 text-xs rounded-md bg-amber-500/10 text-amber-700 dark:text-amber-300"
+							className="flex gap-1.5 items-start p-2 mt-1 text-xs rounded-md bg-warning/10 text-warning-foreground"
 							role="alert"
 							data-testid="delete-account-sole-admin"
 						>
-							<AlertTriangle className="mt-px w-3.5 h-3.5 shrink-0" />
+							<Alert className="mt-px size-3.5 shrink-0" />
 							<span>
 								{t('pages.accountDeletion.SOLE_ADMIN_WARNING', { count: account.otherMembers ?? 0 })}
 							</span>

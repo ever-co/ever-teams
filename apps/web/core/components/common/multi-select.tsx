@@ -2,12 +2,11 @@ import { clsxm } from '@/core/lib/utils';
 import { Button } from '@/core/components/duplicated-components/_button';
 import { Popover, PopoverContent, PopoverTrigger } from '@/core/components/common/popover';
 import { cn } from '@/core/lib/helpers';
-import { ChevronDown } from 'lucide-react';
+import { ChevronDown, X } from '@/core/components/icons';
 import React, { JSX, useCallback, useEffect, useRef, useState } from 'react';
 import { useTranslations } from 'next-intl';
 
 import { statusColor } from '..';
-import { IconsCloseRounded } from '@/core/components/icons';
 
 interface MultiSelectProps<T> {
 	items: T[];
@@ -55,34 +54,43 @@ export function MultiSelect<T>({
 	const triggerRef = useRef<HTMLButtonElement>(null);
 
 	// Synchronize the selection with the parent
-	const updateSelectedItems = useCallback((newItems: T[]) => {
-		if (!isControlled) {
-			setInternalSelectedItems(newItems);
-		}
-		if (onValueChange) {
-			onValueChange(multiSelect ? newItems : newItems[0] || null);
-		}
-	}, [isControlled, onValueChange, multiSelect]);
-
-	const onClick = useCallback((item: T) => {
-		let newSelectedItems: T[];
-		if (multiSelect) {
-			if (selectedItems.some((selectedItem) => itemId(selectedItem) === itemId(item))) {
-				newSelectedItems = selectedItems.filter((selectedItem) => itemId(selectedItem) !== itemId(item));
-			} else {
-				newSelectedItems = [...selectedItems, item];
+	const updateSelectedItems = useCallback(
+		(newItems: T[]) => {
+			if (!isControlled) {
+				setInternalSelectedItems(newItems);
 			}
-		} else {
-			newSelectedItems = [item];
-			setPopoverOpen(false);
-		}
-		updateSelectedItems(newSelectedItems);
-	}, [updateSelectedItems, selectedItems, itemId, multiSelect]);
+			if (onValueChange) {
+				onValueChange(multiSelect ? newItems : newItems[0] || null);
+			}
+		},
+		[isControlled, onValueChange, multiSelect]
+	);
 
-	const removeItem = useCallback((item: T) => {
-		const newSelectedItems = selectedItems.filter((selectedItem) => itemId(selectedItem) !== itemId(item));
-		updateSelectedItems(newSelectedItems);
-	}, [updateSelectedItems, selectedItems, itemId]);
+	const onClick = useCallback(
+		(item: T) => {
+			let newSelectedItems: T[];
+			if (multiSelect) {
+				if (selectedItems.some((selectedItem) => itemId(selectedItem) === itemId(item))) {
+					newSelectedItems = selectedItems.filter((selectedItem) => itemId(selectedItem) !== itemId(item));
+				} else {
+					newSelectedItems = [...selectedItems, item];
+				}
+			} else {
+				newSelectedItems = [item];
+				setPopoverOpen(false);
+			}
+			updateSelectedItems(newSelectedItems);
+		},
+		[updateSelectedItems, selectedItems, itemId, multiSelect]
+	);
+
+	const removeItem = useCallback(
+		(item: T) => {
+			const newSelectedItems = selectedItems.filter((selectedItem) => itemId(selectedItem) !== itemId(item));
+			updateSelectedItems(newSelectedItems);
+		},
+		[updateSelectedItems, selectedItems, itemId]
+	);
 
 	useEffect(() => {
 		if (triggerRef.current) {
@@ -98,10 +106,8 @@ export function MultiSelect<T>({
 						ref={triggerRef}
 						onClick={() => setPopoverOpen(!isPopoverOpen)}
 						variant="outline"
-						className={cn(
-							'justify-between w-full h-10 font-normal text-left rounded-lg dark:bg-dark--theme-light',
-							triggerClassName
-						)}
+						size="lg"
+						className={cn('w-full justify-between px-3 text-left font-normal', triggerClassName)}
 					>
 						{selectedItems.length > 0 ? (
 							<span className="truncate">
@@ -110,19 +116,21 @@ export function MultiSelect<T>({
 									: itemToString(selectedItems[0])}
 							</span>
 						) : (
-							<span>{t('common.SELECT_ITEMS')}</span>
+							<span className="text-muted-foreground">{t('common.SELECT_ITEMS')}</span>
 						)}
-						<ChevronDown className={cn('h-4 w-4 transition-transform', isPopoverOpen && 'rotate-180')} />
+						<ChevronDown
+							className={cn(
+								'size-4 shrink-0 text-muted-foreground transition-transform',
+								isPopoverOpen && 'rotate-180'
+							)}
+						/>
 					</Button>
 				</PopoverTrigger>
 				<PopoverContent
-					className={cn(
-						'w-full max-w-full border border-transparent max-h-[80vh] dark:bg-dark--theme-light',
-						popoverClassName
-					)}
+					className={cn('w-full max-w-full max-h-[80vh] p-1', popoverClassName)}
 					style={{ width: popoverWidth || 'auto', overflow: 'auto' }}
 				>
-					<ul className="w-full max-h-[80vh] overflow-auto flex flex-col gap-1.5">
+					<ul className="w-full max-h-[80vh] overflow-auto flex flex-col gap-0.5">
 						{items.map((item) => {
 							const isSelected = selectedItems.some(
 								(selectedItem) => itemId(selectedItem) === itemId(item)
@@ -134,8 +142,8 @@ export function MultiSelect<T>({
 									key={itemId(item)}
 									onClick={() => onClick(item)}
 									className={cn(
-										'truncate hover:cursor-pointer hover:bg-slate-50 w-full text-xs h-fit max-w-72 rounded-md p-1 px-1.5 dark:text-white dark:hover:bg-primary whitespace-nowrap transition-all duration-300 text-ellipsis overflow-hidden',
-										isSelected && 'font-semibold bg-slate-100 dark:bg-primary-light'
+										'truncate hover:cursor-pointer hover:bg-foreground/5 w-full text-sm h-fit max-w-72 rounded-md px-2 py-1.5 whitespace-nowrap transition-colors text-ellipsis overflow-hidden',
+										isSelected && 'font-medium bg-foreground/5'
 									)}
 								>
 									{itemToString(item)}
@@ -152,19 +160,19 @@ export function MultiSelect<T>({
 						<div
 							key={itemId(item)}
 							className={clsxm(
-								'flex items-center justify-between px-2 py-[0.5px] rounded-sm text-[12px]',
+								'flex items-center justify-between px-2 py-0.5 rounded-sm text-xs font-medium',
 								'dark:text-white',
-								statusColor(itemToString(item))?.bg || 'bg-gray-100 dark:bg-slate-700'
+								statusColor(itemToString(item))?.bg || 'bg-foreground/5'
 							)}
 						>
 							<span>{itemToString(item)}</span>
 							<button
 								onClick={() => removeItem(item)}
-								className="ml-2 text-gray-600 dark:text-white hover:text-red-500 dark:hover:text-red-500"
+								className="ml-1.5 text-muted-foreground transition-colors hover:text-destructive-ink"
 								aria-label="Remove item"
 							>
 								<span className="flex justify-center items-center w-4 h-4">
-									<IconsCloseRounded className="w-4 h-4" aria-hidden="true" />
+									<X className="size-3.5" aria-hidden="true" />
 								</span>
 							</button>
 						</div>

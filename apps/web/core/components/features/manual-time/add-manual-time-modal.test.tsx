@@ -27,6 +27,20 @@ jest.mock('jotai', () => ({
 	useAtomValue: (atom: string) => mockAtomValues[atom]
 }));
 
+// The task list of a picked team that is not the active one (the store holds the active team's only)
+const mockPickedTeamTasksQuery: { data?: { items: unknown[] } } = {};
+const mockUseQuery = jest.fn();
+jest.mock('@tanstack/react-query', () => ({
+	useQuery: (options: { queryKey: unknown; enabled?: boolean }) => {
+		mockUseQuery(options);
+		return mockPickedTeamTasksQuery;
+	}
+}));
+jest.mock('@/core/services/client/api/tasks/task.service', () => ({ taskService: { getTasks: jest.fn() } }));
+jest.mock('@/core/hooks/auth/use-reactive-access-token-cookie', () => ({
+	useReactiveAccessTokenCookie: () => 'access-token'
+}));
+
 jest.mock('@/core/stores', () => ({
 	activeTeamState: 'activeTeamState',
 	activeTeamTaskState: 'activeTeamTaskState',
@@ -53,8 +67,17 @@ jest.mock('@/core/hooks/organizations/teams/use-team-member', () => ({
 	useIsMemberManager: () => ({ isTeamManager: true })
 }));
 
+// The keys stand for the texts; the list of missing fields is appended so each message stays distinct
+function translate(key: string, values?: { fields?: string }) {
+	if (values?.fields) {
+		return `${key} ${values.fields}`;
+	}
+	return key;
+}
+
 jest.mock('next-intl', () => ({
-	useTranslations: () => (key: string) => key
+	useTranslations: () => translate,
+	useLocale: () => 'en'
 }));
 
 jest.mock('lucide-react', () => ({
@@ -210,6 +233,7 @@ function submitDialog() {
 describe('AddManualTimeModal team of the saved time', () => {
 	beforeEach(() => {
 		mockAddManualTime.mockReset();
+		mockPickedTeamTasksQuery.data = undefined;
 		mockAtomValues.activeTeamState = teamA;
 		mockAtomValues.activeTeamTaskState = taskA;
 		mockAtomValues.organizationTeamsState = [teamA, teamB];
@@ -233,7 +257,7 @@ describe('AddManualTimeModal team of the saved time', () => {
 		submitDialog();
 
 		expect(mockAddManualTime).not.toHaveBeenCalled();
-		expect(screen.getByText('Please complete: Task')).toBeTruthy();
+		expect(screen.getByText('manualTime.FILL_IN manualTime.TASK')).toBeTruthy();
 
 		pickInSelect('task', 'task-shared');
 		submitDialog();
@@ -241,6 +265,31 @@ describe('AddManualTimeModal team of the saved time', () => {
 		expect(mockAddManualTime).toHaveBeenCalledWith(
 			expect.objectContaining({ organizationTeamId: 'team-b', taskId: 'task-shared' })
 		);
+	});
+
+	it("lists the picked team's own tasks, read for that team, and saves one with it", () => {
+		const { rerender } = renderAddTimeDialog();
+
+		pickInSelect('teams', 'team-b');
+		expect(mockUseQuery).toHaveBeenLastCalledWith(
+			expect.objectContaining({ queryKey: ['tasks', 'by-team', 'team-b'], enabled: true })
+		);
+		// The team-b list arrives
+		mockPickedTeamTasksQuery.data = { items: teamBTasks() };
+		rerender(<AddManualTimeModal isOpen params="AddTime" closeModal={closeModal} />);
+
+		pickInSelect('task', 'task-b');
+		submitDialog();
+
+		expect(mockAddManualTime).toHaveBeenCalledWith(
+			expect.objectContaining({ organizationTeamId: 'team-b', taskId: 'task-b' })
+		);
+	});
+
+	it('reads no other task list while the active team is the one picked', () => {
+		renderAddTimeDialog();
+
+		expect(mockUseQuery).toHaveBeenLastCalledWith(expect.objectContaining({ enabled: false }));
 	});
 
 	it('keeps a task the picked team shares', () => {
@@ -287,7 +336,7 @@ describe('AddManualTimeModal team of the saved time', () => {
 
 		expect(selectedValue('teams')).toBe('team-b');
 		expect(mockAddManualTime).not.toHaveBeenCalled();
-		expect(screen.getByText('Please complete: Task')).toBeTruthy();
+		expect(screen.getByText('manualTime.FILL_IN manualTime.TASK')).toBeTruthy();
 
 		pickInSelect('task', 'task-b');
 		submitDialog();
@@ -320,7 +369,7 @@ describe('AddManualTimeModal team of the saved time', () => {
 		submitDialog();
 
 		expect(mockAddManualTime).not.toHaveBeenCalled();
-		expect(screen.getByText('Please complete: Employee')).toBeTruthy();
+		expect(screen.getByText('manualTime.FILL_IN manualTime.EMPLOYEE')).toBeTruthy();
 
 		clickButton('pick employee-b');
 		submitDialog();

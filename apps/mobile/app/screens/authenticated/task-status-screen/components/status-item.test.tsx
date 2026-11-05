@@ -8,16 +8,13 @@ import { fireEvent, render, screen } from '@testing-library/react-native';
 import StatusItem from './status-item';
 import { ITaskStatusItem } from '../../../../services/interfaces/ITaskStatus';
 
-// Each icon as a pressable labelled with its glyph: a press then goes through its disabled state, as on a device
+// Each icon as the text it renders, labelled with its glyph. The mock drops `disabled` on purpose: a press reaches any
+// handler the row attaches, so only a handler withheld from a read-only row keeps it from acting
 jest.mock('@expo/vector-icons', () => {
 	const mockReact = jest.requireActual('react');
-	const { Pressable: MockPressable, Text: MockText } = jest.requireActual('react-native');
-	const mockIcon = ({ name, disabled, onPress }: { name: string; disabled?: boolean; onPress?: () => unknown }) =>
-		mockReact.createElement(
-			MockPressable,
-			{ accessibilityLabel: name, disabled, onPress },
-			mockReact.createElement(MockText, null, name)
-		);
+	const { Text: MockText } = jest.requireActual('react-native');
+	const mockIcon = ({ name, disabled: _disabled, ...props }: { name: string; disabled?: boolean }) =>
+		mockReact.createElement(MockText, { ...props, accessibilityLabel: name }, name);
 	return { AntDesign: mockIcon, Ionicons: mockIcon };
 });
 
@@ -50,6 +47,8 @@ describe('<StatusItem>', () => {
 
 		expect(openForEdit).not.toHaveBeenCalled();
 		expect(onDeleteTask).not.toHaveBeenCalled();
+		expect(screen.getByLabelText('edit')).toBeDisabled();
+		expect(screen.getByLabelText('trash-outline')).toBeDisabled();
 	});
 
 	it('edits and deletes a row the user may change', async () => {
@@ -60,5 +59,7 @@ describe('<StatusItem>', () => {
 
 		expect(openForEdit).toHaveBeenCalledTimes(1);
 		expect(onDeleteTask).toHaveBeenCalledTimes(1);
+		expect(screen.getByLabelText('edit')).toBeEnabled();
+		expect(screen.getByLabelText('trash-outline')).toBeEnabled();
 	});
 });

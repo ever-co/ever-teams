@@ -1,10 +1,10 @@
 import { Combobox, Transition } from '@headlessui/react';
-import { ChevronUpDownIcon } from '@heroicons/react/20/solid';
-import { PlusIcon } from '@heroicons/react/24/solid';
+import { ChevronsUpDown as ChevronUpDownIcon, Plus as PlusIcon } from '@/core/components/icons';
 import { useCallback, useEffect, useState } from 'react';
 
 import { useTaskInput } from '@/core/hooks';
 import { Spinner } from '@/core/components/common/spinner';
+import { clsxm } from '@/core/lib/utils';
 import DeleteTask from '../features/tasks/delete-task';
 import TaskFilter from './task-filter';
 import { TaskItem } from './task-item';
@@ -15,12 +15,13 @@ export function CreateTaskOption({ onClick, loading }: { onClick: () => void; lo
 	const t = useTranslations();
 	return (
 		<div
-			className="relative px-4 py-2 text-gray-700 cursor-pointer select-none"
+			className="relative px-3 py-1.5 rounded-md text-foreground cursor-pointer select-none transition-colors hover:bg-foreground/5"
 			onClick={!loading ? onClick : undefined}
 		>
-			<div className="flex justify-start items-center cursor-pointer text-primary dark:text-white">
+			<div className="flex justify-start items-center cursor-pointer text-primary-ink">
 				<span className="mr-[11px]">
-					{loading ? <Spinner dark={false} /> : <PlusIcon className=" font-bold w-[16px] h-[16px]" />}
+					{loading && <Spinner dark={false} />}
+					{!loading && <PlusIcon className="size-4" />}
 				</span>
 				{t('common.CREATE_TASK')}
 			</div>
@@ -83,10 +84,10 @@ export function TasksList({ onClickTask }: { onClickTask?: (task: TTask) => void
 		<>
 			<Combobox value={inputTask} onChange={handleTaskChange}>
 				<div className="relative mt-1">
-					<div className="relative w-full cursor-default overflow-hidden rounded-lg  bg-[#EEEFF5] dark:bg-card text-left shadow-md focus:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-white/75 focus-visible:ring-offset-2 focus-visible:ring-offset-teal-300 sm:text-sm ">
+					<div className="overflow-hidden relative w-full text-left rounded-md cursor-default input-border bg-card sm:text-sm">
 						<Combobox.Input
 							key={`${editMode}`}
-							className="h-[60px] bg-[#EEEFF5] dark:bg-card placeholder-[#9490A0] dark:placeholder-[#616164] w-full rounded-[10px] px-[20px] py-[18px] shadow-inner"
+							className="h-[60px] bg-transparent text-foreground placeholder:text-muted-foreground w-full rounded-md px-5 py-[18px] outline-none focus-visible:ring-[3px] focus-visible:ring-ring/25"
 							displayValue={(task: TTask) => {
 								return task ? (!editMode ? `#${task.taskNumber} ` : '') + task.title : '';
 							}}
@@ -109,7 +110,7 @@ export function TasksList({ onClickTask }: { onClickTask?: (task: TTask) => void
 							{tasksFetching || createLoading || updateLoading ? (
 								<Spinner dark={false} />
 							) : (
-								<ChevronUpDownIcon className="w-5 h-5 text-gray-400" aria-hidden="true" />
+								<ChevronUpDownIcon className="size-4 text-muted-foreground" aria-hidden="true" />
 							)}
 						</Combobox.Button>
 					</div>
@@ -125,7 +126,7 @@ export function TasksList({ onClickTask }: { onClickTask?: (task: TTask) => void
 							setFilter('open');
 						}}
 					>
-						<Combobox.Options className="absolute z-10 mt-1 max-h-60 w-full overflow-auto rounded-md bg-[#FFFFFF] dark:bg-card py-1 text-base shadow-lg ring-1 ring-black/5 focus:outline-none sm:text-sm">
+						<Combobox.Options className="absolute z-10 mt-1 max-h-60 w-full overflow-auto rounded-xl bg-popover p-1 text-sm text-popover-foreground hairline-ring ring-border shadow-md shadow-black/6.5 focus:outline-none">
 							<div className="flex justify-start items-center mt-2 mb-4 ml-10 space-x-2">
 								<TaskFilter
 									count={openTaskCount}
@@ -155,11 +156,10 @@ export function TasksList({ onClickTask }: { onClickTask?: (task: TTask) => void
 											<Combobox.Option
 												key={task.id}
 												className={({ active }) =>
-													`relative text-[14px] cursor-pointer select-none pl-10 pr-4 text-primary ${
-														active
-															? 'bg-[#F9FAFB] text-primary/80 dark:text-white dark:bg-card cursor-pointer'
-															: ' dark:text-white text-primary/100'
-													}`
+													clsxm(
+														'relative text-sm cursor-pointer select-none rounded-md pl-10 pr-4 text-foreground transition-colors',
+														active && 'bg-foreground/5'
+													)
 												}
 												value={task}
 											>
@@ -175,7 +175,7 @@ export function TasksList({ onClickTask }: { onClickTask?: (task: TTask) => void
 																	onReopen={() => handleReopenTask(task)}
 																/>
 															</div>
-															<div className="w-full h-[1px] bg-[#EDEEF2] dark:bg-muted" />
+															<div className="w-full h-px bg-border" />
 														</div>
 													);
 												}}

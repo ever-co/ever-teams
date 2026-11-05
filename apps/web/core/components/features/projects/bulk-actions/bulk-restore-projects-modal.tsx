@@ -1,96 +1,53 @@
-import { useEditOrganizationProject } from '@/core/hooks/organizations/projects/use-edit-organization-project';
-import { useOrganizationProjectsQuery } from '@/core/hooks/organizations/projects/use-organization-projects-query';
-import { Button, Modal, Text } from '@/core/components';
-import { RotateCcw } from 'lucide-react';
+'use client';
+
+import { useCallback } from 'react';
 import { useTranslations } from 'next-intl';
-import { useCallback, useMemo, useState } from 'react';
-import { EverCard } from '@/core/components/common/ever-card';
+import { CircleCheck, RotateLeft } from '@/core/components/icons';
+import { ProjectConfirmDialog, ProjectListCard } from '@/core/components/projects/dialogs/project-confirm-dialog';
+import { useBulkProjectUpdate } from '@/core/hooks/projects/use-bulk-project-update';
 
 interface IBulkRestoreProjectModalProps {
 	open: boolean;
 	closeModal: () => void;
 	projectIds: string[];
 }
-/**
- * A modal to confirm the restoration of multiple projects at the same time
- *
- * @param {Object} props - The props Object
- * @param {boolean} props.open - If true open the modal otherwise close the modal
- * @param {() => void} props.closeModal - A function to close the modal
- * @param {string} props.projectIds - The project ids to operate on
- *
- * @returns {JSX.Element} The modal element
- */
-export function BulkRestoreProjectsModal(props: IBulkRestoreProjectModalProps) {
+
+export function BulkRestoreProjectsModal({
+	open,
+	closeModal,
+	projectIds = []
+}: Readonly<IBulkRestoreProjectModalProps>) {
 	const t = useTranslations();
-	const { open, closeModal, projectIds = [] } = props;
-	const { organizationProjects } = useOrganizationProjectsQuery();
-	const { editOrganizationProject } = useEditOrganizationProject();
-	const [isLoading, setIsLoading] = useState(false);
+	const { projects, updateAll, isUpdating, hasFailed } = useBulkProjectUpdate(projectIds);
+	const count = projects.length;
 
-	const projects = useMemo(
-		() => organizationProjects.filter((project) => projectIds.includes(project.id)),
-		[organizationProjects, projectIds]
-	);
-
-	// Bulk restore projects
-	const handleBulkRestoreProjects = useCallback(async () => {
-		try {
-			setIsLoading(true);
-
-			await Promise.all(
-				projectIds.map(async (projectId) => {
-					return await editOrganizationProject(projectId, {
-						isArchived: false,
-						isActive: true,
-						archivedAt: null
-					});
-				})
-			);
-
+	const handleBulkRestore = useCallback(async () => {
+		const isDone = await updateAll({ isArchived: false, isActive: true, archivedAt: null });
+		if (isDone) {
 			closeModal();
-		} catch (error) {
-			console.error('Failed to restore projects', error);
-		} finally {
-			setIsLoading(false);
 		}
-	}, [closeModal, editOrganizationProject, projectIds]);
+	}, [closeModal, updateAll]);
+
+	let error: string | null = null;
+	if (hasFailed) {
+		error = t('pages.projects.modals.errors.bulkRestore');
+	}
 
 	return (
-		<Modal isOpen={open} closeModal={closeModal} alignCloseIcon>
-			<EverCard className=" sm:w-[33rem] w-[20rem]" shadow="custom">
-				<div className="flex justify-center items-center py-3 w-full text-primary">
-					<RotateCcw size={45} />
-				</div>
-
-				<div className="flex flex-col gap-5 justify-between items-center">
-					<Text.Heading as="h3" className="text-center">
-						{t('pages.projects.bulkActions.bulkRestoreModal.title', { projectsCount: projects.length })}
-					</Text.Heading>
-
-					<div className="flex flex-col gap-1 items-center w-full">
-						<p className=" text-center text-[1rem] text-gray-600">
-							{t('pages.projects.bulkActions.bulkRestoreModal.description')}:
-						</p>
-
-						<p className="font-medium">{projects.map((el) => el?.name ?? '-').join(', ')}</p>
-					</div>
-
-					<div className="flex justify-between items-center w-full">
-						<Button disabled={isLoading} onClick={closeModal} className="h-[2.75rem]" variant="outline">
-							{t('common.CANCEL')}
-						</Button>
-						<Button
-							onClick={handleBulkRestoreProjects}
-							loading={isLoading}
-							disabled={isLoading}
-							className="h-[2.75rem] bg-primary text-primary-foreground"
-						>
-							{t('common.RESTORE')}
-						</Button>
-					</div>
-				</div>
-			</EverCard>
-		</Modal>
+		<ProjectConfirmDialog
+			open={open}
+			onClose={closeModal}
+			icon={<RotateLeft />}
+			title={t('pages.projects.modals.bulk.restoreTitle', { count })}
+			description={t('pages.projects.modals.bulk.restoreDescription', { count })}
+			subject={<ProjectListCard projects={projects} label={t('pages.projects.modals.bulk.selected')} />}
+			consequences={[
+				{ key: 'kept', icon: <CircleCheck />, text: t('pages.projects.modals.bulk.keepsSettings', { count }) }
+			]}
+			confirmLabel={t('pages.projects.modals.bulk.restoreConfirm', { count })}
+			isPending={isUpdating}
+			error={error}
+			onConfirm={handleBulkRestore}
+		/>
 	);
 }

@@ -51,11 +51,11 @@ export const DefaultIssueTypeForm = () => {
 					<div className="flex min-w-0 flex-col">
 						<div className="flex w-full flex-wrap gap-2">
 							{defaultIssueType ? (
-								<div className="inline-flex h-9 max-w-full items-center gap-2 rounded-md border border-border bg-card pl-2.5 pr-1 text-sm text-foreground">
+								<div className="inline-flex h-9 max-w-full items-center gap-2 rounded-md hairline-border border-border bg-card pl-2.5 pr-1 text-sm text-foreground">
 									{defaultIssueType.color ? (
 										<span
 											aria-hidden="true"
-											className="size-2.5 shrink-0 rounded-full ring-1 ring-inset ring-foreground/10"
+											className="size-2.5 shrink-0 rounded-full hairline-ring ring-inset ring-foreground/10"
 											style={{ backgroundColor: defaultIssueType.color as string }}
 										/>
 									) : null}
@@ -97,7 +97,7 @@ export const DefaultIssueTypeForm = () => {
 													>
 														<EditPenUnderlineIcon className="size-4 text-inherit" />
 													</DropdownMenuTrigger>
-													<DropdownMenuContent className="min-w-[12rem] rounded-md border border-border bg-card p-1 shadow-lg">
+													<DropdownMenuContent className="min-w-[12rem]">
 														{issueTypes.map((issue, index) => {
 															return (
 																!issue.isDefault && (
@@ -123,7 +123,7 @@ export const DefaultIssueTypeForm = () => {
 																		{issue.color ? (
 																			<span
 																				aria-hidden="true"
-																				className="size-2.5 shrink-0 rounded-full ring-1 ring-inset ring-foreground/10"
+																				className="size-2.5 shrink-0 rounded-full hairline-ring ring-inset ring-foreground/10"
 																				style={{ backgroundColor: issue.color }}
 																			/>
 																		) : null}

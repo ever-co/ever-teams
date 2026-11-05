@@ -5,9 +5,13 @@ import { useTranslations } from 'next-intl';
 import { DAILY_PLAN_SUGGESTION_MODAL_DATE } from '@/core/constants/config/constants';
 import { useOrganizationEmployeeTeams, useEditOrganizationTeam } from '../../hooks/organizations';
 import { IEmployee } from '@/core/types/interfaces/organization/employee';
-import { ERoleName } from '@/core/types/generics/enums/role';
 import { useAtomValue } from 'jotai';
 import { activeTeamState } from '@/core/stores';
+import { isTeamManagerMember } from '@/core/stores/teams/organization-team';
+import { teamRosterOf } from '@/core/lib/utils/settings-team';
+import { SWITCH_THUMB_RECIPE, SWITCH_TRACK_RECIPE } from './switch-recipes';
+
+export { SWITCH_THUMB_RECIPE, SWITCH_TRACK_RECIPE };
 
 export default function TimeTrackingToggle({ activeManager }: { activeManager: IEmployee | undefined }) {
 	const t = useTranslations();
@@ -33,23 +37,20 @@ export default function TimeTrackingToggle({ activeManager }: { activeManager: I
 	}, [activeManager]);
 
 	return (
-		<div className="flex items-center gap-x-[10px]">
+		<div className="flex items-center gap-x-2.5">
 			<Switch
 				checked={enabled}
 				onChange={() => {
 					handleChange();
 				}}
-				className={`${enabled ? 'bg-[#DBD3FA]' : 'bg-[#80808061]'}
-          relative inline-flex h-[38px] w-[74px] shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus-visible:ring-2  focus-visible:ring-white focus-visible:ring-white/75`}
+				className={SWITCH_TRACK_RECIPE}
 			>
 				<span className="sr-only">{t('common.USE_SETTING')}</span>
-				<span
-					aria-hidden="true"
-					className={`${enabled ? 'translate-x-9 bg-[#3826A6]' : 'bg-white translate-x-1'}
-            pointer-events-none inline-block h-[30px] w-[30px] mt-[2.5px] transform rounded-full bg-[#3826A6] shadow-lg ring-0 transition duration-200 ease-in-out`}
-				/>
+				<span aria-hidden="true" className={SWITCH_THUMB_RECIPE} />
 			</Switch>
-			<Text className="text-gray-400">{enabled ? t('common.ACTIVATED') : t('common.DEACTIVATED')}</Text>
+			<Text className="text-sm text-muted-foreground">
+				{enabled ? t('common.ACTIVATED') : t('common.DEACTIVATED')}
+			</Text>
 		</div>
 	);
 }
@@ -63,22 +64,12 @@ export function ShareProfileViewsToggle() {
 
 	const handleChange = useCallback(async () => {
 		if (activeTeam && typeof enabled != 'undefined') {
+			const roster = teamRosterOf(activeTeam.members ?? [], isTeamManagerMember);
 			await editOrganizationTeam({
 				...activeTeam,
 				shareProfileView: !enabled,
-				memberIds: activeTeam.members
-					?.map((t) => t.employee?.id || '')
-					.filter((value: string, index: number, array: string[]) => array.indexOf(value) === index),
-				managerIds: activeTeam.members
-					?.filter(
-						(m) =>
-							m.role &&
-							(m.role.name === ERoleName.MANAGER ||
-								m.role.name === ERoleName.SUPER_ADMIN ||
-								m.role.name === ERoleName.ADMIN)
-					)
-					.map((t) => t.employee?.id || '')
-					.filter((value: string, index: number, array: string[]) => array.indexOf(value) === index)
+				memberIds: roster.memberIds,
+				managerIds: roster.managerIds
 			});
 			setEnabled(!enabled);
 		}
@@ -89,23 +80,20 @@ export function ShareProfileViewsToggle() {
 	}, [activeTeam?.shareProfileView]);
 
 	return (
-		<div className="flex items-center gap-x-[10px]">
+		<div className="flex items-center gap-x-2.5">
 			<Switch
 				checked={enabled}
 				onChange={() => {
 					handleChange();
 				}}
-				className={`${enabled ? 'bg-[#DBD3FA]' : 'bg-[#80808061]'}
-          relative inline-flex h-[38px] w-[74px] shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus-visible:ring-2  focus-visible:ring-white focus-visible:ring-white/75`}
+				className={SWITCH_TRACK_RECIPE}
 			>
 				<span className="sr-only">{t('common.USE_SETTING')}</span>
-				<span
-					aria-hidden="true"
-					className={`${enabled ? 'translate-x-9 bg-[#3826A6]' : 'bg-white translate-x-1'}
-            pointer-events-none inline-block h-[30px] w-[30px] mt-[2.5px] transform rounded-full bg-[#3826A6] shadow-lg ring-0 transition duration-200 ease-in-out`}
-				/>
+				<span aria-hidden="true" className={SWITCH_THUMB_RECIPE} />
 			</Switch>
-			<Text className="text-gray-400">{enabled ? t('common.ACTIVATED') : t('common.DEACTIVATED')}</Text>
+			<Text className="text-sm text-muted-foreground">
+				{enabled ? t('common.ACTIVATED') : t('common.DEACTIVATED')}
+			</Text>
 		</div>
 	);
 }
@@ -118,22 +106,12 @@ export function RequireDailyPlanToTrack() {
 
 	const handleChange = useCallback(async () => {
 		if (activeTeam && typeof enabled != 'undefined') {
+			const roster = teamRosterOf(activeTeam.members ?? [], isTeamManagerMember);
 			await editOrganizationTeam({
 				...activeTeam,
 				requirePlanToTrack: !enabled,
-				memberIds: activeTeam.members
-					?.map((t) => t.employee?.id || '')
-					.filter((value: string, index: number, array: string[]) => array.indexOf(value) === index),
-				managerIds: activeTeam.members
-					?.filter(
-						(m) =>
-							m.role &&
-							(m.role.name === ERoleName.MANAGER ||
-								m.role.name === ERoleName.SUPER_ADMIN ||
-								m.role.name === ERoleName.ADMIN)
-					)
-					.map((t) => t.employee?.id || '')
-					.filter((value: string, index: number, array: string[]) => array.indexOf(value) === index)
+				memberIds: roster.memberIds,
+				managerIds: roster.managerIds
 			});
 			setEnabled(!enabled);
 			if (!enabled) {
@@ -147,23 +125,20 @@ export function RequireDailyPlanToTrack() {
 	}, [activeTeam?.requirePlanToTrack]);
 
 	return (
-		<div className="flex items-center gap-x-[10px]">
+		<div className="flex items-center gap-x-2.5">
 			<Switch
 				checked={enabled}
 				onChange={() => {
 					handleChange();
 				}}
-				className={`${enabled ? 'bg-[#DBD3FA]' : 'bg-[#80808061]'}
-          relative inline-flex h-[38px] w-[74px] shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus-visible:ring-2  focus-visible:ring-white focus-visible:ring-white/75`}
+				className={SWITCH_TRACK_RECIPE}
 			>
 				<span className="sr-only">{t('common.USE_SETTING')}</span>
-				<span
-					aria-hidden="true"
-					className={`${enabled ? 'translate-x-9 bg-[#3826A6]' : 'bg-white translate-x-1'}
-            pointer-events-none inline-block h-[30px] w-[30px] mt-[2.5px] transform rounded-full bg-[#3826A6] shadow-lg ring-0 transition duration-200 ease-in-out`}
-				/>
+				<span aria-hidden="true" className={SWITCH_THUMB_RECIPE} />
 			</Switch>
-			<Text className="text-gray-400">{enabled ? t('common.ACTIVATED') : t('common.DEACTIVATED')}</Text>
+			<Text className="text-sm text-muted-foreground">
+				{enabled ? t('common.ACTIVATED') : t('common.DEACTIVATED')}
+			</Text>
 		</div>
 	);
 }

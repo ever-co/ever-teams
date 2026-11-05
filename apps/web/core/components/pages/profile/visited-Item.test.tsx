@@ -18,7 +18,14 @@ function viewFromNewYork() {
 }
 
 function renderVisitedRow(date: string) {
-	const row = { title: 'Visual Studio Code', date, time: '09:00:00', duration: 1260, sessions: 3 };
+	const row = {
+		title: 'Visual Studio Code',
+		date,
+		time: '09:00:00',
+		duration: 1260,
+		sessions: 3,
+		employeeId: 'employee-1'
+	};
 	render(<VisitedItem app={row} totalMilliseconds={1260} type="APP" />);
 }
 

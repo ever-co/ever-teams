@@ -8,7 +8,7 @@ import { useTaskSettingsAccess } from '@/core/hooks/tasks/use-task-settings-acce
 import { tasksByTeamState } from '@/core/stores';
 import { clsxm } from '@/core/lib/utils';
 import { Spinner } from '@/core/components/common/spinner';
-import { PlusIcon } from '@heroicons/react/20/solid';
+import { Plus as PlusIcon } from '@/core/components/icons';
 import { Button, ColorPicker, Modal, Text } from '@/core/components';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useForm } from 'react-hook-form';
@@ -35,7 +35,8 @@ const PRIMARY_BUTTON = 'h-9 shrink-0 rounded-md px-3 py-0 text-sm font-medium ho
 const CANCEL_BUTTON = 'h-9 shrink-0 rounded-md px-3 py-0 text-sm font-medium';
 // The icon and colour pickers draw their own 54px box; this sizes them like the other controls of the
 // row without touching the shared picker components.
-const PICKER = 'shrink-0 [&_.input-border]:h-9 [&_.input-border]:rounded-md [&_.rounded-xl]:h-9 [&_.rounded-xl]:rounded-md';
+const PICKER =
+	'shrink-0 [&_.input-border]:h-9 [&_.input-border]:rounded-md [&_.rounded-xl]:h-9 [&_.rounded-xl]:rounded-md';
 
 type StatusForm = {
 	formOnly?: boolean;
@@ -318,57 +319,67 @@ export const TaskStatusesForm = ({ formOnly = false, onCreated }: StatusForm) =>
 										</Button>
 									)}
 								</div>
+								{/* A form that cannot be submitted says why (formOnly mode has no list whose controls would) */}
+								{!canSubmit && (
+									<Text
+										className="text-xs text-muted-foreground"
+										data-testid="task-settings-read-only-hint"
+									>
+										{readOnlyHint}
+									</Text>
+								)}
 							</>
 						)}
 
 						{!formOnly && taskStatuses.length > 0 && (
 							<>
-								<Text className={clsxm(SUB_LABEL, 'pt-1')}>{t('pages.settingsTeam.LIST_OF_STATUSES')}</Text>
+								<Text className={clsxm(SUB_LABEL, 'pt-1')}>
+									{t('pages.settingsTeam.LIST_OF_STATUSES')}
+								</Text>
 								<div className="flex w-full flex-wrap gap-2">
-										{getTaskStatusesLoading && <Spinner dark={false} />}
-										{!getTaskStatusesLoading && sortedArray.length ? (
-											sortedArray.map((status) => (
-												<StatusesListCard
-													key={status.id}
-													statusTitle={status.name ? status.name?.split('-').join(' ') : ''}
-													bgColor={status.color || ''}
-													statusIcon={status.fullIconUrl || ''}
-													onEdit={() => {
-														setCreateNew(false);
-														setEdit(status);
-													}}
-													onDelete={async () => {
-														try {
-															const isStatusUsed = tasks.find(
-																(t) =>
-																	t.status?.toLowerCase() ===
-																	status.name?.toLowerCase()
-															);
-															if (isStatusUsed) {
-																setStatusToDelete(status);
-																openDeleteConfirmationModal();
-															} else {
-																await deleteTaskStatus(status.id);
+									{getTaskStatusesLoading && <Spinner dark={false} />}
+									{!getTaskStatusesLoading && sortedArray.length ? (
+										sortedArray.map((status) => (
+											<StatusesListCard
+												key={status.id}
+												statusTitle={status.name ? status.name?.split('-').join(' ') : ''}
+												bgColor={status.color || ''}
+												statusIcon={status.fullIconUrl || ''}
+												onEdit={() => {
+													setCreateNew(false);
+													setEdit(status);
+												}}
+												onDelete={async () => {
+													try {
+														const isStatusUsed = tasks.find(
+															(t) =>
+																t.status?.toLowerCase() === status.name?.toLowerCase()
+														);
+														if (isStatusUsed) {
+															setStatusToDelete(status);
+															openDeleteConfirmationModal();
+														} else {
+															await deleteTaskStatus(status.id);
 
-																// Update the task status state
-																setTaskStatuses((prev) => {
-																	return prev.filter((el) => el.id !== status.id);
-																});
-															}
-														} catch (error) {
-															console.error(error);
+															// Update the task status state
+															setTaskStatuses((prev) => {
+																return prev.filter((el) => el.id !== status.id);
+															});
 														}
-													}}
-													isStatus={true}
-													readOnly={!canWriteRow(status)}
-												/>
-											))
-										) : (
-											<></>
-										)}
-									</div>
-								</>
-							)}
+													} catch (error) {
+														console.error(error);
+													}
+												}}
+												isStatus={true}
+												readOnly={!canWriteRow(status)}
+											/>
+										))
+									) : (
+										<></>
+									)}
+								</div>
+							</>
+						)}
 					</div>
 				</div>
 			</form>

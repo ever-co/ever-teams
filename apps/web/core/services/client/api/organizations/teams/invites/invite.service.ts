@@ -51,7 +51,7 @@ class InviteService extends APIService {
 			);
 
 			const dataToInviteUser: IInviteCreate & { tenantId: string } = {
-				emailIds: [data.email],
+				emailIds: data.emails,
 				projectIds: [],
 				departmentIds: [],
 				organizationContactIds: [],
@@ -60,7 +60,6 @@ class InviteService extends APIService {
 				invitationExpirationPeriod: 'Never',
 				inviteType: 'TEAM',
 				appliedDate: null,
-				fullName: data.name,
 				callbackUrl: INVITE_CALLBACK_URL,
 				organizationId: data.organizationId,
 				tenantId: this.tenantId,

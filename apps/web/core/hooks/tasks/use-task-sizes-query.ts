@@ -9,6 +9,7 @@ import { useInvalidateTaskSizes } from './use-invalidate-task-sizes';
 import { TTaskSize } from '@/core/types/schemas';
 import { useTaskMetadataBootstrapQuery } from './use-task-metadata-bootstrap-query';
 import { updateTaskMetadataSectionCaches } from './task-metadata-cache';
+import { useTaskMetadataReadState } from './use-task-metadata-read-state';
 
 /**
  * Hook for reading task sizes data.
@@ -37,6 +38,11 @@ export function useTaskSizesQuery() {
 	// Memoized to prevent infinite re-renders (stable reference)
 	const taskSizes = useMemo(() => taskSizesData?.items ?? [], [taskSizesData?.items]);
 	const taskSizesLoading = taskMetadataQuery.useBootstrap ? taskMetadataQuery.isLoading : taskSizesQuery.isLoading;
+	const { isError, refetch } = useTaskMetadataReadState(
+		taskMetadataQuery.useBootstrap,
+		taskMetadataQuery,
+		taskSizesQuery
+	);
 
 	/**
 	 * Optimistic cache updater — supports functional updater pattern:
@@ -72,6 +78,8 @@ export function useTaskSizesQuery() {
 		taskSizes,
 		loading: taskSizesLoading,
 		getTaskSizesLoading: taskSizesLoading,
+		isError,
+		refetch,
 		setTaskSizes,
 		loadTaskSizes,
 		firstLoadTaskSizesData: handleFirstLoad

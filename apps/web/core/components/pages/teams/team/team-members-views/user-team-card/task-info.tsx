@@ -1,8 +1,8 @@
 import { I_TMCardTaskEditHook } from '@/core/hooks';
+import { useTaskDrawer } from '@/core/hooks/tasks/use-task-drawer';
 import { FilterTabs } from '@/core/types/daily-plan-types';
 import { IClassName } from '@/core/types/interfaces/common/class-name';
 import { clsxm } from '@/core/lib/utils';
-import { useRouter } from 'next/navigation';
 import { TaskInput } from '@/core/components/tasks/task-input';
 import { TaskNameInfoDisplay } from '@/core/components/tasks/task-displays';
 import { TaskAllStatusTypes } from '@/core/components/tasks/task-all-status-type';
@@ -17,11 +17,11 @@ type Props = IClassName & {
 export function TaskInfo({ className, edition, publicTeam, tab, dayPlanTab }: Props) {
 	return (
 		<>
-			{!edition.task && <div className="justify-center self-center w-full text-center">--</div>}
+			{!edition.task && <div className="w-full self-center text-sm text-muted-foreground">--</div>}
 
 			<div
 				className={clsxm(
-					'h-full min-w-[20rem] w-fit flex flex-col items-start justify-start gap-[1.0620rem] max-h-full overflow-hidden',
+					'flex h-full max-h-full w-fit min-w-80 flex-col items-start justify-start gap-1 overflow-hidden',
 					!edition.task && ['min-w-fit'],
 					className
 				)}
@@ -29,7 +29,7 @@ export function TaskInfo({ className, edition, publicTeam, tab, dayPlanTab }: Pr
 				{/* task */}
 				<div
 					className={clsxm(
-						'w-full h-10 flex justify-start items-center',
+						'flex h-10 w-full items-center justify-start',
 						edition.editMode ? [''] : ['overflow-hidden']
 					)}
 				>
@@ -47,7 +47,6 @@ export function TaskInfo({ className, edition, publicTeam, tab, dayPlanTab }: Pr
 					<TaskAllStatusTypes showStatus={true} task={edition.task} tab={tab} dayPlanTab={dayPlanTab} />
 				)}
 			</div>
-			{!edition.task && <div className="justify-center self-center w-full text-center">--</div>}
 		</>
 	);
 }
@@ -58,7 +57,15 @@ export function TaskInfo({ className, edition, publicTeam, tab, dayPlanTab }: Pr
 function TaskDetailAndEdition({ edition, publicTeam }: Props) {
 	const task = edition.task;
 	const hasEditMode = edition.editMode && task;
-	const router = useRouter();
+	const { openTaskDrawer } = useTaskDrawer();
+	const openTaskInDrawer = () => {
+		if (publicTeam) {
+			return;
+		}
+		if (task) {
+			openTaskDrawer(task.id);
+		}
+	};
 
 	edition.taskEditIgnoreElement.onOutsideClick(() => {
 		edition.setEditMode(false);
@@ -69,11 +76,8 @@ function TaskDetailAndEdition({ edition, publicTeam }: Props) {
 			{/* Task value */}
 			<div
 				ref={edition.taskEditIgnoreElement.targetEl}
-				className={clsxm(
-					'text-xs lg:text-sm text-ellipsis overflow-hidden cursor-pointer',
-					hasEditMode && ['hidden']
-				)}
-				onClick={publicTeam ? () => null : () => task && router.push(`/task/${task?.id}`)}
+				className={clsxm('cursor-pointer overflow-hidden text-ellipsis text-sm', hasEditMode && ['hidden'])}
+				onClick={openTaskInDrawer}
 			>
 				<TaskNameInfoDisplay
 					task={task}

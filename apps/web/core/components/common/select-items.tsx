@@ -12,7 +12,7 @@ import {
 	SelectValue
 } from '@/core/components/common/select';
 import React from 'react';
-import { ChevronDown } from 'lucide-react';
+import { ChevronDown } from '@/core/components/icons';
 
 interface SelectItemsProps<T> {
 	items: T[];
@@ -62,8 +62,9 @@ export function SelectItems<T>({
 				<Button
 					onClick={() => setPopoverOpen(!isPopoverOpen)}
 					variant="outline"
+					size="lg"
 					className={cn(
-						'w-full justify-between text-left font-normal h-10 rounded-lg dark:bg-dark--theme-light',
+						'w-full justify-between px-3 text-left font-normal',
 						// !selectedItem && 'text-muted-foreground',
 						triggerClassName
 					)}
@@ -73,16 +74,16 @@ export function SelectItems<T>({
 					) : (
 						<span>Select an item</span>
 					)}
-					<ChevronDown className={cn('h-4 w-4 transition-transform', isPopoverOpen && 'rotate-180')} />
+					<ChevronDown
+						className={cn(
+							'size-4 shrink-0 text-muted-foreground transition-transform',
+							isPopoverOpen && 'rotate-180'
+						)}
+					/>
 				</Button>
 			</PopoverTrigger>
-			<PopoverContent
-				className={cn(
-					'border border-transparent w-[430px] max-h-[80vh] dark:bg-dark--theme-light',
-					popoverClassName
-				)}
-			>
-				<ul className="w-full max-h-[80vh] overflow-auto flex flex-col gap-1.5">
+			<PopoverContent className={cn('w-[430px] max-h-[80vh] p-1', popoverClassName)}>
+				<ul className="w-full max-h-[80vh] overflow-auto flex flex-col gap-0.5">
 					{items.map((item: T) => {
 						const key = itemId(item);
 						if (renderItem) {
@@ -93,7 +94,7 @@ export function SelectItems<T>({
 							<li
 								onClick={() => onClick(item)}
 								key={key}
-								className="truncate hover:cursor-pointer hover:bg-slate-50 w-full text-xs hover:rounded-lg p-1 hover:font-normal dark:text-white dark:hover:bg-primary whitespace-nowrap text-ellipsis overflow-hidden"
+								className="truncate hover:cursor-pointer hover:bg-foreground/5 w-full text-sm rounded-md px-2 py-1.5 transition-colors whitespace-nowrap text-ellipsis overflow-hidden"
 							>
 								{itemToString(item)}
 							</li>
@@ -130,7 +131,7 @@ export const DynamicSelect = React.memo(function DynamicSelect<T>({
 }: DynamicSelectProps<T>) {
 	return (
 		<Select onValueChange={onChange} disabled={disabled} defaultValue={defaultValue}>
-			<SelectTrigger className={cn('w-full', error && 'border-red-500 focus:ring-red-500')}>
+			<SelectTrigger className={cn('w-full', error && 'border-destructive focus-visible:ring-destructive/20')}>
 				<SelectValue placeholder={placeholder} />
 			</SelectTrigger>
 			<SelectContent className="z-[1001]">
@@ -144,7 +145,7 @@ export const DynamicSelect = React.memo(function DynamicSelect<T>({
 				</SelectGroup>
 			</SelectContent>
 			{error && (
-				<p className="mt-1 text-sm text-red-500" role="alert" aria-live="polite">
+				<p className="mt-1 text-sm text-destructive-ink" role="alert" aria-live="polite">
 					{error}
 				</p>
 			)}

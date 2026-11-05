@@ -16,6 +16,7 @@ const auth = {
 	isTeamManager: false
 };
 const teamsQ = {
+	areTeamsSettled: true,
 	getOrganizationTeamsLoading: false,
 	teams: [] as unknown[],
 	activeTeam: null as null | { members: unknown[] }
@@ -26,6 +27,9 @@ const OTHER = { id: 'm-other', employee: { userId: 'u2' } };
 jest.mock('next/navigation', () => ({ useRouter: () => ({ replace: mockReplace, push: jest.fn() }) }));
 jest.mock('@/core/hooks', () => ({ useAuthenticateUser: () => auth }));
 jest.mock('@/core/hooks/organizations', () => ({ useOrganizationTeamsQuery: () => teamsQ }));
+jest.mock('@/core/hooks/organizations/teams/use-are-teams-settled', () => ({
+	useAreTeamsSettled: () => teamsQ.areTeamsSettled
+}));
 jest.mock('../common/global-skeleton', () => () => <div data-testid="skeleton" />);
 
 // eslint-disable-next-line @typescript-eslint/no-var-requires
@@ -36,6 +40,7 @@ function setState(next: {
 	userLoading?: boolean;
 	isTeamManager?: boolean;
 	teamsLoading?: boolean;
+	areTeamsSettled?: boolean;
 	teams?: unknown[];
 	activeTeam?: { members: unknown[] } | null;
 }) {
@@ -43,6 +48,7 @@ function setState(next: {
 	if ('userLoading' in next) auth.userLoading = !!next.userLoading;
 	if ('isTeamManager' in next) auth.isTeamManager = !!next.isTeamManager;
 	if ('teamsLoading' in next) teamsQ.getOrganizationTeamsLoading = !!next.teamsLoading;
+	if ('areTeamsSettled' in next) teamsQ.areTeamsSettled = !!next.areTeamsSettled;
 	if ('teams' in next) teamsQ.teams = next.teams ?? [];
 	if ('activeTeam' in next) teamsQ.activeTeam = next.activeTeam ?? null;
 }
@@ -56,6 +62,7 @@ describe('MustBeAManager', () => {
 			userLoading: false,
 			isTeamManager: false,
 			teamsLoading: false,
+			areTeamsSettled: true,
 			teams: [],
 			activeTeam: null
 		});
@@ -114,12 +121,21 @@ describe('MustBeAManager', () => {
 	});
 
 	it('a user with no teams is decided only after the bounded wait (the teams atom lags the query)', () => {
-		setState({ user: { id: 'u1' }, teams: [], activeTeam: null, isTeamManager: false });
+		setState({ user: { id: 'u1' }, teams: [], areTeamsSettled: false, activeTeam: null, isTeamManager: false });
 		render(<MustBeAManager useRedirect>{<div>child</div>}</MustBeAManager>);
-		expect(mockReplace).not.toHaveBeenCalled();
 		act(() => {
 			jest.advanceTimersByTime(8100);
 		});
+		expect(mockReplace).not.toHaveBeenCalled();
+		act(() => {
+			jest.advanceTimersByTime(22000);
+		});
+		expect(mockReplace).toHaveBeenCalledWith('/');
+	});
+
+	it('redirects a user with no team as soon as the shell has settled the teams', () => {
+		setState({ user: { id: 'u1' }, teams: [], areTeamsSettled: true, activeTeam: null, isTeamManager: false });
+		render(<MustBeAManager useRedirect>{<div>child</div>}</MustBeAManager>);
 		expect(mockReplace).toHaveBeenCalledWith('/');
 	});
 

@@ -4,7 +4,6 @@
 :root {
 	/* The one dark shell surface (sidebar, header, chat, pages, footer), shared with Ever Works. */
 	--tw-color-dark--theme: #0a0a0a;
-	--tooltipBackground: #000;
 	--radius: 0.625rem;
 	--color-background: var(--color-zinc-50);
 	--color-foreground: var(--color-zinc-950);
@@ -17,12 +16,10 @@
 	--color-primary-foreground: var(--color-white);
 	--color-secondary: var(--color-sky-100);
 	--color-secondary-foreground: var(--color-sky-600);
+	--hairline: 1px;
 }
 html {
-	background: hsl(var(--background));
-}
-html.dark {
-	--tooltipBackground: #000;
+	background: hsl(var(--sidebar-background));
 }
 .go2812612974 {
 	z-index: 99999;
@@ -76,39 +73,49 @@ html.dark {
 	}
 
 	/*
-	 * Surface tokens. The values mirror Ever Works (apps/web globals.css there), so the two products
-	 * share one palette: light pages on #fafafa with white surfaces and slate text, dark pages on
-	 * #0a0a0a with surfaces lifted by a few percent of white and hairline white/9% borders.
+	 * Surface tokens, measured on the Linear captures of templates/dashboard/linear-layout: the window
+	 * (sidebar) is #efeff0, the page panel #f9f9fa, raised surfaces (cards, menus, dialogs) white, hairlines
+	 * #e2e2e5 and neutral (zinc) text. Dark keeps the same three steps: window, panel, raised surface.
 	 */
 	:root {
-		--background: 0 0% 98%; /* #fafafa */
-		--foreground: 222 47% 11%; /* #0f172a */
-		--muted: 210 40% 96%; /* #f1f5f9 */
-		--muted-foreground: 215 16% 47%; /* #64748b */
+		--background: 240 11% 98%;
+		--foreground: 240 6% 10%;
+		--muted: 240 5% 95%;
+		--muted-foreground: 240 4% 42%;
 		--popover: 0 0% 100%;
-		--popover-foreground: 222 47% 11%;
+		--popover-foreground: 240 6% 10%;
 		--card: 0 0% 100%;
-		--card-foreground: 222 47% 11%;
-		--border: 214 32% 91%; /* hsl(var(--border)) */
-		--input: 214 32% 91%;
+		--card-foreground: 240 6% 10%;
+		--border: 240 3% 89%;
+		--input: 240 3% 89%;
 		--primary: 239 84% 67%;
 		--primary-foreground: 0 0% 100%;
-		--secondary: 210 40% 96%;
-		--secondary-foreground: 222 47% 11%;
-		--accent: 210 40% 96%;
-		--accent-foreground: 222 47% 11%;
+		--secondary: 240 5% 95%;
+		--secondary-foreground: 240 6% 10%;
+		--accent: 240 5% 95%;
+		--accent-foreground: 240 6% 10%;
 		--destructive: 0 84% 60%;
 		--destructive-foreground: 0 0% 100%;
 		--ring: 239 84% 67%;
 		--radius: 0.625rem;
-		--sidebar-background: 0 0% 100%;
-		--sidebar-foreground: 222 47% 11%;
-		--sidebar-primary: 222 47% 11%;
+		--sidebar-background: 240 3% 94%;
+		--sidebar-foreground: 240 6% 10%;
+		--sidebar-primary: 240 6% 10%;
 		--sidebar-primary-foreground: 0 0% 98%;
-		--sidebar-accent: 210 40% 96%;
-		--sidebar-accent-foreground: 222 47% 11%;
-		--sidebar-border: 214 32% 91%;
+		--sidebar-accent: 240 3% 88%;
+		--sidebar-accent-foreground: 240 6% 10%;
+		--sidebar-border: 240 3% 89%;
 		--sidebar-ring: 239 84% 67%;
+		/* Ink tokens: brand/status text on light surfaces. indigo-500 is 4.28:1 on #fafafa (fails AA),
+		   so running text in the brand colour uses the ink, never the fill token. Ratios measured. */
+		--primary-ink: 243 75% 59%; /* #4f46e5, 6.02:1 on #fafafa */
+		--destructive-ink: 0 74% 42%; /* #b91c1c, 6.20:1 on #fafafa */
+		--success: 161 100% 37%; /* #00bb7f, fills and tints only */
+		--success-foreground: 163 100% 24%; /* #007956, 5.20:1 on #fafafa */
+		--warning: 38 100% 49%; /* #f99c00, fills and tints only */
+		--warning-foreground: 26 100% 36%; /* #b75000, 4.84:1 on #fafafa */
+		--info: 200 98% 39%; /* #0284c7 */
+		--info-foreground: 201 96% 32%; /* #0369a1, 5.68:1 on #fafafa */
 	}
 
 	/*
@@ -120,33 +127,41 @@ html.dark {
 		overflow-x: clip;
 	}
 	.dark {
-		--background: 0 0% 4%; /* #0a0a0a */
-		--foreground: 214 32% 91%; /* hsl(var(--border)) */
-		--muted: 0 0% 10%; /* ≈ white/6% on the shell */
-		--muted-foreground: 218 11% 65%; /* #9ca3af */
-		--popover: 0 0% 7%;
-		--popover-foreground: 214 32% 91%;
-		--card: 0 0% 7%; /* ≈ white/3% on the shell */
-		--card-foreground: 214 32% 91%;
-		--border: 0 0% 13%; /* ≈ white/9% on the shell */
-		--input: 0 0% 15%;
+		--background: 240 5% 7%;
+		--foreground: 240 5% 90%;
+		--muted: 240 4% 13%;
+		--muted-foreground: 240 5% 62%;
+		--popover: 240 5% 11%;
+		--popover-foreground: 240 5% 90%;
+		--card: 240 5% 10%;
+		--card-foreground: 240 5% 90%;
+		--border: 240 4% 16%;
+		--input: 240 4% 18%;
 		--primary: 239 84% 67%;
 		--primary-foreground: 0 0% 100%;
-		--secondary: 0 0% 10%;
-		--secondary-foreground: 214 32% 91%;
-		--accent: 0 0% 10%;
+		--secondary: 240 4% 13%;
+		--secondary-foreground: 240 5% 90%;
+		--accent: 240 4% 13%;
 		--accent-foreground: 0 0% 100%;
 		--destructive: 0 72% 51%;
 		--destructive-foreground: 0 0% 100%;
 		--ring: 0 0% 40%;
-		--sidebar-background: 0 0% 4%;
-		--sidebar-foreground: 214 32% 91%;
+		--sidebar-background: 240 6% 4%;
+		--sidebar-foreground: 240 5% 90%;
 		--sidebar-primary: 239 84% 67%;
 		--sidebar-primary-foreground: 0 0% 100%;
-		--sidebar-accent: 0 0% 13%;
+		--sidebar-accent: 240 4% 14%;
 		--sidebar-accent-foreground: 0 0% 100%;
-		--sidebar-border: 0 0% 13%;
+		--sidebar-border: 240 4% 16%;
 		--sidebar-ring: 0 0% 40%;
+		--primary-ink: 234 89% 74%; /* #818cf8, 6.64:1 on #0a0a0a, 6.28:1 on the card */
+		--destructive-ink: 0 91% 71%; /* #f87171, 6.77:1 on the card */
+		--success: 161 100% 37%;
+		--success-foreground: 158 76% 64%; /* #5ee9b5 */
+		--warning: 38 100% 49%;
+		--warning-foreground: 47 100% 61%; /* #ffd236 */
+		--info: 198 93% 60%; /* #38bdf8 */
+		--info-foreground: 199 95% 74%; /* #7dd3fc */
 	}
 
 	/* Hairlines from the border token; thin, translucent scrollbars everywhere (Ever Works' rules):
@@ -232,7 +247,7 @@ html.dark {
 	}
 
 	.app-surface {
-		@apply rounded-lg border bg-card text-card-foreground shadow-xs;
+		@apply rounded-xl bg-card text-card-foreground ring-1 ring-border shadow-sm shadow-black/6.5;
 	}
 
 	.app-section {
@@ -240,7 +255,7 @@ html.dark {
 	}
 
 	.app-field {
-		@apply h-10 rounded-md border border-input bg-background px-3 text-sm outline-none transition-colors placeholder:text-muted-foreground focus-visible:ring-2 focus-visible:ring-ring/40 disabled:cursor-not-allowed disabled:opacity-60;
+		@apply h-9 rounded-md border border-transparent bg-background px-3 text-sm shadow-sm shadow-black/10 ring-1 ring-foreground/10 outline-none transition-[color,box-shadow] placeholder:text-muted-foreground/75 focus-visible:border-foreground/35 focus-visible:ring-[3px] focus-visible:ring-ring/25 disabled:cursor-not-allowed disabled:opacity-50 dark:bg-foreground/5 dark:ring-foreground/15;
 	}
 
 	.app-label {
@@ -288,40 +303,18 @@ html.dark {
 			opacity 0.2s 0.2s;
 	}
 
-	/* ------------------- Input ----------------------- */
+	/* Legacy field outline: the control recipe (transparent border, ring and tinted shadow). */
 	.input-border {
-		@apply border-border border-solid border;
-		@apply dark:bg-card;
+		@apply border border-transparent ring-1 ring-foreground/10 shadow-sm shadow-black/10;
+		@apply dark:bg-card dark:ring-foreground/15;
 	}
 
-	/* Shadow */
 	.nav-items--shadow {
-		box-shadow: 0px 14px 24px -10px rgba(0, 0, 0, 0.04) !important;
+		@apply shadow-sm shadow-black/6.5;
 	}
 
 	.main--card-border {
 		@apply border border-border;
-	}
-
-	/* Tooplip  */
-
-	.tooltip-container,
-	.tooltip-arrow {
-		--tooltipBackground: #000 !important;
-		@apply !text-white !text-xs;
-	}
-
-	.tooltip-container {
-		@apply !border-none !p-1;
-	}
-
-	.tooltip-arrow {
-		@apply before:!border-none;
-	}
-
-	html.dark .tooltip-container,
-	html.dark .tooltip-arrow {
-		--tooltipBackground: #000 !important;
 	}
 
 	.scrollbar-hide::-webkit-scrollbar {
@@ -350,7 +343,7 @@ html.dark {
 	/* Details Aside Bar */
 
 	.details-label {
-		@apply not-italic font-medium text-[0.625rem] leading-[140%] tracking-[-0.02em] text-[#A5A2B2] 2xl:text-xs;
+		@apply not-italic font-medium text-xs text-muted-foreground;
 	}
 }
 
@@ -366,10 +359,8 @@ html.dark {
 	height: 40px;
 }
 .search-border .input-border input::placeholder {
-	color: #7e7991;
-	font-size: 15px !important;
-	/* font-weight: 500; */
-	letter-spacing: 0.8px;
+	color: hsl(var(--muted-foreground) / 75%);
+	font-size: 14px;
 }
 
 #file-upload input[type='file'] {
@@ -392,23 +383,23 @@ html.dark {
 
 /* React Date picker */
 .react-datepicker {
-	@apply !bg-white dark:!bg-dark-high;
+	@apply !rounded-xl !border-0 !bg-popover !text-popover-foreground !shadow-md !shadow-black/6.5 !ring-1 !ring-border;
 }
 
 .react-datepicker__header {
-	@apply !bg-white dark:!bg-dark-high;
+	@apply !border-border !bg-popover;
 }
 
 .react-datepicker__current-month {
-	@apply !text-default dark:!text-white;
+	@apply !text-foreground;
 }
 
 .react-datepicker__day-name {
-	@apply !text-default dark:!text-white;
+	@apply !text-muted-foreground;
 }
 
 .react-datepicker__day {
-	@apply !text-default dark:!text-white;
+	@apply !text-foreground;
 }
 
 .prose {
@@ -420,7 +411,7 @@ html.dark {
 }
 
 .nivo-calendar .nivo-calendar-month-legend text {
-	@apply text-sm font-bold text-black;
+	@apply text-sm font-semibold fill-foreground;
 }
 
 @keyframes zoom-in-out {
@@ -493,15 +484,11 @@ html.dark {
 	margin-bottom: 0.25rem;
 	font-size: 0.875rem;
 	font-weight: 500;
-	color: #374151;
-}
-
-.dark .phoneinput-label {
-	color: #e5e7eb;
+	color: hsl(var(--foreground));
 }
 
 .phoneinput-required {
-	color: #ef4444;
+	color: hsl(var(--destructive-ink));
 }
 
 .phoneinput-wrapper {
@@ -509,8 +496,13 @@ html.dark {
 	width: 100%;
 	height: 36px;
 	border-radius: calc(var(--radius) - 2px);
-	border: 1px solid hsl(var(--border));
-	background-color: hsl(var(--card));
+	border: 1px solid transparent;
+	background-color: hsl(var(--background));
+	@apply shadow-sm shadow-black/10 ring-1 ring-foreground/10 dark:bg-foreground/5 dark:ring-foreground/15;
+}
+
+.phoneinput-wrapper:focus-within {
+	@apply border-foreground/35 ring-[3px] ring-ring/25;
 }
 
 .dark .phoneinput-wrapper {
@@ -519,14 +511,14 @@ html.dark {
 }
 
 .phoneinput-wrapper-error {
-	border: 1px solid #ef4444;
-	border-radius: 0.5rem;
+	border: 1px solid hsl(var(--destructive));
+	border-radius: calc(var(--radius) - 2px);
 }
 
 .phoneinput-error-message {
 	margin-top: 0.25rem;
 	font-size: 0.75rem;
-	color: #ef4444;
+	color: hsl(var(--destructive-ink));
 }
 
 /* PhoneInput library overrides */
@@ -568,7 +560,7 @@ html.dark {
 }
 
 .phoneinput-disabled {
-	background-color: #fcfcfc;
+	background-color: hsl(var(--muted));
 	cursor: not-allowed;
 }
 
@@ -587,7 +579,7 @@ html.dark .PhoneInputCountrySelect > option {
 }
 
 html.dark .PhoneInputInput:disabled {
-	color: #9ca3af;
+	color: hsl(var(--muted-foreground));
 }
 
 html.dark .PhoneInput .PhoneInputCountrySelect__dropdown {
@@ -628,7 +620,7 @@ html.dark .PhoneInputCountrySelect__dropdown-search-input {
 }
 
 body .PhoneInputCountrySelectDropdown {
-	background-color: #ffffff;
+	background-color: hsl(var(--popover));
 	border: 1px solid hsl(var(--border));
 	box-shadow:
 		0 4px 6px -1px rgba(0, 0, 0, 0.1),
@@ -696,9 +688,9 @@ body.dark .PhoneInputCountrySelectOption:focus {
 	max-height: 300px;
 	display: flex;
 	flex-direction: column;
-	background-color: #fff;
+	background-color: hsl(var(--popover));
 	border: 1px solid hsl(var(--border));
-	border-radius: 6px;
+	border-radius: calc(var(--radius) + 4px);
 	box-shadow:
 		0 4px 6px -1px rgba(0, 0, 0, 0.1),
 		0 2px 4px -1px rgba(0, 0, 0, 0.06);
@@ -718,7 +710,7 @@ body.dark .PhoneInputCountrySelectOption:focus {
 	top: 0;
 	z-index: 1;
 	padding: 8px;
-	background-color: #fff;
+	background-color: hsl(var(--popover));
 	border-bottom: 1px solid hsl(var(--border));
 	border-top-left-radius: 6px;
 	border-top-right-radius: 6px;
@@ -745,11 +737,7 @@ body.dark .PhoneInputCountrySelectOption:focus {
 
 .phoneinput-search-input:focus {
 	outline: none;
-	border-color: #6366f1;
-}
-
-.dark .phoneinput-search-input:focus {
-	border-color: #818cf8;
+	border-color: hsl(var(--ring));
 }
 
 .phoneinput-search-icon {
@@ -757,7 +745,7 @@ body.dark .PhoneInputCountrySelectOption:focus {
 	left: 16px;
 	top: 50%;
 	transform: translateY(-50%);
-	color: #9ca3af;
+	color: hsl(var(--muted-foreground));
 	pointer-events: none;
 }
 
@@ -800,11 +788,7 @@ body.dark .PhoneInputCountrySelectOption:focus {
 .phoneinput-no-results {
 	padding: 12px;
 	text-align: center;
-	color: #6b7280;
-}
-
-.dark .phoneinput-no-results {
-	color: #9ca3af;
+	color: hsl(var(--muted-foreground));
 }
 
 /* Flag spacing in country selector */
@@ -865,7 +849,7 @@ body.dark .PhoneInputCountrySelectOption:focus {
 }
 
 .phoneinput-container:has(.phoneinput-disabled) .phoneinput-country-button {
-	background-color: #fcfcfc;
+	background-color: hsl(var(--muted));
 }
 
 .dark .phoneinput-container:has(.phoneinput-disabled) .phoneinput-country-button {
@@ -878,5 +862,157 @@ body.dark .PhoneInputCountrySelectOption:focus {
 	}
 	100% {
 		transform: translateX(100%);
+	}
+}
+
+/* One global switch instead of per-component guards; animate-spin stays, a frozen loader reads as stuck. */
+@media (prefers-reduced-motion: reduce) {
+	*,
+	::before,
+	::after {
+		animation-duration: 0.01ms !important;
+		animation-iteration-count: 1 !important;
+		transition-duration: 0.01ms !important;
+		scroll-behavior: auto !important;
+	}
+
+	.animate-spin {
+		animation-duration: 1s !important;
+		animation-iteration-count: infinite !important;
+	}
+}
+
+/*
+ * Hairlines. Linear draws every separator one device pixel wide: 0.5px on a 2x screen, 1px elsewhere.
+ * Tailwind's `border` and `ring-1` are a literal 1px (two device pixels on a Retina screen), so the
+ * app uses these utilities instead; they still yield to `md:border-0`-style variants.
+ */
+@media (min-resolution: 2dppx) {
+	:root {
+		--hairline: 0.5px;
+	}
+}
+@utility hairline-border {
+	border-style: var(--tw-border-style, solid);
+	border-width: var(--hairline);
+}
+@utility hairline-b {
+	border-bottom-style: var(--tw-border-style, solid);
+	border-bottom-width: var(--hairline);
+}
+@utility hairline-t {
+	border-top-style: var(--tw-border-style, solid);
+	border-top-width: var(--hairline);
+}
+@utility hairline-l {
+	border-left-style: var(--tw-border-style, solid);
+	border-left-width: var(--hairline);
+}
+@utility hairline-r {
+	border-right-style: var(--tw-border-style, solid);
+	border-right-width: var(--hairline);
+}
+@utility hairline-y {
+	border-block-style: var(--tw-border-style, solid);
+	border-block-width: var(--hairline);
+}
+@utility hairline-divide-y {
+	:where(& > :not(:last-child)) {
+		border-top-width: 0px;
+		border-bottom-style: var(--tw-border-style, solid);
+		border-bottom-width: var(--hairline);
+	}
+}
+@utility hairline-divide-x {
+	:where(& > :not(:last-child)) {
+		border-left-width: 0px;
+		border-right-style: var(--tw-border-style, solid);
+		border-right-width: var(--hairline);
+	}
+}
+@utility hairline-ring {
+	--tw-ring-shadow: var(--tw-ring-inset,) 0 0 0 calc(var(--hairline) + var(--tw-ring-offset-width, 0px))
+		var(--tw-ring-color, currentcolor);
+	box-shadow:
+		var(--tw-inset-shadow, 0 0 #0000), var(--tw-inset-ring-shadow, 0 0 #0000),
+		var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow), var(--tw-shadow, 0 0 #0000);
+}
+
+/*
+ * The 3D label of the references (great-modal-with-great-3d-label): a tint that deepens towards the
+ * bottom, a hairline of the hue, a darker lower edge and a one-pixel drop. Set `--chip` to the colour
+ * (an API colour through dataColorHue, or a token such as hsl(var(--success))). Used where a label is
+ * assigned (cards, rows, chips), never inside a menu, where a dot or an icon carries the colour.
+ */
+@utility chip-3d {
+	color: color-mix(in oklab, var(--chip, currentcolor) 72%, black);
+	background-image: linear-gradient(
+		to bottom,
+		color-mix(in oklab, var(--chip, currentcolor) 7%, white),
+		color-mix(in oklab, var(--chip, currentcolor) 17%, white)
+	);
+	box-shadow:
+		inset 0 0 0 var(--hairline) color-mix(in oklab, var(--chip, currentcolor) 30%, transparent),
+		inset 0 -1px 0 color-mix(in oklab, var(--chip, currentcolor) 26%, transparent),
+		0 1px 1.5px color-mix(in oklab, var(--chip, currentcolor) 16%, transparent);
+	&:where(.dark, .dark *) {
+		color: color-mix(in oklab, var(--chip, currentcolor) 62%, white);
+		background-image: linear-gradient(
+			to bottom,
+			color-mix(in oklab, var(--chip, currentcolor) 16%, transparent),
+			color-mix(in oklab, var(--chip, currentcolor) 24%, transparent)
+		);
+		box-shadow:
+			inset 0 0 0 var(--hairline) color-mix(in oklab, var(--chip, currentcolor) 36%, transparent),
+			inset 0 1px 0 rgb(255 255 255 / 6%);
+	}
+}
+
+/* The key cap of the same references: icon tiles in lists and keyboard hints. */
+@utility keycap-3d {
+	background-image: linear-gradient(to bottom, #ffffff, #f1f2f4);
+	box-shadow:
+		inset 0 0 0 var(--hairline) hsl(var(--border)),
+		inset 0 -1px 0 rgb(0 0 0 / 5%),
+		0 1px 1.5px rgb(0 0 0 / 5%);
+	&:where(.dark, .dark *) {
+		background-image: linear-gradient(to bottom, hsl(240 5% 16%), hsl(240 5% 12%));
+		box-shadow:
+			inset 0 0 0 var(--hairline) hsl(var(--border)),
+			inset 0 1px 0 rgb(255 255 255 / 6%);
+	}
+}
+
+/* A small faceted plate in a data colour (`--gem`), for issue types: a vertical gradient under a diagonal facet,
+   a light inner rim, an edge and a shadow tinted with the hue itself (never black, which reads as an outline at
+   16px). The glyph on it is white. */
+@utility gem-plate {
+	color: white;
+	background-image:
+		linear-gradient(135deg, rgb(255 255 255 / 30%) 0%, rgb(255 255 255 / 0%) 50%),
+		linear-gradient(to bottom, color-mix(in oklab, var(--gem, currentcolor) 78%, white), var(--gem, currentcolor));
+	box-shadow:
+		inset 0 0 0 var(--hairline) rgb(255 255 255 / 28%),
+		inset 0 1px 0 rgb(255 255 255 / 22%),
+		0 0 0 var(--hairline) color-mix(in oklab, var(--gem, currentcolor) 40%, transparent),
+		0 1px 1.5px color-mix(in oklab, var(--gem, currentcolor) 28%, transparent);
+	&:where(.dark, .dark *) {
+		box-shadow:
+			inset 0 0 0 var(--hairline) rgb(255 255 255 / 22%),
+			inset 0 1px 0 rgb(255 255 255 / 16%);
+	}
+}
+
+/* Linear's raised surface: menus, popovers, dialogs. A hairline plus a soft two-step shadow. */
+@utility surface-raised {
+	background-color: hsl(var(--popover));
+	box-shadow:
+		0 0 0 var(--hairline) hsl(var(--border)),
+		0 4px 8px -2px rgb(0 0 0 / 6%),
+		0 12px 32px -4px rgb(0 0 0 / 10%);
+	&:where(.dark, .dark *) {
+		box-shadow:
+			0 0 0 var(--hairline) hsl(var(--border)),
+			0 12px 32px -4px rgb(0 0 0 / 50%);
 	}
 }

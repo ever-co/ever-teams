@@ -1,5 +1,4 @@
 import { isServer, QueryClient } from '@tanstack/react-query';
-import { toast } from 'sonner';
 
 /**
  * A server-side QueryClient lives for one request, so none of its queries may arm a cache GC timer: a pending timer
@@ -30,16 +29,9 @@ export function createQueryClientInstance(): QueryClient {
 				refetchOnWindowFocus: false, // Do not refetch automatically when the window regains focus
 				refetchOnReconnect: false, // Fetches paused while offline still resume; hooks that need a resync opt in
 				retry: 1 // Retry the request 1 time in case of failure
-			},
-			mutations: {
-				onError: (error) => {
-					// Handle global mutation errors
-					const message = error.message;
-					toast.error(`Mutation Error: ${message}`);
-					console.error('Global Mutation Error:', error);
-					// Optional: report the error to an error monitoring service (ex: Sentry)
-				}
 			}
+			// Mutation failures without a handler of their own get a translated toast from MutationErrorToaster
+			// (mounted under the intl provider): a default onError here would hide which mutations have one.
 		}
 	});
 	return isServer ? withoutGcTimers(client) : client;

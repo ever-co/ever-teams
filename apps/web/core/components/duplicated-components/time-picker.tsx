@@ -1,6 +1,6 @@
 'use client';
 import React, { useCallback, useState } from 'react';
-import { TimerIcon } from 'lucide-react';
+import { Timer } from '@/core/components/icons';
 import { cn } from '@/core/lib/helpers';
 import { Button } from '@/core/components/duplicated-components/_button';
 
@@ -34,13 +34,14 @@ export function TimePicker({ onChange, defaultValue }: IPopoverTimePicker) {
 			<PopoverTrigger asChild>
 				<Button
 					variant={'outline'}
+					size="lg"
 					className={cn(
-						'w-full justify-start text-left font-normal dark:bg-dark--theme-light text-[14px] dark:border-slate-700',
+						'w-full justify-start px-3 text-left font-normal',
 						!time.minute && 'text-muted-foreground'
 					)}
 				>
-					<div className="flex items-center justify-start w-full text-[14px] font-normal">
-						<TimerIcon className="w-4 h-4 mr-2" />
+					<div className="flex items-center justify-start w-full gap-2 font-normal tabular-nums">
+						<Timer className="size-4 text-muted-foreground" />
 						{time.hours !== '--' && time.minute !== '--' ? (
 							`${time.hours}:${time.minute} ${time.meridiem}`
 						) : (
@@ -49,11 +50,18 @@ export function TimePicker({ onChange, defaultValue }: IPopoverTimePicker) {
 					</div>
 				</Button>
 			</PopoverTrigger>
-			<PopoverContent className="flex items-start !w-52 left-0 dark:bg-dark--theme-light border border-transparent">
+			<PopoverContent className="flex items-start !w-52 left-0 p-1">
 				<TimePickerInput onTimeChange={handleTimeChange} />
 			</PopoverContent>
 		</Popover>
 	);
+}
+
+function getPickerButtonVariant(isSelected: boolean): 'default' | 'ghost' {
+	if (isSelected) {
+		return 'default';
+	}
+	return 'ghost';
 }
 
 const TimePickerInput = ({ onTimeChange }: { onTimeChange: (_: any) => void }) => {
@@ -117,7 +125,7 @@ const TimePickerInput = ({ onTimeChange }: { onTimeChange: (_: any) => void }) =
 				key={index}
 				title={String(length == 12 ? index + 1 : index).padStart(2, '0')}
 				onClick={() => clickHandler(index)} // deepscan-disable-line
-				variant={selectedIndex === index ? 'default' : 'outline'}
+				variant={getPickerButtonVariant(selectedIndex === index)}
 			/>
 		));
 	};
@@ -150,12 +158,12 @@ const TimePickerInput = ({ onTimeChange }: { onTimeChange: (_: any) => void }) =
 				<div className="flex flex-col p-1 py-1">
 					<TimerPickerButton
 						onClick={() => handleMeridiemClick(!time.meridiem)} // deepscan-disable-line
-						variant={time.meridiem ? 'outline' : 'default'}
+						variant={getPickerButtonVariant(!time.meridiem)}
 						title={'AM'}
 					/>
 					<TimerPickerButton
 						onClick={() => handleMeridiemClick(!time.meridiem)} // deepscan-disable-line REACT_INEFFICIENT_PURE_COMPONENT_PROP
-						variant={time.meridiem ? 'default' : 'outline'}
+						variant={getPickerButtonVariant(time.meridiem)}
 						title={'PM'}
 					/>
 				</div>
@@ -175,13 +183,7 @@ interface TimerPickerButtonProps {
 }
 
 const TimerPickerButton: React.FC<TimerPickerButtonProps> = React.memo(
-	({
-		title = '',
-		className = 'border-gray-100 border-none dark:border-gray-700',
-		onClick = () => null,
-		loading = false,
-		variant = 'default'
-	}) => {
+	({ title = '', className = 'tabular-nums', onClick = () => null, loading = false, variant = 'default' }) => {
 		return (
 			<Button
 				disabled={loading}

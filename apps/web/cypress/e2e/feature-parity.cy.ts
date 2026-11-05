@@ -41,7 +41,7 @@ describe('feature parity on the authenticated shell', () => {
 
 	it('keeps roles, permission controls, invitations, and public teams available', () => {
 		cy.hardVisit('/permissions');
-		cy.contains('Roles & Permissions', { timeout: 15_000 }).should('be.visible');
+		cy.contains('Roles & permissions', { timeout: 15_000 }).should('be.visible');
 		cy.contains('ADMIN', { timeout: 15_000 }).click();
 		cy.contains('Activated').should('exist');
 

@@ -59,7 +59,7 @@ export function Avatar({
 	return (
 		<div
 			className={clsxm(
-				'bg-slate-400 relative',
+				'relative bg-foreground/5 hairline-ring ring-border',
 				shape === 'circle' && ['rounded-full'],
 				shape === 'square' && ['rounded-md'],
 				imageTitle && !imgUrl && ['flex justify-center items-center'],

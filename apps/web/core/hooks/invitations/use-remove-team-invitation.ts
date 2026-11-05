@@ -4,7 +4,10 @@ import { useCallback } from 'react';
 import { useMutation } from '@tanstack/react-query';
 import { inviteService } from '../../services/client/api/organizations/teams/invites';
 import { toast } from 'sonner';
+import { useTranslations, type DottedLanguageObjectStringPaths } from 'next-intl';
+import { errorReasonKeyOf } from '@/core/lib/utils/error-feedback';
 import { getActiveTeamIdCookie } from '@/core/lib/helpers/cookies';
+import { isTenantAdminRole } from '@/core/lib/utils/roles';
 import { useIsMemberManager } from '../organizations/teams/use-team-member';
 import { useUserQuery } from '../queries/user-user.query';
 import { useInvitationInvalidation } from './use-invitation-invalidation';
@@ -21,6 +24,9 @@ export function useRemoveTeamInvitation() {
 	const activeTeamId = getActiveTeamIdCookie();
 	const { data: user } = useUserQuery();
 	const { isTeamManager } = useIsMemberManager(user);
+	const isOrganizationAdmin = isTenantAdminRole(user?.role?.name);
+	const managesInvitations = isTeamManager || isOrganizationAdmin;
+	const t = useTranslations();
 
 	// ===== REMOVE INVITATION =====
 
@@ -32,13 +38,11 @@ export function useRemoveTeamInvitation() {
 				teamId: activeTeamId
 			});
 		},
-		onSettled: (_result, _error, { email }) => {
-			if (email && !_error) {
-				toast.success('Invitation removed', {
-					description: `Invitation removed for ${email}`,
-					duration: 5000
-				});
-			}
+		onError: (error) => {
+			const reasonKey = errorReasonKeyOf(error) as DottedLanguageObjectStringPaths;
+			toast.error(t('toasts.invites.REMOVE_FAILED'), { description: t(reasonKey) });
+		},
+		onSettled: () => {
 			// Invalidate cache — React Query will refetch the latest data
 			invalidateTeamInvitations();
 		}
@@ -48,12 +52,15 @@ export function useRemoveTeamInvitation() {
 	const removeInvitationMutateAsync = removeInvitationMutation.mutateAsync;
 	const removeTeamInvitation = useCallback(
 		(invitationId: string, email?: string) => {
-			if (!(activeTeamId && isTeamManager && user?.tenantId)) {
+			const hasActiveTeam = Boolean(activeTeamId);
+			const hasTenant = Boolean(user?.tenantId);
+			const mayRemove = hasActiveTeam && managesInvitations && hasTenant;
+			if (!mayRemove) {
 				return Promise.resolve();
 			}
 			return removeInvitationMutateAsync({ invitationId, email });
 		},
-		[removeInvitationMutateAsync, activeTeamId, isTeamManager, user]
+		[removeInvitationMutateAsync, activeTeamId, managesInvitations, user]
 	);
 
 	// ===== RETURN =====
@@ -63,4 +70,3 @@ export function useRemoveTeamInvitation() {
 		removeInviteLoading: removeInvitationMutation.isPending
 	};
 }
-

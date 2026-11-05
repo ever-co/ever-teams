@@ -5,17 +5,17 @@ import { EstimateTime } from '@/core/components/timer/estimate-time';
 
 export function TimerTasksSection() {
 	return (
-		<div className="bg-[#FFFF] dark:bg-card mt-[120px] rounded-[20px] w-full h-[130px] flex items-center">
-			<div className="ml-[16px] flex flex-col space-y-[15px] w-full">
+		<div className="mt-[120px] flex h-[130px] w-full items-center rounded-xl bg-card hairline-ring ring-border shadow-sm shadow-black/6.5">
+			<div className="ml-4 flex w-full flex-col gap-y-4">
 				<div className="w-full">
 					<TaskInput />
 				</div>
-				<div className="flex ml-[20px]">
+				<div className="ml-5 flex">
 					<EstimateTime />
 					<StatusDropdown />
 				</div>
 			</div>
-			<div className="flex justify-center items-center space-x-[27px] mr-[27px] w-1/2 ml-[48px]">
+			<div className="ml-12 mr-7 flex w-1/2 items-center justify-center gap-x-7">
 				<TimerCard />
 			</div>
 		</div>

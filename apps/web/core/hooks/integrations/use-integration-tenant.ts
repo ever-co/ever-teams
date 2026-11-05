@@ -8,13 +8,16 @@ import { getOrganizationIdCookie, getTenantIdCookie } from '@/core/lib/helpers/c
 import { useGitHubIntegration } from './use-github-integration';
 import { IIntegrationTenant } from '@/core/types/interfaces/integrations/integration-tenant';
 
-export function useIntegrationTenant() {
+/** @param name - Read from the first render: a `getIntegrationTenant` call's first refetch runs on the disabled key. */
+export function useIntegrationTenant(name?: string | null) {
 	const [integrationTenant, setIntegrationTenant] = useAtom(integrationTenantState);
 	const { setIntegrationGithubRepositories } = useGitHubIntegration();
 	const queryClient = useQueryClient();
 
 	// State to track current query name for React Query (only name is needed)
-	const [queryName, setQueryName] = useState<string | null>(null);
+	const [requestedName, setRequestedName] = useState<string | null>(null);
+	const initialName = name ?? null;
+	const queryName = requestedName ?? initialName;
 
 	// Memoize cookies to avoid re-reading on every render
 	const tenantId = useMemo(() => getTenantIdCookie() || '', []);
@@ -63,7 +66,7 @@ export function useIntegrationTenant() {
 	const getIntegrationTenant = useCallback(
 		async (name: string) => {
 			// Set query name to trigger React Query
-			setQueryName(name);
+			setRequestedName(name);
 
 			// If we already have cached data for this name, return it immediately
 			const cachedData = integrationTenantQuery.data;
@@ -96,6 +99,8 @@ export function useIntegrationTenant() {
 		deleteLoading: deleteIntegrationTenantMutation.isPending,
 		error: integrationTenantQuery.error || deleteIntegrationTenantMutation.error,
 		isError: integrationTenantQuery.isError || deleteIntegrationTenantMutation.isError,
-		refetch: integrationTenantQuery.refetch
+		refetch: integrationTenantQuery.refetch,
+		items: integrationTenantQuery.data?.items,
+		readError: integrationTenantQuery.error
 	};
 }

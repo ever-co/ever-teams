@@ -9,6 +9,7 @@ import { useInvalidateTaskLabels } from './use-invalidate-task-labels';
 import { OptimisticAction, TTag } from '@/core/types/schemas';
 import { useTaskMetadataBootstrapQuery } from './use-task-metadata-bootstrap-query';
 import { updateTaskMetadataSectionCaches } from './task-metadata-cache';
+import { useTaskMetadataReadState } from './use-task-metadata-read-state';
 
 /**
  * Hook for reading task labels data.
@@ -42,6 +43,11 @@ export function useTaskLabelsQuery() {
 	// Memoized to prevent infinite re-renders (stable reference)
 	const actualTaskLabels = useMemo(() => taskLabelsData?.items ?? [], [taskLabelsData?.items]);
 	const taskLabelsLoading = taskMetadataQuery.useBootstrap ? taskMetadataQuery.isLoading : taskLabelsQuery.isLoading;
+	const { isError, refetch } = useTaskMetadataReadState(
+		taskMetadataQuery.useBootstrap,
+		taskMetadataQuery,
+		taskLabelsQuery
+	);
 
 	// Stable base data for optimistic UI
 	const baseLabels = useMemo(() => actualTaskLabels || [], [actualTaskLabels]);
@@ -98,6 +104,8 @@ export function useTaskLabelsQuery() {
 		actualTaskLabels, // Provide access to actual data if needed
 		loading: taskLabelsLoading,
 		getTaskLabelsLoading: taskLabelsLoading,
+		isError,
+		refetch,
 		setTaskLabels,
 		loadTaskLabels,
 		firstLoadTaskLabelsData: handleFirstLoad,

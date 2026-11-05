@@ -4,12 +4,16 @@ import moment from 'moment-timezone';
 import _debounce from 'lodash/debounce';
 import { Listbox, ListboxButton, ListboxOption, ListboxOptions } from '@headlessui/react';
 import { cn } from '@/core/lib/helpers';
-import { CheckIcon, ChevronDown, Search } from 'lucide-react';
+import { Check, ChevronDown, Search } from '@/core/components/icons';
+import { controlGroupRecipe, controlRecipe } from '@/core/components/common/input';
 import { ScrollArea } from '@/core/components/common/scroll-area';
 import { ScrollBar } from '@/core/components/common/scroll-bar';
 import { InputField } from '../duplicated-components/_input';
 
 const allTimezonesNames = moment.tz.names();
+
+const TRIGGER_CLASS = cn(controlRecipe, 'flex h-9 items-center justify-between gap-2 px-2.5 text-left');
+const SEARCH_BOX_CLASS = cn(controlGroupRecipe, 'h-8 gap-1.5 px-2');
 
 export const TimezoneDropDown = ({
 	currentTimezone,
@@ -66,48 +70,45 @@ export const TimezoneDropDown = ({
 	return (
 		<div className={cn('relative w-full', className)}>
 			<Listbox value={currentTimezone} onChange={handleChange}>
-				<ListboxButton
-					className={cn(
-						'flex h-9 w-full items-center justify-between rounded-md border border-border bg-card px-3 text-left text-sm font-medium'
-					)}
-				>
+				<ListboxButton className={TRIGGER_CLASS}>
 					<span className={cn('truncate capitalize', !currentTimezone?.length && 'text-muted-foreground')}>
 						{items?.find((el) => el.value.toLowerCase() == currentTimezone.toLowerCase())?.value ||
 							'Pick a timezone'}
 					</span>
 
-					<ChevronDown size={15} className="shrink-0 text-muted-foreground" />
+					<ChevronDown className="size-4 shrink-0 text-muted-foreground" />
 				</ListboxButton>
-				<ListboxOptions
-					className={cn(
-						'absolute z-20 text-xs top-14 border space-y-1 w-full bg-white dark:bg-dark--theme-light rounded-md p-1 shadow-md'
-					)}
-				>
-					<div className="w-full flex border dark:border-white rounded-md   h-[2rem] items-center px-1">
-						<Search size={15} className=" text-slate-300" />
+				<ListboxOptions className="absolute top-full z-20 mt-1 w-full space-y-1 rounded-xl bg-popover p-1 text-sm text-popover-foreground shadow-md shadow-black/6.5 hairline-ring ring-border outline-none">
+					<div className={SEARCH_BOX_CLASS}>
+						<Search className="size-4 shrink-0 text-muted-foreground" />
 						<InputField
 							value={searchTerm}
 							onChange={(e) => {
 								handleSearchChange(e.target.value);
 							}}
 							placeholder={'Search ...'}
-							className="h-full text-sm bg-transparent border-none  dark:bg-transparent"
+							className="h-full bg-transparent px-1 py-0 shadow-none ring-0 focus-visible:border-transparent focus-visible:ring-0 dark:bg-transparent dark:ring-0"
 							noWrapper
 						/>
 					</div>
 
 					<ScrollArea className="flex flex-col gap-1 h-72">
 						{filteredSearchResult?.map((item) => (
-							<ListboxOption key={item.id} value={item.value.toLowerCase()} as="div">
+							<ListboxOption
+								key={item.id}
+								value={item.value.toLowerCase()}
+								as="div"
+								className="group rounded-md outline-none"
+							>
 								{({ selected }) => (
-									<li className={cn('text-xs cursor-pointer rounded-sm ')}>
+									<li className="cursor-pointer rounded-md">
 										<div
 											className={cn(
-												'w-full h-full p-1 px-2 flex items-center gap-2 rounded',
-												selected && 'bg-primary text-primary-foreground dark:text-white'
+												'flex w-full items-center gap-2 rounded-md px-2 py-1.5 transition-colors hover:bg-foreground/5 group-data-focus:bg-foreground/5',
+												selected && 'bg-foreground/5 font-medium text-foreground'
 											)}
 										>
-											{selected && <CheckIcon size={10} />}
+											{selected && <Check className="size-3 shrink-0" />}
 											<span className={cn(' capitalize', currentTimezone && !selected && 'pl-5')}>
 												{item.value || '-'}
 											</span>

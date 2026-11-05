@@ -4,7 +4,7 @@ import * as React from 'react';
 import { Button } from '@/core/components/duplicated-components/_button';
 import { Calendar } from '@/core/components/common/calendar';
 import { Popover, PopoverContent, PopoverTrigger } from '@/core/components/common/popover';
-import { ChevronDown } from 'lucide-react';
+import { Calendar as CalendarGlyph, ChevronDown, X } from '@/core/components/icons';
 import { cn } from '@/core/lib/helpers';
 import {
 	format,
@@ -26,8 +26,6 @@ import {
 import { DateRange } from 'react-day-picker';
 import { useTranslations } from 'next-intl';
 import { TranslationHooks } from 'next-intl';
-import { CalendarIcon } from '@radix-ui/react-icons';
-import { SettingsIcon } from '../../common/team-icon';
 
 interface DateRangePickerProps {
 	className?: string;
@@ -78,21 +76,22 @@ export function DateRangePickerTimeActivity({ className, onDateRangeChange, init
 	return (
 		<Popover open={isPopoverOpen} onOpenChange={setIsPopoverOpen}>
 			<PopoverTrigger asChild>
-				<div className="flex items-center border border-[#E4E4E7] dark:border-border rounded-md w-[225px]">
+				<div className="flex items-center w-[225px]">
 					<Button
 						variant="outline"
+						size="default"
 						className={cn(
-							'flex items-center justify-between gap-2 px-3 py-1 w-[196px] h-[36px] bg-white dark:bg-dark--theme-light rounded-r-none',
+							'min-w-0 flex-1 justify-between gap-2 rounded-r-none font-normal tabular-nums',
 							!dateRange && 'text-muted-foreground',
 							className
 						)}
 					>
-						<CalendarIcon className="w-4 h-4" />
+						<CalendarGlyph className="text-muted-foreground" />
 						{dateRange ? formatDateRange(dateRange) : t('common.SELECT')}
-						<ChevronDown className="w-4 h-4" />
+						<ChevronDown className="text-muted-foreground" />
 					</Button>
 					<Button
-						variant="ghost"
+						variant="outline"
 						onClick={() => {
 							const today = new Date();
 							setCurrentMonth(today);
@@ -105,9 +104,9 @@ export function DateRangePickerTimeActivity({ className, onDateRangeChange, init
 						title="Open date settings"
 						aria-label="Open date settings"
 						size="icon"
-						className="flex items-center justify-center w-[36px] h-[36px] bg-white dark:bg-dark--theme-light border-l border-l-[#E4E4E7] dark:border-l-border rounded-r-md hover:bg-gray-50 dark:hover:bg-muted"
+						className="-ml-px rounded-l-none text-muted-foreground"
 					>
-						<SettingsIcon />
+						<X />
 					</Button>
 				</div>
 			</PopoverTrigger>
@@ -115,7 +114,7 @@ export function DateRangePickerTimeActivity({ className, onDateRangeChange, init
 				onClick={(e) => e.stopPropagation()}
 				onMouseDown={(e) => e.stopPropagation()}
 				onChange={(e) => e.stopPropagation()}
-				className="p-0 w-auto dark:bg-dark--theme-light dark:border-border border border-[#E4E4E7] rounded-md shadow-lg"
+				className="p-0 w-auto"
 				align="center"
 			>
 				<div className="flex">
@@ -136,11 +135,11 @@ export function DateRangePickerTimeActivity({ className, onDateRangeChange, init
 							disabled={(date: Date) => date >= startOfDay(new Date())}
 						/>
 					</div>
-					<div className="p-1 space-y-1 border-l max-w-36">
+					<div className="p-1 hairline-l border-border max-w-36">
 						<PredefinedRanges handleDateRangeChange={handleDateRangeChange} t={t} dateRange={dateRange} />
 					</div>
 				</div>
-				<div className="flex gap-1 justify-end p-0.5 border-t">
+				<div className="flex gap-2 justify-end p-2 hairline-t border-border">
 					<Button
 						variant="outline"
 						size="sm"
@@ -291,14 +290,14 @@ const PredefinedRanges = ({ handleDateRangeChange, t, dateRange }: PredefinedRan
 	);
 
 	return (
-		<div className="flex flex-col gap-2 p-2">
+		<div className="flex flex-col gap-0.5 p-1">
 			{predefinedRanges.map((range) => (
 				<Button
 					key={range.label}
 					variant={range.isSelected(dateRange) ? 'default' : 'ghost'}
 					className={cn(
-						'justify-start w-full font-normal dark:text-gray-100 border rounded',
-						range.isSelected(dateRange) && 'bg-primary text-primary-foreground hover:bg-primary/90'
+						'w-full justify-start font-normal',
+						!range.isSelected(dateRange) && 'text-foreground'
 					)}
 					onClick={() => {
 						range.action();

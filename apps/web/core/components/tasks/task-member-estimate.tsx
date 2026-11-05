@@ -6,7 +6,7 @@ import { EditPenBoxIcon, CheckCircleTickIcon as TickSaveIcon, LoadingIcon } from
 import { MouseEvent, RefObject, useCallback, useEffect, useRef } from 'react';
 import { TimeInputField } from '../duplicated-components/_input';
 import { useTaskMemberEstimation } from '@/core/hooks/tasks/use-task-member-estimation';
-import { TrashIcon } from 'lucide-react';
+import { Trash } from '@/core/components/icons';
 import { TCreateTaskEstimation, TTaskEstimation } from '@/core/types/schemas/task/task-estimation.schema';
 
 type Props = {
@@ -179,7 +179,7 @@ export function TaskMemberEstimate({
 								});
 							}}
 						>
-							<TrashIcon className="w-4 h-4 text-red-600" />
+							<Trash className="size-4 text-destructive-ink" />
 						</button>
 					) : (
 						<LoadingIcon className={clsxm('mx-2 w-2 h-2 animate-spin lg:h-4 lg:w-4')} />

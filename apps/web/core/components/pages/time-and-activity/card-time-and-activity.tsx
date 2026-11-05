@@ -1,5 +1,5 @@
 import React from 'react';
-import { Loader2 } from 'lucide-react';
+import { Spinner } from '@/core/components/icons';
 import ProgressBar from '../../duplicated-components/progress-bar';
 
 interface StatisticCardProps {
@@ -20,24 +20,20 @@ const CardTimeAndActivity: React.FC<StatisticCardProps> = ({
 	isLoading = false
 }) => {
 	return (
-		<div className="p-6 bg-white rounded-xl shadow-xs dark:bg-dark--theme-light">
-			<div className="flex flex-col">
-				<span className="mb-2 text-sm text-gray-500">{title}</span>
-				<div className="flex items-start">
-					{isLoading ? (
-						<Loader2 className="w-6 h-6 text-gray-500 animate-spin" />
-					) : (
-						<span className="text-[32px] leading-[38px] font-semibold text-gray-900 dark:text-white">
-							{value}
-						</span>
-					)}
-				</div>
-				{showProgress && (
-					<div className="w-28">
-						<ProgressBar progress={progress} color={progressColor} isLoading={isLoading} />
-					</div>
+		<div className="flex min-w-0 flex-col gap-1 p-4">
+			<span className="truncate text-xs text-muted-foreground">{title}</span>
+			<div className="flex h-8 items-center">
+				{isLoading ? (
+					<Spinner className="size-5 animate-spin text-muted-foreground" />
+				) : (
+					<span className="text-2xl font-semibold tabular-nums text-foreground">{value}</span>
 				)}
 			</div>
+			{showProgress && (
+				<div className="w-28">
+					<ProgressBar progress={progress} color={progressColor} isLoading={isLoading} size="sm" />
+				</div>
+			)}
 		</div>
 	);
 };

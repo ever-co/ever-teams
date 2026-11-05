@@ -1,11 +1,13 @@
-import { EverTeamsLogo } from '@/core/components/svgs';
+'use client';
+
 import { Text } from '@/core/components/common/typography';
-import { ThemeToggler } from '@/core/components/common/toggler';
-import { LanguageDropDownWithFlags } from '@/core/components/common/language-dropdown-flags';
+import { OutsideHeader } from '@/core/components/layouts/outside/outside-header';
+import { AuthHeading } from '@/core/components/auth/kit/auth-heading';
+import { useAuthPageTravel } from '@/core/components/auth/kit/use-auth-page-travel';
 import { useTranslations } from 'next-intl';
 import Image from 'next/image';
 import Link from 'next/link';
-import { PropsWithChildren, ReactNode } from 'react';
+import { PropsWithChildren, ReactNode, useRef } from 'react';
 
 import {
 	APP_NAME,
@@ -15,6 +17,8 @@ import {
 	COMPANY_LINK,
 	MAIN_PICTURE,
 	MAIN_PICTURE_DARK,
+	MAIN_PICTURE_DARK_SET_BY_OPERATOR,
+	MAIN_PICTURE_SET_BY_OPERATOR,
 	IS_DEMO_MODE,
 	TERMS_LINK,
 	PRIVACY_POLICY_LINK,
@@ -26,11 +30,16 @@ import { ACCOUNT_DELETION_PATH } from '@/core/lib/auth/account-deletion';
 type Props = {
 	title?: string;
 	description?: string | ReactNode;
+	/** False renders the children straight on the canvas, without the stage (the 404 card). */
 	isAuthPage?: boolean;
-	/** Text for the top-right header link (e.g. "Sign in", "Sign up") */
+	headerLinkPrompt?: string;
 	headerLinkText?: string;
-	/** Href for the top-right header link */
 	headerLinkHref?: string;
+	aside?: ReactNode;
+	/** A wider form column, for the demo accounts beside the password form. */
+	wide?: boolean;
+	/** Forms that grow in place (a field opening) start at the top, so what is above the new field never moves. */
+	contentAlign?: 'center' | 'top';
 	/** Footer link to the public account deletion request (/delete-account), for people who cannot sign in. */
 	showDeleteAccountLink?: boolean;
 	/**
@@ -45,174 +54,242 @@ type Props = {
 	operatorLinksOnly?: boolean;
 } & PropsWithChildren;
 
+const LEGAL_LINK =
+	'rounded-sm underline-offset-4 outline-none transition-colors hover:text-foreground focus-visible:ring-[3px] focus-visible:ring-ring/25';
+
+const SWITCH_LINK =
+	'rounded-sm font-medium text-primary-ink underline-offset-4 outline-none hover:underline focus-visible:ring-[3px] focus-visible:ring-ring/25';
+
+/** The dark picture: the operator's own, or their light one when they set only that. */
+function darkPictureOf() {
+	if (MAIN_PICTURE_DARK_SET_BY_OPERATOR) {
+		return MAIN_PICTURE_DARK;
+	}
+	return MAIN_PICTURE;
+}
+
+/** The light side: the operator's own picture; with only a dark one set, the page's scene, else the built-in cover. */
+function lightPictureOf(alt: string, scene: ReactNode) {
+	const keepsScene = !MAIN_PICTURE_SET_BY_OPERATOR && Boolean(scene);
+	if (keepsScene) {
+		return <div className="contents dark:hidden">{scene}</div>;
+	}
+	return <Image src={MAIN_PICTURE} alt={alt} fill sizes="40vw" className="object-cover dark:hidden" />;
+}
+
+/** No priority preload: only the picture of the current theme shows. */
+function OperatorPicture({ alt, scene }: Readonly<{ alt: string; scene: ReactNode }>) {
+	const darkPicture = darkPictureOf();
+	const lightPicture = lightPictureOf(alt, scene);
+	return (
+		<>
+			{lightPicture}
+			<Image src={darkPicture} alt={alt} fill sizes="40vw" className="hidden object-cover dark:block" />
+		</>
+	);
+}
+
+function trayWidthOf(hasAside: boolean, wide: boolean) {
+	if (hasAside) {
+		return 'sm:max-w-[29rem] lg:max-w-[65rem]';
+	}
+	if (wide) {
+		return 'sm:max-w-[49rem]';
+	}
+	return 'sm:max-w-[29rem]';
+}
+
+function stageGridOf(hasAside: boolean) {
+	if (hasAside) {
+		return 'lg:grid lg:grid-cols-[minmax(0,27rem)_minmax(0,1fr)]';
+	}
+	return undefined;
+}
+
+/** With a scene the stage keeps one height, so a step change never moves the frame; alone it fits its content. */
+function columnHeightOf(hasAside: boolean) {
+	if (hasAside) {
+		return 'lg:min-h-[36rem]';
+	}
+	return undefined;
+}
+
+function columnAlignOf(contentAlign: 'center' | 'top') {
+	if (contentAlign === 'top') {
+		return 'justify-start';
+	}
+	return 'justify-center';
+}
+
+function columnWidthOf(wide: boolean) {
+	if (wide) {
+		return 'max-w-2xl';
+	}
+	return 'max-w-[22rem]';
+}
+
+/** A footer link, or the bare text when the deployment turned it off or the page may only link to the operator's. */
+function linkAllowed(link: string, setByOperator: boolean, operatorLinksOnly: boolean) {
+	if (!operatorLinksOnly) {
+		return link;
+	}
+	if (setByOperator) {
+		return link;
+	}
+	return '';
+}
+
 export function AuthLayout({
 	children,
 	title,
 	description,
 	isAuthPage = true,
+	headerLinkPrompt,
 	headerLinkText,
 	headerLinkHref,
+	aside,
+	wide = false,
+	contentAlign = 'center',
 	showDeleteAccountLink = false,
 	hideLanguageSwitcher = false,
 	operatorLinksOnly = false
 }: Props) {
 	const t = useTranslations();
-	const linkOf = (link: string, setByOperator: boolean) => (!operatorLinksOnly || setByOperator ? link : '');
-	const appLink = linkOf(APP_LINK, BRANDING_LINKS_SET_BY_OPERATOR.app);
-	const companyLink = linkOf(COMPANY_LINK, BRANDING_LINKS_SET_BY_OPERATOR.company);
-	const termsLink = linkOf(TERMS_LINK, BRANDING_LINKS_SET_BY_OPERATOR.terms);
-	const privacyPolicyLink = linkOf(PRIVACY_POLICY_LINK, BRANDING_LINKS_SET_BY_OPERATOR.privacy);
+	const frameRef = useRef<HTMLDivElement>(null);
+	const formRef = useRef<HTMLDivElement>(null);
+	useAuthPageTravel({ frameRef, formRef });
+	const appLink = linkAllowed(APP_LINK, BRANDING_LINKS_SET_BY_OPERATOR.app, operatorLinksOnly);
+	const companyLink = linkAllowed(COMPANY_LINK, BRANDING_LINKS_SET_BY_OPERATOR.company, operatorLinksOnly);
+	const termsLink = linkAllowed(TERMS_LINK, BRANDING_LINKS_SET_BY_OPERATOR.terms, operatorLinksOnly);
+	const privacyPolicyLink = linkAllowed(
+		PRIVACY_POLICY_LINK,
+		BRANDING_LINKS_SET_BY_OPERATOR.privacy,
+		operatorLinksOnly
+	);
+
+	const hasOperatorPicture = MAIN_PICTURE_SET_BY_OPERATOR || MAIN_PICTURE_DARK_SET_BY_OPERATOR;
+	const showsOperatorPicture = hasOperatorPicture && !IS_DEMO_MODE;
+	const hasScene = Boolean(aside) && !IS_DEMO_MODE;
+	const hasAside = showsOperatorPicture || hasScene;
+	const hasHeading = Boolean(title || description);
+	const showsHeading = isAuthPage && hasHeading;
+	const hasSwitchLink = Boolean(headerLinkText && headerLinkHref);
+	const linksApp = Boolean(APP_NAME && appLink);
+	const linksCompany = Boolean(COMPANY_NAME && companyLink);
+	const hasLegalLinks = Boolean(termsLink || privacyPolicyLink);
+	const showsLegalSeparator = Boolean(termsLink && privacyPolicyLink);
+	const trayWidth = trayWidthOf(hasAside, wide);
+	const stageGrid = stageGridOf(hasAside);
+	const columnWidth = columnWidthOf(wide);
+	const columnHeight = columnHeightOf(hasAside);
+	const columnAlign = columnAlignOf(contentAlign);
+	const pictureAlt = t('TITLE', { appName: APP_NAME });
+	const year = new Date().getFullYear();
 
 	return (
-		<div className="scheme-light selection:bg-foreground/10 selection:text-foreground bg-background dark:scheme-dark">
-			<div className={cn('grid min-h-dvh', !IS_DEMO_MODE && 'lg:grid-cols-5')}>
-				{/* Left panel - Image side (hidden in demo mode) */}
-				{!IS_DEMO_MODE && (
-					<div className="selection:text-blue-400! fixed inset-y-0 col-span-2 hidden w-2/5 selection:bg-black/20 lg:block">
-						{/* Light mode image */}
-						<div className="absolute inset-0 rounded-4xl max-w-[560px] lg:max-w-[640px]">
-							<Image
-								src={MAIN_PICTURE}
-								alt={t('TITLE', { appName: APP_NAME })}
-								priority
-								fill
-								className="object-scale-down md:max-w-[560px] lg:max-w-[640px] right-0 left-12 dark:hidden rounded-4xl"
-								sizes="40vw"
-							/>
-						</div>
-						{/* Dark mode image */}
-						<Image
-							src={MAIN_PICTURE_DARK}
-							alt={t('TITLE', { appName: APP_NAME })}
-							priority
-							fill
-							className="hidden object-scale-down md:max-w-[560px] lg:max-w-[640px] right-0 left-6 dark:block rounded-4xl"
-							sizes="40vw"
-						/>
-						{/* Gradient overlays */}
-						<div className="mask-t-from-25% mask-t-to-60% absolute inset-0 from-black/60 to-black/20 backdrop-blur-xl" />
-						<div className="absolute inset-0 border-r bg-linear-to-t from-black/60 to-black/20" />
-						{/* Bottom quote */}
-						<div className="absolute right-12 bottom-12 left-12">
-							<blockquote className="space-y-4">
-								<p className="text-xl font-medium text-white text-balance">
-									{t('pages.auth.COVER_TITLE')}
-								</p>
-								<footer className="text-sm text-white/80">{t('pages.auth.COVER_DESCRIPTION')}</footer>
-							</blockquote>
-						</div>
-					</div>
+		<div className="flex min-h-dvh flex-col bg-card text-foreground scheme-light selection:bg-foreground/10 selection:text-foreground sm:bg-sidebar dark:scheme-dark">
+			<OutsideHeader hideLanguageSwitcher={hideLanguageSwitcher} />
+
+			<main className="flex flex-1 flex-col items-center justify-center sm:px-4 sm:py-6">
+				{!isAuthPage && (
+					<div className="flex w-full flex-1 flex-col items-center justify-center px-4">{children}</div>
 				)}
 
-				{/* Right panel - Content side */}
-				<div className={cn('flex flex-col p-6', !IS_DEMO_MODE && 'lg:col-span-3 lg:col-start-3 lg:p-12')}>
-					{/* Top bar: Logo + slogan + header link */}
-					<div className="flex justify-between items-start">
-						<div className="flex flex-col gap-1">
-							<EverTeamsLogo dash className="h-5" />
-							{APP_SLOGAN_TEXT && (
-								<span className="mt-1 text-xs tracking-wide text-muted-foreground">
-									{APP_SLOGAN_TEXT}
-								</span>
+				{isAuthPage && (
+					<div
+						ref={frameRef}
+						className={cn(
+							'flex w-full flex-col sm:rounded-[22px] sm:bg-foreground/[0.035] sm:p-1.5',
+							trayWidth
+						)}
+					>
+						<div
+							className={cn(
+								'w-full sm:rounded-2xl sm:bg-card sm:hairline-ring sm:ring-border sm:shadow-md sm:shadow-black/6.5',
+								stageGrid
+							)}
+						>
+							<div className={cn('flex flex-col px-5 py-8 sm:px-10 sm:py-10', columnAlign, columnHeight)}>
+								<div ref={formRef} className={cn('mx-auto flex w-full flex-col', columnWidth)}>
+									{showsHeading && (
+										<AuthHeading title={title} description={description} className="mb-8" />
+									)}
+									{children}
+								</div>
+							</div>
+							{hasAside && (
+								<aside
+									aria-hidden="true"
+									className="relative m-2 ml-0 hidden overflow-hidden rounded-[14px] bg-foreground/[0.03] lg:block dark:bg-foreground/[0.025]"
+								>
+									{showsOperatorPicture && <OperatorPicture alt={pictureAlt} scene={aside} />}
+									{!showsOperatorPicture && aside}
+								</aside>
 							)}
 						</div>
-						{headerLinkText && headerLinkHref && (
-							<Link
-								href={headerLinkHref}
-								className="text-sm font-medium text-muted-foreground hover:text-foreground hover:underline"
-							>
-								{headerLinkText}
-							</Link>
-						)}
-					</div>
-
-					{/* Centered content */}
-					<div className={cn('m-auto w-full', IS_DEMO_MODE ? 'max-w-2xl' : 'max-w-sm')}>
-						{isAuthPage && (title || description) && (
-							<div className="mb-8 space-y-2  px-1.5">
-								{title && <h1 className="text-2xl font-semibold">{title}</h1>}
-								{description &&
-									(typeof description === 'string' ? (
-										<p className="text-muted-foreground">{description}</p>
-									) : (
-										<div className="text-muted-foreground">{description}</div>
-									))}
-							</div>
-						)}
-
-						{children}
-					</div>
-
-					{/* Footer */}
-					<footer className="pt-6 space-y-3">
-						{/* Copyright */}
-						<p className="text-xs font-normal leading-4 text-center text-muted-foreground">
-							{t('layout.footer.COPY_RIGHT1', { date: new Date().getFullYear() })}{' '}
-							{APP_NAME && appLink ? (
-								<Text.Link className="hover:underline" href={appLink}>
-									{APP_NAME}
-								</Text.Link>
-							) : (
-								<span>{APP_NAME}</span>
-							)}{' '}
-							{t('layout.footer.BY')}{' '}
-							{COMPANY_NAME && companyLink ? (
-								<Text.Link className="hover:underline" href={companyLink}>
-									{COMPANY_NAME}
-								</Text.Link>
-							) : (
-								<span>{COMPANY_NAME}</span>
-							)}{' '}
-							{t('layout.footer.RIGHTS_RESERVED')}
-						</p>
-
-						{/* Terms + Privacy (each one can be turned off: '' => not rendered) */}
-						{(termsLink || privacyPolicyLink) && (
-							<p className="text-xs text-center text-muted-foreground">
-								{termsLink && (
-									<a className="underline hover:text-foreground" href={termsLink}>
-										{t('pages.auth.TERMS_OF_SERVICE')}
-									</a>
-								)}
-								{termsLink && privacyPolicyLink && ' · '}
-								{privacyPolicyLink && (
-									<Link
-										target="_blank"
-										className="underline hover:text-foreground"
-										href={privacyPolicyLink}
-										rel="noreferrer"
-									>
-										{t('pages.auth.PRIVACY_POLICY')}
-									</Link>
-								)}
-							</p>
-						)}
-
-						{showDeleteAccountLink && (
-							<p className="text-xs text-center text-muted-foreground">
-								<Link
-									href={ACCOUNT_DELETION_PATH}
-									className="underline hover:text-foreground"
-									data-testid="auth-delete-account-link"
-								>
-									{t('pages.accountDeletion.DELETE_BY_EMAIL_LINK')}
+						{hasSwitchLink && (
+							<p className="px-5 py-4 text-center text-[13px] text-muted-foreground sm:px-4 sm:pt-3 sm:pb-2">
+								{headerLinkPrompt && <span>{headerLinkPrompt} </span>}
+								<Link href={headerLinkHref ?? '/'} className={SWITCH_LINK}>
+									{headerLinkText}
 								</Link>
 							</p>
 						)}
+					</div>
+				)}
+			</main>
 
-						{/* Language + Theme controls */}
-						<div className="flex gap-3 justify-center items-center">
-							{!hideLanguageSwitcher && (
-								<LanguageDropDownWithFlags
-									showFlag
-									btnClassName="bg-light--theme-dark dark:bg-card border-none max-w-28 text-xs"
-								/>
-							)}
-							<ThemeToggler />
-						</div>
-					</footer>
-				</div>
-			</div>
+			<footer className="flex flex-col items-center gap-1.5 px-5 pt-4 pb-6 text-center text-xs text-muted-foreground">
+				{APP_SLOGAN_TEXT && <span className="text-foreground/70">{APP_SLOGAN_TEXT}</span>}
+				<p className="leading-4">
+					{t('layout.footer.COPY_RIGHT1', { date: year })}{' '}
+					{linksApp && (
+						<Text.Link className={cn(LEGAL_LINK, 'hover:underline')} href={appLink}>
+							{APP_NAME}
+						</Text.Link>
+					)}
+					{!linksApp && <span>{APP_NAME}</span>} {t('layout.footer.BY')}{' '}
+					{linksCompany && (
+						<Text.Link className={cn(LEGAL_LINK, 'hover:underline')} href={companyLink}>
+							{COMPANY_NAME}
+						</Text.Link>
+					)}
+					{!linksCompany && <span>{COMPANY_NAME}</span>} {t('layout.footer.RIGHTS_RESERVED')}
+				</p>
+
+				{hasLegalLinks && (
+					<p>
+						{termsLink && (
+							<a className={cn(LEGAL_LINK, 'underline')} href={termsLink}>
+								{t('pages.auth.TERMS_OF_SERVICE')}
+							</a>
+						)}
+						{showsLegalSeparator && ' · '}
+						{privacyPolicyLink && (
+							<Link
+								target="_blank"
+								className={cn(LEGAL_LINK, 'underline')}
+								href={privacyPolicyLink}
+								rel="noreferrer"
+							>
+								{t('pages.auth.PRIVACY_POLICY')}
+							</Link>
+						)}
+					</p>
+				)}
+
+				{showDeleteAccountLink && (
+					<p>
+						<Link
+							href={ACCOUNT_DELETION_PATH}
+							className={cn(LEGAL_LINK, 'underline')}
+							data-testid="auth-delete-account-link"
+						>
+							{t('pages.accountDeletion.DELETE_BY_EMAIL_LINK')}
+						</Link>
+					</p>
+				)}
+			</footer>
 		</div>
 	);
 }

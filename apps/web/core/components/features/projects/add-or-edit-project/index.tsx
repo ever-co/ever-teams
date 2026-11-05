@@ -1,5 +1,5 @@
 import { cn } from '@/core/lib/helpers';
-import { Check } from 'lucide-react';
+import { Check } from '@/core/components/icons';
 import { useCallback, useState } from 'react';
 import AddOrEditContainer, { TStepData } from './container';
 import TeamAndRelationsForm from './steps/team-and-relations-form';
@@ -8,7 +8,7 @@ import CategorizationForm from './steps/categorization-form';
 import FinancialSettingsForm from './steps/financial-settings-form';
 import FinalReview from './steps/review-summary';
 import { useTranslations } from 'next-intl';
-import { EverCard } from '@/core/components/common/ever-card';
+
 import { TCreateProjectRequest } from '@/core/types/schemas';
 
 export type TModalMode = 'edit' | 'create';
@@ -79,34 +79,38 @@ export default function AddOrEditProjectForm(props: IAddOrEditProjectFormProps) 
 	};
 
 	return (
-		<EverCard className="w-full h-full" shadow="custom">
-			<div className="flex flex-row gap-4 justify-between items-center h-12">
+		<div className="flex flex-col w-full h-full">
+			<div className="flex h-10 flex-row items-center justify-between gap-3 hairline-b border-border pb-2">
 				{steps.map((step, index) => {
 					const isCurrent = index === currentStep;
 					const isCompleted = step.isCompleted;
 					const isLastStep = index == steps.length - 1;
+					const isReachedStep = isCompleted || isCurrent;
 
 					return (
-						<div key={step.id} className={cn('flex gap-2 items-center', !isLastStep && 'grow')}>
+						<div key={step.id} className={cn('flex min-w-0 gap-2 items-center', !isLastStep && 'grow')}>
 							<div
 								className={cn(
-									'h-4 w-4 shrink-0 bg-gray-400 flex items-center justify-center rounded-full text-white',
-									step.isCompleted && 'bg-green-700 text-white',
-									isCurrent && 'bg-primary text-primary-foreground'
+									'flex size-4.5 shrink-0 items-center justify-center rounded-full bg-foreground/5 text-muted-foreground hairline-ring ring-border',
+									step.isCompleted && 'bg-success/10 text-success-foreground ring-success/20',
+									isCurrent && 'bg-primary text-primary-foreground ring-primary'
 								)}
 							>
-								{step.isCompleted ? <Check size={10} /> : <span className="text-xs">{step.id}</span>}
+								{step.isCompleted ? (
+									<Check className="size-3" />
+								) : (
+									<span className="text-[11px] font-medium tabular-nums">{step.id}</span>
+								)}
 							</div>
 							<div
 								className={cn(
-									'text-xs shrink-0 font-medium text-gray-400',
-									isCompleted && 'text-green-700',
-									isCurrent && 'text-primary'
+									'min-w-0 truncate text-xs text-muted-foreground',
+									isReachedStep && 'font-medium text-foreground'
 								)}
 							>
 								{step.title}
 							</div>
-							{!isLastStep && <div className="h-[1px] bg-gray-300 grow"></div>}
+							{!isLastStep && <div className="h-px min-w-4 bg-border grow"></div>}
 						</div>
 					);
 				})}
@@ -127,6 +131,6 @@ export default function AddOrEditProjectForm(props: IAddOrEditProjectFormProps) 
 					<FinalReview />
 				</AddOrEditContainer>
 			</div>
-		</EverCard>
+		</div>
 	);
 }

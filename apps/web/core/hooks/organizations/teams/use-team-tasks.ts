@@ -7,7 +7,7 @@ import {
 	setActiveUserTaskCookie
 } from '@/core/lib/helpers/index';
 import { getValidActiveTask } from '@/core/lib/utils/task.utils';
-import { getErrorMessage, logErrorInDev } from '@/core/lib/helpers/error-message';
+import { logErrorInDev } from '@/core/lib/helpers/error-message';
 import { taskService } from '@/core/services/client/api';
 import {
 	activeTeamState,
@@ -36,7 +36,7 @@ import { useInvalidateTeamTasks } from './use-invalidate-team-tasks';
 import { useTasksByEmployeeQuery } from './use-tasks-by-employee-query';
 import { EIssueType, ETaskPriority, ETaskSize } from '@/core/types/generics/enums/task';
 import { useTaskStatusesQuery } from '../../tasks/use-task-statuses-query';
-import { toast } from 'sonner';
+import { teamDefaultProjectId } from '@/core/lib/helpers/team-default-project';
 
 /**
  * A React hook that provides functionality for managing team tasks, including creating, updating, deleting, and fetching tasks.
@@ -129,7 +129,7 @@ export function useTeamTasks() {
 			if (!activeTeam?.id) {
 				throw new Error('Required parameters missing');
 			}
-			const projectId = activeTeam?.projects && activeTeam?.projects.length > 0 ? activeTeam.projects[0].id : '';
+			const projectId = teamDefaultProjectId(activeTeam) ?? '';
 			return await taskService.getTasks({ projectId });
 		},
 		enabled: !!activeTeam?.id,
@@ -577,10 +577,6 @@ export function useTeamTasks() {
 						}
 
 						if (success) {
-							toast.success('Active task updated', {
-								description: `"${task.title}" is now your active task`
-							});
-
 							// Short delay to let React Query stabilize before clearing isUpdatingActiveTask.
 							// The expectedActiveTaskIdRef provides the main protection against stale data,
 							// this delay is just an extra safety buffer for edge cases.
@@ -590,10 +586,8 @@ export function useTeamTasks() {
 							expectedActiveTaskIdRef.current = null;
 						}
 					} catch (error) {
+						// useUpdateEmployeeActiveTask already told the user
 						logErrorInDev('[setActiveTask] API call failed:', error);
-						toast.error('Failed to update active task', {
-							description: getErrorMessage(error)
-						});
 						// Rollback: restore previous state and clear expected ID
 						expectedActiveTaskIdRef.current = previousTaskId || null;
 						setActiveTaskIdCookie(previousTaskId || '');

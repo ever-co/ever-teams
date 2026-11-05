@@ -13,7 +13,7 @@ export function AppVisitedModal({ children }: PropsWithChildren) {
 				isOpen={isOpen}
 				closeModal={closeModal}
 				title="Screenshots detail"
-				className="bg-white dark:bg-[#343434d4] p-4 rounded-lg lg:w-[60vw] xl:w-[50vw] 2xl:w-[40vw] m-8"
+				className="lg:w-[60vw] xl:w-[50vw] 2xl:w-[40vw] m-8"
 			>
 				{/* {loading ? (
 					<div>Loading ...</div>

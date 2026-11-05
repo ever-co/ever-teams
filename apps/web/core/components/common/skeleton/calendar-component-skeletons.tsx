@@ -1,103 +1,50 @@
-import React, { FC } from 'react';
+import { FC } from 'react';
+import { cn } from '@/core/lib/helpers';
+import { TimesheetViewSkeleton } from './timesheet-skeletons';
 
-/**
- * Individual component skeletons for Calendar page progressive loading
- * Used in dynamic imports and Suspense wrappers for optimal UX
- */
+const BAR = 'animate-pulse rounded-md bg-foreground/5';
+
+const CALENDAR_DAY_HEADERS = 7;
+
+const CALENDAR_DAY_CELLS = 42;
+
+const MODAL_FIELDS = 3;
 
 interface SkeletonProps {
 	className?: string;
 }
 
-/**
- * Skeleton for SetupFullCalendar component
- * Matches FullCalendar library structure with grid and events
- */
+/** The month calendar: its toolbar, then a hairline grid of six weeks inside one surface. */
 export const SetupFullCalendarSkeleton: FC<SkeletonProps> = ({ className }) => {
+	const headerKeys = Array.from({ length: CALENDAR_DAY_HEADERS }, (_, index) => index);
+	const cellKeys = Array.from({ length: CALENDAR_DAY_CELLS }, (_, index) => index);
 	return (
-		<div className={`w-full ${className || ''}`}>
-			{/* SKELETON: FullCalendar Main Container */}
-			<div className="flex h-full bg-white rounded-lg border border-gray-200 dark:border-gray-700 dark:bg-dark--theme">
-				{/* Main Calendar Area */}
-				<div className="flex-1 p-4">
-					{/* Calendar Toolbar */}
-					<div className="flex justify-between items-center pb-4 mb-6 border-b border-gray-200 dark:border-gray-600">
-						{/* Left Navigation */}
-						<div className="flex gap-4 items-center">
-							<div className="w-8 h-8 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded-sm border border-gray-200 dark:border-gray-600" />
-							<div className="w-32 h-6 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded" />
-							<div className="w-8 h-8 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded-sm border border-gray-200 dark:border-gray-600" />
-						</div>
-
-						{/* Right Controls */}
-						<div className="flex gap-2 items-center">
-							<div className="w-16 h-8 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded-sm border border-gray-200 dark:border-gray-600" />
-							<div className="w-12 h-8 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded-sm border border-gray-200 dark:border-gray-600" />
-							<div className="w-12 h-8 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded-sm border border-gray-200 dark:border-gray-600" />
-							<div className="w-12 h-8 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded-sm border border-gray-200 dark:border-gray-600" />
-						</div>
+		<div className={cn('-mx-2 flex flex-col overflow-hidden px-2 py-8', className)}>
+			<div className="w-full rounded-xl bg-card p-4 hairline-ring ring-border shadow-sm shadow-black/6.5">
+				<div className="flex w-full items-center justify-between p-2">
+					<div className="flex items-center gap-3">
+						<div className={cn(BAR, 'h-9.5 w-50')} />
+						<div className={cn(BAR, 'h-9.5 w-50')} />
 					</div>
-
-					{/* Calendar Header (Days of Week) */}
-					<div className="grid grid-cols-7 gap-1 mb-4">
-						{['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map((day, index) => (
-							<div key={index} className="p-3 text-center border-b border-gray-200 dark:border-gray-600">
-								<div className="w-8 h-4 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded-sm mx-auto" />
-							</div>
-						))}
-					</div>
-
-					{/* Calendar Body (6 weeks) */}
-					<div className="grid grid-cols-7 gap-1">
-						{[...Array(42)].map((_, index) => (
-							<div
-								key={index}
-								className="p-2 bg-white border border-gray-100 aspect-square dark:border-gray-700 dark:bg-dark--theme-light hover:bg-gray-50 dark:hover:bg-muted"
-							>
-								{/* Day Number */}
-								<div className="w-6 h-4 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded-sm mb-2" />
-
-								{/* Events (realistic pattern) */}
-								{index % 4 === 0 && (
-									<div className="space-y-1">
-										<div className="w-full h-4 bg-[#dcfce7] animate-pulse rounded-sm text-xs" />
-										{index % 8 === 0 && (
-											<div className="w-3/4 h-4 bg-[#ffedd5] animate-pulse rounded-sm text-xs" />
-										)}
-									</div>
-								)}
-								{index % 6 === 0 && index % 4 !== 0 && (
-									<div className="w-full h-4 bg-[#dbeafe] animate-pulse rounded-sm text-xs" />
-								)}
-							</div>
-						))}
-					</div>
+					<div className={cn(BAR, 'h-9.5 w-22')} />
 				</div>
-
-				{/* Side Panel */}
-				<div className="pl-5 m-5 w-1/5 h-full border-l border-gray-200 dark:border-gray-600">
-					<div className="py-10">
-						{/* Side Panel Header */}
-						<div className="w-full h-6 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded-sm mb-6" />
-
-						{/* Event List */}
-						<div className="space-y-4">
-							{[...Array(5)].map((_, index) => (
-								<div
-									key={index}
-									className="p-3 bg-gray-50 rounded-lg border border-gray-200 dark:bg-muted dark:border-gray-600"
-								>
-									{/* Event Time */}
-									<div className="w-16 h-3 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded-sm mb-2" />
-
-									{/* Event Title */}
-									<div className="w-full h-4 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded-sm mb-2" />
-
-									{/* Event Details */}
-									<div className="w-3/4 h-3 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded" />
-								</div>
-							))}
-						</div>
+				<div className="mt-5 overflow-hidden rounded-lg hairline-border border-border">
+					<div className="grid grid-cols-7 hairline-divide-x divide-border hairline-b border-border">
+						{headerKeys.map((key) => (
+							<div key={key} className="flex h-6 items-center justify-center">
+								<div className={cn(BAR, 'h-2.5 w-8')} />
+							</div>
+						))}
+					</div>
+					<div className="grid grid-cols-7">
+						{cellKeys.map((key) => (
+							<div
+								key={key}
+								className="flex h-19 justify-end hairline-b hairline-r border-border p-2 last:border-r-0"
+							>
+								<div className={cn(BAR, 'h-3 w-5 rounded-sm')} />
+							</div>
+						))}
 					</div>
 				</div>
 			</div>
@@ -105,139 +52,76 @@ export const SetupFullCalendarSkeleton: FC<SkeletonProps> = ({ className }) => {
 	);
 };
 
-/**
- * Skeleton for SetupTimeSheet component
- * Matches timesheet table structure with filtering
- */
+/** The timesheet of the calendar page: the filter row, then the selection toolbar and the list inside one surface. */
 export const SetupTimeSheetSkeleton: FC<SkeletonProps> = ({ className }) => {
 	return (
-		<div className={`w-full ${className || ''}`}>
-			{/* SKELETON: TimeSheet Container */}
-			<div className="bg-white rounded-lg border border-gray-200 dark:bg-dark--theme-light dark:border-gray-600">
-				{/* TimeSheet Header */}
-				<div className="p-4 border-b border-gray-200 dark:border-gray-600">
-					<div className="flex justify-between items-center">
-						{/* Title */}
-						<div className="w-32 h-6 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded" />
-
-						{/* Filter Controls */}
-						<div className="flex gap-4 items-center">
-							<div className="w-24 h-8 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded-sm border border-gray-200 dark:border-gray-600" />
-							<div className="w-32 h-8 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded-sm border border-gray-200 dark:border-gray-600" />
-						</div>
+		<div className={cn('-mx-2 flex flex-col overflow-hidden px-2 py-8', className)}>
+			<div className="flex w-full flex-col">
+				<div className="h-px w-full bg-border" />
+				<div className="flex h-28 w-full items-center justify-between gap-3 p-2">
+					<div className={cn(BAR, 'h-8 w-1/4')} />
+					<div className="flex items-center justify-end gap-2 p-2">
+						<div className={cn(BAR, 'h-8 w-44')} />
+						<div className={cn(BAR, 'h-8 w-72')} />
+						<div className={cn(BAR, 'h-8 w-24')} />
 					</div>
 				</div>
-
-				{/* TimeSheet Table */}
-				<div className="overflow-x-auto">
-					{/* Table Header */}
-					<div className="bg-gray-50 border-b border-gray-200 dark:bg-white/5 dark:border-gray-600">
-						<div className="flex">
-							{['Date', 'Project', 'Task', 'Hours', 'Status', 'Actions'].map((header, index) => (
-								<div key={index} className="flex-1 px-6 py-3">
-									<div className="w-16 h-4 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded" />
-								</div>
-							))}
-						</div>
+			</div>
+			<div className="flex h-[780px] flex-col overflow-hidden rounded-xl bg-card p-4 hairline-ring ring-border shadow-sm shadow-black/6.5">
+				<div className="flex w-full items-center justify-between gap-x-4 pb-3">
+					<div className="flex items-center gap-x-4">
+						<div className={cn(BAR, 'h-4 w-28')} />
+						<div className={cn(BAR, 'h-8 w-32')} />
+						<div className={cn(BAR, 'h-8 w-24')} />
 					</div>
-
-					{/* Table Rows */}
-					{[...Array(8)].map((_, rowIndex) => (
-						<div key={rowIndex} className="border-b border-gray-200 dark:border-gray-600">
-							<div className="flex hover:bg-gray-50 dark:hover:bg-white/5">
-								{/* Date Cell */}
-								<div className="flex-1 px-6 py-4">
-									<div className="w-20 h-4 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded" />
-								</div>
-
-								{/* Project Cell */}
-								<div className="flex-1 px-6 py-4">
-									<div className="flex gap-3 items-center">
-										<div className="w-6 h-6 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded" />
-										<div className="w-24 h-4 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded" />
-									</div>
-								</div>
-
-								{/* Task Cell */}
-								<div className="flex-1 px-6 py-4">
-									<div className="w-32 h-4 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded" />
-								</div>
-
-								{/* Hours Cell */}
-								<div className="flex-1 px-6 py-4">
-									<div className="w-16 h-4 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded" />
-								</div>
-
-								{/* Status Cell */}
-								<div className="flex-1 px-6 py-4">
-									<div className="w-20 h-6 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded-full" />
-								</div>
-
-								{/* Actions Cell */}
-								<div className="flex-1 px-6 py-4">
-									<div className="flex gap-2 items-center">
-										<div className="w-8 h-8 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded-sm border border-gray-200 dark:border-gray-600" />
-										<div className="w-8 h-8 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded-sm border border-gray-200 dark:border-gray-600" />
-									</div>
-								</div>
-							</div>
-						</div>
-					))}
-				</div>
-
-				{/* Pagination */}
-				<div className="flex justify-between items-center p-4 border-t border-gray-200 dark:border-gray-600">
-					<div className="flex gap-2 items-center">
-						<div className="w-16 h-4 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded" />
-						<div className="w-12 h-8 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded-sm border border-gray-200 dark:border-gray-600" />
-						<div className="w-20 h-4 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded" />
-					</div>
-
-					<div className="flex gap-2 items-center">
-						<div className="w-8 h-8 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded-sm border border-gray-200 dark:border-gray-600" />
-						<div className="w-8 h-8 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded-sm border border-gray-200 dark:border-gray-600" />
-						<div className="w-8 h-8 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded-sm border border-gray-200 dark:border-gray-600" />
-						<div className="w-8 h-8 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded-sm border border-gray-200 dark:border-gray-600" />
+					<div className="flex h-6 gap-x-2">
+						<div className={cn(BAR, 'h-6 w-20')} />
+						<div className={cn(BAR, 'h-6 w-24')} />
+						<div className={cn(BAR, 'h-6 w-24')} />
 					</div>
 				</div>
+				<TimesheetViewSkeleton />
 			</div>
 		</div>
 	);
 };
 
-/**
- * Skeleton for AddManualTimeModal component
- * Matches modal structure with form fields
- */
 export const AddManualTimeModalSkeleton: FC<SkeletonProps> = ({ className }) => {
+	const fieldKeys = Array.from({ length: MODAL_FIELDS }, (_, index) => index);
 	return (
-		<div className={`fixed inset-0 z-50 flex items-center justify-center ${className || ''}`}>
-			{/* Modal Backdrop */}
-			<div className="fixed inset-0 animate-pulse bg-black/50" />
-
-			{/* Modal Content */}
-			<div className="relative mx-4 w-full max-w-md bg-white rounded-lg border border-gray-200 shadow-xl dark:bg-dark--theme-light dark:border-gray-600">
-				{/* Modal Header */}
-				<div className="flex justify-between items-center p-6 border-b border-gray-200 dark:border-gray-600">
-					<div className="w-32 h-6 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded" />
-					<div className="w-6 h-6 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded" />
+		<div className={cn('fixed inset-0 z-[1000] flex items-center justify-center p-4', className)}>
+			<div className="fixed inset-0 bg-black/20" />
+			<div className="relative flex w-full max-w-lg flex-col gap-4 rounded-[16px] surface-raised p-5">
+				<div className="flex items-center gap-2 pr-9">
+					<div className={cn(BAR, 'h-5 w-20')} />
+					<div className={cn(BAR, 'h-4 w-24')} />
 				</div>
-
-				{/* Modal Body */}
-				<div className="p-6 space-y-4">
-					{/* Form Fields */}
-					{[...Array(5)].map((_, index) => (
-						<div key={index} className="space-y-2">
-							<div className="w-20 h-4 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded" />
-							<div className="w-full h-10 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded-sm border border-gray-200 dark:border-gray-600" />
+				<div className="flex flex-col gap-2">
+					<div className="grid grid-cols-2 gap-3 sm:grid-cols-[minmax(0,1.4fr)_minmax(0,1fr)_minmax(0,1fr)]">
+						<div className="col-span-2 space-y-1.5 sm:col-span-1">
+							<div className={cn(BAR, 'h-3 w-12')} />
+							<div className={cn(BAR, 'h-9 w-full')} />
 						</div>
-					))}
+						<div className="space-y-1.5">
+							<div className={cn(BAR, 'h-3 w-16')} />
+							<div className={cn(BAR, 'h-9 w-full')} />
+						</div>
+						<div className="space-y-1.5">
+							<div className={cn(BAR, 'h-3 w-16')} />
+							<div className={cn(BAR, 'h-9 w-full')} />
+						</div>
+					</div>
+					<div className="h-9 rounded-lg bg-foreground/[0.03]" />
 				</div>
-
-				{/* Modal Footer */}
-				<div className="flex gap-3 justify-end items-center p-6 border-t border-gray-200 dark:border-gray-600">
-					<div className="w-20 h-10 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded-sm border border-gray-200 dark:border-gray-600" />
-					<div className="w-24 h-10 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded-sm border border-gray-200 dark:border-gray-600" />
+				{fieldKeys.map((key) => (
+					<div key={key} className="space-y-1.5">
+						<div className={cn(BAR, 'h-3 w-20')} />
+						<div className={cn(BAR, 'h-9 w-full')} />
+					</div>
+				))}
+				<div className="flex items-center justify-between gap-3 pt-1">
+					<div className={cn(BAR, 'h-5 w-24')} />
+					<div className={cn(BAR, 'h-8 w-24 rounded-full')} />
 				</div>
 			</div>
 		</div>

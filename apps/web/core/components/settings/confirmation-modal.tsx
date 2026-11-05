@@ -1,6 +1,5 @@
 import { Button, Modal, Text } from '@/core/components';
 import { useTranslations } from 'next-intl';
-import { EverCard } from '../common/ever-card';
 
 export const ConfirmationModal = ({
 	open,
@@ -20,40 +19,31 @@ export const ConfirmationModal = ({
 	return (
 		<>
 			<Modal isOpen={open} closeModal={close}>
-				<EverCard className="w-full md:min-w-[480px]" shadow="custom">
-					<div className="flex flex-col items-center justify-between">
-						<Text.Heading as="h3" className="gap-32 text-2xl text-center">
-							{title}
-						</Text.Heading>
+				<div className="flex w-full flex-col gap-4 sm:w-md">
+					<Text.Heading as="h3" className="pr-8">
+						{title}
+					</Text.Heading>
 
-						<div className="flex items-center justify-between w-full mt-10">
-							<Button
-								type="button"
-								onClick={close}
-								className={
-									'bg-transparent text-primary dark:text-dark--theme font-medium border border-gray-300 dark:border-0 dark:bg-light--theme-dark rounded-lg md:min-w-[180px]'
-								}
-							>
-								{t('common.DISCARD')}
-							</Button>
+					<div className="flex w-full flex-wrap items-center justify-end gap-2 pt-2">
+						<Button type="button" variant="outline" onClick={close}>
+							{t('common.DISCARD')}
+						</Button>
 
-							<Button
-								variant="danger"
-								type="submit"
-								className="font-medium rounded-lg bg-[#EB6961] md:min-w-[180px]"
-								disabled={loading}
-								loading={loading}
-								onClick={() => {
-									onAction()?.then(() => {
-										close();
-									});
-								}}
-							>
-								{t('common.CONFIRM')}
-							</Button>
-						</div>
+						<Button
+							variant="danger"
+							type="submit"
+							disabled={loading}
+							loading={loading}
+							onClick={() => {
+								onAction()?.then(() => {
+									close();
+								});
+							}}
+						>
+							{t('common.CONFIRM')}
+						</Button>
 					</div>
-				</EverCard>
+				</div>
 			</Modal>
 		</>
 	);

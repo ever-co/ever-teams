@@ -59,11 +59,8 @@ export const ChooseDropdown = ({
 	return (
 		<>
 			<Dropdown
-				className="min-w-min max-w-sm bg-[#FFFFFF] dark:bg-dark--theme-light dark:text-white"
-				buttonClassName={clsxm(
-					'py-0 font-medium h-14 w-64 text-[#282048] dark:text-white',
-					chooseList.length === 0 && ['py-2']
-				)}
+				className="min-w-min max-w-sm bg-card text-foreground"
+				buttonClassName={clsxm('h-9 w-64 py-0 text-foreground', chooseList.length === 0 && ['py-2'])}
 				value={chooseItem}
 				onChange={onChangeActiveSort}
 				items={items}

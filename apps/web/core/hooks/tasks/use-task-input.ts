@@ -4,7 +4,7 @@ import { activeTeamTaskState, memberActiveTaskIdState, teamTasksPagesLoadingStat
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useAtomValue } from 'jotai';
 import { useModal, useSyncRef } from '../common';
-import { useTeamTasksQuery, useTeamTasksState, useCreateTask, useUpdateTask } from '../organizations';
+import { useTeamTasksQuery, useSetActiveTask, useCreateTask, useUpdateTask } from '../organizations';
 import { useAuthenticateUser } from '../auth';
 import { Nullable } from '@/core/types/generics/utils';
 import { TTag } from '@/core/types/schemas';
@@ -51,7 +51,7 @@ export function useTaskInput({
 	// not complete until the next refetch, and creating a task must not stay blocked until then.
 	const teamTasksPagesLoading = useAtomValue(teamTasksPagesLoadingState);
 	const canOfferCreate = !teamTasksPagesLoading && customTasksComplete !== false;
-	const { setActiveTask } = useTeamTasksState();
+	const { setActiveTask } = useSetActiveTask();
 	const { createTask, createLoading } = useCreateTask();
 	const { updateTask, updateLoading } = useUpdateTask();
 

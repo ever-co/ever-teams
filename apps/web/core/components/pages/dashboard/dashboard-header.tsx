@@ -87,16 +87,14 @@ export function DashboardHeader({
 			)}
 
 			<div className="flex w-full flex-wrap items-center justify-between gap-3">
-				<h1 className="text-xl font-semibold tracking-tight">{title}</h1>
+				<h1 className="text-lg font-semibold text-balance">{title}</h1>
 				<div className="flex flex-wrap items-center gap-2">
 					{showGroupBy && (
 						<LazyGroupBySelectTimeActivity groupByType={groupByType} onGroupByChange={onGroupByChange} />
 					)}
 					<LazyDateRangePicker
 						onDateRangeChange={handleDateRangeChange}
-						initialRange={
-							startDate && endDate ? { from: startDate, to: endDate } : undefined
-						}
+						initialRange={startDate && endDate ? { from: startDate, to: endDate } : undefined}
 					/>
 					<LazyTeamDashboardFilter isManage={isManage} onFiltersApply={onFiltersApply} />
 

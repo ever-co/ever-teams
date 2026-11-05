@@ -1,172 +1,204 @@
-import React, { FC } from 'react';
+import { FC, ReactNode } from 'react';
 import { cn } from '@/core/lib/helpers';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/core/components/common/table';
+import { LIST_SURFACE_CLASS } from '@/core/components/teams/list-surface';
+import { SETTINGS_ROW_CLASS, SETTINGS_ROWS_CLASS } from '@/core/components/pages/settings/settings-section';
+
+const BAR = 'animate-pulse rounded-md bg-foreground/5';
+
+const SWITCH = 'h-6 w-10.5 rounded-full';
+
+const TOGGLE_ROWS = 3;
+
+const ISSUE_SECTIONS = 5;
+
+const ISSUE_CHIPS = 4;
+
+const DANGER_ROWS = 3;
 
 interface SettingsSkeletonProps {
 	className?: string;
 }
 
-const PULSE = 'bg-[#F0F0F0] dark:bg-white/8 animate-pulse';
-// A settings row: a label column on the left and a 36px control on the right.
-const ROW =
-	'grid grid-cols-1 gap-2 border-t border-border py-3 first:border-t-0 first:pt-0 sm:grid-cols-[10rem_minmax(0,1fr)] sm:items-center sm:gap-4';
+interface TableSkeletonProps {
+	columns: number;
+	rows: number;
+	avatar?: boolean;
+}
 
-const SettingRowSkeleton: FC<{ labelWidth?: string; control?: React.ReactNode }> = ({
-	labelWidth = 'w-24',
-	control
-}) => (
-	<div className={ROW}>
-		<div className={cn('h-4 rounded', labelWidth, PULSE)} />
-		{control ?? <div className={cn('h-9 w-full max-w-md rounded-md', PULSE)} />}
-	</div>
-);
+interface TableCellSkeletonProps {
+	isFirst: boolean;
+	isLast: boolean;
+	showAvatar: boolean;
+}
 
-const TableSkeleton: FC<{ columns: number; rows: number; avatar?: boolean }> = ({ columns, rows, avatar }) => (
-	<div className="w-full">
-		{/* Header */}
-		<div
-			className="grid gap-4 border-b border-border py-2.5"
-			style={{ gridTemplateColumns: `repeat(${columns}, minmax(0, 1fr))` }}
-		>
-			{[...Array(columns)].map((_, i) => (
-				<div key={i} className={cn('h-3 w-16 rounded', PULSE)} />
-			))}
-		</div>
-
-		{/* Rows */}
-		{[...Array(rows)].map((_, i) => (
-			<div
-				key={i}
-				className="grid items-center gap-4 border-b border-border py-2.5 last:border-b-0"
-				style={{ gridTemplateColumns: `repeat(${columns}, minmax(0, 1fr))` }}
-			>
-				{[...Array(columns)].map((_, col) => (
-					<div key={col} className="flex items-center gap-3">
-						{avatar && col === 0 ? <div className={cn('size-8 shrink-0 rounded-full', PULSE)} /> : null}
-						<div className={cn('h-4 rounded', col === columns - 1 ? 'h-7 w-20 rounded-md' : 'w-24', PULSE)} />
-					</div>
-				))}
-			</div>
-		))}
-	</div>
-);
-
-/**
- * Skeleton for TeamSettingForm component
- * Matches exact structure: the settings rows under the team avatar
- */
-export const TeamSettingFormSkeleton: FC<SettingsSkeletonProps> = ({ className }) => {
+const SettingRowSkeleton: FC<{ labelWidth?: string; control?: ReactNode }> = ({ labelWidth = 'w-24', control }) => {
 	return (
-		<div className={cn('flex flex-col', className)}>
+		<div className={SETTINGS_ROW_CLASS}>
+			<div className={cn(BAR, 'h-4', labelWidth)} />
+			{control ?? <div className={cn(BAR, 'h-9 w-full max-w-md')} />}
+		</div>
+	);
+};
+
+function TableCellSkeleton({ isFirst, isLast, showAvatar }: Readonly<TableCellSkeletonProps>) {
+	const hasAvatar = showAvatar && isFirst;
+	let barClass = 'h-4 w-24';
+	if (isLast) {
+		barClass = 'h-6 w-20';
+	}
+	return (
+		<TableCell>
+			<div className="flex items-center gap-3">
+				{hasAvatar && <div className={cn(BAR, 'size-8 shrink-0 rounded-full')} />}
+				<div className={cn(BAR, barClass)} />
+			</div>
+		</TableCell>
+	);
+}
+
+const TableSkeleton: FC<TableSkeletonProps> = ({ columns, rows, avatar = false }) => {
+	const columnKeys = Array.from({ length: columns }, (_, index) => index);
+	const rowKeys = Array.from({ length: rows }, (_, index) => index);
+	const lastColumn = columns - 1;
+	return (
+		<div className={LIST_SURFACE_CLASS}>
+			<Table className="w-full">
+				<TableHeader>
+					<TableRow className="hover:bg-transparent">
+						{columnKeys.map((key) => (
+							<TableHead key={key}>
+								<div className={cn(BAR, 'h-3 w-16')} />
+							</TableHead>
+						))}
+					</TableRow>
+				</TableHeader>
+				<TableBody>
+					{rowKeys.map((rowKey) => (
+						<TableRow key={rowKey} className="hover:bg-transparent">
+							{columnKeys.map((columnKey) => (
+								<TableCellSkeleton
+									key={columnKey}
+									isFirst={columnKey === 0}
+									isLast={columnKey === lastColumn}
+									showAvatar={avatar}
+								/>
+							))}
+						</TableRow>
+					))}
+				</TableBody>
+			</Table>
+		</div>
+	);
+};
+
+const ToggleControlSkeleton: FC = () => {
+	return (
+		<div className="flex items-center gap-2.5">
+			<div className={cn(BAR, SWITCH)} />
+			<div className={cn(BAR, 'h-4 w-16')} />
+		</div>
+	);
+};
+
+const TeamTypeControlSkeleton: FC = () => {
+	return (
+		<div className="flex flex-wrap items-center gap-x-4 gap-y-2">
+			<div className="flex items-center gap-2">
+				<div className={cn(BAR, 'size-4 rounded-full')} />
+				<div className={cn(BAR, 'h-4 w-20')} />
+			</div>
+			<div className="flex items-center gap-2">
+				<div className={cn(BAR, 'size-4 rounded-full')} />
+				<div className={cn(BAR, 'h-4 w-20')} />
+			</div>
+			<div className="flex min-w-0 flex-1 flex-wrap items-center gap-2">
+				<div className={cn(BAR, 'h-9 min-w-40 flex-1 sm:max-w-xs')} />
+				<div className={cn(BAR, 'h-9 w-24 shrink-0')} />
+			</div>
+		</div>
+	);
+};
+
+/** The team settings form: the label column and the control column, one row per setting. */
+export const TeamSettingFormSkeleton: FC<SettingsSkeletonProps> = ({ className }) => {
+	const toggleKeys = Array.from({ length: TOGGLE_ROWS }, (_, index) => index);
+	return (
+		<div className={cn('w-full', SETTINGS_ROWS_CLASS, className)}>
+			<SettingRowSkeleton labelWidth="w-24" />
+			<SettingRowSkeleton labelWidth="w-24" />
+			<SettingRowSkeleton labelWidth="w-14" />
 			<SettingRowSkeleton labelWidth="w-20" />
-			<SettingRowSkeleton labelWidth="w-20" />
-			<SettingRowSkeleton labelWidth="w-12" />
-			<SettingRowSkeleton labelWidth="w-16" />
-			<SettingRowSkeleton
-				labelWidth="w-16"
-				control={
-					<div className="flex flex-wrap items-center gap-4">
-						<div className="flex items-center gap-2">
-							<div className={cn('size-4 rounded-full', PULSE)} />
-							<div className={cn('h-4 w-20 rounded', PULSE)} />
-						</div>
-						<div className="flex items-center gap-2">
-							<div className={cn('size-4 rounded-full', PULSE)} />
-							<div className={cn('h-4 w-20 rounded', PULSE)} />
-						</div>
-					</div>
-				}
-			/>
-			{[...Array(3)].map((_, i) => (
-				<SettingRowSkeleton
-					key={i}
-					labelWidth="w-28"
-					control={
-						<div className="flex items-center gap-2.5">
-							<div className={cn('h-[38px] w-[74px] rounded-full', PULSE)} />
-							<div className={cn('h-4 w-16 rounded', PULSE)} />
-						</div>
-					}
-				/>
+			<SettingRowSkeleton labelWidth="w-20" control={<TeamTypeControlSkeleton />} />
+			{toggleKeys.map((key) => (
+				<SettingRowSkeleton key={key} labelWidth="w-32" control={<ToggleControlSkeleton />} />
 			))}
 		</div>
 	);
 };
 
-/**
- * Skeleton for InvitationSetting component
- * Matches exact structure: search + invite toolbar, then the invitation table
- */
+/** The invitations block: the search and the one primary, then the table in its surface. */
 export const InvitationSettingSkeleton: FC<SettingsSkeletonProps> = ({ className }) => {
 	return (
 		<div className={cn('flex flex-col gap-4', className)}>
-			{/* Toolbar */}
-			<div className="flex items-center justify-between gap-2">
-				<div className={cn('h-9 w-full max-w-xs rounded-lg', PULSE)} />
-				<div className={cn('h-9 w-24 rounded-md', PULSE)} />
+			<div className="flex w-full flex-wrap items-center justify-between gap-3">
+				<div className={cn(BAR, 'h-8 w-full sm:max-w-xs')} />
+				<div className={cn(BAR, 'h-8 w-20 shrink-0')} />
 			</div>
-
-			{/* Invitations Table */}
-			<TableSkeleton columns={4} rows={3} avatar />
+			<TableSkeleton columns={6} rows={3} avatar />
 		</div>
 	);
 };
 
-/**
- * Skeleton for MemberSetting component
- * Matches exact structure: sub-heading, search, then the member table
- */
+/** The members block: the sub-heading and the search, then the table in its surface. */
 export const MemberSettingSkeleton: FC<SettingsSkeletonProps> = ({ className }) => {
 	return (
-		<div className={cn('flex flex-col gap-3', className)}>
-			<div className={cn('h-4 w-32 rounded', PULSE)} />
-			<div className={cn('h-9 w-full max-w-xs rounded-lg', PULSE)} />
-
-			{/* Members Table */}
-			<TableSkeleton columns={5} rows={5} avatar />
+		<div className={cn('flex flex-col gap-4', className)}>
+			<div className="flex w-full flex-wrap items-center justify-between gap-3">
+				<div className={cn(BAR, 'h-4 w-32')} />
+				<div className={cn(BAR, 'h-8 w-full sm:max-w-xs')} />
+			</div>
+			<TableSkeleton columns={6} rows={5} avatar />
 		</div>
 	);
 };
 
-/**
- * Skeleton for IntegrationSetting component
- * Matches exact structure: the GitHub row (logo, name, description, action)
- */
+/** The integrations block: the GitHub row with its logo tile, name, description and action. */
 export const IntegrationSettingSkeleton: FC<SettingsSkeletonProps> = ({ className }) => {
 	return (
-		<div className={cn('flex flex-col gap-4', className)}>
-			<div className="flex items-center justify-between gap-3">
-				<div className="flex items-center gap-3">
-					<div className={cn('size-9 shrink-0 rounded-md', PULSE)} />
+		<div className={cn('flex flex-col hairline-divide-y divide-border', className)}>
+			<div className="flex flex-wrap items-center justify-between gap-3 py-4 first:pt-0 last:pb-0">
+				<div className="flex min-w-0 items-center gap-3">
+					<div className={cn(BAR, 'size-10 shrink-0 rounded-lg')} />
 					<div className="flex flex-col gap-2">
-						<div className={cn('h-4 w-20 rounded', PULSE)} />
-						<div className={cn('h-3 w-64 rounded', PULSE)} />
+						<div className={cn(BAR, 'h-4 w-20')} />
+						<div className={cn(BAR, 'h-3 w-64')} />
 					</div>
 				</div>
-				<div className={cn('h-9 w-20 rounded-md', PULSE)} />
+				<div className={cn(BAR, 'h-8 w-20 shrink-0')} />
 			</div>
 		</div>
 	);
 };
 
-/**
- * Skeleton for IssuesSettings component
- * Matches exact structure: one section per list (versions, statuses, priorities, sizes, labels)
- */
+/** The issue settings: one block per list (versions, statuses, priorities, sizes, labels) on the forms' 10rem label column. */
 export const IssuesSettingsSkeleton: FC<SettingsSkeletonProps> = ({ className }) => {
+	const sectionKeys = Array.from({ length: ISSUE_SECTIONS }, (_, index) => index);
+	const chipKeys = Array.from({ length: ISSUE_CHIPS }, (_, index) => index);
 	return (
-		<div className={cn('flex flex-col divide-y divide-border', className)}>
-			{[...Array(5)].map((_, i) => (
+		<div className={cn('flex flex-col hairline-divide-y divide-border', className)}>
+			{sectionKeys.map((sectionKey) => (
 				<div
-					key={i}
+					key={sectionKey}
 					className="grid grid-cols-1 gap-2 py-4 first:pt-0 last:pb-0 sm:grid-cols-[10rem_minmax(0,1fr)] sm:gap-4"
 				>
-					<div className={cn('h-4 w-24 rounded sm:mt-2', PULSE)} />
+					<div className={cn(BAR, 'h-4 w-24 sm:mt-2')} />
 					<div className="flex flex-col gap-3">
-						<div className={cn('h-9 w-44 rounded-md', PULSE)} />
-						<div className={cn('h-3 w-20 rounded', PULSE)} />
+						<div className={cn(BAR, 'h-9 w-44')} />
+						<div className={cn(BAR, 'h-3 w-20')} />
 						<div className="flex flex-wrap gap-2">
-							{[...Array(4)].map((_, chip) => (
-								<div key={chip} className={cn('h-9 w-36 rounded-md', PULSE)} />
+							{chipKeys.map((chipKey) => (
+								<div key={chipKey} className={cn(BAR, 'h-9 w-36')} />
 							))}
 						</div>
 					</div>
@@ -176,40 +208,35 @@ export const IssuesSettingsSkeleton: FC<SettingsSkeletonProps> = ({ className })
 	);
 };
 
-/**
- * Skeleton for DangerZoneTeam component
- * Matches exact structure: three rows of title + description with an outline action
- */
+/** The team danger zone: three rows of title and description with an outline action at the end. */
 export const DangerZoneTeamSkeleton: FC<SettingsSkeletonProps> = ({ className }) => {
+	const rowKeys = Array.from({ length: DANGER_ROWS }, (_, index) => index);
 	return (
-		<div className={cn('flex flex-col', className)}>
-			{[...Array(3)].map((_, i) => (
+		<div className={cn('flex w-full flex-col', className)}>
+			{rowKeys.map((key) => (
 				<div
-					key={i}
-					className="flex items-center justify-between gap-3 border-t border-border py-4 first:border-t-0 first:pt-0"
+					key={key}
+					className="flex flex-col gap-3 hairline-t border-border py-4 first:border-t-0 first:pt-0 sm:flex-row sm:items-center sm:justify-between"
 				>
 					<div className="flex flex-col gap-2">
-						<div className={cn('h-4 w-32 rounded', PULSE)} />
-						<div className={cn('h-3 w-64 rounded', PULSE)} />
+						<div className={cn(BAR, 'h-4 w-32')} />
+						<div className={cn(BAR, 'h-3 w-64')} />
 					</div>
-					<div className={cn('h-9 w-24 rounded-md', PULSE)} />
+					<div className={cn(BAR, 'h-8 w-24 shrink-0')} />
 				</div>
 			))}
 		</div>
 	);
 };
 
-/**
- * Skeleton for the Ever Platform section: a heading, a line of text and a switch row
- */
+/** The Ever Platform block: the description line, then a row with a switch. */
 export const EverPlatformSectionSkeleton: FC<SettingsSkeletonProps> = ({ className }) => {
 	return (
 		<div className={cn('flex flex-col gap-4', className)}>
-			<div className={cn('h-4 w-48 rounded', PULSE)} />
-			<div className={cn('h-3 w-full rounded', PULSE)} />
-			<div className="flex items-center justify-between">
-				<div className={cn('h-4 w-40 rounded', PULSE)} />
-				<div className={cn('h-6 w-11 rounded-full', PULSE)} />
+			<div className={cn(BAR, 'h-3 w-full max-w-xl')} />
+			<div className="flex items-center justify-between gap-3">
+				<div className={cn(BAR, 'h-4 w-40')} />
+				<div className={cn(BAR, SWITCH)} />
 			</div>
 		</div>
 	);

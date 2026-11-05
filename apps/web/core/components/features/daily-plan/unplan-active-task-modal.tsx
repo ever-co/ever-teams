@@ -1,34 +1,31 @@
-import { useUpdateDailyPlan } from '@/core/hooks/daily-plans/use-update-daily-plan';
-import { Button, Modal, Text } from '@/core/components';
 import { useCallback } from 'react';
 import { useTranslations } from 'next-intl';
-import { EverCard } from '../../common/ever-card';
+import { useAtomValue } from 'jotai';
+import {
+	APP_DIALOG_BODY,
+	APP_DIALOG_FOOTER,
+	AppDialog,
+	AppDialogDescription
+} from '@/core/components/common/app-dialog';
+import { Button } from '@/core/components/common/button';
+import { DialogTitle } from '@/core/components/common/dialog';
+import { HueIconTile } from '@/core/components/common/value-glyphs';
+import { TaskDaily } from '@/core/components/icons';
+import { useUpdateDailyPlan } from '@/core/hooks/daily-plans/use-update-daily-plan';
+import { cn } from '@/core/lib/helpers';
+import { timerStatusState } from '@/core/stores';
 import { TTask } from '@/core/types/schemas/task/task.schema';
 import { TDailyPlan } from '@/core/types/schemas/task/daily-plan.schema';
-import { useAtomValue } from 'jotai';
-import { timerStatusState } from '@/core/stores';
 
 interface UnplanActiveTaskModalProps {
 	open: boolean;
 	closeModal: () => void;
 	task: TTask;
 	plan: TDailyPlan;
+	/** Passed in by the parent, which already holds the timer actions, so this dialog adds no timer hook. */
 	stopTimer: () => void;
 }
 
-/**
- * A Modal that gives the possibility to unplan the active task.
- *
- * @param {Object} props - The props Object
- * @param {boolean} props.open - If true open the modal otherwise close the modal
- * @param {() => void} props.closeModal - A function to close the modal
- * @param {TTask} props.task - The task to unplan
- * @param {TDailyPlan} props.plan - The today's plan
- * @param {() => void} props.stopTimer - Stops the timer. Passed in by the parent because this modal is mounted
- * once per plan row, and a timer hook here would add one timer API instance per row.
- *
- * @returns {JSX.Element} The modal element
- */
 export function UnplanActiveTaskModal(props: UnplanActiveTaskModalProps) {
 	const { closeModal, task, open, plan, stopTimer } = props;
 	const t = useTranslations();
@@ -60,7 +57,6 @@ export function UnplanActiveTaskModal(props: UnplanActiveTaskModalProps) {
 		}
 	}, [plan.employeeId, plan.id, plan.organizationId, removeTaskFromPlan, task.id]);
 
-	// The function that will be called when the user clicks on 'YES' button
 	const onYes = useCallback(async () => {
 		if (timerStatus?.running) {
 			stopTimer();
@@ -70,35 +66,47 @@ export function UnplanActiveTaskModal(props: UnplanActiveTaskModalProps) {
 	}, [handleCloseModal, handleUnplanTask, stopTimer, timerStatus?.running]);
 
 	return (
-		<Modal isOpen={open} closeModal={closeModal} className="w-[98%] md:w-[530px] relative" showCloseIcon={false}>
-			<EverCard className="w-full" shadow="custom">
-				<div className="flex flex-col justify-between w-full gap-6">
-					<Text.Heading as="h5" className="mb-3 text-center">
-						{t('dailyPlan.labels.UNPLAN_ACTIVE_TASK_CONFIRMATION')}
-					</Text.Heading>
-					<div className="flex items-center w-full justify-evenly">
-						<Button
-							disabled={removeTaskFromPlanLoading}
-							variant="outline"
-							type="button"
-							onClick={handleCloseModal}
-							className="font-light rounded-md text-md dark:text-white dark:bg-slate-700 dark:border-slate-600"
-						>
-							{t('common.NO')}
-						</Button>
-						<Button
-							loading={removeTaskFromPlanLoading}
-							disabled={removeTaskFromPlanLoading}
-							onClick={onYes}
-							variant="primary"
-							type="submit"
-							className="font-light rounded-md text-md dark:text-white"
-						>
-							{t('common.YES')}
-						</Button>
-					</div>
-				</div>
-			</EverCard>
-		</Modal>
+		<AppDialog
+			open={open}
+			onClose={handleCloseModal}
+			width="sm"
+			keepOpenOnOutsideClick
+			dismissible={!removeTaskFromPlanLoading}
+		>
+			<div className={cn(APP_DIALOG_BODY, 'flex flex-col items-start py-5')}>
+				<HueIconTile hue="destructive" className="size-9 rounded-[10px] [&_svg]:size-4.5">
+					<TaskDaily />
+				</HueIconTile>
+				<DialogTitle className="mt-3 text-[15px] font-semibold text-balance text-foreground">
+					{t('modals.dailyPlan.unplanActiveTaskTitle')}
+				</DialogTitle>
+				<AppDialogDescription className="mt-1 text-[13px] text-muted-foreground">
+					{t('modals.dailyPlan.unplanActiveTaskDescription')}
+				</AppDialogDescription>
+			</div>
+			<div className={APP_DIALOG_FOOTER}>
+				<Button
+					type="button"
+					variant="ghost"
+					size="default"
+					onClick={handleCloseModal}
+					disabled={removeTaskFromPlanLoading}
+					data-initial-focus=""
+					className="ml-auto"
+				>
+					{t('common.NO')}
+				</Button>
+				<Button
+					type="button"
+					variant="danger"
+					size="default"
+					onClick={onYes}
+					loading={removeTaskFromPlanLoading}
+					disabled={removeTaskFromPlanLoading}
+				>
+					{t('common.YES')}
+				</Button>
+			</div>
+		</AppDialog>
 	);
 }

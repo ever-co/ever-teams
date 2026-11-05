@@ -1,17 +1,24 @@
 'use client';
 import { useState, useRef, JSX } from 'react';
-import { ChevronDown, ChevronRight, Timer } from 'lucide-react';
-import { ClockIcon } from '@heroicons/react/24/solid';
 import FullCalendar from '@fullcalendar/react';
 import { format } from 'date-fns';
 import Image from 'next/image';
 import { Button } from '@/core/components';
-import { SettingFilterIcon } from 'assets/svg';
 import { YearDateFilter } from './year-picker-filter';
 import CalendarComponent from './calendar-component';
 import { formatWithSuffix } from '@/core/lib/helpers';
 import { useLocalStorageState } from '@/core/hooks';
-import { IconsAlarmOutline, IconsCalendarMonthOutline } from '@/core/components/icons';
+import {
+	ChevronDown,
+	ChevronRight,
+	Clock,
+	Filter,
+	IconsAlarmOutline,
+	IconsCalendarMonthOutline,
+	Timer
+} from '@/core/components/icons';
+import { controlGroupRecipe } from '@/core/components/common/input';
+import { clsxm } from '@/core/lib/utils';
 import { APP_NAME } from '@/core/constants/config/constants';
 import { getPlaceholderImageUrl } from '@/core/lib/helpers/placeholder-image';
 
@@ -90,9 +97,9 @@ export function SetupFullCalendar() {
 			<div className="flex justify-between w-full items-center text-ellipsis rounded-lg p-[1.2px]">
 				<div className="w-full">
 					{eventInfo.event.extendedProps.icon}
-					<span className="text-[11px] leading-4 font-bold">{eventInfo.event.title}</span>
+					<span className="text-[11px] leading-4 font-semibold">{eventInfo.event.title}</span>
 				</div>
-				<span className="text-[11px] leading-4 font-bold">05:30h</span>
+				<span className="text-[11px] leading-4 font-semibold tabular-nums">05:30h</span>
 			</div>
 		);
 	};
@@ -124,24 +131,21 @@ export function SetupFullCalendar() {
 	};
 
 	return (
-		<div className="flex flex-col  overflow-hidden py-[32px] shadow-lg shadow-gray-100 dark:shadow-gray-700 ">
-			<div className="w-full bg-white dark:!bg-dark--theme  rounded-xl border border-slate-200  dark:border-slate-700 p-4">
-				<div className="flex items-center justify-between w-full  dark:!bg-dark--theme p-2  ">
-					<div className="flex items-center space-x-5 dark:!bg-dark--theme ">
+		<div className="-mx-2 flex flex-col overflow-hidden px-2 py-8">
+			<div className="w-full rounded-xl bg-card p-4 hairline-ring ring-border shadow-sm shadow-black/6.5">
+				<div className="flex items-center justify-between w-full p-2">
+					<div className="flex items-center gap-3">
 						<YearDateFilter calendarRef={calendarRef} />
 						<TotalHours />
 					</div>
 					<div>
-						<Button
-							className="flex justify-center items-center h-10 rounded-lg dark:bg-primary-light"
-							variant="primary"
-						>
-							<SettingFilterIcon className="dark:text-white w-3.5" strokeWidth="1.8" />
+						<Button variant="outline" size="default">
+							<Filter />
 							<span>Filter</span>
 						</Button>
 					</div>
 				</div>
-				<div className="flex h-full rounded-lg border border-gray-200 dark:border-gray-700">
+				<div className="flex h-full">
 					<CalendarComponent
 						calendarRef={calendarRef}
 						dayCellClassNames={dayCellClassNames}
@@ -163,9 +167,9 @@ export function SetupFullCalendar() {
 
 export const CardItems = ({ selectedDate }: { selectedDate: Date }) => {
 	return (
-		<div className="flex flex-col w-full bg-red-400 md:h-[50vh] lg:h-[90vh] xl:h-[95vh] sticky top-0">
-			<div className="h-full  w-full  border  border-gray-200 dark:border-gray-700 rounded-xl py-4 bg-white dark:!bg-dark--theme-light flex-grow">
-				<span className="p-2 text-[16px] text-gray-500 font-bold">
+		<div className="flex flex-col w-full md:h-[50vh] lg:h-[90vh] xl:h-[95vh] sticky top-0">
+			<div className="h-full w-full grow rounded-xl bg-card py-4 hairline-ring ring-border">
+				<span className="p-2 text-sm font-semibold text-muted-foreground">
 					{formatWithSuffix(new Date(selectedDate))}
 				</span>
 				<div className="flex flex-col px-2 w-full h-full">
@@ -203,7 +207,7 @@ export const CardItems = ({ selectedDate }: { selectedDate: Date }) => {
 export const CardItemsMember = ({ imageUrl, name, time }: { imageUrl?: string; name?: string; time?: string }) => {
 	return (
 		<div className="flex items-center w-full">
-			<div className="flex items-center p-1 space-x-2 w-full rounded-sm cursor-pointer hover:bg-gray-100 dark:hover:bg-muted">
+			<div className="flex items-center p-1 space-x-2 w-full rounded-md cursor-pointer transition-colors hover:bg-foreground/5">
 				<Image
 					className="flex justify-center items-center p-1 w-8 h-8 text-white rounded-full"
 					src={imageUrl ? imageUrl : ''}
@@ -213,11 +217,11 @@ export const CardItemsMember = ({ imageUrl, name, time }: { imageUrl?: string; n
 					height={90}
 				/>
 				<div className="flex items-center space-x-1 w-full">
-					<span className="text-[14px] font-normal">{name}</span>
+					<span className="text-sm">{name}</span>
 				</div>
 				<div className="flex items-center space-x-2">
-					<span className="text-[14px] text-gray-400">{time}</span>
-					<ChevronRight size="1em" />
+					<span className="text-sm tabular-nums text-muted-foreground">{time}</span>
+					<ChevronRight className="size-4 text-muted-foreground" />
 				</div>
 			</div>
 		</div>
@@ -245,20 +249,20 @@ export const CardItemsProjects = ({
 					className="flex justify-center items-center w-8 h-8 bg-cover rounded-lg"
 				/>
 				<div className="flex flex-col justify-center items-start p-1">
-					<span className="font-bold text-[14px] sm:text-[16px] overflow-hidden leading-4">{title}</span>
-					<span className="text-gray-400 text-[12px] leading-4">{totalHours}</span>
+					<span className="overflow-hidden text-sm font-semibold leading-4">{title}</span>
+					<span className="text-xs leading-4 text-muted-foreground">{totalHours}</span>
 				</div>
 			</div>
-			<ChevronDown size="1em" />
+			<ChevronDown className="size-4 text-muted-foreground" />
 		</div>
 	);
 };
 
 export function TotalHours() {
 	return (
-		<div className="w-[200px] flex items-center !text-gray-800 dark:!text-slate-200 justify-between text-left font-normal h-10 border border-slate-200 rounded-lg px-2">
+		<div className={clsxm(controlGroupRecipe, 'h-9 w-[200px] justify-between px-2.5 text-left')}>
 			<div className="flex items-center">
-				<ClockIcon className="mr-2 w-5 h-5" />
+				<Clock className="mr-2 size-4 text-muted-foreground" />
 				<span>Total Hours 240</span>
 			</div>
 		</div>

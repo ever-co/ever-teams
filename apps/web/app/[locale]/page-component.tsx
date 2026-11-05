@@ -6,7 +6,6 @@ import { useMyInvitationsQuery } from '@/core/hooks/invitations/use-my-invitatio
 import { useEmployeeDailyPlans } from '@/core/hooks/daily-plans/use-employee-daily-plans';
 import { clsxm } from '@/core/lib/utils';
 import { withAuthentication } from '@/core/components/layouts/app/authenticator';
-import { Container } from '@/core/components';
 import { PageLayout } from '@/core/components/layouts/default-layout';
 import { IssuesView, LAST_SELECTED_TEAM_MEMBERS_VIEW_MODE } from '@/core/constants/config/constants';
 import { useTranslations } from 'next-intl';
@@ -20,9 +19,10 @@ import { useAtom, useAtomValue } from 'jotai';
 import HeaderTabs from '@/core/components/common/header-tabs';
 import { headerTabs } from '@/core/stores/common/header-tabs';
 import { usePathname } from 'next/navigation';
-import { PeoplesIcon } from 'assets/svg';
+import { Users } from '@/core/components/icons';
 // TeamMemberHeader and NoTeam now lazy-loaded below
 import { Breadcrumb } from '@/core/components/duplicated-components/breadcrumb';
+import { TeamLiveSummary } from '@/core/components/pages/teams/team/team-live-summary';
 
 // Import skeleton components
 import TeamMembersSkeleton from '@/core/components/common/skeleton/team-members-skeleton';
@@ -33,6 +33,8 @@ import { TaskTimerSectionSkeleton } from '@/core/components/common/skeleton/task
 import { TaskTimerSection } from '@/core/components/pages/dashboard/task-timer-section';
 import { TeamMemberHeaderSkeleton } from '@/core/components/common/skeleton/team-member-header-skeleton';
 import { NoTeamSkeleton } from '@/core/components/common/skeleton/no-team-skeleton';
+import { HomePageSkeleton } from '@/core/components/pages/teams/team/home-page-skeleton';
+import { AnimatedHeight } from '@/core/components/common/animated-height';
 // Import optimized components from centralized location
 import {
 	LazyTeamOutstandingNotifications,
@@ -89,23 +91,22 @@ function MainPage() {
 			<div className="flex flex-col justify-between h-full min-h-screen">
 				{/* <div className="flex-grow"> */}
 				<PageLayout
-					className="h-full"
+					className="h-full pt-0"
+					breadcrumb={
+						<div className="flex min-w-0 items-center gap-2">
+							<Users className="size-4 shrink-0 text-muted-foreground" aria-hidden="true" />
+							<Breadcrumb paths={breadcrumb} className="min-w-0 text-sm" />
+						</div>
+					}
 					mainHeaderSlot={
-						<div className="bg-white dark:bg-dark-high">
-							<div className="bg-white dark:bg-dark-high">
-								<div className="mx-8-container my-3 !px-0 flex flex-row items-start justify-between ">
-									<div className="flex items-center justify-center h-10 gap-8">
-										<PeoplesIcon className="text-dark dark:text-[#6b7280] h-6 w-6" />
-
-										<Breadcrumb paths={breadcrumb} className="text-sm" />
-									</div>
-
-									<div className="flex items-center justify-center h-10 gap-1 w-max">
-										<HeaderTabs linkAll={false} />
-									</div>
+						<div>
+							<div className="px-4">
+								<div className="flex flex-wrap items-center justify-between gap-3 py-3">
+									<TeamLiveSummary />
+									<HeaderTabs linkAll={false} />
 								</div>
 
-								<div className="mx-8-container">
+								<AnimatedHeight>
 									<div className="w-full">
 										{/* UnverifiedEmail - Only render when user email is not verified */}
 										{user && !user.isEmailVerified && (
@@ -139,28 +140,26 @@ function MainPage() {
 											</Suspense>
 										)}
 									</div>
+								</AnimatedHeight>
 
-									{isTeamMember ? (
-										<Suspense
-											fallback={
-												<TaskTimerSectionSkeleton isTrackingEnabled={isTrackingEnabled} />
-											}
-										>
-											<TaskTimerSection isTrackingEnabled={isTrackingEnabled} />
-										</Suspense>
-									) : null}
-								</div>
-								<Suspense fallback={<TeamMemberHeaderSkeleton view={view} />}>
-									<LazyTeamMemberHeader view={view} />
-								</Suspense>
+								{isTeamMember ? (
+									<Suspense
+										fallback={<TaskTimerSectionSkeleton isTrackingEnabled={isTrackingEnabled} />}
+									>
+										<TaskTimerSection isTrackingEnabled={isTrackingEnabled} />
+									</Suspense>
+								) : null}
 							</div>
+							<Suspense fallback={<TeamMemberHeaderSkeleton view={view} />}>
+								<LazyTeamMemberHeader view={view} />
+							</Suspense>
 						</div>
 					}
 					footerClassName={clsxm('')}
 				>
 					<LazyChatwootWidget />
 					<div className="h-full">
-						<Container className="mx-auto">
+						<div className="mx-auto w-full">
 							{isTeamMember ? (
 								<Suspense fallback={<TeamMembersSkeleton view={view} />}>
 									<LazyTeamMembers kanbanView={view} />
@@ -170,7 +169,7 @@ function MainPage() {
 									<LazyNoTeam />
 								</Suspense>
 							)}
-						</Container>
+						</div>
 					</div>
 				</PageLayout>
 			</div>
@@ -181,4 +180,4 @@ function MainPage() {
 	);
 }
 
-export default withAuthentication(MainPage, { displayName: 'MainPage' });
+export default withAuthentication(MainPage, { displayName: 'MainPage', skeleton: HomePageSkeleton });

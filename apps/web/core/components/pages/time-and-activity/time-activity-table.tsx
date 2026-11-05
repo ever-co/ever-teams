@@ -7,6 +7,7 @@ import { Column, TimeActivityTableAdapter } from './time-activity-table-adapter'
 import ProgressBar from '../../duplicated-components/progress-bar';
 import { useTranslations } from 'next-intl';
 import { TEmployee } from '@/core/types/schemas';
+import { cn } from '@/core/lib/helpers';
 interface TimeEntry {
 	member: {
 		name: string;
@@ -81,7 +82,7 @@ export const TimeActivityTable: FC<TimeActivityTableProps> = ({ data, loading = 
 				if (!value) return <div>{t('common.NO_PROJECT_DATA')}</div>;
 				return (
 					<div className="flex items-center gap-3">
-						<Avatar className="flex items-center justify-center bg-gray-100 rounded-xl dark:bg-muted">
+						<Avatar className="flex items-center justify-center rounded-md bg-foreground/5">
 							{value.imageUrl && (
 								<Image
 									src={value.imageUrl}
@@ -103,12 +104,13 @@ export const TimeActivityTable: FC<TimeActivityTableProps> = ({ data, loading = 
 			cell: (value, row) => (
 				<div className="flex items-center justify-end gap-2">
 					<div
-						className="w-2 h-2 rounded-full"
-						style={{
-							backgroundColor: row.status === 'active' ? '#27AE60' : '#F2994A'
-						}}
+						className={cn(
+							'size-2 rounded-full',
+							row.status === 'active' && 'bg-success',
+							row.status !== 'active' && 'bg-warning'
+						)}
 					/>
-					<span className="font-medium">{value}</span>
+					<span className="font-medium tabular-nums">{value}</span>
 				</div>
 			),
 			className: 'text-right'
@@ -116,15 +118,15 @@ export const TimeActivityTable: FC<TimeActivityTableProps> = ({ data, loading = 
 		{
 			header: t('timeActivity.EARNINGS'),
 			accessorKey: 'earnings',
-			className: 'text-right font-medium'
+			className: 'text-right font-medium tabular-nums'
 		},
 		{
 			header: t('timeActivity.ACTIVITY_LEVEL'),
 			accessorKey: 'activityLevel',
 			cell: (value) => (
 				<div className="flex items-center gap-3">
-					<ProgressBar progress={value} color="bg-[#0088CC]" isLoading={loading} size="sm" />
-					<span className="font-medium min-w-[3rem] text-right">{value}%</span>
+					<ProgressBar progress={value} color="bg-primary" isLoading={loading} size="sm" />
+					<span className="font-medium min-w-[3rem] text-right tabular-nums">{value}%</span>
 				</div>
 			)
 		}

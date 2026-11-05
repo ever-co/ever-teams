@@ -15,10 +15,8 @@ export function TaskAssignButton({ onClick, disabled, className, iconClassName }
 		<Button
 			onClick={onClick}
 			className={clsxm(
-				'dark:bg-primary bg-white',
-				'w-14 h-14 rounded-full inline-block min-w-[14px] !px-0 !py-0',
-				'flex justify-center items-center dark:border-border dark:border',
-				'shadow-primary/30 shadow-xl drop-shadow-3xl dark:shadow-lg card-white',
+				'size-9 inline-block min-w-[14px] !px-0 !py-0',
+				'flex justify-center items-center',
 				disabled && ['opacity-70 cursor-default'],
 				className
 			)}

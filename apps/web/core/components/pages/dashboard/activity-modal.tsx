@@ -1,9 +1,11 @@
 'use client';
 
 import { Modal } from '@/core/components';
+import { SegmentedControl } from '@/core/components/common/segmented-control';
 import { useState, useMemo } from 'react';
+import { useTranslations } from 'next-intl';
 import { Avatar } from '../../duplicated-components/avatar';
-import { ITimerEmployeeLog } from '@/core/types/interfaces/activity/activity-report';
+import { ITimerEmployeeLog, ITimerTaskLog } from '@/core/types/interfaces/activity/activity-report';
 
 interface ActivityModalProps {
 	employeeLog: ITimerEmployeeLog;
@@ -13,182 +15,156 @@ interface ActivityModalProps {
 
 type TabType = 'tracked' | 'activity';
 
-interface CircleProps {
-	color: string;
-	dashArray: string;
-	dashOffset?: string;
-}
+const TABS: readonly TabType[] = ['tracked', 'activity'];
 
-const Circle = ({ color, dashArray, dashOffset = '0' }: CircleProps) => (
+const RING_CIRCUMFERENCE = 251.327;
+
+const Circle = ({ className, dashArray }: { className: string; dashArray: number }) => (
 	<circle
 		cx="50"
 		cy="50"
 		r="40"
 		fill="none"
-		stroke={color}
 		strokeWidth="20"
-		strokeDasharray={`${dashArray} 251.327`}
-		strokeDashoffset={dashOffset}
-		className="transition-all duration-1000 ease-in-out"
+		className={className}
+		strokeDasharray={`${dashArray} ${RING_CIRCUMFERENCE}`}
 	/>
 );
 
-const LegendItem = ({
-	color,
-	label,
-	time,
-	percentage
-}: {
-	color: string;
-	label: string;
-	time: string;
-	percentage: number;
-}) => (
-	<div className="flex gap-16 w-full justify-between items-center text-[14px] text-[#60646C]">
-		<div className="flex items-center space-x-2">
-			<div className="w-3 h-3 rounded-full" style={{ backgroundColor: color }}></div>
-			<span className="text-gray-700 dark:text-gray-300 text-[14px]">{label}</span>
-		</div>
-		<span className="font-normal text-[#60646C] dark:text-gray-100 text-[14px]">
-			{time} ({percentage}%)
-		</span>
-	</div>
-);
+function formatSeconds(totalSeconds: number): string {
+	const hours = Math.floor(totalSeconds / 3600);
+	const minutes = Math.floor((totalSeconds % 3600) / 60);
+	const paddedMinutes = minutes.toString().padStart(2, '0');
+	return `${hours}h ${paddedMinutes}min`;
+}
 
-const formatTime = (minutes: number): string => {
-	const hours = Math.floor(minutes / 60);
-	const mins = Math.floor(minutes % 60);
-	return `${hours}h ${mins.toString().padStart(2, '0')}min`;
-};
+function clampPercentage(value: number | undefined): number {
+	if (!value || !Number.isFinite(value)) {
+		return 0;
+	}
+	return Math.min(100, Math.max(0, value));
+}
 
+function shareOf(duration: number, total: number): number {
+	if (total <= 0) {
+		return 0;
+	}
+	return Math.round((duration / total) * 100);
+}
+
+function taskLabel(taskLog: ITimerTaskLog): string {
+	const title = taskLog.task?.title;
+	if (title) {
+		return title;
+	}
+	return taskLog.description;
+}
+
+function byLongestDuration(first: ITimerTaskLog, second: ITimerTaskLog) {
+	return second.duration - first.duration;
+}
+
+/**
+ * What the daily report holds for one member: the total, the time per task and the activity level. The report
+ * returns no tracked/manual or active/idle split, so the modal shows none.
+ */
 export const ActivityModal = ({ employeeLog, isOpen, closeModal }: ActivityModalProps) => {
+	const t = useTranslations();
 	const [activeTab, setActiveTab] = useState<TabType>('activity');
 
-	const timeCalculations = useMemo(() => {
-		const totalTime = employeeLog.sum || 0;
-		return {
-			totalTime,
-			activeTime: totalTime * 0.57,
-			idleTime: totalTime * 0.13,
-			unknownTime: totalTime * 0.3,
-			trackedTime: totalTime * 0.75,
-			manualTime: totalTime * 0.25
-		};
-	}, [employeeLog.sum]);
+	const totalTime = employeeLog.sum || 0;
+	const activityLevel = clampPercentage(employeeLog.activity);
+	const activityArc = (activityLevel / 100) * RING_CIRCUMFERENCE;
 
-	const { activeTime, idleTime, unknownTime, trackedTime, manualTime } = timeCalculations;
+	const sortedTasks = useMemo(() => {
+		const tasks = employeeLog.tasks ?? [];
+		return [...tasks].sort(byLongestDuration);
+	}, [employeeLog.tasks]);
+	const hasTasks = sortedTasks.length > 0;
+	const isTrackedTab = activeTab === 'tracked';
+	const isActivityTab = activeTab === 'activity';
 
-	const formattedTimes = useMemo(
-		() => ({
-			active: formatTime(activeTime),
-			idle: formatTime(idleTime),
-			unknown: formatTime(unknownTime),
-			tracked: formatTime(trackedTime),
-			manual: formatTime(manualTime)
-		}),
-		[activeTime, idleTime, unknownTime, trackedTime, manualTime]
-	);
+	const tabLabels: Record<TabType, string> = {
+		tracked: t('common.TASKS'),
+		activity: t('common.ACTIVITY')
+	};
 
 	return (
-		<Modal
-			isOpen={isOpen}
-			closeModal={closeModal}
-			className="bg-light--theme-light dark:bg-dark--theme-light rounded-xl w-full md:w-40 md:min-w-[32rem] justify-start flex flex-col items-center h-[auto]"
-			titleClass="font-bold flex justify-start w-full"
-		>
-			<div className="flex flex-col w-full items-center gap-4 justify-start min-w-fit md:w-[32rem] p-4">
-				<div className="flex items-center justify-between w-full mb-2">
-					<div className="flex items-center space-x-3">
-						<Avatar
-							size={30}
-							imageUrl={employeeLog.employee.user?.imageUrl}
-							imageTitle={employeeLog.employee.fullName}
-							className="relative"
-						/>
-						<h3 className="text-lg font-medium text-gray-900 dark:text-gray-100">
-							{employeeLog.employee.fullName}
-						</h3>
-					</div>
-				</div>
+		<Modal isOpen={isOpen} closeModal={closeModal} className="w-full max-w-lg">
+			<div className="flex min-w-0 items-center gap-3 pr-8">
+				<Avatar
+					size={32}
+					imageUrl={employeeLog.employee.user?.imageUrl}
+					imageTitle={employeeLog.employee.fullName}
+					className="relative shrink-0"
+				/>
+				<h3 className="truncate text-lg font-semibold text-foreground">{employeeLog.employee.fullName}</h3>
+			</div>
 
-				<div className="flex p-1 min-w-full max-w-fit space-x-2 w-full bg-gray-100 dark:bg-card rounded-lg">
-					{(['tracked', 'activity'] as const).map((tab) => (
-						<button
-							key={tab}
-							role="tab"
-							aria-selected={activeTab === tab}
-							aria-label={tab === 'tracked' ? 'Show tracked vs manual time' : 'Show activity breakdown'}
-							onClick={() => setActiveTab(tab)}
-							className={`flex-1 px-4 py-2 rounded-md transition-all duration-200 text-nowrap ${
-								activeTab === tab
-									? 'bg-white shadow-xs dark:bg-dark--theme-light text-primary dark:text-primary-light font-normal'
-									: 'text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-200'
-							}`}
-						>
-							{tab === 'tracked' ? 'Tracked vs Manual' : 'Activity Breakdown'}
-						</button>
-					))}
-				</div>
+			<SegmentedControl
+				items={TABS.map((tab) => ({ value: tab, label: tabLabels[tab] }))}
+				value={activeTab}
+				onValueChange={setActiveTab}
+				ariaLabel={t('common.ACTIVITY')}
+				className="w-fit"
+			/>
 
-				<div className="relative mt-8">
-					{activeTab === 'tracked' ? (
-						<div className="transition-opacity duration-200 ease-in-out">
-							<div className="relative w-48 h-48 mx-auto mb-8">
-								<svg className="w-full h-full -rotate-90" viewBox="0 0 100 100">
-									<Circle color="#2563EB" dashArray="188.49556" />
-									<Circle color="#9333EA" dashArray="62.83185" dashOffset="-188.49556" />
-								</svg>
-							</div>
+			<div className="flex items-baseline justify-between gap-4 hairline-b border-border pb-3">
+				<span className="text-xs text-muted-foreground">{t('common.teamStats.TOTAL_TIME')}</span>
+				<span className="text-2xl font-semibold tabular-nums text-foreground">{formatSeconds(totalTime)}</span>
+			</div>
 
-							<div className="flex gap-4">
-								<LegendItem
-									color="#2563EB"
-									label="Tracked Time"
-									time={formattedTimes.tracked}
-									percentage={75}
-								/>
-								<LegendItem
-									color="#9333EA"
-									label="Manual Time"
-									time={formattedTimes.manual}
-									percentage={25}
-								/>
-							</div>
-						</div>
-					) : (
-						<div className="transition-opacity duration-200 ease-in-out">
-							<div className="relative w-48 h-48 mx-auto mb-8">
-								<svg className="w-full h-full -rotate-90" viewBox="0 0 100 100">
-									<Circle color="#2563EB" dashArray="143.25639" />
-									<Circle color="#F59E0B" dashArray="32.67251" dashOffset="-143.25639" />
-									<Circle color="#EF4444" dashArray="75.3981" dashOffset="-175.9289" />
-								</svg>
-							</div>
-
-							<div className="space-y-4">
-								<LegendItem
-									color="#2563EB"
-									label="Active Time"
-									time={formattedTimes.active}
-									percentage={57}
-								/>
-								<LegendItem
-									color="#F59E0B"
-									label="Idle Time"
-									time={formattedTimes.idle}
-									percentage={13}
-								/>
-								<LegendItem
-									color="#EF4444"
-									label="Unknown Activity"
-									time={formattedTimes.unknown}
-									percentage={30}
-								/>
-							</div>
-						</div>
+			{isTrackedTab && (
+				<div className="w-full">
+					{hasTasks && (
+						<ul className="hairline-divide-y divide-border">
+							{sortedTasks.map((taskLog, index) => {
+								const share = shareOf(taskLog.duration, totalTime);
+								return (
+									<li
+										key={`${taskLog.task?.id ?? 'task'}-${index}`}
+										className="flex items-center gap-3 py-2.5"
+									>
+										<span className="min-w-0 flex-1 truncate text-sm text-foreground">
+											{taskLabel(taskLog)}
+										</span>
+										<span className="h-1.5 w-20 shrink-0 overflow-hidden rounded-full bg-foreground/10">
+											<span
+												className="block h-full rounded-full bg-primary"
+												style={{ width: `${share}%` }}
+											/>
+										</span>
+										<span className="w-10 shrink-0 text-right text-xs tabular-nums text-muted-foreground">
+											{share}%
+										</span>
+										<span className="w-20 shrink-0 text-right text-sm tabular-nums text-foreground">
+											{formatSeconds(taskLog.duration)}
+										</span>
+									</li>
+								);
+							})}
+						</ul>
+					)}
+					{!hasTasks && (
+						<p className="py-6 text-center text-sm text-muted-foreground">{t('common.NO_TASKS')}</p>
 					)}
 				</div>
-			</div>
+			)}
+
+			{isActivityTab && (
+				<div className="relative mx-auto size-48">
+					<svg className="size-full -rotate-90" viewBox="0 0 100 100" aria-hidden="true">
+						<Circle className="stroke-foreground/10" dashArray={RING_CIRCUMFERENCE} />
+						<Circle className="stroke-primary" dashArray={activityArc} />
+					</svg>
+					<div className="absolute inset-0 flex flex-col items-center justify-center gap-0.5">
+						<span className="text-2xl font-semibold tabular-nums text-foreground">
+							{Math.round(activityLevel)}%
+						</span>
+						<span className="text-xs text-muted-foreground">{t('common.teamStats.ACTIVITY_LEVEL')}</span>
+					</div>
+				</div>
+			)}
 		</Modal>
 	);
 };

@@ -1,14 +1,14 @@
-import Skeleton from 'react-loading-skeleton';
+import { Skeleton } from '../skeleton';
 
 const LeftSideSettingMenuSkeleton = () => {
 	return (
 		<div className="w-[320px] mt-[36px] mr-[56px]">
-			<Skeleton width={150} height={35} borderRadius={20} className="dark:bg-muted" />
+			<Skeleton className="h-[35px] w-[150px]" />
 			<div className="mt-16">
-				<Skeleton width={200} height={25} borderRadius={20} className="dark:bg-muted" />
+				<Skeleton className="h-[25px] w-[200px]" />
 			</div>
 			<div className="mt-3">
-				<Skeleton width={200} height={25} borderRadius={20} className="dark:bg-muted" />
+				<Skeleton className="h-[25px] w-[200px]" />
 			</div>
 		</div>
 	);

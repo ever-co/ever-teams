@@ -3,6 +3,7 @@ import { imgTitle } from '@/core/lib/helpers/index';
 import { useAuthenticateUser, useSettings } from '@/core/hooks';
 import { clsxm } from '@/core/lib/utils';
 import { Button } from '@/core/components';
+import { buttonVariants } from '@/core/components/duplicated-components/_button';
 import Image from 'next/image';
 import { useCallback, useState } from 'react';
 import { useForm } from 'react-hook-form';
@@ -48,76 +49,57 @@ export const ProfileAvatar = () => {
 		}
 	}, [updateAvatar, user]);
 
-	return (
-		<>
-			<div className="flex flex-col items-center justify-between">
-				<div className="w-full">
-					<div className="">
-						<div className="flex w-full items-center gap-4 pb-4">
-							<div className="relative">
-								<div
-									className={clsxm(
-										'size-16',
-										'flex justify-center items-center',
-										'rounded-full text-xs text-default dark:text-white',
-										'text-2xl font-medium'
-									)}
-									style={{
-										backgroundColor: `${stc(user?.name || '')}80`
-									}}
-								>
-									{user?.imageId ? (
-										<Avatar
-											size={64}
-											className="relative cursor-pointer"
-											imageUrl={user?.image?.thumbUrl || user?.image?.fullUrl || user?.imageUrl}
-											alt={t('common.USER_AVATAR')}
-										/>
-									) : user?.name ? (
-										imgTitle(user?.name)
-									) : (
-										''
-									)}
-								</div>
+	const hasImage = Boolean(user?.imageId);
+	const showsInitials = !hasImage && Boolean(user?.name);
 
-								<span
-									className="absolute -bottom-0.5 -right-0.5 flex size-6 cursor-pointer items-center justify-center rounded-full border-2 border-card bg-foreground p-1 text-background"
-									onClick={() => changeAvatarState()}
-								>
-									<Image
-										src="/assets/svg/profile-edit.svg"
-										alt={'user avatar'}
-										width={'80'}
-										height={'80'}
-									/>
-								</span>
-							</div>
-							{avatarBtn ? (
-								<div className="flex items-center gap-2">
-									<div>
-										<label className="inline-flex h-9 cursor-pointer items-center justify-center rounded-md border border-border bg-card px-3 text-sm font-medium text-foreground hover:bg-muted">
-											<span>{t('form.CHANGE_AVATAR')}</span>
-											<input
-												type="file"
-												{...register('imageUrl')}
-												onChange={(e) => onChangeAvatar(e)}
-												className="hidden"
-											/>
-										</label>
-									</div>
-									<div>
-										<Button variant="grey" onClick={() => onDeleteAvatar()} className="h-9 rounded-md px-3 py-0 text-sm font-medium">
-											{t('common.DELETE')}
-										</Button>
-									</div>
-								</div>
-							) : (
-								<></>
-							)}
-						</div>
-					</div>
+	return (
+		<div className="flex w-full items-center gap-4 pb-4">
+			<div className="relative">
+				<div
+					className={clsxm(
+						'size-16',
+						'flex justify-center items-center',
+						'rounded-full text-xs text-foreground',
+						'text-2xl font-medium'
+					)}
+					style={{
+						backgroundColor: `${stc(user?.name || '')}80`
+					}}
+				>
+					{hasImage && (
+						<Avatar
+							size={64}
+							className="relative cursor-pointer"
+							imageUrl={user?.image?.thumbUrl || user?.image?.fullUrl || user?.imageUrl}
+							alt={t('common.USER_AVATAR')}
+						/>
+					)}
+					{showsInitials && imgTitle(user?.name || '')}
 				</div>
+
+				<span
+					className="absolute -bottom-0.5 -right-0.5 flex size-6 cursor-pointer items-center justify-center rounded-full border-2 border-card bg-foreground p-1 text-background"
+					onClick={() => changeAvatarState()}
+				>
+					<Image src="/assets/svg/profile-edit.svg" alt={'user avatar'} width={'80'} height={'80'} />
+				</span>
 			</div>
-		</>
+			{avatarBtn && (
+				<div className="flex items-center gap-2">
+					<label className={clsxm(buttonVariants({ variant: 'outline', size: 'default' }), 'cursor-pointer')}>
+						<span>{t('form.CHANGE_AVATAR')}</span>
+						<input
+							type="file"
+							{...register('imageUrl')}
+							onChange={(e) => onChangeAvatar(e)}
+							className="hidden"
+						/>
+					</label>
+					<Button variant="grey" size="default" onClick={() => onDeleteAvatar()}>
+						{t('common.DELETE')}
+					</Button>
+				</div>
+			)}
+		</div>
 	);
 };

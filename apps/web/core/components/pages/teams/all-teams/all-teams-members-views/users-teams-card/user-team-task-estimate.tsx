@@ -37,7 +37,7 @@ export default function UserTeamActiveTaskEstimate({
 			memberInfo={memberInfo}
 			edition={taskEdition}
 			activeAuthTask={true}
-			className={cn('w-1/5 lg:px-3 2xl:w-52 3xl:w-64', className)}
+			className={cn('min-w-0', className)}
 			useActiveTeamTaskByDefault={false}
 			allowEmptyTask={false}
 		/>

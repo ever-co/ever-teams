@@ -13,17 +13,17 @@ import {
 	TTimerSlotDataRequest
 } from '@/core/types/schemas';
 import { taskStatisticsSchema, TTaskStatistics } from '@/core/types/schemas/activities/statistics.schema';
-import {
-	profileActivityRequestSchema,
-	profileActivityResponseSchema,
-	type TProfileActivityRequest,
-	type TProfileActivityResponse
+import type {
+	TProfileActivityRequest,
+	TProfileActivityResponse
 } from '@/core/types/schemas/activities/profile-activity.schema';
 import { scopedReadConfig, type ScopedReadOptions } from '../../api-request-scope';
+import { getDefaultTimezone } from '@/core/lib/helpers/date-and-time';
+import { endOfDayInTimeZone, startOfDayInTimeZone } from '@/core/lib/helpers/format-date-range';
 
 const CALENDAR_DAY_FORMAT = 'YYYY-MM-DD';
 
-// Only a plain 'YYYY-MM-DD' day is read, in the user's time zone. A Date or a full timestamp gives an invalid
+// Only a plain 'YYYY-MM-DD' day is read, in the zone the request sends. A Date or a full timestamp gives an invalid
 // moment, so it is sent as it is.
 const parseCalendarDay = (date: string | Date): moment.Moment => {
 	if (typeof date !== 'string') {
@@ -33,26 +33,26 @@ const parseCalendarDay = (date: string | Date): moment.Moment => {
 	return moment(date, CALENDAR_DAY_FORMAT, true);
 };
 
-const toStartOfLocalDay = (date: string | Date): string | Date => {
+/** Start of a plain day in `timeZone` (the runtime's when the zone is unknown); anything else is sent as it is. */
+const toStartOfDay = (date: string | Date, timeZone: string): string | Date => {
 	const day = parseCalendarDay(date);
 
 	if (!day.isValid()) {
 		return date;
 	}
 
-	const dayStart = day.startOf('day');
-	return dayStart.toISOString();
+	return startOfDayInTimeZone(day.format(CALENDAR_DAY_FORMAT), timeZone) ?? day.startOf('day').toISOString();
 };
 
-const toEndOfLocalDay = (date: string | Date): string | Date => {
+/** End of a plain day in `timeZone` (the runtime's when the zone is unknown); anything else is sent as it is. */
+const toEndOfDay = (date: string | Date, timeZone: string): string | Date => {
 	const day = parseCalendarDay(date);
 
 	if (!day.isValid()) {
 		return date;
 	}
 
-	const dayEnd = day.endOf('day');
-	return dayEnd.toISOString();
+	return endOfDayInTimeZone(day.format(CALENDAR_DAY_FORMAT), timeZone) ?? day.endOf('day').toISOString();
 };
 
 class StatisticsService extends APIService {
@@ -60,6 +60,10 @@ class StatisticsService extends APIService {
 		request: TProfileActivityRequest,
 		signal?: AbortSignal
 	): Promise<TProfileActivityResponse> => {
+		// Its schemas check time zones with moment-timezone and all its zone data: fetched on the first profile activity
+		// read, not with the shell, which reaches this service for the active task statistics
+		const { profileActivityRequestSchema, profileActivityResponseSchema } =
+			await import('@/core/types/schemas/activities/profile-activity.schema');
 		const validated = profileActivityRequestSchema.parse(request);
 		const { tenantId, ...queryParams } = validated;
 		const query = qs.stringify(queryParams, { encode: true });
@@ -305,15 +309,16 @@ class StatisticsService extends APIService {
 		logType,
 		startDate,
 		endDate,
-		timeZone = 'Etc/UTC',
+		// The browser's zone unless the caller names one: Gauzy reads the days in it, so it must match the bounds
+		timeZone = getDefaultTimezone(),
 		employeeIds,
 		projectIds,
 		teamIds
 	}: ITimeLogReportDailyRequest): Promise<{ data: ITimesheetCountsStatistics }> => {
 		// Gauzy reads a plain day as 00:00 UTC: the range would stop at the start of its last day, and a
 		// single day would be refused because its start would not be before its end
-		const rangeStart = toStartOfLocalDay(startDate);
-		const rangeEnd = toEndOfLocalDay(endDate);
+		const rangeStart = toStartOfDay(startDate, timeZone);
+		const rangeEnd = toEndOfDay(endDate, timeZone);
 		const queryString = qs.stringify(
 			{
 				activityLevel,

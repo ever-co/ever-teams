@@ -3,6 +3,9 @@ import { useTranslations } from 'next-intl';
 import { Dispatch, SetStateAction } from 'react';
 import ReactPaginate, { ReactPaginateProps } from 'react-paginate';
 import { cn } from '@/core/lib/helpers';
+import { buttonVariants } from '@/core/components/duplicated-components/_button';
+
+const pageStepClassName = buttonVariants({ variant: 'outline', size: 'icon' });
 
 type Props = {
 	total: number;
@@ -32,10 +35,10 @@ export function Paginate({
 			aria-label="Table navigation"
 		>
 			<ReactPaginate
-				activeLinkClassName="text-primary font-bold"
+				activeLinkClassName="font-semibold text-foreground"
 				breakLabel=". . ."
 				nextLabel={
-					<div className="block relative w-10 h-10 justify-center items-center leading-tight text-gray-500 bg-white border border-[#23232329] rounded-r-lg hover:bg-gray-100 hover:text-gray-700 dark:bg-dark--theme-light dark:border-gray-700 dark:text-gray-400 dark:hover:bg-muted dark:text-gray-300 dark:hover:text-white rounded-[8px] p-2 disabled:opacity-25 outline-none">
+					<div className={cn(pageStepClassName, 'relative text-muted-foreground')}>
 						<span className="sr-only">{t('common.NEXT')}</span>
 						<svg
 							className="w-5 h-5"
@@ -56,7 +59,7 @@ export function Paginate({
 				pageRangeDisplayed={1}
 				pageCount={pageCount}
 				previousLabel={
-					<div className="block relative w-10 h-10 justify-center items-center rounded-[8px] ml-0 leading-tight text-gray-500 bg-white border border-[#23232329] rounded-l-lg hover:bg-gray-100 hover:text-gray-700 dark:bg-dark--theme-light dark:border-gray-700 dark:text-gray-400 dark:hover:bg-muted dark:hover:text-white mr-1 p-2 outline-none">
+					<div className={cn(pageStepClassName, 'relative mr-1 text-muted-foreground')}>
 						<span className="sr-only">{t('common.PREV')}</span>
 						<svg
 							className="w-5 h-5"
@@ -75,14 +78,16 @@ export function Paginate({
 				}
 				renderOnZeroPageCount={null}
 				className={'flex justify-between items-center'}
-				pageClassName={'pl-4 pr-4 pt-2 pb-2 text-gray-500 font-normal text-[#B1AEBC]'}
-				activeClassName={'text-[#1A1C1E] dark:text-white'}
-				breakClassName={'pl-5 pr-5 pt-1 pb-2'}
+				pageClassName={
+					'flex min-w-8 h-8 items-center justify-center rounded-md px-2 text-sm tabular-nums text-muted-foreground transition-colors hover:bg-foreground/5'
+				}
+				activeClassName={'bg-foreground/5 text-foreground'}
+				breakClassName={'px-2 text-muted-foreground'}
 			/>
 
 			<div className="flex relative gap-x-5 items-center">
 				<PaginationItemsDropdown onChange={setItemsPerPage} totalItems={total} itemsPerPage={itemsPerPage} />
-				<div className="text-sm font-normal text-gray-500 dark:text-gray-400">
+				<div className="text-sm tabular-nums text-muted-foreground">
 					{`Showing ${itemOffset + 1} to ${Math.min(endOffset, total)} of ${total} entries`}
 				</div>
 			</div>

@@ -43,6 +43,7 @@ export function useIntegrationTypes() {
 		loading: integrationTypesQuery.isLoading,
 		error: integrationTypesQuery.error,
 		getIntegrationTypes,
-		integrationTypes
+		integrationTypes,
+		data: integrationTypesQuery.data
 	};
 }

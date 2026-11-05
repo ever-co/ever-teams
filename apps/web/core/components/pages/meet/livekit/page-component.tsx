@@ -10,6 +10,7 @@ import { readRuntimeEnv } from '@/env-config';
 
 // Import optimized components from centralized location
 import { LazyLiveKit as LiveKit, preloadLiveKit } from '@/core/components/optimized-components/meet';
+import { LiveKitMeetPageSkeleton } from '../meet-room-skeleton';
 
 function LiveKitPage() {
 	const router = useRouter();
@@ -44,9 +45,14 @@ function LiveKitPage() {
 		roomName: roomName || ''
 	});
 
+	const hasToken = Boolean(token);
+	const hasRoomName = Boolean(roomName);
+	const canJoin = hasToken && hasRoomName;
+
 	return (
 		<div>
 			<Meta title="Meet" />
+			{!canJoin && <LiveKitMeetPageSkeleton />}
 			{token && roomName && (
 				<LiveKit
 					token={token}
@@ -68,5 +74,6 @@ function LiveKitPage() {
 
 export default withAuthentication(LiveKitPage, {
 	displayName: 'LiveKitPage',
-	showPageSkeleton: false
+	showPageSkeleton: false,
+	skeleton: LiveKitMeetPageSkeleton
 });

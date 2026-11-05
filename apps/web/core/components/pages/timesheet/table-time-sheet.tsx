@@ -1,6 +1,6 @@
 'use client';
 import * as React from 'react';
-import { MoreHorizontal } from 'lucide-react';
+import { Check, CheckCircle2, DollarCircle, MoreHorizontal, Pencil, Trash, X } from '@/core/components/icons';
 import {
 	DropdownMenuContent,
 	DropdownMenuItem,
@@ -12,8 +12,8 @@ import { ConfirmStatusChange, statusOptions } from '../../integration/calendar';
 import { useModal, useTimelogFilterOptions } from '@/core/hooks';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/core/components/common/accordion';
 import { clsxm } from '@/core/lib/utils';
-import { AlertConfirmationModal, statusColor } from '@/core/components';
-import { Badge } from '@/core/components/common/badge';
+import { AlertConfirmationModal } from '@/core/components';
+import { badgeVariants } from '@/core/components/common/badge';
 import {
 	EditTaskModal,
 	RejectSelectedModal,
@@ -63,6 +63,12 @@ import { CaretDownIcon, CaretUpIcon } from '@radix-ui/react-icons';
 import { ETimeFrequency } from '@/core/types/generics/enums/date';
 import moment from 'moment';
 import { useUpdateTimeLogMutation } from '@/core/hooks/timesheet';
+import { TimesheetStatusBadge, TimesheetTotalBadge } from '../../timesheet/timesheet-status-badge';
+import {
+	timesheetStatusDotClass,
+	timesheetStatusLabel,
+	timesheetStatusTone
+} from '../../timesheet/timesheet-status-tone';
 
 export function DataTableTimeSheet({ data, user }: { data?: GroupedTimesheet[]; user?: TUser | null }) {
 	const accordionRef = React.useRef(null);
@@ -163,7 +169,7 @@ export function DataTableTimeSheet({ data, user }: { data?: GroupedTimesheet[]; 
 	};
 
 	return (
-		<div className="w-full dark:bg-dark--theme">
+		<div className="w-full">
 			<AlertConfirmationModal
 				description={t('common.IRREVERSIBLE_ACTION_WARNING')}
 				close={closeAlertConfirmation}
@@ -183,7 +189,7 @@ export function DataTableTimeSheet({ data, user }: { data?: GroupedTimesheet[]; 
 				closeModal={closeModal}
 				isOpen={isOpen}
 			/>
-			<div className="rounded-md">
+			<div className="hairline-divide-y divide-border">
 				{data?.map((plan, index) => {
 					const groupTitle =
 						timesheetGroupByDays === ETimeFrequency.MONTHLY
@@ -193,16 +199,19 @@ export function DataTableTimeSheet({ data, user }: { data?: GroupedTimesheet[]; 
 						<div key={index}>
 							<div
 								className={clsxm(
-									'h-[48px] flex justify-between items-center w-full',
-									'bg-[#ffffffcc] dark:bg-dark--theme rounded-md border-1',
-									'border-gray-400 px-5 text-[#71717A] font-medium'
+									'flex h-10 w-full items-center justify-between gap-3 px-4',
+									'bg-foreground/2.5 text-sm font-medium text-foreground'
 								)}
 							>
 								<div className="flex gap-x-3">
 									{timesheetGroupByDays === 'Weekly' && <span>Week {index + 1}</span>}
 									<span>{groupTitle}</span>
 								</div>
-								<TotalDurationByDate timesheetLog={plan.tasks} createdAt={formatDate(plan.date)} />
+								<TotalDurationByDate
+									timesheetLog={plan.tasks}
+									createdAt={formatDate(plan.date)}
+									className="tabular-nums text-foreground"
+								/>
 							</div>
 							<Accordion type="single" collapsible ref={accordionRef}>
 								{Object.entries(getStatusTimesheet(plan.tasks)).map(([status, rows]) => {
@@ -223,51 +232,34 @@ export function DataTableTimeSheet({ data, user }: { data?: GroupedTimesheet[]; 
 												<AccordionItem
 													key={`${status}-${timesheetId}`}
 													value={`${status === 'DENIED' ? 'REJECTED' : status}-${timesheetId}`}
-													className={clsxm('p-1 rounded')}
+													className="hairline-t border-b-0 border-border"
 												>
 													<AccordionTrigger
 														key={plan.date}
-														style={{ backgroundColor: statusColor(status).bgOpacity }}
 														type="button"
 														className={clsxm(
-															'flex flex-row-reverse justify-end items-center w-full h-12 rounded-xs gap-x-2 hover:no-underline px-2',
-															statusColor(status).text
+															'flex h-11 w-full flex-row-reverse items-center justify-end gap-x-2 px-4 py-0',
+															'text-muted-foreground transition-colors hover:bg-foreground/2.5 hover:no-underline'
 														)}
 													>
-														<div className="flex items-center justify-between w-full space-x-1">
-															<div className="flex items-center space-x-1">
-																<div
-																	className={clsxm(
-																		'p-2 rounded-[3px] gap-2 w-[20px] h-[20px]',
-																		statusColor(status).bg
-																	)}
-																></div>
-																<div className="flex items-center gap-x-1">
-																	<span className="text-base font-normal text-gray-400 uppercase">
-																		{status === 'DENIED' ? 'REJECTED' : status}
-																	</span>
-																	<span className="text-gray-400 text-[14px]">
+														<div className="flex w-full items-center justify-between gap-3">
+															<div className="flex items-center gap-2">
+																<TimesheetStatusBadge status={status}>
+																	<span>{timesheetStatusLabel(status)}</span>
+																	<span className="tabular-nums">
 																		({timesheetRows.length})
 																	</span>
-																</div>
-																<Badge
-																	variant={'outline'}
-																	className="box-border flex flex-row items-center px-2 py-1 gap-2 w-[108px] h-[30px] bg-[rgba(247,247,247,0.6)] border border-gray-300 rounded-lg flex-none order-1 grow-0"
+																</TimesheetStatusBadge>
+																<TimesheetTotalBadge
+																	label={<>{t('timer.TOTAL_HOURS').split(' ')[0]}:</>}
 																>
-																	<span className="text-[#5f5f61] text-[14px] font-[700px]">
-																		{t('timer.TOTAL_HOURS').split(' ')[0]}:
-																	</span>
 																	<TotalTimeDisplay
 																		timesheetLog={timesheetRows}
-																		className="!text-[#293241] text-[14px]"
+																		className="text-foreground"
 																	/>
-																</Badge>
+																</TimesheetTotalBadge>
 															</div>
-															<div
-																className={clsxm(
-																	'flex gap-2 items-center capitalize p-x-1'
-																)}
-															>
+															<div className="flex items-center gap-1">
 																{showsGroupButtons &&
 																	getTimesheetButtons(
 																		status as StatusType,
@@ -280,11 +272,11 @@ export function DataTableTimeSheet({ data, user }: { data?: GroupedTimesheet[]; 
 															</div>
 														</div>
 													</AccordionTrigger>
-													<AccordionContent className="flex flex-col w-full">
+													<AccordionContent className="flex w-full flex-col pb-0">
 														{status === ETimesheetStatus.DENIED &&
 															timesheetRows[0].timesheet?.reason && (
-																<p className="px-2 py-3 text-sm text-[#71717A] dark:text-gray-400 whitespace-pre-line break-words">
-																	<span className="font-medium">
+																<p className="hairline-t border-border px-4 py-3 text-sm text-muted-foreground whitespace-pre-line break-words">
+																	<span className="font-medium text-foreground">
 																		{t('pages.timesheet.REJECTION_REASON')}:
 																	</span>{' '}
 																	{timesheetRows[0].timesheet.reason}
@@ -308,73 +300,66 @@ export function DataTableTimeSheet({ data, user }: { data?: GroupedTimesheet[]; 
 														{sortRows(timesheetRows).map((task) => (
 															<div
 																key={task.id}
-																style={{
-																	backgroundColor: statusColor(status).bgOpacity,
-																	borderBottomColor: statusColor(status).bg
-																}}
 																className={clsxm(
-																	'flex items-center p-1 space-x-4 border-b border-b-gray-200 dark:border-b-gray-600 h-[60px]'
+																	'flex min-h-14 items-center gap-4 hairline-t border-border px-4 py-2',
+																	'transition-colors hover:bg-foreground/2.5',
+																	selectTimesheetId.includes(task) && 'bg-primary/5'
 																)}
 															>
 																<Checkbox
-																	className="w-5 h-5 select-auto"
+																	className="select-auto"
 																	onCheckedChange={() =>
 																		handleSelectRowTimesheet(task)
 																	}
 																	checked={selectTimesheetId.includes(task)}
 																/>
-																<div className="flex-[2]">
+																<div className="min-w-0 flex-2">
 																	<TaskNameInfoDisplay
 																		task={task.task}
-																		className={clsxm(
-																			'rounded-sm h-auto !px-[0.3312rem] py-[0.2875rem] shadow-[0px_0px_15px_0px_#e2e8f0] dark:shadow-transparent'
-																		)}
-																		taskTitleClassName={clsxm(
-																			'text-sm text-ellipsis overflow-hidden '
-																		)}
+																		className="min-w-0"
+																		taskTitleClassName="text-sm text-foreground"
 																		showSize={true}
 																		dash
-																		taskNumberClassName="text-sm"
+																		taskNumberClassName="text-sm text-muted-foreground"
 																	/>
 																</div>
-																<div className="flex items-center flex-1 gap-2">
+																<div className="flex min-w-0 flex-1 items-center gap-2">
 																	{task.project?.imageUrl && (
 																		<ProjectLogo
-																			className="w-[28px] h-[28px] drop-shadow-[0_4px_4px_rgba(0,0,0,0.25)] rounded-[8px]"
+																			className="size-7 rounded-md object-cover hairline-ring ring-border"
 																			imageUrl={task.project.imageUrl}
 																		/>
 																	)}
-																	<span className="font-medium">
+																	<span className="truncate text-sm">
 																		{task.project?.name ?? 'No Project'}
 																	</span>
 																</div>
-																<div className="flex items-center flex-1 gap-x-2">
+																<div className="flex min-w-0 flex-1 items-center gap-x-2">
 																	<EmployeeAvatar
-																		className="w-[28px] h-[28px] drop-shadow-[0_4px_4px_rgba(0,0,0,0.25)] rounded-full"
+																		className="size-7 rounded-full object-cover hairline-ring ring-border"
 																		imageUrl={task.employee?.user.imageUrl!}
 																	/>
-																	<span className="flex-1 font-medium">
+																	<span className="flex-1 truncate text-sm font-medium">
 																		{task.employee?.fullName}
 																	</span>
 																</div>
 																<div className="flex-1">
-																	<Badge
-																		className={`${getBadgeColor(task.timesheet?.status as ETimesheetStatus)}  rounded-md py-1 px-2 text-center font-medium text-black`}
+																	<TimesheetStatusBadge
+																		status={task.timesheet?.status}
 																	>
-																		{task.timesheet?.status ===
-																		ETimesheetStatus.DENIED
-																			? 'REJECTED'
-																			: task.timesheet?.status}
-																	</Badge>
+																		{timesheetStatusLabel(task.timesheet?.status)}
+																	</TimesheetStatusBadge>
 																</div>
-																<DisplayTimeForTimesheet
-																	timesheetLog={task}
-																	logType={
-																		task.logType
-																			? ETimeLogType[task.logType]
-																			: ETimeLogType.TRACKED
-																	}
-																/>
+																<div className="flex w-24 shrink-0 justify-end tabular-nums">
+																	<DisplayTimeForTimesheet
+																		timesheetLog={task}
+																		logType={
+																			task.logType
+																				? ETimeLogType[task.logType]
+																				: ETimeLogType.TRACKED
+																		}
+																	/>
+																</div>
 																<TaskActionMenu
 																	timeLog={task}
 																	isManage={isManage}
@@ -406,13 +391,13 @@ export function SelectFilter({ selectedStatus }: { selectedStatus?: string }) {
 	const getColorClass = () => {
 		switch (selected) {
 			case 'Rejected':
-				return 'text-red-500 border-gray-200';
+				return 'text-destructive-ink';
 			case 'Approved':
-				return 'text-green-500 border-gray-200';
+				return 'text-success-foreground';
 			case 'Pending':
-				return 'text-orange-500 border-gray-200';
+				return 'text-warning-foreground';
 			default:
-				return 'text-gray-500 border-gray-200';
+				return 'text-muted-foreground';
 		}
 	};
 
@@ -426,9 +411,7 @@ export function SelectFilter({ selectedStatus }: { selectedStatus?: string }) {
 			<ConfirmStatusChange closeModal={closeModal} isOpen={isOpen} oldStatus={selected} newStatus={newStatus} />
 
 			<Select value={selected} onValueChange={(value) => onValueChanges(value)}>
-				<SelectTrigger
-					className={`h-8 font-normal bg-transparent rounded-md border border-gray-200 min-w-[120px] w-fit dark:border-gray-700 ${getColorClass()}`}
-				>
+				<SelectTrigger className={clsxm('h-8 min-w-[120px] w-fit font-normal', getColorClass())}>
 					<SelectValue placeholder="Select a daily" className={getColorClass()} />
 				</SelectTrigger>
 				<SelectContent>
@@ -437,9 +420,7 @@ export function SelectFilter({ selectedStatus }: { selectedStatus?: string }) {
 						{statusOptions.map((option, index) => (
 							<div key={option.value}>
 								<SelectItem value={option.value}>{option.label}</SelectItem>
-								{index < statusOptions.length - 1 && (
-									<div className="w-full border border-gray-100 dark:border-gray-700"></div>
-								)}
+								{index < statusOptions.length - 1 && <div className="-mx-1 my-1 h-px bg-border"></div>}
 							</div>
 						))}
 					</SelectGroup>
@@ -468,14 +449,11 @@ const TaskActionMenu = ({
 	const handleDeleteTimeLog = async () => {
 		await deleteTaskTimesheet({ logIds: [timeLog.id] })
 			.then(() => {
-				sonnerToast.info(t('pages.timeLog.DELETION_CONFIRMED'), {
-					description: t('pages.timeLog.DELETE_SUCCESS')
-				});
+				sonnerToast.success(t('toasts.time.LOG_DELETED'));
 			})
-			.catch(() => {
-				sonnerToast.error(t('pages.timeLog.DELETION_ERROR_TITLE'), {
-					description: t('pages.timeLog.DELETE_ERROR')
-				});
+			.catch((error: unknown) => {
+				// The failure toast comes from the global mutation fallback
+				console.error('Failed to delete the time log', error);
 			});
 	};
 
@@ -492,11 +470,7 @@ const TaskActionMenu = ({
 			<EditTaskModal closeModal={isCloseModalEditTask} isOpen={isEditTask} timeLogData={timeLog} />
 			<RejectSelectedModal
 				selectTimesheetId={timeLog.timesheetId ? [timeLog.timesheetId] : []}
-				onReject={() =>
-					sonnerToast.success(t('pages.timeLog.MODIFICATION_CONFIRMED'), {
-						description: t('pages.timeLog.STATUS_MODIFY_SUCCESS')
-					})
-				}
+				onReject={() => sonnerToast.success(t('toasts.time.LOG_REJECTED'))}
 				maxReasonLength={120}
 				minReasonLength={0}
 				closeModal={closeRejectModal}
@@ -504,23 +478,25 @@ const TaskActionMenu = ({
 			/>
 			<DropdownMenu>
 				<DropdownMenuTrigger asChild>
-					<Button variant="ghost" className="w-8 h-8 p-0 text-sm sm:text-base">
-						<span className="sr-only">Open menu</span>
-						<MoreHorizontal className="w-4 h-4" />
+					<Button variant="ghost" size="icon" className="shrink-0 text-muted-foreground">
+						<span className="sr-only">{t('common.MORE_OPTIONS')}</span>
+						<MoreHorizontal />
 					</Button>
 				</DropdownMenuTrigger>
 				<DropdownMenuContent align="end">
 					{canEdit && (
-						<DropdownMenuItem className="cursor-pointer" onClick={isOpenModalEditTask}>
-							{t('common.EDIT')}
-						</DropdownMenuItem>
+						<>
+							<DropdownMenuItem className="cursor-pointer" onClick={isOpenModalEditTask}>
+								<Pencil />
+								{t('common.EDIT')}
+							</DropdownMenuItem>
+							<DropdownMenuSeparator />
+						</>
 					)}
-					<DropdownMenuSeparator />
 					<StatusTask timeLog={timeLog} onReject={openRejectModal} />
-					<DropdownMenuItem
-						onClick={openAlertConfirmation}
-						className="text-red-600 hover:!text-red-600 cursor-pointer"
-					>
+					<DropdownMenuSeparator />
+					<DropdownMenuItem variant="destructive" onClick={openAlertConfirmation} className="cursor-pointer">
+						<Trash />
 						{t('common.DELETE')}
 					</DropdownMenuItem>
 				</DropdownMenuContent>
@@ -541,19 +517,12 @@ export const StatusTask = ({ timeLog, onReject }: { timeLog: ITimeLog; onReject:
 				stoppedAt: timeLog.stoppedAt,
 				employeeId: timeLog.employeeId,
 				isBillable
-			})
-				.then(() => {
-					sonnerToast.success(t('pages.timeLog.MODIFICATION_CONFIRMED'), {
-						description: t('pages.timeLog.BILLABLE_MODIFY_SUCCESS')
-					});
-				})
-				.catch(() => {
-					sonnerToast.error(t('pages.timeLog.MODIFICATION_ERROR_TITLE'), {
-						description: t('pages.timeLog.BILLABLE_MODIFY_ERROR')
-					});
-				});
+			}).catch((error: unknown) => {
+				// The failure toast comes from the global mutation fallback
+				console.error('Failed to change the billable state', error);
+			});
 		},
-		[updateTimelog, timeLog.id, timeLog.startedAt, timeLog.stoppedAt, timeLog.employeeId, t]
+		[updateTimelog, timeLog.id, timeLog.startedAt, timeLog.stoppedAt, timeLog.employeeId]
 	);
 
 	const { updateTimesheetStatus } = useUpdateTimesheet();
@@ -563,14 +532,11 @@ export const StatusTask = ({ timeLog, onReject }: { timeLog: ITimeLog; onReject:
 			ids
 		})
 			.then(() => {
-				sonnerToast.success(t('pages.timeLog.MODIFICATION_CONFIRMED'), {
-					description: t('pages.timeLog.STATUS_MODIFY_SUCCESS')
-				});
+				sonnerToast.success(t('toasts.time.STATUS_CHANGED'));
 			})
-			.catch(() => {
-				sonnerToast.error(t('pages.timeLog.MODIFICATION_ERROR_TITLE'), {
-					description: t('pages.timeLog.STATUS_MODIFY_ERROR')
-				});
+			.catch((error: unknown) => {
+				// The failure toast comes from the global mutation fallback
+				console.error('Failed to change the timesheet status', error);
 			});
 	};
 
@@ -584,6 +550,7 @@ export const StatusTask = ({ timeLog, onReject }: { timeLog: ITimeLog; onReject:
 			{canUpdateTimeSheetStatus ? (
 				<DropdownMenuSub>
 					<DropdownMenuSubTrigger>
+						<CheckCircle2 />
 						<span>{t('common.CHANGE_STATUS')}</span>
 					</DropdownMenuSubTrigger>
 					<DropdownMenuPortal>
@@ -602,12 +569,15 @@ export const StatusTask = ({ timeLog, onReject }: { timeLog: ITimeLog; onReject:
 									textValue={status.label}
 									className="cursor-pointer"
 								>
-									<div className="flex items-center gap-3">
-										<div
-											className={clsxm('h-2 w-2 rounded-full', statusColor(status.label).bg)}
-										></div>
-										<span>{status.label}</span>
-									</div>
+									<span className="flex size-4 shrink-0 items-center justify-center">
+										<span
+											className={clsxm(
+												'size-1.5 rounded-full',
+												timesheetStatusDotClass(status.label)
+											)}
+										/>
+									</span>
+									<span>{status.label}</span>
 								</DropdownMenuItem>
 							))}
 						</DropdownMenuSubContent>
@@ -616,6 +586,7 @@ export const StatusTask = ({ timeLog, onReject }: { timeLog: ITimeLog; onReject:
 			) : null}
 			<DropdownMenuSub>
 				<DropdownMenuSubTrigger>
+					<DollarCircle />
 					<span>{t('pages.timesheet.BILLABLE.BILLABLE')}</span>
 				</DropdownMenuSubTrigger>
 				<DropdownMenuPortal>
@@ -627,9 +598,8 @@ export const StatusTask = ({ timeLog, onReject }: { timeLog: ITimeLog; onReject:
 							textValue={'Yes'}
 							className="cursor-pointer"
 						>
-							<div className="flex items-center gap-3">
-								<span>{t('pages.timesheet.BILLABLE.YES')}</span>
-							</div>
+							<Check />
+							<span>{t('pages.timesheet.BILLABLE.YES')}</span>
 						</DropdownMenuItem>
 						<DropdownMenuItem
 							onClick={async () => {
@@ -638,9 +608,8 @@ export const StatusTask = ({ timeLog, onReject }: { timeLog: ITimeLog; onReject:
 							textValue={'No'}
 							className="cursor-pointer"
 						>
-							<div className="flex items-center gap-3">
-								<span>{t('pages.timesheet.BILLABLE.NO')}</span>
-							</div>
+							<X />
+							<span>{t('pages.timesheet.BILLABLE.NO')}</span>
 						</DropdownMenuItem>
 					</DropdownMenuSubContent>
 				</DropdownMenuPortal>
@@ -650,20 +619,8 @@ export const StatusTask = ({ timeLog, onReject }: { timeLog: ITimeLog; onReject:
 };
 
 export const getBadgeColor = (timesheetStatus: ETimesheetStatus | null) => {
-	switch (timesheetStatus) {
-		case 'DRAFT':
-			return 'bg-gray-300';
-		case 'PENDING':
-			return 'bg-yellow-400';
-		case 'IN REVIEW':
-			return 'bg-blue-500';
-		case 'DENIED':
-			return 'bg-red-500';
-		case 'APPROVED':
-			return 'bg-green-500';
-		default:
-			return 'bg-gray-100';
-	}
+	const tone = timesheetStatusTone(timesheetStatus);
+	return badgeVariants({ variant: tone });
 };
 
 type SortOrder = 'ASC' | 'DESC';
@@ -677,25 +634,15 @@ const HeaderColumn = ({
 	onSort: () => void;
 	currentSort: SortOrder | null;
 }) => (
-	<div className="flex gap-x-2" role="columnheader">
+	<div className="flex items-center gap-x-1.5" role="columnheader">
 		<span>{label}</span>
 		<button
 			onClick={onSort}
 			aria-label={`Sort ${label} column ${currentSort ? `currently ${currentSort.toLowerCase()}` : ''}`}
-			className="flex flex-col items-start gap-0 leading-none"
+			className="flex flex-col items-start gap-0 rounded-sm leading-none text-muted-foreground outline-none transition-colors hover:text-foreground focus-visible:ring-[3px] focus-visible:ring-ring/25"
 		>
-			<CaretUpIcon
-				style={{
-					height: 10,
-					color: '#71717A'
-				}}
-			/>
-			<CaretDownIcon
-				style={{
-					height: 10,
-					color: '#71717A'
-				}}
-			/>
+			<CaretUpIcon className="h-2.5" />
+			<CaretDownIcon className="h-2.5" />
 		</button>
 	</div>
 );
@@ -715,7 +662,6 @@ const HeaderRow = ({
 	date?: string;
 	selectedIds: ITimeLog[];
 }) => {
-	const { bg, bgOpacity } = statusColor(status);
 	const [sortState, setSortState] = React.useState<{ [key: string]: SortOrder | null }>({
 		Task: null,
 		Project: null,
@@ -731,17 +677,13 @@ const HeaderRow = ({
 	};
 
 	return (
-		<div
-			style={{ backgroundColor: bgOpacity, borderBottomColor: bg }}
-			className="flex items-center text-[#71717A] font-medium border-b border-t dark:border-gray-600 space-x-4 p-1 h-[60px] w-full"
-		>
+		<div className="flex h-9 w-full items-center gap-4 hairline-t border-border bg-foreground/2.5 px-4 text-xs font-medium text-muted-foreground">
 			<Checkbox
 				checked={isAllSelected}
 				onCheckedChange={() => date && handleSelectRowByStatusAndDate(status, date)}
-				className="w-5 h-5"
 				disabled={!date}
 			/>
-			<div className="flex-[2]">
+			<div className="min-w-0 flex-2">
 				<HeaderColumn label="Task" onSort={() => handleSort('Task')} currentSort={sortState['Task']} />
 			</div>
 			<div className="flex-1">
@@ -754,12 +696,13 @@ const HeaderRow = ({
 					currentSort={sortState['Employee']}
 				/>
 			</div>
-			<div className="flex-auto">
+			<div className="flex-1">
 				<HeaderColumn label="Status" onSort={() => handleSort('Status')} currentSort={sortState['Status']} />
 			</div>
-			<div className="ml-auto">
+			<div className="w-24 shrink-0 text-right">
 				<span>Time</span>
 			</div>
+			<div aria-hidden="true" className="size-8 shrink-0" />
 		</div>
 	);
 };

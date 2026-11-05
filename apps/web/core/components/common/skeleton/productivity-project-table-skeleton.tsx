@@ -12,11 +12,9 @@ export const ProductivityProjectTableSkeleton: FC<ProductivityProjectTableSkelet
 	const t = useTranslations();
 
 	return (
-		<Card
-			className={`bg-white rounded-md border border-gray-100 dark:border-gray-800 dark:bg-dark--theme-light min-h-[600px] w-full ${className || ''}`}
-		>
+		<Card className={`min-h-[600px] w-full ${className || ''}`}>
 			<Table>
-				<TableHeader className="bg-gray-50 dark:bg-dark--theme-light">
+				<TableHeader className="bg-muted/50">
 					<TableRow>
 						<TableHead className="font-semibold">{t('common.DATE')}</TableHead>
 						<TableHead className="font-semibold">{t('common.MEMBER')}</TableHead>
@@ -30,7 +28,7 @@ export const ProductivityProjectTableSkeleton: FC<ProductivityProjectTableSkelet
 					{[1, 2].map((projectIndex) => (
 						<Fragment key={`project-group-${projectIndex}`}>
 							{/* Project Header Row */}
-							<TableRow key={`project-header-${projectIndex}`} className="bg-gray-50/50 dark:bg-muted">
+							<TableRow key={`project-header-${projectIndex}`} className="bg-muted/50">
 								<TableCell colSpan={5} className="py-2">
 									<div className="flex gap-2 items-center">
 										<Skeleton className="w-6 h-6 rounded-full" />
@@ -45,7 +43,7 @@ export const ProductivityProjectTableSkeleton: FC<ProductivityProjectTableSkelet
 									{/* Date Header Row */}
 									<TableRow
 										key={`date-header-${projectIndex}-${dateIndex}`}
-										className="bg-gray-50/30 dark:bg-muted"
+										className="bg-foreground/[0.025]"
 									>
 										<TableCell>
 											<Skeleton className="w-40 h-4" />

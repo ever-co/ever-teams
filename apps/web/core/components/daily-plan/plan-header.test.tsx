@@ -8,16 +8,6 @@ import { PlanHeader } from './plan-header';
 
 const mockUpdateDailyPlan = jest.fn();
 
-// The component imports 'assets/svg', which the compiler resolves to this same file
-jest.mock('@/assets/svg', () => ({
-	EditPenBoxIcon: ({ onClick }: { onClick?: () => void }) => (
-		<button type="button" data-testid="edit-planned-time" onClick={onClick} />
-	),
-	CheckCircleTickIcon: ({ onClick }: { onClick?: () => void }) => (
-		<button type="button" data-testid="save-planned-time" onClick={onClick} />
-	)
-}));
-
 jest.mock('@/core/hooks', () => ({
 	useAuthenticateUser: () => ({ isTeamManager: true }),
 	useCanSeeActivityScreen: () => false
@@ -47,7 +37,7 @@ jest.mock('next-intl', () => ({
 }));
 
 jest.mock('sonner', () => ({
-	toast: { success: jest.fn(), error: jest.fn() }
+	toast: { success: jest.fn(), error: jest.fn(), warning: jest.fn() }
 }));
 
 const plan: TDailyPlan = {
@@ -59,45 +49,47 @@ const plan: TDailyPlan = {
 	tasks: []
 };
 
-function failedUpdateToast(error: string) {
-	const serializedValues = JSON.stringify({ error });
-	return `dailyPlan.toastMessages.PLAN_UPDATE_FAILED_WITH_ERROR ${serializedValues}`;
-}
-
+// The planned time is edited in a popover: open it from the field, type, then confirm with Enter
 function savePlannedTime(value: string) {
 	render(<PlanHeader plan={plan} planMode="Today Tasks" />);
-	const editButton = screen.getByTestId('edit-planned-time');
-	fireEvent.click(editButton);
-	const plannedTimeInput = screen.getByRole('textbox');
+	const plannedTimeField = screen.getByRole('button', { name: /^dailyPlan\.PLANNED_TIME/ });
+	fireEvent.click(plannedTimeField);
+	const plannedTimeInput = screen.getByRole('textbox', { name: 'dailyPlan.PLANNED_TIME' });
 	fireEvent.change(plannedTimeInput, { target: { value } });
-	const saveButton = screen.getByTestId('save-planned-time');
-	fireEvent.click(saveButton);
+	fireEvent.keyDown(plannedTimeInput, { key: 'Enter' });
 }
 
 describe('PlanHeader planned time toasts', () => {
+	beforeEach(() => {
+		jest.clearAllMocks();
+	});
+
 	it('translates the error for minutes of 60 or more', async () => {
 		savePlannedTime('1:75');
 
-		const expectedToast = failedUpdateToast('dailyPlan.toastMessages.MINUTES_OUT_OF_RANGE');
-		await waitFor(() => expect(toast.error).toHaveBeenCalledWith(expectedToast));
+		await waitFor(() =>
+			expect(toast.warning).toHaveBeenCalledWith('toasts.plans.HOURS_INVALID', { id: 'plan-hours-invalid' })
+		);
 		expect(mockUpdateDailyPlan).not.toHaveBeenCalled();
 	});
 
 	it('translates the error for an input that is neither H:MM nor a decimal', async () => {
 		savePlannedTime('abc');
 
-		const expectedToast = failedUpdateToast('dailyPlan.toastMessages.INVALID_TIME_FORMAT');
-		await waitFor(() => expect(toast.error).toHaveBeenCalledWith(expectedToast));
+		await waitFor(() =>
+			expect(toast.warning).toHaveBeenCalledWith('toasts.plans.HOURS_INVALID', { id: 'plan-hours-invalid' })
+		);
 		expect(mockUpdateDailyPlan).not.toHaveBeenCalled();
 	});
 
 	it('keeps the reason of a failed request, without an English "Error:" prefix', async () => {
 		mockUpdateDailyPlan.mockRejectedValueOnce(new Error('Request failed with status code 403'));
-
 		savePlannedTime('3:30');
 
-		const expectedToast = failedUpdateToast('Request failed with status code 403');
-		await waitFor(() => expect(toast.error).toHaveBeenCalledWith(expectedToast));
+		await waitFor(() => expect(toast.error).toHaveBeenCalled());
+		const [title, options] = (toast.error as jest.Mock).mock.calls[0];
+		expect(title).toBe('toasts.plans.SAVE_FAILED');
+		expect(String(options.description)).not.toMatch(/^Error:/);
 		expect(mockUpdateDailyPlan).toHaveBeenCalledWith({ workTimePlanned: 3.5, employeeId: 'employee-1' }, 'plan-1');
 	});
 });

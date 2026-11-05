@@ -63,6 +63,7 @@ jest.mock('../../../features/tasks/create-task-modal', () => ({ __esModule: true
 jest.mock('../../../features/teams/invite-form-modal', () => ({ InviteFormModal: () => null }));
 jest.mock('../../../features/projects/create-project-modal', () => ({ CreateProjectModal: () => null }));
 jest.mock('@/core/components/features/teams/create-team-modal', () => ({ CreateTeamModal: () => null }));
+jest.mock('./palette-task-results', () => ({ PaletteTaskResults: () => null }));
 
 import { SidebarCommandModal } from './sidebar-command-modal';
 
@@ -83,7 +84,7 @@ describe('SidebarCommandModal invite command', () => {
 		mockCanInvite = true;
 		render(<SidebarCommandModal publicTeam={false} variant="none" />);
 
-		expect(screen.getByText('Invite User')).toBeTruthy();
+		expect(screen.getByText('commandPalette.commands.inviteUser')).toBeTruthy();
 		expect(registeredSequences()).toContain('i u');
 	});
 
@@ -91,10 +92,10 @@ describe('SidebarCommandModal invite command', () => {
 		mockCanInvite = false;
 		render(<SidebarCommandModal publicTeam={false} variant="none" />);
 
-		expect(screen.queryByText('Invite User')).toBeNull();
+		expect(screen.queryByText('commandPalette.commands.inviteUser')).toBeNull();
 		expect(registeredSequences()).not.toContain('i u');
 		// The other commands stay.
-		expect(screen.getByText('Assign to me')).toBeTruthy();
+		expect(screen.getByText('commandPalette.commands.assignToMe')).toBeTruthy();
 		expect(registeredSequences()).toContain('a m');
 	});
 });

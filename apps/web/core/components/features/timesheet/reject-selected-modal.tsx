@@ -1,8 +1,10 @@
 import { useUpdateTimesheet } from '@/core/hooks/timesheet/use-update-timesheet';
 import { clsxm } from '@/core/lib/utils';
 import { Modal } from '@/core/components';
-import { ReloadIcon } from '@radix-ui/react-icons';
-import { useTranslations } from 'next-intl';
+import { Spinner } from '@/core/components/icons';
+import { Button } from '@/core/components/duplicated-components/_button';
+import { controlRecipe } from '@/core/components/common/input';
+import { type TranslationHooks, useTranslations } from 'next-intl';
 import { useState } from 'react';
 import { ETimesheetStatus } from '@/core/types/generics/enums/timesheet';
 export interface IRejectSelectedModalProps {
@@ -13,6 +15,13 @@ export interface IRejectSelectedModalProps {
 	maxReasonLength?: number;
 	selectTimesheetId?: string[];
 }
+function submitLabelOf(isSubmitting: boolean, t: TranslationHooks) {
+	if (isSubmitting) {
+		return t('dashboard.timesheets.reject.SUBMITTING');
+	}
+	return t('common.REJECT');
+}
+
 /**
  * A modal for rejecting selected timesheet entries.
  *
@@ -38,6 +47,8 @@ export function RejectSelectedModal({
 	const { updateTimesheetStatus, loadingUpdateTimesheetStatus } = useUpdateTimesheet();
 
 	const t = useTranslations();
+	const isReasonTooShort = minReasonLength !== undefined && reason.length < minReasonLength;
+	const submitLabel = submitLabelOf(isSubmitting, t);
 	// The modal stays mounted between openings, so a reason typed for one selection must not carry over to the next.
 	const handleClose = () => {
 		setReason('');
@@ -66,59 +77,53 @@ export function RejectSelectedModal({
 			isOpen={isOpen}
 			showCloseIcon={false}
 			closeModal={handleClose}
-			title={'Reject Selected'}
-			className="bg-light--theme-light dark:bg-dark--theme-light p-5 rounded-xl w-full md:w-40 md:min-w-[24rem] justify-start"
-			titleClass="font-bold"
+			title={t('pages.timesheet.TIMESHEET_ACTION_REJECT_SELECTED')}
+			className="w-full md:w-40 md:min-w-[24rem] justify-start"
 		>
 			<form onSubmit={handleSubmit}>
 				<div className="flex flex-col gap-4">
-					<span className="text-[#71717A] text-center">
+					<span className="text-sm text-muted-foreground">
 						{t('pages.timesheet.YOU_ARE_ABOUT_TO_REJECT_ENTRY')}
 					</span>
 					<textarea
 						value={reason}
 						onChange={(e) => setReason(e.target.value)}
-						placeholder="Add reason here..."
+						placeholder={t('dashboard.timesheets.reject.REASON_PLACEHOLDER')}
 						className={clsxm(
-							'bg-transparent focus:border-transparent focus:ring-2 focus:ring-transparent',
-							'placeholder-gray-300 placeholder:font-normal resize-none p-2 grow',
-							'border border-gray-200 dark:border-slate-600 dark:bg-dark--theme-light rounded-md h-40',
-
-							minReasonLength !== undefined && reason.length < minReasonLength && 'border-red-500'
+							controlRecipe,
+							'h-40 grow resize-none p-3',
+							isReasonTooShort && 'border-destructive ring-destructive/20'
 						)}
 						maxLength={120}
 						minLength={0}
-						aria-label="Rejection reason"
+						aria-label={t('pages.timesheet.REJECTION_REASON')}
 					/>
-					<div className="text-sm text-right text-gray-500">
+					<div className="text-xs text-right tabular-nums text-muted-foreground">
 						{reason.length}/{maxReasonLength}
 					</div>
-					<div className="flex gap-x-4 justify-end items-center">
-						<button
+					<div className="flex gap-x-2 justify-end items-center">
+						<Button
+							variant="outline"
+							size="lg"
 							onClick={handleClose}
 							type="button"
 							disabled={isSubmitting}
-							aria-label="Cancel rejection"
-							className="dark:text-primary border-[#E2E8F0] dark:border-slate-600 font-normal dark:bg-dark--theme-light h-[2.2rem] text-gray-700 border px-2 rounded-lg"
 						>
 							{t('common.CANCEL')}
-						</button>
-						<button
+						</Button>
+						<Button
+							variant="destructive"
+							size="lg"
 							type="submit"
 							disabled={
 								loadingUpdateTimesheetStatus ||
 								isSubmitting ||
 								(minReasonLength !== undefined && reason.length < minReasonLength)
 							}
-							aria-label="Confirm rejection"
-							className={clsxm(
-								'bg-red-600 h-[2.2rem] font-normal flex items-center text-white px-2 rounded-lg',
-								'disabled:opacity-50 disabled:cursor-not-allowed'
-							)}
 						>
-							{loadingUpdateTimesheetStatus && <ReloadIcon className="mr-2 w-4 h-4 animate-spin" />}
-							{isSubmitting ? 'Rejecting...' : 'Reject Entry'}
-						</button>
+							{loadingUpdateTimesheetStatus && <Spinner className="animate-spin" />}
+							{submitLabel}
+						</Button>
 					</div>
 				</div>
 			</form>

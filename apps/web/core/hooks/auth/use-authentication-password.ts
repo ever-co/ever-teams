@@ -91,13 +91,16 @@ export function useAuthenticationPassword() {
 	};
 
 	const signInToWorkspaceRequest = useCallback(
-		(params: {
-			email: string;
-			token: string;
-			selectedTeam: string;
-			defaultTeamId?: IOrganizationTeam['id'];
-			lastTeamId?: string; // Optional: undefined when user has no teams
-		}) => {
+		(
+			params: {
+				email: string;
+				token: string;
+				selectedTeam: string;
+				defaultTeamId?: IOrganizationTeam['id'];
+				lastTeamId?: string; // Optional: undefined when user has no teams
+			},
+			onError?: (error: unknown) => void
+		) => {
 			signInWorkspaceQueryCall(params)
 				.then(() => {
 					setAuthenticated(true);
@@ -113,31 +116,36 @@ export function useAuthenticationPassword() {
 					}
 
 					inputCodeRef.current?.clear();
+					onError?.(err);
 				});
 		},
 		[signInWorkspaceQueryCall, router, infiniteLoading]
 	);
 
-	const handleWorkspaceSubmit = (e: any, token: string, selectedTeam: string) => {
+	const handleWorkspaceSubmit = (e: any, token: string, selectedTeam: string, onError?: (error: unknown) => void) => {
 		e.preventDefault();
 		setErrors({});
 		const { errors, isValid } = validateForm(['email'], formValues);
 
 		if (!isValid) {
 			setErrors(errors);
+			onError?.(errors);
 			return;
 		}
 
 		infiniteLoading.current = true;
 
-		signInToWorkspaceRequest({
-			email: formValues.email,
-			token,
-			selectedTeam,
-			// Only send lastTeamId if selectedTeam is not empty
-			// Empty string causes 400 Bad Request: "lastTeamId must be a UUID"
-			lastTeamId: selectedTeam || undefined
-		});
+		signInToWorkspaceRequest(
+			{
+				email: formValues.email,
+				token,
+				selectedTeam,
+				// Only send lastTeamId if selectedTeam is not empty
+				// Empty string causes 400 Bad Request: "lastTeamId must be a UUID"
+				lastTeamId: selectedTeam || undefined
+			},
+			onError
+		);
 	};
 
 	const getLastTeamIdWithRecentLogout = useCallback((): string | null => {

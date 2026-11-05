@@ -10,16 +10,16 @@ import {
 	useUserProfilePage
 } from '@/core/hooks';
 import { useEmployeeDailyPlans } from '@/core/hooks/daily-plans/use-employee-daily-plans';
+import { useIsListedTeamManager } from '@/core/hooks/organizations/teams/use-team-member';
 import { IClassName } from '@/core/types/interfaces/common/class-name';
 import {
 	activeTaskStatisticsState,
-	activeTeamState,
-	activeTeamManagersState,
+	activeTeamScopeState,
 	timerSecondsState,
 	userDetailAccordion as userAccordion
 } from '@/core/stores';
 import { clsxm } from '@/core/lib/utils';
-import { Container, Text } from '@/core/components';
+import { Button, Text } from '@/core/components';
 import { useTranslations } from 'next-intl';
 import { useAtom, useAtomValue, useSetAtom } from 'jotai';
 import { TaskEstimateInfo } from './task-estimate';
@@ -27,20 +27,26 @@ import { TaskInfo } from './task-info';
 import { UserInfo } from './user-info';
 import { UserTeamCardMenu } from './user-team-card-menu';
 import React, { Suspense, useCallback, useMemo, useState } from 'react';
-import { CollapseUpIcon, ExpandIcon } from '@/core/components/svgs/expand';
 import { activityTypeState } from '@/core/stores/timer/activity-type';
-import { SixSquareGridIcon } from 'assets/svg';
-import { ChevronDoubleDownIcon } from '@heroicons/react/20/solid';
+import { SegmentedControl } from '@/core/components/common/segmented-control';
+import { ACTIVITY_TAB_LABEL_KEYS } from '@/core/components/activities/activity-tab-labels';
+import { teamTasksPagesLoadingState } from '@/core/stores/teams/team-tasks';
+import {
+	MemberActivityPanelSkeleton,
+	MemberEstimateCellSkeleton,
+	MemberTaskCellSkeleton,
+	MemberTimesCellSkeleton,
+	MemberTotalCellSkeleton
+} from '@/core/components/teams/member-row-skeleton';
+import { Analytics, ChevronDown, ChevronsDown, DragHandle, Spinner } from '@/core/components/icons';
+import { TASK_PROPERTY_PILL_RECIPE } from '@/core/components/tasks/task-property-trigger';
 import { AppsTab } from '@/core/components/pages/profile/apps';
 import { VisitedSitesTab } from '@/core/components/pages/profile/visited-sites';
 import { FilterTab } from '@/app/[locale]/(main)/profile/[memberId]/page';
-import { Loader } from 'lucide-react';
 import { useTaskFilter } from '@/core/hooks/tasks/use-task-filter';
 import { ScreenshootTab } from '@/core/components/pages/profile/screenshots/screenshoots';
 import { InputField } from '@/core/components/duplicated-components/_input';
 import { LazyUserProfileTask, LazyUserTeamActivity } from '@/core/components/optimized-components';
-import { EverCard } from '@/core/components/common/ever-card';
-import { VerticalSeparator } from '@/core/components/duplicated-components/separator';
 import { TaskTimes, TodayWorkedTime } from '@/core/components/tasks/task-times';
 import { IOrganizationTeam } from '@/core/types/interfaces/team/organization-team';
 import { TTaskStatistics } from '@/core/types/interfaces/task/task';
@@ -49,10 +55,17 @@ import { cn } from '@/core/lib/helpers';
 import { ITEMS_LENGTH_TO_VIRTUALIZED } from '@/core/constants/config/constants';
 import { useUserQuery } from '@/core/hooks/queries/user-user.query';
 import {
-	UserTeamActivitySkeleton,
-	UserProfileTaskSkeleton
-} from '@/core/components/common/skeleton/profile-component-skeletons';
-import { uniqueId } from 'lodash';
+	MEMBER_CARD_PADDING,
+	MEMBER_CELL,
+	MEMBER_CELL_CENTER,
+	MEMBER_FIRST_CELL,
+	MEMBER_GRID_FROM,
+	MEMBER_MENU_CELL,
+	MEMBER_ROW_GRID,
+	MEMBER_ROW_MIN_HEIGHT,
+	MEMBER_STACK_UNTIL
+} from '@/core/components/teams/member-row-grid';
+import { UserTeamActivitySkeleton } from '@/core/components/common/skeleton/profile-component-skeletons';
 import { normalizeProfileActivityTimeZone } from '@/core/hooks/activities/use-profile-activity';
 import type { TProfileActivityScope } from '@/core/types/schemas/activities/profile-activity.schema';
 
@@ -67,6 +80,8 @@ type IUserTeamCard = {
 	onDragEnd: any;
 	onDragOver: (e: React.DragEvent<HTMLDivElement>) => any;
 	currentExit: boolean;
+	/** The team's statistics (times of the day) are still loading: the time cells show their skeleton. */
+	statsPending?: boolean;
 } & IClassName;
 
 // Memoized ChevronToggleButton to prevent unnecessary re-renders
@@ -88,12 +103,24 @@ const ChevronToggleButton = React.memo(
 		}, [isExpanded, userId, onToggle, onActivityClose]);
 
 		return (
-			<div onClick={handleClick} className={clsxm('absolute top-0 right-4 w-6 h-6 cursor-pointer p-[3px]')}>
-				<ChevronDoubleDownIcon className={clsxm('h-4 w-4 transition-all', isExpanded && 'rotate-180')} />
-			</div>
+			<Button
+				variant="ghost"
+				size="icon-sm"
+				onClick={handleClick}
+				className="absolute inset-y-0 right-2 my-auto text-muted-foreground"
+			>
+				<ChevronsDown
+					className={clsxm('size-4 transition-transform duration-200', isExpanded && 'rotate-180')}
+				/>
+			</Button>
 		);
 	}
 );
+
+const ACTIVITY_TOGGLE =
+	'cursor-pointer gap-1.5 text-foreground outline-none transition-colors hover:bg-foreground/[0.03] focus-visible:ring-[3px] focus-visible:ring-ring/25 [&_svg]:size-3.5 [&_svg]:shrink-0 [&_svg]:text-muted-foreground';
+
+const ACTIVITY_TOGGLE_OPEN = 'bg-foreground/5 ring-foreground/15 hover:bg-foreground/5';
 
 export const UserTeamCard = React.memo(function UserTeamCard({
 	className,
@@ -104,14 +131,20 @@ export const UserTeamCard = React.memo(function UserTeamCard({
 	onDragStart = () => null,
 	onDragEnd = () => null,
 	onDragEnter = () => null,
-	onDragOver = () => null
+	onDragOver = () => null,
+	statsPending = false
 }: IUserTeamCard) {
+	const t = useTranslations();
 	const { data: user } = useUserQuery();
 
 	const [userDetailAccordion, setUserDetailAccordion] = useAtom(userAccordion);
 	// Granular hooks — "pay only for what you use"
 	const identity = useMemberIdentity(member);
 	const memberTask = useMemberActiveTask(member);
+	const tasksPagesLoading = useAtomValue(teamTasksPagesLoadingState);
+	const isTaskListPending = !memberTask && tasksPagesLoading;
+	const isTaskPending = isTaskListPending || statsPending;
+	const isTimesPending = isTaskPending || statsPending;
 	const mutations = useTeamMemberMutations(member);
 	const roleActions = useTeamMemberRoleActions(member);
 
@@ -127,25 +160,16 @@ export const UserTeamCard = React.memo(function UserTeamCard({
 	const setActivityFilter = useSetAtom(activityTypeState);
 
 	const [showActivity, setShowActivity] = React.useState<boolean>(false);
-	const activeTeamManagers = useAtomValue(activeTeamManagersState);
-	const activeTeam = useAtomValue(activeTeamState);
-
-	const isManagerConnectedUser = activeTeamManagers.findIndex((member) => member.employee?.user?.id === user?.id);
+	const isConnectedUserManager = useIsListedTeamManager(user?.id);
+	// The ids alone: the card is rendered once per member and the team is rebuilt on every refresh of its members
+	const activeTeam = useAtomValue(activeTeamScopeState);
 
 	// Memoize accordion state early to use in daily plan options
 	const isAccordionExpanded = useMemo(() => {
 		return userDetailAccordion === identity.memberUser?.id;
 	}, [userDetailAccordion, identity.memberUser?.id]);
 
-	// PERFORMANCE FIX: Only fetch daily plans when accordion is expanded
-	// This prevents unnecessary API calls for every team member card on initial render
-	// PERFORMANCE FIX: Only fetch daily plans when accordion is expanded
-	// This prevents unnecessary API calls for every team member card on initial render
 	const targetEmployeeId = identity.isAuthUser ? user?.employee?.id : identity.member?.employeeId;
-	const { isLoading: isLoadingDailyPlans, isFetching: isFetchingDailyPlans } = useEmployeeDailyPlans(
-		targetEmployeeId ?? null,
-		{ enabled: isAccordionExpanded } // Only enable queries when accordion is open
-	);
 
 	// Memoize callback to prevent unnecessary re-renders
 	const showActivityFilter = useCallback(
@@ -195,11 +219,11 @@ export const UserTeamCard = React.memo(function UserTeamCard({
 		// Correct logic for team-members context
 		// In team-members view, we compare memberUserId with connectedUserId, not profile
 		const isOwnCard = identity.memberUser?.id === user?.id;
-		const isManager = isManagerConnectedUser !== -1;
+		const isManager = isConnectedUserManager;
 		const result = isOwnCard || isManager;
 
 		return result;
-	}, [identity.memberUser?.id, user?.id, isManagerConnectedUser]);
+	}, [identity.memberUser?.id, user?.id, isConnectedUserManager]);
 	const activityScope = useMemo<TProfileActivityScope | undefined>(() => {
 		if (publicTeam || !canSeeActivity || !targetEmployeeId || !activeTeam?.tenantId || !activeTeam.organizationId) {
 			return undefined;
@@ -222,152 +246,135 @@ export const UserTeamCard = React.memo(function UserTeamCard({
 		user?.timeZone
 	]);
 
-	// Use the memoized accordion state from above
-
-	// Determine if we're loading member data (for skeleton display)
-	const isLoadingMemberData = useMemo(() => {
-		if (!isAccordionExpanded) return false;
-
-		return isLoadingDailyPlans || isFetchingDailyPlans;
-	}, [isAccordionExpanded, isLoadingDailyPlans, isFetchingDailyPlans]);
-
 	const handleActivityClose = useCallback(() => setShowActivity(false), []);
+	const shouldShowChevron = !publicTeam && canSeeActivity;
+	const showsActivityPanel = canSeeActivity && !showActivity;
+	const showsActivityToggle = canSeeActivity && !statsPending;
+	const showsPlainTotal = !canSeeActivity && !statsPending;
 	return (
 		<div
-			className={clsxm(!active && 'border-2 border-transparent')}
+			className="group/row relative"
 			draggable={draggable}
 			onDragStart={onDragStart}
 			onDragEnter={onDragEnter}
 			onDragEnd={onDragEnd}
 			onDragOver={onDragOver}
 		>
-			<EverCard
-				shadow="bigger"
-				className={clsxm(
-					'sm:flex sm:flex-col hidden transition-all dark:bg-card min-h-24 !py-2.5 px-2.5 md:px-4 sm:justify-center',
-					active
-						? ['border-primary-light border-[0.1875rem]']
-						: ['dark:border border border-transparent dark:border-[#FFFFFF14]'],
-
-					className
-				)}
-			>
+			<div className={clsxm(MEMBER_GRID_FROM, MEMBER_CARD_PADDING, 'py-2', className)}>
 				<div
 					className={cn(
-						'flex relative items-center m-0 transition-all duration-300',
-						isAccordionExpanded && !showActivity && 'pb-3 border-b'
+						MEMBER_ROW_GRID,
+						MEMBER_ROW_MIN_HEIGHT,
+						'relative',
+						isAccordionExpanded && !showActivity && 'hairline-b border-border pb-2'
 					)}
 				>
-					<div className="absolute left-0 cursor-pointer">
-						<SixSquareGridIcon className="w-2  text-[#CCCCCC] dark:text-[#4F5662]" />
+					<div className="absolute -left-3.5 top-1/2 -translate-y-1/2 cursor-grab text-muted-foreground/60 opacity-0 transition-opacity group-focus-within/row:opacity-100 group-hover/row:opacity-100">
+						<DragHandle className="size-3.5" />
 					</div>
 
-					{/* Show user name, email and image */}
-					<div className="relative">
-						<UserInfo memberInfo={identity} className="min-w-64 max-w-72" publicTeam={publicTeam} />
-						{(() => {
-							const shouldShowChevron = !publicTeam && canSeeActivity;
-							return shouldShowChevron ? (
-								<ChevronToggleButton
-									isExpanded={isAccordionExpanded}
-									userId={identity.memberUser?.id}
-									onToggle={setUserDetailAccordion}
-									onActivityClose={handleActivityClose}
-								/>
-							) : null;
-						})()}
+					{/* Member: avatar, name, e-mail and the details toggle */}
+					<div className={cn(MEMBER_FIRST_CELL, 'relative')}>
+						<UserInfo memberInfo={identity} className="w-full pr-9" publicTeam={publicTeam} />
+						{shouldShowChevron && (
+							<ChevronToggleButton
+								isExpanded={isAccordionExpanded}
+								userId={identity.memberUser?.id}
+								onToggle={setUserDetailAccordion}
+								onActivityClose={handleActivityClose}
+							/>
+						)}
 					</div>
-					<VerticalSeparator />
 
 					{/* Task information */}
-					<div className="flex items-start justify-between flex-1 md:min-w-[25%] xl:min-w-[30%] !max-w-[250px]">
-						<TaskInfo
-							edition={taskEdition}
-							className="overflow-y-hidden flex-1 px-2 lg:px-4"
-							publicTeam={publicTeam}
-							tab="default"
-						/>
-
-						{canSeeActivity ? (
-							<p
-								className="flex relative -left-1 flex-none justify-center items-center w-8 h-8 text-center rounded-sm border cursor-pointer dark:border-gray-800 shrink-0"
-								onClick={() => {
-									showActivityFilter('TICKET', identity.member ?? null);
-									setUserDetailAccordion('');
-								}}
-							>
-								{!showActivity ? (
-									<ExpandIcon height={24} width={24} />
-								) : (
-									<CollapseUpIcon
-										className="flex-none shrink-0 absolute left-1/2 top-1/2 -translate-x-[35%] -translate-y-[35%]"
-										height={24}
-										width={24}
-									/>
-								)}
-							</p>
-						) : null}
+					<div className={cn(MEMBER_CELL, 'justify-between gap-1')}>
+						{isTaskPending && <MemberTaskCellSkeleton />}
+						{!isTaskPending && (
+							<TaskInfo
+								edition={taskEdition}
+								className="w-full min-w-0 flex-1 overflow-y-hidden"
+								publicTeam={publicTeam}
+								tab="default"
+							/>
+						)}
 					</div>
-					<VerticalSeparator className="ml-2" />
 
-					{/* TaskTimes */}
-					<TaskTimes
-						activeAuthTask={true}
-						memberInfo={identity}
-						task={memberTask}
-						isAuthUser={identity.isAuthUser}
-						className="2xl:w-48 3xl:w-[12rem] w-1/5 lg:px-4 px-2 flex flex-col gap-y-[1.125rem] justify-center"
-					/>
-					<VerticalSeparator />
+					{/* Time on the task */}
+					<div className={cn(MEMBER_CELL, MEMBER_CELL_CENTER)}>
+						{isTimesPending && <MemberTimesCellSkeleton />}
+						{!isTimesPending && (
+							<TaskTimes
+								activeAuthTask={true}
+								memberInfo={identity}
+								task={memberTask}
+								isAuthUser={identity.isAuthUser}
+								className="flex flex-col gap-1"
+							/>
+						)}
+					</div>
 
-					{/* TaskEstimateInfo */}
-					<TaskEstimateInfo
-						memberInfo={memberInfo}
-						edition={taskEdition}
-						activeAuthTask={true}
-						className="min-w-52 2xl:w-52 3xl:w-64 max-w-64"
-						useActiveTeamTaskByDefault={false}
-						allowEmptyTask={false}
-					/>
+					{/* Estimate */}
+					<div className={cn(MEMBER_CELL, MEMBER_CELL_CENTER)}>
+						{isTaskPending && <MemberEstimateCellSkeleton />}
+						{!isTaskPending && (
+							<TaskEstimateInfo
+								memberInfo={memberInfo}
+								edition={taskEdition}
+								activeAuthTask={true}
+								className="w-full max-w-52 min-w-0"
+								useActiveTeamTaskByDefault={false}
+								allowEmptyTask={false}
+							/>
+						)}
+					</div>
 
-					<VerticalSeparator />
-
-					{/* TodayWorkedTime */}
-					<div className="flex items-center justify-center cursor-pointer w-1/5 gap-4 lg:px-3 2xl:w-52 max-w-[13rem]">
-						<TodayWorkedTime isAuthUser={identity.isAuthUser} className="" memberInfo={identity} />
-						{canSeeActivity ? (
-							<p
+					{/* Total today */}
+					<div className={cn(MEMBER_CELL, MEMBER_CELL_CENTER)}>
+						{statsPending && <MemberTotalCellSkeleton />}
+						{showsActivityToggle && (
+							<button
+								type="button"
+								aria-expanded={showActivity}
 								onClick={() => showActivityFilter('DATE', identity.member ?? null)}
-								className="flex relative justify-center items-center w-8 h-8 text-center rounded-sm border cursor-pointer dark:border-gray-800"
-							>
-								{!showActivity ? (
-									<ExpandIcon height={24} width={24} />
-								) : (
-									<CollapseUpIcon
-										className="flex-none shrink-0 absolute left-1/2 top-1/2 -translate-x-[35%] -translate-y-[35%]"
-										height={24}
-										width={24}
-									/>
+								className={cn(
+									TASK_PROPERTY_PILL_RECIPE,
+									ACTIVITY_TOGGLE,
+									showActivity && ACTIVITY_TOGGLE_OPEN
 								)}
-							</p>
-						) : null}
+							>
+								<Analytics />
+								<span className="sr-only">{t('common.ACTIVITY_FOR_TODAY')}</span>
+								<TodayWorkedTime
+									isAuthUser={identity.isAuthUser}
+									className="text-sm font-medium tabular-nums"
+									memberInfo={identity}
+								/>
+								<ChevronDown
+									className={cn('transition-transform duration-200', showActivity && 'rotate-180')}
+								/>
+							</button>
+						)}
+						{showsPlainTotal && (
+							<TodayWorkedTime
+								isAuthUser={identity.isAuthUser}
+								className="text-right text-sm font-medium tabular-nums"
+								memberInfo={identity}
+							/>
+						)}
 					</div>
-					{/* EverCard menu */}
-					<div className="absolute right-2">{menu}</div>
+
+					<div className={MEMBER_MENU_CELL}>{menu}</div>
 				</div>
-				{isAccordionExpanded && canSeeActivity && !showActivity ? (
-					<MemberActivityPanel
+				{isAccordionExpanded && (
+					<ExpandedMemberDetails
+						employeeId={targetEmployeeId ?? null}
+						showsActivityPanel={showsActivityPanel}
 						member={member}
 						activityScope={activityScope}
 						activityFilter={activityFilter}
 						onActivityFilterChange={changeActivityFilter}
-						isLoading={isLoadingMemberData}
 					/>
-				) : isAccordionExpanded ? (
-					<div className="flex justify-center items-center w-full h-20">
-						<Loader className="animate-spin" />
-					</div>
-				) : null}
+				)}
 				{showActivity && (
 					<Suspense fallback={<UserTeamActivitySkeleton />}>
 						<LazyUserTeamActivity
@@ -377,31 +384,25 @@ export const UserTeamCard = React.memo(function UserTeamCard({
 						/>
 					</Suspense>
 				)}
-			</EverCard>
-			<EverCard
-				shadow="bigger"
-				className={clsxm(
-					'relative flex py-3 sm:hidden flex-col',
-					active && ['border-primary-light border-[2px]'],
-					className
-				)}
-			>
-				<div className="flex justify-between items-center mb-4">
+			</div>
+			<div className={clsxm('relative flex flex-col px-3 py-3', MEMBER_STACK_UNTIL, className)}>
+				<div className="mb-3 flex items-center justify-between">
 					<UserInfo memberInfo={identity} publicTeam={publicTeam} className="w-9/12" />
 					{identity.isAuthUser && <AuthUserTotalWork member={member} />}
 				</div>
 
-				<div className="flex flex-wrap justify-between items-start pb-4 border-b">
-					<TaskInfo edition={taskEdition} className="px-4" publicTeam={publicTeam} tab="default" />
+				<div className="flex flex-wrap items-start justify-between hairline-b border-dashed border-border pb-3">
+					<TaskInfo edition={taskEdition} className="px-1" publicTeam={publicTeam} tab="default" />
 				</div>
 
-				<div className="flex justify-between items-center mt-4 mb-4 space-x-5">
-					<div className="flex items-center space-x-4">
+				<div className="mt-3 flex items-center justify-between gap-5">
+					<div className="flex items-center gap-4">
 						<TaskTimes
 							activeAuthTask={true}
 							memberInfo={identity}
 							task={memberTask}
 							isAuthUser={identity.isAuthUser}
+							className="tabular-nums"
 						/>
 					</div>
 
@@ -415,8 +416,8 @@ export const UserTeamCard = React.memo(function UserTeamCard({
 				</div>
 
 				{/* EverCard menu */}
-				<div className="absolute right-2">{menu}</div>
-			</EverCard>
+				<div className="absolute right-1 top-2">{menu}</div>
+			</div>
 			{/* {currentExit && (
 				<HorizontalSeparator className="mt-2 !border-primary-light dark:!border-primary-light !border-t-2" />
 			)} */}
@@ -442,13 +443,38 @@ function AuthUserTotalWork({ member }: Readonly<{ member: IUserTeamCard['member'
 	);
 
 	return (
-		<div className={clsxm('flex flex-col gap-1 items-center mr-4 font-normal')}>
-			<span className="text-xs text-gray-500">{t('common.TOTAL_TIME')}:</span>
-			<Text className="text-xs">
+		<div className="mr-10 flex flex-col items-end gap-0.5 font-normal">
+			<span className="text-xs text-muted-foreground">{t('common.TOTAL_TIME')}:</span>
+			<Text className="text-xs font-medium tabular-nums">
 				{h}h : {m}m
 			</Text>
 		</div>
 	);
+}
+
+type ExpandedMemberDetailsProps = Omit<MemberActivityPanelProps, 'isLoading'> & {
+	employeeId: string | null;
+	showsActivityPanel: boolean;
+};
+
+// Mounted only while the row is expanded: the member's plans query and their calculations do not run for every row
+function ExpandedMemberDetails({
+	employeeId,
+	showsActivityPanel,
+	...panelProps
+}: Readonly<ExpandedMemberDetailsProps>) {
+	const { isLoading, isFetching } = useEmployeeDailyPlans(employeeId);
+	const isLoadingMemberData = isLoading || isFetching;
+
+	if (!showsActivityPanel) {
+		return (
+			<div className="flex h-20 w-full items-center justify-center">
+				<Spinner className="size-5 animate-spin text-muted-foreground" />
+			</div>
+		);
+	}
+
+	return <MemberActivityPanel {...panelProps} isLoading={isLoadingMemberData} />;
 }
 
 type MemberActivityPanelProps = {
@@ -467,6 +493,7 @@ function MemberActivityPanel({
 	onActivityFilterChange,
 	isLoading
 }: Readonly<MemberActivityPanelProps>) {
+	const t = useTranslations();
 	const profile = useUserProfilePage();
 	// Use isolated tab state for UserTeamCard to prevent global state leak from profile page
 	// With 'auto' default: shows daily plans if user has them, otherwise shows assigned tasks
@@ -491,35 +518,26 @@ function MemberActivityPanel({
 		};
 	}, [activityScope, profile, hook, member?.employee?.user, member?.employeeId]);
 
+	const activityTabItems = (Object.keys(activityScreens) as FilterTab[]).map((filter) => ({
+		value: filter,
+		label: t(ACTIVITY_TAB_LABEL_KEYS[filter])
+	}));
+
 	return (
-		<div className="overflow-y-auto h-96" ref={profile.loadTaskStatsIObserverRef}>
+		<div className="-mx-2 h-96 overflow-y-auto px-2 pb-2" ref={profile.loadTaskStatsIObserverRef}>
 			{isLoading ? (
-				// Show skeleton while loading member data
-				<UserProfileTaskSkeleton />
+				<MemberActivityPanelSkeleton />
 			) : (
 				// Show content once loaded
 				<>
-					<Container className="px-3 py-5 xl:px-0">
-						<div className={clsxm('flex gap-4 justify-start items-center mt-3')}>
-							{Object.keys(activityScreens).map((filter, i) => (
-								<div
-									key={uniqueId(`${i + 1}`)}
-									className="flex gap-4 justify-start items-center cursor-pointer"
-								>
-									{i !== 0 && <VerticalSeparator />}
-									<div
-										className={clsxm(
-											'text-gray-500',
-											activityFilter == filter && 'text-black dark:text-white'
-										)}
-										onClick={() => onActivityFilterChange(filter as FilterTab)}
-									>
-										{filter}
-									</div>
-								</div>
-							))}
-						</div>
-					</Container>
+					<div className="pb-3 pt-4">
+						<SegmentedControl
+							items={activityTabItems}
+							value={activityFilter}
+							onValueChange={onActivityFilterChange}
+							ariaLabel={t('common.ACTIVITY')}
+						/>
+					</div>
 					{activityScreens[activityFilter] ?? null}
 				</>
 			)}

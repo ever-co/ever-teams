@@ -19,7 +19,7 @@ export function getEmployeeRoleRequest({
 	});
 }
 
-/** Fetches the permissions of the signed-in user's role: the enabled ones the API checks on every request. */
+/** Fetches the permissions of the signed-in user's role, enabled and disabled alike; callers must check `enabled`. */
 export function getMyRolePermissionsRequest({ bearer_token, tenantId }: { bearer_token: string; tenantId: string }) {
 	return serverFetch<IRolePermission[]>({
 		path: '/role-permissions/me',

@@ -1,11 +1,17 @@
-import { Modal, SpinnerLoader, Text } from '@/core/components';
+import {
+	Modal,
+	SpinnerLoader,
+	modalFieldLabelClass,
+	modalFooterClass,
+	modalPrimaryActionClass,
+	modalSecondaryActionClass
+} from '@/core/components';
 import { Button } from '@/core/components/duplicated-components/_button';
 import { useCallback, useMemo, useState } from 'react';
 import { DAILY_PLAN_ESTIMATE_HOURS_MODAL_DATE } from '@/core/constants/config/constants';
 import { useTimerActions } from '@/core/hooks/timer';
 import { useUpdateDailyPlan } from '@/core/hooks/daily-plans/use-update-daily-plan';
 import { useTranslations } from 'next-intl';
-import { EverCard } from '../../common/ever-card';
 import { InputField } from '../../duplicated-components/_input';
 import { TDailyPlan } from '@/core/types/schemas/task/daily-plan.schema';
 import { activeTeamState } from '@/core/stores';
@@ -58,16 +64,20 @@ export function AddDailyPlanWorkHourModal(props: IAddDailyPlanWorkHoursModalProp
 	}, [handleCloseModal, plan, startTimer, updateDailyPlan, workTimePlanned]);
 
 	return (
-		<Modal isOpen={isOpen} closeModal={handleCloseModal} showCloseIcon>
-			<EverCard className="w-full" shadow="custom">
-				<div className="flex flex-col justify-between">
-					<div className="mb-7">
-						<Text.Heading as="h3" className="mb-3 text-center">
-							{t('timer.todayPlanSettings.TITLE')}
-						</Text.Heading>
-						<div className="flex flex-col gap-4 mb-7 w-full">
-							<span className="text-sm">
-								{t('timer.todayPlanSettings.WORK_TIME_PLANNED')} <span className="text-red-600">*</span>
+		<Modal
+			isOpen={isOpen}
+			closeModal={handleCloseModal}
+			showCloseIcon
+			title={t('timer.todayPlanSettings.TITLE')}
+			breadcrumb={activeTeam?.name}
+		>
+			<div className="w-full">
+				<div className="flex flex-col justify-between gap-5">
+					<div>
+						<div className="flex w-full flex-col gap-2">
+							<span className={modalFieldLabelClass}>
+								{t('timer.todayPlanSettings.WORK_TIME_PLANNED')}{' '}
+								<span className="text-destructive-ink">*</span>
 							</span>
 
 							<InputField
@@ -83,20 +93,22 @@ export function AddDailyPlanWorkHourModal(props: IAddDailyPlanWorkHoursModalProp
 							/>
 						</div>
 					</div>
-					<div className="flex justify-between items-center mt-6">
+					<div className={modalFooterClass}>
 						<Button
-							variant="outline"
+							variant="ghost"
+							size="default"
 							type="submit"
-							className="py-3 px-5 min-w-[10rem] rounded-md font-light text-md dark:text-white dark:bg-slate-700 dark:border-slate-600"
+							className={modalSecondaryActionClass}
 							onClick={handleCloseModal}
 						>
 							{t('common.SKIP_ADD_LATER')}
 						</Button>
 						<Button
 							variant="default"
+							size="default"
 							type="submit"
 							disabled={loading || (requirePlan && !hasWorkHours)}
-							className="py-3 px-5 min-w-[10rem] rounded-md font-light text-md dark:text-white"
+							className={modalPrimaryActionClass}
 							onClick={handleSubmit}
 						>
 							{loading ? (
@@ -107,7 +119,7 @@ export function AddDailyPlanWorkHourModal(props: IAddDailyPlanWorkHoursModalProp
 						</Button>
 					</div>
 				</div>
-			</EverCard>
+			</div>
 		</Modal>
 	);
 }

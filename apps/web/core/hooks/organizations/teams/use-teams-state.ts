@@ -1,24 +1,20 @@
 'use client';
 import { organizationTeamsState } from '@/core/stores';
 import { useCallback } from 'react';
-import { useAtom } from 'jotai';
+import { useAtom, useSetAtom } from 'jotai';
 import isEqual from 'lodash/isEqual';
 import { useSyncRef } from '../../common/use-sync-ref';
 import { TOrganizationTeam } from '@/core/types/schemas';
 import { mergePreservingOrder } from '@/core/lib/utils/team-members.utils';
 
 /**
- * It updates the `teams` state with the `members` status from the `team` status API
- * @returns An object with three properties:
- * teams: The current value of the teams state.
- * setTeams: A function that can be used to update the teams state.
- * setTeamUpdate: A function that can be used to update the teams state.
+ * setTeamsUpdate alone, for the mutation hooks: they only write the teams, and reading them would re-render their
+ * component (one per member row for the role actions) on every refresh of the teams.
  */
-export function useTeamsState() {
-	const [teams, setTeams] = useAtom(organizationTeamsState);
-	const teamsRef = useSyncRef(teams);
+export function useSetTeamsUpdate() {
+	const setTeams = useSetAtom(organizationTeamsState);
 
-	const setTeamsUpdate = useCallback(
+	return useCallback(
 		(team: TOrganizationTeam) => {
 			// Update active teams fields with from team Status API
 			setTeams((tms) => {
@@ -69,6 +65,19 @@ export function useTeamsState() {
 		},
 		[setTeams]
 	);
+}
+
+/**
+ * It updates the `teams` state with the `members` status from the `team` status API
+ * @returns An object with three properties:
+ * teams: The current value of the teams state.
+ * setTeams: A function that can be used to update the teams state.
+ * setTeamUpdate: A function that can be used to update the teams state.
+ */
+export function useTeamsState() {
+	const [teams, setTeams] = useAtom(organizationTeamsState);
+	const teamsRef = useSyncRef(teams);
+	const setTeamsUpdate = useSetTeamsUpdate();
 
 	return {
 		teams,

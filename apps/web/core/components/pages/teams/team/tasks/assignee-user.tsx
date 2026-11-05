@@ -1,14 +1,16 @@
 import { Avatar, AvatarFallback, AvatarImage } from '@/core/components/common/avatar';
 import { TEmployee } from '@/core/types/schemas/organization/employee.schema';
 import { FC } from 'react';
+import { useTranslations } from 'next-intl';
 
 const AssigneeUser: FC<{ users?: TEmployee[] | null }> = ({ users }) => {
+	const t = useTranslations();
 	const employee = users && users.length > 0 ? users.at(0) : null;
 	return (
 		<div className="flex items-center gap-1.5 h-full" role="group" aria-label="Task assignee">
 			{employee && employee.fullName ? (
 				<div className="flex items-center gap-2.5">
-					<Avatar className="w-6 h-6 rounded-full" aria-label={`${employee.fullName}'s avatar`}>
+					<Avatar className="size-6" aria-label={`${employee.fullName}'s avatar`}>
 						{employee?.user?.imageUrl && (
 							<AvatarImage src={employee.user.imageUrl} alt={`${employee.fullName}'s avatar`} />
 						)}
@@ -18,10 +20,10 @@ const AssigneeUser: FC<{ users?: TEmployee[] | null }> = ({ users }) => {
 						</AvatarFallback>
 					</Avatar>
 
-					<span className="text-xs font-medium text-indigo-950 dark:text-gray-200">{employee.fullName}</span>
+					<span className="truncate text-sm font-medium text-foreground">{employee.fullName}</span>
 				</div>
 			) : (
-				<span className="text-xs font-medium text-indigo-950 dark:text-gray-200">No user assigned</span>
+				<span className="text-sm text-muted-foreground">{t('pages.teamTasks.NO_USER_ASSIGNED')}</span>
 			)}
 		</div>
 	);

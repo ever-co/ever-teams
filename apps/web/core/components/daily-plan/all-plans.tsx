@@ -1,11 +1,9 @@
 'use client';
 import { useAtomValue } from 'jotai';
-import { useRef, useMemo } from 'react';
-import { DragDropContext, Draggable, Droppable, DroppableProvided, DroppableStateSnapshot } from '@hello-pangea/dnd';
-
-import { formatDayPlanDate } from '@/core/lib/helpers/index';
+import { useCallback, useMemo, type ReactNode } from 'react';
 
 import { FilterTabs } from '@/core/types/daily-plan-types';
+import { I_UserProfilePage } from '@/core/hooks';
 import { useEmployeeDailyPlans } from '@/core/hooks/daily-plans/use-employee-daily-plans';
 import { useDateRange } from '@/core/hooks/daily-plans/use-date-range';
 import { useDailyPlanTaskOrder } from '@/core/hooks/daily-plans/use-daily-plan-task-order';
@@ -16,62 +14,78 @@ import {
 } from '@/core/hooks/daily-plans/use-filter-date-range';
 import { TDailyPlan, TUser } from '@/core/types/schemas';
 import { dailyPlanViewHeaderTabs } from '@/core/stores';
-import { clsxm } from '@/core/lib/utils';
-import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/core/components/common/accordion';
-import TaskBlockCard from '@/core/components/tasks/task-block-card';
-import { LazyTaskCard } from '@/core/components/optimized-components';
-import DailyPlanTasksTableView from '@/core/components/tasks/daily-plan/table-view';
-import { HorizontalSeparator } from '@/core/components/duplicated-components/separator';
-import { PlanHeader } from './plan-header';
+import { PendingPlanDayBlocks } from '@/core/components/features/daily-plan/pending-plan-tasks';
+import { PlanDayGroupList } from '@/core/components/tasks/daily-plan/plan-day-groups';
+import { keepPickedPlans, planDayKeyOf } from '@/core/components/tasks/daily-plan/plan-picks';
+import { TASK_LIST_STACK } from '@/core/components/tasks/task-row-recipes';
+import { usePendingPlanDays } from '@/core/hooks/daily-plans/use-pending-plan-additions';
+import { todayKey } from '@/core/lib/utils/daily-plan-editor';
 import { EmptyPlans } from './empty-plans';
 
-/**
- *
- *
- * @param {{ profile: any; currentTab?: FilterTabs }} { profile, currentTab = 'All Tasks' }
- * @return {*}
- */
+const NO_PLANS: TDailyPlan[] = [];
+
+function showsDayIn(currentTab: FilterTabs, day: string) {
+	if (currentTab === 'Today Tasks') {
+		return day === todayKey();
+	}
+	return true;
+}
+
+function cardPlanModeFor(currentTab: FilterTabs): FilterTabs | undefined {
+	if (currentTab === 'Today Tasks') {
+		return 'Today Tasks';
+	}
+	return undefined;
+}
+
+function defaultOpenDays(currentTab: FilterTabs, plans: TDailyPlan[]) {
+	if (currentTab === 'Today Tasks') {
+		return [todayKey()];
+	}
+	const firstPlan = plans[0];
+	if (!firstPlan) {
+		return [];
+	}
+	return [planDayKeyOf(firstPlan)];
+}
+
+function tabPlansOf(currentTab: FilterTabs, todayPlan: TDailyPlan[], sortedPlans: TDailyPlan[]) {
+	if (currentTab === 'Today Tasks') {
+		return todayPlan;
+	}
+	return sortedPlans;
+}
+
 export function AllPlans({
 	profile,
 	currentTab = 'All Tasks',
 	user,
 	employeeId,
 	filterByEmployee = false,
-	filteredTaskIds
-}: {
-	profile: any;
+	filteredTaskIds,
+	pickedPlanIds,
+	emptyState
+}: Readonly<{
+	profile: I_UserProfilePage;
 	currentTab?: FilterTabs;
 	user?: TUser;
 	employeeId?: string; // Accept employeeId directly from parent
 	filterByEmployee?: boolean; // Filter tasks by employee (default: false = show all tasks)
 	filteredTaskIds?: string[]; // Filter plans by taskIds (default undefined = show all)
-}) {
-	// Filter plans
-	const filteredPlans = useRef<TDailyPlan[]>([]);
-
-	// Use employeeId from props if provided, otherwise calculate from user
+	pickedPlanIds?: string[];
+	emptyState?: ReactNode;
+}>) {
 	const targetEmployeeId = employeeId ?? user?.employee?.id ?? user?.employeeId ?? '';
 	const { employeeSortedPlans, employeeTodayPlan } = useEmployeeDailyPlans(targetEmployeeId);
-
 	const { date } = useDateRange(currentTab, targetEmployeeId);
-
-	if (currentTab === 'Today Tasks') {
-		filteredPlans.current = employeeTodayPlan;
-	} else {
-		filteredPlans.current = employeeSortedPlans;
-	}
-
 	const view = useAtomValue(dailyPlanViewHeaderTabs);
 
-	// Optimized with useMemo to prevent unnecessary recalculations
 	const plans = useMemo(() => {
-		// Single call to filterDailyPlan for better performance
-		let filteredData = filterDailyPlan(date as any, filteredPlans.current);
+		const tabPlans = tabPlansOf(currentTab, employeeTodayPlan, employeeSortedPlans);
+		const pickedPlans = keepPickedPlans(tabPlans, pickedPlanIds);
+		let filteredData = filterDailyPlan(date, pickedPlans);
 
-		// Filter tasks for specific user if filterByEmployee flag is enabled
-		// NOTE: `user` here is the profile user linked to `targetEmployeeId` (not the auth user).
-		// We intentionally filter by userId because task members are associated with users, not employees.
-		// By default (filterByEmployee = false), we show ALL tasks in the daily plan
+		// `user` is the profile user: task members are users, not employees
 		if (filterByEmployee && filteredData) {
 			filteredData = filterDailyPlansByEmployee(filteredData, user);
 		}
@@ -81,143 +95,44 @@ export function AllPlans({
 		}
 
 		return filteredData;
-	}, [date, employeeTodayPlan, employeeSortedPlans, user, filterByEmployee, filteredTaskIds]);
+	}, [
+		currentTab,
+		date,
+		employeeTodayPlan,
+		employeeSortedPlans,
+		user,
+		filterByEmployee,
+		filteredTaskIds,
+		pickedPlanIds
+	]);
 
-	// Local state for drag-and-drop functionality
+	const showsTabDay = useCallback((day: string) => showsDayIn(currentTab, day), [currentTab]);
+	const pendingDays = usePendingPlanDays(plans ?? NO_PLANS, targetEmployeeId, showsTabDay);
+
 	const { dragPlans, onDragEnd } = useDailyPlanTaskOrder(plans);
 	if (!dragPlans) return null;
-	return (
-		<div className="flex flex-col gap-6">
-			{Array.isArray(dragPlans) && dragPlans?.length > 0 ? (
-				// @ts-ignore
-				<DragDropContext onDragEnd={onDragEnd}>
-					<Accordion
-						type="multiple"
-						className="text-sm"
-						defaultValue={
-							currentTab === 'Today Tasks'
-								? [new Date().toISOString().split('T')[0]]
-								: [dragPlans?.map((plan) => new Date(plan.date).toISOString().split('T')[0])[0]]
-						}
-					>
-						{dragPlans.map((plan) => (
-							<AccordionItem
-								value={plan.date.toString().split('T')[0]}
-								key={plan.id}
-								className="dark:border-slate-600 !border-none"
-							>
-								<AccordionTrigger className="!min-w-full text-start hover:no-underline">
-									<div className="flex gap-3 justify-between items-center w-full">
-										<div className="min-w-max text-lg">
-											{formatDayPlanDate(plan.date.toString())} ({plan.tasks?.length})
-										</div>
-										<HorizontalSeparator />
-									</div>
-								</AccordionTrigger>
-								<AccordionContent className="bg-transparent border-none bg-gray-100 dark:bg-dark--theme !px-4 !py-4 rounded-xl">
-									<PlanHeader plan={plan} planMode={currentTab as any} />
+	const hasPlans = Array.isArray(dragPlans) && dragPlans?.length > 0;
+	const hasPendingDays = pendingDays.length > 0;
+	const showsEmpty = !hasPlans && !hasPendingDays;
+	const showsDefaultEmpty = showsEmpty && !emptyState;
 
-									{view === 'TABLE' ? (
-										<DailyPlanTasksTableView
-											profile={profile}
-											plan={plan}
-											data={plan.tasks ?? []}
-										/>
-									) : (
-										// @ts-ignore
-										<Droppable
-											droppableId={plan.id as string}
-											key={plan.id}
-											type="task"
-											direction={view === 'CARDS' ? 'vertical' : 'horizontal'}
-										>
-											{(provided: DroppableProvided, snapshot: DroppableStateSnapshot) => (
-												<ul
-													ref={provided.innerRef}
-													{...provided.droppableProps}
-													className={clsxm(
-														'flex-wrap border border-transparent',
-														view === 'CARDS' && 'flex-col',
-														'flex gap-2 pb-[1.5rem] flex-wrap',
-														view === 'BLOCKS' && 'overflow-x-auto',
-														snapshot.isDraggingOver ? 'bg-[lightblue]' : 'bg-transparent'
-													)}
-												>
-													{plan.tasks?.map((task, index) =>
-														view === 'CARDS' ? (
-															// @ts-ignore
-															<Draggable
-																key={task.id}
-																draggableId={task.id}
-																index={index}
-															>
-																{(provided) => (
-																	<div
-																		ref={provided.innerRef}
-																		{...provided.draggableProps}
-																		{...provided.dragHandleProps}
-																		style={{
-																			...provided.draggableProps.style,
-																			marginBottom: 6
-																		}}
-																	>
-																		<LazyTaskCard
-																			isAuthUser={true}
-																			activeAuthTask={true}
-																			viewType={'dailyplan'}
-																			task={task}
-																			profile={profile}
-																			type="HORIZONTAL"
-																			taskBadgeClassName={`rounded-sm`}
-																			taskTitleClassName="mt-[0.0625rem]"
-																			planMode={
-																				currentTab === 'Today Tasks'
-																					? 'Today Tasks'
-																					: undefined
-																			}
-																			plan={plan}
-																			taskContentClassName="!w-72 !max-w-80" // UX: consistent card width across all tabs
-																			className="shadow-[0px_0px_15px_0px_#e2e8f0]"
-																		/>
-																	</div>
-																)}
-															</Draggable>
-														) : (
-															///@ts-ignore
-															<Draggable
-																key={task.id}
-																draggableId={task.id}
-																index={index}
-															>
-																{(provided) => (
-																	<div
-																		ref={provided.innerRef}
-																		{...provided.draggableProps}
-																		{...provided.dragHandleProps}
-																		style={{
-																			...provided.draggableProps.style,
-																			marginBottom: 8
-																		}}
-																	>
-																		<TaskBlockCard task={task} />
-																	</div>
-																)}
-															</Draggable>
-														)
-													)}
-													{provided.placeholder as React.ReactElement}
-												</ul>
-											)}
-										</Droppable>
-									)}
-								</AccordionContent>
-							</AccordionItem>
-						))}
-					</Accordion>
-				</DragDropContext>
-			) : (
-				<EmptyPlans planMode="Past Tasks" />
+	return (
+		<div className={TASK_LIST_STACK}>
+			<PendingPlanDayBlocks days={pendingDays} view={view} />
+			{hasPlans && (
+				<PlanDayGroupList
+					plans={dragPlans}
+					onDragEnd={onDragEnd}
+					defaultOpenDays={defaultOpenDays(currentTab, dragPlans)}
+					view={view}
+					profile={profile}
+					headerMode={currentTab}
+					rowPlanMode={cardPlanModeFor(currentTab)}
+					showsPendingCards={true}
+				/>
 			)}
+			{showsEmpty && emptyState}
+			{showsDefaultEmpty && <EmptyPlans planMode="Past Tasks" />}
 		</div>
 	);
 }

@@ -3,7 +3,6 @@
 import { useRouter } from 'next/navigation';
 import { useAtomValue } from 'jotai';
 import { withAuthentication } from '@/core/components/layouts/app/authenticator';
-import { Container } from '@/core/components';
 import { PageLayout } from '@/core/components/layouts/default-layout';
 import { useOrganizationAndTeamManagers } from '@/core/hooks/organizations/teams/use-organization-teams-managers';
 import { useEffect } from 'react';
@@ -15,21 +14,34 @@ import { allTeamsHeaderTabs } from '@/core/stores/common/header-tabs';
 import { MemberFilter } from './all-teams-members-views/all-team-members-filter';
 import AllTeamsMembers from './all-teams-members-views/all-teams-members';
 import { Breadcrumb } from '@/core/components/duplicated-components/breadcrumb';
-import { AllTeamsPageSkeleton } from '@/core/components/layouts/skeletons/all-teams-page-skeleton';
-import { isTrackingEnabledState } from '@/core/stores';
+import { AllTeamsPageSkeleton } from './all-teams-page-skeleton';
+import { isTeamMemberState, isTrackingEnabledState, organizationTeamsState } from '@/core/stores';
 import { TOrganizationTeam } from '@/core/types/schemas/team/organization-team.schema';
+import { Users } from '@/core/components/icons';
 
 function AllTeamsPage() {
 	const t = useTranslations();
 	const view = useAtomValue(allTeamsHeaderTabs);
 	const { filteredTeams, userManagedTeams } = useOrganizationAndTeamManagers();
+	const teams = useAtomValue(organizationTeamsState);
+	const isTeamMember = useAtomValue(isTeamMemberState);
 
 	const isTrackingEnabled = useAtomValue(isTrackingEnabledState);
 
+	const allTeamsTitle = t('common.ALL_TEAMS');
 	const breadcrumb = [
 		{ title: JSON.parse(t('pages.home.BREADCRUMB')), href: '/' },
-		{ title: t('common.ALL_TEAMS'), href: '/all-teams' }
+		{ title: allTeamsTitle, href: '/all-teams' }
 	];
+	const isCardsView = view == IssuesView.CARDS;
+	const hasTeams = teams.length > 0;
+	const hasNoTeam = !isTeamMember;
+	const areTeamsKnown = hasTeams || hasNoTeam;
+
+	// The managed teams can only be counted once the team list has arrived
+	if (!areTeamsKnown) {
+		return <AllTeamsPageSkeleton />;
+	}
 
 	/* If the user is not a manager in any team or if he's
 		manager in only one team, then redirect him to the home page
@@ -38,34 +50,36 @@ function AllTeamsPage() {
 
 	// IMPORTANT: This must be AFTER all hooks to avoid "Rendered fewer hooks than expected" error
 	if (!filteredTeams || filteredTeams.length === 0) {
-		return <AllTeamsPageSkeleton showTimer={isTrackingEnabled} />;
+		return <AllTeamsPageSkeleton />;
 	}
 
 	return (
 		<PageLayout
 			showTimer={isTrackingEnabled}
 			className="items-start"
+			breadcrumb={
+				<div className="flex min-w-0 items-center gap-2">
+					<Users className="size-4 shrink-0 text-muted-foreground" aria-hidden="true" />
+					<Breadcrumb paths={breadcrumb} className="min-w-0 text-sm" />
+				</div>
+			}
 			mainHeaderSlot={
-				<Container className="mx-auto">
-					<div className="flex flex-col justify-between items-start w-full">
-						<div className="flex justify-between items-center px-4 py-2 w-full">
-							<Breadcrumb paths={breadcrumb} className="text-sm" />
-							<div className="flex gap-2 items-center self-end">
-								<div className="flex gap-1 justify-center items-center w-max h-10">
-									<HeaderTabs />
-								</div>
+				<div>
+					<div className="px-4">
+						<div className="flex flex-wrap items-center justify-between gap-3 py-3">
+							<h1 className="text-lg font-semibold">{allTeamsTitle}</h1>
+							<div className="flex items-center gap-2">
+								<HeaderTabs />
 								<MemberFilter />
 							</div>
 						</div>
-
-						{view == IssuesView.CARDS && <TeamMemberHeader view={IssuesView.CARDS} />}
 					</div>
-				</Container>
+
+					{isCardsView && <TeamMemberHeader view={IssuesView.CARDS} />}
+				</div>
 			}
 		>
-			<Container className="mx-auto mt-5">
-				<AllTeamsMembers teams={filteredTeams as unknown as TOrganizationTeam[]} view={view} />
-			</Container>
+			<AllTeamsMembers teams={filteredTeams as unknown as TOrganizationTeam[]} view={view} />
 		</PageLayout>
 	);
 }
@@ -79,5 +93,6 @@ function RedirectUser() {
 }
 
 export default withAuthentication(AllTeamsPage, {
-	displayName: 'AllManagedTeams'
+	displayName: 'AllManagedTeams',
+	skeleton: AllTeamsPageSkeleton
 });

@@ -16,7 +16,7 @@ const TEAM_ID = 'team-1';
 const READ_ONLY_HINT = 'pages.settingsTeam.TASK_SETTINGS_READ_ONLY';
 
 const mockUser = { id: 'user-1', tenantId: 'tenant-1', employee: { id: 'employee-1', organizationId: 'org-1' } };
-const mockPermissions = { myPermissions: [] as string[], isSuccess: true };
+const mockPermissions = { myPermissions: [] as string[], isSuccess: true, isLoaded: true };
 const mockVersions = [{ id: 'version-1', name: 'v1', value: 'v1', organizationTeamId: TEAM_ID as string | null }];
 
 type TButtonProps = ButtonHTMLAttributes<HTMLButtonElement>;
@@ -150,16 +150,18 @@ describe('TaskVersionForm task settings access', () => {
 
 	// The permissions allow editing while they load, so a member can open the form (the + of the task details opens
 	// it on its own) before the denial arrives: it must then not submit a write Gauzy refuses.
-	it('does not let a member who cannot create submit an open form', () => {
+	it('does not let a member who cannot create submit an open form, and says why', () => {
 		renderVersionsAs(false, { formOnly: true });
 
 		expect(screen.getByRole('button', { name: 'common.CREATE' })).toHaveProperty('disabled', true);
+		expect(screen.getByText(READ_ONLY_HINT)).toBeTruthy();
 	});
 
 	it('lets a manager of the team submit the open form', () => {
 		renderVersionsAs(true, { formOnly: true });
 
 		expect(screen.getByRole('button', { name: 'common.CREATE' })).toHaveProperty('disabled', false);
+		expect(screen.queryByText(READ_ONLY_HINT)).toBeNull();
 	});
 
 	it('keeps a version of no team read-only for a manager of the team, who still creates', () => {

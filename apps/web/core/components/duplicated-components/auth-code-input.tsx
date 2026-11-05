@@ -1,6 +1,8 @@
 import { useTranslations } from 'next-intl';
 import React, { forwardRef, useEffect, useImperativeHandle, useRef } from 'react';
 import { AUTH_CODE_LENGTH } from '@/core/constants/config/constants';
+import { cn } from '@/core/lib/helpers';
+import { controlRecipe } from '@/core/components/common/input';
 
 const allowedCharactersValues = ['alpha', 'numeric', 'alphanumeric'] as const;
 
@@ -193,7 +195,11 @@ const AuthCodeInput = forwardRef<AuthCodeRef, AuthCodeProps>(
 						inputsRef.current[i] = el;
 					}}
 					maxLength={1}
-					className={inputClassName}
+					className={cn(
+						controlRecipe,
+						'size-10 px-0 text-center text-base font-medium tabular-nums',
+						inputClassName
+					)}
 					autoComplete={i === 0 ? 'one-time-code' : 'off'}
 					aria-label={ariaLabel ? `${ariaLabel}. Character ${i + 1}.` : `Character ${i + 1}.`}
 					disabled={disabled}
@@ -202,7 +208,7 @@ const AuthCodeInput = forwardRef<AuthCodeRef, AuthCodeProps>(
 			);
 		}
 
-		return <div className={containerClassName}>{inputs}</div>;
+		return <div className={cn('flex gap-2', containerClassName)}>{inputs}</div>;
 	}
 );
 

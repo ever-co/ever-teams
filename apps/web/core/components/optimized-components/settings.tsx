@@ -1,4 +1,23 @@
+import type { ReactNode } from 'react';
 import dynamic from 'next/dynamic';
+import { useEverPlatformSection } from '@/core/hooks/ever-platform/use-ever-platform-section';
+import { SettingsRowSkeleton, SettingsSurface } from '@/core/components/settings/kit/settings-page';
+import { LeftSideSettingMenuSkeleton } from '../common/skeleton/settings-page-skeleton';
+import {
+	PersonalDangerZoneBodySkeleton,
+	PersonalSettingFormRowsSkeleton,
+	ProfileAvatarSkeleton,
+	SyncZoneBodySkeleton,
+	WorkingHoursBodySkeleton
+} from '../common/skeleton/settings-personal-skeleton';
+import {
+	DangerZoneTeamSkeleton,
+	IntegrationSettingSkeleton,
+	InvitationSettingSkeleton,
+	IssuesSettingsSkeleton,
+	MemberSettingSkeleton,
+	TeamSettingFormSkeleton
+} from '../common/skeleton/settings-skeletons';
 
 // Personal Settings Components
 export const LazyPersonalSettingForm = dynamic(
@@ -7,7 +26,8 @@ export const LazyPersonalSettingForm = dynamic(
 			default: mod.PersonalSettingForm
 		})),
 	{
-		ssr: false
+		ssr: false,
+		loading: () => <PersonalSettingFormRowsSkeleton />
 	}
 );
 
@@ -17,14 +37,16 @@ export const LazyWorkingHours = dynamic(
 			default: mod.WorkingHours
 		})),
 	{
-		ssr: false
+		ssr: false,
+		loading: () => <WorkingHoursBodySkeleton />
 	}
 );
 
 export const LazySyncZone = dynamic(
 	() => import('@/core/components/pages/settings/personal/sync.zone').then((mod) => ({ default: mod.SyncZone })),
 	{
-		ssr: false
+		ssr: false,
+		loading: () => <SyncZoneBodySkeleton />
 	}
 );
 
@@ -36,11 +58,7 @@ export const LazyLeftSideSettingMenu = dynamic(
 		})),
 	{
 		ssr: false,
-		loading: () => (
-			<div className="w-64 h-96 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded-lg flex items-center justify-center">
-				<div className="text-gray-500">Loading Settings Menu...</div>
-			</div>
-		)
+		loading: () => <LeftSideSettingMenuSkeleton />
 	}
 );
 
@@ -51,7 +69,8 @@ export const LazyDangerZone = dynamic(
 			default: mod.DangerZone
 		})),
 	{
-		ssr: false
+		ssr: false,
+		loading: () => <PersonalDangerZoneBodySkeleton />
 	}
 );
 
@@ -59,15 +78,7 @@ export const LazyProfileAvatar = dynamic(
 	() => import('@/core/components/users/profile-avatar').then((mod) => ({ default: mod.ProfileAvatar })),
 	{
 		ssr: false,
-		loading: () => (
-			<div className="flex gap-4 items-center mb-5">
-				<div className="w-20 h-20 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded-full" />
-				<div className="flex flex-col gap-2">
-					<div className="w-32 h-4 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded" />
-					<div className="w-24 h-3 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded" />
-				</div>
-			</div>
-		)
+		loading: () => <ProfileAvatarSkeleton />
 	}
 );
 
@@ -78,7 +89,8 @@ export const LazyTeamSettingForm = dynamic(
 			default: mod.TeamSettingForm
 		})),
 	{
-		ssr: false
+		ssr: false,
+		loading: () => <TeamSettingFormSkeleton />
 	}
 );
 
@@ -88,7 +100,8 @@ export const LazyInvitationSetting = dynamic(
 			default: mod.InvitationSetting
 		})),
 	{
-		ssr: false
+		ssr: false,
+		loading: () => <InvitationSettingSkeleton />
 	}
 );
 
@@ -98,7 +111,8 @@ export const LazyMemberSetting = dynamic(
 			default: mod.MemberSetting
 		})),
 	{
-		ssr: false
+		ssr: false,
+		loading: () => <MemberSettingSkeleton />
 	}
 );
 
@@ -108,7 +122,8 @@ export const LazyIntegrationSetting = dynamic(
 			default: mod.IntegrationSetting
 		})),
 	{
-		ssr: false
+		ssr: false,
+		loading: () => <IntegrationSettingSkeleton />
 	}
 );
 
@@ -119,9 +134,38 @@ export const LazyEverPlatformSection = dynamic(
 			default: mod.EverPlatformSection
 		})),
 	{
-		ssr: false
+		ssr: false,
+		loading: () => (
+			<SettingsSurface>
+				<SettingsRowSkeleton labelWidth="w-40" control="switch" />
+			</SettingsSurface>
+		)
 	}
 );
+
+type EverPlatformSettingsProps = {
+	isTeamManager: boolean;
+	frame: (content: ReactNode) => ReactNode;
+};
+
+/**
+ * The visibility rule lives here because only the lazy settings components may import the Ever Platform hooks
+ * (`test/architecture/ever-platform-modules-off.test.ts`).
+ */
+export function EverPlatformSettings({ isTeamManager, frame }: Readonly<EverPlatformSettingsProps>) {
+	const everPlatform = useEverPlatformSection(isTeamManager);
+	if (!everPlatform.visible) {
+		return null;
+	}
+	const content = (
+		<LazyEverPlatformSection
+			connectAvailable={everPlatform.connect.available}
+			connected={everPlatform.connect.connected}
+			showsDescription={false}
+		/>
+	);
+	return <>{frame(content)}</>;
+}
 
 export const LazyIssuesSettings = dynamic(
 	() =>
@@ -129,8 +173,8 @@ export const LazyIssuesSettings = dynamic(
 			default: mod.IssuesSettings
 		})),
 	{
-		ssr: false
-		// Note: No loading property for accordion content (Medium article pattern)
+		ssr: false,
+		loading: () => <IssuesSettingsSkeleton />
 	}
 );
 
@@ -140,6 +184,7 @@ export const LazyDangerZoneTeam = dynamic(
 			default: mod.DangerZoneTeam
 		})),
 	{
-		ssr: false
+		ssr: false,
+		loading: () => <DangerZoneTeamSkeleton />
 	}
 );

@@ -2,19 +2,13 @@ import { useModal } from '@/core/hooks';
 import { useIssueTypesQuery } from '@/core/hooks/tasks/use-issue-types-query';
 import { clsxm } from '@/core/lib/utils';
 import { BackButton, Button, Modal, Text } from '@/core/components';
-import { NoteIcon, BugIcon, Square4StackIcon, Square4OutlineIcon } from 'assets/svg';
-import { useTranslations } from 'next-intl';
+import { useTranslations, type DottedLanguageObjectStringPaths } from 'next-intl';
 import { useCallback, useMemo, useState } from 'react';
-import { cn } from '@/core/lib/helpers';
-import { EverCard } from '../common/ever-card';
 import { InputField } from '../duplicated-components/_input';
 import { IClassName } from '@/core/types/interfaces/common/class-name';
 import { Nullable } from '@/core/types/generics/utils';
 import { EIssueType } from '@/core/types/generics/enums/task';
 import { TTask } from '@/core/types/schemas/task/task.schema';
-import { Select } from '../features/projects/add-or-edit-project/steps/basic-information-form';
-
-import Image from 'next/image';
 import {
 	IActiveTaskStatuses,
 	TStatus,
@@ -24,31 +18,33 @@ import {
 import { useActiveTaskStatus } from '@/core/hooks/tasks/use-active-task-status';
 import { StatusDropdown, TaskStatus } from './task-status';
 import { toast } from 'sonner';
+import { errorReasonKeyOf } from '@/core/lib/utils/error-feedback';
+import { ISSUE_TYPE_COLORS, TaskPropertyIcon } from './task-property-icon';
+import { TaskPropertyMenu, TaskPropertyMenuOption } from './task-property-menu';
 
-const defaultTaskClasses = 'w-full min-w-3 flex-none aspect-square max-w-4 text-white';
 export const taskIssues: TStatus<EIssueType> = {
 	Bug: {
-		icon: <BugIcon className={cn(defaultTaskClasses)} />,
+		icon: <TaskPropertyIcon kind="issueType" name={EIssueType.BUG} />,
 		name: 'Bug',
-		bgColor: '#923535',
+		bgColor: ISSUE_TYPE_COLORS[EIssueType.BUG],
 		className: 'min-w-[5rem]'
 	},
 	Task: {
-		icon: <Square4StackIcon className={cn(defaultTaskClasses)} />,
+		icon: <TaskPropertyIcon kind="issueType" name={EIssueType.TASK} />,
 		name: 'Task',
-		bgColor: '#5483BA',
+		bgColor: ISSUE_TYPE_COLORS[EIssueType.TASK],
 		className: 'min-w-[5rem]'
 	},
 	Story: {
-		icon: <NoteIcon className={cn(defaultTaskClasses)} />,
+		icon: <TaskPropertyIcon kind="issueType" name={EIssueType.STORY} />,
 		name: 'Story',
-		bgColor: '#66BB97',
+		bgColor: ISSUE_TYPE_COLORS[EIssueType.STORY],
 		className: 'min-w-[5rem]'
 	},
 	Epic: {
-		icon: <Square4OutlineIcon className={cn(defaultTaskClasses)} />,
+		icon: <TaskPropertyIcon kind="issueType" name={EIssueType.EPIC} />,
 		name: 'Custom',
-		bgColor: '#8154BA',
+		bgColor: ISSUE_TYPE_COLORS[EIssueType.EPIC],
 		className: 'min-w-[5rem]'
 	}
 };
@@ -71,22 +67,34 @@ function getTaskIssue(issueType: Nullable<string>): TStatusItem {
 	return taskIssues[EIssueType.TASK];
 }
 
+function issueTypeMenuOption(name: string, color: string | null | undefined): TaskPropertyMenuOption<string> {
+	return {
+		key: name,
+		value: name,
+		label: name,
+		icon: <TaskPropertyIcon kind="issueType" name={name} color={color} />
+	};
+}
+
+function IssueTypeTriggerGlyph({ name, color }: Readonly<{ name?: string; color?: string | null }>) {
+	if (!name) {
+		return (
+			<span className="flex size-6 items-center justify-center rounded-md p-1.5 hairline-ring ring-foreground/10">
+				<span className="size-full rounded-full hairline-border border-foreground/40" />
+			</span>
+		);
+	}
+	return <TaskPropertyIcon kind="issueType" name={name} color={color} className="size-5 [&>svg]:size-3" />;
+}
+
 /**
  * It's a dropdown that allows you to select an issue from a list of issues, and it also allows you to
  * create a new issue
  * @param  - `className` - the class name for the dropdown
  * @returns A dropdown menu with a button that opens a modal.
  */
-export function TaskIssuesDropdown({
-	className,
-	defaultValue,
-	onValueChange,
-	showIssueLabels = true,
-	taskStatusClassName
-}: TTaskVersionsDropdown<'issueType'> & {
-	showIssueLabels?: boolean;
-	taskStatusClassName?: string;
-}) {
+export function TaskIssuesDropdown({ defaultValue, onValueChange }: TTaskVersionsDropdown<'issueType'>) {
+	const t = useTranslations();
 	const { isOpen, closeModal } = useModal();
 	const { issueTypes: taskIssues } = useIssueTypesQuery();
 	const [taskIssueType, setTaskIssueType] = useState(defaultValue ?? null);
@@ -99,59 +107,6 @@ export function TaskIssuesDropdown({
 	const taskIssuesOptions = useMemo(() => {
 		return taskIssues.map((el) => ({ ...el, id: el.name }));
 	}, [taskIssues]);
-
-	const renderItem = useCallback(
-		(item: (typeof taskIssuesOptions)[number]) => (
-			<div
-				style={{ backgroundColor: item.color ?? undefined }}
-				className="flex gap-2 items-center px-2 py-1 w-full rounded-md"
-			>
-				<div className="w-[1rem] flex items-center justify-center h-[1rem] p-[.02rem] rounded">
-					{item.fullIconUrl && (
-						<Image
-							className="object-cover w-full h-full rounded-md"
-							src={item.fullIconUrl}
-							alt={item.name + 'icon'}
-							width={30}
-							height={30}
-						/>
-					)}
-				</div>
-				<span className="text-xs">{item.name}</span>
-			</div>
-		),
-		[]
-	);
-
-	const renderValue = useCallback((value: string | null) => {
-		const item = taskIssuesOptions.find((el) => el.name == value);
-		return value ? (
-			<div className="flex gap-2 items-center">
-				<div
-					style={{
-						backgroundColor: item?.color ?? undefined
-					}}
-					className="w-[1.2rem] flex items-center justify-center h-[1.2rem] p-[.02rem] rounded"
-				>
-					<div className="w-[1rem] flex items-center justify-center h-[1rem] p-[.02rem] rounded">
-						{item?.fullIconUrl && (
-							<Image
-								className="object-cover w-full h-full rounded-md"
-								src={item?.fullIconUrl}
-								alt={item?.name + 'icon'}
-								width={30}
-								height={30}
-							/>
-						)}
-					</div>
-				</div>
-			</div>
-		) : (
-			<div className="w-[1.5rem] border flex items-center justify-center h-[1.5rem] p-[.3rem] rounded-lg">
-				<div className="w-full h-full rounded-full border border-black/40"></div>
-			</div>
-		);
-	}, []);
 
 	const handleTaskIssueChange = useCallback(
 		async (value: string) => {
@@ -172,16 +127,12 @@ export function TaskIssuesDropdown({
 			try {
 				// STEP 3: API call
 				await onValueChange?.(newValue);
-
-				// STEP 4: Success - keep optimistic value and show success toast
-				toast.success(`Task issue type updated successfully`, {
-					description: `Changed from "${taskIssueType}" to "${newValue}"`
-				});
 			} catch (error) {
-				// STEP 5: Error - revert to previous value and show error toast
+				// STEP 4: Error - revert to previous value and show error toast
 				setTaskIssueType(previousValue);
-				toast.error(`Failed to update task issue type`, {
-					description: (error as any)?.message || 'Please try again. The change has been reverted.'
+				const reasonKey = errorReasonKeyOf(error) as DottedLanguageObjectStringPaths;
+				toast.error(t('toasts.tasks.PROPERTY_UPDATE_FAILED', { field: 'issueType' }), {
+					description: t(reasonKey)
 				});
 				console.error('Error updating task issue type:', error);
 			} finally {
@@ -189,23 +140,41 @@ export function TaskIssuesDropdown({
 				setIsLoading(false);
 			}
 		},
-		[taskIssueType, onValueChange, previousValue]
+		[taskIssueType, onValueChange, previousValue, t]
+	);
+
+	const menuOptions = useMemo(
+		() => taskIssuesOptions.map((item) => issueTypeMenuOption(item.name, item.color)),
+		[taskIssuesOptions]
+	);
+
+	const selectedIssue = useMemo(
+		() => taskIssuesOptions.find((item) => item.name === taskIssueType),
+		[taskIssuesOptions, taskIssueType]
+	);
+
+	const isIssueSelected = useCallback((value: string) => value === taskIssueType, [taskIssueType]);
+
+	const handleIssueSelect = useCallback(
+		(value: string) => {
+			void handleTaskIssueChange(value);
+		},
+		[handleTaskIssueChange]
 	);
 
 	return (
 		<>
 			<div className="relative">
-				<Select
-					placeholder="Issue Type"
-					showChevronDownIcon={false}
-					options={taskIssuesOptions}
-					selected={taskIssueType}
-					onChange={handleTaskIssueChange}
-					selectTriggerClassName="w-full h-full p-0 border-none hover:bg-transparent"
-					selectOptionsListClassName="w-full h-full"
-					renderItem={renderItem}
-					renderValue={renderValue}
-				/>
+				<TaskPropertyMenu
+					options={menuOptions}
+					isSelected={isIssueSelected}
+					onSelect={handleIssueSelect}
+					searchPlaceholder={t('taskMenus.search.issueType')}
+					triggerLabel={t('taskMenus.fields.issueType')}
+					triggerClassName="flex size-full items-center justify-center rounded-md"
+				>
+					<IssueTypeTriggerGlyph name={selectedIssue?.name} color={selectedIssue?.color} />
+				</TaskPropertyMenu>
 
 				{/* Loading indicator */}
 				{isLoading && (
@@ -309,7 +278,7 @@ export function TaskIssueStatus({
 			{...getTaskIssue(task?.issueType)}
 			showIssueLabels={showIssueLabels}
 			issueType="issue"
-			className={clsxm('px-2 text-white rounded-md', className)}
+			className={clsxm(className)}
 		/>
 	);
 }
@@ -328,9 +297,9 @@ export function CreateTaskIssueModal({ open, closeModal }: { open: boolean; clos
 	return (
 		<Modal isOpen={open} closeModal={closeModal}>
 			<form className="w-[98%] md:w-[430px]" autoComplete="off" onSubmit={handleSubmit}>
-				<EverCard className="w-full" shadow="custom">
+				<div className="w-full">
 					<div className="flex flex-col justify-between items-center">
-						<Text.Heading as="h3" className="text-center">
+						<Text.Heading as="h3" className="text-center text-lg font-semibold text-balance">
 							{t('common.CREATE_ISSUE')}
 						</Text.Heading>
 
@@ -348,7 +317,7 @@ export function CreateTaskIssueModal({ open, closeModal }: { open: boolean; clos
 							<Button type="submit">{t('common.CREATE')}</Button>
 						</div>
 					</div>
-				</EverCard>
+				</div>
 			</form>
 		</Modal>
 	);

@@ -16,6 +16,7 @@ import { cn } from '@/core/lib/helpers';
 import { formatDate } from '@/core/lib/helpers/index';
 import { TranslationHooks } from 'next-intl';
 import { TotalDurationByDate } from '../tasks/task-displays';
+import { Button } from '@/core/components/duplicated-components/_button';
 
 type MonthlyCalendarDataViewProps = {
 	t: TranslationHooks;
@@ -125,29 +126,31 @@ const MonthlyTimesheetCalendar: React.FC<MonthlyCalendarDataViewProps> = ({
 		<div className={classNames.container || 'p-4 w-full'}>
 			{/* Header */}
 			<div className={classNames.header || 'flex items-center justify-between mb-4'}>
-				<button
-					onClick={handlePreviousMonth}
-					className="px-4 py-2 bg-gray-200 rounded-sm hover:bg-gray-300 dark:bg-primary-light hover:dark:bg-primary-light"
-				>
+				<Button variant="outline" onClick={handlePreviousMonth}>
 					{t('common.PREV')}
-				</button>
-				<h2 className="text-xl font-bold">{format(currentMonth, 'MMMM yyyy', { locale: locale })}</h2>
-				<button
-					onClick={handleNextMonth}
-					className="px-4 py-2 bg-gray-200 rounded-sm dark:bg-primary-light hover:bg-gray-300 hover:dark:bg-primary-light"
-				>
+				</Button>
+				<h2 className="text-base font-semibold text-balance">
+					{format(currentMonth, 'MMMM yyyy', { locale: locale })}
+				</h2>
+				<Button variant="outline" onClick={handleNextMonth}>
 					{t('common.NEXT')}
-				</button>
+				</Button>
 			</div>
 
 			{/* Grid */}
-			<div className={classNames.grid || 'grid grid-cols-7 text-center font-semibold text-gray-600'}>
+			<div
+				className={classNames.grid || 'grid grid-cols-7 text-center text-xs font-medium text-muted-foreground'}
+			>
 				{daysLabels.map((day) => (
 					<div key={day}>{day}</div>
 				))}
 			</div>
 
-			<div className="grid w-full grid-cols-7 mt-2" role="grid" aria-label="Calendar">
+			<div
+				className="grid w-full grid-cols-7 mt-2 gap-px overflow-hidden rounded-xl bg-border hairline-ring ring-border"
+				role="grid"
+				aria-label="Calendar"
+			>
 				{calendarDates.map((date) => {
 					const formattedDate = format(date, 'yyyy-MM-dd');
 					const plan = groupedData.get(formattedDate);
@@ -159,9 +162,9 @@ const MonthlyTimesheetCalendar: React.FC<MonthlyCalendarDataViewProps> = ({
 							aria-label={format(date, 'MMMM d, yyyy')}
 							className={cn(
 								classNames.day,
-								'border flex flex-col gap-2 relative shadow-xs rounded-sm min-h-[150px] sm:w-[250px] md:w-[300px] lg:w-[350px] max-w-full',
+								'relative flex flex-col gap-2 bg-card py-2 min-h-[150px] outline-none focus-visible:ring-[3px] focus-visible:ring-inset focus-visible:ring-ring/25 sm:w-[250px] md:w-[300px] lg:w-[350px] max-w-full',
 								{
-									'bg-gray-100 dark:bg-card': date.getMonth() !== currentMonth.getMonth()
+									'bg-muted': date.getMonth() !== currentMonth.getMonth()
 								}
 							)}
 							onClick={() => onDateClick?.(date)}
@@ -173,16 +176,16 @@ const MonthlyTimesheetCalendar: React.FC<MonthlyCalendarDataViewProps> = ({
 							}}
 						>
 							<div className="flex items-center justify-between px-2">
-								<span className="block text-sm font-medium text-gray-500">
+								<span className="block text-xs font-medium tabular-nums text-muted-foreground">
 									{format(date, 'dd MMM yyyy')}
 								</span>
-								<div className="flex items-center text-sm font-medium text-gray-500 gap-x-1">
+								<div className="flex items-center text-xs font-medium gap-x-1">
 									{/* <span className="text-[#868687]">Total{" : "}</span> */}
 									{plan && (
 										<TotalDurationByDate
 											timesheetLog={plan.tasks}
 											createdAt={formatDate(plan.date)}
-											className="text-sm text-black dark:text-gray-500"
+											className="tabular-nums text-foreground"
 										/>
 									)}
 								</div>
@@ -198,7 +201,9 @@ const MonthlyTimesheetCalendar: React.FC<MonthlyCalendarDataViewProps> = ({
 									))}
 								</div>
 							) : (
-								<div className={classNames.noData || 'text-gray-400 text-sm'}>{noDataText}</div>
+								<div className={classNames.noData || 'px-2 text-xs text-muted-foreground'}>
+									{noDataText}
+								</div>
 							)}
 						</div>
 					);

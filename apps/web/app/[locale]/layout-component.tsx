@@ -11,9 +11,11 @@ import { useEffect } from 'react';
 import { useCheckAPI } from '@/core/hooks/common/use-check-api';
 import { useRuntimeEnvHtmlProps } from '@/core/components/providers/runtime-env-provider';
 
-import { PHProvider } from './(main)/integration/posthog/provider';
-import { APP_FAVICON_URL } from '@/core/constants/config/constants';
+import { isPostHogConfigured } from './(main)/integration/posthog/posthog-config';
+import { APP_FAVICON_URL, IS_DEV_MODE } from '@/core/constants/config/constants';
 import { cn } from '@/core/lib/helpers';
+import { MutationErrorToaster } from '@/core/components/common/mutation-error-toaster';
+import { DevErrorToaster } from '@/core/components/common/dev-error-toaster';
 // import { cn } from '@ever-teams/ui';
 
 interface Props {
@@ -24,7 +26,9 @@ interface Props {
 
 // The UI face is the system stack (`--font-sans` in styles/globals.css, shared with Ever Works);
 // no webfont is loaded any more.
-const PostHogPageView = dynamic(() => import('./(main)/integration/posthog/page-view'), {
+
+// posthog-js is fetched only by deployments that configure a key, after the page is interactive
+const PostHogAnalytics = dynamic(() => import('./(main)/integration/posthog/analytics'), {
 	ssr: false
 });
 
@@ -79,6 +83,7 @@ const LocaleLayoutComponent = (props: Props) => {
 	};
 
 	const name = searchParams?.get('name');
+	const hasAnalytics = isPostHogConfigured();
 
 	useEffect(() => {
 		if (!isApiWork && !loading) router.push(`/maintenance`);
@@ -114,30 +119,26 @@ const LocaleLayoutComponent = (props: Props) => {
 				)}
 			</head> */}
 			<NextIntlClientProvider locale={locale} messages={messages} timeZone="Asia/Kolkata">
-				<PHProvider>
-					<body
-						className={cn(
-							'flex h-full flex-col overflow-x-clip min-w-fit w-full bg-background antialiased'
-						)}
-					>
-						<PostHogPageView />
+				<body className={cn('flex h-full flex-col overflow-x-clip w-full bg-background antialiased')}>
+					{hasAnalytics && <PostHogAnalytics />}
 
-						<NextAuthSessionProvider>
-							<JotaiProvider>
-								<ThemeProvider
-									attribute="class"
-									defaultTheme="system"
-									enableSystem
-									disableTransitionOnChange
-								>
-									<ClientOnly>
-										<JitsuRoot>{children}</JitsuRoot>
-									</ClientOnly>
-								</ThemeProvider>
-							</JotaiProvider>
-						</NextAuthSessionProvider>
-					</body>
-				</PHProvider>
+					<NextAuthSessionProvider>
+						<JotaiProvider>
+							<ThemeProvider
+								attribute="class"
+								defaultTheme="system"
+								enableSystem
+								disableTransitionOnChange
+							>
+								<ClientOnly>
+									<JitsuRoot>{children}</JitsuRoot>
+									<MutationErrorToaster />
+									{IS_DEV_MODE && <DevErrorToaster />}
+								</ClientOnly>
+							</ThemeProvider>
+						</JotaiProvider>
+					</NextAuthSessionProvider>
+				</body>
 			</NextIntlClientProvider>
 		</html>
 	);

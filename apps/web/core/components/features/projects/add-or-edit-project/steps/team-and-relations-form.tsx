@@ -1,5 +1,12 @@
-import { Button } from '@/core/components';
-import { CheckIcon, Plus, X, LockIcon } from 'lucide-react';
+import {
+	Button,
+	modalFieldLabelClass,
+	modalFooterClass,
+	modalPrimaryActionClass,
+	modalSecondaryActionClass
+} from '@/core/components';
+import { Check, Lock, Plus, X } from '@/core/components/icons';
+import { buttonVariants } from '@/core/components/duplicated-components/_button';
 import { FormEvent, useCallback, useState, useMemo } from 'react';
 import { Identifiable, Select, Thumbnail } from './basic-information-form';
 import { IStepElementProps } from '../container';
@@ -207,16 +214,18 @@ export default function TeamAndRelationsForm(props: IStepElementProps) {
 		<form onSubmit={handleSubmit} className="w-full pt-4 space-y-5">
 			{/* Teams Multi-Select Section */}
 			<div className="flex flex-col w-full gap-2">
-				<label className="text-xs font-medium">
+				<label className={modalFieldLabelClass}>
 					{t('pages.projects.teamAndRelationsForm.formFields.assignTeams')}
-					<span className="ml-1 text-red-500">*</span>
+					<span className="ml-1 text-destructive-ink">*</span>
 				</label>
-				<div className="flex flex-wrap gap-2 p-3 border rounded-lg min-h-[60px]">
+				<div className="flex flex-wrap gap-2 p-3 rounded-lg min-h-[60px] bg-foreground/[0.03]">
 					{teams?.length ? (
 						teams.map((team) => {
 							const isSelected = selectedTeamIds.includes(team.id);
 							const isActiveTeam = team.id === activeTeam?.id;
 							const isLocked = isActiveTeam && !canDeselectTeam(team.id);
+							const isLockedSelection = isLocked && isSelected;
+							const isUnlockedSelection = isSelected && !isLocked;
 
 							return (
 								<button
@@ -225,11 +234,11 @@ export default function TeamAndRelationsForm(props: IStepElementProps) {
 									onClick={() => handleToggleTeam(team.id)}
 									disabled={isLocked && isSelected}
 									className={cn(
-										'flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-medium transition-colors',
-										isSelected
-											? 'bg-primary text-primary-foreground'
-											: 'bg-gray-100 dark:bg-muted hover:bg-gray-200 dark:hover:bg-muted',
-										isLocked && isSelected && 'cursor-not-allowed opacity-80'
+										'flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-medium outline-none transition-colors focus-visible:ring-[3px] focus-visible:ring-ring/25',
+										isSelected && 'bg-primary text-primary-foreground',
+										!isSelected &&
+											'bg-card text-foreground shadow-sm shadow-black/10 hairline-ring ring-foreground/10 hover:bg-muted/50 dark:ring-foreground/15',
+										isLockedSelection && 'cursor-not-allowed opacity-80'
 									)}
 									title={
 										isLocked
@@ -239,29 +248,26 @@ export default function TeamAndRelationsForm(props: IStepElementProps) {
 								>
 									{team.emoji && <span>{team.emoji}</span>}
 									<span>{team.name}</span>
-									{isLocked && isSelected ? (
-										<LockIcon size={12} />
-									) : isSelected ? (
-										<CheckIcon size={12} />
-									) : null}
+									{isLockedSelection && <Lock className="size-3" />}
+									{isUnlockedSelection && <Check className="size-3" />}
 								</button>
 							);
 						})
 					) : (
-						<span className="text-xs text-gray-500">
+						<span className="text-xs text-muted-foreground">
 							{t('pages.projects.teamAndRelationsForm.formFields.noTeamsAvailable')}
 						</span>
 					)}
 				</div>
-				{teamError && <span className="text-xs text-red-500">{teamError}</span>}
-				<span className="text-xs text-gray-500">
+				{teamError && <span className="text-xs text-destructive-ink">{teamError}</span>}
+				<span className="text-xs text-muted-foreground">
 					{t('pages.projects.teamAndRelationsForm.formFields.teamsHelperText')}
 				</span>
 			</div>
 
 			{/* Members Section */}
 			<div className="flex flex-col w-full gap-2">
-				<label className="text-xs font-medium">
+				<label className={modalFieldLabelClass}>
 					{t('pages.projects.teamAndRelationsForm.formFields.assignMembers')}
 				</label>
 				<div className="flex flex-col w-full gap-2">
@@ -301,18 +307,19 @@ export default function TeamAndRelationsForm(props: IStepElementProps) {
 								/>
 							))
 						) : (
-							<span className="text-xs">
+							<span className="text-xs text-muted-foreground">
 								{t('pages.projects.teamAndRelationsForm.formFields.noMembers')}
 							</span>
 						)}
 					</div>
 					<Button
 						type="button"
-						className="h-[1.8rem] w-28 bg-primary/10 border-gray-300 rounded-lg text-xs"
+						className="self-start"
 						variant="outline"
+						size="default"
 						onClick={handleAddNewMember}
 					>
-						<Plus size={15} /> <span>{t('pages.projects.teamAndRelationsForm.formFields.addMember')}</span>
+						<Plus /> <span>{t('pages.projects.teamAndRelationsForm.formFields.addMember')}</span>
 					</Button>
 				</div>
 			</div>
@@ -320,7 +327,7 @@ export default function TeamAndRelationsForm(props: IStepElementProps) {
 				// Will be implemented later on the api side (we keep this here)
 			}
 			<div className="flex-col hidden w-full gap-2">
-				<label className="text-xs font-medium">
+				<label className={modalFieldLabelClass}>
 					{t('pages.projects.teamAndRelationsForm.formFields.relations')}
 				</label>
 				<div className="flex flex-col w-full gap-2">
@@ -366,28 +373,34 @@ export default function TeamAndRelationsForm(props: IStepElementProps) {
 								/>
 							))
 						) : (
-							<span className="text-xs">
+							<span className="text-xs text-muted-foreground">
 								{t('pages.projects.teamAndRelationsForm.formFields.noRelations')}
 							</span>
 						)}
 					</div>
 					<Button
 						type="button"
-						className="h-[1.8rem] w-28 bg-primary/10 border-gray-300 rounded-lg text-xs"
+						className="self-start"
 						variant="outline"
+						size="default"
 						onClick={handleAddNewRelation}
 					>
-						<Plus size={15} />{' '}
-						<span>{t('pages.projects.teamAndRelationsForm.formFields.addRelation')}</span>
+						<Plus /> <span>{t('pages.projects.teamAndRelationsForm.formFields.addRelation')}</span>
 					</Button>
 				</div>
 			</div>
 
-			<div className="flex items-center justify-between w-full">
-				<Button onClick={handlePrevious} className=" h-[2.5rem]" type="button">
+			<div className={cn(modalFooterClass, 'hairline-t border-border pt-4')}>
+				<Button
+					onClick={handlePrevious}
+					variant="ghost"
+					size="default"
+					className={modalSecondaryActionClass}
+					type="button"
+				>
 					{t('common.BACK')}
 				</Button>
-				<Button type="submit" className=" h-[2.5rem]">
+				<Button type="submit" size="default" className={modalPrimaryActionClass}>
 					{t('common.NEXT')}
 				</Button>
 			</div>
@@ -412,6 +425,48 @@ function PairingItem<K extends Identifiable, V extends Identifiable>(props: IPai
 	const [keyId, setKeyId] = useState<string | null>(selected[0] || null);
 	const [valueId, setValueId] = useState<string | null>(selected[1] || null);
 
+	// Select is memoized: a stable renderer keeps it from re-rendering with every row of the form
+	const renderKeyItem = useCallback(
+		(item: K & { imgUrl?: string }, isSelected: boolean) => (
+			<div
+				className={cn(
+					'flex w-full h-full items-center gap-2 rounded-md p-1 px-2',
+					isSelected && 'bg-primary/10 font-medium text-primary-ink'
+				)}
+			>
+				{isSelected && <Check className="size-3" />}
+				<span className={cn('  flex items-center gap-2', keyId && !isSelected && 'pl-[18px]')}>
+					<Thumbnail
+						className="z-20 rounded-full bg-card text-foreground"
+						imgUrl={item?.imgUrl}
+						size={'20px'}
+						identifier={String(item?.value)}
+					/>
+					<span className="capitalize">{item?.value ?? '-'}</span>
+				</span>
+			</div>
+		),
+		[keyId]
+	);
+
+	const handleKeyChange = useCallback(
+		(nextKeyId: unknown) => {
+			const selectedKeyId = nextKeyId as string;
+			onKeyChange?.(id, selectedKeyId);
+			setKeyId(selectedKeyId);
+		},
+		[id, onKeyChange]
+	);
+
+	const handleValueChange = useCallback(
+		(nextValueId: unknown) => {
+			const selectedValueId = nextValueId as string;
+			onValueChange?.(id, selectedValueId);
+			setValueId(selectedValueId);
+		},
+		[id, onValueChange]
+	);
+
 	return (
 		<div className="flex items-center w-full gap-3">
 			<div className="w-full">
@@ -419,32 +474,9 @@ function PairingItem<K extends Identifiable, V extends Identifiable>(props: IPai
 					placeholder={keysLabel}
 					selectTriggerClassName="w-full"
 					options={keys}
-					onChange={(keyId) => {
-						onKeyChange?.(id, keyId as string);
-						setKeyId(keyId as string);
-					}}
+					onChange={handleKeyChange}
 					selected={keyId}
-					renderItem={(item, isSelected) => {
-						return (
-							<div
-								className={cn(
-									'w-full h-full p-1 px-2 flex items-center gap-2 rounded',
-									isSelected && 'bg-primary text-primary-foreground dark:text-white'
-								)}
-							>
-								{isSelected && <CheckIcon size={10} />}
-								<span className={cn('  flex items-center gap-2', keyId && !isSelected && 'pl-[18px]')}>
-									<Thumbnail
-										className="z-20 text-gray-700 bg-white rounded-full"
-										imgUrl={item?.imgUrl}
-										size={'20px'}
-										identifier={String(item?.value)}
-									/>
-									<span className="capitalize">{item?.value ?? '-'}</span>
-								</span>
-							</div>
-						);
-					}}
+					renderItem={renderKeyItem}
 				/>
 			</div>
 
@@ -453,16 +485,17 @@ function PairingItem<K extends Identifiable, V extends Identifiable>(props: IPai
 					placeholder={valuesLabel}
 					selectTriggerClassName="w-full"
 					options={values}
-					onChange={(valueId) => {
-						onValueChange?.(id, valueId as string);
-						setValueId(valueId as string);
-					}}
+					onChange={handleValueChange}
 					selected={valueId}
 				/>
 			</div>
 
-			<button onClick={() => onRemove(id)} className="w-[2.2rem] flex items-center justify-center h-full">
-				<X size={15} />
+			<button
+				type="button"
+				onClick={() => onRemove(id)}
+				className={cn(buttonVariants({ variant: 'ghost', size: 'icon' }), 'shrink-0 text-muted-foreground')}
+			>
+				<X />
 			</button>
 		</div>
 	);

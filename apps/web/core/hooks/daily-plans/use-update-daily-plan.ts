@@ -3,7 +3,7 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useCallback } from 'react';
 import { useAtomValue } from 'jotai';
-import { useTranslations } from 'next-intl';
+import { useTranslations, type DottedLanguageObjectStringPaths } from 'next-intl';
 import { toast } from 'sonner';
 import { dailyPlanService, taskService } from '@/core/services/client/api';
 import {
@@ -17,9 +17,17 @@ import {
 } from '@/core/types/schemas/task/daily-plan.schema';
 import { TTask } from '@/core/types/schemas/task/task.schema';
 import { activeTeamState } from '@/core/stores';
-import { getErrorMessage, logErrorInDev } from '@/core/lib/helpers/error-message';
+import { logErrorInDev } from '@/core/lib/helpers/error-message';
+import { errorReasonKeyOf } from '@/core/lib/utils/error-feedback';
 import { queryKeys } from '@/core/query/keys';
 import { useDailyPlanInvalidation } from './use-daily-plan-invalidation';
+import { useTrackPlanAddition } from './use-pending-plan-additions';
+import { teamDefaultProjectId } from '@/core/lib/helpers/team-default-project';
+
+interface UseUpdateDailyPlanOptions {
+	/** Set when the caller reports every failure of these mutations itself: the global fallback then stays silent. */
+	handlesOwnError?: boolean;
+}
 
 /**
  * Hook for updating daily plans.
@@ -28,11 +36,13 @@ import { useDailyPlanInvalidation } from './use-daily-plan-invalidation';
  *
  * @returns Object containing update mutations and loading states
  */
-export function useUpdateDailyPlan() {
+export function useUpdateDailyPlan({ handlesOwnError = false }: UseUpdateDailyPlanOptions = {}) {
 	const t = useTranslations();
+	const meta = { handlesOwnError };
 	const queryClient = useQueryClient();
 	const activeTeam = useAtomValue(activeTeamState);
 	const { invalidateDailyPlanData } = useDailyPlanInvalidation();
+	const trackPlanAddition = useTrackPlanAddition();
 
 	const updateDailyPlanMutation = useMutation({
 		mutationFn: async ({ dailyPlanId, data }: { dailyPlanId: string; data: TUpdateDailyPlan }) => {
@@ -51,6 +61,7 @@ export function useUpdateDailyPlan() {
 			const res = await dailyPlanService.updateDailyPlan({ ...data, employeeId }, dailyPlanId);
 			return res;
 		},
+		meta,
 		onSuccess: () => {
 			invalidateDailyPlanData();
 		}
@@ -61,6 +72,7 @@ export function useUpdateDailyPlan() {
 			const res = await dailyPlanService.addTaskToPlan(data, dailyPlanId);
 			return res;
 		},
+		meta,
 		onSuccess: async (_data, variables) => {
 			try {
 				const taskId = variables.data.taskId;
@@ -74,7 +86,7 @@ export function useUpdateDailyPlan() {
 						activeTeam?.tenantId,
 						activeTeam?.organizationId,
 						activeTeam?.id,
-						activeTeam?.projects?.[0]?.id ?? null
+						teamDefaultProjectId(activeTeam)
 					)
 				);
 
@@ -104,17 +116,14 @@ export function useUpdateDailyPlan() {
 									taskId: freshTask.id,
 									data: { ...freshTask, members: updatedMembers as any } // Type assertion needed due to Zod lazy schema
 								});
-								toast.success(t('dailyPlan.toastMessages.EMPLOYEE_ASSIGNED_TO_TASK'));
 							}
 						}
 					}
 				}
 			} catch (error) {
 				// Log error but don't block the daily plan update
-				const autoAssignFailedMessage = t('dailyPlan.toastMessages.EMPLOYEE_AUTO_ASSIGN_FAILED');
-				toast.error(autoAssignFailedMessage, {
-					description: getErrorMessage(error, autoAssignFailedMessage)
-				});
+				const reasonKey = errorReasonKeyOf(error) as DottedLanguageObjectStringPaths;
+				toast.error(t('toasts.plans.AUTO_ASSIGN_FAILED'), { description: t(reasonKey) });
 				logErrorInDev('Failed to auto-assign employee to task:', error);
 			}
 
@@ -127,6 +136,7 @@ export function useUpdateDailyPlan() {
 			const res = await dailyPlanService.removeTaskFromPlan(data, dailyPlanId);
 			return res;
 		},
+		meta,
 		onSuccess: () => {
 			invalidateDailyPlanData();
 		}
@@ -137,6 +147,7 @@ export function useUpdateDailyPlan() {
 			const res = await dailyPlanService.removeManyTaskFromPlans({ taskId, data });
 			return res;
 		},
+		meta,
 		onSuccess: () => {
 			invalidateDailyPlanData();
 		}
@@ -157,9 +168,14 @@ export function useUpdateDailyPlan() {
 
 	const addTaskToPlan = useCallback(
 		async (data: IDailyPlanTasksUpdate, planId: string) => {
-			return await addTaskToPlanMutateAsync({ data, dailyPlanId: planId });
+			const add = () => addTaskToPlanMutateAsync({ data, dailyPlanId: planId });
+			const taskId = data.taskId;
+			if (!taskId) {
+				return await add();
+			}
+			return await trackPlanAddition({ taskId, planId, employeeId: data.employeeId }, add);
 		},
-		[addTaskToPlanMutateAsync]
+		[addTaskToPlanMutateAsync, trackPlanAddition]
 	);
 
 	const removeTaskFromPlan = useCallback(

@@ -5,17 +5,25 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { Form, FormControl, FormField, FormItem, FormMessage } from '@/core/components/common/form';
-import { ToastAction } from '../common/toast';
-import { toast } from '../../hooks/common/use-toast';
+import { toast } from 'sonner';
 import { useState } from 'react';
-import { useTranslations } from 'next-intl';
-import { ArrowRight, Loader2 } from 'lucide-react';
+import { useTranslations, type DottedLanguageObjectStringPaths } from 'next-intl';
+import { errorReasonKeyOf } from '@/core/lib/utils/error-feedback';
+import { ArrowRight, Mail, Spinner } from '@/core/components/icons';
 import { APP_NAME } from '@/core/constants/config/constants';
+import { toastMoment } from '@/core/components/common/toast-moment';
+
+/** A white card on a hairline whose fill leans toward the brand hue at its foot, as the tooltip bubbles do. */
+const OPT_IN_CARD =
+	'rounded-xl bg-linear-to-b from-card to-[color-mix(in_oklab,hsl(var(--card)),hsl(var(--primary))_7%)] p-3 hairline-ring ring-border shadow-[0_1px_2px_rgb(0_0_0/0.04)]';
+
+const OPT_IN_TILE =
+	'keycap-3d flex size-7 shrink-0 items-center justify-center rounded-lg text-foreground/70 [&_svg]:size-4';
 
 /**
- * Newsletter opt-in at the foot of the sidebar: one quiet bordered block the width of the nav,
- * with the e-mail field and the send button on a single row so it never crowds the account menu
- * below it. Hidden while the sidebar is collapsed to its icon rail.
+ * Newsletter opt-in at the foot of the sidebar: a small card with its icon tile, the title and one line of copy,
+ * then the e-mail field and the send button on a single row so it never crowds the account menu below it. Hidden
+ * while the sidebar is collapsed to its icon rail.
  */
 export function SidebarOptInForm() {
 	const t = useTranslations();
@@ -30,42 +38,51 @@ export function SidebarOptInForm() {
 		resolver: zodResolver(subscribeFormSchema)
 	});
 
-	const subscribe = async () => {
-		setLoading((prev) => true);
-		// The route sets the list status and tags itself.
-		const res = await fetch('/api/subscribe', {
-			body: JSON.stringify({
-				email_address: form.getValues('email')
-			}),
-			headers: {
-				'Content-Type': 'application/json'
-			},
-			method: 'POST'
-		});
-		const { error } = (await res.json()) as {
-			error: string;
-			status: number;
-			[key: string]: unknown;
-		};
+	const showSubscribeError = (error: unknown) => {
+		const reasonKey = errorReasonKeyOf(error) as DottedLanguageObjectStringPaths;
+		toast.error(t('toasts.common.NEWSLETTER_FAILED'), { description: t(reasonKey) });
+	};
 
-		if (error) {
-			setLoading((prev) => false);
-			toast({
-				title: 'Waiting list registration error',
-				description: `We have encountered a problem ${error} with your registration to our waiting list for ${APP_NAME}`,
-				variant: 'destructive'
-			});
+	const showSubscribed = (listStatus: string | undefined, email: string) => {
+		const awaitsConfirmation = listStatus === 'pending';
+		if (awaitsConfirmation) {
+			toast.info(t('toasts.common.NEWSLETTER_CONFIRMATION_SENT', { email }));
 			return;
 		}
+		toastMoment(t('toasts.common.NEWSLETTER_SUBSCRIBED'), <Mail />);
+	};
 
-		setLoading(() => false);
-		toast({
-			title: 'Confirmation of registration on waiting list',
-			description: `Thank you for joining our waiting list! We're delighted you're interested in ${APP_NAME}`,
-			variant: 'default',
-			className: 'bg-green-50 text-green-600 border-green-500',
-			action: <ToastAction altText="Goto Waitlist to undo">Undo</ToastAction>
-		});
+	const subscribe = async () => {
+		setLoading((prev) => true);
+		const email = form.getValues('email');
+		try {
+			// The route sets the list status and tags itself.
+			const res = await fetch('/api/subscribe', {
+				body: JSON.stringify({
+					email_address: email
+				}),
+				headers: {
+					'Content-Type': 'application/json'
+				},
+				method: 'POST'
+			});
+			const { error, status } = (await res.json()) as {
+				error: string;
+				status?: string;
+				[key: string]: unknown;
+			};
+
+			if (error) {
+				showSubscribeError({ status: res.status });
+				return;
+			}
+
+			showSubscribed(status, email);
+		} catch (error) {
+			showSubscribeError(error);
+		} finally {
+			setLoading(false);
+		}
 	};
 
 	const onSubmit = (data: z.infer<typeof subscribeFormSchema>) => {
@@ -77,14 +94,18 @@ export function SidebarOptInForm() {
 
 	return state == 'expanded' ? (
 		<Form {...form}>
-			<form
-				onSubmit={form.handleSubmit(onSubmit)}
-				className="rounded-lg border border-sidebar-border bg-black/[0.02] p-3 dark:bg-white/[0.03]"
-			>
-				<p className="text-xs font-medium text-foreground">{t('common.SUBSCRIBE_NEWSLETTER')}</p>
-				<p className="mt-0.5 text-[11px] leading-4 text-muted-foreground">
-					{t('common.OPT_IN_UPDATES', { appName: APP_NAME })}
-				</p>
+			<form onSubmit={form.handleSubmit(onSubmit)} className={OPT_IN_CARD}>
+				<div className="flex items-start gap-2.5">
+					<span className={OPT_IN_TILE} aria-hidden="true">
+						<Mail />
+					</span>
+					<div className="min-w-0">
+						<p className="text-xs font-semibold text-foreground">{t('common.SUBSCRIBE_NEWSLETTER')}</p>
+						<p className="mt-0.5 text-[11px] leading-4 text-muted-foreground">
+							{t('common.OPT_IN_UPDATES', { appName: APP_NAME })}
+						</p>
+					</div>
+				</div>
 				<FormField
 					control={form.control}
 					name="email"
@@ -95,20 +116,20 @@ export function SidebarOptInForm() {
 									<SidebarInput
 										type="email"
 										placeholder={t('common.EMAIL')}
-										className="h-8 min-w-0 flex-1 rounded-md border-sidebar-border bg-background text-xs placeholder:text-xs"
+										className="h-8 min-w-0 flex-1 text-xs placeholder:text-xs"
 										{...field}
 									/>
 									<Button
 										type="submit"
 										variant="outline"
 										size="icon"
-										className="size-8 shrink-0 rounded-md border-sidebar-border bg-background text-muted-foreground hover:text-foreground"
+										className="shrink-0 text-muted-foreground hover:text-foreground"
 										disabled={isLoading}
 										aria-label={subscribeLabel}
 										title={subscribeLabel}
 									>
 										{isLoading ? (
-											<Loader2 className="size-3.5 animate-spin" aria-hidden="true" />
+											<Spinner className="size-3.5 animate-spin" aria-hidden="true" />
 										) : (
 											<ArrowRight className="size-3.5" aria-hidden="true" />
 										)}

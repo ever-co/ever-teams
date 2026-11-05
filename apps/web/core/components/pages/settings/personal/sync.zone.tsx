@@ -5,37 +5,44 @@ import { Modal } from '@/core/components/common/modal';
 import { Text } from '@/core/components/common/typography';
 import { useTranslations } from 'next-intl';
 import { useAtomValue, useSetAtom } from 'jotai';
-import { EverCard } from '@/core/components/common/ever-card';
+import { SETTINGS_LABEL_CLASS, SETTINGS_ROW_CLASS, SETTINGS_ROWS_CLASS } from '../settings-section';
 
-/** Settings row: label column, control column (see settings-design-contract). */
-const ROW = 'grid w-full grid-cols-1 gap-2 border-t border-border py-3 first:border-t-0 first:pt-0 sm:grid-cols-[10rem_minmax(0,1fr)] sm:items-center sm:gap-4';
+function dataSyncStateLabel(isDataSync: boolean, t: ReturnType<typeof useTranslations>) {
+	if (isDataSync) {
+		return t('common.ENABLED');
+	}
+	return t('common.DISABLED');
+}
+
+function dataSyncModeLabel(dataSyncMode: string, t: ReturnType<typeof useTranslations>) {
+	if (dataSyncMode == 'REAL_TIME') {
+		return t('pages.settingsPersonal.SYNC_MODE_REAL_TIME');
+	}
+	return t('pages.settingsPersonal.SYNC_MODE_PULL');
+}
 
 export function SyncZone() {
 	const t = useTranslations();
 	const isDataSync = useAtomValue(isDataSyncState);
 	const dataSyncMode = useAtomValue(dataSyncModeState);
 	return (
-		<div className="w-full">
-			<div className={ROW}>
-				<Text className="text-sm font-medium text-muted-foreground">Auto Sync</Text>
+		<div className={SETTINGS_ROWS_CLASS}>
+			<div className={SETTINGS_ROW_CLASS}>
+				<Text className={SETTINGS_LABEL_CLASS}>{t('pages.settingsPersonal.AUTO_SYNC')}</Text>
 				<div className="flex items-center gap-3">
 					<DataSyncToggler />
-					<Text className="text-sm text-muted-foreground">
-						{isDataSync ? t('common.ENABLED') : t('common.DISABLED')}
-					</Text>
+					<Text className="text-sm text-muted-foreground">{dataSyncStateLabel(isDataSync, t)}</Text>
 				</div>
 			</div>
-			{isDataSync ? (
-				<div className={ROW}>
-					<Text className="text-sm font-medium text-muted-foreground">Sync Mode</Text>
+			{isDataSync && (
+				<div className={SETTINGS_ROW_CLASS}>
+					<Text className={SETTINGS_LABEL_CLASS}>{t('pages.settingsPersonal.SYNC_MODE')}</Text>
 					<div className="flex items-center gap-3">
 						<DataSyncModeToggler />
-						<Text className="text-sm text-muted-foreground">
-							{dataSyncMode == 'REAL_TIME' ? 'Real Time' : 'Pull'}
-						</Text>
+						<Text className="text-sm text-muted-foreground">{dataSyncModeLabel(dataSyncMode, t)}</Text>
 					</div>
 				</div>
-			) : null}
+			)}
 		</div>
 	);
 }
@@ -45,22 +52,18 @@ export const RealTimePopup = ({ closeModal, open }: { closeModal: () => void; op
 	const setDataSyncMode = useSetAtom(dataSyncModeState);
 	return (
 		<Modal isOpen={open} closeModal={closeModal} alignCloseIcon>
-			<div className="sm:w-[530px] w-[330px]">
-				<EverCard className="w-full" shadow="custom">
-					<div>
-						<p className="py-4 text-center">{t('alerts.REAL_TIME_ON_WORKING')}</p>
-						<div className="flex justify-center gap-2">
-							<Button
-								onClick={() => {
-									setDataSyncMode('PULL');
-									closeModal();
-								}}
-							>
-								OK
-							</Button>
-						</div>
-					</div>
-				</EverCard>
+			<div className="flex w-full flex-col gap-6 sm:w-md">
+				<p className="pr-6 text-sm text-balance text-foreground">{t('alerts.REAL_TIME_ON_WORKING')}</p>
+				<div className="flex justify-end">
+					<Button
+						onClick={() => {
+							setDataSyncMode('PULL');
+							closeModal();
+						}}
+					>
+						{t('common.OK')}
+					</Button>
+				</div>
 			</div>
 		</Modal>
 	);

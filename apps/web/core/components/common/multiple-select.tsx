@@ -8,8 +8,9 @@ import {
 	SelectGroup,
 	SelectLabel
 } from '@/core/components/common/select';
-import { Check } from 'lucide-react';
+import { Check } from '@/core/components/icons';
 import { clsxm } from '@/core/lib/utils';
+import { cn } from '@/core/lib/helpers';
 
 type Option = {
 	label: string;
@@ -49,7 +50,7 @@ export function MultipleSelect({
 				<SelectTrigger className="w-64" onClick={() => setOpen(true)}>
 					<SelectValue>{selectedValues.length > 0 ? selectedValues.join(', ') : placeholder}</SelectValue>
 				</SelectTrigger>
-				<SelectContent className="z-50 max-h-60" onClick={() => setOpen(true)}>
+				<SelectContent className="max-h-60" onClick={() => setOpen(true)}>
 					<SelectGroup>
 						{label && <SelectLabel>{label}</SelectLabel>}
 						{options.map((option) => (
@@ -61,7 +62,7 @@ export function MultipleSelect({
 								<div className="flex items-center">
 									<span>{option.label}</span>
 									{selectedValues.includes(option.value) && (
-										<Check className="ml-auto w-4 h-4 text-primary" />
+										<Check className="ml-auto size-4 text-primary" />
 									)}
 								</div>
 							</SelectItem>
@@ -120,12 +121,10 @@ export function CustomSelect({
 			onValueChange={onChange}
 			aria-label={ariaLabel || 'Select an option'}
 		>
-			<SelectTrigger
-				className={`overflow-hidden bg-white text-clip dark:bg-dark--theme-light focus:ring-0 ${className}`}
-			>
+			<SelectTrigger className={cn('overflow-hidden text-clip', className)}>
 				<SelectValue placeholder={placeholder} />
 			</SelectTrigger>
-			<SelectContent className="z-[10000] dark:bg-dark--theme-light w-auto">
+			<SelectContent className="z-[10000] w-auto">
 				<SelectGroup className={clsxm('overflow-y-auto', classNameGroup)}>
 					{options
 						?.map((option, index) => {

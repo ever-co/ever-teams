@@ -1,4 +1,6 @@
 import dynamic from 'next/dynamic';
+import { MinTimerSkeleton } from '@/core/components/common/skeleton/min-timer-skeleton';
+import { CollaborateSkeleton } from '@/core/components/common/skeleton/collaborate-skeleton';
 import { DashboardHeaderSkeleton } from '../common/skeleton/dashboard-header-skeleton';
 import { ChartSkeleton } from '../common/skeleton/chart-skeleton';
 import { TeamStatsGridSkeleton } from '../common/skeleton/team-stats-grid-skeleton';
@@ -20,7 +22,7 @@ export const LazyDateRangePicker = dynamic(
 	() => import('@/core/components/common/date-range-picker').then((mod) => mod.DateRangePicker),
 	{
 		ssr: false,
-		loading: () => <div className="w-48 h-10 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded-lg" />
+		loading: () => <div className="w-48 h-9 bg-foreground/5 animate-pulse rounded-md" />
 	}
 );
 
@@ -28,7 +30,7 @@ export const LazyTeamDashboardFilter = dynamic(
 	() => import('@/core/components/pages/dashboard/team-dashboard-filter').then((mod) => mod.TeamDashboardFilter),
 	{
 		ssr: false,
-		loading: () => <div className="w-24 h-10 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded-lg" />
+		loading: () => <div className="w-24 h-9 bg-foreground/5 animate-pulse rounded-md" />
 	}
 );
 
@@ -46,8 +48,8 @@ export const LazyProductivityChart = dynamic(
 	{
 		ssr: false,
 		loading: () => (
-			<div className="w-full h-64 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded-lg flex items-center justify-center">
-				<div className="text-gray-500">Loading Chart...</div>
+			<div className="w-full h-64 bg-foreground/5 animate-pulse rounded-xl flex items-center justify-center">
+				<div className="text-sm text-muted-foreground">Loading Chart...</div>
 			</div>
 		)
 	}
@@ -59,8 +61,8 @@ export const LazyProductivityHeader = dynamic(
 		ssr: false,
 		loading: () => (
 			<div className="flex flex-col gap-2">
-				<div className="w-32 h-8 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded" />
-				<div className="w-16 h-6 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded" />
+				<div className="w-32 h-8 bg-foreground/5 animate-pulse rounded-md" />
+				<div className="w-16 h-6 bg-foreground/5 animate-pulse rounded-md" />
 			</div>
 		)
 	}
@@ -74,8 +76,8 @@ export const LazyProductivityStats = dynamic(
 			<div className="flex gap-6">
 				{Array.from({ length: 3 }).map((_, index) => (
 					<div key={index} className="flex flex-col gap-2 items-center">
-						<div className="w-16 h-4 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded" />
-						<div className="w-12 h-8 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded" />
+						<div className="w-16 h-4 bg-foreground/5 animate-pulse rounded-md" />
+						<div className="w-12 h-8 bg-foreground/5 animate-pulse rounded-md" />
 					</div>
 				))}
 			</div>
@@ -128,8 +130,8 @@ export const LazyTimer = dynamic(
 export const LazyMinTimerFrame = dynamic(
 	() => import('../timer/timer').then((mod) => ({ default: mod.MinTimerFrame })),
 	{
-		ssr: false
-		// Note: Removed loading here - Suspense fallback will handle all loading states uniformly
+		ssr: false,
+		loading: () => <MinTimerSkeleton />
 	}
 );
 
@@ -144,8 +146,8 @@ export const LazyActivityModal = dynamic(
 
 // Collaborate Component
 export const LazyCollaborate = dynamic(() => import('../collaborate'), {
-	ssr: false
-	// Note: Removed loading here - Suspense fallback will handle all loading states uniformly
+	ssr: false,
+	loading: () => <CollaborateSkeleton />
 });
 
 // User Navigation

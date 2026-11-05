@@ -12,11 +12,9 @@ import { useUserQuery } from '@/core/hooks/queries/user-user.query';
 
 // Danger-zone row: title + description on the left, an outline danger action on the right.
 const DANGER_ROW =
-	'flex flex-col gap-3 border-t border-border py-4 first:border-t-0 first:pt-0 sm:flex-row sm:items-center sm:justify-between';
+	'flex flex-col gap-3 hairline-t border-border py-4 first:border-t-0 first:pt-0 sm:flex-row sm:items-center sm:justify-between';
 const DANGER_TITLE = 'text-sm font-medium text-foreground';
 const DANGER_DESCRIPTION = 'mt-0.5 text-xs text-muted-foreground';
-const DANGER_BUTTON =
-	'h-9 shrink-0 whitespace-nowrap rounded-md border-destructive/40 bg-transparent px-3 py-0 text-sm font-medium text-destructive hover:bg-destructive/10 disabled:hover:bg-transparent';
 
 export const DangerZoneTeam = () => {
 	const t = useTranslations();
@@ -32,11 +30,12 @@ export const DangerZoneTeam = () => {
 	const { isTeamManager } = useIsMemberManager(user);
 	const activeTeamManagers = useAtomValue(activeTeamManagersState);
 
+	// Without the team (or the member) loaded there is nothing to act on: the action throws, so the modal says it
+	// failed and stays open instead of closing as if it had been done
 	const handleDisposeTeam = useCallback(() => {
-		if (activeTeam) {
-			window.localStorage.removeItem(LAST_WORKSPACE_AND_TEAM);
-			return deleteOrganizationTeam(activeTeam.id);
-		}
+		if (!activeTeam) throw new Error('');
+		window.localStorage.removeItem(LAST_WORKSPACE_AND_TEAM);
+		return deleteOrganizationTeam(activeTeam.id);
 	}, [activeTeam, deleteOrganizationTeam]);
 
 	const handleQuiteTeam = useCallback(() => {
@@ -53,7 +52,7 @@ export const DangerZoneTeam = () => {
 				});
 			}
 		}
-		return;
+		throw new Error('');
 	}, [activeTeam, user, deleteOrganizationTeamEmployee]);
 
 	return (
@@ -67,8 +66,9 @@ export const DangerZoneTeam = () => {
 					</div>
 					<Button
 						variant="outline-danger"
+						size="default"
 						type="submit"
-						className={DANGER_BUTTON}
+						className="shrink-0"
 						onClick={openModal}
 						disabled={!(isTeamManager && activeTeamManagers.length >= 2)}
 					>
@@ -84,8 +84,9 @@ export const DangerZoneTeam = () => {
 					</div>
 					<Button
 						variant="outline-danger"
+						size="default"
 						type="submit"
-						className={DANGER_BUTTON}
+						className="shrink-0"
 						onClick={() => {
 							setRemoveModalType('DISPOSE');
 							dangerOpenaModal();
@@ -103,8 +104,9 @@ export const DangerZoneTeam = () => {
 					</div>
 					<Button
 						variant="outline-danger"
+						size="default"
 						type="submit"
-						className={DANGER_BUTTON}
+						className="shrink-0"
 						onClick={() => {
 							setRemoveModalType('QUIT');
 							dangerOpenaModal();

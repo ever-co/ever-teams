@@ -34,6 +34,12 @@ export const useLeftSettingData = () => {
 		// 	managerOnly: true
 		// },
 		{
+			title: t('pages.settingsTeam.NOTIFICATION_HEADING'),
+			color: '#7E7991',
+			href: '#notifications',
+			managerOnly: false
+		},
+		{
 			title: t('pages.settings.DANDER_ZONE'),
 			color: '#DE5536',
 			href: '#danger-zone',

@@ -23,6 +23,7 @@ jest.mock('@/core/services/server/requests', () => ({
 
 const INVITEE = { email: 'invitee@example.test', name: 'Invited Person' };
 const INVITATIONS = { items: [], total: 0 };
+const MANAGER_ROLE_ID = '6f1c2b8e-4d3a-4e2f-9b1c-7a8d9e0f1a2b';
 
 function inviteRequest(body: Record<string, unknown>) {
 	return new Request('https://app.ever.team/api/invite/emails', {
@@ -47,14 +48,14 @@ beforeEach(() => {
 
 describe('POST /api/invite/emails', () => {
 	it('sends the role picked in the invite form', async () => {
-		const request = inviteRequest({ ...INVITEE, roleId: 'manager-role' });
+		const request = inviteRequest({ ...INVITEE, roleId: MANAGER_ROLE_ID });
 
 		const response = await POST(request);
 
 		expect(response.status).toBe(200);
 		expect(mockInviteByEmailsRequest).toHaveBeenCalledTimes(1);
 		const invite = sentInvite();
-		expect(invite).toMatchObject({ roleId: 'manager-role' });
+		expect(invite).toMatchObject({ roleId: MANAGER_ROLE_ID });
 	});
 
 	it.each([

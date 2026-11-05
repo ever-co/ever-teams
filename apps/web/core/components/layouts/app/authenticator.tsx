@@ -3,36 +3,60 @@ import { getNoTeamPopupShowCookie, setNoTeamPopupShowCookie } from '@/core/lib/h
 import { isTeamMemberState, userState } from '@/core/stores';
 import { GetServerSidePropsContext, NextPage, PreviewData } from 'next';
 import { ParsedUrlQuery } from 'querystring';
-import { Suspense, useCallback, useEffect, useState } from 'react';
-import { useAtom } from 'jotai';
-import { BackdropLoader } from '@/core/components';
+import { type ComponentType, Suspense, useCallback, useEffect, useState } from 'react';
+import { useAtom, useStore } from 'jotai';
 import GlobalSkeleton from '../../common/global-skeleton';
 import { ModalSkeleton } from '../../common/skeleton/modal-skeleton';
 import { LazyCreateTeamModal, LazyJoinTeamModal } from '../../optimized-components';
 import { useUserQuery } from '@/core/hooks/queries/user-user.query';
+import { shouldReplaceStoredUser } from '@/core/lib/utils/stored-user';
+import { decodeJWT } from '@/core/lib/auth/jwt-utils';
+import { getAccessTokenCookie } from '@/core/lib/helpers/cookies';
 
 type Params = {
 	displayName: string;
 	pageTitle?: string;
+	/** No effect: the wait shows `skeleton` (or the generic one), never a full-screen loader. Kept for callers. */
 	showPageSkeleton?: boolean;
+	/**
+	 * The page's own skeleton, the one its route `loading.tsx` shows, so the wait for the user is the same picture
+	 * as the route loading before it and the page's first load after it.
+	 */
+	skeleton?: ComponentType;
 };
+
+function sessionUserIdOf(): string | null {
+	const token = getAccessTokenCookie();
+	if (!token) {
+		return null;
+	}
+	const payload = decodeJWT(token);
+	return payload?.id ?? null;
+}
 
 /** Wraps a protected page with user loading, authentication state, and team-join/create modal handling. */
 export function withAuthentication(Component: NextPage<any, any>, params: Params) {
 	const AppComponent = (props: any) => {
 		const [user, setUser] = useAtom(userState);
+		const store = useStore();
 		const noTeamPopupShow = getNoTeamPopupShowCookie();
 		const isTeamMember = useAtom(isTeamMemberState);
 
 		// PRIMARY DATA SOURCE, Use useUserQuery for reliable user data
 		const userQuery = useUserQuery();
 
-		// Sync useUserQuery data with userState for backward compatibility
+		// userState takes the query's user here only: a local save may store a newer user before the query reads it
 		useEffect(() => {
-			if (userQuery.data && userQuery.isSuccess && !user) {
-				setUser(userQuery.data);
+			const queriedUser = userQuery.data;
+			if (!queriedUser || !userQuery.isSuccess) {
+				return;
 			}
-		}, [userQuery.data, userQuery.isSuccess, user, setUser]);
+			const storedUser = store.get(userState);
+			const replacesStoredUser = shouldReplaceStoredUser(storedUser, queriedUser, sessionUserIdOf());
+			if (replacesStoredUser) {
+				setUser(queriedUser);
+			}
+		}, [userQuery.data, userQuery.isSuccess, user, store, setUser]);
 
 		const [showCreateTeamModal, setShowCreateTeamModal] = useState<boolean>(false);
 		const [showJoinTeamModal, setShowJoinTeamModal] = useState<boolean>(false);
@@ -53,16 +77,10 @@ export function withAuthentication(Component: NextPage<any, any>, params: Params
 
 		// REMOVED: fetchUserData is now redundant since useEffect above handles sync
 
-		// Show proper loading state instead of empty fragment
-		// SIMPLIFIED: Only use useUserQuery states
-		if (!userQuery.data || userQuery.isLoading) {
-			if (params.showPageSkeleton) {
-				// For pages that support page skeleton, show BackdropLoader
-				// This prevents blank pages and browser crashes during direct URL access
-				return <BackdropLoader show={true} title="Loading..." />;
-			}
-			// For pages without page skeleton support, show BackdropLoader
-			return <GlobalSkeleton />;
+		const isUserPending = !userQuery.data || userQuery.isLoading;
+		if (isUserPending) {
+			const PageSkeleton = params.skeleton ?? GlobalSkeleton;
+			return <PageSkeleton />;
 		}
 
 		return (

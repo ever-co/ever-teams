@@ -24,13 +24,14 @@ export function useSendTeamInvitation() {
 	const inviteUserMutation = useMutation({
 		mutationFn: async (params: InviteUserParams) => {
 			return await inviteService.inviteByEmails({
-				email: params.email,
-				name: params.name,
+				emails: params.emails,
 				organizationId: params.organizationId,
 				teamId: params.teamId,
 				roleId: params.roleId
 			});
 		},
+		// The invite dialog reports a failure next to the addresses, with the reason
+		meta: { handlesOwnError: true },
 		onSuccess: () => {
 			invalidateTeamInvitations();
 		}
@@ -38,22 +39,24 @@ export function useSendTeamInvitation() {
 
 	// Depend on the STABLE mutateAsync, never on the mutation result object (recreated on every state change).
 	const inviteUserMutateAsync = inviteUserMutation.mutateAsync;
-	const inviteUser = useCallback(
-		(email: string, name: string, roleId?: string) => {
-			if (!user?.employee?.organizationId || !activeTeamId || !user?.tenantId) {
+	/** Invites every address in one request; Gauzy skips the ones already invited to the team. */
+	const inviteUsers = useCallback(
+		(emails: string[], roleId?: string) => {
+			const organizationId = user?.employee?.organizationId;
+			const tenantId = user?.tenantId;
+			if (!organizationId || !activeTeamId || !tenantId) {
 				return Promise.reject(new Error('Missing required parameters'));
 			}
 
-			return inviteUserMutateAsync({
-				email,
-				name,
-				organizationId: user.employee.organizationId,
-				teamId: activeTeamId,
-				tenantId: user.tenantId,
-				roleId
-			});
+			return inviteUserMutateAsync({ emails, organizationId, teamId: activeTeamId, tenantId, roleId });
 		},
 		[inviteUserMutateAsync, user, activeTeamId]
+	);
+
+	/** @deprecated One address at a time; the name is ignored, Gauzy does not need it. Use `inviteUsers`. */
+	const inviteUser = useCallback(
+		(email: string, _name?: string, roleId?: string) => inviteUsers([email], roleId),
+		[inviteUsers]
 	);
 
 	// ===== RESEND INVITATION =====
@@ -78,10 +81,10 @@ export function useSendTeamInvitation() {
 	// ===== RETURN =====
 
 	return {
+		inviteUsers,
 		inviteUser,
 		inviteLoading: inviteUserMutation.isPending,
 		resendTeamInvitation,
 		resendInviteLoading: resendInvitationMutation.isPending
 	};
 }
-
