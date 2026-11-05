@@ -73,4 +73,20 @@ describe('PHProvider', () => {
 			expect.objectContaining({ api_host: 'https://eu.i.posthog.com' })
 		);
 	});
+
+	it.each(['/delete-account/confirm', '/fr/delete-account/confirm', '/delete-account'])(
+		'stays off on a page load that starts on %s, whose address can carry a deletion token',
+		(pathname) => {
+			window.history.replaceState(null, '', pathname);
+			try {
+				const { PHProvider } = loadProvider({ NEXT_PUBLIC_POSTHOG_KEY: 'runtime-project-key' });
+
+				PHProvider({ children: 'app' });
+
+				expect(mockPostHogInit).not.toHaveBeenCalled();
+			} finally {
+				window.history.replaceState(null, '', '/');
+			}
+		}
+	);
 });

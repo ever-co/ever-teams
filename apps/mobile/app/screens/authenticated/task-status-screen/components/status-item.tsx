@@ -36,20 +36,25 @@ const StatusItem: FC<IStatusItem> = ({ status, onDeleteTask, openForEdit, readOn
 				<SvgUri width={20} height={20} uri={status?.fullIconUrl ?? null} />
 				<Text style={styles.text}>{formatName(status?.name ?? '')}</Text>
 			</View>
+			{/* No press handlers on a read-only row: it never relies on the icons honoring `disabled` */}
 			<View style={{ ...styles.rightSection, opacity: actionsOpacity }}>
 				<AntDesign
 					size={16}
 					name={'edit'}
 					color={colors.primary}
+					accessibilityRole="button"
+					accessibilityState={{ disabled: readOnly }}
 					disabled={readOnly}
-					onPress={() => openForEdit()}
+					onPress={readOnly ? undefined : () => openForEdit()}
 				/>
 				<Ionicons
 					name="trash-outline"
 					size={16}
 					color={'#DE5536'}
+					accessibilityRole="button"
+					accessibilityState={{ disabled: readOnly }}
 					disabled={readOnly}
-					onPress={() => onDeleteTask()}
+					onPress={readOnly ? undefined : () => onDeleteTask()}
 				/>
 			</View>
 		</View>

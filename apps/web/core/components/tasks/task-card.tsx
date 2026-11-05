@@ -611,12 +611,18 @@ function getTeammateEmployeeId(profile?: I_UserProfilePage): string | null {
 	return profileEmployeeId;
 }
 
-/** The plan entries act on the profile's member, so on a teammate's profile they follow that member's plans */
-function useMenuPlans(profile?: I_UserProfilePage) {
+/**
+ * The plan entries act on the profile's member, so on a teammate's profile they follow that member's plans. Those are
+ * read only for a user who may plan for the teammate (`canPlanForTeammate`): nobody else is shown the plan entries, so
+ * the request would be useless (or refused).
+ */
+function useMenuPlans(profile: I_UserProfilePage | undefined, canPlanForTeammate: boolean) {
 	const myPlans = useMyDailyPlans();
 	const teammateEmployeeId = getTeammateEmployeeId(profile);
 	const isTeammateProfile = teammateEmployeeId !== null;
-	const teammatePlans = useEmployeeDailyPlans(teammateEmployeeId, { enabled: isTeammateProfile });
+	const teammatePlans = useEmployeeDailyPlans(teammateEmployeeId, {
+		enabled: isTeammateProfile && canPlanForTeammate
+	});
 
 	if (isTeammateProfile) {
 		return {
@@ -710,11 +716,14 @@ export function TaskCardMenu({
 	const canSeeActivity = useCanSeeActivityScreen();
 	const { myPermissions } = useMyRolePermissionsQuery();
 
-	const { isTeammateProfile, ensurePlans, todayPlans, futurePlans, isPlansLoading } = useMenuPlans(profile);
-
 	// The API lets only the team's managers, or a holder of CHANGE_SELECTED_EMPLOYEE, change another member's plans
 	const canActForOthers = myPermissions.includes('CHANGE_SELECTED_EMPLOYEE');
 	const canPlanForTeammate = canSeeActivity || canActForOthers;
+
+	const { isTeammateProfile, ensurePlans, todayPlans, futurePlans, isPlansLoading } = useMenuPlans(
+		profile,
+		canPlanForTeammate
+	);
 	const canPlanForProfileMember = !isTeammateProfile || canPlanForTeammate;
 	const canRemoveForTeammate = isTeammateProfile && canPlanForTeammate;
 	const showRemoveEntries = canSeeActivity || canRemoveForTeammate;

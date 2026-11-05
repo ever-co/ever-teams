@@ -43,6 +43,25 @@ describe('GET /api/tasks/:id', () => {
 		await expect(response.json()).resolves.toEqual(notFound);
 	});
 
+	it("answers Gauzy's 5xx with its status, and logs it on the server", async () => {
+		const failure = { statusCode: 503, message: 'Service Unavailable' };
+		global.fetch = jest.fn().mockResolvedValue(Response.json(failure, { status: 503 }));
+		const logged = jest.spyOn(console, 'error').mockImplementation(() => undefined);
+
+		const response = await getTask();
+
+		expect(response.status).toBe(503);
+		expect(logged).toHaveBeenCalledWith('[WEB][API] GET /api/tasks/[id]: Gauzy answered with an error', 503);
+		logged.mockRestore();
+	});
+
+	it('rethrows a body whose statusCode is no HTTP status (600 or more) instead of failing on it', async () => {
+		const odd = { statusCode: 600, message: 'Odd' };
+		global.fetch = jest.fn().mockResolvedValue(Response.json(odd, { status: 500 }));
+
+		await expect(getTask()).rejects.toBeDefined();
+	});
+
 	it('still fails when Gauzy cannot be reached', async () => {
 		const networkFailure = new TypeError('fetch failed');
 		global.fetch = jest.fn().mockRejectedValue(networkFailure);

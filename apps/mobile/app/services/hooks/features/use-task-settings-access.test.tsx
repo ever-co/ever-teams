@@ -264,4 +264,27 @@ describe('useTaskSettingsAccess', () => {
 		expect(result.current.canCreate).toBe(true);
 		expect(result.current.canWriteRow(ACTIVE_TEAM_ROW)).toBe(true);
 	});
+
+	it('shows nothing read-only while the team list is not loaded, though the active team is', async () => {
+		// A sign-in sets the active team before the team list, whose memberships make the user its manager, arrives
+		givenTeams([ownMembership({ isManager: true })]);
+		const teamStore = mockStores.teamStore as Record<string, unknown>;
+		mockStores = { ...mockStores, teamStore: { ...teamStore, teams: undefined } };
+
+		const result = await renderWithPermissions([]);
+
+		expect(result.current.canCreate).toBe(true);
+		expect(result.current.canWriteRow(ACTIVE_TEAM_ROW)).toBe(true);
+	});
+
+	it('does not take the empty team list a sign-out leaves behind for the team list of the active team', async () => {
+		givenTeams([ownMembership({ isManager: true })]);
+		const teamStore = mockStores.teamStore as Record<string, unknown>;
+		mockStores = { ...mockStores, teamStore: { ...teamStore, teams: { items: [], total: 0 } } };
+
+		const result = await renderWithPermissions([]);
+
+		expect(result.current.canCreate).toBe(true);
+		expect(result.current.canWriteRow(ACTIVE_TEAM_ROW)).toBe(true);
+	});
 });

@@ -69,6 +69,17 @@ describe('getAppliedTeamsReportProps', () => {
 		expect(forOrganizationWideViewer).toBe(mergedProps);
 	});
 
+	it("names the applied team's members even when the dashboard's shared member picks fill employeeIds", () => {
+		const team = buildTeam([{ employeeId: 'manager' }, { employeeId: 'member-1' }]);
+		// No member picked on this page; employeeIds holds the dashboard filter's members (alluserState)
+		const withDashboardMembers = { ...mergedProps, employeeIds: ['dashboard-pick'], selectedEmployeeIds: [] };
+
+		const reportProps = getAppliedTeamsReportProps(withDashboardMembers, [team], false);
+
+		expect(reportProps?.employeeIds).toEqual(['manager', 'member-1']);
+		expect(reportProps?.resolvedMemberIds).toEqual(['manager', 'member-1']);
+	});
+
 	it('changes the report query key when the membership of the applied team changes', () => {
 		const team = buildTeam(buildActiveMembers(3));
 		const remainingMembers = buildActiveMembers(2);

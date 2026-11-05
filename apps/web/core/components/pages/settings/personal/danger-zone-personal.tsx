@@ -38,30 +38,42 @@ export const DangerZone = () => {
 	const [removeModalType, setRemoveModalType] = useState<RemoveModalType>('');
 
 	const { deleteUser, deleteUserLoading } = useUser();
-	const { preview, previewLoading, previewError, retryPreview, deleteMyAccount, deleteMyAccountLoading } =
-		useDeleteMyAccount(isOpen && removeModalType === 'DELETE_ALL');
+	const {
+		preview,
+		previewLoading,
+		previewError,
+		retryPreview,
+		deleteMyAccount,
+		deleteMyAccountLoading,
+		canDeleteMyAccount
+	} = useDeleteMyAccount(isOpen && removeModalType === 'DELETE_ALL');
 	const { data: user } = useUserQuery();
 
 	const { removeUserFromAllTeam, removeUserFromAllTeamLoading } = useDeleteOrganizationTeam();
+	// Without the user loaded there is nothing to act on: each action throws, so the modal says it failed and stays
+	// open instead of closing as if it had been done
 	const handleRemoveUser = useCallback(() => {
-		if (user) {
-			return removeUserFromAllTeam(user.id);
-		}
+		if (!user) throw new Error('');
+		return removeUserFromAllTeam(user.id);
 	}, [user, removeUserFromAllTeam]);
+
+	const handleDeleteUser = useCallback(() => {
+		if (!user) throw new Error('');
+		return deleteUser();
+	}, [user, deleteUser]);
 
 	/** Deletes the signed-in account (POST /account-deletion/me); a 409 becomes the "changed" notice in the modal. */
 	const handleDeleteAllUserData = useCallback(() => {
-		if (user) {
-			return deleteMyAccount().catch((error: unknown) => {
-				// 409: the outcome changed since the preview; the modal now shows the new one, to be confirmed again
-				if (isAccountDeletionPlanChanged(error)) throw new Error(t('pages.accountDeletion.PLAN_CHANGED'));
-				throw error;
-			});
-		}
+		if (!user) throw new Error('');
+		return deleteMyAccount().catch((error: unknown) => {
+			// 409: the outcome changed since the preview; the modal now shows the new one, to be confirmed again
+			if (isAccountDeletionPlanChanged(error)) throw new Error(t('pages.accountDeletion.PLAN_CHANGED'));
+			throw error;
+		});
 	}, [user, deleteMyAccount, t]);
 
 	const actionTypes: Record<RemoveModalType, ActionFunction> = {
-		DELETE: deleteUser,
+		DELETE: handleDeleteUser,
 		DELETE_ALL: handleDeleteAllUserData,
 		REMOVE: handleRemoveUser
 	};
@@ -139,7 +151,7 @@ export const DangerZone = () => {
 					loading={deleteUserLoading || removeUserFromAllTeamLoading || deleteMyAccountLoading}
 					confirmDisabled={
 						removeModalType === 'DELETE_ALL' &&
-						(previewLoading || !!previewError || !preview?.accounts?.length)
+						(previewLoading || !!previewError || !preview?.accounts?.length || !canDeleteMyAccount)
 					}
 				>
 					{removeModalType === 'DELETE_ALL' && (

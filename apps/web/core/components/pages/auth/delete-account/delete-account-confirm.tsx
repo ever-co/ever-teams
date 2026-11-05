@@ -79,7 +79,9 @@ function ConfirmForm({
 
 	const typedWord = typed.trim().toUpperCase();
 	const typedRightWord = typedWord === ACCOUNT_DELETION_CONFIRM_WORD;
-	const confirmed = understood && typedRightWord;
+	// Only a preview with its planHash can be confirmed: the deletion must be the one shown (the API requires it)
+	const hasPlanHash = Boolean(details?.planHash);
+	const confirmed = understood && typedRightWord && hasPlanHash;
 	const expiresAt = expiryOf(details);
 	const accounts = details?.accounts ?? [];
 

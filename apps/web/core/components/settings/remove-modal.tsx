@@ -1,5 +1,5 @@
 import { Button, Modal, Text } from '@/core/components';
-import { ReactNode, useState } from 'react';
+import { ReactNode, useRef, useState } from 'react';
 import { useTranslations } from 'next-intl';
 
 export const RemoveModal = ({
@@ -23,8 +23,12 @@ export const RemoveModal = ({
 }) => {
 	const t = useTranslations();
 	const [notifyMessage, setNotifyMessage] = useState<string>('');
+	// The attempt whose answer the modal still waits for: closing the modal ends it, so an answer that arrives
+	// after a Discard is dropped instead of showing its message on the next opening.
+	const attemptRef = useRef(0);
 	// A message is about one attempt: the next opening of the modal starts clean.
 	const handleClose = () => {
+		attemptRef.current += 1;
 		setNotifyMessage('');
 		close();
 	};
@@ -53,9 +57,14 @@ export const RemoveModal = ({
 							loading={loading}
 							onClick={async () => {
 								setNotifyMessage('');
+								attemptRef.current += 1;
+								const attempt = attemptRef.current;
+								const isCurrent = () => attempt === attemptRef.current;
 								// A failed action used to be an unhandled rejection: the modal stayed open, silent.
+								// An action with nothing to act on (data not loaded yet) throws, so it is reported too.
 								try {
 									const res = await onAction();
+									if (!isCurrent()) return;
 									if (res?.data?.data?.status) {
 										setNotifyMessage(res?.data?.data?.message || '');
 										return;
@@ -63,6 +72,7 @@ export const RemoveModal = ({
 
 									handleClose();
 								} catch (error) {
+									if (!isCurrent()) return;
 									const reason = error instanceof Error && error.message ? ` ${error.message}` : '';
 									setNotifyMessage(`${t('alerts.ACTION_FAILED')}${reason}`);
 								}

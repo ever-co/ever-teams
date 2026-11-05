@@ -130,7 +130,9 @@ export function getAppliedTeamsReportProps(
 	if (hasOrganizationWideAccess) return mergedProps;
 
 	const appliedTeamIds = mergedProps.selectedTeamIds;
-	const namesEmployees = mergedProps.employeeIds.length > 0;
+	// The members picked on the page itself: `employeeIds` falls back to the dashboard's shared member picks, which
+	// must not override the team applied here
+	const namesEmployees = mergedProps.selectedEmployeeIds.length > 0;
 
 	if (!appliedTeamIds.length) return mergedProps;
 	if (namesEmployees) return mergedProps;

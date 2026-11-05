@@ -30,11 +30,12 @@ export const DangerZoneTeam = () => {
 	const { isTeamManager } = useIsMemberManager(user);
 	const activeTeamManagers = useAtomValue(activeTeamManagersState);
 
+	// Without the team (or the member) loaded there is nothing to act on: the action throws, so the modal says it
+	// failed and stays open instead of closing as if it had been done
 	const handleDisposeTeam = useCallback(() => {
-		if (activeTeam) {
-			window.localStorage.removeItem(LAST_WORKSPACE_AND_TEAM);
-			return deleteOrganizationTeam(activeTeam.id);
-		}
+		if (!activeTeam) throw new Error('');
+		window.localStorage.removeItem(LAST_WORKSPACE_AND_TEAM);
+		return deleteOrganizationTeam(activeTeam.id);
 	}, [activeTeam, deleteOrganizationTeam]);
 
 	const handleQuiteTeam = useCallback(() => {
@@ -51,7 +52,7 @@ export const DangerZoneTeam = () => {
 				});
 			}
 		}
-		return;
+		throw new Error('');
 	}, [activeTeam, user, deleteOrganizationTeamEmployee]);
 
 	return (

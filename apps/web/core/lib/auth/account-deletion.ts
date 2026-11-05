@@ -46,8 +46,10 @@ export function accountDeletionConfirmUrl(origin: string, locale?: string | null
 /**
  * Reads the deletion token from the address the confirm page was opened with, and removes it from the address bar.
  *
- * The token is expected in the fragment (`#token=…`); a `?token=` query parameter is accepted too (and removed) so a
- * mail client that moved it still works. The address is replaced with `null` history state on purpose: Next.js treats
+ * Only the fragment (`#token=…`, what Gauzy's e-mail links carry) is read. A `?token=` query parameter is removed but
+ * never used: a token in the query string reached the server, its access logs and any proxy in between before this
+ * code ran, so it is treated as exposed and the page shows the invalid-link answer, whose "request a new link" revokes
+ * it (a new link replaces the live one). The address is replaced with `null` history state on purpose: Next.js treats
  * a `replaceState` without its own state as an external change and updates its router to the new address, so it does
  * not write the old one (with the token) back on its next history update.
  */
@@ -57,7 +59,7 @@ export function takeAccountDeletionToken(
 ): string | null {
 	const fragment = new URLSearchParams(location.hash.replace(/^#/, ''));
 	const query = new URLSearchParams(location.search);
-	const token = (fragment.get('token') || query.get('token') || '').trim() || null;
+	const token = (fragment.get('token') || '').trim() || null;
 
 	const hadTokenInQuery = query.has('token');
 	if (location.hash || hadTokenInQuery) {

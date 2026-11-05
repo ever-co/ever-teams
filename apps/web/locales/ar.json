@@ -1528,7 +1528,17 @@
 			"CHECKING_ACCOUNT": "جارٍ التحقق مما سيُحذف…",
 			"PREVIEW_ERROR": "تعذّر تحميل ما سيُحذف.",
 			"SIGN_OUT_AFTER": "سيتم تسجيل خروجك مباشرة بعد ذلك.",
-			"PLAN_CHANGED": "تغيّر ما سيُحذف منذ تحميل هذه الصفحة (انضم أحدهم أو غادر). لم يُحذف شيء: راجع الملخص الجديد وأكّد مرة أخرى."
+			"PLAN_CHANGED": "تغيّر ما سيُحذف منذ تحميل هذه الصفحة (انضم أحدهم أو غادر). لم يُحذف شيء: راجع الملخص الجديد وأكّد مرة أخرى.",
+			"roles": {
+				"superAdmin": "مسؤول أعلى",
+				"admin": "مسؤول",
+				"manager": "مدير",
+				"employee": "موظف",
+				"dataEntry": "إدخال البيانات",
+				"viewer": "مشاهد",
+				"candidate": "مرشح",
+				"interviewer": "محاور"
+			}
 		},
 		"timeLimitReport": {
 			"TIME_SPENT": "الوقت المستغرق",
@@ -2684,11 +2694,11 @@
 		"ADD_TASK_TO_TODAY_PLAN_QUESTION": "هل تريد إضافة المهمة #{number} إلى خطة اليوم؟",
 		"toastMessages": {
 			"PLAN_CREATION_FAILED": "فشل في إنشاء الخطة اليومية",
-			"PLAN_CREATION_MISSING_TENANT": "تعذّر إنشاء الخطة اليومية: tenantId مفقود",
-			"MISSING_TENANT_ID": "tenantId مفقود",
+			"PLAN_CREATION_MISSING_TENANT": "تعذّر إنشاء الخطة اليومية: لم يتم تحميل مساحة العمل بعد",
+			"MISSING_TENANT_ID": "لم يتم تحميل مساحة العمل بعد",
 			"EMPLOYEE_ASSIGNED_TO_TASK": "تم تعيين الموظف للمهمة",
 			"EMPLOYEE_AUTO_ASSIGN_FAILED": "فشل في تعيين الموظف للمهمة تلقائيًا",
-			"MISSING_EMPLOYEE_ID": "getEmployeeDailyPlans: لم يتم تقديم معرّف الموظف وهو غير متوفر في الحالة",
+			"MISSING_EMPLOYEE_ID": "لم يتم اختيار عضو في الفريق لتحميل الخطط اليومية",
 			"EMPLOYEE_PLANS_FETCH_FAILED": "خطأ أثناء جلب الخطط اليومية للموظف: {employeeId}",
 			"PLANS_FETCH_FAILED": "تعذّر جلب الخطط اليومية",
 			"INVALID_TIME_FORMAT": "تنسيق الوقت غير صالح، استخدم H:MM أو رقمًا عشريًا (مثل 4.5).",

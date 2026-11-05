@@ -69,7 +69,7 @@ describe('StatisticsService.getTimeSlotsStatistics day range', () => {
 	});
 });
 
-type CountsRange = Pick<ITimeLogReportDailyRequest, 'startDate' | 'endDate'>;
+type CountsRange = Pick<ITimeLogReportDailyRequest, 'startDate' | 'endDate'> & { timeZone?: string };
 
 const countsRequest: ITimeLogReportDailyRequest = {
 	organizationId: 'cookie-organization',
@@ -99,8 +99,8 @@ async function sentRange(range: CountsRange) {
 	return { startDate, endDate };
 }
 
-// The app never sets a moment default zone, so a plain day is read in the browser's zone. Setting the
-// default zone stands in for the user's zone, and keeps the expected instants independent of the machine.
+// Gauzy reads the days of the range in the request's `timeZone`: a plain day runs over that zone's day, the browser's
+// zone when the caller names none (and that zone is then the one sent).
 describe('StatisticsService.getTimesheetStatisticsCounts date range', () => {
 	afterEach(() => {
 		moment.tz.setDefault();
@@ -108,9 +108,11 @@ describe('StatisticsService.getTimesheetStatisticsCounts date range', () => {
 	});
 
 	it('sends a single picked day from its first to its last millisecond, the other parameters unchanged', async () => {
-		moment.tz.setDefault('Asia/Tokyo');
-
-		const { parsed, config } = await sendCounts({ startDate: '2026-10-24', endDate: '2026-10-24' });
+		const { parsed, config } = await sendCounts({
+			startDate: '2026-10-24',
+			endDate: '2026-10-24',
+			timeZone: 'Asia/Tokyo'
+		});
 
 		const sentParams = Object.fromEntries(parsed.searchParams);
 		expect(parsed.pathname).toBe('/timesheet/statistics/counts');
@@ -121,15 +123,17 @@ describe('StatisticsService.getTimesheetStatisticsCounts date range', () => {
 			organizationId: 'cookie-organization',
 			startDate: '2026-10-23T15:00:00.000Z',
 			endDate: '2026-10-24T14:59:59.999Z',
-			timeZone: 'Etc/UTC'
+			timeZone: 'Asia/Tokyo'
 		});
 		expect(config).toEqual({ tenantId: 'cookie-tenant' });
 	});
 
 	it('includes the whole last day of a multi-day range', async () => {
-		moment.tz.setDefault('America/New_York');
-
-		const { startDate, endDate } = await sentRange({ startDate: '2026-10-18', endDate: '2026-10-24' });
+		const { startDate, endDate } = await sentRange({
+			startDate: '2026-10-18',
+			endDate: '2026-10-24',
+			timeZone: 'America/New_York'
+		});
 
 		expect(startDate).toBe('2026-10-18T04:00:00.000Z');
 		expect(endDate).toBe('2026-10-25T03:59:59.999Z');
@@ -139,32 +143,48 @@ describe('StatisticsService.getTimesheetStatisticsCounts date range', () => {
 		['go back, a 25 hour day', '2026-10-25', '2026-10-24T22:00:00.000Z', '2026-10-25T22:59:59.999Z'],
 		['go forward, a 23 hour day', '2026-03-29', '2026-03-28T23:00:00.000Z', '2026-03-29T21:59:59.999Z']
 	])('follows the offset of each end on a day the clocks %s', async (_change, day, expectedStart, expectedEnd) => {
-		moment.tz.setDefault('Europe/Paris');
-
-		const { startDate, endDate } = await sentRange({ startDate: day, endDate: day });
+		const { startDate, endDate } = await sentRange({ startDate: day, endDate: day, timeZone: 'Europe/Paris' });
 
 		expect(startDate).toBe(expectedStart);
 		expect(endDate).toBe(expectedEnd);
 	});
 
-	it("reads a plain day in the runtime's own zone when no zone is set", async () => {
+	it('runs the days of the zone it sends, not the browser zone, when the user picked another one', async () => {
+		// The browser (here moment's default zone) is in Tokyo, the user's profile zone is Los Angeles
+		moment.tz.setDefault('Asia/Tokyo');
+
+		const { parsed } = await sendCounts({
+			startDate: '2026-10-24',
+			endDate: '2026-10-24',
+			timeZone: 'America/Los_Angeles'
+		});
+
+		expect(parsed.searchParams.get('startDate')).toBe('2026-10-24T07:00:00.000Z');
+		expect(parsed.searchParams.get('endDate')).toBe('2026-10-25T06:59:59.999Z');
+		expect(parsed.searchParams.get('timeZone')).toBe('America/Los_Angeles');
+	});
+
+	it("reads a plain day in the runtime's own zone when no zone is set, and sends that zone", async () => {
 		const localDayStart = new Date(2026, 9, 24, 0, 0, 0, 0);
 		const localDayEnd = new Date(2026, 9, 24, 23, 59, 59, 999);
 		const expectedStart = localDayStart.toISOString();
 		const expectedEnd = localDayEnd.toISOString();
 
-		const { startDate, endDate } = await sentRange({ startDate: '2026-10-24', endDate: '2026-10-24' });
+		const { parsed } = await sendCounts({ startDate: '2026-10-24', endDate: '2026-10-24' });
 
-		expect(startDate).toBe(expectedStart);
-		expect(endDate).toBe(expectedEnd);
+		expect(parsed.searchParams.get('startDate')).toBe(expectedStart);
+		expect(parsed.searchParams.get('endDate')).toBe(expectedEnd);
+		expect(parsed.searchParams.get('timeZone')).toBe(Intl.DateTimeFormat().resolvedOptions().timeZone);
 	});
 
 	it.each(['2024-12-31 12:59:59', '2026-10-24T21:59:59.999Z'])(
 		'sends the full timestamp %s as it was given',
 		async (timestamp) => {
-			moment.tz.setDefault('Europe/Paris');
-
-			const { startDate, endDate } = await sentRange({ startDate: timestamp, endDate: timestamp });
+			const { startDate, endDate } = await sentRange({
+				startDate: timestamp,
+				endDate: timestamp,
+				timeZone: 'Europe/Paris'
+			});
 
 			expect(startDate).toBe(timestamp);
 			expect(endDate).toBe(timestamp);
@@ -172,11 +192,14 @@ describe('StatisticsService.getTimesheetStatisticsCounts date range', () => {
 	);
 
 	it('sends a Date as it was given', async () => {
-		moment.tz.setDefault('Europe/Paris');
 		const rangeStart = new Date('2026-10-17T22:00:00.000Z');
 		const rangeEnd = new Date('2026-10-24T21:59:59.999Z');
 
-		const { startDate, endDate } = await sentRange({ startDate: rangeStart, endDate: rangeEnd });
+		const { startDate, endDate } = await sentRange({
+			startDate: rangeStart,
+			endDate: rangeEnd,
+			timeZone: 'Europe/Paris'
+		});
 
 		expect(startDate).toBe('2026-10-17T22:00:00.000Z');
 		expect(endDate).toBe('2026-10-24T21:59:59.999Z');
