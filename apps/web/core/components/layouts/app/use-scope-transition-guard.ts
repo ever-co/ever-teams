@@ -115,6 +115,10 @@ export function useScopeTransitionGuard(scope: ShellScope, enabled = true) {
 			}
 			if (projectChanged) {
 				setTasks([]);
+			}
+			// The active task belongs to the team, not to the project its new tasks go to: a manager changing the
+			// team's default project must not stop the members' running timers.
+			if (teamChanged) {
 				setActiveTask(null);
 			}
 			if (timerIdentityChanged) {
