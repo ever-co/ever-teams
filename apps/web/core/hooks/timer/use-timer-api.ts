@@ -17,6 +17,7 @@ import { logErrorInDev } from '@/core/lib/helpers/error-message';
 import { shouldRetryQuery } from '@/core/lib/helpers/retry-utils';
 import { canRunTimerForState } from '@/core/lib/helpers/timer-policy';
 import { errorReasonKeyOf } from '@/core/lib/utils/error-feedback';
+import { isTrackingOffRefusal } from '@/core/lib/helpers/timer-errors';
 import { queryKeys } from '@/core/query/keys';
 import { ApiErrorService } from '@/core/services/client/api-error.service';
 import { timerService } from '@/core/services/client/api/timers';
@@ -608,12 +609,17 @@ export function useTimerApi({
 						runnedDateTime: 0,
 						running: false
 					});
+					logErrorInDev('startTimer', error);
+					if (isTrackingOffRefusal(error)) {
+						toast.warning(t('timer.TRACKING_DISABLED_MESSAGE'), { id: TRACKING_DISABLED_TOAST_ID });
+						queryClient.invalidateQueries({ queryKey: queryKeys.organizationTeams.all });
+						return;
+					}
 					const reasonKey = errorReasonKeyOf(error) as DottedLanguageObjectStringPaths;
 					toast.error(t('toasts.timer.START_FAILED'), {
 						id: 'timer-start-failed',
 						description: t(reasonKey)
 					});
-					logErrorInDev('startTimer', error);
 				})
 				.finally(() => {
 					if (!statusEnabled || isCurrentScope()) setTimerStatusFetching(false);
