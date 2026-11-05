@@ -11,7 +11,7 @@ jest.mock('next/link', () => ({
 	default: ({ href, children }: { href: string; children?: React.ReactNode }) => <a href={href}>{children}</a>
 }));
 jest.mock('@/core/hooks/auth/use-authenticate-user', () => ({
-	useAuthenticateUser: () => ({ logOut: mockLogOut })
+	useAuthenticateUser: () => ({ logOut: mockLogOut, user: { email: 'marie@acme.test' } })
 }));
 jest.mock('@/core/components/icons', () => ({ Key: () => null, Mail: () => null }));
 // The menu renders inline, so its items can be read without opening it.
@@ -24,6 +24,7 @@ jest.mock('@/core/components/common/dropdown-menu', () => ({
 }));
 
 import { NoOtherWorkspace } from './no-other-workspace';
+import { readRememberedTeam, rememberTeam } from '@/core/lib/auth/remembered-team';
 
 describe('NoOtherWorkspace', () => {
 	beforeEach(() => mockLogOut.mockReset());
@@ -51,5 +52,19 @@ describe('NoOtherWorkspace', () => {
 		fireEvent.click(screen.getByText('switchers.SIGN_IN_WITH_CODE'));
 
 		expect(mockLogOut).toHaveBeenCalledTimes(1);
+	});
+
+	it('keeps that sign-in on the workspace list instead of reopening the current team', () => {
+		window.localStorage.clear();
+		// The sign-out remembers the open team, as it does for every sign-out
+		mockLogOut.mockImplementation(() => {
+			rememberTeam('marie@acme.test', 'team-1');
+			return Promise.resolve();
+		});
+		render(<NoOtherWorkspace isAddressUnconfirmed />);
+
+		fireEvent.click(screen.getByText('switchers.SIGN_IN_WITH_CODE'));
+
+		expect(readRememberedTeam('marie@acme.test')?.teamId).toBeNull();
 	});
 });
