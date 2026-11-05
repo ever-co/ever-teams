@@ -107,3 +107,25 @@ describe('saving the team default project', () => {
 		expect(invalidateQueries).toHaveBeenCalledWith({ queryKey: queryKeys.organizationTeams.all });
 	});
 });
+
+describe('saving the team avatar', () => {
+	beforeEach(() => {
+		jest.clearAllMocks();
+		mockEditOrganizationTeam.mockResolvedValue({ data: teamA });
+	});
+
+	it('sends only the avatar, never the team read before the upload', async () => {
+		mockCreateImageAssets.mockResolvedValue({ id: 'image-1', url: 'https://example.test/a.png' });
+		const { view } = renderSettings();
+
+		await act(() => view.result.current.uploadAvatar(new File(['a'], 'a.png')));
+		await act(() => view.result.current.removeAvatar());
+
+		expect(mockEditOrganizationTeam).toHaveBeenNthCalledWith(1, {
+			id: 'team-a',
+			imageId: 'image-1',
+			image: { id: 'image-1', url: 'https://example.test/a.png' }
+		});
+		expect(mockEditOrganizationTeam).toHaveBeenNthCalledWith(2, { id: 'team-a', imageId: null, image: null });
+	});
+});
