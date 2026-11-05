@@ -4,7 +4,7 @@ import Link from 'next/link';
 import { useAtomValue } from 'jotai';
 import { useTranslations } from 'next-intl';
 import { ChevronRight } from '@/core/components/icons';
-import { isTeamManagerState } from '@/core/stores';
+import { canManageActiveTeamState } from '@/core/stores';
 import { entriesOfGroup, SETTINGS_GROUPS, SettingsEntry } from '@/core/components/settings/kit/settings-entries';
 import { SETTINGS_SURFACE, SettingsPage, SettingsSection } from '@/core/components/settings/kit/settings-page';
 
@@ -33,14 +33,14 @@ function IndexRow({ entry }: Readonly<{ entry: SettingsEntry }>) {
 
 export function SettingsIndexPage() {
 	const t = useTranslations();
-	const isTeamManager = useAtomValue(isTeamManagerState);
+	const canManageTeam = useAtomValue(canManageActiveTeamState);
 
 	return (
 		<SettingsPage title={t('common.SETTINGS')} description={t('settings.index.DESCRIPTION')}>
 			{SETTINGS_GROUPS.map((group) => (
 				<SettingsSection key={group} title={t(`settings.groups.${group}`)}>
 					<nav aria-label={t(`settings.groups.${group}`)} className={SETTINGS_SURFACE}>
-						{entriesOfGroup(group, isTeamManager).map((entry) => (
+						{entriesOfGroup(group, canManageTeam).map((entry) => (
 							<IndexRow key={entry.id} entry={entry} />
 						))}
 					</nav>

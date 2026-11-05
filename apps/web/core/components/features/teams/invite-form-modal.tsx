@@ -3,7 +3,7 @@
 import { type FormEvent, useCallback, useId, useMemo, useRef, useState } from 'react';
 import { type DottedLanguageObjectStringPaths, useTranslations } from 'next-intl';
 import { useAtomValue } from 'jotai';
-import { activeTeamState } from '@/core/stores';
+import { activeTeamState, canManageActiveTeamState } from '@/core/stores';
 import { Info, Send, Spinner } from '@/core/components/icons';
 import { Button } from '@/core/components/duplicated-components/_button';
 import { AppDialog, APP_DIALOG_BODY, AppDialogDescription, AppDialogHeader } from '@/core/components/common/app-dialog';
@@ -15,8 +15,6 @@ import { sendableEntries, type InviteEmailEntry, type InviteEmailState } from '@
 import { useInviteDialog, type InviteSendResult } from '@/core/hooks/invitations/use-invite-dialog';
 import { useRemoveTeamInvitation } from '@/core/hooks/invitations/use-remove-team-invitation';
 import { useSendTeamInvitation } from '@/core/hooks/invitations/use-send-team-invitation';
-import { useIsMemberManager } from '@/core/hooks/organizations/teams/use-team-member';
-import { useUserQuery } from '@/core/hooks/queries/user-user.query';
 import { InviteEmailField } from './invite/invite-email-field';
 import { InviteRoleSelect } from './invite/invite-role-select';
 import { InvitePendingList, isOpenInvitation, type PendingInvitation } from './invite/invite-pending-list';
@@ -117,8 +115,7 @@ function TeamContext() {
  */
 export function InviteFormModal({ open, closeModal }: { open: boolean; closeModal: () => void }) {
 	const t = useTranslations();
-	const { data: user } = useUserQuery();
-	const { isTeamManager } = useIsMemberManager(user);
+	const canManageTeam = useAtomValue(canManageActiveTeamState);
 	const dialog = useInviteDialog(open);
 	const { resendTeamInvitation } = useSendTeamInvitation();
 	const { removeTeamInvitation } = useRemoveTeamInvitation();
@@ -235,7 +232,7 @@ export function InviteFormModal({ open, closeModal }: { open: boolean; closeModa
 				</form>
 				<InvitePendingList
 					invitations={pendingInvitations}
-					canRevoke={isTeamManager}
+					canRevoke={canManageTeam}
 					onResend={resendInvitation}
 					onRevoke={revokeInvitation}
 				/>

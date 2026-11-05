@@ -9,6 +9,7 @@ import { activeTeamManagersState, activeTeamState, isTeamManagerMember, organiza
 import { queryKeys } from '@/core/query/keys';
 import { ERoleName } from '@/core/types/generics/enums/role';
 import { errorReasonKeyOf } from '@/core/lib/utils/error-feedback';
+import { isTenantAdminRole } from '@/core/lib/utils/roles';
 import { logErrorInDev } from '@/core/lib/helpers/error-message';
 import {
 	employeeIdOf,
@@ -124,6 +125,8 @@ export function useTeamMembersSettings() {
 	const members = useMemo(() => activeTeam?.members ?? [], [activeTeam?.members]);
 	const userId = user?.id;
 	const isListedManager = managers.some((manager) => memberUserIdOf(manager) === userId);
+	const isOrganizationAdmin = isTenantAdminRole(user?.role?.name);
+	const setsMemberTracking = isListedManager || isOrganizationAdmin;
 
 	useEffect(() => {
 		const memberById = new Map(members.map((member) => [member.id ?? '', member]));
@@ -176,7 +179,7 @@ export function useTeamMembersSettings() {
 				canChangeRole: hasEmployee && !isYou,
 				canRemove: hasEmployee && !isYou,
 				canEditName: Boolean(memberUserId),
-				showsTracking: isListedManager && !isManagerRole && hasEmployee,
+				showsTracking: setsMemberTracking && !isManagerRole && hasEmployee,
 				isTrackingEnabled,
 				isTrackingLocked: isTrackingLockedFor(member, canEditEmployees),
 				isRolePending: pendingRoles.has(rowId),
@@ -187,11 +190,11 @@ export function useTeamMembersSettings() {
 	}, [
 		arePermissionsLoaded,
 		canEditEmployees,
-		isListedManager,
 		members,
 		pendingRoles,
 		pendingTracking,
 		roleOverrides,
+		setsMemberTracking,
 		trackingOverrides,
 		userId
 	]);
