@@ -171,6 +171,11 @@ async function signInRecognizedAccount(email: string, workspaceToken: string) {
 	const token = data.token;
 	const userId = data.user?.id;
 
+	// An account with no tenant yet has no organization to list, and Gauzy's tenant guard refuses the read: it is an
+	// account that is not set up, as in the workspace sign-in route, not a failed sign-in
+	if (!tenantId) {
+		return { data, organizations: undefined, tenantId, token, userId };
+	}
 	const { data: organizations } = await userOrganizationService.getUserOrganizations({
 		tenantId,
 		userId,
@@ -250,33 +255,46 @@ function signInRefusalReasonOf(error: unknown): unknown {
 	return rejection?.reason;
 }
 
-async function isUnconfirmedAccountRefusal(error: unknown): Promise<boolean> {
+type ProviderSignInRefusal = 'unconfirmed-account' | 'unknown-address' | 'other';
+
+async function providerSignInRefusalOf(error: unknown): Promise<ProviderSignInRefusal> {
 	const rejection = signInRejectionOf(error);
 	const body = (await unwrapRejection(rejection)) as GauzyRefusal;
 	const isUnauthorized = body?.statusCode === 401;
+	if (!isUnauthorized) {
+		return 'other';
+	}
 	const message = String(body?.message ?? '');
 	const asksToConfirmTheAddress = UNCONFIRMED_ACCOUNT_MESSAGE.test(message);
-	return isUnauthorized && asksToConfirmTheAddress;
+	if (asksToConfirmTheAddress) {
+		return 'unconfirmed-account';
+	}
+	return 'unknown-address';
 }
 
 /**
- * next-auth's signIn answer for a provider other than Ever ID. A refusal of the provider sign-in itself still lets
+ * next-auth's signIn answer for a provider other than Ever ID. Only Gauzy's plain 401 to the provider sign-in lets
  * next-auth go on: for an address Gauzy does not know, the adapter registers the account (the provider sign-up). Once
  * the address has an account (unconfirmed, recognized but without a workspace, or recognized and then failing), the
- * sign-in stops here, or the adapter registers a second account for it.
+ * sign-in stops here, or the adapter registers a second account for it. Any other failure (a rate limit, a server
+ * error, Gauzy out of reach) cannot tell a new address from a known one, so it stops on the generic error page too.
  */
 export async function signInCallback(provider: EProvider, access_token: string): Promise<true | string> {
 	try {
 		await signIn(provider, access_token);
 	} catch (error) {
-		if (await isUnconfirmedAccountRefusal(error)) {
-			return PROVIDER_ACCOUNT_UNCONFIRMED_PATH;
-		}
 		const reason = signInRefusalReasonOf(error);
 		if (reason === ACCOUNT_NOT_SET_UP) {
 			return PROVIDER_ACCOUNT_NOT_SET_UP_PATH;
 		}
 		if (reason === RECOGNIZED_ACCOUNT_FAILED) {
+			return PROVIDER_SIGN_IN_FAILED_PATH;
+		}
+		const refusal = await providerSignInRefusalOf(error);
+		if (refusal === 'unconfirmed-account') {
+			return PROVIDER_ACCOUNT_UNCONFIRMED_PATH;
+		}
+		if (refusal === 'other') {
 			return PROVIDER_SIGN_IN_FAILED_PATH;
 		}
 	}

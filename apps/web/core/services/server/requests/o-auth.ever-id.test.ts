@@ -720,14 +720,28 @@ describe('the other providers keep their path', () => {
 			data: { confirmed_email: 'person@example.test', workspaces: [{ token: 'w', current_teams: [] }] }
 		});
 		mockSigninWorkspace.mockResolvedValue({ token: 'gauzy-access', user: { id: 'u1', tenantId: '' } });
-		mockUserOrganizations.mockResolvedValue({ data: { items: [] } });
+		// Gauzy's tenant guard refuses the organizations read of an account without a tenant
+		mockUserOrganizations.mockRejectedValue({ statusCode: 403, message: 'Forbidden resource' });
 		const { config } = await loadAuth({}, new Request('https://teams.example.test/api/auth/callback/google'));
 		const account = { provider: 'google', type: 'oauth', providerAccountId: 'g-4', access_token: 'ya29.bare' };
 
 		const answer = await config.callbacks.signIn({ account, profile: {} });
 
 		expect(answer).toBe('/auth/error?error=ProviderAccountNotSetUp');
+		expect(mockUserOrganizations).not.toHaveBeenCalled();
 		expect(mockRegisterUser).not.toHaveBeenCalled();
+	});
+
+	it('stops a Google sign-in for an account in a tenant that has no organization yet', async () => {
+		mockSocialSignin.mockResolvedValue({
+			data: { confirmed_email: 'person@example.test', workspaces: [{ token: 'w', current_teams: [] }] }
+		});
+		mockSigninWorkspace.mockResolvedValue({ token: 'gauzy-access', user: { id: 'u1', tenantId: 't1' } });
+		mockUserOrganizations.mockResolvedValue({ data: { items: [] } });
+		const { config } = await loadAuth({}, new Request('https://teams.example.test/api/auth/callback/google'));
+		const account = { provider: 'google', type: 'oauth', providerAccountId: 'g-8', access_token: 'ya29.empty' };
+
+		expect(await config.callbacks.signIn({ account, profile: {} })).toBe('/auth/error?error=ProviderAccountNotSetUp');
 	});
 
 	it('stops a sign-in Gauzy recognized but that lists no workspace at all', async () => {
@@ -761,12 +775,37 @@ describe('the other providers keep their path', () => {
 		expect(await config.callbacks.signIn({ account, profile: {} })).toBe(true);
 	});
 
-	it('lets the sign-in go on as before when Gauzy cannot be reached', async () => {
+	it('stops on the generic error page when Gauzy cannot be reached', async () => {
 		mockSocialSignin.mockRejectedValue(new TypeError('fetch failed'));
 		const { config } = await loadAuth({}, new Request('https://teams.example.test/api/auth/callback/google'));
 		const account = { provider: 'google', type: 'oauth', providerAccountId: 'g-3', access_token: 'ya29.down' };
 
-		expect(await config.callbacks.signIn({ account, profile: {} })).toBe(true);
+		expect(await config.callbacks.signIn({ account, profile: {} })).toBe('/auth/error?error=Configuration');
+		expect(mockRegisterUser).not.toHaveBeenCalled();
+	});
+
+	it('stops on the generic error page, before any account is made, when Gauzy limits the provider sign-in', async () => {
+		mockSocialSignin.mockImplementation(() =>
+			gauzyRefusal({ statusCode: 429, message: 'ThrottlerException: Too Many Requests' })
+		);
+		const { config } = await loadAuth({}, new Request('https://teams.example.test/api/auth/callback/google'));
+		const account = { provider: 'google', type: 'oauth', providerAccountId: 'g-7', access_token: 'ya29.busy' };
+
+		expect(await config.callbacks.signIn({ account, profile: {} })).toBe('/auth/error?error=Configuration');
+		expect(mockRegisterUser).not.toHaveBeenCalled();
+	});
+
+	it('does not read the confirmation message of an answer that is not a 401 as an unconfirmed account', async () => {
+		mockSocialSignin.mockImplementation(() =>
+			gauzyRefusal({
+				statusCode: 403,
+				message: 'Confirm the email address of your account before signing in with this provider.'
+			})
+		);
+		const { config } = await loadAuth({}, new Request('https://teams.example.test/api/auth/callback/github'));
+		const account = { provider: 'github', type: 'oauth', providerAccountId: 'gh-4', access_token: 'gho_other' };
+
+		expect(await config.callbacks.signIn({ account, profile: {} })).toBe('/auth/error?error=Configuration');
 	});
 
 	it('still looks a social account up and links it through the API', async () => {
