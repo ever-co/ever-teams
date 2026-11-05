@@ -4304,10 +4304,14 @@
 			"PASSWORD": "Passwort"
 		},
 		"password": {
+			"RULE_DIGIT": "Eine Ziffer (0-9)",
+			"RULE_LOWERCASE": "Ein Kleinbuchstabe (a-z)",
 			"RULE_MATCH": "Beide Passwörter stimmen überein",
 			"RULE_MET": "Anforderung erfüllt",
 			"RULE_MIN_LENGTH": "{count, plural, one {Mindestens # Zeichen} other {Mindestens # Zeichen}}",
 			"RULE_NOT_MET": "Anforderung nicht erfüllt",
+			"RULE_SYMBOL": "Ein Sonderzeichen, z. B. ! @ # oder -",
+			"RULE_UPPERCASE": "Ein Großbuchstabe (A-Z)",
 			"STRENGTH_FAIR": "Mittel",
 			"STRENGTH_GOOD": "Gut",
 			"STRENGTH_STRONG": "Stark",

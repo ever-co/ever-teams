@@ -5,10 +5,13 @@ import { Check } from '@/core/components/icons';
 import { cn } from '@/core/lib/helpers';
 import {
 	meetsPasswordMinLength,
+	meetsResetPasswordRule,
 	passwordStrengthOf,
 	passwordsMatch,
 	PASSWORD_MIN_LENGTH,
-	type PasswordStrength
+	RESET_PASSWORD_RULES,
+	type PasswordStrength,
+	type ResetPasswordRule
 } from '@/core/lib/utils/password-strength';
 
 type Translate = ReturnType<typeof useTranslations>;
@@ -76,6 +79,21 @@ export function minLengthRuleOf(t: Translate) {
 	return t('auth.password.RULE_MIN_LENGTH', { count: PASSWORD_MIN_LENGTH });
 }
 
+const CHARACTER_RULE_LABEL_KEY = {
+	uppercase: 'auth.password.RULE_UPPERCASE',
+	lowercase: 'auth.password.RULE_LOWERCASE',
+	digit: 'auth.password.RULE_DIGIT',
+	symbol: 'auth.password.RULE_SYMBOL'
+} as const;
+
+/** The label of a reset rule, also the error of a password that misses it. */
+export function resetRuleLabelOf(rule: ResetPasswordRule, t: Translate) {
+	if (rule === 'minLength') {
+		return minLengthRuleOf(t);
+	}
+	return t(CHARACTER_RULE_LABEL_KEY[rule]);
+}
+
 function ruleStateKeyOf(isMet: boolean) {
 	if (isMet) {
 		return 'auth.password.RULE_MET' as const;
@@ -115,26 +133,38 @@ function RuleRow({ isMet, label }: Readonly<{ isMet: boolean; label: string }>) 
 	);
 }
 
-/** Only the minimum length is a rule Gauzy enforces: the strength is a hint. */
+/** The rules listed are the ones Gauzy enforces for the form: the strength is a hint. */
 export function PasswordChecks({
 	password,
-	confirmation
+	confirmation,
+	policy = 'length'
 }: Readonly<{
 	password: string;
 	/** Leave it undefined when the form has no confirmation field. */
 	confirmation?: string;
+	/** `reset`: Gauzy's reset also asks for an uppercase letter, a lowercase letter, a digit and a symbol. */
+	policy?: 'length' | 'reset';
 }>) {
 	const t = useTranslations();
 	const strength = passwordStrengthOf(password);
 	const isLongEnough = meetsPasswordMinLength(password);
 	const hasConfirmationField = confirmation !== undefined;
 	const doesMatch = passwordsMatch(password, confirmation ?? '');
+	const listsResetRules = policy === 'reset';
 
 	return (
 		<div className="flex flex-col gap-2.5">
 			<StrengthMeter strength={strength} />
 			<ul className="flex flex-col gap-1.5 text-muted-foreground">
-				<RuleRow isMet={isLongEnough} label={minLengthRuleOf(t)} />
+				{!listsResetRules && <RuleRow isMet={isLongEnough} label={minLengthRuleOf(t)} />}
+				{listsResetRules &&
+					RESET_PASSWORD_RULES.map((rule) => (
+						<RuleRow
+							key={rule}
+							isMet={meetsResetPasswordRule(password, rule)}
+							label={resetRuleLabelOf(rule, t)}
+						/>
+					))}
 				{hasConfirmationField && <RuleRow isMet={doesMatch} label={t('auth.password.RULE_MATCH')} />}
 			</ul>
 		</div>

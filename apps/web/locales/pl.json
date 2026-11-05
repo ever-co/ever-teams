@@ -4304,10 +4304,14 @@
 			"PASSWORD": "Hasło"
 		},
 		"password": {
+			"RULE_DIGIT": "Cyfra (0-9)",
+			"RULE_LOWERCASE": "Mała litera (a-z)",
 			"RULE_MATCH": "Oba hasła są zgodne",
 			"RULE_MET": "Wymaganie spełnione",
 			"RULE_MIN_LENGTH": "{count, plural, one {Co najmniej # znak} few {Co najmniej # znaki} many {Co najmniej # znaków} other {Co najmniej # znaków}}",
 			"RULE_NOT_MET": "Wymaganie niespełnione",
+			"RULE_SYMBOL": "Symbol, np. ! @ # lub -",
+			"RULE_UPPERCASE": "Wielka litera (A-Z)",
 			"STRENGTH_FAIR": "Średnie",
 			"STRENGTH_GOOD": "Dobre",
 			"STRENGTH_STRONG": "Silne",

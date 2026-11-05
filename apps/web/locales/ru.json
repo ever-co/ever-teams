@@ -4304,10 +4304,14 @@
 			"PASSWORD": "Пароль"
 		},
 		"password": {
+			"RULE_DIGIT": "Цифра (0-9)",
+			"RULE_LOWERCASE": "Строчная латинская буква (a-z)",
 			"RULE_MATCH": "Пароли совпадают",
 			"RULE_MET": "Требование выполнено",
 			"RULE_MIN_LENGTH": "{count, plural, one {Не менее # символа} few {Не менее # символов} many {Не менее # символов} other {Не менее # символа}}",
 			"RULE_NOT_MET": "Требование не выполнено",
+			"RULE_SYMBOL": "Символ, например ! @ # или -",
+			"RULE_UPPERCASE": "Заглавная латинская буква (A-Z)",
 			"STRENGTH_FAIR": "Средний",
 			"STRENGTH_GOOD": "Хороший",
 			"STRENGTH_STRONG": "Надёжный",
