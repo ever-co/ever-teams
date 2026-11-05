@@ -5,11 +5,20 @@ import { Mail } from '@/core/components/icons';
 import { ToastOrb, type OrbTone } from '@/core/components/common/toast-orb';
 import { cn } from '@/core/lib/helpers';
 
+/** A warning here is a dead end (an expired or unknown link): it is announced as urgently as an error. */
 function statusRoleOf(tone: OrbTone) {
-	if (tone === 'error') {
+	const isProblem = tone === 'error' || tone === 'warning';
+	if (isProblem) {
 		return 'alert';
 	}
 	return 'status';
+}
+
+function liveModeOf(role: 'alert' | 'status') {
+	if (role === 'alert') {
+		return 'assertive';
+	}
+	return 'polite';
 }
 
 export function AuthState({
@@ -30,12 +39,13 @@ export function AuthState({
 	className?: string;
 }>) {
 	const role = statusRoleOf(tone);
+	const liveMode = liveModeOf(role);
 	const isBusy = tone === 'loading';
 
 	return (
 		<section
 			role={role}
-			aria-live="polite"
+			aria-live={liveMode}
 			aria-busy={isBusy || undefined}
 			className={cn('flex flex-col', className)}
 		>

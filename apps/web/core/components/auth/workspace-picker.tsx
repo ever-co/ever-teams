@@ -307,7 +307,10 @@ export function WorkspacePicker(props: Readonly<WorkspacePickerProps>) {
 								</span>
 								{isSelected && <SelectedMark />}
 								{showsKeyCap && (
-									<kbd className="hidden h-5 min-w-5 items-center justify-center rounded-[5px] px-1 font-sans text-[11px] font-medium text-muted-foreground keycap-3d sm:inline-flex">
+									<kbd
+										aria-hidden="true"
+										className="hidden h-5 min-w-5 items-center justify-center rounded-[5px] px-1 font-sans text-[11px] font-medium text-muted-foreground keycap-3d sm:inline-flex"
+									>
 										{keyLabel}
 									</kbd>
 								)}

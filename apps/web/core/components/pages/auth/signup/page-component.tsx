@@ -409,7 +409,10 @@ function StartModeOption({
 				<span className="text-[13px] font-medium text-foreground">{title}</span>
 				<span className="text-xs text-pretty text-muted-foreground">{description}</span>
 			</span>
-			<kbd className="keycap-3d mt-0.5 hidden h-5 min-w-5 items-center justify-center rounded-[5px] px-1 font-sans text-[11px] font-medium text-muted-foreground sm:inline-flex">
+			<kbd
+				aria-hidden="true"
+				className="keycap-3d mt-0.5 hidden h-5 min-w-5 items-center justify-center rounded-[5px] px-1 font-sans text-[11px] font-medium text-muted-foreground sm:inline-flex"
+			>
 				{keyLabel}
 			</kbd>
 		</label>
