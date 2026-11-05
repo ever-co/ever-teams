@@ -102,6 +102,8 @@ export function useOrganizationEmployeeTeams() {
 		},
 		onError: (error) => {
 			showFailure('toasts.teams.MEMBER_ORDER_NOT_SAVED', error);
+			// The other half of a swap may have been saved: read the order the API really holds
+			queryClient.invalidateQueries({ queryKey: queryKeys.organizationTeams.all });
 		}
 	});
 
