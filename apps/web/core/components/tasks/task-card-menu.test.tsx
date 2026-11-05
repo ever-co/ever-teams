@@ -290,4 +290,20 @@ describe('TaskCardMenu assignment entry on a profile', () => {
 
 		expect(isShown('common.ASSIGN_TASK_TO_ME')).toBe(true);
 	});
+
+	it('keeps the viewer\'s own "to me" entry on a teammate\'s profile for a member who may not act for them', () => {
+		const mockViewerAssignTask = jest.fn(async () => true);
+		const viewerMutations = {
+			assignTask: mockViewerAssignTask,
+			unassignTask: jest.fn(async () => undefined)
+		} as unknown as MenuProps['viewerMutations'];
+		renderMenu({ task: teammateTask, mutations, viewerMutations });
+
+		expect(isShown('common.UNASSIGN_TASK_FROM_MEMBER')).toBe(false);
+		fireEvent.click(screen.getByText('common.ASSIGN_TASK_TO_ME'));
+
+		expect(mockViewerAssignTask).toHaveBeenCalledWith(teammateTask);
+		expect(mockAssignTask).not.toHaveBeenCalled();
+		expect(mockUnassignTask).not.toHaveBeenCalled();
+	});
 });

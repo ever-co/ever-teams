@@ -302,6 +302,7 @@ function TaskRow({ member, ...props }: Props & { member: TaskListMemberValue }) 
 							task={task}
 							loading={loading}
 							mutations={menuMutationsOf(profile, memberInfo, authMutations)}
+							viewerMutations={authMutations}
 							viewType={viewType}
 							profile={profile}
 							plan={plan}
@@ -671,6 +672,7 @@ export function TaskCardMenu({
 	task,
 	loading,
 	mutations,
+	viewerMutations,
 	viewType,
 	profile,
 	plan,
@@ -680,6 +682,11 @@ export function TaskCardMenu({
 	task: TTask;
 	loading?: boolean;
 	mutations?: I_TeamMemberMutationsHook;
+	/**
+	 * The viewer's own assignment actions. On a teammate's profile a viewer who may not act for the teammate keeps
+	 * the "to me" entry with them, as before; without them the menu shows no assignment entry there.
+	 */
+	viewerMutations?: I_TeamMemberMutationsHook;
 	viewType: 'default' | 'unassign' | 'dailyplan';
 	profile?: I_UserProfilePage;
 	plan?: TDailyPlan;
@@ -707,11 +714,25 @@ export function TaskCardMenu({
 
 	const { isTeammateProfile, ensurePlans, todayPlans, futurePlans, isPlansLoading } = useMenuPlans(profile);
 
-	// On a teammate's profile the menu's mutations act on that teammate, so the entry names them
+	const canSeeActivity = useCanSeeActivityScreen();
+	const { myPermissions } = useMyRolePermissionsQuery();
+
+	// The API lets only the team's managers, or a holder of CHANGE_SELECTED_EMPLOYEE, change another member's plans
+	const canActForOthers = myPermissions.includes('CHANGE_SELECTED_EMPLOYEE');
+	const canPlanForTeammate = canSeeActivity || canActForOthers;
+
+	// On a teammate's profile the menu acts on that teammate for a viewer who may plan for them, so the entry names
+	// them; any other viewer keeps the "to me" entry, acting on themselves, when the caller passed their actions
+	const actsForTeammate = isTeammateProfile && canPlanForTeammate;
+	const keepsViewerEntry = isTeammateProfile && !canPlanForTeammate && Boolean(viewerMutations);
+	let assignmentMutations = mutations;
+	if (keepsViewerEntry) {
+		assignmentMutations = viewerMutations;
+	}
 	const profileEmployeeId = profile?.member?.employeeId;
 	const isProfileMemberOnTask = Boolean(task.members?.some((member) => member.id === profileEmployeeId));
 	let isAssigned = isUserAssignedToTask;
-	if (isTeammateProfile) {
+	if (actsForTeammate) {
 		isAssigned = isProfileMemberOnTask;
 	}
 
@@ -720,7 +741,7 @@ export function TaskCardMenu({
 
 	const handleAssignment = useCallback(() => {
 		// Guard clause: if mutations is not available, we cannot assign/unassign
-		if (!mutations) {
+		if (!assignmentMutations) {
 			console.warn('[TaskCardMenu] mutations is undefined, cannot assign/unassign task');
 			return;
 		}
@@ -730,7 +751,7 @@ export function TaskCardMenu({
 
 		setIsAssigning(true);
 
-		const promise = shouldAssign ? mutations.assignTask(task) : mutations.unassignTask(task);
+		const promise = shouldAssign ? assignmentMutations.assignTask(task) : assignmentMutations.unassignTask(task);
 
 		promise
 			.catch((error: unknown) => {
@@ -743,21 +764,15 @@ export function TaskCardMenu({
 			.finally(() => {
 				setIsAssigning(false);
 			});
-	}, [mutations, task, isAssigned, t]);
+	}, [assignmentMutations, task, isAssigned, t]);
 
-	const canSeeActivity = useCanSeeActivityScreen();
-	const { myPermissions } = useMyRolePermissionsQuery();
-
-	// The API lets only the team's managers, or a holder of CHANGE_SELECTED_EMPLOYEE, change another member's plans
-	const canActForOthers = myPermissions.includes('CHANGE_SELECTED_EMPLOYEE');
-	const canPlanForTeammate = canSeeActivity || canActForOthers;
 	const canPlanForProfileMember = !isTeammateProfile || canPlanForTeammate;
 	const canRemoveForTeammate = isTeammateProfile && canPlanForTeammate;
 	const showRemoveEntries = canSeeActivity || canRemoveForTeammate;
 	// Assigning a teammate is the managers' action, as planning for them is
-	const showAssignmentEntry = !isTeammateProfile || canPlanForTeammate;
+	const showAssignmentEntry = !isTeammateProfile || canPlanForTeammate || keepsViewerEntry;
 	let assignmentLabel = t(assignmentMenuLabelKey(isAssigned));
-	if (isTeammateProfile) {
+	if (actsForTeammate) {
 		assignmentLabel = t(memberAssignmentMenuLabelKey(isAssigned), { name: profileMemberNameOf(profile) });
 	}
 
