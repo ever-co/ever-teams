@@ -1,5 +1,7 @@
-/** The shortest password Gauzy accepts on a reset or a registration. */
-export const PASSWORD_MIN_LENGTH = 6;
+import { PASSWORD_MINIMUM_LENGTH } from '@ever-teams/constants';
+
+/** The app's password policy: Gauzy's reset and registration refuse anything shorter. */
+export const PASSWORD_MIN_LENGTH = PASSWORD_MINIMUM_LENGTH;
 
 export type PasswordStrength = 0 | 1 | 2 | 3 | 4;
 

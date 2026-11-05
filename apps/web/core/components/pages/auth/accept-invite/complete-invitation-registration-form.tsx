@@ -9,10 +9,12 @@ import { Lock, User } from '@/core/components/icons';
 import { AuthField, PasswordField } from '@/core/components/auth/kit/auth-field';
 import { AuthNotice } from '@/core/components/auth/kit/auth-notice';
 import { AuthState } from '@/core/components/auth/kit/auth-state';
-import { PasswordChecks } from '@/core/components/auth/kit/password-checks';
+import { minLengthRuleOf, PasswordChecks } from '@/core/components/auth/kit/password-checks';
+import { meetsPasswordMinLength } from '@/core/lib/utils/password-strength';
 import { AUTH_TEXT_LINK } from '@/core/components/auth/kit/auth-recipes';
 
 const NO_ERRORS = {
+	password: '',
 	confirmPassword: '',
 	acceptInviteFailed: ''
 };
@@ -44,6 +46,11 @@ export function CompleteInvitationRegistrationForm(props: {
 		async (e: FormEvent<HTMLFormElement>) => {
 			e.preventDefault();
 			setErrors(NO_ERRORS);
+
+			if (!meetsPasswordMinLength(userDetails.password)) {
+				setErrors({ ...NO_ERRORS, password: minLengthRuleOf(t) });
+				return;
+			}
 
 			if (userDetails.password !== userDetails.confirmPassword) {
 				setErrors({ ...NO_ERRORS, confirmPassword: t('errors.PASSWORDS_DO_NOT_MATCH') });
@@ -107,6 +114,7 @@ export function CompleteInvitationRegistrationForm(props: {
 				icon={<Lock />}
 				value={userDetails.password}
 				onChange={(e) => setUserDetails((details) => ({ ...details, password: e.target.value }))}
+				error={errors.password}
 				autoComplete="new-password"
 			/>
 			<PasswordField
