@@ -73,6 +73,11 @@ export function useTeamGeneralSettings() {
 		[saveField]
 	);
 
+	const saveDefaultProject = useCallback(
+		(defaultProjectId: string) => saveField({ defaultProjectId }, 'toasts.teams.DEFAULT_PROJECT_NOT_SAVED'),
+		[saveField]
+	);
+
 	const saveVisibility = useCallback(
 		async (isPublic: boolean) => {
 			try {
@@ -165,6 +170,7 @@ export function useTeamGeneralSettings() {
 		saveColor,
 		saveEmoji,
 		saveSize,
+		saveDefaultProject,
 		saveVisibility,
 		uploadAvatar,
 		removeAvatar,

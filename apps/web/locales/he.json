@@ -3456,6 +3456,7 @@
 			"COLOR_NOT_SAVED": "צבע הצוות לא נשמר",
 			"EMOJI_NOT_SAVED": "האימוג׳י של הצוות לא נשמר",
 			"SIZE_NOT_SAVED": "גודל הצוות לא נשמר",
+			"DEFAULT_PROJECT_NOT_SAVED": "פרויקט ברירת המחדל לא נשמר",
 			"TYPE_NOT_SAVED": "סוג הצוות לא נשמר",
 			"LEFT_TEAM": "עזבת את הצוות",
 			"LEAVE_FAILED": "עדיין נשארת בצוות",
@@ -3858,7 +3859,11 @@
 			"DELETE_CONSEQUENCE_SIGN_OUT": "מתבצעת יציאה מהחשבון כדי לבחור סביבת עבודה אחרת.",
 			"QUIT_TITLE": "לעזוב את {team}?",
 			"QUIT_CONSEQUENCE_LIST": "הצוות נעלם מרשימת הצוותים שלך.",
-			"QUIT_CONSEQUENCE_BACK": "מנהל יוכל להזמין אותך שוב בהמשך."
+			"QUIT_CONSEQUENCE_BACK": "מנהל יוכל להזמין אותך שוב בהמשך.",
+			"PROJECTS_SECTION": "פרויקטים",
+			"DEFAULT_PROJECT_LABEL": "פרויקט ברירת מחדל",
+			"DEFAULT_PROJECT_DESCRIPTION": "משימות וטיימרים חדשים בצוות הזה נכנסים לפרויקט הזה.",
+			"DEFAULT_PROJECT_PLACEHOLDER": "בחירת פרויקט"
 		},
 		"members": {
 			"UNVERIFIED_TITLE": "יש לאמת את כתובת האימייל כדי להזמין אנשים",

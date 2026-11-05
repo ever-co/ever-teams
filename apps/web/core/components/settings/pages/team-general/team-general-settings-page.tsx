@@ -8,6 +8,7 @@ import { TeamGeneralSettingsSkeleton } from './team-general-settings-skeleton';
 import { TeamIdentitySection } from './team-identity-section';
 import { TeamVisibilitySection } from './team-visibility-section';
 import { TeamTrackingSection } from './team-tracking-section';
+import { TeamDefaultProjectSection } from './team-default-project-section';
 import { TeamDangerSection } from './team-danger-section';
 
 function TeamGeneralContent() {
@@ -40,6 +41,12 @@ function TeamGeneralContent() {
 				team={team}
 				canEdit={canEdit}
 				saveVisibility={settings.saveVisibility}
+			/>
+			<TeamDefaultProjectSection
+				key={`projects-${team.id}`}
+				team={team}
+				canEdit={canEdit}
+				saveDefaultProject={settings.saveDefaultProject}
 			/>
 			<TeamTrackingSection
 				key={`tracking-${team.id}`}

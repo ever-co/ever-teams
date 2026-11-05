@@ -3456,6 +3456,7 @@
 			"COLOR_NOT_SAVED": "Цвет команды не сохранён",
 			"EMOJI_NOT_SAVED": "Эмодзи команды не сохранено",
 			"SIZE_NOT_SAVED": "Размер команды не сохранён",
+			"DEFAULT_PROJECT_NOT_SAVED": "Проект по умолчанию не сохранён",
 			"TYPE_NOT_SAVED": "Тип команды не сохранён",
 			"LEFT_TEAM": "Вы покинули команду",
 			"LEAVE_FAILED": "Вы всё ещё в команде",
@@ -3858,7 +3859,11 @@
 			"DELETE_CONSEQUENCE_SIGN_OUT": "Вы выйдете из аккаунта, чтобы выбрать другое рабочее пространство.",
 			"QUIT_TITLE": "Покинуть {team}?",
 			"QUIT_CONSEQUENCE_LIST": "Команда исчезнет из вашего списка команд.",
-			"QUIT_CONSEQUENCE_BACK": "Менеджер сможет пригласить вас снова."
+			"QUIT_CONSEQUENCE_BACK": "Менеджер сможет пригласить вас снова.",
+			"PROJECTS_SECTION": "Проекты",
+			"DEFAULT_PROJECT_LABEL": "Проект по умолчанию",
+			"DEFAULT_PROJECT_DESCRIPTION": "Новые задачи и таймеры этой команды попадают в этот проект.",
+			"DEFAULT_PROJECT_PLACEHOLDER": "Выберите проект"
 		},
 		"members": {
 			"UNVERIFIED_TITLE": "Подтвердите email, чтобы приглашать людей",

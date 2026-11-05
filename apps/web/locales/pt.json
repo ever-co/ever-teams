@@ -3456,6 +3456,7 @@
 			"COLOR_NOT_SAVED": "A cor da equipe não foi salva",
 			"EMOJI_NOT_SAVED": "O emoji da equipe não foi salvo",
 			"SIZE_NOT_SAVED": "O tamanho da equipe não foi salvo",
+			"DEFAULT_PROJECT_NOT_SAVED": "O projeto padrão não foi salvo",
 			"TYPE_NOT_SAVED": "O tipo de equipe não foi salvo",
 			"LEFT_TEAM": "Você saiu da equipe",
 			"LEAVE_FAILED": "Você ainda está na equipe",
@@ -3858,7 +3859,11 @@
 			"DELETE_CONSEQUENCE_SIGN_OUT": "Sua sessão é encerrada para você escolher outro espaço de trabalho.",
 			"QUIT_TITLE": "Sair de {team}?",
 			"QUIT_CONSEQUENCE_LIST": "A equipe some da sua lista de equipes.",
-			"QUIT_CONSEQUENCE_BACK": "Um gerente pode convidar você de novo depois."
+			"QUIT_CONSEQUENCE_BACK": "Um gerente pode convidar você de novo depois.",
+			"PROJECTS_SECTION": "Projetos",
+			"DEFAULT_PROJECT_LABEL": "Projeto padrão",
+			"DEFAULT_PROJECT_DESCRIPTION": "As novas tarefas e os timers desta equipe vão para este projeto.",
+			"DEFAULT_PROJECT_PLACEHOLDER": "Escolher um projeto"
 		},
 		"members": {
 			"UNVERIFIED_TITLE": "Verifique seu e-mail para convidar pessoas",

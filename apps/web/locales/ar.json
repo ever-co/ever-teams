@@ -3456,6 +3456,7 @@
 			"COLOR_NOT_SAVED": "لم يتم حفظ لون الفريق",
 			"EMOJI_NOT_SAVED": "لم يتم حفظ الرمز التعبيري للفريق",
 			"SIZE_NOT_SAVED": "لم يتم حفظ حجم الفريق",
+			"DEFAULT_PROJECT_NOT_SAVED": "لم يتم حفظ المشروع الافتراضي",
 			"TYPE_NOT_SAVED": "لم يتم حفظ نوع الفريق",
 			"LEFT_TEAM": "غادرت الفريق",
 			"LEAVE_FAILED": "ما زلت في الفريق",
@@ -3858,7 +3859,11 @@
 			"DELETE_CONSEQUENCE_SIGN_OUT": "يُسجَّل خروجك لتختار مساحة عمل أخرى.",
 			"QUIT_TITLE": "مغادرة {team}؟",
 			"QUIT_CONSEQUENCE_LIST": "يختفي الفريق من قائمة فرقك.",
-			"QUIT_CONSEQUENCE_BACK": "يستطيع مدير دعوتك من جديد لاحقًا."
+			"QUIT_CONSEQUENCE_BACK": "يستطيع مدير دعوتك من جديد لاحقًا.",
+			"PROJECTS_SECTION": "المشاريع",
+			"DEFAULT_PROJECT_LABEL": "المشروع الافتراضي",
+			"DEFAULT_PROJECT_DESCRIPTION": "تذهب المهام الجديدة والمؤقتات في هذا الفريق إلى هذا المشروع.",
+			"DEFAULT_PROJECT_PLACEHOLDER": "اختر مشروعًا"
 		},
 		"members": {
 			"UNVERIFIED_TITLE": "أكّد بريدك الإلكتروني لتدعو أشخاصًا",

@@ -49,6 +49,7 @@ export function TeamGeneralSettingsSkeleton() {
 				control="none"
 				leading
 			/>
+			<SettingsSectionSkeleton title={t('settings.teamGeneral.PROJECTS_SECTION')} rows={1} control="select" />
 			<SettingsSectionSkeleton title={t('settings.teamGeneral.TRACKING_SECTION')} rows={3} control="switch" />
 			<SettingsSectionSkeleton title={t('settings.teamGeneral.DANGER_SECTION')} rows={3} control="button" />
 		</SettingsPageSkeleton>

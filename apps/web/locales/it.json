@@ -3456,6 +3456,7 @@
 			"COLOR_NOT_SAVED": "Il colore del team non è stato salvato",
 			"EMOJI_NOT_SAVED": "L’emoji del team non è stata salvata",
 			"SIZE_NOT_SAVED": "La dimensione del team non è stata salvata",
+			"DEFAULT_PROJECT_NOT_SAVED": "Il progetto predefinito non è stato salvato",
 			"TYPE_NOT_SAVED": "Il tipo di team non è stato salvato",
 			"LEFT_TEAM": "Hai lasciato il team",
 			"LEAVE_FAILED": "Fai ancora parte del team",
@@ -3858,7 +3859,11 @@
 			"DELETE_CONSEQUENCE_SIGN_OUT": "Esci dall'account per scegliere un altro spazio di lavoro.",
 			"QUIT_TITLE": "Lasciare {team}?",
 			"QUIT_CONSEQUENCE_LIST": "Il team sparisce dal tuo elenco di team.",
-			"QUIT_CONSEQUENCE_BACK": "Un manager potrà invitarti di nuovo più avanti."
+			"QUIT_CONSEQUENCE_BACK": "Un manager potrà invitarti di nuovo più avanti.",
+			"PROJECTS_SECTION": "Progetti",
+			"DEFAULT_PROJECT_LABEL": "Progetto predefinito",
+			"DEFAULT_PROJECT_DESCRIPTION": "Le nuove attività e i timer di questo team vanno in questo progetto.",
+			"DEFAULT_PROJECT_PLACEHOLDER": "Scegli un progetto"
 		},
 		"members": {
 			"UNVERIFIED_TITLE": "Verifica il tuo indirizzo email per invitare persone",

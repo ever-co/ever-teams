@@ -3456,6 +3456,7 @@
 			"COLOR_NOT_SAVED": "团队颜色未保存",
 			"EMOJI_NOT_SAVED": "团队表情未保存",
 			"SIZE_NOT_SAVED": "团队规模未保存",
+			"DEFAULT_PROJECT_NOT_SAVED": "默认项目未保存",
 			"TYPE_NOT_SAVED": "团队类型未保存",
 			"LEFT_TEAM": "你已退出团队",
 			"LEAVE_FAILED": "你仍在团队中",
@@ -3858,7 +3859,11 @@
 			"DELETE_CONSEQUENCE_SIGN_OUT": "你将被登出，以便选择其他工作区。",
 			"QUIT_TITLE": "退出 {team}？",
 			"QUIT_CONSEQUENCE_LIST": "此团队将从你的团队列表中消失。",
-			"QUIT_CONSEQUENCE_BACK": "经理之后可以再次邀请你。"
+			"QUIT_CONSEQUENCE_BACK": "经理之后可以再次邀请你。",
+			"PROJECTS_SECTION": "项目",
+			"DEFAULT_PROJECT_LABEL": "默认项目",
+			"DEFAULT_PROJECT_DESCRIPTION": "该团队的新任务和计时器会归入此项目。",
+			"DEFAULT_PROJECT_PLACEHOLDER": "选择项目"
 		},
 		"members": {
 			"UNVERIFIED_TITLE": "验证你的邮箱地址后才能邀请他人",
