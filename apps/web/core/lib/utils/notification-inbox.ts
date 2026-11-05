@@ -27,7 +27,15 @@ export interface NotificationEntry {
 export const RATE_CHANGE_REQUEST_HREF = '/settings/team/members';
 
 /** The verbs of Gauzy's title templates (`employee-notification.helper.ts`), in the order they are tried. */
-const TITLE_ACTION_WORDS = [' Assigned ', ' Mentioned ', ' Commented ', ' Invited ', ' published ', ' sent '];
+const TITLE_ACTION_WORDS = [
+	' Assigned ',
+	' Mentioned ',
+	' Commented ',
+	' Invited ',
+	' published ',
+	' sent ',
+	' asked for '
+];
 
 function firstFilled(candidates: ReadonlyArray<string | null | undefined>): string | null {
 	for (const candidate of candidates) {

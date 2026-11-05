@@ -25,6 +25,12 @@ describe('toNotificationEntry for a rate change request', () => {
 		expect(entry.message).toBe('Current rate: 40 USD/h. Requested: 55 USD/h.');
 	});
 
+	it("names the requester from Gauzy's title when the sender is not loaded", () => {
+		const entry = toNotificationEntry(notification({ type: EEmployeeNotificationType.RateChangeRequest }));
+
+		expect(entry.senderName).toBe('Ana Lima');
+	});
+
 	it('leaves the other notifications on their task, with no link', () => {
 		const entry = toNotificationEntry(
 			notification({
