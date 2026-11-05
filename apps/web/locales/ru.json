@@ -177,7 +177,7 @@
 		"PRIVATE_TASK": "Эта задача закрыта",
 		"PUBLIC_TASK_LABEL": "Сделать общедоступной",
 		"PRIVATE_TASK_LABEL": "Сделать закрытой",
-		"CREATE_TASK": "Создать новую задачу",
+		"CREATE_TASK": "Создать задачу",
 		"REMOVE_FAVORITE_TASK": "Удалить задачу из избранного",
 		"ADD_FAVORITE_TASK": "Добавить задачу в избранное",
 		"NO_PROJECT": "Нет проекта",
@@ -247,7 +247,7 @@
 		"TRANSFER_TEAM": "Перенести Команду",
 		"TEAM_MEMBERS": "Члены Команды",
 		"NO_TEAM": "Создайте свою собственную команду или присоединитесь к существующей",
-		"NO_TEAM_SUB": "Замечательно работать с другими, поэтому создайте команду и пригласите всех к сотрудничеству!",
+		"NO_TEAM_SUB": "Создайте команду и пригласите людей, с которыми работаете.",
 		"NO_TEAM_TOOLTIP": "Вы должны подтвердить свой адрес электронной почты",
 		"CANCEL": "Отмена",
 		"DISCARD": "Отбросить",
@@ -256,7 +256,7 @@
 		"BACK": "Назад",
 		"DONT_HAVE_ACCOUNT": "У вас нет аккаунта?",
 		"TEAM_MEMBER_EMAIL_ADDRESS": "Адрес электронной почты члена команды",
-		"REGISTER": "Зарегистрируйтесь сейчас!",
+		"REGISTER": "Зарегистрироваться",
 		"JOIN_REQUEST": "Запрос на присоединение",
 		"PERMISSION": "Разрешение",
 		"SEARCH": "Поиск",
@@ -302,7 +302,7 @@
 		"KEYBOARD_SHORTCUTS": "Горячие клавиши",
 		"GITHUB_INTEGRATION_SUBTITLE_TEXT": "Активируйте интеграцию GitHub для синхронизации проекта и репозитория",
 		"GITHUB_LOADING_TEXT": "Мы сейчас устанавливаем вашу интеграцию GitHub, подождите...",
-		"GITHUB_INTEGRATION_AUTO_SYNC_TASK_TEXT": "Автоматическая синхронизация задач в вашем приложении для бесперебойных и эффективных обновлений.",
+		"GITHUB_INTEGRATION_AUTO_SYNC_TASK_TEXT": "Автоматически синхронизирует задачи с привязанным репозиторием.",
 		"GITHUB_INTEGRATION_LABEL_SYNC_TASK_TEXT": "Синхронизация задач выборочно путем ассоциирования их с конкретной меткой.",
 		"GITHUB_AUTO_SYNC_LABEL": "Выберите метку автосинхронизации",
 		"THERE_IS_NO_TASK_ASSIGNED": "НЕТ ЗАДАЧИ НАЗНАЧЕНО",
@@ -1542,7 +1542,7 @@
 			"WEEKLY_LIMIT": "Недельный лимит"
 		},
 		"home": {
-			"BREADCRUMB": "[\"панель приборов\"]",
+			"BREADCRUMB": "[\"Главная\"]",
 			"SENT_EMAIL_VERIFICATION": "Код подтверждения был отправлен на ваш электронный адрес",
 			"SENT_EMAIL_VERIFICATION_YOU_NEED_TO": "Вам нужно ",
 			"SENT_EMAIL_VERIFICATION_YOUR_EMAIL_ADDRESS": " ваш адрес электронной почты. Код подтверждения должен уже быть отправлен на ваш адрес электронной почты, но не стесняйтесь нажать ",
@@ -1632,7 +1632,7 @@
 			"basicInformationForm": {
 				"formFields": {
 					"title": "Название проекта",
-					"titlePlaceholder": "Клиентский проект #1...",
+					"titlePlaceholder": "Клиентский проект #1",
 					"description": "Описание",
 					"datePickerPlaceholder": "Выберите дату",
 					"websiteUrl": "URL сайта",
@@ -1650,12 +1650,12 @@
 					"endDateRequired": "Дата окончания обязательна.",
 					"endDateAfterStart": "Дата окончания должна быть после даты начала.",
 					"invalidUrl": "Пожалуйста, введите действительный URL.",
-					"uploadError": "Произошла ошибка при загрузке изображения проекта, попробуйте снова!",
+					"uploadError": "Изображение проекта не загрузилось. Попробуйте ещё раз.",
 					"descriptionWordLimit": "Описание должно содержать не более 5000 слов."
 				},
 				"common": {
-					"search": "Поиск ...",
-					"typeNew": "Введите новое ...",
+					"search": "Поиск",
+					"typeNew": "Введите новое",
 					"addNew": "Добавить новое",
 					"uploadingImage": "Загрузка изображения проекта"
 				}
@@ -1663,9 +1663,9 @@
 			"categorizationForm": {
 				"formFields": {
 					"labels": "Метки",
-					"labelsPlaceholder": "Выберите метки...",
+					"labelsPlaceholder": "Выберите метки",
 					"tags": "Теги",
-					"tagsPlaceholder": "Выберите теги...",
+					"tagsPlaceholder": "Выберите теги",
 					"colorCode": "Цветовой код"
 				}
 			},
@@ -1674,11 +1674,11 @@
 					"budgetType": "Тип бюджета",
 					"budgetTypePlaceholder": "Выберите тип бюджета",
 					"budgetAmount": "Сумма бюджета",
-					"budgetAmountPlaceholder": "10 000$...",
+					"budgetAmountPlaceholder": "10 000$",
 					"currency": "Выбор валюты",
-					"currencyPlaceholder": "Выберите валюту...",
+					"currencyPlaceholder": "Выберите валюту",
 					"billing": "Тип биллинга",
-					"billingPlaceholder": "Выберите интервал..."
+					"billingPlaceholder": "Выберите интервал"
 				}
 			},
 			"teamAndRelationsForm": {
@@ -1689,13 +1689,13 @@
 					"assignMembers": "Назначить участников и менеджеров",
 					"noMembers": "Нет участников или менеджеров",
 					"addMember": "Добавить участника",
-					"selectMember": "Выберите участника...",
-					"selectRole": "Выберите роль...",
+					"selectMember": "Выберите участника",
+					"selectRole": "Выберите роль",
 					"relations": "Связи",
 					"noRelations": "Нет связей",
 					"addRelation": "Добавить связь",
-					"selectProject": "Выберите проект...",
-					"selectRelationType": "Выберите тип связи...",
+					"selectProject": "Выберите проект",
+					"selectRelationType": "Выберите тип связи",
 					"activeTeamLocked": "Текущая команда обязательна и не может быть удалена"
 				},
 				"errors": {
@@ -1824,7 +1824,7 @@
 				"created": "Проект {name} создан",
 				"saved": "Изменения в {name} сохранены",
 				"done": "Готово",
-				"descriptionPlaceholder": "Добавьте описание, бриф или цели проекта…",
+				"descriptionPlaceholder": "Добавьте описание, бриф или цели проекта",
 				"removeItem": "Убрать {name}",
 				"showMore": "Показать ещё {count}",
 				"showLess": "Свернуть",
@@ -1846,12 +1846,12 @@
 				},
 				"teams": {
 					"add": "Добавить команду",
-					"search": "Найти команду…"
+					"search": "Найти команду"
 				},
 				"people": {
 					"addManagers": "Добавить менеджеров",
 					"addMembers": "Добавить участников",
-					"search": "Найти человека…"
+					"search": "Найти человека"
 				},
 				"tags": {
 					"add": "Добавить теги",
@@ -1952,7 +1952,7 @@
 			"INVALID_INVITE_CODE_MESSAGE": "Неверный код",
 			"WELCOME_TEAMS": "Реальная ясность в реальном времени™.",
 			"COVER_TITLE": "Открытая платформа для управления работой и проектами",
-			"COVER_DESCRIPTION": "Все в одной платформе для управления работой и персоналом, управления временем, отслеживания времени, отслеживания активности, отслеживания производительности и метрик, управления проектами/задачами и проблемами, управления организациями и командами, интеграций (GitHub, JIRA, ...) и многое другое!",
+			"COVER_DESCRIPTION": "Учитывайте время и активность, управляйте задачами и проектами и смотрите, над чем работает команда. Работает с GitHub и Jira.",
 			"LOGIN": "Войти",
 			"SELECT_WORKSPACE": "Выберите рабочее пространство",
 			"ENTER_EMAIL": "Введите электронную почту",
@@ -2012,7 +2012,7 @@
 		},
 		"authLogin": {
 			"HEADING_TITLE": "Вход в команду",
-			"HEADING_DESCRIPTION": "Введите электронную почту и код приглашения для входа.",
+			"HEADING_DESCRIPTION": "Введите email, и мы отправим вам код для входа.",
 			"WORKSPACE": "Рабочее пространство",
 			"HEADING_WORKSPACE_LINE1": "Электронная почта связана с несколькими рабочими пространствами,",
 			"HEADING_WORKSPACE_LINE2": "выберите одно для продолжения",
@@ -2213,8 +2213,8 @@
 			"HANDLE_REQUESTS": "Обработка запросов",
 			"ROLES_POSITIONS_CHANGE": "Изменение ролей/позиций",
 			"VIEW_DETAILS": "Просмотр деталей",
-			"NO_INVITATIONS": "На данный момент нет приглашений!",
-			"NO_MEMBERS": "На данный момент нет участников!",
+			"NO_INVITATIONS": "Нет ожидающих приглашений",
+			"NO_MEMBERS": "Пока нет участников",
 			"GO_TO_PERSONAL_SETTINGS": "Перейти в личные настройки",
 			"SHARE_MEMBERS_PROFILE_VIEWS": "Поделиться просмотрами профилей участников",
 			"everPlatform": {
@@ -2313,24 +2313,24 @@
 		},
 		"unauthorized": {
 			"TITLE": "Несанкционированный",
-			"HEADING_TITLE": "Вы не авторизованы для просмотра этой страницы !",
-			"HEADING_DESCRIPTION": "Приносим извинения за неудобства, но у вас нет прав доступа к этой странице. Если вы считаете, что это ошибка. Пожалуйста, войдите.",
+			"HEADING_TITLE": "У вас нет доступа к этой странице",
+			"HEADING_DESCRIPTION": "Ваша учётная запись не может открыть эту страницу. Если это ошибка, войдите снова или обратитесь к менеджеру команды.",
 			"TRY_AGAIN": "Попробуйте еще раз"
 		},
 		"page404": {
 			"HEADING_TITLE": "Не найдено",
-			"HEADING_DESCRIPTION": "Ресурс, который вы ищете, не найден!",
+			"HEADING_DESCRIPTION": "Эта страница не существует или была перемещена.",
 			"LINK_LABEL": "Перейти на главную страницу"
 		},
 		"offline": {
-			"HEADING_TITLE": "Сеть отключена!",
+			"HEADING_TITLE": "Нет подключения к сети",
 			"HEADING_SUB_DESCRIPTION": "Ой, мы потеряли вас. Не волнуйтесь, ваше время все еще отслеживается.",
 			"HEADING_DESCRIPTION": "Вы сможете продолжить работу в веб-приложении, как только ваше соединение будет восстановлено.",
-			"STATUS_NETWORK": "Офлайн!"
+			"STATUS_NETWORK": "Офлайн"
 		},
 		"error": {
-			"TITLE": "Ошибка !",
-			"HEADING_TITLE": "Что-то пошло не так !",
+			"TITLE": "Ошибка",
+			"HEADING_TITLE": "Что-то пошло не так",
 			"HEADING_DESCRIPTION": "Если проблема не устранена, отправьте сигнал бедствия в нашу службу поддержки."
 		},
 		"maintenance": {
@@ -2388,7 +2388,7 @@
 			"END_AFTER_START": "Время окончания должно быть позже времени начала."
 		},
 		"teamTasks": {
-			"SEARCH_TASKS": "Поиск задач...",
+			"SEARCH_TASKS": "Поиск задач",
 			"TYPE_AND_NUMBER": "Тип + номер",
 			"NO_ISSUE_TYPE": "Нет типа задачи",
 			"NO_USER_ASSIGNED": "Исполнитель не назначен",
@@ -2414,7 +2414,7 @@
 			"ME": "вы",
 			"META_TASKS": "{count, plural, one {# задача} few {# задачи} many {# задач} other {# задачи}}",
 			"META_TRACKED": "{count, plural, one {# отслеживается сейчас} few {# отслеживаются сейчас} many {# отслеживаются сейчас} other {# отслеживаются сейчас}}",
-			"NEW_TASK": "Новая задача",
+			"NEW_TASK": "Создать задачу",
 			"NO_ASSIGNEE": "Без исполнителя",
 			"NO_MATCH_TITLE": "Нет подходящих задач",
 			"NO_MATCH_MESSAGE": "Измените поиск или фильтры либо сбросьте их, чтобы увидеть все задачи.",
@@ -2795,7 +2795,7 @@
 	},
 	"placeholders": {
 		"ENTER_TO_VALIDATE": "Нажмите Enter для подтверждения",
-		"ENTER_A_COMMAND": "Введите команду..."
+		"ENTER_A_COMMAND": "Введите команду"
 	},
 	"team": {
 		"BACK_LABEL": "Вернуться в Команду",
@@ -2862,8 +2862,8 @@
 		"EMPTY_NOT_CONFIGURED": "Настройте ключ API, чтобы начать.",
 		"CONFIGURE_BUTTON": "Настроить",
 		"ERROR_FALLBACK": "Произошла ошибка. Проверьте свою конфигурацию.",
-		"INPUT_PLACEHOLDER_READY": "Ваше сообщение...",
-		"INPUT_PLACEHOLDER_NO_KEY": "Настройте ключ API...",
+		"INPUT_PLACEHOLDER_READY": "Ваше сообщение",
+		"INPUT_PLACEHOLDER_NO_KEY": "Настройте ключ API",
 		"STOP": "Остановить",
 		"SEND": "Отправить",
 		"NEW_CHAT": "Новый чат",
@@ -2875,7 +2875,7 @@
 		"EXPAND_ASSISTANT": "Развернуть ассистента",
 		"OPEN_ASSISTANT": "Открыть ассистента {appName}",
 		"ASSISTANT": "Ассистент",
-		"ASK_PLACEHOLDER": "Спросите {appName}…",
+		"ASK_PLACEHOLDER": "Спросите {appName}",
 		"COMPOSER_LABEL": "Сообщение ассистенту",
 		"EMPTY_TITLE": "Чем я могу помочь?",
 		"EXAMPLES_LABEL": "Начните с примера",
@@ -2943,7 +2943,7 @@
 		}
 	},
 	"commandPalette": {
-		"searchPlaceholder": "Введите команду или запрос…",
+		"searchPlaceholder": "Введите команду или запрос",
 		"tabsLabel": "Группы команд",
 		"empty": "Ничего не найдено.",
 		"tabs": {
@@ -2961,7 +2961,7 @@
 			"inviteUser": "Пригласить пользователя",
 			"assignToMe": "Назначить мне",
 			"toggleTheme": "Сменить тему",
-			"createTask": "Новая задача",
+			"createTask": "Создать задачу",
 			"searchTasks": "Искать задачи",
 			"createTeam": "Новая команда",
 			"searchTeams": "Искать команды",
@@ -3000,7 +3000,7 @@
 		},
 		"timeLog": {
 			"forMember": "для",
-			"notesPlaceholder": "Добавьте заметки…"
+			"notesPlaceholder": "Добавьте заметки"
 		},
 		"manualTime": {
 			"descriptionPlaceholder": "Над чем вы работали?"
@@ -3014,7 +3014,7 @@
 			"tasksWithoutEstimate": "Задачи без оценки времени",
 			"correctHoursWarning": "Исправьте запланированные часы или переоцените задачи.",
 			"moreOptions": "Другие варианты",
-			"searchMember": "Найти участника…",
+			"searchMember": "Найти участника",
 			"noMemberFound": "Участник не найден.",
 			"selectOrCreateTask": "Выберите или создайте задачу для плана"
 		},
@@ -3026,7 +3026,7 @@
 			"addToPlan": "Добавить в план",
 			"createNewPlan": "Создать новый план",
 			"useExistingPlan": "Добавить в существующий план",
-			"searchPlan": "Найти план…",
+			"searchPlan": "Найти план",
 			"noPlanFound": "План не найден.",
 			"plannedTime": "Запланировано: {hours} ч"
 		},
@@ -4081,9 +4081,9 @@
 			"ADD_PARENT": "Добавить родительскую задачу",
 			"CHANGE_PARENT": "Сменить родительскую задачу",
 			"REMOVE_PARENT": "Убрать родительскую задачу",
-			"SEARCH_PARENT": "Найти родительскую задачу...",
+			"SEARCH_PARENT": "Найти родительскую задачу",
 			"NO_ASSIGNEE": "Пока никого",
-			"SEARCH_PEOPLE": "Найти участника...",
+			"SEARCH_PEOPLE": "Найти участника",
 			"MANAGE_ASSIGNEES": "Назначить людей",
 			"ADD_LABEL": "Добавить метку",
 			"EDIT_LABELS": "Изменить метки",
@@ -4118,12 +4118,12 @@
 			"LOAD_FAILED": "Не удалось загрузить планы."
 		},
 		"subtasks": {
-			"SEARCH": "Найти задачу для добавления...",
+			"SEARCH": "Найти задачу для добавления",
 			"REMOVE": "Убрать из этой задачи"
 		},
 		"relations": {
-			"SEARCH": "Найти задачу для связи...",
-			"SEARCH_KIND": "Найти тип связи...",
+			"SEARCH": "Найти задачу для связи",
+			"SEARCH_KIND": "Найти тип связи",
 			"CHANGE_KIND": "Изменить тип связи",
 			"REMOVE": "Удалить связь"
 		},

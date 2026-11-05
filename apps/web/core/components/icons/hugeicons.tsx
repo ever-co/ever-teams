@@ -186,7 +186,17 @@ import {
 	TextAlignLeftIcon,
 	TextAlignCenterIcon,
 	TextAlignRightIcon,
-	TextAlignJustifyLeftIcon
+	TextAlignJustifyLeftIcon,
+	Shield01Icon,
+	UserSettings01Icon,
+	RefreshIcon,
+	ComputerIcon,
+	ArrowTurnUpIcon,
+	LifebuoyIcon,
+	MailValidation01Icon,
+	ArrowDown02Icon,
+	ArrowDownDoubleIcon,
+	CancelCircleIcon
 } from '@hugeicons/core-free-icons';
 import { HugeiconsIcon } from '@hugeicons/react';
 
@@ -199,7 +209,7 @@ import type { ComponentProps, ReactElement } from 'react';
 type HugeiconsProps = ComponentProps<typeof HugeiconsIcon>;
 
 export type IconProps = Omit<HugeiconsProps, 'icon' | 'altIcon' | 'showAlt'>;
-export type IconComponent = (props: IconProps) => ReactElement;
+export type IconComponent = ((props: IconProps) => ReactElement) & { displayName?: string };
 
 function icon(glyph: HugeiconsProps['icon'], name: string): IconComponent {
 	const Icon = (props: IconProps) => <HugeiconsIcon icon={glyph} strokeWidth={1.75} {...props} />;
@@ -387,6 +397,16 @@ export const Bug = /*#__PURE__*/ icon(Bug01Icon, 'Bug');
 export const CheckCircle2 = /*#__PURE__*/ icon(CheckmarkCircle02Icon, 'CheckCircle2');
 export const Bot = /*#__PURE__*/ icon(BotIcon, 'Bot');
 export const ArrowUp = /*#__PURE__*/ icon(ArrowUp02Icon, 'ArrowUp');
+export const ArrowDown = /*#__PURE__*/ icon(ArrowDown02Icon, 'ArrowDown');
+export const ChevronsDown = /*#__PURE__*/ icon(ArrowDownDoubleIcon, 'ChevronsDown');
+export const Refresh = /*#__PURE__*/ icon(RefreshIcon, 'Refresh');
+export const CircleX = /*#__PURE__*/ icon(CancelCircleIcon, 'CircleX');
+export const MailCheck = /*#__PURE__*/ icon(MailValidation01Icon, 'MailCheck');
+export const Shield = /*#__PURE__*/ icon(Shield01Icon, 'Shield');
+export const UserSettings = /*#__PURE__*/ icon(UserSettings01Icon, 'UserSettings');
+export const Desktop = /*#__PURE__*/ icon(ComputerIcon, 'Desktop');
+export const ArrowTurnUp = /*#__PURE__*/ icon(ArrowTurnUpIcon, 'ArrowTurnUp');
+export const Lifebuoy = /*#__PURE__*/ icon(LifebuoyIcon, 'Lifebuoy');
 export const History = /*#__PURE__*/ icon(HistoryIcon, 'History');
 export const Key = /*#__PURE__*/ icon(Key01Icon, 'Key');
 export const Compose = /*#__PURE__*/ icon(NoteEditIcon, 'Compose');

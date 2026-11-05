@@ -177,7 +177,7 @@
 		"PRIVATE_TASK": "Diese Aufgabe ist privat",
 		"PUBLIC_TASK_LABEL": "Öffentlich machen",
 		"PRIVATE_TASK_LABEL": "Privat machen",
-		"CREATE_TASK": "Neue Aufgabe erstellen",
+		"CREATE_TASK": "Aufgabe erstellen",
 		"REMOVE_FAVORITE_TASK": "Aufgabe aus Favoriten entfernen",
 		"ADD_FAVORITE_TASK": "Aufgabe zu Favoriten hinzufügen",
 		"NO_PROJECT": "Kein Projekt",
@@ -247,7 +247,7 @@
 		"TRANSFER_TEAM": "Team übertragen",
 		"TEAM_MEMBERS": "Teammitglieder",
 		"NO_TEAM": "Erstellen Sie Ihr eigenes Team oder treten Sie einem bestehenden bei",
-		"NO_TEAM_SUB": "Es ist großartig, mit anderen zusammenzuarbeiten, also erstelle ein Team und lade alle zur Zusammenarbeit ein!",
+		"NO_TEAM_SUB": "Erstelle ein Team und lade die Personen ein, mit denen du arbeitest.",
 		"NO_TEAM_TOOLTIP": "Sie müssen Ihre E-Mail-Adresse bestätigen",
 		"CANCEL": "Abbrechen",
 		"DISCARD": "Verwerfen",
@@ -256,7 +256,7 @@
 		"BACK": "Zurück",
 		"TEAM_MEMBER_EMAIL_ADDRESS": "E-Mail-Adresse des Teammitglieds",
 		"DONT_HAVE_ACCOUNT": "Don't have an account?",
-		"REGISTER": "Register Now!",
+		"REGISTER": "Registrieren",
 		"JOIN_REQUEST": "Beitrittsanfrage",
 		"PERMISSION": "Berechtigung",
 		"SEARCH": "Suchen",
@@ -302,7 +302,7 @@
 		"KEYBOARD_SHORTCUTS": "Tastenkombinationen",
 		"GITHUB_LOADING_TEXT": "Wir installieren jetzt Ihre GitHub-Integration, warten Sie...",
 		"GITHUB_INTEGRATION_SUBTITLE_TEXT": "Activate GitHub Integration for project & repository sync",
-		"GITHUB_INTEGRATION_AUTO_SYNC_TASK_TEXT": "Synchronisieren Sie Aufgaben in Ihrer Anwendung automatisch für nahtlose und effiziente Aktualisierungen.",
+		"GITHUB_INTEGRATION_AUTO_SYNC_TASK_TEXT": "Synchronisiert Aufgaben automatisch mit dem verknüpften Repository.",
 		"GITHUB_INTEGRATION_LABEL_SYNC_TASK_TEXT": "Synchronisieren Sie Aufgaben selektiv, indem Sie sie mit einem bestimmten Label verknüpfen.",
 		"GITHUB_AUTO_SYNC_LABEL": "Auto-Sync-Label auswählen",
 		"THERE_IS_NO_TASK_ASSIGNED": "Es ist keine Aufgabe zugewiesen",
@@ -1542,7 +1542,7 @@
 			"WEEKLY_LIMIT": "Wöchentliches Limit"
 		},
 		"home": {
-			"BREADCRUMB": "[\"Dashboard\"]",
+			"BREADCRUMB": "[\"Startseite\"]",
 			"SENT_EMAIL_VERIFICATION": "Verifizierungscode wurde an Ihre E-Mail gesendet",
 			"SENT_EMAIL_VERIFICATION_YOU_NEED_TO": "Sie müssen ",
 			"SENT_EMAIL_VERIFICATION_YOUR_EMAIL_ADDRESS": " Ihre E-Mail-Adresse. Der Verifizierungscode sollte bereits an Ihre E-Mail gesendet worden sein, aber klicken Sie gerne auf ",
@@ -1635,7 +1635,7 @@
 			"basicInformationForm": {
 				"formFields": {
 					"title": "Projekt Titel",
-					"titlePlaceholder": "Kundenprojekt #1...",
+					"titlePlaceholder": "Kundenprojekt #1",
 					"description": "Beschreibung",
 					"datePickerPlaceholder": "Wählen Sie ein Datum",
 					"websiteUrl": "Website URL",
@@ -1653,12 +1653,12 @@
 					"endDateRequired": "Enddatum ist erforderlich.",
 					"endDateAfterStart": "Das Enddatum muss nach dem Startdatum liegen.",
 					"invalidUrl": "Bitte geben Sie eine gültige URL ein.",
-					"uploadError": "Beim Hochladen des Projektbildes ist ein Fehler aufgetreten, bitte versuche es erneut!",
+					"uploadError": "Das Projektbild wurde nicht hochgeladen. Versuche es erneut.",
 					"descriptionWordLimit": "Die Beschreibung darf maximal 5000 Wörter enthalten."
 				},
 				"common": {
-					"search": "Suchen ...",
-					"typeNew": "Neues eingeben ...",
+					"search": "Suchen",
+					"typeNew": "Neues eingeben",
 					"addNew": "Neu hinzufügen",
 					"uploadingImage": "Projektbild wird hochgeladen"
 				}
@@ -1668,19 +1668,19 @@
 					"budgetType": "Budgettyp",
 					"budgetTypePlaceholder": "Wählen Sie einen Budgettyp",
 					"budgetAmount": "Budgetbetrag",
-					"budgetAmountPlaceholder": "10 000$...",
+					"budgetAmountPlaceholder": "10 000$",
 					"currency": "Währungsauswahl",
-					"currencyPlaceholder": "Wählen Sie eine Währung...",
+					"currencyPlaceholder": "Wählen Sie eine Währung",
 					"billing": "Abrechnungsart",
-					"billingPlaceholder": "Wählen Sie einen Intervall..."
+					"billingPlaceholder": "Wählen Sie einen Intervall"
 				}
 			},
 			"categorizationForm": {
 				"formFields": {
 					"labels": "Bezeichnungen",
-					"labelsPlaceholder": "Bezeichnungen auswählen...",
+					"labelsPlaceholder": "Bezeichnungen auswählen",
 					"tags": "Tags",
-					"tagsPlaceholder": "Tags auswählen...",
+					"tagsPlaceholder": "Tags auswählen",
 					"colorCode": "Farbcode"
 				}
 			},
@@ -1692,13 +1692,13 @@
 					"assignMembers": "Mitglieder & Manager zuweisen",
 					"noMembers": "Keine Mitglieder oder Manager",
 					"addMember": "Mitglied hinzufügen",
-					"selectMember": "Mitglied auswählen...",
-					"selectRole": "Rolle auswählen...",
+					"selectMember": "Mitglied auswählen",
+					"selectRole": "Rolle auswählen",
 					"relations": "Beziehungen",
 					"noRelations": "Keine Beziehungen",
 					"addRelation": "Beziehung hinzufügen",
-					"selectProject": "Projekt auswählen...",
-					"selectRelationType": "Beziehungstyp auswählen...",
+					"selectProject": "Projekt auswählen",
+					"selectRelationType": "Beziehungstyp auswählen",
 					"activeTeamLocked": "Das aktuelle Team ist erforderlich und kann nicht entfernt werden"
 				},
 				"errors": {
@@ -1827,7 +1827,7 @@
 				"created": "{name} wurde erstellt",
 				"saved": "Änderungen an {name} wurden gespeichert",
 				"done": "Fertig",
-				"descriptionPlaceholder": "Beschreibung, Briefing oder Ziele des Projekts hinzufügen…",
+				"descriptionPlaceholder": "Beschreibung, Briefing oder Ziele des Projekts hinzufügen",
 				"removeItem": "{name} entfernen",
 				"showMore": "{count} weitere anzeigen",
 				"showLess": "Weniger anzeigen",
@@ -1849,12 +1849,12 @@
 				},
 				"teams": {
 					"add": "Team hinzufügen",
-					"search": "Team suchen…"
+					"search": "Team suchen"
 				},
 				"people": {
 					"addManagers": "Manager hinzufügen",
 					"addMembers": "Mitglieder hinzufügen",
-					"search": "Person suchen…"
+					"search": "Person suchen"
 				},
 				"tags": {
 					"add": "Tags hinzufügen",
@@ -1952,7 +1952,7 @@
 			"INVALID_INVITE_CODE_MESSAGE": "Ungültiger Code",
 			"WELCOME_TEAMS": "Willkommen bei {appName}",
 			"COVER_TITLE": "Verfolgen Sie den Arbeitsfortschritt Ihrer Teams in Echtzeit!",
-			"COVER_DESCRIPTION": "All-In-One Work & Workforce Management, Time Management, Time Tracking, Activity Tracking, Productivity Tracking & Metrics, Projects / Tasks & Issues Management, Organizations & Teams, Integrations (GitHub, JIRA, ...) and More!",
+			"COVER_DESCRIPTION": "Erfasse Zeit und Aktivität, verwalte Aufgaben und Projekte und sieh, woran dein Team arbeitet. Funktioniert mit GitHub und Jira.",
 			"LOGIN": "Anmelden",
 			"SELECT_WORKSPACE": "Arbeitsbereich auswählen",
 			"ENTER_EMAIL": "E-Mail-Adresse eingeben",
@@ -2012,7 +2012,7 @@
 		},
 		"authLogin": {
 			"HEADING_TITLE": "Beim Team anmelden",
-			"HEADING_DESCRIPTION": "Bitte geben Sie E-Mail und Einladungscode ein, um sich anzumelden.",
+			"HEADING_DESCRIPTION": "Geben Sie Ihre E-Mail-Adresse ein, und wir senden Ihnen einen Anmeldecode.",
 			"WORKSPACE": "Arbeitsbereich",
 			"HEADING_WORKSPACE_LINE1": "Die E-Mail ist mit mehreren Arbeitsbereichen verknüpft,",
 			"HEADING_WORKSPACE_LINE2": "bitte wählen Sie einen aus, um fortzufahren",
@@ -2213,8 +2213,8 @@
 			"HANDLE_REQUESTS": "Anfragen bearbeiten",
 			"ROLES_POSITIONS_CHANGE": "Rollen-/Positionsänderung",
 			"VIEW_DETAILS": "Details anzeigen",
-			"NO_INVITATIONS": "Es gibt derzeit keine Einladungen!",
-			"NO_MEMBERS": "Es gibt derzeit keine Mitglieder!",
+			"NO_INVITATIONS": "Keine offenen Einladungen",
+			"NO_MEMBERS": "Noch keine Mitglieder",
 			"GO_TO_PERSONAL_SETTINGS": "Zu den persönlichen Einstellungen gehen",
 			"SHARE_MEMBERS_PROFILE_VIEWS": "Profilansichten von Mitgliedern teilen",
 			"everPlatform": {
@@ -2313,24 +2313,24 @@
 		},
 		"unauthorized": {
 			"TITLE": "Nicht autorisiert",
-			"HEADING_TITLE": "Sie sind nicht autorisiert auf diese Seite zuzugreifen !",
-			"HEADING_DESCRIPTION": "Wir entschuldigen uns für die Unannehmlichkeiten, aber Sie sind nicht berechtigt, auf diese Seite zuzugreifen. Wenn Sie glauben, dass dies ein Fehler ist. Bitte loggen Sie sich ein.",
+			"HEADING_TITLE": "Sie haben keinen Zugriff auf diese Seite",
+			"HEADING_DESCRIPTION": "Ihr Konto kann diese Seite nicht öffnen. Wenn das ein Fehler ist, melden Sie sich erneut an oder fragen Sie Ihre Teamleitung.",
 			"TRY_AGAIN": "Versuchen Sie es erneut"
 		},
 		"page404": {
 			"HEADING_TITLE": "Nicht gefunden",
-			"HEADING_DESCRIPTION": "Die gesuchte Ressource wurde nicht gefunden!",
+			"HEADING_DESCRIPTION": "Diese Seite existiert nicht oder wurde verschoben.",
 			"LINK_LABEL": "Zur Startseite"
 		},
 		"offline": {
-			"HEADING_TITLE": "Netzwerk getrennt!",
+			"HEADING_TITLE": "Keine Netzwerkverbindung",
 			"HEADING_SUB_DESCRIPTION": "Ups, wir haben Sie verloren. Keine Sorge, Ihre Zeit wird weiterhin erfasst.",
 			"HEADING_DESCRIPTION": "Sie können in der Web-App weiterarbeiten, sobald Ihre Verbindung wiederhergestellt ist.",
-			"STATUS_NETWORK": "Offline!"
+			"STATUS_NETWORK": "Offline"
 		},
 		"error": {
-			"TITLE": "Error !",
-			"HEADING_TITLE": "Something went wrong !",
+			"TITLE": "Fehler",
+			"HEADING_TITLE": "Etwas ist schiefgelaufen",
 			"HEADING_DESCRIPTION": "If the problem persists, send a distress signal to our support team."
 		},
 		"maintenance": {
@@ -2388,7 +2388,7 @@
 			"END_AFTER_START": "Die Endzeit muss nach der Startzeit liegen."
 		},
 		"teamTasks": {
-			"SEARCH_TASKS": "Aufgaben suchen...",
+			"SEARCH_TASKS": "Aufgaben suchen",
 			"TYPE_AND_NUMBER": "Typ + Nummer",
 			"NO_ISSUE_TYPE": "Kein Ticket Typ",
 			"NO_USER_ASSIGNED": "Kein Benutzer zugewiesen",
@@ -2414,7 +2414,7 @@
 			"ME": "du",
 			"META_TASKS": "{count, plural, one {# Aufgabe} other {# Aufgaben}}",
 			"META_TRACKED": "{count, plural, one {# wird gerade erfasst} other {# werden gerade erfasst}}",
-			"NEW_TASK": "Neue Aufgabe",
+			"NEW_TASK": "Aufgabe erstellen",
 			"NO_ASSIGNEE": "Nicht zugewiesen",
 			"NO_MATCH_TITLE": "Keine Aufgabe passt",
 			"NO_MATCH_MESSAGE": "Ändere die Suche oder die Filter, oder lösche sie, um alle Aufgaben zu sehen.",
@@ -2795,7 +2795,7 @@
 	},
 	"placeholders": {
 		"ENTER_TO_VALIDATE": "Enter drücken, um zu validieren",
-		"ENTER_A_COMMAND": "Befehl eingeben..."
+		"ENTER_A_COMMAND": "Befehl eingeben"
 	},
 	"team": {
 		"BACK_LABEL": "Zurück zum Team",
@@ -2862,8 +2862,8 @@
 		"EMPTY_NOT_CONFIGURED": "Konfigurieren Sie Ihren API-Schlüssel, um zu beginnen.",
 		"CONFIGURE_BUTTON": "Konfigurieren",
 		"ERROR_FALLBACK": "Ein Fehler ist aufgetreten. Bitte überprüfen Sie Ihre Konfiguration.",
-		"INPUT_PLACEHOLDER_READY": "Ihre Nachricht...",
-		"INPUT_PLACEHOLDER_NO_KEY": "Konfigurieren Sie Ihren API-Schlüssel...",
+		"INPUT_PLACEHOLDER_READY": "Ihre Nachricht",
+		"INPUT_PLACEHOLDER_NO_KEY": "Konfigurieren Sie Ihren API-Schlüssel",
 		"STOP": "Stoppen",
 		"SEND": "Senden",
 		"NEW_CHAT": "Neuer Chat",
@@ -2875,7 +2875,7 @@
 		"EXPAND_ASSISTANT": "Assistenten erweitern",
 		"OPEN_ASSISTANT": "{appName} Assistenten öffnen",
 		"ASSISTANT": "Assistent",
-		"ASK_PLACEHOLDER": "{appName} fragen…",
+		"ASK_PLACEHOLDER": "{appName} fragen",
 		"COMPOSER_LABEL": "Nachricht an den Assistenten",
 		"EMPTY_TITLE": "Wobei kann ich Ihnen helfen?",
 		"EXAMPLES_LABEL": "Mit einem Beispiel beginnen",
@@ -2943,7 +2943,7 @@
 		}
 	},
 	"commandPalette": {
-		"searchPlaceholder": "Befehl eingeben oder suchen…",
+		"searchPlaceholder": "Befehl eingeben oder suchen",
 		"tabsLabel": "Befehlsgruppen",
 		"empty": "Keine Ergebnisse.",
 		"tabs": {
@@ -2961,7 +2961,7 @@
 			"inviteUser": "Benutzer einladen",
 			"assignToMe": "Mir zuweisen",
 			"toggleTheme": "Design wechseln",
-			"createTask": "Neue Aufgabe",
+			"createTask": "Aufgabe erstellen",
 			"searchTasks": "Aufgaben suchen",
 			"createTeam": "Neues Team",
 			"searchTeams": "Teams suchen",
@@ -3000,7 +3000,7 @@
 		},
 		"timeLog": {
 			"forMember": "für",
-			"notesPlaceholder": "Notizen hier eingeben…"
+			"notesPlaceholder": "Notizen hier eingeben"
 		},
 		"manualTime": {
 			"descriptionPlaceholder": "Woran haben Sie gearbeitet?"
@@ -3014,7 +3014,7 @@
 			"tasksWithoutEstimate": "Aufgaben ohne Zeitschätzung",
 			"correctHoursWarning": "Korrigieren Sie die geplanten Stunden oder schätzen Sie die Aufgaben neu.",
 			"moreOptions": "Weitere Optionen",
-			"searchMember": "Mitglied suchen…",
+			"searchMember": "Mitglied suchen",
 			"noMemberFound": "Kein Mitglied gefunden.",
 			"selectOrCreateTask": "Aufgabe für den Plan wählen oder erstellen"
 		},
@@ -3026,7 +3026,7 @@
 			"addToPlan": "Zum Plan hinzufügen",
 			"createNewPlan": "Neuen Plan erstellen",
 			"useExistingPlan": "Zu einem bestehenden Plan hinzufügen",
-			"searchPlan": "Plan suchen…",
+			"searchPlan": "Plan suchen",
 			"noPlanFound": "Kein Plan gefunden.",
 			"plannedTime": "Geplante Zeit: {hours} Std."
 		},
@@ -4081,9 +4081,9 @@
 			"ADD_PARENT": "Übergeordnete Aufgabe hinzufügen",
 			"CHANGE_PARENT": "Übergeordnete Aufgabe ändern",
 			"REMOVE_PARENT": "Übergeordnete Aufgabe entfernen",
-			"SEARCH_PARENT": "Übergeordnete Aufgabe suchen...",
+			"SEARCH_PARENT": "Übergeordnete Aufgabe suchen",
 			"NO_ASSIGNEE": "Noch niemand",
-			"SEARCH_PEOPLE": "Teammitglied suchen...",
+			"SEARCH_PEOPLE": "Teammitglied suchen",
 			"MANAGE_ASSIGNEES": "Personen zuweisen",
 			"ADD_LABEL": "Label hinzufügen",
 			"EDIT_LABELS": "Labels bearbeiten",
@@ -4118,12 +4118,12 @@
 			"LOAD_FAILED": "Die Pläne konnten nicht geladen werden."
 		},
 		"subtasks": {
-			"SEARCH": "Aufgabe zum Hinzufügen suchen...",
+			"SEARCH": "Aufgabe zum Hinzufügen suchen",
 			"REMOVE": "Aus dieser Aufgabe entfernen"
 		},
 		"relations": {
-			"SEARCH": "Aufgabe zum Verknüpfen suchen...",
-			"SEARCH_KIND": "Beziehung suchen...",
+			"SEARCH": "Aufgabe zum Verknüpfen suchen",
+			"SEARCH_KIND": "Beziehung suchen",
 			"CHANGE_KIND": "Beziehung ändern",
 			"REMOVE": "Verknüpfung entfernen"
 		},

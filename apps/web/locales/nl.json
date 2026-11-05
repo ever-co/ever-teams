@@ -178,7 +178,7 @@
 		"PRIVATE_TASK": "Deze taak is Prive",
 		"PUBLIC_TASK_LABEL": "Maak openbaar",
 		"PRIVATE_TASK_LABEL": "Maak privé",
-		"CREATE_TASK": "Nieuwe taak maken",
+		"CREATE_TASK": "Taak maken",
 		"REMOVE_FAVORITE_TASK": "Taak uit favorieten verwijderen",
 		"ADD_FAVORITE_TASK": "Taak toevoegen aan favorieten",
 		"NO_PROJECT": "Geen project",
@@ -248,7 +248,7 @@
 		"TRANSFER_TEAM": "Team overdragen",
 		"TEAM_MEMBERS": "Teamleden",
 		"NO_TEAM": "Maak uw eigen team of sluit u aan bij een bestaand team",
-		"NO_TEAM_SUB": "Het is geweldig om met anderen samen te werken, dus creëer een team en nodig iedereen uit om samen te werken!",
+		"NO_TEAM_SUB": "Maak een team aan en nodig de mensen uit met wie je werkt.",
 		"NO_TEAM_TOOLTIP": "Je moet je e-mailadres verifiëren",
 		"CANCEL": "Annuleren",
 		"DISCARD": "Negeren",
@@ -302,7 +302,7 @@
 		"KEYBOARD_SHORTCUTS": "Sneltoetsen",
 		"GITHUB_INTEGRATION_SUBTITLE_TEXT": "Activeer GitHub-integratie voor project- en repository-synchronisatie",
 		"GITHUB_LOADING_TEXT": "We zijn nu uw GitHub-integratie aan het installeren, even geduld...",
-		"GITHUB_INTEGRATION_AUTO_SYNC_TASK_TEXT": "Synchroniseer taken automatisch in uw applicatie voor naadloze en efficiënte updates.",
+		"GITHUB_INTEGRATION_AUTO_SYNC_TASK_TEXT": "Synchroniseert taken automatisch met de gekoppelde repository.",
 		"GITHUB_INTEGRATION_LABEL_SYNC_TASK_TEXT": "Synchroniseer taken selectief door ze te koppelen aan een specifiek label.",
 		"GITHUB_AUTO_SYNC_LABEL": "Selecteer Auto-Sync-label",
 		"THERE_IS_NO_TASK_ASSIGNED": "Er is geen taak toegewezen",
@@ -1542,7 +1542,7 @@
 			"WEEKLY_LIMIT": "Weeklimiet"
 		},
 		"home": {
-			"BREADCRUMB": "[\"Dashboard\"]",
+			"BREADCRUMB": "[\"Startpagina\"]",
 			"SENT_EMAIL_VERIFICATION": "Codeverificatie is verzonden naar uw e-mailadres",
 			"SENT_EMAIL_VERIFICATION_YOU_NEED_TO": "U moet",
 			"SENT_EMAIL_VERIFICATION_YOUR_EMAIL_ADDRESS": " uw e-mailadres. De verificatiecode is al verzonden naar uw e-mailadres, maar voel vrij om te klikken",
@@ -1632,7 +1632,7 @@
 			"basicInformationForm": {
 				"formFields": {
 					"title": "Projecttitel",
-					"titlePlaceholder": "Klantproject #1...",
+					"titlePlaceholder": "Klantproject #1",
 					"description": "Beschrijving",
 					"datePickerPlaceholder": "Kies een datum",
 					"websiteUrl": "Website-URL",
@@ -1650,12 +1650,12 @@
 					"endDateRequired": "Einddatum is verplicht.",
 					"endDateAfterStart": "Einddatum moet na startdatum liggen.",
 					"invalidUrl": "Voer een geldige URL in.",
-					"uploadError": "Er is iets misgegaan bij het uploaden van de projectafbeelding, probeer het opnieuw!",
+					"uploadError": "De projectafbeelding is niet geüpload. Probeer het opnieuw.",
 					"descriptionWordLimit": "De beschrijving mag maximaal 5000 woorden bevatten."
 				},
 				"common": {
-					"search": "Zoeken ...",
-					"typeNew": "Typ nieuw ...",
+					"search": "Zoeken",
+					"typeNew": "Typ nieuw",
 					"addNew": "Nieuw toevoegen",
 					"uploadingImage": "Projectafbeelding wordt geüpload"
 				}
@@ -1663,9 +1663,9 @@
 			"categorizationForm": {
 				"formFields": {
 					"labels": "Labels",
-					"labelsPlaceholder": "Selecteer labels...",
+					"labelsPlaceholder": "Selecteer labels",
 					"tags": "Tags",
-					"tagsPlaceholder": "Selecteer tags...",
+					"tagsPlaceholder": "Selecteer tags",
 					"colorCode": "Kleurcode"
 				}
 			},
@@ -1674,11 +1674,11 @@
 					"budgetType": "Budgettype",
 					"budgetTypePlaceholder": "Selecteer budgettype",
 					"budgetAmount": "Budgetbedrag",
-					"budgetAmountPlaceholder": "10 000$...",
+					"budgetAmountPlaceholder": "10 000$",
 					"currency": "Valutaselectie",
-					"currencyPlaceholder": "Selecteer een valuta...",
+					"currencyPlaceholder": "Selecteer een valuta",
 					"billing": "Facturatietype",
-					"billingPlaceholder": "Selecteer interval..."
+					"billingPlaceholder": "Selecteer interval"
 				}
 			},
 			"teamAndRelationsForm": {
@@ -1689,13 +1689,13 @@
 					"assignMembers": "Leden & Managers toewijzen",
 					"noMembers": "Geen leden of managers",
 					"addMember": "Lid toevoegen",
-					"selectMember": "Selecteer een lid...",
-					"selectRole": "Selecteer een rol...",
+					"selectMember": "Selecteer een lid",
+					"selectRole": "Selecteer een rol",
 					"relations": "Relaties",
 					"noRelations": "Geen relaties",
 					"addRelation": "Relatie toevoegen",
-					"selectProject": "Selecteer een project...",
-					"selectRelationType": "Kies een relatietype...",
+					"selectProject": "Selecteer een project",
+					"selectRelationType": "Kies een relatietype",
 					"activeTeamLocked": "Het huidige team is vereist en kan niet worden verwijderd"
 				},
 				"errors": {
@@ -1824,7 +1824,7 @@
 				"created": "{name} is aangemaakt",
 				"saved": "Wijzigingen aan {name} zijn opgeslagen",
 				"done": "Klaar",
-				"descriptionPlaceholder": "Voeg een beschrijving, briefing of de doelen van het project toe…",
+				"descriptionPlaceholder": "Voeg een beschrijving, briefing of de doelen van het project toe",
 				"removeItem": "{name} verwijderen",
 				"showMore": "Nog {count} tonen",
 				"showLess": "Minder tonen",
@@ -1846,12 +1846,12 @@
 				},
 				"teams": {
 					"add": "Team toevoegen",
-					"search": "Zoek een team…"
+					"search": "Zoek een team"
 				},
 				"people": {
 					"addManagers": "Managers toevoegen",
 					"addMembers": "Leden toevoegen",
-					"search": "Zoek een persoon…"
+					"search": "Zoek een persoon"
 				},
 				"tags": {
 					"add": "Tags toevoegen",
@@ -1952,7 +1952,7 @@
 			"INVALID_INVITE_CODE_MESSAGE": "Ongeldige code",
 			"WELCOME_TEAMS": "Welkom bij {appName}",
 			"COVER_TITLE": "Volg de werkvoortgang van uw teams in realtime!",
-			"COVER_DESCRIPTION": "All-In-One Work & Workforce Management, Time Management, Time Tracking, Activity Tracking, Productivity Tracking & Metrics, Projects / Tasks & Issues Management, Organizations & Teams, Integrations (GitHub, JIRA, ...) and More!",
+			"COVER_DESCRIPTION": "Registreer tijd en activiteit, beheer taken en projecten en zie waar je team aan werkt. Werkt met GitHub en Jira.",
 			"LOGIN": "Inloggen",
 			"SELECT_WORKSPACE": "Selecteer werkruimte",
 			"ENTER_EMAIL": "Voer e-mail in",
@@ -2012,7 +2012,7 @@
 		},
 		"authLogin": {
 			"HEADING_TITLE": "Login bij het team",
-			"HEADING_DESCRIPTION": "Voer e-mail en uitnodigingscode in om in te loggen.",
+			"HEADING_DESCRIPTION": "Vul je e-mailadres in, dan sturen we je een inlogcode.",
 			"WORKSPACE": "Werkruimte",
 			"HEADING_WORKSPACE_LINE1": "Het e-mailadres is gekoppeld aan meerdere werkruimtes,",
 			"HEADING_WORKSPACE_LINE2": "selecteer er een om door te gaan",
@@ -2213,8 +2213,8 @@
 			"HANDLE_REQUESTS": "Verzoeken behandelen",
 			"ROLES_POSITIONS_CHANGE": "Rollen/posities wijzigen",
 			"VIEW_DETAILS": "Details bekijken",
-			"NO_INVITATIONS": "Er zijn op dit moment geen uitnodigingen!",
-			"NO_MEMBERS": "Er zijn op dit moment geen leden!",
+			"NO_INVITATIONS": "Geen openstaande uitnodigingen",
+			"NO_MEMBERS": "Nog geen leden",
 			"GO_TO_PERSONAL_SETTINGS": "Ga naar persoonlijke instellingen",
 			"SHARE_MEMBERS_PROFILE_VIEWS": "Deel profielweergaven van leden",
 			"everPlatform": {
@@ -2313,24 +2313,24 @@
 		},
 		"unauthorized": {
 			"TITLE": "Ongeautoriseerd",
-			"HEADING_TITLE": "U heeft geen toegang tot deze pagina!",
-			"HEADING_DESCRIPTION": "Onze excuses voor het ongemak, maar u heeft geen toegang tot deze pagina. Als u denkt dat dit een fout is. Log alsjeblieft in",
+			"HEADING_TITLE": "Je hebt geen toegang tot deze pagina",
+			"HEADING_DESCRIPTION": "Je account kan deze pagina niet openen. Klopt dat niet, log dan opnieuw in of vraag het aan je teammanager.",
 			"TRY_AGAIN": "Probeer het nog eens"
 		},
 		"page404": {
 			"HEADING_TITLE": "Niet gevonden",
-			"HEADING_DESCRIPTION": "De bron die u zoekt is niet gevonden!",
+			"HEADING_DESCRIPTION": "Deze pagina bestaat niet of is verplaatst.",
 			"LINK_LABEL": "Naar de startpagina"
 		},
 		"offline": {
-			"HEADING_TITLE": "Netwerk verbroken!",
+			"HEADING_TITLE": "Je bent offline",
 			"HEADING_SUB_DESCRIPTION": "Oeps, we zijn je kwijt. Maak je geen zorgen, je tijd wordt nog steeds bijgehouden.",
 			"HEADING_DESCRIPTION": "Je kunt doorgaan met werken in de webapp zodra je verbinding is hersteld.",
-			"STATUS_NETWORK": "Offline!"
+			"STATUS_NETWORK": "Offline"
 		},
 		"error": {
-			"TITLE": "Fout !",
-			"HEADING_TITLE": "Er is iets fout gegaan !",
+			"TITLE": "Fout",
+			"HEADING_TITLE": "Er is iets misgegaan",
 			"HEADING_DESCRIPTION": "Als het probleem aanhoudt, stuur dan een noodsignaal naar ons ondersteuningsteam."
 		},
 		"maintenance": {
@@ -2388,7 +2388,7 @@
 			"END_AFTER_START": "De eindtijd moet na de begintijd liggen."
 		},
 		"teamTasks": {
-			"SEARCH_TASKS": "Taken zoeken...",
+			"SEARCH_TASKS": "Taken zoeken",
 			"TYPE_AND_NUMBER": "Type + Nummer",
 			"NO_ISSUE_TYPE": "Geen probleemtype",
 			"NO_USER_ASSIGNED": "Geen gebruiker toegewezen",
@@ -2414,7 +2414,7 @@
 			"ME": "jij",
 			"META_TASKS": "{count, plural, one {# taak} other {# taken}}",
 			"META_TRACKED": "{count, plural, one {# nu bijgehouden} other {# nu bijgehouden}}",
-			"NEW_TASK": "Nieuwe taak",
+			"NEW_TASK": "Taak maken",
 			"NO_ASSIGNEE": "Niet toegewezen",
 			"NO_MATCH_TITLE": "Geen taken gevonden",
 			"NO_MATCH_MESSAGE": "Pas de zoekopdracht of de filters aan, of wis ze om alle taken te zien.",
@@ -2795,7 +2795,7 @@
 	},
 	"placeholders": {
 		"ENTER_TO_VALIDATE": "Druk op Enter om te valideren",
-		"ENTER_A_COMMAND": "Voer een opdracht in..."
+		"ENTER_A_COMMAND": "Voer een opdracht in"
 	},
 	"team": {
 		"BACK_LABEL": "Terug naar team",
@@ -2862,8 +2862,8 @@
 		"EMPTY_NOT_CONFIGURED": "Configureer uw API-sleutel om te beginnen.",
 		"CONFIGURE_BUTTON": "Configureren",
 		"ERROR_FALLBACK": "Er is een fout opgetreden. Controleer uw configuratie.",
-		"INPUT_PLACEHOLDER_READY": "Uw bericht...",
-		"INPUT_PLACEHOLDER_NO_KEY": "Configureer uw API-sleutel...",
+		"INPUT_PLACEHOLDER_READY": "Uw bericht",
+		"INPUT_PLACEHOLDER_NO_KEY": "Configureer uw API-sleutel",
 		"STOP": "Stoppen",
 		"SEND": "Verzenden",
 		"NEW_CHAT": "Nieuwe chat",
@@ -2875,7 +2875,7 @@
 		"EXPAND_ASSISTANT": "Assistent uitbreiden",
 		"OPEN_ASSISTANT": "{appName} Assistent openen",
 		"ASSISTANT": "Assistent",
-		"ASK_PLACEHOLDER": "Vraag het {appName}…",
+		"ASK_PLACEHOLDER": "Vraag het {appName}",
 		"COMPOSER_LABEL": "Bericht aan de assistent",
 		"EMPTY_TITLE": "Waarmee kan ik u helpen?",
 		"EXAMPLES_LABEL": "Begin met een voorbeeld",
@@ -2943,7 +2943,7 @@
 		}
 	},
 	"commandPalette": {
-		"searchPlaceholder": "Typ een opdracht of zoek…",
+		"searchPlaceholder": "Typ een opdracht of zoek",
 		"tabsLabel": "Opdrachtgroepen",
 		"empty": "Geen resultaten.",
 		"tabs": {
@@ -2961,7 +2961,7 @@
 			"inviteUser": "Gebruiker uitnodigen",
 			"assignToMe": "Aan mij toewijzen",
 			"toggleTheme": "Thema wisselen",
-			"createTask": "Nieuwe taak",
+			"createTask": "Taak maken",
 			"searchTasks": "Taken zoeken",
 			"createTeam": "Nieuw team",
 			"searchTeams": "Teams zoeken",
@@ -3000,7 +3000,7 @@
 		},
 		"timeLog": {
 			"forMember": "voor",
-			"notesPlaceholder": "Voeg hier notities toe…"
+			"notesPlaceholder": "Voeg hier notities toe"
 		},
 		"manualTime": {
 			"descriptionPlaceholder": "Waar heb je aan gewerkt?"
@@ -3014,7 +3014,7 @@
 			"tasksWithoutEstimate": "Taken zonder tijdsinschatting",
 			"correctHoursWarning": "Corrigeer de geplande uren of schat de taken opnieuw in.",
 			"moreOptions": "Meer opties",
-			"searchMember": "Zoek een lid…",
+			"searchMember": "Zoek een lid",
 			"noMemberFound": "Geen lid gevonden.",
 			"selectOrCreateTask": "Kies of maak een taak voor het plan"
 		},
@@ -3026,7 +3026,7 @@
 			"addToPlan": "Aan plan toevoegen",
 			"createNewPlan": "Nieuw plan aanmaken",
 			"useExistingPlan": "Aan een bestaand plan toevoegen",
-			"searchPlan": "Zoek een plan…",
+			"searchPlan": "Zoek een plan",
 			"noPlanFound": "Geen plan gevonden.",
 			"plannedTime": "Geplande tijd: {hours} u"
 		},
@@ -4081,9 +4081,9 @@
 			"ADD_PARENT": "Bovenliggende taak toevoegen",
 			"CHANGE_PARENT": "Bovenliggende taak wijzigen",
 			"REMOVE_PARENT": "Bovenliggende taak verwijderen",
-			"SEARCH_PARENT": "Bovenliggende taak zoeken...",
+			"SEARCH_PARENT": "Bovenliggende taak zoeken",
 			"NO_ASSIGNEE": "Nog niemand",
-			"SEARCH_PEOPLE": "Teamgenoot zoeken...",
+			"SEARCH_PEOPLE": "Teamgenoot zoeken",
 			"MANAGE_ASSIGNEES": "Mensen toewijzen",
 			"ADD_LABEL": "Label toevoegen",
 			"EDIT_LABELS": "Labels bewerken",
@@ -4118,12 +4118,12 @@
 			"LOAD_FAILED": "De plannen konden niet worden geladen."
 		},
 		"subtasks": {
-			"SEARCH": "Taak zoeken om toe te voegen...",
+			"SEARCH": "Taak zoeken om toe te voegen",
 			"REMOVE": "Uit deze taak verwijderen"
 		},
 		"relations": {
-			"SEARCH": "Taak zoeken om te koppelen...",
-			"SEARCH_KIND": "Relatie zoeken...",
+			"SEARCH": "Taak zoeken om te koppelen",
+			"SEARCH_KIND": "Relatie zoeken",
 			"CHANGE_KIND": "Relatie wijzigen",
 			"REMOVE": "Koppeling verwijderen"
 		},

@@ -177,7 +177,7 @@
 		"PRIVATE_TASK": "Тази задача е частна",
 		"PUBLIC_TASK_LABEL": "Направи я публична",
 		"PRIVATE_TASK_LABEL": "Направи я частна",
-		"CREATE_TASK": "Създаване на нова задача",
+		"CREATE_TASK": "Създаване на задача",
 		"REMOVE_FAVORITE_TASK": "Премахване на задачата от любими",
 		"ADD_FAVORITE_TASK": "Добавяне на задачата към любими",
 		"NO_PROJECT": "Няма проект",
@@ -247,7 +247,7 @@
 		"TRANSFER_TEAM": "Прехвърляне на отбор",
 		"TEAM_MEMBERS": "Членове на отбора",
 		"NO_TEAM": "Създайте собствен отбор или се присъединете към съществуващ",
-		"NO_TEAM_SUB": "Прекрасно е да се работи с други, затова създайте екип и поканете всички за сътрудничество!",
+		"NO_TEAM_SUB": "Създайте екип и поканете хората, с които работите.",
 		"NO_TEAM_TOOLTIP": "You need to verify your email address",
 		"CANCEL": "Отказ",
 		"DISCARD": "Изхвърляне",
@@ -302,7 +302,7 @@
 		"KEYBOARD_SHORTCUTS": "Клавишни комбинации",
 		"GITHUB_INTEGRATION_SUBTITLE_TEXT": "Активирайте интеграцията с GitHub за синхронизация на проекта и хранилището",
 		"GITHUB_LOADING_TEXT": "В момента инсталираме вашия GitHub интеграция, изчакайте...",
-		"GITHUB_INTEGRATION_AUTO_SYNC_TASK_TEXT": "Автоматично синхронизирайте задачите в приложението си за безпроблемни и ефективни актуализации.",
+		"GITHUB_INTEGRATION_AUTO_SYNC_TASK_TEXT": "Синхронизира задачите със свързаното хранилище автоматично.",
 		"GITHUB_INTEGRATION_LABEL_SYNC_TASK_TEXT": "Синхронизирайте задачите избирателно, като ги свържете с конкретен етикет.",
 		"GITHUB_AUTO_SYNC_LABEL": "Изберете етикет за автоматична синхронизация",
 		"THERE_IS_NO_TASK_ASSIGNED": "Няма възложени задачи",
@@ -1542,7 +1542,7 @@
 			"WEEKLY_LIMIT": "Седмичен лимит"
 		},
 		"home": {
-			"BREADCRUMB": "[\"Табло\"]",
+			"BREADCRUMB": "[\"Начало\"]",
 			"SENT_EMAIL_VERIFICATION": "Потвърждаващият код беше изпратен до имейла ви",
 			"SENT_EMAIL_VERIFICATION_YOU_NEED_TO": "Трябва да",
 			"SENT_EMAIL_VERIFICATION_YOUR_EMAIL_ADDRESS": " вашия имейл адрес. Потвърждаващият код вече би трябвало да е изпратен до имейла ви, но свободно натиснете",
@@ -1585,7 +1585,7 @@
 			"basicInformationForm": {
 				"formFields": {
 					"title": "Заглавие на проекта",
-					"titlePlaceholder": "Клиентски проект #1...",
+					"titlePlaceholder": "Клиентски проект #1",
 					"description": "Описание",
 					"datePickerPlaceholder": "Изберете дата",
 					"websiteUrl": "URL на сайта",
@@ -1603,12 +1603,12 @@
 					"endDateRequired": "Дата на завършване е задължителна.",
 					"endDateAfterStart": "Дата на завършване трябва да бъде след дата на започване.",
 					"invalidUrl": "Моля, въведете валиден URL.",
-					"uploadError": "Възникна грешка при качването на изображението на проекта, моля опитайте отново!",
+					"uploadError": "Изображението на проекта не беше качено. Опитайте отново.",
 					"descriptionWordLimit": "Описанието трябва да бъде до 5000 думи."
 				},
 				"common": {
-					"search": "Търсене ...",
-					"typeNew": "Въведете ново ...",
+					"search": "Търсене",
+					"typeNew": "Въведете ново",
 					"addNew": "Добави нов",
 					"uploadingImage": "Качване на изображението на проекта"
 				}
@@ -1616,9 +1616,9 @@
 			"categorizationForm": {
 				"formFields": {
 					"labels": "Етикети",
-					"labelsPlaceholder": "Изберете етикети...",
+					"labelsPlaceholder": "Изберете етикети",
 					"tags": "Тагове",
-					"tagsPlaceholder": "Изберете тагове...",
+					"tagsPlaceholder": "Изберете тагове",
 					"colorCode": "Цветови код"
 				}
 			},
@@ -1627,11 +1627,11 @@
 					"budgetType": "Тип бюджет",
 					"budgetTypePlaceholder": "Изберете тип бюджет",
 					"budgetAmount": "Сума на бюджета",
-					"budgetAmountPlaceholder": "10 000$...",
+					"budgetAmountPlaceholder": "10 000$",
 					"currency": "Избор на валута",
-					"currencyPlaceholder": "Изберете валута...",
+					"currencyPlaceholder": "Изберете валута",
 					"billing": "Тип фактуриране",
-					"billingPlaceholder": "Изберете интервал..."
+					"billingPlaceholder": "Изберете интервал"
 				}
 			},
 			"teamAndRelationsForm": {
@@ -1642,13 +1642,13 @@
 					"assignMembers": "Назначаване на членове и мениджъри",
 					"noMembers": "Няма членове или мениджъри",
 					"addMember": "Добави член",
-					"selectMember": "Изберете член...",
-					"selectRole": "Изберете роля...",
+					"selectMember": "Изберете член",
+					"selectRole": "Изберете роля",
 					"relations": "Връзки",
 					"noRelations": "Няма връзки",
 					"addRelation": "Добави връзка",
-					"selectProject": "Изберете проект...",
-					"selectRelationType": "Изберете тип връзка...",
+					"selectProject": "Изберете проект",
+					"selectRelationType": "Изберете тип връзка",
 					"activeTeamLocked": "Текущият екип е задължителен и не може да бъде премахнат"
 				},
 				"errors": {
@@ -1777,7 +1777,7 @@
 				"created": "{name} е създаден",
 				"saved": "Промените в {name} са запазени",
 				"done": "Готово",
-				"descriptionPlaceholder": "Добавете описание, бриф или целите на проекта…",
+				"descriptionPlaceholder": "Добавете описание, бриф или целите на проекта",
 				"removeItem": "Премахни {name}",
 				"showMore": "Покажи още {count}",
 				"showLess": "Покажи по-малко",
@@ -1799,12 +1799,12 @@
 				},
 				"teams": {
 					"add": "Добави екип",
-					"search": "Търси екип…"
+					"search": "Търси екип"
 				},
 				"people": {
 					"addManagers": "Добави мениджъри",
 					"addMembers": "Добави членове",
-					"search": "Търси човек…"
+					"search": "Търси човек"
 				},
 				"tags": {
 					"add": "Добави тагове",
@@ -1952,7 +1952,7 @@
 			"INVALID_INVITE_CODE_MESSAGE": "Невалиден код",
 			"WELCOME_TEAMS": "Добре дошли в {appName}",
 			"COVER_TITLE": "Следете напредъка на работата на отборите си в реално време!",
-			"COVER_DESCRIPTION": "All-In-One Work & Workforce Management, Time Management, Time Tracking, Activity Tracking, Productivity Tracking & Metrics, Projects / Tasks & Issues Management, Organizations & Teams, Integrations (GitHub, JIRA, ...) and More!",
+			"COVER_DESCRIPTION": "Отчитайте време и активност, управлявайте задачи и проекти и вижте по какво работи екипът ви. Работи с GitHub и Jira.",
 			"LOGIN": "Вход",
 			"SELECT_WORKSPACE": "Избери работно пространство",
 			"ENTER_EMAIL": "Въведи имейл",
@@ -2012,7 +2012,7 @@
 		},
 		"authLogin": {
 			"HEADING_TITLE": "Вход в отбора",
-			"HEADING_DESCRIPTION": "Моля, въведете имейл и покана за вход.",
+			"HEADING_DESCRIPTION": "Въведете имейла си и ще ви изпратим код за вход.",
 			"WORKSPACE": "Работно пространство",
 			"HEADING_WORKSPACE_LINE1": "Имейлът, свързан с множество работни пространства,",
 			"HEADING_WORKSPACE_LINE2": "моля, изберете едно за продължаване",
@@ -2213,8 +2213,8 @@
 			"HANDLE_REQUESTS": "Обработване на заявки",
 			"ROLES_POSITIONS_CHANGE": "Промяна на роли/позиции",
 			"VIEW_DETAILS": "Преглед на детайли",
-			"NO_INVITATIONS": "В момента няма покани!",
-			"NO_MEMBERS": "В момента няма членове!",
+			"NO_INVITATIONS": "Няма чакащи покани",
+			"NO_MEMBERS": "Все още няма членове",
 			"GO_TO_PERSONAL_SETTINGS": "Отидете в лични настройки",
 			"SHARE_MEMBERS_PROFILE_VIEWS": "Споделете прегледите на профилите на членовете",
 			"everPlatform": {
@@ -2313,24 +2313,24 @@
 		},
 		"unauthorized": {
 			"TITLE": "Неразрешено",
-			"HEADING_TITLE": "Нямате право за достъп до тази страница!",
-			"HEADING_DESCRIPTION": "Извиняваме се за неудобството, но не сте оторизирани за достъп до тази страница. Ако смятате, че това е грешка. Моля влезте.",
+			"HEADING_TITLE": "Нямате достъп до тази страница",
+			"HEADING_DESCRIPTION": "Профилът ви не може да отвори тази страница. Ако смятате, че трябва, влезте отново или попитайте мениджъра на екипа.",
 			"TRY_AGAIN": "Опитай пак"
 		},
 		"page404": {
 			"HEADING_TITLE": "Ненамерено",
-			"HEADING_DESCRIPTION": "Търсеният ресурс не беше намерен!",
+			"HEADING_DESCRIPTION": "Тази страница не съществува или е преместена.",
 			"LINK_LABEL": "Отиди на началната страница"
 		},
 		"offline": {
-			"HEADING_TITLE": "Мрежата е прекъсната!",
+			"HEADING_TITLE": "Няма връзка с мрежата",
 			"HEADING_SUB_DESCRIPTION": "Опа, изгубихме ви. Не се притеснявайте, времето ви все още се отчита.",
 			"HEADING_DESCRIPTION": "Ще можете да продължите да работите в уеб приложението, след като връзката ви бъде възстановена.",
-			"STATUS_NETWORK": "Офлайн!"
+			"STATUS_NETWORK": "Офлайн"
 		},
 		"error": {
-			"TITLE": "грешка!",
-			"HEADING_TITLE": "Нещо се обърка !",
+			"TITLE": "Грешка",
+			"HEADING_TITLE": "Нещо се обърка",
 			"HEADING_DESCRIPTION": "Ако проблемът продължава, изпратете сигнал за помощ до нашия екип за поддръжка."
 		},
 		"maintenance": {
@@ -2388,7 +2388,7 @@
 			"END_AFTER_START": "Крайният час трябва да е след началния."
 		},
 		"teamTasks": {
-			"SEARCH_TASKS": "Търсене на задачи...",
+			"SEARCH_TASKS": "Търсене на задачи",
 			"TYPE_AND_NUMBER": "Тип + номер",
 			"NO_ISSUE_TYPE": "Няма тип проблем",
 			"NO_USER_ASSIGNED": "Няма назначен потребител",
@@ -2414,7 +2414,7 @@
 			"ME": "вие",
 			"META_TASKS": "{count, plural, one {# задача} other {# задачи}}",
 			"META_TRACKED": "{count, plural, one {# се отчита сега} other {# се отчитат сега}}",
-			"NEW_TASK": "Нова задача",
+			"NEW_TASK": "Създаване на задача",
 			"NO_ASSIGNEE": "Без изпълнител",
 			"NO_MATCH_TITLE": "Няма съвпадащи задачи",
 			"NO_MATCH_MESSAGE": "Променете търсенето или филтрите или ги изчистете, за да видите всички задачи.",
@@ -2795,7 +2795,7 @@
 	},
 	"placeholders": {
 		"ENTER_TO_VALIDATE": "Натиснете Enter за валидиране",
-		"ENTER_A_COMMAND": "Въведете команда..."
+		"ENTER_A_COMMAND": "Въведете команда"
 	},
 	"team": {
 		"BACK_LABEL": "Обратно към отбора",
@@ -2862,8 +2862,8 @@
 		"EMPTY_NOT_CONFIGURED": "Конфигурирайте вашия API ключ, за да започнете.",
 		"CONFIGURE_BUTTON": "Конфигуриране",
 		"ERROR_FALLBACK": "Възникна грешка. Моля, проверете конфигурацията си.",
-		"INPUT_PLACEHOLDER_READY": "Вашето съобщение...",
-		"INPUT_PLACEHOLDER_NO_KEY": "Конфигурирайте вашия API ключ...",
+		"INPUT_PLACEHOLDER_READY": "Вашето съобщение",
+		"INPUT_PLACEHOLDER_NO_KEY": "Конфигурирайте вашия API ключ",
 		"STOP": "Спри",
 		"SEND": "Изпрати",
 		"NEW_CHAT": "Нов чат",
@@ -2875,7 +2875,7 @@
 		"EXPAND_ASSISTANT": "Разшири асистента",
 		"OPEN_ASSISTANT": "Отвори асистента {appName}",
 		"ASSISTANT": "Асистент",
-		"ASK_PLACEHOLDER": "Попитайте {appName}…",
+		"ASK_PLACEHOLDER": "Попитайте {appName}",
 		"COMPOSER_LABEL": "Съобщение до асистента",
 		"EMPTY_TITLE": "С какво мога да помогна?",
 		"EXAMPLES_LABEL": "Започнете с пример",
@@ -2943,7 +2943,7 @@
 		}
 	},
 	"commandPalette": {
-		"searchPlaceholder": "Въведете команда или търсете…",
+		"searchPlaceholder": "Въведете команда или търсете",
 		"tabsLabel": "Групи команди",
 		"empty": "Няма резултати.",
 		"tabs": {
@@ -2961,7 +2961,7 @@
 			"inviteUser": "Покани потребител",
 			"assignToMe": "Възложи на мен",
 			"toggleTheme": "Смени темата",
-			"createTask": "Нова задача",
+			"createTask": "Създаване на задача",
 			"searchTasks": "Търси задачи",
 			"createTeam": "Нов екип",
 			"searchTeams": "Търси екипи",
@@ -3000,7 +3000,7 @@
 		},
 		"timeLog": {
 			"forMember": "за",
-			"notesPlaceholder": "Добавете бележки тук…"
+			"notesPlaceholder": "Добавете бележки тук"
 		},
 		"manualTime": {
 			"descriptionPlaceholder": "Върху какво работихте?"
@@ -3014,7 +3014,7 @@
 			"tasksWithoutEstimate": "Задачи без оценка на времето",
 			"correctHoursWarning": "Коригирайте планираните часове или оценете задачите отново.",
 			"moreOptions": "Още опции",
-			"searchMember": "Търсене на член…",
+			"searchMember": "Търсене на член",
 			"noMemberFound": "Не е намерен член.",
 			"selectOrCreateTask": "Изберете или създайте задача за плана"
 		},
@@ -3026,7 +3026,7 @@
 			"addToPlan": "Добави към плана",
 			"createNewPlan": "Създай нов план",
 			"useExistingPlan": "Добави към съществуващ план",
-			"searchPlan": "Търсене на план…",
+			"searchPlan": "Търсене на план",
 			"noPlanFound": "Не е намерен план.",
 			"plannedTime": "Планирано време: {hours} ч"
 		},
@@ -4081,9 +4081,9 @@
 			"ADD_PARENT": "Добави родителска задача",
 			"CHANGE_PARENT": "Смени родителската задача",
 			"REMOVE_PARENT": "Премахни родителската задача",
-			"SEARCH_PARENT": "Търси родителска задача...",
+			"SEARCH_PARENT": "Търси родителска задача",
 			"NO_ASSIGNEE": "Още никой",
-			"SEARCH_PEOPLE": "Търси колега...",
+			"SEARCH_PEOPLE": "Търси колега",
 			"MANAGE_ASSIGNEES": "Възложи на хора",
 			"ADD_LABEL": "Добави етикет",
 			"EDIT_LABELS": "Редактирай етикетите",
@@ -4118,12 +4118,12 @@
 			"LOAD_FAILED": "Плановете не можаха да се заредят."
 		},
 		"subtasks": {
-			"SEARCH": "Търси задача за добавяне...",
+			"SEARCH": "Търси задача за добавяне",
 			"REMOVE": "Премахни от тази задача"
 		},
 		"relations": {
-			"SEARCH": "Търси задача за свързване...",
-			"SEARCH_KIND": "Търси връзка...",
+			"SEARCH": "Търси задача за свързване",
+			"SEARCH_KIND": "Търси връзка",
 			"CHANGE_KIND": "Смени връзката",
 			"REMOVE": "Премахни връзката"
 		},

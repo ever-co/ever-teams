@@ -91,7 +91,7 @@ function LoginFormFields({
 					className="block text-sm font-medium leading-none select-none"
 					htmlFor="pw-email"
 				>
-					{t('form.EMAIL_PLACEHOLDER')}
+					{t('common.EMAIL')}
 				</label>
 				<InputField
 					id="pw-email"

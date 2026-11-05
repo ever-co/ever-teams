@@ -178,7 +178,7 @@
 		"PRIVATE_TASK": "此任务为私密",
 		"PUBLIC_TASK_LABEL": "设为公开",
 		"PRIVATE_TASK_LABEL": "设为私密",
-		"CREATE_TASK": "创建新任务",
+		"CREATE_TASK": "创建任务",
 		"REMOVE_FAVORITE_TASK": "从收藏夹中移除任务",
 		"ADD_FAVORITE_TASK": "添加任务到收藏夹",
 		"NO_PROJECT": "无项目",
@@ -249,7 +249,7 @@
 		"TRANSFER_TEAM": "转让团队",
 		"TEAM_MEMBERS": "团队成员",
 		"NO_TEAM": "创建您自己的团队或加入已有团队",
-		"NO_TEAM_SUB": "与他人合作是很棒的，所以创建一个团队，邀请每个人一起合作！",
+		"NO_TEAM_SUB": "创建团队，并邀请与你一起工作的人。",
 		"NO_TEAM_TOOLTIP": "您需要验证您的电子邮件地址",
 		"CANCEL": "取消",
 		"DISCARD": "放弃",
@@ -302,7 +302,7 @@
 		"KEYBOARD_SHORTCUTS": "快捷键",
 		"GITHUB_INTEGRATION_SUBTITLE_TEXT": "激活 GitHub 集成以进行项目和仓库同步",
 		"GITHUB_LOADING_TEXT": "我们正在安装您的 GitHub 集成，请稍等...",
-		"GITHUB_INTEGRATION_AUTO_SYNC_TASK_TEXT": "在您的应用程序中自动同步任务，实现无缝和高效的更新。",
+		"GITHUB_INTEGRATION_AUTO_SYNC_TASK_TEXT": "自动将任务与关联的代码仓库同步。",
 		"GITHUB_INTEGRATION_LABEL_SYNC_TASK_TEXT": "通过将任务与特定标签关联，有选择地进行同步。",
 		"GITHUB_AUTO_SYNC_LABEL": "选择自动同步标签",
 		"THERE_IS_NO_TASK_ASSIGNED": "没有分配任务",
@@ -1542,7 +1542,7 @@
 			"WEEKLY_LIMIT": "每周限制"
 		},
 		"home": {
-			"BREADCRUMB": "[\"仪表板\"]",
+			"BREADCRUMB": "[\"主页\"]",
 			"SENT_EMAIL_VERIFICATION": "验证码已发送至您的电子邮箱",
 			"SENT_EMAIL_VERIFICATION_YOU_NEED_TO": "您需要",
 			"SENT_EMAIL_VERIFICATION_YOUR_EMAIL_ADDRESS": " 您的电子邮箱。验证码应已发送至您的邮箱,如未收到可点击",
@@ -1573,7 +1573,7 @@
 			"basicInformationForm": {
 				"formFields": {
 					"title": "项目标题",
-					"titlePlaceholder": "客户项目 #1...",
+					"titlePlaceholder": "客户项目 #1",
 					"description": "描述",
 					"datePickerPlaceholder": "选择日期",
 					"websiteUrl": "网站URL",
@@ -1591,12 +1591,12 @@
 					"endDateRequired": "结束日期是必需的。",
 					"endDateAfterStart": "结束日期必须在开始日期之后。",
 					"invalidUrl": "请输入有效的URL。",
-					"uploadError": "上传项目图片时出错，请重试！",
+					"uploadError": "项目图片未上传成功，请重试。",
 					"descriptionWordLimit": "描述不能超过5000字。"
 				},
 				"common": {
-					"search": "搜索 ...",
-					"typeNew": "输入新的 ...",
+					"search": "搜索",
+					"typeNew": "输入新的",
 					"addNew": "添加新项",
 					"uploadingImage": "正在上传项目图片"
 				}
@@ -1604,9 +1604,9 @@
 			"categorizationForm": {
 				"formFields": {
 					"labels": "标签",
-					"labelsPlaceholder": "选择标签...",
+					"labelsPlaceholder": "选择标签",
 					"tags": "标记",
-					"tagsPlaceholder": "选择标记...",
+					"tagsPlaceholder": "选择标记",
 					"colorCode": "颜色代码"
 				}
 			},
@@ -1615,11 +1615,11 @@
 					"budgetType": "预算类型",
 					"budgetTypePlaceholder": "选择预算类型",
 					"budgetAmount": "预算金额",
-					"budgetAmountPlaceholder": "10 000$...",
+					"budgetAmountPlaceholder": "10 000$",
 					"currency": "货币选择",
-					"currencyPlaceholder": "选择货币...",
+					"currencyPlaceholder": "选择货币",
 					"billing": "账单类型",
-					"billingPlaceholder": "选择间隔..."
+					"billingPlaceholder": "选择间隔"
 				}
 			},
 			"teamAndRelationsForm": {
@@ -1630,13 +1630,13 @@
 					"assignMembers": "分配成员和管理员",
 					"noMembers": "没有成员或管理员",
 					"addMember": "添加成员",
-					"selectMember": "选择成员...",
-					"selectRole": "选择角色...",
+					"selectMember": "选择成员",
+					"selectRole": "选择角色",
 					"relations": "关系",
 					"noRelations": "没有关系",
 					"addRelation": "添加关系",
-					"selectProject": "选择项目...",
-					"selectRelationType": "选择关系类型...",
+					"selectProject": "选择项目",
+					"selectRelationType": "选择关系类型",
 					"activeTeamLocked": "当前团队是必需的，无法移除"
 				},
 				"errors": {
@@ -1765,7 +1765,7 @@
 				"created": "已创建 {name}",
 				"saved": "已保存对 {name} 的更改",
 				"done": "完成",
-				"descriptionPlaceholder": "添加项目的描述、简介或目标…",
+				"descriptionPlaceholder": "添加项目的描述、简介或目标",
 				"removeItem": "移除 {name}",
 				"showMore": "再显示 {count} 个",
 				"showLess": "收起",
@@ -1787,12 +1787,12 @@
 				},
 				"teams": {
 					"add": "添加团队",
-					"search": "查找团队…"
+					"search": "查找团队"
 				},
 				"people": {
 					"addManagers": "添加经理",
 					"addMembers": "添加成员",
-					"search": "查找人员…"
+					"search": "查找人员"
 				},
 				"tags": {
 					"add": "添加标签",
@@ -1952,7 +1952,7 @@
 			"INVALID_INVITE_CODE_MESSAGE": "无效的邀请码",
 			"WELCOME_TEAMS": "欢迎使用永恒团队",
 			"COVER_TITLE": "实时跟踪您团队的工作进度!",
-			"COVER_DESCRIPTION": "一站式工作和人力管理，时间管理，时间跟踪，活动跟踪，生产力跟踪和指标，项目/任务和问题管理，组织和团队，集成（GitHub，JIRA，...）等等！",
+			"COVER_DESCRIPTION": "记录时间和活动，管理任务和项目，随时了解团队在做什么。支持 GitHub 和 Jira。",
 			"LOGIN": "登录",
 			"SELECT_WORKSPACE": "选择工作区",
 			"ENTER_EMAIL": "输入电子邮箱",
@@ -2012,7 +2012,7 @@
 		},
 		"authLogin": {
 			"HEADING_TITLE": "登录团队",
-			"HEADING_DESCRIPTION": "请输入电子邮箱和邀请码进行登录。",
+			"HEADING_DESCRIPTION": "输入你的邮箱，我们会发送登录验证码。",
 			"WORKSPACE": "工作区",
 			"HEADING_WORKSPACE_LINE1": "此电子邮箱关联了多个工作区,",
 			"HEADING_WORKSPACE_LINE2": "请选择一个以继续",
@@ -2213,8 +2213,8 @@
 			"HANDLE_REQUESTS": "处理请求",
 			"ROLES_POSITIONS_CHANGE": "角色/职位更改",
 			"VIEW_DETAILS": "查看详情",
-			"NO_INVITATIONS": "目前没有邀请!",
-			"NO_MEMBERS": "目前没有成员!",
+			"NO_INVITATIONS": "没有待处理的邀请",
+			"NO_MEMBERS": "还没有成员",
 			"GO_TO_PERSONAL_SETTINGS": "转到个人设置",
 			"SHARE_MEMBERS_PROFILE_VIEWS": "共享成员资料视图",
 			"everPlatform": {
@@ -2273,15 +2273,15 @@
 		},
 		"unauthorized": {
 			"TITLE": "未經授權",
-			"HEADING_TITLE": "您無權訪問此頁面 ！",
-			"HEADING_DESCRIPTION": "對於造成您的不便，我們深表歉意，但您無權造訪此頁面。 如果您認為這是一個錯誤。 請登入。",
+			"HEADING_TITLE": "你没有访问此页面的权限",
+			"HEADING_DESCRIPTION": "你的账户无法打开此页面。如果你认为这是错误，请重新登录或联系团队管理员。",
 			"TRY_AGAIN": "再试一次"
 		},
 		"offline": {
-			"HEADING_TITLE": "网络断开！",
+			"HEADING_TITLE": "你已离线",
 			"HEADING_SUB_DESCRIPTION": "糟糕，我们失去了您的连接。别担心，您的时间仍在跟踪中。",
 			"HEADING_DESCRIPTION": "连接恢复后，您将可以继续在网页应用中工作。",
-			"STATUS_NETWORK": "离线！"
+			"STATUS_NETWORK": "离线"
 		},
 		"invite": {
 			"HEADING_TITLE": "邀请成员加入您的团队",
@@ -2324,13 +2324,13 @@
 			"LOADING_PERMISSIONS": "正在读取该角色的权限"
 		},
 		"page404": {
-			"HEADING_TITLE": "页面未找到 ！",
-			"HEADING_DESCRIPTION": "我们找了，但找不到它....",
+			"HEADING_TITLE": "页面未找到",
+			"HEADING_DESCRIPTION": "此页面不存在或已被移动。",
 			"LINK_LABEL": "主页"
 		},
 		"error": {
-			"TITLE": "錯誤 !",
-			"HEADING_TITLE": "出了點問題 ！",
+			"TITLE": "错误",
+			"HEADING_TITLE": "出了点问题",
 			"HEADING_DESCRIPTION": "如果問題仍然存在，請向我們的支援團隊發送求救訊號。"
 		},
 		"maintenance": {
@@ -2388,7 +2388,7 @@
 			"END_AFTER_START": "结束时间必须晚于开始时间。"
 		},
 		"teamTasks": {
-			"SEARCH_TASKS": "搜索任务...",
+			"SEARCH_TASKS": "搜索任务",
 			"TYPE_AND_NUMBER": "类型 + 编号",
 			"NO_ISSUE_TYPE": "无议题类型",
 			"NO_USER_ASSIGNED": "未分配用户",
@@ -2414,7 +2414,7 @@
 			"ME": "你",
 			"META_TASKS": "{count, plural, other {# 个任务}}",
 			"META_TRACKED": "{count, plural, other {# 个正在计时}}",
-			"NEW_TASK": "新建任务",
+			"NEW_TASK": "创建任务",
 			"NO_ASSIGNEE": "未分配",
 			"NO_MATCH_TITLE": "没有匹配的任务",
 			"NO_MATCH_MESSAGE": "修改搜索或筛选条件，或清除它们以查看全部任务。",
@@ -2795,7 +2795,7 @@
 	},
 	"placeholders": {
 		"ENTER_TO_VALIDATE": "按Enter键验证",
-		"ENTER_A_COMMAND": "输入命令..."
+		"ENTER_A_COMMAND": "输入命令"
 	},
 	"team": {
 		"BACK_LABEL": "返回团队",
@@ -2862,8 +2862,8 @@
 		"EMPTY_NOT_CONFIGURED": "配置您的 API 密钥以开始。",
 		"CONFIGURE_BUTTON": "配置",
 		"ERROR_FALLBACK": "发生错误。请检查您的配置。",
-		"INPUT_PLACEHOLDER_READY": "您的消息...",
-		"INPUT_PLACEHOLDER_NO_KEY": "配置您的 API 密钥...",
+		"INPUT_PLACEHOLDER_READY": "您的消息",
+		"INPUT_PLACEHOLDER_NO_KEY": "配置您的 API 密钥",
 		"STOP": "停止",
 		"SEND": "发送",
 		"NEW_CHAT": "新聊天",
@@ -2875,7 +2875,7 @@
 		"EXPAND_ASSISTANT": "展开助手",
 		"OPEN_ASSISTANT": "打开 {appName} 助手",
 		"ASSISTANT": "助手",
-		"ASK_PLACEHOLDER": "向 {appName} 提问…",
+		"ASK_PLACEHOLDER": "向 {appName} 提问",
 		"COMPOSER_LABEL": "发给助手的消息",
 		"EMPTY_TITLE": "有什么可以帮你？",
 		"EXAMPLES_LABEL": "从示例开始",
@@ -2943,7 +2943,7 @@
 		}
 	},
 	"commandPalette": {
-		"searchPlaceholder": "输入命令或搜索…",
+		"searchPlaceholder": "输入命令或搜索",
 		"tabsLabel": "命令分组",
 		"empty": "没有结果。",
 		"tabs": {
@@ -2961,7 +2961,7 @@
 			"inviteUser": "邀请用户",
 			"assignToMe": "分配给我",
 			"toggleTheme": "切换主题",
-			"createTask": "新建任务",
+			"createTask": "创建任务",
 			"searchTasks": "搜索任务",
 			"createTeam": "新建团队",
 			"searchTeams": "搜索团队",
@@ -3000,7 +3000,7 @@
 		},
 		"timeLog": {
 			"forMember": "成员",
-			"notesPlaceholder": "在此添加备注…"
+			"notesPlaceholder": "在此添加备注"
 		},
 		"manualTime": {
 			"descriptionPlaceholder": "您做了哪些工作？"
@@ -3014,7 +3014,7 @@
 			"tasksWithoutEstimate": "未估算时间的任务",
 			"correctHoursWarning": "请修正计划工时或重新估算任务。",
 			"moreOptions": "更多选项",
-			"searchMember": "搜索成员…",
+			"searchMember": "搜索成员",
 			"noMemberFound": "未找到成员。",
 			"selectOrCreateTask": "为计划选择或创建任务"
 		},
@@ -3026,7 +3026,7 @@
 			"addToPlan": "加入计划",
 			"createNewPlan": "新建计划",
 			"useExistingPlan": "加入现有计划",
-			"searchPlan": "搜索计划…",
+			"searchPlan": "搜索计划",
 			"noPlanFound": "未找到计划。",
 			"plannedTime": "计划时长：{hours} 小时"
 		},
@@ -4081,9 +4081,9 @@
 			"ADD_PARENT": "添加父任务",
 			"CHANGE_PARENT": "更换父任务",
 			"REMOVE_PARENT": "移除父任务",
-			"SEARCH_PARENT": "查找父任务...",
+			"SEARCH_PARENT": "查找父任务",
 			"NO_ASSIGNEE": "暂无负责人",
-			"SEARCH_PEOPLE": "查找队友...",
+			"SEARCH_PEOPLE": "查找队友",
 			"MANAGE_ASSIGNEES": "分配人员",
 			"ADD_LABEL": "添加标签",
 			"EDIT_LABELS": "编辑标签",
@@ -4118,12 +4118,12 @@
 			"LOAD_FAILED": "无法加载计划。"
 		},
 		"subtasks": {
-			"SEARCH": "查找要添加的任务...",
+			"SEARCH": "查找要添加的任务",
 			"REMOVE": "从此任务中移除"
 		},
 		"relations": {
-			"SEARCH": "查找要关联的任务...",
-			"SEARCH_KIND": "查找关系...",
+			"SEARCH": "查找要关联的任务",
+			"SEARCH_KIND": "查找关系",
 			"CHANGE_KIND": "更改关系",
 			"REMOVE": "移除关联"
 		},

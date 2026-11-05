@@ -3,8 +3,7 @@
 import React from 'react';
 import { Modal } from '@/core/components';
 import { Button } from '@/core/components/duplicated-components/_button';
-import { XCircle, Download } from 'lucide-react';
-import { CheckCircle2, Spinner } from '@/core/components/icons';
+import { CheckCircle2, CircleX, Download, Spinner } from '@/core/components/icons';
 import { ExportProgress } from '@/core/hooks/activities/use-export-progress';
 
 export interface ExportProgressModalProps {
@@ -30,7 +29,7 @@ export function ExportProgressModal({
 
 	const getProgressIcon = () => {
 		if (exportProgress.error) {
-			return <XCircle className="size-5 text-destructive-ink" />;
+			return <CircleX className="size-5 text-destructive-ink" />;
 		}
 		if (exportProgress.success) {
 			return <CheckCircle2 className="size-5 text-success-foreground" />;

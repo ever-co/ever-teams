@@ -25,8 +25,8 @@ export interface NotFoundLabels {
  * these English defaults serve it, and app/[locale]/not-found.tsx passes the translated labels.
  */
 const DEFAULT_LABELS: NotFoundLabels = {
-	title: 'Page not found !',
-	description: 'Resource you are looking for is not found !',
+	title: 'Page not found',
+	description: 'This page does not exist or has moved.',
 	action: 'Go back to home'
 };
 

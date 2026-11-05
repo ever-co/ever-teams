@@ -3,8 +3,7 @@
 import { useTranslations } from 'next-intl';
 import { useCallback, useState } from 'react';
 import Link from 'next/link';
-import { MailCheck } from 'lucide-react';
-import { ArrowLeft, Mail } from '@/core/components/icons';
+import { ArrowLeft, Mail, MailCheck } from '@/core/components/icons';
 import { Button } from '@/core/components/common/button';
 import { Text } from '@/core/components/common/typography';
 import { AuthLayout } from '@/core/components/layouts/default-layout/auth-layout';
