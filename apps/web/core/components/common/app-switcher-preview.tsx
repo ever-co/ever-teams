@@ -1,3 +1,4 @@
+import { EverStar } from '@/core/components/icons/ever-star';
 import type { AppSwitcherPlacement } from '@/core/stores/common/app-switcher';
 
 const VIEW_WIDTH = 290;
@@ -22,16 +23,11 @@ const LAYOUTS = {
 
 type Point = Readonly<{ x: number; y: number }>;
 
-function GridGlyph({ x, y }: Point) {
-	return (
-		<g>
-			<rect x={x - 5} y={y - 5} width={10} height={10} rx={2.5} className="fill-primary/15" />
-			<circle cx={x - 2.1} cy={y - 2.1} r={1.5} className="fill-primary" />
-			<circle cx={x + 2.1} cy={y - 2.1} r={1.5} className="fill-primary" />
-			<circle cx={x - 2.1} cy={y + 2.1} r={1.5} className="fill-primary" />
-			<circle cx={x + 2.1} cy={y + 2.1} r={1.5} className="fill-primary" />
-		</g>
-	);
+const MARK_GLYPH_SIZE = 11;
+
+function MarkGlyph({ x, y }: Point) {
+	const half = MARK_GLYPH_SIZE / 2;
+	return <EverStar x={x - half} y={y - half} width={MARK_GLYPH_SIZE} height={MARK_GLYPH_SIZE} />;
 }
 
 function FloatingMenu({ x, y }: Point) {
@@ -184,7 +180,7 @@ export function AppSwitcherPreview({ placement, className }: Readonly<IAppSwitch
 			{layout.hasRail && <Rail />}
 			<SidebarColumn x={layout.sidebarX} leavesRoomForGlyph={isSidebar} />
 			<PagePanel x={layout.panelX} leavesRoomForGlyph={isHeader} />
-			{layout.glyph && <GridGlyph x={layout.glyph.x} y={layout.glyph.y} />}
+			{layout.glyph && <MarkGlyph x={layout.glyph.x} y={layout.glyph.y} />}
 			{layout.menu && <FloatingMenu x={layout.menu.x} y={layout.menu.y} />}
 		</svg>
 	);

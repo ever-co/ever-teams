@@ -45,7 +45,7 @@ import { UserNavAvatarSkeleton } from '@/core/components/common/skeleton/user-na
 import { useMemo } from 'react';
 import { TaskIssueStatus } from '../tasks/task-issue';
 import { WorkspacesSwitcher } from '../common/workspace-switcher';
-import { AppRail, APP_RAIL_SIDEBAR_OFFSET } from '../common/app-switcher/app-rail';
+import { AppRail, APP_RAIL_SIDEBAR_CLASS } from '../common/app-switcher/app-rail';
 import { SidebarAppSwitcher } from '../common/app-switcher/sidebar-app-switcher';
 import { useAppSwitcherPlacement } from '@/core/hooks/common/use-app-switcher-placement';
 import { LazyCreateTeamModal } from '@/core/components/optimized-components/teams';
@@ -416,7 +416,7 @@ export function AppSidebar({ publicTeam, ...props }: AppSidebarProps) {
 	const showCreateTeamModal = !publicTeam && isOpen && Boolean(user?.isEmailVerified);
 	const appSwitcherPlacement = useAppSwitcherPlacement();
 	const showsAppRail = appSwitcherPlacement === 'rail';
-	const sidebarClassName = cn('z-1000', showsAppRail && APP_RAIL_SIDEBAR_OFFSET);
+	const sidebarClassName = cn('z-1000', showsAppRail && APP_RAIL_SIDEBAR_CLASS);
 
 	return (
 		<>

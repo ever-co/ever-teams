@@ -2,7 +2,7 @@
 
 import { cn } from '@/core/lib/helpers';
 import { Sidebar, SidebarContent, SidebarHeader, SidebarFooter, SidebarRail } from '@/core/components/common/sidebar';
-import { APP_RAIL_SIDEBAR_OFFSET } from '@/core/components/common/app-switcher/app-rail';
+import { APP_RAIL_SIDEBAR_CLASS, APP_RAIL_WIDTH_CLASS } from '@/core/components/common/app-switcher/app-rail';
 import { useAppSwitcherPlacement } from '@/core/hooks/common/use-app-switcher-placement';
 import { useHasMounted } from '@/core/hooks/common/use-has-mounted';
 
@@ -35,10 +35,12 @@ export function AppSidebarSkeleton({ className }: AppSidebarSkeletonProps) {
 
 	return (
 		<>
-			{reservesRail && <div aria-hidden="true" className="hidden h-dvh w-14 shrink-0 md:block" />}
+			{reservesRail && (
+				<div aria-hidden="true" className={cn('hidden h-dvh shrink-0 md:block', APP_RAIL_WIDTH_CLASS)} />
+			)}
 			<Sidebar
 				variant="inset"
-				className={cn('z-[1000]', reservesRail && APP_RAIL_SIDEBAR_OFFSET, className)}
+				className={cn('z-[1000]', reservesRail && APP_RAIL_SIDEBAR_CLASS, className)}
 				collapsible="icon"
 				aria-busy="true"
 			>
