@@ -73,6 +73,7 @@ export function MemberRateEditor({
 	const [rateText, setRateText] = useState(() => rateInputTextOf(row.rate.value));
 	const organization = useAtomValue(currentOrganizationState);
 	const [initialCurrency] = useState(() => shownCurrencyOf(row.rate.currency, organization?.currency));
+	const [initialRates] = useState(() => ({ value: row.rate.value, weeklyLimit: row.rate.weeklyLimit }));
 	const [currency, setCurrency] = useState(initialCurrency);
 	const [limitText, setLimitText] = useState(() => rateInputTextOf(row.rate.weeklyLimit));
 	const [error, setError] = useState<string | null>(null);
@@ -104,7 +105,7 @@ export function MemberRateEditor({
 			return;
 		}
 		const billingChanges = changedEmployeeRatesOf(
-			{ value: row.rate.value, currency: initialCurrency, weeklyLimit: row.rate.weeklyLimit },
+			{ value: initialRates.value, currency: initialCurrency, weeklyLimit: initialRates.weeklyLimit },
 			{ value: rate.value, currency, weeklyLimit: limit.value }
 		);
 		let payChanges: IEmployeeRatesInput = {};

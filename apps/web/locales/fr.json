@@ -4268,7 +4268,7 @@
 		"PROJECT_RATES_SECTION": "Taux clients",
 		"PROJECT_RATE": "Taux client",
 		"MOST_SPECIFIC_WINS": "Ce qui est facturé au client pour ce projet. Le taux client d'un membre passe en premier, puis celui-ci, puis son propre taux. Il ne change pas la rémunération des membres.",
-		"PROJECT_RATE_HINT": "Vide : le temps de chaque membre est facturé à son propre taux.",
+		"PROJECT_RATE_HINT": "Vide : le taux client d'un membre sur ce projet s'applique, sinon son propre taux.",
 		"RATE_ON_PROJECT_OF": "Taux client de {name} sur ce projet",
 		"MEMBER_RATE_HINT": "Vide : le taux client du projet s'applique, sinon son propre taux. Il ne change pas sa rémunération.",
 		"RATES_RETRY": "Recharger les taux",

@@ -93,7 +93,12 @@ const MemberGroupBlock = memo(function MemberGroupBlock({
 				<span className={GROUP_META}>{dayCountLabel}</span>
 			</span>
 			<span role="cell" className={RATE_CELL}>
-				<RateValue rate={group.rate} currency={group.currency} />
+				<RateValue
+					rate={group.rate}
+					currency={group.currency}
+					rateSource={group.rateSource}
+					ratePending={group.ratePending}
+				/>
 			</span>
 			<span role="cell" className={TRACKED_CELL}>
 				<TrackedValue seconds={group.seconds} />
@@ -123,7 +128,12 @@ const DayMemberRow = memo(function DayMemberRow({ line }: Readonly<{ line: OwedL
 				<MemberCell name={line.name} imageUrl={line.imageUrl} meta={billingRateNote} />
 			</span>
 			<span role="cell" className={RATE_CELL}>
-				<RateValue rate={line.rate} currency={line.currency} />
+				<RateValue
+					rate={line.rate}
+					currency={line.currency}
+					rateSource={line.rateSource}
+					ratePending={line.ratePending}
+				/>
 			</span>
 			<span role="cell" className={TRACKED_CELL}>
 				<TrackedValue seconds={line.seconds} />

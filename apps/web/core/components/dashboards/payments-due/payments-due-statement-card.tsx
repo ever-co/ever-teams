@@ -228,7 +228,12 @@ export const MemberStatementCard = memo(function MemberStatementCard({
 		>
 			<header className={STATEMENT_HEADER}>
 				<MemberCell name={group.name} imageUrl={group.imageUrl} meta={headerMeta} />
-				<RateChip rate={group.rate} currency={group.currency} />
+				<RateChip
+					rate={group.rate}
+					currency={group.currency}
+					rateSource={group.rateSource}
+					ratePending={group.ratePending}
+				/>
 			</header>
 			<FoldedLines
 				lines={group.lines}

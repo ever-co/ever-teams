@@ -4268,7 +4268,7 @@
 		"PROJECT_RATES_SECTION": "Tariffe cliente",
 		"PROJECT_RATE": "Tariffa cliente",
 		"MOST_SPECIFIC_WINS": "Quanto viene fatturato al cliente per questo progetto. La tariffa cliente di un membro viene prima, poi questa, poi la sua tariffa. Non cambia quanto vengono pagati i membri.",
-		"PROJECT_RATE_HINT": "Vuota: il tempo di ogni membro è fatturato con la propria tariffa.",
+		"PROJECT_RATE_HINT": "Vuota: vale la tariffa cliente del membro su questo progetto, altrimenti la sua tariffa.",
 		"RATE_ON_PROJECT_OF": "Tariffa cliente di {name} su questo progetto",
 		"MEMBER_RATE_HINT": "Vuota: vale la tariffa cliente del progetto, altrimenti la sua tariffa. Non cambia quanto viene pagato.",
 		"RATES_RETRY": "Ricarica le tariffe",

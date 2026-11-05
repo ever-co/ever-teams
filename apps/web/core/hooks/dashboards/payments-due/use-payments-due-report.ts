@@ -274,7 +274,7 @@ export function usePaymentsDueReport({ unnamedLabel }: Readonly<{ unnamedLabel: 
 	const readsPayRates = holdsEmployeeRatesPermission(myPermissions);
 	const reportDays = result?.report;
 	const payLineEmployeeIds = useMemo(() => payLineEmployeeIdsOf(reportDays ?? []), [reportDays]);
-	const knownPayRates = useEmployeePayRates(payLineEmployeeIds);
+	const payRates = useEmployeePayRates(payLineEmployeeIds);
 
 	const shown = useMemo<PaymentsDueShown | null>(() => {
 		if (!result) {
@@ -286,7 +286,8 @@ export function usePaymentsDueReport({ unnamedLabel }: Readonly<{ unnamedLabel: 
 			organizationCurrency,
 			unnamedLabel,
 			readsPayRates,
-			knownPayRates
+			knownPayRates: payRates.rates,
+			pendingPayRates: payRates.pendingIds
 		});
 		const figures = owedFiguresOf(lines);
 		const rankOf = currencyRankOf(figures.currencies);
@@ -297,7 +298,7 @@ export function usePaymentsDueReport({ unnamedLabel }: Readonly<{ unnamedLabel: 
 			dayGroups: dayGroupsOf(lines, rankOf),
 			lines
 		};
-	}, [knownPayRates, membersById, organizationCurrency, readsPayRates, result, unnamedLabel]);
+	}, [membersById, organizationCurrency, payRates, readsPayRates, result, unnamedLabel]);
 
 	const shownFigures = shown?.figures;
 	const figureCurrencies = useMemo(() => figureCurrenciesOf(shownFigures), [shownFigures]);

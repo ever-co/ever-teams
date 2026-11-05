@@ -4268,7 +4268,7 @@
 		"PROJECT_RATES_SECTION": "客户费率",
 		"PROJECT_RATE": "客户费率",
 		"MOST_SPECIFIC_WINS": "此项目向客户计费的费率。先按成员在此项目上的客户费率，其次是此费率，最后是其个人费率。不影响成员的报酬。",
-		"PROJECT_RATE_HINT": "留空：每位成员的工时按其个人费率计费。",
+		"PROJECT_RATE_HINT": "留空：使用成员在此项目上的客户费率，没有则使用其个人费率。",
 		"RATE_ON_PROJECT_OF": "{name} 在此项目上的客户费率",
 		"MEMBER_RATE_HINT": "留空：使用项目的客户费率，没有则使用其个人费率。不影响其报酬。",
 		"RATES_RETRY": "重新加载费率",
