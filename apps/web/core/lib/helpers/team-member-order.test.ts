@@ -1,10 +1,12 @@
 import type { TOrganizationTeamEmployee } from '@/core/types/schemas';
 import {
 	membersWithPendingOrders,
+	mergedDropOrders,
 	ordersAfterSwap,
 	sortByOrder,
 	unsavedPendingOrders,
-	withoutDropOrders
+	unsettledDrops,
+	type TPendingDrop
 } from './team-member-order';
 
 const member = (id: string, order?: number) => ({ id, order }) as TOrganizationTeamEmployee;
@@ -32,14 +34,33 @@ describe('team member order', () => {
 		expect(unsavedPendingOrders(readBack, pending)).toBeNull();
 	});
 
-	it("takes back only a failed drop's orders, not those of a later drop", () => {
-		const firstDrop = { ada: 1, cy: 3 };
-		const laterDrop = { bob: 3, cy: 2 };
-		const pending = { ...firstDrop, ...laterDrop };
+	it('lets a later drop win for a member both drops moved', () => {
+		const drops: TPendingDrop[] = [
+			{ id: 1, orders: { ada: 1, cy: 3 } },
+			{ id: 2, orders: { bob: 3, cy: 2 } }
+		];
 
-		expect(withoutDropOrders(pending, firstDrop)).toEqual({ bob: 3, cy: 2 });
-		expect(withoutDropOrders(firstDrop, firstDrop)).toBeNull();
-		expect(withoutDropOrders(null, firstDrop)).toBeNull();
+		expect(mergedDropOrders(drops)).toEqual({ ada: 1, cy: 2, bob: 3 });
+		expect(mergedDropOrders([])).toBeNull();
+	});
+
+	it('keeps a later drop that gave a member the same order as a failed one', () => {
+		const laterDrop = { id: 2, orders: { ada: 1 } };
+		const drops: TPendingDrop[] = [{ id: 1, orders: { ada: 1, cy: 3 } }, laterDrop];
+
+		const afterFailure = drops.filter((drop) => drop.id !== 1);
+
+		expect(mergedDropOrders(afterFailure)).toEqual({ ada: 1 });
+	});
+
+	it('drops the settled orders of each drop, and the same array when none settled', () => {
+		const drops: TPendingDrop[] = [
+			{ id: 1, orders: { ada: 1 } },
+			{ id: 2, orders: { cy: 3 } }
+		];
+
+		expect(unsettledDrops(members, drops)).toBe(drops);
+		expect(unsettledDrops([member('ada', 1), member('cy', 1)], drops)).toEqual([{ id: 2, orders: { cy: 3 } }]);
 	});
 
 	it('ranks every member from the top when the orders are equal or missing', () => {
