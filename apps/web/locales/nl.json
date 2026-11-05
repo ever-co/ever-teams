@@ -2454,6 +2454,7 @@
 	"timer": {
 		"START_TIMER": "Selecteer of maak een nieuwe taak aan om de tijd bij te houden of maak een plan",
 		"ALREADY_TRACKING_MESSAGE": "Je houdt al tijd bij in een ander tabblad of apparaat.",
+		"TRACKING_DISABLED_MESSAGE": "Tijdregistratie staat voor jou uit. Een beheerder van de organisatie kan het inschakelen.",
 		"TASK_CLOSED": "Taak is gesloten",
 		"PLAN_REQUIRED_TO_START": "Voeg deze taak toe aan het plan van vandaag om te starten",
 		"STARTING_TIMER": "Timer wordt gestart…",

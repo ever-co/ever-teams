@@ -52,7 +52,9 @@ const getMemberPresenceSignature = (member: TOrganizationTeamEmployee) =>
 		member.lastWorkedTask?.id,
 		member.employee?.isOnline,
 		member.employee?.isTrackingTime,
-		member.employee?.isActive
+		member.employee?.isActive,
+		member.isTrackingEnabled,
+		member.employee?.isTrackingEnabled
 	].join(':');
 
 /**

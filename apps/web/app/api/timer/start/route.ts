@@ -1,5 +1,6 @@
 import { authenticatedGuard } from '@/core/services/server/guards/authenticated-guard-app';
 import { getTimerStatusRequest, readTodayRange, startTimerRequest } from '@/core/services/server/requests';
+import { gauzyErrorResponse } from '@/core/services/server/gauzy-error-response';
 import { ETimeLogSource } from '@/core/types/generics/enums/timer';
 import type { IUpdateTimerStatusParams } from '@/core/types/interfaces/timer/timer-status';
 import { NextResponse } from 'next/server';
@@ -54,7 +55,13 @@ export async function POST(req: Request) {
 		startParams.projectId = bodyProjectId;
 	}
 
-	await startTimerRequest(startParams, access_token || '');
+	try {
+		await startTimerRequest(startParams, access_token || '');
+	} catch (error) {
+		// Gauzy's refusal goes back with its status and message (403 when tracking is off) instead of a 500, so the
+		// timer can tell the user why
+		return gauzyErrorResponse(error, 'The timer could not be started.');
+	}
 
 	const { data: timerStatus } = await getTimerStatusRequest(
 		{ tenantId: tenantId || '', organizationId: organizationId || '', ...readTodayRange(req) },

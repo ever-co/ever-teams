@@ -2454,6 +2454,7 @@
 	"timer": {
 		"START_TIMER": "Please, select or create a new task to start tracking the time or create a plan",
 		"ALREADY_TRACKING_MESSAGE": "You're already tracking time in another tab or device.",
+		"TRACKING_DISABLED_MESSAGE": "Time tracking is turned off for you. An organization admin can turn it on.",
 		"TASK_CLOSED": "Task is closed",
 		"PLAN_REQUIRED_TO_START": "Add this task to today's plan to start",
 		"STARTING_TIMER": "Starting timer...",

@@ -2454,6 +2454,7 @@
 	"timer": {
 		"START_TIMER": "Proszę wybrać lub utworzyć nowe zadanie, aby rozpocząć śledzenie czasu lub utwórz plan",
 		"ALREADY_TRACKING_MESSAGE": "Już śledzisz czas w innej karcie lub urządzeniu.",
+		"TRACKING_DISABLED_MESSAGE": "Śledzenie czasu jest dla Ciebie wyłączone. Administrator organizacji może je włączyć.",
 		"TASK_CLOSED": "Zadanie jest zamknięte",
 		"PLAN_REQUIRED_TO_START": "Dodaj to zadanie do dzisiejszego planu, aby rozpocząć",
 		"STARTING_TIMER": "Uruchamianie timera...",
