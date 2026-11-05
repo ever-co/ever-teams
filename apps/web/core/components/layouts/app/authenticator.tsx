@@ -9,6 +9,7 @@ import GlobalSkeleton from '../../common/global-skeleton';
 import { ModalSkeleton } from '../../common/skeleton/modal-skeleton';
 import { LazyCreateTeamModal, LazyJoinTeamModal } from '../../optimized-components';
 import { useUserQuery } from '@/core/hooks/queries/user-user.query';
+import { shouldReplaceStoredUser } from '@/core/lib/utils/stored-user';
 
 type Params = {
 	displayName: string;
@@ -32,10 +33,15 @@ export function withAuthentication(Component: NextPage<any, any>, params: Params
 		// PRIMARY DATA SOURCE, Use useUserQuery for reliable user data
 		const userQuery = useUserQuery();
 
-		// Sync useUserQuery data with userState for backward compatibility
+		// userState takes the query's user here only: a local save may store a newer user before the query reads it
 		useEffect(() => {
-			if (userQuery.data && userQuery.isSuccess && !user) {
-				setUser(userQuery.data);
+			const queriedUser = userQuery.data;
+			if (!queriedUser || !userQuery.isSuccess) {
+				return;
+			}
+			const replacesStoredUser = shouldReplaceStoredUser(user, queriedUser);
+			if (replacesStoredUser) {
+				setUser(queriedUser);
 			}
 		}, [userQuery.data, userQuery.isSuccess, user, setUser]);
 

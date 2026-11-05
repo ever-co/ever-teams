@@ -100,14 +100,6 @@ export const useAuthenticateUser = (defaultUser?: TUser): UseAuthenticateUserRes
 	// once and safe to depend on.
 	const refreshTokenMutateAsync = refreshTokenMutation.mutateAsync;
 
-	useEffect(() => {
-		if (userDataQuery.data && userDataQuery.isFetched && userDataQuery.data !== user) {
-			if (!user || userDataQuery.data.id !== user.id || userDataQuery.data.updatedAt !== user.updatedAt) {
-				setUser(userDataQuery.data);
-			}
-		}
-	}, [userDataQuery.data, user, setUser]);
-
 	const refreshUserLoading = useMemo(() => {
 		return userDataQuery.isFetching || refreshTokenMutation.isPending;
 	}, [userDataQuery.isFetching, refreshTokenMutation.isPending]);
