@@ -3481,6 +3481,7 @@
 			"EMOJI_NOT_SAVED": "האימוג׳י של הצוות לא נשמר",
 			"SIZE_NOT_SAVED": "גודל הצוות לא נשמר",
 			"DEFAULT_PROJECT_NOT_SAVED": "פרויקט ברירת המחדל לא נשמר",
+			"DEFAULT_PROJECT_NOT_SUPPORTED": "השרת הזה עדיין לא שומר פרויקט ברירת מחדל לצוות.",
 			"TYPE_NOT_SAVED": "סוג הצוות לא נשמר",
 			"LEFT_TEAM": "עזבת את הצוות",
 			"LEAVE_FAILED": "עדיין נשארת בצוות",

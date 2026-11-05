@@ -6,7 +6,7 @@ import {
 	setActiveTaskIdCookie,
 	setActiveUserTaskCookie
 } from '@/core/lib/helpers/index';
-import { getValidActiveTask } from '@/core/lib/utils/task.utils';
+import { getValidActiveTask, isHeldTeamTask } from '@/core/lib/utils/task.utils';
 import { logErrorInDev } from '@/core/lib/helpers/error-message';
 import {
 	activeTeamState,
@@ -264,6 +264,7 @@ export function useTeamTasksState() {
 	const memberActiveTaskId = useAtomValue(memberActiveTaskIdState);
 	const activeTeam = useAtomValue(activeTeamState);
 	const activeTeamTask = useAtomValue(activeTeamTaskState);
+	const activeTeamTaskRef = useSyncRef(activeTeamTask);
 
 	// Sync active task from server (multi-device sync)
 	useConditionalUpdateEffect(
@@ -288,9 +289,12 @@ export function useTeamTasksState() {
 				syncActiveTaskIdCookie(memberActiveTask.id);
 				syncActiveUserTaskCookie(activeUserTaskCookieValue(memberActiveTask, authUserRef.current?.id));
 			} else if (memberActiveTaskId && activeTeam?.id && tasksComplete) {
-				setActiveTeamTaskIfChanged(store, null);
-				syncActiveTaskIdCookie('');
-				syncActiveUserTaskCookie(NO_ACTIVE_USER_TASK);
+				const keepsHeldTask = isHeldTeamTask(activeTeamTaskRef.current, memberActiveTaskId, activeTeam.id);
+				if (!keepsHeldTask) {
+					setActiveTeamTaskIfChanged(store, null);
+					syncActiveTaskIdCookie('');
+					syncActiveUserTaskCookie(NO_ACTIVE_USER_TASK);
+				}
 			}
 		},
 		[activeTeam, tasks, tasksComplete, memberActiveTaskId, isUpdatingActiveTask],
@@ -307,8 +311,13 @@ export function useTeamTasksState() {
 					: getActiveTaskIdCookie() || '';
 
 			const validTask = getValidActiveTask(tasks, active_taskid, activeTeam?.id);
-			if (validTask || tasksComplete) {
+			if (validTask) {
 				setActiveTeamTaskIfChanged(store, validTask);
+				return;
+			}
+			const keepsHeldTask = isHeldTeamTask(activeTeamTaskRef.current, active_taskid, activeTeam?.id);
+			if (tasksComplete && !keepsHeldTask) {
+				setActiveTeamTaskIfChanged(store, null);
 			}
 		},
 		[tasks, tasksComplete, authUserRef, activeTeam?.id],

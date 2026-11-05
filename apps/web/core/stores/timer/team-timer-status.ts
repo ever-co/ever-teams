@@ -1,6 +1,7 @@
 import { atom } from 'jotai';
 import { ITimerStatus } from '@/core/types/interfaces/timer/timer-status';
-import { teamTasksState } from '../teams/team-tasks';
+import { isTimerTaskOfTeam } from '@/core/lib/utils/task.utils';
+import { activeTeamTaskState, teamTasksState } from '../teams/team-tasks';
 import { timerStatusState } from './timer';
 
 /**
@@ -21,7 +22,8 @@ export const teamTimerStatusState = atom<ITimerStatus | null>((get) => {
 		return timerStatus;
 	}
 	const teamTasks = get(teamTasksState);
-	const taskBelongsToCurrentTeam = teamTasks.some((task) => task.id === currentTaskId);
+	const activeTeamTask = get(activeTeamTaskState);
+	const taskBelongsToCurrentTeam = isTimerTaskOfTeam(currentTaskId, teamTasks, activeTeamTask);
 	if (taskBelongsToCurrentTeam) {
 		return timerStatus;
 	}

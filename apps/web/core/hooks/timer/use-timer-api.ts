@@ -18,6 +18,7 @@ import { shouldRetryQuery } from '@/core/lib/helpers/retry-utils';
 import { canRunTimerForState } from '@/core/lib/helpers/timer-policy';
 import { errorReasonKeyOf } from '@/core/lib/utils/error-feedback';
 import { isTrackingOffRefusal } from '@/core/lib/helpers/timer-errors';
+import { isTimerTaskOfTeam } from '@/core/lib/utils/task.utils';
 import { queryKeys } from '@/core/query/keys';
 import { ApiErrorService } from '@/core/services/client/api-error.service';
 import { timerService } from '@/core/services/client/api/timers';
@@ -995,8 +996,7 @@ export function useTimerApi({
 		const currentTaskId = timerStatus.lastLog?.taskId;
 		if (!currentTaskId) return timerStatus;
 
-		// Check if task exists in current team's tasks
-		const taskBelongsToCurrentTeam = teamTasks.some((task) => task.id === currentTaskId);
+		const taskBelongsToCurrentTeam = isTimerTaskOfTeam(currentTaskId, teamTasks, activeTeamTask);
 
 		// If task doesn't belong to current team, return timer as stopped
 		if (!taskBelongsToCurrentTeam) {
@@ -1007,7 +1007,7 @@ export function useTimerApi({
 		}
 
 		return timerStatus;
-	}, [timerStatus, teamTasks]);
+	}, [timerStatus, teamTasks, activeTeamTask]);
 
 	// ==================== RETURN ====================
 

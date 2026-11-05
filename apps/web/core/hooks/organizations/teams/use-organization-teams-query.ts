@@ -59,6 +59,31 @@ const getMemberPresenceSignature = (member: TOrganizationTeamEmployee) =>
 	].join(':');
 
 /**
+ * New tasks read the active project from its cookie. When the team list brings the active team another default
+ * project (another manager changed it), the cookie follows at once instead of at the next read of the team itself.
+ */
+function followChangedDefaultProject(
+	previousTeams: TOrganizationTeam[],
+	nextTeams: TOrganizationTeam[],
+	activeTeamId: string | null
+): void {
+	const previousTeam = previousTeams.find((team) => team.id === activeTeamId);
+	const nextTeam = nextTeams.find((team) => team.id === activeTeamId);
+	if (!previousTeam || !nextTeam) {
+		return;
+	}
+	const previousDefaultProjectId = teamDefaultProjectId(previousTeam);
+	const nextDefaultProjectId = teamDefaultProjectId(nextTeam);
+	if (!nextDefaultProjectId) {
+		return;
+	}
+	const defaultProjectChanged = nextDefaultProjectId !== previousDefaultProjectId;
+	if (defaultProjectChanged) {
+		setActiveProjectIdCookie(nextDefaultProjectId);
+	}
+}
+
+/**
  * Hook for read-only organization teams operations.
  * Provides teams data fetching, loading states, and Jotai synchronization.
  *
@@ -262,6 +287,7 @@ export function useOrganizationTeamsQuery(options: UseOrganizationTeamsQueryOpti
 				mergedTeams.length !== currentTeams.length ||
 				mergedTeams.some((team, index) => team !== currentTeams[index]);
 			setTeams(teamsChanged ? mergedTeams : currentTeams);
+			followChangedDefaultProject(currentTeams, mergedTeams, activeTeamIdRef.current);
 
 			if (latestTeams.length === 0) {
 				setIsTeamMember(false);
