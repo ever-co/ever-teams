@@ -87,6 +87,6 @@ describe('useDeleteMyAccount', () => {
 			finishLogOut();
 			await deleting;
 		});
-		expect(result.current.deleteMyAccountLoading).toBe(false);
+		await waitFor(() => expect(result.current.deleteMyAccountLoading).toBe(false));
 	});
 });

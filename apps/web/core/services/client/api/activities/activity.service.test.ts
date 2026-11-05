@@ -128,6 +128,9 @@ describe('ActivityService.getDailyActivities', () => {
 		['a row without its employee', { sessions: '1', duration: '45', date: '2026-10-25', title: 'x' }]
 	])('refuses %s instead of reading it as an empty day', async (_case, row) => {
 		mockDailyRows([row]);
+		// The refused row is logged as a validation failure
+		const { logger } = activityService as unknown as { logger: { error: (...args: unknown[]) => void } };
+		jest.spyOn(logger, 'error').mockImplementation(() => undefined);
 
 		await expect(activityService.getDailyActivities(dailyRequest('SITE'))).rejects.toThrow();
 	});

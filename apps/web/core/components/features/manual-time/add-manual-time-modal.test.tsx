@@ -29,9 +29,12 @@ jest.mock('jotai', () => ({
 
 // The task list of a picked team that is not the active one (the store holds the active team's only)
 const mockPickedTeamTasksQuery: { data?: { items: unknown[] } } = {};
-const mockUseQuery = jest.fn((_options: { queryKey: unknown; enabled?: boolean }) => mockPickedTeamTasksQuery);
+const mockUseQuery = jest.fn();
 jest.mock('@tanstack/react-query', () => ({
-	useQuery: (options: { queryKey: unknown; enabled?: boolean }) => mockUseQuery(options)
+	useQuery: (options: { queryKey: unknown; enabled?: boolean }) => {
+		mockUseQuery(options);
+		return mockPickedTeamTasksQuery;
+	}
 }));
 jest.mock('@/core/services/client/api/tasks/task.service', () => ({ taskService: { getTasks: jest.fn() } }));
 jest.mock('@/core/hooks/auth/use-reactive-access-token-cookie', () => ({

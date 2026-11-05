@@ -189,7 +189,10 @@ export const TaskVersionForm = ({ formOnly = false, onCreated, onVersionCreated 
 								</div>
 								{/* A form that cannot be submitted says why (formOnly mode has no list whose controls would) */}
 								{!canSubmit && (
-									<Text className="text-xs text-muted-foreground" data-testid="task-settings-read-only-hint">
+									<Text
+										className="text-xs text-muted-foreground"
+										data-testid="task-settings-read-only-hint"
+									>
 										{readOnlyHint}
 									</Text>
 								)}

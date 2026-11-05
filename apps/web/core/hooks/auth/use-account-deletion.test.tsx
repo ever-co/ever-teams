@@ -170,7 +170,8 @@ describe('useAccountDeletionConfirm', () => {
 
 	it('sends no deletion for a preview without its planHash: what is deleted must be what was shown', async () => {
 		window.history.replaceState(null, '', '/delete-account/confirm#token=tok');
-		const { planHash: _omitted, ...withoutHash } = preview('plan-x');
+		const withoutHash: Partial<ReturnType<typeof preview>> = preview('plan-x');
+		delete withoutHash.planHash;
 		mockVerify.mockResolvedValue(withoutHash);
 
 		const { result } = renderHook(() => useAccountDeletionConfirm(), { wrapper });

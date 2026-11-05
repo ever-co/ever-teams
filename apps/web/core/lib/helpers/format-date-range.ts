@@ -46,7 +46,14 @@ function wallClockFormatter(timeZone: string | null | undefined): Intl.DateTimeF
 function wallClockAsUtc(formatter: Intl.DateTimeFormat, instant: number): number {
 	const parts = formatter.formatToParts(new Date(instant));
 	const field = (type: Intl.DateTimeFormatPartTypes) => Number(parts.find((part) => part.type === type)?.value ?? 0);
-	return Date.UTC(field('year'), field('month') - 1, field('day'), field('hour') % 24, field('minute'), field('second'));
+	return Date.UTC(
+		field('year'),
+		field('month') - 1,
+		field('day'),
+		field('hour') % 24,
+		field('minute'),
+		field('second')
+	);
 }
 
 /** The 'YYYY-MM-DD' day `instant` falls on in the formatter's zone. */

@@ -271,7 +271,11 @@ describe('Kanban column controls task settings access', () => {
 	it('renders the column menu entries a manager may use as buttons, so keyboard users reach them', () => {
 		renderOpenColumnAs(true, jest.fn());
 
-		expect(screen.getByRole('button', { name: 'common.COLLAPSE_COLUMN' })).toBeTruthy();
+		// The menu entry, and the icon-only toggle, which carries the same action as its name
+		const collapseButtons = screen.getAllByRole('button', { name: 'common.COLLAPSE_COLUMN' });
+		const menuEntry = collapseButtons.find((button) => button.textContent === 'common.COLLAPSE_COLUMN');
+		expect(collapseButtons).toHaveLength(2);
+		expect(menuEntry).toBeTruthy();
 		expect(screen.getByRole('button', { name: 'common.EDIT_STATUS' })).toBeTruthy();
 	});
 

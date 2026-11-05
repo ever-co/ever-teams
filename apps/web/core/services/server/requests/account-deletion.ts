@@ -75,12 +75,15 @@ function httpOrigin(value: string | undefined): string | null {
  * Never the caller's `Origin` header or a URL from the body, which any client can set.
  */
 export function appPublicOrigin(req: Request): string | null {
-	const configured = httpOrigin(readRuntimeEnv('NEXT_PUBLIC_WEB_APP_URL') || process.env.NEXT_PUBLIC_WEB_APP_URL?.trim());
+	const configured = httpOrigin(
+		readRuntimeEnv('NEXT_PUBLIC_WEB_APP_URL') || process.env.NEXT_PUBLIC_WEB_APP_URL?.trim()
+	);
 	if (configured) return configured;
 
 	const url = new URL(req.url);
 	const forwardedProto = firstHeaderValue(req.headers.get('x-forwarded-proto'))?.toLowerCase();
-	const protocol = forwardedProto === 'https' || forwardedProto === 'http' ? forwardedProto : url.protocol.slice(0, -1);
+	const protocol =
+		forwardedProto === 'https' || forwardedProto === 'http' ? forwardedProto : url.protocol.slice(0, -1);
 	const host = firstHeaderValue(req.headers.get('x-forwarded-host')) ?? req.headers.get('host') ?? url.host;
 	return httpOrigin(`${protocol}://${host}`);
 }

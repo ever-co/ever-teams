@@ -19,7 +19,11 @@ afterAll(() => {
 	global.fetch = originalFetch;
 });
 
-function post(body: unknown, headers: Record<string, string> = {}, url = 'https://app.ever.team/api/account-deletion/x') {
+function post(
+	body: unknown,
+	headers: Record<string, string> = {},
+	url = 'https://app.ever.team/api/account-deletion/x'
+) {
 	return new Request(url, {
 		method: 'POST',
 		headers: { 'content-type': 'application/json', ...headers },
@@ -104,9 +108,9 @@ describe('proxyAccountDeletion', () => {
 	it('builds the link on the configured public origin (NEXT_PUBLIC_WEB_APP_URL) before the request host', () => {
 		process.env.NEXT_PUBLIC_WEB_APP_URL = 'https://teams.example.com/';
 
-		expect(accountDeletionCallbackUrl(post({}, {}, 'http://internal:3030/api/account-deletion/request'), 'de')).toBe(
-			'https://teams.example.com/de/delete-account/confirm'
-		);
+		expect(
+			accountDeletionCallbackUrl(post({}, {}, 'http://internal:3030/api/account-deletion/request'), 'de')
+		).toBe('https://teams.example.com/de/delete-account/confirm');
 	});
 
 	it('uses the protocol and host a TLS-terminating proxy reports, and the default locale for an unknown one', () => {

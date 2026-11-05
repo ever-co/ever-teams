@@ -157,7 +157,10 @@ export function useEmployeeDailyPlans(employeeId: string | null, options?: UseEm
 			});
 		} catch (error) {
 			// The cached plans stay on screen; the failure stays visible in development
-			logErrorInDev(`ensureEmployeeDailyPlans: refreshing the day plans of employee ${internalEmployeeId} failed`, error);
+			logErrorInDev(
+				`ensureEmployeeDailyPlans: refreshing the day plans of employee ${internalEmployeeId} failed`,
+				error
+			);
 		}
 	}, [activeTeamId, enabled, internalEmployeeId, queryClient]);
 

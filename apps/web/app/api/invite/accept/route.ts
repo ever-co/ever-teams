@@ -95,7 +95,8 @@ async function acceptAndSignIn(req: Request, input: AcceptInviteParams) {
 			refresh_token: {
 				token: tokens.refresh_token
 			},
-			teamId: team?.id,
+			// Without a team (none, or the list could not be read) it goes as it always did: undefined
+			teamId: team?.id as string,
 			tenantId,
 			organizationId,
 			languageId: 'en',

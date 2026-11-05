@@ -73,9 +73,9 @@ describe('takeAccountDeletionToken', () => {
 	it('reads the fragment token even when the query string carries another one', () => {
 		const history = fakeHistory();
 
-		expect(takeAccountDeletionToken(fakeLocation('/delete-account/confirm?token=query#token=fragment'), history)).toBe(
-			'fragment'
-		);
+		expect(
+			takeAccountDeletionToken(fakeLocation('/delete-account/confirm?token=query#token=fragment'), history)
+		).toBe('fragment');
 		expect(history.calls).toEqual([{ state: null, url: '/delete-account/confirm' }]);
 	});
 
