@@ -478,7 +478,7 @@ export function AddManualTimeModal(props: Readonly<IAddManualTimeModalProps>) {
 			closeModal={closeModal}
 			title={t('common.ADD_TIME')}
 			breadcrumb={activeTeam?.name}
-			className="w-full max-w-lg"
+			className="max-h-[calc(100dvh-2rem)] w-full max-w-lg overflow-y-auto"
 		>
 			<form onSubmit={handleSubmit} className="flex w-full flex-col gap-4 text-sm">
 				<div className="flex flex-col gap-2">
