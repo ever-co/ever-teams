@@ -6,11 +6,20 @@ import { withAuthentication } from './authenticator';
 type StoredUser = { id: string; updatedAt?: Date };
 
 let mockStoredUser: StoredUser | null = { id: 'authenticated-user' };
+let mockLatestStoredUser: StoredUser | null | undefined = undefined;
 let mockQueriedUser: StoredUser = { id: 'authenticated-user' };
 const mockSetUser = jest.fn();
 
+function latestStoredUser() {
+	if (mockLatestStoredUser === undefined) {
+		return mockStoredUser;
+	}
+	return mockLatestStoredUser;
+}
+
 jest.mock('jotai', () => ({
-	useAtom: () => [mockStoredUser, mockSetUser]
+	useAtom: () => [mockStoredUser, mockSetUser],
+	useStore: () => ({ get: () => latestStoredUser() })
 }));
 
 jest.mock('@/core/stores', () => ({
@@ -44,6 +53,7 @@ jest.mock('../../optimized-components', () => ({
 
 beforeEach(() => {
 	mockStoredUser = { id: 'authenticated-user' };
+	mockLatestStoredUser = undefined;
 	mockQueriedUser = { id: 'authenticated-user' };
 	mockSetUser.mockReset();
 });
@@ -103,6 +113,17 @@ describe('withAuthentication', () => {
 
 		mockQueriedUser = { id: 'authenticated-user', updatedAt: new Date('2026-11-05T08:00:00Z') };
 		view.rerender(<AuthenticatedPage />);
+
+		expect(mockSetUser).not.toHaveBeenCalled();
+	});
+
+	it('keeps a newer user written to the store after the render, before the sync runs', () => {
+		mockStoredUser = { id: 'authenticated-user', updatedAt: new Date('2026-11-05T08:00:00Z') };
+		mockLatestStoredUser = { id: 'authenticated-user', updatedAt: new Date('2026-11-05T10:00:00Z') };
+		mockQueriedUser = { id: 'authenticated-user', updatedAt: new Date('2026-11-05T09:00:00Z') };
+		const AuthenticatedPage = withAuthentication(() => null, { displayName: 'ProtectedPage' });
+
+		render(<AuthenticatedPage />);
 
 		expect(mockSetUser).not.toHaveBeenCalled();
 	});

@@ -4,7 +4,7 @@ import { isTeamMemberState, userState } from '@/core/stores';
 import { GetServerSidePropsContext, NextPage, PreviewData } from 'next';
 import { ParsedUrlQuery } from 'querystring';
 import { type ComponentType, Suspense, useCallback, useEffect, useState } from 'react';
-import { useAtom } from 'jotai';
+import { useAtom, useStore } from 'jotai';
 import GlobalSkeleton from '../../common/global-skeleton';
 import { ModalSkeleton } from '../../common/skeleton/modal-skeleton';
 import { LazyCreateTeamModal, LazyJoinTeamModal } from '../../optimized-components';
@@ -27,6 +27,7 @@ type Params = {
 export function withAuthentication(Component: NextPage<any, any>, params: Params) {
 	const AppComponent = (props: any) => {
 		const [user, setUser] = useAtom(userState);
+		const store = useStore();
 		const noTeamPopupShow = getNoTeamPopupShowCookie();
 		const isTeamMember = useAtom(isTeamMemberState);
 
@@ -39,11 +40,12 @@ export function withAuthentication(Component: NextPage<any, any>, params: Params
 			if (!queriedUser || !userQuery.isSuccess) {
 				return;
 			}
-			const replacesStoredUser = shouldReplaceStoredUser(user, queriedUser);
+			const storedUser = store.get(userState);
+			const replacesStoredUser = shouldReplaceStoredUser(storedUser, queriedUser);
 			if (replacesStoredUser) {
 				setUser(queriedUser);
 			}
-		}, [userQuery.data, userQuery.isSuccess, user, setUser]);
+		}, [userQuery.data, userQuery.isSuccess, user, store, setUser]);
 
 		const [showCreateTeamModal, setShowCreateTeamModal] = useState<boolean>(false);
 		const [showJoinTeamModal, setShowJoinTeamModal] = useState<boolean>(false);
