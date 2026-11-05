@@ -10,8 +10,10 @@ import Cookies from 'js-cookie';
 import { useSession } from 'next-auth/react';
 import { LAST_WORKSPACE_AND_TEAM, USER_SAW_OUTSTANDING_NOTIFICATION } from '@/core/constants/config/constants';
 import { ISigninEmailConfirmWorkspaces } from '@/core/types/interfaces/auth/auth';
-import { getFirstTeamId, findWorkspaceIndexByTeamId } from '@/core/lib/utils/workspace.utils';
+import { getFirstTeamId } from '@/core/lib/utils/workspace.utils';
 import { useWorkspaceAnalysis } from '@/core/hooks/auth/use-workspace-analysis';
+import { useRememberedTeamContinue } from '@/core/hooks/auth/use-remembered-team-continue';
+import { firstListedTeam, findLatestServerTeamId } from '@/core/lib/auth/remembered-team';
 import { readEverIdSession } from '@/core/lib/auth/ever-id/session';
 import { readSocialSession } from '@/core/lib/auth/social-session';
 import { useEverIdWorkspaceChoice } from '@/core/hooks/auth/use-ever-id-workspace-choice';
@@ -106,6 +108,12 @@ function WorkSpaceScreen({
 	// Analyze workspace structure to determine if we should show workspace selection
 	// Using centralized hook to avoid code duplication across auth components
 	const workspaceAnalysis = useWorkspaceAnalysis(workspaces);
+	const rememberedTeam = useRememberedTeamContinue({
+		workspaces,
+		email: signinResult.confirmed_mail,
+		rememberedTeamAllowed: !everIdSession
+	});
+	const rememberedTeamId = rememberedTeam.rememberedPick?.teamId;
 
 	useEffect(() => {
 		// Auto-select first workspace if only one exists
@@ -122,34 +130,26 @@ function WorkSpaceScreen({
 				setSelectedTeam(firstTeamId);
 			}
 		} else {
-			// Try to restore last selected team or use default
 			const storedTeam = window.localStorage.getItem(LAST_WORKSPACE_AND_TEAM);
+			const serverTeamId = findLatestServerTeamId(workspaces);
 			const fallbackTeamId = getFirstTeamId(firstWorkspace);
-			const lastSelectedTeam = storedTeam || fallbackTeamId || '';
+			const listedTeam = firstListedTeam(workspaces, [
+				rememberedTeamId,
+				storedTeam,
+				serverTeamId,
+				fallbackTeamId
+			]);
 
-			// Find workspace containing the last selected team
-			const lastSelectedWorkspaceIndex = findWorkspaceIndexByTeamId(workspaces, lastSelectedTeam);
-
-			// Only set selectedTeam if the team actually exists in current_teams
-			if (lastSelectedWorkspaceIndex >= 0) {
-				setSelectedTeam(lastSelectedTeam);
-				setSelectedWorkspace(lastSelectedWorkspaceIndex);
+			if (listedTeam) {
+				setSelectedTeam(listedTeam.teamId);
+				setSelectedWorkspace(listedTeam.workspaceIndex);
 			} else {
-				// Team doesn't exist (user was removed from team)
-				// Set workspace to first one but leave selectedTeam empty
-				// This prevents 401 errors when trying to sign in with a non-existent team
+				// No team to sign in with: an empty team is sent instead of one Gauzy would refuse
 				setSelectedWorkspace(0);
 				setSelectedTeam('');
 			}
 		}
-
-		// Only auto-submit if shouldAutoSubmit is true (1 workspace with exactly 1 team)
-		if (workspaceAnalysis.shouldAutoSubmit) {
-			setTimeout(() => {
-				document.getElementById('continue-to-workspace')?.click();
-			}, 100);
-		}
-	}, [workspaces, workspaceAnalysis, setSelectedTeam, setSelectedWorkspace]);
+	}, [workspaces, workspaceAnalysis, rememberedTeamId, setSelectedTeam, setSelectedWorkspace]);
 
 	// Ever ID: start on the workspace the ID token points at (when exactly one matches)
 	useEffect(() => {
@@ -175,7 +175,7 @@ function WorkSpaceScreen({
 		window && window?.localStorage.setItem(LAST_WORKSPACE_AND_TEAM, selectedTeam);
 	};
 
-	const { onWorkspaceSigninError } = everIdChoice;
+	const onWorkspaceSigninError = everIdChoice.onWorkspaceSigninError ?? rememberedTeam.onContinueFailed;
 	const updateOAuthSession = useCallback(() => {
 		form.updateOAuthSession(
 			signinResult,

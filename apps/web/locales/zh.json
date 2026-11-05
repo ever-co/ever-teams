@@ -1956,6 +1956,7 @@
 			"COVER_DESCRIPTION": "记录时间和活动，管理任务和项目，随时了解团队在做什么。支持 GitHub 和 Jira。",
 			"LOGIN": "登录",
 			"SELECT_WORKSPACE": "选择工作区",
+			"WORKSPACE_OPEN_FAILED": "无法打开此工作区。请从列表中选择一个。",
 			"ENTER_EMAIL": "输入电子邮箱",
 			"WORKSPACES_NOT_FOUND": "工作区未找到",
 			"INVALID_CODE_TRY_AGAIN": "无效的代码。请重试。",

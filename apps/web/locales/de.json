@@ -1956,6 +1956,7 @@
 			"COVER_DESCRIPTION": "Erfassen Sie Zeit und Aktivität, verwalten Sie Aufgaben und Projekte und sehen Sie, woran Ihr Team arbeitet. Funktioniert mit GitHub und Jira.",
 			"LOGIN": "Anmelden",
 			"SELECT_WORKSPACE": "Arbeitsbereich auswählen",
+			"WORKSPACE_OPEN_FAILED": "Dieser Arbeitsbereich konnte nicht geöffnet werden. Wähle einen aus der Liste.",
 			"ENTER_EMAIL": "E-Mail-Adresse eingeben",
 			"WORKSPACES_NOT_FOUND": "Keine Arbeitsbereiche gefunden",
 			"INVALID_CODE_TRY_AGAIN": "Ungültiger Code. Bitte versuchen Sie es erneut.",

@@ -110,14 +110,17 @@ export function useAuthenticationPasscode() {
 	};
 
 	const signInToWorkspaceRequest = useCallback(
-		(params: {
-			email: string;
-			token: string;
-			selectedTeam: string;
-			code?: string;
-			defaultTeamId?: string;
-			lastTeamId?: string;
-		}) => {
+		(
+			params: {
+				email: string;
+				token: string;
+				selectedTeam: string;
+				code?: string;
+				defaultTeamId?: string;
+				lastTeamId?: string;
+			},
+			onError?: (error: unknown) => void
+		) => {
 			// Mobile's workspace signin - just use token, no code validation
 			const workspaceParams = {
 				email: params.email,
@@ -146,6 +149,7 @@ export function useAuthenticationPasscode() {
 						setErrors((err.response?.data as any)?.errors || {});
 					}
 					inputCodeRef.current?.clear();
+					onError?.(err);
 				});
 		},
 		[signInWorkspaceQueryCall, router, infiniteWLoading]
@@ -346,13 +350,14 @@ export function useAuthenticationPasscode() {
 		});
 	};
 
-	const handleWorkspaceSubmit = (e: any, token: string, selectedTeam: string) => {
+	const handleWorkspaceSubmit = (e: any, token: string, selectedTeam: string, onError?: (error: unknown) => void) => {
 		e.preventDefault();
 		setErrors({});
 		const { errors, valid } = authFormValidate(['email'], formValues as any);
 
 		if (!valid) {
 			setErrors(errors);
+			onError?.(errors);
 			return;
 		}
 
@@ -364,15 +369,18 @@ export function useAuthenticationPasscode() {
 
 		infiniteWLoading.current = true;
 
-		signInToWorkspaceRequest({
-			email: formValues.email,
-			token,
-			selectedTeam,
-			defaultTeamId: selectedTeam,
-			// Only send lastTeamId if selectedTeam is not empty
-			// Empty string causes 400 Bad Request: "lastTeamId must be a UUID"
-			lastTeamId: selectedTeam || undefined
-		});
+		signInToWorkspaceRequest(
+			{
+				email: formValues.email,
+				token,
+				selectedTeam,
+				defaultTeamId: selectedTeam,
+				// Only send lastTeamId if selectedTeam is not empty
+				// Empty string causes 400 Bad Request: "lastTeamId must be a UUID"
+				lastTeamId: selectedTeam || undefined
+			},
+			onError
+		);
 	};
 
 	useEffect(() => {

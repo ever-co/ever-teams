@@ -1956,6 +1956,7 @@
 			"COVER_DESCRIPTION": "Rejestruj czas i aktywność, zarządzaj zadaniami i projektami i sprawdzaj, nad czym pracuje Twój zespół. Działa z GitHub i Jira.",
 			"LOGIN": "Zaloguj się",
 			"SELECT_WORKSPACE": "Wybierz Przestrzeń Roboczą",
+			"WORKSPACE_OPEN_FAILED": "Nie udało się otworzyć tej przestrzeni roboczej. Wybierz jedną z listy.",
 			"ENTER_EMAIL": "Wprowadź E-mail",
 			"WORKSPACES_NOT_FOUND": "Nie znaleziono Przestrzeni Roboczych",
 			"INVALID_CODE_TRY_AGAIN": "Nieprawidłowy Kod. Proszę spróbować ponownie.",

@@ -1956,6 +1956,7 @@
 			"COVER_DESCRIPTION": "Track time and activity, manage tasks and projects, and see what your team is working on. Works with GitHub and Jira.",
 			"LOGIN": "Login",
 			"SELECT_WORKSPACE": "Select workspace",
+			"WORKSPACE_OPEN_FAILED": "This workspace could not be opened. Choose one from the list.",
 			"ENTER_EMAIL": "Enter email",
 			"WORKSPACES_NOT_FOUND": "Workspaces not found",
 			"INVALID_CODE_TRY_AGAIN": "Invalid code. Please try again.",

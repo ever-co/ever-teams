@@ -26,6 +26,7 @@ import { UseAuthenticateUserResult } from '@/core/types/interfaces/user/user';
 import { useUserQuery } from '../queries/user-user.query';
 import { logErrorInDev, logInDev } from '@/core/lib/helpers/error-message';
 import { clearChatHistoryForUser } from '@/core/components/features/chat-panel/chat-history';
+import { rememberTeam } from '@/core/lib/auth/remembered-team';
 
 export const useAuthenticateUser = (defaultUser?: TUser): UseAuthenticateUserResult => {
 	const userDataQuery = useUserQuery();
@@ -170,6 +171,7 @@ export const useAuthenticateUser = (defaultUser?: TUser): UseAuthenticateUserRes
 		});
 
 		window?.localStorage.setItem(LAST_WORKSPACE_AND_TEAM, activeTeam?.id ?? '');
+		rememberTeam(user?.email, activeTeam?.id);
 		clearChatHistoryForUser(user?.id);
 
 		// A TEAMS timer left running would keep counting after logout: stop it while the session still

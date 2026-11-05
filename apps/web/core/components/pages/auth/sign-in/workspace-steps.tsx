@@ -14,8 +14,10 @@ import type { TAuthenticationPasscode } from '@/core/hooks/auth/use-authenticati
 import type { TAuthenticationPassword } from '@/core/hooks/auth/use-authentication-password';
 import { getAccessTokenCookie } from '@/core/lib/helpers/index';
 import { LAST_WORKSPACE_AND_TEAM, USER_SAW_OUTSTANDING_NOTIFICATION } from '@/core/constants/config/constants';
-import { getFirstTeamId, findWorkspaceIndexByTeamId } from '@/core/lib/utils/workspace.utils';
+import { getFirstTeamId } from '@/core/lib/utils/workspace.utils';
 import { useWorkspaceAnalysis } from '@/core/hooks/auth/use-workspace-analysis';
+import { useRememberedTeamContinue } from '@/core/hooks/auth/use-remembered-team-continue';
+import { firstListedTeam } from '@/core/lib/auth/remembered-team';
 import { AuthState } from '@/core/components/auth/kit/auth-state';
 import { WorkspacePicker, workspaceNameOf } from '@/core/components/auth/workspace-picker';
 import type { ISigninEmailConfirmWorkspaces } from '@/core/types/interfaces/auth/auth';
@@ -28,7 +30,7 @@ export type WorkspaceSelection = {
 	setSelectedTeam: Dispatch<SetStateAction<string>>;
 };
 
-/** The picker, or the opening state when one workspace with one team opens by itself. */
+/** The picker, or the opening state when a team opens by itself (the only team, or the remembered one). */
 function WorkspaceChoice({
 	workspaces,
 	shouldAutoSubmit,
@@ -53,7 +55,7 @@ function WorkspaceChoice({
 
 	return (
 		<>
-			{/* Kept mounted while it opens by itself (one workspace with one team): its Continue is clicked for the person */}
+			{/* Kept mounted while a team opens by itself: its Continue is clicked for the person */}
 			<div className={cn('w-full', shouldAutoSubmit && 'hidden')}>
 				<WorkspacePicker
 					workspaces={workspaces}
@@ -104,15 +106,18 @@ export function CodeWorkspaceStep({
 	selection
 }: Readonly<{ form: TAuthenticationPasscode; selection: WorkspaceSelection }>) {
 	const { selectedWorkspace, setSelectedWorkspace, selectedTeam, setSelectedTeam } = selection;
+	const rememberedTeam = useRememberedTeamContinue({ workspaces: form.workspaces, email: form.formValues.email });
+	const rememberedTeamId = rememberedTeam.rememberedPick?.teamId;
+	const { onContinueFailed } = rememberedTeam;
 
 	const signInToWorkspace = useCallback(
 		(e: FormEvent<HTMLFormElement>) => {
 			if (typeof selectedWorkspace !== 'undefined') {
-				form.handleWorkspaceSubmit(e, form.workspaces[selectedWorkspace].token, selectedTeam);
+				form.handleWorkspaceSubmit(e, form.workspaces[selectedWorkspace].token, selectedTeam, onContinueFailed);
 				rememberTeam(selectedTeam);
 			}
 		},
-		[selectedWorkspace, selectedTeam, form]
+		[selectedWorkspace, selectedTeam, form, onContinueFailed]
 	);
 
 	const lastSelectedTeamFromAPI = form.getLastTeamIdWithRecentLogout();
@@ -133,34 +138,30 @@ export function CodeWorkspaceStep({
 				setSelectedTeam(firstTeamId);
 			}
 		} else {
-			// Try to restore last selected team or use default
 			const storedTeam = window.localStorage.getItem(LAST_WORKSPACE_AND_TEAM);
 			const fallbackTeamId = getFirstTeamId(firstWorkspace);
-			const lastSelectedTeam =
-				storedTeam || lastSelectedTeamFromAPI || form.defaultTeamId || fallbackTeamId || '';
+			const listedTeam = firstListedTeam(form.workspaces, [
+				rememberedTeamId,
+				storedTeam,
+				lastSelectedTeamFromAPI,
+				form.defaultTeamId,
+				fallbackTeamId
+			]);
 
-			const lastSelectedWorkspaceIndex = findWorkspaceIndexByTeamId(form.workspaces, lastSelectedTeam);
-
-			if (lastSelectedWorkspaceIndex >= 0) {
-				setSelectedTeam(lastSelectedTeam);
-				setSelectedWorkspace(lastSelectedWorkspaceIndex);
+			if (listedTeam) {
+				setSelectedTeam(listedTeam.teamId);
+				setSelectedWorkspace(listedTeam.workspaceIndex);
 			} else {
-				// The user was removed from that team: keep the first workspace and no team, which avoids a 401
+				// No team to sign in with: an empty team is sent instead of one Gauzy would refuse
 				setSelectedWorkspace(0);
 				setSelectedTeam('');
 			}
-		}
-
-		// Only auto-submit if shouldAutoSubmit is true (1 workspace with exactly 1 team)
-		if (workspaceAnalysis.shouldAutoSubmit) {
-			setTimeout(() => {
-				document.getElementById('continue-to-workspace')?.click();
-			}, 100);
 		}
 	}, [
 		form.defaultTeamId,
 		form.workspaces,
 		lastSelectedTeamFromAPI,
+		rememberedTeamId,
 		workspaceAnalysis,
 		setSelectedTeam,
 		setSelectedWorkspace
@@ -185,7 +186,7 @@ export function CodeWorkspaceStep({
 	return (
 		<WorkspaceChoice
 			workspaces={form.workspaces}
-			shouldAutoSubmit={workspaceAnalysis.shouldAutoSubmit}
+			shouldAutoSubmit={rememberedTeam.autoContinue}
 			onSubmit={signInToWorkspace}
 			onBack={goBack}
 			loading={form.signInWorkspaceLoading}
@@ -202,51 +203,38 @@ export function PasswordWorkspaceStep({
 	selection
 }: Readonly<{ form: TAuthenticationPassword; selection: WorkspaceSelection }>) {
 	const { selectedWorkspace, setSelectedWorkspace, selectedTeam, setSelectedTeam } = selection;
+	const rememberedTeam = useRememberedTeamContinue({ workspaces: form.workspaces, email: form.formValues.email });
+	const rememberedTeamId = rememberedTeam.rememberedPick?.teamId;
+	const { onContinueFailed } = rememberedTeam;
 
 	const signInToWorkspace = useCallback(
 		(e: FormEvent<HTMLFormElement>) => {
 			if (typeof selectedWorkspace !== 'undefined') {
-				form.handleWorkspaceSubmit(e, form.workspaces[selectedWorkspace].token, selectedTeam);
+				form.handleWorkspaceSubmit(e, form.workspaces[selectedWorkspace].token, selectedTeam, onContinueFailed);
 				rememberTeam(selectedTeam);
 			}
 		},
-		[selectedWorkspace, selectedTeam, form]
+		[selectedWorkspace, selectedTeam, form, onContinueFailed]
 	);
 
 	const lastSelectedTeamFromAPI = form.getLastTeamIdWithRecentLogout();
-	const workspaceAnalysis = useWorkspaceAnalysis(form.workspaces);
 
 	useEffect(() => {
-		// Only auto-submit if shouldAutoSubmit is true (1 workspace with exactly 1 team)
-		if (workspaceAnalysis.shouldAutoSubmit) {
-			setTimeout(() => {
-				document.getElementById('continue-to-workspace')?.click();
-			}, 100);
-		}
-
 		const currentTeams = form.workspaces.find((el) => el.current_teams && el.current_teams.length)?.current_teams;
-		const lastSelectedTeamId =
-			window.localStorage.getItem(LAST_WORKSPACE_AND_TEAM) || lastSelectedTeamFromAPI || form.defaultTeamId;
+		const firstTeamId = currentTeams?.[0]?.team_id;
+		const storedTeam = window.localStorage.getItem(LAST_WORKSPACE_AND_TEAM);
+		// A team the user was removed from is skipped: signing in to it answers 401
+		const listedTeam = firstListedTeam(form.workspaces, [
+			rememberedTeamId,
+			storedTeam,
+			lastSelectedTeamFromAPI,
+			form.defaultTeamId,
+			firstTeamId
+		]);
 
-		if (currentTeams) {
-			setSelectedWorkspace(
-				form.workspaces.findIndex((el) =>
-					el.current_teams.find((el) => el.team_id == currentTeams[0]?.team_id)
-				) || 0
-			);
-			setSelectedTeam(currentTeams[0].team_id);
-		}
-
-		if (lastSelectedTeamId && lastSelectedTeamId !== 'undefined') {
-			const workspaceIndex = form.workspaces.findIndex((el) =>
-				el.current_teams.find((el) => el.team_id == lastSelectedTeamId)
-			);
-
-			// A team the user was removed from is not restored: signing in to it answers 401
-			if (workspaceIndex >= 0) {
-				setSelectedWorkspace(workspaceIndex);
-				setSelectedTeam(lastSelectedTeamId);
-			}
+		if (listedTeam) {
+			setSelectedWorkspace(listedTeam.workspaceIndex);
+			setSelectedTeam(listedTeam.teamId);
 		}
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [form.workspaces]);
@@ -264,7 +252,7 @@ export function PasswordWorkspaceStep({
 	return (
 		<WorkspaceChoice
 			workspaces={form.workspaces}
-			shouldAutoSubmit={workspaceAnalysis.shouldAutoSubmit}
+			shouldAutoSubmit={rememberedTeam.autoContinue}
 			onSubmit={signInToWorkspace}
 			onBack={goBack}
 			loading={form.signInWorkspaceLoading}

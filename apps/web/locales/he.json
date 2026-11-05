@@ -1956,6 +1956,7 @@
 			"COVER_DESCRIPTION": "עקבו אחר זמן ופעילות, נהלו משימות ופרויקטים, וראו על מה הצוות שלכם עובד. עובד עם GitHub ו-Jira.",
 			"LOGIN": "התחברות",
 			"SELECT_WORKSPACE": "בחר סביבת עבודה",
+			"WORKSPACE_OPEN_FAILED": "לא ניתן לפתוח את סביבת העבודה הזו. בחר אחת מהרשימה.",
 			"ENTER_EMAIL": "הכנס אימייל",
 			"WORKSPACES_NOT_FOUND": "סביבות עבודה לא נמצאו",
 			"INVALID_CODE_TRY_AGAIN": "קוד לא תקין. אנא נסה שוב.",

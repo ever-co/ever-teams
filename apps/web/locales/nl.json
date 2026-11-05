@@ -1956,6 +1956,7 @@
 			"COVER_DESCRIPTION": "Registreer tijd en activiteit, beheer taken en projecten en zie waar je team aan werkt. Werkt met GitHub en Jira.",
 			"LOGIN": "Inloggen",
 			"SELECT_WORKSPACE": "Selecteer werkruimte",
+			"WORKSPACE_OPEN_FAILED": "Deze werkruimte kon niet worden geopend. Kies er een uit de lijst.",
 			"ENTER_EMAIL": "Voer e-mail in",
 			"WORKSPACES_NOT_FOUND": "Werkruimtes niet gevonden",
 			"INVALID_CODE_TRY_AGAIN": "Ongeldige code. Probeer opnieuw.",

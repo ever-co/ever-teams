@@ -250,7 +250,8 @@ class AuthService extends APIService {
 		return api.post<IAuthResponse>(`/auth/signin-workspace`, {
 			email: params.email,
 			token: params.token,
-			teamId: params.selectedTeam
+			teamId: params.selectedTeam,
+			lastTeamId: params.lastTeamId
 		});
 	};
 

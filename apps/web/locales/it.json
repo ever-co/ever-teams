@@ -1956,6 +1956,7 @@
 			"COVER_DESCRIPTION": "Registra tempo e attività, gestisci compiti e progetti e vedi su cosa lavora il tuo team. Funziona con GitHub e Jira.",
 			"LOGIN": "Accesso",
 			"SELECT_WORKSPACE": "Seleziona Spazio di Lavoro",
+			"WORKSPACE_OPEN_FAILED": "Impossibile aprire questo spazio di lavoro. Scegline uno dall'elenco.",
 			"ENTER_EMAIL": "Inserisci l'Email",
 			"WORKSPACES_NOT_FOUND": "Spazi di Lavoro Non Trovati",
 			"INVALID_CODE_TRY_AGAIN": "Codice non valido. Riprova.",
