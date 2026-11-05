@@ -111,6 +111,19 @@ function memberAssignmentMenuLabelKey(isAssigned: boolean) {
 	return 'common.ASSIGN_TASK_TO_MEMBER' as const;
 }
 
+/** On a teammate's profile the task menu acts on that teammate; anywhere else on the viewer. */
+function menuMutationsOf(
+	profile: I_UserProfilePage | undefined,
+	profileMemberMutations: I_TeamMemberMutationsHook,
+	viewerMutations: I_TeamMemberMutationsHook
+): I_TeamMemberMutationsHook {
+	const isTeammateProfile = getTeammateEmployeeId(profile) !== null;
+	if (isTeammateProfile) {
+		return profileMemberMutations;
+	}
+	return viewerMutations;
+}
+
 function profileMemberNameOf(profile?: I_UserProfilePage): string {
 	const employeeName = profile?.member?.employee?.fullName;
 	if (employeeName) {
@@ -288,7 +301,7 @@ function TaskRow({ member, ...props }: Props & { member: TaskListMemberValue }) 
 						<TaskCardMenu
 							task={task}
 							loading={loading}
-							mutations={authMutations}
+							mutations={menuMutationsOf(profile, memberInfo, authMutations)}
 							viewType={viewType}
 							profile={profile}
 							plan={plan}
