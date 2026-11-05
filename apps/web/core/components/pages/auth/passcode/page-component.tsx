@@ -38,7 +38,12 @@ import { AUTH_CODE_SLOT_CLASS } from '@/core/components/auth/auth-code-recipe';
 import { InputField } from '@/core/components/duplicated-components/_input';
 import { Avatar } from '@/core/components/duplicated-components/avatar';
 import { ISigninEmailConfirmWorkspaces } from '@/core/types/interfaces/auth/auth';
-import { hasTeams, getFirstTeamId, findWorkspaceIndexByTeamId } from '@/core/lib/utils/workspace.utils';
+import {
+	hasTeams,
+	getFirstTeamId,
+	findWorkspaceIndexByTeamId,
+	isWorkspaceSetUp
+} from '@/core/lib/utils/workspace.utils';
 import { useWorkspaceAnalysis } from '@/core/hooks/auth/use-workspace-analysis';
 import { useResendCooldown } from '@/core/hooks/auth/use-resend-cooldown';
 
@@ -50,6 +55,13 @@ function teamCountLabel(teamCount: number, t: ReturnType<typeof useTranslations>
 		return t('pages.auth.TEAM_COUNT_SINGULAR');
 	}
 	return t('pages.auth.TEAM_COUNT_PLURAL');
+}
+
+function workspaceLabelOf(workspace: ISigninEmailConfirmWorkspaces, t: ReturnType<typeof useTranslations>) {
+	if (!isWorkspaceSetUp(workspace)) {
+		return t('pages.auth.WORKSPACE_NOT_SET_UP');
+	}
+	return workspace.user.tenant.name || workspace.user.name || 'Workspace';
 }
 
 function AuthPasscode() {
@@ -523,7 +535,7 @@ export function WorkSpaceComponent(props: IWorkSpace) {
 								const isSelectedWithTeams = isSelected && !isEmpty;
 								const isSelectedEmpty = isSelected && isEmpty;
 								const showsTeamCount = !isEmpty && teamCount > 0;
-								const workspaceName = workspace.user.tenant?.name || workspace.user.name || 'Workspace';
+								const workspaceName = workspaceLabelOf(workspace, t);
 
 								return (
 									<div

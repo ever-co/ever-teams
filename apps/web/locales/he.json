@@ -1959,6 +1959,7 @@
 			"EMPTY_WORKSPACE_WARNING_TITLE": "סביבת עבודה זו אין לה צוותים",
 			"EMPTY_WORKSPACE_WARNING_MESSAGE": "תתבקש ליצור צוות לאחר ההתחברות.",
 			"NO_TEAMS_BADGE": "אין צוותים",
+			"WORKSPACE_NOT_SET_UP": "סביבת עבודה חדשה, עדיין לא הוגדרה",
 			"TEAM_COUNT_SINGULAR": "צוות",
 			"TEAM_COUNT_PLURAL": "צוותים",
 			"FORGOT_PASSWORD": "שכחת סיסמה?",

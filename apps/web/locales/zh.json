@@ -1959,6 +1959,7 @@
 			"EMPTY_WORKSPACE_WARNING_TITLE": "此工作区没有团队",
 			"EMPTY_WORKSPACE_WARNING_MESSAGE": "登录后将提示您创建团队。",
 			"NO_TEAMS_BADGE": "无团队",
+			"WORKSPACE_NOT_SET_UP": "新工作区，尚未设置",
 			"TEAM_COUNT_SINGULAR": "团队",
 			"TEAM_COUNT_PLURAL": "团队",
 			"FORGOT_PASSWORD": "忘记密码？",

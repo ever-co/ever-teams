@@ -11,6 +11,14 @@ export function hasTeams(workspace: ISigninEmailConfirmWorkspaces | null | undef
 }
 
 /**
+ * Gauzy sends no tenant for an account that was never set up, often a second sign-up on an address that already has
+ * an account. Shown under the person's own name, it looked like their real workspace.
+ */
+export function isWorkspaceSetUp(workspace: ISigninEmailConfirmWorkspaces): boolean {
+	return Boolean(workspace.user.tenant);
+}
+
+/**
  * Get the number of teams in a workspace
  * @param workspace - The workspace to check
  * @returns The number of teams in the workspace

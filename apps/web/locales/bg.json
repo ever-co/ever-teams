@@ -1959,6 +1959,7 @@
 			"EMPTY_WORKSPACE_WARNING_TITLE": "Това работно пространство няма отбори",
 			"EMPTY_WORKSPACE_WARNING_MESSAGE": "Ще бъдете подканени да създадете отбор след влизане.",
 			"NO_TEAMS_BADGE": "Няма отбори",
+			"WORKSPACE_NOT_SET_UP": "Ново работно пространство, все още не е настроено",
 			"TEAM_COUNT_SINGULAR": "отбор",
 			"TEAM_COUNT_PLURAL": "отбора",
 			"FORGOT_PASSWORD": "Забравена парола?",

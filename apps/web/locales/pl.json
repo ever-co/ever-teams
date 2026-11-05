@@ -1959,6 +1959,7 @@
 			"EMPTY_WORKSPACE_WARNING_TITLE": "Ta przestrzeń robocza nie ma zespołów",
 			"EMPTY_WORKSPACE_WARNING_MESSAGE": "Zostaniesz poproszony o utworzenie zespołu po zalogowaniu.",
 			"NO_TEAMS_BADGE": "Brak zespołów",
+			"WORKSPACE_NOT_SET_UP": "Nowa przestrzeń robocza, jeszcze nieskonfigurowana",
 			"TEAM_COUNT_SINGULAR": "zespół",
 			"TEAM_COUNT_PLURAL": "zespoły",
 			"FORGOT_PASSWORD": "Zapomniałeś hasła?",

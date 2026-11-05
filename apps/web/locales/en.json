@@ -1959,6 +1959,7 @@
 			"EMPTY_WORKSPACE_WARNING_TITLE": "This workspace has no teams",
 			"EMPTY_WORKSPACE_WARNING_MESSAGE": "You'll be prompted to create a team after logging in.",
 			"NO_TEAMS_BADGE": "No teams",
+			"WORKSPACE_NOT_SET_UP": "New workspace, not set up yet",
 			"TEAM_COUNT_SINGULAR": "team",
 			"TEAM_COUNT_PLURAL": "teams",
 			"FORGOT_PASSWORD": "Forgot Password?",

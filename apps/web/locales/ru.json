@@ -1959,6 +1959,7 @@
 			"EMPTY_WORKSPACE_WARNING_TITLE": "В этом рабочем пространстве нет команд",
 			"EMPTY_WORKSPACE_WARNING_MESSAGE": "Вам будет предложено создать команду после входа.",
 			"NO_TEAMS_BADGE": "Нет команд",
+			"WORKSPACE_NOT_SET_UP": "Новое рабочее пространство, ещё не настроено",
 			"TEAM_COUNT_SINGULAR": "команда",
 			"TEAM_COUNT_PLURAL": "команды",
 			"FORGOT_PASSWORD": "Забыли пароль?",

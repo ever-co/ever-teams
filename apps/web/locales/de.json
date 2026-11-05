@@ -1959,6 +1959,7 @@
 			"EMPTY_WORKSPACE_WARNING_TITLE": "Dieser Arbeitsbereich hat keine Teams",
 			"EMPTY_WORKSPACE_WARNING_MESSAGE": "Sie werden nach der Anmeldung aufgefordert, ein Team zu erstellen.",
 			"NO_TEAMS_BADGE": "Keine Teams",
+			"WORKSPACE_NOT_SET_UP": "Neuer Arbeitsbereich, noch nicht eingerichtet",
 			"TEAM_COUNT_SINGULAR": "Team",
 			"TEAM_COUNT_PLURAL": "Teams",
 			"FORGOT_PASSWORD": "Passwort vergessen?",
