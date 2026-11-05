@@ -290,17 +290,17 @@ export function MinTimerFrame({ className }: IClassName) {
 export function TimerRunningSourceIcon({ source }: { source: ETimeLogSource }) {
 	switch (source) {
 		case ETimeLogSource.MOBILE:
-			return <Smartphone className="size-4 animate-pulse text-muted-foreground" />;
+			return <Smartphone aria-hidden="true" className="size-4 animate-pulse text-muted-foreground" />;
 		case ETimeLogSource.BROWSER:
-			return <Globe className="size-4 animate-pulse" />;
+			return <Globe aria-hidden="true" className="size-4 animate-pulse" />;
 		case ETimeLogSource.BROWSER_EXTENSION:
-			return <Globe className="size-4 animate-pulse text-muted-foreground" />;
+			return <Globe aria-hidden="true" className="size-4 animate-pulse text-muted-foreground" />;
 		case ETimeLogSource.DESKTOP:
-			return <Desktop className="size-4 animate-pulse text-muted-foreground" />;
+			return <Desktop aria-hidden="true" className="size-4 animate-pulse text-muted-foreground" />;
 		case ETimeLogSource.UPWORK:
-			return <ArrowTurnUp className="size-4 animate-pulse text-muted-foreground" />;
+			return <ArrowTurnUp aria-hidden="true" className="size-4 animate-pulse text-muted-foreground" />;
 		case ETimeLogSource.HUBSTAFF:
-			return <Lifebuoy className="size-4 animate-pulse text-muted-foreground" />;
+			return <Lifebuoy aria-hidden="true" className="size-4 animate-pulse text-muted-foreground" />;
 		default:
 			return <></>;
 	}
