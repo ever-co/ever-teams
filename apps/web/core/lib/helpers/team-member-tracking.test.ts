@@ -62,6 +62,20 @@ describe('today seconds of a running log with no team', () => {
 		expect(todaySecondsWithoutTeam(undefined, now)).toBe(0);
 	});
 
+	it('counts nothing for the new day from a read made before midnight', () => {
+		const status = runningLog({ startedAt: new Date(2026, 10, 4, 22, 0, 0) });
+		const readBeforeMidnight = new Date(2026, 10, 4, 23, 59, 0);
+
+		expect(todaySecondsWithoutTeam(status, readBeforeMidnight, now)).toBe(0);
+	});
+
+	it('counts up to the read, from the start of the day the card is drawn on', () => {
+		const status = runningLog({ startedAt: new Date(2026, 10, 4, 22, 0, 0) });
+		const readAt = new Date(2026, 10, 5, 9, 30, 0);
+
+		expect(todaySecondsWithoutTeam(status, readAt, now)).toBe(9.5 * 3600);
+	});
+
 	it('counts nothing for a start time that does not read as a date', () => {
 		const status = runningLog({ startedAt: 'not a date', organizationTeamId: null });
 

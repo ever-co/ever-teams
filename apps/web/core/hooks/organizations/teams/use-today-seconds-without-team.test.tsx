@@ -86,6 +86,21 @@ describe('useTodaySecondsWithoutTeam', () => {
 		await waitFor(() => expect(result.current).toEqual([91 * 60, 0]));
 	});
 
+	it('counts nothing for the new day when the last good read was before midnight', async () => {
+		jest.useFakeTimers({ now: new Date(2026, 10, 4, 23, 59, 0) });
+		mockGetLastTimerLogsOf.mockResolvedValue({ data: [runningSince('employee-a', 119, null)] });
+
+		const { result, rerender } = renderFor([member('employee-a', tracking, 'pause')]);
+		await waitFor(() => expect(result.current).toEqual([119 * 60, 0]));
+		mockGetLastTimerLogsOf.mockRejectedValue(new Error('offline'));
+		await act(async () => {
+			jest.advanceTimersByTime(2 * ONE_MINUTE);
+		});
+		rerender();
+
+		expect(result.current).toEqual([0, 0]);
+	});
+
 	it('reads nothing when no member tracks outside the team', () => {
 		const { result } = renderFor([member('employee-a', tracking, 'running')]);
 

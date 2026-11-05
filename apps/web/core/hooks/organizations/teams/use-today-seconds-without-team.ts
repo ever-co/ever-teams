@@ -46,5 +46,7 @@ export function useTodaySecondsWithoutTeam(employeeId: string | null | undefined
 	const status = statuses?.find((memberStatus) => memberStatus.lastLog?.employeeId === employeeId);
 	// Counted up to the last read: a read that returns the same log keeps the data, but still moves this clock
 	const readAt = new Date(dataUpdatedAt);
-	return todaySecondsWithoutTeam(status, readAt);
+	// Today is the day the card is drawn on, so a read from before midnight counts nothing for the new day
+	const now = new Date();
+	return todaySecondsWithoutTeam(status, readAt, now);
 }

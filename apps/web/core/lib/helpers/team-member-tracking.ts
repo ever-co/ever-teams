@@ -26,10 +26,15 @@ export function isTrackingOutsideTeam(member: TOrganizationTeamEmployee | undefi
 }
 
 /**
- * Today's seconds of a running log saved with no team, which the team's own totals never count. A log started before
- * today counts from today's start; any other log counts nothing.
+ * Today's seconds of a running log saved with no team, which the team's own totals never count, up to `countedUntil`
+ * (when the log was read). A log started before today counts from today's start, today being the day of `now`; any
+ * other log counts nothing.
  */
-export function todaySecondsWithoutTeam(status: ITimerStatus | undefined, now: Date): number {
+export function todaySecondsWithoutTeam(
+	status: ITimerStatus | undefined,
+	countedUntil: Date,
+	now: Date = countedUntil
+): number {
 	const lastLog = status?.lastLog;
 	const isRunning = Boolean(status?.running);
 	if (!isRunning || !lastLog?.startedAt) {
@@ -45,7 +50,7 @@ export function todaySecondsWithoutTeam(status: ITimerStatus | undefined, now: D
 	}
 	const todayStart = startOfDay(now);
 	const countedFrom = max([startedAt, todayStart]);
-	const seconds = differenceInSeconds(now, countedFrom);
+	const seconds = differenceInSeconds(countedUntil, countedFrom);
 	return Math.max(seconds, 0);
 }
 
