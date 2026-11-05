@@ -79,6 +79,7 @@ export function useAuthenticationPasscode() {
 	const [screen, setScreen] = useState<'email' | 'passcode' | 'workspace'>(everIdConfirm ? 'passcode' : 'email');
 	const [everIdConfirmLoading, setEverIdConfirmLoading] = useState(false);
 	const [everIdTeamsUnavailable, setEverIdTeamsUnavailable] = useState(false);
+	const [everIdTenantless, setEverIdTenantless] = useState<number[]>([]);
 	const [workspaces, setWorkspaces] = useState<ISigninEmailConfirmWorkspaces[]>([]);
 	const [defaultTeamId, setDefaultTeamId] = useState<string | undefined>(undefined);
 	const [authenticated, setAuthenticated] = useState(false);
@@ -176,6 +177,7 @@ export function useAuthenticationPasscode() {
 					setStatus('success');
 					if (response.data.workspaces?.length > 0) {
 						setWorkspaces(response.data.workspaces);
+						setEverIdTenantless([]);
 						setDefaultTeamId(response.data.defaultTeamId);
 						setScreen('workspace');
 					} else {
@@ -248,6 +250,7 @@ export function useAuthenticationPasscode() {
 					everIdWorkspaces.current = true;
 					setWorkspaces(chooser.workspaces);
 					setEverIdTeamsUnavailable(chooser.teamsUnavailable);
+					setEverIdTenantless(chooser.tenantless);
 					setFormValues((values) => ({ ...values, email: chooser.confirmedEmail }));
 					setAuthenticated(true);
 					setStatus('success');
@@ -444,6 +447,7 @@ export function useAuthenticationPasscode() {
 		everIdConfirm,
 		everIdConfirmLoading,
 		everIdTeamsUnavailable,
+		everIdTenantless,
 		leaveEverIdStep
 	};
 }

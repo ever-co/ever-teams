@@ -42,7 +42,7 @@ import {
 	hasTeams,
 	getFirstTeamId,
 	findWorkspaceIndexByTeamId,
-	isWorkspaceSetUp
+	isWorkspaceNotSetUp
 } from '@/core/lib/utils/workspace.utils';
 import { useWorkspaceAnalysis } from '@/core/hooks/auth/use-workspace-analysis';
 import { useResendCooldown } from '@/core/hooks/auth/use-resend-cooldown';
@@ -57,8 +57,12 @@ function teamCountLabel(teamCount: number, t: ReturnType<typeof useTranslations>
 	return t('pages.auth.TEAM_COUNT_PLURAL');
 }
 
-function workspaceLabelOf(workspace: ISigninEmailConfirmWorkspaces, t: ReturnType<typeof useTranslations>) {
-	if (!isWorkspaceSetUp(workspace)) {
+function workspaceLabelOf(
+	workspace: ISigninEmailConfirmWorkspaces,
+	isNotSetUp: boolean,
+	t: ReturnType<typeof useTranslations>
+) {
+	if (isNotSetUp) {
 		return t('pages.auth.WORKSPACE_NOT_SET_UP');
 	}
 	return workspace.user.tenant.name || workspace.user.name || 'Workspace';
@@ -415,6 +419,7 @@ function WorkSpaceScreen({ form, className }: { form: TAuthenticationPasscode } 
 					selectedTeam={selectedTeam}
 					signInWorkspaceLoading={form.signInWorkspaceLoading}
 					teamsUnavailable={form.everIdTeamsUnavailable}
+					notSetUpIndices={form.everIdTenantless}
 				/>
 			</div>
 
@@ -440,6 +445,8 @@ type IWorkSpace = {
 	selectedTeam: string;
 	/** The workspaces carry no team list (an Ever ID sign-in): list them without empty-workspace warnings. */
 	teamsUnavailable?: boolean;
+	/** The workspaces with no tenant yet, when the list cannot show it (an Ever ID sign-in fills a missing tenant). */
+	notSetUpIndices?: readonly number[];
 };
 
 export function WorkSpaceComponent(props: IWorkSpace) {
@@ -535,7 +542,8 @@ export function WorkSpaceComponent(props: IWorkSpace) {
 								const isSelectedWithTeams = isSelected && !isEmpty;
 								const isSelectedEmpty = isSelected && isEmpty;
 								const showsTeamCount = !isEmpty && teamCount > 0;
-								const workspaceName = workspaceLabelOf(workspace, t);
+								const isNotSetUp = isWorkspaceNotSetUp(workspace, originalIndex, props.notSetUpIndices);
+								const workspaceName = workspaceLabelOf(workspace, isNotSetUp, t);
 
 								return (
 									<div

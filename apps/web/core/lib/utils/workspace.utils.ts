@@ -19,6 +19,20 @@ export function isWorkspaceSetUp(workspace: ISigninEmailConfirmWorkspaces): bool
 }
 
 /**
+ * Whether the chooser labels the workspace at `index` as not set up: it has no tenant, or the list says so where it
+ * cannot show it (an Ever ID sign-in fills a missing tenant with an empty one).
+ */
+export function isWorkspaceNotSetUp(
+	workspace: ISigninEmailConfirmWorkspaces,
+	index: number,
+	notSetUpIndices: readonly number[] = []
+): boolean {
+	const listedNotSetUp = notSetUpIndices.includes(index);
+	const hasTenant = isWorkspaceSetUp(workspace);
+	return listedNotSetUp || !hasTenant;
+}
+
+/**
  * Get the number of teams in a workspace
  * @param workspace - The workspace to check
  * @returns The number of teams in the workspace

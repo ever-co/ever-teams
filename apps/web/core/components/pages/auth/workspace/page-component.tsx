@@ -177,6 +177,7 @@ function WorkSpaceScreen() {
 			selectedTeam={selectedTeam}
 			signInWorkspaceLoading={form.signInWorkspaceLoading || everIdChoice.setupRunning}
 			teamsUnavailable={everIdSession?.teamsUnavailable}
+			notSetUpIndices={everIdSession?.tenantless}
 		/>
 	);
 }
