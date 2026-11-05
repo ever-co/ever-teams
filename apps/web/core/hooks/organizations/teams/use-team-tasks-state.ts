@@ -8,7 +8,6 @@ import {
 } from '@/core/lib/helpers/index';
 import { getValidActiveTask, isHeldTeamTask } from '@/core/lib/utils/task.utils';
 import { logErrorInDev } from '@/core/lib/helpers/error-message';
-import { taskService } from '@/core/services/client/api';
 import {
 	activeTeamState,
 	activeTeamTaskState,
@@ -124,17 +123,7 @@ function useActiveTaskSetter() {
 				 * Unassign previous active task
 				 */
 				if (memberActiveTaskId && signedInUser && memberActiveTaskId !== task?.id) {
-					let _task = store.get(tasksByTeamState).find((t) => t.id === memberActiveTaskId);
-					// A task held after a default project change is no longer listed, and is still the one to leave.
-					// Its copy is no longer refreshed and PUT /tasks/:id replaces the whole task, so it is read again.
-					const heldTask = store.get(activeTeamTaskState);
-					if (!_task && heldTask?.id === memberActiveTaskId) {
-						try {
-							_task = await taskService.getTaskById(heldTask.id);
-						} catch (error) {
-							logErrorInDev('[setActiveTask] Failed to read the held task before unassigning it', error);
-						}
-					}
+					const _task = store.get(tasksByTeamState).find((t) => t.id === memberActiveTaskId);
 
 					if (_task) {
 						try {
