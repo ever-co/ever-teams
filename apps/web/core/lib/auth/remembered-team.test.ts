@@ -56,6 +56,12 @@ describe('pickRememberedTeam: a browser that knows the e-mail', () => {
 		expect(pickRememberedTeam([acme, freelance], record, NOW)).toBeNull();
 	});
 
+	it('shows the list for a team recorded later than now, after the clock was set back', () => {
+		const record = { teamId: 'clients', usedAt: NOW + 1 };
+
+		expect(pickRememberedTeam([acme, freelance], record, NOW)).toBeNull();
+	});
+
 	it('shows the list when the person was removed from the team', () => {
 		const record = { teamId: 'design', usedAt: NOW - DAY };
 		const acmeWithoutDesign = workspace('Acme', ['ops']);

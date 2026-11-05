@@ -159,6 +159,11 @@ export function pickRememberedTeam(
 	if (!record.teamId) {
 		return null;
 	}
+	// A time ahead of this browser's clock (a clock set back since) would keep the team recent past the 30 days
+	const usedInTheFuture = record.usedAt > now;
+	if (usedInTheFuture) {
+		return null;
+	}
 	if (!isRecent(record.usedAt, now)) {
 		return null;
 	}
