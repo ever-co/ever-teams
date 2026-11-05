@@ -2989,7 +2989,10 @@
 			"notesPlaceholder": "Añade tus notas aquí…"
 		},
 		"manualTime": {
-			"descriptionPlaceholder": "¿En qué trabajaste?"
+			"descriptionPlaceholder": "¿En qué trabajaste?",
+			"PROJECT": "Proyecto",
+			"SELECT_EMPLOYEE": "Seleccionar un empleado",
+			"SELECT_TASK": "Seleccionar una tarea"
 		},
 		"dailyPlan": {
 			"planMyDay": "Planificar mi día",

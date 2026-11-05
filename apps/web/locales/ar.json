@@ -2989,7 +2989,10 @@
 			"notesPlaceholder": "أضف ملاحظاتك هنا…"
 		},
 		"manualTime": {
-			"descriptionPlaceholder": "على ماذا عملت؟"
+			"descriptionPlaceholder": "على ماذا عملت؟",
+			"PROJECT": "المشروع",
+			"SELECT_EMPLOYEE": "اختر موظفًا",
+			"SELECT_TASK": "اختر مهمة"
 		},
 		"dailyPlan": {
 			"planMyDay": "خطّط ليومي",
