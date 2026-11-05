@@ -1967,6 +1967,8 @@
 			"PRIVACY_POLICY": "Polityka prywatności",
 			"OR_CONTINUE_WITH": "lub kontynuuj przez",
 			"SIGNUP_VERIFY_EMAIL": "Twoje konto zostało utworzone. Otwórz link w e-mailu wysłanym na {email}, aby je aktywować, a następnie zaloguj się e-mailem.",
+			"EXISTING_ACCOUNT_HINT": "Masz już konto z tym adresem e-mail?",
+			"SIGN_IN_INSTEAD": "Zaloguj się na nie",
 			"everId": {
 				"NO_WORKSPACE_TITLE": "Brak jeszcze przestrzeni roboczej dla tego Ever ID",
 				"NO_WORKSPACE_BODY": "Z tym Ever ID nie jest jeszcze połączona żadna przestrzeń robocza. Zaloguj się w inny sposób lub poproś administratora swojej przestrzeni roboczej o zaproszenie.",
