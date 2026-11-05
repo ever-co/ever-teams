@@ -106,6 +106,60 @@ describe('useRememberedTeamContinue', () => {
 		expect(onClick).toHaveBeenCalledTimes(1);
 	});
 
+	it('does not try the only team again after its automatic sign-in was refused', () => {
+		const single = [workspace('Acme', ['design'])];
+		const first = renderHook(() => useRememberedTeamContinue({ workspaces: single, email: EMAIL }));
+		act(() => {
+			first.result.current.onContinueFailed({ response: { status: 401 } });
+		});
+		first.unmount();
+		const onClick = mountContinueButton();
+
+		const { result } = renderHook(() => useRememberedTeamContinue({ workspaces: single, email: EMAIL }));
+		act(() => {
+			jest.advanceTimersByTime(100);
+		});
+
+		expect(result.current.autoContinue).toBe(false);
+		expect(onClick).not.toHaveBeenCalled();
+	});
+
+	it('opens by itself again once a team picked by hand has opened', () => {
+		const single = [workspace('Acme', ['design'])];
+		const first = renderHook(() => useRememberedTeamContinue({ workspaces: single, email: EMAIL }));
+		act(() => {
+			first.result.current.onContinueFailed({ response: { status: 401 } });
+		});
+		first.unmount();
+		// What the app records once the team picked on the list has opened
+		rememberTeam(EMAIL, 'design');
+		const onClick = mountContinueButton();
+
+		const { result } = renderHook(() => useRememberedTeamContinue({ workspaces: single, email: EMAIL }));
+		act(() => {
+			jest.advanceTimersByTime(100);
+		});
+
+		expect(result.current.autoContinue).toBe(true);
+		expect(onClick).toHaveBeenCalledTimes(1);
+	});
+
+	it('keeps opening the only team by itself when the last team opened is older than 30 days', () => {
+		rememberTeam(EMAIL, 'design', Date.now() - 31 * 24 * 60 * 60 * 1000);
+		const onClick = mountContinueButton();
+
+		const { result } = renderHook(() =>
+			useRememberedTeamContinue({ workspaces: [workspace('Acme', ['design'])], email: EMAIL })
+		);
+		act(() => {
+			jest.advanceTimersByTime(100);
+		});
+
+		expect(result.current.rememberedPick).toBeNull();
+		expect(result.current.autoContinue).toBe(true);
+		expect(onClick).toHaveBeenCalledTimes(1);
+	});
+
 	it('leaves the pick to another rule when told to', () => {
 		rememberTeam(EMAIL, 'clients');
 

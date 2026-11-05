@@ -231,9 +231,17 @@ export function rememberTeam(email: string | null | undefined, teamId: MaybeTeam
 	writeRememberedTeam(email, { teamId, usedAt: now });
 }
 
+/** An automatic sign-in failed for this e-mail on this browser, and no team has opened since. */
+export function isRememberedTeamRefused(record: RememberedTeamRecord | null): boolean {
+	if (!record) {
+		return false;
+	}
+	return record.teamId === null;
+}
+
 /**
- * Keeps the e-mail known to this browser without a team, so the next sign-in shows the list instead of trying the
- * same team again through Gauzy's last team.
+ * Keeps the e-mail known to this browser without a team, so the next sign-ins show the list instead of trying the
+ * same team again, as Gauzy's last team or as the list's only team, until a team opens again.
  */
 export function forgetRememberedTeam(email: string | null | undefined, now = Date.now()) {
 	writeRememberedTeam(email, { teamId: null, usedAt: now });

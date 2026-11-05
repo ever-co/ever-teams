@@ -4,7 +4,12 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 import { toast } from 'sonner';
 import { useTranslations, type DottedLanguageObjectStringPaths } from 'next-intl';
 import { errorReasonKeyOf } from '@/core/lib/utils/error-feedback';
-import { forgetRememberedTeam, pickRememberedTeam, readRememberedTeam } from '@/core/lib/auth/remembered-team';
+import {
+	forgetRememberedTeam,
+	isRememberedTeamRefused,
+	pickRememberedTeam,
+	readRememberedTeam
+} from '@/core/lib/auth/remembered-team';
 import { ISigninEmailConfirmWorkspaces } from '@/core/types/interfaces/auth/auth';
 import { useWorkspaceAnalysis } from './use-workspace-analysis';
 
@@ -24,7 +29,8 @@ type RememberedTeamContinueOptions = {
 
 /**
  * Opens a workspace chooser's team without asking: the only team of a single workspace, as before, or the remembered
- * team (see `pickRememberedTeam`). Gives the list back, with the reason, when that sign-in fails.
+ * team (see `pickRememberedTeam`). Gives the list back, with the reason, when that sign-in fails, and keeps showing it
+ * on this browser until a team opens again.
  */
 export function useRememberedTeamContinue({
 	workspaces,
@@ -36,16 +42,21 @@ export function useRememberedTeamContinue({
 	const [continueFailed, setContinueFailed] = useState(false);
 	const [openedAt] = useState(Date.now);
 
-	const rememberedPick = useMemo(() => {
-		if (!rememberedTeamAllowed) {
-			return null;
-		}
+	const remembered = useMemo(() => {
 		const record = readRememberedTeam(email);
-		return pickRememberedTeam(workspaces, record, openedAt);
+		const refusedBefore = isRememberedTeamRefused(record);
+		if (!rememberedTeamAllowed) {
+			return { pick: null, refusedBefore };
+		}
+		const pick = pickRememberedTeam(workspaces, record, openedAt);
+		return { pick, refusedBefore };
 	}, [email, openedAt, rememberedTeamAllowed, workspaces]);
 
+	const rememberedPick = remembered.pick;
 	const hasRememberedPick = rememberedPick !== null;
-	const wantsAutoContinue = singleTeamAutoSubmit || hasRememberedPick;
+	const singleTeamAllowed = !remembered.refusedBefore;
+	const singleTeamContinue = singleTeamAutoSubmit && singleTeamAllowed;
+	const wantsAutoContinue = singleTeamContinue || hasRememberedPick;
 	const autoContinue = wantsAutoContinue && !continueFailed;
 
 	useEffect(() => {
