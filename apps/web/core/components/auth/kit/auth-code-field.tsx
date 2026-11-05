@@ -3,14 +3,13 @@
 import { useEffect, useRef, type FormEvent, type MutableRefObject, type ReactNode, type Ref } from 'react';
 import { CircleAlert } from '@/core/components/icons';
 import { AuthCodeInputField, type AuthCodeRef } from '@/core/components/auth/auth-code-input';
-import { AUTH_CODE_LENGTH } from '@/core/constants/config/constants';
 import { cn } from '@/core/lib/helpers';
 import { canAnimate } from '@/core/lib/utils/motion';
 import { AUTH_LABEL, AUTH_LINE_ARRIVAL } from './auth-recipes';
 
 export type AuthCodeStatus = 'idle' | 'loading' | 'success' | 'error';
 
-/** The dash sits at the centre of the row: the gaps are symmetric, so it always lands in the wider middle gap. */
+/** The AUTH_CODE_LENGTH slots split 4 + 4: the dash sits at the centre of the row, in the wider middle gap. */
 const GROUPED_ROW = 'flex w-full justify-between gap-1.5 [&>input:nth-child(4)]:mr-4';
 
 /** The placeholder is a space so `:placeholder-shown` tells an empty slot from a filled one. */
@@ -71,7 +70,6 @@ type AuthCodeFieldProps = {
 	autoFocus?: boolean;
 	submitCode?: () => void;
 	onChange: (code: string) => void;
-	length?: number;
 };
 
 export function AuthCodeField({
@@ -86,8 +84,7 @@ export function AuthCodeField({
 	autoComplete,
 	autoFocus = true,
 	submitCode,
-	onChange,
-	length = AUTH_CODE_LENGTH
+	onChange
 }: Readonly<AuthCodeFieldProps>) {
 	const ownSlots = useRef<HTMLInputElement[]>([]);
 	const slotsRef = inputReference ?? ownSlots;
@@ -143,7 +140,6 @@ export function AuthCodeField({
 						ref={codeRef}
 						inputReference={slotsRef}
 						allowedCharacters="alphanumeric"
-						length={length}
 						containerClassName={GROUPED_ROW}
 						inputClassName={GROUPED_SLOT}
 						placeholder=" "
