@@ -20,6 +20,7 @@ import { useAtomValue, useSetAtom } from 'jotai';
 import { useEffect, useMemo, useRef } from 'react';
 import { reownActiveQueriesAfterTokenRefresh } from './token-refresh-query-ownership';
 import { syncTokenOrganization } from '@/core/lib/auth/token-organization';
+import { rememberTeam } from '@/core/lib/auth/remembered-team';
 import { queryKeys } from '@/core/query/keys';
 import { getShellCriticalQueryKeys, useScopeTransitionGuard } from './use-scope-transition-guard';
 
@@ -94,6 +95,12 @@ export function InitState() {
 	useEffect(() => {
 		setTeamDetailLoading(teamOwner.teamDetailPending);
 	}, [teamOwner.teamDetailPending, setTeamDetailLoading]);
+	// The next sign-in on this browser opens this team, while it is used within the last 30 days (remembered-team.ts)
+	const activeTeamId = activeTeam?.id;
+	const userEmail = user?.email;
+	useEffect(() => {
+		rememberTeam(userEmail, activeTeamId);
+	}, [activeTeamId, userEmail]);
 	// The list already resolves the team with its projects and plan policy. The detail only adds member work
 	// statistics, so team-scoped reads start alongside it instead of one round trip after it.
 	const teamReady = !!(workspaceReady && teamOwner.organizationTeamsSuccess && activeTeam?.id);
