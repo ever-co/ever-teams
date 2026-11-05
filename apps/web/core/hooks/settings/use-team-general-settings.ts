@@ -16,6 +16,7 @@ import { useOrganizationEmployeeTeams } from '@/core/hooks/organizations/teams/u
 import { useIsMemberManager } from '@/core/hooks/organizations/teams/use-team-member';
 import { useUserQuery } from '@/core/hooks/queries/user-user.query';
 import type { TOrganizationTeamUpdate } from '@/core/types/schemas';
+import { setActiveProjectIdCookie } from '@/core/lib/helpers/cookies';
 
 export const TEAM_AVATAR_FOLDER = 'organization_teams_avatars';
 
@@ -73,8 +74,13 @@ export function useTeamGeneralSettings() {
 		[saveField]
 	);
 
+	// New tasks read the active project from its cookie: it follows the saved default at once, not after the
+	// next team read.
 	const saveDefaultProject = useCallback(
-		(defaultProjectId: string) => saveField({ defaultProjectId }, 'toasts.teams.DEFAULT_PROJECT_NOT_SAVED'),
+		async (defaultProjectId: string) => {
+			await saveField({ defaultProjectId }, 'toasts.teams.DEFAULT_PROJECT_NOT_SAVED');
+			setActiveProjectIdCookie(defaultProjectId);
+		},
 		[saveField]
 	);
 
