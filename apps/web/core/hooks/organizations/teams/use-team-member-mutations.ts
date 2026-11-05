@@ -8,13 +8,14 @@ import { useSetActiveTask } from './use-team-tasks-state';
 import { TOrganizationTeamEmployee } from '@/core/types/schemas';
 import { TTask } from '@/core/types/schemas/task/task.schema';
 import { useUserQuery } from '../../queries/user-user.query';
+import { useSyncRef } from '../../common/use-sync-ref';
 
 /**
  * Provides task assignment/unassignment mutations for a given team member.
  *
  * Handles:
  * - assignTask: assigns a task to the member (and sets it as active if auth user has no active task)
- * - unassignTask: removes the member from a task (and unassigns auth active task if needed)
+ * - unassignTask: removes the member from a task (and clears the auth user's active task when it was that task)
  * - memberUnassignTasks: list of tasks NOT assigned to the member (for the assign dropdown)
  * - assignTaskLoading / unAssignTaskLoading: loading states for UI feedback
  *
@@ -27,6 +28,8 @@ export function useTeamMemberMutations(member: TOrganizationTeamEmployee | undef
 	const { setActiveTask } = useSetActiveTask();
 	const tasks = useAtomValue(tasksByTeamState);
 	const activeTeamTask = useAtomValue(activeTeamTaskState);
+	// Read when an unassignment lands: the active task may have changed while it was saving
+	const activeTeamTaskRef = useSyncRef(activeTeamTask);
 
 	const [assignTaskLoading, setAssignTaskLoading] = useState(false);
 	const [unAssignTaskLoading, setUnAssignTaskLoading] = useState(false);
@@ -75,7 +78,8 @@ export function useTeamMemberMutations(member: TOrganizationTeamEmployee | undef
 
 	/**
 	 * Unassign a task from the member.
-	 * If the auth user unassigns their own task, also clears the auth active task.
+	 * When the auth user leaves the very task they have active, that active task is cleared; leaving another task
+	 * leaves the active one, and its timer, as they are.
 	 */
 	const unassignTask = useCallback(
 		(task: TTask) => {
@@ -89,7 +93,9 @@ export function useTeamMemberMutations(member: TOrganizationTeamEmployee | undef
 				members: task.members?.filter((m) => m.id !== member.employeeId)
 			})
 				.then(() => {
-					if (isAuthUser) {
+					const isActiveTask = activeTeamTaskRef.current?.id === task.id;
+					const leavesOwnActiveTask = isAuthUser && isActiveTask;
+					if (leavesOwnActiveTask) {
 						unassignAuthActiveTask();
 					}
 				})
@@ -97,7 +103,7 @@ export function useTeamMemberMutations(member: TOrganizationTeamEmployee | undef
 					setUnAssignTaskLoading(false);
 				});
 		},
-		[updateTask, member, isAuthUser, unassignAuthActiveTask]
+		[updateTask, member, isAuthUser, activeTeamTaskRef, unassignAuthActiveTask]
 	);
 
 	return {

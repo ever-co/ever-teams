@@ -128,6 +128,8 @@
 		"ASSIGN_TASK_TO": "Възлагане на задача",
 		"ASSIGN_TASK_TO_ME": "Възложи задачата на мен",
 		"UNASSIGN_TASK_FROM_ME": "Премахни ме от задачата",
+		"ASSIGN_TASK_TO_MEMBER": "Възложи на {name}",
+		"UNASSIGN_TASK_FROM_MEMBER": "Премахни {name} от задачата",
 		"TASK_ASSIGNED_TO_ME": "Задачата е възложена на вас",
 		"TASK_UNASSIGNED_FROM_ME": "Задачата е премахната от вас",
 		"TASK_ASSIGN_ERROR": "Неуспешно възлагане на задача",
@@ -175,7 +177,7 @@
 		"PRIVATE_TASK": "Тази задача е частна",
 		"PUBLIC_TASK_LABEL": "Направи я публична",
 		"PRIVATE_TASK_LABEL": "Направи я частна",
-		"CREATE_TASK": "Създаване на нова задача",
+		"CREATE_TASK": "Създаване на задача",
 		"REMOVE_FAVORITE_TASK": "Премахване на задачата от любими",
 		"ADD_FAVORITE_TASK": "Добавяне на задачата към любими",
 		"NO_PROJECT": "Няма проект",
@@ -245,7 +247,7 @@
 		"TRANSFER_TEAM": "Прехвърляне на отбор",
 		"TEAM_MEMBERS": "Членове на отбора",
 		"NO_TEAM": "Създайте собствен отбор или се присъединете към съществуващ",
-		"NO_TEAM_SUB": "Прекрасно е да се работи с други, затова създайте екип и поканете всички за сътрудничество!",
+		"NO_TEAM_SUB": "Създайте екип и поканете хората, с които работите.",
 		"NO_TEAM_TOOLTIP": "You need to verify your email address",
 		"CANCEL": "Отказ",
 		"DISCARD": "Изхвърляне",
@@ -300,7 +302,7 @@
 		"KEYBOARD_SHORTCUTS": "Клавишни комбинации",
 		"GITHUB_INTEGRATION_SUBTITLE_TEXT": "Активирайте интеграцията с GitHub за синхронизация на проекта и хранилището",
 		"GITHUB_LOADING_TEXT": "В момента инсталираме вашия GitHub интеграция, изчакайте...",
-		"GITHUB_INTEGRATION_AUTO_SYNC_TASK_TEXT": "Автоматично синхронизирайте задачите в приложението си за безпроблемни и ефективни актуализации.",
+		"GITHUB_INTEGRATION_AUTO_SYNC_TASK_TEXT": "Синхронизира задачите със свързаното хранилище автоматично.",
 		"GITHUB_INTEGRATION_LABEL_SYNC_TASK_TEXT": "Синхронизирайте задачите избирателно, като ги свържете с конкретен етикет.",
 		"GITHUB_AUTO_SYNC_LABEL": "Изберете етикет за автоматична синхронизация",
 		"THERE_IS_NO_TASK_ASSIGNED": "Няма възложени задачи",
@@ -1529,7 +1531,17 @@
 			"CHECKING_ACCOUNT": "Проверяваме какво ще бъде изтрито…",
 			"PREVIEW_ERROR": "Не успяхме да заредим какво ще бъде изтрито.",
 			"SIGN_OUT_AFTER": "Веднага след това ще излезете от профила си.",
-			"PLAN_CHANGED": "Това, което ще бъде изтрито, се промени след зареждането на страницата (някой се присъедини или напусна). Нищо не е изтрито: прегледайте новото обобщение и потвърдете отново."
+			"PLAN_CHANGED": "Това, което ще бъде изтрито, се промени след зареждането на страницата (някой се присъедини или напусна). Нищо не е изтрито: прегледайте новото обобщение и потвърдете отново.",
+			"roles": {
+				"superAdmin": "Супер администратор",
+				"admin": "Администратор",
+				"manager": "Мениджър",
+				"employee": "Служител",
+				"dataEntry": "Въвеждане на данни",
+				"viewer": "Наблюдател",
+				"candidate": "Кандидат",
+				"interviewer": "Интервюиращ"
+			}
 		},
 		"timeLimitReport": {
 			"TIME_SPENT": "Изразходвано време",
@@ -1541,7 +1553,7 @@
 			"WEEKLY_LIMIT": "Седмичен лимит"
 		},
 		"home": {
-			"BREADCRUMB": "[\"Табло\"]",
+			"BREADCRUMB": "[\"Начало\"]",
 			"SENT_EMAIL_VERIFICATION": "Потвърждаващият код беше изпратен до имейла ви",
 			"SENT_EMAIL_VERIFICATION_YOU_NEED_TO": "Трябва да",
 			"SENT_EMAIL_VERIFICATION_YOUR_EMAIL_ADDRESS": " вашия имейл адрес. Потвърждаващият код вече би трябвало да е изпратен до имейла ви, но свободно натиснете",
@@ -1584,7 +1596,7 @@
 			"basicInformationForm": {
 				"formFields": {
 					"title": "Заглавие на проекта",
-					"titlePlaceholder": "Клиентски проект #1...",
+					"titlePlaceholder": "Клиентски проект #1",
 					"description": "Описание",
 					"datePickerPlaceholder": "Изберете дата",
 					"websiteUrl": "URL на сайта",
@@ -1602,12 +1614,12 @@
 					"endDateRequired": "Дата на завършване е задължителна.",
 					"endDateAfterStart": "Дата на завършване трябва да бъде след дата на започване.",
 					"invalidUrl": "Моля, въведете валиден URL.",
-					"uploadError": "Възникна грешка при качването на изображението на проекта, моля опитайте отново!",
+					"uploadError": "Изображението на проекта не беше качено. Опитайте отново.",
 					"descriptionWordLimit": "Описанието трябва да бъде до 5000 думи."
 				},
 				"common": {
-					"search": "Търсене ...",
-					"typeNew": "Въведете ново ...",
+					"search": "Търсене",
+					"typeNew": "Въведете ново",
 					"addNew": "Добави нов",
 					"uploadingImage": "Качване на изображението на проекта"
 				}
@@ -1615,9 +1627,9 @@
 			"categorizationForm": {
 				"formFields": {
 					"labels": "Етикети",
-					"labelsPlaceholder": "Изберете етикети...",
+					"labelsPlaceholder": "Изберете етикети",
 					"tags": "Тагове",
-					"tagsPlaceholder": "Изберете тагове...",
+					"tagsPlaceholder": "Изберете тагове",
 					"colorCode": "Цветови код"
 				}
 			},
@@ -1626,11 +1638,11 @@
 					"budgetType": "Тип бюджет",
 					"budgetTypePlaceholder": "Изберете тип бюджет",
 					"budgetAmount": "Сума на бюджета",
-					"budgetAmountPlaceholder": "10 000$...",
+					"budgetAmountPlaceholder": "10 000$",
 					"currency": "Избор на валута",
-					"currencyPlaceholder": "Изберете валута...",
+					"currencyPlaceholder": "Изберете валута",
 					"billing": "Тип фактуриране",
-					"billingPlaceholder": "Изберете интервал..."
+					"billingPlaceholder": "Изберете интервал"
 				}
 			},
 			"teamAndRelationsForm": {
@@ -1641,13 +1653,13 @@
 					"assignMembers": "Назначаване на членове и мениджъри",
 					"noMembers": "Няма членове или мениджъри",
 					"addMember": "Добави член",
-					"selectMember": "Изберете член...",
-					"selectRole": "Изберете роля...",
+					"selectMember": "Изберете член",
+					"selectRole": "Изберете роля",
 					"relations": "Връзки",
 					"noRelations": "Няма връзки",
 					"addRelation": "Добави връзка",
-					"selectProject": "Изберете проект...",
-					"selectRelationType": "Изберете тип връзка...",
+					"selectProject": "Изберете проект",
+					"selectRelationType": "Изберете тип връзка",
 					"activeTeamLocked": "Текущият екип е задължителен и не може да бъде премахнат"
 				},
 				"errors": {
@@ -1776,7 +1788,7 @@
 				"created": "{name} е създаден",
 				"saved": "Промените в {name} са запазени",
 				"done": "Готово",
-				"descriptionPlaceholder": "Добавете описание, бриф или целите на проекта…",
+				"descriptionPlaceholder": "Добавете описание, бриф или целите на проекта",
 				"removeItem": "Премахни {name}",
 				"showMore": "Покажи още {count}",
 				"showLess": "Покажи по-малко",
@@ -1798,12 +1810,12 @@
 				},
 				"teams": {
 					"add": "Добави екип",
-					"search": "Търси екип…"
+					"search": "Търси екип"
 				},
 				"people": {
 					"addManagers": "Добави мениджъри",
 					"addMembers": "Добави членове",
-					"search": "Търси човек…"
+					"search": "Търси човек"
 				},
 				"tags": {
 					"add": "Добави тагове",
@@ -1947,19 +1959,22 @@
 			"UNRECEIVED_CODE": "Не получихте код?",
 			"JOIN_TEAM": "Присъединяване към отбор",
 			"INPUT_INVITE_CODE": "Въведете код за покана.",
+			"INPUT_SIGN_IN_CODE": "Въведете кода за вход",
 			"INPUT_INVITE_CODE_DESC": "Въведете кода за покана, който изпратихме до имейла ви.",
 			"INVALID_INVITE_CODE_MESSAGE": "Невалиден код",
 			"WELCOME_TEAMS": "Добре дошли в {appName}",
 			"COVER_TITLE": "Следете напредъка на работата на отборите си в реално време!",
-			"COVER_DESCRIPTION": "All-In-One Work & Workforce Management, Time Management, Time Tracking, Activity Tracking, Productivity Tracking & Metrics, Projects / Tasks & Issues Management, Organizations & Teams, Integrations (GitHub, JIRA, ...) and More!",
+			"COVER_DESCRIPTION": "Отчитайте време и активност, управлявайте задачи и проекти и вижте по какво работи екипът ви. Работи с GitHub и Jira.",
 			"LOGIN": "Вход",
 			"SELECT_WORKSPACE": "Избери работно пространство",
+			"WORKSPACE_OPEN_FAILED": "Това работно пространство не можа да бъде отворено. Изберете едно от списъка.",
 			"ENTER_EMAIL": "Въведи имейл",
 			"WORKSPACES_NOT_FOUND": "Работни пространства не са намерени",
 			"INVALID_CODE_TRY_AGAIN": "Невалиден код. Моля, опитайте отново.",
 			"EMPTY_WORKSPACE_WARNING_TITLE": "Това работно пространство няма отбори",
 			"EMPTY_WORKSPACE_WARNING_MESSAGE": "Ще бъдете подканени да създадете отбор след влизане.",
 			"NO_TEAMS_BADGE": "Няма отбори",
+			"WORKSPACE_NOT_SET_UP": "Ново работно пространство, все още не е настроено",
 			"TEAM_COUNT_SINGULAR": "отбор",
 			"TEAM_COUNT_PLURAL": "отбора",
 			"FORGOT_PASSWORD": "Забравена парола?",
@@ -1967,6 +1982,8 @@
 			"PRIVACY_POLICY": "Политика за поверителност",
 			"OR_CONTINUE_WITH": "или продължете с",
 			"SIGNUP_VERIFY_EMAIL": "Акаунтът ви е създаден. Отворете връзката в имейла, който изпратихме на {email}, за да го активирате, след което влезте с имейла си.",
+			"EXISTING_ACCOUNT_HINT": "Вече имате профил с този имейл?",
+			"SIGN_IN_INSTEAD": "Влезте в него",
 			"everId": {
 				"NO_WORKSPACE_TITLE": "Все още няма работно пространство за този Ever ID",
 				"NO_WORKSPACE_BODY": "С този Ever ID все още не е свързано работно пространство. Влезте по друг начин или помолете администратора на работното си пространство за покана.",
@@ -1993,6 +2010,13 @@
 				"SIGN_IN_AGAIN": "Влез отново с Ever ID",
 				"LOGIN_WITH_EVER_ID": "Вход с <wordmark>Ever ID</wordmark>"
 			},
+			"provider": {
+				"ACCOUNT_UNCONFIRMED_TITLE": "Първо потвърдете имейл адреса си",
+				"ACCOUNT_UNCONFIRMED_BODY": "Профил вече използва този имейл адрес, но все още не го е потвърдил. Влезте с имейл адреса си, след това го потвърдете от известието на началната си страница. След това и този начин на вход ще работи.",
+				"ACCOUNT_NOT_SET_UP_TITLE": "Завършете настройката на профила си",
+				"ACCOUNT_NOT_SET_UP_BODY": "Профилът ви с този имейл все още няма работно пространство. Влезте с имейл адреса си, за да завършите настройката. След това и този начин на вход ще работи.",
+				"SIGN_IN_WITH_EMAIL": "Вход с моя имейл"
+			},
 			"CHOOSE_YOUR_WORKSPACE": "Изберете вашето работно пространство"
 		},
 		"authPasscode": {
@@ -2001,7 +2025,7 @@
 		},
 		"authLogin": {
 			"HEADING_TITLE": "Вход в отбора",
-			"HEADING_DESCRIPTION": "Моля, въведете имейл и покана за вход.",
+			"HEADING_DESCRIPTION": "Въведете имейла си и ще ви изпратим код за вход.",
 			"WORKSPACE": "Работно пространство",
 			"HEADING_WORKSPACE_LINE1": "Имейлът, свързан с множество работни пространства,",
 			"HEADING_WORKSPACE_LINE2": "моля, изберете едно за продължаване",
@@ -2202,8 +2226,8 @@
 			"HANDLE_REQUESTS": "Обработване на заявки",
 			"ROLES_POSITIONS_CHANGE": "Промяна на роли/позиции",
 			"VIEW_DETAILS": "Преглед на детайли",
-			"NO_INVITATIONS": "В момента няма покани!",
-			"NO_MEMBERS": "В момента няма членове!",
+			"NO_INVITATIONS": "Няма чакащи покани",
+			"NO_MEMBERS": "Все още няма членове",
 			"GO_TO_PERSONAL_SETTINGS": "Отидете в лични настройки",
 			"SHARE_MEMBERS_PROFILE_VIEWS": "Споделете прегледите на профилите на членовете",
 			"everPlatform": {
@@ -2302,24 +2326,24 @@
 		},
 		"unauthorized": {
 			"TITLE": "Неразрешено",
-			"HEADING_TITLE": "Нямате право за достъп до тази страница!",
-			"HEADING_DESCRIPTION": "Извиняваме се за неудобството, но не сте оторизирани за достъп до тази страница. Ако смятате, че това е грешка. Моля влезте.",
+			"HEADING_TITLE": "Нямате достъп до тази страница",
+			"HEADING_DESCRIPTION": "Профилът ви не може да отвори тази страница. Ако смятате, че трябва, влезте отново или попитайте мениджъра на екипа.",
 			"TRY_AGAIN": "Опитай пак"
 		},
 		"page404": {
 			"HEADING_TITLE": "Ненамерено",
-			"HEADING_DESCRIPTION": "Търсеният ресурс не беше намерен!",
+			"HEADING_DESCRIPTION": "Тази страница не съществува или е преместена.",
 			"LINK_LABEL": "Отиди на началната страница"
 		},
 		"offline": {
-			"HEADING_TITLE": "Мрежата е прекъсната!",
+			"HEADING_TITLE": "Няма връзка с мрежата",
 			"HEADING_SUB_DESCRIPTION": "Опа, изгубихме ви. Не се притеснявайте, времето ви все още се отчита.",
 			"HEADING_DESCRIPTION": "Ще можете да продължите да работите в уеб приложението, след като връзката ви бъде възстановена.",
-			"STATUS_NETWORK": "Офлайн!"
+			"STATUS_NETWORK": "Офлайн"
 		},
 		"error": {
-			"TITLE": "грешка!",
-			"HEADING_TITLE": "Нещо се обърка !",
+			"TITLE": "Грешка",
+			"HEADING_TITLE": "Нещо се обърка",
 			"HEADING_DESCRIPTION": "Ако проблемът продължава, изпратете сигнал за помощ до нашия екип за поддръжка."
 		},
 		"maintenance": {
@@ -2377,7 +2401,7 @@
 			"END_AFTER_START": "Крайният час трябва да е след началния."
 		},
 		"teamTasks": {
-			"SEARCH_TASKS": "Търсене на задачи...",
+			"SEARCH_TASKS": "Търсене на задачи",
 			"TYPE_AND_NUMBER": "Тип + номер",
 			"NO_ISSUE_TYPE": "Няма тип проблем",
 			"NO_USER_ASSIGNED": "Няма назначен потребител",
@@ -2403,7 +2427,7 @@
 			"ME": "вие",
 			"META_TASKS": "{count, plural, one {# задача} other {# задачи}}",
 			"META_TRACKED": "{count, plural, one {# се отчита сега} other {# се отчитат сега}}",
-			"NEW_TASK": "Нова задача",
+			"NEW_TASK": "Създаване на задача",
 			"NO_ASSIGNEE": "Без изпълнител",
 			"NO_MATCH_TITLE": "Няма съвпадащи задачи",
 			"NO_MATCH_MESSAGE": "Променете търсенето или филтрите или ги изчистете, за да видите всички задачи.",
@@ -2456,6 +2480,7 @@
 		"ACTIVE": "Активен",
 		"START_TIMER": "Моля, изберете или създайте нова задача, за да започнете да проследявате времето или да създадете план",
 		"ALREADY_TRACKING_MESSAGE": "Вече проследявате времето в друг раздел или устройство.",
+		"TRACKING_DISABLED_MESSAGE": "Проследяването на времето е изключено за вас. Администратор на организацията може да го включи.",
 		"TASK_CLOSED": "Задачата е затворена",
 		"PLAN_REQUIRED_TO_START": "Добави тази задача към плана за днес, за да започнеш",
 		"STARTING_TIMER": "Стартиране на таймера...",
@@ -2463,6 +2488,7 @@
 		"TIMER_START_FAILED": "Неуспешно стартиране на таймера",
 		"STALE_TIMER_STOPPED_DESCRIPTION": "Таймерът продължи да работи след затварянето на приложението, затова беше спрян в последния момент, в който приложението беше отворено ({stoppedAt}). Ако сте работили след това, добавете времето ръчно.",
 		"TIMER_STOP_FAILED": "Неуспешно спиране на таймера. Моля, опитайте отново.",
+		"BILLABLE": "Таксуемо",
 		"TEAM_SWITCH": {
 			"STOPPED_TIMER_TOAST_TITLE": "Таймерът спря",
 			"STOPPED_TIMER_TOAST_DESCRIPTION": "Таймерът спря поради смяна на отбора"
@@ -2685,11 +2711,11 @@
 		"ADD_TASK_TO_TODAY_PLAN_QUESTION": "Да се добави ли задача #{number} към днешния план?",
 		"toastMessages": {
 			"PLAN_CREATION_FAILED": "Неуспешно създаване на дневния план",
-			"PLAN_CREATION_MISSING_TENANT": "Дневният план не може да бъде създаден: липсва tenantId",
-			"MISSING_TENANT_ID": "Липсва tenantId",
+			"PLAN_CREATION_MISSING_TENANT": "Дневният план не може да бъде създаден: работното пространство още не е заредено",
+			"MISSING_TENANT_ID": "Работното пространство още не е заредено",
 			"EMPLOYEE_ASSIGNED_TO_TASK": "Служителят е назначен към задачата",
 			"EMPLOYEE_AUTO_ASSIGN_FAILED": "Неуспешно автоматично назначаване на служителя към задачата",
-			"MISSING_EMPLOYEE_ID": "getEmployeeDailyPlans: Не е подаден ID на служител и няма такъв в състоянието",
+			"MISSING_EMPLOYEE_ID": "Не е избран член на екипа, за който да се заредят дневните планове",
 			"EMPLOYEE_PLANS_FETCH_FAILED": "Грешка при зареждане на дневните планове на служителя: {employeeId}",
 			"PLANS_FETCH_FAILED": "Неуспешно зареждане на дневните планове",
 			"INVALID_TIME_FORMAT": "Невалиден формат на времето, използвайте Ч:ММ или десетично число (напр. 4.5).",
@@ -2782,7 +2808,7 @@
 	},
 	"placeholders": {
 		"ENTER_TO_VALIDATE": "Натиснете Enter за валидиране",
-		"ENTER_A_COMMAND": "Въведете команда..."
+		"ENTER_A_COMMAND": "Въведете команда"
 	},
 	"team": {
 		"BACK_LABEL": "Обратно към отбора",
@@ -2849,8 +2875,8 @@
 		"EMPTY_NOT_CONFIGURED": "Конфигурирайте вашия API ключ, за да започнете.",
 		"CONFIGURE_BUTTON": "Конфигуриране",
 		"ERROR_FALLBACK": "Възникна грешка. Моля, проверете конфигурацията си.",
-		"INPUT_PLACEHOLDER_READY": "Вашето съобщение...",
-		"INPUT_PLACEHOLDER_NO_KEY": "Конфигурирайте вашия API ключ...",
+		"INPUT_PLACEHOLDER_READY": "Вашето съобщение",
+		"INPUT_PLACEHOLDER_NO_KEY": "Конфигурирайте вашия API ключ",
 		"STOP": "Спри",
 		"SEND": "Изпрати",
 		"NEW_CHAT": "Нов чат",
@@ -2862,7 +2888,7 @@
 		"EXPAND_ASSISTANT": "Разшири асистента",
 		"OPEN_ASSISTANT": "Отвори асистента {appName}",
 		"ASSISTANT": "Асистент",
-		"ASK_PLACEHOLDER": "Попитайте {appName}…",
+		"ASK_PLACEHOLDER": "Попитайте {appName}",
 		"COMPOSER_LABEL": "Съобщение до асистента",
 		"EMPTY_TITLE": "С какво мога да помогна?",
 		"EXAMPLES_LABEL": "Започнете с пример",
@@ -2930,7 +2956,7 @@
 		}
 	},
 	"commandPalette": {
-		"searchPlaceholder": "Въведете команда или търсете…",
+		"searchPlaceholder": "Въведете команда или търсете",
 		"tabsLabel": "Групи команди",
 		"empty": "Няма резултати.",
 		"tabs": {
@@ -2948,7 +2974,7 @@
 			"inviteUser": "Покани потребител",
 			"assignToMe": "Възложи на мен",
 			"toggleTheme": "Смени темата",
-			"createTask": "Нова задача",
+			"createTask": "Създаване на задача",
 			"searchTasks": "Търси задачи",
 			"createTeam": "Нов екип",
 			"searchTeams": "Търси екипи",
@@ -2987,10 +3013,13 @@
 		},
 		"timeLog": {
 			"forMember": "за",
-			"notesPlaceholder": "Добавете бележки тук…"
+			"notesPlaceholder": "Добавете бележки тук"
 		},
 		"manualTime": {
-			"descriptionPlaceholder": "Върху какво работихте?"
+			"descriptionPlaceholder": "Върху какво работихте?",
+			"PROJECT": "Проект",
+			"SELECT_EMPLOYEE": "Изберете служител",
+			"SELECT_TASK": "Изберете задача"
 		},
 		"dailyPlan": {
 			"planMyDay": "Планирай деня ми",
@@ -3001,7 +3030,7 @@
 			"tasksWithoutEstimate": "Задачи без оценка на времето",
 			"correctHoursWarning": "Коригирайте планираните часове или оценете задачите отново.",
 			"moreOptions": "Още опции",
-			"searchMember": "Търсене на член…",
+			"searchMember": "Търсене на член",
 			"noMemberFound": "Не е намерен член.",
 			"selectOrCreateTask": "Изберете или създайте задача за плана"
 		},
@@ -3013,7 +3042,7 @@
 			"addToPlan": "Добави към плана",
 			"createNewPlan": "Създай нов план",
 			"useExistingPlan": "Добави към съществуващ план",
-			"searchPlan": "Търсене на план…",
+			"searchPlan": "Търсене на план",
 			"noPlanFound": "Не е намерен план.",
 			"plannedTime": "Планирано време: {hours} ч"
 		},
@@ -3075,7 +3104,13 @@
 		"TEAM_COUNT": "{count, plural, one {# екип} other {# екипа}}",
 		"NO_OTHER_WORKSPACE": "Няма други работни пространства",
 		"ADD_WORKSPACE": "Добави работно пространство",
-		"TEAM_SETTINGS": "Настройки на екипа"
+		"TEAM_SETTINGS": "Настройки на екипа",
+		"APPS": "Приложения",
+		"SWITCH_APP": "Към друго приложение на Ever",
+		"EVER_APPS": "Приложения на Ever",
+		"CURRENT_APP": "{app}, приложението, в което сте",
+		"OPENS_IN_NEW_TAB": "(отваря се в нов раздел)",
+		"APP_OPENS_IN_NEW_TAB": "{app} (отваря се в нов раздел)"
 	},
 	"todayActivity": {
 		"ACTIVE_TASK": "Активна задача",
@@ -3459,6 +3494,8 @@
 			"COLOR_NOT_SAVED": "Цветът на екипа не беше запазен",
 			"EMOJI_NOT_SAVED": "Емоджито на екипа не беше запазено",
 			"SIZE_NOT_SAVED": "Размерът на екипа не беше запазен",
+			"DEFAULT_PROJECT_NOT_SAVED": "Проектът по подразбиране не беше запазен",
+			"DEFAULT_PROJECT_NOT_SUPPORTED": "Този сървър все още не запазва проект по подразбиране за екипа.",
 			"TYPE_NOT_SAVED": "Типът на екипа не беше запазен",
 			"LEFT_TEAM": "Напуснахте екипа",
 			"LEAVE_FAILED": "Все още сте в екипа",
@@ -3861,7 +3898,11 @@
 			"DELETE_CONSEQUENCE_SIGN_OUT": "Излизате от профила си, за да изберете друго работно пространство.",
 			"QUIT_TITLE": "Напускане на {team}?",
 			"QUIT_CONSEQUENCE_LIST": "Екипът изчезва от списъка ви с екипи.",
-			"QUIT_CONSEQUENCE_BACK": "Мениджър може да ви покани отново по-късно."
+			"QUIT_CONSEQUENCE_BACK": "Мениджър може да ви покани отново по-късно.",
+			"PROJECTS_SECTION": "Проекти",
+			"DEFAULT_PROJECT_LABEL": "Проект по подразбиране",
+			"DEFAULT_PROJECT_DESCRIPTION": "Новите задачи и таймерите на този екип отиват в този проект.",
+			"DEFAULT_PROJECT_PLACEHOLDER": "Изберете проект"
 		},
 		"members": {
 			"UNVERIFIED_TITLE": "Потвърдете имейла си, за да каните хора",
@@ -3887,6 +3928,7 @@
 			"LAST_NAME": "Фамилия",
 			"FIRST_NAME_REQUIRED": "Въведете име.",
 			"TRACK_TIME": "Отчитане на времето",
+			"TRACKING_OFF_BY_ADMIN": "Изключено от администратор на организацията",
 			"REMOVE": "Премахване от екипа",
 			"REMOVE_TITLE": "Премахване на {name} от {team}?",
 			"REMOVE_CONSEQUENCE_LIST": "{name} вече не е сред членовете на екипа.",
@@ -3993,6 +4035,11 @@
 			"SECTION_THEME": "Тема",
 			"SECTION_THEME_DESCRIPTION": "Важи само за този браузър.",
 			"THEME_SYSTEM": "Системна",
+			"SECTION_APP_SWITCHER": "Превключвател на приложения",
+			"SECTION_APP_SWITCHER_DESCRIPTION": "Къде стои достъпът до другите приложения на Ever. Важи само за този браузър.",
+			"APP_SWITCHER_SIDEBAR": "Странична лента",
+			"APP_SWITCHER_HEADER": "Горна лента",
+			"APP_SWITCHER_RAIL": "Лява лента",
 			"SECTION_REGION": "Език и часова зона",
 			"LANGUAGE": "Език",
 			"LANGUAGE_DESCRIPTION": "Езикът на менютата и съобщенията, запазен в акаунта ви.",
@@ -4058,9 +4105,9 @@
 			"ADD_PARENT": "Добави родителска задача",
 			"CHANGE_PARENT": "Смени родителската задача",
 			"REMOVE_PARENT": "Премахни родителската задача",
-			"SEARCH_PARENT": "Търси родителска задача...",
+			"SEARCH_PARENT": "Търси родителска задача",
 			"NO_ASSIGNEE": "Още никой",
-			"SEARCH_PEOPLE": "Търси колега...",
+			"SEARCH_PEOPLE": "Търси колега",
 			"MANAGE_ASSIGNEES": "Възложи на хора",
 			"ADD_LABEL": "Добави етикет",
 			"EDIT_LABELS": "Редактирай етикетите",
@@ -4095,12 +4142,12 @@
 			"LOAD_FAILED": "Плановете не можаха да се заредят."
 		},
 		"subtasks": {
-			"SEARCH": "Търси задача за добавяне...",
+			"SEARCH": "Търси задача за добавяне",
 			"REMOVE": "Премахни от тази задача"
 		},
 		"relations": {
-			"SEARCH": "Търси задача за свързване...",
-			"SEARCH_KIND": "Търси връзка...",
+			"SEARCH": "Търси задача за свързване",
+			"SEARCH_KIND": "Търси връзка",
 			"CHANGE_KIND": "Смени връзката",
 			"REMOVE": "Премахни връзката"
 		},
@@ -4126,6 +4173,8 @@
 	"profile": {
 		"page": {
 			"BACK_TO_TEAM": "Обратно към екипа",
+			"MANAGER_RIGHTS_UNCONFIRMED_TITLE": "Правата ви на мениджър за членовете на този екип още не са потвърдени",
+			"MANAGER_RIGHTS_UNCONFIRMED_DESCRIPTION": "Плановете, времето и активността им остават скрити, докато администратор на организацията не ви потвърди като мениджър на този екип в настройките на екипа.",
 			"SEARCH_TASKS": "Търсене на задачи",
 			"COUNT_STILL_LOADING": "Още задачи се зареждат",
 			"COPY_EMAIL": "Копиране на имейла",
@@ -4237,5 +4286,161 @@
 		"REQUEST_NOBODY": "Организацията ви още няма администратор, когото да уведомим. Попитайте директно собственика на работното пространство.",
 		"REQUEST_UNAVAILABLE": "Този сървър още не приема заявки за промяна на ставката. Попитайте директно администратора си.",
 		"REQUEST_FAILED": "Заявката не беше изпратена."
+	},
+	"auth": {
+		"code": {
+			"CHANGE_EMAIL": "Използвай друг имейл",
+			"CLEAR": "Изчисти",
+			"DESCRIPTION": "Изпратихме код от {length} символа до <address>{email}</address>.",
+			"LABEL": "Код за вход",
+			"NOT_RECEIVED": "Няма нищо в пощата ви?",
+			"RESEND": "Изпрати нов код",
+			"RESEND_IN": "Нов код след {countdown}",
+			"SUBMIT": "Вход",
+			"TITLE": "Проверете пощата си"
+		},
+		"deleteAccount": {
+			"INVALID_TITLE": "Тази връзка вече не работи"
+		},
+		"demo": {
+			"CREDENTIALS": "Демо акаунти",
+			"EMAIL": "Имейл:",
+			"PASSWORD": "Парола:"
+		},
+		"field": {
+			"CAPS_LOCK_ON": "Caps Lock е включен",
+			"CONFIRM_PASSWORD_LABEL": "Потвърдете паролата",
+			"EMAIL_INVALID": "Въведете валиден имейл адрес.",
+			"EMAIL_LABEL": "Имейл",
+			"EMAIL_PLACEHOLDER": "you@company.com",
+			"HIDE_PASSWORD": "Скрий паролата",
+			"NAME_LABEL": "Пълно име",
+			"NAME_PLACEHOLDER": "Мария Иванова",
+			"NEW_PASSWORD_LABEL": "Парола",
+			"PASSWORD_LABEL": "Парола",
+			"PASSWORD_PLACEHOLDER": "Вашата парола",
+			"SHOW_PASSWORD": "Покажи паролата",
+			"TEAM_LABEL": "Име на екипа",
+			"TEAM_PLACEHOLDER": "Дизайн екип"
+		},
+		"forgot": {
+			"BACK_TO_SIGN_IN": "Обратно към входа",
+			"DESCRIPTION": "Въведете имейла на акаунта си и ще ви изпратим връзка за избор на нова парола.",
+			"SENT_TEXT": "Отворете връзката в имейла, който току-що изпратихме, за да изберете нова парола.",
+			"SENT_TITLE": "Проверете пощата си",
+			"SUBMIT": "Изпрати връзката",
+			"TITLE": "Забравена парола?",
+			"USE_ANOTHER_EMAIL": "Използвай друг имейл"
+		},
+		"invite": {
+			"CHECKING": "Проверяваме поканата ви",
+			"DESCRIPTION": "Поканата е изпратена до <address>{email}</address>. Изберете име и парола, за да се присъедините.",
+			"FAILED": "Не успяхме да приемем поканата. Опитайте отново след малко.",
+			"TITLE": "Присъединете се към {organization}"
+		},
+		"method": {
+			"CODE": "Код по имейл",
+			"LABEL": "Начин на вход",
+			"PASSWORD": "Парола"
+		},
+		"password": {
+			"RULE_MATCH": "Двете пароли съвпадат",
+			"RULE_MET": "Изискването е изпълнено",
+			"RULE_MIN_LENGTH": "{count, plural, one {Поне # символ} other {Поне # символа}}",
+			"RULE_NOT_MET": "Изискването не е изпълнено",
+			"STRENGTH_FAIR": "Средна",
+			"STRENGTH_GOOD": "Добра",
+			"STRENGTH_STRONG": "Силна",
+			"STRENGTH_WEAK": "Слаба"
+		},
+		"reset": {
+			"CONFIRM_LABEL": "Потвърдете новата парола",
+			"DESCRIPTION": "Изберете паролата, с която ще влизате отсега нататък.",
+			"DONE_TEXT": "Влезте с новата си парола.",
+			"DONE_TITLE": "Паролата е сменена",
+			"INVALID_TITLE": "Тази връзка вече не работи",
+			"NEW_LABEL": "Нова парола",
+			"SUBMIT": "Запази паролата",
+			"TITLE": "Изберете нова парола"
+		},
+		"scene": {
+			"ACCOUNT_TEXT": "Таймерът, задачите и планът ви за деня, до тези на колегите ви.",
+			"ACCOUNT_TITLE": "Вашето място в екипа",
+			"INBOX_ACTIVATE_TEXT": "Отворете връзката в него, за да активирате акаунта си, след което влезте с имейла си.",
+			"INBOX_ACTIVATE_TITLE": "Имейлът, който да потърсите",
+			"INBOX_CODE_TEXT": "Въведете кода от него, за да влезете.",
+			"INBOX_CODE_TITLE": "Имейлът, който да потърсите",
+			"INBOX_RESET_TEXT": "Връзката в него отваря страницата, където избирате нова парола.",
+			"INBOX_RESET_TITLE": "Имейлът, който да потърсите",
+			"INVITE_LATER": "Покани колега по-късно",
+			"INVITE_TEXT": "Появявате се в екипа веднага щом се присъедините.",
+			"INVITE_TITLE": "Място за вас в екипа",
+			"MAIL_ACTION_ACTIVATE": "Активирай акаунта ми",
+			"MAIL_ACTION_CODE": "Вход",
+			"MAIL_ACTION_RESET": "Избери нова парола",
+			"MANAGER": "Мениджър",
+			"MEMBER_COUNT": "{count, plural, one {# член} other {# членове}}",
+			"NOW": "сега",
+			"SUBJECT_ACTIVATE": "Активирайте акаунта си",
+			"SUBJECT_CODE": "Вашият код за вход",
+			"SUBJECT_RESET": "Нулиране на паролата",
+			"TEAM_TEXT": "Вие го управлявате. Поканете хора, когато сте готови.",
+			"TEAM_TITLE": "Вашият екип в началото",
+			"TO": "до {email}",
+			"WORKSPACE_TEXT": "Първо се отварят работното пространство и екипът, които изберете. Можете да смените по-късно.",
+			"WORKSPACE_TITLE": "Къде ще влезете"
+		},
+		"signIn": {
+			"CODE_DESCRIPTION": "Въведете имейла си и ще ви изпратим код за вход. Не е нужна парола.",
+			"CREATE_ACCOUNT": "Създай акаунт",
+			"FORGOT_PASSWORD": "Забравена парола?",
+			"NEW_HERE": "Нови сте в {appName}?",
+			"PASSWORD_DESCRIPTION": "Влезте с имейла и паролата си.",
+			"SEND_CODE": "Изпрати ми код",
+			"SUBMIT_PASSWORD": "Вход",
+			"TITLE": "Вход в {appName}"
+		},
+		"signUp": {
+			"CREATING": "Създаваме работното ви пространство",
+			"CREATING_TEXT": "Подготвяме {team}. Това отнема няколко секунди.",
+			"DESCRIPTION": "Следете времето си и работата на екипа си на едно място.",
+			"GET_STARTED": "Създай работното ми пространство",
+			"HAVE_ACCOUNT": "Вече имате акаунт?",
+			"MODE_DESCRIPTION": "Можете да създадете други екипи и да поканите хора по-късно.",
+			"MODE_TITLE": "Как искате да започнете?",
+			"SENT_TEXT": "Отворете връзката в имейла, който току-що изпратихме, за да активирате акаунта си, след което влезте с имейла си.",
+			"SENT_TITLE": "Активирайте акаунта си",
+			"SIGN_IN": "Вход",
+			"SOLO": "Самостоятелно",
+			"SOLO_TEXT": "Личен екип с вашето име. Поканете хора, когато пожелаете.",
+			"STEP": "Стъпка {step} от {total}",
+			"TEAM": "С моя екип",
+			"TEAM_TEXT": "Дайте име на екипа си сега. Вие ще бъдете негов мениджър.",
+			"TITLE": "Създайте акаунт",
+			"USE_ANOTHER_EMAIL": "Използвай друг имейл"
+		},
+		"social": {
+			"OPENING": "Влизане в акаунта ви",
+			"OPENING_TEXT": "Един момент, отваряме работното ви пространство."
+		},
+		"workspace": {
+			"DESCRIPTION": "Изберете работното пространство и екипа, които да отворите сега. Можете да смените по-късно.",
+			"NOT_YOU": "Не сте вие?",
+			"NO_MATCH_TEXT": "Проверете изписването или помолете колега да ви покани.",
+			"NO_MATCH_TITLE": "Няма работно пространство, което съвпада с „{query}“",
+			"OPENING": "Отваряме работното ви пространство",
+			"OPENING_TEXT": "Влизане в {workspace}.",
+			"SEARCH": "Търсене на работни пространства",
+			"SIGNED_IN_AS": "Влезли сте като",
+			"TEAMS_OF": "Екипи в {workspace}",
+			"TEAM_COUNT": "{count, plural, one {# екип} other {# екипа}}",
+			"TITLE": "Изберете работно пространство"
+		},
+		"error": {
+			"TITLE": "Не успяхме да ви впишем",
+			"TEXT": "Вписването не беше завършено. Опитайте отново или влезте с имейла си.",
+			"RETRY": "Обратно към вписването",
+			"CODE": "Код на грешката: {code}"
+		}
 	}
 }

@@ -1,20 +1,29 @@
 'use client';
 
 import { useTranslations } from 'next-intl';
-import { useCallback, useState } from 'react';
+import { useCallback, useState, type FormEvent } from 'react';
 import Link from 'next/link';
 import { Button } from '@/core/components/common/button';
-import { Text } from '@/core/components/common/typography';
 import { AuthLayout } from '@/core/components/layouts/default-layout/auth-layout';
-import { InputField } from '@/core/components/duplicated-components/_input';
 import { authService } from '@/core/services/client/api/auth/auth.service';
-import { ArrowLeft, CheckCircle2, Mail } from '@/core/components/icons';
+import { ArrowLeft, Key, Mail } from '@/core/components/icons';
+import { AuthHeading, AuthMark } from '@/core/components/auth/kit/auth-heading';
+import { AuthField } from '@/core/components/auth/kit/auth-field';
+import { emailErrorOf } from '@/core/components/auth/kit/auth-email';
+import { AuthAddress, AuthState } from '@/core/components/auth/kit/auth-state';
+import { AuthSteps } from '@/core/components/auth/kit/auth-step';
+import { AUTH_QUIET_LINK } from '@/core/components/auth/kit/auth-recipes';
+import { InboxScene } from '@/core/components/auth/scenes/auth-scenes';
+import { cn } from '@/core/lib/helpers';
 
-/** iOS zooms the page into any field under 16 px on focus: auth fields stay 16 px below `md`. */
-const INPUT_CLASS = 'text-base md:text-sm';
+const SIGN_IN_PATH = '/auth/password';
 
-const TEXT_LINK_CLASS =
-	'inline-flex items-center gap-2 rounded-sm text-sm font-medium text-primary-ink underline-offset-4 outline-none hover:underline focus-visible:ring-[3px] focus-visible:ring-ring/50';
+function stepOf(sent: boolean) {
+	if (sent) {
+		return { name: 'sent', order: 1 };
+	}
+	return { name: 'form', order: 0 };
+}
 
 export default function ForgotPasswordForm() {
 	const t = useTranslations();
@@ -22,20 +31,29 @@ export default function ForgotPasswordForm() {
 	const [loading, setLoading] = useState(false);
 	const [sent, setSent] = useState(false);
 	const [error, setError] = useState('');
+	const [sentTo, setSentTo] = useState('');
+	const step = stepOf(sent);
+	let shownAddress = email.trim();
+	if (sent) {
+		shownAddress = sentTo;
+	}
 
 	const handleSubmit = useCallback(
-		async (e: React.FormEvent<HTMLFormElement>) => {
+		async (e: FormEvent<HTMLFormElement>) => {
 			e.preventDefault();
 			setError('');
 
-			if (!email.trim()) {
-				setError(t('form.EMAIL_REQUIRED'));
+			const address = email.trim();
+			const emailError = emailErrorOf(address, t);
+			if (emailError) {
+				setError(emailError);
 				return;
 			}
 
 			setLoading(true);
 			try {
-				await authService.requestPassword(email.trim());
+				await authService.requestPassword(address);
+				setSentTo(address);
 				setSent(true);
 			} catch {
 				setError(t('pages.authForgotPassword.ERROR_MESSAGE'));
@@ -46,83 +64,84 @@ export default function ForgotPasswordForm() {
 		[email, t]
 	);
 
+	const scene = (
+		<InboxScene
+			title={t('auth.scene.INBOX_RESET_TITLE')}
+			description={t('auth.scene.INBOX_RESET_TEXT')}
+			email={shownAddress}
+			message="reset"
+		/>
+	);
+
 	return (
-		<AuthLayout
-			title={t('pages.authForgotPassword.HEADING_TITLE')}
-			description={t('pages.authForgotPassword.HEADING_DESCRIPTION')}
-		>
-			<div className="overflow-x-hidden w-full overflow-y-clip p-1.5">
-				{sent ? (
-					/* Success state */
-					<div className="flex flex-col gap-6 items-center py-4">
-						<div className="flex size-10 items-center justify-center rounded-lg bg-success/10 text-success-foreground">
-							<CheckCircle2 className="size-5" />
-						</div>
+		<AuthLayout aside={scene}>
+			<AuthSteps step={step.name} order={step.order}>
+				{sent && (
+					<AuthState
+						tone="success"
+						glyph={<Mail aria-hidden="true" />}
+						title={t('auth.forgot.SENT_TITLE')}
+						description={t('auth.forgot.SENT_TEXT')}
+						actions={
+							<>
+								<Button asChild className="w-full max-sm:h-11">
+									<Link href={SIGN_IN_PATH}>{t('auth.forgot.BACK_TO_SIGN_IN')}</Link>
+								</Button>
+								<button
+									type="button"
+									onClick={() => setSent(false)}
+									className={cn(AUTH_QUIET_LINK, 'self-center')}
+								>
+									{t('auth.forgot.USE_ANOTHER_EMAIL')}
+								</button>
+							</>
+						}
+					>
+						<AuthAddress email={sentTo} />
+					</AuthState>
+				)}
 
-						<div className="flex flex-col gap-2 items-center text-center">
-							<h3 className="text-lg font-semibold text-balance">
-								{t('pages.authForgotPassword.SUCCESS_TITLE')}
-							</h3>
-							<p className="max-w-sm text-sm text-balance lg:max-w-md text-muted-foreground">
-								{t('pages.authForgotPassword.SUCCESS_MESSAGE')}
-							</p>
-						</div>
-
-						<div className="flex items-center gap-2 rounded-lg bg-foreground/5 px-3 py-2">
-							<Mail className="size-4 text-muted-foreground" />
-							<span className="text-sm font-medium">{email}</span>
-						</div>
-
-						<Link href="/auth/password" className={TEXT_LINK_CLASS}>
-							<ArrowLeft className="size-4" />
-							{t('pages.authForgotPassword.BACK_TO_LOGIN')}
-						</Link>
-					</div>
-				) : (
-					/* Form state */
-					<form onSubmit={handleSubmit} className="space-y-6">
-						<p className="text-sm text-muted-foreground">
-							{t('pages.authForgotPassword.FORM_DESCRIPTION')}
-						</p>
-
-						<div className="space-y-2.5">
-							<label
-								data-slot="label"
-								className="block text-sm font-medium leading-none select-none"
-								htmlFor="forgot-email"
-							>
-								{t('form.EMAIL_PLACEHOLDER')}
-							</label>
-							<InputField
+				{!sent && (
+					<div className="flex flex-col">
+						<AuthHeading
+							mark={
+								<AuthMark>
+									<Key />
+								</AuthMark>
+							}
+							title={t('auth.forgot.TITLE')}
+							description={t('auth.forgot.DESCRIPTION')}
+							className="mb-7"
+						/>
+						<form onSubmit={handleSubmit} className="flex flex-col gap-5" noValidate>
+							<AuthField
 								id="forgot-email"
 								name="email"
 								type="email"
-								placeholder={t('form.EMAIL_PLACEHOLDER')}
+								label={t('auth.field.EMAIL_LABEL')}
+								placeholder={t('auth.field.EMAIL_PLACEHOLDER')}
+								icon={<Mail />}
 								value={email}
-								onChange={(e: React.ChangeEvent<HTMLInputElement>) => setEmail(e.target.value)}
+								onChange={(e) => {
+									setEmail(e.target.value);
+									setError('');
+								}}
+								error={error}
 								autoComplete="email"
-								noWrapper
-								className={INPUT_CLASS}
+								inputMode="email"
 								required
 							/>
-							{error && <Text.Error>{error}</Text.Error>}
-						</div>
-
-						<div className="space-y-4">
-							<Button type="submit" loading={loading} disabled={loading} className="w-full">
-								{t('pages.authForgotPassword.SEND_RESET_LINK')}
+							<Button type="submit" loading={loading} disabled={loading} className="w-full max-sm:h-11">
+								{t('auth.forgot.SUBMIT')}
 							</Button>
-
-							<div className="text-center">
-								<Link href="/auth/password" className={TEXT_LINK_CLASS}>
-									<ArrowLeft className="size-4" />
-									{t('pages.authForgotPassword.BACK_TO_LOGIN')}
-								</Link>
-							</div>
-						</div>
-					</form>
+							<Link href={SIGN_IN_PATH} className={cn(AUTH_QUIET_LINK, 'self-center')}>
+								<ArrowLeft aria-hidden="true" />
+								{t('auth.forgot.BACK_TO_SIGN_IN')}
+							</Link>
+						</form>
+					</div>
 				)}
-			</div>
+			</AuthSteps>
 		</AuthLayout>
 	);
 }

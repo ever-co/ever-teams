@@ -142,10 +142,17 @@ function RowMenu({
 				{row.showsTracking && (
 					<DropdownMenuCheckboxItem
 						checked={row.isTrackingEnabled}
-						disabled={row.isTrackingPending}
+						disabled={row.isTrackingPending || row.isTrackingLocked}
 						onCheckedChange={(checked) => onToggleTracking(row.id, checked)}
 					>
-						{t('settings.members.TRACK_TIME')}
+						<span className="flex flex-col">
+							{t('settings.members.TRACK_TIME')}
+							{row.isTrackingLocked && (
+								<span className="text-xs text-muted-foreground">
+									{t('settings.members.TRACKING_OFF_BY_ADMIN')}
+								</span>
+							)}
+						</span>
 					</DropdownMenuCheckboxItem>
 				)}
 				{row.canRemove && (

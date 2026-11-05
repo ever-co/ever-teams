@@ -101,29 +101,40 @@ function StatusMenuItem({
 	);
 }
 
-/** The chevron that collapses or expands a column: the collapsed state is saved on the status, for the whole team. */
+/**
+ * The chevron that collapses or expands a column: the collapsed state is saved on the status, for the whole team.
+ * Icon-only, so `label` (the action: expand or collapse the column) is its accessible name.
+ */
 function ColumnToggleButton({
 	className,
+	label,
 	canEdit,
 	readOnlyHint,
 	onClick
 }: Readonly<{
 	className: string;
+	label: string;
 	canEdit: boolean;
 	readOnlyHint: string;
 	onClick: () => void;
 }>) {
 	if (!canEdit) {
 		return (
-			<button className={cn(className, 'cursor-not-allowed opacity-40')} disabled title={readOnlyHint}>
-				<ChevronLeft className="size-4" />
+			<button
+				type="button"
+				className={cn(className, 'cursor-not-allowed opacity-40')}
+				aria-label={label}
+				disabled
+				title={readOnlyHint}
+			>
+				<ChevronLeft className="size-4" aria-hidden="true" />
 			</button>
 		);
 	}
 
 	return (
-		<button className={className} onClick={onClick}>
-			<ChevronLeft className="size-4" />
+		<button type="button" className={className} aria-label={label} onClick={onClick}>
+			<ChevronLeft className="size-4" aria-hidden="true" />
 		</button>
 	);
 }
@@ -190,7 +201,7 @@ function InnerItemList({
 						return (
 							<div className={cn(LANE_SURFACE, 'absolute flex w-full flex-col gap-2')}>
 								<div className="flex h-[180px] items-center justify-center rounded-lg hairline-border border-dashed border-foreground/10 text-sm text-muted-foreground">
-									{t('common.NOT_FOUND')}!
+									{t('common.NOT_FOUND')}
 								</div>
 								<button
 									type="button"
@@ -342,8 +353,6 @@ export const EmptyKanbanDroppable = ({
 	const { isOpen: editIsOpen, closeModal: editCloseModal, openModal: editOpenModal } = useModal();
 	const { canWriteRow, readOnlyHint } = useTaskSettingsAccess();
 	const canEditStatus = canWriteRow(status);
-	// The Create task entry also opens the status form of the header: only for a user who may save it
-	const showsEditFormOnCreate = isOpen && canEditStatus;
 
 	if (!enabled) return null;
 
@@ -373,6 +382,7 @@ export const EmptyKanbanDroppable = ({
 										<div className="flex flex-col items-center gap-1">
 											<ColumnToggleButton
 												className={cn(columnIconButton, 'size-8 rotate-180')}
+												label={t('common.EXPAND_COLUMN')}
 												canEdit={canEditStatus}
 												readOnlyHint={readOnlyHint}
 												onClick={() => toggleColumn(title, false)}
@@ -413,17 +423,7 @@ export const EmptyKanbanDroppable = ({
 												</PopoverContent>
 											</Popover>
 										</div>
-										{showsEditFormOnCreate && (
-											<Suspense fallback={<ModalSkeleton size="md" />}>
-												<Modal isOpen={isOpen} closeModal={closeModal}>
-													<LazyEditStatusModal
-														status={status}
-														onClose={closeModal}
-														setColumn={setColumn}
-													/>
-												</Modal>
-											</Suspense>
-										)}
+										{/* Create task opens the create form only; the status form has its own entry (editIsOpen, below) */}
 										<div className="relative  w-7 flex flex-col items-center justify-end gap-2.5 mt-20">
 											<div className="relative flex flex-row-reverse gap-2.5 w-[200px] -rotate-90 justify-start">
 												<div className="flex items-center justify-center rounded-md bg-foreground/5 px-1.5 py-0.5 text-xs font-medium tabular-nums text-muted-foreground">
@@ -568,6 +568,7 @@ const KanbanDraggableHeader = ({
 						</Popover>
 						<ColumnToggleButton
 							className={columnIconButton}
+							label={t('common.COLLAPSE_COLUMN')}
 							canEdit={canEditStatus}
 							readOnlyHint={readOnlyHint}
 							onClick={() => toggleColumn(title, true)}

@@ -61,8 +61,8 @@ const ACCEPTED = {
 	refresh_token: 'refresh-token'
 };
 
-/** Validates the invitation as the page does, then submits the accept form. */
-async function acceptInvitation() {
+/** Validates the invitation as the page does. */
+async function validatedInvitation() {
 	const queryClient = new QueryClient({ defaultOptions: { mutations: { retry: false } } });
 	const wrapper = ({ children }: PropsWithChildren) => (
 		<QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
@@ -73,6 +73,12 @@ async function acceptInvitation() {
 		await result.current.validateInvitation({ code: INVITATION.code, email: INVITATION.email });
 	});
 	await waitFor(() => expect(result.current.invitationState.state).toBe('validated'));
+	return result;
+}
+
+/** Validates the invitation as the page does, then submits the accept form. */
+async function acceptInvitation() {
+	const result = await validatedInvitation();
 
 	await act(async () => {
 		await result.current.handleAcceptInvitation(INVITATION);
@@ -117,5 +123,25 @@ describe('useAcceptInvite → handleAcceptInvitation', () => {
 				teamId: 'team-1'
 			})
 		);
+	});
+
+	it('rejects a refused invitation, so the form shows its error instead of opening the app', async () => {
+		gauzyBaseUrl.value = '';
+		mockAccept.mockRejectedValue(new Error('Invitation expired'));
+		const result = await validatedInvitation();
+
+		await act(async () => {
+			await expect(result.current.handleAcceptInvitation(INVITATION)).rejects.toThrow('Invitation expired');
+		});
+	});
+
+	it('still opens the app when only the direct-mode reads fail after the invitation was accepted', async () => {
+		gauzyBaseUrl.value = 'https://api.example.test';
+		mockGetUserOrganizations.mockRejectedValue(new Error('Network down'));
+		const result = await validatedInvitation();
+
+		await act(async () => {
+			await expect(result.current.handleAcceptInvitation(INVITATION)).resolves.toBeUndefined();
+		});
 	});
 });

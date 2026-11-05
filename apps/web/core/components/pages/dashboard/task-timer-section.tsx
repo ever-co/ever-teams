@@ -4,6 +4,7 @@ import { clsxm } from '@/core/lib/utils';
 import { useState } from 'react';
 import { useAtomValue } from 'jotai';
 import { timerStatusState } from '@/core/stores';
+import { teamTimerStatusState } from '@/core/stores/timer/team-timer-status';
 import { ChevronDown } from '@/core/components/icons';
 import { TimerSkeleton } from '@/core/components/common/skeleton/timer-skeleton';
 import { AuthUserTaskInputSkeleton } from '@/core/components/common/skeleton/auth-user-task-input-skeleton';
@@ -49,13 +50,17 @@ export function TaskTimerSection({ isTrackingEnabled }: Readonly<{ isTrackingEna
 	const [showInput, setShowInput] = useState(false);
 	const timerStatus = useAtomValue(timerStatusState);
 	const isTimerRunning = Boolean(timerStatus?.running);
+	// A timer of this team still running when tracking was turned off keeps its stop control
+	const teamTimerStatus = useAtomValue(teamTimerStatusState);
+	const isTeamTimerRunning = Boolean(teamTimerStatus?.running);
+	const showsTimer = isTrackingEnabled || isTeamTimerRunning;
 	return (
 		<EverCard shadow="custom" className={TASK_BLOCK_CLASS_NAME}>
 			<TaskBlockInput
 				className={clsxm(
 					TASK_INPUT_COLUMN_CLASS_NAME,
 					!showInput && TASK_INPUT_FOLDED_CLASS_NAME,
-					!isTrackingEnabled && TASK_INPUT_WITHOUT_TIMER_CLASS_NAME
+					!showsTimer && TASK_INPUT_WITHOUT_TIMER_CLASS_NAME
 				)}
 			/>
 			<button
@@ -71,11 +76,11 @@ export function TaskTimerSection({ isTrackingEnabled }: Readonly<{ isTrackingEna
 			</button>
 			{/* shrink-0: the timer keeps its natural width; the task-input column (min-w-0) is what gives way,
 			    so the play button stays inside the viewport at 1280/1366px with the sidebar open. */}
-			{isTrackingEnabled ? (
+			{showsTimer && (
 				<div className={clsxm(TIMER_PANE, isTimerRunning && TIMER_PANE_RUNNING)}>
 					<TaskBlockTimer className={TASK_BLOCK_TIMER_CLASS_NAME} />
 				</div>
-			) : null}
+			)}
 		</EverCard>
 	);
 }

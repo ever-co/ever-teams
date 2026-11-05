@@ -1,6 +1,7 @@
 import { memo, useCallback, useMemo } from 'react';
 import { useOptimizedActivityTabs } from '@/core/hooks/activities/use-optimized-activity-tabs';
 import { LazyTaskCard } from '@/core/components/optimized-components';
+import { Spinner } from '@/core/components/icons';
 import {
 	DAY_GROUP_SURFACE_CLASS_NAME,
 	DayGroupHeading,
@@ -183,11 +184,9 @@ export const OptimizedTasksTab = memo(({ member, canSeeActivity }: { member?: an
 	// Memoized scrolling indicator for virtualization
 	const scrollingIndicator = useMemo(
 		() => (
-			<div className="flex gap-2 justify-center items-center">
+			<div className="flex justify-center items-center">
 				<span className="sr-only">Loading...</span>
-				<div className="size-2 rounded-full bg-primary animate-bounce [animation-delay:-0.3s]" />
-				<div className="size-2 rounded-full bg-primary animate-bounce [animation-delay:-0.15s]" />
-				<div className="size-2 rounded-full bg-primary animate-bounce" />
+				<Spinner className="size-4 animate-spin text-muted-foreground" aria-hidden="true" />
 			</div>
 		),
 		[]

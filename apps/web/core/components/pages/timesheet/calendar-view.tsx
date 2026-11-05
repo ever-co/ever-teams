@@ -5,8 +5,7 @@ import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/
 import { TranslationHooks, useTranslations } from 'next-intl';
 import { EmployeeAvatar, ProjectLogo } from '../../timesheet/compact-timesheet-component';
 import { formatDate } from '@/core/lib/helpers/index';
-import { CodeSquareIcon } from 'lucide-react';
-import { Clock } from '@/core/components/icons';
+import { Clock, CodeBlock } from '@/core/components/icons';
 import { cn } from '@/core/lib/helpers';
 import MonthlyTimesheetCalendar from '../../timesheet/monthly-timesheet-calendar';
 import { useTimelogFilterOptions } from '@/core/hooks';
@@ -323,7 +322,7 @@ const BaseCalendarDataView = ({ data, daysLabels, t, CalendarComponent }: BaseCa
 							</Accordion>
 						) : (
 							<div className="text-muted-foreground text-xs flex items-center justify-center min-h-[150px] sm:w-[250px] md:w-[300px] lg:w-[350px] max-w-full gap-2">
-								<CodeSquareIcon className="size-4" />
+								<CodeBlock className="size-4" />
 								<span>No Data</span>
 							</div>
 						)}

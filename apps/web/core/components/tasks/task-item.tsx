@@ -1,7 +1,6 @@
 import Image from 'next/image';
 import { BadgedTaskStatus } from './status-icons';
-import { ArrowPathIcon, XMarkIcon } from '@heroicons/react/24/outline';
-import { CheckIcon } from '@heroicons/react/20/solid';
+import { Check, Refresh, X } from '@/core/components/icons';
 import { Spinner } from '../common/spinner';
 import { ETaskStatusName } from '@/core/types/generics/enums/task';
 import { TTask } from '@/core/types/schemas/task/task.schema';
@@ -53,13 +52,13 @@ export function TaskItem({
 									updateLoading ? (
 										<Spinner dark={false} />
 									) : (
-										<ArrowPathIcon
+										<Refresh
 											className="w-5 h-5 text-gray-400 hover:text-primary dark:hover:text-white"
 											onClick={onReopen}
 										/>
 									)
 								) : (
-									<XMarkIcon
+									<X
 										className="w-5 h-5 text-gray-400 hover:text-primary dark:hover:text-white"
 										onClick={onDelete}
 									/>
@@ -71,7 +70,7 @@ export function TaskItem({
 			)}
 			{selected ? (
 				<span className={`absolute inset-y-0 left-0 flex items-center dark:text-white text-primary pl-3`}>
-					<CheckIcon className="w-5 h-5" aria-hidden="true" />
+					<Check className="w-5 h-5" aria-hidden="true" />
 				</span>
 			) : null}
 		</>

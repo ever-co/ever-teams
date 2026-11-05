@@ -5,15 +5,13 @@ import { useTranslations } from 'next-intl';
 import { DAILY_PLAN_SUGGESTION_MODAL_DATE } from '@/core/constants/config/constants';
 import { useOrganizationEmployeeTeams, useEditOrganizationTeam } from '../../hooks/organizations';
 import { IEmployee } from '@/core/types/interfaces/organization/employee';
-import { ERoleName } from '@/core/types/generics/enums/role';
 import { useAtomValue } from 'jotai';
 import { activeTeamState } from '@/core/stores';
+import { isTeamManagerMember } from '@/core/stores/teams/organization-team';
+import { teamRosterOf } from '@/core/lib/utils/settings-team';
+import { SWITCH_THUMB_RECIPE, SWITCH_TRACK_RECIPE } from './switch-recipes';
 
-export const SWITCH_TRACK_RECIPE =
-	'group relative inline-flex h-6 w-10.5 shrink-0 cursor-pointer items-center rounded-full hairline-border border-transparent bg-foreground/10 p-0.5 shadow-sm shadow-black/10 hairline-ring ring-foreground/10 outline-none transition-[color,box-shadow,background-color] focus-visible:ring-[3px] focus-visible:ring-ring/25 data-checked:bg-primary dark:ring-foreground/15';
-
-export const SWITCH_THUMB_RECIPE =
-	'pointer-events-none block size-4.5 rounded-full bg-white shadow-sm shadow-black/15 transition-transform duration-200 group-data-checked:translate-x-4.5';
+export { SWITCH_THUMB_RECIPE, SWITCH_TRACK_RECIPE };
 
 export default function TimeTrackingToggle({ activeManager }: { activeManager: IEmployee | undefined }) {
 	const t = useTranslations();
@@ -66,22 +64,12 @@ export function ShareProfileViewsToggle() {
 
 	const handleChange = useCallback(async () => {
 		if (activeTeam && typeof enabled != 'undefined') {
+			const roster = teamRosterOf(activeTeam.members ?? [], isTeamManagerMember);
 			await editOrganizationTeam({
 				...activeTeam,
 				shareProfileView: !enabled,
-				memberIds: activeTeam.members
-					?.map((t) => t.employee?.id || '')
-					.filter((value: string, index: number, array: string[]) => array.indexOf(value) === index),
-				managerIds: activeTeam.members
-					?.filter(
-						(m) =>
-							m.role &&
-							(m.role.name === ERoleName.MANAGER ||
-								m.role.name === ERoleName.SUPER_ADMIN ||
-								m.role.name === ERoleName.ADMIN)
-					)
-					.map((t) => t.employee?.id || '')
-					.filter((value: string, index: number, array: string[]) => array.indexOf(value) === index)
+				memberIds: roster.memberIds,
+				managerIds: roster.managerIds
 			});
 			setEnabled(!enabled);
 		}
@@ -118,22 +106,12 @@ export function RequireDailyPlanToTrack() {
 
 	const handleChange = useCallback(async () => {
 		if (activeTeam && typeof enabled != 'undefined') {
+			const roster = teamRosterOf(activeTeam.members ?? [], isTeamManagerMember);
 			await editOrganizationTeam({
 				...activeTeam,
 				requirePlanToTrack: !enabled,
-				memberIds: activeTeam.members
-					?.map((t) => t.employee?.id || '')
-					.filter((value: string, index: number, array: string[]) => array.indexOf(value) === index),
-				managerIds: activeTeam.members
-					?.filter(
-						(m) =>
-							m.role &&
-							(m.role.name === ERoleName.MANAGER ||
-								m.role.name === ERoleName.SUPER_ADMIN ||
-								m.role.name === ERoleName.ADMIN)
-					)
-					.map((t) => t.employee?.id || '')
-					.filter((value: string, index: number, array: string[]) => array.indexOf(value) === index)
+				memberIds: roster.memberIds,
+				managerIds: roster.managerIds
 			});
 			setEnabled(!enabled);
 			if (!enabled) {

@@ -10,6 +10,7 @@ import { useTranslations } from 'next-intl';
 import { TTask } from '@/core/types/schemas/task/task.schema';
 import { activeTeamRequiresPlanState, activeTeamTaskState, timerStatusState } from '@/core/stores';
 import { useAtomValue } from 'jotai';
+import { canTrackTask } from '@/core/lib/helpers/timer-policy';
 
 // Custom hook to extract TimerButtonCall business logic
 export function useTimerButtonLogic({ task }: { task: TTask }) {
@@ -40,6 +41,8 @@ export function useTimerButtonLogic({ task }: { task: TTask }) {
 
 	// The team's plan rule alone: this hook runs once per task card, which should not re-render on team refreshes
 	const requirePlan = useAtomValue(activeTeamRequiresPlanState);
+	const isPlanRequired = Boolean(requirePlan);
+	const canTrackThisTask = canTrackTask(canTrack, isPlanRequired, hasPlan, task.id);
 
 	const startTimerWithTask = useCallback(async () => {
 		if (task.status === 'closed') {
@@ -114,7 +117,7 @@ export function useTimerButtonLogic({ task }: { task: TTask }) {
 		startTimerWithTask,
 		modals,
 		startStopTimerHandler,
-		canTrack,
+		canTrack: canTrackThisTask,
 		disabled,
 		hasPlan,
 		activeTeamTask,

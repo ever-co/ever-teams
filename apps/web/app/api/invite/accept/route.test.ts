@@ -302,6 +302,42 @@ describe('POST /api/invite/accept', () => {
 		expect(response.headers.get('set-cookie')).toBeNull();
 	});
 
+	it('still signs the invitee in when the organizations read fails after the accept, in the token organization', async () => {
+		const token = invitedAccessToken();
+		const answers = acceptAnswers(token, { status: 500, body: { statusCode: 500, message: 'Internal error' } });
+		gauzyAnswers(answers);
+		const logged = jest.spyOn(console, 'error').mockImplementation(() => undefined);
+
+		const response = await POST(acceptRequest());
+
+		// The invitation is used up: the invitee gets their session, not a 502 they cannot retry
+		expect(response.status).toBe(201);
+		const cookies = response.headers.get('set-cookie') ?? '';
+		expect(cookies).toContain(`${TOKEN_COOKIE_NAME}=${token}`);
+		expect(cookies).toContain(`${ORGANIZATION_ID_COOKIE_NAME}=${INVITED.organizationId}`);
+		expect(cookies).toContain(`${ACTIVE_TEAM_COOKIE_NAME}=${INVITED.teamId}`);
+		expect(logged).toHaveBeenCalled();
+		logged.mockRestore();
+	});
+
+	it('still signs the invitee in when the teams read fails after the accept, leaving the team to the app', async () => {
+		const token = invitedAccessToken();
+		const answers = acceptAnswers(token, membershipsAnswer([INVITED.organizationId, 'Acme']));
+		answers['GET /organization-team'] = { status: 503, body: { statusCode: 503, message: 'Unavailable' } };
+		gauzyAnswers(answers);
+		const logged = jest.spyOn(console, 'error').mockImplementation(() => undefined);
+
+		const response = await POST(acceptRequest());
+
+		expect(response.status).toBe(201);
+		const cookies = response.headers.get('set-cookie') ?? '';
+		expect(cookies).toContain(`${TOKEN_COOKIE_NAME}=${token}`);
+		expect(cookies).toContain(`${ORGANIZATION_ID_COOKIE_NAME}=${INVITED.organizationId}`);
+		// An unread team list says nothing about having no team
+		expect(cookies).not.toContain(`${ACTIVE_TEAM_COOKIE_NAME}=${INVITED.teamId}`);
+		logged.mockRestore();
+	});
+
 	it('refuses a body that is not JSON without calling Gauzy, so another site cannot sign the browser in', async () => {
 		const fetchMock = gauzyAnswers({});
 

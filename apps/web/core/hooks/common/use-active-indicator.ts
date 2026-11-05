@@ -45,6 +45,7 @@ export function useActiveIndicator<L extends HTMLElement, I extends HTMLElement>
 		};
 
 		update();
+		if (typeof ResizeObserver === 'undefined') return;
 		const observer = new ResizeObserver(update);
 		if (list) observer.observe(list);
 		observer.observe(item);

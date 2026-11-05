@@ -38,7 +38,7 @@ export const useTaskIssue = () => {
 			bearer_token: authToken
 		});
 		queryClient.invalidateQueries({ queryKey: ['issues'] });
-	}, []);
+	}, [authToken, tenantId, queryClient]);
 
 	// Update the issue
 
@@ -47,21 +47,21 @@ export const useTaskIssue = () => {
 			id,
 			tenantId,
 			datas: data,
-			bearer_token: authToken
+			bearer_token: authToken ?? ''
 		});
 		queryClient.invalidateQueries({ queryKey: ['issues'] });
-	}, []);
+	}, [authToken, tenantId, queryClient]);
 
-	// Create the issue
+	// Create the issue, filed under the team active now: a team switch must reach this callback
 
 	const createIssue = useCallback(async (data: IIssueTypesItemList) => {
 		await createIssueTypeRequest({
 			datas: { ...data, organizationId, organizationTeamId: activeTeamId },
 			tenantId,
-			bearer_token: authToken
+			bearer_token: authToken ?? ''
 		});
 		queryClient.invalidateQueries({ queryKey: ['issues'] });
-	}, []);
+	}, [authToken, tenantId, organizationId, activeTeamId, queryClient]);
 
 	useEffect(() => {
 		if (isSuccess) {

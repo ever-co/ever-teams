@@ -11,6 +11,7 @@ import {
 	SelectValue
 } from '@/core/components/common/select';
 import { useState } from 'react';
+import { useTranslations } from 'next-intl';
 
 interface DemoCredentialsDropdownProps {
 	onCredentialSelect?: (email: string, password: string) => void;
@@ -26,6 +27,7 @@ interface DemoCredentialsDropdownProps {
  * When selected: Auto-fills the form with credentials
  */
 export function DemoCredentialsDropdown({ onCredentialSelect, className }: DemoCredentialsDropdownProps) {
+	const t = useTranslations();
 	const [selectedRole, setSelectedRole] = useState<string>('');
 
 	// Only render in demo mode
@@ -47,8 +49,8 @@ export function DemoCredentialsDropdown({ onCredentialSelect, className }: DemoC
 	return (
 		<Select onValueChange={handleValueChange}>
 			<SelectTrigger className={cn('w-full font-medium', className)}>
-				<SelectValue placeholder="Demo Credentials" className="text-xs">
-					{selectedRole || 'Demo Credentials'}
+				<SelectValue placeholder={t('auth.demo.CREDENTIALS')} className="text-xs">
+					{selectedRole || t('auth.demo.CREDENTIALS')}
 				</SelectValue>
 			</SelectTrigger>
 			<SelectContent className="w-full">
@@ -58,10 +60,12 @@ export function DemoCredentialsDropdown({ onCredentialSelect, className }: DemoC
 							<div className="flex flex-col gap-1 text-sm">
 								<p className="text-xs font-semibold text-foreground">{account.role}</p>
 								<p className="text-xs text-muted-foreground">
-									Email: <span className="font-mono text-foreground">{account.email}</span>
+									{t('auth.demo.EMAIL')}{' '}
+									<span className="font-mono text-foreground">{account.email}</span>
 								</p>
 								<p className="text-xs text-muted-foreground">
-									Password: <span className="font-mono text-foreground">{account.password}</span>
+									{t('auth.demo.PASSWORD')}{' '}
+									<span className="font-mono text-foreground">{account.password}</span>
 								</p>
 							</div>
 						</SelectItem>

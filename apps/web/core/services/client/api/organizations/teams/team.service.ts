@@ -108,6 +108,7 @@ class OrganizationTeamService extends APIService {
 		// `.data` here sent `projects: [null]`, the API answered 400 (organizationProjectId not-null) and
 		// EVERY "Create New Team" failed, leaving an orphan project behind each time (2026-08-17).
 		validatedInput.projects = [project];
+		validatedInput.defaultProjectId = project.id;
 
 		try {
 			const response = await this.post<TOrganizationTeam>('/organization-team', validatedInput, {

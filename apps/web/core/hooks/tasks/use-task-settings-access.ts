@@ -89,14 +89,15 @@ function teamOfNewRows(activeTeam: TOrganizationTeam | null, activeTeamId: strin
  * manage. A row of no team, such as a system default, needs the permission.
  *
  * Until the role's permissions, the user and the active team are loaded, nothing is shown read-only: the API still
- * decides every write.
+ * decides every write. Once read, the permissions keep deciding when a later refresh of them fails.
  *
  * @returns `canCreate` for a new row of the active team, `canWriteRow` and `canWriteRows` for stored rows, and the hint
  * a read-only control shows.
  */
 export function useTaskSettingsAccess() {
 	const t = useTranslations();
-	const { myPermissions, isSuccess: permissionsLoaded } = useMyRolePermissionsQuery();
+	// Loaded once is enough: a failed refresh keeps the rows last read, so it cannot make every control editable
+	const { myPermissions, isLoaded: permissionsLoaded } = useMyRolePermissionsQuery();
 	const { data: user } = useUserQuery();
 	const teams = useAtomValue(organizationTeamsState);
 	const activeTeam = useAtomValue(activeTeamState);

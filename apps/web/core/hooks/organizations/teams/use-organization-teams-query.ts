@@ -33,6 +33,7 @@ import type { ApiRequestScope } from '@/core/services/client/api-request-scope';
 import { useScopeGuard } from '../../bootstrap/use-scope-guard';
 import { useReactiveAccessTokenCookie } from '../../auth/use-reactive-access-token-cookie';
 import { syncTokenOrganization } from '@/core/lib/auth/token-organization';
+import { teamDefaultProjectId } from '@/core/lib/helpers/team-default-project';
 
 interface UseOrganizationTeamsQueryOptions {
 	enabled?: boolean;
@@ -53,10 +54,37 @@ const getMemberPresenceSignature = (member: TOrganizationTeamEmployee) =>
 		member.employee?.isOnline,
 		member.employee?.isTrackingTime,
 		member.employee?.isActive,
+		member.isTrackingEnabled,
+		member.employee?.isTrackingEnabled,
 		member.employee?.billRateValue,
 		member.employee?.billRateCurrency,
 		member.employee?.reWeeklyLimit
 	].join(':');
+
+/**
+ * New tasks read the active project from its cookie. When the team list brings the active team another default
+ * project (another manager changed it), the cookie follows at once instead of at the next read of the team itself.
+ */
+function followChangedDefaultProject(
+	previousTeams: TOrganizationTeam[],
+	nextTeams: TOrganizationTeam[],
+	activeTeamId: string | null
+): void {
+	const previousTeam = previousTeams.find((team) => team.id === activeTeamId);
+	const nextTeam = nextTeams.find((team) => team.id === activeTeamId);
+	if (!previousTeam || !nextTeam) {
+		return;
+	}
+	const previousDefaultProjectId = teamDefaultProjectId(previousTeam);
+	const nextDefaultProjectId = teamDefaultProjectId(nextTeam);
+	if (!nextDefaultProjectId) {
+		return;
+	}
+	const defaultProjectChanged = nextDefaultProjectId !== previousDefaultProjectId;
+	if (defaultProjectChanged) {
+		setActiveProjectIdCookie(nextDefaultProjectId);
+	}
+}
 
 /**
  * Hook for read-only organization teams operations.
@@ -148,8 +176,9 @@ export function useOrganizationTeamsQuery(options: UseOrganizationTeamsQueryOpti
 				if (switched) queryClient.invalidateQueries({ queryKey: queryKeys.users.me });
 			});
 
-			if (team && team?.projects && team.projects.length) {
-				setActiveProjectIdCookie(team.projects[0].id);
+			const defaultProjectId = teamDefaultProjectId(team);
+			if (defaultProjectId) {
+				setActiveProjectIdCookie(defaultProjectId);
 			}
 			if (globalThis.window !== undefined) {
 				globalThis.window.localStorage.setItem(LAST_WORKSPACE_AND_TEAM, team.id);
@@ -212,10 +241,10 @@ export function useOrganizationTeamsQuery(options: UseOrganizationTeamsQueryOpti
 			const latestSignature = latestTeams
 				.map((t) => {
 					const memberRolesSignature =
-						t.members?.map((m) => `${m.id}:${m.role?.name ?? 'none'}`).join(',') || '';
+						t.members?.map((m) => `${m.id}:${m.role?.name ?? 'none'}:${m.order ?? ''}`).join(',') || '';
 					// Timer presence (other clients) and the presence heartbeat both have to change the signature
 					const memberPresenceSignature = `${t.members?.map(getMemberPresenceSignature).join(',') || ''}:${getMembersPresenceSignature(t.members)}`;
-					return `${t.id}:${t.updatedAt ?? ''}:${t.name}:${t.shareProfileView ?? ''}:${t.requirePlanToTrack ?? ''}:${t.public ?? ''}:${t.color ?? ''}:${t.emoji ?? ''}:${t.prefix ?? ''}:${t.members?.length ?? 0}:${memberRolesSignature}:${memberPresenceSignature}`;
+					return `${t.id}:${t.updatedAt ?? ''}:${t.name}:${t.shareProfileView ?? ''}:${t.requirePlanToTrack ?? ''}:${t.defaultProjectId ?? ''}:${t.public ?? ''}:${t.color ?? ''}:${t.emoji ?? ''}:${t.prefix ?? ''}:${t.members?.length ?? 0}:${memberRolesSignature}:${memberPresenceSignature}`;
 				})
 				.sort()
 				.join('|');
@@ -261,6 +290,7 @@ export function useOrganizationTeamsQuery(options: UseOrganizationTeamsQueryOpti
 				mergedTeams.length !== currentTeams.length ||
 				mergedTeams.some((team, index) => team !== currentTeams[index]);
 			setTeams(teamsChanged ? mergedTeams : currentTeams);
+			followChangedDefaultProject(currentTeams, mergedTeams, activeTeamIdRef.current);
 
 			if (latestTeams.length === 0) {
 				setIsTeamMember(false);
@@ -320,10 +350,11 @@ export function useOrganizationTeamsQuery(options: UseOrganizationTeamsQueryOpti
 			const newTeam = organizationTeamQuery.data.data;
 
 			const memberActiveTaskIds = newTeam.members?.map((m) => m.activeTaskId || 'null').join(',') || '';
-			const memberRoles = newTeam.members?.map((m) => `${m.id}:${m.role?.name ?? 'none'}`).join(',') || '';
+			const memberRoles =
+				newTeam.members?.map((m) => `${m.id}:${m.role?.name ?? 'none'}:${m.order ?? ''}`).join(',') || '';
 			// Timer presence (other clients) and the presence heartbeat both have to change the signature
 			const memberPresence = `${newTeam.members?.map(getMemberPresenceSignature).join(',') || ''}:${getMembersPresenceSignature(newTeam.members)}`;
-			const newSignature = `${newTeam.id}:${newTeam.updatedAt ?? ''}:${newTeam.members?.length ?? 0}:${memberActiveTaskIds}:${memberRoles}:${memberPresence}`;
+			const newSignature = `${newTeam.id}:${newTeam.updatedAt ?? ''}:${newTeam.defaultProjectId ?? ''}:${newTeam.members?.length ?? 0}:${memberActiveTaskIds}:${memberRoles}:${memberPresence}`;
 
 			if (newSignature === lastProcessedTeamSignatureRef.current) {
 				return;
@@ -333,8 +364,9 @@ export function useOrganizationTeamsQuery(options: UseOrganizationTeamsQueryOpti
 
 			setTeamsUpdate(newTeam);
 
-			if (newTeam && newTeam.projects && newTeam.projects.length) {
-				setActiveProjectIdCookie(newTeam.projects[0].id);
+			const newTeamDefaultProjectId = teamDefaultProjectId(newTeam);
+			if (newTeamDefaultProjectId) {
+				setActiveProjectIdCookie(newTeamDefaultProjectId);
 			}
 		}
 		// eslint-disable-next-line react-hooks/exhaustive-deps

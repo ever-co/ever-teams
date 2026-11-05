@@ -45,6 +45,9 @@ import { UserNavAvatarSkeleton } from '@/core/components/common/skeleton/user-na
 import { useMemo } from 'react';
 import { TaskIssueStatus } from '../tasks/task-issue';
 import { WorkspacesSwitcher } from '../common/workspace-switcher';
+import { AppRail, APP_RAIL_SIDEBAR_CLASS } from '../common/app-switcher/app-rail';
+import { SidebarAppSwitcher } from '../common/app-switcher/sidebar-app-switcher';
+import { useAppSwitcherPlacement } from '@/core/hooks/common/use-app-switcher-placement';
 import { LazyCreateTeamModal } from '@/core/components/optimized-components/teams';
 import { LazySidebarCommandModal } from '@/core/components/optimized-components/common';
 import { NavHome } from '../nav-home';
@@ -411,12 +414,17 @@ export function AppSidebar({ publicTeam, ...props }: AppSidebarProps) {
 
 	const showAccountMenu = !publicTeam;
 	const showCreateTeamModal = !publicTeam && isOpen && Boolean(user?.isEmailVerified);
+	const appSwitcherPlacement = useAppSwitcherPlacement();
+	const showsAppRail = appSwitcherPlacement === 'rail';
+	const sidebarClassName = cn('z-1000', showsAppRail && APP_RAIL_SIDEBAR_CLASS);
 
 	return (
 		<>
-			<Sidebar variant="inset" collapsible="icon" className="z-1000" {...props}>
+			<AppRail />
+			<Sidebar variant="inset" collapsible="icon" className={sidebarClassName} {...props}>
 				<SidebarHeader className="gap-2 p-2 group-data-[collapsible=icon]:items-center">
 					<div className="flex items-center gap-1 group-data-[collapsible=icon]:flex-col">
+						<SidebarAppSwitcher />
 						<div className="min-w-0 flex-1 group-data-[collapsible=icon]:flex-none">
 							<WorkspacesSwitcher />
 						</div>

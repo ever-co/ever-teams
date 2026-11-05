@@ -4,3 +4,4 @@ export * from './time-limits';
 export * from './time-logs';
 export * from './time-slot';
 export * from './timer';
+export * from './timer-billable';

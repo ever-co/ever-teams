@@ -30,6 +30,8 @@ import {
 	TaskPropertyTriggerEnd
 } from '@/core/components/tasks/task-property-trigger';
 
+const TIME_FOLLOWS_TASK = { moveTimeLogs: true } as const;
+
 interface ITaskProjectDropdownProps {
 	task?: TTask;
 	controlled?: boolean;
@@ -116,7 +118,7 @@ export function ProjectDropDown(props: ITaskProjectDropdownProps) {
 			try {
 				if (task) {
 					if (task?.projectId === project.id) return;
-					await updateTask({ ...task, projectId: project.id });
+					await updateTask({ ...task, projectId: project.id }, TIME_FOLLOWS_TASK);
 					// Update local selected state immediately for optimistic UI
 					setSelected(project);
 				}
@@ -133,7 +135,7 @@ export function ProjectDropDown(props: ITaskProjectDropdownProps) {
 		try {
 			if (task) {
 				if (!task?.projectId) return;
-				await updateTask({ ...task, projectId: null });
+				await updateTask({ ...task, projectId: null }, TIME_FOLLOWS_TASK);
 				setSelected(null);
 			}
 		} catch (error) {

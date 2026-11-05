@@ -17,6 +17,7 @@ import { ShieldUser } from '@/core/components/icons';
 import { TRole } from '@/core/types/schemas';
 import { useUserQuery } from '@/core/hooks/queries/user-user.query';
 import { clsxm } from '@/core/lib/utils';
+import { isTenantAdminRole } from '@/core/lib/utils/roles';
 import {
 	PERMISSIONS_GRID,
 	PermissionsPageSkeleton,
@@ -49,12 +50,16 @@ const Permissions = () => {
 	const { rolePermissionsFormated, isLoading: isRolePermissionsLoading } = useRolePermissionsQuery(selectedRoleId);
 	const { updateRolePermission } = useUpdateRolePermission(selectedRoleId);
 	const { isTeamManager } = useIsMemberManager(user);
+	const isOrganizationAdmin = isTenantAdminRole(user?.role?.name);
 	const { roles, isLoading: isRolesLoading } = useRolesQuery({ adminOnly: true });
 
 	// Memoized values
 	const canAccessPermissions = useMemo(() => {
+		if (isOrganizationAdmin) {
+			return true;
+		}
 		return !(activeTeamManagers && activeTeamManagers.length && !isTeamManager);
-	}, [activeTeamManagers, isTeamManager]);
+	}, [activeTeamManagers, isOrganizationAdmin, isTeamManager]);
 
 	// Callbacks
 	const handleToggleRolePermission = useCallback(

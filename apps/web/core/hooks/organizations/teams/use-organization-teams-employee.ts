@@ -13,9 +13,9 @@ function useFailureToast() {
 	const t = useTranslations();
 
 	return useCallback(
-		(titleKey: DottedLanguageObjectStringPaths, error: unknown) => {
+		(titleKey: DottedLanguageObjectStringPaths, error: unknown, toastId?: string) => {
 			const reasonKey = errorReasonKeyOf(error) as DottedLanguageObjectStringPaths;
-			toast.error(t(titleKey), { description: t(reasonKey) });
+			toast.error(t(titleKey), { id: toastId, description: t(reasonKey) });
 		},
 		[t]
 	);
@@ -69,8 +69,13 @@ export function useOrganizationEmployeeTeams() {
 				queryKey: queryKeys.organizationTeams.all
 			});
 
-			// Preserve original behavior - call loadTeamsData
-			await loadTeamsData();
+			// The member is saved by now: a failed reload must not turn the save into a failure for the caller
+			try {
+				await loadTeamsData();
+			} catch (error) {
+				logErrorInDev('[Teams] Reload after a member update failed:', error);
+				toast.error(t('toasts.teams.TEAMS_RELOAD_FAILED'), { description: t('toasts.teams.REFRESH_PAGE') });
+			}
 		},
 		onError: (error) => {
 			showFailure('toasts.teams.MEMBER_NOT_SAVED', error);
@@ -100,8 +105,11 @@ export function useOrganizationEmployeeTeams() {
 			// Preserve original behavior - call loadTeamsData
 			await loadTeamsData();
 		},
-		onError: (error) => {
-			showFailure('toasts.teams.MEMBER_ORDER_NOT_SAVED', error);
+		onError: async (error) => {
+			// A drop saves one order per member: their failures share one message instead of stacking one each
+			showFailure('toasts.teams.MEMBER_ORDER_NOT_SAVED', error, 'member-order-not-saved');
+			// Part of the drop may have been saved: read the order the API really holds before the list goes back
+			await queryClient.invalidateQueries({ queryKey: queryKeys.organizationTeams.all });
 		}
 	});
 

@@ -25,8 +25,7 @@ import { useTranslations } from 'next-intl';
 import { cn } from '@/core/lib/helpers';
 import { memo, useEffect, useMemo } from 'react';
 import moment from 'moment';
-import { MoveDown, MoveUp } from 'lucide-react';
-import { ChevronDown, ChevronUp, EyeOff, RotateLeft } from '@/core/components/icons';
+import { ArrowDown, ArrowUp, ChevronDown, ChevronUp, EyeOff, RotateLeft } from '@/core/components/icons';
 import { Button } from '@/core/components';
 import { Badge } from '@/core/components/common/badge';
 import AvatarStack from '@/core/components/common/avatar-stack';
@@ -625,7 +624,7 @@ function ColumnHandlerDropdown(args: {
 												isSortedAsc && 'font-medium text-primary-ink'
 											)}
 										>
-											<MoveUp className="size-4" /> <span>{sorting.ascLabel}</span>
+											<ArrowUp className="size-4" /> <span>{sorting.ascLabel}</span>
 										</button>
 									)}
 								</Menu.Item>
@@ -639,7 +638,7 @@ function ColumnHandlerDropdown(args: {
 												isSortedDesc && 'font-medium text-primary-ink'
 											)}
 										>
-											<MoveDown className="size-4" /> <span>{sorting.descLabel}</span>
+											<ArrowDown className="size-4" /> <span>{sorting.descLabel}</span>
 										</button>
 									)}
 								</Menu.Item>

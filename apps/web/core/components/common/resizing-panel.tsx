@@ -23,6 +23,7 @@ export function ResizingPanel({ children, className }: Readonly<{ children: Reac
 	useLayoutEffect(() => {
 		const inner = innerRef.current;
 		if (!inner) return;
+		if (typeof ResizeObserver === 'undefined') return;
 		const observer = new ResizeObserver(() => setHeight(inner.offsetHeight));
 		observer.observe(inner);
 		return () => observer.disconnect();

@@ -69,6 +69,7 @@ jest.mock('./use-teams-state', () => ({
 	useTeamsState: () => ({ setTeamsUpdate: jest.fn() }),
 	useSetTeamsUpdate: () => jest.fn()
 }));
+jest.mock('@/core/lib/auth/token-organization', () => ({ syncTokenOrganization: jest.fn(async () => false) }));
 jest.mock('../../users/use-settings', () => ({ useSettings: () => ({ updateAvatar: jest.fn() }) }));
 
 import { useOrganizationTeamsQuery } from './use-organization-teams-query';
@@ -244,5 +245,110 @@ describe('scoped organization-team ownership', () => {
 		});
 
 		await waitFor(() => expect(rateOfAna()).toBe(55));
+	});
+});
+
+describe('the active project cookie when the team is chosen', () => {
+	const mockSetActiveProjectIdCookie = jest.mocked(
+		(jest.requireMock('@/core/lib/helpers/cookies') as { setActiveProjectIdCookie: jest.Mock })
+			.setActiveProjectIdCookie
+	);
+
+	beforeEach(() => {
+		jest.clearAllMocks();
+		mockUserId = 'user-a';
+	});
+
+	it.each([
+		['the default project the team names', 'project-b', 'project-b'],
+		['the first project when the team names none', undefined, 'project-a']
+	])('keeps %s', async (_label, defaultProjectId, expectedProjectId) => {
+		mockGetOrganizationTeams.mockResolvedValueOnce({
+			data: {
+				items: [
+					{
+						id: 'team-a',
+						name: 'Team A',
+						organizationId: 'organization-a',
+						tenantId: 'tenant-a',
+						members: [],
+						defaultProjectId,
+						projects: [{ id: 'project-a' }, { id: 'project-b' }]
+					}
+				],
+				total: 1
+			}
+		} as never);
+		const client = new QueryClient({ defaultOptions: { queries: { retry: false } } });
+		const store = createStore();
+		store.set(organizationTeamsState, []);
+		store.set(activeTeamIdState, '');
+		const wrapper = ({ children }: PropsWithChildren) => (
+			<QueryClientProvider client={client}>
+				<Provider store={store}>{children}</Provider>
+			</QueryClientProvider>
+		);
+
+		renderHook(
+			() =>
+				useOrganizationTeamsQuery({
+					scope: {
+						tenantId: 'tenant-a',
+						organizationId: 'organization-a',
+						userId: 'user-a',
+						accessToken: 'token-a'
+					}
+				}),
+			{ wrapper }
+		);
+
+		await waitFor(() => expect(mockSetActiveProjectIdCookie).toHaveBeenCalled());
+		const cookieProjectIds = mockSetActiveProjectIdCookie.mock.calls.map(([projectId]) => projectId);
+		expect(new Set(cookieProjectIds)).toEqual(new Set([expectedProjectId]));
+	});
+
+	it('follows a default project another manager changes, as soon as the team list brings it', async () => {
+		const listTeam = {
+			id: 'team-a',
+			name: 'Team A',
+			organizationId: 'organization-a',
+			tenantId: 'tenant-a',
+			members: [],
+			defaultProjectId: 'project-a',
+			projects: [{ id: 'project-a' }, { id: 'project-b' }]
+		};
+		mockGetOrganizationTeams.mockResolvedValueOnce({ data: { items: [listTeam], total: 1 } } as never);
+		const client = new QueryClient({ defaultOptions: { queries: { retry: false } } });
+		const store = createStore();
+		store.set(organizationTeamsState, []);
+		store.set(activeTeamIdState, '');
+		const wrapper = ({ children }: PropsWithChildren) => (
+			<QueryClientProvider client={client}>
+				<Provider store={store}>{children}</Provider>
+			</QueryClientProvider>
+		);
+		renderHook(
+			() =>
+				useOrganizationTeamsQuery({
+					scope: {
+						tenantId: 'tenant-a',
+						organizationId: 'organization-a',
+						userId: 'user-a',
+						accessToken: 'token-a'
+					}
+				}),
+			{ wrapper }
+		);
+		await waitFor(() => expect(store.get(activeTeamState)?.defaultProjectId).toBe('project-a'));
+		mockSetActiveProjectIdCookie.mockClear();
+
+		await act(async () => {
+			client.setQueryData(queryKeys.organizationTeams.listByScope('tenant-a', 'organization-a', 'user-a'), {
+				data: { items: [{ ...listTeam, defaultProjectId: 'project-b' }], total: 1 }
+			});
+		});
+
+		await waitFor(() => expect(store.get(activeTeamState)?.defaultProjectId).toBe('project-b'));
+		expect(mockSetActiveProjectIdCookie).toHaveBeenCalledWith('project-b');
 	});
 });

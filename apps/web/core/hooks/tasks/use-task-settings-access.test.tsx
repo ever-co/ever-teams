@@ -11,7 +11,7 @@ const TEAM_ID = 'team-1';
 const OTHER_TEAM_ID = 'team-2';
 
 const mockUser = { id: 'user-1', employee: { id: 'employee-1' } };
-const mockPermissions = { myPermissions: [] as string[], isSuccess: true };
+const mockPermissions = { myPermissions: [] as string[], isSuccess: true, isLoaded: true };
 
 jest.mock('next-intl', () => ({ useTranslations: () => (key: string) => key }));
 jest.mock('../queries/user-user.query', () => ({
@@ -73,6 +73,7 @@ describe('useTaskSettingsAccess', () => {
 	beforeEach(() => {
 		mockPermissions.myPermissions = [];
 		mockPermissions.isSuccess = true;
+		mockPermissions.isLoaded = true;
 	});
 
 	it('lets an ORG_TASK_SETTING holder change every row, a row of no team included', () => {
@@ -152,11 +153,23 @@ describe('useTaskSettingsAccess', () => {
 
 	it('locks nothing until the role permissions are known', () => {
 		mockPermissions.isSuccess = false;
+		mockPermissions.isLoaded = false;
 		const activeTeam = team(TEAM_ID, [plainMember]);
 		const access = renderAccess([activeTeam]);
 
 		expect(access.canCreate).toBe(true);
 		expect(access.canWriteRow(rowOfNoTeam)).toBe(true);
+	});
+
+	it('keeps a plain member read-only when a later refresh of the permissions fails', () => {
+		// React Query: the refetch failed (isSuccess false) but the rows last read are still there
+		mockPermissions.isSuccess = false;
+		mockPermissions.isLoaded = true;
+		const activeTeam = team(TEAM_ID, [plainMember]);
+		const access = renderAccess([activeTeam]);
+
+		expect(access.canCreate).toBe(false);
+		expect(access.canWriteRow(teamRow)).toBe(false);
 	});
 
 	it('locks nothing until the active team is loaded', () => {

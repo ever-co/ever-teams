@@ -1,5 +1,6 @@
 import { atom } from 'jotai';
 import { selectAtom } from 'jotai/utils';
+import { isTenantAdminRole } from '@/core/lib/utils/roles';
 import { indexTaskTotalWorkedDurations } from '@/core/lib/utils/task.utils';
 import { ERoleName } from '@/core/types/generics/enums/role';
 import { TOrganizationTeam, TOrganizationTeamEmployee } from '@/core/types/schemas';
@@ -99,7 +100,10 @@ export const activeTeamManagersState = selectAtom(activeTeamState, selectTeamMan
  * only builds query keys or request scopes reads this instead of the team: it re-renders when an id or the project
  * list changes, not on every refresh of the members.
  */
-export type TActiveTeamScope = Pick<TOrganizationTeam, 'id' | 'organizationId' | 'tenantId' | 'projects'>;
+export type TActiveTeamScope = Pick<
+	TOrganizationTeam,
+	'id' | 'organizationId' | 'tenantId' | 'projects' | 'defaultProjectId'
+>;
 
 function selectTeamScope(activeTeam: TOrganizationTeam | null): TActiveTeamScope | null {
 	if (!activeTeam) {
@@ -109,7 +113,8 @@ function selectTeamScope(activeTeam: TOrganizationTeam | null): TActiveTeamScope
 		id: activeTeam.id,
 		organizationId: activeTeam.organizationId,
 		tenantId: activeTeam.tenantId,
-		projects: activeTeam.projects
+		projects: activeTeam.projects,
+		defaultProjectId: activeTeam.defaultProjectId
 	};
 }
 
@@ -129,7 +134,8 @@ function haveSameScope(previous: TActiveTeamScope | null, next: TActiveTeamScope
 	const isSameOrganization = previous.organizationId === next.organizationId;
 	const isSameTenant = previous.tenantId === next.tenantId;
 	const isSameProjects = projectIdsOf(previous) === projectIdsOf(next);
-	return isSameTeam && isSameOrganization && isSameTenant && isSameProjects;
+	const isSameDefaultProject = previous.defaultProjectId === next.defaultProjectId;
+	return isSameTeam && isSameOrganization && isSameTenant && isSameProjects && isSameDefaultProject;
 }
 
 export const activeTeamScopeState = selectAtom(activeTeamState, selectTeamScope, haveSameScope);
@@ -168,6 +174,30 @@ export const isTeamManagerState = atom((get) => {
 	const manager = findTeamManagerOfUser(managers, userId);
 	// Team creator should automatically be considered a manager (business logic fix)
 	return Boolean(manager) || isTeamCreatorUser(createdByUserId, userId);
+});
+
+/**
+ * Whether the signed-in user's own row of the active team carries the manager flag. The API lets a team manager act
+ * for the members (their plans, time and activity) only with that flag; the role or having created the team is not
+ * enough there.
+ */
+export const isFlaggedTeamManagerState = atom((get) => {
+	const userId = get(userState)?.id;
+	const managers = get(activeTeamManagersState);
+	const manager = findTeamManagerOfUser(managers, userId);
+	return manager?.isManager === true;
+});
+
+export const isOrganizationAdminState = atom((get) => {
+	const roleName = get(userState)?.role?.name;
+	return isTenantAdminRole(roleName);
+});
+
+/** An organization admin runs every team, so they manage its settings as its own managers do. */
+export const canManageActiveTeamState = atom((get) => {
+	const isTeamManager = get(isTeamManagerState);
+	const isOrganizationAdmin = get(isOrganizationAdminState);
+	return isTeamManager || isOrganizationAdmin;
 });
 
 /** Built once per team update so components rendered per task only do a map lookup. */

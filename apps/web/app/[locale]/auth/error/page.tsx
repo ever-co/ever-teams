@@ -4,8 +4,10 @@ import { useSearchParams } from 'next/navigation';
 import UnauthorizedPage from '@/core/components/pages/unauthorized';
 import { FocusShell } from '@/core/components/layouts/focus/focus-shell';
 import ErrorPageComponent from '@/core/components/pages/error/error';
+import { SignInError } from '@/core/components/pages/auth/sign-in-error';
 import EverIdNoWorkspace from '@/core/components/pages/auth/ever-id-no-workspace';
 import EverIdVerifyEmail from '@/core/components/pages/auth/ever-id-verify-email';
+import ProviderAccountUnconfirmed from '@/core/components/pages/auth/provider-account-unconfirmed';
 
 enum Error {
 	// Ever ID sign-in without a workspace it may enter (nothing is created)
@@ -14,6 +16,10 @@ enum Error {
 	EverIdWorkspaceBlocked = 'EverIdWorkspaceBlocked',
 	// Ever ID sign-in refused until Ever ID has verified the e-mail address
 	EverIdEmailUnverified = 'EverIdEmailUnverified',
+	// Provider sign-in refused: the address only has accounts that have not confirmed it (no second account is made)
+	ProviderAccountUnconfirmed = 'ProviderAccountUnconfirmed',
+	// Provider sign-in of an account that has no workspace yet (no second account is made)
+	ProviderAccountNotSetUp = 'ProviderAccountNotSetUp',
 	Configuration = 'Configuration',
 	AccessDenied = 'AccessDenied'
 }
@@ -23,9 +29,19 @@ const errorMap = {
 	[Error.EverIdNoWorkspaceSignup]: <EverIdNoWorkspace offerSignup />,
 	[Error.EverIdWorkspaceBlocked]: <EverIdNoWorkspace reason="blocked" />,
 	[Error.EverIdEmailUnverified]: <EverIdVerifyEmail />,
+	[Error.ProviderAccountUnconfirmed]: <ProviderAccountUnconfirmed />,
+	[Error.ProviderAccountNotSetUp]: <ProviderAccountUnconfirmed reason="not-set-up" />,
 	[Error.Configuration]: <ErrorPageComponent />,
 	[Error.AccessDenied]: <UnauthorizedPage />
 };
+
+/** Own keys only: `?error=__proto__` or `?error=toString` would read the members of Object.prototype. */
+function isKnownError(error: string | null): error is Error {
+	if (!error) {
+		return false;
+	}
+	return Object.hasOwn(errorMap, error);
+}
 
 /**
  * Error page
@@ -35,6 +51,11 @@ const errorMap = {
  */
 export default function Page() {
 	const search = useSearchParams();
-	const error = search?.get('error') as Error;
-	return <FocusShell>{errorMap[error]}</FocusShell>;
+	const error = search?.get('error') ?? null;
+	// next-auth also sends OAuthSignin, OAuthCallback, Verification, Default...: they get the generic sign-in error
+	let page = <SignInError code={error} />;
+	if (isKnownError(error)) {
+		page = errorMap[error];
+	}
+	return <FocusShell>{page}</FocusShell>;
 }

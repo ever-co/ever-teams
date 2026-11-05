@@ -1,14 +1,8 @@
 'use client';
 
 import type { PropsWithChildren, ReactNode } from 'react';
-import { EverTeamsLogo } from '@/core/components/svgs';
-import { ThemeSwitch } from '@/core/components/common/theme-switch';
-import { LanguageDropDownWithFlags } from '@/core/components/common/language-dropdown-flags';
+import { OutsideHeader } from '@/core/components/layouts/outside/outside-header';
 import { cn } from '@/core/lib/helpers';
-
-/** The language trigger as the top bar's other controls: an outline pill of the control height. */
-const LANGUAGE_PILL =
-	'h-8 w-auto gap-1.5 rounded-full border-none bg-card px-3 text-[13px] font-medium shadow-[0_1px_2px_rgb(0_0_0/0.06)] hairline-ring ring-foreground/10 hover:bg-muted/50 dark:bg-foreground/5';
 
 /**
  * The frame of a page the user goes through on their own, outside the workspace: joining a team, an email being
@@ -18,13 +12,7 @@ const LANGUAGE_PILL =
 export function FocusShell({ children }: PropsWithChildren) {
 	return (
 		<div className="flex min-h-dvh flex-col bg-sidebar text-foreground selection:bg-foreground/10">
-			<header className="flex h-14 shrink-0 items-center justify-between px-5">
-				<EverTeamsLogo dash className="h-5" />
-				<div className="flex items-center gap-2">
-					<LanguageDropDownWithFlags deferLoading showFlag={false} btnClassName={LANGUAGE_PILL} />
-					<ThemeSwitch />
-				</div>
-			</header>
+			<OutsideHeader />
 			<main className="flex flex-1 flex-col items-center justify-center gap-5 px-4 pb-16 pt-4">{children}</main>
 		</div>
 	);

@@ -21,6 +21,13 @@ function parseProviderIds(value: string | undefined): Set<string> {
 	return new Set((value ?? '').split(',').map((id) => id.trim()));
 }
 
+function providerCellClassOf(spansRow: boolean) {
+	if (spansRow) {
+		return 'col-span-2';
+	}
+	return undefined;
+}
+
 export default function SocialLogins() {
 	const t = useTranslations();
 	const configuredProviderIds = parseProviderIds(useRuntimeEnvValue('EVER_TEAMS_AUTH_PROVIDERS'));
@@ -54,16 +61,19 @@ export default function SocialLogins() {
 		return null;
 	}
 
+	const hasProviders = availableProviders.length > 0;
+	const lastIndex = availableProviders.length - 1;
+	const hasOddCount = availableProviders.length % 2 === 1;
+
 	return (
-		<div className="space-y-6">
-			{/* Divider */}
+		<div className="flex flex-col gap-5">
 			<div className="grid grid-cols-[1fr_auto_1fr] items-center gap-3">
-				<div className="h-px bg-border" />
-				<div className="text-xs text-center text-muted-foreground">{t('pages.auth.OR_CONTINUE_WITH')}</div>
-				<div className="h-px bg-border" />
+				<span aria-hidden="true" className="h-px bg-border" />
+				<span className="text-xs text-muted-foreground">{t('pages.auth.OR_CONTINUE_WITH')}</span>
+				<span aria-hidden="true" className="h-px bg-border" />
 			</div>
 
-			<div className="space-y-3">
+			<div className="flex flex-col gap-2.5">
 				{everId && (
 					<form
 						onSubmit={(e) => {
@@ -75,21 +85,23 @@ export default function SocialLogins() {
 					</form>
 				)}
 
-				{/* Social buttons in 2x2 grid */}
-				{availableProviders.length > 0 && (
-					<div className="grid grid-cols-2 gap-3">
-						{availableProviders.map((provider) => {
+				{hasProviders && (
+					<div className="grid grid-cols-2 gap-2.5">
+						{availableProviders.map((provider, index) => {
 							const providerInfo = providerIcons[provider.id];
+							const isLast = index === lastIndex;
+							const spansRow = isLast && hasOddCount;
 
 							return (
 								<form
 									key={provider.id}
+									className={providerCellClassOf(spansRow)}
 									onSubmit={(e) => {
 										e.preventDefault();
 										void signInFunction(provider);
 									}}
 								>
-									<Button type="submit" variant="outline" className="w-full">
+									<Button type="submit" variant="outline" className="w-full max-sm:h-11">
 										{providerInfo.icon}
 										{providerInfo.label}
 									</Button>

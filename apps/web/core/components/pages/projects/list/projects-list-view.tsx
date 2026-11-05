@@ -53,7 +53,7 @@ const COLUMN_WIDTHS_REM: Record<ProjectColumn, number> = {
 	managers: 5.5,
 	members: 6.5,
 	teams: 9,
-	dates: 10.5,
+	dates: 12,
 	budget: 6.5
 };
 

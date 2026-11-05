@@ -23,7 +23,11 @@ import {
 	ITimeLogReportWeeklyRequest
 } from '@/core/types/interfaces/activity/activity-report';
 import { IUpdateTimesheetRequest } from '@/core/types/interfaces/timesheet/timesheet';
-import { formatStartAndEndDateRange } from '@/core/lib/helpers/format-date-range';
+import {
+	endOfDayInTimeZone,
+	formatStartAndEndDateRange,
+	startOfDayInTimeZone
+} from '@/core/lib/helpers/format-date-range';
 import {
 	validateApiResponse,
 	timeLimitReportListSchema,
@@ -36,12 +40,15 @@ import { ITimeLogUpdatePayload } from '@/core/types/interfaces/timesheet/time-lo
 class TimeLogService extends APIService {
 	getTimeLimitsReport = async (params: TGetTimeLimitReport): Promise<TTimeLimitReportList[]> => {
 		const convertedParams = { ...params, tenantId: this.tenantId, organizationId: this.organizationId };
-		// The API filters on these instants and lists their days in `timeZone`, so they are the user's day bounds.
+		// The API filters on these instants and lists their days in `timeZone`, so they are the bounds of the days in
+		// that zone (the browser's days when no zone, or an unknown one, is sent).
 		if (params.endDate) {
-			convertedParams.endDate = endOfDay(params.endDate);
+			const zonedEnd = endOfDayInTimeZone(params.endDate, params.timeZone);
+			convertedParams.endDate = zonedEnd ? new Date(zonedEnd) : endOfDay(params.endDate);
 		}
 		if (params.startDate) {
-			convertedParams.startDate = startOfDay(params.startDate);
+			const zonedStart = startOfDayInTimeZone(params.startDate, params.timeZone);
+			convertedParams.startDate = zonedStart ? new Date(zonedStart) : startOfDay(params.startDate);
 		}
 
 		const query = qs.stringify(convertedParams);
@@ -164,8 +171,9 @@ class TimeLogService extends APIService {
 			throw new Error('Required parameters missing: startDate, and endDate are required');
 		}
 
-		// Format dates using the utility function
-		const { start, end } = formatStartAndEndDateRange(startDate, endDate);
+		// The bounds of the days in the zone the request sends, which the API lists the logs' days in
+		const zone = timeZone || getDefaultTimezone();
+		const { start, end } = formatStartAndEndDateRange(startDate, endDate, zone);
 
 		const params = new URLSearchParams({
 			'activityLevel[start]': '0',
@@ -174,7 +182,7 @@ class TimeLogService extends APIService {
 			tenantId: this.tenantId,
 			startDate: start,
 			endDate: end,
-			timeZone: timeZone || getDefaultTimezone()
+			timeZone: zone
 		});
 
 		TIMESHEET_RELATIONS.forEach((relation, index) => {
@@ -299,8 +307,12 @@ class TimeLogService extends APIService {
 			throw new Error('Invalid activity level range');
 		}
 
-		// Format dates using the utility function
-		const { start: formattedStartDate, end: formattedEndDate } = formatStartAndEndDateRange(startDate, endDate);
+		// The bounds of the days in the zone the request sends, which the API lists the days in
+		const { start: formattedStartDate, end: formattedEndDate } = formatStartAndEndDateRange(
+			startDate,
+			endDate,
+			timeZone
+		);
 
 		const baseParams = {
 			'activityLevel[start]': activityLevel.start.toString(),
@@ -349,8 +361,12 @@ class TimeLogService extends APIService {
 			);
 		}
 
-		// Format dates using the utility function
-		const { start: formattedStartDate, end: formattedEndDate } = formatStartAndEndDateRange(startDate, endDate);
+		// The bounds of the days in the zone the request sends, which the API lists the days in
+		const { start: formattedStartDate, end: formattedEndDate } = formatStartAndEndDateRange(
+			startDate,
+			endDate,
+			timeZone
+		);
 
 		const baseParams: Record<string, string> = {
 			'activityLevel[start]': activityLevel.start.toString(),
