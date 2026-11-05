@@ -4124,7 +4124,7 @@
 		"page": {
 			"BACK_TO_TEAM": "Wróć do zespołu",
 			"MANAGER_RIGHTS_UNCONFIRMED_TITLE": "Twoje uprawnienia menedżera wobec członków tego zespołu nie są jeszcze potwierdzone",
-			"MANAGER_RIGHTS_UNCONFIRMED_DESCRIPTION": "Ich plany, czas i aktywność pozostaną ukryte, dopóki administrator organizacji nie zapisze menedżerów zespołu w ustawieniach.",
+			"MANAGER_RIGHTS_UNCONFIRMED_DESCRIPTION": "Ich plany, czas i aktywność pozostaną ukryte, dopóki administrator organizacji nie zapisze menedżerów zespołu w ustawieniach zespołu.",
 			"SEARCH_TASKS": "Szukaj zadań",
 			"COUNT_STILL_LOADING": "Kolejne zadania wciąż się wczytują",
 			"COPY_EMAIL": "Kopiuj e-mail",
