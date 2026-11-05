@@ -8,6 +8,7 @@ import { IEmployee } from '@/core/types/interfaces/organization/employee';
 import { useAtomValue } from 'jotai';
 import { activeTeamState } from '@/core/stores';
 import { isTeamManagerMember } from '@/core/stores/teams/organization-team';
+import { teamRosterOf } from '@/core/lib/utils/settings-team';
 
 export const SWITCH_TRACK_RECIPE =
 	'group relative inline-flex h-6 w-10.5 shrink-0 cursor-pointer items-center rounded-full hairline-border border-transparent bg-foreground/10 p-0.5 shadow-sm shadow-black/10 hairline-ring ring-foreground/10 outline-none transition-[color,box-shadow,background-color] focus-visible:ring-[3px] focus-visible:ring-ring/25 data-checked:bg-primary dark:ring-foreground/15';
@@ -66,16 +67,12 @@ export function ShareProfileViewsToggle() {
 
 	const handleChange = useCallback(async () => {
 		if (activeTeam && typeof enabled != 'undefined') {
+			const roster = teamRosterOf(activeTeam.members ?? [], isTeamManagerMember);
 			await editOrganizationTeam({
 				...activeTeam,
 				shareProfileView: !enabled,
-				memberIds: activeTeam.members
-					?.map((t) => t.employee?.id || '')
-					.filter((value: string, index: number, array: string[]) => array.indexOf(value) === index),
-				managerIds: activeTeam.members
-					?.filter(isTeamManagerMember)
-					.map((t) => t.employee?.id || '')
-					.filter((value: string, index: number, array: string[]) => array.indexOf(value) === index)
+				memberIds: roster.memberIds,
+				managerIds: roster.managerIds
 			});
 			setEnabled(!enabled);
 		}
@@ -112,16 +109,12 @@ export function RequireDailyPlanToTrack() {
 
 	const handleChange = useCallback(async () => {
 		if (activeTeam && typeof enabled != 'undefined') {
+			const roster = teamRosterOf(activeTeam.members ?? [], isTeamManagerMember);
 			await editOrganizationTeam({
 				...activeTeam,
 				requirePlanToTrack: !enabled,
-				memberIds: activeTeam.members
-					?.map((t) => t.employee?.id || '')
-					.filter((value: string, index: number, array: string[]) => array.indexOf(value) === index),
-				managerIds: activeTeam.members
-					?.filter(isTeamManagerMember)
-					.map((t) => t.employee?.id || '')
-					.filter((value: string, index: number, array: string[]) => array.indexOf(value) === index)
+				memberIds: roster.memberIds,
+				managerIds: roster.managerIds
 			});
 			setEnabled(!enabled);
 			if (!enabled) {

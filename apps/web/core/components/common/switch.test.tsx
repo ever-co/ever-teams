@@ -53,4 +53,20 @@ describe('ShareProfileViewsToggle', () => {
 			expect.objectContaining({ shareProfileView: true, managerIds: ['employee-flagged', 'employee-role'] })
 		);
 	});
+
+	it('sends the employee id of a member row whose employee was not loaded, and never an empty id', async () => {
+		const members = mockActiveTeam.members as Record<string, unknown>[];
+		members.push({ id: 'row-bare', isManager: true, employeeId: 'employee-bare' });
+
+		render(<ShareProfileViewsToggle />);
+		fireEvent.click(screen.getByRole('switch'));
+
+		await waitFor(() => expect(mockEditOrganizationTeam).toHaveBeenCalledTimes(1));
+		expect(mockEditOrganizationTeam).toHaveBeenCalledWith(
+			expect.objectContaining({
+				memberIds: ['employee-flagged', 'employee-role', 'employee-member', 'employee-bare'],
+				managerIds: ['employee-flagged', 'employee-role', 'employee-bare']
+			})
+		);
+	});
 });
