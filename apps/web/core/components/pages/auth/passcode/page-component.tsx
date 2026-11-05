@@ -222,7 +222,7 @@ function PasscodeScreen({ form, className }: { form: TAuthenticationPasscode } &
 				<div className="space-y-2.5">
 					<div className="flex justify-between items-center">
 						<label data-slot="label" className="block text-sm font-medium leading-none select-none">
-							{t('pages.auth.INPUT_INVITE_CODE')}
+							{t('pages.auth.INPUT_SIGN_IN_CODE')}
 						</label>
 						<button
 							type="button"

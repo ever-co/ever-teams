@@ -1948,6 +1948,7 @@
 			"UNRECEIVED_CODE": "Geen code ontvangen?",
 			"JOIN_TEAM": "Word lid van team",
 			"INPUT_INVITE_CODE": "Uitnodigingscode invoeren.",
+			"INPUT_SIGN_IN_CODE": "Voer de inlogcode in",
 			"INPUT_INVITE_CODE_DESC": "Voer de uitnodigingscode in die we naar uw e-mail hebben gestuurd.",
 			"INVALID_INVITE_CODE_MESSAGE": "Ongeldige code",
 			"WELCOME_TEAMS": "Welkom bij {appName}",

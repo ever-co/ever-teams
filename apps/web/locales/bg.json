@@ -1948,6 +1948,7 @@
 			"UNRECEIVED_CODE": "Не получихте код?",
 			"JOIN_TEAM": "Присъединяване към отбор",
 			"INPUT_INVITE_CODE": "Въведете код за покана.",
+			"INPUT_SIGN_IN_CODE": "Въведете кода за вход",
 			"INPUT_INVITE_CODE_DESC": "Въведете кода за покана, който изпратихме до имейла ви.",
 			"INVALID_INVITE_CODE_MESSAGE": "Невалиден код",
 			"WELCOME_TEAMS": "Добре дошли в {appName}",

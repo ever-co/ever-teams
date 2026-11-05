@@ -1948,6 +1948,7 @@
 			"UNRECEIVED_CODE": "未收到验证码?",
 			"JOIN_TEAM": "加入团队",
 			"INPUT_INVITE_CODE": "输入邀请码。",
+			"INPUT_SIGN_IN_CODE": "输入登录验证码",
 			"INPUT_INVITE_CODE_DESC": "输入我们发送到您电子邮件的邀请码。",
 			"INVALID_INVITE_CODE_MESSAGE": "无效的邀请码",
 			"WELCOME_TEAMS": "欢迎使用永恒团队",
@@ -2331,7 +2332,7 @@
 		"error": {
 			"TITLE": "错误",
 			"HEADING_TITLE": "出了点问题",
-			"HEADING_DESCRIPTION": "如果問題仍然存在，請向我們的支援團隊發送求救訊號。"
+			"HEADING_DESCRIPTION": "如果问题仍然存在，请向我们的支持团队发送求救信号。"
 		},
 		"maintenance": {
 			"HEADING_TITLE": "我們正在維護中",

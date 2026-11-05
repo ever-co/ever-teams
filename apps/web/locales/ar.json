@@ -1948,6 +1948,7 @@
 			"UNRECEIVED_CODE": "لم تتلقى الرمز؟",
 			"JOIN_TEAM": "انضمام للفريق",
 			"INPUT_INVITE_CODE": "إدخال رمز الدعوة.",
+			"INPUT_SIGN_IN_CODE": "أدخل رمز تسجيل الدخول",
 			"INPUT_INVITE_CODE_DESC": "أدخل رمز الدعوة الذي أرسلناه إلى بريدك الإلكتروني.",
 			"INVALID_INVITE_CODE_MESSAGE": "رمز غير صالح",
 			"WELCOME_TEAMS": "مرحبًا بك في إيفر تيمز",
