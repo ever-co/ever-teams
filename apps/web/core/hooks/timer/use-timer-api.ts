@@ -562,7 +562,22 @@ export function useTimerApi({
 				return 'blocked';
 			}
 
+			// The billable read below awaits: a task or team switch meanwhile must cancel this start, or the
+			// earlier task would start late (and with the new team's cookies after a team switch).
+			const teamIdAtStart = activeTeamRef.current?.id;
+			const isTaskFromActiveTask = !explicitTask && !pageTask;
+
 			const isBillableToUse = await resolveTimerBillable(taskToUse);
+
+			const hasTaskSwitched = isTaskFromActiveTask && activeTeamTaskRef.current?.id !== taskIdToUse;
+			const hasTeamSwitched = activeTeamRef.current?.id !== teamIdAtStart;
+			if (hasTaskSwitched || hasTeamSwitched) {
+				return 'blocked';
+			}
+			if (isBillableToUse === undefined) {
+				toast.error(t('toasts.timer.START_FAILED'), { id: 'timer-start-failed' });
+				return 'blocked';
+			}
 
 			updateLocalTimerStatus({
 				lastTaskId: taskIdToUse,
@@ -686,6 +701,7 @@ export function useTimerApi({
 			setTimerStatusFetching,
 			startTimerMutate,
 			activeTeamTaskRef,
+			activeTeamRef,
 			timerStatus,
 			setTimerStatus,
 			taskStatuses,

@@ -6,6 +6,7 @@ import { useQuery, useQueryClient } from '@tanstack/react-query';
 
 import { getAccessTokenCookie, getOrganizationIdCookie, getTenantIdCookie } from '@/core/lib/helpers/cookies';
 import { logErrorInDev } from '@/core/lib/helpers/error-message';
+import { errorStatusOf } from '@/core/lib/utils/error-feedback';
 import { findTaskProject, pickedBillableOf, timerBillableOf } from '@/core/lib/helpers/timer-billable';
 import { CREDENTIAL_SCOPED_QUERY_META } from '@/core/query/credential-query';
 import { queryKeys } from '@/core/query/keys';
@@ -83,14 +84,16 @@ export function useResolveTimerBillable() {
 				return await queryClient.fetchQuery(projectQueryOptions(projectId, tenantId, organizationId));
 			} catch (error) {
 				logErrorInDev('[Timer] Reading the project billable setting failed:', error);
-				return undefined;
+				// A project that no longer exists bills nothing; any other failure leaves the value unknown.
+				return errorStatusOf(error) === 404 ? null : undefined;
 			}
 		},
 		[queryClient]
 	);
 
+	// `undefined` means the project could not be read: the caller must not start with a guessed billable value.
 	return useCallback(
-		async (task: TTask | null | undefined): Promise<boolean> => {
+		async (task: TTask | null | undefined): Promise<boolean | undefined> => {
 			if (!task) {
 				return false;
 			}
@@ -113,6 +116,9 @@ export function useResolveTimerBillable() {
 				return cachedProject.billable === true;
 			}
 			const fetchedProject = await fetchProject(task.projectId, tenantId, organizationId);
+			if (fetchedProject === undefined) {
+				return undefined;
+			}
 			return fetchedProject?.billable === true;
 		},
 		[fetchProject, queryClient, store]
