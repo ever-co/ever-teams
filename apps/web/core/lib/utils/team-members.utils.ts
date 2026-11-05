@@ -59,7 +59,10 @@ export const getMemberPresence = (
  * online, as the status badge shows it (getTimerStatusValue).
  */
 export const getMemberFilterStatus = (member: TOrganizationTeamEmployee): string | undefined => {
-	if (isTrackingOutsideTeam(member)) {
+	// The badge shows an inactive member as suspended whatever their timer says
+	const isInactive = member.employee?.isActive === false;
+	const runsOutsideTeam = isTrackingOutsideTeam(member);
+	if (runsOutsideTeam && !isInactive) {
 		return ETimerStatus.RUNNING;
 	}
 	const tracking = !!member.employee?.isTrackingTime || member.timerStatus === ETimerStatus.RUNNING;
