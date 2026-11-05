@@ -1,45 +1,70 @@
 'use client';
 
-import { clsxm } from '@/core/lib/utils';
 import { AuthLayout } from '@/core/components/layouts/default-layout/auth-layout';
 import { useTranslations } from 'next-intl';
 import { useRouter } from 'next/navigation';
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState, type Dispatch, type SetStateAction } from 'react';
 import { WorkSpaceComponent } from '../passcode/page-component';
 import { useAuthenticationSocialLogin } from '@/core/hooks/auth/use-authentication-social-login';
 import Cookies from 'js-cookie';
 import { useSession } from 'next-auth/react';
-import {
-	APP_NAME,
-	LAST_WORKSPACE_AND_TEAM,
-	USER_SAW_OUTSTANDING_NOTIFICATION
-} from '@/core/constants/config/constants';
+import { LAST_WORKSPACE_AND_TEAM, USER_SAW_OUTSTANDING_NOTIFICATION } from '@/core/constants/config/constants';
 import { ISigninEmailConfirmWorkspaces } from '@/core/types/interfaces/auth/auth';
 import { getFirstTeamId, findWorkspaceIndexByTeamId } from '@/core/lib/utils/workspace.utils';
 import { useWorkspaceAnalysis } from '@/core/hooks/auth/use-workspace-analysis';
 import { readEverIdSession } from '@/core/lib/auth/ever-id/session';
 import { readSocialSession } from '@/core/lib/auth/social-session';
 import { useEverIdWorkspaceChoice } from '@/core/hooks/auth/use-ever-id-workspace-choice';
+import { PickedWorkspaceScene } from '@/core/components/auth/scenes/auth-scenes';
 
+/** The workspace pick after a social or Ever ID sign-in, with the workspace and team it opens beside it. */
 export default function SocialLoginChooseWorspace() {
 	const t = useTranslations();
+	const [workspaces, setWorkspaces] = useState<ISigninEmailConfirmWorkspaces[]>([]);
+	const [selectedWorkspace, setSelectedWorkspace] = useState<number>(0);
+	const [selectedTeam, setSelectedTeam] = useState('');
+
 	return (
 		<AuthLayout
-			title={t('pages.authLogin.HEADING_TITLE', { appName: APP_NAME })}
-			description={t('pages.auth.CHOOSE_YOUR_WORKSPACE')}
+			aside={
+				<PickedWorkspaceScene
+					title={t('auth.scene.WORKSPACE_TITLE')}
+					description={t('auth.scene.WORKSPACE_TEXT')}
+					workspaces={workspaces}
+					selectedWorkspace={selectedWorkspace}
+					selectedTeam={selectedTeam}
+				/>
+			}
 		>
-			<div className="overflow-x-hidden w-full overflow-clip p-1.5">
-				<div className={clsxm('flex flex-row duration-500 transition-[transform]')}>
-					<WorkSpaceScreen />
-				</div>
-			</div>
+			<WorkSpaceScreen
+				workspaces={workspaces}
+				setWorkspaces={setWorkspaces}
+				selectedWorkspace={selectedWorkspace}
+				setSelectedWorkspace={setSelectedWorkspace}
+				selectedTeam={selectedTeam}
+				setSelectedTeam={setSelectedTeam}
+			/>
 		</AuthLayout>
 	);
 }
 
-function WorkSpaceScreen() {
-	const [selectedWorkspace, setSelectedWorkspace] = useState<number>(0);
-	const [selectedTeam, setSelectedTeam] = useState('');
+type WorkspaceScreenProps = {
+	workspaces: ISigninEmailConfirmWorkspaces[];
+	setWorkspaces: Dispatch<SetStateAction<ISigninEmailConfirmWorkspaces[]>>;
+	selectedWorkspace: number;
+	setSelectedWorkspace: Dispatch<SetStateAction<number>>;
+	selectedTeam: string;
+	setSelectedTeam: Dispatch<SetStateAction<string>>;
+};
+
+function WorkSpaceScreen({
+	workspaces,
+	setWorkspaces,
+	selectedWorkspace,
+	setSelectedWorkspace,
+	selectedTeam,
+	setSelectedTeam
+}: Readonly<WorkspaceScreenProps>) {
 	const router = useRouter();
 	const form = useAuthenticationSocialLogin();
 	const { data: session }: any = useSession();
@@ -55,8 +80,6 @@ function WorkSpaceScreen() {
 		userId: ''
 	});
 
-	const [workspaces, setWorkspaces] = useState<ISigninEmailConfirmWorkspaces[]>([]);
-
 	useEffect(() => {
 		const loadOAuthSession = async () => {
 			const social = readSocialSession(session);
@@ -69,7 +92,7 @@ function WorkSpaceScreen() {
 			}
 		};
 		void loadOAuthSession();
-	}, [session]);
+	}, [session, setWorkspaces]);
 
 	// Ever ID: the sign-in left the workspace list in the session (no Gauzy token yet: the workspace sign-in
 	// below makes it). Runs after the effect above, so its values are the ones kept.
@@ -78,7 +101,7 @@ function WorkSpaceScreen() {
 		if (!everIdSession) return;
 		setSigninResult((current) => ({ ...current, confirmed_mail: everIdSession.confirmedEmail }));
 		setWorkspaces(everIdSession.workspaces);
-	}, [everIdSession]);
+	}, [everIdSession, setWorkspaces]);
 
 	// Analyze workspace structure to determine if we should show workspace selection
 	// Using centralized hook to avoid code duplication across auth components
@@ -126,14 +149,14 @@ function WorkSpaceScreen() {
 				document.getElementById('continue-to-workspace')?.click();
 			}, 100);
 		}
-	}, [workspaces, workspaceAnalysis]);
+	}, [workspaces, workspaceAnalysis, setSelectedTeam, setSelectedWorkspace]);
 
 	// Ever ID: start on the workspace the ID token points at (when exactly one matches)
 	useEffect(() => {
 		if (everIdSession && everIdSession.preselectIndex >= 0 && everIdSession.preselectIndex < workspaces.length) {
 			setSelectedWorkspace(everIdSession.preselectIndex);
 		}
-	}, [everIdSession, workspaces]);
+	}, [everIdSession, workspaces, setSelectedWorkspace]);
 
 	// Ever ID: an expired workspace token starts its sign-in again; a workspace without a tenant yet is set up
 	const everIdChoice = useEverIdWorkspaceChoice(everIdSession);

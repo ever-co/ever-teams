@@ -433,10 +433,25 @@ export const BRANDING_LINKS_SET_BY_OPERATOR = {
 	privacy: Boolean(readRuntimeEnv('PRIVACY_POLICY_LINK') || process.env.PRIVACY_POLICY_LINK)
 };
 
-export const MAIN_PICTURE =
-	readRuntimeEnv('MAIN_PICTURE') || process.env.MAIN_PICTURE || '/assets/cover/auth-bg-cover.png';
+const BUILT_IN_MAIN_PICTURE = '/assets/cover/auth-bg-cover.png';
+const BUILT_IN_MAIN_PICTURE_DARK = '/assets/cover/auth-bg-cover-dark.png';
+
+export const MAIN_PICTURE = readRuntimeEnv('MAIN_PICTURE') || process.env.MAIN_PICTURE || BUILT_IN_MAIN_PICTURE;
 export const MAIN_PICTURE_DARK =
-	readRuntimeEnv('MAIN_PICTURE_DARK') || process.env.MAIN_PICTURE_DARK || '/assets/cover/auth-bg-cover-dark.png';
+	readRuntimeEnv('MAIN_PICTURE_DARK') || process.env.MAIN_PICTURE_DARK || BUILT_IN_MAIN_PICTURE_DARK;
+
+/**
+ * Whether the operator chose the auth pictures. The built-in covers are a screenshot of the 2022 interface, so the
+ * auth pages draw their own scene unless a deployment sets other pictures. The env samples, the demo compose file and
+ * the k8s manifests write the built-in paths explicitly: those values count as not chosen.
+ */
+function isOperatorPicture(value: string, builtIn: string) {
+	const hasValue = Boolean(value);
+	const isBuiltIn = value === builtIn;
+	return hasValue && !isBuiltIn;
+}
+export const MAIN_PICTURE_SET_BY_OPERATOR = isOperatorPicture(MAIN_PICTURE, BUILT_IN_MAIN_PICTURE);
+export const MAIN_PICTURE_DARK_SET_BY_OPERATOR = isOperatorPicture(MAIN_PICTURE_DARK, BUILT_IN_MAIN_PICTURE_DARK);
 // The browser tab icon: a path served by this app or an absolute URL.
 export const APP_FAVICON_URL = readRuntimeEnv('APP_FAVICON_URL') || process.env.APP_FAVICON_URL || '/favicon.ico';
 
@@ -1105,7 +1120,11 @@ export const TIMER_STATUS_CONSTANTS = {
 export const EMPLOYEE_PRESENCE_ENABLED = getNextPublicEnv('NEXT_PUBLIC_EMPLOYEE_PRESENCE_ENABLED', {
 	default: process.env.NEXT_PUBLIC_EMPLOYEE_PRESENCE_ENABLED,
 	map(value) {
-		return String(value ?? '').trim().toLowerCase() !== 'false';
+		return (
+			String(value ?? '')
+				.trim()
+				.toLowerCase() !== 'false'
+		);
 	}
 });
 

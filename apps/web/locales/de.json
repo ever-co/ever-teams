@@ -4226,5 +4226,158 @@
 	},
 	"accountMenu": {
 		"OPEN": "Kontomenü"
+	},
+	"auth": {
+		"code": {
+			"CHANGE_EMAIL": "Andere E-Mail verwenden",
+			"CLEAR": "Leeren",
+			"DESCRIPTION": "Wir haben einen {length}-stelligen Code an <address>{email}</address> gesendet. Der Link in derselben E-Mail meldet dich ebenfalls an.",
+			"LABEL": "Anmeldecode",
+			"NOT_RECEIVED": "Nichts im Posteingang?",
+			"RESEND": "Neuen Code senden",
+			"RESEND_IN": "Neuer Code in {countdown}",
+			"SUBMIT": "Anmelden",
+			"TITLE": "Prüfe deinen Posteingang"
+		},
+		"deleteAccount": {
+			"INVALID_TITLE": "Dieser Link funktioniert nicht mehr"
+		},
+		"demo": {
+			"CREDENTIALS": "Demo-Konten",
+			"EMAIL": "E-Mail:",
+			"PASSWORD": "Passwort:"
+		},
+		"field": {
+			"CAPS_LOCK_ON": "Feststelltaste ist aktiv",
+			"CONFIRM_PASSWORD_LABEL": "Passwort bestätigen",
+			"EMAIL_LABEL": "E-Mail",
+			"EMAIL_PLACEHOLDER": "name@firma.de",
+			"HIDE_PASSWORD": "Passwort ausblenden",
+			"NAME_LABEL": "Vollständiger Name",
+			"NAME_PLACEHOLDER": "Anna Schmidt",
+			"NEW_PASSWORD_LABEL": "Passwort",
+			"PASSWORD_LABEL": "Passwort",
+			"PASSWORD_PLACEHOLDER": "Dein Passwort",
+			"SHOW_PASSWORD": "Passwort anzeigen",
+			"TEAM_LABEL": "Teamname",
+			"TEAM_PLACEHOLDER": "Design-Team"
+		},
+		"forgot": {
+			"BACK_TO_SIGN_IN": "Zurück zur Anmeldung",
+			"DESCRIPTION": "Gib die E-Mail-Adresse deines Kontos ein. Wir senden dir einen Link, mit dem du ein neues Passwort festlegst.",
+			"SENT_TEXT": "Öffne den Link in der E-Mail, die wir gerade gesendet haben, um ein neues Passwort festzulegen.",
+			"SENT_TITLE": "Prüfe deinen Posteingang",
+			"SUBMIT": "Link senden",
+			"TITLE": "Passwort vergessen?",
+			"USE_ANOTHER_EMAIL": "Andere E-Mail verwenden"
+		},
+		"invite": {
+			"CHECKING": "Deine Einladung wird geprüft",
+			"DESCRIPTION": "Die Einladung ging an <address>{email}</address>. Gib deinen Namen ein und wähle ein Passwort, um beizutreten.",
+			"FAILED": "Wir konnten die Einladung nicht annehmen. Versuche es gleich noch einmal.",
+			"TITLE": "{organization} beitreten"
+		},
+		"method": {
+			"CODE": "Code per E-Mail",
+			"LABEL": "Anmeldemethode",
+			"PASSWORD": "Passwort"
+		},
+		"password": {
+			"RULE_MATCH": "Beide Passwörter stimmen überein",
+			"RULE_MIN_LENGTH": "{count, plural, one {Mindestens # Zeichen} other {Mindestens # Zeichen}}",
+			"STRENGTH_FAIR": "Mittel",
+			"STRENGTH_GOOD": "Gut",
+			"STRENGTH_STRONG": "Stark",
+			"STRENGTH_WEAK": "Schwach"
+		},
+		"reset": {
+			"CONFIRM_LABEL": "Neues Passwort bestätigen",
+			"DESCRIPTION": "Wähle das Passwort, mit dem du dich ab jetzt anmeldest.",
+			"DONE_TEXT": "Melde dich mit deinem neuen Passwort an.",
+			"DONE_TITLE": "Passwort geändert",
+			"INVALID_TITLE": "Dieser Link funktioniert nicht mehr",
+			"NEW_LABEL": "Neues Passwort",
+			"SUBMIT": "Passwort speichern",
+			"TITLE": "Neues Passwort festlegen"
+		},
+		"scene": {
+			"ACCOUNT_TEXT": "Dein Timer, deine Aufgaben und dein Plan für heute, neben deinen Teammitgliedern.",
+			"ACCOUNT_TITLE": "Dein Platz im Team",
+			"INBOX_ACTIVATE_TEXT": "Öffne den Link darin, um dein Konto zu aktivieren, und melde dich dann mit deiner E-Mail an.",
+			"INBOX_ACTIVATE_TITLE": "Die gesuchte E-Mail",
+			"INBOX_CODE_TEXT": "Gib den Code darin ein oder öffne den Link: Beides meldet dich an.",
+			"INBOX_CODE_TITLE": "Die gesuchte E-Mail",
+			"INBOX_RESET_TEXT": "Der Link darin öffnet die Seite, auf der du ein neues Passwort wählst.",
+			"INBOX_RESET_TITLE": "Die gesuchte E-Mail",
+			"INVITE_LATER": "Teammitglied später einladen",
+			"INVITE_TEXT": "Du erscheinst im Team, sobald du beitrittst.",
+			"INVITE_TITLE": "Ein Platz für dich im Team",
+			"MAIL_ACTION_ACTIVATE": "Mein Konto aktivieren",
+			"MAIL_ACTION_CODE": "Anmelden",
+			"MAIL_ACTION_RESET": "Neues Passwort wählen",
+			"MANAGER": "Manager",
+			"MEMBER_COUNT": "{count, plural, one {# Mitglied} other {# Mitglieder}}",
+			"NOW": "jetzt",
+			"SUBJECT_ACTIVATE": "Aktiviere dein Konto",
+			"SUBJECT_CODE": "Dein Anmeldecode",
+			"SUBJECT_RESET": "Setze dein Passwort zurück",
+			"TEAM_TEXT": "Du verwaltest es. Lade Leute ein, sobald du bereit bist.",
+			"TEAM_TITLE": "Dein Team zum Start",
+			"TO": "an {email}",
+			"WORKSPACE_TEXT": "Der Arbeitsbereich und das Team, die du wählst, öffnen sich zuerst. Du kannst später wechseln.",
+			"WORKSPACE_TITLE": "Hier landest du"
+		},
+		"signIn": {
+			"CODE_DESCRIPTION": "Gib deine E-Mail-Adresse ein, und wir senden dir einen Anmeldecode. Kein Passwort nötig.",
+			"CREATE_ACCOUNT": "Konto erstellen",
+			"FORGOT_PASSWORD": "Passwort vergessen?",
+			"NEW_HERE": "Neu bei {appName}?",
+			"PASSWORD_DESCRIPTION": "Melde dich mit deiner E-Mail-Adresse und deinem Passwort an.",
+			"SEND_CODE": "Code senden",
+			"SUBMIT_PASSWORD": "Anmelden",
+			"TITLE": "Bei {appName} anmelden"
+		},
+		"signUp": {
+			"CREATING": "Dein Arbeitsbereich wird erstellt",
+			"CREATING_TEXT": "{team} wird eingerichtet. Das dauert ein paar Sekunden.",
+			"DESCRIPTION": "Erfasse deine Zeit und die Arbeit deines Teams an einem Ort.",
+			"GET_STARTED": "Arbeitsbereich erstellen",
+			"HAVE_ACCOUNT": "Schon ein Konto?",
+			"MODE_DESCRIPTION": "Du kannst später weitere Teams erstellen und Leute einladen.",
+			"MODE_TITLE": "Wie möchtest du starten?",
+			"SENT_TEXT": "Öffne den Link in der E-Mail, die wir gerade gesendet haben, um dein Konto zu aktivieren, und melde dich dann mit deiner E-Mail an.",
+			"SENT_TITLE": "Aktiviere dein Konto",
+			"SIGN_IN": "Anmelden",
+			"SOLO": "Allein",
+			"SOLO_TEXT": "Ein persönliches Team mit deinem Namen. Lade Leute ein, wann immer du willst.",
+			"STEP": "Schritt {step} von {total}",
+			"TEAM": "Mit meinem Team",
+			"TEAM_TEXT": "Gib deinem Team jetzt einen Namen. Du wirst sein Manager.",
+			"TITLE": "Erstelle dein Konto",
+			"USE_ANOTHER_EMAIL": "Andere E-Mail verwenden"
+		},
+		"social": {
+			"OPENING": "Du wirst angemeldet",
+			"OPENING_TEXT": "Einen Moment, wir öffnen deinen Arbeitsbereich."
+		},
+		"workspace": {
+			"DESCRIPTION": "Wähle den Arbeitsbereich und das Team, die sich jetzt öffnen sollen. Du kannst später wechseln.",
+			"NOT_YOU": "Nicht du?",
+			"NO_MATCH_TEXT": "Prüfe die Schreibweise oder bitte ein Teammitglied, dich einzuladen.",
+			"NO_MATCH_TITLE": "Kein Arbeitsbereich passt zu „{query}“",
+			"OPENING": "Dein Arbeitsbereich wird geöffnet",
+			"OPENING_TEXT": "Du wirst bei {workspace} angemeldet.",
+			"SEARCH": "Arbeitsbereiche suchen",
+			"SIGNED_IN_AS": "Angemeldet als",
+			"TEAMS_OF": "Teams von {workspace}",
+			"TEAM_COUNT": "{count, plural, one {# Team} other {# Teams}}",
+			"TITLE": "Arbeitsbereich wählen"
+		},
+		"error": {
+			"TITLE": "Anmeldung fehlgeschlagen",
+			"TEXT": "Die Anmeldung wurde nicht abgeschlossen. Versuchen Sie es erneut oder melden Sie sich mit Ihrer E-Mail an.",
+			"RETRY": "Zurück zur Anmeldung",
+			"CODE": "Fehlercode: {code}"
+		}
 	}
 }

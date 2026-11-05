@@ -4226,5 +4226,158 @@
 	},
 	"accountMenu": {
 		"OPEN": "Menu dell’account"
+	},
+	"auth": {
+		"code": {
+			"CHANGE_EMAIL": "Usa un'altra email",
+			"CLEAR": "Cancella",
+			"DESCRIPTION": "Abbiamo inviato un codice di {length} caratteri a <address>{email}</address>. Anche il link nella stessa email ti fa accedere.",
+			"LABEL": "Codice di accesso",
+			"NOT_RECEIVED": "Niente nella posta in arrivo?",
+			"RESEND": "Invia un nuovo codice",
+			"RESEND_IN": "Nuovo codice tra {countdown}",
+			"SUBMIT": "Accedi",
+			"TITLE": "Controlla la tua email"
+		},
+		"deleteAccount": {
+			"INVALID_TITLE": "Questo link non funziona più"
+		},
+		"demo": {
+			"CREDENTIALS": "Account demo",
+			"EMAIL": "Email:",
+			"PASSWORD": "Password:"
+		},
+		"field": {
+			"CAPS_LOCK_ON": "Blocco maiuscole attivo",
+			"CONFIRM_PASSWORD_LABEL": "Conferma la password",
+			"EMAIL_LABEL": "Email",
+			"EMAIL_PLACEHOLDER": "nome@azienda.com",
+			"HIDE_PASSWORD": "Nascondi la password",
+			"NAME_LABEL": "Nome completo",
+			"NAME_PLACEHOLDER": "Giulia Rossi",
+			"NEW_PASSWORD_LABEL": "Password",
+			"PASSWORD_LABEL": "Password",
+			"PASSWORD_PLACEHOLDER": "La tua password",
+			"SHOW_PASSWORD": "Mostra la password",
+			"TEAM_LABEL": "Nome del team",
+			"TEAM_PLACEHOLDER": "Team design"
+		},
+		"forgot": {
+			"BACK_TO_SIGN_IN": "Torna all'accesso",
+			"DESCRIPTION": "Inserisci l'email del tuo account e ti invieremo un link per scegliere una nuova password.",
+			"SENT_TEXT": "Apri il link nell'email che ti abbiamo appena inviato per scegliere una nuova password.",
+			"SENT_TITLE": "Controlla la tua email",
+			"SUBMIT": "Invia il link",
+			"TITLE": "Password dimenticata?",
+			"USE_ANOTHER_EMAIL": "Usa un'altra email"
+		},
+		"invite": {
+			"CHECKING": "Stiamo verificando il tuo invito",
+			"DESCRIPTION": "L'invito è stato inviato a <address>{email}</address>. Scegli il tuo nome e una password per unirti.",
+			"FAILED": "Non siamo riusciti ad accettare l'invito. Riprova tra un momento.",
+			"TITLE": "Unisciti a {organization}"
+		},
+		"method": {
+			"CODE": "Codice via email",
+			"LABEL": "Come accedere",
+			"PASSWORD": "Password"
+		},
+		"password": {
+			"RULE_MATCH": "Le due password coincidono",
+			"RULE_MIN_LENGTH": "{count, plural, one {Almeno # carattere} other {Almeno # caratteri}}",
+			"STRENGTH_FAIR": "Discreta",
+			"STRENGTH_GOOD": "Buona",
+			"STRENGTH_STRONG": "Forte",
+			"STRENGTH_WEAK": "Debole"
+		},
+		"reset": {
+			"CONFIRM_LABEL": "Conferma la nuova password",
+			"DESCRIPTION": "Scegli la password con cui accederai d'ora in poi.",
+			"DONE_TEXT": "Accedi con la tua nuova password.",
+			"DONE_TITLE": "Password cambiata",
+			"INVALID_TITLE": "Questo link non funziona più",
+			"NEW_LABEL": "Nuova password",
+			"SUBMIT": "Salva la password",
+			"TITLE": "Scegli una nuova password"
+		},
+		"scene": {
+			"ACCOUNT_TEXT": "Il tuo timer, le tue attività e il tuo piano del giorno, accanto ai tuoi colleghi.",
+			"ACCOUNT_TITLE": "Il tuo posto nel team",
+			"INBOX_ACTIVATE_TEXT": "Apri il suo link per attivare il tuo account, poi accedi con la tua email.",
+			"INBOX_ACTIVATE_TITLE": "L'email da cercare",
+			"INBOX_CODE_TEXT": "Inserisci il codice che contiene o apri il suo link: entrambi ti fanno accedere.",
+			"INBOX_CODE_TITLE": "L'email da cercare",
+			"INBOX_RESET_TEXT": "Il suo link apre la pagina in cui scegli una nuova password.",
+			"INBOX_RESET_TITLE": "L'email da cercare",
+			"INVITE_LATER": "Invita un collega più tardi",
+			"INVITE_TEXT": "Compari nel team appena ti unisci.",
+			"INVITE_TITLE": "Un posto per te nel team",
+			"MAIL_ACTION_ACTIVATE": "Attiva il mio account",
+			"MAIL_ACTION_CODE": "Accedi",
+			"MAIL_ACTION_RESET": "Scegli una nuova password",
+			"MANAGER": "Manager",
+			"MEMBER_COUNT": "{count, plural, one {# membro} other {# membri}}",
+			"NOW": "ora",
+			"SUBJECT_ACTIVATE": "Attiva il tuo account",
+			"SUBJECT_CODE": "Il tuo codice di accesso",
+			"SUBJECT_RESET": "Reimposta la tua password",
+			"TEAM_TEXT": "Lo gestisci tu. Invita altre persone quando vuoi.",
+			"TEAM_TITLE": "Il tuo team, all'inizio",
+			"TO": "a {email}",
+			"WORKSPACE_TEXT": "Lo spazio di lavoro e il team che scegli si aprono per primi. Puoi cambiare più tardi.",
+			"WORKSPACE_TITLE": "Dove arrivi"
+		},
+		"signIn": {
+			"CODE_DESCRIPTION": "Inserisci la tua email e ti invieremo un codice di accesso. Nessuna password necessaria.",
+			"CREATE_ACCOUNT": "Crea un account",
+			"FORGOT_PASSWORD": "Password dimenticata?",
+			"NEW_HERE": "Prima volta su {appName}?",
+			"PASSWORD_DESCRIPTION": "Accedi con la tua email e la tua password.",
+			"SEND_CODE": "Inviami un codice",
+			"SUBMIT_PASSWORD": "Accedi",
+			"TITLE": "Accedi a {appName}"
+		},
+		"signUp": {
+			"CREATING": "Creazione del tuo spazio di lavoro",
+			"CREATING_TEXT": "Stiamo preparando {team}. Ci vogliono pochi secondi.",
+			"DESCRIPTION": "Registra il tuo tempo e il lavoro del tuo team in un unico posto.",
+			"GET_STARTED": "Crea il mio spazio di lavoro",
+			"HAVE_ACCOUNT": "Hai già un account?",
+			"MODE_DESCRIPTION": "Puoi creare altri team e invitare persone più tardi.",
+			"MODE_TITLE": "Come vuoi iniziare?",
+			"SENT_TEXT": "Apri il link nell'email che ti abbiamo appena inviato per attivare il tuo account, poi accedi con la tua email.",
+			"SENT_TITLE": "Attiva il tuo account",
+			"SIGN_IN": "Accedi",
+			"SOLO": "Per conto mio",
+			"SOLO_TEXT": "Un team personale con il tuo nome. Invita persone quando vuoi.",
+			"STEP": "Passaggio {step} di {total}",
+			"TEAM": "Con il mio team",
+			"TEAM_TEXT": "Dai subito un nome al tuo team. Ne sarai il manager.",
+			"TITLE": "Crea il tuo account",
+			"USE_ANOTHER_EMAIL": "Usa un'altra email"
+		},
+		"social": {
+			"OPENING": "Accesso in corso",
+			"OPENING_TEXT": "Un momento, stiamo aprendo il tuo spazio di lavoro."
+		},
+		"workspace": {
+			"DESCRIPTION": "Scegli lo spazio di lavoro e il team da aprire ora. Puoi cambiare più tardi.",
+			"NOT_YOU": "Non sei tu?",
+			"NO_MATCH_TEXT": "Controlla come l'hai scritto o chiedi a un collega di invitarti.",
+			"NO_MATCH_TITLE": "Nessuno spazio di lavoro corrisponde a «{query}»",
+			"OPENING": "Apertura del tuo spazio di lavoro",
+			"OPENING_TEXT": "Accesso a {workspace} in corso.",
+			"SEARCH": "Cerca spazi di lavoro",
+			"SIGNED_IN_AS": "Accesso eseguito come",
+			"TEAMS_OF": "Team di {workspace}",
+			"TEAM_COUNT": "{count, plural, one {# team} other {# team}}",
+			"TITLE": "Scegli uno spazio di lavoro"
+		},
+		"error": {
+			"TITLE": "Accesso non riuscito",
+			"TEXT": "L'accesso non è stato completato. Riprova oppure accedi con la tua e-mail.",
+			"RETRY": "Torna all'accesso",
+			"CODE": "Codice di errore: {code}"
+		}
 	}
 }
