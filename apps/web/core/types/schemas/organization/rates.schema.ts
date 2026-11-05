@@ -35,7 +35,8 @@ export const rateChangeRequestResultSchema = z
 	})
 	.passthrough();
 
-type TProjectMemberRate = z.infer<typeof projectMemberRateSchema>;
+/** @public A member's client rate on a project, as Gauzy answers it; kept for callers outside these files. */
+export type TProjectMemberRate = z.infer<typeof projectMemberRateSchema>;
 export type TProjectRates = z.infer<typeof projectRatesSchema>;
 export type TRateChangeRequestResult = z.infer<typeof rateChangeRequestResultSchema>;
 export type TEmployeePayRate = z.infer<typeof employeePayRateSchema>;
