@@ -54,12 +54,21 @@ function describedByOf(error: string | null, errorId: string) {
 	return errorId;
 }
 
+/** What the rate editor needs of the person it edits, a member's row or one's own profile. */
+export type RateEditorSubject = Pick<
+	MemberRowModel,
+	'id' | 'name' | 'imageUrl' | 'rate' | 'employeeId' | 'canEditRate'
+>;
+
 export function MemberRateEditor({
 	row,
+	editsPayRate: mayEditPayRate = row.canEditRate,
 	onCancel,
 	onSaveRates
 }: Readonly<{
-	row: MemberRowModel;
+	row: RateEditorSubject;
+	/** Whether the pay rate is part of the edit; one's own profile leaves it out without ORG_EMPLOYEES_EDIT. */
+	editsPayRate?: boolean;
 	onCancel: () => void;
 	onSaveRates: (rowId: string, rates: IEmployeeRatesInput) => Promise<void>;
 }>) {
@@ -80,10 +89,10 @@ export function MemberRateEditor({
 	const [isSaving, setIsSaving] = useState(false);
 	const hasError = Boolean(error);
 
-	const payRate = useEmployeePayRate(row.employeeId ?? undefined, row.canEditRate);
+	const payRate = useEmployeePayRate(row.employeeId ?? undefined, mayEditPayRate);
 	const payRateData = payRate.data;
-	const loadsPayRate = row.canEditRate && payRate.isLoading;
-	const editsPayRate = row.canEditRate && Boolean(payRateData);
+	const loadsPayRate = mayEditPayRate && payRate.isLoading;
+	const editsPayRate = mayEditPayRate && Boolean(payRateData);
 	const storedPayRate = rateValueOf(payRateData?.payRateValue);
 	const initialPayCurrency = shownCurrencyOf(payRateData?.payRateCurrency ?? null, payRateData?.currency);
 	const [payTextChoice, setPayTextChoice] = useState<string | null>(null);

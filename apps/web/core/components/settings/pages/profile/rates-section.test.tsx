@@ -13,6 +13,8 @@ interface PayRateRead {
 
 const mockRefetch = jest.fn();
 let mockPayRateRead: PayRateRead;
+let mockPermissions: string[] = [];
+const mockEditorProps = jest.fn();
 
 jest.mock('next-intl', () => ({
 	useTranslations: () => (key: string, values?: Record<string, string>) => {
@@ -25,7 +27,17 @@ jest.mock('next-intl', () => ({
 }));
 jest.mock('@/core/hooks/organizations/rates/use-rates', () => ({
 	useEmployeePayRate: () => mockPayRateRead,
-	useRateChangeRequest: () => ({ requestRateChange: jest.fn(), isSending: false })
+	useRateChangeRequest: () => ({ requestRateChange: jest.fn(), isSending: false }),
+	useOwnRatesMutation: () => ({ saveOwnRates: jest.fn() })
+}));
+jest.mock('@/core/hooks/roles/use-my-role-permissions-query', () => ({
+	useMyRolePermissionsQuery: () => ({ myPermissions: mockPermissions })
+}));
+jest.mock('../members/member-rate-editor', () => ({
+	MemberRateEditor: (props: { editsPayRate: boolean }) => {
+		mockEditorProps(props);
+		return <li>rate editor</li>;
+	}
 }));
 
 function payRateRead(overrides: Partial<PayRateRead>): PayRateRead {
@@ -33,11 +45,20 @@ function payRateRead(overrides: Partial<PayRateRead>): PayRateRead {
 }
 
 function renderSection() {
-	render(<ProfileRatesSection employee={{ id: 'employee-ana', billRateValue: 80, billRateCurrency: 'USD' }} />);
+	render(
+		<ProfileRatesSection
+			employee={{ id: 'employee-ana', billRateValue: 80, billRateCurrency: 'USD' }}
+			name="Ana Lima"
+			imageUrl={null}
+		/>
+	);
 }
 
 beforeEach(() => {
 	mockRefetch.mockReset();
+	mockEditorProps.mockReset();
+	mockPermissions = [];
+	mockPayRateRead = payRateRead({});
 });
 
 it('shows the pay rate next to the billing rate, in the currency Gauzy states', () => {
@@ -76,4 +97,36 @@ it('offers a retry when the read fails for another reason', () => {
 	fireEvent.click(screen.getByRole('button', { name: 'notifications.RETRY' }));
 
 	expect(mockRefetch).toHaveBeenCalledTimes(1);
+});
+
+describe("changing one's own rates", () => {
+	it('keeps the rates read only with the request form without CHANGE_OWN_RATES', () => {
+		mockPermissions = ['ORG_EMPLOYEES_EDIT'];
+		renderSection();
+
+		expect(screen.getByText('rates.OWN_SECTION_HINT')).toBeTruthy();
+		expect(screen.getByRole('button', { name: 'rates.REQUEST_CHANGE_ACTION' })).toBeTruthy();
+		expect(screen.queryByRole('button', { name: 'rates.EDIT_RATE' })).toBeNull();
+	});
+
+	it('lets a CHANGE_OWN_RATES holder edit them, the pay rate too with ORG_EMPLOYEES_EDIT', () => {
+		mockPermissions = ['CHANGE_OWN_RATES', 'ORG_EMPLOYEES_EDIT'];
+		renderSection();
+
+		expect(screen.getByText('rates.OWN_SECTION_EDIT_HINT')).toBeTruthy();
+		expect(screen.queryByRole('button', { name: 'rates.REQUEST_CHANGE_ACTION' })).toBeNull();
+		fireEvent.click(screen.getByRole('button', { name: 'rates.EDIT_RATE' }));
+
+		expect(screen.getByText('rate editor')).toBeTruthy();
+		expect(mockEditorProps).toHaveBeenCalledWith(expect.objectContaining({ editsPayRate: true }));
+	});
+
+	it('leaves the pay rate out of the edit without ORG_EMPLOYEES_EDIT, the only route that takes it', () => {
+		mockPermissions = ['CHANGE_OWN_RATES'];
+		renderSection();
+
+		fireEvent.click(screen.getByRole('button', { name: 'rates.EDIT_RATE' }));
+
+		expect(mockEditorProps).toHaveBeenCalledWith(expect.objectContaining({ editsPayRate: false }));
+	});
 });

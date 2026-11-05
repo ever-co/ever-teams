@@ -4274,6 +4274,7 @@
 		"RATES_RETRY": "Tarieven opnieuw laden",
 		"OWN_SECTION": "Tarief",
 		"OWN_SECTION_HINT": "Ingesteld door de admins van je organisatie. Vraag hier om een wijziging.",
+		"OWN_SECTION_EDIT_HINT": "Met je rol kun je je eigen tarieven wijzigen.",
 		"WEEKLY_LIMIT_VALUE": "{hours} u per week",
 		"REQUEST_CHANGE": "Tariefwijziging aanvragen",
 		"REQUEST_CHANGE_HINT": "De admins van je organisatie krijgen een melding en voeren het door.",
