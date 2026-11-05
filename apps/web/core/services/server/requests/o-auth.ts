@@ -162,12 +162,15 @@ export function GauzyAdapter(req: NextRequest): Adapter {
 	};
 }
 
+const ACCOUNT_NOT_SET_UP = 'account-not-set-up';
+
 async function signIn(provider: EProvider, access_token: string) {
 	try {
 		const gauzyUser = await signWithSocialLoginsRequest(provider, access_token);
 
 		if (!gauzyUser) {
 			return Promise.reject({
+				reason: ACCOUNT_NOT_SET_UP,
 				errors: {
 					email: 'Your account isn’t fully set up yet'
 				}
@@ -192,6 +195,7 @@ async function signIn(provider: EProvider, access_token: string) {
 
 		if (!organization) {
 			return Promise.reject({
+				reason: ACCOUNT_NOT_SET_UP,
 				errors: {
 					email: `Your account is not yet ready to be used on the ${APP_NAME} Platform`
 				}
@@ -208,6 +212,8 @@ const UNCONFIRMED_ACCOUNT_MESSAGE = /confirm the email address of your account/i
 
 export const PROVIDER_ACCOUNT_UNCONFIRMED_PATH = '/auth/error?error=ProviderAccountUnconfirmed';
 
+export const PROVIDER_ACCOUNT_NOT_SET_UP_PATH = '/auth/error?error=ProviderAccountNotSetUp';
+
 type GauzyRefusal = { statusCode?: unknown; message?: unknown } | null | undefined;
 
 function signInRejectionOf(error: unknown): unknown {
@@ -215,6 +221,11 @@ function signInRejectionOf(error: unknown): unknown {
 		return error.cause;
 	}
 	return error;
+}
+
+function isAccountNotSetUpRefusal(error: unknown): boolean {
+	const rejection = signInRejectionOf(error) as { reason?: unknown } | null | undefined;
+	return rejection?.reason === ACCOUNT_NOT_SET_UP;
 }
 
 async function isUnconfirmedAccountRefusal(error: unknown): Promise<boolean> {
@@ -228,8 +239,9 @@ async function isUnconfirmedAccountRefusal(error: unknown): Promise<boolean> {
 
 /**
  * next-auth's signIn answer for a provider other than Ever ID. Any other failure still lets next-auth go on: for an
- * address Gauzy does not know, the adapter registers the account (the provider sign-up). An address that only has
- * accounts which have not confirmed it must stop here, or the adapter registers a second account for it.
+ * address Gauzy does not know, the adapter registers the account (the provider sign-up). An address whose accounts have
+ * not confirmed it, or whose account Gauzy signed in but that has no workspace yet, must stop here, or the adapter
+ * registers a second account for it.
  */
 export async function signInCallback(provider: EProvider, access_token: string): Promise<true | string> {
 	try {
@@ -237,6 +249,9 @@ export async function signInCallback(provider: EProvider, access_token: string):
 	} catch (error) {
 		if (await isUnconfirmedAccountRefusal(error)) {
 			return PROVIDER_ACCOUNT_UNCONFIRMED_PATH;
+		}
+		if (isAccountNotSetUpRefusal(error)) {
+			return PROVIDER_ACCOUNT_NOT_SET_UP_PATH;
 		}
 	}
 	return true;

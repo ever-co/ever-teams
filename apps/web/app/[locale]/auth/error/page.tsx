@@ -17,6 +17,8 @@ enum Error {
 	EverIdEmailUnverified = 'EverIdEmailUnverified',
 	// Provider sign-in refused: the address only has accounts that have not confirmed it (no second account is made)
 	ProviderAccountUnconfirmed = 'ProviderAccountUnconfirmed',
+	// Provider sign-in of an account that has no workspace yet (no second account is made)
+	ProviderAccountNotSetUp = 'ProviderAccountNotSetUp',
 	Configuration = 'Configuration',
 	AccessDenied = 'AccessDenied'
 }
@@ -27,6 +29,7 @@ const errorMap = {
 	[Error.EverIdWorkspaceBlocked]: <EverIdNoWorkspace reason="blocked" />,
 	[Error.EverIdEmailUnverified]: <EverIdVerifyEmail />,
 	[Error.ProviderAccountUnconfirmed]: <ProviderAccountUnconfirmed />,
+	[Error.ProviderAccountNotSetUp]: <ProviderAccountUnconfirmed reason="not-set-up" />,
 	[Error.Configuration]: <ErrorPageComponent />,
 	[Error.AccessDenied]: <UnauthorizedPage />
 };

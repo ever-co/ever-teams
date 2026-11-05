@@ -1995,6 +1995,8 @@
 			"provider": {
 				"ACCOUNT_UNCONFIRMED_TITLE": "Confirme primeiro seu endereço de e-mail",
 				"ACCOUNT_UNCONFIRMED_BODY": "Uma conta já usa este endereço de e-mail, mas ainda não o confirmou. Entre com seu endereço de e-mail e depois confirme-o pelo aviso da sua página inicial. Depois disso, esta forma de entrar também vai funcionar.",
+				"ACCOUNT_NOT_SET_UP_TITLE": "Termine de configurar sua conta",
+				"ACCOUNT_NOT_SET_UP_BODY": "Sua conta com este e-mail ainda não tem espaço de trabalho. Entre com seu endereço de e-mail para terminar a configuração. Depois disso, esta forma de entrar também vai funcionar.",
 				"SIGN_IN_WITH_EMAIL": "Entrar com meu e-mail"
 			},
 			"CHOOSE_YOUR_WORKSPACE": "Escolha seu espaço de trabalho"

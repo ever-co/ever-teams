@@ -715,6 +715,21 @@ describe('the other providers keep their path', () => {
 		expect(mockSigninWorkspace).not.toHaveBeenCalled();
 	});
 
+	it('stops a Google sign-in for an account Gauzy signed in that has no workspace yet', async () => {
+		mockSocialSignin.mockResolvedValue({
+			data: { confirmed_email: 'person@example.test', workspaces: [{ token: 'w', current_teams: [] }] }
+		});
+		mockSigninWorkspace.mockResolvedValue({ token: 'gauzy-access', user: { id: 'u1', tenantId: '' } });
+		mockUserOrganizations.mockResolvedValue({ data: { items: [] } });
+		const { config } = await loadAuth({}, new Request('https://teams.example.test/api/auth/callback/google'));
+		const account = { provider: 'google', type: 'oauth', providerAccountId: 'g-4', access_token: 'ya29.bare' };
+
+		const answer = await config.callbacks.signIn({ account, profile: {} });
+
+		expect(answer).toBe('/auth/error?error=ProviderAccountNotSetUp');
+		expect(mockRegisterUser).not.toHaveBeenCalled();
+	});
+
 	it('lets a provider sign-up go on for an address Gauzy does not know', async () => {
 		mockSocialSignin.mockImplementation(() => gauzyRefusal({ statusCode: 401, message: 'Unauthorized' }));
 		const { config } = await loadAuth({}, new Request('https://teams.example.test/api/auth/callback/google'));
