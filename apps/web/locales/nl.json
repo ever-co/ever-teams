@@ -3457,6 +3457,7 @@
 			"EMOJI_NOT_SAVED": "De team-emoji is niet opgeslagen",
 			"SIZE_NOT_SAVED": "De teamgrootte is niet opgeslagen",
 			"DEFAULT_PROJECT_NOT_SAVED": "Het standaardproject is niet opgeslagen",
+			"DEFAULT_PROJECT_NOT_SUPPORTED": "Deze server bewaart nog geen standaardproject voor het team.",
 			"TYPE_NOT_SAVED": "Het teamtype is niet opgeslagen",
 			"LEFT_TEAM": "Je hebt het team verlaten",
 			"LEAVE_FAILED": "Je zit nog steeds in het team",

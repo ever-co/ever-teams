@@ -3457,6 +3457,7 @@
 			"EMOJI_NOT_SAVED": "团队表情未保存",
 			"SIZE_NOT_SAVED": "团队规模未保存",
 			"DEFAULT_PROJECT_NOT_SAVED": "默认项目未保存",
+			"DEFAULT_PROJECT_NOT_SUPPORTED": "此服务器尚不支持保存团队的默认项目。",
 			"TYPE_NOT_SAVED": "团队类型未保存",
 			"LEFT_TEAM": "你已退出团队",
 			"LEAVE_FAILED": "你仍在团队中",

@@ -3457,6 +3457,7 @@
 			"EMOJI_NOT_SAVED": "Nie zapisano emoji zespołu",
 			"SIZE_NOT_SAVED": "Nie zapisano wielkości zespołu",
 			"DEFAULT_PROJECT_NOT_SAVED": "Nie zapisano projektu domyślnego",
+			"DEFAULT_PROJECT_NOT_SUPPORTED": "Ten serwer nie zapisuje jeszcze domyślnego projektu zespołu.",
 			"TYPE_NOT_SAVED": "Nie zapisano typu zespołu",
 			"LEFT_TEAM": "Opuszczono zespół",
 			"LEAVE_FAILED": "Nadal jesteś w zespole",

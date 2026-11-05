@@ -3457,6 +3457,7 @@
 			"EMOJI_NOT_SAVED": "لم يتم حفظ الرمز التعبيري للفريق",
 			"SIZE_NOT_SAVED": "لم يتم حفظ حجم الفريق",
 			"DEFAULT_PROJECT_NOT_SAVED": "لم يتم حفظ المشروع الافتراضي",
+			"DEFAULT_PROJECT_NOT_SUPPORTED": "هذا الخادم لا يحفظ بعد مشروعًا افتراضيًا للفريق.",
 			"TYPE_NOT_SAVED": "لم يتم حفظ نوع الفريق",
 			"LEFT_TEAM": "غادرت الفريق",
 			"LEAVE_FAILED": "ما زلت في الفريق",

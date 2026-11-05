@@ -3457,6 +3457,7 @@
 			"EMOJI_NOT_SAVED": "L’emoji de l’équipe n’a pas été enregistré",
 			"SIZE_NOT_SAVED": "La taille de l’équipe n’a pas été enregistrée",
 			"DEFAULT_PROJECT_NOT_SAVED": "Le projet par défaut n’a pas été enregistré",
+			"DEFAULT_PROJECT_NOT_SUPPORTED": "Ce serveur ne garde pas encore de projet par défaut pour l'équipe.",
 			"TYPE_NOT_SAVED": "Le type d’équipe n’a pas été enregistré",
 			"LEFT_TEAM": "Vous avez quitté l’équipe",
 			"LEAVE_FAILED": "Vous faites toujours partie de l’équipe",

@@ -3457,6 +3457,7 @@
 			"EMOJI_NOT_SAVED": "L’emoji del team non è stata salvata",
 			"SIZE_NOT_SAVED": "La dimensione del team non è stata salvata",
 			"DEFAULT_PROJECT_NOT_SAVED": "Il progetto predefinito non è stato salvato",
+			"DEFAULT_PROJECT_NOT_SUPPORTED": "Questo server non salva ancora un progetto predefinito per il team.",
 			"TYPE_NOT_SAVED": "Il tipo di team non è stato salvato",
 			"LEFT_TEAM": "Hai lasciato il team",
 			"LEAVE_FAILED": "Fai ancora parte del team",

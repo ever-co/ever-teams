@@ -42,19 +42,26 @@ export function useTeamGeneralSettings() {
 		[t]
 	);
 
-	const saveField = useCallback(
+	const saveFieldReadingTeam = useCallback(
 		async (data: Partial<TOrganizationTeamUpdate>, failureKey: DottedLanguageObjectStringPaths) => {
 			if (!teamId) {
 				throw new Error('No active team');
 			}
 			try {
-				await editOrganizationTeam({ id: teamId, ...data });
+				return await editOrganizationTeam({ id: teamId, ...data });
 			} catch (error) {
 				showFailure(failureKey, error);
 				throw error;
 			}
 		},
 		[editOrganizationTeam, showFailure, teamId]
+	);
+
+	const saveField = useCallback(
+		async (data: Partial<TOrganizationTeamUpdate>, failureKey: DottedLanguageObjectStringPaths): Promise<void> => {
+			await saveFieldReadingTeam(data, failureKey);
+		},
+		[saveFieldReadingTeam]
 	);
 
 	const saveName = useCallback((name: string) => saveField({ name }, 'toasts.teams.NAME_NOT_SAVED'), [saveField]);
@@ -75,13 +82,33 @@ export function useTeamGeneralSettings() {
 	);
 
 	// New tasks read the active project from its cookie: it follows the saved default at once, not after the
-	// next team read.
+	// next team read, unless the manager switched to another team while the save was on its way.
 	const saveDefaultProject = useCallback(
 		async (defaultProjectId: string) => {
-			await saveField({ defaultProjectId }, 'toasts.teams.DEFAULT_PROJECT_NOT_SAVED');
-			setActiveProjectIdCookie(defaultProjectId);
+			const savedTeamId = teamId;
+			let response: Awaited<ReturnType<typeof saveFieldReadingTeam>>;
+			try {
+				response = await saveFieldReadingTeam({ defaultProjectId }, 'toasts.teams.DEFAULT_PROJECT_NOT_SAVED');
+			} catch (error) {
+				// The PUT may have landed even though the read that follows it failed
+				queryClient.invalidateQueries({ queryKey: queryKeys.organizationTeams.all });
+				throw error;
+			}
+			// A server that predates team default projects drops the field and still answers with the team
+			const keptDefaultProject = response.data?.defaultProjectId === defaultProjectId;
+			if (!keptDefaultProject) {
+				toast.error(t('toasts.teams.DEFAULT_PROJECT_NOT_SAVED'), {
+					description: t('toasts.teams.DEFAULT_PROJECT_NOT_SUPPORTED')
+				});
+				throw new Error('The server did not keep the default project');
+			}
+			const currentActiveTeam = getActiveTeam();
+			const isStillActiveTeam = currentActiveTeam?.id === savedTeamId;
+			if (isStillActiveTeam) {
+				setActiveProjectIdCookie(defaultProjectId);
+			}
 		},
-		[saveField]
+		[getActiveTeam, queryClient, saveFieldReadingTeam, t, teamId]
 	);
 
 	const saveVisibility = useCallback(
