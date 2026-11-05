@@ -129,8 +129,8 @@ const ManageOrMemberComponentBase = (props: ManageOrMemberComponentProps): React
 
 	return (
 		<div className={className}>
-			{fields.map((field, index) => (
-				<div key={index} className={clsxm('mb-4', fieldClassName)}>
+			{fields.map((field) => (
+				<div key={field.element} className={clsxm('mb-4', fieldClassName)}>
 					<label className={clsxm('mb-1 block text-sm font-medium text-foreground', labelClassName)}>
 						<span className={clsxm('text-[14px]', classNameTitle)}>{field.label}</span>
 						{field.isRequired && <span className="ml-1 text-destructive-ink">*</span>}
