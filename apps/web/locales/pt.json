@@ -4123,6 +4123,8 @@
 	"profile": {
 		"page": {
 			"BACK_TO_TEAM": "Voltar à equipe",
+			"MANAGER_RIGHTS_UNCONFIRMED_TITLE": "Seus direitos de gerente sobre os membros desta equipe ainda não estão confirmados",
+			"MANAGER_RIGHTS_UNCONFIRMED_DESCRIPTION": "Os planos, o tempo e a atividade deles ficam ocultos até que um administrador da organização salve os gerentes da equipe nas configurações.",
 			"SEARCH_TASKS": "Pesquisar tarefas",
 			"COUNT_STILL_LOADING": "Mais tarefas ainda estão carregando",
 			"COPY_EMAIL": "Copiar e-mail",
