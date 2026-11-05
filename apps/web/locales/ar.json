@@ -3312,7 +3312,8 @@
 			"INVITATION": "دعاك <b>{name}</b>",
 			"MESSAGE": "أرسل إليك <b>{name}</b> رسالة",
 			"BROADCAST": "نشر <b>{name}</b> إعلانًا",
-			"PAYMENT": "تم تسجيل دفعة لك"
+			"PAYMENT": "تم تسجيل دفعة لك",
+			"RATE_CHANGE_REQUEST": "طلب <b>{name}</b> تغيير الأجر"
 		},
 		"TYPES": {
 			"ASSIGNMENT": "إسناد",
@@ -3321,7 +3322,8 @@
 			"INVITATION": "دعوة",
 			"MESSAGE": "رسالة",
 			"BROADCAST": "إعلان",
-			"PAYMENT": "دفعة"
+			"PAYMENT": "دفعة",
+			"RATE_CHANGE_REQUEST": "طلب تغيير الأجر"
 		},
 		"SOMEONE": "شخص ما",
 		"MARK_READ": "تعليم كمقروء",

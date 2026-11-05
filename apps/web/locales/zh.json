@@ -3312,7 +3312,8 @@
 			"INVITATION": "<b>{name}</b> 邀请了你",
 			"MESSAGE": "<b>{name}</b> 给你发了一条消息",
 			"BROADCAST": "<b>{name}</b> 发布了一则公告",
-			"PAYMENT": "已为你登记一笔付款"
+			"PAYMENT": "已为你登记一笔付款",
+			"RATE_CHANGE_REQUEST": "<b>{name}</b> 申请调整费率"
 		},
 		"TYPES": {
 			"ASSIGNMENT": "分配",
@@ -3321,7 +3322,8 @@
 			"INVITATION": "邀请",
 			"MESSAGE": "消息",
 			"BROADCAST": "公告",
-			"PAYMENT": "付款"
+			"PAYMENT": "付款",
+			"RATE_CHANGE_REQUEST": "费率调整申请"
 		},
 		"SOMEONE": "有人",
 		"MARK_READ": "标为已读",

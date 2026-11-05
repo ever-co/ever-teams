@@ -3312,7 +3312,8 @@
 			"INVITATION": "<b>{name}</b> convidou você",
 			"MESSAGE": "<b>{name}</b> enviou uma mensagem para você",
 			"BROADCAST": "<b>{name}</b> publicou um anúncio",
-			"PAYMENT": "Um pagamento foi registrado para você"
+			"PAYMENT": "Um pagamento foi registrado para você",
+			"RATE_CHANGE_REQUEST": "<b>{name}</b> pediu uma mudança de taxa"
 		},
 		"TYPES": {
 			"ASSIGNMENT": "Atribuição",
@@ -3321,7 +3322,8 @@
 			"INVITATION": "Convite",
 			"MESSAGE": "Mensagem",
 			"BROADCAST": "Anúncio",
-			"PAYMENT": "Pagamento"
+			"PAYMENT": "Pagamento",
+			"RATE_CHANGE_REQUEST": "Pedido de mudança de taxa"
 		},
 		"SOMEONE": "Alguém",
 		"MARK_READ": "Marcar como lida",

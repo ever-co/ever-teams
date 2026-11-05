@@ -3312,7 +3312,8 @@
 			"INVITATION": "<b>{name}</b> zaprosił(a) Cię",
 			"MESSAGE": "<b>{name}</b> wysłał(a) Ci wiadomość",
 			"BROADCAST": "<b>{name}</b> opublikował(a) ogłoszenie",
-			"PAYMENT": "Zarejestrowano dla Ciebie płatność"
+			"PAYMENT": "Zarejestrowano dla Ciebie płatność",
+			"RATE_CHANGE_REQUEST": "<b>{name}</b> prosi o zmianę stawki"
 		},
 		"TYPES": {
 			"ASSIGNMENT": "Przypisanie",
@@ -3321,7 +3322,8 @@
 			"INVITATION": "Zaproszenie",
 			"MESSAGE": "Wiadomość",
 			"BROADCAST": "Ogłoszenie",
-			"PAYMENT": "Płatność"
+			"PAYMENT": "Płatność",
+			"RATE_CHANGE_REQUEST": "Prośba o zmianę stawki"
 		},
 		"SOMEONE": "Ktoś",
 		"MARK_READ": "Oznacz jako przeczytane",

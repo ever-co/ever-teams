@@ -3312,7 +3312,8 @@
 			"INVITATION": "<b>{name}</b> hat dich eingeladen",
 			"MESSAGE": "<b>{name}</b> hat dir eine Nachricht geschickt",
 			"BROADCAST": "<b>{name}</b> hat eine Ankündigung veröffentlicht",
-			"PAYMENT": "Eine Zahlung wurde für dich erfasst"
+			"PAYMENT": "Eine Zahlung wurde für dich erfasst",
+			"RATE_CHANGE_REQUEST": "<b>{name}</b> hat eine Satzänderung angefragt"
 		},
 		"TYPES": {
 			"ASSIGNMENT": "Zuweisung",
@@ -3321,7 +3322,8 @@
 			"INVITATION": "Einladung",
 			"MESSAGE": "Nachricht",
 			"BROADCAST": "Ankündigung",
-			"PAYMENT": "Zahlung"
+			"PAYMENT": "Zahlung",
+			"RATE_CHANGE_REQUEST": "Anfrage zur Satzänderung"
 		},
 		"SOMEONE": "Jemand",
 		"MARK_READ": "Als gelesen markieren",

@@ -3312,7 +3312,8 @@
 			"INVITATION": "<b>{name}</b> invited you",
 			"MESSAGE": "<b>{name}</b> sent you a message",
 			"BROADCAST": "<b>{name}</b> published an announcement",
-			"PAYMENT": "A payment was recorded for you"
+			"PAYMENT": "A payment was recorded for you",
+			"RATE_CHANGE_REQUEST": "<b>{name}</b> asked for a rate change"
 		},
 		"TYPES": {
 			"ASSIGNMENT": "Assignment",
@@ -3321,7 +3322,8 @@
 			"INVITATION": "Invitation",
 			"MESSAGE": "Message",
 			"BROADCAST": "Announcement",
-			"PAYMENT": "Payment"
+			"PAYMENT": "Payment",
+			"RATE_CHANGE_REQUEST": "Rate change request"
 		},
 		"SOMEONE": "Someone",
 		"MARK_READ": "Mark as read",

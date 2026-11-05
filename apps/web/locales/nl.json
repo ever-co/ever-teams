@@ -3312,7 +3312,8 @@
 			"INVITATION": "<b>{name}</b> heeft je uitgenodigd",
 			"MESSAGE": "<b>{name}</b> heeft je een bericht gestuurd",
 			"BROADCAST": "<b>{name}</b> heeft een aankondiging geplaatst",
-			"PAYMENT": "Er is een betaling voor je geregistreerd"
+			"PAYMENT": "Er is een betaling voor je geregistreerd",
+			"RATE_CHANGE_REQUEST": "<b>{name}</b> vroeg om een tariefwijziging"
 		},
 		"TYPES": {
 			"ASSIGNMENT": "Toewijzing",
@@ -3321,7 +3322,8 @@
 			"INVITATION": "Uitnodiging",
 			"MESSAGE": "Bericht",
 			"BROADCAST": "Aankondiging",
-			"PAYMENT": "Betaling"
+			"PAYMENT": "Betaling",
+			"RATE_CHANGE_REQUEST": "Aanvraag tariefwijziging"
 		},
 		"SOMEONE": "Iemand",
 		"MARK_READ": "Markeren als gelezen",

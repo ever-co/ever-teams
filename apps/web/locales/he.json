@@ -3312,7 +3312,8 @@
 			"INVITATION": "<b>{name}</b> הזמין/ה אותך",
 			"MESSAGE": "<b>{name}</b> שלח/ה לך הודעה",
 			"BROADCAST": "<b>{name}</b> פרסם/ה הודעה לכולם",
-			"PAYMENT": "נרשם עבורך תשלום"
+			"PAYMENT": "נרשם עבורך תשלום",
+			"RATE_CHANGE_REQUEST": "<b>{name}</b> ביקש/ה שינוי תעריף"
 		},
 		"TYPES": {
 			"ASSIGNMENT": "שיוך",
@@ -3321,7 +3322,8 @@
 			"INVITATION": "הזמנה",
 			"MESSAGE": "הודעה",
 			"BROADCAST": "הכרזה",
-			"PAYMENT": "תשלום"
+			"PAYMENT": "תשלום",
+			"RATE_CHANGE_REQUEST": "בקשה לשינוי תעריף"
 		},
 		"SOMEONE": "מישהו",
 		"MARK_READ": "סימון כנקראה",
