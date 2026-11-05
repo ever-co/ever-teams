@@ -5,7 +5,7 @@ import enLanguage from '@/locales/en.json';
 import { BG, CN, DE, ES, FR, IS, IT, NL, PL, PT, RU, SA, US } from 'country-flag-icons/react/1x1';
 import { EManualTimeReasons } from '@/core/types/generics/enums/timer';
 import { EInviteStatus } from '@/core/types/generics/enums/invite';
-import { Shield, User2, UserCog } from 'lucide-react';
+import { Shield, User, UserSettings } from '@/core/components/icons';
 import {
 	DEMO_ACCOUNTS_WARNING,
 	parseDemoAccountsJson,
@@ -223,9 +223,9 @@ export const IS_DEMO_MODE = (readRuntimeEnv('NEXT_PUBLIC_DEMO') || process.env.N
 
 /** How each demo account type is presented (the labels are translated, so only these types exist). */
 const DEMO_ACCOUNT_TYPES = {
-	SUPER_ADMIN: { translationKey: 'DEMO_SUPER_ADMIN', role: 'Super Admin', icon: UserCog },
+	SUPER_ADMIN: { translationKey: 'DEMO_SUPER_ADMIN', role: 'Super Admin', icon: UserSettings },
 	ADMIN: { translationKey: 'DEMO_ADMIN', role: 'Admin', icon: Shield },
-	EMPLOYEE: { translationKey: 'DEMO_EMPLOYEE', role: 'Employee', icon: User2 }
+	EMPLOYEE: { translationKey: 'DEMO_EMPLOYEE', role: 'Employee', icon: User }
 } as const;
 
 /**

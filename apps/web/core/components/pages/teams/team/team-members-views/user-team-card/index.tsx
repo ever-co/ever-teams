@@ -38,9 +38,8 @@ import {
 	MemberTimesCellSkeleton,
 	MemberTotalCellSkeleton
 } from '@/core/components/teams/member-row-skeleton';
-import { Analytics, ChevronDown, DragHandle, Spinner } from '@/core/components/icons';
+import { Analytics, ChevronDown, ChevronsDown, DragHandle, Spinner } from '@/core/components/icons';
 import { TASK_PROPERTY_PILL_RECIPE } from '@/core/components/tasks/task-property-trigger';
-import { ChevronDoubleDownIcon } from '@heroicons/react/20/solid';
 import { AppsTab } from '@/core/components/pages/profile/apps';
 import { VisitedSitesTab } from '@/core/components/pages/profile/visited-sites';
 import { FilterTab } from '@/app/[locale]/(main)/profile/[memberId]/page';
@@ -110,7 +109,7 @@ const ChevronToggleButton = React.memo(
 				onClick={handleClick}
 				className="absolute inset-y-0 right-2 my-auto text-muted-foreground"
 			>
-				<ChevronDoubleDownIcon
+				<ChevronsDown
 					className={clsxm('size-4 transition-transform duration-200', isExpanded && 'rotate-180')}
 				/>
 			</Button>

@@ -12,13 +12,7 @@ import { useTranslations } from 'next-intl';
 import { TimerButton } from './timer-button';
 import { Transition } from '@headlessui/react';
 
-import {
-	ArrowUturnUpIcon,
-	ComputerDesktopIcon,
-	DevicePhoneMobileIcon,
-	GlobeAltIcon,
-	LifebuoyIcon
-} from '@heroicons/react/24/outline';
+import { ArrowTurnUp, Desktop, Globe, Lifebuoy, Smartphone } from '@/core/components/icons';
 import { HotkeysEvent } from 'hotkeys-js';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { toast } from 'sonner';
@@ -296,17 +290,17 @@ export function MinTimerFrame({ className }: IClassName) {
 export function TimerRunningSourceIcon({ source }: { source: ETimeLogSource }) {
 	switch (source) {
 		case ETimeLogSource.MOBILE:
-			return <DevicePhoneMobileIcon className="size-4 animate-pulse text-muted-foreground" />;
+			return <Smartphone className="size-4 animate-pulse text-muted-foreground" />;
 		case ETimeLogSource.BROWSER:
-			return <GlobeAltIcon className="size-4 animate-pulse" />;
+			return <Globe className="size-4 animate-pulse" />;
 		case ETimeLogSource.BROWSER_EXTENSION:
-			return <GlobeAltIcon className="size-4 animate-pulse text-muted-foreground" />;
+			return <Globe className="size-4 animate-pulse text-muted-foreground" />;
 		case ETimeLogSource.DESKTOP:
-			return <ComputerDesktopIcon className="size-4 animate-pulse text-muted-foreground" />;
+			return <Desktop className="size-4 animate-pulse text-muted-foreground" />;
 		case ETimeLogSource.UPWORK:
-			return <ArrowUturnUpIcon className="size-4 animate-pulse text-muted-foreground" />;
+			return <ArrowTurnUp className="size-4 animate-pulse text-muted-foreground" />;
 		case ETimeLogSource.HUBSTAFF:
-			return <LifebuoyIcon className="size-4 animate-pulse text-muted-foreground" />;
+			return <Lifebuoy className="size-4 animate-pulse text-muted-foreground" />;
 		default:
 			return <></>;
 	}

@@ -1,6 +1,6 @@
 'use client';
 import { useState, useRef, JSX } from 'react';
-import { Timer } from 'lucide-react';
+import { Timer } from '@/core/components/icons';
 import FullCalendar from '@fullcalendar/react';
 import { format } from 'date-fns';
 import Image from 'next/image';
