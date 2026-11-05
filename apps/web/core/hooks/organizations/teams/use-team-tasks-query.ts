@@ -1,6 +1,6 @@
 'use client';
 
-import { flattenTaskPages, getValidActiveTask } from '@/core/lib/utils/task.utils';
+import { flattenTaskPages, getValidActiveTask, isHeldTeamTask } from '@/core/lib/utils/task.utils';
 import { taskService } from '@/core/services/client/api';
 import {
 	activeTeamState,
@@ -81,6 +81,7 @@ export function useTeamTasksQuery(options: UseTeamTasksQueryOptions = {}) {
 	const tasksRef = useSyncRef(tasks);
 	const memberActiveTaskId = useAtomValue(memberActiveTaskIdState);
 	const [activeTeamTask, setActiveTeamTask] = useAtom(activeTeamTaskState);
+	const activeTeamTaskRef = useSyncRef(activeTeamTask);
 	const reactiveAccessToken = useReactiveAccessTokenCookie();
 
 	const { firstLoad, firstLoadData: firstLoadTasksData } = useFirstLoad();
@@ -273,8 +274,11 @@ export function useTeamTasksQuery(options: UseTeamTasksQueryOptions = {}) {
 			if (memberActiveTask) {
 				setActiveTeamTask(memberActiveTask);
 			} else if (memberActiveTaskId && activeTeam?.id && tasksComplete) {
-				// Task ID exists but doesn't belong to this team - clear it
-				setActiveTeamTask(null);
+				const keepsHeldTask = isHeldTeamTask(activeTeamTaskRef.current, memberActiveTaskId, activeTeam.id);
+				if (!keepsHeldTask) {
+					// Task ID exists but doesn't belong to this team - clear it
+					setActiveTeamTask(null);
+				}
 			}
 		},
 		[activeTeam, tasks, tasksComplete, memberActiveTaskId, canHydrateSharedState, isCurrentScope],

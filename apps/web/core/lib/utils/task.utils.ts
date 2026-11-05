@@ -154,3 +154,39 @@ export function getValidActiveTask(
 
 	return null;
 }
+
+/**
+ * Whether `heldTask`, the active task already validated for the team, is still the member's task `taskId` of team
+ * `teamId`. The team's task list follows its default project: when the default project changes, a task of another
+ * project of the team drops out of the list while staying the member's task, and the one their timer runs on.
+ */
+export function isHeldTeamTask(
+	heldTask: TTask | null | undefined,
+	taskId: string | null | undefined,
+	teamId: string | null | undefined
+): boolean {
+	if (!heldTask) {
+		return false;
+	}
+	const isSameTask = heldTask.id === taskId;
+	if (!isSameTask) {
+		return false;
+	}
+	return isTaskInTeam(heldTask, teamId);
+}
+
+/**
+ * Whether a running timer's task is a task of the active team: one of the team's listed tasks, or the active task
+ * the team still holds outside that list (see `isHeldTeamTask`).
+ */
+export function isTimerTaskOfTeam(
+	timerTaskId: string,
+	teamTasks: TTask[],
+	activeTeamTask: TTask | null | undefined
+): boolean {
+	const isListedTeamTask = teamTasks.some((task) => task.id === timerTaskId);
+	if (isListedTeamTask) {
+		return true;
+	}
+	return activeTeamTask?.id === timerTaskId;
+}
