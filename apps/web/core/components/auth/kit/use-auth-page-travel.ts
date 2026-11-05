@@ -1,7 +1,7 @@
 'use client';
 
 import { useLayoutEffect, type RefObject } from 'react';
-import { prefersReducedMotion } from '@/core/lib/utils/motion';
+import { canAnimate } from '@/core/lib/utils/motion';
 import { playStepArrival, type Travel } from './auth-step';
 
 type LeftPage = { order: number; width: number; height: number; leftAt: number };
@@ -51,13 +51,6 @@ function isRecent(previous: LeftPage | null): previous is LeftPage {
 	}
 	const elapsed = performance.now() - previous.leftAt;
 	return elapsed < TRAVEL_WINDOW_MS;
-}
-
-function canAnimate(element: HTMLElement) {
-	if (typeof element.animate !== 'function') {
-		return false;
-	}
-	return !prefersReducedMotion();
 }
 
 function sizeChanged(previous: LeftPage, rect: DOMRect) {

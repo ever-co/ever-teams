@@ -5,7 +5,7 @@ import { CircleAlert } from '@/core/components/icons';
 import { AuthCodeInputField, type AuthCodeRef } from '@/core/components/auth/auth-code-input';
 import { AUTH_CODE_LENGTH } from '@/core/constants/config/constants';
 import { cn } from '@/core/lib/helpers';
-import { prefersReducedMotion } from '@/core/lib/utils/motion';
+import { canAnimate } from '@/core/lib/utils/motion';
 import { AUTH_LABEL, AUTH_LINE_ARRIVAL } from './auth-recipes';
 
 export type AuthCodeStatus = 'idle' | 'loading' | 'success' | 'error';
@@ -51,7 +51,7 @@ function settleSlot(slot: HTMLInputElement | undefined) {
 	if (!slot) {
 		return;
 	}
-	if (prefersReducedMotion()) {
+	if (!canAnimate(slot)) {
 		return;
 	}
 	slot.animate(SETTLE_KEYFRAMES, SETTLE_TIMING);
@@ -105,7 +105,7 @@ export function AuthCodeField({
 		if (!group) {
 			return;
 		}
-		if (prefersReducedMotion()) {
+		if (!canAnimate(group)) {
 			return;
 		}
 		group.animate(SHAKE_KEYFRAMES, SHAKE_TIMING);
