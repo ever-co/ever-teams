@@ -14,6 +14,7 @@ import { clsxm } from '@/core/lib/utils';
 import { MEMBER_CARD } from '@/core/components/teams/member-row-grid';
 import {
 	membersWithPendingOrders,
+	ordersAfterSwap,
 	unsavedPendingOrders,
 	withoutDropOrders,
 	type TPendingMemberOrders
@@ -34,6 +35,9 @@ const OWN_MEMBER_CARD =
 	'ring-primary/45 shadow-[0_1px_2px_hsl(var(--primary)/0.10),0_8px_24px_-10px_hsl(var(--primary)/0.38)] hover:shadow-[0_1px_2px_hsl(var(--primary)/0.12),0_10px_26px_-10px_hsl(var(--primary)/0.45)] dark:ring-primary/55';
 
 const INVITE_SLOT_CARD = 'rounded-xl hairline-border border-dashed border-foreground/15';
+
+// The viewer's own card sits outside the ordered list, so it is neither dragged nor dropped on
+const noDragHandler = () => null;
 
 const TeamMembersCardView: React.FC<Props> = memo(
 	({ teamMembers, currentUser, teamsFetching = false, publicTeam = false, statsPending = false }) => {
@@ -78,17 +82,13 @@ const TeamMembersCardView: React.FC<Props> = memo(
 			if (isMemberMissing || isSameMember) {
 				return;
 			}
-			// The two members swap places: each takes the other's position as its order
-			const nextOrders: TPendingMemberOrders = {
-				[targetMember.id]: targetIndex,
-				[draggedMember.id]: draggedIndex
-			};
+			const nextOrders = ordersAfterSwap(membersRef.current, draggedIndex, targetIndex);
 			// A drop made while an earlier one is still saving adds to its preview instead of replacing it
 			setPendingOrders((currentOrders) => ({ ...currentOrders, ...nextOrders }));
-			const saves = [
-				updateOrganizationTeamEmployeeOrderOnList(targetMember, targetIndex),
-				updateOrganizationTeamEmployeeOrderOnList(draggedMember, draggedIndex)
-			];
+			const reorderedMembers = membersRef.current.filter((member) => member.id in nextOrders);
+			const saves = reorderedMembers.map((member) =>
+				updateOrganizationTeamEmployeeOrderOnList(member, nextOrders[member.id])
+			);
 			// The failure toast comes from the mutation; the list only has to go back
 			Promise.all(saves).catch(() =>
 				setPendingOrders((currentOrders) => withoutDropOrders(currentOrders, nextOrders))
@@ -122,11 +122,11 @@ const TeamMembersCardView: React.FC<Props> = memo(
 								active
 								publicTeam={publicTeam}
 								statsPending={statsPending}
-								draggable={true}
+								draggable={false}
 								currentExit={false}
-								onDragStart={dragHandlers[0].onDragStart}
-								onDragEnter={dragHandlers[0].onDragEnter}
-								onDragEnd={handleSort}
+								onDragStart={noDragHandler}
+								onDragEnter={noDragHandler}
+								onDragEnd={noDragHandler}
 								onDragOver={handleDragOver}
 							/>
 						</li>

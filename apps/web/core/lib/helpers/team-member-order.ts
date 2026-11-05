@@ -21,6 +21,30 @@ export function sortByOrder(a: TOrganizationTeamEmployee, b: TOrganizationTeamEm
 	return (a.id || '').localeCompare(b.id || '');
 }
 
+/**
+ * The orders that make two shown members trade places, as the API sorts them: every member gets a distinct rank
+ * from the top (the list length) down to 1, and only members whose order differs from their rank are written. The
+ * first drop on a team with equal or missing orders writes them all; later drops write the two members.
+ */
+export function ordersAfterSwap(
+	shownMembers: TOrganizationTeamEmployee[],
+	draggedIndex: number,
+	targetIndex: number
+): TPendingMemberOrders {
+	const swappedMembers = [...shownMembers];
+	swappedMembers[draggedIndex] = shownMembers[targetIndex];
+	swappedMembers[targetIndex] = shownMembers[draggedIndex];
+	const orders: TPendingMemberOrders = {};
+	swappedMembers.forEach((member, index) => {
+		const rank = swappedMembers.length - index;
+		const isOutOfRank = member.order !== rank;
+		if (isOutOfRank) {
+			orders[member.id] = rank;
+		}
+	});
+	return orders;
+}
+
 /** The members as they will be once the pending orders are saved, so a drop shows at once. */
 export function membersWithPendingOrders(
 	members: TOrganizationTeamEmployee[],
@@ -39,9 +63,13 @@ export function membersWithPendingOrders(
 	return patchedMembers.sort(sortByOrder);
 }
 
-function isOrderSaved(members: TOrganizationTeamEmployee[], memberId: string, order: number): boolean {
+/** Settled when the member carries the order, or left the team: nothing is left to wait for. */
+function isOrderSettled(members: TOrganizationTeamEmployee[], memberId: string, order: number): boolean {
 	const member = members.find((candidate) => candidate.id === memberId);
-	return member?.order === order;
+	if (!member) {
+		return true;
+	}
+	return member.order === order;
 }
 
 /**
@@ -53,7 +81,7 @@ export function unsavedPendingOrders(
 	pendingOrders: TPendingMemberOrders
 ): TPendingMemberOrders | null {
 	const pendingEntries = Object.entries(pendingOrders);
-	const unsavedEntries = pendingEntries.filter(([memberId, order]) => !isOrderSaved(members, memberId, order));
+	const unsavedEntries = pendingEntries.filter(([memberId, order]) => !isOrderSettled(members, memberId, order));
 	const hasNoneSaved = unsavedEntries.length === pendingEntries.length;
 	if (hasNoneSaved) {
 		return pendingOrders;
