@@ -6,7 +6,7 @@ import { prefersReducedMotion } from '@/core/lib/utils/motion';
 export type Travel = 'forward' | 'backward';
 
 /** A step inside a page clears from a small blur; a whole page only fades in and slides, so nothing flickers. */
-export type ArrivalScale = 'step' | 'page';
+type ArrivalScale = 'step' | 'page';
 
 const TRAVEL_PIXELS: Record<ArrivalScale, number> = {
 	step: 6,
