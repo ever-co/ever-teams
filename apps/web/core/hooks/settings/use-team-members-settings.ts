@@ -209,7 +209,7 @@ export function useTeamMembersSettings() {
 				isRolePending: pendingRoles.has(rowId),
 				isTrackingPending: isSavingTracking || waitsForPermissions,
 				rate: memberRateOf(member),
-				canEditRate: canEditMemberRates(myPermissions, hasEmployee),
+				canEditRate: canEditMemberRates({ permissions: myPermissions, hasEmployee, isYou }),
 				employeeId
 			});
 		}

@@ -15,6 +15,9 @@ export const RATE_ADMIN_PERMISSIONS: ReadonlyArray<string> = ['ORG_EMPLOYEES_EDI
  */
 export const EMPLOYEE_RATES_PERMISSION = 'ORG_EMPLOYEES_EDIT';
 
+/** Gauzy lets someone change their own rates only with this permission, held by super admins and admins by default. */
+export const OWN_RATES_PERMISSION = 'CHANGE_OWN_RATES';
+
 export const RATE_REASON_MAX_LENGTH = 500;
 
 const DEFAULT_RATE_CURRENCY = 'USD';
@@ -158,10 +161,29 @@ export function holdsEmployeeRatesPermission(permissions: ReadonlyArray<string>)
 	return permissions.includes(EMPLOYEE_RATES_PERMISSION);
 }
 
-/** Whether the members rate editor opens on a member: CHANGE_SELECTED_EMPLOYEE alone would not get the save through. */
-export function canEditMemberRates(permissions: ReadonlyArray<string>, hasEmployee: boolean): boolean {
-	const holdsPermission = holdsEmployeeRatesPermission(permissions);
-	return holdsPermission && hasEmployee;
+export function holdsOwnRatesPermission(permissions: ReadonlyArray<string>): boolean {
+	return permissions.includes(OWN_RATES_PERMISSION);
+}
+
+/**
+ * Whether the members rate editor opens on a member. It saves through `PUT /employee/:id`, which needs
+ * ORG_EMPLOYEES_EDIT (CHANGE_SELECTED_EMPLOYEE alone would not get through), and one's own row also needs
+ * CHANGE_OWN_RATES.
+ */
+export function canEditMemberRates({
+	permissions,
+	hasEmployee,
+	isYou
+}: Readonly<{ permissions: ReadonlyArray<string>; hasEmployee: boolean; isYou: boolean }>): boolean {
+	const editsEmployees = holdsEmployeeRatesPermission(permissions);
+	const editsMember = editsEmployees && hasEmployee;
+	if (!editsMember) {
+		return false;
+	}
+	if (isYou) {
+		return holdsOwnRatesPermission(permissions);
+	}
+	return true;
 }
 
 export function holdsRateAdminPermission(permissions: ReadonlyArray<string>): boolean {
