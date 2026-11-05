@@ -123,7 +123,8 @@ export function useTeamGeneralSettings() {
 				throw new Error('No active team');
 			}
 			const image = await createImageAssets(file, TEAM_AVATAR_FOLDER);
-			await editOrganizationTeam({ ...team, imageId: image.id, image });
+			// Only the avatar: a team read before the upload would send back fields another manager changed meanwhile
+			await editOrganizationTeam({ id: team.id, imageId: image.id, image });
 		},
 		[createImageAssets, editOrganizationTeam, getActiveTeam]
 	);
@@ -133,7 +134,7 @@ export function useTeamGeneralSettings() {
 		if (!team) {
 			throw new Error('No active team');
 		}
-		await editOrganizationTeam({ ...team, imageId: null, image: null });
+		await editOrganizationTeam({ id: team.id, imageId: null, image: null });
 	}, [editOrganizationTeam, getActiveTeam]);
 
 	// Gauzy rewrites the member set only when the body names `memberIds` or `managerIds`, so a rule sent alone
