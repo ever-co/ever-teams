@@ -1,12 +1,17 @@
 'use client';
 import { setAuthCookies } from '@/core/lib/helpers/index';
-import { BackdropLoader } from '@/core/components/common/loader';
 import { useSession } from 'next-auth/react';
 import { useTranslations } from 'next-intl';
 import { useRouter } from 'next/navigation';
 import { useEffect } from 'react';
 import { DEFAULT_APP_PATH } from '@/core/constants/config/constants';
 import { readSocialSession, socialRefreshToken } from '@/core/lib/auth/social-session';
+import Link from 'next/link';
+import { Mail } from '@/core/components/icons';
+import { Button } from '@/core/components/common/button';
+import { AuthLayout } from '@/core/components/layouts/default-layout/auth-layout';
+import { AuthAddress, AuthState } from '@/core/components/auth/kit/auth-state';
+import { InboxScene } from '@/core/components/auth/scenes/auth-scenes';
 
 export default function Welcome() {
 	const { data: session, update, status }: any = useSession();
@@ -47,11 +52,36 @@ export default function Welcome() {
 
 	if (verifyEmail !== null) {
 		return (
-			<p role="status" className="m-auto max-w-md p-6 text-center text-sm text-balance">
-				{t('pages.auth.SIGNUP_VERIFY_EMAIL', { email: verifyEmail })}
-			</p>
+			<AuthLayout
+				aside={
+					<InboxScene
+						title={t('auth.scene.INBOX_ACTIVATE_TITLE')}
+						description={t('auth.scene.INBOX_ACTIVATE_TEXT')}
+						email={verifyEmail}
+						message="activate"
+					/>
+				}
+			>
+				<AuthState
+					tone="brand"
+					glyph={<Mail aria-hidden="true" />}
+					title={t('auth.signUp.SENT_TITLE')}
+					description={t('auth.signUp.SENT_TEXT')}
+					actions={
+						<Button asChild className="w-full max-sm:h-11">
+							<Link href={DEFAULT_APP_PATH}>{t('auth.signUp.SIGN_IN')}</Link>
+						</Button>
+					}
+				>
+					<AuthAddress email={verifyEmail} />
+				</AuthState>
+			</AuthLayout>
 		);
 	}
 
-	return <BackdropLoader show={true} title={t('pages.authTeam.LOADING_TEXT')} />;
+	return (
+		<AuthLayout>
+			<AuthState tone="loading" title={t('auth.social.OPENING')} description={t('auth.social.OPENING_TEXT')} />
+		</AuthLayout>
+	);
 }
