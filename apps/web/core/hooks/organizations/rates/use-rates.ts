@@ -29,21 +29,6 @@ export function useProjectRates(projectId: string | undefined, enabled: boolean)
 	return { ...query, isUnavailable };
 }
 
-export function useMyProjectRates(enabled: boolean) {
-	const { data: user } = useUserQuery();
-	const tenantId = getTenantIdCookie();
-	const organizationId = getOrganizationIdCookie();
-	const hasScope = Boolean(tenantId && organizationId && user?.id);
-	const query = useQuery({
-		queryKey: queryKeys.rates.mine(tenantId, organizationId, user?.id),
-		queryFn: () => rateService.getMyProjectRates(),
-		enabled: enabled && hasScope,
-		retry: retriesRatesRead
-	});
-	const isUnavailable = isRatesReadUnavailable(query.error);
-	return { ...query, isUnavailable };
-}
-
 export function useProjectRateMutations(projectId: string) {
 	const queryClient = useQueryClient();
 	const invalidateRates = () => queryClient.invalidateQueries({ queryKey: queryKeys.rates.all });

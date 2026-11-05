@@ -19,17 +19,6 @@ export const projectRatesSchema = z
 	})
 	.passthrough();
 
-export const myProjectRateSchema = z
-	.object({
-		organizationProjectId: z.string(),
-		projectName: z.string().nullable().optional(),
-		billRateValue: rateFieldSchema,
-		currency: z.string().nullable().optional()
-	})
-	.passthrough();
-
-export const myProjectRatesSchema = z.array(myProjectRateSchema);
-
 export const rateChangeRequestResultSchema = z
 	.object({
 		notified: z.number().optional()
@@ -38,7 +27,6 @@ export const rateChangeRequestResultSchema = z
 
 export type TProjectMemberRate = z.infer<typeof projectMemberRateSchema>;
 export type TProjectRates = z.infer<typeof projectRatesSchema>;
-export type TMyProjectRate = z.infer<typeof myProjectRateSchema>;
 export type TRateChangeRequestResult = z.infer<typeof rateChangeRequestResultSchema>;
 
 export interface IEmployeeRatesInput {

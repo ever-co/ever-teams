@@ -2,18 +2,9 @@
 
 import { useState } from 'react';
 import { useLocale, useTranslations } from 'next-intl';
-import { Notice } from '@/core/components/common/notice';
 import { Button } from '@/core/components/duplicated-components/_button';
-import {
-	SETTINGS_SKELETON_BAR,
-	SettingsRow,
-	SettingsSection,
-	SettingsSurface
-} from '@/core/components/settings/kit/settings-page';
-import { useMyProjectRates } from '@/core/hooks/organizations/rates/use-rates';
+import { SettingsRow, SettingsSection, SettingsSurface } from '@/core/components/settings/kit/settings-page';
 import { rateAmountTextOf, rateValueOf } from '@/core/lib/utils/rates';
-import { cn } from '@/core/lib/helpers';
-import type { TMyProjectRate } from '@/core/types/schemas/organization/rates.schema';
 import { RateChangeRequestForm } from './rate-change-request-form';
 
 interface OwnEmployeeRates {
@@ -32,32 +23,11 @@ function RateValueText({ text, emptyLabel }: Readonly<{ text: string | null; emp
 	return <span className={VALUE_TEXT}>{text}</span>;
 }
 
-function ProjectRateRows({ rates }: Readonly<{ rates: TMyProjectRate[] }>) {
-	const t = useTranslations();
-	const locale = useLocale();
-	return rates.map((rate) => {
-		const amount = rateAmountTextOf(rate.billRateValue, rate.currency, locale);
-		let text: string | null = null;
-		if (amount !== null) {
-			text = t('rates.PER_HOUR', { amount });
-		}
-		return (
-			<SettingsRow key={rate.organizationProjectId} label={rate.projectName || t('rates.UNNAMED_PROJECT')}>
-				<RateValueText text={text} emptyLabel={t('rates.NOT_SET')} />
-			</SettingsRow>
-		);
-	});
-}
-
-/**
- * The employee's own rate, read only: admins set it, and the employee asks them for a change. Their effective rate
- * on each project is listed when Gauzy has the rates routes; before that the list is simply absent.
- */
+/** The employee's own rate, read only: admins set it, and the employee asks them for a change. */
 export function ProfileRatesSection({ employee }: Readonly<{ employee: OwnEmployeeRates }>) {
 	const t = useTranslations();
 	const locale = useLocale();
 	const [isRequesting, setIsRequesting] = useState(false);
-	const { data: projectRates, isLoading, isError, isUnavailable, refetch } = useMyProjectRates(true);
 
 	const currency = employee.billRateCurrency || null;
 	const rateAmount = rateAmountTextOf(employee.billRateValue, currency, locale);
@@ -70,11 +40,6 @@ export function ProfileRatesSection({ employee }: Readonly<{ employee: OwnEmploy
 	if (weeklyLimit !== null) {
 		weeklyLimitText = t('rates.WEEKLY_LIMIT_VALUE', { hours: weeklyLimit });
 	}
-
-	const listsProjectRates = !isUnavailable && Boolean(projectRates?.length);
-	const loadsProjectRates = isLoading && !isUnavailable;
-	const hasNoProjectRatesYet = projectRates === undefined;
-	const failsProjectRates = isError && !isUnavailable && hasNoProjectRatesYet;
 
 	return (
 		<SettingsSection id="rate" title={t('rates.OWN_SECTION')} description={t('rates.OWN_SECTION_HINT')}>
@@ -96,34 +61,6 @@ export function ProfileRatesSection({ employee }: Readonly<{ employee: OwnEmploy
 					</SettingsRow>
 				)}
 			</SettingsSurface>
-			{loadsProjectRates && (
-				<SettingsSurface>
-					<SettingsRow
-						label={<span aria-hidden="true" className={cn(SETTINGS_SKELETON_BAR, 'block h-3.5 w-32')} />}
-					>
-						<span aria-hidden="true" className={cn(SETTINGS_SKELETON_BAR, 'block h-3.5 w-16')} />
-					</SettingsRow>
-				</SettingsSurface>
-			)}
-			{failsProjectRates && (
-				<Notice
-					tone="error"
-					title={t('rates.PROJECT_RATES_ERROR')}
-					actions={
-						<Button type="button" variant="outline" onClick={() => void refetch()}>
-							{t('notifications.RETRY')}
-						</Button>
-					}
-				/>
-			)}
-			{listsProjectRates && (
-				<div className="flex flex-col gap-2">
-					<p className="px-1 text-xs text-muted-foreground">{t('rates.PROJECT_RATES_HINT')}</p>
-					<SettingsSurface>
-						<ProjectRateRows rates={projectRates ?? []} />
-					</SettingsSurface>
-				</div>
-			)}
 		</SettingsSection>
 	);
 }

@@ -2,7 +2,6 @@ import qs from 'qs';
 import { serverFetch } from '../fetch';
 import type {
 	IRateChangeRequestInput,
-	TMyProjectRate,
 	TProjectRates,
 	TRateChangeRequestResult
 } from '@/core/types/schemas/organization/rates.schema';
@@ -58,16 +57,6 @@ export function updateProjectMemberRateRequest({
 		path: `/organization-projects/${projectSegment}/members/${employeeSegment}/rate`,
 		method: 'PUT',
 		body: { organizationId, tenantId, billRateValue },
-		bearer_token,
-		tenantId
-	});
-}
-
-export function getMyProjectRatesRequest({ organizationId, bearer_token, tenantId }: IGauzyCall) {
-	const query = qs.stringify({ organizationId, tenantId });
-	return serverFetch<TMyProjectRate[]>({
-		path: `/organization-projects/rates/me?${query}`,
-		method: 'GET',
 		bearer_token,
 		tenantId
 	});

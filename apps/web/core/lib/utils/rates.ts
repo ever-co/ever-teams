@@ -133,7 +133,7 @@ const UNAVAILABLE_STATUSES: ReadonlyArray<number> = [403, 404];
 
 /**
  * A rates read the API answers with 404 (a Gauzy without the rates routes) or 403 (rates the caller may not see):
- * the screens fall back to the employee's own rate, with no error shown.
+ * the project's People tab shows no rates, with no error shown.
  */
 export function isRatesReadUnavailable(error: unknown): boolean {
 	const status = errorStatusOf(error);

@@ -3,19 +3,17 @@ import { APIService } from '../../api.service';
 import { GAUZY_API_BASE_SERVER_URL } from '@/core/constants/config/constants';
 import { validateApiResponse } from '@/core/types/schemas';
 import {
-	myProjectRatesSchema,
 	projectRatesSchema,
 	rateChangeRequestResultSchema,
 	type IEmployeeRatesInput,
 	type IRateChangeRequestInput,
-	type TMyProjectRate,
 	type TProjectRates,
 	type TRateChangeRequestResult
 } from '@/core/types/schemas/organization/rates.schema';
 
 /**
- * Rates: an employee's own rate (`PUT /employee/:id`), a project's rate and each member's rate on it, the caller's
- * effective rates per project, and the rate change request an employee sends to the organization's admins.
+ * Rates: an employee's own rate (`PUT /employee/:id`), the client rates of a project and of each member on it, and
+ * the rate change request an employee sends to the organization's admins.
  */
 class RateService extends APIService {
 	getProjectRates = async (projectId: string): Promise<TProjectRates> => {
@@ -45,14 +43,6 @@ class RateService extends APIService {
 			organizationId: this.organizationId,
 			billRateValue
 		});
-	};
-
-	getMyProjectRates = async (): Promise<TMyProjectRate[]> => {
-		const query = qs.stringify({ organizationId: this.organizationId, tenantId: this.tenantId });
-		const response = await this.get<TMyProjectRate[]>(`/organization-projects/rates/me?${query}`, {
-			tenantId: this.tenantId
-		});
-		return validateApiResponse(myProjectRatesSchema, response.data, 'getMyProjectRates API response');
 	};
 
 	requestRateChange = async (input: IRateChangeRequestInput): Promise<TRateChangeRequestResult> => {
