@@ -75,6 +75,15 @@ describe('createOrganizationTeamRequest', () => {
 		expect(deletes()).toHaveLength(0);
 	});
 
+	it('names the project it creates as the team default project', async () => {
+		primeFetch(() => Promise.resolve({ data: { id: 'team-1' } }));
+
+		await createOrganizationTeamRequest({ ...TEAM }, 'token-1');
+
+		const teamCall = mockServerFetch.mock.calls.find(([options]) => options.path === '/organization-team');
+		expect(teamCall?.[0].body.defaultProjectId).toBe('proj-1');
+	});
+
 	it.each([400, 403, 409, 422])(
 		'deletes its project when the API refuses the team (%i) and rethrows the rejection as it was',
 		async (statusCode) => {

@@ -3480,6 +3480,7 @@
 			"COLOR_NOT_SAVED": "Nie zapisano koloru zespołu",
 			"EMOJI_NOT_SAVED": "Nie zapisano emoji zespołu",
 			"SIZE_NOT_SAVED": "Nie zapisano wielkości zespołu",
+			"DEFAULT_PROJECT_NOT_SAVED": "Nie zapisano projektu domyślnego",
 			"TYPE_NOT_SAVED": "Nie zapisano typu zespołu",
 			"LEFT_TEAM": "Opuszczono zespół",
 			"LEAVE_FAILED": "Nadal jesteś w zespole",
@@ -3882,7 +3883,11 @@
 			"DELETE_CONSEQUENCE_SIGN_OUT": "Zostaniesz wylogowany, aby wybrać inną przestrzeń roboczą.",
 			"QUIT_TITLE": "Opuścić {team}?",
 			"QUIT_CONSEQUENCE_LIST": "Zespół znika z twojej listy zespołów.",
-			"QUIT_CONSEQUENCE_BACK": "Menedżer może później zaprosić cię ponownie."
+			"QUIT_CONSEQUENCE_BACK": "Menedżer może później zaprosić cię ponownie.",
+			"PROJECTS_SECTION": "Projekty",
+			"DEFAULT_PROJECT_LABEL": "Projekt domyślny",
+			"DEFAULT_PROJECT_DESCRIPTION": "Nowe zadania i timery tego zespołu trafiają do tego projektu.",
+			"DEFAULT_PROJECT_PLACEHOLDER": "Wybierz projekt"
 		},
 		"members": {
 			"UNVERIFIED_TITLE": "Potwierdź adres e-mail, aby zapraszać osoby",

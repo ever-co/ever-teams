@@ -33,6 +33,7 @@ import type { ApiRequestScope } from '@/core/services/client/api-request-scope';
 import { useScopeGuard } from '../../bootstrap/use-scope-guard';
 import { useReactiveAccessTokenCookie } from '../../auth/use-reactive-access-token-cookie';
 import { syncTokenOrganization } from '@/core/lib/auth/token-organization';
+import { teamDefaultProjectId } from '@/core/lib/helpers/team-default-project';
 
 interface UseOrganizationTeamsQueryOptions {
 	enabled?: boolean;
@@ -147,8 +148,9 @@ export function useOrganizationTeamsQuery(options: UseOrganizationTeamsQueryOpti
 				if (switched) queryClient.invalidateQueries({ queryKey: queryKeys.users.me });
 			});
 
-			if (team && team?.projects && team.projects.length) {
-				setActiveProjectIdCookie(team.projects[0].id);
+			const defaultProjectId = teamDefaultProjectId(team);
+			if (defaultProjectId) {
+				setActiveProjectIdCookie(defaultProjectId);
 			}
 			if (globalThis.window !== undefined) {
 				globalThis.window.localStorage.setItem(LAST_WORKSPACE_AND_TEAM, team.id);
@@ -214,7 +216,7 @@ export function useOrganizationTeamsQuery(options: UseOrganizationTeamsQueryOpti
 						t.members?.map((m) => `${m.id}:${m.role?.name ?? 'none'}:${m.order ?? ''}`).join(',') || '';
 					// Timer presence (other clients) and the presence heartbeat both have to change the signature
 					const memberPresenceSignature = `${t.members?.map(getMemberPresenceSignature).join(',') || ''}:${getMembersPresenceSignature(t.members)}`;
-					return `${t.id}:${t.updatedAt ?? ''}:${t.name}:${t.shareProfileView ?? ''}:${t.requirePlanToTrack ?? ''}:${t.public ?? ''}:${t.color ?? ''}:${t.emoji ?? ''}:${t.prefix ?? ''}:${t.members?.length ?? 0}:${memberRolesSignature}:${memberPresenceSignature}`;
+					return `${t.id}:${t.updatedAt ?? ''}:${t.name}:${t.shareProfileView ?? ''}:${t.requirePlanToTrack ?? ''}:${t.defaultProjectId ?? ''}:${t.public ?? ''}:${t.color ?? ''}:${t.emoji ?? ''}:${t.prefix ?? ''}:${t.members?.length ?? 0}:${memberRolesSignature}:${memberPresenceSignature}`;
 				})
 				.sort()
 				.join('|');
@@ -323,7 +325,7 @@ export function useOrganizationTeamsQuery(options: UseOrganizationTeamsQueryOpti
 				newTeam.members?.map((m) => `${m.id}:${m.role?.name ?? 'none'}:${m.order ?? ''}`).join(',') || '';
 			// Timer presence (other clients) and the presence heartbeat both have to change the signature
 			const memberPresence = `${newTeam.members?.map(getMemberPresenceSignature).join(',') || ''}:${getMembersPresenceSignature(newTeam.members)}`;
-			const newSignature = `${newTeam.id}:${newTeam.updatedAt ?? ''}:${newTeam.members?.length ?? 0}:${memberActiveTaskIds}:${memberRoles}:${memberPresence}`;
+			const newSignature = `${newTeam.id}:${newTeam.updatedAt ?? ''}:${newTeam.defaultProjectId ?? ''}:${newTeam.members?.length ?? 0}:${memberActiveTaskIds}:${memberRoles}:${memberPresence}`;
 
 			if (newSignature === lastProcessedTeamSignatureRef.current) {
 				return;
@@ -333,8 +335,9 @@ export function useOrganizationTeamsQuery(options: UseOrganizationTeamsQueryOpti
 
 			setTeamsUpdate(newTeam);
 
-			if (newTeam && newTeam.projects && newTeam.projects.length) {
-				setActiveProjectIdCookie(newTeam.projects[0].id);
+			const newTeamDefaultProjectId = teamDefaultProjectId(newTeam);
+			if (newTeamDefaultProjectId) {
+				setActiveProjectIdCookie(newTeamDefaultProjectId);
 			}
 		}
 		// eslint-disable-next-line react-hooks/exhaustive-deps

@@ -99,7 +99,10 @@ export const activeTeamManagersState = selectAtom(activeTeamState, selectTeamMan
  * only builds query keys or request scopes reads this instead of the team: it re-renders when an id or the project
  * list changes, not on every refresh of the members.
  */
-export type TActiveTeamScope = Pick<TOrganizationTeam, 'id' | 'organizationId' | 'tenantId' | 'projects'>;
+export type TActiveTeamScope = Pick<
+	TOrganizationTeam,
+	'id' | 'organizationId' | 'tenantId' | 'projects' | 'defaultProjectId'
+>;
 
 function selectTeamScope(activeTeam: TOrganizationTeam | null): TActiveTeamScope | null {
 	if (!activeTeam) {
@@ -109,7 +112,8 @@ function selectTeamScope(activeTeam: TOrganizationTeam | null): TActiveTeamScope
 		id: activeTeam.id,
 		organizationId: activeTeam.organizationId,
 		tenantId: activeTeam.tenantId,
-		projects: activeTeam.projects
+		projects: activeTeam.projects,
+		defaultProjectId: activeTeam.defaultProjectId
 	};
 }
 
@@ -129,7 +133,8 @@ function haveSameScope(previous: TActiveTeamScope | null, next: TActiveTeamScope
 	const isSameOrganization = previous.organizationId === next.organizationId;
 	const isSameTenant = previous.tenantId === next.tenantId;
 	const isSameProjects = projectIdsOf(previous) === projectIdsOf(next);
-	return isSameTeam && isSameOrganization && isSameTenant && isSameProjects;
+	const isSameDefaultProject = previous.defaultProjectId === next.defaultProjectId;
+	return isSameTeam && isSameOrganization && isSameTenant && isSameProjects && isSameDefaultProject;
 }
 
 export const activeTeamScopeState = selectAtom(activeTeamState, selectTeamScope, haveSameScope);

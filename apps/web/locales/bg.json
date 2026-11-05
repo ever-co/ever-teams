@@ -3480,6 +3480,7 @@
 			"COLOR_NOT_SAVED": "Цветът на екипа не беше запазен",
 			"EMOJI_NOT_SAVED": "Емоджито на екипа не беше запазено",
 			"SIZE_NOT_SAVED": "Размерът на екипа не беше запазен",
+			"DEFAULT_PROJECT_NOT_SAVED": "Проектът по подразбиране не беше запазен",
 			"TYPE_NOT_SAVED": "Типът на екипа не беше запазен",
 			"LEFT_TEAM": "Напуснахте екипа",
 			"LEAVE_FAILED": "Все още сте в екипа",
@@ -3882,7 +3883,11 @@
 			"DELETE_CONSEQUENCE_SIGN_OUT": "Излизате от профила си, за да изберете друго работно пространство.",
 			"QUIT_TITLE": "Напускане на {team}?",
 			"QUIT_CONSEQUENCE_LIST": "Екипът изчезва от списъка ви с екипи.",
-			"QUIT_CONSEQUENCE_BACK": "Мениджър може да ви покани отново по-късно."
+			"QUIT_CONSEQUENCE_BACK": "Мениджър може да ви покани отново по-късно.",
+			"PROJECTS_SECTION": "Проекти",
+			"DEFAULT_PROJECT_LABEL": "Проект по подразбиране",
+			"DEFAULT_PROJECT_DESCRIPTION": "Новите задачи и таймерите на този екип отиват в този проект.",
+			"DEFAULT_PROJECT_PLACEHOLDER": "Изберете проект"
 		},
 		"members": {
 			"UNVERIFIED_TITLE": "Потвърдете имейла си, за да каните хора",

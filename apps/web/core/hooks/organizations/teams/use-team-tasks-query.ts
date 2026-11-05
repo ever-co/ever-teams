@@ -27,6 +27,7 @@ import { useInvalidateTeamTasks } from './use-invalidate-team-tasks';
 import type { ApiRequestScope } from '@/core/services/client/api-request-scope';
 import { useScopeGuard } from '../../bootstrap/use-scope-guard';
 import { useReactiveAccessTokenCookie } from '../../auth/use-reactive-access-token-cookie';
+import { teamDefaultProjectId } from '@/core/lib/helpers/team-default-project';
 
 // Below Gauzy's take limit of 100, and a team with 50 tasks or fewer keeps a single request.
 const TEAM_TASKS_PAGE_SIZE = 50;
@@ -105,7 +106,7 @@ export function useTeamTasksQuery(options: UseTeamTasksQueryOptions = {}) {
 		]
 	);
 	const canHydrateSharedState = explicitScope !== undefined;
-	const projectId = activeTeam?.projects?.[0]?.id ?? null;
+	const projectId = teamDefaultProjectId(activeTeam);
 	const queryKey = queryKeys.tasks.byTeamByScope(scope?.tenantId, scope?.organizationId, scope?.teamId, projectId);
 	const isCurrentScope = useScopeGuard(queryKey, enabled);
 	const scopedReady = !!(scope?.tenantId && scope.organizationId && scope.teamId && scope.accessToken);

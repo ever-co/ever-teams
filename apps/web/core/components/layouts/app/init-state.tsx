@@ -22,6 +22,7 @@ import { reownActiveQueriesAfterTokenRefresh } from './token-refresh-query-owner
 import { syncTokenOrganization } from '@/core/lib/auth/token-organization';
 import { queryKeys } from '@/core/query/keys';
 import { getShellCriticalQueryKeys, useScopeTransitionGuard } from './use-scope-transition-guard';
+import { teamDefaultProjectId } from '@/core/lib/helpers/team-default-project';
 
 const SHELL_REFRESH_INTERVAL = 60_000;
 
@@ -97,7 +98,7 @@ export function InitState() {
 	// The list already resolves the team with its projects and plan policy. The detail only adds member work
 	// statistics, so team-scoped reads start alongside it instead of one round trip after it.
 	const teamReady = !!(workspaceReady && teamOwner.organizationTeamsSuccess && activeTeam?.id);
-	const projectId = activeTeam?.projects?.[0]?.id ?? null;
+	const projectId = teamDefaultProjectId(activeTeam);
 	const teamScope = useMemo(
 		() => ({
 			...baseScope,

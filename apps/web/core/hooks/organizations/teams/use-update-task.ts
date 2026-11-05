@@ -22,6 +22,7 @@ import { useInvalidateTeamTasks } from './use-invalidate-team-tasks';
 import { useTaskQueries } from './use-task-queries';
 import { refreshAfterTaskUpdate } from './task-update-refresh';
 import { useTimesheetInvalidation } from '@/core/hooks/timesheet/use-timesheet-invalidation';
+import { teamDefaultProjectId } from '@/core/lib/helpers/team-default-project';
 
 /**
  * Hook for updating team tasks (UPDATE operations only).
@@ -83,13 +84,13 @@ export function useUpdateTask() {
 		activeTeam?.tenantId,
 		activeTeam?.organizationId,
 		activeTeam?.id,
-		activeTeam?.projects?.[0]?.id ?? null
+		teamDefaultProjectId(activeTeam)
 	);
 	const scopeFingerprint = JSON.stringify([
 		activeTeam?.tenantId ?? null,
 		activeTeam?.organizationId ?? null,
 		activeTeam?.id ?? null,
-		activeTeam?.projects?.[0]?.id ?? null
+		teamDefaultProjectId(activeTeam)
 	]);
 	const currentScopeFingerprintRef = useRef(scopeFingerprint);
 	currentScopeFingerprintRef.current = scopeFingerprint;

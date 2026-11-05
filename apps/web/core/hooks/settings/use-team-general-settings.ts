@@ -16,6 +16,7 @@ import { useOrganizationEmployeeTeams } from '@/core/hooks/organizations/teams/u
 import { useIsMemberManager } from '@/core/hooks/organizations/teams/use-team-member';
 import { useUserQuery } from '@/core/hooks/queries/user-user.query';
 import type { TOrganizationTeamUpdate } from '@/core/types/schemas';
+import { setActiveProjectIdCookie } from '@/core/lib/helpers/cookies';
 
 export const TEAM_AVATAR_FOLDER = 'organization_teams_avatars';
 
@@ -70,6 +71,16 @@ export function useTeamGeneralSettings() {
 
 	const saveSize = useCallback(
 		(teamSize: string) => saveField({ teamSize }, 'toasts.teams.SIZE_NOT_SAVED'),
+		[saveField]
+	);
+
+	// New tasks read the active project from its cookie: it follows the saved default at once, not after the
+	// next team read.
+	const saveDefaultProject = useCallback(
+		async (defaultProjectId: string) => {
+			await saveField({ defaultProjectId }, 'toasts.teams.DEFAULT_PROJECT_NOT_SAVED');
+			setActiveProjectIdCookie(defaultProjectId);
+		},
 		[saveField]
 	);
 
@@ -165,6 +176,7 @@ export function useTeamGeneralSettings() {
 		saveColor,
 		saveEmoji,
 		saveSize,
+		saveDefaultProject,
 		saveVisibility,
 		uploadAvatar,
 		removeAvatar,

@@ -3480,6 +3480,7 @@
 			"COLOR_NOT_SAVED": "The team color was not saved",
 			"EMOJI_NOT_SAVED": "The team emoji was not saved",
 			"SIZE_NOT_SAVED": "The team size was not saved",
+			"DEFAULT_PROJECT_NOT_SAVED": "The default project was not saved",
 			"TYPE_NOT_SAVED": "The team type was not saved",
 			"LEFT_TEAM": "You left the team",
 			"LEAVE_FAILED": "You are still in the team",
@@ -3882,7 +3883,11 @@
 			"DELETE_CONSEQUENCE_SIGN_OUT": "You are signed out to pick another workspace.",
 			"QUIT_TITLE": "Leave {team}?",
 			"QUIT_CONSEQUENCE_LIST": "The team leaves your list of teams.",
-			"QUIT_CONSEQUENCE_BACK": "A manager can invite you again later."
+			"QUIT_CONSEQUENCE_BACK": "A manager can invite you again later.",
+			"PROJECTS_SECTION": "Projects",
+			"DEFAULT_PROJECT_LABEL": "Default project",
+			"DEFAULT_PROJECT_DESCRIPTION": "New tasks and timers in this team go to this project.",
+			"DEFAULT_PROJECT_PLACEHOLDER": "Pick a project"
 		},
 		"members": {
 			"UNVERIFIED_TITLE": "Verify your email address to invite people",

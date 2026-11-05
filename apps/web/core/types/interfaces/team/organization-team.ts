@@ -16,6 +16,7 @@ interface IBaseTeamProperties extends IBasePerTenantAndOrganizationEntityModel, 
 	requirePlanToTrack?: boolean; // Default is false
 	public?: boolean;
 	profile_link?: string;
+	defaultProjectId?: string | null;
 }
 
 // Interface for team members and related entities
@@ -51,6 +52,7 @@ export interface IOrganizationTeamCreate {
 	imageId?: string | null;
 	image?: TImageAsset | null;
 	projects?: IOrganizationProject[];
+	defaultProjectId?: string | null;
 }
 export type IOrganizationTeamUpdate = IOrganizationTeamCreate & { id: string };
 

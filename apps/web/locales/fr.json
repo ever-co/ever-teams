@@ -3480,6 +3480,7 @@
 			"COLOR_NOT_SAVED": "La couleur de l’équipe n’a pas été enregistrée",
 			"EMOJI_NOT_SAVED": "L’emoji de l’équipe n’a pas été enregistré",
 			"SIZE_NOT_SAVED": "La taille de l’équipe n’a pas été enregistrée",
+			"DEFAULT_PROJECT_NOT_SAVED": "Le projet par défaut n’a pas été enregistré",
 			"TYPE_NOT_SAVED": "Le type d’équipe n’a pas été enregistré",
 			"LEFT_TEAM": "Vous avez quitté l’équipe",
 			"LEAVE_FAILED": "Vous faites toujours partie de l’équipe",
@@ -3882,7 +3883,11 @@
 			"DELETE_CONSEQUENCE_SIGN_OUT": "Vous êtes déconnecté pour choisir un autre espace de travail.",
 			"QUIT_TITLE": "Quitter {team} ?",
 			"QUIT_CONSEQUENCE_LIST": "L'équipe disparaît de votre liste d'équipes.",
-			"QUIT_CONSEQUENCE_BACK": "Un manager pourra vous inviter à nouveau."
+			"QUIT_CONSEQUENCE_BACK": "Un manager pourra vous inviter à nouveau.",
+			"PROJECTS_SECTION": "Projets",
+			"DEFAULT_PROJECT_LABEL": "Projet par défaut",
+			"DEFAULT_PROJECT_DESCRIPTION": "Les nouvelles tâches et les timers de cette équipe vont dans ce projet.",
+			"DEFAULT_PROJECT_PLACEHOLDER": "Choisir un projet"
 		},
 		"members": {
 			"UNVERIFIED_TITLE": "Vérifiez votre adresse e-mail pour inviter des personnes",

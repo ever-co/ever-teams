@@ -3480,6 +3480,7 @@
 			"COLOR_NOT_SAVED": "De teamkleur is niet opgeslagen",
 			"EMOJI_NOT_SAVED": "De team-emoji is niet opgeslagen",
 			"SIZE_NOT_SAVED": "De teamgrootte is niet opgeslagen",
+			"DEFAULT_PROJECT_NOT_SAVED": "Het standaardproject is niet opgeslagen",
 			"TYPE_NOT_SAVED": "Het teamtype is niet opgeslagen",
 			"LEFT_TEAM": "Je hebt het team verlaten",
 			"LEAVE_FAILED": "Je zit nog steeds in het team",
@@ -3882,7 +3883,11 @@
 			"DELETE_CONSEQUENCE_SIGN_OUT": "Je wordt afgemeld om een andere werkruimte te kiezen.",
 			"QUIT_TITLE": "{team} verlaten?",
 			"QUIT_CONSEQUENCE_LIST": "Het team verdwijnt uit je lijst met teams.",
-			"QUIT_CONSEQUENCE_BACK": "Een manager kan je later opnieuw uitnodigen."
+			"QUIT_CONSEQUENCE_BACK": "Een manager kan je later opnieuw uitnodigen.",
+			"PROJECTS_SECTION": "Projecten",
+			"DEFAULT_PROJECT_LABEL": "Standaardproject",
+			"DEFAULT_PROJECT_DESCRIPTION": "Nieuwe taken en timers van dit team komen in dit project.",
+			"DEFAULT_PROJECT_PLACEHOLDER": "Kies een project"
 		},
 		"members": {
 			"UNVERIFIED_TITLE": "Bevestig je e-mailadres om mensen uit te nodigen",
