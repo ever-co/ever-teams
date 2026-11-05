@@ -8,7 +8,7 @@ const CALENDAR_DAY_HEADERS = 7;
 
 const CALENDAR_DAY_CELLS = 42;
 
-const MODAL_FIELDS = 5;
+const MODAL_FIELDS = 3;
 
 interface SkeletonProps {
 	className?: string;
@@ -89,24 +89,39 @@ export const SetupTimeSheetSkeleton: FC<SkeletonProps> = ({ className }) => {
 export const AddManualTimeModalSkeleton: FC<SkeletonProps> = ({ className }) => {
 	const fieldKeys = Array.from({ length: MODAL_FIELDS }, (_, index) => index);
 	return (
-		<div className={cn('fixed inset-0 z-[1000] flex items-center justify-center', className)}>
-			<div className="fixed inset-0 bg-black/40" />
-			<div className="relative mx-4 w-full max-w-md rounded-2xl bg-card hairline-ring ring-border shadow-xl shadow-black/6.5">
-				<div className="flex items-center justify-between hairline-b border-border p-6">
-					<div className={cn(BAR, 'h-6 w-32')} />
-					<div className={cn(BAR, 'size-8')} />
+		<div className={cn('fixed inset-0 z-[1000] flex items-center justify-center p-4', className)}>
+			<div className="fixed inset-0 bg-black/20" />
+			<div className="relative flex w-full max-w-lg flex-col gap-4 rounded-[16px] surface-raised p-5">
+				<div className="flex items-center gap-2 pr-9">
+					<div className={cn(BAR, 'h-5 w-20')} />
+					<div className={cn(BAR, 'h-4 w-24')} />
 				</div>
-				<div className="space-y-4 p-6">
-					{fieldKeys.map((key) => (
-						<div key={key} className="space-y-2">
-							<div className={cn(BAR, 'h-4 w-20')} />
+				<div className="flex flex-col gap-2">
+					<div className="grid grid-cols-2 gap-3 sm:grid-cols-[minmax(0,1.4fr)_minmax(0,1fr)_minmax(0,1fr)]">
+						<div className="col-span-2 space-y-1.5 sm:col-span-1">
+							<div className={cn(BAR, 'h-3 w-12')} />
 							<div className={cn(BAR, 'h-9 w-full')} />
 						</div>
-					))}
+						<div className="space-y-1.5">
+							<div className={cn(BAR, 'h-3 w-16')} />
+							<div className={cn(BAR, 'h-9 w-full')} />
+						</div>
+						<div className="space-y-1.5">
+							<div className={cn(BAR, 'h-3 w-16')} />
+							<div className={cn(BAR, 'h-9 w-full')} />
+						</div>
+					</div>
+					<div className="h-9 rounded-lg bg-foreground/[0.03]" />
 				</div>
-				<div className="flex items-center justify-end gap-3 hairline-t border-border p-6">
-					<div className={cn(BAR, 'h-9 w-20')} />
-					<div className={cn(BAR, 'h-9 w-24')} />
+				{fieldKeys.map((key) => (
+					<div key={key} className="space-y-1.5">
+						<div className={cn(BAR, 'h-3 w-20')} />
+						<div className={cn(BAR, 'h-9 w-full')} />
+					</div>
+				))}
+				<div className="flex items-center justify-between gap-3 pt-1">
+					<div className={cn(BAR, 'h-5 w-24')} />
+					<div className={cn(BAR, 'h-8 w-24 rounded-full')} />
 				</div>
 			</div>
 		</div>
