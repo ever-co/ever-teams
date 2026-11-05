@@ -3088,7 +3088,13 @@
 		"TEAM_COUNT": "{count, plural, one {# команда} few {# команды} many {# команд} other {# команды}}",
 		"NO_OTHER_WORKSPACE": "Других рабочих пространств нет",
 		"ADD_WORKSPACE": "Добавить рабочее пространство",
-		"TEAM_SETTINGS": "Настройки команды"
+		"TEAM_SETTINGS": "Настройки команды",
+		"APPS": "Приложения",
+		"SWITCH_APP": "Перейти в другое приложение Ever",
+		"EVER_APPS": "Приложения Ever",
+		"CURRENT_APP": "{app}, приложение, в котором вы находитесь",
+		"OPENS_IN_NEW_TAB": "(откроется в новой вкладке)",
+		"APP_OPENS_IN_NEW_TAB": "{app} (откроется в новой вкладке)"
 	},
 	"todayActivity": {
 		"ACTIVE_TASK": "Активная задача",
@@ -4005,6 +4011,11 @@
 			"SECTION_THEME": "Тема",
 			"SECTION_THEME_DESCRIPTION": "Действует только в этом браузере.",
 			"THEME_SYSTEM": "Системная",
+			"SECTION_APP_SWITCHER": "Переключатель приложений",
+			"SECTION_APP_SWITCHER_DESCRIPTION": "Где находится переход к другим приложениям Ever. Действует только в этом браузере.",
+			"APP_SWITCHER_SIDEBAR": "Боковая панель",
+			"APP_SWITCHER_HEADER": "Верхняя панель",
+			"APP_SWITCHER_RAIL": "Левая полоса",
 			"SECTION_REGION": "Язык и часовой пояс",
 			"LANGUAGE": "Язык",
 			"LANGUAGE_DESCRIPTION": "Язык меню и сообщений, сохраняется в вашем аккаунте.",

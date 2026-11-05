@@ -3088,7 +3088,13 @@
 		"TEAM_COUNT": "{count, plural, one {# team} other {# teams}}",
 		"NO_OTHER_WORKSPACE": "No other workspace",
 		"ADD_WORKSPACE": "Add workspace",
-		"TEAM_SETTINGS": "Team settings"
+		"TEAM_SETTINGS": "Team settings",
+		"APPS": "Apps",
+		"SWITCH_APP": "Switch to another Ever app",
+		"EVER_APPS": "Ever apps",
+		"CURRENT_APP": "{app}, the app you are in",
+		"OPENS_IN_NEW_TAB": "(opens in a new tab)",
+		"APP_OPENS_IN_NEW_TAB": "{app} (opens in a new tab)"
 	},
 	"todayActivity": {
 		"ACTIVE_TASK": "Active task",
@@ -4005,6 +4011,11 @@
 			"SECTION_THEME": "Theme",
 			"SECTION_THEME_DESCRIPTION": "Applies to this browser only.",
 			"THEME_SYSTEM": "System",
+			"SECTION_APP_SWITCHER": "App switcher",
+			"SECTION_APP_SWITCHER_DESCRIPTION": "Where the shortcut to the other Ever apps sits. Applies to this browser only.",
+			"APP_SWITCHER_SIDEBAR": "Sidebar",
+			"APP_SWITCHER_HEADER": "Top bar",
+			"APP_SWITCHER_RAIL": "Left rail",
 			"SECTION_REGION": "Language and time zone",
 			"LANGUAGE": "Language",
 			"LANGUAGE_DESCRIPTION": "The language of menus and messages, saved to your account.",

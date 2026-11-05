@@ -3088,7 +3088,13 @@
 		"TEAM_COUNT": "{count, plural, one {צוות אחד} other {# צוותים}}",
 		"NO_OTHER_WORKSPACE": "אין סביבות עבודה נוספות",
 		"ADD_WORKSPACE": "הוספת סביבת עבודה",
-		"TEAM_SETTINGS": "הגדרות הצוות"
+		"TEAM_SETTINGS": "הגדרות הצוות",
+		"APPS": "אפליקציות",
+		"SWITCH_APP": "מעבר לאפליקציית Ever אחרת",
+		"EVER_APPS": "אפליקציות Ever",
+		"CURRENT_APP": "{app}, האפליקציה שבה אתם נמצאים",
+		"OPENS_IN_NEW_TAB": "(נפתח בכרטיסייה חדשה)",
+		"APP_OPENS_IN_NEW_TAB": "{app} (נפתח בכרטיסייה חדשה)"
 	},
 	"todayActivity": {
 		"ACTIVE_TASK": "משימה פעילה",
@@ -4005,6 +4011,11 @@
 			"SECTION_THEME": "ערכת נושא",
 			"SECTION_THEME_DESCRIPTION": "חל על הדפדפן הזה בלבד.",
 			"THEME_SYSTEM": "מערכת",
+			"SECTION_APP_SWITCHER": "מחליף אפליקציות",
+			"SECTION_APP_SWITCHER_DESCRIPTION": "המקום של הגישה לאפליקציות Ever האחרות. חל על דפדפן זה בלבד.",
+			"APP_SWITCHER_SIDEBAR": "סרגל צד",
+			"APP_SWITCHER_HEADER": "סרגל עליון",
+			"APP_SWITCHER_RAIL": "פס שמאלי",
 			"SECTION_REGION": "שפה ואזור זמן",
 			"LANGUAGE": "שפה",
 			"LANGUAGE_DESCRIPTION": "שפת התפריטים וההודעות, נשמרת בחשבון שלך.",

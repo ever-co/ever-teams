@@ -3088,7 +3088,13 @@
 		"TEAM_COUNT": "{count, plural, one {# zespół} few {# zespoły} many {# zespołów} other {# zespołu}}",
 		"NO_OTHER_WORKSPACE": "Brak innych obszarów roboczych",
 		"ADD_WORKSPACE": "Dodaj obszar roboczy",
-		"TEAM_SETTINGS": "Ustawienia zespołu"
+		"TEAM_SETTINGS": "Ustawienia zespołu",
+		"APPS": "Aplikacje",
+		"SWITCH_APP": "Przejdź do innej aplikacji Ever",
+		"EVER_APPS": "Aplikacje Ever",
+		"CURRENT_APP": "{app}, aplikacja, w której jesteś",
+		"OPENS_IN_NEW_TAB": "(otwiera się w nowej karcie)",
+		"APP_OPENS_IN_NEW_TAB": "{app} (otwiera się w nowej karcie)"
 	},
 	"todayActivity": {
 		"ACTIVE_TASK": "Aktywne zadanie",
@@ -4005,6 +4011,11 @@
 			"SECTION_THEME": "Motyw",
 			"SECTION_THEME_DESCRIPTION": "Dotyczy tylko tej przeglądarki.",
 			"THEME_SYSTEM": "Systemowy",
+			"SECTION_APP_SWITCHER": "Przełącznik aplikacji",
+			"SECTION_APP_SWITCHER_DESCRIPTION": "Gdzie jest dostęp do innych aplikacji Ever. Dotyczy tylko tej przeglądarki.",
+			"APP_SWITCHER_SIDEBAR": "Pasek boczny",
+			"APP_SWITCHER_HEADER": "Górny pasek",
+			"APP_SWITCHER_RAIL": "Lewy pasek",
 			"SECTION_REGION": "Język i strefa czasowa",
 			"LANGUAGE": "Język",
 			"LANGUAGE_DESCRIPTION": "Język menu i komunikatów, zapisany na twoim koncie.",

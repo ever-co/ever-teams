@@ -3088,7 +3088,13 @@
 		"TEAM_COUNT": "{count, plural, one {# team} other {# teams}}",
 		"NO_OTHER_WORKSPACE": "Geen andere werkruimte",
 		"ADD_WORKSPACE": "Werkruimte toevoegen",
-		"TEAM_SETTINGS": "Teaminstellingen"
+		"TEAM_SETTINGS": "Teaminstellingen",
+		"APPS": "Apps",
+		"SWITCH_APP": "Naar een andere Ever-app gaan",
+		"EVER_APPS": "Ever-apps",
+		"CURRENT_APP": "{app}, de app waarin je bent",
+		"OPENS_IN_NEW_TAB": "(opent in een nieuw tabblad)",
+		"APP_OPENS_IN_NEW_TAB": "{app} (opent in een nieuw tabblad)"
 	},
 	"todayActivity": {
 		"ACTIVE_TASK": "Actieve taak",
@@ -4005,6 +4011,11 @@
 			"SECTION_THEME": "Thema",
 			"SECTION_THEME_DESCRIPTION": "Geldt alleen voor deze browser.",
 			"THEME_SYSTEM": "Systeem",
+			"SECTION_APP_SWITCHER": "App-wisselaar",
+			"SECTION_APP_SWITCHER_DESCRIPTION": "Waar de toegang tot de andere Ever-apps staat. Geldt alleen voor deze browser.",
+			"APP_SWITCHER_SIDEBAR": "Zijbalk",
+			"APP_SWITCHER_HEADER": "Bovenbalk",
+			"APP_SWITCHER_RAIL": "Linkerbalk",
 			"SECTION_REGION": "Taal en tijdzone",
 			"LANGUAGE": "Taal",
 			"LANGUAGE_DESCRIPTION": "De taal van menu's en berichten, opgeslagen in je account.",
