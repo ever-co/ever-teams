@@ -1,7 +1,9 @@
-import { PASSWORD_MINIMUM_LENGTH } from '@ever-teams/constants';
-
-/** The app's password policy: Gauzy's reset and registration refuse anything shorter. */
-export const PASSWORD_MIN_LENGTH = PASSWORD_MINIMUM_LENGTH;
+/**
+ * The app's password policy: Gauzy's reset and registration refuse anything shorter. Same value as
+ * `PASSWORD_MINIMUM_LENGTH` in packages/constants; not imported from there because that package's types are only
+ * built into dist/ by `turbo build`, so `tsc --noEmit` on the web app alone (the before-merge gate) cannot resolve it.
+ */
+export const PASSWORD_MIN_LENGTH = 8;
 
 export type PasswordStrength = 0 | 1 | 2 | 3 | 4;
 
