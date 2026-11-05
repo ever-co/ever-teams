@@ -117,6 +117,12 @@ describe('currency and amount text', () => {
 		expect(currencyCodesOf('XYZ')).toContain('XYZ');
 	});
 
+	it('sorts an unlisted current value alphabetically, whatever its case', () => {
+		const codes = currencyCodesOf('abc');
+
+		expect(codes.indexOf('abc')).toBeLessThan(codes.indexOf('AED'));
+	});
+
 	it('names a currency in the page language, and falls back to the code', () => {
 		expect(currencyLabelOf('EUR', 'en')).toBe('EUR · Euro');
 		expect(currencyLabelOf('not-a-code', 'en')).toBe('not-a-code');

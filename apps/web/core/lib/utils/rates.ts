@@ -250,7 +250,7 @@ export function currencyCodesOf(current: string | null | undefined): string[] {
 	if (hasCurrent && !isListed) {
 		codes.push(current as string);
 	}
-	return codes.sort();
+	return codes.sort((first, second) => first.localeCompare(second));
 }
 
 export function currencyLabelOf(code: string, locale: string): string {
