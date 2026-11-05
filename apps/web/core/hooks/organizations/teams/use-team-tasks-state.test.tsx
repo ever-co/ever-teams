@@ -26,8 +26,11 @@ jest.mock('@/core/lib/helpers/index', () => ({
 jest.mock('./use-organization-teams-employee', () => ({
 	useUpdateEmployeeActiveTask: () => ({ updateOrganizationTeamEmployeeActiveTask: jest.fn() })
 }));
-jest.mock('./use-update-task', () => ({ useUpdateTask: () => ({ updateTask: jest.fn() }) }));
-jest.mock('../../queries/user-user.query', () => ({ useUserQuery: () => ({ data: { id: 'user-a' } }) }));
+const mockUpdateTask = jest.fn();
+jest.mock('./use-update-task', () => ({ useUpdateTask: () => ({ updateTask: mockUpdateTask }) }));
+jest.mock('../../queries/user-user.query', () => ({
+	useUserQuery: () => ({ data: { id: 'user-a', employee: { id: 'employee-a' } } })
+}));
 
 import { useTeamTasksState } from './use-team-tasks-state';
 
@@ -39,15 +42,16 @@ const teamTask = (id: string) => ({ id, teams: [{ id: 'team-a' }] }) as unknown 
 
 function renderWithActiveTask(memberActiveTaskId: string) {
 	const store = createStore();
-	store.set(organizationTeamsState, [{ id: 'team-a', name: 'Team A', members: [] }] as never);
+	const members = [{ id: 'member-a', employeeId: 'employee-a' }];
+	store.set(organizationTeamsState, [{ id: 'team-a', name: 'Team A', members }] as never);
 	store.set(activeTeamIdState, 'team-a');
 	store.set(teamTasksState, [teamTask('task-a')]);
 	store.set(teamTasksCompleteState, true);
 	store.set(memberActiveTaskIdState, memberActiveTaskId);
 	store.set(activeTeamTaskState, teamTask('task-a'));
 	const wrapper = ({ children }: PropsWithChildren) => <Provider store={store}>{children}</Provider>;
-	renderHook(() => useTeamTasksState(), { wrapper });
-	return store;
+	const view = renderHook(() => useTeamTasksState(), { wrapper });
+	return { store, view };
 }
 
 describe('useTeamTasksState when the team task list moves to another default project', () => {
@@ -57,7 +61,7 @@ describe('useTeamTasksState when the team task list moves to another default pro
 	});
 
 	it('keeps the active task the member is working on, and its cookies', () => {
-		const store = renderWithActiveTask('task-a');
+		const { store } = renderWithActiveTask('task-a');
 
 		act(() => {
 			store.set(teamTasksState, [teamTask('task-of-the-new-project')]);
@@ -69,12 +73,25 @@ describe('useTeamTasksState when the team task list moves to another default pro
 
 	it('still clears an active task the member no longer holds', () => {
 		mockCookieTaskId = 'task-gone';
-		const store = renderWithActiveTask('task-gone');
+		const { store } = renderWithActiveTask('task-gone');
 
 		act(() => {
 			store.set(teamTasksState, [teamTask('task-of-the-new-project')]);
 		});
 
 		expect(store.get(activeTeamTaskState)).toBeNull();
+	});
+
+	it('leaves the held task when the member switches to another task', async () => {
+		const { store, view } = renderWithActiveTask('task-a');
+		const heldTask = { ...teamTask('task-a'), members: [{ id: 'employee-a' }, { id: 'employee-b' }] } as TTask;
+		act(() => {
+			store.set(activeTeamTaskState, heldTask);
+			store.set(teamTasksState, [teamTask('task-of-the-new-project')]);
+		});
+
+		await act(() => view.result.current.setActiveTask(teamTask('task-of-the-new-project')));
+
+		expect(mockUpdateTask).toHaveBeenCalledWith({ ...heldTask, members: [{ id: 'employee-b' }] });
 	});
 });

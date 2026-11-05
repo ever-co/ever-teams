@@ -123,7 +123,12 @@ function useActiveTaskSetter() {
 				 * Unassign previous active task
 				 */
 				if (memberActiveTaskId && signedInUser && memberActiveTaskId !== task?.id) {
-					const _task = store.get(tasksByTeamState).find((t) => t.id === memberActiveTaskId);
+					let _task = store.get(tasksByTeamState).find((t) => t.id === memberActiveTaskId);
+					// A task held after a default project change is no longer listed, and is still the one to leave
+					const heldTask = store.get(activeTeamTaskState);
+					if (!_task && heldTask?.id === memberActiveTaskId) {
+						_task = heldTask;
+					}
 
 					if (_task) {
 						try {
