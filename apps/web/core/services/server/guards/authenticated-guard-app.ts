@@ -9,6 +9,20 @@ import { requestAccessToken, requestCookies } from '../request-cookies';
 import { currentAuthenticatedUserRequest } from '../requests/auth';
 import { unwrapRejection } from '../fetch';
 import { NextResponse } from 'next/server';
+import { resolveSessionCheckMemoTtl, SessionCheckMemo } from './session-check-memo';
+
+type SessionCheck = Awaited<ReturnType<typeof currentAuthenticatedUserRequest>>;
+
+/** Whether a session check authenticated the caller (the same test the guard applies below). */
+const authenticated = (check: SessionCheck): boolean => !!check?.data && (check.data as any).statusCode !== 401;
+
+/**
+ * The session checks of recent tokens, shared by every `app/api/*` route of this server process for
+ * SESSION_CHECK_MEMO_TTL_MS (5 s unless set; 0 turns it off). See SessionCheckMemo.
+ */
+export const sessionChecks = new SessionCheckMemo<SessionCheck>(
+	resolveSessionCheckMemoTtl(process.env.SESSION_CHECK_MEMO_TTL_MS)
+);
 
 /**
  * Authenticates an `app/api` request: it checks the access token against the Gauzy API (`/user/me`) and
@@ -33,16 +47,18 @@ export async function authenticatedGuard(req: Request, res: NextResponse<unknown
 	const projectId = cookies.get(ACTIVE_PROJECT_COOKIE_NAME) as string;
 
 	let rejection: { statusCode?: number; message?: string } | undefined;
-	const r_res = await currentAuthenticatedUserRequest({
-		bearer_token: access_token?.toString() || ''
-	}).catch(async (error: unknown) => {
-		const reason = await unwrapRejection(error);
-		rejection = reason && typeof reason === 'object' ? reason : undefined;
-		console.error(reason);
-	});
+	const bearer_token = access_token?.toString() || '';
+	// Routes called within the same few seconds with the same token share one check (see SessionCheckMemo).
+	const r_res = await sessionChecks
+		.answer(bearer_token, () => currentAuthenticatedUserRequest({ bearer_token }), authenticated)
+		.catch(async (error: unknown) => {
+			const reason = await unwrapRejection(error);
+			rejection = reason && typeof reason === 'object' ? reason : undefined;
+			console.error(reason);
+		});
 
 	// A 2xx with an empty or unreadable body leaves data undefined: treat it as a check without an answer.
-	if (!r_res?.data || (r_res.data as any).statusCode === 401) {
+	if (!authenticated(r_res as SessionCheck)) {
 		// The browser clients re-authenticate on the HTTP status, so the refusal carries Gauzy's own status
 		// (401, 404, 429...). A check that never got a usable answer is a 503: an outage must not look like an
 		// expired session that the client should log out.
