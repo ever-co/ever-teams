@@ -3,7 +3,7 @@
  * team and a project. Gauzy leaves them off for every other organization; an admin turns them off in the team
  * settings.
  */
-export const NEW_ORGANIZATION_TRACKING_REQUIREMENTS = {
+const NEW_ORGANIZATION_TRACKING_REQUIREMENTS = {
 	requireTeam: true,
 	requireProject: true
 } as const;

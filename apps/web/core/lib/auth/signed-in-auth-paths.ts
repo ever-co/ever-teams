@@ -7,7 +7,7 @@ function isRecoveryPath(pathname: string) {
 
 /** Whether a signed-in visit to this page is sent to the app: every auth page except password recovery. */
 export function sendsSignedInVisitToApp(pathname: string): boolean {
-	const isAuthPath = /^\/auth\//.test(pathname);
+	const isAuthPath = pathname.startsWith('/auth/');
 	if (!isAuthPath) {
 		return false;
 	}
