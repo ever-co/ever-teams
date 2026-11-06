@@ -89,7 +89,7 @@ export const AxiosErrorDetails: Record<string, AxiosErrorInfo> = {
 };
 
 // Gauzy names the request fields a refusal is about (`fields`) next to its code rather than under `details`
-function detailsOf(data: ApiErrorResponse | undefined): Record<string, any> | undefined {
+function detailsOf(data: ApiErrorResponse | undefined): ApiErrorResponse['details'] {
 	const details = data?.details;
 	if (details) {
 		return details;

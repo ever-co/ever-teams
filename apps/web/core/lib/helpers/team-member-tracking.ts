@@ -59,5 +59,5 @@ export function employeeIdsTrackingOutsideTeam(members: TOrganizationTeamEmploye
 	const trackingMembers = (members ?? []).filter((member) => isTrackingOutsideTeam(member));
 	const employeeIds = trackingMembers.map((member) => member.employeeId);
 	const knownEmployeeIds = employeeIds.filter((employeeId): employeeId is string => Boolean(employeeId));
-	return knownEmployeeIds.sort();
+	return knownEmployeeIds.sort((first, second) => first.localeCompare(second));
 }

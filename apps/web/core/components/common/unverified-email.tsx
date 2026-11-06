@@ -16,6 +16,7 @@ import { Button as UiButton } from '@/core/components/duplicated-components/_but
 import { useRouter } from 'next/navigation';
 import { useQueryClient } from '@tanstack/react-query';
 import { queryKeys } from '@/core/query/keys';
+import { logErrorInDev } from '@/core/lib/helpers/error-message';
 
 interface UnverifiedEmailProps {
 	user?: TUser | null; // Accept user as prop for conditional rendering optimization
@@ -137,8 +138,10 @@ export function ConfirmUserModal({
 			e.preventDefault();
 			if (code.length < AUTH_CODE_LENGTH || !user) return;
 
-			queryCall({ code, email: user.email || '' })
+			void queryCall({ code, email: user.email || '' })
 				.then(() => queryClient.invalidateQueries({ queryKey: queryKeys.users.me }))
+				// A refused code leaves the address unconfirmed: nothing to read again, and no unhandled rejection
+				.catch((error: unknown) => logErrorInDev('ConfirmUserModal: address confirmation failed', error))
 				.finally(() => {
 					router.refresh();
 				});
