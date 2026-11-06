@@ -209,12 +209,10 @@ describe('POST /api/chat', () => {
 			});
 			expect(mockGuardedFetch).toHaveBeenCalledTimes(1);
 			expect(String(mockGuardedFetch.mock.calls[0][0])).toBe('https://llm.example.com/v1/chat/completions');
-			expect(mockGuardedFetch.mock.calls[0][1]).toEqual(
-				expect.objectContaining({
-					method: 'POST',
-					headers: expect.objectContaining({ Authorization: 'Bearer sk-test' })
-				})
-			);
+			// AI SDK 7 sends its headers normalized (lowercase names), so the key is read the way fetch reads it
+			const [, init] = mockGuardedFetch.mock.calls[0] as [unknown, { method?: string; headers?: HeadersInit }];
+			expect(init.method).toBe('POST');
+			expect(new Headers(init.headers).get('authorization')).toBe('Bearer sk-test');
 			expect(globalFetch).not.toHaveBeenCalled();
 		});
 	});
