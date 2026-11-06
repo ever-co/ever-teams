@@ -543,6 +543,8 @@ export function useTimerApi({
 
 	const runStartTimer = useCallback(
 		async (explicitTask?: TTask, onRequestLanded?: () => void): Promise<TimerStartOutcome> => {
+			// Before the first await: a team switch during the tracking check or the project read drops the start
+			const teamIdAtStart = activeTeamRef.current?.id;
 			const isClearToStart = await canStartWithoutTrackingConflict();
 			if (!isClearToStart) {
 				return 'blocked';
@@ -562,7 +564,6 @@ export function useTimerApi({
 				return 'blocked';
 			}
 
-			const teamIdAtStart = activeTeamRef.current?.id;
 			let isBillableToUse: boolean;
 			try {
 				isBillableToUse = await resolveTimerBillable(taskToUse);
