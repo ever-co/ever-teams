@@ -13,12 +13,17 @@ class OrganizationService extends APIService {
 		}).then(({ data }) => data);
 	};
 
-	// Gauzy validates an update as a whole organization, so its name and currency go along with any change
+	// Gauzy validates an update as a whole organization, so its name and currency go along with any change. They are
+	// read again right before the save: the page's copy may be an hour old, and sending it back would silently undo
+	// another admin's rename or currency change. Without that read, the page's copy is sent as before.
 	updateOrganization = async (
 		organization: Pick<TOrganization, 'id' | 'name' | 'currency'>,
 		changes: Partial<IOrganization>
 	) => {
-		const body = { name: organization.name, currency: organization.currency, ...changes };
+		const current = await this.getOrganizationById(organization.id).catch(() => null);
+		const name = current?.name ?? organization.name;
+		const currency = current?.currency ?? organization.currency;
+		const body = { name, currency, ...changes };
 		const response = await this.put<IOrganization>(`/organization/${organization.id}`, body, {
 			tenantId: this.tenantId
 		});

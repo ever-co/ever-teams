@@ -38,6 +38,7 @@ describe('OrganizationService.updateOrganization', () => {
 	it("sends the change with the organization's name and currency, which Gauzy validates on every update", async () => {
 		const saved = { id: 'organization-a', name: 'Acme', currency: 'USD', requireTeam: true };
 		const put = jest.spyOn(organizationService, 'put').mockResolvedValue({ data: saved } as never);
+		jest.spyOn(organizationService, 'getOrganizationById').mockRejectedValue(new Error('offline'));
 
 		const organization = { id: 'organization-a', name: 'Acme', currency: 'USD' };
 		await expect(organizationService.updateOrganization(organization, { requireTeam: true })).resolves.toEqual(
@@ -47,6 +48,24 @@ describe('OrganizationService.updateOrganization', () => {
 		expect(put).toHaveBeenCalledWith(
 			'/organization/organization-a',
 			{ name: 'Acme', currency: 'USD', requireTeam: true },
+			expect.anything()
+		);
+	});
+
+	it("sends the organization's current name and currency, so another admin's rename is not undone", async () => {
+		const put = jest.spyOn(organizationService, 'put').mockResolvedValue({ data: {} } as never);
+		jest.spyOn(organizationService, 'getOrganizationById').mockResolvedValue({
+			id: 'organization-a',
+			name: 'Acme Labs',
+			currency: 'EUR'
+		} as never);
+
+		const pageCopy = { id: 'organization-a', name: 'Acme', currency: 'USD' };
+		await organizationService.updateOrganization(pageCopy, { requireProject: true });
+
+		expect(put).toHaveBeenCalledWith(
+			'/organization/organization-a',
+			{ name: 'Acme Labs', currency: 'EUR', requireProject: true },
 			expect.anything()
 		);
 	});
