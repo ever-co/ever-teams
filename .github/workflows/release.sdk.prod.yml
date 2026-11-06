@@ -80,26 +80,36 @@ jobs:
           always-auth: true
 
       # Trusted publishing needs npm >= 11.5.1 (docs.npmjs.com/trusted-publishers).
+      # The installed version is compared locally (no package fetched for it); an upgrade, when needed, installs a
+      # pinned npm without lifecycle scripts.
       - name: Ensure npm supports trusted publishing
         run: |
-          if ! npx --yes semver@7 --range '>=11.5.1' "$(npm --version)" > /dev/null; then
-            npm install --global npm@^11.5.1
+          if ! node -e '
+            const [major, minor, patch] = process.argv[1].split(".").map(Number);
+            const ok = major > 11 || (major === 11 && (minor > 5 || (minor === 5 && patch >= 1)));
+            process.exit(ok ? 0 : 1);
+          ' "$(npm --version)"; then
+            npm install --global --ignore-scripts npm@11.21.2
           fi
           echo "npm $(npm --version)"
 
       - name: Verify NPM Token
+        env:
+          NPM_TOKEN_SECRET: ${{ secrets.NPM_TOKEN }}
         run: |
-          if [ -z "${{ secrets.NPM_TOKEN }}" ]; then
+          if [ -z "$NPM_TOKEN_SECRET" ]; then
             echo "ℹ️ NPM_TOKEN is not set: publishing uses npm trusted publishing (OIDC) only"
           else
             echo "✅ NPM_TOKEN is set; npm still tries trusted publishing (OIDC) first and falls back to it"
           fi
 
       - name: Configure NPM Authentication
+        env:
+          NPM_TOKEN_SECRET: ${{ secrets.NPM_TOKEN }}
         run: |
           : > ~/.npmrc
-          if [ -n "${{ secrets.NPM_TOKEN }}" ]; then
-            echo "//registry.npmjs.org/:_authToken=${{ secrets.NPM_TOKEN }}" >> ~/.npmrc
+          if [ -n "$NPM_TOKEN_SECRET" ]; then
+            echo "//registry.npmjs.org/:_authToken=${NPM_TOKEN_SECRET}" >> ~/.npmrc
           fi
           echo "registry=https://registry.npmjs.org/" >> ~/.npmrc
           echo "always-auth=true" >> ~/.npmrc
@@ -111,8 +121,9 @@ jobs:
         with:
           verdaccio-registry: ${{ vars.VERDACCIO_REGISTRY }}
           verdaccio-token: ${{ secrets.VERDACCIO_TOKEN }}
-          force-public: ${{ vars.VERDACCIO_FORCE_PUBLIC }}
-          expect-vip: ${{ vars.RUNNER_LINUX_X64_8 != '' || vars.RUNNER_LINUX_X64_4 != '' }}
+          # GitHub-hosted (see runs-on): the in-network Verdaccio VIP is unreachable, so use the public route
+          force-public: 'true'
+          expect-vip: 'false'
 
       - name: Install dependencies (Yarn)
         # The install needs no npm token, so it reads an empty user config instead of setup-node's .npmrc
@@ -419,10 +430,11 @@ jobs:
       # So the bump commit is not pushed to main. The packages are published from it below, and the bump goes to
       # develop as a pull request, reaching main through the normal develop -> stage -> main cascade. The release
       # tags that the publish step pushes point at this commit, which the PR branch keeps reachable.
-      - name: Open the version bump PR into develop
+      # The commit and its branch come before the publish (the release tags point at this commit); the pull request
+      # is opened only after a successful publish, so a failed publish never leaves a PR saying the packages shipped.
+      - name: Commit and push the version bump branch
+        id: bump
         if: steps.detect.outputs.release == 'true'
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
@@ -438,9 +450,37 @@ jobs:
           branch="ci/sdk-version-bump-${GITHUB_RUN_ID}-${GITHUB_RUN_ATTEMPT}"
           git push origin "HEAD:refs/heads/${branch}"
           versions=$(git diff --name-only HEAD~1 HEAD -- 'packages/**/package.json' | while read -r f; do node -p "const p = require('./$f'); p.name + '@' + p.version"; done | tr '\n' ' ')
-          # The ARC runners have no `gh` CLI (run 40437234620: "gh: command not found"), so the PR is opened through
-          # the REST API with Node's fetch.
-          if ! BRANCH="$branch" VERSIONS="$versions" node <<'EOF'
+          echo "branch=${branch}" >> "$GITHUB_OUTPUT"
+          echo "versions=${versions}" >> "$GITHUB_OUTPUT"
+
+      - name: Publish changed packages using Changesets
+        uses: changesets/action@v1
+        with:
+          publish: yarn publish-packages
+        env:
+          # npm publishes with trusted publishing (OIDC) first; the token, when set, is only its fallback
+          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN || 'unused-oidc-trusted-publishing' }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Report a bump branch left without a PR
+        if: failure() && steps.bump.outputs.branch != ''
+        env:
+          BRANCH: ${{ steps.bump.outputs.branch }}
+        run: |
+          echo "::error title=Publish failed::The packages were not published, so no PR was opened for ${BRANCH}. Fix the publish and re-run; the re-run pushes a branch of its own."
+
+      - name: Open the version bump PR into develop
+        if: steps.bump.outputs.branch != ''
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          BRANCH: ${{ steps.bump.outputs.branch }}
+          VERSIONS: ${{ steps.bump.outputs.versions }}
+        run: |
+          branch="$BRANCH"
+          # The PR is opened through the REST API with Node's fetch (the ARC runners had no `gh` CLI, run
+          # 40437234620), which also works on the GitHub-hosted runner.
+          if ! node <<'EOF'
           const { GH_TOKEN, GITHUB_API_URL, GITHUB_REPOSITORY, GITHUB_SERVER_URL, GITHUB_RUN_ID, GITHUB_SHA, BRANCH, VERSIONS } = process.env;
           const sha = GITHUB_SHA.slice(0, 8);
           const body = [
@@ -466,15 +506,5 @@ jobs:
           });
           EOF
           then
-            echo "::warning title=Version bump PR::Could not open the PR; open one from ${branch} into develop by hand (the bump is pushed and the publish still runs)."
+            echo "::warning title=Version bump PR::Could not open the PR; open one from ${branch} into develop by hand (the packages are published)."
           fi
-
-      - name: Publish changed packages using Changesets
-        uses: changesets/action@v1
-        with:
-          publish: yarn publish-packages
-        env:
-          # npm publishes with trusted publishing (OIDC) first; the token, when set, is only its fallback
-          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN || 'unused-oidc-trusted-publishing' }}
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
