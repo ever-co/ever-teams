@@ -71,7 +71,8 @@ function displayedBillableOf(
 /**
  * The billable value a start sends for a task, read when the start runs: the callers (every timer instance)
  * do not re-render with the projects list or the switch. A project not in the list cache yet is fetched, so a
- * cold start never sends a billable project's time as non-billable.
+ * cold start never sends a billable project's time as non-billable. A project that cannot be read throws: Gauzy
+ * records a start without `isBillable` as non-billable, so the start fails instead of guessing.
  */
 export function useResolveTimerBillable() {
 	const store = useStore();
@@ -83,7 +84,7 @@ export function useResolveTimerBillable() {
 				return await queryClient.fetchQuery(projectQueryOptions(projectId, tenantId, organizationId));
 			} catch (error) {
 				logErrorInDev('[Timer] Reading the project billable setting failed:', error);
-				return undefined;
+				throw error;
 			}
 		},
 		[queryClient]
