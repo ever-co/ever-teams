@@ -88,6 +88,19 @@ export const AxiosErrorDetails: Record<string, AxiosErrorInfo> = {
 	}
 };
 
+// Gauzy names the request fields a refusal is about (`fields`) next to its code rather than under `details`
+function detailsOf(data: ApiErrorResponse | undefined): ApiErrorResponse['details'] {
+	const details = data?.details;
+	if (details) {
+		return details;
+	}
+	const fields = data?.fields;
+	if (!Array.isArray(fields)) {
+		return undefined;
+	}
+	return { fields };
+}
+
 /**
  * @description ApiErrorService is a standardized box for transporting all information about an API error.
  * It encapsulates Axios errors in a more usable structure across the project.
@@ -250,7 +263,7 @@ export class ApiErrorService extends Error {
 		const data = response?.data;
 		const message = data?.message || errorMessage;
 		const code = data?.code;
-		const details = data?.details;
+		const details = detailsOf(data);
 
 		// We put them in our ApiError box
 		const apiError = new ApiErrorService(

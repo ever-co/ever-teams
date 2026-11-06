@@ -27,9 +27,6 @@ interface Props {
 	teamsFetching: boolean;
 	statsPending?: boolean;
 }
-
-export { MEMBER_CARD };
-
 /** The signed-in member's card: one primary hairline and a shadow tinted with the same hue, never a second ring around it. */
 const OWN_MEMBER_CARD =
 	'ring-primary/45 shadow-[0_1px_2px_hsl(var(--primary)/0.10),0_8px_24px_-10px_hsl(var(--primary)/0.38)] hover:shadow-[0_1px_2px_hsl(var(--primary)/0.12),0_10px_26px_-10px_hsl(var(--primary)/0.45)] dark:ring-primary/55';

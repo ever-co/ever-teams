@@ -14,7 +14,7 @@ const READ_WAIT_LIMIT_MS = 15000;
 
 const NO_ADDITIONS: PendingPlanAddition[] = [];
 
-export interface PlanAdditionTarget {
+interface PlanAdditionTarget {
 	taskId: string;
 	planId?: string | null;
 	day?: string | null;
@@ -54,7 +54,7 @@ function isReadingPlans(queryClient: QueryClient) {
 }
 
 /** Resolves once the plan reads the mutation started have landed, so the task shows in the plan the moment it leaves. */
-export function waitForDailyPlanReads(queryClient: QueryClient) {
+function waitForDailyPlanReads(queryClient: QueryClient) {
 	return new Promise<void>((resolve) => {
 		if (!isReadingPlans(queryClient)) {
 			resolve();

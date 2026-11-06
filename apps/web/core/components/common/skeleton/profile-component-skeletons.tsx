@@ -35,7 +35,7 @@ interface SkeletonProps {
 }
 
 /** The member's identity in the profile toolbar: the 56px avatar, the name line with its menu, the e-mail. */
-export const UserProfileDetailSkeleton: FC<SkeletonProps> = ({ className }) => {
+const UserProfileDetailSkeleton: FC<SkeletonProps> = ({ className }) => {
 	return (
 		<div className={cn('flex min-w-0 items-center gap-4', className)}>
 			<div className={cn(BAR, 'size-14 shrink-0 rounded-full')} />
@@ -195,7 +195,7 @@ export const ScreenshootTabSkeleton: FC<SkeletonProps> = ({ className }) => {
  * The profile's tab row while the tasks load: the five tabs with their count chips, then search, Filter, Add time and
  * Assign task. No tab is marked: the active one is only known once the filter has loaded.
  */
-export const TaskFilterSkeleton: FC<SkeletonProps> = ({ className }) => {
+const TaskFilterSkeleton: FC<SkeletonProps> = ({ className }) => {
 	return (
 		<div className={cn('relative z-10 w-full', className)} aria-hidden="true">
 			<div className="flex w-full flex-wrap items-end justify-between gap-x-4 gap-y-2">

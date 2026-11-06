@@ -127,12 +127,17 @@ export function getTimerStatusValue(
 		return ETimerStatus.SUSPENDED;
 	}
 
-	if (conditions.isExplicitlyPaused() || conditions.shouldPauseDueToTimerStatus()) {
+	if (conditions.shouldPauseDueToTimerStatus()) {
 		return ETimerStatus.PAUSE;
 	}
 
+	// The team's status only follows logs filed under this team: a timer started with no team still runs
 	if (conditions.isRunning()) {
 		return ETimerStatus.RUNNING;
+	}
+
+	if (conditions.isExplicitlyPaused()) {
+		return ETimerStatus.PAUSE;
 	}
 
 	// Tracking and pause keep the badge they have today (a manager still sees "worked today, paused"); for anyone

@@ -1,6 +1,7 @@
 import { useTimer } from '@/core/hooks/activities/use-timer';
 import { useTimerPolling } from '@/core/hooks/activities/use-timer-polling';
 import { useWorkspaces } from '@/core/hooks/auth/use-workspaces';
+import { useRefreshWorkspacesOnAddressConfirmed } from '@/core/hooks/auth/use-refresh-workspaces-on-address-confirmed';
 import { useReactiveAccessTokenCookie } from '@/core/hooks/auth/use-reactive-access-token-cookie';
 import { useIsomorphicLayoutEffect } from '@/core/hooks/common/use-isomorphic-layout-effect';
 import { useOrganizationTeamsQuery } from '@/core/hooks/organizations/teams/use-organization-teams-query';
@@ -47,6 +48,7 @@ export function AppState() {
 export function InitState() {
 	const { data: user } = useUserQuery();
 	const { currentWorkspace, workspacesQuery } = useWorkspaces();
+	useRefreshWorkspacesOnAddressConfirmed(user?.isEmailVerified);
 	const accessToken = useReactiveAccessTokenCookie();
 	const queryClient = useQueryClient();
 	const tenantId = user?.employee?.tenantId ?? user?.tenantId ?? null;

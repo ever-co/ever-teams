@@ -1,6 +1,6 @@
 import type { BadgeProps } from '@/core/components/common/badge';
 
-export type TimesheetStatusTone = NonNullable<BadgeProps['variant']>;
+type TimesheetStatusTone = NonNullable<BadgeProps['variant']>;
 
 const TONE_BY_TIMESHEET_STATUS: Record<string, TimesheetStatusTone> = {
 	DRAFT: 'secondary',

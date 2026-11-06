@@ -18,6 +18,7 @@ jest.mock('@/core/components/pages/unauthorized', () => () => <p>unauthorized</p
 jest.mock('@/core/components/pages/error/error', () => () => <p>configuration error</p>);
 jest.mock('@/core/components/pages/auth/ever-id-no-workspace', () => () => <p>no workspace</p>);
 jest.mock('@/core/components/pages/auth/ever-id-verify-email', () => () => <p>verify e-mail</p>);
+jest.mock('@/core/components/pages/auth/provider-account-unconfirmed', () => () => <p>provider account</p>);
 
 describe('auth error page', () => {
 	it.each(['__proto__', 'toString', 'constructor'])('shows the sign-in error for ?error=%s', (code) => {

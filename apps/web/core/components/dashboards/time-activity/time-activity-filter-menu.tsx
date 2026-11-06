@@ -50,7 +50,7 @@ const SUBMENU_WIDTHS: Record<TimeActivityFilterField, string> = {
 	taskIds: 'w-80'
 };
 
-export function FilterOptionGlyph({
+function FilterOptionGlyph({
 	field,
 	option
 }: Readonly<{ field: TimeActivityFilterField; option: TimeActivityFilterOption }>) {
@@ -65,7 +65,7 @@ export function FilterOptionGlyph({
 	);
 }
 
-export function FilterOptionName({ option }: Readonly<{ option: TimeActivityFilterOption }>) {
+function FilterOptionName({ option }: Readonly<{ option: TimeActivityFilterOption }>) {
 	return (
 		<span className="min-w-0 flex-1 truncate">
 			{option.prefix && <span className="mr-1.5 tabular-nums text-muted-foreground">{option.prefix}</span>}

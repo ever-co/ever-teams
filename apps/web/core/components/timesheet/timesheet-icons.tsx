@@ -5,6 +5,8 @@
  *
  * @example
  * <MemberWorkIcon />
+ *
+ * @public Part of the timesheet icon set; no screen uses it (Knip, 2026-11-06).
  */
 export const MemberWorkIcon = () => (
 	<svg aria-hidden="true" width="44" height="44" viewBox="0 0 44 44" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -27,6 +29,7 @@ export const MemberWorkIcon = () => (
 	</svg>
 );
 
+/** @public Part of the timesheet icon set; no screen uses it (Knip, 2026-11-06). */
 export const MenHoursIcon = () => (
 	<svg aria-hidden="true" width="44" height="44" viewBox="0 0 44 44" fill="none" xmlns="http://www.w3.org/2000/svg">
 		<path
@@ -52,6 +55,8 @@ export const MenHoursIcon = () => (
  * Renders a pending task icon.
  *
  * @returns {React.ReactElement} - pending task icon
+ *
+ * @public Part of the timesheet icon set; no screen uses it (Knip, 2026-11-06).
  */
 export const PendingTaskIcon = () => (
 	<svg aria-hidden="true" width="44" height="44" viewBox="0 0 44 44" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -99,6 +104,8 @@ export const PendingTaskIcon = () => (
  * Renders a list view icon.
  *
  * @returns {React.ReactElement} - list view icon
+ *
+ * @public Part of the timesheet icon set; no screen uses it (Knip, 2026-11-06).
  */
 export const ListViewIcon = () => (
 	<svg aria-hidden="true" width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -132,6 +139,8 @@ export const ListViewIcon = () => (
  * Renders a calendar view icon.
  *
  * @returns {React.ReactElement} - SVG element representing a calendar view icon
+ *
+ * @public Part of the timesheet icon set; no screen uses it (Knip, 2026-11-06).
  */
 
 export const CalendarViewIcon = () => (
@@ -356,6 +365,8 @@ export const DeleteSelectedIcon = ({ className }: { className?: string }) => (
  * Renders a plus icon using SVG.
  *
  * @returns {React.ReactElement} - The rendered plus icon component.
+ *
+ * @public Part of the timesheet icon set; no screen uses it (Knip, 2026-11-06).
  */
 export const PlusIcon = ({ className }: { className?: string }) => (
 	<svg

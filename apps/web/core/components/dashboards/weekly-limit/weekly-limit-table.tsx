@@ -346,7 +346,7 @@ function useGroupOpenState() {
 	return { overrides, toggle, setAll };
 }
 
-export interface WeeklyLimitTableProps {
+interface WeeklyLimitTableProps {
 	groups: ReadonlyArray<LimitGroup>;
 	grouping: LimitGrouping;
 	duration: LimitDuration;
@@ -359,7 +359,7 @@ export interface WeeklyLimitTableProps {
 }
 
 /** Drawn by the route skeleton and by the page while the report loads: one picture from the route to the rows. */
-export function WeeklyLimitTableSkeleton({
+function WeeklyLimitTableSkeleton({
 	grouping = 'period',
 	duration = 'day'
 }: Readonly<{ grouping?: LimitGrouping; duration?: LimitDuration }>) {

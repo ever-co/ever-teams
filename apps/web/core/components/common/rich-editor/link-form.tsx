@@ -39,7 +39,7 @@ export function removeHandlerOf(hasLink: boolean, removeLink: () => void) {
 }
 
 /** "example.com" becomes "https://example.com" and "name@example.com" a mail link; anything that is not a web or mail address becomes null. */
-export function normalizeHref(raw: string): string | null {
+function normalizeHref(raw: string): string | null {
 	const value = raw.trim();
 	if (!value) {
 		return null;

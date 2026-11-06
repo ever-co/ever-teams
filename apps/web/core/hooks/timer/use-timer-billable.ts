@@ -7,10 +7,11 @@ import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { getAccessTokenCookie, getOrganizationIdCookie, getTenantIdCookie } from '@/core/lib/helpers/cookies';
 import { logErrorInDev } from '@/core/lib/helpers/error-message';
 import { findTaskProject, pickedBillableOf, timerBillableOf } from '@/core/lib/helpers/timer-billable';
+import { taskOnStartProject } from '@/core/lib/helpers/team-default-project';
 import { CREDENTIAL_SCOPED_QUERY_META } from '@/core/query/credential-query';
 import { queryKeys } from '@/core/query/keys';
 import { organizationProjectService } from '@/core/services/client/api/organizations';
-import { activeTeamTaskState, timerBillableChoicesState, timerStatusState } from '@/core/stores';
+import { activeTeamState, activeTeamTaskState, timerBillableChoicesState, timerStatusState } from '@/core/stores';
 import type { PaginationResponse } from '@/core/types/interfaces/common/data-response';
 import type { TOrganizationProject } from '@/core/types/schemas/organization/organization-project.schema';
 import type { TTask } from '@/core/types/schemas/task/task.schema';
@@ -121,7 +122,10 @@ export function useResolveTimerBillable() {
 }
 
 export function useTimerBillable() {
-	const activeTask = useAtomValue(activeTeamTaskState);
+	const activeTeamTask = useAtomValue(activeTeamTaskState);
+	const activeTeam = useAtomValue(activeTeamState);
+	// The switch shows the value a start sends, read from the project the start files the task under
+	const activeTask = taskOnStartProject(activeTeamTask, activeTeam);
 	const timerStatus = useAtomValue(timerStatusState);
 	const [choices, setChoices] = useAtom(timerBillableChoicesState);
 	const { organizationProjects } = useOrganizationProjectsQuery();

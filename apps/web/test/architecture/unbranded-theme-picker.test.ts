@@ -45,13 +45,26 @@ describe('unbranded theme picker', () => {
 	);
 
 	it('renders the theme names from translations, never from a literal', () => {
-		const source = readFileSync(join(WEB_ROOT, 'core/components/users/user-nav-menu.tsx'), 'utf8');
-		const dropdown = source.slice(source.indexOf('function ThemeDropdown()'));
+		const read = (path: string) => readFileSync(join(WEB_ROOT, path), 'utf8');
+		// The user menu picks the theme with ThemeSwitch (a light / dark segmented control), and the
+		// Preferences settings with ThemeTiles: the two places that name the themes.
+		const userMenu = read('core/components/users/user-nav-menu.tsx');
+		const themeSwitch = read('core/components/common/theme-switch.tsx');
+		const themeTiles = read('core/components/settings/pages/preferences/theme-tiles.tsx');
 
-		expect(dropdown).toContain("text: t('common.THEME_LIGHT')");
-		expect(dropdown).toContain("text: t('common.THEME_DARK')");
-		// The old labels were "<brand> Light 2D", shown stripped of "2D" on the closed dropdown.
-		expect(dropdown).not.toMatch(/replace\(\s*'2D'/);
+		expect(userMenu).toContain('<ThemeSwitch />');
+		expect(themeSwitch).toContain("ariaLabel: t('common.THEME_LIGHT')");
+		expect(themeSwitch).toContain("ariaLabel: t('common.THEME_DARK')");
+		expect(themeTiles).toContain("light: 'common.THEME_LIGHT'");
+		expect(themeTiles).toContain("dark: 'common.THEME_DARK'");
+		expect(themeTiles).toContain('label={t(LABEL_KEYS[choice])}');
+		for (const source of [userMenu, themeSwitch, themeTiles]) {
+			// The old labels were "<brand> Light 2D", shown stripped of "2D" on the closed dropdown.
+			expect(source).not.toMatch(/replace\(\s*'2D'/);
+		}
+		for (const source of [themeSwitch, themeTiles]) {
+			expect(source).not.toMatch(BRAND);
+		}
 	});
 
 	it('ships no branded screenshot for the theme preview', () => {

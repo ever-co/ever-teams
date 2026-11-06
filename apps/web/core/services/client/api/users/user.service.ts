@@ -102,6 +102,14 @@ class UserService extends APIService {
 		return this.post<TUser>(`/user/${userId}`, { ...data });
 	};
 
+	/**
+	 * Sets the signed-in account's password: Gauzy's profile route takes it in clear text as `hash` and hashes it
+	 * (`PUT /user/:id`, the body its own profile form sends). The proxy route forwards it to the same call.
+	 */
+	updateUserPassword = async ({ userId, password }: { userId: string; password: string }): Promise<void> => {
+		await this.put<TUser>(`/user/${userId}`, { hash: password });
+	};
+
 	// update/delete profile avatar for user setting
 	updateUserAvatar = async ({ userId, body }: { userId: string; body: Partial<TUser> }): Promise<TUser> => {
 		try {

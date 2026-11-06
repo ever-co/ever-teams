@@ -383,7 +383,5 @@ export {
 	DropdownMenuSub,
 	DropdownMenuSubContent,
 	DropdownMenuSubTrigger,
-	DropdownMenuRadioGroup,
-	menuItemRecipe,
-	menuPopupRecipe
+	DropdownMenuRadioGroup
 };

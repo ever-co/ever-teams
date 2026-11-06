@@ -229,8 +229,10 @@ export const Expand = /*#__PURE__*/ icon(Maximize01Icon, 'Expand');
 export const ExternalLink = /*#__PURE__*/ icon(LinkSquare02Icon, 'ExternalLink');
 export const Globe = /*#__PURE__*/ icon(GlobalIcon, 'Globe');
 export const Home = /*#__PURE__*/ icon(Home01Icon, 'Home');
+/** @public Part of the icon set; no screen uses it (Knip, 2026-11-06). */
 export const Language = /*#__PURE__*/ icon(LanguageSquareIcon, 'Language');
 export const LayoutGrid = /*#__PURE__*/ icon(GridViewIcon, 'LayoutGrid');
+/** @public Part of the icon set; no screen uses it (Knip, 2026-11-06). */
 export const Menu = /*#__PURE__*/ icon(Menu02Icon, 'Menu');
 export const Moon = /*#__PURE__*/ icon(Moon02Icon, 'Moon');
 export const MoreHorizontal = /*#__PURE__*/ icon(MoreHorizontalIcon, 'MoreHorizontal');
@@ -242,63 +244,88 @@ export const X = /*#__PURE__*/ icon(Cancel01Icon, 'X');
 
 // Marketplace
 export const Bell = /*#__PURE__*/ icon(BellIcon, 'Bell');
+/** @public Part of the icon set; no screen uses it (Knip, 2026-11-06). */
 export const BellOff = /*#__PURE__*/ icon(NotificationOff01Icon, 'BellOff');
+/** @public Part of the icon set; no screen uses it (Knip, 2026-11-06). */
 export const Bookmark = /*#__PURE__*/ icon(Bookmark01Icon, 'Bookmark');
 export const Briefcase = /*#__PURE__*/ icon(Briefcase01Icon, 'Briefcase');
 export const Building = /*#__PURE__*/ icon(Building03Icon, 'Building');
 export const Calendar = /*#__PURE__*/ icon(Calendar03Icon, 'Calendar');
 export const Camera = /*#__PURE__*/ icon(Camera01Icon, 'Camera');
 export const Clock = /*#__PURE__*/ icon(Clock01Icon, 'Clock');
+/** @public Part of the icon set; no screen uses it (Knip, 2026-11-06). */
 export const Bank = /*#__PURE__*/ icon(BankIcon, 'Bank');
+/** @public Part of the icon set; no screen uses it (Knip, 2026-11-06). */
 export const CreditCard = /*#__PURE__*/ icon(CreditCardIcon, 'CreditCard');
 export const DollarCircle = /*#__PURE__*/ icon(DollarCircleIcon, 'DollarCircle');
+/** @public Part of the icon set; no screen uses it (Knip, 2026-11-06). */
 export const Gift = /*#__PURE__*/ icon(GiftIcon, 'Gift');
+/** @public Part of the icon set; no screen uses it (Knip, 2026-11-06). */
 export const Heart = /*#__PURE__*/ icon(FavouriteIcon, 'Heart');
 export const Image = /*#__PURE__*/ icon(Image01Icon, 'Image');
+/** @public Part of the icon set; no screen uses it (Knip, 2026-11-06). */
 export const ImageOff = /*#__PURE__*/ icon(ImageNotFound01Icon, 'ImageOff');
 export const ImagePlus = /*#__PURE__*/ icon(ImageAdd01Icon, 'ImagePlus');
+/** @public Part of the icon set; no screen uses it (Knip, 2026-11-06). */
 export const MapPin = /*#__PURE__*/ icon(Location01Icon, 'MapPin');
 export const MessageCircle = /*#__PURE__*/ icon(BubbleChatIcon, 'MessageCircle');
+/** @public Part of the icon set; no screen uses it (Knip, 2026-11-06). */
 export const MessageSquare = /*#__PURE__*/ icon(Message01Icon, 'MessageSquare');
+/** @public Part of the icon set; no screen uses it (Knip, 2026-11-06). */
 export const MessageBlocked = /*#__PURE__*/ icon(MessageBlockedIcon, 'MessageBlocked');
 export const Mic = /*#__PURE__*/ icon(Mic01Icon, 'Mic');
 export const MoneyBag = /*#__PURE__*/ icon(MoneyBag01Icon, 'MoneyBag');
 export const Pause = /*#__PURE__*/ icon(PauseIcon, 'Pause');
+/** @public Part of the icon set; no screen uses it (Knip, 2026-11-06). */
 export const PauseCircle = /*#__PURE__*/ icon(PauseCircleIcon, 'PauseCircle');
 export const Play = /*#__PURE__*/ icon(PlayIcon, 'Play');
+/** @public Part of the icon set; no screen uses it (Knip, 2026-11-06). */
 export const PlayCircle = /*#__PURE__*/ icon(PlayCircleIcon, 'PlayCircle');
 export const Send = /*#__PURE__*/ icon(Sent02Icon, 'Send');
 export const Share = /*#__PURE__*/ icon(Share08Icon, 'Share');
 export const Star = /*#__PURE__*/ icon(StarIcon, 'Star');
 export const Smile = /*#__PURE__*/ icon(SmileIcon, 'Smile');
 export const AtSign = /*#__PURE__*/ icon(AtIcon, 'AtSign');
+/** @public Part of the icon set; no screen uses it (Knip, 2026-11-06). */
 export const ThumbsUp = /*#__PURE__*/ icon(ThumbsUpIcon, 'ThumbsUp');
 export const Wrench = /*#__PURE__*/ icon(Wrench01Icon, 'Wrench');
 
 // Account and trust
+/** @public Part of the icon set; no screen uses it (Knip, 2026-11-06). */
 export const BadgeCheck = /*#__PURE__*/ icon(CheckmarkBadge01Icon, 'BadgeCheck');
+/** @public Part of the icon set; no screen uses it (Knip, 2026-11-06). */
 export const Certificate = /*#__PURE__*/ icon(Certificate01Icon, 'Certificate');
 export const Flag = /*#__PURE__*/ icon(Flag01Icon, 'Flag');
+/** @public Part of the icon set; no screen uses it (Knip, 2026-11-06). */
 export const HelpCircle = /*#__PURE__*/ icon(HelpCircleIcon, 'HelpCircle');
 export const Lock = /*#__PURE__*/ icon(SquareLock01Icon, 'Lock');
 export const LogOut = /*#__PURE__*/ icon(Logout01Icon, 'LogOut');
+/** @public Part of the icon set; no screen uses it (Knip, 2026-11-06). */
 export const Scale = /*#__PURE__*/ icon(JusticeScale01Icon, 'Scale');
 export const Settings = /*#__PURE__*/ icon(Settings01Icon, 'Settings');
 export const ShieldCheck = /*#__PURE__*/ icon(ShieldCheckIcon, 'ShieldCheck');
 export const User = /*#__PURE__*/ icon(UserIcon, 'User');
 export const UserAdd = /*#__PURE__*/ icon(UserAdd01Icon, 'UserAdd');
+/** @public Part of the icon set; no screen uses it (Knip, 2026-11-06). */
 export const UserBlock = /*#__PURE__*/ icon(UserBlock01Icon, 'UserBlock');
 export const UserCircle = /*#__PURE__*/ icon(UserCircleIcon, 'UserCircle');
 export const UserRemove = /*#__PURE__*/ icon(UserRemove01Icon, 'UserRemove');
 export const Users = /*#__PURE__*/ icon(UserMultipleIcon, 'Users');
 export const Wallet = /*#__PURE__*/ icon(Wallet01Icon, 'Wallet');
+/** @public Part of the icon set; no screen uses it (Knip, 2026-11-06). */
 export const IdCard = /*#__PURE__*/ icon(UserIdVerificationIcon, 'IdCard');
 export const ShieldUser = /*#__PURE__*/ icon(ShieldUserIcon, 'ShieldUser');
+/** @public Part of the icon set; no screen uses it (Knip, 2026-11-06). */
 export const License = /*#__PURE__*/ icon(LicenseIcon, 'License');
+/** @public Part of the icon set; no screen uses it (Knip, 2026-11-06). */
 export const Mortarboard = /*#__PURE__*/ icon(Mortarboard01Icon, 'Mortarboard');
+/** @public Part of the icon set; no screen uses it (Knip, 2026-11-06). */
 export const Umbrella = /*#__PURE__*/ icon(UmbrellaIcon, 'Umbrella');
+/** @public Part of the icon set; no screen uses it (Knip, 2026-11-06). */
 export const Handshake = /*#__PURE__*/ icon(HandshakeIcon, 'Handshake');
+/** @public Part of the icon set; no screen uses it (Knip, 2026-11-06). */
 export const Trophy = /*#__PURE__*/ icon(ChampionIcon, 'Trophy');
+/** @public Part of the icon set; no screen uses it (Knip, 2026-11-06). */
 export const TrendingUp = /*#__PURE__*/ icon(ChartIncreaseIcon, 'TrendingUp');
 export const UserCheck = /*#__PURE__*/ icon(UserCheck01Icon, 'UserCheck');
 
@@ -331,15 +358,22 @@ export const Video = /*#__PURE__*/ icon(Video01Icon, 'Video');
 // Contact and devices
 export const Mail = /*#__PURE__*/ icon(Mail01Icon, 'Mail');
 export const MailOpen = /*#__PURE__*/ icon(MailOpen01Icon, 'MailOpen');
+/** @public Part of the icon set; no screen uses it (Knip, 2026-11-06). */
 export const Phone = /*#__PURE__*/ icon(Call02Icon, 'Phone');
+/** @public Part of the icon set; no screen uses it (Knip, 2026-11-06). */
 export const QrCode = /*#__PURE__*/ icon(QrCodeIcon, 'QrCode');
 export const Smartphone = /*#__PURE__*/ icon(SmartPhone01Icon, 'Smartphone');
 
 // Brands
+/** @public Part of the icon set; no screen uses it (Knip, 2026-11-06). */
 export const Facebook = /*#__PURE__*/ icon(Facebook01Icon, 'Facebook');
+/** @public Part of the icon set; no screen uses it (Knip, 2026-11-06). */
 export const Instagram = /*#__PURE__*/ icon(InstagramIcon, 'Instagram');
+/** @public Part of the icon set; no screen uses it (Knip, 2026-11-06). */
 export const Linkedin = /*#__PURE__*/ icon(Linkedin01Icon, 'Linkedin');
+/** @public Part of the icon set; no screen uses it (Knip, 2026-11-06). */
 export const Whatsapp = /*#__PURE__*/ icon(WhatsappIcon, 'Whatsapp');
+/** @public Part of the icon set; no screen uses it (Knip, 2026-11-06). */
 export const XSocial = /*#__PURE__*/ icon(NewTwitterIcon, 'XSocial');
 
 // Work: views, tasks, time, collaboration
@@ -370,6 +404,7 @@ export const Filter = /*#__PURE__*/ icon(FilterHorizontalIcon, 'Filter');
 export const DragHandle = /*#__PURE__*/ icon(DragDropVerticalIcon, 'DragHandle');
 export const CheckDouble = /*#__PURE__*/ icon(TickDouble02Icon, 'CheckDouble');
 export const Sidebar = /*#__PURE__*/ icon(SidebarLeft01Icon, 'Sidebar');
+/** @public Part of the icon set; no screen uses it (Knip, 2026-11-06). */
 export const Command = /*#__PURE__*/ icon(CommandIcon, 'Command');
 export const Keyboard = /*#__PURE__*/ icon(KeyboardIcon, 'Keyboard');
 export const Chart = /*#__PURE__*/ icon(ChartHistogramIcon, 'Chart');
@@ -381,13 +416,17 @@ export const FlagPriority = /*#__PURE__*/ icon(Flag02Icon, 'FlagPriority');
 export const Dashboard = /*#__PURE__*/ icon(DashboardSquare01Icon, 'Dashboard');
 export const FolderOpen = /*#__PURE__*/ icon(Folder02Icon, 'FolderOpen');
 export const Edit = /*#__PURE__*/ icon(PencilEdit02Icon, 'Edit');
+/** @public Part of the icon set; no screen uses it (Knip, 2026-11-06). */
 export const Logout = /*#__PURE__*/ icon(Logout03Icon, 'Logout');
 export const Notification = /*#__PURE__*/ icon(Notification03Icon, 'Notification');
 export const InformationCircle = /*#__PURE__*/ icon(InformationCircleIcon, 'InformationCircle');
 export const Spinner = /*#__PURE__*/ icon(Loading03Icon, 'Spinner');
+/** @public Part of the icon set; no screen uses it (Knip, 2026-11-06). */
 export const ArrowUpDown = /*#__PURE__*/ icon(ArrowUpDownIcon, 'ArrowUpDown');
+/** @public Part of the icon set; no screen uses it (Knip, 2026-11-06). */
 export const MicOn = /*#__PURE__*/ icon(Mic01Icon, 'MicOn');
 export const VideoCall = /*#__PURE__*/ icon(Video01Icon, 'VideoCall');
+/** @public Part of the icon set; no screen uses it (Knip, 2026-11-06). */
 export const Inbox2 = /*#__PURE__*/ icon(InboxIcon, 'Inbox2');
 export const InboxCheck = /*#__PURE__*/ icon(InboxCheckIcon, 'InboxCheck');
 export const Megaphone = /*#__PURE__*/ icon(Megaphone01Icon, 'Megaphone');

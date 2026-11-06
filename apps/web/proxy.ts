@@ -22,6 +22,7 @@ import { NextRequest, NextResponse } from 'next/server';
 
 import createMiddleware from 'next-intl/middleware';
 import { delay } from './core/lib/auth/retry-logic';
+import { sendsSignedInVisitToApp } from './core/lib/auth/signed-in-auth-paths';
 
 /**
  * Attach the authenticated user to the response for SSR consumers — but ONLY as much as a
@@ -311,10 +312,10 @@ export async function proxy(request: NextRequest) {
 
 	// SECTION 1: Handle authenticated users accessing auth pages
 	// Check if user is trying to access auth pages while already authenticated
-	const is_auth_path = /^\/auth\//.test(url.pathname);
+	const sends_signed_in_to_app = sendsSignedInVisitToApp(url.pathname);
 	const has_any_token = access_token || refresh_token;
 
-	if (is_auth_path && has_any_token) {
+	if (sends_signed_in_to_app && has_any_token) {
 		// User is authenticated but trying to access auth pages - verify token and redirect
 		console.log('[Proxy] Authenticated user accessing auth page, checking token validity...');
 

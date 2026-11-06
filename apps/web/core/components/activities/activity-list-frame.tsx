@@ -2,7 +2,7 @@ import { ReactNode } from 'react';
 import { cn } from '@/core/lib/helpers';
 import { VISITED_ROW_GRID, VISITED_ROW_METER } from '../pages/profile/visited-Item';
 
-export interface ActivityListLabels {
+interface ActivityListLabels {
 	name: string;
 	share: string;
 	time: string;

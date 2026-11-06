@@ -6,10 +6,7 @@ import { IEmployee } from './employee';
 import { IOrganizationLanguage } from './organization-language';
 
 export interface IOrganization
-	extends IBasePerTenantEntityModel,
-		IRelationalImageAsset,
-		IOrganizationTimerSetting,
-		ITaggable {
+	extends IBasePerTenantEntityModel, IRelationalImageAsset, IOrganizationTimerSetting, ITaggable {
 	name: string;
 	isDefault: boolean;
 	profile_link: string;
@@ -56,6 +53,7 @@ export interface IOrganization
 	requireProject?: boolean;
 	requireTask?: boolean;
 	requireClient?: boolean;
+	requireTeam?: boolean;
 	timeFormat?: ETimeFormat;
 	defaultStartTime?: string;
 	defaultEndTime?: string;

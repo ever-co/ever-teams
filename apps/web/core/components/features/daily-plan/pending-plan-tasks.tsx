@@ -82,7 +82,7 @@ export function PlanEditorPendingBlock({ additions }: Readonly<{ additions: Pend
 }
 
 /** Tasks joining a plan of the profile's lists, on the geometry of the cards they become. */
-export function PendingPlanTaskCards({
+function PendingPlanTaskCards({
 	additions,
 	view
 }: Readonly<{ additions: PendingPlanAddition[]; view: IssuesView }>) {

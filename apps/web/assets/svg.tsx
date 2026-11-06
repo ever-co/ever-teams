@@ -1,6 +1,7 @@
 import { FC, SVGProps } from 'react';
 
 // breadcrumb
+/** @public Part of the legacy SVG icon set; no screen uses it (Knip, 2026-11-06). */
 export const PeoplesIcon: FC<SVGProps<SVGSVGElement>> = (props) => (
 	<svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" {...props}>
 		<path
@@ -57,12 +58,14 @@ export const IsEqualIcon: FC<SVGProps<SVGSVGElement>> = (props) => (
 		/>
 	</svg>
 );
+/** @public Part of the legacy SVG icon set; no screen uses it (Knip, 2026-11-06). */
 export const PauseIcon: FC<SVGProps<SVGSVGElement>> = (props) => (
 	<svg width="10" height="10" viewBox="0 0 10 10" xmlns="http://www.w3.org/2000/svg" fill="currentColor" {...props}>
 		<path d="M4.44395 7.92772V2.07242C4.44395 1.51654 4.20924 1.29419 3.6163 1.29419H2.12159C1.52865 1.29419 1.29395 1.51654 1.29395 2.07242V7.92772C1.29395 8.4836 1.52865 8.70595 2.12159 8.70595H3.6163C4.20924 8.70595 4.44395 8.4836 4.44395 7.92772Z" />
 		<path d="M8.70566 7.92772V2.07242C8.70566 1.51654 8.47096 1.29419 7.87802 1.29419H6.38331C5.79449 1.29419 5.55566 1.51654 5.55566 2.07242V7.92772C5.55566 8.4836 5.79037 8.70595 6.38331 8.70595H7.87802C8.47096 8.70595 8.70566 8.4836 8.70566 7.92772Z" />
 	</svg>
 );
+/** @public Part of the legacy SVG icon set; no screen uses it (Knip, 2026-11-06). */
 export const StopCircleIcon: FC<SVGProps<SVGSVGElement>> = (props) => (
 	<svg
 		width="10"
@@ -102,6 +105,7 @@ export const UserOnlineIcon: FC<SVGProps<SVGSVGElement>> = (props) => (
 );
 
 // common
+/** @public Part of the legacy SVG icon set; no screen uses it (Knip, 2026-11-06). */
 export const AddIcon: FC<SVGProps<SVGSVGElement>> = (props) => (
 	<svg
 		xmlns="http://www.w3.org/2000/svg"
@@ -162,6 +166,7 @@ export const ArrowRightIcon: FC<SVGProps<SVGSVGElement>> = (props) => (
 		/>
 	</svg>
 );
+/** @public Part of the legacy SVG icon set; no screen uses it (Knip, 2026-11-06). */
 export const ChevronDownIcon: FC<SVGProps<SVGSVGElement>> = (props) => (
 	<svg
 		xmlns="http://www.w3.org/2000/svg"
@@ -182,6 +187,7 @@ export const ChevronDownIcon: FC<SVGProps<SVGSVGElement>> = (props) => (
 		/>
 	</svg>
 );
+/** @public Part of the legacy SVG icon set; no screen uses it (Knip, 2026-11-06). */
 export const ChevronLeftIcon: FC<SVGProps<SVGSVGElement>> = (props) => (
 	<svg
 		xmlns="http://www.w3.org/2000/svg"
@@ -202,6 +208,7 @@ export const ChevronLeftIcon: FC<SVGProps<SVGSVGElement>> = (props) => (
 		/>
 	</svg>
 );
+/** @public Part of the legacy SVG icon set; no screen uses it (Knip, 2026-11-06). */
 export const ChevronRightIcon: FC<SVGProps<SVGSVGElement>> = (props) => (
 	<svg
 		xmlns="http://www.w3.org/2000/svg"
@@ -240,6 +247,7 @@ export const ChevronUpDoubleIcon: FC<SVGProps<SVGSVGElement>> = (props) => (
 		/>
 	</svg>
 );
+/** @public Part of the legacy SVG icon set; no screen uses it (Knip, 2026-11-06). */
 export const ChevronUpIcon: FC<SVGProps<SVGSVGElement>> = (props) => (
 	<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 14 14" fill="none" {...props}>
 		<path
@@ -252,6 +260,7 @@ export const ChevronUpIcon: FC<SVGProps<SVGSVGElement>> = (props) => (
 		/>
 	</svg>
 );
+/** @public Part of the legacy SVG icon set; no screen uses it (Knip, 2026-11-06). */
 export const RefreshIcon: FC<SVGProps<SVGSVGElement>> = (props) => (
 	<svg fill="none" height="24" viewBox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg" {...props}>
 		<g fill="currentColor">
@@ -260,6 +269,7 @@ export const RefreshIcon: FC<SVGProps<SVGSVGElement>> = (props) => (
 		</g>
 	</svg>
 );
+/** @public Part of the legacy SVG icon set; no screen uses it (Knip, 2026-11-06). */
 export const BugIcon: FC<SVGProps<SVGSVGElement>> = (props) => (
 	<svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 12 12" fill="none" {...props}>
 		<path
@@ -307,6 +317,7 @@ export const ExpandIcon: FC<SVGProps<SVGSVGElement>> = (props) => (
 		<path fill="currentColor" d="M5 19v-6h2v4h4v2zm12-8V7h-4V5h6v6z"></path>
 	</svg>
 );
+/** @public Part of the legacy SVG icon set; no screen uses it (Knip, 2026-11-06). */
 export const GlobeIcon: FC<SVGProps<SVGSVGElement>> = (props) => (
 	<svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" {...props}>
 		<path
@@ -369,6 +380,7 @@ export const LoadingIcon: FC<SVGProps<SVGSVGElement>> = (props) => (
 		<path d="M12 3C16.9706 3 21 7.02944 21 12" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
 	</svg>
 );
+/** @public Part of the legacy SVG icon set; no screen uses it (Knip, 2026-11-06). */
 export const LockIcon: FC<SVGProps<SVGSVGElement>> = (props) => (
 	<svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg" {...props}>
 		<path
@@ -394,6 +406,7 @@ export const LockIcon: FC<SVGProps<SVGSVGElement>> = (props) => (
 		/>
 	</svg>
 );
+/** @public Part of the legacy SVG icon set; no screen uses it (Knip, 2026-11-06). */
 export const NoteIcon: FC<SVGProps<SVGSVGElement>> = (props) => (
 	<svg
 		width="10"
@@ -418,6 +431,7 @@ export const NoteIcon: FC<SVGProps<SVGSVGElement>> = (props) => (
 		<path d="M3.3335 7.0835H6.66683" strokeLinecap="round" strokeLinejoin="round" />
 	</svg>
 );
+/** @public Part of the legacy SVG icon set; no screen uses it (Knip, 2026-11-06). */
 export const SearchNormalIcon: FC<SVGProps<SVGSVGElement>> = (props) => (
 	<svg
 		width="24"
@@ -520,6 +534,7 @@ export const SettingGearIcon: FC<SVGProps<SVGSVGElement>> = (props) => (
 		</g>
 	</svg>
 );
+/** @public Part of the legacy SVG icon set; no screen uses it (Knip, 2026-11-06). */
 export const SettingOutlineIcon: FC<SVGProps<SVGSVGElement>> = (props) => (
 	<svg
 		xmlns="http://www.w3.org/2000/svg"
@@ -537,6 +552,7 @@ export const SettingOutlineIcon: FC<SVGProps<SVGSVGElement>> = (props) => (
 		<path strokeLinecap="round" strokeLinejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
 	</svg>
 );
+/** @public Part of the legacy SVG icon set; no screen uses it (Knip, 2026-11-06). */
 export const CheckCircleOutlineIcon: FC<SVGProps<SVGSVGElement>> = (props) => (
 	<svg
 		width="20"
@@ -574,6 +590,7 @@ export const CheckCircleTickIcon: FC<SVGProps<SVGSVGElement>> = (props) => (
 		/>
 	</svg>
 );
+/** @public Part of the legacy SVG icon set; no screen uses it (Knip, 2026-11-06). */
 export const CheckSimpleIcon: FC<SVGProps<SVGSVGElement>> = (props) => (
 	<svg
 		width="26"
@@ -609,6 +626,7 @@ export const CheckSquareOutlineIcon: FC<SVGProps<SVGSVGElement>> = (props) => (
 		/>
 	</svg>
 );
+/** @public Part of the legacy SVG icon set; no screen uses it (Knip, 2026-11-06). */
 export const CheckSquareRoundIcon: FC<SVGProps<SVGSVGElement>> = (props) => (
 	<svg width="17" height="17" viewBox="0 0 18 17" fill="none" xmlns="http://www.w3.org/2000/svg" {...props}>
 		<path
@@ -617,6 +635,7 @@ export const CheckSquareRoundIcon: FC<SVGProps<SVGSVGElement>> = (props) => (
 		/>
 	</svg>
 );
+/** @public Part of the legacy SVG icon set; no screen uses it (Knip, 2026-11-06). */
 export const UserOutlineIcon: FC<SVGProps<SVGSVGElement>> = (props) => (
 	<svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" {...props}>
 		<path
@@ -635,6 +654,7 @@ export const UserOutlineIcon: FC<SVGProps<SVGSVGElement>> = (props) => (
 		/>
 	</svg>
 );
+/** @public Part of the legacy SVG icon set; no screen uses it (Knip, 2026-11-06). */
 export const UserLinearIcon: FC<SVGProps<SVGSVGElement>> = (props) => (
 	<svg
 		width="18"
@@ -700,6 +720,7 @@ export const BoardIcon: FC<SVGProps<SVGSVGElement>> = (props) => (
 );
 
 // menu
+/** @public Part of the legacy SVG icon set; no screen uses it (Knip, 2026-11-06). */
 export const LineDotBoxIcon: FC<SVGProps<SVGSVGElement>> = (props) => (
 	<svg width="28" height="28" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" {...props}>
 		<path
@@ -765,6 +786,7 @@ export const Square4OutlineIcon: FC<SVGProps<SVGSVGElement>> = (props) => (
 		/>
 	</svg>
 );
+/** @public Part of the legacy SVG icon set; no screen uses it (Knip, 2026-11-06). */
 export const Square4StackIcon: FC<SVGProps<SVGSVGElement>> = (props) => (
 	<svg
 		width="10"
@@ -797,6 +819,7 @@ export const Square4StackIcon: FC<SVGProps<SVGSVGElement>> = (props) => (
 		/>
 	</svg>
 );
+/** @public Part of the legacy SVG icon set; no screen uses it (Knip, 2026-11-06). */
 export const ThreeCircleOutlineHorizontalIcon: FC<SVGProps<SVGSVGElement>> = (props) => (
 	<svg
 		xmlns="http://www.w3.org/2000/svg"
@@ -814,6 +837,7 @@ export const ThreeCircleOutlineHorizontalIcon: FC<SVGProps<SVGSVGElement>> = (pr
 		/>
 	</svg>
 );
+/** @public Part of the legacy SVG icon set; no screen uses it (Knip, 2026-11-06). */
 export const ThreeCircleOutlineVerticalIcon: FC<SVGProps<SVGSVGElement>> = (props) => (
 	<svg
 		width="24"
@@ -838,6 +862,7 @@ export const ThreeCircleOutlineVerticalIcon: FC<SVGProps<SVGSVGElement>> = (prop
 		/>
 	</svg>
 );
+/** @public Part of the legacy SVG icon set; no screen uses it (Knip, 2026-11-06). */
 export const ThreeDotLineIcon: FC<SVGProps<SVGSVGElement>> = (props) => (
 	<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" viewBox="0 0 16 16" {...props}>
 		<path
@@ -846,6 +871,7 @@ export const ThreeDotLineIcon: FC<SVGProps<SVGSVGElement>> = (props) => (
 		/>
 	</svg>
 );
+/** @public Part of the legacy SVG icon set; no screen uses it (Knip, 2026-11-06). */
 export const ThreeNumberLineIcon: FC<SVGProps<SVGSVGElement>> = (props) => (
 	<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" viewBox="0 0 16 16" {...props}>
 		<path
@@ -857,11 +883,13 @@ export const ThreeNumberLineIcon: FC<SVGProps<SVGSVGElement>> = (props) => (
 );
 
 // text
+/** @public Part of the legacy SVG icon set; no screen uses it (Knip, 2026-11-06). */
 export const BTextIcon: FC<SVGProps<SVGSVGElement>> = (props) => (
 	<svg width="20" height="20" viewBox="0 0 21 21" fill="currentColor" xmlns="http://www.w3.org/2000/svg" {...props}>
 		<path d="M14.1692 9.44531C14.621 8.89629 14.9074 8.23014 14.995 7.52454C15.0826 6.81895 14.9678 6.10298 14.664 5.46015C14.3602 4.81731 13.8799 4.27409 13.2791 3.89384C12.6783 3.51359 11.9818 3.31197 11.2708 3.3125H5.33325C5.08461 3.3125 4.84615 3.41127 4.67034 3.58709C4.49452 3.7629 4.39575 4.00136 4.39575 4.25V16.125C4.39575 16.3736 4.49452 16.6121 4.67034 16.7879C4.84615 16.9637 5.08461 17.0625 5.33325 17.0625H12.2083C13.1084 17.0612 13.9826 16.761 14.6937 16.209C15.4047 15.657 15.9123 14.8845 16.1367 14.0128C16.3611 13.1411 16.2896 12.2195 15.9335 11.3928C15.5774 10.5661 14.9568 9.88109 14.1692 9.44531ZM6.27075 5.1875H11.2708C11.768 5.1875 12.2449 5.38505 12.5966 5.73668C12.9482 6.08831 13.1458 6.56522 13.1458 7.0625C13.1458 7.55978 12.9482 8.0367 12.5966 8.38833C12.2449 8.73996 11.768 8.9375 11.2708 8.9375H6.27075V5.1875ZM12.2083 15.1875H6.27075V10.8125H12.2083C12.7884 10.8125 13.3448 11.043 13.755 11.4532C14.1653 11.8634 14.3958 12.4198 14.3958 13C14.3958 13.5802 14.1653 14.1366 13.755 14.5468C13.3448 14.957 12.7884 15.1875 12.2083 15.1875Z" />
 	</svg>
 );
+/** @public Part of the legacy SVG icon set; no screen uses it (Knip, 2026-11-06). */
 export const ItalicTextIcon: FC<SVGProps<SVGSVGElement>> = (props) => (
 	<svg width="20" height="20" viewBox="0 0 21 21" xmlns="http://www.w3.org/2000/svg" fill="currentColor" {...props}>
 		<path d="M12.8337 17.1673H6.16699V15.5007H8.60616L10.3695 5.50065H7.83366V3.83398H14.5003V5.50065H12.0612L10.2978 15.5007H12.8337V17.1673Z" />
@@ -917,6 +945,7 @@ export const XXLTextIcon: FC<SVGProps<SVGSVGElement>> = (props) => (
 		<path d="M20.271 17.6V6.12695H22.0882V15.983H27.047V17.6H20.271Z" fill="#EE6C4D" />
 	</svg>
 );
+/** @public Part of the legacy SVG icon set; no screen uses it (Knip, 2026-11-06). */
 export const AlignCenterIcon: FC<SVGProps<SVGSVGElement>> = (props) => (
 	<svg
 		xmlns="http://www.w3.org/2000/svg"
@@ -930,6 +959,7 @@ export const AlignCenterIcon: FC<SVGProps<SVGSVGElement>> = (props) => (
 		<path d="M6.5,10C6.223877,10,6,10.223877,6,10.5S6.223877,11,6.5,11h11c0.276123,0,0.5-0.223877,0.5-0.5S17.776123,10,17.5,10H6.5z M2.5,7h19C21.776123,7,22,6.776123,22,6.5S21.776123,6,21.5,6h-19C2.223877,6,2,6.223877,2,6.5S2.223877,7,2.5,7z M17.5,18h-11C6.223877,18,6,18.223877,6,18.5S6.223877,19,6.5,19h11c0.276123,0,0.5-0.223877,0.5-0.5S17.776123,18,17.5,18z M21.5,14h-19C2.223877,14,2,14.223877,2,14.5S2.223877,15,2.5,15h19c0.276123,0,0.5-0.223877,0.5-0.5S21.776123,14,21.5,14z"></path>
 	</svg>
 );
+/** @public Part of the legacy SVG icon set; no screen uses it (Knip, 2026-11-06). */
 export const AlignFullIcon: FC<SVGProps<SVGSVGElement>> = (props) => (
 	<svg
 		id="Flat"
@@ -943,6 +973,7 @@ export const AlignFullIcon: FC<SVGProps<SVGSVGElement>> = (props) => (
 		<path d="M36,68a4.0002,4.0002,0,0,1,4-4H216a4,4,0,0,1,0,8H40A4.0002,4.0002,0,0,1,36,68Zm180,36H40a4,4,0,0,0,0,8H216a4,4,0,0,0,0-8Zm0,40H40.00586a4,4,0,1,0,0,8H216a4,4,0,0,0,0-8Zm0,40H40.00586a4,4,0,1,0,0,8H216a4,4,0,0,0,0-8Z"></path>
 	</svg>
 );
+/** @public Part of the legacy SVG icon set; no screen uses it (Knip, 2026-11-06). */
 export const AlignLeftIcon: FC<SVGProps<SVGSVGElement>> = (props) => (
 	<svg
 		id="Flat"
@@ -956,11 +987,13 @@ export const AlignLeftIcon: FC<SVGProps<SVGSVGElement>> = (props) => (
 		<path d="M34,68a6.00029,6.00029,0,0,1,6-6H216a6,6,0,0,1,0,12H40A6.00029,6.00029,0,0,1,34,68Zm6,46H168a6,6,0,0,0,0-12H40a6,6,0,0,0,0,12Zm176,28H40.00586a6,6,0,1,0,0,12H216a6,6,0,0,0,0-12Zm-48,40H40.00586a6,6,0,1,0,0,12H168a6,6,0,0,0,0-12Z"></path>
 	</svg>
 );
+/** @public Part of the legacy SVG icon set; no screen uses it (Knip, 2026-11-06). */
 export const AlignQuoteIcon: FC<SVGProps<SVGSVGElement>> = (props) => (
 	<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" viewBox="0 0 16 16" {...props}>
 		<path d="M2.5 3a.5.5 0 0 0 0 1h11a.5.5 0 0 0 0-1h-11zm5 3a.5.5 0 0 0 0 1h6a.5.5 0 0 0 0-1h-6zm0 3a.5.5 0 0 0 0 1h6a.5.5 0 0 0 0-1h-6zm-5 3a.5.5 0 0 0 0 1h11a.5.5 0 0 0 0-1h-11zm.79-5.373c.112-.078.26-.17.444-.275L3.524 6c-.122.074-.272.17-.452.287-.18.117-.35.26-.51.428a2.425 2.425 0 0 0-.398.562c-.11.207-.164.438-.164.692 0 .36.072.65.217.873.144.219.385.328.72.328.215 0 .383-.07.504-.211a.697.697 0 0 0 .188-.463c0-.23-.07-.404-.211-.521-.137-.121-.326-.182-.568-.182h-.282c.024-.203.065-.37.123-.498a1.38 1.38 0 0 1 .252-.37 1.94 1.94 0 0 1 .346-.298zm2.167 0c.113-.078.262-.17.445-.275L5.692 6c-.122.074-.272.17-.452.287-.18.117-.35.26-.51.428a2.425 2.425 0 0 0-.398.562c-.11.207-.164.438-.164.692 0 .36.072.65.217.873.144.219.385.328.72.328.215 0 .383-.07.504-.211a.697.697 0 0 0 .188-.463c0-.23-.07-.404-.211-.521-.137-.121-.326-.182-.568-.182h-.282a1.75 1.75 0 0 1 .118-.492c.058-.13.144-.254.257-.375a1.94 1.94 0 0 1 .346-.3z" />
 	</svg>
 );
+/** @public Part of the legacy SVG icon set; no screen uses it (Knip, 2026-11-06). */
 export const AlignRightIcon: FC<SVGProps<SVGSVGElement>> = (props) => (
 	<svg
 		id="Flat"
@@ -987,11 +1020,13 @@ export const CapitalTIcon: FC<SVGProps<SVGSVGElement>> = (props) => (
 		<path d="M215.99414,55.99512v32a8,8,0,1,1-16,0v-24h-64v128h24a8,8,0,0,1,0,16h-64a8,8,0,0,1,0-16h24v-128h-64v24a8,8,0,0,1-16,0v-32a8.00008,8.00008,0,0,1,8-8h160A8.00008,8.00008,0,0,1,215.99414,55.99512Z"></path>
 	</svg>
 );
+/** @public Part of the legacy SVG icon set; no screen uses it (Knip, 2026-11-06). */
 export const CodeIcon: FC<SVGProps<SVGSVGElement>> = (props) => (
 	<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" viewBox="0 0 16 16" {...props}>
 		<path d="M5.854 4.854a.5.5 0 1 0-.708-.708l-3.5 3.5a.5.5 0 0 0 0 .708l3.5 3.5a.5.5 0 0 0 .708-.708L2.707 8l3.147-3.146zm4.292 0a.5.5 0 0 1 .708-.708l3.5 3.5a.5.5 0 0 1 0 .708l-3.5 3.5a.5.5 0 0 1-.708-.708L13.293 8l-3.147-3.146z" />
 	</svg>
 );
+/** @public Part of the legacy SVG icon set; no screen uses it (Knip, 2026-11-06). */
 export const CopyRoundIcon: FC<SVGProps<SVGSVGElement>> = (props) => (
 	<svg width="10" height="10" viewBox="0 0 10 10" fill="none" xmlns="http://www.w3.org/2000/svg" {...props}>
 		<path
@@ -1021,6 +1056,7 @@ export const CopyIcon: FC<SVGProps<SVGSVGElement>> = (props) => (
 		<path d="M216,33.99316H88a6.0003,6.0003,0,0,0-6,6v42.001H39.999a6.0003,6.0003,0,0,0-6,6v128a6.0003,6.0003,0,0,0,6,6h128a6.00029,6.00029,0,0,0,6-6v-42.001H216a6.00029,6.00029,0,0,0,6-6v-128A6.0003,6.0003,0,0,0,216,33.99316Zm-54.001,176.001h-116v-116h116ZM210,161.99316H173.999v-73.999a6.00029,6.00029,0,0,0-6-6H94v-36.001H210Z"></path>
 	</svg>
 );
+/** @public Part of the legacy SVG icon set; no screen uses it (Knip, 2026-11-06). */
 export const ExternalLinkIcon: FC<SVGProps<SVGSVGElement>> = (props) => (
 	<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="18" height="18" {...props}>
 		<g>
@@ -1032,6 +1068,7 @@ export const ExternalLinkIcon: FC<SVGProps<SVGSVGElement>> = (props) => (
 		</g>
 	</svg>
 );
+/** @public Part of the legacy SVG icon set; no screen uses it (Knip, 2026-11-06). */
 export const H1TextIcon: FC<SVGProps<SVGSVGElement>> = (props) => (
 	<svg
 		id="Flat"
@@ -1045,6 +1082,7 @@ export const H1TextIcon: FC<SVGProps<SVGSVGElement>> = (props) => (
 		<path d="M152,56V176a8,8,0,0,1-16,0V124H48v52a8,8,0,0,1-16,0V56a8,8,0,0,1,16,0v52h88V56a8,8,0,0,1,16,0Zm71.77539,44.94727a7.99755,7.99755,0,0,0-8.21191.3955l-24,15.99317a8.00008,8.00008,0,1,0,8.873,13.31445L212,122.94434V200a8,8,0,0,0,16,0V108A7.99932,7.99932,0,0,0,223.77539,100.94727Z"></path>
 	</svg>
 );
+/** @public Part of the legacy SVG icon set; no screen uses it (Knip, 2026-11-06). */
 export const H2TextIcon: FC<SVGProps<SVGSVGElement>> = (props) => (
 	<svg id="Flat" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" width="20" height="20" {...props}>
 		<path
@@ -1058,6 +1096,7 @@ export const LineThroughTextIcon: FC<SVGProps<SVGSVGElement>> = (props) => (
 		<path d="M12.8337 17.1673H6.16699V15.5007H8.60616L10.3695 5.50065H7.83366V3.83398H14.5003V5.50065H12.0612L10.2978 15.5007H12.8337V17.1673Z" />
 	</svg>
 );
+/** @public Part of the legacy SVG icon set; no screen uses it (Knip, 2026-11-06). */
 export const LinkRoundIcon: FC<SVGProps<SVGSVGElement>> = (props) => (
 	<svg width="20" height="20" viewBox="0 0 20 21" fill="none" xmlns="http://www.w3.org/2000/svg" {...props}>
 		<path
@@ -1083,6 +1122,7 @@ export const LinkRoundIcon: FC<SVGProps<SVGSVGElement>> = (props) => (
 		/>
 	</svg>
 );
+/** @public Part of the legacy SVG icon set; no screen uses it (Knip, 2026-11-06). */
 export const UnderlineTextIcon: FC<SVGProps<SVGSVGElement>> = (props) => (
 	<svg
 		viewBox="0 0 20 20"
@@ -1101,6 +1141,7 @@ export const UnderlineTextIcon: FC<SVGProps<SVGSVGElement>> = (props) => (
 		/>
 	</svg>
 );
+/** @public Part of the legacy SVG icon set; no screen uses it (Knip, 2026-11-06). */
 export const UnlinkRoundIcon: FC<SVGProps<SVGSVGElement>> = (props) => (
 	<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 256 256" {...props}>
 		<path
@@ -1242,6 +1283,7 @@ export const TrackingIcon: FC<SVGProps<SVGSVGElement>> = (props) => (
 );
 
 // unique
+/** @public Part of the legacy SVG icon set; no screen uses it (Knip, 2026-11-06). */
 export const BriefCaseIcon: FC<SVGProps<SVGSVGElement>> = (props) => (
 	<svg
 		width="24"
@@ -1294,6 +1336,7 @@ export const BriefCaseIcon: FC<SVGProps<SVGSVGElement>> = (props) => (
 		/>
 	</svg>
 );
+/** @public Part of the legacy SVG icon set; no screen uses it (Knip, 2026-11-06). */
 export const BrushSquareIcon: FC<SVGProps<SVGSVGElement>> = (props) => (
 	<svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" {...props}>
 		<g clipPath="url(#clip0_3_13652)">
@@ -1380,6 +1423,7 @@ export const CubeIcon: FC<SVGProps<SVGSVGElement>> = (props) => (
 		/>
 	</svg>
 );
+/** @public Part of the legacy SVG icon set; no screen uses it (Knip, 2026-11-06). */
 export const DevicesIcon: FC<SVGProps<SVGSVGElement>> = (props) => (
 	<svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" {...props}>
 		<path
@@ -1539,6 +1583,7 @@ export const LiveShareIcon: FC<SVGProps<SVGSVGElement>> = (props) => (
 		/>
 	</svg>
 );
+/** @public Part of the legacy SVG icon set; no screen uses it (Knip, 2026-11-06). */
 export const LogoutRoundIcon: FC<SVGProps<SVGSVGElement>> = (props) => (
 	<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" {...props}>
 		<path
@@ -1574,6 +1619,7 @@ export const LogoutIcon: FC<SVGProps<SVGSVGElement>> = (props) => (
 		</g>
 	</svg>
 );
+/** @public Part of the legacy SVG icon set; no screen uses it (Knip, 2026-11-06). */
 export const MailIcon: FC<SVGProps<SVGSVGElement>> = (props) => (
 	<svg
 		width="16"
@@ -1596,6 +1642,7 @@ export const MailIcon: FC<SVGProps<SVGSVGElement>> = (props) => (
 		/>
 	</svg>
 );
+/** @public Part of the legacy SVG icon set; no screen uses it (Knip, 2026-11-06). */
 export const PhoneUpArrowIcon: FC<SVGProps<SVGSVGElement>> = (props) => (
 	<svg
 		width="24"
@@ -1621,6 +1668,7 @@ export const PhoneUpArrowIcon: FC<SVGProps<SVGSVGElement>> = (props) => (
 		/>
 	</svg>
 );
+/** @public Part of the legacy SVG icon set; no screen uses it (Knip, 2026-11-06). */
 export const SquareBoxIcon: FC<SVGProps<SVGSVGElement>> = (props) => (
 	<svg
 		width="18"

@@ -1967,10 +1967,14 @@ describe('Ever Teams feature surface preservation', () => {
 
 	it('covers all real App Router route files and outward handler verbs', () => {
 		const routes = collectRealHeadSurface().routes;
-		expect(routes.filter((value) => /\/route\.[jt]s$/.test(value))).toHaveLength(149);
+		// Every route.ts under apps/web/app (`git ls-files 'apps/web/app/**/route.ts'`) and every handler verb they
+		// export: 173 files and 229 verbs on develop 2026-11-06 (the November PR sweeps added routes, none went away;
+		// #4931 added PUT /api/organization/[id]).
+		// A new route raises these numbers; a lower number means a route or a verb was lost.
+		expect(routes.filter((value) => /\/route\.[jt]s$/.test(value))).toHaveLength(173);
 		expect(
 			routes.filter((value) => /\/route\.[jt]s::(?:GET|POST|PUT|PATCH|DELETE|HEAD|OPTIONS)$/.test(value))
-		).toHaveLength(198);
+		).toHaveLength(229);
 		expect(routes).toEqual(
 			expect.arrayContaining([
 				// Proxy mode twins of Gauzy's public account deletion by e-mail link (2026-10-27)
@@ -2001,6 +2005,8 @@ describe('Ever Teams feature surface preservation', () => {
 				'apps/web/app/api/invite/accept/route.ts::POST',
 				'apps/web/app/api/organization-projects/[id]/route.ts::DELETE',
 				'apps/web/app/api/organization/[id]/route.ts::GET',
+				// Organization admins set the time entry requirements (#4931, 2026-11-06)
+				'apps/web/app/api/organization/[id]/route.ts::PUT',
 				'apps/web/app/api/role-permissions/me/route.ts::GET',
 				'apps/web/app/api/roles/team-assignable/route.ts::GET',
 				'apps/web/app/api/task-estimation/[id]/route.ts::DELETE',
