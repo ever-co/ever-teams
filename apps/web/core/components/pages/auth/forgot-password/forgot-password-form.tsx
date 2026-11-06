@@ -74,7 +74,11 @@ export default function ForgotPasswordForm() {
 	);
 
 	return (
-		<AuthLayout aside={scene}>
+		<AuthLayout
+			aside={scene}
+			// Walked signed in by the egress audit since #4942, after its UI baseline: no built-in Ever links
+			operatorLinksOnly
+		>
 			<AuthSteps step={step.name} order={step.order}>
 				{sent && (
 					<AuthState

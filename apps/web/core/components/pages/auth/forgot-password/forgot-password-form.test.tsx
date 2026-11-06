@@ -9,7 +9,11 @@ jest.mock('next-intl', () => ({
 	useTranslations: () => (key: string) => key
 }));
 jest.mock('@/core/components/layouts/default-layout/auth-layout', () => ({
-	AuthLayout: ({ children }: { children: ReactNode }) => <div>{children}</div>
+	AuthLayout: ({ children, operatorLinksOnly }: { children: ReactNode; operatorLinksOnly?: boolean }) => (
+		<div data-testid="auth-layout" data-operator-links-only={String(Boolean(operatorLinksOnly))}>
+			{children}
+		</div>
+	)
 }));
 jest.mock('@/core/services/client/api/auth/auth.service', () => ({
 	authService: { requestPassword: (...args: unknown[]) => mockRequestPassword(...args) }
@@ -78,5 +82,11 @@ describe('ForgotPasswordForm', () => {
 
 		expect(screen.getByText('alice@example.com')).toBeTruthy();
 		expect(screen.queryByText('bob@example.com')).toBeNull();
+	});
+
+	it('links the footer only to the branding links the operator set (egress audit UI baseline)', () => {
+		render(<ForgotPasswordForm />);
+
+		expect(screen.getByTestId('auth-layout').getAttribute('data-operator-links-only')).toBe('true');
 	});
 });

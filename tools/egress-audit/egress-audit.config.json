@@ -22,7 +22,7 @@
 	"route_params": "route-params.json",
 	"ui_baseline": "ui-baseline.json",
 	"optin_hosts": "optin-hosts.json",
-	"idle_pages": ["/:locale/settings/team", "/:locale"],
+	"idle_pages": ["/:locale/settings/team", "/:locale/settings/team/integrations", "/:locale"],
 	"idle_s": 30,
 	"ui_page_timeout_s": 120,
 	"ui_expected_requests": {
