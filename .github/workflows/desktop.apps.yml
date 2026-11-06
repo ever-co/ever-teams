@@ -62,11 +62,15 @@ jobs:
             const repo = 'ever-teams-desktop';
             // Same rule as the bump-version-electron.js scripts: the newest vX.Y.Z tag of ever-co/ever-teams
             const tags = await github.paginate(github.rest.repos.listTags, { owner, repo: 'ever-teams', per_page: 100 });
-            const tag = tags
+            const newest = (list) => list
               .map((t) => t.name)
               .filter((name) => /^v[0-9]+[.][0-9]+[.][0-9]+$/.test(name))
               .sort((a, b) => a.localeCompare(b, undefined, { numeric: true }))
               .pop();
+            // The tag Release Apps made on the commit this run builds comes first, so every platform, and an in-cluster arm64 run that
+            // starts on its own, gets the same version even if another branch has released since. Else the newest tag, as before.
+            const headSha = context.payload.workflow_run && context.payload.workflow_run.head_sha;
+            const tag = newest(tags.filter((t) => headSha && t.commit && t.commit.sha === headSha)) || newest(tags);
             if (!tag) {
               core.warning('No vX.Y.Z tag on ever-co/ever-teams: the builds pick their own version');
               return;
@@ -492,7 +496,7 @@ jobs:
         id: snapd
         shell: bash
         run: |
-          if command -v snap >/dev/null 2>&1; then
+          if command -v snap >/dev/null 2>&1 && snap list >/dev/null 2>&1; then
             echo "available=true" >> "$GITHUB_OUTPUT"
           else
             echo "available=false" >> "$GITHUB_OUTPUT"

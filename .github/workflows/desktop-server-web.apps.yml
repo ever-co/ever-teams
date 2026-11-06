@@ -62,11 +62,15 @@ jobs:
             const repo = 'ever-teams-web-server';
             // Same rule as the bump-version-electron.js scripts: the newest vX.Y.Z tag of ever-co/ever-teams
             const tags = await github.paginate(github.rest.repos.listTags, { owner, repo: 'ever-teams', per_page: 100 });
-            const tag = tags
+            const newest = (list) => list
               .map((t) => t.name)
               .filter((name) => /^v[0-9]+[.][0-9]+[.][0-9]+$/.test(name))
               .sort((a, b) => a.localeCompare(b, undefined, { numeric: true }))
               .pop();
+            // The tag Release Apps made on the commit this run builds comes first, so every platform, and an in-cluster arm64 run that
+            // starts on its own, gets the same version even if another branch has released since. Else the newest tag, as before.
+            const headSha = context.payload.workflow_run && context.payload.workflow_run.head_sha;
+            const tag = newest(tags.filter((t) => headSha && t.commit && t.commit.sha === headSha)) || newest(tags);
             if (!tag) {
               core.warning('No vX.Y.Z tag on ever-co/ever-teams: the builds pick their own version');
               return;
@@ -405,10 +409,25 @@ jobs:
           sudo apt install -y curl gnupg git libappindicator3-1 ca-certificates binutils icnsutils graphicsmagick libx11-dev libxtst-dev libxt-dev libxinerama-dev libx11-xcb-dev libxkbcommon-dev libxkbcommon-x11-dev libxkbfile-dev libxrandr-dev ruby ruby-dev rubygems build-essential
           sudo gem install --no-document fpm
 
+      # See release-linux: snapd only exists on VM runners; skip the snap tooling where it is absent
+      # (a future self-hosted arm64 runner may well be an ARC container too).
+      - name: Detect snapd
+        id: snapd
+        shell: bash
+        run: |
+          if command -v snap >/dev/null 2>&1 && snap list >/dev/null 2>&1; then
+            echo "available=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "available=false" >> "$GITHUB_OUTPUT"
+            echo "snapd is not available on this runner; skipping Snapcraft/Multipass install"
+          fi
+
       - name: Install Snapcraft
+        if: ${{ steps.snapd.outputs.available == 'true' }}
         uses: samuelmeuli/action-snapcraft@v2
 
       - name: Install Multipass
+        if: ${{ steps.snapd.outputs.available == 'true' }}
         run: 'sudo snap install multipass'
 
       - name: Fix node-gyp and Python
@@ -491,6 +510,37 @@ jobs:
           COMPANY_SITE_LINK: "https://ever.team"
           DESKTOP_WEB_SERVER_APP_DESCRIPTION: "Ever Teams Web Server"
           DESKTOP_WEB_SERVER_APP_ID: "com.ever.everteamswebserver"
+
+      # See release-linux: build only the Linux targets this runner's toolchain can produce.
+      - name: Adapt Linux targets to the runner toolchain
+        if: ${{ vars.DESKTOP_LINUX_KEEP_ALL_TARGETS != 'true' }}
+        shell: bash
+        run: |
+          HAS_SNAPCRAFT=false; command -v snapcraft >/dev/null 2>&1 && HAS_SNAPCRAFT=true
+          HAS_FLATPAK=false; command -v flatpak-builder >/dev/null 2>&1 && HAS_FLATPAK=true
+          echo "snapcraft available: $HAS_SNAPCRAFT, flatpak-builder available: $HAS_FLATPAK"
+          HAS_SNAPCRAFT="$HAS_SNAPCRAFT" HAS_FLATPAK="$HAS_FLATPAK" node -e '
+            const fs = require("fs");
+            const file = "apps/server-web/package.json";
+            const pkg = JSON.parse(fs.readFileSync(file, "utf8"));
+            const linux = pkg.build && pkg.build.linux;
+            if (!linux || !Array.isArray(linux.target)) {
+              console.log("linux.target is not a list; leaving it untouched");
+              process.exit(0);
+            }
+            const unavailable = [];
+            if (process.env.HAS_SNAPCRAFT !== "true") unavailable.push("snap");
+            if (process.env.HAS_FLATPAK !== "true") unavailable.push("flatpak");
+            const name = (t) => (typeof t === "string" ? t : t && t.target);
+            const kept = linux.target.filter((t) => !unavailable.includes(name(t)));
+            if (kept.length !== linux.target.length) {
+              linux.target = kept;
+              fs.writeFileSync(file, JSON.stringify(pkg, null, 2));
+              console.log("Linux targets for this runner:", JSON.stringify(kept));
+            } else {
+              console.log("All configured Linux targets are buildable here:", JSON.stringify(kept));
+            }
+          '
 
       - name: Ensure dist directory exists
         shell: bash
