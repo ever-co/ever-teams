@@ -36,21 +36,21 @@ jobs:
     steps:
       # In-cluster (ever-co/k8s-gitops apps/ci-builds, which sets CI_IN_CLUSTER) the arm64 job of this file starts on the push to
       # `apps`, not after "Release Apps" has finished as on Actions: wait until Release Apps has tagged that commit, so the version
-      # picked below is that release's. Skipped on Actions, where the tag exists by the time this workflow starts.
+      # picked below is that release's (8 min at most, inside the job's 10). Skipped on Actions, where the tag exists by then.
       - name: Wait for the Release Apps tag (in-cluster)
         if: ${{ vars.CI_IN_CLUSTER == 'true' }}
         shell: bash
         env:
           SHA: ${{ github.event.workflow_run.head_sha }}
         run: |
-          for _ in $(seq 1 18); do
-            if git ls-remote --tags https://github.com/ever-co/ever-teams | grep -Eq "^${SHA}[[:space:]]+refs/tags/v[0-9]+[.][0-9]+[.][0-9]+(\^\{\})?$"; then
+          for _ in $(seq 1 16); do
+            if timeout 30 git ls-remote --tags https://github.com/ever-co/ever-teams | grep -Eq "^${SHA}[[:space:]]+refs/tags/v[0-9]+[.][0-9]+[.][0-9]+(\^\{\})?$"; then
               echo "${SHA} is tagged"
               exit 0
             fi
             sleep 30
           done
-          echo "::warning::no vX.Y.Z tag on ${SHA} after 9 min: the newest tag is used"
+          echo "::warning::no vX.Y.Z tag on ${SHA} after 8 min: the newest tag is used"
 
       - name: Pick the version and create its draft release
         id: prepare
