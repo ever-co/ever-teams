@@ -36,14 +36,15 @@ jobs:
     steps:
       # In-cluster (ever-co/k8s-gitops apps/ci-builds, which sets CI_IN_CLUSTER) the arm64 job of this file starts on the push to
       # `apps`, not after "Release Apps" has finished as on Actions: wait until Release Apps has tagged that commit, so the version
-      # picked below is that release's (8 min at most, inside the job's 10). Skipped on Actions, where the tag exists by then.
+      # picked below is that release's (about 8 min: the deadline counts the requests and the sleeps, inside the job's 10). Skipped on Actions, where the tag exists by then.
       - name: Wait for the Release Apps tag (in-cluster)
         if: ${{ vars.CI_IN_CLUSTER == 'true' }}
         shell: bash
         env:
           SHA: ${{ github.event.workflow_run.head_sha }}
         run: |
-          for _ in $(seq 1 16); do
+          deadline=$((SECONDS + 450))
+          while [ "$SECONDS" -lt "$deadline" ]; do
             if timeout 30 git ls-remote --tags https://github.com/ever-co/ever-teams | grep -Eq "^${SHA}[[:space:]]+refs/tags/v[0-9]+[.][0-9]+[.][0-9]+(\^\{\})?$"; then
               echo "${SHA} is tagged"
               exit 0
