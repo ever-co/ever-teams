@@ -18,6 +18,11 @@ describe('sendsSignedInVisitToApp', () => {
 	it('leaves the app pages alone', () => {
 		expect(sendsSignedInVisitToApp('/settings/personal')).toBe(false);
 	});
+
+	it('reads only the /auth/ folder as auth pages, not a path that merely starts with "auth"', () => {
+		expect(sendsSignedInVisitToApp('/authentication')).toBe(false);
+		expect(sendsSignedInVisitToApp('/auth')).toBe(false);
+	});
 });
 
 describe('isPasswordRecoveryPage', () => {
