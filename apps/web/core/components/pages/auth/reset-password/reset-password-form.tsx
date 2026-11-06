@@ -185,7 +185,10 @@ export default function ResetPasswordForm({ isTokenExpired }: Readonly<{ isToken
 	}
 
 	return (
-		<AuthLayout>
+		<AuthLayout
+			// Walked signed in by the egress audit since #4942, after its UI baseline: no built-in Ever links
+			operatorLinksOnly
+		>
 			<AuthSteps step={step} order={stepOrderOf(step)}>
 				{content}
 			</AuthSteps>
