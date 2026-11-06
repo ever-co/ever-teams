@@ -6,8 +6,10 @@ import { act, fireEvent, render, screen } from '@testing-library/react';
 const mockVerify = jest.fn();
 const mockInvalidateQueries = jest.fn();
 const mockRefresh = jest.fn();
+const mockToastError = jest.fn();
 
 jest.mock('next-intl', () => ({ useTranslations: () => (key: string) => key }));
+jest.mock('sonner', () => ({ toast: { error: (...args: unknown[]) => mockToastError(...args) } }));
 jest.mock('next/navigation', () => ({ useRouter: () => ({ refresh: mockRefresh }) }));
 jest.mock('@tanstack/react-query', () => ({
 	useQueryClient: () => ({ invalidateQueries: mockInvalidateQueries })
@@ -60,6 +62,7 @@ describe('ConfirmUserModal', () => {
 		mockVerify.mockReset();
 		mockInvalidateQueries.mockReset();
 		mockRefresh.mockReset();
+		mockToastError.mockReset();
 	});
 
 	it('reads the signed-in user again once the address is confirmed', async () => {
@@ -69,6 +72,16 @@ describe('ConfirmUserModal', () => {
 
 		expect(mockVerify).toHaveBeenCalledWith({ code: 'ABC123', email: 'marie@acme.test' });
 		expect(mockInvalidateQueries).toHaveBeenCalledWith({ queryKey: ['users', 'me'] });
+		expect(mockRefresh).toHaveBeenCalled();
+	});
+
+	it('says a refused code was not taken, without reading the user again', async () => {
+		mockVerify.mockRejectedValue({ response: { status: 400 } });
+
+		await confirmWith('ABC123');
+
+		expect(mockToastError).toHaveBeenCalledWith('pages.auth.INVALID_CODE_TRY_AGAIN');
+		expect(mockInvalidateQueries).not.toHaveBeenCalled();
 		expect(mockRefresh).toHaveBeenCalled();
 	});
 });

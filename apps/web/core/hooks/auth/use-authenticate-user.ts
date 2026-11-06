@@ -162,7 +162,12 @@ export const useAuthenticateUser = (defaultUser?: TUser): UseAuthenticateUserRes
 			email: user?.email
 		});
 
-		window?.localStorage.setItem(LAST_WORKSPACE_AND_TEAM, activeTeam?.id ?? '');
+		// Blocked or full browser storage must not stop the sign-out: the session would stay open without a word
+		try {
+			window?.localStorage.setItem(LAST_WORKSPACE_AND_TEAM, activeTeam?.id ?? '');
+		} catch (error) {
+			logErrorInDev('[Auth] Last team not stored before logout:', error);
+		}
 		rememberTeam(user?.email, activeTeam?.id);
 		clearChatHistoryForUser(user?.id);
 

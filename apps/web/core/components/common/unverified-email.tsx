@@ -4,7 +4,7 @@ import { getAccessTokenCookie } from '@/core/lib/helpers/index';
 import { useAuthenticateUser, useModal, useQueryCall } from '@/core/hooks';
 import { TUser } from '@/core/types/schemas';
 import { Button, Modal, SpinnerLoader, Text } from '@/core/components';
-import { useTranslations } from 'next-intl';
+import { useTranslations, type DottedLanguageObjectStringPaths } from 'next-intl';
 import { useCallback, useEffect, useState } from 'react';
 import { authService } from '@/core/services/client/api/auth/auth.service';
 import { emailVerificationService } from '@/core/services/client/api/users/emails/email-verification.service';
@@ -17,6 +17,8 @@ import { useRouter } from 'next/navigation';
 import { useQueryClient } from '@tanstack/react-query';
 import { queryKeys } from '@/core/query/keys';
 import { logErrorInDev } from '@/core/lib/helpers/error-message';
+import { errorReasonKeyOf, errorReasonOf } from '@/core/lib/utils/error-feedback';
+import { toast } from 'sonner';
 
 interface UnverifiedEmailProps {
 	user?: TUser | null; // Accept user as prop for conditional rendering optimization
@@ -114,6 +116,17 @@ function ResendCodeButton({ isSending, onResend }: Readonly<{ isSending: boolean
 	);
 }
 
+/** Why a confirmation code was not taken: a refused code asks for another try, any other failure names its cause. */
+function confirmationFailureMessageOf(error: unknown, t: ReturnType<typeof useTranslations>): string {
+	const reason = errorReasonOf(error);
+	const isRefusedCode = reason === 'invalid' || reason === 'notFound';
+	if (isRefusedCode) {
+		return t('pages.auth.INVALID_CODE_TRY_AGAIN');
+	}
+	const reasonKey = errorReasonKeyOf(error) as DottedLanguageObjectStringPaths;
+	return t(reasonKey);
+}
+
 export function ConfirmUserModal({
 	open,
 	user,
@@ -140,13 +153,16 @@ export function ConfirmUserModal({
 
 			void queryCall({ code, email: user.email || '' })
 				.then(() => queryClient.invalidateQueries({ queryKey: queryKeys.users.me }))
-				// A refused code leaves the address unconfirmed: nothing to read again, and no unhandled rejection
-				.catch((error: unknown) => logErrorInDev('ConfirmUserModal: address confirmation failed', error))
+				// A refused code leaves the address unconfirmed: say so, and leave no unhandled rejection
+				.catch((error: unknown) => {
+					logErrorInDev('ConfirmUserModal: address confirmation failed', error);
+					toast.error(confirmationFailureMessageOf(error, t));
+				})
 				.finally(() => {
 					router.refresh();
 				});
 		},
-		[code, queryCall, queryClient, user]
+		[code, queryCall, queryClient, router, t, user]
 	);
 
 	return (

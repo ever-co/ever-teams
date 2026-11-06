@@ -45,6 +45,8 @@ export function useOrganizationTrackingRequirements() {
 				throw new Error('No current organization');
 			}
 			const changes = { [requirement]: isRequired };
+			// The workspace this save belongs to, read before the request: another tab may switch it meanwhile
+			const queryKey = queryKeys.workspaces.currentOrganizationByScope(getTenantIdCookie(), organization.id);
 			try {
 				await organizationService.updateOrganization(organization, changes);
 			} catch (error) {
@@ -57,7 +59,6 @@ export function useOrganizationTrackingRequirements() {
 				const latest = cached ?? organization;
 				return { ...latest, ...changes };
 			};
-			const queryKey = queryKeys.workspaces.currentOrganizationByScope(getTenantIdCookie(), organization.id);
 			queryClient.setQueryData<TOrganization>(queryKey, withThisChange);
 		},
 		[organization, queryClient, t]
