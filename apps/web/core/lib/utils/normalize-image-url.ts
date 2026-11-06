@@ -19,6 +19,8 @@
  * (`next/image` rejects protocol-relative sources, but it did so before this helper existed too.)
  */
 
+import { parseGeneratedAvatar } from './generated-avatar';
+
 /** Matches a URI scheme such as `https:`, `data:` or `blob:` at the start of the value. */
 const HAS_SCHEME = /^[a-z][a-z0-9+.-]*:/i;
 
@@ -34,6 +36,11 @@ export function normalizeImageUrl(url?: string | null): string | null | undefine
 	// Keep empty values empty so callers' `imageUrl ? <Image/> : <Fallback/>` branches still work,
 	// and so a whitespace-only value never becomes the site root "/".
 	if (!trimmed) return '';
+
+	// Gauzy's generated placeholder (a letter on a flat colour from dummyimage.com) is not loaded: dummyimage.com is
+	// neither an optimizer host nor an allowed outbound host (docs/ever-platform/outbound-calls.md), and the app draws
+	// its own initials instead (generated-avatar.ts). Empty sends the avatar to its fallback.
+	if (parseGeneratedAvatar(trimmed)) return '';
 
 	// Already resolvable without a base: absolute, protocol-relative, or root-relative.
 	if (HAS_SCHEME.test(trimmed) || trimmed.startsWith('//') || trimmed.startsWith('/')) return trimmed;
