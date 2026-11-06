@@ -7,7 +7,7 @@ import { marked } from 'marked';
  * Everything here turns any of them into HTML the rich editor can open, without Slate in the bundle.
  */
 
-export const isHtml = (value: string): boolean => {
+const isHtml = (value: string): boolean => {
 	const htmlRegex = /<([a-z][a-z0-9]*)\b[^>]*>(.*?)<\/\1>/i;
 	return htmlRegex.test(value);
 };
@@ -50,7 +50,7 @@ export const isMarkdown = (value: string): boolean => {
 	return matchesPattern || hasMarkdownLink(value);
 };
 
-export const isValidSlateObject = (value: unknown): boolean => {
+const isValidSlateObject = (value: unknown): boolean => {
 	try {
 		if (typeof value === 'string') {
 			const parsed = JSON.parse(value);
@@ -68,7 +68,7 @@ export const isValidSlateObject = (value: unknown): boolean => {
 	}
 };
 
-export const markdownToHtml = (markdown: string): string => {
+const markdownToHtml = (markdown: string): string => {
 	try {
 		marked.setOptions({
 			breaks: true,
@@ -95,7 +95,7 @@ function escapeHtml(text: string) {
 }
 
 /** A block of plain text per blank-line-separated paragraph, single newlines kept as line breaks. */
-export function plainTextToHtml(text: string) {
+function plainTextToHtml(text: string) {
 	const paragraphs = text.split(/\n{2,}/);
 	const blocks = paragraphs.map((paragraph) => {
 		const escaped = escapeHtml(paragraph);
@@ -213,7 +213,7 @@ function slateNodeToHtml(node: SlateNode): string {
 	return `<${tag}${style}>${inner}</${tag}>`;
 }
 
-export function slateJsonToHtml(value: string) {
+function slateJsonToHtml(value: string) {
 	const nodes = JSON.parse(value) as SlateNode[];
 	return slateChildrenToHtml(nodes);
 }

@@ -91,7 +91,7 @@ const HOURS_FOR_TOP_LEVEL = 8;
 
 const MONTH_COUNT = 12;
 
-export function activityLevelOf(hours: number): ActivityLevel {
+function activityLevelOf(hours: number): ActivityLevel {
 	if (hours <= 0) {
 		return 0;
 	}

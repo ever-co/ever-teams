@@ -67,7 +67,7 @@ export const ProgressBar = memo(function ProgressBar({
 	);
 });
 
-export const SegmentedProgressBar = memo(function SegmentedProgressBar({
+const SegmentedProgressBar = memo(function SegmentedProgressBar({
 	width,
 	progress,
 	className,

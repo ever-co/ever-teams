@@ -100,7 +100,7 @@ export const activeTeamManagersState = selectAtom(activeTeamState, selectTeamMan
  * only builds query keys or request scopes reads this instead of the team: it re-renders when an id or the project
  * list changes, not on every refresh of the members.
  */
-export type TActiveTeamScope = Pick<
+type TActiveTeamScope = Pick<
 	TOrganizationTeam,
 	'id' | 'organizationId' | 'tenantId' | 'projects' | 'defaultProjectId'
 >;

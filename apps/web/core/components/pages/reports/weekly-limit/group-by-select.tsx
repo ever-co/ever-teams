@@ -6,7 +6,7 @@ import { controlRecipe } from '@/core/components/common/input';
 import { clsxm } from '@/core/lib/utils';
 import { Badge } from '@/core/components/common/badge';
 
-export type TGroupByOption = 'date' | 'week' | 'member';
+type TGroupByOption = 'date' | 'week' | 'member';
 
 interface IProps {
 	onChange: (options: TGroupByOption[]) => void;

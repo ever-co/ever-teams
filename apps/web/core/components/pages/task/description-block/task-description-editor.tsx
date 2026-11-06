@@ -12,7 +12,7 @@ import { useTeamMentionCandidates } from '@/core/hooks/organizations/teams/use-t
 import { detailedTaskState } from '@/core/stores';
 import type { TTask } from '@/core/types/schemas/task/task.schema';
 
-export type TaskDescriptionEditorProps = {
+type TaskDescriptionEditorProps = {
 	/** Called once the user is done: after a successful save, or after Cancel. The host shows its read view again. */
 	onDone?: () => void;
 	/** Puts the caret at the end of the text as soon as the editor loads. Defaults to true. */

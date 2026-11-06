@@ -12,7 +12,7 @@ export function personFullName(person: NamedPerson): string {
 	return spacedName.trim();
 }
 
-export type LastActiveKind = 'none' | 'today' | 'yesterday' | 'earlier';
+type LastActiveKind = 'none' | 'today' | 'yesterday' | 'earlier';
 
 /** Where a member's last active day sits against today, both read in the time zone of the activity summary. */
 export function lastActiveKindOf(

@@ -43,7 +43,7 @@ import {
 import { personFullName } from '@/core/lib/utils/profile-figures';
 
 /** The Worked tab's sub-views, drawn by the page: the tasks list, or one of the activity screens in its place. */
-export type ProfileActivityView = {
+type ProfileActivityView = {
 	isVisible: boolean;
 	value: FilterTab;
 	onChange: (value: FilterTab) => void;

@@ -7,11 +7,11 @@ import { ETaskStatusName } from '@/core/types/generics/enums/task';
 import type { TCreateProjectRequest, TOrganizationProject, TTag } from '@/core/types/schemas';
 import type { TOrganizationTeam } from '@/core/types/schemas/team/organization-team.schema';
 
-export const PROJECT_NAME_MIN_LENGTH = 3;
+const PROJECT_NAME_MIN_LENGTH = 3;
 export const PROJECT_NAME_MAX_LENGTH = 100;
-export const PROJECT_IMAGE_MAX_BYTES = 5 * 1024 * 1024;
-export const PROJECT_IMAGE_TYPES = ['image/jpeg', 'image/png'];
-export const DEFAULT_PROJECT_LENGTH_DAYS = 7;
+const PROJECT_IMAGE_MAX_BYTES = 5 * 1024 * 1024;
+const PROJECT_IMAGE_TYPES = ['image/jpeg', 'image/png'];
+const DEFAULT_PROJECT_LENGTH_DAYS = 7;
 
 /** The statuses of Gauzy's `ProjectStatusEnum` that the request schema also accepts. */
 export const PROJECT_STATUS_VALUES: ETaskStatusName[] = [
@@ -356,7 +356,7 @@ export function hasDraftErrors(errors: ProjectDraftErrors) {
 }
 
 /** Without a manager, the person creating or saving the project becomes its manager, as the previous wizard did. */
-export function rolesWithDefaultManager(
+function rolesWithDefaultManager(
 	draft: Pick<ProjectDraft, 'managerIds' | 'memberIds'>,
 	currentEmployeeId: string | null | undefined
 ) {
@@ -369,7 +369,7 @@ export function rolesWithDefaultManager(
 	return assignProjectRole(draft, currentEmployeeId as string, 'manager');
 }
 
-export interface ProjectRequestContext {
+interface ProjectRequestContext {
 	base?: TOrganizationProject | null;
 	teams: TOrganizationTeam[];
 	tags: TTag[];

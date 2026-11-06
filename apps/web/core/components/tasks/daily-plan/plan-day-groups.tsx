@@ -28,7 +28,7 @@ const LABEL_LINE_CLASS_NAME = 'flex min-h-9 flex-wrap items-center gap-x-3 gap-y
 const TOGGLE_CLASS_NAME =
 	'-ml-1.5 inline-flex h-7 min-w-0 items-center gap-2 rounded-md px-1.5 text-left outline-none transition-colors hover:bg-foreground/5 focus-visible:ring-[3px] focus-visible:ring-ring/25 [&>svg]:size-3.5 [&>svg]:shrink-0 [&>svg]:text-muted-foreground [&>svg]:transition-transform [&>svg]:duration-200 data-panel-open:[&>svg]:rotate-90';
 
-export interface PlanDayGroupModes {
+interface PlanDayGroupModes {
 	headerMode: FilterTabs;
 	rowPlanMode?: FilterTabs;
 	tablePlanMode?: FilterTabs;

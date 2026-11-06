@@ -106,7 +106,7 @@ export function stopBaseUIHandlerWhenDefaultPrevented(event: PreventableEvent) {
 	event.preventBaseUIHandler?.();
 }
 
-export type RadixOpenState = 'open' | 'closed';
+type RadixOpenState = 'open' | 'closed';
 
 /** Radix exposed `data-state="open|closed"` on triggers and roots; screens still style through it. */
 export function openStateAttribute(isOpen: boolean): RadixOpenState {

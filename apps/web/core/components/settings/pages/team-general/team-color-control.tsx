@@ -23,7 +23,7 @@ const SWATCH_BUTTON =
 
 const SWATCH_PICKED = 'ring-2 ring-foreground/70 ring-offset-2 ring-offset-popover';
 
-export function ColorDot({ color }: Readonly<{ color: string }>) {
+function ColorDot({ color }: Readonly<{ color: string }>) {
 	return (
 		<span
 			aria-hidden="true"

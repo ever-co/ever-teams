@@ -14,7 +14,7 @@ import { cn } from '@/core/lib/helpers';
 import Link from 'next/link';
 import { moduleConstantsSawRuntimeEnv } from '@/env-config';
 
-export interface NotFoundLabels {
+interface NotFoundLabels {
 	title: string;
 	description: string;
 	action: string;

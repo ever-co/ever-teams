@@ -12,12 +12,12 @@ import {
 	SettingsEntry
 } from '@/core/components/settings/kit/settings-entries';
 
-export interface SettingsCrumb {
+interface SettingsCrumb {
 	title: string;
 	href: string;
 }
 
-export function useActiveSettingsEntry(): SettingsEntry | null {
+function useActiveSettingsEntry(): SettingsEntry | null {
 	const pathname = usePathname();
 	return useMemo(() => activeSettingsEntry(stripLocalePrefix(pathname ?? '')), [pathname]);
 }

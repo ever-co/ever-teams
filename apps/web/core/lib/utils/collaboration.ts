@@ -10,7 +10,7 @@ export function isJitsiMeeting(): boolean {
 	return meetType.toLowerCase() === 'jitsi';
 }
 
-export interface CollaborationPerson {
+interface CollaborationPerson {
 	id: string;
 	name: string;
 }
@@ -46,7 +46,7 @@ export function meetRoomNameFor(
 }
 
 /** Base64 of the UTF-8 bytes, as the meeting pages decode it (`atob`). */
-export function encodeRoomName(roomName: string): string {
+function encodeRoomName(roomName: string): string {
 	const bytes = new TextEncoder().encode(roomName);
 	let binary = '';
 	for (const byte of bytes) {

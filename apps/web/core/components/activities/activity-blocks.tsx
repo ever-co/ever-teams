@@ -72,7 +72,7 @@ export function ActivityFigurePair({
 	);
 }
 
-export const FIGURE_SKELETON_BAR = 'h-3.5 animate-pulse rounded-full bg-foreground/[0.06]';
+const FIGURE_SKELETON_BAR = 'h-3.5 animate-pulse rounded-full bg-foreground/[0.06]';
 
 export function ActivityFigurePulse({ className }: Readonly<{ className?: string }>) {
 	return <span aria-hidden="true" className={cn(FIGURE_SKELETON_BAR, 'w-16', className)} />;

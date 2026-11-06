@@ -13,7 +13,7 @@ export interface InviteEmailEntry {
 	invitationId: string | null;
 }
 
-export interface InviteEmailContext {
+interface InviteEmailContext {
 	memberEmails: ReadonlySet<string>;
 	/** Pending invitation id by address. */
 	pendingInvitations: ReadonlyMap<string, string>;
@@ -22,7 +22,7 @@ export interface InviteEmailContext {
 const SEPARATORS = /[\s,;]+/;
 
 /** Addresses as people type or paste them: one per comma, semicolon, space or line, lowercased, without repeats. */
-export function splitEmailInput(text: string): string[] {
+function splitEmailInput(text: string): string[] {
 	const parts = text.split(SEPARATORS);
 	const addresses: string[] = [];
 	for (const part of parts) {
@@ -56,7 +56,7 @@ export function extractEmails(text: string): string[] {
 	return splitEmailInput(found.join(' '));
 }
 
-export function normalizeEmail(value: string): string {
+function normalizeEmail(value: string): string {
 	return value.trim().replace(/^<|>$/g, '').toLowerCase();
 }
 
