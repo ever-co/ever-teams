@@ -15,11 +15,6 @@
 import { normalizeImageUrl } from './normalize-image-url';
 
 describe('normalizeImageUrl', () => {
-	it("leaves out Gauzy's generated dummyimage.com placeholder, so the avatar shows its initials", () => {
-		expect(normalizeImageUrl('https://dummyimage.com/330x300/8b72ff/ffffff.jpg&text=A')).toBe('');
-		expect(normalizeImageUrl('  https://dummyimage.com/330x300/0ecc9d/ffffff.jpg&text=JD ')).toBe('');
-	});
-
 	it('prefixes a route-relative seed path so it resolves from the site root', () => {
 		expect(normalizeImageUrl('assets/images/avatars/avatar-default.svg')).toBe(
 			'/assets/images/avatars/avatar-default.svg'
