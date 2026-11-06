@@ -31,10 +31,15 @@ export function getTimerStatusRequest(
 }
 
 export function getTimerWorkedStatusRequest(
-	{ tenantId, organizationId, employeeId }: IGetTimerStatusParams & { employeeId?: string },
+	{
+		tenantId,
+		organizationId,
+		employeeId,
+		employeeIds
+	}: IGetTimerStatusParams & { employeeId?: string; employeeIds?: string[] },
 	bearer_token: string
 ) {
-	const params = qs.stringify({ tenantId, organizationId, employeeId });
+	const params = qs.stringify({ tenantId, organizationId, employeeId, employeeIds });
 
 	return serverFetch<ITimerStatus[]>({
 		path: `/timesheet/timer/status/worked?${params}`,

@@ -31,7 +31,7 @@ async function fetchDailyReport(props: ReportProps | null) {
 	if (!props) {
 		throw missingPropsError();
 	}
-	return timeLogService.getTimeLogReportDaily(props);
+	return timeLogService.getTimeLogReportDaily({ ...props, includeTimeWithoutTeam: true });
 }
 
 async function fetchStatisticsCounts(props: ReportProps | null) {
@@ -55,14 +55,16 @@ function countsOf(response: { data?: ITimesheetCountsStatistics } | undefined): 
 }
 
 /**
- * The daily report behind the team dashboard's chart, breakdown and table. Same key and cache entry as
- * `useActivityDailyReportQuery`; the previous period stays on screen while the next one loads.
+ * The daily report behind the team dashboard's chart, breakdown and table, with the time the team's members logged
+ * without a team. Its own key, as the other readers of the activity report leave that time out; the previous period
+ * stays on screen while the next one loads.
  */
 export function useTeamDailyReportQuery(props: ReportProps | null, enabled: boolean) {
 	const isEnabled = enabled && Boolean(props);
 	const isLive = isLiveDayRange(props?.startDate, props?.endDate);
+	const keyParams = getActivityQueryKeyParams(props);
 	return useQuery({
-		queryKey: queryKeys.activities.daily(getActivityQueryKeyParams(props)),
+		queryKey: queryKeys.activities.daily({ ...keyParams, includeTimeWithoutTeam: true }),
 		queryFn: () => fetchDailyReport(props),
 		select: dailyRowsOf,
 		enabled: isEnabled,

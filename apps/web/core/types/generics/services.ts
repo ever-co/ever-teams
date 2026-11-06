@@ -73,4 +73,5 @@ export interface ApiErrorResponse {
 	code?: string;
 	statusCode: number;
 	details?: Record<string, any>;
+	fields?: string[];
 }

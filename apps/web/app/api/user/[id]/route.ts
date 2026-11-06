@@ -4,6 +4,7 @@ import { deleteUserRequest } from '@/core/services/server/requests/user';
 import { INextParams } from '@/core/types/interfaces/common/data-response';
 import { TUser } from '@/core/types/schemas';
 import { NextResponse } from 'next/server';
+import { gauzyErrorResponse } from '@/core/services/server/gauzy-error-response';
 
 export async function GET(req: Request, props: INextParams) {
 	const params = await props.params;
@@ -43,16 +44,20 @@ export async function PUT(req: Request, props: INextParams) {
 
 	const body = (await req.json()) as unknown as TUser;
 
-	const response = await updateUserAvatarRequest(
-		{
-			data: body,
-			id: user.id as string,
-			tenantId: tenantId || ''
-		},
-		access_token || ''
-	);
+	try {
+		const response = await updateUserAvatarRequest(
+			{
+				data: body,
+				id: user.id as string,
+				tenantId: tenantId || ''
+			},
+			access_token || ''
+		);
 
-	return $res(response.data);
+		return $res(response.data);
+	} catch (error) {
+		return gauzyErrorResponse(error, 'The profile was not updated.');
+	}
 }
 
 export async function DELETE(req: Request, props: INextParams) {
