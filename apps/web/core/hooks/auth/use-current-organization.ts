@@ -66,4 +66,6 @@ export const useGetCurrentOrganization = ({ enabled = true }: UseGetCurrentOrgan
 			}
 		};
 	}, [isCurrentScope, setCurrentOrganizationFetching]);
+
+	return { isError: currentOrganizationQuery.isError, refetch: currentOrganizationQuery.refetch };
 };

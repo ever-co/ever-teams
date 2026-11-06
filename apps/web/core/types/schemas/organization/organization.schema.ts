@@ -79,6 +79,7 @@ export const organizationSchema = z
 		requireProject: z.boolean().optional().nullable(),
 		requireTask: z.boolean().optional().nullable(),
 		requireClient: z.boolean().optional().nullable(),
+		requireTeam: z.boolean().optional().nullable(),
 		timeFormat: timeFormatSchema.optional().nullable(),
 		defaultStartTime: z.string().optional().nullable(),
 		defaultEndTime: z.string().optional().nullable(),

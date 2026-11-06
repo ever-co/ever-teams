@@ -12,6 +12,7 @@ import { TeamVisibilitySection } from './team-visibility-section';
 import { TeamTrackingSection } from './team-tracking-section';
 import { TeamDefaultProjectSection } from './team-default-project-section';
 import { TeamDangerSection } from './team-danger-section';
+import { OrganizationTrackingSection } from './organization-tracking-section';
 
 function TeamGeneralContent() {
 	const t = useTranslations();
@@ -61,6 +62,7 @@ function TeamGeneralContent() {
 				setShareProfileView={settings.setShareProfileView}
 				setRequirePlanToTrack={settings.setRequirePlanToTrack}
 			/>
+			{isOrganizationAdmin && <OrganizationTrackingSection />}
 			<TeamDangerSection key={`danger-${team.id}`} />
 		</SettingsPage>
 	);

@@ -166,4 +166,23 @@ describe('ApiErrorService HTTP response provenance', () => {
 		expect(rawProperties.hasHttpResponseStatus(404, 405, 501)).toBe(false);
 		expect(rawProperties.isEndpointUnavailable()).toBe(false);
 	});
+
+	it('keeps the request fields a Gauzy refusal names next to its code', () => {
+		const error = ApiErrorService.fromAxiosError({
+			message: 'Request failed with status code 400',
+			response: {
+				data: {
+					code: 'TRACKING_FIELD_REQUIRED',
+					fields: ['projectId'],
+					message: 'Your organization requires a project on every time entry. Add it and try again.'
+				},
+				headers: {},
+				status: 400,
+				statusText: 'Bad Request'
+			}
+		});
+
+		expect(error.errorCode).toBe('TRACKING_FIELD_REQUIRED');
+		expect(error.details).toEqual({ fields: ['projectId'] });
+	});
 });
