@@ -159,6 +159,22 @@ describe('SessionCheckMemo', () => {
 		expect(memo.size).toBe(0);
 	});
 
+	it('gives up a check that overruns its deadline: its callers get the failure, the next call checks again', async () => {
+		const slow = new SessionCheckMemo<Check>(5_000, 3, () => now, 40);
+		let release!: (check: Check) => void;
+		check.mockImplementationOnce(() => new Promise<Check>((resolve) => (release = resolve)));
+
+		const stalled = [slow.answer('token-a', check, keepable), slow.answer('token-a', check, keepable)];
+		await expect(stalled[0]).rejects.toThrow('did not answer within 40 ms');
+		await expect(stalled[1]).rejects.toThrow('did not answer within 40 ms');
+		expect(slow.size).toBe(0);
+
+		await expect(slow.answer('token-a', check, keepable)).resolves.toEqual(ok('user-1'));
+		expect(check).toHaveBeenCalledTimes(2);
+		release(ok('late')); // the stalled check answering later changes nothing
+		expect(slow.size).toBe(1);
+	});
+
 	it('checks every call when the window is zero', async () => {
 		const off = new SessionCheckMemo<Check>(0, 3, () => now);
 

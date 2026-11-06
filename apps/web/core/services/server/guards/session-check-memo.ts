@@ -6,6 +6,17 @@ export const SESSION_CHECK_MEMO_MAX_TTL_MS = 60_000;
 /** How long a session check is reused for when SESSION_CHECK_MEMO_TTL_MS is unset. */
 export const SESSION_CHECK_MEMO_DEFAULT_TTL_MS = 5_000;
 
+/** How long a session check may take before its callers are answered with its failure and it is forgotten. */
+export const SESSION_CHECK_DEADLINE_MS = 15_000;
+
+/** The failure a check that overran its deadline is answered with. */
+export class SessionCheckTimeoutError extends Error {
+	constructor(deadlineMs: number) {
+		super(`The session check did not answer within ${deadlineMs} ms`);
+		this.name = 'SessionCheckTimeoutError';
+	}
+}
+
 /**
  * The reuse window, from `SESSION_CHECK_MEMO_TTL_MS`: milliseconds, `0` (or `false`) turns the reuse off, anything
  * else or nothing is the default, and no value exceeds the cap.
@@ -69,11 +80,15 @@ export class SessionCheckMemo<T> {
 	 * @param ttlMs How long an answer is reused; `0` reuses nothing.
 	 * @param maxEntries How many tokens are remembered at once; the oldest entries go first.
 	 * @param now The clock (tests pass their own).
+	 * @param deadlineMs How long a check may take before it is given up: its callers get the failure (the guard
+	 * answers 503, "retry later"), the entry is forgotten and the next route checks again — a stalled upstream
+	 * never pins every later request of that token to one hung promise.
 	 */
 	constructor(
 		private readonly ttlMs: number,
 		private readonly maxEntries: number = 2_000,
-		private readonly now: () => number = Date.now
+		private readonly now: () => number = Date.now,
+		private readonly deadlineMs: number = SESSION_CHECK_DEADLINE_MS
 	) {}
 
 	/**
@@ -103,7 +118,7 @@ export class SessionCheckMemo<T> {
 		}
 
 		const entry: Entry<T> = { until, answer: undefined as unknown as Promise<T>, settled: false };
-		entry.answer = check().then(
+		entry.answer = this.withDeadline(check).then(
 			(result) => {
 				entry.settled = true;
 				if (!isKeepable(result)) this.forget(key, entry);
@@ -133,6 +148,25 @@ export class SessionCheckMemo<T> {
 	/** How many tokens are remembered. */
 	get size(): number {
 		return this.entries.size;
+	}
+
+	/** The check, or a `SessionCheckTimeoutError` once the deadline has passed without an answer. */
+	private withDeadline(check: () => Promise<T>): Promise<T> {
+		if (!(this.deadlineMs > 0)) return check();
+		return new Promise<T>((resolve, reject) => {
+			const timer = setTimeout(() => reject(new SessionCheckTimeoutError(this.deadlineMs)), this.deadlineMs);
+			timer.unref?.();
+			check().then(
+				(result) => {
+					clearTimeout(timer);
+					resolve(result);
+				},
+				(error) => {
+					clearTimeout(timer);
+					reject(error);
+				}
+			);
+		});
 	}
 
 	private forget(key: string, entry: Entry<T>): void {
