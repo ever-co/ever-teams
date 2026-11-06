@@ -37,6 +37,8 @@ jest.mock('@/core/stores', () => {
 	const { atom } = jest.requireActual('jotai');
 	return {
 		activeTeamState: atom({ id: 'team-1', name: 'Fixture Team' }),
+		// useTaskQueries reads the team's ids through this slice of activeTeamState
+		activeTeamScopeState: atom({ id: 'team-1' }),
 		detailedTaskState: atom(null),
 		isTrackingEnabledState: atom(false),
 		tasksByTeamState: atom([])
