@@ -2,6 +2,7 @@
 
 import { useCallback, useMemo, useState } from 'react';
 import { useAtomValue } from 'jotai';
+import { useTranslations } from 'next-intl';
 import { useActivityFilters } from '@/core/hooks/activities/use-activity-filters';
 import { useTeamDashboardStatisticsProps } from '@/core/hooks/activities/use-team-dashboard-statistics-props';
 import { useOrganizationAndTeamManagers } from '@/core/hooks/organizations/teams/use-organization-teams-managers';
@@ -112,6 +113,7 @@ function standardDaySecondsOf(hours: number | undefined) {
  * into another report; every id a request carries is in its query key.
  */
 export function useTeamDashboard({ routeTeamId }: Readonly<{ routeTeamId?: string }>) {
+	const t = useTranslations();
 	const { user, isManage, mergedProps, enabled } = useActivityFilters();
 	const organizationTeams = useAtomValue(organizationTeamsState);
 	const activeTeam = useAtomValue(activeTeamState);
@@ -212,7 +214,8 @@ export function useTeamDashboard({ routeTeamId }: Readonly<{ routeTeamId?: strin
 	const statisticsQuery = useTeamStatisticsQuery(statisticsProps, isStatisticsEnabled);
 
 	const report = reportQuery.data;
-	const rows = useMemo(() => flattenDailyReport(report ?? []), [report]);
+	const withoutTeamLabel = t('dashboard.NO_TEAM_GROUP');
+	const rows = useMemo(() => flattenDailyReport(report ?? [], withoutTeamLabel), [report, withoutTeamLabel]);
 	const totals = useMemo(() => teamTotalsOf(rows), [rows]);
 
 	const members = useMemo(() => {

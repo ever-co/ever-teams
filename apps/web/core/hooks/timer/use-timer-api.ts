@@ -16,8 +16,13 @@ import { findTimerPlans } from '@/core/lib/helpers/daily-plan-day';
 import { logErrorInDev } from '@/core/lib/helpers/error-message';
 import { shouldRetryQuery } from '@/core/lib/helpers/retry-utils';
 import { canRunTimerForState } from '@/core/lib/helpers/timer-policy';
+import { taskOnStartProject, timerStartProjectId } from '@/core/lib/helpers/team-default-project';
 import { errorReasonKeyOf } from '@/core/lib/utils/error-feedback';
-import { isTrackingOffRefusal } from '@/core/lib/helpers/timer-errors';
+import {
+	isTrackingOffRefusal,
+	requiredTrackingFieldsMessageKeyOf,
+	requiredTrackingFieldsOf
+} from '@/core/lib/helpers/timer-errors';
 import { isTimerTaskOfTeam } from '@/core/lib/utils/task.utils';
 import { queryKeys } from '@/core/query/keys';
 import { ApiErrorService } from '@/core/services/client/api-error.service';
@@ -555,7 +560,7 @@ export function useTimerApi({
 			const pageTask = pathname?.startsWith('/task/') ? detailedTask : null;
 			const taskToUse = explicitTask || pageTask || activeTeamTaskRef.current;
 			const taskIdToUse = taskToUse?.id;
-			const projectIdToUse = taskToUse?.projectId;
+			const projectIdToUse = timerStartProjectId(taskToUse, activeTeamRef.current);
 
 			if (pageTask) setActiveTask(pageTask);
 
@@ -564,9 +569,10 @@ export function useTimerApi({
 				return 'blocked';
 			}
 
+			const taskOnItsStartProject = taskOnStartProject(taskToUse, activeTeamRef.current);
 			let isBillableToUse: boolean;
 			try {
-				isBillableToUse = await resolveTimerBillable(taskToUse);
+				isBillableToUse = await resolveTimerBillable(taskOnItsStartProject);
 			} catch (error) {
 				// The task's project could not be read: a start without it would record billable time as non-billable
 				const reasonKey = errorReasonKeyOf(error) as DottedLanguageObjectStringPaths;
@@ -649,6 +655,15 @@ export function useTimerApi({
 					if (isTrackingOffRefusal(error)) {
 						toast.warning(t('timer.TRACKING_DISABLED_MESSAGE'), { id: TRACKING_DISABLED_TOAST_ID });
 						queryClient.invalidateQueries({ queryKey: queryKeys.organizationTeams.all });
+						return;
+					}
+					const requiredFields = requiredTrackingFieldsOf(error);
+					if (requiredFields) {
+						const messageKey = requiredTrackingFieldsMessageKeyOf(requiredFields);
+						toast.error(t('toasts.timer.START_FAILED'), {
+							id: 'timer-start-failed',
+							description: t(messageKey)
+						});
 						return;
 					}
 					const reasonKey = errorReasonKeyOf(error) as DottedLanguageObjectStringPaths;

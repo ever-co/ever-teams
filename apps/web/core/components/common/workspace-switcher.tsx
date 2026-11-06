@@ -35,6 +35,8 @@ import { Tooltip } from '../duplicated-components/tooltip';
 import { EntityTile } from './entity-tile';
 import { commandKeycapClass } from './command';
 import { cn } from '@/core/lib/helpers';
+import { useUserQuery } from '@/core/hooks/queries/user-user.query';
+import { NoOtherWorkspace } from './no-other-workspace';
 
 const WORKSPACE_SWITCH_BLOCKED_TOAST_ID = 'workspace-switch-blocked-timer-running';
 
@@ -187,6 +189,8 @@ export function WorkspacesSwitcher() {
 
 	// Use the smart workspace switcher hook (based on password component logic)
 	const { switchToWorkspace, isLoading: isSwitching } = useWorkspaceSwitcher();
+	const { data: user } = useUserQuery();
+	const isAddressUnconfirmed = user?.isEmailVerified === false;
 
 	// Timer protection logic - similar to teams-dropdown.tsx
 	const timerStatus = useAtomValue(timerStatusState);
@@ -414,11 +418,7 @@ export function WorkspacesSwitcher() {
 								</DropdownMenuItem>
 							))}
 
-							{hasNoOtherWorkspace && (
-								<p className="px-2 py-1.5 text-xs text-muted-foreground">
-									{t('switchers.NO_OTHER_WORKSPACE')}
-								</p>
-							)}
+							{hasNoOtherWorkspace && <NoOtherWorkspace isAddressUnconfirmed={isAddressUnconfirmed} />}
 
 							<DropdownMenuSeparator />
 							<DropdownMenuItem disabled className="h-8">

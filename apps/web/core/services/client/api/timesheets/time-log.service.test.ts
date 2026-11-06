@@ -79,3 +79,38 @@ describe('TimeLogService weekly limit report day bounds', () => {
 		}
 	});
 });
+
+describe('TimeLogService daily report time without a team', () => {
+	afterEach(() => jest.restoreAllMocks());
+
+	async function requestDailyReport(teamIds: string[], includeTimeWithoutTeam?: boolean) {
+		jest.spyOn(timeLogService as never, 'organizationId', 'get').mockReturnValue('organization-a' as never);
+		jest.spyOn(timeLogService as never, 'tenantId', 'get').mockReturnValue('tenant-a' as never);
+		const get = jest.spyOn(timeLogService, 'get').mockResolvedValue({ data: [] } as never);
+
+		await timeLogService.getTimeLogReportDaily({
+			organizationId: 'organization-a',
+			tenantId: 'tenant-a',
+			startDate: '2026-11-05',
+			endDate: '2026-11-05',
+			teamIds,
+			includeTimeWithoutTeam
+		});
+
+		const [url] = get.mock.calls[0];
+		return new URL(url, 'https://client.test').searchParams;
+	}
+
+	it('asks for the time without a team of a team-scoped report', async () => {
+		const query = await requestDailyReport(['team-a'], true);
+
+		expect(query.get('includeTimeWithoutTeam')).toBe('true');
+		expect(query.get('teamIds[0]')).toBe('team-a');
+	});
+
+	it('leaves it out of a report scoped to no team, or that does not ask for it', async () => {
+		expect((await requestDailyReport([], true)).has('includeTimeWithoutTeam')).toBe(false);
+		jest.restoreAllMocks();
+		expect((await requestDailyReport(['team-a'])).has('includeTimeWithoutTeam')).toBe(false);
+	});
+});

@@ -21,6 +21,7 @@ import { IRegisterDataAPI } from '@/core/types/interfaces/auth/auth';
 
 import { TOrganizationTeamCreateResponse, TOrganizationTeamEmployee, TUser } from '@/core/types/schemas';
 import { ICustomSmtp } from '@/core/types/interfaces/auth/custom-smtp';
+import { withNewOrganizationTrackingRequirements } from '@/core/constants/config/organization-creation';
 
 class RegisterService extends APIService {
 	protected registerDefaultValue = {
@@ -51,7 +52,8 @@ class RegisterService extends APIService {
 	};
 
 	createOrganization = async (datas: IOrganizationCreate, bearer_token: string) => {
-		return this.post<IOrganization>('/organization', datas, {
+		const body = withNewOrganizationTrackingRequirements(datas);
+		return this.post<IOrganization>('/organization', body, {
 			headers: { Authorization: `Bearer ${bearer_token}` }
 		}).then(({ data }) => data);
 	};
