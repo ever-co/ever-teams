@@ -59,6 +59,14 @@ describe('authenticatedGuard', () => {
 		expect(mockCurrentAuthenticatedUserRequest).toHaveBeenCalledTimes(2);
 	});
 
+	it('checks afresh for a route that asks, whatever check it holds for the token', async () => {
+		await authenticatedGuard(request('token-a'), new NextResponse());
+		const fresh = await authenticatedGuard(request('token-a'), new NextResponse(), { fresh: true });
+
+		expect(mockCurrentAuthenticatedUserRequest).toHaveBeenCalledTimes(2);
+		expect(fresh.user).toEqual(user);
+	});
+
 	it('shares no outage: a check that failed is a 503 for its caller and is run again next time', async () => {
 		mockCurrentAuthenticatedUserRequest.mockRejectedValueOnce(new Error('ECONNRESET'));
 

@@ -2,13 +2,18 @@ import {
 	resolveSessionCheckMemoTtl,
 	SESSION_CHECK_MEMO_DEFAULT_TTL_MS,
 	SESSION_CHECK_MEMO_MAX_TTL_MS,
-	SessionCheckMemo
+	SessionCheckMemo,
+	tokenExpiresAt
 } from './session-check-memo';
 
 type Check = { data: { id: string; statusCode?: number } | null };
 
 const ok = (id: string): Check => ({ data: { id } });
 const keepable = (check: Check) => !!check.data && check.data.statusCode !== 401;
+
+/** A JWT-shaped token (unsigned) whose payload states `exp`, in seconds. */
+const jwtExpiring = (expSeconds: number) =>
+	`${Buffer.from('{"alg":"HS256"}').toString('base64url')}.${Buffer.from(JSON.stringify({ id: 'u', exp: expSeconds })).toString('base64url')}.sig`;
 
 describe('SessionCheckMemo', () => {
 	let now: number;
@@ -102,6 +107,58 @@ describe('SessionCheckMemo', () => {
 		expect(check).toHaveBeenCalledTimes(5);
 	});
 
+	it('counts a refreshed token as the newest, so an older live answer is forgotten first', async () => {
+		await memo.answer('a', check, keepable);
+		now += 3_000;
+		await memo.answer('b', check, keepable);
+		await memo.answer('c', check, keepable);
+		now += 2_000;
+		await memo.answer('a', check, keepable); // a expired and is checked again: now the newest entry
+		await memo.answer('d', check, keepable); // past the bound: b, the oldest live answer, goes — not a
+
+		await memo.answer('a', check, keepable);
+		await memo.answer('c', check, keepable);
+		expect(check).toHaveBeenCalledTimes(5);
+		await memo.answer('b', check, keepable);
+		expect(check).toHaveBeenCalledTimes(6);
+	});
+
+	it('shares a check still in flight past the window rather than starting another', async () => {
+		let release!: (check: Check) => void;
+		check.mockImplementation(() => new Promise<Check>((resolve) => (release = resolve)));
+
+		const first = memo.answer('token-a', check, keepable);
+		now += 6_000;
+		const second = memo.answer('token-a', check, keepable);
+		release(ok('user-1'));
+
+		await expect(Promise.all([first, second])).resolves.toEqual([ok('user-1'), ok('user-1')]);
+		expect(check).toHaveBeenCalledTimes(1);
+	});
+
+	it('never reuses an answer past the token’s own expiry', async () => {
+		const token = jwtExpiring(Math.floor(now / 1000) + 2); // expires in 2 s, the window is 5 s
+
+		await memo.answer(token, check, keepable);
+		now += 1_500;
+		await memo.answer(token, check, keepable);
+		expect(check).toHaveBeenCalledTimes(1);
+
+		now += 1_000;
+		await memo.answer(token, check, keepable);
+		expect(check).toHaveBeenCalledTimes(2);
+	});
+
+	it('checks an expired token every time and keeps nothing for it', async () => {
+		const token = jwtExpiring(Math.floor(now / 1000) - 1);
+
+		await memo.answer(token, check, keepable);
+		await memo.answer(token, check, keepable);
+
+		expect(check).toHaveBeenCalledTimes(2);
+		expect(memo.size).toBe(0);
+	});
+
 	it('checks every call when the window is zero', async () => {
 		const off = new SessionCheckMemo<Check>(0, 3, () => now);
 
@@ -118,6 +175,19 @@ describe('SessionCheckMemo', () => {
 
 		expect(check).toHaveBeenCalledTimes(2);
 	});
+});
+
+describe('tokenExpiresAt', () => {
+	it('reads the exp claim of a JWT, in milliseconds', () => {
+		expect(tokenExpiresAt(jwtExpiring(1_700_000_000))).toBe(1_700_000_000_000);
+	});
+
+	it.each(['opaque-token', 'a.b', `x.${Buffer.from('not json').toString('base64url')}.y`, jwtExpiring(NaN)])(
+		'answers nothing for %p',
+		(token) => {
+			expect(tokenExpiresAt(token)).toBeUndefined();
+		}
+	);
 });
 
 describe('resolveSessionCheckMemoTtl', () => {

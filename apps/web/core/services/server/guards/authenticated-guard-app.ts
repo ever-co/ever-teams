@@ -13,8 +13,13 @@ import { resolveSessionCheckMemoTtl, SessionCheckMemo } from './session-check-me
 
 type SessionCheck = Awaited<ReturnType<typeof currentAuthenticatedUserRequest>>;
 
-/** Whether a session check authenticated the caller (the same test the guard applies below). */
-const authenticated = (check: SessionCheck): boolean => !!check?.data && (check.data as any).statusCode !== 401;
+/**
+ * Whether a session check authenticated the caller: a 2xx with a body that is not Gauzy's 401 envelope. A 2xx with
+ * an empty or unreadable body leaves `data` undefined, and a check that failed leaves no answer at all: neither
+ * authenticated.
+ */
+const authenticated = (check: SessionCheck | void): check is SessionCheck =>
+	!!check?.data && (check.data as any).statusCode !== 401;
 
 /**
  * The session checks of recent tokens, shared by every `app/api/*` route of this server process for
@@ -23,6 +28,16 @@ const authenticated = (check: SessionCheck): boolean => !!check?.data && (check.
 export const sessionChecks = new SessionCheckMemo<SessionCheck>(
 	resolveSessionCheckMemoTtl(process.env.SESSION_CHECK_MEMO_TTL_MS)
 );
+
+export interface AuthenticatedGuardOptions {
+	/**
+	 * Check the token against the Gauzy API now, whatever recent check this process holds for it. For a route that
+	 * is its own authorization boundary because it signs a credential with a server secret (`auth/meet/jwt`,
+	 * `livekit`): a token revoked seconds ago must not be turned into a new credential on the strength of a
+	 * check made before the revocation.
+	 */
+	fresh?: boolean;
+}
 
 /**
  * Authenticates an `app/api` request: it checks the access token against the Gauzy API (`/user/me`) and
@@ -37,7 +52,7 @@ export const sessionChecks = new SessionCheckMemo<SessionCheck>(
  * boundary and must authorize the caller itself. See "API routes and authorization" in apps/web/README.md.
  */
 // eslint-disable-next-line @typescript-eslint/no-unused-vars -- the routes still pass their response; the cookies come from the request
-export async function authenticatedGuard(req: Request, res: NextResponse<unknown>) {
+export async function authenticatedGuard(req: Request, res: NextResponse<unknown>, options: AuthenticatedGuardOptions = {}) {
 	const cookies = requestCookies(req);
 	const access_token = requestAccessToken(cookies);
 	const tenantId = cookies.get(TENANT_ID_COOKIE_NAME) as string;
@@ -48,17 +63,20 @@ export async function authenticatedGuard(req: Request, res: NextResponse<unknown
 
 	let rejection: { statusCode?: number; message?: string } | undefined;
 	const bearer_token = access_token?.toString() || '';
-	// Routes called within the same few seconds with the same token share one check (see SessionCheckMemo).
-	const r_res = await sessionChecks
-		.answer(bearer_token, () => currentAuthenticatedUserRequest({ bearer_token }), authenticated)
-		.catch(async (error: unknown) => {
-			const reason = await unwrapRejection(error);
-			rejection = reason && typeof reason === 'object' ? reason : undefined;
-			console.error(reason);
-		});
+	const check = () => currentAuthenticatedUserRequest({ bearer_token });
+	// Routes called within the same few seconds with the same token share one check (see SessionCheckMemo), unless
+	// the route asks for a fresh one.
+	const r_res: SessionCheck | void = await (options.fresh
+		? check()
+		: sessionChecks.answer(bearer_token, check, authenticated)
+	).catch(async (error: unknown) => {
+		const reason = await unwrapRejection(error);
+		rejection = reason && typeof reason === 'object' ? reason : undefined;
+		console.error(reason);
+	});
 
 	// A 2xx with an empty or unreadable body leaves data undefined: treat it as a check without an answer.
-	if (!authenticated(r_res as SessionCheck)) {
+	if (!authenticated(r_res)) {
 		// The browser clients re-authenticate on the HTTP status, so the refusal carries Gauzy's own status
 		// (401, 404, 429...). A check that never got a usable answer is a 503: an outage must not look like an
 		// expired session that the client should log out.

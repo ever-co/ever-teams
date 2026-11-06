@@ -20,9 +20,30 @@ export function resolveSessionCheckMemoTtl(raw: string | undefined): number {
 	return Math.min(value, SESSION_CHECK_MEMO_MAX_TTL_MS);
 }
 
+/**
+ * When a JWT stops being valid (its `exp` claim, as a time in milliseconds), or `undefined` for a token that
+ * states none or is not a JWT. Read without verification: only the Gauzy API verifies the token, this only
+ * stops an answer from outliving the token it was given for.
+ *
+ * @param token The access token.
+ */
+export function tokenExpiresAt(token: string): number | undefined {
+	const parts = token.split('.');
+	if (parts.length !== 3) return undefined;
+	try {
+		const payload = JSON.parse(Buffer.from(parts[1], 'base64url').toString('utf8')) as { exp?: unknown };
+		return typeof payload.exp === 'number' && Number.isFinite(payload.exp) ? payload.exp * 1000 : undefined;
+	} catch {
+		return undefined;
+	}
+}
+
 interface Entry<T> {
+	/** When the answer stops being reused (never past the token's own expiry). */
 	readonly until: number;
 	readonly answer: Promise<T>;
+	/** Whether the check has answered; a check still in flight is shared until it does, whatever `until` says. */
+	settled: boolean;
 }
 
 /**
@@ -31,11 +52,14 @@ interface Entry<T> {
  * Every `app/api/*` route checks the caller's token against the Gauzy API before it forwards the request, and a
  * page load or a timer click sends several such routes within a second, each paying that round trip (and, on a
  * deployment whose server-side calls leave the cluster, the whole network path) before its own work starts. Within
- * the window the routes share one check: concurrent routes share the check in flight, later ones its answer.
+ * the window the routes share one check: concurrent routes share the check in flight (for as long as it takes),
+ * later ones its answer.
  *
  * Only an answer that authenticated is kept — a refusal, an outage or an empty answer is forgotten as soon as it is
- * known, so the next route checks again. The Gauzy API itself reuses a validated token for ten seconds
- * (`JWT_AUTHENTICATED_USER_TTL_MS`), so a token revoked meanwhile is refused there on the same schedule as before.
+ * known, so the next route checks again. An answer is never reused past the token's own expiry (`exp`). A token
+ * revoked meanwhile (user deactivated, password changed) is refused once the Gauzy API refuses it, which is itself
+ * up to `JWT_AUTHENTICATED_USER_TTL_MS` (10 s there by default) after the revocation, plus this window: a route that
+ * must not act on a token revoked seconds ago asks for a fresh check (`authenticatedGuard(req, res, { fresh: true })`).
  * Tokens are keyed by their hash: the map never holds a token.
  */
 export class SessionCheckMemo<T> {
@@ -67,26 +91,38 @@ export class SessionCheckMemo<T> {
 		const key = createHash('sha256').update(token).digest('base64url');
 		const now = this.now();
 		const existing = this.entries.get(key);
-		if (existing && existing.until > now) {
+		if (existing && (!existing.settled || existing.until > now)) {
 			return existing.answer;
 		}
 
-		const answer = check().then(
+		const expiresAt = tokenExpiresAt(token);
+		const until = expiresAt === undefined ? now + this.ttlMs : Math.min(now + this.ttlMs, expiresAt);
+		if (until <= now) {
+			// An expired token: checked (and refused upstream) every time, kept never.
+			return check();
+		}
+
+		const entry: Entry<T> = { until, answer: undefined as unknown as Promise<T>, settled: false };
+		entry.answer = check().then(
 			(result) => {
-				if (!isKeepable(result)) this.forget(key, answer);
+				entry.settled = true;
+				if (!isKeepable(result)) this.forget(key, entry);
 				return result;
 			},
 			(error) => {
-				this.forget(key, answer);
+				entry.settled = true;
+				this.forget(key, entry);
 				throw error;
 			}
 		);
 		// A rejection reaches every caller that awaits `answer`; this handler only keeps a check nobody awaits any
 		// more from being reported as unhandled.
-		answer.catch(() => undefined);
-		this.entries.set(key, { until: now + this.ttlMs, answer });
+		entry.answer.catch(() => undefined);
+		// Deleted first, so a replaced entry takes the newest place in the eviction order (insertion order = age).
+		this.entries.delete(key);
+		this.entries.set(key, entry);
 		this.evict(now);
-		return answer;
+		return entry.answer;
 	}
 
 	/** Drops every kept answer. */
@@ -99,16 +135,16 @@ export class SessionCheckMemo<T> {
 		return this.entries.size;
 	}
 
-	private forget(key: string, answer: Promise<T>): void {
+	private forget(key: string, entry: Entry<T>): void {
 		// Only this check's own entry: a newer check for the same token may have replaced it.
-		if (this.entries.get(key)?.answer === answer) {
+		if (this.entries.get(key) === entry) {
 			this.entries.delete(key);
 		}
 	}
 
 	private evict(now: number): void {
 		for (const [key, entry] of this.entries) {
-			if (entry.until <= now) this.entries.delete(key);
+			if (entry.settled && entry.until <= now) this.entries.delete(key);
 		}
 		// Insertion order is age order: the first entries are the oldest.
 		for (const key of this.entries.keys()) {
