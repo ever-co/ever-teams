@@ -1,4 +1,5 @@
 const path = require('node:path');
+const { PHASE_TEST } = require('next/constants');
 const withNextIntl = require('next-intl/plugin')('./core/lib/i18n/request.ts');
 const { withSentryConfig } = require('@sentry/nextjs');
 const { parseImageHosts, serializeImageRemotePatterns } = require('./image-hosts');
@@ -175,7 +176,49 @@ const sentryWebpackPluginOptions = {
 	// Keep in mind that https://github.com/getsentry/sentry-webpack-plugin#options.
 };
 
+/**
+ * Packages published as ES modules only ("type": "module", no CommonJS entry): next-intl and the ICU
+ * formatting it runs on, and the AI SDK that app/api/chat drives. Jest's CommonJS runtime cannot load
+ * them as published ("SyntaxError: Unexpected token 'export'"), and next/jest compiles nothing in
+ * node_modules except transpilePackages. Next's own bundler reads ES modules as they are, so only the
+ * test phase lists them: builds and the dev server never see this list.
+ */
+const JEST_ESM_ONLY_PACKAGES = [
+	'next-intl',
+	'use-intl',
+	'icu-minify',
+	'intl-messageformat',
+	'@formatjs/bigdecimal',
+	'@formatjs/ecma402-abstract',
+	'@formatjs/fast-memoize',
+	'@formatjs/icu-messageformat-parser',
+	'@formatjs/icu-skeleton-parser',
+	'@formatjs/intl-localematcher',
+	'ai',
+	'@ai-sdk/deepgram',
+	'@ai-sdk/gateway',
+	'@ai-sdk/groq',
+	'@ai-sdk/openai',
+	'@ai-sdk/openai-compatible',
+	'@ai-sdk/provider',
+	'@ai-sdk/provider-utils',
+	'@workflow/serde',
+	'eventsource-parser'
+];
+
 // Make sure adding Sentry options is the last code to run before exporting
-module.exports = isSentryEnabled
+const exportedConfig = isSentryEnabled
 	? withSentryConfig(withNextIntl(withBundleAnalyzer(nextConfig)), sentryWebpackPluginOptions)
 	: withNextIntl(withBundleAnalyzer(nextConfig));
+
+// next/jest loads this file in PHASE_TEST (`yarn test:web`); every other phase gets the config above unchanged.
+module.exports = async (phase, context) => {
+	const resolvedConfig = typeof exportedConfig === 'function' ? await exportedConfig(phase, context) : exportedConfig;
+	if (phase !== PHASE_TEST) {
+		return resolvedConfig;
+	}
+	return {
+		...resolvedConfig,
+		transpilePackages: [...(resolvedConfig.transpilePackages ?? []), ...JEST_ESM_ONLY_PACKAGES]
+	};
+};

@@ -66,6 +66,21 @@ function completionStream(text: string) {
 	});
 }
 
+/**
+ * The answer text of a UI message stream: AI SDK 7 sends server-sent `data:` events, the answer in their text-delta
+ * parts (the AI SDK 4 data stream sent `0:"…"` lines).
+ */
+async function streamedText(response: Response) {
+	const body = await response.text();
+	return body
+		.split(/\r?\n/)
+		.filter((line) => line.startsWith('data: {'))
+		.map((line) => JSON.parse(line.slice('data: '.length)) as { type?: string; delta?: string })
+		.filter((event) => event.type === 'text-delta')
+		.map((event) => event.delta)
+		.join('');
+}
+
 function chatRequest(config: Record<string, unknown> | undefined) {
 	return new Request('https://app.ever.team/api/chat', {
 		method: 'POST',
@@ -187,19 +202,17 @@ describe('POST /api/chat', () => {
 			);
 
 			expect(response.status).toBe(200);
-			expect(await response.text()).toContain('0:"Hello"');
+			expect(await streamedText(response)).toBe('Hello');
 			expect(mockCreateGuardedFetch).toHaveBeenCalledWith({
 				baseURL: 'https://llm.example.com/v1',
 				allowLoopback: false
 			});
 			expect(mockGuardedFetch).toHaveBeenCalledTimes(1);
 			expect(String(mockGuardedFetch.mock.calls[0][0])).toBe('https://llm.example.com/v1/chat/completions');
-			expect(mockGuardedFetch.mock.calls[0][1]).toEqual(
-				expect.objectContaining({
-					method: 'POST',
-					headers: expect.objectContaining({ Authorization: 'Bearer sk-test' })
-				})
-			);
+			// AI SDK 7 sends its headers normalized (lowercase names), so the key is read the way fetch reads it
+			const [, init] = mockGuardedFetch.mock.calls[0] as [unknown, { method?: string; headers?: HeadersInit }];
+			expect(init.method).toBe('POST');
+			expect(new Headers(init.headers).get('authorization')).toBe('Bearer sk-test');
 			expect(globalFetch).not.toHaveBeenCalled();
 		});
 	});
@@ -210,12 +223,14 @@ describe('POST /api/chat', () => {
 				method: 'POST',
 				headers: { 'content-type': 'application/json' },
 				body: JSON.stringify({
+					// A chat message as the assistant sends it: UI message parts, the image a file part with its URL
 					messages: [
 						{
+							id: 'message-1',
 							role: 'user',
-							content: [
+							parts: [
 								{ type: 'text', text: 'What is this?' },
-								{ type: 'image', image }
+								{ type: 'file', mediaType: 'image/png', url: image }
 							]
 						}
 					],
@@ -232,6 +247,8 @@ describe('POST /api/chat', () => {
 			const response = await POST(withImageUrl('gpt-3.5-turbo-instruct', image));
 
 			expect(response.status).toBe(400);
+			// The image refusal itself, not a message the route could not read
+			expect(await response.json()).toEqual({ error: 'This model does not take images.' });
 			expect(globalFetch).not.toHaveBeenCalled();
 			expect(mockGuardedFetch).not.toHaveBeenCalled();
 		});
@@ -241,7 +258,7 @@ describe('POST /api/chat', () => {
 
 			expect(response.status).toBe(200);
 			// The stream runs the prompt preparation and the provider request: read it before checking the fetch
-			expect(await response.text()).toContain('0:"Hello"');
+			expect(await streamedText(response)).toBe('Hello');
 			expect(globalFetch).toHaveBeenCalledTimes(1);
 			expect(String(globalFetch.mock.calls[0][0])).toBe('https://api.openai.com/v1/chat/completions');
 		});
@@ -258,7 +275,7 @@ describe('POST /api/chat', () => {
 			);
 
 			expect(response.status).toBe(200);
-			expect(await response.text()).toContain('0:"Hello"');
+			expect(await streamedText(response)).toBe('Hello');
 			expect(globalFetch).toHaveBeenCalledTimes(1);
 			expect(String(globalFetch.mock.calls[0][0])).toBe(endpoint);
 			expect(mockCreateGuardedFetch).not.toHaveBeenCalled();

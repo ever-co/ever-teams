@@ -670,7 +670,6 @@ export {
 	SidebarMenuSubItem,
 	SidebarProvider,
 	SidebarRail,
-	SidebarSeparator,
 	SidebarTrigger,
 	SidebarTriggerButton,
 	useSidebar

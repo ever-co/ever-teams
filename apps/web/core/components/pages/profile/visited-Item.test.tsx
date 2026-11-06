@@ -8,6 +8,8 @@
 import { render, screen } from '@testing-library/react';
 import VisitedItem from './visited-Item';
 
+jest.mock('next-intl', () => ({ useLocale: () => 'en', useTranslations: () => (key: string) => key }));
+
 const RealDateTimeFormat = Intl.DateTimeFormat;
 
 // Jest cannot switch the zone of the runner, so a formatter with no zone formats in New York, as a browser there does.
@@ -42,6 +44,7 @@ describe('VisitedItem', () => {
 
 		renderVisitedRow(date);
 
-		expect(screen.getByText(/Sunday, October 25, 2026/)).toBeTruthy();
+		// The row names the day as "Sun, Oct 25" (weekday, day and month, short): never "Sat, Oct 24"
+		expect(screen.getByText(/^Sun, Oct 25 · /)).toBeTruthy();
 	});
 });

@@ -8,7 +8,7 @@ import { useCreateDailyPlan } from './use-create-daily-plan';
 import { useUserQuery } from '@/core/hooks/queries/user-user.query';
 import { EDailyPlanStatus } from '@/core/types/generics/enums/daily-plan';
 
-export type PlanDay = 'today' | 'tomorrow';
+type PlanDay = 'today' | 'tomorrow';
 
 const DAY_OFFSET: Record<PlanDay, number> = { today: 0, tomorrow: 1 };
 

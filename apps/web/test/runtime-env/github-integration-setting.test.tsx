@@ -43,12 +43,16 @@ jest.mock('@/core/hooks/organizations/projects/use-edit-organization-project', (
 		editOrganizationProject: jest.fn()
 	})
 }));
+// Like the real Button: with asChild it renders its child (the install link) instead of a <button>
 jest.mock('@/core/components', () => ({
-	Button: ({ children, disabled, title }: React.ComponentProps<'button'>) => (
-		<button disabled={disabled} title={title}>
-			{children}
-		</button>
-	)
+	Button: ({ children, disabled, title, asChild }: React.ComponentProps<'button'> & { asChild?: boolean }) =>
+		asChild ? (
+			<>{children}</>
+		) : (
+			<button disabled={disabled} title={title}>
+				{children}
+			</button>
+		)
 }));
 jest.mock('@/core/components/common/select', () => {
 	const Passthrough = ({ children }: React.PropsWithChildren) => <>{children}</>;

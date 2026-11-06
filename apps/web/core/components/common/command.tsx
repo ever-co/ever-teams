@@ -95,7 +95,7 @@ const CommandInput = React.forwardRef<React.ElementRef<typeof CommandPrimitive.I
 
 CommandInput.displayName = CommandPrimitive.Input.displayName;
 
-export interface CommandTabItem {
+interface CommandTabItem {
 	value: string;
 	label: React.ReactNode;
 }
@@ -279,13 +279,11 @@ export {
 	CommandDialog,
 	CommandInput,
 	CommandList,
-	CommandTabs,
 	CommandEmpty,
 	CommandGroup,
 	CommandItem,
 	CommandShortcut,
 	CommandSeparator,
-	CommandFooter,
 	commandKeycapClass,
 	commandIconTileClass
 };

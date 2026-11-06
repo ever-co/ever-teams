@@ -69,7 +69,7 @@ export function PropertyRow({
 	);
 }
 
-export function PeopleChips({ people, max }: Readonly<{ people: ProjectPerson[]; max: number }>) {
+function PeopleChips({ people, max }: Readonly<{ people: ProjectPerson[]; max: number }>) {
 	const t = useTranslations();
 	if (people.length === 0) {
 		return <span className={MUTED_VALUE}>{t('pages.projects.detail.NOBODY')}</span>;
@@ -93,9 +93,9 @@ export function PeopleChips({ people, max }: Readonly<{ people: ProjectPerson[];
 	);
 }
 
-export type ProjectTeam = NonNullable<TOrganizationProject['teams']>[number];
+type ProjectTeam = NonNullable<TOrganizationProject['teams']>[number];
 
-export function TeamChips({ teams }: Readonly<{ teams: ProjectTeam[] }>) {
+function TeamChips({ teams }: Readonly<{ teams: ProjectTeam[] }>) {
 	const t = useTranslations();
 	if (teams.length === 0) {
 		return <span className={MUTED_VALUE}>{t('pages.projects.detail.NO_TEAM')}</span>;
@@ -120,7 +120,7 @@ export function TeamChips({ teams }: Readonly<{ teams: ProjectTeam[] }>) {
 	);
 }
 
-export function BudgetValue({ project }: Readonly<{ project: TOrganizationProject }>) {
+function BudgetValue({ project }: Readonly<{ project: TOrganizationProject }>) {
 	const t = useTranslations();
 	const budget = useProjectBudget(project);
 	if (!budget) {
@@ -299,7 +299,7 @@ export function ProjectLinks({ project }: Readonly<{ project: TOrganizationProje
 	);
 }
 
-export function FactRow({ label, children }: Readonly<{ label: string; children: ReactNode }>) {
+function FactRow({ label, children }: Readonly<{ label: string; children: ReactNode }>) {
 	return (
 		<div className="flex min-h-9 items-center justify-between gap-4 py-1.5">
 			<span className="shrink-0 text-xs text-muted-foreground">{label}</span>

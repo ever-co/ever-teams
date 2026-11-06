@@ -33,7 +33,7 @@ const TILE_SIZE = {
 	xl: 'size-10 text-sm rounded-[11px]'
 } as const;
 
-export type ProjectTileSize = keyof typeof TILE_SIZE;
+type ProjectTileSize = keyof typeof TILE_SIZE;
 
 export function ProjectTile({
 	project,
@@ -267,7 +267,7 @@ function formatAmount(locale: string, amount: number, currency: string | null | 
 	return new Intl.NumberFormat(locale).format(amount);
 }
 
-export interface ProjectBudgetValue {
+interface ProjectBudgetValue {
 	amount: string;
 	unit: string | null;
 }

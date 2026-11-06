@@ -25,7 +25,7 @@ import { TTask } from '@/core/types/schemas/task/task.schema';
 import { NotificationRow, NotificationTaskContext } from './notification-row';
 import { NotificationEmptyState, NotificationErrorState, NotificationRowsSkeleton } from './notification-states';
 
-export const NOTIFICATION_SETTINGS_HREF = '/settings/personal/notifications';
+const NOTIFICATION_SETTINGS_HREF = '/settings/personal/notifications';
 
 const GROUP_KEYS: Record<NotificationDayGroup, DottedLanguageObjectStringPaths> = {
 	today: 'notifications.GROUPS.TODAY',

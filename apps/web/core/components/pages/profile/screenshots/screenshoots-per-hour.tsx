@@ -84,7 +84,7 @@ export const ScreenshotHourGroup = memo(function ScreenshotHourGroup({
 });
 
 /** An hour of screenshots rendered on its own, with its own detail dialog. */
-export const ScreenshotPerHour = ({
+const ScreenshotPerHour = ({
 	timeSlots,
 	startedAt,
 	stoppedAt,
