@@ -44,6 +44,18 @@ describe('team presence', () => {
 		expect(getMemberFilterStatus(member(present, ETimerStatus.PAUSE))).toBe(ETimerStatus.PAUSE);
 	});
 
+	it('filters a member whose timer runs outside the team as running, as the badge shows it', () => {
+		const tracking = { isOnline: true, isTrackingTime: true };
+		expect(getMemberFilterStatus(member(tracking, ETimerStatus.PAUSE))).toBe(ETimerStatus.RUNNING);
+		expect(getMemberFilterStatus(member(tracking, ETimerStatus.IDLE))).toBe(ETimerStatus.RUNNING);
+		expect(getMemberFilterStatus(member({ isOnline: true }, ETimerStatus.PAUSE))).toBe(ETimerStatus.PAUSE);
+	});
+
+	it('leaves an inactive member out of the running filter, as the badge shows them suspended', () => {
+		const inactiveTracking = { isActive: false, isOnline: true, isTrackingTime: true };
+		expect(getMemberFilterStatus(member(inactiveTracking, ETimerStatus.PAUSE))).toBe(ETimerStatus.PAUSE);
+	});
+
 	it('keeps Gauzy timer status in the filters when presence is off', () => {
 		mockPresenceEnabled.value = false;
 		const present = { lastSeenAt: new Date().toISOString(), isIdle: false };

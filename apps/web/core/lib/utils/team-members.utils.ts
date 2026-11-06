@@ -2,6 +2,7 @@ import isEqual from 'lodash/isEqual';
 import { TOrganizationTeamEmployee, TOrganizationTeam, TUser } from '@/core/types/schemas';
 import { ETimerStatus } from '@/core/types/generics/enums/timer';
 import { EMPLOYEE_PRESENCE_CONSTANTS, EMPLOYEE_PRESENCE_ENABLED } from '@/core/constants/config/constants';
+import { isTrackingOutsideTeam } from '@/core/lib/helpers/team-member-tracking';
 
 // Constants for team member utilities
 export const TEAM_MEMBER_CONSTANTS = {
@@ -53,11 +54,17 @@ export const getMemberPresence = (
 };
 
 /**
- * The status the team filters and their counts go by: Gauzy's timerStatus, except that a member who is not
- * tracking, paused or suspended and sent a recent heartbeat is online, as the status badge shows it
- * (getTimerStatusValue).
+ * The status the team filters and their counts go by: Gauzy's timerStatus, except that a member whose timer runs
+ * outside this team is running, and a member who is not tracking, paused or suspended and sent a recent heartbeat is
+ * online, as the status badge shows it (getTimerStatusValue).
  */
 export const getMemberFilterStatus = (member: TOrganizationTeamEmployee): string | undefined => {
+	// The badge shows an inactive member as suspended whatever their timer says
+	const isInactive = member.employee?.isActive === false;
+	const runsOutsideTeam = isTrackingOutsideTeam(member);
+	if (runsOutsideTeam && !isInactive) {
+		return ETimerStatus.RUNNING;
+	}
 	const tracking = !!member.employee?.isTrackingTime || member.timerStatus === ETimerStatus.RUNNING;
 	if (
 		!tracking &&
