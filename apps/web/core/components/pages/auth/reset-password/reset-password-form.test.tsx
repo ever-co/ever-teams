@@ -12,7 +12,11 @@ jest.mock('next/navigation', () => ({
 	useSearchParams: () => new URLSearchParams('token=reset-token')
 }));
 jest.mock('@/core/components/layouts/default-layout/auth-layout', () => ({
-	AuthLayout: ({ children }: { children: ReactNode }) => <div>{children}</div>
+	AuthLayout: ({ children, operatorLinksOnly }: { children: ReactNode; operatorLinksOnly?: boolean }) => (
+		<div data-testid="auth-layout" data-operator-links-only={String(Boolean(operatorLinksOnly))}>
+			{children}
+		</div>
+	)
 }));
 jest.mock('@/core/services/client/api/auth/auth.service', () => ({
 	authService: { resetPassword: (...args: unknown[]) => mockResetPassword(...args) }
@@ -68,5 +72,11 @@ describe('ResetPasswordForm', () => {
 		await submit();
 
 		expect(mockResetPassword).toHaveBeenCalledWith('reset-token', 'Abcdef1!', 'Abcdef1!');
+	});
+
+	it('links the footer only to the branding links the operator set (egress audit UI baseline)', () => {
+		render(<ResetPasswordForm isTokenExpired={false} />);
+
+		expect(screen.getByTestId('auth-layout').getAttribute('data-operator-links-only')).toBe('true');
 	});
 });
