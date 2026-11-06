@@ -27,7 +27,7 @@ import {
  * `unavailable`: the server runs without Gauzy's Documents plugin, so the section stays out of the way.
  * `forbidden`: the plugin is there, but the person's role may not read documents.
  */
-export type EntityFilesState = 'loading' | 'ready' | 'unavailable' | 'forbidden' | 'error';
+type EntityFilesState = 'loading' | 'ready' | 'unavailable' | 'forbidden' | 'error';
 
 export interface PendingUpload {
 	key: string;
@@ -86,7 +86,7 @@ function reasonKeyOf(error: unknown) {
 }
 
 /** The files linked to one record. Every reader of the same record shares one request. */
-export function useEntityFileLinks(target: IEntityFileTarget) {
+function useEntityFileLinks(target: IEntityFileTarget) {
 	const organizationId = getOrganizationIdCookie() ?? '';
 	const { entity, entityId } = target;
 	const stableTarget = useMemo<IEntityFileTarget>(() => ({ entity, entityId }), [entity, entityId]);

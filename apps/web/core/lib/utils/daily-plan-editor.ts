@@ -9,7 +9,7 @@ const PLAN_GAP_HOURS = 1;
 
 const SECONDS_PER_HOUR = 3600;
 
-export function hasEstimate(task: Pick<TTask, 'estimate'>) {
+function hasEstimate(task: Pick<TTask, 'estimate'>) {
 	const estimate = task.estimate;
 	if (typeof estimate !== 'number') {
 		return false;

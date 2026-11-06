@@ -104,6 +104,9 @@ describe('image-hosts.js (shared by next.config.js and proxy.ts)', () => {
 			'gauzy.sfo2.digitaloceanspaces.com',
 			'cdn-icons-png.flaticon.com',
 			'api.gauzy.co',
+			// Gauzy's stored placeholder picture for users, teams and organizations without one, which avatars render through
+			// next/image. Removed on 2026-10-30 (51cb48e64, egress), back with #4893: the egress audit no longer allows it.
+			'dummyimage.com',
 			'apida.gauzy.co',
 			'apicw.gauzy.co',
 			'apicivo.gauzy.co',

@@ -14,6 +14,7 @@ import { cn } from '@/core/lib/helpers';
 import Link from 'next/link';
 import { moduleConstantsSawRuntimeEnv } from '@/env-config';
 
+/** @public Re-exported by the pages/404 barrel: the labels app/[locale]/not-found.tsx translates for this page. */
 export interface NotFoundLabels {
 	title: string;
 	description: string;

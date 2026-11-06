@@ -44,7 +44,7 @@ function getStyle(provided: DraggableProvided, style: any) {
 
 const KANBAN_AVATAR_COUNT = 3;
 
-export function setCommentIconColor(commentType: 'tagged' | 'untagged') {
+function setCommentIconColor(commentType: 'tagged' | 'untagged') {
 	let style;
 
 	if (commentType === 'tagged') {

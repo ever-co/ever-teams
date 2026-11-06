@@ -18,7 +18,7 @@ import type {
 } from '@/core/types/schemas/ai/voice-fill.schema';
 import { useVoiceRecorder, type RecorderError, type RecorderPhase } from './use-voice-recorder';
 
-export const MAX_VOICE_FILL_SECONDS = 180;
+const MAX_VOICE_FILL_SECONDS = 180;
 
 /** How long the fields the voice just filled keep their highlight. */
 const FILLED_HIGHLIGHT_MS = 1600;

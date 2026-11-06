@@ -17,7 +17,7 @@ import { TrackingSourceEmptyState } from './tracking-source-empty-state';
 import VisitedItem, { formatUsageDuration } from './visited-Item';
 import { VisitedItemSkeleton } from './visited-item-skeleton';
 
-export type ActivityShareType = 'APP' | 'SITE';
+type ActivityShareType = 'APP' | 'SITE';
 
 interface ActivityHour {
 	hour: string;
@@ -70,7 +70,7 @@ function activityHoursOf(activities: TDailyActivity[], format: Intl.DateTimeForm
 	return hours.sort(byLatestHourFirst);
 }
 
-export function ActivityShareGroupsSkeleton() {
+function ActivityShareGroupsSkeleton() {
 	return (
 		<div className={TASK_GROUP_STACK} aria-hidden="true">
 			<div className="flex min-h-8 items-center">

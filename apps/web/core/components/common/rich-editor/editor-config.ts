@@ -15,15 +15,15 @@ export const AI_PANEL_MODES: readonly Exclude<TEditorAiMode, 'custom'>[] = [
 ];
 
 /** Gauzy accepts raster images only on its upload route (an SVG can carry a script). */
-export const EDITOR_IMAGE_TYPES = ['image/png', 'image/jpeg', 'image/webp', 'image/gif'];
+const EDITOR_IMAGE_TYPES = ['image/png', 'image/jpeg', 'image/webp', 'image/gif'];
 
 export const EDITOR_IMAGE_ACCEPT = EDITOR_IMAGE_TYPES.join(',');
 
-export const EDITOR_IMAGE_MAX_BYTES = 5 * 1024 * 1024;
+const EDITOR_IMAGE_MAX_BYTES = 5 * 1024 * 1024;
 
 export const EDITOR_IMAGE_FOLDER = 'description_images';
 
-export type TEditorImageProblem = 'type' | 'size';
+type TEditorImageProblem = 'type' | 'size';
 
 export function editorImageProblemOf(file: File): TEditorImageProblem | null {
 	const isAcceptedType = EDITOR_IMAGE_TYPES.includes(file.type);

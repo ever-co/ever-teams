@@ -175,10 +175,15 @@ describe('self-hostable Docker image', () => {
 		}
 
 		// A payload-less document must be left by a full page load: a soft navigation would carry its
-		// build-time-default constants into the app until the next reload.
-		expect(read('apps/web/core/components/pages/404/index.tsx')).toMatch(
-			/moduleConstantsSawRuntimeEnv\(\)[\s\S]*<a href="\/">Go back to home<\/a>/
+		// build-time-default constants into the app until the next reload. The page links home with a
+		// plain <a> unless the module constants saw the runtime env, and the root boundary's English
+		// default names that link.
+		const notFoundPage = read('apps/web/core/components/pages/404/index.tsx');
+		expect(notFoundPage).toMatch(
+			/const canSoftNavigate = moduleConstantsSawRuntimeEnv\(\);[\s\S]*\{!canSoftNavigate && \([\s\S]*?<a href="\/">\{labels\.action\}<\/a>/
 		);
+		expect(notFoundPage).toMatch(/\{canSoftNavigate && \([\s\S]*?<Link href="\/">\{labels\.action\}<\/Link>/);
+		expect(notFoundPage).toContain("action: 'Go back to home'");
 	});
 });
 

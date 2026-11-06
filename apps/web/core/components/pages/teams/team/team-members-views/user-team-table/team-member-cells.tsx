@@ -158,7 +158,7 @@ export function ActionMenuCell({ cell }: { cell: any }) {
 	return <ActionMenu active={active} />;
 }
 
-export function ActionMenu({ active }: Readonly<{ active: boolean }>) {
+function ActionMenu({ active }: Readonly<{ active: boolean }>) {
 	const { identity, memberTask, mutations, roleActions, taskEdition } = useTeamMemberRowContext();
 
 	const { collaborativeSelect, user_selected, onUserSelect } = useCollaborative(identity.memberUser);

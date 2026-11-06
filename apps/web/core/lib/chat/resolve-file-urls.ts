@@ -250,17 +250,41 @@ const COMPLETION_MODEL_IDS: ReadonlySet<string> = new Set(['gpt-3.5-turbo-instru
 
 const NO_IMAGES = 'This model does not take images.';
 
+/**
+ * Whether an image's value is an http(s) URL the SDK would download. The SDK reads a string with `new URL()`, which
+ * takes `HTTP://…` and surrounding whitespace, so the check reads it the same way: a prefix test would let such a URL
+ * through to the SDK's download.
+ */
+function isHttpImageValue(value: unknown): boolean {
+	if (typeof value === 'string') {
+		try {
+			return httpHrefOf(new URL(value)) !== null;
+		} catch {
+			return false;
+		}
+	}
+	if (value instanceof URL) {
+		return httpHrefOf(value) !== null;
+	}
+	if (typeof value !== 'object' || value === null) {
+		return false;
+	}
+	const tagged = value as { type?: unknown; url?: unknown };
+	if (tagged.type !== 'url') {
+		return false;
+	}
+	return isHttpImageValue(tagged.url);
+}
+
 function isImageUrlPart(part: { type: string; image?: unknown; data?: unknown; mediaType?: string }) {
 	if (part.type === 'image') {
-		const imageUrl = httpUrlOf(part.image);
-		return imageUrl !== null;
+		return isHttpImageValue(part.image);
 	}
 	const isFile = part.type === 'file';
 	if (!isFile || !isImageFile(part)) {
 		return false;
 	}
-	const fileUrl = httpUrlOf(part.data);
-	return fileUrl !== null;
+	return isHttpImageValue(part.data);
 }
 
 function userMessageHoldsImageUrl(message: ModelMessage) {

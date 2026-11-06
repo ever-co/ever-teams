@@ -18,7 +18,7 @@ import {
 import type { SuggestionEntry } from './suggestion-list';
 import { suggestionRender, type SuggestionLabels } from './suggestion-render';
 
-export type SlashItem = SuggestionEntry & {
+type SlashItem = SuggestionEntry & {
 	keywords: string[];
 	run: (editor: Editor, range: Range) => void;
 };
@@ -197,7 +197,7 @@ function matchesQuery(item: SlashItem, query: string) {
 	return item.keywords.some((keyword) => keyword.startsWith(query));
 }
 
-export function filterSlashItems(items: SlashItem[], query: string): SlashItem[] {
+function filterSlashItems(items: SlashItem[], query: string): SlashItem[] {
 	const normalized = query.trim().toLowerCase();
 	if (!normalized) {
 		return items;

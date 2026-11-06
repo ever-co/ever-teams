@@ -40,7 +40,7 @@ const REQUIRED_FIELDS: Record<TAccountDeletionStep, readonly string[]> = {
 const NO_STORE = { 'Cache-Control': 'no-store' };
 
 /** The longest a Gauzy call is waited for: the browser's own call gives up after 60 s (account-deletion.service). */
-export const ACCOUNT_DELETION_UPSTREAM_TIMEOUT_MS = 60_000;
+const ACCOUNT_DELETION_UPSTREAM_TIMEOUT_MS = 60_000;
 
 /**
  * The signal of an upstream call: aborted when the browser's request goes away (`req.signal`) or after
@@ -69,6 +69,8 @@ let warnedNoConfiguredOrigin = false;
  * This app's public origin, from its configuration only: NEXT_PUBLIC_WEB_APP_URL (read at runtime), else AUTH_URL /
  * NEXTAUTH_URL. Never from the request: its `Host`, `X-Forwarded-Host` and `Origin` headers, like its body, are
  * whatever the caller sends, and the link carries a token that deletes every account of the address.
+ *
+ * @public A server request helper of core/services/server/requests (guarded service surface).
  */
 export function appPublicOrigin(): string | null {
 	const configured = [

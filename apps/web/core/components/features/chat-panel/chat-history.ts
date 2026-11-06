@@ -69,7 +69,7 @@ export function textOfChatMessage(message: Pick<ChatHistoryMessage, 'content' | 
 	return message.content ?? '';
 }
 
-export type ChatUiMessage = { id: string; role: 'user' | 'assistant'; parts: TextPart[] };
+type ChatUiMessage = { id: string; role: 'user' | 'assistant'; parts: TextPart[] };
 
 function isConversationRole(role: string): role is ChatUiMessage['role'] {
 	const isUser = role === 'user';

@@ -7,7 +7,7 @@ import type { TOrganizationTeam } from '@/core/types/schemas';
 const SNAPSHOT_STORAGE_KEY = 'ever-teams:active-team-snapshot';
 
 /** What the team switcher needs to name the active team before the list of teams has arrived. */
-export interface ActiveTeamSnapshot {
+interface ActiveTeamSnapshot {
 	id: string;
 	name: string;
 	color: string | null;
