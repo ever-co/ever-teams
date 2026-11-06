@@ -36,7 +36,9 @@ jobs:
     steps:
       # In-cluster (ever-co/k8s-gitops apps/ci-builds, which sets CI_IN_CLUSTER) the arm64 job of this file starts on the push to
       # `apps`, not after "Release Apps" has finished as on Actions: wait until Release Apps has tagged that commit, so the version
-      # picked below is that release's (about 8 min: the deadline counts the requests and the sleeps, inside the job's 10). Skipped on Actions, where the tag exists by then.
+      # picked below is that release's (about 8 min: the deadline counts the requests and the sleeps, inside the job's 10). With no tag
+      # by then the job fails rather than build into an older release; re-run it once Release Apps has tagged. Skipped on Actions,
+      # where the tag exists by then.
       - name: Wait for the Release Apps tag (in-cluster)
         if: ${{ vars.CI_IN_CLUSTER == 'true' }}
         shell: bash
@@ -51,7 +53,8 @@ jobs:
             fi
             sleep 30
           done
-          echo "::warning::no vX.Y.Z tag on ${SHA} after 8 min: the newest tag is used"
+          echo "::error::no vX.Y.Z tag on ${SHA} after 8 min: re-run this workflow once Release Apps has tagged it"
+          exit 1
 
       - name: Pick the version and create its draft release
         id: prepare
@@ -402,7 +405,9 @@ jobs:
     # fallback value so nothing here needs rewriting).
     # In-cluster: with the repo variable LINUX_ARM64_IN_CLUSTER=true this job runs in ever-co/k8s-gitops apps/ci-builds (an emulated
     # arm64 container, which sets RUNNER_LINUX_ARM64_8 and CI_IN_CLUSTER for its own runs) and is skipped here. Forks: unchanged.
-    if: ${{ !cancelled() && vars.RUNNER_LINUX_ARM64_8 != '' && (vars.LINUX_ARM64_IN_CLUSTER != 'true' || vars.CI_IN_CLUSTER == 'true') }}
+    # In-cluster this job starts on the push, before Release Apps may have tagged: without create-release's version it
+    # would build into the newest (older) release, so it waits for create-release to succeed there.
+    if: ${{ !cancelled() && vars.RUNNER_LINUX_ARM64_8 != '' && (vars.LINUX_ARM64_IN_CLUSTER != 'true' || vars.CI_IN_CLUSTER == 'true') && (vars.CI_IN_CLUSTER != 'true' || needs.create-release.result == 'success') }}
     runs-on: ${{ matrix.os }}
     timeout-minutes: 300
 
