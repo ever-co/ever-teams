@@ -23,6 +23,7 @@ import { APIConfig } from './axios';
 import { HttpLoggerAdapter } from '../logs/logger-adapter.service';
 import { Logger } from '../logs/logger.service';
 import { ApiErrorService } from './api-error.service';
+import { requestBodyForLog } from './request-log-body';
 
 /**
  * Configuration Options for HTTP Request
@@ -272,7 +273,7 @@ export class APIService {
 			this.logger.debug(`🚀 Request: ${config.method?.toUpperCase()} ${config.url}`, {
 				headers: config.headers,
 				params: config.params,
-				data: config.data
+				data: requestBodyForLog(config.data)
 			});
 		}
 	}
