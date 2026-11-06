@@ -99,8 +99,10 @@ export const activeTeamManagersState = selectAtom(activeTeamState, selectTeamMan
  * The active team's ids and projects, which requests are scoped with. Same field names as the team, so a hook that
  * only builds query keys or request scopes reads this instead of the team: it re-renders when an id or the project
  * list changes, not on every refresh of the members.
+ *
+ * @public Re-exported by the core/stores barrels.
  */
-type TActiveTeamScope = Pick<
+export type TActiveTeamScope = Pick<
 	TOrganizationTeam,
 	'id' | 'organizationId' | 'tenantId' | 'projects' | 'defaultProjectId'
 >;

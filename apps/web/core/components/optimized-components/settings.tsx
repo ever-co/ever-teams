@@ -128,7 +128,8 @@ export const LazyIntegrationSetting = dynamic(
 );
 
 // Ever Platform (optional): loaded only when the section shows
-const LazyEverPlatformSection = dynamic(
+/** @public Re-exported by the optimized-components barrel (index.tsx), part of its lazy settings set. */
+export const LazyEverPlatformSection = dynamic(
 	() =>
 		import('@/core/components/pages/settings/team/ever-platform-section').then((mod) => ({
 			default: mod.EverPlatformSection

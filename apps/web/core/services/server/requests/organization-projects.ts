@@ -80,8 +80,10 @@ const SCOPE_FILTER_FIELDS = ['organizationId', 'tenantId'];
 /**
  * Whether a query key filters on the organization or the tenant, read the way Gauzy's query parser (qs) reads it:
  * `where[organizationId]`, `where[organizationId][ne]`, `where[tenantId][]` and the like.
+ *
+ * @public Re-exported by the core/services/server/requests barrel.
  */
-function isScopeFilterKey(key: string): boolean {
+export function isScopeFilterKey(key: string): boolean {
 	const parsed = qs.parse(`${encodeURIComponent(key)}=1`) as { where?: unknown };
 	const where = parsed.where;
 	if (typeof where !== 'object' || where === null) return false;

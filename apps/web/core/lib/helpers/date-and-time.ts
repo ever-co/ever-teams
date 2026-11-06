@@ -146,7 +146,8 @@ export const formatDateTimeString = (dateTimeString?: string) => {
 	return '';
 };
 
-const formatDateString = (dateTimeString?: string) => {
+/** @public Re-exported by the core/lib/helpers barrel. */
+export const formatDateString = (dateTimeString?: string) => {
 	if (dateTimeString) {
 		return moment(dateTimeString).format('DD MMM YYYY');
 	}
@@ -311,8 +312,8 @@ export const formatDuration = (seconds: number): string => {
  */
 export const getDefaultTimezone = () => Intl.DateTimeFormat().resolvedOptions().timeZone;
 
-// Why an hours input was rejected, so a caller can show its own translated message
-type THoursInputErrorCode = 'MINUTES_OUT_OF_RANGE' | 'INVALID_FORMAT';
+/** @public Why an hours input was rejected, so a caller can show its own translated message (helpers barrel). */
+export type THoursInputErrorCode = 'MINUTES_OUT_OF_RANGE' | 'INVALID_FORMAT';
 
 export function parseStringInputToHours(input: string): {
 	hours?: number;

@@ -69,8 +69,10 @@ let warnedNoConfiguredOrigin = false;
  * This app's public origin, from its configuration only: NEXT_PUBLIC_WEB_APP_URL (read at runtime), else AUTH_URL /
  * NEXTAUTH_URL. Never from the request: its `Host`, `X-Forwarded-Host` and `Origin` headers, like its body, are
  * whatever the caller sends, and the link carries a token that deletes every account of the address.
+ *
+ * @public A server request helper of core/services/server/requests (guarded service surface).
  */
-function appPublicOrigin(): string | null {
+export function appPublicOrigin(): string | null {
 	const configured = [
 		readRuntimeEnv('NEXT_PUBLIC_WEB_APP_URL') || process.env.NEXT_PUBLIC_WEB_APP_URL?.trim(),
 		process.env.AUTH_URL?.trim(),
