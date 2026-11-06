@@ -406,8 +406,9 @@ jobs:
     # In-cluster: with the repo variable LINUX_ARM64_IN_CLUSTER=true this job runs in ever-co/k8s-gitops apps/ci-builds (an emulated
     # arm64 container, which sets RUNNER_LINUX_ARM64_8 and CI_IN_CLUSTER for its own runs) and is skipped here. Forks: unchanged.
     # In-cluster this job starts on the push, before Release Apps may have tagged: without create-release's version it
-    # would build into the newest (older) release, so it waits for create-release to succeed there.
-    if: ${{ !cancelled() && vars.RUNNER_LINUX_ARM64_8 != '' && (vars.LINUX_ARM64_IN_CLUSTER != 'true' || vars.CI_IN_CLUSTER == 'true') && (vars.CI_IN_CLUSTER != 'true' || needs.create-release.result == 'success') }}
+    # would build into the newest (older) release, so there it needs create-release's tag (create-release continues on error,
+    # so its result alone reads success).
+    if: ${{ !cancelled() && vars.RUNNER_LINUX_ARM64_8 != '' && (vars.LINUX_ARM64_IN_CLUSTER != 'true' || vars.CI_IN_CLUSTER == 'true') && (vars.CI_IN_CLUSTER != 'true' || needs.create-release.outputs.tag != '') }}
     runs-on: ${{ matrix.os }}
     timeout-minutes: 300
 
