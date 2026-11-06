@@ -12,6 +12,14 @@ class TaskLinkedIssueService extends APIService {
 		const endpoint = GAUZY_API_BASE_SERVER_URL.value ? `/task-linked-issue/${data.id}` : '/tasks/task-linked-issue';
 		return this.put<ITaskLinkedIssue>(endpoint, data);
 	};
+
+	deleteTaskLinkedIssue = async (linkedIssueId: string) => {
+		let endpoint = `/tasks/task-linked-issue/${linkedIssueId}`;
+		if (GAUZY_API_BASE_SERVER_URL.value) {
+			endpoint = `/task-linked-issue/${linkedIssueId}/soft`;
+		}
+		return this.delete<unknown>(endpoint);
+	};
 }
 
 export const taskLinkedIssueService = new TaskLinkedIssueService(GAUZY_API_BASE_SERVER_URL.value);

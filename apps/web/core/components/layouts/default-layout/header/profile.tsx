@@ -52,11 +52,11 @@ const Profile = () => {
 						leaveFrom="opacity-100 translate-y-0"
 						leaveTo="opacity-0 translate-y-1"
 					>
-						<PopoverPanel className="absolute left-1/2 z-10 mt-3 w-[260px] max-w-sm -translate-x-1/2 transform px-4 sm:px-0 lg:max-w-3xl shandow">
-							<div className="bg-white shadow-sm dark:bg-card rounded-[10px] text-[14px] font-light px-[39px] pb-[10px]">
+						<PopoverPanel className="absolute left-1/2 z-10 mt-3 w-[260px] max-w-sm -translate-x-1/2 transform px-4 sm:px-0 lg:max-w-3xl">
+							<div className="rounded-xl bg-popover px-6 pb-2 text-sm font-normal text-popover-foreground hairline-ring ring-border shadow-md shadow-black/6.5">
 								<div className="">
 									<div className="flex pt-[13px] justify-center items-center">
-										<div className="bg-[#D7E1EB] p-1 flex items-center justify-center rounded-full">
+										<div className="flex items-center justify-center rounded-full bg-foreground/5 p-1">
 											<Image
 												src={user?.imageUrl || ''}
 												alt="User Icon"
@@ -66,15 +66,15 @@ const Profile = () => {
 											/>
 										</div>
 									</div>
-									<div className="text-[18px] mt-[7px] font-medium text-[#293241] dark:text-white flex items-center justify-center">
+									<div className="mt-2 flex items-center justify-center text-sm font-semibold text-foreground">
 										{user?.firstName && capitalize(user.firstName)}
 										{user?.lastName && ' ' + capitalize(user.lastName)}
 									</div>
-									<div className="text-[#B0B5C7] text-[14px] text-center font-normal">
+									<div className="text-center text-xs font-normal text-muted-foreground">
 										{user?.email}
 									</div>
 								</div>
-								<div className="bg-[#EDEEF2] mt-[27px] h-[1px] w-full"></div>
+								<div className="mt-4 h-px w-full bg-border"></div>
 								<div className="mt-[10px]">
 									{options.map((option) => (
 										<div key={option.name} className="flex items-center space-x-2 ">
@@ -89,14 +89,14 @@ const Profile = () => {
 											</div>
 											<Link
 												href={option.link}
-												className="hover:text-[#1B005D]/75 dark:hover:text-gray-200/75  py-2 mt-1 flex items-center text-[#1B005D] text-[15px] font-normal dark:text-gray-200 justify-start w-full"
+												className="mt-1 flex w-full items-center justify-start py-2 text-sm font-normal text-foreground transition-colors hover:text-foreground/75"
 											>
 												{option.name}
 											</Link>
 										</div>
 									))}
 								</div>
-								<div className="bg-[#EDEEF2] mt-[10px] h-[1px] w-full"></div>
+								<div className="mt-2 h-px w-full bg-border"></div>
 								<div className="mt-[10px]">
 									<div className="flex items-center space-x-2 ">
 										<div className="flex items-center justify-center py-2 mt-1">
@@ -110,7 +110,7 @@ const Profile = () => {
 										</div>
 										<button
 											onClick={logOut}
-											className="hover:text-[#DE437B]/75  py-2 mt-1 flex items-center text-[#DE437B] text-[15px] font-normal justify-start w-full"
+											className="mt-1 flex w-full items-center justify-start py-2 text-sm font-normal text-destructive-ink transition-colors hover:text-destructive-ink/75"
 										>
 											{t('common.LOGOUT')}
 										</button>

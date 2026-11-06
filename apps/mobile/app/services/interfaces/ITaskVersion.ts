@@ -4,6 +4,7 @@ export interface ITaskVersionItemList {
 	updatedAt: string
 	tenantId: string
 	organizationId: string
+	organizationTeamId?: string | null
 	name?: string
 	value?: string
 	description?: string

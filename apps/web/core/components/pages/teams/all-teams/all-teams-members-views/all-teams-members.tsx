@@ -7,6 +7,10 @@ import TeamsMembersCardView from './all-teams-members-card-view';
 import AllTeamsMembersBlockView from './all-teams-members-block-view';
 import { TOrganizationTeam } from '@/core/types/schemas/team/organization-team.schema';
 
+const SURFACE =
+	'hairline-divide-y divide-border rounded-xl bg-card hairline-ring ring-border shadow-sm shadow-black/6.5';
+const SKELETON_ROW = 'rounded-none bg-transparent shadow-none ring-0';
+
 export default function AllTeamsMembers({
 	teams,
 	view = IssuesView.CARDS
@@ -20,14 +24,14 @@ export default function AllTeamsMembers({
 		case teams.length === 0:
 			teamsMembersView = (
 				<Container>
-					<div className="hidden lg:block">
-						<UserTeamCardSkeletonCard />
-						<InviteUserTeamCardSkeleton />
+					<div className={`hidden lg:block ${SURFACE}`}>
+						<UserTeamCardSkeletonCard className={SKELETON_ROW} />
+						<InviteUserTeamCardSkeleton className={SKELETON_ROW} />
 					</div>
-					<div className="block lg:hidden">
-						<UserCard />
-						<UserCard />
-						<UserCard />
+					<div className={`block lg:hidden ${SURFACE}`}>
+						<UserCard className={`${SKELETON_ROW} my-0 px-3`} />
+						<UserCard className={`${SKELETON_ROW} my-0 px-3`} />
+						<UserCard className={`${SKELETON_ROW} my-0 px-3`} />
 					</div>
 				</Container>
 			);

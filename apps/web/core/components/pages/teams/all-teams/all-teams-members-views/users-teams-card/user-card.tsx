@@ -1,6 +1,6 @@
 import { clsxm } from '@/core/lib/utils';
 import { Transition } from '@headlessui/react';
-import { SixSquareGridIcon } from 'assets/svg';
+import { DragHandle } from '@/core/components/icons';
 import MemberInfo from './member-infos';
 import UserTeamActiveTaskInfo from './user-team-active-task';
 import UserTeamActiveTaskTimes from './user-team-active-task-times';
@@ -16,11 +16,18 @@ import {
 } from '@/core/hooks';
 import { useEffect, useState } from 'react';
 import { UserTeamCardMenu } from '../../../team/team-members-views/user-team-card/user-team-card-menu';
-import { EverCard } from '@/core/components/common/ever-card';
-import { VerticalSeparator } from '@/core/components/duplicated-components/separator';
+import {
+	MEMBER_CARD_PADDING,
+	MEMBER_CELL,
+	MEMBER_CELL_CENTER,
+	MEMBER_FIRST_CELL,
+	MEMBER_MENU_CELL,
+	MEMBER_ROW_GRID
+} from '@/core/components/teams/member-row-grid';
 import { TOrganizationTeamEmployee } from '@/core/types/schemas';
 import { TTask } from '@/core/types/schemas/task/task.schema';
 
+/** One member row of a team group, on the same grid as the team page rows and their column header. */
 export default function UserTeamCard({
 	member,
 	className = 'max-w-full'
@@ -36,53 +43,48 @@ export default function UserTeamCard({
 			leaveFrom="opacity-100"
 			leaveTo="opacity-0"
 		>
-			<EverCard
-				shadow="bigger"
-				className={clsxm(
-					'sm:block hidden transition-all dark:bg-card min-h-[7rem] w-full !py-4',
-					'dark:border border border-transparent dark:border-[#FFFFFF14]',
-					className
-				)}
-			>
-				<div className="flex relative justify-between items-center m-0 w-full">
-					<div className="absolute left-0 cursor-pointer w-fit">
-						<SixSquareGridIcon className="w-2 max-w-fit text-[#CCCCCC] dark:text-[#4F5662]" />
-					</div>
-					{/* User information */}
-					<div className="relative !w-[27%]">
-						<MemberInfo member={member} className="!w-fit" />
+			<div className={clsxm('group/row relative hidden w-full py-2 sm:block', MEMBER_CARD_PADDING, className)}>
+				<div className={clsxm(MEMBER_ROW_GRID, 'relative min-h-12')}>
+					<div className="absolute -left-3.5 top-1/2 -translate-y-1/2 cursor-grab text-muted-foreground/60 opacity-0 transition-opacity group-focus-within/row:opacity-100 group-hover/row:opacity-100">
+						<DragHandle className="size-3.5" />
 					</div>
 
-					<VerticalSeparator />
+					{/* User information */}
+					<div className={MEMBER_FIRST_CELL}>
+						<MemberInfo member={member} className="w-full pr-2" />
+					</div>
 
 					{/* Task information */}
-					<div className=" !w-[25%]">
-						<UserTeamActiveTaskInfo
+					<div className={MEMBER_CELL}>
+						<UserTeamActiveTaskInfo member={member} className="w-full min-w-0 flex-1 overflow-y-hidden" />
+					</div>
+
+					{/* Task worked Times */}
+					<div className={clsxm(MEMBER_CELL, MEMBER_CELL_CENTER)}>
+						<UserTeamActiveTaskTimes
 							member={member}
-							className="flex-initial !w-fit !min-w-full !max-w-[280px]"
+							className="flex min-w-0 flex-col items-end justify-center gap-y-1 tabular-nums"
 						/>
 					</div>
 
-					<VerticalSeparator />
-
-					{/* Task worked Times */}
-					<UserTeamActiveTaskTimes member={member} className=" !w-[15%]" />
-
-					<VerticalSeparator />
-
 					{/* Task estimate Info */}
-					<UserTeamActiveTaskEstimate member={member} className=" !w-[20%]" />
+					<div className={clsxm(MEMBER_CELL, MEMBER_CELL_CENTER)}>
+						<UserTeamActiveTaskEstimate member={member} className="w-full max-w-52 min-w-0" />
+					</div>
 
-					<VerticalSeparator />
+					<div className={clsxm(MEMBER_CELL, MEMBER_CELL_CENTER)}>
+						<UserTeamActiveTaskTodayWorked
+							member={member}
+							className="flex min-w-0 items-center justify-end"
+						/>
+					</div>
 
-					<UserTeamActiveTaskTodayWorked member={member} className="!w-[8%]" />
-
-					{/* EverCard Menu */}
-					<div className="absolute right-2">
+					{/* Row menu */}
+					<div className={MEMBER_MENU_CELL}>
 						<UserActiveTaskMenu member={member} />
 					</div>
 				</div>
-			</EverCard>
+			</div>
 		</Transition>
 	);
 }

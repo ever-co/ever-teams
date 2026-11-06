@@ -1967,12 +1967,19 @@ describe('Ever Teams feature surface preservation', () => {
 
 	it('covers all real App Router route files and outward handler verbs', () => {
 		const routes = collectRealHeadSurface().routes;
-		expect(routes.filter((value) => /\/route\.[jt]s$/.test(value))).toHaveLength(137);
+		expect(routes.filter((value) => /\/route\.[jt]s$/.test(value))).toHaveLength(149);
 		expect(
 			routes.filter((value) => /\/route\.[jt]s::(?:GET|POST|PUT|PATCH|DELETE|HEAD|OPTIONS)$/.test(value))
-		).toHaveLength(183);
+		).toHaveLength(198);
 		expect(routes).toEqual(
 			expect.arrayContaining([
+				// Proxy mode twins of Gauzy's public account deletion by e-mail link (2026-10-27)
+				'apps/web/app/api/account-deletion/request/route.ts::POST',
+				'apps/web/app/api/account-deletion/verify/route.ts::POST',
+				'apps/web/app/api/account-deletion/confirm/route.ts::POST',
+				// ... and of its signed-in deletion of the current account (Danger Zone "Delete all data")
+				'apps/web/app/api/account-deletion/me/route.ts::GET',
+				'apps/web/app/api/account-deletion/me/route.ts::POST',
 				// Proxy mode twin of Gauzy's POST /auth/switch-organization (organization boundary, 2026-10-24)
 				'apps/web/app/api/auth/switch-organization/route.ts::POST',
 				// Finishes the workspace of an e-mail sign-up confirmed after register (direct API mode, 2026-10-24)
@@ -1980,6 +1987,8 @@ describe('Ever Teams feature surface preservation', () => {
 				// Proxy routes added by the 2026-10 PR batch, and the old misspelled toggle path kept as an alias
 				'apps/web/app/api/auth/request-password/route.ts::POST',
 				'apps/web/app/api/auth/reset-password/route.ts::POST',
+				'apps/web/app/api/auth/switch-workspace/route.ts::POST',
+				'apps/web/app/api/auth/workspaces/route.ts::GET',
 				'apps/web/app/api/currency/route.ts::GET',
 				'apps/web/app/api/daily-plan/[id]/task/route.ts::POST',
 				'apps/web/app/api/daily-plan/[id]/task/route.ts::PUT',
@@ -1989,8 +1998,15 @@ describe('Ever Teams feature surface preservation', () => {
 				'apps/web/app/api/favorite/[id]/route.ts::DELETE',
 				'apps/web/app/api/favorite/employee/route.ts::GET',
 				'apps/web/app/api/favorite/route.ts::POST',
+				'apps/web/app/api/invite/accept/route.ts::POST',
+				'apps/web/app/api/organization-projects/[id]/route.ts::DELETE',
+				'apps/web/app/api/organization/[id]/route.ts::GET',
 				'apps/web/app/api/role-permissions/me/route.ts::GET',
 				'apps/web/app/api/roles/team-assignable/route.ts::GET',
+				'apps/web/app/api/task-estimation/[id]/route.ts::DELETE',
+				'apps/web/app/api/task-estimation/[id]/route.ts::PUT',
+				'apps/web/app/api/task-estimation/route.ts::POST',
+				'apps/web/app/api/task-statuses/reorder/route.ts::PATCH',
 				'apps/web/app/api/timer/status/worked/route.ts::GET',
 				'apps/web/app/api/timer/toggle/route.ts::POST',
 				'apps/web/app/api/timer/toogle/route.ts::POST',

@@ -11,6 +11,103 @@ import { isTaskFinished } from '@/core/lib/helpers/task';
 /** Id of the outstanding view's placeholder plan for unplanned tasks: it does not exist on the API. */
 export const OUTSTANDING_NO_PLAN_ID = 'outstanding-no-plan';
 
+interface PlanListsOfDay {
+	dayKey: string;
+	ascSortedPlans: TDailyPlan[];
+	descSortedPlans: TDailyPlan[];
+	futurePlans: TDailyPlan[];
+	pastPlans: TDailyPlan[];
+	todayPlan: TDailyPlan[];
+	todayTasks: TTask[];
+	futureTasks: TTask[];
+	pastPlansWithIncompleteTasks: TDailyPlan[];
+	allPlannedTaskIds: Set<string>;
+	sortedPlans: TDailyPlan[];
+}
+
+/**
+ * Every hook instance reading the same plans response gets the same lists. Keyed by the response object, so an
+ * entry goes away with the response; the day is kept beside it because the lists split the plans around today.
+ */
+const planListsCache = new WeakMap<PaginationResponse<TDailyPlan>, PlanListsOfDay>();
+
+function byDateAscending(first: TDailyPlan, second: TDailyPlan) {
+	return new Date(first.date).getTime() - new Date(second.date).getTime();
+}
+
+function byDateDescending(first: TDailyPlan, second: TDailyPlan) {
+	return new Date(second.date).getTime() - new Date(first.date).getTime();
+}
+
+function isUnfinished(task: TTask) {
+	return !isTaskFinished(task.status);
+}
+
+function pastPlansWithIncompleteTasksOf(plans: TDailyPlan[], dayKey: string, usedIds: Set<string>) {
+	const isNotPlannedAgain = (task: TTask) => !usedIds.has(task.id);
+	return plans
+		.filter((plan) => getDailyPlanDay(plan.date) < dayKey)
+		.sort(byDateAscending)
+		.map((plan) => ({ ...plan, tasks: plan.tasks?.filter(isUnfinished) }))
+		.map((plan) => ({ ...plan, tasks: plan.tasks?.filter(isNotPlannedAgain) }))
+		.filter((plan) => plan.tasks?.length && plan.tasks.length > 0);
+}
+
+function computePlanLists(dailyPlans: PaginationResponse<TDailyPlan> | undefined, dayKey: string): PlanListsOfDay {
+	const items = dailyPlans?.items ?? [];
+	const ascSortedPlans = [...items].sort(byDateAscending);
+	const descSortedPlans = [...items].sort(byDateDescending);
+	const futurePlans = ascSortedPlans.filter((plan) => getDailyPlanDay(plan.date) > dayKey);
+	const pastPlans = descSortedPlans.filter((plan) => getDailyPlanDay(plan.date) < dayKey);
+	const todayPlan = items.filter((plan) => {
+		if (!plan.date) {
+			return false;
+		}
+		return getDailyPlanDay(plan.date) === dayKey;
+	});
+	const todayTasks = todayPlan.flatMap((plan) => plan.tasks ?? []);
+	const futureTasks = futurePlans.flatMap((plan) => plan.tasks ?? []);
+	const usedIds = new Set<string>([...todayTasks, ...futureTasks].map((task) => task.id));
+	const pastPlansWithIncompleteTasks = pastPlansWithIncompleteTasksOf([...items], dayKey, usedIds);
+	const allPlannedTaskIds = new Set<string>(items.flatMap((plan) => plan.tasks?.map((task) => task.id) ?? []));
+	const sortedPlans = [...ascSortedPlans];
+
+	return {
+		dayKey,
+		ascSortedPlans,
+		descSortedPlans,
+		futurePlans,
+		pastPlans,
+		todayPlan,
+		todayTasks,
+		futureTasks,
+		pastPlansWithIncompleteTasks,
+		allPlannedTaskIds,
+		sortedPlans
+	};
+}
+
+function planListsOf(dailyPlans: PaginationResponse<TDailyPlan> | undefined): PlanListsOfDay {
+	const dayKey = moment().format('YYYY-MM-DD');
+	if (!dailyPlans) {
+		return computePlanLists(dailyPlans, dayKey);
+	}
+	const cached = planListsCache.get(dailyPlans);
+	const isCachedForToday = cached?.dayKey === dayKey;
+	if (cached && isCachedForToday) {
+		return cached;
+	}
+	const lists = computePlanLists(dailyPlans, dayKey);
+	planListsCache.set(dailyPlans, lists);
+	return lists;
+}
+
+function hasTimeOrEstimate(task: TTask) {
+	const hasWorkedTime = Boolean(task.totalWorkedTime && task.totalWorkedTime > 0);
+	const hasEstimate = Boolean(task.estimate && task.estimate > 0);
+	return hasWorkedTime || hasEstimate;
+}
+
 /**
  * Shared calculations for daily plan derived state.
  * Used by useMyDailyPlans, useEmployeeDailyPlans, and useTeamDailyPlans
@@ -27,129 +124,48 @@ export function useDailyPlanCalculations(
 	targetEmployeeId?: string | null,
 	activeTeam?: { id: string; tenantId?: string | null; organizationId?: string | null } | null
 ) {
-	// Sorted plans (ascending by date)
-	const ascSortedPlans = useMemo(() => {
-		return [...(dailyPlans?.items ?? [])].sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
-	}, [dailyPlans]);
+	const planLists = useMemo(() => planListsOf(dailyPlans), [dailyPlans]);
 
-	// Sorted plans (descending by date)
-	const descSortedPlans = useMemo(() => {
-		return [...(dailyPlans?.items ?? [])].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
-	}, [dailyPlans]);
-
-	// Future plans (dates after today)
-	const futurePlans = useMemo(() => {
-		const today = moment().format('YYYY-MM-DD');
-		return ascSortedPlans.filter((plan) => getDailyPlanDay(plan.date) > today);
-	}, [ascSortedPlans]);
-
-	// Past plans (dates before today)
-	const pastPlans = useMemo(() => {
-		const today = moment().format('YYYY-MM-DD');
-		return descSortedPlans.filter((plan) => getDailyPlanDay(plan.date) < today);
-	}, [descSortedPlans]);
-
-	// Today's plan (plans for current date)
-	const todayPlan = useMemo(() => {
-		const today = moment().format('YYYY-MM-DD');
-		return [...(dailyPlans?.items ?? [])].filter((plan) => {
-			if (!plan.date) return false;
-			return getDailyPlanDay(plan.date) === today;
-		});
-	}, [dailyPlans]);
-
-	// Today's tasks (all tasks from today's plan)
-	const todayTasks = useMemo(() => {
-		return todayPlan.flatMap((plan) => plan.tasks ?? []);
-	}, [todayPlan]);
-
-	// Future tasks (all tasks from future plans)
-	const futureTasks = useMemo(() => {
-		return futurePlans.flatMap((plan) => plan.tasks ?? []);
-	}, [futurePlans]);
-
-	// Outstanding plans (past incomplete tasks + unplanned tasks)
-	// OPTIMIZATION: Use Set for O(1) lookups instead of O(n²) array operations
+	// Past incomplete tasks, plus a virtual plan of the member's unplanned tasks that carry time or an estimate
 	const outstandingPlans = useMemo(() => {
-		// Build a Set of task IDs from today/future to avoid repeated linear searches (O(1) lookup instead of O(n²))
-		const usedIds = new Set<string>([...todayTasks, ...futureTasks].map((t: TTask) => t.id));
-		const today = moment().format('YYYY-MM-DD');
-
-		// PART 1: Past plans with incomplete tasks not in today/future
-		const pastPlansWithIncompleteTasks = [...(dailyPlans?.items ?? [])]
-			// Keep only past plans (today and future plans excluded)
-			.filter((plan) => getDailyPlanDay(plan.date) < today)
-			.sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())
-			.map((plan) => ({
-				...plan,
-				// Include only unfinished tasks
-				tasks: plan.tasks?.filter((task: TTask) => !isTaskFinished(task.status))
-			}))
-			.map((plan) => ({
-				...plan,
-				// Include only tasks not added yet to today/future plans
-				tasks: plan.tasks?.filter((_task: TTask) => !usedIds.has(_task.id))
-			}))
-			.filter((plan) => plan.tasks?.length && plan.tasks.length > 0);
-
-		// PART 2: Tasks assigned to member that are NOT in ANY plan
-		// Build a Set of ALL task IDs that are in ANY plan (today, future, past)
-		const allPlannedTaskIds = new Set<string>(
-			dailyPlans?.items?.flatMap((plan) => plan.tasks?.map((t: TTask) => t.id) ?? []) ?? []
-		);
-
-		// Filter tasks assigned to the target employee that are NOT in any plan
 		const tasksNotInAnyPlan = allTeamTasks.filter((task) => {
-			// Must be assigned to the target employee (match by employeeId, not current user)
 			const isAssignedToTargetEmployee =
 				!!targetEmployeeId && task.members?.some((member) => member.id === targetEmployeeId);
-			// Must NOT be in any plan
-			const isNotInAnyPlan = !allPlannedTaskIds.has(task.id);
-			// Must have time tracked OR estimation set
-			const hasTimeOrEstimate =
-				(task.totalWorkedTime && task.totalWorkedTime > 0) || (task.estimate && task.estimate > 0);
-
-			return isAssignedToTargetEmployee && isNotInAnyPlan && hasTimeOrEstimate && !isTaskFinished(task.status);
+			const isNotInAnyPlan = !planLists.allPlannedTaskIds.has(task.id);
+			const isOpenWork = hasTimeOrEstimate(task) && isUnfinished(task);
+			const isUnplannedWork = isNotInAnyPlan && isOpenWork;
+			return isAssignedToTargetEmployee && isUnplannedWork;
 		});
 
-		// Create a virtual plan for tasks not in any plan (if any exist)
-		const virtualPlanForUnplannedTasks: TDailyPlan[] =
-			tasksNotInAnyPlan.length > 0
-				? [
-						{
-							id: OUTSTANDING_NO_PLAN_ID,
-							date: new Date().toISOString(),
-							tasks: tasksNotInAnyPlan,
-							workTimePlanned: 0,
-							status: 'open',
-							tenantId: activeTeam?.tenantId ?? null,
-							organizationId: activeTeam?.organizationId ?? null,
-							employeeId: targetEmployeeId ?? null,
-							employee: null,
-							organizationTeamId: activeTeam?.id ?? null,
-							organizationTeam: null
-						}
-					]
-				: [];
+		if (tasksNotInAnyPlan.length === 0) {
+			return [...planLists.pastPlansWithIncompleteTasks];
+		}
 
-		// Combine past plans with incomplete tasks + virtual plan for unplanned tasks
-		return [...pastPlansWithIncompleteTasks, ...virtualPlanForUnplannedTasks];
-	}, [dailyPlans, todayTasks, futureTasks, allTeamTasks, activeTeam, targetEmployeeId]);
-
-	// Generic sorted plans (used by various views)
-	const sortedPlans = useMemo(() => {
-		return [...(dailyPlans?.items ?? [])].sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
-	}, [dailyPlans]);
+		const virtualPlanForUnplannedTasks: TDailyPlan = {
+			id: OUTSTANDING_NO_PLAN_ID,
+			date: new Date().toISOString(),
+			tasks: tasksNotInAnyPlan,
+			workTimePlanned: 0,
+			status: 'open',
+			tenantId: activeTeam?.tenantId ?? null,
+			organizationId: activeTeam?.organizationId ?? null,
+			employeeId: targetEmployeeId ?? null,
+			employee: null,
+			organizationTeamId: activeTeam?.id ?? null,
+			organizationTeam: null
+		};
+		return [...planLists.pastPlansWithIncompleteTasks, virtualPlanForUnplannedTasks];
+	}, [planLists, allTeamTasks, activeTeam, targetEmployeeId]);
 
 	return {
-		futurePlans,
-		pastPlans,
-		todayPlan,
-		todayTasks,
-		futureTasks,
+		futurePlans: planLists.futurePlans,
+		pastPlans: planLists.pastPlans,
+		todayPlan: planLists.todayPlan,
+		todayTasks: planLists.todayTasks,
+		futureTasks: planLists.futureTasks,
 		outstandingPlans,
-		sortedPlans,
-		ascSortedPlans,
-		descSortedPlans
+		sortedPlans: planLists.sortedPlans,
+		ascSortedPlans: planLists.ascSortedPlans,
+		descSortedPlans: planLists.descSortedPlans
 	};
 }

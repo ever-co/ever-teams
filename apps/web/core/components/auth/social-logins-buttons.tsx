@@ -8,9 +8,6 @@ import { Button } from '../common/button';
 import { EverIdLoginButton } from './ever-id-login-button';
 import { useTranslations } from 'next-intl';
 
-const SOCIAL_BUTTON_CLASS =
-	'cursor-pointer inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium transition-all focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 shadow-sm shadow-black/10 border border-transparent bg-card ring-1 ring-foreground/10 duration-200 hover:bg-muted/50 dark:ring-foreground/15 dark:hover:bg-muted/50 h-9 px-4 py-2 w-full text-foreground';
-
 /** The next-auth provider id of Ever ID (the server-only config module is not imported here, see below). */
 const EVER_ID = 'ever-id';
 
@@ -22,6 +19,13 @@ const EVER_ID = 'ever-id';
  */
 function parseProviderIds(value: string | undefined): Set<string> {
 	return new Set((value ?? '').split(',').map((id) => id.trim()));
+}
+
+function providerCellClassOf(spansRow: boolean) {
+	if (spansRow) {
+		return 'col-span-2';
+	}
+	return undefined;
 }
 
 export default function SocialLogins() {
@@ -57,18 +61,19 @@ export default function SocialLogins() {
 		return null;
 	}
 
+	const hasProviders = availableProviders.length > 0;
+	const lastIndex = availableProviders.length - 1;
+	const hasOddCount = availableProviders.length % 2 === 1;
+
 	return (
-		<div className="space-y-6">
-			{/* Divider */}
+		<div className="flex flex-col gap-5">
 			<div className="grid grid-cols-[1fr_auto_1fr] items-center gap-3">
-				<div className="bg-border border-card h-0.5 border-b" />
-				<div className="text-xs text-center uppercase text-muted-foreground">
-					{t('pages.auth.OR_CONTINUE_WITH')}
-				</div>
-				<div className="bg-border border-card h-0.5 border-b" />
+				<span aria-hidden="true" className="h-px bg-border" />
+				<span className="text-xs text-muted-foreground">{t('pages.auth.OR_CONTINUE_WITH')}</span>
+				<span aria-hidden="true" className="h-px bg-border" />
 			</div>
 
-			<div className="space-y-3">
+			<div className="flex flex-col gap-2.5">
 				{everId && (
 					<form
 						onSubmit={(e) => {
@@ -80,21 +85,23 @@ export default function SocialLogins() {
 					</form>
 				)}
 
-				{/* Social buttons in 2x2 grid */}
-				{availableProviders.length > 0 && (
-					<div className="grid grid-cols-2 gap-3">
-						{availableProviders.map((provider) => {
+				{hasProviders && (
+					<div className="grid grid-cols-2 gap-2.5">
+						{availableProviders.map((provider, index) => {
 							const providerInfo = providerIcons[provider.id];
+							const isLast = index === lastIndex;
+							const spansRow = isLast && hasOddCount;
 
 							return (
 								<form
 									key={provider.id}
+									className={providerCellClassOf(spansRow)}
 									onSubmit={(e) => {
 										e.preventDefault();
 										void signInFunction(provider);
 									}}
 								>
-									<Button type="submit" variant="secondary" className={SOCIAL_BUTTON_CLASS}>
+									<Button type="submit" variant="outline" className="w-full max-sm:h-11">
 										{providerInfo.icon}
 										{providerInfo.label}
 									</Button>

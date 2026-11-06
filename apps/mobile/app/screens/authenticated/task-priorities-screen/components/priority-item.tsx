@@ -7,15 +7,19 @@ import { typography, useAppTheme } from '../../../../theme';
 import { ITaskPriorityItem } from '../../../../services/interfaces/ITaskPriority';
 import { formatName } from '../../../../helpers/name-format';
 import { SvgUri } from 'react-native-svg';
+import { readOnlyOpacity } from '../../../../helpers/read-only-opacity';
 
 interface IPriorityItem {
 	priority: ITaskPriorityItem;
 	onDeletePriority: () => unknown;
 	openForEdit: () => unknown;
+	/** Shows the edit and delete actions disabled, for a user who may not change this priority. */
+	readOnly?: boolean;
 }
 
-const PriorityItem: FC<IPriorityItem> = ({ priority, onDeletePriority, openForEdit }) => {
+const PriorityItem: FC<IPriorityItem> = ({ priority, onDeletePriority, openForEdit, readOnly = false }) => {
 	const { colors, dark } = useAppTheme();
+	const actionsOpacity = readOnlyOpacity(readOnly);
 
 	return (
 		<View
@@ -26,12 +30,29 @@ const PriorityItem: FC<IPriorityItem> = ({ priority, onDeletePriority, openForEd
 			}}
 		>
 			<View style={{ ...styles.statusContainer, backgroundColor: priority?.color }}>
-				<SvgUri width={20} height={20} uri={priority?.fullIconUrl} />
-				<Text style={styles.text}>{formatName(priority?.name)}</Text>
+				<SvgUri width={20} height={20} uri={priority?.fullIconUrl ?? null} />
+				<Text style={styles.text}>{formatName(priority?.name ?? '')}</Text>
 			</View>
-			<View style={styles.rightSection}>
-				<AntDesign size={16} name={'edit'} color={colors.primary} onPress={() => openForEdit()} />
-				<Ionicons name="trash-outline" size={16} color={'#DE5536'} onPress={() => onDeletePriority()} />
+			{/* No press handlers on a read-only row: it never relies on the icons honoring `disabled` */}
+			<View style={{ ...styles.rightSection, opacity: actionsOpacity }}>
+				<AntDesign
+					size={16}
+					name={'edit'}
+					color={colors.primary}
+					accessibilityRole="button"
+					accessibilityState={{ disabled: readOnly }}
+					disabled={readOnly}
+					onPress={readOnly ? undefined : () => openForEdit()}
+				/>
+				<Ionicons
+					name="trash-outline"
+					size={16}
+					color={'#DE5536'}
+					accessibilityRole="button"
+					accessibilityState={{ disabled: readOnly }}
+					disabled={readOnly}
+					onPress={readOnly ? undefined : () => onDeletePriority()}
+				/>
 			</View>
 		</View>
 	);

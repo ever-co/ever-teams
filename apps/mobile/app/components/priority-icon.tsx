@@ -24,7 +24,7 @@ export const BadgedTaskPriority = observer(
 					alignItems: 'center'
 				}}
 			>
-				<SvgUri width={iconSize} height={iconSize} uri={currentPriority?.fullIconUrl} />
+				<SvgUri width={iconSize} height={iconSize} uri={currentPriority?.fullIconUrl ?? null} />
 				<Text
 					style={{
 						color: '#292D32',
@@ -34,7 +34,7 @@ export const BadgedTaskPriority = observer(
 						textTransform: 'capitalize'
 					}}
 				>
-					{limitTextCharaters({ text: currentPriority?.name, numChars: 15 }).replace('-', ' ')}
+					{limitTextCharaters({ text: currentPriority?.name ?? '', numChars: 15 }).replace('-', ' ')}
 				</Text>
 			</View>
 		);

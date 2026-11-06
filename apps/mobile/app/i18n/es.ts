@@ -197,6 +197,8 @@ const es = {
 			taskPriorities: 'Task Priorities',
 			taskSizes: 'Task Sizes',
 			taskLabel: 'Task Label',
+			taskSettingsReadOnly:
+				'Solo los gerentes del equipo y los administradores pueden cambiar la configuración de las tareas. Solo los administradores pueden cambiar los valores predeterminados compartidos por todos los equipos.',
 			changeLogo: 'Change Logo',
 			teamRole: 'Manager Member & Role',
 			workSchedule: 'Work Schedule',

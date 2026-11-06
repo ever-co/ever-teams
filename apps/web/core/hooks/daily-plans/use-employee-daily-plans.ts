@@ -8,8 +8,7 @@ import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { queryKeys } from '@/core/query/keys';
 import { orderTasksInPlans } from '@/core/lib/helpers/daily-plan-task-order';
 import { useDailyPlanCalculations } from './use-daily-plan-calculations';
-import { toast } from 'sonner';
-import { getErrorMessage, logErrorInDev } from '@/core/lib/helpers/error-message';
+import { logErrorInDev } from '@/core/lib/helpers/error-message';
 
 export interface UseEmployeeDailyPlansOptions {
 	/**
@@ -121,13 +120,10 @@ export function useEmployeeDailyPlans(employeeId: string | null, options?: UseEm
 
 					return res;
 				} else {
-					toast.warning('getEmployeeDailyPlans: No employee ID provided or available in state');
+					logErrorInDev('getEmployeeDailyPlans: No employee ID provided or available in state', null);
 					return null;
 				}
 			} catch (error) {
-				toast.error(`Error when fetching day plans for employee: ${newEmployeeId || internalEmployeeId}`, {
-					description: getErrorMessage(error, 'Unable to fetch day plans')
-				});
 				logErrorInDev(
 					`Error when fetching day plans for employee: ${newEmployeeId || internalEmployeeId}`,
 					error
@@ -145,6 +141,29 @@ export function useEmployeeDailyPlans(employeeId: string | null, options?: UseEm
 		}
 	}, [getEmployeeDailyPlans, internalEmployeeId]);
 
+	const activeTeamId = activeTeam?.id;
+	// For a consumer that shows these plans on demand: a cache under a minute old answers without a request
+	const ensureEmployeeDailyPlans = useCallback(async () => {
+		if (!enabled || !internalEmployeeId) {
+			return;
+		}
+		try {
+			await queryClient.fetchQuery({
+				queryKey: queryKeys.dailyPlans.byEmployee(internalEmployeeId, activeTeamId),
+				queryFn: () => dailyPlanService.getDayPlansByEmployee({ employeeId: internalEmployeeId }),
+				staleTime: 60_000,
+				// Callers keep the cached plans, a retry would only delay them
+				retry: false
+			});
+		} catch (error) {
+			// The cached plans stay on screen; the failure stays visible in development
+			logErrorInDev(
+				`ensureEmployeeDailyPlans: refreshing the day plans of employee ${internalEmployeeId} failed`,
+				error
+			);
+		}
+	}, [activeTeamId, enabled, internalEmployeeId, queryClient]);
+
 	return {
 		// Raw data
 		employeeDailyPlans: getDayPlansByEmployeeQuery.data || { items: [], total: 0 },
@@ -161,6 +180,7 @@ export function useEmployeeDailyPlans(employeeId: string | null, options?: UseEm
 		// Query functions
 		getEmployeeDailyPlans,
 		loadEmployeeDailyPlans,
+		ensureEmployeeDailyPlans,
 
 		// Loading states
 		isLoading: getDayPlansByEmployeeQuery.isLoading,

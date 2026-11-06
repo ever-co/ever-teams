@@ -1,12 +1,11 @@
 import type { GroupedTimesheet } from '@/core/lib/helpers/timesheet-grouping';
 import { getStatusTimesheet, groupedByTimesheetIds } from '@/core/lib/helpers/timesheet-grouping';
 import { useTimesheetQuery } from '@/core/hooks/timesheet/use-timesheet-query';
-import { statusColor } from '@/core/components';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/core/components/common/accordion';
 import { TranslationHooks, useTranslations } from 'next-intl';
 import { EmployeeAvatar, ProjectLogo } from '../../timesheet/compact-timesheet-component';
 import { formatDate } from '@/core/lib/helpers/index';
-import { ClockIcon, CodeSquareIcon } from 'lucide-react';
+import { Clock, CodeBlock } from '@/core/components/icons';
 import { cn } from '@/core/lib/helpers';
 import MonthlyTimesheetCalendar from '../../timesheet/monthly-timesheet-calendar';
 import { useTimelogFilterOptions } from '@/core/hooks';
@@ -21,8 +20,8 @@ import {
 	TotalTimeDisplay
 } from '../../tasks/task-displays';
 import { ITimeLog } from '@/core/types/interfaces/timer/time-log/time-log';
-import { toast } from 'sonner';
-import { useRef } from 'react';
+import { TimesheetStatusBadge } from '../../timesheet/timesheet-status-badge';
+import { timesheetStatusAccentClass, timesheetStatusLabel } from '../../timesheet/timesheet-status-tone';
 interface BaseCalendarDataViewProps {
 	t: TranslationHooks;
 	data: GroupedTimesheet[];
@@ -32,7 +31,6 @@ interface BaseCalendarDataViewProps {
 
 export function CalendarView({ data, loading }: { data?: GroupedTimesheet[]; loading: boolean }) {
 	const t = useTranslations();
-	const isToastShown = useRef(false);
 	const { timesheetGroupByDays } = useTimelogFilterOptions();
 	const defaultDaysLabels = [
 		t('common.DAYS.sun'),
@@ -46,7 +44,7 @@ export function CalendarView({ data, loading }: { data?: GroupedTimesheet[]; loa
 
 	if (loading || !data) {
 		return (
-			<div className="grow h-full w-full bg-[#FFFFFF] dark:bg-dark--theme">
+			<div className="grow h-full w-full">
 				{Array.from({ length: 10 }).map((_, index) => (
 					<TimesheetSkeleton key={index} />
 				))}
@@ -55,19 +53,17 @@ export function CalendarView({ data, loading }: { data?: GroupedTimesheet[]; loa
 	}
 
 	if (data.length === 0) {
-		if (!isToastShown.current) {
-			toast.info('CalendarView - No data found, showing empty state');
-			isToastShown.current = true;
-		}
 		return (
 			<AnimatedEmptyState
 				title={t('pages.timesheet.NO_ENTRIES_FOUND')}
 				message={t('common.SELECT_DIFFERENT_DATE')}
+				showBorder={false}
+				noBg
 			/>
 		);
 	}
 	return (
-		<div className="grow h-full w-full bg-[#FFFFFF] dark:bg-dark--theme">
+		<div className="grow h-full w-full">
 			{(() => {
 				switch (timesheetGroupByDays) {
 					case 'Monthly':
@@ -85,28 +81,27 @@ const CalendarDataView = ({ data }: { data?: GroupedTimesheet[]; t: TranslationH
 	const { handleSelectRowTimesheet, selectTimesheetId } = useTimesheetQuery({});
 
 	return (
-		<div className="w-full dark:bg-dark--theme">
-			<div className="rounded-md">
+		<div className="w-full">
+			<div className="hairline-divide-y divide-border">
 				{data?.map((plan, index) => {
 					return (
 						<div key={index}>
 							<div
 								className={cn(
-									'h-[40px] flex justify-between items-center w-full',
-									'bg-[#ffffffcc] dark:bg-dark--theme rounded-md border-1',
-									'border-gray-400 px-5 text-[#71717A] font-medium'
+									'flex h-10 w-full items-center justify-between gap-3 px-4',
+									'bg-foreground/2.5 text-sm font-medium text-foreground'
 								)}
 							>
 								<div className="flex gap-x-3">
 									<span>{formatDate(plan.date)}</span>
 								</div>
 								<div className="flex items-center gap-x-1">
-									<span className="text-[#868687]">Total{' : '}</span>
+									<span className="font-normal text-muted-foreground">Total{' : '}</span>
 
 									<TotalDurationByDate
 										timesheetLog={plan.tasks}
 										createdAt={formatDate(plan.date)}
-										className="text-sm text-black dark:text-gray-500"
+										className="text-sm tabular-nums text-foreground"
 									/>
 								</div>
 							</div>
@@ -120,59 +115,51 @@ const CalendarDataView = ({ data }: { data?: GroupedTimesheet[]; t: TranslationH
 												<AccordionItem
 													key={`${status}-${timesheetId}`}
 													value={`${status === 'DENIED' ? 'REJECTED' : status}-${timesheetId}`}
-													className="p-1 rounded"
+													className="hairline-t border-b-0 border-border"
 												>
 													<AccordionTrigger
 														type="button"
 														className={cn(
-															'flex flex-row-reverse justify-end items-center w-full h-[30px] rounded-xs gap-x-2 hover:no-underline px-2',
-															statusColor(status).text
+															'flex h-10 w-full flex-row-reverse items-center justify-end gap-x-2 px-4 py-0',
+															'text-muted-foreground transition-colors hover:bg-foreground/2.5 hover:no-underline'
 														)}
 													>
-														<div className="flex items-center justify-between w-full space-x-1">
-															<div className="flex items-center w-full gap-2">
-																<div
-																	className={cn(
-																		'p-2 rounded',
-																		statusColor(status).bg
-																	)}
-																></div>
-																<div className="flex items-center gap-x-1">
-																	<span className="text-base font-medium text-[#71717A] uppercase !text-[14px]">
-																		{status === 'DENIED' ? 'REJECTED' : status}
-																	</span>
-																	<span className="text-gray-400 text-[14px]">
+														<div className="flex w-full items-center justify-between gap-3">
+															<div className="flex w-full items-center gap-2">
+																<TimesheetStatusBadge status={status}>
+																	<span>{timesheetStatusLabel(status)}</span>
+																	<span className="tabular-nums">
 																		({timesheetRows.length})
 																	</span>
-																</div>
+																</TimesheetStatusBadge>
 															</div>
-															<div className="flex items-center space-x-2">
-																<ClockIcon className=" text-[12px] h-3 w-3" />
-																<TotalTimeDisplay timesheetLog={timesheetRows} />
+															<div className="flex items-center gap-1.5 text-sm">
+																<Clock className="size-3.5 text-muted-foreground" />
+																<TotalTimeDisplay
+																	timesheetLog={timesheetRows}
+																	className="tabular-nums text-foreground"
+																/>
 															</div>
 														</div>
 													</AccordionTrigger>
-													<AccordionContent className="flex flex-col w-full gap-y-2">
+													<AccordionContent className="flex w-full flex-col gap-y-2 px-4 pb-3">
 														{timesheetRows.map((task) => (
 															<div
 																key={task.id}
-																style={{
-																	backgroundColor: statusColor(status).bgOpacity,
-																	borderLeftColor: statusColor(status).border
-																}}
 																className={cn(
-																	'flex flex-col gap-2 items-start p-2 space-x-4 rounded-l border-l-4 group/item'
+																	'group/item flex flex-col items-start gap-2 rounded-r-md border-l-[3px] bg-foreground/3 p-2.5',
+																	timesheetStatusAccentClass(status)
 																)}
 															>
-																<div className="flex items-center justify-between w-full pl-3">
+																<div className="flex items-center justify-between w-full">
 																	<div className="flex items-center gap-x-1">
 																		<EmployeeAvatar
 																			imageUrl={
 																				task.employee?.user.imageUrl ?? ''
 																			}
-																			className="w-[28px] h-[28px] drop-shadow-[0_4px_4px_rgba(0,0,0,0.25)] rounded-full"
+																			className="size-6 rounded-full object-cover hairline-ring ring-border"
 																		/>
-																		<span className=" font-normal text-[#3D5A80] dark:text-[#7aa2d8]">
+																		<span className="text-sm text-foreground">
 																			{task.employee?.fullName}
 																		</span>
 																	</div>
@@ -180,25 +167,21 @@ const CalendarDataView = ({ data }: { data?: GroupedTimesheet[]; t: TranslationH
 																</div>
 																<TaskNameInfoDisplay
 																	task={task.task}
-																	className={cn(
-																		'rounded-sm h-auto !px-[0.3312rem] py-[0.2875rem] shadow-[0px_0px_15px_0px_#e2e8f0] dark:shadow-transparent'
-																	)}
-																	taskTitleClassName={cn(
-																		'text-sm text-ellipsis overflow-hidden !text-[#293241] dark:!text-white '
-																	)}
+																	className="min-w-0"
+																	taskTitleClassName="text-sm text-foreground"
 																	showSize={true}
 																	dash
-																	taskNumberClassName="text-sm"
+																	taskNumberClassName="text-sm text-muted-foreground"
 																/>
-																<div className="flex items-center justify-between w-full pr-3">
+																<div className="flex items-center justify-between w-full">
 																	<div className="flex flex-row items-center self-stretch flex-none grow-0 gap-2 py-0">
 																		{task.project?.imageUrl && (
 																			<ProjectLogo
-																				className="w-[28px] h-[28px] drop-shadow-[0_4px_4px_rgba(0,0,0,0.25)] rounded-[8px]"
+																				className="size-5 rounded-sm object-cover hairline-ring ring-border"
 																				imageUrl={task.project.imageUrl}
 																			/>
 																		)}
-																		<span className="!text-ellipsis !overflow-hidden !truncate !text-[#3D5A80] dark:!text-[#7aa2d8] flex-1">
+																		<span className="flex-1 truncate text-xs text-muted-foreground">
 																			{task.project?.name ?? 'No Project'}
 																		</span>
 																	</div>
@@ -236,7 +219,7 @@ const BaseCalendarDataView = ({ data, daysLabels, t, CalendarComponent }: BaseCa
 			data={data}
 			// locale={ }
 			daysLabels={daysLabels}
-			renderDayContent={(date, plan) => {
+			renderDayContent={(_date, plan) => {
 				return (
 					<>
 						{plan ? (
@@ -250,59 +233,51 @@ const BaseCalendarDataView = ({ data, daysLabels, t, CalendarComponent }: BaseCa
 												<AccordionItem
 													key={`${status}-${timesheetId}`}
 													value={`${status === 'DENIED' ? 'REJECTED' : status}-${timesheetId}`}
-													className="p-1 rounded"
+													className="border-b-0 px-1"
 												>
 													<AccordionTrigger
 														type="button"
-														className={cn(
-															'flex flex-row-reverse justify-end items-center w-full !h-[16px] rounded-xs gap-x-2 hover:no-underline',
-															statusColor(status).text
-														)}
+														className="flex w-full flex-row-reverse items-center justify-end gap-x-1.5 rounded-md px-1 py-1.5 text-muted-foreground transition-colors hover:bg-foreground/5 hover:no-underline"
 													>
-														<div className="flex items-center justify-between w-full space-x-1">
-															<div className="flex items-center w-full gap-2">
-																<div
-																	className={cn(
-																		'p-2 rounded',
-																		statusColor(status).bg
-																	)}
-																></div>
-																<div className="flex items-center gap-x-1">
-																	<span className="text-base font-normal text-gray-400 uppercase !text-xs">
-																		{status === 'DENIED' ? 'REJECTED' : status}
-																	</span>
-																	<span className="text-gray-400 text-xs">
+														<div className="flex w-full items-center justify-between gap-2">
+															<div className="flex w-full items-center gap-2">
+																<TimesheetStatusBadge
+																	status={status}
+																	className="px-1.5"
+																>
+																	<span>{timesheetStatusLabel(status)}</span>
+																	<span className="tabular-nums">
 																		({timesheetRows.length})
 																	</span>
-																</div>
+																</TimesheetStatusBadge>
 															</div>
-															<div className="flex items-center space-x-2">
-																<ClockIcon className=" text-[12px] h-3 w-3" />
-																<TotalTimeDisplay timesheetLog={timesheetRows} />
+															<div className="flex items-center gap-1 text-xs">
+																<Clock className="size-3 text-muted-foreground" />
+																<TotalTimeDisplay
+																	timesheetLog={timesheetRows}
+																	className="tabular-nums text-foreground"
+																/>
 															</div>
 														</div>
 													</AccordionTrigger>
-													<AccordionContent className="flex flex-col items-start flex-none grow-0 order-1 p-0 overflow-auto gap-y-2">
+													<AccordionContent className="flex flex-col items-start flex-none grow-0 order-1 p-0 pb-1 overflow-auto gap-y-1.5">
 														{timesheetRows.map((task) => (
 															<div
 																key={task.id}
-																style={{
-																	backgroundColor: statusColor(status).bgOpacity,
-																	borderLeftColor: statusColor(status).border
-																}}
 																className={cn(
-																	'group/item border-l-4 rounded-l space-x-4  box-border flex flex-col items-start py-2.5 gap-2 w-[258px] rounded-tr-md rounded-br-md flex-none order-1 self-stretch flex-grow'
+																	'group/item box-border flex flex-col items-start gap-2 w-[258px] rounded-r-md border-l-[3px] bg-foreground/3 p-2.5 flex-none order-1 self-stretch grow',
+																	timesheetStatusAccentClass(status)
 																)}
 															>
-																<div className="flex items-center justify-between w-full pl-3">
+																<div className="flex items-center justify-between w-full">
 																	<div className="flex items-center gap-x-1">
 																		<EmployeeAvatar
-																			className="w-[28px] h-[28px] drop-shadow-[0_4px_4px_rgba(0,0,0,0.25)] rounded-full"
+																			className="size-6 rounded-full object-cover hairline-ring ring-border"
 																			imageUrl={
 																				task.employee?.user.imageUrl ?? ''
 																			}
 																		/>
-																		<span className="font-normal text-[#3D5A80] dark:text-[#7aa2d8]">
+																		<span className="text-sm text-foreground">
 																			{task.employee?.fullName}
 																		</span>
 																	</div>
@@ -310,25 +285,21 @@ const BaseCalendarDataView = ({ data, daysLabels, t, CalendarComponent }: BaseCa
 																</div>
 																<TaskNameInfoDisplay
 																	task={task.task}
-																	className={cn(
-																		'rounded-sm h-auto !px-[0.3312rem] py-[0.2875rem]  shadow-[0px_0px_15px_0px_#e2e8f0] dark:shadow-transparent '
-																	)}
-																	taskTitleClassName={cn(
-																		'text-sm  !text-ellipsis overflow-hidden !truncate !text-[#293241] dark:!text-white'
-																	)}
+																	className="min-w-0"
+																	taskTitleClassName="truncate text-sm text-foreground"
 																	showSize={false}
 																	dash
-																	taskNumberClassName="text-sm"
+																	taskNumberClassName="text-sm text-muted-foreground"
 																/>
 																<div className="flex items-center justify-between w-full">
 																	<div className="flex flex-row items-center self-stretch flex-none grow-0 gap-2 py-0">
 																		{task.project?.imageUrl && (
 																			<ProjectLogo
-																				className="w-[28px] h-[28px] drop-shadow-[0_4px_4px_rgba(0,0,0,0.25)] rounded-[8px]"
+																				className="size-5 rounded-sm object-cover hairline-ring ring-border"
 																				imageUrl={task.project.imageUrl}
 																			/>
 																		)}
-																		<span className="!text-ellipsis !overflow-hidden !truncate !text-[#3D5A80] dark:!text-[#7aa2d8] flex-1">
+																		<span className="flex-1 truncate text-xs text-muted-foreground">
 																			{task.project?.name ?? 'No Project'}
 																		</span>
 																	</div>
@@ -350,8 +321,8 @@ const BaseCalendarDataView = ({ data, daysLabels, t, CalendarComponent }: BaseCa
 								})}
 							</Accordion>
 						) : (
-							<div className="text-gray-400 text-sm flex items-center justify-center min-h-[150px] sm:w-[250px] md:w-[300px] lg:w-[350px] max-w-full gap-2">
-								<CodeSquareIcon />
+							<div className="text-muted-foreground text-xs flex items-center justify-center min-h-[150px] sm:w-[250px] md:w-[300px] lg:w-[350px] max-w-full gap-2">
+								<CodeBlock className="size-4" />
 								<span>No Data</span>
 							</div>
 						)}
@@ -382,7 +353,7 @@ export const CheckBoxTimesheet = ({
 	return (
 		<Checkbox
 			className={cn(
-				'group/edit invisible w-5 h-5 select-auto group-hover/item:visible',
+				'group/edit invisible select-auto group-hover/item:visible group-focus-within/item:visible',
 				selectTimesheetId.includes(timesheet) && 'visible'
 			)}
 			onCheckedChange={() => handleSelectRowTimesheet(timesheet)}

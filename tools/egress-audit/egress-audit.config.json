@@ -15,7 +15,7 @@
 	],
 	"adapter": "adapter.mjs",
 	"wait_s": 660,
-	"allowed_external_hosts": ["purecatamphetamine.github.io", "dummyimage.com"],
+	"allowed_external_hosts": ["purecatamphetamine.github.io"],
 	"web_service": "webapp",
 	"web_url": "http://webapp:3030",
 	"ui_routes": "ui-routes.json",

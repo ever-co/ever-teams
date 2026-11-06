@@ -11,7 +11,7 @@ export const LazyGroupBySelect = dynamic(
 		})),
 	{
 		ssr: false,
-		loading: () => <div className="w-32 h-8 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded" />
+		loading: () => <div className="w-32 h-9 bg-foreground/5 animate-pulse rounded-md" />
 	}
 );
 
@@ -22,7 +22,7 @@ export const LazyWeeklyLimitExportMenu = dynamic(
 		})),
 	{
 		ssr: false,
-		loading: () => <div className="w-32 h-8 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded" />
+		loading: () => <div className="w-32 h-9 bg-foreground/5 animate-pulse rounded-md" />
 	}
 );
 
@@ -33,7 +33,7 @@ export const LazyTimeReportTable = dynamic(
 		})),
 	{
 		ssr: false,
-		loading: () => <div className="w-full h-64 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded" />
+		loading: () => <div className="w-full h-64 bg-foreground/5 animate-pulse rounded-xl" />
 	}
 );
 
@@ -45,7 +45,7 @@ export const LazyGroupBySelectTimeActivity = dynamic(
 		),
 	{
 		ssr: false,
-		loading: () => <div className="w-[180px] h-10 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded-lg" />
+		loading: () => <div className="w-[180px] h-9 bg-foreground/5 animate-pulse rounded-md" />
 	}
 );
 
@@ -78,7 +78,7 @@ export const LazyTimeActivityHeader = dynamic(
 		import('../pages/time-and-activity/time-activity-header').then((mod) => ({ default: mod.TimeActivityHeader })),
 	{
 		ssr: false,
-		loading: () => <div className="w-full h-16 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded" />
+		loading: () => <div className="w-full h-16 bg-foreground/5 animate-pulse rounded-lg" />
 	}
 );
 
@@ -87,7 +87,7 @@ export const LazyDatePickerWithRange = dynamic(
 	() => import('../common/date-range-select').then((mod) => ({ default: mod.DatePickerWithRange })),
 	{
 		ssr: false,
-		loading: () => <div className="w-64 h-10 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded-lg" />
+		loading: () => <div className="w-64 h-9 bg-foreground/5 animate-pulse rounded-md" />
 	}
 );
 
@@ -98,7 +98,7 @@ export const LazyMembersSelect = dynamic(
 		})),
 	{
 		ssr: false,
-		loading: () => <div className="w-48 h-10 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded-lg" />
+		loading: () => <div className="w-48 h-9 bg-foreground/5 animate-pulse rounded-md" />
 	}
 );
 
@@ -109,7 +109,7 @@ export const LazyTimeReportTableByMember = dynamic(
 		})),
 	{
 		ssr: false,
-		loading: () => <div className="w-full h-64 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded" />
+		loading: () => <div className="w-full h-64 bg-foreground/5 animate-pulse rounded-xl" />
 	}
 );
 
@@ -117,6 +117,6 @@ export const LazyPaginate = dynamic(
 	() => import('../duplicated-components/_pagination').then((mod) => ({ default: mod.Paginate })),
 	{
 		ssr: false,
-		loading: () => <div className="w-64 h-10 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded-lg" />
+		loading: () => <div className="w-64 h-10 bg-foreground/5 animate-pulse rounded-md" />
 	}
 );

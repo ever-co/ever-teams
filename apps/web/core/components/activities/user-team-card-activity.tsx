@@ -1,17 +1,16 @@
 import { Transition } from '@headlessui/react';
-import React from 'react';
+import React, { useState } from 'react';
 import { useTimeSlots } from '@/core/hooks/activities/use-time-slots';
 import { useTranslations } from 'next-intl';
 import { ActivityFilters } from '@/core/constants/config/constants';
-import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/core/components/common/tabs';
+import { SegmentedControl } from '@/core/components/common/segmented-control';
+import { ACTIVITY_TAB_LABEL_KEYS } from './activity-tab-labels';
 import {
 	LazyOptimizedTasksTab,
 	LazyOptimizedAppsTab,
 	LazyOptimizedVisitedSitesTab,
 	LazyOptimizedScreenshotsTab
 } from '@/core/components/optimized-components';
-import { HorizontalSeparator } from '../duplicated-components/separator';
-import { ProgressBar } from '../duplicated-components/_progress-bar';
 import { TodayWorkedTasks } from './today-worked-tasks';
 
 const UserTeamActivity = ({
@@ -25,8 +24,19 @@ const UserTeamActivity = ({
 }) => {
 	const { timeSlots } = useTimeSlots(true);
 	const t = useTranslations();
+	const [activityTab, setActivityTab] = useState<ActivityFilters>(ActivityFilters.TASKS);
+	const activityTabItems = Object.values(ActivityFilters).map((filter) => ({
+		value: filter,
+		label: t(ACTIVITY_TAB_LABEL_KEYS[filter])
+	}));
+	const canShowWorkedTasks = canSeeActivity && Boolean(member?.id);
 
-	const activityPercent = timeSlots.reduce((acc, el) => acc + (el.percentage || 0), 0) / timeSlots.length;
+	const hasTimeSlots = timeSlots.length > 0;
+	const activitySum = timeSlots.reduce((acc, el) => acc + (el.percentage || 0), 0);
+	let activityPercent: number | null = null;
+	if (hasTimeSlots) {
+		activityPercent = activitySum / timeSlots.length;
+	}
 
 	return (
 		<Transition
@@ -40,48 +50,27 @@ const UserTeamActivity = ({
 			leaveTo="opacity-0"
 			className="w-full"
 		>
-			<div className="flex flex-col gap-y-4 justify-center w-full transition-all">
-				<HorizontalSeparator className="my-4" />
-				<h2 className="py-2 text-xl font-semibold">Activity for Today</h2>
-				<div className="flex overflow-hidden flex-col gap-y-5 justify-between w-full">
-					<div className="flex gap-3 items-center w-full">
-						<div className="shadow basis-1/4 min-w-56 max-w-80 rounded-md p-4 h-32 bg-light--theme-light dark:bg-muted">
-							<span>{t('timer.TIME_ACTIVITY')}</span>
-							<h2 className="my-3 text-3xl font-bold">
-								{activityPercent ? activityPercent.toFixed(2) : '00'} %
-							</h2>
-							<ProgressBar width={'80%'} progress={`${activityPercent}%`} className="my-2" />
-						</div>
-					</div>
-					<div className="overflow-hidden flex-1 w-full">
-						<Tabs defaultValue={ActivityFilters.TASKS} className="w-full h-fit">
-							<TabsList className="w-full grid grid-cols-4 rounded-xl bg-gray-200 dark:bg-[#FFFFFF14] gap-2 p-2 !h-fit">
-								{Object.values(ActivityFilters).map((filter: string) => (
-									<TabsTrigger
-										key={filter}
-										value={filter}
-										className="rounded-lg py-2.5 text-sm font-medium leading-5 data-[state=active]:bg-white data-[state=active]:dark:bg-card data-[state=active]:text-blue-700 data-[state=active]:shadow h-fit"
-									>
-										{filter}
-									</TabsTrigger>
-								))}
-							</TabsList>
-
-							<TabsContent value={ActivityFilters.TASKS} className="overflow-hidden mt-2 w-full">
-								{canSeeActivity && member?.id ? <TodayWorkedTasks memberId={member.id} /> : null}
-								<LazyOptimizedTasksTab member={member} canSeeActivity={canSeeActivity} />
-							</TabsContent>
-							<TabsContent value={ActivityFilters.SCREENSHOOTS} className="mt-2 w-full">
-								<LazyOptimizedScreenshotsTab />
-							</TabsContent>
-							<TabsContent value={ActivityFilters.APPS} className="mt-2 w-full">
-								<LazyOptimizedAppsTab />
-							</TabsContent>
-							<TabsContent value={ActivityFilters.VISITED_SITES} className="mt-2 w-full">
-								<LazyOptimizedVisitedSitesTab />
-							</TabsContent>
-						</Tabs>
-					</div>
+			<div className="flex w-full flex-col gap-4 pb-2 pt-4">
+				<h3 className="text-[13px] font-semibold text-foreground">{t('common.ACTIVITY_FOR_TODAY')}</h3>
+				<TodayWorkedTasks
+					memberId={member?.id}
+					activityPercent={activityPercent}
+					showsTasks={canShowWorkedTasks}
+				/>
+				<div className="-mx-2 flex min-w-0 flex-col gap-3 overflow-x-clip px-2 pb-2">
+					<SegmentedControl
+						items={activityTabItems}
+						value={activityTab}
+						onValueChange={setActivityTab}
+						ariaLabel={t('common.ACTIVITY')}
+						className="self-start"
+					/>
+					{activityTab === ActivityFilters.TASKS && (
+						<LazyOptimizedTasksTab member={member} canSeeActivity={canSeeActivity} />
+					)}
+					{activityTab === ActivityFilters.SCREENSHOOTS && <LazyOptimizedScreenshotsTab />}
+					{activityTab === ActivityFilters.APPS && <LazyOptimizedAppsTab />}
+					{activityTab === ActivityFilters.VISITED_SITES && <LazyOptimizedVisitedSitesTab />}
 				</div>
 			</div>
 		</Transition>

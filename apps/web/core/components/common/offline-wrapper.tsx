@@ -4,7 +4,8 @@ import { useNetworkState } from '@uidotdev/usehooks';
 import { PropsWithChildren } from 'react';
 import dynamic from 'next/dynamic';
 import Offline from '@/core/components/pages/offline';
-import { useTimerActions } from '@/core/hooks/timer/use-timer-actions';
+import { useAtomValue } from 'jotai';
+import { teamTimerStatusState } from '@/core/stores/timer/team-timer-status';
 
 /**
  * A wrapper component that conditionally renders the Offline component if the user is not online.
@@ -23,7 +24,7 @@ const OfflineWrapper = ({ children }: PropsWithChildren) => {
 	// All hooks must be called before any conditional returns
 	const { online } = useNetworkState();
 	// Team-filtered status, not the raw timerStatusState atom: a timer running on another team's task stays hidden.
-	const { timerStatus } = useTimerActions();
+	const timerStatus = useAtomValue(teamTimerStatusState);
 
 	// Conditional rendering after all hooks
 	if (online === false) {

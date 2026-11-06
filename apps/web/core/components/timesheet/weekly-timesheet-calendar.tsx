@@ -6,6 +6,7 @@ import type { GroupedTimesheet } from '@/core/lib/helpers/timesheet-grouping';
 import { formatDate } from '@/core/lib/helpers/index';
 import { TranslationHooks } from 'next-intl';
 import { TotalDurationByDate } from '../tasks/task-displays';
+import { Button } from '@/core/components/duplicated-components/_button';
 
 export type WeeklyCalendarProps = {
 	t: TranslationHooks;
@@ -97,32 +98,32 @@ const WeeklyTimesheetCalendar: React.FC<WeeklyCalendarProps> = ({
 	return (
 		<div className={classNames.container || 'p-4 w-full'}>
 			<div className={classNames.header || 'flex items-center justify-between mb-4'}>
-				<button
-					onClick={handlePreviousWeek}
-					className="px-4 py-2 bg-gray-200 rounded-sm hover:bg-gray-300 dark:bg-primary-light hover:dark:bg-primary-light"
-				>
+				<Button variant="outline" onClick={handlePreviousWeek}>
 					{t('common.PREV')}
-				</button>
-				<h2 className="text-xl font-bold">
+				</Button>
+				<h2 className="text-base font-semibold text-balance">
 					{`Week of ${format(weekDates[0], 'MMM d', { locale })} - ${format(weekDates[6], 'MMM d, yyyy', {
 						locale
 					})}`}
 				</h2>
-				<button
-					onClick={handleNextWeek}
-					className="px-4 py-2 bg-gray-200 rounded-sm dark:bg-primary-light hover:bg-gray-300 hover:dark:bg-primary-light"
-				>
+				<Button variant="outline" onClick={handleNextWeek}>
 					{t('common.NEXT')}
-				</button>
+				</Button>
 			</div>
 
-			<div className={classNames.grid || 'grid grid-cols-7 text-center font-semibold text-gray-600'}>
+			<div
+				className={classNames.grid || 'grid grid-cols-7 text-center text-xs font-medium text-muted-foreground'}
+			>
 				{daysLabels.map((day) => (
 					<div key={day}>{day}</div>
 				))}
 			</div>
 
-			<div className="grid w-full h-full grid-cols-7 mt-2" role="grid" aria-label="Calendar">
+			<div
+				className="grid w-full h-full grid-cols-7 mt-2 gap-px overflow-hidden rounded-xl bg-border hairline-ring ring-border"
+				role="grid"
+				aria-label="Calendar"
+			>
 				{weekDates.map((date) => {
 					const formattedDate = format(date, 'yyyy-MM-dd');
 					const plan = groupedData.get(formattedDate);
@@ -135,9 +136,9 @@ const WeeklyTimesheetCalendar: React.FC<WeeklyCalendarProps> = ({
 							aria-label={format(date, 'MMMM d, yyyy')}
 							className={cn(
 								classNames.day,
-								'border flex flex-col gap-2 relative shadow-xs rounded-sm min-h-[150px]',
+								'relative flex flex-col gap-2 bg-card py-2 min-h-[150px] outline-none focus-visible:ring-[3px] focus-visible:ring-inset focus-visible:ring-ring/25',
 								{
-									'bg-gray-100 dark:bg-card': date.getMonth() !== currentDate.getMonth()
+									'bg-muted': date.getMonth() !== currentDate.getMonth()
 								}
 							)}
 							onClick={() => onDateClick?.(date)}
@@ -149,16 +150,16 @@ const WeeklyTimesheetCalendar: React.FC<WeeklyCalendarProps> = ({
 							}}
 						>
 							<div className="flex items-center justify-between px-2">
-								<span className="block text-sm font-medium text-gray-500">
+								<span className="block text-xs font-medium tabular-nums text-muted-foreground">
 									{format(date, 'dd MMM yyyy')}
 								</span>
-								<div className="flex items-center text-sm font-medium text-gray-500 gap-x-1">
+								<div className="flex items-center text-xs font-medium gap-x-1">
 									{/* <span className="text-[#868687]">Total{" : "}</span> */}
 									{plan && (
 										<TotalDurationByDate
 											timesheetLog={plan.tasks}
 											createdAt={formatDate(plan.date)}
-											className="text-black dark:text-gray-500 text-[12px]"
+											className="tabular-nums text-foreground"
 										/>
 									)}
 								</div>
@@ -174,7 +175,9 @@ const WeeklyTimesheetCalendar: React.FC<WeeklyCalendarProps> = ({
 									))}
 								</div>
 							) : (
-								<div className={classNames.noData || 'text-gray-400 text-sm'}>{noDataText}</div>
+								<div className={classNames.noData || 'px-2 text-xs text-muted-foreground'}>
+									{noDataText}
+								</div>
 							)}
 						</div>
 					);

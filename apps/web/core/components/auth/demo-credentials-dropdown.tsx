@@ -11,6 +11,7 @@ import {
 	SelectValue
 } from '@/core/components/common/select';
 import { useState } from 'react';
+import { useTranslations } from 'next-intl';
 
 interface DemoCredentialsDropdownProps {
 	onCredentialSelect?: (email: string, password: string) => void;
@@ -26,6 +27,7 @@ interface DemoCredentialsDropdownProps {
  * When selected: Auto-fills the form with credentials
  */
 export function DemoCredentialsDropdown({ onCredentialSelect, className }: DemoCredentialsDropdownProps) {
+	const t = useTranslations();
 	const [selectedRole, setSelectedRole] = useState<string>('');
 
 	// Only render in demo mode
@@ -45,48 +47,31 @@ export function DemoCredentialsDropdown({ onCredentialSelect, className }: DemoC
 	};
 
 	return (
-			<Select onValueChange={handleValueChange}>
-				<SelectTrigger
-					className={cn(
-						'w-full px-3 py-1.5 h-auto',
-						'bg-gray-100 hover:bg-gray-200',
-						'dark:bg-card dark:hover:bg-muted',
-						'border border-gray-200 dark:border-gray-700',
-						'text-gray-700 dark:text-gray-300 font-medium text-sm',
-						'transition-all duration-200',
-						className
-					)}
-				>
-					<SelectValue placeholder="Demo Credentials" className="text-xs">
-						{selectedRole || 'Demo Credentials'}
-					</SelectValue>
-				</SelectTrigger>
-				<SelectContent className="w-full dark:bg-card border-gray-200 dark:border-gray-700">
-					<SelectGroup>
-						{DEMO_ACCOUNTS_CONFIG.map((account) => (
-							<SelectItem
-								key={account.type}
-								value={account.type}
-								className={cn(
-									'cursor-pointer focus:bg-gray-100 dark:focus:bg-muted',
-									'py-3 px-4'
-								)}
-							>
-								<div className="flex flex-col gap-1 text-sm">
-									<p className="text-xs font-semibold text-gray-900 dark:text-white">
-										{account.role}
-									</p>
-									<p className="text-xs text-gray-600 dark:text-gray-400">
-										Email: <span className="font-mono text-gray-800 dark:text-gray-200">{account.email}</span>
-									</p>
-									<p className="text-xs text-gray-600 dark:text-gray-400">
-										Password: <span className="font-mono text-gray-800 dark:text-gray-200">{account.password}</span>
-									</p>
-								</div>
-							</SelectItem>
-						))}
-					</SelectGroup>
-				</SelectContent>
-			</Select>
+		<Select onValueChange={handleValueChange}>
+			<SelectTrigger className={cn('w-full font-medium', className)}>
+				<SelectValue placeholder={t('auth.demo.CREDENTIALS')} className="text-xs">
+					{selectedRole || t('auth.demo.CREDENTIALS')}
+				</SelectValue>
+			</SelectTrigger>
+			<SelectContent className="w-full">
+				<SelectGroup>
+					{DEMO_ACCOUNTS_CONFIG.map((account) => (
+						<SelectItem key={account.type} value={account.type} className="cursor-pointer py-2">
+							<div className="flex flex-col gap-1 text-sm">
+								<p className="text-xs font-semibold text-foreground">{account.role}</p>
+								<p className="text-xs text-muted-foreground">
+									{t('auth.demo.EMAIL')}{' '}
+									<span className="font-mono text-foreground">{account.email}</span>
+								</p>
+								<p className="text-xs text-muted-foreground">
+									{t('auth.demo.PASSWORD')}{' '}
+									<span className="font-mono text-foreground">{account.password}</span>
+								</p>
+							</div>
+						</SelectItem>
+					))}
+				</SelectGroup>
+			</SelectContent>
+		</Select>
 	);
 }

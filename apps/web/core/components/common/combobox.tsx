@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { CaretSortIcon, CheckIcon } from '@radix-ui/react-icons';
+import { Check, ChevronsUpDown } from '@/core/components/icons';
 import { cn } from '@/core/lib/helpers';
 import { Button } from '@/core/components/duplicated-components/_button';
 import {
@@ -72,25 +72,20 @@ export function CustomCombobox<T>({
 				<Button
 					ref={triggerRef}
 					variant="outline"
+					size="lg"
 					role="combobox"
 					aria-expanded={open}
-					className={cn(
-						'w-full justify-between text-left font-normal h-10 rounded-lg dark:bg-dark--theme-light',
-						buttonWidth
-					)}
+					className={cn('w-full justify-between px-3 text-left font-normal', buttonWidth)}
 				>
 					{value ? itemToString(value) : placeholder}
-					<CaretSortIcon className="w-4 h-4 ml-2 opacity-50 shrink-0" />
+					<ChevronsUpDown className="size-4 shrink-0 text-muted-foreground" />
 				</Button>
 			</PopoverTrigger>
 			<PopoverContent
-				className={cn(
-					'w-full max-w-full max-h-[80vh] border border-transparent dark:bg-dark--theme-light',
-					popoverClassName
-				)}
+				className={cn('w-full max-w-full max-h-[80vh] p-0', popoverClassName)}
 				style={{ width: popoverWidth || 'auto', overflow: 'auto' }}
 			>
-				<Command className="dark:bg-dark--theme-light">
+				<Command>
 					<CommandInput placeholder="Search item..." className={commandInputHeight} />
 					<CommandList>
 						<CommandEmpty>{noResultsText}</CommandEmpty>
@@ -98,13 +93,13 @@ export function CustomCombobox<T>({
 							{items.map((item) => (
 								<CommandItem
 									defaultValue={defaultValue}
-									className="w-full dark:bg-dark--theme-light"
+									className="w-full"
 									key={itemToValue(item)}
 									value={itemToValue(item)}
 									onSelect={() => handleSelect(itemToValue(item))}
 								>
 									{itemToString(item)}
-									<CheckIcon
+									<Check
 										className={cn(
 											'ml-auto h-4 w-4',
 											value && itemToValue(value) === itemToValue(item)

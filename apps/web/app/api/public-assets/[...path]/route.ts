@@ -1,5 +1,6 @@
 import { GAUZY_API_SERVER_ORIGIN } from '@/core/constants/config/constants';
 import { publicAssetUrl } from '@/core/lib/helpers/public-asset-url';
+import { proxyGauzyImage } from '@/core/lib/helpers/proxy-gauzy-image';
 import { NextResponse } from 'next/server';
 
 /**
@@ -36,29 +37,9 @@ export async function GET(_request: Request, { params }: { params: Promise<{ pat
 	}
 
 	const upstream = publicAssetUrl(segments.join('/'), GAUZY_API_SERVER_ORIGIN);
-	if (!/^https?:\/\//i.test(upstream)) {
-		console.error(`[WEB][API] public-assets: the configured API origin is not http(s): ${upstream}`);
-		return new NextResponse(null, { status: 500 });
-	}
-
-	const response = await fetch(upstream, { headers: { Accept: 'image/*' } }).catch((error) => {
-		console.error(`[WEB][API] public-assets: ${upstream} is unreachable`, error);
-		return undefined;
-	});
-
-	const contentType = response?.headers.get('content-type') ?? '';
-	// An error page from the API (HTML, JSON) is not an asset: never pass it on as one.
-	if (!response?.ok || !contentType.startsWith('image/')) return notFound();
-
-	return new NextResponse(response.body, {
-		status: 200,
-		headers: {
-			'Content-Type': contentType,
-			// Static icons; the API's SVGs now come from THIS origin, so lock them down the way Next's own
-			// optimizer does before it serves an SVG.
-			'Cache-Control': 'public, max-age=3600, stale-while-revalidate=86400',
-			'Content-Security-Policy': "script-src 'none'; frame-src 'none'; sandbox;",
-			'X-Content-Type-Options': 'nosniff'
-		}
+	// Static icons; the API's SVGs now come from THIS origin, so lock them down the way Next's own
+	// optimizer does before it serves an SVG.
+	return proxyGauzyImage('public-assets', upstream, 'image/*', {
+		'Content-Security-Policy': "script-src 'none'; frame-src 'none'; sandbox;"
 	});
 }

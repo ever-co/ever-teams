@@ -100,7 +100,6 @@ describe('proxy.ts and /_next/image', () => {
 describe('image-hosts.js (shared by next.config.js and proxy.ts)', () => {
 	it('keeps the historical default host list', () => {
 		expect(DEFAULT_IMAGE_HOSTS).toEqual([
-			'dummyimage.com',
 			'res.cloudinary.com',
 			'gauzy.sfo2.digitaloceanspaces.com',
 			'cdn-icons-png.flaticon.com',

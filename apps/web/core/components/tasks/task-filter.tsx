@@ -1,4 +1,5 @@
-import { CheckIcon } from '@heroicons/react/24/outline';
+import { Check } from '@/core/components/icons';
+import { cn } from '@/core/lib/helpers';
 
 interface ITaskFilter {
 	type: 'open' | 'closed';
@@ -9,21 +10,25 @@ interface ITaskFilter {
 const TaskFilter = ({ type, count, selected, handleChange }: ITaskFilter) => {
 	return (
 		<div
-			className="w-[95px] h-[30px] bg-[#F0ECFD] flex items-center px-[10px] py-1 cursor-pointer space-x-2 rounded-[6px]"
+			className={cn(
+				'flex h-7 min-w-[95px] cursor-pointer items-center gap-2 rounded-full px-3 text-xs transition-colors',
+				selected && 'bg-foreground font-medium text-background shadow-sm hairline-ring ring-foreground/5',
+				!selected && 'bg-foreground/5 text-muted-foreground hover:text-foreground'
+			)}
 			onClick={handleChange}
 		>
 			{type === 'open' ? (
 				<div
-					className={`w-[10px] h-[10px] ${selected === true ? 'bg-[#28D581]' : 'bg-[#ACB3BB]'} rounded-full`}
+					className={cn(
+						'size-2.5 rounded-full',
+						selected && 'bg-success',
+						!selected && 'bg-current opacity-50'
+					)}
 				/>
 			) : (
-				<CheckIcon className={`${selected === true ? 'text-primary' : 'text-[#ACB3BB]'} w-[18px]`} />
+				<Check className="size-4" />
 			)}
-			<div
-				className={`text-[12px] w-full  ${selected ? 'text-primary font-bold' : 'text-[#ACB3BB] font-light'} `}
-			>
-				{count + ' ' + type}
-			</div>
+			<div className="w-full">{count + ' ' + type}</div>
 		</div>
 	);
 };

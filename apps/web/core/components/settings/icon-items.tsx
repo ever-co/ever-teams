@@ -75,7 +75,7 @@ export function IconItem({
 						className={clsxm(
 							'w-[17px] h-[17px]',
 							'flex justify-center items-center',
-							'rounded-full text-xs text-default dark:text-white',
+							'rounded-full text-xs text-foreground',
 							disabled && ['dark:text-default']
 						)}
 					>

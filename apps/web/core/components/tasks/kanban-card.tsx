@@ -1,6 +1,7 @@
 import { useAtom, useAtomValue } from 'jotai';
 import Link from 'next/link';
 import { memo } from 'react';
+import { useTranslations } from 'next-intl';
 
 import { LazyImageComponent, LazyMenuKanbanCard } from '@/core/components/optimized-components/kanban';
 import {
@@ -10,7 +11,7 @@ import {
 } from '@/core/components/optimized-components/tasks';
 import CircularProgress from '@/core/components/svgs/circular-progress';
 import PriorityIcon from '@/core/components/svgs/priority-icon';
-import { useTimerActions } from '@/core/hooks/timer';
+import { teamTimerStatusState } from '@/core/stores/timer/team-timer-status';
 import { useUserQuery } from '@/core/hooks/queries/user-user.query';
 import { secondsToTime } from '@/core/lib/helpers/index';
 import { getTaskEstimation } from '@/core/lib/utils/task.utils';
@@ -28,6 +29,7 @@ import { DraggableProvided } from '@hello-pangea/dnd';
 
 import { ImageOverlapperProps } from '../common/image-overlapper';
 import { HorizontalSeparator } from '../duplicated-components/separator';
+import { cn } from '@/core/lib/helpers';
 
 function getStyle(provided: DraggableProvided, style: any) {
 	if (!style) {
@@ -40,16 +42,18 @@ function getStyle(provided: DraggableProvided, style: any) {
 	};
 }
 
+const KANBAN_AVATAR_COUNT = 3;
+
 export function setCommentIconColor(commentType: 'tagged' | 'untagged') {
 	let style;
 
 	if (commentType === 'tagged') {
 		style = {
-			backgroundColor: '#D95F5F'
+			backgroundColor: 'hsl(var(--destructive))'
 		};
 	} else if (commentType === 'untagged') {
 		style = {
-			backgroundColor: '#27AE60'
+			backgroundColor: 'hsl(var(--success))'
 		};
 	} else {
 		style = {};
@@ -107,7 +111,7 @@ export function Priority({ level }: { level: ETaskPriority | string }) {
 				}}
 				className="flex relative flex-col"
 			>
-				{numberArray.map((item: any, index: number) => {
+				{numberArray.map((_item: any, index: number) => {
 					return (
 						<span
 							key={index}
@@ -136,15 +140,15 @@ type ItemProps = {
 
 // Memoized on the task alone: drag frames re-render the wrapper below, not this subtree.
 const ItemContent = memo(function ItemContent({ item }: { item: TTask }) {
+	const t = useTranslations();
 	const activeTeam = useAtomValue(activeTeamState);
 	const workedDurationByTask = useAtomValue(activeTeamWorkedDurationByTaskState);
 	const { data: user } = useUserQuery();
 	const [activeTask, setActiveTask] = useAtom(activeTeamTaskId);
 	const activeTeamTask = useAtomValue(activeTeamTaskState);
-	// PERF: per-card hook — see the note in use-timer-button.ts. useTimerView() would subscribe this card to
-	// the 20Hz tick atoms for a value that comes from Layer 1. `timerStatus` here is the same FILTERED value
-	// useTimerView exposes (useTimerApi returns filteredTimerStatus), not the raw atom.
-	const { timerStatus } = useTimerActions();
+	// The same filtered status useTimerApi exposes, read from an atom: a whole timer API per card cost
+	// about twenty hooks for this one value.
+	const timerStatus = useAtomValue(teamTimerStatusState);
 
 	const members = activeTeam?.members || [];
 	const currentMember = members.find((m) => m.employee?.userId === user?.id);
@@ -160,6 +164,11 @@ const ItemContent = memo(function ItemContent({ item }: { item: TTask }) {
 		}) || [];
 
 	const progress = getTaskEstimation(null, item, totalWorkedTasksTimer || 1, item.estimate || 0);
+	const isActiveTeamTask = item.id === activeTeamTask?.id;
+	const isTimerRunning = Boolean(timerStatus?.running);
+	const isLiveOnThisTask = isActiveTeamTask && isTimerRunning;
+	const commentIconStyle = setCommentIconColor(item.issueType as any);
+	const hasCommentIcon = 'backgroundColor' in commentIconStyle;
 
 	const {
 		hours: h,
@@ -178,9 +187,9 @@ const ItemContent = memo(function ItemContent({ item }: { item: TTask }) {
 			0
 	);
 	return (
-		<div className="justify-between w-full h-fit">
-			<div className="flex justify-between w-full">
-				<span className="!w-64">
+		<div className="flex flex-col gap-3 justify-between w-full h-fit">
+			<div className="flex gap-2 justify-between items-start w-full">
+				<span className="min-w-0 flex-1">
 					<LazyTaskAllStatusTypes
 						className="justify-start"
 						task={item}
@@ -193,8 +202,8 @@ const ItemContent = memo(function ItemContent({ item }: { item: TTask }) {
 					<LazyMenuKanbanCard member={currentMember} item={item} />
 				</span>
 			</div>
-			<div className="flex justify-between my-3 w-full">
-				<div className="flex items-center w-64">
+			<div className="flex gap-3 justify-between items-start w-full">
+				<div className="flex min-w-0 flex-1 items-center">
 					{activeTask?.id == item.id ? (
 						<>
 							<div className="w-56">
@@ -216,8 +225,11 @@ const ItemContent = memo(function ItemContent({ item }: { item: TTask }) {
 							</div>
 						</>
 					) : (
-						<Link href={`/task/${item.id}`}>
-							<div className="overflow-hidden relative w-64">
+						<Link
+							href={`/task/${item.id}`}
+							className="rounded-sm outline-none focus-visible:ring-[3px] focus-visible:ring-ring/25"
+						>
+							<div className="overflow-hidden relative w-full text-sm font-medium leading-6 text-foreground line-clamp-2">
 								{item.issueType && (
 									<span className="inline-block w-6 h-5">
 										<span className="absolute top-1">
@@ -230,7 +242,9 @@ const ItemContent = memo(function ItemContent({ item }: { item: TTask }) {
 										</span>
 									</span>
 								)}
-								<span className="mx-1 text-grey text-normal">#{item.number}</span>
+								<span className="mx-1 font-normal tabular-nums text-muted-foreground">
+									#{item.number}
+								</span>
 								{item.title}
 								<span className="inline-block ml-1">
 									{item.priority && <Priority level={item.priority} />}
@@ -240,36 +254,39 @@ const ItemContent = memo(function ItemContent({ item }: { item: TTask }) {
 					)}
 				</div>
 
-				<CircularProgress percentage={progress} />
+				<div className="shrink-0">
+					<CircularProgress percentage={progress} />
+				</div>
 			</div>
-			<div className="my-2">
-				<HorizontalSeparator />
-			</div>
-			<div className="flex justify-between items-center w-full h-10">
-				<div>
-					{item.id === activeTeamTask?.id && timerStatus?.running ? (
-						<div className="flex gap-2 items-center">
-							<small className="text-xs text-grey text-normal">Live:</small>
-							<p className="text-[#219653] font-medium text-sm">
+			<HorizontalSeparator className="bg-border" />
+			<div className="flex h-8 w-full items-center justify-between gap-2">
+				<LazyImageComponent
+					radius={30}
+					images={taskAssignee}
+					item={item}
+					displayImageCount={KANBAN_AVATAR_COUNT}
+				/>
+				<div className="shrink-0 whitespace-nowrap">
+					{isLiveOnThisTask && (
+						<div className="flex items-center gap-2">
+							<small className="text-xs text-muted-foreground">{t('common.LIVE')}:</small>
+							<p className="text-sm font-medium tabular-nums text-success-foreground">
 								{h}h : {m}m : {s}s
 							</p>
 						</div>
-					) : (
-						<div className="flex gap-2 items-center">
-							<small className="text-xs text-grey text-normal">Worked:</small>
-							<p className="text-sm font-medium text-black dark:text-white">
+					)}
+					{!isLiveOnThisTask && (
+						<div className="flex items-center gap-2">
+							<small className="text-xs text-muted-foreground">{t('common.WORKED')}:</small>
+							<p className="text-sm font-medium tabular-nums text-foreground">
 								{h}h : {m}m
 							</p>
 						</div>
 					)}
 				</div>
-				<LazyImageComponent radius={30} images={taskAssignee} item={item} />
-				{item.issueType && (
-					<div className="flex flex-row items-center justify-center rounded-full w-5 h-5 z-[1] bg-[#e5e7eb] dark:bg-background absolute top-0 right-0">
-						<div
-							className="w-3.5 h-3.5 rounded-full"
-							style={setCommentIconColor(item.issueType as any)}
-						></div>
+				{hasCommentIcon && (
+					<div className="flex flex-row items-center justify-center rounded-full size-5 z-[1] bg-foreground/5 absolute top-0 right-0">
+						<div className="w-3.5 h-3.5 rounded-full" style={commentIconStyle}></div>
 					</div>
 				)}
 			</div>
@@ -294,7 +311,10 @@ export default function Item(props: ItemProps) {
 			{...provided.draggableProps}
 			{...provided.dragHandleProps}
 			style={getStyle(provided, style)}
-			className="flex flex-col my-2.5 rounded-2xl bg-white dark:bg-dark--theme-light p-4 relative"
+			className={cn(
+				'flex relative flex-col p-3 mb-2 w-full rounded-xl bg-card text-card-foreground hairline-ring ring-border shadow-sm shadow-black/6.5 transition-shadow',
+				isDragging && 'rotate-2 shadow-md shadow-black/10 ring-primary/40'
+			)}
 			aria-label={item.title}
 		>
 			<ItemContent item={item} />

@@ -1,4 +1,4 @@
-import { EditPenUnderlineIcon, TrashIcon } from 'assets/svg';
+import { Pencil, Trash } from '@/core/components/icons';
 import { Button, Text } from '@/core/components';
 import { CHARACTER_LIMIT_TO_SHOW } from '@/core/constants/config/constants';
 import { clsxm } from '@/core/lib/utils';
@@ -9,8 +9,17 @@ import { sanitizeSvg } from '@/core/lib/helpers/sanitize-svg';
 import { Tooltip } from '../duplicated-components/tooltip';
 import { IClassName } from '@/core/types/interfaces/common/class-name';
 
-const ICON_BUTTON =
-	'size-8 min-w-0 shrink-0 rounded-md p-0 text-muted-foreground hover:bg-muted hover:text-foreground';
+// A disabled action lets the pointer through, so the tooltip around it still explains why.
+const ICON_BUTTON = 'shrink-0 text-muted-foreground disabled:pointer-events-none disabled:opacity-40';
+const DELETE_BUTTON =
+	'shrink-0 text-muted-foreground hover:text-destructive-ink disabled:pointer-events-none disabled:opacity-40';
+
+function editHintOf(readOnly: boolean, editLabel: string, readOnlyHint: string) {
+	if (readOnly) {
+		return readOnlyHint;
+	}
+	return editLabel;
+}
 
 /**
  * A compact chip for a status / priority / size / label / version: the colour as a dot, the icon in
@@ -25,6 +34,7 @@ export const StatusesListCard = ({
 	onDelete,
 	showDeleteButton = true,
 	isStatus,
+	readOnly = false,
 	className
 }: IClassName<{
 	statusIcon: string;
@@ -35,8 +45,12 @@ export const StatusesListCard = ({
 	showDeleteButton?: boolean;
 	isStatus?: boolean;
 	statusId?: string;
+	/** Shows the edit and delete actions disabled, for a user who may not change this task setting. */
+	readOnly?: boolean;
 }>) => {
 	const t = useTranslations();
+	const readOnlyHint = t('pages.settingsTeam.TASK_SETTINGS_READ_ONLY');
+	const editHint = editHintOf(readOnly, t('common.EDIT'), readOnlyHint);
 
 	useEffect(() => {
 		if (statusIcon) {
@@ -48,14 +62,14 @@ export const StatusesListCard = ({
 	return (
 		<div
 			className={clsxm(
-				'inline-flex h-9 max-w-full items-center gap-2 rounded-md border border-border bg-card pl-2.5 pr-1 text-sm text-foreground',
+				'inline-flex h-9 max-w-full items-center gap-2 rounded-md hairline-border border-transparent bg-card pl-2.5 pr-1 text-sm text-foreground shadow-sm shadow-black/6.5 hairline-ring ring-border',
 				className
 			)}
 		>
 			{bgColor ? (
 				<span
 					aria-hidden="true"
-					className="size-2.5 shrink-0 rounded-full ring-1 ring-inset ring-foreground/10"
+					className="size-2.5 shrink-0 rounded-full hairline-ring ring-inset ring-foreground/10"
 					style={{ backgroundColor: bgColor }}
 				/>
 			) : null}
@@ -81,16 +95,24 @@ export const StatusesListCard = ({
 				</Text.Label>
 			</Tooltip>
 			<div className="flex shrink-0 items-center">
-				<Tooltip label={t('common.EDIT')}>
-					<Button variant="ghost" className={ICON_BUTTON} onClick={onEdit}>
-						<EditPenUnderlineIcon className="size-4 text-inherit" />
+				<Tooltip label={editHint}>
+					<Button variant="ghost" size="icon-sm" className={ICON_BUTTON} onClick={onEdit} disabled={readOnly}>
+						<Pencil className="size-4" />
 					</Button>
 				</Tooltip>
 
 				{showDeleteButton && (
-					<Button variant="ghost" className={ICON_BUTTON} onClick={onDelete}>
-						<TrashIcon className="size-4" />
-					</Button>
+					<Tooltip label={readOnlyHint} enabled={readOnly}>
+						<Button
+							variant="ghost"
+							size="icon-sm"
+							className={DELETE_BUTTON}
+							onClick={onDelete}
+							disabled={readOnly}
+						>
+							<Trash className="size-4" />
+						</Button>
+					</Tooltip>
 				)}
 			</div>
 		</div>

@@ -19,7 +19,6 @@ export { useTimerActions } from './use-timer-actions';
 // Re-export types for convenience
 export type { UseTimerApiParams, UseTimerApiReturn } from './use-timer-api';
 export type { UseTimerStorageParams, UseTimerStorageReturn } from './use-timer-storage';
-export type { UseTimerUiParams, UseTimerUiReturn } from './use-timer-ui';
+export type { UseTimerUiParams } from './use-timer-ui';
 export type { UseTimerPlanStatusReturn } from './use-timer-plan-status';
 export type { UseTimerActionsReturn } from './use-timer-actions';
-

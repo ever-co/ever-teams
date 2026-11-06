@@ -36,7 +36,7 @@ export const TimeInput = ({
 	return (
 		<input
 			autoComplete="off"
-			className={`placeholder:font-light text-[14px] text-center border-b-2 dark:border-border border-dashed outline-hidden  placeholder:text-center ${style}`}
+			className={`text-sm text-center tabular-nums border-b-2 border-dashed border-border outline-hidden placeholder:text-center placeholder:text-muted-foreground/75 ${style}`}
 			placeholder={placeholder}
 			value={value}
 			name={name}

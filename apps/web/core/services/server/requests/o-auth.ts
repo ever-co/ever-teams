@@ -20,6 +20,7 @@ import { userOrganizationService } from '../../client/api/users/user-organizatio
 import { EProvider } from '@/core/types/generics/enums/social-accounts';
 import { everIdUserByAccount, isEverIdCallbackRequest } from '@/core/services/server/ever-id/sign-in';
 import { pickTokenOrganization } from '@/core/lib/auth/jwt-utils';
+import { unwrapRejection } from '@/core/services/server/fetch';
 
 export function GauzyAdapter(req: NextRequest): Adapter {
 	return {
@@ -161,36 +162,64 @@ export function GauzyAdapter(req: NextRequest): Adapter {
 	};
 }
 
+const ACCOUNT_NOT_SET_UP = 'account-not-set-up';
+const RECOGNIZED_ACCOUNT_FAILED = 'recognized-account-failed';
+
+async function signInRecognizedAccount(email: string, workspaceToken: string) {
+	const data = await signinService.signInWorkspace({ email, token: workspaceToken });
+	const tenantId = data.user?.tenantId || '';
+	const token = data.token;
+	const userId = data.user?.id;
+
+	// An account with no tenant yet has no organization to list, and Gauzy's tenant guard refuses the read: it is an
+	// account that is not set up, as in the workspace sign-in route, not a failed sign-in
+	if (!tenantId) {
+		return { data, organizations: undefined, tenantId, token, userId };
+	}
+	const { data: organizations } = await userOrganizationService.getUserOrganizations({
+		tenantId,
+		userId,
+		token
+	});
+	return { data, organizations, tenantId, token, userId };
+}
+
 async function signIn(provider: EProvider, access_token: string) {
 	try {
 		const gauzyUser = await signWithSocialLoginsRequest(provider, access_token);
 
 		if (!gauzyUser) {
 			return Promise.reject({
+				reason: ACCOUNT_NOT_SET_UP,
 				errors: {
 					email: 'Your account isn’t fully set up yet'
 				}
 			});
 		}
 
-		const data = await signinService.signInWorkspace({
-			email: gauzyUser?.data.confirmed_email,
-			token: gauzyUser?.data.workspaces[0].token
-		});
-		const tenantId = data.user?.tenantId || '';
-		const token = data.token;
-		const userId = data.user?.id;
+		const workspaceToken = gauzyUser.data?.workspaces?.[0]?.token;
+		if (!workspaceToken) {
+			return Promise.reject({
+				reason: ACCOUNT_NOT_SET_UP,
+				errors: {
+					email: 'Your account isn’t fully set up yet'
+				}
+			});
+		}
 
-		const { data: organizations } = await userOrganizationService.getUserOrganizations({
-			tenantId,
-			userId,
-			token
-		});
+		let signedIn: Awaited<ReturnType<typeof signInRecognizedAccount>>;
+		try {
+			signedIn = await signInRecognizedAccount(gauzyUser.data.confirmed_email, workspaceToken);
+		} catch (error) {
+			return Promise.reject({ reason: RECOGNIZED_ACCOUNT_FAILED, cause: error });
+		}
+		const { data, organizations, tenantId, token, userId } = signedIn;
 
 		const organization = pickTokenOrganization(organizations?.items, token);
 
 		if (!organization) {
 			return Promise.reject({
+				reason: ACCOUNT_NOT_SET_UP,
 				errors: {
 					email: `Your account is not yet ready to be used on the ${APP_NAME} Platform`
 				}
@@ -202,13 +231,74 @@ async function signIn(provider: EProvider, access_token: string) {
 	}
 }
 
-export async function signInCallback(provider: EProvider, access_token: string): Promise<boolean> {
-	try {
-		const { gauzyUser, organization } = await signIn(provider, access_token);
-		return !!gauzyUser && !!organization;
-	} catch (error: any) {
-		return false;
+// Gauzy sends no reason code with this 401, only its fixed message (ever-gauzy social-signin-verified-account.ts).
+const UNCONFIRMED_ACCOUNT_MESSAGE = /confirm the email address of your account/i;
+
+const PROVIDER_ACCOUNT_UNCONFIRMED_PATH = '/auth/error?error=ProviderAccountUnconfirmed';
+
+const PROVIDER_ACCOUNT_NOT_SET_UP_PATH = '/auth/error?error=ProviderAccountNotSetUp';
+
+// The generic "Something went wrong, try again" page: a transient failure once Gauzy recognized the account.
+const PROVIDER_SIGN_IN_FAILED_PATH = '/auth/error?error=Configuration';
+
+type GauzyRefusal = { statusCode?: unknown; message?: unknown } | null | undefined;
+
+function signInRejectionOf(error: unknown): unknown {
+	if (error instanceof Error) {
+		return error.cause;
 	}
+	return error;
+}
+
+function signInRefusalReasonOf(error: unknown): unknown {
+	const rejection = signInRejectionOf(error) as { reason?: unknown } | null | undefined;
+	return rejection?.reason;
+}
+
+type ProviderSignInRefusal = 'unconfirmed-account' | 'unknown-address' | 'other';
+
+async function providerSignInRefusalOf(error: unknown): Promise<ProviderSignInRefusal> {
+	const rejection = signInRejectionOf(error);
+	const body = (await unwrapRejection(rejection)) as GauzyRefusal;
+	const isUnauthorized = body?.statusCode === 401;
+	if (!isUnauthorized) {
+		return 'other';
+	}
+	const message = String(body?.message ?? '');
+	const asksToConfirmTheAddress = UNCONFIRMED_ACCOUNT_MESSAGE.test(message);
+	if (asksToConfirmTheAddress) {
+		return 'unconfirmed-account';
+	}
+	return 'unknown-address';
+}
+
+/**
+ * next-auth's signIn answer for a provider other than Ever ID. Only Gauzy's plain 401 to the provider sign-in lets
+ * next-auth go on: for an address Gauzy does not know, the adapter registers the account (the provider sign-up). Once
+ * the address has an account (unconfirmed, recognized but without a workspace, or recognized and then failing), the
+ * sign-in stops here, or the adapter registers a second account for it. Any other failure (a rate limit, a server
+ * error, Gauzy out of reach) cannot tell a new address from a known one, so it stops on the generic error page too.
+ */
+export async function signInCallback(provider: EProvider, access_token: string): Promise<true | string> {
+	try {
+		await signIn(provider, access_token);
+	} catch (error) {
+		const reason = signInRefusalReasonOf(error);
+		if (reason === ACCOUNT_NOT_SET_UP) {
+			return PROVIDER_ACCOUNT_NOT_SET_UP_PATH;
+		}
+		if (reason === RECOGNIZED_ACCOUNT_FAILED) {
+			return PROVIDER_SIGN_IN_FAILED_PATH;
+		}
+		const refusal = await providerSignInRefusalOf(error);
+		if (refusal === 'unconfirmed-account') {
+			return PROVIDER_ACCOUNT_UNCONFIRMED_PATH;
+		}
+		if (refusal === 'other') {
+			return PROVIDER_SIGN_IN_FAILED_PATH;
+		}
+	}
+	return true;
 }
 
 export async function jwtCallback(provider: EProvider, access_token: string) {

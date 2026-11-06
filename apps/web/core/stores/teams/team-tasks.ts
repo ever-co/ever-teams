@@ -24,14 +24,21 @@ export const detailedTaskState = atom<TTask | null>(null);
 // 	default: null
 // });
 
+function createdAtTime(task: TTask) {
+	return moment(task.createdAt).valueOf();
+}
+
+// Newest first. createdAt is parsed once per task instead of twice per comparison; moment still reads it, so a
+// missing date counts as now and an invalid one compares as equal, as in the former comparator.
+function sortNewestFirst(tasks: TTask[]) {
+	const timedTasks = tasks.map((task) => ({ task, time: createdAtTime(task) }));
+	timedTasks.sort((a, b) => b.time - a.time);
+	return timedTasks.map((timedTask) => timedTask.task);
+}
+
 export const tasksByTeamState = atom<TTask[]>((get) => {
 	const tasks = get(teamTasksState);
-
-	return tasks
-		.filter(() => {
-			return true;
-		})
-		.sort((a, b) => moment(b.createdAt).diff(a.createdAt));
+	return sortNewestFirst(tasks);
 });
 
 export const tasksStatisticsState = atom<{

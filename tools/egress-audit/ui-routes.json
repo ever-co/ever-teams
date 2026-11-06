@@ -14,6 +14,11 @@
       "source": "router"
     },
     {
+      "path": "/:locale/assistant",
+      "file": "apps/web/app/[locale]/(main)/assistant/page.tsx",
+      "source": "router"
+    },
+    {
       "path": "/:locale/auth/accept-invite",
       "file": "apps/web/app/[locale]/auth/accept-invite/page.tsx",
       "source": "router"
@@ -79,6 +84,16 @@
       "source": "router"
     },
     {
+      "path": "/:locale/delete-account",
+      "file": "apps/web/app/[locale]/delete-account/page.tsx",
+      "source": "router"
+    },
+    {
+      "path": "/:locale/delete-account/confirm",
+      "file": "apps/web/app/[locale]/delete-account/confirm/page.tsx",
+      "source": "router"
+    },
+    {
       "path": "/:locale/integration/github",
       "file": "apps/web/app/[locale]/(main)/integration/github/page.tsx",
       "source": "router"
@@ -90,7 +105,7 @@
     },
     {
       "path": "/:locale/maintenance",
-      "file": "apps/web/app/[locale]/(main)/maintenance/page.tsx",
+      "file": "apps/web/app/[locale]/(focus)/maintenance/page.tsx",
       "source": "router"
     },
     {
@@ -124,6 +139,26 @@
       "source": "router"
     },
     {
+      "path": "/:locale/reports/actual-and-expected-hours",
+      "file": "apps/web/app/[locale]/(main)/reports/actual-and-expected-hours/page.tsx",
+      "source": "router"
+    },
+    {
+      "path": "/:locale/reports/manual-time-edits",
+      "file": "apps/web/app/[locale]/(main)/reports/manual-time-edits/page.tsx",
+      "source": "router"
+    },
+    {
+      "path": "/:locale/reports/payments-due",
+      "file": "apps/web/app/[locale]/(main)/reports/payments-due/page.tsx",
+      "source": "router"
+    },
+    {
+      "path": "/:locale/reports/project-budget",
+      "file": "apps/web/app/[locale]/(main)/reports/project-budget/page.tsx",
+      "source": "router"
+    },
+    {
       "path": "/:locale/reports/time-and-activity",
       "file": "apps/web/app/[locale]/(main)/reports/time-and-activity/page.tsx",
       "source": "router"
@@ -139,13 +174,73 @@
       "source": "router"
     },
     {
+      "path": "/:locale/settings",
+      "file": "apps/web/app/[locale]/(main)/settings/page.tsx",
+      "source": "router"
+    },
+    {
       "path": "/:locale/settings/personal",
       "file": "apps/web/app/[locale]/(main)/settings/personal/page.tsx",
       "source": "router"
     },
     {
+      "path": "/:locale/settings/personal/notifications",
+      "file": "apps/web/app/[locale]/(main)/settings/personal/notifications/page.tsx",
+      "source": "router"
+    },
+    {
+      "path": "/:locale/settings/personal/preferences",
+      "file": "apps/web/app/[locale]/(main)/settings/personal/preferences/page.tsx",
+      "source": "router"
+    },
+    {
+      "path": "/:locale/settings/personal/working-hours",
+      "file": "apps/web/app/[locale]/(main)/settings/personal/working-hours/page.tsx",
+      "source": "router"
+    },
+    {
       "path": "/:locale/settings/team",
       "file": "apps/web/app/[locale]/(main)/settings/team/page.tsx",
+      "source": "router"
+    },
+    {
+      "path": "/:locale/settings/team/integrations",
+      "file": "apps/web/app/[locale]/(main)/settings/team/integrations/page.tsx",
+      "source": "router"
+    },
+    {
+      "path": "/:locale/settings/team/issue-types",
+      "file": "apps/web/app/[locale]/(main)/settings/team/issue-types/page.tsx",
+      "source": "router"
+    },
+    {
+      "path": "/:locale/settings/team/labels",
+      "file": "apps/web/app/[locale]/(main)/settings/team/labels/page.tsx",
+      "source": "router"
+    },
+    {
+      "path": "/:locale/settings/team/members",
+      "file": "apps/web/app/[locale]/(main)/settings/team/members/page.tsx",
+      "source": "router"
+    },
+    {
+      "path": "/:locale/settings/team/priorities",
+      "file": "apps/web/app/[locale]/(main)/settings/team/priorities/page.tsx",
+      "source": "router"
+    },
+    {
+      "path": "/:locale/settings/team/sizes",
+      "file": "apps/web/app/[locale]/(main)/settings/team/sizes/page.tsx",
+      "source": "router"
+    },
+    {
+      "path": "/:locale/settings/team/statuses",
+      "file": "apps/web/app/[locale]/(main)/settings/team/statuses/page.tsx",
+      "source": "router"
+    },
+    {
+      "path": "/:locale/settings/team/versions",
+      "file": "apps/web/app/[locale]/(main)/settings/team/versions/page.tsx",
       "source": "router"
     },
     {
@@ -160,7 +255,7 @@
     },
     {
       "path": "/:locale/team/join",
-      "file": "apps/web/app/[locale]/(main)/(teams)/team/join/page.tsx",
+      "file": "apps/web/app/[locale]/(focus)/team/join/page.tsx",
       "source": "router"
     },
     {
@@ -170,12 +265,12 @@
     },
     {
       "path": "/:locale/unauthorized",
-      "file": "apps/web/app/[locale]/(main)/unauthorized/page.tsx",
+      "file": "apps/web/app/[locale]/(focus)/unauthorized/page.tsx",
       "source": "router"
     },
     {
       "path": "/:locale/verify-email",
-      "file": "apps/web/app/[locale]/(main)/verify-email/page.tsx",
+      "file": "apps/web/app/[locale]/(focus)/verify-email/page.tsx",
       "source": "router"
     },
     {

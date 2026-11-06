@@ -2,11 +2,9 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { useTranslations } from 'next-intl';
 import { withAuthentication } from '@/core/components/layouts/app/authenticator';
-import { BackdropLoader } from '@/core/components';
 import { useGitHubIntegration, useIntegrationTenant, useIntegrationTypes } from '@/core/hooks';
-import { toast } from 'sonner';
+import { GitHubIntegrationPageSkeleton } from './github-integration-page-skeleton';
 
 /**
  * GitHub integration page component.
@@ -21,8 +19,6 @@ const GitHub = () => {
 
 	// Add state to track installation completion
 	const [installationCompleted, setInstallationCompleted] = useState<boolean>(false);
-
-	const t = useTranslations();
 
 	const { installGitHub, getRepositories } = useGitHubIntegration();
 	const { getIntegrationTenant, loading: integrationTenantLoading, integrationTenant } = useIntegrationTenant();
@@ -51,10 +47,11 @@ const GitHub = () => {
 					// Mark installation as completed and reset installing flag
 					setInstallationCompleted(true);
 					installing.current = false;
-					router.replace('/settings/team#integrations');
+					router.replace('/settings/team/integrations');
 				})
 				.catch((error) => {
-					toast.error('Failed to install GitHub:', { description: error.message });
+					// The global mutation fallback reports the failure
+					console.error('GitHub installation failed:', error);
 					installing.current = false;
 				});
 		}, 100);
@@ -94,13 +91,10 @@ const GitHub = () => {
 		}
 	}, [loadingIntegrationTypes, integrationTypes, getIntegrationTypes, getIntegrationTenant]);
 
-	return (
-		<div className="flex flex-col p-3">
-			<BackdropLoader show={true} title={t('common.GITHUB_LOADING_TEXT')} />
-		</div>
-	);
+	return <GitHubIntegrationPageSkeleton />;
 };
 
 export default withAuthentication(GitHub, {
-	displayName: 'GitHubIntegrationPage'
+	displayName: 'GitHubIntegrationPage',
+	skeleton: GitHubIntegrationPageSkeleton
 });

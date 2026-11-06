@@ -2,7 +2,7 @@ import React from 'react';
 
 const LoadingSpinner = ({ className }: { className?: string }) => (
 	<svg
-		className={`text-gray-500 animate-spin ${className}`}
+		className={`text-muted-foreground animate-spin ${className}`}
 		xmlns="http://www.w3.org/2000/svg"
 		fill="none"
 		viewBox="0 0 24 24"
@@ -25,8 +25,8 @@ const ImageWithLoader = ({
 	return (
 		<div className="relative">
 			{isLoading && (
-				<div className="flex absolute inset-0 justify-center items-center bg-gray-200 rounded-full">
-					<LoadingSpinner className="w-5 h-5" />
+				<div className="flex absolute inset-0 justify-center items-center bg-foreground/5 rounded-full">
+					<LoadingSpinner className="size-4" />
 				</div>
 			)}
 			<img

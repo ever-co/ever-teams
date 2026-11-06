@@ -1,4 +1,4 @@
-import { activeTeamState, collaborativeMembersState, collaborativeSelectState } from '@/core/stores';
+import { activeTeamNameState, collaborativeMembersState, collaborativeSelectState } from '@/core/stores';
 import { useCallback } from 'react';
 import { useAtom, useAtomValue } from 'jotai';
 import { BOARD_APP_DOMAIN } from '@/core/constants/config/constants';
@@ -17,7 +17,8 @@ export function useCollaborative(user?: TUser) {
 	// published image used to ignore (it baked the value at build time) but now honours at runtime.
 	const isJitsi = meetType.toLowerCase() === 'jitsi';
 
-	const activeTeam = useAtomValue(activeTeamState);
+	// The name alone: this hook runs once per member row, which should not re-render on every team refresh
+	const activeTeamName = useAtomValue(activeTeamNameState);
 	const { data: authUser } = useUserQuery();
 	const [collaborativeSelect, setCollaborativeSelect] = useAtom(collaborativeSelectState);
 	const [collaborativeMembers, setCollaborativeMembers] = useAtom(collaborativeMembersState);
@@ -42,7 +43,7 @@ export function useCollaborative(user?: TUser) {
 	}, [user_selected, user, setCollaborativeMembers]);
 
 	const getMeetRoomName = useCallback(() => {
-		let teamName = activeTeam?.name;
+		let teamName = activeTeamName;
 		if (!teamName || !authUser) {
 			return randomMeetName();
 		}
@@ -61,7 +62,7 @@ export function useCollaborative(user?: TUser) {
 			.join('-');
 
 		return `${teamName}-${members}-${randomMeetName()}`;
-	}, [authUser, randomMeetName, activeTeam, collaborativeMembers]);
+	}, [authUser, randomMeetName, activeTeamName, collaborativeMembers]);
 
 	const onMeetClick = useCallback(() => {
 		// LiveKit | Jitsi

@@ -1,32 +1,47 @@
-import { pad } from '@/core/lib/helpers/index';
-import { HostKeys, useDetectOS, useHotkeys, useTimerView } from '@/core/hooks';
+import { pad } from '@/core/lib/helpers/number';
+import { HostKeys, useHotkeys } from '@/core/hooks/common/use-hotkeys';
+import { useDetectOS } from '@/core/hooks/common/use-detect-os';
+import { useActiveTaskEstimation, useTimerView } from '@/core/hooks/activities/use-timer';
+import { useTimerClock } from '@/core/hooks/timer/use-timer-ui';
+import { ALREADY_TRACKING_TOAST_ID } from '@/core/hooks/timer/use-timer-api';
 import { useTimerOptimisticUI } from '@/core/hooks/activities/use-timer-optimistic-ui';
 import { useTodayWorkedTime } from '@/core/hooks/activities/use-today-worked-time';
-import { clsxm } from '@/core/lib/utils';
-import { Text } from '@/core/components';
+import { clsxm } from '@/core/lib/utils/clsxm';
+import { Text } from '@/core/components/common/typography';
 import { useTranslations } from 'next-intl';
 import { TimerButton } from './timer-button';
+import { TimerBillableSwitch } from './timer-billable-switch';
 import { Transition } from '@headlessui/react';
 
-import {
-	ArrowUturnUpIcon,
-	ComputerDesktopIcon,
-	DevicePhoneMobileIcon,
-	GlobeAltIcon,
-	LifebuoyIcon
-} from '@heroicons/react/24/outline';
+import { ArrowTurnUp, Desktop, Globe, Lifebuoy, Smartphone } from '@/core/components/icons';
 import { HotkeysEvent } from 'hotkeys-js';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { toast } from 'sonner';
-import { AddTasksEstimationHoursModal, EnforcePlanedTaskModal, SuggestDailyPlanModal } from '../daily-plan';
+import { TimerPlanDialogs } from '@/core/components/features/daily-plan/timer-plan-dialogs';
 import { useStartStopTimerHandler } from '@/core/hooks/activities/use-start-stop-timer-handler';
 import { ProgressBar } from '../duplicated-components/_progress-bar';
 import { Tooltip } from '../duplicated-components/tooltip';
-import { VerticalSeparator } from '../duplicated-components/separator';
 import { IClassName } from '@/core/types/interfaces/common/class-name';
 import { ETimeLogSource } from '@/core/types/generics/enums/timer';
 import { useAtomValue } from 'jotai';
-import { activeTeamState, activeTeamTaskState, timerStatusState } from '@/core/stores';
+import { timerStatusState } from '@/core/stores';
+
+/** The running digits: the only part of a timer that re-renders on the 50ms tick. */
+function RunningClock({ className }: Readonly<{ className?: string }>) {
+	const { hours, minutes, seconds, ms_p } = useTimerClock();
+	return (
+		<>
+			{pad(hours)}:{pad(minutes)}:{pad(seconds)}
+			<span className={className}>:{pad(ms_p)}</span>
+		</>
+	);
+}
+
+/** Follows the timer once per second, so the timer around it does not re-render with it. */
+function ActiveTaskProgressBar() {
+	const activeTaskEstimation = useActiveTaskEstimation();
+	return <ProgressBar width="100%" className="mt-2" progress={`${activeTaskEstimation}%`} />;
+}
 
 function useHydrated() {
 	const [hydrated, setHydrated] = useState(false);
@@ -34,26 +49,31 @@ function useHydrated() {
 	return hydrated;
 }
 
-export function Timer({ className, showTimerButton = true }: IClassName) {
+const CLOCK_CLASS_NAME = 'w-[9.5rem] text-3xl font-semibold tabular-nums lg:text-start';
+
+/** The profile's figures row sets the timer beside 15px values: a clock at the size of a figure, not a headline. */
+const COMPACT_CLOCK_CLASS_NAME = 'w-[6.5rem] text-xl font-semibold tabular-nums lg:text-start';
+
+function clockClassNameOf(compact: boolean) {
+	if (compact) {
+		return COMPACT_CLOCK_CLASS_NAME;
+	}
+	return CLOCK_CLASS_NAME;
+}
+
+function timerButtonClassNameOf(compact: boolean) {
+	if (compact) {
+		return 'size-9';
+	}
+	return 'size-11';
+}
+
+export function Timer({ className, showTimerButton = true, compact = false }: IClassName<{ compact?: boolean }>) {
 	const t = useTranslations();
 	const hydrated = useHydrated();
 
-	const {
-		hours,
-		minutes,
-		seconds,
-		activeTaskEstimation,
-		ms_p,
-		canRunTimer,
-		timerStatus,
-		hasPlan,
-		startTimer,
-		stopTimer
-	} = useTimerView();
+	const { canRunTimer, timerStatus, startTimer, stopTimer } = useTimerView();
 	const { modals, actionDisabled, startStopTimerHandler } = useStartStopTimerHandler({ startTimer, stopTimer });
-	const activeTeam = useAtomValue(activeTeamState);
-	const activeTeamTask = useAtomValue(activeTeamTaskState);
-	const requirePlan = useMemo(() => activeTeam?.requirePlanToTrack, [activeTeam?.requirePlanToTrack]);
 	// Unfiltered status, the one startStopTimerHandler decides on. timerStatus above reports a timer
 	// running on another team's task as stopped, while the handler would stop that timer.
 	const rawTimerRunning = useAtomValue(timerStatusState)?.running === true;
@@ -71,8 +91,15 @@ export function Timer({ className, showTimerButton = true }: IClassName) {
 
 	// Display optimistic state if available, otherwise use real state
 	const displayRunning = optimisticRunning ?? timerStatus?.running;
+	const isBillableLocked = Boolean(displayRunning);
 
 	const { os } = useDetectOS();
+
+	const isTimerRunning = Boolean(timerStatus?.running);
+	const runningSource = timerStatus?.lastLog?.source;
+	const hasRunningSource = Boolean(runningSource);
+	const isOtherSource = runningSource !== ETimeLogSource.TEAMS;
+	const isTrackedElsewhere = isTimerRunning && hasRunningSource && isOtherSource;
 
 	const osSpecificTimerTooltipLabel = useMemo(() => {
 		if (os === 'Mac') {
@@ -97,7 +124,9 @@ export function Timer({ className, showTimerButton = true }: IClassName) {
 			if (h?.shortcut === 'ctrl+option+]' || h?.shortcut === 'ctrl+alt+]') {
 				if (!rawTimerRunning) startStopTimerHandler();
 				// A timer runs on another team's task: say so, as the start key did before
-				else if (!timerStatus?.running) toast.info(t('timer.ALREADY_TRACKING_MESSAGE'));
+				else if (!timerStatus?.running) {
+					toast.warning(t('timer.ALREADY_TRACKING_MESSAGE'), { id: ALREADY_TRACKING_TOAST_ID });
+				}
 			}
 
 			// Stop Timer
@@ -109,16 +138,14 @@ export function Timer({ className, showTimerButton = true }: IClassName) {
 	);
 	useHotkeys(HostKeys.START_STOP_TIMER, handleStartSTOPTimer);
 
+	const clockClassName = clockClassNameOf(compact);
+	const timerButtonClassName = timerButtonClassNameOf(compact);
+
 	return (
-		<div
-			className={clsxm(
-				'flex space-x-2 flex-row justify-center items-center p-2 xl:space-y-0 space-y-5 min-w-[260px]',
-				className
-			)}
-		>
-			<div className="flex items-center justify-center w-full pr-2 space-x-2 xl:w-4/5">
-				<div className="flex items-start justify-between w-full">
-					<div className="w-full mx-auto">
+		<div className={clsxm('flex min-w-[260px] flex-row items-center justify-between gap-4 p-2', className)}>
+			<div className="flex min-w-0 items-center gap-2">
+				<div className="flex min-w-0 items-start gap-2">
+					<div className="flex min-w-0 flex-col">
 						<Transition
 							show={true}
 							appear={true}
@@ -132,23 +159,17 @@ export function Timer({ className, showTimerButton = true }: IClassName) {
 						>
 							<Text.Heading
 								as="h3"
-								className={`text-3xl w-[9.5rem] lg:text-start tabular-nums tracking-tight font-medium ${
-									timerStatus?.running &&
-									timerStatus?.lastLog?.source &&
-									timerStatus?.lastLog?.source !== ETimeLogSource.TEAMS
-										? 'text-[#888] dark:text-[#888]'
-										: ''
-								} `}
+								className={clsxm(clockClassName, isTrackedElsewhere && 'text-muted-foreground')}
 							>
-								{timerStatus?.running
-									? `${pad(hours)}:${pad(minutes)}:${pad(seconds)}`
-									: `${pad(todayHours)}:${pad(todayMinutes)}:${pad(todaySeconds)}`}
-
-								{timerStatus?.running && <span className="text-sm">:{pad(ms_p)}</span>}
+								{isTimerRunning ? (
+									<RunningClock className="text-sm font-normal text-muted-foreground" />
+								) : (
+									`${pad(todayHours)}:${pad(todayMinutes)}:${pad(todaySeconds)}`
+								)}
 							</Text.Heading>
 						</Transition>
 
-						<ProgressBar width="100%" className="mt-2" progress={`${activeTaskEstimation}%`} />
+						<ActiveTaskProgressBar />
 					</div>
 					<div>
 						{timerStatus && timerStatus.running && (
@@ -168,9 +189,9 @@ export function Timer({ className, showTimerButton = true }: IClassName) {
 				</div>
 			</div>
 			{showTimerButton && (
-				<>
-					<VerticalSeparator />
-					<div className="flex items-center justify-center w-1/4 xl:w-2/5 h-fit">
+				<div className="flex h-fit shrink-0 items-center justify-center">
+					<div className="flex items-center gap-3">
+						<TimerBillableSwitch locked={isBillableLocked} />
 						<Tooltip
 							label={!canRunTimer ? t('timer.START_TIMER') : osSpecificTimerTooltipLabel}
 							placement="top-start"
@@ -183,65 +204,31 @@ export function Timer({ className, showTimerButton = true }: IClassName) {
 								onClick={startStopTimerHandler}
 								running={displayRunning}
 								disabled={!hydrated || actionDisabled}
+								className={timerButtonClassName}
+								emphasized
 							/>
 						</Tooltip>
-
-						<SuggestDailyPlanModal
-							isOpen={modals.isSuggestDailyPlanModalOpen}
-							closeModal={modals.suggestDailyPlanCloseModal}
-						/>
-						{/**
-						 * Track time on planned task (SOFT FLOW)
-						 */}
-						{hasPlan && activeTeamTask && (
-							<EnforcePlanedTaskModal
-								content={`Would you like to add the task "${activeTeamTask.taskNumber}" to Today's plan?`}
-								closeModal={modals.enforceTaskSoftCloseModal}
-								plan={hasPlan}
-								open={modals.isEnforceTaskSoftModalOpen}
-								task={activeTeamTask}
-							/>
-						)}
-
-						{hasPlan && hasPlan.tasks && (
-							<AddTasksEstimationHoursModal
-								isOpen={modals.isTasksEstimationHoursModalOpen}
-								closeModal={modals.tasksEstimationHoursCloseModal}
-								plan={hasPlan}
-								tasks={hasPlan.tasks}
-							/>
-						)}
-
-						{/**
-						 * Track time on planned task (REQUIRE PLAN)
-						 */}
-
-						{requirePlan && hasPlan && activeTeamTask && (
-							<EnforcePlanedTaskModal
-								onOK={startTimer}
-								content={t('dailyPlan.SUGGESTS_TO_ADD_TASK_TO_TODAY_PLAN')}
-								closeModal={modals.enforceTaskCloseModal}
-								plan={hasPlan}
-								open={modals.isEnforceTaskModalOpen}
-								task={activeTeamTask}
-								openDailyPlanModal={modals.openAddTasksEstimationHoursModal}
-							/>
-						)}
 					</div>
-				</>
+
+					<TimerPlanDialogs modals={modals} />
+				</div>
 			)}
 		</div>
 	);
 }
 
+/**
+ * The compact timer of the top bar: a pill like its neighbours (team switcher, Collaborate), the round button
+ * concentric with it (4px all around) so nothing of the button crosses the pill's edge.
+ */
+const MIN_TIMER_FRAME =
+	'inline-flex h-8 items-center gap-2 rounded-full bg-card pl-3 pr-1 hairline-ring ring-border shadow-[0_1px_1px_rgb(0_0_0/0.04)] dark:ring-foreground/15';
+
 export function MinTimerFrame({ className }: IClassName) {
 	const hydrated = useHydrated();
-	const { hours, minutes, seconds, ms_p, timerStatus, hasPlan, startTimer, stopTimer } = useTimerView();
+	const { timerStatus, startTimer, stopTimer } = useTimerView();
+	const isTimerRunning = Boolean(timerStatus?.running);
 	const { modals, actionDisabled, startStopTimerHandler } = useStartStopTimerHandler({ startTimer, stopTimer });
-	const activeTeam = useAtomValue(activeTeamState);
-	const activeTeamTask = useAtomValue(activeTeamTaskState);
-	const requirePlan = useMemo(() => activeTeam?.requirePlanToTrack, [activeTeam?.requirePlanToTrack]);
-	const t = useTranslations();
 
 	// NOTE_FIX: Use team-scoped time instead of global timerStatus.duration
 	// timerStatus.duration is global and doesn't change when switching teams
@@ -256,15 +243,10 @@ export function MinTimerFrame({ className }: IClassName) {
 
 	// Display optimistic state if available, otherwise use real state
 	const displayRunning = optimisticRunning ?? timerStatus?.running;
+	const todayWorkedLabel = `${pad(todayHours)}:${pad(todayMinutes)}:${pad(todaySeconds)}`;
 
 	return (
-		<div
-			className={clsxm(
-				'h-9 rounded-md border border-border bg-card px-3',
-				'flex items-center gap-2 md:gap-3',
-				className
-			)}
-		>
+		<div className={clsxm(MIN_TIMER_FRAME, className)}>
 			<Transition
 				show={true}
 				appear={true}
@@ -276,11 +258,9 @@ export function MinTimerFrame({ className }: IClassName) {
 				leaveTo="opacity-0"
 				key={timerStatus?.running ? 'running' : 'stopped'}
 			>
-				<Text className="w-[84px] text-sm font-medium tabular-nums">
-					{timerStatus?.running
-						? `${pad(hours)}:${pad(minutes)}:${pad(seconds)}`
-						: `${pad(todayHours)}:${pad(todayMinutes)}:${pad(todaySeconds)}`}
-					{timerStatus?.running && <span className="text-sm">:{pad(ms_p)}</span>}
+				<Text className="w-[5.5rem] shrink-0 whitespace-nowrap text-[13px] font-medium tabular-nums">
+					{isTimerRunning && <RunningClock className="text-muted-foreground" />}
+					{!isTimerRunning && todayWorkedLabel}
 				</Text>
 			</Transition>
 
@@ -298,59 +278,16 @@ export function MinTimerFrame({ className }: IClassName) {
 				</Tooltip>
 			)}
 
-			<VerticalSeparator />
-
-			<div className="z-[50]">
+			<div className="z-[50] flex">
 				<TimerButton
 					onClick={startStopTimerHandler}
 					running={displayRunning}
 					disabled={!hydrated || actionDisabled}
-					className="w-7 h-7"
+					className="size-6 shadow-none"
 				/>
 			</div>
 
-			<SuggestDailyPlanModal
-				isOpen={modals.isSuggestDailyPlanModalOpen}
-				closeModal={modals.suggestDailyPlanCloseModal}
-			/>
-
-			{/**
-			 * Track time on planned task (SOFT FLOW)
-			 */}
-			{hasPlan && activeTeamTask && (
-				<EnforcePlanedTaskModal
-					content={`Would you like to add the task "${activeTeamTask.taskNumber}" to Today's plan?`}
-					closeModal={modals.enforceTaskSoftCloseModal}
-					plan={hasPlan}
-					open={modals.isEnforceTaskSoftModalOpen}
-					task={activeTeamTask}
-				/>
-			)}
-
-			{hasPlan && hasPlan.tasks && (
-				<AddTasksEstimationHoursModal
-					isOpen={modals.isTasksEstimationHoursModalOpen}
-					closeModal={modals.tasksEstimationHoursCloseModal}
-					plan={hasPlan}
-					tasks={hasPlan.tasks}
-				/>
-			)}
-
-			{/**
-			 * Track time on planned task (REQUIRE PLAN)
-			 */}
-
-			{requirePlan && hasPlan && activeTeamTask && (
-				<EnforcePlanedTaskModal
-					onOK={startTimer}
-					content={t('dailyPlan.SUGGESTS_TO_ADD_TASK_TO_TODAY_PLAN')}
-					closeModal={modals.enforceTaskCloseModal}
-					plan={hasPlan}
-					open={modals.isEnforceTaskModalOpen}
-					task={activeTeamTask}
-					openDailyPlanModal={modals.openAddTasksEstimationHoursModal}
-				/>
-			)}
+			<TimerPlanDialogs modals={modals} />
 		</div>
 	);
 }
@@ -358,17 +295,17 @@ export function MinTimerFrame({ className }: IClassName) {
 export function TimerRunningSourceIcon({ source }: { source: ETimeLogSource }) {
 	switch (source) {
 		case ETimeLogSource.MOBILE:
-			return <DevicePhoneMobileIcon className="w-4 h-4 animate-pulse" color="#888" />;
+			return <Smartphone aria-hidden="true" className="size-4 animate-pulse text-muted-foreground" />;
 		case ETimeLogSource.BROWSER:
-			return <GlobeAltIcon className="w-4 h-4 animate-pulse" />;
+			return <Globe aria-hidden="true" className="size-4 animate-pulse" />;
 		case ETimeLogSource.BROWSER_EXTENSION:
-			return <GlobeAltIcon className="w-4 h-4 animate-pulse" color="#888" />;
+			return <Globe aria-hidden="true" className="size-4 animate-pulse text-muted-foreground" />;
 		case ETimeLogSource.DESKTOP:
-			return <ComputerDesktopIcon className="w-4 h-4 animate-pulse" color="#888" />;
+			return <Desktop aria-hidden="true" className="size-4 animate-pulse text-muted-foreground" />;
 		case ETimeLogSource.UPWORK:
-			return <ArrowUturnUpIcon className="w-4 h-4 animate-pulse" color="#888" />;
+			return <ArrowTurnUp aria-hidden="true" className="size-4 animate-pulse text-muted-foreground" />;
 		case ETimeLogSource.HUBSTAFF:
-			return <LifebuoyIcon className="w-4 h-4 animate-pulse" color="#888" />;
+			return <Lifebuoy aria-hidden="true" className="size-4 animate-pulse text-muted-foreground" />;
 		default:
 			return <></>;
 	}

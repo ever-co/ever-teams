@@ -198,6 +198,8 @@ const en = {
 			taskPriorities: 'Task Priorities',
 			taskSizes: 'Task Sizes',
 			taskLabel: 'Task Label',
+			taskSettingsReadOnly:
+				'Only team managers and admins can change task settings. Only admins can change the defaults shared by all teams.',
 			changeLogo: 'Change Logo',
 			teamRole: 'Manager Member & Role',
 			workSchedule: 'Work Schedule',

@@ -1,6 +1,7 @@
 import { clsxm } from '@/core/lib/utils';
 import { Popover, PopoverButton, PopoverPanel, Transition } from '@headlessui/react';
-import { ChevronDownIcon } from '@heroicons/react/20/solid';
+import { ChevronDown } from '@/core/components/icons';
+import { controlRecipe } from '@/core/components/common/input';
 import { Divider } from '@/core/components';
 import { FieldValues, UseFormSetValue } from 'react-hook-form';
 import Image from 'next/image';
@@ -8,6 +9,8 @@ import { useEffect, useRef, useState } from 'react';
 import { IconItem, IIcon } from './icon-items';
 import { InputField } from '../duplicated-components/_input';
 import { Tooltip } from '../duplicated-components/tooltip';
+
+const TRIGGER_FIELD_CLASS = clsxm(controlRecipe, 'relative flex h-9 cursor-pointer items-center justify-between');
 
 const IconPopover = ({
 	setValue,
@@ -38,42 +41,40 @@ const IconPopover = ({
 		<Popover className="relative border-none no-underline w-[auto]" onProgressCapture={(e) => e.stopPropagation()}>
 			{() => (
 				<>
-					<PopoverButton className="w-full outline-none" ref={buttonRef}>
-						<div className="cursor-pointer relative w-[100%] h-[54px] border border-[#00000021] dark:border-border rounded-xl flex items-center justify-between bg-white dark:bg-card">
-							<div className="flex gap-[8px] h-[40px] items-center pl-[15px] text-gray-900 dark:text-gray-100">
+					<PopoverButton
+						className="w-full rounded-md outline-none focus-visible:ring-[3px] focus-visible:ring-ring/25"
+						ref={buttonRef}
+					>
+						<div className={TRIGGER_FIELD_CLASS}>
+							<div className="flex h-full min-w-0 items-center gap-2 pl-2.5 text-foreground">
 								<IconItem
 									title={values?.title ? values.title.split('-').join(' ') : 'Icons'}
-									className="w-full py-2 mb-0 cursor-pointer dark:text-gray-300"
+									className="w-full py-0 mb-0 cursor-pointer"
 									url={values?.fullUrl ? values.fullUrl : ''}
 								/>
 							</div>
-							<div className="flex mr-[0.5rem] gap-3">
-								<ChevronDownIcon
-									className={clsxm(
-										'ml-2 w-5 h-5 text-gray-600 transition duration-150 ease-in-out dark:text-gray-300 group-hover:text-gray-600/80 dark:group-hover:text-gray-300/80'
-									)}
-									aria-hidden="true"
-								/>
+							<div className="mr-2.5 flex">
+								<ChevronDown className="size-4 text-muted-foreground" aria-hidden="true" />
 							</div>
 						</div>
 					</PopoverButton>
 					<Transition
 						as="div"
-						enter="transition ease-out duration-200"
-						enterFrom="opacity-0 translate-y-1"
-						enterTo="opacity-100 translate-y-0"
-						leave="transition ease-in duration-150"
-						leaveFrom="opacity-100 translate-y-0"
-						leaveTo="opacity-0 translate-y-1"
+						enter="transition-[opacity,scale] ease-out duration-150"
+						enterFrom="opacity-0 scale-95"
+						enterTo="opacity-100 scale-100"
+						leave="transition-[opacity,scale] ease-in duration-150"
+						leaveFrom="opacity-100 scale-100"
+						leaveTo="opacity-0 scale-95"
 					>
-						<PopoverPanel className="absolute left-1/2 z-10 mt-0 w-[375px] max-w-sm -translate-x-1/2 transform  sm:px-0 lg:max-w-3xl shandow ">
-							<div className="bg-white shadow-sm dark:bg-card rounded-[10px] text-[14px] p-[16px]">
-								<div className="text-[18px] dark:text-gray-300 font-[500] border-b border-[#00000021] dark:border-border">
+						<PopoverPanel className="absolute left-1/2 z-10 mt-1 w-[375px] max-w-sm -translate-x-1/2 transform sm:px-0 lg:max-w-3xl">
+							<div className="rounded-xl bg-popover p-3 text-sm text-popover-foreground shadow-md shadow-black/6.5 hairline-ring ring-border">
+								<div className="pb-2">
 									<InputField
 										type="search"
-										wrapperClassName="search-border bg-transparent dark:bg-muted"
+										wrapperClassName="mb-0"
 										placeholder="Search Icon"
-										className="px-0 rounded-none dark:text-gray-200"
+										className="h-8"
 										// trailingNode={
 										// 	<Tooltip
 										// 		enabled={true}
@@ -106,7 +107,7 @@ const IconPopover = ({
 								</div>
 
 								<Divider />
-								<div className="mt-[10px] h-[245px] scroll-custom overflow-auto">
+								<div className="mt-2.5 h-[245px] scroll-custom overflow-auto">
 									<div className="flex gap-y-[10px] flex-wrap">
 										{iconOption?.map((ic, index) => {
 											return (
@@ -117,7 +118,7 @@ const IconPopover = ({
 													key={index}
 												>
 													<div
-														className="hover:bg-[#F1EDFD] dark:hover:bg-muted rounded-[10px] h-[48px] w-[48px] hover:cursor-pointer flex items-center justify-center"
+														className="flex size-12 cursor-pointer items-center justify-center rounded-lg transition-colors hover:bg-foreground/5"
 														key={index}
 														onClick={() => onSelect(ic)}
 													>

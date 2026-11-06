@@ -21,7 +21,8 @@ export const favoriteRelationalEmployeeSchema = z.object({
 export const basePerEntityTypeSchema = z
 	.object({
 		entityId: uuIdSchema, // Unique ID of the entity
-		entity: baseEntityEnumSchema // The type of the entity, defined in BaseEntityEnum enumeration
+		// Any other string too: Gauzy keeps adding entity types, and one type unknown here must not fail the whole list
+		entity: baseEntityEnumSchema.or(z.string()) // The type of the entity, defined in BaseEntityEnum enumeration
 	})
 	.merge(basePerTenantAndOrganizationEntitySchema);
 

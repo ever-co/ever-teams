@@ -1,6 +1,7 @@
 /* eslint-disable react-native/no-inline-styles */
 /* eslint-disable react-native/no-color-literals */
 import React, { FC, useCallback, useState } from 'react';
+import { observer } from 'mobx-react-lite';
 import {
 	View,
 	ViewStyle,
@@ -18,6 +19,8 @@ import { ITaskPriorityItem } from '../services/interfaces/ITaskPriority';
 // import { translate } from "../i18n"
 import { BlurView } from 'expo-blur';
 import { useTaskVersion } from '../services/hooks/features/use-task-version';
+import { useTaskSettingsAccess } from '../services/hooks/features/use-task-settings-access';
+import { readOnlyOpacity } from '../helpers/read-only-opacity';
 import { BadgedTaskVersion } from './version-icon';
 import { ITaskVersionItemList } from '../services/interfaces/ITaskVersion';
 import { translate } from '../i18n';
@@ -31,7 +34,7 @@ export interface Props {
 	canCreateVersion?: boolean;
 }
 
-const TaskVersionPopup: FC<Props> = function TaskPriorityPopup({
+const TaskVersionPopup: FC<Props> = observer(function TaskPriorityPopup({
 	visible,
 	onDismiss,
 	setSelectedVersion,
@@ -41,6 +44,10 @@ const TaskVersionPopup: FC<Props> = function TaskPriorityPopup({
 	const { taskVersionList } = useTaskVersion();
 	const { colors, dark } = useAppTheme();
 	const { createTaskVersion, updateTaskVersion } = useTaskVersion();
+	const { canCreate, readOnlyHint } = useTaskSettingsAccess();
+	const createReadOnly = !canCreate;
+	const createOpacity = readOnlyOpacity(createReadOnly);
+	const showsReadOnlyHint = canCreateVersion && createReadOnly;
 
 	const [createVersionMode, setCreateVersionMode] = useState<boolean>(false);
 
@@ -79,9 +86,11 @@ const TaskVersionPopup: FC<Props> = function TaskPriorityPopup({
 						/>
 						{canCreateVersion && (
 							<TouchableOpacity
+								disabled={createReadOnly}
 								style={{
 									...styles.createButton,
-									borderColor: dark ? '#6755C9' : '#3826A6'
+									borderColor: dark ? '#6755C9' : '#3826A6',
+									opacity: createOpacity
 								}}
 								onPress={() => setCreateVersionMode(true)}
 							>
@@ -96,6 +105,9 @@ const TaskVersionPopup: FC<Props> = function TaskPriorityPopup({
 								</Text>
 							</TouchableOpacity>
 						)}
+						{showsReadOnlyHint && (
+							<Text style={{ ...styles.readOnlyHint, color: colors.tertiary }}>{readOnlyHint}</Text>
+						)}
 					</>
 				) : (
 					<TaskVersionForm
@@ -109,7 +121,7 @@ const TaskVersionPopup: FC<Props> = function TaskPriorityPopup({
 			</View>
 		</ModalPopUp>
 	);
-};
+});
 
 export default TaskVersionPopup;
 
@@ -222,6 +234,13 @@ const styles = StyleSheet.create({
 		marginTop: 10,
 		padding: 12,
 		width: '80%'
+	},
+	readOnlyHint: {
+		fontFamily: typography.primary.medium,
+		fontSize: 12,
+		marginHorizontal: 16,
+		marginTop: 8,
+		textAlign: 'center'
 	},
 	title: {
 		fontSize: spacing.medium - 2,

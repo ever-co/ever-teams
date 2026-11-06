@@ -16,6 +16,7 @@ type MainLayoutProps = PropsWithChildren<{
 	className?: string;
 	childrenClassName?: string;
 	footerClassName?: string;
+	breadcrumb?: React.ReactNode;
 	mainHeaderSlot?: React.ReactNode;
 	mainHeaderSlotClassName?: string;
 	isFooterFixed?: boolean;
@@ -28,6 +29,7 @@ type MainLayoutProps = PropsWithChildren<{
 export function MainLayout({ children, ...pageProps }: MainLayoutProps) {
 	const isInsideShell = useIsInsideLayoutShell();
 	const pageContent = <PageLayout {...pageProps}>{children}</PageLayout>;
+	const isPublicTeam = pageProps.publicTeam || false;
 
 	if (isInsideShell) {
 		return pageContent;
@@ -35,11 +37,11 @@ export function MainLayout({ children, ...pageProps }: MainLayoutProps) {
 
 	return (
 		<AppContainer title={pageProps.title}>
-			<SidebarProvider className="flex-1 w-full h-full">
+			<SidebarProvider className="h-dvh min-h-0 w-full">
 				<Suspense fallback={<AppSidebarSkeleton />}>
-					<LazyAppSidebar publicTeam={pageProps.publicTeam || false} />
+					<LazyAppSidebar publicTeam={isPublicTeam} />
 				</Suspense>
-				<SidebarInset className="relative flex-1 overflow-hidden !h-full !w-full">{pageContent}</SidebarInset>
+				<SidebarInset>{pageContent}</SidebarInset>
 			</SidebarProvider>
 		</AppContainer>
 	);

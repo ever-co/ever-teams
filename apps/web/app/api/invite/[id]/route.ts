@@ -64,13 +64,21 @@ export async function PUT(req: Request, props: { params: Promise<{ id: string }>
 	const invitationId = params.id;
 
 	const { searchParams } = new URL(req.url);
-	const { action } = searchParams as unknown as { action: string };
+	const action = searchParams.get('action');
 
 	if (!invitationId) {
 		return NextResponse.json({}, { status: 400 });
 	}
 
 	if (!action) {
+		return NextResponse.json({}, { status: 400 });
+	}
+
+	// The action becomes a path segment of the Gauzy request, so only the known values are forwarded
+	const inviteActions: string[] = Object.values(EInviteAction);
+	const isInviteAction = inviteActions.includes(action);
+
+	if (!isInviteAction) {
 		return NextResponse.json({}, { status: 400 });
 	}
 

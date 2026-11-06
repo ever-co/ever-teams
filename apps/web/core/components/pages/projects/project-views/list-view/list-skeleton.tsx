@@ -4,7 +4,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 export function ProjectListSkeleton() {
 	return (
 		<div className="w-full">
-			<div className="rounded-md border">
+			<div className="overflow-x-auto rounded-xl bg-card hairline-ring ring-border shadow-sm shadow-black/6.5">
 				<Table>
 					<TableHeader>
 						<TableRow>
@@ -39,15 +39,12 @@ export function ProjectListSkeleton() {
 								</TableCell>
 								<TableCell>
 									<div className="flex items-center gap-3">
-										<Skeleton className="h-8 w-8 rounded-full" />
-										<div className="space-y-2">
-											<Skeleton className="h-4 w-24" />
-											<Skeleton className="h-3 w-16" />
-										</div>
+										<Skeleton className="size-8 rounded-md" />
+										<Skeleton className="h-4 w-24" />
 									</div>
 								</TableCell>
 								<TableCell>
-									<Skeleton className="h-4 w-16" />
+									<Skeleton className="h-5 w-16 rounded-sm" />
 								</TableCell>
 								<TableCell>
 									<Skeleton className="h-4 w-20" />
@@ -55,21 +52,20 @@ export function ProjectListSkeleton() {
 								<TableCell>
 									<div className="flex -space-x-2">
 										{Array.from({ length: 3 }).map((_, i) => (
-											<Skeleton key={i} className="h-8 w-8 rounded-full border-2 border-white" />
+											<Skeleton key={i} className="size-8 rounded-full ring-2 ring-card" />
 										))}
 									</div>
 								</TableCell>
 								<TableCell>
 									<div className="flex -space-x-2">
 										{Array.from({ length: 2 }).map((_, i) => (
-											<Skeleton key={i} className="h-8 w-8 rounded-full border-2 border-white" />
+											<Skeleton key={i} className="size-8 rounded-full ring-2 ring-card" />
 										))}
 									</div>
 								</TableCell>
 								<TableCell>
 									<div className="flex gap-2">
-										<Skeleton className="h-8 w-8" />
-										<Skeleton className="h-8 w-8" />
+										<Skeleton className="size-7" />
 									</div>
 								</TableCell>
 							</TableRow>

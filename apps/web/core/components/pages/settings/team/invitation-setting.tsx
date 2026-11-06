@@ -1,7 +1,7 @@
 import { useModal } from '@/core/hooks';
 import { useRequestToJoinQuery } from '@/core/hooks/organizations/teams/use-request-to-join-query';
 import { Button, NoData } from '@/core/components';
-import { SearchNormalIcon } from 'assets/svg';
+import { Plus, Search } from '@/core/components/icons';
 import { InviteFormModal } from '@/core/components/features/teams/invite-form-modal';
 import { ChangeEvent, useEffect, useState } from 'react';
 import { useTranslations } from 'next-intl';
@@ -9,7 +9,7 @@ import { InvitationTable } from '../../../teams/invite/invitation-table';
 import { InputField } from '@/core/components/duplicated-components/_input';
 import { useTeamInvitationsQuery } from '@/core/hooks/invitations/use-team-invitations-query';
 import { useUserQuery } from '@/core/hooks/queries/user-user.query';
-import { Plus } from 'lucide-react';
+import { LIST_SURFACE_CLASS } from '@/core/components/teams/list-surface';
 
 export const InvitationSetting = () => {
 	const t = useTranslations();
@@ -31,22 +31,24 @@ export const InvitationSetting = () => {
 			invitation?.fullName?.toLowerCase()?.includes(filterString) ||
 			invitation?.email?.toLowerCase()?.includes(filterString)
 	);
+	const hasInvitations = invitations.length > 0;
 
 	return (
-		<div className="flex flex-col gap-4 overflow-auto">
-			<div className="flex w-full flex-wrap items-center justify-between gap-2">
+		<div className="flex flex-col gap-4">
+			<div className="flex w-full flex-wrap items-center justify-between gap-3">
 				<InputField
 					type="text"
 					placeholder={t('pages.settingsTeam.SEARCH_MEMBER')}
-					className="mb-0 h-9 pl-1"
-					wrapperClassName="mb-0 w-full max-w-xs"
+					className="mb-0 h-8 pl-1"
+					wrapperClassName="mb-0 w-full sm:max-w-xs"
 					leadingNode={
 						<Button
 							variant="ghost"
-							className="ml-1 size-7 min-w-0 shrink-0 rounded-md p-0 text-muted-foreground"
+							size="icon-sm"
+							className="ml-1 shrink-0 text-muted-foreground"
 							type="submit"
 						>
-							<SearchNormalIcon className="size-4" />
+							<Search className="size-4" />
 						</Button>
 					}
 					onChange={(e: ChangeEvent<HTMLInputElement>) => {
@@ -56,21 +58,16 @@ export const InvitationSetting = () => {
 				<div className="flex items-center gap-2">
 					{/* TODO: Will imlement Sort/FIlter logic in future */}
 					{/* <FilterDropdown setValue={() => console.log('filter')} /> */}
-					<Button
-						variant="primary"
-						className="h-9 shrink-0 gap-1.5 rounded-md px-3 py-0 text-sm font-medium hover:bg-primary/90"
-						onClick={openModal}
-					>
+					<Button variant="primary" size="default" className="shrink-0" onClick={openModal}>
 						<Plus className="size-4" aria-hidden="true" />
-						{'Invite'}
+						{t('common.INVITE')}
 					</Button>
 				</div>
 			</div>
-			{invitations.length > 0 ? (
-				<InvitationTable invitations={invitations} />
-			) : (
-				<NoData text={t('pages.settingsTeam.NO_INVITATIONS')} />
-			)}
+			<div className={LIST_SURFACE_CLASS}>
+				{hasInvitations && <InvitationTable invitations={invitations} />}
+				{!hasInvitations && <NoData text={t('pages.settingsTeam.NO_INVITATIONS')} />}
+			</div>
 
 			{/* TODO Dynamic */}
 			{/* <Divider className="mb-9" />

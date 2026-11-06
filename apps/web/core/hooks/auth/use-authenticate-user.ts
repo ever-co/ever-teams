@@ -5,18 +5,20 @@ import { handleUnauthorized, registerRefreshTokenCallback } from '@/core/lib/aut
 import { DisconnectionReason } from '@/core/types/enums/disconnection-reason';
 import { logDisconnection } from '@/core/lib/auth/disconnect-logger';
 import { isUnauthorizedError } from '@/core/lib/auth/retry-logic';
-import { activeTeamManagersState, activeTeamState, timerStatusState, userState } from '@/core/stores';
+import { activeTeamState, timerStatusState, userDetailAccordion, userState } from '@/core/stores';
 import { useCallback, useMemo, useRef, useEffect } from 'react';
 import { useSetAtom, useAtomValue, useStore } from 'jotai';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useTranslations } from 'next-intl';
 
 import { authService } from '@/core/services/client/api/auth/auth.service';
 import { timerService } from '@/core/services/client/api/timers';
 import { ETimeLogSource } from '@/core/types/generics/enums/timer';
 import { ITimeLog } from '@/core/types/interfaces/timer/time-log/time-log';
 import { isRunningTeamsLog } from '@/core/lib/helpers/timer-policy';
-import { useIsMemberManager } from '../organizations/teams/use-team-member';
-import { useUserProfilePage } from '../users/use-user-profile-page';
+import { useIsListedTeamManager, useIsMemberManager } from '../organizations/teams/use-team-member';
+import { useActiveTeamMemberUserId } from '../organizations/teams/use-active-team-member';
+import { useParams } from 'next/navigation';
 import { TUser } from '@/core/types/schemas';
 import { queryKeys } from '@/core/query/keys';
 import { toast } from 'sonner';
@@ -24,6 +26,7 @@ import { UseAuthenticateUserResult } from '@/core/types/interfaces/user/user';
 import { useUserQuery } from '../queries/user-user.query';
 import { logErrorInDev, logInDev } from '@/core/lib/helpers/error-message';
 import { clearChatHistoryForUser } from '@/core/components/features/chat-panel/chat-history';
+import { rememberTeam } from '@/core/lib/auth/remembered-team';
 
 export const useAuthenticateUser = (defaultUser?: TUser): UseAuthenticateUserResult => {
 	const userDataQuery = useUserQuery();
@@ -34,6 +37,7 @@ export const useAuthenticateUser = (defaultUser?: TUser): UseAuthenticateUserRes
 	// Read at logout time only: subscribing to the timer status would re-render every caller of this hook.
 	const store = useStore();
 	const queryClient = useQueryClient();
+	const t = useTranslations();
 
 	// Track consecutive refresh failures for smarter error handling
 	const consecutiveFailures = useRef(0);
@@ -65,7 +69,7 @@ export const useAuthenticateUser = (defaultUser?: TUser): UseAuthenticateUserRes
 					context: 'useAuthenticateUser -> refreshTokenMutation (401)'
 				};
 				logErrorInDev('[Auth] ❌ Refresh token rejected (401) - session expired', details);
-				toast.error('Session expired. Please log in again.');
+				toast.error(t('toasts.auth.SESSION_ENDED'));
 				handleUnauthorized(DisconnectionReason.REFRESH_TOKEN_EXPIRED, details);
 				return;
 			}
@@ -80,15 +84,12 @@ export const useAuthenticateUser = (defaultUser?: TUser): UseAuthenticateUserRes
 					context: 'useAuthenticateUser -> refreshTokenMutation (max retries)'
 				};
 				logErrorInDev(`[Auth] ❌ Refresh failed ${maxConsecutiveFailures} times - logging out`, details);
-				toast.error('Unable to refresh session. Please log in again.');
+				toast.error(t('toasts.auth.SESSION_NOT_RENEWED'));
 				handleUnauthorized(DisconnectionReason.TEMPORARY_ERROR, details);
 			} else {
 				console.warn(
 					`[Auth] ⚠️ Refresh attempt ${consecutiveFailures.current}/${maxConsecutiveFailures} failed:`,
 					(error as Error)?.message
-				);
-				toast.warning(
-					`Connection issue. Retrying... (${consecutiveFailures.current}/${maxConsecutiveFailures})`
 				);
 			}
 		},
@@ -99,14 +100,6 @@ export const useAuthenticateUser = (defaultUser?: TUser): UseAuthenticateUserRes
 	// success). Depending on it made refreshUserData/refreshToken new on every render. mutateAsync is bound
 	// once and safe to depend on.
 	const refreshTokenMutateAsync = refreshTokenMutation.mutateAsync;
-
-	useEffect(() => {
-		if (userDataQuery.data && userDataQuery.isFetched && userDataQuery.data !== user) {
-			if (!user || userDataQuery.data.id !== user.id || userDataQuery.data.updatedAt !== user.updatedAt) {
-				setUser(userDataQuery.data);
-			}
-		}
-	}, [userDataQuery.data, user, setUser]);
 
 	const refreshUserLoading = useMemo(() => {
 		return userDataQuery.isFetching || refreshTokenMutation.isPending;
@@ -170,6 +163,7 @@ export const useAuthenticateUser = (defaultUser?: TUser): UseAuthenticateUserRes
 		});
 
 		window?.localStorage.setItem(LAST_WORKSPACE_AND_TEAM, activeTeam?.id ?? '');
+		rememberTeam(user?.email, activeTeam?.id);
 		clearChatHistoryForUser(user?.id);
 
 		// A TEAMS timer left running would keep counting after logout: stop it while the session still
@@ -222,10 +216,18 @@ export const useAuthenticateUser = (defaultUser?: TUser): UseAuthenticateUserRes
 
 export const useCanSeeActivityScreen = () => {
 	const { data: user } = useUserQuery();
-	const activeTeamManagers = useAtomValue(activeTeamManagersState);
+	const isConnectedUserManager = useIsListedTeamManager(user?.id);
+	// The profile shown, as useUserProfilePage resolves it, read without that page-level hook: this one runs in every
+	// task card and member row
+	const params = useParams();
+	const accordionMemberId = useAtomValue(userDetailAccordion);
+	const memberId = (params?.memberId ?? accordionMemberId) as string;
+	const isAuthUserProfile = user?.employee?.userId === memberId;
+	const memberUserId = useActiveTeamMemberUserId(memberId);
+	let profileUserId = memberUserId;
+	if (isAuthUserProfile) {
+		profileUserId = user?.id;
+	}
 
-	const profile = useUserProfilePage();
-
-	const isManagerConnectedUser = activeTeamManagers.findIndex((member) => member.employee?.user?.id === user?.id);
-	return profile.userProfile?.id === user?.id || isManagerConnectedUser !== -1;
+	return profileUserId === user?.id || isConnectedUserManager;
 };

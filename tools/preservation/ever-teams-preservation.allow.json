@@ -78,5 +78,221 @@
 	{
 		"id": "removed:serviceMethods:apps/web/core/services/server/fetch.ts::svgFetch",
 		"reason": "Moved unchanged to core/lib/helpers/svg-fetch.ts (ever-co/ever-teams#4743): the settings chips load it in the browser, and server/fetch.ts now imports server-only code (client-ip.ts: node:crypto, node:net, next/headers) that broke the client build. Its only caller, settings/list-card.tsx, imports the new module."
+	},
+	{
+		"id": "removed:overlayComponents:apps/web/app/[locale]/(main)/dashboard/app-url/[teamId]/page.tsx::closeModal",
+		"reason": "The Apps & URLs page was rebuilt in core/components/dashboards/apps-urls/. Its PDF export now downloads from the Export menu, so the route no longer opens an export dialog through useModal(). ExportDialog and LazyExportDialog stay in their files."
+	},
+	{
+		"id": "removed:overlayComponents:apps/web/app/[locale]/(main)/dashboard/app-url/[teamId]/page.tsx::openModal",
+		"reason": "The Apps & URLs page was rebuilt in core/components/dashboards/apps-urls/. Its PDF export now downloads from the Export menu, so the route no longer opens an export dialog through useModal(). ExportDialog and LazyExportDialog stay in their files."
+	},
+	{
+		"id": "removed:routes:apps/web/app/[locale]/(main)/maintenance/page.tsx",
+		"reason": "Moved unchanged in URL to the (focus) route group, which renders these pages outside the workspace shell (no sidebar, no app data) as one centred card: the same path now resolves to app/[locale]/(focus)/maintenance/page.tsx"
+	},
+	{
+		"id": "removed:routes:apps/web/app/[locale]/(main)/(teams)/team/join/page.tsx",
+		"reason": "Moved unchanged in URL to the (focus) route group, which renders these pages outside the workspace shell (no sidebar, no app data) as one centred card: the same path now resolves to app/[locale]/(focus)/team/join/page.tsx"
+	},
+	{
+		"id": "removed:routes:apps/web/app/[locale]/(main)/unauthorized/page.tsx",
+		"reason": "Moved unchanged in URL to the (focus) route group, which renders these pages outside the workspace shell (no sidebar, no app data) as one centred card: the same path now resolves to app/[locale]/(focus)/unauthorized/page.tsx"
+	},
+	{
+		"id": "removed:routes:apps/web/app/[locale]/(main)/verify-email/page.tsx",
+		"reason": "Moved unchanged in URL to the (focus) route group, which renders these pages outside the workspace shell (no sidebar, no app data) as one centred card: the same path now resolves to app/[locale]/(focus)/verify-email/page.tsx"
+	},
+	{
+		"id": "removed:navigation:apps/web/core/components/pages/integration/github/page-component.tsx::router.replace=/settings/team#integrations::#1",
+		"reason": "Settings are split into one page per subject: the GitHub install callback now returns straight to /settings/team/integrations. The old address still works: the settings layout replaces /settings/team#integrations with the new page."
+	},
+	{
+		"id": "removed:navigation:apps/web/core/components/notifications/inbox/notification-panel.tsx::href=/settings/personal#notifications::#1",
+		"reason": "Settings are split into one page per subject: the inbox gear now links to /settings/personal/notifications. The old address still works: the settings layout replaces /settings/personal#notifications with the new page."
+	},
+	{
+		"id": "removed:navigation:apps/web/core/components/notifications/inbox/notification-panel.tsx::NOTIFICATION_SETTINGS_HREF=/settings/personal#notifications::#1",
+		"reason": "Same move as the inbox gear link above, in case the constant itself is collected."
+	},
+	{
+		"id": "removed:navigation:apps/web/app/[locale]/(main)/task/[id]/page.tsx::router.replace=/::#1",
+		"reason": "The back button moved to the task page band (core/components/pages/task/task-detail-page-band.tsx). It returns to the previous page of the app when there is one, and still replaces the entry with / otherwise."
+	},
+	{
+		"id": "removed:overlayComponents:apps/web/core/components/pages/task/details-section/blocks/task-secondary-info.tsx::openModalEditionHandle",
+		"reason": "Part of TaskSecondaryInfo, the old task page aside block replaced by the shared task detail properties. The create forms it opened are offered by those properties on the task page. Only ProjectDropDown is still used from this file."
+	},
+	{
+		"id": "removed:overlayComponents:apps/web/core/components/tasks/drawer/task-drawer-activity.tsx::TaskDrawerActivity",
+		"reason": "Replaced by TaskDetailActivity, one feed of comments and history shared by the task page, the drawer and the plan dialog. The helpers this file still exports feed it; no caller of the removed component is left."
+	},
+	{
+		"id": "removed:overlayComponents:apps/web/core/components/tasks/drawer/task-drawer-activity.tsx::export::TaskDrawerActivity",
+		"reason": "Replaced by TaskDetailActivity, one feed of comments and history shared by the task page, the drawer and the plan dialog. The helpers this file still exports feed it; no caller of the removed component is left."
+	},
+	{
+		"id": "removed:overlayComponents:apps/web/core/components/tasks/drawer/task-drawer-comments.tsx::TaskDrawerComments",
+		"reason": "Replaced by TaskDetailActivity, one feed of comments and history shared by the task page, the drawer and the plan dialog. The helpers this file still exports feed it; no caller of the removed component is left."
+	},
+	{
+		"id": "removed:overlayComponents:apps/web/core/components/tasks/drawer/task-drawer-comments.tsx::export::TaskDrawerComments",
+		"reason": "Replaced by TaskDetailActivity, one feed of comments and history shared by the task page, the drawer and the plan dialog. The helpers this file still exports feed it; no caller of the removed component is left."
+	},
+	{
+		"id": "removed:overlayComponents:apps/web/core/components/tasks/drawer/task-drawer-description.tsx",
+		"reason": "The drawer now renders the shared task detail column (core/components/tasks/detail). Its old title, description, properties and relations sections have no caller left (git grep across apps and packages)."
+	},
+	{
+		"id": "removed:overlayComponents:apps/web/core/components/tasks/drawer/task-drawer-description.tsx::TaskDrawerDescription",
+		"reason": "The drawer now renders the shared task detail column (core/components/tasks/detail). Its old title, description, properties and relations sections have no caller left (git grep across apps and packages)."
+	},
+	{
+		"id": "removed:overlayComponents:apps/web/core/components/tasks/drawer/task-drawer-description.tsx::export::TaskDrawerDescription",
+		"reason": "The drawer now renders the shared task detail column (core/components/tasks/detail). Its old title, description, properties and relations sections have no caller left (git grep across apps and packages)."
+	},
+	{
+		"id": "removed:overlayComponents:apps/web/core/components/tasks/drawer/task-drawer-properties.tsx",
+		"reason": "The drawer now renders the shared task detail column (core/components/tasks/detail). Its old title, description, properties and relations sections have no caller left (git grep across apps and packages)."
+	},
+	{
+		"id": "removed:overlayComponents:apps/web/core/components/tasks/drawer/task-drawer-properties.tsx::TaskDrawerProperties",
+		"reason": "The drawer now renders the shared task detail column (core/components/tasks/detail). Its old title, description, properties and relations sections have no caller left (git grep across apps and packages)."
+	},
+	{
+		"id": "removed:overlayComponents:apps/web/core/components/tasks/drawer/task-drawer-properties.tsx::export::TaskDrawerProperties",
+		"reason": "The drawer now renders the shared task detail column (core/components/tasks/detail). Its old title, description, properties and relations sections have no caller left (git grep across apps and packages)."
+	},
+	{
+		"id": "removed:overlayComponents:apps/web/core/components/tasks/drawer/task-drawer-title.tsx",
+		"reason": "The drawer now renders the shared task detail column (core/components/tasks/detail). Its old title, description, properties and relations sections have no caller left (git grep across apps and packages)."
+	},
+	{
+		"id": "removed:overlayComponents:apps/web/core/components/tasks/drawer/task-drawer-title.tsx::TaskDrawerTitle",
+		"reason": "The drawer now renders the shared task detail column (core/components/tasks/detail). Its old title, description, properties and relations sections have no caller left (git grep across apps and packages)."
+	},
+	{
+		"id": "removed:overlayComponents:apps/web/core/components/tasks/drawer/task-drawer-title.tsx::export::TaskDrawerTitle",
+		"reason": "The drawer now renders the shared task detail column (core/components/tasks/detail). Its old title, description, properties and relations sections have no caller left (git grep across apps and packages)."
+	},
+	{
+		"id": "removed:overlayComponents:apps/web/core/components/tasks/drawer/task-drawer-relations.tsx",
+		"reason": "The drawer now renders the shared task detail column (core/components/tasks/detail). Its old title, description, properties and relations sections have no caller left (git grep across apps and packages)."
+	},
+	{
+		"id": "removed:overlayComponents:apps/web/core/components/tasks/drawer/task-drawer-relations.tsx::TaskDrawerRelations",
+		"reason": "The drawer now renders the shared task detail column (core/components/tasks/detail). Its old title, description, properties and relations sections have no caller left (git grep across apps and packages)."
+	},
+	{
+		"id": "removed:overlayComponents:apps/web/core/components/tasks/drawer/task-drawer-relations.tsx::export::TaskDrawerRelations",
+		"reason": "The drawer now renders the shared task detail column (core/components/tasks/detail). Its old title, description, properties and relations sections have no caller left (git grep across apps and packages)."
+	},
+	{
+		"id": "removed:overlayComponents:apps/web/core/components/tasks/drawer/task-drawer-relations.tsx::TaskDrawerSubtasks",
+		"reason": "The drawer now renders the shared task detail column (core/components/tasks/detail). Its old title, description, properties and relations sections have no caller left (git grep across apps and packages)."
+	},
+	{
+		"id": "removed:overlayComponents:apps/web/core/components/tasks/drawer/task-drawer-relations.tsx::export::TaskDrawerSubtasks",
+		"reason": "The drawer now renders the shared task detail column (core/components/tasks/detail). Its old title, description, properties and relations sections have no caller left (git grep across apps and packages)."
+	},
+	{
+		"id": "removed:overlayComponents:apps/web/core/components/tasks/drawer/task-drawer-relations.tsx::showTaskInDrawer",
+		"reason": "A local callback of the removed relations section. The drawer still shows a related task in place through useTaskDrawer().showTaskInDrawer, from the shared issue rows."
+	},
+	{
+		"id": "removed:overlayComponents:apps/web/core/components/tasks/drawer/task-drawer.tsx::DrawerHero",
+		"reason": "Internal parts of the drawer's previous hero and tabs, replaced by the shared task detail column. TaskDrawerBody and TaskDrawerLoading keep their names and props."
+	},
+	{
+		"id": "removed:overlayComponents:apps/web/core/components/tasks/drawer/task-drawer.tsx::DrawerTabContent",
+		"reason": "Internal parts of the drawer's previous hero and tabs, replaced by the shared task detail column. TaskDrawerBody and TaskDrawerLoading keep their names and props."
+	},
+	{
+		"id": "removed:overlayComponents:apps/web/core/components/tasks/drawer/task-drawer.tsx::useDrawerTabs",
+		"reason": "Internal parts of the drawer's previous hero and tabs, replaced by the shared task detail column. TaskDrawerBody and TaskDrawerLoading keep their names and props."
+	},
+	{
+		"id": "removed:overlayComponents:apps/web/core/components/tasks/task-details-modal.tsx",
+		"reason": "TaskDetailsModal lost its last caller when add-task-estimation-hours-modal stopped opening it. A planned task's details open in plan-task-details (an AppDialog with the shared task detail column), and every other surface opens the task drawer or the task page."
+	},
+	{
+		"id": "removed:overlayComponents:apps/web/core/components/tasks/task-details-modal.tsx::TaskDetailsModal",
+		"reason": "TaskDetailsModal lost its last caller when add-task-estimation-hours-modal stopped opening it. A planned task's details open in plan-task-details (an AppDialog with the shared task detail column), and every other surface opens the task drawer or the task page."
+	},
+	{
+		"id": "removed:overlayComponents:apps/web/core/components/tasks/task-details-modal.tsx::closeModal",
+		"reason": "TaskDetailsModal lost its last caller when add-task-estimation-hours-modal stopped opening it. A planned task's details open in plan-task-details (an AppDialog with the shared task detail column), and every other surface opens the task drawer or the task page."
+	},
+	{
+		"id": "removed:overlayComponents:apps/web/core/components/tasks/task-details-modal.tsx::export::TaskDetailsModal",
+		"reason": "TaskDetailsModal lost its last caller when add-task-estimation-hours-modal stopped opening it. A planned task's details open in plan-task-details (an AppDialog with the shared task detail column), and every other surface opens the task drawer or the task page."
+	},
+	{
+		"id": "removed:overlayComponents:apps/web/core/components/tasks/task-details-modal.tsx::handleCloseModal",
+		"reason": "TaskDetailsModal lost its last caller when add-task-estimation-hours-modal stopped opening it. A planned task's details open in plan-task-details (an AppDialog with the shared task detail column), and every other surface opens the task drawer or the task page."
+	},
+	{
+		"id": "removed:publicExports:apps/web/core/components/optimized-components/index.tsx::runtime::LazyChildIssueCard",
+		"reason": "This lazy wrapper loaded a section of the old task page (aside, activity, issue cards, details). The page now renders the shared task detail module; nothing imports the wrapper (git grep across apps and packages)."
+	},
+	{
+		"id": "removed:publicExports:apps/web/core/components/optimized-components/index.tsx::runtime::LazyRelatedIssueCard",
+		"reason": "This lazy wrapper loaded a section of the old task page (aside, activity, issue cards, details). The page now renders the shared task detail module; nothing imports the wrapper (git grep across apps and packages)."
+	},
+	{
+		"id": "removed:publicExports:apps/web/core/components/optimized-components/index.tsx::runtime::LazyTaskActivity",
+		"reason": "This lazy wrapper loaded a section of the old task page (aside, activity, issue cards, details). The page now renders the shared task detail module; nothing imports the wrapper (git grep across apps and packages)."
+	},
+	{
+		"id": "removed:publicExports:apps/web/core/components/optimized-components/index.tsx::runtime::LazyTaskDetailsAside",
+		"reason": "This lazy wrapper loaded a section of the old task page (aside, activity, issue cards, details). The page now renders the shared task detail module; nothing imports the wrapper (git grep across apps and packages)."
+	},
+	{
+		"id": "removed:publicExports:apps/web/core/components/optimized-components/index.tsx::runtime::LazyTaskDetailsComponent",
+		"reason": "This lazy wrapper loaded a section of the old task page (aside, activity, issue cards, details). The page now renders the shared task detail module; nothing imports the wrapper (git grep across apps and packages)."
+	},
+	{
+		"id": "removed:publicExports:apps/web/core/lib/helpers/index.ts::runtime::calculateRemainingDays",
+		"reason": "Only the old task page aside (task-main-info, member-list-item) called it, and that aside was replaced by the shared task detail properties. No caller is left (git grep across apps and packages)."
+	},
+	{
+		"id": "removed:publicExports:apps/web/core/lib/helpers/index.ts::runtime::getUserDisplayName",
+		"reason": "Only the old task page aside (task-main-info, member-list-item) called it, and that aside was replaced by the shared task detail properties. No caller is left (git grep across apps and packages)."
+	},
+	{
+		"id": "removed:overlayComponents:apps/web/core/components/features/daily-plan/enforce-planed-task-modal.tsx::openDailyPlanModal",
+		"reason": "The prompt no longer opens today's plan itself. Its owner (TimerPlanDialogs) adds the task and opens the plan on Yes, so the timer never starts on a plan the person did not see."
+	},
+	{
+		"id": "removed:overlayComponents:apps/web/core/components/pages/profile/task-filters.tsx::closeManualTimeModal",
+		"reason": "The profile's Add time action moved from the tab row into the identity band (core/components/pages/profile/profile-actions.tsx), which opens the same lazy manual time modal with the same params through its own useModal."
+	},
+	{
+		"id": "removed:overlayComponents:apps/web/core/components/pages/profile/task-filters.tsx::isManualTimeModalOpen",
+		"reason": "The profile's Add time action moved from the tab row into the identity band (core/components/pages/profile/profile-actions.tsx), which opens the same lazy manual time modal with the same params through its own useModal."
+	},
+	{
+		"id": "removed:overlayComponents:apps/web/core/components/pages/profile/task-filters.tsx::openManualTimeModal",
+		"reason": "The profile's Add time action moved from the tab row into the identity band (core/components/pages/profile/profile-actions.tsx), which opens the same lazy manual time modal with the same params through its own useModal."
+	},
+	{
+		"id": "removed:overlayComponents:apps/web/core/components/users/user-profile-plans.tsx::haveSeenDailyPlanSuggestionModal",
+		"reason": "Renamed seenSuggestionDate and read inside the first-load effect; the rule is unchanged (outstanding plans open the Outstanding view, and a suggestion seen today with no plan requirement, or with a plan, stops the daily prompt), and it now works on every locale."
+	},
+	{
+		"id": "removed:navigation:apps/web/core/components/pages/auth/passcode/page-component.tsx::href=/auth/password::#1",
+		"reason": "#4914 puts code and password sign-in on one page (pages/auth/sign-in/sign-in-page.tsx). The link to /auth/password became the in-page method switch, which keeps the typed address; /auth/password still renders the same page with the password method."
+	},
+	{
+		"id": "removed:navigation:apps/web/core/components/pages/auth/passcode/page-component.tsx::router.replace=/::#1",
+		"reason": "Moved with the code sign-in into pages/auth/sign-in/sign-in-page.tsx (#4914), which sends a signed-in visitor home the same way."
+	},
+	{
+		"id": "removed:navigation:apps/web/core/components/pages/auth/passcode/page-component.tsx::router.replace=/::#2",
+		"reason": "Moved with the code sign-in into pages/auth/sign-in/sign-in-page.tsx (#4914), the second home redirect of that page."
+	},
+	{
+		"id": "removed:navigation:apps/web/core/components/pages/auth/password/page-component.tsx::href=/auth/forgot-password::#1",
+		"reason": "Moved with the password sign-in into pages/auth/sign-in/credentials-step.tsx (#4914), which links to /auth/forgot-password."
 	}
 ]

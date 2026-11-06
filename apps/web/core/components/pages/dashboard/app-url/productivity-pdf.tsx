@@ -1,4 +1,5 @@
 import React from 'react';
+import { parseISO } from 'date-fns';
 import { Document, Page, Text, View, StyleSheet, Font } from '@react-pdf/renderer';
 import {
 	IActivityReportGroupByDate,
@@ -134,7 +135,8 @@ const getProjectName = (project: IProjectWithActivity) => {
 
 const formatDateHeader = (date: string) => {
 	try {
-		const d = new Date(date);
+		// 'YYYY-MM-DD' is a calendar day: `new Date()` would read it as UTC midnight, the previous day west of UTC
+		const d = parseISO(date);
 		if (isNaN(d.getTime())) {
 			return 'Invalid Date';
 		}

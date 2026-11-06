@@ -1,221 +1,145 @@
-import React, { FC } from 'react';
+import { FC } from 'react';
+import { cn } from '@/core/lib/helpers';
+import { Card } from '@/core/components/common/card';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/core/components/common/table';
 
-/**
- * Individual component skeletons for Reports page progressive loading
- * Used in dynamic imports and Suspense wrappers for optimal UX
- */
+const BAR = 'animate-pulse rounded-md bg-foreground/5';
+
+const LIMIT_TABLE_ROWS = 4;
+
+const REPORT_TABLES = 3;
 
 interface SkeletonProps {
 	className?: string;
 }
 
-/**
- * Skeleton for TimeReportTable component
- * Matches time report table structure with employee data
- */
+interface LimitTableSkeletonProps {
+	className?: string;
+	headerWidth: string;
+	indexWidth: string;
+}
+
+function LimitTableHeadSkeleton({ indexWidth }: Readonly<{ indexWidth: string }>) {
+	return (
+		<TableHeader>
+			<TableRow className="hover:bg-transparent">
+				<TableHead>
+					<div className={cn(BAR, 'h-3', indexWidth)} />
+				</TableHead>
+				<TableHead>
+					<div className={cn(BAR, 'ml-auto h-3 w-20')} />
+				</TableHead>
+				<TableHead>
+					<div className={cn(BAR, 'ml-auto h-3 w-12')} />
+				</TableHead>
+				<TableHead>
+					<div className={cn(BAR, 'h-3 w-28')} />
+				</TableHead>
+				<TableHead>
+					<div className={cn(BAR, 'ml-auto h-3 w-20')} />
+				</TableHead>
+			</TableRow>
+		</TableHeader>
+	);
+}
+
+function LimitTableRowSkeleton({ indexWidth }: Readonly<{ indexWidth: string }>) {
+	return (
+		<TableRow className="hover:bg-transparent">
+			<TableCell>
+				<div className={cn(BAR, 'h-4', indexWidth)} />
+			</TableCell>
+			<TableCell>
+				<div className={cn(BAR, 'ml-auto h-4 w-16')} />
+			</TableCell>
+			<TableCell>
+				<div className={cn(BAR, 'ml-auto h-4 w-12')} />
+			</TableCell>
+			<TableCell>
+				<div className="flex items-center gap-2">
+					<div className={cn(BAR, 'h-1.5 w-full max-w-40 rounded-full')} />
+					<div className={cn(BAR, 'h-4 w-16 shrink-0')} />
+				</div>
+			</TableCell>
+			<TableCell>
+				<div className={cn(BAR, 'ml-auto h-4 w-16')} />
+			</TableCell>
+		</TableRow>
+	);
+}
+
+function LimitTableSkeleton({ className, headerWidth, indexWidth }: Readonly<LimitTableSkeletonProps>) {
+	const rowKeys = Array.from({ length: LIMIT_TABLE_ROWS }, (_, index) => index);
+	return (
+		<Card className={cn('w-full overflow-hidden', className)}>
+			<div className="flex h-10 items-center hairline-b border-border bg-foreground/2.5 px-4">
+				<div className={cn(BAR, 'h-3', headerWidth)} />
+			</div>
+			<Table>
+				<LimitTableHeadSkeleton indexWidth={indexWidth} />
+				<TableBody>
+					{rowKeys.map((key) => (
+						<LimitTableRowSkeleton key={key} indexWidth={indexWidth} />
+					))}
+				</TableBody>
+			</Table>
+		</Card>
+	);
+}
+
+/** One period of the limit report: the date on a hairline header, then one row per member. */
 export const TimeReportTableSkeleton: FC<SkeletonProps> = ({ className }) => {
-	return (
-		<div className={`w-full p-1 ${className || ''}`}>
-			{/* Table Header */}
-			<div className="flex items-center h-12 px-4 border rounded-md bg-slate-100 dark:bg-muted dark:text-white">
-				<div className="w-48 h-5 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded" />
-			</div>
-
-			{/* Data Table */}
-			<div className="bg-white dark:bg-dark--theme-light rounded-lg border border-gray-200 dark:border-gray-600">
-				{/* Table Header */}
-				<div className="bg-gray-50 dark:bg-white/5 border-b border-gray-200 dark:border-gray-600">
-					<div className="flex">
-						{['Member', 'Limit', 'Time Spent', 'Percentage Used', 'Remaining'].map((header, index) => (
-							<div key={index} className="px-6 py-3 flex-1">
-								<div className="w-20 h-4 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded" />
-							</div>
-						))}
-					</div>
-				</div>
-
-				{/* Table Rows */}
-				{[...Array(6)].map((_, rowIndex) => (
-					<div key={rowIndex} className="border-b border-gray-200 dark:border-gray-600">
-						<div className="flex hover:bg-gray-50 dark:hover:bg-white/5">
-							{/* Member Cell */}
-							<div className="px-6 py-4 flex-1">
-								<div className="flex items-center gap-3">
-									<div className="w-8 h-8 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded-full" />
-									<div className="w-24 h-4 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded" />
-								</div>
-							</div>
-
-							{/* Limit Cell */}
-							<div className="px-6 py-4 flex-1">
-								<div className="w-16 h-4 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded" />
-							</div>
-
-							{/* Time Spent Cell */}
-							<div className="px-6 py-4 flex-1">
-								<div className="w-20 h-4 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded" />
-							</div>
-
-							{/* Percentage Used Cell */}
-							<div className="px-6 py-4 flex-1">
-								<div className="flex gap-2 items-center">
-									<div className="w-32 h-2 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded-full" />
-									<div className="w-12 h-4 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded" />
-								</div>
-							</div>
-
-							{/* Remaining Cell */}
-							<div className="px-6 py-4 flex-1">
-								<div className="w-16 h-4 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded" />
-							</div>
-						</div>
-					</div>
-				))}
-			</div>
-		</div>
-	);
+	return <LimitTableSkeleton className={className} headerWidth="w-24" indexWidth="w-32" />;
 };
 
-/**
- * Skeleton for TimeReportTableByMember component
- * Matches member-grouped time report table structure
- */
+/** One member of the limit report: the name on a hairline header, then one row per period. */
 export const TimeReportTableByMemberSkeleton: FC<SkeletonProps> = ({ className }) => {
-	return (
-		<div className={`w-full p-1 ${className || ''}`}>
-			{/* Member Header */}
-			<div className="flex items-center h-12 px-4 border rounded-md bg-slate-100 dark:bg-muted dark:text-white">
-				<div className="w-32 h-5 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded" />
-			</div>
-
-			{/* Data Table */}
-			<div className="bg-white dark:bg-dark--theme-light rounded-lg border border-gray-200 dark:border-gray-600">
-				{/* Table Header */}
-				<div className="bg-gray-50 dark:bg-white/5 border-b border-gray-200 dark:border-gray-600">
-					<div className="flex">
-						{['Date/Week', 'Limit', 'Time Spent', 'Percentage Used', 'Remaining'].map((header, index) => (
-							<div key={index} className="px-6 py-3 flex-1">
-								<div className="w-20 h-4 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded" />
-							</div>
-						))}
-					</div>
-				</div>
-
-				{/* Table Rows */}
-				{[...Array(4)].map((_, rowIndex) => (
-					<div key={rowIndex} className="border-b border-gray-200 dark:border-gray-600">
-						<div className="flex hover:bg-gray-50 dark:hover:bg-white/5">
-							{/* Date/Week Cell */}
-							<div className="px-6 py-4 flex-1">
-								<div className="w-28 h-4 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded" />
-							</div>
-
-							{/* Limit Cell */}
-							<div className="px-6 py-4 flex-1">
-								<div className="w-16 h-4 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded" />
-							</div>
-
-							{/* Time Spent Cell */}
-							<div className="px-6 py-4 flex-1">
-								<div className="w-20 h-4 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded" />
-							</div>
-
-							{/* Percentage Used Cell */}
-							<div className="px-6 py-4 flex-1">
-								<div className="flex gap-2 items-center">
-									<div className="w-32 h-2 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded-full" />
-									<div className="w-12 h-4 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded" />
-								</div>
-							</div>
-
-							{/* Remaining Cell */}
-							<div className="px-6 py-4 flex-1">
-								<div className="w-16 h-4 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded" />
-							</div>
-						</div>
-					</div>
-				))}
-			</div>
-		</div>
-	);
+	return <LimitTableSkeleton className={className} headerWidth="w-32" indexWidth="w-40" />;
 };
 
-/**
- * Skeleton for MembersSelect component
- * Matches member selection dropdown structure
- */
 export const MembersSelectSkeleton: FC<SkeletonProps> = ({ className }) => {
-	return (
-		<div className={`w-48 h-10 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded-lg border border-gray-200 dark:border-gray-600 ${className || ''}`} />
-	);
+	return <div className={cn(BAR, 'h-8 w-48', className)} />;
 };
 
-/**
- * Skeleton for GroupBySelect component
- * Matches group by selection dropdown structure
- */
 export const GroupBySelectSkeleton: FC<SkeletonProps> = ({ className }) => {
-	return (
-		<div className={`w-32 h-10 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded-lg border border-gray-200 dark:border-gray-600 ${className || ''}`} />
-	);
+	return <div className={cn(BAR, 'h-8 w-32', className)} />;
 };
 
-/**
- * Skeleton for DatePickerWithRange component
- * Matches date range picker structure
- */
 export const DatePickerWithRangeSkeleton: FC<SkeletonProps> = ({ className }) => {
-	return (
-		<div className={`w-64 h-10 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded-lg border border-gray-200 dark:border-gray-600 ${className || ''}`} />
-	);
+	return <div className={cn(BAR, 'h-8 w-64', className)} />;
 };
 
-/**
- * Skeleton for WeeklyLimitExportMenu component
- * Matches export menu dropdown structure
- */
 export const WeeklyLimitExportMenuSkeleton: FC<SkeletonProps> = ({ className }) => {
-	return (
-		<div className={`w-24 h-10 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded-lg border border-gray-200 dark:border-gray-600 ${className || ''}`} />
-	);
+	return <div className={cn(BAR, 'h-8 w-24', className)} />;
 };
 
-/**
- * Skeleton for Paginate component
- * Matches pagination controls structure
- */
+/** The Paginate row: the page steps at the start, the page size and the entries line at the end. */
 export const PaginateSkeleton: FC<SkeletonProps> = ({ className }) => {
 	return (
-		<div className={`flex items-center justify-between p-4 bg-white dark:bg-dark--theme ${className || ''}`}>
-			{/* Left Info */}
-			<div className="flex items-center gap-2">
-				<div className="w-16 h-4 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded" />
-				<div className="w-12 h-8 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded-sm border border-gray-200 dark:border-gray-600" />
-				<div className="w-20 h-4 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded" />
+		<div className={cn('flex flex-col items-center justify-between gap-2 pt-4 md:flex-row', className)}>
+			<div className="flex items-center gap-1">
+				<div className={cn(BAR, 'size-8')} />
+				<div className={cn(BAR, 'size-8')} />
+				<div className={cn(BAR, 'size-8')} />
+				<div className={cn(BAR, 'size-8')} />
 			</div>
-
-			{/* Right Navigation */}
-			<div className="flex items-center gap-2">
-				<div className="w-8 h-8 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded-sm border border-gray-200 dark:border-gray-600" />
-				<div className="w-8 h-8 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded-sm border border-gray-200 dark:border-gray-600" />
-				<div className="w-8 h-8 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded-sm border border-gray-200 dark:border-gray-600" />
-				<div className="w-8 h-8 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded-sm border border-gray-200 dark:border-gray-600" />
+			<div className="flex items-center gap-5">
+				<div className={cn(BAR, 'h-8 w-20')} />
+				<div className={cn(BAR, 'h-4 w-48')} />
 			</div>
 		</div>
 	);
 };
 
-/**
- * Skeleton for Reports content area
- * Matches the main content structure with multiple tables
- */
+/** The body of the limit report: one surface per period, then the pagination. */
 export const ReportsContentSkeleton: FC<SkeletonProps> = ({ className }) => {
+	const tableKeys = Array.from({ length: REPORT_TABLES }, (_, index) => index);
 	return (
-		<div className={`flex flex-col w-full gap-6 p-4 mt-6 bg-white dark:bg-dark--theme ${className || ''}`}>
-			{/* Multiple report tables */}
-			{[...Array(3)].map((_, index) => (
-				<TimeReportTableSkeleton key={index} />
+		<div className={cn('flex w-full flex-col gap-4', className)}>
+			{tableKeys.map((key) => (
+				<TimeReportTableSkeleton key={key} />
 			))}
+			<PaginateSkeleton className="pt-0" />
 		</div>
 	);
 };

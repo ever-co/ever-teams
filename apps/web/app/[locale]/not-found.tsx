@@ -10,7 +10,13 @@ const NotFoundPage = () => {
 
 	return (
 		<AuthLayout title={t('pages.page404.HEADING_TITLE')} isAuthPage={false}>
-			<NotFound />
+			<NotFound
+				labels={{
+					title: t('pages.page404.HEADING_TITLE'),
+					description: t('pages.page404.HEADING_DESCRIPTION'),
+					action: t('pages.taskDetails.GO_BACK_HOME')
+				}}
+			/>
 		</AuthLayout>
 	);
 };

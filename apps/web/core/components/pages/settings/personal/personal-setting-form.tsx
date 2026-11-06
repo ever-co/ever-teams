@@ -7,10 +7,10 @@ import {
 	getActiveLanguageIdCookie,
 	getActiveTimezoneIdCookie,
 	setActiveLanguageIdCookie,
-	setActiveTimezoneCookie,
-	userTimezone
+	setActiveTimezoneCookie
 } from '@/core/lib/helpers/index';
-import { useTranslations } from 'next-intl';
+import { userTimezone } from '@/core/lib/helpers/user-timezone';
+import { TranslationHooks, useTranslations } from 'next-intl';
 import { useTheme } from 'next-themes';
 import { useRouter } from 'next/navigation';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
@@ -19,6 +19,13 @@ import validator from 'validator';
 import { LanguageDropDown } from '../../../common/language-dropdown';
 import { EmailResetModal } from '../../../features/users/email-reset-modal';
 import { TimezoneDropDown } from '../../../settings/timezone-dropdown';
+import { clsxm } from '@/core/lib/utils';
+import {
+	SETTINGS_CONTROL_CLASS,
+	SETTINGS_LABEL_CLASS,
+	SETTINGS_ROW_CLASS,
+	SETTINGS_ROWS_CLASS
+} from '../settings-section';
 
 interface IValidation {
 	email: boolean;
@@ -31,6 +38,13 @@ interface FormValues {
 	phoneNumber: string;
 	timeZone: string;
 	preferredLanguage: string;
+}
+
+function themeModeLabel(theme: string | undefined, t: TranslationHooks) {
+	if (theme === 'light') {
+		return t('common.LIGHT_MODE');
+	}
+	return t('common.DARK_MODE');
 }
 
 export const PersonalSettingForm: React.FC = () => {
@@ -151,210 +165,165 @@ export const PersonalSettingForm: React.FC = () => {
 					handleContactChange();
 				}}
 			>
-				<div id="general" className="flex flex-col justify-between items-center">
-					<div className="w-full">
-						<div>
-							{/* Full name */}
-							<div className="w-full py-3 first:pt-0">
-								<div className="grid w-full grid-cols-1 gap-2 sm:grid-cols-[10rem_minmax(0,1fr)] sm:items-center sm:gap-4">
-									<Text className="text-sm font-medium text-muted-foreground">
-										{t('common.FULL_NAME')}
-									</Text>
-									<div className="flex min-w-0 flex-wrap items-center gap-2">
-										<InputField
-											type="text"
-											placeholder={t('form.FIRST_NAME_PLACEHOLDER')}
-											{...register('firstName', { required: true, maxLength: 80 })}
-											className={`m-0 h-9 w-full ${!editFullname ? 'disabled:bg-muted/40' : ''}`}
-											disabled={!editFullname}
-											wrapperClassName="mb-0 min-w-[10rem] flex-1 rounded-md"
-										/>
-										<InputField
-											type="text"
-											placeholder={t('form.LAST_NAME_PLACEHOLDER')}
-											{...register('lastName', { maxLength: 80 })}
-											className={`m-0 h-9 w-full ${!editFullname ? 'disabled:bg-muted/40' : ''}`}
-											disabled={!editFullname}
-											wrapperClassName="mb-0 min-w-[10rem] flex-1 rounded-md"
-										/>
-										{editFullname ? (
-											<Button
-												variant="primary"
-												className="h-9 min-w-20 shrink-0 rounded-md px-3 text-sm font-medium"
-												type="button"
-												onClick={(e) => {
-													e.preventDefault();
-													handleFullnameChange();
-												}}
-											>
-												{t('common.SAVE')}
-											</Button>
-										) : (
-											<Button
-												variant="grey"
-												className="h-9 min-w-20 shrink-0 rounded-md px-3 text-sm font-medium"
-												type="button"
-												onClick={() => setEditFullname(true)}
-											>
-												{t('common.EDIT')}
-											</Button>
-										)}
-									</div>
-								</div>
-							</div>
+				<div id="general" className={SETTINGS_ROWS_CLASS}>
+					<div className={SETTINGS_ROW_CLASS}>
+						<Text className={SETTINGS_LABEL_CLASS}>{t('common.FULL_NAME')}</Text>
+						<div className={SETTINGS_CONTROL_CLASS}>
+							<InputField
+								type="text"
+								placeholder={t('form.FIRST_NAME_PLACEHOLDER')}
+								{...register('firstName', { required: true, maxLength: 80 })}
+								className="disabled:bg-foreground/[0.03]"
+								disabled={!editFullname}
+								wrapperClassName="mb-0 min-w-[10rem] flex-1 rounded-md"
+							/>
+							<InputField
+								type="text"
+								placeholder={t('form.LAST_NAME_PLACEHOLDER')}
+								{...register('lastName', { maxLength: 80 })}
+								className="disabled:bg-foreground/[0.03]"
+								disabled={!editFullname}
+								wrapperClassName="mb-0 min-w-[10rem] flex-1 rounded-md"
+							/>
+							{editFullname && (
+								<Button
+									variant="primary"
+									className="min-w-20 shrink-0"
+									type="button"
+									onClick={(e) => {
+										e.preventDefault();
+										handleFullnameChange();
+									}}
+								>
+									{t('common.SAVE')}
+								</Button>
+							)}
+							{!editFullname && (
+								<Button
+									variant="grey"
+									className="min-w-20 shrink-0"
+									type="button"
+									onClick={() => setEditFullname(true)}
+								>
+									{t('common.EDIT')}
+								</Button>
+							)}
+						</div>
+					</div>
 
-							{/* Contact */}
-							<div className="w-full border-t border-border py-3">
-								<div className="grid w-full grid-cols-1 gap-2 sm:grid-cols-[10rem_minmax(0,1fr)] sm:items-center sm:gap-4">
-									<Text className="text-sm font-medium text-muted-foreground">
-										{t('common.CONTACT')}
-									</Text>
-									<div className="flex min-w-0 flex-wrap items-center gap-2">
-										<div className="relative">
-											<InputField
-												type="email"
-												placeholder={t('form.EMAIL_PLACEHOLDER')}
-												{...register('email', {
-													required: true,
-													pattern:
-														/^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
-												})}
-												className={`m-0 h-9 w-full ${!editContacts ? 'disabled:bg-muted/40' : ''}`}
-												onChange={checkEmailValidity}
-												disabled={!editContacts}
-												notValidBorder={!isValid.email}
-												wrapperClassName="mb-0 min-w-[10rem] flex-1 rounded-md"
-											/>
-											{!isValid.email && (
-												<p className="absolute -bottom-5 text-xs text-red-500">
-													{t('pages.settingsPersonal.emailNotValid')}
-												</p>
-											)}
-										</div>
-										<div className="relative mb-0 min-w-[10rem] flex-1">
-											<InternationalPhoneInput
-												name="phoneNumber"
-												register={register}
-												error={errors.phoneNumber}
-												value={user?.phoneNumber || ''}
-												onChange={handlePhoneChange}
-												disabled={!editContacts}
-												className={`h-9 ${!editContacts ? 'bg-muted/40' : ''}`}
-												wrapperClassName="mb-0 h-9"
-											/>
-										</div>
-										{editContacts ? (
-											<Button
-												variant="primary"
-												className="h-9 min-w-20 shrink-0 rounded-md px-3 text-sm font-medium"
-												type="button"
-												onClick={(e) => {
-													e.preventDefault();
-													handleContactChange();
-												}}
-											>
-												{t('common.SAVE')}
-											</Button>
-										) : (
-											<Button
-												variant="grey"
-												className="h-9 min-w-20 shrink-0 rounded-md px-3 text-sm font-medium"
-												type="button"
-												onClick={() => {
-													setEditContacts(true);
-													setTimeout(() => setFocus('email'), 10);
-												}}
-											>
-												{t('common.EDIT')}
-											</Button>
-										)}
-									</div>
-								</div>
+					<div className={SETTINGS_ROW_CLASS}>
+						<Text className={SETTINGS_LABEL_CLASS}>{t('common.CONTACT')}</Text>
+						<div className={SETTINGS_CONTROL_CLASS}>
+							<div className="relative min-w-[10rem] flex-1">
+								<InputField
+									type="email"
+									placeholder={t('form.EMAIL_PLACEHOLDER')}
+									{...register('email', {
+										required: true,
+										pattern:
+											/^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
+									})}
+									className="disabled:bg-foreground/[0.03]"
+									onChange={checkEmailValidity}
+									disabled={!editContacts}
+									notValidBorder={!isValid.email}
+									wrapperClassName="mb-0 rounded-md"
+								/>
+								{!isValid.email && (
+									<p className="absolute -bottom-5 text-xs text-destructive-ink">
+										{t('pages.settingsPersonal.emailNotValid')}
+									</p>
+								)}
 							</div>
-
-							{/* Theme */}
-							<div className="w-full border-t border-border py-3">
-								<div className="grid w-full grid-cols-1 gap-2 sm:grid-cols-[10rem_minmax(0,1fr)] sm:items-center sm:gap-4">
-									<Text className="text-sm font-medium text-muted-foreground">
-										{t('common.THEME')}
-									</Text>
-									<div className="flex items-center gap-3">
-										<ThemeToggler />
-										<Text className="text-sm text-muted-foreground">
-											{theme === 'light' ? 'Light' : 'Dark'} Mode
-										</Text>
-									</div>
-								</div>
+							<div className="relative mb-0 min-w-[10rem] flex-1">
+								<InternationalPhoneInput
+									name="phoneNumber"
+									register={register}
+									error={errors.phoneNumber}
+									value={user?.phoneNumber || ''}
+									onChange={handlePhoneChange}
+									disabled={!editContacts}
+									className={clsxm('h-9', !editContacts && 'bg-foreground/[0.03]')}
+									wrapperClassName="mb-0 h-9"
+								/>
 							</div>
+							{editContacts && (
+								<Button
+									variant="primary"
+									className="min-w-20 shrink-0"
+									type="button"
+									onClick={(e) => {
+										e.preventDefault();
+										handleContactChange();
+									}}
+								>
+									{t('common.SAVE')}
+								</Button>
+							)}
+							{!editContacts && (
+								<Button
+									variant="grey"
+									className="min-w-20 shrink-0"
+									type="button"
+									onClick={() => {
+										setEditContacts(true);
+										setTimeout(() => setFocus('email'), 10);
+									}}
+								>
+									{t('common.EDIT')}
+								</Button>
+							)}
+						</div>
+					</div>
 
-							{/* Language */}
-							<div className="w-full border-t border-border py-3">
-								<div className="grid w-full grid-cols-1 gap-2 sm:grid-cols-[10rem_minmax(0,1fr)] sm:items-center sm:gap-4">
-									<Text className="text-sm font-medium text-muted-foreground">
-										{t('common.LANGUAGE')}
-									</Text>
-									<div className="relative flex w-full max-w-md">
-										<LanguageDropDown
-											currentLanguage={currentLanguage}
-											onChangeLanguage={handleChangeLanguage}
-										/>
-									</div>
-								</div>
-							</div>
+					<div className={SETTINGS_ROW_CLASS}>
+						<Text className={SETTINGS_LABEL_CLASS}>{t('common.THEME')}</Text>
+						<div className="flex items-center gap-3">
+							<ThemeToggler />
+							<Text className="text-sm text-muted-foreground">{themeModeLabel(theme, t)}</Text>
+						</div>
+					</div>
 
-							{/* Timezone */}
-							<div className="w-full border-t border-border py-3">
-								<div className="grid w-full grid-cols-1 gap-2 sm:grid-cols-[10rem_minmax(0,1fr)] sm:items-center sm:gap-4">
-									<Text className="text-sm font-medium text-muted-foreground">
-										{t('common.TIME_ZONE')}
-									</Text>
-									<div className="relative flex w-full max-w-xl items-center gap-2">
-										<TimezoneDropDown
-											currentTimezone={currentTimezone}
-											onChange={handleChangeTimezone}
-											className="min-w-0 flex-1"
-										/>
-										<Button
-											variant="grey"
-											type="button"
-											onClick={() => handleChangeTimezone(undefined)}
-											className="h-9 shrink-0 rounded-md px-3 text-sm font-medium"
-										>
-											{t('common.DETECT')}
-										</Button>
-									</div>
-								</div>
-							</div>
+					<div className={SETTINGS_ROW_CLASS}>
+						<Text className={SETTINGS_LABEL_CLASS}>{t('common.LANGUAGE')}</Text>
+						<div className="relative flex w-full max-w-md">
+							<LanguageDropDown
+								currentLanguage={currentLanguage}
+								onChangeLanguage={handleChangeLanguage}
+							/>
+						</div>
+					</div>
 
-							{/* Work schedule */}
-							<div
-								id="work-schedule"
-								className="w-full border-t border-border py-3"
+					<div className={SETTINGS_ROW_CLASS}>
+						<Text className={SETTINGS_LABEL_CLASS}>{t('common.TIME_ZONE')}</Text>
+						<div className="relative flex w-full max-w-xl items-center gap-2">
+							<TimezoneDropDown
+								currentTimezone={currentTimezone}
+								onChange={handleChangeTimezone}
+								className="min-w-0 flex-1"
+							/>
+							<Button
+								variant="grey"
+								type="button"
+								onClick={() => handleChangeTimezone(undefined)}
+								className="shrink-0"
 							>
-								<div className="grid w-full grid-cols-1 gap-2 sm:grid-cols-[10rem_minmax(0,1fr)] sm:items-center sm:gap-4">
-									<Text className="text-sm font-medium text-muted-foreground">
-										{t('pages.settingsPersonal.WORK_SCHEDULE')}
-									</Text>
-									<div className="flex items-center">
-										<Text className="text-sm text-foreground">{t('common.NO')}</Text>
-									</div>
-								</div>
-							</div>
+								{t('common.DETECT')}
+							</Button>
+						</div>
+					</div>
 
-							{/* Subscription */}
-							<div
-								id="subscription"
-								className="w-full border-t border-border py-3"
-							>
-								<div className="grid w-full grid-cols-1 gap-2 sm:grid-cols-[10rem_minmax(0,1fr)] sm:items-center sm:gap-4">
-									<Text className="text-sm font-medium text-muted-foreground">
-										{t('pages.settingsPersonal.SUBSCRIPTION')}
-									</Text>
-									<div className="flex items-center">
-										<Text className="text-sm text-foreground">{t('common.BASIC')}</Text>
-									</div>
-								</div>
-							</div>
+					<div id="work-schedule" className={SETTINGS_ROW_CLASS}>
+						<Text className={SETTINGS_LABEL_CLASS}>{t('pages.settingsPersonal.WORK_SCHEDULE')}</Text>
+						<div className="flex items-center">
+							<Text className="text-sm text-foreground">{t('common.NO')}</Text>
+						</div>
+					</div>
+
+					<div id="subscription" className={SETTINGS_ROW_CLASS}>
+						<Text className={SETTINGS_LABEL_CLASS}>{t('pages.settingsPersonal.SUBSCRIPTION')}</Text>
+						<div className="flex items-center">
+							<Text className="text-sm text-foreground">{t('common.BASIC')}</Text>
 						</div>
 					</div>
 				</div>

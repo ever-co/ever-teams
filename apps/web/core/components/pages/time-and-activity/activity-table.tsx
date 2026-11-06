@@ -16,6 +16,8 @@ import {
 } from '@/core/types/interfaces/activity/activity-report';
 import { TTask } from '@/core/types/schemas/task/task.schema';
 import { useTranslations } from 'next-intl';
+import { ChevronDown, Clock } from '@/core/components/icons';
+import { Button } from '@/core/components/duplicated-components/_button';
 
 interface TimeSlot {
 	duration: number;
@@ -268,59 +270,65 @@ const ActivityTable: React.FC<ActivityTableProps> = ({ rapportDailyActivity, vie
 	}
 
 	return (
-		<div className="flex flex-col gap-y-6 p-3">
+		<div className="flex flex-col">
 			{currentEntries.map(
 				(dayLog: DailyLog) =>
 					dayLog && (
 						<div
 							key={dayLog?.date || 'no-date'}
-							className="overflow-hidden bg-white rounded-lg shadow-xs dark:bg-dark--theme-light"
+							className="overflow-hidden hairline-b border-border last:border-b-0"
 						>
-							<div className="p-4 border-b border-gray-200 dark:border-gray-600">
-								<div className="flex gap-8 items-center text-sm text-gray-500 dark:text-gray-400">
-									<div className="text-base">{format(new Date(dayLog.date), 'EEEE dd MMM yyyy')}</div>
-									<div className="flex items-center gap-1.5 border-[1px] border-[#E4E4E7] dark:border-gray-600 rounded-[8px] py-[6px] px-[8px]">
-										<span>{t('timeActivity.HOURS_LABEL')}</span>
-										<span className="font-medium">{formatDuration(dayLog.sum || 0)}</span>
+							<div className="px-4 py-3 bg-foreground/2.5 hairline-b border-border">
+								<div className="flex flex-wrap gap-x-6 gap-y-2 items-center text-sm text-muted-foreground">
+									<div className="font-medium text-foreground">
+										{format(new Date(dayLog.date), 'EEEE dd MMM yyyy')}
 									</div>
-									<div className="flex items-center gap-1.5 border-[1px] border-[#E4E4E7] dark:border-gray-600 rounded-[8px] py-[6px] px-[8px]">
+									<div className="flex items-center gap-1.5">
+										<span>{t('timeActivity.HOURS_LABEL')}</span>
+										<span className="font-medium tabular-nums text-foreground">
+											{formatDuration(dayLog.sum || 0)}
+										</span>
+									</div>
+									<div className="flex items-center gap-1.5 hairline-l border-border pl-6">
 										<span>{t('timeActivity.EARNINGS_LABEL')}</span>
-										<span className="font-medium">
+										<span className="font-medium tabular-nums text-foreground">
 											{dayLog?.earnings ? dayLog.earnings?.toFixed(2) : '0.00'}{' '}
 											{getPrimaryCurrency(dayLog.logs)}
 										</span>
 									</div>
-									<div className="flex items-center gap-1.5 border-[1px] border-[#E4E4E7] dark:border-gray-600 rounded-[8px] py-[6px] px-[8px]">
+									<div className="flex items-center gap-1.5 hairline-l border-border pl-6">
 										<span>{t('timeActivity.AVERAGE_ACTIVITY_LABEL')}</span>
-										<span className="font-medium">{dayLog.activity || 0}%</span>
+										<span className="font-medium tabular-nums text-foreground">
+											{dayLog.activity || 0}%
+										</span>
 									</div>
 								</div>
 							</div>
 							<Table>
 								<TableHeader>
-									<TableRow className="border-b border-gray-200 dark:border-gray-600">
+									<TableRow>
 										{columnVisibility.member && (
-											<TableHead className="px-6 text-sm text-gray-500 whitespace-nowrap dark:text-gray-400">
+											<TableHead className="px-4 whitespace-nowrap">
 												{t('timeActivity.MEMBER_HEADER')}
 											</TableHead>
 										)}
 										{columnVisibility.project && (
-											<TableHead className="px-6 text-sm text-gray-500 whitespace-nowrap dark:text-gray-400">
+											<TableHead className="px-4 whitespace-nowrap">
 												{t('timeActivity.PROJECT_HEADER')}
 											</TableHead>
 										)}
 										{columnVisibility.trackedHours && (
-											<TableHead className="px-6 text-sm text-gray-500 whitespace-nowrap dark:text-gray-400">
+											<TableHead className="px-4 text-right whitespace-nowrap">
 												{t('timeActivity.TRACKED_HOURS_HEADER')}
 											</TableHead>
 										)}
 										{columnVisibility.earnings && (
-											<TableHead className="px-6 text-sm text-gray-500 whitespace-nowrap dark:text-gray-400">
+											<TableHead className="px-4 text-right whitespace-nowrap">
 												{t('timeActivity.EARNINGS_HEADER')}
 											</TableHead>
 										)}
 										{columnVisibility.activityLevel && (
-											<TableHead className="px-6 text-sm text-gray-500 whitespace-nowrap dark:text-gray-400">
+											<TableHead className="px-4 whitespace-nowrap">
 												{t('timeActivity.ACTIVITY_LEVEL_HEADER')}
 											</TableHead>
 										)}
@@ -331,10 +339,9 @@ const ActivityTable: React.FC<ActivityTableProps> = ({ rapportDailyActivity, vie
 										projectLog.employeeLogs.map((employeeLog) => (
 											<TableRow
 												key={`${projectLog.project?.id || 'no-project'}-${employeeLog.employee?.id || 'no-employee'}`}
-												className="hover:bg-gray-50 dark:hover:bg-white/5"
 											>
 												{columnVisibility.member && employeeLog.employee && (
-													<TableCell className="px-6 py-4">
+													<TableCell className="px-4 py-2.5">
 														<div className="flex gap-3 items-center">
 															<Avatar size={32} className="w-8 h-8 rounded-full">
 																{employeeLog.employee.user?.imageUrl ? (
@@ -357,7 +364,7 @@ const ActivityTable: React.FC<ActivityTableProps> = ({ rapportDailyActivity, vie
 																	/>
 																)}
 															</Avatar>
-															<span className="font-medium text-gray-900 dark:text-gray-100">
+															<span className="font-medium text-foreground">
 																{employeeLog.employee.fullName ||
 																	t('timeActivity.UNNAMED_EMPLOYEE')}
 															</span>
@@ -365,7 +372,7 @@ const ActivityTable: React.FC<ActivityTableProps> = ({ rapportDailyActivity, vie
 													</TableCell>
 												)}
 												{columnVisibility.project && (
-													<TableCell className="px-6 py-4">
+													<TableCell className="px-4 py-2.5">
 														<ProjectCell
 															imageUrl={projectLog.project?.imageUrl || ''}
 															name={projectLog.project?.name || t('common.NO_PROJECT')}
@@ -373,7 +380,7 @@ const ActivityTable: React.FC<ActivityTableProps> = ({ rapportDailyActivity, vie
 													</TableCell>
 												)}
 												{columnVisibility.trackedHours && (
-													<TableCell className="px-6 py-4">
+													<TableCell className="px-4 py-2.5 text-right">
 														<TrackedHoursCell
 															duration={employeeLog.sum}
 															formatDuration={formatDuration}
@@ -381,7 +388,7 @@ const ActivityTable: React.FC<ActivityTableProps> = ({ rapportDailyActivity, vie
 													</TableCell>
 												)}
 												{columnVisibility.earnings && (
-													<TableCell className="px-6 py-4">
+													<TableCell className="px-4 py-2.5 text-right">
 														<EarningsCell
 															earnings={employeeLog.earnings}
 															currency={employeeLog.employee.billRateCurrency || 'USD'}
@@ -389,7 +396,7 @@ const ActivityTable: React.FC<ActivityTableProps> = ({ rapportDailyActivity, vie
 													</TableCell>
 												)}
 												{columnVisibility.activityLevel && (
-													<TableCell className="px-6 py-4">
+													<TableCell className="px-4 py-2.5">
 														<ActivityLevelCell
 															activity={employeeLog.activity}
 															duration={employeeLog.sum}
@@ -401,17 +408,9 @@ const ActivityTable: React.FC<ActivityTableProps> = ({ rapportDailyActivity, vie
 									)}
 									{dayLog.logs.some((log) => log.employeeLogs.some((empLog) => empLog.sum === 0)) && (
 										<TableRow>
-											<TableCell colSpan={5} className="px-6 py-4">
-												<div className="flex gap-2 items-center text-gray-400">
-													<svg className="w-4 h-4" viewBox="0 0 24 24" fill="none">
-														<path
-															d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
-															stroke="currentColor"
-															strokeWidth="2"
-															strokeLinecap="round"
-															strokeLinejoin="round"
-														/>
-													</svg>
+											<TableCell colSpan={5} className="px-4 py-3">
+												<div className="flex gap-2 items-center text-sm text-muted-foreground">
+													<Clock className="size-4" />
 													<span>{t('timeActivity.NO_TIME_ACTIVITY')}</span>
 												</div>
 											</TableCell>
@@ -424,30 +423,24 @@ const ActivityTable: React.FC<ActivityTableProps> = ({ rapportDailyActivity, vie
 			)}
 
 			{/* Pagination controls */}
-			<div className="flex justify-between items-center px-2 mt-4">
+			<div className="flex flex-wrap justify-between items-center gap-3 hairline-t border-border px-4 py-3">
 				<div className="flex gap-4 items-center">
 					<div className="relative">
-						<button
+						<Button
+							variant="outline"
+							size="default"
 							onClick={() => setShowEntriesDropdown(!showEntriesDropdown)}
-							className="px-4 py-2 text-sm text-gray-700 bg-white rounded-sm border border-gray-200 dark:text-gray-300 dark:bg-dark--theme dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-white/5 focus:outline-none focus:ring-2 focus:ring-primary/20"
 						>
 							{t('timeActivity.SHOW_ENTRIES', { count: entriesPerPage })}
-							<svg
-								className="inline-block ml-2 w-4 h-4"
-								fill="none"
-								stroke="currentColor"
-								viewBox="0 0 24 24"
-							>
-								<path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-							</svg>
-						</button>
+							<ChevronDown className="text-muted-foreground" />
+						</Button>
 						{showEntriesDropdown && (
-							<div className="absolute left-0 top-full z-10 mt-1 w-full bg-white rounded-sm border border-gray-200 shadow-lg dark:bg-dark--theme dark:border-gray-600">
+							<div className="absolute bottom-full left-0 z-10 mb-1 w-full rounded-xl bg-popover p-1 text-popover-foreground hairline-ring ring-border shadow-md shadow-black/6.5">
 								{entryOptions.map((option) => (
 									<button
 										key={option}
 										onClick={() => handleEntriesPerPageChange(option)}
-										className="px-4 py-2 w-full text-sm text-left text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-white/5"
+										className="w-full rounded-md px-2 py-1.5 text-left text-sm outline-none transition-colors hover:bg-foreground/5 focus-visible:bg-foreground/5"
 									>
 										{t('timeActivity.SHOW_ENTRIES', { count: option })}
 									</button>
@@ -455,7 +448,7 @@ const ActivityTable: React.FC<ActivityTableProps> = ({ rapportDailyActivity, vie
 							</div>
 						)}
 					</div>
-					<span className="text-sm text-gray-500 dark:text-gray-400">
+					<span className="text-xs tabular-nums text-muted-foreground">
 						{t('timeActivity.SHOWING_ENTRIES', {
 							start: startIndex + 1,
 							end: endIndex,
@@ -465,34 +458,38 @@ const ActivityTable: React.FC<ActivityTableProps> = ({ rapportDailyActivity, vie
 				</div>
 
 				<div className="flex gap-2 items-center">
-					<button
-						className="px-4 py-2 text-sm text-gray-700 bg-white rounded-sm border border-gray-200 dark:text-gray-300 dark:bg-dark--theme dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-white/5 focus:outline-none focus:ring-2 focus:ring-primary/20 disabled:opacity-50 disabled:cursor-not-allowed"
+					<Button
+						variant="outline"
+						size="default"
 						onClick={() => handlePageChange(1)}
 						disabled={currentPage === 1}
 					>
 						{t('timeActivity.FIRST')}
-					</button>
-					<button
-						className="px-4 py-2 text-sm text-gray-700 bg-white rounded-sm border border-gray-200 dark:text-gray-300 dark:bg-dark--theme dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-white/5 focus:outline-none focus:ring-2 focus:ring-primary/20 disabled:opacity-50 disabled:cursor-not-allowed"
+					</Button>
+					<Button
+						variant="outline"
+						size="default"
 						onClick={() => handlePageChange(currentPage - 1)}
 						disabled={currentPage === 1}
 					>
 						{t('timeActivity.PREVIOUS')}
-					</button>
-					<button
-						className="px-4 py-2 text-sm text-gray-700 bg-white rounded-sm border border-gray-200 dark:text-gray-300 dark:bg-dark--theme dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-white/5 focus:outline-none focus:ring-2 focus:ring-primary/20"
+					</Button>
+					<Button
+						variant="outline"
+						size="default"
 						onClick={() => handlePageChange(currentPage + 1)}
 						disabled={currentPage === totalPages}
 					>
 						{t('timeActivity.NEXT')}
-					</button>
-					<button
-						className="px-4 py-2 text-sm text-gray-700 bg-white rounded-sm border border-gray-200 dark:text-gray-300 dark:bg-dark--theme dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-white/5 focus:outline-none focus:ring-2 focus:ring-primary/20 disabled:opacity-50 disabled:cursor-not-allowed"
+					</Button>
+					<Button
+						variant="outline"
+						size="default"
 						onClick={() => handlePageChange(totalPages)}
 						disabled={currentPage === totalPages}
 					>
 						{t('timeActivity.LAST')}
-					</button>
+					</Button>
 				</div>
 			</div>
 		</div>

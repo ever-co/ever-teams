@@ -14,17 +14,47 @@ import {
 	PopoverPanel,
 	Transition
 } from '@headlessui/react';
-import { EllipsisVerticalIcon } from '@heroicons/react/24/outline';
+import {
+	Clock,
+	MoreVertical as EllipsisVerticalIcon,
+	Pencil,
+	Timer,
+	UserAdd,
+	UserCheck,
+	UserRemove
+} from '@/core/components/icons';
 import { useTranslations } from 'next-intl';
-import React, { Dispatch, PropsWithChildren, SetStateAction, useMemo, useState } from 'react';
-import { usePopper } from 'react-popper';
+import React, { Dispatch, PropsWithChildren, ReactNode, SetStateAction, useMemo } from 'react';
 import { TOrganizationTeamEmployee } from '@/core/types/schemas';
 import { TTask } from '@/core/types/schemas/task/task.schema';
+import { cn } from '@/core/lib/helpers';
+import {
+	MENU_ANCHOR,
+	MENU_ANCHORED_PANEL,
+	MENU_ROW,
+	MENU_SEPARATOR,
+	MENU_SURFACE
+} from '@/core/components/common/menu-recipes';
 
 interface IOption {
 	name: string;
+	icon: ReactNode;
+	group: OptionGroup;
 	handleClick: any;
 	extramenu?: boolean;
+}
+
+type OptionGroup = 'task' | 'assignment' | 'time';
+
+const OPTION_GROUP_ORDER: OptionGroup[] = ['task', 'assignment', 'time'];
+
+const TASK_LIST_PANEL_ANCHOR = { to: 'left start', gap: 8 } as const;
+
+const TASK_LIST_PANEL_CLASS =
+	'z-[1001] w-[578px] rounded-lg bg-card py-[20px] hairline-ring ring-border shadow-md shadow-black/6.5 transition duration-100 ease-out data-closed:opacity-0';
+
+function optionsInGroup(options: IOption[], group: OptionGroup) {
+	return options.filter((option) => option.group === group);
 }
 
 interface IDropdownUserProps {
@@ -33,23 +63,24 @@ interface IDropdownUserProps {
 }
 
 function OptionPopover({ setEdit, setEstimateEdit, children }: PropsWithChildren<IDropdownUserProps>) {
-	const [referenceElement, setReferenceElement] = useState<Element | null | undefined>();
-	const [popperElement, setPopperElement] = useState<HTMLElement | null | undefined>();
-	const { styles, attributes } = usePopper(referenceElement, popperElement, {
-		placement: 'left'
-	});
 	const t = useTranslations();
 	const options: IOption[] = [
 		{
 			name: t('common.EDIT'),
+			icon: <Pencil />,
+			group: 'task',
 			handleClick: setEdit
 		},
 		{
 			name: t('common.ESTIMATE'),
+			icon: <Timer />,
+			group: 'task',
 			handleClick: setEstimateEdit
 		},
 		{
 			name: t('task.ASSIGN_NEW_TASK'),
+			icon: <UserAdd />,
+			group: 'assignment',
 			handleClick: () => {
 				//
 			},
@@ -57,6 +88,8 @@ function OptionPopover({ setEdit, setEstimateEdit, children }: PropsWithChildren
 		},
 		{
 			name: t('task.taskLabel.TASK_UNASSIGNED'),
+			icon: <UserRemove />,
+			group: 'assignment',
 			handleClick: () => {
 				//
 			},
@@ -64,86 +97,72 @@ function OptionPopover({ setEdit, setEstimateEdit, children }: PropsWithChildren
 		},
 		{
 			name: t('task.taskLabel.TASK_ASSIGNED'),
+			icon: <UserCheck />,
+			group: 'assignment',
 			handleClick: () => {
 				//
 			}
 		},
 		{
 			name: t('task.taskLabel.WORK_LABEL'),
+			icon: <Clock />,
+			group: 'time',
 			handleClick: () => {
 				//
 			}
 		}
 	];
 
+	const optionGroups = OPTION_GROUP_ORDER.map((group) => optionsInGroup(options, group));
+
 	return (
 		<Popover className="relative no-underline border-none">
 			{() => (
 				<>
-					<PopoverButton className="no-underline border-none outline-hidden active:border-none">
+					<PopoverButton
+						aria-label={t('common.MORE_OPTIONS')}
+						className="no-underline border-none outline-hidden active:border-none"
+					>
 						<EllipsisVerticalIcon
-							className="h-7 w-7 text-gray-300 dark:text-[#616164] cursor-pointer no-underline"
+							className="h-7 w-7 text-muted-foreground cursor-pointer no-underline"
 							aria-hidden="true"
 						/>
 					</PopoverButton>
-					<Transition
-						as="div"
-						enter="transition ease-out duration-200"
-						enterFrom="opacity-0 translate-y-1"
-						enterTo="opacity-100 translate-y-0"
-						leave="transition ease-in duration-150"
-						leaveFrom="opacity-100 translate-y-0"
-						leaveTo="opacity-0 translate-y-1"
-					>
-						<PopoverPanel className="absolute left-1/2 z-10 mt-3 w-[150px] max-w-sm -translate-x-1/2 transform px-4 sm:px-0 lg:max-w-3xl drop-shadow-[0px_3px_15px_#3E1DAD1A]">
-							<div className="bg-white shadow-sm dark:bg-background rounded-[10px] text-[14px] font-light">
-								{options.map((option) =>
-									!option.extramenu ? (
+					<PopoverPanel anchor={MENU_ANCHOR} transition className={cn(MENU_SURFACE, MENU_ANCHORED_PANEL)}>
+						{optionGroups.map((groupOptions, groupIndex) => (
+							<React.Fragment key={OPTION_GROUP_ORDER[groupIndex]}>
+								{groupIndex > 0 && <hr className={cn(MENU_SEPARATOR, 'border-0')} />}
+								{groupOptions.map((option) => {
+									const opensTaskList = Boolean(option.extramenu);
+									return (
 										<React.Fragment key={option.name}>
-											<button
-												onClick={option.handleClick}
-												className="hover:bg-gray-100 dark:hover:bg-card dark:hover:text-white py-2 px-4 mt-1 flex items-center text-gray-600 dark:text-gray-200 justify-start w-full"
-											>
-												{option.name}
-											</button>
-										</React.Fragment>
-									) : (
-										<Popover key={option.name} className="relative no-underline border-none">
-											{() => (
-												<>
-													<PopoverButton
-														onClick={option.handleClick}
-														ref={setReferenceElement}
-														className="outline-none  hover:bg-gray-100 dark:hover:bg-card dark:hover:text-white py-2 px-4 mt-1 flex items-center text-gray-600 dark:text-gray-200 justify-start w-full"
-													>
-														{option.name}{' '}
-													</PopoverButton>
-													<Transition
-														as="div"
-														enter="transition ease-out duration-200"
-														enterFrom="opacity-0 translate-y-1"
-														enterTo="opacity-100 translate-y-0"
-														leave="transition ease-in duration-150"
-														leaveFrom="opacity-100 translate-y-0"
-														leaveTo="opacity-0 translate-y-1"
-													>
-														<PopoverPanel
-															ref={setPopperElement}
-															style={styles.popper}
-															{...attributes.popper}
-															className="w-[578px] bg-[#FFFFFF] dark:bg-card rounded-[10px] drop-shadow-[0px_3px_15px_#3E1DAD1A] dark:drop-shadow-[0px_3px_15px_#0000000D] py-[20px]"
-														>
-															{children}
-														</PopoverPanel>
-													</Transition>
-												</>
+											{!opensTaskList && (
+												<button onClick={option.handleClick} className={MENU_ROW}>
+													{option.icon}
+													{option.name}
+												</button>
 											)}
-										</Popover>
-									)
-								)}
-							</div>
-						</PopoverPanel>
-					</Transition>
+											{opensTaskList && (
+												<Popover className="relative no-underline border-none">
+													<PopoverButton onClick={option.handleClick} className={MENU_ROW}>
+														{option.icon}
+														{option.name}
+													</PopoverButton>
+													<PopoverPanel
+														anchor={TASK_LIST_PANEL_ANCHOR}
+														transition
+														className={TASK_LIST_PANEL_CLASS}
+													>
+														{children}
+													</PopoverPanel>
+												</Popover>
+											)}
+										</React.Fragment>
+									);
+								})}
+							</React.Fragment>
+						))}
+					</PopoverPanel>
 				</>
 			)}
 		</Popover>
@@ -182,10 +201,10 @@ const UserCardMenu = ({ setEstimateEdit, setEdit }: IDropdownUserProps & { membe
 				<div className="mx-9">
 					<Combobox>
 						<div className="relative mt-1">
-							<div className="relative w-full cursor-default overflow-hidden rounded-lg  bg-[#EEEFF5] dark:bg-card text-left shadow-md focus:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-white/75 focus-visible:ring-offset-2 focus-visible:ring-offset-teal-300 sm:text-sm ">
+							<div className="relative w-full cursor-default overflow-hidden rounded-lg  bg-foreground/5 text-left shadow-md focus:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-white/75 focus-visible:ring-offset-2 focus-visible:ring-offset-teal-300 sm:text-sm ">
 								<ComboboxInput
 									key={`${editMode}`}
-									className="h-[60px] bg-[#EEEFF5] dark:bg-card placeholder-[#9490A0] dark:placeholder-[#616164] w-full rounded-[10px] px-[20px] py-[18px] shadow-inner"
+									className="h-[60px] bg-foreground/5 placeholder:text-muted-foreground/75 w-full rounded-lg px-[20px] py-[18px] shadow-sm shadow-black/10"
 									displayValue={(task: TTask) => {
 										return task ? (!editMode ? `#${task.taskNumber} ` : '') + task.title : '';
 									}}
@@ -213,7 +232,7 @@ const UserCardMenu = ({ setEstimateEdit, setEdit }: IDropdownUserProps & { membe
 									setFilter('open');
 								}}
 							>
-								<ComboboxOptions className="absolute z-10 mt-1 max-h-60 w-full overflow-auto rounded-md bg-[#FFFFFF] dark:bg-card py-1 text-base shadow-lg ring-1 ring-black/5 focus:outline-none sm:text-sm">
+								<ComboboxOptions className="absolute z-10 mt-1 max-h-60 w-full overflow-auto rounded-md bg-card py-1 text-base shadow-md shadow-black/6.5 hairline-ring ring-border focus:outline-none sm:text-sm">
 									{hasCreateForm && (
 										<CreateTaskOption
 											onClick={() => handleTaskCreation({ autoActiveTask: false })}
@@ -255,7 +274,7 @@ const UserCardMenu = ({ setEstimateEdit, setEdit }: IDropdownUserProps & { membe
 								updateLoading={updateLoading}
 							/>
 						</div>
-						<div className="w-full h-[1px] bg-[#EDEEF2] dark:bg-muted" />
+						<div className="w-full h-[1px] bg-border" />
 					</div>
 				))}
 			</OptionPopover>

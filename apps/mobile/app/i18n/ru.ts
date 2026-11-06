@@ -197,6 +197,8 @@ const ru = {
 			taskPriorities: 'Task Priorities',
 			taskSizes: 'Task Sizes',
 			taskLabel: 'Task Label',
+			taskSettingsReadOnly:
+				'Только менеджеры команды и администраторы могут изменять настройки задач. Только администраторы могут изменять значения по умолчанию, общие для всех команд.',
 			changeLogo: 'Change Logo',
 			teamRole: 'Manager Member & Role',
 			workSchedule: 'Work Schedule',

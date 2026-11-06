@@ -29,12 +29,13 @@ export function useTaskVersion() {
 		async (data: ITaskVersionCreate) => {
 			await createVersionRequest(
 				{ ...data, organizationId, organizationTeamId: activeTeamId },
-				authToken,
+				authToken ?? '',
 				tenantId
 			);
 			queryClient.invalidateQueries({ queryKey: ['versions'] });
 		},
-		[authToken, tenantId, queryClient]
+		// The new version is filed under the team active now: a team switch must reach this callback
+		[authToken, tenantId, organizationId, activeTeamId, queryClient]
 	);
 
 	const deleteTaskVersion = useCallback(
@@ -51,12 +52,12 @@ export function useTaskVersion() {
 			await editTaskVersionRequest({
 				id,
 				datas: { ...data, organizationId, organizationTeamId: activeTeamId },
-				bearer_token: authToken,
+				bearer_token: authToken ?? '',
 				tenantId
 			});
 			queryClient.invalidateQueries({ queryKey: ['versions'] });
 		},
-		[authToken, tenantId, queryClient]
+		[authToken, tenantId, organizationId, activeTeamId, queryClient]
 	);
 
 	useEffect(() => {

@@ -32,15 +32,15 @@ export const ProductivityProjectTable: React.FC<ProductivityProjectTableProps> =
 	const projectGroups = groupActivitiesByProjectAndDate(currentItems);
 
 	return (
-		<Card className="bg-white rounded-md border border-gray-100 dark:border-gray-800 dark:bg-dark--theme-light min-h-[600px] w-full">
+		<Card className="min-h-[600px] w-full overflow-hidden">
 			<Table>
-				<TableHeader className="bg-gray-50 dark:bg-dark--theme-light">
+				<TableHeader className="bg-foreground/2.5">
 					<TableRow>
-						<TableHead className="font-semibold">{t('common.DATE')}</TableHead>
-						<TableHead className="font-semibold">{t('common.MEMBER')}</TableHead>
-						<TableHead className="font-semibold">{t('common.APPLICATION')}</TableHead>
-						<TableHead className="font-semibold">{t('common.TIME_SPENT')}</TableHead>
-						<TableHead className="font-semibold">{t('common.PERCENT_USED')}</TableHead>
+						<TableHead>{t('common.DATE')}</TableHead>
+						<TableHead>{t('common.MEMBER')}</TableHead>
+						<TableHead>{t('common.APPLICATION')}</TableHead>
+						<TableHead>{t('common.TIME_SPENT')}</TableHead>
+						<TableHead>{t('common.PERCENT_USED')}</TableHead>
 					</TableRow>
 				</TableHeader>
 				<TableBody>
@@ -63,7 +63,7 @@ export const ProductivityProjectTable: React.FC<ProductivityProjectTableProps> =
 					))}
 				</TableBody>
 			</Table>
-			<div className="p-2 mt-4">
+			<div className="hairline-t border-border px-4 py-3">
 				<Paginate
 					total={total}
 					onPageChange={onPageChange}

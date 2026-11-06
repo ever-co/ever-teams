@@ -3,11 +3,14 @@ import { taskEstimationsService } from '@/core/services/client/api/tasks/task-es
 import { TTask } from '@/core/types/schemas/task/task.schema';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
+import { useTranslations, type DottedLanguageObjectStringPaths } from 'next-intl';
+import { errorReasonKeyOf } from '@/core/lib/utils/error-feedback';
 import { useConditionalUpdateEffect } from '../common';
 import { detailedTaskState } from '@/core/stores';
 import { useAtom } from 'jotai';
 import { TCreateTaskEstimation, TTaskEstimation } from '@/core/types/schemas/task/task-estimation.schema';
 export function useTaskEstimations() {
+	const t = useTranslations();
 	const queryClient = useQueryClient();
 	const [detailedTask, setDetailedTask] = useAtom(detailedTaskState);
 
@@ -18,7 +21,6 @@ export function useTaskEstimations() {
 			return taskEstimationsService.addTaskEstimation(data);
 		},
 		onSuccess: (data) => {
-			toast.success('Task estimation added successfully');
 			queryClient.setQueryData(queryKeys.tasks.detail(data.taskId), (oldData: TTask) => {
 				if (!oldData) return oldData;
 				return {
@@ -28,9 +30,8 @@ export function useTaskEstimations() {
 			});
 		},
 		onError: (error) => {
-			const errorMessage = error instanceof Error ? error.message : null;
-
-			toast.error('Error adding task estimation :', { description: errorMessage });
+			const reasonKey = errorReasonKeyOf(error) as DottedLanguageObjectStringPaths;
+			toast.error(t('toasts.tasks.ESTIMATE_ADD_FAILED'), { description: t(reasonKey) });
 		}
 	});
 
@@ -39,7 +40,6 @@ export function useTaskEstimations() {
 			return taskEstimationsService.editTaskEstimation(data);
 		},
 		onSuccess: (data) => {
-			toast.success('Task estimation updated successfully');
 			queryClient.setQueryData(queryKeys.tasks.detail(data.taskId), (oldData: TTask) => {
 				if (!oldData) return oldData;
 				return {
@@ -51,9 +51,8 @@ export function useTaskEstimations() {
 			});
 		},
 		onError: (error) => {
-			const errorMessage = error instanceof Error ? error.message : null;
-
-			toast.error('Error editing task estimation :', { description: errorMessage });
+			const reasonKey = errorReasonKeyOf(error) as DottedLanguageObjectStringPaths;
+			toast.error(t('toasts.tasks.ESTIMATE_UPDATE_FAILED'), { description: t(reasonKey) });
 		}
 	});
 
@@ -62,7 +61,6 @@ export function useTaskEstimations() {
 			return taskEstimationsService.deleteTaskEstimation(estimationId);
 		},
 		onSuccess: (data, { estimationId, taskId }) => {
-			toast.success('Task estimation deleted successfully');
 			queryClient.setQueryData(queryKeys.tasks.detail(taskId), (oldData: TTask) => {
 				if (!oldData) return oldData;
 				return {
@@ -72,9 +70,8 @@ export function useTaskEstimations() {
 			});
 		},
 		onError: (error) => {
-			const errorMessage = error instanceof Error ? error.message : null;
-
-			toast.error('Error deleting task estimation :', { description: errorMessage });
+			const reasonKey = errorReasonKeyOf(error) as DottedLanguageObjectStringPaths;
+			toast.error(t('toasts.tasks.ESTIMATE_DELETE_FAILED'), { description: t(reasonKey) });
 		}
 	});
 

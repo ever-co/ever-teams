@@ -1,6 +1,6 @@
 'use client';
 
-import { flattenTaskPages, getValidActiveTask } from '@/core/lib/utils/task.utils';
+import { flattenTaskPages, getValidActiveTask, isHeldTeamTask } from '@/core/lib/utils/task.utils';
 import { taskService } from '@/core/services/client/api';
 import {
 	activeTeamState,
@@ -27,6 +27,7 @@ import { useInvalidateTeamTasks } from './use-invalidate-team-tasks';
 import type { ApiRequestScope } from '@/core/services/client/api-request-scope';
 import { useScopeGuard } from '../../bootstrap/use-scope-guard';
 import { useReactiveAccessTokenCookie } from '../../auth/use-reactive-access-token-cookie';
+import { teamDefaultProjectId } from '@/core/lib/helpers/team-default-project';
 
 // Below Gauzy's take limit of 100, and a team with 50 tasks or fewer keeps a single request.
 const TEAM_TASKS_PAGE_SIZE = 50;
@@ -80,6 +81,7 @@ export function useTeamTasksQuery(options: UseTeamTasksQueryOptions = {}) {
 	const tasksRef = useSyncRef(tasks);
 	const memberActiveTaskId = useAtomValue(memberActiveTaskIdState);
 	const [activeTeamTask, setActiveTeamTask] = useAtom(activeTeamTaskState);
+	const activeTeamTaskRef = useSyncRef(activeTeamTask);
 	const reactiveAccessToken = useReactiveAccessTokenCookie();
 
 	const { firstLoad, firstLoadData: firstLoadTasksData } = useFirstLoad();
@@ -105,7 +107,7 @@ export function useTeamTasksQuery(options: UseTeamTasksQueryOptions = {}) {
 		]
 	);
 	const canHydrateSharedState = explicitScope !== undefined;
-	const projectId = activeTeam?.projects?.[0]?.id ?? null;
+	const projectId = teamDefaultProjectId(activeTeam);
 	const queryKey = queryKeys.tasks.byTeamByScope(scope?.tenantId, scope?.organizationId, scope?.teamId, projectId);
 	const isCurrentScope = useScopeGuard(queryKey, enabled);
 	const scopedReady = !!(scope?.tenantId && scope.organizationId && scope.teamId && scope.accessToken);
@@ -272,8 +274,11 @@ export function useTeamTasksQuery(options: UseTeamTasksQueryOptions = {}) {
 			if (memberActiveTask) {
 				setActiveTeamTask(memberActiveTask);
 			} else if (memberActiveTaskId && activeTeam?.id && tasksComplete) {
-				// Task ID exists but doesn't belong to this team - clear it
-				setActiveTeamTask(null);
+				const keepsHeldTask = isHeldTeamTask(activeTeamTaskRef.current, memberActiveTaskId, activeTeam.id);
+				if (!keepsHeldTask) {
+					// Task ID exists but doesn't belong to this team - clear it
+					setActiveTeamTask(null);
+				}
 			}
 		},
 		[activeTeam, tasks, tasksComplete, memberActiveTaskId, canHydrateSharedState, isCurrentScope],

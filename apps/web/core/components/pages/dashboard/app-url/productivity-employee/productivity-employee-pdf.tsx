@@ -1,4 +1,4 @@
-import { format } from 'date-fns';
+import { format, parseISO } from 'date-fns';
 import { Document, Page, Text, View, StyleSheet, Font } from '@react-pdf/renderer';
 import { IActivityItem } from './productivity-employee-table';
 import { IEmployee } from '@/core/types/interfaces/organization/employee';
@@ -152,7 +152,7 @@ export function ProductivityEmployeePDF({ data = [], title = 'Productivity Repor
 											style={styles.tableRow}
 										>
 											<Text style={[styles.tableCell, styles.col1]}>
-												{format(new Date(dateGroup.date), 'dd MMM yyyy')}
+												{format(parseISO(dateGroup.date), 'dd MMM yyyy')}
 											</Text>
 											<Text style={[styles.tableCell, styles.col2]}>
 												{activity.projectName || 'N/A'}

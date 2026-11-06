@@ -1,286 +1,36 @@
 import { useModal, useUpdateTask } from '@/core/hooks';
-import { activeTeamState, detailedTaskState, isTeamManagerState } from '@/core/stores';
+import { activeTeamState, isTeamManagerState } from '@/core/stores';
 import { useUserQuery } from '@/core/hooks/queries/user-user.query';
 import { ERoleName } from '@/core/types/generics/enums/role';
-import { PlusIcon, ChevronDownIcon } from '@heroicons/react/20/solid';
-import { Button, Modal, SpinnerLoader } from '@/core/components';
-import { TaskVersionForm } from '@/core/components/tasks/version-form';
-import { cloneDeep } from 'lodash';
-import Link from 'next/link';
+import { Plus, Trash } from '@/core/components/icons';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useAtomValue } from 'jotai';
-import TaskRow from '../components/task-row';
-import { useTranslations } from 'next-intl';
+import { useTranslations, type DottedLanguageObjectStringPaths } from 'next-intl';
 import { toast } from 'sonner';
-import { AddIcon, CircleIcon, Square4OutlineIcon, TrashIcon } from 'assets/svg';
-import {
-	DropdownMenu,
-	DropdownMenuContent,
-	DropdownMenuItem,
-	DropdownMenuTrigger
-} from '@/core/components/common/dropdown-menu';
+import { errorReasonKeyOf } from '@/core/lib/utils/error-feedback';
 import { clsxm } from '@/core/lib/utils';
 import { useOrganizationProjectsQuery } from '@/core/hooks/organizations/projects/use-organization-projects-query';
 import { isValidProjectForDisplay, projectBelongsToTeam, projectHasNoTeams } from '@/core/lib/helpers/type-guards';
-import { ScrollArea, ScrollBar } from '@/core/components/common/scroll-bar';
 import Image from 'next/image';
-import {
-	ActiveTaskPropertiesDropdown,
-	ActiveTaskSizesDropdown,
-	ActiveTaskStatusDropdown,
-	ActiveTaskVersionDropdown,
-	EpicPropertiesDropdown as TaskEpicDropdown,
-	TaskStatus
-} from '@/core/components/tasks/task-status';
-import { TaskLabels } from '@/core/components/tasks/task-labels';
-import { TaskStatusesForm } from '@/core/components/tasks/task-statuses-form';
-import { TaskPrioritiesForm } from '@/core/components/tasks/task-priorities-form';
-import { TaskSizesForm } from '@/core/components/tasks/task-sizes-form';
-import { Tooltip } from '@/core/components/duplicated-components/tooltip';
-import { EverCard } from '@/core/components/common/ever-card';
 import { QuickCreateProjectModal } from '@/core/components/features/projects/quick-create-project-modal';
-import { EIssueType } from '@/core/types/generics/enums/task';
-import { TOrganizationProject, TTaskVersion } from '@/core/types/schemas';
+import { TOrganizationProject } from '@/core/types/schemas';
+import { TOrganizationTeam } from '@/core/types/schemas/team/organization-team.schema';
 import { TTask } from '@/core/types/schemas/task/task.schema';
-import { useTaskLabelsValue } from '@/core/hooks/tasks/use-task-labels-value';
 import { cn } from '@/core/lib/helpers';
+import { dataColorChipStyle, isPaintableColor } from '@/core/components/tasks/task-data-color';
+import { TaskPropertyIcon } from '@/core/components/tasks/task-property-icon';
+import {
+	TaskPropertyMenu,
+	TaskPropertyMenuAction,
+	TaskPropertyMenuOption
+} from '@/core/components/tasks/task-property-menu';
+import {
+	TASK_PROPERTY_PILL_RECIPE,
+	TaskPropertyPill,
+	TaskPropertyTriggerEnd
+} from '@/core/components/tasks/task-property-trigger';
 
-type StatusType = 'version' | 'epic' | 'status' | 'label' | 'size' | 'priority';
-
-const TaskSecondaryInfo = () => {
-	const task = useAtomValue(detailedTaskState);
-	const { updateTask, handleStatusUpdate } = useUpdateTask();
-
-	const t = useTranslations();
-
-	const modal = useModal();
-	const [formTarget, setFormTarget] = useState<StatusType | null>(null);
-
-	const openModalEditionHandle = useCallback(
-		(type: StatusType) => {
-			return () => {
-				setFormTarget(type);
-				modal.openModal();
-			};
-		},
-		[modal]
-	);
-
-	const onVersionCreated = useCallback(
-		(version: TTaskVersion) => {
-			handleStatusUpdate(version.value || version.name, 'version', task?.taskStatusId, task);
-		},
-		[task, handleStatusUpdate]
-	);
-
-	const onTaskSelect = useCallback(
-		async (parentTask: TTask | undefined) => {
-			if (!parentTask) return;
-			const childTask = cloneDeep(task);
-
-			await updateTask({
-				...childTask,
-				parentId: parentTask.id ? parentTask.id : null,
-				parent: parentTask.id ? { ...parentTask, id: parentTask.id } : null
-			} as any);
-		},
-		[task, updateTask]
-	);
-
-	const taskLabels = useTaskLabelsValue();
-
-	const tags = useMemo(() => {
-		return (
-			task?.tags
-				?.map((tag) => {
-					return taskLabels[tag.name];
-				})
-				.filter(Boolean) || []
-		);
-	}, [taskLabels, task?.tags]);
-
-	return (
-		<section className="flex flex-col gap-4 p-3.75">
-			{/* Version */}
-			<TaskRow labelTitle={t('pages.taskDetails.VERSION')}>
-				<ActiveTaskVersionDropdown
-					task={task}
-					className="lg:min-w-[130px] text-black"
-					forDetails={true}
-					sidebarUI={true}
-					taskStatusClassName="text-[0.625rem] w-[7.6875rem] h-[2.35rem] max-w-[7.6875rem] rounded-sm 3xl:text-xs"
-				>
-					<Button
-						className="w-full px-2 py-1 mt-3 text-[0.625rem] dark:text-white dark:border-white"
-						variant="outline"
-						onClick={openModalEditionHandle('version')}
-					>
-						<PlusIcon className="w-4 h-4" />
-					</Button>
-				</ActiveTaskVersionDropdown>
-			</TaskRow>
-
-			{/* Epic */}
-			{task && task.issueType === EIssueType.STORY && (
-				<TaskRow labelTitle={t('pages.taskDetails.EPIC')}>
-					<TaskEpicDropdown
-						onValueChange={(d: string) => {
-							onTaskSelect({
-								id: d
-							} as TTask);
-						}}
-						className="min-w-fit lg:max-w-[170px] text-black"
-						forDetails={true}
-						sidebarUI={true}
-						taskStatusClassName="text-[0.625rem] w-[7.6875rem] h-[2.35rem] max-w-[7.6875rem] rounded-sm 3xl:text-xs"
-						defaultValue={task.parentId || ''}
-					/>
-				</TaskRow>
-			)}
-
-			{task && <EpicParent task={task} />}
-
-			{/* Task Status */}
-			<TaskRow labelTitle={t('pages.taskDetails.STATUS')}>
-				<ActiveTaskStatusDropdown
-					task={task}
-					className="lg:min-w-[130px] text-black"
-					forDetails={true}
-					sidebarUI={true}
-					taskStatusClassName="text-[0.625rem] w-[7.6875rem] h-[2.35rem] max-w-[7.6875rem] rounded-sm 3xl:text-xs"
-				>
-					<Button
-						className="w-full px-2 py-1 text-xs dark:text-white dark:border-white"
-						variant="outline"
-						onClick={openModalEditionHandle('status')}
-					>
-						<PlusIcon className="w-4 h-4" />
-					</Button>
-				</ActiveTaskStatusDropdown>
-			</TaskRow>
-
-			{/* Task Labels */}
-			<TaskRow labelTitle={t('pages.taskDetails.LABELS')}>
-				<TaskLabels
-					task={task}
-					className="lg:min-w-[130px] text-black lg:mt-0"
-					forDetails={true}
-					taskStatusClassName="text-[0.625rem] h-[2.35rem] min-w-[7.6875rem] rounded-sm 3xl:text-xs"
-				/>
-			</TaskRow>
-			{tags.length > 0 && (
-				<TaskRow>
-					<div className="flex flex-row flex-wrap gap-1 max-w-[10rem]">
-						{tags.map((tag, i) => {
-							return (
-								<Tooltip key={i} label={tag.name?.split('-').join(' ') || ''} placement="auto">
-									<TaskStatus
-										{...tag}
-										className="rounded-[0.625rem] h-6 max-w-[8rem]"
-										active={true}
-										name={tag.name?.split('-').join(' ')}
-										titleClassName={'text-[0.625rem] font-[500]'}
-									/>
-								</Tooltip>
-							);
-						})}
-					</div>
-				</TaskRow>
-			)}
-
-			{/* Task Size */}
-			<TaskRow labelTitle={t('pages.taskDetails.SIZE')} wrapperClassName="text-black">
-				<ActiveTaskSizesDropdown
-					task={task}
-					className="lg:min-w-[130px] text-black"
-					forDetails={true}
-					sidebarUI={true}
-					taskStatusClassName="text-[0.625rem] w-[7.6875rem] h-[2.35rem] max-w-[7.6875rem] rounded-sm 3xl:text-xs"
-				>
-					<Button
-						className="w-full px-2 py-1 text-xs dark:text-white dark:border-white"
-						variant="outline"
-						onClick={openModalEditionHandle('size')}
-					>
-						<PlusIcon className="w-4 h-4" />
-					</Button>
-				</ActiveTaskSizesDropdown>
-			</TaskRow>
-
-			{/* Task Properties */}
-			<TaskRow labelTitle={t('pages.taskDetails.PRIORITY')} wrapperClassName="text-black">
-				<ActiveTaskPropertiesDropdown
-					task={task}
-					className="lg:min-w-[130px] text-black"
-					forDetails={true}
-					sidebarUI={true}
-					taskStatusClassName="text-[0.625rem] w-[7.6875rem] h-[2.35rem] max-w-[7.6875rem] rounded-sm 3xl:text-xs"
-				>
-					<Button
-						className="w-full px-2 py-1 text-xs dark:text-white dark:border-white"
-						variant="outline"
-						onClick={openModalEditionHandle('priority')}
-					>
-						<PlusIcon className="w-4 h-4" />
-					</Button>
-				</ActiveTaskPropertiesDropdown>
-			</TaskRow>
-
-			{/* Task project */}
-			{task && (
-				<TaskRow labelTitle={t('pages.taskDetails.PROJECT')} wrapperClassName="text-black">
-					<ProjectDropDown
-						styles={{
-							listCard: 'rounded-xl',
-							container: 'lg:min-w-[130px] text-black overflow-hidden text-ellipsis'
-						}}
-						task={task}
-					/>
-				</TaskRow>
-			)}
-			<Modal isOpen={modal.isOpen} closeModal={modal.closeModal}>
-				<EverCard className="sm:w-[530px] w-[330px]" shadow="custom">
-					{formTarget === 'version' && (
-						<TaskVersionForm
-							onVersionCreated={onVersionCreated}
-							onCreated={modal.closeModal}
-							formOnly={true}
-						/>
-					)}
-					{formTarget === 'status' && <TaskStatusesForm onCreated={modal.closeModal} formOnly={true} />}
-					{formTarget === 'priority' && <TaskPrioritiesForm onCreated={modal.closeModal} formOnly={true} />}
-					{formTarget === 'size' && <TaskSizesForm onCreated={modal.closeModal} formOnly={true} />}
-				</EverCard>
-			</Modal>
-		</section>
-	);
-};
-
-const EpicParent = ({ task }: { task: TTask }) => {
-	const t = useTranslations();
-
-	if (task?.issueType === EIssueType.STORY) {
-		return <></>;
-	}
-
-	return (!task?.issueType || task?.issueType === EIssueType.TASK || task?.issueType === EIssueType.BUG) &&
-		task?.rootEpic ? (
-		<TaskRow labelTitle={t('pages.taskDetails.EPIC')}>
-			<Tooltip label={`#${task?.rootEpic?.number} ${task?.rootEpic?.title}`} placement="auto">
-				<Link href={`/task/${task?.rootEpic?.id}`} target="_blank">
-					<div className="flex items-center w-32">
-						<div className="bg-[#8154BA] p-1 rounded-xs mr-1">
-							<Square4OutlineIcon className="w-full max-w-[10px] text-white" />
-						</div>
-						<div className="overflow-hidden text-xs whitespace-nowrap text-ellipsis">{`#${task?.rootEpic?.number} ${task?.rootEpic?.title}`}</div>
-					</div>
-				</Link>
-			</Tooltip>
-		</TaskRow>
-	) : (
-		<></>
-	);
-};
+const TIME_FOLLOWS_TASK = { moveTimeLogs: true } as const;
 
 interface ITaskProjectDropdownProps {
 	task?: TTask;
@@ -292,8 +42,6 @@ interface ITaskProjectDropdownProps {
 		listCard?: string; // The listbox
 	};
 }
-
-export default TaskSecondaryInfo;
 
 /**
  * TaskProject dropdown
@@ -356,27 +104,30 @@ export function ProjectDropDown(props: ITaskProjectDropdownProps) {
 		setSelected(projectMatch || null);
 	}, [controlled, validProjects, task, task?.projectId]);
 
+	const showProjectSaveError = useCallback(
+		(error: unknown) => {
+			const reasonKey = errorReasonKeyOf(error) as DottedLanguageObjectStringPaths;
+			toast.error(t('toasts.tasks.PROJECT_UPDATE_FAILED'), { description: t(reasonKey) });
+		},
+		[t]
+	);
+
 	// Update the project
 	const handleUpdateProject = useCallback(
 		async (project: TOrganizationProject) => {
 			try {
 				if (task) {
 					if (task?.projectId === project.id) return;
-					await updateTask({ ...task, projectId: project.id });
+					await updateTask({ ...task, projectId: project.id }, TIME_FOLLOWS_TASK);
 					// Update local selected state immediately for optimistic UI
 					setSelected(project);
-					toast.success('Task project updated successfully', {
-						description: `Project changed to "${project.name}"`
-					});
 				}
 			} catch (error) {
 				console.error(error);
-				toast.error('Failed to update task project', {
-					description: (error as any)?.message || 'Please try again'
-				});
+				showProjectSaveError(error);
 			}
 		},
-		[task, updateTask]
+		[task, updateTask, showProjectSaveError]
 	);
 
 	// Remove the project
@@ -384,151 +135,76 @@ export function ProjectDropDown(props: ITaskProjectDropdownProps) {
 		try {
 			if (task) {
 				if (!task?.projectId) return;
-				await updateTask({ ...task, projectId: null });
+				await updateTask({ ...task, projectId: null }, TIME_FOLLOWS_TASK);
 				setSelected(null);
 			}
 		} catch (error) {
 			console.error(error);
+			showProjectSaveError(error);
 		}
-	}, [task, updateTask]);
+	}, [task, updateTask, showProjectSaveError]);
+
+	const handleProjectSelect = useCallback(
+		(project: TOrganizationProject) => {
+			setSelected(project);
+			if (controlled && onChange) {
+				onChange(project);
+			} else {
+				handleUpdateProject(project);
+			}
+		},
+		[controlled, onChange, handleUpdateProject]
+	);
+
+	const isProjectSelected = useCallback(
+		(project: TOrganizationProject) => selected?.id === project.id,
+		[selected?.id]
+	);
+
+	const sharedGroupLabel = t('taskMenus.projectGroups.shared');
+	const projectOptions = useMemo(
+		() => projectMenuOptions(validProjects, activeTeam, sharedGroupLabel),
+		[validProjects, activeTeam, sharedGroupLabel]
+	);
+
+	const triggerLabel = projectTriggerLabel(t, selected);
+	const canRemoveProject = !controlled;
+	const hasFooter = canRemoveProject || canCreateProject;
 
 	return (
 		<>
-			<div
-				className={clsxm(
-					'relative text-xs font-medium border text-[0.625rem] w-fit h-fit max-w-32 min-w-24 rounded-[8px]!',
-					styles?.container
-				)}
-			>
-				<DropdownMenu>
-					<div className="w-full">
-						<DropdownMenuTrigger className="w-full" asChild>
-							<button
-								className={clsxm(
-									`cursor-pointer outline-hidden min-w-fit w-full flex dark:text-white
-										items-center justify-between h-fit p-1
-										border-solid border-color-[#F2F2F2]
-										dark:bg-card dark:border dark:border-gray-800 gap-[.4rem] rounded-lg`,
-									styles?.value
+			<div className={clsxm('relative text-xs font-medium w-fit h-fit max-w-32 min-w-24', styles?.container)}>
+				<TaskPropertyMenu
+					options={projectOptions}
+					isSelected={isProjectSelected}
+					onSelect={handleProjectSelect}
+					searchPlaceholder={t('taskMenus.search.project')}
+					triggerLabel={triggerLabel}
+					triggerClassName={clsxm('flex w-full max-w-full', projectTriggerRadius(selected), styles?.value)}
+					align="end"
+					footer={
+						hasFooter && (
+							<>
+								{canRemoveProject && (
+									<TaskPropertyMenuAction icon={<Trash />} onClick={handleRemoveProject}>
+										{t('common.REMOVE')}
+									</TaskPropertyMenuAction>
 								)}
-								aria-label={selected ? `Current project: ${selected.name}` : 'Select a project'}
-							>
-								<div className="flex items-center gap-1 w-fit">
-									{selected?.imageUrl ? (
-										<Image
-											className="w-4 h-4 rounded-full"
-											src={selected.imageUrl}
-											alt={selected.name || ''}
-											width={25}
-											height={25}
-										/>
-									) : (
-										<CircleIcon
-											className={clsxm(
-												'w-4 h-4',
-												!selected && '!text-[#64748b] dark:text-white/70'
-											)}
-										/>
-									)}
-									<span
-										className={cn(
-											'overflow-hidden whitespace-nowrap max-w-20 text-ellipsis',
-											!selected && '!text-[#64748b] dark:text-white/70'
-										)}
-									>
-										{selected?.name || t('pages.projects.projectTitle.SINGULAR')}
-									</span>
-								</div>
-
-								{updateLoading ? (
-									<SpinnerLoader size={10} />
-								) : (
-									<ChevronDownIcon
-										className={clsxm(
-											'w-5 h-5 transition duration-150 ease-in-out group-hover:text-default/80 dark:group-hover:text-white/80 text-default dark:text-white'
-										)}
-										aria-hidden="true"
-									/>
+								{canCreateProject && (
+									<TaskPropertyMenuAction icon={<Plus />} onClick={openModal}>
+										{t('common.CREATE_NEW')}
+									</TaskPropertyMenuAction>
 								)}
-							</button>
-						</DropdownMenuTrigger>
-
-						<DropdownMenuContent
-							className={clsxm('z-9999 min-w-full outline-hidden w-max p-0', styles?.listCard)}
-							style={{
-								maxHeight: 'calc(100vh - 100%)',
-								overflow: 'auto'
-							}}
-							align="end"
-							sideOffset={8}
-						>
-							<EverCard
-								shadow="bigger"
-								className={clsxm(
-									'p-0 md:p-4 shadow-xl card dark:shadow-lg card-white dark:bg-card dark:border dark:border-transparent flex flex-col gap-2.5 min-h-24  h-52  max-h-52 overflow-x-auto rounded-none overflow-hidden',
-									styles?.listCard
-								)}
-							>
-								<ScrollArea className="w-full h-full! ">
-									<div className="flex flex-col gap-2.5 h-44  w-full">
-										{validProjects?.map((item) => {
-											return (
-												<DropdownMenuItem
-													key={item.id}
-													onSelect={() => {
-														setSelected(item);
-														if (controlled && onChange) {
-															onChange(item);
-														} else {
-															handleUpdateProject(item);
-														}
-													}}
-													className="relative border flex items-center gap-2 p-1.5 rounded-lg outline-hidden cursor-pointer dark:text-white"
-												>
-													{item.imageUrl && (
-														<Image
-															src={item.imageUrl}
-															alt={item.name || ''}
-															width={20}
-															height={20}
-															className="flex-none rounded-full shrink-0 aspect-square"
-														/>
-													)}
-													<span className="w-full overflow-hidden text-xs truncate max-w-32 text-ellipsis">
-														{item.name || 'Project'}
-													</span>
-												</DropdownMenuItem>
-											);
-										})}
-										<div className="mt-auto">
-											{!controlled && (
-												<Button
-													className=" px-2 py-1 w-full justify-start! gap-2!  min-w-min! h-8 rounded-lg text-xs dark:text-white dark:border-gray-800"
-													variant="outline"
-													onClick={handleRemoveProject}
-												>
-													<TrashIcon className="w-5" /> {t('common.REMOVE')}
-												</Button>
-											)}
-											{/* Only show create button for admins and managers */}
-											{canCreateProject && (
-												<Button
-													className=" px-2 py-1 mt-2 w-full justify-start! min-w-min! h-8 rounded-lg text-xs dark:text-white dark:border-white"
-													variant="outline"
-													onClick={openModal}
-												>
-													<AddIcon className="w-3 h-3 text-dark dark:text-white" />{' '}
-													<span className="truncate">{t('common.CREATE_NEW')}</span>
-												</Button>
-											)}
-										</div>
-									</div>
-									<ScrollBar className="-pr-60" />
-								</ScrollArea>
-							</EverCard>
-						</DropdownMenuContent>
-					</div>
-				</DropdownMenu>
+							</>
+						)
+					}
+				>
+					<ProjectTriggerContent
+						project={selected}
+						emptyLabel={t('pages.projects.projectTitle.SINGULAR')}
+						isLoading={updateLoading}
+					/>
+				</TaskPropertyMenu>
 			</div>
 			<QuickCreateProjectModal
 				onSuccess={(project) => {
@@ -542,5 +218,104 @@ export function ProjectDropDown(props: ITaskProjectDropdownProps) {
 				closeModal={closeModal}
 			/>
 		</>
+	);
+}
+
+function projectGroupName(
+	project: TOrganizationProject,
+	activeTeam: TOrganizationTeam | null,
+	sharedGroupLabel: string
+): string | undefined {
+	if (!activeTeam?.id) {
+		return undefined;
+	}
+	const belongsToTeam = projectBelongsToTeam(project, activeTeam.id);
+	if (belongsToTeam) {
+		return activeTeam.name;
+	}
+	return sharedGroupLabel;
+}
+
+function projectMenuOptions(
+	projects: TOrganizationProject[],
+	activeTeam: TOrganizationTeam | null,
+	sharedGroupLabel: string
+): TaskPropertyMenuOption<TOrganizationProject>[] {
+	const options = projects.map((project) => ({
+		key: project.id,
+		value: project,
+		label: project.name || '',
+		icon: <ProjectGlyph project={project} />,
+		group: projectGroupName(project, activeTeam, sharedGroupLabel)
+	}));
+	const teamOptions = options.filter((option) => option.group !== sharedGroupLabel);
+	const sharedOptions = options.filter((option) => option.group === sharedGroupLabel);
+	return [...teamOptions, ...sharedOptions];
+}
+
+function projectTriggerLabel(t: ReturnType<typeof useTranslations>, project: TOrganizationProject | null) {
+	if (!project) {
+		return t('taskMenus.projectTrigger.empty');
+	}
+	return t('taskMenus.projectTrigger.current', { name: project.name || '' });
+}
+
+function projectTriggerRadius(project: TOrganizationProject | null) {
+	const isPainted = isPaintableColor(project?.color);
+	if (isPainted) {
+		return 'rounded-md';
+	}
+	return 'rounded-full';
+}
+
+function projectChipStyle(project: TOrganizationProject) {
+	if (!isPaintableColor(project.color)) {
+		return undefined;
+	}
+	return dataColorChipStyle(project.color);
+}
+
+function ProjectGlyph({ project, className }: Readonly<{ project: TOrganizationProject; className?: string }>) {
+	if (project.imageUrl) {
+		return (
+			<Image
+				className={cn('size-4 shrink-0 rounded-full object-cover', className)}
+				src={project.imageUrl}
+				alt=""
+				width={16}
+				height={16}
+			/>
+		);
+	}
+	return <TaskPropertyIcon kind="project" color={project.color} className={className} />;
+}
+
+function ProjectTriggerContent({
+	project,
+	emptyLabel,
+	isLoading
+}: Readonly<{
+	project: TOrganizationProject | null;
+	emptyLabel: string;
+	isLoading: boolean;
+}>) {
+	if (!project) {
+		return <TaskPropertyPill kind="project" label={emptyLabel} isLoading={isLoading} className="w-full" />;
+	}
+	const isPainted = isPaintableColor(project.color);
+	return (
+		<span
+			style={projectChipStyle(project)}
+			className={cn(
+				'inline-flex h-7 w-full min-w-0 items-center gap-1.5 whitespace-nowrap rounded-md px-2 text-xs font-medium',
+				isPainted && 'chip-3d',
+				!isPainted && TASK_PROPERTY_PILL_RECIPE,
+				!isPainted && 'text-xs font-medium text-foreground'
+			)}
+		>
+			<ProjectGlyph project={project} className="size-3.5" />
+			<span className="min-w-0 flex-1 truncate text-left">{project.name}</span>
+			<TaskPropertyTriggerEnd isLoading={isLoading} />
+		</span>
 	);
 }

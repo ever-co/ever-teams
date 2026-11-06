@@ -6,6 +6,7 @@ import { useFirstLoad } from '../common/use-first-load';
 import { inviteService } from '../../services/client/api/organizations/teams/invites';
 import { queryKeys } from '@/core/query/keys';
 import { getActiveTeamIdCookie } from '@/core/lib/helpers/cookies';
+import { isTenantAdminRole } from '@/core/lib/utils/roles';
 import { TeamInvitationsQueryParams } from '@/core/types/interfaces/user/invite';
 import { useIsMemberManager } from '../organizations/teams/use-team-member';
 import { useUserQuery } from '../queries/user-user.query';
@@ -32,6 +33,8 @@ export function useTeamInvitationsQuery({ enabled = true }: UseTeamInvitationsQu
 
 	const { data: user } = useUserQuery();
 	const { isTeamManager } = useIsMemberManager(user);
+	const isOrganizationAdmin = isTenantAdminRole(user?.role?.name);
+	const managesInvitations = isTeamManager || isOrganizationAdmin;
 	const accessToken = useReactiveAccessTokenCookie();
 	const scope = {
 		tenantId: user?.tenantId,
@@ -44,7 +47,7 @@ export function useTeamInvitationsQuery({ enabled = true }: UseTeamInvitationsQu
 	const ownerActive = enabled;
 	const queryEnabled =
 		ownerActive &&
-		isTeamManager &&
+		managesInvitations &&
 		!!(scope.tenantId && scope.organizationId && scope.teamId && scope.userId && scope.accessToken);
 	useScopeGuard(queryKey, ownerActive);
 
@@ -64,7 +67,9 @@ export function useTeamInvitationsQuery({ enabled = true }: UseTeamInvitationsQu
 		data: teamInvitationsData,
 		isLoading: teamInvitationsLoading,
 		isFetching: teamInvitationsFetching,
-		isSuccess: teamInvitationsSuccess
+		isSuccess: teamInvitationsSuccess,
+		isError: teamInvitationsError,
+		refetch: refetchTeamInvitations
 	} = useQuery({
 		queryKey,
 		meta: CREDENTIAL_SCOPED_QUERY_META,
@@ -90,6 +95,8 @@ export function useTeamInvitationsQuery({ enabled = true }: UseTeamInvitationsQu
 		// A cached empty list is not authoritative while a background refetch is pending.
 		fetchingInvitations: teamInvitationsFetching,
 		isLoading: teamInvitationsLoading,
-		isSuccess: teamInvitationsSuccess
+		isSuccess: teamInvitationsSuccess,
+		isError: teamInvitationsError,
+		refetch: refetchTeamInvitations
 	};
 }

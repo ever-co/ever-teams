@@ -27,7 +27,7 @@ export function useTaskSizes() {
 			bearer_token: authToken
 		});
 		queryClient.invalidateQueries({ queryKey: ['sizes'] });
-	}, []);
+	}, [authToken, tenantId, queryClient]);
 
 	// Update the size
 
@@ -36,21 +36,21 @@ export function useTaskSizes() {
 			id,
 			tenantId,
 			datas: data,
-			bearer_token: authToken
+			bearer_token: authToken ?? ''
 		});
 		queryClient.invalidateQueries({ queryKey: ['sizes'] });
-	}, []);
+	}, [authToken, tenantId, queryClient]);
 
-	// Create the size
+	// Create the size, filed under the team active now: a team switch must reach this callback
 
 	const createSize = useCallback(async (data: ITaskSizeCreate) => {
 		await createSizeRequest({
 			tenantId,
 			datas: { ...data, organizationId, organizationTeamId: activeTeamId },
-			bearer_token: authToken
+			bearer_token: authToken ?? ''
 		});
 		queryClient.invalidateQueries({ queryKey: ['sizes'] });
-	}, []);
+	}, [authToken, tenantId, organizationId, activeTeamId, queryClient]);
 
 	useEffect(() => {
 		if (isSuccess) {

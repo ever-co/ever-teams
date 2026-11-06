@@ -7,11 +7,12 @@ interface StatusBadgeProps {
 	color: string;
 }
 
+/** One status of the page with how many tasks carry it; the colour comes from the status helper. */
 const StatusBadge: React.FC<StatusBadgeProps> = ({ label, count, color }) => {
 	return (
 		<div
 			className={cn(
-				'gap-0.5 self-stretch py-1.5 justify-center md:px-3 px-2 flex items-center capitalize text-sm relative min-h-[26px] rounded-[40px]',
+				'inline-flex min-h-6 items-center gap-1 rounded-md px-2 py-0.5 text-xs font-medium capitalize tabular-nums',
 				color
 			)}
 		>

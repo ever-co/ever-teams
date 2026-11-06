@@ -1,45 +1,72 @@
 'use client';
 
-import { clsxm } from '@/core/lib/utils';
 import { AuthLayout } from '@/core/components/layouts/default-layout/auth-layout';
 import { useTranslations } from 'next-intl';
 import { useRouter } from 'next/navigation';
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState, type Dispatch, type SetStateAction } from 'react';
 import { WorkSpaceComponent } from '../passcode/page-component';
 import { useAuthenticationSocialLogin } from '@/core/hooks/auth/use-authentication-social-login';
 import Cookies from 'js-cookie';
 import { useSession } from 'next-auth/react';
-import {
-	APP_NAME,
-	LAST_WORKSPACE_AND_TEAM,
-	USER_SAW_OUTSTANDING_NOTIFICATION
-} from '@/core/constants/config/constants';
+import { LAST_WORKSPACE_AND_TEAM, USER_SAW_OUTSTANDING_NOTIFICATION } from '@/core/constants/config/constants';
 import { ISigninEmailConfirmWorkspaces } from '@/core/types/interfaces/auth/auth';
-import { getFirstTeamId, findWorkspaceIndexByTeamId } from '@/core/lib/utils/workspace.utils';
+import { getFirstTeamId } from '@/core/lib/utils/workspace.utils';
 import { useWorkspaceAnalysis } from '@/core/hooks/auth/use-workspace-analysis';
+import { useRememberedTeamContinue } from '@/core/hooks/auth/use-remembered-team-continue';
+import { firstListedTeam, findLatestServerTeamId } from '@/core/lib/auth/remembered-team';
 import { readEverIdSession } from '@/core/lib/auth/ever-id/session';
 import { readSocialSession } from '@/core/lib/auth/social-session';
 import { useEverIdWorkspaceChoice } from '@/core/hooks/auth/use-ever-id-workspace-choice';
+import { PickedWorkspaceScene } from '@/core/components/auth/scenes/auth-scenes';
 
+/** The workspace pick after a social or Ever ID sign-in, with the workspace and team it opens beside it. */
 export default function SocialLoginChooseWorspace() {
 	const t = useTranslations();
+	const [workspaces, setWorkspaces] = useState<ISigninEmailConfirmWorkspaces[]>([]);
+	const [selectedWorkspace, setSelectedWorkspace] = useState<number>(0);
+	const [selectedTeam, setSelectedTeam] = useState('');
+
 	return (
 		<AuthLayout
-			title={t('pages.authLogin.HEADING_TITLE', { appName: APP_NAME })}
-			description={'Choose your workspace'}
+			aside={
+				<PickedWorkspaceScene
+					title={t('auth.scene.WORKSPACE_TITLE')}
+					description={t('auth.scene.WORKSPACE_TEXT')}
+					workspaces={workspaces}
+					selectedWorkspace={selectedWorkspace}
+					selectedTeam={selectedTeam}
+				/>
+			}
 		>
-			<div className="overflow-x-hidden w-full overflow-clip">
-				<div className={clsxm('flex flex-row duration-500 transition-[transform]')}>
-					<WorkSpaceScreen />
-				</div>
-			</div>
+			<WorkSpaceScreen
+				workspaces={workspaces}
+				setWorkspaces={setWorkspaces}
+				selectedWorkspace={selectedWorkspace}
+				setSelectedWorkspace={setSelectedWorkspace}
+				selectedTeam={selectedTeam}
+				setSelectedTeam={setSelectedTeam}
+			/>
 		</AuthLayout>
 	);
 }
 
-function WorkSpaceScreen() {
-	const [selectedWorkspace, setSelectedWorkspace] = useState<number>(0);
-	const [selectedTeam, setSelectedTeam] = useState('');
+type WorkspaceScreenProps = {
+	workspaces: ISigninEmailConfirmWorkspaces[];
+	setWorkspaces: Dispatch<SetStateAction<ISigninEmailConfirmWorkspaces[]>>;
+	selectedWorkspace: number;
+	setSelectedWorkspace: Dispatch<SetStateAction<number>>;
+	selectedTeam: string;
+	setSelectedTeam: Dispatch<SetStateAction<string>>;
+};
+
+function WorkSpaceScreen({
+	workspaces,
+	setWorkspaces,
+	selectedWorkspace,
+	setSelectedWorkspace,
+	selectedTeam,
+	setSelectedTeam
+}: Readonly<WorkspaceScreenProps>) {
 	const router = useRouter();
 	const form = useAuthenticationSocialLogin();
 	const { data: session }: any = useSession();
@@ -55,8 +82,6 @@ function WorkSpaceScreen() {
 		userId: ''
 	});
 
-	const [workspaces, setWorkspaces] = useState<ISigninEmailConfirmWorkspaces[]>([]);
-
 	useEffect(() => {
 		const loadOAuthSession = async () => {
 			const social = readSocialSession(session);
@@ -69,7 +94,7 @@ function WorkSpaceScreen() {
 			}
 		};
 		void loadOAuthSession();
-	}, [session]);
+	}, [session, setWorkspaces]);
 
 	// Ever ID: the sign-in left the workspace list in the session (no Gauzy token yet: the workspace sign-in
 	// below makes it). Runs after the effect above, so its values are the ones kept.
@@ -78,11 +103,17 @@ function WorkSpaceScreen() {
 		if (!everIdSession) return;
 		setSigninResult((current) => ({ ...current, confirmed_mail: everIdSession.confirmedEmail }));
 		setWorkspaces(everIdSession.workspaces);
-	}, [everIdSession]);
+	}, [everIdSession, setWorkspaces]);
 
 	// Analyze workspace structure to determine if we should show workspace selection
 	// Using centralized hook to avoid code duplication across auth components
 	const workspaceAnalysis = useWorkspaceAnalysis(workspaces);
+	const rememberedTeam = useRememberedTeamContinue({
+		workspaces,
+		email: signinResult.confirmed_mail,
+		rememberedTeamAllowed: !everIdSession
+	});
+	const rememberedTeamId = rememberedTeam.rememberedPick?.teamId;
 
 	useEffect(() => {
 		// Auto-select first workspace if only one exists
@@ -99,41 +130,33 @@ function WorkSpaceScreen() {
 				setSelectedTeam(firstTeamId);
 			}
 		} else {
-			// Try to restore last selected team or use default
 			const storedTeam = window.localStorage.getItem(LAST_WORKSPACE_AND_TEAM);
+			const serverTeamId = findLatestServerTeamId(workspaces);
 			const fallbackTeamId = getFirstTeamId(firstWorkspace);
-			const lastSelectedTeam = storedTeam || fallbackTeamId || '';
+			const listedTeam = firstListedTeam(workspaces, [
+				rememberedTeamId,
+				storedTeam,
+				serverTeamId,
+				fallbackTeamId
+			]);
 
-			// Find workspace containing the last selected team
-			const lastSelectedWorkspaceIndex = findWorkspaceIndexByTeamId(workspaces, lastSelectedTeam);
-
-			// Only set selectedTeam if the team actually exists in current_teams
-			if (lastSelectedWorkspaceIndex >= 0) {
-				setSelectedTeam(lastSelectedTeam);
-				setSelectedWorkspace(lastSelectedWorkspaceIndex);
+			if (listedTeam) {
+				setSelectedTeam(listedTeam.teamId);
+				setSelectedWorkspace(listedTeam.workspaceIndex);
 			} else {
-				// Team doesn't exist (user was removed from team)
-				// Set workspace to first one but leave selectedTeam empty
-				// This prevents 401 errors when trying to sign in with a non-existent team
+				// No team to sign in with: an empty team is sent instead of one Gauzy would refuse
 				setSelectedWorkspace(0);
 				setSelectedTeam('');
 			}
 		}
-
-		// Only auto-submit if shouldAutoSubmit is true (1 workspace with exactly 1 team)
-		if (workspaceAnalysis.shouldAutoSubmit) {
-			setTimeout(() => {
-				document.getElementById('continue-to-workspace')?.click();
-			}, 100);
-		}
-	}, [workspaces, workspaceAnalysis]);
+	}, [workspaces, workspaceAnalysis, rememberedTeamId, setSelectedTeam, setSelectedWorkspace]);
 
 	// Ever ID: start on the workspace the ID token points at (when exactly one matches)
 	useEffect(() => {
 		if (everIdSession && everIdSession.preselectIndex >= 0 && everIdSession.preselectIndex < workspaces.length) {
 			setSelectedWorkspace(everIdSession.preselectIndex);
 		}
-	}, [everIdSession, workspaces]);
+	}, [everIdSession, workspaces, setSelectedWorkspace]);
 
 	// Ever ID: an expired workspace token starts its sign-in again; a workspace without a tenant yet is set up
 	const everIdChoice = useEverIdWorkspaceChoice(everIdSession);
@@ -152,7 +175,7 @@ function WorkSpaceScreen() {
 		window && window?.localStorage.setItem(LAST_WORKSPACE_AND_TEAM, selectedTeam);
 	};
 
-	const { onWorkspaceSigninError } = everIdChoice;
+	const onWorkspaceSigninError = everIdChoice.onWorkspaceSigninError ?? rememberedTeam.onContinueFailed;
 	const updateOAuthSession = useCallback(() => {
 		form.updateOAuthSession(
 			signinResult,
@@ -177,6 +200,7 @@ function WorkSpaceScreen() {
 			selectedTeam={selectedTeam}
 			signInWorkspaceLoading={form.signInWorkspaceLoading || everIdChoice.setupRunning}
 			teamsUnavailable={everIdSession?.teamsUnavailable}
+			notSetUpIndices={everIdSession?.tenantless}
 		/>
 	);
 }

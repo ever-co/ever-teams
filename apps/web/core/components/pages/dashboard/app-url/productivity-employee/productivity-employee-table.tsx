@@ -5,6 +5,7 @@ import { Skeleton } from '@/core/components/common/skeleton';
 import { Card } from '@/core/components/common/card';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/core/components/common/tooltip';
 import React from 'react';
+import { parseISO } from 'date-fns';
 import { EmptyState } from '../productivity-project/states';
 import { useTranslations } from 'next-intl';
 import { usePagination } from '@/core/hooks/common/use-pagination';
@@ -30,8 +31,10 @@ const getInitials = (name?: string | null): string =>
 				.toUpperCase()
 		: '';
 
+// The report groups by calendar day ('YYYY-MM-DD'). `new Date()` reads that as UTC midnight, which shows the
+// previous day west of UTC; `parseISO` reads it as local midnight.
 const formatDate = (dateStr: string): string => {
-	const date = new Date(dateStr);
+	const date = parseISO(dateStr);
 	return date.toLocaleDateString('en-US', {
 		weekday: 'long',
 		day: '2-digit',
@@ -83,7 +86,7 @@ export interface Props {
 
 // Components
 const TableLoadingSkeleton: React.FC = () => (
-	<Card className="bg-white rounded-md border border-gray-100 dark:border-gray-700 dark:bg-dark--theme-light min-h-[600px]">
+	<Card className="min-h-[600px] overflow-hidden">
 		<Table>
 			<TableHeader>
 				<TableRow>
@@ -123,7 +126,7 @@ const TableLoadingSkeleton: React.FC = () => (
 const EmployeeAvatar: React.FC<{ employee: IEmployee }> = React.memo(({ employee }) => (
 	<Avatar className="w-8 h-8">
 		<AvatarImage src={employee.user.imageUrl ?? ''} alt={employee.fullName ?? ''} />
-		<AvatarFallback className="dark:text-gray-300">{getInitials(employee.fullName)}</AvatarFallback>
+		<AvatarFallback>{getInitials(employee.fullName)}</AvatarFallback>
 	</Avatar>
 ));
 
@@ -134,7 +137,7 @@ EmployeeAvatar.displayName = 'EmployeeAvatar';
 const ProjectLogo: React.FC<{ name?: string }> = React.memo(({ name }) => (
 	<div
 		aria-hidden="true"
-		className="w-8 h-8 rounded-md bg-[#422AFB] flex items-center justify-center text-white text-xs"
+		className="size-8 rounded-md bg-foreground/5 hairline-ring ring-border flex items-center justify-center text-xs font-medium text-muted-foreground"
 	>
 		{getInitials(name).slice(0, 2)}
 	</div>
@@ -147,10 +150,10 @@ const ActivityBar: React.FC<{ percentage: string; title: string }> = React.memo(
 		<Tooltip>
 			<TooltipTrigger asChild>
 				<div className="flex items-center flex-1 gap-2">
-					<div className="overflow-hidden flex-1 h-2 bg-[#EDF2F7] rounded-full dark:bg-muted">
-						<div className="h-full bg-[#422AFB] rounded-full" style={{ width: `${percentage}%` }} />
+					<div className="overflow-hidden flex-1 h-1.5 rounded-full bg-foreground/10">
+						<div className="h-full rounded-full bg-primary" style={{ width: `${percentage}%` }} />
 					</div>
-					<span className="w-8 text-sm text-gray-600 dark:text-gray-400">
+					<span className="w-10 text-right text-sm tabular-nums text-muted-foreground">
 						{Math.round(parseFloat(percentage))}%
 					</span>
 				</div>
@@ -178,17 +181,15 @@ interface ActivityRowProps {
 }
 
 const ActivityRow: React.FC<ActivityRowProps> = React.memo(({ date, activity, isFirstOfDay }) => (
-	<TableRow className="hover:bg-gray-50 dark:hover:bg-muted">
-		<TableCell className="font-medium text-gray-600">{isFirstOfDay ? formatDate(date) : ''}</TableCell>
+	<TableRow>
+		<TableCell className="font-medium text-muted-foreground">{isFirstOfDay ? formatDate(date) : ''}</TableCell>
 		<TableCell>
 			<TooltipProvider>
 				<Tooltip>
 					<TooltipTrigger asChild>
 						<div className="flex items-center gap-2">
 							<ProjectLogo name={activity.projectName} />
-							<span className="font-medium text-gray-700 dark:text-gray-300">
-								{activity.projectName || 'No project'}
-							</span>
+							<span className="font-medium text-foreground">{activity.projectName || 'No project'}</span>
 						</div>
 					</TooltipTrigger>
 					<TooltipContent>
@@ -209,7 +210,7 @@ const ActivityRow: React.FC<ActivityRowProps> = React.memo(({ date, activity, is
 				</Tooltip>
 			</TooltipProvider>
 		</TableCell>
-		<TableCell className="font-medium text-gray-600 dark:text-gray-300">
+		<TableCell className="font-medium tabular-nums text-foreground">
 			<TooltipProvider>
 				<Tooltip>
 					<TooltipTrigger asChild>
@@ -337,7 +338,7 @@ export const ProductivityEmployeeTable: React.FC<Props> = ({ data = [], isLoadin
 	const employeeList = Array.from(groupedData.values());
 
 	return (
-		<Card className="bg-white rounded-md border border-gray-100 dark:border-gray-700 dark:bg-dark--theme-light min-h-[600px]">
+		<Card className="min-h-[600px] overflow-hidden">
 			<Table>
 				<TableHeader>
 					<TableRow>
@@ -355,14 +356,12 @@ export const ProductivityEmployeeTable: React.FC<Props> = ({ data = [], isLoadin
 
 						return (
 							<React.Fragment key={`${employee.id}-${dates.join('-')}`}>
-								<TableRow className="bg-gray-50/50 dark:bg-white/5">
+								<TableRow className="bg-foreground/2.5 hover:bg-foreground/2.5">
 									<TableCell colSpan={5}>
 										<div className="flex items-center gap-2 px-1 py-2">
 											<EmployeeAvatar employee={employee} />
-											<span className="font-semibold text-gray-900 dark:text-gray-100">
-												{employee.fullName}
-											</span>
-											<span className="ml-auto text-sm text-gray-600 dark:text-gray-400">
+											<span className="font-semibold text-foreground">{employee.fullName}</span>
+											<span className="ml-auto text-sm tabular-nums text-muted-foreground">
 												Total time:{' '}
 												{formatDuration(
 													Array.from(dateGroups.values()).reduce(
@@ -390,7 +389,7 @@ export const ProductivityEmployeeTable: React.FC<Props> = ({ data = [], isLoadin
 					})}
 				</TableBody>
 			</Table>
-			<div className="p-2 mt-4">
+			<div className="hairline-t border-border px-4 py-3">
 				<Paginate
 					total={total}
 					onPageChange={onPageChange}

@@ -4,11 +4,12 @@ import { useTaskSizesQuery } from '@/core/hooks/tasks/use-task-sizes-query';
 import { useCreateTaskSize } from '@/core/hooks/tasks/use-create-task-size';
 import { useEditTaskSize } from '@/core/hooks/tasks/use-edit-task-size';
 import { useDeleteTaskSize } from '@/core/hooks/tasks/use-delete-task-size';
+import { useTaskSettingsAccess } from '@/core/hooks/tasks/use-task-settings-access';
 
 import { useUserQuery } from '@/core/hooks/queries/user-user.query';
 import { clsxm } from '@/core/lib/utils';
 import { Spinner } from '@/core/components/common/spinner';
-import { PlusIcon } from '@heroicons/react/20/solid';
+import { Plus as PlusIcon } from '@/core/components/icons';
 import { Button, ColorPicker, Text } from '@/core/components';
 import { useCallback, useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
@@ -18,6 +19,7 @@ import { generateIconList, IIcon } from '../settings/icon-items';
 import IconPopover from '../settings/icon-popover';
 import { StatusesListCard } from '../settings/list-card';
 import { InputField } from '../duplicated-components/_input';
+import { Tooltip } from '../duplicated-components/tooltip';
 import { TTaskSize } from '@/core/types/schemas';
 
 // Settings row (label column + content) and the compact controls of the issue-settings blocks.
@@ -25,12 +27,13 @@ const ROW = 'sm:grid-cols-[10rem_minmax(0,1fr)] sm:gap-4';
 const LABEL = 'text-sm font-medium text-muted-foreground sm:pt-2';
 const SUB_LABEL = 'text-xs font-medium text-muted-foreground';
 const SECONDARY_BUTTON =
-	'h-9 shrink-0 gap-1.5 rounded-md bg-card px-3 py-0 text-sm font-medium text-foreground hover:bg-muted';
+	'h-9 shrink-0 gap-1.5 rounded-md bg-card px-3 py-0 text-sm font-medium text-foreground hover:bg-muted disabled:pointer-events-none';
 const PRIMARY_BUTTON = 'h-9 shrink-0 rounded-md px-3 py-0 text-sm font-medium hover:bg-primary/90';
 const CANCEL_BUTTON = 'h-9 shrink-0 rounded-md px-3 py-0 text-sm font-medium';
 // The icon and colour pickers draw their own 54px box; this sizes them like the other controls of the
 // row without touching the shared picker components.
-const PICKER = 'shrink-0 [&_.input-border]:h-9 [&_.input-border]:rounded-md [&_.rounded-xl]:h-9 [&_.rounded-xl]:rounded-md';
+const PICKER =
+	'shrink-0 [&_.input-border]:h-9 [&_.input-border]:rounded-md [&_.rounded-xl]:h-9 [&_.rounded-xl]:rounded-md';
 
 type StatusForm = {
 	formOnly?: boolean;
@@ -44,6 +47,7 @@ export const TaskSizesForm = ({ formOnly = false, onCreated }: StatusForm) => {
 	const { createTaskSize, createTaskSizeLoading } = useCreateTaskSize();
 	const { editTaskSize, editTaskSizeLoading } = useEditTaskSize();
 	const { deleteTaskSize } = useDeleteTaskSize();
+	const { canCreate, canWriteRow, readOnlyHint } = useTaskSettingsAccess();
 
 	const [createNew, setCreateNew] = useState(formOnly);
 	const [edit, setEdit] = useState<TTaskSize | null>(null);
@@ -58,13 +62,7 @@ export const TaskSizesForm = ({ formOnly = false, onCreated }: StatusForm) => {
 		'blocked',
 		'completed'
 	]);
-	const taskSizesIconList: IIcon[] = generateIconList('task-sizes', [
-		'x-large',
-		'large',
-		'medium',
-		'small',
-		'tiny',
-	]);
+	const taskSizesIconList: IIcon[] = generateIconList('task-sizes', ['x-large', 'large', 'medium', 'small', 'tiny']);
 	const taskPrioritiesIconList: IIcon[] = generateIconList('task-priorities', ['urgent', 'high', 'medium', 'low']);
 
 	const iconList: IIcon[] = [...taskStatusIconList, ...taskSizesIconList, ...taskPrioritiesIconList];
@@ -89,6 +87,10 @@ export const TaskSizesForm = ({ formOnly = false, onCreated }: StatusForm) => {
 			setValue('icon', '');
 		}
 	}, [edit, setValue]);
+
+	// The permissions allow editing while they load: a form opened before they deny it must not submit, since
+	// Gauzy refuses the write
+	const canSubmit = createNew ? canCreate : !!edit && canWriteRow(edit);
 
 	const onSubmit = useCallback(
 		async (values: any) => {
@@ -130,24 +132,31 @@ export const TaskSizesForm = ({ formOnly = false, onCreated }: StatusForm) => {
 
 	return (
 		<>
-			<form className="w-full" onSubmit={handleSubmit(onSubmit)} autoComplete="off">
+			<form
+				className="w-full"
+				onSubmit={canSubmit ? handleSubmit(onSubmit) : (event) => event.preventDefault()}
+				autoComplete="off"
+			>
 				<div className={clsxm('grid grid-cols-1 gap-2', !formOnly && ROW)}>
 					{!formOnly && <Text className={LABEL}>{t('pages.settingsTeam.TASK_SIZES')}</Text>}
 
 					<div className="flex min-w-0 flex-col gap-3">
 						{!createNew && !edit && (
 							<div className="flex flex-wrap items-center gap-2">
-								<Button
-									variant="outline-dark"
-									className={SECONDARY_BUTTON}
-									onClick={() => {
-										setEdit(null);
-										setCreateNew(true);
-									}}
-								>
-									<PlusIcon className="size-4" />
-									{t('pages.settingsTeam.CREATE_NEW_SIZE')}
-								</Button>
+								<Tooltip label={readOnlyHint} enabled={!canCreate}>
+									<Button
+										variant="outline-dark"
+										className={SECONDARY_BUTTON}
+										disabled={!canCreate}
+										onClick={() => {
+											setEdit(null);
+											setCreateNew(true);
+										}}
+									>
+										<PlusIcon className="size-4" />
+										{t('pages.settingsTeam.CREATE_NEW_SIZE')}
+									</Button>
+								</Tooltip>
 							</div>
 						)}
 
@@ -190,7 +199,7 @@ export const TaskSizesForm = ({ formOnly = false, onCreated }: StatusForm) => {
 										variant="primary"
 										className={PRIMARY_BUTTON}
 										type="submit"
-										disabled={createTaskSizeLoading || editTaskSizeLoading}
+										disabled={!canSubmit || createTaskSizeLoading || editTaskSizeLoading}
 										loading={createTaskSizeLoading || editTaskSizeLoading}
 									>
 										{edit ? t('common.SAVE') : t('common.CREATE')}
@@ -209,12 +218,23 @@ export const TaskSizesForm = ({ formOnly = false, onCreated }: StatusForm) => {
 										</Button>
 									)}
 								</div>
+								{/* A form that cannot be submitted says why (formOnly mode has no list whose controls would) */}
+								{!canSubmit && (
+									<Text
+										className="text-xs text-muted-foreground"
+										data-testid="task-settings-read-only-hint"
+									>
+										{readOnlyHint}
+									</Text>
+								)}
 							</>
 						)}
 
 						{!formOnly && taskSizes?.length > 0 && (
 							<>
-								<Text className={clsxm(SUB_LABEL, 'pt-1')}>{t('pages.settingsTeam.LIST_OF_SIZES')}</Text>
+								<Text className={clsxm(SUB_LABEL, 'pt-1')}>
+									{t('pages.settingsTeam.LIST_OF_SIZES')}
+								</Text>
 								<div className="flex w-full flex-wrap gap-2">
 									{loading && !taskSizes && <Spinner dark={false} />}
 									{taskSizes && taskSizes?.length ? (
@@ -233,6 +253,7 @@ export const TaskSizesForm = ({ formOnly = false, onCreated }: StatusForm) => {
 													await deleteTaskSize(size.id);
 													refetch();
 												}}
+												readOnly={!canWriteRow(size)}
 											/>
 										))
 									) : (

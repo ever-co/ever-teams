@@ -36,10 +36,7 @@ export default function UserTeamActiveTaskTimes({
 			memberInfo={memberInfo}
 			task={activeTask}
 			isAuthUser={memberInfo.isAuthUser}
-			className={cn(
-				'2xl:w-48 3xl:w-[12rem] w-1/5 lg:px-4 px-2 flex flex-col gap-y-[1.125rem] justify-center',
-				className
-			)}
+			className={cn('flex min-w-0 flex-col items-end justify-center gap-y-1 tabular-nums', className)}
 		/>
 	);
 }

@@ -6,8 +6,8 @@ import {
 	setActiveTaskIdCookie,
 	setActiveUserTaskCookie
 } from '@/core/lib/helpers/index';
-import { getValidActiveTask } from '@/core/lib/utils/task.utils';
-import { getErrorMessage, logErrorInDev } from '@/core/lib/helpers/error-message';
+import { getValidActiveTask, isHeldTeamTask } from '@/core/lib/utils/task.utils';
+import { logErrorInDev } from '@/core/lib/helpers/error-message';
 import {
 	activeTeamState,
 	activeTeamTaskState,
@@ -17,71 +17,81 @@ import {
 	teamTasksState
 } from '@/core/stores';
 import { useCallback, useRef, useState } from 'react';
-import { useAtom, useAtomValue, useSetAtom } from 'jotai';
-import { useOrganizationEmployeeTeams } from './use-organization-teams-employee';
-import { useAuthenticateUser } from '../../auth/use-authenticate-user';
+import { useAtomValue, useSetAtom, useStore } from 'jotai';
+import isEqual from 'lodash/isEqual';
+import { useUpdateEmployeeActiveTask } from './use-organization-teams-employee';
 import { useConditionalUpdateEffect } from '../../common/use-has-mounted';
 import { useSyncRef } from '../../common/use-sync-ref';
 import { TOrganizationTeamEmployee } from '@/core/types/schemas';
 import { TTask } from '@/core/types/schemas/task/task.schema';
 import { useUserQuery } from '../../queries/user-user.query';
-import { toast } from 'sonner';
-import { useUpdateTask } from './use-update-task';
+
+type ActiveUserTaskCookieValue = { taskId: string; userId: string };
+
+const NO_ACTIVE_USER_TASK: ActiveUserTaskCookieValue = { taskId: '', userId: '' };
+
+function activeUserTaskCookieValue(task: TTask | null, userId: string | undefined): ActiveUserTaskCookieValue {
+	const taskId = task?.id;
+	if (taskId && userId) {
+		return { taskId, userId };
+	}
+	return NO_ACTIVE_USER_TASK;
+}
+
+// The server sync effect runs in every mounted instance on each team or task list update, so a cookie that already
+// holds the value is not written again: each write is serialized and goes through the browser's cookie store.
+function syncActiveTaskIdCookie(taskId: string) {
+	const isUnchanged = getActiveTaskIdCookie() === taskId;
+	if (isUnchanged) {
+		return;
+	}
+	setActiveTaskIdCookie(taskId);
+}
+
+function syncActiveUserTaskCookie(value: ActiveUserTaskCookieValue) {
+	const current = getActiveUserTaskCookie();
+	const isSameTask = current?.taskId === value.taskId;
+	const isSameUser = current?.userId === value.userId;
+	const isUnchanged = isSameTask && isSameUser;
+	if (isUnchanged) {
+		return;
+	}
+	setActiveUserTaskCookie(value);
+}
+
+type JotaiStore = ReturnType<typeof useStore>;
+
+// A task list write rebuilds the task objects: an active task whose data did not change keeps its object, so the
+// readers of the active task do not re-render after every task list refresh.
+function setActiveTeamTaskIfChanged(store: JotaiStore, task: TTask | null) {
+	const current = store.get(activeTeamTaskState);
+	const isUnchanged = isEqual(current, task);
+	if (isUnchanged) {
+		return;
+	}
+	store.set(activeTeamTaskState, task);
+}
 
 /**
- * Hook for team tasks state management (active task operations).
- *
- * This hook provides:
- * - Set active task with server sync
- * - Race condition protection
- * - Cookie management
- * - Multi-device synchronization
- *
- * @returns Object containing:
- * - `setActiveTask` - Function to set and sync active task
- * - `setAllTasks` - Function to update all tasks in state
- * - `isUpdatingActiveTask` - Flag indicating active task update in progress
- * - `activeTeamTask` - Currently active task
+ * setActiveTask and its local guard, without the server sync effects. The team, the tasks and the member's active
+ * task id are read when the call runs, so the component holding it does not re-render on their refreshes.
  */
-export function useTeamTasksState() {
-	const { updateOrganizationTeamEmployeeActiveTask } = useOrganizationEmployeeTeams();
-	const { $user } = useAuthenticateUser();
-	const { updateTask } = useUpdateTask();
-
-	const setAllTasks = useSetAtom(teamTasksState);
-	const tasks = useAtomValue(tasksByTeamState);
-	const tasksComplete = useAtomValue(teamTasksCompleteState);
-	const tasksRef = useSyncRef(tasks);
-	const { data: userData } = useUserQuery();
-	const authUser = useSyncRef(userData);
-	const memberActiveTaskId = useAtomValue(memberActiveTaskIdState);
-	const $memberActiveTaskId = useSyncRef(memberActiveTaskId);
-	const activeTeam = useAtomValue(activeTeamState);
-	const activeTeamRef = useSyncRef(activeTeam);
-	const [activeTeamTask, setActiveTeamTask] = useAtom(activeTeamTaskState);
+function useActiveTaskSetter() {
+	const store = useStore();
+	const { updateOrganizationTeamEmployeeActiveTask } = useUpdateEmployeeActiveTask();
+	const { data: authUser } = useUserQuery();
+	const authUserRef = useSyncRef(authUser);
+	const setActiveTeamTask = useSetAtom(activeTeamTaskState);
 	const [isUpdatingActiveTask, setIsUpdatingActiveTask] = useState(false);
-
-	// Keep activeTeamTask in sync with a ref to avoid stale closures in setActiveTask
-	const activeTeamTaskRef = useSyncRef(activeTeamTask);
 
 	// Track expected task ID to prevent stale server data from overwriting local selection.
 	const expectedActiveTaskIdRef = useRef<string | null>(null);
 
 	const setActiveUserTaskCookieCb = useCallback(
 		(task: TTask | null) => {
-			if (task?.id && authUser.current?.id) {
-				setActiveUserTaskCookie({
-					taskId: task?.id,
-					userId: authUser.current?.id
-				});
-			} else {
-				setActiveUserTaskCookie({
-					taskId: '',
-					userId: ''
-				});
-			}
+			setActiveUserTaskCookie(activeUserTaskCookieValue(task, authUserRef.current?.id));
 		},
-		[authUser]
+		[authUserRef]
 	);
 
 	/**
@@ -93,27 +103,7 @@ export function useTeamTasksState() {
 			setIsUpdatingActiveTask(true);
 
 			try {
-				/**
-				 * Unassign previous active task
-				 */
-				if ($memberActiveTaskId.current && $user.current && $memberActiveTaskId.current !== task?.id) {
-					const _task = tasksRef.current.find((t) => t.id === $memberActiveTaskId.current);
-
-					if (_task) {
-						try {
-							await updateTask({
-								..._task,
-								members: _task.members?.filter((m) => m.id !== $user.current?.employee?.id)
-							});
-						} catch (error) {
-							logErrorInDev('[setActiveTask] Failed to unassign previous task', error);
-							// Continue execution - do not block switching to new task
-						}
-					}
-				}
-
-				// Use ref to get current activeTeamTask to avoid stale closure
-				const previousTask = activeTeamTaskRef.current;
+				const previousTask = store.get(activeTeamTaskState);
 				const previousTaskId = getActiveTaskIdCookie();
 
 				// Set expected task ID BEFORE updating state/cookies.
@@ -135,17 +125,18 @@ export function useTeamTasksState() {
 						let success = false;
 
 						for (let attempt = 1; attempt <= MAX_RETRIES && !success; attempt++) {
-							const currentEmployeeDetails = activeTeamRef.current?.members?.find(
+							const activeTeam = store.get(activeTeamState);
+							const currentEmployeeDetails = activeTeam?.members?.find(
 								(member: TOrganizationTeamEmployee) =>
-									member.employeeId === authUser.current?.employee?.id
+									member.employeeId === authUserRef.current?.employee?.id
 							);
 
 							if (currentEmployeeDetails?.id) {
 								await updateOrganizationTeamEmployeeActiveTask(currentEmployeeDetails.id, {
 									organizationId: task.organizationId,
 									activeTaskId: task.id,
-									organizationTeamId: activeTeamRef.current?.id,
-									tenantId: activeTeamRef.current?.tenantId ?? ''
+									organizationTeamId: activeTeam?.id,
+									tenantId: activeTeam?.tenantId ?? ''
 								});
 								success = true;
 							} else if (attempt < MAX_RETRIES) {
@@ -167,11 +158,7 @@ export function useTeamTasksState() {
 						}
 
 						if (success) {
-							toast.success('Active task updated', {
-								description: `"${task.title}" is now your active task`
-							});
-
-							// The sync effect below clears the expectation once the server echoes this id. This is only
+							// The sync effect clears the expectation once the server echoes this id. This is only
 							// the fallback, and it is not awaited because the timer start waits for this function.
 							setTimeout(() => {
 								if (expectedActiveTaskIdRef.current === task.id) {
@@ -180,10 +167,8 @@ export function useTeamTasksState() {
 							}, 600);
 						}
 					} catch (error) {
+						// useUpdateEmployeeActiveTask already told the user
 						logErrorInDev('[setActiveTask] API call failed:', error);
-						toast.error('Failed to update active task', {
-							description: getErrorMessage(error)
-						});
 
 						// Rollback: restore previous state
 						expectedActiveTaskIdRef.current = previousTaskId || null;
@@ -196,19 +181,47 @@ export function useTeamTasksState() {
 				setIsUpdatingActiveTask(false);
 			}
 		},
-		[
-			setActiveTeamTask,
-			setActiveUserTaskCookieCb,
-			updateOrganizationTeamEmployeeActiveTask,
-			activeTeamRef,
-			authUser,
-			$memberActiveTaskId,
-			$user,
-			tasksRef,
-			updateTask,
-			activeTeamTaskRef
-		]
+		[store, setActiveTeamTask, setActiveUserTaskCookieCb, updateOrganizationTeamEmployeeActiveTask, authUserRef]
 	);
+
+	return { setActiveTask, isUpdatingActiveTask, expectedActiveTaskIdRef, authUserRef, store };
+}
+
+/**
+ * Sets the active task, for components rendered once per member or task. The server sync effects of
+ * useTeamTasksState run in the shell's own instance (the timer owner in InitState, mounted on every page), so this
+ * hook does not repeat them and does not re-render its component on team or task list refreshes.
+ */
+export function useSetActiveTask() {
+	const { setActiveTask, isUpdatingActiveTask } = useActiveTaskSetter();
+	return { setActiveTask, isUpdatingActiveTask };
+}
+
+/**
+ * Hook for team tasks state management (active task operations).
+ *
+ * This hook provides:
+ * - Set active task with server sync
+ * - Race condition protection
+ * - Cookie management
+ * - Multi-device synchronization
+ *
+ * @returns Object containing:
+ * - `setActiveTask` - Function to set and sync active task
+ * - `setAllTasks` - Function to update all tasks in state
+ * - `isUpdatingActiveTask` - Flag indicating active task update in progress
+ * - `activeTeamTask` - Currently active task
+ */
+export function useTeamTasksState() {
+	const { setActiveTask, isUpdatingActiveTask, expectedActiveTaskIdRef, authUserRef, store } = useActiveTaskSetter();
+
+	const setAllTasks = useSetAtom(teamTasksState);
+	const tasks = useAtomValue(tasksByTeamState);
+	const tasksComplete = useAtomValue(teamTasksCompleteState);
+	const memberActiveTaskId = useAtomValue(memberActiveTaskIdState);
+	const activeTeam = useAtomValue(activeTeamState);
+	const activeTeamTask = useAtomValue(activeTeamTaskState);
+	const activeTeamTaskRef = useSyncRef(activeTeamTask);
 
 	// Sync active task from server (multi-device sync)
 	useConditionalUpdateEffect(
@@ -226,16 +239,19 @@ export function useTeamTasksState() {
 
 			const memberActiveTask = getValidActiveTask(tasks, memberActiveTaskId, activeTeam?.id);
 			if (memberActiveTask) {
-				setActiveTeamTask(memberActiveTask);
+				setActiveTeamTaskIfChanged(store, memberActiveTask);
 				// Both cookies follow the atom here too, as in setActiveTask: the server guards and the fallback
 				// routes read the task id one, and the hydration effect below prefers the user one, so leaving
 				// either behind brings the old task back on the next task-list refresh.
-				setActiveTaskIdCookie(memberActiveTask.id);
-				setActiveUserTaskCookieCb(memberActiveTask);
+				syncActiveTaskIdCookie(memberActiveTask.id);
+				syncActiveUserTaskCookie(activeUserTaskCookieValue(memberActiveTask, authUserRef.current?.id));
 			} else if (memberActiveTaskId && activeTeam?.id && tasksComplete) {
-				setActiveTeamTask(null);
-				setActiveTaskIdCookie('');
-				setActiveUserTaskCookieCb(null);
+				const keepsHeldTask = isHeldTeamTask(activeTeamTaskRef.current, memberActiveTaskId, activeTeam.id);
+				if (!keepsHeldTask) {
+					setActiveTeamTaskIfChanged(store, null);
+					syncActiveTaskIdCookie('');
+					syncActiveUserTaskCookie(NO_ACTIVE_USER_TASK);
+				}
 			}
 		},
 		[activeTeam, tasks, tasksComplete, memberActiveTaskId, isUpdatingActiveTask],
@@ -247,16 +263,21 @@ export function useTeamTasksState() {
 		() => {
 			const active_user_task = getActiveUserTaskCookie();
 			const active_taskid =
-				active_user_task?.userId === authUser.current?.id
+				active_user_task?.userId === authUserRef.current?.id
 					? active_user_task?.taskId
 					: getActiveTaskIdCookie() || '';
 
 			const validTask = getValidActiveTask(tasks, active_taskid, activeTeam?.id);
-			if (validTask || tasksComplete) {
-				setActiveTeamTask(validTask);
+			if (validTask) {
+				setActiveTeamTaskIfChanged(store, validTask);
+				return;
+			}
+			const keepsHeldTask = isHeldTeamTask(activeTeamTaskRef.current, active_taskid, activeTeam?.id);
+			if (tasksComplete && !keepsHeldTask) {
+				setActiveTeamTaskIfChanged(store, null);
 			}
 		},
-		[tasks, tasksComplete, authUser, activeTeam?.id],
+		[tasks, tasksComplete, authUserRef, activeTeam?.id],
 		Boolean(activeTeamTask)
 	);
 

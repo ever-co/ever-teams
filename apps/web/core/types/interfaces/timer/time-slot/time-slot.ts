@@ -36,6 +36,7 @@ export interface IAddManualTimeRequest {
 	projectId?: string;
 	taskId?: string;
 	organizationContactId?: string;
+	organizationTeamId?: string;
 	description?: string;
 	reason?: string;
 	startedAt: Date;

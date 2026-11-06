@@ -17,7 +17,12 @@ export function getRolePermissionsRequest({
 				roleId,
 				tenantId
 			}
-		})
+		}),
+		// Gauzy filters the list on `where` and ignores `data`
+		where: {
+			roleId,
+			tenantId
+		}
 	};
 
 	const query = qs.stringify(params);

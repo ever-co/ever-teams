@@ -3,5 +3,5 @@ import { useTaskPrioritiesQuery } from './use-task-priorities-query';
 
 export function useTaskPrioritiesValue() {
 	const { taskPriorities } = useTaskPrioritiesQuery();
-	return useMapToTaskStatusValues(taskPriorities, false);
+	return useMapToTaskStatusValues(taskPriorities, 'priority');
 }

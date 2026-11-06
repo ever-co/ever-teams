@@ -1,7 +1,8 @@
 import { SortConfig } from '@/core/hooks/common/use-sortable-data';
 import { Button } from '@/core/components/duplicated-components/_button';
 import { Popover, PopoverContent, PopoverTrigger } from '@/core/components/common/popover';
-import { ChevronsUpDown } from 'lucide-react';
+import { ChevronsUpDown } from '@/core/components/icons';
+import { cn } from '@/core/lib/helpers';
 
 interface SortPopoverProps {
 	label: string;
@@ -21,17 +22,17 @@ export function SortPopover({ label, sortKey, currentConfig, onSort }: SortPopov
 				<PopoverTrigger asChild>
 					<Button
 						variant="ghost"
-						size="icon"
-						className={`w-4 h-4 hover:bg-gray-100 dark:hover:bg-muted ${isActive ? 'bg-gray-100 dark:bg-dark--theme-light' : ''}`}
+						size="icon-sm"
+						className={cn('text-muted-foreground', isActive && 'bg-foreground/5')}
 					>
-						<ChevronsUpDown className={isActive ? 'text-primary' : ''} />
+						<ChevronsUpDown className={cn(isActive && 'text-primary')} />
 					</Button>
 				</PopoverTrigger>
-				<PopoverContent className="p-2 w-28 dark:bg-dark--theme-light dark:text-white">
-					<div className="flex flex-col gap-1">
+				<PopoverContent className="w-28 p-1">
+					<div className="flex flex-col gap-0.5">
 						<Button
-							variant={currentDirection === 'asc' ? 'secondary' : 'ghost'}
-							className="justify-start text-xs"
+							variant="ghost"
+							className={cn('justify-start text-xs', currentDirection === 'asc' && 'bg-foreground/5')}
 							onClick={() => onSort(sortKey)}
 						>
 							ASC
@@ -40,8 +41,8 @@ export function SortPopover({ label, sortKey, currentConfig, onSort }: SortPopov
 							)}
 						</Button>
 						<Button
-							variant={currentDirection === 'desc' ? 'secondary' : 'ghost'}
-							className="justify-start text-xs"
+							variant="ghost"
+							className={cn('justify-start text-xs', currentDirection === 'desc' && 'bg-foreground/5')}
 							onClick={() => onSort(sortKey)}
 						>
 							DESC

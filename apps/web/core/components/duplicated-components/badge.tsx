@@ -9,7 +9,10 @@ export function OutlineBadge({
 }: PropsWithChildren<IClassName & { onClick?: () => void }>) {
 	return (
 		<div
-			className={clsxm('flex inline-flex gap-x-2 items-center p-2 px-5 text-sm whitespace-nowrap rounded-3xl border text-nowrap', className)}
+			className={clsxm(
+				'inline-flex items-center gap-x-2 whitespace-nowrap rounded-md bg-card px-2.5 py-1 text-sm text-foreground hairline-ring ring-border',
+				className
+			)}
 			onClick={onClick}
 		>
 			{children}

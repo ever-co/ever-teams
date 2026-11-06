@@ -33,34 +33,33 @@ export function UserBoxInfo({ className, memberInfo, publicTeam = false }: Props
 	return (
 		<Link
 			href={publicTeam ? '#' : `/profile/${memberInfo.memberUser?.id}?name=${fullname}`}
-			className={clsxm('flex items-center space-x-2 lg:space-x-4', className)}
+			className={clsxm(
+				'flex min-w-0 items-center gap-3 rounded-md outline-none focus-visible:ring-[3px] focus-visible:ring-ring/25',
+				className
+			)}
 		>
 			<div
-				className={clsxm(
-					'w-[40px] h-[40px]',
-					'flex justify-center items-center relative',
-					'rounded-full text-white',
-					'shadow-md text-[2.063rem] font-thin font-PlusJakartaSans'
-				)}
+				className="relative flex size-9 shrink-0 items-center justify-center rounded-full text-sm font-medium text-foreground"
 				style={{
 					backgroundColor: `${stc(fullname)}80`
 				}}
 			>
 				{imageUrl && isValidUrl(imageUrl) ? (
-					<Avatar size={40} className="relative cursor-pointer" imageUrl={imageUrl} alt="Team Avatar" />
+					<Avatar size={36} className="relative cursor-pointer" imageUrl={imageUrl} alt="Team Avatar" />
 				) : (
-					<div className="w-[40px] h-[40px] flex justify-center items-center rounded-full">
+					<div className="flex size-9 items-center justify-center rounded-full">
 						{imgTitle(fullname).charAt(0)}
 					</div>
 				)}
 				<TimerStatus
 					status={timerStatusValue}
-					className="w-[1.3rem] h-[1.3rem] absolute z-20 bottom-3 -right-1 -mb-3 border-[0.125rem] border-white dark:border-border"
-					tooltipClassName="absolute right-0 bottom-3 -mb-3 w-[1.3rem] h-[1.3rem] rounded-full"
+					size="sm"
+					className="ring-2 ring-card"
+					tooltipClassName="absolute -right-1 -bottom-1"
 				/>
 			</div>
 
-			<p>{fullname}</p>
+			<p className="truncate text-sm font-medium">{fullname}</p>
 		</Link>
 	);
 }

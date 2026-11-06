@@ -6,61 +6,90 @@ import { useRequestToJoinMutation } from '@/core/hooks/organizations/teams/use-r
 import { useValidateRequestToJoin } from '@/core/hooks/organizations/teams/use-validate-request-to-join';
 import { useResendCodeRequestToJoin } from '@/core/hooks/organizations/teams/use-resend-code-request-to-join';
 import { clsxm } from '@/core/lib/utils';
-import { Button, Modal, SpinnerLoader, Text } from '@/core/components';
+import {
+	Button,
+	Modal,
+	SpinnerLoader,
+	Text,
+	modalFieldLabelClass,
+	modalFooterClass,
+	modalPrimaryActionClass,
+	modalSecondaryActionClass
+} from '@/core/components';
 import { useCallback, useState } from 'react';
+import { useActiveIndicator, type IndicatorBox } from '@/core/hooks/common/use-active-indicator';
 import { useTranslations } from 'next-intl';
-import { ArrowLeftIcon } from 'assets/svg';
+
 import { AuthCodeInputField } from '@/core/components/auth/auth-code-input';
+import { AUTH_CODE_CONTAINER_CLASS, AUTH_CODE_SLOT_CLASS } from '@/core/components/auth/auth-code-recipe';
 import { AUTH_CODE_LENGTH } from '@/core/constants/config/constants';
-import { EverCard } from '@/core/components/common/ever-card';
 import { InputField } from '@/core/components/duplicated-components/_input';
 import { PositionDropDown } from '../../layouts/default-layout/header/position-dropdown';
 import { TJoinTeamRequest } from '@/core/types/schemas';
 import { useAtomValue } from 'jotai';
 import { activeTeamState } from '@/core/stores';
 
+const TAB_CLASS_NAME =
+	'relative flex h-9 cursor-pointer items-center text-[13px] text-muted-foreground outline-none transition-colors hover:text-foreground focus-visible:rounded-sm focus-visible:ring-[3px] focus-visible:ring-ring/25';
+const ACTIVE_TAB_CLASS_NAME = 'font-medium text-foreground hover:text-foreground';
+
+function tabIndicatorStyle(box: IndicatorBox) {
+	return { transform: `translateX(${box.left}px)`, width: box.width };
+}
+
 export const RequestToJoinModal = ({ open, closeModal }: { open: boolean; closeModal: () => void }) => {
 	const [currentTab, setCurrentTab] = useState<'ALREADY_MEMBER' | 'BECOME_MEMBER'>('ALREADY_MEMBER');
 	// Held here so switching tabs, which unmounts AlreadyMember, does not end the wait
 	const resendCooldown = useResendCooldown();
+	const { listRef, activeRef, box } = useActiveIndicator<HTMLDivElement, HTMLButtonElement>(currentTab);
+	const activeTeam = useAtomValue(activeTeamState);
 
 	const t = useTranslations();
+	const isAlreadyMemberTab = currentTab === 'ALREADY_MEMBER';
+	const isBecomeMemberTab = currentTab === 'BECOME_MEMBER';
+	const alreadyMemberTabRef = isAlreadyMemberTab && activeRef;
+	const becomeMemberTabRef = isBecomeMemberTab && activeRef;
 
 	return (
-		<Modal isOpen={open} closeModal={closeModal}>
-			<EverCard className="w-[98%] md:w-[480px]" shadow="custom">
-				<div className="flex justify-between items-center border-b dark:border-b-[#FFFFFF29]">
-					<Text.Heading
-						as="h3"
-						className={clsxm(
-							'text-center gap-32 pb-4 pr-5 hover:cursor-pointer',
-							currentTab === 'ALREADY_MEMBER' && 'border-primary dark:border-[#FFFFFF29] border-b-[3px]'
-						)}
+		<Modal isOpen={open} closeModal={closeModal} title={t('common.JOIN_REQUEST')} breadcrumb={activeTeam?.name}>
+			<div className="flex w-full flex-col sm:w-md">
+				<div ref={listRef} role="tablist" className="relative flex items-end gap-5 hairline-b border-border">
+					<button
+						type="button"
+						role="tab"
+						aria-selected={isAlreadyMemberTab}
+						ref={alreadyMemberTabRef || undefined}
+						className={clsxm(TAB_CLASS_NAME, isAlreadyMemberTab && ACTIVE_TAB_CLASS_NAME)}
 						onClick={() => {
 							setCurrentTab('ALREADY_MEMBER');
 						}}
 					>
 						{t('common.EXISTING_MEMBER')}
-					</Text.Heading>
-					<Text.Heading
-						as="h3"
-						className={clsxm(
-							'text-center gap-32 pb-4 pl-5 hover:cursor-pointer',
-							currentTab === 'BECOME_MEMBER' && 'border-primary dark:border-[#FFFFFF29] border-b-[3px]'
-						)}
+					</button>
+					<button
+						type="button"
+						role="tab"
+						aria-selected={isBecomeMemberTab}
+						ref={becomeMemberTabRef || undefined}
+						className={clsxm(TAB_CLASS_NAME, isBecomeMemberTab && ACTIVE_TAB_CLASS_NAME)}
 						onClick={() => {
 							setCurrentTab('BECOME_MEMBER');
 						}}
 					>
 						{t('common.NEW_MEMBER')}
-					</Text.Heading>
+					</button>
+					{box && (
+						<span
+							aria-hidden="true"
+							style={tabIndicatorStyle(box)}
+							className="pointer-events-none absolute bottom-0 left-0 h-0.5 rounded-t-full bg-primary transition-[transform,width] duration-300 ease-[cubic-bezier(0.22,1,0.36,1)]"
+						/>
+					)}
 				</div>
 
-				{currentTab === 'ALREADY_MEMBER' && (
-					<AlreadyMember closeModal={closeModal} resendCooldown={resendCooldown} />
-				)}
-				{currentTab === 'BECOME_MEMBER' && <BecomeMember closeModal={closeModal} />}
-			</EverCard>
+				{isAlreadyMemberTab && <AlreadyMember closeModal={closeModal} resendCooldown={resendCooldown} />}
+				{isBecomeMemberTab && <BecomeMember closeModal={closeModal} />}
+			</div>
 		</Modal>
 	);
 };
@@ -89,85 +118,75 @@ const AlreadyMember = ({
 	const resendCode = () => sendAuthCodeHandler()?.then(resendCooldown.start, () => undefined);
 
 	return (
-		<form autoComplete="off" onSubmit={handleCodeSubmit}>
-			<div className="mt-8 w-full">
-				<InputField
-					type="email"
-					placeholder="Yourmail@mail.com"
-					className={`m-0 h-[54px]`}
-					name="email"
-					value={formValues.email}
-					onChange={handleChange}
-					errors={errors}
-					required
+		<form autoComplete="off" onSubmit={handleCodeSubmit} className="flex flex-col gap-5 pt-6">
+			<InputField
+				type="email"
+				placeholder={t('form.EMAIL_PLACEHOLDER')}
+				className="m-0"
+				wrapperClassName="mb-0"
+				name="email"
+				value={formValues.email}
+				onChange={handleChange}
+				errors={errors}
+				required
+			/>
+			<div className="flex w-full flex-col gap-2.5">
+				<p className={modalFieldLabelClass}>{t('pages.auth.INPUT_INVITE_CODE')}</p>
+				<AuthCodeInputField
+					allowedCharacters="alphanumeric"
+					length={AUTH_CODE_LENGTH}
+					ref={inputCodeRef}
+					containerClassName={AUTH_CODE_CONTAINER_CLASS}
+					inputClassName={AUTH_CODE_SLOT_CLASS}
+					defaultValue={formValues.code}
+					onChange={(code) => {
+						setFormValues((v) => ({ ...v, code }));
+					}}
 				/>
+				{errors['code'] && <Text.Error className="justify-self-start self-start">{errors['code']}</Text.Error>}
 			</div>
-			<div className="mt-5">
-				<div className="flex flex-col justify-between items-center">
-					<>
-						<div className="w-full">
-							<p className="text-xs text-left text-gray-500">{t('pages.auth.INPUT_INVITE_CODE')}</p>
-							<AuthCodeInputField
-								allowedCharacters="alphanumeric"
-								length={AUTH_CODE_LENGTH}
-								ref={inputCodeRef}
-								containerClassName="mt-[21px] w-full flex justify-between"
-								inputClassName="w-[40px] xs:w-[50px]"
-								defaultValue={formValues.code}
-								onChange={(code) => {
-									setFormValues((v) => ({ ...v, code }));
-								}}
-							/>
-							{errors['code'] && (
-								<Text.Error className="justify-self-start self-start">{errors['code']}</Text.Error>
-							)}
-						</div>
-						<div className="flex justify-between items-center mt-5 w-full">
-							<div className="flex flex-col items-start">
-								<div className="text-xs font-normal text-gray-500 dark:text-gray-400">
-									{t('pages.auth.UNRECEIVED_CODE')}
-									{!signInEmailLoading && (
-										<button
-											type="button"
-											className="text-xs font-normal text-gray-500 dark:text-gray-400"
-											onClick={resendCode}
-											disabled={resendCooldown.locked}
-										>
-											{resendCooldown.locked ? (
-												`${t('pages.auth.RESEND_CODE_IN')} ${resendCooldown.countdown}`
-											) : (
-												<>
-													{'Re'}
-													<span className="text-primary dark:text-primary-light">
-														{t('pages.auth.SEND_CODE')}
-													</span>
-												</>
-											)}
-										</button>
-									)}
-									{signInEmailLoading && <SpinnerLoader size={22} className="self-center" />}
-								</div>
-							</div>
-						</div>
-					</>
-
-					<div className="flex justify-between items-center mt-5 w-full">
-						<div className="flex justify-around hover:cursor-pointer" onClick={closeModal}>
-							<ArrowLeftIcon className="w-full max-w-[20px]" /> <p className="ml-5">{t('common.BACK')}</p>
-						</div>
-
-						<Button
-							type="submit"
-							className={
-								'font-normal rounded-xl border border-primary disabled:border-0 md:min-w-[180px]'
-							}
-							loading={loading}
-							disabled={loading || formValues.code.length !== AUTH_CODE_LENGTH}
-						>
-							{t('pages.auth.JOIN')}
-						</Button>
+			<div className="flex w-full items-center justify-between">
+				<div className="flex flex-col items-start">
+					<div className="text-xs font-normal text-muted-foreground">
+						{t('pages.auth.UNRECEIVED_CODE')}
+						{!signInEmailLoading && (
+							<button
+								type="button"
+								className="text-xs font-normal text-muted-foreground"
+								onClick={resendCode}
+								disabled={resendCooldown.locked}
+							>
+								{resendCooldown.locked &&
+									`${t('pages.auth.RESEND_CODE_IN')} ${resendCooldown.countdown}`}
+								{!resendCooldown.locked && (
+									<span className="text-primary-ink">{t('pages.auth.RESEND_CODE')}</span>
+								)}
+							</button>
+						)}
+						{signInEmailLoading && <SpinnerLoader size={22} className="self-center" />}
 					</div>
 				</div>
+			</div>
+
+			<div className={modalFooterClass}>
+				<Button
+					type="button"
+					variant="ghost"
+					size="default"
+					className={modalSecondaryActionClass}
+					onClick={closeModal}
+				>
+					{t('common.CANCEL')}
+				</Button>
+				<Button
+					type="submit"
+					size="default"
+					className={modalPrimaryActionClass}
+					loading={loading}
+					disabled={loading || formValues.code.length !== AUTH_CODE_LENGTH}
+				>
+					{t('pages.auth.JOIN')}
+				</Button>
 			</div>
 		</form>
 	);
@@ -246,111 +265,113 @@ const BecomeMember = ({ closeModal }: { closeModal: any }) => {
 		}
 	}, [requestToJoinPayload, resendCodeRequestToJoinTeam]);
 
+	const isConfirmStep = joinButtonAction === 'CONFIRM';
+	let submitLabel = t('common.CONFIRM');
+	if (joinButtonAction === 'JOIN') {
+		submitLabel = t('common.JOIN_REQUEST');
+	}
+
 	return (
-		<form autoComplete="off" onSubmit={handleSubmitRequest}>
-			<div className="mt-8 w-full">
+		<form autoComplete="off" onSubmit={handleSubmitRequest} className="flex flex-col gap-5 pt-6">
+			<div className="flex w-full flex-col gap-3">
 				<InputField
 					type="text"
-					placeholder="Enter your name"
+					placeholder={t('modals.requestToJoin.namePlaceholder')}
 					name="fullName"
-					className={`m-0 h-[54px] placeholder:font-normal`}
+					className="m-0"
+					wrapperClassName="mb-0"
 					required
-					disabled={joinButtonAction === 'CONFIRM'}
+					disabled={isConfirmStep}
 				/>
 				<InputField
 					type="email"
-					placeholder="Enter your email address "
-					className={`m-0 h-[54px] placeholder:font-normal`}
+					placeholder={t('modals.requestToJoin.emailPlaceholder')}
+					className="m-0"
+					wrapperClassName="mb-0"
 					name="email"
 					required
-					disabled={joinButtonAction === 'CONFIRM'}
+					disabled={isConfirmStep}
 				/>
 
 				<InputField
 					type="url"
-					placeholder="Enter your link"
-					className={`m-0 h-[54px] placeholder:font-normal`}
+					placeholder={t('modals.requestToJoin.linkPlaceholder')}
+					className="m-0"
+					wrapperClassName="mb-0"
 					name="linkAddress"
 					required
-					disabled={joinButtonAction === 'CONFIRM'}
+					disabled={isConfirmStep}
 				/>
-				<PositionDropDown
-					currentPosition={position}
-					onChangePosition={setPosition}
-					disabled={joinButtonAction === 'CONFIRM'}
-				/>
+				<PositionDropDown currentPosition={position} onChangePosition={setPosition} disabled={isConfirmStep} />
 
 				{message && <Text.Error className="justify-self-start self-start">{message}</Text.Error>}
 			</div>
 
-			<div className="mt-5">
-				<div className="flex flex-col justify-between items-center">
-					{joinButtonAction === 'CONFIRM' && (
-						<>
-							<div className="w-full">
-								<p className="text-xs text-left text-gray-500">{t('pages.auth.INPUT_INVITE_CODE')}</p>
-								<AuthCodeInputField
-									allowedCharacters="alphanumeric"
-									length={AUTH_CODE_LENGTH}
-									ref={inputCodeRef}
-									containerClassName="mt-[21px] w-full flex justify-between"
-									inputClassName="w-[40px] xs:w-[50px]"
-									defaultValue={formValues.code}
-									onChange={(code) => {
-										setFormValues((v) => ({ ...v, code }));
-									}}
-								/>
-								{errors['code'] && (
-									<Text.Error className="justify-self-start self-start">{errors['code']}</Text.Error>
-								)}
-							</div>
-							<div className="flex justify-between items-center mt-5 w-full">
-								<div className="flex flex-col items-start">
-									<div className="text-xs font-normal text-gray-500 dark:text-gray-400">
-										{t('pages.auth.UNRECEIVED_CODE')}
-										{!sendCodeLoading && (
-											<button
-												type="button"
-												className="text-xs font-normal text-gray-500 dark:text-gray-400"
-												onClick={handleResendCodeRequestToJoinTeam}
-											>
-												{'Re'}
-												<span className="text-primary dark:text-primary-light">
-													{t('pages.auth.SEND_CODE')}
-												</span>
-											</button>
-										)}
-										{sendCodeLoading ||
-											(resendCodeRequestToJoinLoading && (
-												<SpinnerLoader size={22} className="self-center" />
-											))}
-									</div>
-								</div>
-							</div>
-						</>
-					)}
-
-					<div className="flex justify-between items-center mt-5 w-full">
-						<div className="flex justify-around hover:cursor-pointer" onClick={closeModal}>
-							<ArrowLeftIcon className="w-full max-w-[20px]" /> <p className="ml-5">{t('common.BACK')}</p>
-						</div>
-
-						<Button
-							type="submit"
-							className={
-								'font-normal rounded-xl border border-primary disabled:border-0 md:min-w-[180px]'
-							}
-							loading={requestToJoinLoading || validateRequestToJoinLoading}
-							disabled={
-								requestToJoinLoading ||
-								validateRequestToJoinLoading ||
-								(joinButtonAction === 'CONFIRM' && formValues.code.length !== AUTH_CODE_LENGTH)
-							}
-						>
-							{joinButtonAction === 'JOIN' ? t('common.JOIN_REQUEST') : t('common.CONFIRM')}
-						</Button>
+			{isConfirmStep && (
+				<>
+					<div className="flex w-full flex-col gap-2.5">
+						<p className={modalFieldLabelClass}>{t('pages.auth.INPUT_INVITE_CODE')}</p>
+						<AuthCodeInputField
+							allowedCharacters="alphanumeric"
+							length={AUTH_CODE_LENGTH}
+							ref={inputCodeRef}
+							containerClassName={AUTH_CODE_CONTAINER_CLASS}
+							inputClassName={AUTH_CODE_SLOT_CLASS}
+							defaultValue={formValues.code}
+							onChange={(code) => {
+								setFormValues((v) => ({ ...v, code }));
+							}}
+						/>
+						{errors['code'] && (
+							<Text.Error className="justify-self-start self-start">{errors['code']}</Text.Error>
+						)}
 					</div>
-				</div>
+					<div className="flex w-full items-center justify-between">
+						<div className="flex flex-col items-start">
+							<div className="text-xs font-normal text-muted-foreground">
+								{t('pages.auth.UNRECEIVED_CODE')}
+								{!sendCodeLoading && (
+									<button
+										type="button"
+										className="text-xs font-normal text-muted-foreground"
+										onClick={handleResendCodeRequestToJoinTeam}
+									>
+										<span className="text-primary-ink">{t('pages.auth.RESEND_CODE')}</span>
+									</button>
+								)}
+								{sendCodeLoading ||
+									(resendCodeRequestToJoinLoading && (
+										<SpinnerLoader size={22} className="self-center" />
+									))}
+							</div>
+						</div>
+					</div>
+				</>
+			)}
+
+			<div className={modalFooterClass}>
+				<Button
+					type="button"
+					variant="ghost"
+					size="default"
+					className={modalSecondaryActionClass}
+					onClick={closeModal}
+				>
+					{t('common.CANCEL')}
+				</Button>
+				<Button
+					type="submit"
+					size="default"
+					className={modalPrimaryActionClass}
+					loading={requestToJoinLoading || validateRequestToJoinLoading}
+					disabled={
+						requestToJoinLoading ||
+						validateRequestToJoinLoading ||
+						(joinButtonAction === 'CONFIRM' && formValues.code.length !== AUTH_CODE_LENGTH)
+					}
+				>
+					{submitLabel}
+				</Button>
 			</div>
 		</form>
 	);

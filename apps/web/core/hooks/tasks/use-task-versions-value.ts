@@ -4,5 +4,5 @@ import { useTaskVersionsQuery } from './use-task-versions-query';
 export function useTaskVersionsValue() {
 	const { taskVersions } = useTaskVersionsQuery();
 
-	return useMapToTaskStatusValues(taskVersions, false);
+	return useMapToTaskStatusValues(taskVersions, 'version');
 }

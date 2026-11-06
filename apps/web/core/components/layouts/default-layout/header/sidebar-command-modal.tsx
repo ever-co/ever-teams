@@ -1,6 +1,6 @@
 'use client';
 import * as React from 'react';
-import { FC, useCallback, useMemo } from 'react';
+import { FC, useCallback, useMemo, useState } from 'react';
 import { useAtom } from 'jotai';
 import { commandPaletteOpenAtom } from '@/core/stores/common/command-palette';
 import { useRouter } from 'next/navigation';
@@ -12,10 +12,11 @@ import {
 	CommandInput,
 	CommandItem,
 	CommandList,
-	CommandShortcut
+	CommandShortcut,
+	commandIconTileClass,
+	commandKeycapClass
 } from '@/core/components/common/command';
 import { SidebarCommandForm } from './sidebar-command-form';
-import { Badge } from '../../../common/badge';
 import {
 	AddIcon,
 	AddTaskIcon,
@@ -38,20 +39,47 @@ import CreateTaskModal from '../../../features/tasks/create-task-modal';
 
 import { createPortal } from 'react-dom';
 import { useTheme } from 'next-themes';
-import { ArrowUpRightIcon } from 'lucide-react';
+import { ArrowUpRight } from '@/core/components/icons/hugeicons';
 import { useKeyboardShortcuts, CommandShortcutConfig } from '@/core/hooks/common/use-keyboard-shortcuts';
 import { InviteFormModal } from '../../../features/teams/invite-form-modal';
 import { CreateProjectModal } from '../../../features/projects/create-project-modal';
 import { CreateTeamModal } from '@/core/components/features/teams/create-team-modal';
+import { PaletteTaskResults } from './palette-task-results';
 
 // Definition of types to improve readability and security
 type ShortcutAction = () => void;
 
 interface CommandGroupConfig {
+	id: string;
 	heading: string;
 	commands: CommandShortcutConfig[];
 }
-const ClickableCommandItem: FC<{ children: React.ReactNode; action: ShortcutAction }> = ({
+
+const ALL_GROUPS_TAB = 'all';
+const TASKS_TAB = 'tasks';
+const PALETTE_SHORTCUT_KEYS = ['⌘', 'K'];
+const paletteGroupClass =
+	'p-0 pt-1 [&_[cmdk-group-heading]]:h-8 [&_[cmdk-group-heading]]:px-2 [&_[cmdk-group-heading]]:text-[13px]';
+const paletteActionRowClass = 'min-h-10 gap-3 rounded-lg px-2 text-sm';
+
+function groupsForTab(groups: CommandGroupConfig[], tab: string) {
+	if (tab === ALL_GROUPS_TAB) {
+		return groups;
+	}
+	return groups.filter((group) => group.id === tab);
+}
+
+function showsTaskResultsIn(tab: string) {
+	return tab === ALL_GROUPS_TAB || tab === TASKS_TAB;
+}
+
+function shortcutKeysOf(shortcutDisplay: string) {
+	return Array.from(shortcutDisplay);
+}
+
+const navigationIcon = <ArrowUpRight aria-hidden="true" />;
+
+const ClickableCommandItem: FC<{ children: React.ReactNode; action: ShortcutAction; className?: string }> = ({
 	children,
 	action,
 	...props
@@ -100,6 +128,9 @@ export const SidebarCommandModal: FC<{ publicTeam: boolean; variant?: 'sidebar' 
 	const [open, setOpen] = useAtom(commandPaletteOpenAtom);
 
 	const t = useTranslations();
+	const [activeTab, setActiveTab] = useState(ALL_GROUPS_TAB);
+	const [search, setSearch] = useState('');
+	const [lastOpen, setLastOpen] = useState(open);
 	const { user } = useAuthenticateUser();
 	// The API refuses an invitation into a team the user does not manage (403): offer "Invite User", and its
 	// key sequence, only to who may send it.
@@ -117,10 +148,13 @@ export const SidebarCommandModal: FC<{ publicTeam: boolean; variant?: 'sidebar' 
 	const createProjectModal = useModal();
 
 	// Close the palette and execute an action
-	const executeAction = useCallback((action: ShortcutAction) => {
-		action();
-		setOpen(false);
-	}, [setOpen]);
+	const executeAction = useCallback(
+		(action: ShortcutAction) => {
+			action();
+			setOpen(false);
+		},
+		[setOpen]
+	);
 
 	// Reusable actions
 	const actions = useMemo(
@@ -152,13 +186,14 @@ export const SidebarCommandModal: FC<{ publicTeam: boolean; variant?: 'sidebar' 
 	const commandGroups: CommandGroupConfig[] = useMemo(
 		() => [
 			{
-				heading: 'Suggestions',
+				id: 'suggestions',
+				heading: t('commandPalette.groups.suggestions'),
 				commands: [
 					...(canInvite
 						? [
 								{
 									sequence: ['i', 'u'],
-									description: 'Invite User',
+									description: t('commandPalette.commands.inviteUser'),
 									shortcutDisplay: 'IU',
 									action: actions.inviteUser,
 									icon: <AddUserIcon />
@@ -168,14 +203,14 @@ export const SidebarCommandModal: FC<{ publicTeam: boolean; variant?: 'sidebar' 
 
 					{
 						sequence: ['a', 'm'],
-						description: 'Assign to me',
+						description: t('commandPalette.commands.assignToMe'),
 						shortcutDisplay: 'AM',
 						action: actions.assignToMe,
 						icon: <UserCircleIcon />
 					},
 					{
 						sequence: ['t', 'h'],
-						description: 'Toggle Theme',
+						description: t('commandPalette.commands.toggleTheme'),
 						shortcutDisplay: 'TH',
 						action: actions.toggleTheme,
 						icon: <MoonIcon />
@@ -183,12 +218,13 @@ export const SidebarCommandModal: FC<{ publicTeam: boolean; variant?: 'sidebar' 
 				]
 			},
 			{
-				heading: 'Tasks',
+				id: 'tasks',
+				heading: t('commandPalette.groups.tasks'),
 				commands: [
 					{
 						sequence: ['c', 't'],
 						modifiers: [],
-						description: 'Create New Task',
+						description: t('commandPalette.commands.createTask'),
 						shortcutDisplay: 'CT',
 						action: actions.createTask,
 						icon: <AddTaskIcon />
@@ -196,7 +232,7 @@ export const SidebarCommandModal: FC<{ publicTeam: boolean; variant?: 'sidebar' 
 					{
 						sequence: ['s', 't'],
 						modifiers: [],
-						description: 'Search Tasks',
+						description: t('commandPalette.commands.searchTasks'),
 						shortcutDisplay: 'ST',
 						action: actions.navigateToSearchTasks,
 						icon: <TasksIcon />
@@ -204,12 +240,13 @@ export const SidebarCommandModal: FC<{ publicTeam: boolean; variant?: 'sidebar' 
 				]
 			},
 			{
-				heading: 'Teams',
+				id: 'teams',
+				heading: t('commandPalette.groups.teams'),
 				commands: [
 					{
 						sequence: ['c', 't'],
 						modifiers: ['ctrl'],
-						description: 'Create New Team',
+						description: t('commandPalette.commands.createTeam'),
 						shortcutDisplay: '⌘CT',
 						action: actions.createTeam,
 						icon: <AddTeamIcon />
@@ -217,7 +254,7 @@ export const SidebarCommandModal: FC<{ publicTeam: boolean; variant?: 'sidebar' 
 					{
 						sequence: ['s', 't'],
 						modifiers: ['ctrl'],
-						description: 'Search Teams',
+						description: t('commandPalette.commands.searchTeams'),
 						shortcutDisplay: '⌘ST',
 						action: actions.navigateToSearchTeams,
 						icon: <TeamIcon />
@@ -225,11 +262,12 @@ export const SidebarCommandModal: FC<{ publicTeam: boolean; variant?: 'sidebar' 
 				]
 			},
 			{
-				heading: 'Projects',
+				id: 'projects',
+				heading: t('commandPalette.groups.projects'),
 				commands: [
 					{
 						sequence: ['c', 'p'],
-						description: 'Create New Project',
+						description: t('commandPalette.commands.createProject'),
 						shortcutDisplay: 'CP',
 						action: actions.createProject,
 						icon: <AddIcon />
@@ -237,7 +275,7 @@ export const SidebarCommandModal: FC<{ publicTeam: boolean; variant?: 'sidebar' 
 					{
 						sequence: ['s', 'p'],
 						modifiers: ['ctrl'],
-						description: 'Search Projects',
+						description: t('commandPalette.commands.searchProjects'),
 						shortcutDisplay: '⌘SP',
 						action: actions.navigateToSearchProjects,
 						icon: <DashboardIcon />
@@ -246,81 +284,83 @@ export const SidebarCommandModal: FC<{ publicTeam: boolean; variant?: 'sidebar' 
 			},
 
 			{
-				heading: 'Navigation',
+				id: 'navigation',
+				heading: t('commandPalette.groups.navigation'),
 				commands: [
 					{
 						sequence: ['m', 't'],
 						modifiers: ['ctrl'],
-						description: 'Go to My Tasks',
+						description: t('commandPalette.commands.goToMyTasks'),
 						shortcutDisplay: '⌘MT',
 						action: actions.navigateToMyTasks,
-						icon: <ArrowUpRightIcon className="opacity-60" aria-hidden="true" />
+						icon: navigationIcon
 					},
 					{
 						sequence: ['t', 't'],
 						modifiers: ['ctrl'],
-						description: "Go to My Team's Tasks",
+						description: t('commandPalette.commands.goToTeamTasks'),
 						shortcutDisplay: '⌘TT',
 						action: actions.navigateToMyTeamsTasks,
-						icon: <ArrowUpRightIcon className="opacity-60" aria-hidden="true" />
+						icon: navigationIcon
 					},
 					{
 						sequence: ['t', 'p'],
 						modifiers: ['ctrl'],
-						description: 'Go to Projects',
+						description: t('commandPalette.commands.goToProjects'),
 						shortcutDisplay: '⌘TP',
 						action: actions.navigateToProjects,
-						icon: <ArrowUpRightIcon className="opacity-60" aria-hidden="true" />
+						icon: navigationIcon
 					},
 					{
 						sequence: ['k'],
 						modifiers: ['ctrl'],
-						description: 'Go to Kanban',
+						description: t('commandPalette.commands.goToKanban'),
 						shortcutDisplay: '⌘K',
 						action: actions.navigateToKanban,
-						icon: <ArrowUpRightIcon className="opacity-60" aria-hidden="true" />
+						icon: navigationIcon
 					},
 					{
 						sequence: ['h'],
 						modifiers: ['ctrl'],
-						description: 'Go to Home Page',
+						description: t('commandPalette.commands.goToHome'),
 						shortcutDisplay: '⌘H',
 						action: actions.navigateToHome,
-						icon: <ArrowUpRightIcon className="opacity-60" aria-hidden="true" />
+						icon: navigationIcon
 					},
 					{
 						sequence: ['t', 's'],
 						modifiers: ['ctrl'],
-						description: 'Go to Timesheets Report',
+						description: t('commandPalette.commands.goToTimesheets'),
 						shortcutDisplay: '⌘TS',
 						action: actions.navigateToTimesheetsReport,
-						icon: <ArrowUpRightIcon className="opacity-60" aria-hidden="true" />
+						icon: navigationIcon
 					},
 					{
 						sequence: ['w', 'l'],
 						modifiers: ['ctrl'],
-						description: 'Go to Weekly Limit Report',
+						description: t('commandPalette.commands.goToWeeklyLimit'),
 						shortcutDisplay: '⌘WL',
 						action: actions.navigateToWeeklyLimitReport,
-						icon: <ArrowUpRightIcon className="opacity-60" aria-hidden="true" />
+						icon: navigationIcon
 					},
 					{
 						sequence: ['t', 'a'],
 						modifiers: ['ctrl'],
-						description: 'Go to Time & Activity Report',
+						description: t('commandPalette.commands.goToTimeAndActivity'),
 						shortcutDisplay: '⌘TA',
 						action: actions.navigateToTimeAndActivityReport,
-						icon: <ArrowUpRightIcon className="opacity-60" aria-hidden="true" />
+						icon: navigationIcon
 					}
 				]
 			},
 			{
-				heading: 'Settings',
+				id: 'settings',
+				heading: t('commandPalette.groups.settings'),
 				commands: [
 					{
 						sequence: ['p'],
 						modifiers: ['ctrl'],
-						description: 'Profile',
+						description: t('commandPalette.commands.profile'),
 						shortcutDisplay: '⌘P',
 						action: actions.navigateToProfile,
 						icon: <ProfileIcon />
@@ -328,7 +368,7 @@ export const SidebarCommandModal: FC<{ publicTeam: boolean; variant?: 'sidebar' 
 					{
 						sequence: ['s'],
 						modifiers: ['ctrl'],
-						description: 'Settings',
+						description: t('commandPalette.commands.settings'),
 						shortcutDisplay: '⌘S',
 						action: actions.navigateToSettings,
 						icon: <SettingsIcon />
@@ -336,7 +376,7 @@ export const SidebarCommandModal: FC<{ publicTeam: boolean; variant?: 'sidebar' 
 				]
 			}
 		],
-		[actions, canInvite]
+		[actions, canInvite, t]
 	);
 
 	// Extract all shortcut configurations for the global hook
@@ -367,31 +407,54 @@ export const SidebarCommandModal: FC<{ publicTeam: boolean; variant?: 'sidebar' 
 		return () => document.removeEventListener('keydown', down);
 	}, [setOpen]);
 
+	if (open !== lastOpen) {
+		setLastOpen(open);
+		if (!open) {
+			setActiveTab(ALL_GROUPS_TAB);
+			setSearch('');
+		}
+	}
+
+	const tabs = useMemo(() => {
+		const groupTabs = commandGroups.map((group) => ({ value: group.id, label: group.heading }));
+		return [{ value: ALL_GROUPS_TAB, label: t('commandPalette.tabs.all') }, ...groupTabs];
+	}, [commandGroups, t]);
+
+	const visibleGroups = groupsForTab(commandGroups, activeTab);
+	const showsTaskResults = showsTaskResultsIn(activeTab);
+
+	const openTask = useCallback(
+		(taskId: string) => {
+			router.push(`/task/${taskId}`);
+			setOpen(false);
+		},
+		[router, setOpen]
+	);
+
 	// Rendering of command groups from the configuration
 	const renderCommandGroups = () => {
-		return commandGroups.map((group, groupIndex) => (
-			<React.Fragment key={`group-${groupIndex}`}>
-				<CommandGroup key={`group-${groupIndex}`} heading={group.heading}>
-					{group.commands.map((command, commandIndex) => (
-						<ClickableCommandItem
-							key={`${group.heading}-${commandIndex}`}
-							action={() => {
-								executeAction(command.action);
-							}}
-						>
-							{command.icon}
-							<span>{command.description}</span>
-							<CommandShortcut>
-								{command.shortcutDisplay.includes('⌘') ? (
-									command.shortcutDisplay
-								) : (
-									<kbd>{command.shortcutDisplay}</kbd>
-								)}
-							</CommandShortcut>
-						</ClickableCommandItem>
-					))}
-				</CommandGroup>
-			</React.Fragment>
+		return visibleGroups.map((group) => (
+			<CommandGroup key={group.id} heading={group.heading} className={paletteGroupClass}>
+				{group.commands.map((command, commandIndex) => (
+					<ClickableCommandItem
+						key={`${group.id}-${commandIndex}`}
+						className={paletteActionRowClass}
+						action={() => {
+							executeAction(command.action);
+						}}
+					>
+						<span className={commandIconTileClass}>{command.icon}</span>
+						<span className="min-w-0 flex-1 truncate">{command.description}</span>
+						<CommandShortcut>
+							{shortcutKeysOf(command.shortcutDisplay).map((key, keyIndex) => (
+								<kbd key={`${command.shortcutDisplay}-${keyIndex}`} className={commandKeycapClass}>
+									{key}
+								</kbd>
+							))}
+						</CommandShortcut>
+					</ClickableCommandItem>
+				))}
+			</CommandGroup>
 		));
 	};
 
@@ -399,10 +462,22 @@ export const SidebarCommandModal: FC<{ publicTeam: boolean; variant?: 'sidebar' 
 		<>
 			{variant === 'sidebar' ? <SidebarCommandForm onClick={() => setOpen(true)} /> : null}
 			<CommandDialog open={open} onOpenChange={setOpen}>
-				<Badge className="m-3 rounded-lg w-fit dark:bg-white/60 dark:text-black">Home</Badge>
-				<CommandInput placeholder="Type a command or search..." />
-				<CommandList>
-					<CommandEmpty>No results found.</CommandEmpty>
+				<CommandInput
+					placeholder={t('commandPalette.searchPlaceholder')}
+					shortcutKeys={PALETTE_SHORTCUT_KEYS}
+					value={search}
+					onValueChange={setSearch}
+				/>
+				<CommandList
+					tabs={tabs}
+					activeTab={activeTab}
+					onTabChange={setActiveTab}
+					tabsLabel={t('commandPalette.tabsLabel')}
+				>
+					<CommandEmpty>{t('commandPalette.empty')}</CommandEmpty>
+					{showsTaskResults && (
+						<PaletteTaskResults search={search} onOpenTask={openTask} className={paletteGroupClass} />
+					)}
 					{renderCommandGroups()}
 				</CommandList>
 			</CommandDialog>

@@ -1,5 +1,6 @@
 import KanbanDraggable, { EmptyKanbanDroppable } from '@/core/components/tasks/kanban';
 import { Fragment, useEffect, useRef, useState } from 'react';
+import { useAtomValue } from 'jotai';
 import {
 	DragDropContext,
 	DraggableLocation,
@@ -10,11 +11,12 @@ import {
 } from '@hello-pangea/dnd';
 import { ScrollArea, ScrollBar } from '@/core/components/common/scroll-area';
 import { cn } from '@/core/lib/helpers';
+import { activeTeamState } from '@/core/stores';
 import { TTaskStatus } from '@/core/types/schemas';
 import { TTask } from '@/core/types/schemas/task/task.schema';
 import { IKanban, KanbanViewProps } from '@/core/types/interfaces/task/task';
 
-export const KanbanView = ({
+const TeamKanbanBoard = ({
 	kanbanBoardTasks,
 	isLoading,
 	kanbanColumns,
@@ -25,7 +27,7 @@ export const KanbanView = ({
 	reorderStatus,
 	addNewTask,
 	toggleColumn
-}: KanbanViewProps) => {
+}: Readonly<KanbanViewProps>) => {
 	const items = kanbanBoardTasks;
 	const [columns, setColumn] = useState<any[]>(
 		Object.keys(kanbanBoardTasks).map((key) => {
@@ -34,7 +36,9 @@ export const KanbanView = ({
 				id: columnInfo?.id,
 				name: key,
 				icon: columnInfo ? columnInfo.fullIconUrl : '',
-				color: columnInfo?.color
+				color: columnInfo?.color,
+				// The status's team decides who may edit it
+				organizationTeamId: columnInfo?.organizationTeamId
 			};
 		})
 	);
@@ -198,74 +202,71 @@ export const KanbanView = ({
 
 	if (!enabled) return null; // ['open','close']
 
+	const hasColumns = Array.isArray(columns) && columns.length > 0;
+
 	return (
-		<div>
-			<ScrollArea
-				className="w-[100vw]  mt-6  relative bg-transparent dark:bg-background min-h-svh h-svh px-3"
-				ref={containerRef}
-			>
-				<DragDropContext onDragEnd={onDragEnd}>
-					{Array.isArray(columns) && columns.length > 0 && (
-						// @ts-ignore
-						<Droppable droppableId="droppable" type="COLUMN" direction="horizontal">
-							{(provided: DroppableProvided, snapshot: DroppableStateSnapshot) => (
-								<div
-									className={cn(
-										'flex flex-1 flex-row gap-4 min-h-fit px-8 lg:px-0 w-full h-full',
-										snapshot.isDraggingOver ? 'bg-slate-200 dark:bg-slate-800' : ''
-									)}
-									ref={provided.innerRef}
-									{...provided.droppableProps}
-								>
-									{columns.length > 0
-										? columns.map((column: any, index: number) => (
-												<Fragment key={index}>
-													{isColumnCollapse(column.name) ? (
-														<EmptyKanbanDroppable
-															index={index}
-															title={column.name}
-															status={column}
-															setColumn={setColumn}
-															items={items[column.name]}
-															backgroundColor={getHeaderBackground(
-																kanbanColumns,
-																column.name
-															)}
-															toggleColumn={toggleColumn}
-														/>
-													) : (
-														<KanbanDraggable
-															key={index}
-															status={column}
-															setColumn={setColumn}
-															isLoading={isLoading}
-															index={index}
-															icon={column.icon}
-															addNewTask={addNewTask}
-															title={column.name}
-															items={items[column.name]}
-															backgroundColor={getHeaderBackground(
-																kanbanColumns,
-																column.name
-															)}
-															containerRef={
-																containerRef as React.RefObject<HTMLDivElement>
-															}
-															allColumnsData={items}
-															toggleColumn={toggleColumn}
-														/>
-													)}
-												</Fragment>
-											))
-										: null}
-									{provided.placeholder as React.ReactElement}
-								</div>
-							)}
-						</Droppable>
-					)}
-				</DragDropContext>
-				<ScrollBar className="fixed bottom-[90px] left-0 w-full bg-transparent" orientation="horizontal" />
-			</ScrollArea>
-		</div>
+		<ScrollArea className="relative w-full" ref={containerRef}>
+			<DragDropContext onDragEnd={onDragEnd}>
+				{hasColumns && (
+					// @ts-ignore
+					<Droppable droppableId="droppable" type="COLUMN" direction="horizontal">
+						{(provided: DroppableProvided, snapshot: DroppableStateSnapshot) => (
+							<div
+								className={cn(
+									'flex min-h-fit w-max flex-row gap-4 rounded-xl pb-3 transition-colors',
+									snapshot.isDraggingOver && 'bg-foreground/[0.02]'
+								)}
+								ref={provided.innerRef}
+								{...provided.droppableProps}
+							>
+								{columns.map((column: any, index: number) => (
+									<Fragment key={index}>
+										{isColumnCollapse(column.name) ? (
+											<EmptyKanbanDroppable
+												index={index}
+												title={column.name}
+												status={column}
+												setColumn={setColumn}
+												items={items[column.name]}
+												backgroundColor={getHeaderBackground(kanbanColumns, column.name)}
+												toggleColumn={toggleColumn}
+											/>
+										) : (
+											<KanbanDraggable
+												key={index}
+												status={column}
+												setColumn={setColumn}
+												isLoading={isLoading}
+												index={index}
+												icon={column.icon}
+												addNewTask={addNewTask}
+												title={column.name}
+												items={items[column.name]}
+												backgroundColor={getHeaderBackground(kanbanColumns, column.name)}
+												containerRef={containerRef as React.RefObject<HTMLDivElement>}
+												allColumnsData={items}
+												toggleColumn={toggleColumn}
+											/>
+										)}
+									</Fragment>
+								))}
+								{provided.placeholder as React.ReactElement}
+							</div>
+						)}
+					</Droppable>
+				)}
+			</DragDropContext>
+			<ScrollBar orientation="horizontal" />
+		</ScrollArea>
 	);
+};
+
+/**
+ * The kanban board of the active team. Its columns are seeded once from the team's statuses, so the board of another
+ * team starts over from that team's statuses: their ids, and the team its column controls are checked against.
+ */
+export const KanbanView = (props: Readonly<KanbanViewProps>) => {
+	const activeTeam = useAtomValue(activeTeamState);
+	const boardTeamId = activeTeam?.id;
+	return <TeamKanbanBoard key={boardTeamId} {...props} />;
 };

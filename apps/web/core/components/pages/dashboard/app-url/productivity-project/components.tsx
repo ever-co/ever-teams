@@ -1,4 +1,4 @@
-import { format } from 'date-fns';
+import { format, parseISO } from 'date-fns';
 import { Avatar, AvatarFallback, AvatarImage } from '@/core/components/common/avatar';
 import { TableCell, TableRow } from '@/core/components/common/table';
 import { cn } from '@/core/lib/helpers';
@@ -11,18 +11,24 @@ import {
 } from '@/core/types/interfaces/activity/productivity-project';
 import { useTranslations } from 'next-intl';
 
+function initialsOf(fullName: string | undefined) {
+	const words = (fullName ?? '').split(' ');
+	const firstLetters = words.map((word) => word[0] ?? '');
+	return firstLetters.join('').toUpperCase();
+}
+
 export const ProgressBar: React.FC<ProgressBarProps> = ({ percentage, className }) => (
 	<div className={cn('flex gap-2 items-center', className)}>
-		<div className="w-full h-2 overflow-hidden bg-gray-200 rounded-full dark:bg-muted">
-			<div className="h-full bg-blue-500" style={{ width: `${percentage}%` }} />
+		<div className="w-full h-1.5 overflow-hidden rounded-full bg-foreground/10">
+			<div className="h-full rounded-full bg-primary" style={{ width: `${percentage}%` }} />
 		</div>
-		<span className="text-gray-600 dark:text-gray-300">{Math.round(percentage)}%</span>
+		<span className="w-10 text-right tabular-nums text-muted-foreground">{Math.round(percentage)}%</span>
 	</div>
 );
 
 export const ActivityRow: React.FC<ActivityRowProps> = ({ employee, activity }) =>
 	employee && (
-		<TableRow className="hover:bg-gray-50 dark:hover:bg-muted">
+		<TableRow>
 			<TableCell></TableCell>
 			<TableCell>
 				<div className="flex items-center gap-2">
@@ -30,20 +36,13 @@ export const ActivityRow: React.FC<ActivityRowProps> = ({ employee, activity }) 
 						{employee.user?.imageUrl && (
 							<AvatarImage src={employee.user.imageUrl} alt={employee.fullName} />
 						)}
-						<AvatarFallback>
-							{employee?.fullName ||
-								''
-									.split(' ')
-									.map((n: string) => n[0])
-									.join('')
-									.toUpperCase()}
-						</AvatarFallback>
+						<AvatarFallback>{initialsOf(employee?.fullName)}</AvatarFallback>
 					</Avatar>
-					<span className="text-gray-700 dark:text-gray-300">{employee.fullName}</span>
+					<span className="text-foreground">{employee.fullName}</span>
 				</div>
 			</TableCell>
-			<TableCell className="text-gray-600 dark:text-gray-400">{activity.title}</TableCell>
-			<TableCell className="text-gray-600 dark:text-gray-400">
+			<TableCell className="text-muted-foreground">{activity.title}</TableCell>
+			<TableCell className="tabular-nums text-foreground">
 				{formatDuration(activity.duration.toString())}
 			</TableCell>
 			<TableCell>
@@ -57,23 +56,23 @@ export const DateSummaryRow: React.FC<DateSummaryRowProps> = ({ date, activities
 	const totalPercentage = activities.reduce((sum, { activity }) => sum + parseFloat(activity.duration_percentage), 0);
 
 	return (
-		<TableRow className="bg-gray-800 border-t border-gray-200 dark:bg-dark--theme-light">
+		<TableRow className="hairline-t border-border bg-foreground/2.5 font-medium hover:bg-foreground/2.5">
 			<TableCell></TableCell>
-			<TableCell colSpan={2} className="text-sm text-gray-500 dark:text-gray-400">
-				Total for {format(new Date(date), 'MMM dd')}
+			<TableCell colSpan={2} className="text-sm text-muted-foreground">
+				Total for {format(parseISO(date), 'MMM dd')}
 			</TableCell>
-			<TableCell className="text-gray-600 dark:text-gray-300">
+			<TableCell className="font-semibold tabular-nums text-foreground">
 				{formatDuration(totalDuration.toString())}
 			</TableCell>
 			<TableCell>
-				<ProgressBar percentage={totalPercentage} className="text-gray-600 dark:text-gray-300" />
+				<ProgressBar percentage={totalPercentage} className="text-foreground" />
 			</TableCell>
 		</TableRow>
 	);
 };
 
 export const ProjectHeaderRow: React.FC<ProjectHeaderRowProps> = ({ projectName }) => (
-	<TableRow className="bg-gray-50/50 dark:bg-muted">
+	<TableRow className="bg-foreground/2.5 hover:bg-foreground/2.5">
 		<TableCell colSpan={5} className="py-2">
 			<div className="flex items-center gap-2">
 				<Avatar className="w-6 h-6">
@@ -85,7 +84,7 @@ export const ProjectHeaderRow: React.FC<ProjectHeaderRowProps> = ({ projectName 
 							.join('')}
 					</AvatarFallback>
 				</Avatar>
-				<span className="font-medium text-gray-800 dark:text-gray-300">{projectName}</span>
+				<span className="font-medium text-foreground">{projectName}</span>
 			</div>
 		</TableCell>
 	</TableRow>
@@ -95,12 +94,12 @@ export const DateHeaderRow: React.FC<DateHeaderRowProps> = ({ date, activities }
 	const t = useTranslations();
 
 	return (
-		<TableRow className="bg-gray-50/30 dark:bg-muted">
-			<TableCell className="text-gray-700 dark:text-gray-300">
-				{format(new Date(date), 'EEEE dd MMM yyyy')}
+		<TableRow className="hover:bg-transparent">
+			<TableCell className="text-sm font-medium text-foreground">
+				{format(parseISO(date), 'EEEE dd MMM yyyy')}
 			</TableCell>
 			<TableCell colSpan={4}>
-				<div className="flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400">
+				<div className="flex items-center gap-2 text-xs tabular-nums text-muted-foreground">
 					{activities.length} {t('common.ACTIVITIES')} •{' '}
 					{Array.from(new Set(activities.map((a) => a.employee.id))).length} {t('common.MEMBERS')}
 				</div>

@@ -4,6 +4,7 @@ import { SpinnerLoader, Text } from '@/core/components';
 import { useTranslations } from 'next-intl';
 import { useIssueTypesQuery } from '@/core/hooks/tasks/use-issue-types-query';
 import { useEditIssueType } from '@/core/hooks/tasks/use-edit-issue-type';
+import { useTaskSettingsAccess } from '@/core/hooks/tasks/use-task-settings-access';
 import { StatusesListCard } from '../settings/list-card';
 import { EditPenUnderlineIcon } from 'assets/svg';
 import { clsxm } from '@/core/lib/utils';
@@ -21,12 +22,25 @@ import { IIssueType } from '@/core/types/interfaces/task/issue-type';
 const ROW = 'grid grid-cols-1 gap-2 sm:grid-cols-[10rem_minmax(0,1fr)] sm:gap-4';
 const LABEL = 'text-sm font-medium text-muted-foreground sm:pt-2';
 
+/** The tooltip of an action: its label, or why it is read-only. */
+function actionTooltip(allowed: boolean, label: string, readOnlyHint: string): string {
+	if (allowed) {
+		return label;
+	}
+	return readOnlyHint;
+}
+
 export const DefaultIssueTypeForm = () => {
 	const t = useTranslations();
 
 	const { issueTypes } = useIssueTypesQuery();
 	const { editIssueType, editIssueTypeLoading } = useEditIssueType();
+	const { canWriteRows, readOnlyHint } = useTaskSettingsAccess();
 	const defaultIssueType: IIssueType | undefined = issueTypes.find((issue) => issue.isDefault);
+	// Making a type the default also clears the mark on every other type of the list
+	const canSetDefault = canWriteRows(issueTypes);
+	const editLabel = t('common.EDIT');
+	const setDefaultTooltip = actionTooltip(canSetDefault, editLabel, readOnlyHint);
 
 	return (
 		<>
@@ -37,11 +51,11 @@ export const DefaultIssueTypeForm = () => {
 					<div className="flex min-w-0 flex-col">
 						<div className="flex w-full flex-wrap gap-2">
 							{defaultIssueType ? (
-								<div className="inline-flex h-9 max-w-full items-center gap-2 rounded-md border border-border bg-card pl-2.5 pr-1 text-sm text-foreground">
+								<div className="inline-flex h-9 max-w-full items-center gap-2 rounded-md hairline-border border-border bg-card pl-2.5 pr-1 text-sm text-foreground">
 									{defaultIssueType.color ? (
 										<span
 											aria-hidden="true"
-											className="size-2.5 shrink-0 rounded-full ring-1 ring-inset ring-foreground/10"
+											className="size-2.5 shrink-0 rounded-full hairline-ring ring-inset ring-foreground/10"
 											style={{ backgroundColor: defaultIssueType.color as string }}
 										/>
 									) : null}
@@ -75,12 +89,15 @@ export const DefaultIssueTypeForm = () => {
 										{editIssueTypeLoading ? (
 											<SpinnerLoader size={16} className="mx-2" />
 										) : (
-											<Tooltip label={t('common.EDIT')}>
+											<Tooltip label={setDefaultTooltip}>
 												<DropdownMenu>
-													<DropdownMenuTrigger className="flex size-8 items-center justify-center rounded-md text-muted-foreground outline-none hover:bg-muted hover:text-foreground">
+													<DropdownMenuTrigger
+														disabled={!canSetDefault}
+														className="flex size-8 items-center justify-center rounded-md text-muted-foreground outline-none hover:bg-muted hover:text-foreground disabled:pointer-events-none disabled:opacity-40"
+													>
 														<EditPenUnderlineIcon className="size-4 text-inherit" />
 													</DropdownMenuTrigger>
-													<DropdownMenuContent className="min-w-[12rem] rounded-md border border-border bg-card p-1 shadow-lg">
+													<DropdownMenuContent className="min-w-[12rem]">
 														{issueTypes.map((issue, index) => {
 															return (
 																!issue.isDefault && (
@@ -106,7 +123,7 @@ export const DefaultIssueTypeForm = () => {
 																		{issue.color ? (
 																			<span
 																				aria-hidden="true"
-																				className="size-2.5 shrink-0 rounded-full ring-1 ring-inset ring-foreground/10"
+																				className="size-2.5 shrink-0 rounded-full hairline-ring ring-inset ring-foreground/10"
 																				style={{ backgroundColor: issue.color }}
 																			/>
 																		) : null}

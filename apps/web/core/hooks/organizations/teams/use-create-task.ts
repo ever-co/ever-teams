@@ -1,29 +1,16 @@
 'use client';
 
 import { taskService } from '@/core/services/client/api';
-import { ApiErrorService } from '@/core/services/client/api-error.service';
+import { errorReasonKeyOf } from '@/core/lib/utils/error-feedback';
 import { useCallback } from 'react';
 import { useMutation } from '@tanstack/react-query';
-import { useTranslations } from 'next-intl';
+import { useTranslations, type DottedLanguageObjectStringPaths } from 'next-intl';
 import { toast } from 'sonner';
 import { useInvalidateTeamTasks } from './use-invalidate-team-tasks';
 
 import { TEmployee, TTag } from '@/core/types/schemas';
-import { EIssueType, ETaskPriority, ETaskSize } from '@/core/types/generics/enums/task';
+import { ETaskPriority, ETaskSize } from '@/core/types/generics/enums/task';
 import { useTaskStatusesQuery } from '../../tasks/use-task-statuses-query';
-
-/**
- * No HTTP response means the API could not be reached. A 4xx carries the API's own reason
- * (validation, permission); other failure messages are written for developers, not users.
- */
-function getCreateTaskErrorDetail(error: Error, networkIssueMessage: string): string | undefined {
-	if (!ApiErrorService.isApiError(error)) return undefined;
-
-	const status = error.httpResponseStatus;
-	if (status === undefined) return networkIssueMessage;
-
-	return status >= 400 && status < 500 ? error.message : undefined;
-}
 
 /**
  * Hook for creating team tasks (CREATE operations only).
@@ -51,11 +38,10 @@ export function useCreateTask() {
 		onSuccess: () => {
 			invalidateTeamTasksData();
 		},
-		// Overrides the query client's generic "Mutation Error" toast for this mutation only.
+		// The one report of a failed creation: callers stay silent and keep the typed title for a retry.
 		onError: (error) => {
-			toast.error(t('task.toastMessages.TASK_CREATION_FAILED'), {
-				description: getCreateTaskErrorDetail(error, t('errors.NETWORK_ISSUE'))
-			});
+			const reasonKey = errorReasonKeyOf(error) as DottedLanguageObjectStringPaths;
+			toast.error(t('toasts.tasks.CREATE_FAILED'), { description: t(reasonKey) });
 		}
 	});
 
@@ -75,7 +61,7 @@ export function useCreateTask() {
 			members
 		}: {
 			title: string;
-			issueType?: EIssueType | null;
+			issueType?: string | null;
 			status?: string | null;
 			taskStatusId: string;
 			priority?: ETaskPriority | null;

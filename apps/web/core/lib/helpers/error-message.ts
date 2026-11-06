@@ -1,4 +1,5 @@
 import { IS_DEV_MODE } from '@/core/constants/config/constants';
+import { announceDevError } from './dev-error-events';
 
 /**
  * Safely extracts error message from various error types
@@ -48,7 +49,7 @@ export function getErrorMessage(error: unknown, userFriendlyMessage: string = 'A
 }
 
 /**
- * Logs error to console in development mode only
+ * Logs error to console in development mode only, and shows it in the development toast (`DevErrorToaster`)
  * Useful for debugging without exposing errors to users
  *
  * @param context - Context/label for the error (e.g., "Failed to start timer")
@@ -57,6 +58,7 @@ export function getErrorMessage(error: unknown, userFriendlyMessage: string = 'A
 export function logErrorInDev(context: string, error: unknown): void {
 	if (IS_DEV_MODE) {
 		console.error(`[${context}]`, error);
+		announceDevError({ source: 'log', label: context, error });
 	}
 }
 

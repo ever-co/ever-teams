@@ -1,6 +1,8 @@
 import { cn } from '@/core/lib/helpers';
 import { Popover, PopoverButton, PopoverPanel } from '@headlessui/react';
-import { Check, ChevronDown, Search } from 'lucide-react';
+import { Check, ChevronDown, Search } from '@/core/components/icons';
+import { controlRecipe } from '@/core/components/common/input';
+import { popoverSurfaceRecipe } from '@/core/components/common/popover';
 import { ChangeEvent, useCallback, useEffect, useState, useMemo, memo } from 'react';
 import { ScrollArea, ScrollBar } from './scroll-bar';
 
@@ -48,12 +50,13 @@ function MultiSelectWithSearchComponent<T extends { value: string | number; id: 
 		<Popover className={'relative '}>
 			<div className="flex w-full ">
 				{searchEnabled && (
-					<Search size={15} className="absolute z-10 -translate-y-1/2  text-slate-400 top-1/2 left-3" />
+					<Search className="absolute z-10 -translate-y-1/2 size-4 text-muted-foreground top-1/2 left-3" />
 				)}
 				<PopoverButton
 					className={cn(
-						'border relative grow rounded-lg w-full bg-transparent text-xs px-3 py-2',
-						searchEnabled && ' pl-9'
+						controlRecipe,
+						'relative grow h-9 px-3 py-1 pr-9 text-left text-sm',
+						searchEnabled && 'pl-9'
 					)}
 					{...(searchEnabled
 						? {
@@ -65,13 +68,17 @@ function MultiSelectWithSearchComponent<T extends { value: string | number; id: 
 							}
 						: {
 								as: 'button',
-								children: <div className="w-full text-xs text-left text-slate-400">{placeholder}</div>
+								children: (
+									<div className="w-full text-sm text-left text-muted-foreground/75">
+										{placeholder}
+									</div>
+								)
 							})}
 				></PopoverButton>
-				<ChevronDown size={20} className="absolute -translate-y-1/2  text-slate-400 top-1/2 right-3" />
+				<ChevronDown className="absolute -translate-y-1/2 size-4 text-muted-foreground top-1/2 right-3" />
 			</div>
-			<PopoverPanel className={'absolute w-full mt-1 z-20 bg-white dark:bg-muted rounded-md shadow-md'}>
-				<ul className="w-full flex flex-col h-52 gap-[.125rem] p-[.125rem]">
+			<PopoverPanel className={cn('absolute w-full mt-1 z-20', popoverSurfaceRecipe)}>
+				<ul className="w-full flex flex-col h-52 gap-0.5 p-1">
 					<ScrollArea>
 						{filteredOptions?.map((option) => {
 							const isSelected = selectedOptions.some((el) => el.id === option.id);
@@ -81,8 +88,8 @@ function MultiSelectWithSearchComponent<T extends { value: string | number; id: 
 									onClick={() => handleSelect(option)}
 									key={option.id}
 									className={cn(
-										'w-full  cursor-pointer flex gap-2  px-4 py-2 rounded-xs text-sm',
-										isSelected ? 'bg-primary text-white' : 'hover:bg-primary/10'
+										'w-full cursor-pointer flex items-center gap-2 px-2 py-1.5 rounded-md text-sm transition-colors hover:bg-foreground/5',
+										isSelected && 'bg-foreground/5 font-medium'
 									)}
 								>
 									<Check
@@ -92,7 +99,7 @@ function MultiSelectWithSearchComponent<T extends { value: string | number; id: 
 										)}
 										size={15}
 									/>
-									<span className="overflow-hidden text-xs truncate  grow whitespace-nowrap">
+									<span className="overflow-hidden text-sm truncate grow whitespace-nowrap">
 										{String(option.value)}
 									</span>
 								</li>

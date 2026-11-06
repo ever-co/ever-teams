@@ -227,6 +227,28 @@ describe('self-hosting surfaces', () => {
 		});
 	});
 
+	// `docker compose up api` runs the production gauzy-api image, which prints sign-in codes and e-mail links on its
+	// console only with PRINT_EMAIL_CODES=true, NODE_ENV=development and both base URLs on localhost. Without that, a
+	// contributor with no mail server cannot sign in to this stack.
+	describe('docker-compose.yml sign-in codes on the API console', () => {
+		const environment = serviceEnvironment('docker-compose.yml', 'api');
+		const LOCALHOST_URL = /^https?:\/\/localhost(?::\d+)?(?:\/|$)/;
+
+		it('are printed by default and can be turned off from the env', () => {
+			expect(environment.PRINT_EMAIL_CODES).toBe('${PRINT_EMAIL_CODES:-true}');
+		});
+
+		it('rely on the NODE_ENV and the localhost base URLs this file defaults to', () => {
+			const nodeEnv = composeDefault(environment.NODE_ENV);
+			const apiBaseUrl = composeDefault(environment.API_BASE_URL);
+			const clientBaseUrl = composeDefault(environment.CLIENT_BASE_URL);
+
+			expect(nodeEnv).toBe('development');
+			expect(apiBaseUrl).toMatch(LOCALHOST_URL);
+			expect(clientBaseUrl).toMatch(LOCALHOST_URL);
+		});
+	});
+
 	// The one-click deploy buttons used to start the app with no runtime env at all (so no AUTH_SECRET), or,
 	// for Render, with Ever's callback URLs and the public AUTH_SECRET of apps/web/.env.
 	describe('one-click templates', () => {

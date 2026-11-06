@@ -23,7 +23,7 @@ jest.mock('@/core/lib/helpers/social-logins', () => ({
 jest.mock('@/core/services/client/api/auth/ever-id.service', () => ({
 	everIdService: { finishSetup: (...args: unknown[]) => mockFinishSetup(...args) }
 }));
-jest.mock('@/core/lib/helpers/date-and-time', () => ({ userTimezone: () => 'Europe/Paris' }));
+jest.mock('@/core/lib/helpers/user-timezone', () => ({ userTimezone: () => 'Europe/Paris' }));
 
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const { useEverIdWorkspaceChoice } =

@@ -1,6 +1,6 @@
 'use client';
 
-import { format } from 'date-fns';
+import { format, parseISO } from 'date-fns';
 import { Document, Page, Text, View, StyleSheet, Font } from '@react-pdf/renderer';
 import {
 	IActivityReportGroupByDate,
@@ -93,7 +93,7 @@ interface ActivityRowProps {
 const ActivityRow = ({ date, activity, employee, projectName, appName, index }: ActivityRowProps) => (
 	<View key={`${appName}-${date}-${index}`} style={styles.tableRow}>
 		<View style={[styles.tableCell, { width: COLUMN_WIDTHS.col1 }]}>
-			<Text>{format(new Date(date), 'EEEE dd MMM yyyy')}</Text>
+			<Text>{format(parseISO(date), 'EEEE dd MMM yyyy')}</Text>
 		</View>
 		<View style={[styles.tableCell, { width: COLUMN_WIDTHS.col2 }]}>
 			<View style={styles.projectCell}>

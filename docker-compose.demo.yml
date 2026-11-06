@@ -33,7 +33,7 @@ services:
       NEXT_PUBLIC_WEB_APP_URL: ${NEXT_PUBLIC_WEB_APP_URL:-https://app.ever.team}
       NEXT_PUBLIC_TWITTER_USERNAME: ${NEXT_PUBLIC_TWITTER_USERNAME:-ever-teams}
       # Hosts outside the list the image was built with are served without Next.js image optimization
-      NEXT_PUBLIC_IMAGES_HOSTS: ${NEXT_PUBLIC_IMAGES_HOSTS:-dummyimage.com,res.cloudinary.com,gauzy.sfo2.digitaloceanspaces.com,cdn-icons-png.flaticon.com,api.gauzy.co,apida.gauzy.co,apicw.gauzy.co,apicivo.gauzy.co,apidev.gauzy.co,apidemo.gauzy.co,apidemocw.gauzy.co,apidemodt.gauzy.co,apidemodts.gauzy.co,apidemocivo.gauzy.co,apidemoda.gauzy.co,apistage.gauzy.co,apistagecivo.gauzy.co,apistagecw.gauzy.co,apistageda.gauzy.co,apistagedt.gauzy.co,apistagedts.gauzy.co,api.ever.team,app.ever.team,apidev.ever.team,gauzy.s3.wasabisys.com,gauzystage.s3.wasabisys.com}
+      NEXT_PUBLIC_IMAGES_HOSTS: ${NEXT_PUBLIC_IMAGES_HOSTS:-res.cloudinary.com,gauzy.sfo2.digitaloceanspaces.com,cdn-icons-png.flaticon.com,api.gauzy.co,apida.gauzy.co,apicw.gauzy.co,apicivo.gauzy.co,apidev.gauzy.co,apidemo.gauzy.co,apidemocw.gauzy.co,apidemodt.gauzy.co,apidemodts.gauzy.co,apidemocivo.gauzy.co,apidemoda.gauzy.co,apistage.gauzy.co,apistagecivo.gauzy.co,apistagecw.gauzy.co,apistageda.gauzy.co,apistagedt.gauzy.co,apistagedts.gauzy.co,api.ever.team,app.ever.team,apidev.ever.team,gauzy.s3.wasabisys.com,gauzystage.s3.wasabisys.com}
       # OAuth Configuration
       NEXT_PUBLIC_GOOGLE_APP_NAME: ${NEXT_PUBLIC_GOOGLE_APP_NAME:-Ever Teams}
       GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID:-}
@@ -79,6 +79,8 @@ services:
       IS_DESKTOP_APP: ${IS_DESKTOP_APP:-false}
       # Desktop app download link of the empty screenshots, apps and visited sites sections; empty = no link
       NEXT_PUBLIC_DESKTOP_APP_DOWNLOAD_URL: ${NEXT_PUBLIC_DESKTOP_APP_DOWNLOAD_URL:-}
+      # App switcher links (id=url pairs separated by commas); empty = no app switcher
+      NEXT_PUBLIC_EVER_APP_LINKS: ${NEXT_PUBLIC_EVER_APP_LINKS:-}
       # Board and Firebase: your own whiteboard deployment; empty = whiteboard off (Ever-operated:
       # https://board.ever.team and https://jsonboard.ever.team/api/v2/post/)
       NEXT_PUBLIC_BOARD_APP_DOMAIN: ${NEXT_PUBLIC_BOARD_APP_DOMAIN:-}

@@ -7,8 +7,9 @@ import {
 } from '../../timesheet';
 import { Button } from '@/core/components';
 import { TranslationHooks } from 'next-intl';
+import { ReactNode } from 'react';
 import { useIsMemberManager, useTimelogFilterOptions } from '@/core/hooks';
-import { PlusIcon } from '../../timesheet/timesheet-icons';
+import { Plus } from '@/core/components/icons';
 import { AddTaskModal } from '../../features/timesheet/add-mask-modal';
 import { TUser } from '@/core/types/schemas';
 import { ETimesheetStatus } from '@/core/types/generics/enums/timesheet';
@@ -24,8 +25,11 @@ interface ITimesheetFilter {
 	filterStatus?: FilterStatus;
 	data?: Record<ETimesheetStatus, ITimeLog[]>;
 	user?: TUser | null;
+	/** The page title, rendered at the start of the row that carries the controls. */
+	children?: ReactNode;
 }
 
+/** The toolbar rows of the timesheet page: the title with the period, date and filter controls, then the status chips. */
 export function TimesheetFilter({
 	closeModal,
 	isOpen,
@@ -35,7 +39,8 @@ export function TimesheetFilter({
 	filterStatus,
 	onChangeStatus,
 	data,
-	user
+	user,
+	children
 }: ITimesheetFilter) {
 	const { isUserAllowedToAccess } = useTimelogFilterOptions();
 	const isManage = isUserAllowedToAccess(user);
@@ -43,29 +48,27 @@ export function TimesheetFilter({
 	return (
 		<>
 			{isOpen && <AddTaskModal closeModal={closeModal} isOpen={isOpen} />}
-			<div className="flex items-center gap-2.5 justify-between w-full">
-				<FilterWithStatus
-					data={data}
-					activeStatus={filterStatus || 'All Tasks'}
-					onToggle={(label) => onChangeStatus?.(label)}
-				/>
-
-				<div className="flex gap-2">
+			<div className="flex flex-wrap items-center justify-between gap-3 py-3">
+				{children}
+				<div className="ml-auto flex flex-wrap items-center gap-2">
 					<FrequencySelect />
 					<TimesheetFilterDate t={t} {...initDate} data={Object.values(data || {}).flat()} />
 					{(isManage || isTeamManager) && <TimeSheetFilterPopover />}
 					{/* The API records manual time for the caller unless they may act for every employee */}
 					{isManage && (
-						<Button
-							onClick={openModal}
-							variant="outline"
-							className="bg-primary/5 dark:bg-primary-light dark:border-transparent  !h-[2.2rem] font-medium"
-						>
-							<PlusIcon />
+						<Button onClick={openModal} variant="primary" size="default">
+							<Plus />
 							{t('common.ADD_TIME')}
 						</Button>
 					)}
 				</div>
+			</div>
+			<div className="pb-3">
+				<FilterWithStatus
+					data={data}
+					activeStatus={filterStatus || 'All Tasks'}
+					onToggle={(label) => onChangeStatus?.(label)}
+				/>
 			</div>
 		</>
 	);

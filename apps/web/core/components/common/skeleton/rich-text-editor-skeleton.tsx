@@ -1,6 +1,10 @@
 import { FC } from 'react';
 import { clsxm } from '@/core/lib/utils';
 
+const ACTIVITY_GROUP_KEYS = ['first-group', 'second-group', 'third-group'];
+
+const CONTENT_ROW_KEYS = ['first-row', 'second-row'];
+
 interface RichTextEditorSkeletonProps {
 	className?: string;
 }
@@ -13,41 +17,41 @@ export const RichTextEditorSkeleton: FC<RichTextEditorSkeletonProps> = ({ classN
 	return (
 		<div className={clsxm('flex flex-col prose dark:prose-invert', className)}>
 			{/* Toolbar skeleton */}
-			<div className="flex gap-2 items-center p-2 border-b border-gray-200 dark:border-gray-700">
+			<div className="flex gap-2 items-center p-2 hairline-b border-border">
 				{/* Formatting buttons */}
 				{[...Array(6)].map((_, i) => (
-					<div key={i} className="w-8 h-8 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded" />
+					<div key={i} className="w-8 h-8 bg-foreground/5 animate-pulse rounded-md" />
 				))}
 
 				{/* Separator */}
-				<div className="mx-2 w-px h-6 bg-gray-300 dark:bg-gray-600" />
+				<div className="mx-2 w-px h-6 bg-border" />
 
 				{/* More buttons */}
 				{[...Array(3)].map((_, i) => (
-					<div key={i + 6} className="w-8 h-8 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded" />
+					<div key={i + 6} className="w-8 h-8 bg-foreground/5 animate-pulse rounded-md" />
 				))}
 
 				{/* Emoji button */}
-				<div className="w-8 h-8 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded-sm ml-auto" />
+				<div className="w-8 h-8 bg-foreground/5 animate-pulse rounded-md ml-auto" />
 			</div>
 
 			{/* Divider */}
-			<div className="h-[0.0625rem] bg-[#0000001A] dark:bg-[#FFFFFF29]" />
+			<div className="h-px bg-border" />
 
 			{/* Content area skeleton */}
 			<div className="p-4 space-y-3 h-64 bg-transparent">
 				{/* Simulated text lines */}
-				<div className="w-full h-4 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded" />
-				<div className="w-5/6 h-4 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded" />
-				<div className="w-4/5 h-4 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded" />
-				<div className="w-full h-4 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded" />
-				<div className="w-3/4 h-4 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded" />
+				<div className="w-full h-4 bg-foreground/5 animate-pulse rounded-md" />
+				<div className="w-5/6 h-4 bg-foreground/5 animate-pulse rounded-md" />
+				<div className="w-4/5 h-4 bg-foreground/5 animate-pulse rounded-md" />
+				<div className="w-full h-4 bg-foreground/5 animate-pulse rounded-md" />
+				<div className="w-3/4 h-4 bg-foreground/5 animate-pulse rounded-md" />
 
 				{/* Simulated paragraph break */}
 				<div className="py-2" />
 
-				<div className="w-full h-4 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded" />
-				<div className="w-2/3 h-4 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded" />
+				<div className="w-full h-4 bg-foreground/5 animate-pulse rounded-md" />
+				<div className="w-2/3 h-4 bg-foreground/5 animate-pulse rounded-md" />
 			</div>
 		</div>
 	);
@@ -60,39 +64,33 @@ export const RichTextEditorSkeleton: FC<RichTextEditorSkeletonProps> = ({ classN
 export const TaskActivitySkeleton: FC<{ className?: string }> = ({ className }) => {
 	return (
 		<div
-			className={clsxm(
-				'bg-white dark:bg-dark--theme-light rounded-xl border border-[#00000014] dark:border-border p-4',
-				className
-			)}
+			className={clsxm('bg-card rounded-xl hairline-ring ring-border shadow-sm shadow-black/6.5 p-4', className)}
 		>
 			{/* Header */}
 			<div className="flex justify-between items-center mb-4">
 				<div className="flex gap-2 items-center">
-					<div className="w-6 h-6 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded" />
-					<div className="w-24 h-5 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded" />
+					<div className="w-6 h-6 bg-foreground/5 animate-pulse rounded-sm" />
+					<div className="w-24 h-5 bg-foreground/5 animate-pulse rounded-md" />
 				</div>
-				<div className="w-4 h-4 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded" />
+				<div className="w-4 h-4 bg-foreground/5 animate-pulse rounded-sm" />
 			</div>
 
 			{/* Activity items */}
 			<div className="space-y-3">
-				{[...Array(3)].map((_, i) => (
-					<div
-						key={i}
-						className="shadow-lg rounded-lg p-4 bg-light dark:bg-card border border-[#00000014] dark:border-border"
-					>
+				{ACTIVITY_GROUP_KEYS.map((groupKey) => (
+					<div key={groupKey} className="rounded-lg p-4 bg-foreground/[0.03]">
 						{/* Date header */}
-						<div className="w-32 h-4 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded-sm mb-3" />
+						<div className="w-32 h-4 bg-foreground/5 animate-pulse rounded-md mb-3" />
 
 						{/* Activity entries */}
 						{[...Array(2)].map((_, j) => (
 							<div key={j} className="flex gap-3 items-center py-2">
-								<div className="w-8 h-8 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded-full" />
+								<div className="w-8 h-8 bg-foreground/5 animate-pulse rounded-full" />
 								<div className="flex-1 space-y-1">
-									<div className="w-48 h-3 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded" />
-									<div className="w-32 h-3 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded" />
+									<div className="w-48 h-3 bg-foreground/5 animate-pulse rounded-md" />
+									<div className="w-32 h-3 bg-foreground/5 animate-pulse rounded-md" />
 								</div>
-								<div className="w-16 h-3 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded" />
+								<div className="w-16 h-3 bg-foreground/5 animate-pulse rounded-md" />
 							</div>
 						))}
 					</div>
@@ -108,29 +106,24 @@ export const TaskActivitySkeleton: FC<{ className?: string }> = ({ className }) 
  */
 export const DetailsAsideSkeleton: FC<{ className?: string }> = ({ className }) => {
 	return (
-		<div
-			className={clsxm(
-				'border border-solid border-[#00000014] dark:border-border dark:bg-dark--theme rounded-xl p-4',
-				className
-			)}
-		>
+		<div className={clsxm('rounded-xl p-4', className)}>
 			{/* Header */}
-			<div className="w-32 h-5 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded-sm mb-4" />
+			<div className="w-32 h-5 bg-foreground/5 animate-pulse rounded-md mb-4" />
 
 			{/* Sections with dividers */}
 			{[...Array(5)].map((_, i) => (
 				<div key={i}>
 					{/* Section content */}
 					<div className="py-4 space-y-3">
-						<div className="w-24 h-4 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded" />
+						<div className="w-24 h-4 bg-foreground/5 animate-pulse rounded-md" />
 						<div className="space-y-2">
-							<div className="w-full h-3 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded" />
-							<div className="w-3/4 h-3 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded" />
+							<div className="w-full h-3 bg-foreground/5 animate-pulse rounded-md" />
+							<div className="w-3/4 h-3 bg-foreground/5 animate-pulse rounded-md" />
 						</div>
 					</div>
 
 					{/* Divider (except for last item) */}
-					{i < 4 && <div className="h-[0.0625rem] bg-[#F2F2F2] dark:bg-muted w-[95%] mx-auto" />}
+					{i < 4 && <div className="h-px bg-border w-[95%] mx-auto" />}
 				</div>
 			))}
 		</div>
@@ -144,29 +137,29 @@ export const IssueCardSkeleton: FC<{ className?: string; title?: string }> = ({ 
 	return (
 		<div
 			className={clsxm(
-				'w-full pt-0 px-4 md:pt-0 md:px-4 dark:bg-muted border border-[#00000014] dark:border-border rounded-xl',
+				'w-full pt-0 px-4 md:pt-0 md:px-4 bg-card hairline-ring ring-border shadow-sm shadow-black/6.5 rounded-xl',
 				className
 			)}
 		>
 			{/* Header */}
-			<div className="flex justify-between items-center gap-5 py-2 border-b border-b-[#00000014] dark:border-b-border">
-				<div className="w-24 h-4 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded" />
+			<div className="flex justify-between items-center gap-5 py-2 hairline-b border-border">
+				<div className="w-24 h-4 bg-foreground/5 animate-pulse rounded-md" />
 				<div className="flex gap-2 items-center">
-					<div className="w-4 h-4 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded" />
-					<div className="w-4 h-4 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded" />
+					<div className="w-4 h-4 bg-foreground/5 animate-pulse rounded-sm" />
+					<div className="w-4 h-4 bg-foreground/5 animate-pulse rounded-sm" />
 				</div>
 			</div>
 
 			{/* Content */}
 			<div className="py-4 space-y-3">
-				{[...Array(2)].map((_, i) => (
-					<div key={i} className="flex gap-3 items-center p-3 bg-white rounded-lg dark:bg-dark--theme">
-						<div className="w-6 h-6 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded" />
+				{CONTENT_ROW_KEYS.map((rowKey) => (
+					<div key={rowKey} className="flex gap-3 items-center p-3 rounded-lg bg-foreground/[0.03]">
+						<div className="w-6 h-6 bg-foreground/5 animate-pulse rounded-sm" />
 						<div className="flex-1 space-y-1">
-							<div className="w-48 h-4 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded" />
-							<div className="w-32 h-3 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded" />
+							<div className="w-48 h-4 bg-foreground/5 animate-pulse rounded-md" />
+							<div className="w-32 h-3 bg-foreground/5 animate-pulse rounded-md" />
 						</div>
-						<div className="w-16 h-6 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded" />
+						<div className="w-16 h-6 bg-foreground/5 animate-pulse rounded-md" />
 					</div>
 				))}
 			</div>

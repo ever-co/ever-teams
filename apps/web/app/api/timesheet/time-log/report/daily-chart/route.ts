@@ -1,6 +1,23 @@
 import { authenticatedGuard } from '@/core/services/server/guards/authenticated-guard-app';
 import { NextResponse } from 'next/server';
-import { getTimeLogReportDailyChartRequest } from '@/core/services/server/requests';
+import { serverFetch } from '@/core/services/server/fetch';
+import { readArrayParam } from '@/core/services/server/requests/timesheet';
+import { ETimeLogType } from '@/core/types/generics/enums/timer';
+import type { ITimeLogReportDailyChart } from '@/core/types/interfaces/activity/activity-report';
+
+const ARRAY_FILTERS = ['projectIds', 'employeeIds', 'taskIds', 'teamIds'] as const;
+
+const LOG_TYPES: ReadonlyArray<string> = Object.values(ETimeLogType);
+
+function isLogType(value: string) {
+	return LOG_TYPES.includes(value);
+}
+
+function appendIndexed(query: URLSearchParams, key: string, values: ReadonlyArray<string>) {
+	values.forEach((value, index) => {
+		query.append(`${key}[${index}]`, value);
+	});
+}
 
 export async function GET(req: Request) {
 	const res = new NextResponse();
@@ -26,27 +43,44 @@ export async function GET(req: Request) {
 		);
 	}
 
+	const requestedLogTypes = readArrayParam(searchParams, 'logType');
+	const hasOnlyKnownLogTypes = requestedLogTypes.every(isLogType);
+	if (!hasOnlyKnownLogTypes) {
+		return NextResponse.json({ error: `logType takes ${LOG_TYPES.join(', ')}` }, { status: 400 });
+	}
+
 	// Authenticate the request
 	const { $res, user, access_token } = await authenticatedGuard(req, res);
 	if (!user) return $res('Unauthorized');
 
 	try {
+		const activityStart = Number.parseInt(activityLevelStart || '0');
+		const activityEnd = Number.parseInt(activityLevelEnd || '100');
+		const query = new URLSearchParams({
+			organizationId,
+			tenantId,
+			startDate,
+			endDate,
+			timeZone: timeZone || 'Etc/UTC',
+			groupBy: groupBy || 'date'
+		});
+		query.append('activityLevel[start]', String(activityStart));
+		query.append('activityLevel[end]', String(activityEnd));
+
+		// The member, project, task and team filters and the log types, forwarded as the direct call sends them
+		for (const key of ARRAY_FILTERS) {
+			const values = readArrayParam(searchParams, key);
+			appendIndexed(query, key, values);
+		}
+		appendIndexed(query, 'logType', requestedLogTypes);
+
 		// Make the request to get daily chart data
-		const { data } = await getTimeLogReportDailyChartRequest(
-			{
-				activityLevel: {
-					start: parseInt(activityLevelStart || '0'),
-					end: parseInt(activityLevelEnd || '100')
-				},
-				organizationId,
-				tenantId,
-				startDate,
-				endDate,
-				timeZone: timeZone || 'Etc/UTC',
-				groupBy: groupBy || 'date'
-			},
-			access_token
-		);
+		const { data } = await serverFetch<ITimeLogReportDailyChart[]>({
+			path: `/timesheet/time-log/report/daily-chart?${query.toString()}`,
+			method: 'GET',
+			bearer_token: access_token,
+			tenantId
+		});
 
 		return NextResponse.json(data);
 	} catch (error) {

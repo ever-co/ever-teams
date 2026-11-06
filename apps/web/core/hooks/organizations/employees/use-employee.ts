@@ -8,6 +8,8 @@ import { useFirstLoad } from '../../common';
 import { queryKeys } from '@/core/query/keys';
 import { TUpdateEmployee } from '@/core/types/schemas/organization/employee.schema';
 import { toast } from 'sonner';
+import { useTranslations, type DottedLanguageObjectStringPaths } from 'next-intl';
+import { errorReasonKeyOf } from '@/core/lib/utils/error-feedback';
 import { useUserQuery } from '../../queries/user-user.query';
 import { activeTeamIdState } from '@/core/stores/teams/organization-team';
 import { getActiveTeamIdCookie } from '@/core/lib/helpers/cookies';
@@ -116,9 +118,14 @@ export const useEmployee = ({ enabled = true }: UseEmployeeOptions = {}) => {
 
 export const useEmployeeUpdate = () => {
 	const queryClient = useQueryClient();
+	const t = useTranslations();
 
 	// React Query mutation for updating employee
-	const { mutate: updateEmployeeMutation, isPending: isLoading } = useMutation({
+	const {
+		mutate: updateEmployeeMutation,
+		mutateAsync: updateEmployeeMutateAsync,
+		isPending: isLoading
+	} = useMutation({
 		mutationFn: ({ id, data }: { id: string; data: TUpdateEmployee }) =>
 			employeeService.updateEmployee({ id, data }),
 		onSuccess: (updatedEmployee, { id }) => {
@@ -131,7 +138,8 @@ export const useEmployeeUpdate = () => {
 			queryClient.setQueryData(queryKeys.users.employees.detail(id), updatedEmployee);
 		},
 		onError: (error) => {
-			toast.error('Employee update failed:', { description: error.message });
+			const reasonKey = errorReasonKeyOf(error) as DottedLanguageObjectStringPaths;
+			toast.error(t('toasts.teams.MEMBER_NOT_SAVED'), { description: t(reasonKey) });
 		}
 	});
 
@@ -143,5 +151,10 @@ export const useEmployeeUpdate = () => {
 		[updateEmployeeMutation]
 	);
 
-	return { updateEmployee, isLoading };
+	const updateEmployeeAsync = useCallback(
+		({ id, data }: { id: string; data: TUpdateEmployee }) => updateEmployeeMutateAsync({ id, data }),
+		[updateEmployeeMutateAsync]
+	);
+
+	return { updateEmployee, updateEmployeeAsync, isLoading };
 };

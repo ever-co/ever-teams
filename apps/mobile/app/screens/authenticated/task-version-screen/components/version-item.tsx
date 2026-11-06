@@ -6,15 +6,19 @@ import { AntDesign, Ionicons } from "@expo/vector-icons"
 import { typography, useAppTheme } from "../../../../theme"
 import { formatName } from "../../../../helpers/name-format"
 import { ITaskVersionItemList } from "../../../../services/interfaces/ITaskVersion"
+import { readOnlyOpacity } from "../../../../helpers/read-only-opacity"
 
 interface IVersionItem {
 	version: ITaskVersionItemList
 	onDeleteTask: () => unknown
 	openForEdit: () => unknown
+	/** Shows the edit and delete actions disabled, for a user who may not change this version. */
+	readOnly?: boolean
 }
 
-const VersionItem: FC<IVersionItem> = ({ version, onDeleteTask, openForEdit }) => {
+const VersionItem: FC<IVersionItem> = ({ version, onDeleteTask, openForEdit, readOnly = false }) => {
 	const { colors, dark } = useAppTheme()
+	const actionsOpacity = readOnlyOpacity(readOnly)
 
 	return (
 		<View
@@ -31,21 +35,28 @@ const VersionItem: FC<IVersionItem> = ({ version, onDeleteTask, openForEdit }) =
 				}}
 			>
 				<Text style={{ ...styles.text, color: colors.primary }}>
-					{formatName(version?.name)}
+					{formatName(version?.name ?? '')}
 				</Text>
 			</View>
-			<View style={styles.rightSection}>
+			{/* No press handlers on a read-only row: it never relies on the icons honoring `disabled` */}
+			<View style={{ ...styles.rightSection, opacity: actionsOpacity }}>
 				<AntDesign
 					size={16}
 					name={"edit"}
 					color={colors.primary}
-					onPress={() => openForEdit()}
+					accessibilityRole="button"
+					accessibilityState={{ disabled: readOnly }}
+					disabled={readOnly}
+					onPress={readOnly ? undefined : () => openForEdit()}
 				/>
 				<Ionicons
 					name="trash-outline"
 					size={16}
 					color={"#DE5536"}
-					onPress={() => onDeleteTask()}
+					accessibilityRole="button"
+					accessibilityState={{ disabled: readOnly }}
+					disabled={readOnly}
+					onPress={readOnly ? undefined : () => onDeleteTask()}
 				/>
 			</View>
 		</View>

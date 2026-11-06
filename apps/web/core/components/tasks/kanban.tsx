@@ -1,4 +1,3 @@
-import ThreeDotIcon from '@/core/components/svgs/three-dot';
 import React, { RefObject, useMemo } from 'react';
 import { useEffect, useState } from 'react';
 
@@ -16,11 +15,12 @@ import { TaskStatus } from '@/core/constants/config/constants';
 import { Popover, PopoverContent, PopoverTrigger } from '@/core/components/common/popover';
 import { Button } from '@/core/components/duplicated-components/_button';
 import { useTranslations } from 'next-intl';
-import { AddIcon, ChevronLeftIcon } from 'assets/svg';
+import { ChevronLeft, MoreHorizontal, Plus } from '@/core/components/icons';
+import { MENU_ROW, MENU_SEPARATOR } from '@/core/components/common/menu-recipes';
 
 import { useModal } from '@/core/hooks';
+import { useTaskSettingsAccess } from '@/core/hooks/tasks/use-task-settings-access';
 import { Modal } from '../common/modal';
-import Image from 'next/image';
 import { ScrollArea } from '@/core/components/common/scroll-area';
 import { cn } from '../../lib/helpers';
 import { Suspense } from 'react';
@@ -28,8 +28,24 @@ import { ModalSkeleton } from '../common/skeleton/modal-skeleton';
 import { KanbanColumnLoadingSkeleton } from '../common/skeleton/kanban-column-loading-skeleton';
 import { LazyCreateTaskModal, LazyEditStatusModal } from '@/core/components/optimized-components/tasks';
 import { TTask } from '@/core/types/schemas/task/task.schema';
+import { dataColorChipStyle, dataColorDotStyle } from './task-data-color';
+import { TaskPropertyIcon } from './task-property-icon';
+import { LANE_SURFACE, LANE_WIDTH } from './kanban-lane-recipes';
 
 const grid = 8;
+
+const COLUMN_MENU_PANEL = 'w-auto min-w-48 p-1';
+
+const columnIconButton =
+	'flex size-7 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-foreground/5 hover:text-foreground';
+
+const addTaskRow =
+	'flex w-full flex-row items-center gap-2 rounded-lg hairline-border border-dashed border-foreground/15 px-3 py-2 text-sm font-medium text-muted-foreground transition-colors hover:border-foreground/25 hover:bg-foreground/[0.025] hover:text-foreground';
+
+const inProgressCardStyle = {
+	outline: '1.5px solid hsl(var(--success) / 0.55)',
+	outlineOffset: '0px'
+};
 
 const getItemStyle = (isDragging: any, draggableStyle: any) => ({
 	userSelect: 'none',
@@ -54,13 +70,73 @@ const getBackgroundColor = (dropSnapshot: DroppableStateSnapshot) => {
 	};
 };
 
-/** This function changes column header color when dragged */
-function headerStyleChanger(snapshot: DraggableStateSnapshot, bgColor: any) {
-	const backgroundColor = snapshot.isDragging ? '#3826a6' : bgColor;
+/**
+ * An entry of a column menu that saves on the status (edit it, collapse or expand the column), read-only for a user
+ * who may not change the status.
+ */
+function StatusMenuItem({
+	label,
+	canEdit,
+	readOnlyHint,
+	onClick
+}: Readonly<{
+	label: string;
+	canEdit: boolean;
+	readOnlyHint: string;
+	onClick: () => void;
+}>) {
+	if (!canEdit) {
+		return (
+			<div className={cn(MENU_ROW, 'cursor-not-allowed opacity-40')} aria-disabled="true" title={readOnlyHint}>
+				{label}
+			</div>
+		);
+	}
 
-	return {
-		backgroundColor
-	};
+	// A native button, so keyboard users reach it too; laid out like the other entries of the menu
+	return (
+		<button type="button" className={cn(MENU_ROW, 'w-full text-start')} onClick={onClick}>
+			{label}
+		</button>
+	);
+}
+
+/**
+ * The chevron that collapses or expands a column: the collapsed state is saved on the status, for the whole team.
+ * Icon-only, so `label` (the action: expand or collapse the column) is its accessible name.
+ */
+function ColumnToggleButton({
+	className,
+	label,
+	canEdit,
+	readOnlyHint,
+	onClick
+}: Readonly<{
+	className: string;
+	label: string;
+	canEdit: boolean;
+	readOnlyHint: string;
+	onClick: () => void;
+}>) {
+	if (!canEdit) {
+		return (
+			<button
+				type="button"
+				className={cn(className, 'cursor-not-allowed opacity-40')}
+				aria-label={label}
+				disabled
+				title={readOnlyHint}
+			>
+				<ChevronLeft className="size-4" aria-hidden="true" />
+			</button>
+		);
+	}
+
+	return (
+		<button type="button" className={className} aria-label={label} onClick={onClick}>
+			<ChevronLeft className="size-4" aria-hidden="true" />
+		</button>
+	);
 }
 
 /**
@@ -71,8 +147,7 @@ function headerStyleChanger(snapshot: DraggableStateSnapshot, bgColor: any) {
 function InnerItemList({
 	items,
 	title,
-	isLoading,
-	allColumnsData
+	isLoading
 }: {
 	title: string;
 	items: TTask[];
@@ -104,13 +179,7 @@ function InnerItemList({
 									isDragging={dragSnapshot.isDragging}
 									isGroupedOver={Boolean(dragSnapshot.combineTargetFor)}
 									provided={dragProvided}
-									style={
-										title === TaskStatus.INPROGRESS && {
-											borderWidth: '2px',
-											borderColor: '#6FCF97',
-											borderStyle: 'solid'
-										}
-									}
+									style={title === TaskStatus.INPROGRESS && inProgressCardStyle}
 								/>
 							)}
 						</Draggable>
@@ -130,17 +199,18 @@ function InnerItemList({
 					// Show empty state only if items array is empty
 					if (items.length === 0) {
 						return (
-							<div className="bg-[#f2f2f2] dark:bg-background absolute w-full">
-								<div className="h-[180px] bg-transparent bg-white dark:bg-card mt-3 flex justify-center items-center my-2 rounded-xl">
-									{t('common.NOT_FOUND')}!
+							<div className={cn(LANE_SURFACE, 'absolute flex w-full flex-col gap-2')}>
+								<div className="flex h-[180px] items-center justify-center rounded-lg hairline-border border-dashed border-foreground/10 text-sm text-muted-foreground">
+									{t('common.NOT_FOUND')}
 								</div>
-								<div
+								<button
+									type="button"
 									onClick={openModal}
-									className="h-[52px] mt-4 w-full flex flex-row items-center text-sm not-italic font-semibold rounded-2xl gap-4 bg-white dark:bg-dark--theme-light p-4"
+									className={cn(addTaskRow, 'w-full cursor-pointer text-start')}
 								>
-									<AddIcon className="w-5 h-5" />
-									<p>{t('common.CREATE_TASK')}</p>
-								</div>
+									<Plus className="size-4" />
+									<span>{t('common.CREATE_TASK')}</span>
+								</button>
 							</div>
 						);
 					}
@@ -183,7 +253,14 @@ function InnerList(props: {
 	const { items, dropProvided, dropSnapshot, title, isLoading, allColumnsData } = props;
 
 	return (
-		<div style={getBackgroundColor(dropSnapshot)} ref={dropProvided.innerRef}>
+		<div
+			style={getBackgroundColor(dropSnapshot)}
+			ref={dropProvided.innerRef}
+			className={cn(
+				'rounded-lg transition-colors',
+				dropSnapshot.isDraggingOver && 'bg-primary/[0.04] hairline-ring ring-primary/30'
+			)}
+		>
 			<InnerItemList
 				items={items}
 				title={title}
@@ -274,6 +351,8 @@ export const EmptyKanbanDroppable = ({
 
 	const { isOpen, closeModal, openModal } = useModal();
 	const { isOpen: editIsOpen, closeModal: editCloseModal, openModal: editOpenModal } = useModal();
+	const { canWriteRow, readOnlyHint } = useTaskSettingsAccess();
+	const canEditStatus = canWriteRow(status);
 
 	if (!enabled) return null;
 
@@ -288,83 +367,78 @@ export const EmptyKanbanDroppable = ({
 							{...provided.draggableProps}
 							{...provided.dragHandleProps}
 							style={getItemStyle(snapshot.isDragging, provided.draggableProps.style)}
-							className="flex flex-row px-2 h-40 w-fit"
+							className="flex h-40 w-fit flex-row"
 						>
 							{title.length > 0 ? (
 								<>
 									<header
-										className={
-											'flex relative flex-col gap-8 px-2 py-4 h-full text-center rounded-lg items-between w-fit bg-indianRed min-h-[20rem]'
-										}
-										style={headerStyleChanger(snapshot, backgroundColor)}
+										className={cn(
+											'flex relative flex-col gap-8 px-2 py-3 h-full text-center rounded-xl items-between w-fit min-h-[20rem] transition-colors',
+											LANE_SURFACE,
+											snapshot.isDragging &&
+												'bg-card shadow-md shadow-black/6.5 hairline-ring ring-primary/40'
+										)}
 									>
-										<div className="flex flex-col items-center space-2">
-											<button
-												className="hover:bg-[#0000001A] w-8 h-8 p-2 rounded-md rotate-180"
+										<div className="flex flex-col items-center gap-1">
+											<ColumnToggleButton
+												className={cn(columnIconButton, 'size-8 rotate-180')}
+												label={t('common.EXPAND_COLUMN')}
+												canEdit={canEditStatus}
+												readOnlyHint={readOnlyHint}
 												onClick={() => toggleColumn(title, false)}
-											>
-												<ChevronLeftIcon className="text-[#1B1D22]" />
-											</button>
+											/>
 											<Popover>
-												<PopoverTrigger className="mt-1" asChild>
+												<PopoverTrigger asChild>
 													<Button
 														variant="ghost"
-														className="hover:bg-[#0000001A] p-0 w-8 h-8 rounded-md"
+														size="icon"
+														className="text-muted-foreground"
+														aria-label={t('common.MORE_OPTIONS')}
 													>
-														<ThreeDotIcon color="black" />
+														<MoreHorizontal />
 													</Button>
 												</PopoverTrigger>
-												<PopoverContent
-													align="start"
-													className="md:p-1 rounded-x dark:bg-card dark:border-[0.125rem] border-[#0000001A] dark:border-border w-40"
-												>
-													<div
-														className="hover:font-medium p-1.5 text-sm cursor-pointer"
+												<PopoverContent align="start" className={COLUMN_MENU_PANEL}>
+													<button
+														type="button"
+														className={cn(MENU_ROW, 'w-full text-start')}
 														onClick={() => openModal()}
 													>
+														<Plus />
 														{t('hotkeys.CREATE_TASK')}
-													</div>
-													<div
-														className="hover:font-medium p-1.5 text-sm cursor-pointer"
+													</button>
+													<hr className={cn(MENU_SEPARATOR, 'border-0')} />
+													<StatusMenuItem
+														label={t('common.EXPAND_COLUMN')}
+														canEdit={canEditStatus}
+														readOnlyHint={readOnlyHint}
 														onClick={() => toggleColumn(title, false)}
-													>
-														{t('common.EXPAND_COLUMN')}
-													</div>
-													<div
-														className="hover:font-medium p-1.5 text-sm cursor-pointer"
+													/>
+													<StatusMenuItem
+														label={t('common.EDIT_STATUS')}
+														canEdit={canEditStatus}
+														readOnlyHint={readOnlyHint}
 														onClick={editOpenModal}
-													>
-														{t('common.EDIT_STATUS')}
-													</div>
+													/>
 												</PopoverContent>
 											</Popover>
 										</div>
-										{isOpen && (
-											<Suspense fallback={<ModalSkeleton size="md" />}>
-												<Modal isOpen={isOpen} closeModal={closeModal}>
-													<LazyEditStatusModal
-														status={status}
-														onClose={closeModal}
-														setColumn={setColumn}
-													/>
-												</Modal>
-											</Suspense>
-										)}
+										{/* Create task opens the create form only; the status form has its own entry (editIsOpen, below) */}
 										<div className="relative  w-7 flex flex-col items-center justify-end gap-2.5 mt-20">
 											<div className="relative flex flex-row-reverse gap-2.5 w-[200px] -rotate-90 justify-start">
-												<div
-													className="
-                                                    flex flex-col items-center justify-center px-2.5 text-xs py-1 text-black
-                                                    bg-transparentWhite rounded-xl"
-												>
+												<div className="flex items-center justify-center rounded-md bg-foreground/5 px-1.5 py-0.5 text-xs font-medium tabular-nums text-muted-foreground">
 													{items.length}
 												</div>
 												<div>
 													<h2
-														className="flex flex-row h-full text-sm not-italic font-semibold text-black capitalize"
+														className="flex flex-row items-center gap-2 h-full text-sm font-semibold capitalize text-foreground"
 														{...provided.dragHandleProps}
 														aria-label={`${title}`}
 													>
+														<span
+															className="size-2 shrink-0 rounded-full"
+															style={dataColorDotStyle(backgroundColor)}
+														/>
 														<span>{title.split('-').join(' ')}</span>
 													</h2>
 												</div>
@@ -403,7 +477,6 @@ export const EmptyKanbanDroppable = ({
 
 const KanbanDraggableHeader = ({
 	title,
-	icon,
 	setColumn,
 	status,
 	items,
@@ -427,66 +500,79 @@ const KanbanDraggableHeader = ({
 	// toggleColumn is now passed as prop instead of using useKanban hook
 	const { isOpen, closeModal, openModal } = useModal();
 	const t = useTranslations();
+	const { canWriteRow, readOnlyHint } = useTaskSettingsAccess();
+	const canEditStatus = canWriteRow(status);
 	return (
 		<>
 			{title && (
 				<header
-					className={
-						'flex sticky inset-x-0 top-0 z-10 flex-row justify-between items-center rounded-lg px-[15px] py-[7px]'
-					}
-					style={headerStyleChanger(snapshot, backgroundColor)}
+					className={cn(
+						'flex sticky inset-x-0 top-0 z-10 flex-row justify-between items-center gap-2 rounded-lg px-2 py-1.5 transition-colors',
+						LANE_SURFACE,
+						snapshot.isDragging && 'bg-card shadow-md shadow-black/6.5 hairline-ring ring-primary/40'
+					)}
 				>
-					<div className="flex flex-row gap-2.5 items-center">
-						<Image alt={title} src={icon} width={20} height={20} />
+					<div className="flex min-w-0 flex-row gap-2 items-center">
+						<span
+							className="chip-3d flex size-6 shrink-0 items-center justify-center rounded-md"
+							style={dataColorChipStyle(backgroundColor)}
+						>
+							<TaskPropertyIcon kind="status" name={title} color={backgroundColor} className="size-3.5" />
+						</span>
 						<h2
-							className="text-sm not-italic font-semibold text-black capitalize"
+							className="truncate text-sm font-semibold capitalize text-foreground"
 							{...provided.dragHandleProps}
 							aria-label={`${title} quote list`}
 						>
 							{title.split('-').join(' ')}
 						</h2>
-						<div
-							className="
-                        flex flex-col items-center justify-center px-2.5 text-xs py-1 text-black
-                        bg-transparentWhite rounded-xl"
-						>
+						<div className="flex items-center justify-center rounded-md bg-foreground/5 px-1.5 py-0.5 text-xs font-medium tabular-nums text-muted-foreground">
 							{items?.length ?? '0'}
 						</div>
 					</div>
-					<div className="flex flex-row gap-2 items-center">
+					<div className="flex flex-row gap-0.5 items-center">
 						<Popover>
 							<PopoverTrigger asChild>
-								<Button variant="ghost" className="hover:bg-[#0000001A] p-0 w-8 h-8 rounded-md">
-									<ThreeDotIcon color="black" />
+								<Button
+									variant="ghost"
+									size="icon-sm"
+									className="text-muted-foreground"
+									aria-label={t('common.MORE_OPTIONS')}
+								>
+									<MoreHorizontal />
 								</Button>
 							</PopoverTrigger>
-							<PopoverContent
-								align="start"
-								className="md:p-1 rounded-x dark:bg-card dark:border-[0.125rem] border-[#0000001A] dark:border-border w-40"
-							>
-								<div
-									className="hover:font-medium p-1.5 text-sm cursor-pointer"
+							<PopoverContent align="start" className={COLUMN_MENU_PANEL}>
+								<button
+									type="button"
+									className={cn(MENU_ROW, 'w-full text-start')}
 									onClick={() => createTask()}
 								>
+									<Plus />
 									{t('common.CREATE_TASK')}
-								</div>
-								<div
-									className="hover:font-medium p-1.5 text-sm cursor-pointer"
+								</button>
+								<hr className={cn(MENU_SEPARATOR, 'border-0')} />
+								<StatusMenuItem
+									label={t('common.COLLAPSE_COLUMN')}
+									canEdit={canEditStatus}
+									readOnlyHint={readOnlyHint}
 									onClick={() => toggleColumn(title, true)}
-								>
-									{t('common.COLLAPSE_COLUMN')}
-								</div>
-								<div className="hover:font-medium p-1.5 text-sm cursor-pointer" onClick={openModal}>
-									{t('common.EDIT_STATUS')}
-								</div>
+								/>
+								<StatusMenuItem
+									label={t('common.EDIT_STATUS')}
+									canEdit={canEditStatus}
+									readOnlyHint={readOnlyHint}
+									onClick={openModal}
+								/>
 							</PopoverContent>
 						</Popover>
-						<button
-							className="hover:bg-[#0000001A] w-8 h-8 p-2 rounded-md"
+						<ColumnToggleButton
+							className={columnIconButton}
+							label={t('common.COLLAPSE_COLUMN')}
+							canEdit={canEditStatus}
+							readOnlyHint={readOnlyHint}
 							onClick={() => toggleColumn(title, true)}
-						>
-							<ChevronLeftIcon className="text-[#1B1D22]" />
-						</button>
+						/>
 					</div>
 				</header>
 			)}
@@ -517,7 +603,6 @@ const KanbanDraggable = ({
 	backgroundColor,
 	containerRef,
 	allColumnsData,
-	addNewTask,
 	toggleColumn
 }: {
 	index: number;
@@ -545,10 +630,15 @@ const KanbanDraggable = ({
 					{(provided: DraggableProvided, snapshot: DraggableStateSnapshot) => (
 						<ScrollArea
 							ref={provided.innerRef}
+							contentClassName="w-full min-w-0! px-1"
 							{...provided.draggableProps}
 							{...provided.dragHandleProps}
 							// style={getItemStyle(snapshot.isDragging, provided.draggableProps.style)}
-							className={cn('flex relative flex-col w-[355px] h-fit min-h-[840px]')}
+							className={cn(
+								'relative flex h-fit min-h-[840px] flex-col rounded-xl px-1 py-2',
+								LANE_WIDTH,
+								LANE_SURFACE
+							)}
 							style={{
 								height: `840px`,
 								paddingBottom: `${containerRef && items && items.length > 1 ? 25 : '0'}px`
@@ -577,11 +667,8 @@ const KanbanDraggable = ({
 											content={items}
 											allColumnsData={allColumnsData}
 										/>
-										<button
-											onClick={() => openModal()}
-											className="flex flex-row gap-4 items-center p-4 text-sm not-italic font-semibold bg-white rounded-2xl dark:bg-dark--theme-light"
-										>
-											<AddIcon className="w-5 h-5" />
+										<button onClick={() => openModal()} className={addTaskRow}>
+											<Plus className="size-4" />
 											<p>{t('common.CREATE_TASK')}</p>
 										</button>
 									</div>

@@ -18,24 +18,19 @@ const Footer = () => {
 				<div className="flex justify-between items-center space-x-1 sm:justify-start sm:space-x-2">
 					<span className="px-1">{t('layout.footer.COPY_RIGHT1', { date: new Date().getFullYear() })}</span>
 					{APP_NAME && APP_LINK ? (
-						<a href={APP_LINK} target="_blank" className="text-primary dark:text-gray-300" rel="noreferrer">
+						<a href={APP_LINK} target="_blank" className="text-primary-ink" rel="noreferrer">
 							{APP_NAME}
 						</a>
 					) : (
-						<span className="text-primary dark:text-gray-300">{APP_NAME}</span>
+						<span className="text-primary-ink">{APP_NAME}</span>
 					)}
 					<div>by</div>
 					{COMPANY_NAME && COMPANY_LINK ? (
-						<Link
-							href={COMPANY_LINK}
-							target="_blank"
-							className="text-primary dark:text-gray-300"
-							rel="noreferrer"
-						>
+						<Link href={COMPANY_LINK} target="_blank" className="text-primary-ink" rel="noreferrer">
 							{COMPANY_NAME}
 						</Link>
 					) : (
-						<span className="text-primary dark:text-gray-300">{COMPANY_NAME}</span>
+						<span className="text-primary-ink">{COMPANY_NAME}</span>
 					)}{' '}
 					<div className="hidden space-x-2 xs:flex sm:hidden">
 						<ToggleThemeContainer />
@@ -51,22 +46,12 @@ const Footer = () => {
 				<div className="flex justify-center space-x-4 w-full text-center">
 					{/* A deployment can turn either link off ('' => not rendered). */}
 					{TERMS_LINK && (
-						<Link
-							href={TERMS_LINK}
-							target="_blank"
-							className="text-primary dark:text-gray-300"
-							rel="noreferrer"
-						>
+						<Link href={TERMS_LINK} target="_blank" className="text-primary-ink" rel="noreferrer">
 							{t('layout.footer.TERMS')}
 						</Link>
 					)}
 					{PRIVACY_POLICY_LINK && (
-						<Link
-							href={PRIVACY_POLICY_LINK}
-							target="_blank"
-							className="text-primary dark:text-gray-300"
-							rel="noreferrer"
-						>
+						<Link href={PRIVACY_POLICY_LINK} target="_blank" className="text-primary-ink" rel="noreferrer">
 							{t('layout.footer.PRIVACY_POLICY')}
 						</Link>
 					)}

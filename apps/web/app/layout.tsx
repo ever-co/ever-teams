@@ -1,10 +1,10 @@
 import '@/styles/globals.css';
 import 'react-loading-skeleton/dist/skeleton.css';
-import { Toaster } from 'sonner';
 import { connection } from 'next/server';
 import { QueryClientProvider } from '@/core/components/providers/query-client-provider';
 import { ProactiveTokenRefreshProvider } from '@/core/components/providers/proactive-token-refresh-provider';
 import { RuntimeEnvProvider } from '@/core/components/providers/runtime-env-provider';
+import { AppToaster } from '@/core/components/common/app-toaster';
 import { getPublicRuntimeEnv } from '@/core/services/server/runtime-env';
 import dynamic from 'next/dynamic';
 
@@ -27,7 +27,7 @@ export default async function RootLayout({ children }: Readonly<{ children: Reac
 			<QueryClientProvider>
 				<ProactiveTokenRefreshProvider>
 					{children}
-					<Toaster richColors />
+					<AppToaster />
 					{/* Render devtools only in development */}
 					{process.env.NODE_ENV === 'development' && <ReactQueryDevtools initialIsOpen={false} />}
 				</ProactiveTokenRefreshProvider>

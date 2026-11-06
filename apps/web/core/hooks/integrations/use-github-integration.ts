@@ -9,7 +9,13 @@ import { organizationProjectService } from '@/core/services/client/api/organizat
 import { IOrganizationProjectRepository } from '@/core/types/interfaces/project/organization-project';
 import { IGithubMetadata } from '@/core/types/interfaces/integrations/github-metadata';
 import { IGithubRepositories } from '@/core/types/interfaces/integrations/github-repositories';
+import type { TGithubRepository, TMinimalGithubRepositories } from '@/core/types/schemas';
 import { useUserQuery } from '../queries/user-user.query';
+
+type SyncedRepository =
+	| IOrganizationProjectRepository
+	| TGithubRepository
+	| TMinimalGithubRepositories['repositories'][number];
 
 export function useGitHubIntegration() {
 	const { data: user } = useUserQuery();
@@ -114,7 +120,7 @@ export function useGitHubIntegration() {
 	const syncGitHubRepositoryMutation = useMutation({
 		mutationFn: async (params: {
 			installationId: string;
-			repository: IOrganizationProjectRepository;
+			repository: SyncedRepository;
 			projectId: string;
 			tenantId: string;
 			organizationId: string;
@@ -126,13 +132,14 @@ export function useGitHubIntegration() {
 			});
 
 			// 2. Side-effect - update organization project settings if sync successful
+			// Gauzy's settings DTO (whitelist) drops a top-level `repositoryId`, so it goes under `customFields`.
 			if (syncResult.data?.id) {
 				await organizationProjectService.editOrganizationProjectSetting({
 					organizationProjectId: params.projectId,
 					data: {
 						tenantId: params.tenantId,
 						organizationId: params.organizationId,
-						repositoryId: syncResult.data.id
+						customFields: { repositoryId: syncResult.data.id }
 					}
 				});
 			}
@@ -194,7 +201,7 @@ export function useGitHubIntegration() {
 	const syncGitHubRepository = useCallback(
 		async (
 			installationId: string,
-			repository: IOrganizationProjectRepository,
+			repository: SyncedRepository,
 			projectId: string,
 			tenantId: string,
 			organizationId: string
@@ -238,6 +245,8 @@ export function useGitHubIntegration() {
 		syncGitHubRepositoryError: syncGitHubRepositoryMutation.error,
 		metadataRefetch: metadataQuery.refetch,
 		repositoriesRefetch: repositoriesQuery.refetch,
+		metadata: metadataQuery.data,
+		repositories: repositoriesQuery.data,
 
 		// Backward compatibility (deprecated - use new error states)
 		installQueryCall: installGitHub, // Backward compatibility alias

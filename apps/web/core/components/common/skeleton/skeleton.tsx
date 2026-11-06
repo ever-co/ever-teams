@@ -1,5 +1,12 @@
 import { clsxm } from '@/core/lib/utils';
 
+function toPixels(value: number) {
+	if (!value) {
+		return undefined;
+	}
+	return `${value}px`;
+}
+
 const Skeleton = ({
 	height,
 	width,
@@ -11,15 +18,21 @@ const Skeleton = ({
 	borderRadius: number;
 	className: string;
 }) => {
+	const style = {
+		borderRadius,
+		height: toPixels(height),
+		width: toPixels(width)
+	};
+
 	return (
 		<div
 			className={clsxm(
-				'p-1  animate-pulse rounded-lg bg-[#F0F0F0] dark:bg-white/8',
-				height ? `h-[${height}px]` : 'h-[20px]',
-				width ? `w-[${width}px]` : 'w-[160px]',
+				'p-1  animate-pulse rounded-lg bg-foreground/5',
+				!height && 'h-[20px]',
+				!width && 'w-[160px]',
 				className
 			)}
-			style={{ borderRadius }}
+			style={style}
 		/>
 	);
 };

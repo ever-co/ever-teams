@@ -43,6 +43,7 @@ function DataTable<TData, TValue>({
 	data,
 	footerRows,
 	isHeader,
+	noResultsMessage,
 	rowWrapper: RowWrapper
 }: Readonly<DataTableProps<TData, TValue>>) {
 	const [rowSelection, setRowSelection] = React.useState({});
@@ -79,11 +80,11 @@ function DataTable<TData, TValue>({
 
 	return (
 		<>
-			<Table className="mt-0 w-full rounded-2xl border-transparent">
+			<Table className="mt-0 w-full">
 				{isHeader && (
 					<TableHeader className="">
 						{table.getHeaderGroups().map((headerGroup) => (
-							<TableRow className="hover:bg-transparent h-[74px] border-none" key={headerGroup.id}>
+							<TableRow className="hover:bg-transparent" key={headerGroup.id}>
 								{headerGroup.headers.map((header, index) => {
 									const tooltip: any = header.column.columnDef;
 									const isTooltip: any = flexRender(tooltip.tooltip, header.getContext());
@@ -92,7 +93,7 @@ function DataTable<TData, TValue>({
 											style={{
 												textAlign: index === 0 ? 'left' : 'center'
 											}}
-											className="!w-40 text-base"
+											className="!w-40"
 											key={header.id}
 										>
 											<Tooltip label={isTooltip as string} className="" enabled={!!isTooltip}>
@@ -112,12 +113,7 @@ function DataTable<TData, TValue>({
 						))}
 					</TableHeader>
 				)}
-				<div className="mt-5"></div>
-				<TableBody
-					className={cn(
-						'overflow-y-auto divide-y divide-gray-200 min-h-28 bg-light--theme-light dark:bg-dark--theme-light'
-					)}
-				>
+				<TableBody className={cn('overflow-y-auto min-h-28 bg-card')}>
 					{table.getRowModel().rows?.length ? (
 						table.getRowModel().rows.map((row, i) => {
 							const cells = row.getVisibleCells().map((cell, index) => {
@@ -128,9 +124,7 @@ function DataTable<TData, TValue>({
 											textAlign: index === 0 ? 'left' : 'center',
 											width: index === 4 ? '2rem' : '13rem'
 										}}
-										className={clsxm(
-											'my-4 border-r border-b border-[#00000008] border-[0.125rem] dark:border-border'
-										)}
+										className={clsxm('my-4')}
 									>
 										{flexRender(cell.column.columnDef.cell, cell.getContext()) as React.ReactNode}
 									</TableCell>
@@ -141,25 +135,33 @@ function DataTable<TData, TValue>({
 								<TableRow
 									key={row.id}
 									data-state={row.getIsSelected() && 'selected'}
-									className={clsxm(
-										'my-4 hover:bg-[#00000008] dark:hover:bg-muted/40',
-										i == 1 && 'max-w-[615px]'
-									)}
+									className={clsxm('my-4', i == 1 && 'max-w-[615px]')}
 								>
 									{RowWrapper ? <RowWrapper data={row.original}>{cells}</RowWrapper> : cells}
 								</TableRow>
 							);
 						})
 					) : (
-						<TableRow>
+						<TableRow className="hover:bg-transparent">
 							<TableCell colSpan={columns.length} className="h-24 text-center">
-								No results.
+								{noResultsMessage ? (
+									<div className="flex flex-col items-center gap-1">
+										<span className="text-sm font-medium text-foreground">
+											{noResultsMessage.heading}
+										</span>
+										<span className="text-xs text-muted-foreground">
+											{noResultsMessage.content}
+										</span>
+									</div>
+								) : (
+									<span className="text-sm text-muted-foreground">No results.</span>
+								)}
 							</TableCell>
 						</TableRow>
 					)}
 				</TableBody>
 				{footerRows && footerRows?.length > 0 && (
-					<TableFooter className="bg-gray-50 dark:bg-muted">
+					<TableFooter>
 						{footerRows.map((row, index) => (
 							<TableRow key={`footer-row-${index}}`}>{row}</TableRow>
 						))}

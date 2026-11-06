@@ -34,8 +34,8 @@ const CalendarComponent: React.FC<CalendarComponentProps> = ({
 	return (
 		<ScrollArea className="w-full">
 			<FullCalendar
-				dayHeaderClassNames="font-semibold text-[14px] text-gray-400  !bg-white dark:!bg-dark--theme"
-				viewClassNames="bg-white text-[18px]  font-semibold !bg-white dark:!bg-dark--theme w-full !overflow-auto"
+				dayHeaderClassNames="text-sm font-medium text-muted-foreground !bg-card"
+				viewClassNames="!bg-card text-sm font-medium w-full !overflow-auto"
 				ref={calendarRef}
 				stickyHeaderDates
 				plugins={[dayGridPlugin, timeGridPlugin, listPlugin, interactionPlugin]}
@@ -90,8 +90,8 @@ const CalendarComponent: React.FC<CalendarComponentProps> = ({
 					background-color: inherit !important;
 				}
 				.today-cell .fc-daygrid-day-number {
-					background-color: #3826a6;
-					color: white;
+					background-color: hsl(var(--primary));
+					color: hsl(var(--primary-foreground));
 					border-radius: 50%;
 					display: inline-block;
 					width: 1.9em;

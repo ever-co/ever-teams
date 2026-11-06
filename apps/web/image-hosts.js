@@ -14,11 +14,11 @@
 
 // Default hosts if NEXT_PUBLIC_IMAGES_HOSTS is not set
 const DEFAULT_IMAGE_HOSTS = [
-	'dummyimage.com',
 	'res.cloudinary.com',
 	'gauzy.sfo2.digitaloceanspaces.com',
 	'cdn-icons-png.flaticon.com',
 	'api.gauzy.co',
+	'dummyimage.com',
 	'apida.gauzy.co',
 	'apicw.gauzy.co',
 	'apicivo.gauzy.co',

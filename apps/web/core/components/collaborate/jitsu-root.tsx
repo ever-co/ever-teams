@@ -5,6 +5,7 @@ import { readRuntimeEnv, setNextPublicEnv } from '@/env-config';
 import React, { useMemo } from 'react';
 import { JitsuAnalytics } from '@/core/components/analytics/jitsu-analytics';
 import { useUserQuery } from '@/core/hooks/queries/user-user.query';
+import { isAccountDeletionPath } from '@/core/lib/auth/account-deletion';
 
 type MyAppProps = {
 	pageProps?: {
@@ -36,7 +37,11 @@ export function JitsuRoot({ pageProps, children }: MyAppProps) {
 			echoEvents: false
 		};
 
-		const isJitsuEnvs: boolean = !!jitsuConf.host && !!jitsuConf.writeKey;
+		// A page load that starts on the account deletion pages leaves Jitsu off, like Sentry and PostHog: the
+		// e-mailed link carries a deletion token in its address (isAccountDeletionPath).
+		const startsOnAccountDeletion =
+			typeof window !== 'undefined' && isAccountDeletionPath(window.location.pathname);
+		const isJitsuEnvs: boolean = !!jitsuConf.host && !!jitsuConf.writeKey && !startsOnAccountDeletion;
 
 		console.log(`Jitsu Enabled: ${isJitsuEnvs}`);
 		console.log(`Jitsu Configuration: ${JSON.stringify(jitsuConf)}`);

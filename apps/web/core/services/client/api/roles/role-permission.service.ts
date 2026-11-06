@@ -7,6 +7,19 @@ import { rolePermissionSchema, TRolePermission } from '@/core/types/schemas/role
 import { z } from 'zod';
 
 /**
+ * The path that lists a role's permission rows. Gauzy reads `GET /role-permissions/:id` as the id of one row,
+ * so in direct mode the role goes in `where[roleId]` of the list route; in proxy mode the
+ * `/api/role-permissions/[id]` route takes it from the path.
+ */
+function rolePermissionsPath(roleId: string, query: string): string {
+	const isDirectApi = Boolean(GAUZY_API_BASE_SERVER_URL.value);
+	if (isDirectApi) {
+		return `/role-permissions/pagination?${query}`;
+	}
+	return `/role-permissions/${roleId}?${query}`;
+}
+
+/**
  * Enhanced Role Permission Service with Zod validation
  *
  * This service extends the base APIService to add schema validation
@@ -28,11 +41,16 @@ class RolePermissionService extends APIService {
 						roleId: id,
 						tenantId: this.tenantId
 					}
-				})
+				}),
+				where: {
+					roleId: id,
+					tenantId: this.tenantId
+				}
 			};
 			const query = qs.stringify(params);
+			const path = rolePermissionsPath(id, query);
 
-			const response = await this.get<PaginationResponse<TRolePermission>>(`/role-permissions/${id}?${query}`);
+			const response = await this.get<PaginationResponse<TRolePermission>>(path);
 
 			// Validate the response data using Zod schema
 			return validatePaginationResponse(rolePermissionSchema, response.data, 'getRolePermission API response');

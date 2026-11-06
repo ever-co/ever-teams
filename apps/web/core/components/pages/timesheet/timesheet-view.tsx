@@ -18,7 +18,7 @@ export function TimesheetView({
 
 	if (loading || !data) {
 		return (
-			<div className="grow h-full w-full bg-[#FFFFFF] dark:bg-dark--theme">
+			<div className="grow h-full w-full">
 				{Array.from({ length: 10 }).map((_, index) => (
 					<TimesheetSkeleton key={index} />
 				))}
@@ -31,12 +31,14 @@ export function TimesheetView({
 			<AnimatedEmptyState
 				title={t('pages.timesheet.NO_ENTRIES_FOUND')}
 				message={t('common.SELECT_DIFFERENT_DATE')}
+				showBorder={false}
+				noBg
 			/>
 		);
 	}
 
 	return (
-		<div className="grow h-full w-full bg-[#FFFFFF] dark:bg-dark--theme">
+		<div className="grow h-full w-full">
 			<DataTableTimeSheet data={data} user={user} />
 		</div>
 	);

@@ -1,4 +1,5 @@
-import { canRunTimerForState, isStaleTeamsTimer } from './timer-policy';
+import { canRunTimerForState, canTrackTask, isStaleTeamsTimer } from './timer-policy';
+import type { TDailyPlan } from '@/core/types/schemas/task/daily-plan.schema';
 import { ETimeLogSource } from '@/core/types/generics/enums/timer';
 import { ITimeLog } from '@/core/types/interfaces/timer/time-log/time-log';
 
@@ -70,5 +71,26 @@ describe('isStaleTeamsTimer', () => {
 		const heartbeat = new Date(startedAt.getTime() + 60_000);
 		const desktopLog = { ...runningTeamsLog(heartbeat), source: ETimeLogSource.DESKTOP } as unknown as ITimeLog;
 		expect(isStaleTeamsTimer(desktopLog, heartbeat.getTime() + minutes(60), threshold)).toBe(false);
+	});
+});
+
+describe('canTrackTask', () => {
+	const planWith = (...taskIds: string[]) => ({ tasks: taskIds.map((id) => ({ id })) }) as unknown as TDailyPlan;
+
+	it('refuses when tracking is not possible at all', () => {
+		expect(canTrackTask(false, false, planWith('task-1'), 'task-1')).toBe(false);
+	});
+
+	it('lets any task start when the team does not require a plan', () => {
+		expect(canTrackTask(true, false, undefined, 'task-1')).toBe(true);
+	});
+
+	it("lets a task of today's plan start when the team requires one", () => {
+		expect(canTrackTask(true, true, planWith('task-1', 'task-2'), 'task-2')).toBe(true);
+	});
+
+	it("refuses a task left out of today's plan when the team requires one", () => {
+		expect(canTrackTask(true, true, planWith('task-1'), 'task-2')).toBe(false);
+		expect(canTrackTask(true, true, undefined, 'task-2')).toBe(false);
 	});
 });

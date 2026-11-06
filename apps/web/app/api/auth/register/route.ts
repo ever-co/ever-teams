@@ -1,4 +1,5 @@
 import { generateToken } from '@/core/lib/helpers/generate-token';
+import { splitFullName } from '@/core/lib/helpers/strings';
 import { authFormValidate } from '@/core/lib/helpers/validations';
 import { IRegisterDataAPI } from '@/core/types/interfaces/auth/auth';
 import {
@@ -79,16 +80,15 @@ export async function POST(req: Request) {
 
 	// General a random password with 8 chars
 	const password = generateToken(8);
-	const names = body.name.split(' ');
-
+	const { firstName, lastName } = splitFullName(body.name);
 
 	// Register user
 	const { data: user } = await registerUserRequest({
 		password: password,
 		confirmPassword: password,
 		user: {
-			firstName: names[0],
-			lastName: names[1] || '',
+			firstName,
+			lastName,
 			email: body.email,
 			timeZone: body.timezone as string
 		},

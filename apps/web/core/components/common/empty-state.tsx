@@ -1,8 +1,8 @@
 import { FC } from 'react';
 import Image from 'next/image';
 import { cn } from '@/core/lib/helpers';
+import { Analytics } from '@/core/components/icons';
 import { Button } from '../duplicated-components/_button';
-import { AnimatedDataSvg } from './animated-data-svg';
 
 type EmptyStateType = 'default' | 'search' | 'filter' | 'data' | 'error' | 'tasks' | 'projects';
 
@@ -95,15 +95,15 @@ export const EmptyState: FC<EmptyStateProps> = ({
 	const finalImageSrc = customImageSrc || imageSrc;
 
 	const sizeClasses = {
-		sm: 'p-4 gap-2',
-		md: 'p-8 gap-4',
-		lg: 'p-12 gap-6'
+		sm: 'p-4 gap-1',
+		md: 'p-8 gap-1',
+		lg: 'p-12 gap-1.5'
 	};
 
 	const variantClasses = {
 		default: 'bg-transparent',
-		subtle: 'bg-muted/50 rounded-lg',
-		card: 'bg-card border rounded-lg shadow-xs'
+		subtle: 'rounded-lg bg-foreground/[0.03]',
+		card: 'rounded-xl bg-card hairline-ring ring-border shadow-sm shadow-black/6.5'
 	};
 
 	const imageSize = {
@@ -129,10 +129,10 @@ export const EmptyState: FC<EmptyStateProps> = ({
 			{finalTitle && (
 				<h3
 					className={cn(
-						'font-semibold text-foreground',
-						size === 'sm' && 'text-base',
-						size === 'md' && 'text-xl',
-						size === 'lg' && 'text-2xl'
+						'font-semibold text-balance text-foreground',
+						size === 'sm' && 'text-sm',
+						size === 'md' && 'text-sm',
+						size === 'lg' && 'text-base'
 					)}
 				>
 					{finalTitle}
@@ -140,10 +140,10 @@ export const EmptyState: FC<EmptyStateProps> = ({
 			)}
 			<p
 				className={cn(
-					'text-muted-foreground',
+					'text-balance text-muted-foreground',
 					size === 'sm' && 'text-sm',
-					size === 'md' && 'text-base',
-					size === 'lg' && 'text-lg'
+					size === 'md' && 'text-sm',
+					size === 'lg' && 'text-base'
 				)}
 			>
 				{finalMessage}
@@ -171,7 +171,7 @@ interface AnimatedEmptyStateProps {
 	className?: string;
 	/** Custom icon or image component to display */
 	icon?: React.ReactNode;
-	/** Whether to show the default animated data visualization */
+	/** Whether to show the default data icon when no icon is given */
 	showDefaultAnimation?: boolean;
 	/** Whether to show the border */
 	showBorder?: boolean;
@@ -185,22 +185,40 @@ interface AnimatedEmptyStateProps {
 	minHeight?: string;
 	/** Background color of the container */
 	noBg?: boolean;
-	/** Size of the icon container (w-{size} h-{size}) */
+	/** Size of the icon tile */
 	iconContainerSize?: 'sm' | 'md' | 'lg' | 'xl' | '2xl';
-	/** Size of the icon itself (w-{size} h-{size}) */
+	/** Size of the icon inside the tile */
 	iconSize?: 'sm' | 'md' | 'lg' | 'xl' | '2xl';
 }
 
-const sizeMap = {
-	sm: '32',
-	md: '40',
-	lg: '52',
-	xl: '64',
-	'2xl': '72'
+const iconTileSizeClasses = {
+	sm: 'size-8',
+	md: 'size-10',
+	lg: 'size-10',
+	xl: 'size-12',
+	'2xl': 'size-14'
 } as const;
 
+const iconSizeClasses = {
+	sm: 'size-4',
+	md: 'size-5',
+	lg: 'size-5',
+	xl: 'size-6',
+	'2xl': 'size-7'
+} as const;
+
+function renderEmptyStateIcon(icon: React.ReactNode, showDefaultIcon: boolean) {
+	if (icon) {
+		return icon;
+	}
+	if (showDefaultIcon) {
+		return <Analytics />;
+	}
+	return null;
+}
+
 /**
- * AnimatedEmptyState component with data visualization animation
+ * AnimatedEmptyState: icon tile, title, message and at most one action, placed where the data would be
  */
 export const AnimatedEmptyState: FC<AnimatedEmptyStateProps> = ({
 	title,
@@ -217,40 +235,36 @@ export const AnimatedEmptyState: FC<AnimatedEmptyStateProps> = ({
 	iconContainerSize = 'lg',
 	iconSize = 'md'
 }) => {
+	const hasAction = Boolean(actionLabel) && Boolean(onAction);
+
 	return (
 		<div
 			className={cn(
-				'grow w-full rounded-md flex flex-col items-center justify-center h-full transition-colors duration-150',
-				!noBg && 'bg-white dark:bg-dark--theme',
-				showBorder && 'border border-gray-100 dark:border-gray-800',
+				'grow w-full rounded-xl flex flex-col items-center justify-center h-full',
+				!noBg && 'bg-card',
+				showBorder && 'hairline-ring ring-border',
 				className
 			)}
 			style={{ minHeight }}
 		>
-			<div className="flex flex-col items-center justify-center gap-6 text-center max-w-sm mx-auto p-8">
-				{/* Animated illustration container */}
-				<div className={cn('relative', `w-${sizeMap[iconContainerSize]} h-${sizeMap[iconContainerSize]}`)}>
-					{/* Background circles for depth */}
-					<div className="absolute inset-4 rounded-full bg-gradient-to-br from-primary/10 to-primary/5 dark:from-primary-light/10 dark:to-primary-light/5 blur-xl" />
-					<div className="absolute inset-0 rounded-full bg-gradient-to-br from-primary via-primary/95 to-primary/90 dark:from-primary-light dark:via-primary-light/95 dark:to-primary-light/90 shadow-lg shadow-primary/20 dark:shadow-primary-light/20">
-						{/* SVG container with perfect centering */}
-						<div className="absolute inset-0 flex items-center justify-center text-white dark:text-gray-900">
-							<div className={cn(`w-${sizeMap[iconSize]} h-${sizeMap[iconSize]}`)}>
-								{icon ? icon : showDefaultAnimation ? <AnimatedDataSvg /> : null}
-							</div>
-						</div>
-						{/* Subtle overlay for depth */}
-						<div className="absolute inset-0 rounded-full bg-gradient-to-br from-white/20 via-transparent to-black/5 dark:from-white/10 dark:to-black/10" />
+			<div className="flex flex-col items-center justify-center gap-3 text-center max-w-sm mx-auto p-8">
+				<div
+					className={cn(
+						'flex shrink-0 items-center justify-center rounded-lg bg-foreground/5 text-muted-foreground',
+						iconTileSizeClasses[iconContainerSize]
+					)}
+				>
+					<div
+						className={cn('flex items-center justify-center [&_svg]:size-full', iconSizeClasses[iconSize])}
+					>
+						{renderEmptyStateIcon(icon, showDefaultAnimation)}
 					</div>
 				</div>
 
-				{/* Text content with refined typography */}
-				<div className="space-y-3">
-					<h3 className="text-xl font-semibold bg-gradient-to-r from-gray-900 to-gray-700 dark:from-white dark:to-gray-300 bg-clip-text text-transparent">
-						{title}
-					</h3>
-					<div className="text-sm leading-relaxed text-gray-600 dark:text-gray-400">{message}</div>
-					{actionLabel && onAction && (
+				<div className="space-y-1">
+					<h3 className="text-sm font-semibold text-balance text-foreground">{title}</h3>
+					<div className="text-sm text-balance text-muted-foreground">{message}</div>
+					{hasAction && (
 						<Button onClick={onAction} variant={actionVariant} className="mt-4">
 							{actionLabel}
 						</Button>

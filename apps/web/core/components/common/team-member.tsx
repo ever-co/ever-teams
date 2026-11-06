@@ -61,20 +61,20 @@ export const TeamMemberSection = () => {
 							<li
 								key={i}
 								role="status"
-								className="p-4 mt-3 rounded-xl border divide-y divide-gray-200 shadow-sm animate-pulse dark:divide-gray-700 md:p-6 dark:border-gray-700"
+								className="mt-3 animate-pulse hairline-divide-y divide-border rounded-xl bg-card p-4 hairline-ring ring-border shadow-sm shadow-black/6.5 md:p-6"
 							>
 								<div className="flex justify-between items-center">
 									<div className="flex items-center space-x-3">
-										<div className="w-5 h-5 mr-8 rounded-[50%] bg-gray-200 dark:bg-muted"></div>
-										<div className="w-14 h-14 rounded-[50%] bg-gray-200 dark:bg-muted"></div>
+										<div className="w-5 h-5 mr-8 rounded-full bg-foreground/5"></div>
+										<div className="w-14 h-14 rounded-full bg-foreground/5"></div>
 										<div>
-											<div className="mb-2 w-32 h-3 bg-gray-200 rounded-full dark:bg-muted"></div>
+											<div className="mb-2 w-32 h-3 rounded-md bg-foreground/5"></div>
 										</div>
 									</div>
-									<div className="h-2.5 bg-gray-300 rounded-full dark:bg-gray-600 w-24" />
-									<div className="h-2.5 bg-gray-300 rounded-full dark:bg-gray-600 w-24" />
-									<div className="h-2.5 bg-gray-300 rounded-full dark:bg-gray-600 w-24" />
-									<div className="h-2.5 bg-gray-300 rounded-full dark:bg-muted w-24" />
+									<div className="h-2.5 rounded-md bg-foreground/5 w-24" />
+									<div className="h-2.5 rounded-md bg-foreground/5 w-24" />
+									<div className="h-2.5 rounded-md bg-foreground/5 w-24" />
+									<div className="h-2.5 rounded-md bg-foreground/5 w-24" />
 								</div>
 							</li>
 						);
@@ -83,12 +83,12 @@ export const TeamMemberSection = () => {
 				{$teamsFetching && (
 					<li
 						role="status"
-						className="p-4 mt-3 rounded-xl border divide-y divide-gray-200 shadow-sm animate-pulse dark:divide-gray-700 md:p-6 dark:border-gray-700"
+						className="mt-3 animate-pulse hairline-divide-y divide-border rounded-xl bg-card p-4 hairline-ring ring-border shadow-sm shadow-black/6.5 md:p-6"
 					>
 						<div className="flex justify-between items-center">
 							<div className="flex items-center space-x-3">
-								<div className="w-5 h-5 mr-8 rounded-[50%] bg-gray-200 dark:bg-muted"></div>
-								<div className="w-24 h-9 bg-gray-200 rounded-xl dark:bg-muted"></div>
+								<div className="w-5 h-5 mr-8 rounded-full bg-foreground/5"></div>
+								<div className="w-24 h-9 rounded-md bg-foreground/5"></div>
 							</div>
 						</div>
 					</li>
@@ -103,7 +103,7 @@ const Header = () => {
 
 	return (
 		<li>
-			<div className="flex items-center justify-between text-primary font-bold dark:text-[#FFFFFF]">
+			<div className="flex items-center justify-between text-primary font-semibold ">
 				<div className="w-[60px]  text-center">{t('task.taskTableHead.TASK_STATUS')}</div>
 				<div className="w-[215px]  text-center">{t('task.taskTableHead.TASK_NAME')}</div>
 				<div></div>

@@ -12,11 +12,23 @@ import { EverStatsCard } from './ever-stats-card';
  *   the paired API's `health` answered 200 to the signed-in person).
  * - The anonymous usage statistics card, whenever this web app runs its statistics module.
  */
-export function EverPlatformSection({ connectAvailable, connected }: Readonly<{ connectAvailable: boolean; connected: boolean }>) {
+export function EverPlatformSection({
+	connectAvailable,
+	connected,
+	showsDescription = true
+}: Readonly<{
+	connectAvailable: boolean;
+	connected: boolean;
+	showsDescription?: boolean;
+}>) {
 	const t = useTranslations();
 	return (
-		<div className="flex flex-col gap-4" data-testid="ever-platform-section">
-			<p className="text-sm text-muted-foreground">{t('pages.settingsTeam.everPlatform.DESCRIPTION')}</p>
+		<div className="flex flex-col gap-3" data-testid="ever-platform-section">
+			{showsDescription && (
+				<p className="text-[13px] text-pretty text-muted-foreground">
+					{t('pages.settingsTeam.everPlatform.DESCRIPTION')}
+				</p>
+			)}
 			{connectAvailable ? <EverConnectPanel connected={connected} /> : null}
 			<EverStatsCard />
 		</div>

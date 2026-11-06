@@ -7,20 +7,39 @@ import {
 } from '@/core/hooks';
 import { IClassName } from '@/core/types/interfaces/common/class-name';
 import { clsxm } from '@/core/lib/utils';
-import { Popover, PopoverButton, PopoverPanel, Transition } from '@headlessui/react';
-import { ConfirmDropdown, SpinnerLoader, Text } from '@/core/components';
+import { Popover, PopoverButton, PopoverPanel } from '@headlessui/react';
+import { ConfirmDropdown, SpinnerLoader } from '@/core/components';
 import { TaskUnOrAssignPopover } from '@/core/components/features/tasks/task-assign-popover';
-import { useCallback, useMemo } from 'react';
-import { useTranslations } from 'next-intl';
-import { ThreeCircleOutlineVerticalIcon } from 'assets/svg';
-import { EverCard } from '@/core/components/common/ever-card';
-import { HorizontalSeparator } from '@/core/components/duplicated-components/separator';
+import { Fragment, useCallback, useMemo } from 'react';
+import { useTranslations, type DottedLanguageObjectStringPaths } from 'next-intl';
+import {
+	Calendar,
+	MoreVertical,
+	Pencil,
+	ShieldUser,
+	Star,
+	Timer,
+	Trash,
+	UserAdd,
+	UserRemove
+} from '@/core/components/icons';
+import { buttonVariants } from '@/core/components/duplicated-components/_button';
 import { TTask } from '@/core/types/schemas/task/task.schema';
 import { Spinner } from '@/core/components/common/spinner';
 import { useFavoriteTasks } from '@/core/hooks/tasks/use-favorites-task';
 import { useSetAtom } from 'jotai';
 import { allPlansModalState } from '@/core/stores/all-plans-modal';
 import { toast } from 'sonner';
+import { errorReasonKeyOf } from '@/core/lib/utils/error-feedback';
+import { cn } from '@/core/lib/helpers';
+import {
+	MENU_ANCHOR,
+	MENU_ANCHORED_PANEL,
+	MENU_ROW,
+	MENU_ROW_DESTRUCTIVE,
+	MENU_SEPARATOR,
+	MENU_SURFACE
+} from '@/core/components/common/menu-recipes';
 
 type Props = IClassName & {
 	identity: I_MemberIdentityHook;
@@ -29,6 +48,31 @@ type Props = IClassName & {
 	roleActions: I_TeamMemberRoleActionsHook;
 	edition: I_TMCardTaskEditHook;
 };
+
+type MemberMenuGroup = 'task' | 'assignment' | 'member';
+
+const MENU_GROUP_ORDER: MemberMenuGroup[] = ['task', 'assignment', 'member'];
+
+function favoriteLabelKey(isFavorite: boolean) {
+	if (isFavorite) {
+		return 'common.REMOVE_FAVORITE_TASK' as const;
+	}
+	return 'common.ADD_FAVORITE_TASK' as const;
+}
+
+function favoriteIcon(isLoading: boolean) {
+	if (isLoading) {
+		return <Spinner />;
+	}
+	return <Star />;
+}
+
+function managerLabelKey(isTeamManager: boolean) {
+	if (isTeamManager) {
+		return 'common.UNMAKE_A_MANAGER' as const;
+	}
+	return 'common.MAKE_A_MANAGER' as const;
+}
 
 export function UserTeamCardMenu(props: Props) {
 	return <DropdownMenu {...props} />;
@@ -57,205 +101,218 @@ function DropdownMenu({ edition, identity, memberTask, mutations, roleActions }:
 		});
 	}, [setAllPlansModal, identity.member?.employeeId]);
 
+	const canActOnOwnWork = identity.isAuthTeamManager || identity.isAuthUser;
+	const canManageMember = identity.isAuthTeamManager && !identity.isAuthUser && !identity.isTeamCreator;
+	const isFavoriteLoading = addTaskToFavoriteLoading || deleteTaskFromFavoritesLoading;
+	const isCurrentTaskFavorite = Boolean(edition.task && isFavoriteTask(edition.task.id));
+	let toggleManagerRole = roleActions.makeMemberManager;
+	if (identity.isTeamManager) {
+		toggleManagerRole = roleActions.unMakeMemberManager;
+	}
+	const memberEmployeeId = identity.member?.employeeId;
+	let assignToCurrentMember: { id: string }[] | undefined;
+	if (memberEmployeeId) {
+		assignToCurrentMember = [{ id: memberEmployeeId }];
+	}
+
 	const allMenuItems = useMemo(
 		() => [
 			{
 				name: t('common.EDIT_TASK'),
+				icon: <Pencil />,
+				group: 'task' as const,
 				closable: true,
 				onClick: () => {
 					edition.task && edition.setEditMode(true);
 				},
-				active: (identity.isAuthTeamManager || identity.isAuthUser) && edition.task
-			},
-			{
-				name: edition.task ? (
-					addTaskToFavoriteLoading || deleteTaskFromFavoritesLoading ? (
-						<Spinner />
-					) : isFavoriteTask(edition.task?.id) ? (
-						t('common.REMOVE_FAVORITE_TASK')
-					) : (
-						t('common.ADD_FAVORITE_TASK')
-					)
-				) : (
-					t('common.ADD_FAVORITE_TASK')
-				),
-				closable: true,
-				onClick: () => {
-					edition.task && toggleFavoriteTask(edition.task);
-				},
-				active: (identity.isAuthTeamManager || identity.isAuthUser) && edition.task
+				active: canActOnOwnWork && edition.task
 			},
 			{
 				name: t('common.ESTIMATE'),
+				icon: <Timer />,
+				group: 'task' as const,
 				closable: true,
 				onClick: () => {
 					edition.task && edition.setEstimateEditMode(true);
 				},
-				active: (identity.isAuthTeamManager || identity.isAuthUser) && edition.task
+				active: canActOnOwnWork && edition.task
+			},
+			{
+				name: t(favoriteLabelKey(isCurrentTaskFavorite)),
+				icon: favoriteIcon(isFavoriteLoading),
+				group: 'task' as const,
+				closable: true,
+				onClick: () => {
+					edition.task && toggleFavoriteTask(edition.task);
+				},
+				active: canActOnOwnWork && edition.task
 			},
 			{
 				name: t('common.ASSIGN_TASK'),
+				icon: <UserAdd />,
+				group: 'assignment' as const,
 				action: 'assign',
 				onClick: onAssignTask,
-
-				active:
-					(identity.isAuthTeamManager || identity.isAuthUser) && mutations.memberUnassignTasks.length > 0
+				active: canActOnOwnWork && mutations.memberUnassignTasks.length > 0
 			},
 			{
 				name: t('common.UNASSIGN_TASK'),
+				icon: <UserRemove />,
+				group: 'assignment' as const,
 				action: 'unassign',
 				closable: true,
 				onClick: onUnAssignTask,
-
-				active: (identity.isAuthTeamManager || identity.isAuthUser) && !!memberTask
+				active: canActOnOwnWork && !!memberTask
 			},
 			{
-				name: identity.isTeamManager ? t('common.UNMAKE_A_MANAGER') : t('common.MAKE_A_MANAGER'),
-				// Make or unmake member a manager
-				onClick: identity.isTeamManager ? roleActions.unMakeMemberManager : roleActions.makeMemberManager,
-				active: identity.isAuthTeamManager && !identity.isAuthUser && !identity.isTeamCreator,
+				name: t(managerLabelKey(identity.isTeamManager)),
+				icon: <ShieldUser />,
+				group: 'member' as const,
+				onClick: toggleManagerRole,
+				active: canManageMember,
 				closable: true
 			},
 			{
 				name: t('common.REMOVE'),
+				icon: <Trash />,
+				group: 'member' as const,
 				type: 'danger',
 				action: 'remove',
-				active: identity.isAuthTeamManager && !identity.isAuthUser && !identity.isTeamCreator,
+				active: canManageMember,
 				onClick: onRemoveMember
 			}
 		],
-		[t, identity, memberTask, mutations, roleActions, edition, isFavoriteTask, onAssignTask, onUnAssignTask, onRemoveMember]
+		[
+			t,
+			identity.isTeamManager,
+			memberTask,
+			mutations,
+			roleActions,
+			edition,
+			toggleManagerRole,
+			canActOnOwnWork,
+			canManageMember,
+			isFavoriteLoading,
+			isCurrentTaskFavorite,
+			toggleFavoriteTask,
+			onAssignTask,
+			onUnAssignTask,
+			onRemoveMember
+		]
 	);
 
-	// Filter menu items to show only active ones
 	const menu = useMemo(() => allMenuItems.filter((item) => item.active), [allMenuItems]);
+
+	const menuGroups = useMemo(() => {
+		const groups = MENU_GROUP_ORDER.map((group) => menu.filter((item) => item.group === group));
+		return groups.filter((items) => items.length > 0);
+	}, [menu]);
+
+	const ignoreOutsideClickRef = mergeRefs([
+		edition.estimateEditIgnoreElement.ignoreElementRef,
+		edition.taskEditIgnoreElement.ignoreElementRef
+	]);
 
 	return (
 		<>
-			<Popover
-				className="flex relative flex-col justify-center items-center w-full"
-				ref={mergeRefs([
-					edition.estimateEditIgnoreElement.ignoreElementRef,
-					edition.taskEditIgnoreElement.ignoreElementRef
-				])}
-			>
+			<Popover className="flex relative flex-col justify-center items-center w-full" ref={ignoreOutsideClickRef}>
 				{!loading && (
 					<PopoverButton
 						disabled={menu.length === 0}
+						aria-label={t('common.MORE_OPTIONS')}
 						className={clsxm(
-							'flex items-center outline-hidden border-none',
+							buttonVariants({ variant: 'ghost', size: 'icon' }),
+							'text-muted-foreground data-open:bg-foreground/5',
 							menu.length === 0 && ['opacity-50 hidden']
 						)}
 					>
-						<ThreeCircleOutlineVerticalIcon className="w-6 dark:text-[#B1AEBC]" strokeWidth="1.4" />
+						<MoreVertical className="size-4" />
 					</PopoverButton>
 				)}
 				{loading && <SpinnerLoader size={20} />}
 
-				<Transition
-					as="div"
-					enter="transition duration-100 ease-out"
-					enterFrom="transform scale-95 opacity-0"
-					enterTo="transform scale-100 opacity-100"
-					leave="transition duration-75 ease-out"
-					leaveFrom="transform scale-100 opacity-100"
-					leaveTo="transform scale-95 opacity-0"
-					className="absolute z-30 -right-5 top-8 min-w-[13.125rem]"
+				<PopoverPanel
+					ref={ignoreOutsideClickRef}
+					anchor={MENU_ANCHOR}
+					transition
+					className={cn(MENU_SURFACE, MENU_ANCHORED_PANEL)}
 				>
-					<PopoverPanel>
-						{({ close }) => {
-							return (
-								<EverCard
-									shadow="custom"
-									className="shadow-xl card !py-3 !px-4 dark:bg-card dark:border dark:border-[#FFFFFF33] w-fit min-w-[10.75rem]"
-								>
-									<ul className="flex flex-col items-start w-full">
-										{menu.map((item, i) => {
-											const text = (
-												<Text
-													className={clsxm(
-														'font-normal whitespace-nowrap text-sm hover:font-semibold hover:transition-all',
-														item.type === 'danger' && ['text-red-500']
-													)}
-												>
-													{item.name}
-												</Text>
-											);
+					{({ close }) => (
+						<ul className="flex w-full flex-col">
+							{menuGroups.map((items, groupIndex) => (
+								<Fragment key={items[0].group}>
+									{groupIndex > 0 && <li role="separator" className={MENU_SEPARATOR} />}
+									{items.map((item) => {
+										const isDanger = item.type === 'danger';
+										const rowClassName = cn(MENU_ROW, isDanger && MENU_ROW_DESTRUCTIVE);
+										const row = (
+											<span className={rowClassName}>
+												{item.icon}
+												{item.name}
+											</span>
+										);
+										const assignAction = item.action === 'assign';
+										const removeAction = item.action === 'remove';
+										const plainAction = !assignAction && !removeAction;
 
-											// When true show combobox component (AssignActionMenu)
-											const assignAction = item.action === 'assign';
-
-											const removeAction = item.action === 'remove';
-
-											return (
-												<li key={i}>
-													{assignAction && (
-														// Show only for item with combobox menu
-														<TaskUnOrAssignPopover
-															tasks={mutations.memberUnassignTasks}
-															onTaskClick={(task, closeCmbx) => {
-																// Can close all open combobox
-																item.onClick &&
-																	item.onClick({
-																		task,
-																		closeCombobox1: closeCmbx,
-																		closeCombobox2: close
-																	});
-															}}
-															userProfile={identity.member}
-															usersTaskCreatedAssignTo={
-																identity.member?.employeeId
-																	? [{ id: identity.member?.employeeId }]
-																	: undefined
-															}
-														>
-															{text}
-														</TaskUnOrAssignPopover>
-													)}
-
-													{removeAction && (
-														<ConfirmDropdown
-															className="right-[110%] top-0"
-															onConfirm={() => {
-																item.onClick && item.onClick({ close });
-															}}
-														>
-															{text}
-														</ConfirmDropdown>
-													)}
-
-													{/* WHen hasn't an action */}
-													{!assignAction && !removeAction && (
-														<button
-															className="mb-2"
-															onClick={() => {
-																item.onClick && item.onClick({});
-																item.closable && close();
-															}}
-														>
-															{text}
-														</button>
-													)}
-												</li>
-											);
-										})}
-										<HorizontalSeparator className="-mx-2" />
-										<ul className="flex flex-col items-start py-1 w-full">
-											<button
-												onClick={openAllPlansModal}
-												className={clsxm(
-													'text-sm font-normal whitespace-nowrap hover:font-semibold hover:transition-all'
+										return (
+											<li key={`${item.group}-${item.action ?? ''}-${String(item.name)}`}>
+												{assignAction && (
+													<TaskUnOrAssignPopover
+														buttonClassName="mb-0 w-full rounded-md"
+														tasks={mutations.memberUnassignTasks}
+														onTaskClick={(task, closeCmbx) => {
+															item.onClick &&
+																item.onClick({
+																	task,
+																	closeCombobox1: closeCmbx,
+																	closeCombobox2: close
+																});
+														}}
+														userProfile={identity.member}
+														usersTaskCreatedAssignTo={assignToCurrentMember}
+													>
+														{row}
+													</TaskUnOrAssignPopover>
 												)}
-											>
-												{t('common.plan.SEE_PLANS')}
-											</button>
-										</ul>
-									</ul>
-								</EverCard>
-							);
-						}}
-					</PopoverPanel>
-				</Transition>
+
+												{removeAction && (
+													<ConfirmDropdown
+														onConfirm={() => {
+															item.onClick && item.onClick({ close });
+														}}
+													>
+														{row}
+													</ConfirmDropdown>
+												)}
+
+												{plainAction && (
+													<button
+														type="button"
+														className="w-full text-left"
+														onClick={() => {
+															item.onClick && item.onClick({});
+															item.closable && close();
+														}}
+													>
+														{row}
+													</button>
+												)}
+											</li>
+										);
+									})}
+								</Fragment>
+							))}
+							<li role="separator" className={MENU_SEPARATOR} />
+							<li>
+								<button type="button" onClick={openAllPlansModal} className={MENU_ROW}>
+									<Calendar />
+									{t('common.plan.SEE_PLANS')}
+								</button>
+							</li>
+						</ul>
+					)}
+				</PopoverPanel>
 			</Popover>
 			{/* AllPlansModal is now rendered globally in app-sidebar.tsx */}
 		</>
@@ -277,19 +334,43 @@ export function useDropdownAction({
 }: Pick<Props, 'edition' | 'identity' | 'memberTask' | 'mutations' | 'roleActions'>) {
 	const t = useTranslations();
 
+	const showAssignmentError = useCallback(
+		(error: unknown) => {
+			const reasonKey = errorReasonKeyOf(error) as DottedLanguageObjectStringPaths;
+			toast.error(t('toasts.tasks.ASSIGNEES_NOT_SAVED'), { description: t(reasonKey) });
+		},
+		[t]
+	);
+
+	const showTaskAssigned = useCallback(
+		(task: TTask) => {
+			const employee = identity.member?.employee;
+			const memberName = employee?.fullName || employee?.user?.name;
+			const title = task.title;
+			if (memberName) {
+				toast.success(t('toasts.teams.TASK_ASSIGNED_TO_MEMBER', { title, name: memberName }), {
+					id: 'task-assigned'
+				});
+				return;
+			}
+			toast.success(t('toasts.teams.TASK_ASSIGNED', { title }), { id: 'task-assigned' });
+		},
+		[identity.member, t]
+	);
+
 	const onAssignTask: IAssignCall = useCallback(
 		async ({ task, closeCombobox1, closeCombobox2 }) => {
 			if (!task) return;
 
-			const memberName = identity.member?.employee?.fullName || identity.member?.employee?.user?.name || '';
-
 			edition.setLoading(true);
 			try {
-				await mutations.assignTask(task);
-				toast.success(t('task.toastMessages.TASK_ASSIGNED'), {
-					description: memberName ? `"${task.title}" → ${memberName}` : `"${task.title}"`,
-					id: 'task-assigned'
-				});
+				const wasSent = await mutations.assignTask(task);
+				if (wasSent) {
+					showTaskAssigned(task);
+				}
+			} catch (error) {
+				showAssignmentError(error);
+				return;
 			} finally {
 				edition.setLoading(false);
 			}
@@ -297,27 +378,21 @@ export function useDropdownAction({
 			closeCombobox1?.();
 			closeCombobox2?.();
 		},
-		[edition, identity.member, mutations.assignTask, t]
+		[edition, mutations.assignTask, showTaskAssigned, showAssignmentError]
 	);
 
 	const onUnAssignTask: IAssignCall = useCallback(async () => {
 		if (!memberTask) return;
 
-		const memberName = identity.member?.employee?.fullName || identity.member?.employee?.user?.name || '';
-
 		edition.setLoading(true);
 		try {
 			await mutations.unassignTask(memberTask);
-			toast.success(t('task.toastMessages.TASK_UNASSIGNED'), {
-				description: memberName
-					? `"${memberTask.title}" ← ${memberName}`
-					: `"${memberTask.title}"`,
-				id: 'task-unassigned'
-			});
+		} catch (error) {
+			showAssignmentError(error);
 		} finally {
 			edition.setLoading(false);
 		}
-	}, [memberTask, identity.member, mutations.unassignTask, edition, t]);
+	}, [memberTask, mutations.unassignTask, edition, showAssignmentError]);
 
 	const onRemoveMember = useCallback(
 		({ close }: { close?: () => void }) => {

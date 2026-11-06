@@ -1,6 +1,6 @@
 'use client';
 
-import { activeTeamState } from '@/core/stores';
+import { activeTeamScopeState } from '@/core/stores';
 import { useCallback } from 'react';
 import { useAtomValue } from 'jotai';
 import { useQueryClient } from '@tanstack/react-query';
@@ -17,7 +17,8 @@ import { queryKeys } from '@/core/query/keys';
  */
 export function useInvalidateTeamTasks() {
 	const queryClient = useQueryClient();
-	const activeTeam = useAtomValue(activeTeamState);
+	// Its id only, which does not change with the members: this hook runs in each task and member row
+	const activeTeam = useAtomValue(activeTeamScopeState);
 
 	/**
 	 * Invalidate all team task-related queries.

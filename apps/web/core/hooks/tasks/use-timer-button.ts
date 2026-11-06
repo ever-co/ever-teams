@@ -1,17 +1,19 @@
 // core/hooks/task-card/useTimerButton.ts
 import { useCallback, useMemo, useState } from 'react';
-import { useStartStopTimerHandler, useTeamTasksState } from '@/core/hooks';
+import { useStartStopTimerHandler } from '@/core/hooks/activities/use-start-stop-timer-handler';
+import { useSetActiveTask } from '@/core/hooks/organizations/teams/use-team-tasks-state';
 import { useTimerActions } from '@/core/hooks/timer';
+import type { TimerStartOutcome } from '@/core/hooks/timer/use-timer-api';
 import { useTimerOptimisticUI } from '@/core/hooks/activities/use-timer-optimistic-ui';
-import { TOrganizationTeam } from '@/core/types/schemas/team/organization-team.schema';
 import { toast } from 'sonner';
 import { useTranslations } from 'next-intl';
 import { TTask } from '@/core/types/schemas/task/task.schema';
-import { activeTeamTaskState, timerStatusState } from '@/core/stores';
+import { activeTeamRequiresPlanState, activeTeamTaskState, timerStatusState } from '@/core/stores';
 import { useAtomValue } from 'jotai';
+import { canTrackTask } from '@/core/lib/helpers/timer-policy';
 
 // Custom hook to extract TimerButtonCall business logic
-export function useTimerButtonLogic({ task, activeTeam }: { task: TTask; activeTeam: TOrganizationTeam | null }) {
+export function useTimerButtonLogic({ task }: { task: TTask }) {
 	const [loading, setLoading] = useState(false);
 	const timerStatus = useAtomValue(timerStatusState);
 	const activeTeamTask = useAtomValue(activeTeamTaskState);
@@ -24,7 +26,7 @@ export function useTimerButtonLogic({ task, activeTeam }: { task: TTask; activeT
 	// Layers-1+2 hook for exactly this case (its docblock: "No 50ms ticking interval").
 	const { canTrack, canRunTimer, startTimer, stopTimer, hasPlan } = useTimerActions();
 	const disabled = !canRunTimer;
-	const { setActiveTask } = useTeamTasksState();
+	const { setActiveTask } = useSetActiveTask();
 	const t = useTranslations();
 
 	// Use optimistic UI hook for timer button feedback
@@ -37,11 +39,17 @@ export function useTimerButtonLogic({ task, activeTeam }: { task: TTask; activeT
 		[activeTeamTask?.id, task.id, timerStatus]
 	);
 
-	const requirePlan = useMemo(() => activeTeam?.requirePlanToTrack, [activeTeam?.requirePlanToTrack]);
+	// The team's plan rule alone: this hook runs once per task card, which should not re-render on team refreshes
+	const requirePlan = useAtomValue(activeTeamRequiresPlanState);
+	const isPlanRequired = Boolean(requirePlan);
+	const canTrackThisTask = canTrackTask(canTrack, isPlanRequired, hasPlan, task.id);
 
 	const startTimerWithTask = useCallback(async () => {
 		if (task.status === 'closed') {
-			toast.error(t('timer.TASK_CLOSED'));
+			toast.warning(t('timer.TASK_CLOSED'), {
+				id: 'timer-task-closed',
+				description: t('toasts.timer.TASK_CLOSED_HINT')
+			});
 			return;
 		}
 
@@ -54,8 +62,8 @@ export function useTimerButtonLogic({ task, activeTeam }: { task: TTask; activeT
 			} catch (error) {
 				// Stop failed - don't continue to start a new timer
 				// This prevents backend state inconsistency when stop fails
+				// The stop mutation already showed why
 				setLoading(false);
-				toast.error(t('timer.TIMER_START_FAILED'));
 				console.error('Failed to stop timer before starting new one:', error);
 				return;
 			} finally {
@@ -70,7 +78,7 @@ export function useTimerButtonLogic({ task, activeTeam }: { task: TTask; activeT
 
 		// Show immediate feedback to user
 		const toastId = toast.loading(t('timer.STARTING_TIMER'), {
-			description: task.title || 'Task'
+			description: task.title || undefined
 		});
 
 		try {
@@ -83,16 +91,21 @@ export function useTimerButtonLogic({ task, activeTeam }: { task: TTask; activeT
 			// NOTE_FIX: Pass task explicitly to startTimer to avoid race conditions
 			// Between setActiveTask and startTimer, activeTeamTask might change due to useEffects or React Query refetches
 			// Passing the task explicitly ensures startTimer uses the correct task
-			await startTimer(task);
+			const outcome: TimerStartOutcome = await startTimer(task);
+			if (outcome !== 'started') {
+				// startTimer already showed why nothing started
+				toast.dismiss(toastId);
+				return;
+			}
 
 			window.scrollTo({ top: 0, behavior: 'smooth' });
-			toast.success(t('timer.TIMER_STARTED'), { id: toastId });
+			toast.success(t('toasts.timer.STARTED'), { id: toastId });
 		} catch (error) {
 			// startTimer already shows the failure toast, so only the loading one is left to clear
 			toast.dismiss(toastId);
 			console.error('Failed to start timer:', error);
 		}
-	}, [task, timerStatus?.running, setActiveTask, activeTeam, startTimer, handleStop, t]);
+	}, [task, timerStatus?.running, setActiveTask, startTimer, handleStop, t]);
 
 	const { modals, startStopTimerHandler } = useStartStopTimerHandler({ startTimer, stopTimer });
 
@@ -104,7 +117,7 @@ export function useTimerButtonLogic({ task, activeTeam }: { task: TTask; activeT
 		startTimerWithTask,
 		modals,
 		startStopTimerHandler,
-		canTrack,
+		canTrack: canTrackThisTask,
 		disabled,
 		hasPlan,
 		activeTeamTask,

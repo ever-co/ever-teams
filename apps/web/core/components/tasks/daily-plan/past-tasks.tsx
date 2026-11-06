@@ -1,26 +1,33 @@
-import { formatDayPlanDate, yesterdayDate } from '@/core/lib/helpers/index';
-import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/core/components/common/accordion';
-import { FilterTabs } from '@/core/types/interfaces/task/task-card';
-
-import { LazyTaskCard } from '@/core/components/optimized-components';
+import { useMemo, type ReactNode } from 'react';
 import { useAtomValue } from 'jotai';
+import moment from 'moment';
+import { FilterTabs } from '@/core/types/interfaces/task/task-card';
 import { dailyPlanViewHeaderTabs } from '@/core/stores/common/header-tabs';
-import { clsxm } from '@/core/lib/utils';
-import TaskBlockCard from '../task-block-card';
 import {
 	filterDailyPlan,
 	filterDailyPlansByEmployee,
 	filterDailyPlansByTasks
 } from '@/core/hooks/daily-plans/use-filter-date-range';
-import { useMemo } from 'react';
+import { I_UserProfilePage } from '@/core/hooks';
 import { TUser } from '@/core/types/schemas';
-import { DragDropContext, Draggable, Droppable, DroppableProvided, DroppableStateSnapshot } from '@hello-pangea/dnd';
 import { useDateRange } from '@/core/hooks/daily-plans/use-date-range';
-import DailyPlanTasksTableView from './table-view';
-import { HorizontalSeparator } from '../../duplicated-components/separator';
-import { EmptyPlans, PlanHeader } from '@/core/components/daily-plan';
+import { EmptyPlans } from '@/core/components/daily-plan';
 import { useEmployeeDailyPlans } from '@/core/hooks/daily-plans/use-employee-daily-plans';
 import { useDailyPlanTaskOrder } from '@/core/hooks/daily-plans/use-daily-plan-task-order';
+import { TASK_LIST_STACK } from '@/core/components/tasks/task-row-recipes';
+import { PlanDayGroupList } from './plan-day-groups';
+import { keepPickedPlans } from './plan-picks';
+
+function cardPlanModeFor(currentTab: FilterTabs): FilterTabs | undefined {
+	if (currentTab === 'Past Tasks') {
+		return 'Past Tasks';
+	}
+	return undefined;
+}
+
+function yesterdayKey() {
+	return moment().subtract(1, 'day').format('YYYY-MM-DD');
+}
 
 export function PastTasks({
 	user,
@@ -28,32 +35,28 @@ export function PastTasks({
 	currentTab = 'Past Tasks',
 	employeeId: propsEmployeeId,
 	filterByEmployee = false,
-	filteredTaskIds
-}: {
-	profile: any;
+	filteredTaskIds,
+	pickedPlanIds,
+	emptyState
+}: Readonly<{
+	profile: I_UserProfilePage;
 	currentTab?: FilterTabs;
 	user?: TUser;
 	employeeId?: string; // Accept employeeId directly from parent
 	filterByEmployee?: boolean; // Filter tasks by employee (default: false = show all tasks)
 	filteredTaskIds?: string[]; // Filter plans by taskIds (default undefined = show all)
-}) {
-	// Use employeeId from props if provided, otherwise calculate from user
+	pickedPlanIds?: string[];
+	emptyState?: ReactNode;
+}>) {
 	const employeeId = propsEmployeeId ?? user?.employee?.id ?? user?.employeeId ?? '';
-
 	const { employeePastPlans } = useEmployeeDailyPlans(employeeId);
-
 	const view = useAtomValue(dailyPlanViewHeaderTabs);
-	// Use a safe default instead of direct localStorage access
 	const { date } = useDateRange('Past Tasks', employeeId);
 
-	// Use useMemo instead of useEffect to prevent infinite re-render loop
-	// The previous useEffect was modifying pastPlans while depending on pastPlans, causing infinite loop
 	const filteredPastPlans = useMemo(() => {
-		// First apply date filtering
-		let filteredData = filterDailyPlan(date as any, employeePastPlans);
+		const pickedPlans = keepPickedPlans(employeePastPlans, pickedPlanIds);
+		let filteredData = filterDailyPlan(date, pickedPlans);
 
-		// Then filter tasks for specific user if filterByEmployee flag is enabled
-		// By default (filterByEmployee = false), we show ALL tasks in the daily plan
 		if (filterByEmployee && filteredData) {
 			filteredData = filterDailyPlansByEmployee(filteredData, user);
 		}
@@ -62,131 +65,27 @@ export function PastTasks({
 		}
 
 		return filteredData;
-	}, [date, employeePastPlans, user, filterByEmployee, filteredTaskIds]);
+	}, [date, employeePastPlans, user, filterByEmployee, filteredTaskIds, pickedPlanIds]);
 	const { dragPlans, onDragEnd } = useDailyPlanTaskOrder(filteredPastPlans);
 	if (!filteredPastPlans) return null;
+	const hasPlans = dragPlans.length > 0;
+	const showsDefaultEmpty = !hasPlans && !emptyState;
+
 	return (
-		<div className="flex flex-col gap-6">
-			{dragPlans.length > 0 ? (
-				<DragDropContext onDragEnd={onDragEnd}>
-					<Accordion
-						type="multiple"
-						className="text-sm"
-						defaultValue={[yesterdayDate.toISOString().split('T')[0]]}
-					>
-						{dragPlans.map((plan) => (
-							<AccordionItem
-								value={plan.date.toString().split('T')[0]}
-								key={plan.id}
-								className="dark:border-slate-600 !border-none"
-							>
-								<AccordionTrigger className="!min-w-full text-start hover:no-underline">
-									<div className="flex gap-3 justify-between items-center w-full">
-										<div className="min-w-max text-lg">
-											{formatDayPlanDate(plan.date.toString())} ({plan.tasks?.length})
-										</div>
-										<HorizontalSeparator />
-									</div>
-								</AccordionTrigger>
-								<AccordionContent className="pb-6 border-none bg-gray-100 dark:bg-dark--theme !px-4 !py-4 rounded-xl">
-									{/* Plan header */}
-									<PlanHeader plan={plan} planMode="Outstanding" />
-									{view === 'TABLE' ? (
-										<DailyPlanTasksTableView
-											profile={profile}
-											plan={plan}
-											data={plan.tasks ?? []}
-										/>
-									) : (
-										<Droppable
-											droppableId={plan.id as string}
-											key={plan.id}
-											type="task"
-											direction={view === 'CARDS' ? 'vertical' : 'horizontal'}
-										>
-											{(provided: DroppableProvided, snapshot: DroppableStateSnapshot) => (
-												<ul
-													ref={provided.innerRef}
-													{...provided.droppableProps}
-													className={clsxm(
-														'flex-wrap',
-														view === 'CARDS' && 'flex-col',
-														'flex gap-2 pb-[1.5rem]',
-														view === 'BLOCKS' && 'overflow-x-auto',
-														snapshot.isDraggingOver
-															? 'border-[lightblue] lightblue'
-															: '#F7F7F8 border-[#F7F7F8]'
-													)}
-												>
-													{plan.tasks?.map((task, index) =>
-														view === 'CARDS' ? (
-															<Draggable key={index} draggableId={task.id} index={index}>
-																{(provided) => (
-																	<div
-																		ref={provided.innerRef}
-																		{...provided.draggableProps}
-																		{...provided.dragHandleProps}
-																		style={{
-																			...provided.draggableProps.style,
-																			marginBottom: 4
-																		}}
-																	>
-																		<LazyTaskCard
-																			key={`${task.id}${plan.id}`}
-																			isAuthUser={true}
-																			activeAuthTask={true}
-																			viewType={'dailyplan'}
-																			task={task}
-																			profile={profile}
-																			plan={plan}
-																			type="HORIZONTAL"
-																			taskBadgeClassName={`rounded-sm`}
-																			taskTitleClassName="mt-[0.0625rem]"
-																			planMode={
-																				currentTab === 'Past Tasks'
-																					? 'Past Tasks'
-																					: undefined
-																			}
-																			taskContentClassName="!w-72 !max-w-80" // UX: consistent card width across all tabs
-																			className="shadow-[0px_0px_15px_0px_#e2e8f0]"
-																		/>
-																	</div>
-																)}
-															</Draggable>
-														) : (
-															<Draggable
-																key={task.id}
-																draggableId={task.id}
-																index={index}
-															>
-																{(provided) => (
-																	<div
-																		ref={provided.innerRef}
-																		{...provided.draggableProps}
-																		{...provided.dragHandleProps}
-																		style={{
-																			...provided.draggableProps.style,
-																			marginBottom: 8
-																		}}
-																	>
-																		<TaskBlockCard key={task.id} task={task} />
-																	</div>
-																)}
-															</Draggable>
-														)
-													)}
-												</ul>
-											)}
-										</Droppable>
-									)}
-								</AccordionContent>
-							</AccordionItem>
-						))}
-					</Accordion>
-				</DragDropContext>
-			) : (
-				<EmptyPlans planMode="Past Tasks" />
+		<div className={TASK_LIST_STACK}>
+			{hasPlans && (
+				<PlanDayGroupList
+					plans={dragPlans}
+					onDragEnd={onDragEnd}
+					defaultOpenDays={[yesterdayKey()]}
+					view={view}
+					profile={profile}
+					headerMode="Outstanding"
+					rowPlanMode={cardPlanModeFor(currentTab)}
+				/>
 			)}
+			{!hasPlans && emptyState}
+			{showsDefaultEmpty && <EmptyPlans planMode="Past Tasks" />}
 		</div>
 	);
 }

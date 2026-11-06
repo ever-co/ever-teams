@@ -10,7 +10,7 @@ import {
 	isWorkspaceTokenExpired,
 	type EverIdChooserData
 } from '@/core/lib/auth/ever-id/session';
-import { userTimezone } from '@/core/lib/helpers/date-and-time';
+import { userTimezone } from '@/core/lib/helpers/user-timezone';
 import { everIdService } from '@/core/services/client/api/auth/ever-id.service';
 
 /**

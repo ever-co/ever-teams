@@ -3,6 +3,8 @@ import { imgTitle } from '@/core/lib/helpers/index';
 import { useSettings, useSyncRef } from '@/core/hooks';
 import { usePagination } from '@/core/hooks/common/use-pagination';
 import { activeTeamIdState, activeTeamState, organizationTeamsState } from '@/core/stores';
+import { isTeamManagerMember } from '@/core/stores/teams/organization-team';
+import { employeeIdOf, rosterWithRole, teamRosterOf } from '@/core/lib/utils/settings-team';
 import { clsxm } from '@/core/lib/utils';
 import { Text } from '@/core/components';
 import cloneDeep from 'lodash/cloneDeep';
@@ -20,13 +22,20 @@ import { Tooltip } from '../duplicated-components/tooltip';
 import { Paginate } from '../duplicated-components/_pagination';
 import { TOrganizationTeamEmployee, TRole } from '@/core/types/schemas';
 import { useUpdateOrganizationTeam } from '@/core/hooks/organizations/teams/use-update-organization-team';
-import { ERoleName } from '@/core/types/generics/enums/role';
 import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from '@/core/components/common/table';
 
-const HEAD_CELL = 'h-auto px-0 py-2.5 text-xs font-medium uppercase tracking-wider text-muted-foreground';
-const BODY_CELL = 'px-0 py-2.5 text-sm text-foreground';
+const HEAD_CELL = 'whitespace-nowrap';
+const BODY_CELL = 'text-sm text-foreground';
+const NAME_TEXT = 'max-w-[12.5rem] overflow-hidden text-ellipsis whitespace-nowrap 3xl:max-w-[14.25rem]';
 
-export const MemberTable =({ members }: { members: TOrganizationTeamEmployee[] }) => {
+function memberStatusFor(isActive: boolean | undefined) {
+	if (isActive) {
+		return 'Member';
+	}
+	return 'Suspended';
+}
+
+export const MemberTable = ({ members }: { members: TOrganizationTeamEmployee[] }) => {
 	const t = useTranslations();
 	const { total, onPageChange, itemsPerPage, itemOffset, endOffset, setItemsPerPage, currentItems, pageCount } =
 		usePagination<TOrganizationTeamEmployee>({ items: members, defaultItemsPerPage: 5 });
@@ -65,31 +74,17 @@ export const MemberTable =({ members }: { members: TOrganizationTeamEmployee[] }
 
 	const handleManagerRoleUpdate = useCallback(
 		(employeeId: string, isPromotingToManager: boolean) => {
-			if (!activeTeamRef.current) return;
+			if (!activeTeamRef.current || !employeeId) return;
 
-			// Get current managers
-			const currentManagers: string[] =
-				activeTeamRef.current?.members
-					?.filter((member) => member.role?.name === ERoleName.MANAGER)
-					.map((manager) => manager.employee?.id || '') || [];
+			// Both lists go with the team, in employee ids: the API reads a list the body leaves out as empty, so
+			// managers sent alone would take every other member out of the team
+			const roster = teamRosterOf(activeTeamRef.current.members ?? [], isTeamManagerMember);
+			const role = isPromotingToManager ? 'manager' : 'member';
 
-			if (isPromotingToManager) {
-				// Add new manager
-				const updatedManagerIds = [...new Set([...currentManagers, employeeId])];
-
-				return updateOrganizationTeam(activeTeamRef.current, {
-					...activeTeamRef.current,
-					managerIds: updatedManagerIds
-				});
-			} else {
-				// Remove manager
-				const updatedManagerIds = currentManagers.filter((id) => id !== employeeId);
-
-				return updateOrganizationTeam(activeTeamRef.current, {
-					...activeTeamRef.current,
-					managerIds: updatedManagerIds
-				});
-			}
+			return updateOrganizationTeam(activeTeamRef.current, {
+				...activeTeamRef.current,
+				...rosterWithRole(roster, employeeId, role)
+			});
 		},
 		[updateOrganizationTeam, activeTeamRef]
 	);
@@ -98,10 +93,11 @@ export const MemberTable =({ members }: { members: TOrganizationTeamEmployee[] }
 		(newRole: TRole) => {
 			if (!editMemberRef.current || !activeTeamRef.current) return;
 
-			const { employeeId = '', role } = editMemberRef.current;
+			const { role } = editMemberRef.current;
+			const employeeId = employeeIdOf(editMemberRef.current) ?? '';
 
 			const isPromotingToManager = role?.name !== 'MANAGER' && newRole?.name === 'MANAGER';
-			handleManagerRoleUpdate(employeeId!, isPromotingToManager);
+			handleManagerRoleUpdate(employeeId, isPromotingToManager);
 
 			// Update Organization Team
 			// const updatedMember = { ...editMemberRef.current, roleId: !isPromotingToManager ? '' :  };
@@ -153,145 +149,137 @@ export const MemberTable =({ members }: { members: TOrganizationTeamEmployee[] }
 
 	return (
 		<div>
-			<div
-				className={clsxm(
-					'sm:rounded-lg overflow-auto',
-					itemsPerPage <= 5 ? 'h-[28rem]' : '',
-					itemsPerPage > 5 && itemsPerPage <= 10 ? 'h-[35rem]' : '',
-					itemsPerPage > 10 && itemsPerPage <= 20 ? 'h-[45rem]' : '',
-					itemsPerPage > 20 ? 'h-[55rem]' : ''
-				)}
-			>
-				<Table className="w-full text-left text-sm">
-					<TableHeader className="border-b border-border">
-						<TableRow className="hover:bg-transparent">
-							<TableHead scope="col" className={clsxm(HEAD_CELL, 'min-w-32')}>
-								{t('common.NAME')}
-							</TableHead>
-							<TableHead scope="col" className={clsxm(HEAD_CELL, 'min-w-32')}>
-								{t('common.POSITION')}
-							</TableHead>
-							<TableHead scope="col" className={clsxm(HEAD_CELL, 'min-w-32')}>
-								{t('common.ROLES')}
-							</TableHead>
-							<TableHead scope="col" className={clsxm(HEAD_CELL, 'min-w-36')}>
-								{t('common.JOIN_OR_LEFT')}
-							</TableHead>
-							<TableHead scope="col" className={clsxm(HEAD_CELL, 'min-w-32')}>
-								{t('common.STATUS')}
-							</TableHead>
-							<TableHead scope="col" className={HEAD_CELL}></TableHead>
-						</TableRow>
-					</TableHeader>
-					<TableBody>
-						{currentItems.map((member, index) => (
-							<TableRow className="border-border hover:bg-muted/40" key={index}>
-								<TableCell
-									scope="row"
-									className="flex items-center gap-3 whitespace-nowrap px-0 py-2.5 text-foreground"
-								>
-									{member.employee.user?.imageId ? (
-										<Avatar
-											size={32}
-											className="relative shrink-0 cursor-pointer"
-											imageUrl={
-												member.employee.user?.image?.thumbUrl ||
-												member.employee.user?.image?.fullUrl ||
-												member.employee.user?.imageUrl
-											}
-											alt="User Avatar"
-										/>
-									) : member.employee.user?.name ? (
-										<div
-											className={clsxm(
-												'size-8 shrink-0',
-												'flex justify-center items-center',
-												'text-xs rounded-full text-default dark:text-white',
-												'font-normal'
-											)}
-											style={{
-												backgroundColor: `${stc(member.employee.user?.name || '')}80`
-											}}
-										>
-											{imgTitle(member.employee.user?.name)}
-										</div>
-									) : (
-										''
-									)}
-									<div className="flex min-w-0 flex-col gap-0.5">
-										{editMemberRef.current && editMemberRef.current.id === member.id ? (
-											<InputField
-												type="text"
-												placeholder={'Enter Name'}
-												className="mb-0 h-5 border-none max-w-[12rem] 3xl:max-w-[14rem] pl-0 py-0 rounded-none border-b-1"
-												noWrapper
-												autoFocus
-												defaultValue={member.employee.fullName}
-												onBlur={handleEditMemberSave}
-												onChange={handelNameChange}
-												onKeyUp={handleOnKeyUp}
-											/>
-										) : (
-											<Tooltip
-												label={member.employee.fullName.trim()}
-												placement="auto"
-												enabled={
-													member.employee.fullName.trim().length > CHARACTER_LIMIT_TO_SHOW
+			<Table className="w-full text-left text-sm">
+				<TableHeader>
+					<TableRow className="hover:bg-transparent">
+						<TableHead scope="col" className={clsxm(HEAD_CELL, 'min-w-32')}>
+							{t('common.NAME')}
+						</TableHead>
+						<TableHead scope="col" className={clsxm(HEAD_CELL, 'min-w-32')}>
+							{t('common.POSITION')}
+						</TableHead>
+						<TableHead scope="col" className={clsxm(HEAD_CELL, 'min-w-32')}>
+							{t('common.ROLES')}
+						</TableHead>
+						<TableHead scope="col" className={clsxm(HEAD_CELL, 'min-w-36')}>
+							{t('common.JOIN_OR_LEFT')}
+						</TableHead>
+						<TableHead scope="col" className={clsxm(HEAD_CELL, 'min-w-32')}>
+							{t('common.STATUS')}
+						</TableHead>
+						<TableHead scope="col" className={clsxm(HEAD_CELL, 'w-12')}></TableHead>
+					</TableRow>
+				</TableHeader>
+				<TableBody>
+					{currentItems.map((member) => {
+						const isEditing = Boolean(editMemberRef.current) && editMemberRef.current?.id === member.id;
+						const hasImage = Boolean(member.employee.user?.imageId);
+						const showsInitials = !hasImage && Boolean(member.employee.user?.name);
+						const fullName = member.employee.fullName.trim();
+						const email = (member.employee.user?.email || '').trim();
+						return (
+							<TableRow key={member.id}>
+								<TableCell scope="row" className="whitespace-nowrap text-foreground">
+									<div className="flex items-center gap-3">
+										{hasImage && (
+											<Avatar
+												size={32}
+												className="relative shrink-0 cursor-pointer"
+												imageUrl={
+													member.employee.user?.image?.thumbUrl ||
+													member.employee.user?.image?.fullUrl ||
+													member.employee.user?.imageUrl
 												}
-											>
-												<div
-													className="max-w-[12.5rem] overflow-hidden text-ellipsis whitespace-nowrap text-sm font-medium text-foreground 3xl:max-w-[14.25rem]"
-													onDoubleClick={() => {
-														handleEdit(member);
-													}}
-												>
-													{member.employee.fullName}
-												</div>
-											</Tooltip>
+												alt="User Avatar"
+											/>
 										)}
+										{showsInitials && (
+											<div
+												className="flex size-8 shrink-0 items-center justify-center rounded-full text-xs font-normal text-foreground"
+												style={{
+													backgroundColor: `${stc(member.employee.user?.name || '')}80`
+												}}
+											>
+												{imgTitle(member.employee.user?.name)}
+											</div>
+										)}
+										<div className="flex min-w-0 flex-col gap-0.5">
+											{isEditing && (
+												<InputField
+													type="text"
+													placeholder={t('pages.settingsTeam.ENTER_NAME')}
+													className="mb-0 h-5 border-none max-w-[12rem] 3xl:max-w-[14rem] pl-0 py-0 rounded-none border-b-1"
+													noWrapper
+													autoFocus
+													defaultValue={member.employee.fullName}
+													onBlur={handleEditMemberSave}
+													onChange={handelNameChange}
+													onKeyUp={handleOnKeyUp}
+												/>
+											)}
+											{!isEditing && (
+												<Tooltip
+													label={fullName}
+													placement="auto"
+													enabled={fullName.length > CHARACTER_LIMIT_TO_SHOW}
+												>
+													<div
+														className={clsxm(
+															NAME_TEXT,
+															'text-sm font-medium text-foreground'
+														)}
+														onDoubleClick={() => {
+															handleEdit(member);
+														}}
+													>
+														{member.employee.fullName}
+													</div>
+												</Tooltip>
+											)}
 
-										<Tooltip
-											label={(member.employee.user?.email || '').trim()}
-											placement="auto"
-											enabled={
-												(member.employee.user?.email || '').trim().length >
-												CHARACTER_LIMIT_TO_SHOW
-											}
-										>
-											<Text className="max-w-[12.5rem] overflow-hidden text-ellipsis whitespace-nowrap text-xs font-normal text-muted-foreground 3xl:max-w-[14.25rem]">
-												{member.employee.user?.email || ''}
-											</Text>
-										</Tooltip>
+											<Tooltip
+												label={email}
+												placement="auto"
+												enabled={email.length > CHARACTER_LIMIT_TO_SHOW}
+											>
+												<Text
+													className={clsxm(
+														NAME_TEXT,
+														'text-xs font-normal text-muted-foreground'
+													)}
+												>
+													{member.employee.user?.email || ''}
+												</Text>
+											</Tooltip>
+										</div>
 									</div>
 								</TableCell>
-								<TableCell className={BODY_CELL}>
-									{/* TODO Position */}-
-								</TableCell>
+								<TableCell className={BODY_CELL}>{/* TODO Position */}-</TableCell>
 								<TableCell className={BODY_CELL} onDoubleClick={() => handleEdit(member)}>
-									{editMemberRef.current && editMemberRef.current.id === member.id ? (
+									{isEditing && (
 										<EditUserRoleDropdown member={member} handleRoleChange={handleRoleChange} />
-									) : (
-										<span className="capitalize">{getRoleString(member.role)}</span>
 									)}
+									{!isEditing && <span className="capitalize">{getRoleString(member.role)}</span>}
 								</TableCell>
-								<TableCell className={BODY_CELL}>
+								<TableCell className={clsxm(BODY_CELL, 'whitespace-nowrap tabular-nums')}>
 									{/* 12 Feb 2020 12:00 pm */}
 									{moment(member.employee.createdAt).format('DD MMM YYYY hh:mm a')}
 								</TableCell>
-								<TableCell className="px-0 py-2.5">
+								<TableCell>
 									{/* TODO dynamic */}
-									<MemberTableStatus status={member.employee.isActive ? 'Member' : 'Suspended'} />
+									<MemberTableStatus status={memberStatusFor(member.employee.isActive)} />
 								</TableCell>
-								<TableCell className="flex items-center justify-center px-0 py-2.5">
+								<TableCell className="w-12">
 									<TableActionPopover member={member} handleEdit={handleEdit} status="settings" />
 								</TableCell>
 							</TableRow>
-						))}
-					</TableBody>
-				</Table>
-			</div>
+						);
+					})}
+				</TableBody>
+			</Table>
 
 			<Paginate
+				className="px-4 pb-4"
 				total={total}
 				onPageChange={onPageChange}
 				pageCount={pageCount}

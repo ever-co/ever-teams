@@ -1,7 +1,7 @@
 import React from 'react';
 import { Button } from '@/core/components/duplicated-components/_button';
 import { Popover, PopoverContent, PopoverTrigger } from '@/core/components/common/popover';
-import { SettingFilterIcon } from '@/assets/svg';
+import { Filter } from '@/core/components/icons';
 import { useTranslations } from 'next-intl';
 import { useTimelogFilterOptions } from '@/core/hooks';
 import { useTimesheetQuery } from '@/core/hooks/timesheet/use-timesheet-query';
@@ -103,21 +103,20 @@ export const TimeSheetFilterPopover = React.memo(function TimeSheetFilterPopover
 		}
 	}, [timesheet, statusTimesheet, getFilteredResults]);
 
+	const hasFilteredItems = filteredCount > 0 && totalFilteredItems > 0;
+
 	return (
 		<>
 			<Popover>
 				<PopoverTrigger asChild>
-					<Button
-						variant="outline"
-						className="flex items-center justify-center  h-[2.2rem] rounded-lg bg-white dark:bg-dark--theme-light border dark:border-gray-700 hover:bg-white p-3 gap-2"
-					>
-						<SettingFilterIcon className="text-gray-700 dark:text-white w-3.5" strokeWidth="1.8" />
-						<span className="text-gray-700 dark:text-white">{t('common.FILTER')}</span>
-						{filteredCount && totalFilteredItems > 0 && (
+					<Button variant="outline" size="default">
+						<Filter className="text-muted-foreground" />
+						<span>{t('common.FILTER')}</span>
+						{hasFilteredItems && (
 							<span
 								role="status"
 								aria-label={`${totalItems} items filtered`}
-								className="rounded-full bg-primary dark:bg-primary-light h-7 w-7 flex items-center justify-center text-white text-center text-[12px]"
+								className="inline-flex h-5 min-w-5 items-center justify-center rounded-full bg-primary/10 px-1.5 text-[11px] font-medium tabular-nums text-primary-ink"
 							>
 								{totalItems > 100 ? '100+' : totalItems}
 							</span>
@@ -126,19 +125,19 @@ export const TimeSheetFilterPopover = React.memo(function TimeSheetFilterPopover
 				</PopoverTrigger>
 				<PopoverContent className="w-96">
 					<div className="flex flex-col w-full">
-						<div className="flex gap-2 mb-3 text-xl font-bold">
-							<SettingFilterIcon className="w-4 text-gray-700 dark:text-white" strokeWidth="1.8" />
-							<span className="text-gray-700 dark:text-white">{t('common.FILTER')}</span>
+						<div className="flex items-center gap-2 mb-3 text-sm font-semibold">
+							<Filter className="size-4 text-muted-foreground" />
+							<span>{t('common.FILTER')}</span>
 						</div>
 						<div className="grid gap-5">
 							{isManage && (
 								<div className="">
-									<label className="flex justify-between mb-1 text-sm text-gray-600">
-										<span className="text-[12px]">{t('manualTime.EMPLOYEE')}</span>
+									<label className="flex items-center justify-between mb-1.5 text-xs font-medium text-muted-foreground">
+										<span>{t('manualTime.EMPLOYEE')}</span>
 										<span
 											className={cn(
-												'text-primary/10',
-												employee?.length > 0 && 'text-primary dark:text-primary-light'
+												'text-foreground/25',
+												employee?.length > 0 && 'text-primary-ink'
 											)}
 										>
 											{t('common.CLEAR')}
@@ -151,18 +150,14 @@ export const TimeSheetFilterPopover = React.memo(function TimeSheetFilterPopover
 										itemId={(item) => item.id}
 										onValueChange={(selectedItems) => setEmployeeState(selectedItems as any)}
 										multiSelect={true}
-										triggerClassName="dark:border-gray-700"
 									/>
 								</div>
 							)}
 							<div className="">
-								<label className="flex justify-between mb-1 text-sm text-gray-600">
-									<span className="text-[12px]">{t('sidebar.PROJECTS')}</span>
+								<label className="flex items-center justify-between mb-1.5 text-xs font-medium text-muted-foreground">
+									<span>{t('sidebar.PROJECTS')}</span>
 									<span
-										className={cn(
-											'text-primary/10',
-											project?.length > 0 && 'text-primary dark:text-primary-light'
-										)}
+										className={cn('text-foreground/25', project?.length > 0 && 'text-primary-ink')}
 									>
 										{t('common.CLEAR')}
 									</span>
@@ -176,18 +171,12 @@ export const TimeSheetFilterPopover = React.memo(function TimeSheetFilterPopover
 									itemId={(item) => item.id}
 									onValueChange={(selectedItems) => setProjectState(selectedItems as any)}
 									multiSelect={true}
-									triggerClassName="dark:border-gray-700"
 								/>
 							</div>
 							<div className="">
-								<label className="flex justify-between mb-1 text-sm text-gray-600">
-									<span className="text-[12px]">{t('hotkeys.TASK')}</span>
-									<span
-										className={cn(
-											'text-primary/10',
-											task?.length > 0 && 'text-primary dark:text-primary-light'
-										)}
-									>
+								<label className="flex items-center justify-between mb-1.5 text-xs font-medium text-muted-foreground">
+									<span>{t('hotkeys.TASK')}</span>
+									<span className={cn('text-foreground/25', task?.length > 0 && 'text-primary-ink')}>
 										{t('common.CLEAR')}
 									</span>
 								</label>
@@ -198,18 +187,12 @@ export const TimeSheetFilterPopover = React.memo(function TimeSheetFilterPopover
 									itemId={(task) => (task ? task.id : '')}
 									itemToString={(task) => (task ? task.title : '')}
 									multiSelect={true}
-									triggerClassName="dark:border-gray-700"
 								/>
 							</div>
 							<div className="">
-								<label className="flex justify-between mb-1 text-sm text-gray-600">
-									<span className="text-[12px]">{t('common.STATUS')}</span>
-									<span
-										className={cn(
-											'text-primary/10',
-											statusState && 'text-primary dark:text-primary-light'
-										)}
-									>
+								<label className="flex items-center justify-between mb-1.5 text-xs font-medium text-muted-foreground">
+									<span>{t('common.STATUS')}</span>
+									<span className={cn('text-foreground/25', statusState && 'text-primary-ink')}>
 										{t('common.CLEAR')}
 									</span>
 								</label>
@@ -220,19 +203,14 @@ export const TimeSheetFilterPopover = React.memo(function TimeSheetFilterPopover
 									itemId={(item) => item.label}
 									onValueChange={(selectedItems) => setStatusState(selectedItems as any)}
 									multiSelect={true}
-									triggerClassName="dark:border-gray-700"
 								/>
 							</div>
-							<div className="flex gap-x-4 justify-end items-center w-full">
-								<Button
-									onClick={() => setShouldRemoveItems(true)}
-									variant={'outline'}
-									className="flex justify-center items-center h-10 text-sm rounded-lg dark:text-gray-300"
-								>
-									<span className="text-sm">{t('common.CLEAR_FILTER')}</span>
+							<div className="flex gap-x-2 justify-end items-center w-full">
+								<Button onClick={() => setShouldRemoveItems(true)} variant={'outline'} size="lg">
+									<span>{t('common.CLEAR_FILTER')}</span>
 								</Button>
-								<Button className="flex justify-center items-center h-10 text-sm rounded-lg bg-primary dark:bg-primary-light dark:text-gray-300">
-									<span className="text-sm">{t('common.APPLY_FILTER')}</span>
+								<Button size="lg">
+									<span>{t('common.APPLY_FILTER')}</span>
 								</Button>
 							</div>
 						</div>

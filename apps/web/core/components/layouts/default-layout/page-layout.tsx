@@ -1,55 +1,41 @@
 'use client';
 
 import { cn } from '@/core/lib/helpers';
-import { PropsWithChildren, useEffect, useRef, useState } from 'react';
+import { PropsWithChildren, ReactNode, useEffect, useRef, useState } from 'react';
 import { useElementHeight } from '@/core/hooks/common';
 import { useActiveTimer } from '@/core/hooks/common/use-active-timer';
 import { usePathname } from 'next/navigation';
-import { APP_NAME, PATH_WITH_MORE_THAN_ONE_TIMER, APPLICATION_LANGUAGES_CODE } from '@/core/constants/config/constants';
+import { APP_NAME } from '@/core/constants/config/constants';
+import { pathCarriesItsOwnTimer } from './timer-paths';
 import GlobalHeader from './global-header';
-import MainSidebarTrigger from './main-sidebar-trigger';
-import GlobalFooter from './global-footer';
 import { PageContentScroller } from './page-content-scroller';
 
-/**
- * Props for the PageLayout component.
- * Contains only page-specific layout concerns (no sidebar, no providers).
- */
 type PageLayoutProps = PropsWithChildren<{
-	/** Page title — updates the browser tab via document.title (format: "title | APP_NAME") */
+	/** Updates the browser tab title ("title | APP_NAME"). */
 	title?: string;
-	/** Displays a timer in the header */
+	/** Forces the compact timer into the top bar. */
 	showTimer?: boolean;
-	/** Public team mode flag (passed to GlobalHeader) */
 	publicTeam?: boolean;
-	/** 404 page indicator */
 	notFound?: boolean;
-	/** Additional CSS classes for the main container */
 	className?: string;
-	/** Additional CSS classes for the children wrapper */
 	childrenClassName?: string;
-	/** Additional CSS classes for the footer */
+	/** No effect since the footer left the app pages (only the auth pages keep one); accepted for existing callers. */
 	footerClassName?: string;
-	/** Custom content rendered in the header slot */
-	mainHeaderSlot?: React.ReactNode;
-	/** Additional CSS classes for the header slot */
+	/** What the top bar shows at its start: a breadcrumb, or a page title. */
+	breadcrumb?: ReactNode;
+	/** A toolbar band under the top bar: tabs, filters, a page-level timer. */
+	mainHeaderSlot?: ReactNode;
 	mainHeaderSlotClassName?: string;
-	/** Controls whether the footer is fixed to the bottom */
+	/** No effect, see `footerClassName`. */
 	isFooterFixed?: boolean;
 }>;
 
+/** The header height under which a page that carries its own timer still shows the compact one. */
+const SHORT_HEADER_HEIGHT = 100;
+
 /**
- * PageLayout — Page-specific layout content (header, resizable panels, footer).
- *
- * This component is designed to be used INSIDE LayoutShell.
- * LayoutShell provides the persistent sidebar and container.
- * PageLayout provides the per-page content that changes on navigation.
- *
- * @example
- * // In a page.tsx file:
- * <PageLayout showTimer mainHeaderSlot={<MyHeader />}>
- *   <PageContent />
- * </PageLayout>
+ * The per-page chrome inside the shell panel: a top bar, an optional toolbar band, then the single
+ * scroll owner of the page content. No footer, as in Linear and Jira: language and theme live in the account menu.
  */
 export function PageLayout({
 	children,
@@ -59,10 +45,9 @@ export function PageLayout({
 	notFound,
 	className,
 	childrenClassName,
+	breadcrumb,
 	mainHeaderSlot,
-	isFooterFixed = false,
-	mainHeaderSlotClassName = '',
-	footerClassName = ''
+	mainHeaderSlotClassName = ''
 }: PageLayoutProps) {
 	const [shouldRenderTimer, setShouldRenderTimer] = useState(false);
 	const { activeTimer, setActiveTimer } = useActiveTimer();
@@ -71,7 +56,6 @@ export function PageLayout({
 	const headerRef = useRef<HTMLDivElement>(null);
 	const headerHeight = useElementHeight<HTMLDivElement | null>(headerRef);
 
-	// Update browser tab title when `title` prop changes (restores on unmount)
 	useEffect(() => {
 		if (!title) return;
 
@@ -86,22 +70,9 @@ export function PageLayout({
 	useEffect(() => {
 		if (!headerHeight) return;
 
-		const normalizedPath = (() => {
-			const segments = path.split('/').filter(Boolean);
-			if (segments.length > 0 && APPLICATION_LANGUAGES_CODE.includes(segments[0])) {
-				return '/' + segments.slice(1).join('/');
-			}
-			return path;
-		})();
-
-		const hasMultipleTimers = PATH_WITH_MORE_THAN_ONE_TIMER.some((p: string) => {
-			if (p === '/') {
-				return normalizedPath === '/' || normalizedPath === '';
-			}
-			return normalizedPath.startsWith(p);
-		});
-
-		const shouldActivateTimer = !hasMultipleTimers || headerHeight <= 100;
+		const hasMultipleTimers = pathCarriesItsOwnTimer(path);
+		const headerIsShort = headerHeight <= SHORT_HEADER_HEIGHT;
+		const shouldActivateTimer = !hasMultipleTimers || headerIsShort;
 
 		setActiveTimer((prev) => {
 			if (prev !== shouldActivateTimer) {
@@ -112,25 +83,31 @@ export function PageLayout({
 		setShouldRenderTimer(true);
 	}, [path, headerHeight, mainHeaderSlot]);
 
+	const timerActive = shouldRenderTimer && activeTimer;
+	const headerShowsTimer = timerActive || Boolean(showTimer);
+
 	return (
-		<div className="flex h-full min-h-0 w-full flex-col overflow-hidden">
+		<div className="flex h-full min-h-0 w-full flex-col overflow-clip">
 			<GlobalHeader
 				ref={headerRef}
-				showTimer={(shouldRenderTimer && activeTimer) || showTimer}
+				showTimer={headerShowsTimer}
 				publicTeam={publicTeam || false}
 				notFound={notFound || false}
+				breadcrumb={breadcrumb}
 				mainHeaderSlot={mainHeaderSlot}
 				mainHeaderSlotClassName={mainHeaderSlotClassName}
 			/>
-			<PageContentScroller
-				footer={<GlobalFooter isFixed={false} footerClassName={footerClassName} />}
-				footerFixed={isFooterFixed}
-			>
+			<PageContentScroller>
 				<main className={cn('relative flex min-h-full w-full flex-col p-4', className)}>
-					<MainSidebarTrigger />
-					{/* `clip`, not `hidden`: overflow-x hidden makes this a scroll container of its own (the second
-				    vertical scrollbar Settings showed); clip only clips. PageContentScroller owns scrolling. */}
-				<div className={cn('min-h-0 w-full flex-1 overflow-x-clip', childrenClassName)}>{children}</div>
+					{/* `clip`, not `hidden`: overflow-x hidden makes this a scroll container of its own. PageContentScroller owns scrolling. */}
+					<div
+						className={cn(
+							'-mx-2 min-h-0 w-[calc(100%+1rem)] flex-1 overflow-x-clip px-2',
+							childrenClassName
+						)}
+					>
+						{children}
+					</div>
 				</main>
 			</PageContentScroller>
 		</div>

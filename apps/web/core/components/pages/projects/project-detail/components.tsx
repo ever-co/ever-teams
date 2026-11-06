@@ -2,11 +2,12 @@
 
 import { useTranslations } from 'next-intl';
 import Image from 'next/image';
-import { Archive } from 'lucide-react';
+import { Archive } from '@/core/components/icons';
+import { badgeVariants } from '@/core/components/common/badge';
 import { cn } from '@/core/lib/helpers';
 
 /**
- * Section wrapper component for project detail page
+ * A section of the project detail: a small heading, then its content. No card of its own.
  */
 export function Section({
 	title,
@@ -18,18 +19,18 @@ export function Section({
 	children: React.ReactNode;
 }>) {
 	return (
-		<div className="flex flex-col gap-3 p-4 bg-white dark:bg-dark--theme-light rounded-xl border dark:border-gray-800">
-			<h3 className="flex items-center gap-2 text-sm font-semibold text-gray-700 dark:text-gray-300">
+		<section className="flex flex-col gap-3">
+			<h3 className="flex items-center gap-2 text-sm font-semibold text-foreground [&_svg]:size-4 [&_svg]:text-muted-foreground">
 				{icon}
 				{title}
 			</h3>
 			{children}
-		</div>
+		</section>
 	);
 }
 
 /**
- * Info item component for displaying label-value pairs
+ * One fact row of the aside: a muted label and its value, split from its neighbours by the parent's hairlines.
  */
 export function InfoItem({
 	label,
@@ -39,9 +40,9 @@ export function InfoItem({
 	value: React.ReactNode;
 }>) {
 	return (
-		<div className="flex flex-col gap-1 min-w-24">
-			<span className="text-xs text-gray-500">{label}</span>
-			<span className="text-sm font-medium text-gray-900 dark:text-gray-100">{value}</span>
+		<div className="flex items-start justify-between gap-4 py-2.5">
+			<span className="shrink-0 text-xs text-muted-foreground">{label}</span>
+			<span className="min-w-0 text-right text-sm font-medium tabular-nums text-foreground">{value}</span>
 		</div>
 	);
 }
@@ -54,8 +55,8 @@ export function StatusBadge({ isArchived, isActive }: Readonly<{ isArchived?: bo
 
 	if (isArchived) {
 		return (
-			<span className="inline-flex items-center gap-1 px-2 py-0.5 text-xs rounded-full bg-gray-100 dark:bg-muted text-gray-600 dark:text-gray-400">
-				<Archive size={10} />
+			<span className={badgeVariants({ variant: 'secondary' })}>
+				<Archive />
 				{t('timer.ARCHIVED')}
 			</span>
 		);
@@ -63,22 +64,18 @@ export function StatusBadge({ isArchived, isActive }: Readonly<{ isArchived?: bo
 
 	if (isActive) {
 		return (
-			<span className="inline-flex items-center gap-1 px-2 py-0.5 text-xs rounded-full bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400">
-				<span className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse" />
+			<span className={badgeVariants({ variant: 'success' })}>
+				<span className="size-1.5 rounded-full bg-success" />
 				{t('timer.ACTIVE')}
 			</span>
 		);
 	}
 
-	return (
-		<span className="inline-flex items-center gap-1 px-2 py-0.5 text-xs rounded-full bg-yellow-100 dark:bg-yellow-900/30 text-yellow-700 dark:text-yellow-400">
-			{t('timer.INACTIVE')}
-		</span>
-	);
+	return <span className={badgeVariants({ variant: 'warning' })}>{t('timer.INACTIVE')}</span>;
 }
 
 /**
- * Member card component for displaying team member info
+ * One member row of the project: avatar, name, e-mail and the manager chip when it applies.
  */
 export function MemberCard({
 	member,
@@ -99,29 +96,25 @@ export function MemberCard({
 	const email = member.employee?.user?.email;
 
 	return (
-		<div className="flex items-center gap-3 p-3 border rounded-lg bg-gray-50 dark:bg-white/5 dark:border-gray-700 hover:border-primary/50 transition-colors">
+		<div className="flex min-h-14 items-center gap-3 px-4 py-2.5 transition-colors hover:bg-foreground/[0.025]">
 			<div
 				className={cn(
-					'w-10 h-10 rounded-full overflow-hidden flex items-center justify-center text-sm font-medium shrink-0',
-					!imageUrl && 'bg-primary/10 text-primary'
+					'flex size-8 shrink-0 items-center justify-center overflow-hidden rounded-full text-xs font-medium hairline-ring ring-border',
+					!imageUrl && 'bg-primary/10 text-primary-ink'
 				)}
 			>
-				{imageUrl ? (
+				{imageUrl && (
 					<Image src={imageUrl} alt={name} width={40} height={40} className="object-cover w-full h-full" />
-				) : (
-					name.substring(0, 2).toUpperCase()
 				)}
+				{!imageUrl && name.substring(0, 2).toUpperCase()}
 			</div>
-			<div className="flex flex-col min-w-0 flex-1">
-				<span className="text-sm font-medium truncate text-gray-900 dark:text-gray-100">{name}</span>
-				{email && <span className="text-xs text-gray-500 truncate">{email}</span>}
+			<div className="flex min-w-0 flex-1 flex-col">
+				<span className="truncate text-sm font-medium text-foreground">{name}</span>
+				{email && <span className="truncate text-xs text-muted-foreground">{email}</span>}
 			</div>
 			{isManager && (
-				<span className="text-xs px-1.5 py-0.5 rounded bg-primary/10 text-primary shrink-0">
-					{t('common.MANAGER')}
-				</span>
+				<span className={cn(badgeVariants({ variant: 'default' }), 'shrink-0')}>{t('common.MANAGER')}</span>
 			)}
 		</div>
 	);
 }
-

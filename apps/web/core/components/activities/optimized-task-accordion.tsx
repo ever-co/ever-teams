@@ -1,10 +1,18 @@
-import { memo, useCallback, useMemo } from 'react';
-import { Text, Divider } from '@/core/components';
+import { memo, useCallback, useMemo, useState } from 'react';
+import {
+	DAY_GROUP_CONTENT_CLASS_NAME,
+	DAY_GROUP_SURFACE_CLASS_NAME,
+	DAY_GROUP_TRIGGER_CLASS_NAME,
+	DayGroupHeading
+} from '@/core/components/tasks/daily-plan/day-group';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '../common/accordion';
 import { VirtualizedList } from '../common/virtualized-list';
 import { useTranslations } from 'next-intl';
 import { ITEMS_LENGTH_TO_VIRTUALIZED } from '@/core/constants/config/constants';
 import { useAccordionState } from '@/core/hooks/activities/use-optimized-task-cache';
+
+/** Task rows inside a section card are flat and split by hairlines, never cards inside a card. */
+const TASK_ROWS = 'hairline-divide-y divide-border';
 
 interface OptimizedTaskAccordionProps {
 	firstFiveTasks: any[];
@@ -53,20 +61,20 @@ export const OptimizedTaskAccordion = memo<OptimizedTaskAccordionProps>(
 			[setAccordionState, remainingTasksAccordionValue]
 		);
 
-		// Memoized default values for accordion
-		const defaultAccordionValues = useMemo(() => {
-			const values = [firstTasksAccordionValue]; // First 5 tasks always open by default
-			// Remaining tasks are closed by default (false) - only open if user has explicitly opened them
-			if (getAccordionState(remainingTasksAccordionValue, false) === true) {
+		// Read once: an uncontrolled accordion must keep the default it started with (getAccordionState changes identity)
+		const [initialAccordionValues] = useState(() => {
+			const values = [firstTasksAccordionValue];
+			const remainingWasOpen = getAccordionState(remainingTasksAccordionValue, false) === true;
+			if (remainingWasOpen) {
 				values.push(remainingTasksAccordionValue);
 			}
 			return values;
-		}, [firstTasksAccordionValue, remainingTasksAccordionValue, getAccordionState]);
+		});
 
 		// Render first 5 tasks directly
 		const renderFirstFiveTasks = useMemo(
 			() => (
-				<ul className="flex flex-col gap-6">
+				<ul className={TASK_ROWS}>
 					{firstFiveTasks.map((task, index) => (
 						<li key={`first-${task.id}-${index}`}>{renderTaskItem(task)}</li>
 					))}
@@ -88,14 +96,14 @@ export const OptimizedTaskAccordion = memo<OptimizedTaskAccordionProps>(
 					useSmoothVirtualization={false} // Keep this disabled to prevent issues
 					renderItem={renderTaskItem}
 					className="w-full"
-					listClassName="flex flex-col gap-6"
-					itemClassName="px-1 pb-6"
+					listClassName={TASK_ROWS}
+					itemClassName=""
 					listTag="ul"
 					itemTag="li"
 					scrollingIndicator={scrollingIndicator}
 				/>
 			) : (
-				<ul className="flex flex-col gap-6">
+				<ul className={TASK_ROWS}>
 					{remainingTasks.map((task, index) => (
 						<li key={`remaining-${task.id}-${index}`}>{renderTaskItem(task)}</li>
 					))}
@@ -108,53 +116,45 @@ export const OptimizedTaskAccordion = memo<OptimizedTaskAccordionProps>(
 		}
 
 		return (
-			<div className="space-y-6">
-				{/* Header with total count */}
-				<div className="flex items-center space-x-2">
-					<Text className="font-normal">
-						{t('common.LAST_24_HOURS')} ({totalCount})
-					</Text>
-					<Divider className="flex-1" />
-				</div>
-
+			<div className="flex flex-col gap-2">
 				{/* Accordion for organized task display */}
 				<Accordion
 					type="multiple"
-					className="space-y-4 text-sm"
-					defaultValue={defaultAccordionValues}
+					className="flex flex-col gap-3 text-sm"
+					defaultValue={initialAccordionValues}
 					onValueChange={handleAccordionChange}
 				>
 					{/* First 5 tasks - Always visible and open */}
 					{firstFiveTasks.length > 0 && (
-						<AccordionItem
-							value={firstTasksAccordionValue}
-							className="rounded-lg border border-gray-200 dark:border-gray-700"
-						>
-							<AccordionTrigger className="px-4 py-3 hover:no-underline">
-								<div className="flex justify-between items-center w-full">
-									<Text className="font-medium text-left">
-										{t('common.RECENT_TASKS')} ({firstFiveTasks.length})
-									</Text>
-								</div>
+						<AccordionItem value={firstTasksAccordionValue} className={DAY_GROUP_SURFACE_CLASS_NAME}>
+							<AccordionTrigger className={DAY_GROUP_TRIGGER_CLASS_NAME}>
+								<DayGroupHeading
+									date={
+										<span className="flex items-baseline gap-2">
+											{t('common.RECENT_TASKS')}
+											<span className="text-xs font-normal text-muted-foreground">
+												{t('common.LAST_24_HOURS')}
+											</span>
+										</span>
+									}
+									count={firstFiveTasks.length}
+								/>
 							</AccordionTrigger>
-							<AccordionContent className="px-4 pb-4">{renderFirstFiveTasks}</AccordionContent>
+							<AccordionContent className={DAY_GROUP_CONTENT_CLASS_NAME}>
+								{renderFirstFiveTasks}
+							</AccordionContent>
 						</AccordionItem>
 					)}
 
 					{/* Remaining tasks - Collapsible */}
 					{remainingTasks.length > 0 && (
-						<AccordionItem
-							value={remainingTasksAccordionValue}
-							className="rounded-lg border border-gray-200 dark:border-gray-700"
-						>
-							<AccordionTrigger className="px-4 py-3 hover:no-underline">
-								<div className="flex justify-between items-center w-full">
-									<Text className="font-medium text-left">
-										{t('common.OLDER_TASKS')} ({remainingTasks.length})
-									</Text>
-								</div>
+						<AccordionItem value={remainingTasksAccordionValue} className={DAY_GROUP_SURFACE_CLASS_NAME}>
+							<AccordionTrigger className={DAY_GROUP_TRIGGER_CLASS_NAME}>
+								<DayGroupHeading date={t('common.OLDER_TASKS')} count={remainingTasks.length} />
 							</AccordionTrigger>
-							<AccordionContent className="px-4 pb-4">{renderRemainingTasks}</AccordionContent>
+							<AccordionContent className={DAY_GROUP_CONTENT_CLASS_NAME}>
+								{renderRemainingTasks}
+							</AccordionContent>
 						</AccordionItem>
 					)}
 				</Accordion>

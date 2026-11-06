@@ -9,13 +9,12 @@ export default function UserTeamActiveTaskTodayWorked({
 }: Readonly<{ member: TOrganizationTeamEmployee; className?: string }>) {
 	const memberInfo = useMemberIdentity(member);
 	return (
-		<div
-			className={cn(
-				'flex gap-4 justify-center items-center w-1/5 cursor-pointer lg:px-3 2xl:w-52 max-w-[13rem]',
-				className
-			)}
-		>
-			<TodayWorkedTime isAuthUser={memberInfo.isAuthUser} className="" memberInfo={memberInfo} />
+		<div className={cn('flex min-w-0 items-center justify-end', className)}>
+			<TodayWorkedTime
+				isAuthUser={memberInfo.isAuthUser}
+				className="text-right text-sm font-medium tabular-nums"
+				memberInfo={memberInfo}
+			/>
 		</div>
 	);
 }

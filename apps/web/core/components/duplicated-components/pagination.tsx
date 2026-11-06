@@ -2,6 +2,16 @@
 
 import { Button } from '@/core/components/duplicated-components/_button';
 import { ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight } from 'lucide-react';
+import { cn } from '@/core/lib/helpers';
+
+function getPageButtonVariant(isCurrentPage: boolean): 'outline' | 'ghost' {
+	if (isCurrentPage) {
+		return 'outline';
+	}
+	return 'ghost';
+}
+
+type VisiblePage = number | { ellipsisAfter: number };
 
 interface PaginationProps {
 	currentPage: number;
@@ -33,9 +43,9 @@ export function Pagination({
 
 	const getVisiblePages = () => {
 		const delta = 2; // Number of pages to show before and after current page
-		const range = [];
-		const rangeWithDots = [];
-		let l;
+		const range: number[] = [];
+		const rangeWithDots: VisiblePage[] = [];
+		let l: number | undefined;
 
 		for (let i = 1; i <= totalPages; i++) {
 			if (i === 1 || i === totalPages || (i >= currentPage - delta && i <= currentPage + delta)) {
@@ -48,7 +58,7 @@ export function Pagination({
 				if (i - l === 2) {
 					rangeWithDots.push(l + 1);
 				} else if (i - l !== 1) {
-					rangeWithDots.push('...');
+					rangeWithDots.push({ ellipsisAfter: l });
 				}
 			}
 			rangeWithDots.push(i);
@@ -68,18 +78,18 @@ export function Pagination({
 					<ChevronLeft className="w-4 h-4" />
 				</Button>
 				<div className="flex gap-1 items-center overflow-x-auto max-w-[300px] p-1">
-					{getVisiblePages().map((page, index) =>
-						page === '...' ? (
-							<span key={`dot-${index}`} className="px-2">
+					{getVisiblePages().map((page) =>
+						typeof page === 'object' ? (
+							<span key={`dot-after-${page.ellipsisAfter}`} className="px-2 text-muted-foreground">
 								...
 							</span>
 						) : (
 							<Button
 								key={page}
-								variant="outline"
-								size="sm"
-								onClick={() => goToPage(page as number)}
-								className={currentPage === page ? 'bg-primary text-primary-foreground' : ''}
+								variant={getPageButtonVariant(currentPage === page)}
+								size="icon"
+								onClick={() => goToPage(page)}
+								className={cn('tabular-nums', currentPage === page && 'font-semibold text-foreground')}
 							>
 								{page}
 							</Button>
@@ -94,7 +104,7 @@ export function Pagination({
 				</Button>
 			</div>
 			{totalItems !== undefined && (
-				<div className="text-sm text-center text-[#111827] dark:text-gray-400 sm:text-left">
+				<div className="text-sm text-center tabular-nums text-muted-foreground sm:text-left">
 					Showing {startIndex + 1} to {endIndex} of {totalItems} entries
 				</div>
 			)}

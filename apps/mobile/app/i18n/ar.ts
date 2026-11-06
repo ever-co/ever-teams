@@ -201,6 +201,8 @@ const ar: Translations = {
 			taskPriorities: 'Task Priorities',
 			taskSizes: 'Task Sizes',
 			taskLabel: 'Task Label',
+			taskSettingsReadOnly:
+				'يمكن لمديري الفريق والمسؤولين فقط تغيير إعدادات المهام. يمكن للمسؤولين فقط تغيير الإعدادات الافتراضية المشتركة بين جميع الفرق.',
 			changeLogo: 'Change Logo',
 			teamRole: 'Manager Member & Role',
 			workSchedule: 'Work Schedule',

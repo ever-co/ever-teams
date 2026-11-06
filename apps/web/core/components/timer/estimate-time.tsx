@@ -2,7 +2,7 @@ import { secondsToTime } from '@/core/lib/helpers/date-and-time';
 import { pad } from '@/core/lib/helpers/number';
 import { TimeInput } from '@/core/components/common/time-input';
 import { Spinner } from '@/core/components/common/spinner';
-import { CheckIcon } from '@heroicons/react/24/outline';
+import { Check } from '@/core/components/icons';
 import { useTranslations } from 'next-intl';
 import { ChangeEvent, useCallback, useEffect, useRef, useState } from 'react';
 import { useOutsideClick } from '@/core/hooks/common';
@@ -130,7 +130,7 @@ export function EstimateTime() {
 	return (
 		<>
 			<div className="flex items-end">
-				<span className="text-[16px] flex text-[#9490A0] dark:text-[#616164] items-end">
+				<span className="flex items-end text-base text-muted-foreground">
 					{t('timer.ESTIMATION.ESTIMATE_LABEL')} :{' '}
 				</span>
 				<div className="flex" ref={targetEl}>
@@ -145,9 +145,7 @@ export function EstimateTime() {
 						handleFocus={handleFocus}
 						handleBlur={handleBlur}
 					/>
-					<div className="mr-1 h-[27px] text-[14px] flex items-end border-b-2 dark:border-border border-dashed ">
-						h
-					</div>
+					<div className="mr-1 flex h-[27px] items-end border-b-2 border-dashed border-border text-sm">h</div>
 					:
 					<TimeInput
 						type="text"
@@ -160,16 +158,14 @@ export function EstimateTime() {
 						handleFocus={handleFocusMinutes}
 						handleBlur={handleBlurMinutes}
 					/>
-					<div className="mr-1 h-[27px] text-[14px] flex items-end border-b-2 dark:border-border border-dashed ">
-						m
-					</div>
+					<div className="mr-1 flex h-[27px] items-end border-b-2 border-dashed border-border text-sm">m</div>
 				</div>
-				<span className="mr-1 w-6 h-[27px" ref={ignoreElementRef}>
+				<span className="mr-1 h-[27px] w-6" ref={ignoreElementRef}>
 					{updateLoading ? (
 						<Spinner dark={false} />
 					) : editableMode ? (
 						<div className="mb-1 cursor-pointer" onClick={handleSubmit}>
-							<CheckIcon className="text-[#28D581] w-[16px]" />
+							<Check className="size-4 text-success-foreground" />
 						</div>
 					) : (
 						''

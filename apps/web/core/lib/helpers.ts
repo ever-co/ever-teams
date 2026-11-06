@@ -1,6 +1,6 @@
 import { type ClassValue, clsx } from 'clsx';
 import moment from 'moment';
-import { twMerge } from 'tailwind-merge';
+import { twMerge } from './utils/tw-merge';
 import React, { JSX, ReactNode } from 'react';
 import { ETaskStatusName } from '../types/generics/enums/task';
 import { getDailyPlanDay } from './helpers/daily-plan-day';
@@ -85,28 +85,35 @@ export function isJSXElement(node: any | ReactNode): node is JSX.Element | JSX.E
 	return false;
 }
 
+const STATUS_CHIP_WARNING = 'bg-warning/10 text-warning-foreground hairline-ring ring-inset ring-warning/20';
+const STATUS_CHIP_INFO = 'bg-info/10 text-info-foreground hairline-ring ring-inset ring-info/20';
+const STATUS_CHIP_PRIMARY = 'bg-primary/10 text-primary-ink hairline-ring ring-inset ring-primary/20';
+const STATUS_CHIP_DESTRUCTIVE = 'bg-destructive/10 text-destructive-ink hairline-ring ring-inset ring-destructive/20';
+const STATUS_CHIP_SUCCESS = 'bg-success/10 text-success-foreground hairline-ring ring-inset ring-success/20';
+const STATUS_CHIP_MUTED = 'bg-foreground/5 text-muted-foreground hairline-ring ring-inset ring-foreground/10';
+
 export function getStatusColor(status: ETaskStatusName) {
 	switch (status) {
 		case 'in-review':
-			return 'bg-[#f3d8b0]';
-		case 'backlog':
-			return 'bg-[#ffcc00]';
-		case 'open':
-			return 'bg-[#d6e4f9]';
-		case 'in-progress':
-			return 'bg-[#ece8fc]';
+			return STATUS_CHIP_WARNING;
 		case 'ready-for-review':
-			return 'bg-[#f5f1cb]';
+			return STATUS_CHIP_WARNING;
+		case 'backlog':
+			return STATUS_CHIP_MUTED;
+		case 'open':
+			return STATUS_CHIP_INFO;
+		case 'in-progress':
+			return STATUS_CHIP_PRIMARY;
 		case 'blocked':
-			return 'bg-[#f5b8b8]';
+			return STATUS_CHIP_DESTRUCTIVE;
 		case 'done':
-			return 'bg-[#4caf50] text-gray-100';
+			return STATUS_CHIP_SUCCESS;
 		case 'completed':
-			return 'bg-[#d4efdf]';
+			return STATUS_CHIP_SUCCESS;
 		case 'custom':
-			return 'bg-[#d4efdf]';
+			return STATUS_CHIP_SUCCESS;
 		default:
-			return 'bg-gray-100 text-gray-800';
+			return STATUS_CHIP_MUTED;
 	}
 }
 export function isServer() {

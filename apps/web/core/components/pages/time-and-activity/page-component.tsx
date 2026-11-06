@@ -3,13 +3,16 @@ import { PageLayout } from '@/core/components/layouts/default-layout';
 import { useTranslations } from 'next-intl';
 import { useRouter, useParams } from 'next/navigation';
 import { useAtomValue } from 'jotai';
-import { Container } from '@/core/components';
-import { cn } from '@/core/lib/helpers';
-import { ArrowLeftIcon } from '@radix-ui/react-icons';
+import { ArrowLeft, Chart } from '@/core/components/icons';
+import { Button } from '@/core/components/duplicated-components/_button';
 import { useMemo, useState, useCallback } from 'react';
 import { Card } from '@/core/components/common/card';
 import { useOrganizationAndTeamManagers } from '@/core/hooks/organizations/teams/use-organization-teams-managers';
-import { type GroupByType, useActivityFilters } from '@/core/hooks/activities/use-activity-filters';
+import {
+	type GroupByType,
+	getAppliedTeamsReportProps,
+	useActivityFilters
+} from '@/core/hooks/activities/use-activity-filters';
 import { useActivityDailyReportQuery } from '@/core/hooks/activities/queries/use-activity-daily-report-query';
 import { useActivityStatisticsQuery } from '@/core/hooks/activities/queries/use-activity-statistics-query';
 import { useTimeActivityStats } from '@/core/hooks/activities/use-time-activity-stats';
@@ -38,8 +41,25 @@ const getDefaultViewOptions = (t: any): ViewOption[] => [
 ];
 
 const TimeActivityComponents = () => {
-	const { mergedProps, enabled, currentFilters, updateDateRange, updateFilters, isManage } = useActivityFilters();
-	const { rapportDailyActivity, isLoading: isDailyLoading } = useActivityDailyReportQuery({ mergedProps, enabled });
+	const {
+		mergedProps,
+		enabled,
+		currentFilters,
+		updateDateRange,
+		updateFilters,
+		isManage,
+		hasOrganizationWideAccess
+	} = useActivityFilters();
+	const { userManagedTeams } = useOrganizationAndTeamManagers();
+	// The counts resolve the members of the applied teams from their ids; the time log reports have to name them
+	const reportProps = useMemo(
+		() => getAppliedTeamsReportProps(mergedProps, userManagedTeams, hasOrganizationWideAccess),
+		[mergedProps, userManagedTeams, hasOrganizationWideAccess]
+	);
+	const { rapportDailyActivity, isLoading: isDailyLoading } = useActivityDailyReportQuery({
+		mergedProps: reportProps,
+		enabled
+	});
 	const { statisticsCounts, isLoading: isStatsLoading } = useActivityStatisticsQuery({ mergedProps, enabled });
 	const loading = isDailyLoading || isStatsLoading;
 	const [groupByType, setGroupByType] = useState<GroupByType>('daily');
@@ -74,13 +94,13 @@ const TimeActivityComponents = () => {
 	);
 
 	// mergedProps takes its team ids from the team dashboard filter, so the teams picked in this page's filter are passed to the weekly report here
-	const weeklyProps = useMemo(
-		() =>
-			mergedProps && currentFilters.teamIds?.length
-				? { ...mergedProps, teamIds: currentFilters.teamIds }
-				: mergedProps,
-		[mergedProps, currentFilters.teamIds]
-	);
+	const weeklyProps = useMemo(() => {
+		const appliedTeamIds = currentFilters.teamIds;
+
+		if (!reportProps || !appliedTeamIds?.length) return reportProps;
+
+		return { ...reportProps, teamIds: appliedTeamIds };
+	}, [reportProps, currentFilters.teamIds]);
 
 	// Calculate dynamic statistics from real data
 	const {
@@ -133,7 +153,6 @@ const TimeActivityComponents = () => {
 	const router = useRouter();
 	const paramsUrl = useParams<{ locale: string }>();
 	const currentLocale = paramsUrl?.locale;
-	const { userManagedTeams } = useOrganizationAndTeamManagers();
 	const { organizationProjects } = useOrganizationProjectsQuery();
 
 	const tasks = useAtomValue(tasksByTeamState);
@@ -157,72 +176,71 @@ const TimeActivityComponents = () => {
 
 	return (
 		<PageLayout
-			className="items-start pb-1 !overflow-hidden w-full"
-			childrenClassName="w-full"
 			showTimer={isTrackingEnabled}
+			breadcrumb={
+				<div className="flex min-w-0 items-center gap-2">
+					<Button
+						variant="ghost"
+						size="icon-sm"
+						onClick={handleBack}
+						className="shrink-0 text-muted-foreground"
+						aria-label={t('common.BACK')}
+					>
+						<ArrowLeft />
+					</Button>
+					<Chart className="size-4 shrink-0 text-muted-foreground" aria-hidden="true" />
+					<Breadcrumb paths={breadcrumbPath} className="min-w-0 text-sm" />
+				</div>
+			}
 			mainHeaderSlot={
-				<div className="flex flex-col pb-4 bg-gray-100 dark:bg-dark-high">
-					<Container className={cn('flex flex-col gap-4 items-center w-full')}>
-						<div className="flex items-center pt-6 w-full">
-							<button
-								onClick={handleBack}
-								className="p-1 rounded-full transition-colors hover:bg-gray-100"
-							>
-								<ArrowLeftIcon className="text-dark dark:text-[#6b7280] h-6 w-6" />
-							</button>
-							<Breadcrumb paths={breadcrumbPath} className="text-sm" />
-						</div>
-						<div className="flex flex-col gap-6 w-full">
-							{/* TimeActivityHeader with filters */}
-							<LazyTimeActivityHeader
-								viewOptions={viewOptions}
-								onViewOptionsChange={handleViewOptionsChange}
-								userManagedTeams={userManagedTeams}
-								projects={organizationProjects}
-								tasks={tasks}
-								activeTeam={activeTeam}
-								onUpdateDateRange={handleUpdateDateRange}
-								onGroupByChange={handleGroupByChange}
-								groupByType={groupByType}
-								onFiltersApply={handleFiltersApply}
-								// Export-related props
-								rapportDailyActivity={rapportDailyActivity}
-								isManage={isManage || false}
-								currentFilters={currentFilters as FilterState}
-								startDate={dateRange.startDate}
-								endDate={dateRange.endDate}
-							/>
-
-							{/* Statistics Cards */}
-							<div className="grid grid-cols-3 gap-[30px] w-full">
-								<LazyCardTimeAndActivity
-									title={t('timeActivity.TOTAL_HOURS')}
-									value={totalHours}
-									showProgress={false}
-									isLoading={statsLoading}
-								/>
-								<LazyCardTimeAndActivity
-									title={t('timeActivity.AVERAGE_ACTIVITY')}
-									value={averageActivity}
-									showProgress={true}
-									progress={parseInt(averageActivity.replace('%', '')) || 0}
-									progressColor="bg-[#0088CC]"
-									isLoading={statsLoading}
-								/>
-								<LazyCardTimeAndActivity
-									title={t('timeActivity.TOTAL_EARNINGS')}
-									value={totalEarnings}
-									showProgress={false}
-									isLoading={statsLoading}
-								/>
-							</div>
-						</div>
-					</Container>
+				<div className="px-4 py-3">
+					{/* TimeActivityHeader with filters */}
+					<LazyTimeActivityHeader
+						viewOptions={viewOptions}
+						onViewOptionsChange={handleViewOptionsChange}
+						userManagedTeams={userManagedTeams}
+						projects={organizationProjects}
+						tasks={tasks}
+						activeTeam={activeTeam}
+						onUpdateDateRange={handleUpdateDateRange}
+						onGroupByChange={handleGroupByChange}
+						groupByType={groupByType}
+						onFiltersApply={handleFiltersApply}
+						// Export-related props
+						rapportDailyActivity={rapportDailyActivity}
+						isManage={isManage || false}
+						currentFilters={currentFilters as FilterState}
+						startDate={dateRange.startDate}
+						endDate={dateRange.endDate}
+					/>
 				</div>
 			}
 		>
-			<Container className={cn('flex flex-col gap-8 !px-4 py-6 w-full')}>
-				<Card className="w-full dark:bg-dark--theme-light min-h-[600px]">
+			<div className="flex w-full flex-col gap-4">
+				{/* Statistics Cards */}
+				<Card className="grid w-full grid-cols-1 overflow-hidden hairline-divide-y divide-dashed divide-border sm:grid-cols-3 sm:hairline-divide-x sm:divide-y-0">
+					<LazyCardTimeAndActivity
+						title={t('timeActivity.TOTAL_HOURS')}
+						value={totalHours}
+						showProgress={false}
+						isLoading={statsLoading}
+					/>
+					<LazyCardTimeAndActivity
+						title={t('timeActivity.AVERAGE_ACTIVITY')}
+						value={averageActivity}
+						showProgress={true}
+						progress={parseInt(averageActivity.replace('%', '')) || 0}
+						progressColor="bg-primary"
+						isLoading={statsLoading}
+					/>
+					<LazyCardTimeAndActivity
+						title={t('timeActivity.TOTAL_EARNINGS')}
+						value={totalEarnings}
+						showProgress={false}
+						isLoading={statsLoading}
+					/>
+				</Card>
+				<Card className="w-full min-h-[600px] overflow-hidden">
 					{/* Conditional table rendering based on groupByType */}
 					{(() => {
 						switch (groupByType) {
@@ -235,11 +253,13 @@ const TimeActivityComponents = () => {
 									/>
 								);
 							case 'weekly':
-								return <LazyWeeklyReportTable
+								return (
+									<LazyWeeklyReportTable
 										mergedProps={weeklyProps}
 										enabled={enabled}
 										initialDate={dateRange.startDate}
-									/>;
+									/>
+								);
 							default:
 								return (
 									<LazyActivityTable
@@ -251,7 +271,7 @@ const TimeActivityComponents = () => {
 						}
 					})()}
 				</Card>
-			</Container>
+			</div>
 		</PageLayout>
 	);
 };

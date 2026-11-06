@@ -24,6 +24,7 @@ jest.mock('@/core/hooks/common', () => ({
 	useFirstLoad: () => ({ firstLoadData: jest.fn() })
 }));
 jest.mock('sonner', () => ({ toast: { error: jest.fn() } }));
+jest.mock('next-intl', () => ({ useTranslations: () => (key: string) => key }));
 
 require('@/core/types/schemas');
 // eslint-disable-next-line @typescript-eslint/no-var-requires

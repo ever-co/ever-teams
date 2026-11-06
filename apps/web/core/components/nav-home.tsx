@@ -1,5 +1,4 @@
 'use client';
-import { type LucideIcon } from 'lucide-react';
 
 import {
 	SidebarGroup,
@@ -10,67 +9,73 @@ import {
 	SidebarTriggerButton,
 	useSidebar
 } from '@/core/components/common/sidebar';
+import { memo } from 'react';
 import { useTranslations } from 'next-intl';
-import { FC, SVGProps, useState } from 'react';
+import { usePathname } from 'next/navigation';
 import { cn } from '../lib/helpers';
+import { isPathActive } from '../lib/utils/navigation-path';
 import Link from 'next/link';
-export function NavHome({
+import type { NavIcon } from './layouts/nav-main';
+import { NAV_ROW_ACTIVE_RECIPE, NAV_ROW_RECIPE } from '@/core/components/layouts/nav-row-recipe';
+
+function ariaCurrentFor(isActive: boolean) {
+	if (isActive) {
+		return 'page' as const;
+	}
+	return undefined;
+}
+
+export const NavHome = memo(function NavHome({
 	homeData
 }: {
 	homeData: {
 		url: string;
-		icon: LucideIcon | FC<SVGProps<SVGSVGElement>>;
+		icon: NavIcon;
 		title: string;
 		selectable: boolean;
 		label: string;
 	}[];
 }) {
 	const t = useTranslations();
-
+	const pathname = usePathname();
 	const { state } = useSidebar();
-	const [activeMenuIndex, setActiveMenuIndex] = useState(-1);
+	const isCollapsed = state === 'collapsed';
 
 	return (
 		<SidebarGroup>
 			<SidebarGroupLabel>{t('sidebar.FORYOU')}</SidebarGroupLabel>
-			<SidebarMenu
-				className={cn('w-full', state === 'collapsed' ? 'items-center gap-y-1' : '', 'gap-y-0.5')}
-			>
-				{homeData.map((item, index) => (
-					<SidebarMenuItem key={item.label}>
-						<SidebarMenuButton
-							className={cn(
-								'h-8 min-h-8 items-center gap-2.5 rounded-md px-2.5 text-sm text-foreground/90 transition-colors hover:bg-black/[0.04] dark:hover:bg-white/[0.04] [&>svg]:size-[18px] [&>svg]:shrink-0',
-								state === 'collapsed' ? ' justify-center' : '',
-								index === activeMenuIndex
-									? 'bg-black/[0.06] font-medium text-foreground dark:bg-white/[0.09]'
-									: 'font-normal'
-							)}
-							onClick={() => setActiveMenuIndex(index)}
-							asChild
-							tooltip={item.title}
-						>
-							<Link href={item.url}>
-								{state === 'collapsed' ? (
-									<SidebarTriggerButton className="!p-0 !bg-inherit !text-inherit">
-										<item.icon />
-									</SidebarTriggerButton>
-								) : (
-									<item.icon />
+			<SidebarMenu className={cn('w-full gap-y-0.5', isCollapsed && 'items-center gap-y-1')}>
+				{homeData.map((item) => {
+					const isActive = isPathActive(pathname, item.url);
+					return (
+						<SidebarMenuItem key={item.label}>
+							<SidebarMenuButton
+								className={cn(
+									NAV_ROW_RECIPE,
+									isCollapsed && 'justify-center',
+									isActive && NAV_ROW_ACTIVE_RECIPE
 								)}
-								<span
-									className={cn(
-										'truncate transition-all text-sm',
-										state === 'collapsed' ? 'opacity-0 hidden' : 'opacity-100'
+								isActive={isActive}
+								asChild
+								tooltip={item.title}
+							>
+								<Link href={item.url} aria-current={ariaCurrentFor(isActive)}>
+									{isCollapsed && (
+										<SidebarTriggerButton
+											variant="ghost"
+											className="!p-0 !bg-inherit !text-inherit"
+										>
+											<item.icon className="size-4" />
+										</SidebarTriggerButton>
 									)}
-								>
-									{item.title}
-								</span>
-							</Link>
-						</SidebarMenuButton>
-					</SidebarMenuItem>
-				))}
+									{!isCollapsed && <item.icon className="size-4" />}
+									<span className={cn('truncate', isCollapsed && 'hidden')}>{item.title}</span>
+								</Link>
+							</SidebarMenuButton>
+						</SidebarMenuItem>
+					);
+				})}
 			</SidebarMenu>
 		</SidebarGroup>
 	);
-}
+});

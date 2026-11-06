@@ -14,23 +14,23 @@ export function GroupBySelectTimeActivity({ onGroupByChange, groupByType }: Grou
 
 	return (
 		<Select defaultValue={groupByType} onValueChange={onGroupByChange}>
-			<SelectTrigger className="w-[180px] border border-[#E4E4E7] dark:border-border dark:bg-dark--theme-light">
+			<SelectTrigger className="h-8 w-[180px]">
 				<div className="flex gap-2 items-center">
-					<span className="text-gray-500">{t('timeActivity.GROUP_BY')}</span>
-					<SelectValue placeholder={t('timeActivity.DATE')} className="text-blue-600 dark:text-blue-500" />
+					<span className="text-muted-foreground">{t('timeActivity.GROUP_BY')}</span>
+					<SelectValue placeholder={t('timeActivity.DATE')} className="text-foreground" />
 				</div>
 			</SelectTrigger>
-			<SelectContent className="dark:bg-dark--theme-light min-w-[200px]">
-				<SelectItem value="daily" className="min-w-[160px] data-[state=checked]:text-blue-600">
+			<SelectContent className="min-w-[200px]">
+				<SelectItem value="daily" className="min-w-[160px] data-[state=checked]:text-primary-ink">
 					{t('common.DAILY')}
 				</SelectItem>
-				<SelectItem value="weekly" className="min-w-[160px] data-[state=checked]:text-blue-600">
+				<SelectItem value="weekly" className="min-w-[160px] data-[state=checked]:text-primary-ink">
 					{t('common.WEEKLY')}
 				</SelectItem>
-				<SelectItem value="member" className="min-w-[160px] data-[state=checked]:text-blue-600">
+				<SelectItem value="member" className="min-w-[160px] data-[state=checked]:text-primary-ink">
 					{t('common.MEMBER')}
 				</SelectItem>
-				<SelectItem value="project" className="min-w-[160px] data-[state=checked]:text-blue-600">
+				<SelectItem value="project" className="min-w-[160px] data-[state=checked]:text-primary-ink">
 					{t('sidebar.PROJECTS')}
 				</SelectItem>
 			</SelectContent>

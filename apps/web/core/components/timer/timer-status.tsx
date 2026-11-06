@@ -2,43 +2,61 @@
 import { IClassName } from '@/core/types/interfaces/common/class-name';
 import { ITimerStatus } from '@/core/types/interfaces/timer/timer-status';
 import { clsxm } from '@/core/lib/utils';
-import { StopCircleIcon, PauseIcon, TimerPlayIcon } from 'assets/svg';
 import { Tooltip } from '../duplicated-components/tooltip';
 import { ETimerStatus } from '@/core/types/generics/enums/timer';
-import { OnlineIcon } from '../icons';
+import { OnlineIcon, Pause, Play, StopCircle } from '../icons';
 import { differenceInHours } from 'date-fns';
-import { toast } from 'sonner';
+import { logErrorInDev } from '@/core/lib/helpers/error-message';
 import { TIMER_STATUS_CONSTANTS } from '@/core/constants/config/constants';
 import { getMemberPresence } from '@/core/lib/utils/team-members.utils';
+import { useTranslations } from 'next-intl';
 
 type Props = {
 	status: ETimerStatus;
 	showIcon?: boolean;
+	/** `sm` fits the icon to 32-36px avatars (16px badge); `md` is the 20px badge of larger avatars. */
+	size?: 'sm' | 'md';
 	tooltipClassName?: string;
 	labelContainerClassName?: string;
 } & IClassName;
 
-export function TimerStatus({ status, className, showIcon = true, tooltipClassName, labelContainerClassName }: Props) {
+const ICON_SIZE = {
+	sm: 'size-4 p-[3px]',
+	md: 'size-5 p-1'
+} as const;
+
+export function TimerStatus({
+	status,
+	className,
+	showIcon = true,
+	size = 'md',
+	tooltipClassName,
+	labelContainerClassName
+}: Props) {
+	const t = useTranslations();
+	const iconSize = ICON_SIZE[size];
 	const classStatusMap = {
-		running: 'bg-green-300',
-		online: 'bg-green-300',
-		pause: 'bg-[#EFCF9E]',
-		idle: 'bg-[#F5BEBE]',
-		suspended: 'bg-[#DCD6D6]'
+		running: 'bg-success',
+		online: 'bg-success',
+		pause: 'bg-warning',
+		idle: 'bg-muted-foreground/60',
+		suspended: 'bg-muted-foreground/30'
 	};
 	const iconStatusMap = {
-		running: <TimerPlayIcon className="p-1 w-5 h-5 fill-green-700" />,
-		pause: <PauseIcon className="w-5 h-5 p-1 text-[#B87B1E]" />,
-		idle: <StopCircleIcon className="w-5 h-5 p-1 text-[#E65B5B]" />,
-		online: <OnlineIcon className="p-1 w-5 h-5 text-green-700 animate-pulse fill-green-700" />,
-		suspended: <StopCircleIcon className="p-1 w-5 h-5 text-white" />
+		running: <Play className={clsxm(iconSize, 'rounded-full bg-success/15 text-success-foreground')} />,
+		pause: <Pause className={clsxm(iconSize, 'rounded-full bg-warning/15 text-warning-foreground')} />,
+		idle: <StopCircle className={clsxm(iconSize, 'rounded-full bg-foreground/5 text-muted-foreground')} />,
+		online: <OnlineIcon className={clsxm(iconSize, 'rounded-full bg-success/15 text-success-foreground')} />,
+		suspended: <StopCircle className={clsxm(iconSize, 'rounded-full bg-foreground/10 text-muted-foreground')} />
 	};
+	const statusFillClassName = status && classStatusMap[status as keyof typeof classStatusMap];
+	const isDot = !showIcon;
 	const tooltipLabelMap = {
-		online: 'User is Online',
-		running: 'User is Online and Tracking Time',
-		idle: 'User is Idle',
-		pause: 'User is Paused',
-		suspended: 'User is Suspended'
+		online: t('timer.presence.ONLINE'),
+		running: t('timer.presence.RUNNING'),
+		idle: t('timer.presence.IDLE'),
+		pause: t('timer.presence.PAUSE'),
+		suspended: t('timer.presence.SUSPENDED')
 	};
 	return (
 		<Tooltip
@@ -52,7 +70,8 @@ export function TimerStatus({ status, className, showIcon = true, tooltipClassNa
 			<div
 				className={clsxm(
 					'flex items-center justify-center rounded-full',
-					status && classStatusMap[status as keyof typeof classStatusMap],
+					isDot && statusFillClassName,
+					showIcon && 'bg-card',
 					className
 				)}
 			>
@@ -146,9 +165,7 @@ export function getTimerStatusValueWithValidation(
 	try {
 		return getTimerStatusValue(timerStatus, member, publicTeam);
 	} catch (error) {
-		toast.error('Error determining timer status', {
-			description: JSON.stringify({ member, timerStatus, publicTeam })
-		});
+		logErrorInDev('Error determining timer status', { error, member, timerStatus, publicTeam });
 		return ETimerStatus.IDLE;
 	}
 }

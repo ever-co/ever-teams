@@ -1,12 +1,13 @@
 'use client';
 // import { LoginIcon, RecordIcon } from 'lib/components/svgs';
 import { useMemo } from 'react';
-import Image from 'next/image';
 import { TTaskStatus } from '@/core/types/schemas';
 import { TStatus } from '@/core/types/interfaces/task/task-card';
+import { TaskPropertyIcon, TaskPropertyKind } from '@/core/components/tasks/task-property-icon';
 
 export function useMapToTaskStatusValues<T extends Omit<TTaskStatus, 'name'> & { name: string }>(
 	data: T[],
+	kind: TaskPropertyKind,
 	bordered = false
 ): TStatus<any> {
 	return useMemo(() => {
@@ -18,19 +19,7 @@ export function useMapToTaskStatusValues<T extends Omit<TTaskStatus, 'name'> & {
 				value: item.value || item.name,
 				bgColor: item.color,
 				bordered,
-				icon: (
-					<div className="relative flex items-center">
-						{item.fullIconUrl && (
-							<Image
-								className="object-contain w-5 h-5"
-								src={item.fullIconUrl}
-								height={20}
-								width={20}
-								alt={item.name}
-							/>
-						)}
-					</div>
-				)
+				icon: <TaskPropertyIcon kind={kind} name={item.value || item.name} color={item.color} />
 			};
 
 			if (value.value) {
@@ -40,5 +29,5 @@ export function useMapToTaskStatusValues<T extends Omit<TTaskStatus, 'name'> & {
 			}
 			return acc;
 		}, {} as TStatus<any>);
-	}, [data, bordered]);
+	}, [data, kind, bordered]);
 }

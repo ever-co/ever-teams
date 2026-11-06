@@ -3,8 +3,9 @@
 import { useAtomValue } from 'jotai';
 import { activeTeamState, activeTeamTaskState, timerStatusState } from '@/core/stores';
 import { useCallback, useEffect } from 'react';
-import { useFirstLoad, useSyncRef } from '../common';
-import { useUpdateTask } from '../organizations';
+import { useFirstLoad } from '../common/use-first-load';
+import { useSyncRef } from '../common/use-sync-ref';
+import { useUpdateTask } from '../organizations/teams/use-update-task';
 import { TTask } from '@/core/types/schemas/task/task.schema';
 import { useUserQuery } from '../queries/user-user.query';
 

@@ -3,38 +3,77 @@ import { useModal, useDeleteOrganizationTeam, useUser } from '@/core/hooks';
 import { Button } from '@/core/components';
 import { useCallback, useState } from 'react';
 import { useTranslations } from 'next-intl';
+import Link from 'next/link';
 import { RemoveModal } from '../../../settings/remove-modal';
 import { useUserQuery } from '@/core/hooks/queries/user-user.query';
+import { ACCOUNT_DELETION_PATH } from '@/core/lib/auth/account-deletion';
+import { useDeleteMyAccount } from '@/core/hooks/auth/use-delete-my-account';
+import { DeleteMyAccountPreview } from './delete-my-account-preview';
+import { isAccountDeletionPlanChanged } from '@/core/services/client/api/auth/account-deletion.service';
 type RemoveModalType = 'REMOVE' | 'DELETE' | 'DELETE_ALL' | string;
-type ActionFunction = () => void;
+type ActionFunction = () => Promise<unknown> | undefined;
 
 /** One line per irreversible action: what it does on the left, a quiet outlined danger button on the right. */
 const DANGER_ROW =
-	'flex flex-col gap-3 border-t border-border py-4 first:border-t-0 first:pt-0 sm:flex-row sm:items-center sm:justify-between';
-const DANGER_BUTTON =
-	'h-9 shrink-0 whitespace-nowrap rounded-md border border-destructive/40 bg-transparent px-3 text-sm font-medium text-destructive hover:bg-destructive/10 dark:bg-transparent';
+	'flex flex-col gap-3 hairline-t border-border py-4 first:border-t-0 first:pt-0 sm:flex-row sm:items-center sm:justify-between';
 
+/**
+ * Settings → Personal → Danger Zone.
+ *
+ * - Remove from all teams: `DELETE /organization-team/teams/:userId` (Gauzy), then the teams and the token reload.
+ * - Delete this account: `DELETE /user/:id`, then logout (cookies cleared, redirect to sign-in).
+ * - Delete all data: `POST /account-deletion/me` `{ confirm: true }` (Gauzy), with the e-mail link's semantics: the
+ *   whole workspace when the user is its only member, otherwise the account and its member records (shared content
+ *   stays without the name). The modal first shows `GET /account-deletion/me` (what will happen). Then logout. Until
+ *   2026-10 this button only logged the user to the console and deleted nothing. It deliberately does not call
+ *   `DELETE /user/reset` (useUser().resetUser, kept): Gauzy's factory reset wipes every member's data of the user's
+ *   organizations and keeps the account, which is not what the button promises.
+ * - Delete by e-mail link: the public /delete-account flow, for every account with this e-mail (all workspaces).
+ *
+ * A failed call now shows its reason in the modal (RemoveModal) instead of leaving it open without a word.
+ */
 export const DangerZone = () => {
 	const t = useTranslations();
 	const { isOpen, closeModal, openModal } = useModal();
 	const [removeModalType, setRemoveModalType] = useState<RemoveModalType>('');
 
 	const { deleteUser, deleteUserLoading } = useUser();
+	const {
+		preview,
+		previewLoading,
+		previewError,
+		retryPreview,
+		deleteMyAccount,
+		deleteMyAccountLoading,
+		canDeleteMyAccount
+	} = useDeleteMyAccount(isOpen && removeModalType === 'DELETE_ALL');
 	const { data: user } = useUserQuery();
 
 	const { removeUserFromAllTeam, removeUserFromAllTeamLoading } = useDeleteOrganizationTeam();
+	// Without the user loaded there is nothing to act on: each action throws, so the modal says it failed and stays
+	// open instead of closing as if it had been done
 	const handleRemoveUser = useCallback(() => {
-		if (user) {
-			return removeUserFromAllTeam(user.id);
-		}
+		if (!user) throw new Error('');
+		return removeUserFromAllTeam(user.id);
 	}, [user, removeUserFromAllTeam]);
 
+	const handleDeleteUser = useCallback(() => {
+		if (!user) throw new Error('');
+		return deleteUser();
+	}, [user, deleteUser]);
+
+	/** Deletes the signed-in account (POST /account-deletion/me); a 409 becomes the "changed" notice in the modal. */
 	const handleDeleteAllUserData = useCallback(() => {
-		console.log(user);
-	}, [user]);
+		if (!user) throw new Error('');
+		return deleteMyAccount().catch((error: unknown) => {
+			// 409: the outcome changed since the preview; the modal now shows the new one, to be confirmed again
+			if (isAccountDeletionPlanChanged(error)) throw new Error(t('pages.accountDeletion.PLAN_CHANGED'));
+			throw error;
+		});
+	}, [user, deleteMyAccount, t]);
 
 	const actionTypes: Record<RemoveModalType, ActionFunction> = {
-		DELETE: deleteUser,
+		DELETE: handleDeleteUser,
 		DELETE_ALL: handleDeleteAllUserData,
 		REMOVE: handleRemoveUser
 	};
@@ -75,8 +114,9 @@ export const DangerZone = () => {
 						</div>
 						<Button
 							variant="outline-danger"
+							size="default"
 							type="button"
-							className={DANGER_BUTTON}
+							className="shrink-0"
 							onClick={() => {
 								setRemoveModalType(row.type);
 								openModal();
@@ -87,13 +127,42 @@ export const DangerZone = () => {
 					</div>
 				))}
 
+				<div className={DANGER_ROW}>
+					<div className="min-w-0">
+						<p className="text-sm font-medium text-foreground">
+							{t('pages.accountDeletion.DANGER_ZONE_TITLE')}
+						</p>
+						<p className="mt-0.5 text-xs text-muted-foreground">
+							{t('pages.accountDeletion.DANGER_ZONE_DESCRIPTION')}
+						</p>
+					</div>
+					<Button asChild variant="outline" size="default" className="shrink-0">
+						<Link href={ACCOUNT_DELETION_PATH} data-testid="danger-zone-delete-by-email">
+							{t('pages.accountDeletion.DELETE_BY_EMAIL_LINK')}
+						</Link>
+					</Button>
+				</div>
+
 				<RemoveModal
 					open={removeModalType && isOpen ? true : false}
 					close={closeModal}
 					title={messageToShow}
 					onAction={onAction}
-					loading={deleteUserLoading || removeUserFromAllTeamLoading}
-				/>
+					loading={deleteUserLoading || removeUserFromAllTeamLoading || deleteMyAccountLoading}
+					confirmDisabled={
+						removeModalType === 'DELETE_ALL' &&
+						(previewLoading || !!previewError || !preview?.accounts?.length || !canDeleteMyAccount)
+					}
+				>
+					{removeModalType === 'DELETE_ALL' && (
+						<DeleteMyAccountPreview
+							preview={preview}
+							loading={previewLoading}
+							error={previewError}
+							onRetry={retryPreview}
+						/>
+					)}
+				</RemoveModal>
 			</div>
 		</>
 	);

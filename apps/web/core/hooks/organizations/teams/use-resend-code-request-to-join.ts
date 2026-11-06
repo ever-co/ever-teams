@@ -4,6 +4,8 @@ import { requestToJoinTeamService } from '@/core/services/client/api/organizatio
 import { queryKeys } from '@/core/query/keys';
 import { TJoinTeamRequest } from '@/core/types/schemas';
 import { toast } from 'sonner';
+import { useTranslations, type DottedLanguageObjectStringPaths } from 'next-intl';
+import { errorReasonKeyOf } from '@/core/lib/utils/error-feedback';
 
 /**
  * Hook for the "resend code" mutation.
@@ -15,18 +17,18 @@ import { toast } from 'sonner';
  * - `resendCodeMutation` — raw React Query mutation for advanced usage
  */
 export function useResendCodeRequestToJoin() {
+	const t = useTranslations();
 	const resendCodeMutation = useMutation({
 		mutationKey: queryKeys.organizationTeams.requestToJoin.mutations.resendCode,
 		mutationFn: async (data: TJoinTeamRequest) => {
 			return await requestToJoinTeamService.resendCodeRequestToJoin(data);
 		},
-		onSuccess: () => {
-			toast.success('Code resent successfully', {
-				description: 'The code has been successfully resent.'
-			});
+		onSuccess: (_data, { email }) => {
+			toast.success(t('toasts.teams.JOIN_CODE_RESENT', { email }));
 		},
-		onError: () => {
-			toast.error('Failed to resend code. Please try again later.');
+		onError: (error) => {
+			const reasonKey = errorReasonKeyOf(error) as DottedLanguageObjectStringPaths;
+			toast.error(t('toasts.teams.JOIN_CODE_NOT_RESENT'), { description: t(reasonKey) });
 		}
 	});
 
@@ -55,4 +57,3 @@ export function useResendCodeRequestToJoin() {
 		resendCodeMutation
 	};
 }
-

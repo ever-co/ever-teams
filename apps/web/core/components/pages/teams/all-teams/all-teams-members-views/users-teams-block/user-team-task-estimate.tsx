@@ -40,7 +40,7 @@ export default function UserTeamActiveTaskEstimateBlock({
 			edition={taskEdition}
 			activeAuthTask={true}
 			showTime={false}
-			className="w-1/5"
+			className="min-w-0"
 			radial={true}
 			useActiveTeamTaskByDefault={false}
 			allowEmptyTask={false}

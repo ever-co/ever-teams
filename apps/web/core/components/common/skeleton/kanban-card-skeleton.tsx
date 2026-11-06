@@ -1,67 +1,42 @@
+import { cn } from '@/core/lib/helpers';
+
+const BAR = 'animate-pulse rounded-md bg-foreground/5';
+
 interface KanbanCardSkeletonProps {
 	className?: string;
 }
 
+/** A kanban card: the chips row, the title, a hairline, then the avatars and the worked time. */
 export function KanbanCardSkeleton({ className }: KanbanCardSkeletonProps) {
 	return (
-		<div className={`flex flex-col my-2.5 rounded-2xl bg-white dark:bg-dark--theme-light p-4 relative ${className || ''}`}>
-			{/* Header section with status and menu */}
-			<div className="w-full justify-between h-fit">
-				<div className="w-full flex justify-between">
-					{/* Task status skeleton */}
-					<div className="w-64">
-						<div className="flex items-center gap-2">
-							<div className="w-4 h-4 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded-full" />
-							<div className="w-20 h-4 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded" />
-						</div>
-					</div>
-					{/* Menu skeleton */}
-					<div className="w-4 h-4 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded" />
+		<div
+			className={cn(
+				'relative mb-2 flex w-full flex-col gap-3 rounded-xl bg-card p-3 hairline-ring ring-border shadow-sm shadow-black/6.5',
+				className
+			)}
+		>
+			<div className="flex items-start justify-between gap-2">
+				<div className="flex items-center gap-1.5">
+					<div className={cn(BAR, 'h-5 w-16')} />
+					<div className={cn(BAR, 'h-5 w-12')} />
+					<div className={cn(BAR, 'h-5 w-14')} />
 				</div>
-
-				{/* Task title and input section */}
-				<div className="w-full flex justify-between my-3">
-					<div className="flex items-center w-64">
-						<div className="w-56">
-							<div className="w-full h-6 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded" />
-						</div>
-					</div>
-					{/* Priority icon skeleton */}
-					<div className="w-5 h-5 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded" />
-				</div>
+				<div className={cn(BAR, 'size-7 shrink-0')} />
 			</div>
-
-			{/* Task description skeleton */}
-			<div className="w-full mb-3">
-				<div className="w-3/4 h-4 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded-sm mb-2" />
-				<div className="w-1/2 h-4 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded" />
-			</div>
-
-			{/* Task properties section */}
-			<div className="flex items-center justify-between w-full">
-				{/* Labels skeleton */}
-				<div className="flex gap-1">
-					<div className="w-12 h-5 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded-full" />
-					<div className="w-16 h-5 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded-full" />
+			<div className="flex items-start justify-between gap-3">
+				<div className="flex min-w-0 flex-1 flex-col gap-1.5">
+					<div className={cn(BAR, 'h-4 w-full')} />
+					<div className={cn(BAR, 'h-4 w-2/3')} />
 				</div>
-
-				{/* Time and progress skeleton */}
-				<div className="flex items-center gap-2">
-					<div className="w-12 h-4 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded" />
-					<div className="w-8 h-8 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded-full" />
-				</div>
+				<div className={cn(BAR, 'size-8 shrink-0 rounded-full')} />
 			</div>
-
-			{/* Assignees section */}
-			<div className="flex items-center justify-between mt-3">
-				{/* Assignee avatars skeleton */}
+			<div className="h-px w-full bg-border" />
+			<div className="flex h-8 items-center justify-between">
 				<div className="flex -space-x-2">
-					<div className="w-8 h-8 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded-full border-2 border-white" />
-					<div className="w-8 h-8 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded-full border-2 border-white" />
+					<div className={cn(BAR, 'size-7.5 rounded-full ring-2 ring-card')} />
+					<div className={cn(BAR, 'size-7.5 rounded-full ring-2 ring-card')} />
 				</div>
-
-				{/* Task number skeleton */}
-				<div className="w-12 h-4 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded" />
+				<div className={cn(BAR, 'h-4 w-24')} />
 			</div>
 		</div>
 	);

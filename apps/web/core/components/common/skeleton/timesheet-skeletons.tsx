@@ -1,295 +1,245 @@
 import { FC } from 'react';
 import { clsxm } from '@/core/lib/utils';
 
+const BAR = 'animate-pulse rounded-md bg-foreground/5';
+
+const CALENDAR_DAY_HEADERS = 7;
+
+const CALENDAR_DAY_CELLS = 35;
+
+const TIMESHEET_GROUPS = 2;
+
+const TIMESHEET_ROWS_PER_GROUP = 5;
+
+const STATUS_CHIP_WIDTHS = ['w-24', 'w-20', 'w-24', 'w-24', 'w-16', 'w-24'];
+
+const PAGINATION_STEPS = 6;
+
 interface TimesheetSkeletonProps {
 	className?: string;
 }
 
-/**
- * Skeleton for CalendarView component
- * Mimics the monthly/weekly calendar structure with day cells
- */
+/** The month grid of the timesheet calendar view: a hairline grid, one bar for each day number. */
 export const CalendarViewSkeleton: FC<TimesheetSkeletonProps> = ({ className }) => {
+	const headerKeys = Array.from({ length: CALENDAR_DAY_HEADERS }, (_, index) => index);
+	const cellKeys = Array.from({ length: CALENDAR_DAY_CELLS }, (_, index) => index);
 	return (
-		<div className={clsxm('grow h-full w-full bg-[#FFFFFF] dark:bg-dark--theme p-4', className)}>
-			{/* Calendar Header */}
-			<div className="flex justify-between items-center mb-4">
-				<div className="w-32 h-6 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded" />
+		<div className={clsxm('h-full w-full grow p-4', className)}>
+			<div className="mb-4 flex items-center justify-between">
+				<div className={clsxm(BAR, 'h-5 w-32')} />
 				<div className="flex gap-2">
-					<div className="w-8 h-8 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded" />
-					<div className="w-8 h-8 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded" />
+					<div className={clsxm(BAR, 'size-8')} />
+					<div className={clsxm(BAR, 'size-8')} />
 				</div>
 			</div>
-
-			{/* Calendar Grid */}
-			<div className="grid grid-cols-7 gap-1 mb-2">
-				{/* Day headers */}
-				{[...Array(7)].map((_, i) => (
-					<div
-						key={i}
-						className="h-8 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded-sm text-center flex items-center justify-center"
-					>
-						<div className="w-8 h-4 bg-[#E0E0E0] dark:bg-muted animate-pulse rounded" />
-					</div>
-				))}
-			</div>
-
-			{/* Calendar Days */}
-			<div className="grid grid-cols-7 gap-1">
-				{[...Array(35)].map((_, i) => (
-					<div
-						key={i}
-						className="h-24 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded-sm p-2 border border-gray-200 dark:border-gray-700"
-					>
-						{/* Day number */}
-						<div className="w-6 h-4 bg-[#E0E0E0] dark:bg-muted animate-pulse rounded-sm mb-2" />
-
-						{/* Time entries */}
-						{i % 3 === 0 && (
-							<div className="space-y-1">
-								<div className="w-full h-2 bg-[#E0E0E0] dark:bg-muted animate-pulse rounded" />
-								<div className="w-3/4 h-2 bg-[#E0E0E0] dark:bg-muted animate-pulse rounded" />
-							</div>
-						)}
-					</div>
-				))}
+			<div className="overflow-hidden rounded-lg hairline-border border-border">
+				<div className="grid grid-cols-7 hairline-divide-x divide-border hairline-b border-border">
+					{headerKeys.map((key) => (
+						<div key={key} className="flex h-9 items-center justify-center">
+							<div className={clsxm(BAR, 'h-3 w-8')} />
+						</div>
+					))}
+				</div>
+				<div className="grid grid-cols-7">
+					{cellKeys.map((key) => (
+						<div key={key} className="min-h-24 hairline-b hairline-r border-border p-2 last:border-r-0">
+							<div className={clsxm(BAR, 'h-3 w-5 rounded-sm')} />
+						</div>
+					))}
+				</div>
 			</div>
 		</div>
 	);
 };
 
-/**
- * Skeleton for TimesheetView/DataTableTimeSheet component
- * Mimics the table structure with rows and columns
- */
-export const TimesheetViewSkeleton: FC<TimesheetSkeletonProps> = ({ className }) => {
+function TimesheetEntryRowSkeleton() {
 	return (
-		<div className={clsxm('grow h-full w-full bg-[#FFFFFF] dark:bg-dark--theme', className)}>
-			{/* Date Groups */}
-			{[...Array(3)].map((_, groupIndex) => (
-				<div key={groupIndex} className="mb-6">
-					{/* Date Header */}
-					<div className="h-[48px] flex justify-between items-center w-full bg-[#ffffffcc] dark:bg-dark--theme rounded-md border border-gray-400 px-5 mb-2">
-						<div className="w-32 h-4 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded" />
-						<div className="w-20 h-4 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded" />
-					</div>
+		<div className="flex min-h-14 items-center gap-4 hairline-t border-border px-4 py-2">
+			<div className={clsxm(BAR, 'size-4 shrink-0 rounded-sm')} />
+			<div className="flex min-w-0 flex-2 items-center gap-2">
+				<div className={clsxm(BAR, 'size-5 shrink-0 rounded-sm')} />
+				<div className={clsxm(BAR, 'h-4 w-12')} />
+				<div className={clsxm(BAR, 'h-4 w-full max-w-72')} />
+			</div>
+			<div className="flex-1">
+				<div className={clsxm(BAR, 'h-4 w-24')} />
+			</div>
+			<div className="flex flex-1 items-center gap-2">
+				<div className={clsxm(BAR, 'size-7 shrink-0 rounded-full')} />
+				<div className={clsxm(BAR, 'h-4 w-24')} />
+			</div>
+			<div className="flex-1">
+				<div className={clsxm(BAR, 'h-6 w-20')} />
+			</div>
+			<div className="flex w-24 shrink-0 justify-end">
+				<div className={clsxm(BAR, 'h-4 w-16')} />
+			</div>
+		</div>
+	);
+}
 
-					{/* Status Sections */}
-					{[...Array(2)].map((_, statusIndex) => (
-						<div key={statusIndex} className="mb-4">
-							{/* Status Header */}
-							<div className="h-12 flex justify-between items-center w-full bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded-xs px-2 mb-2">
-								<div className="flex gap-2 items-center">
-									<div className="w-4 h-4 bg-[#E0E0E0] dark:bg-muted animate-pulse rounded" />
-									<div className="w-24 h-4 bg-[#E0E0E0] dark:bg-muted animate-pulse rounded" />
-									<div className="w-16 h-6 bg-[#E0E0E0] dark:bg-muted animate-pulse rounded-full" />
-								</div>
-								<div className="flex gap-2">
-									<div className="w-16 h-6 bg-[#E0E0E0] dark:bg-muted animate-pulse rounded" />
-									<div className="w-16 h-6 bg-[#E0E0E0] dark:bg-muted animate-pulse rounded" />
-								</div>
-							</div>
-
-							{/* Table Header */}
-							<div className="grid grid-cols-6 gap-4 p-2 bg-gray-50 rounded-sm dark:bg-muted">
-								{[...Array(6)].map((_, colIndex) => (
-									<div
-										key={colIndex}
-										className="w-full h-4 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded"
-									/>
-								))}
-							</div>
-
-							{/* Table Rows */}
-							{[...Array(3)].map((_, rowIndex) => (
-								<div
-									key={rowIndex}
-									className="grid grid-cols-6 gap-4 p-2 border-b border-gray-200 dark:border-gray-600 h-[60px] items-center"
-								>
-									<div className="flex gap-2 items-center">
-										<div className="w-4 h-4 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded" />
-										<div className="w-8 h-8 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded-full" />
-									</div>
-									<div className="w-full h-4 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded" />
-									<div className="w-16 h-4 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded" />
-									<div className="w-12 h-4 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded" />
-									<div className="w-20 h-4 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded" />
-									<div className="flex gap-1">
-										<div className="w-6 h-6 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded" />
-										<div className="w-6 h-6 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded" />
-									</div>
-								</div>
-							))}
-						</div>
-					))}
+function TimesheetGroupSkeleton() {
+	const rowKeys = Array.from({ length: TIMESHEET_ROWS_PER_GROUP }, (_, index) => index);
+	return (
+		<div>
+			<div className="flex h-10 w-full items-center justify-between gap-3 bg-foreground/2.5 px-4">
+				<div className={clsxm(BAR, 'h-4 w-32')} />
+				<div className={clsxm(BAR, 'h-4 w-20')} />
+			</div>
+			<div className="flex h-11 w-full items-center justify-between gap-3 hairline-t border-border px-4">
+				<div className="flex items-center gap-2">
+					<div className={clsxm(BAR, 'h-6 w-24 rounded-full')} />
+					<div className={clsxm(BAR, 'h-6 w-28 rounded-full')} />
 				</div>
+				<div className="flex items-center gap-1">
+					<div className={clsxm(BAR, 'h-7 w-20')} />
+					<div className={clsxm(BAR, 'h-7 w-20')} />
+				</div>
+			</div>
+			<div className="flex h-9 w-full items-center gap-4 hairline-t border-border bg-foreground/2.5 px-4">
+				<div className={clsxm(BAR, 'size-4 shrink-0 rounded-sm')} />
+				<div className="min-w-0 flex-2">
+					<div className={clsxm(BAR, 'h-3 w-12')} />
+				</div>
+				<div className="flex-1">
+					<div className={clsxm(BAR, 'h-3 w-16')} />
+				</div>
+				<div className="flex-1">
+					<div className={clsxm(BAR, 'h-3 w-20')} />
+				</div>
+				<div className="flex-1">
+					<div className={clsxm(BAR, 'h-3 w-14')} />
+				</div>
+				<div className="flex w-24 shrink-0 justify-end">
+					<div className={clsxm(BAR, 'h-3 w-10')} />
+				</div>
+			</div>
+			{rowKeys.map((key) => (
+				<TimesheetEntryRowSkeleton key={key} />
+			))}
+		</div>
+	);
+}
+
+/** The timesheet list: a date row, a status row, the column labels and the entries, split by hairlines. */
+export const TimesheetViewSkeleton: FC<TimesheetSkeletonProps> = ({ className }) => {
+	const groupKeys = Array.from({ length: TIMESHEET_GROUPS }, (_, index) => index);
+	return (
+		<div className={clsxm('h-full w-full grow hairline-divide-y divide-border', className)}>
+			{groupKeys.map((key) => (
+				<TimesheetGroupSkeleton key={key} />
 			))}
 		</div>
 	);
 };
 
-/**
- * Skeleton for TimesheetDetailModal component
- */
 export const TimesheetDetailModalSkeleton: FC<TimesheetSkeletonProps> = ({ className }) => {
+	const statKeys = [0, 1, 2];
+	const entryKeys = [0, 1, 2, 3, 4];
 	return (
-		<div className={clsxm('flex fixed inset-0 z-50 justify-center items-center bg-black/50', className)}>
-			<div className="bg-white dark:bg-dark--theme rounded-lg shadow-lg max-w-4xl w-full mx-4 max-h-[90vh] overflow-hidden">
-				{/* Modal Header */}
-				<div className="flex justify-between items-center p-6 border-b border-gray-200 dark:border-gray-700">
-					<div className="w-48 h-6 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded" />
-					<div className="w-6 h-6 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded" />
+		<div className={clsxm('fixed inset-0 z-[1000] flex items-center justify-center bg-black/40', className)}>
+			<div className="mx-4 max-h-[90vh] w-full max-w-[35rem] overflow-hidden rounded-2xl bg-card hairline-ring ring-border shadow-xl shadow-black/6.5">
+				<div className="flex items-center justify-between hairline-b border-border p-6">
+					<div className={clsxm(BAR, 'h-6 w-48')} />
+					<div className={clsxm(BAR, 'size-8')} />
 				</div>
-
-				{/* Modal Content */}
-				<div className="p-6 space-y-6 max-h-[70vh] overflow-y-auto">
-					{/* Stats Cards */}
+				<div className="max-h-[70vh] space-y-6 overflow-y-auto p-6">
 					<div className="grid grid-cols-3 gap-4">
-						{[...Array(3)].map((_, i) => (
-							<div key={i} className="p-4 rounded-lg border border-gray-200 dark:border-gray-700">
-								<div className="w-16 h-8 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded-sm mb-2" />
-								<div className="w-24 h-4 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded" />
+						{statKeys.map((key) => (
+							<div key={key} className="rounded-lg bg-foreground/[0.03] p-4">
+								<div className={clsxm(BAR, 'mb-2 h-8 w-16')} />
+								<div className={clsxm(BAR, 'h-4 w-24')} />
 							</div>
 						))}
 					</div>
-
-					{/* Content Area */}
 					<div className="space-y-4">
-						{[...Array(5)].map((_, i) => (
-							<div key={i} className="p-4 rounded-sm border border-gray-200 dark:border-gray-700">
-								<div className="flex justify-between items-center mb-2">
-									<div className="w-32 h-4 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded" />
-									<div className="w-16 h-4 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded" />
+						{entryKeys.map((key) => (
+							<div key={key} className="rounded-lg bg-foreground/[0.03] p-4">
+								<div className="mb-2 flex items-center justify-between">
+									<div className={clsxm(BAR, 'h-4 w-32')} />
+									<div className={clsxm(BAR, 'h-4 w-16')} />
 								</div>
 								<div className="space-y-2">
-									<div className="w-full h-3 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded" />
-									<div className="w-3/4 h-3 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded" />
+									<div className={clsxm(BAR, 'h-3 w-full')} />
+									<div className={clsxm(BAR, 'h-3 w-3/4')} />
 								</div>
 							</div>
 						))}
 					</div>
 				</div>
-
-				{/* Modal Footer */}
-				<div className="flex gap-2 justify-end p-6 border-t border-gray-200 dark:border-gray-700">
-					<div className="w-20 h-8 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded" />
-					<div className="w-24 h-8 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded" />
+				<div className="flex justify-end gap-2 hairline-t border-border p-6">
+					<div className={clsxm(BAR, 'h-9 w-20')} />
+					<div className={clsxm(BAR, 'h-9 w-24')} />
 				</div>
 			</div>
 		</div>
 	);
 };
 
-/**
- * Skeleton for TimesheetFilter component
- */
+/** The toolbar rows of the timesheet page: the title with its controls, then the status chips. */
 export const TimesheetFilterSkeleton: FC<TimesheetSkeletonProps> = ({ className }) => {
 	return (
-		<div className={clsxm('flex items-center gap-2.5 justify-between w-full', className)}>
-			{/* Status Filters */}
-			<div className="flex gap-2">
-				{[...Array(4)].map((_, i) => (
-					<div
-						key={i}
-						className="h-8 px-3 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded-sm flex items-center"
-					>
-						<div className="w-16 h-4 bg-[#E0E0E0] dark:bg-muted animate-pulse rounded" />
-					</div>
+		<div className={clsxm('w-full', className)}>
+			<div className="flex flex-wrap items-center justify-between gap-3 py-3">
+				<div className={clsxm(BAR, 'h-5 w-28')} />
+				<div className="ml-auto flex flex-wrap items-center gap-2">
+					<div className={clsxm(BAR, 'h-8 w-28')} />
+					<div className={clsxm(BAR, 'h-8 w-56')} />
+					<div className={clsxm(BAR, 'h-8 w-24')} />
+					<div className={clsxm(BAR, 'h-8 w-28')} />
+				</div>
+			</div>
+			<div className="flex w-fit max-w-full gap-x-1 overflow-x-auto pb-3 no-scrollbar">
+				{STATUS_CHIP_WIDTHS.map((width, index) => (
+					<div key={index} className={clsxm(BAR, 'h-7 shrink-0 rounded-full', width)} />
 				))}
 			</div>
-
-			{/* Filter Controls */}
-			<div className="flex gap-2">
-				<div className="w-32 h-8 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded" />
-				<div className="w-40 h-8 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded" />
-				<div className="w-24 h-8 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded" />
-				<div className="w-28 h-8 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded" />
-			</div>
 		</div>
 	);
 };
 
-/**
- * Skeleton for TimesheetCard component
- * Matches exact structure: EverCard with content + icon
- */
+/** One tile of the timesheet strip; the strip surface belongs to the page. */
 export const TimesheetCardSkeleton: FC<TimesheetSkeletonProps> = ({ className }) => {
 	return (
-		<div
-			className={clsxm(
-				'flex w-full gap-2 !p-5 border border-gray-200 rounded-md shadow-sm min-h-40 h-fit dark:border-gray-600 shadow-gray-100 dark:shadow-transparent',
-				className
-			)}
-		>
-			{/* Main content area */}
-			<div className="flex flex-col gap-2 w-full">
-				{/* Title, subtitle, description */}
-				<div className="flex flex-col gap-1 justify-start items-start">
-					{/* Main number/hours (text-2xl md:text-[25px]) */}
-					<div className="w-16 h-7 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded" />
-					{/* Title (text-base md:text-[16px]) */}
-					<div className="w-32 h-4 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded" />
-					{/* Description/date (text-sm md:text-[14px]) */}
-					<div className="w-40 h-3 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded" />
+		<div className={clsxm('flex min-w-0 flex-1 items-start gap-3 p-4', className)}>
+			<div className={clsxm(BAR, 'size-9 shrink-0 rounded-lg')} />
+			<div className="flex min-w-0 flex-1 flex-col gap-1">
+				<div className="flex h-4 items-center">
+					<div className={clsxm(BAR, 'h-3 w-24')} />
 				</div>
-
-				{/* Button (h-9 px-2 py-2 w-fit) */}
-				<div className="h-9 w-48 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded-sm border border-gray-200 dark:border-gray-600 mt-auto" />
-			</div>
-
-			{/* Icon area (p-5 w-16 h-16) */}
-			<div className="p-5 w-16 h-16 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded-lg shadow-lg dark:shadow-gray-800 flex justify-center items-center">
-				<div className="w-6 h-6 bg-[#E0E0E0] dark:bg-muted animate-pulse rounded" />
+				<div className="flex h-8 items-center">
+					<div className={clsxm(BAR, 'h-6 w-20')} />
+				</div>
+				<div className="flex h-4 items-center">
+					<div className={clsxm(BAR, 'h-3 w-32')} />
+				</div>
+				<div className={clsxm(BAR, 'mt-1 h-8 w-28')} />
 			</div>
 		</div>
 	);
 };
 
-/**
- * Skeleton for TimesheetPagination component
- * Matches exact structure: info + page size selector + pagination controls
- */
+/** The timesheet pagination row under the list, on a hairline. */
 export const TimesheetPaginationSkeleton: FC<TimesheetSkeletonProps> = ({ className }) => {
+	const stepKeys = Array.from({ length: PAGINATION_STEPS }, (_, index) => index);
 	return (
 		<div
 			className={clsxm(
-				'flex flex-row gap-4 justify-between items-center p-2 w-full h-[64px] rounded-b-[6px]',
+				'flex w-full flex-row items-center justify-between gap-4 hairline-t border-border px-4 py-3',
 				className
 			)}
 		>
-			{/* Left side - row info */}
-			<div className="flex gap-4 items-center">
-				<div className="w-32 h-3 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded" />
-			</div>
-
-			{/* Right side - pagination controls */}
-			<div className="flex justify-end w-full">
-				<div className="flex gap-x-3 justify-start items-center pr-2">
-					{/* "Rows per page" label */}
-					<div className="w-24 h-4 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded" />
-
-					{/* Page size selector */}
-					<div className="w-[80px] h-8 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded-[6px] border border-gray-200 dark:border-gray-800" />
-
-					{/* "Page X of Y" */}
-					<div className="w-20 h-4 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded" />
+			<div className={clsxm(BAR, 'h-3 w-32')} />
+			<div className="flex w-full justify-end">
+				<div className="flex items-center justify-start gap-x-3 pr-2">
+					<div className={clsxm(BAR, 'h-3 w-20')} />
+					<div className={clsxm(BAR, 'h-8 w-20')} />
+					<div className={clsxm(BAR, 'h-3 w-20')} />
 				</div>
-
-				{/* Pagination buttons */}
 				<div className="flex gap-1">
-					{/* Previous button */}
-					<div className="w-8 h-8 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded-[6px] border border-gray-200 dark:border-gray-800" />
-
-					{/* Page numbers (3-5 buttons) */}
-					{[...Array(4)].map((_, i) => (
-						<div
-							key={i}
-							className="w-8 h-8 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded-[6px] border border-gray-200 dark:border-gray-800"
-						/>
+					{stepKeys.map((key) => (
+						<div key={key} className={clsxm(BAR, 'size-8')} />
 					))}
-
-					{/* Next button */}
-					<div className="w-8 h-8 bg-[#F0F0F0] dark:bg-white/8 animate-pulse rounded-[6px] border border-gray-200 dark:border-gray-800" />
 				</div>
 			</div>
 		</div>

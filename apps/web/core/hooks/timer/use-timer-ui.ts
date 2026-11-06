@@ -1,13 +1,18 @@
 'use client';
 
-import { useAtom, useAtomValue } from 'jotai';
-import { useEffect, useMemo, useRef } from 'react';
+import { useAtom, useAtomValue, useSetAtom } from 'jotai';
+import { useEffect, useRef } from 'react';
 
 import { convertMsToTime, secondsToTime } from '@/core/lib/helpers/date-and-time';
 import {
-    localTimerStatusState, timeCounterIntervalState, timeCounterState, timerSecondsState,
-    timerStatusState
+	localTimerStatusState,
+	timeCounterIntervalState,
+	timeCounterState,
+	timerSecondsState,
+	timerStatusReceiptState,
+	timerStatusState
 } from '@/core/stores';
+import { ITimerStatus, ITimerStatusReceipt } from '@/core/types/interfaces/timer/timer-status';
 import { TTask } from '@/core/types/schemas/task/task.schema';
 
 import { useSyncRef } from '../common/use-sync-ref';
@@ -21,71 +26,38 @@ export interface UseTimerUiParams {
 	activeTeamTask: TTask | null;
 }
 
-export interface UseTimerUiReturn {
-	/** Time elapsed in milliseconds (updates every 50ms when running) */
-	timeCounter: number;
-	/** Time elapsed in seconds (updates every second, for progress bar) */
-	timerSeconds: number;
-	/** Formatted time counter: { hours, minutes, seconds, ms_p } */
-	fomatedTimeCounter: ReturnType<typeof convertMsToTime>;
-}
+const TICK_INTERVAL_MS = 50;
 
 // ==================== HOOK ====================
 
 /**
  * Layer 3: UI & Animation — "The Face"
  *
- * Manages the high-frequency timer display state that powers
- * the visual ticking clock and progress bar.
- *
- * Responsibilities:
- * - Run a 50ms interval to update `timeCounter` (milliseconds elapsed)
- * - Derive `timerSeconds` for the progress bar (updates per second)
- * - Format the time counter for display (HH:MM:SS)
- * - Reset seconds counter when active task changes
- *
- * Performance note:
- * Only components subscribing to `timeCounter` or `timerSeconds` atoms
- * will re-render at high frequency. Components that only need `timerStatus`
- * (running/stopped) are NOT affected by this ticking.
+ * Drives the ticking clock without rendering it: a 50ms interval writes `timeCounterState` (elapsed
+ * milliseconds) and, once per second, `timerSecondsState` (for the progress bars). The hook subscribes
+ * to neither atom, so its owner (InitState, the Timer's status layer) does not re-render on every tick;
+ * the digits are read by `useTimerClock`, mounted only where they are displayed.
  *
  * This hook does NOT manage:
  * - localStorage persistence (→ useTimerStorage)
  * - API calls or business logic (→ useTimerApi)
  */
-export function useTimerUi({ firstLoad, activeTeamTask }: UseTimerUiParams): UseTimerUiReturn {
+export function useTimerUi({ firstLoad, activeTeamTask }: UseTimerUiParams): void {
 	const [timeCounterInterval, setTimeCounterInterval] = useAtom(timeCounterIntervalState);
-	const [timeCounter, setTimeCounter] = useAtom(timeCounterState);
-	const [timerSeconds, setTimerSeconds] = useAtom(timerSecondsState);
+	const setTimeCounter = useSetAtom(timeCounterState);
+	const setTimerSeconds = useSetAtom(timerSecondsState);
+	const setTimerStatusReceipt = useSetAtom(timerStatusReceiptState);
 
 	// Read shared atoms (written by other layers)
 	const localTimerStatus = useAtomValue(localTimerStatusState);
 	const timerStatus = useAtomValue(timerStatusState);
+	const timerRunning = Boolean(timerStatus?.running);
+	const timerStatusKnown = Boolean(timerStatus);
 
-	// Refs for stable access in effects
-	const timerStatusRef = useSyncRef(timerStatus);
 	const timeCounterIntervalRef = useSyncRef(timeCounterInterval);
+	// The seconds already published, so the per-second atom is written once per second and never goes back.
 	const timerSecondsRef = useRef(0);
 
-	const seconds = Math.floor(timeCounter / 1000);
-
-	// ==================== PROGRESS BAR LOGIC ====================
-
-	/**
-	 * Compute the running seconds for the progress bar.
-	 * Only increases (never decreases) while the timer is running.
-	 * Resets to 0 when the timer stops.
-	 */
-	timerSecondsRef.current = useMemo(() => {
-		if (!firstLoad) return 0;
-		if (seconds > timerSecondsRef.current) {
-			return seconds;
-		}
-		if (timerStatusRef.current && !timerStatusRef.current.running) {
-			return 0;
-		}
-		return timerSecondsRef.current;
-	}, [seconds, firstLoad, timerStatusRef]);
 	// Reset timerSeconds when active task changes
 	useEffect(() => {
 		if (firstLoad) {
@@ -94,19 +66,15 @@ export function useTimerUi({ firstLoad, activeTeamTask }: UseTimerUiParams): Use
 		}
 	}, [activeTeamTask?.id, setTimerSeconds, firstLoad]);
 
-	// Initial sync of timerSeconds from ref
+	// A stopped timer (as the API reports it) resets the progress seconds
 	useEffect(() => {
-		if (firstLoad) {
-			setTimerSeconds(timerSecondsRef.current);
+		if (!firstLoad) return;
+		const stopped = timerStatusKnown && !timerRunning;
+		if (stopped) {
+			timerSecondsRef.current = 0;
+			setTimerSeconds(0);
 		}
-	}, [setTimerSeconds, firstLoad]);
-
-	// Keep timerSeconds atom in sync with timerSecondsRef as timer ticks
-	useEffect(() => {
-		if (firstLoad && timerSecondsRef.current !== timerSeconds) {
-			setTimerSeconds(timerSecondsRef.current);
-		}
-	}, [seconds, firstLoad, setTimerSeconds, timerSeconds]);
+	}, [firstLoad, timerRunning, timerStatusKnown, setTimerSeconds]);
 
 	// ==================== TICKING INTERVAL ====================
 
@@ -122,12 +90,18 @@ export function useTimerUi({ firstLoad, activeTeamTask }: UseTimerUiParams): Use
 		window.clearInterval(timeCounterIntervalRef.current);
 
 		if (localTimerStatus.running) {
-			setTimeCounterInterval(
-				window.setInterval(() => {
-					const now = Date.now();
-					setTimeCounter(now - localTimerStatus.runnedDateTime);
-				}, 50)
-			);
+			const tick = () => {
+				const elapsed = Date.now() - localTimerStatus.runnedDateTime;
+				setTimeCounter(elapsed);
+
+				const elapsedSeconds = Math.floor(elapsed / 1000);
+				const secondsAdvanced = elapsedSeconds > timerSecondsRef.current;
+				if (secondsAdvanced) {
+					timerSecondsRef.current = elapsedSeconds;
+					setTimerSeconds(elapsedSeconds);
+				}
+			};
+			setTimeCounterInterval(window.setInterval(tick, TICK_INTERVAL_MS));
 		} else {
 			setTimeCounter(0);
 		}
@@ -135,18 +109,75 @@ export function useTimerUi({ firstLoad, activeTeamTask }: UseTimerUiParams): Use
 		return () => {
 			window.clearInterval(timeCounterIntervalRef.current);
 		};
-	}, [localTimerStatus, firstLoad, setTimeCounter, setTimeCounterInterval, timeCounterIntervalRef]);
+	}, [localTimerStatus, firstLoad, setTimeCounter, setTimerSeconds, setTimeCounterInterval, timeCounterIntervalRef]);
 
-	// ==================== RETURN ====================
+	// ==================== STATUS RECEIPT ====================
 
-	return {
-		timeCounter,
-		timerSeconds,
-		fomatedTimeCounter: convertMsToTime(timeCounter)
-	};
+	// A running status duration already counts the running log up to the moment it was read, so
+	// useLiveTimerStatus adds only the time elapsed since the status arrived
+	useEffect(() => {
+		if (firstLoad) {
+			setTimerStatusReceipt((previousReceipt) => getNextStatusReceipt(previousReceipt, timerStatus));
+		}
+	}, [firstLoad, timerStatus, setTimerStatusReceipt]);
 }
 
 // ==================== STANDALONE HOOKS ====================
+
+function getNextStatusReceipt(
+	previousReceipt: ITimerStatusReceipt,
+	timerStatus: ITimerStatus | null
+): ITimerStatusReceipt {
+	// A shell mounted again (OfflineWrapper after a reconnect) finds the status it recorded: its read time is unchanged
+	const isRecordedStatus = previousReceipt.status === timerStatus;
+	if (isRecordedStatus) {
+		return previousReceipt;
+	}
+	const receivedAt = Date.now();
+	return { status: timerStatus, receivedAt };
+}
+
+function getSecondsSinceReceipt(timerStatus: ITimerStatus, receipt: ITimerStatusReceipt): number {
+	// A status that arrived in this render is recorded right after it: it was read a moment ago
+	const isReceiptForThisStatus = receipt.status === timerStatus;
+	if (!isReceiptForThisStatus) {
+		return 0;
+	}
+	const elapsedMs = Date.now() - receipt.receivedAt;
+	const elapsedSeconds = Math.floor(elapsedMs / 1000);
+	return Math.max(0, elapsedSeconds);
+}
+
+/**
+ * Running seconds the status duration does not count yet. A running status counts its running log up to the
+ * moment it was received; before the status reports the timer running (page load, start request in flight),
+ * the local seconds are the only count of the session.
+ */
+function getUncountedRunningSeconds(
+	timerStatus: ITimerStatus | null,
+	receipt: ITimerStatusReceipt,
+	isLocalTimerRunning: boolean,
+	localSeconds: number
+): number {
+	if (timerStatus?.running) {
+		return getSecondsSinceReceipt(timerStatus, receipt);
+	}
+	if (isLocalTimerRunning) {
+		return localSeconds;
+	}
+	return 0;
+}
+
+/**
+ * The ticking digits. Subscribes to the 50ms counter: mount it in the smallest component that shows the
+ * clock, never in a layout or a card.
+ */
+export function useTimerClock() {
+	const timeCounter = useAtomValue(timeCounterState);
+	const { hours, minutes, seconds, ms_p } = convertMsToTime(timeCounter);
+
+	return { timeCounter, hours, minutes, seconds, ms_p };
+}
 
 /**
  * Lightweight hook for components that only need the live timer display.
@@ -156,7 +187,13 @@ export function useTimerUi({ firstLoad, activeTeamTask }: UseTimerUiParams): Use
 export function useLiveTimerStatus() {
 	const seconds = useAtomValue(timerSecondsState);
 	const timerStatus = useAtomValue(timerStatusState);
-	const { hours: h, minutes: m } = secondsToTime((timerStatus?.duration || 0) + seconds);
+	const timerStatusReceipt = useAtomValue(timerStatusReceiptState);
+	const localTimerStatus = useAtomValue(localTimerStatusState);
+	const isLocalTimerRunning = localTimerStatus?.running === true;
+	const statusDuration = timerStatus?.duration || 0;
+	const uncountedSeconds = getUncountedRunningSeconds(timerStatus, timerStatusReceipt, isLocalTimerRunning, seconds);
+	const totalSeconds = statusDuration + uncountedSeconds;
+	const { hours: h, minutes: m } = secondsToTime(totalSeconds);
 
 	return {
 		time: { h, m },

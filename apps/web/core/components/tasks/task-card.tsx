@@ -1,27 +1,26 @@
 'use client';
-import { getDailyPlanDay, secondsToTime } from '@/core/lib/helpers/index';
+import { getDailyPlanDay } from '@/core/lib/helpers/index';
 import {
 	I_UserProfilePage,
 	I_TeamMemberMutationsHook,
 	useCanSeeActivityScreen,
 	useModal,
-	useTMCardTaskEdit,
-	useMemberIdentity,
-	useMemberActiveTask,
-	useTeamMemberMutations,
-	useTeamMemberRoleActions
+	useTMCardTaskEdit
 } from '@/core/hooks';
 import { useMyDailyPlans } from '@/core/hooks/daily-plans/use-my-daily-plans';
-import { useCreateDailyPlan } from '@/core/hooks/daily-plans/use-create-daily-plan';
+import { usePlanTaskForDay } from '@/core/hooks/daily-plans/use-plan-task-for-day';
+import { useEmployeeDailyPlans } from '@/core/hooks/daily-plans/use-employee-daily-plans';
+import { TaskDrawerLink } from './drawer/task-drawer-link';
 import { useUpdateDailyPlan } from '@/core/hooks/daily-plans/use-update-daily-plan';
 import { useUserQuery } from '@/core/hooks/queries/user-user.query';
+import { useMyRolePermissionsQuery } from '@/core/hooks/roles/use-my-role-permissions-query';
 import ImageComponent, { ImageOverlapperProps } from '@/core/components/common/image-overlapper';
-import { EDailyPlanStatus, EDailyPlanMode } from '@/core/types/generics/enums/daily-plan';
+import { EDailyPlanMode } from '@/core/types/generics/enums/daily-plan';
 import {
 	IDailyPlanTasksUpdate,
 	IRemoveTaskFromManyPlansRequest
 } from '@/core/types/interfaces/task/daily-plan/daily-plan';
-import { activeTaskStatisticsState, activeTeamState, activeTeamTaskState, timerSecondsState } from '@/core/stores';
+import { activeTeamTaskState } from '@/core/stores';
 import { clsxm } from '@/core/lib/utils';
 import {
 	DropdownMenu,
@@ -31,18 +30,9 @@ import {
 	DropdownMenuSeparator,
 	DropdownMenuPortal
 } from '@/core/components/common/dropdown-menu';
-import { SpinnerLoader, Text } from '@/core/components';
+import { SpinnerLoader } from '@/core/components';
 import Link from 'next/link';
-import React, {
-	PropsWithChildren,
-	useCallback,
-	useEffect,
-	useId,
-	useMemo,
-	useRef,
-	useState,
-	useTransition
-} from 'react';
+import React, { PropsWithChildren, ReactNode, useCallback, useEffect, useId, useMemo, useRef, useState } from 'react';
 import { SetStateAction, useAtomValue } from 'jotai';
 import { TimerButton } from '../timer/timer-button';
 import { TaskAllStatusTypes } from './task-all-status-type';
@@ -50,26 +40,145 @@ import { TaskNameInfoDisplay } from './task-displays';
 import { TaskAvatars } from './task-items';
 import { ActiveTaskStatusDropdown } from './task-status';
 import { TaskTimes } from './task-times';
-import { useTranslations } from 'next-intl';
-import { SixSquareGridIcon, ThreeCircleOutlineVerticalIcon } from 'assets/svg';
+import { TaskPropertyIcon } from './task-property-icon';
+import { useTranslations, type DottedLanguageObjectStringPaths } from 'next-intl';
+import { Calendar, FileText, MoreVertical, Spinner, Star, Trash, UserAdd, UserRemove } from '@/core/components/icons';
 import { CreateDailyPlanFormModal } from '../features/daily-plan/create-daily-plan-form-modal';
-import { ReloadIcon } from '@radix-ui/react-icons';
 import moment from 'moment';
-import { AddTasksEstimationHoursModal, EnforcePlanedTaskModal, SuggestDailyPlanModal } from '../daily-plan';
+import { TimerPlanDialogs } from '@/core/components/features/daily-plan/timer-plan-dialogs';
+import { useHasBeenOpen } from '@/core/hooks/common/use-has-been-open';
+import { useIsTrackingEnabledFor } from '@/core/hooks/organizations/teams/use-active-team-member';
 import { Nullable, SetAtom } from '@/core/types/generics';
+import { EIssueType } from '@/core/types/generics/enums/task';
 import { TaskEstimateInfo } from '../pages/teams/team/team-members-views/user-team-card/task-estimate';
-import { EverCard } from '../common/ever-card';
-import { VerticalSeparator } from '../duplicated-components/separator';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '../common/tooltip';
 import { AddTaskToPlan } from '../features/daily-plan/add-task-to-plan';
 import { IEmployee } from '@/core/types/interfaces/organization/employee';
 import { IClassName } from '@/core/types/interfaces/common/class-name';
 import { toast } from 'sonner';
-import { TDailyPlan, TOrganizationTeam, TOrganizationTeamEmployee } from '@/core/types/schemas';
+import { errorReasonKeyOf } from '@/core/lib/utils/error-feedback';
+import { taskNumberLabel } from '@/core/lib/utils/team-tasks-view';
+import { TDailyPlan, TOrganizationTeamEmployee } from '@/core/types/schemas';
 import { useTimerButtonLogic } from '@/core/hooks/tasks/use-timer-button';
 import { TTask } from '@/core/types/schemas/task/task.schema';
-import { LoaderCircle } from 'lucide-react';
 import { useFavoriteTasks } from '@/core/hooks/tasks/use-favorites-task';
+import { TaskListMemberValue, useTaskListMember, useTaskListMemberValue } from './task-list-member-context';
+import {
+	TASK_ROW,
+	TASK_ROW_CHIPS_CELL,
+	TASK_ROW_CHIP_STRIP,
+	TASK_ROW_DETAIL_CELL,
+	TASK_ROW_MENU_CELL,
+	TASK_ROW_META,
+	TASK_ROW_STATUS_CELL,
+	TASK_ROW_TASK_CELL,
+	TASK_ROW_TIMER_CELL,
+	TASK_ROW_TIMES,
+	TASK_ROW_WORKED_CELL
+} from './task-row-recipes';
+
+/** The plan actions render their own button, which the menu item recipe cannot reach through `asChild`. */
+const planActionRowsClassName =
+	"flex flex-col [&_button]:flex [&_button]:h-8 [&_button]:w-full [&_button]:items-center [&_button]:gap-2.5 [&_button]:rounded-md [&_button]:px-2 [&_button]:text-[13px] [&_button:hover]:bg-foreground/5 [&_button:focus-visible]:bg-foreground/5 [&_svg]:size-4 [&_svg]:shrink-0 [&_svg:not([class*='text-'])]:text-muted-foreground";
+
+const MENU_SPINNER = <Spinner className="size-4 animate-spin" />;
+
+const TASK_TITLE_LINK =
+	'group/title flex min-w-0 items-baseline gap-1.5 rounded-sm text-[13px] font-medium text-foreground outline-none focus-visible:ring-[3px] focus-visible:ring-ring/25';
+
+const TASK_TITLE_TEXT = 'min-w-0 truncate decoration-foreground/30 underline-offset-2 group-hover/title:underline';
+
+const OVERLAPPER_DIAMETER = 28;
+
+function favoriteMenuLabelKey(isFavorite: boolean) {
+	if (isFavorite) {
+		return 'common.REMOVE_FAVORITE_TASK' as const;
+	}
+	return 'common.ADD_FAVORITE_TASK' as const;
+}
+
+function assignmentMenuLabelKey(isAssigned: boolean) {
+	if (isAssigned) {
+		return 'common.UNASSIGN_TASK_FROM_ME' as const;
+	}
+	return 'common.ASSIGN_TASK_TO_ME' as const;
+}
+
+function memberAssignmentMenuLabelKey(isAssigned: boolean) {
+	if (isAssigned) {
+		return 'common.UNASSIGN_TASK_FROM_MEMBER' as const;
+	}
+	return 'common.ASSIGN_TASK_TO_MEMBER' as const;
+}
+
+/** On a teammate's profile the task menu acts on that teammate; anywhere else on the viewer. */
+function menuMutationsOf(
+	profile: I_UserProfilePage | undefined,
+	profileMemberMutations: I_TeamMemberMutationsHook,
+	viewerMutations: I_TeamMemberMutationsHook
+): I_TeamMemberMutationsHook {
+	const isTeammateProfile = getTeammateEmployeeId(profile) !== null;
+	if (isTeammateProfile) {
+		return profileMemberMutations;
+	}
+	return viewerMutations;
+}
+
+function profileMemberNameOf(profile?: I_UserProfilePage): string {
+	const employeeName = profile?.member?.employee?.fullName;
+	if (employeeName) {
+		return employeeName;
+	}
+	return profile?.userProfile?.firstName ?? '';
+}
+
+function assignmentErrorKey(isAssigning: boolean) {
+	if (isAssigning) {
+		return 'common.TASK_ASSIGN_ERROR' as const;
+	}
+	return 'common.TASK_UNASSIGN_ERROR' as const;
+}
+
+function assignmentMenuIcon(isAssigning: boolean, isAssigned: boolean) {
+	if (isAssigning) {
+		return MENU_SPINNER;
+	}
+	if (isAssigned) {
+		return <UserRemove />;
+	}
+	return <UserAdd />;
+}
+
+function assignHintKey(hasMembers: boolean) {
+	if (hasMembers) {
+		return 'profile.rows.ASSIGN_TO_MORE_PEOPLE' as const;
+	}
+	return 'profile.rows.ASSIGN_THIS_TASK' as const;
+}
+
+function issueTypeOf(task: TTask) {
+	return task.issueType || EIssueType.TASK;
+}
+
+function overlapperImagesOf(task: Nullable<TTask>): ImageOverlapperProps[] {
+	const members = task?.members ?? [];
+	return members.map((member) => ({
+		id: member.user?.id ?? '',
+		url: member.user?.imageUrl ?? '',
+		alt: member.user?.firstName ?? ''
+	}));
+}
+
+/** The list's member data belongs to one profile: a row of another profile reads its own. */
+function isListMemberOf(
+	listMember: TaskListMemberValue | null,
+	profileUserId: string | undefined
+): listMember is TaskListMemberValue {
+	if (!listMember) {
+		return false;
+	}
+	return listMember.profileUserId === profileUserId;
+}
 
 type Props = {
 	active?: boolean;
@@ -80,17 +189,37 @@ type Props = {
 	profile?: I_UserProfilePage;
 	editTaskId?: string | null;
 	setEditTaskId?: SetAtom<[SetStateAction<string | null>], void>;
+	/** Kept for the callers; the row draws the issue type on its own plate. */
 	taskBadgeClassName?: string;
 	taskTitleClassName?: string;
 	plan?: TDailyPlan;
 	planMode?: FilterTabs;
+	/** Kept for the callers; the row's grid sizes the task column. */
 	taskContentClassName?: string;
 } & IClassName;
 
 type FilterTabs = 'Today Tasks' | 'Future Tasks' | 'Past Tasks' | 'All Tasks' | 'Outstanding';
 
-// Memoize TaskCard to prevent unnecessary re-renders
-export const TaskCard = React.memo(function TaskCard(props: Props) {
+function TaskCardContent(props: Props) {
+	const listMember = useTaskListMember();
+	const profileUserId = props.profile?.userProfile?.id;
+	const readsListMember = isListMemberOf(listMember, profileUserId);
+	if (readsListMember) {
+		return <TaskRow {...props} member={listMember} />;
+	}
+	return <TaskRowWithOwnMember {...props} />;
+}
+
+function TaskRowWithOwnMember(props: Props) {
+	const member = useTaskListMemberValue(props.profile?.userProfile?.id);
+	return <TaskRow {...props} member={member} />;
+}
+
+/**
+ * One task as a row of its list, laid out by the width of the list's surface. The current task carries a Live mark
+ * after its title; its surface, not the row, sets it apart.
+ */
+function TaskRow({ member, ...props }: Props & { member: TaskListMemberValue }) {
 	const {
 		active,
 		className,
@@ -99,423 +228,302 @@ export const TaskCard = React.memo(function TaskCard(props: Props) {
 		activeAuthTask,
 		viewType = 'default',
 		profile,
-		taskBadgeClassName,
 		taskTitleClassName,
-		taskContentClassName,
 		plan,
 		planMode
 	} = props;
-	const t = useTranslations();
+	const { currentMember, authMember, memberInfo, authMutations, canSeeActivity } = member;
 	const [loading, setLoading] = useState(false);
-
-	const { data: user } = useUserQuery();
-	const activeTeam = useAtomValue(activeTeamState);
-	const canSeeActivity = useCanSeeActivityScreen();
-
-	const isTrackingEnabled = useMemo(
-		() => !!activeTeam?.members?.find((member) => member.employee?.userId === user?.id && member.isTrackingEnabled),
-		[activeTeam?.members, user?.id]
-	);
-	const members = activeTeam?.members || [];
-	const currentMember = members.find((m) => m.employee?.user?.id === profile?.userProfile?.id);
-	// Auth member is the currently logged-in user's team member (for "Assign Task to Me" action)
-	const authMember = members.find((m) => m.employee?.user?.id === user?.id);
-
-	const totalWork = useMemo(
-		() =>
-			isAuthUser && activeAuthTask ? (
-				<div className={clsxm('flex items-center space-x-2 font-normal')}>
-					<span className="text-gray-500 lg:text-sm">{t('pages.taskDetails.TOTAL_TIME')}:</span>
-					<ActiveTaskWorkedTime period="total" />
-				</div>
-			) : (
-				<></>
-			),
-		[activeAuthTask, isAuthUser, t]
-	);
-	// Daily work
-	const todayWork = useMemo(
-		() =>
-			isAuthUser && activeAuthTask ? (
-				<div className={clsxm('flex flex-col items-start font-normal')}>
-					<span className="text-xs text-gray-500">{t('common.TOTAL_WORK')}</span>
-					<ActiveTaskWorkedTime period="today" />
-				</div>
-			) : (
-				<></>
-			),
-		[activeAuthTask, isAuthUser, t]
-	);
-	// Granular hooks for currentMember — "pay only for what you use"
-	const identity = useMemberIdentity(currentMember || undefined);
-	const memberTask = useMemberActiveTask(currentMember || undefined);
-	const mutations = useTeamMemberMutations(currentMember || undefined);
-	const roleActions = useTeamMemberRoleActions(currentMember || undefined);
-
-	// Compose memberInfo — still needed by TaskTimes (not yet migrated to lightweight type)
-	const memberInfo = { ...identity, memberTask, ...mutations, ...roleActions };
-
-	// Auth member: only mutations needed for "Assign Task to Me" / "Unassign Task from Me"
-	const authMutations = useTeamMemberMutations(authMember || undefined);
-
+	const planModal = useModal();
+	const isPlanModalMounted = useHasBeenOpen(planModal.isOpen);
+	const planModalEmployeeId = profile?.member?.employeeId ?? '';
 	const taskEdition = useTMCardTaskEdit(task);
-	const activeMembers = useMemo(() => ((task != null && task?.members?.length) || 0) > 0, [task]);
-	const hasMembers = useMemo(() => task?.members && task?.members?.length > 0, [task?.members]);
-	const taskAssignee: ImageOverlapperProps[] = useMemo(
-		() =>
-			task?.members?.map((member: any) => {
-				return {
-					id: member.user?.id,
-					url: member.user?.imageUrl,
-					alt: member.user?.firstName
-				};
-			}) || [],
-		[task?.members]
-	);
+
+	const isCurrent = Boolean(active);
+	const isUnassignView = viewType === 'unassign';
+	const showsTotal = !isUnassignView;
+	const showsEstimate = viewType === 'default' || viewType === 'dailyplan';
+	const hasListedMember = Boolean(currentMember) || Boolean(authMember);
+	const showsMenu = Boolean(task) && hasListedMember;
+	const showsAssignOverlapper = isUnassignView && canSeeActivity;
+
 	return (
 		<>
-			<EverCard
-				shadow="bigger"
-				className={clsxm(
-					'relative hidden min-h-[4.5rem] items-center justify-between px-3 py-2.5 lg:flex',
-					active && ['border-primary-light'],
-					'gap-2 xl:gap-3',
-					className
-				)}
-			>
-				<div className="absolute -left-0">
-					<SixSquareGridIcon className="w-6 h-6 text-[#CCCCCC] dark:text-[#4F5662]" />
+			<div className={clsxm(TASK_ROW, className)}>
+				<div className={TASK_ROW_TIMER_CELL}>
+					<TaskCardTimerButton className="size-7" />
 				</div>
-
-				<div
-					className={clsxm(
-						'flex min-w-[10rem] flex-1 flex-row justify-between',
-						taskContentClassName
-					)}
-				>
-					{/* Task information */}
-					<TaskInfo
-						task={task}
-						className="px-4 w-full"
-						taskBadgeClassName={clsxm(taskBadgeClassName)}
-						taskTitleClassName={clsxm(taskTitleClassName)}
-						dayPlanTab={planMode}
-						tab={viewType}
-					/>
-				</div>
-				<VerticalSeparator />
-				{(viewType === 'default' || viewType === 'dailyplan') && (
-					<>
-						{/* TaskEstimateInfo */}
-						<div className="flex min-w-[9rem] shrink-0 flex-col items-center justify-center lg:flex-row">
+				<TaskRowTitle task={task} isCurrent={isCurrent} titleClassName={taskTitleClassName} />
+				<div className={TASK_ROW_META}>
+					<div className={TASK_ROW_CHIPS_CELL}>
+						{task && (
+							<TaskAllStatusTypes
+								task={task}
+								tab={viewType}
+								dayPlanTab={planMode}
+								className={TASK_ROW_CHIP_STRIP}
+							/>
+						)}
+					</div>
+					<div className={TASK_ROW_WORKED_CELL}>
+						<TaskTimes
+							activeAuthTask={activeAuthTask}
+							task={task}
+							isAuthUser={isAuthUser}
+							className={TASK_ROW_TIMES}
+							valueClassName="text-xs"
+							showTotal={showsTotal}
+							memberInfo={memberInfo}
+						/>
+					</div>
+					<div className={TASK_ROW_DETAIL_CELL}>
+						{showsEstimate && (
 							<TaskEstimateInfo
 								plan={plan}
 								memberInfo={memberInfo}
 								edition={taskEdition}
-								activeAuthTask={true}
-							/>
-						</div>
-					</>
-				)}
-
-				{viewType === 'unassign' && (
-					<div className="w-[20%] flex justify-around items-center">
-						<UsersTaskAssigned task={task} />
-						{canSeeActivity && (
-							<ImageComponent
-								radius={40}
-								images={taskAssignee}
-								item={task}
-								hasActiveMembers={activeMembers}
-								hasInfo={!hasMembers ? 'Assign this task' : 'Assign this task to more people'}
+								activeAuthTask={activeAuthTask}
+								className="w-full min-w-0"
 							/>
 						)}
+						{isUnassignView && <TaskRowAssignees task={task} showsOverlapper={showsAssignOverlapper} />}
 					</div>
-				)}
-				<VerticalSeparator />
-
-				{/* TaskTimes */}
-				<div className="flex shrink-0 items-center gap-3 px-2">
-					<TaskTimes
-						activeAuthTask={activeAuthTask}
-						task={task}
-						isAuthUser={isAuthUser}
-						className="flex flex-col gap-2"
-						showTotal={viewType !== 'unassign'}
-						memberInfo={memberInfo}
-					/>
-					{isTrackingEnabled && isAuthUser && task && (
-						<TimerButtonCall
-							activeTeam={activeTeam}
-							currentMember={currentMember}
-							task={task}
-							className="size-9"
-						/>
-					)}
-				</div>
-				<VerticalSeparator />
-
-				<div className="flex shrink-0 items-center justify-end gap-2 px-2">
-					{/* Active Task Status Dropdown (It's a dropdown that allows the user to change the status of the task.)*/}
-					<div className="flex justify-center items-center">
+					<div className={TASK_ROW_STATUS_CELL}>
 						<ActiveTaskStatusDropdown
 							task={task}
-							onChangeLoading={(load: boolean) => setLoading(load)}
-							className="min-w-[8.5rem] text-sm"
+							onChangeLoading={setLoading}
+							className="w-full min-w-0 max-w-full"
 						/>
 					</div>
-					{/* TaskCardMenu */}
-					<div className="flex shrink-0 items-center justify-end text-start">
-						{task && (currentMember || authMember) && (
-							<TaskCardMenu
-								task={task}
-								loading={loading}
-								mutations={authMutations}
-								viewType={viewType}
-								profile={profile}
-								plan={plan}
-								planMode={planMode}
-							/>
-						)}
-					</div>
 				</div>
-			</EverCard>
-
-			{/* Small screen size */}
-			<EverCard
-				shadow="bigger"
-				className={clsxm(
-					'relative lg:hidden flex justify-between py-3 flex-col',
-					active && ['border-primary-light border-[2px]'],
-					className
-				)}
-			>
-				<div className="flex justify-between mb-4 ml-2">
-					{totalWork}
-					{/* {isTrackingEnabled && isAuthUser && viewType === 'unassign' && task && (
-						<TimerButtonCall activeTeam={activeTeam} currentMember={currentMember} task={task} />
-					)} */}
-				</div>
-				<div className="flex flex-wrap justify-between items-start pb-4 border-b">
-					<TaskInfo task={task} className="px-4 mb-4 w-full" tab={viewType} dayPlanTab={planMode} />{' '}
-					{viewType === 'default' && (
-						<>
-							<div className="flex items-end py-4 mx-auto space-x-2">
-								<TaskEstimateInfo
-									memberInfo={memberInfo}
-									edition={taskEdition}
-									activeAuthTask={true}
-									className="px-3 w-52"
-								/>
-							</div>
-						</>
-					)}
-				</div>
-
-				{viewType === 'unassign' && (
-					<>
-						<UsersTaskAssigned className="px-3 py-4 mx-auto w-full" task={task} />
-					</>
-				)}
-				<div className="flex justify-between items-center mt-4 mb-4 space-x-5">
-					<div className="flex space-x-4">
-						{todayWork}
-						{isTrackingEnabled && isAuthUser && task && (
-							<TimerButtonCall activeTeam={activeTeam} currentMember={currentMember} task={task} />
-						)}
-					</div>
-					<ActiveTaskStatusDropdown
-						task={task || null}
-						onChangeLoading={(loadState: boolean) => setLoading(loadState)}
-					/>
-					{task && (currentMember || authMember) && (
+				<div className={TASK_ROW_MENU_CELL}>
+					{showsMenu && task && (
 						<TaskCardMenu
 							task={task}
 							loading={loading}
-							mutations={authMutations}
+							mutations={menuMutationsOf(profile, memberInfo, authMutations)}
+							viewerMutations={authMutations}
 							viewType={viewType}
+							profile={profile}
 							plan={plan}
+							planMode={planMode}
+							onPlanSomeDay={planModal.openModal}
 						/>
 					)}
 				</div>
-			</EverCard>
+			</div>
+			{isPlanModalMounted && task && (
+				<CreateDailyPlanFormModal
+					open={planModal.isOpen}
+					closeModal={planModal.closeModal}
+					taskId={task.id}
+					employeeId={planModalEmployeeId}
+					planMode={EDailyPlanMode['CUSTOM']}
+				/>
+			)}
 		</>
-	);
-});
-
-// Holds the per-second timer subscription so a tick re-renders this text, not the memoized TaskCard
-function ActiveTaskWorkedTime({ period }: Readonly<{ period: 'total' | 'today' }>) {
-	const seconds = useAtomValue(timerSecondsState);
-	const statActiveTask = useAtomValue(activeTaskStatisticsState);
-	const { hours, minutes } = secondsToTime((statActiveTask[period]?.duration || 0) + seconds);
-
-	return (
-		<Text>
-			{hours}h : {minutes}m
-		</Text>
 	);
 }
 
-// Memorize UsersTaskAssigned with custom comparator to detect members changes
-const UsersTaskAssigned = React.memo(
-	({ task, className }: { task: Nullable<TTask> } & IClassName) => {
-		const t = useTranslations();
-		const members = task?.members || [];
-
+function TaskRowTitle({
+	task,
+	isCurrent,
+	titleClassName
+}: Readonly<{ task: Nullable<TTask> | undefined; isCurrent: boolean; titleClassName?: string }>) {
+	if (!task) {
 		return (
-			<div className={clsxm('flex justify-center items-center', className)}>
-				<div className="flex flex-col justify-center items-center">
-					{members.length > 0 && <span className="mb-1 text-xs text-center">{t('common.ASSIGNED')}</span>}
-					<span className="text-sm font-medium text-center">
-						{members.length > 0
-							? `${members.length} ${t('common.PEOPLE')}`
-							: t('task.tabFilter.NO_TASK_USER_ASSIGNED')}
-					</span>
-				</div>
-				{members.length > 0 && task && <TaskAvatars task={task} limit={3} />}
+			<div className={TASK_ROW_TASK_CELL}>
+				<span className="text-[13px] text-muted-foreground">–</span>
 			</div>
 		);
-	},
-	// Custom comparator: re-render when task id or members change
-	(prevProps, nextProps) => {
-		if (prevProps.className !== nextProps.className) return false;
-		if (prevProps.task?.id !== nextProps.task?.id) return false;
-		// Deep compare members array by checking length and member ids
-		const prevMembers = prevProps.task?.members || [];
-		const nextMembers = nextProps.task?.members || [];
-		if (prevMembers.length !== nextMembers.length) return false;
-		const prevMemberIds = prevMembers
-			.map((m) => m.id)
-			.sort()
-			.join(',');
-		const nextMemberIds = nextMembers
-			.map((m) => m.id)
-			.sort()
-			.join(',');
-		return prevMemberIds === nextMemberIds;
 	}
-);
+	const number = taskNumberLabel(task);
+	const hasNumber = number.length > 0;
+	return (
+		<div className={TASK_ROW_TASK_CELL}>
+			<TaskPropertyIcon kind="issueType" name={issueTypeOf(task)} />
+			<TaskDrawerLink taskId={task.id} title={task.title} className={TASK_TITLE_LINK}>
+				{hasNumber && <span className="shrink-0 font-normal tabular-nums text-muted-foreground">{number}</span>}
+				<span className={clsxm(TASK_TITLE_TEXT, titleClassName)}>{task.title}</span>
+			</TaskDrawerLink>
+			{isCurrent && <LiveMark />}
+		</div>
+	);
+}
 
-// Memoized TimerButtonCall component
-const TimerButtonCall = React.memo(
-	({
-		task,
-		activeTeam,
-		className
-	}: {
-		task: TTask;
-		currentMember: TOrganizationTeamEmployee | undefined;
-		activeTeam: TOrganizationTeam | null;
-		className?: string;
-	}) => {
-		const activeTeamTask = useAtomValue(activeTeamTaskState);
+function LiveMark() {
+	const t = useTranslations();
+	return (
+		<span className="flex shrink-0 items-center gap-1.5 text-xs font-medium text-success-foreground">
+			<span aria-hidden="true" className="size-1.5 shrink-0 rounded-full bg-success" />
+			{t('common.LIVE')}
+		</span>
+	);
+}
 
-		const {
-			loading,
-			activeTaskStatus,
-			optimisticRunning,
-			requirePlan,
-			startTimerWithTask,
-			modals,
-			startStopTimerHandler,
-			canTrack,
-			disabled,
-			hasPlan,
-			startTimer,
-			t
-		} = useTimerButtonLogic({ task, activeTeam });
-
-		// Use optimistic state if available, otherwise use real state
-		const displayRunning = optimisticRunning ?? activeTaskStatus?.running;
-
-		const blockedByPlan = !activeTaskStatus && task.status !== 'closed' && !canTrack;
-		const planReasonId = useId();
-		const startButtonRef = useRef<HTMLButtonElement>(null);
-		// Set when this card's "Add to today's plan" succeeds: the focused action goes away with the tooltip once Start is enabled.
-		const refocusStartRef = useRef(false);
-
-		useEffect(() => {
-			if (blockedByPlan || !refocusStartRef.current) return;
-			refocusStartRef.current = false;
-			// Give focus back to Start only when it was lost with the tooltip, never take it from another control.
-			const active = document.activeElement;
-			if (!active || active === document.body) startButtonRef.current?.focus();
-		}, [blockedByPlan]);
-
-		const timerButton = (
-			<TimerButton
-				ref={startButtonRef}
-				onClick={activeTaskStatus ? startStopTimerHandler : startTimerWithTask}
-				running={displayRunning}
-				disabled={activeTaskStatus ? disabled : task.status === 'closed' || !canTrack}
-				aria-describedby={blockedByPlan ? planReasonId : undefined}
-				className={clsxm('w-14 h-14', className)}
-			/>
-		);
-
-		return loading ? (
-			<SpinnerLoader size={30} />
-		) : (
-			<>
-				{blockedByPlan ? (
-					<PlanRequiredTooltip
-						taskId={task.id}
-						reasonId={planReasonId}
-						onPlanned={() => {
-							refocusStartRef.current = true;
-						}}
-					>
-						{timerButton}
-					</PlanRequiredTooltip>
-				) : (
-					timerButton
-				)}
-
-				<SuggestDailyPlanModal
-					isOpen={modals.isSuggestDailyPlanModalOpen}
-					closeModal={modals.suggestDailyPlanCloseModal}
+/** Who is on an unassigned task and, under the action rule, the control that assigns more people. */
+function TaskRowAssignees({
+	task,
+	showsOverlapper
+}: Readonly<{ task: Nullable<TTask> | undefined; showsOverlapper: boolean }>) {
+	const t = useTranslations();
+	const images = useMemo(() => overlapperImagesOf(task), [task]);
+	const hasMembers = images.length > 0;
+	return (
+		<div className="flex w-full min-w-0 items-center gap-2">
+			<TaskRowPeople task={task ?? null} />
+			{showsOverlapper && (
+				<ImageComponent
+					radius={40}
+					diameter={OVERLAPPER_DIAMETER}
+					images={images}
+					item={task}
+					hasActiveMembers={hasMembers}
+					hasInfo={t(assignHintKey(hasMembers))}
 				/>
+			)}
+		</div>
+	);
+}
 
-				{/**
-				 * Track time on planned task (SOFT FLOW)
-				 */}
-				{hasPlan && activeTeamTask && (
-					<EnforcePlanedTaskModal
-						content={`Would you like to add the task "${activeTeamTask.taskNumber}" to Today's plan?`}
-						closeModal={modals.enforceTaskSoftCloseModal}
-						plan={hasPlan}
-						open={modals.isEnforceTaskSoftModalOpen}
-						task={activeTeamTask}
-					/>
-				)}
-
-				{hasPlan && hasPlan.tasks && (
-					<AddTasksEstimationHoursModal
-						isOpen={modals.isTasksEstimationHoursModalOpen}
-						closeModal={modals.tasksEstimationHoursCloseModal}
-						plan={hasPlan}
-						tasks={hasPlan.tasks}
-					/>
-				)}
-
-				{/**
-				 * Track time on planned task (REQUIRE PLAN)
-				 */}
-				{requirePlan && hasPlan && activeTeamTask && (
-					<EnforcePlanedTaskModal
-						onOK={startTimer}
-						content={t('dailyPlan.SUGGESTS_TO_ADD_TASK_TO_TODAY_PLAN')}
-						closeModal={modals.enforceTaskCloseModal}
-						plan={hasPlan}
-						open={modals.isEnforceTaskModalOpen}
-						task={activeTeamTask}
-						openDailyPlanModal={modals.openAddTasksEstimationHoursModal}
-					/>
-				)}
-			</>
-		);
+/** The people on the task as a stack of faces, the count in its name; a task with nobody says so in words. */
+function TaskRowPeople({ task }: Readonly<{ task: Nullable<TTask> }>) {
+	const t = useTranslations();
+	const memberCount = task?.members?.length ?? 0;
+	const peopleLabel = assignedPeopleLabel(t, memberCount);
+	const hasMembers = memberCount > 0;
+	if (!hasMembers || !task) {
+		return <span className="min-w-0 truncate text-xs text-muted-foreground">{peopleLabel}</span>;
 	}
-);
+	return (
+		<span role="img" aria-label={peopleLabel} title={peopleLabel} className="flex shrink-0 items-center">
+			<TaskAvatars task={task} limit={3} />
+		</span>
+	);
+}
+
+export const TaskCard = React.memo(function TaskCard(props: Props) {
+	const { task, isAuthUser } = props;
+	const { data: user } = useUserQuery();
+	const isTrackingEnabled = useIsTrackingEnabledFor(user?.id);
+	const content = <TaskCardContent {...props} />;
+
+	const showsTimer = isTrackingEnabled && isAuthUser;
+	if (!showsTimer || !task) {
+		return content;
+	}
+	// The content is passed as an element: the timer's own updates re-render the button, not the card
+	return <TaskTimerController task={task}>{content}</TaskTimerController>;
+});
+
+function assignedPeopleLabel(t: ReturnType<typeof useTranslations>, count: number) {
+	if (count > 0) {
+		return t('profile.rows.PEOPLE_COUNT', { count });
+	}
+	return t('task.tabFilter.NO_TASK_USER_ASSIGNED');
+}
+
+type TaskTimerControls = ReturnType<typeof useTaskTimerControls> & { task: TTask };
+
+const TaskTimerControlsContext = React.createContext<TaskTimerControls | null>(null);
+
+// The timer logic of one card, run once per card whatever its layout, with the dialogs a start may open
+function useTaskTimerControls(task: TTask) {
+	const activeTeamTask = useAtomValue(activeTeamTaskState);
+	const logic = useTimerButtonLogic({ task });
+
+	return {
+		...logic,
+		activeTeamTask
+	};
+}
+
+// Above the card's layouts: its loading state and dialogs survive a resize across the layout breakpoint
+export function TaskTimerController({ task, children }: PropsWithChildren<{ task: TTask }>) {
+	const controls = useTaskTimerControls(task);
+	const value = useMemo(() => ({ ...controls, task }), [controls, task]);
+
+	return (
+		<TaskTimerControlsContext.Provider value={value}>
+			{children}
+			{!controls.loading && <TaskTimerDialogs controls={value} />}
+		</TaskTimerControlsContext.Provider>
+	);
+}
+
+function TaskTimerDialogs({ controls }: Readonly<{ controls: TaskTimerControls }>) {
+	return <TimerPlanDialogs modals={controls.modals} />;
+}
+
+/** The card's start/stop button, where its layout puts it. Nothing without a TaskTimerController above. */
+export function TaskCardTimerButton({ className }: IClassName) {
+	const controls = React.useContext(TaskTimerControlsContext);
+	if (!controls) {
+		return null;
+	}
+	return <TaskTimerButton controls={controls} className={className} />;
+}
+
+function TaskTimerButton({ controls, className }: Readonly<{ controls: TaskTimerControls } & IClassName>) {
+	const {
+		task,
+		loading,
+		activeTaskStatus,
+		optimisticRunning,
+		startTimerWithTask,
+		startStopTimerHandler,
+		canTrack,
+		disabled
+	} = controls;
+
+	// Use optimistic state if available, otherwise use real state
+	const displayRunning = optimisticRunning ?? activeTaskStatus?.running;
+
+	const blockedByPlan = !activeTaskStatus && task.status !== 'closed' && !canTrack;
+	const planReasonId = useId();
+	const startButtonRef = useRef<HTMLButtonElement>(null);
+	// Set when this card's "Add to today's plan" succeeds: the focused action goes away with the tooltip once Start is enabled.
+	const refocusStartRef = useRef(false);
+
+	useEffect(() => {
+		if (blockedByPlan || !refocusStartRef.current) return;
+		refocusStartRef.current = false;
+		// Give focus back to Start only when it was lost with the tooltip, never take it from another control.
+		const active = document.activeElement;
+		if (!active || active === document.body) startButtonRef.current?.focus();
+	}, [blockedByPlan]);
+
+	if (loading) {
+		return <SpinnerLoader size={30} />;
+	}
+
+	const timerButton = (
+		<TimerButton
+			ref={startButtonRef}
+			onClick={activeTaskStatus ? startStopTimerHandler : startTimerWithTask}
+			running={displayRunning}
+			disabled={activeTaskStatus ? disabled : task.status === 'closed' || !canTrack}
+			aria-describedby={blockedByPlan ? planReasonId : undefined}
+			className={clsxm('w-14 h-14', className)}
+		/>
+	);
+
+	if (!blockedByPlan) {
+		return timerButton;
+	}
+
+	return (
+		<PlanRequiredTooltip
+			taskId={task.id}
+			reasonId={planReasonId}
+			onPlanned={() => {
+				refocusStartRef.current = true;
+			}}
+		>
+			{timerButton}
+		</PlanRequiredTooltip>
+	);
+}
 
 // Explains a Start button greyed by the team's "require a plan to track" rule and offers the "plan for today" action.
 function PlanRequiredTooltip({
@@ -551,7 +559,7 @@ function PlanRequiredTooltip({
 					</TooltipTrigger>
 					<TooltipContent aria-label={reason} className="flex flex-col gap-1 items-start max-w-xs text-xs">
 						<p>{reason}</p>
-						<div className="text-primary dark:text-primary-light">
+						<div className="font-medium text-primary-ink hover:underline">
 							<PlanTask
 								planMode={EDailyPlanMode.TODAY}
 								taskId={taskId}
@@ -589,7 +597,7 @@ export const TaskInfo = React.memo(
 		taskTitleClassName?: string;
 	}) => {
 		return (
-			<div className={clsxm('h-full flex flex-col items-start justify-between gap-[1.0625rem]', className)}>
+			<div className={clsxm('h-full flex flex-col items-start justify-between gap-3', className)}>
 				{/* task */}
 				{!task && <div className="self-center py-1 text-center">--</div>}
 				{task && (
@@ -606,7 +614,11 @@ export const TaskInfo = React.memo(
 									taskTitleClassName={clsxm(taskTitleClassName)}
 									className="h-full"
 								/>
-								<Link href={`/task/${task?.id}`} className="absolute inset-0 opacity-0" />
+								<TaskDrawerLink
+									taskId={task.id}
+									className="absolute inset-0 opacity-0"
+									aria-label={task.title}
+								/>
 							</div>
 						</div>
 					</div>
@@ -619,6 +631,46 @@ export const TaskInfo = React.memo(
 		);
 	}
 );
+
+function getTeammateEmployeeId(profile?: I_UserProfilePage): string | null {
+	const profileEmployeeId = profile?.member?.employeeId;
+	if (!profileEmployeeId || profile?.isAuthUser) {
+		return null;
+	}
+	return profileEmployeeId;
+}
+
+/**
+ * The plan entries act on the profile's member, so on a teammate's profile they follow that member's plans. Those are
+ * read only for a user who may plan for the teammate (`canPlanForTeammate`): nobody else is shown the plan entries, so
+ * the request would be useless (or refused).
+ */
+function useMenuPlans(profile: I_UserProfilePage | undefined, canPlanForTeammate: boolean) {
+	const myPlans = useMyDailyPlans();
+	const teammateEmployeeId = getTeammateEmployeeId(profile);
+	const isTeammateProfile = teammateEmployeeId !== null;
+	const teammatePlans = useEmployeeDailyPlans(teammateEmployeeId, {
+		enabled: isTeammateProfile && canPlanForTeammate
+	});
+
+	if (isTeammateProfile) {
+		return {
+			isTeammateProfile,
+			ensurePlans: teammatePlans.ensureEmployeeDailyPlans,
+			todayPlans: teammatePlans.employeeTodayPlan,
+			futurePlans: teammatePlans.employeeFuturePlans,
+			isPlansLoading: teammatePlans.isLoading
+		};
+	}
+	return {
+		isTeammateProfile,
+		ensurePlans: myPlans.ensureMyDailyPlans,
+		todayPlans: myPlans.myTodayPlan,
+		futurePlans: myPlans.myFuturePlans,
+		isPlansLoading: myPlans.isLoading
+	};
+}
+
 /**
  * It's a dropdown menu that allows the user to remove the task.
  */
@@ -626,21 +678,33 @@ export function TaskCardMenu({
 	task,
 	loading,
 	mutations,
+	viewerMutations,
 	viewType,
 	profile,
 	plan,
-	planMode
+	planMode,
+	onPlanSomeDay
 }: {
 	task: TTask;
 	loading?: boolean;
 	mutations?: I_TeamMemberMutationsHook;
+	/**
+	 * The viewer's own assignment actions. On a teammate's profile a viewer who may not act for the teammate keeps
+	 * the "to me" entry with them, as before; without them the menu shows no assignment entry there.
+	 */
+	viewerMutations?: I_TeamMemberMutationsHook;
 	viewType: 'default' | 'unassign' | 'dailyplan';
 	profile?: I_UserProfilePage;
 	plan?: TDailyPlan;
 	planMode?: FilterTabs;
+	/** Opens a "plan for some day" dialog the caller renders; without it the menu renders its own. */
+	onPlanSomeDay?: () => void;
 }) {
 	const t = useTranslations();
 	const { closeModal, isOpen, openModal } = useModal();
+	const ownsPlanModal = !onPlanSomeDay;
+	const openPlanModal = onPlanSomeDay ?? openModal;
+	const isPlanModalMounted = useHasBeenOpen(isOpen);
 	const { toggleFavoriteTask, isFavoriteTask, addTaskToFavoriteLoading, deleteTaskFromFavoritesLoading } =
 		useFavoriteTasks();
 
@@ -654,56 +718,83 @@ export function TaskCardMenu({
 		return task.members.some((member) => member.userId === user.id || member.user?.id === user.id);
 	}, [user?.id, task.members]);
 
+	const canSeeActivity = useCanSeeActivityScreen();
+	const { myPermissions } = useMyRolePermissionsQuery();
+
+	// The API lets only the team's managers, or a holder of CHANGE_SELECTED_EMPLOYEE, change another member's plans
+	const canActForOthers = myPermissions.includes('CHANGE_SELECTED_EMPLOYEE');
+	const canPlanForTeammate = canSeeActivity || canActForOthers;
+
+	const { isTeammateProfile, ensurePlans, todayPlans, futurePlans, isPlansLoading } = useMenuPlans(
+		profile,
+		canPlanForTeammate
+	);
+
+	// On a teammate's profile the menu acts on that teammate for a viewer who may plan for them, so the entry names
+	// them; any other viewer keeps the "to me" entry, acting on themselves, when the caller passed their actions
+	const actsForTeammate = isTeammateProfile && canPlanForTeammate;
+	const keepsViewerEntry = isTeammateProfile && !canPlanForTeammate && Boolean(viewerMutations);
+	let assignmentMutations = mutations;
+	if (keepsViewerEntry) {
+		assignmentMutations = viewerMutations;
+	}
+	const profileEmployeeId = profile?.member?.employeeId;
+	const isProfileMemberOnTask = Boolean(task.members?.some((member) => member.id === profileEmployeeId));
+	let isAssigned = isUserAssignedToTask;
+	if (actsForTeammate) {
+		isAssigned = isProfileMemberOnTask;
+	}
+
 	// Loading state for assignment action
 	const [isAssigning, setIsAssigning] = useState(false);
 
 	const handleAssignment = useCallback(() => {
 		// Guard clause: if mutations is not available, we cannot assign/unassign
-		if (!mutations) {
+		if (!assignmentMutations) {
 			console.warn('[TaskCardMenu] mutations is undefined, cannot assign/unassign task');
 			return;
 		}
 
-		// Use dynamic check: if user is already assigned, unassign; otherwise assign
-		const shouldAssign = !isUserAssignedToTask;
-		const taskTitle = task.title || task.taskNumber || 'Task';
+		// Use dynamic check: if the member is already assigned, unassign; otherwise assign
+		const shouldAssign = !isAssigned;
 
 		setIsAssigning(true);
 
-		const promise = shouldAssign ? mutations.assignTask(task) : mutations.unassignTask(task);
+		const promise = shouldAssign ? assignmentMutations.assignTask(task) : assignmentMutations.unassignTask(task);
 
 		promise
-			.then(() => {
-				const message = shouldAssign ? t('common.TASK_ASSIGNED_TO_ME') : t('common.TASK_UNASSIGNED_FROM_ME');
-				toast.success(message, {
-					description: taskTitle,
-					id: `task-assignment-${task.id}`
-				});
-			})
-			.catch((error) => {
-				const errorMessage = shouldAssign
-					? t('common.TASK_ASSIGN_ERROR') || 'Failed to assign task'
-					: t('common.TASK_UNASSIGN_ERROR') || 'Failed to unassign task';
-				toast.error(errorMessage, {
-					description: process.env.NODE_ENV === 'development' ? String(error) : undefined,
+			.catch((error: unknown) => {
+				const reasonKey = errorReasonKeyOf(error) as DottedLanguageObjectStringPaths;
+				toast.error(t(assignmentErrorKey(shouldAssign)), {
+					description: t(reasonKey),
 					id: `task-assignment-error-${task.id}`
 				});
 			})
 			.finally(() => {
 				setIsAssigning(false);
 			});
-	}, [mutations, task, isUserAssignedToTask, t]);
+	}, [assignmentMutations, task, isAssigned, t]);
 
-	const canSeeActivity = useCanSeeActivityScreen();
+	const canPlanForProfileMember = !isTeammateProfile || canPlanForTeammate;
+	const canRemoveForTeammate = isTeammateProfile && canPlanForTeammate;
+	const showRemoveEntries = canSeeActivity || canRemoveForTeammate;
+	// Assigning a teammate is the managers' action, as planning for them is
+	const showAssignmentEntry = !isTeammateProfile || canPlanForTeammate || keepsViewerEntry;
+	let assignmentLabel = t(assignmentMenuLabelKey(isAssigned));
+	if (actsForTeammate) {
+		assignmentLabel = t(memberAssignmentMenuLabelKey(isAssigned), { name: profileMemberNameOf(profile) });
+	}
 
-	const { myTodayPlan, myFuturePlans, ensureMyDailyPlans, isLoading: isPlansLoading } = useMyDailyPlans();
+	const isOutstandingTab = viewType === 'dailyplan' && planMode === 'Outstanding';
+	const isPlanEntriesView = viewType === 'default' || isOutstandingTab;
+	const showPlanEntries = isPlanEntriesView && canPlanForProfileMember;
 
-	const taskPlannedToday = useMemo(
-		() => myTodayPlan[myTodayPlan.length - 1]?.tasks?.find((planTask) => planTask.id === task.id),
-		[task.id, myTodayPlan]
-	);
+	const taskPlannedToday = useMemo(() => {
+		const lastTodayPlan = todayPlans[todayPlans.length - 1];
+		return lastTodayPlan?.tasks?.find((planTask) => planTask.id === task.id);
+	}, [task.id, todayPlans]);
 
-	const allPlans = [...myTodayPlan, ...myFuturePlans];
+	const allPlans = [...todayPlans, ...futurePlans];
 	const isTaskPlannedMultipleTimes =
 		allPlans.reduce((count, plan) => {
 			if (plan?.tasks) {
@@ -715,82 +806,73 @@ export function TaskCardMenu({
 
 	const taskPlannedTomorrow = useMemo(
 		() =>
-			myFuturePlans
+			futurePlans
 				.filter((_plan) => getDailyPlanDay(_plan.date) === moment().add(1, 'day').format('YYYY-MM-DD'))[0]
 				?.tasks?.find((planTask) => planTask.id === task.id),
-		[myFuturePlans, task.id]
+		[futurePlans, task.id]
 	);
 
 	// Combine loading states: external loading OR assignment in progress
 	const isMenuLoading = loading || isAssigning;
+	const isFavoriteLoading = addTaskToFavoriteLoading || deleteTaskFromFavoritesLoading;
+
+	// The plan items read the plans of the profile's member: teams without a plan requirement do not preload the
+	// personal ones, and a teammate's may have changed elsewhere since they were read
+	const handleMenuOpenChange = (open: boolean) => {
+		if (open) {
+			void ensurePlans();
+		}
+	};
 
 	return (
 		<>
-			{/* The plan items below read the personal plans, which teams without a plan requirement do not preload */}
-			<DropdownMenu onOpenChange={(open) => open && void ensureMyDailyPlans()}>
+			<DropdownMenu onOpenChange={handleMenuOpenChange}>
 				<DropdownMenuTrigger asChild>
-					<button className="flex items-center border-none outline-none">
-						{!isMenuLoading && (
-							<ThreeCircleOutlineVerticalIcon className="w-6 max-w-[24px] dark:text-[#B1AEBC]" />
-						)}
-						{isMenuLoading && <SpinnerLoader size={20} />}
+					<button
+						type="button"
+						aria-label={t('common.MORE_OPTIONS')}
+						className="flex size-7 items-center justify-center rounded-md text-muted-foreground outline-none transition-colors hover:bg-foreground/5 hover:text-foreground focus-visible:ring-[3px] focus-visible:ring-ring/25 data-[state=open]:bg-foreground/5 data-[state=open]:text-foreground"
+					>
+						{!isMenuLoading && <MoreVertical className="size-4" />}
+						{isMenuLoading && <SpinnerLoader size={16} />}
 					</button>
 				</DropdownMenuTrigger>
 				<DropdownMenuPortal>
-					<DropdownMenuContent
-						align="end"
-						className="z-50 min-w-[110px] w-[11rem] shadow-xl border bg-white dark:bg-dark--theme-light p-3"
-					>
-						<DropdownMenuItem
-							className="p-0 mb-2 font-normal hover:!bg-transparent duration-300 hover:font-semibold transition-all"
-							asChild
-						>
-							<Link href={`/task/${task.id}`} className={clsxm('w-full whitespace-nowrap')}>
+					<DropdownMenuContent align="end" className="min-w-44">
+						<DropdownMenuItem asChild>
+							<Link href={`/task/${task.id}`} className="w-full whitespace-nowrap">
+								<FileText />
 								{t('common.TASK_DETAILS')}
 							</Link>
 						</DropdownMenuItem>
-						<DropdownMenuItem
-							className="p-0 mb-2 transition-all duration-300 hover:font-semibold hover:!bg-transparent cursor-pointer font-normal"
-							onSelect={() => toggleFavoriteTask(task)}
-						>
-							<span className={clsxm('w-full whitespace-nowrap')}>
-								{addTaskToFavoriteLoading || deleteTaskFromFavoritesLoading ? (
-									<LoaderCircle size={15} className="animate-spin" />
-								) : isFavoriteTask(task.id) ? (
-									t('common.REMOVE_FAVORITE_TASK')
-								) : (
-									t('common.ADD_FAVORITE_TASK')
-								)}
+						<DropdownMenuItem className="cursor-pointer" onSelect={() => toggleFavoriteTask(task)}>
+							{isFavoriteLoading && MENU_SPINNER}
+							{!isFavoriteLoading && <Star />}
+							<span className="whitespace-nowrap">
+								{t(favoriteMenuLabelKey(isFavoriteTask(task.id)))}
 							</span>
 						</DropdownMenuItem>
-						<DropdownMenuItem
-							className="p-0 mb-3 transition-all duration-300 hover:font-semibold hover:!bg-transparent cursor-pointer font-normal"
-							onSelect={handleAssignment}
-							disabled={isAssigning}
-						>
-							<span className={clsxm('w-full whitespace-nowrap')}>
-								{isAssigning ? (
-									<LoaderCircle size={15} className="animate-spin" />
-								) : isUserAssignedToTask ? (
-									t('common.UNASSIGN_TASK_FROM_ME')
-								) : (
-									t('common.ASSIGN_TASK_TO_ME')
-								)}
-							</span>
-						</DropdownMenuItem>
+						{showAssignmentEntry && (
+							<DropdownMenuItem
+								className="cursor-pointer"
+								onSelect={handleAssignment}
+								disabled={isAssigning}
+							>
+								{assignmentMenuIcon(isAssigning, isAssigned)}
+								<span className="whitespace-nowrap">{assignmentLabel}</span>
+							</DropdownMenuItem>
+						)}
 
-						{(viewType == 'default' || (viewType === 'dailyplan' && planMode === 'Outstanding')) && (
+						{showPlanEntries && (
 							<>
-								<DropdownMenuSeparator className="my-3" />
-								<div className="mt-3">
+								<DropdownMenuSeparator />
+								<div className={planActionRowsClassName}>
 									{/* Until the first read lands the plans look empty, and a planned task would be offered again */}
 									{!taskPlannedToday && !isPlansLoading && (
-										<DropdownMenuItem
-											asChild
-											className="p-0 mb-2 transition-all duration-300 hover:font-semibold hover:!bg-transparent"
-										>
+										<DropdownMenuItem asChild>
 											<PlanTask
 												planMode={EDailyPlanMode.TODAY}
+												icon={<Calendar />}
 												taskId={task.id}
 												employeeId={profile?.member?.employeeId ?? ''}
 												taskPlannedToday={taskPlannedToday}
@@ -798,27 +880,23 @@ export function TaskCardMenu({
 										</DropdownMenuItem>
 									)}
 									{!taskPlannedTomorrow && !isPlansLoading && (
-										<DropdownMenuItem
-											asChild
-											className="p-0 mb-2 transition-all duration-300 hover:font-semibold  hover:!bg-transparent"
-										>
+										<DropdownMenuItem asChild>
 											<PlanTask
 												planMode={EDailyPlanMode.TOMORROW}
+												icon={<Calendar />}
 												taskId={task.id}
 												employeeId={profile?.member?.employeeId ?? ''}
 												taskPlannedForTomorrow={taskPlannedTomorrow}
 											/>
 										</DropdownMenuItem>
 									)}
-									<DropdownMenuItem
-										asChild
-										className="p-0 mb-2 transition-all duration-300 hover:font-semibold  hover:!bg-transparent"
-									>
+									<DropdownMenuItem asChild>
 										<PlanTask
 											planMode={EDailyPlanMode.CUSTOM}
+											icon={<Calendar />}
 											taskId={task.id}
 											employeeId={profile?.member?.employeeId ?? ''}
-											openModal={openModal}
+											openModal={openPlanModal}
 										/>
 									</DropdownMenuItem>
 								</div>
@@ -827,16 +905,12 @@ export function TaskCardMenu({
 
 						{viewType === 'dailyplan' && (planMode === 'Today Tasks' || planMode === 'Future Tasks') && (
 							<>
-								{canSeeActivity ? (
+								{showRemoveEntries ? (
 									<div>
-										<DropdownMenuSeparator className="my-2" />
-										<DropdownMenuItem className="p-0 mt-2 transition-all duration-300 hover:font-semibold  hover:!bg-transparent">
-											<RemoveTaskFromPlan member={profile?.member} task={task} plan={plan} />
-										</DropdownMenuItem>
+										<DropdownMenuSeparator />
+										<RemoveTaskFromPlan member={profile?.member} task={task} plan={plan} />
 										{isTaskPlannedMultipleTimes && (
-											<DropdownMenuItem className="p-0 mt-2 transition-all duration-300 hover:font-semibold  hover:!bg-transparent">
-												<RemoveManyTaskFromPlan task={task} member={profile?.member} />
-											</DropdownMenuItem>
+											<RemoveManyTaskFromPlan task={task} member={profile?.member} />
 										)}
 									</div>
 								) : (
@@ -865,13 +939,15 @@ export function TaskCardMenu({
 				</DropdownMenuPortal>
 			</DropdownMenu>
 
-			<CreateDailyPlanFormModal
-				open={isOpen}
-				closeModal={closeModal}
-				taskId={task.id}
-				employeeId={profile?.member?.employeeId ?? ''}
-				planMode={EDailyPlanMode['CUSTOM']}
-			/>
+			{ownsPlanModal && isPlanModalMounted && (
+				<CreateDailyPlanFormModal
+					open={isOpen}
+					closeModal={closeModal}
+					taskId={task.id}
+					employeeId={profile?.member?.employeeId ?? ''}
+					planMode={EDailyPlanMode['CUSTOM']}
+				/>
+			)}
 		</>
 	);
 }
@@ -885,6 +961,7 @@ export function PlanTask({
 	taskPlannedForTomorrow,
 	openModal,
 	label,
+	icon,
 	onPlanned
 }: {
 	taskId: string;
@@ -896,66 +973,24 @@ export function PlanTask({
 	openModal?: () => void;
 	/** Replaces the default label of the plan mode */
 	label?: string;
+	icon?: ReactNode;
 	/** Called once the plan is created, in today and tomorrow modes */
 	onPlanned?: () => void;
 }) {
 	const t = useTranslations();
-	const [isPending, startTransition] = useTransition();
-
-	const { createDailyPlan, createDailyPlanLoading } = useCreateDailyPlan();
-	const { data: user } = useUserQuery();
+	const { planTaskForDay, isPlanning, createDailyPlanLoading } = usePlanTaskForDay();
+	const isPending = isPlanning;
 
 	const handleOpenModal = async () => {
 		try {
-			if (planMode === 'custom' && openModal) {
-				openModal();
+			const opensCustomModal = planMode === 'custom' && Boolean(openModal);
+			if (opensCustomModal) {
+				openModal?.();
 				// Note: Toast for custom plan will be shown when the plan is actually created in the modal
 			} else if (planMode === 'today') {
-				startTransition(async () => {
-					try {
-						await createDailyPlan({
-							workTimePlanned: 0,
-							taskId,
-							date: moment().format('YYYY-MM-DD'),
-							status: EDailyPlanStatus.OPEN,
-							tenantId: user?.tenantId ?? '',
-							employeeId: employeeId,
-							organizationId: user?.employee?.organizationId
-						});
-						toast.success(t('task.toastMessages.TASK_PLANNED_FOR_TODAY'), {
-							id: 'task-planned-for-today'
-						});
-						onPlanned?.();
-					} catch (error) {
-						console.error('Plan creation error:', error);
-						toast.error(t('task.toastMessages.TASK_PLAN_FAILED'), {
-							id: 'task-plan-failed'
-						});
-					}
-				});
+				planTaskForDay('today', taskId, employeeId, onPlanned);
 			} else {
-				startTransition(async () => {
-					try {
-						await createDailyPlan({
-							workTimePlanned: 0,
-							taskId,
-							date: moment().add(1, 'day').format('YYYY-MM-DD'),
-							status: EDailyPlanStatus.OPEN,
-							tenantId: user?.tenantId ?? '',
-							employeeId: employeeId,
-							organizationId: user?.employee?.organizationId
-						});
-						toast.success(t('task.toastMessages.TASK_PLANNED_FOR_TOMORROW'), {
-							id: 'task-planned-for-tomorrow'
-						});
-						onPlanned?.();
-					} catch (error) {
-						console.error('Plan creation error:', error);
-						toast.error(t('task.toastMessages.TASK_PLAN_FAILED'), {
-							id: 'task-plan-failed'
-						});
-					}
-				});
+				planTaskForDay('tomorrow', taskId, employeeId, onPlanned);
 			}
 		} catch (error) {
 			console.error('Plan modal error:', error);
@@ -970,16 +1005,17 @@ export function PlanTask({
 		<div>
 			<button
 				className={clsxm(
-					'font-normal whitespace-nowrap transition-all',
-					'h-auto cursor-pointer hover:font-semibold'
+					'whitespace-nowrap text-left transition-colors',
+					'h-auto cursor-pointer disabled:cursor-default disabled:opacity-50'
 				)}
 				onClick={handleOpenModal}
 				disabled={planMode === 'today' && createDailyPlanLoading}
 			>
+				{icon}
 				{planMode === 'today' && !taskPlannedToday && (
 					<span className="">
 						{isPending || createDailyPlanLoading ? (
-							<ReloadIcon className="mr-2 w-4 h-4 animate-spin" />
+							<Spinner className="mr-2 size-4 animate-spin" />
 						) : (
 							todayLabel
 						)}
@@ -988,7 +1024,7 @@ export function PlanTask({
 				{planMode === 'tomorrow' && !taskPlannedForTomorrow && (
 					<span>
 						{isPending || createDailyPlanLoading ? (
-							<ReloadIcon className="mr-2 w-4 h-4 animate-spin" />
+							<Spinner className="mr-2 size-4 animate-spin" />
 						) : (
 							tomorrowLabel
 						)}
@@ -1004,15 +1040,20 @@ export function AddTaskToPlanComponent({ task, employee }: { task: TTask; employ
 	const t = useTranslations();
 	const { closeModal, isOpen, openModal } = useModal();
 	return (
-		<span
-			className={clsxm('font-normal whitespace-nowrap transition-all', 'cursor-pointer hover:font-semibold')}
-			onClick={openModal}
-		>
+		<>
+			<button
+				type="button"
+				className={clsxm('whitespace-nowrap transition-colors', 'cursor-pointer')}
+				onClick={openModal}
+			>
+				{t('dailyPlan.ADD_TASK_TO_PLAN')}
+			</button>
 			<AddTaskToPlan closeModal={closeModal} open={isOpen} task={task} employee={employee} />
-			{t('dailyPlan.ADD_TASK_TO_PLAN')}
-		</span>
+		</>
 	);
 }
+
+const REMOVE_FROM_PLAN_ROW = 'cursor-pointer whitespace-nowrap';
 
 export function RemoveTaskFromPlan({
 	task,
@@ -1033,20 +1074,15 @@ export function RemoveTaskFromPlan({
 		removeTaskFromPlan(data, plan?.id ?? '');
 	};
 	return (
-		<span
-			className={clsxm(
-				'font-normal text-red-600 whitespace-nowrap transition-all',
-				'cursor-pointer hover:font-semibold'
-			)}
-			onClick={onClick}
-		>
+		<DropdownMenuItem variant="destructive" className={REMOVE_FROM_PLAN_ROW} onSelect={onClick}>
+			<Trash />
 			{t('dailyPlan.REMOVE_FROM_THIS_PLAN')}
-		</span>
+		</DropdownMenuItem>
 	);
 }
 
 export function RemoveManyTaskFromPlan({ task, member }: { task: TTask; member?: TOrganizationTeamEmployee }) {
-	// const t = useTranslations();
+	const t = useTranslations();
 	const { removeManyTaskPlans } = useUpdateDailyPlan();
 	const data: IRemoveTaskFromManyPlansRequest = {
 		plansIds: [],
@@ -1056,14 +1092,9 @@ export function RemoveManyTaskFromPlan({ task, member }: { task: TTask; member?:
 		removeManyTaskPlans(data, task.id ?? '');
 	};
 	return (
-		<span
-			className={clsxm(
-				'font-normal text-red-600 whitespace-nowrap transition-all',
-				'cursor-pointer hover:font-semibold'
-			)}
-			onClick={onClick}
-		>
-			Remove from all plans
-		</span>
+		<DropdownMenuItem variant="destructive" className={REMOVE_FROM_PLAN_ROW} onSelect={onClick}>
+			<Trash />
+			{t('dailyPlan.REMOVE_FROM_ALL_PLANS')}
+		</DropdownMenuItem>
 	);
 }

@@ -5,20 +5,15 @@ type Params = {
 	tenantId: string;
 	bearer_token: string;
 	folder: string;
-	contentType: string;
 };
 
+/** The form is sent as multipart; the browser's Content-Type would carry a boundary this new body does not use. */
 export function createImageAssetsRequest(params: Params, body: FormData) {
 	return serverFetch<IImageAsset>({
 		path: '/image-assets/upload/' + params.folder,
 		method: 'POST',
 		body,
 		bearer_token: params.bearer_token,
-		init: {
-			headers: {
-				'tenant-id': params.tenantId,
-				'Content-Type': params.contentType
-			}
-		}
+		tenantId: params.tenantId
 	});
 }

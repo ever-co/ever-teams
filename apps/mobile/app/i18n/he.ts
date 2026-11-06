@@ -197,6 +197,8 @@ const he = {
 			taskPriorities: 'Task Priorities',
 			taskSizes: 'Task Sizes',
 			taskLabel: 'Task Label',
+			taskSettingsReadOnly:
+				'רק מנהלי הצוות ומנהלי המערכת יכולים לשנות את הגדרות המשימות. רק מנהלי המערכת יכולים לשנות את ברירות המחדל המשותפות לכל הצוותים.',
 			changeLogo: 'Change Logo',
 			teamRole: 'Manager Member & Role',
 			workSchedule: 'Work Schedule',

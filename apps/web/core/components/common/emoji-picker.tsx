@@ -4,9 +4,14 @@ import { getEmojiDataFromNative } from 'emoji-mart';
 import { useTheme } from 'next-themes';
 import { Popover, PopoverButton, PopoverPanel, Transition } from '@headlessui/react';
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { CheckSquareOutlineIcon, EditPenUnderlineIcon, TrashIcon } from 'assets/svg';
+import { CheckSquareOutlineIcon } from 'assets/svg';
 import { init } from 'emoji-mart';
-import { LoaderCircle } from 'lucide-react';
+import { Edit, Spinner, Trash } from '@/core/components/icons';
+import { cn } from '@/core/lib/helpers';
+import { buttonVariants } from '@/core/components/duplicated-components/_button';
+import { controlGroupRecipe } from './input';
+
+const iconButtonClassName = buttonVariants({ variant: 'ghost', size: 'icon-sm' });
 
 // init has to be called on page load to load the emojis, otherwise it won't show it in Picker
 init({ data });
@@ -91,24 +96,23 @@ export const EmojiPicker = ({
 						as="div"
 					>
 						<div
-							className={` relative w-[100%] h-[48px] ${
-								disabled ? 'bg-[#FCFCFC]' : 'bg-light--theme-light'
-							}  dark:bg-dark--theme-light border rounded-[10px] flex items-center justify-between input-border`}
+							className={cn(
+								controlGroupRecipe,
+								'relative h-9 justify-between',
+								disabled && 'bg-muted/50'
+							)}
 						>
-							<div className="flex gap-[8px] h-[40px]  items-center pl-[15px]">
-								<div className="dark:text-white">
+							<div className="flex gap-2 items-center pl-2.5">
+								<div className="text-sm text-foreground">
 									{value?.native} {value?.name}
 								</div>
 							</div>
 							{isTeamManager && (
-								<div className="flex mr-[0.5rem] gap-3">
+								<div className="flex mr-1 gap-1">
 									{open ? (
-										<button type="button" onClick={handleSave}>
+										<button type="button" onClick={handleSave} className={iconButtonClassName}>
 											{loading ? (
-												<LoaderCircle
-													className="w-[18px] h-[18px] animate-spin"
-													strokeWidth="1.4"
-												/>
+												<Spinner className="size-4 animate-spin" />
 											) : (
 												<CheckSquareOutlineIcon
 													className="w-[18px] h-[18px]"
@@ -119,30 +123,28 @@ export const EmojiPicker = ({
 									) : (
 										<>
 											{loading ? (
-												<LoaderCircle
-													className="w-[18px] h-[18px] animate-spin"
-													strokeWidth="1.4"
-												/>
+												<Spinner className="size-4 animate-spin text-muted-foreground" />
 											) : (
 												<>
 													<button
 														disabled={loading}
-														className={`z-50 outline-none`}
+														className={cn(iconButtonClassName, 'z-50')}
 														onClick={() => {
 															setDisabled(!disabled);
 														}}
 														type="button"
 													>
-														<EditPenUnderlineIcon className="w-6 h-6 cursor-pointer" />
+														<Edit className="size-4 text-muted-foreground" />
 													</button>
 													<button
 														onClick={() => {
 															setValue(null);
 															onChange('');
 														}}
-														className={`outline-none `}
+														type="button"
+														className={iconButtonClassName}
 													>
-														<TrashIcon className="w-5" />
+														<Trash className="size-4 text-muted-foreground" />
 													</button>
 												</>
 											)}

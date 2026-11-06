@@ -1,13 +1,25 @@
 import { useState } from 'react';
 import { useEditTaskStatus } from '@/core/hooks/tasks/use-edit-task-status';
 import { useTaskStatusesQuery } from '@/core/hooks/tasks/use-task-statuses-query';
-import { Button, Text, ColorPicker } from '@/core/components';
+import { DialogTitle } from '@headlessui/react';
+import {
+	Button,
+	ColorPicker,
+	modalFooterClass,
+	modalPrimaryActionClass,
+	modalSecondaryActionClass
+} from '@/core/components';
+import {
+	DialogBreadcrumb,
+	DialogBreadcrumbSeparator,
+	DialogHeaderRow,
+	dialogTitleText
+} from '@/core/components/common/dialog';
 import { useForm } from 'react-hook-form';
 import { generateIconList, IIcon } from '@/core/components/settings/icon-items';
 import { useTranslations } from 'next-intl';
 import IconPopover from '@/core/components/settings/icon-popover';
-import { Loader } from 'lucide-react';
-import { EverCard } from '../../common/ever-card';
+import { Spinner } from '@/core/components/icons';
 import { InputField } from '../../duplicated-components/_input';
 import { ETaskStatusName } from '@/core/types/schemas';
 import { publicAssetUrl } from '@/core/lib/helpers/public-asset-url';
@@ -89,23 +101,31 @@ const EditStatusModal = ({ status, onClose, setColumn }: { status: any; onClose:
 	const taskPrioritiesIconList: IIcon[] = generateIconList('task-priorities', ['urgent', 'high', 'medium', 'low']);
 
 	const iconList: IIcon[] = [...taskStatusIconList, ...taskSizesIconList, ...taskPrioritiesIconList];
+	let headingAction = t('common.EDIT');
+	if (createNew) {
+		headingAction = t('common.NEW');
+	}
 
 	return (
-		<div className="w-[800px] pt-12 pr-2 h-96 bg-transparent ">
-			<EverCard shadow="custom">
-				<form onSubmit={handleSubmit(onSubmit)}>
-					<Text className="flex-none grow-0 mb-2 font-normal text-gray-400 text-md">
-						{createNew ? t('common.NEW') : t('common.EDIT')} {t('common.ISSUE_TYPE')}
-					</Text>
-					<div className="flex gap-x-5 items-center mt-3 w-full">
-						<InputField
-							type="text"
-							placeholder={t('pages.settingsTeam.CREATE_NEW_ISSUE_TYPES')}
-							className="mb-0 min-w-[350px]"
-							wrapperClassName="mb-0 rounded-lg"
-							{...register('name')}
-						/>
+		<div className="w-[32rem] max-w-full">
+			<form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-4">
+				<DialogHeaderRow className="pr-9">
+					{status.name && <DialogBreadcrumb>{status.name}</DialogBreadcrumb>}
+					{status.name && <DialogBreadcrumbSeparator />}
+					<DialogTitle className={dialogTitleText}>
+						{headingAction} {t('common.ISSUE_TYPE')}
+					</DialogTitle>
+				</DialogHeaderRow>
+				<div className="flex w-full flex-col gap-3">
+					<InputField
+						type="text"
+						placeholder={t('pages.settingsTeam.CREATE_NEW_ISSUE_TYPES')}
+						className="mb-0"
+						wrapperClassName="mb-0"
+						{...register('name')}
+					/>
 
+					<div className="flex items-center gap-3">
 						<IconPopover
 							iconList={iconList}
 							setValue={setValue as any}
@@ -113,28 +133,30 @@ const EditStatusModal = ({ status, onClose, setColumn }: { status: any; onClose:
 						/>
 						<ColorPicker defaultColor={status.color} onChange={(e) => setValue('color', e)} />
 					</div>
-					<div className="flex gap-x-4 mt-5">
-						<Button
-							variant="primary"
-							className="px-4 py-4 font-normal rounded-xl text-md"
-							type="submit"
-							disabled={editTaskStatusLoading}
-							loading={editTaskStatusLoading}
-						>
-							{t('common.EDIT')} {editTaskStatusLoading && <Loader className="w-4 h-4 animate-spin" />}
-						</Button>
-						<Button
-							variant="grey"
-							className="px-4 py-4 font-normal rounded-xl text-md"
-							onClick={() => {
-								onClose();
-							}}
-						>
-							{t('common.CANCEL')}
-						</Button>
-					</div>
-				</form>
-			</EverCard>
+				</div>
+				<div className={modalFooterClass}>
+					<Button
+						variant="ghost"
+						size="default"
+						className={modalSecondaryActionClass}
+						onClick={() => {
+							onClose();
+						}}
+					>
+						{t('common.CANCEL')}
+					</Button>
+					<Button
+						variant="primary"
+						type="submit"
+						size="default"
+						className={modalPrimaryActionClass}
+						disabled={editTaskStatusLoading}
+						loading={editTaskStatusLoading}
+					>
+						{t('common.EDIT')} {editTaskStatusLoading && <Spinner className="size-4 animate-spin" />}
+					</Button>
+				</div>
+			</form>
 		</div>
 	);
 };

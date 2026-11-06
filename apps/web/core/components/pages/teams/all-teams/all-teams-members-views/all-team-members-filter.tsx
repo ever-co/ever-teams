@@ -31,19 +31,17 @@ export function MemberFilterOption({
 }>) {
 	return (
 		<div
-			className={clsxm(
-				'dark:bg-dark--theme-light rounded-xl px-3 py-1 flex items-center justify-between w-full min-w-[170px]'
-			)}
+			className={clsxm('flex w-full min-w-[170px] items-center justify-between rounded-md px-2 py-1.5')}
 			style={{ backgroundColor: bg }}
 		>
-			<div className={clsxm('flex items-center space-x-1 whitespace-nowrap text-ellipsis dark:text-white')}>
+			<div className={clsxm('flex items-center gap-1 text-ellipsis whitespace-nowrap')}>
 				{checked ? (
 					<svg
 						xmlns="http://www.w3.org/2000/svg"
 						viewBox="0 0 24 24"
 						width="20px"
 						height="20px"
-						className={`dark:fill-white`}
+						className="size-4 fill-current"
 					>
 						<path d="M9 19.4L3.3 13.7 4.7 12.3 9 16.6 20.3 5.3 21.7 6.7z" />
 					</svg>
@@ -60,10 +58,10 @@ export function MemberFilterOption({
 export function MemberFilter() {
 	const options: ITeamsMembersFilter[] = [
 		{ label: 'All', value: 'all', bg: 'transparent' },
-		{ label: 'Working now', value: ETimerStatus.RUNNING, bg: '#1f973d33' },
-		{ label: 'Paused', value: ETimerStatus.PAUSE, bg: '#e58484' },
-		{ label: 'Off', value: ETimerStatus.SUSPENDED, bg: '#6b7280' },
-		{ label: 'Invited', value: 'invited', bg: '#d1ad5b' }
+		{ label: 'Working now', value: ETimerStatus.RUNNING, bg: 'hsl(var(--success) / 0.12)' },
+		{ label: 'Paused', value: ETimerStatus.PAUSE, bg: 'hsl(var(--warning) / 0.15)' },
+		{ label: 'Off', value: ETimerStatus.SUSPENDED, bg: 'hsl(var(--foreground) / 0.06)' },
+		{ label: 'Invited', value: 'invited', bg: 'hsl(var(--info) / 0.12)' }
 	];
 	const [value, setValue] = useAtom(filterValue);
 
@@ -78,12 +76,9 @@ export function MemberFilter() {
 		<Tooltip label="Filter" placement="auto" enabled={true}>
 			<div className="relative">
 				<Select value={value.value} onValueChange={handleValueChange}>
-					<SelectTrigger
-						className="border rounded-lg dark:border-dark-lighter min-w-[170px] p-0 h-auto"
-						style={{ backgroundColor: value.bg }}
-					>
-						<div className="flex items-center justify-between w-full px-3 py-1">
-							<div className="flex items-center space-x-1 whitespace-nowrap text-ellipsis dark:text-white">
+					<SelectTrigger className="h-8 min-w-[170px] p-0" style={{ backgroundColor: value.bg }}>
+						<div className="flex w-full items-center justify-between px-2.5">
+							<div className="flex items-center gap-1 text-ellipsis whitespace-nowrap">
 								<span>
 									<CircleIcon className="h-4 w-4" />
 								</span>
@@ -91,13 +86,8 @@ export function MemberFilter() {
 							</div>
 						</div>
 					</SelectTrigger>
-					<SelectContent
-						className="p-0 border-none shadow-xl dark:bg-card dark:border dark:border-[#FFFFFF33] min-w-[200px]"
-						position="popper"
-						sideOffset={5}
-						align="start"
-					>
-						<div className="p-2 flex flex-col gap-1 min-w-[170px]">
+					<SelectContent className="min-w-[200px] p-0" position="popper" sideOffset={5} align="start">
+						<div className="flex min-w-[170px] flex-col gap-0.5 p-1">
 							{options.map((item) => (
 								<SelectItem
 									key={item.value}
@@ -105,17 +95,17 @@ export function MemberFilter() {
 									className="p-0 focus:bg-transparent focus:text-foreground data-[state=checked]:bg-transparent"
 								>
 									<div
-										className="rounded-xl px-3 py-1 flex items-center justify-between cursor-pointer"
+										className="flex cursor-pointer items-center justify-between rounded-md px-2 py-1.5"
 										style={{ backgroundColor: item.bg }}
 									>
-										<div className="flex items-center space-x-1 whitespace-nowrap text-ellipsis dark:text-white  min-w-[170px]">
+										<div className="flex min-w-[170px] items-center gap-1 text-ellipsis whitespace-nowrap">
 											{value.value === item.value ? (
 												<svg
 													xmlns="http://www.w3.org/2000/svg"
 													viewBox="0 0 24 24"
 													width="20px"
 													height="20px"
-													className="dark:fill-white"
+													className="size-4 fill-current"
 												>
 													<path d="M9 19.4L3.3 13.7 4.7 12.3 9 16.6 20.3 5.3 21.7 6.7z" />
 												</svg>

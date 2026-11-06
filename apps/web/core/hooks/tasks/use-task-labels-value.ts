@@ -3,5 +3,5 @@ import { useTaskLabelsQuery } from './use-task-labels-query';
 
 export function useTaskLabelsValue() {
 	const { taskLabels } = useTaskLabelsQuery();
-	return useMapToTaskStatusValues(taskLabels as any[], false);
+	return useMapToTaskStatusValues(taskLabels as any[], 'label');
 }

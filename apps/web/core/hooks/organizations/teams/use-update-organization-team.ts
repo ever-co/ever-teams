@@ -5,8 +5,10 @@ import { organizationTeamService } from '@/core/services/client/api/organization
 import { TOrganizationTeam, TOrganizationTeamUpdate } from '@/core/types/schemas';
 import { ZodValidationError } from '@/core/types/schemas/utils/validation';
 import { queryKeys } from '@/core/query/keys';
-import { useTeamsState } from './use-teams-state';
+import { useSetTeamsUpdate } from './use-teams-state';
 import { toast } from 'sonner';
+import { useTranslations, type DottedLanguageObjectStringPaths } from 'next-intl';
+import { errorReasonKeyOf } from '@/core/lib/utils/error-feedback';
 
 /**
  * Hook for updating an organization team with full validation and cache management.
@@ -18,7 +20,8 @@ import { toast } from 'sonner';
 
 export function useUpdateOrganizationTeam() {
 	const queryClient = useQueryClient();
-	const { setTeamsUpdate } = useTeamsState();
+	const setTeamsUpdate = useSetTeamsUpdate();
+	const t = useTranslations();
 
 	// React Query mutation with full validation and cache management
 	const updateOrganizationTeamMutation = useMutation({
@@ -37,22 +40,14 @@ export function useUpdateOrganizationTeam() {
 			});
 		},
 		onError: (error) => {
-			// Enhanced error handling with Zod validation errors
 			if (error instanceof ZodValidationError) {
-				toast.error('Update team validation failed:', {
-					description: JSON.stringify({
-						message: error.message,
-						issues: error.issues
-					})
-				});
 				console.error('Update team validation failed:', {
 					message: error.message,
 					issues: error.issues
 				});
-				return;
 			}
-
-			toast.error('Update team validation failed');
+			const reasonKey = errorReasonKeyOf(error) as DottedLanguageObjectStringPaths;
+			toast.error(t('toasts.teams.UPDATE_FAILED'), { description: t(reasonKey) });
 		}
 	});
 

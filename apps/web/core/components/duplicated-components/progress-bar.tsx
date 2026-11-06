@@ -7,12 +7,7 @@ interface ProgressBarProps {
 	size?: 'sm' | 'md' | 'lg';
 }
 
-const ProgressBar: React.FC<ProgressBarProps> = ({
-	progress,
-	color = 'bg-[#0088CC]',
-	isLoading = false,
-	size = 'md'
-}) => {
+const ProgressBar: React.FC<ProgressBarProps> = ({ progress, color = 'bg-info', isLoading = false, size = 'md' }) => {
 	const progressValue = isLoading ? 0 : Math.min(Math.max(progress, 0), 100);
 
 	const heightClass = {
@@ -23,7 +18,7 @@ const ProgressBar: React.FC<ProgressBarProps> = ({
 
 	return (
 		<div className="flex-1">
-			<div className={`w-full ${heightClass} bg-[#E4E4E7] rounded-full overflow-hidden`}>
+			<div className={`w-full ${heightClass} bg-foreground/10 rounded-full overflow-hidden`}>
 				<div
 					className={`h-full ${color}`}
 					style={{

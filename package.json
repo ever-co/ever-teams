@@ -240,12 +240,12 @@
 			"libs/*",
 			"tools"
 		],
-		"nohoist": []
+		"nohoist": ["@ever-teams/web/@tiptap/**"]
 	},
 	"resolutions": {
 		"isolated-vm": "7.0.1",
 		"postcss": "8.5.31",
-		"qs": "6.15.2",
+		"qs": "6.17.1",
 		"js-cookie": "3.0.8",
 		"dompurify": "3.4.17",
 		"lodash-es": "4.18.1",

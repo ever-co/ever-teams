@@ -111,6 +111,23 @@ const nextConfig = {
 			fallback: []
 		};
 	},
+	// The account deletion pages (public; the e-mailed link carries a deletion token in its fragment): no Referer for
+	// anything they load or link to, and not indexed. The pages also render <meta name="referrer">
+	// (app/[locale]/delete-account/layout.tsx). Static exports cannot send headers, so the block is left out there.
+	...(BUILD_OUTPUT_MODE === 'export'
+		? {}
+		: {
+				async headers() {
+					const accountDeletionHeaders = [
+						{ key: 'Referrer-Policy', value: 'no-referrer' },
+						{ key: 'X-Robots-Tag', value: 'noindex, nofollow' }
+					];
+					return [
+						{ source: '/delete-account/:path*', headers: accountDeletionHeaders },
+						{ source: '/:locale/delete-account/:path*', headers: accountDeletionHeaders }
+					];
+				}
+			}),
 	// Only BUILD-identity values belong here: Next inlines every key of this block into the client AND
 	// server bundles at build time. Branding (APP_NAME, APP_LOGO_URL, COMPANY_*, TERMS_LINK,
 	// MAIN_PICTURE*, ...) is deliberately NOT listed: it is read at runtime (env-config.ts

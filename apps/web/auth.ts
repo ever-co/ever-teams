@@ -33,8 +33,7 @@ const config: NextAuthConfig = {
 				if (account) {
 					const { provider, access_token } = account;
 					if (access_token) {
-						await signInCallback(provider as EProvider, access_token);
-						return true;
+						return await signInCallback(provider as EProvider, access_token);
 					}
 					return true;
 				}

@@ -1,7 +1,8 @@
 'use client';
 
 import { Button } from '@/core/components/duplicated-components/_button';
-import { ChevronDown } from 'lucide-react';
+import { ChevronDown } from '@/core/components/icons';
+import { cn } from '@/core/lib/helpers';
 import { PDFDownloadLink } from '@react-pdf/renderer';
 import type { DocumentProps } from '@react-pdf/renderer';
 import { useTranslations } from 'next-intl';
@@ -63,7 +64,7 @@ export function ExportMenu({
 	fileName,
 	onCSVExport,
 	csvDisabled = true,
-	buttonClassName = 'w-[100px] border border-[#E4E4E7] dark:border-border dark:bg-dark--theme-light py-1 h-9',
+	buttonClassName = 'min-w-[100px]',
 	showModal = true,
 	openModal
 }: ExportMenuProps) {
@@ -72,8 +73,8 @@ export function ExportMenu({
 		<DropdownMenu>
 			<DropdownMenuTrigger asChild>
 				<Button type="button" className={buttonClassName} variant="outline">
-					<span className="text-sm">{t('common.EXPORT')}</span>
-					<ChevronDown size={15} />
+					<span>{t('common.EXPORT')}</span>
+					<ChevronDown className="text-muted-foreground" />
 				</Button>
 			</DropdownMenuTrigger>
 			<DropdownMenuContent className="w-[100px]" align="center">
@@ -108,9 +109,9 @@ export function ExportMenu({
 						if (!showModal && onCSVExport) onCSVExport();
 					}}
 					disabled={csvDisabled}
-					className={`cursor-pointer ${csvDisabled ? 'opacity-50 cursor-not-allowed' : ''}`}
+					className={cn('cursor-pointer', csvDisabled && 'opacity-50 cursor-not-allowed')}
 				>
-					<span className="text-sm">CSV</span>
+					<span>CSV</span>
 				</DropdownMenuItem>
 			</DropdownMenuContent>
 		</DropdownMenu>

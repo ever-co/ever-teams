@@ -1,11 +1,23 @@
 'use client';
 
 import { Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis, CartesianGrid, ReferenceLine } from 'recharts';
+import { SegmentedControl } from '@/core/components/common/segmented-control';
 import { Button } from '@/core/components/duplicated-components/_button';
 import { useState, useMemo } from 'react';
+import { useTranslations } from 'next-intl';
 import { Spinner } from '@/core/components/common/spinner';
 import { format, startOfWeek, startOfMonth } from 'date-fns';
 import { ITimeLogReportDailyChart } from '@/core/types/interfaces/activity/activity-report';
+import { cn } from '@/core/lib/helpers';
+
+const SERIES_COLORS = {
+	tracked: '#0284C7',
+	manual: '#DC2626',
+	idle: '#EAB308',
+	resumed: '#22C55E'
+} as const;
+
+const LEGEND_CHIP_CLASS = 'gap-1.5 rounded-full px-3 font-normal text-foreground';
 
 type GroupBy = 'daily' | 'weekly' | 'monthly';
 
@@ -22,11 +34,11 @@ interface TooltipProps {
 const CustomTooltip = ({ active, payload, label }: TooltipProps) => {
 	if (active && payload && payload.length) {
 		return (
-			<div className="p-3 bg-[#ffff] dark:bg-muted rounded-sm border border-gray-200 dark:border-gray-700 shadow-lg">
-				<p className="mb-1 text-xs text-gray-400">{label}</p>
-				{payload.map((item, index) => (
-					<p key={index} className="flex gap-2 items-center text-xs" style={{ color: item.color }}>
-						<span className="w-2 h-2 rounded-full" style={{ backgroundColor: item.color }}></span>
+			<div className="rounded-lg bg-popover px-3 py-2 text-popover-foreground hairline-ring ring-border shadow-md shadow-black/6.5">
+				<p className="mb-1 text-xs text-muted-foreground">{label}</p>
+				{payload.map((item) => (
+					<p key={item.name} className="flex gap-2 items-center text-xs tabular-nums">
+						<span className="size-2 rounded-full" style={{ backgroundColor: item.color }}></span>
 						{item.name.charAt(0).toUpperCase() + item.name.slice(1)}: {Math.round(item.value * 100) / 100}h
 					</p>
 				))}
@@ -42,6 +54,7 @@ interface TeamStatsChartProps {
 }
 
 export function TeamStatsChart({ rapportChartActivity, isLoading }: TeamStatsChartProps) {
+	const t = useTranslations();
 	const [visibleLines, setVisibleLines] = useState({
 		tracked: true,
 		manual: true,
@@ -57,25 +70,6 @@ export function TeamStatsChart({ rapportChartActivity, isLoading }: TeamStatsCha
 		}));
 	};
 
-	const baseButtonClass = 'gap-[10px] px-3 py-1.5 w-[87px] h-[25px] rounded-[16px] text-xs font-normal';
-	const buttonColors = {
-		tracked: {
-			base: 'bg-[#0088FE]',
-			hover: 'hover:bg-[#0088FE]/80'
-		},
-		manual: {
-			base: 'bg-[#DC2626]',
-			hover: 'hover:bg-[#DC2626]/80'
-		},
-		idle: {
-			base: 'bg-[#EAB308]',
-			hover: 'hover:bg-[#EAB308]/80'
-		},
-		resumed: {
-			base: 'bg-[#22C55E]',
-			hover: 'hover:bg-[#22C55E]/80'
-		}
-	};
 	const groupData = (data: ITimeLogReportDailyChart[], grouping: GroupBy) => {
 		if (grouping === 'daily') return data;
 
@@ -134,39 +128,25 @@ export function TeamStatsChart({ rapportChartActivity, isLoading }: TeamStatsCha
 
 	if (isLoading) {
 		return (
-			<div className="flex justify-center items-center h-[300px] dark:bg-dark--theme-light">
+			<div className="flex justify-center items-center h-[300px]">
 				<Spinner />
 			</div>
 		);
 	}
 
 	return (
-		<div className="flex flex-col p-4 w-full bg-white rounded-lg dark:bg-dark--theme-light">
-			<div className="flex gap-2 justify-end mb-2">
-				<Button
-					size="sm"
-					variant={groupBy === 'daily' ? 'default' : 'outline'}
-					onClick={() => setGroupBy('daily')}
-					className="px-3 h-8 text-xs"
-				>
-					Daily
-				</Button>
-				<Button
-					size="sm"
-					variant={groupBy === 'weekly' ? 'default' : 'outline'}
-					onClick={() => setGroupBy('weekly')}
-					className="px-3 h-8 text-xs"
-				>
-					Weekly
-				</Button>
-				<Button
-					size="sm"
-					variant={groupBy === 'monthly' ? 'default' : 'outline'}
-					onClick={() => setGroupBy('monthly')}
-					className="px-3 h-8 text-xs"
-				>
-					Monthly
-				</Button>
+		<div className="flex flex-col p-4 w-full">
+			<div className="mb-2 flex justify-end">
+				<SegmentedControl
+					items={[
+						{ value: 'daily', label: t('dashboard.DAILY') },
+						{ value: 'weekly', label: t('dashboard.WEEKLY') },
+						{ value: 'monthly', label: t('dashboard.MONTHLY') }
+					]}
+					value={groupBy}
+					onValueChange={setGroupBy}
+					ariaLabel={t('common.GROUP_BY')}
+				/>
 			</div>
 			<div className="w-full  h-[300px]">
 				<ResponsiveContainer width="100%" height="85%">
@@ -218,40 +198,40 @@ export function TeamStatsChart({ rapportChartActivity, isLoading }: TeamStatsCha
 							<Line
 								type="monotone"
 								dataKey="tracked"
-								stroke="#0284C7"
+								stroke={SERIES_COLORS.tracked}
 								strokeWidth={1.5}
-								dot={{ r: 1.5, fill: '#0284C7' }}
-								activeDot={{ r: 2.5, fill: '#0284C7' }}
+								dot={{ r: 1.5, fill: SERIES_COLORS.tracked }}
+								activeDot={{ r: 2.5, fill: SERIES_COLORS.tracked }}
 							/>
 						)}
 						{visibleLines.manual && (
 							<Line
 								type="monotone"
 								dataKey="manual"
-								stroke="#DC2626"
+								stroke={SERIES_COLORS.manual}
 								strokeWidth={1.5}
-								dot={{ r: 1.5, fill: '#DC2626' }}
-								activeDot={{ r: 2.5, fill: '#DC2626' }}
+								dot={{ r: 1.5, fill: SERIES_COLORS.manual }}
+								activeDot={{ r: 2.5, fill: SERIES_COLORS.manual }}
 							/>
 						)}
 						{visibleLines.idle && (
 							<Line
 								type="monotone"
 								dataKey="idle"
-								stroke="#EAB308"
+								stroke={SERIES_COLORS.idle}
 								strokeWidth={1.5}
-								dot={{ r: 1.5, fill: '#EAB308' }}
-								activeDot={{ r: 2.5, fill: '#EAB308' }}
+								dot={{ r: 1.5, fill: SERIES_COLORS.idle }}
+								activeDot={{ r: 2.5, fill: SERIES_COLORS.idle }}
 							/>
 						)}
 						{visibleLines.resumed && (
 							<Line
 								type="monotone"
 								dataKey="resumed"
-								stroke="#22C55E"
+								stroke={SERIES_COLORS.resumed}
 								strokeWidth={1.5}
-								dot={{ r: 1.5, fill: '#22C55E' }}
-								activeDot={{ r: 2.5, fill: '#22C55E' }}
+								dot={{ r: 1.5, fill: SERIES_COLORS.resumed }}
+								activeDot={{ r: 2.5, fill: SERIES_COLORS.resumed }}
 							/>
 						)}
 					</LineChart>
@@ -259,31 +239,55 @@ export function TeamStatsChart({ rapportChartActivity, isLoading }: TeamStatsCha
 				<div className="flex gap-2 justify-center mt-4">
 					<Button
 						size={'sm'}
-						className={`${baseButtonClass} ${buttonColors.tracked.base} ${buttonColors.tracked.hover} ${!visibleLines.tracked ? 'line-through opacity-50' : ''}`}
+						variant="outline"
+						className={cn(LEGEND_CHIP_CLASS, !visibleLines.tracked && 'line-through opacity-50')}
 						onClick={() => toggleLine('tracked')}
 					>
-						Tracked
+						<span
+							aria-hidden="true"
+							className="size-2 rounded-full"
+							style={{ backgroundColor: SERIES_COLORS.tracked }}
+						/>
+						{t('common.teamStats.TRACKED')}
 					</Button>
 					<Button
 						size={'sm'}
-						className={`${baseButtonClass} ${buttonColors.manual.base} ${buttonColors.manual.hover} ${!visibleLines.manual ? 'line-through opacity-50' : ''}`}
+						variant="outline"
+						className={cn(LEGEND_CHIP_CLASS, !visibleLines.manual && 'line-through opacity-50')}
 						onClick={() => toggleLine('manual')}
 					>
-						Manual
+						<span
+							aria-hidden="true"
+							className="size-2 rounded-full"
+							style={{ backgroundColor: SERIES_COLORS.manual }}
+						/>
+						{t('common.teamStats.MANUAL')}
 					</Button>
 					<Button
 						size={'sm'}
-						className={`${baseButtonClass} ${buttonColors.idle.base} ${buttonColors.idle.hover} ${!visibleLines.idle ? 'line-through opacity-50' : ''}`}
+						variant="outline"
+						className={cn(LEGEND_CHIP_CLASS, !visibleLines.idle && 'line-through opacity-50')}
 						onClick={() => toggleLine('idle')}
 					>
-						Idle
+						<span
+							aria-hidden="true"
+							className="size-2 rounded-full"
+							style={{ backgroundColor: SERIES_COLORS.idle }}
+						/>
+						{t('common.teamStats.IDLE')}
 					</Button>
 					<Button
 						size={'sm'}
-						className={`${baseButtonClass} ${buttonColors.resumed.base} ${buttonColors.resumed.hover} ${!visibleLines.resumed ? 'line-through opacity-50' : ''}`}
+						variant="outline"
+						className={cn(LEGEND_CHIP_CLASS, !visibleLines.resumed && 'line-through opacity-50')}
 						onClick={() => toggleLine('resumed')}
 					>
-						Resumed
+						<span
+							aria-hidden="true"
+							className="size-2 rounded-full"
+							style={{ backgroundColor: SERIES_COLORS.resumed }}
+						/>
+						{t('common.teamStats.RESUMED')}
 					</Button>
 				</div>
 			</div>

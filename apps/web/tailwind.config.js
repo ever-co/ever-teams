@@ -87,10 +87,11 @@ module.exports = {
 				// Tailwind's `gray` is blue-tinted; on the neutral #0a0a0a shell every `dark:bg-gray-*`
 				// and `text-gray-*` read as a cold patch. Neutral keeps the same scale, without the tint.
 				gray: colors.neutral,
-				neutral: '#7E7991',
-				chetwodeBlue: '#8C7AE4',
+				// Text-only legacy names, mapped onto the tokens so the old violet greys follow both themes.
+				neutral: 'hsl(var(--muted-foreground))',
+				chetwodeBlue: 'hsl(var(--primary-ink))',
 				indianRed: '#D95F5F',
-				grey: '#868296',
+				grey: 'hsl(var(--muted-foreground))',
 				transparentWhite: 'rgba(255, 255, 255, 0.30)',
 				default: {
 					DEFAULT: 'hsl(var(--foreground))'
@@ -111,7 +112,9 @@ module.exports = {
 					light: 'oklch(58.5% 0.233 277.117)',
 					xlight: '#8E76FA',
 					mid: '#483A95',
-					foreground: 'hsl(var(--primary-foreground))'
+					foreground: 'hsl(var(--primary-foreground))',
+					// Brand-coloured text: the fill fails AA on #fafafa (4.28:1), the ink passes (6.02:1).
+					ink: 'hsl(var(--primary-ink))'
 				},
 				dark: {
 					high: 'hsl(var(--background))',
@@ -133,7 +136,20 @@ module.exports = {
 				},
 				destructive: {
 					DEFAULT: 'hsl(var(--destructive))',
-					foreground: 'hsl(var(--destructive-foreground))'
+					foreground: 'hsl(var(--destructive-foreground))',
+					ink: 'hsl(var(--destructive-ink))'
+				},
+				success: {
+					DEFAULT: 'hsl(var(--success))',
+					foreground: 'hsl(var(--success-foreground))'
+				},
+				warning: {
+					DEFAULT: 'hsl(var(--warning))',
+					foreground: 'hsl(var(--warning-foreground))'
+				},
+				info: {
+					DEFAULT: 'hsl(var(--info))',
+					foreground: 'hsl(var(--info-foreground))'
 				},
 				muted: {
 					DEFAULT: 'hsl(var(--muted))',
@@ -181,7 +197,10 @@ module.exports = {
 			borderRadius: {
 				lg: 'var(--radius)',
 				md: 'calc(var(--radius) - 2px)',
-				sm: 'calc(var(--radius) - 4px)'
+				sm: 'calc(var(--radius) - 4px)',
+				// Design-system scale: cards/popovers at 14px, dialogs/promoted bands at 18px.
+				xl: 'calc(var(--radius) + 4px)',
+				'2xl': 'calc(var(--radius) + 8px)'
 			},
 			keyframes: {
 				'accordion-down': {

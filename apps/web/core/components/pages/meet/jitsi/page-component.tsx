@@ -2,11 +2,14 @@
 
 import { useCollaborative, useQueryCall } from '@/core/hooks';
 import { withAuthentication } from '@/core/components/layouts/app/authenticator';
-import { BackdropLoader, Meta } from '@/core/components';
+import { Button, Meta } from '@/core/components';
+import { CircleAlert } from '@/core/components/icons';
 // dynamic import removed - using optimized components
 import { useRouter, usePathname, useSearchParams } from 'next/navigation';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { meetAuthService } from '@/core/services/client/api/auth/meet-auth';
+import { useTranslations } from 'next-intl';
+import { JitsiMeetPageSkeleton, MeetRoomSkeleton } from '../meet-room-skeleton';
 
 // Maximum number of retry attempts
 const MAX_RETRIES = 3;
@@ -68,6 +71,7 @@ function useMeetJwtToken(room?: string) {
 }
 
 function MeetPage() {
+	const t = useTranslations();
 	const router = useRouter();
 	const pathname = usePathname();
 	const params = useSearchParams();
@@ -112,38 +116,39 @@ function MeetPage() {
 	// Show error or retrying state
 	if (error) {
 		return (
-			<div className="flex flex-col justify-center items-center p-4">
-				<h2 className="mb-2 text-xl font-semibold text-red-600">Failed to initialize meeting</h2>
-				<p className="mb-4 text-gray-600">{error.message}</p>
-				<button
-					onClick={() => router.refresh()}
-					className="px-4 py-2 text-white bg-blue-500 rounded-sm hover:bg-blue-600"
-				>
+			<div className="flex flex-col justify-center items-center gap-1 p-4 text-center">
+				<div className="mb-2 flex size-10 items-center justify-center rounded-lg bg-destructive/10 text-destructive-ink">
+					<CircleAlert className="size-5" />
+				</div>
+				<h2 className="text-sm font-semibold text-balance text-foreground">Failed to initialize meeting</h2>
+				<p className="mb-3 text-sm text-balance text-muted-foreground">{error.message}</p>
+				<Button size="default" onClick={() => router.refresh()}>
 					Try Again
-				</button>
+				</Button>
 			</div>
 		);
 	}
 
 	if (retrying) {
-		return (
-			<div className="flex justify-center items-center p-4">
-				<BackdropLoader show />
-				<p className="ml-2">Reconnecting...</p>
-			</div>
-		);
+		return <MeetRoomSkeleton label={t('collaborate.RECONNECTING_MEETING')} />;
 	}
+
+	const hasToken = Boolean(meeting?.token);
+	const hasRoom = Boolean(meeting?.room);
+	const hasMeeting = hasToken && hasRoom;
 
 	return (
 		<>
 			<Meta title="Meet" />
+			{!hasMeeting && <JitsiMeetPageSkeleton />}
 			{/* The room the server issued the token for: the link's room scoped to the user's tenant */}
-			{meeting?.token && meeting.room && <Meet jwt={meeting.token} roomName={meeting.room} />}
+			{meeting && hasMeeting && <Meet jwt={meeting.token} roomName={meeting.room} />}
 		</>
 	);
 }
 
 export default withAuthentication(MeetPage, {
 	displayName: 'MeetPage',
-	showPageSkeleton: false
+	showPageSkeleton: false,
+	skeleton: JitsiMeetPageSkeleton
 });

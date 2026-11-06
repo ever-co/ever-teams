@@ -4,7 +4,7 @@ import { clsxm, isValidUrl } from '@/core/lib/utils';
 import clsx from 'clsx';
 import { ConfirmDropdown, SpinnerLoader } from '@/core/components';
 import ImageComponent, { ImageOverlapperProps } from '@/core/components/common/image-overlapper';
-import { CrossIcon, RefreshIcon } from 'assets/svg';
+import { RotateLeft, X } from '@/core/components/icons';
 import Link from 'next/link';
 import { useCallback } from 'react';
 import stc from 'string-to-color';
@@ -17,6 +17,9 @@ import { Avatar } from '../duplicated-components/avatar';
 import { IClassName } from '@/core/types/interfaces/common/class-name';
 import { ETaskStatusName } from '@/core/types/generics/enums/task';
 import { TTask } from '@/core/types/schemas/task/task.schema';
+import type { TTaskStatus } from '@/core/types/schemas/task/task-status.schema';
+import { useTaskStatusesQuery } from '@/core/hooks/tasks/use-task-statuses-query';
+import { findStatusByName } from '@/core/lib/utils/project-list';
 
 type Props = {
 	task?: TTask;
@@ -24,15 +27,27 @@ type Props = {
 	selected?: boolean;
 } & IClassName;
 
+/** A row action of the task picker: a quiet 24px icon button, like the other menus' row actions. */
+const ROW_ICON_ACTION =
+	'flex size-6 cursor-pointer items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-foreground/5 hover:text-foreground';
+
+/** The status row the picked name belongs to, so the task's status and its status id stay the same status. */
+function statusIdOf(statuses: TTaskStatus[], statusName: string, task: TTask | undefined) {
+	const status = findStatusByName(statuses, statusName);
+	return status?.id ?? task?.taskStatusId;
+}
+
 export function TaskItem({ task, selected, onClick, className }: Props) {
 	const { handleStatusUpdate, updateLoading } = useUpdateTask();
+	const { taskStatuses } = useTaskStatusesQuery();
 	const t = useTranslations();
 
 	const handleChange = useCallback(
 		(status: string) => {
-			handleStatusUpdate(status, 'status', task?.taskStatusId, task);
+			const statusId = statusIdOf(taskStatuses, status, task);
+			handleStatusUpdate(status, 'status', statusId, task);
 		},
-		[task, handleStatusUpdate]
+		[task, taskStatuses, handleStatusUpdate]
 	);
 
 	return (
@@ -42,31 +57,21 @@ export function TaskItem({ task, selected, onClick, className }: Props) {
 		>
 			<div
 				className={clsxm(
-					'font-normal min-w-[19rem] text-sm',
+					'font-normal min-w-[19rem] text-sm text-foreground',
 					'overflow-hidden text-ellipsis flex-1',
-					selected && ['font-medium text-primary dark:text-primary-light']
+					selected && ['font-medium text-primary-ink']
 				)}
 			>
 				<div className="inline-flex items-center mr-2">
 					<div className="mr-2">
-						<TaskIssueStatus
-							showIssueLabels={false}
-							className={clsxm(
-								' rounded-xs h-auto',
-								task?.issueType === 'Bug'
-									? '!px-[0.3312rem] py-[0.2875rem]'
-									: '!px-[0.375rem] py-[0.375rem]',
-								className
-							)}
-							task={task}
-						/>
+						<TaskIssueStatus showIssueLabels={false} className={clsxm('h-auto', className)} task={task} />
 					</div>
 					<div className="mr-2">
-						<span className="opacity-50">#{task?.taskNumber}</span>
+						<span className="text-muted-foreground tabular-nums">#{task?.taskNumber}</span>
 					</div>
 
 					<div>
-						<TaskPriorityStatus showIssueLabels={false} className="px-1 py-1" task={task} />
+						<TaskPriorityStatus showIssueLabels={false} className="p-1" task={task} />
 					</div>
 				</div>
 				{task?.title}
@@ -74,15 +79,8 @@ export function TaskItem({ task, selected, onClick, className }: Props) {
 
 			<div className="flex gap-2 items-center pr-5 pl-2">
 				<div onClick={(e) => e.stopPropagation()}>
-					{/* <TaskStatusDropdown
-						defaultValue={task?.status}
-						onValueChange={handleChange}
-						className="w-full"
-					/> */}
-
 					<TaskStatusModal
-						types={'status'}
-						title={t('common.SELECT_STATUS')}
+						types="status"
 						defaultValue={task?.status ?? undefined}
 						onValueChange={handleChange}
 					/>
@@ -97,7 +95,12 @@ export function TaskItem({ task, selected, onClick, className }: Props) {
 								confirmText={'Confirm'}
 								className="fixed z-50"
 							>
-								{updateLoading ? <SpinnerLoader size={20} /> : <CrossIcon className="z-10 w-5 h-5" />}
+								{updateLoading && <SpinnerLoader size={16} />}
+								{!updateLoading && (
+									<span className={ROW_ICON_ACTION}>
+										<X className="size-3.5" />
+									</span>
+								)}
 							</ConfirmDropdown>
 						</Tooltip>
 					)}
@@ -113,8 +116,11 @@ export function TaskItem({ task, selected, onClick, className }: Props) {
 									placement="left"
 									className="min-w-10"
 								>
-									<button onClick={() => handleChange(ETaskStatusName.TODO)}>
-										<RefreshIcon className="w-6 text-[#7E7991]" />
+									<button
+										onClick={() => handleChange(ETaskStatusName.TODO)}
+										className={ROW_ICON_ACTION}
+									>
+										<RotateLeft className="size-3.5" />
 									</button>
 								</Tooltip>
 							)}
@@ -164,8 +170,8 @@ export function TaskAvatars({ task, limit = 2 }: { task: PartialITeamTask; limit
 							className={clsx(
 								`w-[${size}px] h-[${size}px]`,
 								'flex justify-center items-center',
-								'text-xs rounded-full text-default dark:text-white',
-								'font-normal shadow-md text-md'
+								'text-xs rounded-full text-foreground',
+								'font-medium ring-2 ring-card'
 							)}
 							style={{
 								backgroundColor: `${stc(userName)}80`
@@ -188,8 +194,14 @@ export function TaskAvatars({ task, limit = 2 }: { task: PartialITeamTask; limit
 			})}
 
 			{members.length > limit && (
-				<Avatar shape="circle" className="flex items-center justify-center border size-7!" size={30}>
-					<span className="text-xs">+{members.length - limit}</span>
+				<Avatar
+					shape="circle"
+					className="flex items-center justify-center bg-foreground/5 ring-2 ring-card size-7!"
+					size={30}
+				>
+					<span className="text-xs font-medium tabular-nums text-muted-foreground">
+						+{members.length - limit}
+					</span>
 				</Avatar>
 			)}
 		</div>

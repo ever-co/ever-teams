@@ -47,22 +47,20 @@ export function DatePicker(props: DatePickerProps) {
 
 	return (
 		<Popover>
-			<PopoverTrigger>
-				<div>
-					<Button
-						type="button"
-						variant={buttonVariant || undefined}
-						className={cn(
-							'w-[240px] justify-start text-left font-normal',
-							!selected && 'text-muted-foreground',
-							buttonClassName
-						)}
-					>
-						{customInput}
-					</Button>
-				</div>
+			<PopoverTrigger asChild>
+				<Button
+					type="button"
+					variant={buttonVariant || undefined}
+					className={cn(
+						'w-[240px] justify-start text-left font-normal',
+						!selected && 'text-muted-foreground',
+						buttonClassName
+					)}
+				>
+					{customInput}
+				</Button>
 			</PopoverTrigger>
-			<PopoverContent className="w-auto p-0 border-none" align="start">
+			<PopoverContent className="w-auto p-0" align="start">
 				<Calendar
 					{...Object.fromEntries(Object.entries(calendarProps).filter(([key]) => key !== 'displayMonth'))}
 				/>

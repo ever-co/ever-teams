@@ -1,4 +1,4 @@
-import { Modal } from '@/core/components';
+import { Modal, modalFooterClass, modalPrimaryActionClass, modalSecondaryActionClass } from '@/core/components';
 import { DatePickerFilter } from '../../pages/timesheet/timesheet-filter-date';
 import { FormEvent, useCallback, useMemo, useState } from 'react';
 import { useTranslations } from 'next-intl';
@@ -7,9 +7,10 @@ import { Item, ManageOrMemberComponent, getNestedValue } from '@/core/components
 import { statusTable } from '../../timesheet/timesheet-action';
 import { ITimeLog } from '@/core/types/interfaces/timer/time-log/time-log';
 import { differenceBetweenHours, formatTimeFromDate, secondsToTime, toDate } from '@/core/lib/helpers/index';
-import { ReloadIcon } from '@radix-ui/react-icons';
 import { addMinutes, format, parseISO } from 'date-fns';
-import { Clock7 } from 'lucide-react';
+import { Clock, Spinner } from '@/core/components/icons';
+import { controlRecipe } from '@/core/components/common/input';
+import { Button } from '@/core/components/duplicated-components/_button';
 import { CustomSelect } from '../../common/multiple-select';
 import { TaskNameInfoDisplay } from '../../tasks/task-displays';
 import { toast } from 'sonner';
@@ -156,15 +157,11 @@ export function EditTaskModal({ isOpen, closeModal, timeLogData }: IEditTaskModa
 			};
 			updateTimeLog(updatePayload)
 				.then(() => {
-					toast.success(t('pages.timeLog.MODIFICATION_CONFIRMED'), {
-						description: t('pages.timeLog.MODIFY_SUCCESS')
-					});
+					toast.success(t('toasts.time.LOG_UPDATED'));
 					closeModal();
 				})
 				.catch((error) => {
-					toast.error(t('pages.timeLog.MODIFICATION_ERROR_TITLE'), {
-						description: t('pages.timeLog.MODIFY_ERROR')
-					});
+					// The failure toast comes from the global mutation fallback
 					if (!error) {
 						closeModal();
 					}
@@ -195,7 +192,7 @@ export function EditTaskModal({ isOpen, closeModal, timeLogData }: IEditTaskModa
 		[]
 	);
 
-	const classNameTitle = 'text-[#282048] dark:text-gray-500';
+	const classNameTitle = 'text-xs font-medium text-muted-foreground';
 
 	const fields = useMemo(
 		() => [
@@ -221,34 +218,43 @@ export function EditTaskModal({ isOpen, closeModal, timeLogData }: IEditTaskModa
 		return format(addMinutes(startDate, 5), 'HH:mm');
 	};
 
+	const taskNumber = timeLogData.task?.taskNumber;
+	let timeLogBreadcrumb: string | undefined;
+	if (taskNumber) {
+		timeLogBreadcrumb = `#${taskNumber}`;
+	}
+
+	let submitLabel = t('common.SAVE');
+	if (isUpdateTimeLogLoading) {
+		submitLabel = t('common.PROCESSING');
+	}
+
 	return (
 		<Modal
 			closeModal={closeModal}
 			isOpen={isOpen}
 			showCloseIcon
 			title={t('common.TIME_LOG')}
-			className="bg-light--theme-light dark:bg-dark--theme-light p-5 rounded-xl w-full md:w-40 md:min-w-[32rem] justify-start h-[auto]"
-			titleClass="font-bold flex justify-start w-full"
+			breadcrumb={timeLogBreadcrumb}
+			className="w-full md:w-40 md:min-w-[32rem] justify-start h-[auto]"
 		>
 			<form onSubmit={handleUpdateSubmit} className="flex flex-col w-full">
-				<div className="flex flex-col border-b border-b-slate-100 dark:border-b-gray-700">
+				<div className="flex flex-col gap-1 pb-3 mb-4 hairline-b border-border">
 					<TaskNameInfoDisplay
 						task={timeLogData.task}
-						className={clsxm(
-							'rounded-sm h-auto !px-[0.3312rem] py-[0.2875rem] shadow-[0px_0px_15px_0px_#e2e8f0] dark:shadow-transparent'
-						)}
+						className={clsxm('rounded-sm h-auto !px-[0.3312rem] py-[0.2875rem]')}
 						taskTitleClassName={clsxm('text-sm text-ellipsis overflow-hidden')}
 						showSize={true}
 						dash
 						taskNumberClassName="text-sm"
 					/>
 					<div className="flex gap-x-1 items-center">
-						<span className="text-gray-400">for</span>
+						<span className="text-[13px] text-muted-foreground">{t('modals.timeLog.forMember')}</span>
 						<CustomSelect
 							defaultValue={timeLogData.employee?.fullName}
 							placeholder={timeLogData.employee?.fullName}
 							valueKey="employeeId"
-							className="border border-transparent hover:border-transparent dark:hover:border-transparent"
+							className="hairline-border border-transparent hover:border-transparent dark:hover:border-transparent"
 							options={activeTeam?.members || []}
 							value={timesheetData.employeeId}
 							onChange={(value) => {
@@ -260,55 +266,57 @@ export function EditTaskModal({ isOpen, closeModal, timeLogData }: IEditTaskModa
 				</div>
 				<div className="flex flex-col gap-4 justify-center items-start">
 					<div>
-						<span className="text-[#282048] dark:text-gray-500 capitalize ">
+						<span className="text-xs font-medium capitalize text-muted-foreground">
 							{t('dailyPlan.TASK_TIME')}
 						</span>
 						<div className="flex gap-x-2 items-center">
-							<Clock7 className="text-[#30B366]" />
-							<span>
+							<Clock className="size-4 text-success-foreground" />
+							<span className="tabular-nums">
 								{String(hours).padStart(2, '0')}:{String(minutes).padStart(2, '0')} h
 							</span>
 						</div>
 					</div>
-					<div className="flex items-center w-full">
-						<div className=" w-[48%] mr-[4%]">
-							<label className="block text-[#282048] dark:text-gray-500   mb-1">
+					<div className="grid w-full grid-cols-2 gap-4">
+						<div>
+							<label className="mb-1 block text-xs font-medium text-muted-foreground">
 								{t('manualTime.START_TIME')}
-								<span className="text-[#de5505e1] ml-1">*</span>
+								<span className="ml-1 text-destructive-ink">*</span>
 							</label>
 							<input
 								defaultValue={timeRange.startTime || '09:00'}
-								aria-label="Start time"
+								aria-label={t('manualTime.START_TIME')}
 								aria-describedby="start-time-error"
 								type="time"
 								min="00:00"
 								max="23:59"
 								pattern="[0-9]{2}:[0-9]{2}"
 								onChange={(e) => updateTime('startTime', e.target.value)}
-								className="p-1 w-full font-normal rounded-md border border-slate-300 dark:border-slate-600 dark:bg-dark--theme-light"
+								className={clsxm(controlRecipe, 'h-9 px-2.5 font-normal tabular-nums')}
 								required
 							/>
 						</div>
 
-						<div className=" w-[48%]">
-							<label className="block text-[#282048] dark:text-gray-500   mb-1">
+						<div>
+							<label className="mb-1 block text-xs font-medium text-muted-foreground">
 								{t('manualTime.END_TIME')}
-								<span className="text-[#de5505e1] ml-1">*</span>
+								<span className="ml-1 text-destructive-ink">*</span>
 							</label>
 							<input
 								defaultValue={timeRange.endTime || '10:00'}
-								aria-label="End time"
+								aria-label={t('manualTime.END_TIME')}
 								aria-describedby="end-time-error"
 								type="time"
 								min={spansMidnight ? undefined : getMinEndTime()}
 								onChange={(e) => updateTime('endTime', e.target.value)}
-								className="p-1 w-full font-normal rounded-md border border-slate-300 dark:border-slate-600 dark:bg-dark--theme-light"
+								className={clsxm(controlRecipe, 'h-9 px-2.5 font-normal tabular-nums')}
 								required
 							/>
 						</div>
 					</div>
 					<div>
-						<span className="block text-[#282048] dark:text-gray-500   mr-2">{t('manualTime.DATE')}</span>
+						<span className="mr-2 mb-1 block text-xs font-medium text-muted-foreground">
+							{t('manualTime.DATE')}
+						</span>
 						<DatePickerFilter date={dateRange.date} setDate={handleFromChange} label="Oct 01 2024" />
 					</div>
 					<div className="flex flex-col w-full">
@@ -323,8 +331,8 @@ export function EditTaskModal({ isOpen, closeModal, timeLogData }: IEditTaskModa
 							itemToValue={itemToValue}
 						/>
 					</div>
-					<div className="flex flex-col items-center">
-						<label className="text-[#282048] dark:text-gray-500   mr-12 capitalize">
+					<div className="flex flex-col items-start gap-1">
+						<label className="text-xs font-medium capitalize text-muted-foreground">
 							{t('pages.timesheet.BILLABLE.BILLABLE').toLowerCase()}
 						</label>
 						<div className="flex gap-3 items-center">
@@ -351,7 +359,7 @@ export function EditTaskModal({ isOpen, closeModal, timeLogData }: IEditTaskModa
 						</div>
 					</div>
 					<div className="flex flex-col w-full">
-						<span className="text-[#282048] dark:text-gray-400">{t('common.NOTES')}</span>
+						<span className="mb-1 text-xs font-medium text-muted-foreground">{t('common.NOTES')}</span>
 						<textarea
 							value={timesheetData.notes}
 							onChange={(e) =>
@@ -360,24 +368,23 @@ export function EditTaskModal({ isOpen, closeModal, timeLogData }: IEditTaskModa
 									notes: e.target.value
 								}))
 							}
-							placeholder="Insert notes here..."
+							placeholder={t('modals.timeLog.notesPlaceholder')}
 							className={clsxm(
-								'bg-transparent focus:border-transparent focus:ring-2 focus:ring-transparent',
-								'placeholder-gray-300 placeholder:font-normal resize-none p-2 grow w-full',
-								'border border-gray-200 dark:border-slate-600 dark:bg-dark--theme-light rounded-md h-40 bg-[#FBB6500D]',
-								timesheetData.notes.trim().length === 0 && 'border-red-500'
+								controlRecipe,
+								'placeholder:font-normal resize-none p-3 grow w-full h-40',
+								timesheetData.notes.trim().length === 0 && 'border-destructive'
 							)}
 							maxLength={120}
 							minLength={0}
-							aria-label="Insert notes here"
+							aria-label={t('modals.timeLog.notesPlaceholder')}
 							required
 						/>
-						<div className="text-sm text-[#282048] dark:text-gray-500   text-right">
+						<div className="text-xs tabular-nums text-right text-muted-foreground">
 							{timesheetData.notes.length}/{120}
 						</div>
 					</div>
-					<div className="w-full border-t border-t-gray-200 dark:border-t-gray-700"></div>
-					<div className="!flex items-center justify-between gap-2 w-full">
+					<div className="w-full hairline-t border-border"></div>
+					<div className="flex w-full items-center justify-between gap-2">
 						<div className="flex flex-col justify-center items-start">
 							{canUpdateTimeSheetStatus ? (
 								<CustomSelect
@@ -388,26 +395,25 @@ export function EditTaskModal({ isOpen, closeModal, timeLogData }: IEditTaskModa
 								/>
 							) : null}
 						</div>
-						<div className="flex gap-x-2 justify-end items-center w-full">
-							<button
+						<div className={modalFooterClass}>
+							<Button
 								onClick={closeModal}
 								type="button"
-								className={clsxm(
-									'dark:text-primary-light h-[2.3rem] w-[5.5rem] border px-2 rounded-lg border-gray-300 dark:border-slate-600 font-normal dark:bg-dark--theme-light'
-								)}
+								variant="ghost"
+								size="default"
+								className={modalSecondaryActionClass}
 							>
 								{t('common.CANCEL')}
-							</button>
-							<button
+							</Button>
+							<Button
 								disabled={isUpdateTimeLogLoading}
 								type="submit"
-								className={clsxm(
-									'bg-primary dark:bg-primary-light h-[2.3rem] w-[5.5rem] justify-center font-normal flex items-center text-white px-2 rounded-lg'
-								)}
+								size="default"
+								className={modalPrimaryActionClass}
 							>
-								{isUpdateTimeLogLoading && <ReloadIcon className="mr-2 w-4 h-4 animate-spin" />}
-								{isUpdateTimeLogLoading ? 'Processing...' : t('common.SAVE')}
-							</button>
+								{isUpdateTimeLogLoading && <Spinner className="size-4 animate-spin" />}
+								{submitLabel}
+							</Button>
 						</div>
 					</div>
 				</div>
@@ -428,16 +434,17 @@ export const ToggleButton = ({ isActive, onClick, label }: ToggleButtonProps) =>
 		onClick={onClick}
 		aria-pressed={isActive}
 		className={clsxm(
-			'flex gap-x-2 items-center p-2 rounded-sm focus:outline-none focus:ring-2 focus:ring-primary/50 dark:focus:ring-primary-light/50',
-			'transition-colors duration-200 ease-in-out'
+			'flex gap-x-2 items-center p-2 text-sm rounded-md outline-none focus-visible:ring-[3px] focus-visible:ring-ring/25',
+			'transition-colors duration-200 ease-in-out hover:bg-foreground/5'
 		)}
 	>
 		<div
 			className={clsxm(
-				'w-4 h-4 rounded-full transition-colors duration-200 ease-in-out',
-				isActive ? 'bg-primary dark:bg-primary-light' : 'bg-gray-200'
+				'size-4 rounded-full transition-colors duration-200 ease-in-out',
+				isActive && 'bg-primary ring-4 ring-primary/15',
+				!isActive && 'bg-foreground/10'
 			)}
 		/>
-		<span className={clsxm('', isActive && 'text-primary dark:text-primary-light')}>{label}</span>
+		<span className={clsxm('text-foreground', isActive && 'font-medium text-primary-ink')}>{label}</span>
 	</button>
 );

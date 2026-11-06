@@ -1,43 +1,52 @@
 import StatusDropdown from '@/core/components/tasks/status-dropdown';
+import { Button } from '@/core/components';
+import { clsxm } from '@/core/lib/utils';
 import { useTranslations } from 'next-intl';
 import { Dispatch, SetStateAction } from 'react';
 
 export type IProfileTabs = 'worked' | 'assigned' | 'unassigned';
 
+const TAB_CLASS_NAME =
+	'relative cursor-pointer whitespace-nowrap pb-3 pt-2 text-sm font-medium text-foreground/55 transition-colors hover:text-foreground/80';
+
+const ACTIVE_TAB_CLASS_NAME = 'text-primary-ink hover:text-primary-ink';
+
+const TAB_INDICATOR_CLASS_NAME = 'pointer-events-none absolute inset-x-0 bottom-0 h-0.75 rounded-t-full bg-primary';
+
 export function ProfileTabs({ tab, setTab }: { tab: IProfileTabs; setTab: Dispatch<SetStateAction<IProfileTabs>> }) {
 	const t = useTranslations();
 	return (
-		<div className="my-[41px] text-[18px] text-[#ACB3BB] font-light flex justify-between items-center w-full">
-			<div className="flex">
+		<div className="my-10 flex w-full items-end justify-between hairline-b border-border">
+			<div className="flex gap-6">
 				<div
-					className={`mr-10 ${tab === 'worked' && 'font-medium'} cursor-pointer`}
+					className={clsxm(TAB_CLASS_NAME, tab === 'worked' && ACTIVE_TAB_CLASS_NAME)}
 					onClick={() => setTab('worked')}
 				>
 					{t('task.taskLabel.WORK_LABEL')}
-					{tab === 'worked' && <div className="w-[65px] h-[2px] bg-[#ACB3BB]" />}
+					{tab === 'worked' && <div className={TAB_INDICATOR_CLASS_NAME} />}
 				</div>
 				<div
-					className={`mr-10 ${tab === 'assigned' && 'font-medium'} cursor-pointer`}
+					className={clsxm(TAB_CLASS_NAME, tab === 'assigned' && ACTIVE_TAB_CLASS_NAME)}
 					onClick={() => setTab('assigned')}
 				>
 					{t('task.taskLabel.TASK_ASSIGNED')}
-					{tab === 'assigned' && <div className="w-[78px] h-[2px] bg-[#ACB3BB]" />}
+					{tab === 'assigned' && <div className={TAB_INDICATOR_CLASS_NAME} />}
 				</div>
 				<div
-					className={`mr-10 ${tab === 'unassigned' && 'font-medium'} cursor-pointer`}
+					className={clsxm(TAB_CLASS_NAME, tab === 'unassigned' && ACTIVE_TAB_CLASS_NAME)}
 					onClick={() => setTab('unassigned')}
 				>
 					{t('task.taskLabel.TASK_UNASSIGNED')}
-					{tab === 'unassigned' && <div className="w-[98px] h-[2px] bg-[#ACB3BB]" />}
+					{tab === 'unassigned' && <div className={TAB_INDICATOR_CLASS_NAME} />}
 				</div>
 			</div>
-			<div className="flex items-center">
-				<div className="relative z-10 h-full mr-4">
+			<div className="flex items-center gap-4 pb-2">
+				<div className="relative z-10 h-full">
 					<StatusDropdown />
 				</div>
-				<button className="rounded-[7px] hover:bg-primary/80 dark:hover:bg-card/80 w-[140px] text-md h-[36px] bg-primary text-white dark:bg-card dark:text-[#ACB3BB] dark:border-white dark:hover:text-white">
+				<Button size="default" className="w-[140px]">
 					{t('task.taskLabel.BUTTON_LABEL')}
-				</button>
+				</Button>
 			</div>
 		</div>
 	);

@@ -16,10 +16,15 @@ export function serverFetch<T>({
 	init?: RequestInit;
 	tenantId?: string;
 }) {
+	// A multipart body goes as is: fetch writes its Content-Type with the boundary it chose.
+	const isMultipart = body instanceof FormData;
 	const headers: HeadersInit = {
-		'Content-Type': 'application/json',
 		Accept: 'application/json'
 	};
+
+	if (!isMultipart) {
+		headers['Content-Type'] = 'application/json';
+	}
 
 	if (bearer_token) {
 		headers['authorization'] = `Bearer ${bearer_token}`;
@@ -29,8 +34,10 @@ export function serverFetch<T>({
 		headers['tenant-id'] = tenantId;
 	}
 
-	const datas: { body?: string } = {};
-	if (body) {
+	const datas: { body?: BodyInit } = {};
+	if (isMultipart) {
+		datas['body'] = body;
+	} else if (body) {
 		datas['body'] = JSON.stringify(body);
 	}
 

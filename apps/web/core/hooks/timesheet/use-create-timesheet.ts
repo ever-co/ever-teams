@@ -1,11 +1,12 @@
 'use client';
 
 import { useCallback } from 'react';
-import { useMutation } from '@tanstack/react-query';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 import axios from 'axios';
 import { timeLogService } from '@/core/services/client/api/timesheets/time-log.service';
 import { IUpdateTimesheetRequest } from '@/core/types/interfaces/timesheet/timesheet';
 import { useAuthenticateUser } from '../auth';
+import { queryKeys } from '@/core/query/keys';
 import { useTimesheetInvalidation } from './use-timesheet-invalidation';
 
 /**
@@ -15,6 +16,9 @@ import { useTimesheetInvalidation } from './use-timesheet-invalidation';
 export function useCreateTimesheet() {
 	const { user } = useAuthenticateUser();
 	const { invalidateTimesheetData } = useTimesheetInvalidation();
+	const queryClient = useQueryClient();
+	// The dashboards read the same time logs through the activity reports, which stay fresh for 10 minutes.
+	const invalidateDashboardFigures = () => queryClient.invalidateQueries({ queryKey: queryKeys.activities.all });
 
 	const createTimesheetMutation = useMutation({
 		mutationFn: async (timesheetParams: IUpdateTimesheetRequest) => {
@@ -22,6 +26,7 @@ export function useCreateTimesheet() {
 		},
 		onSuccess: () => {
 			invalidateTimesheetData();
+			invalidateDashboardFigures();
 		}
 	});
 
@@ -55,4 +60,3 @@ export function useCreateTimesheet() {
 		loadingCreateTimesheet: createTimesheetMutation.isPending
 	};
 }
-

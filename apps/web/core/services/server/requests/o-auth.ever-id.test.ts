@@ -661,6 +661,13 @@ describe('GauzyAdapter for Ever ID', () => {
 	});
 });
 
+/** A non-2xx Gauzy answer as serverFetch rejects it: a handled rejected promise of the body. */
+function gauzyRefusal(body: unknown): Promise<never> {
+	const inner = Promise.reject(body);
+	inner.catch(() => undefined);
+	return Promise.reject(inner);
+}
+
 describe('the other providers keep their path', () => {
 	it('signs a Google account in through the social sign-in with its access token', async () => {
 		mockSocialSignin.mockResolvedValue({
@@ -689,6 +696,116 @@ describe('the other providers keep their path', () => {
 		expect(mockSocialSignin).toHaveBeenCalledWith('google', 'ya29.google-token');
 		expect(mockSignWithEverId).not.toHaveBeenCalled();
 		expect(token.authCookie).toEqual(expect.objectContaining({ access_token: 'gauzy-access', teamId: 'team-1' }));
+	});
+
+	it('stops a GitHub sign-in on its own page, before any account is made, when the address only has unconfirmed accounts', async () => {
+		mockSocialSignin.mockImplementation(() =>
+			gauzyRefusal({
+				statusCode: 401,
+				message: 'Confirm the email address of your account before signing in with this provider.',
+				error: 'Unauthorized'
+			})
+		);
+		const { config } = await loadAuth({}, new Request('https://teams.example.test/api/auth/callback/github'));
+		const account = { provider: 'github', type: 'oauth', providerAccountId: 'gh-1', access_token: 'gho_token' };
+
+		const answer = await config.callbacks.signIn({ account, profile: {} });
+
+		expect(answer).toBe('/auth/error?error=ProviderAccountUnconfirmed');
+		expect(mockSigninWorkspace).not.toHaveBeenCalled();
+	});
+
+	it('stops a Google sign-in for an account Gauzy signed in that has no workspace yet', async () => {
+		mockSocialSignin.mockResolvedValue({
+			data: { confirmed_email: 'person@example.test', workspaces: [{ token: 'w', current_teams: [] }] }
+		});
+		mockSigninWorkspace.mockResolvedValue({ token: 'gauzy-access', user: { id: 'u1', tenantId: '' } });
+		// Gauzy's tenant guard refuses the organizations read of an account without a tenant
+		mockUserOrganizations.mockRejectedValue({ statusCode: 403, message: 'Forbidden resource' });
+		const { config } = await loadAuth({}, new Request('https://teams.example.test/api/auth/callback/google'));
+		const account = { provider: 'google', type: 'oauth', providerAccountId: 'g-4', access_token: 'ya29.bare' };
+
+		const answer = await config.callbacks.signIn({ account, profile: {} });
+
+		expect(answer).toBe('/auth/error?error=ProviderAccountNotSetUp');
+		expect(mockUserOrganizations).not.toHaveBeenCalled();
+		expect(mockRegisterUser).not.toHaveBeenCalled();
+	});
+
+	it('stops a Google sign-in for an account in a tenant that has no organization yet', async () => {
+		mockSocialSignin.mockResolvedValue({
+			data: { confirmed_email: 'person@example.test', workspaces: [{ token: 'w', current_teams: [] }] }
+		});
+		mockSigninWorkspace.mockResolvedValue({ token: 'gauzy-access', user: { id: 'u1', tenantId: 't1' } });
+		mockUserOrganizations.mockResolvedValue({ data: { items: [] } });
+		const { config } = await loadAuth({}, new Request('https://teams.example.test/api/auth/callback/google'));
+		const account = { provider: 'google', type: 'oauth', providerAccountId: 'g-8', access_token: 'ya29.empty' };
+
+		expect(await config.callbacks.signIn({ account, profile: {} })).toBe('/auth/error?error=ProviderAccountNotSetUp');
+	});
+
+	it('stops a sign-in Gauzy recognized but that lists no workspace at all', async () => {
+		mockSocialSignin.mockResolvedValue({ data: { confirmed_email: 'person@example.test', workspaces: [] } });
+		const { config } = await loadAuth({}, new Request('https://teams.example.test/api/auth/callback/google'));
+		const account = { provider: 'google', type: 'oauth', providerAccountId: 'g-5', access_token: 'ya29.none' };
+
+		expect(await config.callbacks.signIn({ account, profile: {} })).toBe(
+			'/auth/error?error=ProviderAccountNotSetUp'
+		);
+		expect(mockSigninWorkspace).not.toHaveBeenCalled();
+	});
+
+	it('stops on the generic error page when the workspace sign-in fails after Gauzy recognized the account', async () => {
+		mockSocialSignin.mockResolvedValue({
+			data: { confirmed_email: 'person@example.test', workspaces: [{ token: 'w', current_teams: [] }] }
+		});
+		mockSigninWorkspace.mockRejectedValue(new TypeError('fetch failed'));
+		const { config } = await loadAuth({}, new Request('https://teams.example.test/api/auth/callback/google'));
+		const account = { provider: 'google', type: 'oauth', providerAccountId: 'g-6', access_token: 'ya29.flaky' };
+
+		expect(await config.callbacks.signIn({ account, profile: {} })).toBe('/auth/error?error=Configuration');
+		expect(mockRegisterUser).not.toHaveBeenCalled();
+	});
+
+	it('lets a provider sign-up go on for an address Gauzy does not know', async () => {
+		mockSocialSignin.mockImplementation(() => gauzyRefusal({ statusCode: 401, message: 'Unauthorized' }));
+		const { config } = await loadAuth({}, new Request('https://teams.example.test/api/auth/callback/google'));
+		const account = { provider: 'google', type: 'oauth', providerAccountId: 'g-2', access_token: 'ya29.new' };
+
+		expect(await config.callbacks.signIn({ account, profile: {} })).toBe(true);
+	});
+
+	it('stops on the generic error page when Gauzy cannot be reached', async () => {
+		mockSocialSignin.mockRejectedValue(new TypeError('fetch failed'));
+		const { config } = await loadAuth({}, new Request('https://teams.example.test/api/auth/callback/google'));
+		const account = { provider: 'google', type: 'oauth', providerAccountId: 'g-3', access_token: 'ya29.down' };
+
+		expect(await config.callbacks.signIn({ account, profile: {} })).toBe('/auth/error?error=Configuration');
+		expect(mockRegisterUser).not.toHaveBeenCalled();
+	});
+
+	it('stops on the generic error page, before any account is made, when Gauzy limits the provider sign-in', async () => {
+		mockSocialSignin.mockImplementation(() =>
+			gauzyRefusal({ statusCode: 429, message: 'ThrottlerException: Too Many Requests' })
+		);
+		const { config } = await loadAuth({}, new Request('https://teams.example.test/api/auth/callback/google'));
+		const account = { provider: 'google', type: 'oauth', providerAccountId: 'g-7', access_token: 'ya29.busy' };
+
+		expect(await config.callbacks.signIn({ account, profile: {} })).toBe('/auth/error?error=Configuration');
+		expect(mockRegisterUser).not.toHaveBeenCalled();
+	});
+
+	it('does not read the confirmation message of an answer that is not a 401 as an unconfirmed account', async () => {
+		mockSocialSignin.mockImplementation(() =>
+			gauzyRefusal({
+				statusCode: 403,
+				message: 'Confirm the email address of your account before signing in with this provider.'
+			})
+		);
+		const { config } = await loadAuth({}, new Request('https://teams.example.test/api/auth/callback/github'));
+		const account = { provider: 'github', type: 'oauth', providerAccountId: 'gh-4', access_token: 'gho_other' };
+
+		expect(await config.callbacks.signIn({ account, profile: {} })).toBe('/auth/error?error=Configuration');
 	});
 
 	it('still looks a social account up and links it through the API', async () => {

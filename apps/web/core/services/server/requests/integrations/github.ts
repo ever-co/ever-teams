@@ -48,8 +48,9 @@ export function getGithubIntegrationMetadataRequest(
 		tenantId,
 		organizationId
 	});
+	const encodedIntegrationId = encodeURIComponent(integrationId);
 	return serverFetch<IGithubMetadata>({
-		path: `/integration/github/${integrationId}/metadata?${query}`,
+		path: `/integration/github/${encodedIntegrationId}/metadata?${query}`,
 		method: 'GET',
 		bearer_token,
 		tenantId: tenantId
@@ -72,8 +73,9 @@ export function getGithubIntegrationRepositoriesRequest(
 		tenantId,
 		organizationId
 	});
+	const encodedIntegrationId = encodeURIComponent(integrationId);
 	return serverFetch<IGithubRepositories>({
-		path: `/integration/github/${integrationId}/repositories?${query}`,
+		path: `/integration/github/${encodedIntegrationId}/repositories?${query}`,
 		method: 'GET',
 		bearer_token,
 		tenantId: tenantId
