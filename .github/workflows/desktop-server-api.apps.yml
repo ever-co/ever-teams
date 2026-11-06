@@ -34,6 +34,24 @@ jobs:
       tag: ${{ steps.prepare.outputs.tag }}
 
     steps:
+      # In-cluster (ever-co/k8s-gitops apps/ci-builds, which sets CI_IN_CLUSTER) the arm64 job of this file starts on the push to
+      # `apps`, not after "Release Apps" has finished as on Actions: wait until Release Apps has tagged that commit, so the version
+      # picked below is that release's. Skipped on Actions, where the tag exists by the time this workflow starts.
+      - name: Wait for the Release Apps tag (in-cluster)
+        if: ${{ vars.CI_IN_CLUSTER == 'true' }}
+        shell: bash
+        env:
+          SHA: ${{ github.event.workflow_run.head_sha }}
+        run: |
+          for _ in $(seq 1 18); do
+            if git ls-remote --tags https://github.com/ever-co/ever-teams | grep -Eq "^${SHA}[[:space:]]+refs/tags/v[0-9]+[.][0-9]+[.][0-9]+(\^\{\})?$"; then
+              echo "${SHA} is tagged"
+              exit 0
+            fi
+            sleep 30
+          done
+          echo "::warning::no vX.Y.Z tag on ${SHA} after 9 min: the newest tag is used"
+
       - name: Pick the version and create its draft release
         id: prepare
         uses: actions/github-script@v7
@@ -377,7 +395,9 @@ jobs:
     # whole run in progress. Gated until an arm64 runner label exists — set repo/org var
     # RUNNER_LINUX_ARM64_8 to that label to turn this job back on (the ubicloud label stays as the
     # fallback value so nothing here needs rewriting).
-    if: ${{ !cancelled() && vars.RUNNER_LINUX_ARM64_8 != '' }}
+    # In-cluster: with the repo variable LINUX_ARM64_IN_CLUSTER=true this job runs in ever-co/k8s-gitops apps/ci-builds (an emulated
+    # arm64 container, which sets RUNNER_LINUX_ARM64_8 and CI_IN_CLUSTER for its own runs) and is skipped here. Forks: unchanged.
+    if: ${{ !cancelled() && vars.RUNNER_LINUX_ARM64_8 != '' && (vars.LINUX_ARM64_IN_CLUSTER != 'true' || vars.CI_IN_CLUSTER == 'true') }}
     runs-on: ${{ matrix.os }}
     timeout-minutes: 300
 
