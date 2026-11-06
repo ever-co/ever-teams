@@ -1,3 +1,4 @@
+# cspell:words ndots musl SERVFAIL
 # Egress audit only (see README.md): the Ever Teams web app from the image under test, with the Gauzy API
 # it pairs with and that API's database. Nothing is published to the host: everything runs on the audit's
 # sealed Docker setup, where the browser reaches the web app as `webapp` and the API as `api`.
@@ -30,6 +31,11 @@ services:
     api:
         image: ${GAUZY_API_IMAGE:?set GAUZY_API_IMAGE to the paired API image}
         pull_policy: never
+        # Compose names (`db`) are looked up as written. On a Kubernetes runner the containers inherit
+        # the pod's search domains with ndots:5: Docker's resolver answers SERVFAIL for those on the
+        # sealed network, and the API image's resolver (musl) stops at a SERVFAIL, so `db` would never
+        # resolve and the API would never start.
+        dns_opt: ['ndots:0']
         depends_on:
             db:
                 condition: service_healthy
