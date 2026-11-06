@@ -54,23 +54,26 @@ jest.mock('@tanstack/react-query', () => ({
 jest.mock('@/core/hooks/queries/user-user.query', () => ({
 	useUserQuery: () => ({ data: user })
 }));
-jest.mock('@/core/hooks/auth', () => ({
+// InitState imports each hook from its own module, not from the folder barrels
+jest.mock('@/core/hooks/auth/use-workspaces', () => ({
 	useWorkspaces: () => ({
 		currentWorkspace,
 		workspacesQuery: { isSuccess: workspaceSuccess }
 	})
 }));
-jest.mock('@/core/hooks/organizations', () => ({
+jest.mock('@/core/hooks/organizations/teams/use-organization-teams-query', () => ({
 	useOrganizationTeamsQuery: (options: unknown) => {
 		calls.teams(options);
 		return { teams, activeTeam, organizationTeamsSuccess: teamsSuccess, organizationTeamSuccess: teamSuccess };
-	},
+	}
+}));
+jest.mock('@/core/hooks/organizations/teams/use-team-tasks-query', () => ({
 	useTeamTasksQuery: (options: unknown) => {
 		calls.tasks(options);
 		return { activeTeamTask: activeTask, querySuccess: tasksSuccess };
 	}
 }));
-jest.mock('@/core/hooks/activities', () => ({
+jest.mock('@/core/hooks/activities/use-timer', () => ({
 	useTimer: (options: unknown) => {
 		calls.timer(options);
 		return {
@@ -82,8 +85,10 @@ jest.mock('@/core/hooks/activities', () => ({
 		};
 	}
 }));
-jest.mock('@/core/hooks/tasks', () => ({
-	useAutoAssignTask: (options: unknown) => calls.autoAssign(options),
+jest.mock('@/core/hooks/tasks/use-auto-assign-task', () => ({
+	useAutoAssignTask: (options: unknown) => calls.autoAssign(options)
+}));
+jest.mock('@/core/hooks/tasks/use-task-statistics', () => ({
 	useTaskStatistics: (_seconds: number, options: unknown) => calls.statistics(options)
 }));
 jest.mock('@/core/hooks/activities/use-timer-polling', () => ({

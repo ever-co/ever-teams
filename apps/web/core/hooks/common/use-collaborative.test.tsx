@@ -18,16 +18,19 @@ const mockPush = jest.fn();
 jest.mock('next/navigation', () => ({ useRouter: () => ({ push: mockPush }) }));
 jest.mock('nanoid', () => ({ nanoid: () => 'room0123456789a' }));
 jest.mock('jotai', () => ({
-	useAtomValue: () => ({ name: 'Core Team' }),
+	// The active team's name (activeTeamNameState)
+	useAtomValue: () => 'Core Team',
 	useAtom: () => [[], jest.fn()]
 }));
 jest.mock('@/core/stores', () => ({
-	activeTeamState: 'activeTeamState',
+	activeTeamNameState: 'activeTeamNameState',
 	collaborativeMembersState: 'collaborativeMembersState',
 	collaborativeSelectState: 'collaborativeSelectState'
 }));
 jest.mock('@/core/constants/config/constants', () => ({ BOARD_APP_DOMAIN: { value: '' } }));
 jest.mock('@/core/hooks/queries/user-user.query', () => ({ useUserQuery: () => ({ data: undefined }) }));
+// The LiveKit room preload (a chunk download in the app) is not what these tests are about
+jest.mock('@/core/components/optimized-components/meet', () => ({ preloadLiveKit: jest.fn() }));
 
 /** Clicks "meet" and returns the path the hook navigated to. */
 function meetPath(): string {

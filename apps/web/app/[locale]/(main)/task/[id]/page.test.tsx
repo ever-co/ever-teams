@@ -25,8 +25,8 @@ const KEEP_OPEN_MS = 20 * ROUND_TRIP_MS;
 const mockGetTaskById = jest.fn();
 const mockRouter = { replace: jest.fn() };
 const mockParams = { id: TASK_ID };
-
-type TEmptyStateProps = { title: string; message: string; actionLabel?: string; onAction?: () => void };
+/** What the page shows for a task that does not exist (TaskNotFoundState), with the key-echoing t below. */
+const TASK_NOT_FOUND = 'pages.taskDetails.TASK_NOT_FOUND';
 
 jest.mock('@/core/services/client/api', () => ({
 	taskService: {
@@ -68,30 +68,27 @@ jest.mock('next-intl', () => {
 	return { useTranslations: () => t };
 });
 
+// The page's Button: a child element when asChild (the home link), else a button that answers its click (Try again)
 jest.mock('@/core/components', () => ({
-	Button: ({ children }: React.PropsWithChildren) => <button>{children}</button>,
-	Container: ({ children }: React.PropsWithChildren) => <div>{children}</div>
+	Button: ({ children, asChild, onClick }: React.PropsWithChildren<{ asChild?: boolean; onClick?: () => void }>) =>
+		asChild ? <>{children}</> : <button onClick={onClick}>{children}</button>
 }));
+jest.mock('@/core/components/icons', () => ({ Task: () => null, FileSearch: () => null }));
 jest.mock('@/core/components/layouts/default-layout', () => ({
 	PageLayout: ({ children }: React.PropsWithChildren) => <main>{children}</main>
 }));
-jest.mock('@/core/components/optimized-components', () => ({
-	LazyTaskDetailsComponent: ({ task }: { task: TTask }) => <h1>{task.title}</h1>
+// The loaded task's page: its title stands for the band and the body (TaskDetailPageBand, TaskDetailPageBody)
+jest.mock('@/core/components/pages/task/task-detail-page-band', () => ({ TaskDetailPageBand: () => null }));
+jest.mock('@/core/components/pages/task/task-detail-page-body', () => ({
+	TaskDetailPageBody: ({ task }: { task: TTask }) => <h1>{task.title}</h1>
 }));
-jest.mock('@/core/components/common/empty-state', () => ({
-	AnimatedEmptyState: ({ title, message, actionLabel, onAction }: TEmptyStateProps) => (
-		<section>
-			<h2>{title}</h2>
-			<p>{message}</p>
-			<button onClick={onAction}>{actionLabel}</button>
-		</section>
-	)
-}));
+jest.mock('@/core/components/tasks/detail/task-picker-menu', () => ({ taskNumberOf: () => null }));
 jest.mock('@/core/components/duplicated-components/breadcrumb', () => ({ Breadcrumb: () => null }));
-jest.mock('@/core/components/common/skeleton/task-details-page-skeleton', () => ({
-	TaskDetailsPageSkeleton: () => null
+jest.mock('@/core/components/pages/task/task-page-skeleton', () => ({ TaskPageSkeleton: () => null }));
+jest.mock('@/core/components/tasks/detail/task-detail-skeleton', () => ({
+	TaskDetailBandSkeleton: () => null,
+	TaskDetailPageSkeleton: () => null
 }));
-jest.mock('assets/svg', () => ({ ArrowLeftIcon: () => null }), { virtual: true });
 jest.mock('next/link', () => ({
 	__esModule: true,
 	default: ({ children, href }: React.PropsWithChildren<{ href: string }>) => <a href={href}>{children}</a>
@@ -163,7 +160,7 @@ describe('task page load failures', () => {
 		await screen.findByText('pages.error.HEADING_TITLE');
 		await keepPageOpen();
 		expect(mockGetTaskById).toHaveBeenCalledTimes(1);
-		expect(screen.queryByText('Task not found')).toBeNull();
+		expect(screen.queryByText(TASK_NOT_FOUND)).toBeNull();
 
 		mockGetTaskById.mockResolvedValue({ id: TASK_ID, title: 'Fixture task' });
 		const tryAgain = screen.getByText('pages.unauthorized.TRY_AGAIN');
@@ -197,10 +194,10 @@ describe('task page load failures', () => {
 
 		renderTaskPage();
 
-		await screen.findByText('Task not found');
+		await screen.findByText(TASK_NOT_FOUND);
 		await keepPageOpen();
 		expect(mockGetTaskById).toHaveBeenCalledTimes(1);
-		expect(screen.getByText('Task not found')).toBeTruthy();
+		expect(screen.getByText(TASK_NOT_FOUND)).toBeTruthy();
 		expect(screen.queryByText('pages.error.HEADING_TITLE')).toBeNull();
 	});
 
@@ -219,7 +216,7 @@ describe('task page load failures', () => {
 	// getTaskById puts the team list copy of the task in the store before asking for the full one
 	it.each([
 		['a failed load as an error', apiUnreachable(), 'pages.error.HEADING_TITLE'],
-		['a deleted task as Task not found', apiAnswered(404), 'Task not found']
+		['a deleted task as Task not found', apiAnswered(404), TASK_NOT_FOUND]
 	])('shows %s when the team list still holds the task', async (_case, error, shownText) => {
 		const store = createStore();
 		const teamListCopy = { id: TASK_ID, title: 'Team list copy' } as TTask;

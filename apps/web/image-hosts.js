@@ -18,7 +18,6 @@ const DEFAULT_IMAGE_HOSTS = [
 	'gauzy.sfo2.digitaloceanspaces.com',
 	'cdn-icons-png.flaticon.com',
 	'api.gauzy.co',
-	'dummyimage.com',
 	'apida.gauzy.co',
 	'apicw.gauzy.co',
 	'apicivo.gauzy.co',
