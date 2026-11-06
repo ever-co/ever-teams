@@ -17,6 +17,8 @@ export interface DailyReportRow {
 	/** Seconds of activity, so averages can be weighted by time: `seconds * activity% / 100`. */
 	activeSeconds: number;
 	tasks: DailyReportTask[];
+	/** Time a team member logged without a team, which a team report gathers in its own "No team" group. */
+	isWithoutTeam?: boolean;
 }
 
 export interface DailyReportTask {
@@ -26,6 +28,19 @@ export interface DailyReportTask {
 }
 
 const NO_PROJECT_KEY = 'no-project';
+
+const NO_TEAM_KEY = 'no-team';
+
+type EmployeeLog = ITimeLogGroupedDailyReport['logs'][number]['employeeLogs'][number];
+
+type TaskLog = EmployeeLog['tasks'][number];
+
+/** The part of a member's project row that was logged with a team, or without one. */
+interface EmployeeLogPart {
+	tasks: TaskLog[];
+	seconds: number;
+	isWithoutTeam: boolean;
+}
 
 function numberOrZero(value: unknown) {
 	const parsed = Number(value);
@@ -63,42 +78,127 @@ function taskKeyOf(task: ITimeLogGroupedDailyReport['logs'][number]['employeeLog
 	return `description:${taskTitleOf(task)}`;
 }
 
-export function flattenDailyReport(report: ReadonlyArray<ITimeLogGroupedDailyReport>): DailyReportRow[] {
+// Gauzy states a task row's team only for a report that counts the time without a team, null being that time
+function isWithoutTeamTask(task: TaskLog) {
+	return task?.organizationTeamId === null;
+}
+
+function isTeamTask(task: TaskLog) {
+	return !isWithoutTeamTask(task);
+}
+
+function secondsOfTasks(tasks: ReadonlyArray<TaskLog>) {
+	let seconds = 0;
+	for (const task of tasks) {
+		seconds += numberOrZero(task?.duration);
+	}
+	return seconds;
+}
+
+/** A member's project row as Gauzy sends it, or split in two when part of its time was logged without a team. */
+function partsOf(employeeLog: EmployeeLog): EmployeeLogPart[] {
+	const tasks = employeeLog.tasks ?? [];
+	const tasksWithoutTeam = tasks.filter(isWithoutTeamTask);
+	if (tasksWithoutTeam.length === 0) {
+		return [{ tasks, seconds: numberOrZero(employeeLog.sum), isWithoutTeam: false }];
+	}
+	const withoutTeamPart = { tasks: tasksWithoutTeam, seconds: secondsOfTasks(tasksWithoutTeam), isWithoutTeam: true };
+	const teamTasks = tasks.filter(isTeamTask);
+	if (teamTasks.length === 0) {
+		return [withoutTeamPart];
+	}
+	const teamPart = { tasks: teamTasks, seconds: secondsOfTasks(teamTasks), isWithoutTeam: false };
+	return [teamPart, withoutTeamPart];
+}
+
+function reportTaskOf(task: TaskLog): DailyReportTask {
+	return {
+		key: taskKeyOf(task),
+		title: taskTitleOf(task),
+		seconds: numberOrZero(task?.duration)
+	};
+}
+
+type ProjectLog = ITimeLogGroupedDailyReport['logs'][number];
+
+interface RowContext {
+	dateKey: string;
+	project: ProjectLog['project'];
+	employeeLog: EmployeeLog;
+	employeeId: string;
+	withoutTeamLabel: string | null;
+}
+
+/** Time without a team is listed apart from the projects, under its own name: its project is not this team's. */
+function projectFieldsOf(context: RowContext, part: EmployeeLogPart) {
+	if (part.isWithoutTeam) {
+		return { projectId: null, projectName: context.withoutTeamLabel, projectImageUrl: null, projectColor: null };
+	}
+	const project = context.project;
+	return {
+		projectId: project?.id ?? null,
+		projectName: project?.name ?? null,
+		projectImageUrl: project?.imageUrl ?? null,
+		projectColor: project?.color ?? null
+	};
+}
+
+function rowKeyOf(context: RowContext, part: EmployeeLogPart) {
+	const projectKey = context.project?.id ?? NO_PROJECT_KEY;
+	if (part.isWithoutTeam) {
+		return `${context.dateKey}:${NO_TEAM_KEY}:${projectKey}:${context.employeeId}`;
+	}
+	return `${context.dateKey}:${projectKey}:${context.employeeId}`;
+}
+
+// Rows with a team keep the shape they had before the report could count time without a team
+function withoutTeamFlagOf(part: EmployeeLogPart): Pick<DailyReportRow, 'isWithoutTeam'> {
+	if (!part.isWithoutTeam) {
+		return {};
+	}
+	return { isWithoutTeam: true };
+}
+
+function rowOf(context: RowContext, part: EmployeeLogPart): DailyReportRow {
+	const employee = context.employeeLog.employee;
+	const activity = numberOrZero(context.employeeLog.activity);
+	return {
+		key: rowKeyOf(context, part),
+		dateKey: context.dateKey,
+		employeeId: context.employeeId,
+		employeeName: employeeNameOf(employee),
+		employeeImageUrl: employee?.user?.imageUrl ?? null,
+		billRateValue: employee?.billRateValue ?? null,
+		billRateCurrency: employee?.billRateCurrency ?? null,
+		...projectFieldsOf(context, part),
+		seconds: part.seconds,
+		activeSeconds: (part.seconds * activity) / 100,
+		tasks: part.tasks.map(reportTaskOf),
+		...withoutTeamFlagOf(part)
+	};
+}
+
+/**
+ * One row per member, project and day. A team report that counts the time logged without a team (Gauzy states each
+ * task row's team then) gets that time in rows of its own, named `withoutTeamLabel`.
+ */
+export function flattenDailyReport(
+	report: ReadonlyArray<ITimeLogGroupedDailyReport>,
+	withoutTeamLabel: string | null = null
+): DailyReportRow[] {
 	const rows: DailyReportRow[] = [];
 	for (const day of report) {
 		const dateKey = String(day?.date ?? '').slice(0, 10);
 		for (const projectLog of day?.logs ?? []) {
-			const project = projectLog?.project;
-			const projectId = project?.id ?? null;
 			for (const employeeLog of projectLog?.employeeLogs ?? []) {
-				const employee = employeeLog?.employee;
-				const employeeId = employee?.id;
+				const employeeId = employeeLog?.employee?.id;
 				if (!employeeId) {
 					continue;
 				}
-				const seconds = numberOrZero(employeeLog.sum);
-				const activity = numberOrZero(employeeLog.activity);
-				const tasks = (employeeLog.tasks ?? []).map((task) => ({
-					key: taskKeyOf(task),
-					title: taskTitleOf(task),
-					seconds: numberOrZero(task?.duration)
-				}));
-				rows.push({
-					key: `${dateKey}:${projectId ?? NO_PROJECT_KEY}:${employeeId}`,
-					dateKey,
-					employeeId,
-					employeeName: employeeNameOf(employee),
-					employeeImageUrl: employee?.user?.imageUrl ?? null,
-					billRateValue: employee?.billRateValue ?? null,
-					billRateCurrency: employee?.billRateCurrency ?? null,
-					projectId,
-					projectName: project?.name ?? null,
-					projectImageUrl: project?.imageUrl ?? null,
-					projectColor: project?.color ?? null,
-					seconds,
-					activeSeconds: (seconds * activity) / 100,
-					tasks
-				});
+				const context = { dateKey, project: projectLog?.project, employeeLog, employeeId, withoutTeamLabel };
+				for (const part of partsOf(employeeLog)) {
+					rows.push(rowOf(context, part));
+				}
 			}
 		}
 	}
@@ -177,6 +277,9 @@ export function groupRowsBy(
 }
 
 export function projectKeyOf(row: DailyReportRow) {
+	if (row.isWithoutTeam) {
+		return NO_TEAM_KEY;
+	}
 	return row.projectId ?? NO_PROJECT_KEY;
 }
 

@@ -435,6 +435,7 @@
 		"SELECTED": "محدد"
 	},
 	"dashboard": {
+		"NO_TEAM_GROUP": "بدون فريق",
 		"APPS_URLS_DASHBOARD": "لوحة تحكم التطبيقات والروابط",
 		"TEAM_DASHBOARD": "لوحة تحكم الفريق",
 		"PRODUCTIVITY_BREAKDOWN": "تفصيل الإنتاجية لـ {month}",

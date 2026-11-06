@@ -475,6 +475,7 @@
 		"SELECTED": "Selezionato"
 	},
 	"dashboard": {
+		"NO_TEAM_GROUP": "Senza team",
 		"APPS_URLS_DASHBOARD": "Dashboard App e URL",
 		"TEAM_DASHBOARD": "Dashboard del Team",
 		"PRODUCTIVITY_BREAKDOWN": "Ripartizione produttività per {month}",

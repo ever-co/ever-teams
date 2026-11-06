@@ -38,11 +38,10 @@ export interface IActivityReportProject extends IBaseTenantOrg {
 /**
  * User information specific to activity report
  */
-export interface IActivityReportUser
-	extends Pick<
-		TUser,
-		'id' | 'firstName' | 'lastName' | 'email' | 'imageUrl' | 'preferredLanguage' | 'name' | 'isEmailVerified'
-	> {
+export interface IActivityReportUser extends Pick<
+	TUser,
+	'id' | 'firstName' | 'lastName' | 'email' | 'imageUrl' | 'preferredLanguage' | 'name' | 'isEmailVerified'
+> {
 	preferredComponentLayout: 'TABLE';
 }
 
@@ -175,6 +174,8 @@ export interface ITimerTaskLog {
 	description: string;
 	duration: number;
 	client: IOrganizationContact;
+	/** Stated only when the report counts the time logged without a team (`includeTimeWithoutTeam`): null is that time. */
+	organizationTeamId?: string | null;
 }
 
 export interface ITimerEmployeeLog {
@@ -205,6 +206,8 @@ export interface ITimeLogReportDailyRequest {
 		start: number;
 		end: number;
 	};
+	/** With `teamIds`, also counts the time the teams' members logged without a team. */
+	includeTimeWithoutTeam?: boolean;
 }
 
 export interface ITimeLogReportWeeklyRequest extends Pick<

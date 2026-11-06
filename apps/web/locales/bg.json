@@ -475,6 +475,7 @@
 		"SELECTED": "Избрано"
 	},
 	"dashboard": {
+		"NO_TEAM_GROUP": "Без екип",
 		"APPS_URLS_DASHBOARD": "Табло за приложения и URL адреси",
 		"TEAM_DASHBOARD": "Табло на екипа",
 		"PRODUCTIVITY_BREAKDOWN": "Разбивка на продуктивността за {month}",

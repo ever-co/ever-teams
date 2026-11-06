@@ -154,6 +154,7 @@ export interface ITimeLogRequestParams {
 		start: number;
 		end: number;
 	};
+	includeTimeWithoutTeam?: boolean;
 }
 
 // export type LogType = 'TRACKED' | 'MANUAL' | 'IDLE';
@@ -243,6 +244,10 @@ function buildTimeLogParams(params: ITimeLogRequestParams): URLSearchParams {
 			baseParams.append(`${key}[${index}]`, value);
 		});
 	});
+
+	if (params.includeTimeWithoutTeam) {
+		baseParams.append('includeTimeWithoutTeam', 'true');
+	}
 
 	return baseParams;
 }

@@ -1,7 +1,7 @@
 'use client';
 
 import { useMemo, useState } from 'react';
-import { useLocale } from 'next-intl';
+import { useLocale, useTranslations } from 'next-intl';
 import { useAuthenticateUser } from '@/core/hooks/auth';
 import { getReportMemberIds, managesEveryTeam } from '@/core/hooks/activities/use-activity-filters';
 import { useOrganizationAndTeamManagers } from '@/core/hooks/organizations/teams/use-organization-teams-managers';
@@ -117,7 +117,8 @@ function requestOf(
 		employeeIds: employeeIdsOf(filters, access, user?.employee?.id),
 		teamIds: filters.teamIds,
 		projectIds: filters.projectIds,
-		taskIds: filters.taskIds
+		taskIds: filters.taskIds,
+		includeTimeWithoutTeam: true
 	};
 }
 
@@ -200,6 +201,7 @@ function figuresFromRows(totals: ReportTotals, hasDailyReport: boolean): Counted
 }
 
 export function useTimeActivityReport() {
+	const t = useTranslations();
 	const locale = useLocale();
 	const { user, isTeamManager } = useAuthenticateUser();
 	const isManager = canManageReport(user, Boolean(isTeamManager));
@@ -220,10 +222,11 @@ export function useTimeActivityReport() {
 	const report = dailyQuery.data ?? EMPTY_REPORT;
 	const hasDailyReport = dailyQuery.data !== undefined;
 
+	const withoutTeamLabel = t('dashboard.NO_TEAM_GROUP');
 	const rows = useMemo(() => {
-		const allRows = flattenDailyReport(report);
+		const allRows = flattenDailyReport(report, withoutTeamLabel);
 		return visibleRowsOf(allRows, isManager, ownEmployeeId);
-	}, [isManager, ownEmployeeId, report]);
+	}, [isManager, ownEmployeeId, report, withoutTeamLabel]);
 
 	const totals = useMemo(() => reportTotalsOf(rows), [rows]);
 

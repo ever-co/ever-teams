@@ -24,6 +24,8 @@ export interface TimeActivityRequest {
 	teamIds: string[];
 	projectIds: string[];
 	taskIds: string[];
+	/** With `teamIds`, the daily report also counts the time the teams' members logged without a team. */
+	includeTimeWithoutTeam?: boolean;
 }
 
 const ACTIVITY_LEVEL = { start: 0, end: 100 };
@@ -58,7 +60,8 @@ async function fetchDailyReport(request: TimeActivityRequest): Promise<ITimeLogG
 		teamIds: request.teamIds,
 		projectIds: request.projectIds,
 		taskIds: request.taskIds,
-		activityLevel: ACTIVITY_LEVEL
+		activityLevel: ACTIVITY_LEVEL,
+		includeTimeWithoutTeam: request.includeTimeWithoutTeam
 	});
 	const days = response.data;
 	if (!Array.isArray(days)) {
