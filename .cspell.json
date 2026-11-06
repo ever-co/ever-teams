@@ -949,7 +949,12 @@
 		"Wijk",
 		"Généré",
 		"genere",
-		"lundi"
+		"lundi",
+		"bigdecimal",
+		"formatjs",
+		"localematcher",
+		"messageformat",
+		"serde"
 ],
 	"useGitignore": true,
 	"ignorePaths": [
