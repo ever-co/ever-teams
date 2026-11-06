@@ -14,6 +14,8 @@ import { Notice } from './notice';
 import { Mail } from '@/core/components/icons';
 import { Button as UiButton } from '@/core/components/duplicated-components/_button';
 import { useRouter } from 'next/navigation';
+import { useQueryClient } from '@tanstack/react-query';
+import { queryKeys } from '@/core/query/keys';
 
 interface UnverifiedEmailProps {
 	user?: TUser | null; // Accept user as prop for conditional rendering optimization
@@ -128,17 +130,20 @@ export function ConfirmUserModal({
 	const [code, setCode] = useState('');
 	const t = useTranslations();
 	const router = useRouter();
+	const queryClient = useQueryClient();
 
 	const handleVerifyEmail = useCallback(
 		(e: React.MouseEvent<HTMLFormElement, MouseEvent>) => {
 			e.preventDefault();
 			if (code.length < AUTH_CODE_LENGTH || !user) return;
 
-			queryCall({ code, email: user.email || '' }).finally(() => {
-				router.refresh();
-			});
+			queryCall({ code, email: user.email || '' })
+				.then(() => queryClient.invalidateQueries({ queryKey: queryKeys.users.me }))
+				.finally(() => {
+					router.refresh();
+				});
 		},
-		[code, queryCall, user]
+		[code, queryCall, queryClient, user]
 	);
 
 	return (
