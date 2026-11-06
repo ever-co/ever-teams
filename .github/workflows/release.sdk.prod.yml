@@ -24,13 +24,16 @@ jobs:
     # died with "ENOSPC: no space left on device" while extracting into the 8Gi cache
     # tmpfs. Same ENOSPC hit web.before-merge.yml on the -4 pool the same day, on a run
     # that installs straight from registry.yarnpkg.com — pool capacity, not registry.
-    runs-on: ${{ vars.RUNNER_LINUX_X64_8 || vars.RUNNER_LINUX_X64_4 || 'ubuntu-latest' }}
+    # Since 2026-11-06 the SDK publishes with npm trusted publishing (OIDC, no stored token), which npm accepts
+    # only from GitHub-hosted runners ("Self-hosted runners are not currently supported", docs.npmjs.com/trusted-publishers),
+    # so this job runs on ubuntu-latest and frees disk space first (see "Free disk space" below).
+    runs-on: ubuntu-latest
 
     permissions:
       contents: write # for changelog/version PRs
       pull-requests: write # the version bump goes to develop as a pull request
       packages: write
-      id-token: write # for trusted publishing (future use)
+      id-token: write # npm trusted publishing (OIDC): npm exchanges the job's ID token for a publish token
 
     env:
       # setup-node (with `registry-url`) writes $RUNNER_TEMP/.npmrc containing
@@ -41,7 +44,9 @@ jobs:
       # ${NODE_AUTH_TOKEN}" (chronic failure of this workflow). Export the token
       # job-wide so install/build/version/publish all resolve it — the publish
       # step already relied on it, this only widens its scope, never weakens it.
-      NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+      # With trusted publishing NPM_TOKEN may be unset: a placeholder keeps yarn's substitution working, and npm
+      # uses OIDC before any token when it publishes.
+      NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN || 'unused-oidc-trusted-publishing' }}
 
     steps:
       - name: Checkout repository
@@ -52,6 +57,15 @@ jobs:
           token: ${{ secrets.GH_BRANCH_TOKEN || secrets.GITHUB_TOKEN }}
           # Fetch full history for changesets
           fetch-depth: 0
+
+      # GitHub-hosted runners have ~14 GB free; this repo's full `yarn install` needs more (see runs-on above).
+      # Drop preinstalled toolchains this job never uses.
+      - name: Free disk space
+        run: |
+          df -h /
+          sudo rm -rf /usr/share/dotnet /usr/local/lib/android /opt/ghc /usr/local/.ghcup /opt/hostedtoolcache/CodeQL /usr/share/swift
+          sudo docker image prune --all --force > /dev/null 2>&1 || true
+          df -h /
 
       - name: Setup Node.js
         uses: actions/setup-node@v7
@@ -65,18 +79,38 @@ jobs:
           # by "Configure NPM Authentication" below. Kept for intent.
           always-auth: true
 
-      - name: Verify NPM Token
+      # Trusted publishing needs npm >= 11.5.1 (docs.npmjs.com/trusted-publishers).
+      # The installed version is compared locally (no package fetched for it); an upgrade, when needed, installs a
+      # pinned npm without lifecycle scripts.
+      - name: Ensure npm supports trusted publishing
         run: |
-          if [ -z "${{ secrets.NPM_TOKEN }}" ]; then
-            echo "❌ NPM_TOKEN secret is not set"
-            echo "Please configure a granular NPM access token in GitHub secrets"
-            exit 1
+          if ! node -e '
+            const [major, minor, patch] = process.argv[1].split(".").map(Number);
+            const ok = major > 11 || (major === 11 && (minor > 5 || (minor === 5 && patch >= 1)));
+            process.exit(ok ? 0 : 1);
+          ' "$(npm --version)"; then
+            npm install --global --ignore-scripts npm@11.21.2
           fi
-          echo "✅ NPM_TOKEN secret is configured"
+          echo "npm $(npm --version)"
+
+      - name: Verify NPM Token
+        env:
+          NPM_TOKEN_SECRET: ${{ secrets.NPM_TOKEN }}
+        run: |
+          if [ -z "$NPM_TOKEN_SECRET" ]; then
+            echo "ℹ️ NPM_TOKEN is not set: publishing uses npm trusted publishing (OIDC) only"
+          else
+            echo "✅ NPM_TOKEN is set; npm still tries trusted publishing (OIDC) first and falls back to it"
+          fi
 
       - name: Configure NPM Authentication
+        env:
+          NPM_TOKEN_SECRET: ${{ secrets.NPM_TOKEN }}
         run: |
-          echo "//registry.npmjs.org/:_authToken=${{ secrets.NPM_TOKEN }}" > ~/.npmrc
+          : > ~/.npmrc
+          if [ -n "$NPM_TOKEN_SECRET" ]; then
+            echo "//registry.npmjs.org/:_authToken=${NPM_TOKEN_SECRET}" >> ~/.npmrc
+          fi
           echo "registry=https://registry.npmjs.org/" >> ~/.npmrc
           echo "always-auth=true" >> ~/.npmrc
           echo "@ever-teams:registry=https://registry.npmjs.org/" >> ~/.npmrc
@@ -87,8 +121,9 @@ jobs:
         with:
           verdaccio-registry: ${{ vars.VERDACCIO_REGISTRY }}
           verdaccio-token: ${{ secrets.VERDACCIO_TOKEN }}
-          force-public: ${{ vars.VERDACCIO_FORCE_PUBLIC }}
-          expect-vip: ${{ vars.RUNNER_LINUX_X64_8 != '' || vars.RUNNER_LINUX_X64_4 != '' }}
+          # GitHub-hosted (see runs-on): the in-network Verdaccio VIP is unreachable, so use the public route
+          force-public: 'true'
+          expect-vip: 'false'
 
       - name: Install dependencies (Yarn)
         # The install needs no npm token, so it reads an empty user config instead of setup-node's .npmrc
@@ -395,10 +430,11 @@ jobs:
       # So the bump commit is not pushed to main. The packages are published from it below, and the bump goes to
       # develop as a pull request, reaching main through the normal develop -> stage -> main cascade. The release
       # tags that the publish step pushes point at this commit, which the PR branch keeps reachable.
-      - name: Open the version bump PR into develop
+      # The commit and its branch come before the publish (the release tags point at this commit); the pull request
+      # is opened only after a successful publish, so a failed publish never leaves a PR saying the packages shipped.
+      - name: Commit and push the version bump branch
+        id: bump
         if: steps.detect.outputs.release == 'true'
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
@@ -414,9 +450,37 @@ jobs:
           branch="ci/sdk-version-bump-${GITHUB_RUN_ID}-${GITHUB_RUN_ATTEMPT}"
           git push origin "HEAD:refs/heads/${branch}"
           versions=$(git diff --name-only HEAD~1 HEAD -- 'packages/**/package.json' | while read -r f; do node -p "const p = require('./$f'); p.name + '@' + p.version"; done | tr '\n' ' ')
-          # The ARC runners have no `gh` CLI (run 40437234620: "gh: command not found"), so the PR is opened through
-          # the REST API with Node's fetch.
-          if ! BRANCH="$branch" VERSIONS="$versions" node <<'EOF'
+          echo "branch=${branch}" >> "$GITHUB_OUTPUT"
+          echo "versions=${versions}" >> "$GITHUB_OUTPUT"
+
+      - name: Publish changed packages using Changesets
+        uses: changesets/action@v1
+        with:
+          publish: yarn publish-packages
+        env:
+          # npm publishes with trusted publishing (OIDC) first; the token, when set, is only its fallback
+          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN || 'unused-oidc-trusted-publishing' }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Report a bump branch left without a PR
+        if: failure() && steps.bump.outputs.branch != ''
+        env:
+          BRANCH: ${{ steps.bump.outputs.branch }}
+        run: |
+          echo "::error title=Publish failed::The packages were not published, so no PR was opened for ${BRANCH}. Fix the publish and re-run; the re-run pushes a branch of its own."
+
+      - name: Open the version bump PR into develop
+        if: steps.bump.outputs.branch != ''
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          BRANCH: ${{ steps.bump.outputs.branch }}
+          VERSIONS: ${{ steps.bump.outputs.versions }}
+        run: |
+          branch="$BRANCH"
+          # The PR is opened through the REST API with Node's fetch (the ARC runners had no `gh` CLI, run
+          # 40437234620), which also works on the GitHub-hosted runner.
+          if ! node <<'EOF'
           const { GH_TOKEN, GITHUB_API_URL, GITHUB_REPOSITORY, GITHUB_SERVER_URL, GITHUB_RUN_ID, GITHUB_SHA, BRANCH, VERSIONS } = process.env;
           const sha = GITHUB_SHA.slice(0, 8);
           const body = [
@@ -442,14 +506,5 @@ jobs:
           });
           EOF
           then
-            echo "::warning title=Version bump PR::Could not open the PR; open one from ${branch} into develop by hand (the bump is pushed and the publish still runs)."
+            echo "::warning title=Version bump PR::Could not open the PR; open one from ${branch} into develop by hand (the packages are published)."
           fi
-
-      - name: Publish changed packages using Changesets
-        uses: changesets/action@v1
-        with:
-          publish: yarn publish-packages
-        env:
-          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
