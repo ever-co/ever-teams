@@ -48,6 +48,10 @@ export async function GET(req: NextRequest) {
 			if (values.length) params[key] = values;
 		}
 
+		if (searchParams.get('includeTimeWithoutTeam') === 'true') {
+			params.includeTimeWithoutTeam = true;
+		}
+
 		const activityLevelStart = searchParams.get('activityLevel[start]');
 		const activityLevelEnd = searchParams.get('activityLevel[end]');
 

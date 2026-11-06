@@ -2,12 +2,14 @@ import { IOrganization, IOrganizationCreate } from '@/core/types/interfaces/orga
 import { IUserOrganization } from '@/core/types/interfaces/organization/user-organization';
 import { PaginationResponse } from '@/core/types/interfaces/common/data-response';
 import { serverFetch } from '../fetch';
+import { withNewOrganizationTrackingRequirements } from '@/core/constants/config/organization-creation';
 
 export function createOrganizationRequest(datas: IOrganizationCreate, bearerToken: string) {
+	const body = withNewOrganizationTrackingRequirements(datas);
 	return serverFetch<IOrganization>({
 		path: '/organization',
 		method: 'POST',
-		body: datas,
+		body,
 		bearer_token: bearerToken
 	});
 }

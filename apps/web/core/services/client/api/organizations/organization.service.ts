@@ -1,14 +1,33 @@
 import { IOrganization, IOrganizationCreate } from '@/core/types/interfaces/organization/organization';
 import { APIService } from '../../api.service';
 import { GAUZY_API_BASE_SERVER_URL } from '@/core/constants/config/constants';
-import { organizationSchema, validateApiResponse, ZodValidationError } from '@/core/types/schemas';
+import { organizationSchema, validateApiResponse, ZodValidationError, type TOrganization } from '@/core/types/schemas';
 import { scopedReadConfig, ScopedReadOptions } from '../../api-request-scope';
+import { withNewOrganizationTrackingRequirements } from '@/core/constants/config/organization-creation';
 
 class OrganizationService extends APIService {
 	createOrganization = async (data: IOrganizationCreate, bearer_token: string) => {
-		return this.post<IOrganization>('/organization', data, {
+		const body = withNewOrganizationTrackingRequirements(data);
+		return this.post<IOrganization>('/organization', body, {
 			headers: { Authorization: `Bearer ${bearer_token}` }
 		}).then(({ data }) => data);
+	};
+
+	// Gauzy validates an update as a whole organization, so its name and currency go along with any change. They are
+	// read again right before the save: the page's copy may be an hour old, and sending it back would silently undo
+	// another admin's rename or currency change. Without that read, the page's copy is sent as before.
+	updateOrganization = async (
+		organization: Pick<TOrganization, 'id' | 'name' | 'currency'>,
+		changes: Partial<IOrganization>
+	) => {
+		const current = await this.getOrganizationById(organization.id).catch(() => null);
+		const name = current?.name ?? organization.name;
+		const currency = current?.currency ?? organization.currency;
+		const body = { name, currency, ...changes };
+		const response = await this.put<IOrganization>(`/organization/${organization.id}`, body, {
+			tenantId: this.tenantId
+		});
+		return response.data;
 	};
 
 	getOrganizationById = async (id: string, options?: ScopedReadOptions) => {

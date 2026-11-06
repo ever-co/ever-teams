@@ -152,6 +152,17 @@ class TimerService extends APIService {
 		return this.get<ITimerStatus[]>(endpoint);
 	};
 
+	// The last log of each employee, whatever its team. Gauzy answers with the caller's own last log only, unless the
+	// caller may see their teammates' last logs.
+	getLastTimerLogsOf = async (employeeIds: string[]) => {
+		const query = qs.stringify({ tenantId: this.tenantId, organizationId: this.organizationId, employeeIds });
+		if (GAUZY_API_BASE_SERVER_URL.value) {
+			return this.get<ITimerStatus[]>(`/timesheet/timer/status/worked?${query}`);
+		}
+
+		return this.get<ITimerStatus[]>(`/timer/status/worked?${query}`);
+	};
+
 	syncTimer = async ({
 		source,
 		user,

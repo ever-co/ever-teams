@@ -10,7 +10,7 @@ import {
 	sentToGauzy,
 	signedInRequest
 } from '@/test/api/forward-to-gauzy';
-import { GET } from './route';
+import { GET, PUT } from './route';
 
 afterEach(restoreFetch);
 
@@ -26,5 +26,27 @@ describe('GET /api/organization/:id', () => {
 		expect(sent.method).toBe('GET');
 		expect(response.status).toBe(200);
 		await expect(response.json()).resolves.toEqual(organization);
+	});
+
+	it("saves the organization with Gauzy's PUT /organization/:id and answers what Gauzy answers", async () => {
+		const changes = { name: 'Acme', currency: 'USD', requireTeam: true };
+		const fetchMock = gauzyAnswers(Response.json({ id: 'org-1', ...changes }, { status: 200 }));
+
+		const request = signedInRequest('https://app.ever.team/api/organization/org-1', 'PUT', changes);
+		const response = await PUT(request, idParams('org-1'));
+
+		const sent = sentToGauzy(fetchMock);
+		expect(sent.url).toBe(gauzyUrl('/organization/org-1'));
+		expect(sent.method).toBe('PUT');
+		expect(sent.body).toEqual(changes);
+		expect(response.status).toBe(200);
+	});
+
+	it('keeps an id that tries to leave the organization path in one segment', async () => {
+		const fetchMock = gauzyAnswers(Response.json({}, { status: 404 }));
+
+		await PUT(signedInRequest('https://app.ever.team/api/organization/x', 'PUT', {}), idParams('../user'));
+
+		expect(sentToGauzy(fetchMock).url).toBe(gauzyUrl('/organization/..%2Fuser'));
 	});
 });

@@ -5,6 +5,7 @@ import { DisconnectionReason } from '@/core/types/enums/disconnection-reason';
 import { logDisconnection } from '@/core/lib/auth/disconnect-logger';
 import { isUnauthorizedError, isRetryableError } from '@/core/lib/auth/retry-logic';
 import { logInDev } from '@/core/lib/helpers/error-message';
+import { isPasswordRecoveryPage } from '@/core/lib/auth/signed-in-auth-paths';
 
 let isHandling401 = false;
 let isRedirecting = false;
@@ -132,7 +133,12 @@ async function performLogout(reason: DisconnectionReason, details?: Record<strin
 		} catch (error) {
 			console.warn('[Auth] Failed to clear localStorage:', error);
 		}
-		// 4. Redirect to login page
+		// 4. Redirect to login page, except from a password recovery page: an old session still in the browser that
+		// opens a reset link ends here, and leaving the page would lose the link
+		if (isPasswordRecoveryPage(window.location.pathname)) {
+			isRedirecting = false;
+			return;
+		}
 		window?.location.assign(DEFAULT_APP_PATH);
 	}
 }

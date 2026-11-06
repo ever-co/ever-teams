@@ -353,7 +353,8 @@ class TimeLogService extends APIService {
 		employeeIds = [],
 		taskIds = [],
 		teamIds = [],
-		activityLevel = { start: 0, end: 100 }
+		activityLevel = { start: 0, end: 100 },
+		includeTimeWithoutTeam = false
 	}: ITimeLogReportDailyRequest) => {
 		if (!this.organizationId || !this.tenantId || !startDate || !endDate) {
 			throw new Error(
@@ -390,6 +391,11 @@ class TimeLogService extends APIService {
 		if (employeeIds.length) addArrayParams(queryParams, 'employeeIds', employeeIds);
 		if (taskIds.length) addArrayParams(queryParams, 'taskIds', taskIds);
 		if (teamIds.length) addArrayParams(queryParams, 'teamIds', teamIds);
+		// Gauzy only counts time without a team for a team-scoped report; one without the parameter drops it
+		const countsTimeWithoutTeam = includeTimeWithoutTeam && teamIds.length > 0;
+		if (countsTimeWithoutTeam) {
+			queryParams.includeTimeWithoutTeam = 'true';
+		}
 
 		const queryString = new URLSearchParams(queryParams).toString();
 
