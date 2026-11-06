@@ -18,7 +18,14 @@
 const API = 'http://api:3000'; // NOSONAR
 const ADMIN_EMAIL = 'admin@ever.co';
 const PLACEHOLDER_ID = '00000000-0000-4000-8000-000000000000';
-const API_READY_TIMEOUT_MS = 25 * 60 * 1000;
+/**
+ * How long the paired API may take to start (its first start runs the migrations and the seed: about 3
+ * minutes in-cluster). Shorter than the harness's 15 minutes for the whole scenario step, so a paired API
+ * that never starts is reported by this adapter with its last answer, not by the step's time limit.
+ */
+const API_READY_TIMEOUT_MS = 12 * 60 * 1000;
+/** How often the wait for the paired API says it is still waiting (the driver log is empty otherwise). */
+const API_READY_LOG_EVERY_MS = 60 * 1000;
 
 /** The seeded super admin's password: a random value of this run, given to the hooks through the mode env. */
 const ADMIN_PASSWORD_KEY = 'TEAMS_AUDIT_ADMIN_PASSWORD';
@@ -68,15 +75,22 @@ async function json(response) {
 
 /** Waits for the paired API (its first start runs the migrations and the seed). */
 async function waitForApi(fetchImpl, log) {
-	const deadline = Date.now() + API_READY_TIMEOUT_MS;
+	const started = Date.now();
+	const deadline = started + API_READY_TIMEOUT_MS;
+	let nextLog = started + API_READY_LOG_EVERY_MS;
 	let last = 'no answer';
 	while (Date.now() < deadline) {
 		try {
-			const response = await fetchImpl(`${API}/api/health`);
+			const response = await fetchImpl(`${API}/api/health`, { signal: AbortSignal.timeout(10_000) });
+			await response.body?.cancel();
 			if (response.ok) return;
 			last = `HTTP ${response.status}`;
 		} catch (error) {
-			last = String(error?.message ?? error);
+			last = String(error?.cause?.code ?? error?.message ?? error);
+		}
+		if (Date.now() >= nextLog) {
+			log(`adapter: still waiting for the paired API after ${Math.round((Date.now() - started) / 1000)} s (${last})`);
+			nextLog += API_READY_LOG_EVERY_MS;
 		}
 		await sleep(5_000);
 	}
