@@ -4858,5 +4858,89 @@
 	},
 	"realtime": {
 		"RECONNECTING": "Opnieuw verbinden…"
+	},
+	"inbox": {
+		"TITLE": "Inbox",
+		"UNREAD_COUNT": "{count, plural, =0 {Alles gelezen} one {# ongelezen} other {# ongelezen}}",
+		"NEW_ENTRIES": "{count, plural, one {# nieuwe melding} other {# nieuwe meldingen}}",
+		"FILTER_LABEL": "Inbox filteren",
+		"FILTERS": {
+			"ALL": "Alle",
+			"UNREAD": "Ongelezen",
+			"MENTIONS": "Vermeldingen",
+			"ASSIGNED": "Toegewezen",
+			"SNOOZED": "Gesnoozed",
+			"DONE": "Afgehandeld",
+			"ARCHIVED": "Gearchiveerd",
+			"MORE": "Meer"
+		},
+		"SOURCES": {
+			"LABEL": "Bron",
+			"ANY": "Alle bronnen",
+			"TASKS": "Taken",
+			"CHAT": "Chat",
+			"DOCS": "Documenten",
+			"EMAIL": "E-mail",
+			"INTEGRATIONS": "Integraties",
+			"PEOPLE": "Mensen",
+			"OTHER": "Overig"
+		},
+		"SEARCH": "Zoeken in de inbox",
+		"ACTIONS": {
+			"SELECT": "Selecteren",
+			"SNOOZE": "Snoozen",
+			"DONE": "Markeren als afgehandeld",
+			"NOT_DONE": "Markeren als niet afgehandeld",
+			"UNARCHIVE": "Terugzetten",
+			"CLEAR_SELECTION": "Selectie wissen",
+			"MARK_ALL_READ": "Alles als gelezen markeren"
+		},
+		"SNOOZE": {
+			"LATER_TODAY": "Later vandaag",
+			"TOMORROW": "Morgen",
+			"NEXT_WEEK": "Volgende week",
+			"UNSNOOZE": "Snooze opheffen"
+		},
+		"SELECTED": "{count, plural, one {# geselecteerd} other {# geselecteerd}}",
+		"TOASTS": {
+			"ARCHIVED": "{count, plural, one {Melding gearchiveerd} other {# meldingen gearchiveerd}}",
+			"SNOOZED": "{count, plural, one {Melding gesnoozed} other {# meldingen gesnoozed}}",
+			"DONE": "{count, plural, one {Gemarkeerd als afgehandeld} other {# gemarkeerd als afgehandeld}}",
+			"ALL_READ": "Alle meldingen als gelezen gemarkeerd",
+			"MARKED_READ": "{count, plural, =0 {Niets om als gelezen te markeren} one {# melding als gelezen gemarkeerd} other {# meldingen als gelezen gemarkeerd}}",
+			"UNDO": "Ongedaan maken",
+			"UPDATE_FAILED": "Die wijziging is niet opgeslagen. Probeer het opnieuw.",
+			"MARK_ALL_FAILED": "Je meldingen zijn niet als gelezen gemarkeerd. Probeer het opnieuw."
+		},
+		"EMPTY": {
+			"ALL_TITLE": "Je bent helemaal bij",
+			"ALL_TEXT": "Toewijzingen, vermeldingen, reacties en berichten voor jou komen hier.",
+			"UNREAD_TITLE": "Niets ongelezen",
+			"UNREAD_TEXT": "Alles in je inbox is gelezen.",
+			"MENTIONS_TITLE": "Geen vermeldingen",
+			"MENTIONS_TEXT": "Als iemand @ en je naam schrijft, verschijnt het hier.",
+			"ASSIGNED_TITLE": "Geen toewijzingen",
+			"ASSIGNED_TEXT": "Taken die iemand aan je toewijst verschijnen hier.",
+			"SNOOZED_TITLE": "Niets gesnoozed",
+			"SNOOZED_TEXT": "Een gesnoozede melding komt ongelezen terug op het gekozen tijdstip.",
+			"DONE_TITLE": "Nog niets afgehandeld",
+			"DONE_TEXT": "Meldingen die je als afgehandeld markeert worden hier bewaard.",
+			"ARCHIVED_TITLE": "Niets gearchiveerd",
+			"ARCHIVED_TEXT": "Gearchiveerde meldingen worden hier bewaard."
+		},
+		"LOAD_ERROR": "Je inbox kon niet worden geladen.",
+		"RETRY": "Opnieuw proberen",
+		"LOAD_MORE": "Meer laden",
+		"LEGACY_NOTICE": "Het platform van deze werkruimte heeft de volledige inbox nog niet: gelezen, ongelezen en archiveren zijn beschikbaar.",
+		"DETAIL": {
+			"NO_SELECTION": "Selecteer een melding om die hier te zien",
+			"OPEN_TASK": "Taak openen",
+			"OPEN": "Openen",
+			"NO_TARGET": "Deze melding heeft niets om te openen."
+		},
+		"KEYBOARD": {
+			"HINT": "J / K verplaatsen, X selecteren, E archiveren, H snoozen, D afgehandeld, U gelezen, Enter openen, Shift+Esc alles als gelezen markeren"
+		},
+		"OPEN_PAGE": "Inbox openen"
 	}
 }

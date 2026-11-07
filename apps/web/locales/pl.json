@@ -4858,5 +4858,89 @@
 	},
 	"realtime": {
 		"RECONNECTING": "Ponowne łączenie…"
+	},
+	"inbox": {
+		"TITLE": "Skrzynka odbiorcza",
+		"UNREAD_COUNT": "{count, plural, =0 {Wszystko przeczytane} one {# nieprzeczytane} few {# nieprzeczytane} many {# nieprzeczytanych} other {# nieprzeczytanych}}",
+		"NEW_ENTRIES": "{count, plural, one {# nowe powiadomienie} few {# nowe powiadomienia} many {# nowych powiadomień} other {# nowych powiadomień}}",
+		"FILTER_LABEL": "Filtruj skrzynkę",
+		"FILTERS": {
+			"ALL": "Wszystkie",
+			"UNREAD": "Nieprzeczytane",
+			"MENTIONS": "Wzmianki",
+			"ASSIGNED": "Przypisane",
+			"SNOOZED": "Odłożone",
+			"DONE": "Zakończone",
+			"ARCHIVED": "Zarchiwizowane",
+			"MORE": "Więcej"
+		},
+		"SOURCES": {
+			"LABEL": "Źródło",
+			"ANY": "Wszystkie źródła",
+			"TASKS": "Zadania",
+			"CHAT": "Czat",
+			"DOCS": "Dokumenty",
+			"EMAIL": "E-mail",
+			"INTEGRATIONS": "Integracje",
+			"PEOPLE": "Osoby",
+			"OTHER": "Inne"
+		},
+		"SEARCH": "Szukaj w skrzynce",
+		"ACTIONS": {
+			"SELECT": "Zaznacz",
+			"SNOOZE": "Odłóż",
+			"DONE": "Oznacz jako zakończone",
+			"NOT_DONE": "Oznacz jako niezakończone",
+			"UNARCHIVE": "Przywróć",
+			"CLEAR_SELECTION": "Wyczyść zaznaczenie",
+			"MARK_ALL_READ": "Oznacz wszystkie jako przeczytane"
+		},
+		"SNOOZE": {
+			"LATER_TODAY": "Później dzisiaj",
+			"TOMORROW": "Jutro",
+			"NEXT_WEEK": "W przyszłym tygodniu",
+			"UNSNOOZE": "Cofnij odłożenie"
+		},
+		"SELECTED": "{count, plural, one {# zaznaczone} few {# zaznaczone} many {# zaznaczonych} other {# zaznaczonych}}",
+		"TOASTS": {
+			"ARCHIVED": "{count, plural, one {Powiadomienie zarchiwizowane} few {# powiadomienia zarchiwizowane} many {# powiadomień zarchiwizowanych} other {# powiadomień zarchiwizowanych}}",
+			"SNOOZED": "{count, plural, one {Powiadomienie odłożone} few {# powiadomienia odłożone} many {# powiadomień odłożonych} other {# powiadomień odłożonych}}",
+			"DONE": "{count, plural, one {Oznaczone jako zakończone} few {# oznaczone jako zakończone} many {# oznaczonych jako zakończone} other {# oznaczonych jako zakończone}}",
+			"ALL_READ": "Wszystkie powiadomienia oznaczone jako przeczytane",
+			"MARKED_READ": "{count, plural, =0 {Nic do oznaczenia jako przeczytane} one {# powiadomienie oznaczone jako przeczytane} few {# powiadomienia oznaczone jako przeczytane} many {# powiadomień oznaczonych jako przeczytane} other {# powiadomienia oznaczone jako przeczytane}}",
+			"UNDO": "Cofnij",
+			"UPDATE_FAILED": "Ta zmiana nie została zapisana. Spróbuj ponownie.",
+			"MARK_ALL_FAILED": "Twoje powiadomienia nie zostały oznaczone jako przeczytane. Spróbuj ponownie."
+		},
+		"EMPTY": {
+			"ALL_TITLE": "Wszystko nadrobione",
+			"ALL_TEXT": "Przypisania, wzmianki, komentarze i wiadomości dla Ciebie trafiają tutaj.",
+			"UNREAD_TITLE": "Nic nieprzeczytanego",
+			"UNREAD_TEXT": "Wszystko w Twojej skrzynce zostało przeczytane.",
+			"MENTIONS_TITLE": "Brak wzmianek",
+			"MENTIONS_TEXT": "Gdy ktoś napisze @ i Twoje imię, pojawi się tutaj.",
+			"ASSIGNED_TITLE": "Brak przypisań",
+			"ASSIGNED_TEXT": "Zadania, które ktoś Ci przypisze, pojawią się tutaj.",
+			"SNOOZED_TITLE": "Nic odłożonego",
+			"SNOOZED_TEXT": "Odłożone powiadomienie wraca jako nieprzeczytane o wybranej porze.",
+			"DONE_TITLE": "Nic jeszcze nie zakończono",
+			"DONE_TEXT": "Powiadomienia oznaczone jako zakończone są tutaj przechowywane.",
+			"ARCHIVED_TITLE": "Nic zarchiwizowanego",
+			"ARCHIVED_TEXT": "Zarchiwizowane powiadomienia są tutaj przechowywane."
+		},
+		"LOAD_ERROR": "Nie udało się wczytać skrzynki.",
+		"RETRY": "Spróbuj ponownie",
+		"LOAD_MORE": "Wczytaj więcej",
+		"LEGACY_NOTICE": "Platforma tego obszaru roboczego nie ma jeszcze pełnej skrzynki: dostępne są przeczytane, nieprzeczytane i archiwizacja.",
+		"DETAIL": {
+			"NO_SELECTION": "Wybierz powiadomienie, aby je tu zobaczyć",
+			"OPEN_TASK": "Otwórz zadanie",
+			"OPEN": "Otwórz",
+			"NO_TARGET": "To powiadomienie nie ma nic do otwarcia."
+		},
+		"KEYBOARD": {
+			"HINT": "J / K przesuń, X zaznacz, E archiwizuj, H odłóż, D zakończone, U przeczytane, Enter otwórz, Shift+Esc oznacz wszystkie jako przeczytane"
+		},
+		"OPEN_PAGE": "Otwórz skrzynkę"
 	}
 }

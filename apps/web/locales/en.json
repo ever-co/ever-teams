@@ -4858,5 +4858,89 @@
 	},
 	"realtime": {
 		"RECONNECTING": "Reconnecting…"
+	},
+	"inbox": {
+		"TITLE": "Inbox",
+		"UNREAD_COUNT": "{count, plural, =0 {All read} one {# unread} other {# unread}}",
+		"NEW_ENTRIES": "{count, plural, one {# new notification} other {# new notifications}}",
+		"FILTER_LABEL": "Filter the inbox",
+		"FILTERS": {
+			"ALL": "All",
+			"UNREAD": "Unread",
+			"MENTIONS": "Mentions",
+			"ASSIGNED": "Assigned",
+			"SNOOZED": "Snoozed",
+			"DONE": "Done",
+			"ARCHIVED": "Archived",
+			"MORE": "More"
+		},
+		"SOURCES": {
+			"LABEL": "Source",
+			"ANY": "All sources",
+			"TASKS": "Tasks",
+			"CHAT": "Chat",
+			"DOCS": "Docs",
+			"EMAIL": "Email",
+			"INTEGRATIONS": "Integrations",
+			"PEOPLE": "People",
+			"OTHER": "Other"
+		},
+		"SEARCH": "Search the inbox",
+		"ACTIONS": {
+			"SELECT": "Select",
+			"SNOOZE": "Snooze",
+			"DONE": "Mark as done",
+			"NOT_DONE": "Mark as not done",
+			"UNARCHIVE": "Unarchive",
+			"CLEAR_SELECTION": "Clear selection",
+			"MARK_ALL_READ": "Mark all as read"
+		},
+		"SNOOZE": {
+			"LATER_TODAY": "Later today",
+			"TOMORROW": "Tomorrow",
+			"NEXT_WEEK": "Next week",
+			"UNSNOOZE": "Unsnooze"
+		},
+		"SELECTED": "{count, plural, one {# selected} other {# selected}}",
+		"TOASTS": {
+			"ARCHIVED": "{count, plural, one {Notification archived} other {# notifications archived}}",
+			"SNOOZED": "{count, plural, one {Notification snoozed} other {# notifications snoozed}}",
+			"DONE": "{count, plural, one {Marked as done} other {# marked as done}}",
+			"ALL_READ": "All notifications marked as read",
+			"MARKED_READ": "{count, plural, =0 {Nothing to mark read} one {# notification marked read} other {# notifications marked read}}",
+			"UNDO": "Undo",
+			"UPDATE_FAILED": "That change was not saved. Try again.",
+			"MARK_ALL_FAILED": "Your notifications were not marked as read. Try again."
+		},
+		"EMPTY": {
+			"ALL_TITLE": "You are all caught up",
+			"ALL_TEXT": "Assignments, mentions, comments and messages for you land here.",
+			"UNREAD_TITLE": "Nothing unread",
+			"UNREAD_TEXT": "Everything in your inbox has been read.",
+			"MENTIONS_TITLE": "No mentions",
+			"MENTIONS_TEXT": "When someone writes @ and your name, it shows here.",
+			"ASSIGNED_TITLE": "No assignments",
+			"ASSIGNED_TEXT": "Tasks someone assigns to you show here.",
+			"SNOOZED_TITLE": "Nothing snoozed",
+			"SNOOZED_TEXT": "A snoozed notification comes back unread at the time you chose.",
+			"DONE_TITLE": "Nothing done yet",
+			"DONE_TEXT": "Notifications you mark as done are kept here.",
+			"ARCHIVED_TITLE": "Nothing archived",
+			"ARCHIVED_TEXT": "Archived notifications are kept here."
+		},
+		"LOAD_ERROR": "Your inbox could not load.",
+		"RETRY": "Try again",
+		"LOAD_MORE": "Load more",
+		"LEGACY_NOTICE": "This workspace's platform does not have the full inbox yet: read, unread and archive are available.",
+		"DETAIL": {
+			"NO_SELECTION": "Select a notification to see it here",
+			"OPEN_TASK": "Open task",
+			"OPEN": "Open",
+			"NO_TARGET": "This notification has nothing to open."
+		},
+		"KEYBOARD": {
+			"HINT": "J / K move, X select, E archive, H snooze, D done, U read, Enter open, Shift+Esc mark all read"
+		},
+		"OPEN_PAGE": "Open the inbox"
 	}
 }

@@ -89,7 +89,7 @@ import { GlobalAssignTaskModal } from '../features/tasks/global-assign-task-moda
 import { GlobalProjectActionModal } from '../features/projects/global-project-action-modal';
 import { useSidebarDataOwner } from '@/core/hooks/bootstrap/use-feature-data';
 import { getMyWorkNavigation } from './my-work-navigation';
-import { readRuntimeEnv } from '@/env-config';
+import { isInboxEnabled } from '@/core/lib/utils/inbox-enabled';
 import { CommandPaletteTrigger } from './default-layout/header/command-palette-trigger';
 import { DefaultCreateAction } from '../features/layouts/header/create-default-action';
 import { SettingsNav } from '../settings/kit/settings-nav';
@@ -101,10 +101,6 @@ type AppSidebarProps = React.ComponentProps<typeof Sidebar> & { publicTeam: bool
 // Limit to 5 projects for sidebar display
 const MAX_SIDEBAR_PROJECTS = 5;
 
-function isInboxEnabled() {
-	const runtimeFlag = readRuntimeEnv('NEXT_PUBLIC_INBOX_ENABLED') || process.env.NEXT_PUBLIC_INBOX_ENABLED;
-	return runtimeFlag === 'true';
-}
 
 /**
  * The sidebar sits on the window background (variant `inset`): the pages render in the rounded panel

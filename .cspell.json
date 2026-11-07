@@ -967,6 +967,8 @@
 		"resyncs",
 		"resynchronise",
 		"resynchronisation",
+		"unsnooze",
+		"unsnoozes",
 		"ghcup"
 	],
 	"useGitignore": true,

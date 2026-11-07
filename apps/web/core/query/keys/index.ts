@@ -443,6 +443,23 @@ export const queryKeys = {
 		) => ['notifications', 'settings', tenantId ?? null, organizationId ?? null, employeeId ?? null] as const
 	},
 
+	inbox: {
+		all: ['inbox'] as const,
+		items: (
+			tenantId: string | undefined | null,
+			organizationId: string | undefined | null,
+			userId: string | undefined | null,
+			filters: string
+		) => ['inbox', 'items', tenantId ?? null, organizationId ?? null, userId ?? null, filters] as const,
+		counts: (
+			tenantId: string | undefined | null,
+			organizationId: string | undefined | null,
+			userId: string | undefined | null
+		) => ['inbox', 'counts', tenantId ?? null, organizationId ?? null, userId ?? null] as const,
+		item: (tenantId: string | undefined | null, id: string | undefined | null) =>
+			['inbox', 'item', tenantId ?? null, id ?? null] as const
+	},
+
 	taskComments: {
 		all: ['task-comments'] as const,
 		byTask: (
