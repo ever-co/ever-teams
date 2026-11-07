@@ -4956,10 +4956,13 @@
 			"SENT": "回答已发送",
 			"SEND_FAILED": "回答未发送，请重试。",
 			"ANSWERED": "已回答",
+			"CLOSED": "已关闭，未作回答。",
 			"ANSWERED_WITH": "已回答：{option}"
 		},
 		"DETAIL": {
 			"NO_SELECTION": "选择一条通知以在此查看",
+			"SHEET_LABEL": "通知详情",
+			"CLOSE": "关闭",
 			"OPEN_TASK": "打开任务",
 			"OPEN": "打开",
 			"NO_TARGET": "此通知没有可打开的内容。"

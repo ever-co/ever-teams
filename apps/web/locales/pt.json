@@ -4956,10 +4956,13 @@
 			"SENT": "Resposta enviada",
 			"SEND_FAILED": "A resposta não foi enviada. Tente novamente.",
 			"ANSWERED": "Respondida",
+			"CLOSED": "Fechada sem resposta.",
 			"ANSWERED_WITH": "Respondida: {option}"
 		},
 		"DETAIL": {
 			"NO_SELECTION": "Selecione uma notificação para vê-la aqui",
+			"SHEET_LABEL": "Detalhes da notificação",
+			"CLOSE": "Fechar",
 			"OPEN_TASK": "Abrir tarefa",
 			"OPEN": "Abrir",
 			"NO_TARGET": "Esta notificação não tem nada para abrir."

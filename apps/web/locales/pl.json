@@ -4956,10 +4956,13 @@
 			"SENT": "Odpowiedź wysłana",
 			"SEND_FAILED": "Nie wysłano odpowiedzi. Spróbuj ponownie.",
 			"ANSWERED": "Odpowiedziano",
+			"CLOSED": "Zamknięte bez odpowiedzi.",
 			"ANSWERED_WITH": "Odpowiedziano: {option}"
 		},
 		"DETAIL": {
 			"NO_SELECTION": "Wybierz powiadomienie, aby je tu zobaczyć",
+			"SHEET_LABEL": "Szczegóły powiadomienia",
+			"CLOSE": "Zamknij",
 			"OPEN_TASK": "Otwórz zadanie",
 			"OPEN": "Otwórz",
 			"NO_TARGET": "To powiadomienie nie ma nic do otwarcia."

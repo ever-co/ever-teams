@@ -44,6 +44,7 @@ import {
 	toInboxEntry
 } from '@/core/lib/utils/inbox-entry';
 import { inboxService } from '@/core/services/client/api/inbox';
+import type { IInboxItem } from '@/core/types/interfaces/common/inbox-item';
 import { activeTeamState } from '@/core/stores/teams/organization-team';
 import { tasksByTeamState } from '@/core/stores/teams/team-tasks';
 import { cn } from '@/core/lib/helpers';
@@ -289,13 +290,21 @@ function InboxPageContent() {
 	// A question, an approval or an escalation answered in the detail pane: the lists and counts follow the answer.
 	const queryClient = useQueryClient();
 	const handleReply = useCallback(
-		async (entry: InboxEntry, input: { optionId?: string; text?: string }) => {
+		async (entry: InboxEntry, input: { optionId?: string; text?: string }): Promise<boolean> => {
 			try {
-				await inboxService.reply(entry.id, input);
+				const answered = await inboxService.reply(entry.id, input);
+				// The platform's answer goes into the cached pages at once: the pane shows it, the form is gone.
+				queryClient.setQueriesData<{ pages: Array<{ items: IInboxItem[] }> }>({ queryKey: ['inbox', 'items'] }, (data) =>
+					data
+						? { ...data, pages: data.pages.map((page) => ({ ...page, items: page.items.map((item) => (item.id === answered.id ? { ...item, ...answered } : item)) })) }
+						: data
+				);
 				toast(t('inbox.DECISION.SENT'));
+				return true;
 			} catch (error) {
 				const message = ApiErrorService.isApiError(error) && error.message ? error.message : t('inbox.DECISION.SEND_FAILED');
 				toast.error(message);
+				return false;
 			} finally {
 				void queryClient.invalidateQueries({ queryKey: ['inbox'] });
 			}
@@ -573,6 +582,18 @@ function InboxPageContent() {
 							<p className="px-5 py-3 text-xs text-muted-foreground">{t('notifications.LATEST_SHOWN', { count: entries.length })}</p>
 						)}
 					</div>
+					{/* Below the large breakpoint the pane is a sheet over the list, opened with an entry, so a question can be
+					    answered on a phone too (the other entries open their target as before). */}
+					{current?.decision && (
+						<div className="fixed inset-x-0 bottom-0 z-40 max-h-[75vh] overflow-y-auto rounded-t-xl border-t border-border bg-background shadow-lg lg:hidden" role="dialog" aria-label={t('inbox.DETAIL.SHEET_LABEL')}>
+							<div className="flex justify-end px-3 pt-2">
+								<Button variant="ghost" size="sm" onClick={() => setCurrentId(null)}>
+									{t('inbox.DETAIL.CLOSE')}
+								</Button>
+							</div>
+							<InboxDetail entry={current} taskTitle={current.taskId ? (taskTitles.get(current.taskId) ?? null) : null} onOpenTarget={handleOpen} onArchive={handleArchive} onReply={usesExtension ? handleReply : undefined} />
+						</div>
+					)}
 					<aside className={cn('hidden w-[22rem] shrink-0 overflow-y-auto hairline-l border-border lg:block')}>
 						<InboxDetail entry={current} taskTitle={current?.taskId ? (taskTitles.get(current.taskId) ?? null) : null} onOpenTarget={handleOpen} onArchive={handleArchive} onReply={usesExtension ? handleReply : undefined} />
 					</aside>

@@ -21,7 +21,8 @@ export function InboxDecisionPanel({
 	decision: InboxDecision;
 	/** Still waiting for an answer. */
 	isOpen: boolean;
-	onReply: (input: { optionId?: string; text?: string }) => Promise<unknown>;
+	/** Answers whether the platform took the answer. */
+	onReply: (input: { optionId?: string; text?: string }) => Promise<boolean>;
 }>) {
 	const t = useTranslations();
 	const locale = useLocale();
@@ -29,16 +30,28 @@ export function InboxDecisionPanel({
 	const [text, setText] = useState('');
 	const [sending, setSending] = useState(false);
 	const [missing, setMissing] = useState<'option' | 'reason' | 'answer' | null>(null);
+	// The answer this pane sent: shown, locked, until the platform's own answer arrives with the refetch.
+	const [sent, setSent] = useState<InboxDecision['response']>(null);
+	const response = decision.response ?? sent;
 
-	if (decision.response || !isOpen) {
-		const chosen = decision.options.find((option) => option.id === decision.response?.optionId);
+	if (!response && !isOpen) {
+		// Closed without an answer (cancelled, resolved elsewhere): said as such, never as answered.
+		return (
+			<section className="rounded-md bg-foreground/[0.04] p-3 text-sm text-muted-foreground" data-test="inbox-decision-closed">
+				{t('inbox.DECISION.CLOSED')}
+			</section>
+		);
+	}
+
+	if (response) {
+		const chosen = decision.options.find((option) => option.id === response.optionId);
 		return (
 			<section className="flex flex-col gap-1 rounded-md bg-foreground/[0.04] p-3 text-sm" data-test="inbox-decision-answered">
 				<p className="font-medium text-foreground">
 					{chosen ? t('inbox.DECISION.ANSWERED_WITH', { option: chosen.label }) : t('inbox.DECISION.ANSWERED')}
 				</p>
-				{decision.response?.text && <p className="whitespace-pre-wrap text-muted-foreground">{decision.response.text}</p>}
-				{decision.response?.answeredAt && <p className="text-xs text-muted-foreground">{formatNotificationDate(decision.response.answeredAt, locale)}</p>}
+				{response.text && <p className="whitespace-pre-wrap text-muted-foreground">{response.text}</p>}
+				{response.answeredAt && <p className="text-xs text-muted-foreground">{formatNotificationDate(response.answeredAt, locale)}</p>}
 			</section>
 		);
 	}
@@ -51,7 +64,9 @@ export function InboxDecisionPanel({
 		}
 		setSending(true);
 		try {
-			await onReply(reply.input);
+			if (await onReply(reply.input)) {
+				setSent({ optionId: reply.input.optionId ?? null, text: reply.input.text ?? null, answeredAt: new Date() });
+			}
 		} finally {
 			setSending(false);
 		}

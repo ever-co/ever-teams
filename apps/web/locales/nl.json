@@ -4956,10 +4956,13 @@
 			"SENT": "Antwoord verstuurd",
 			"SEND_FAILED": "Het antwoord is niet verstuurd. Probeer het opnieuw.",
 			"ANSWERED": "Beantwoord",
+			"CLOSED": "Gesloten zonder antwoord.",
 			"ANSWERED_WITH": "Beantwoord: {option}"
 		},
 		"DETAIL": {
 			"NO_SELECTION": "Selecteer een melding om die hier te zien",
+			"SHEET_LABEL": "Details van de melding",
+			"CLOSE": "Sluiten",
 			"OPEN_TASK": "Taak openen",
 			"OPEN": "Openen",
 			"NO_TARGET": "Deze melding heeft niets om te openen."

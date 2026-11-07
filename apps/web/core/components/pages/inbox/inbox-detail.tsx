@@ -23,7 +23,7 @@ export function InboxDetail({
 	onOpenTarget: (entry: InboxEntry) => void;
 	onArchive: (entry: InboxEntry) => void;
 	/** Answers a question, an approval or an escalation. */
-	onReply?: (entry: InboxEntry, input: { optionId?: string; text?: string }) => Promise<unknown>;
+	onReply?: (entry: InboxEntry, input: { optionId?: string; text?: string }) => Promise<boolean>;
 }>) {
 	const t = useTranslations();
 	const locale = useLocale();
