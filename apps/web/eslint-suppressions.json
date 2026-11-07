@@ -930,14 +930,6 @@
       "count": 1
     }
   },
-  "core/components/pages/auth/accept-invite/complete-invitation-registration-form.tsx": {
-    "react-hooks/exhaustive-deps": {
-      "count": 1
-    },
-    "react-hooks/preserve-manual-memoization": {
-      "count": 1
-    }
-  },
   "core/components/pages/auth/passcode/page-component.tsx": {
     "@typescript-eslint/no-explicit-any": {
       "count": 2

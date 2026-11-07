@@ -2,7 +2,6 @@
 
 import { setAuthCookies } from '@/core/lib/helpers/index';
 import { useCallback, useState } from 'react';
-import { useRouter } from 'next/navigation';
 import { ISigninEmailConfirmWorkspaces } from '@/core/types/interfaces/auth/auth';
 import { useSession } from 'next-auth/react';
 import { signinService } from '@/core/services/client/api/auth/signin.service';
@@ -10,6 +9,7 @@ import { userOrganizationService } from '@/core/services/client/api/users/user-o
 import { IOrganizationTeam } from '@/core/types/interfaces/team/organization-team';
 import { APP_NAME } from '@/core/constants/config/constants';
 import { pickTokenOrganization } from '@/core/lib/auth/jwt-utils';
+import { navigateAfterSignIn } from '@/core/lib/auth/navigate-after-sign-in';
 type SigninResult = {
 	access_token: string;
 	confirmed_mail: string;
@@ -23,7 +23,6 @@ type SigninResult = {
 };
 
 export function useAuthenticationSocialLogin() {
-	const router = useRouter();
 	const [signInWorkspaceLoading, setSignInWorkspaceLoading] = useState(false);
 
 	const { update: updateNextAuthSession }: any = useSession();
@@ -67,21 +66,28 @@ export function useAuthenticationSocialLogin() {
 						});
 					}
 
-					updateNextAuthSession({
-						access_token,
-						refresh_token: {
-							token: result.refresh_token
-						},
-						teamId: selectedTeam,
-						tenantId,
-						organizationId: organization?.organizationId,
-						languageId: 'en',
-						noTeamPopup: true,
+					// Awaited: the full page load below would cancel a pending update, and for an Ever ID sign-in that update
+					// is what drops the workspace tokens from the NextAuth session. A failed update does not stop the sign-in:
+					// the Gauzy cookies set below are the session either way.
+					try {
+						await updateNextAuthSession({
+							access_token,
+							refresh_token: {
+								token: result.refresh_token
+							},
+							teamId: selectedTeam,
+							tenantId,
+							organizationId: organization?.organizationId,
+							languageId: 'en',
+							noTeamPopup: true,
 
-						userId,
-						workspaces: workspaces,
-						confirmed_mail: signinResult.confirmed_mail
-					});
+							userId,
+							workspaces: workspaces,
+							confirmed_mail: signinResult.confirmed_mail
+						});
+					} catch (error) {
+						console.warn('NextAuth session update failed after the workspace sign-in:', error);
+					}
 
 					setAuthCookies({
 						access_token,
@@ -96,7 +102,7 @@ export function useAuthenticationSocialLogin() {
 						userId
 					});
 					setSignInWorkspaceLoading(false);
-					router.push('/');
+					navigateAfterSignIn();
 				})
 				.catch((err) => {
 					console.error('Workspace signin error:', err);
@@ -104,7 +110,7 @@ export function useAuthenticationSocialLogin() {
 					onError?.(err);
 				});
 		},
-		[router, updateNextAuthSession]
+		[updateNextAuthSession]
 	);
 
 	return {

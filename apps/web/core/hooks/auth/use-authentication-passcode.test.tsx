@@ -9,16 +9,17 @@
  */
 import { act, renderHook } from '@testing-library/react';
 
-const mockReplace = jest.fn();
-const mockPush = jest.fn();
+const mockNavigateAfterSignIn = jest.fn();
 const mockConfirm = jest.fn();
 const mockInvite = jest.fn();
 const mockSignInWorkspace = jest.fn();
 
 jest.mock('next/navigation', () => ({
-	useRouter: () => ({ replace: mockReplace, push: mockPush }),
 	useSearchParams: () => new URLSearchParams(''),
 	usePathname: () => '/auth/passcode'
+}));
+jest.mock('@/core/lib/auth/navigate-after-sign-in', () => ({
+	navigateAfterSignIn: () => mockNavigateAfterSignIn()
 }));
 jest.mock('next-intl', () => ({ useTranslations: () => (key: string) => key }));
 jest.mock('@/core/services/client/api/auth/auth.service', () => ({
@@ -55,8 +56,7 @@ async function submitCode(
 
 describe('useAuthenticationPasscode → verifySignInEmailConfirmRequest (Q17 order)', () => {
 	beforeEach(() => {
-		mockReplace.mockReset();
-		mockPush.mockReset();
+		mockNavigateAfterSignIn.mockReset();
 		mockConfirm.mockReset();
 		mockInvite.mockReset();
 	});
@@ -74,7 +74,7 @@ describe('useAuthenticationPasscode → verifySignInEmailConfirmRequest (Q17 ord
 		expect(result.current.authScreen.screen).toBe('workspace');
 		expect(result.current.workspaces).toHaveLength(2);
 		expect(result.current.defaultTeamId).toBe('t1');
-		expect(mockReplace).not.toHaveBeenCalled();
+		expect(mockNavigateAfterSignIn).not.toHaveBeenCalled();
 	});
 
 	it('signs a single-workspace user straight in (confirm returned user, no workspaces)', async () => {
@@ -83,7 +83,7 @@ describe('useAuthenticationPasscode → verifySignInEmailConfirmRequest (Q17 ord
 		await submitCode(result, 'a@b.co', '12345678');
 		await flush();
 		expect(mockInvite).not.toHaveBeenCalled();
-		expect(mockReplace).toHaveBeenCalledWith('/');
+		expect(mockNavigateAfterSignIn).toHaveBeenCalledTimes(1);
 		expect(result.current.authenticated).toBe(true);
 	});
 
@@ -100,7 +100,7 @@ describe('useAuthenticationPasscode → verifySignInEmailConfirmRequest (Q17 ord
 		expect(mockInvite).toHaveBeenCalledTimes(1);
 		// order: confirm strictly before the invite route
 		expect(mockConfirm.mock.invocationCallOrder[0]).toBeLessThan(mockInvite.mock.invocationCallOrder[0]);
-		expect(mockReplace).toHaveBeenCalledWith('/');
+		expect(mockNavigateAfterSignIn).toHaveBeenCalledTimes(1);
 	});
 
 	it('surfaces the confirm 400 errors when both attempts fail', async () => {
@@ -122,7 +122,7 @@ describe('useAuthenticationPasscode → verifySignInEmailConfirmRequest (Q17 ord
 
 describe('useAuthenticationPasscode → handleWorkspaceSubmit', () => {
 	beforeEach(() => {
-		mockPush.mockReset();
+		mockNavigateAfterSignIn.mockReset();
 		mockSignInWorkspace.mockReset();
 	});
 
@@ -140,7 +140,7 @@ describe('useAuthenticationPasscode → handleWorkspaceSubmit', () => {
 
 		expect(mockSignInWorkspace).toHaveBeenCalledWith(expect.objectContaining({ selectedTeam: 'team-1' }));
 		expect(onError).toHaveBeenCalledWith(refusal);
-		expect(mockPush).not.toHaveBeenCalled();
+		expect(mockNavigateAfterSignIn).not.toHaveBeenCalled();
 	});
 
 	it('does not report a sign-in that opened the workspace', async () => {
@@ -155,7 +155,7 @@ describe('useAuthenticationPasscode → handleWorkspaceSubmit', () => {
 		});
 
 		expect(onError).not.toHaveBeenCalled();
-		expect(mockPush).toHaveBeenCalledWith('/');
+		expect(mockNavigateAfterSignIn).toHaveBeenCalledTimes(1);
 	});
 
 	it('reports an invalid e-mail to the chooser without signing in', async () => {
@@ -170,6 +170,6 @@ describe('useAuthenticationPasscode → handleWorkspaceSubmit', () => {
 
 		expect(onError).toHaveBeenCalledWith({ email: 'Please provide a properly formatted email address' });
 		expect(mockSignInWorkspace).not.toHaveBeenCalled();
-		expect(mockPush).not.toHaveBeenCalled();
+		expect(mockNavigateAfterSignIn).not.toHaveBeenCalled();
 	});
 });
