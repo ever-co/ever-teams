@@ -5069,6 +5069,7 @@
 		"TASK_CREATED": "Tarefa criada",
 		"TASK_CREATE_FAILED": "A tarefa não foi criada. Tente novamente.",
 		"TASK_CREATE_FORBIDDEN": "Você não tem permissão para criar tarefas.",
+		"TASK_CREATED_UNLINKED": "A tarefa foi criada, mas a mensagem não pôde ser vinculada a ela. Abra a tarefa em vez de criá-la de novo.",
 		"OPEN": "Abrir",
 		"SEND_TO_CHAT": "Enviar para o chat",
 		"SEND_TO_CHAT_TITLE": "Enviar esta tarefa para uma conversa",

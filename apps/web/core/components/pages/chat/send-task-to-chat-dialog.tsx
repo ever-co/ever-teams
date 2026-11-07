@@ -12,7 +12,7 @@ import { useChatActions } from '@/core/hooks/chat/use-chat-actions';
 import { useChatConversations } from '@/core/hooks/chat/use-chat-conversations';
 import { useChatPeople, useChatScope } from '@/core/hooks/chat/use-chat-scope';
 import { cn } from '@/core/lib/helpers';
-import { conversationTitle } from '@/core/lib/utils/chat-format';
+import { conversationTitle, newNonce } from '@/core/lib/utils/chat-format';
 import { sendableConversations, sendToChatBodyOf } from '@/core/lib/utils/chat-task';
 import { CHAT_MESSAGE_MAX_LENGTH, EChatConversationKind, EChatVisibility } from '@/core/types/interfaces/common/chat';
 
@@ -31,6 +31,9 @@ export function SendTaskToChatDialog({ task, onClose }: Readonly<{ task: { id: s
 	const [note, setNote] = useState('');
 	const [targetId, setTargetId] = useState<string | null>(null);
 	const [busy, setBusy] = useState(false);
+	// One idempotency key for this dialog: pressing Send again after a failure (the dialog stays open as the retry)
+	// never posts the message twice, even when the first attempt reached the platform. A new target gets a new key.
+	const [nonces] = useState(() => new Map<string, string>());
 	const unnamed = t('teamChat.UNNAMED');
 	const titleOf = useMemo(
 		() => (conversation: (typeof conversations)[number]) =>
@@ -45,7 +48,8 @@ export function SendTaskToChatDialog({ task, onClose }: Readonly<{ task: { id: s
 		if (!target || !body || busy) return;
 		setBusy(true);
 		try {
-			const message = await actions.send(target.id, { body, taskId: task.id });
+			if (!nonces.has(target.id)) nonces.set(target.id, newNonce());
+			const message = await actions.send(target.id, { body, taskId: task.id, nonce: nonces.get(target.id) });
 			onClose();
 			toast(t('teamChat.SENT_TO_CHAT', { name: titleOf(target) }), {
 				action: { label: t('teamChat.OPEN'), onClick: () => router.push(`/chat/${encodeURIComponent(target.id)}?m=${encodeURIComponent(message.id)}`) }

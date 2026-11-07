@@ -10,7 +10,7 @@ import { Button } from '@/core/components/duplicated-components/_button';
 import { useChatActions } from '@/core/hooks/chat/use-chat-actions';
 import { useTaskDrawer } from '@/core/hooks/tasks/use-task-drawer';
 import { teamDefaultProjectId } from '@/core/lib/helpers/team-default-project';
-import { CHAT_TASK_TITLE_MAX, chatTaskTitleOf } from '@/core/lib/utils/chat-task';
+import { CHAT_TASK_TITLE_MAX, chatTaskTitleOf, createdTaskIdOf } from '@/core/lib/utils/chat-task';
 import { errorStatusOf } from '@/core/lib/utils/error-feedback';
 import { activeTeamState } from '@/core/stores/teams/organization-team';
 import { IChatMessage } from '@/core/types/interfaces/common/chat';
@@ -42,6 +42,15 @@ export function CreateTaskFromMessageDialog({ message, onClose }: Readonly<{ mes
 			onClose();
 			toast(t('teamChat.TASK_CREATED'), { action: { label: t('teamChat.OPEN'), onClick: () => openTaskDrawer(task.id) } });
 		} catch (error) {
+			// The task exists but the message does not point to it: no retry (it would make a second task), open it instead.
+			const createdId = createdTaskIdOf(error);
+			if (createdId) {
+				onClose();
+				toast.warning(t('teamChat.TASK_CREATED_UNLINKED'), {
+					action: { label: t('teamChat.OPEN'), onClick: () => openTaskDrawer(createdId) }
+				});
+				return;
+			}
 			toast.error(errorStatusOf(error) === 403 ? t('teamChat.TASK_CREATE_FORBIDDEN') : t('teamChat.TASK_CREATE_FAILED'));
 			setBusy(false);
 		}

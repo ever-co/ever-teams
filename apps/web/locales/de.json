@@ -5069,6 +5069,7 @@
 		"TASK_CREATED": "Aufgabe erstellt",
 		"TASK_CREATE_FAILED": "Die Aufgabe wurde nicht erstellt. Versuchen Sie es erneut.",
 		"TASK_CREATE_FORBIDDEN": "Sie haben keine Berechtigung, Aufgaben zu erstellen.",
+		"TASK_CREATED_UNLINKED": "Die Aufgabe wurde erstellt, aber die Nachricht konnte nicht mit ihr verknüpft werden. Öffnen Sie die Aufgabe, statt sie erneut zu erstellen.",
 		"OPEN": "Öffnen",
 		"SEND_TO_CHAT": "An Chat senden",
 		"SEND_TO_CHAT_TITLE": "Diese Aufgabe an eine Unterhaltung senden",

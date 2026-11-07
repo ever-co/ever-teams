@@ -5069,6 +5069,7 @@
 		"TASK_CREATED": "Attività creata",
 		"TASK_CREATE_FAILED": "L’attività non è stata creata. Riprova.",
 		"TASK_CREATE_FORBIDDEN": "Non hai il permesso di creare attività.",
+		"TASK_CREATED_UNLINKED": "L’attività è stata creata, ma il messaggio non è stato collegato. Aprila invece di crearla di nuovo.",
 		"OPEN": "Apri",
 		"SEND_TO_CHAT": "Invia in chat",
 		"SEND_TO_CHAT_TITLE": "Invia questa attività a una conversazione",

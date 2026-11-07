@@ -17,7 +17,7 @@ import {
 	IChatThreadPage
 } from '@/core/types/interfaces/common/chat';
 import { mentionedEmployeeIds, mergeMessages, newNonce } from '@/core/lib/utils/chat-format';
-import { withTaskReference } from '@/core/lib/utils/chat-task';
+import { createdTaskIdOf, withTaskReference } from '@/core/lib/utils/chat-task';
 import type { ChatMessagesCache } from './use-chat-messages';
 import { useChatScope } from './use-chat-scope';
 
@@ -209,7 +209,11 @@ export function useChatActions() {
 	/** A task from a message: the message shows its card at once, and the task lists read again (the task is new). */
 	const createTask = useCallback(
 		async (message: IChatMessage, input: IChatCreateTaskInput) => {
-			const answer = await chatService.createTask(message.id, input);
+			const answer = await chatService.createTask(message.id, input).catch((error: unknown) => {
+				// Created but not linked: the task exists, so the lists read again (the caller offers to open it).
+				if (createdTaskIdOf(error)) void queryClient.invalidateQueries({ queryKey: queryKeys.tasks.all });
+				throw error;
+			});
 			patchEverywhere(message, (current) => withTaskReference(current, answer.reference));
 			void queryClient.invalidateQueries({ queryKey: queryKeys.tasks.all });
 			return answer.task;

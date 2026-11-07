@@ -5069,6 +5069,7 @@
 		"TASK_CREATED": "Utworzono zadanie",
 		"TASK_CREATE_FAILED": "Zadanie nie zostało utworzone. Spróbuj ponownie.",
 		"TASK_CREATE_FORBIDDEN": "Nie masz uprawnień do tworzenia zadań.",
+		"TASK_CREATED_UNLINKED": "Zadanie zostało utworzone, ale nie udało się połączyć z nim wiadomości. Otwórz je zamiast tworzyć ponownie.",
 		"OPEN": "Otwórz",
 		"SEND_TO_CHAT": "Wyślij na czat",
 		"SEND_TO_CHAT_TITLE": "Wyślij to zadanie do rozmowy",

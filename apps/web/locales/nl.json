@@ -5069,6 +5069,7 @@
 		"TASK_CREATED": "Taak gemaakt",
 		"TASK_CREATE_FAILED": "De taak is niet gemaakt. Probeer het opnieuw.",
 		"TASK_CREATE_FORBIDDEN": "Je hebt geen toestemming om taken te maken.",
+		"TASK_CREATED_UNLINKED": "De taak is gemaakt, maar het bericht kon er niet aan worden gekoppeld. Open de taak in plaats van hem opnieuw te maken.",
 		"OPEN": "Openen",
 		"SEND_TO_CHAT": "Naar chat sturen",
 		"SEND_TO_CHAT_TITLE": "Deze taak naar een gesprek sturen",

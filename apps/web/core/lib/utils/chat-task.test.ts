@@ -1,5 +1,12 @@
 import { EChatTaskReferenceKind, IChatMessage } from '@/core/types/interfaces/common/chat';
-import { CHAT_TASK_TITLE_MAX, chatTaskTitleOf, sendableConversations, sendToChatBodyOf, withTaskReference } from './chat-task';
+import {
+	CHAT_TASK_TITLE_MAX,
+	chatTaskTitleOf,
+	createdTaskIdOf,
+	sendableConversations,
+	sendToChatBodyOf,
+	withTaskReference
+} from './chat-task';
 
 const ANA = '11111111-1111-4111-8111-111111111111';
 
@@ -30,6 +37,26 @@ describe('sendToChatBodyOf', () => {
 		expect(sendToChatBodyOf('  can you look?  ', 'Fix login')).toBe('can you look?');
 		expect(sendToChatBodyOf('   ', '  Fix login ')).toBe('Fix login');
 		expect(sendToChatBodyOf('x'.repeat(10), 'T', 4)).toBe('xxxx');
+	});
+
+	it('never ends the cut body on half of an emoji', () => {
+		expect(sendToChatBodyOf('', `abc😀`, 4)).toBe('abc');
+		expect(sendToChatBodyOf('', `abc😀`, 5)).toBe('abc😀');
+	});
+});
+
+describe('createdTaskIdOf', () => {
+	it('finds the id of a task that was created but not linked, wherever the client put the body', () => {
+		expect(createdTaskIdOf({ statusCode: 500, details: { taskId: 't1' } })).toBe('t1');
+		expect(createdTaskIdOf({ response: { status: 500, data: { message: 'x', taskId: 't2' } } })).toBe('t2');
+		expect(createdTaskIdOf({ data: { taskId: 't3' } })).toBe('t3');
+		expect(createdTaskIdOf({ taskId: 't4' })).toBe('t4');
+	});
+
+	it('answers null for any other failure', () => {
+		expect(createdTaskIdOf(new Error('boom'))).toBeNull();
+		expect(createdTaskIdOf({ statusCode: 403, details: { message: 'no' } })).toBeNull();
+		expect(createdTaskIdOf(null)).toBeNull();
 	});
 });
 
