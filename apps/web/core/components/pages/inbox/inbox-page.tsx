@@ -335,6 +335,17 @@ function InboxPageContent() {
 			.catch(failed);
 	}, [actions, legacyActions, listSelection, reportFailure, t, usesExtension]);
 
+	// `?item=` (a clicked browser notification): the entry opens once it is in the list.
+	const linkedItemId = searchParams.get('item');
+	const openedLinkRef = useRef<string | null>(null);
+	useEffect(() => {
+		if (!linkedItemId || openedLinkRef.current === linkedItemId) return;
+		const entry = byId.get(linkedItemId);
+		if (!entry) return;
+		openedLinkRef.current = linkedItemId;
+		handleOpen(entry);
+	}, [byId, handleOpen, linkedItemId]);
+
 	const byIdAction = useCallback(
 		(handler: (entry: InboxEntry) => void) => (id: string) => {
 			const entry = byId.get(id);

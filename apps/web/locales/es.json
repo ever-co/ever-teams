@@ -3398,6 +3398,14 @@
 		"SETTINGS_PAGE": {
 			"CHANNELS": {
 				"EMAIL_TITLE": "Correo",
+				"PUSH_TITLE": "Notificaciones del navegador",
+				"PUSH_INTRO": "Recibe una notificación en este dispositivo cuando llegue algo nuevo a tu bandeja, incluso con la aplicación cerrada.",
+				"PUSH_LABEL": "Notificaciones en este dispositivo",
+				"PUSH_ON": "Este navegador muestra tus nuevas entradas.",
+				"PUSH_OFF": "Desactivadas en este navegador.",
+				"PUSH_BLOCKED": "Las notificaciones están bloqueadas para este sitio: permítelas en la configuración del navegador y vuelve a activarlas aquí.",
+				"PUSH_UNSUPPORTED": "Este navegador no puede mostrar notificaciones.",
+				"PUSH_FAILED": "No se pudieron cambiar las notificaciones del navegador. Inténtalo de nuevo.",
 				"EMAIL_INTRO": "Cómo te llega cada tipo por correo. Todo tipo que dejes activado sigue apareciendo en tu bandeja.",
 				"DEFAULT_LABEL": "Todos los tipos",
 				"DEFAULT_TEXT": "El ajuste de correo que usa un tipo salvo que su propia fila diga otra cosa.",
