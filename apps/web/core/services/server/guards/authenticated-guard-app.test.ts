@@ -33,7 +33,10 @@ describe('authenticatedGuard', () => {
 		const second = await authenticatedGuard(request('token-a'), new NextResponse());
 
 		expect(mockCurrentAuthenticatedUserRequest).toHaveBeenCalledTimes(1);
-		expect(mockCurrentAuthenticatedUserRequest).toHaveBeenCalledWith({ bearer_token: 'token-a' });
+		expect(mockCurrentAuthenticatedUserRequest).toHaveBeenCalledWith({
+			bearer_token: 'token-a',
+			signal: expect.any(AbortSignal)
+		});
 		expect(first.user).toEqual(user);
 		expect(second.user).toEqual(user);
 		expect(second.tenantId).toBe('tenant-1');

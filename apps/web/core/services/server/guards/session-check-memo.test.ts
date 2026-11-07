@@ -159,20 +159,38 @@ describe('SessionCheckMemo', () => {
 		expect(memo.size).toBe(0);
 	});
 
-	it('gives up a check that overruns its deadline: its callers get the failure, the next call checks again', async () => {
+	it('gives up a check that overruns its deadline: its callers get the failure, the request is aborted, the next call checks again', async () => {
 		const slow = new SessionCheckMemo<Check>(5_000, 3, () => now, 40);
 		let release!: (check: Check) => void;
-		check.mockImplementationOnce(() => new Promise<Check>((resolve) => (release = resolve)));
+		let signalSeen: AbortSignal | undefined;
+		check.mockImplementationOnce((signal: AbortSignal) => {
+			signalSeen = signal;
+			return new Promise<Check>((resolve) => (release = resolve));
+		});
 
 		const stalled = [slow.answer('token-a', check, keepable), slow.answer('token-a', check, keepable)];
 		await expect(stalled[0]).rejects.toThrow('did not answer within 40 ms');
 		await expect(stalled[1]).rejects.toThrow('did not answer within 40 ms');
+		expect(signalSeen?.aborted).toBe(true);
 		expect(slow.size).toBe(0);
 
 		await expect(slow.answer('token-a', check, keepable)).resolves.toEqual(ok('user-1'));
 		expect(check).toHaveBeenCalledTimes(2);
 		release(ok('late')); // the stalled check answering later changes nothing
 		expect(slow.size).toBe(1);
+	});
+
+	it('runs a check it does not keep (window off, no token, expired token) under the same deadline', async () => {
+		const off = new SessionCheckMemo<Check>(0, 3, () => now, 40);
+		check.mockImplementation(() => new Promise<Check>(() => undefined));
+
+		await expect(off.answer('token-a', check, keepable)).rejects.toThrow('did not answer within 40 ms');
+		const kept = new SessionCheckMemo<Check>(5_000, 3, () => now, 40);
+		await expect(kept.answer('', check, keepable)).rejects.toThrow('did not answer within 40 ms');
+		await expect(kept.answer(jwtExpiring(Math.floor(now / 1000) - 1), check, keepable)).rejects.toThrow(
+			'did not answer within 40 ms'
+		);
+		expect(check).toHaveBeenCalledTimes(3);
 	});
 
 	it('checks every call when the window is zero', async () => {

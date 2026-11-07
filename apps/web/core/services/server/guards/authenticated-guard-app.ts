@@ -63,11 +63,11 @@ export async function authenticatedGuard(req: Request, res: NextResponse<unknown
 
 	let rejection: { statusCode?: number; message?: string } | undefined;
 	const bearer_token = access_token?.toString() || '';
-	const check = () => currentAuthenticatedUserRequest({ bearer_token });
+	const check = (signal: AbortSignal) => currentAuthenticatedUserRequest({ bearer_token, signal });
 	// Routes called within the same few seconds with the same token share one check (see SessionCheckMemo), unless
-	// the route asks for a fresh one.
+	// the route asks for a fresh one; either way the check runs under the memo's deadline.
 	const r_res: SessionCheck | void = await (options.fresh
-		? check()
+		? sessionChecks.withDeadline(check)
 		: sessionChecks.answer(bearer_token, check, authenticated)
 	).catch(async (error: unknown) => {
 		const reason = await unwrapRejection(error);

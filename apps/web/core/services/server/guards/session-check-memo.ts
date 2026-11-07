@@ -49,6 +49,9 @@ export function tokenExpiresAt(token: string): number | undefined {
 	}
 }
 
+/** Runs a session check; the signal is aborted when the check's deadline passes. */
+export type SessionCheckRunner<T> = (signal: AbortSignal) => Promise<T>;
+
 interface Entry<T> {
 	/** When the answer stops being reused (never past the token's own expiry). */
 	readonly until: number;
@@ -92,15 +95,16 @@ export class SessionCheckMemo<T> {
 	) {}
 
 	/**
-	 * The answer for a token: a kept one, the one in flight, or a fresh check.
+	 * The answer for a token: a kept one, the one in flight, or a fresh check. Every check — kept or not — runs under
+	 * the deadline, and the upstream request is aborted when it passes.
 	 *
 	 * @param token The access token.
-	 * @param check Runs the session check.
+	 * @param check Runs the session check; the signal aborts it at the deadline.
 	 * @param isKeepable Whether an answer authenticated and may be reused.
 	 */
-	answer(token: string, check: () => Promise<T>, isKeepable: (answer: T) => boolean): Promise<T> {
+	answer(token: string, check: SessionCheckRunner<T>, isKeepable: (answer: T) => boolean): Promise<T> {
 		if (this.ttlMs <= 0 || !token) {
-			return check();
+			return this.withDeadline(check);
 		}
 
 		const key = createHash('sha256').update(token).digest('base64url');
@@ -114,7 +118,7 @@ export class SessionCheckMemo<T> {
 		const until = expiresAt === undefined ? now + this.ttlMs : Math.min(now + this.ttlMs, expiresAt);
 		if (until <= now) {
 			// An expired token: checked (and refused upstream) every time, kept never.
-			return check();
+			return this.withDeadline(check);
 		}
 
 		const entry: Entry<T> = { until, answer: undefined as unknown as Promise<T>, settled: false };
@@ -150,13 +154,21 @@ export class SessionCheckMemo<T> {
 		return this.entries.size;
 	}
 
-	/** The check, or a `SessionCheckTimeoutError` once the deadline has passed without an answer. */
-	private withDeadline(check: () => Promise<T>): Promise<T> {
-		if (!(this.deadlineMs > 0)) return check();
+	/**
+	 * The check, or a `SessionCheckTimeoutError` once the deadline has passed without an answer — at which point the
+	 * upstream request is aborted through the signal, so a stalled check does not keep a socket and a pending fetch
+	 * alive behind every later one.
+	 */
+	withDeadline(check: SessionCheckRunner<T>): Promise<T> {
+		if (!(this.deadlineMs > 0)) return check(new AbortController().signal);
 		return new Promise<T>((resolve, reject) => {
-			const timer = setTimeout(() => reject(new SessionCheckTimeoutError(this.deadlineMs)), this.deadlineMs);
+			const controller = new AbortController();
+			const timer = setTimeout(() => {
+				reject(new SessionCheckTimeoutError(this.deadlineMs));
+				controller.abort(new SessionCheckTimeoutError(this.deadlineMs));
+			}, this.deadlineMs);
 			timer.unref?.();
-			check().then(
+			check(controller.signal).then(
 				(result) => {
 					clearTimeout(timer);
 					resolve(result);
