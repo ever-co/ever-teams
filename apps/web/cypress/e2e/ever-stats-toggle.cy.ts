@@ -46,7 +46,7 @@ describe('the anonymous usage statistics switch', () => {
 		});
 
 		cy.intercept('PUT', '/api/ever-stats/enabled').as('toggle');
-		cy.hardVisit('/settings/team');
+		cy.hardVisit('/settings/team/integrations');
 		cy.get('[data-testid="ever-platform-section"]', { timeout: 20_000 }).should('exist');
 		cy.get('[data-testid="ever-stats-toggle"]').should('have.attr', 'aria-checked', 'true').click();
 		cy.wait('@toggle').its('response.statusCode').should('eq', 200);

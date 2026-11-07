@@ -15,12 +15,21 @@ import {
 } from '@/core/components/settings/kit/settings-page';
 import { SettingsSwitch } from '@/core/components/settings/kit/settings-switch';
 import { isNotificationTypeOn, useNotificationSettings } from '@/core/hooks/notifications/use-notification-settings';
+import {
+	defaultEmailModeOf,
+	digestHourOf,
+	ownEmailModeOf,
+	quietHoursOf
+} from '@/core/lib/notifications/notification-preferences';
 import { userState } from '@/core/stores/user/user';
 import {
 	EEmployeeNotificationType,
 	IEmployeeNotificationSetting,
+	INotificationPreferences,
+	INotificationQuietHours,
 	TEmployeeNotificationSettingKey
 } from '@/core/types/interfaces/common/employee-notification';
+import { DigestHourRow, EmailDefaultRow, EmailModeChoice, EmailModeSelect, QuietHoursRow } from './notification-channel-rows';
 import { NotificationGroupsSkeleton } from './notifications-settings-skeleton';
 
 interface TypeCopy {
@@ -91,10 +100,12 @@ type TypeRowsProps = {
 	keys: readonly TEmployeeNotificationSettingKey[];
 	setting: IEmployeeNotificationSetting | null;
 	pending: PendingSwitches;
+	isSavingPreferences: boolean;
 	onToggle: (key: TEmployeeNotificationSettingKey, isOn: boolean) => void;
+	onEmailMode: (type: EEmployeeNotificationType, mode: EmailModeChoice) => void;
 };
 
-function TypeRows({ keys, setting, pending, onToggle }: Readonly<TypeRowsProps>) {
+function TypeRows({ keys, setting, pending, isSavingPreferences, onToggle, onEmailMode }: Readonly<TypeRowsProps>) {
 	const t = useTranslations();
 	return (
 		<SettingsSurface>
@@ -110,7 +121,18 @@ function TypeRows({ keys, setting, pending, onToggle }: Readonly<TypeRowsProps>)
 						description={t(copy.textKey)}
 						leading={<NotificationTypeBadge type={copy.type} size="md" />}
 						htmlFor={switchId}
+						controlClassName="flex-wrap"
 					>
+						{isOn && (
+							<EmailModeSelect
+								value={ownEmailModeOf(setting?.preferences, copy.type) ?? 'default'}
+								allowDefault
+								disabled={isSavingPreferences}
+								ariaLabel={`${t('notifications.SETTINGS_PAGE.CHANNELS.MODE_LABEL')}: ${t(copy.titleKey)}`}
+								className="w-full sm:w-40"
+								onChange={(mode) => onEmailMode(copy.type, mode)}
+							/>
+						)}
 						<SettingsSwitch
 							id={switchId}
 							checked={isOn}
@@ -127,7 +149,7 @@ function TypeRows({ keys, setting, pending, onToggle }: Readonly<TypeRowsProps>)
 export function NotificationsSettingsPage() {
 	const t = useTranslations();
 	const user = useAtomValue(userState);
-	const { setting, isAvailable, isLoading, isError, retry, toggle } = useNotificationSettings();
+	const { setting, isAvailable, isLoading, isError, retry, toggle, savePreferences, isSavingPreferences } = useNotificationSettings();
 	const [pending, setPending] = useState<PendingSwitches>({});
 	const isUserKnown = Boolean(user);
 	const showsSkeleton = !isUserKnown || isLoading;
@@ -153,6 +175,21 @@ export function NotificationsSettingsPage() {
 			setPending((current) => withoutKey(current, key));
 		}
 	};
+
+	const onPreferences = async (patch: Partial<INotificationPreferences>) => {
+		try {
+			await savePreferences(patch);
+		} catch {
+			toast.error(t('notifications.SETTINGS_PAGE.CHANNELS.SAVE_FAILED'));
+		}
+	};
+	// `default` takes the kind's own choice away, so it follows the mode of every kind again.
+	const onEmailMode = (type: EEmployeeNotificationType, mode: EmailModeChoice) =>
+		onPreferences({ emailByType: { [type]: mode === 'default' ? undefined : mode } });
+	const onQuietHours = (window: INotificationQuietHours | null) => onPreferences({ dnd: window });
+	const preferences = setting?.preferences;
+	const quietHours = quietHoursOf(preferences);
+	const quietHoursKey = quietHours ? `${quietHours.start}-${quietHours.end}` : 'off';
 
 	return (
 		<SettingsPage
@@ -186,10 +223,45 @@ export function NotificationsSettingsPage() {
 						title={t('settings.notifications.GROUP_WORK')}
 						description={t('notifications.SETTINGS_PAGE.INTRO')}
 					>
-						<TypeRows keys={WORK_TYPES} setting={setting} pending={pending} onToggle={onToggle} />
+						<TypeRows
+							keys={WORK_TYPES}
+							setting={setting}
+							pending={pending}
+							isSavingPreferences={isSavingPreferences}
+							onToggle={onToggle}
+							onEmailMode={onEmailMode}
+						/>
 					</SettingsSection>
 					<SettingsSection title={t('settings.notifications.GROUP_PEOPLE')}>
-						<TypeRows keys={PEOPLE_TYPES} setting={setting} pending={pending} onToggle={onToggle} />
+						<TypeRows
+							keys={PEOPLE_TYPES}
+							setting={setting}
+							pending={pending}
+							isSavingPreferences={isSavingPreferences}
+							onToggle={onToggle}
+							onEmailMode={onEmailMode}
+						/>
+					</SettingsSection>
+					<SettingsSection
+						id="notification-email"
+						title={t('notifications.SETTINGS_PAGE.CHANNELS.EMAIL_TITLE')}
+						description={t('notifications.SETTINGS_PAGE.CHANNELS.EMAIL_INTRO')}
+					>
+						<EmailDefaultRow
+							value={defaultEmailModeOf(preferences)}
+							disabled={isSavingPreferences}
+							onChange={(mode) => onPreferences({ email: mode })}
+						/>
+					</SettingsSection>
+					<SettingsSection id="notification-quiet-hours" title={t('notifications.SETTINGS_PAGE.CHANNELS.QUIET_TITLE')}>
+						<SettingsSurface>
+							<QuietHoursRow key={quietHoursKey} window={quietHours} disabled={isSavingPreferences} onChange={onQuietHours} />
+							<DigestHourRow
+								value={digestHourOf(preferences)}
+								disabled={isSavingPreferences}
+								onChange={(hour) => onPreferences({ digestHour: hour })}
+							/>
+						</SettingsSurface>
 					</SettingsSection>
 				</>
 			)}
