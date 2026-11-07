@@ -29,7 +29,7 @@ export const sessionChecks = new SessionCheckMemo<SessionCheck>(
 	resolveSessionCheckMemoTtl(process.env.SESSION_CHECK_MEMO_TTL_MS)
 );
 
-export interface AuthenticatedGuardOptions {
+interface AuthenticatedGuardOptions {
 	/**
 	 * Check the token against the Gauzy API now, whatever recent check this process holds for it. For a route that
 	 * is its own authorization boundary because it signs a credential with a server secret (`auth/meet/jwt`,
