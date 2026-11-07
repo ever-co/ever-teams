@@ -117,9 +117,12 @@ export function useChatMessages(conversationId: string | null, enabled: boolean)
 		if (!enabled || !conversationId || !hasData || typeof window === 'undefined') return;
 		let busy = false;
 		const tick = async () => {
-			if (busy || liveRef.current || document.visibilityState !== 'visible') return;
-			busy = true;
+			if (busy || document.visibilityState !== 'visible') return;
 			const key = keyRef.current;
+			// Live: the poll pauses — but a timeline opened at an older message keeps reading forward until it reaches the
+			// newest (an event's refetch leaves such a timeline as it is).
+			if (liveRef.current && !queryClient.getQueryData<ChatMessagesCache>(key)?.hasAfter) return;
+			busy = true;
 			try {
 				const latest = queryClient.getQueryData<ChatMessagesCache>(key);
 				if (!latest) return;

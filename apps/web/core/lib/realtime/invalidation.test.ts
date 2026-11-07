@@ -70,6 +70,7 @@ describe('invalidationsFor', () => {
 		expect(keysOf('chat_member_state.changed', { conversationId: 'c1' })).toEqual([
 			['chat', 'conversations'],
 			['chat', 'states'],
+			['chat', 'conversation', 'ten', 'c1'],
 			['chat', 'browse'],
 			['chat', 'members', 'ten', 'c1']
 		]);

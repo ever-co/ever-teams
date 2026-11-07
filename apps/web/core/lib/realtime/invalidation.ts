@@ -131,6 +131,8 @@ export function chatInvalidationsOf(family: string, data: RealtimeEnvelope['data
 	}
 	return [
 		...lists,
+		// The conversation read on its own (a deep link to one that is not in the sidebar).
+		{ queryKey: [...queryKeys.chat.all, 'conversation', scope.tenantId ?? null, conversationId], deferrable: false },
 		{ queryKey: ['chat', 'browse'], deferrable: false },
 		{ queryKey: queryKeys.chat.members(scope.tenantId, conversationId), deferrable: false }
 	];
