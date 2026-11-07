@@ -1,6 +1,7 @@
 'use client';
 import { DEFAULT_APP_PATH, LAST_WORKSPACE_AND_TEAM } from '@/core/constants/config/constants';
 import { removeAuthCookies } from '@/core/lib/helpers/cookies';
+import { forgetThisBrowserPush } from '@/core/hooks/inbox/use-inbox-web-push';
 import { handleUnauthorized, registerRefreshTokenCallback } from '@/core/lib/auth/handle-unauthorized';
 import { DisconnectionReason } from '@/core/types/enums/disconnection-reason';
 import { logDisconnection } from '@/core/lib/auth/disconnect-logger';
@@ -187,6 +188,9 @@ export const useAuthenticateUser = (defaultUser?: TUser): UseAuthenticateUserRes
 				.catch((error) => logErrorInDev('[Auth] Timer stop before logout failed:', error));
 			await Promise.race([stopTimer, new Promise((resolve) => window.setTimeout(resolve, 3000))]);
 		}
+
+		// This browser stops receiving the person's inbox notifications (a shared browser), bounded like the timer stop.
+		await Promise.race([forgetThisBrowserPush(), new Promise((resolve) => window.setTimeout(resolve, 3000))]);
 
 		removeAuthCookies();
 		queryClient.clear();

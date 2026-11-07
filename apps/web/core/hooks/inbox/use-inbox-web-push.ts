@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useState } from 'react';
 import { ApiErrorService } from '@/core/services/client/api-error.service';
 import { inboxPushService } from '@/core/services/client/api/inbox';
-import { base64UrlToBytes, supportsWebPush } from '@/core/lib/utils/web-push';
+import { base64UrlToBytes, supportsWebPush, unsubscribeThisBrowserPush } from '@/core/lib/utils/web-push';
 
 /** The worker that shows pushed inbox entries (served from `public/`). */
 export const INBOX_PUSH_WORKER_URL = '/inbox-push-sw.js';
@@ -17,6 +17,24 @@ export type InboxWebPushState = 'loading' | 'unavailable' | 'unsupported' | 'blo
 async function currentSubscription(): Promise<PushSubscription | null> {
 	const registration = await navigator.serviceWorker.getRegistration('/');
 	return (await registration?.pushManager.getSubscription()) ?? null;
+}
+
+/**
+ * Signing out on this browser: the device is removed from the platform while the session still allows it, and the
+ * browser unsubscribes, so the next person on a shared browser never receives the previous one's inbox. Never
+ * throws; the caller bounds how long it waits.
+ */
+export async function forgetThisBrowserPush(): Promise<void> {
+	if (!supportsWebPush()) return;
+	try {
+		const subscription = await currentSubscription();
+		if (!subscription) return;
+		const devices = await inboxPushService.devices().catch(() => []);
+		const device = devices.find((candidate) => candidate.endpoint === subscription.endpoint);
+		if (device) await inboxPushService.remove(device.id).catch(() => undefined);
+	} finally {
+		await unsubscribeThisBrowserPush();
+	}
 }
 
 function deviceInputOf(subscription: PushSubscription) {
@@ -60,8 +78,13 @@ export function useInboxWebPush(enabled: boolean) {
 		}
 		const subscription = await currentSubscription().catch(() => null);
 		if (subscription && Notification.permission === 'granted') {
-			await inboxPushService.register(deviceInputOf(subscription)).catch(() => undefined);
-			setState('on');
+			// Registered again (the platform drops devices after failed pushes); a failure shows off, and switching on
+			// sets the device up again.
+			const registered = await inboxPushService
+				.register(deviceInputOf(subscription))
+				.then(() => true)
+				.catch(() => false);
+			setState(registered ? 'on' : 'off');
 			return;
 		}
 		setState('off');
