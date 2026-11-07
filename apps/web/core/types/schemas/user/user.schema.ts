@@ -97,6 +97,8 @@ const baseUserSchema = z
 		lastOrganizationId: z.string().nullable().optional(),
 		tags: z.array(tagSchema).optional(),
 		preferredLanguage: z.string().nullable().optional(),
+		/** Per-user UI preferences the platform keeps on the user row, one object per feature (`keyboard`, …). */
+		uiPreferences: z.record(z.string(), z.unknown()).nullable().optional(),
 		fullName: z.string().nullable().optional(),
 		organizations: z.array(userOrganizationSchema).optional(),
 		isImporting: z.boolean().optional(),
