@@ -43,7 +43,17 @@ const Button = ({ children, loading, className, ...props }: ButtonProps) => {
 };
 
 const PROJECT_TITLE_MAX_LENGTH = 100;
-type BasicInfoErrorKeys = 'dateRange' | 'websiteUrl' | 'projectTitle' | 'projectImage' | 'description';
+type BasicInfoErrorKeys = 'dateRange' | 'websiteUrl' | 'projectTitle' | 'projectImage' | 'description' | 'taskKey';
+
+/** A project's task key: 2 to 10 upper-case letters or digits, starting with a letter (the platform's own rule). */
+const TASK_KEY_PATTERN = /^[A-Z][A-Z0-9]{1,9}$/;
+
+/** The key the platform proposes for a title (its first three letters or digits), shown as the field's placeholder. */
+function proposedTaskKey(title: string): string {
+	const compact = title.replace(/[^A-Za-z0-9]/g, '').toUpperCase().slice(0, 3);
+	if (TASK_KEY_PATTERN.test(compact)) return compact;
+	return title.replace(/[^A-Za-z]/g, '').toUpperCase().slice(0, 3);
+}
 
 export default function BasicInformationForm(props: IStepElementProps) {
 	const { goToNext, currentData, mode } = props;
@@ -61,6 +71,7 @@ export default function BasicInformationForm(props: IStepElementProps) {
 	};
 	const [projectImageFile, setProjectImageFile] = useState<File | null>(null);
 	const [websiteUrl, setWebsiteUrl] = useState<string>(() => getInitialValue(currentData, 'projectUrl', ''));
+	const [taskKey, setTaskKey] = useState<string>(() => String(getInitialValue(currentData, 'taskKey', '') ?? ''));
 	const [errors, setErrors] = useState<Map<BasicInfoErrorKeys, string>>(new Map());
 	const [descriptionValid, setDescriptionValid] = useState(true);
 	const t = useTranslations();
@@ -141,6 +152,14 @@ export default function BasicInformationForm(props: IStepElementProps) {
 
 		// Clean up before next try
 		newErrors.delete('projectImage');
+
+		// The task key: empty (the platform proposes one) or a valid key.
+		const key = taskKey.trim().toUpperCase();
+		if (key && !TASK_KEY_PATTERN.test(key)) {
+			newErrors.set('taskKey', t('pages.projects.basicInformationForm.errors.taskKeyInvalid'));
+		} else {
+			newErrors.delete('taskKey');
+		}
 
 		// Validate projectTitle
 		validateField(
@@ -245,7 +264,8 @@ export default function BasicInformationForm(props: IStepElementProps) {
 				name: projectTitle,
 				description,
 				projectImage: image,
-				projectUrl: websiteUrl
+				projectUrl: websiteUrl,
+				taskKey: taskKey.trim().toUpperCase() || undefined
 			});
 			return;
 		}
@@ -255,7 +275,8 @@ export default function BasicInformationForm(props: IStepElementProps) {
 			endDate: endDate.toISOString(),
 			name: projectTitle,
 			description,
-			projectUrl: websiteUrl
+			projectUrl: websiteUrl,
+			taskKey: taskKey.trim().toUpperCase() || undefined
 		});
 	};
 
@@ -281,6 +302,24 @@ export default function BasicInformationForm(props: IStepElementProps) {
 							/>
 							<DictationButton onText={appendDictatedTitle} />
 						</div>
+					</div>
+					<div className="flex flex-col gap-1 w-full">
+						<label htmlFor="project_task_key" className={modalFieldLabelClass}>
+							{t('pages.projects.basicInformationForm.formFields.taskKey')}
+						</label>
+						<InputField
+							id="project_task_key"
+							value={taskKey}
+							onChange={(el) => setTaskKey(el.target.value.toUpperCase())}
+							maxLength={10}
+							placeholder={proposedTaskKey(projectTitle) || 'WEB'}
+							aria-describedby="project_task_key_help"
+							noWrapper
+						/>
+						<p id="project_task_key_help" className="text-xs text-muted-foreground">
+							{t('pages.projects.basicInformationForm.formFields.taskKeyHelp', { example: `${taskKey.trim() || proposedTaskKey(projectTitle) || 'WEB'}-42` })}
+						</p>
+						{errors?.get('taskKey') && <p className="text-xs text-destructive-ink">{errors.get('taskKey')}</p>}
 					</div>
 					<div className="w-full flex flex-col gap-1">
 						<RichTextEditor

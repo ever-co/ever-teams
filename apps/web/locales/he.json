@@ -1598,6 +1598,8 @@
 				"formFields": {
 					"title": "כותרת הפרויקט",
 					"titlePlaceholder": "פרויקט לקוח #1",
+					"taskKey": "מפתח משימות",
+					"taskKeyHelp": "המשימות של הפרויקט הזה ממוספרות {example}. השאירו ריק כדי להשתמש באותיות הראשונות של הכותרת.",
 					"description": "תיאור",
 					"datePickerPlaceholder": "בחר תאריך",
 					"websiteUrl": "כתובת אתר",
@@ -1607,6 +1609,7 @@
 				},
 				"errors": {
 					"titleRequired": "כותרת הפרויקט נדרשת.",
+					"taskKeyInvalid": "השתמשו ב-2 עד 10 אותיות לטיניות גדולות או ספרות, שמתחילים באות.",
 					"titleLength": "כותרת הפרויקט חייבת להיות בין 3 ל-100 תווים.",
 					"invalidWebsiteUrl": "כתובת אתר לא חוקית.",
 					"fileSizeLimit": "גודל הקובץ חייב להיות קטן מ-5MB.",

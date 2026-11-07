@@ -1586,6 +1586,8 @@
 				"formFields": {
 					"title": "项目标题",
 					"titlePlaceholder": "客户项目 #1",
+					"taskKey": "任务键",
+					"taskKeyHelp": "此项目的任务编号为 {example}。留空则使用标题的前几个字母。",
 					"description": "描述",
 					"datePickerPlaceholder": "选择日期",
 					"websiteUrl": "网站URL",
@@ -1595,6 +1597,7 @@
 				},
 				"errors": {
 					"titleRequired": "项目标题是必需的。",
+					"taskKeyInvalid": "请使用 2 到 10 个大写字母或数字，并以字母开头。",
 					"titleLength": "项目标题必须介于3到100个字符之间。",
 					"invalidWebsiteUrl": "无效的网站URL。",
 					"fileSizeLimit": "文件大小必须小于5MB。",
