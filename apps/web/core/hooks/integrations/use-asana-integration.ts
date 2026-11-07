@@ -81,6 +81,8 @@ const NO_MAPPINGS: IAsanaMapping[] = [];
 const NO_RUNS: IAsanaRun[] = [];
 const NO_ASANA_PROJECTS: IAsanaProject[] = [];
 const NO_SECTIONS: IAsanaSection[] = [];
+/** The organization's projects could not be read (the projects query keeps no error object). */
+const PROJECTS_READ_FAILED = new Error('The organization projects could not be read');
 /** How often the runs are read again while one is running. */
 const RUNS_POLL_MS = 10_000;
 /** How long after a webhook registration the mappings are read again (the platform registers behind its answer). */
@@ -154,7 +156,9 @@ export function useAsanaIntegration(): AsanaIntegrationSettings {
 	const [disconnectError, setDisconnectError] = useState<unknown>(null);
 	const [callbackDismissed, setCallbackDismissed] = useState(false);
 
+	// The platform's callback names its provider (`?provider=asana`): another provider's return is not this one's.
 	const callbackParam = useMemo(() => {
+		if (searchParams?.get('provider') !== 'asana') return null;
 		const value = searchParams?.get('error') ?? null;
 		return isCallbackError(value) ? value : null;
 	}, [searchParams]);
@@ -165,6 +169,7 @@ export function useAsanaIntegration(): AsanaIntegrationSettings {
 		if (!searchParams?.has('error')) return;
 		const rest = new URLSearchParams(searchParams.toString());
 		rest.delete('error');
+		rest.delete('provider');
 		const query = rest.toString();
 		router.replace(query ? `${pathname}?${query}` : pathname, { scroll: false });
 	}, [pathname, router, searchParams]);
@@ -200,7 +205,7 @@ export function useAsanaIntegration(): AsanaIntegrationSettings {
 		staleTime: 5_000,
 		refetchInterval: (query) => (query.state.data?.some((run) => run.status === 'running') ? RUNS_POLL_MS : false)
 	});
-	const { organizationProjects } = useOrganizationProjectsQuery({ enabled: !!integrationId });
+	const { organizationProjects, getOrganizationProjectsLoading, isOrganizationProjectsError, refetchOrganizationProjects } = useOrganizationProjectsQuery({ enabled: !!integrationId });
 	const projects = useMemo<AsanaIntegrationProject[]>(
 		() => (organizationProjects ?? []).map((project) => ({ id: project.id, name: project.name ?? '' })).filter((project) => project.id),
 		[organizationProjects]
@@ -226,7 +231,8 @@ export function useAsanaIntegration(): AsanaIntegrationSettings {
 		if (mappingsQuery.isError) void mappingsQuery.refetch();
 		if (metadataQuery.isError) void metadataQuery.refetch();
 		if (runsQuery.isError) void runsQuery.refetch();
-	}, [mappingsQuery, metadataQuery, runsQuery]);
+		if (isOrganizationProjectsError) void refetchOrganizationProjects();
+	}, [isOrganizationProjectsError, mappingsQuery, metadataQuery, refetchOrganizationProjects, runsQuery]);
 
 	/** One action at a time, its kind shown while it runs, its error kept for the page (a disconnect's apart). */
 	const act = useCallback(async (kind: AsanaPending['kind'], mappingId: string | null, work: () => Promise<unknown>) => {
@@ -350,8 +356,8 @@ export function useAsanaIntegration(): AsanaIntegrationSettings {
 		projects,
 		mappings: mappingsQuery.data ?? NO_MAPPINGS,
 		runs: runsQuery.data ?? NO_RUNS,
-		isLoadingDetails: !!integrationId && (mappingsQuery.isPending || metadataQuery.isPending),
-		detailsError: mappingsQuery.error ?? metadataQuery.error ?? runsQuery.error ?? null,
+		isLoadingDetails: !!integrationId && (mappingsQuery.isPending || metadataQuery.isPending || getOrganizationProjectsLoading),
+		detailsError: mappingsQuery.error ?? metadataQuery.error ?? runsQuery.error ?? (isOrganizationProjectsError ? PROJECTS_READ_FAILED : null),
 		isRetryingDetails: mappingsQuery.isFetching || metadataQuery.isFetching || runsQuery.isFetching,
 		retryDetails,
 		actionError,
