@@ -44,8 +44,7 @@ export function useGoToCommands(icon?: React.ReactNode): CommandShortcutConfig[]
 		const commands: CommandShortcutConfig[] = [];
 		for (const entry of GO_TO) {
 			if (!isFlagOn(entry.flag)) continue;
-			const command = SHORTCUT_COMMANDS.find((item) => item.id === entry.id);
-			if (!command) continue;
+			if (!SHORTCUT_COMMANDS.some((item) => item.id === entry.id)) continue;
 			const binding = bindings.get(entry.id) ?? null;
 			commands.push({
 				sequence: [],

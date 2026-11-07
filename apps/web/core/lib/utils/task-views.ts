@@ -59,7 +59,7 @@ function normalizedFilters(filters: TeamTasksFilters): Record<string, string[]> 
 	const result: Record<string, string[]> = {};
 	for (const field of FILTER_FIELDS) {
 		const values = filters[field];
-		if (values?.length) result[field] = [...values].sort();
+		if (values?.length) result[field] = [...values].sort((first, second) => first.localeCompare(second));
 	}
 	return result;
 }

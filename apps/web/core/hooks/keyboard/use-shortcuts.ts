@@ -26,7 +26,9 @@ export function useShortcutHandlers(handlers: Record<string, ShortcutHandler>, c
 	const setContexts = useSetAtom(shortcutContextsAtom);
 	const latest = useRef(handlers);
 	latest.current = handlers;
-	const ids = Object.keys(handlers).sort().join('|');
+	const ids = Object.keys(handlers)
+		.sort((first, second) => first.localeCompare(second))
+		.join('|');
 	const contextKey = contexts.join('|');
 
 	useEffect(() => {

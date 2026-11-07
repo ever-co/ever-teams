@@ -49,9 +49,10 @@ export function useBulkTaskUpdate() {
 			if (!taskIds.length) return null;
 			const batches: string[][] = [];
 			for (let at = 0; at < taskIds.length; at += TASK_BULK_UPDATE_MAX) batches.push(taskIds.slice(at, at + TASK_BULK_UPDATE_MAX));
-			const outcomes: ITaskBulkUpdateOutcome[] = [];
+			let outcomes: ITaskBulkUpdateOutcome[];
 			try {
-				for (const batch of batches) outcomes.push(await run({ taskIds: batch, changes }));
+				// The batches are independent (each task once), so they go out together.
+				outcomes = await Promise.all(batches.map((batch) => run({ taskIds: batch, changes })));
 			} catch (error) {
 				toast.error(t('taskViews.BULK_FAILED'));
 				throw error;

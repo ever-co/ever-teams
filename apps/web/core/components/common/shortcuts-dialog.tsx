@@ -35,7 +35,7 @@ function KeyCaps({ binding, isMac }: Readonly<{ binding: ShortcutBinding | null;
 	return (
 		<span className="flex items-center gap-1.5">
 			{bindingKeyCaps(binding, isMac).map((caps, at) => (
-				<span key={at} className="flex items-center gap-0.5">
+				<span key={`${at}:${caps.join('+')}`} className="flex items-center gap-0.5">
 					{at > 0 && <span className="px-0.5 text-xs text-muted-foreground">{t('shortcuts.THEN')}</span>}
 					{caps.map((cap) => (
 						<kbd key={cap} className="min-w-6 rounded-md bg-foreground/5 px-1.5 py-0.5 text-center font-sans text-xs font-medium text-foreground hairline-ring ring-border">

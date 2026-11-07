@@ -83,7 +83,7 @@ export function parseChord(text: string): ShortcutChord | null {
 /** A binding (`g t`, `mod+s`), or null when any chord is malformed. */
 export function parseBinding(text: string): ShortcutBinding | null {
 	const chords = text.trim().split(/\s+/).filter(Boolean).map(parseChord);
-	if (!chords.length || chords.some((chord) => chord === null)) return null;
+	if (!chords.length || chords.includes(null)) return null;
 	return chords as ShortcutChord[];
 }
 
@@ -124,7 +124,7 @@ export function bindingKeyCaps(binding: ShortcutBinding, isMac: boolean): string
 export function chordKeyOf(event: Pick<KeyboardEvent, 'key' | 'code'>): string {
 	const code = event.code ?? '';
 	if (/^Key[A-Z]$/.test(code)) return code.slice(3).toLowerCase();
-	if (/^Digit[0-9]$/.test(code)) return code.slice(5);
+	if (/^Digit\d$/.test(code)) return code.slice(5);
 	const key = (event.key ?? '').toLowerCase();
 	if (key === ' ') return 'space';
 	return key;
@@ -182,7 +182,7 @@ export function conflictsOf(
 
 /** The overrides with one command's binding changed (`null` restores the default). */
 export function withOverride(overrides: Record<string, string> | null | undefined, commandId: string, binding: ShortcutBinding | null, defaultBinding: string): Record<string, string> {
-	const next = { ...(overrides ?? {}) };
+	const next: Record<string, string> = { ...overrides };
 	if (binding === null) {
 		next[commandId] = '';
 		return next;
