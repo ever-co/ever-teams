@@ -20,7 +20,7 @@ describe('route-owned data on empty-cache hard loads', () => {
 	});
 
 	const routes = [
-		{ path: '/settings/team', expected: ['/api/invite'] },
+		{ path: '/settings/team/members', expected: ['/api/invite'] },
 		{ path: '/permissions', expected: ['/api/roles'] },
 		{ path: '/projects', expected: ['/api/organization-projects'] },
 		{ path: '/team/tasks', expected: ['/api/tasks/team'] },

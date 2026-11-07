@@ -46,7 +46,7 @@ describe('feature parity on the authenticated shell', () => {
 		cy.contains('Activated').should('exist');
 
 		cy.intercept('GET', '**/api/invite*').as('teamInvites');
-		cy.hardVisit('/settings/team');
+		cy.hardVisit('/settings/team/members');
 		cy.wait('@teamInvites', { timeout: 20_000 });
 		cy.mockRequests().then((requests) => {
 			expect(requests.some((request) => request.path === '/api/invite')).to.equal(true);
