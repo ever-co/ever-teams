@@ -4943,6 +4943,21 @@
 		"RETRY": "Erneut versuchen",
 		"LOAD_MORE": "Mehr laden",
 		"LEGACY_NOTICE": "Die Plattform dieses Arbeitsbereichs hat den vollständigen Posteingang noch nicht: Gelesen, Ungelesen und Archivieren sind verfügbar.",
+		"DECISION": {
+			"TITLE": "Ihre Antwort",
+			"RECOMMENDED": "Empfohlen",
+			"REASON_REQUIRED": "Eine Begründung (erforderlich)",
+			"REASON_OPTIONAL": "Ein Kommentar (optional)",
+			"ANSWER_LABEL": "Ihre Antwort",
+			"MISSING_OPTION": "Wählen Sie eine der Optionen.",
+			"MISSING_REASON": "Geben Sie eine Begründung zu Ihrer Antwort an.",
+			"MISSING_ANSWER": "Schreiben Sie eine Antwort.",
+			"SEND": "Senden",
+			"SENT": "Antwort gesendet",
+			"SEND_FAILED": "Die Antwort wurde nicht gesendet. Versuchen Sie es erneut.",
+			"ANSWERED": "Beantwortet",
+			"ANSWERED_WITH": "Beantwortet: {option}"
+		},
 		"DETAIL": {
 			"NO_SELECTION": "Wählen Sie eine Benachrichtigung aus, um sie hier zu sehen",
 			"OPEN_TASK": "Aufgabe öffnen",

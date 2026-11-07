@@ -4943,6 +4943,21 @@
 		"RETRY": "Réessayer",
 		"LOAD_MORE": "Charger plus",
 		"LEGACY_NOTICE": "La plateforme de cet espace de travail n'a pas encore la boîte de réception complète : lire, marquer non lu et archiver sont disponibles.",
+		"DECISION": {
+			"TITLE": "Votre réponse",
+			"RECOMMENDED": "Recommandée",
+			"REASON_REQUIRED": "Une raison (obligatoire)",
+			"REASON_OPTIONAL": "Un commentaire (facultatif)",
+			"ANSWER_LABEL": "Votre réponse",
+			"MISSING_OPTION": "Choisissez une des options.",
+			"MISSING_REASON": "Donnez une raison avec votre réponse.",
+			"MISSING_ANSWER": "Écrivez une réponse.",
+			"SEND": "Envoyer",
+			"SENT": "Réponse envoyée",
+			"SEND_FAILED": "La réponse n’a pas été envoyée. Réessayez.",
+			"ANSWERED": "Répondu",
+			"ANSWERED_WITH": "Répondu : {option}"
+		},
 		"DETAIL": {
 			"NO_SELECTION": "Sélectionnez une notification pour la voir ici",
 			"OPEN_TASK": "Ouvrir la tâche",

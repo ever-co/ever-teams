@@ -4943,6 +4943,21 @@
 		"RETRY": "重试",
 		"LOAD_MORE": "加载更多",
 		"LEGACY_NOTICE": "此工作区的平台尚不支持完整收件箱：可用操作为已读、未读和归档。",
+		"DECISION": {
+			"TITLE": "你的回答",
+			"RECOMMENDED": "推荐",
+			"REASON_REQUIRED": "原因（必填）",
+			"REASON_OPTIONAL": "备注（可选）",
+			"ANSWER_LABEL": "你的回答",
+			"MISSING_OPTION": "请选择一个选项。",
+			"MISSING_REASON": "请随回答说明原因。",
+			"MISSING_ANSWER": "请填写回答。",
+			"SEND": "发送",
+			"SENT": "回答已发送",
+			"SEND_FAILED": "回答未发送，请重试。",
+			"ANSWERED": "已回答",
+			"ANSWERED_WITH": "已回答：{option}"
+		},
 		"DETAIL": {
 			"NO_SELECTION": "选择一条通知以在此查看",
 			"OPEN_TASK": "打开任务",

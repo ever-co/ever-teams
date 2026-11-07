@@ -4943,6 +4943,21 @@
 		"RETRY": "Try again",
 		"LOAD_MORE": "Load more",
 		"LEGACY_NOTICE": "This workspace's platform does not have the full inbox yet: read, unread and archive are available.",
+		"DECISION": {
+			"TITLE": "Your answer",
+			"RECOMMENDED": "Recommended",
+			"REASON_REQUIRED": "A reason (required)",
+			"REASON_OPTIONAL": "A comment (optional)",
+			"ANSWER_LABEL": "Your answer",
+			"MISSING_OPTION": "Choose one of the options.",
+			"MISSING_REASON": "Give a reason with your answer.",
+			"MISSING_ANSWER": "Write an answer.",
+			"SEND": "Send",
+			"SENT": "Answer sent",
+			"SEND_FAILED": "The answer was not sent. Try again.",
+			"ANSWERED": "Answered",
+			"ANSWERED_WITH": "Answered: {option}"
+		},
 		"DETAIL": {
 			"NO_SELECTION": "Select a notification to see it here",
 			"OPEN_TASK": "Open task",

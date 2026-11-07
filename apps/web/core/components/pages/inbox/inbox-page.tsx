@@ -6,6 +6,8 @@ import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { useAtomValue } from 'jotai';
 import { type DottedLanguageObjectStringPaths, useLocale, useTranslations } from 'next-intl';
 import { toast } from 'sonner';
+import { useQueryClient } from '@tanstack/react-query';
+import { ApiErrorService } from '@/core/services/client/api-error.service';
 import { PageLayout } from '@/core/components/layouts/default-layout';
 import { Archive, AtSign, Check, CheckDouble, Clock, Filter, HelpCircle, InboxCheck, Mail, MailOpen, MoreHorizontal, Settings, UserAdd } from '@/core/components/icons';
 import { Button } from '@/core/components/duplicated-components/_button';
@@ -284,6 +286,23 @@ function InboxPageContent() {
 		[reportFailure, setArchived, t, targetsOf]
 	);
 
+	// A question, an approval or an escalation answered in the detail pane: the lists and counts follow the answer.
+	const queryClient = useQueryClient();
+	const handleReply = useCallback(
+		async (entry: InboxEntry, input: { optionId?: string; text?: string }) => {
+			try {
+				await inboxService.reply(entry.id, input);
+				toast(t('inbox.DECISION.SENT'));
+			} catch (error) {
+				const message = ApiErrorService.isApiError(error) && error.message ? error.message : t('inbox.DECISION.SEND_FAILED');
+				toast.error(message);
+			} finally {
+				void queryClient.invalidateQueries({ queryKey: ['inbox'] });
+			}
+		},
+		[queryClient, t]
+	);
+
 	const handleSnooze = useCallback(
 		(entry: InboxEntry, until: Date | null) => {
 			const targets = targetsOf(entry);
@@ -555,7 +574,7 @@ function InboxPageContent() {
 						)}
 					</div>
 					<aside className={cn('hidden w-[22rem] shrink-0 overflow-y-auto hairline-l border-border lg:block')}>
-						<InboxDetail entry={current} taskTitle={current?.taskId ? (taskTitles.get(current.taskId) ?? null) : null} onOpenTarget={handleOpen} onArchive={handleArchive} />
+						<InboxDetail entry={current} taskTitle={current?.taskId ? (taskTitles.get(current.taskId) ?? null) : null} onOpenTarget={handleOpen} onArchive={handleArchive} onReply={usesExtension ? handleReply : undefined} />
 					</aside>
 				</div>
 			</div>

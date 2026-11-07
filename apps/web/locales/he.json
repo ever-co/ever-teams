@@ -4943,6 +4943,21 @@
 		"RETRY": "נסו שוב",
 		"LOAD_MORE": "טעינת עוד",
 		"LEGACY_NOTICE": "הפלטפורמה של סביבת העבודה הזו עדיין לא כוללת את תיבת הדואר המלאה: זמינים נקרא, לא נקרא וארכיון.",
+		"DECISION": {
+			"TITLE": "התשובה שלכם",
+			"RECOMMENDED": "מומלץ",
+			"REASON_REQUIRED": "סיבה (חובה)",
+			"REASON_OPTIONAL": "הערה (לא חובה)",
+			"ANSWER_LABEL": "התשובה שלכם",
+			"MISSING_OPTION": "בחרו אחת מהאפשרויות.",
+			"MISSING_REASON": "ציינו סיבה עם התשובה.",
+			"MISSING_ANSWER": "כתבו תשובה.",
+			"SEND": "שליחה",
+			"SENT": "התשובה נשלחה",
+			"SEND_FAILED": "התשובה לא נשלחה. נסו שוב.",
+			"ANSWERED": "נענה",
+			"ANSWERED_WITH": "נענה: {option}"
+		},
 		"DETAIL": {
 			"NO_SELECTION": "בחרו התראה כדי לראות אותה כאן",
 			"OPEN_TASK": "פתיחת המשימה",

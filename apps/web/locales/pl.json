@@ -4943,6 +4943,21 @@
 		"RETRY": "Spróbuj ponownie",
 		"LOAD_MORE": "Wczytaj więcej",
 		"LEGACY_NOTICE": "Platforma tego obszaru roboczego nie ma jeszcze pełnej skrzynki: dostępne są przeczytane, nieprzeczytane i archiwizacja.",
+		"DECISION": {
+			"TITLE": "Twoja odpowiedź",
+			"RECOMMENDED": "Zalecana",
+			"REASON_REQUIRED": "Powód (wymagany)",
+			"REASON_OPTIONAL": "Komentarz (opcjonalny)",
+			"ANSWER_LABEL": "Twoja odpowiedź",
+			"MISSING_OPTION": "Wybierz jedną z opcji.",
+			"MISSING_REASON": "Podaj powód swojej odpowiedzi.",
+			"MISSING_ANSWER": "Napisz odpowiedź.",
+			"SEND": "Wyślij",
+			"SENT": "Odpowiedź wysłana",
+			"SEND_FAILED": "Nie wysłano odpowiedzi. Spróbuj ponownie.",
+			"ANSWERED": "Odpowiedziano",
+			"ANSWERED_WITH": "Odpowiedziano: {option}"
+		},
 		"DETAIL": {
 			"NO_SELECTION": "Wybierz powiadomienie, aby je tu zobaczyć",
 			"OPEN_TASK": "Otwórz zadanie",

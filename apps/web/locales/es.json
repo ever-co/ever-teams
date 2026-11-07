@@ -4943,6 +4943,21 @@
 		"RETRY": "Reintentar",
 		"LOAD_MORE": "Cargar más",
 		"LEGACY_NOTICE": "La plataforma de este espacio de trabajo aún no tiene la bandeja completa: están disponibles leer, no leer y archivar.",
+		"DECISION": {
+			"TITLE": "Tu respuesta",
+			"RECOMMENDED": "Recomendada",
+			"REASON_REQUIRED": "Un motivo (obligatorio)",
+			"REASON_OPTIONAL": "Un comentario (opcional)",
+			"ANSWER_LABEL": "Tu respuesta",
+			"MISSING_OPTION": "Elige una de las opciones.",
+			"MISSING_REASON": "Da un motivo con tu respuesta.",
+			"MISSING_ANSWER": "Escribe una respuesta.",
+			"SEND": "Enviar",
+			"SENT": "Respuesta enviada",
+			"SEND_FAILED": "No se envió la respuesta. Inténtalo de nuevo.",
+			"ANSWERED": "Respondida",
+			"ANSWERED_WITH": "Respondida: {option}"
+		},
 		"DETAIL": {
 			"NO_SELECTION": "Selecciona una notificación para verla aquí",
 			"OPEN_TASK": "Abrir tarea",
