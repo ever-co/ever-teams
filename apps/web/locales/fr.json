@@ -1645,6 +1645,8 @@
 				"formFields": {
 					"title": "Titre du projet",
 					"titlePlaceholder": "Projet client #1",
+					"taskKey": "Clé des tâches",
+					"taskKeyHelp": "Les tâches de ce projet sont numérotées {example}. Laissez vide pour utiliser les premières lettres du titre.",
 					"description": "Description",
 					"datePickerPlaceholder": "Choisir une date",
 					"websiteUrl": "URL du site",
@@ -1654,6 +1656,7 @@
 				},
 				"errors": {
 					"titleRequired": "Le titre du projet est obligatoire.",
+					"taskKeyInvalid": "Utilisez 2 à 10 lettres majuscules ou chiffres, en commençant par une lettre.",
 					"titleLength": "Le titre du projet doit être compris entre 3 et 100 caractères.",
 					"invalidWebsiteUrl": "URL du site invalide.",
 					"fileSizeLimit": "La taille du fichier doit être inférieure à 5 Mo.",

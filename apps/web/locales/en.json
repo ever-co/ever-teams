@@ -1567,6 +1567,8 @@
 				"formFields": {
 					"title": "Project title",
 					"titlePlaceholder": "Client project #1",
+					"taskKey": "Task key",
+					"taskKeyHelp": "Tasks of this project are numbered {example}. Leave it empty to use the first letters of the title.",
 					"description": "Description",
 					"datePickerPlaceholder": "Pick a date",
 					"websiteUrl": "Website URL",
@@ -1576,6 +1578,7 @@
 				},
 				"errors": {
 					"titleRequired": "Project title is required.",
+					"taskKeyInvalid": "Use 2 to 10 capital letters or digits, starting with a letter.",
 					"titleLength": "Project title must be between 3 and 100 characters.",
 					"invalidWebsiteUrl": "Invalid website URL.",
 					"fileSizeLimit": "File size must be less than 5MB.",
