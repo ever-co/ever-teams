@@ -66,21 +66,28 @@ export function useAuthenticationSocialLogin() {
 						});
 					}
 
-					updateNextAuthSession({
-						access_token,
-						refresh_token: {
-							token: result.refresh_token
-						},
-						teamId: selectedTeam,
-						tenantId,
-						organizationId: organization?.organizationId,
-						languageId: 'en',
-						noTeamPopup: true,
+					// Awaited: the full page load below would cancel a pending update, and for an Ever ID sign-in that update
+					// is what drops the workspace tokens from the NextAuth session. A failed update does not stop the sign-in:
+					// the Gauzy cookies set below are the session either way.
+					try {
+						await updateNextAuthSession({
+							access_token,
+							refresh_token: {
+								token: result.refresh_token
+							},
+							teamId: selectedTeam,
+							tenantId,
+							organizationId: organization?.organizationId,
+							languageId: 'en',
+							noTeamPopup: true,
 
-						userId,
-						workspaces: workspaces,
-						confirmed_mail: signinResult.confirmed_mail
-					});
+							userId,
+							workspaces: workspaces,
+							confirmed_mail: signinResult.confirmed_mail
+						});
+					} catch (error) {
+						console.warn('NextAuth session update failed after the workspace sign-in:', error);
+					}
 
 					setAuthCookies({
 						access_token,
