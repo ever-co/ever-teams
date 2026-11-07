@@ -5,7 +5,8 @@ import { readRuntimeEnv } from '@/env-config';
 
 export async function GET(req: NextRequest) {
 	const res = new NextResponse();
-	const guard = await authenticatedGuard(req, res);
+	// A fresh check: this route signs a room token with a server secret on the strength of the session alone.
+	const guard = await authenticatedGuard(req, res, { fresh: true });
 	// The guard's own status: 401 for a refused session, 503 when Gauzy could not answer (no logout then)
 	if (!guard.user) return guard.deny();
 	const { user } = guard;

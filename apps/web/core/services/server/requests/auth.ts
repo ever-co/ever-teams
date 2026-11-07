@@ -125,18 +125,23 @@ type IUEmployeeParam = {
  * @param {IUEmployeeParam} employeeParams - The employee parameters, including bearer token and optional relations.
  * @returns A Promise resolving to the TUser object with the desired relations.
  */
-export const currentAuthenticatedUserRequest = ({ bearer_token, relations = ['role', 'tenant'] }: IUEmployeeParam) => {
+export const currentAuthenticatedUserRequest = ({
+	bearer_token,
+	relations = ['role', 'tenant'],
+	signal
+}: IUEmployeeParam & { signal?: AbortSignal }) => {
 	// Construct the query string with 'qs', including the includeEmployee parameter
 	const query = qs.stringify({
 		relations: relations,
 		includeEmployee: true // Append includeEmployee parameter set to true
 	});
 
-	// Construct and return the server fetch request
+	// Construct and return the server fetch request (the signal, when given, aborts it at the caller's deadline)
 	return serverFetch<TUser>({
 		path: `/user/me?${query}`,
 		method: 'GET',
-		bearer_token
+		bearer_token,
+		...(signal ? { init: { signal } } : {})
 	});
 };
 
