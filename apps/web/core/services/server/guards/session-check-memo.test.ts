@@ -193,6 +193,14 @@ describe('SessionCheckMemo', () => {
 		expect(check).toHaveBeenCalledTimes(3);
 	});
 
+	it('answers a check that throws before returning its promise with a rejection, with and without a deadline', async () => {
+		const boom = (): Promise<Check> => {
+			throw new Error('boom');
+		};
+		await expect(new SessionCheckMemo<Check>(0, 3, () => now).withDeadline(boom)).rejects.toThrow('boom');
+		await expect(new SessionCheckMemo<Check>(0, 3, () => now, 40).withDeadline(boom)).rejects.toThrow('boom');
+	});
+
 	it('checks every call when the window is zero', async () => {
 		const off = new SessionCheckMemo<Check>(0, 3, () => now);
 
