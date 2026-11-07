@@ -14,10 +14,11 @@ the web server and from the UI in a real browser.
 | 3 | Statistics settings | Web server, for a signed-in team manager on *Settings → Team* | When the settings open, or the operator switches | `GET /api/ever-stats/status`, `GET /api/ever-stats/last`, `PUT /api/ever-stats/enabled` on the Gauzy API | The person's own token and tenant; `{"enabled": true \| false}` | `EVER_STATS_ENABLED=false` |
 | 4 | Connection health | The browser of a signed-in team manager (or the web server's `/api/ever-connect` routes, when the browser reaches the API through this app) | When *Settings → Team* opens, at most every 5 minutes | `GET /api/ever-connect/health` on the Gauzy API | The person's own token and tenant | `NEXT_PUBLIC_EVER_CONNECT_ENABLED` unset (the default): never asked |
 | 5 | Connection parts | The same | While *Settings → Team* shows them | The Gauzy API's organization routes: `GET /api/ever-connect/{status,integrations,entitlement,audit}`, `POST /api/ever-connect/links`, `DELETE /api/ever-connect/links/{id}`, `POST /api/ever-connect/integrations/{key}/consent-url`, `POST /api/ever-connect/integrations/refresh`, `PUT /api/ever-connect/integrations/{key}` `{"enabled": false}`, `POST /api/ever-connect/entitlement/refresh` | The person's own token and tenant; a link code; the switch of one integration | `NEXT_PUBLIC_EVER_CONNECT_ENABLED` unset; the Gauzy API's `health` answering 404 or 401 |
+| 6 | App Launcher | The web server's `/api/ever-connect` routes, for a page of this app (the browser marks it same-origin) | When a page asks for the launcher's apps | `GET /api/ever-connect/launcher/config`, `GET /api/ever-connect/launcher/apps?organizationId=` on the Gauzy API | The person's own token and tenant; this app's origin (`NEXT_PUBLIC_WEB_APP_URL`, else the request's), which the Gauzy API must list in `EVER_APP_LAUNCHER_ORIGINS` | `NEXT_PUBLIC_EVER_CONNECT_ENABLED` unset; the Gauzy API's App Launcher off (its routes answer 404) |
 
 Notes:
 
-- Calls 2 to 5 go to the Gauzy API the web app already uses for everything else. The web app never calls Ever
+- Calls 2 to 6 go to the Gauzy API the web app already uses for everything else. The web app never calls Ever
   Platform for the connection: the Gauzy API does, under its own switches (see the Gauzy documentation of
   its Ever Platform plugin). The browser never talks to an Ever Platform host.
 - The Gauzy API answers calls 2 and 4 only when it declares that it serves Ever Teams
