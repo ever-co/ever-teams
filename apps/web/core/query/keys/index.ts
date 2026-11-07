@@ -785,6 +785,21 @@ export const queryKeys = {
 			runs: (tenantId: string | undefined | null, organizationId: string | undefined | null, integrationId: string | undefined | null) =>
 				['integrations', 'linear', 'runs', tenantId ?? null, organizationId ?? null, integrationId ?? null] as const
 		},
+		asana: {
+			all: ['integrations', 'asana'] as const,
+			status: (tenantId: string | undefined | null, organizationId: string | undefined | null) =>
+				['integrations', 'asana', 'status', tenantId ?? null, organizationId ?? null] as const,
+			mappings: (tenantId: string | undefined | null, organizationId: string | undefined | null, integrationId: string | undefined | null) =>
+				['integrations', 'asana', 'mappings', tenantId ?? null, organizationId ?? null, integrationId ?? null] as const,
+			metadata: (tenantId: string | undefined | null, organizationId: string | undefined | null, integrationId: string | undefined | null) =>
+				['integrations', 'asana', 'metadata', tenantId ?? null, organizationId ?? null, integrationId ?? null] as const,
+			projects: (tenantId: string | undefined | null, organizationId: string | undefined | null, integrationId: string | undefined | null, workspaceGid: string | undefined | null) =>
+				['integrations', 'asana', 'projects', tenantId ?? null, organizationId ?? null, integrationId ?? null, workspaceGid ?? null] as const,
+			sections: (tenantId: string | undefined | null, organizationId: string | undefined | null, integrationId: string | undefined | null, projectGid: string | undefined | null) =>
+				['integrations', 'asana', 'sections', tenantId ?? null, organizationId ?? null, integrationId ?? null, projectGid ?? null] as const,
+			runs: (tenantId: string | undefined | null, organizationId: string | undefined | null, integrationId: string | undefined | null) =>
+				['integrations', 'asana', 'runs', tenantId ?? null, organizationId ?? null, integrationId ?? null] as const
+		},
 		types: (tenantId: string | undefined | null) =>
 			['integrations', 'types', ...(tenantId ? [tenantId] : [])] as const,
 		byTenant: (tenantId: string | undefined | null) =>
