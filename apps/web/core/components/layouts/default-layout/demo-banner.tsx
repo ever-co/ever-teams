@@ -11,14 +11,34 @@ import { APP_LINK, IS_DEMO_MODE } from '@/core/constants/config/constants';
  * audit's static scan allows an Ever host in the client bundle only as the existing APP_LINK default
  * (tools/egress-audit/ui-baseline.json), and app code names Ever hosts only in core/constants/config/constants.tsx.
  */
+let warnedInvalidSignUpUrl = false;
+
 export function demoSignUpUrl(): string {
 	const configured = (
 		readRuntimeEnv('NEXT_PUBLIC_DEMO_SIGN_UP_URL') || process.env.NEXT_PUBLIC_DEMO_SIGN_UP_URL
 	)?.trim();
 	if (configured) {
-		return configured;
+		if (isAbsoluteHttpUrl(configured)) {
+			return configured;
+		}
+		// A scheme-less value would resolve against the demo's own origin, not the real sign-up page
+		if (!warnedInvalidSignUpUrl) {
+			warnedInvalidSignUpUrl = true;
+			console.warn(
+				'NEXT_PUBLIC_DEMO_SIGN_UP_URL is not an absolute http(s) URL; the demo banner links to APP_LINK'
+			);
+		}
 	}
 	return `${APP_LINK.replace(/\/+$/, '')}/auth/signup`;
+}
+
+function isAbsoluteHttpUrl(value: string): boolean {
+	try {
+		const { protocol } = new URL(value);
+		return protocol === 'https:' || protocol === 'http:';
+	} catch {
+		return false;
+	}
 }
 
 /**

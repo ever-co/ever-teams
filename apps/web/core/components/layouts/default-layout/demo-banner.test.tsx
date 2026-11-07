@@ -22,8 +22,24 @@ jest.mock('@/core/constants/config/constants', () => ({
 }));
 
 describe('DemoBanner', () => {
+	// The build-time fallback reads process.env too: a value in the shell running the tests must not leak in.
+	const originalProcessValue = process.env.NEXT_PUBLIC_DEMO_SIGN_UP_URL;
+
+	beforeEach(() => {
+		delete process.env.NEXT_PUBLIC_DEMO_SIGN_UP_URL;
+	});
+
 	afterEach(() => {
 		delete mockRuntimeEnv.NEXT_PUBLIC_DEMO_SIGN_UP_URL;
+		jest.restoreAllMocks();
+	});
+
+	afterAll(() => {
+		if (originalProcessValue === undefined) {
+			delete process.env.NEXT_PUBLIC_DEMO_SIGN_UP_URL;
+		} else {
+			process.env.NEXT_PUBLIC_DEMO_SIGN_UP_URL = originalProcessValue;
+		}
 	});
 
 	it('renders nothing outside a demo deployment', () => {
@@ -55,6 +71,17 @@ describe('DemoBanner', () => {
 
 		const link = screen.getByRole('link', { name: 'common.DEMO_BANNER_SIGN_UP' });
 		expect(link.getAttribute('href')).toBe('https://teams.example.com/auth/signup');
+	});
+
+	it('ignores a NEXT_PUBLIC_DEMO_SIGN_UP_URL that is not an absolute http(s) URL, with one warning', () => {
+		mockConfig.demo = true;
+		const warn = jest.spyOn(console, 'warn').mockImplementation(() => undefined);
+
+		for (const value of ['teams.example.com/auth/signup', '/auth/signup', 'javascript:alert(1)']) {
+			mockRuntimeEnv.NEXT_PUBLIC_DEMO_SIGN_UP_URL = value;
+			expect([value, demoSignUpUrl()]).toEqual([value, 'https://app.ever.team/auth/signup']);
+		}
+		expect(warn).toHaveBeenCalledTimes(1);
 	});
 
 	it('has its two strings in every locale (next-intl has no English fallback here)', () => {
