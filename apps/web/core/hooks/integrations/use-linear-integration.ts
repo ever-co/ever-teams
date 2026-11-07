@@ -1,14 +1,16 @@
 'use client';
 
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { useSearchParams } from 'next/navigation';
+import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { useAtomValue } from 'jotai';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useOrganizationProjectsQuery } from '@/core/hooks/organizations/projects/use-organization-projects-query';
+import { LinearStatusOption } from '@/core/lib/utils/integration-linear-state-map';
 import { isLinearIntegrationEnabled } from '@/core/lib/utils/integration-linear-enabled';
 import { queryKeys } from '@/core/query/keys';
 import { ApiErrorService } from '@/core/services/client/api-error.service';
 import { linearIntegrationService } from '@/core/services/client/api/integrations/linear.service';
+import { taskStatusService } from '@/core/services/client/api/tasks/task-status.service';
 import { activeTeamState } from '@/core/stores';
 import {
 	ILinearConnectionSummary,
@@ -19,6 +21,7 @@ import {
 	LINEAR_CALLBACK_ERRORS,
 	TLinearCallbackError
 } from '@/core/types/interfaces/integrations/linear';
+import type { TaskMetadataScope } from '@/core/types/interfaces/task/task-metadata-bootstrap';
 
 /** What the Linear provider shows. */
 export type LinearConnectionStatus = 'hidden' | 'loading' | 'loadError' | 'notConfigured' | 'notConnected' | 'connected';
@@ -41,8 +44,10 @@ export interface LinearIntegrationSettings {
 	retry: () => void;
 	connection: ILinearConnectionSummary | null;
 	defaultStateMap: Record<string, string>;
-	/** What the platform's callback sent the person back with. */
+	/** What the platform's callback sent the person back with (nothing once dismissed, or once a connection exists). */
 	callbackError: TLinearCallbackError | null;
+	/** Drops the callback error, from the page and from the address. */
+	dismissCallbackError: () => void;
 	teams: ILinearTeam[];
 	projects: LinearIntegrationProject[];
 	mappings: ILinearMapping[];
@@ -52,8 +57,12 @@ export interface LinearIntegrationSettings {
 	detailsError: unknown;
 	isRetryingDetails: boolean;
 	retryDetails: () => void;
+	/** The error of the last mapping or import action. */
 	actionError: unknown;
 	clearActionError: () => void;
+	/** The error of the last disconnect, kept apart so the confirmation shows nothing else. */
+	disconnectError: unknown;
+	clearDisconnectError: () => void;
 	pending: LinearPending;
 	connect: () => void;
 	disconnect: () => Promise<void>;
@@ -84,6 +93,63 @@ export function leaveForLinear(url: string): void {
 	window.location.assign(url);
 }
 
+export interface LinearStatusOptions {
+	/** The statuses a state may map to: the project's own, then the organization's (one entry per name). */
+	options: LinearStatusOption[];
+	isLoading: boolean;
+	error: unknown;
+	retry: () => void;
+}
+
+const NO_STATUS_OPTIONS: LinearStatusOption[] = [];
+
+/**
+ * The task statuses a mapping's state map may name: the project's own and the organization's, as the platform's
+ * import resolves them (by name, a project's own first). The state map editors validate against this list.
+ */
+export function useLinearStatusOptions(projectId: string | null): LinearStatusOptions {
+	const activeTeam = useAtomValue(activeTeamState);
+	const tenantId = activeTeam?.tenantId ?? '';
+	const organizationId = activeTeam?.organizationId ?? '';
+	const scope = useMemo<TaskMetadataScope | null>(() => (tenantId && organizationId ? { tenantId, organizationId } : null), [organizationId, tenantId]);
+	const organizationQuery = useQuery({
+		queryKey: queryKeys.taskStatuses.byScope({ tenantId, organizationId }),
+		queryFn: ({ signal }) => taskStatusService.getTaskStatuses(scope as TaskMetadataScope, signal),
+		enabled: !!scope,
+		staleTime: 60_000,
+		select: (page) => page.items
+	});
+	const projectQuery = useQuery({
+		queryKey: queryKeys.taskStatuses.byScope({ tenantId, organizationId, projectId: projectId ?? undefined }),
+		queryFn: ({ signal }) => taskStatusService.getTaskStatuses({ ...(scope as TaskMetadataScope), projectId: projectId as string }, signal),
+		enabled: !!scope && !!projectId,
+		staleTime: 60_000,
+		select: (page) => page.items
+	});
+	const options = useMemo<LinearStatusOption[]>(() => {
+		const seen = new Set<string>();
+		const result: LinearStatusOption[] = [];
+		for (const status of [...(projectId ? (projectQuery.data ?? []) : []), ...(organizationQuery.data ?? [])]) {
+			const name = String(status.name ?? '').trim();
+			const key = name.toLowerCase();
+			if (!key || seen.has(key)) continue;
+			seen.add(key);
+			result.push({ name });
+		}
+		return result.length ? result : NO_STATUS_OPTIONS;
+	}, [organizationQuery.data, projectId, projectQuery.data]);
+	const retry = useCallback(() => {
+		if (organizationQuery.isError) void organizationQuery.refetch();
+		if (projectQuery.isError) void projectQuery.refetch();
+	}, [organizationQuery, projectQuery]);
+	return {
+		options,
+		isLoading: !!scope && (organizationQuery.isPending || (!!projectId && projectQuery.isPending)),
+		error: organizationQuery.error ?? (projectId ? projectQuery.error : null) ?? null,
+		retry
+	};
+}
+
 /**
  * The Linear integration of the active team's organization, for the settings page: whether the platform offers
  * it (its plugin may be off, or the OAuth application missing), the connection, its team ↔ project mappings,
@@ -94,16 +160,30 @@ export function useLinearIntegration(): LinearIntegrationSettings {
 	const queryClient = useQueryClient();
 	const activeTeam = useAtomValue(activeTeamState);
 	const searchParams = useSearchParams();
+	const router = useRouter();
+	const pathname = usePathname();
 	const enabled = isLinearIntegrationEnabled();
 	const tenantId = activeTeam?.tenantId ?? null;
 	const organizationId = activeTeam?.organizationId ?? null;
 	const [pending, setPending] = useState<LinearPending>(NO_PENDING);
 	const [actionError, setActionError] = useState<unknown>(null);
+	const [disconnectError, setDisconnectError] = useState<unknown>(null);
+	const [callbackDismissed, setCallbackDismissed] = useState(false);
 
-	const callbackError = useMemo(() => {
+	const callbackParam = useMemo(() => {
 		const value = searchParams?.get('error') ?? null;
 		return isCallbackError(value) ? value : null;
 	}, [searchParams]);
+
+	// Dismissed, the `?error=` leaves the address too: a reload or a shared link must not bring it back.
+	const dismissCallbackError = useCallback(() => {
+		setCallbackDismissed(true);
+		if (!searchParams?.has('error')) return;
+		const rest = new URLSearchParams(searchParams.toString());
+		rest.delete('error');
+		const query = rest.toString();
+		router.replace(query ? `${pathname}?${query}` : pathname, { scroll: false });
+	}, [pathname, router, searchParams]);
 
 	const statusQuery = useQuery({
 		queryKey: queryKeys.integrations.linear.status(tenantId, organizationId),
@@ -114,6 +194,8 @@ export function useLinearIntegration(): LinearIntegrationSettings {
 	});
 	const connection = statusQuery.data?.connection ?? null;
 	const integrationId = connection?.id ?? null;
+	// A connection that exists makes a stale `?error=` moot (another tab connected since).
+	const callbackError = callbackDismissed || connection ? null : callbackParam;
 
 	const mappingsQuery = useQuery({
 		queryKey: queryKeys.integrations.linear.mappings(tenantId, organizationId, integrationId),
@@ -162,15 +244,16 @@ export function useLinearIntegration(): LinearIntegrationSettings {
 		if (runsQuery.isError) void runsQuery.refetch();
 	}, [mappingsQuery, runsQuery, teamsQuery]);
 
-	/** One action at a time, its kind shown while it runs, its error kept for the page. */
+	/** One action at a time, its kind shown while it runs, its error kept for the page (a disconnect's apart). */
 	const act = useCallback(async (kind: LinearPending['kind'], mappingId: string | null, work: () => Promise<unknown>) => {
+		const keepError = kind === 'disconnect' ? setDisconnectError : setActionError;
 		setPending({ kind, mappingId });
-		setActionError(null);
+		keepError(null);
 		try {
 			await work();
 			invalidate();
 		} catch (error) {
-			setActionError(error);
+			keepError(error);
 			throw error;
 		} finally {
 			setPending(NO_PENDING);
@@ -192,8 +275,9 @@ export function useLinearIntegration(): LinearIntegrationSettings {
 
 	const connect = useCallback(() => {
 		if (!organizationId || pending.kind) return;
+		if (callbackParam) dismissCallbackError();
 		connectMutation.mutate();
-	}, [connectMutation, organizationId, pending.kind]);
+	}, [callbackParam, connectMutation, dismissCallbackError, organizationId, pending.kind]);
 
 	const disconnect = useCallback(async () => {
 		if (!integrationId) return;
@@ -219,9 +303,15 @@ export function useLinearIntegration(): LinearIntegrationSettings {
 	const removeMapping = useCallback(
 		async (mappingId: string) => {
 			if (!integrationId) return;
-			await act('remove', mappingId, () => linearIntegrationService.removeMapping(integrationId, mappingId));
+			await act('remove', mappingId, async () => {
+				await linearIntegrationService.removeMapping(integrationId, mappingId);
+				// Gone from the list at once: the refresh that follows must not leave its buttons live meanwhile.
+				queryClient.setQueryData<ILinearMapping[]>(queryKeys.integrations.linear.mappings(tenantId, organizationId, integrationId), (current) =>
+					current?.filter((mapping) => mapping.id !== mappingId)
+				);
+			});
 		},
-		[act, integrationId]
+		[act, integrationId, organizationId, queryClient, tenantId]
 	);
 
 	const importNow = useCallback(
@@ -252,6 +342,7 @@ export function useLinearIntegration(): LinearIntegrationSettings {
 		connection,
 		defaultStateMap: statusQuery.data?.defaultStateMap ?? {},
 		callbackError,
+		dismissCallbackError,
 		teams: teamsQuery.data ?? NO_TEAMS,
 		projects,
 		mappings: mappingsQuery.data ?? NO_MAPPINGS,
@@ -262,6 +353,8 @@ export function useLinearIntegration(): LinearIntegrationSettings {
 		retryDetails,
 		actionError,
 		clearActionError: () => setActionError(null),
+		disconnectError,
+		clearDisconnectError: () => setDisconnectError(null),
 		pending: connectMutation.isPending ? { kind: 'connect', mappingId: null } : pending,
 		connect,
 		disconnect,

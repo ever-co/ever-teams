@@ -11,9 +11,10 @@ import { Alert, ChevronDown, StopCircle, Task } from '@/core/components/icons';
 import { ConfirmDestructiveDialog, DangerRow, type DangerConsequence } from '@/core/components/settings/kit/danger';
 import { SETTINGS_ROW_DESCRIPTION, SETTINGS_ROW_LABEL, SettingsSection, SettingsSurface } from '@/core/components/settings/kit/settings-page';
 import { SettingsSwitch } from '@/core/components/settings/kit/settings-switch';
-import type { LinearIntegrationSettings } from '@/core/hooks/integrations/use-linear-integration';
+import { type LinearIntegrationSettings, type LinearStatusOptions, useLinearStatusOptions } from '@/core/hooks/integrations/use-linear-integration';
 import { cn } from '@/core/lib/helpers';
 import { errorReasonKeyOf } from '@/core/lib/utils/error-feedback';
+import { effectiveStateMap, invalidStateMapKinds, matchStatusName } from '@/core/lib/utils/integration-linear-state-map';
 import { formatInstallDay } from '@/core/lib/utils/settings-integrations';
 import {
 	ILinearMapping,
@@ -36,18 +37,9 @@ const HEADER_BUTTON = cn(
 
 const SELECT_TRIGGER = 'h-8 w-full min-w-0 text-[13px] sm:w-48';
 const SELECT_CONTENT = 'max-h-72 w-64 overflow-y-auto p-1';
-const FIELD_INPUT =
-	'h-8 w-full rounded-md border border-border bg-background px-2 text-[13px] text-foreground outline-none focus-visible:inset-ring-2 focus-visible:inset-ring-ring/40';
+const STATUS_SELECT_TRIGGER = cn(SELECT_TRIGGER, 'sm:w-full');
 
-/** The task status each kind of Linear state becomes unless the mapping says otherwise (the platform's own defaults). */
-const FALLBACK_STATE_MAP: Record<TLinearStateKind, string> = {
-	triage: 'open',
-	backlog: 'backlog',
-	unstarted: 'open',
-	started: 'in-progress',
-	completed: 'completed',
-	canceled: 'cancelled'
-};
+type StateMap = Record<TLinearStateKind, string>;
 
 function LinearTile() {
 	return (
@@ -194,16 +186,109 @@ function ProjectSelect({ value, onChange, disabled, projects, id }: Readonly<{ v
 	);
 }
 
+function StatusSelect({ kind, value, options, disabled, onChange }: Readonly<{ kind: TLinearStateKind; value: string; options: readonly { name: string }[]; disabled: boolean; onChange: (next: string) => void }>) {
+	const t = useTranslations();
+	const id = useId();
+	const match = matchStatusName(value, options);
+	return (
+		<label className="flex flex-col gap-1 text-xs text-muted-foreground" htmlFor={id} data-testid={`linear-state-${kind}`}>
+			{t(`settings.integrations.linear.STATE_${kind}` as DottedLanguageObjectStringPaths)}
+			<Select value={match?.name ?? value} onValueChange={onChange} disabled={disabled}>
+				<SelectTrigger id={id} className={cn(STATUS_SELECT_TRIGGER, !match && 'border-destructive-ink')} aria-invalid={!match || undefined}>
+					<SelectValue placeholder={t('settings.integrations.linear.STATE_MAP_PLACEHOLDER')} />
+				</SelectTrigger>
+				<SelectContent align="start" className={SELECT_CONTENT}>
+					<SelectGroup>
+						{!match && value && (
+							<SelectItem value={value} textValue={value} className="text-[13px] text-destructive-ink">
+								{t('settings.integrations.linear.STATE_MAP_UNKNOWN', { value })}
+							</SelectItem>
+						)}
+						{options.map((option) => (
+							<SelectItem key={option.name} value={option.name} textValue={option.name} className="text-[13px]">
+								{option.name}
+							</SelectItem>
+						))}
+					</SelectGroup>
+				</SelectContent>
+			</Select>
+		</label>
+	);
+}
+
+/** The six state → status fields, validated against the statuses the project and the organization have. */
+function StateMapFields({ value, onChange, disabled, statuses }: Readonly<{ value: StateMap; onChange: (next: StateMap) => void; disabled: boolean; statuses: LinearStatusOptions }>) {
+	const t = useTranslations();
+	const invalid = statuses.isLoading || statuses.error ? [] : invalidStateMapKinds(value, statuses.options);
+	return (
+		<fieldset className="flex flex-col gap-2" data-testid="linear-state-map">
+			<legend className="text-xs text-muted-foreground">{t('settings.integrations.linear.STATE_MAP_LABEL')}</legend>
+			{statuses.error ? (
+				<Notice
+					tone="error"
+					title={t('settings.integrations.linear.STATE_MAP_ERROR')}
+					description={t(errorReasonKeyOf(statuses.error) as DottedLanguageObjectStringPaths)}
+					actions={
+						<Button type="button" variant="outline" size="sm" onClick={statuses.retry} disabled={statuses.isLoading}>
+							{t('notifications.RETRY')}
+						</Button>
+					}
+				/>
+			) : (
+				<div className="grid gap-2 sm:grid-cols-3">
+					{LINEAR_STATE_KINDS.map((kind) => (
+						<StatusSelect key={kind} kind={kind} value={value[kind]} options={statuses.options} disabled={disabled || statuses.isLoading} onChange={(next) => onChange({ ...value, [kind]: next })} />
+					))}
+				</div>
+			)}
+			{statuses.isLoading && <span className="text-xs text-muted-foreground">{t('settings.integrations.linear.STATE_MAP_LOADING')}</span>}
+			{invalid.length > 0 && (
+				<span className="text-xs text-destructive-ink" role="alert">
+					{t('settings.integrations.linear.STATE_MAP_INVALID', { values: invalid.map((kind) => value[kind] || '—').join(', ') })}
+				</span>
+			)}
+		</fieldset>
+	);
+}
+
+/** Whether a map may be saved: every kind names a status (nothing while the statuses are unknown). */
+function canSaveStateMap(value: StateMap, statuses: LinearStatusOptions): boolean {
+	return !statuses.isLoading && !statuses.error && invalidStateMapKinds(value, statuses.options).length === 0;
+}
+
 function MappingRow({ linear, mapping }: LinearProps & Readonly<{ mapping: ILinearMapping }>) {
 	const t = useTranslations();
 	const locale = useLocale();
 	const switchId = useId();
+	const statuses = useLinearStatusOptions(mapping.projectId);
+	const [editing, setEditing] = useState(false);
+	const [draft, setDraft] = useState<StateMap | null>(null);
 	const isPending = linear.pending.mappingId === mapping.id;
 	const anyPending = linear.pending.kind !== null;
 	const projectName = linear.projects.find((project) => project.id === mapping.projectId)?.name ?? '';
 	const teamLabel = [mapping.linearTeamKey, mapping.linearTeamName].filter(Boolean).join(' · ') || mapping.linearTeamId;
 	let lastImport = t('settings.integrations.linear.LAST_IMPORT_NEVER');
 	if (mapping.lastImportedAt) lastImport = t('settings.integrations.linear.LAST_IMPORT', { date: formatInstallDay(new Date(mapping.lastImportedAt), locale) });
+	const stored = effectiveStateMap(linear.defaultStateMap, mapping.stateMap);
+	const storedInvalid = statuses.isLoading || statuses.error ? [] : invalidStateMapKinds(stored, statuses.options);
+	const current = draft ?? stored;
+
+	const startEditing = () => {
+		setDraft(stored);
+		setEditing(true);
+	};
+	const stopEditing = () => {
+		setEditing(false);
+		setDraft(null);
+	};
+	const saveStateMap = async () => {
+		try {
+			await linear.updateMapping(mapping.id, { stateMap: current });
+			stopEditing();
+		} catch {
+			// The hook keeps the error for the page.
+		}
+	};
 
 	return (
 		<div className={cn(ROW_DIVIDER, 'flex flex-col gap-3 px-4 py-3')} data-testid={`linear-mapping-${mapping.id}`}>
@@ -214,6 +299,11 @@ function MappingRow({ linear, mapping }: LinearProps & Readonly<{ mapping: ILine
 						{t('settings.integrations.linear.MAPPED_TO', { project: projectName })} · {lastImport}
 					</span>
 					{mapping.lastError && <span className="text-xs text-destructive-ink">{mapping.lastError}</span>}
+					{!editing && storedInvalid.length > 0 && (
+						<span className="text-xs text-destructive-ink" role="alert">
+							{t('settings.integrations.linear.STATE_MAP_INVALID', { values: storedInvalid.map((kind) => stored[kind] || '—').join(', ') })}
+						</span>
+					)}
 				</div>
 				<DirectionSelect value={mapping.direction} onChange={(direction) => void linear.updateMapping(mapping.id, { direction }).catch(() => undefined)} disabled={anyPending} />
 				<label className="flex items-center gap-2 text-[13px] text-foreground" htmlFor={switchId}>
@@ -228,6 +318,19 @@ function MappingRow({ linear, mapping }: LinearProps & Readonly<{ mapping: ILine
 					{t('settings.integrations.linear.SYNC_LABEL')}
 				</label>
 			</div>
+			{editing && (
+				<>
+					<StateMapFields value={current} onChange={setDraft} disabled={anyPending} statuses={statuses} />
+					<div className="flex flex-wrap gap-2">
+						<Button type="button" size="sm" onClick={() => void saveStateMap()} disabled={anyPending || !canSaveStateMap(current, statuses)} aria-busy={(isPending && linear.pending.kind === 'update') || undefined} data-testid={`linear-state-map-save-${mapping.id}`}>
+							{t('settings.integrations.linear.STATE_MAP_SAVE')}
+						</Button>
+						<Button type="button" size="sm" variant="ghost" onClick={stopEditing} disabled={anyPending}>
+							{t('common.CANCEL')}
+						</Button>
+					</div>
+				</>
+			)}
 			<div className="flex flex-wrap gap-2">
 				<Button type="button" size="sm" variant="outline" disabled={anyPending} aria-busy={(isPending && linear.pending.kind === 'import') || undefined} onClick={() => void linear.importNow(mapping.id, false).catch(() => undefined)}>
 					{t('settings.integrations.linear.IMPORT_CHANGES')}
@@ -235,6 +338,11 @@ function MappingRow({ linear, mapping }: LinearProps & Readonly<{ mapping: ILine
 				<Button type="button" size="sm" variant="ghost" disabled={anyPending} onClick={() => void linear.importNow(mapping.id, true).catch(() => undefined)}>
 					{t('settings.integrations.linear.IMPORT_ALL')}
 				</Button>
+				{!editing && (
+					<Button type="button" size="sm" variant="ghost" disabled={anyPending} onClick={startEditing}>
+						{t('settings.integrations.linear.STATE_MAP_EDIT')}
+					</Button>
+				)}
 				<Button type="button" size="sm" variant="ghost" className="text-destructive-ink" disabled={anyPending} onClick={() => void linear.removeMapping(mapping.id).catch(() => undefined)}>
 					{t('settings.integrations.linear.REMOVE_MAPPING')}
 				</Button>
@@ -251,13 +359,14 @@ function AddMappingRow({ linear }: LinearProps) {
 	const [team, setTeam] = useState('');
 	const [project, setProject] = useState('');
 	const [direction, setDirection] = useState<TLinearDirection>('inbound');
-	const [stateMap, setStateMap] = useState<Record<TLinearStateKind, string>>(() => ({ ...FALLBACK_STATE_MAP, ...(linear.defaultStateMap as Partial<Record<TLinearStateKind, string>>) }));
+	const [stateMap, setStateMap] = useState<StateMap>(() => effectiveStateMap(linear.defaultStateMap, null));
+	const statuses = useLinearStatusOptions(project || null);
 	const unmapped = useMemo(() => {
 		const mapped = new Set(linear.mappings.map((mapping) => mapping.linearTeamId));
 		return linear.teams.filter((candidate) => !mapped.has(candidate.id));
 	}, [linear.mappings, linear.teams]);
 	const isSaving = linear.pending.kind === 'create';
-	const canSave = Boolean(team && project) && linear.pending.kind === null;
+	const canSave = Boolean(team && project) && linear.pending.kind === null && canSaveStateMap(stateMap, statuses);
 
 	const save = async () => {
 		const chosen = linear.teams.find((candidate) => candidate.id === team);
@@ -304,22 +413,7 @@ function AddMappingRow({ linear }: LinearProps) {
 					<DirectionSelect id={directionId} value={direction} onChange={setDirection} disabled={isSaving} />
 				</label>
 			</div>
-			<fieldset className="flex flex-col gap-2">
-				<legend className="text-xs text-muted-foreground">{t('settings.integrations.linear.STATE_MAP_LABEL')}</legend>
-				<div className="grid gap-2 sm:grid-cols-3">
-					{LINEAR_STATE_KINDS.map((kind) => (
-						<label key={kind} className="flex flex-col gap-1 text-xs text-muted-foreground">
-							{t(`settings.integrations.linear.STATE_${kind}` as DottedLanguageObjectStringPaths)}
-							<input
-								className={FIELD_INPUT}
-								value={stateMap[kind]}
-								disabled={isSaving}
-								onChange={(event) => setStateMap((current) => ({ ...current, [kind]: event.target.value }))}
-							/>
-						</label>
-					))}
-				</div>
-			</fieldset>
+			<StateMapFields value={stateMap} onChange={setStateMap} disabled={isSaving} statuses={statuses} />
 			<div>
 				<Button type="button" size="sm" onClick={() => void save()} disabled={!canSave} aria-busy={isSaving || undefined} data-testid="linear-add-mapping-save">
 					{isSaving ? t('settings.integrations.linear.SAVING') : t('settings.integrations.linear.ADD_MAPPING')}
@@ -483,18 +577,27 @@ export function LinearProviderSection({ linear }: LinearProps) {
 	return (
 		<SettingsSection id="linear" title={t('settings.integrations.linear.SECTION_TITLE')} description={t('settings.integrations.linear.SECTION_DESCRIPTION')}>
 			{linear.callbackError && (
-				<Notice tone="error" title={t('settings.integrations.linear.CALLBACK_ERROR_TITLE')} description={t(`settings.integrations.linear.CALLBACK_${linear.callbackError}` as DottedLanguageObjectStringPaths)} />
+				<Notice
+					tone="error"
+					title={t('settings.integrations.linear.CALLBACK_ERROR_TITLE')}
+					description={t(`settings.integrations.linear.CALLBACK_${linear.callbackError}` as DottedLanguageObjectStringPaths)}
+					onDismiss={linear.dismissCallbackError}
+					dismissLabel={t('common.CLOSE')}
+				/>
 			)}
 			<LinearProviderBody linear={linear} onDisconnect={() => setConfirming(true)} />
 			<ConfirmDestructiveDialog
 				open={confirming}
-				onClose={() => setConfirming(false)}
+				onClose={() => {
+					setConfirming(false);
+					linear.clearDisconnectError();
+				}}
 				title={t('settings.integrations.linear.DISCONNECT_TITLE')}
 				description={t('settings.integrations.linear.DISCONNECT_DESCRIPTION')}
 				consequences={consequences}
 				confirmLabel={t('settings.integrations.linear.DISCONNECT')}
 				isPending={linear.pending.kind === 'disconnect'}
-				error={linear.actionError ? t(errorReasonKeyOf(linear.actionError) as DottedLanguageObjectStringPaths) : undefined}
+				error={linear.disconnectError ? t(errorReasonKeyOf(linear.disconnectError) as DottedLanguageObjectStringPaths) : undefined}
 				onConfirm={() => void confirmDisconnect()}
 			/>
 		</SettingsSection>
