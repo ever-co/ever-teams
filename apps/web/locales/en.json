@@ -3398,6 +3398,7 @@
 				"DEFAULT_LABEL": "Every kind",
 				"DEFAULT_TEXT": "The email setting a kind uses unless its own row says otherwise.",
 				"MODE_LABEL": "Email",
+				"MODE_DEFAULT": "Use the default",
 				"MODE_IMMEDIATE": "At once",
 				"MODE_DIGEST": "In the daily digest",
 				"MODE_OFF": "Never",

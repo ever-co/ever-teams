@@ -1,10 +1,10 @@
 'use client';
 
-import { useCallback } from 'react';
+import { useCallback, useRef, useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { queryKeys } from '@/core/query/keys';
-import { employeeNotificationSettingService, INotificationInboxScope } from '@/core/services/client/api/notifications';
 import { withPreferencePatch } from '@/core/lib/notifications/notification-preferences';
+import { employeeNotificationSettingService, INotificationInboxScope } from '@/core/services/client/api/notifications';
 import {
 	IEmployeeNotificationSetting,
 	INotificationPreferences,
@@ -47,38 +47,46 @@ interface ToggleVariables {
 	isOn: boolean;
 }
 
-function withSwitch(
+/** One change of the setting: a type's switch, or a patch of the delivery preferences. */
+export type NotificationSettingSave =
+	| { kind: 'switch'; key: TEmployeeNotificationSettingKey; isOn: boolean }
+	| { kind: 'preferences'; patch: Partial<INotificationPreferences> };
+
+/** The setting with one save applied (what the cache shows before Gauzy answers). */
+export function withSave(
 	setting: IEmployeeNotificationSetting | null | undefined,
-	variables: ToggleVariables
+	save: NotificationSettingSave
 ): IEmployeeNotificationSetting | null {
 	if (!setting) {
 		return null;
 	}
+	if (save.kind === 'switch') {
+		return { ...setting, [save.key]: save.isOn };
+	}
 
-	return { ...setting, [variables.key]: variables.isOn };
+	return { ...setting, preferences: withPreferencePatch(setting.preferences, save.patch) };
 }
 
-/** The setting with a preferences patch applied (for the cache, before Gauzy answers). */
-function withPreferences(
+/** The setting with only the fields of a refused save put back as they were — the other saves' changes stay. */
+export function withSaveReverted(
 	setting: IEmployeeNotificationSetting | null | undefined,
-	patch: Partial<INotificationPreferences>
+	save: NotificationSettingSave,
+	previous: IEmployeeNotificationSetting | null | undefined
 ): IEmployeeNotificationSetting | null {
 	if (!setting) {
-		return null;
+		return previous ?? null;
+	}
+	if (save.kind === 'switch') {
+		return { ...setting, [save.key]: previous?.[save.key] };
 	}
 
-	return { ...setting, preferences: withPreferencePatch(setting.preferences, patch) };
+	return { ...setting, preferences: previous?.preferences ?? null };
 }
 
-function pendingKeyOf(
-	isPending: boolean,
-	variables: ToggleVariables | undefined
-): TEmployeeNotificationSettingKey | undefined {
-	if (!isPending) {
-		return undefined;
-	}
+function pendingKeyOf(saves: readonly NotificationSettingSave[]): TEmployeeNotificationSettingKey | undefined {
+	const last = saves.filter((save) => save.kind === 'switch').at(-1);
 
-	return variables?.key;
+	return last?.kind === 'switch' ? last.key : undefined;
 }
 
 export function useNotificationSettings() {
@@ -96,14 +104,24 @@ export function useNotificationSettings() {
 		enabled: scope !== null
 	});
 
-	const saveSwitch = useCallback(
-		async ({ key, isOn }: ToggleVariables) => {
+	// The saves run one after the other: a save reads the row as the one before it left it (so a second save never
+	// creates a second row), and the saves still in flight are re-applied over every answer Gauzy gives.
+	const queueRef = useRef<Promise<unknown>>(Promise.resolve());
+	const inFlightRef = useRef<NotificationSettingSave[]>([]);
+	const [inFlight, setInFlight] = useState<readonly NotificationSettingSave[]>([]);
+
+	const sendSave = useCallback(
+		async (save: NotificationSettingSave) => {
 			if (!scope) {
 				return null;
 			}
 			const current = queryClient.getQueryData<IEmployeeNotificationSetting | null>(settingsKey);
 			const input: TEmployeeNotificationSettingInput = {};
-			input[key] = isOn;
+			if (save.kind === 'switch') {
+				input[save.key] = save.isOn;
+			} else {
+				input.preferences = withPreferencePatch(current?.preferences, save.patch);
+			}
 			if (current?.id) {
 				return employeeNotificationSettingService.update(current.id, scope, input);
 			}
@@ -113,59 +131,49 @@ export function useNotificationSettings() {
 		[queryClient, scope, settingsKey]
 	);
 
-	const toggleMutation = useMutation({
-		mutationFn: saveSwitch,
-		onMutate: async (variables: ToggleVariables) => {
+	const saveMutation = useMutation({
+		mutationFn: (save: NotificationSettingSave) => {
+			const run = () => sendSave(save);
+			const next = queueRef.current.then(run, run);
+			queueRef.current = next.catch(() => undefined);
+
+			return next;
+		},
+		onMutate: async (save: NotificationSettingSave) => {
+			inFlightRef.current = [...inFlightRef.current, save];
+			setInFlight(inFlightRef.current);
 			await queryClient.cancelQueries({ queryKey: settingsKey });
 			const previous = queryClient.getQueryData<IEmployeeNotificationSetting | null>(settingsKey);
-			queryClient.setQueryData(settingsKey, withSwitch(previous, variables));
+			queryClient.setQueryData(settingsKey, withSave(previous, save));
 
 			return previous;
 		},
-		onSuccess: (saved) => {
-			if (saved) {
-				queryClient.setQueryData(settingsKey, saved);
+		onSuccess: (saved, save) => {
+			if (!saved) {
+				return;
 			}
+			// Gauzy's row, with the saves still in flight (queued after this one) applied over it again.
+			const pending = inFlightRef.current.filter((other) => other !== save);
+			queryClient.setQueryData(settingsKey, pending.reduce<IEmployeeNotificationSetting | null>(withSave, saved));
 		},
-		onError: (_error, _variables, previous) => {
-			queryClient.setQueryData(settingsKey, previous);
-		}
-	});
-
-	const savePreferencePatch = useCallback(
-		async (patch: Partial<INotificationPreferences>) => {
-			if (!scope) {
-				return null;
-			}
+		onError: (_error, save, previous) => {
 			const current = queryClient.getQueryData<IEmployeeNotificationSetting | null>(settingsKey);
-			const input = { preferences: withPreferencePatch(current?.preferences, patch) };
-			if (current?.id) {
-				return employeeNotificationSettingService.update(current.id, scope, input);
-			}
-
-			return employeeNotificationSettingService.create(scope, input);
+			queryClient.setQueryData(settingsKey, withSaveReverted(current, save, previous));
 		},
-		[queryClient, scope, settingsKey]
-	);
-
-	const preferencesMutation = useMutation({
-		mutationFn: savePreferencePatch,
-		onMutate: async (patch: Partial<INotificationPreferences>) => {
-			await queryClient.cancelQueries({ queryKey: settingsKey });
-			const previous = queryClient.getQueryData<IEmployeeNotificationSetting | null>(settingsKey);
-			queryClient.setQueryData(settingsKey, withPreferences(previous, patch));
-
-			return previous;
-		},
-		onSuccess: (saved) => {
-			if (saved) {
-				queryClient.setQueryData(settingsKey, saved);
-			}
-		},
-		onError: (_error, _patch, previous) => {
-			queryClient.setQueryData(settingsKey, previous);
+		onSettled: (_saved, _error, save) => {
+			inFlightRef.current = inFlightRef.current.filter((other) => other !== save);
+			setInFlight(inFlightRef.current);
 		}
 	});
+
+	const toggle = useCallback(
+		({ key, isOn }: ToggleVariables) => saveMutation.mutateAsync({ kind: 'switch', key, isOn }),
+		[saveMutation]
+	);
+	const savePreferences = useCallback(
+		(patch: Partial<INotificationPreferences>) => saveMutation.mutateAsync({ kind: 'preferences', patch }),
+		[saveMutation]
+	);
 
 	return {
 		setting: settingQuery.data ?? null,
@@ -173,10 +181,10 @@ export function useNotificationSettings() {
 		isLoading: settingQuery.isPending && settingQuery.fetchStatus !== 'idle',
 		isError: settingQuery.isError,
 		retry: settingQuery.refetch,
-		toggle: toggleMutation.mutateAsync,
-		pendingKey: pendingKeyOf(toggleMutation.isPending, toggleMutation.variables),
+		toggle,
+		pendingKey: pendingKeyOf(inFlight),
 		/** Saves a change of the delivery preferences (email modes, quiet hours, digest hour). */
-		savePreferences: preferencesMutation.mutateAsync,
-		isSavingPreferences: preferencesMutation.isPending
+		savePreferences,
+		isSavingPreferences: inFlight.some((save) => save.kind === 'preferences')
 	};
 }

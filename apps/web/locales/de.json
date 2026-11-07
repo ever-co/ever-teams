@@ -3398,6 +3398,7 @@
 				"DEFAULT_LABEL": "Jede Art",
 				"DEFAULT_TEXT": "Die E-Mail-Einstellung, die eine Art verwendet, sofern ihre eigene Zeile nichts anderes sagt.",
 				"MODE_LABEL": "E-Mail",
+				"MODE_DEFAULT": "Standard verwenden",
 				"MODE_IMMEDIATE": "Sofort",
 				"MODE_DIGEST": "In der täglichen Zusammenfassung",
 				"MODE_OFF": "Nie",

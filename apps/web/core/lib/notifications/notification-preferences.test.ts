@@ -4,6 +4,7 @@ import {
 	digestHourOf,
 	emailModeOf,
 	isTimeOfDay,
+	ownEmailModeOf,
 	quietHoursOf,
 	withPreferencePatch
 } from './notification-preferences';
@@ -21,6 +22,8 @@ describe('notification preferences', () => {
 		expect(emailModeOf(preferences, EEmployeeNotificationType.Mention)).toBe('immediate');
 		expect(emailModeOf(preferences, EEmployeeNotificationType.Comment)).toBe('digest');
 		expect(emailModeOf({ emailByType: { Mention: 'sometimes' as never } }, EEmployeeNotificationType.Mention)).toBe('immediate');
+		expect(ownEmailModeOf(preferences, EEmployeeNotificationType.Mention)).toBe('immediate');
+		expect(ownEmailModeOf(preferences, EEmployeeNotificationType.Comment)).toBeNull();
 	});
 
 	it('keeps only a well-formed quiet-hours window, and a digest hour of the day', () => {
@@ -42,6 +45,7 @@ describe('notification preferences', () => {
 			dnd: { start: '22:00', end: '07:00', timeZone: 'UTC' }
 		});
 		expect(withPreferencePatch(current, { dnd: { start: '21:00', end: '07:00' } }).dnd).toEqual({ start: '21:00', end: '07:00', timeZone: 'UTC' });
+		expect(withPreferencePatch(current, { emailByType: { Mention: undefined } }).emailByType).toEqual({});
 		expect(withPreferencePatch(current, { dnd: null }).dnd).toBeNull();
 		expect(withPreferencePatch(null, { digestHour: 9 })).toEqual({ digestHour: 9 });
 	});

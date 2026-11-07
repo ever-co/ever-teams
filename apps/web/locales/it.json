@@ -3398,6 +3398,7 @@
 				"DEFAULT_LABEL": "Tutti i tipi",
 				"DEFAULT_TEXT": "L'impostazione email usata da un tipo, salvo che la sua riga dica altrimenti.",
 				"MODE_LABEL": "Email",
+				"MODE_DEFAULT": "Usa il valore predefinito",
 				"MODE_IMMEDIATE": "Subito",
 				"MODE_DIGEST": "Nel riepilogo giornaliero",
 				"MODE_OFF": "Mai",

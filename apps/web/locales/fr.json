@@ -3398,6 +3398,7 @@
 				"DEFAULT_LABEL": "Tous les types",
 				"DEFAULT_TEXT": "Le réglage e-mail qu'un type utilise sauf si sa propre ligne en décide autrement.",
 				"MODE_LABEL": "E-mail",
+				"MODE_DEFAULT": "Utiliser la valeur par défaut",
 				"MODE_IMMEDIATE": "Immédiatement",
 				"MODE_DIGEST": "Dans le résumé quotidien",
 				"MODE_OFF": "Jamais",

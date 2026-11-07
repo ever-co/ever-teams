@@ -3398,6 +3398,7 @@
 				"DEFAULT_LABEL": "所有类型",
 				"DEFAULT_TEXT": "各类型使用的邮件设置，除非其自身一行另有设定。",
 				"MODE_LABEL": "邮件",
+				"MODE_DEFAULT": "使用默认设置",
 				"MODE_IMMEDIATE": "立即",
 				"MODE_DIGEST": "在每日摘要中",
 				"MODE_OFF": "从不",

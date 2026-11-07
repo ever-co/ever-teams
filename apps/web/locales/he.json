@@ -3398,6 +3398,7 @@
 				"DEFAULT_LABEL": "כל הסוגים",
 				"DEFAULT_TEXT": "הגדרת הדוא\"ל שסוג משתמש בה אלא אם השורה שלו אומרת אחרת.",
 				"MODE_LABEL": "דוא\"ל",
+				"MODE_DEFAULT": "להשתמש בברירת המחדל",
 				"MODE_IMMEDIATE": "מייד",
 				"MODE_DIGEST": "בתקציר היומי",
 				"MODE_OFF": "אף פעם",

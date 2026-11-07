@@ -3398,6 +3398,7 @@
 				"DEFAULT_LABEL": "Każdy rodzaj",
 				"DEFAULT_TEXT": "Ustawienie e-mail używane przez rodzaj, o ile jego własny wiersz nie mówi inaczej.",
 				"MODE_LABEL": "E-mail",
+				"MODE_DEFAULT": "Użyj domyślnego",
 				"MODE_IMMEDIATE": "Od razu",
 				"MODE_DIGEST": "W dziennym podsumowaniu",
 				"MODE_OFF": "Nigdy",

@@ -18,7 +18,7 @@ import { isNotificationTypeOn, useNotificationSettings } from '@/core/hooks/noti
 import {
 	defaultEmailModeOf,
 	digestHourOf,
-	emailModeOf,
+	ownEmailModeOf,
 	quietHoursOf
 } from '@/core/lib/notifications/notification-preferences';
 import { userState } from '@/core/stores/user/user';
@@ -27,10 +27,9 @@ import {
 	IEmployeeNotificationSetting,
 	INotificationPreferences,
 	INotificationQuietHours,
-	TEmployeeNotificationSettingKey,
-	TNotificationEmailMode
+	TEmployeeNotificationSettingKey
 } from '@/core/types/interfaces/common/employee-notification';
-import { DigestHourRow, EmailDefaultRow, EmailModeSelect, QuietHoursRow } from './notification-channel-rows';
+import { DigestHourRow, EmailDefaultRow, EmailModeChoice, EmailModeSelect, QuietHoursRow } from './notification-channel-rows';
 import { NotificationGroupsSkeleton } from './notifications-settings-skeleton';
 
 interface TypeCopy {
@@ -103,7 +102,7 @@ type TypeRowsProps = {
 	pending: PendingSwitches;
 	isSavingPreferences: boolean;
 	onToggle: (key: TEmployeeNotificationSettingKey, isOn: boolean) => void;
-	onEmailMode: (type: EEmployeeNotificationType, mode: TNotificationEmailMode) => void;
+	onEmailMode: (type: EEmployeeNotificationType, mode: EmailModeChoice) => void;
 };
 
 function TypeRows({ keys, setting, pending, isSavingPreferences, onToggle, onEmailMode }: Readonly<TypeRowsProps>) {
@@ -126,7 +125,8 @@ function TypeRows({ keys, setting, pending, isSavingPreferences, onToggle, onEma
 					>
 						{isOn && (
 							<EmailModeSelect
-								value={emailModeOf(setting?.preferences, copy.type)}
+								value={ownEmailModeOf(setting?.preferences, copy.type) ?? 'default'}
+								allowDefault
 								disabled={isSavingPreferences}
 								ariaLabel={`${t('notifications.SETTINGS_PAGE.CHANNELS.MODE_LABEL')}: ${t(copy.titleKey)}`}
 								className="w-full sm:w-40"
@@ -183,7 +183,9 @@ export function NotificationsSettingsPage() {
 			toast.error(t('notifications.SETTINGS_PAGE.CHANNELS.SAVE_FAILED'));
 		}
 	};
-	const onEmailMode = (type: EEmployeeNotificationType, mode: TNotificationEmailMode) => onPreferences({ emailByType: { [type]: mode } });
+	// `default` takes the kind's own choice away, so it follows the mode of every kind again.
+	const onEmailMode = (type: EEmployeeNotificationType, mode: EmailModeChoice) =>
+		onPreferences({ emailByType: { [type]: mode === 'default' ? undefined : mode } });
 	const onQuietHours = (window: INotificationQuietHours | null) => onPreferences({ dnd: window });
 	const preferences = setting?.preferences;
 	const quietHours = quietHoursOf(preferences);

@@ -3398,6 +3398,7 @@
 				"DEFAULT_LABEL": "Elk type",
 				"DEFAULT_TEXT": "De e-mailinstelling die een type gebruikt, tenzij zijn eigen rij anders zegt.",
 				"MODE_LABEL": "E-mail",
+				"MODE_DEFAULT": "Standaard gebruiken",
 				"MODE_IMMEDIATE": "Meteen",
 				"MODE_DIGEST": "In het dagelijkse overzicht",
 				"MODE_OFF": "Nooit",

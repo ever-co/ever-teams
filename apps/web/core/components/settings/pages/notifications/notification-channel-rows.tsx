@@ -17,6 +17,7 @@ import {
 import { INotificationQuietHours, TNotificationEmailMode } from '@/core/types/interfaces/common/employee-notification';
 
 const MODE_KEYS = {
+	default: 'notifications.SETTINGS_PAGE.CHANNELS.MODE_DEFAULT',
 	immediate: 'notifications.SETTINGS_PAGE.CHANNELS.MODE_IMMEDIATE',
 	digest: 'notifications.SETTINGS_PAGE.CHANNELS.MODE_DIGEST',
 	off: 'notifications.SETTINGS_PAGE.CHANNELS.MODE_OFF'
@@ -24,25 +25,31 @@ const MODE_KEYS = {
 
 const HOURS = Array.from({ length: 24 }, (_, hour) => hour);
 
+/** A kind's choice: one of the modes, or `default` — follow the mode of every kind. */
+export type EmailModeChoice = TNotificationEmailMode | 'default';
+
 type EmailModeSelectProps = {
 	id?: string;
-	value: TNotificationEmailMode;
+	value: EmailModeChoice;
 	disabled?: boolean;
 	ariaLabel?: string;
 	className?: string;
-	onChange: (mode: TNotificationEmailMode) => void;
+	/** Offer `default` too (a kind's select); the select of every kind does not. */
+	allowDefault?: boolean;
+	onChange: (mode: EmailModeChoice) => void;
 };
 
-/** At once, in the daily digest, or never. */
-export function EmailModeSelect({ id, value, disabled, ariaLabel, className, onChange }: Readonly<EmailModeSelectProps>) {
+/** At once, in the daily digest, never — and, for a kind, the default of every kind. */
+export function EmailModeSelect({ id, value, disabled, ariaLabel, className, allowDefault, onChange }: Readonly<EmailModeSelectProps>) {
 	const t = useTranslations();
+	const choices: readonly EmailModeChoice[] = allowDefault ? ['default', ...NOTIFICATION_EMAIL_MODES] : NOTIFICATION_EMAIL_MODES;
 	return (
-		<Select value={value} onValueChange={(next) => onChange(next as TNotificationEmailMode)} disabled={disabled}>
+		<Select value={value} onValueChange={(next) => onChange(next as EmailModeChoice)} disabled={disabled}>
 			<SelectTrigger id={id} aria-label={ariaLabel} className={cn('h-8 text-[13px]', className ?? 'w-full sm:w-44')}>
 				<SelectValue>{t(MODE_KEYS[value])}</SelectValue>
 			</SelectTrigger>
 			<SelectContent>
-				{NOTIFICATION_EMAIL_MODES.map((mode) => (
+				{choices.map((mode) => (
 					<SelectItem key={mode} value={mode} className="text-[13px]">
 						{t(MODE_KEYS[mode])}
 					</SelectItem>
@@ -69,7 +76,7 @@ export function EmailDefaultRow({ value, disabled, onChange }: Readonly<EmailDef
 				description={t('notifications.SETTINGS_PAGE.CHANNELS.DEFAULT_TEXT')}
 				htmlFor={triggerId}
 			>
-				<EmailModeSelect id={triggerId} value={value} disabled={disabled} onChange={onChange} />
+				<EmailModeSelect id={triggerId} value={value} disabled={disabled} onChange={(mode) => onChange(mode as TNotificationEmailMode)} />
 			</SettingsRow>
 		</SettingsSurface>
 	);

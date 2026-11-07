@@ -35,6 +35,15 @@ export function defaultEmailModeOf(preferences: INotificationPreferences | null 
 	return 'immediate';
 }
 
+/** A kind's own email mode, or null when it follows the one of every kind. */
+export function ownEmailModeOf(
+	preferences: INotificationPreferences | null | undefined,
+	type: EEmployeeNotificationType
+): TNotificationEmailMode | null {
+	const own = preferences?.emailByType?.[type];
+	return isEmailMode(own) ? own : null;
+}
+
 /** The email mode of one kind: its own, else the one of every kind. */
 export function emailModeOf(
 	preferences: INotificationPreferences | null | undefined,
@@ -80,14 +89,25 @@ export function digestHourLabel(hour: number, locale: string): string {
 	}
 }
 
-/** The preferences with a patch applied: the per-type modes and the window merge, a `null` window clears it. */
+/**
+ * The preferences with a patch applied: the per-type modes merge (a type patched to `undefined` follows the default
+ * again), the window merges, a `null` window clears it.
+ */
 export function withPreferencePatch(
 	current: INotificationPreferences | null | undefined,
 	patch: Partial<INotificationPreferences>
 ): INotificationPreferences {
 	const next: INotificationPreferences = { ...(current ?? {}), ...patch };
 	if (patch.emailByType) {
-		next.emailByType = { ...(current?.emailByType ?? {}), ...patch.emailByType };
+		const merged: Partial<Record<string, TNotificationEmailMode>> = { ...(current?.emailByType ?? {}) };
+		for (const [type, mode] of Object.entries(patch.emailByType)) {
+			if (mode === undefined) {
+				delete merged[type];
+			} else {
+				merged[type] = mode;
+			}
+		}
+		next.emailByType = merged;
 	}
 	if ('dnd' in patch) {
 		next.dnd = patch.dnd ? { ...(current?.dnd ?? {}), ...patch.dnd } : null;
