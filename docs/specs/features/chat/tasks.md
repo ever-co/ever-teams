@@ -13,7 +13,7 @@
 - [x] T9 Routes, sidebar entry, protected path, `teamChat` strings in the 13 locales
 - [ ] T10 Gate: `yarn test:web`, typecheck, cspell — fix forward
 - [ ] T11 Manual check against a platform with the chat plugin on (two users: messages, threads, reactions, badges)
-- [ ] T12 Live channel through `useRealtimeEvent` (after `realtime-client` merges); drop the polls while connected
+- [x] T12 Live channel through `useRealtimeEvent` (after `realtime-client` merges); drop the polls while connected (#4987)
 - [ ] T13 Phase 2: attachments, link previews, emoji autocomplete
-- [ ] T14 Phase 2: send-to-chat from the task drawer / page, create-task-from-message
+- [x] T14 Phase 2: send-to-chat from the task drawer / page, create-task-from-message: the task menu's "Send to chat" (a card under an optional note) and the message menu's "Create task" (title from the first line, active team, its default project)
 - [ ] T15 Phase 2: command palette, presence dots, virtualised list, phone polish, shortcuts

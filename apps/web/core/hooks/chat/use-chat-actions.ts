@@ -12,9 +12,11 @@ import {
 	IChatMemberStateInput,
 	IChatConversationCreateInput,
 	IChatConversationWithState,
+	IChatCreateTaskInput,
 	IChatThreadPage
 } from '@/core/types/interfaces/common/chat';
 import { mentionedEmployeeIds, mergeMessages, newNonce } from '@/core/lib/utils/chat-format';
+import { withTaskReference } from '@/core/lib/utils/chat-task';
 import type { ChatMessagesCache } from './use-chat-messages';
 import { useChatScope } from './use-chat-scope';
 
@@ -197,6 +199,17 @@ export function useChatActions() {
 		[patchEverywhere]
 	);
 
+	/** A task from a message: the message shows its card at once, and the task lists read again (the task is new). */
+	const createTask = useCallback(
+		async (message: IChatMessage, input: IChatCreateTaskInput) => {
+			const answer = await chatService.createTask(message.id, input);
+			patchEverywhere(message, (current) => withTaskReference(current, answer.reference));
+			void queryClient.invalidateQueries({ queryKey: queryKeys.tasks.all });
+			return answer.task;
+		},
+		[patchEverywhere, queryClient]
+	);
+
 	const react = useCallback(
 		async (message: IChatMessage, emoji: string) => {
 			const mine = message.reactions?.find((reaction) => reaction.emoji === emoji)?.mine ?? false;
@@ -319,7 +332,7 @@ export function useChatActions() {
 
 	// One object while the callbacks stay the same: the effects that depend on it do not run on every render.
 	return useMemo(
-		() => ({ send, retry, discardFailed, edit, remove, pin, react, read, unreadFrom, readAll, setFollow, setMemberState, createChannel, direct, join, leave }),
-		[send, retry, discardFailed, edit, remove, pin, react, read, unreadFrom, readAll, setFollow, setMemberState, createChannel, direct, join, leave]
+		() => ({ send, retry, discardFailed, edit, remove, pin, createTask, react, read, unreadFrom, readAll, setFollow, setMemberState, createChannel, direct, join, leave }),
+		[send, retry, discardFailed, edit, remove, pin, createTask, react, read, unreadFrom, readAll, setFollow, setMemberState, createChannel, direct, join, leave]
 	);
 }

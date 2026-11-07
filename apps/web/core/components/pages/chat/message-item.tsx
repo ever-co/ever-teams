@@ -49,6 +49,8 @@ export interface MessageItemProps {
 	onCopyLink: (message: IChatMessage) => void;
 	taskTitles: ReadonlyMap<string, string>;
 	onOpenTask: (taskId: string) => void;
+	/** "Create task" from the message; the item is left out where it is not offered. */
+	onCreateTask?: (message: IChatMessage) => void;
 }
 
 /** The placeholder the assistant's name is put at, to split the translated phrase around it. */
@@ -196,6 +198,9 @@ function MessageItemComponent(props: Readonly<MessageItemProps>) {
 							<DropdownMenuItem onClick={() => props.onUnreadFrom(message)}>
 								<Undo className="size-4" /> {t('teamChat.MARK_UNREAD_FROM')}
 							</DropdownMenuItem>
+							{props.onCreateTask && message.body.trim() && (
+								<DropdownMenuItem onClick={() => props.onCreateTask?.(message)}>{t('teamChat.CREATE_TASK')}</DropdownMenuItem>
+							)}
 							{(isMine || canManage) && <DropdownMenuSeparator />}
 							{isMine && <DropdownMenuItem onClick={() => props.onEdit(message)}>{t('teamChat.EDIT')}</DropdownMenuItem>}
 							{(isMine || canManage) && (

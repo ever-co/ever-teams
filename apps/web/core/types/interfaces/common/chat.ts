@@ -200,6 +200,22 @@ export interface IChatMessageCreateInput {
 	taskId?: ID;
 }
 
+/** `POST /chat/messages/:id/create-task`: a task from a message (its first line as the title when none is sent). */
+export interface IChatCreateTaskInput {
+	projectId?: ID;
+	/** The team the task belongs to, so the team's lists show it (a platform that predates the field ignores it). */
+	organizationTeamId?: ID;
+	title?: string;
+	assigneeEmployeeIds?: ID[];
+}
+
+/** The task made from a message, the message's reference to it, and the events the change caused. */
+export interface IChatCreateTaskResult {
+	task: { id: ID; title: string; number?: number | null; prefix?: string | null };
+	reference: IChatTaskReference;
+	events: IChatEvent[];
+}
+
 export interface IChatMessageUpdateInput {
 	body: string;
 	attachmentIds?: ID[];

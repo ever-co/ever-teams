@@ -7,6 +7,8 @@ import type {
 	IChatConversationList,
 	IChatConversationUpdateInput,
 	IChatConversationWithState,
+	IChatCreateTaskInput,
+	IChatCreateTaskResult,
 	IChatEvent,
 	IChatMemberState,
 	IChatMemberStateInput,
@@ -146,6 +148,12 @@ class ChatService extends APIService {
 
 	pin = async (messageId: string, pinned: boolean): Promise<IChatSendResult> => {
 		const response = await this.post<IChatSendResult>(`/chat/messages/${path(messageId)}/${pinned ? 'pin' : 'unpin'}`, {}, undefined, false);
+		return response.data;
+	};
+
+	/** A task from a message; the message keeps a `created` reference to it. Needs the task permission as well. */
+	createTask = async (messageId: string, input: IChatCreateTaskInput): Promise<IChatCreateTaskResult> => {
+		const response = await this.post<IChatCreateTaskResult>(`/chat/messages/${path(messageId)}/create-task`, input, undefined, false);
 		return response.data;
 	};
 
