@@ -21,6 +21,7 @@ const REPORT = {
 	employeeIds: ['employee-1']
 };
 
+/** The query string of the one request serverFetch received. */
 function sentQuery(): URLSearchParams {
 	const { path } = mockServerFetch.mock.calls[0][0] as { path: string };
 	return new URL(`http://gauzy${path}`).searchParams;

@@ -5,6 +5,7 @@
  */
 export type ResponseShape = 'full' | 'lean';
 
+/** The shape a request's query asks for: `lean` or `full`, `undefined` for an absent or unknown value. */
 export function readResponseShape(searchParams: URLSearchParams): ResponseShape | undefined {
 	const shape = searchParams.get('shape');
 	return shape === 'lean' || shape === 'full' ? shape : undefined;
