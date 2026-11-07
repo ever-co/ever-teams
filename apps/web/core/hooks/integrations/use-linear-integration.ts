@@ -76,6 +76,8 @@ const NO_PENDING: LinearPending = { kind: null, mappingId: null };
 const NO_TEAMS: ILinearTeam[] = [];
 const NO_MAPPINGS: ILinearMapping[] = [];
 const NO_RUNS: ILinearRun[] = [];
+/** The organization's projects could not be read (the projects query keeps no error object). */
+const PROJECTS_READ_FAILED = new Error('The organization projects could not be read');
 /** How often the runs are read again while one is running. */
 const RUNS_POLL_MS = 10_000;
 
@@ -170,7 +172,10 @@ export function useLinearIntegration(): LinearIntegrationSettings {
 	const [disconnectError, setDisconnectError] = useState<unknown>(null);
 	const [callbackDismissed, setCallbackDismissed] = useState(false);
 
+	// The platform's callback names its provider (`?provider=linear`); one that sends none is taken as this one.
 	const callbackParam = useMemo(() => {
+		const provider = searchParams?.get('provider');
+		if (provider && provider !== 'linear') return null;
 		const value = searchParams?.get('error') ?? null;
 		return isCallbackError(value) ? value : null;
 	}, [searchParams]);
@@ -181,6 +186,7 @@ export function useLinearIntegration(): LinearIntegrationSettings {
 		if (!searchParams?.has('error')) return;
 		const rest = new URLSearchParams(searchParams.toString());
 		rest.delete('error');
+		rest.delete('provider');
 		const query = rest.toString();
 		router.replace(query ? `${pathname}?${query}` : pathname, { scroll: false });
 	}, [pathname, router, searchParams]);
@@ -216,7 +222,7 @@ export function useLinearIntegration(): LinearIntegrationSettings {
 		staleTime: 5_000,
 		refetchInterval: (query) => (query.state.data?.some((run) => run.status === 'running') ? RUNS_POLL_MS : false)
 	});
-	const { organizationProjects } = useOrganizationProjectsQuery({ enabled: !!integrationId });
+	const { organizationProjects, getOrganizationProjectsLoading, isOrganizationProjectsError, refetchOrganizationProjects } = useOrganizationProjectsQuery({ enabled: !!integrationId });
 	const projects = useMemo<LinearIntegrationProject[]>(
 		() => (organizationProjects ?? []).map((project) => ({ id: project.id, name: project.name ?? '' })).filter((project) => project.id),
 		[organizationProjects]
@@ -242,7 +248,8 @@ export function useLinearIntegration(): LinearIntegrationSettings {
 		if (mappingsQuery.isError) void mappingsQuery.refetch();
 		if (teamsQuery.isError) void teamsQuery.refetch();
 		if (runsQuery.isError) void runsQuery.refetch();
-	}, [mappingsQuery, runsQuery, teamsQuery]);
+		if (isOrganizationProjectsError) void refetchOrganizationProjects();
+	}, [isOrganizationProjectsError, mappingsQuery, refetchOrganizationProjects, runsQuery, teamsQuery]);
 
 	/** One action at a time, its kind shown while it runs, its error kept for the page (a disconnect's apart). */
 	const act = useCallback(async (kind: LinearPending['kind'], mappingId: string | null, work: () => Promise<unknown>) => {
@@ -347,8 +354,8 @@ export function useLinearIntegration(): LinearIntegrationSettings {
 		projects,
 		mappings: mappingsQuery.data ?? NO_MAPPINGS,
 		runs: runsQuery.data ?? NO_RUNS,
-		isLoadingDetails: !!integrationId && (mappingsQuery.isPending || teamsQuery.isPending),
-		detailsError: mappingsQuery.error ?? teamsQuery.error ?? runsQuery.error ?? null,
+		isLoadingDetails: !!integrationId && (mappingsQuery.isPending || teamsQuery.isPending || getOrganizationProjectsLoading),
+		detailsError: mappingsQuery.error ?? teamsQuery.error ?? runsQuery.error ?? (isOrganizationProjectsError ? PROJECTS_READ_FAILED : null),
 		isRetryingDetails: mappingsQuery.isFetching || teamsQuery.isFetching || runsQuery.isFetching,
 		retryDetails,
 		actionError,
