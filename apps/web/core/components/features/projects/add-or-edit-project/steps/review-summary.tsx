@@ -119,8 +119,6 @@ export default function FinalReview(props: IStepElementProps) {
 		startDate: finalData?.startDate,
 		endDate: finalData?.endDate,
 		projectUrl: finalData?.projectUrl,
-		// Left out when empty: the platform then gives the project the first letters of its name.
-		...(finalData?.taskKey ? { taskKey: finalData.taskKey } : {}),
 		description: finalData?.description,
 		imageUrl: finalData?.projectImage?.fullUrl ?? finalData?.imageUrl ?? undefined,
 		imageId: finalData?.projectImage?.id ?? finalData?.imageId,
