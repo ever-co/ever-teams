@@ -4995,6 +4995,7 @@
 		"EVERYONE": "iedereen",
 		"SOMEONE": "Iemand",
 		"PINNED": "Vastgezet",
+		"ASSISTED_BY": "Geschreven met {name}",
 		"DELETED": "Dit bericht is verwijderd.",
 		"EDITED": "(bewerkt)",
 		"REPLIES": "{count, plural, =0 {Antwoorden in thread} one {# antwoord} other {# antwoorden}}",

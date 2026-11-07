@@ -4995,6 +4995,7 @@
 		"EVERYONE": "alle",
 		"SOMEONE": "Jemand",
 		"PINNED": "Angeheftet",
+		"ASSISTED_BY": "Mit {name} geschrieben",
 		"DELETED": "Diese Nachricht wurde gelöscht.",
 		"EDITED": "(bearbeitet)",
 		"REPLIES": "{count, plural, =0 {Im Thread antworten} one {# Antwort} other {# Antworten}}",
