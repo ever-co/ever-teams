@@ -3810,6 +3810,7 @@
 				"DISCONNECT_DESCRIPTION": "De verbinding is van de organisatie: elk team dat hem gebruikt verliest hem.",
 				"DISCONNECT_STOPS_SYNC": "Issues worden geen taken meer, en taken gaan niet meer naar Linear.",
 				"DISCONNECT_KEEPS_TASKS": "Taken die al uit issues zijn gemaakt blijven waar ze zijn.",
+				"DETAILS_ERROR_TITLE": "De teams, koppelingen of runs konden niet worden geladen",
 				"LOAD_ERROR_TITLE": "De Linear-integratie kon niet worden geladen",
 				"ACTION_FAILED": "Dat is niet gelukt",
 				"CALLBACK_ERROR_TITLE": "Linear kon niet worden verbonden",

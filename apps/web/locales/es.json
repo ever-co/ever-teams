@@ -3810,6 +3810,7 @@
 				"DISCONNECT_DESCRIPTION": "La conexión pertenece a la organización: todo equipo que la use la pierde.",
 				"DISCONNECT_STOPS_SYNC": "Las incidencias dejan de convertirse en tareas y las tareas dejan de ir a Linear.",
 				"DISCONNECT_KEEPS_TASKS": "Las tareas ya creadas desde incidencias se quedan donde están.",
+				"DETAILS_ERROR_TITLE": "No se pudieron cargar los equipos, asociaciones o ejecuciones",
 				"LOAD_ERROR_TITLE": "No se pudo cargar la integración de Linear",
 				"ACTION_FAILED": "Eso no funcionó",
 				"CALLBACK_ERROR_TITLE": "No se pudo conectar Linear",

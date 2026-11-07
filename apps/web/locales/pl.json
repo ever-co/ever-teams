@@ -3810,6 +3810,7 @@
 				"DISCONNECT_DESCRIPTION": "Połączenie należy do organizacji: każdy zespół, który go używa, je traci.",
 				"DISCONNECT_STOPS_SYNC": "Zgłoszenia przestają stawać się zadaniami, a zadania przestają trafiać do Linear.",
 				"DISCONNECT_KEEPS_TASKS": "Zadania utworzone już ze zgłoszeń zostają tam, gdzie są.",
+				"DETAILS_ERROR_TITLE": "Nie udało się załadować zespołów, przypisań lub uruchomień",
 				"LOAD_ERROR_TITLE": "Nie udało się załadować integracji Linear",
 				"ACTION_FAILED": "To się nie udało",
 				"CALLBACK_ERROR_TITLE": "Nie udało się połączyć Linear",

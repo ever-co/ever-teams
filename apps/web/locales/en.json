@@ -3810,6 +3810,7 @@
 				"DISCONNECT_DESCRIPTION": "The connection belongs to the organization: every team that uses it loses it.",
 				"DISCONNECT_STOPS_SYNC": "Issues stop syncing into tasks, and tasks stop going to Linear.",
 				"DISCONNECT_KEEPS_TASKS": "Tasks already created from issues stay where they are.",
+				"DETAILS_ERROR_TITLE": "The teams, mappings or runs could not be loaded",
 				"LOAD_ERROR_TITLE": "The Linear integration could not be loaded",
 				"ACTION_FAILED": "That did not work",
 				"CALLBACK_ERROR_TITLE": "Linear could not be connected",

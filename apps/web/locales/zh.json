@@ -3810,6 +3810,7 @@
 				"DISCONNECT_DESCRIPTION": "此连接属于组织：使用它的每个团队都会失去它。",
 				"DISCONNECT_STOPS_SYNC": "议题不再成为任务，任务也不再发送到 Linear。",
 				"DISCONNECT_KEEPS_TASKS": "已从议题创建的任务保持原样。",
+				"DETAILS_ERROR_TITLE": "无法加载团队、映射或运行记录",
 				"LOAD_ERROR_TITLE": "无法加载 Linear 集成",
 				"ACTION_FAILED": "操作未成功",
 				"CALLBACK_ERROR_TITLE": "无法连接 Linear",

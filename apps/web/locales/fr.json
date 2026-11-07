@@ -3810,6 +3810,7 @@
 				"DISCONNECT_DESCRIPTION": "La connexion appartient à l'organisation : chaque équipe qui l'utilise la perd.",
 				"DISCONNECT_STOPS_SYNC": "Les tickets cessent de devenir des tâches, et les tâches cessent d'aller vers Linear.",
 				"DISCONNECT_KEEPS_TASKS": "Les tâches déjà créées depuis des tickets restent où elles sont.",
+				"DETAILS_ERROR_TITLE": "Les équipes, associations ou exécutions n'ont pas pu être chargées",
 				"LOAD_ERROR_TITLE": "L'intégration Linear n'a pas pu être chargée",
 				"ACTION_FAILED": "Cela n'a pas fonctionné",
 				"CALLBACK_ERROR_TITLE": "Linear n'a pas pu être connecté",

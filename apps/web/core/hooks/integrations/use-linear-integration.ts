@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { useAtomValue } from 'jotai';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
@@ -48,6 +48,10 @@ export interface LinearIntegrationSettings {
 	mappings: ILinearMapping[];
 	runs: ILinearRun[];
 	isLoadingDetails: boolean;
+	/** A read of the mappings, teams or runs that failed (the connection itself answered). */
+	detailsError: unknown;
+	isRetryingDetails: boolean;
+	retryDetails: () => void;
 	actionError: unknown;
 	clearActionError: () => void;
 	pending: LinearPending;
@@ -139,6 +143,24 @@ export function useLinearIntegration(): LinearIntegrationSettings {
 	const invalidate = useCallback(() => {
 		void queryClient.invalidateQueries({ queryKey: queryKeys.integrations.linear.all });
 	}, [queryClient]);
+
+	// A run that was running and is not any more changed the mapping (its last import) and maybe the connection
+	// (an attention reason): both are read again, since the poll refreshes the runs alone.
+	const wasRunning = useRef(false);
+	const isRunning = (runsQuery.data ?? NO_RUNS).some((run) => run.status === 'running');
+	useEffect(() => {
+		if (wasRunning.current && !isRunning) {
+			void queryClient.invalidateQueries({ queryKey: queryKeys.integrations.linear.mappings(tenantId, organizationId, integrationId) });
+			void queryClient.invalidateQueries({ queryKey: queryKeys.integrations.linear.status(tenantId, organizationId) });
+		}
+		wasRunning.current = isRunning;
+	}, [integrationId, isRunning, organizationId, queryClient, tenantId]);
+
+	const retryDetails = useCallback(() => {
+		if (mappingsQuery.isError) void mappingsQuery.refetch();
+		if (teamsQuery.isError) void teamsQuery.refetch();
+		if (runsQuery.isError) void runsQuery.refetch();
+	}, [mappingsQuery, runsQuery, teamsQuery]);
 
 	/** One action at a time, its kind shown while it runs, its error kept for the page. */
 	const act = useCallback(async (kind: LinearPending['kind'], mappingId: string | null, work: () => Promise<unknown>) => {
@@ -235,6 +257,9 @@ export function useLinearIntegration(): LinearIntegrationSettings {
 		mappings: mappingsQuery.data ?? NO_MAPPINGS,
 		runs: runsQuery.data ?? NO_RUNS,
 		isLoadingDetails: !!integrationId && (mappingsQuery.isPending || teamsQuery.isPending),
+		detailsError: mappingsQuery.error ?? teamsQuery.error ?? runsQuery.error ?? null,
+		isRetryingDetails: mappingsQuery.isFetching || teamsQuery.isFetching || runsQuery.isFetching,
+		retryDetails,
 		actionError,
 		clearActionError: () => setActionError(null),
 		pending: connectMutation.isPending ? { kind: 'connect', mappingId: null } : pending,

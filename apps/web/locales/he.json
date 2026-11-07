@@ -3810,6 +3810,7 @@
 				"DISCONNECT_DESCRIPTION": "החיבור שייך לארגון: כל צוות שמשתמש בו מאבד אותו.",
 				"DISCONNECT_STOPS_SYNC": "סוגיות מפסיקות להפוך למשימות, ומשימות מפסיקות לעבור ל-Linear.",
 				"DISCONNECT_KEEPS_TASKS": "משימות שכבר נוצרו מסוגיות נשארות במקומן.",
+				"DETAILS_ERROR_TITLE": "לא ניתן היה לטעון את הצוותים, המיפויים או ההרצות",
 				"LOAD_ERROR_TITLE": "לא ניתן היה לטעון את האינטגרציה של Linear",
 				"ACTION_FAILED": "זה לא עבד",
 				"CALLBACK_ERROR_TITLE": "לא ניתן היה לחבר את Linear",

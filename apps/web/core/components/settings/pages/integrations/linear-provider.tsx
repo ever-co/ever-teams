@@ -7,8 +7,8 @@ import { badgeVariants } from '@/core/components/common/badge';
 import { Notice } from '@/core/components/common/notice';
 import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from '@/core/components/common/select';
 import { Button } from '@/core/components/duplicated-components/_button';
-import { Alert, ChevronDown } from '@/core/components/icons';
-import { ConfirmDestructiveDialog, DangerRow } from '@/core/components/settings/kit/danger';
+import { Alert, ChevronDown, StopCircle, Task } from '@/core/components/icons';
+import { ConfirmDestructiveDialog, DangerRow, type DangerConsequence } from '@/core/components/settings/kit/danger';
 import { SETTINGS_ROW_DESCRIPTION, SETTINGS_ROW_LABEL, SettingsSection, SettingsSurface } from '@/core/components/settings/kit/settings-page';
 import { SettingsSwitch } from '@/core/components/settings/kit/settings-switch';
 import type { LinearIntegrationSettings } from '@/core/hooks/integrations/use-linear-integration';
@@ -81,6 +81,26 @@ function ActionErrorRow({ linear }: LinearProps) {
 	return (
 		<div className={ROW_DIVIDER}>
 			<Notice tone="error" title={t('settings.integrations.linear.ACTION_FAILED')} description={t(reasonKey)} onDismiss={linear.clearActionError} dismissLabel={t('common.CLOSE')} />
+		</div>
+	);
+}
+
+function DetailsErrorRow({ linear }: LinearProps) {
+	const t = useTranslations();
+	if (!linear.detailsError) return null;
+	const reasonKey = errorReasonKeyOf(linear.detailsError) as DottedLanguageObjectStringPaths;
+	return (
+		<div className={ROW_DIVIDER}>
+			<Notice
+				tone="error"
+				title={t('settings.integrations.linear.DETAILS_ERROR_TITLE')}
+				description={t(reasonKey)}
+				actions={
+					<Button type="button" variant="outline" size="sm" onClick={linear.retryDetails} disabled={linear.isRetryingDetails}>
+						{t('notifications.RETRY')}
+					</Button>
+				}
+			/>
 		</div>
 	);
 }
@@ -372,6 +392,7 @@ function LinearConnected({ linear, onDisconnect }: LinearProps & Readonly<{ onDi
 								{connection?.attentionReason && <AttentionNote reason={connection.attentionReason} />}
 								<LinearFacts linear={linear} />
 								<ActionErrorRow linear={linear} />
+								<DetailsErrorRow linear={linear} />
 								{linear.isLoadingDetails ? (
 									<MutedRow>{t('settings.integrations.linear.LOADING_DETAILS')}</MutedRow>
 								) : (
@@ -445,6 +466,10 @@ export function LinearProviderSection({ linear }: LinearProps) {
 	const t = useTranslations();
 	const [confirming, setConfirming] = useState(false);
 	if (linear.status === 'hidden') return null;
+	const consequences: DangerConsequence[] = [
+		{ key: 'sync', icon: <StopCircle />, text: t('settings.integrations.linear.DISCONNECT_STOPS_SYNC') },
+		{ key: 'tasks', icon: <Task />, text: t('settings.integrations.linear.DISCONNECT_KEEPS_TASKS') }
+	];
 
 	const confirmDisconnect = async () => {
 		try {
@@ -466,7 +491,7 @@ export function LinearProviderSection({ linear }: LinearProps) {
 				onClose={() => setConfirming(false)}
 				title={t('settings.integrations.linear.DISCONNECT_TITLE')}
 				description={t('settings.integrations.linear.DISCONNECT_DESCRIPTION')}
-				consequences={[t('settings.integrations.linear.DISCONNECT_STOPS_SYNC'), t('settings.integrations.linear.DISCONNECT_KEEPS_TASKS')]}
+				consequences={consequences}
 				confirmLabel={t('settings.integrations.linear.DISCONNECT')}
 				isPending={linear.pending.kind === 'disconnect'}
 				error={linear.actionError ? t(errorReasonKeyOf(linear.actionError) as DottedLanguageObjectStringPaths) : undefined}

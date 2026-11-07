@@ -3810,6 +3810,7 @@
 				"DISCONNECT_DESCRIPTION": "Die Verbindung gehört der Organisation: jedes Team, das sie nutzt, verliert sie.",
 				"DISCONNECT_STOPS_SYNC": "Issues werden nicht mehr zu Aufgaben, und Aufgaben gehen nicht mehr nach Linear.",
 				"DISCONNECT_KEEPS_TASKS": "Aus Issues erstellte Aufgaben bleiben, wo sie sind.",
+				"DETAILS_ERROR_TITLE": "Teams, Zuordnungen oder Läufe konnten nicht geladen werden",
 				"LOAD_ERROR_TITLE": "Die Linear-Integration konnte nicht geladen werden",
 				"ACTION_FAILED": "Das hat nicht geklappt",
 				"CALLBACK_ERROR_TITLE": "Linear konnte nicht verbunden werden",

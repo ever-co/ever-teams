@@ -3810,6 +3810,7 @@
 				"DISCONNECT_DESCRIPTION": "الاتصال ملك المنظمة: كل فريق يستخدمه يفقده.",
 				"DISCONNECT_STOPS_SYNC": "تتوقف المشكلات عن أن تصبح مهامًا، وتتوقف المهام عن الذهاب إلى Linear.",
 				"DISCONNECT_KEEPS_TASKS": "تبقى المهام المنشأة من المشكلات حيث هي.",
+				"DETAILS_ERROR_TITLE": "تعذّر تحميل الفرق أو الروابط أو التشغيلات",
 				"LOAD_ERROR_TITLE": "تعذّر تحميل تكامل Linear",
 				"ACTION_FAILED": "لم ينجح ذلك",
 				"CALLBACK_ERROR_TITLE": "تعذّر ربط Linear",
