@@ -1,16 +1,28 @@
 'use client';
 
 import { useTranslations } from 'next-intl';
+import { readRuntimeEnv } from '@/env-config';
 import { APP_LINK, IS_DEMO_MODE } from '@/core/constants/config/constants';
 
 /**
- * Where the banner sends a visitor of the demo: the hosted app's sign-up page, so a person trying the demo can
- * open a real account. `APP_LINK` is the hosted app (https://app.ever.team unless the deployment names another).
+ * Where the banner sends a visitor of the demo: the page where they open a real account, not the demo's own sign-up.
+ * `NEXT_PUBLIC_DEMO_SIGN_UP_URL` (read at runtime) names it; unset, it is the sign-up page of `APP_LINK`, the hosted
+ * app (its built-in default unless the deployment names another). There is no built-in URL of its own: the egress
+ * audit's static scan allows an Ever host in the client bundle only as the existing APP_LINK default
+ * (tools/egress-audit/ui-baseline.json), and app code names Ever hosts only in core/constants/config/constants.tsx.
  */
-export const DEMO_SIGN_UP_URL = `${APP_LINK.replace(/\/+$/, '')}/auth/signup`;
+export function demoSignUpUrl(): string {
+	const configured = (
+		readRuntimeEnv('NEXT_PUBLIC_DEMO_SIGN_UP_URL') || process.env.NEXT_PUBLIC_DEMO_SIGN_UP_URL
+	)?.trim();
+	if (configured) {
+		return configured;
+	}
+	return `${APP_LINK.replace(/\/+$/, '')}/auth/signup`;
+}
 
 /**
- * The strip above every app page of a demo deployment (`NEXT_PUBLIC_DEMO=true`, as demo.ever.team), the same notice
+ * The strip above every app page of a demo deployment (`NEXT_PUBLIC_DEMO=true`, as the hosted demo), the same notice
  * demo.gauzy.co shows: this is a demo account, and a link to sign up for a real one. Renders nothing anywhere else,
  * so stage, production and self-hosted deployments never show it.
  */
@@ -29,7 +41,7 @@ export function DemoBanner() {
 		>
 			<span>{t('common.DEMO_BANNER_TEXT')}</span>
 			<a
-				href={DEMO_SIGN_UP_URL}
+				href={demoSignUpUrl()}
 				className="rounded-sm font-semibold text-primary-ink underline-offset-4 outline-none hover:underline focus-visible:ring-[3px] focus-visible:ring-ring/25"
 			>
 				{t('common.DEMO_BANNER_SIGN_UP')}

@@ -2,12 +2,16 @@
 import { readdirSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { render, screen } from '@testing-library/react';
-import { DemoBanner, DEMO_SIGN_UP_URL } from './demo-banner';
+import { DemoBanner, demoSignUpUrl } from './demo-banner';
 
 const mockConfig = { demo: false };
+const mockRuntimeEnv: Record<string, string | undefined> = {};
 
 jest.mock('next-intl', () => ({
 	useTranslations: () => (key: string) => key
+}));
+jest.mock('@/env-config', () => ({
+	readRuntimeEnv: (name: string) => mockRuntimeEnv[name]
 }));
 jest.mock('@/core/constants/config/constants', () => ({
 	// A trailing slash, as an operator may write it: the link must not get a double slash.
@@ -18,6 +22,10 @@ jest.mock('@/core/constants/config/constants', () => ({
 }));
 
 describe('DemoBanner', () => {
+	afterEach(() => {
+		delete mockRuntimeEnv.NEXT_PUBLIC_DEMO_SIGN_UP_URL;
+	});
+
 	it('renders nothing outside a demo deployment', () => {
 		mockConfig.demo = false;
 
@@ -36,7 +44,17 @@ describe('DemoBanner', () => {
 		expect(screen.getByText('common.DEMO_BANNER_TEXT')).toBeTruthy();
 		const link = screen.getByRole('link', { name: 'common.DEMO_BANNER_SIGN_UP' });
 		expect(link.getAttribute('href')).toBe('https://app.ever.team/auth/signup');
-		expect(DEMO_SIGN_UP_URL).toBe('https://app.ever.team/auth/signup');
+		expect(demoSignUpUrl()).toBe('https://app.ever.team/auth/signup');
+	});
+
+	it('links to NEXT_PUBLIC_DEMO_SIGN_UP_URL when the deployment names one (APP_LINK may be the demo itself)', () => {
+		mockConfig.demo = true;
+		mockRuntimeEnv.NEXT_PUBLIC_DEMO_SIGN_UP_URL = ' https://teams.example.com/auth/signup ';
+
+		render(<DemoBanner />);
+
+		const link = screen.getByRole('link', { name: 'common.DEMO_BANNER_SIGN_UP' });
+		expect(link.getAttribute('href')).toBe('https://teams.example.com/auth/signup');
 	});
 
 	it('has its two strings in every locale (next-intl has no English fallback here)', () => {
