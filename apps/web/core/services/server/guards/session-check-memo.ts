@@ -160,7 +160,8 @@ export class SessionCheckMemo<T> {
 	 * alive behind every later one.
 	 */
 	withDeadline(check: SessionCheckRunner<T>): Promise<T> {
-		if (!(this.deadlineMs > 0)) return check(new AbortController().signal);
+		// No deadline (0, a negative or a non-numeric value): the check runs unbounded, as before
+		if (!Number.isFinite(this.deadlineMs) || this.deadlineMs <= 0) return check(new AbortController().signal);
 		return new Promise<T>((resolve, reject) => {
 			const controller = new AbortController();
 			const timer = setTimeout(() => {
