@@ -18,12 +18,12 @@ const jwtExpiring = (expSeconds: number) =>
 describe('SessionCheckMemo', () => {
 	let now: number;
 	let memo: SessionCheckMemo<Check>;
-	let check: jest.Mock<Promise<Check>, []>;
+	let check: jest.Mock<Promise<Check>, [signal: AbortSignal]>;
 
 	beforeEach(() => {
 		now = 1_000_000;
 		memo = new SessionCheckMemo<Check>(5_000, 3, () => now);
-		check = jest.fn(async () => ok('user-1'));
+		check = jest.fn<Promise<Check>, [signal: AbortSignal]>(async () => ok('user-1'));
 	});
 
 	it('answers a second call for the same token from the first check', async () => {

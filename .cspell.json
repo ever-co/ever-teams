@@ -966,7 +966,8 @@
 		"resync",
 		"resyncs",
 		"resynchronise",
-		"resynchronisation"
+		"resynchronisation",
+		"ghcup"
 	],
 	"useGitignore": true,
 	"ignorePaths": [
