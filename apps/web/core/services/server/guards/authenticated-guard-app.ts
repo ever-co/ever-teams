@@ -80,7 +80,10 @@ export async function authenticatedGuard(req: Request, res: NextResponse<unknown
 		// The browser clients re-authenticate on the HTTP status, so the refusal carries Gauzy's own status
 		// (401, 404, 429...). A check that never got a usable answer is a 503: an outage must not look like an
 		// expired session that the client should log out.
-		const upstream: { statusCode?: number; message?: string } | undefined = rejection ?? (r_res?.data as any);
+		// `r_res` is narrowed to never past the guard; the refusal's body is read as the check answered it
+		const answered = r_res as SessionCheck | undefined;
+		const upstream: { statusCode?: number; message?: string } | undefined =
+			rejection ?? (answered?.data as { statusCode?: number; message?: string } | undefined);
 		const status =
 			typeof upstream?.statusCode === 'number' && upstream.statusCode >= 400 ? upstream.statusCode : 503;
 		return {

@@ -55,7 +55,8 @@ export type SessionCheckRunner<T> = (signal: AbortSignal) => Promise<T>;
 interface Entry<T> {
 	/** When the answer stops being reused (never past the token's own expiry). */
 	readonly until: number;
-	readonly answer: Promise<T>;
+	/** Set once the check is started, right after the entry is created (the settle handlers refer to the entry). */
+	answer: Promise<T>;
 	/** Whether the check has answered; a check still in flight is shared until it does, whatever `until` says. */
 	settled: boolean;
 }
