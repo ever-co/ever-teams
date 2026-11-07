@@ -90,13 +90,22 @@ describe('CompleteInvitationRegistrationForm', () => {
 		expect(screen.queryByRole('alert')).toBeNull();
 	});
 
-	it('opens the app with a full page load once the invitation is accepted', async () => {
-		const onCompleteRegistration = renderForm();
+	it('opens the app with a full page load once the invitation is accepted, not before', async () => {
+		let finishRegistration: () => void = () => undefined;
+		const onCompleteRegistration = renderForm(
+			jest.fn(() => new Promise<void>((resolve) => (finishRegistration = resolve)))
+		);
 		typePasswords('long enough', 'long enough');
 
 		await join();
 
 		expect(onCompleteRegistration).toHaveBeenCalledTimes(1);
+		expect(mockNavigateAfterSignIn).not.toHaveBeenCalled();
+
+		await act(async () => {
+			finishRegistration();
+		});
+
 		expect(mockNavigateAfterSignIn).toHaveBeenCalledTimes(1);
 	});
 

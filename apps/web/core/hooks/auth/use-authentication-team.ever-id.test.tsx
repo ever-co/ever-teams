@@ -151,6 +151,8 @@ describe('useAuthenticationTeam in Ever ID mode', () => {
 		expect(JSON.stringify(mockEverIdRegister.mock.calls[0][0])).not.toContain('handoff');
 		expect(mockRegisterUserTeam).not.toHaveBeenCalled();
 		expect(mockNavigateAfterSignIn).toHaveBeenCalledTimes(1);
+		// The form stays locked while the app loads: a second submission would only meet the used-up sign-up.
+		expect(result.current.loading).toBe(true);
 	});
 
 	it('lets the person enter a name when the Ever ID has none (or one too short), and says so', async () => {

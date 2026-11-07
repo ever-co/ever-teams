@@ -166,6 +166,9 @@ export function useAuthenticationTeam() {
 	const submitEverIdSignup = useCallback(
 		async (prefill: IEverIdSignupPrefill, data: IRegisterDataAPI, nameVerified: boolean) => {
 			setEverIdSubmitting(true);
+			// Set when the page is being left (the app, or the checkout): the form stays locked until it is gone,
+			// so a second submission cannot answer an already used sign-up with an error.
+			let leavingPage = false;
 			try {
 				const { status, data: answer } = await everIdService.register({
 					name: data.name,
@@ -187,6 +190,7 @@ export function useAuthenticationTeam() {
 					}))
 				});
 				if (status === 200) {
+					leavingPage = true;
 					navigateAfterSignIn();
 					return;
 				}
@@ -195,6 +199,7 @@ export function useAuthenticationTeam() {
 					typeof answer?.checkoutUrl === 'string' &&
 					answer.checkoutUrl.startsWith('https:')
 				) {
+					leavingPage = true;
 					window.location.assign(answer.checkoutUrl);
 					return;
 				}
@@ -213,7 +218,9 @@ export function useAuthenticationTeam() {
 				setStep(FIRST_STEP);
 				setEverIdSubmitError(t('pages.auth.everId.UNAVAILABLE'));
 			} finally {
-				setEverIdSubmitting(false);
+				if (!leavingPage) {
+					setEverIdSubmitting(false);
+				}
 			}
 		},
 		[locale, t]
