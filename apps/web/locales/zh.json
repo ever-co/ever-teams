@@ -41,6 +41,8 @@
 		}
 	},
 	"common": {
+		"DEMO_BANNER_TEXT": "您正在使用演示账户。觉得我们的软件有用吗？",
+		"DEMO_BANNER_SIGN_UP": "点击此处注册，免费开始使用！",
 		"APPLICATION": "应用程序",
 		"TIME_SPENT": "使用时间",
 		"PERCENT_USED": "使用百分比",

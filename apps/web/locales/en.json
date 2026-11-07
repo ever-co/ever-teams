@@ -41,6 +41,8 @@
 		}
 	},
 	"common": {
+		"DEMO_BANNER_TEXT": "You are using a demo account. Finding our software useful?",
+		"DEMO_BANNER_SIGN_UP": "Click here to Sign Up and start using for free!",
 		"APPLICATION": "Application",
 		"TIME_SPENT": "Time spent",
 		"PERCENT_USED": "Percent used",
