@@ -1,9 +1,9 @@
-// cspell:ignore alish julia rahul
+// cspell:ignore aiden
 /**
  * AvatarImage — every user avatar 404'd on demo.ever.team. The Gauzy API returns a ROUTE-RELATIVE
  * `imageUrl` for seeded users/employees (`assets/images/avatars/avatar-default.svg`), and this
  * primitive passed it straight to Radix, so the browser resolved it against the current route:
- * `/dashboard/team-dashboard/assets/images/avatars/alish.jpg` -> 404. The team dashboard
+ * `/dashboard/team-dashboard/assets/images/avatars/aiden.png` -> 404. The team dashboard
  * (`team-stats-table.tsx`) renders through exactly this component.
  *
  * These assert on the element the component actually returns rather than on rendered DOM, because
@@ -21,17 +21,17 @@ const renderProps = (props: Record<string, unknown>) =>
 
 describe('AvatarImage', () => {
 	it('makes a route-relative seed path root-relative so it cannot resolve against the current route', () => {
-		expect(renderProps({ src: 'assets/images/avatars/alish.jpg' }).src).toBe('/assets/images/avatars/alish.jpg');
+		expect(renderProps({ src: 'assets/images/avatars/aiden.png' }).src).toBe('/assets/images/avatars/aiden.png');
 	});
 
 	it('leaves an absolute uploaded-avatar URL untouched', () => {
-		expect(renderProps({ src: 'https://cdn.ever.co/avatars/alish.jpg' }).src).toBe(
-			'https://cdn.ever.co/avatars/alish.jpg'
+		expect(renderProps({ src: 'https://cdn.ever.co/avatars/aiden.png' }).src).toBe(
+			'https://cdn.ever.co/avatars/aiden.png'
 		);
 	});
 
 	it('leaves an already root-relative path untouched', () => {
-		expect(renderProps({ src: '/assets/images/avatars/alish.jpg' }).src).toBe('/assets/images/avatars/alish.jpg');
+		expect(renderProps({ src: '/assets/images/avatars/aiden.png' }).src).toBe('/assets/images/avatars/aiden.png');
 	});
 
 	it('passes undefined through so the fallback still renders', () => {
@@ -57,7 +57,7 @@ describe('AvatarImage', () => {
 	});
 
 	it('still forwards the other props it is given', () => {
-		const props = renderProps({ src: 'assets/a.png', alt: 'Alish M.' });
-		expect(props.alt).toBe('Alish M.');
+		const props = renderProps({ src: 'assets/a.png', alt: 'Aiden M.' });
+		expect(props.alt).toBe('Aiden M.');
 	});
 });

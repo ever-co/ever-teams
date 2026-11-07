@@ -1,4 +1,4 @@
-// cspell:ignore alish julia rahul
+// cspell:ignore aiden
 /**
  * Makes an image URL resolve independently of the route the user happens to be on.
  *
@@ -6,7 +6,7 @@
  * `imageUrl: 'assets/images/avatars/avatar-default.svg'` (no leading slash, no origin). The Angular
  * Gauzy app renders that correctly only because it ships `<base href="/">`. Next.js ships no
  * `<base>`, so the browser resolves the same value against the CURRENT ROUTE and requests
- * `/dashboard/team-dashboard/assets/images/avatars/alish.jpg`, which 404s — and the failing path
+ * `/dashboard/team-dashboard/assets/images/avatars/aiden.png`, which 404s — and the failing path
  * changes with whatever page the user happens to be on.
  *
  * Anything already resolvable on its own — absolute (`https:`, `data:`, `blob:`, ...),
