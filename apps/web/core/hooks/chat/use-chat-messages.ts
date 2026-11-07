@@ -2,6 +2,8 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { useAtomValue } from 'jotai';
+import { realtimeStatusAtom } from '@/core/stores/common/realtime';
 import { queryKeys } from '@/core/query/keys';
 import { chatService } from '@/core/services/client/api/chat';
 import { IChatMessage, IChatMessagePage, IChatThreadPage } from '@/core/types/interfaces/common/chat';
@@ -105,6 +107,10 @@ export function useChatMessages(conversationId: string | null, enabled: boolean)
 	// The key is read through a ref, so the poll keeps its own cadence however often the page renders (typing).
 	const keyRef = useRef(queryKey);
 	keyRef.current = queryKey;
+	// Over the live channel every new message is an event that refetches this timeline: the poll pauses, and resumes
+	// the moment the connection drops (the reconnect replays what was missed).
+	const liveRef = useRef(false);
+	liveRef.current = useAtomValue(realtimeStatusAtom) === 'connected';
 
 	// Newer messages, while this tab is visible: read forward from the newest one read from the platform.
 	useEffect(() => {
@@ -112,8 +118,11 @@ export function useChatMessages(conversationId: string | null, enabled: boolean)
 		let busy = false;
 		const tick = async () => {
 			if (busy || document.visibilityState !== 'visible') return;
-			busy = true;
 			const key = keyRef.current;
+			// Live: the poll pauses — but a timeline opened at an older message keeps reading forward until it reaches the
+			// newest (an event's refetch leaves such a timeline as it is).
+			if (liveRef.current && !queryClient.getQueryData<ChatMessagesCache>(key)?.hasAfter) return;
+			busy = true;
 			try {
 				const latest = queryClient.getQueryData<ChatMessagesCache>(key);
 				if (!latest) return;
@@ -210,6 +219,7 @@ export function useChatThread(rootMessageId: string | null, enabled: boolean) {
 	const queryClient = useQueryClient();
 	const tenantId = scope?.tenantId ?? null;
 	const queryKey = useMemo(() => queryKeys.chat.thread(tenantId, rootMessageId), [rootMessageId, tenantId]);
+	const live = useAtomValue(realtimeStatusAtom) === 'connected';
 	const query = useQuery<IChatThreadPage>({
 		queryKey,
 		queryFn: async ({ signal }) => {
@@ -227,7 +237,7 @@ export function useChatThread(rootMessageId: string | null, enabled: boolean) {
 		},
 		enabled: enabled && scope !== null && !!rootMessageId,
 		staleTime: NEWER_POLL_MS / 2,
-		refetchInterval: NEWER_POLL_MS,
+		refetchInterval: live ? false : NEWER_POLL_MS,
 		refetchIntervalInBackground: false
 	});
 	const replies = useMemo(() => query.data?.messages ?? [], [query.data?.messages]);

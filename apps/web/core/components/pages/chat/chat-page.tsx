@@ -1,6 +1,9 @@
 'use client';
 
-import { Suspense, useCallback, useEffect, useMemo, useState } from 'react';
+import { queryKeys } from '@/core/query/keys';
+import { useQueryClient } from '@tanstack/react-query';
+import { realtimeStatusAtom } from '@/core/stores/common/realtime';
+import { Suspense, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import Link from 'next/link';
 import { useParams, usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { useTranslations } from 'next-intl';
@@ -32,7 +35,22 @@ function useCanManageChat(): boolean {
 	return role === 'SUPER_ADMIN' || role === 'ADMIN' || role === 'MANAGER';
 }
 
+/**
+ * The live channel just connected: what arrived between the page's first reads and the subscription (the channel only
+ * replays from its first connection on) is read again, once per connection.
+ */
+function useChatLiveCatchUp(): void {
+	const queryClient = useQueryClient();
+	const live = useAtomValue(realtimeStatusAtom) === 'connected';
+	const wasLive = useRef(false);
+	useEffect(() => {
+		if (live && !wasLive.current) void queryClient.invalidateQueries({ queryKey: queryKeys.chat.all });
+		wasLive.current = live;
+	}, [live, queryClient]);
+}
+
 export function ChatPage({ view = 'conversation' }: Readonly<{ view?: ChatView }>) {
+	useChatLiveCatchUp();
 	return (
 		<Suspense fallback={<ChatPageSkeleton />}>
 			<ChatPageContent view={view} />

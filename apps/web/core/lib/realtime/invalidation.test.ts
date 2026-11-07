@@ -50,6 +50,33 @@ describe('invalidationsFor', () => {
 		]);
 	});
 
+	it('refetches only the chat queries an event changed, everything of chat without its conversation', () => {
+		const keysOf = (name: string, data: Record<string, unknown> | null) => invalidationsFor(event(name, data), scope).map((k) => k.queryKey);
+		expect(keysOf('chat_message.created', { conversationId: 'c1', messageId: 'm2', threadRootId: 'm1' })).toEqual([
+			['chat', 'messages', 'ten', 'c1'],
+			['chat', 'thread', 'ten', 'm1'],
+			['chat', 'thread', 'ten', 'm2'],
+			['chat', 'conversations'],
+			['chat', 'states'],
+			['chat', 'threads']
+		]);
+		expect(keysOf('chat_thread.changed', { conversationId: 'c1', rootMessageId: 'm1', replyCount: 3 })).toEqual([
+			['chat', 'thread', 'ten', 'm1'],
+			['chat', 'messages', 'ten', 'c1'],
+			['chat', 'threads'],
+			['chat', 'conversations'],
+			['chat', 'states']
+		]);
+		expect(keysOf('chat_member_state.changed', { conversationId: 'c1' })).toEqual([
+			['chat', 'conversations'],
+			['chat', 'states'],
+			['chat', 'conversation', 'ten', 'c1'],
+			['chat', 'browse'],
+			['chat', 'members', 'ten', 'c1']
+		]);
+		expect(keysOf('chat_conversation.changed', null)).toEqual([['chat']]);
+	});
+
 	it('names every family on a resynchronisation', () => {
 		const keys = resyncInvalidations(scope).map((k) => k.queryKey[0]);
 		expect(keys).toEqual(expect.arrayContaining(['tasks', 'task-comments', 'notifications', 'organization-teams', 'documents', 'entity-files', 'chat', 'inbox']));
