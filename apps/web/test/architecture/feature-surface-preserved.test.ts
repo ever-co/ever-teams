@@ -1969,12 +1969,13 @@ describe('Ever Teams feature surface preservation', () => {
 		const routes = collectRealHeadSurface().routes;
 		// Every route.ts under apps/web/app (`git ls-files 'apps/web/app/**/route.ts'`) and every handler verb they
 		// export: 173 files and 229 verbs on develop 2026-11-06 (the November PR sweeps added routes, none went away;
-		// #4931 added PUT /api/organization/[id]).
+		// #4931 added PUT /api/organization/[id]); 177 files and 233 verbs with the real-time routes (#4964:
+		// GET /api/realtime/events, GET /api/realtime/status, POST /api/realtime/presence, POST /api/realtime/typing).
 		// A new route raises these numbers; a lower number means a route or a verb was lost.
-		expect(routes.filter((value) => /\/route\.[jt]s$/.test(value))).toHaveLength(173);
+		expect(routes.filter((value) => /\/route\.[jt]s$/.test(value))).toHaveLength(177);
 		expect(
 			routes.filter((value) => /\/route\.[jt]s::(?:GET|POST|PUT|PATCH|DELETE|HEAD|OPTIONS)$/.test(value))
-		).toHaveLength(229);
+		).toHaveLength(233);
 		expect(routes).toEqual(
 			expect.arrayContaining([
 				// Proxy mode twins of Gauzy's public account deletion by e-mail link (2026-10-27)

@@ -14,6 +14,8 @@ export interface InvalidationSchedulerOptions {
 	maxDeferMs?: number;
 	setTimeout?: (fn: () => void, ms: number) => unknown;
 	clearTimeout?: (handle: unknown) => void;
+	/** The clock the deferral is measured on (the timers' own in tests). */
+	now?: () => number;
 }
 
 /**
@@ -29,6 +31,7 @@ export class InvalidationScheduler {
 	private readonly maxDeferMs: number;
 	private readonly setTimer: (fn: () => void, ms: number) => unknown;
 	private readonly clearTimer: (handle: unknown) => void;
+	private readonly now: () => number;
 	private disposed = false;
 
 	constructor(private readonly options: InvalidationSchedulerOptions) {
@@ -36,6 +39,7 @@ export class InvalidationScheduler {
 		this.maxDeferMs = options.maxDeferMs ?? 15_000;
 		this.setTimer = options.setTimeout ?? ((fn, ms) => setTimeout(fn, ms));
 		this.clearTimer = options.clearTimeout ?? ((handle) => clearTimeout(handle as ReturnType<typeof setTimeout>));
+		this.now = options.now ?? (() => Date.now());
 	}
 
 	add(invalidations: readonly RealtimeInvalidation[]): void {
@@ -77,7 +81,7 @@ export class InvalidationScheduler {
 			return;
 		}
 		const editing = !force && this.options.isEditing();
-		const now = Date.now();
+		const now = this.now();
 		if (editing && this.deferredSince === null) this.deferredSince = now;
 		const holdExpired = this.deferredSince !== null && now - this.deferredSince >= this.maxDeferMs;
 		const hold = editing && !holdExpired;

@@ -10,7 +10,8 @@ function setUp(editing = { value: false }) {
 		windowMs: 100,
 		maxDeferMs: 1_000,
 		setTimeout: timers.setTimeout,
-		clearTimeout: timers.clearTimeout
+		clearTimeout: timers.clearTimeout,
+		now: timers.now
 	});
 	return { timers, invalidated, scheduler, editing };
 }

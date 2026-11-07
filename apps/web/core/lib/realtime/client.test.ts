@@ -103,9 +103,9 @@ describe('RealtimeClient', () => {
 		socket.serve({ id: '1', type: 'next', payload: { data: { collaborationEvents: envelope('e2', '2026-01-01T00:00:11.000Z') } } });
 		socket.drop(1006);
 		expect(ctx.client.getStatus()).toBe('reconnecting');
-		expect(ctx.sockets).toHaveLength(1);
+		expect(ctx.sockets.sockets).toHaveLength(1);
 		ctx.timers.advance(100);
-		expect(ctx.sockets).toHaveLength(2);
+		expect(ctx.sockets.sockets).toHaveLength(2);
 		socket = await ctx.accept();
 		await flush();
 		expect(ctx.catchUpCalls.slice(1)).toEqual([
@@ -160,18 +160,18 @@ describe('RealtimeClient', () => {
 		client.start();
 		ctx.sockets.latest().drop(1006);
 		ctx.timers.advance(99);
-		expect(ctx.sockets).toHaveLength(1);
+		expect(ctx.sockets.sockets).toHaveLength(1);
 		ctx.timers.advance(1);
-		expect(ctx.sockets).toHaveLength(2);
+		expect(ctx.sockets.sockets).toHaveLength(2);
 		ctx.sockets.latest().drop(1006);
 		ctx.timers.advance(199);
-		expect(ctx.sockets).toHaveLength(2);
+		expect(ctx.sockets.sockets).toHaveLength(2);
 		ctx.timers.advance(1);
-		expect(ctx.sockets).toHaveLength(3);
+		expect(ctx.sockets.sockets).toHaveLength(3);
 		ctx.sockets.latest().drop(1006);
 		// Capped at 250 ms; the online event does not wait for it.
 		listeners.get('online')?.();
-		expect(ctx.sockets).toHaveLength(4);
+		expect(ctx.sockets.sockets).toHaveLength(4);
 		client.stop();
 		expect(listeners.size).toBe(0);
 	});
@@ -185,7 +185,7 @@ describe('RealtimeClient', () => {
 		expect(ctx.timers.pendingCount()).toBe(0);
 		ctx.setToken('token-2');
 		ctx.client.restart();
-		expect(ctx.sockets).toHaveLength(2);
+		expect(ctx.sockets.sockets).toHaveLength(2);
 		const socket = await ctx.accept();
 		expect(socket.sentOf('connection_init')[0]?.payload).toMatchObject({ authorization: 'Bearer token-2' });
 	});
@@ -194,7 +194,7 @@ describe('RealtimeClient', () => {
 		const ctx = setUp();
 		ctx.setToken(null);
 		ctx.client.start();
-		expect(ctx.sockets).toHaveLength(0);
+		expect(ctx.sockets.sockets).toHaveLength(0);
 		expect(ctx.client.getStatus()).toBe('stopped');
 		ctx.client.stop();
 		expect(ctx.client.getStatus()).toBe('off');
