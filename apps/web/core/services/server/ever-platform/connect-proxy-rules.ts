@@ -57,7 +57,8 @@ let warnedMalformedWebAppUrl = false;
  * the public host, set NEXT_PUBLIC_WEB_APP_URL: a wrong origin is refused by the API (403), never trusted.
  */
 export function webAppOrigin(req: Request): string {
-	const configured = (readRuntimeEnv('NEXT_PUBLIC_WEB_APP_URL') || process.env.NEXT_PUBLIC_WEB_APP_URL)?.trim();
+	// Read at run time only (no build-time fallback), so a value baked into a build never wins over the deployment's.
+	const configured = readRuntimeEnv('NEXT_PUBLIC_WEB_APP_URL')?.trim();
 	if (configured) {
 		try {
 			return new URL(configured).origin;
