@@ -800,6 +800,19 @@ export const queryKeys = {
 			runs: (tenantId: string | undefined | null, organizationId: string | undefined | null, integrationId: string | undefined | null) =>
 				['integrations', 'asana', 'runs', tenantId ?? null, organizationId ?? null, integrationId ?? null] as const
 		},
+		trello: {
+			all: ['integrations', 'trello'] as const,
+			status: (tenantId: string | undefined | null, organizationId: string | undefined | null) =>
+				['integrations', 'trello', 'status', tenantId ?? null, organizationId ?? null] as const,
+			mappings: (tenantId: string | undefined | null, organizationId: string | undefined | null, integrationId: string | undefined | null) =>
+				['integrations', 'trello', 'mappings', tenantId ?? null, organizationId ?? null, integrationId ?? null] as const,
+			metadata: (tenantId: string | undefined | null, organizationId: string | undefined | null, integrationId: string | undefined | null) =>
+				['integrations', 'trello', 'metadata', tenantId ?? null, organizationId ?? null, integrationId ?? null] as const,
+			lists: (tenantId: string | undefined | null, organizationId: string | undefined | null, integrationId: string | undefined | null, boardId: string | undefined | null) =>
+				['integrations', 'trello', 'lists', tenantId ?? null, organizationId ?? null, integrationId ?? null, boardId ?? null] as const,
+			runs: (tenantId: string | undefined | null, organizationId: string | undefined | null, integrationId: string | undefined | null) =>
+				['integrations', 'trello', 'runs', tenantId ?? null, organizationId ?? null, integrationId ?? null] as const
+		},
 		types: (tenantId: string | undefined | null) =>
 			['integrations', 'types', ...(tenantId ? [tenantId] : [])] as const,
 		byTenant: (tenantId: string | undefined | null) =>

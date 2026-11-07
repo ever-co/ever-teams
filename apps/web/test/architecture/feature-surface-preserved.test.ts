@@ -1974,12 +1974,14 @@ describe('Ever Teams feature surface preservation', () => {
 		// mappings/[mappingId]/import, runs); 193 files and 255 verbs with the Asana integration proxies
 		// (/api/integration/asana/**: status, install/state, [id], metadata, workspaces/[workspaceGid]/projects,
 		// projects/[projectGid]/sections, mappings, mappings/[mappingId], mappings/[mappingId]/webhook,
-		// mappings/[mappingId]/import, runs).
+		// mappings/[mappingId]/import, runs); 204 files and 269 verbs with the Trello integration proxies
+		// (/api/integration/trello/**: status, install/state, connect, [id], metadata, boards/[boardId]/lists, mappings,
+		// mappings/[mappingId], mappings/[mappingId]/webhook, mappings/[mappingId]/import, runs).
 		// A new route raises these numbers; a lower number means a route or a verb was lost.
-		expect(routes.filter((value) => /\/route\.[jt]s$/.test(value))).toHaveLength(193);
+		expect(routes.filter((value) => /\/route\.[jt]s$/.test(value))).toHaveLength(204);
 		expect(
 			routes.filter((value) => /\/route\.[jt]s::(?:GET|POST|PUT|PATCH|DELETE|HEAD|OPTIONS)$/.test(value))
-		).toHaveLength(255);
+		).toHaveLength(269);
 		expect(routes).toEqual(
 			expect.arrayContaining([
 				// Proxy mode twins of Gauzy's public account deletion by e-mail link (2026-10-27)
