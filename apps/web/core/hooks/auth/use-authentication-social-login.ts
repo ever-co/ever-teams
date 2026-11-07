@@ -2,7 +2,6 @@
 
 import { setAuthCookies } from '@/core/lib/helpers/index';
 import { useCallback, useState } from 'react';
-import { useRouter } from 'next/navigation';
 import { ISigninEmailConfirmWorkspaces } from '@/core/types/interfaces/auth/auth';
 import { useSession } from 'next-auth/react';
 import { signinService } from '@/core/services/client/api/auth/signin.service';
@@ -10,6 +9,7 @@ import { userOrganizationService } from '@/core/services/client/api/users/user-o
 import { IOrganizationTeam } from '@/core/types/interfaces/team/organization-team';
 import { APP_NAME } from '@/core/constants/config/constants';
 import { pickTokenOrganization } from '@/core/lib/auth/jwt-utils';
+import { navigateAfterSignIn } from '@/core/lib/auth/navigate-after-sign-in';
 type SigninResult = {
 	access_token: string;
 	confirmed_mail: string;
@@ -23,7 +23,6 @@ type SigninResult = {
 };
 
 export function useAuthenticationSocialLogin() {
-	const router = useRouter();
 	const [signInWorkspaceLoading, setSignInWorkspaceLoading] = useState(false);
 
 	const { update: updateNextAuthSession }: any = useSession();
@@ -96,7 +95,7 @@ export function useAuthenticationSocialLogin() {
 						userId
 					});
 					setSignInWorkspaceLoading(false);
-					router.push('/');
+					navigateAfterSignIn();
 				})
 				.catch((err) => {
 					console.error('Workspace signin error:', err);
@@ -104,7 +103,7 @@ export function useAuthenticationSocialLogin() {
 					onError?.(err);
 				});
 		},
-		[router, updateNextAuthSession]
+		[updateNextAuthSession]
 	);
 
 	return {

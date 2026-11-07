@@ -8,13 +8,14 @@ import { AxiosError } from 'axios';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useQueryCall } from '../common/use-query';
 import { RECAPTCHA_SITE_KEY } from '@/core/constants/config/constants';
-import { useRouter, useSearchParams } from 'next/navigation';
+import { useSearchParams } from 'next/navigation';
 import { authService } from '@/core/services/client/api/auth/auth.service';
 import { useLocale, useTranslations } from 'next-intl';
 import { EVER_ID_STEP_PARAM, isEverIdStep } from '@/core/lib/auth/ever-id/step';
 import { everIdService } from '@/core/services/client/api/auth/ever-id.service';
 import type { IEverIdSignupPrefill } from '@/core/types/interfaces/auth/ever-id';
 import { defaultTeamNameOf } from '@/core/lib/utils/default-team-name';
+import { navigateAfterSignIn } from '@/core/lib/auth/navigate-after-sign-in';
 
 // Step 1: User info (name, email, captcha)
 // Step 2: Choose mode (solo or team)
@@ -52,7 +53,6 @@ const initialValues: IRegisterDataAPI = RECAPTCHA_SITE_KEY.value
 
 export function useAuthenticationTeam() {
 	const query = useSearchParams();
-	const router = useRouter();
 
 	const queryEmail = useMemo(() => {
 		let localEmail: null | string = null;
@@ -187,7 +187,7 @@ export function useAuthenticationTeam() {
 					}))
 				});
 				if (status === 200) {
-					router.push('/');
+					navigateAfterSignIn();
 					return;
 				}
 				if (
@@ -216,7 +216,7 @@ export function useAuthenticationTeam() {
 				setEverIdSubmitting(false);
 			}
 		},
-		[locale, router, t]
+		[locale, t]
 	);
 
 	const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
@@ -278,7 +278,7 @@ export function useAuthenticationTeam() {
 					setVerifyEmailSentTo(submissionData.email);
 					return;
 				}
-				router.push('/');
+				navigateAfterSignIn();
 			})
 			.catch((err: AxiosError) => {
 				if (err.response?.status === 400) {

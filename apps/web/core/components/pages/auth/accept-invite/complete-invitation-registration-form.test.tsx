@@ -3,13 +3,13 @@ import { act, fireEvent, render, screen } from '@testing-library/react';
 import type { TInviteVerified } from '@/core/types/schemas/user/invite.schema';
 import { CompleteInvitationRegistrationForm } from './complete-invitation-registration-form';
 
-const mockPush = jest.fn();
+const mockNavigateAfterSignIn = jest.fn();
 
 jest.mock('next-intl', () => ({
 	useTranslations: () => (key: string) => key
 }));
-jest.mock('next/navigation', () => ({
-	useRouter: () => ({ push: mockPush })
+jest.mock('@/core/lib/auth/navigate-after-sign-in', () => ({
+	navigateAfterSignIn: () => mockNavigateAfterSignIn()
 }));
 jest.mock('@/core/constants/config/constants', () => ({
 	...jest.requireActual('@/core/constants/config/constants'),
@@ -90,6 +90,16 @@ describe('CompleteInvitationRegistrationForm', () => {
 		expect(screen.queryByRole('alert')).toBeNull();
 	});
 
+	it('opens the app with a full page load once the invitation is accepted', async () => {
+		const onCompleteRegistration = renderForm();
+		typePasswords('long enough', 'long enough');
+
+		await join();
+
+		expect(onCompleteRegistration).toHaveBeenCalledTimes(1);
+		expect(mockNavigateAfterSignIn).toHaveBeenCalledTimes(1);
+	});
+
 	it('shows the error and stays when the invitation is refused', async () => {
 		renderForm(jest.fn().mockRejectedValue(new Error('Invitation expired')));
 		typePasswords('long enough', 'long enough');
@@ -97,6 +107,6 @@ describe('CompleteInvitationRegistrationForm', () => {
 		await join();
 
 		expect(screen.getByRole('alert').textContent).toBe('auth.invite.FAILED');
-		expect(mockPush).not.toHaveBeenCalled();
+		expect(mockNavigateAfterSignIn).not.toHaveBeenCalled();
 	});
 });

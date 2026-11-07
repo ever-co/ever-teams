@@ -6,7 +6,6 @@ import { AxiosError, isAxiosError } from 'axios';
 import { useSearchParams } from 'next/navigation';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useQueryCall } from '../common/use-query';
-import { useRouter } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 import { authService } from '@/core/services/client/api/auth/auth.service';
 import { ApiErrorService } from '@/core/services/client/api-error.service';
@@ -19,6 +18,7 @@ import {
 } from '@/core/lib/auth/ever-id/session';
 import { restartEverIdSignIn } from '@/core/lib/auth/ever-id/restart';
 import { everIdService } from '@/core/services/client/api/auth/ever-id.service';
+import { navigateAfterSignIn } from '@/core/lib/auth/navigate-after-sign-in';
 
 /** Shown for a 429: Gauzy throttles the code endpoints and locks an account after repeated wrong codes. */
 const TOO_MANY_ATTEMPTS = 'pages.auth.everId.TOO_MANY_ATTEMPTS';
@@ -47,7 +47,6 @@ function removeEverIdStepFromUrl() {
 export function useAuthenticationPasscode() {
 	const [status, setStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
 
-	const router = useRouter();
 	// const pathname = usePathname();
 	const query = useSearchParams();
 	const t = useTranslations();
@@ -135,7 +134,7 @@ export function useAuthenticationPasscode() {
 					setAuthenticated(true);
 					// Reset infinite loading before navigation to ensure clean state
 					infiniteWLoading.current = false;
-					router.push('/');
+					navigateAfterSignIn();
 				})
 				.catch((err: AxiosError) => {
 					// Reset infinite loading on error to stop the loading state
@@ -152,7 +151,7 @@ export function useAuthenticationPasscode() {
 					onError?.(err);
 				});
 		},
-		[signInWorkspaceQueryCall, router, infiniteWLoading]
+		[signInWorkspaceQueryCall, infiniteWLoading]
 	);
 
 	/**
@@ -185,7 +184,7 @@ export function useAuthenticationPasscode() {
 						setDefaultTeamId(response.data.defaultTeamId);
 						setScreen('workspace');
 					} else {
-						router.replace('/');
+						navigateAfterSignIn();
 					}
 					return;
 				}
@@ -206,7 +205,7 @@ export function useAuthenticationPasscode() {
 				if (loginResponse?.data?.user || loginResponse?.data?.team) {
 					setAuthenticated(true);
 					setStatus('success');
-					router.replace('/');
+					navigateAfterSignIn();
 					return;
 				}
 				setStatus('error');
@@ -223,7 +222,7 @@ export function useAuthenticationPasscode() {
 			}
 			void lastTeamId;
 		},
-		[queryCall, signInEmailConfirmQueryCall, router, t]
+		[queryCall, signInEmailConfirmQueryCall, t]
 	);
 
 	/**
@@ -285,7 +284,7 @@ export function useAuthenticationPasscode() {
 				.then((res) => {
 					if (res?.data?.user) {
 						setAuthenticated(true);
-						router.replace('/');
+						navigateAfterSignIn();
 					} else {
 						const errors = (res.data as any).errors ?? {};
 						if (errors.email) {
@@ -300,7 +299,7 @@ export function useAuthenticationPasscode() {
 					inputCodeRef.current?.clear();
 				});
 		},
-		[queryCall, router]
+		[queryCall]
 	);
 
 	const handleCodeSubmit = (e: React.FormEvent<HTMLFormElement>) => {
