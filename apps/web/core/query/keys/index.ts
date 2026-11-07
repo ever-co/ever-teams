@@ -774,6 +774,17 @@ export const queryKeys = {
 	// Keys related to integration
 	integrations: {
 		all: ['integrations'] as const,
+		linear: {
+			all: ['integrations', 'linear'] as const,
+			status: (tenantId: string | undefined | null, organizationId: string | undefined | null) =>
+				['integrations', 'linear', 'status', tenantId ?? null, organizationId ?? null] as const,
+			mappings: (tenantId: string | undefined | null, organizationId: string | undefined | null, integrationId: string | undefined | null) =>
+				['integrations', 'linear', 'mappings', tenantId ?? null, organizationId ?? null, integrationId ?? null] as const,
+			teams: (tenantId: string | undefined | null, organizationId: string | undefined | null, integrationId: string | undefined | null) =>
+				['integrations', 'linear', 'teams', tenantId ?? null, organizationId ?? null, integrationId ?? null] as const,
+			runs: (tenantId: string | undefined | null, organizationId: string | undefined | null, integrationId: string | undefined | null) =>
+				['integrations', 'linear', 'runs', tenantId ?? null, organizationId ?? null, integrationId ?? null] as const
+		},
 		types: (tenantId: string | undefined | null) =>
 			['integrations', 'types', ...(tenantId ? [tenantId] : [])] as const,
 		byTenant: (tenantId: string | undefined | null) =>
