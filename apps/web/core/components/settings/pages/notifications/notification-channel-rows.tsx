@@ -102,14 +102,26 @@ export function QuietHoursRow({ window, disabled, onChange }: Readonly<QuietHour
 	const timeZone = window?.timeZone || browserTimeZone();
 	const isOn = window !== null;
 
+	/**
+	 * Saves the window when a field is left. A field cleared or malformed goes back to the saved time (there is no
+	 * window without both ends), and the other field's edit is saved with it.
+	 */
 	const save = (next: { start: string; end: string }) => {
-		if (!isTimeOfDay(next.start) || !isTimeOfDay(next.end)) {
+		if (!window) {
 			return;
 		}
-		if (next.start === window?.start && next.end === window?.end) {
+		const start = isTimeOfDay(next.start) ? next.start : window.start;
+		const end = isTimeOfDay(next.end) ? next.end : window.end;
+		if (start !== next.start) {
+			setStart(start);
+		}
+		if (end !== next.end) {
+			setEnd(end);
+		}
+		if (start === window.start && end === window.end) {
 			return;
 		}
-		onChange({ start: next.start, end: next.end, timeZone });
+		onChange({ start, end, timeZone });
 	};
 
 	return (

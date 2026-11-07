@@ -3,9 +3,13 @@ import { z } from 'zod';
 const timeOfDaySchema = z.string().regex(/^([01]?\d|2[0-3]):([0-5]\d)$/, 'HH:mm');
 const emailModeSchema = z.enum(['immediate', 'digest', 'off']);
 
-/** The delivery preferences of the setting (`preferences`): the email modes, the quiet hours, the digest hour. */
+/**
+ * The delivery preferences of the setting (`preferences`): the email modes, the quiet hours, the digest hour. Loose:
+ * a key Gauzy keeps that this page does not know (`inApp`, a later one) goes through as it is, so a save never
+ * fails on it nor drops it.
+ */
 export const notificationPreferencesSchema = z
-	.object({
+	.looseObject({
 		email: z.union([emailModeSchema, z.boolean()]).optional(),
 		emailByType: z.record(z.string().max(64), emailModeSchema).optional(),
 		push: z.boolean().optional(),
@@ -16,8 +20,7 @@ export const notificationPreferencesSchema = z
 			.nullable()
 			.optional(),
 		digestHour: z.number().int().min(0).max(23).optional()
-	})
-	.strict();
+	});
 
 /** One switch per notification type, the keys of Gauzy's notification setting DTO, and the preferences. */
 export const notificationSettingSwitchesSchema = z

@@ -52,19 +52,23 @@ export type NotificationSettingSave =
 	| { kind: 'switch'; key: TEmployeeNotificationSettingKey; isOn: boolean }
 	| { kind: 'preferences'; patch: Partial<INotificationPreferences> };
 
-/** The setting with one save applied (what the cache shows before Gauzy answers). */
+/** A row that is not in Gauzy yet: what the controls show while the first save is on its way (an empty id: the next save still creates). */
+const PROVISIONAL_SETTING: IEmployeeNotificationSetting = { id: '' };
+
+/**
+ * The setting with one save applied (what the cache shows before Gauzy answers). With no row yet, a provisional
+ * row carries the change, so the control shows what was picked at once; its empty id keeps the next save a create.
+ */
 export function withSave(
 	setting: IEmployeeNotificationSetting | null | undefined,
 	save: NotificationSettingSave
-): IEmployeeNotificationSetting | null {
-	if (!setting) {
-		return null;
-	}
+): IEmployeeNotificationSetting {
+	const base = setting ?? PROVISIONAL_SETTING;
 	if (save.kind === 'switch') {
-		return { ...setting, [save.key]: save.isOn };
+		return { ...base, [save.key]: save.isOn };
 	}
 
-	return { ...setting, preferences: withPreferencePatch(setting.preferences, save.patch) };
+	return { ...base, preferences: withPreferencePatch(base.preferences, save.patch) };
 }
 
 /** The setting with only the fields of a refused save put back as they were — the other saves' changes stay. */
@@ -76,11 +80,20 @@ export function withSaveReverted(
 	if (!setting) {
 		return previous ?? null;
 	}
-	if (save.kind === 'switch') {
-		return { ...setting, [save.key]: previous?.[save.key] };
+	const reverted: IEmployeeNotificationSetting =
+		save.kind === 'switch'
+			? { ...setting, [save.key]: previous?.[save.key] }
+			: { ...setting, preferences: previous?.preferences ?? null };
+	// A provisional row that carries nothing any more is no row.
+	if (!reverted.id && !previous) {
+		const { id: _id, ...rest } = reverted;
+		const carried = Object.values(rest).some((value) => value !== undefined && value !== null);
+		if (!carried) {
+			return null;
+		}
 	}
 
-	return { ...setting, preferences: previous?.preferences ?? null };
+	return reverted;
 }
 
 function pendingKeyOf(saves: readonly NotificationSettingSave[]): TEmployeeNotificationSettingKey | undefined {
@@ -154,7 +167,7 @@ export function useNotificationSettings() {
 			}
 			// Gauzy's row, with the saves still in flight (queued after this one) applied over it again.
 			const pending = inFlightRef.current.filter((other) => other !== save);
-			queryClient.setQueryData(settingsKey, pending.reduce<IEmployeeNotificationSetting | null>(withSave, saved));
+			queryClient.setQueryData(settingsKey, pending.reduce<IEmployeeNotificationSetting>(withSave, saved));
 		},
 		onError: (_error, save, previous) => {
 			const current = queryClient.getQueryData<IEmployeeNotificationSetting | null>(settingsKey);
