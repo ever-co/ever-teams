@@ -123,9 +123,10 @@ jobs:
         with:
           verdaccio-registry: ${{ vars.VERDACCIO_REGISTRY }}
           verdaccio-token: ${{ secrets.VERDACCIO_TOKEN }}
-          # GitHub-hosted (see runs-on): the in-network Verdaccio VIP is unreachable, so use the public route
-          force-public: 'true'
-          expect-vip: 'false'
+          # GitHub-hosted (see runs-on): the in-network Verdaccio VIP is unreachable, so use the public route. In-cluster
+          # (CI_IN_CLUSTER) the VIP answers and the public route refused the token (401 on 2026-11-07): probe the VIP there.
+          force-public: ${{ vars.CI_IN_CLUSTER != 'true' && 'true' || vars.VERDACCIO_FORCE_PUBLIC }}
+          expect-vip: ${{ vars.CI_IN_CLUSTER == 'true' }}
 
       - name: Install dependencies (Yarn)
         # The install needs no npm token, so it reads an empty user config instead of setup-node's .npmrc
