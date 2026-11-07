@@ -14,6 +14,11 @@ export interface ProxyRule {
 	readonly pattern: RegExp;
 	/** The body fields this route takes (validated), if any. */
 	readonly body?: (body: unknown) => Record<string, unknown> | null;
+	/**
+	 * The API answers this route only for the browser origins it lists: forwarded only for this app's own pages,
+	 * with this app's origin.
+	 */
+	readonly sameOrigin?: true;
 }
 
 const KEY = '[a-z][a-z0-9_]{1,39}';
@@ -38,8 +43,33 @@ export const EVER_CONNECT_PROXY_RULES: readonly ProxyRule[] = [
 	{ id: 'links_remove', method: 'DELETE', pattern: new RegExp(`^links/${UUID}$`) },
 	{ id: 'entitlement', method: 'GET', pattern: /^entitlement$/ },
 	{ id: 'entitlement_refresh', method: 'POST', pattern: /^entitlement\/refresh$/ },
-	{ id: 'audit', method: 'GET', pattern: /^audit$/ }
+	{ id: 'audit', method: 'GET', pattern: /^audit$/ },
+	{ id: 'launcher_config', method: 'GET', pattern: /^launcher\/config$/, sameOrigin: true },
+	{ id: 'launcher_apps', method: 'GET', pattern: /^launcher\/apps$/, sameOrigin: true }
 ];
+
+/**
+ * This app's public origin (NEXT_PUBLIC_WEB_APP_URL, else the origin the request was made to): what the API's App
+ * Launcher routes check, so it must be one of the API's EVER_APP_LAUNCHER_ORIGINS.
+ */
+export function webAppOrigin(req: Request): string {
+	const configured = process.env.NEXT_PUBLIC_WEB_APP_URL?.trim();
+	if (configured) {
+		try {
+			return new URL(configured).origin;
+		} catch {
+			// Not a URL: the request's own origin below.
+		}
+	}
+	return new URL(req.url).origin;
+}
+
+/** Whether the browser marks the request as made by one of this app's own pages. */
+export function fromOwnPage(req: Request, origin: string): boolean {
+	const sent = req.headers.get('origin');
+	if (sent !== null) return sent === origin;
+	return req.headers.get('sec-fetch-site') === 'same-origin';
+}
 
 /** The query parameters the organization routes read, each with its shape. */
 const QUERY_PARAMS: Record<string, RegExp> = {
