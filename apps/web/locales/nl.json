@@ -4907,6 +4907,7 @@
 			"SNOOZED": "{count, plural, one {Melding gesnoozed} other {# meldingen gesnoozed}}",
 			"DONE": "{count, plural, one {Gemarkeerd als afgehandeld} other {# gemarkeerd als afgehandeld}}",
 			"ALL_READ": "Alle meldingen als gelezen gemarkeerd",
+			"MARKED_READ": "{count, plural, =0 {Niets om als gelezen te markeren} one {# melding als gelezen gemarkeerd} other {# meldingen als gelezen gemarkeerd}}",
 			"UNDO": "Ongedaan maken",
 			"UPDATE_FAILED": "Die wijziging is niet opgeslagen. Probeer het opnieuw.",
 			"MARK_ALL_FAILED": "Je meldingen zijn niet als gelezen gemarkeerd. Probeer het opnieuw."

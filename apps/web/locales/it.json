@@ -4907,6 +4907,7 @@
 			"SNOOZED": "{count, plural, one {Notifica rimandata} other {# notifiche rimandate}}",
 			"DONE": "{count, plural, one {Segnata come completata} other {# segnate come completate}}",
 			"ALL_READ": "Tutte le notifiche segnate come lette",
+			"MARKED_READ": "{count, plural, =0 {Niente da segnare come letto} one {# notifica segnata come letta} other {# notifiche segnate come lette}}",
 			"UNDO": "Annulla",
 			"UPDATE_FAILED": "Questa modifica non è stata salvata. Riprova.",
 			"MARK_ALL_FAILED": "Le tue notifiche non sono state segnate come lette. Riprova."

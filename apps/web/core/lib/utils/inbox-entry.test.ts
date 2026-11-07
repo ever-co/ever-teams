@@ -57,7 +57,18 @@ describe('toInboxEntry', () => {
 	it('groups by what the item points at, and keeps an unknown kind as its own title', () => {
 		expect(toInboxEntry(item({ kind: EInboxItemKind.Email, source: EInboxItemSource.Email })).sourceGroup).toBe('email');
 		expect(toInboxEntry(item({ source: EInboxItemSource.EverWorks, taskId: null, entity: null })).sourceGroup).toBe('integrations');
-		expect(toInboxEntry(item({ entity: 'ChatConversation', entityId: 'c1', taskId: null, metadata: { notificationType: 'Mention' } })).href).toBe('/chat/c1');
+		const conversation = item({ entity: 'ChatConversation', entityId: 'c1', taskId: null, metadata: { notificationType: 'Mention' } });
+		// A conversation opens its chat page only where the deployment has the chat pages.
+		const chatFlag = process.env.NEXT_PUBLIC_CHAT_ENABLED;
+		try {
+			delete process.env.NEXT_PUBLIC_CHAT_ENABLED;
+			expect(toInboxEntry(conversation).href).toBeNull();
+			process.env.NEXT_PUBLIC_CHAT_ENABLED = 'true';
+			expect(toInboxEntry(conversation).href).toBe('/chat/c1');
+		} finally {
+			if (chatFlag === undefined) delete process.env.NEXT_PUBLIC_CHAT_ENABLED;
+			else process.env.NEXT_PUBLIC_CHAT_ENABLED = chatFlag;
+		}
 		const question = toInboxEntry(item({ kind: EInboxItemKind.Question, title: 'Approve the budget?', metadata: null, taskId: null, entity: null }));
 		expect(question.type).toBeNull();
 		expect(question.rawTitle).toBe('Approve the budget?');
@@ -146,6 +157,26 @@ describe('grouping and focus', () => {
 			['yesterday', ['y']],
 			['earlier', ['e']]
 		]);
+	});
+
+	it('takes yesterday as the previous calendar day, also across a daylight-saving change', () => {
+		const zone = process.env.TZ;
+		process.env.TZ = 'America/New_York';
+		try {
+			// 1 November 2026 lasts 25 hours in New York (clocks go back at 02:00).
+			const now = new Date(2026, 10, 2, 10, 0);
+			const entries = [
+				toInboxEntry(item({ id: 'early', createdAt: new Date(2026, 10, 1, 0, 30).toISOString() })),
+				toInboxEntry(item({ id: 'before', createdAt: new Date(2026, 9, 31, 23, 30).toISOString() }))
+			];
+			expect(groupInboxEntriesByDay(entries, now).map((group) => [group.day, group.entries.map((e) => e.id)])).toEqual([
+				['yesterday', ['early']],
+				['earlier', ['before']]
+			]);
+		} finally {
+			if (zone === undefined) delete process.env.TZ;
+			else process.env.TZ = zone;
+		}
 	});
 
 	it('moves the focus inside the list', () => {

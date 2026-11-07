@@ -4907,6 +4907,7 @@
 			"SNOOZED": "{count, plural, one {Powiadomienie odłożone} few {# powiadomienia odłożone} many {# powiadomień odłożonych} other {# powiadomień odłożonych}}",
 			"DONE": "{count, plural, one {Oznaczone jako zakończone} few {# oznaczone jako zakończone} many {# oznaczonych jako zakończone} other {# oznaczonych jako zakończone}}",
 			"ALL_READ": "Wszystkie powiadomienia oznaczone jako przeczytane",
+			"MARKED_READ": "{count, plural, =0 {Nic do oznaczenia jako przeczytane} one {# powiadomienie oznaczone jako przeczytane} few {# powiadomienia oznaczone jako przeczytane} many {# powiadomień oznaczonych jako przeczytane} other {# powiadomienia oznaczone jako przeczytane}}",
 			"UNDO": "Cofnij",
 			"UPDATE_FAILED": "Ta zmiana nie została zapisana. Spróbuj ponownie.",
 			"MARK_ALL_FAILED": "Twoje powiadomienia nie zostały oznaczone jako przeczytane. Spróbuj ponownie."

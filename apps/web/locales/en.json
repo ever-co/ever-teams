@@ -4907,6 +4907,7 @@
 			"SNOOZED": "{count, plural, one {Notification snoozed} other {# notifications snoozed}}",
 			"DONE": "{count, plural, one {Marked as done} other {# marked as done}}",
 			"ALL_READ": "All notifications marked as read",
+			"MARKED_READ": "{count, plural, =0 {Nothing to mark read} one {# notification marked read} other {# notifications marked read}}",
 			"UNDO": "Undo",
 			"UPDATE_FAILED": "That change was not saved. Try again.",
 			"MARK_ALL_FAILED": "Your notifications were not marked as read. Try again."

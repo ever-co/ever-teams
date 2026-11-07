@@ -144,7 +144,7 @@ function InboxPageContent() {
 		if (!enabled) router.replace('/');
 	}, [enabled, router]);
 
-	const availability = useInboxAvailability(enabled);
+	const { availability, probeFailed, retry: retryProbe } = useInboxAvailability(enabled);
 	const usesExtension = availability === 'available';
 	const isLegacy = availability === 'unavailable';
 
@@ -168,8 +168,8 @@ function InboxPageContent() {
 		[pathname, router, searchParams]
 	);
 
-	const selection = useMemo(() => ({ filter, sourceGroup, q }), [filter, sourceGroup, q]);
-	const items = useInboxItems(selection, enabled && usesExtension);
+	const listSelection = useMemo(() => ({ filter, sourceGroup, q }), [filter, sourceGroup, q]);
+	const items = useInboxItems(listSelection, enabled && usesExtension);
 	const counts = useInboxCounts(enabled && usesExtension);
 	const legacy = useNotificationInbox(enabled && isLegacy);
 	const legacyUnread = useUnreadNotificationCount();
@@ -184,9 +184,10 @@ function InboxPageContent() {
 		[filter, items.entries, legacy.entries, sourceGroup, usesExtension]
 	);
 	const unreadCount = usesExtension ? counts.unread : legacyUnread;
-	const isLoading = availability === 'unknown' || (usesExtension ? items.isLoading : legacy.isLoading);
-	const isError = usesExtension ? items.isError : legacy.isError;
-	const retry = usesExtension ? items.retry : legacy.retry;
+	// A failed availability check (offline, a server error) is an error with a retry, not an endless skeleton.
+	const isLoading = (availability === 'unknown' && !probeFailed) || (usesExtension ? items.isLoading : legacy.isLoading);
+	const isError = (availability === 'unknown' && probeFailed) || (usesExtension ? items.isError : legacy.isError);
+	const retry = availability === 'unknown' ? retryProbe : usesExtension ? items.retry : legacy.retry;
 
 	const [now] = useState(() => new Date());
 	const groups = useMemo(() => groupInboxEntriesByDay(entries, now), [entries, now]);
@@ -325,12 +326,14 @@ function InboxPageContent() {
 			return;
 		}
 		actions
-			.markAllRead(filter)
-			.then(({ undo }) => {
-				toast(t('inbox.TOASTS.ALL_READ'), { action: { label: t('inbox.TOASTS.UNDO'), onClick: () => undo().catch(reportFailure) } });
+			.markAllRead(listSelection)
+			.then(({ count, scoped, undo }) => {
+				// A filtered list says how many it marked: "all" would claim the hidden ones too.
+				const message = scoped ? t('inbox.TOASTS.MARKED_READ', { count }) : t('inbox.TOASTS.ALL_READ');
+				toast(message, undo ? { action: { label: t('inbox.TOASTS.UNDO'), onClick: () => undo().catch(reportFailure) } } : undefined);
 			})
 			.catch(failed);
-	}, [actions, filter, legacyActions, reportFailure, t, usesExtension]);
+	}, [actions, legacyActions, listSelection, reportFailure, t, usesExtension]);
 
 	const byIdAction = useCallback(
 		(handler: (entry: InboxEntry) => void) => (id: string) => {

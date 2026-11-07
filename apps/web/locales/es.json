@@ -4907,6 +4907,7 @@
 			"SNOOZED": "{count, plural, one {Notificación pospuesta} other {# notificaciones pospuestas}}",
 			"DONE": "{count, plural, one {Marcada como hecha} other {# marcadas como hechas}}",
 			"ALL_READ": "Todas las notificaciones marcadas como leídas",
+			"MARKED_READ": "{count, plural, =0 {Nada que marcar como leído} one {# notificación marcada como leída} other {# notificaciones marcadas como leídas}}",
 			"UNDO": "Deshacer",
 			"UPDATE_FAILED": "Ese cambio no se guardó. Inténtalo de nuevo.",
 			"MARK_ALL_FAILED": "Tus notificaciones no se marcaron como leídas. Inténtalo de nuevo."

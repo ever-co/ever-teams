@@ -7,6 +7,7 @@ import {
 	IInboxItem,
 	INBOX_NOTIFICATION_EXTERNAL_SOURCE
 } from '@/core/types/interfaces/common/inbox-item';
+import { readRuntimeEnv } from '@/env-config';
 import { NotificationEntry, quotedSubjectOf, senderNameFromTitle } from './notification-inbox';
 
 /** The families an entry is grouped and filtered by. */
@@ -81,9 +82,15 @@ export function sourceGroupOf(item: Pick<IInboxItem, 'kind' | 'source' | 'entity
 	return 'other';
 }
 
+/** Whether this deployment has the chat pages (`/chat/:conversationId`), which a conversation entry opens. */
+export function hasChatPages(): boolean {
+	return (readRuntimeEnv('NEXT_PUBLIC_CHAT_ENABLED') || process.env.NEXT_PUBLIC_CHAT_ENABLED) === 'true';
+}
+
 function hrefOf(type: EEmployeeNotificationType | null, entry: Pick<InboxEntry, 'entity' | 'entityId'>): string | null {
 	if (type === EEmployeeNotificationType.RateChangeRequest) return RATE_CHANGE_REQUEST_HREF;
-	if (entry.entity === 'ChatConversation' && entry.entityId) return `/chat/${entry.entityId}`;
+	// Without the chat pages a conversation has nowhere to open: the entry is not a link.
+	if (entry.entity === 'ChatConversation' && entry.entityId && hasChatPages()) return `/chat/${entry.entityId}`;
 	return null;
 }
 
@@ -245,8 +252,6 @@ export interface InboxGroup {
 	entries: InboxEntry[];
 }
 
-const DAY_IN_MS = 24 * 60 * 60 * 1000;
-
 function startOfDay(date: Date): number {
 	const day = new Date(date);
 	day.setHours(0, 0, 0, 0);
@@ -257,7 +262,10 @@ export function dayGroupOf(createdAt: Date, now: Date): InboxDayGroup {
 	const today = startOfDay(now);
 	const day = startOfDay(createdAt);
 	if (day >= today) return 'today';
-	if (day >= today - DAY_IN_MS) return 'yesterday';
+	// The previous calendar day, not 24 hours back: a day around a daylight-saving change lasts 23 or 25 hours.
+	const previous = new Date(now);
+	previous.setDate(previous.getDate() - 1);
+	if (day >= startOfDay(previous)) return 'yesterday';
 	return 'earlier';
 }
 

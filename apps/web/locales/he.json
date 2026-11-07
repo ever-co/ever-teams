@@ -4907,6 +4907,7 @@
 			"SNOOZED": "{count, plural, one {ההתראה נדחתה} other {# התראות נדחו}}",
 			"DONE": "{count, plural, one {סומנה כהושלמה} other {# סומנו כהושלמו}}",
 			"ALL_READ": "כל ההתראות סומנו כנקראו",
+			"MARKED_READ": "{count, plural, =0 {אין מה לסמן כנקרא} one {התראה אחת סומנה כנקראה} other {# התראות סומנו כנקראו}}",
 			"UNDO": "ביטול",
 			"UPDATE_FAILED": "השינוי לא נשמר. נסו שוב.",
 			"MARK_ALL_FAILED": "ההתראות לא סומנו כנקראו. נסו שוב."

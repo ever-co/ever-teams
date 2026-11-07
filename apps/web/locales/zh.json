@@ -4907,6 +4907,7 @@
 			"SNOOZED": "{count, plural, other {已推迟 # 条通知}}",
 			"DONE": "{count, plural, other {已将 # 条标记为已完成}}",
 			"ALL_READ": "所有通知已标为已读",
+			"MARKED_READ": "{count, plural, =0 {没有需要标为已读的通知} other {已将 # 条通知标为已读}}",
 			"UNDO": "撤销",
 			"UPDATE_FAILED": "该更改未保存。请重试。",
 			"MARK_ALL_FAILED": "通知未标为已读。请重试。"
