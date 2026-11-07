@@ -6,9 +6,11 @@ import { useTranslations } from 'next-intl';
 import { EverPlatformSettings } from '@/core/components/optimized-components/settings';
 import { SettingsPage, SettingsSection } from '@/core/components/settings/kit/settings-page';
 import { TeamSettingsGate } from '@/core/components/settings/kit/team-settings-gate';
+import { useAsanaIntegration } from '@/core/hooks/integrations/use-asana-integration';
 import { useLinearIntegration } from '@/core/hooks/integrations/use-linear-integration';
 import { useGithubIntegrationSettings } from '@/core/hooks/settings/use-github-integration-settings';
 import { canManageActiveTeamState } from '@/core/stores';
+import { AsanaProviderSection } from './asana-provider';
 import { GithubProviderSection } from './github-provider';
 import { IntegrationsSettingsSkeleton } from './integrations-settings-skeleton';
 import { LinearProviderSection } from './linear-provider';
@@ -35,6 +37,7 @@ function IntegrationsSettingsContent() {
 	const canManageTeam = useAtomValue(canManageActiveTeamState);
 	const github = useGithubIntegrationSettings();
 	const linear = useLinearIntegration();
+	const asana = useAsanaIntegration();
 
 	return (
 		<SettingsPage
@@ -43,6 +46,7 @@ function IntegrationsSettingsContent() {
 		>
 			<GithubProviderSection github={github} />
 			<LinearProviderSection linear={linear} />
+			<AsanaProviderSection asana={asana} />
 			<EverPlatformSettings isTeamManager={canManageTeam} frame={frameEverPlatform} />
 		</SettingsPage>
 	);
