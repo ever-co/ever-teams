@@ -29,7 +29,7 @@ platform spec it depends on; the platform specs live in the Ever Gauzy repositor
 | Feature | Spec | Status | Runtime flag | Platform spec |
 | ------- | ---- | ------ | ------------ | ------------- |
 | Real-time client (one push connection, query invalidation, presence) | [`features/realtime-client/`](features/realtime-client/spec.md) | In progress — [`plan`](features/realtime-client/plan.md) · [`tasks`](features/realtime-client/tasks.md) · branch `feat/realtime-client` | `NEXT_PUBLIC_REALTIME_ENABLED` | `realtime-channel` |
-| Inbox page (full notification inbox, triage, snooze, preferences) | [`features/inbox/`](features/inbox/spec.md) | Draft | `NEXT_PUBLIC_INBOX_ENABLED` (exists) | `inbox` |
+| Inbox page (full notification inbox, triage, snooze, preferences) | [`features/inbox/`](features/inbox/spec.md) | In progress — [`plan`](features/inbox/plan.md) · [`tasks`](features/inbox/tasks.md) · branch `feat/inbox-page` | `NEXT_PUBLIC_INBOX_ENABLED` (exists) | `inbox` |
 | Chat (channels, direct messages, threads, mentions, task cards) | [`features/chat/`](features/chat/spec.md) | Draft | `NEXT_PUBLIC_CHAT_ENABLED` | `chat` |
 | Docs (page tree, editor, comments, versions) | [`features/docs/`](features/docs/spec.md) | Draft | `NEXT_PUBLIC_DOCS_ENABLED` | existing Docs API + `docs-collaboration` |
 | Tasks: keyboard-first lists, command palette, bulk actions, saved views | [`features/tasks-keyboard-and-views/`](features/tasks-keyboard-and-views/spec.md) | Draft | `NEXT_PUBLIC_TASK_VIEWS_ENABLED` | `task-views-and-bulk-actions` |
