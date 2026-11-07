@@ -539,7 +539,7 @@ function AsanaConnected({ asana, onDisconnect }: AsanaProps & Readonly<{ onDisco
 										{asana.mappings.map((mapping) => (
 											<MappingRow key={mapping.id} asana={asana} mapping={mapping} />
 										))}
-										<AddMappingRow asana={asana} />
+										{asana.canManageMappings && <AddMappingRow asana={asana} />}
 										<RunsRow asana={asana} />
 									</>
 								)}

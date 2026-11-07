@@ -53,6 +53,8 @@ export interface AsanaIntegrationSettings {
 	workspaces: IAsanaWorkspace[];
 	projects: AsanaIntegrationProject[];
 	mappings: IAsanaMapping[];
+	/** Whether the mappings are known: while their read failed, nothing may be added (every project would look unmapped). */
+	canManageMappings: boolean;
 	runs: IAsanaRun[];
 	isLoadingDetails: boolean;
 	/** A read of the mappings, workspaces or runs that failed (the connection itself answered). */
@@ -215,17 +217,22 @@ export function useAsanaIntegration(): AsanaIntegrationSettings {
 		void queryClient.invalidateQueries({ queryKey: queryKeys.integrations.asana.all });
 	}, [queryClient]);
 
-	// A run that was running and is not any more changed the mapping (its last import) and maybe the connection
-	// (an attention reason): both are read again, since the poll refreshes the runs alone.
+	// A run that finished changed the mapping (its last import) and maybe the connection (an attention reason):
+	// both are read again, since the poll refreshes the runs alone. A run this page started is tracked by id, so a
+	// quick one whose finished row is the first seen refreshes them too.
 	const wasRunning = useRef(false);
-	const isRunning = (runsQuery.data ?? NO_RUNS).some((run) => run.status === 'running');
+	const acceptedRunIds = useRef(new Set<string>());
+	const runs = runsQuery.data ?? NO_RUNS;
+	const isRunning = runs.some((run) => run.status === 'running');
+	const acceptedFinished = runs.some((run) => acceptedRunIds.current.has(run.id) && run.status !== 'running');
 	useEffect(() => {
-		if (wasRunning.current && !isRunning) {
+		if ((wasRunning.current && !isRunning) || acceptedFinished) {
+			for (const run of runs) if (run.status !== 'running') acceptedRunIds.current.delete(run.id);
 			void queryClient.invalidateQueries({ queryKey: queryKeys.integrations.asana.mappings(tenantId, organizationId, integrationId) });
 			void queryClient.invalidateQueries({ queryKey: queryKeys.integrations.asana.status(tenantId, organizationId) });
 		}
 		wasRunning.current = isRunning;
-	}, [integrationId, isRunning, organizationId, queryClient, tenantId]);
+	}, [acceptedFinished, integrationId, isRunning, organizationId, queryClient, runs, tenantId]);
 
 	const retryDetails = useCallback(() => {
 		if (mappingsQuery.isError) void mappingsQuery.refetch();
@@ -325,7 +332,10 @@ export function useAsanaIntegration(): AsanaIntegrationSettings {
 	const importNow = useCallback(
 		async (mappingId: string, full: boolean) => {
 			if (!integrationId) return;
-			await act('import', mappingId, () => asanaIntegrationService.importNow(integrationId, mappingId, full));
+			await act('import', mappingId, async () => {
+				const { run } = await asanaIntegrationService.importNow(integrationId, mappingId, full);
+				if (run?.id) acceptedRunIds.current.add(run.id);
+			});
 		},
 		[act, integrationId]
 	);
@@ -355,7 +365,8 @@ export function useAsanaIntegration(): AsanaIntegrationSettings {
 		workspaces: metadataQuery.data?.workspaces ?? NO_WORKSPACES,
 		projects,
 		mappings: mappingsQuery.data ?? NO_MAPPINGS,
-		runs: runsQuery.data ?? NO_RUNS,
+		canManageMappings: !mappingsQuery.isError,
+		runs,
 		isLoadingDetails: !!integrationId && (mappingsQuery.isPending || metadataQuery.isPending || getOrganizationProjectsLoading),
 		detailsError: mappingsQuery.error ?? metadataQuery.error ?? runsQuery.error ?? (isOrganizationProjectsError ? PROJECTS_READ_FAILED : null),
 		isRetryingDetails: mappingsQuery.isFetching || metadataQuery.isFetching || runsQuery.isFetching,

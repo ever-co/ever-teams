@@ -91,6 +91,7 @@ function settings(overrides: Partial<AsanaIntegrationSettings> = {}): AsanaInteg
 		workspaces: [],
 		projects: [],
 		mappings: [],
+		canManageMappings: true,
 		runs: [],
 		isLoadingDetails: false,
 		detailsError: null,
@@ -211,6 +212,12 @@ describe('AsanaProviderSection', () => {
 		await waitFor(() => expect(asana.updateMapping).toHaveBeenCalledTimes(1));
 		expect(asana.updateMapping).toHaveBeenCalledWith('m1', { sectionMap: { 's-todo': 'open', 's-doing': 'in-progress' } });
 		await waitFor(() => expect(screen.queryByTestId('asana-section-map-save-m1')).not.toBeInTheDocument());
+	});
+
+	it('a failed mappings read hides the add form (every project would look unmapped) until the retry succeeds', () => {
+		render(<AsanaProviderSection asana={connected({ mappings: [], canManageMappings: false, detailsError: new Error('down') })} />);
+		expect(screen.queryByTestId('asana-add-mapping')).toBeNull();
+		expect(screen.getByText('settings.integrations.asana.DETAILS_ERROR_TITLE')).toBeInTheDocument();
 	});
 
 	it('webhooks off on the platform: no webhook column, and the facts say so', () => {
