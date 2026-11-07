@@ -84,10 +84,56 @@ export function invalidationsFor(envelope: RealtimeEnvelope, scope: RealtimeScop
 		case 'chat_conversation':
 		case 'chat_member_state':
 		case 'chat_thread':
-			return [{ queryKey: ['chat'], deferrable: false }];
+			return chatInvalidationsOf(family, envelope.data, scope);
 		default:
 			return name === REALTIME_EVENT_NAMES.TYPING_SIGNALLED ? [] : [];
 	}
+}
+
+/** A string member of an event's data, when it is one. */
+function idIn(data: RealtimeEnvelope['data'], key: string): string | null {
+	const value = (data as Record<string, unknown> | null | undefined)?.[key];
+	return typeof value === 'string' && value ? value : null;
+}
+
+/**
+ * The chat queries an event changed: a message → its conversation's timeline, its thread (and its own, when it roots
+ * one), the lists and badges; a thread → the thread, its conversation's timeline (reply counts), the followed
+ * threads; a conversation or a member state → the lists, the badges, the directory and the members. Without the
+ * conversation in the event, every chat query.
+ */
+export function chatInvalidationsOf(family: string, data: RealtimeEnvelope['data'], scope: RealtimeScope): RealtimeInvalidation[] {
+	const conversationId = idIn(data, 'conversationId');
+	if (!conversationId) return [{ queryKey: ['chat'], deferrable: false }];
+	const lists: RealtimeInvalidation[] = [
+		{ queryKey: ['chat', 'conversations'], deferrable: false },
+		{ queryKey: ['chat', 'states'], deferrable: false }
+	];
+	if (family === 'chat_message') {
+		const threadRootId = idIn(data, 'threadRootId');
+		const messageId = idIn(data, 'messageId');
+		return [
+			{ queryKey: queryKeys.chat.messages(scope.tenantId, conversationId), deferrable: false },
+			...(threadRootId ? [{ queryKey: queryKeys.chat.thread(scope.tenantId, threadRootId), deferrable: false }] : []),
+			...(messageId ? [{ queryKey: queryKeys.chat.thread(scope.tenantId, messageId), deferrable: false }] : []),
+			...lists,
+			{ queryKey: ['chat', 'threads'], deferrable: false }
+		];
+	}
+	if (family === 'chat_thread') {
+		const rootMessageId = idIn(data, 'rootMessageId');
+		return [
+			...(rootMessageId ? [{ queryKey: queryKeys.chat.thread(scope.tenantId, rootMessageId), deferrable: false }] : []),
+			{ queryKey: queryKeys.chat.messages(scope.tenantId, conversationId), deferrable: false },
+			{ queryKey: ['chat', 'threads'], deferrable: false },
+			...lists
+		];
+	}
+	return [
+		...lists,
+		{ queryKey: ['chat', 'browse'], deferrable: false },
+		{ queryKey: queryKeys.chat.members(scope.tenantId, conversationId), deferrable: false }
+	];
 }
 
 /** A stable string of a key, to fold the same refetch asked twice within one window. */
