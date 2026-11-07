@@ -1971,10 +1971,11 @@ describe('Ever Teams feature surface preservation', () => {
 		// export: 173 files and 229 verbs on develop 2026-11-06 (the November PR sweeps added routes, none went away;
 		// #4931 added PUT /api/organization/[id]).
 		// A new route raises these numbers; a lower number means a route or a verb was lost.
-		expect(routes.filter((value) => /\/route\.[jt]s$/.test(value))).toHaveLength(173);
+		// 179 files and 238 verbs with the task views, bulk and preferences proxies on this branch.
+		expect(routes.filter((value) => /\/route\.[jt]s$/.test(value))).toHaveLength(179);
 		expect(
 			routes.filter((value) => /\/route\.[jt]s::(?:GET|POST|PUT|PATCH|DELETE|HEAD|OPTIONS)$/.test(value))
-		).toHaveLength(229);
+		).toHaveLength(238);
 		expect(routes).toEqual(
 			expect.arrayContaining([
 				// Proxy mode twins of Gauzy's public account deletion by e-mail link (2026-10-27)
