@@ -6,10 +6,12 @@ import { useTranslations } from 'next-intl';
 import { EverPlatformSettings } from '@/core/components/optimized-components/settings';
 import { SettingsPage, SettingsSection } from '@/core/components/settings/kit/settings-page';
 import { TeamSettingsGate } from '@/core/components/settings/kit/team-settings-gate';
+import { useLinearIntegration } from '@/core/hooks/integrations/use-linear-integration';
 import { useGithubIntegrationSettings } from '@/core/hooks/settings/use-github-integration-settings';
 import { canManageActiveTeamState } from '@/core/stores';
 import { GithubProviderSection } from './github-provider';
 import { IntegrationsSettingsSkeleton } from './integrations-settings-skeleton';
+import { LinearProviderSection } from './linear-provider';
 
 function EverPlatformFrame({ children }: Readonly<{ children: ReactNode }>) {
 	const t = useTranslations();
@@ -32,6 +34,7 @@ function IntegrationsSettingsContent() {
 	const t = useTranslations();
 	const canManageTeam = useAtomValue(canManageActiveTeamState);
 	const github = useGithubIntegrationSettings();
+	const linear = useLinearIntegration();
 
 	return (
 		<SettingsPage
@@ -39,6 +42,7 @@ function IntegrationsSettingsContent() {
 			description={t('settings.entries.integrations.DESCRIPTION')}
 		>
 			<GithubProviderSection github={github} />
+			<LinearProviderSection linear={linear} />
 			<EverPlatformSettings isTeamManager={canManageTeam} frame={frameEverPlatform} />
 		</SettingsPage>
 	);
