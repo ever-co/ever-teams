@@ -29,7 +29,16 @@ export function demoSignUpUrl(): string {
 			);
 		}
 	}
-	return `${APP_LINK.replace(/\/+$/, '')}/auth/signup`;
+	return `${withoutTrailingSlashes(APP_LINK)}/auth/signup`;
+}
+
+/** `value` without trailing slashes (a loop, not `/\/+$/`, which backtracks on long runs of slashes). */
+function withoutTrailingSlashes(value: string): string {
+	let end = value.length;
+	while (end > 0 && value[end - 1] === '/') {
+		end--;
+	}
+	return value.slice(0, end);
 }
 
 function isAbsoluteHttpUrl(value: string): boolean {
