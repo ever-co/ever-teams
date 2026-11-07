@@ -39,10 +39,14 @@ docs/specs/
 
 ## Workflow
 
-1. **`/specify`** — describe the behaviour. Output: `spec.md`.
-2. **`/plan`** — derive the implementation plan. Output: `plan.md`.
-3. **`/tasks`** — break the plan into ordered, PR-sized tasks. Output: `tasks.md`.
-4. **`/implement`** — work through `tasks.md`, ticking tasks as PRs land, behind a
+Four stages, each a document. They are stages, not registered commands: scaffold the feature (below), then
+fill each document from its template by hand or by pointing a coding agent at the template and the previous
+stage's document.
+
+1. **Specify** — describe the behaviour. Output: `spec.md` (from `templates/spec-template.md`).
+2. **Plan** — derive the implementation plan from the approved spec. Output: `plan.md`.
+3. **Tasks** — break the plan into ordered, PR-sized tasks. Output: `tasks.md`.
+4. **Implement** — work through `tasks.md`, ticking tasks as PRs land, behind a
    default-off feature flag until the feature is complete.
 
 Every step runs through the [constitution gates](memory/constitution.md#compliance-checklist):
@@ -51,5 +55,5 @@ a spec that conflicts with a non-negotiable principle blocks the next step.
 Scaffold a feature:
 
 ```bash
-.specify/scripts/bash/create-new-feature.sh <slug> "Feature Title"
+bash .specify/scripts/bash/create-new-feature.sh <slug> "Feature Title"
 ```

@@ -18,8 +18,17 @@ function Test-Cmd {
 
 Write-Host "Checking Spec Kit prerequisites..."
 Test-Cmd "yarn" "install Yarn 1.x (corepack enable)"
-Test-Cmd "node" "install Node.js 20+"
+Test-Cmd "node" "install Node.js 24+"
 Test-Cmd "git"  "install Git"
+
+# The repository needs Node.js 24 or newer (package.json engines, .nvmrc).
+if (Get-Command node -ErrorAction SilentlyContinue) {
+    $nodeMajor = [int](& node -p "process.versions.node.split('.')[0]")
+    if ($nodeMajor -lt 24) {
+        Write-Host ("  [OLD]   {0,-12} {1}" -f "node", "Node.js $(& node --version) found; install Node.js 24+") -ForegroundColor Yellow
+        $ok = $false
+    }
+}
 
 if ($ok) {
     Write-Host ""

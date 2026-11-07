@@ -105,7 +105,8 @@ and a command palette that finds tasks, pages, conversations, people and actions
   update round trip under 1 s for 100 tasks.
 - **Reliability**: undo restores previous values exactly; local view settings migrate
   into saved views on first save.
-- **Security & privacy**: team views editable by team managers and their creator.
+- **Security & privacy**: a personal view is seen and changed by its creator only; a team view is changed by
+  anyone in the team who may edit tasks (the platform's rule), and its actions are shown to them only.
 - **Accessibility**: focus ring visible; shortcuts never trap focus; help dialog is a
   proper dialog.
 - **Compatibility**: web only for shortcuts; views and bulk actions reach mobile later.

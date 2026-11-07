@@ -18,8 +18,17 @@ check() {
 
 echo "Checking Spec Kit prerequisites…"
 check yarn "install yarn 1.x (corepack enable)"
-check node "install Node.js 20+"
+check node "install Node.js 24+"
 check git  "install Git"
+
+# The repository needs Node.js 24 or newer (package.json engines, .nvmrc).
+if command -v node >/dev/null 2>&1; then
+    node_major=$(node -p 'process.versions.node.split(".")[0]' 2>/dev/null || echo 0)
+    if (( node_major < 24 )); then
+        printf "  [OLD]   %-12s %s\n" node "Node.js $(node --version) found; install Node.js 24+"
+        ok=false
+    fi
+fi
 
 if $ok; then
     echo

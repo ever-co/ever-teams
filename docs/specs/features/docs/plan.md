@@ -46,9 +46,12 @@ platform's collaboration transport.
   A 409 shows Reload (drops the draft) or Keep my changes (re-reads the clock, saves with `forceSnapshot` so the
   other version is captured first). A 423 (locked) and an oversize draft are told; any other error keeps the draft
   for a retry. Unsaved text warns on unload and saves when the person leaves the page inside the app.
-- **Content interop**: the editor opens the HTML cache and writes both the HTML and its JSON; the platform's other
-  clients read the JSON (nodes the app does not know are kept out of the app's editor by the HTML parser, never
-  thrown away by a crash).
+- **Content interop, lossless**: the page's editor JSON is the source of truth, and the app's editor opens that
+  JSON when the page has it (the HTML cache only for a page that has no JSON yet). Before opening, the JSON is
+  checked against the editor's schema: a page holding a node or mark type the app's editor does not know (written
+  by another client) opens read-only, rendered from its HTML, with a notice that it is edited in the platform —
+  the app never saves a reduced document over it. Every save writes the editor's JSON and the HTML rendered
+  from it.
 - **Trash** is the platform's archive (restore = unarchive); "delete for good" is the platform's delete with the
   `subtree` strategy, recoverable there by an administrator.
 - **Spaces**: private pages (`visibility: PRIVATE`) form the person's private tree; the rest is the workspace.

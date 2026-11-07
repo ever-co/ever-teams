@@ -42,7 +42,8 @@ they are with the flag off.
 ## 4. Rules
 
 - **Views** keep the page's grouping, ordering, properties, filters, scope and search. A personal view is listed to
-  its creator only; a team view to everyone in the team (teammates may change it). A save states the version read;
+  its creator only; a team view to everyone in the team, and changed (saved, shared, deleted) by anyone in it who may edit
+  tasks — the platform's rule; Save, Share and Delete are shown to those people only. A save states the version read;
   a stale one shows a conflict with a Reload action. Opening a view never touches the device-local view.
 - **Built-in views** are the platform's answer (no local filtering besides the page's own search and filters).
 - **Bulk**: a change to more than one task goes in one request with the previous values coming back; undo sends
