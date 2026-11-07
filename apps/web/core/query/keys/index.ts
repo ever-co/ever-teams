@@ -352,6 +352,27 @@ export const queryKeys = {
 	},
 
 	// Keys related to tasks
+	taskViews: {
+		all: ['task-views'] as const,
+		list: (
+			tenantId: string | undefined | null,
+			organizationId: string | undefined | null,
+			teamId: string | undefined | null,
+			userId: string | undefined | null
+		) => ['task-views', 'list', tenantId ?? null, organizationId ?? null, teamId ?? null, userId ?? null] as const,
+		detail: (
+			tenantId: string | undefined | null,
+			organizationId: string | undefined | null,
+			userId: string | undefined | null,
+			viewId: string | undefined | null
+		) => ['task-views', 'detail', tenantId ?? null, organizationId ?? null, userId ?? null, viewId ?? null] as const,
+		builtIn: (
+			tenantId: string | undefined | null,
+			organizationId: string | undefined | null,
+			userId: string | undefined | null,
+			key: string | undefined | null
+		) => ['task-views', 'built-in', tenantId ?? null, organizationId ?? null, userId ?? null, key ?? null] as const
+	},
 	tasks: {
 		// Standard task keys (preserved for backward compatibility)
 		all: ['tasks'] as const,
@@ -774,6 +795,45 @@ export const queryKeys = {
 	// Keys related to integration
 	integrations: {
 		all: ['integrations'] as const,
+		linear: {
+			all: ['integrations', 'linear'] as const,
+			status: (tenantId: string | undefined | null, organizationId: string | undefined | null) =>
+				['integrations', 'linear', 'status', tenantId ?? null, organizationId ?? null] as const,
+			mappings: (tenantId: string | undefined | null, organizationId: string | undefined | null, integrationId: string | undefined | null) =>
+				['integrations', 'linear', 'mappings', tenantId ?? null, organizationId ?? null, integrationId ?? null] as const,
+			teams: (tenantId: string | undefined | null, organizationId: string | undefined | null, integrationId: string | undefined | null) =>
+				['integrations', 'linear', 'teams', tenantId ?? null, organizationId ?? null, integrationId ?? null] as const,
+			runs: (tenantId: string | undefined | null, organizationId: string | undefined | null, integrationId: string | undefined | null) =>
+				['integrations', 'linear', 'runs', tenantId ?? null, organizationId ?? null, integrationId ?? null] as const
+		},
+		asana: {
+			all: ['integrations', 'asana'] as const,
+			status: (tenantId: string | undefined | null, organizationId: string | undefined | null) =>
+				['integrations', 'asana', 'status', tenantId ?? null, organizationId ?? null] as const,
+			mappings: (tenantId: string | undefined | null, organizationId: string | undefined | null, integrationId: string | undefined | null) =>
+				['integrations', 'asana', 'mappings', tenantId ?? null, organizationId ?? null, integrationId ?? null] as const,
+			metadata: (tenantId: string | undefined | null, organizationId: string | undefined | null, integrationId: string | undefined | null) =>
+				['integrations', 'asana', 'metadata', tenantId ?? null, organizationId ?? null, integrationId ?? null] as const,
+			projects: (tenantId: string | undefined | null, organizationId: string | undefined | null, integrationId: string | undefined | null, workspaceGid: string | undefined | null) =>
+				['integrations', 'asana', 'projects', tenantId ?? null, organizationId ?? null, integrationId ?? null, workspaceGid ?? null] as const,
+			sections: (tenantId: string | undefined | null, organizationId: string | undefined | null, integrationId: string | undefined | null, projectGid: string | undefined | null) =>
+				['integrations', 'asana', 'sections', tenantId ?? null, organizationId ?? null, integrationId ?? null, projectGid ?? null] as const,
+			runs: (tenantId: string | undefined | null, organizationId: string | undefined | null, integrationId: string | undefined | null) =>
+				['integrations', 'asana', 'runs', tenantId ?? null, organizationId ?? null, integrationId ?? null] as const
+		},
+		trello: {
+			all: ['integrations', 'trello'] as const,
+			status: (tenantId: string | undefined | null, organizationId: string | undefined | null) =>
+				['integrations', 'trello', 'status', tenantId ?? null, organizationId ?? null] as const,
+			mappings: (tenantId: string | undefined | null, organizationId: string | undefined | null, integrationId: string | undefined | null) =>
+				['integrations', 'trello', 'mappings', tenantId ?? null, organizationId ?? null, integrationId ?? null] as const,
+			metadata: (tenantId: string | undefined | null, organizationId: string | undefined | null, integrationId: string | undefined | null) =>
+				['integrations', 'trello', 'metadata', tenantId ?? null, organizationId ?? null, integrationId ?? null] as const,
+			lists: (tenantId: string | undefined | null, organizationId: string | undefined | null, integrationId: string | undefined | null, boardId: string | undefined | null) =>
+				['integrations', 'trello', 'lists', tenantId ?? null, organizationId ?? null, integrationId ?? null, boardId ?? null] as const,
+			runs: (tenantId: string | undefined | null, organizationId: string | undefined | null, integrationId: string | undefined | null) =>
+				['integrations', 'trello', 'runs', tenantId ?? null, organizationId ?? null, integrationId ?? null] as const
+		},
 		types: (tenantId: string | undefined | null) =>
 			['integrations', 'types', ...(tenantId ? [tenantId] : [])] as const,
 		byTenant: (tenantId: string | undefined | null) =>

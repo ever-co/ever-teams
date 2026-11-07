@@ -212,15 +212,31 @@ function useFilterCategories(view: TeamTasksViewState): PropertyFilterCategory<T
 }
 
 /**
- * The toolbar band of the page, two rows that never push the list: the title with what the team has, and the
- * one primary action; then the scope on the left, and the search, the filter menu and the Display popover.
+ * The toolbar band of the page, two rows that never push the list: the title (the team's tasks, or the open view
+ * and whether it changed) with what the team has, and the one primary action; then the scope on the left, and the
+ * search, the filter menu, the Display popover and the view actions (Save view, or Save / Save as / Rename /
+ * Share / Delete of the open view).
  */
 export function TeamTasksToolbar({
 	view,
+	title,
+	isDirty,
+	note,
 	trackedCount,
 	isLoadingMore,
-	onCreate
-}: Readonly<{ view: TeamTasksViewState; trackedCount: number; isLoadingMore: boolean; onCreate: () => void }>) {
+	onCreate,
+	viewActions
+}: Readonly<{
+	view: TeamTasksViewState;
+	title: string;
+	isDirty: boolean;
+	/** A word on the list next to the title (a built-in view showing part of its tasks). */
+	note?: string;
+	trackedCount: number;
+	isLoadingMore: boolean;
+	onCreate: () => void;
+	viewActions?: React.ReactNode;
+}>) {
 	const t = useTranslations();
 	const categories = useFilterCategories(view);
 	const { scopeCounts } = view;
@@ -241,7 +257,9 @@ export function TeamTasksToolbar({
 			<PageUpdatingBar isUpdating={isLoadingMore} label={t('dailyPlan.editor.TASKS_LOADING')} />
 			<div className="flex min-h-14 flex-wrap items-center justify-between gap-3 py-2.5">
 				<div className="flex min-w-0 items-baseline gap-2">
-					<h1 className="truncate text-lg font-semibold text-foreground">{t('sidebar.TEAMTASKS')}</h1>
+					<h1 className="truncate text-lg font-semibold text-foreground">{title}</h1>
+					{isDirty && <span className="text-xs text-muted-foreground">{t('taskViews.UNSAVED')}</span>}
+					{note && <span className="text-xs text-muted-foreground">{note}</span>}
 					<span className="flex items-center gap-1.5 text-xs tabular-nums text-muted-foreground">
 						{t('pages.teamTasks.META_TASKS', { count: totalCount })}
 						{hasTracked && (
@@ -283,6 +301,7 @@ export function TeamTasksToolbar({
 						triggerClassName="h-8"
 					/>
 					<TeamTasksDisplayMenu view={view} />
+					{viewActions}
 				</div>
 			</div>
 		</div>

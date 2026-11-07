@@ -1,4 +1,11 @@
 import * as React from 'react';
+import { useTaskViewsQuery } from '@/core/hooks/task-views/use-task-views-query';
+import { isTaskViewsEnabled } from '@/core/lib/utils/task-views-enabled';
+import { builtInViewLabelKey } from '@/core/components/pages/teams/team/tasks/views/views-page';
+import { TASK_BUILT_IN_VIEWS } from '@/core/types/interfaces/common/task-views';
+
+/** The saved views the sidebar lists (the first in sidebar order); All views has every one of them. */
+const SIDEBAR_SAVED_VIEWS_MAX = 8;
 import {
 	Bot,
 	Calendar,
@@ -14,7 +21,8 @@ import {
 	Spinner,
 	Star,
 	Task,
-	X
+	X,
+	Layers
 } from '@/core/components/icons/hugeicons';
 
 import {
@@ -108,6 +116,8 @@ export function AppSidebar({ publicTeam, ...props }: AppSidebarProps) {
 	const username = user?.name || user?.firstName || user?.lastName || user?.username;
 
 	const isTeamManager = useAtomValue(isTeamManagerState);
+	// The saved views of the team, listed under Views when the feature is on (an empty list otherwise).
+	const { views: savedViews } = useTaskViewsQuery();
 	const { currentEmployeeFavorites } = useFavoritesQuery();
 	const tasks = useAtomValue(tasksByTeamState);
 	const { isOpen, closeModal } = useModal();
@@ -360,6 +370,30 @@ export function AppSidebar({ publicTeam, ...props }: AppSidebarProps) {
 					}
 				]
 			},
+			...(isTaskViewsEnabled()
+				? [
+						{
+							title: t('taskViews.TITLE'),
+							url: '/views',
+							selectable: false,
+							icon: Layers,
+							label: 'views',
+							items: [
+								...TASK_BUILT_IN_VIEWS.map((key) => ({
+									title: t(builtInViewLabelKey(key)),
+									url: `/views/${key}`,
+									label: `view-${key}`
+								})),
+								...savedViews.slice(0, SIDEBAR_SAVED_VIEWS_MAX).map((savedView) => ({
+									title: savedView.name,
+									url: `/views/${savedView.id}`,
+									label: `view-${savedView.id}`
+								})),
+								{ title: t('taskViews.ALL_VIEWS'), url: '/views', label: 'all-views' }
+							]
+						}
+					]
+				: []),
 			{
 				title: t('sidebar.PROJECTS'),
 				url: '/projects',
@@ -406,7 +440,8 @@ export function AppSidebar({ publicTeam, ...props }: AppSidebarProps) {
 		encodedUsername,
 		myWorkNavigation.timeAndActivity,
 		myWorkNavigation.workDiary,
-		isTeamManager
+		isTeamManager,
+		savedViews
 	]);
 
 	const showsSettingsNav = isSettingsPath(stripLocalePrefix(pathname ?? ''));

@@ -1969,13 +1969,22 @@ describe('Ever Teams feature surface preservation', () => {
 		const routes = collectRealHeadSurface().routes;
 		// Every route.ts under apps/web/app (`git ls-files 'apps/web/app/**/route.ts'`) and every handler verb they
 		// export: 173 files and 229 verbs on develop 2026-11-06 (the November PR sweeps added routes, none went away;
-		// #4931 added PUT /api/organization/[id]); 177 files and 233 verbs with the real-time routes (#4964:
-		// GET /api/realtime/events, GET /api/realtime/status, POST /api/realtime/presence, POST /api/realtime/typing).
+		// #4931 added PUT /api/organization/[id]); 182 files and 241 verbs with the Linear integration proxies
+		// (/api/integration/linear/**: status, install/state, [id], teams, teams/[teamId], mappings, mappings/[mappingId],
+		// mappings/[mappingId]/import, runs); 193 files and 255 verbs with the Asana integration proxies
+		// (/api/integration/asana/**: status, install/state, [id], metadata, workspaces/[workspaceGid]/projects,
+		// projects/[projectGid]/sections, mappings, mappings/[mappingId], mappings/[mappingId]/webhook,
+		// mappings/[mappingId]/import, runs); 204 files and 269 verbs with the Trello integration proxies
+		// (/api/integration/trello/**: status, install/state, connect, [id], metadata, boards/[boardId]/lists, mappings,
+		// mappings/[mappingId], mappings/[mappingId]/webhook, mappings/[mappingId]/import, runs).
 		// A new route raises these numbers; a lower number means a route or a verb was lost.
-		expect(routes.filter((value) => /\/route\.[jt]s$/.test(value))).toHaveLength(177);
+		// 210 files and 278 verbs with the task views, bulk and preferences proxies on top (+6 files, +9 verbs).
+		// 214 files and 282 verbs with the real-time routes on top (GET /api/realtime/events, GET /api/realtime/status,
+		// POST /api/realtime/presence, POST /api/realtime/typing).
+		expect(routes.filter((value) => /\/route\.[jt]s$/.test(value))).toHaveLength(214);
 		expect(
 			routes.filter((value) => /\/route\.[jt]s::(?:GET|POST|PUT|PATCH|DELETE|HEAD|OPTIONS)$/.test(value))
-		).toHaveLength(233);
+		).toHaveLength(282);
 		expect(routes).toEqual(
 			expect.arrayContaining([
 				// Proxy mode twins of Gauzy's public account deletion by e-mail link (2026-10-27)
