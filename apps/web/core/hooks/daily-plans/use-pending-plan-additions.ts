@@ -79,6 +79,12 @@ function waitForDailyPlanReads(queryClient: QueryClient) {
 	});
 }
 
+/** The id of the plan a creating request answered, when it answered one (`POST /daily-plan` answers the plan). */
+export function createdPlanIdOf(result: unknown): string | null {
+	const id = (result as { id?: unknown } | null | undefined)?.id;
+	return typeof id === 'string' && id.length > 0 ? id : null;
+}
+
 /** Shows a task as joining its plan from the request until the plans read after it have landed. */
 export function useTrackPlanAddition() {
 	const store = useStore();
@@ -108,6 +114,15 @@ export function useTrackPlanAddition() {
 			setAdditions((current) => [...current, addition]);
 			try {
 				const result = await run();
+				// A request that created the plan answers it with its id: from here the task joins that plan by id, not
+				// by day and owner. `planId` stays null, so the day keeps its "plan being created" placeholder until the
+				// plan is read back.
+				const createdPlanId = planId ? null : createdPlanIdOf(result);
+				if (createdPlanId) {
+					setAdditions((current) =>
+						current.map((entry) => (entry.key === addition.key ? { ...entry, createdPlanId } : entry))
+					);
+				}
 				await waitForDailyPlanReads(queryClient);
 				return result;
 			} finally {
@@ -124,8 +139,9 @@ function isSameOwner(first: string | null | undefined, second: string | null | u
 }
 
 function isForPlan(addition: PendingPlanAddition, plan: TDailyPlan) {
-	if (addition.planId) {
-		return addition.planId === plan.id;
+	const knownPlanId = addition.planId ?? addition.createdPlanId;
+	if (knownPlanId) {
+		return knownPlanId === plan.id;
 	}
 	const isSameDay = addition.day === getDailyPlanDay(plan.date);
 	return isSameDay && isSameOwner(addition.employeeId, plan.employeeId);
