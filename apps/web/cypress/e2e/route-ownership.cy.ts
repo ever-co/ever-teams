@@ -63,7 +63,8 @@ describe('route-owned data on empty-cache hard loads', () => {
 	it('loads currencies only when the project financial step owns them', () => {
 		cy.intercept('GET', /\/api\/currency(?:\?.*)?$/).as('projectCurrencies');
 		cy.hardVisit('/projects');
-		cy.contains('button', /create new project/i, { timeout: 15_000 }).click();
+		// "Create project" since the design system (#4893); the older wording stays accepted
+		cy.contains('button', /create (new )?project/i, { timeout: 15_000 }).click();
 		cy.get('#project_title').type('Synthetic Cypress Project');
 		cy.get('#project_title').closest('form').submit();
 		cy.wait('@projectCurrencies', { timeout: 20_000 });

@@ -25,7 +25,8 @@ describe('the Ever Platform settings section', () => {
 		cy.get('[data-testid="ever-connect-panel"]').should('exist');
 		cy.get('[data-testid="ever-connect-integration"]').should('have.length', 1);
 		cy.get('[data-testid="ever-stats-toggle"]').should('exist');
-		cy.get('a[href$="#ever-platform"]').should('exist');
+		// The settings navigation links the page itself; the `#ever-platform` hash is a legacy link target only.
+		cy.get('a[href$="/settings/team/integrations"]').should('exist');
 	});
 
 	it('hides the connection parts when health answers 404, and keeps the statistics card', () => {
