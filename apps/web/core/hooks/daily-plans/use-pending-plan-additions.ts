@@ -79,6 +79,12 @@ function waitForDailyPlanReads(queryClient: QueryClient) {
 	});
 }
 
+/** The id of the plan a creating request answered, when it answered one (`POST /daily-plan` answers the plan). */
+export function createdPlanIdOf(result: unknown): string | null {
+	const id = (result as { id?: unknown } | null | undefined)?.id;
+	return typeof id === 'string' && id.length > 0 ? id : null;
+}
+
 /** Shows a task as joining its plan from the request until the plans read after it have landed. */
 export function useTrackPlanAddition() {
 	const store = useStore();
@@ -108,6 +114,14 @@ export function useTrackPlanAddition() {
 			setAdditions((current) => [...current, addition]);
 			try {
 				const result = await run();
+				// A request that created the plan answers it with its id: from here the task joins that plan by id,
+				// not by day and owner.
+				const createdPlanId = planId ? null : createdPlanIdOf(result);
+				if (createdPlanId) {
+					setAdditions((current) =>
+						current.map((entry) => (entry.key === addition.key ? { ...entry, planId: createdPlanId } : entry))
+					);
+				}
 				await waitForDailyPlanReads(queryClient);
 				return result;
 			} finally {
