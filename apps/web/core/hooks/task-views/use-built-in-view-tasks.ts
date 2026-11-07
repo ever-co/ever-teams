@@ -18,7 +18,8 @@ export function useBuiltInViewTasks(key: ETaskBuiltInView | null) {
 	const scope = useTaskViewsScope();
 	const enabled = isTaskViewsEnabled() && scope !== null && key !== null;
 	const query = useQuery({
-		queryKey: queryKeys.taskViews.builtIn(scope?.tenantId, scope?.organizationId, key),
+		// The person is part of the key: "my tasks" of whoever signed in before never show.
+		queryKey: queryKeys.taskViews.builtIn(scope?.tenantId, scope?.organizationId, scope?.userId, key),
 		queryFn: ({ signal }) => taskViewsService.builtInAll(key as ETaskBuiltInView, signal),
 		enabled,
 		staleTime: 15_000,

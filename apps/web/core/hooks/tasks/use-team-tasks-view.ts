@@ -125,8 +125,12 @@ export function useTeamTasksView(options: TeamTasksViewOptions = {}) {
 	const isDetached = initial !== undefined;
 	// Without a reset key the definition itself is the key (a refetched view then re-seeds; with one, it does not).
 	const initialKey = options.resetKey ?? JSON.stringify(initial ?? null);
+	// The latest `initial`, written after commit (never during a render React may discard), before the reset
+	// effect below reads it: effects run in declaration order.
 	const initialRef = useRef(initial);
-	initialRef.current = initial;
+	useEffect(() => {
+		initialRef.current = initial;
+	});
 
 	const [storedView, setStoredView] = useLocalStorageState<unknown>(VIEW_STORAGE_KEY, DEFAULT_TEAM_TASKS_VIEW);
 	const [storedScope, setStoredScope] = useLocalStorageState<unknown>(SCOPE_STORAGE_KEY, 'active');

@@ -5,6 +5,7 @@ import { useTranslations } from 'next-intl';
 import { useAtomValue } from 'jotai';
 import { PageLayout } from '@/core/components/layouts/default-layout';
 import { AnimatedEmptyState } from '@/core/components/common/empty-state';
+import type { TeamItem } from '@/core/components/teams/team-item';
 import { useActiveTeam } from '@/core/hooks/organizations/teams/use-active-team';
 import { useBuiltInViewTasks } from '@/core/hooks/task-views/use-built-in-view-tasks';
 import { useTaskViewQuery } from '@/core/hooks/task-views/use-task-views-query';
@@ -30,7 +31,8 @@ function ViewNotice({ title, text, actionLabel, onAction }: Readonly<{ title: st
 function OtherTeamView({ view }: Readonly<{ view: ITaskView }>) {
 	const t = useTranslations();
 	const teams = useAtomValue(organizationTeamsState);
-	const { setActiveTeam } = useActiveTeam();
+	// The shell's own team change: a running timer is stopped before the switch, as from the team picker.
+	const { onChangeActiveTeam } = useActiveTeam();
 	const team = teams.find((item) => item.id === view.organizationTeamId);
 	if (!team) {
 		return <ViewNotice title={t('taskViews.NOT_FOUND_TITLE')} text={t('taskViews.NOT_FOUND_TEXT')} />;
@@ -40,7 +42,7 @@ function OtherTeamView({ view }: Readonly<{ view: ITaskView }>) {
 			title={t('taskViews.OTHER_TEAM_TITLE', { team: team.name ?? '' })}
 			text={t('taskViews.OTHER_TEAM_TEXT', { team: team.name ?? '' })}
 			actionLabel={t('taskViews.SWITCH_TEAM', { team: team.name ?? '' })}
-			onAction={() => setActiveTeam(team)}
+			onAction={() => onChangeActiveTeam({ data: team } as TeamItem)}
 		/>
 	);
 }

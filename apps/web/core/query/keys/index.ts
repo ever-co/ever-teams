@@ -361,8 +361,12 @@ export const queryKeys = {
 			userId: string | undefined | null
 		) => ['task-views', 'list', tenantId ?? null, organizationId ?? null, teamId ?? null, userId ?? null] as const,
 		detail: (viewId: string | undefined | null) => ['task-views', 'detail', viewId ?? null] as const,
-		builtIn: (tenantId: string | undefined | null, organizationId: string | undefined | null, key: string | undefined | null) =>
-			['task-views', 'built-in', tenantId ?? null, organizationId ?? null, key ?? null] as const
+		builtIn: (
+			tenantId: string | undefined | null,
+			organizationId: string | undefined | null,
+			userId: string | undefined | null,
+			key: string | undefined | null
+		) => ['task-views', 'built-in', tenantId ?? null, organizationId ?? null, userId ?? null, key ?? null] as const
 	},
 	tasks: {
 		// Standard task keys (preserved for backward compatibility)
