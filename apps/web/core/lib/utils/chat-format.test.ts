@@ -101,5 +101,7 @@ describe('messages', () => {
 	it('keys a draft by conversation and thread', () => {
 		expect(draftKeyOf('c1')).toBe('chat-draft:c1');
 		expect(draftKeyOf('c1', 'm1')).toBe('chat-draft:c1:m1');
+		expect(draftKeyOf('c1', null, 'u1')).toBe('chat-draft:u1:c1');
+		expect(draftKeyOf('c1', 'm1', 'u2')).toBe('chat-draft:u2:c1:m1');
 	});
 });

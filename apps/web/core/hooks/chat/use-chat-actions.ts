@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback } from 'react';
+import { useCallback, useMemo } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 import { queryKeys } from '@/core/query/keys';
 import { chatService } from '@/core/services/client/api/chat';
@@ -11,7 +11,8 @@ import {
 	IChatMessageCreateInput,
 	IChatMemberStateInput,
 	IChatConversationCreateInput,
-	IChatConversationWithState
+	IChatConversationWithState,
+	IChatThreadPage
 } from '@/core/types/interfaces/common/chat';
 import { mentionedEmployeeIds, mergeMessages, newNonce } from '@/core/lib/utils/chat-format';
 import type { ChatMessagesCache } from './use-chat-messages';
@@ -47,6 +48,27 @@ export function useChatActions() {
 		[messagesKey, queryClient]
 	);
 
+	/** A thread's cached page: its replies, and its root. */
+	const patchThread = useCallback(
+		(rootMessageId: string | null | undefined, patch: (page: IChatThreadPage) => IChatThreadPage) => {
+			if (!rootMessageId) return;
+			queryClient.setQueryData<IChatThreadPage>(threadKey(rootMessageId), (page) => (page ? patch(page) : page));
+		},
+		[queryClient, threadKey]
+	);
+
+	/** One message wherever it is cached: the timeline, its thread (as a reply), its own thread (as the root). */
+	const patchEverywhere = useCallback(
+		(message: IChatMessage, replace: (current: IChatMessage) => IChatMessage) => {
+			const apply = (m: IChatMessage) => (m.id === message.id ? replace(m) : m);
+			patchMessages(message.conversationId, (messages) => messages.map(apply));
+			for (const root of [message.threadRootId, message.id]) {
+				patchThread(root, (page) => ({ ...page, root: page.root ? apply(page.root) : page.root, messages: page.messages.map(apply) }));
+			}
+		},
+		[patchMessages, patchThread]
+	);
+
 	const patchConversation = useCallback(
 		(conversationId: string, patch: (conversation: IChatConversationWithState) => IChatConversationWithState) => {
 			queryClient.setQueryData<IChatConversationList>(conversationsKey, (list) =>
@@ -59,7 +81,8 @@ export function useChatActions() {
 	const refetchLists = useCallback(() => {
 		void queryClient.invalidateQueries({ queryKey: conversationsKey });
 		void queryClient.invalidateQueries({ queryKey: queryKeys.chat.threads(scope?.tenantId, scope?.userId) });
-	}, [conversationsKey, queryClient, scope?.tenantId, scope?.userId]);
+		void queryClient.invalidateQueries({ queryKey: queryKeys.chat.states(scope?.tenantId, scope?.organizationId, scope?.userId) });
+	}, [conversationsKey, queryClient, scope?.organizationId, scope?.tenantId, scope?.userId]);
 
 	/**
 	 * Sends a message: it shows at once as pending, then as the platform answered it; a refusal leaves it marked
@@ -114,10 +137,12 @@ export function useChatActions() {
 			} catch (error) {
 				const failed = { ...pending, outbox: 'failed' as const };
 				if (inTimeline) patchMessages(conversationId, (messages) => messages.map((m) => (m.id === pending.id ? failed : m)));
+				// A reply stays in its thread, marked failed, with Retry and Discard (its draft is already cleared).
+				patchThread(pending.threadRootId, (page) => ({ ...page, messages: page.messages.map((m) => (m.id === pending.id ? failed : m)) }));
 				throw error;
 			}
 		},
-		[patchConversation, patchMessages, queryClient, scope?.employeeId, scope?.userId, threadKey]
+		[patchConversation, patchMessages, patchThread, queryClient, scope?.employeeId, scope?.userId, threadKey]
 	);
 
 	const retry = useCallback(
@@ -134,18 +159,21 @@ export function useChatActions() {
 	);
 
 	const discardFailed = useCallback(
-		(conversationId: string, id: string) => patchMessages(conversationId, (messages) => messages.filter((m) => m.id !== id)),
-		[patchMessages]
+		(conversationId: string, failed: ChatOutboxMessage) => {
+			patchMessages(conversationId, (messages) => messages.filter((m) => m.id !== failed.id));
+			patchThread(failed.threadRootId, (page) => ({ ...page, messages: page.messages.filter((m) => m.id !== failed.id) }));
+		},
+		[patchMessages, patchThread]
 	);
 
 	const edit = useCallback(
 		async (message: IChatMessage, body: string) => {
 			const answer = await chatService.edit(message.id, { body, mentionEmployeeIds: mentionedEmployeeIds(body) });
-			patchMessages(message.conversationId, (messages) => messages.map((m) => (m.id === message.id ? answer.message : m)));
+			patchEverywhere(message, () => answer.message);
 			if (message.threadRootId) void queryClient.invalidateQueries({ queryKey: threadKey(message.threadRootId) });
 			return answer.message;
 		},
-		[patchMessages, queryClient, threadKey]
+		[patchEverywhere, queryClient, threadKey]
 	);
 
 	const remove = useCallback(
@@ -164,9 +192,9 @@ export function useChatActions() {
 	const pin = useCallback(
 		async (message: IChatMessage, pinned: boolean) => {
 			const answer = await chatService.pin(message.id, pinned);
-			patchMessages(message.conversationId, (messages) => messages.map((m) => (m.id === message.id ? answer.message : m)));
+			patchEverywhere(message, () => answer.message);
 		},
-		[patchMessages]
+		[patchEverywhere]
 	);
 
 	const react = useCallback(
@@ -187,14 +215,17 @@ export function useChatActions() {
 				else reactions.push({ emoji, count: 1, mine: true });
 				return { ...m, reactions };
 			};
-			patchMessages(message.conversationId, (messages) => messages.map(optimistic));
-			if (message.threadRootId) {
-				queryClient.setQueryData(threadKey(message.threadRootId), (page: { messages: IChatMessage[] } | undefined) => (page ? { ...page, messages: page.messages.map(optimistic) } : page));
+			patchEverywhere(message, optimistic);
+			try {
+				const answer = await chatService.react(message.id, emoji, !mine);
+				patchEverywhere(message, () => answer.message);
+			} catch (error) {
+				// Refused: the message goes back to what it was, in every cache it is in.
+				patchEverywhere(message, () => message);
+				throw error;
 			}
-			const answer = await chatService.react(message.id, emoji, !mine);
-			patchMessages(message.conversationId, (messages) => messages.map((m) => (m.id === message.id ? answer.message : m)));
 		},
-		[patchMessages, queryClient, threadKey]
+		[patchEverywhere]
 	);
 
 	/** Marks the conversation read (up to a message, or all): the badges clear at once. */
@@ -286,5 +317,9 @@ export function useChatActions() {
 		[queryClient, refetchLists, scope?.organizationId, scope?.tenantId, scope?.userId]
 	);
 
-	return { send, retry, discardFailed, edit, remove, pin, react, read, unreadFrom, readAll, setFollow, setMemberState, createChannel, direct, join, leave };
+	// One object while the callbacks stay the same: the effects that depend on it do not run on every render.
+	return useMemo(
+		() => ({ send, retry, discardFailed, edit, remove, pin, react, read, unreadFrom, readAll, setFollow, setMemberState, createChannel, direct, join, leave }),
+		[send, retry, discardFailed, edit, remove, pin, react, read, unreadFrom, readAll, setFollow, setMemberState, createChannel, direct, join, leave]
+	);
 }

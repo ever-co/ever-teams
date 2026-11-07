@@ -130,8 +130,9 @@ export function continuesGroup(previous: IChatMessage | undefined, message: ICha
 }
 
 /** The local-storage key of a conversation's draft. */
-export function draftKeyOf(conversationId: string, threadRootId?: string | null): string {
-	return `chat-draft:${conversationId}${threadRootId ? `:${threadRootId}` : ''}`;
+export function draftKeyOf(conversationId: string, threadRootId?: string | null, userId?: string | null): string {
+	// The signed-in user is part of the key: a draft is private, and a browser can be shared.
+	return `chat-draft:${userId ? `${userId}:` : ''}${conversationId}${threadRootId ? `:${threadRootId}` : ''}`;
 }
 
 /** A fresh idempotency key for a send. */

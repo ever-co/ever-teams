@@ -79,6 +79,21 @@ export function useChatMembers(conversationId: string | null, enabled: boolean) 
 	return { members: query.data ?? [], isLoading: query.isPending && query.fetchStatus !== 'idle' };
 }
 
+/** My state of every conversation and my followed threads with their unread replies (the Threads badge). */
+export function useChatStates(enabled: boolean) {
+	const scope = useChatScope();
+	const query = useQuery({
+		queryKey: queryKeys.chat.states(scope?.tenantId, scope?.organizationId, scope?.userId),
+		queryFn: ({ signal }) => chatService.states(signal),
+		enabled: enabled && scope !== null,
+		staleTime: LIST_POLL_MS / 2,
+		refetchInterval: LIST_POLL_MS,
+		refetchIntervalInBackground: false
+	});
+	const threadsUnread = useMemo(() => (query.data?.threads ?? []).reduce((sum, thread) => sum + (thread.unreadReplies ?? 0), 0), [query.data?.threads]);
+	return { threadsUnread };
+}
+
 /** My followed threads with unread replies. */
 export function useChatThreads(enabled: boolean) {
 	const scope = useChatScope();

@@ -10,7 +10,7 @@ import { Button } from '@/core/components/duplicated-components/_button';
 import { CheckDouble } from '@/core/components/icons';
 import { NotificationEmptyState, NotificationErrorState, NotificationRowsSkeleton } from '@/core/components/notifications/inbox/notification-states';
 import { useChatActions } from '@/core/hooks/chat/use-chat-actions';
-import { useChatBrowse, useChatConversation, useChatConversations, useChatThreads } from '@/core/hooks/chat/use-chat-conversations';
+import { useChatBrowse, useChatConversation, useChatConversations, useChatStates, useChatThreads } from '@/core/hooks/chat/use-chat-conversations';
 import { useChatPeople, useChatScope } from '@/core/hooks/chat/use-chat-scope';
 import { cn } from '@/core/lib/helpers';
 import { isChatEnabled } from '@/core/lib/utils/chat-enabled';
@@ -72,7 +72,7 @@ function ChatPageContent({ view }: Readonly<{ view: ChatView }>) {
 	const [listOpen, setListOpen] = useState(!conversationId);
 
 	const conversationNames = useMemo(() => new Map(list.conversations.map((c) => [c.id, c.name ?? ''])), [list.conversations]);
-	const threadsUnread = useMemo(() => list.conversations.length, [list.conversations]);
+	const { threadsUnread } = useChatStates(enabled);
 	const reportFailure = useCallback(() => toast.error(t('teamChat.UPDATE_FAILED')), [t]);
 
 	// The last conversation opened comes back on `/chat`; without one, the first of the list opens.
@@ -154,7 +154,7 @@ function ChatPageContent({ view }: Readonly<{ view: ChatView }>) {
 							currentId={conversationId}
 							view={view}
 							unreadCount={list.unreadCount}
-							threadsUnread={0}
+							threadsUnread={threadsUnread}
 							onNewChannel={() => setDialog('channel')}
 							onNewDirect={() => setDialog('direct')}
 							onBrowse={() => setDialog('browse')}
@@ -170,7 +170,7 @@ function ChatPageContent({ view }: Readonly<{ view: ChatView }>) {
 							canManage={canManage}
 							onOpenThread={openThread}
 							onBack={() => setListOpen(true)}
-							jumpToMessageId={jumpTo}
+							jumpToMessageId={threadId ? null : jumpTo}
 						/>
 					)}
 					{view === 'conversation' && !current.conversation && (current.isLoading || list.isLoading) && <NotificationRowsSkeleton rows={8} />}
@@ -222,7 +222,7 @@ function ChatPageContent({ view }: Readonly<{ view: ChatView }>) {
 
 				{view === 'conversation' && conversationId && threadId && (
 					<aside className="absolute inset-0 z-10 bg-background lg:static lg:z-auto lg:w-[24rem] lg:shrink-0 lg:border-l lg:border-border">
-						<ThreadPane conversationId={conversationId} rootMessageId={threadId} conversationNames={conversationNames} canManage={canManage} onClose={closeThread} />
+						<ThreadPane conversationId={conversationId} rootMessageId={threadId} conversationNames={conversationNames} canManage={canManage} onClose={closeThread} highlightMessageId={jumpTo} />
 					</aside>
 				)}
 			</div>

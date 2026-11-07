@@ -42,24 +42,45 @@ export function ConversationView({ conversation, conversationNames, canManage, o
 	const { openTaskDrawer } = useTaskDrawer();
 	const tasks = useAtomValue(tasksByTeamState);
 	const taskTitles = useMemo(() => new Map(tasks.map((task) => [task.id, task.title])), [tasks]);
-	const { messages, hasBefore, isLoading, isError, isLoadingOlder, loadOlder, retry, newestId } = useChatMessages(conversation.id, true);
+	const { messages, hasBefore, isLoading, isError, isLoadingOlder, loadOlder, retry, newestId, jumpTo } = useChatMessages(conversation.id, true);
 	const { draft, setDraft, clearDraft } = useChatDraft(conversation.id);
 	const [editing, setEditing] = useState<IChatMessage | null>(null);
 	const [editValue, setEditValue] = useState('');
 	const list = useRef<HTMLDivElement | null>(null);
 	const stickToBottom = useRef(true);
+	// Whether the reader is at the newest message: only then does viewing read the conversation.
+	const [atBottom, setAtBottom] = useState(true);
+	// "Mark unread from here" pauses the automatic read until the reader sends a message or opens another conversation.
+	const readPaused = useRef(false);
+	const jumped = useRef<string | null>(null);
+	const jumpRequested = useRef<string | null>(null);
 	const title = conversationTitle(conversation, people.byEmployee, scope?.employeeId ?? null, t('teamChat.UNNAMED'));
 	const isChannel = conversation.kind === EChatConversationKind.Channel;
 	const archived = !!conversation.archivedAt;
 	const reportFailure = useCallback(() => toast.error(t('teamChat.UPDATE_FAILED')), [t]);
 
+	useEffect(() => {
+		readPaused.current = false;
+	}, [conversation.id]);
+
+	// A link to a message outside what is loaded: the page around it is read once.
+	useEffect(() => {
+		if (!jumpToMessageId || isLoading || jumpRequested.current === jumpToMessageId) return;
+		if (messages.some((message) => message.id === jumpToMessageId)) return;
+		jumpRequested.current = jumpToMessageId;
+		stickToBottom.current = false;
+		void jumpTo(jumpToMessageId).catch(() => undefined);
+	}, [isLoading, jumpTo, jumpToMessageId, messages]);
+
 	// The newest message stays in view while the reader is at the bottom; a jump target scrolls into view once.
 	useEffect(() => {
 		const element = list.current;
 		if (!element) return;
-		if (jumpToMessageId) {
+		if (jumpToMessageId && jumped.current !== jumpToMessageId) {
 			const target = element.querySelector<HTMLElement>(`[data-message-id="${CSS.escape(jumpToMessageId)}"]`);
 			if (target) {
+				jumped.current = jumpToMessageId;
+				stickToBottom.current = false;
 				target.scrollIntoView({ block: 'center' });
 				target.classList.add('ring-2', 'ring-primary/40');
 				window.setTimeout(() => target.classList.remove('ring-2', 'ring-primary/40'), 2000);
@@ -69,18 +90,20 @@ export function ConversationView({ conversation, conversationNames, canManage, o
 		if (stickToBottom.current) element.scrollTop = element.scrollHeight;
 	}, [newestId, jumpToMessageId, messages.length]);
 
-	// Viewing the conversation reads it (once its first page is there and whenever something new arrives at the bottom).
+	// Viewing the conversation reads it — once its first page is there and whenever something new arrives — but only
+	// while the reader is at the bottom (what they have reached), and not after they marked it unread.
 	useEffect(() => {
-		if (!newestId || !conversation.state) return;
+		if (!newestId || !conversation.state || !atBottom || readPaused.current) return;
 		if ((conversation.state.unreadCount ?? 0) > 0 || (conversation.state.mentionCount ?? 0) > 0) {
 			actions.read(conversation.id).catch(() => undefined);
 		}
-	}, [actions, conversation.id, conversation.state, newestId]);
+	}, [actions, atBottom, conversation.id, conversation.state, newestId]);
 
 	const onScroll = useCallback(() => {
 		const element = list.current;
 		if (!element) return;
 		stickToBottom.current = element.scrollHeight - element.scrollTop - element.clientHeight < 40;
+		setAtBottom(stickToBottom.current);
 		if (element.scrollTop < 80 && hasBefore && !isLoadingOlder) {
 			const before = element.scrollHeight;
 			void loadOlder().then(() => {
@@ -96,6 +119,7 @@ export function ConversationView({ conversation, conversationNames, canManage, o
 		async (body: string) => {
 			clearDraft();
 			stickToBottom.current = true;
+			readPaused.current = false;
 			await actions.send(conversation.id, { body }).catch(() => toast.error(t('teamChat.SEND_FAILED')));
 		},
 		[actions, clearDraft, conversation.id, t]
@@ -124,9 +148,12 @@ export function ConversationView({ conversation, conversationNames, canManage, o
 			},
 			onDelete: (message: IChatMessage) => actions.remove(message).catch(reportFailure),
 			onPin: (message: IChatMessage, pinned: boolean) => actions.pin(message, pinned).catch(reportFailure),
-			onUnreadFrom: (message: IChatMessage) => actions.unreadFrom(message).then(() => toast(t('teamChat.MARKED_UNREAD'))).catch(reportFailure),
+			onUnreadFrom: (message: IChatMessage) => {
+				readPaused.current = true;
+				actions.unreadFrom(message).then(() => toast(t('teamChat.MARKED_UNREAD'))).catch(reportFailure);
+			},
 			onRetry: (message: ChatOutboxMessage) => actions.retry(conversation.id, message).catch(() => toast.error(t('teamChat.SEND_FAILED'))),
-			onDiscard: (message: ChatOutboxMessage) => actions.discardFailed(conversation.id, message.id),
+			onDiscard: (message: ChatOutboxMessage) => actions.discardFailed(conversation.id, message),
 			onCopyLink: (message: IChatMessage) => {
 				const url = `${window.location.origin}/chat/${conversation.id}?m=${message.id}`;
 				navigator.clipboard?.writeText(url).then(() => toast(t('teamChat.LINK_COPIED'))).catch(() => undefined);

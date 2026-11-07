@@ -2,6 +2,7 @@
 
 import { useCallback, useSyncExternalStore } from 'react';
 import { draftKeyOf } from '@/core/lib/utils/chat-format';
+import { useChatScope } from './use-chat-scope';
 
 /**
  * The drafts, by key: what the composers of this page know, backed by local storage when it can be written (storage
@@ -46,9 +47,13 @@ function noDraft(): string {
 	return '';
 }
 
-/** The composer's unsent text per conversation (and thread), kept in local storage across navigation. */
+/**
+ * The composer's unsent text per signed-in user and conversation (and thread), kept in local storage across
+ * navigation. Another person signing in on the same browser never sees it.
+ */
 export function useChatDraft(conversationId: string | null, threadRootId: string | null = null) {
-	const key = conversationId ? draftKeyOf(conversationId, threadRootId) : null;
+	const userId = useChatScope()?.userId ?? null;
+	const key = conversationId && userId ? draftKeyOf(conversationId, threadRootId, userId) : null;
 	const draft = useSyncExternalStore(subscribe, () => (key ? read(key) : ''), noDraft);
 
 	const setDraft = useCallback(
