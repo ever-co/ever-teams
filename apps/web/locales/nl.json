@@ -3398,6 +3398,14 @@
 		"SETTINGS_PAGE": {
 			"CHANNELS": {
 				"EMAIL_TITLE": "E-mail",
+				"PUSH_TITLE": "Browsermeldingen",
+				"PUSH_INTRO": "Krijg een melding op dit apparaat als er iets nieuws in je inbox binnenkomt, ook als de app dicht is.",
+				"PUSH_LABEL": "Meldingen op dit apparaat",
+				"PUSH_ON": "Deze browser toont je nieuwe items.",
+				"PUSH_OFF": "Uit voor deze browser.",
+				"PUSH_BLOCKED": "Meldingen zijn geblokkeerd voor deze site: sta ze toe in je browserinstellingen en zet ze hier aan.",
+				"PUSH_UNSUPPORTED": "Deze browser kan geen meldingen tonen.",
+				"PUSH_FAILED": "De browsermeldingen konden niet worden gewijzigd. Probeer het opnieuw.",
 				"EMAIL_INTRO": "Hoe elk type je per e-mail bereikt. Elk type dat je aan laat, blijft in je inbox verschijnen.",
 				"DEFAULT_LABEL": "Elk type",
 				"DEFAULT_TEXT": "De e-mailinstelling die een type gebruikt, tenzij zijn eigen rij anders zegt.",

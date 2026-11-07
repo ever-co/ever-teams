@@ -3398,6 +3398,14 @@
 		"SETTINGS_PAGE": {
 			"CHANNELS": {
 				"EMAIL_TITLE": "Email",
+				"PUSH_TITLE": "Notifiche del browser",
+				"PUSH_INTRO": "Ricevi una notifica su questo dispositivo quando arriva qualcosa di nuovo nella tua posta, anche con l’app chiusa.",
+				"PUSH_LABEL": "Notifiche su questo dispositivo",
+				"PUSH_ON": "Questo browser mostra le tue nuove voci.",
+				"PUSH_OFF": "Disattivate per questo browser.",
+				"PUSH_BLOCKED": "Le notifiche sono bloccate per questo sito: consentile nelle impostazioni del browser, poi attivale qui.",
+				"PUSH_UNSUPPORTED": "Questo browser non può mostrare notifiche.",
+				"PUSH_FAILED": "Impossibile modificare le notifiche del browser. Riprova.",
 				"EMAIL_INTRO": "Come ogni tipo ti raggiunge via email. Ogni tipo lasciato attivo continua a comparire nella tua posta in arrivo.",
 				"DEFAULT_LABEL": "Tutti i tipi",
 				"DEFAULT_TEXT": "L'impostazione email usata da un tipo, salvo che la sua riga dica altrimenti.",

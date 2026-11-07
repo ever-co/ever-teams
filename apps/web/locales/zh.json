@@ -3398,6 +3398,14 @@
 		"SETTINGS_PAGE": {
 			"CHANNELS": {
 				"EMAIL_TITLE": "邮件",
+				"PUSH_TITLE": "浏览器通知",
+				"PUSH_INTRO": "收件箱有新内容时，即使应用未打开，也会在此设备上收到通知。",
+				"PUSH_LABEL": "此设备上的通知",
+				"PUSH_ON": "此浏览器会显示你的新条目。",
+				"PUSH_OFF": "此浏览器已关闭。",
+				"PUSH_BLOCKED": "此网站的通知已被阻止：请在浏览器设置中允许，然后在此处开启。",
+				"PUSH_UNSUPPORTED": "此浏览器无法显示通知。",
+				"PUSH_FAILED": "无法更改浏览器通知，请重试。",
 				"EMAIL_INTRO": "每种类型如何通过邮件送达。保持开启的类型仍会出现在你的收件箱中。",
 				"DEFAULT_LABEL": "所有类型",
 				"DEFAULT_TEXT": "各类型使用的邮件设置，除非其自身一行另有设定。",

@@ -3398,6 +3398,14 @@
 		"SETTINGS_PAGE": {
 			"CHANNELS": {
 				"EMAIL_TITLE": "E-mail",
+				"PUSH_TITLE": "Notificações do navegador",
+				"PUSH_INTRO": "Receba uma notificação neste dispositivo quando algo novo chegar à sua caixa, mesmo com a aplicação fechada.",
+				"PUSH_LABEL": "Notificações neste dispositivo",
+				"PUSH_ON": "Este navegador mostra as suas novas entradas.",
+				"PUSH_OFF": "Desativadas neste navegador.",
+				"PUSH_BLOCKED": "As notificações estão bloqueadas para este site: permita-as nas definições do navegador e ative-as aqui.",
+				"PUSH_UNSUPPORTED": "Este navegador não consegue mostrar notificações.",
+				"PUSH_FAILED": "Não foi possível alterar as notificações do navegador. Tente novamente.",
 				"EMAIL_INTRO": "Como cada tipo chega até si por e-mail. Todo o tipo que mantiver ligado continua a aparecer na sua caixa de entrada.",
 				"DEFAULT_LABEL": "Todos os tipos",
 				"DEFAULT_TEXT": "A definição de e-mail que um tipo usa, salvo se a sua própria linha disser outra coisa.",

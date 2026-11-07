@@ -3398,6 +3398,14 @@
 		"SETTINGS_PAGE": {
 			"CHANNELS": {
 				"EMAIL_TITLE": "Email",
+				"PUSH_TITLE": "Browser notifications",
+				"PUSH_INTRO": "Get a notification on this device when something new reaches your inbox, even when the app is not open.",
+				"PUSH_LABEL": "Notifications on this device",
+				"PUSH_ON": "This browser shows your new inbox entries.",
+				"PUSH_OFF": "Off for this browser.",
+				"PUSH_BLOCKED": "Notifications are blocked for this site: allow them in your browser settings, then switch this on.",
+				"PUSH_UNSUPPORTED": "This browser cannot show notifications.",
+				"PUSH_FAILED": "Browser notifications could not be changed. Try again.",
 				"EMAIL_INTRO": "How each kind reaches you by email. Every kind you keep on still appears in your inbox.",
 				"DEFAULT_LABEL": "Every kind",
 				"DEFAULT_TEXT": "The email setting a kind uses unless its own row says otherwise.",
