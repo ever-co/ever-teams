@@ -5,6 +5,7 @@ import { ArrowUpRight, Inbox } from '@/core/components/icons';
 import { Button } from '@/core/components/duplicated-components/_button';
 import { formatNotificationDate } from '@/core/lib/utils/notification-inbox';
 import { InboxEntry } from '@/core/lib/utils/inbox-entry';
+import { InboxDecisionPanel } from './inbox-decision';
 
 /**
  * The pane beside the list: the entry's sentence, its target and its body, with the way to the target. A task
@@ -14,12 +15,15 @@ export function InboxDetail({
 	entry,
 	taskTitle,
 	onOpenTarget,
-	onArchive
+	onArchive,
+	onReply
 }: Readonly<{
 	entry: InboxEntry | null;
 	taskTitle: string | null;
 	onOpenTarget: (entry: InboxEntry) => void;
 	onArchive: (entry: InboxEntry) => void;
+	/** Answers a question, an approval or an escalation. */
+	onReply?: (entry: InboxEntry, input: { optionId?: string; text?: string }) => Promise<boolean>;
 }>) {
 	const t = useTranslations();
 	const locale = useLocale();
@@ -46,6 +50,9 @@ export function InboxDetail({
 			{entry.message && <p className="whitespace-pre-wrap text-sm text-foreground">{entry.message}</p>}
 			{!entry.message && entry.subject && entry.rawTitle !== entry.subject && (
 				<p className="text-sm text-muted-foreground">{entry.rawTitle}</p>
+			)}
+			{entry.decision && onReply && (
+				<InboxDecisionPanel key={entry.id} decision={entry.decision} isOpen={entry.awaitsDecision} onReply={(input) => onReply(entry, input)} />
 			)}
 			<div className="mt-auto flex flex-wrap gap-2">
 				{hasTarget ? (

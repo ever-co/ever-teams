@@ -4943,8 +4943,26 @@
 		"RETRY": "Reintentar",
 		"LOAD_MORE": "Cargar más",
 		"LEGACY_NOTICE": "La plataforma de este espacio de trabajo aún no tiene la bandeja completa: están disponibles leer, no leer y archivar.",
+		"DECISION": {
+			"TITLE": "Tu respuesta",
+			"RECOMMENDED": "Recomendada",
+			"REASON_REQUIRED": "Un motivo (obligatorio)",
+			"REASON_OPTIONAL": "Un comentario (opcional)",
+			"ANSWER_LABEL": "Tu respuesta",
+			"MISSING_OPTION": "Elige una de las opciones.",
+			"MISSING_REASON": "Da un motivo con tu respuesta.",
+			"MISSING_ANSWER": "Escribe una respuesta.",
+			"SEND": "Enviar",
+			"SENT": "Respuesta enviada",
+			"SEND_FAILED": "No se envió la respuesta. Inténtalo de nuevo.",
+			"ANSWERED": "Respondida",
+			"CLOSED": "Se cerró sin respuesta.",
+			"ANSWERED_WITH": "Respondida: {option}"
+		},
 		"DETAIL": {
 			"NO_SELECTION": "Selecciona una notificación para verla aquí",
+			"SHEET_LABEL": "Detalles de la notificación",
+			"CLOSE": "Cerrar",
 			"OPEN_TASK": "Abrir tarea",
 			"OPEN": "Abrir",
 			"NO_TARGET": "Esta notificación no tiene nada que abrir."

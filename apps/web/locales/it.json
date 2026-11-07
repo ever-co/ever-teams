@@ -4943,8 +4943,26 @@
 		"RETRY": "Riprova",
 		"LOAD_MORE": "Carica altro",
 		"LEGACY_NOTICE": "La piattaforma di questo spazio di lavoro non ha ancora la posta in arrivo completa: sono disponibili letto, non letto e archivia.",
+		"DECISION": {
+			"TITLE": "La tua risposta",
+			"RECOMMENDED": "Consigliata",
+			"REASON_REQUIRED": "Un motivo (obbligatorio)",
+			"REASON_OPTIONAL": "Un commento (facoltativo)",
+			"ANSWER_LABEL": "La tua risposta",
+			"MISSING_OPTION": "Scegli una delle opzioni.",
+			"MISSING_REASON": "Indica un motivo con la tua risposta.",
+			"MISSING_ANSWER": "Scrivi una risposta.",
+			"SEND": "Invia",
+			"SENT": "Risposta inviata",
+			"SEND_FAILED": "La risposta non è stata inviata. Riprova.",
+			"ANSWERED": "Risposta data",
+			"CLOSED": "Chiusa senza risposta.",
+			"ANSWERED_WITH": "Risposta: {option}"
+		},
 		"DETAIL": {
 			"NO_SELECTION": "Seleziona una notifica per vederla qui",
+			"SHEET_LABEL": "Dettagli della notifica",
+			"CLOSE": "Chiudi",
 			"OPEN_TASK": "Apri attività",
 			"OPEN": "Apri",
 			"NO_TARGET": "Questa notifica non ha nulla da aprire."

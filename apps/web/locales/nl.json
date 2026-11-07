@@ -4943,8 +4943,26 @@
 		"RETRY": "Opnieuw proberen",
 		"LOAD_MORE": "Meer laden",
 		"LEGACY_NOTICE": "Het platform van deze werkruimte heeft de volledige inbox nog niet: gelezen, ongelezen en archiveren zijn beschikbaar.",
+		"DECISION": {
+			"TITLE": "Je antwoord",
+			"RECOMMENDED": "Aanbevolen",
+			"REASON_REQUIRED": "Een reden (verplicht)",
+			"REASON_OPTIONAL": "Een opmerking (optioneel)",
+			"ANSWER_LABEL": "Je antwoord",
+			"MISSING_OPTION": "Kies een van de opties.",
+			"MISSING_REASON": "Geef een reden bij je antwoord.",
+			"MISSING_ANSWER": "Schrijf een antwoord.",
+			"SEND": "Versturen",
+			"SENT": "Antwoord verstuurd",
+			"SEND_FAILED": "Het antwoord is niet verstuurd. Probeer het opnieuw.",
+			"ANSWERED": "Beantwoord",
+			"CLOSED": "Gesloten zonder antwoord.",
+			"ANSWERED_WITH": "Beantwoord: {option}"
+		},
 		"DETAIL": {
 			"NO_SELECTION": "Selecteer een melding om die hier te zien",
+			"SHEET_LABEL": "Details van de melding",
+			"CLOSE": "Sluiten",
 			"OPEN_TASK": "Taak openen",
 			"OPEN": "Openen",
 			"NO_TARGET": "Deze melding heeft niets om te openen."

@@ -71,6 +71,35 @@ export interface IInboxItem {
 	createdAt: string;
 	updatedAt?: string;
 	recipient: IInboxRecipientState | null;
+	/** A question's or an approval's choices. */
+	options?: IInboxItemOption[] | null;
+	/** Whether an answer needs a reason (a text). */
+	requireReason?: boolean;
+	/** The answer the item received. */
+	response?: IInboxItemResponse | null;
+}
+
+/** One choice of a question or an approval. */
+export interface IInboxItemOption {
+	id: string;
+	label: string;
+	description?: string;
+	/** Highlighted in the reply pane. */
+	recommended?: boolean;
+}
+
+/** The answer an item received. */
+export interface IInboxItemResponse {
+	text?: string | null;
+	optionId?: string | null;
+	answeredByUserId?: string;
+	answeredAt?: string;
+}
+
+/** `POST /inbox/items/:id/reply`: an option, a text, or both (a reason). */
+export interface IInboxReplyInput {
+	text?: string;
+	optionId?: string;
 }
 
 /** A page of items; `nextCursor` goes back as `cursor` for the next one, `null` on the last page. */

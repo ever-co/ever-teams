@@ -4943,8 +4943,26 @@
 		"RETRY": "Tentar novamente",
 		"LOAD_MORE": "Carregar mais",
 		"LEGACY_NOTICE": "A plataforma deste espaço de trabalho ainda não tem a caixa de entrada completa: ler, não ler e arquivar estão disponíveis.",
+		"DECISION": {
+			"TITLE": "A sua resposta",
+			"RECOMMENDED": "Recomendada",
+			"REASON_REQUIRED": "Um motivo (obrigatório)",
+			"REASON_OPTIONAL": "Um comentário (opcional)",
+			"ANSWER_LABEL": "A sua resposta",
+			"MISSING_OPTION": "Escolha uma das opções.",
+			"MISSING_REASON": "Indique um motivo com a sua resposta.",
+			"MISSING_ANSWER": "Escreva uma resposta.",
+			"SEND": "Enviar",
+			"SENT": "Resposta enviada",
+			"SEND_FAILED": "A resposta não foi enviada. Tente novamente.",
+			"ANSWERED": "Respondida",
+			"CLOSED": "Fechada sem resposta.",
+			"ANSWERED_WITH": "Respondida: {option}"
+		},
 		"DETAIL": {
 			"NO_SELECTION": "Selecione uma notificação para vê-la aqui",
+			"SHEET_LABEL": "Detalhes da notificação",
+			"CLOSE": "Fechar",
 			"OPEN_TASK": "Abrir tarefa",
 			"OPEN": "Abrir",
 			"NO_TARGET": "Esta notificação não tem nada para abrir."

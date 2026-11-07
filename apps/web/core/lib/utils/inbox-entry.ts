@@ -48,6 +48,15 @@ export interface InboxEntry {
 	createdAt: Date;
 	/** A decision (question, approval, escalation) still waiting for an answer. */
 	awaitsDecision: boolean;
+	/** A decision's choices, whether an answer needs a reason, and the answer given; null for anything else. */
+	decision: InboxDecision | null;
+}
+
+/** What the detail pane answers a decision with. */
+export interface InboxDecision {
+	options: ReadonlyArray<{ id: string; label: string; description: string | null; recommended: boolean }>;
+	requireReason: boolean;
+	response: { text: string | null; optionId: string | null; answeredAt: Date | null } | null;
 }
 
 /** A rate change request is answered in Members settings. */
@@ -128,10 +137,36 @@ export function toInboxEntry(item: IInboxItem): InboxEntry {
 		createdAt: new Date(item.createdAt),
 		awaitsDecision:
 			(item.kind === EInboxItemKind.Question || item.kind === EInboxItemKind.Approval || item.kind === EInboxItemKind.Escalation) &&
-			String(item.status ?? '') === 'OPEN'
+			String(item.status ?? '') === 'OPEN',
+		decision: decisionOf(item)
 	};
 	entry.href = hrefOf(type, entry);
 	return entry;
+}
+
+/** The decision part of an item: a question, an approval or an escalation; null for anything else. */
+export function decisionOf(item: Pick<IInboxItem, 'kind' | 'options' | 'requireReason' | 'response'>): InboxDecision | null {
+	const isDecision = item.kind === EInboxItemKind.Question || item.kind === EInboxItemKind.Approval || item.kind === EInboxItemKind.Escalation;
+	if (!isDecision) return null;
+	const response = item.response ?? null;
+	return {
+		options: (item.options ?? [])
+			.filter((option) => !!option?.id && !!option.label)
+			.map((option) => ({ id: option.id, label: option.label, description: option.description ?? null, recommended: !!option.recommended })),
+		requireReason: !!item.requireReason,
+		response: response
+			? { text: response.text ?? null, optionId: response.optionId ?? null, answeredAt: response.answeredAt ? new Date(response.answeredAt) : null }
+			: null
+	};
+}
+
+/** What an answer would send, or why it cannot be sent yet: an option where there are options, a reason where one is asked. */
+export function replyOf(decision: InboxDecision, choice: { optionId: string | null; text: string }): { input: { optionId?: string; text?: string } } | { missing: 'option' | 'reason' | 'answer' } {
+	const text = choice.text.trim();
+	if (decision.options.length > 0 && !choice.optionId) return { missing: 'option' };
+	if (decision.requireReason && !text) return { missing: 'reason' };
+	if (decision.options.length === 0 && !text) return { missing: 'answer' };
+	return { input: { ...(choice.optionId ? { optionId: choice.optionId } : {}), ...(text ? { text } : {}) } };
 }
 
 /** An entry from the bell's own data, for a platform without the inbox extension (read, unread and archive only). */
@@ -156,7 +191,8 @@ export function fromNotificationEntry(notification: NotificationEntry): InboxEnt
 		isDone: false,
 		snoozedUntil: null,
 		createdAt: notification.createdAt,
-		awaitsDecision: false
+		awaitsDecision: false,
+		decision: null
 	};
 	entry.sourceGroup = sourceGroupOf({ kind: entry.kind, source: entry.source, entity: entry.entity, taskId: entry.taskId }, entry.type);
 	return entry;

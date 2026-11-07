@@ -7,6 +7,7 @@ import type {
 	IInboxItemPage,
 	IInboxMarkAllReadInput,
 	IInboxQuery,
+	IInboxReplyInput,
 	IInboxStateInput
 } from '@/core/types/interfaces/common/inbox-item';
 
@@ -51,6 +52,12 @@ class InboxService extends APIService {
 	/** Read / unread, archive / unarchive, snooze / un-snooze, done / not done of one of my items. */
 	setState = async (id: string, input: IInboxStateInput): Promise<IInboxItem> => {
 		const response = await this.patch<IInboxItem>(`/inbox/items/${encodeURIComponent(id)}/state`, { ...input });
+		return response.data;
+	};
+
+	/** Answers one of my questions, approvals or escalations: an option, a text, or both. */
+	reply = async (id: string, input: IInboxReplyInput): Promise<IInboxItem> => {
+		const response = await this.post<IInboxItem>(`/inbox/items/${encodeURIComponent(id)}/reply`, { ...input }, undefined, false);
 		return response.data;
 	};
 
