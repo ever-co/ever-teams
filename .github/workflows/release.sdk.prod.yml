@@ -61,6 +61,8 @@ jobs:
       # GitHub-hosted runners have ~14 GB free; this repo's full `yarn install` needs more (see runs-on above).
       # Drop preinstalled toolchains this job never uses.
       - name: Free disk space
+        # GitHub-hosted only: it deletes the hosted image's toolchains (in-cluster pods have no such image and no sudo)
+        if: runner.environment == 'github-hosted'
         run: |
           df -h /
           sudo rm -rf /usr/share/dotnet /usr/local/lib/android /opt/ghc /usr/local/.ghcup /opt/hostedtoolcache/CodeQL /usr/share/swift
@@ -386,6 +388,30 @@ jobs:
       # them would compute a version npm already has, and `changeset publish` would silently skip the new code. So
       # each SDK package starts from npm's latest version when npm is ahead (internal dependencies use `*` ranges,
       # so nothing else needs rewriting).
+      # In-cluster (ever-co/k8s-gitops apps/ci-builds, which sets CI_IN_CLUSTER; GitHub-hosted runners do not start in
+      # ever-co under its billing lock) there is no GitHub OIDC token, so npm trusted publishing cannot work there and the
+      # job publishes with NPM_TOKEN from OpenBao `ci-builds/ever-co/ever-teams`. When there is something to release and
+      # that token is missing or npm rejects it, stop here: the next steps push the version bump branch, and publish would
+      # then fail after it. npm cannot show whether a token may publish without publishing, so only a rejected one is caught.
+      - name: In-cluster publishing needs a working NPM_TOKEN
+        if: vars.CI_IN_CLUSTER == 'true' && steps.detect.outputs.release == 'true'
+        env:
+          NPM_TOKEN_SECRET: ${{ secrets.NPM_TOKEN }}
+        run: |
+          if [ -z "$NPM_TOKEN_SECRET" ]; then
+            echo "::error::No NPM_TOKEN in-cluster, and npm trusted publishing (OIDC) needs a GitHub-hosted runner: add an npm token that can publish @ever-teams/* to OpenBao ci-builds/ever-co/ever-teams as NPM_TOKEN"
+            exit 1
+          fi
+          rc="$RUNNER_TEMP/whoami.npmrc"
+          printf '//registry.npmjs.org/:_authToken=%s\n' "$NPM_TOKEN_SECRET" > "$rc"
+          if ! user=$(NPM_CONFIG_USERCONFIG="$rc" npm whoami --registry https://registry.npmjs.org 2>/dev/null); then
+            rm -f "$rc"
+            echo "::error::npm rejects NPM_TOKEN (expired or revoked): replace it in OpenBao ci-builds/ever-co/ever-teams"
+            exit 1
+          fi
+          rm -f "$rc"
+          echo "NPM_TOKEN belongs to npm user ${user}"
+
       - name: Start SDK versions from npm's latest
         if: steps.detect.outputs.release == 'true'
         run: |
