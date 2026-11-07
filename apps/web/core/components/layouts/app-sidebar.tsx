@@ -92,7 +92,6 @@ import { GlobalProjectActionModal } from '../features/projects/global-project-ac
 import { useSidebarDataOwner } from '@/core/hooks/bootstrap/use-feature-data';
 import { getMyWorkNavigation } from './my-work-navigation';
 import { isInboxEnabled } from '@/core/lib/utils/inbox-enabled';
-import { readRuntimeEnv } from '@/env-config';
 import { isChatEnabled } from '@/core/lib/utils/chat-enabled';
 import { CommandPaletteTrigger } from './default-layout/header/command-palette-trigger';
 import { DefaultCreateAction } from '../features/layouts/header/create-default-action';
