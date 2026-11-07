@@ -10,6 +10,8 @@ import {
 	IEmployeeNotification,
 	IEmployeeNotificationUpdateInput
 } from '@/core/types/interfaces/common/employee-notification';
+import { useAtomValue } from 'jotai';
+import { realtimeStatusAtom } from '@/core/stores/common/realtime';
 import { useNotificationScope } from './use-notification-scope';
 
 /** The badge is one light request; the list loads only while the inbox is open. */
@@ -46,13 +48,16 @@ function unreadCountKeyOf(scope: INotificationInboxScope | null) {
 
 export function useUnreadNotificationCount() {
 	const scope = useNotificationScope();
+	// While the live connection is up, the channel announces every new notification: the poll is redundant and
+	// pauses; it resumes the moment the connection drops.
+	const realtimeConnected = useAtomValue(realtimeStatusAtom) === 'connected';
 
 	const countQuery = useQuery({
 		queryKey: unreadCountKeyOf(scope),
 		queryFn: ({ signal }) => fetchUnreadCount(scope, signal),
 		enabled: scope !== null,
 		staleTime: UNREAD_COUNT_POLL_MS / 2,
-		refetchInterval: UNREAD_COUNT_POLL_MS,
+		refetchInterval: realtimeConnected ? false : UNREAD_COUNT_POLL_MS,
 		refetchIntervalInBackground: false,
 		refetchOnWindowFocus: true
 	});

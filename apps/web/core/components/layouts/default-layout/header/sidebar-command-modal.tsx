@@ -41,6 +41,9 @@ import { createPortal } from 'react-dom';
 import { useTheme } from 'next-themes';
 import { ArrowUpRight } from '@/core/components/icons/hugeicons';
 import { useKeyboardShortcuts, CommandShortcutConfig } from '@/core/hooks/common/use-keyboard-shortcuts';
+import { useGoToCommands } from '@/core/hooks/keyboard/use-go-to-commands';
+import { REGISTRY_OWNED_MOD_KEYS } from '@/core/lib/keyboard/shortcuts';
+import { isTaskViewsEnabled } from '@/core/lib/utils/task-views-enabled';
 import { InviteFormModal } from '../../../features/teams/invite-form-modal';
 import { CreateProjectModal } from '../../../features/projects/create-project-modal';
 import { CreateTeamModal } from '@/core/components/features/teams/create-team-modal';
@@ -181,6 +184,9 @@ export const SidebarCommandModal: FC<{ publicTeam: boolean; variant?: 'sidebar' 
 		}),
 		[router, profileLink, createTaskModal, teamModal, createProjectModal, inviteModal, setTheme, resolvedTheme]
 	);
+
+	// The registry's "go to" commands (saved-views feature): their keys are the registry's, not this palette's.
+	const goToCommands = useGoToCommands(navigationIcon);
 
 	// Centralized configuration of commands and shortcuts
 	const commandGroups: CommandGroupConfig[] = useMemo(
@@ -353,6 +359,7 @@ export const SidebarCommandModal: FC<{ publicTeam: boolean; variant?: 'sidebar' 
 					}
 				]
 			},
+			...(goToCommands.length ? [{ id: 'goTo', heading: t('commandPalette.groups.goTo'), commands: goToCommands }] : []),
 			{
 				id: 'settings',
 				heading: t('commandPalette.groups.settings'),
@@ -376,25 +383,33 @@ export const SidebarCommandModal: FC<{ publicTeam: boolean; variant?: 'sidebar' 
 				]
 			}
 		],
-		[actions, canInvite, t]
+		[actions, canInvite, goToCommands, t]
 	);
 
 	// Extract all shortcut configurations for the global hook
 	const allShortcuts = useMemo(() => {
 		const shortcuts: CommandShortcutConfig[] = [];
+		// With the registry on, the ⌘/Ctrl chords it owns (K, S, ,) are its to handle, rebinding included.
+		const registryOn = isTaskViewsEnabled();
 		commandGroups.forEach((group) => {
+			if (group.id === 'goTo') return; // bound by the shortcut registry's listener, never twice
 			group.commands.forEach((command) => {
+				const isOwnedByRegistry =
+					registryOn && command.sequence.length === 1 && !!command.modifiers?.includes('ctrl') && REGISTRY_OWNED_MOD_KEYS.has(command.sequence[0]);
+				if (isOwnedByRegistry) return;
 				shortcuts.push(command);
 			});
 		});
 		return shortcuts;
 	}, [commandGroups]);
 
-	// Use our global keyboard shortcut hook
-	useKeyboardShortcuts(allShortcuts, setOpen);
+	// Use our global keyboard shortcut hook (the registry opens the palette itself while it is on)
+	const registryOwnsPalette = isTaskViewsEnabled();
+	useKeyboardShortcuts(allShortcuts, registryOwnsPalette ? undefined : setOpen);
 
 	// Keyboard shortcut in current component only for Ctrl+K
 	React.useEffect(() => {
+		if (registryOwnsPalette) return;
 		const down = (e: KeyboardEvent) => {
 			const isToggleKey = e.key === 'k' && (e.metaKey || e.ctrlKey);
 			if (isToggleKey) {
@@ -405,7 +420,7 @@ export const SidebarCommandModal: FC<{ publicTeam: boolean; variant?: 'sidebar' 
 
 		document.addEventListener('keydown', down);
 		return () => document.removeEventListener('keydown', down);
-	}, [setOpen]);
+	}, [registryOwnsPalette, setOpen]);
 
 	if (open !== lastOpen) {
 		setLastOpen(open);

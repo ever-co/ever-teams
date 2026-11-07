@@ -38,7 +38,7 @@ class EmployeeNotificationSettingService extends APIService {
 	): Promise<IEmployeeNotificationSetting> => {
 		const response = await this.post<IEmployeeNotificationSetting>('/employee-notification-setting', {
 			...input,
-			preferences: {},
+			preferences: input.preferences ?? {},
 			tenantId: scope.tenantId,
 			organizationId: scope.organizationId
 		});
