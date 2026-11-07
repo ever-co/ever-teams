@@ -3392,6 +3392,25 @@
 			"ASSIGNED_TEXT": "Las tareas que te asignan aparecen aquí."
 		},
 		"SETTINGS_PAGE": {
+			"CHANNELS": {
+				"EMAIL_TITLE": "Correo",
+				"EMAIL_INTRO": "Cómo te llega cada tipo por correo. Todo tipo que dejes activado sigue apareciendo en tu bandeja.",
+				"DEFAULT_LABEL": "Todos los tipos",
+				"DEFAULT_TEXT": "El ajuste de correo que usa un tipo salvo que su propia fila diga otra cosa.",
+				"MODE_LABEL": "Correo",
+				"MODE_DEFAULT": "Usar el valor predeterminado",
+				"MODE_IMMEDIATE": "Al momento",
+				"MODE_DIGEST": "En el resumen diario",
+				"MODE_OFF": "Nunca",
+				"QUIET_TITLE": "Horas de silencio y resumen",
+				"QUIET_LABEL": "Horas de silencio",
+				"QUIET_TEXT": "Sin correo entre estas horas ({timeZone}); espera a que termine el intervalo.",
+				"QUIET_FROM": "Desde",
+				"QUIET_TO": "Hasta",
+				"DIGEST_LABEL": "Resumen diario",
+				"DIGEST_TEXT": "Un correo al día, a esta hora, con las entradas marcadas para el resumen.",
+				"SAVE_FAILED": "Esa preferencia no se guardó. Inténtalo de nuevo."
+			},
 			"INTRO": "Elige qué llega a tu bandeja. Al desactivar un tipo se detienen las notificaciones nuevas de ese tipo; las que ya tienes se quedan.",
 			"LOAD_ERROR": "No se pudieron cargar tus ajustes de notificaciones.",
 			"SAVE_FAILED": "Ese ajuste no se guardó. Inténtalo de nuevo.",

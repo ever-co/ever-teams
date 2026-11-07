@@ -3392,6 +3392,25 @@
 			"ASSIGNED_TEXT": "Aufgaben, die dir jemand zuweist, erscheinen hier."
 		},
 		"SETTINGS_PAGE": {
+			"CHANNELS": {
+				"EMAIL_TITLE": "E-Mail",
+				"EMAIL_INTRO": "Wie dich jede Art per E-Mail erreicht. Jede eingeschaltete Art erscheint weiterhin in deinem Posteingang.",
+				"DEFAULT_LABEL": "Jede Art",
+				"DEFAULT_TEXT": "Die E-Mail-Einstellung, die eine Art verwendet, sofern ihre eigene Zeile nichts anderes sagt.",
+				"MODE_LABEL": "E-Mail",
+				"MODE_DEFAULT": "Standard verwenden",
+				"MODE_IMMEDIATE": "Sofort",
+				"MODE_DIGEST": "In der täglichen Zusammenfassung",
+				"MODE_OFF": "Nie",
+				"QUIET_TITLE": "Ruhezeiten und Zusammenfassung",
+				"QUIET_LABEL": "Ruhezeiten",
+				"QUIET_TEXT": "Keine E-Mail zwischen diesen Zeiten ({timeZone}); sie wartet, bis das Zeitfenster endet.",
+				"QUIET_FROM": "Von",
+				"QUIET_TO": "Bis",
+				"DIGEST_LABEL": "Tägliche Zusammenfassung",
+				"DIGEST_TEXT": "Eine E-Mail pro Tag, zu dieser Stunde, mit den Einträgen, die auf Zusammenfassung stehen.",
+				"SAVE_FAILED": "Diese Einstellung wurde nicht gespeichert. Versuche es erneut."
+			},
 			"INTRO": "Wähle, was in deinem Posteingang ankommt. Wenn du einen Typ ausschaltest, kommen keine neuen Benachrichtigungen dieses Typs mehr; vorhandene bleiben.",
 			"LOAD_ERROR": "Deine Benachrichtigungseinstellungen konnten nicht geladen werden.",
 			"SAVE_FAILED": "Diese Einstellung wurde nicht gespeichert. Versuche es erneut.",

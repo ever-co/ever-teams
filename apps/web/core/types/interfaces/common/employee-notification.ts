@@ -57,7 +57,30 @@ export interface IEmployeeNotificationSetting {
 	mention?: boolean | null;
 	comment?: boolean | null;
 	message?: boolean | null;
-	preferences?: Record<string, unknown> | null;
+	preferences?: INotificationPreferences | null;
+}
+
+/** How a kind reaches the employee by email: at once, in the daily digest, or not at all. */
+export type TNotificationEmailMode = 'immediate' | 'digest' | 'off';
+
+/** No email between `start` and `end` (`HH:mm`, in `timeZone`); a window that ends before it starts spans midnight. */
+export interface INotificationQuietHours {
+	start: string;
+	end: string;
+	timeZone?: string;
+}
+
+/** The `preferences` of Gauzy's employee notification setting that the delivery lane reads. */
+export interface INotificationPreferences {
+	/** The email mode of every kind unless `emailByType` says otherwise; `immediate` when unset. */
+	email?: TNotificationEmailMode | boolean;
+	/** The email mode per notification type (`Assignment`, `Mention`, ...). */
+	emailByType?: Partial<Record<string, TNotificationEmailMode>>;
+	push?: boolean;
+	taskUpdate?: boolean;
+	dnd?: INotificationQuietHours | null;
+	/** The hour (0-23, in the quiet hours' time zone, else the user's) the daily digest goes out; 8 when unset. */
+	digestHour?: number;
 }
 
 export type TEmployeeNotificationSettingKey =
@@ -68,4 +91,6 @@ export type TEmployeeNotificationSettingKey =
 	| 'message'
 	| 'payment';
 
-export type TEmployeeNotificationSettingInput = Partial<Record<TEmployeeNotificationSettingKey, boolean>>;
+export type TEmployeeNotificationSettingInput = Partial<Record<TEmployeeNotificationSettingKey, boolean>> & {
+	preferences?: INotificationPreferences;
+};

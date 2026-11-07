@@ -3392,6 +3392,25 @@
 			"ASSIGNED_TEXT": "As tarefas atribuídas a você aparecem aqui."
 		},
 		"SETTINGS_PAGE": {
+			"CHANNELS": {
+				"EMAIL_TITLE": "E-mail",
+				"EMAIL_INTRO": "Como cada tipo chega até si por e-mail. Todo o tipo que mantiver ligado continua a aparecer na sua caixa de entrada.",
+				"DEFAULT_LABEL": "Todos os tipos",
+				"DEFAULT_TEXT": "A definição de e-mail que um tipo usa, salvo se a sua própria linha disser outra coisa.",
+				"MODE_LABEL": "E-mail",
+				"MODE_DEFAULT": "Usar o padrão",
+				"MODE_IMMEDIATE": "De imediato",
+				"MODE_DIGEST": "No resumo diário",
+				"MODE_OFF": "Nunca",
+				"QUIET_TITLE": "Horas de silêncio e resumo",
+				"QUIET_LABEL": "Horas de silêncio",
+				"QUIET_TEXT": "Sem e-mail entre estas horas ({timeZone}); espera até a janela terminar.",
+				"QUIET_FROM": "De",
+				"QUIET_TO": "Até",
+				"DIGEST_LABEL": "Resumo diário",
+				"DIGEST_TEXT": "Um e-mail por dia, a esta hora, com as entradas marcadas para o resumo.",
+				"SAVE_FAILED": "Essa preferência não foi guardada. Tente novamente."
+			},
 			"INTRO": "Escolha o que chega à sua caixa de entrada. Desativar um tipo interrompe as novas notificações desse tipo; as que já chegaram continuam lá.",
 			"LOAD_ERROR": "Não foi possível carregar suas configurações de notificações.",
 			"SAVE_FAILED": "Essa configuração não foi salva. Tente de novo.",

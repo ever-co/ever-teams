@@ -3392,6 +3392,25 @@
 			"ASSIGNED_TEXT": "分配给你的任务会显示在这里。"
 		},
 		"SETTINGS_PAGE": {
+			"CHANNELS": {
+				"EMAIL_TITLE": "邮件",
+				"EMAIL_INTRO": "每种类型如何通过邮件送达。保持开启的类型仍会出现在你的收件箱中。",
+				"DEFAULT_LABEL": "所有类型",
+				"DEFAULT_TEXT": "各类型使用的邮件设置，除非其自身一行另有设定。",
+				"MODE_LABEL": "邮件",
+				"MODE_DEFAULT": "使用默认设置",
+				"MODE_IMMEDIATE": "立即",
+				"MODE_DIGEST": "在每日摘要中",
+				"MODE_OFF": "从不",
+				"QUIET_TITLE": "免打扰时段与摘要",
+				"QUIET_LABEL": "免打扰时段",
+				"QUIET_TEXT": "这些时间之间不发送邮件（{timeZone}）；邮件将等到时段结束。",
+				"QUIET_FROM": "从",
+				"QUIET_TO": "至",
+				"DIGEST_LABEL": "每日摘要",
+				"DIGEST_TEXT": "每天在此时间发送一封邮件，包含设为摘要的条目。",
+				"SAVE_FAILED": "该偏好未保存。请重试。"
+			},
 			"INTRO": "选择哪些内容进入你的收件箱。关闭某一类型后，不再收到该类型的新通知；已有的通知会保留。",
 			"LOAD_ERROR": "无法加载你的通知设置。",
 			"SAVE_FAILED": "该设置未保存，请重试。",

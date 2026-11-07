@@ -3392,6 +3392,25 @@
 			"ASSIGNED_TEXT": "Tutaj pojawiają się zadania, które ktoś Ci przypisze."
 		},
 		"SETTINGS_PAGE": {
+			"CHANNELS": {
+				"EMAIL_TITLE": "E-mail",
+				"EMAIL_INTRO": "Jak każdy rodzaj dociera do Ciebie e-mailem. Każdy włączony rodzaj nadal pojawia się w Twojej skrzynce.",
+				"DEFAULT_LABEL": "Każdy rodzaj",
+				"DEFAULT_TEXT": "Ustawienie e-mail używane przez rodzaj, o ile jego własny wiersz nie mówi inaczej.",
+				"MODE_LABEL": "E-mail",
+				"MODE_DEFAULT": "Użyj domyślnego",
+				"MODE_IMMEDIATE": "Od razu",
+				"MODE_DIGEST": "W dziennym podsumowaniu",
+				"MODE_OFF": "Nigdy",
+				"QUIET_TITLE": "Godziny ciszy i podsumowanie",
+				"QUIET_LABEL": "Godziny ciszy",
+				"QUIET_TEXT": "Brak e-maili między tymi godzinami ({timeZone}); czekają do końca okna.",
+				"QUIET_FROM": "Od",
+				"QUIET_TO": "Do",
+				"DIGEST_LABEL": "Dzienne podsumowanie",
+				"DIGEST_TEXT": "Jeden e-mail dziennie, o tej godzinie, z wpisami ustawionymi na podsumowanie.",
+				"SAVE_FAILED": "To ustawienie nie zostało zapisane. Spróbuj ponownie."
+			},
 			"INTRO": "Wybierz, co trafia do Twojej skrzynki. Wyłączenie typu zatrzymuje nowe powiadomienia tego typu; te, które już masz, zostają.",
 			"LOAD_ERROR": "Nie udało się wczytać ustawień powiadomień.",
 			"SAVE_FAILED": "To ustawienie nie zostało zapisane. Spróbuj ponownie.",

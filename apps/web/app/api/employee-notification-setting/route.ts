@@ -36,7 +36,7 @@ export async function POST(req: Request) {
 	}
 
 	// Gauzy files the row for the caller's own employee and requires `preferences`; the scope is the session's.
-	const data = { ...parsed.data, preferences: {}, tenantId, organizationId };
+	const data = { ...parsed.data, preferences: parsed.data.preferences ?? {}, tenantId, organizationId };
 
 	try {
 		const response = await createEmployeeNotificationSettingRequest({ data, bearer_token: access_token, tenantId });
