@@ -23,7 +23,7 @@ describe('SessionCheckMemo', () => {
 	beforeEach(() => {
 		now = 1_000_000;
 		memo = new SessionCheckMemo<Check>(5_000, 3, () => now);
-		check = jest.fn(async (_signal: AbortSignal) => ok('user-1'));
+		check = jest.fn<Promise<Check>, [signal: AbortSignal]>(async () => ok('user-1'));
 	});
 
 	it('answers a second call for the same token from the first check', async () => {
