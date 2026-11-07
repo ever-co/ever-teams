@@ -86,7 +86,8 @@ describe('GET /api/auth/meet/jwt', () => {
 
 			const response = await GET(request);
 
-			expect(mockAuthenticatedGuard).toHaveBeenCalledWith(request, expect.anything());
+			// A fresh session check: the route signs a credential on the strength of the session alone.
+			expect(mockAuthenticatedGuard).toHaveBeenCalledWith(request, expect.anything(), { fresh: true });
 			expect({ status: response.status, body: await response.json() }).toEqual({
 				status,
 				body: expect.not.objectContaining({ token: expect.anything() })
