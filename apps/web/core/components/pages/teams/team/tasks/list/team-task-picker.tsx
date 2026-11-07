@@ -201,7 +201,7 @@ function LabelsPicker(props: Readonly<PickerProps>) {
 		if (!task) {
 			return;
 		}
-		toggleLabel(task.id, name);
+		toggleLabel(props.taskIds, name);
 	};
 	return (
 		<TaskPropertyMenu

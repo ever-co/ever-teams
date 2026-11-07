@@ -352,6 +352,14 @@ export const queryKeys = {
 	},
 
 	// Keys related to tasks
+	taskViews: {
+		all: ['task-views'] as const,
+		list: (tenantId: string | undefined | null, organizationId: string | undefined | null, teamId: string | undefined | null) =>
+			['task-views', 'list', tenantId ?? null, organizationId ?? null, teamId ?? null] as const,
+		detail: (viewId: string | undefined | null) => ['task-views', 'detail', viewId ?? null] as const,
+		builtIn: (tenantId: string | undefined | null, organizationId: string | undefined | null, key: string | undefined | null) =>
+			['task-views', 'built-in', tenantId ?? null, organizationId ?? null, key ?? null] as const
+	},
 	tasks: {
 		// Standard task keys (preserved for backward compatibility)
 		all: ['tasks'] as const,

@@ -5,6 +5,7 @@ import { useStore } from 'jotai';
 import { toast } from 'sonner';
 import { useTranslations, type DottedLanguageObjectStringPaths } from 'next-intl';
 import { useUpdateTask } from '@/core/hooks/organizations/teams/use-update-task';
+import { useBulkTaskUpdate } from '@/core/hooks/task-views/use-bulk-task-update';
 import { useTaskLabelsQuery } from './use-task-labels-query';
 import { tasksByTeamState } from '@/core/stores';
 import { taskUpdateQueue } from '@/core/lib/utils/task.utils';
@@ -40,12 +41,16 @@ function withLabelToggled(task: TTask, labelName: string, allLabels: NonNullable
  * Saves property changes made from a list of tasks, on one task or a selection. Each change reads the task again
  * when its turn comes in the update queue, so several quick changes build on each other instead of on a stale
  * copy; the optimistic cache update of `useUpdateTask` moves the rows at once.
+ *
+ * A change to several tasks goes to the platform's bulk update when that feature is on (one request, one undo);
+ * otherwise, and for one task, each task is updated on its own as before.
  */
 export function useTeamTaskUpdates() {
 	const t = useTranslations();
 	const store = useStore();
 	const { updateTask } = useUpdateTask();
 	const { taskLabels } = useTaskLabelsQuery();
+	const { bulkUpdate, isBulkAvailable } = useBulkTaskUpdate();
 
 	const latestTask = useCallback(
 		(taskId: string) => {
@@ -90,8 +95,20 @@ export function useTeamTaskUpdates() {
 		[latestTask, reportFailure, updateTask]
 	);
 
+	/** Whether a change to these tasks goes to the platform's bulk update. */
+	const usesBulk = useCallback((taskIds: string[]) => isBulkAvailable && taskIds.length > 1, [isBulkAvailable]);
+
+	const fieldLabel = useCallback(
+		(field: 'status' | 'priority' | 'size' | 'issueType') => t(`taskMenus.fields.${field}` as DottedLanguageObjectStringPaths),
+		[t]
+	);
+
 	const setStatus = useCallback(
 		(taskIds: string[], status: TTaskStatus) => {
+			if (usesBulk(taskIds)) {
+				void bulkUpdate(taskIds, { taskStatusId: status.id, status: status.name }, t('taskViews.FIELD_CHANGED', { field: fieldLabel('status') })).catch(() => undefined);
+				return;
+			}
 			applyChange(taskIds, 'status', (task) => {
 				const isSame = task.taskStatusId === status.id;
 				if (isSame) {
@@ -100,11 +117,15 @@ export function useTeamTaskUpdates() {
 				return { status: status.name as TTask['status'], taskStatusId: status.id };
 			});
 		},
-		[applyChange]
+		[applyChange, bulkUpdate, fieldLabel, t, usesBulk]
 	);
 
 	const setPriority = useCallback(
 		(taskIds: string[], priority: string) => {
+			if (usesBulk(taskIds)) {
+				void bulkUpdate(taskIds, { priority }, t('taskViews.FIELD_CHANGED', { field: fieldLabel('priority') })).catch(() => undefined);
+				return;
+			}
 			applyChange(taskIds, 'priority', (task) => {
 				if (task.priority === priority) {
 					return null;
@@ -112,11 +133,15 @@ export function useTeamTaskUpdates() {
 				return { priority: priority as TTask['priority'] };
 			});
 		},
-		[applyChange]
+		[applyChange, bulkUpdate, fieldLabel, t, usesBulk]
 	);
 
 	const setSize = useCallback(
 		(taskIds: string[], size: string) => {
+			if (usesBulk(taskIds)) {
+				void bulkUpdate(taskIds, { size }, t('taskViews.FIELD_CHANGED', { field: fieldLabel('size') })).catch(() => undefined);
+				return;
+			}
 			applyChange(taskIds, 'size', (task) => {
 				if (task.size === size) {
 					return null;
@@ -124,7 +149,7 @@ export function useTeamTaskUpdates() {
 				return { size: size as TTask['size'] };
 			});
 		},
-		[applyChange]
+		[applyChange, bulkUpdate, fieldLabel, t, usesBulk]
 	);
 
 	const setIssueType = useCallback(
@@ -139,12 +164,21 @@ export function useTeamTaskUpdates() {
 		[applyChange]
 	);
 
+	/** One task: the label is added or taken away. A selection: the label is added to every task (one request). */
 	const toggleLabel = useCallback(
-		(taskId: string, labelName: string) => {
+		(taskIds: string[], labelName: string) => {
 			const allLabels = taskLabels as NonNullable<TTask['tags']>;
-			applyChange([taskId], 'tags', (task) => ({ tags: withLabelToggled(task, labelName, allLabels) }));
+			if (usesBulk(taskIds)) {
+				const label = allLabels.find((tag) => tag.name === labelName);
+				if (!label?.id) {
+					return;
+				}
+				void bulkUpdate(taskIds, { addTagIds: [label.id] }, t('taskViews.ADDED_LABEL', { name: labelName })).catch(() => undefined);
+				return;
+			}
+			applyChange(taskIds, 'tags', (task) => ({ tags: withLabelToggled(task, labelName, allLabels) }));
 		},
-		[applyChange, taskLabels]
+		[applyChange, bulkUpdate, t, taskLabels, usesBulk]
 	);
 
 	const setDueDate = useCallback(
@@ -157,6 +191,11 @@ export function useTeamTaskUpdates() {
 	/** Adds the member to every task that does not have them yet; nobody is removed from a selection. */
 	const assignMember = useCallback(
 		(taskIds: string[], member: TOrganizationTeamEmployee) => {
+			const employeeId = member.employeeId ?? member.employee?.id;
+			if (usesBulk(taskIds) && employeeId) {
+				void bulkUpdate(taskIds, { addMemberIds: [employeeId] }, t('taskViews.FIELD_CHANGED', { field: t('common.ASSIGNEE') })).catch(() => undefined);
+				return;
+			}
 			applyChange(taskIds, 'members', (task) => {
 				if (isAssigned(task, member)) {
 					return null;
@@ -165,8 +204,19 @@ export function useTeamTaskUpdates() {
 				return { members };
 			});
 		},
-		[applyChange]
+		[applyChange, bulkUpdate, t, usesBulk]
 	);
 
-	return { setStatus, setPriority, setSize, setIssueType, toggleLabel, setDueDate, assignMember };
+	/** Archives the tasks in one request (the saved-views feature's bulk update), with an undo. */
+	const archiveTasks = useCallback(
+		(taskIds: string[]) => {
+			if (!isBulkAvailable || !taskIds.length) {
+				return;
+			}
+			void bulkUpdate(taskIds, { isArchived: true }, t('taskViews.ARCHIVED_LABEL')).catch(() => undefined);
+		},
+		[bulkUpdate, isBulkAvailable, t]
+	);
+
+	return { setStatus, setPriority, setSize, setIssueType, toggleLabel, setDueDate, assignMember, archiveTasks, canArchive: isBulkAvailable };
 }

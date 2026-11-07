@@ -5,7 +5,7 @@ import { useTranslations } from 'next-intl';
 import { AnimatedEmptyState } from '@/core/components/common/empty-state';
 import { commandKeycapClass } from '@/core/components/common/command';
 import { Button } from '@/core/components/duplicated-components/_button';
-import { Search, Task, Users, X } from '@/core/components/icons';
+import { Archive, Search, Tag, Task, Users, X } from '@/core/components/icons';
 import { TaskPropertyPlaceholderIcon, type TaskPropertyKind } from '@/core/components/tasks/task-property-icon';
 import type { TeamTasksScope } from '@/core/lib/utils/team-tasks-view';
 import type { TeamTaskPickerKind } from './team-tasks-list-context';
@@ -43,6 +43,16 @@ export function TeamTasksNoMatch({ onClear }: Readonly<{ onClear: () => void }>)
 				actionVariant="outline"
 				onAction={onClear}
 			/>
+		</StateFrame>
+	);
+}
+
+/** A built-in view with nothing in it (no task of mine, nothing due): no action to take. */
+export function TeamTasksViewEmpty() {
+	const t = useTranslations();
+	return (
+		<StateFrame>
+			<AnimatedEmptyState title={t('taskViews.VIEW_EMPTY_TITLE')} message={t('taskViews.VIEW_EMPTY_TEXT')} icon={<Task />} />
 		</StateFrame>
 	);
 }
@@ -107,28 +117,42 @@ export function TeamTasksHiddenPill({ count, onClear }: Readonly<{ count: number
 
 interface SelectionAction {
 	kind: TeamTaskPickerKind;
-	labelKey: 'taskMenus.fields.status' | 'taskMenus.fields.priority' | 'taskMenus.fields.size' | 'common.ASSIGNEE';
+	labelKey: 'taskMenus.fields.status' | 'taskMenus.fields.priority' | 'taskMenus.fields.size' | 'common.ASSIGNEE' | 'taskViews.LABELS';
 	glyph: TaskPropertyKind | null;
+	icon?: 'users' | 'tag';
 }
 
 const SELECTION_ACTIONS: SelectionAction[] = [
 	{ kind: 'status', labelKey: 'taskMenus.fields.status', glyph: 'status' },
 	{ kind: 'priority', labelKey: 'taskMenus.fields.priority', glyph: 'priority' },
 	{ kind: 'size', labelKey: 'taskMenus.fields.size', glyph: 'size' },
-	{ kind: 'assignees', labelKey: 'common.ASSIGNEE', glyph: null }
+	{ kind: 'assignees', labelKey: 'common.ASSIGNEE', glyph: null, icon: 'users' }
 ];
+
+/** Labels on a selection add one label to every task: that needs the platform's bulk update. */
+const LABELS_ACTION: SelectionAction = { kind: 'labels', labelKey: 'taskViews.LABELS', glyph: null, icon: 'tag' };
 
 /**
  * The bulk bar of a selection, floating over the bottom of the list like the projects page: the count, the
- * properties that apply to every selected task (each opens the shared picker against its button), and Clear.
+ * properties that apply to every selected task (each opens the shared picker against its button), Labels and
+ * Archive when the platform's bulk update is on (one request, one undo), and Clear.
  */
 export function TeamTasksSelectionBar({
 	count,
+	canBulk,
 	onEdit,
+	onArchive,
 	onClear
-}: Readonly<{ count: number; onEdit: (kind: TeamTaskPickerKind, anchor: Element) => void; onClear: () => void }>) {
+}: Readonly<{
+	count: number;
+	canBulk: boolean;
+	onEdit: (kind: TeamTaskPickerKind, anchor: Element) => void;
+	onArchive: () => void;
+	onClear: () => void;
+}>) {
 	const t = useTranslations();
 	const label = t('taskMenus.selectedCount', { count });
+	const actions = canBulk ? [...SELECTION_ACTIONS, LABELS_ACTION] : SELECTION_ACTIONS;
 	return (
 		<div className={FLOATING_ROW}>
 			<div
@@ -138,7 +162,7 @@ export function TeamTasksSelectionBar({
 			>
 				<span className="shrink-0 pr-2 text-[13px] font-medium tabular-nums text-foreground">{label}</span>
 				<span className="h-4 w-px shrink-0 bg-border" aria-hidden="true" />
-				{SELECTION_ACTIONS.map((action) => (
+				{actions.map((action) => (
 					<Button
 						key={action.kind}
 						variant="ghost"
@@ -147,10 +171,17 @@ export function TeamTasksSelectionBar({
 						onClick={(event: MouseEvent<HTMLButtonElement>) => onEdit(action.kind, event.currentTarget)}
 					>
 						{action.glyph && <TaskPropertyPlaceholderIcon kind={action.glyph} />}
-						{!action.glyph && <Users />}
+						{action.icon === 'users' && <Users />}
+						{action.icon === 'tag' && <Tag />}
 						{t(action.labelKey)}
 					</Button>
 				))}
+				{canBulk && (
+					<Button variant="ghost" size="default" className="shrink-0" onClick={onArchive}>
+						<Archive />
+						{t('taskViews.ARCHIVE')}
+					</Button>
+				)}
 				<span className="h-4 w-px shrink-0 bg-border" aria-hidden="true" />
 				<Button
 					variant="ghost"
