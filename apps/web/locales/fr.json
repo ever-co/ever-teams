@@ -3392,6 +3392,24 @@
 			"ASSIGNED_TEXT": "Les tâches qu'on vous assigne apparaissent ici."
 		},
 		"SETTINGS_PAGE": {
+			"CHANNELS": {
+				"EMAIL_TITLE": "E-mail",
+				"EMAIL_INTRO": "Comment chaque type vous parvient par e-mail. Tout type laissé activé apparaît toujours dans votre boîte de réception.",
+				"DEFAULT_LABEL": "Tous les types",
+				"DEFAULT_TEXT": "Le réglage e-mail qu'un type utilise sauf si sa propre ligne en décide autrement.",
+				"MODE_LABEL": "E-mail",
+				"MODE_IMMEDIATE": "Immédiatement",
+				"MODE_DIGEST": "Dans le résumé quotidien",
+				"MODE_OFF": "Jamais",
+				"QUIET_TITLE": "Heures calmes et résumé",
+				"QUIET_LABEL": "Heures calmes",
+				"QUIET_TEXT": "Aucun e-mail entre ces heures ({timeZone}) ; il attend la fin de la plage.",
+				"QUIET_FROM": "De",
+				"QUIET_TO": "Jusqu'à",
+				"DIGEST_LABEL": "Résumé quotidien",
+				"DIGEST_TEXT": "Un e-mail par jour, à cette heure, avec les entrées réglées sur le résumé.",
+				"SAVE_FAILED": "Cette préférence n'a pas été enregistrée. Réessayez."
+			},
 			"INTRO": "Choisissez ce qui arrive dans votre boîte. Désactiver un type arrête les nouvelles notifications de ce type ; celles déjà reçues restent.",
 			"LOAD_ERROR": "Vos réglages de notifications n'ont pas pu être chargés.",
 			"SAVE_FAILED": "Ce réglage n'a pas été enregistré. Réessayez.",

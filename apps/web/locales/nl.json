@@ -3392,6 +3392,24 @@
 			"ASSIGNED_TEXT": "Taken die iemand aan je toewijst, zie je hier."
 		},
 		"SETTINGS_PAGE": {
+			"CHANNELS": {
+				"EMAIL_TITLE": "E-mail",
+				"EMAIL_INTRO": "Hoe elk type je per e-mail bereikt. Elk type dat je aan laat, blijft in je inbox verschijnen.",
+				"DEFAULT_LABEL": "Elk type",
+				"DEFAULT_TEXT": "De e-mailinstelling die een type gebruikt, tenzij zijn eigen rij anders zegt.",
+				"MODE_LABEL": "E-mail",
+				"MODE_IMMEDIATE": "Meteen",
+				"MODE_DIGEST": "In het dagelijkse overzicht",
+				"MODE_OFF": "Nooit",
+				"QUIET_TITLE": "Stille uren en overzicht",
+				"QUIET_LABEL": "Stille uren",
+				"QUIET_TEXT": "Geen e-mail tussen deze tijden ({timeZone}); hij wacht tot het venster eindigt.",
+				"QUIET_FROM": "Van",
+				"QUIET_TO": "Tot",
+				"DIGEST_LABEL": "Dagelijks overzicht",
+				"DIGEST_TEXT": "Eén e-mail per dag, op dit uur, met de items die op overzicht staan.",
+				"SAVE_FAILED": "Die voorkeur is niet opgeslagen. Probeer het opnieuw."
+			},
 			"INTRO": "Kies wat er in je inbox binnenkomt. Als je een type uitzet, komen er geen nieuwe meldingen van dat type meer; bestaande blijven staan.",
 			"LOAD_ERROR": "Je meldingsinstellingen konden niet worden geladen.",
 			"SAVE_FAILED": "Die instelling is niet opgeslagen. Probeer het opnieuw.",

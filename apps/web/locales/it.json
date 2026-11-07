@@ -3392,6 +3392,24 @@
 			"ASSIGNED_TEXT": "Le attività che ti assegnano compaiono qui."
 		},
 		"SETTINGS_PAGE": {
+			"CHANNELS": {
+				"EMAIL_TITLE": "Email",
+				"EMAIL_INTRO": "Come ogni tipo ti raggiunge via email. Ogni tipo lasciato attivo continua a comparire nella tua posta in arrivo.",
+				"DEFAULT_LABEL": "Tutti i tipi",
+				"DEFAULT_TEXT": "L'impostazione email usata da un tipo, salvo che la sua riga dica altrimenti.",
+				"MODE_LABEL": "Email",
+				"MODE_IMMEDIATE": "Subito",
+				"MODE_DIGEST": "Nel riepilogo giornaliero",
+				"MODE_OFF": "Mai",
+				"QUIET_TITLE": "Ore di silenzio e riepilogo",
+				"QUIET_LABEL": "Ore di silenzio",
+				"QUIET_TEXT": "Nessuna email tra questi orari ({timeZone}); attende la fine della finestra.",
+				"QUIET_FROM": "Da",
+				"QUIET_TO": "Fino a",
+				"DIGEST_LABEL": "Riepilogo giornaliero",
+				"DIGEST_TEXT": "Una email al giorno, a quest'ora, con le voci impostate sul riepilogo.",
+				"SAVE_FAILED": "Quella preferenza non è stata salvata. Riprova."
+			},
 			"INTRO": "Scegli cosa arriva nella tua posta. Disattivando un tipo si fermano le nuove notifiche di quel tipo; quelle già ricevute restano.",
 			"LOAD_ERROR": "Non è stato possibile caricare le impostazioni delle notifiche.",
 			"SAVE_FAILED": "L'impostazione non è stata salvata. Riprova.",

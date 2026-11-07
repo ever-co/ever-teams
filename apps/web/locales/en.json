@@ -3392,6 +3392,24 @@
 			"ASSIGNED_TEXT": "Tasks someone assigns to you show here."
 		},
 		"SETTINGS_PAGE": {
+			"CHANNELS": {
+				"EMAIL_TITLE": "Email",
+				"EMAIL_INTRO": "How each kind reaches you by email. Every kind you keep on still appears in your inbox.",
+				"DEFAULT_LABEL": "Every kind",
+				"DEFAULT_TEXT": "The email setting a kind uses unless its own row says otherwise.",
+				"MODE_LABEL": "Email",
+				"MODE_IMMEDIATE": "At once",
+				"MODE_DIGEST": "In the daily digest",
+				"MODE_OFF": "Never",
+				"QUIET_TITLE": "Quiet hours and digest",
+				"QUIET_LABEL": "Quiet hours",
+				"QUIET_TEXT": "No email between these times ({timeZone}); it waits until the window ends.",
+				"QUIET_FROM": "From",
+				"QUIET_TO": "Until",
+				"DIGEST_LABEL": "Daily digest",
+				"DIGEST_TEXT": "One email a day, at this hour, with the entries set to the digest.",
+				"SAVE_FAILED": "That preference was not saved. Try again."
+			},
 			"INTRO": "Choose what reaches your inbox. Turning a type off stops new notifications of that type; the ones already there stay.",
 			"LOAD_ERROR": "Your notification settings could not load.",
 			"SAVE_FAILED": "That setting was not saved. Try again.",

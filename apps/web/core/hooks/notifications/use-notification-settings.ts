@@ -4,8 +4,11 @@ import { useCallback } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { queryKeys } from '@/core/query/keys';
 import { employeeNotificationSettingService, INotificationInboxScope } from '@/core/services/client/api/notifications';
+import { withPreferencePatch } from '@/core/lib/notifications/notification-preferences';
 import {
 	IEmployeeNotificationSetting,
+	INotificationPreferences,
+	TEmployeeNotificationSettingInput,
 	TEmployeeNotificationSettingKey
 } from '@/core/types/interfaces/common/employee-notification';
 import { useNotificationScope } from './use-notification-scope';
@@ -55,6 +58,18 @@ function withSwitch(
 	return { ...setting, [variables.key]: variables.isOn };
 }
 
+/** The setting with a preferences patch applied (for the cache, before Gauzy answers). */
+function withPreferences(
+	setting: IEmployeeNotificationSetting | null | undefined,
+	patch: Partial<INotificationPreferences>
+): IEmployeeNotificationSetting | null {
+	if (!setting) {
+		return null;
+	}
+
+	return { ...setting, preferences: withPreferencePatch(setting.preferences, patch) };
+}
+
 function pendingKeyOf(
 	isPending: boolean,
 	variables: ToggleVariables | undefined
@@ -87,7 +102,8 @@ export function useNotificationSettings() {
 				return null;
 			}
 			const current = queryClient.getQueryData<IEmployeeNotificationSetting | null>(settingsKey);
-			const input = { [key]: isOn };
+			const input: TEmployeeNotificationSettingInput = {};
+			input[key] = isOn;
 			if (current?.id) {
 				return employeeNotificationSettingService.update(current.id, scope, input);
 			}
@@ -116,6 +132,41 @@ export function useNotificationSettings() {
 		}
 	});
 
+	const savePreferencePatch = useCallback(
+		async (patch: Partial<INotificationPreferences>) => {
+			if (!scope) {
+				return null;
+			}
+			const current = queryClient.getQueryData<IEmployeeNotificationSetting | null>(settingsKey);
+			const input = { preferences: withPreferencePatch(current?.preferences, patch) };
+			if (current?.id) {
+				return employeeNotificationSettingService.update(current.id, scope, input);
+			}
+
+			return employeeNotificationSettingService.create(scope, input);
+		},
+		[queryClient, scope, settingsKey]
+	);
+
+	const preferencesMutation = useMutation({
+		mutationFn: savePreferencePatch,
+		onMutate: async (patch: Partial<INotificationPreferences>) => {
+			await queryClient.cancelQueries({ queryKey: settingsKey });
+			const previous = queryClient.getQueryData<IEmployeeNotificationSetting | null>(settingsKey);
+			queryClient.setQueryData(settingsKey, withPreferences(previous, patch));
+
+			return previous;
+		},
+		onSuccess: (saved) => {
+			if (saved) {
+				queryClient.setQueryData(settingsKey, saved);
+			}
+		},
+		onError: (_error, _patch, previous) => {
+			queryClient.setQueryData(settingsKey, previous);
+		}
+	});
+
 	return {
 		setting: settingQuery.data ?? null,
 		isAvailable: scope !== null,
@@ -123,6 +174,9 @@ export function useNotificationSettings() {
 		isError: settingQuery.isError,
 		retry: settingQuery.refetch,
 		toggle: toggleMutation.mutateAsync,
-		pendingKey: pendingKeyOf(toggleMutation.isPending, toggleMutation.variables)
+		pendingKey: pendingKeyOf(toggleMutation.isPending, toggleMutation.variables),
+		/** Saves a change of the delivery preferences (email modes, quiet hours, digest hour). */
+		savePreferences: preferencesMutation.mutateAsync,
+		isSavingPreferences: preferencesMutation.isPending
 	};
 }
