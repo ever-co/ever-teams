@@ -1648,6 +1648,8 @@
 				"formFields": {
 					"title": "Projekt Titel",
 					"titlePlaceholder": "Kundenprojekt #1",
+					"taskKey": "Aufgabenschlüssel",
+					"taskKeyHelp": "Die Aufgaben dieses Projekts werden {example} nummeriert. Leer lassen, um die ersten Buchstaben des Titels zu verwenden.",
 					"description": "Beschreibung",
 					"datePickerPlaceholder": "Wählen Sie ein Datum",
 					"websiteUrl": "Website URL",
@@ -1657,6 +1659,7 @@
 				},
 				"errors": {
 					"titleRequired": "Der Projekttitel ist erforderlich.",
+					"taskKeyInvalid": "Verwenden Sie 2 bis 10 Großbuchstaben oder Ziffern, beginnend mit einem Buchstaben.",
 					"titleLength": "Der Projekttitel muss zwischen 3 und 100 Zeichen liegen.",
 					"invalidWebsiteUrl": "Ungültige Website-URL.",
 					"fileSizeLimit": "Die Dateigröße muss kleiner als 5 MB sein.",

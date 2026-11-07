@@ -59,6 +59,8 @@ export interface ProjectDraft {
 	startDate: Date | null;
 	endDate: Date | null;
 	projectUrl: string;
+	/** The key the project's tasks are numbered with (`WEB-42`); empty: the platform proposes one on create. */
+	taskKey: string;
 	color: string | null;
 	imageUrl: string | null;
 	imageId: string | null;
@@ -72,7 +74,18 @@ export interface ProjectDraft {
 	billing: EProjectBilling;
 }
 
-export type ProjectDraftErrorKey = 'name' | 'dates' | 'projectUrl' | 'description' | 'teams' | 'image';
+export type ProjectDraftErrorKey = 'name' | 'dates' | 'projectUrl' | 'taskKey' | 'description' | 'teams' | 'image';
+
+/** A project's task key: 2 to 10 upper-case letters or digits, starting with a letter (the platform's own rule). */
+export const TASK_KEY_PATTERN = /^[A-Z][A-Z0-9]{1,9}$/;
+
+/** The key the platform proposes for a name: its first three letters or digits, else its first three letters. */
+export function proposedTaskKey(name: string): string {
+	const compact = name.replace(/[^A-Za-z0-9]/g, '').toUpperCase().slice(0, 3);
+	if (TASK_KEY_PATTERN.test(compact)) return compact;
+	const letters = name.replace(/[^A-Za-z]/g, '').toUpperCase().slice(0, 3);
+	return letters.length >= 2 ? letters : '';
+}
 
 export type ProjectDraftErrors = Partial<Record<ProjectDraftErrorKey, DottedLanguageObjectStringPaths>>;
 
@@ -125,6 +138,7 @@ export function emptyProjectDraft(activeTeamId: string | null | undefined, today
 		startDate: today,
 		endDate: addDays(today, DEFAULT_PROJECT_LENGTH_DAYS),
 		projectUrl: '',
+		taskKey: '',
 		color: null,
 		imageUrl: null,
 		imageId: null,
@@ -156,6 +170,7 @@ export function draftFromProject(project: TOrganizationProject, activeTeamId: st
 		startDate: realDateOf(project.startDate),
 		endDate: realDateOf(project.endDate),
 		projectUrl: project.projectUrl ?? '',
+		taskKey: String((project as { taskKey?: string | null }).taskKey ?? ''),
 		color: project.color ?? null,
 		imageUrl: project.imageUrl ?? null,
 		imageId: project.imageId ?? null,
@@ -341,6 +356,10 @@ export function validateProjectDraft(draft: ProjectDraft, isDescriptionValid: bo
 	if (urlError) {
 		errors.projectUrl = urlError;
 	}
+	const taskKey = draft.taskKey.trim().toUpperCase();
+	if (taskKey && !TASK_KEY_PATTERN.test(taskKey)) {
+		errors.taskKey = 'pages.projects.basicInformationForm.errors.taskKeyInvalid';
+	}
 	if (!isDescriptionValid) {
 		errors.description = 'pages.projects.basicInformationForm.errors.descriptionWordLimit';
 	}
@@ -397,6 +416,8 @@ export function buildProjectRequest(draft: ProjectDraft, context: ProjectRequest
 		startDate: draft.startDate ?? undefined,
 		endDate: draft.endDate ?? undefined,
 		projectUrl: draft.projectUrl.trim(),
+		// Empty: left out — on create the platform gives the first letters of the name, on edit the key stays.
+		...(draft.taskKey.trim() ? { taskKey: draft.taskKey.trim().toUpperCase() } : {}),
 		description: draft.description,
 		imageUrl: image.imageUrl,
 		imageId: image.imageId,

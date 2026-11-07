@@ -19,6 +19,7 @@ import {
 	CircleCheck,
 	FolderOpen,
 	Globe,
+	Key,
 	Tag,
 	UserCheck,
 	Users,
@@ -38,7 +39,7 @@ import type { VoiceFill } from '@/core/hooks/ai/use-voice-fill';
 import { useTeamMentionCandidates } from '@/core/hooks/organizations/teams/use-team-mention-candidates';
 import { useTaskStatusesQuery } from '@/core/hooks/tasks/use-task-statuses-query';
 import { cn } from '@/core/lib/helpers';
-import { PROJECT_NAME_MAX_LENGTH } from '@/core/lib/utils/project-composer';
+import { PROJECT_NAME_MAX_LENGTH, proposedTaskKey } from '@/core/lib/utils/project-composer';
 import type { TOrganizationProject } from '@/core/types/schemas';
 import { FIELD_ERROR, INLINE_FIELD } from './composer-recipes';
 import { ProjectBudgetField } from './project-budget-field';
@@ -341,6 +342,25 @@ export function ProjectComposer({ mode, project, context, onClose }: Readonly<Pr
 							className={INLINE_FIELD}
 						/>
 						<FieldError message={errors.projectUrl} />
+					</PropertyRow>
+					<PropertyRow icon={<Key />} label={t('pages.projects.basicInformationForm.formFields.taskKey')}>
+						<input
+							type="text"
+							value={draft.taskKey}
+							onChange={(event) => composer.setTaskKey(event.target.value)}
+							onKeyDown={keepPlainEnterInField}
+							maxLength={10}
+							autoCapitalize="characters"
+							spellCheck={false}
+							placeholder={proposedTaskKey(draft.name) || 'WEB'}
+							title={t('pages.projects.basicInformationForm.formFields.taskKeyHelp', {
+								example: `${draft.taskKey.trim() || proposedTaskKey(draft.name) || 'WEB'}-42`
+							})}
+							aria-label={t('pages.projects.basicInformationForm.formFields.taskKey')}
+							aria-invalid={Boolean(errors.taskKey)}
+							className={INLINE_FIELD}
+						/>
+						<FieldError message={errors.taskKey} />
 					</PropertyRow>
 				</section>
 			</div>

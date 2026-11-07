@@ -169,6 +169,8 @@ export function useProjectComposer({ mode, project, onDone }: UseProjectComposer
 
 	const setProjectUrl = useCallback((projectUrl: string) => updateDraft({ projectUrl }), [updateDraft]);
 
+	const setTaskKey = useCallback((taskKey: string) => updateDraft({ taskKey: taskKey.toUpperCase() }), [updateDraft]);
+
 	const setStartDate = useCallback((startDate: Date) => {
 		setDraft((current) => ({
 			...current,
@@ -353,6 +355,7 @@ export function useProjectComposer({ mode, project, onDone }: UseProjectComposer
 		setIsDescriptionValid,
 		setStatus,
 		setProjectUrl,
+		setTaskKey,
 		setStartDate,
 		setEndDate,
 		setColor,

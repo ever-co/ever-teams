@@ -1645,6 +1645,8 @@
 				"formFields": {
 					"title": "Projecttitel",
 					"titlePlaceholder": "Klantproject #1",
+					"taskKey": "Taaksleutel",
+					"taskKeyHelp": "Taken van dit project worden genummerd als {example}. Laat leeg om de eerste letters van de titel te gebruiken.",
 					"description": "Beschrijving",
 					"datePickerPlaceholder": "Kies een datum",
 					"websiteUrl": "Website-URL",
@@ -1654,6 +1656,7 @@
 				},
 				"errors": {
 					"titleRequired": "Projecttitel is verplicht.",
+					"taskKeyInvalid": "Gebruik 2 tot 10 hoofdletters of cijfers, beginnend met een letter.",
 					"titleLength": "Projecttitel moet tussen 3 en 100 tekens bevatten.",
 					"invalidWebsiteUrl": "Ongeldige website-URL.",
 					"fileSizeLimit": "Bestandsgrootte moet kleiner zijn dan 5MB.",
