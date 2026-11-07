@@ -3,7 +3,7 @@
 import { Suspense, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useParams } from 'next/navigation';
 import { useTranslations } from 'next-intl';
-import { useAtomValue } from 'jotai';
+import { useAtomValue, useSetAtom } from 'jotai';
 import { PageLayout } from '@/core/components/layouts/default-layout';
 import { Breadcrumb } from '@/core/components/duplicated-components/breadcrumb';
 import { Modal } from '@/core/components/common/modal';
@@ -18,6 +18,7 @@ import { useTaskDrawer } from '@/core/hooks/tasks/use-task-drawer';
 import { useUserQuery } from '@/core/hooks/queries/user-user.query';
 import { useShortcutHandlers } from '@/core/hooks/keyboard/use-shortcuts';
 import { activeTeamState, isTrackingEnabledState } from '@/core/stores';
+import { viewTasksState } from '@/core/stores/tasks/task-views';
 import { DEFAULT_TASK_VIEW_DEFINITION, definitionOf, isSameDefinition } from '@/core/lib/utils/task-views';
 import { isTaskViewsEnabled } from '@/core/lib/utils/task-views-enabled';
 import { EDailyPlanMode } from '@/core/types/generics/enums/daily-plan';
@@ -59,6 +60,8 @@ export type TaskViewContext =
 
 /** What the body of the page shows, decided once per render. */
 type BodyState = 'loading' | 'error' | 'viewEmpty' | 'emptyTeam' | 'noMatch' | 'scopeEmpty' | 'list';
+
+const EMPTY_TASKS: TTask[] = [];
 
 function isTypingTarget(target: EventTarget | null) {
 	if (!(target instanceof HTMLElement)) {
@@ -155,7 +158,15 @@ export function TeamTasksPage({ viewContext }: Readonly<{ viewContext?: TaskView
 	const t = useTranslations();
 	const initial = useMemo(() => initialDefinitionOf(viewContext), [viewContext]);
 	const builtInTasks = viewContext?.kind === 'builtIn' ? viewContext.tasks : undefined;
-	const view = useTeamTasksView({ initial, tasks: builtInTasks });
+	const resetKey = viewContext ? (viewContext.kind === 'saved' ? `view:${viewContext.view.id}` : `built-in:${viewContext.key}`) : undefined;
+	const view = useTeamTasksView({ initial, resetKey, tasks: builtInTasks });
+	// The pickers and the row menu read the tasks they edit from the team's list; a built-in view's tasks are
+	// shared with them here, so an edit on one of them reaches the platform.
+	const setViewTasks = useSetAtom(viewTasksState);
+	useEffect(() => {
+		setViewTasks(builtInTasks ?? EMPTY_TASKS);
+		return () => setViewTasks(EMPTY_TASKS);
+	}, [builtInTasks, setViewTasks]);
 	const { isFirstLoad, isLoadingMorePages } = useTeamTasksLoadState();
 	const { archiveTasks, canArchive } = useTeamTaskUpdates();
 	const activeTeam = useAtomValue(activeTeamState);

@@ -8,6 +8,9 @@ import { useUpdateTask } from '@/core/hooks/organizations/teams/use-update-task'
 import { useBulkTaskUpdate } from '@/core/hooks/task-views/use-bulk-task-update';
 import { useTaskLabelsQuery } from './use-task-labels-query';
 import { tasksByTeamState } from '@/core/stores';
+import { viewTasksState } from '@/core/stores/tasks/task-views';
+import { queryKeys } from '@/core/query/keys';
+import { useQueryClient } from '@tanstack/react-query';
 import { taskUpdateQueue } from '@/core/lib/utils/task.utils';
 import { errorReasonKeyOf } from '@/core/lib/utils/error-feedback';
 import type { TOrganizationTeamEmployee, TTaskStatus } from '@/core/types/schemas';
@@ -52,10 +55,17 @@ export function useTeamTaskUpdates() {
 	const { taskLabels } = useTaskLabelsQuery();
 	const { bulkUpdate, isBulkAvailable } = useBulkTaskUpdate();
 
+	const queryClient = useQueryClient();
+
+	/** The task as last loaded: the team's copy, else the open view's (a built-in view lists tasks of other teams). */
 	const latestTask = useCallback(
 		(taskId: string) => {
 			const tasks = store.get(tasksByTeamState);
-			return tasks.find((task) => task.id === taskId);
+			const fromTeam = tasks.find((task) => task.id === taskId);
+			if (fromTeam) {
+				return fromTeam;
+			}
+			return store.get(viewTasksState).find((task) => task.id === taskId);
 		},
 		[store]
 	);
@@ -85,6 +95,8 @@ export function useTeamTaskUpdates() {
 					}
 					try {
 						await updateTask({ ...task, ...update });
+						// A view's own list (a built-in view) reads the platform again.
+						void queryClient.invalidateQueries({ queryKey: queryKeys.taskViews.all });
 					} catch (error) {
 						reportFailure(field, error);
 					}
@@ -92,7 +104,7 @@ export function useTeamTaskUpdates() {
 				taskUpdateQueue.task(run);
 			}
 		},
-		[latestTask, reportFailure, updateTask]
+		[latestTask, queryClient, reportFailure, updateTask]
 	);
 
 	/** Whether a change to these tasks goes to the platform's bulk update. */

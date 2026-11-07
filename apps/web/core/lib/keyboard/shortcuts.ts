@@ -2,7 +2,11 @@
  * The app's shortcut registry: every command with its context, its default binding and the key names the help
  * dialog shows. Pure: no React, no DOM. Bindings use one syntax everywhere — keys separated by `+` for a chord
  * (`mod+s`, `shift+d`), chords separated by a space for a sequence (`g t`). `mod` is ⌘ on a Mac and Ctrl elsewhere.
- * Letters match the physical key (`event.code`), so `J` works on a layout where that key prints something else.
+ * Letters match the physical key (`event.code`), so `J` works on a layout where that key prints something else;
+ * punctuation is the character typed (`?`, not `shift+/`), since the key that prints it differs by layout.
+ *
+ * Command ids are plain words (no dots): they are also the i18n keys under `shortcuts.commands` and the keys of
+ * the person's overrides on the platform.
  */
 
 /** Where a command applies; a key press is matched against the contexts active at the time. */
@@ -13,8 +17,6 @@ export interface ShortcutCommand {
 	context: ShortcutContext;
 	/** The binding when the person has not changed it. */
 	defaultBinding: string;
-	/** The i18n key of the command's label (`shortcuts.commands.<id>` when absent). */
-	labelKey?: string;
 	/** A command the person cannot rebind in this version (the list's own keys). */
 	fixed?: boolean;
 }
@@ -31,39 +33,42 @@ export type ShortcutBinding = ShortcutChord[];
 
 export const SHORTCUT_COMMANDS: readonly ShortcutCommand[] = [
 	// global
-	{ id: 'palette.open', context: 'global', defaultBinding: 'mod+k' },
-	{ id: 'help.open', context: 'global', defaultBinding: 'shift+/' },
-	{ id: 'task.create', context: 'global', defaultBinding: 'c', fixed: true },
-	{ id: 'settings.open', context: 'global', defaultBinding: 'mod+,' },
-	{ id: 'go.tasks', context: 'global', defaultBinding: 'g t' },
-	{ id: 'go.mine', context: 'global', defaultBinding: 'g m' },
-	{ id: 'go.thisWeek', context: 'global', defaultBinding: 'g w' },
-	{ id: 'go.overdue', context: 'global', defaultBinding: 'g o' },
-	{ id: 'go.views', context: 'global', defaultBinding: 'g v' },
-	{ id: 'go.docs', context: 'global', defaultBinding: 'g d' },
-	{ id: 'go.chat', context: 'global', defaultBinding: 'g c' },
-	{ id: 'go.inbox', context: 'global', defaultBinding: 'g i' },
+	{ id: 'paletteOpen', context: 'global', defaultBinding: 'mod+k' },
+	{ id: 'helpOpen', context: 'global', defaultBinding: '?' },
+	{ id: 'taskCreate', context: 'global', defaultBinding: 'c', fixed: true },
+	{ id: 'settingsOpen', context: 'global', defaultBinding: 'mod+,' },
+	{ id: 'goTasks', context: 'global', defaultBinding: 'g t' },
+	{ id: 'goMine', context: 'global', defaultBinding: 'g m' },
+	{ id: 'goThisWeek', context: 'global', defaultBinding: 'g w' },
+	{ id: 'goOverdue', context: 'global', defaultBinding: 'g o' },
+	{ id: 'goViews', context: 'global', defaultBinding: 'g v' },
+	{ id: 'goDocs', context: 'global', defaultBinding: 'g d' },
+	{ id: 'goChat', context: 'global', defaultBinding: 'g c' },
+	{ id: 'goInbox', context: 'global', defaultBinding: 'g i' },
 	// the list (its keys are the list's own in this version)
-	{ id: 'list.down', context: 'list', defaultBinding: 'j', fixed: true },
-	{ id: 'list.up', context: 'list', defaultBinding: 'k', fixed: true },
-	{ id: 'list.open', context: 'list', defaultBinding: 'enter', fixed: true },
-	{ id: 'list.select', context: 'list', defaultBinding: 'x', fixed: true },
-	{ id: 'list.clear', context: 'list', defaultBinding: 'escape', fixed: true },
-	{ id: 'list.saveView', context: 'list', defaultBinding: 'mod+s' },
+	{ id: 'listDown', context: 'list', defaultBinding: 'j', fixed: true },
+	{ id: 'listUp', context: 'list', defaultBinding: 'k', fixed: true },
+	{ id: 'listOpen', context: 'list', defaultBinding: 'enter', fixed: true },
+	{ id: 'listSelect', context: 'list', defaultBinding: 'x', fixed: true },
+	{ id: 'listClear', context: 'list', defaultBinding: 'escape', fixed: true },
+	{ id: 'listSaveView', context: 'list', defaultBinding: 'mod+s' },
 	// a focused task
-	{ id: 'task.status', context: 'task', defaultBinding: 's', fixed: true },
-	{ id: 'task.priority', context: 'task', defaultBinding: 'p', fixed: true },
-	{ id: 'task.labels', context: 'task', defaultBinding: 'l', fixed: true },
-	{ id: 'task.dueDate', context: 'task', defaultBinding: 'd', fixed: true }
+	{ id: 'taskStatus', context: 'task', defaultBinding: 's', fixed: true },
+	{ id: 'taskPriority', context: 'task', defaultBinding: 'p', fixed: true },
+	{ id: 'taskLabels', context: 'task', defaultBinding: 'l', fixed: true },
+	{ id: 'taskDueDate', context: 'task', defaultBinding: 'd', fixed: true }
 ];
 
 /** The contexts in the order the help dialog lists them. */
 export const SHORTCUT_CONTEXTS: readonly ShortcutContext[] = ['global', 'list', 'task', 'view'];
 
-const MODIFIER_NAMES = new Set(['mod', 'ctrl', 'cmd', 'meta', 'shift', 'alt', 'option']);
+const MODIFIER_NAMES = new Set(['mod', 'ctrl', 'cmd', 'meta', 'shift', 'alt', 'option', 'control', 'os']);
 
 /** Key combinations the browser keeps for itself: a binding on one of them is refused. */
 const BROWSER_RESERVED = new Set(['mod+w', 'mod+t', 'mod+n', 'mod+q', 'mod+r', 'mod+l', 'mod+shift+t', 'mod+shift+n', 'mod+shift+w', 'f5', 'f11', 'f12']);
+
+/** The single chords ⌘/Ctrl combinations of which the registry owns while it is on; the older listeners leave them alone. */
+export const REGISTRY_OWNED_MOD_KEYS: ReadonlySet<string> = new Set(['k', 's', ',']);
 
 /** One chord of a binding (`mod+shift+d`), or null when it is not one. */
 export function parseChord(text: string): ShortcutChord | null {
@@ -102,9 +107,6 @@ const KEY_LABELS: Record<string, string> = {
 	arrowdown: '↓',
 	arrowleft: '←',
 	arrowright: '→',
-	'/': '/',
-	',': ',',
-	'.': '.',
 	space: 'Space'
 };
 
@@ -120,7 +122,12 @@ export function bindingKeyCaps(binding: ShortcutBinding, isMac: boolean): string
 	});
 }
 
-/** The key of a key press as a binding names it: letters by their physical key, the rest by `key`. */
+/** Whether a key name is a character typed with (or without) Shift, whose own identity carries the Shift. */
+function isPrintablePunctuation(key: string): boolean {
+	return key.length === 1 && !/[a-z\d]/.test(key);
+}
+
+/** The key of a key press as a binding names it: letters and digits by their physical key, the rest by `key`. */
 export function chordKeyOf(event: Pick<KeyboardEvent, 'key' | 'code'>): string {
 	const code = event.code ?? '';
 	if (/^Key[A-Z]$/.test(code)) return code.slice(3).toLowerCase();
@@ -130,14 +137,15 @@ export function chordKeyOf(event: Pick<KeyboardEvent, 'key' | 'code'>): string {
 	return key;
 }
 
-/** The chord a key press is, or null for a modifier alone. */
+/** The chord a key press is, or null for a modifier alone. Punctuation carries its own Shift (`?` is one key). */
 export function chordOfEvent(event: Pick<KeyboardEvent, 'key' | 'code' | 'metaKey' | 'ctrlKey' | 'shiftKey' | 'altKey'>): ShortcutChord | null {
 	const key = chordKeyOf(event);
-	if (!key || MODIFIER_NAMES.has(key) || key === 'control' || key === 'os') return null;
-	return { key, mod: !!(event.metaKey || event.ctrlKey), shift: !!event.shiftKey, alt: !!event.altKey };
+	if (!key || MODIFIER_NAMES.has(key)) return null;
+	const shift = isPrintablePunctuation(key) ? false : !!event.shiftKey;
+	return { key, mod: !!(event.metaKey || event.ctrlKey), shift, alt: !!event.altKey };
 }
 
-/** Whether two chords are the same keys. Shift is not required for a `?`-like key typed with it. */
+/** Whether two chords are the same keys. */
 export function sameChord(first: ShortcutChord, second: ShortcutChord): boolean {
 	return first.key === second.key && first.mod === second.mod && first.shift === second.shift && first.alt === second.alt;
 }
@@ -161,7 +169,19 @@ export function effectiveBindings(commands: readonly ShortcutCommand[], override
 	return result;
 }
 
-/** The commands whose binding would clash with the given one in the same (or the global) context, the command itself left out. */
+/** Whether one binding starts with the other (equal bindings included): the shorter would fire before the longer could. */
+export function overlaps(first: ShortcutBinding, second: ShortcutBinding): boolean {
+	const length = Math.min(first.length, second.length);
+	for (let at = 0; at < length; at += 1) {
+		if (!sameChord(first[at], second[at])) return false;
+	}
+	return true;
+}
+
+/**
+ * The commands whose binding would clash with the given one in the same (or the global) context — the same keys, or
+ * one binding the start of the other — the command itself left out.
+ */
 export function conflictsOf(
 	commandId: string,
 	binding: ShortcutBinding,
@@ -170,13 +190,12 @@ export function conflictsOf(
 ): ShortcutCommand[] {
 	const command = commands.find((item) => item.id === commandId);
 	if (!command) return [];
-	const text = formatBinding(binding);
 	return commands.filter((other) => {
 		if (other.id === commandId) return false;
 		const otherBinding = bindings.get(other.id);
 		if (!otherBinding) return false;
 		const sharesContext = other.context === command.context || other.context === 'global' || command.context === 'global';
-		return sharesContext && formatBinding(otherBinding) === text;
+		return sharesContext && overlaps(binding, otherBinding);
 	});
 }
 

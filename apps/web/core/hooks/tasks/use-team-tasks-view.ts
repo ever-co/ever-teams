@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useAtomValue } from 'jotai';
 import { activeTeamState, tasksByTeamState } from '@/core/stores';
 import { useLocalStorageState } from '@/core/hooks/common/use-local-storage-state';
@@ -49,6 +49,8 @@ const NO_FILTERS: TeamTasksFilters = {};
 export interface TeamTasksViewOptions {
 	/** A saved or built-in view: the page starts from this definition and keeps its changes in memory, not on the device. */
 	initial?: ITaskViewDefinition;
+	/** What names the view opened (its id, a built-in key): the page starts again from `initial` when it changes, and only then. */
+	resetKey?: string;
 	/** The tasks to list instead of the team's (a built-in view's, computed by the platform). */
 	tasks?: TTask[];
 }
@@ -121,7 +123,10 @@ export function useTeamTasksView(options: TeamTasksViewOptions = {}) {
 
 	const initial = options.initial;
 	const isDetached = initial !== undefined;
-	const initialKey = JSON.stringify(initial ?? null);
+	// Without a reset key the definition itself is the key (a refetched view then re-seeds; with one, it does not).
+	const initialKey = options.resetKey ?? JSON.stringify(initial ?? null);
+	const initialRef = useRef(initial);
+	initialRef.current = initial;
 
 	const [storedView, setStoredView] = useLocalStorageState<unknown>(VIEW_STORAGE_KEY, DEFAULT_TEAM_TASKS_VIEW);
 	const [storedScope, setStoredScope] = useLocalStorageState<unknown>(SCOPE_STORAGE_KEY, 'active');
@@ -136,8 +141,8 @@ export function useTeamTasksView(options: TeamTasksViewOptions = {}) {
 
 	// Another view opened in the same page: start again from it.
 	useEffect(() => {
-		const next = JSON.parse(initialKey) as ITaskViewDefinition | null;
-		if (!next) {
+		const next = initialRef.current;
+		if (!next || !initialKey) {
 			return;
 		}
 		setMemoryView(next.settings);

@@ -23,18 +23,18 @@ function GlobalShortcuts() {
 	const handlers = useMemo<Record<string, ShortcutHandler>>(() => {
 		const go = (path: string) => () => router.push(path);
 		const result: Record<string, ShortcutHandler> = {
-			'palette.open': () => setPaletteOpen(true),
-			'help.open': () => setHelpOpen((open) => !open),
-			'settings.open': go('/settings/personal'),
-			'go.tasks': go('/team/tasks'),
-			'go.mine': go('/views/mine'),
-			'go.thisWeek': go('/views/this-week'),
-			'go.overdue': go('/views/overdue'),
-			'go.views': go('/views')
+			paletteOpen: () => setPaletteOpen((open) => !open),
+			'helpOpen': () => setHelpOpen((open) => !open),
+			'settingsOpen': go('/settings/personal'),
+			'goTasks': go('/team/tasks'),
+			'goMine': go('/views/mine'),
+			'goThisWeek': go('/views/this-week'),
+			'goOverdue': go('/views/overdue'),
+			'goViews': go('/views')
 		};
-		if (isFeatureOn('NEXT_PUBLIC_DOCS_ENABLED')) result['go.docs'] = go('/docs');
-		if (isFeatureOn('NEXT_PUBLIC_CHAT_ENABLED')) result['go.chat'] = go('/chat');
-		if (isFeatureOn('NEXT_PUBLIC_INBOX_ENABLED')) result['go.inbox'] = go('/inbox');
+		if (isFeatureOn('NEXT_PUBLIC_DOCS_ENABLED')) result['goDocs'] = go('/docs');
+		if (isFeatureOn('NEXT_PUBLIC_CHAT_ENABLED')) result['goChat'] = go('/chat');
+		if (isFeatureOn('NEXT_PUBLIC_INBOX_ENABLED')) result['goInbox'] = go('/inbox');
 		return result;
 	}, [router, setHelpOpen, setPaletteOpen]);
 

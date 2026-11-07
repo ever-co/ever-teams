@@ -16,6 +16,10 @@ import {
 const VIEWS = '/task-views';
 const path = (id: string) => encodeURIComponent(id);
 
+/** A page of a built-in view (the platform's maximum), and the most tasks one view loads. */
+const BUILT_IN_PAGE_SIZE = 200;
+export const BUILT_IN_MAX_TASKS = 1000;
+
 /** The relations a built-in view's tasks come with (the platform's allowlist). */
 const BUILT_IN_RELATIONS = ['members', 'members.user', 'tags', 'project', 'taskStatus', 'taskPriority', 'taskSize'];
 
@@ -75,6 +79,21 @@ class TaskViewsService extends APIService {
 		);
 		const response = await this.get<ITaskBuiltInViewPage<TTask>>(`/tasks/built-in/${encodeURIComponent(key)}?${search}`, { signal });
 		return response.data;
+	};
+
+	/** Every page of a built-in view, up to {@link BUILT_IN_MAX_TASKS} tasks (the platform answers 200 at a time). */
+	builtInAll = async (key: ETaskBuiltInView, signal?: AbortSignal): Promise<ITaskBuiltInViewPage<TTask>> => {
+		const items: TTask[] = [];
+		let total = 0;
+		let skip = 0;
+		for (;;) {
+			const page = await this.builtIn(key, { take: BUILT_IN_PAGE_SIZE, skip }, signal);
+			items.push(...page.items);
+			total = page.total;
+			skip += page.items.length;
+			if (page.items.length === 0 || skip >= page.total || skip >= BUILT_IN_MAX_TASKS) break;
+		}
+		return { items, total };
 	};
 
 	// ---------------------------------------------------------------- bulk update

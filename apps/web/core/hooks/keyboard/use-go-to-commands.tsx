@@ -12,14 +12,14 @@ import { useKeyboardPreferences } from './use-keyboard-preferences';
 
 /** The "go to" commands of the registry and where each leads; the ones behind a sibling feature's flag only with it. */
 const GO_TO: Array<{ id: string; path: string; flag?: 'NEXT_PUBLIC_DOCS_ENABLED' | 'NEXT_PUBLIC_CHAT_ENABLED' | 'NEXT_PUBLIC_INBOX_ENABLED' }> = [
-	{ id: 'go.tasks', path: '/team/tasks' },
-	{ id: 'go.mine', path: '/views/mine' },
-	{ id: 'go.thisWeek', path: '/views/this-week' },
-	{ id: 'go.overdue', path: '/views/overdue' },
-	{ id: 'go.views', path: '/views' },
-	{ id: 'go.docs', path: '/docs', flag: 'NEXT_PUBLIC_DOCS_ENABLED' },
-	{ id: 'go.chat', path: '/chat', flag: 'NEXT_PUBLIC_CHAT_ENABLED' },
-	{ id: 'go.inbox', path: '/inbox', flag: 'NEXT_PUBLIC_INBOX_ENABLED' }
+	{ id: 'goTasks', path: '/team/tasks' },
+	{ id: 'goMine', path: '/views/mine' },
+	{ id: 'goThisWeek', path: '/views/this-week' },
+	{ id: 'goOverdue', path: '/views/overdue' },
+	{ id: 'goViews', path: '/views' },
+	{ id: 'goDocs', path: '/docs', flag: 'NEXT_PUBLIC_DOCS_ENABLED' },
+	{ id: 'goChat', path: '/chat', flag: 'NEXT_PUBLIC_CHAT_ENABLED' },
+	{ id: 'goInbox', path: '/inbox', flag: 'NEXT_PUBLIC_INBOX_ENABLED' }
 ];
 
 function isFlagOn(flag: string | undefined): boolean {

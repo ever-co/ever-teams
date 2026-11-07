@@ -21,9 +21,37 @@ export function undoItemsOf(outcome: ITaskBulkUpdateOutcome): ITaskBulkUpdateIte
 		.map((result) => ({ taskId: result.taskId, changes: result.previous as ITaskBulkChanges }));
 }
 
+/** Slices a list into the batches the platform takes at once. */
+export function batchesOf<T>(items: readonly T[], size = TASK_BULK_UPDATE_MAX): T[][] {
+	const batches: T[][] = [];
+	for (let at = 0; at < items.length; at += size) batches.push(items.slice(at, at + size));
+	return batches;
+}
+
+/** One outcome out of several (the batches of one change). */
+export function mergeOutcomes(outcomes: readonly ITaskBulkUpdateOutcome[]): ITaskBulkUpdateOutcome {
+	return {
+		applied: outcomes.reduce((sum, item) => sum + item.applied, 0),
+		refused: outcomes.reduce((sum, item) => sum + item.refused, 0),
+		results: outcomes.flatMap((item) => item.results)
+	};
+}
+
+/** The outcomes of the batches that went through; the others are reported. */
+function settledOutcomes(settled: PromiseSettledResult<ITaskBulkUpdateOutcome>[]): { outcomes: ITaskBulkUpdateOutcome[]; failed: number } {
+	const outcomes: ITaskBulkUpdateOutcome[] = [];
+	let failed = 0;
+	for (const result of settled) {
+		if (result.status === 'fulfilled') outcomes.push(result.value);
+		else failed += 1;
+	}
+	return { outcomes, failed };
+}
+
 /**
- * One request changing many tasks, with an undo toast that sends the previous values back. Only when the saved
- * views feature is on (the platform route came with it); the callers fall back to one update per task otherwise.
+ * One request changing many tasks (in batches of the platform's limit, sent together), with an undo toast that
+ * sends the previous values back in batches too and reports what the undo put back. Only when the saved views
+ * feature is on (the platform route came with it); the callers fall back to one update per task otherwise.
  */
 export function useBulkTaskUpdate() {
 	const t = useTranslations();
@@ -43,46 +71,51 @@ export function useBulkTaskUpdate() {
 		[refresh]
 	);
 
-	/** Applies the changes to the tasks (at most the platform's limit at once) and offers an undo. */
+	/** Sends the previous values back, batch by batch, and says how many tasks were put back. */
+	const undo = useCallback(
+		async (items: ITaskBulkUpdateItem[]) => {
+			const settled = await Promise.allSettled(batchesOf(items).map((batch) => run({ items: batch })));
+			const { outcomes, failed } = settledOutcomes(settled);
+			const outcome = mergeOutcomes(outcomes);
+			if (failed > 0 && outcomes.length === 0) {
+				toast.error(t('taskViews.UNDO_FAILED'));
+				return;
+			}
+			if (failed > 0 || outcome.refused > 0) {
+				toast.warning(t('taskViews.UNDONE_PARTLY', { applied: outcome.applied, refused: outcome.refused + items.length - outcome.applied - outcome.refused }));
+				return;
+			}
+			toast.success(t('taskViews.UNDONE', { count: outcome.applied }));
+		},
+		[run, t]
+	);
+
+	/** Applies the changes to the tasks and offers an undo for the ones that changed, even when a batch failed. */
 	const bulkUpdate = useCallback(
 		async (taskIds: string[], changes: ITaskBulkChanges, label: string): Promise<ITaskBulkUpdateOutcome | null> => {
 			if (!taskIds.length) return null;
-			const batches: string[][] = [];
-			for (let at = 0; at < taskIds.length; at += TASK_BULK_UPDATE_MAX) batches.push(taskIds.slice(at, at + TASK_BULK_UPDATE_MAX));
-			let outcomes: ITaskBulkUpdateOutcome[];
-			try {
-				// The batches are independent (each task once), so they go out together.
-				outcomes = await Promise.all(batches.map((batch) => run({ taskIds: batch, changes })));
-			} catch (error) {
+			// The batches are independent (each task once), so they go out together.
+			const settled = await Promise.allSettled(batchesOf(taskIds).map((batch) => run({ taskIds: batch, changes })));
+			const { outcomes, failed } = settledOutcomes(settled);
+			if (failed > 0 && outcomes.length === 0) {
 				toast.error(t('taskViews.BULK_FAILED'));
-				throw error;
+				throw new Error('BULK_UPDATE_FAILED');
 			}
-			const outcome: ITaskBulkUpdateOutcome = {
-				applied: outcomes.reduce((sum, item) => sum + item.applied, 0),
-				refused: outcomes.reduce((sum, item) => sum + item.refused, 0),
-				results: outcomes.flatMap((item) => item.results)
-			};
+			const outcome = mergeOutcomes(outcomes);
 			const undoItems = undoItemsOf(outcome);
-			const message = outcome.refused > 0
-				? t('taskViews.BULK_PARTLY_APPLIED', { applied: outcome.applied, refused: outcome.refused, label })
-				: t('taskViews.BULK_APPLIED', { count: outcome.applied, label });
-			toast(message, {
+			const notSent = failed * TASK_BULK_UPDATE_MAX;
+			let message: string;
+			if (failed > 0) message = t('taskViews.BULK_PARTLY_SENT', { applied: outcome.applied, failed: Math.min(notSent, taskIds.length - outcome.applied - outcome.refused), label });
+			else if (outcome.refused > 0) message = t('taskViews.BULK_PARTLY_APPLIED', { applied: outcome.applied, refused: outcome.refused, label });
+			else message = t('taskViews.BULK_APPLIED', { count: outcome.applied, label });
+			const show = failed > 0 || outcome.refused > 0 ? toast.warning : toast;
+			show(message, {
 				id: 'task-bulk-update',
-				action: undoItems.length
-					? {
-							label: t('taskViews.UNDO'),
-							onClick: () => {
-								void run({ items: undoItems }).then(
-									() => toast.success(t('taskViews.UNDONE', { count: undoItems.length })),
-									() => toast.error(t('taskViews.UNDO_FAILED'))
-								);
-							}
-						}
-					: undefined
+				action: undoItems.length ? { label: t('taskViews.UNDO'), onClick: () => void undo(undoItems) } : undefined
 			});
 			return outcome;
 		},
-		[run, t]
+		[run, t, undo]
 	);
 
 	return { bulkUpdate, isBulkAvailable: isTaskViewsEnabled() };

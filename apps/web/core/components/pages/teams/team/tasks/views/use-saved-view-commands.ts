@@ -131,7 +131,7 @@ export function useSavedViewCommands({ savedView, isBuiltIn, definition, isDirty
 	/** `Mod+S` on the list: save the open view when it changed, or name a new one. */
 	const listShortcuts = useMemo(
 		() => ({
-			'list.saveView': () => {
+			listSaveView: () => {
 				if (!isTaskViewsEnabled() || isBuiltIn) return;
 				if (savedView) {
 					if (isDirty) void save();
