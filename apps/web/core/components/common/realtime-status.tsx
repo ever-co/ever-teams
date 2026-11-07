@@ -11,7 +11,7 @@ import { realtimeStatusAtom } from '@/core/stores/common/realtime';
  */
 export function RealtimeStatus() {
 	const status = useAtomValue(realtimeStatusAtom);
-	const t = useTranslations('realtime');
+	const t = useTranslations();
 
 	if (status !== 'reconnecting') return null;
 
@@ -21,7 +21,7 @@ export function RealtimeStatus() {
 			aria-live="polite"
 			className="pointer-events-none fixed bottom-3 right-3 z-40 rounded-md border bg-background/95 px-3 py-1.5 text-xs text-muted-foreground shadow-sm"
 		>
-			{t('RECONNECTING')}
+			{t('realtime.RECONNECTING')}
 		</div>
 	);
 }

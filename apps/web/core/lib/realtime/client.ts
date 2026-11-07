@@ -302,8 +302,11 @@ export class RealtimeClient {
 
 	private closeConnection(): void {
 		const connection = this.connection;
+		const unsubscribe = this.unsubscribe;
 		this.connection = null;
 		this.unsubscribe = null;
+		// The subscription ends before the socket does, so the server sees a complete rather than a dropped stream.
+		unsubscribe?.();
 		connection?.close();
 	}
 
