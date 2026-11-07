@@ -1969,13 +1969,20 @@ describe('Ever Teams feature surface preservation', () => {
 		const routes = collectRealHeadSurface().routes;
 		// Every route.ts under apps/web/app (`git ls-files 'apps/web/app/**/route.ts'`) and every handler verb they
 		// export: 173 files and 229 verbs on develop 2026-11-06 (the November PR sweeps added routes, none went away;
-		// #4931 added PUT /api/organization/[id]).
+		// #4931 added PUT /api/organization/[id]); 182 files and 241 verbs with the Linear integration proxies
+		// (/api/integration/linear/**: status, install/state, [id], teams, teams/[teamId], mappings, mappings/[mappingId],
+		// mappings/[mappingId]/import, runs); 193 files and 255 verbs with the Asana integration proxies
+		// (/api/integration/asana/**: status, install/state, [id], metadata, workspaces/[workspaceGid]/projects,
+		// projects/[projectGid]/sections, mappings, mappings/[mappingId], mappings/[mappingId]/webhook,
+		// mappings/[mappingId]/import, runs); 204 files and 269 verbs with the Trello integration proxies
+		// (/api/integration/trello/**: status, install/state, connect, [id], metadata, boards/[boardId]/lists, mappings,
+		// mappings/[mappingId], mappings/[mappingId]/webhook, mappings/[mappingId]/import, runs).
 		// A new route raises these numbers; a lower number means a route or a verb was lost.
-		// 179 files and 238 verbs with the task views, bulk and preferences proxies on this branch.
-		expect(routes.filter((value) => /\/route\.[jt]s$/.test(value))).toHaveLength(179);
+		// 210 files and 278 verbs with the task views, bulk and preferences proxies on top (+6 files, +9 verbs).
+		expect(routes.filter((value) => /\/route\.[jt]s$/.test(value))).toHaveLength(210);
 		expect(
 			routes.filter((value) => /\/route\.[jt]s::(?:GET|POST|PUT|PATCH|DELETE|HEAD|OPTIONS)$/.test(value))
-		).toHaveLength(238);
+		).toHaveLength(278);
 		expect(routes).toEqual(
 			expect.arrayContaining([
 				// Proxy mode twins of Gauzy's public account deletion by e-mail link (2026-10-27)
