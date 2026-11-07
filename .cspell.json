@@ -956,7 +956,8 @@
 		"messageformat",
 		"serde",
 		"unsnooze",
-		"unsnoozes"
+		"unsnoozes",
+		"ghcup"
 	],
 	"useGitignore": true,
 	"ignorePaths": [
