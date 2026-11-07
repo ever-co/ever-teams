@@ -3398,6 +3398,14 @@
 		"SETTINGS_PAGE": {
 			"CHANNELS": {
 				"EMAIL_TITLE": "E-Mail",
+				"PUSH_TITLE": "Browser-Benachrichtigungen",
+				"PUSH_INTRO": "Erhalten Sie auf diesem Gerät eine Benachrichtigung, wenn etwas Neues in Ihrem Posteingang ankommt, auch wenn die App geschlossen ist.",
+				"PUSH_LABEL": "Benachrichtigungen auf diesem Gerät",
+				"PUSH_ON": "Dieser Browser zeigt Ihre neuen Einträge.",
+				"PUSH_OFF": "Für diesen Browser aus.",
+				"PUSH_BLOCKED": "Benachrichtigungen sind für diese Website blockiert: Erlauben Sie sie in den Browsereinstellungen und schalten Sie sie dann hier ein.",
+				"PUSH_UNSUPPORTED": "Dieser Browser kann keine Benachrichtigungen anzeigen.",
+				"PUSH_FAILED": "Die Browser-Benachrichtigungen konnten nicht geändert werden. Versuchen Sie es erneut.",
 				"EMAIL_INTRO": "Wie dich jede Art per E-Mail erreicht. Jede eingeschaltete Art erscheint weiterhin in deinem Posteingang.",
 				"DEFAULT_LABEL": "Jede Art",
 				"DEFAULT_TEXT": "Die E-Mail-Einstellung, die eine Art verwendet, sofern ihre eigene Zeile nichts anderes sagt.",

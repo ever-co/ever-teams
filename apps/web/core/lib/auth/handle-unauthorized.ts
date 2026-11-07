@@ -1,4 +1,5 @@
 import { removeAuthCookies } from '@/core/lib/helpers/cookies';
+import { unsubscribeThisBrowserPush } from '@/core/lib/utils/web-push';
 import { DEFAULT_APP_PATH } from '@/core/constants/config/constants';
 import { globalQueryClient } from '@/core/query/config';
 import { DisconnectionReason } from '@/core/types/enums/disconnection-reason';
@@ -115,6 +116,9 @@ async function performLogout(reason: DisconnectionReason, details?: Record<strin
 
 	// 1. Clear all authentication cookies
 	removeAuthCookies();
+	// The session ended: this browser stops receiving the person's inbox notifications (the push service then refuses
+	// the platform's next push, and the platform drops the device). Fire and forget.
+	void unsubscribeThisBrowserPush();
 
 	// 2. Clear React Query cache (if available)
 	if (globalQueryClient) {

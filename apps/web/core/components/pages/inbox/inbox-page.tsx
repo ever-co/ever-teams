@@ -38,8 +38,10 @@ import {
 	filterInboxEntries,
 	fromNotificationEntry,
 	groupInboxEntriesByDay,
-	snoozeUntil
+	snoozeUntil,
+	toInboxEntry
 } from '@/core/lib/utils/inbox-entry';
+import { inboxService } from '@/core/services/client/api/inbox';
 import { activeTeamState } from '@/core/stores/teams/organization-team';
 import { tasksByTeamState } from '@/core/stores/teams/team-tasks';
 import { cn } from '@/core/lib/helpers';
@@ -334,6 +336,26 @@ function InboxPageContent() {
 			})
 			.catch(failed);
 	}, [actions, legacyActions, listSelection, reportFailure, t, usesExtension]);
+
+	// `?item=` (a clicked browser notification): the entry opens once it is in the list.
+	const linkedItemId = searchParams.get('item');
+	const openedLinkRef = useRef<string | null>(null);
+	useEffect(() => {
+		if (!linkedItemId || openedLinkRef.current === linkedItemId || isLoading) return;
+		const entry = byId.get(linkedItemId);
+		if (entry) {
+			openedLinkRef.current = linkedItemId;
+			handleOpen(entry);
+			return;
+		}
+		// Not in the loaded list (older, archived, done or snoozed elsewhere): read it on its own.
+		if (!usesExtension) return;
+		openedLinkRef.current = linkedItemId;
+		inboxService
+			.getItem(linkedItemId)
+			.then((item) => handleOpen(toInboxEntry(item)))
+			.catch(() => toast.error(t('inbox.LOAD_ERROR')));
+	}, [byId, handleOpen, isLoading, linkedItemId, t, usesExtension]);
 
 	const byIdAction = useCallback(
 		(handler: (entry: InboxEntry) => void) => (id: string) => {
