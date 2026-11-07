@@ -1983,10 +1983,11 @@ describe('Ever Teams feature surface preservation', () => {
 		// POST /api/realtime/presence, POST /api/realtime/typing).
 		// 219 files and 287 verbs with the Inbox page proxies (/api/inbox/items, [id], [id]/state, counts, mark-all-read) on top.
 		// 247 files and 323 verbs with the chat proxies (/api/chat/**) on top.
-		expect(routes.filter((value) => /\/route\.[jt]s$/.test(value))).toHaveLength(247);
+		// 262 files and 341 verbs with the Docs proxies (/api/docs/**) on top.
+		expect(routes.filter((value) => /\/route\.[jt]s$/.test(value))).toHaveLength(262);
 		expect(
 			routes.filter((value) => /\/route\.[jt]s::(?:GET|POST|PUT|PATCH|DELETE|HEAD|OPTIONS)$/.test(value))
-		).toHaveLength(323);
+		).toHaveLength(341);
 		expect(routes).toEqual(
 			expect.arrayContaining([
 				// Proxy mode twins of Gauzy's public account deletion by e-mail link (2026-10-27)
