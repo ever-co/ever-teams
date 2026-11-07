@@ -121,7 +121,8 @@ export const PROTECTED_APP_URL_PATHS: RegExp[] = [
 	new RegExp('^' + LOCALE_PREFIX + '(\\/meet(\\/)?)(.*)$'),
 	new RegExp('^' + LOCALE_PREFIX + '(\\/board(\\/)?)(.*)$'),
 	new RegExp('^' + LOCALE_PREFIX + String.raw`(\/views(\/)?)(.*)$`),
-	new RegExp('^' + LOCALE_PREFIX + String.raw`(\/inbox(\/)?)(.*)$`)
+	new RegExp('^' + LOCALE_PREFIX + String.raw`(\/inbox(\/)?)(.*)$`),
+	new RegExp('^' + LOCALE_PREFIX + '(\\/chat(\\/)?)(.*)$')
 ];
 
 // Cookies

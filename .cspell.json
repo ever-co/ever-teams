@@ -969,6 +969,11 @@
 		"resynchronisation",
 		"unsnooze",
 		"unsnoozes",
+		"unreads",
+		"unpin",
+		"unfollow",
+		"outbox",
+		"nonce",
 		"ghcup"
 	],
 	"useGitignore": true,

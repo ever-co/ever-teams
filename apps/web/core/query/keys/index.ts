@@ -459,6 +459,22 @@ export const queryKeys = {
 		item: (tenantId: string | undefined | null, id: string | undefined | null) =>
 			['inbox', 'item', tenantId ?? null, id ?? null] as const
 	},
+	chat: {
+		all: ['chat'] as const,
+		conversations: (tenantId: string | undefined | null, organizationId: string | undefined | null, userId: string | undefined | null) =>
+			['chat', 'conversations', tenantId ?? null, organizationId ?? null, userId ?? null] as const,
+		browse: (tenantId: string | undefined | null, organizationId: string | undefined | null, userId: string | undefined | null) =>
+			['chat', 'browse', tenantId ?? null, organizationId ?? null, userId ?? null] as const,
+		states: (tenantId: string | undefined | null, organizationId: string | undefined | null, userId: string | undefined | null) =>
+			['chat', 'states', tenantId ?? null, organizationId ?? null, userId ?? null] as const,
+		messages: (tenantId: string | undefined | null, conversationId: string | undefined | null) =>
+			['chat', 'messages', tenantId ?? null, conversationId ?? null] as const,
+		thread: (tenantId: string | undefined | null, rootMessageId: string | undefined | null) =>
+			['chat', 'thread', tenantId ?? null, rootMessageId ?? null] as const,
+		threads: (tenantId: string | undefined | null, userId: string | undefined | null) => ['chat', 'threads', tenantId ?? null, userId ?? null] as const,
+		members: (tenantId: string | undefined | null, conversationId: string | undefined | null) =>
+			['chat', 'members', tenantId ?? null, conversationId ?? null] as const
+	},
 
 	taskComments: {
 		all: ['task-comments'] as const,
