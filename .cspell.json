@@ -954,8 +954,13 @@
 		"formatjs",
 		"localematcher",
 		"messageformat",
-		"serde"
-],
+		"serde",
+		"unreads",
+		"unpin",
+		"unfollow",
+		"outbox",
+		"nonce"
+	],
 	"useGitignore": true,
 	"ignorePaths": [
 		"**/locales/**",

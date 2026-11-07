@@ -14,7 +14,8 @@ import {
 	Spinner,
 	Star,
 	Task,
-	X
+	X,
+	MessageSquare
 } from '@/core/components/icons/hugeicons';
 
 import {
@@ -82,6 +83,7 @@ import { GlobalProjectActionModal } from '../features/projects/global-project-ac
 import { useSidebarDataOwner } from '@/core/hooks/bootstrap/use-feature-data';
 import { getMyWorkNavigation } from './my-work-navigation';
 import { readRuntimeEnv } from '@/env-config';
+import { isChatEnabled } from '@/core/lib/utils/chat-enabled';
 import { CommandPaletteTrigger } from './default-layout/header/command-palette-trigger';
 import { DefaultCreateAction } from '../features/layouts/header/create-default-action';
 import { SettingsNav } from '../settings/kit/settings-nav';
@@ -194,10 +196,19 @@ export function AppSidebar({ publicTeam, ...props }: AppSidebarProps) {
 		};
 		// /inbox has no page yet (404 for every user who clicks it). Gated, not removed: flip
 		// NEXT_PUBLIC_INBOX_ENABLED=true when the route ships (read at runtime: no rebuild of the image).
-		if (isInboxEnabled()) {
-			return [homeEntry, inboxEntry, calendarEntry];
-		}
-		return [homeEntry, calendarEntry];
+		// The team chat ships behind NEXT_PUBLIC_CHAT_ENABLED (read at runtime); the assistant keeps its own row.
+		const chatEntry = {
+			title: t('teamChat.TITLE'),
+			url: '/chat',
+			selectable: true,
+			icon: MessageSquare,
+			label: 'chat'
+		};
+		const entries = [homeEntry];
+		if (isInboxEnabled()) entries.push(inboxEntry);
+		if (isChatEnabled()) entries.push(chatEntry);
+		entries.push(calendarEntry);
+		return entries;
 	}, [t]);
 
 	const navMain = useMemo(() => {
