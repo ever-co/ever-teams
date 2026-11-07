@@ -133,10 +133,21 @@ beforeEach(() => {
 	mockStatusOptions.mockReset().mockReturnValue(STATUSES);
 });
 
+// The sections render through hooks that read `window.matchMedia`, which jsdom does not provide.
+beforeAll(() => {
+	window.matchMedia = jest.fn().mockReturnValue({
+		matches: false,
+		addEventListener: jest.fn(),
+		removeEventListener: jest.fn(),
+		addListener: jest.fn(),
+		removeListener: jest.fn()
+	}) as unknown as typeof window.matchMedia;
+});
+
 describe('TrelloProviderSection', () => {
 	it('renders nothing while hidden (flag off, or the platform does not serve Trello)', () => {
 		const { container } = render(<TrelloProviderSection trello={settings({ status: 'hidden' })} />);
-		expect(container).toBeEmptyDOMElement();
+		expect((container).innerHTML).toBe('');
 	});
 
 	it('not connected: offers Connect, which starts the flow; while the return is finished the button waits', () => {
@@ -145,14 +156,14 @@ describe('TrelloProviderSection', () => {
 		fireEvent.click(screen.getByRole('button', { name: 'settings.integrations.trello.CONNECT' }));
 		expect(trello.connect).toHaveBeenCalledTimes(1);
 		rerender(<TrelloProviderSection trello={settings({ pending: { kind: 'finish', mappingId: null } })} />);
-		expect(screen.getByRole('button', { name: 'settings.integrations.trello.CONNECT' })).toBeDisabled();
-		expect(screen.getByText('settings.integrations.trello.FINISHING')).toBeInTheDocument();
+		expect((screen.getByRole('button', { name: 'settings.integrations.trello.CONNECT' }) as HTMLButtonElement).disabled).toBe(true);
+		expect(screen.getByText('settings.integrations.trello.FINISHING')).toBeTruthy();
 	});
 
 	it('a refused token on the return is said, and can be dismissed', () => {
 		const trello = settings({ finishError: new Error('refused') });
 		render(<TrelloProviderSection trello={trello} />);
-		expect(screen.getByText('settings.integrations.trello.FINISH_ERROR_TITLE')).toBeInTheDocument();
+		expect(screen.getByText('settings.integrations.trello.FINISH_ERROR_TITLE')).toBeTruthy();
 		fireEvent.click(screen.getByRole('button', { name: 'common.CLOSE' }));
 		expect(trello.clearFinishError).toHaveBeenCalledTimes(1);
 	});
@@ -161,15 +172,15 @@ describe('TrelloProviderSection', () => {
 		const trello = connected();
 		render(<TrelloProviderSection trello={trello} />);
 		const row = screen.getByTestId('trello-mapping-m1');
-		expect(row).toHaveTextContent('Roadmap');
-		expect(row).toHaveTextContent('LISTS_MAPPED {"count":1}');
+		expect((row).textContent ?? '').toContain('Roadmap');
+		expect((row).textContent ?? '').toContain('LISTS_MAPPED {"count":1}');
 		fireEvent.click(within(row).getByRole('button', { name: 'settings.integrations.trello.IMPORT_CHANGES' }));
 		expect(trello.importNow).toHaveBeenCalledWith('m1', false);
 		fireEvent.click(within(row).getByRole('button', { name: 'settings.integrations.trello.WEBHOOK_REGISTER' }));
 		expect(trello.registerWebhook).toHaveBeenCalledWith('m1');
-		expect(screen.getByText('settings.integrations.trello.RUN_import')).toBeInTheDocument();
+		expect(screen.getByText('settings.integrations.trello.RUN_import')).toBeTruthy();
 		fireEvent.click(screen.getByRole('button', { name: 'settings.integrations.trello.DISCONNECT' }));
-		expect(screen.getByTestId('trello-disconnect-dialog')).toHaveTextContent('settings.integrations.trello.DISCONNECT_TITLE');
+		expect((screen.getByTestId('trello-disconnect-dialog')).textContent ?? '').toContain('settings.integrations.trello.DISCONNECT_TITLE');
 	});
 
 	it('add form: offers the unmapped boards, reads the lists of the chosen one, and saves the map', async () => {
@@ -184,7 +195,7 @@ describe('TrelloProviderSection', () => {
 		expect(mockStatusOptions).toHaveBeenLastCalledWith('p1');
 		pickIn(within(form).getByTestId('trello-list-l-doing'), 'in-progress');
 		const save = screen.getByTestId('trello-add-mapping-save');
-		expect(save).toBeEnabled();
+		expect((save as HTMLButtonElement).disabled).toBe(false);
 		fireEvent.click(save);
 		await waitFor(() => expect(trello.createMapping).toHaveBeenCalledTimes(1));
 		expect(trello.createMapping).toHaveBeenCalledWith(expect.objectContaining({ trelloBoardId: 'b-2', trelloBoardName: 'Launch', projectId: 'p1', listMap: { 'l-doing': 'in-progress' } }));
@@ -197,11 +208,11 @@ describe('TrelloProviderSection', () => {
 		pickIn(form, 'b-2');
 		pickIn(form, 'p1');
 		pickIn(within(form).getByTestId('trello-list-l-todo'), 'open');
-		expect(screen.getByTestId('trello-add-mapping-save')).toBeEnabled();
+		expect((screen.getByTestId('trello-add-mapping-save') as HTMLButtonElement).disabled).toBe(false);
 		mockStatusOptions.mockReturnValue({ ...STATUSES, options: [{ name: 'completed' }] });
 		pickIn(within(form).getByTestId('trello-list-l-doing'), 'completed');
-		expect(within(form).getByRole('alert')).toHaveTextContent('LIST_MAP_INVALID {"values":"open"}');
-		expect(screen.getByTestId('trello-add-mapping-save')).toBeDisabled();
+		expect((within(form).getByRole('alert')).textContent ?? '').toContain('LIST_MAP_INVALID {"values":"open"}');
+		expect((screen.getByTestId('trello-add-mapping-save') as HTMLButtonElement).disabled).toBe(true);
 	});
 
 	it('an existing mapping: the list map can be edited against the board lists and saved', async () => {
@@ -210,30 +221,30 @@ describe('TrelloProviderSection', () => {
 		const row = screen.getByTestId('trello-mapping-m1');
 		fireEvent.click(within(row).getByRole('button', { name: 'settings.integrations.trello.LIST_MAP_EDIT' }));
 		expect(mockLists).toHaveBeenLastCalledWith('int-1', 'b-1');
-		expect(within(row).getByTestId('trello-list-l-doing').querySelector('[data-testid="select"]')).toHaveAttribute('data-value', 'in-progress');
+		expect((within(row).getByTestId('trello-list-l-doing').querySelector('[data-testid="select"]'))?.getAttribute('data-value')).toBe('in-progress');
 		pickIn(within(row).getByTestId('trello-list-l-todo'), 'open');
 		const save = screen.getByTestId('trello-list-map-save-m1');
-		expect(save).toBeEnabled();
+		expect((save as HTMLButtonElement).disabled).toBe(false);
 		fireEvent.click(save);
 		await waitFor(() => expect(trello.updateMapping).toHaveBeenCalledTimes(1));
 		expect(trello.updateMapping).toHaveBeenCalledWith('m1', { listMap: { 'l-todo': 'open', 'l-doing': 'in-progress' } });
-		await waitFor(() => expect(screen.queryByTestId('trello-list-map-save-m1')).not.toBeInTheDocument());
+		await waitFor(() => expect(screen.queryByTestId('trello-list-map-save-m1')).toBeNull());
 	});
 
 	it('a failed mappings read hides the add form until the retry succeeds; webhooks off hides the webhook column', () => {
 		const { rerender } = render(<TrelloProviderSection trello={connected({ mappings: [], canManageMappings: false, detailsError: new Error('down') })} />);
 		expect(screen.queryByTestId('trello-add-mapping')).toBeNull();
-		expect(screen.getByText('settings.integrations.trello.DETAILS_ERROR_TITLE')).toBeInTheDocument();
+		expect(screen.getByText('settings.integrations.trello.DETAILS_ERROR_TITLE')).toBeTruthy();
 		rerender(<TrelloProviderSection trello={connected({ webhooks: false })} />);
 		expect(screen.queryByRole('button', { name: 'settings.integrations.trello.WEBHOOK_REGISTER' })).toBeNull();
-		expect(screen.getByText('settings.integrations.trello.WEBHOOKS_OFF')).toBeInTheDocument();
+		expect(screen.getByText('settings.integrations.trello.WEBHOOKS_OFF')).toBeTruthy();
 	});
 
 	it('the disconnect confirmation shows only a disconnect error, never a mapping one', () => {
 		const trello = connected({ actionError: new Error('mapping failed') });
 		const { rerender } = render(<TrelloProviderSection trello={trello} />);
 		fireEvent.click(screen.getByRole('button', { name: 'settings.integrations.trello.DISCONNECT' }));
-		expect(screen.getByTestId('trello-disconnect-dialog')).toHaveTextContent(/^settings\.integrations\.trello\.DISCONNECT_TITLE$/);
+		expect((screen.getByTestId('trello-disconnect-dialog')).textContent ?? '').toMatch(/^settings\.integrations\.trello\.DISCONNECT_TITLE$/);
 		rerender(<TrelloProviderSection trello={{ ...trello, disconnectError: new Error('disconnect failed') }} />);
 		expect(screen.getByTestId('trello-disconnect-dialog').textContent).toMatch(/DISCONNECT_TITLE \| /);
 	});

@@ -120,10 +120,21 @@ beforeEach(() => {
 	mockStatusOptions.mockReset().mockReturnValue(STATUSES);
 });
 
+// The sections render through hooks that read `window.matchMedia`, which jsdom does not provide.
+beforeAll(() => {
+	window.matchMedia = jest.fn().mockReturnValue({
+		matches: false,
+		addEventListener: jest.fn(),
+		removeEventListener: jest.fn(),
+		addListener: jest.fn(),
+		removeListener: jest.fn()
+	}) as unknown as typeof window.matchMedia;
+});
+
 describe('LinearProviderSection', () => {
 	it('renders nothing while hidden (flag off, or the platform does not serve Linear)', () => {
 		const { container } = render(<LinearProviderSection linear={settings({ status: 'hidden' })} />);
-		expect(container).toBeEmptyDOMElement();
+		expect((container).innerHTML).toBe('');
 	});
 
 	it('not connected: offers Connect, which starts the flow', () => {
@@ -135,22 +146,22 @@ describe('LinearProviderSection', () => {
 
 	it('not configured on the platform: Connect is disabled and says why', () => {
 		render(<LinearProviderSection linear={settings({ status: 'notConfigured' })} />);
-		expect(screen.getByRole('button', { name: 'settings.integrations.linear.CONNECT' })).toBeDisabled();
-		expect(screen.getByText('settings.integrations.linear.CONNECT_UNAVAILABLE')).toBeInTheDocument();
+		expect((screen.getByRole('button', { name: 'settings.integrations.linear.CONNECT' }) as HTMLButtonElement).disabled).toBe(true);
+		expect(screen.getByText('settings.integrations.linear.CONNECT_UNAVAILABLE')).toBeTruthy();
 	});
 
 	it('connected: lists the mappings with their actions, the add form, the runs, and a way to disconnect', () => {
 		const linear = connected();
 		render(<LinearProviderSection linear={linear} />);
-		expect(screen.getByText('ENG · Engineering')).toBeInTheDocument();
+		expect(screen.getByText('ENG · Engineering')).toBeTruthy();
 		fireEvent.click(screen.getByRole('button', { name: 'settings.integrations.linear.IMPORT_CHANGES' }));
 		expect(linear.importNow).toHaveBeenCalledWith('m1', false);
 		// The add form offers only the team not mapped yet.
-		expect(screen.getByTestId('linear-add-mapping')).toHaveTextContent('OPS · Operations');
-		expect(screen.getByTestId('linear-add-mapping')).not.toHaveTextContent('ENG · Engineering');
-		expect(screen.getByText('settings.integrations.linear.RUN_import')).toBeInTheDocument();
+		expect((screen.getByTestId('linear-add-mapping')).textContent ?? '').toContain('OPS · Operations');
+		expect((screen.getByTestId('linear-add-mapping')).textContent ?? '').not.toContain('ENG · Engineering');
+		expect(screen.getByText('settings.integrations.linear.RUN_import')).toBeTruthy();
 		fireEvent.click(screen.getByRole('button', { name: 'settings.integrations.linear.DISCONNECT' }));
-		expect(screen.getByTestId('linear-disconnect-dialog')).toHaveTextContent('settings.integrations.linear.DISCONNECT_TITLE');
+		expect((screen.getByTestId('linear-disconnect-dialog')).textContent ?? '').toContain('settings.integrations.linear.DISCONNECT_TITLE');
 	});
 
 	it('add form: the state map offers the statuses of the chosen project and the organization, and saves them', async () => {
@@ -162,10 +173,10 @@ describe('LinearProviderSection', () => {
 		expect(mockStatusOptions).toHaveBeenLastCalledWith('p1');
 		// The started kind: in-progress by default, changed to completed.
 		const started = within(form).getByTestId('linear-state-started');
-		expect(started.querySelector('[data-testid="select"]')).toHaveAttribute('data-value', 'in-progress');
+		expect((started.querySelector('[data-testid="select"]'))?.getAttribute('data-value')).toBe('in-progress');
 		pickIn(started, 'completed');
 		const save = screen.getByTestId('linear-add-mapping-save');
-		expect(save).toBeEnabled();
+		expect((save as HTMLButtonElement).disabled).toBe(false);
 		fireEvent.click(save);
 		await waitFor(() => expect(linear.createMapping).toHaveBeenCalledTimes(1));
 		expect(linear.createMapping).toHaveBeenCalledWith(
@@ -180,10 +191,10 @@ describe('LinearProviderSection', () => {
 		const form = screen.getByTestId('linear-add-mapping');
 		pickIn(form, 't2');
 		pickIn(form, 'p1');
-		expect(within(form).getByRole('alert')).toHaveTextContent('STATE_MAP_INVALID {"values":"backlog, doing, cancelled"}');
-		expect(screen.getByTestId('linear-add-mapping-save')).toBeDisabled();
+		expect((within(form).getByRole('alert')).textContent ?? '').toContain('STATE_MAP_INVALID {"values":"backlog, doing, cancelled"}');
+		expect((screen.getByTestId('linear-add-mapping-save') as HTMLButtonElement).disabled).toBe(true);
 		// Each offending field offers its own value, marked, so the person sees what to replace.
-		expect(within(within(form).getByTestId('linear-state-started')).getByRole('button', { name: 'settings.integrations.linear.STATE_MAP_UNKNOWN {"value":"doing"}' })).toBeInTheDocument();
+		expect(within(within(form).getByTestId('linear-state-started')).getByRole('button', { name: 'settings.integrations.linear.STATE_MAP_UNKNOWN {"value":"doing"}' })).toBeTruthy();
 	});
 
 	it('add form: while the statuses cannot be read, nothing can be saved and a retry is offered', () => {
@@ -193,7 +204,7 @@ describe('LinearProviderSection', () => {
 		const form = screen.getByTestId('linear-add-mapping');
 		pickIn(form, 't2');
 		pickIn(form, 'p1');
-		expect(screen.getByTestId('linear-add-mapping-save')).toBeDisabled();
+		expect((screen.getByTestId('linear-add-mapping-save') as HTMLButtonElement).disabled).toBe(true);
 		fireEvent.click(within(form).getByRole('button', { name: 'notifications.RETRY' }));
 		expect(retry).toHaveBeenCalledTimes(1);
 	});
@@ -202,29 +213,29 @@ describe('LinearProviderSection', () => {
 		const linear = connected({ mappings: [{ ...connected().mappings[0], stateMap: { started: 'doing' } }] });
 		render(<LinearProviderSection linear={linear} />);
 		const row = screen.getByTestId('linear-mapping-m1');
-		expect(within(row).getByRole('alert')).toHaveTextContent('STATE_MAP_INVALID {"values":"doing"}');
+		expect((within(row).getByRole('alert')).textContent ?? '').toContain('STATE_MAP_INVALID {"values":"doing"}');
 		fireEvent.click(within(row).getByRole('button', { name: 'settings.integrations.linear.STATE_MAP_EDIT' }));
 		expect(mockStatusOptions).toHaveBeenCalledWith('p1');
 		const save = screen.getByTestId('linear-state-map-save-m1');
-		expect(save).toBeDisabled();
+		expect((save as HTMLButtonElement).disabled).toBe(true);
 		pickIn(within(row).getByTestId('linear-state-started'), 'in-progress');
-		expect(save).toBeEnabled();
+		expect((save as HTMLButtonElement).disabled).toBe(false);
 		fireEvent.click(save);
 		await waitFor(() => expect(linear.updateMapping).toHaveBeenCalledTimes(1));
 		expect(linear.updateMapping).toHaveBeenCalledWith('m1', { stateMap: expect.objectContaining({ started: 'in-progress', completed: 'completed' }) });
-		await waitFor(() => expect(screen.queryByTestId('linear-state-map-save-m1')).not.toBeInTheDocument());
+		await waitFor(() => expect(screen.queryByTestId('linear-state-map-save-m1')).toBeNull());
 	});
 
 	it('a failed mappings read hides the add form (every team would look unmapped) until the retry succeeds', () => {
 		render(<LinearProviderSection linear={connected({ mappings: [], canManageMappings: false, detailsError: new Error('down') })} />);
 		expect(screen.queryByTestId('linear-add-mapping')).toBeNull();
-		expect(screen.getByText('settings.integrations.linear.DETAILS_ERROR_TITLE')).toBeInTheDocument();
+		expect(screen.getByText('settings.integrations.linear.DETAILS_ERROR_TITLE')).toBeTruthy();
 	});
 
 	it('shows what the platform sent the person back with, and lets them dismiss it', () => {
 		const linear = settings({ callbackError: 'denied' });
 		render(<LinearProviderSection linear={linear} />);
-		expect(screen.getByText('settings.integrations.linear.CALLBACK_denied')).toBeInTheDocument();
+		expect(screen.getByText('settings.integrations.linear.CALLBACK_denied')).toBeTruthy();
 		fireEvent.click(screen.getByRole('button', { name: 'common.CLOSE' }));
 		expect(linear.dismissCallbackError).toHaveBeenCalledTimes(1);
 	});
@@ -233,7 +244,7 @@ describe('LinearProviderSection', () => {
 		const linear = connected({ actionError: new Error('mapping failed') });
 		const { rerender } = render(<LinearProviderSection linear={linear} />);
 		fireEvent.click(screen.getByRole('button', { name: 'settings.integrations.linear.DISCONNECT' }));
-		expect(screen.getByTestId('linear-disconnect-dialog')).toHaveTextContent(/^settings\.integrations\.linear\.DISCONNECT_TITLE$/);
+		expect((screen.getByTestId('linear-disconnect-dialog')).textContent ?? '').toMatch(/^settings\.integrations\.linear\.DISCONNECT_TITLE$/);
 		rerender(<LinearProviderSection linear={{ ...linear, disconnectError: new Error('disconnect failed') }} />);
 		expect(screen.getByTestId('linear-disconnect-dialog').textContent).toMatch(/DISCONNECT_TITLE \| /);
 	});
