@@ -78,6 +78,7 @@ function settings(overrides: Partial<LinearIntegrationSettings> = {}): LinearInt
 		teams: [],
 		projects: [],
 		mappings: [],
+		canManageMappings: true,
 		runs: [],
 		isLoadingDetails: false,
 		detailsError: null,
@@ -212,6 +213,12 @@ describe('LinearProviderSection', () => {
 		await waitFor(() => expect(linear.updateMapping).toHaveBeenCalledTimes(1));
 		expect(linear.updateMapping).toHaveBeenCalledWith('m1', { stateMap: expect.objectContaining({ started: 'in-progress', completed: 'completed' }) });
 		await waitFor(() => expect(screen.queryByTestId('linear-state-map-save-m1')).not.toBeInTheDocument());
+	});
+
+	it('a failed mappings read hides the add form (every team would look unmapped) until the retry succeeds', () => {
+		render(<LinearProviderSection linear={connected({ mappings: [], canManageMappings: false, detailsError: new Error('down') })} />);
+		expect(screen.queryByTestId('linear-add-mapping')).toBeNull();
+		expect(screen.getByText('settings.integrations.linear.DETAILS_ERROR_TITLE')).toBeInTheDocument();
 	});
 
 	it('shows what the platform sent the person back with, and lets them dismiss it', () => {
