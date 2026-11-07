@@ -75,6 +75,9 @@ const GROUP_KEYS: Record<InboxDayGroup, DottedLanguageObjectStringPaths> = {
 	earlier: 'notifications.GROUPS.EARLIER'
 };
 
+/** No selection (one instance, so an unchanged selection keeps its identity). */
+const NO_SELECTION: ReadonlySet<string> = new Set();
+
 const EMPTY_KEYS: Record<InboxFilter, { icon: ReactNode; title: DottedLanguageObjectStringPaths; text: DottedLanguageObjectStringPaths }> = {
 	all: { icon: <InboxCheck />, title: 'inbox.EMPTY.ALL_TITLE', text: 'inbox.EMPTY.ALL_TEXT' },
 	unread: { icon: <InboxCheck />, title: 'inbox.EMPTY.UNREAD_TITLE', text: 'inbox.EMPTY.UNREAD_TEXT' },
@@ -187,15 +190,19 @@ function InboxPageContent() {
 
 	const [now] = useState(() => new Date());
 	const groups = useMemo(() => groupInboxEntriesByDay(entries, now), [entries, now]);
-	const [selected, setSelected] = useState<ReadonlySet<string>>(() => new Set());
+	// The selection remembers the list it was made in: leaving the list of a filter drops a selection that no longer
+	// shows, without an effect that clears it after the fact.
+	const listKey = `${filter}:${sourceGroup}`;
+	const [selection, setSelection] = useState<{ list: string; ids: ReadonlySet<string> }>(() => ({ list: listKey, ids: NO_SELECTION }));
+	const selected: ReadonlySet<string> = selection.list === listKey ? selection.ids : NO_SELECTION;
+	const setSelected = useCallback(
+		(next: ReadonlySet<string> | ((previous: ReadonlySet<string>) => ReadonlySet<string>)) =>
+			setSelection((current) => ({ list: listKey, ids: typeof next === 'function' ? next(current.list === listKey ? current.ids : NO_SELECTION) : next })),
+		[listKey]
+	);
 	const [currentId, setCurrentId] = useState<string | null>(null);
 	const current = useMemo(() => entries.find((entry) => entry.id === currentId) ?? null, [currentId, entries]);
 	const byId = useMemo(() => new Map(entries.map((entry) => [entry.id, entry])), [entries]);
-
-	// Leaving the list of a filter drops a selection that no longer shows.
-	useEffect(() => {
-		setSelected(new Set());
-	}, [filter, sourceGroup]);
 
 	const reportFailure = useCallback(() => toast.error(t('inbox.TOASTS.UPDATE_FAILED')), [t]);
 
@@ -237,14 +244,17 @@ function InboxPageContent() {
 		[openTaskDrawer, reportFailure, router, setRead]
 	);
 
-	const handleToggleSelect = useCallback((entry: InboxEntry) => {
-		setSelected((previous) => {
-			const next = new Set(previous);
-			if (next.has(entry.id)) next.delete(entry.id);
-			else next.add(entry.id);
-			return next;
-		});
-	}, []);
+	const handleToggleSelect = useCallback(
+		(entry: InboxEntry) => {
+			setSelected((previous) => {
+				const next = new Set(previous);
+				if (next.has(entry.id)) next.delete(entry.id);
+				else next.add(entry.id);
+				return next;
+			});
+		},
+		[setSelected]
+	);
 
 	const handleToggleRead = useCallback(
 		(entry: InboxEntry) => {
