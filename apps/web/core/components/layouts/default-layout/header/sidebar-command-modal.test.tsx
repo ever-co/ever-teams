@@ -12,6 +12,11 @@ jest.mock('@/core/hooks/invitations/use-can-invite-to-active-team', () => ({
 jest.mock('@/core/hooks/common/use-keyboard-shortcuts', () => ({
 	useKeyboardShortcuts: (...args: unknown[]) => mockUseKeyboardShortcuts(...args)
 }));
+// The "Go to" entries read the bindings in force from the signed-in user's preferences (a query); the palette under
+// test has no query client, and those entries are not what this suite reads.
+jest.mock('@/core/hooks/keyboard/use-keyboard-preferences', () => ({
+	useKeyboardPreferences: () => ({ bindings: new Map(), overrides: {}, setOverrides: jest.fn(), canRebind: false })
+}));
 jest.mock('../../../../hooks/auth', () => ({
 	useAuthenticateUser: () => ({ user: { id: 'user-1', name: 'User', isEmailVerified: true } })
 }));

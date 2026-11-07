@@ -3,7 +3,7 @@
 import { Suspense, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useParams } from 'next/navigation';
 import { useTranslations } from 'next-intl';
-import { useAtomValue } from 'jotai';
+import { useAtomValue, useSetAtom } from 'jotai';
 import { PageLayout } from '@/core/components/layouts/default-layout';
 import { Breadcrumb } from '@/core/components/duplicated-components/breadcrumb';
 import { Modal } from '@/core/components/common/modal';
@@ -11,12 +11,18 @@ import { ModalSkeleton } from '@/core/components/common/skeleton/modal-skeleton'
 import { LazyCreateTaskModal } from '@/core/components/optimized-components/tasks';
 import { CreateDailyPlanFormModal } from '@/core/components/features/daily-plan/create-daily-plan-form-modal';
 import { Task } from '@/core/components/icons';
-import { useTeamTasksView } from '@/core/hooks/tasks/use-team-tasks-view';
+import { useTeamTasksView, type TeamTasksViewState } from '@/core/hooks/tasks/use-team-tasks-view';
 import { useTeamTasksLoadState } from '@/core/hooks/tasks/use-team-tasks-load-state';
+import { useTeamTaskUpdates } from '@/core/hooks/tasks/use-team-task-updates';
 import { useTaskDrawer } from '@/core/hooks/tasks/use-task-drawer';
 import { useUserQuery } from '@/core/hooks/queries/user-user.query';
+import { useShortcutHandlers } from '@/core/hooks/keyboard/use-shortcuts';
 import { activeTeamState, isTrackingEnabledState } from '@/core/stores';
+import { viewTasksState } from '@/core/stores/tasks/task-views';
+import { DEFAULT_TASK_VIEW_DEFINITION, definitionOf, isSameDefinition } from '@/core/lib/utils/task-views';
+import { isTaskViewsEnabled } from '@/core/lib/utils/task-views-enabled';
 import { EDailyPlanMode } from '@/core/types/generics/enums/daily-plan';
+import { ETaskViewVisibility, type ETaskBuiltInView, type ITaskView, type ITaskViewDefinition } from '@/core/types/interfaces/common/task-views';
 import type { TTask } from '@/core/types/schemas/task/task.schema';
 import { teamTasksGridOf } from './team-tasks-grid';
 import { TeamTasksToolbar } from './team-tasks-toolbar';
@@ -30,9 +36,14 @@ import {
 	TeamTasksHiddenPill,
 	TeamTasksNoMatch,
 	TeamTasksScopeEmpty,
-	TeamTasksSelectionBar
+	TeamTasksSelectionBar,
+	TeamTasksViewEmpty
 } from './team-tasks-states';
 import { TeamTasksListSkeleton, TeamTasksToolbarSkeleton } from '../team-tasks-page-skeleton';
+import { SaveViewDialog } from '../views/save-view-dialog';
+import { TaskViewToolbarActions } from '../views/task-view-toolbar-actions';
+import { useSavedViewCommands } from '../views/use-saved-view-commands';
+import { builtInViewLabelKey } from '../views/views-page';
 
 interface PendingEdit {
 	kind: TeamTaskPickerKind;
@@ -41,6 +52,16 @@ interface PendingEdit {
 
 /** `undefined` keeps the create dialog closed; a status name (or null for the default one) opens it. */
 type CreateRequest = string | null | undefined;
+
+/** What the page is opened on besides the team's tasks: a saved view, or a built-in one the platform computes. */
+export type TaskViewContext =
+	| { kind: 'saved'; view: ITaskView }
+	| { kind: 'builtIn'; key: ETaskBuiltInView; tasks: TTask[]; total: number; isLoading: boolean; isError: boolean; refetch: () => void };
+
+/** What the body of the page shows, decided once per render. */
+type BodyState = 'loading' | 'error' | 'viewEmpty' | 'emptyTeam' | 'noMatch' | 'scopeEmpty' | 'list';
+
+const EMPTY_TASKS: TTask[] = [];
 
 function isTypingTarget(target: EventTarget | null) {
 	if (!(target instanceof HTMLElement)) {
@@ -57,35 +78,101 @@ function menuTaskOf(target: TeamTaskMenuTarget | null, taskById: Map<string, TTa
 	return taskById.get(target.taskId);
 }
 
-function useTeamTasksBreadcrumb() {
+/** The definition the page starts from: the saved view's, the plain default for a built-in one, none for the team's tasks. */
+function initialDefinitionOf(viewContext: TaskViewContext | undefined): ITaskViewDefinition | undefined {
+	if (!viewContext) {
+		return undefined;
+	}
+	if (viewContext.kind === 'saved') {
+		return definitionOf(viewContext.view);
+	}
+	// A built-in view is already narrowed by the platform: every task of it is shown, grouped by status.
+	return { ...DEFAULT_TASK_VIEW_DEFINITION, scope: 'all' };
+}
+
+/** The body state from the loads, the errors and what the view holds. */
+function bodyStateOf(
+	view: TeamTasksViewState,
+	viewContext: TaskViewContext | undefined,
+	isLoading: boolean
+): BodyState {
+	const isBuiltIn = viewContext?.kind === 'builtIn';
+	const builtInError = isBuiltIn && viewContext.isError;
+	const statusesError = view.isStatusesError && view.statuses.length === 0;
+	if (isLoading) {
+		return 'loading';
+	}
+	if (statusesError || builtInError) {
+		return 'error';
+	}
+	if (view.tasks.length === 0) {
+		return isBuiltIn ? 'viewEmpty' : 'emptyTeam';
+	}
+	if (view.rows.length > 0) {
+		return 'list';
+	}
+	const nothingMatches = view.isNarrowed && view.scopeCounts.all === 0;
+	return nothingMatches ? 'noMatch' : 'scopeEmpty';
+}
+
+function useTeamTasksBreadcrumb(viewTitle: string | null) {
 	const t = useTranslations();
 	const params = useParams<{ locale: string }>();
 	const activeTeam = useAtomValue(activeTeamState);
 	const locale = params?.locale;
-	return useMemo(
-		() => [
+	return useMemo(() => {
+		const paths = [
 			{ title: JSON.parse(t('pages.home.BREADCRUMB')), href: '/' },
 			{ title: activeTeam?.name || '', href: '/' },
 			{ title: t('sidebar.TEAMTASKS'), href: `/${locale}/team/tasks` }
-		],
-		[activeTeam?.name, locale, t]
-	);
+		];
+		if (viewTitle !== null) {
+			paths.push({ title: t('taskViews.TITLE'), href: `/${locale}/views` }, { title: viewTitle, href: '#' });
+		}
+		return paths;
+	}, [activeTeam?.name, locale, t, viewTitle]);
+}
+
+/** The title the page shows for a saved or built-in view, or null on the team's tasks. */
+function useViewTitle(viewContext: TaskViewContext | undefined): string | null {
+	const t = useTranslations();
+	if (!viewContext) {
+		return null;
+	}
+	if (viewContext.kind === 'saved') {
+		return viewContext.view.name;
+	}
+	return t(builtInViewLabelKey(viewContext.key));
 }
 
 /**
  * The Team tasks page, rebuilt from the whole reference library: a fixed page whose list scrolls alone, grouped
  * and ordered by a saved view, every property editable in place through one shared picker, a selection that acts
  * on many tasks at once, and the keyboard throughout. The decisions are in `docs/team-tasks-refs/TEAM-TASKS-DESIGN.md`.
+ *
+ * Opened on a saved view (`/views/[viewId]`) the page starts from the view's definition and keeps the changes in
+ * memory until Save; opened on a built-in view it lists the tasks the platform computed. Both only with the
+ * saved-views feature on.
  */
-export function TeamTasksPage() {
+export function TeamTasksPage({ viewContext }: Readonly<{ viewContext?: TaskViewContext }> = {}) {
 	const t = useTranslations();
-	const view = useTeamTasksView();
+	const initial = useMemo(() => initialDefinitionOf(viewContext), [viewContext]);
+	const builtInTasks = viewContext?.kind === 'builtIn' ? viewContext.tasks : undefined;
+	const resetKey = viewContext ? (viewContext.kind === 'saved' ? `view:${viewContext.view.id}` : `built-in:${viewContext.key}`) : undefined;
+	const view = useTeamTasksView({ initial, resetKey, tasks: builtInTasks });
+	// The pickers and the row menu read the tasks they edit from the team's list; a built-in view's tasks are
+	// shared with them here, so an edit on one of them reaches the platform.
+	const setViewTasks = useSetAtom(viewTasksState);
+	useEffect(() => {
+		setViewTasks(builtInTasks ?? EMPTY_TASKS);
+		return () => setViewTasks(EMPTY_TASKS);
+	}, [builtInTasks, setViewTasks]);
 	const { isFirstLoad, isLoadingMorePages } = useTeamTasksLoadState();
+	const { archiveTasks, canArchive } = useTeamTaskUpdates();
 	const activeTeam = useAtomValue(activeTeamState);
 	const isTrackingEnabled = useAtomValue(isTrackingEnabledState);
 	const { data: user } = useUserQuery();
 	const { openTaskDrawer } = useTaskDrawer();
-	const breadcrumbPaths = useTeamTasksBreadcrumb();
 	const scrollRef = useRef<HTMLDivElement>(null);
 
 	const [pickerTarget, setPickerTarget] = useState<TeamTaskPickerTarget | null>(null);
@@ -96,11 +183,26 @@ export function TeamTasksPage() {
 	const [createRequest, setCreateRequest] = useState<CreateRequest>(undefined);
 	const [planTaskId, setPlanTaskId] = useState<string | null>(null);
 
+	const savedView = viewContext?.kind === 'saved' ? viewContext.view : null;
+	const isBuiltIn = viewContext?.kind === 'builtIn';
+	const viewTitle = useViewTitle(viewContext);
+	const isDirty = savedView !== null && !isSameDefinition(view.definition, definitionOf(savedView));
+	const showsViewActions = isTaskViewsEnabled() && !isBuiltIn;
+	const breadcrumbPaths = useTeamTasksBreadcrumb(viewTitle);
+	const savedViewCommands = useSavedViewCommands({
+		savedView,
+		isBuiltIn,
+		definition: view.definition,
+		isDirty,
+		applyDefinition: view.applyDefinition
+	});
+	useShortcutHandlers(savedViewCommands.listShortcuts, ['list']);
+
 	const grid = useMemo(() => teamTasksGridOf(view.settings), [view.settings]);
 	const firstStatus = view.statuses[0];
 	const employeeId = user?.employee?.id ?? user?.employeeId ?? '';
 	const trackedCount = trackedTaskCountOf(activeTeam?.members, view.taskById);
-	const { orderedIds, clearSelection } = view;
+	const { orderedIds, clearSelection, setManySelected } = view;
 	const selectionCount = view.selectedIds.size;
 	const hasSelection = selectionCount > 0;
 	const hasLayerOpen = isPickerOpen || isMenuOpen;
@@ -152,6 +254,21 @@ export function TeamTasksPage() {
 		[openPicker, view.selectedIds]
 	);
 
+	const handleSelectionArchive = useCallback(() => {
+		const taskIds = [...view.selectedIds];
+		clearSelection();
+		// The tasks the platform did not archive come back into the selection: a retry needs no second pick.
+		void archiveTasks(taskIds).then((left) => {
+			if (left.length) setManySelected(left, true);
+		});
+	}, [archiveTasks, clearSelection, setManySelected, view.selectedIds]);
+
+	// A built-in view loads its tasks up to the service's cap: the toolbar says when the platform holds more.
+	const truncationNote =
+		viewContext?.kind === 'builtIn' && viewContext.total > viewContext.tasks.length
+			? t('taskViews.SHOWING_OF', { shown: viewContext.tasks.length, total: viewContext.total })
+			: undefined;
+
 	useEffect(() => {
 		const isListening = hasSelection && !hasLayerOpen;
 		if (!isListening) {
@@ -177,39 +294,30 @@ export function TeamTasksPage() {
 	const menuTask = menuTaskOf(menuTarget, view.taskById);
 
 	const isTeamUnknown = !activeTeam;
-	const isLoading = isTeamUnknown || isFirstLoad;
-	const hasTasks = view.tasks.length > 0;
-	const hasRows = view.rows.length > 0;
-	const hasStatuses = view.statuses.length > 0;
-	const showsError = view.isStatusesError && !hasStatuses;
-	const hasNoMatchInAnyScope = view.scopeCounts.all === 0;
-	const nothingMatches = view.isNarrowed && hasNoMatchInAnyScope;
-	const hidesTasks = view.isNarrowed && view.hiddenCount > 0;
-	const showsHiddenPill = hidesTasks && hasRows;
+	const isBuiltInLoading = viewContext?.kind === 'builtIn' && viewContext.isLoading;
+	const isLoading = isTeamUnknown || (isBuiltIn ? isBuiltInLoading : isFirstLoad);
+	const bodyState = bodyStateOf(view, viewContext, isLoading);
+	const showsHiddenPill = bodyState === 'list' && view.isNarrowed && view.hiddenCount > 0;
 
-	const renderBody = () => {
-		if (isLoading) {
-			return <TeamTasksListSkeleton />;
-		}
-		if (showsError) {
-			return <TeamTasksError onRetry={() => view.refetchStatuses()} />;
-		}
-		if (!hasTasks) {
-			return <TeamTasksEmptyTeam onCreate={openCreate} />;
-		}
-		if (!hasRows && nothingMatches) {
-			return <TeamTasksNoMatch onClear={view.clearNarrowing} />;
-		}
-		if (!hasRows) {
-			return <TeamTasksScopeEmpty scope={view.scope} onShowAll={() => view.setScope('all')} />;
-		}
-		return <TeamTasksList view={view} grid={grid} commands={commands} scrollRef={scrollRef} />;
+	const retry = () => {
+		if (viewContext?.kind === 'builtIn') viewContext.refetch();
+		void view.refetchStatuses();
+	};
+
+	const bodies: Record<BodyState, () => React.ReactNode> = {
+		loading: () => <TeamTasksListSkeleton />,
+		error: () => <TeamTasksError onRetry={retry} />,
+		viewEmpty: () => <TeamTasksViewEmpty />,
+		emptyTeam: () => <TeamTasksEmptyTeam onCreate={openCreate} />,
+		noMatch: () => <TeamTasksNoMatch onClear={view.clearNarrowing} />,
+		scopeEmpty: () => <TeamTasksScopeEmpty scope={view.scope} onShowAll={() => view.setScope('all')} />,
+		list: () => <TeamTasksList view={view} grid={grid} commands={commands} scrollRef={scrollRef} />
 	};
 
 	return (
 		<>
 			<PageLayout
-				title={t('sidebar.TEAMTASKS')}
+				title={viewTitle ?? t('sidebar.TEAMTASKS')}
 				showTimer={isTrackingEnabled}
 				className="min-h-0 flex-1 p-0"
 				breadcrumb={
@@ -224,19 +332,34 @@ export function TeamTasksPage() {
 					) : (
 						<TeamTasksToolbar
 							view={view}
+							title={viewTitle ?? t('sidebar.TEAMTASKS')}
+							isDirty={isDirty}
+							note={truncationNote}
 							trackedCount={trackedCount}
 							isLoadingMore={isLoadingMorePages}
 							onCreate={openCreate}
+							viewActions={
+								showsViewActions ? (
+									<TaskViewToolbarActions
+										view={savedView}
+										isDirty={isDirty}
+										isBusy={savedViewCommands.isBusy}
+										commands={savedViewCommands.toolbarCommands}
+									/>
+								) : null
+							}
 						/>
 					)
 				}
 			>
 				<div className="absolute inset-0">
-					{renderBody()}
+					{bodies[bodyState]()}
 					{hasSelection && (
 						<TeamTasksSelectionBar
 							count={selectionCount}
+							canBulk={canArchive}
 							onEdit={handleSelectionEdit}
+							onArchive={handleSelectionArchive}
 							onClear={clearSelection}
 						/>
 					)}
@@ -264,6 +387,14 @@ export function TeamTasksPage() {
 				onOpenTask={commands.openTask}
 				onEdit={handleMenuEdit}
 				onPlanSomeDay={setPlanTaskId}
+			/>
+			<SaveViewDialog
+				open={savedViewCommands.saveDialog !== null}
+				mode={savedViewCommands.saveDialog ?? 'create'}
+				initialName={savedViewCommands.saveDialog === 'rename' && savedView ? savedView.name : ''}
+				initialVisibility={savedView?.visibility ?? ETaskViewVisibility.PERSONAL}
+				onSubmit={savedViewCommands.submitDialog}
+				onClose={() => savedViewCommands.setSaveDialog(null)}
 			/>
 			{isCreateOpen && (
 				<Suspense fallback={<ModalSkeleton size="lg" />}>
