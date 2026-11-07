@@ -51,6 +51,8 @@ export interface LinearIntegrationSettings {
 	teams: ILinearTeam[];
 	projects: LinearIntegrationProject[];
 	mappings: ILinearMapping[];
+	/** Whether the mappings are known: while their read failed, nothing may be added (every team would look unmapped). */
+	canManageMappings: boolean;
 	runs: ILinearRun[];
 	isLoadingDetails: boolean;
 	/** A read of the mappings, teams or runs that failed (the connection itself answered). */
@@ -232,17 +234,22 @@ export function useLinearIntegration(): LinearIntegrationSettings {
 		void queryClient.invalidateQueries({ queryKey: queryKeys.integrations.linear.all });
 	}, [queryClient]);
 
-	// A run that was running and is not any more changed the mapping (its last import) and maybe the connection
-	// (an attention reason): both are read again, since the poll refreshes the runs alone.
+	// A run that finished changed the mapping (its last import) and maybe the connection (an attention reason):
+	// both are read again, since the poll refreshes the runs alone. A run this page started is tracked by id, so a
+	// quick one whose finished row is the first seen refreshes them too.
 	const wasRunning = useRef(false);
-	const isRunning = (runsQuery.data ?? NO_RUNS).some((run) => run.status === 'running');
+	const acceptedRunIds = useRef(new Set<string>());
+	const runs = runsQuery.data ?? NO_RUNS;
+	const isRunning = runs.some((run) => run.status === 'running');
+	const acceptedFinished = runs.some((run) => acceptedRunIds.current.has(run.id) && run.status !== 'running');
 	useEffect(() => {
-		if (wasRunning.current && !isRunning) {
+		if ((wasRunning.current && !isRunning) || acceptedFinished) {
+			for (const run of runs) if (run.status !== 'running') acceptedRunIds.current.delete(run.id);
 			void queryClient.invalidateQueries({ queryKey: queryKeys.integrations.linear.mappings(tenantId, organizationId, integrationId) });
 			void queryClient.invalidateQueries({ queryKey: queryKeys.integrations.linear.status(tenantId, organizationId) });
 		}
 		wasRunning.current = isRunning;
-	}, [integrationId, isRunning, organizationId, queryClient, tenantId]);
+	}, [acceptedFinished, integrationId, isRunning, organizationId, queryClient, runs, tenantId]);
 
 	const retryDetails = useCallback(() => {
 		if (mappingsQuery.isError) void mappingsQuery.refetch();
@@ -324,7 +331,10 @@ export function useLinearIntegration(): LinearIntegrationSettings {
 	const importNow = useCallback(
 		async (mappingId: string, full: boolean) => {
 			if (!integrationId) return;
-			await act('import', mappingId, () => linearIntegrationService.importNow(integrationId, mappingId, full));
+			await act('import', mappingId, async () => {
+				const { run } = await linearIntegrationService.importNow(integrationId, mappingId, full);
+				if (run?.id) acceptedRunIds.current.add(run.id);
+			});
 		},
 		[act, integrationId]
 	);
@@ -353,7 +363,8 @@ export function useLinearIntegration(): LinearIntegrationSettings {
 		teams: teamsQuery.data ?? NO_TEAMS,
 		projects,
 		mappings: mappingsQuery.data ?? NO_MAPPINGS,
-		runs: runsQuery.data ?? NO_RUNS,
+		canManageMappings: !mappingsQuery.isError,
+		runs,
 		isLoadingDetails: !!integrationId && (mappingsQuery.isPending || teamsQuery.isPending || getOrganizationProjectsLoading),
 		detailsError: mappingsQuery.error ?? teamsQuery.error ?? runsQuery.error ?? (isOrganizationProjectsError ? PROJECTS_READ_FAILED : null),
 		isRetryingDetails: mappingsQuery.isFetching || teamsQuery.isFetching || runsQuery.isFetching,

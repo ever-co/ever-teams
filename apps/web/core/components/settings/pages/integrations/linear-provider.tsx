@@ -494,7 +494,7 @@ function LinearConnected({ linear, onDisconnect }: LinearProps & Readonly<{ onDi
 										{linear.mappings.map((mapping) => (
 											<MappingRow key={mapping.id} linear={linear} mapping={mapping} />
 										))}
-										<AddMappingRow linear={linear} />
+										{linear.canManageMappings && <AddMappingRow linear={linear} />}
 										<RunsRow linear={linear} />
 									</>
 								)}
