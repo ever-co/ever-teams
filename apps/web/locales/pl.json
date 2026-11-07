@@ -4855,5 +4855,8 @@
 			"taskLabels": "Zmień etykiety",
 			"taskDueDate": "Zmień termin"
 		}
+	},
+	"realtime": {
+		"RECONNECTING": "Ponowne łączenie…"
 	}
 }

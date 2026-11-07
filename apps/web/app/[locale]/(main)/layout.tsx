@@ -5,6 +5,7 @@ import { useEmployeePresenceHeartbeat } from '@/core/hooks/users/use-employee-pr
 import OfflineWrapper from '@/core/components/common/offline-wrapper';
 import { TaskDrawerMount } from '@/core/components/tasks/drawer/task-drawer-mount';
 import { KeyboardShortcutsMount } from '@/core/components/layouts/app/keyboard-shortcuts-mount';
+import { RealtimeMount } from '@/core/components/layouts/app/realtime-mount';
 
 export default function MainGroupLayout({ children }: Readonly<{ children: React.ReactNode }>) {
 	useEmployeePresenceHeartbeat();
@@ -13,6 +14,7 @@ export default function MainGroupLayout({ children }: Readonly<{ children: React
 		<OfflineWrapper>
 			<AppState />
 			<KeyboardShortcutsMount />
+			<RealtimeMount />
 			<LayoutShell>{children}</LayoutShell>
 			<TaskDrawerMount />
 		</OfflineWrapper>

@@ -1979,10 +1979,12 @@ describe('Ever Teams feature surface preservation', () => {
 		// mappings/[mappingId], mappings/[mappingId]/webhook, mappings/[mappingId]/import, runs).
 		// A new route raises these numbers; a lower number means a route or a verb was lost.
 		// 210 files and 278 verbs with the task views, bulk and preferences proxies on top (+6 files, +9 verbs).
-		expect(routes.filter((value) => /\/route\.[jt]s$/.test(value))).toHaveLength(210);
+		// 214 files and 282 verbs with the real-time routes on top (GET /api/realtime/events, GET /api/realtime/status,
+		// POST /api/realtime/presence, POST /api/realtime/typing).
+		expect(routes.filter((value) => /\/route\.[jt]s$/.test(value))).toHaveLength(214);
 		expect(
 			routes.filter((value) => /\/route\.[jt]s::(?:GET|POST|PUT|PATCH|DELETE|HEAD|OPTIONS)$/.test(value))
-		).toHaveLength(278);
+		).toHaveLength(282);
 		expect(routes).toEqual(
 			expect.arrayContaining([
 				// Proxy mode twins of Gauzy's public account deletion by e-mail link (2026-10-27)

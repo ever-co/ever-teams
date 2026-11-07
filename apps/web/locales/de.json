@@ -4855,5 +4855,8 @@
 			"taskLabels": "Labels ändern",
 			"taskDueDate": "Fälligkeitsdatum ändern"
 		}
+	},
+	"realtime": {
+		"RECONNECTING": "Verbindung wird wiederhergestellt…"
 	}
 }
