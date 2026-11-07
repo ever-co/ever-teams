@@ -71,6 +71,7 @@ export function DocsPageView({ pageId, tree, actions }: DocsPageViewProps) {
 	const autosave = useDocsAutosave(page);
 	const mentions = useDocsMentionCandidates();
 	const { remember } = useDocsRecent();
+	// Both start over with the page: the parent renders this view with `key={pageId}`.
 	const [showHistory, setShowHistory] = useState(false);
 	const [editorApi, setEditorApi] = useState<DocsEditorApi | null>(null);
 	const hasChildren = (tree.tree.byId.get(pageId)?.children.length ?? 0) > 0;
@@ -78,11 +79,6 @@ export function DocsPageView({ pageId, tree, actions }: DocsPageViewProps) {
 	useEffect(() => {
 		if (page && !page.isArchived) remember(page.id);
 	}, [page, remember]);
-
-	useEffect(() => {
-		setShowHistory(false);
-		setEditorApi(null);
-	}, [pageId]);
 
 	// ---------------------------------------------------------------- title
 

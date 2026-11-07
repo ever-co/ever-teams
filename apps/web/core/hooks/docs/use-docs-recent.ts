@@ -1,23 +1,70 @@
 'use client';
 
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useSyncExternalStore } from 'react';
 import { forgetRecent, localStorageOrNull, readExpanded, readRecent, rememberRecent, writeExpanded } from '@/core/lib/utils/docs-recent';
 import { useDocsScope } from './use-docs-scope';
+
+/**
+ * What this device remembers per organization — the pages last opened, the tree nodes left open — read once from
+ * local storage into one store every hook reads with `useSyncExternalStore`: a change made through one hook shows
+ * in every other at once, nothing is set from an effect, and the server renders as if nothing were remembered.
+ */
+const recentByOrganization = new Map<string, string[]>();
+const expandedByOrganization = new Map<string, Set<string>>();
+const listeners = new Set<() => void>();
+const NO_RECENT: string[] = [];
+const NONE_EXPANDED: Set<string> = new Set();
+
+function subscribe(listener: () => void): () => void {
+	listeners.add(listener);
+	return () => {
+		listeners.delete(listener);
+	};
+}
+
+function changed(): void {
+	for (const listener of listeners) listener();
+}
+
+function recentOf(organizationId: string | null): string[] {
+	if (!organizationId) return NO_RECENT;
+	let ids = recentByOrganization.get(organizationId);
+	if (!ids) {
+		ids = readRecent(localStorageOrNull(), organizationId);
+		recentByOrganization.set(organizationId, ids);
+	}
+	return ids;
+}
+
+function expandedOf(organizationId: string | null): Set<string> {
+	if (!organizationId) return NONE_EXPANDED;
+	let open = expandedByOrganization.get(organizationId);
+	if (!open) {
+		open = readExpanded(localStorageOrNull(), organizationId);
+		expandedByOrganization.set(organizationId, open);
+	}
+	return open;
+}
+
+function nothingRecent(): string[] {
+	return NO_RECENT;
+}
+
+function nothingExpanded(): Set<string> {
+	return NONE_EXPANDED;
+}
 
 /** The pages last opened on this device, for the Recent section and the page `/docs` opens with. */
 export function useDocsRecent() {
 	const scope = useDocsScope();
 	const organizationId = scope?.organizationId ?? null;
-	const [recentIds, setRecentIds] = useState<string[]>([]);
-
-	useEffect(() => {
-		setRecentIds(organizationId ? readRecent(localStorageOrNull(), organizationId) : []);
-	}, [organizationId]);
+	const recentIds = useSyncExternalStore(subscribe, () => recentOf(organizationId), nothingRecent);
 
 	const remember = useCallback(
 		(pageId: string) => {
 			if (!organizationId) return;
-			setRecentIds(rememberRecent(localStorageOrNull(), organizationId, pageId));
+			recentByOrganization.set(organizationId, rememberRecent(localStorageOrNull(), organizationId, pageId));
+			changed();
 		},
 		[organizationId]
 	);
@@ -25,7 +72,8 @@ export function useDocsRecent() {
 	const forget = useCallback(
 		(pageId: string) => {
 			if (!organizationId) return;
-			setRecentIds(forgetRecent(localStorageOrNull(), organizationId, pageId));
+			recentByOrganization.set(organizationId, forgetRecent(localStorageOrNull(), organizationId, pageId));
+			changed();
 		},
 		[organizationId]
 	);
@@ -37,19 +85,17 @@ export function useDocsRecent() {
 export function useDocsExpanded() {
 	const scope = useDocsScope();
 	const organizationId = scope?.organizationId ?? null;
-	const [expanded, setExpanded] = useState<Set<string>>(() => new Set());
-
-	useEffect(() => {
-		setExpanded(organizationId ? readExpanded(localStorageOrNull(), organizationId) : new Set());
-	}, [organizationId]);
+	const expanded = useSyncExternalStore(subscribe, () => expandedOf(organizationId), nothingExpanded);
 
 	const update = useCallback(
 		(change: (current: Set<string>) => Set<string>) => {
-			setExpanded((current) => {
-				const next = change(current);
-				if (organizationId) writeExpanded(localStorageOrNull(), organizationId, next);
-				return next;
-			});
+			if (!organizationId) return;
+			const current = expandedOf(organizationId);
+			const next = change(current);
+			if (next === current) return;
+			expandedByOrganization.set(organizationId, next);
+			writeExpanded(localStorageOrNull(), organizationId, next);
+			changed();
 		},
 		[organizationId]
 	);
