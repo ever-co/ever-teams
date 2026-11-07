@@ -954,7 +954,8 @@
 		"formatjs",
 		"localematcher",
 		"messageformat",
-		"serde"
+		"serde",
+		"ghcup"
 ],
 	"useGitignore": true,
 	"ignorePaths": [
