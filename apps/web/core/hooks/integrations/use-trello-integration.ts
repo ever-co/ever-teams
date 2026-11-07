@@ -226,7 +226,6 @@ export function useTrelloIntegration(): TrelloIntegrationSettings {
 	// from its accepted row, so a quick one whose finished row is the first seen refreshes them as well.
 	const followedRunIds = useRef(new Set<string>());
 	const runs = runsQuery.data ?? NO_RUNS;
-	const isRunning = runs.some((run) => run.status === 'running');
 	const finishedFollowed = runs.some((run) => followedRunIds.current.has(run.id) && run.status !== 'running');
 	useEffect(() => {
 		for (const run of runs) if (run.status === 'running') followedRunIds.current.add(run.id);

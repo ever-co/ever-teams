@@ -581,7 +581,7 @@ function TrelloProviderBody({ trello, onDisconnect }: TrelloProps & Readonly<{ o
 	return (
 		<SettingsSurface>
 			<TrelloConnectRow trello={trello} canConnect={trello.status === 'notConnected'} />
-			{trello.actionError && <ActionErrorRow trello={trello} />}
+			{trello.actionError ? <ActionErrorRow trello={trello} /> : null}
 		</SettingsSurface>
 	);
 }
@@ -612,7 +612,7 @@ export function TrelloProviderSection({ trello }: TrelloProps) {
 
 	return (
 		<SettingsSection id="trello" title={t('settings.integrations.trello.SECTION_TITLE')} description={t('settings.integrations.trello.SECTION_DESCRIPTION')}>
-			{trello.finishError && (
+			{trello.finishError ? (
 				<Notice
 					tone="error"
 					title={t('settings.integrations.trello.FINISH_ERROR_TITLE')}
@@ -620,7 +620,7 @@ export function TrelloProviderSection({ trello }: TrelloProps) {
 					onDismiss={trello.clearFinishError}
 					dismissLabel={t('common.CLOSE')}
 				/>
-			)}
+			) : null}
 			{trello.returnRefused && (
 				<Notice
 					tone="warning"

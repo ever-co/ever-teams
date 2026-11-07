@@ -6,7 +6,12 @@ import {
 	type TeamTasksViewSettings
 } from './team-tasks-view';
 import { scopeFromStorage, viewSettingsFromStorage } from './team-tasks-view-storage';
-import { ETaskBuiltInView, type ITaskView, type ITaskViewDefinition } from '@/core/types/interfaces/common/task-views';
+import {
+	ETaskBuiltInView,
+	type ITaskView,
+	type ITaskViewCreateInput,
+	type ITaskViewDefinition
+} from '@/core/types/interfaces/common/task-views';
 
 const FILTER_FIELDS: TeamTasksFilterField[] = ['status', 'priority', 'size', 'issueType', 'label', 'project', 'assignee', 'epic'];
 
@@ -47,7 +52,9 @@ export function definitionOf(view: Pick<ITaskView, 'filterOptions' | 'displayOpt
 }
 
 /** The three JSON columns a definition is saved as. */
-export function columnsOf(definition: ITaskViewDefinition): Pick<ITaskView, 'filterOptions' | 'displayOptions' | 'queryParams'> {
+export function columnsOf(
+	definition: ITaskViewDefinition
+): Required<Pick<ITaskViewCreateInput, 'filterOptions' | 'displayOptions' | 'queryParams'>> {
 	return {
 		displayOptions: { ...definition.settings } as Record<string, unknown>,
 		filterOptions: { ...definition.filters } as Record<string, unknown>,
