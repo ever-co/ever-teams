@@ -51,12 +51,35 @@ export interface MessageItemProps {
 	onOpenTask: (taskId: string) => void;
 }
 
+/** The placeholder the assistant's name is put at, to split the translated phrase around it. */
+const NAME_SLOT = '\u0000';
+/** The languages the app reads right to left. */
+const RTL_LANGUAGES = new Set(['ar', 'he']);
+
 function MessageItemComponent(props: Readonly<MessageItemProps>) {
 	const { message, author, people, conversationNames, meEmployeeId, meUserId, locale, continues, inTimeline, canManage } = props;
 	const t = useTranslations();
 	const [menuOpen, setMenuOpen] = useState(false);
 	const isMine = !!meUserId && String(message.authorUserId ?? '') === String(meUserId);
 	const outbox = isOutboxMessage(message) ? message : null;
+	// The attribution reads in the locale's direction, and the assistant's name is isolated (`<bdi>`), so a Latin
+	// name in an Arabic or Hebrew phrase (or a name mixing both) keeps its place; a long name wraps.
+	const assisted = message.assistedBy
+		? (() => {
+				const [before, after = ''] = t('teamChat.ASSISTED_BY', { name: NAME_SLOT }).split(NAME_SLOT);
+				return (
+					<span
+						className="min-w-0 text-[11px] italic text-muted-foreground [overflow-wrap:anywhere]"
+						dir={RTL_LANGUAGES.has(locale.split('-')[0]) ? 'rtl' : 'ltr'}
+						data-assisted-by={message.assistedBy}
+					>
+						{before}
+						<bdi>{message.assistedBy}</bdi>
+						{after}
+					</span>
+				);
+			})()
+		: null;
 	const deleted = !!message.deletedAt;
 	const mentionsMe = (!!meEmployeeId && (message.mentionEmployeeIds ?? []).map(String).includes(meEmployeeId)) || message.mentionsChannel || message.mentionsHere;
 
@@ -74,12 +97,15 @@ function MessageItemComponent(props: Readonly<MessageItemProps>) {
 				{!continues && (author ? <PersonAvatar person={{ id: author.employeeId, name: author.name, imageUrl: author.imageUrl }} size="sm" /> : <span className="block size-7 rounded-full bg-foreground/[0.06]" />)}
 			</div>
 			<div className="min-w-0 flex-1">
+				{/* A message the author wrote with an assistant says so, and which one; on a grouped message it stands above the body. */}
+				{continues && assisted}
 				{!continues && (
-					<div className="flex items-baseline gap-2">
+					<div className="flex flex-wrap items-baseline gap-x-2">
 						<span className="text-[13px] font-semibold text-foreground">{author?.name ?? (message.appName || t('teamChat.SOMEONE'))}</span>
 						<time dateTime={message.createdAt} className="text-[11px] text-muted-foreground">
 							{timeOf(message.createdAt, locale)}
 						</time>
+						{assisted}
 						{message.pinnedAt && (
 							<span className="inline-flex items-center gap-1 text-[11px] text-muted-foreground">
 								<Pin className="size-3" /> {t('teamChat.PINNED')}

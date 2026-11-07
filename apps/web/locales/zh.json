@@ -4995,6 +4995,7 @@
 		"EVERYONE": "所有人",
 		"SOMEONE": "某人",
 		"PINNED": "已置顶",
+		"ASSISTED_BY": "由 {name} 协助撰写",
 		"DELETED": "此消息已删除。",
 		"EDITED": "（已编辑）",
 		"REPLIES": "{count, plural, =0 {在话题中回复} other {# 条回复}}",

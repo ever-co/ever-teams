@@ -4995,6 +4995,7 @@
 		"EVERYONE": "الجميع",
 		"SOMEONE": "شخص ما",
 		"PINNED": "مثبّتة",
+		"ASSISTED_BY": "كُتبت بمساعدة {name}",
 		"DELETED": "تم حذف هذه الرسالة.",
 		"EDITED": "(معدّلة)",
 		"REPLIES": "{count, plural, =0 {الرد في السلسلة} one {رد واحد} other {# ردود}}",
