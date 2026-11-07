@@ -119,7 +119,8 @@ export const PROTECTED_APP_URL_PATHS: RegExp[] = [
 	new RegExp('^' + LOCALE_PREFIX + '(\\/settings(\\/)?)(.*)$'),
 	new RegExp('^' + LOCALE_PREFIX + '(\\/task(\\/)?)(.*)$'),
 	new RegExp('^' + LOCALE_PREFIX + '(\\/meet(\\/)?)(.*)$'),
-	new RegExp('^' + LOCALE_PREFIX + '(\\/board(\\/)?)(.*)$')
+	new RegExp('^' + LOCALE_PREFIX + '(\\/board(\\/)?)(.*)$'),
+	new RegExp('^' + LOCALE_PREFIX + '(\\/docs(\\/)?)(.*)$')
 ];
 
 // Cookies

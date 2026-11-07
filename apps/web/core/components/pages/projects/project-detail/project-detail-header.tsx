@@ -11,11 +11,12 @@ import { AvatarStack } from '@/core/components/teams/people-avatars';
 import { useProjectActionModal } from '@/core/hooks/use-project-action-modal';
 import { useProjectPermissions } from '@/core/hooks/projects/use-project-permissions';
 import { cn } from '@/core/lib/helpers';
+import { isDocsEnabled } from '@/core/lib/utils/docs-enabled';
 import { clientNameOf, personFromProjectMember } from '@/core/lib/utils/project-list';
 import type { TOrganizationProject } from '@/core/types/schemas';
 import type { TTaskStatus } from '@/core/types/schemas/task/task-status.schema';
 
-export type ProjectDetailTab = 'overview' | 'tasks' | 'people';
+export type ProjectDetailTab = 'overview' | 'tasks' | 'people' | 'docs';
 
 export interface ProjectNeighbours {
 	position: number;
@@ -96,7 +97,8 @@ export function ProjectDetailHeader({
 	const tabs: SegmentedControlItem<ProjectDetailTab>[] = [
 		{ value: 'overview', label: t('pages.projects.detail.TAB_OVERVIEW') },
 		{ value: 'tasks', label: t('common.TASKS'), count: taskCount },
-		{ value: 'people', label: t('common.PEOPLE'), count: people.length }
+		{ value: 'people', label: t('common.PEOPLE'), count: people.length },
+		...(isDocsEnabled() ? [{ value: 'docs' as const, label: t('docs.TITLE') }] : [])
 	];
 
 	return (

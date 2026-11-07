@@ -22,11 +22,12 @@ import { ProjectDetailHeader, type ProjectDetailTab, type ProjectNeighbours } fr
 import { ProjectOverview } from './project-overview';
 import { ProjectTasksTab } from './project-tasks-tab';
 import { ProjectPeopleTab } from './project-people-tab';
+import { ProjectDocsTab } from './project-docs-tab';
 import { ProjectDetailBodySkeleton, ProjectDetailToolbarSkeleton } from './project-detail-skeleton';
 
 const TAB_PARAM = 'tab';
 
-const DETAIL_TABS: ReadonlySet<ProjectDetailTab> = new Set<ProjectDetailTab>(['overview', 'tasks', 'people']);
+const DETAIL_TABS: ReadonlySet<ProjectDetailTab> = new Set<ProjectDetailTab>(['overview', 'tasks', 'people', 'docs']);
 
 function tabOf(value: string | null): ProjectDetailTab {
 	const isKnown = DETAIL_TABS.has(value as ProjectDetailTab);
@@ -194,6 +195,7 @@ export default function ProjectDetailPageComponent() {
 				<ProjectTasksTab projectId={project.id} taskStats={taskStats} statuses={taskStatuses} />
 			)}
 			{project && tab === 'people' && <ProjectPeopleTab project={project} />}
+			{project && tab === 'docs' && <ProjectDocsTab project={project} />}
 		</PageLayout>
 	);
 }

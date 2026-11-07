@@ -7,6 +7,7 @@ import {
 	Dashboard,
 	Folder,
 	Home,
+	FileText,
 	Inbox,
 	LayoutGrid,
 	Archive,
@@ -87,6 +88,7 @@ import { DefaultCreateAction } from '../features/layouts/header/create-default-a
 import { SettingsNav } from '../settings/kit/settings-nav';
 import { isSettingsPath } from '../settings/kit/settings-entries';
 import { useRememberAppPath } from '@/core/hooks/common/use-remember-app-path';
+import { isDocsEnabled } from '@/core/lib/utils/docs-enabled';
 
 type AppSidebarProps = React.ComponentProps<typeof Sidebar> & { publicTeam: boolean | undefined };
 
@@ -194,10 +196,19 @@ export function AppSidebar({ publicTeam, ...props }: AppSidebarProps) {
 		};
 		// /inbox has no page yet (404 for every user who clicks it). Gated, not removed: flip
 		// NEXT_PUBLIC_INBOX_ENABLED=true when the route ships (read at runtime: no rebuild of the image).
-		if (isInboxEnabled()) {
-			return [homeEntry, inboxEntry, calendarEntry];
-		}
-		return [homeEntry, calendarEntry];
+		// Docs ships behind NEXT_PUBLIC_DOCS_ENABLED (read at runtime), after the inbox and before the calendar.
+		const docsEntry = {
+			title: t('docs.TITLE'),
+			url: '/docs',
+			selectable: true,
+			icon: FileText,
+			label: 'docs'
+		};
+		const entries = [homeEntry];
+		if (isInboxEnabled()) entries.push(inboxEntry);
+		if (isDocsEnabled()) entries.push(docsEntry);
+		entries.push(calendarEntry);
+		return entries;
 	}, [t]);
 
 	const navMain = useMemo(() => {

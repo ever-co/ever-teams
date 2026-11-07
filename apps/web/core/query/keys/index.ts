@@ -924,5 +924,24 @@ export const queryKeys = {
 		all: ['entity-files'] as const,
 		byEntity: (organizationId: string, entity: string, entityId: string) =>
 			['entity-files', organizationId, entity, entityId] as const
+	},
+
+	// The Docs pages (platform documents of kind PAGE): the tree, one page, its path, versions, the trash, a search
+	docs: {
+		all: ['docs'] as const,
+		tree: (tenantId: string | undefined | null, organizationId: string | undefined | null) =>
+			['docs', 'tree', tenantId ?? null, organizationId ?? null] as const,
+		trash: (tenantId: string | undefined | null, organizationId: string | undefined | null) =>
+			['docs', 'trash', tenantId ?? null, organizationId ?? null] as const,
+		page: (tenantId: string | undefined | null, pageId: string | undefined | null) =>
+			['docs', 'page', tenantId ?? null, pageId ?? null] as const,
+		path: (tenantId: string | undefined | null, pageId: string | undefined | null) =>
+			['docs', 'path', tenantId ?? null, pageId ?? null] as const,
+		versions: (tenantId: string | undefined | null, pageId: string | undefined | null) =>
+			['docs', 'versions', tenantId ?? null, pageId ?? null] as const,
+		search: (tenantId: string | undefined | null, organizationId: string | undefined | null, query: string) =>
+			['docs', 'search', tenantId ?? null, organizationId ?? null, query] as const,
+		projectPages: (tenantId: string | undefined | null, organizationId: string | undefined | null, projectId: string | undefined | null) =>
+			['docs', 'project-pages', tenantId ?? null, organizationId ?? null, projectId ?? null] as const
 	}
 };
