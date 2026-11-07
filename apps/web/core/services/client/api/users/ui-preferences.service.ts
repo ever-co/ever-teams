@@ -2,9 +2,9 @@ import { APIService } from '@/core/services/client/api.service';
 import { GAUZY_API_BASE_SERVER_URL } from '@/core/constants/config/constants';
 
 /** The keyboard bindings a person changed: command id → binding in this app's syntax (`'mod+s'`, `'g t'`). */
-export interface IKeyboardUiPreferences {
+export type IKeyboardUiPreferences = {
 	bindings?: Record<string, string>;
-}
+};
 
 /** The per-user UI preferences the platform keeps on the user row, by feature. */
 export interface IUiPreferences {
@@ -20,7 +20,9 @@ export interface IUiPreferences {
 class UiPreferencesService extends APIService {
 	/** Replaces one feature's object (null removes it); answers the user's preferences as stored. */
 	setFeature = async (feature: string, value: Record<string, unknown> | null): Promise<IUiPreferences> => {
-		const response = await this.put<IUiPreferences>('/user/ui-preferences', { [feature]: value });
+		// The body is features only: the platform refuses a scalar there, so the scope ids the request layer would add
+		// are named and left empty (they travel in the headers), and JSON leaves them out.
+		const response = await this.put<IUiPreferences>('/user/ui-preferences', { [feature]: value, tenantId: undefined, organizationId: undefined });
 		return response.data;
 	};
 

@@ -4538,6 +4538,8 @@
 		"ARCHIVED_LABEL": "zarchiwizowane",
 		"LABELS": "Etykiety",
 		"ADDED_LABEL": "dodano etykietę {name}",
+		"REMOVED_LABEL": "usunięto etykietę {name}",
+		"SHOWING_OF": "Pokazano {shown} z {total} zadań",
 		"FIELD_CHANGED": "zmieniono {field}",
 		"UNDONE_PARTLY": "{applied} przywrócono, {refused} nie udało się.",
 		"BULK_PARTLY_SENT": "{applied} zmieniono; {failed} nie udało się wysłać: {label}",

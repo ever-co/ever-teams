@@ -4538,6 +4538,8 @@
 		"ARCHIVED_LABEL": "مؤرشفة",
 		"LABELS": "التسميات",
 		"ADDED_LABEL": "أُضيفت التسمية {name}",
+		"REMOVED_LABEL": "أُزيلت التسمية {name}",
+		"SHOWING_OF": "عرض {shown} من {total} مهام",
 		"FIELD_CHANGED": "تغير {field}",
 		"UNDONE_PARTLY": "أُعيد {applied}، وتعذر {refused}.",
 		"BULK_PARTLY_SENT": "تم تغيير {applied}؛ تعذر إرسال {failed}: {label}",

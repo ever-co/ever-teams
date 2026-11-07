@@ -23,6 +23,10 @@ describe('shortcut bindings', () => {
 		expect(parseBinding('mod+')).toBeNull();
 		expect(parseBinding('a+b')).toBeNull();
 		expect(parseBinding('')).toBeNull();
+		// The key `+` is written `plus`: formatting and parsing round-trip.
+		expect(parseBinding('shift+plus')).toEqual([{ key: '+', mod: false, shift: true, alt: false }]);
+		expect(formatBinding([{ key: '+', mod: false, shift: true, alt: false }])).toBe('shift+plus');
+		expect(formatBinding(parseBinding('mod+plus')!)).toBe('mod+plus');
 	});
 
 	it('shows key caps per platform', () => {
@@ -54,7 +58,9 @@ describe('shortcut bindings', () => {
 		const bindings = effectiveBindings(SHORTCUT_COMMANDS, null);
 		expect(conflictsOf('goTasks', parseBinding('g m')!, SHORTCUT_COMMANDS, bindings).map((command) => command.id)).toEqual(['goMine']);
 		expect(conflictsOf('listSaveView', parseBinding('mod+k')!, SHORTCUT_COMMANDS, bindings).map((command) => command.id)).toEqual(['paletteOpen']);
-		expect(conflictsOf('listSaveView', parseBinding('s')!, SHORTCUT_COMMANDS, bindings)).toEqual([]);
+		// A focused task is a row of the list: `s` on the list would be the task's status picker.
+		expect(conflictsOf('listSaveView', parseBinding('s')!, SHORTCUT_COMMANDS, bindings).map((command) => command.id)).toEqual(['taskStatus']);
+		expect(conflictsOf('listSaveView', parseBinding('mod+shift+s')!, SHORTCUT_COMMANDS, bindings)).toEqual([]);
 		// `g` alone would fire before any `g …` sequence could: every one of them is a conflict.
 		const prefixed = conflictsOf('goTasks', parseBinding('g')!, SHORTCUT_COMMANDS, bindings).map((command) => command.id);
 		expect(prefixed).toEqual(expect.arrayContaining(['goMine', 'goThisWeek', 'goOverdue', 'goViews', 'goDocs', 'goChat', 'goInbox']));

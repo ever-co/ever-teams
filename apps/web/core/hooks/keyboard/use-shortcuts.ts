@@ -4,6 +4,8 @@ import { useCallback, useEffect, useRef } from 'react';
 import { useAtomValue, useSetAtom } from 'jotai';
 import {
 	chordOfEvent,
+	DIALOG_SAFE_COMMANDS,
+	isDialogOpen,
 	isTypingTarget,
 	matchSequence,
 	SHORTCUT_COMMANDS,
@@ -92,8 +94,17 @@ export function useShortcutListener(): void {
 			if (!chord) return;
 			// A bare letter typed in a field is text; a chord with ⌘/Ctrl is a command anywhere.
 			if (isTypingTarget(event.target) && !chord.mod) return;
+			// An open dialog has the keys: a "go to" must not leave its unsaved form; only the palette and help toggles stay.
+			const usable = isDialogOpen(typeof document === 'undefined' ? undefined : document)
+				? runnable.filter((command) => DIALOG_SAFE_COMMANDS.has(command.id))
+				: runnable;
 			const pressed = [...pending.current, chord];
-			const { command, pending: morePossible } = matchSequence(pressed, runnable, runnableBindings, active);
+			let { command, pending: morePossible } = matchSequence(pressed, usable, runnableBindings, active);
+			// A chord that ends a sequence without completing one is tried on its own (`g`, then ⌘/Ctrl+, opens Settings).
+			if (!command && !morePossible && pending.current.length) {
+				clearPending();
+				({ command, pending: morePossible } = matchSequence([chord], usable, runnableBindings, active));
+			}
 			if (command) {
 				event.preventDefault();
 				clearPending();

@@ -4538,6 +4538,8 @@
 		"ARCHIVED_LABEL": "archivadas",
 		"LABELS": "Etiquetas",
 		"ADDED_LABEL": "etiqueta {name} añadida",
+		"REMOVED_LABEL": "etiqueta {name} quitada",
+		"SHOWING_OF": "Mostrando {shown} de {total} tareas",
 		"FIELD_CHANGED": "{field} cambiado",
 		"UNDONE_PARTLY": "{applied} restauradas, {refused} no se pudieron.",
 		"BULK_PARTLY_SENT": "{applied} cambiadas; {failed} no se pudieron enviar: {label}",

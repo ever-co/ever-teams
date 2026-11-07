@@ -12,7 +12,6 @@ import {
 	bindingKeyCaps,
 	chordOfEvent,
 	conflictsOf,
-	formatBinding,
 	isBrowserReserved,
 	parseBinding,
 	SHORTCUT_COMMANDS,
@@ -55,14 +54,15 @@ interface RowProps {
 	isRecording: boolean;
 	recorded: ShortcutChord[];
 	canRebind: boolean;
+	/** Whether the person left this command's binding alone (a disabled one is a change too). */
+	isDefault: boolean;
 	onRecord: () => void;
 	onReset: () => void;
 }
 
-function CommandRow({ command, binding, isMac, isRecording, recorded, canRebind, onRecord, onReset }: Readonly<RowProps>) {
+function CommandRow({ command, binding, isMac, isRecording, recorded, canRebind, isDefault, onRecord, onReset }: Readonly<RowProps>) {
 	const t = useTranslations();
 	const label = t(`shortcuts.commands.${command.id}` as DottedLanguageObjectStringPaths);
-	const isDefault = !binding || formatBinding(binding) === formatBinding(parseBinding(command.defaultBinding) ?? []);
 	return (
 		<div className={cn('flex items-center justify-between gap-3 py-1.5', isRecording && 'rounded-md bg-primary/5 px-2')}>
 			<span className="text-sm text-foreground">{label}</span>
@@ -102,6 +102,8 @@ export function ShortcutsDialog() {
 	const { bindings, overrides, setOverrides, canRebind } = useKeyboardPreferences();
 	const [recordingId, setRecordingId] = useState<string | null>(null);
 	const [recorded, setRecorded] = useState<ShortcutChord[]>([]);
+	// One save at a time: the next change starts from the overrides the platform answered, never from stale ones.
+	const [isSaving, setIsSaving] = useState(false);
 
 	const byContext = useMemo(() => {
 		const groups = new Map<ShortcutContext, ShortcutCommand[]>();
@@ -113,7 +115,7 @@ export function ShortcutsDialog() {
 	const commit = useCallback(
 		async (commandId: string, binding: ShortcutBinding | null) => {
 			const command = SHORTCUT_COMMANDS.find((item) => item.id === commandId);
-			if (!command) return;
+			if (!command || isSaving) return;
 			if (binding && isBrowserReserved(binding)) {
 				toast.error(t('shortcuts.RESERVED'));
 				return;
@@ -126,14 +128,17 @@ export function ShortcutsDialog() {
 					return;
 				}
 			}
+			setIsSaving(true);
 			try {
 				await setOverrides(withOverride(overrides, commandId, binding, command.defaultBinding));
 				toast.success(t('shortcuts.SAVED'));
 			} catch {
 				toast.error(t('shortcuts.SAVE_FAILED'));
+			} finally {
+				setIsSaving(false);
 			}
 		},
-		[bindings, overrides, setOverrides, t]
+		[bindings, isSaving, overrides, setOverrides, t]
 	);
 
 	// Recording: the chords pressed go to the command; a second chord within the window makes a sequence.
@@ -190,7 +195,8 @@ export function ShortcutsDialog() {
 									isMac={isMac}
 									isRecording={recordingId === command.id}
 									recorded={recorded}
-									canRebind={canRebind}
+									canRebind={canRebind && !isSaving}
+									isDefault={overrides[command.id] === undefined}
 									onRecord={() => {
 										setRecorded([]);
 										setRecordingId(command.id);

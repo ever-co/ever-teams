@@ -56,7 +56,7 @@ type CreateRequest = string | null | undefined;
 /** What the page is opened on besides the team's tasks: a saved view, or a built-in one the platform computes. */
 export type TaskViewContext =
 	| { kind: 'saved'; view: ITaskView }
-	| { kind: 'builtIn'; key: ETaskBuiltInView; tasks: TTask[]; isLoading: boolean; isError: boolean; refetch: () => void };
+	| { kind: 'builtIn'; key: ETaskBuiltInView; tasks: TTask[]; total: number; isLoading: boolean; isError: boolean; refetch: () => void };
 
 /** What the body of the page shows, decided once per render. */
 type BodyState = 'loading' | 'error' | 'viewEmpty' | 'emptyTeam' | 'noMatch' | 'scopeEmpty' | 'list';
@@ -202,7 +202,7 @@ export function TeamTasksPage({ viewContext }: Readonly<{ viewContext?: TaskView
 	const firstStatus = view.statuses[0];
 	const employeeId = user?.employee?.id ?? user?.employeeId ?? '';
 	const trackedCount = trackedTaskCountOf(activeTeam?.members, view.taskById);
-	const { orderedIds, clearSelection } = view;
+	const { orderedIds, clearSelection, setManySelected } = view;
 	const selectionCount = view.selectedIds.size;
 	const hasSelection = selectionCount > 0;
 	const hasLayerOpen = isPickerOpen || isMenuOpen;
@@ -255,9 +255,19 @@ export function TeamTasksPage({ viewContext }: Readonly<{ viewContext?: TaskView
 	);
 
 	const handleSelectionArchive = useCallback(() => {
-		archiveTasks([...view.selectedIds]);
+		const taskIds = [...view.selectedIds];
 		clearSelection();
-	}, [archiveTasks, clearSelection, view.selectedIds]);
+		// The tasks the platform did not archive come back into the selection: a retry needs no second pick.
+		void archiveTasks(taskIds).then((left) => {
+			if (left.length) setManySelected(left, true);
+		});
+	}, [archiveTasks, clearSelection, setManySelected, view.selectedIds]);
+
+	// A built-in view loads its tasks up to the service's cap: the toolbar says when the platform holds more.
+	const truncationNote =
+		viewContext?.kind === 'builtIn' && viewContext.total > viewContext.tasks.length
+			? t('taskViews.SHOWING_OF', { shown: viewContext.tasks.length, total: viewContext.total })
+			: undefined;
 
 	useEffect(() => {
 		const isListening = hasSelection && !hasLayerOpen;
@@ -324,6 +334,7 @@ export function TeamTasksPage({ viewContext }: Readonly<{ viewContext?: TaskView
 							view={view}
 							title={viewTitle ?? t('sidebar.TEAMTASKS')}
 							isDirty={isDirty}
+							note={truncationNote}
 							trackedCount={trackedCount}
 							isLoadingMore={isLoadingMorePages}
 							onCreate={openCreate}

@@ -4538,6 +4538,8 @@
 		"ARCHIVED_LABEL": "archiviate",
 		"LABELS": "Etichette",
 		"ADDED_LABEL": "etichetta {name} aggiunta",
+		"REMOVED_LABEL": "etichetta {name} rimossa",
+		"SHOWING_OF": "Mostrate {shown} attività su {total}",
 		"FIELD_CHANGED": "{field} modificato",
 		"UNDONE_PARTLY": "{applied} ripristinate, {refused} non possibili.",
 		"BULK_PARTLY_SENT": "{applied} modificate; {failed} non inviate: {label}",

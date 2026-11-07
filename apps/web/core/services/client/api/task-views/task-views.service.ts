@@ -16,6 +16,10 @@ import {
 const VIEWS = '/task-views';
 const path = (id: string) => encodeURIComponent(id);
 
+/** A page of saved views (the platform's limit per request), and the most one team lists. */
+const VIEWS_PAGE_SIZE = 100;
+const VIEWS_MAX = 500;
+
 /** A page of a built-in view (the platform's maximum), and the most tasks one view loads. */
 const BUILT_IN_PAGE_SIZE = 200;
 export const BUILT_IN_MAX_TASKS = 1000;
@@ -35,11 +39,21 @@ class TaskViewsService extends APIService {
 
 	// ---------------------------------------------------------------- saved views
 
-	/** The views of a team the caller may see (shared ones, and their own personal ones). */
+	/** The views of a team the caller may see (shared ones, and their own personal ones): every page, up to {@link VIEWS_MAX}. */
 	list = async (organizationTeamId: string, signal?: AbortSignal): Promise<ITaskViewList> => {
-		const search = qs.stringify({ where: { ...this.scope(), organizationTeamId }, take: 200 }, { skipNulls: true });
-		const response = await this.get<ITaskViewList>(`${VIEWS}?${search}`, { signal });
-		return response.data;
+		const items: ITaskView[] = [];
+		let total = 0;
+		let skip = 0;
+		for (;;) {
+			const search = qs.stringify({ where: { ...this.scope(), organizationTeamId }, take: VIEWS_PAGE_SIZE, skip }, { skipNulls: true });
+			const response = await this.get<ITaskViewList>(`${VIEWS}?${search}`, { signal });
+			const page = response.data;
+			items.push(...page.items);
+			total = page.total;
+			skip += page.items.length;
+			if (page.items.length === 0 || skip >= page.total || skip >= VIEWS_MAX) break;
+		}
+		return { items, total };
 	};
 
 	getView = async (id: string, signal?: AbortSignal): Promise<ITaskView> => {

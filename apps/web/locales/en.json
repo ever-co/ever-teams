@@ -4538,6 +4538,8 @@
 		"ARCHIVED_LABEL": "archived",
 		"LABELS": "Labels",
 		"ADDED_LABEL": "label {name} added",
+		"REMOVED_LABEL": "label {name} removed",
+		"SHOWING_OF": "Showing {shown} of {total} tasks",
 		"FIELD_CHANGED": "{field} changed",
 		"UNDONE_PARTLY": "{applied} put back, {refused} could not be.",
 		"BULK_PARTLY_SENT": "{applied} changed; {failed} could not be sent: {label}",

@@ -70,6 +70,15 @@ const BROWSER_RESERVED = new Set(['mod+w', 'mod+t', 'mod+n', 'mod+q', 'mod+r', '
 /** The single chords ⌘/Ctrl combinations of which the registry owns while it is on; the older listeners leave them alone. */
 export const REGISTRY_OWNED_MOD_KEYS: ReadonlySet<string> = new Set(['k', 's', ',']);
 
+/** The commands that still run while a dialog is open: toggles that leave the dialog's form as it is. */
+export const DIALOG_SAFE_COMMANDS: ReadonlySet<string> = new Set(['paletteOpen', 'helpOpen']);
+
+/** The contexts whose keys reach the same person at once: a focused task is a row of the list. */
+const OVERLAPPING_CONTEXTS: ReadonlySet<ShortcutContext> = new Set(['list', 'task']);
+
+/** The key `+` is written `plus` in a binding, since `+` separates the keys of a chord. */
+const PLUS_KEY_NAME = 'plus';
+
 /** One chord of a binding (`mod+shift+d`), or null when it is not one. */
 export function parseChord(text: string): ShortcutChord | null {
 	const parts = text.trim().toLowerCase().split('+').filter(Boolean);
@@ -80,7 +89,7 @@ export function parseChord(text: string): ShortcutChord | null {
 		else if (part === 'shift') chord.shift = true;
 		else if (part === 'alt' || part === 'option') chord.alt = true;
 		else if (chord.key) return null;
-		else chord.key = part;
+		else chord.key = part === PLUS_KEY_NAME ? '+' : part;
 	}
 	return chord.key ? chord : null;
 }
@@ -95,7 +104,11 @@ export function parseBinding(text: string): ShortcutBinding | null {
 /** The canonical text of a binding (`mod+shift+d`, `g t`): what is stored and compared. */
 export function formatBinding(binding: ShortcutBinding): string {
 	return binding
-		.map((chord) => [chord.mod ? 'mod' : '', chord.shift ? 'shift' : '', chord.alt ? 'alt' : '', chord.key].filter(Boolean).join('+'))
+		.map((chord) =>
+			[chord.mod ? 'mod' : '', chord.shift ? 'shift' : '', chord.alt ? 'alt' : '', chord.key === '+' ? PLUS_KEY_NAME : chord.key]
+				.filter(Boolean)
+				.join('+')
+		)
 		.join(' ');
 }
 
@@ -179,8 +192,8 @@ export function overlaps(first: ShortcutBinding, second: ShortcutBinding): boole
 }
 
 /**
- * The commands whose binding would clash with the given one in the same (or the global) context — the same keys, or
- * one binding the start of the other — the command itself left out.
+ * The commands whose binding would clash with the given one in the same (or the global) context, the list and a
+ * focused task counting as one — the same keys, or one binding the start of the other — the command itself left out.
  */
 export function conflictsOf(
 	commandId: string,
@@ -194,7 +207,11 @@ export function conflictsOf(
 		if (other.id === commandId) return false;
 		const otherBinding = bindings.get(other.id);
 		if (!otherBinding) return false;
-		const sharesContext = other.context === command.context || other.context === 'global' || command.context === 'global';
+		const sharesContext =
+			other.context === command.context ||
+			other.context === 'global' ||
+			command.context === 'global' ||
+			(OVERLAPPING_CONTEXTS.has(other.context) && OVERLAPPING_CONTEXTS.has(command.context));
 		return sharesContext && overlaps(binding, otherBinding);
 	});
 }
@@ -234,6 +251,17 @@ export function matchSequence(
 		pending = true;
 	}
 	return { command: null, pending };
+}
+
+/** Whether a modal dialog is open on the page: its form has the keys then, not the app's commands. */
+export function isDialogOpen(doc: Pick<Document, 'querySelectorAll'> | undefined): boolean {
+	if (!doc) return false;
+	for (const element of Array.from(doc.querySelectorAll('[role="dialog"], [aria-modal="true"]'))) {
+		const dialog = element as HTMLElement;
+		if (dialog.hidden || dialog.getAttribute('aria-hidden') === 'true') continue;
+		if (dialog.getClientRects().length > 0) return true;
+	}
+	return false;
 }
 
 /** Whether the key press happened in a field where letters are typed, not commands. */

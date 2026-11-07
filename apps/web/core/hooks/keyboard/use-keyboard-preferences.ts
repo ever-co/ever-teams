@@ -29,8 +29,12 @@ export function useKeyboardPreferences() {
 
 	const setOverrides = useCallback(
 		async (next: Record<string, string>) => {
-			await uiPreferencesService.setKeyboard({ bindings: next });
-			await queryClient.invalidateQueries({ queryKey: queryKeys.users.me });
+			const stored = await uiPreferencesService.setKeyboard({ bindings: next });
+			// What the platform stored goes straight into the signed-in user's cache: the bindings in force follow the
+			// save at once, with no read that a recent session check could answer with the user as they were.
+			queryClient.setQueryData(queryKeys.users.me, (user: unknown) =>
+				user && typeof user === 'object' ? { ...(user as Record<string, unknown>), uiPreferences: stored } : user
+			);
 		},
 		[queryClient]
 	);

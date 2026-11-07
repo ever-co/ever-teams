@@ -4538,6 +4538,8 @@
 		"ARCHIVED_LABEL": "архивирани",
 		"LABELS": "Етикети",
 		"ADDED_LABEL": "добавен етикет {name}",
+		"REMOVED_LABEL": "премахнат етикет {name}",
+		"SHOWING_OF": "Показани {shown} от {total} задачи",
 		"FIELD_CHANGED": "{field} променено",
 		"UNDONE_PARTLY": "{applied} върнати, {refused} не успяха.",
 		"BULK_PARTLY_SENT": "{applied} променени; {failed} не можаха да бъдат изпратени: {label}",

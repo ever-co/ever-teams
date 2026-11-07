@@ -3,6 +3,7 @@
 import { useCallback } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 import { queryKeys } from '@/core/query/keys';
+import { ApiErrorService } from '@/core/services/client/api-error.service';
 import { taskViewsService } from '@/core/services/client/api/task-views/task-views.service';
 import { columnsOf } from '@/core/lib/utils/task-views';
 import {
@@ -24,7 +25,18 @@ export class TaskViewConflictError extends Error {
 function conflictOf(error: unknown): TaskViewConflictError | null {
 	const response = (error as { response?: { status?: number; data?: { code?: string; view?: ITaskView } } } | null)?.response;
 	if (response?.status === 409) return new TaskViewConflictError(response.data?.view ?? null);
+	// The request layer answers an HTTP error as an ApiErrorService: the status survives, the body's extras may not.
+	if (ApiErrorService.isApiError(error) && (error.statusCode === 409 || error.hasHttpResponseStatus(409))) {
+		return new TaskViewConflictError((error.details?.view as ITaskView | undefined) ?? null);
+	}
 	return null;
+}
+
+/** The conflict with the latest view in it: read again when the refusal did not carry it. */
+async function withLatest(conflict: TaskViewConflictError, viewId: string): Promise<TaskViewConflictError> {
+	if (conflict.latest) return conflict;
+	const latest = await taskViewsService.getView(viewId).catch(() => null);
+	return new TaskViewConflictError(latest);
 }
 
 /**
@@ -62,8 +74,9 @@ export function useTaskViewActions() {
 			} catch (error) {
 				const conflict = conflictOf(error);
 				if (conflict) {
-					settle(conflict.latest);
-					throw conflict;
+					const known = await withLatest(conflict, view.id);
+					settle(known.latest);
+					throw known;
 				}
 				throw error;
 			}
@@ -80,8 +93,9 @@ export function useTaskViewActions() {
 			} catch (error) {
 				const conflict = conflictOf(error);
 				if (conflict) {
-					settle(conflict.latest);
-					throw conflict;
+					const known = await withLatest(conflict, view.id);
+					settle(known.latest);
+					throw known;
 				}
 				throw error;
 			}

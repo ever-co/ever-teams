@@ -4538,6 +4538,8 @@
 		"ARCHIVED_LABEL": "archiviert",
 		"LABELS": "Labels",
 		"ADDED_LABEL": "Label {name} hinzugefügt",
+		"REMOVED_LABEL": "Label {name} entfernt",
+		"SHOWING_OF": "{shown} von {total} Aufgaben angezeigt",
 		"FIELD_CHANGED": "{field} geändert",
 		"UNDONE_PARTLY": "{applied} zurückgesetzt, {refused} nicht möglich.",
 		"BULK_PARTLY_SENT": "{applied} geändert; {failed} konnten nicht gesendet werden: {label}",

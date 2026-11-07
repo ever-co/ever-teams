@@ -4538,6 +4538,8 @@
 		"ARCHIVED_LABEL": "בארכיון",
 		"LABELS": "תוויות",
 		"ADDED_LABEL": "התווית {name} נוספה",
+		"REMOVED_LABEL": "התווית {name} הוסרה",
+		"SHOWING_OF": "מוצגות {shown} מתוך {total} משימות",
 		"FIELD_CHANGED": "{field} שונה",
 		"UNDONE_PARTLY": "{applied} הוחזרו, {refused} לא ניתן היה.",
 		"BULK_PARTLY_SENT": "{applied} שונו; {failed} לא ניתן היה לשלוח: {label}",

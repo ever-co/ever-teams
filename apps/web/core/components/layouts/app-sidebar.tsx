@@ -3,6 +3,9 @@ import { useTaskViewsQuery } from '@/core/hooks/task-views/use-task-views-query'
 import { isTaskViewsEnabled } from '@/core/lib/utils/task-views-enabled';
 import { builtInViewLabelKey } from '@/core/components/pages/teams/team/tasks/views/views-page';
 import { TASK_BUILT_IN_VIEWS } from '@/core/types/interfaces/common/task-views';
+
+/** The saved views the sidebar lists (the first in sidebar order); All views has every one of them. */
+const SIDEBAR_SAVED_VIEWS_MAX = 8;
 import {
 	Bot,
 	Calendar,
@@ -381,7 +384,7 @@ export function AppSidebar({ publicTeam, ...props }: AppSidebarProps) {
 									url: `/views/${key}`,
 									label: `view-${key}`
 								})),
-								...savedViews.map((savedView) => ({
+								...savedViews.slice(0, SIDEBAR_SAVED_VIEWS_MAX).map((savedView) => ({
 									title: savedView.name,
 									url: `/views/${savedView.id}`,
 									label: `view-${savedView.id}`

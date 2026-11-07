@@ -221,6 +221,7 @@ export function TeamTasksToolbar({
 	view,
 	title,
 	isDirty,
+	note,
 	trackedCount,
 	isLoadingMore,
 	onCreate,
@@ -229,6 +230,8 @@ export function TeamTasksToolbar({
 	view: TeamTasksViewState;
 	title: string;
 	isDirty: boolean;
+	/** A word on the list next to the title (a built-in view showing part of its tasks). */
+	note?: string;
 	trackedCount: number;
 	isLoadingMore: boolean;
 	onCreate: () => void;
@@ -256,6 +259,7 @@ export function TeamTasksToolbar({
 				<div className="flex min-w-0 items-baseline gap-2">
 					<h1 className="truncate text-lg font-semibold text-foreground">{title}</h1>
 					{isDirty && <span className="text-xs text-muted-foreground">{t('taskViews.UNSAVED')}</span>}
+					{note && <span className="text-xs text-muted-foreground">{note}</span>}
 					<span className="flex items-center gap-1.5 text-xs tabular-nums text-muted-foreground">
 						{t('pages.teamTasks.META_TASKS', { count: totalCount })}
 						{hasTracked && (

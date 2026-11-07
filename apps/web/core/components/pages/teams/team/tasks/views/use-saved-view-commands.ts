@@ -62,27 +62,33 @@ export function useSavedViewCommands({ savedView, isBuiltIn, definition, isDirty
 		}
 	}, [actions, definition, isBusy, isDirty, reportSaveError, savedView, t]);
 
+	/** Creates the view; answers whether it worked (the dialog stays open otherwise). */
 	const create = useCallback(
-		async (name: string, visibility: ETaskViewVisibility) => {
+		async (name: string, visibility: ETaskViewVisibility): Promise<boolean> => {
 			try {
 				const created = await actions.createView(name, visibility, definition);
 				toast.success(t('taskViews.CREATED_TOAST', { name: created.name }));
 				router.push(`/views/${created.id}`);
+				return true;
 			} catch {
 				toast.error(t('taskViews.CREATE_FAILED'));
+				return false;
 			}
 		},
 		[actions, definition, router, t]
 	);
 
+	/** Renames the open view; answers whether it worked. */
 	const rename = useCallback(
-		async (name: string) => {
-			if (!savedView) return;
+		async (name: string): Promise<boolean> => {
+			if (!savedView) return false;
 			try {
 				await actions.updateView(savedView, { name });
 				toast.success(t('taskViews.SAVED_TOAST'));
+				return true;
 			} catch (error) {
 				reportSaveError(error);
+				return false;
 			}
 		},
 		[actions, reportSaveError, savedView, t]
@@ -143,9 +149,9 @@ export function useSavedViewCommands({ savedView, isBuiltIn, definition, isDirty
 		[isBuiltIn, isDirty, save, savedView]
 	);
 
-	/** What the save dialog submits: a rename, or a new view. */
+	/** What the save dialog submits: a rename, or a new view; `false` keeps the dialog open. */
 	const submitDialog = useCallback(
-		(name: string, visibility: ETaskViewVisibility) => (saveDialog === 'rename' ? rename(name) : create(name, visibility)),
+		(name: string, visibility: ETaskViewVisibility): Promise<boolean> => (saveDialog === 'rename' ? rename(name) : create(name, visibility)),
 		[create, rename, saveDialog]
 	);
 

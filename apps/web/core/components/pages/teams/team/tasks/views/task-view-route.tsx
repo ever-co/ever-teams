@@ -60,8 +60,8 @@ function SavedViewPage({ viewId }: Readonly<{ viewId: string }>) {
 }
 
 function BuiltInViewPage({ viewKey }: Readonly<{ viewKey: ETaskBuiltInView }>) {
-	const { tasks, isLoading, isError, refetch } = useBuiltInViewTasks(viewKey);
-	return <TeamTasksPage viewContext={{ kind: 'builtIn', key: viewKey, tasks, isLoading, isError, refetch: () => void refetch() }} />;
+	const { tasks, total, isLoading, isError, refetch } = useBuiltInViewTasks(viewKey);
+	return <TeamTasksPage viewContext={{ kind: 'builtIn', key: viewKey, tasks, total, isLoading, isError, refetch: () => void refetch() }} />;
 }
 
 /** `/views/[viewId]`: a saved view by id, or a built-in one by its key (`mine`, `this-week`, `overdue`, `due-soon`). */

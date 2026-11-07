@@ -90,9 +90,12 @@ export function useBulkTaskUpdate() {
 		[run, t]
 	);
 
-	/** Applies the changes to the tasks and offers an undo for the ones that changed, even when a batch failed. */
+	/**
+	 * Applies the changes to the tasks and offers an undo for the ones that changed, even when a batch failed. The
+	 * outcome names the tasks that did not change (refused, or in a batch that did not go through).
+	 */
 	const bulkUpdate = useCallback(
-		async (taskIds: string[], changes: ITaskBulkChanges, label: string): Promise<ITaskBulkUpdateOutcome | null> => {
+		async (taskIds: string[], changes: ITaskBulkChanges, label: string): Promise<(ITaskBulkUpdateOutcome & { unappliedIds: string[] }) | null> => {
 			if (!taskIds.length) return null;
 			// The batches are independent (each task once), so they go out together.
 			const settled = await Promise.allSettled(batchesOf(taskIds).map((batch) => run({ taskIds: batch, changes })));
@@ -113,7 +116,8 @@ export function useBulkTaskUpdate() {
 				id: 'task-bulk-update',
 				action: undoItems.length ? { label: t('taskViews.UNDO'), onClick: () => void undo(undoItems) } : undefined
 			});
-			return outcome;
+			const appliedIds = new Set(outcome.results.filter((result) => result.ok).map((result) => result.taskId));
+			return { ...outcome, unappliedIds: taskIds.filter((taskId) => !appliedIds.has(taskId)) };
 		},
 		[run, t, undo]
 	);

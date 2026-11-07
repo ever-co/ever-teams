@@ -176,7 +176,10 @@ export function useTeamTaskUpdates() {
 		[applyChange]
 	);
 
-	/** One task: the label is added or taken away. A selection: the label is added to every task (one request). */
+	/**
+	 * One task: the label is added or taken away. A selection (one request): the label is taken off every task when
+	 * every one of them has it (the picker shows it checked then), and added to every task otherwise.
+	 */
 	const toggleLabel = useCallback(
 		(taskIds: string[], labelName: string) => {
 			const allLabels = taskLabels as NonNullable<TTask['tags']>;
@@ -185,12 +188,15 @@ export function useTeamTaskUpdates() {
 				if (!label?.id) {
 					return;
 				}
-				void bulkUpdate(taskIds, { addTagIds: [label.id] }, t('taskViews.ADDED_LABEL', { name: labelName })).catch(() => undefined);
+				const everyHas = taskIds.every((taskId) => (latestTask(taskId)?.tags ?? []).some((tag) => tag.name === labelName));
+				const changes = everyHas ? { removeTagIds: [label.id] } : { addTagIds: [label.id] };
+				const message = everyHas ? t('taskViews.REMOVED_LABEL', { name: labelName }) : t('taskViews.ADDED_LABEL', { name: labelName });
+				void bulkUpdate(taskIds, changes, message).catch(() => undefined);
 				return;
 			}
 			applyChange(taskIds, 'tags', (task) => ({ tags: withLabelToggled(task, labelName, allLabels) }));
 		},
-		[applyChange, bulkUpdate, t, taskLabels, usesBulk]
+		[applyChange, bulkUpdate, latestTask, t, taskLabels, usesBulk]
 	);
 
 	const setDueDate = useCallback(
@@ -219,13 +225,21 @@ export function useTeamTaskUpdates() {
 		[applyChange, bulkUpdate, t, usesBulk]
 	);
 
-	/** Archives the tasks in one request (the saved-views feature's bulk update), with an undo. */
+	/**
+	 * Archives the tasks in one request (the saved-views feature's bulk update), with an undo. Answers the ids of the
+	 * tasks that were not archived (refused, or not sent), so the caller can keep them selected for a retry.
+	 */
 	const archiveTasks = useCallback(
-		(taskIds: string[]) => {
+		async (taskIds: string[]): Promise<string[]> => {
 			if (!isBulkAvailable || !taskIds.length) {
-				return;
+				return taskIds;
 			}
-			void bulkUpdate(taskIds, { isArchived: true }, t('taskViews.ARCHIVED_LABEL')).catch(() => undefined);
+			try {
+				const outcome = await bulkUpdate(taskIds, { isArchived: true }, t('taskViews.ARCHIVED_LABEL'));
+				return outcome?.unappliedIds ?? [];
+			} catch {
+				return taskIds;
+			}
 		},
 		[bulkUpdate, isBulkAvailable, t]
 	);

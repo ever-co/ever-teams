@@ -4538,6 +4538,8 @@
 		"ARCHIVED_LABEL": "в архиве",
 		"LABELS": "Метки",
 		"ADDED_LABEL": "добавлена метка {name}",
+		"REMOVED_LABEL": "метка {name} удалена",
+		"SHOWING_OF": "Показано {shown} из {total} задач",
 		"FIELD_CHANGED": "{field} изменено",
 		"UNDONE_PARTLY": "{applied} возвращено, {refused} не удалось.",
 		"BULK_PARTLY_SENT": "{applied} изменено; {failed} не удалось отправить: {label}",

@@ -4538,6 +4538,8 @@
 		"ARCHIVED_LABEL": "gearchiveerd",
 		"LABELS": "Labels",
 		"ADDED_LABEL": "label {name} toegevoegd",
+		"REMOVED_LABEL": "label {name} verwijderd",
+		"SHOWING_OF": "{shown} van {total} taken getoond",
 		"FIELD_CHANGED": "{field} gewijzigd",
 		"UNDONE_PARTLY": "{applied} teruggezet, {refused} lukte niet.",
 		"BULK_PARTLY_SENT": "{applied} gewijzigd; {failed} konden niet worden verzonden: {label}",

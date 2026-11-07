@@ -4538,6 +4538,8 @@
 		"ARCHIVED_LABEL": "已归档",
 		"LABELS": "标签",
 		"ADDED_LABEL": "已添加标签 {name}",
+		"REMOVED_LABEL": "已移除标签 {name}",
+		"SHOWING_OF": "显示 {total} 个任务中的 {shown} 个",
 		"FIELD_CHANGED": "已更改{field}",
 		"UNDONE_PARTLY": "已恢复 {applied} 个，{refused} 个未能恢复。",
 		"BULK_PARTLY_SENT": "已更改 {applied} 个；{failed} 个未能发送：{label}",

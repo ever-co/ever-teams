@@ -15,7 +15,8 @@ interface SaveViewDialogProps {
 	mode: SaveViewMode;
 	initialName: string;
 	initialVisibility: ETaskViewVisibility;
-	onSubmit: (name: string, visibility: ETaskViewVisibility) => Promise<void> | void;
+	/** Saves; `false` means it did not work, and the dialog stays open with what was typed. */
+	onSubmit: (name: string, visibility: ETaskViewVisibility) => Promise<boolean | void> | boolean | void;
 	onClose: () => void;
 }
 
@@ -47,8 +48,8 @@ export function SaveViewDialog({ open, mode, initialName, initialVisibility, onS
 		if (!trimmed || isBusy) return;
 		setIsBusy(true);
 		try {
-			await onSubmit(trimmed, visibility);
-			onClose();
+			const saved = await onSubmit(trimmed, visibility);
+			if (saved !== false) onClose();
 		} finally {
 			setIsBusy(false);
 		}

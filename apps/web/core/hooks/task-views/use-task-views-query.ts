@@ -16,7 +16,8 @@ export function useTaskViewsQuery() {
 	const scope = useTaskViewsScope();
 	const enabled = isTaskViewsEnabled() && scope !== null;
 	const query = useQuery({
-		queryKey: queryKeys.taskViews.list(scope?.tenantId, scope?.organizationId, scope?.teamId),
+		// The person is part of the key: the personal views of whoever signed in before never show.
+		queryKey: queryKeys.taskViews.list(scope?.tenantId, scope?.organizationId, scope?.teamId, scope?.userId),
 		queryFn: ({ signal }) => taskViewsService.list(scope!.teamId, signal),
 		enabled,
 		staleTime: 30_000
