@@ -6,6 +6,7 @@ import { queryKeys } from '@/core/query/keys';
 import { chatService } from '@/core/services/client/api/chat';
 import {
 	EChatMessageKind,
+	EChatTaskReferenceKind,
 	IChatConversationList,
 	IChatMessage,
 	IChatMessageCreateInput,
@@ -23,6 +24,8 @@ import { useChatScope } from './use-chat-scope';
 /** A message the sender sees before the platform answers (`pending`), or one it refused (`failed`). */
 export interface ChatOutboxMessage extends IChatMessage {
 	outbox: 'pending' | 'failed';
+	/** The task sent with the message ("Send to chat"), kept so a retry sends the card again. */
+	outboxTaskId?: string | null;
 }
 
 export function isOutboxMessage(message: IChatMessage): message is ChatOutboxMessage {
@@ -109,6 +112,9 @@ export function useChatActions() {
 				alsoInConversation: !!input.alsoInConversation,
 				replyCount: 0,
 				attachmentIds: input.attachmentIds ?? null,
+				// A task sent with the message shows as its card at once, and stays with a failed message for the retry.
+				taskReferences: input.taskId ? [{ messageId: `pending:${nonce}`, taskId: input.taskId, kind: EChatTaskReferenceKind.Sent }] : undefined,
+				outboxTaskId: input.taskId ?? null,
 				nonce,
 				createdAt: now,
 				outbox: 'pending'
@@ -155,7 +161,8 @@ export function useChatActions() {
 				replyToId: failed.replyToId ?? undefined,
 				threadRootId: failed.threadRootId ?? undefined,
 				alsoInConversation: failed.alsoInConversation,
-				attachmentIds: failed.attachmentIds ?? undefined
+				attachmentIds: failed.attachmentIds ?? undefined,
+				taskId: failed.outboxTaskId ?? undefined
 			}),
 		[send]
 	);
