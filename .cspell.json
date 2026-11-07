@@ -959,7 +959,8 @@
 		"unpin",
 		"unfollow",
 		"outbox",
-		"nonce"
+		"nonce",
+		"ghcup"
 	],
 	"useGitignore": true,
 	"ignorePaths": [

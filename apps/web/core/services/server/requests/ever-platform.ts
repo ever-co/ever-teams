@@ -18,6 +18,8 @@ export interface PassThroughRequest {
 	readonly bearer: string;
 	readonly tenantId?: string | null;
 	readonly body?: unknown;
+	/** This app's origin, for the API routes that answer only the browser origins they list. */
+	readonly origin?: string;
 	readonly fetch?: typeof globalThis.fetch;
 }
 
@@ -39,6 +41,7 @@ export async function gauzyPassThrough(request: PassThroughRequest): Promise<Pas
 	};
 	if (request.tenantId) headers['tenant-id'] = request.tenantId;
 	if (request.body !== undefined) headers['content-type'] = 'application/json';
+	if (request.origin) headers.origin = request.origin;
 
 	let response: Response;
 	try {
