@@ -50,9 +50,11 @@ export function useTaskViewActions() {
 	const settle = useCallback(
 		(view?: ITaskView | null) => {
 			void queryClient.invalidateQueries({ queryKey: queryKeys.taskViews.all });
-			if (view?.id) queryClient.setQueryData(queryKeys.taskViews.detail(view.id), view);
+			if (view?.id && scope) {
+				queryClient.setQueryData(queryKeys.taskViews.detail(scope.tenantId, scope.organizationId, scope.userId, view.id), view);
+			}
 		},
-		[queryClient]
+		[queryClient, scope]
 	);
 
 	const createView = useCallback(
@@ -106,10 +108,10 @@ export function useTaskViewActions() {
 	const deleteView = useCallback(
 		async (view: ITaskView): Promise<void> => {
 			await taskViewsService.remove(view.id);
-			queryClient.removeQueries({ queryKey: queryKeys.taskViews.detail(view.id) });
+			if (scope) queryClient.removeQueries({ queryKey: queryKeys.taskViews.detail(scope.tenantId, scope.organizationId, scope.userId, view.id) });
 			settle();
 		},
-		[queryClient, settle]
+		[queryClient, scope, settle]
 	);
 
 	return { createView, saveDefinition, updateView, deleteView };

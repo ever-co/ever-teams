@@ -31,7 +31,8 @@ export function useTaskViewQuery(viewId: string | null | undefined) {
 	const scope = useTaskViewsScope();
 	const enabled = isTaskViewsEnabled() && scope !== null && !!viewId;
 	return useQuery({
-		queryKey: queryKeys.taskViews.detail(viewId),
+		// The session is part of the key: a view opened by URL never shows what another sign-in cached.
+		queryKey: queryKeys.taskViews.detail(scope?.tenantId, scope?.organizationId, scope?.userId, viewId),
 		queryFn: ({ signal }) => taskViewsService.getView(viewId as string, signal),
 		enabled,
 		staleTime: 10_000,
