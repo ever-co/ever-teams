@@ -201,6 +201,23 @@ describe('SessionCheckMemo', () => {
 		await expect(new SessionCheckMemo<Check>(0, 3, () => now, 40).withDeadline(boom)).rejects.toThrow('boom');
 	});
 
+	it('never shares a check in flight with a request made after the token expired', async () => {
+		// The token expires in one second; a check started before that is still pending when the next request arrives.
+		const token = jwtExpiring(Math.floor(now / 1000) + 1);
+		let settle!: (value: Check) => void;
+		check.mockImplementationOnce(() => new Promise<Check>((resolve) => (settle = resolve)));
+		const first = memo.answer(token, check, keepable);
+
+		now += 2_000;
+		check.mockResolvedValueOnce({ data: { statusCode: 401 } } as unknown as Check);
+		const second = memo.answer(token, check, keepable);
+		settle({ data: { id: 'user-1' } } as unknown as Check);
+
+		await expect(first).resolves.toMatchObject({ data: { id: 'user-1' } });
+		await expect(second).resolves.toMatchObject({ data: { statusCode: 401 } });
+		expect(check).toHaveBeenCalledTimes(2);
+	});
+
 	it('checks every call when the window is zero', async () => {
 		const off = new SessionCheckMemo<Check>(0, 3, () => now);
 

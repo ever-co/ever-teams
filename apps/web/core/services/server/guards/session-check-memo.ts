@@ -109,12 +109,15 @@ export class SessionCheckMemo<T> {
 
 		const key = createHash('sha256').update(token).digest('base64url');
 		const now = this.now();
+		const expiresAt = tokenExpiresAt(token);
+		const expired = expiresAt !== undefined && expiresAt <= now;
 		const existing = this.entries.get(key);
-		if (existing && (!existing.settled || existing.until > now)) {
+		// A kept answer within its window, or the check in flight — never for a token that has expired meanwhile: a
+		// check started just before the expiry would otherwise answer for a request made after it.
+		if (existing && !expired && (!existing.settled || existing.until > now)) {
 			return existing.answer;
 		}
 
-		const expiresAt = tokenExpiresAt(token);
 		const until = expiresAt === undefined ? now + this.ttlMs : Math.min(now + this.ttlMs, expiresAt);
 		if (until <= now) {
 			// An expired token: checked (and refused upstream) every time, kept never.
