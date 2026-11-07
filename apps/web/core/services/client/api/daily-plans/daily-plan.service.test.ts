@@ -53,3 +53,40 @@ describe('DailyPlanService removeManyTaskFromPlans', () => {
 		expect(config).toEqual({ tenantId: 'cookie-tenant' });
 	});
 });
+
+describe('DailyPlanService lean plan reads', () => {
+	afterEach(() => jest.restoreAllMocks());
+
+	function mockPlans() {
+		return jest
+			.spyOn(dailyPlanService, 'get')
+			.mockResolvedValue({ config: {}, data: { items: [], total: 0 }, headers: {}, status: 200, statusText: 'OK' } as never);
+	}
+
+	function requested(get: ReturnType<typeof mockPlans>) {
+		return new URL(String(get.mock.calls[0][0]), 'https://client.test');
+	}
+
+	it('asks for the lean shape with the people relations on the personal plans', async () => {
+		const get = mockPlans();
+		await dailyPlanService.getMyDailyPlans();
+		const url = requested(get);
+		expect(url.pathname).toBe('/daily-plan/me');
+		expect(url.searchParams.get('shape')).toBe('lean');
+		expect(['relations[0]', 'relations[1]', 'relations[2]', 'relations[3]', 'relations[4]'].map((k) => url.searchParams.get(k))).toEqual([
+			'employee',
+			'tasks',
+			'employee.user',
+			'tasks.members',
+			'tasks.members.user'
+		]);
+	});
+
+	it("asks for the lean shape on an employee's plans", async () => {
+		const get = mockPlans();
+		await dailyPlanService.getDayPlansByEmployee({ employeeId: 'employee-1' });
+		const url = requested(get);
+		expect(url.pathname).toBe('/daily-plan/employee/employee-1');
+		expect(url.searchParams.get('shape')).toBe('lean');
+	});
+});
