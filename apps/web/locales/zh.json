@@ -5106,6 +5106,7 @@
 		"KEEP_MINE": "保留我的更改",
 		"UPDATED_AT": "更新于 {date}",
 		"EMPTY_PAGE": "此页面是空的。",
+		"UNSUPPORTED_CONTENT": "此页面包含此编辑器无法保留的内容。为避免丢失，这里以只读方式显示；请在编写它的应用中编辑。",
 		"EDITOR_PLACEHOLDER": "开始书写，或输入 / 插入块、输入 @ 提及某人",
 		"VERSION_HISTORY": "版本历史",
 		"VERSION_PREVIEW": "版本",

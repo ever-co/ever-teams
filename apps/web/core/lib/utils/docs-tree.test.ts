@@ -39,9 +39,9 @@ const PAGES = [
 ];
 
 describe('buildDocTree', () => {
-	it('nests by parent, sorts siblings by index and lifts orphans to the root', () => {
+	it('nests by parent, sorts siblings by index (then name) and lifts orphans to the root', () => {
 		const tree = buildDocTree(PAGES);
-		expect(tree.roots.map((node) => node.page.id)).toEqual(['a', 'b', 'orphan']);
+		expect(tree.roots.map((node) => node.page.id)).toEqual(['a', 'orphan', 'b']);
 		expect(tree.byId.get('a')?.children.map((node) => node.page.id)).toEqual(['a1', 'a2']);
 		expect(tree.byId.get('a2x')?.depth).toBe(2);
 	});
@@ -60,9 +60,9 @@ describe('buildDocTree', () => {
 describe('flattenTree', () => {
 	it('shows the children of expanded pages only', () => {
 		const tree = buildDocTree(PAGES);
-		expect(flattenTree(tree.roots, new Set()).map((node) => node.page.id)).toEqual(['a', 'b', 'orphan']);
-		expect(flattenTree(tree.roots, new Set(['a'])).map((node) => node.page.id)).toEqual(['a', 'a1', 'a2', 'b', 'orphan']);
-		expect(flattenTree(tree.roots, new Set(['a', 'a2'])).map((node) => node.page.id)).toEqual(['a', 'a1', 'a2', 'a2x', 'b', 'orphan']);
+		expect(flattenTree(tree.roots, new Set()).map((node) => node.page.id)).toEqual(['a', 'orphan', 'b']);
+		expect(flattenTree(tree.roots, new Set(['a'])).map((node) => node.page.id)).toEqual(['a', 'a1', 'a2', 'orphan', 'b']);
+		expect(flattenTree(tree.roots, new Set(['a', 'a2'])).map((node) => node.page.id)).toEqual(['a', 'a1', 'a2', 'a2x', 'orphan', 'b']);
 	});
 });
 

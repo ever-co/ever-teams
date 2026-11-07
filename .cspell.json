@@ -4,6 +4,9 @@
 	"caseSensitive": false,
 	"$schema": "https://raw.githubusercontent.com/streetsidesoftware/cspell/main/cspell.schema.json",
 	"words": [
+		"treeitem",
+		"unarchive",
+		"unfavorite",
 		"KNEX",
 		"HMAC",
 		"fflate",
@@ -1033,9 +1036,6 @@
 		"apps/server-web/assets/*",
 		"apps/mobile/package.json",
 		"apps/mobile/app/screens/demo-show-room-screen/**",
-		"**/demo-*.tsx",
-		"unarchive",
-		"unfavorite",
-		"treeitem"
+		"**/demo-*.tsx"
 	]
 }

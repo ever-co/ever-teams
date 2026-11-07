@@ -23,6 +23,7 @@ import { ProjectOverview } from './project-overview';
 import { ProjectTasksTab } from './project-tasks-tab';
 import { ProjectPeopleTab } from './project-people-tab';
 import { ProjectDocsTab } from './project-docs-tab';
+import { isDocsEnabled } from '@/core/lib/utils/docs-enabled';
 import { ProjectDetailBodySkeleton, ProjectDetailToolbarSkeleton } from './project-detail-skeleton';
 
 const TAB_PARAM = 'tab';
@@ -30,6 +31,8 @@ const TAB_PARAM = 'tab';
 const DETAIL_TABS: ReadonlySet<ProjectDetailTab> = new Set<ProjectDetailTab>(['overview', 'tasks', 'people', 'docs']);
 
 function tabOf(value: string | null): ProjectDetailTab {
+	// The Docs tab exists only where Docs is on: a `?tab=docs` link elsewhere opens the overview.
+	if (value === 'docs' && !isDocsEnabled()) return 'overview';
 	const isKnown = DETAIL_TABS.has(value as ProjectDetailTab);
 	if (isKnown) {
 		return value as ProjectDetailTab;
@@ -195,7 +198,7 @@ export default function ProjectDetailPageComponent() {
 				<ProjectTasksTab projectId={project.id} taskStats={taskStats} statuses={taskStatuses} />
 			)}
 			{project && tab === 'people' && <ProjectPeopleTab project={project} />}
-			{project && tab === 'docs' && <ProjectDocsTab project={project} />}
+			{project && tab === 'docs' && isDocsEnabled() && <ProjectDocsTab project={project} />}
 		</PageLayout>
 	);
 }

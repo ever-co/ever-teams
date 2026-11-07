@@ -5106,6 +5106,7 @@
 		"KEEP_MINE": "Garder mes modifications",
 		"UPDATED_AT": "Mis à jour le {date}",
 		"EMPTY_PAGE": "Cette page est vide.",
+		"UNSUPPORTED_CONTENT": "Cette page contient des éléments que cet éditeur ne peut pas conserver. Elle est affichée en lecture seule pour ne rien perdre ; modifiez-la dans l’application où elle a été écrite.",
 		"EDITOR_PLACEHOLDER": "Écrivez, ou tapez / pour les blocs et @ pour mentionner quelqu’un",
 		"VERSION_HISTORY": "Historique des versions",
 		"VERSION_PREVIEW": "Version",

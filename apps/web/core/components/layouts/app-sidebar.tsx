@@ -100,6 +100,7 @@ import { SettingsNav } from '../settings/kit/settings-nav';
 import { isSettingsPath } from '../settings/kit/settings-entries';
 import { useRememberAppPath } from '@/core/hooks/common/use-remember-app-path';
 import { isDocsEnabled } from '@/core/lib/utils/docs-enabled';
+import { useDocsAvailability } from '@/core/hooks/docs/use-docs-availability';
 
 type AppSidebarProps = React.ComponentProps<typeof Sidebar> & { publicTeam: boolean | undefined };
 
@@ -117,6 +118,8 @@ export function AppSidebar({ publicTeam, ...props }: AppSidebarProps) {
 	const username = user?.name || user?.firstName || user?.lastName || user?.username;
 
 	const isTeamManager = useAtomValue(isTeamManagerState);
+	// The Docs entry needs the flag and a platform that serves documents (one shared probe per page load).
+	const docsAvailability = useDocsAvailability(isDocsEnabled());
 	// The saved views of the team, listed under Views when the feature is on (an empty list otherwise).
 	const { views: savedViews } = useTaskViewsQuery();
 	const { currentEmployeeFavorites } = useFavoritesQuery();
@@ -224,10 +227,10 @@ export function AppSidebar({ publicTeam, ...props }: AppSidebarProps) {
 		const entries = [homeEntry];
 		if (isInboxEnabled()) entries.push(inboxEntry);
 		if (isChatEnabled()) entries.push(chatEntry);
-		if (isDocsEnabled()) entries.push(docsEntry);
+		if (isDocsEnabled() && docsAvailability !== 'unavailable') entries.push(docsEntry);
 		entries.push(calendarEntry);
 		return entries;
-	}, [t]);
+	}, [docsAvailability, t]);
 
 	const navMain = useMemo(() => {
 		const favoriteItems = hasFavoriteTasks

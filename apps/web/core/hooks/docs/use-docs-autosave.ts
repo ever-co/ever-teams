@@ -27,6 +27,23 @@ interface Draft {
 
 const EMPTY_DOC: IDocumentNode = { type: 'doc', content: [{ type: 'paragraph' }] };
 
+/**
+ * The page's own writes made elsewhere on this page (a title, an icon, a move): the clock they moved from and to.
+ * Autosave follows such a move even with a draft pending — it is not someone else's change — so the next save
+ * states the current clock instead of meeting a conflict with the person's own edit.
+ */
+const localWrites = new Map<string, { from: string; to: string }>();
+
+export function noteLocalWrite(pageId: string, from: string | null | undefined, to: string | null | undefined): void {
+	if (from && to && from !== to) localWrites.set(pageId, { from, to });
+}
+
+/**
+ * Drafts the person has not decided on (a conflict, a lock) when they leave the page inside the app: kept for when
+ * they come back, so leaving never throws their text away.
+ */
+const retainedDrafts = new Map<string, { draft: Draft; state: DocsSaveState }>();
+
 function byteLengthOf(text: string): number {
 	return typeof TextEncoder === 'undefined' ? text.length * 2 : new TextEncoder().encode(text).length;
 }
@@ -60,31 +77,57 @@ export function useDocsAutosave(page: IDocumentPage | null) {
 	const stateRef = useRef<DocsSaveState>('idle');
 	stateRef.current = state;
 	const flushRef = useRef<(options?: { force?: boolean }) => Promise<boolean>>(async () => true);
+	/** A draft kept from an earlier visit: the editor opens with it rather than the platform's text. */
+	const [restoredHtml, setRestoredHtml] = useState<string | null>(null);
 
 	const clearTimer = useCallback(() => {
 		if (timerRef.current) clearTimeout(timerRef.current);
 		timerRef.current = null;
 	}, []);
 
-	// Another page: forget the previous one's draft and clock.
+	// Another page: forget the previous one's draft and clock — unless this page has an undecided draft kept from an
+	// earlier visit, which comes back with its state.
 	useEffect(() => {
 		expectedRef.current = page?.updatedAt ?? null;
-		draftRef.current = null;
 		pendingRef.current = false;
-		setState('idle');
+		const retained = pageId ? retainedDrafts.get(pageId) : undefined;
+		if (pageId && retained) {
+			retainedDrafts.delete(pageId);
+			draftRef.current = retained.draft;
+			setRestoredHtml(retained.draft.html);
+			setState(retained.state);
+		} else {
+			draftRef.current = null;
+			setRestoredHtml(null);
+			setState('idle');
+		}
 		return clearTimer;
 	}, [clearTimer, pageId]);
 
-	// The platform's clock moved while nothing was pending (a reload, a restore): follow it.
+	// The platform's clock moved while nothing was pending (a reload, a restore), or by the page's own metadata write
+	// (a title): follow it.
 	useEffect(() => {
 		if (!page?.updatedAt) return;
+		const own = pageId ? localWrites.get(pageId) : undefined;
+		if (pageId && own && own.to === page.updatedAt) {
+			localWrites.delete(pageId);
+			if (expectedRef.current === own.from) {
+				expectedRef.current = own.to;
+				return;
+			}
+		}
 		if (stateRef.current === 'idle' || stateRef.current === 'saved') expectedRef.current = page.updatedAt;
-	}, [page?.updatedAt]);
+	}, [page?.updatedAt, pageId]);
 
 	const applySaved = useCallback(
 		(saved: IDocumentPage, draft: Draft) => {
 			expectedRef.current = saved.updatedAt;
-			const patch = { updatedAt: saved.updatedAt, version: saved.version, contentHtml: draft.html, contentJson: draft.json ?? EMPTY_DOC };
+			// The saved text goes into the cache only while it is still the latest: an older draft fed back into the page
+			// would replace what the person typed since.
+			const latest = draftRef.current === draft;
+			const patch = latest
+				? { updatedAt: saved.updatedAt, version: saved.version, contentHtml: draft.html, contentJson: draft.json ?? EMPTY_DOC }
+				: { updatedAt: saved.updatedAt, version: saved.version };
 			queryClient.setQueryData<IDocumentPage>(queryKeys.docs.page(scope?.tenantId, saved.id), (current) =>
 				current ? { ...current, ...patch } : current
 			);
@@ -165,6 +208,7 @@ export function useDocsAutosave(page: IDocumentPage | null) {
 			staleTime: 0
 		});
 		expectedRef.current = fresh.updatedAt;
+		setRestoredHtml(null);
 		setState('idle');
 	}, [clearTimer, pageId, queryClient, scope?.tenantId]);
 
@@ -179,6 +223,18 @@ export function useDocsAutosave(page: IDocumentPage | null) {
 	/** Saves now (a Cmd+S, leaving the page). */
 	const flushNow = useCallback(() => flush(), [flush]);
 
+	/**
+	 * Drops the pending draft and its timer without saving (a version is being restored, or the page turned out to
+	 * be read-only): the next platform clock is followed again.
+	 */
+	const discard = useCallback(() => {
+		clearTimer();
+		draftRef.current = null;
+		pendingRef.current = false;
+		setRestoredHtml(null);
+		setState('idle');
+	}, [clearTimer]);
+
 	// Leaving with unsaved text warns, like any editor.
 	useEffect(() => {
 		const warn = (event: BeforeUnloadEvent) => {
@@ -189,13 +245,21 @@ export function useDocsAutosave(page: IDocumentPage | null) {
 		return () => window.removeEventListener('beforeunload', warn);
 	}, []);
 
-	// A page left in the app (another page, the tree) still saves what was typed.
+	// A page left in the app (another page, the tree) still saves what was typed; a draft waiting for the person's
+	// decision (a conflict, a lock) is kept for when they come back.
 	useEffect(
 		() => () => {
-			if (draftRef.current && stateRef.current !== 'conflict' && stateRef.current !== 'locked') void flush();
+			const draft = draftRef.current;
+			if (!draft) return;
+			const current = stateRef.current;
+			if (current === 'conflict' || current === 'locked') {
+				if (pageId) retainedDrafts.set(pageId, { draft, state: current });
+				return;
+			}
+			void flush();
 		},
-		[flush]
+		[flush, pageId]
 	);
 
-	return { state, change, flushNow, reload, keepMine, hasDraft: () => draftRef.current !== null };
+	return { state, change, flushNow, reload, keepMine, discard, restoredHtml, hasDraft: () => draftRef.current !== null };
 }

@@ -74,6 +74,13 @@ export function DocsPageView({ pageId, tree, actions }: DocsPageViewProps) {
 	// Both start over with the page: the parent renders this view with `key={pageId}`.
 	const [showHistory, setShowHistory] = useState(false);
 	const [editorApi, setEditorApi] = useState<DocsEditorApi | null>(null);
+	// The page holds content this editor cannot carry: shown read-only, never saved from here.
+	const [unsupported, setUnsupported] = useState(false);
+	const { discard } = autosave;
+	const onUnsupported = useCallback(() => {
+		discard();
+		setUnsupported(true);
+	}, [discard]);
 	const hasChildren = (tree.tree.byId.get(pageId)?.children.length ?? 0) > 0;
 
 	useEffect(() => {
@@ -195,7 +202,7 @@ export function DocsPageView({ pageId, tree, actions }: DocsPageViewProps) {
 	}
 
 	const isPrivate = page.visibility === EDocumentVisibility.PRIVATE;
-	const isReadOnly = Boolean(page.isLocked || page.isArchived);
+	const isReadOnly = Boolean(page.isLocked || page.isArchived || unsupported);
 	const crumbs = [
 		{ title: t('docs.TITLE'), href: '/docs' },
 		...path
@@ -211,7 +218,7 @@ export function DocsPageView({ pageId, tree, actions }: DocsPageViewProps) {
 		<div className="flex h-full min-h-0">
 			<div className="flex min-w-0 flex-1 flex-col">
 				<div className="flex h-11 shrink-0 items-center gap-2 border-b border-border px-3 print:hidden">
-					<Link href="/docs" className="rounded p-1 text-muted-foreground hover:bg-foreground/[0.06] hover:text-foreground lg:hidden" aria-label={t('docs.BACK')}>
+					<Link href="/docs?tree=1" className="rounded p-1 text-muted-foreground hover:bg-foreground/[0.06] hover:text-foreground lg:hidden" aria-label={t('docs.BACK')}>
 						<ArrowLeft className="size-4" />
 					</Link>
 					<div className="min-w-0 flex-1 overflow-hidden">
@@ -351,12 +358,15 @@ export function DocsPageView({ pageId, tree, actions }: DocsPageViewProps) {
 							{isPrivate && <span> · {t('docs.PRIVATE_PAGE')}</span>}
 						</p>
 
+						{unsupported && <p className="mb-3 rounded-md bg-foreground/[0.04] px-3 py-2 text-xs text-muted-foreground">{t('docs.UNSUPPORTED_CONTENT')}</p>}
 						{isReadOnly ? (
 							<RichTextView value={page.contentHtml ?? ''} emptyState={<p className="text-sm text-muted-foreground">{t('docs.EMPTY_PAGE')}</p>} />
 						) : (
 							<DocsEditorSurface
 								key={page.id}
-								value={page.contentHtml ?? ''}
+								value={autosave.restoredHtml ?? page.contentHtml ?? ''}
+								json={page.contentJson ?? null}
+								onUnsupported={onUnsupported}
 								onChange={autosave.change}
 								onReady={setEditorApi}
 								onSaveShortcut={() => void autosave.flushNow()}
@@ -374,6 +384,8 @@ export function DocsPageView({ pageId, tree, actions }: DocsPageViewProps) {
 						pageId={page.id}
 						onClose={() => setShowHistory(false)}
 						onRestore={async (versionId) => {
+							// The pending draft is the text being replaced: it must not be saved over the restored version.
+							autosave.discard();
 							await actions.restoreVersion(page.id, versionId);
 							toast.success(t('docs.VERSION_RESTORED'));
 						}}

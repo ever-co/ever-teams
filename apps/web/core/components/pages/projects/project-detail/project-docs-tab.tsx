@@ -14,7 +14,7 @@ import { useDocsProjectPages } from '@/core/hooks/docs/use-docs-project-pages';
 import { useDocsTree } from '@/core/hooks/docs/use-docs-tree';
 import { useProjectPermissions } from '@/core/hooks/projects/use-project-permissions';
 import { pageTitle } from '@/core/lib/utils/docs-tree';
-import { EDocumentVisibility } from '@/core/types/interfaces/common/docs';
+import { EDocumentKind, EDocumentVisibility } from '@/core/types/interfaces/common/docs';
 import type { TOrganizationProject } from '@/core/types/schemas';
 
 interface ProjectDocsTabProps {
@@ -29,6 +29,8 @@ export function ProjectDocsTab({ project }: ProjectDocsTabProps) {
 	const { canEdit } = useProjectPermissions({ members: project.members });
 	const { pages, isLoading, isError, retry } = useDocsProjectPages(project.id, true);
 	const tree = useDocsTree(true);
+	// Only pages are attached (the tab and the attachments list show pages); folders are left out of the picker.
+	const attachable = useMemo(() => tree.pages.filter((page) => page.kind === EDocumentKind.PAGE), [tree.pages]);
 	const actions = useDocsActions();
 	const [isPicking, setIsPicking] = useState(false);
 	const [busyId, setBusyId] = useState<string | null>(null);
@@ -119,7 +121,7 @@ export function ProjectDocsTab({ project }: ProjectDocsTabProps) {
 				open={isPicking}
 				title={t('docs.ATTACH_PAGE')}
 				description={t('docs.ATTACH_PAGE_TEXT')}
-				pages={tree.pages}
+				pages={attachable}
 				excludeIds={attachedIds}
 				onPick={async (page) => {
 					try {

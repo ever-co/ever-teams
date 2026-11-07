@@ -5106,6 +5106,7 @@
 		"KEEP_MINE": "Mijn wijzigingen behouden",
 		"UPDATED_AT": "Bijgewerkt {date}",
 		"EMPTY_PAGE": "Deze pagina is leeg.",
+		"UNSUPPORTED_CONTENT": "Deze pagina bevat inhoud die deze editor niet kan bewaren. Ze wordt alleen-lezen getoond zodat er niets verloren gaat; bewerk haar in de app waarin ze is geschreven.",
 		"EDITOR_PLACEHOLDER": "Schrijf, of typ / voor blokken en @ om iemand te noemen",
 		"VERSION_HISTORY": "Versiegeschiedenis",
 		"VERSION_PREVIEW": "Versie",

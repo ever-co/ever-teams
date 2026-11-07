@@ -5106,6 +5106,7 @@
 		"KEEP_MINE": "Keep my changes",
 		"UPDATED_AT": "Updated {date}",
 		"EMPTY_PAGE": "This page is empty.",
+		"UNSUPPORTED_CONTENT": "This page has content this editor cannot keep. It is shown read-only here so nothing is lost; edit it in the app it was written in.",
 		"EDITOR_PLACEHOLDER": "Write, or type / for blocks and @ to mention someone",
 		"VERSION_HISTORY": "Version history",
 		"VERSION_PREVIEW": "Version",

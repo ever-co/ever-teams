@@ -5106,6 +5106,7 @@
 		"KEEP_MINE": "Meine Änderungen behalten",
 		"UPDATED_AT": "Aktualisiert {date}",
 		"EMPTY_PAGE": "Diese Seite ist leer.",
+		"UNSUPPORTED_CONTENT": "Diese Seite enthält Inhalte, die dieser Editor nicht erhalten kann. Sie wird schreibgeschützt angezeigt, damit nichts verloren geht; bearbeiten Sie sie in der App, in der sie geschrieben wurde.",
 		"EDITOR_PLACEHOLDER": "Schreibe, oder tippe / für Blöcke und @ zum Erwähnen",
 		"VERSION_HISTORY": "Versionsverlauf",
 		"VERSION_PREVIEW": "Version",

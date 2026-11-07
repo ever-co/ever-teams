@@ -52,9 +52,11 @@ export function DocsPage({ view }: Readonly<{ view: DocsView }>) {
 		if (!enabled) router.replace('/');
 	}, [enabled, router]);
 
-	// `/docs` opens the page last visited on this device, once the tree says it still exists.
+	// `/docs` opens the page last visited on this device, once the tree says it still exists — except when the person
+	// asked for the tree (`?tree=1`, the Back of a page on a phone, where the tree is hidden under an open page).
 	useEffect(() => {
-		if (view !== 'home' || !scope || tree.isLoading || tree.pages.length === 0) return;
+		const wantsTree = new URLSearchParams(window.location.search).get('tree') === '1';
+		if (view !== 'home' || wantsTree || !scope || tree.isLoading || tree.pages.length === 0) return;
 		const last = lastVisited(localStorageOrNull(), scope.organizationId, new Set(tree.byId.keys()));
 		if (last) router.replace(`/docs/${encodeURIComponent(last)}`);
 	}, [router, scope, tree.byId, tree.isLoading, tree.pages.length, view]);

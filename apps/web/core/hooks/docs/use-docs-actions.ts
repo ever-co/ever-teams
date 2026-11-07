@@ -13,6 +13,7 @@ import {
 	type IDocumentUpdateInput,
 	type TDocumentDeleteStrategy
 } from '@/core/types/interfaces/common/docs';
+import { noteLocalWrite } from './use-docs-autosave';
 import { useDocsScope } from './use-docs-scope';
 
 /** What the Docs pages do to the tree and to one page; every write answers the platform's page and refreshes the caches. */
@@ -33,6 +34,8 @@ export function useDocsActions() {
 	/** Writes a page into the tree list (new or changed) and into its own cache. */
 	const putPage = useCallback(
 		(page: IDocumentPage) => {
+			// This tab's own write moved the page's clock: its autosave follows it (see `noteLocalWrite`).
+			noteLocalWrite(page.id, queryClient.getQueryData<IDocumentPage>(queryKeys.docs.page(tenantId, page.id))?.updatedAt, page.updatedAt);
 			queryClient.setQueryData<IDocumentPage[]>(treeKey, (current) => {
 				if (!current) return current;
 				const at = current.findIndex((item) => item.id === page.id);
@@ -143,19 +146,22 @@ export function useDocsActions() {
 		async (pageId: string) => {
 			const page = await docsService.archive(pageId);
 			dropFromTree(pageId);
-			await Promise.all([invalidateTree(), invalidateTrash()]);
+			// The open pages (this one and its sub-pages) read their archived state again.
+			await Promise.all([invalidateTree(), invalidateTrash(), queryClient.invalidateQueries({ queryKey: ['docs', 'page'] })]);
 			return page;
 		},
-		[dropFromTree, invalidateTrash, invalidateTree]
+		[dropFromTree, invalidateTrash, invalidateTree, queryClient]
 	);
 
 	const restorePage = useCallback(
 		async (pageId: string) => {
 			const page = await docsService.unarchive(pageId);
-			await Promise.all([invalidateTree(), invalidateTrash()]);
+			// The open page leaves its Trash notice at once; its sub-pages read their state again.
+			queryClient.setQueryData<IDocumentPage>(queryKeys.docs.page(tenantId, pageId), (current) => (current ? { ...current, ...page, contentJson: page.contentJson ?? current.contentJson, contentHtml: page.contentHtml ?? current.contentHtml } : current));
+			await Promise.all([invalidateTree(), invalidateTrash(), queryClient.invalidateQueries({ queryKey: ['docs', 'page'] })]);
 			return page;
 		},
-		[invalidateTrash, invalidateTree]
+		[invalidateTrash, invalidateTree, queryClient, tenantId]
 	);
 
 	/** Out of the trash for good (the platform keeps a recoverable copy for administrators). */
