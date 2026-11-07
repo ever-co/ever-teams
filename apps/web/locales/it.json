@@ -4479,5 +4479,88 @@
 			"RETRY": "Torna all'accesso",
 			"CODE": "Codice di errore: {code}"
 		}
+	},
+	"inbox": {
+		"TITLE": "Posta in arrivo",
+		"UNREAD_COUNT": "{count, plural, =0 {Tutto letto} one {# non letta} other {# non lette}}",
+		"NEW_ENTRIES": "{count, plural, one {# nuova notifica} other {# nuove notifiche}}",
+		"FILTER_LABEL": "Filtra la posta in arrivo",
+		"FILTERS": {
+			"ALL": "Tutte",
+			"UNREAD": "Non lette",
+			"MENTIONS": "Menzioni",
+			"ASSIGNED": "Assegnate",
+			"SNOOZED": "Rimandate",
+			"DONE": "Completate",
+			"ARCHIVED": "Archiviate",
+			"MORE": "Altro"
+		},
+		"SOURCES": {
+			"LABEL": "Origine",
+			"ANY": "Tutte le origini",
+			"TASKS": "Attività",
+			"CHAT": "Chat",
+			"DOCS": "Documenti",
+			"EMAIL": "Email",
+			"INTEGRATIONS": "Integrazioni",
+			"PEOPLE": "Persone",
+			"OTHER": "Altro"
+		},
+		"SEARCH": "Cerca nella posta in arrivo",
+		"ACTIONS": {
+			"SELECT": "Seleziona",
+			"SNOOZE": "Rimanda",
+			"DONE": "Segna come completata",
+			"NOT_DONE": "Segna come non completata",
+			"UNARCHIVE": "Ripristina",
+			"CLEAR_SELECTION": "Annulla selezione",
+			"MARK_ALL_READ": "Segna tutto come letto"
+		},
+		"SNOOZE": {
+			"LATER_TODAY": "Più tardi oggi",
+			"TOMORROW": "Domani",
+			"NEXT_WEEK": "La prossima settimana",
+			"UNSNOOZE": "Annulla rinvio"
+		},
+		"SELECTED": "{count, plural, one {# selezionata} other {# selezionate}}",
+		"TOASTS": {
+			"ARCHIVED": "{count, plural, one {Notifica archiviata} other {# notifiche archiviate}}",
+			"SNOOZED": "{count, plural, one {Notifica rimandata} other {# notifiche rimandate}}",
+			"DONE": "{count, plural, one {Segnata come completata} other {# segnate come completate}}",
+			"ALL_READ": "Tutte le notifiche segnate come lette",
+			"UNDO": "Annulla",
+			"UPDATE_FAILED": "Questa modifica non è stata salvata. Riprova.",
+			"MARK_ALL_FAILED": "Le tue notifiche non sono state segnate come lette. Riprova."
+		},
+		"EMPTY": {
+			"ALL_TITLE": "Sei in pari",
+			"ALL_TEXT": "Assegnazioni, menzioni, commenti e messaggi per te arrivano qui.",
+			"UNREAD_TITLE": "Niente di non letto",
+			"UNREAD_TEXT": "Tutto nella tua posta in arrivo è stato letto.",
+			"MENTIONS_TITLE": "Nessuna menzione",
+			"MENTIONS_TEXT": "Quando qualcuno scrive @ e il tuo nome, appare qui.",
+			"ASSIGNED_TITLE": "Nessuna assegnazione",
+			"ASSIGNED_TEXT": "Le attività che qualcuno ti assegna appaiono qui.",
+			"SNOOZED_TITLE": "Niente di rimandato",
+			"SNOOZED_TEXT": "Una notifica rimandata torna non letta all'ora che hai scelto.",
+			"DONE_TITLE": "Niente di completato",
+			"DONE_TEXT": "Le notifiche segnate come completate sono conservate qui.",
+			"ARCHIVED_TITLE": "Niente di archiviato",
+			"ARCHIVED_TEXT": "Le notifiche archiviate sono conservate qui."
+		},
+		"LOAD_ERROR": "La tua posta in arrivo non può essere caricata.",
+		"RETRY": "Riprova",
+		"LOAD_MORE": "Carica altro",
+		"LEGACY_NOTICE": "La piattaforma di questo spazio di lavoro non ha ancora la posta in arrivo completa: sono disponibili letto, non letto e archivia.",
+		"DETAIL": {
+			"NO_SELECTION": "Seleziona una notifica per vederla qui",
+			"OPEN_TASK": "Apri attività",
+			"OPEN": "Apri",
+			"NO_TARGET": "Questa notifica non ha nulla da aprire."
+		},
+		"KEYBOARD": {
+			"HINT": "J / K sposta, X seleziona, E archivia, H rimanda, D completata, U letta, Invio apri, Maiusc+Esc segna tutto come letto"
+		},
+		"OPEN_PAGE": "Apri la posta in arrivo"
 	}
 }

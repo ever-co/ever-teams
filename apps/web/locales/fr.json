@@ -4479,5 +4479,88 @@
 			"RETRY": "Retour à la connexion",
 			"CODE": "Code d'erreur : {code}"
 		}
+	},
+	"inbox": {
+		"TITLE": "Boîte de réception",
+		"UNREAD_COUNT": "{count, plural, =0 {Tout est lu} one {# non lu} other {# non lus}}",
+		"NEW_ENTRIES": "{count, plural, one {# nouvelle notification} other {# nouvelles notifications}}",
+		"FILTER_LABEL": "Filtrer la boîte de réception",
+		"FILTERS": {
+			"ALL": "Toutes",
+			"UNREAD": "Non lues",
+			"MENTIONS": "Mentions",
+			"ASSIGNED": "Assignées",
+			"SNOOZED": "Reportées",
+			"DONE": "Terminées",
+			"ARCHIVED": "Archivées",
+			"MORE": "Plus"
+		},
+		"SOURCES": {
+			"LABEL": "Source",
+			"ANY": "Toutes les sources",
+			"TASKS": "Tâches",
+			"CHAT": "Chat",
+			"DOCS": "Documents",
+			"EMAIL": "E-mail",
+			"INTEGRATIONS": "Intégrations",
+			"PEOPLE": "Personnes",
+			"OTHER": "Autres"
+		},
+		"SEARCH": "Rechercher dans la boîte de réception",
+		"ACTIONS": {
+			"SELECT": "Sélectionner",
+			"SNOOZE": "Reporter",
+			"DONE": "Marquer comme terminée",
+			"NOT_DONE": "Marquer comme non terminée",
+			"UNARCHIVE": "Désarchiver",
+			"CLEAR_SELECTION": "Effacer la sélection",
+			"MARK_ALL_READ": "Tout marquer comme lu"
+		},
+		"SNOOZE": {
+			"LATER_TODAY": "Plus tard aujourd'hui",
+			"TOMORROW": "Demain",
+			"NEXT_WEEK": "La semaine prochaine",
+			"UNSNOOZE": "Annuler le report"
+		},
+		"SELECTED": "{count, plural, one {# sélectionnée} other {# sélectionnées}}",
+		"TOASTS": {
+			"ARCHIVED": "{count, plural, one {Notification archivée} other {# notifications archivées}}",
+			"SNOOZED": "{count, plural, one {Notification reportée} other {# notifications reportées}}",
+			"DONE": "{count, plural, one {Marquée comme terminée} other {# marquées comme terminées}}",
+			"ALL_READ": "Toutes les notifications marquées comme lues",
+			"UNDO": "Annuler",
+			"UPDATE_FAILED": "Cette modification n'a pas été enregistrée. Réessayez.",
+			"MARK_ALL_FAILED": "Vos notifications n'ont pas été marquées comme lues. Réessayez."
+		},
+		"EMPTY": {
+			"ALL_TITLE": "Vous êtes à jour",
+			"ALL_TEXT": "Les assignations, mentions, commentaires et messages qui vous concernent arrivent ici.",
+			"UNREAD_TITLE": "Rien de non lu",
+			"UNREAD_TEXT": "Tout dans votre boîte de réception a été lu.",
+			"MENTIONS_TITLE": "Aucune mention",
+			"MENTIONS_TEXT": "Quand quelqu'un écrit @ et votre nom, cela apparaît ici.",
+			"ASSIGNED_TITLE": "Aucune assignation",
+			"ASSIGNED_TEXT": "Les tâches qu'on vous assigne apparaissent ici.",
+			"SNOOZED_TITLE": "Rien de reporté",
+			"SNOOZED_TEXT": "Une notification reportée revient non lue à l'heure choisie.",
+			"DONE_TITLE": "Rien de terminé pour l'instant",
+			"DONE_TEXT": "Les notifications marquées comme terminées sont conservées ici.",
+			"ARCHIVED_TITLE": "Rien d'archivé",
+			"ARCHIVED_TEXT": "Les notifications archivées sont conservées ici."
+		},
+		"LOAD_ERROR": "Votre boîte de réception n'a pas pu être chargée.",
+		"RETRY": "Réessayer",
+		"LOAD_MORE": "Charger plus",
+		"LEGACY_NOTICE": "La plateforme de cet espace de travail n'a pas encore la boîte de réception complète : lire, marquer non lu et archiver sont disponibles.",
+		"DETAIL": {
+			"NO_SELECTION": "Sélectionnez une notification pour la voir ici",
+			"OPEN_TASK": "Ouvrir la tâche",
+			"OPEN": "Ouvrir",
+			"NO_TARGET": "Cette notification n'a rien à ouvrir."
+		},
+		"KEYBOARD": {
+			"HINT": "J / K déplacer, X sélectionner, E archiver, H reporter, D terminée, U lue, Entrée ouvrir, Maj+Échap tout marquer comme lu"
+		},
+		"OPEN_PAGE": "Ouvrir la boîte de réception"
 	}
 }

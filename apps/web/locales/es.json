@@ -4479,5 +4479,88 @@
 			"RETRY": "Volver al inicio de sesión",
 			"CODE": "Código de error: {code}"
 		}
+	},
+	"inbox": {
+		"TITLE": "Bandeja de entrada",
+		"UNREAD_COUNT": "{count, plural, =0 {Todo leído} one {# sin leer} other {# sin leer}}",
+		"NEW_ENTRIES": "{count, plural, one {# notificación nueva} other {# notificaciones nuevas}}",
+		"FILTER_LABEL": "Filtrar la bandeja",
+		"FILTERS": {
+			"ALL": "Todas",
+			"UNREAD": "Sin leer",
+			"MENTIONS": "Menciones",
+			"ASSIGNED": "Asignadas",
+			"SNOOZED": "Pospuestas",
+			"DONE": "Hechas",
+			"ARCHIVED": "Archivadas",
+			"MORE": "Más"
+		},
+		"SOURCES": {
+			"LABEL": "Origen",
+			"ANY": "Todos los orígenes",
+			"TASKS": "Tareas",
+			"CHAT": "Chat",
+			"DOCS": "Documentos",
+			"EMAIL": "Correo",
+			"INTEGRATIONS": "Integraciones",
+			"PEOPLE": "Personas",
+			"OTHER": "Otros"
+		},
+		"SEARCH": "Buscar en la bandeja",
+		"ACTIONS": {
+			"SELECT": "Seleccionar",
+			"SNOOZE": "Posponer",
+			"DONE": "Marcar como hecha",
+			"NOT_DONE": "Marcar como no hecha",
+			"UNARCHIVE": "Desarchivar",
+			"CLEAR_SELECTION": "Quitar selección",
+			"MARK_ALL_READ": "Marcar todo como leído"
+		},
+		"SNOOZE": {
+			"LATER_TODAY": "Más tarde hoy",
+			"TOMORROW": "Mañana",
+			"NEXT_WEEK": "La próxima semana",
+			"UNSNOOZE": "Dejar de posponer"
+		},
+		"SELECTED": "{count, plural, one {# seleccionada} other {# seleccionadas}}",
+		"TOASTS": {
+			"ARCHIVED": "{count, plural, one {Notificación archivada} other {# notificaciones archivadas}}",
+			"SNOOZED": "{count, plural, one {Notificación pospuesta} other {# notificaciones pospuestas}}",
+			"DONE": "{count, plural, one {Marcada como hecha} other {# marcadas como hechas}}",
+			"ALL_READ": "Todas las notificaciones marcadas como leídas",
+			"UNDO": "Deshacer",
+			"UPDATE_FAILED": "Ese cambio no se guardó. Inténtalo de nuevo.",
+			"MARK_ALL_FAILED": "Tus notificaciones no se marcaron como leídas. Inténtalo de nuevo."
+		},
+		"EMPTY": {
+			"ALL_TITLE": "Estás al día",
+			"ALL_TEXT": "Las asignaciones, menciones, comentarios y mensajes para ti llegan aquí.",
+			"UNREAD_TITLE": "Nada sin leer",
+			"UNREAD_TEXT": "Todo en tu bandeja ha sido leído.",
+			"MENTIONS_TITLE": "Sin menciones",
+			"MENTIONS_TEXT": "Cuando alguien escribe @ y tu nombre, aparece aquí.",
+			"ASSIGNED_TITLE": "Sin asignaciones",
+			"ASSIGNED_TEXT": "Las tareas que alguien te asigna aparecen aquí.",
+			"SNOOZED_TITLE": "Nada pospuesto",
+			"SNOOZED_TEXT": "Una notificación pospuesta vuelve sin leer a la hora que elegiste.",
+			"DONE_TITLE": "Nada hecho todavía",
+			"DONE_TEXT": "Las notificaciones que marcas como hechas se guardan aquí.",
+			"ARCHIVED_TITLE": "Nada archivado",
+			"ARCHIVED_TEXT": "Las notificaciones archivadas se guardan aquí."
+		},
+		"LOAD_ERROR": "Tu bandeja de entrada no se pudo cargar.",
+		"RETRY": "Reintentar",
+		"LOAD_MORE": "Cargar más",
+		"LEGACY_NOTICE": "La plataforma de este espacio de trabajo aún no tiene la bandeja completa: están disponibles leer, no leer y archivar.",
+		"DETAIL": {
+			"NO_SELECTION": "Selecciona una notificación para verla aquí",
+			"OPEN_TASK": "Abrir tarea",
+			"OPEN": "Abrir",
+			"NO_TARGET": "Esta notificación no tiene nada que abrir."
+		},
+		"KEYBOARD": {
+			"HINT": "J / K mover, X seleccionar, E archivar, H posponer, D hecha, U leída, Intro abrir, Mayús+Esc marcar todo como leído"
+		},
+		"OPEN_PAGE": "Abrir la bandeja de entrada"
 	}
 }

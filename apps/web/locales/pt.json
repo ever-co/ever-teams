@@ -4479,5 +4479,88 @@
 			"RETRY": "Voltar ao início de sessão",
 			"CODE": "Código de erro: {code}"
 		}
+	},
+	"inbox": {
+		"TITLE": "Caixa de entrada",
+		"UNREAD_COUNT": "{count, plural, =0 {Tudo lido} one {# não lida} other {# não lidas}}",
+		"NEW_ENTRIES": "{count, plural, one {# nova notificação} other {# novas notificações}}",
+		"FILTER_LABEL": "Filtrar a caixa de entrada",
+		"FILTERS": {
+			"ALL": "Todas",
+			"UNREAD": "Não lidas",
+			"MENTIONS": "Menções",
+			"ASSIGNED": "Atribuídas",
+			"SNOOZED": "Adiadas",
+			"DONE": "Concluídas",
+			"ARCHIVED": "Arquivadas",
+			"MORE": "Mais"
+		},
+		"SOURCES": {
+			"LABEL": "Origem",
+			"ANY": "Todas as origens",
+			"TASKS": "Tarefas",
+			"CHAT": "Chat",
+			"DOCS": "Documentos",
+			"EMAIL": "E-mail",
+			"INTEGRATIONS": "Integrações",
+			"PEOPLE": "Pessoas",
+			"OTHER": "Outros"
+		},
+		"SEARCH": "Pesquisar na caixa de entrada",
+		"ACTIONS": {
+			"SELECT": "Selecionar",
+			"SNOOZE": "Adiar",
+			"DONE": "Marcar como concluída",
+			"NOT_DONE": "Marcar como não concluída",
+			"UNARCHIVE": "Desarquivar",
+			"CLEAR_SELECTION": "Limpar seleção",
+			"MARK_ALL_READ": "Marcar tudo como lido"
+		},
+		"SNOOZE": {
+			"LATER_TODAY": "Mais tarde hoje",
+			"TOMORROW": "Amanhã",
+			"NEXT_WEEK": "Próxima semana",
+			"UNSNOOZE": "Cancelar adiamento"
+		},
+		"SELECTED": "{count, plural, one {# selecionada} other {# selecionadas}}",
+		"TOASTS": {
+			"ARCHIVED": "{count, plural, one {Notificação arquivada} other {# notificações arquivadas}}",
+			"SNOOZED": "{count, plural, one {Notificação adiada} other {# notificações adiadas}}",
+			"DONE": "{count, plural, one {Marcada como concluída} other {# marcadas como concluídas}}",
+			"ALL_READ": "Todas as notificações marcadas como lidas",
+			"UNDO": "Desfazer",
+			"UPDATE_FAILED": "Essa alteração não foi salva. Tente novamente.",
+			"MARK_ALL_FAILED": "Suas notificações não foram marcadas como lidas. Tente novamente."
+		},
+		"EMPTY": {
+			"ALL_TITLE": "Você está em dia",
+			"ALL_TEXT": "Atribuições, menções, comentários e mensagens para você chegam aqui.",
+			"UNREAD_TITLE": "Nada por ler",
+			"UNREAD_TEXT": "Tudo na sua caixa de entrada foi lido.",
+			"MENTIONS_TITLE": "Sem menções",
+			"MENTIONS_TEXT": "Quando alguém escreve @ e o seu nome, aparece aqui.",
+			"ASSIGNED_TITLE": "Sem atribuições",
+			"ASSIGNED_TEXT": "As tarefas que alguém atribui a você aparecem aqui.",
+			"SNOOZED_TITLE": "Nada adiado",
+			"SNOOZED_TEXT": "Uma notificação adiada volta como não lida na hora escolhida.",
+			"DONE_TITLE": "Nada concluído ainda",
+			"DONE_TEXT": "As notificações marcadas como concluídas ficam guardadas aqui.",
+			"ARCHIVED_TITLE": "Nada arquivado",
+			"ARCHIVED_TEXT": "As notificações arquivadas ficam guardadas aqui."
+		},
+		"LOAD_ERROR": "Sua caixa de entrada não pôde ser carregada.",
+		"RETRY": "Tentar novamente",
+		"LOAD_MORE": "Carregar mais",
+		"LEGACY_NOTICE": "A plataforma deste espaço de trabalho ainda não tem a caixa de entrada completa: ler, não ler e arquivar estão disponíveis.",
+		"DETAIL": {
+			"NO_SELECTION": "Selecione uma notificação para vê-la aqui",
+			"OPEN_TASK": "Abrir tarefa",
+			"OPEN": "Abrir",
+			"NO_TARGET": "Esta notificação não tem nada para abrir."
+		},
+		"KEYBOARD": {
+			"HINT": "J / K mover, X selecionar, E arquivar, H adiar, D concluída, U lida, Enter abrir, Shift+Esc marcar tudo como lido"
+		},
+		"OPEN_PAGE": "Abrir a caixa de entrada"
 	}
 }

@@ -4479,5 +4479,88 @@
 			"RETRY": "חזרה לכניסה",
 			"CODE": "קוד שגיאה: {code}"
 		}
+	},
+	"inbox": {
+		"TITLE": "תיבת דואר נכנס",
+		"UNREAD_COUNT": "{count, plural, =0 {הכול נקרא} one {# שלא נקראה} other {# שלא נקראו}}",
+		"NEW_ENTRIES": "{count, plural, one {התראה חדשה אחת} other {# התראות חדשות}}",
+		"FILTER_LABEL": "סינון תיבת הדואר",
+		"FILTERS": {
+			"ALL": "הכול",
+			"UNREAD": "שלא נקראו",
+			"MENTIONS": "אזכורים",
+			"ASSIGNED": "הוקצו לי",
+			"SNOOZED": "נדחו",
+			"DONE": "הושלמו",
+			"ARCHIVED": "בארכיון",
+			"MORE": "עוד"
+		},
+		"SOURCES": {
+			"LABEL": "מקור",
+			"ANY": "כל המקורות",
+			"TASKS": "משימות",
+			"CHAT": "צ'אט",
+			"DOCS": "מסמכים",
+			"EMAIL": "דוא\"ל",
+			"INTEGRATIONS": "אינטגרציות",
+			"PEOPLE": "אנשים",
+			"OTHER": "אחר"
+		},
+		"SEARCH": "חיפוש בתיבת הדואר",
+		"ACTIONS": {
+			"SELECT": "בחירה",
+			"SNOOZE": "דחייה",
+			"DONE": "סימון כהושלם",
+			"NOT_DONE": "ביטול סימון כהושלם",
+			"UNARCHIVE": "שחזור מהארכיון",
+			"CLEAR_SELECTION": "ניקוי הבחירה",
+			"MARK_ALL_READ": "סימון הכול כנקרא"
+		},
+		"SNOOZE": {
+			"LATER_TODAY": "מאוחר יותר היום",
+			"TOMORROW": "מחר",
+			"NEXT_WEEK": "בשבוע הבא",
+			"UNSNOOZE": "ביטול הדחייה"
+		},
+		"SELECTED": "{count, plural, one {נבחרה אחת} other {נבחרו #}}",
+		"TOASTS": {
+			"ARCHIVED": "{count, plural, one {ההתראה הועברה לארכיון} other {# התראות הועברו לארכיון}}",
+			"SNOOZED": "{count, plural, one {ההתראה נדחתה} other {# התראות נדחו}}",
+			"DONE": "{count, plural, one {סומנה כהושלמה} other {# סומנו כהושלמו}}",
+			"ALL_READ": "כל ההתראות סומנו כנקראו",
+			"UNDO": "ביטול",
+			"UPDATE_FAILED": "השינוי לא נשמר. נסו שוב.",
+			"MARK_ALL_FAILED": "ההתראות לא סומנו כנקראו. נסו שוב."
+		},
+		"EMPTY": {
+			"ALL_TITLE": "הכול מעודכן",
+			"ALL_TEXT": "הקצאות, אזכורים, תגובות והודעות עבורך מגיעים לכאן.",
+			"UNREAD_TITLE": "אין פריטים שלא נקראו",
+			"UNREAD_TEXT": "כל מה שבתיבה נקרא.",
+			"MENTIONS_TITLE": "אין אזכורים",
+			"MENTIONS_TEXT": "כשמישהו כותב @ ואת שמך, זה מופיע כאן.",
+			"ASSIGNED_TITLE": "אין הקצאות",
+			"ASSIGNED_TEXT": "משימות שמישהו מקצה לך מופיעות כאן.",
+			"SNOOZED_TITLE": "אין פריטים שנדחו",
+			"SNOOZED_TEXT": "התראה שנדחתה חוזרת כלא נקראה בשעה שבחרת.",
+			"DONE_TITLE": "עדיין לא הושלם דבר",
+			"DONE_TEXT": "התראות שסימנת כהושלמו נשמרות כאן.",
+			"ARCHIVED_TITLE": "אין פריטים בארכיון",
+			"ARCHIVED_TEXT": "התראות שבארכיון נשמרות כאן."
+		},
+		"LOAD_ERROR": "לא ניתן היה לטעון את תיבת הדואר.",
+		"RETRY": "נסו שוב",
+		"LOAD_MORE": "טעינת עוד",
+		"LEGACY_NOTICE": "הפלטפורמה של סביבת העבודה הזו עדיין לא כוללת את תיבת הדואר המלאה: זמינים נקרא, לא נקרא וארכיון.",
+		"DETAIL": {
+			"NO_SELECTION": "בחרו התראה כדי לראות אותה כאן",
+			"OPEN_TASK": "פתיחת המשימה",
+			"OPEN": "פתיחה",
+			"NO_TARGET": "אין מה לפתוח בהתראה הזו."
+		},
+		"KEYBOARD": {
+			"HINT": "J / K מעבר, X בחירה, E ארכיון, H דחייה, D הושלם, U נקרא, Enter פתיחה, Shift+Esc סימון הכול כנקרא"
+		},
+		"OPEN_PAGE": "פתיחת תיבת הדואר"
 	}
 }

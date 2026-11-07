@@ -4479,5 +4479,88 @@
 			"RETRY": "Zurück zur Anmeldung",
 			"CODE": "Fehlercode: {code}"
 		}
+	},
+	"inbox": {
+		"TITLE": "Posteingang",
+		"UNREAD_COUNT": "{count, plural, =0 {Alles gelesen} one {# ungelesen} other {# ungelesen}}",
+		"NEW_ENTRIES": "{count, plural, one {# neue Benachrichtigung} other {# neue Benachrichtigungen}}",
+		"FILTER_LABEL": "Posteingang filtern",
+		"FILTERS": {
+			"ALL": "Alle",
+			"UNREAD": "Ungelesen",
+			"MENTIONS": "Erwähnungen",
+			"ASSIGNED": "Zugewiesen",
+			"SNOOZED": "Zurückgestellt",
+			"DONE": "Erledigt",
+			"ARCHIVED": "Archiviert",
+			"MORE": "Mehr"
+		},
+		"SOURCES": {
+			"LABEL": "Quelle",
+			"ANY": "Alle Quellen",
+			"TASKS": "Aufgaben",
+			"CHAT": "Chat",
+			"DOCS": "Dokumente",
+			"EMAIL": "E-Mail",
+			"INTEGRATIONS": "Integrationen",
+			"PEOPLE": "Personen",
+			"OTHER": "Sonstige"
+		},
+		"SEARCH": "Posteingang durchsuchen",
+		"ACTIONS": {
+			"SELECT": "Auswählen",
+			"SNOOZE": "Zurückstellen",
+			"DONE": "Als erledigt markieren",
+			"NOT_DONE": "Als nicht erledigt markieren",
+			"UNARCHIVE": "Wiederherstellen",
+			"CLEAR_SELECTION": "Auswahl aufheben",
+			"MARK_ALL_READ": "Alle als gelesen markieren"
+		},
+		"SNOOZE": {
+			"LATER_TODAY": "Später heute",
+			"TOMORROW": "Morgen",
+			"NEXT_WEEK": "Nächste Woche",
+			"UNSNOOZE": "Zurückstellung aufheben"
+		},
+		"SELECTED": "{count, plural, one {# ausgewählt} other {# ausgewählt}}",
+		"TOASTS": {
+			"ARCHIVED": "{count, plural, one {Benachrichtigung archiviert} other {# Benachrichtigungen archiviert}}",
+			"SNOOZED": "{count, plural, one {Benachrichtigung zurückgestellt} other {# Benachrichtigungen zurückgestellt}}",
+			"DONE": "{count, plural, one {Als erledigt markiert} other {# als erledigt markiert}}",
+			"ALL_READ": "Alle Benachrichtigungen als gelesen markiert",
+			"UNDO": "Rückgängig",
+			"UPDATE_FAILED": "Diese Änderung wurde nicht gespeichert. Versuchen Sie es erneut.",
+			"MARK_ALL_FAILED": "Ihre Benachrichtigungen wurden nicht als gelesen markiert. Versuchen Sie es erneut."
+		},
+		"EMPTY": {
+			"ALL_TITLE": "Sie sind auf dem neuesten Stand",
+			"ALL_TEXT": "Zuweisungen, Erwähnungen, Kommentare und Nachrichten für Sie landen hier.",
+			"UNREAD_TITLE": "Nichts Ungelesenes",
+			"UNREAD_TEXT": "Alles in Ihrem Posteingang wurde gelesen.",
+			"MENTIONS_TITLE": "Keine Erwähnungen",
+			"MENTIONS_TEXT": "Wenn jemand @ und Ihren Namen schreibt, erscheint es hier.",
+			"ASSIGNED_TITLE": "Keine Zuweisungen",
+			"ASSIGNED_TEXT": "Aufgaben, die Ihnen jemand zuweist, erscheinen hier.",
+			"SNOOZED_TITLE": "Nichts zurückgestellt",
+			"SNOOZED_TEXT": "Eine zurückgestellte Benachrichtigung kommt zur gewählten Zeit ungelesen zurück.",
+			"DONE_TITLE": "Noch nichts erledigt",
+			"DONE_TEXT": "Als erledigt markierte Benachrichtigungen werden hier aufbewahrt.",
+			"ARCHIVED_TITLE": "Nichts archiviert",
+			"ARCHIVED_TEXT": "Archivierte Benachrichtigungen werden hier aufbewahrt."
+		},
+		"LOAD_ERROR": "Ihr Posteingang konnte nicht geladen werden.",
+		"RETRY": "Erneut versuchen",
+		"LOAD_MORE": "Mehr laden",
+		"LEGACY_NOTICE": "Die Plattform dieses Arbeitsbereichs hat den vollständigen Posteingang noch nicht: Gelesen, Ungelesen und Archivieren sind verfügbar.",
+		"DETAIL": {
+			"NO_SELECTION": "Wählen Sie eine Benachrichtigung aus, um sie hier zu sehen",
+			"OPEN_TASK": "Aufgabe öffnen",
+			"OPEN": "Öffnen",
+			"NO_TARGET": "Diese Benachrichtigung hat nichts zu öffnen."
+		},
+		"KEYBOARD": {
+			"HINT": "J / K bewegen, X auswählen, E archivieren, H zurückstellen, D erledigt, U gelesen, Enter öffnen, Umschalt+Esc alle als gelesen markieren"
+		},
+		"OPEN_PAGE": "Posteingang öffnen"
 	}
 }

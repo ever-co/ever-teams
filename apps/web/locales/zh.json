@@ -4479,5 +4479,88 @@
 			"RETRY": "返回登录",
 			"CODE": "错误代码：{code}"
 		}
+	},
+	"inbox": {
+		"TITLE": "收件箱",
+		"UNREAD_COUNT": "{count, plural, =0 {全部已读} other {# 条未读}}",
+		"NEW_ENTRIES": "{count, plural, other {# 条新通知}}",
+		"FILTER_LABEL": "筛选收件箱",
+		"FILTERS": {
+			"ALL": "全部",
+			"UNREAD": "未读",
+			"MENTIONS": "提及",
+			"ASSIGNED": "已分配",
+			"SNOOZED": "已推迟",
+			"DONE": "已完成",
+			"ARCHIVED": "已归档",
+			"MORE": "更多"
+		},
+		"SOURCES": {
+			"LABEL": "来源",
+			"ANY": "所有来源",
+			"TASKS": "任务",
+			"CHAT": "聊天",
+			"DOCS": "文档",
+			"EMAIL": "邮件",
+			"INTEGRATIONS": "集成",
+			"PEOPLE": "人员",
+			"OTHER": "其他"
+		},
+		"SEARCH": "搜索收件箱",
+		"ACTIONS": {
+			"SELECT": "选择",
+			"SNOOZE": "推迟",
+			"DONE": "标记为已完成",
+			"NOT_DONE": "标记为未完成",
+			"UNARCHIVE": "取消归档",
+			"CLEAR_SELECTION": "清除选择",
+			"MARK_ALL_READ": "全部标为已读"
+		},
+		"SNOOZE": {
+			"LATER_TODAY": "今天稍后",
+			"TOMORROW": "明天",
+			"NEXT_WEEK": "下周",
+			"UNSNOOZE": "取消推迟"
+		},
+		"SELECTED": "{count, plural, other {已选择 # 项}}",
+		"TOASTS": {
+			"ARCHIVED": "{count, plural, other {已归档 # 条通知}}",
+			"SNOOZED": "{count, plural, other {已推迟 # 条通知}}",
+			"DONE": "{count, plural, other {已将 # 条标记为已完成}}",
+			"ALL_READ": "所有通知已标为已读",
+			"UNDO": "撤销",
+			"UPDATE_FAILED": "该更改未保存。请重试。",
+			"MARK_ALL_FAILED": "通知未标为已读。请重试。"
+		},
+		"EMPTY": {
+			"ALL_TITLE": "您已处理完毕",
+			"ALL_TEXT": "分配、提及、评论和发给您的消息会显示在这里。",
+			"UNREAD_TITLE": "没有未读",
+			"UNREAD_TEXT": "收件箱中的所有内容都已阅读。",
+			"MENTIONS_TITLE": "没有提及",
+			"MENTIONS_TEXT": "当有人输入 @ 和您的名字时，会显示在这里。",
+			"ASSIGNED_TITLE": "没有分配",
+			"ASSIGNED_TEXT": "分配给您的任务会显示在这里。",
+			"SNOOZED_TITLE": "没有推迟的通知",
+			"SNOOZED_TEXT": "推迟的通知会在您选择的时间以未读状态返回。",
+			"DONE_TITLE": "还没有完成的通知",
+			"DONE_TEXT": "标记为已完成的通知保存在这里。",
+			"ARCHIVED_TITLE": "没有归档的通知",
+			"ARCHIVED_TEXT": "已归档的通知保存在这里。"
+		},
+		"LOAD_ERROR": "无法加载您的收件箱。",
+		"RETRY": "重试",
+		"LOAD_MORE": "加载更多",
+		"LEGACY_NOTICE": "此工作区的平台尚不支持完整收件箱：可用操作为已读、未读和归档。",
+		"DETAIL": {
+			"NO_SELECTION": "选择一条通知以在此查看",
+			"OPEN_TASK": "打开任务",
+			"OPEN": "打开",
+			"NO_TARGET": "此通知没有可打开的内容。"
+		},
+		"KEYBOARD": {
+			"HINT": "J / K 移动，X 选择，E 归档，H 推迟，D 完成，U 已读，Enter 打开，Shift+Esc 全部标为已读"
+		},
+		"OPEN_PAGE": "打开收件箱"
 	}
 }

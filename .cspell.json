@@ -954,8 +954,10 @@
 		"formatjs",
 		"localematcher",
 		"messageformat",
-		"serde"
-],
+		"serde",
+		"unsnooze",
+		"unsnoozes"
+	],
 	"useGitignore": true,
 	"ignorePaths": [
 		"**/locales/**",
