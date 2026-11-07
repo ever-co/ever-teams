@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { authenticatedGuard } from '@/core/services/server/guards/authenticated-guard-app';
-import { getDayPlansByEmployee } from '@/core/services/server/requests';
+import { getDayPlansByEmployee, readResponseShape } from '@/core/services/server/requests';
 
 export async function GET(req: Request, { params }: { params: Promise<{ employeeId: string }> }) {
 	const { employeeId } = await params;
@@ -22,7 +22,9 @@ export async function GET(req: Request, { params }: { params: Promise<{ employee
 		employeeId,
 		organizationId,
 		tenantId,
-		organizationTeamId
+		organizationTeamId,
+		// The browser's `shape=lean` reaches the API through the proxy too (ever-co/ever-gauzy#11730)
+		shape: readResponseShape(new URL(req.url).searchParams)
 	});
 
 	return $res(response.data);

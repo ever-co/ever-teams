@@ -1,4 +1,5 @@
 import qs from 'qs';
+import type { ResponseShape } from './response-shape';
 import {
 	ICreateDailyPlan,
 	IDailyPlan,
@@ -52,18 +53,22 @@ export function getMyDailyPlansRequest({
 	tenantId,
 	organizationTeamId,
 	bearer_token,
-	relations = ['employee', 'tasks', 'employee.user', 'tasks.members', 'tasks.members.user']
+	relations = ['employee', 'tasks', 'employee.user', 'tasks.members', 'tasks.members.user'],
+	shape
 }: {
 	organizationId: ID;
 	tenantId: ID;
 	organizationTeamId: ID;
 	bearer_token: string;
 	relations?: string[];
+	/** Forwarded from the browser's request (ever-co/ever-gauzy#11730); absent keeps the API's default */
+	shape?: ResponseShape;
 }) {
 	const obj = {
 		'where[organizationId]': organizationId,
 		'where[tenantId]': tenantId,
-		'where[organizationTeamId]': organizationTeamId
+		'where[organizationTeamId]': organizationTeamId,
+		...(shape && { shape })
 	} as Record<string, string>;
 
 	relations.forEach((relation, i) => {
@@ -85,7 +90,8 @@ export function getDayPlansByEmployee({
 	tenantId,
 	organizationTeamId,
 	bearer_token,
-	relations = ['employee', 'tasks', 'employee.user', 'tasks.members', 'tasks.members.user']
+	relations = ['employee', 'tasks', 'employee.user', 'tasks.members', 'tasks.members.user'],
+	shape
 }: {
 	employeeId: ID;
 	organizationId: ID;
@@ -93,11 +99,14 @@ export function getDayPlansByEmployee({
 	organizationTeamId: ID;
 	bearer_token: string;
 	relations?: string[];
+	/** Forwarded from the browser's request (ever-co/ever-gauzy#11730); absent keeps the API's default */
+	shape?: ResponseShape;
 }) {
 	const obj = {
 		'where[organizationId]': organizationId,
 		'where[tenantId]': tenantId,
-		'where[organizationTeamId]': organizationTeamId
+		'where[organizationTeamId]': organizationTeamId,
+		...(shape && { shape })
 	} as Record<string, string>;
 
 	relations.forEach((relation, i) => {
