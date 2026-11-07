@@ -4995,6 +4995,7 @@
 		"EVERYONE": "כולם",
 		"SOMEONE": "מישהו",
 		"PINNED": "מוצמד",
+		"ASSISTED_BY": "נכתב בעזרת {name}",
 		"DELETED": "ההודעה הזו נמחקה.",
 		"EDITED": "(נערך)",
 		"REPLIES": "{count, plural, =0 {תשובה בשרשור} one {תשובה אחת} other {# תשובות}}",

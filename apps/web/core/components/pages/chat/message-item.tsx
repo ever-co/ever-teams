@@ -57,6 +57,11 @@ function MessageItemComponent(props: Readonly<MessageItemProps>) {
 	const [menuOpen, setMenuOpen] = useState(false);
 	const isMine = !!meUserId && String(message.authorUserId ?? '') === String(meUserId);
 	const outbox = isOutboxMessage(message) ? message : null;
+	const assisted = message.assistedBy ? (
+		<span className="text-[11px] italic text-muted-foreground" data-assisted-by={message.assistedBy}>
+			{t('teamChat.ASSISTED_BY', { name: message.assistedBy })}
+		</span>
+	) : null;
 	const deleted = !!message.deletedAt;
 	const mentionsMe = (!!meEmployeeId && (message.mentionEmployeeIds ?? []).map(String).includes(meEmployeeId)) || message.mentionsChannel || message.mentionsHere;
 
@@ -74,12 +79,15 @@ function MessageItemComponent(props: Readonly<MessageItemProps>) {
 				{!continues && (author ? <PersonAvatar person={{ id: author.employeeId, name: author.name, imageUrl: author.imageUrl }} size="sm" /> : <span className="block size-7 rounded-full bg-foreground/[0.06]" />)}
 			</div>
 			<div className="min-w-0 flex-1">
+				{/* A message the author wrote with an assistant says so, and which one; on a grouped message it stands above the body. */}
+				{continues && assisted}
 				{!continues && (
 					<div className="flex items-baseline gap-2">
 						<span className="text-[13px] font-semibold text-foreground">{author?.name ?? (message.appName || t('teamChat.SOMEONE'))}</span>
 						<time dateTime={message.createdAt} className="text-[11px] text-muted-foreground">
 							{timeOf(message.createdAt, locale)}
 						</time>
+						{assisted}
 						{message.pinnedAt && (
 							<span className="inline-flex items-center gap-1 text-[11px] text-muted-foreground">
 								<Pin className="size-3" /> {t('teamChat.PINNED')}

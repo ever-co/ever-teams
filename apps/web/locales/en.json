@@ -4995,6 +4995,7 @@
 		"EVERYONE": "everyone",
 		"SOMEONE": "Someone",
 		"PINNED": "Pinned",
+		"ASSISTED_BY": "Written with {name}",
 		"DELETED": "This message was deleted.",
 		"EDITED": "(edited)",
 		"REPLIES": "{count, plural, =0 {Reply in thread} one {# reply} other {# replies}}",

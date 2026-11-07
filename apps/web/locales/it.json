@@ -4995,6 +4995,7 @@
 		"EVERYONE": "tutti",
 		"SOMEONE": "Qualcuno",
 		"PINNED": "Fissato",
+		"ASSISTED_BY": "Scritto con {name}",
 		"DELETED": "Questo messaggio è stato eliminato.",
 		"EDITED": "(modificato)",
 		"REPLIES": "{count, plural, =0 {Rispondi nella discussione} one {# risposta} other {# risposte}}",

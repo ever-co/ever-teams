@@ -123,6 +123,8 @@ export interface IChatMessage {
 	attachmentIds?: ID[] | null;
 	nonce?: string | null;
 	appName?: string | null;
+	/** The assistant the author wrote the message with (an AI client posting in their name), when one did. */
+	assistedBy?: string | null;
 	deletedAt?: string | null;
 	createdAt: string;
 	reactions?: IChatReactionSummary[];
