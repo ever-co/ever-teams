@@ -3990,7 +3990,9 @@
 				"DETAILS_ERROR_TITLE": "Не удалось загрузить доски, сопоставления или запуски",
 				"LOAD_ERROR_TITLE": "Не удалось загрузить интеграцию Trello",
 				"ACTION_FAILED": "Не получилось",
-				"FINISH_ERROR_TITLE": "Не удалось подключить Trello"
+				"FINISH_ERROR_TITLE": "Не удалось подключить Trello",
+				"RETURN_REFUSED_TITLE": "Trello не вернул токен",
+				"RETURN_REFUSED": "Авторизация была отклонена или возврат прерван; ничего не подключено. Подключите снова, когда будете готовы."
 			}
 		},
 		"taskProperties": {

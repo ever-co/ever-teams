@@ -3990,7 +3990,9 @@
 				"DETAILS_ERROR_TITLE": "No se pudieron cargar los tableros, las asignaciones o las ejecuciones",
 				"LOAD_ERROR_TITLE": "No se pudo cargar la integración de Trello",
 				"ACTION_FAILED": "Eso no funcionó",
-				"FINISH_ERROR_TITLE": "No se pudo conectar Trello"
+				"FINISH_ERROR_TITLE": "No se pudo conectar Trello",
+				"RETURN_REFUSED_TITLE": "Trello no devolvió ningún token",
+				"RETURN_REFUSED": "La autorización fue rechazada o el regreso se interrumpió; no se conectó nada. Vuelve a conectar cuando quieras."
 			}
 		},
 		"taskProperties": {

@@ -3990,7 +3990,9 @@
 				"DETAILS_ERROR_TITLE": "Die Boards, Zuordnungen oder Läufe konnten nicht geladen werden",
 				"LOAD_ERROR_TITLE": "Die Trello-Integration konnte nicht geladen werden",
 				"ACTION_FAILED": "Das hat nicht geklappt",
-				"FINISH_ERROR_TITLE": "Trello konnte nicht verbunden werden"
+				"FINISH_ERROR_TITLE": "Trello konnte nicht verbunden werden",
+				"RETURN_REFUSED_TITLE": "Trello hat kein Token zurückgegeben",
+				"RETURN_REFUSED": "Die Autorisierung wurde abgelehnt oder die Rückkehr abgebrochen; nichts wurde verbunden. Verbinden Sie erneut, wenn Sie bereit sind."
 			}
 		},
 		"taskProperties": {

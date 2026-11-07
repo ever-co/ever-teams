@@ -3990,7 +3990,9 @@
 				"DETAILS_ERROR_TITLE": "Nie udało się wczytać tablic, przypisań lub uruchomień",
 				"LOAD_ERROR_TITLE": "Nie udało się wczytać integracji Trello",
 				"ACTION_FAILED": "To się nie udało",
-				"FINISH_ERROR_TITLE": "Nie udało się połączyć Trello"
+				"FINISH_ERROR_TITLE": "Nie udało się połączyć Trello",
+				"RETURN_REFUSED_TITLE": "Trello nie zwróciło tokenu",
+				"RETURN_REFUSED": "Autoryzacja została odrzucona lub powrót przerwany; nic nie zostało połączone. Połącz ponownie, gdy będziesz gotowy."
 			}
 		},
 		"taskProperties": {

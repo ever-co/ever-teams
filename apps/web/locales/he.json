@@ -3990,7 +3990,9 @@
 				"DETAILS_ERROR_TITLE": "לא ניתן היה לטעון את הלוחות, המיפויים או הריצות",
 				"LOAD_ERROR_TITLE": "לא ניתן היה לטעון את האינטגרציה עם Trello",
 				"ACTION_FAILED": "זה לא עבד",
-				"FINISH_ERROR_TITLE": "לא ניתן היה לחבר את Trello"
+				"FINISH_ERROR_TITLE": "לא ניתן היה לחבר את Trello",
+				"RETURN_REFUSED_TITLE": "Trello לא החזיר אסימון",
+				"RETURN_REFUSED": "ההרשאה נדחתה או שהחזרה נקטעה; שום דבר לא חובר. התחברו שוב כשתהיו מוכנים."
 			}
 		},
 		"taskProperties": {

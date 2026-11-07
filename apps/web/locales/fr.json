@@ -3990,7 +3990,9 @@
 				"DETAILS_ERROR_TITLE": "Les tableaux, associations ou exécutions n'ont pas pu être chargés",
 				"LOAD_ERROR_TITLE": "L'intégration Trello n'a pas pu être chargée",
 				"ACTION_FAILED": "Cela n'a pas fonctionné",
-				"FINISH_ERROR_TITLE": "Trello n'a pas pu être connecté"
+				"FINISH_ERROR_TITLE": "Trello n'a pas pu être connecté",
+				"RETURN_REFUSED_TITLE": "Trello n'a pas renvoyé de jeton",
+				"RETURN_REFUSED": "L'autorisation a été refusée ou le retour a été interrompu ; rien n'a été connecté. Reconnectez quand vous serez prêt."
 			}
 		},
 		"taskProperties": {

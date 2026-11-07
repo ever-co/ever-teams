@@ -3990,7 +3990,9 @@
 				"DETAILS_ERROR_TITLE": "无法加载看板、映射或运行记录",
 				"LOAD_ERROR_TITLE": "无法加载 Trello 集成",
 				"ACTION_FAILED": "操作失败",
-				"FINISH_ERROR_TITLE": "无法连接 Trello"
+				"FINISH_ERROR_TITLE": "无法连接 Trello",
+				"RETURN_REFUSED_TITLE": "Trello 没有返回令牌",
+				"RETURN_REFUSED": "授权被拒绝或返回中断；未连接任何内容。准备好后再次连接。"
 			}
 		},
 		"taskProperties": {

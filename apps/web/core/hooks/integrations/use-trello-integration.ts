@@ -42,6 +42,9 @@ export interface TrelloIntegrationSettings {
 	/** What went wrong when the token Trello returned was handed to the platform (dismissible). */
 	finishError: unknown;
 	clearFinishError: () => void;
+	/** Trello sent the person back without a token (they declined, or the return was cut short); dismissible. */
+	returnRefused: boolean;
+	clearReturnRefused: () => void;
 	boards: ITrelloBoard[];
 	projects: TrelloIntegrationProject[];
 	mappings: ITrelloMapping[];
@@ -137,6 +140,7 @@ export function useTrelloIntegration(): TrelloIntegrationSettings {
 	const [actionError, setActionError] = useState<unknown>(null);
 	const [disconnectError, setDisconnectError] = useState<unknown>(null);
 	const [finishError, setFinishError] = useState<unknown>(null);
+	const [returnRefused, setReturnRefused] = useState(false);
 
 	const statusQuery = useQuery({
 		queryKey: queryKeys.integrations.trello.status(tenantId, organizationId),
@@ -173,11 +177,18 @@ export function useTrelloIntegration(): TrelloIntegrationSettings {
 		if (finishedOnce.current || !enabled || !organizationId) return;
 		if (searchParams?.get('provider') !== 'trello') return;
 		const state = searchParams.get('state');
-		const token = tokenOfHash(currentHash());
-		if (!state || !token) return;
+		if (!state) return;
 		finishedOnce.current = true;
+		const token = tokenOfHash(currentHash());
+		// Back from Trello without a token (`#error=…`, a declined authorization, a return cut short): said, and the
+		// return fields dropped, rather than left in the address for a reload to meet again.
+		if (!token) {
+			setReturnRefused(true);
+			stripReturn();
+			return;
+		}
 		finishMutation.mutate({ token, state });
-	}, [enabled, finishMutation, organizationId, searchParams]);
+	}, [enabled, finishMutation, organizationId, searchParams, stripReturn]);
 
 	const mappingsQuery = useQuery({
 		queryKey: queryKeys.integrations.trello.mappings(tenantId, organizationId, integrationId),
@@ -209,21 +220,27 @@ export function useTrelloIntegration(): TrelloIntegrationSettings {
 	}, [queryClient]);
 
 	// A run that finished changed the mapping (its last import) and maybe the connection (an attention reason):
-	// both are read again, since the poll refreshes the runs alone. A run this page started is tracked by id, so a
-	// quick one whose finished row is the first seen refreshes them too.
-	const wasRunning = useRef(false);
-	const acceptedRunIds = useRef(new Set<string>());
+	// both are read again, since the poll refreshes the runs alone. Each run seen running is followed by id until it
+	// is seen finished (or gone from the page), so one that ends while another still runs — two webhook runs that
+	// overlap — refreshes them too, not only the moment every run has stopped. A run this page started is followed
+	// from its accepted row, so a quick one whose finished row is the first seen refreshes them as well.
+	const followedRunIds = useRef(new Set<string>());
 	const runs = runsQuery.data ?? NO_RUNS;
 	const isRunning = runs.some((run) => run.status === 'running');
-	const acceptedFinished = runs.some((run) => acceptedRunIds.current.has(run.id) && run.status !== 'running');
+	const finishedFollowed = runs.some((run) => followedRunIds.current.has(run.id) && run.status !== 'running');
 	useEffect(() => {
-		if ((wasRunning.current && !isRunning) || acceptedFinished) {
-			for (const run of runs) if (run.status !== 'running') acceptedRunIds.current.delete(run.id);
+		for (const run of runs) if (run.status === 'running') followedRunIds.current.add(run.id);
+		const listed = new Set(runs.map((run) => run.id));
+		const gone = [...followedRunIds.current].some((id) => !listed.has(id));
+		if (finishedFollowed || gone) {
+			for (const id of [...followedRunIds.current]) {
+				const run = runs.find((candidate) => candidate.id === id);
+				if (!run || run.status !== 'running') followedRunIds.current.delete(id);
+			}
 			void queryClient.invalidateQueries({ queryKey: queryKeys.integrations.trello.mappings(tenantId, organizationId, integrationId) });
 			void queryClient.invalidateQueries({ queryKey: queryKeys.integrations.trello.status(tenantId, organizationId) });
 		}
-		wasRunning.current = isRunning;
-	}, [acceptedFinished, integrationId, isRunning, organizationId, queryClient, runs, tenantId]);
+	}, [finishedFollowed, integrationId, organizationId, queryClient, runs, tenantId]);
 
 	const retryDetails = useCallback(() => {
 		if (mappingsQuery.isError) void mappingsQuery.refetch();
@@ -325,7 +342,7 @@ export function useTrelloIntegration(): TrelloIntegrationSettings {
 			if (!integrationId) return;
 			await act('import', mappingId, async () => {
 				const { run } = await trelloIntegrationService.importNow(integrationId, mappingId, full);
-				if (run?.id) acceptedRunIds.current.add(run.id);
+				if (run?.id) followedRunIds.current.add(run.id);
 			});
 		},
 		[act, integrationId]
@@ -354,6 +371,8 @@ export function useTrelloIntegration(): TrelloIntegrationSettings {
 		isFinishing: finishMutation.isPending,
 		finishError,
 		clearFinishError: () => setFinishError(null),
+		returnRefused,
+		clearReturnRefused: () => setReturnRefused(false),
 		boards: metadataQuery.data?.boards ?? NO_BOARDS,
 		projects,
 		mappings: mappingsQuery.data ?? NO_MAPPINGS,

@@ -3990,7 +3990,9 @@
 				"DETAILS_ERROR_TITLE": "Não foi possível carregar os quadros, as associações ou as execuções",
 				"LOAD_ERROR_TITLE": "Não foi possível carregar a integração do Trello",
 				"ACTION_FAILED": "Isso não funcionou",
-				"FINISH_ERROR_TITLE": "Não foi possível ligar o Trello"
+				"FINISH_ERROR_TITLE": "Não foi possível ligar o Trello",
+				"RETURN_REFUSED_TITLE": "O Trello não devolveu um token",
+				"RETURN_REFUSED": "A autorização foi recusada ou o regresso foi interrompido; nada foi ligado. Ligue de novo quando estiver pronto."
 			}
 		},
 		"taskProperties": {

@@ -3990,7 +3990,9 @@
 				"DETAILS_ERROR_TITLE": "The boards, mappings or runs could not be loaded",
 				"LOAD_ERROR_TITLE": "The Trello integration could not be loaded",
 				"ACTION_FAILED": "That did not work",
-				"FINISH_ERROR_TITLE": "Trello could not be connected"
+				"FINISH_ERROR_TITLE": "Trello could not be connected",
+				"RETURN_REFUSED_TITLE": "Trello did not hand a token back",
+				"RETURN_REFUSED": "The authorization was declined or the return was cut short; nothing was connected. Connect again when you are ready."
 			}
 		},
 		"taskProperties": {

@@ -3990,7 +3990,9 @@
 				"DETAILS_ERROR_TITLE": "تعذّر تحميل اللوحات أو الروابط أو عمليات التشغيل",
 				"LOAD_ERROR_TITLE": "تعذّر تحميل تكامل Trello",
 				"ACTION_FAILED": "لم ينجح ذلك",
-				"FINISH_ERROR_TITLE": "تعذّر ربط Trello"
+				"FINISH_ERROR_TITLE": "تعذّر ربط Trello",
+				"RETURN_REFUSED_TITLE": "لم يُعد Trello أي رمز",
+				"RETURN_REFUSED": "تم رفض التفويض أو انقطعت العودة؛ لم يتم ربط أي شيء. اربط مجددًا عندما تكون مستعدًا."
 			}
 		},
 		"taskProperties": {

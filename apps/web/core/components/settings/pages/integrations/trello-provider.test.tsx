@@ -82,6 +82,8 @@ function settings(overrides: Partial<TrelloIntegrationSettings> = {}): TrelloInt
 		webhooks: true,
 		isFinishing: false,
 		finishError: null,
+		returnRefused: false,
+		clearReturnRefused: jest.fn(),
 		clearFinishError: jest.fn(),
 		boards: [],
 		projects: [],

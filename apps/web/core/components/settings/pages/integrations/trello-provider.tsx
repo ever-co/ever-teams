@@ -621,6 +621,15 @@ export function TrelloProviderSection({ trello }: TrelloProps) {
 					dismissLabel={t('common.CLOSE')}
 				/>
 			)}
+			{trello.returnRefused && (
+				<Notice
+					tone="warning"
+					title={t('settings.integrations.trello.RETURN_REFUSED_TITLE')}
+					description={t('settings.integrations.trello.RETURN_REFUSED')}
+					onDismiss={trello.clearReturnRefused}
+					dismissLabel={t('common.CLOSE')}
+				/>
+			)}
 			<TrelloProviderBody trello={trello} onDisconnect={() => setConfirming(true)} />
 			<ConfirmDestructiveDialog
 				open={confirming}

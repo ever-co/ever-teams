@@ -3990,7 +3990,9 @@
 				"DETAILS_ERROR_TITLE": "Impossibile caricare le bacheche, le associazioni o le esecuzioni",
 				"LOAD_ERROR_TITLE": "Impossibile caricare l'integrazione Trello",
 				"ACTION_FAILED": "Non ha funzionato",
-				"FINISH_ERROR_TITLE": "Impossibile collegare Trello"
+				"FINISH_ERROR_TITLE": "Impossibile collegare Trello",
+				"RETURN_REFUSED_TITLE": "Trello non ha restituito alcun token",
+				"RETURN_REFUSED": "L'autorizzazione è stata rifiutata o il ritorno è stato interrotto; nulla è stato collegato. Collega di nuovo quando vuoi."
 			}
 		},
 		"taskProperties": {
