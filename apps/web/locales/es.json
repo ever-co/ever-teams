@@ -4479,5 +4479,8 @@
 			"RETRY": "Volver al inicio de sesión",
 			"CODE": "Código de error: {code}"
 		}
+	},
+	"realtime": {
+		"RECONNECTING": "Reconectando…"
 	}
 }

@@ -4479,5 +4479,8 @@
 			"RETRY": "Retour à la connexion",
 			"CODE": "Code d'erreur : {code}"
 		}
+	},
+	"realtime": {
+		"RECONNECTING": "Reconnexion…"
 	}
 }

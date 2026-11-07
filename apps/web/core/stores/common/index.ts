@@ -8,3 +8,4 @@ export * from './menu';
 export * from './timezones';
 export * from './command-palette';
 export * from './app-switcher';
+export * from './realtime';

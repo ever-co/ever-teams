@@ -4479,5 +4479,8 @@
 			"RETRY": "Torna all'accesso",
 			"CODE": "Codice di errore: {code}"
 		}
+	},
+	"realtime": {
+		"RECONNECTING": "Riconnessione…"
 	}
 }

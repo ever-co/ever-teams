@@ -954,8 +954,20 @@
 		"formatjs",
 		"localematcher",
 		"messageformat",
-		"serde"
-],
+		"serde",
+		"acked",
+		"deferrable",
+		"focusout",
+		"graphql",
+		"idempotently",
+		"jittered",
+		"keepalive",
+		"pagehide",
+		"resync",
+		"resyncs",
+		"resynchronise",
+		"resynchronisation"
+	],
 	"useGitignore": true,
 	"ignorePaths": [
 		"**/locales/**",

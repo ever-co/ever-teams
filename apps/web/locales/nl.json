@@ -4479,5 +4479,8 @@
 			"RETRY": "Terug naar aanmelden",
 			"CODE": "Foutcode: {code}"
 		}
+	},
+	"realtime": {
+		"RECONNECTING": "Opnieuw verbinden…"
 	}
 }

@@ -4479,5 +4479,8 @@
 			"RETRY": "Wróć do logowania",
 			"CODE": "Kod błędu: {code}"
 		}
+	},
+	"realtime": {
+		"RECONNECTING": "Ponowne łączenie…"
 	}
 }

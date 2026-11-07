@@ -4479,5 +4479,8 @@
 			"RETRY": "返回登录",
 			"CODE": "错误代码：{code}"
 		}
+	},
+	"realtime": {
+		"RECONNECTING": "正在重新连接…"
 	}
 }

@@ -4479,5 +4479,8 @@
 			"RETRY": "Zurück zur Anmeldung",
 			"CODE": "Fehlercode: {code}"
 		}
+	},
+	"realtime": {
+		"RECONNECTING": "Verbindung wird wiederhergestellt…"
 	}
 }
