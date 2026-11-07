@@ -49,9 +49,12 @@ export const EVER_CONNECT_PROXY_RULES: readonly ProxyRule[] = [
 	{ id: 'launcher_apps', method: 'GET', pattern: /^launcher\/apps$/, sameOrigin: true }
 ];
 
+let warnedMalformedWebAppUrl = false;
+
 /**
  * This app's public origin (NEXT_PUBLIC_WEB_APP_URL, else the origin the request was made to): what the API's App
- * Launcher routes check, so it must be one of the API's EVER_APP_LAUNCHER_ORIGINS.
+ * Launcher routes check, so it must be one of the API's EVER_APP_LAUNCHER_ORIGINS. Behind a proxy that does not keep
+ * the public host, set NEXT_PUBLIC_WEB_APP_URL: a wrong origin is refused by the API (403), never trusted.
  */
 export function webAppOrigin(req: Request): string {
 	const configured = (readRuntimeEnv('NEXT_PUBLIC_WEB_APP_URL') || process.env.NEXT_PUBLIC_WEB_APP_URL)?.trim();
@@ -59,7 +62,10 @@ export function webAppOrigin(req: Request): string {
 		try {
 			return new URL(configured).origin;
 		} catch {
-			// Not a URL: the request's own origin below.
+			if (!warnedMalformedWebAppUrl) {
+				warnedMalformedWebAppUrl = true;
+				console.warn('NEXT_PUBLIC_WEB_APP_URL is not a URL; the App Launcher uses the request origin instead.');
+			}
 		}
 	}
 	return new URL(req.url).origin;

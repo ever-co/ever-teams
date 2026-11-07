@@ -202,6 +202,18 @@ describe('the App Launcher routes', () => {
 		});
 	});
 
+	it('warns once, and uses the origin the request was made to, when NEXT_PUBLIC_WEB_APP_URL is not a URL', async () => {
+		const warn = jest.spyOn(console, 'warn').mockImplementation(() => undefined);
+		process.env.NEXT_PUBLIC_WEB_APP_URL = 'app.teams.example';
+		await launcher('launcher/config', { 'sec-fetch-site': 'same-origin' });
+		await launcher('launcher/config', { 'sec-fetch-site': 'same-origin' });
+		expect((fetchMock.mock.calls[0][1] as RequestInit).headers).toMatchObject({
+			origin: 'https://teams.example.test'
+		});
+		expect(warn.mock.calls.filter(([line]) => String(line).includes('NEXT_PUBLIC_WEB_APP_URL'))).toHaveLength(1);
+		warn.mockRestore();
+	});
+
 	it.each([
 		['another site', { origin: 'https://elsewhere.example' }],
 		['a cross-site request without an origin', { 'sec-fetch-site': 'cross-site' }],
