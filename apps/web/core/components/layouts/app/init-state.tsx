@@ -11,6 +11,8 @@ import { useAutoAssignTask } from '@/core/hooks/tasks/use-auto-assign-task';
 import { useTaskStatistics } from '@/core/hooks/tasks/use-task-statistics';
 import { useStaleTimerGuard, useTimerRunningPastMidnight } from '@/core/hooks/timer/use-stale-timer-guard';
 import { DISABLE_AUTO_REFRESH, TEAM_PRESENCE_REFRESH_INTERVAL } from '@/core/constants/config/constants';
+import { teamDetailRefreshOf } from '@/core/lib/utils/team-detail-refresh';
+import { realtimeStatusAtom } from '@/core/stores/common/realtime';
 import {
 	activeTeamDetailLoadingState,
 	activeTeamState,
@@ -28,17 +30,6 @@ import { teamDefaultProjectId } from '@/core/lib/helpers/team-default-project';
 
 const SHELL_REFRESH_INTERVAL = 60_000;
 
-// Team detail cadence: faster with a refresh on tab return while a team view is mounted, off without auto refresh.
-function getTeamDetailRefresh(
-	autoRefreshEnabled: boolean,
-	teamPresenceViewActive: boolean
-): { interval: number | false; onWindowFocus: boolean } {
-	if (!autoRefreshEnabled) return { interval: false, onWindowFocus: false };
-	return {
-		interval: teamPresenceViewActive ? TEAM_PRESENCE_REFRESH_INTERVAL : SHELL_REFRESH_INTERVAL,
-		onWindowFocus: teamPresenceViewActive
-	};
-}
 
 export function AppState() {
 	const { data: user } = useUserQuery();
@@ -85,7 +76,14 @@ export function InitState() {
 		[accessToken, organizationId, tenantId, user?.id]
 	);
 	const teamPresenceViewActive = useAtomValue(teamPresenceViewCountState) > 0;
-	const teamDetailRefresh = getTeamDetailRefresh(autoRefreshEnabled, teamPresenceViewActive);
+	// While the live channel is connected presence arrives as events: the team view's fast poll steps down.
+	const realtimeLive = useAtomValue(realtimeStatusAtom) === 'connected';
+	const teamDetailRefresh = teamDetailRefreshOf({
+		autoRefreshEnabled,
+		teamPresenceViewActive,
+		live: realtimeLive,
+		presenceInterval: TEAM_PRESENCE_REFRESH_INTERVAL
+	});
 	const teamOwner = useOrganizationTeamsQuery({
 		enabled: workspaceReady,
 		scope: baseScope,
