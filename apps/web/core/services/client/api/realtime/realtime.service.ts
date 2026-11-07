@@ -1,5 +1,6 @@
 import { APIService } from '@/core/services/client/api.service';
 import { GAUZY_API_BASE_SERVER_URL } from '@/core/constants/config/constants';
+import { getAccessTokenCookie, getOrganizationIdCookie, getTenantIdCookie } from '@/core/lib/helpers/cookies';
 import type { RealtimeCatchUp, RealtimeCatchUpQuery, RealtimePresenceStatus } from '@/core/lib/realtime/events';
 
 /** What `GET /realtime/status` answers. */
@@ -40,6 +41,29 @@ class RealtimeService extends APIService {
 		// The platform's own DTOs: no tenant or organization members in the body (the token and headers say them).
 		const response = await this.post<unknown>('/realtime/presence', { status }, undefined, false);
 		return response.data;
+	};
+
+	/**
+	 * The presence a closing page reports: a `keepalive` fetch, which the browser lets outlive the page (an Axios
+	 * request is cancelled with it), with the credential and scope the app's requests carry. Fire and forget.
+	 */
+	presenceOnUnload = (status: RealtimePresenceStatus): void => {
+		if (typeof fetch !== 'function') return;
+		const base = String(this.axiosInstance.defaults.baseURL ?? this.baseURL ?? '').replace(/\/+$/, '');
+		const token = getAccessTokenCookie();
+		const tenantId = getTenantIdCookie();
+		const organizationId = getOrganizationIdCookie();
+		const headers: Record<string, string> = { 'Content-Type': 'application/json' };
+		if (token) headers['Authorization'] = `Bearer ${token}`;
+		if (tenantId) headers['tenant-id'] = tenantId;
+		if (organizationId) headers['organization-id'] = organizationId;
+		void fetch(`${base}/realtime/presence`, {
+			method: 'POST',
+			keepalive: true,
+			credentials: 'include',
+			headers,
+			body: JSON.stringify({ status })
+		}).catch(() => undefined);
 	};
 
 	typing = async (input: RealtimeTypingInput): Promise<unknown> => {

@@ -13,7 +13,7 @@ function envelope(eventId: string, at: string, eventName = 'task.updated'): Real
 	};
 }
 
-function setUp(catchUpAnswers: Array<RealtimeCatchUp | Error> = []) {
+function setUp(catchUpAnswers: Array<RealtimeCatchUp | Error | Promise<RealtimeCatchUp>> = []) {
 	const sockets = fakeSocketFactory();
 	const timers = fakeTimers();
 	const catchUpCalls: RealtimeCatchUpQuery[] = [];
@@ -27,7 +27,7 @@ function setUp(catchUpAnswers: Array<RealtimeCatchUp | Error> = []) {
 		credentials: () => (token ? { accessToken: token, tenantId: 'ten', organizationId: 'org' } : null),
 		catchUp: async (query) => {
 			catchUpCalls.push(query);
-			const answer = answers.shift() ?? { events: [], cursor: 5_000, cursorId: null, hasMore: false, resync: false };
+			const answer = await (answers.shift() ?? { events: [], cursor: 5_000, cursorId: null, hasMore: false, resync: false });
 			if (answer instanceof Error) throw answer;
 			return answer;
 		},
@@ -198,5 +198,144 @@ describe('RealtimeClient', () => {
 		expect(ctx.client.getStatus()).toBe('stopped');
 		ctx.client.stop();
 		expect(ctx.client.getStatus()).toBe('off');
+	});
+
+	it('survives a socket that cannot be created: the failure takes the ordinary reconnect path', async () => {
+		const timers = fakeTimers();
+		let calls = 0;
+		const sockets = fakeSocketFactory();
+		const client = new RealtimeClient({
+			socketUrl: 'not a url',
+			credentials: () => ({ accessToken: 't' }),
+			catchUp: async () => ({ events: [], cursor: 1, cursorId: null, hasMore: false, resync: false }),
+			createSocket: (url, protocol) => {
+				calls += 1;
+				if (calls === 1) throw new SyntaxError('invalid url');
+				return sockets.factory(url, protocol);
+			},
+			setTimeout: timers.setTimeout,
+			clearTimeout: timers.clearTimeout,
+			backoff: { minMs: 100, maxMs: 1_000 },
+			random: () => 0.5,
+			pingIntervalMs: 0
+		});
+		expect(() => client.start()).not.toThrow();
+		await flush();
+		expect(client.getStatus()).toBe('reconnecting');
+		timers.advance(100);
+		expect(sockets.sockets).toHaveLength(1);
+		client.stop();
+	});
+
+	it('subscribes with the non-null names list the platform declares', async () => {
+		const ctx = setUp();
+		ctx.client.start();
+		const socket = await ctx.accept();
+		const payload = socket.sentOf('subscribe')[0]?.payload as { query: string; variables: { names: string[] } };
+		expect(payload.query).toContain('$names: [String!]!');
+		expect(payload.variables.names.length).toBeGreaterThan(0);
+	});
+
+	it('reconnects when the server ends or refuses the subscription while the socket stays open', async () => {
+		const ctx = setUp();
+		ctx.client.start();
+		let socket = await ctx.accept();
+		socket.serve({ id: '1', type: 'complete' });
+		expect(socket.closedWith?.code).toBe(4000);
+		expect(ctx.client.getStatus()).toBe('reconnecting');
+		ctx.timers.advance(100);
+		socket = await ctx.accept();
+		expect(ctx.client.getStatus()).toBe('connected');
+		// Refused again: the backoff keeps growing (200 ms now), it does not restart at the minimum.
+		socket.serve({ id: '1', type: 'error', payload: [{ message: 'Variable "$names" of required type' }] });
+		expect(ctx.client.getStatus()).toBe('reconnecting');
+		ctx.timers.advance(199);
+		expect(ctx.sockets.sockets).toHaveLength(2);
+		ctx.timers.advance(1);
+		expect(ctx.sockets.sockets).toHaveLength(3);
+	});
+
+	it('gives a connection acknowledged during an earlier replay its own replay, from where the first got to', async () => {
+		const at = Date.parse('2026-01-01T00:00:11.000Z');
+		let release: (answer: RealtimeCatchUp) => void = () => undefined;
+		const held = new Promise<RealtimeCatchUp>((resolve) => (release = resolve));
+		const ctx = setUp([
+			{ events: [], cursor: at, cursorId: 'e1', hasMore: false, resync: false },
+			held,
+			{ events: [envelope('e5', '2026-01-01T00:00:15.000Z')], cursor: at + 4_000, cursorId: 'e5', hasMore: false, resync: false }
+		]);
+		ctx.client.start();
+		let socket = await ctx.accept();
+		socket.drop(1006);
+		ctx.timers.advance(100);
+		socket = await ctx.accept();
+		// The second connection's replay is pending; the socket drops again and a third one is acknowledged.
+		socket.drop(1006);
+		ctx.timers.advance(200);
+		socket = await ctx.accept();
+		release({ events: [envelope('e3', '2026-01-01T00:00:13.000Z')], cursor: at + 2_000, cursorId: 'e3', hasMore: true, resync: false });
+		await flush();
+		expect(ctx.catchUpCalls.slice(1)).toEqual([
+			{ after: at, afterId: 'e1', limit: 2 },
+			{ after: at + 2_000, afterId: 'e3', limit: 2 }
+		]);
+		expect(ctx.events).toEqual(['e3', 'e5']);
+		expect(ctx.client.getCursor()).toEqual({ at: at + 4_000, id: 'e5' });
+	});
+
+	it('never lets a streamed event move the cursor past a gap the replay has not applied yet', async () => {
+		const at = Date.parse('2026-01-01T00:00:11.000Z');
+		let release: (answer: RealtimeCatchUp) => void = () => undefined;
+		const held = new Promise<RealtimeCatchUp>((resolve) => (release = resolve));
+		const ctx = setUp([{ events: [], cursor: at, cursorId: 'e1', hasMore: false, resync: false }, held]);
+		ctx.client.start();
+		let socket = await ctx.accept();
+		socket.drop(1006);
+		ctx.timers.advance(100);
+		socket = await ctx.accept();
+		// A newer event streams in while the gap is being replayed, then the socket drops before the replay ends.
+		socket.serve({ id: '1', type: 'next', payload: { data: { collaborationEvents: envelope('e9', '2026-01-01T00:00:19.000Z') } } });
+		expect(ctx.client.getCursor()).toEqual({ at, id: 'e1' });
+		socket.drop(1006);
+		release({ events: [envelope('e3', '2026-01-01T00:00:13.000Z')], cursor: at + 2_000, cursorId: 'e3', hasMore: true, resync: false });
+		await flush();
+		// Only what the replay applied counts: the next replay continues from e3, not from e9.
+		expect(ctx.client.getCursor()).toEqual({ at: at + 2_000, id: 'e3' });
+		ctx.timers.advance(200);
+		await ctx.accept();
+		await flush();
+		expect(ctx.catchUpCalls[ctx.catchUpCalls.length - 1]).toEqual({ after: at + 2_000, afterId: 'e3', limit: 2 });
+		expect(ctx.client.getCursor()).toEqual({ at: Date.parse('2026-01-01T00:00:19.000Z'), id: 'e9' });
+	});
+
+	it('resynchronises when the gap is larger than one replay reads', async () => {
+		const pages: RealtimeCatchUp[] = [{ events: [], cursor: 1_000, cursorId: null, hasMore: false, resync: false }];
+		for (let page = 0; page < 50; page += 1) pages.push({ events: [], cursor: 2_000 + page, cursorId: null, hasMore: true, resync: false });
+		const ctx = setUp(pages);
+		ctx.client.start();
+		const socket = await ctx.accept();
+		socket.drop(1006);
+		ctx.timers.advance(100);
+		await ctx.accept();
+		for (let i = 0; i < 20; i += 1) await flush();
+		expect(ctx.catchUpCalls).toHaveLength(51);
+		expect(ctx.resyncs()).toBe(1);
+	});
+
+	it('still drops a duplicate when more than the remembered window streams in during a replay', async () => {
+		let release: (answer: RealtimeCatchUp) => void = () => undefined;
+		const held = new Promise<RealtimeCatchUp>((resolve) => (release = resolve));
+		const ctx = setUp([{ events: [], cursor: 1_000, cursorId: null, hasMore: false, resync: false }, held]);
+		ctx.client.start();
+		let socket = await ctx.accept();
+		socket.drop(1006);
+		ctx.timers.advance(100);
+		socket = await ctx.accept();
+		for (let i = 0; i < 2_001; i += 1) {
+			socket.serve({ id: '1', type: 'next', payload: { data: { collaborationEvents: envelope(`s${i}`, '2026-01-01T00:00:20.000Z') } } });
+		}
+		release({ events: [envelope('s0', '2026-01-01T00:00:20.000Z')], cursor: 9_000, cursorId: 's0', hasMore: false, resync: false });
+		await flush();
+		expect(ctx.events.filter((id) => id === 's0')).toHaveLength(1);
 	});
 });

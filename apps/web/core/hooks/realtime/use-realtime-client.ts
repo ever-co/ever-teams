@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useMemo } from 'react';
+import { useEffect, useMemo, useRef } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 import { useSetAtom } from 'jotai';
 import { useReactiveAccessTokenCookie } from '@/core/hooks/auth/use-reactive-access-token-cookie';
@@ -18,8 +18,9 @@ import { realtimeStatusAtom } from '@/core/stores/common/realtime';
  * Keeps the tab's one live connection while a user is signed in and the deployment turns the channel on:
  * opens it with the session's credential, publishes every event on the in-tab bus, turns change hints into
  * refetches (folded, and held while the user types in the affected area), and refetches everything on a
- * resynchronisation. A new credential (sign-in, token refresh, workspace switch) reopens the connection; a
- * sign-out closes it. Flag off or no socket URL: nothing is opened and polling stays as it is.
+ * resynchronisation. A refreshed token reopens the socket on the same client — its cursor and the refetches it
+ * holds survive, so the gap is replayed — while a sign-out, a user or a workspace change closes it and starts
+ * afresh. Flag off or no socket URL: nothing is opened and polling stays as it is.
  */
 export function useRealtimeClient(): void {
 	const enabled = isRealtimeEnabled();
@@ -28,6 +29,9 @@ export function useRealtimeClient(): void {
 	const { data: user } = useUserQuery();
 	const queryClient = useQueryClient();
 	const setStatus = useSetAtom(realtimeStatusAtom);
+	const hasToken = !!accessToken;
+	const tokenRef = useRef(accessToken);
+	const clientRef = useRef<RealtimeClient | null>(null);
 
 	const tenantId = user?.employee?.tenantId ?? user?.tenantId ?? null;
 	const organizationId = user?.employee?.organizationId ?? null;
@@ -39,7 +43,7 @@ export function useRealtimeClient(): void {
 	);
 
 	useEffect(() => {
-		if (!socketUrl || !accessToken || !tenantId || !userId) {
+		if (!socketUrl || !hasToken || !tenantId || !userId) {
 			setStatus('off');
 			return;
 		}
@@ -51,7 +55,7 @@ export function useRealtimeClient(): void {
 		const client = new RealtimeClient({
 			socketUrl,
 			credentials: () => {
-				const token = getAccessTokenCookie() ?? accessToken;
+				const token = getAccessTokenCookie() ?? tokenRef.current;
 				return token ? { accessToken: token, tenantId, organizationId } : null;
 			},
 			catchUp: (query) => realtimeService.catchUp(query),
@@ -71,9 +75,11 @@ export function useRealtimeClient(): void {
 		const onFocusOut = () => scheduler.flush();
 		if (typeof document !== 'undefined') document.addEventListener('focusout', onFocusOut);
 
+		clientRef.current = client;
 		client.start();
 
 		return () => {
+			clientRef.current = null;
 			if (typeof document !== 'undefined') document.removeEventListener('focusout', onFocusOut);
 			offEvent();
 			offResync();
@@ -82,5 +88,12 @@ export function useRealtimeClient(): void {
 			scheduler.dispose();
 			setStatus('off');
 		};
-	}, [socketUrl, accessToken, tenantId, organizationId, userId, scope, queryClient, setStatus]);
+	}, [socketUrl, hasToken, tenantId, organizationId, userId, scope, queryClient, setStatus]);
+
+	// A refreshed token: the same client reconnects with it (the socket keeps the credential it opened with).
+	useEffect(() => {
+		const previous = tokenRef.current;
+		tokenRef.current = accessToken;
+		if (previous && accessToken && previous !== accessToken) clientRef.current?.restart();
+	}, [accessToken]);
 }

@@ -17,15 +17,30 @@ export interface RealtimeInvalidation {
 	deferrable: boolean;
 }
 
+/**
+ * The notification badge and list, by prefix: the bell keys them by the workspace's own scope (cookies, the
+ * employee id), which the signed-in user's relations may not carry — a prefix reaches them whatever it is (only
+ * the signed-in user's queries are in the cache).
+ */
+const NOTIFICATION_KEYS: RealtimeInvalidation[] = [
+	{ queryKey: ['notifications', 'unread-count'], deferrable: false },
+	{ queryKey: ['notifications', 'inbox'], deferrable: false }
+];
+
+/** A document's queries: the pages, and the task and project file lists that show linked documents. */
+const DOCUMENT_KEYS: RealtimeInvalidation[] = [
+	{ queryKey: ['documents'], deferrable: true },
+	{ queryKey: queryKeys.entityFiles.all, deferrable: true }
+];
+
 /** The keys a resynchronisation refetches: everything the channel carries. */
 export function resyncInvalidations(scope: RealtimeScope): RealtimeInvalidation[] {
 	return [
 		{ queryKey: queryKeys.tasks.all, deferrable: true },
 		{ queryKey: queryKeys.taskComments.all, deferrable: true },
-		{ queryKey: queryKeys.notifications.unreadCount(scope.tenantId, scope.organizationId, scope.employeeId), deferrable: false },
-		{ queryKey: queryKeys.notifications.inbox(scope.tenantId, scope.organizationId, scope.employeeId), deferrable: false },
+		...NOTIFICATION_KEYS,
 		{ queryKey: queryKeys.organizationTeams.all, deferrable: false },
-		{ queryKey: ['documents'], deferrable: true },
+		...DOCUMENT_KEYS,
 		{ queryKey: ['chat'], deferrable: false },
 		{ queryKey: ['inbox'], deferrable: false }
 	];
@@ -60,13 +75,9 @@ export function invalidationsFor(envelope: RealtimeEnvelope, scope: RealtimeScop
 		case 'mention':
 		case 'employee_notification':
 		case 'inbox_item':
-			return [
-				{ queryKey: queryKeys.notifications.unreadCount(scope.tenantId, scope.organizationId, scope.employeeId), deferrable: false },
-				{ queryKey: queryKeys.notifications.inbox(scope.tenantId, scope.organizationId, scope.employeeId), deferrable: false },
-				{ queryKey: ['inbox'], deferrable: false }
-			];
+			return [...NOTIFICATION_KEYS, { queryKey: ['inbox'], deferrable: false }];
 		case 'document':
-			return [{ queryKey: ['documents'], deferrable: true }];
+			return [...DOCUMENT_KEYS];
 		case 'presence':
 			return [{ queryKey: queryKeys.organizationTeams.all, deferrable: false }];
 		case 'chat_message':

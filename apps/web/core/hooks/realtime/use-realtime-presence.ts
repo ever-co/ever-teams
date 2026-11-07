@@ -10,6 +10,8 @@ import { realtimeStatusAtom } from '@/core/stores/common/realtime';
 
 const INTERACTION_EVENTS = ['keydown', 'mousedown', 'mousemove', 'wheel', 'touchstart'] as const;
 const IDLE_CHECK_MS = 60_000;
+/** A transition that failed (a network blip) is sent again this much later, unless a newer one went first. */
+const RETRY_MS = 15_000;
 
 /**
  * The presence the tab reports while its live connection is up: `active` on connect and on input after a
@@ -27,13 +29,27 @@ export function useRealtimePresence(): void {
 		let current: RealtimePresenceStatus | null = null;
 		let unavailable = false;
 		let lastInput = Date.now();
+		let retry: number | null = null;
 
 		const send = (next: RealtimePresenceStatus) => {
 			if (unavailable || current === next) return;
 			current = next;
 			realtimeService.presence(next).catch((error) => {
 				// A platform without the route (older release): stop asking.
-				if (ApiErrorService.isApiError(error) && error.isEndpointUnavailable()) unavailable = true;
+				if (ApiErrorService.isApiError(error) && error.isEndpointUnavailable()) {
+					unavailable = true;
+					return;
+				}
+				// Not delivered: forget it, so the next report sends the then-current state; a newer transition that
+				// already went is left alone.
+				if (current !== next) return;
+				current = null;
+				if (retry === null) {
+					retry = window.setTimeout(() => {
+						retry = null;
+						report();
+					}, RETRY_MS);
+				}
 			});
 		};
 
@@ -52,8 +68,8 @@ export function useRealtimePresence(): void {
 		const onUnload = () => {
 			if (current === 'offline') return;
 			current = 'offline';
-			// `keepalive` lets the request outlive the page.
-			void realtimeService.presence('offline').catch(() => undefined);
+			// A `keepalive` request: it outlives the page, where an ordinary one is cancelled with it.
+			realtimeService.presenceOnUnload('offline');
 		};
 
 		for (const event of INTERACTION_EVENTS) window.addEventListener(event, onInput, { passive: true });
@@ -71,6 +87,7 @@ export function useRealtimePresence(): void {
 			window.removeEventListener('blur', report);
 			window.removeEventListener('pagehide', onUnload);
 			window.clearInterval(timer);
+			if (retry !== null) window.clearTimeout(retry);
 		};
 	}, [connected]);
 }

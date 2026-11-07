@@ -28,8 +28,8 @@ describe('invalidationsFor', () => {
 		for (const name of ['mention.created', 'employee_notification.created', 'inbox_item.created']) {
 			const keys = invalidationsFor(event(name, { entity: 'Comment', entityId: 'c1', action: 'created' }), scope);
 			expect(keys.map((k) => k.queryKey)).toEqual([
-				['notifications', 'unread-count', 'ten', 'org', 'emp'],
-				['notifications', 'inbox', 'ten', 'org', 'emp'],
+				['notifications', 'unread-count'],
+				['notifications', 'inbox'],
 				['inbox']
 			]);
 			expect(keys.every((k) => !k.deferrable)).toBe(true);
@@ -43,8 +43,15 @@ describe('invalidationsFor', () => {
 		expect(invalidationsFor(event('typing.signalled', { conversationId: 'c' }), scope)).toEqual([]);
 	});
 
+	it('refetches the pages and the linked file lists on a document hint', () => {
+		expect(invalidationsFor(event('document.updated', { entity: 'Document', entityId: 'd1', action: 'updated' }), scope).map((k) => k.queryKey)).toEqual([
+			['documents'],
+			['entity-files']
+		]);
+	});
+
 	it('names every family on a resynchronisation', () => {
 		const keys = resyncInvalidations(scope).map((k) => k.queryKey[0]);
-		expect(keys).toEqual(expect.arrayContaining(['tasks', 'task-comments', 'notifications', 'organization-teams', 'documents', 'chat', 'inbox']));
+		expect(keys).toEqual(expect.arrayContaining(['tasks', 'task-comments', 'notifications', 'organization-teams', 'documents', 'entity-files', 'chat', 'inbox']));
 	});
 });

@@ -102,4 +102,62 @@ describe('GraphqlWsConnection', () => {
 		expect(isFatalCloseCode(1006)).toBe(false);
 		expect(isFatalCloseCode(4499)).toBe(false);
 	});
+
+	it('reports a socket that could not be created after the constructor returned, as a retryable 1006', async () => {
+		const closes: number[] = [];
+		let constructed = false;
+		new GraphqlWsConnection({
+			url: 'not a url',
+			connectionParams: () => ({}),
+			createSocket: () => {
+				throw new SyntaxError('invalid url');
+			},
+			onClose: (code) => {
+				expect(constructed).toBe(true);
+				closes.push(code);
+			}
+		});
+		constructed = true;
+		expect(closes).toEqual([]);
+		await flush();
+		expect(closes).toEqual([1006]);
+		expect(isFatalCloseCode(1006)).toBe(false);
+	});
+
+	it('closes on a null or typeless protocol message', () => {
+		for (const raw of ['null', '42', '{"id":"1"}']) {
+			const { socket, closes } = connect();
+			socket.open();
+			socket.onmessage?.({ data: raw });
+			expect(closes).toEqual([4400]);
+		}
+	});
+
+	it('closes with a retryable 4408 when the server never acknowledges, and not once it did', async () => {
+		const late = connect({ ackTimeoutMs: 5_000, pingIntervalMs: 0 });
+		late.socket.open();
+		late.timers.advance(4_999);
+		expect(late.closes).toEqual([]);
+		late.timers.advance(1);
+		expect(late.closes).toEqual([4408]);
+		expect(isFatalCloseCode(4408)).toBe(false);
+
+		const acked = connect({ ackTimeoutMs: 5_000, pingIntervalMs: 0 });
+		acked.socket.open();
+		acked.socket.serve({ type: 'connection_ack' });
+		await acked.connection.ready;
+		acked.timers.advance(10_000);
+		expect(acked.closes).toEqual([]);
+		expect(acked.timers.pendingCount()).toBe(0);
+	});
+
+	it('closes the socket with a code the browser accepts when a send fails, and reports why', async () => {
+		const { connection, socket, closes } = connect({ pingIntervalMs: 0 });
+		socket.open();
+		socket.serve({ type: 'connection_ack' });
+		await connection.ready;
+		connection.subscribe({ query: 'subscription { x }', variables: { big: BigInt(1) } }, { next: () => undefined, error: () => undefined, complete: () => undefined });
+		expect(socket.closedWith?.code).toBe(1000);
+		expect(closes).toEqual([1006]);
+	});
 });

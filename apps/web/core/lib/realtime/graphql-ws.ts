@@ -47,6 +47,11 @@ export interface GraphqlWsOptions {
 	createSocket?: SocketFactory;
 	/** A ping is sent after this long without a message; two silent intervals close the socket as dead. */
 	pingIntervalMs?: number;
+	/**
+	 * How long the server has to acknowledge the connection once the socket is created; past it the socket closes
+	 * with 4408 (retryable). A server that answers pings but never acknowledges would otherwise hold it forever.
+	 */
+	ackTimeoutMs?: number;
 	/** Called once the server acknowledged the connection. */
 	onAck?: () => void;
 	/** Called once the socket closed, for whatever reason, with the close code. */
@@ -64,6 +69,11 @@ export function isFatalCloseCode(code: number): boolean {
 	return code === 4400 || code === 4401 || code === 4403 || code === 4429 || code === 1002 || code === 1003;
 }
 
+/** The codes a browser's `WebSocket.close()` accepts: 1000, and 3000–4999. */
+export function isSendableCloseCode(code: number): boolean {
+	return code === 1000 || (code >= 3000 && code <= 4999);
+}
+
 /**
  * One socket, one `connection_init`, any number of subscriptions. Opens on construction; the promise of
  * {@link GraphqlWsConnection.ready} resolves on `connection_ack` and rejects when the socket closes first.
@@ -79,6 +89,8 @@ export class GraphqlWsConnection {
 	private readonly clearTimer: (handle: unknown) => void;
 	private readonly pingIntervalMs: number;
 	private pingTimer: unknown = null;
+	private ackTimer: unknown = null;
+	private readonly ackTimeoutMs: number;
 	private silentIntervals = 0;
 	private settleReady: { resolve: () => void; reject: (error: Error) => void } | null = null;
 
@@ -86,6 +98,7 @@ export class GraphqlWsConnection {
 		this.setTimer = options.setTimeout ?? ((fn, ms) => setTimeout(fn, ms));
 		this.clearTimer = options.clearTimeout ?? ((handle) => clearTimeout(handle as ReturnType<typeof setTimeout>));
 		this.pingIntervalMs = options.pingIntervalMs ?? 25_000;
+		this.ackTimeoutMs = options.ackTimeoutMs ?? 10_000;
 		this.ready = new Promise<void>((resolve, reject) => {
 			this.settleReady = { resolve, reject };
 		});
@@ -127,12 +140,15 @@ export class GraphqlWsConnection {
 		if (this.closed) return;
 		this.closed = true;
 		this.stopPinging();
+		this.stopAckTimer();
 		const socket = this.socket;
 		this.socket = null;
 		if (socket) {
 			socket.onopen = socket.onmessage = socket.onclose = socket.onerror = null;
 			try {
-				socket.close(code, reason);
+				// A browser closes only with 1000 or 3000–4999 (anything else throws and leaves the socket open); the
+				// listener still hears the code that says why.
+				socket.close(isSendableCloseCode(code) ? code : 1000, reason);
 			} catch {
 				// Already closed.
 			}
@@ -153,10 +169,18 @@ export class GraphqlWsConnection {
 			this.closed = true;
 			this.settleReady?.reject(error instanceof Error ? error : new Error(String(error)));
 			this.settleReady = null;
-			this.options.onClose?.(1006, 'socket could not be created');
+			// After the constructor returned: the owner has stored the connection by then, so the failure takes the
+			// ordinary reconnect path instead of reaching it half-built.
+			void Promise.resolve().then(() => this.options.onClose?.(1006, 'socket could not be created'));
 			return;
 		}
 		this.socket = socket;
+		if (this.ackTimeoutMs > 0) {
+			this.ackTimer = this.setTimer(() => {
+				this.ackTimer = null;
+				if (!this.acked) this.close(4408, 'connection acknowledgement timeout');
+			}, this.ackTimeoutMs);
+		}
 		socket.onopen = () => {
 			this.send({ type: 'connection_init', payload: this.options.connectionParams() });
 			this.schedulePing();
@@ -172,6 +196,7 @@ export class GraphqlWsConnection {
 		if (this.closed) return;
 		this.closed = true;
 		this.stopPinging();
+		this.stopAckTimer();
 		this.socket = null;
 		this.settleReady?.reject(new Error(`closed before acknowledgement: ${code} ${reason}`));
 		this.settleReady = null;
@@ -189,9 +214,15 @@ export class GraphqlWsConnection {
 			this.close(4400, 'invalid message');
 			return;
 		}
+		// `null`, a number, an object without a type: not a protocol message.
+		if (!message || typeof message !== 'object' || typeof message.type !== 'string') {
+			this.close(4400, 'invalid message');
+			return;
+		}
 		switch (message.type) {
 			case 'connection_ack':
 				this.acked = true;
+				this.stopAckTimer();
 				this.settleReady?.resolve();
 				this.settleReady = null;
 				this.options.onAck?.();
@@ -254,6 +285,13 @@ export class GraphqlWsConnection {
 			this.send({ type: 'ping' });
 			this.schedulePing();
 		}, this.pingIntervalMs);
+	}
+
+	private stopAckTimer(): void {
+		if (this.ackTimer !== null) {
+			this.clearTimer(this.ackTimer);
+			this.ackTimer = null;
+		}
 	}
 
 	private stopPinging(): void {
