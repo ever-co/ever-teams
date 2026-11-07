@@ -1,3 +1,4 @@
+import { readRuntimeEnv } from '@/env-config';
 import { isPlainObject } from './route-helpers';
 
 /**
@@ -53,7 +54,7 @@ export const EVER_CONNECT_PROXY_RULES: readonly ProxyRule[] = [
  * Launcher routes check, so it must be one of the API's EVER_APP_LAUNCHER_ORIGINS.
  */
 export function webAppOrigin(req: Request): string {
-	const configured = process.env.NEXT_PUBLIC_WEB_APP_URL?.trim();
+	const configured = (readRuntimeEnv('NEXT_PUBLIC_WEB_APP_URL') || process.env.NEXT_PUBLIC_WEB_APP_URL)?.trim();
 	if (configured) {
 		try {
 			return new URL(configured).origin;
