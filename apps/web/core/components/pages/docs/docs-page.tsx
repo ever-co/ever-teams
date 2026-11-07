@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import Link from 'next/link';
 import { useParams, useRouter } from 'next/navigation';
-import { useTranslations } from 'next-intl';
+import { useTranslations, type DottedLanguageObjectStringPaths } from 'next-intl';
 import { toast } from 'sonner';
 import { PageLayout } from '@/core/components/layouts/default-layout';
 import { AnimatedEmptyState } from '@/core/components/common/empty-state';
@@ -69,7 +69,7 @@ export function DocsPage({ view }: Readonly<{ view: DocsView }>) {
 	}, [expandAll, pageId, tree.pages.length, tree.tree]);
 
 	const fail = useCallback(
-		(error: unknown, fallbackKey: string) => {
+		(error: unknown, fallbackKey: DottedLanguageObjectStringPaths) => {
 			const message = error instanceof Error && error.message ? error.message : t(fallbackKey);
 			toast.error(message);
 		},

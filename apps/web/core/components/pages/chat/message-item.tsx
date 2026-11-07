@@ -1,7 +1,7 @@
 'use client';
 
 import { memo, useState } from 'react';
-import { useLocale, useTranslations } from 'next-intl';
+import { useTranslations } from 'next-intl';
 import { Comment, MapPin as Pin, MoreHorizontal, RotateLeft, Undo } from '@/core/components/icons';
 import { Button } from '@/core/components/duplicated-components/_button';
 import {

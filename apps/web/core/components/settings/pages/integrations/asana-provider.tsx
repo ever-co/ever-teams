@@ -591,7 +591,7 @@ function AsanaProviderBody({ asana, onDisconnect }: AsanaProps & Readonly<{ onDi
 	return (
 		<SettingsSurface>
 			<AsanaConnectRow asana={asana} canConnect={asana.status === 'notConnected'} />
-			{asana.actionError && <ActionErrorRow asana={asana} />}
+			{asana.actionError ? <ActionErrorRow asana={asana} /> : null}
 		</SettingsSurface>
 	);
 }

@@ -546,7 +546,7 @@ function LinearProviderBody({ linear, onDisconnect }: LinearProps & Readonly<{ o
 	return (
 		<SettingsSurface>
 			<LinearConnectRow linear={linear} canConnect={linear.status === 'notConnected'} />
-			{linear.actionError && <ActionErrorRow linear={linear} />}
+			{linear.actionError ? <ActionErrorRow linear={linear} /> : null}
 		</SettingsSurface>
 	);
 }
