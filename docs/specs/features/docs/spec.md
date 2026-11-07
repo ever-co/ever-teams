@@ -11,7 +11,7 @@
 **Last updated**: 2026-11-07
 **Owner**: app maintainers
 **Runtime flag**: `NEXT_PUBLIC_DOCS_ENABLED` (default off)
-**Platform API dependency**: platform spec `docs-pages` (+ `realtime-channel` for live presence, the existing comments and file APIs)
+**Platform API dependency**: the existing Docs API (documents, tree, versions, shares, links, files) and the platform spec `docs-collaboration` (spaces, live co-editing, notifications, export) + `realtime-channel` for presence
 
 ---
 
@@ -138,7 +138,7 @@ a later release (single-writer autosave with conflict detection ships first).
 
 ## 8. Open Questions
 
-- `[NEEDS CLARIFICATION: whether page content is stored as the editor's HTML (matches task descriptions today) or as a block JSON that a later collaborative editor can adopt (proposed: block JSON with HTML export, decided in the platform spec)]`
+- Resolved 2026-11-07: pages are the platform's existing documents (kind "page") whose content is editor JSON plus rendered HTML; the app's Tiptap editor reads and writes that JSON directly, and live co-editing arrives with the platform's docs-collaboration feature.
 
 ## 9. Constitution Gates
 
