@@ -49,6 +49,20 @@ jobs:
       NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN || 'unused-oidc-trusted-publishing' }}
 
     steps:
+      # In-cluster (ever-co/k8s-gitops apps/ci-builds, which sets CI_IN_CLUSTER; GitHub-hosted runners do not start in
+      # ever-co under its billing lock) there is no GitHub OIDC token, so npm trusted publishing cannot work there and the
+      # job publishes with NPM_TOKEN from OpenBao `ci-builds/ever-co/ever-teams`. Without it, stop here: further on the job
+      # pushes its version bump branch first and would then fail at publish on every push to main.
+      - name: In-cluster publishing needs NPM_TOKEN
+        if: ${{ vars.CI_IN_CLUSTER == 'true' }}
+        env:
+          NPM_TOKEN_SECRET: ${{ secrets.NPM_TOKEN }}
+        run: |
+          if [ -z "$NPM_TOKEN_SECRET" ]; then
+            echo "::error::No NPM_TOKEN in-cluster, and npm trusted publishing (OIDC) needs a GitHub-hosted runner: add an npm token that can publish @ever-teams/* to OpenBao ci-builds/ever-co/ever-teams as NPM_TOKEN"
+            exit 1
+          fi
+
       - name: Checkout repository
         uses: actions/checkout@v7
         with:
@@ -61,6 +75,8 @@ jobs:
       # GitHub-hosted runners have ~14 GB free; this repo's full `yarn install` needs more (see runs-on above).
       # Drop preinstalled toolchains this job never uses.
       - name: Free disk space
+        # GitHub-hosted only: it deletes the hosted image's toolchains (in-cluster pods have no such image and no sudo)
+        if: runner.environment == 'github-hosted'
         run: |
           df -h /
           sudo rm -rf /usr/share/dotnet /usr/local/lib/android /opt/ghc /usr/local/.ghcup /opt/hostedtoolcache/CodeQL /usr/share/swift
