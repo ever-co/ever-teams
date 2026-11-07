@@ -12,8 +12,10 @@ import { gauzyPassThrough } from '@/core/services/server/requests/ever-platform'
 import {
 	EVER_CONNECT_PROXY_RULES,
 	forwardedQuery,
+	fromOwnPage,
 	MAX_PROXY_BODY_BYTES,
-	type ProxyMethod
+	type ProxyMethod,
+	webAppOrigin
 } from '@/core/services/server/ever-platform/connect-proxy-rules';
 
 export const dynamic = 'force-dynamic';
@@ -29,17 +31,27 @@ export const dynamic = 'force-dynamic';
  *   belong to the API's own settings.
  * - Forwarded with the signed-in person's own token and tenant to the configured API only; only the
  *   known query parameters and body fields travel; nothing is cached.
+ * - The App Launcher's routes are forwarded only for this app's own pages (403 otherwise), with this app's
+ *   origin, which the API must list in EVER_APP_LAUNCHER_ORIGINS.
  */
 
 async function handle(method: ProxyMethod, req: Request, params: Promise<{ path?: string[] }>) {
 	if (!isEverConnectFlagOn()) return notFound();
 	const segments = (await params).path ?? [];
 	const path = segments.join('/');
-	const rule = EVER_CONNECT_PROXY_RULES.find((candidate) => candidate.method === method && candidate.pattern.test(path));
+	const rule = EVER_CONNECT_PROXY_RULES.find(
+		(candidate) => candidate.method === method && candidate.pattern.test(path)
+	);
 	if (!rule) return notFound();
 
 	const session = routeSession(req);
 	if (!session) return unauthorized();
+
+	let origin: string | undefined;
+	if (rule.sameOrigin) {
+		origin = webAppOrigin(req);
+		if (!fromOwnPage(req, origin)) return jsonAnswer(403, { statusCode: 403, message: 'Forbidden' });
+	}
 
 	let body: Record<string, unknown> | undefined;
 	if (rule.body) {
@@ -59,7 +71,8 @@ async function handle(method: ProxyMethod, req: Request, params: Promise<{ path?
 		path: `/ever-connect/${path}${forwardedQuery(new URL(req.url))}`,
 		method,
 		...session,
-		body: body ?? (method === 'POST' ? {} : undefined)
+		body: body ?? (method === 'POST' ? {} : undefined),
+		origin
 	});
 	logProxyOutcome(`connect_${rule.id}`, answer.status);
 	if (answer.status === 204) return new NextResponse(null, { status: 204, headers: NO_STORE_HEADERS });
