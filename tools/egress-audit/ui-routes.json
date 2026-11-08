@@ -9,6 +9,11 @@
       "source": "router"
     },
     {
+      "path": "/:locale/about",
+      "file": "apps/web/app/[locale]/(main)/about/page.tsx",
+      "source": "router"
+    },
+    {
       "path": "/:locale/all-teams",
       "file": "apps/web/app/[locale]/(main)/(teams)/all-teams/page.tsx",
       "source": "router"

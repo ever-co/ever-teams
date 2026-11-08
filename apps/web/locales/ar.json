@@ -2478,6 +2478,45 @@
 			"SIGN_IN": "تسجيل الدخول",
 			"MAINTENANCE_TITLE": "يجري تحديث {appName}",
 			"MAINTENANCE_TEXT": "سيعود خلال دقائق. حاول مرة أخرى بعد قليل."
+		},
+		"about": {
+			"TITLE": "حول",
+			"DESCRIPTION": "{appName} منصة مفتوحة لإدارة العمل والمشاريع: تتبع الوقت والمهام والخطط اليومية وتعاون الفريق في مكان واحد.",
+			"LICENSE": "مفتوح المصدر، منشور بموجب رخصة <license>AGPL-3.0</license>",
+			"VERSION_DETAILS": "تفاصيل الإصدار",
+			"WEB_APP": "تطبيق الويب",
+			"API": "واجهة API",
+			"API_CONNECTED": "واجهة API متصلة",
+			"API_UNREACHABLE": "تعذر الوصول إلى واجهة API",
+			"API_CHECKING": "جارٍ التحقق من واجهة API…",
+			"ENVIRONMENT": "البيئة",
+			"BUILD": "البناء",
+			"BUILD_DEVELOPMENT": "تطوير",
+			"BUILD_PRODUCTION": "إنتاج",
+			"DEPLOYMENT": "النشر",
+			"MODE": "الوضع",
+			"MODE_DEMO": "تجريبي",
+			"MODE_STANDARD": "قياسي",
+			"RUNNING_IN": "يعمل في",
+			"RUNNING_IN_BROWSER": "المتصفح",
+			"RUNNING_IN_DESKTOP": "تطبيق سطح المكتب",
+			"API_ADDRESS": "عنوان واجهة API",
+			"LANGUAGE": "اللغة",
+			"TIME_ZONE": "المنطقة الزمنية",
+			"COPY": "نسخ",
+			"COPY_DETAILS": "نسخ التفاصيل",
+			"COPIED": "تم النسخ إلى الحافظة",
+			"COPY_FAILED": "تعذر النسخ إلى الحافظة",
+			"LEARN_MORE": "اعرف المزيد",
+			"ON_GITHUB": "على GitHub",
+			"ON_GITHUB_DESCRIPTION": "يُطوَّر {appName} بشكل مفتوح: تابع الإصدارات أو أبلغ عن مشكلة أو ساهم.",
+			"REPOSITORY": "المستودع",
+			"RELEASES": "الإصدارات",
+			"ISSUES": "المشكلات",
+			"PULL_REQUESTS": "طلبات الدمج",
+			"CONTRIBUTORS": "المساهمون",
+			"CONTRIBUTING": "دليل المساهمة",
+			"API_REPOSITORY": "مستودع واجهة API (Ever Gauzy)"
 		}
 	},
 	"timer": {
@@ -4021,7 +4060,7 @@
 				"DETAILS_ERROR_TITLE": "تعذّر تحميل اللوحات أو الروابط أو عمليات التشغيل",
 				"LOAD_ERROR_TITLE": "تعذّر تحميل تكامل Trello",
 				"ACTION_FAILED": "لم ينجح ذلك",
-				"FINISH_ERROR_TITLE": "تعذّر ربط Trello",
+				"FINISH_ERROR_TITLE": "تعذّر ربط Trello",
 				"RETURN_REFUSED_TITLE": "لم يُعد Trello أي رمز",
 				"RETURN_REFUSED": "تم رفض التفويض أو انقطعت العودة؛ لم يتم ربط أي شيء. اربط مجددًا عندما تكون مستعدًا."
 			}
@@ -5186,5 +5225,18 @@
 		"TRASH_ERROR": "تعذر نقل الصفحة إلى سلة المهملات.",
 		"RESTORE_ERROR": "تعذر استعادة الصفحة.",
 		"DELETE_ERROR": "تعذر حذف الصفحة."
+	},
+	"whatsNew": {
+		"TITLE": "ما الجديد",
+		"BUTTON_LABEL": "ما الجديد",
+		"BUTTON_LABEL_UNSEEN": "ما الجديد (تحديثات جديدة)",
+		"DESCRIPTION": "أحدث التحديثات في {appName}.",
+		"NEW": "جديد",
+		"LEARN_MORE": "اعرف المزيد",
+		"EMPTY_TITLE": "أنت على اطلاع بكل جديد",
+		"EMPTY_DESCRIPTION": "ستظهر الميزات والتحسينات الجديدة هنا.",
+		"ERROR": "تعذر تحميل أحدث التحديثات.",
+		"RETRY": "إعادة المحاولة",
+		"ABOUT_LINK": "حول {appName}"
 	}
 }

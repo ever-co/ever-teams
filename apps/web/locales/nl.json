@@ -2478,6 +2478,45 @@
 			"SIGN_IN": "Inloggen",
 			"MAINTENANCE_TITLE": "{appName} wordt bijgewerkt",
 			"MAINTENANCE_TEXT": "Over een paar minuten is het terug. Probeer het straks opnieuw."
+		},
+		"about": {
+			"TITLE": "Over",
+			"DESCRIPTION": "{appName} is een open platform voor werk- en projectbeheer: tijdregistratie, taken, dagplanningen en samenwerking in je team op één plek.",
+			"LICENSE": "Open source, uitgebracht onder de <license>AGPL-3.0</license>",
+			"VERSION_DETAILS": "Versiegegevens",
+			"WEB_APP": "Web-app",
+			"API": "API",
+			"API_CONNECTED": "API verbonden",
+			"API_UNREACHABLE": "API niet bereikbaar",
+			"API_CHECKING": "API wordt gecontroleerd…",
+			"ENVIRONMENT": "Omgeving",
+			"BUILD": "Build",
+			"BUILD_DEVELOPMENT": "Ontwikkeling",
+			"BUILD_PRODUCTION": "Productie",
+			"DEPLOYMENT": "Implementatie",
+			"MODE": "Modus",
+			"MODE_DEMO": "Demo",
+			"MODE_STANDARD": "Standaard",
+			"RUNNING_IN": "Draait in",
+			"RUNNING_IN_BROWSER": "Browser",
+			"RUNNING_IN_DESKTOP": "Desktop-app",
+			"API_ADDRESS": "API-adres",
+			"LANGUAGE": "Taal",
+			"TIME_ZONE": "Tijdzone",
+			"COPY": "Kopiëren",
+			"COPY_DETAILS": "Gegevens kopiëren",
+			"COPIED": "Gekopieerd naar het klembord",
+			"COPY_FAILED": "Kopiëren naar het klembord is mislukt",
+			"LEARN_MORE": "Meer informatie",
+			"ON_GITHUB": "Op GitHub",
+			"ON_GITHUB_DESCRIPTION": "{appName} wordt openlijk ontwikkeld: volg de releases, meld een probleem of draag bij.",
+			"REPOSITORY": "Repository",
+			"RELEASES": "Releases",
+			"ISSUES": "Issues",
+			"PULL_REQUESTS": "Pull requests",
+			"CONTRIBUTORS": "Bijdragers",
+			"CONTRIBUTING": "Richtlijnen voor bijdragen",
+			"API_REPOSITORY": "API-repository (Ever Gauzy)"
 		}
 	},
 	"timer": {
@@ -4021,7 +4060,7 @@
 				"DETAILS_ERROR_TITLE": "De borden, koppelingen of runs konden niet worden geladen",
 				"LOAD_ERROR_TITLE": "De Trello-integratie kon niet worden geladen",
 				"ACTION_FAILED": "Dat is niet gelukt",
-				"FINISH_ERROR_TITLE": "Trello kon niet worden verbonden",
+				"FINISH_ERROR_TITLE": "Trello kon niet worden verbonden",
 				"RETURN_REFUSED_TITLE": "Trello gaf geen token terug",
 				"RETURN_REFUSED": "De autorisatie is geweigerd of de terugkeer is afgebroken; er is niets verbonden. Verbind opnieuw wanneer u klaar bent."
 			}
@@ -5186,5 +5225,18 @@
 		"TRASH_ERROR": "De pagina kon niet naar de prullenbak.",
 		"RESTORE_ERROR": "De pagina kon niet worden hersteld.",
 		"DELETE_ERROR": "De pagina kon niet worden verwijderd."
+	},
+	"whatsNew": {
+		"TITLE": "Wat is er nieuw",
+		"BUTTON_LABEL": "Wat is er nieuw",
+		"BUTTON_LABEL_UNSEEN": "Wat is er nieuw (nieuwe updates)",
+		"DESCRIPTION": "De nieuwste updates van {appName}.",
+		"NEW": "Nieuw",
+		"LEARN_MORE": "Meer informatie",
+		"EMPTY_TITLE": "Je bent helemaal bij",
+		"EMPTY_DESCRIPTION": "Nieuwe functies en verbeteringen verschijnen hier.",
+		"ERROR": "De nieuwste updates konden niet worden geladen.",
+		"RETRY": "Opnieuw proberen",
+		"ABOUT_LINK": "Over {appName}"
 	}
 }
