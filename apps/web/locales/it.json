@@ -4834,6 +4834,7 @@
 		"RESET": "Ripristina",
 		"RESERVED": "Il browser tiene quella combinazione per sé.",
 		"SINGLE_KEY_ONLY": "Un tasto dell'elenco attività è un solo tasto, non una sequenza.",
+		"NO_MOD_KEY": "Un tasto dell'elenco attività non può usare ⌘ o Ctrl.",
 		"LIST_KEY": "L'elenco attività tiene ↑, ↓, Enter, O ed Esc per sé.",
 		"CONFLICT": "Già usato da {commands}.",
 		"SAVED": "Scorciatoia salvata.",

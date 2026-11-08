@@ -60,27 +60,39 @@ describe('shortcut bindings', () => {
 	});
 
 	it('keeps the default of a row key whose stored binding the list could not match', () => {
-		// Stored by another client or by hand: a sequence, or a key the list keeps for itself.
-		const bindings = effectiveBindings(SHORTCUT_COMMANDS, { taskStatus: 'g s', listUp: 'o', listSelect: 'shift+arrowdown', taskLabels: '' });
+		// Stored by another client or by hand: a sequence, ⌘/Ctrl, or a key the list keeps for itself.
+		const bindings = effectiveBindings(SHORTCUT_COMMANDS, {
+			taskStatus: 'g s',
+			listUp: 'o',
+			listSelect: 'shift+arrowdown',
+			taskPriority: 'mod+b',
+			taskLabels: ''
+		});
 		expect(formatBinding(bindings.get('taskStatus')!)).toBe('s');
 		expect(formatBinding(bindings.get('listUp')!)).toBe('k');
 		expect(formatBinding(bindings.get('listSelect')!)).toBe('x');
+		expect(formatBinding(bindings.get('taskPriority')!)).toBe('p');
 		// An empty override still removes the key.
 		expect(bindings.get('taskLabels')).toBeNull();
 		// Commands the registry's listener runs keep any binding that parses, sequences included.
 		expect(formatBinding(effectiveBindings(SHORTCUT_COMMANDS, { listSaveView: 'g s' }).get('listSaveView')!)).toBe('g s');
 	});
 
-	it('refuses a sequence for a row key, a key the list keeps, and a browser combination', () => {
+	it('refuses a sequence or ⌘/Ctrl for a row key, a key the list keeps, and a browser combination', () => {
 		const command = (id: string) => SHORTCUT_COMMANDS.find((item) => item.id === id)!;
 		for (const id of ['listDown', 'listUp', 'listSelect', 'taskStatus', 'taskPriority', 'taskLabels', 'taskDueDate']) {
 			expect(command(id).fixed).toBeFalsy();
 			expect(refusalOf(command(id), parseBinding('g j')!)).toBe('sequence');
+			// ⌘/Ctrl chords belong to the browser and the app's other listeners (the sidebar's Mod+B).
+			expect(refusalOf(command(id), parseBinding('mod+b')!)).toBe('modifier');
+			expect(refusalOf(command(id), parseBinding('mod+shift+j')!)).toBe('modifier');
 			expect(refusalOf(command(id), parseBinding('n')!)).toBeNull();
 			expect(refusalOf(command(id), parseBinding('alt+n')!)).toBeNull();
+			expect(refusalOf(command(id), parseBinding('shift+n')!)).toBeNull();
 		}
-		// The registry's own commands walk sequences.
+		// The registry's own commands walk sequences and take ⌘/Ctrl.
 		expect(refusalOf(command('listSaveView'), parseBinding('g s')!)).toBeNull();
+		expect(refusalOf(command('listSaveView'), parseBinding('mod+shift+s')!)).toBeNull();
 		expect(refusalOf(command('goTasks'), parseBinding('g x')!)).toBeNull();
 		// ↑ ↓ Enter O Esc, with Shift or not, stay the list's (as the first key; `g o` is fine).
 		expect(refusalOf(command('listDown'), parseBinding('o')!)).toBe('listKey');
@@ -154,7 +166,7 @@ describe('shortcut bindings', () => {
 		expect(isBrowserReserved(parseBinding('mod+s')!)).toBe(false);
 	});
 
-	it('finds conflicts between row keys, Shift on a row-moving key counting as that key', () => {
+	it('finds conflicts between row keys, Shift on a row key counting as that key', () => {
 		const bindings = effectiveBindings(SHORTCUT_COMMANDS, null);
 		const conflicts = (id: string, text: string) => conflictsOf(id, parseBinding(text)!, SHORTCUT_COMMANDS, bindings).map((command) => command.id);
 		expect(conflicts('listDown', 'k')).toEqual(['listUp']);
@@ -167,8 +179,14 @@ describe('shortcut bindings', () => {
 		// And the other way round: N for the next row would take Shift+N from whoever holds it.
 		const withShiftN = effectiveBindings(SHORTCUT_COMMANDS, { taskDueDate: 'shift+n' });
 		expect(conflictsOf('listDown', parseBinding('n')!, SHORTCUT_COMMANDS, withShiftN).map((command) => command.id)).toEqual(['taskDueDate']);
-		// Pickers do not extend: Shift+S stays free for another command.
-		expect(conflicts('listUp', 'shift+s')).toEqual([]);
+		// A picker's key with Shift opens the picker too, so Shift+S is the status key's as well.
+		expect(conflicts('listUp', 'shift+s')).toEqual(['taskStatus']);
+		// Status rebound to N: a "go to" on Shift+N would never run on a focused row, the list taking it first.
+		const statusOnN = effectiveBindings(SHORTCUT_COMMANDS, { taskStatus: 'n' });
+		expect(conflictsOf('goTasks', parseBinding('shift+n')!, SHORTCUT_COMMANDS, statusOnN).map((command) => command.id)).toEqual(['taskStatus']);
+		// Alt and Shift together: Shift+Alt+S is the status key's when it is Alt+S.
+		const statusOnAltS = effectiveBindings(SHORTCUT_COMMANDS, { taskStatus: 'alt+s' });
+		expect(conflictsOf('listUp', parseBinding('shift+alt+s')!, SHORTCUT_COMMANDS, statusOnAltS).map((command) => command.id)).toEqual(['taskStatus']);
 	});
 
 	it('keeps overrides minimal: a binding equal to the default is not stored', () => {

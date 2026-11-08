@@ -4834,6 +4834,7 @@
 		"RESET": "Restablecer",
 		"RESERVED": "El navegador reserva esa combinación.",
 		"SINGLE_KEY_ONLY": "Una tecla de la lista de tareas es una sola tecla, no una secuencia.",
+		"NO_MOD_KEY": "Una tecla de la lista de tareas no puede usar ⌘ ni Ctrl.",
 		"LIST_KEY": "La lista de tareas reserva ↑, ↓, Enter, O y Esc para sí.",
 		"CONFLICT": "Ya lo usa {commands}.",
 		"SAVED": "Atajo guardado.",

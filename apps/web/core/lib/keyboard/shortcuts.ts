@@ -20,8 +20,9 @@ export interface ShortcutCommand {
 	/** A command the person cannot rebind (the list's built-in keys, `C`). */
 	fixed?: boolean;
 	/**
-	 * A key the list matches itself on a focused row (`J`, `S`, …): one chord, never a sequence; with Shift added to a
-	 * binding that has none, the row commands extend the selection.
+	 * A key the list matches itself on a focused row (`J`, `S`, …): one chord without ⌘/Ctrl, never a sequence. The
+	 * list takes the chord with Shift added too (a binding without Shift): the row-moving commands extend the
+	 * selection with it, the pickers open as without it.
 	 */
 	chordOnly?: boolean;
 }
@@ -92,9 +93,6 @@ const LIST_BUILT_IN_KEYS: ReadonlyMap<string, string> = new Map([
 	['o', 'listOpen'],
 	['escape', 'listClear']
 ]);
-
-/** The row commands whose binding with Shift added extends the selection: that chord is theirs too. */
-const SHIFT_EXTENDS: ReadonlySet<string> = new Set(['listDown', 'listUp', 'listSelect']);
 
 /** The key `+` is written `plus` in a binding, since `+` separates the keys of a chord. */
 const PLUS_KEY_NAME = 'plus';
@@ -200,16 +198,18 @@ function isListBuiltInKey(chord: ShortcutChord): boolean {
 }
 
 /**
- * Why a binding cannot be given to a command, or null when it can: one the browser keeps (`reserved`), a sequence for
- * a key the list matches itself (`sequence`), or one starting with a key the list keeps for itself (`listKey`), which
- * would never reach the command while a row has the focus.
+ * Why a binding cannot be given to a command, or null when it can: one the browser keeps (`reserved`); for a key the
+ * list matches itself, a sequence (`sequence`) or ⌘/Ctrl (`modifier`: the browser's and the app's other listeners
+ * own those chords — copy, select all, the sidebar's `Mod+B` — and would run as well); or one starting with a key the
+ * list keeps for itself (`listKey`), which would never reach the command while a row has the focus.
  */
 export function refusalOf(
 	command: ShortcutCommand,
 	binding: ShortcutBinding
-): 'reserved' | 'sequence' | 'listKey' | null {
+): 'reserved' | 'sequence' | 'modifier' | 'listKey' | null {
 	if (isBrowserReserved(binding)) return 'reserved';
 	if (command.chordOnly && binding.length > 1) return 'sequence';
+	if (command.chordOnly && binding.some((chord) => chord.mod)) return 'modifier';
 	if (binding.length > 0 && isListBuiltInKey(binding[0])) return 'listKey';
 	return null;
 }
@@ -229,8 +229,8 @@ export function effectiveBindings(commands: readonly ShortcutCommand[], override
 			continue;
 		}
 		const parsed = parseBinding(override);
-		// A row key the list could not match (a sequence, a key it keeps), stored by another client or by hand, leaves
-		// the default in force.
+		// A row key the help would refuse (a sequence, ⌘/Ctrl, a key the list keeps), stored by another client or by
+		// hand, leaves the default in force.
 		const isUnusable = !parsed || (command.chordOnly === true && refusalOf(command, parsed) !== null);
 		result.set(command.id, isUnusable ? defaultBinding : parsed);
 	}
@@ -246,17 +246,17 @@ export function overlaps(first: ShortcutBinding, second: ShortcutBinding): boole
 	return true;
 }
 
-/** The bindings a command holds: its own, and with Shift added for a row command that extends the selection with it. */
-function heldBindingsOf(commandId: string, binding: ShortcutBinding): ShortcutBinding[] {
+/** The bindings a command holds: its own, and for a row key without Shift, the same chord with Shift (the list takes it). */
+function heldBindingsOf(command: ShortcutCommand, binding: ShortcutBinding): ShortcutBinding[] {
 	const [chord] = binding;
-	if (!SHIFT_EXTENDS.has(commandId) || binding.length !== 1 || chord.shift) return [binding];
+	if (!command.chordOnly || binding.length !== 1 || chord.shift) return [binding];
 	return [binding, [{ ...chord, shift: true }]];
 }
 
 /**
  * The commands whose binding would clash with the given one in the same (or the global) context, the list and a
- * focused task counting as one — the same keys, or one binding the start of the other, `Shift+J` counting as the
- * next row's key while it extends the selection — the command itself left out.
+ * focused task counting as one — the same keys, or one binding the start of the other, `Shift+J` counting as a row
+ * key bound to `J` — the command itself left out.
  */
 export function conflictsOf(
 	commandId: string,
@@ -276,16 +276,16 @@ export function conflictsOf(
 			command.context === 'global' ||
 			(OVERLAPPING_CONTEXTS.has(other.context) && OVERLAPPING_CONTEXTS.has(command.context));
 		if (!sharesContext) return false;
-		const theirs = heldBindingsOf(other.id, otherBinding);
-		return heldBindingsOf(commandId, binding).some((mine) => theirs.some((held) => overlaps(mine, held)));
+		const theirs = heldBindingsOf(other, otherBinding);
+		return heldBindingsOf(command, binding).some((mine) => theirs.some((held) => overlaps(mine, held)));
 	});
 }
 
 /**
  * The list command a key press on a focused row runs, or null: the built-in keys first (↑/↓, Enter/O, Esc), then the
  * bindings in force of the one-chord commands — the exact chord, then the chord without Shift, which extends
- * (`Shift+J` adds the next row to the selection, `Shift+X` selects a range). `extend` is whether Shift was pressed
- * beyond the binding.
+ * (`Shift+J` adds the next row to the selection, `Shift+X` selects a range; a picker opens as without it). `extend` is
+ * whether Shift was pressed beyond the binding. `conflictsOf` counts that Shift chord as the command's.
  */
 export function matchListKey(
 	chord: ShortcutChord,

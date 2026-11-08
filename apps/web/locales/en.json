@@ -4834,6 +4834,7 @@
 		"RESET": "Reset",
 		"RESERVED": "The browser keeps that combination for itself.",
 		"SINGLE_KEY_ONLY": "A task list key is one key, not a sequence.",
+		"NO_MOD_KEY": "A task list key cannot use ⌘ or Ctrl.",
 		"LIST_KEY": "The task list keeps ↑, ↓, Enter, O and Esc for itself.",
 		"CONFLICT": "Already used by {commands}.",
 		"SAVED": "Shortcut saved.",

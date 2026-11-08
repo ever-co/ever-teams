@@ -32,6 +32,7 @@ const RECORD_TIMEOUT_MS = 900;
 const REFUSAL_MESSAGES = {
 	reserved: 'shortcuts.RESERVED',
 	sequence: 'shortcuts.SINGLE_KEY_ONLY',
+	modifier: 'shortcuts.NO_MOD_KEY',
 	listKey: 'shortcuts.LIST_KEY'
 } as const satisfies Record<NonNullable<ReturnType<typeof refusalOf>>, DottedLanguageObjectStringPaths>;
 

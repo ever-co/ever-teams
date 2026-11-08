@@ -63,7 +63,10 @@ function changeButtonOf(commandId: string): HTMLButtonElement | null {
 	return buttons.find((button) => button.textContent === 'shortcuts.CHANGE') ?? null;
 }
 
-async function record(commandId: string, presses: Array<{ code: string; key: string; shiftKey?: boolean }>) {
+async function record(
+	commandId: string,
+	presses: Array<{ code: string; key: string; shiftKey?: boolean; ctrlKey?: boolean }>
+) {
 	fireEvent.click(changeButtonOf(commandId)!);
 	for (const press of presses) fireEvent.keyDown(window, press);
 	// A single chord is kept once the window for a second one has passed.
@@ -114,10 +117,12 @@ describe('ShortcutsDialog rebinding', () => {
 		expect(mockSetOverrides).not.toHaveBeenCalled();
 	});
 
-	it('refuses a key the list keeps for itself', async () => {
+	it('refuses a key the list keeps for itself, and ⌘/Ctrl for a list key', async () => {
 		render(<ShortcutsDialog />);
 		await record('listDown', [{ code: 'KeyO', key: 'o' }]);
-		expect(mockToast.error).toHaveBeenCalledWith('shortcuts.LIST_KEY');
+		await record('listDown', [{ code: 'KeyB', key: 'b', ctrlKey: true }]);
+		expect(mockToast.error).toHaveBeenNthCalledWith(1, 'shortcuts.LIST_KEY');
+		expect(mockToast.error).toHaveBeenNthCalledWith(2, 'shortcuts.NO_MOD_KEY');
 		expect(mockSetOverrides).not.toHaveBeenCalled();
 	});
 

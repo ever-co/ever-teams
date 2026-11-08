@@ -4834,6 +4834,7 @@
 		"RESET": "重置",
 		"RESERVED": "该组合键由浏览器保留。",
 		"SINGLE_KEY_ONLY": "任务列表的快捷键只能是一个按键，不能是按键序列。",
+		"NO_MOD_KEY": "任务列表的快捷键不能使用 ⌘ 或 Ctrl。",
 		"LIST_KEY": "任务列表保留 ↑、↓、Enter、O 和 Esc 键。",
 		"CONFLICT": "已被 {commands} 使用。",
 		"SAVED": "快捷键已保存。",

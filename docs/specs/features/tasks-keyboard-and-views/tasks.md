@@ -21,7 +21,8 @@
 
 - [x] **T8**. Rebindable list and task keys (J/K/X/S/P/L/D through the registry): the list matches the bindings in force on a
   focused row (one chord each, Shift on a bare binding extends), ↑/↓, Enter, O and Esc stay built in, the help refuses a
-  sequence or a built-in key for them, and the second key of a registry sequence (`G O`) is left to the registry
+  sequence, ⌘/Ctrl or a built-in key for them (with Shift added, still theirs in conflicts), and the second key of a
+  registry sequence (`G O`) is left to the registry
 - [ ] **T9**. Palette results for people, projects, pages and conversations; recent items; "Go to" sequences inside the palette input
 - [ ] **T10**. Project and due-date bulk actions; multi-select on the kanban; views for the kanban layout
 - [ ] **T11**. Manual ordering of a view (`PUT /task-views/:id/order`) with drag and drop

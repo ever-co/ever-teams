@@ -4834,6 +4834,7 @@
 		"RESET": "Zurücksetzen",
 		"RESERVED": "Diese Kombination behält der Browser für sich.",
 		"SINGLE_KEY_ONLY": "Eine Taste der Aufgabenliste ist eine einzelne Taste, keine Folge.",
+		"NO_MOD_KEY": "Eine Taste der Aufgabenliste kann ⌘ oder Ctrl nicht verwenden.",
 		"LIST_KEY": "Die Aufgabenliste behält ↑, ↓, Enter, O und Esc für sich.",
 		"CONFLICT": "Schon belegt durch {commands}.",
 		"SAVED": "Tastenkürzel gespeichert.",

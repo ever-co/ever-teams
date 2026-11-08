@@ -4834,6 +4834,7 @@
 		"RESET": "Przywróć",
 		"RESERVED": "Przeglądarka zachowuje tę kombinację dla siebie.",
 		"SINGLE_KEY_ONLY": "Klawisz listy zadań to jeden klawisz, nie sekwencja.",
+		"NO_MOD_KEY": "Klawisz listy zadań nie może używać ⌘ ani Ctrl.",
 		"LIST_KEY": "Lista zadań zachowuje ↑, ↓, Enter, O i Esc dla siebie.",
 		"CONFLICT": "Już używane przez {commands}.",
 		"SAVED": "Skrót zapisany.",

@@ -52,7 +52,8 @@ they are with the flag off.
   only commands with a registered handler, so the page's own keys are never shadowed; its listener is mounted
   only with the flag. Overrides are stored as `uiPreferences.keyboard.bindings` (an empty string removes a
   default). Phase 2 (T8): the list's letters (J/K/X, S/P/L/D) can be rebound; the list matches them itself on a
-  focused row (one chord each; Shift on a bare binding extends the selection), ↑/↓, Enter, O and Esc stay built in,
+  focused row (one chord each, no ⌘/Ctrl; Shift on a bare binding extends the selection or opens the picker, and
+  counts as the command's key in conflicts), ↑/↓, Enter, O and Esc stay built in,
   and while a registry sequence is under way the list leaves the next key to it. With the flag off the list keeps
   its default keys by the character typed, as before.
 - **Flag off**: no mount, no sidebar section, no routes' content, the selection bar as before.
