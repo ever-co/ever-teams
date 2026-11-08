@@ -161,6 +161,30 @@ async function saveSession(session: PageSession, options: { force?: boolean } = 
 }
 
 /**
+ * A reload's read of the page landed (the draft was dropped when it started). Text typed meanwhile builds on the version
+ * the person was shown: it saves on as usual when the page did not change, and waits as a conflict when it did.
+ */
+function settleReload(session: PageSession, clock: string): void {
+	const typed = session.draft;
+	if (typed && clock !== session.base) {
+		// Typed while the page was read again, and the page changed: that text builds on the version the person was
+		// shown, so it keeps its clock and waits for the person's decision instead of saving over the update.
+		clearSessionTimer(session);
+		updateView(session, { state: 'conflict' });
+		return;
+	}
+	session.base = clock;
+	if (typed) {
+		// The page did not change: the text typed meanwhile builds on it, and saves as any other.
+		updateView(session, { state: 'dirty', restoredHtml: null });
+		clearSessionTimer(session);
+		session.timer = setTimeout(() => void saveSession(session), DOCS_AUTOSAVE_DELAY_MS);
+		return;
+	}
+	updateView(session, { state: 'idle', restoredHtml: null });
+}
+
+/**
  * The last editor of a page left. Text not saved stays in the session (the editor that comes back opens with it); it
  * is saved now unless it waits for the person's decision (a conflict, a lock). A save already running takes it next.
  */
@@ -333,23 +357,7 @@ export function useDocsAutosave(page: IDocumentPage | null) {
 			queryFn: ({ signal }) => docsService.getPage(pageId, signal),
 			staleTime: 0
 		});
-		const typed = session.draft;
-		if (typed && fresh.updatedAt !== session.base) {
-			// Typed while the page was read again, and the page changed: that text builds on the version the person was
-			// shown, so it keeps its clock and waits for the person's decision instead of saving over the update.
-			clearSessionTimer(session);
-			updateView(session, { state: 'conflict' });
-			return;
-		}
-		session.base = fresh.updatedAt;
-		if (typed) {
-			// The page did not change: the text typed meanwhile builds on it, and saves as any other.
-			updateView(session, { state: 'dirty', restoredHtml: null });
-			clearSessionTimer(session);
-			session.timer = setTimeout(() => void saveSession(session), DOCS_AUTOSAVE_DELAY_MS);
-			return;
-		}
-		updateView(session, { state: 'idle', restoredHtml: null });
+		settleReload(session, fresh.updatedAt);
 	}, [current, pageId, queryClient, scope?.tenantId]);
 
 	/** Keeps the draft on top of the other version, which the platform captures first. */
