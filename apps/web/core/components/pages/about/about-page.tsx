@@ -16,6 +16,7 @@ import {
 	Layers,
 	Link as LinkIcon,
 	License,
+	Refresh,
 	Users
 } from '@/core/components/icons';
 import {
@@ -78,20 +79,22 @@ const API_LABELS = {
  * Whether the API answered its version, failed to, or has not said yet (loading, or paused while offline):
  * "not reachable" only once a request has actually failed.
  */
-function getApiState(hasVersion: boolean, hasFailed: boolean): ApiState {
-	if (hasVersion) {
-		return 'connected';
+function getApiState(hasSucceeded: boolean, hasFailed: boolean): ApiState {
+	// The failure first: after a failed refetch the query still holds the earlier answer.
+	if (hasFailed) {
+		return 'unreachable';
 	}
-	return hasFailed ? 'unreachable' : 'checking';
+	return hasSucceeded ? 'connected' : 'checking';
 }
 
 /** A build as one line: version and commit, each only when known (`v1.2.3 (abc1234)`, `v1.2.3`, `abc1234`). */
 function formatBuild(version?: string | null, commit?: string | null): string {
-	const parts = [version?.trim() ? `v${getVersionNumber(version)}` : '', commit?.trim() ? `(${commit.trim()})` : ''];
-	return parts
-		.filter(Boolean)
-		.join(' ')
-		.replace(/^((.*))$/, '$1');
+	const shownVersion = version?.trim() ? `v${getVersionNumber(version)}` : '';
+	const shownCommit = commit?.trim() ?? '';
+	if (shownVersion && shownCommit) {
+		return `${shownVersion} (${shownCommit})`;
+	}
+	return shownVersion || shownCommit;
 }
 
 /** The deployment name the operator gave (the Sentry environment), if any. */
@@ -250,10 +253,16 @@ export function AboutPage() {
 	const t = useTranslations();
 	const locale = useLocale();
 	const webBuild = getWebBuildInfo();
-	const { data: apiVersion, isError: apiFailed } = useAppVersionQuery();
+	const {
+		data: apiVersion,
+		isError: apiFailed,
+		isSuccess: apiAnswered,
+		isFetching: apiFetching,
+		refetch: refetchApiVersion
+	} = useAppVersionQuery();
 
 	const hasApiVersion = Boolean(apiVersion?.version?.trim() || apiVersion?.commit?.trim());
-	const apiState = getApiState(hasApiVersion, apiFailed);
+	const apiState = getApiState(apiAnswered, apiFailed);
 	const apiStatusLabel = t(API_LABELS[apiState]);
 
 	const buildKind = getBuildKind(process.env.NODE_ENV);
@@ -338,6 +347,18 @@ export function AboutPage() {
 							<span className="flex items-center gap-1.5 text-xs font-medium text-muted-foreground">
 								<StatusDot tone={API_TONES[apiState]} />
 								{apiStatusLabel}
+								{apiState === 'unreachable' && (
+									<button
+										type="button"
+										aria-label={t('whatsNew.RETRY')}
+										title={t('whatsNew.RETRY')}
+										disabled={apiFetching}
+										onClick={() => void refetchApiVersion()}
+										className="ml-1 flex size-6 items-center justify-center rounded-md hover:bg-foreground/[0.06] hover:text-foreground disabled:opacity-50"
+									>
+										<Refresh className="size-3.5" aria-hidden="true" />
+									</button>
+								)}
 							</span>
 						</header>
 						<ul className="hairline-t border-border">
