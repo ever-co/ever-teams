@@ -41,6 +41,8 @@
 		}
 	},
 	"common": {
+		"DEMO_BANNER_TEXT": "U gebruikt een demo-account. Vindt u onze software nuttig?",
+		"DEMO_BANNER_SIGN_UP": "Klik hier om u aan te melden en gratis aan de slag te gaan!",
 		"APPLICATION": "Applicatie",
 		"TIME_SPENT": "Tijd besteed",
 		"PERCENT_USED": "Percentage gebruikt",

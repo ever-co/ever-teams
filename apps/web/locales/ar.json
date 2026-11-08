@@ -1,6 +1,8 @@
 {
 	"TITLE": "{appName}",
 	"common": {
+		"DEMO_BANNER_TEXT": "أنت تستخدم حسابًا تجريبيًا. هل تجد برنامجنا مفيدًا؟",
+		"DEMO_BANNER_SIGN_UP": "انقر هنا للتسجيل والبدء في الاستخدام مجانًا!",
 		"APPLICATION": "تطبيق",
 		"TIME_SPENT": "الوقت المستغرق",
 		"PERCENT_USED": "النسبة المستخدمة",

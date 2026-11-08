@@ -41,6 +41,8 @@
 		}
 	},
 	"common": {
+		"DEMO_BANNER_TEXT": "Você está usando uma conta de demonstração. Achou nosso software útil?",
+		"DEMO_BANNER_SIGN_UP": "Clique aqui para se cadastrar e começar a usar gratuitamente!",
 		"APPLICATION": "Aplicação",
 		"TIME_SPENT": "Tempo gasto",
 		"PERCENT_USED": "Percentagem utilizada",
