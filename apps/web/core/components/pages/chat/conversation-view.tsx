@@ -18,6 +18,7 @@ import { cn } from '@/core/lib/helpers';
 import { continuesGroup, conversationTitle } from '@/core/lib/utils/chat-format';
 import { tasksByTeamState } from '@/core/stores/teams/team-tasks';
 import { EChatConversationKind, EChatNotifyLevel, EChatVisibility, IChatConversationWithState, IChatMessage } from '@/core/types/interfaces/common/chat';
+import { CreateTaskFromMessageDialog } from './create-task-dialog';
 import { MessageComposer } from './message-composer';
 import { MessageItem } from './message-item';
 
@@ -46,6 +47,7 @@ export function ConversationView({ conversation, conversationNames, canManage, o
 	const { draft, setDraft, clearDraft } = useChatDraft(conversation.id);
 	const [editing, setEditing] = useState<IChatMessage | null>(null);
 	const [editValue, setEditValue] = useState('');
+	const [taskFrom, setTaskFrom] = useState<IChatMessage | null>(null);
 	const list = useRef<HTMLDivElement | null>(null);
 	const stickToBottom = useRef(true);
 	// Whether the reader is at the newest message: only then does viewing read the conversation.
@@ -158,7 +160,8 @@ export function ConversationView({ conversation, conversationNames, canManage, o
 				const url = `${window.location.origin}/chat/${conversation.id}?m=${message.id}`;
 				navigator.clipboard?.writeText(url).then(() => toast(t('teamChat.LINK_COPIED'))).catch(() => undefined);
 			},
-			onOpenTask: (taskId: string) => openTaskDrawer(taskId)
+			onOpenTask: (taskId: string) => openTaskDrawer(taskId),
+			onCreateTask: (message: IChatMessage) => setTaskFrom(message)
 		}),
 		[actions, conversation.id, onOpenThread, openTaskDrawer, reportFailure, t]
 	);
@@ -255,6 +258,7 @@ export function ConversationView({ conversation, conversationNames, canManage, o
 					<MessageComposer value={draft} onChange={setDraft} onSubmit={send} people={people.list} placeholder={t('teamChat.COMPOSER_PLACEHOLDER', { name: title.replace(/^#/, '') })} />
 				)}
 			</div>
+			{taskFrom && <CreateTaskFromMessageDialog key={taskFrom.id} message={taskFrom} onClose={() => setTaskFrom(null)} />}
 		</div>
 	);
 }

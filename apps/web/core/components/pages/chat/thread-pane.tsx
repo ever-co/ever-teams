@@ -15,6 +15,7 @@ import { useTaskDrawer } from '@/core/hooks/tasks/use-task-drawer';
 import { continuesGroup } from '@/core/lib/utils/chat-format';
 import { tasksByTeamState } from '@/core/stores/teams/team-tasks';
 import { IChatMessage } from '@/core/types/interfaces/common/chat';
+import { CreateTaskFromMessageDialog } from './create-task-dialog';
 import { MessageComposer } from './message-composer';
 import { MessageItem } from './message-item';
 
@@ -48,6 +49,7 @@ export function ThreadPane({
 	const [alsoToConversation, setAlsoToConversation] = useState(false);
 	const [editing, setEditing] = useState<IChatMessage | null>(null);
 	const [editValue, setEditValue] = useState('');
+	const [taskFrom, setTaskFrom] = useState<IChatMessage | null>(null);
 	const list = useRef<HTMLDivElement | null>(null);
 	const highlighted = useRef<string | null>(null);
 	const reportFailure = useCallback(() => toast.error(t('teamChat.UPDATE_FAILED')), [t]);
@@ -100,7 +102,8 @@ export function ThreadPane({
 			onCopyLink: (message: IChatMessage) => {
 				navigator.clipboard?.writeText(`${window.location.origin}/chat/${conversationId}?thread=${rootMessageId}&m=${message.id}`).then(() => toast(t('teamChat.LINK_COPIED'))).catch(() => undefined);
 			},
-			onOpenTask: (taskId: string) => openTaskDrawer(taskId)
+			onOpenTask: (taskId: string) => openTaskDrawer(taskId),
+			onCreateTask: (message: IChatMessage) => setTaskFrom(message)
 		}),
 		[actions, conversationId, openTaskDrawer, reportFailure, rootMessageId, t]
 	);
@@ -146,6 +149,7 @@ export function ThreadPane({
 			<div className="shrink-0 px-3 pb-3 pt-1">
 				<MessageComposer value={draft} onChange={setDraft} onSubmit={send} people={people.list} placeholder={t('teamChat.REPLY_PLACEHOLDER')} alsoToConversation={{ checked: alsoToConversation, onChange: setAlsoToConversation }} />
 			</div>
+			{taskFrom && <CreateTaskFromMessageDialog key={taskFrom.id} message={taskFrom} onClose={() => setTaskFrom(null)} />}
 		</div>
 	);
 }
