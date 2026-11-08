@@ -304,6 +304,57 @@ describe('useDocsAutosave, leaving a page', () => {
 		expect(mockUpdateContent.mock.calls[1][1]).toMatchObject({ expectedUpdatedAt: T3 });
 	});
 
+	it('text typed while the page is read again keeps its clock and waits as a conflict, never saved over the update', async () => {
+		const { wrapper } = setup();
+		const page = pageOf('page-reload-typing');
+		mockUpdateContent.mockRejectedValueOnce({ statusCode: 409 });
+
+		const view = renderHook(() => useDocsAutosave(page), { wrapper });
+		act(() => view.result.current.change('<p>mine</p>', null));
+		await act(async () => {
+			await view.result.current.flushNow();
+		});
+		expect(view.result.current.state).toBe('conflict');
+
+		const fresh = deferred<IDocumentPage>();
+		mockGetPage.mockReturnValueOnce(fresh.promise);
+		let reloading: Promise<void> = Promise.resolve();
+		act(() => {
+			reloading = view.result.current.reload();
+		});
+		act(() => view.result.current.change('<p>typed meanwhile</p>', null));
+		await act(async () => {
+			fresh.resolve({ ...page, updatedAt: T5, version: 9 });
+			await reloading;
+		});
+		expect(view.result.current.state).toBe('conflict');
+		expect(view.result.current.hasDraft()).toBe(true);
+
+		mockUpdateContent.mockRejectedValueOnce({ statusCode: 409 });
+		await act(async () => {
+			await view.result.current.flushNow();
+		});
+		expect(mockUpdateContent.mock.calls[1][1]).toMatchObject({ contentHtml: '<p>typed meanwhile</p>', expectedUpdatedAt: page.updatedAt });
+	});
+
+	it('closing the tab warns while any page of the tab holds unsaved text, not only the page on screen', async () => {
+		const { wrapper } = setup();
+		const page = pageOf('page-unload');
+		mockUpdateContent.mockRejectedValueOnce(new Error('offline'));
+
+		const first = renderHook(() => useDocsAutosave(page), { wrapper });
+		act(() => first.result.current.change('<p>mine</p>', null));
+		first.unmount();
+		await waitFor(() => expect(mockUpdateContent).toHaveBeenCalledTimes(1));
+		await act(async () => {});
+
+		const other = renderHook(() => useDocsAutosave(pageOf('page-unload-other')), { wrapper });
+		const leaving = new Event('beforeunload', { cancelable: true });
+		window.dispatchEvent(leaving);
+		expect(leaving.defaultPrevented).toBe(true);
+		other.unmount();
+	});
+
 	it('still keeps a draft waiting for a decision (a conflict) without saving it', async () => {
 		const { wrapper } = setup();
 		const page = pageOf('page-conflict');

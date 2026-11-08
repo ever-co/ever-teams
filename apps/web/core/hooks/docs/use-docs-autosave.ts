@@ -178,6 +178,26 @@ function leaveSession(session: PageSession): void {
 	void saveSession(session);
 }
 
+let unloadGuarded = false;
+
+/**
+ * Leaving the tab with unsaved text warns, like any editor: for every page of this tab, not only the one on screen (a
+ * page left with a departure save that failed, or still running, keeps its draft in its session). One listener for
+ * the tab, added by the first editor and kept: it only reads the sessions.
+ */
+function guardUnload(): void {
+	if (unloadGuarded || typeof window === 'undefined') return;
+	unloadGuarded = true;
+	window.addEventListener('beforeunload', (event) => {
+		for (const session of sessions.values()) {
+			if (session.draft || session.saving) {
+				event.preventDefault();
+				return;
+			}
+		}
+	});
+}
+
 /** What the editor is given of a page: its text and its JSON (checked for what the editor cannot carry). */
 export interface EditorPageContent {
 	html: string;
@@ -312,6 +332,13 @@ export function useDocsAutosave(page: IDocumentPage | null) {
 			queryFn: ({ signal }) => docsService.getPage(pageId, signal),
 			staleTime: 0
 		});
+		if (session.draft) {
+			// Typed while the page was read again: that text builds on the version the person was shown, not on the one
+			// just read, so it keeps its clock and waits for the person's decision instead of saving over the update.
+			clearSessionTimer(session);
+			updateView(session, { state: 'conflict' });
+			return;
+		}
 		session.base = fresh.updatedAt;
 		updateView(session, { state: 'idle', restoredHtml: null });
 	}, [current, pageId, queryClient, scope?.tenantId]);
@@ -346,16 +373,7 @@ export function useDocsAutosave(page: IDocumentPage | null) {
 
 	const hasDraft = useCallback(() => Boolean(current()?.draft), [current]);
 
-	// Leaving with unsaved text warns, like any editor.
-	useEffect(() => {
-		const warn = (event: BeforeUnloadEvent) => {
-			const session = current();
-			if (!session?.draft && !session?.saving) return;
-			event.preventDefault();
-		};
-		window.addEventListener('beforeunload', warn);
-		return () => window.removeEventListener('beforeunload', warn);
-	}, [current]);
+	useEffect(guardUnload, []);
 
 	return { state: view.state, change, flushNow, reload, keepMine, discard, restoredHtml: view.restoredHtml, hasDraft };
 }
