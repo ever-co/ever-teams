@@ -39,10 +39,20 @@ export function noteLocalWrite(pageId: string, from: string | null | undefined, 
 }
 
 /**
- * Drafts the person has not decided on (a conflict, a lock) when they leave the page inside the app: kept for when
- * they come back, so leaving never throws their text away.
+ * Drafts the person has not decided on (a conflict, a lock) when they leave the page inside the app, and drafts whose
+ * departure save has not landed yet: kept for when they come back, so leaving never throws their text away.
  */
 const retainedDrafts = new Map<string, { draft: Draft; state: DocsSaveState }>();
+
+/**
+ * A save of a draft kept on departure settled: the kept copy goes once the draft is saved, and carries the refusal
+ * otherwise (the person sees why when they come back). A copy already taken back, or replaced by a newer draft, is left.
+ */
+function settleRetained(pageId: string, draft: Draft, failure: DocsSaveState | null): void {
+	if (retainedDrafts.get(pageId)?.draft !== draft) return;
+	if (failure) retainedDrafts.set(pageId, { draft, state: failure });
+	else retainedDrafts.delete(pageId);
+}
 
 function byteLengthOf(text: string): number {
 	return typeof TextEncoder === 'undefined' ? text.length * 2 : new TextEncoder().encode(text).length;
@@ -148,6 +158,7 @@ export function useDocsAutosave(page: IDocumentPage | null) {
 				return false;
 			}
 			if (byteLengthOf(draft.html) > DOCS_CONTENT_MAX_BYTES) {
+				settleRetained(pageId, draft, 'too-large');
 				setState('too-large');
 				return false;
 			}
@@ -162,13 +173,16 @@ export function useDocsAutosave(page: IDocumentPage | null) {
 					mentionEmployeeIds: draft.mentionEmployeeIds
 				});
 				applySaved(saved, draft);
+				settleRetained(pageId, draft, null);
 				if (draftRef.current === draft) {
 					draftRef.current = null;
 					setState('saved');
 				}
 				return true;
 			} catch (error) {
-				setState(saveStateFromError(error));
+				const failure = saveStateFromError(error);
+				settleRetained(pageId, draft, failure);
+				setState(failure);
 				return false;
 			} finally {
 				inFlightRef.current = false;
@@ -246,16 +260,18 @@ export function useDocsAutosave(page: IDocumentPage | null) {
 	}, []);
 
 	// A page left in the app (another page, the tree) still saves what was typed; a draft waiting for the person's
-	// decision (a conflict, a lock) is kept for when they come back.
+	// decision (a conflict, a lock) is kept for when they come back. The draft being saved is kept too, before its save
+	// starts, until that save lands: a save that fails, or one queued behind a save already running, never loses it.
 	useEffect(
 		() => () => {
 			const draft = draftRef.current;
-			if (!draft) return;
+			if (!draft || !pageId) return;
 			const current = stateRef.current;
 			if (current === 'conflict' || current === 'locked') {
-				if (pageId) retainedDrafts.set(pageId, { draft, state: current });
+				retainedDrafts.set(pageId, { draft, state: current });
 				return;
 			}
+			retainedDrafts.set(pageId, { draft, state: current === 'error' || current === 'too-large' ? current : 'dirty' });
 			void flush();
 		},
 		[flush, pageId]

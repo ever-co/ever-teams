@@ -1,13 +1,15 @@
 'use client';
 
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { QueryClient, QueryKey, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useAtomValue } from 'jotai';
 import { realtimeStatusAtom } from '@/core/stores/common/realtime';
 import { queryKeys } from '@/core/query/keys';
 import { chatService } from '@/core/services/client/api/chat';
 import { IChatMessage, IChatMessagePage, IChatThreadPage } from '@/core/types/interfaces/common/chat';
 import { mergeMessages } from '@/core/lib/utils/chat-format';
+import { REALTIME_EVENT_NAMES, type RealtimeEnvelope } from '@/core/lib/realtime/events';
+import { useRealtimeEvent } from '@/core/hooks/realtime/use-realtime-event';
 import { useChatScope } from './use-chat-scope';
 
 /** Without the live channel the open conversation asks for newer messages on this cadence. */
@@ -37,6 +39,36 @@ export function isLocalMessage(message: IChatMessage): boolean {
 
 function newestIdOf(messages: readonly IChatMessage[]): string | null {
 	return messages.length ? messages[messages.length - 1].id : null;
+}
+
+/** The live events that change a message a timeline may already hold: an edit (a reaction, a pin) and a deletion. */
+const MESSAGE_CHANGE_EVENTS: readonly string[] = [REALTIME_EVENT_NAMES.CHAT_MESSAGE_UPDATED, REALTIME_EVENT_NAMES.CHAT_MESSAGE_DELETED];
+
+/** A string member of a live event's data, when it is one. */
+function eventIdOf(data: RealtimeEnvelope['data'], key: string): string | null {
+	const value = (data as Record<string, unknown> | null | undefined)?.[key];
+	return typeof value === 'string' && value ? value : null;
+}
+
+/**
+ * Reads again one message a timeline holds and puts the platform's copy in its place. The refetch a live event triggers
+ * reads only the newest page, which an older message is not on: without this, an edit or a deletion of a message
+ * further up the timeline would stay unseen. Answers whether the message was replaced.
+ */
+export async function refreshHeldMessage(queryClient: QueryClient, queryKey: QueryKey, conversationId: string, messageId: string): Promise<boolean> {
+	const held = queryClient.getQueryData<ChatMessagesCache>(queryKey);
+	if (!held?.messages.some((message) => message.id === messageId)) return false;
+	const page = await chatService.messages(conversationId, { around: messageId });
+	const fresh = page.messages.find((message) => message.id === messageId);
+	if (!fresh) return false;
+	let replaced = false;
+	queryClient.setQueryData<ChatMessagesCache>(queryKey, (current) => {
+		// Only a message still held is replaced: a timeline that moved on (a jump, a reload) is left as it is.
+		if (!current?.messages.some((message) => message.id === messageId)) return current;
+		replaced = true;
+		return { ...current, messages: mergeMessages(current.messages, [fresh]) };
+	});
+	return replaced;
 }
 
 /** Reads forward from a message: every newer one, a page at a time, up to the catch-up budget. */
@@ -156,6 +188,16 @@ export function useChatMessages(conversationId: string | null, enabled: boolean)
 		const timer = window.setInterval(() => void tick(), NEWER_POLL_MS);
 		return () => window.clearInterval(timer);
 	}, [conversationId, enabled, hasData, queryClient, tenantId]);
+
+	// An edit or a deletion of a message this timeline holds: the refetch the event triggers reads only the newest page,
+	// so the message itself is read again (an older one is not on that page).
+	useRealtimeEvent(MESSAGE_CHANGE_EVENTS, (envelope) => {
+		const messageId = eventIdOf(envelope.data, 'messageId');
+		if (!enabled || !conversationId || !messageId || eventIdOf(envelope.data, 'conversationId') !== conversationId) return;
+		refreshHeldMessage(queryClient, queryKey, conversationId, messageId).catch(() => {
+			// The message may be gone or unreadable now: the next refetch or a reload shows what it is.
+		});
+	});
 
 	const loadOlder = useCallback(async () => {
 		const current = queryClient.getQueryData<ChatMessagesCache>(queryKey);

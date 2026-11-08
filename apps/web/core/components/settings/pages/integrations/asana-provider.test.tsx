@@ -196,14 +196,17 @@ describe('AsanaProviderSection', () => {
 
 	it('add form: a section status that is no status of the project or the organization blocks saving and is named', () => {
 		mockStatusOptions.mockReturnValue({ ...STATUSES, options: [{ name: 'open' }] });
-		render(<AsanaProviderSection asana={connected()} />);
+		const asana = connected();
+		const { rerender } = render(<AsanaProviderSection asana={asana} />);
 		const form = screen.getByTestId('asana-add-mapping');
 		pickIn(form, 'ap-2');
 		pickIn(form, 'p1');
 		pickIn(within(form).getByTestId('asana-section-s-todo'), 'open');
 		expect((screen.getByTestId('asana-add-mapping-save') as HTMLButtonElement).disabled).toBe(false);
-		// The person's earlier choice no longer names a status (the project's statuses changed).
+		// The person's earlier choice no longer names a status (the project's statuses changed: a new answer of their
+		// read, which renders the section selects with the new ones).
 		mockStatusOptions.mockReturnValue({ ...STATUSES, options: [{ name: 'completed' }] });
+		rerender(<AsanaProviderSection asana={asana} />);
 		pickIn(within(form).getByTestId('asana-section-s-doing'), 'completed');
 		expect((within(form).getByRole('alert')).textContent ?? '').toContain('SECTION_MAP_INVALID {"values":"open"}');
 		expect((screen.getByTestId('asana-add-mapping-save') as HTMLButtonElement).disabled).toBe(true);

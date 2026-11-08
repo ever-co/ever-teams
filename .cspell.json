@@ -980,7 +980,13 @@
 		"nonce",
 		"ghcup",
 		"arrowright",
-		"Rebindable"
+		"Rebindable",
+		"lightbox",
+		"nopush",
+		"nvmrc",
+		"replayable",
+		"typeless",
+		"unstarted"
 	],
 	"useGitignore": true,
 	"ignorePaths": [
