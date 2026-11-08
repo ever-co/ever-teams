@@ -309,10 +309,8 @@ describe('useDocsAutosave, leaving a page', () => {
 
 		const fresh = deferred<IDocumentPage>();
 		mockGetPage.mockReturnValueOnce(fresh.promise);
-		let reloading: Promise<void> | undefined;
-		act(() => {
-			reloading = view.result.current.reload();
-		});
+		// Nothing renders before the read lands: the reload starts outside act.
+		const reloading = view.result.current.reload();
 		act(() => view.result.current.change('<p>typed meanwhile</p>', null));
 		await act(async () => {
 			fresh.resolve({ ...page, updatedAt: T5, version: 9 });
@@ -339,10 +337,8 @@ describe('useDocsAutosave, leaving a page', () => {
 
 		const fresh = deferred<IDocumentPage>();
 		mockGetPage.mockReturnValueOnce(fresh.promise);
-		let reloading: Promise<void> | undefined;
-		act(() => {
-			reloading = view.result.current.reload();
-		});
+		// Nothing renders before the read lands: the reload starts outside act.
+		const reloading = view.result.current.reload();
 		act(() => view.result.current.change('<p>typed meanwhile</p>', null));
 		await act(async () => {
 			fresh.resolve(page);
