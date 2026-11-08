@@ -6,21 +6,26 @@ import { queryKeys } from '@/core/query/keys';
 import { chatService } from '@/core/services/client/api/chat';
 import {
 	EChatMessageKind,
+	EChatTaskReferenceKind,
 	IChatConversationList,
 	IChatMessage,
 	IChatMessageCreateInput,
 	IChatMemberStateInput,
 	IChatConversationCreateInput,
 	IChatConversationWithState,
+	IChatCreateTaskInput,
 	IChatThreadPage
 } from '@/core/types/interfaces/common/chat';
 import { mentionedEmployeeIds, mergeMessages, newNonce } from '@/core/lib/utils/chat-format';
+import { createdTaskIdOf, withTaskReference } from '@/core/lib/utils/chat-task';
 import type { ChatMessagesCache } from './use-chat-messages';
 import { useChatScope } from './use-chat-scope';
 
 /** A message the sender sees before the platform answers (`pending`), or one it refused (`failed`). */
 export interface ChatOutboxMessage extends IChatMessage {
 	outbox: 'pending' | 'failed';
+	/** The task sent with the message ("Send to chat"), kept so a retry sends the card again. */
+	outboxTaskId?: string | null;
 }
 
 export function isOutboxMessage(message: IChatMessage): message is ChatOutboxMessage {
@@ -107,6 +112,9 @@ export function useChatActions() {
 				alsoInConversation: !!input.alsoInConversation,
 				replyCount: 0,
 				attachmentIds: input.attachmentIds ?? null,
+				// A task sent with the message shows as its card at once, and stays with a failed message for the retry.
+				taskReferences: input.taskId ? [{ messageId: `pending:${nonce}`, taskId: input.taskId, kind: EChatTaskReferenceKind.Sent }] : undefined,
+				outboxTaskId: input.taskId ?? null,
 				nonce,
 				createdAt: now,
 				outbox: 'pending'
@@ -153,7 +161,8 @@ export function useChatActions() {
 				replyToId: failed.replyToId ?? undefined,
 				threadRootId: failed.threadRootId ?? undefined,
 				alsoInConversation: failed.alsoInConversation,
-				attachmentIds: failed.attachmentIds ?? undefined
+				attachmentIds: failed.attachmentIds ?? undefined,
+				taskId: failed.outboxTaskId ?? undefined
 			}),
 		[send]
 	);
@@ -195,6 +204,21 @@ export function useChatActions() {
 			patchEverywhere(message, () => answer.message);
 		},
 		[patchEverywhere]
+	);
+
+	/** A task from a message: the message shows its card at once, and the task lists read again (the task is new). */
+	const createTask = useCallback(
+		async (message: IChatMessage, input: IChatCreateTaskInput) => {
+			const answer = await chatService.createTask(message.id, input).catch((error: unknown) => {
+				// Created but not linked: the task exists, so the lists read again (the caller offers to open it).
+				if (createdTaskIdOf(error)) void queryClient.invalidateQueries({ queryKey: queryKeys.tasks.all });
+				throw error;
+			});
+			patchEverywhere(message, (current) => withTaskReference(current, answer.reference));
+			void queryClient.invalidateQueries({ queryKey: queryKeys.tasks.all });
+			return answer.task;
+		},
+		[patchEverywhere, queryClient]
 	);
 
 	const react = useCallback(
@@ -319,7 +343,7 @@ export function useChatActions() {
 
 	// One object while the callbacks stay the same: the effects that depend on it do not run on every render.
 	return useMemo(
-		() => ({ send, retry, discardFailed, edit, remove, pin, react, read, unreadFrom, readAll, setFollow, setMemberState, createChannel, direct, join, leave }),
-		[send, retry, discardFailed, edit, remove, pin, react, read, unreadFrom, readAll, setFollow, setMemberState, createChannel, direct, join, leave]
+		() => ({ send, retry, discardFailed, edit, remove, pin, createTask, react, read, unreadFrom, readAll, setFollow, setMemberState, createChannel, direct, join, leave }),
+		[send, retry, discardFailed, edit, remove, pin, createTask, react, read, unreadFrom, readAll, setFollow, setMemberState, createChannel, direct, join, leave]
 	);
 }
