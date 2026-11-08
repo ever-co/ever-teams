@@ -22,7 +22,7 @@ export const REALTIME_EVENT_NAMES = {
 	CHAT_MESSAGE_UPDATED: 'chat_message.updated',
 	CHAT_MESSAGE_DELETED: 'chat_message.deleted',
 	CHAT_CONVERSATION_CHANGED: 'chat_conversation.changed',
-	CHAT_MEMBER_STATE_CHANGED: 'chat_member_state.changed',
+	CHAT_MEMBER_STATE_CHANGED: 'chat_member.state_changed',
 	CHAT_THREAD_CHANGED: 'chat_thread.changed',
 	INBOX_ITEM_CREATED: 'inbox_item.created',
 	INBOX_ITEM_STATE_CHANGED: 'inbox_item.state_changed'
@@ -41,7 +41,7 @@ export const REALTIME_DEFAULT_SELECTION: readonly string[] = [
 	'typing.*',
 	'chat_message.*',
 	'chat_conversation.*',
-	'chat_member_state.*',
+	'chat_member.*',
 	'chat_thread.*',
 	'inbox_item.*'
 ];

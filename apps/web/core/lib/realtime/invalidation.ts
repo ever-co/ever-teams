@@ -82,7 +82,7 @@ export function invalidationsFor(envelope: RealtimeEnvelope, scope: RealtimeScop
 			return [{ queryKey: queryKeys.organizationTeams.all, deferrable: false }];
 		case 'chat_message':
 		case 'chat_conversation':
-		case 'chat_member_state':
+		case 'chat_member':
 		case 'chat_thread':
 			return chatInvalidationsOf(family, envelope.data, scope);
 		default:
