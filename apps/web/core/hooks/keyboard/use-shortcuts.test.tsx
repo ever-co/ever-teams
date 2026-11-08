@@ -68,4 +68,29 @@ describe('the shortcut listener', () => {
 		expect(goOverdue).toHaveBeenCalledTimes(1);
 		unmount();
 	});
+
+	it('drops a sequence under way when the bindings in force change between the keys', () => {
+		const goOverdue = jest.fn();
+		const { rerender, unmount } = render(<Registry handlers={{ goOverdue }} />);
+		// Disabled from another device between `G` and `O`: the list has `O` again at once.
+		fireEvent.keyDown(window, { code: 'KeyG', key: 'g' });
+		mockBindings = effectiveBindings(SHORTCUT_COMMANDS, { goOverdue: '' });
+		rerender(<Registry handlers={{ goOverdue }} />);
+		expect(isShortcutSequencePending()).toBe(false);
+		fireEvent.keyDown(window, { code: 'KeyO', key: 'o' });
+		expect(goOverdue).not.toHaveBeenCalled();
+		// Rebound between the keys: the new binding works from its first key.
+		mockBindings = effectiveBindings(SHORTCUT_COMMANDS, null);
+		rerender(<Registry handlers={{ goOverdue }} />);
+		fireEvent.keyDown(window, { code: 'KeyG', key: 'g' });
+		mockBindings = effectiveBindings(SHORTCUT_COMMANDS, { goOverdue: 'g x' });
+		rerender(<Registry handlers={{ goOverdue }} />);
+		expect(isShortcutSequencePending()).toBe(false);
+		fireEvent.keyDown(window, { code: 'KeyX', key: 'x' });
+		expect(goOverdue).not.toHaveBeenCalled();
+		fireEvent.keyDown(window, { code: 'KeyG', key: 'g' });
+		fireEvent.keyDown(window, { code: 'KeyX', key: 'x' });
+		expect(goOverdue).toHaveBeenCalledTimes(1);
+		unmount();
+	});
 });

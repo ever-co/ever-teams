@@ -55,7 +55,9 @@ they are with the flag off.
   focused row (one chord each, no ⌘/Ctrl; Shift on a bare binding extends the selection or opens the picker, and
   counts as the command's key in conflicts), ↑/↓, Enter, O and Esc stay built in,
   and while a registry sequence is under way the list leaves the next key to it. With the flag off the list keeps
-  its default keys by the character typed, as before.
+  its default keys by the character typed, as before. A stored override the help would refuse, or one that clashes with another binding in
+  force, falls back to its default (clashes settled in registry order, swaps kept), so the bindings in force never
+  clash; a sequence under way is dropped when the runnable bindings change.
 - **Flag off**: no mount, no sidebar section, no routes' content, the selection bar as before.
 
 ## 5. Tests

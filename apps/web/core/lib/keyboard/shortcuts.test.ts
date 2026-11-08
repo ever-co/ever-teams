@@ -76,10 +76,45 @@ describe('shortcut bindings', () => {
 		expect(bindings.get('taskLabels')).toBeNull();
 		// Commands the registry's listener runs take sequences; a key the list keeps or a browser combination is refused
 		// for them too (a "go to" on Esc would run as the focused row clears its selection).
-		const registry = effectiveBindings(SHORTCUT_COMMANDS, { listSaveView: 'g s', goTasks: 'escape', helpOpen: 'mod+w' });
+		const registry = effectiveBindings(SHORTCUT_COMMANDS, {
+			listSaveView: 'g s',
+			goTasks: 'escape',
+			helpOpen: 'mod+w',
+			// A browser chord anywhere in a sequence: it could never be finished.
+			goMine: 'mod+w m',
+			goViews: 'g mod+t'
+		});
 		expect(formatBinding(registry.get('listSaveView')!)).toBe('g s');
 		expect(formatBinding(registry.get('goTasks')!)).toBe('g t');
 		expect(formatBinding(registry.get('helpOpen')!)).toBe('?');
+		expect(formatBinding(registry.get('goMine')!)).toBe('g m');
+		expect(formatBinding(registry.get('goViews')!)).toBe('g v');
+	});
+
+	it('settles stored bindings that clash: in registry order, the first override in conflict goes back to its default', () => {
+		const resolved = (overrides: Record<string, string>) => {
+			const bindings = effectiveBindings(SHORTCUT_COMMANDS, overrides);
+			return Object.fromEntries(Object.keys(overrides).map((id) => [id, formatBinding(bindings.get(id) ?? [])]));
+		};
+		// `N` for the next row would take the first key of `N T`: the "go to" (earlier in the registry) goes back.
+		expect(resolved({ listDown: 'n', goTasks: 'n t' })).toEqual({ listDown: 'n', goTasks: 'g t' });
+		// Two commands on one key: the earlier goes back, the later keeps it.
+		expect(resolved({ listDown: 'u', listUp: 'u' })).toEqual({ listDown: 'j', listUp: 'u' });
+		// An override on a default still in force goes back: Status on Shift+X would take the range selection.
+		expect(resolved({ taskStatus: 'shift+x' })).toEqual({ taskStatus: 's' });
+		// A default left in force by a refused override counts too: Previous on J while Next cannot leave J.
+		expect(resolved({ listDown: 'mod+b', listUp: 'j' })).toEqual({ listDown: 'j', listUp: 'k' });
+		// Settled until none clashes: `g w` sends Tasks back to `g t`, which then sends Mine (on `g t`) back too.
+		expect(resolved({ goMine: 'g t', goTasks: 'g w' })).toEqual({ goMine: 'g m', goTasks: 'g t' });
+		// A swap clashes with nothing and stays.
+		expect(resolved({ listDown: 'k', listUp: 'j' })).toEqual({ listDown: 'k', listUp: 'j' });
+		expect(resolved({ goTasks: 'g m', goMine: 'g t' })).toEqual({ goTasks: 'g m', goMine: 'g t' });
+		// And whatever is stored, the bindings in force never clash.
+		const messy = effectiveBindings(SHORTCUT_COMMANDS, { listDown: 'g', goTasks: 'x', taskStatus: 'k', listUp: 's', goDocs: 'd' });
+		for (const command of SHORTCUT_COMMANDS) {
+			const binding = messy.get(command.id);
+			if (binding) expect(conflictsOf(command.id, binding, SHORTCUT_COMMANDS, messy)).toEqual([]);
+		}
 	});
 
 	it('refuses a sequence or ⌘/Ctrl for a row key, a key the list keeps, and a browser combination', () => {
@@ -132,15 +167,17 @@ describe('shortcut bindings', () => {
 		expect(match(press('KeyG', 'g'))).toBeNull();
 
 		// Rebound: the new keys work, the old ones no longer do, the built-in ones stay.
-		const rebound = effectiveBindings(SHORTCUT_COMMANDS, { listDown: 'n', taskStatus: 'alt+s', taskDueDate: 'shift+j' });
+		const rebound = effectiveBindings(SHORTCUT_COMMANDS, { listDown: 'n', taskStatus: 'alt+s' });
 		expect(match(press('KeyN', 'n'), rebound)).toEqual({ commandId: 'listDown', extend: false });
 		expect(match(press('KeyN', 'N', { shiftKey: true }), rebound)).toEqual({ commandId: 'listDown', extend: true });
 		expect(match(press('KeyJ', 'j'), rebound)).toBeNull();
 		expect(match(press('ArrowDown', 'ArrowDown'), rebound)?.commandId).toBe('listDown');
 		expect(match(press('KeyS', 's', { altKey: true }), rebound)?.commandId).toBe('taskStatus');
 		expect(match(press('KeyS', 's'), rebound)).toBeNull();
-		// The exact chord comes before the one without Shift.
-		expect(match(press('KeyJ', 'J', { shiftKey: true }), rebound)).toEqual({ commandId: 'taskDueDate', extend: false });
+		// The exact chord comes before the one without Shift (a map the help could not produce: J and Shift+J both held).
+		const both = new Map(defaults).set('taskDueDate', parseBinding('shift+j'));
+		expect(match(press('KeyJ', 'J', { shiftKey: true }), both)).toEqual({ commandId: 'taskDueDate', extend: false });
+		expect(match(press('KeyJ', 'j'), both)).toEqual({ commandId: 'listDown', extend: false });
 		// A physical key: `N` on a non-Latin layout.
 		expect(match(press('KeyN', 'т'), rebound)?.commandId).toBe('listDown');
 	});
@@ -168,6 +205,11 @@ describe('shortcut bindings', () => {
 		expect(overlaps(parseBinding('g t')!, parseBinding('g m')!)).toBe(false);
 		expect(isBrowserReserved(parseBinding('mod+w')!)).toBe(true);
 		expect(isBrowserReserved(parseBinding('mod+s')!)).toBe(false);
+		// A sequence with a browser chord anywhere could never be finished.
+		expect(isBrowserReserved(parseBinding('mod+w t')!)).toBe(true);
+		expect(isBrowserReserved(parseBinding('g mod+t')!)).toBe(true);
+		expect(isBrowserReserved(parseBinding('g t')!)).toBe(false);
+		expect(refusalOf(SHORTCUT_COMMANDS.find((item) => item.id === 'goTasks')!, parseBinding('mod+w t')!)).toBe('reserved');
 	});
 
 	it('finds conflicts between row keys, Shift on a row key counting as that key', () => {

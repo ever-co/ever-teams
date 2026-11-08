@@ -1,10 +1,11 @@
 'use client';
 
-import { useCallback, useEffect, useRef } from 'react';
+import { useCallback, useEffect, useMemo, useRef } from 'react';
 import { useAtomValue, useSetAtom } from 'jotai';
 import {
 	chordOfEvent,
 	DIALOG_SAFE_COMMANDS,
+	formatBinding,
 	isDialogOpen,
 	isTypingTarget,
 	matchSequence,
@@ -134,10 +135,21 @@ export function useShortcutListener(): void {
 			if (pending.current.length) clearPending();
 		};
 		window.addEventListener('keydown', onKeyDown);
-		// The pending chords outlive a new listener (the user's data refreshed between `G` and `O`); its timer still
-		// lapses them.
+		// The pending chords outlive a new listener whose bindings are the same (the user's data refreshed between `G`
+		// and `O`); their timer still lapses them.
 		return () => window.removeEventListener('keydown', onKeyDown);
 	}, [bindings, clearPending, contexts, handlers]);
 
-	useEffect(() => clearPending, [clearPending]);
+	// What a sequence under way can match: the runnable commands with their bindings, and the active contexts. When it
+	// changes (a command disabled or rebound between `G` and `O`), or on unmount, the pending chords are dropped, so the
+	// list has its keys again at once.
+	const matchableKey = useMemo(
+		() =>
+			SHORTCUT_COMMANDS.filter((command) => handlers.has(command.id))
+				.map((command) => `${command.id}=${formatBinding(bindings.get(command.id) ?? [])}`)
+				.concat(`@${[...contexts].sort((first, second) => first.localeCompare(second)).join(',')}`)
+				.join('|'),
+		[bindings, contexts, handlers]
+	);
+	useEffect(() => clearPending, [clearPending, matchableKey]);
 }

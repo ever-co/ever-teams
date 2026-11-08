@@ -187,9 +187,9 @@ export function sameChord(first: ShortcutChord, second: ShortcutChord): boolean 
 	return first.key === second.key && first.mod === second.mod && first.shift === second.shift && first.alt === second.alt;
 }
 
-/** Whether a binding is one the browser keeps (`mod+w`, `mod+t`, …). */
+/** Whether a binding has a chord the browser keeps (`mod+w`, or `mod+w t`: the sequence could never be finished). */
 export function isBrowserReserved(binding: ShortcutBinding): boolean {
-	return binding.length === 1 && BROWSER_RESERVED.has(formatBinding(binding));
+	return binding.some((chord) => BROWSER_RESERVED.has(formatBinding([chord])));
 }
 
 /** Whether a chord is one of the keys the list keeps on a focused row (↑, ↓, Enter, O, Esc; Shift or not). */
@@ -214,9 +214,18 @@ export function refusalOf(
 	return null;
 }
 
-/** The bindings in force: the defaults with the person's overrides on top (an empty override removes the default). */
+/**
+ * The bindings in force: the defaults with the person's overrides on top (an empty override removes the default).
+ * Overrides the help would not have saved — stored by another client or by hand — leave the default in force: one it
+ * refuses (a browser combination, a key the list keeps, a sequence or ⌘/Ctrl for a row key: a "go to" on Esc would
+ * run as the focused row clears its selection), and one that clashes with another binding in force (`n` for the next
+ * row and `n t` for a "go to": `N` would move the row before the sequence could start). Clashes are settled in
+ * registry order: the first override found in conflict goes back to its default, then the check runs again, until
+ * none clashes; a swap (J and K exchanged) clashes with nothing and stays.
+ */
 export function effectiveBindings(commands: readonly ShortcutCommand[], overrides: Record<string, string> | null | undefined): Map<string, ShortcutBinding | null> {
 	const result = new Map<string, ShortcutBinding | null>();
+	const overridden: ShortcutCommand[] = [];
 	for (const command of commands) {
 		const override = overrides?.[command.id];
 		const defaultBinding = parseBinding(command.defaultBinding);
@@ -229,11 +238,25 @@ export function effectiveBindings(commands: readonly ShortcutCommand[], override
 			continue;
 		}
 		const parsed = parseBinding(override);
-		// A binding the help would refuse (a browser combination, a key the list keeps, a sequence or ⌘/Ctrl for a row
-		// key), stored by another client or by hand, leaves the default in force: a "go to" on Esc would otherwise run
-		// as the focused row clears its selection.
-		const isUnusable = !parsed || refusalOf(command, parsed) !== null;
-		result.set(command.id, isUnusable ? defaultBinding : parsed);
+		if (!parsed || refusalOf(command, parsed) !== null) {
+			result.set(command.id, defaultBinding);
+			continue;
+		}
+		result.set(command.id, parsed);
+		overridden.push(command);
+	}
+	const reverted = new Set<string>();
+	let isSettled = false;
+	while (!isSettled) {
+		isSettled = true;
+		for (const command of overridden) {
+			if (reverted.has(command.id)) continue;
+			if (!conflictsOf(command.id, result.get(command.id) as ShortcutBinding, commands, result).length) continue;
+			result.set(command.id, parseBinding(command.defaultBinding));
+			reverted.add(command.id);
+			isSettled = false;
+			break;
+		}
 	}
 	return result;
 }
