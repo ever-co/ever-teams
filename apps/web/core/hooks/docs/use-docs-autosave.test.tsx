@@ -6,7 +6,9 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { act, renderHook, waitFor } from '@testing-library/react';
 import type { IDocumentNode, IDocumentPage } from '@/core/types/interfaces/common/docs';
 
-const mockUpdateContent = jest.fn();
+// A save no test answers stays pending: an editor left mounted by one test (cleanup unmounts it, which saves) never
+// takes an answer meant for the next test.
+const mockUpdateContent = jest.fn((..._args: unknown[]) => new Promise<IDocumentPage>(() => undefined));
 const mockGetPage = jest.fn();
 
 jest.mock('@/core/services/client/api/docs', () => ({
@@ -324,6 +326,36 @@ describe('useDocsAutosave, leaving a page', () => {
 			await view.result.current.flushNow();
 		});
 		expect(mockUpdateContent.mock.calls[1][1]).toMatchObject({ contentHtml: '<p>typed meanwhile</p>', expectedUpdatedAt: page.updatedAt });
+	});
+
+	it('text typed while the page is read again saves on as usual when the page did not change', async () => {
+		const { wrapper } = setup();
+		const page = pageOf('page-reload-unchanged');
+		mockUpdateContent.mockRejectedValueOnce(new Error('offline'));
+
+		const view = renderHook(() => useDocsAutosave(page), { wrapper });
+		await typeAndSaveNow(view, '<p>mine</p>');
+		expect(view.result.current.state).toBe('error');
+
+		const fresh = deferred<IDocumentPage>();
+		mockGetPage.mockReturnValueOnce(fresh.promise);
+		let reloading: Promise<void> | undefined;
+		act(() => {
+			reloading = view.result.current.reload();
+		});
+		act(() => view.result.current.change('<p>typed meanwhile</p>', null));
+		await act(async () => {
+			fresh.resolve(page);
+			await reloading;
+		});
+		expect(view.result.current.state).toBe('dirty');
+
+		mockUpdateContent.mockResolvedValueOnce({ ...page, updatedAt: T1, version: 2 });
+		await act(async () => {
+			await view.result.current.flushNow();
+		});
+		expect(mockUpdateContent.mock.calls[1][1]).toMatchObject({ contentHtml: '<p>typed meanwhile</p>', expectedUpdatedAt: page.updatedAt });
+		expect(view.result.current.state).toBe('saved');
 	});
 
 	it('closing the tab warns while any page of the tab holds unsaved text, not only the page on screen', async () => {

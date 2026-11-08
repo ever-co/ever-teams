@@ -124,21 +124,22 @@ async function saveSession(session: PageSession, options: { force?: boolean } = 
 	}
 	session.saving = true;
 	updateView(session, { state: 'saving' });
-	let saved: IDocumentPage | null = null;
-	let failure: DocsSaveState | null = null;
+	let outcome: { saved: IDocumentPage } | { failure: DocsSaveState };
 	try {
-		saved = await docsService.updateContent(session.pageId, {
+		const saved = await docsService.updateContent(session.pageId, {
 			contentJson: draft.json ?? EMPTY_DOC,
 			contentHtml: draft.html,
 			expectedUpdatedAt: session.base,
 			forceSnapshot: options.force,
 			mentionEmployeeIds: draft.mentionEmployeeIds
 		});
+		outcome = { saved };
 	} catch (error) {
-		failure = saveStateFromError(error);
+		outcome = { failure: saveStateFromError(error) };
 	}
 	session.saving = false;
-	if (saved) {
+	if ('saved' in outcome) {
+		const { saved } = outcome;
 		session.base = saved.updatedAt;
 		const latest = session.draft === draft;
 		session.applySaved?.(saved, draft, latest);
@@ -150,13 +151,13 @@ async function saveSession(session: PageSession, options: { force?: boolean } = 
 			updateView(session, { state: 'dirty' });
 		}
 	} else {
-		updateView(session, { state: failure ?? 'error' });
+		updateView(session, { state: outcome.failure });
 	}
 	const queued = session.queued;
 	session.queued = null;
 	if (queued) session.timer = setTimeout(() => void saveSession(session, queued), 0);
 	else releaseIfDone(session);
-	return saved !== null;
+	return 'saved' in outcome;
 }
 
 /**
@@ -332,14 +333,22 @@ export function useDocsAutosave(page: IDocumentPage | null) {
 			queryFn: ({ signal }) => docsService.getPage(pageId, signal),
 			staleTime: 0
 		});
-		if (session.draft) {
-			// Typed while the page was read again: that text builds on the version the person was shown, not on the one
-			// just read, so it keeps its clock and waits for the person's decision instead of saving over the update.
+		const typed = session.draft;
+		if (typed && fresh.updatedAt !== session.base) {
+			// Typed while the page was read again, and the page changed: that text builds on the version the person was
+			// shown, so it keeps its clock and waits for the person's decision instead of saving over the update.
 			clearSessionTimer(session);
 			updateView(session, { state: 'conflict' });
 			return;
 		}
 		session.base = fresh.updatedAt;
+		if (typed) {
+			// The page did not change: the text typed meanwhile builds on it, and saves as any other.
+			updateView(session, { state: 'dirty', restoredHtml: null });
+			clearSessionTimer(session);
+			session.timer = setTimeout(() => void saveSession(session), DOCS_AUTOSAVE_DELAY_MS);
+			return;
+		}
 		updateView(session, { state: 'idle', restoredHtml: null });
 	}, [current, pageId, queryClient, scope?.tenantId]);
 
