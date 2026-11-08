@@ -18,12 +18,27 @@ const CHANGELOG_STALE_MS = 60 * 60 * 1000;
 /** The last-seen date when the browser storage cannot be used (private mode, storage off): kept for the tab's life. */
 let seenAtInMemory: string | null = null;
 
-function readSeenAt(): string | null {
-	try {
-		return window.localStorage.getItem(WHATS_NEW_SEEN_STORAGE_KEY) ?? seenAtInMemory;
-	} catch {
-		return seenAtInMemory;
+/** The later of two ISO dates; null when neither is a date. */
+function laterDate(a: string | null, b: string | null): string | null {
+	const time = (value: string | null) => (value ? new Date(value).getTime() : Number.NaN);
+	if (Number.isNaN(time(a))) {
+		return Number.isNaN(time(b)) ? null : b;
 	}
+	return Number.isNaN(time(b)) || time(a) >= time(b) ? a : b;
+}
+
+/**
+ * The newest date the user has seen: the later of the stored one and the one kept in memory, so a full storage
+ * that still reads an older date cannot hold the dot on.
+ */
+function readSeenAt(): string | null {
+	let stored: string | null = null;
+	try {
+		stored = window.localStorage.getItem(WHATS_NEW_SEEN_STORAGE_KEY);
+	} catch {
+		// Storage off: the in-memory date only.
+	}
+	return laterDate(stored, seenAtInMemory);
 }
 
 function writeSeenAt(value: string): void {
@@ -73,7 +88,8 @@ export function useWhatsNew() {
 
 	const markSeen = useCallback(() => {
 		const newest = newestEntryDate(query.data ?? []);
-		if (newest && newest !== readSeenAt()) {
+		// Only ever forward: a tab holding an older list must not bring back marks another tab cleared.
+		if (newest && laterDate(newest, readSeenAt()) === newest && newest !== readSeenAt()) {
 			writeSeenAt(newest);
 		}
 	}, [query.data]);

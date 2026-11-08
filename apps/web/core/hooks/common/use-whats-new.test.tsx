@@ -88,4 +88,31 @@ describe('useWhatsNew', () => {
 		expect(result.current.hasUnseen).toBe(false);
 		setItem.mockRestore();
 	});
+
+	it('clears the dot when the storage reads an older date but refuses the write', async () => {
+		window.localStorage.setItem(WHATS_NEW_SEEN_STORAGE_KEY, '2026-01-01T00:00:00.000Z');
+		const setItem = jest.spyOn(Storage.prototype, 'setItem').mockImplementation(() => {
+			throw new Error('QuotaExceededError');
+		});
+		mockGetEntries.mockResolvedValue([entry('new', '2026-12-02T00:00:00.000Z')]);
+		const { result } = renderHook(() => useWhatsNew(), { wrapper });
+
+		await waitFor(() => expect(result.current.entries).toHaveLength(1));
+		expect(result.current.hasUnseen).toBe(true);
+		act(() => result.current.markSeen());
+
+		expect(result.current.hasUnseen).toBe(false);
+		setItem.mockRestore();
+	});
+
+	it('never moves the seen date backwards (a tab with an older list)', async () => {
+		window.localStorage.setItem(WHATS_NEW_SEEN_STORAGE_KEY, '2027-01-01T00:00:00.000Z');
+		mockGetEntries.mockResolvedValue([entry('old', '2026-11-08T00:00:00.000Z')]);
+		const { result } = renderHook(() => useWhatsNew(), { wrapper });
+
+		await waitFor(() => expect(result.current.entries).toHaveLength(1));
+		act(() => result.current.markSeen());
+
+		expect(window.localStorage.getItem(WHATS_NEW_SEEN_STORAGE_KEY)).toBe('2027-01-01T00:00:00.000Z');
+	});
 });

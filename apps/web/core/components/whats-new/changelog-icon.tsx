@@ -31,9 +31,10 @@ import type { IconComponent } from '@/core/components/icons/hugeicons';
 
 /**
  * The changelog names its icons the Eva way (`message-circle-outline`), as Gauzy's What's New draws them. This maps
- * those names onto this app's icons; anything else gets the megaphone.
+ * those names onto this app's icons; anything else gets the megaphone. The map has no prototype, so a name such as
+ * `__proto__` or `constructor` from the API cannot reach an inherited member.
  */
-const CHANGELOG_ICONS: Record<string, IconComponent> = {
+const CHANGELOG_ICONS: Readonly<Record<string, IconComponent>> = Object.assign(Object.create(null), {
 	'bar-chart': Chart,
 	'pie-chart': Chart,
 	activity: Chart,
@@ -71,7 +72,7 @@ const CHANGELOG_ICONS: Record<string, IconComponent> = {
 	'settings-2': Settings,
 	shield: ShieldCheck,
 	star: Star
-};
+});
 
 /** A changelog icon name as the map keys it: trimmed, lowercased, `-outline` / `-fill` suffix dropped. */
 function toIconKey(name: string | null | undefined): string {

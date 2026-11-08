@@ -107,5 +107,8 @@ describe('getChangelogIcon', () => {
 		expect(getChangelogIcon('people-fill')).toBe(getChangelogIcon('people-outline'));
 		expect(getChangelogIcon('unknown-thing')).toBe(getChangelogIcon(undefined));
 		expect(getChangelogIcon('gift-outline')).not.toBe(getChangelogIcon(undefined));
+		for (const name of ['__proto__', 'constructor', 'toString', 'hasOwnProperty']) {
+			expect(getChangelogIcon(name)).toBe(getChangelogIcon(undefined));
+		}
 	});
 });
