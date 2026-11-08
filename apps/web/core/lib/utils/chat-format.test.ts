@@ -98,6 +98,25 @@ describe('messages', () => {
 		expect(merged.map((m) => m.id)).toEqual(['a', 'b', 'c']);
 	});
 
+	it('never lets an older copy replace a newer one: a deletion is final, an edit is not undone', () => {
+		const at = '2026-01-01T10:01:00Z';
+		const original = { ...message('a', at), body: 'first' };
+		const edited = { ...original, body: 'second', editedAt: '2026-01-01T10:05:00Z' };
+		const editedAgain = { ...original, body: 'third', editedAt: '2026-01-01T10:06:00Z' };
+		const deleted = { ...original, body: '', editedAt: null, deletedAt: '2026-01-01T10:07:00Z' };
+		const reacted = { ...edited, reactions: [{ emoji: '👍', count: 1, mine: false }] } as IChatMessage;
+		const bodyOf = (held: IChatMessage, incoming: IChatMessage) => mergeMessages([held], [incoming])[0];
+
+		expect(bodyOf(deleted, edited).deletedAt).toBe('2026-01-01T10:07:00Z');
+		expect(bodyOf(edited, deleted).deletedAt).toBe('2026-01-01T10:07:00Z');
+		expect(bodyOf(edited, original).body).toBe('second');
+		expect(bodyOf(editedAgain, edited).body).toBe('third');
+		expect(bodyOf(edited, editedAgain).body).toBe('third');
+		expect(bodyOf(original, edited).body).toBe('second');
+		// A reaction or a pin keeps the edit time: its copy lands.
+		expect(bodyOf(edited, reacted).reactions).toHaveLength(1);
+	});
+
 	it('keys a draft by conversation and thread', () => {
 		expect(draftKeyOf('c1')).toBe('chat-draft:c1');
 		expect(draftKeyOf('c1', 'm1')).toBe('chat-draft:c1:m1');

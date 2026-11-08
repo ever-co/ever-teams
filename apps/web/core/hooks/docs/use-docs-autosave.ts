@@ -40,40 +40,61 @@ export function noteLocalWrite(pageId: string, from: string | null | undefined, 
 
 /**
  * Drafts the person has not decided on (a conflict, a lock) when they leave the page inside the app, and drafts whose
- * departure save has not landed yet: kept for when they come back, so leaving never throws their text away.
+ * departure save has not landed yet: kept for when they come back, so leaving never throws their text away. `base` is
+ * the clock the draft was written against: a draft taken back states it again, so an update someone else made in the
+ * meantime meets it as a conflict instead of being overwritten.
  */
-const retainedDrafts = new Map<string, { draft: Draft; state: DocsSaveState }>();
+const retainedDrafts = new Map<string, { draft: Draft; state: DocsSaveState; base: string | null }>();
 
-/**
- * A save of a draft kept on departure settled: the kept copy goes once the draft is saved, and carries the refusal
- * otherwise (the person sees why when they come back). A copy already taken back, or replaced by a newer draft, is left.
- */
-function settleRetained(pageId: string, draft: Draft, failure: DocsSaveState | null): void {
-	if (retainedDrafts.get(pageId)?.draft !== draft) return;
-	if (failure) retainedDrafts.set(pageId, { draft, state: failure });
-	else retainedDrafts.delete(pageId);
+/** How a save of a page's content ended: the clock it stated, the one it got (a success) or why it was refused. */
+interface SaveOutcome {
+	draft: Draft;
+	from: string;
+	to: string | null;
+	failure: DocsSaveState | null;
 }
 
-/** Drafts handed to a departure save (their editor left the page). */
-const departingDrafts = new WeakSet<Draft>();
 /**
- * Departing drafts whose save landed. An editor that took one back while its save ran holds it at the clock the page
- * was left at: when the page's clock moves by that save (a local write), the editor follows it and drops the draft as
- * saved, instead of staying dirty and meeting its own write as a conflict on the next save.
+ * Pages whose content is being saved in this tab, by any editor (one left behind while its departure save runs
+ * included): another save of the same page waits for it, so the same text is never sent twice and no save meets this
+ * tab's own write as a conflict.
  */
-const savedDepartures = new WeakSet<Draft>();
+const savingPages = new Set<string>();
+/** The editors of each page in this tab: every save outcome of the page reaches them all. */
+const saveListeners = new Map<string, Set<(outcome: SaveOutcome) => void>>();
 
 /**
- * The page text the editor is given. The editor replaces its content whenever this value changes, so a refreshed page
- * (another person's save, a live event) reaches it only while nothing typed here is unsaved: with a draft open the
- * person's text stays on screen, and the draft's save then meets the other version as a conflict. Another page is
- * never held.
+ * A save of a page settled: the kept copy of its draft goes once saved, or carries the refusal (the person sees why
+ * when they come back); a newer kept draft follows this tab's own write; and every editor of the page hears it.
  */
-export function useEditorPageHtml(pageId: string | null, pageHtml: string, hasDraft: boolean): string {
-	const [held, setHeld] = useState({ pageId, html: pageHtml });
+function settleSave(pageId: string, outcome: SaveOutcome): void {
+	const kept = retainedDrafts.get(pageId);
+	if (kept?.draft === outcome.draft) {
+		if (outcome.failure) retainedDrafts.set(pageId, { ...kept, state: outcome.failure });
+		else retainedDrafts.delete(pageId);
+	} else if (kept && outcome.to && kept.base === outcome.from) {
+		retainedDrafts.set(pageId, { ...kept, base: outcome.to });
+	}
+	for (const listener of [...(saveListeners.get(pageId) ?? [])]) listener(outcome);
+}
+
+/** What the editor is given of a page: its text and its JSON (checked for what the editor cannot carry). */
+export interface EditorPageContent {
+	html: string;
+	json: IDocumentNode | null;
+}
+
+/**
+ * The page content the editor is given. The editor replaces its text whenever this changes, and a JSON it cannot carry
+ * turns the page read-only (dropping the draft), so a refreshed page (another person's save, a live event) reaches it
+ * only while nothing typed here is unsaved: with a draft open the person's text stays on screen, and the draft's save
+ * then meets the other version as a conflict. Another page is never held.
+ */
+export function useEditorPageContent(pageId: string | null, html: string, json: IDocumentNode | null, hasDraft: boolean): EditorPageContent {
+	const [held, setHeld] = useState({ pageId, html, json });
 	const holding = hasDraft && held.pageId === pageId;
-	if (!holding && (held.pageId !== pageId || held.html !== pageHtml)) setHeld({ pageId, html: pageHtml });
-	return holding ? held.html : pageHtml;
+	if (!holding && (held.pageId !== pageId || held.html !== html || held.json !== json)) setHeld({ pageId, html, json });
+	return holding ? { html: held.html, json: held.json } : { html, json };
 }
 
 function byteLengthOf(text: string): number {
@@ -108,6 +129,9 @@ export function useDocsAutosave(page: IDocumentPage | null) {
 	const pendingRef = useRef(false);
 	const stateRef = useRef<DocsSaveState>('idle');
 	stateRef.current = state;
+	/** The page this editor shows now (an outcome of a page it left only moves on what it still has to save). */
+	const pageIdRef = useRef(pageId);
+	pageIdRef.current = pageId;
 	const flushRef = useRef<(options?: { force?: boolean }) => Promise<boolean>>(async () => true);
 	/** A draft kept from an earlier visit: the editor opens with it rather than the platform's text. */
 	const [restoredHtml, setRestoredHtml] = useState<string | null>(null);
@@ -126,11 +150,17 @@ export function useDocsAutosave(page: IDocumentPage | null) {
 		if (pageId && retained) {
 			retainedDrafts.delete(pageId);
 			draftRef.current = retained.draft;
+			if (retained.base) expectedRef.current = retained.base;
 			setRestoredHtml(retained.draft.html);
-			setState(retained.state);
+			// Its departure save may still be running: this editor hears how it ends (and saves nothing meanwhile). The state
+			// is read at once by the clock effect below, which must not replace the kept clock with the page's.
+			const restored = retained.state === 'dirty' && savingPages.has(pageId) ? 'saving' : retained.state;
+			stateRef.current = restored;
+			setState(restored);
 		} else {
 			draftRef.current = null;
 			setRestoredHtml(null);
+			stateRef.current = 'idle';
 			setState('idle');
 		}
 		return clearTimer;
@@ -145,11 +175,6 @@ export function useDocsAutosave(page: IDocumentPage | null) {
 			localWrites.delete(pageId);
 			if (expectedRef.current === own.from) {
 				expectedRef.current = own.to;
-				// The draft taken back on return was saved by the departure save that moved the clock: nothing is left.
-				if (draftRef.current && savedDepartures.has(draftRef.current)) {
-					draftRef.current = null;
-					setState('saved');
-				}
 				return;
 			}
 		}
@@ -180,50 +205,49 @@ export function useDocsAutosave(page: IDocumentPage | null) {
 			clearTimer();
 			const draft = draftRef.current;
 			if (!draft || !pageId || !expectedRef.current) return true;
-			if (inFlightRef.current) {
+			// One save of a page at a time in this tab (an editor left behind may still be saving it): this one waits.
+			if (inFlightRef.current || savingPages.has(pageId)) {
 				pendingRef.current = true;
 				return false;
 			}
+			const from = expectedRef.current;
 			if (byteLengthOf(draft.html) > DOCS_CONTENT_MAX_BYTES) {
-				settleRetained(pageId, draft, 'too-large');
 				setState('too-large');
+				settleSave(pageId, { draft, from, to: null, failure: 'too-large' });
 				return false;
 			}
 			inFlightRef.current = true;
+			savingPages.add(pageId);
 			setState('saving');
-			const expected = expectedRef.current;
+			let outcome: SaveOutcome;
 			try {
 				const saved = await docsService.updateContent(pageId, {
 					contentJson: draft.json ?? EMPTY_DOC,
 					contentHtml: draft.html,
-					expectedUpdatedAt: expected,
+					expectedUpdatedAt: from,
 					forceSnapshot: options.force,
 					mentionEmployeeIds: draft.mentionEmployeeIds
 				});
-				if (departingDrafts.has(draft)) {
-					// An editor that came back while this save ran follows its clock (before the cache announces it).
-					savedDepartures.add(draft);
-					noteLocalWrite(pageId, expected, saved.updatedAt);
-				}
 				applySaved(saved, draft);
-				settleRetained(pageId, draft, null);
 				if (draftRef.current === draft) {
 					draftRef.current = null;
+					setRestoredHtml(null);
 					setState('saved');
 				}
-				return true;
+				outcome = { draft, from, to: saved.updatedAt, failure: null };
 			} catch (error) {
 				const failure = saveStateFromError(error);
-				settleRetained(pageId, draft, failure);
 				setState(failure);
-				return false;
-			} finally {
-				inFlightRef.current = false;
-				if (pendingRef.current) {
-					pendingRef.current = false;
-					timerRef.current = setTimeout(() => void flushRef.current(), 0);
-				}
+				outcome = { draft, from, to: null, failure };
 			}
+			inFlightRef.current = false;
+			savingPages.delete(pageId);
+			settleSave(pageId, outcome);
+			if (pendingRef.current) {
+				pendingRef.current = false;
+				timerRef.current = setTimeout(() => void flushRef.current(), 0);
+			}
+			return outcome.failure === null;
 		},
 		[applySaved, clearTimer, pageId]
 	);
@@ -300,16 +324,55 @@ export function useDocsAutosave(page: IDocumentPage | null) {
 			const draft = draftRef.current;
 			if (!draft || !pageId) return;
 			const current = stateRef.current;
+			const base = expectedRef.current;
 			if (current === 'conflict' || current === 'locked') {
-				retainedDrafts.set(pageId, { draft, state: current });
+				retainedDrafts.set(pageId, { draft, state: current, base });
 				return;
 			}
-			retainedDrafts.set(pageId, { draft, state: current === 'error' || current === 'too-large' ? current : 'dirty' });
-			departingDrafts.add(draft);
+			retainedDrafts.set(pageId, { draft, state: current === 'error' || current === 'too-large' ? current : 'dirty', base });
 			void flush();
 		},
 		[flush, pageId]
 	);
+
+	// Every save outcome of this page in this tab, this editor's own and one left behind (a departure save that runs on
+	// after the person came back): this tab's write moves the clock this editor states, the draft it holds is settled
+	// when that is the draft saved or refused, and a save that waited its turn goes now. Declared after the departure
+	// save, so an editor that leaves with a save to make keeps listening until that work is done.
+	useEffect(() => {
+		if (!pageId) return;
+		let left = false;
+		const listeners = saveListeners.get(pageId) ?? new Set<(outcome: SaveOutcome) => void>();
+		saveListeners.set(pageId, listeners);
+		const stop = () => {
+			listeners.delete(listener);
+			if (!listeners.size) saveListeners.delete(pageId);
+		};
+		function listener(outcome: SaveOutcome) {
+			const current = pageIdRef.current === pageId;
+			if (current && outcome.to && expectedRef.current === outcome.from) expectedRef.current = outcome.to;
+			if (current && draftRef.current === outcome.draft) {
+				if (outcome.failure) {
+					setState(outcome.failure);
+				} else {
+					draftRef.current = null;
+					setRestoredHtml(null);
+					setState('saved');
+				}
+			}
+			if (pendingRef.current && !inFlightRef.current && !savingPages.has(pageId as string)) {
+				pendingRef.current = false;
+				timerRef.current = setTimeout(() => void flushRef.current(), 0);
+			} else if (left && !pendingRef.current && !inFlightRef.current) {
+				stop();
+			}
+		}
+		listeners.add(listener);
+		return () => {
+			left = true;
+			if (!pendingRef.current && !inFlightRef.current) stop();
+		};
+	}, [pageId]);
 
 	return { state, change, flushNow, reload, keepMine, discard, restoredHtml, hasDraft: () => draftRef.current !== null };
 }

@@ -4,7 +4,7 @@
 import React from 'react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { act, renderHook, waitFor } from '@testing-library/react';
-import type { IDocumentPage } from '@/core/types/interfaces/common/docs';
+import type { IDocumentNode, IDocumentPage } from '@/core/types/interfaces/common/docs';
 
 const mockUpdateContent = jest.fn();
 
@@ -22,7 +22,12 @@ jest.mock('./use-docs-scope', () => ({
 	useDocsScope: () => ({ tenantId: 'ten', organizationId: 'org', userId: 'usr', employeeId: null })
 }));
 
-import { useDocsAutosave, useEditorPageHtml } from './use-docs-autosave';
+import { useDocsAutosave, useEditorPageContent } from './use-docs-autosave';
+
+const T1 = '2026-01-01T00:01:00.000Z';
+const T2 = '2026-01-01T00:02:00.000Z';
+const T3 = '2026-01-01T00:03:00.000Z';
+const T5 = '2026-01-01T00:05:00.000Z';
 
 function pageOf(id: string): IDocumentPage {
 	return { id, updatedAt: '2026-01-01T00:00:00.000Z', version: 1, contentHtml: '<p>theirs</p>' } as unknown as IDocumentPage;
@@ -102,10 +107,9 @@ describe('useDocsAutosave, leaving a page', () => {
 		expect(back.result.current.state).toBe('locked');
 	});
 
-	it('coming back before the departure save lands: its result reaches the editor, which then saves at the new clock', async () => {
+	it('coming back before the departure save lands: the editor waits for it, hears it, and saves on at the new clock', async () => {
 		const { wrapper } = setup();
 		const page = pageOf('page-return');
-		const savedPage = { ...page, updatedAt: '2026-01-01T00:01:00.000Z', version: 2 } as IDocumentPage;
 		const running = deferred<IDocumentPage>();
 		mockUpdateContent.mockReturnValueOnce(running.promise);
 
@@ -113,25 +117,112 @@ describe('useDocsAutosave, leaving a page', () => {
 		act(() => first.result.current.change('<p>mine</p>', null));
 		first.unmount();
 
-		const back = renderHook(({ current }: { current: IDocumentPage }) => useDocsAutosave(current), { wrapper, initialProps: { current: page } });
+		const back = renderHook(() => useDocsAutosave(page), { wrapper });
 		expect(back.result.current.restoredHtml).toBe('<p>mine</p>');
-		expect(back.result.current.state).toBe('dirty');
+		expect(back.result.current.state).toBe('saving');
+		// A save asked meanwhile waits for the running one: the same text is not sent twice.
+		await act(async () => {
+			await back.result.current.flushNow();
+		});
+		expect(mockUpdateContent).toHaveBeenCalledTimes(1);
 
 		await act(async () => {
-			running.resolve(savedPage);
+			running.resolve({ ...page, updatedAt: T1, version: 2 });
 		});
-		// The page query now holds the clock of that save (the save patches the cache).
-		back.rerender({ current: savedPage });
 		expect(back.result.current.state).toBe('saved');
 		expect(back.result.current.hasDraft()).toBe(false);
+		// The restored text retires, so a later refresh of the page reaches the editor again.
+		expect(back.result.current.restoredHtml).toBeNull();
+		await act(async () => {});
+		expect(mockUpdateContent).toHaveBeenCalledTimes(1);
 
-		mockUpdateContent.mockResolvedValueOnce({ ...savedPage, updatedAt: '2026-01-01T00:02:00.000Z', version: 3 });
+		mockUpdateContent.mockResolvedValueOnce({ ...page, updatedAt: T2, version: 3 });
 		act(() => back.result.current.change('<p>mine, and more</p>', null));
 		await act(async () => {
 			await back.result.current.flushNow();
 		});
-		expect(mockUpdateContent).toHaveBeenLastCalledWith('page-return', expect.objectContaining({ expectedUpdatedAt: '2026-01-01T00:01:00.000Z' }));
+		expect(mockUpdateContent).toHaveBeenLastCalledWith('page-return', expect.objectContaining({ expectedUpdatedAt: T1 }));
 		expect(back.result.current.state).toBe('saved');
+	});
+
+	it('coming back while a newer draft waits behind a running save: both clock moves reach the editor', async () => {
+		const { wrapper } = setup();
+		const page = pageOf('page-two-moves');
+		const firstSave = deferred<IDocumentPage>();
+		const secondSave = deferred<IDocumentPage>();
+		mockUpdateContent.mockReturnValueOnce(firstSave.promise).mockReturnValueOnce(secondSave.promise);
+
+		const first = renderHook(() => useDocsAutosave(page), { wrapper });
+		act(() => first.result.current.change('<p>one</p>', null));
+		act(() => void first.result.current.flushNow());
+		act(() => first.result.current.change('<p>one, two</p>', null));
+		first.unmount();
+
+		const back = renderHook(() => useDocsAutosave(page), { wrapper });
+		expect(back.result.current.restoredHtml).toBe('<p>one, two</p>');
+
+		await act(async () => {
+			firstSave.resolve({ ...page, updatedAt: T1, version: 2 });
+		});
+		await waitFor(() => expect(mockUpdateContent).toHaveBeenCalledTimes(2));
+		expect(mockUpdateContent.mock.calls[1][1]).toMatchObject({ contentHtml: '<p>one, two</p>', expectedUpdatedAt: T1 });
+		expect(back.result.current.hasDraft()).toBe(true);
+
+		await act(async () => {
+			secondSave.resolve({ ...page, updatedAt: T2, version: 3 });
+		});
+		expect(back.result.current.state).toBe('saved');
+		expect(back.result.current.hasDraft()).toBe(false);
+
+		mockUpdateContent.mockResolvedValueOnce({ ...page, updatedAt: T3, version: 4 });
+		act(() => back.result.current.change('<p>one, two, three</p>', null));
+		await act(async () => {
+			await back.result.current.flushNow();
+		});
+		expect(mockUpdateContent).toHaveBeenCalledTimes(3);
+		expect(mockUpdateContent.mock.calls[2][1]).toMatchObject({ expectedUpdatedAt: T2 });
+	});
+
+	it('coming back before the departure save is refused: the editor shows the refusal for that draft', async () => {
+		const { wrapper } = setup();
+		const page = pageOf('page-refused-later');
+		const running = deferred<IDocumentPage>();
+		mockUpdateContent.mockReturnValueOnce(running.promise);
+
+		const first = renderHook(() => useDocsAutosave(page), { wrapper });
+		act(() => first.result.current.change('<p>mine</p>', null));
+		first.unmount();
+
+		const back = renderHook(() => useDocsAutosave(page), { wrapper });
+		await act(async () => {
+			running.reject({ statusCode: 409 });
+		});
+		expect(back.result.current.state).toBe('conflict');
+		expect(back.result.current.hasDraft()).toBe(true);
+		expect(back.result.current.restoredHtml).toBe('<p>mine</p>');
+	});
+
+	it('a kept draft states the clock it was written against, so an update made meanwhile is a conflict, not overwritten', async () => {
+		const { wrapper } = setup();
+		const page = pageOf('page-base');
+		mockUpdateContent.mockRejectedValueOnce(new Error('offline'));
+
+		const first = renderHook(() => useDocsAutosave(page), { wrapper });
+		act(() => first.result.current.change('<p>mine</p>', null));
+		first.unmount();
+		await waitFor(() => expect(mockUpdateContent).toHaveBeenCalledTimes(1));
+		await act(async () => {});
+
+		// Someone else saved the page meanwhile: the page comes back with a newer clock.
+		const updatedElsewhere = { ...page, updatedAt: T5, version: 7 } as IDocumentPage;
+		const back = renderHook(() => useDocsAutosave(updatedElsewhere), { wrapper });
+		expect(back.result.current.state).toBe('error');
+		mockUpdateContent.mockRejectedValueOnce({ statusCode: 409 });
+		await act(async () => {
+			await back.result.current.flushNow();
+		});
+		expect(mockUpdateContent.mock.calls[1][1]).toMatchObject({ contentHtml: '<p>mine</p>', expectedUpdatedAt: page.updatedAt });
+		expect(back.result.current.state).toBe('conflict');
 	});
 
 	it('still keeps a draft waiting for a decision (a conflict) without saving it', async () => {
@@ -155,29 +246,33 @@ describe('useDocsAutosave, leaving a page', () => {
 	});
 });
 
-describe('useEditorPageHtml, a refreshed page', () => {
-	type Props = { pageId: string | null; html: string; hasDraft: boolean };
-	const render = (initialProps: Props) => renderHook(({ pageId, html, hasDraft }: Props) => useEditorPageHtml(pageId, html, hasDraft), { initialProps });
+describe('useEditorPageContent, a refreshed page', () => {
+	type Props = { pageId: string | null; html: string; json: IDocumentNode | null; hasDraft: boolean };
+	const render = (initialProps: Props) =>
+		renderHook(({ pageId, html, json, hasDraft }: Props) => useEditorPageContent(pageId, html, json, hasDraft), { initialProps });
+	const ONE: IDocumentNode = { type: 'doc', content: [{ type: 'paragraph' }] };
+	const THEIRS: IDocumentNode = { type: 'doc', content: [{ type: 'unknownBlock' }] };
 
 	it('reaches the editor while nothing typed here is unsaved', () => {
-		const view = render({ pageId: 'p1', html: '<p>one</p>', hasDraft: false });
-		view.rerender({ pageId: 'p1', html: '<p>theirs</p>', hasDraft: false });
-		expect(view.result.current).toBe('<p>theirs</p>');
+		const view = render({ pageId: 'p1', html: '<p>one</p>', json: ONE, hasDraft: false });
+		view.rerender({ pageId: 'p1', html: '<p>theirs</p>', json: THEIRS, hasDraft: false });
+		expect(view.result.current).toEqual({ html: '<p>theirs</p>', json: THEIRS });
 	});
 
-	it('waits while a draft is open, and arrives once it is saved or dropped', () => {
-		const view = render({ pageId: 'p1', html: '<p>one</p>', hasDraft: true });
-		view.rerender({ pageId: 'p1', html: '<p>theirs</p>', hasDraft: true });
-		expect(view.result.current).toBe('<p>one</p>');
-		view.rerender({ pageId: 'p1', html: '<p>theirs</p>', hasDraft: false });
-		expect(view.result.current).toBe('<p>theirs</p>');
+	it('waits while a draft is open, its JSON too (an unsupported one would drop the draft), and arrives once it is saved or dropped', () => {
+		const view = render({ pageId: 'p1', html: '<p>one</p>', json: ONE, hasDraft: true });
+		view.rerender({ pageId: 'p1', html: '<p>theirs</p>', json: THEIRS, hasDraft: true });
+		expect(view.result.current.html).toBe('<p>one</p>');
+		expect(view.result.current.json).toBe(ONE);
+		view.rerender({ pageId: 'p1', html: '<p>theirs</p>', json: THEIRS, hasDraft: false });
+		expect(view.result.current).toEqual({ html: '<p>theirs</p>', json: THEIRS });
 	});
 
-	it('never holds the text of another page', () => {
-		const view = render({ pageId: 'p1', html: '<p>one</p>', hasDraft: true });
-		view.rerender({ pageId: 'p2', html: '<p>two</p>', hasDraft: true });
-		expect(view.result.current).toBe('<p>two</p>');
-		view.rerender({ pageId: 'p2', html: '<p>two, theirs</p>', hasDraft: true });
-		expect(view.result.current).toBe('<p>two</p>');
+	it('never holds the content of another page', () => {
+		const view = render({ pageId: 'p1', html: '<p>one</p>', json: ONE, hasDraft: true });
+		view.rerender({ pageId: 'p2', html: '<p>two</p>', json: null, hasDraft: true });
+		expect(view.result.current).toEqual({ html: '<p>two</p>', json: null });
+		view.rerender({ pageId: 'p2', html: '<p>two, theirs</p>', json: THEIRS, hasDraft: true });
+		expect(view.result.current).toEqual({ html: '<p>two</p>', json: null });
 	});
 });

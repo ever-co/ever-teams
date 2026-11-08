@@ -142,9 +142,27 @@ export function newNonce(): string {
 	return `${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 10)}`;
 }
 
-/** Inserts the messages of a page into a list (by id, newest last), keeping the list ordered by time. */
+/**
+ * Whether a copy of a message is older than the one held: a deletion is final, and an edit is never undone by a copy
+ * from before it (an earlier edit time, or none). A reaction or a pin keeps the edit time, so its copy still lands.
+ */
+function isOlderCopy(incoming: IChatMessage, held: IChatMessage): boolean {
+	if (incoming.deletedAt) return false;
+	if (held.deletedAt) return true;
+	if (!held.editedAt) return false;
+	return !incoming.editedAt || Date.parse(incoming.editedAt) < Date.parse(held.editedAt);
+}
+
+/**
+ * Inserts the messages of a page into a list (by id, newest last), keeping the list ordered by time. A copy older than
+ * the one held (a late answer of a read made before an edit or a deletion) does not replace it.
+ */
 export function mergeMessages(existing: readonly IChatMessage[], incoming: readonly IChatMessage[]): IChatMessage[] {
 	const byId = new Map(existing.map((message) => [message.id, message]));
-	for (const message of incoming) byId.set(message.id, message);
+	for (const message of incoming) {
+		const held = byId.get(message.id);
+		if (held && isOlderCopy(message, held)) continue;
+		byId.set(message.id, message);
+	}
 	return [...byId.values()].sort((a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime() || a.id.localeCompare(b.id));
 }
