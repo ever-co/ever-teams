@@ -19,6 +19,17 @@ import { useKeyboardPreferences } from './use-keyboard-preferences';
 /** How long the next chord of a sequence may take. */
 const SEQUENCE_TIMEOUT_MS = 1000;
 
+/** Whether the listener holds the start of a sequence (`g`, waiting for its second key). */
+let sequencePending = false;
+
+/**
+ * Whether a sequence is under way: the task list then leaves the next key to the registry, so `G O` goes to the
+ * overdue tasks rather than `O` opening the focused row. Always false while the registry is not mounted.
+ */
+export function isShortcutSequencePending(): boolean {
+	return sequencePending;
+}
+
 /**
  * Registers the handlers of some commands while the caller is mounted, and marks its contexts active. A page
  * registers what it can do (`list.saveView` on the tasks list); the layout registers the global ones.
@@ -66,7 +77,7 @@ export function useShortcutHandlers(handlers: Record<string, ShortcutHandler>, c
  * The one key listener of the app's shortcut registry: matches each key press (outside text fields) against the
  * bindings in force for the active contexts, walks sequences, and runs the command's registered handler.
  * Mounted once by the layout. Commands with no handler registered are ignored, so a key never fires twice with
- * the page's own listeners (which keep handling their fixed keys).
+ * the page's own listeners (the task list matches its row keys itself, with the bindings in force).
  */
 export function useShortcutListener(): void {
 	const { bindings } = useKeyboardPreferences();
@@ -77,6 +88,7 @@ export function useShortcutListener(): void {
 
 	const clearPending = useCallback(() => {
 		pending.current = [];
+		sequencePending = false;
 		if (timer.current) clearTimeout(timer.current);
 		timer.current = null;
 	}, []);
@@ -114,6 +126,7 @@ export function useShortcutListener(): void {
 			if (morePossible) {
 				event.preventDefault();
 				pending.current = pressed;
+				sequencePending = true;
 				if (timer.current) clearTimeout(timer.current);
 				timer.current = setTimeout(clearPending, SEQUENCE_TIMEOUT_MS);
 				return;

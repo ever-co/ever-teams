@@ -4833,6 +4833,8 @@
 		"CHANGE": "Alterar",
 		"RESET": "Repor",
 		"RESERVED": "O navegador guarda essa combinação para si.",
+		"SINGLE_KEY_ONLY": "Uma tecla da lista de tarefas é uma só tecla, não uma sequência.",
+		"LIST_KEY": "A lista de tarefas guarda ↑, ↓, Enter, O e Esc para si.",
 		"CONFLICT": "Já usado por {commands}.",
 		"SAVED": "Atalho guardado.",
 		"SAVE_FAILED": "Não foi possível guardar o atalho.",

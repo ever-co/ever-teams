@@ -17,8 +17,13 @@ export interface ShortcutCommand {
 	context: ShortcutContext;
 	/** The binding when the person has not changed it. */
 	defaultBinding: string;
-	/** A command the person cannot rebind in this version (the list's own keys). */
+	/** A command the person cannot rebind (the list's built-in keys, `C`). */
 	fixed?: boolean;
+	/**
+	 * A key the list matches itself on a focused row (`J`, `S`, …): one chord, never a sequence; with Shift added to a
+	 * binding that has none, the row commands extend the selection.
+	 */
+	chordOnly?: boolean;
 }
 
 export interface ShortcutChord {
@@ -45,18 +50,18 @@ export const SHORTCUT_COMMANDS: readonly ShortcutCommand[] = [
 	{ id: 'goDocs', context: 'global', defaultBinding: 'g d' },
 	{ id: 'goChat', context: 'global', defaultBinding: 'g c' },
 	{ id: 'goInbox', context: 'global', defaultBinding: 'g i' },
-	// the list (its keys are the list's own in this version)
-	{ id: 'listDown', context: 'list', defaultBinding: 'j', fixed: true },
-	{ id: 'listUp', context: 'list', defaultBinding: 'k', fixed: true },
+	// the list (the arrows, Enter, O and Esc stay its own; the person can rebind the letters)
+	{ id: 'listDown', context: 'list', defaultBinding: 'j', chordOnly: true },
+	{ id: 'listUp', context: 'list', defaultBinding: 'k', chordOnly: true },
 	{ id: 'listOpen', context: 'list', defaultBinding: 'enter', fixed: true },
-	{ id: 'listSelect', context: 'list', defaultBinding: 'x', fixed: true },
+	{ id: 'listSelect', context: 'list', defaultBinding: 'x', chordOnly: true },
 	{ id: 'listClear', context: 'list', defaultBinding: 'escape', fixed: true },
 	{ id: 'listSaveView', context: 'list', defaultBinding: 'mod+s' },
 	// a focused task
-	{ id: 'taskStatus', context: 'task', defaultBinding: 's', fixed: true },
-	{ id: 'taskPriority', context: 'task', defaultBinding: 'p', fixed: true },
-	{ id: 'taskLabels', context: 'task', defaultBinding: 'l', fixed: true },
-	{ id: 'taskDueDate', context: 'task', defaultBinding: 'd', fixed: true }
+	{ id: 'taskStatus', context: 'task', defaultBinding: 's', chordOnly: true },
+	{ id: 'taskPriority', context: 'task', defaultBinding: 'p', chordOnly: true },
+	{ id: 'taskLabels', context: 'task', defaultBinding: 'l', chordOnly: true },
+	{ id: 'taskDueDate', context: 'task', defaultBinding: 'd', chordOnly: true }
 ];
 
 /** The contexts in the order the help dialog lists them. */
@@ -75,6 +80,21 @@ export const DIALOG_SAFE_COMMANDS: ReadonlySet<string> = new Set(['paletteOpen',
 
 /** The contexts whose keys reach the same person at once: a focused task is a row of the list. */
 const OVERLAPPING_CONTEXTS: ReadonlySet<ShortcutContext> = new Set(['list', 'task']);
+
+/**
+ * The keys the list keeps on a focused row whatever the bindings, by the command they run: the arrows walk the rows
+ * (with Shift, extending the selection), Enter and O open the task, Esc clears the selection.
+ */
+const LIST_BUILT_IN_KEYS: ReadonlyMap<string, string> = new Map([
+	['arrowdown', 'listDown'],
+	['arrowup', 'listUp'],
+	['enter', 'listOpen'],
+	['o', 'listOpen'],
+	['escape', 'listClear']
+]);
+
+/** The row commands whose binding with Shift added extends the selection: that chord is theirs too. */
+const SHIFT_EXTENDS: ReadonlySet<string> = new Set(['listDown', 'listUp', 'listSelect']);
 
 /** The key `+` is written `plus` in a binding, since `+` separates the keys of a chord. */
 const PLUS_KEY_NAME = 'plus';
@@ -140,9 +160,12 @@ function isPrintablePunctuation(key: string): boolean {
 	return key.length === 1 && !/[a-z\d]/.test(key);
 }
 
-/** The key of a key press as a binding names it: letters and digits by their physical key, the rest by `key`. */
-export function chordKeyOf(event: Pick<KeyboardEvent, 'key' | 'code'>): string {
-	const code = event.code ?? '';
+/**
+ * The key of a key press as a binding names it: letters and digits by their physical key, the rest by `key`. With
+ * `byPhysicalKey` false, letters and digits are the character typed too (the list's keys with the registry off).
+ */
+export function chordKeyOf(event: Pick<KeyboardEvent, 'key' | 'code'>, byPhysicalKey = true): string {
+	const code = byPhysicalKey ? (event.code ?? '') : '';
 	if (/^Key[A-Z]$/.test(code)) return code.slice(3).toLowerCase();
 	if (/^Digit\d$/.test(code)) return code.slice(5);
 	const key = (event.key ?? '').toLowerCase();
@@ -151,8 +174,11 @@ export function chordKeyOf(event: Pick<KeyboardEvent, 'key' | 'code'>): string {
 }
 
 /** The chord a key press is, or null for a modifier alone. Punctuation carries its own Shift (`?` is one key). */
-export function chordOfEvent(event: Pick<KeyboardEvent, 'key' | 'code' | 'metaKey' | 'ctrlKey' | 'shiftKey' | 'altKey'>): ShortcutChord | null {
-	const key = chordKeyOf(event);
+export function chordOfEvent(
+	event: Pick<KeyboardEvent, 'key' | 'code' | 'metaKey' | 'ctrlKey' | 'shiftKey' | 'altKey'>,
+	byPhysicalKey = true
+): ShortcutChord | null {
+	const key = chordKeyOf(event, byPhysicalKey);
 	if (!key || MODIFIER_NAMES.has(key)) return null;
 	const shift = isPrintablePunctuation(key) ? false : !!event.shiftKey;
 	return { key, mod: !!(event.metaKey || event.ctrlKey), shift, alt: !!event.altKey };
@@ -168,16 +194,45 @@ export function isBrowserReserved(binding: ShortcutBinding): boolean {
 	return binding.length === 1 && BROWSER_RESERVED.has(formatBinding(binding));
 }
 
+/** Whether a chord is one of the keys the list keeps on a focused row (↑, ↓, Enter, O, Esc; Shift or not). */
+function isListBuiltInKey(chord: ShortcutChord): boolean {
+	return !chord.mod && !chord.alt && LIST_BUILT_IN_KEYS.has(chord.key);
+}
+
+/**
+ * Why a binding cannot be given to a command, or null when it can: one the browser keeps (`reserved`), a sequence for
+ * a key the list matches itself (`sequence`), or one starting with a key the list keeps for itself (`listKey`), which
+ * would never reach the command while a row has the focus.
+ */
+export function refusalOf(
+	command: ShortcutCommand,
+	binding: ShortcutBinding
+): 'reserved' | 'sequence' | 'listKey' | null {
+	if (isBrowserReserved(binding)) return 'reserved';
+	if (command.chordOnly && binding.length > 1) return 'sequence';
+	if (binding.length > 0 && isListBuiltInKey(binding[0])) return 'listKey';
+	return null;
+}
+
 /** The bindings in force: the defaults with the person's overrides on top (an empty override removes the default). */
 export function effectiveBindings(commands: readonly ShortcutCommand[], overrides: Record<string, string> | null | undefined): Map<string, ShortcutBinding | null> {
 	const result = new Map<string, ShortcutBinding | null>();
 	for (const command of commands) {
 		const override = overrides?.[command.id];
+		const defaultBinding = parseBinding(command.defaultBinding);
 		if (command.fixed || override === undefined) {
-			result.set(command.id, parseBinding(command.defaultBinding));
+			result.set(command.id, defaultBinding);
 			continue;
 		}
-		result.set(command.id, override === '' ? null : (parseBinding(override) ?? parseBinding(command.defaultBinding)));
+		if (override === '') {
+			result.set(command.id, null);
+			continue;
+		}
+		const parsed = parseBinding(override);
+		// A row key the list could not match (a sequence, a key it keeps), stored by another client or by hand, leaves
+		// the default in force.
+		const isUnusable = !parsed || (command.chordOnly === true && refusalOf(command, parsed) !== null);
+		result.set(command.id, isUnusable ? defaultBinding : parsed);
 	}
 	return result;
 }
@@ -191,9 +246,17 @@ export function overlaps(first: ShortcutBinding, second: ShortcutBinding): boole
 	return true;
 }
 
+/** The bindings a command holds: its own, and with Shift added for a row command that extends the selection with it. */
+function heldBindingsOf(commandId: string, binding: ShortcutBinding): ShortcutBinding[] {
+	const [chord] = binding;
+	if (!SHIFT_EXTENDS.has(commandId) || binding.length !== 1 || chord.shift) return [binding];
+	return [binding, [{ ...chord, shift: true }]];
+}
+
 /**
  * The commands whose binding would clash with the given one in the same (or the global) context, the list and a
- * focused task counting as one — the same keys, or one binding the start of the other — the command itself left out.
+ * focused task counting as one — the same keys, or one binding the start of the other, `Shift+J` counting as the
+ * next row's key while it extends the selection — the command itself left out.
  */
 export function conflictsOf(
 	commandId: string,
@@ -212,8 +275,36 @@ export function conflictsOf(
 			other.context === 'global' ||
 			command.context === 'global' ||
 			(OVERLAPPING_CONTEXTS.has(other.context) && OVERLAPPING_CONTEXTS.has(command.context));
-		return sharesContext && overlaps(binding, otherBinding);
+		if (!sharesContext) return false;
+		const theirs = heldBindingsOf(other.id, otherBinding);
+		return heldBindingsOf(commandId, binding).some((mine) => theirs.some((held) => overlaps(mine, held)));
 	});
+}
+
+/**
+ * The list command a key press on a focused row runs, or null: the built-in keys first (↑/↓, Enter/O, Esc), then the
+ * bindings in force of the one-chord commands — the exact chord, then the chord without Shift, which extends
+ * (`Shift+J` adds the next row to the selection, `Shift+X` selects a range). `extend` is whether Shift was pressed
+ * beyond the binding.
+ */
+export function matchListKey(
+	chord: ShortcutChord,
+	commands: readonly ShortcutCommand[],
+	bindings: ReadonlyMap<string, ShortcutBinding | null>
+): { commandId: string; extend: boolean } | null {
+	const builtIn = isListBuiltInKey(chord) ? LIST_BUILT_IN_KEYS.get(chord.key) : undefined;
+	if (builtIn) return { commandId: builtIn, extend: chord.shift };
+	const boundTo = (pressed: ShortcutChord) =>
+		commands.find((command) => {
+			if (!command.chordOnly) return false;
+			const binding = bindings.get(command.id);
+			return binding?.length === 1 && sameChord(binding[0], pressed);
+		});
+	const exact = boundTo(chord);
+	if (exact) return { commandId: exact.id, extend: false };
+	if (!chord.shift) return null;
+	const plain = boundTo({ ...chord, shift: false });
+	return plain ? { commandId: plain.id, extend: true } : null;
 }
 
 /** The overrides with one command's binding changed (`null` restores the default). */

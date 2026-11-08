@@ -4833,6 +4833,8 @@
 		"CHANGE": "Change",
 		"RESET": "Reset",
 		"RESERVED": "The browser keeps that combination for itself.",
+		"SINGLE_KEY_ONLY": "A task list key is one key, not a sequence.",
+		"LIST_KEY": "The task list keeps ↑, ↓, Enter, O and Esc for itself.",
 		"CONFLICT": "Already used by {commands}.",
 		"SAVED": "Shortcut saved.",
 		"SAVE_FAILED": "The shortcut could not be saved.",

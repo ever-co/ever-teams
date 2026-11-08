@@ -5,9 +5,11 @@ import {
 	effectiveBindings,
 	formatBinding,
 	isBrowserReserved,
+	matchListKey,
 	matchSequence,
 	overlaps,
 	parseBinding,
+	refusalOf,
 	SHORTCUT_COMMANDS,
 	withOverride,
 	type ShortcutChord
@@ -47,11 +49,92 @@ describe('shortcut bindings', () => {
 	});
 
 	it('applies overrides over the defaults; fixed commands keep theirs', () => {
-		const bindings = effectiveBindings(SHORTCUT_COMMANDS, { goTasks: 'g x', goDocs: '', listDown: 'n' });
+		const bindings = effectiveBindings(SHORTCUT_COMMANDS, { goTasks: 'g x', goDocs: '', listDown: 'n', listOpen: 'space', taskCreate: 'q' });
 		expect(formatBinding(bindings.get('goTasks')!)).toBe('g x');
 		expect(bindings.get('goDocs')).toBeNull();
-		expect(formatBinding(bindings.get('listDown')!)).toBe('j');
+		// The list's letters can be rebound; its built-in keys (Enter, Esc) and `C` are not.
+		expect(formatBinding(bindings.get('listDown')!)).toBe('n');
+		expect(formatBinding(bindings.get('listOpen')!)).toBe('enter');
+		expect(formatBinding(bindings.get('taskCreate')!)).toBe('c');
 		expect(formatBinding(bindings.get('paletteOpen')!)).toBe('mod+k');
+	});
+
+	it('keeps the default of a row key whose stored binding the list could not match', () => {
+		// Stored by another client or by hand: a sequence, or a key the list keeps for itself.
+		const bindings = effectiveBindings(SHORTCUT_COMMANDS, { taskStatus: 'g s', listUp: 'o', listSelect: 'shift+arrowdown', taskLabels: '' });
+		expect(formatBinding(bindings.get('taskStatus')!)).toBe('s');
+		expect(formatBinding(bindings.get('listUp')!)).toBe('k');
+		expect(formatBinding(bindings.get('listSelect')!)).toBe('x');
+		// An empty override still removes the key.
+		expect(bindings.get('taskLabels')).toBeNull();
+		// Commands the registry's listener runs keep any binding that parses, sequences included.
+		expect(formatBinding(effectiveBindings(SHORTCUT_COMMANDS, { listSaveView: 'g s' }).get('listSaveView')!)).toBe('g s');
+	});
+
+	it('refuses a sequence for a row key, a key the list keeps, and a browser combination', () => {
+		const command = (id: string) => SHORTCUT_COMMANDS.find((item) => item.id === id)!;
+		for (const id of ['listDown', 'listUp', 'listSelect', 'taskStatus', 'taskPriority', 'taskLabels', 'taskDueDate']) {
+			expect(command(id).fixed).toBeFalsy();
+			expect(refusalOf(command(id), parseBinding('g j')!)).toBe('sequence');
+			expect(refusalOf(command(id), parseBinding('n')!)).toBeNull();
+			expect(refusalOf(command(id), parseBinding('alt+n')!)).toBeNull();
+		}
+		// The registry's own commands walk sequences.
+		expect(refusalOf(command('listSaveView'), parseBinding('g s')!)).toBeNull();
+		expect(refusalOf(command('goTasks'), parseBinding('g x')!)).toBeNull();
+		// ↑ ↓ Enter O Esc, with Shift or not, stay the list's (as the first key; `g o` is fine).
+		expect(refusalOf(command('listDown'), parseBinding('o')!)).toBe('listKey');
+		expect(refusalOf(command('taskStatus'), parseBinding('shift+arrowdown')!)).toBe('listKey');
+		expect(refusalOf(command('goTasks'), parseBinding('enter')!)).toBe('listKey');
+		expect(refusalOf(command('goTasks'), parseBinding('escape g')!)).toBe('listKey');
+		expect(refusalOf(command('goOverdue'), parseBinding('g o')!)).toBeNull();
+		expect(refusalOf(command('goTasks'), parseBinding('alt+o')!)).toBeNull();
+		expect(refusalOf(command('listDown'), parseBinding('mod+w')!)).toBe('reserved');
+	});
+
+	it('matches a row key: the built-in keys, then the exact chord, then without Shift (extend)', () => {
+		const defaults = effectiveBindings(SHORTCUT_COMMANDS, null);
+		const match = (chord: ShortcutChord, bindings = defaults) => matchListKey(chord, SHORTCUT_COMMANDS, bindings);
+		expect(match(press('KeyJ', 'j'))).toEqual({ commandId: 'listDown', extend: false });
+		expect(match(press('KeyJ', 'J', { shiftKey: true }))).toEqual({ commandId: 'listDown', extend: true });
+		expect(match(press('KeyK', 'k'))).toEqual({ commandId: 'listUp', extend: false });
+		expect(match(press('KeyX', 'X', { shiftKey: true }))).toEqual({ commandId: 'listSelect', extend: true });
+		expect(match(press('KeyS', 's'))?.commandId).toBe('taskStatus');
+		expect(match(press('KeyS', 'S', { shiftKey: true }))?.commandId).toBe('taskStatus');
+		expect(match(press('KeyP', 'p'))?.commandId).toBe('taskPriority');
+		expect(match(press('KeyL', 'l'))?.commandId).toBe('taskLabels');
+		expect(match(press('KeyD', 'd'))?.commandId).toBe('taskDueDate');
+		// Built in: the arrows (Shift extends), Enter and O, Esc.
+		expect(match(press('ArrowDown', 'ArrowDown'))).toEqual({ commandId: 'listDown', extend: false });
+		expect(match(press('ArrowUp', 'ArrowUp', { shiftKey: true }))).toEqual({ commandId: 'listUp', extend: true });
+		expect(match(press('Enter', 'Enter'))?.commandId).toBe('listOpen');
+		expect(match(press('KeyO', 'o'))?.commandId).toBe('listOpen');
+		expect(match(press('Escape', 'Escape'))?.commandId).toBe('listClear');
+		// Not row keys: ⌘/Ctrl or Alt with a letter bound bare, a letter nobody holds.
+		expect(match(press('KeyJ', 'j', { ctrlKey: true }))).toBeNull();
+		expect(match(press('KeyO', 'o', { altKey: true }))).toBeNull();
+		expect(match(press('KeyG', 'g'))).toBeNull();
+
+		// Rebound: the new keys work, the old ones no longer do, the built-in ones stay.
+		const rebound = effectiveBindings(SHORTCUT_COMMANDS, { listDown: 'n', taskStatus: 'alt+s', taskDueDate: 'shift+j' });
+		expect(match(press('KeyN', 'n'), rebound)).toEqual({ commandId: 'listDown', extend: false });
+		expect(match(press('KeyN', 'N', { shiftKey: true }), rebound)).toEqual({ commandId: 'listDown', extend: true });
+		expect(match(press('KeyJ', 'j'), rebound)).toBeNull();
+		expect(match(press('ArrowDown', 'ArrowDown'), rebound)?.commandId).toBe('listDown');
+		expect(match(press('KeyS', 's', { altKey: true }), rebound)?.commandId).toBe('taskStatus');
+		expect(match(press('KeyS', 's'), rebound)).toBeNull();
+		// The exact chord comes before the one without Shift.
+		expect(match(press('KeyJ', 'J', { shiftKey: true }), rebound)).toEqual({ commandId: 'taskDueDate', extend: false });
+		// A physical key: `N` on a non-Latin layout.
+		expect(match(press('KeyN', 'т'), rebound)?.commandId).toBe('listDown');
+	});
+
+	it('reads the character typed instead of the physical key when asked (the list with the registry off)', () => {
+		const dvorakJ = { code: 'KeyC', key: 'j', metaKey: false, ctrlKey: false, shiftKey: false, altKey: false };
+		expect(chordOfEvent(dvorakJ)?.key).toBe('c');
+		expect(chordOfEvent(dvorakJ, false)?.key).toBe('j');
+		expect(chordOfEvent({ ...dvorakJ, key: 'J', shiftKey: true }, false)).toEqual({ key: 'j', mod: false, shift: true, alt: false });
+		expect(chordOfEvent({ ...dvorakJ, code: 'Enter', key: 'Enter' }, false)?.key).toBe('enter');
 	});
 
 	it('finds conflicts within a context and with the global ones, a prefix counting as one', () => {
@@ -69,6 +152,23 @@ describe('shortcut bindings', () => {
 		expect(overlaps(parseBinding('g t')!, parseBinding('g m')!)).toBe(false);
 		expect(isBrowserReserved(parseBinding('mod+w')!)).toBe(true);
 		expect(isBrowserReserved(parseBinding('mod+s')!)).toBe(false);
+	});
+
+	it('finds conflicts between row keys, Shift on a row-moving key counting as that key', () => {
+		const bindings = effectiveBindings(SHORTCUT_COMMANDS, null);
+		const conflicts = (id: string, text: string) => conflictsOf(id, parseBinding(text)!, SHORTCUT_COMMANDS, bindings).map((command) => command.id);
+		expect(conflicts('listDown', 'k')).toEqual(['listUp']);
+		expect(conflicts('listDown', 's')).toEqual(['taskStatus']);
+		expect(conflicts('taskStatus', 'c')).toEqual(['taskCreate']);
+		expect(conflicts('listDown', 'n')).toEqual([]);
+		// Shift+J extends the selection down: it is the next row's key too.
+		expect(conflicts('taskStatus', 'shift+j')).toEqual(['listDown']);
+		expect(conflicts('goTasks', 'shift+x')).toEqual(['listSelect']);
+		// And the other way round: N for the next row would take Shift+N from whoever holds it.
+		const withShiftN = effectiveBindings(SHORTCUT_COMMANDS, { taskDueDate: 'shift+n' });
+		expect(conflictsOf('listDown', parseBinding('n')!, SHORTCUT_COMMANDS, withShiftN).map((command) => command.id)).toEqual(['taskDueDate']);
+		// Pickers do not extend: Shift+S stays free for another command.
+		expect(conflicts('listUp', 'shift+s')).toEqual([]);
 	});
 
 	it('keeps overrides minimal: a binding equal to the default is not stored', () => {

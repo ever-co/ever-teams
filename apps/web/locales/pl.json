@@ -4833,6 +4833,8 @@
 		"CHANGE": "Zmień",
 		"RESET": "Przywróć",
 		"RESERVED": "Przeglądarka zachowuje tę kombinację dla siebie.",
+		"SINGLE_KEY_ONLY": "Klawisz listy zadań to jeden klawisz, nie sekwencja.",
+		"LIST_KEY": "Lista zadań zachowuje ↑, ↓, Enter, O i Esc dla siebie.",
 		"CONFLICT": "Już używane przez {commands}.",
 		"SAVED": "Skrót zapisany.",
 		"SAVE_FAILED": "Nie udało się zapisać skrótu.",

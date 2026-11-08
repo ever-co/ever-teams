@@ -51,10 +51,14 @@ they are with the flag off.
 - **Keys**: a letter matches the physical key; a chord with ⌘/Ctrl fires inside text fields too. The registry runs
   only commands with a registered handler, so the page's own keys are never shadowed; its listener is mounted
   only with the flag. Overrides are stored as `uiPreferences.keyboard.bindings` (an empty string removes a
-  default); the list's own keys stay fixed in this phase.
+  default). Phase 2 (T8): the list's letters (J/K/X, S/P/L/D) can be rebound; the list matches them itself on a
+  focused row (one chord each; Shift on a bare binding extends the selection), ↑/↓, Enter, O and Esc stay built in,
+  and while a registry sequence is under way the list leaves the next key to it. With the flag off the list keeps
+  its default keys by the character typed, as before.
 - **Flag off**: no mount, no sidebar section, no routes' content, the selection bar as before.
 
 ## 5. Tests
 
-`core/lib/keyboard/shortcuts.test.ts` (parsing, key caps, physical keys, overrides, conflicts, sequences). The
+`core/lib/keyboard/shortcuts.test.ts` (parsing, key caps, physical keys, overrides, conflicts, sequences, row keys,
+refusals); `team-tasks-list.test.tsx`, `shortcuts-dialog.test.tsx` and `use-shortcuts.test.tsx` (T8). The
 in-cluster web gate runs lint, knip, jest and the build.

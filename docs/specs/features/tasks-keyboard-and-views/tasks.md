@@ -3,7 +3,7 @@
 **Feature ID**: `tasks-keyboard-and-views`
 **Plan**: `./plan.md`
 **Status**: `In review`
-**Last updated**: 2026-11-07
+**Last updated**: 2026-11-08
 
 ---
 
@@ -19,10 +19,14 @@
 
 ## Phase 2
 
-- [ ] **T8**. Rebindable list and task keys (J/K/X/S/P/L/D through the registry), the existing palette sequences from the registry too
+- [x] **T8**. Rebindable list and task keys (J/K/X/S/P/L/D through the registry): the list matches the bindings in force on a
+  focused row (one chord each, Shift on a bare binding extends), ↑/↓, Enter, O and Esc stay built in, the help refuses a
+  sequence or a built-in key for them, and the second key of a registry sequence (`G O`) is left to the registry
 - [ ] **T9**. Palette results for people, projects, pages and conversations; recent items; "Go to" sequences inside the palette input
 - [ ] **T10**. Project and due-date bulk actions; multi-select on the kanban; views for the kanban layout
 - [ ] **T11**. Manual ordering of a view (`PUT /task-views/:id/order`) with drag and drop
 - [ ] **T12**. Saved views on mobile
+- [ ] **T13**. The palette's existing sequences (`I U`, `A M`, `T H`, `C T`, `S T`, `C P`, the ⌘ ones) from the registry too
+  (split from T8): several clash with `C` and the row letters today, so they need new defaults first
 
 **Status 2026-11-07:** phase 1 on ever-teams `feat/tasks-keyboard-and-views` (PR opened with the lane; the cluster gate and the bots next).

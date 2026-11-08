@@ -4833,6 +4833,8 @@
 		"CHANGE": "Changer",
 		"RESET": "Réinitialiser",
 		"RESERVED": "Le navigateur garde cette combinaison pour lui.",
+		"SINGLE_KEY_ONLY": "Une touche de la liste des tâches est une seule touche, pas une séquence.",
+		"LIST_KEY": "La liste des tâches garde ↑, ↓, Enter, O et Esc pour elle.",
 		"CONFLICT": "Déjà utilisé par {commands}.",
 		"SAVED": "Raccourci enregistré.",
 		"SAVE_FAILED": "Le raccourci n'a pas pu être enregistré.",

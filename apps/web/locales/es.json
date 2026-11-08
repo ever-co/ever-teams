@@ -4833,6 +4833,8 @@
 		"CHANGE": "Cambiar",
 		"RESET": "Restablecer",
 		"RESERVED": "El navegador reserva esa combinación.",
+		"SINGLE_KEY_ONLY": "Una tecla de la lista de tareas es una sola tecla, no una secuencia.",
+		"LIST_KEY": "La lista de tareas reserva ↑, ↓, Enter, O y Esc para sí.",
 		"CONFLICT": "Ya lo usa {commands}.",
 		"SAVED": "Atajo guardado.",
 		"SAVE_FAILED": "No se pudo guardar el atajo.",

@@ -4833,6 +4833,8 @@
 		"CHANGE": "Cambia",
 		"RESET": "Ripristina",
 		"RESERVED": "Il browser tiene quella combinazione per sé.",
+		"SINGLE_KEY_ONLY": "Un tasto dell'elenco attività è un solo tasto, non una sequenza.",
+		"LIST_KEY": "L'elenco attività tiene ↑, ↓, Enter, O ed Esc per sé.",
 		"CONFLICT": "Già usato da {commands}.",
 		"SAVED": "Scorciatoia salvata.",
 		"SAVE_FAILED": "Impossibile salvare la scorciatoia.",
