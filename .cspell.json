@@ -978,7 +978,9 @@
 		"unfollow",
 		"outbox",
 		"nonce",
-		"ghcup"
+		"ghcup",
+		"arrowright",
+		"Rebindable"
 	],
 	"useGitignore": true,
 	"ignorePaths": [
