@@ -50,25 +50,40 @@ function eventIdOf(data: RealtimeEnvelope['data'], key: string): string | null {
 	return typeof value === 'string' && value ? value : null;
 }
 
+/** The latest read of each held message, by timeline and message: the answer of an earlier read is dropped. */
+const latestMessageReads = new Map<string, number>();
+let messageReads = 0;
+
 /**
  * Reads again one message a timeline holds and puts the platform's copy in its place. The refetch a live event triggers
  * reads only the newest page, which an older message is not on: without this, an edit or a deletion of a message
- * further up the timeline would stay unseen. Answers whether the message was replaced.
+ * further up the timeline would stay unseen. Two quick changes (an edit, then a deletion) start two reads: only the one
+ * started last may write, so an earlier answer that arrives late never puts an older copy back. Answers whether the
+ * message was replaced.
  */
 export async function refreshHeldMessage(queryClient: QueryClient, queryKey: QueryKey, conversationId: string, messageId: string): Promise<boolean> {
 	const held = queryClient.getQueryData<ChatMessagesCache>(queryKey);
 	if (!held?.messages.some((message) => message.id === messageId)) return false;
-	const page = await chatService.messages(conversationId, { around: messageId });
-	const fresh = page.messages.find((message) => message.id === messageId);
-	if (!fresh) return false;
-	let replaced = false;
-	queryClient.setQueryData<ChatMessagesCache>(queryKey, (current) => {
-		// Only a message still held is replaced: a timeline that moved on (a jump, a reload) is left as it is.
-		if (!current?.messages.some((message) => message.id === messageId)) return current;
-		replaced = true;
-		return { ...current, messages: mergeMessages(current.messages, [fresh]) };
-	});
-	return replaced;
+	const readKey = `${JSON.stringify(queryKey)}|${messageId}`;
+	messageReads += 1;
+	const read = messageReads;
+	latestMessageReads.set(readKey, read);
+	try {
+		const page = await chatService.messages(conversationId, { around: messageId });
+		if (latestMessageReads.get(readKey) !== read) return false;
+		const fresh = page.messages.find((message) => message.id === messageId);
+		if (!fresh) return false;
+		let replaced = false;
+		queryClient.setQueryData<ChatMessagesCache>(queryKey, (current) => {
+			// Only a message still held is replaced: a timeline that moved on (a jump, a reload) is left as it is.
+			if (!current?.messages.some((message) => message.id === messageId)) return current;
+			replaced = true;
+			return { ...current, messages: mergeMessages(current.messages, [fresh]) };
+		});
+		return replaced;
+	} finally {
+		if (latestMessageReads.get(readKey) === read) latestMessageReads.delete(readKey);
+	}
 }
 
 /** Reads forward from a message: every newer one, a page at a time, up to the catch-up budget. */

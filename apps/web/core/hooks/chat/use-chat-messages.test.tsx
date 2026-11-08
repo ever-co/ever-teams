@@ -61,6 +61,26 @@ describe('refreshHeldMessage', () => {
 		expect(held?.serverNewestId).toBe('m2');
 	});
 
+	it('keeps the answer of the read started last when two reads of one message finish out of order', async () => {
+		const client = new QueryClient();
+		client.setQueryData<ChatMessagesCache>(key, { messages: [message('m1', 1, 'before')], hasBefore: false, hasAfter: false, serverNewestId: 'm1' });
+		let answerEdit!: (value: IChatMessagePage) => void;
+		let answerDeletion!: (value: IChatMessagePage) => void;
+		mockMessages
+			.mockReturnValueOnce(new Promise<IChatMessagePage>((resolve) => (answerEdit = resolve)))
+			.mockReturnValueOnce(new Promise<IChatMessagePage>((resolve) => (answerDeletion = resolve)));
+
+		const afterEdit = refreshHeldMessage(client, key, 'c1', 'm1');
+		const afterDeletion = refreshHeldMessage(client, key, 'c1', 'm1');
+		answerDeletion(page([message('m1', 1, '', { deletedAt: '2026-01-01T00:09:00.000Z' })]));
+		await expect(afterDeletion).resolves.toBe(true);
+		answerEdit(page([message('m1', 1, 'edited', { editedAt: '2026-01-01T00:08:00.000Z' })]));
+		await expect(afterEdit).resolves.toBe(false);
+
+		const held = client.getQueryData<ChatMessagesCache>(key);
+		expect(held?.messages.map((m) => [m.body, m.deletedAt ?? null])).toEqual([['', '2026-01-01T00:09:00.000Z']]);
+	});
+
 	it('reads nothing for a message the timeline does not hold', async () => {
 		const client = new QueryClient();
 		client.setQueryData<ChatMessagesCache>(key, { messages: [message('m2', 2, 'two')], hasBefore: true, hasAfter: false, serverNewestId: 'm2' });

@@ -54,6 +54,28 @@ function settleRetained(pageId: string, draft: Draft, failure: DocsSaveState | n
 	else retainedDrafts.delete(pageId);
 }
 
+/** Drafts handed to a departure save (their editor left the page). */
+const departingDrafts = new WeakSet<Draft>();
+/**
+ * Departing drafts whose save landed. An editor that took one back while its save ran holds it at the clock the page
+ * was left at: when the page's clock moves by that save (a local write), the editor follows it and drops the draft as
+ * saved, instead of staying dirty and meeting its own write as a conflict on the next save.
+ */
+const savedDepartures = new WeakSet<Draft>();
+
+/**
+ * The page text the editor is given. The editor replaces its content whenever this value changes, so a refreshed page
+ * (another person's save, a live event) reaches it only while nothing typed here is unsaved: with a draft open the
+ * person's text stays on screen, and the draft's save then meets the other version as a conflict. Another page is
+ * never held.
+ */
+export function useEditorPageHtml(pageId: string | null, pageHtml: string, hasDraft: boolean): string {
+	const [held, setHeld] = useState({ pageId, html: pageHtml });
+	const holding = hasDraft && held.pageId === pageId;
+	if (!holding && (held.pageId !== pageId || held.html !== pageHtml)) setHeld({ pageId, html: pageHtml });
+	return holding ? held.html : pageHtml;
+}
+
 function byteLengthOf(text: string): number {
 	return typeof TextEncoder === 'undefined' ? text.length * 2 : new TextEncoder().encode(text).length;
 }
@@ -123,6 +145,11 @@ export function useDocsAutosave(page: IDocumentPage | null) {
 			localWrites.delete(pageId);
 			if (expectedRef.current === own.from) {
 				expectedRef.current = own.to;
+				// The draft taken back on return was saved by the departure save that moved the clock: nothing is left.
+				if (draftRef.current && savedDepartures.has(draftRef.current)) {
+					draftRef.current = null;
+					setState('saved');
+				}
 				return;
 			}
 		}
@@ -164,14 +191,20 @@ export function useDocsAutosave(page: IDocumentPage | null) {
 			}
 			inFlightRef.current = true;
 			setState('saving');
+			const expected = expectedRef.current;
 			try {
 				const saved = await docsService.updateContent(pageId, {
 					contentJson: draft.json ?? EMPTY_DOC,
 					contentHtml: draft.html,
-					expectedUpdatedAt: expectedRef.current,
+					expectedUpdatedAt: expected,
 					forceSnapshot: options.force,
 					mentionEmployeeIds: draft.mentionEmployeeIds
 				});
+				if (departingDrafts.has(draft)) {
+					// An editor that came back while this save ran follows its clock (before the cache announces it).
+					savedDepartures.add(draft);
+					noteLocalWrite(pageId, expected, saved.updatedAt);
+				}
 				applySaved(saved, draft);
 				settleRetained(pageId, draft, null);
 				if (draftRef.current === draft) {
@@ -272,6 +305,7 @@ export function useDocsAutosave(page: IDocumentPage | null) {
 				return;
 			}
 			retainedDrafts.set(pageId, { draft, state: current === 'error' || current === 'too-large' ? current : 'dirty' });
+			departingDrafts.add(draft);
 			void flush();
 		},
 		[flush, pageId]

@@ -17,7 +17,7 @@ import {
 } from '@/core/components/common/dropdown-menu';
 import { RichTextView } from '@/core/components/common/rich-editor/rich-text-view';
 import { ArrowLeft, FileText, History, Lock, MoreHorizontal, Star, Trash } from '@/core/components/icons';
-import { useDocsAutosave, type DocsSaveState } from '@/core/hooks/docs/use-docs-autosave';
+import { useDocsAutosave, useEditorPageHtml, type DocsSaveState } from '@/core/hooks/docs/use-docs-autosave';
 import { useDocsPage, useDocsPath } from '@/core/hooks/docs/use-docs-page';
 import { useDocsRecent } from '@/core/hooks/docs/use-docs-recent';
 import { useDocsMentionCandidates } from '@/core/hooks/docs/use-docs-scope';
@@ -69,6 +69,8 @@ export function DocsPageView({ pageId, tree, actions }: DocsPageViewProps) {
 	const { page, isLoading, isError, isNotFound, retry } = useDocsPage(pageId, true);
 	const { path } = useDocsPath(pageId, !!page);
 	const autosave = useDocsAutosave(page);
+	// A refreshed page (a live event, another person's save) does not replace text typed here and not yet saved.
+	const editorPageHtml = useEditorPageHtml(page?.id ?? null, page?.contentHtml ?? '', autosave.hasDraft());
 	const mentions = useDocsMentionCandidates();
 	const { remember } = useDocsRecent();
 	// Both start over with the page: the parent renders this view with `key={pageId}`.
@@ -364,7 +366,7 @@ export function DocsPageView({ pageId, tree, actions }: DocsPageViewProps) {
 						) : (
 							<DocsEditorSurface
 								key={page.id}
-								value={autosave.restoredHtml ?? page.contentHtml ?? ''}
+								value={autosave.restoredHtml ?? editorPageHtml}
 								json={page.contentJson ?? null}
 								onUnsupported={onUnsupported}
 								onChange={autosave.change}
