@@ -79,6 +79,7 @@ function sessionOf(pageId: string, clock: string | null): PageSession {
 	if (!session) {
 		session = { pageId, draft: null, base: clock, view: IDLE_VIEW, saving: false, queued: null, timer: null, applySaved: null, views: new Set() };
 		sessions.set(pageId, session);
+		syncUnloadGuard();
 	}
 	return session;
 }
@@ -100,6 +101,7 @@ function clearSessionTimer(session: PageSession): void {
 function releaseIfDone(session: PageSession): void {
 	if (session.views.size || session.draft || session.saving || session.timer || session.queued) return;
 	if (sessions.get(session.pageId) === session) sessions.delete(session.pageId);
+	syncUnloadGuard();
 }
 
 /**
@@ -203,24 +205,29 @@ function leaveSession(session: PageSession): void {
 	void saveSession(session);
 }
 
-let unloadGuarded = false;
+let unloadListener: ((event: BeforeUnloadEvent) => void) | null = null;
 
 /**
  * Leaving the tab with unsaved text warns, like any editor: for every page of this tab, not only the one on screen (a
  * page left with a departure save that failed, or still running, keeps its draft in its session). One listener for
- * the tab, added by the first editor and kept: it only reads the sessions.
+ * the tab while any page session exists, removed with the last one: a session holding text or work is never released.
  */
-function guardUnload(): void {
-	if (unloadGuarded) return;
-	unloadGuarded = true;
-	window.addEventListener('beforeunload', (event) => {
-		for (const session of sessions.values()) {
-			if (session.draft || session.saving) {
-				event.preventDefault();
-				return;
+function syncUnloadGuard(): void {
+	if (typeof window === 'undefined') return;
+	if (sessions.size && !unloadListener) {
+		unloadListener = (event) => {
+			for (const session of sessions.values()) {
+				if (session.draft || session.saving) {
+					event.preventDefault();
+					return;
+				}
 			}
-		}
-	});
+		};
+		window.addEventListener('beforeunload', unloadListener);
+	} else if (!sessions.size && unloadListener) {
+		window.removeEventListener('beforeunload', unloadListener);
+		unloadListener = null;
+	}
 }
 
 /** What the editor is given of a page: its text and its JSON (checked for what the editor cannot carry). */
@@ -390,8 +397,11 @@ export function useDocsAutosave(page: IDocumentPage | null) {
 
 	const hasDraft = useCallback(() => Boolean(current()?.draft), [current]);
 
-	// Effects run in the browser only: the guard is added there, once.
-	useEffect(() => guardUnload(), []);
+	// Effects run in the browser only: the tab guard follows the page sessions (added with the first, removed with the last).
+	useEffect(() => {
+		syncUnloadGuard();
+		return syncUnloadGuard;
+	}, []);
 
 	return { state: view.state, change, flushNow, reload, keepMine, discard, restoredHtml: view.restoredHtml, hasDraft };
 }
