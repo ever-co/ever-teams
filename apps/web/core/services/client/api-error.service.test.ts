@@ -1,4 +1,34 @@
+import { createdTaskIdOf } from '@/core/lib/utils/chat-task';
 import { ApiErrorService } from './api-error.service';
+
+describe('ApiErrorService keeps what a failure still made', () => {
+	it("keeps the task id of a chat create-task that created the task but could not link the message", () => {
+		const error = ApiErrorService.fromAxiosError({
+			message: 'Request failed with status code 500',
+			status: 500,
+			response: {
+				data: { statusCode: 500, message: 'The task was created (t-1) but the message could not be linked to it', taskId: 't-1' },
+				headers: {},
+				status: 500,
+				statusText: 'Internal Server Error'
+			}
+		});
+
+		expect(error.details).toEqual({ taskId: 't-1' });
+		expect(createdTaskIdOf(error)).toBe('t-1');
+	});
+
+	it('adds nothing when the body names no task', () => {
+		const error = ApiErrorService.fromAxiosError({
+			message: 'Request failed with status code 500',
+			status: 500,
+			response: { data: { message: 'boom' }, headers: {}, status: 500, statusText: 'Internal Server Error' }
+		});
+
+		expect(error.details).toBeUndefined();
+		expect(createdTaskIdOf(error)).toBeNull();
+	});
+});
 
 function axiosError({
 	code,

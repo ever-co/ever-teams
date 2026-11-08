@@ -17,6 +17,13 @@ import { sendableConversations, sendToChatBodyOf } from '@/core/lib/utils/chat-t
 import { CHAT_MESSAGE_MAX_LENGTH, EChatConversationKind, EChatVisibility } from '@/core/types/interfaces/common/chat';
 
 /**
+ * The idempotency key of each task sent to each conversation, kept for the page's life and dropped once the platform
+ * accepted the send: a send that failed (or whose answer was lost) and is tried again, even after the dialog was closed
+ * and opened again, reuses its key, so the platform answers the message it already stored instead of posting it twice.
+ */
+const SEND_NONCES = new Map<string, string>();
+
+/**
  * "Send to chat" on a task: pick one of my conversations, add a note if wanted, and the task arrives there as a card
  * under the note (the task's title when there is no note). Mounted while open, so the conversations are read only then.
  */
@@ -31,9 +38,6 @@ export function SendTaskToChatDialog({ task, onClose }: Readonly<{ task: { id: s
 	const [note, setNote] = useState('');
 	const [targetId, setTargetId] = useState<string | null>(null);
 	const [busy, setBusy] = useState(false);
-	// One idempotency key for this dialog: pressing Send again after a failure (the dialog stays open as the retry)
-	// never posts the message twice, even when the first attempt reached the platform. A new target gets a new key.
-	const [nonces] = useState(() => new Map<string, string>());
 	const unnamed = t('teamChat.UNNAMED');
 	const titleOf = useMemo(
 		() => (conversation: (typeof conversations)[number]) =>
@@ -48,8 +52,11 @@ export function SendTaskToChatDialog({ task, onClose }: Readonly<{ task: { id: s
 		if (!target || !body || busy) return;
 		setBusy(true);
 		try {
-			if (!nonces.has(target.id)) nonces.set(target.id, newNonce());
-			const message = await actions.send(target.id, { body, taskId: task.id, nonce: nonces.get(target.id) });
+			const key = `${task.id}:${target.id}`;
+			const nonce = SEND_NONCES.get(key) ?? newNonce();
+			SEND_NONCES.set(key, nonce);
+			const message = await actions.send(target.id, { body, taskId: task.id, nonce });
+			SEND_NONCES.delete(key);
 			onClose();
 			toast(t('teamChat.SENT_TO_CHAT', { name: titleOf(target) }), {
 				action: { label: t('teamChat.OPEN'), onClick: () => router.push(`/chat/${encodeURIComponent(target.id)}?m=${encodeURIComponent(message.id)}`) }
