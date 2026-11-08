@@ -2478,6 +2478,45 @@
 			"SIGN_IN": "Войти",
 			"MAINTENANCE_TITLE": "{appName} обновляется",
 			"MAINTENANCE_TEXT": "Сервис вернётся через несколько минут. Попробуйте чуть позже."
+		},
+		"about": {
+			"TITLE": "О программе",
+			"DESCRIPTION": "{appName} — открытая платформа для управления работой и проектами: учёт времени, задачи, планы на день и командная работа в одном месте.",
+			"LICENSE": "Открытый исходный код, распространяется по лицензии <license>AGPL-3.0</license>",
+			"VERSION_DETAILS": "Сведения о версии",
+			"WEB_APP": "Веб-приложение",
+			"API": "API",
+			"API_CONNECTED": "API подключён",
+			"API_UNREACHABLE": "API недоступен",
+			"API_CHECKING": "Проверка API…",
+			"ENVIRONMENT": "Окружение",
+			"BUILD": "Сборка",
+			"BUILD_DEVELOPMENT": "Разработка",
+			"BUILD_PRODUCTION": "Продакшн",
+			"DEPLOYMENT": "Развёртывание",
+			"MODE": "Режим",
+			"MODE_DEMO": "Демо",
+			"MODE_STANDARD": "Стандартный",
+			"RUNNING_IN": "Запущено в",
+			"RUNNING_IN_BROWSER": "Браузер",
+			"RUNNING_IN_DESKTOP": "Настольное приложение",
+			"API_ADDRESS": "Адрес API",
+			"LANGUAGE": "Язык",
+			"TIME_ZONE": "Часовой пояс",
+			"COPY": "Копировать",
+			"COPY_DETAILS": "Копировать сведения",
+			"COPIED": "Скопировано в буфер обмена",
+			"COPY_FAILED": "Не удалось скопировать в буфер обмена",
+			"LEARN_MORE": "Подробнее",
+			"ON_GITHUB": "На GitHub",
+			"ON_GITHUB_DESCRIPTION": "{appName} разрабатывается открыто: следите за релизами, сообщайте о проблемах или участвуйте в разработке.",
+			"REPOSITORY": "Репозиторий",
+			"RELEASES": "Релизы",
+			"ISSUES": "Задачи",
+			"PULL_REQUESTS": "Пул-реквесты",
+			"CONTRIBUTORS": "Участники",
+			"CONTRIBUTING": "Руководство для участников",
+			"API_REPOSITORY": "Репозиторий API (Ever Gauzy)"
 		}
 	},
 	"timer": {
@@ -4021,7 +4060,7 @@
 				"DETAILS_ERROR_TITLE": "Не удалось загрузить доски, сопоставления или запуски",
 				"LOAD_ERROR_TITLE": "Не удалось загрузить интеграцию Trello",
 				"ACTION_FAILED": "Не получилось",
-				"FINISH_ERROR_TITLE": "Не удалось подключить Trello",
+				"FINISH_ERROR_TITLE": "Не удалось подключить Trello",
 				"RETURN_REFUSED_TITLE": "Trello не вернул токен",
 				"RETURN_REFUSED": "Авторизация была отклонена или возврат прерван; ничего не подключено. Подключите снова, когда будете готовы."
 			}
@@ -5169,5 +5208,18 @@
 		"TRASH_ERROR": "Не удалось переместить страницу в корзину.",
 		"RESTORE_ERROR": "Не удалось восстановить страницу.",
 		"DELETE_ERROR": "Не удалось удалить страницу."
+	},
+	"whatsNew": {
+		"TITLE": "Что нового",
+		"BUTTON_LABEL": "Что нового",
+		"BUTTON_LABEL_UNSEEN": "Что нового (есть обновления)",
+		"DESCRIPTION": "Последние обновления {appName}.",
+		"NEW": "Новое",
+		"LEARN_MORE": "Подробнее",
+		"EMPTY_TITLE": "Вы в курсе всех новостей",
+		"EMPTY_DESCRIPTION": "Здесь будут появляться новые функции и улучшения.",
+		"ERROR": "Не удалось загрузить последние обновления.",
+		"RETRY": "Повторить",
+		"ABOUT_LINK": "О {appName}"
 	}
 }

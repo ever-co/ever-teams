@@ -2478,6 +2478,45 @@
 			"SIGN_IN": "Вход",
 			"MAINTENANCE_TITLE": "{appName} се обновява",
 			"MAINTENANCE_TEXT": "Ще се върне след няколко минути. Опитайте отново след малко."
+		},
+		"about": {
+			"TITLE": "Относно",
+			"DESCRIPTION": "{appName} е отворена платформа за управление на работата и проектите: отчитане на времето, задачи, дневни планове и екипна работа на едно място.",
+			"LICENSE": "Отворен код, публикуван под лиценза <license>AGPL-3.0</license>",
+			"VERSION_DETAILS": "Информация за версията",
+			"WEB_APP": "Уеб приложение",
+			"API": "API",
+			"API_CONNECTED": "API е свързан",
+			"API_UNREACHABLE": "API е недостъпен",
+			"API_CHECKING": "Проверка на API…",
+			"ENVIRONMENT": "Среда",
+			"BUILD": "Компилация",
+			"BUILD_DEVELOPMENT": "Разработка",
+			"BUILD_PRODUCTION": "Продукция",
+			"DEPLOYMENT": "Внедряване",
+			"MODE": "Режим",
+			"MODE_DEMO": "Демо",
+			"MODE_STANDARD": "Стандартен",
+			"RUNNING_IN": "Работи в",
+			"RUNNING_IN_BROWSER": "Браузър",
+			"RUNNING_IN_DESKTOP": "Настолно приложение",
+			"API_ADDRESS": "Адрес на API",
+			"LANGUAGE": "Език",
+			"TIME_ZONE": "Часова зона",
+			"COPY": "Копирай",
+			"COPY_DETAILS": "Копирай данните",
+			"COPIED": "Копирано в клипборда",
+			"COPY_FAILED": "Неуспешно копиране в клипборда",
+			"LEARN_MORE": "Научете повече",
+			"ON_GITHUB": "В GitHub",
+			"ON_GITHUB_DESCRIPTION": "{appName} се разработва открито: следете версиите, докладвайте проблем или допринесете.",
+			"REPOSITORY": "Хранилище",
+			"RELEASES": "Версии",
+			"ISSUES": "Проблеми",
+			"PULL_REQUESTS": "Pull заявки",
+			"CONTRIBUTORS": "Сътрудници",
+			"CONTRIBUTING": "Ръководство за сътрудници",
+			"API_REPOSITORY": "Хранилище на API (Ever Gauzy)"
 		}
 	},
 	"timer": {
@@ -4021,7 +4060,7 @@
 				"DETAILS_ERROR_TITLE": "Дъските, съпоставянията или изпълненията не можаха да бъдат заредени",
 				"LOAD_ERROR_TITLE": "Интеграцията с Trello не можа да бъде заредена",
 				"ACTION_FAILED": "Това не се получи",
-				"FINISH_ERROR_TITLE": "Trello не можа да бъде свързан",
+				"FINISH_ERROR_TITLE": "Trello не можа да бъде свързан",
 				"RETURN_REFUSED_TITLE": "Trello не върна токен",
 				"RETURN_REFUSED": "Оторизацията беше отказана или връщането беше прекъснато; нищо не беше свързано. Свържете отново, когато сте готови."
 			}
@@ -5169,5 +5208,18 @@
 		"TRASH_ERROR": "Страницата не можа да се премести в кошчето.",
 		"RESTORE_ERROR": "Страницата не можа да се възстанови.",
 		"DELETE_ERROR": "Страницата не можа да се изтрие."
+	},
+	"whatsNew": {
+		"TITLE": "Какво ново",
+		"BUTTON_LABEL": "Какво ново",
+		"BUTTON_LABEL_UNSEEN": "Какво ново (нови актуализации)",
+		"DESCRIPTION": "Последните актуализации на {appName}.",
+		"NEW": "Ново",
+		"LEARN_MORE": "Научете повече",
+		"EMPTY_TITLE": "Вие сте в течение",
+		"EMPTY_DESCRIPTION": "Новите функции и подобрения ще се появяват тук.",
+		"ERROR": "Последните актуализации не можаха да бъдат заредени.",
+		"RETRY": "Опитай отново",
+		"ABOUT_LINK": "За {appName}"
 	}
 }

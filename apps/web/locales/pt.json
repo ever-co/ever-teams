@@ -2478,6 +2478,45 @@
 			"SIGN_IN": "Entrar",
 			"MAINTENANCE_TITLE": "{appName} está sendo atualizado",
 			"MAINTENANCE_TEXT": "Volta em alguns minutos. Tente de novo em breve."
+		},
+		"about": {
+			"TITLE": "Sobre",
+			"DESCRIPTION": "{appName} é uma plataforma aberta de gestão de trabalho e projetos: controle de tempo, tarefas, planos diários e colaboração da equipe em um só lugar.",
+			"LICENSE": "Código aberto, publicado sob a licença <license>AGPL-3.0</license>",
+			"VERSION_DETAILS": "Detalhes da versão",
+			"WEB_APP": "Aplicativo web",
+			"API": "API",
+			"API_CONNECTED": "API conectada",
+			"API_UNREACHABLE": "API inacessível",
+			"API_CHECKING": "Verificando a API…",
+			"ENVIRONMENT": "Ambiente",
+			"BUILD": "Build",
+			"BUILD_DEVELOPMENT": "Desenvolvimento",
+			"BUILD_PRODUCTION": "Produção",
+			"DEPLOYMENT": "Implantação",
+			"MODE": "Modo",
+			"MODE_DEMO": "Demo",
+			"MODE_STANDARD": "Padrão",
+			"RUNNING_IN": "Executando em",
+			"RUNNING_IN_BROWSER": "Navegador",
+			"RUNNING_IN_DESKTOP": "Aplicativo desktop",
+			"API_ADDRESS": "Endereço da API",
+			"LANGUAGE": "Idioma",
+			"TIME_ZONE": "Fuso horário",
+			"COPY": "Copiar",
+			"COPY_DETAILS": "Copiar detalhes",
+			"COPIED": "Copiado para a área de transferência",
+			"COPY_FAILED": "Não foi possível copiar para a área de transferência",
+			"LEARN_MORE": "Saiba mais",
+			"ON_GITHUB": "No GitHub",
+			"ON_GITHUB_DESCRIPTION": "{appName} é desenvolvido de forma aberta: acompanhe as versões, relate um problema ou contribua.",
+			"REPOSITORY": "Repositório",
+			"RELEASES": "Versões",
+			"ISSUES": "Issues",
+			"PULL_REQUESTS": "Pull requests",
+			"CONTRIBUTORS": "Colaboradores",
+			"CONTRIBUTING": "Guia de contribuição",
+			"API_REPOSITORY": "Repositório da API (Ever Gauzy)"
 		}
 	},
 	"timer": {
@@ -4021,7 +4060,7 @@
 				"DETAILS_ERROR_TITLE": "Não foi possível carregar os quadros, as associações ou as execuções",
 				"LOAD_ERROR_TITLE": "Não foi possível carregar a integração do Trello",
 				"ACTION_FAILED": "Isso não funcionou",
-				"FINISH_ERROR_TITLE": "Não foi possível ligar o Trello",
+				"FINISH_ERROR_TITLE": "Não foi possível ligar o Trello",
 				"RETURN_REFUSED_TITLE": "O Trello não devolveu um token",
 				"RETURN_REFUSED": "A autorização foi recusada ou o regresso foi interrompido; nada foi ligado. Ligue de novo quando estiver pronto."
 			}
@@ -5169,5 +5208,18 @@
 		"TRASH_ERROR": "Não foi possível mover a página para a lixeira.",
 		"RESTORE_ERROR": "Não foi possível restaurar a página.",
 		"DELETE_ERROR": "Não foi possível excluir a página."
+	},
+	"whatsNew": {
+		"TITLE": "Novidades",
+		"BUTTON_LABEL": "Novidades",
+		"BUTTON_LABEL_UNSEEN": "Novidades (novas atualizações)",
+		"DESCRIPTION": "As últimas atualizações do {appName}.",
+		"NEW": "Novo",
+		"LEARN_MORE": "Saiba mais",
+		"EMPTY_TITLE": "Você está em dia",
+		"EMPTY_DESCRIPTION": "Novos recursos e melhorias aparecerão aqui.",
+		"ERROR": "Não foi possível carregar as últimas atualizações.",
+		"RETRY": "Tentar novamente",
+		"ABOUT_LINK": "Sobre o {appName}"
 	}
 }

@@ -2478,6 +2478,45 @@
 			"SIGN_IN": "Se connecter",
 			"MAINTENANCE_TITLE": "{appName} est en cours de mise à jour",
 			"MAINTENANCE_TEXT": "Le service revient dans quelques minutes. Réessayez sous peu."
+		},
+		"about": {
+			"TITLE": "À propos",
+			"DESCRIPTION": "{appName} est une plateforme ouverte de gestion du travail et des projets : suivi du temps, tâches, plans quotidiens et collaboration d'équipe au même endroit.",
+			"LICENSE": "Open source, publié sous la licence <license>AGPL-3.0</license>",
+			"VERSION_DETAILS": "Détails de la version",
+			"WEB_APP": "Application web",
+			"API": "API",
+			"API_CONNECTED": "API connectée",
+			"API_UNREACHABLE": "API injoignable",
+			"API_CHECKING": "Vérification de l'API…",
+			"ENVIRONMENT": "Environnement",
+			"BUILD": "Build",
+			"BUILD_DEVELOPMENT": "Développement",
+			"BUILD_PRODUCTION": "Production",
+			"DEPLOYMENT": "Déploiement",
+			"MODE": "Mode",
+			"MODE_DEMO": "Démo",
+			"MODE_STANDARD": "Standard",
+			"RUNNING_IN": "Exécuté dans",
+			"RUNNING_IN_BROWSER": "Navigateur",
+			"RUNNING_IN_DESKTOP": "Application de bureau",
+			"API_ADDRESS": "Adresse de l'API",
+			"LANGUAGE": "Langue",
+			"TIME_ZONE": "Fuseau horaire",
+			"COPY": "Copier",
+			"COPY_DETAILS": "Copier les détails",
+			"COPIED": "Copié dans le presse-papiers",
+			"COPY_FAILED": "Impossible de copier dans le presse-papiers",
+			"LEARN_MORE": "En savoir plus",
+			"ON_GITHUB": "Sur GitHub",
+			"ON_GITHUB_DESCRIPTION": "{appName} est développé ouvertement : suivez les versions, signalez un problème ou contribuez.",
+			"REPOSITORY": "Dépôt",
+			"RELEASES": "Versions",
+			"ISSUES": "Tickets",
+			"PULL_REQUESTS": "Pull requests",
+			"CONTRIBUTORS": "Contributeurs",
+			"CONTRIBUTING": "Guide de contribution",
+			"API_REPOSITORY": "Dépôt de l'API (Ever Gauzy)"
 		}
 	},
 	"timer": {
@@ -4021,7 +4060,7 @@
 				"DETAILS_ERROR_TITLE": "Les tableaux, associations ou exécutions n'ont pas pu être chargés",
 				"LOAD_ERROR_TITLE": "L'intégration Trello n'a pas pu être chargée",
 				"ACTION_FAILED": "Cela n'a pas fonctionné",
-				"FINISH_ERROR_TITLE": "Trello n'a pas pu être connecté",
+				"FINISH_ERROR_TITLE": "Trello n'a pas pu être connecté",
 				"RETURN_REFUSED_TITLE": "Trello n'a pas renvoyé de jeton",
 				"RETURN_REFUSED": "L'autorisation a été refusée ou le retour a été interrompu ; rien n'a été connecté. Reconnectez quand vous serez prêt."
 			}
@@ -5169,5 +5208,18 @@
 		"TRASH_ERROR": "La page n’a pas pu être mise à la corbeille.",
 		"RESTORE_ERROR": "La page n’a pas pu être restaurée.",
 		"DELETE_ERROR": "La page n’a pas pu être supprimée."
+	},
+	"whatsNew": {
+		"TITLE": "Nouveautés",
+		"BUTTON_LABEL": "Nouveautés",
+		"BUTTON_LABEL_UNSEEN": "Nouveautés (nouvelles mises à jour)",
+		"DESCRIPTION": "Les dernières mises à jour de {appName}.",
+		"NEW": "Nouveau",
+		"LEARN_MORE": "En savoir plus",
+		"EMPTY_TITLE": "Vous êtes à jour",
+		"EMPTY_DESCRIPTION": "Les nouvelles fonctionnalités et améliorations apparaîtront ici.",
+		"ERROR": "Les dernières mises à jour n'ont pas pu être chargées.",
+		"RETRY": "Réessayer",
+		"ABOUT_LINK": "À propos de {appName}"
 	}
 }

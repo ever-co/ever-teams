@@ -2478,6 +2478,45 @@
 			"SIGN_IN": "Anmelden",
 			"MAINTENANCE_TITLE": "{appName} wird aktualisiert",
 			"MAINTENANCE_TEXT": "In wenigen Minuten ist es wieder da. Versuche es gleich noch einmal."
+		},
+		"about": {
+			"TITLE": "Über",
+			"DESCRIPTION": "{appName} ist eine offene Plattform für Arbeits- und Projektmanagement: Zeiterfassung, Aufgaben, Tagespläne und Zusammenarbeit im Team an einem Ort.",
+			"LICENSE": "Open Source, veröffentlicht unter der <license>AGPL-3.0</license>",
+			"VERSION_DETAILS": "Versionsdetails",
+			"WEB_APP": "Web-App",
+			"API": "API",
+			"API_CONNECTED": "API verbunden",
+			"API_UNREACHABLE": "API nicht erreichbar",
+			"API_CHECKING": "API wird geprüft…",
+			"ENVIRONMENT": "Umgebung",
+			"BUILD": "Build",
+			"BUILD_DEVELOPMENT": "Entwicklung",
+			"BUILD_PRODUCTION": "Produktion",
+			"DEPLOYMENT": "Bereitstellung",
+			"MODE": "Modus",
+			"MODE_DEMO": "Demo",
+			"MODE_STANDARD": "Standard",
+			"RUNNING_IN": "Läuft in",
+			"RUNNING_IN_BROWSER": "Browser",
+			"RUNNING_IN_DESKTOP": "Desktop-App",
+			"API_ADDRESS": "API-Adresse",
+			"LANGUAGE": "Sprache",
+			"TIME_ZONE": "Zeitzone",
+			"COPY": "Kopieren",
+			"COPY_DETAILS": "Details kopieren",
+			"COPIED": "In die Zwischenablage kopiert",
+			"COPY_FAILED": "Kopieren in die Zwischenablage fehlgeschlagen",
+			"LEARN_MORE": "Mehr erfahren",
+			"ON_GITHUB": "Auf GitHub",
+			"ON_GITHUB_DESCRIPTION": "{appName} wird offen entwickelt: Verfolge die Releases, melde ein Problem oder trage bei.",
+			"REPOSITORY": "Repository",
+			"RELEASES": "Releases",
+			"ISSUES": "Issues",
+			"PULL_REQUESTS": "Pull Requests",
+			"CONTRIBUTORS": "Mitwirkende",
+			"CONTRIBUTING": "Leitfaden für Beiträge",
+			"API_REPOSITORY": "API-Repository (Ever Gauzy)"
 		}
 	},
 	"timer": {
@@ -4021,7 +4060,7 @@
 				"DETAILS_ERROR_TITLE": "Die Boards, Zuordnungen oder Läufe konnten nicht geladen werden",
 				"LOAD_ERROR_TITLE": "Die Trello-Integration konnte nicht geladen werden",
 				"ACTION_FAILED": "Das hat nicht geklappt",
-				"FINISH_ERROR_TITLE": "Trello konnte nicht verbunden werden",
+				"FINISH_ERROR_TITLE": "Trello konnte nicht verbunden werden",
 				"RETURN_REFUSED_TITLE": "Trello hat kein Token zurückgegeben",
 				"RETURN_REFUSED": "Die Autorisierung wurde abgelehnt oder die Rückkehr abgebrochen; nichts wurde verbunden. Verbinden Sie erneut, wenn Sie bereit sind."
 			}
@@ -5169,5 +5208,18 @@
 		"TRASH_ERROR": "Die Seite konnte nicht in den Papierkorb verschoben werden.",
 		"RESTORE_ERROR": "Die Seite konnte nicht wiederhergestellt werden.",
 		"DELETE_ERROR": "Die Seite konnte nicht gelöscht werden."
+	},
+	"whatsNew": {
+		"TITLE": "Neuigkeiten",
+		"BUTTON_LABEL": "Neuigkeiten",
+		"BUTTON_LABEL_UNSEEN": "Neuigkeiten (neue Updates)",
+		"DESCRIPTION": "Die neuesten Updates von {appName}.",
+		"NEW": "Neu",
+		"LEARN_MORE": "Mehr erfahren",
+		"EMPTY_TITLE": "Du bist auf dem neuesten Stand",
+		"EMPTY_DESCRIPTION": "Neue Funktionen und Verbesserungen erscheinen hier.",
+		"ERROR": "Die neuesten Updates konnten nicht geladen werden.",
+		"RETRY": "Erneut versuchen",
+		"ABOUT_LINK": "Über {appName}"
 	}
 }

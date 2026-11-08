@@ -931,6 +931,11 @@ export const queryKeys = {
 		all: ['app-version'] as const
 	},
 
+	changelog: {
+		all: ['changelog'] as const,
+		entries: (platform: string) => ['changelog', platform] as const
+	},
+
 	// Keys related to email verification
 	emailVerification: {
 		all: ['email-verification'] as const,

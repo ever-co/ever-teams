@@ -6,7 +6,17 @@ import { useTranslations } from 'next-intl';
 import { Popover, PopoverButton, PopoverPanel } from '@headlessui/react';
 import { useAuthenticateUser } from '@/core/hooks';
 import { activeTeamState, isTeamManagerState, isTeamMemberState, publicState, timerStatusState } from '@/core/stores';
-import { Briefcase, ChevronRight, ChevronsUpDown, Globe, LogOut, Moon, Settings, Users } from '@/core/components/icons';
+import {
+	Briefcase,
+	ChevronRight,
+	ChevronsUpDown,
+	Globe,
+	InformationCircle,
+	LogOut,
+	Moon,
+	Settings,
+	Users
+} from '@/core/components/icons';
 import { TimerStatus, getTimerStatusValue } from '../timer/timer-status';
 import Collaborate from '@/core/components/collaborate';
 import { TeamsDropDown } from '../teams/teams-dropdown';
@@ -306,6 +316,12 @@ function UserNavMenu({ identity, showsIdentity }: Readonly<{ identity: AccountId
 					<Link href="/settings/personal" className={MENU_ROW}>
 						<Settings />
 						<span>{t('common.SETTINGS')}</span>
+					</Link>
+				</li>
+				<li>
+					<Link href="/about" className={MENU_ROW}>
+						<InformationCircle />
+						<span>{t('pages.about.TITLE')}</span>
 					</Link>
 				</li>
 			</ul>

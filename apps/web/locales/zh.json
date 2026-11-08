@@ -2478,6 +2478,45 @@
 			"SIGN_IN": "登录",
 			"MAINTENANCE_TITLE": "{appName} 正在更新",
 			"MAINTENANCE_TEXT": "几分钟后即可恢复，请稍后再试。"
+		},
+		"about": {
+			"TITLE": "关于",
+			"DESCRIPTION": "{appName} 是一个开放的工作与项目管理平台：时间跟踪、任务、每日计划和团队协作集于一处。",
+			"LICENSE": "开源，基于 <license>AGPL-3.0</license> 许可证发布",
+			"VERSION_DETAILS": "版本详情",
+			"WEB_APP": "网页应用",
+			"API": "API",
+			"API_CONNECTED": "API 已连接",
+			"API_UNREACHABLE": "API 无法访问",
+			"API_CHECKING": "正在检查 API…",
+			"ENVIRONMENT": "环境",
+			"BUILD": "构建",
+			"BUILD_DEVELOPMENT": "开发",
+			"BUILD_PRODUCTION": "生产",
+			"DEPLOYMENT": "部署",
+			"MODE": "模式",
+			"MODE_DEMO": "演示",
+			"MODE_STANDARD": "标准",
+			"RUNNING_IN": "运行于",
+			"RUNNING_IN_BROWSER": "浏览器",
+			"RUNNING_IN_DESKTOP": "桌面应用",
+			"API_ADDRESS": "API 地址",
+			"LANGUAGE": "语言",
+			"TIME_ZONE": "时区",
+			"COPY": "复制",
+			"COPY_DETAILS": "复制详情",
+			"COPIED": "已复制到剪贴板",
+			"COPY_FAILED": "无法复制到剪贴板",
+			"LEARN_MORE": "了解更多",
+			"ON_GITHUB": "在 GitHub 上",
+			"ON_GITHUB_DESCRIPTION": "{appName} 以开放方式开发：关注发布、报告问题或参与贡献。",
+			"REPOSITORY": "代码仓库",
+			"RELEASES": "发布",
+			"ISSUES": "问题",
+			"PULL_REQUESTS": "拉取请求",
+			"CONTRIBUTORS": "贡献者",
+			"CONTRIBUTING": "贡献指南",
+			"API_REPOSITORY": "API 代码仓库（Ever Gauzy）"
 		}
 	},
 	"timer": {
@@ -4021,7 +4060,7 @@
 				"DETAILS_ERROR_TITLE": "无法加载看板、映射或运行记录",
 				"LOAD_ERROR_TITLE": "无法加载 Trello 集成",
 				"ACTION_FAILED": "操作失败",
-				"FINISH_ERROR_TITLE": "无法连接 Trello",
+				"FINISH_ERROR_TITLE": "无法连接 Trello",
 				"RETURN_REFUSED_TITLE": "Trello 没有返回令牌",
 				"RETURN_REFUSED": "授权被拒绝或返回中断；未连接任何内容。准备好后再次连接。"
 			}
@@ -5169,5 +5208,18 @@
 		"TRASH_ERROR": "无法将页面移到回收站。",
 		"RESTORE_ERROR": "无法恢复页面。",
 		"DELETE_ERROR": "无法删除页面。"
+	},
+	"whatsNew": {
+		"TITLE": "新功能",
+		"BUTTON_LABEL": "新功能",
+		"BUTTON_LABEL_UNSEEN": "新功能（有新更新）",
+		"DESCRIPTION": "{appName} 的最新更新。",
+		"NEW": "新",
+		"LEARN_MORE": "了解更多",
+		"EMPTY_TITLE": "你已了解所有更新",
+		"EMPTY_DESCRIPTION": "新功能和改进将显示在这里。",
+		"ERROR": "无法加载最新更新。",
+		"RETRY": "重试",
+		"ABOUT_LINK": "关于 {appName}"
 	}
 }

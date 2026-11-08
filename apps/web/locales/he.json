@@ -2478,6 +2478,45 @@
 			"SIGN_IN": "התחברות",
 			"MAINTENANCE_TITLE": "{appName} מתעדכן",
 			"MAINTENANCE_TEXT": "השירות יחזור בעוד כמה דקות. נסו שוב בקרוב."
+		},
+		"about": {
+			"TITLE": "אודות",
+			"DESCRIPTION": "{appName} היא פלטפורמה פתוחה לניהול עבודה ופרויקטים: מעקב זמן, משימות, תוכניות יומיות ושיתוף פעולה בצוות במקום אחד.",
+			"LICENSE": "קוד פתוח, מופץ תחת רישיון <license>AGPL-3.0</license>",
+			"VERSION_DETAILS": "פרטי גרסה",
+			"WEB_APP": "אפליקציית ווב",
+			"API": "API",
+			"API_CONNECTED": "ה-API מחובר",
+			"API_UNREACHABLE": "ה-API אינו זמין",
+			"API_CHECKING": "בודק את ה-API…",
+			"ENVIRONMENT": "סביבה",
+			"BUILD": "בנייה",
+			"BUILD_DEVELOPMENT": "פיתוח",
+			"BUILD_PRODUCTION": "ייצור",
+			"DEPLOYMENT": "פריסה",
+			"MODE": "מצב",
+			"MODE_DEMO": "הדגמה",
+			"MODE_STANDARD": "רגיל",
+			"RUNNING_IN": "פועל ב",
+			"RUNNING_IN_BROWSER": "דפדפן",
+			"RUNNING_IN_DESKTOP": "אפליקציית שולחן עבודה",
+			"API_ADDRESS": "כתובת ה-API",
+			"LANGUAGE": "שפה",
+			"TIME_ZONE": "אזור זמן",
+			"COPY": "העתקה",
+			"COPY_DETAILS": "העתקת הפרטים",
+			"COPIED": "הועתק ללוח",
+			"COPY_FAILED": "ההעתקה ללוח נכשלה",
+			"LEARN_MORE": "למידע נוסף",
+			"ON_GITHUB": "ב-GitHub",
+			"ON_GITHUB_DESCRIPTION": "{appName} מפותחת בגלוי: עקבו אחר הגרסאות, דווחו על בעיה או תרמו.",
+			"REPOSITORY": "מאגר",
+			"RELEASES": "גרסאות",
+			"ISSUES": "בעיות",
+			"PULL_REQUESTS": "בקשות משיכה",
+			"CONTRIBUTORS": "תורמים",
+			"CONTRIBUTING": "מדריך לתורמים",
+			"API_REPOSITORY": "מאגר ה-API (Ever Gauzy)"
 		}
 	},
 	"timer": {
@@ -4021,7 +4060,7 @@
 				"DETAILS_ERROR_TITLE": "לא ניתן היה לטעון את הלוחות, המיפויים או הריצות",
 				"LOAD_ERROR_TITLE": "לא ניתן היה לטעון את האינטגרציה עם Trello",
 				"ACTION_FAILED": "זה לא עבד",
-				"FINISH_ERROR_TITLE": "לא ניתן היה לחבר את Trello",
+				"FINISH_ERROR_TITLE": "לא ניתן היה לחבר את Trello",
 				"RETURN_REFUSED_TITLE": "Trello לא החזיר אסימון",
 				"RETURN_REFUSED": "ההרשאה נדחתה או שהחזרה נקטעה; שום דבר לא חובר. התחברו שוב כשתהיו מוכנים."
 			}
@@ -5169,5 +5208,18 @@
 		"TRASH_ERROR": "לא ניתן להעביר את הדף לאשפה.",
 		"RESTORE_ERROR": "לא ניתן לשחזר את הדף.",
 		"DELETE_ERROR": "לא ניתן למחוק את הדף."
+	},
+	"whatsNew": {
+		"TITLE": "מה חדש",
+		"BUTTON_LABEL": "מה חדש",
+		"BUTTON_LABEL_UNSEEN": "מה חדש (עדכונים חדשים)",
+		"DESCRIPTION": "העדכונים האחרונים של {appName}.",
+		"NEW": "חדש",
+		"LEARN_MORE": "למידע נוסף",
+		"EMPTY_TITLE": "אתם מעודכנים",
+		"EMPTY_DESCRIPTION": "תכונות ושיפורים חדשים יופיעו כאן.",
+		"ERROR": "לא ניתן היה לטעון את העדכונים האחרונים.",
+		"RETRY": "ניסיון חוזר",
+		"ABOUT_LINK": "אודות {appName}"
 	}
 }
