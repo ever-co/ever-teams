@@ -53,7 +53,11 @@ interface SessionView {
  * latest clock this tab wrote, and a draft whose save fails stays until it is saved, reloaded or dropped.
  */
 interface PageSession {
+	/** The account and the page (see `sessionKey`). */
+	key: string;
 	pageId: string;
+	/** Dropped with every session of its account (another account signed in, or this one signed out): it does nothing more. */
+	dropped: boolean;
 	/** The text typed and not saved yet. */
 	draft: Draft | null;
 	/** The clock the next save states: the page version the draft builds on (moved by this tab's own writes only). */
@@ -71,17 +75,54 @@ interface PageSession {
 	views: Set<() => void>;
 }
 
+/** The page sessions of the signed-in account, by `sessionKey`. */
 const sessions = new Map<string, PageSession>();
 const IDLE_VIEW: SessionView = { state: 'idle', restoredHtml: null };
+/** The account the sessions belong to: a draft is never shown to, nor saved for, another account. */
+let sessionsAccount: string | null = null;
 
-function sessionOf(pageId: string, clock: string | null): PageSession {
-	let session = sessions.get(pageId);
+/** A session belongs to one account and one page: another account never finds it. */
+function sessionKey(userId: string, pageId: string): string {
+	return `${userId}:${pageId}`;
+}
+
+function sessionOf(userId: string, pageId: string, clock: string | null): PageSession {
+	if (sessionsAccount !== userId) {
+		// Another account in this tab: the previous account's drafts, timers and queued saves go before anything is shown.
+		forgetDocsDrafts();
+		sessionsAccount = userId;
+	}
+	const key = sessionKey(userId, pageId);
+	let session = sessions.get(key);
 	if (!session) {
-		session = { pageId, draft: null, base: clock, view: IDLE_VIEW, saving: false, queued: null, timer: null, applySaved: null, views: new Set() };
-		sessions.set(pageId, session);
+		session = { key, pageId, dropped: false, draft: null, base: clock, view: IDLE_VIEW, saving: false, queued: null, timer: null, applySaved: null, views: new Set() };
+		sessions.set(key, session);
 		syncUnloadGuard();
 	}
 	return session;
+}
+
+/**
+ * Drops every page session of this tab with its draft, timer and queued save (a save already sent settles nowhere):
+ * when the person signs out, and before another account's first page. Unsaved Docs text is not carried across
+ * accounts on a shared browser.
+ */
+export function forgetDocsDrafts(): void {
+	for (const session of sessions.values()) {
+		clearSessionTimer(session);
+		session.dropped = true;
+		session.draft = null;
+		session.queued = null;
+	}
+	sessions.clear();
+	sessionsAccount = null;
+	syncUnloadGuard();
+}
+
+/** Whether clock `a` comes after clock `b` (ISO times; an unreadable one is not taken as later). */
+function isLaterClock(a: string | null | undefined, b: string | null | undefined): boolean {
+	if (!a || !b) return false;
+	return Date.parse(a) > Date.parse(b);
 }
 
 /** Changes what the editors render, and tells them. */
@@ -100,7 +141,7 @@ function clearSessionTimer(session: PageSession): void {
 /** A session with no editor, no text and no work left is forgotten (the next visit starts from the page). */
 function releaseIfDone(session: PageSession): void {
 	if (session.views.size || session.draft || session.saving || session.timer || session.queued) return;
-	if (sessions.get(session.pageId) === session) sessions.delete(session.pageId);
+	if (sessions.get(session.key) === session) sessions.delete(session.key);
 	syncUnloadGuard();
 }
 
@@ -111,6 +152,7 @@ function releaseIfDone(session: PageSession): void {
  */
 async function saveSession(session: PageSession, options: { force?: boolean } = {}): Promise<boolean> {
 	clearSessionTimer(session);
+	if (session.dropped) return true;
 	const draft = session.draft;
 	if (!draft || !session.base) {
 		releaseIfDone(session);
@@ -140,9 +182,11 @@ async function saveSession(session: PageSession, options: { force?: boolean } = 
 		outcome = { failure: saveStateFromError(error) };
 	}
 	session.saving = false;
+	if (session.dropped) return false;
 	if ('saved' in outcome) {
 		const { saved } = outcome;
-		session.base = saved.updatedAt;
+		// A later clock already followed (a version restored while this save ran) is kept: the page moved on since.
+		if (!isLaterClock(session.base, saved.updatedAt)) session.base = saved.updatedAt;
 		const latest = session.draft === draft;
 		session.applySaved?.(saved, draft, latest);
 		if (latest) {
@@ -154,6 +198,12 @@ async function saveSession(session: PageSession, options: { force?: boolean } = 
 		}
 	} else {
 		updateView(session, { state: outcome.failure });
+		if (outcome.failure === 'conflict' || outcome.failure === 'locked') {
+			// A refusal waits for the person's decision: an autosave asked meanwhile does not retry on its own, while a
+			// Keep Mine asked meanwhile (a decision) still goes.
+			clearSessionTimer(session);
+			if (!session.queued?.force) session.queued = null;
+		}
 	}
 	const queued = session.queued;
 	session.queued = null;
@@ -163,11 +213,12 @@ async function saveSession(session: PageSession, options: { force?: boolean } = 
 }
 
 /**
- * A reload's read of the page landed (the draft was dropped when it started). Text typed meanwhile builds on the version
- * the person was shown: it saves on as usual when the page did not change, and waits as a conflict when it did.
+ * A reload's read of the page landed: the draft shown when it started (`shown`) is dropped now. Text typed meanwhile
+ * builds on the version the person was shown: it saves on as usual when the page did not change, and waits as a
+ * conflict when it did.
  */
-function settleReload(session: PageSession, clock: string): void {
-	const typed = session.draft;
+function settleReload(session: PageSession, shown: Draft | null, clock: string): void {
+	const typed = session.draft === shown ? null : session.draft;
 	if (typed && clock !== session.base) {
 		// Typed while the page was read again, and the page changed: that text builds on the version the person was
 		// shown, so it keeps its clock and waits for the person's decision instead of saving over the update.
@@ -183,6 +234,7 @@ function settleReload(session: PageSession, clock: string): void {
 		session.timer = setTimeout(() => void saveSession(session), DOCS_AUTOSAVE_DELAY_MS);
 		return;
 	}
+	session.draft = null;
 	updateView(session, { state: 'idle', restoredHtml: null });
 }
 
@@ -275,14 +327,16 @@ export function useDocsAutosave(page: IDocumentPage | null) {
 	const queryClient = useQueryClient();
 	const scope = useDocsScope();
 	const pageId = page?.id ?? null;
+	const userId = scope?.userId ?? null;
+	const key = pageId && userId ? sessionKey(userId, pageId) : null;
 	const clock = page?.updatedAt ?? null;
 	const clockRef = useRef(clock);
 	clockRef.current = clock;
 
 	const subscribe = useCallback(
 		(onChange: () => void) => {
-			if (!pageId) return () => undefined;
-			const session = sessionOf(pageId, clockRef.current);
+			if (!pageId || !userId) return () => undefined;
+			const session = sessionOf(userId, pageId, clockRef.current);
 			// Nothing kept from an earlier visit: this visit starts from the page.
 			if (!session.draft && !session.saving) {
 				session.base = clockRef.current;
@@ -294,14 +348,14 @@ export function useDocsAutosave(page: IDocumentPage | null) {
 				leaveSession(session);
 			};
 		},
-		[pageId]
+		[pageId, userId]
 	);
 	const view = useSyncExternalStore(
 		subscribe,
-		() => (pageId ? (sessions.get(pageId)?.view ?? IDLE_VIEW) : IDLE_VIEW),
+		() => (key ? (sessions.get(key)?.view ?? IDLE_VIEW) : IDLE_VIEW),
 		() => IDLE_VIEW
 	);
-	const current = useCallback(() => (pageId ? (sessions.get(pageId) ?? null) : null), [pageId]);
+	const current = useCallback(() => (key ? (sessions.get(key) ?? null) : null), [key]);
 
 	// A landed save goes into the cache through the last editor's client and scope (also when it lands after it left).
 	useEffect(() => {
@@ -313,9 +367,16 @@ export function useDocsAutosave(page: IDocumentPage | null) {
 			const patch = latest
 				? { updatedAt: saved.updatedAt, version: saved.version, contentHtml: draft.html, contentJson: draft.json ?? EMPTY_DOC }
 				: { updatedAt: saved.updatedAt, version: saved.version };
-			queryClient.setQueryData<IDocumentPage>(queryKeys.docs.page(scope?.tenantId, saved.id), (cached) => (cached ? { ...cached, ...patch } : cached));
+			// A page the cache already holds at a later clock (a version restored while this save ran) is not rolled back.
+			queryClient.setQueryData<IDocumentPage>(queryKeys.docs.page(scope?.tenantId, saved.id), (cached) =>
+				cached && !isLaterClock(cached.updatedAt, saved.updatedAt) ? { ...cached, ...patch } : cached
+			);
 			queryClient.setQueryData<IDocumentPage[]>(queryKeys.docs.tree(scope?.tenantId, scope?.organizationId), (cached) =>
-				cached ? cached.map((item) => (item.id === saved.id ? { ...item, updatedAt: saved.updatedAt, version: saved.version } : item)) : cached
+				cached
+					? cached.map((item) =>
+							item.id === saved.id && !isLaterClock(item.updatedAt, saved.updatedAt) ? { ...item, updatedAt: saved.updatedAt, version: saved.version } : item
+						)
+					: cached
 			);
 		};
 	}, [current, queryClient, scope?.organizationId, scope?.tenantId]);
@@ -357,14 +418,22 @@ export function useDocsAutosave(page: IDocumentPage | null) {
 		const session = current();
 		if (!session || !pageId) return;
 		clearSessionTimer(session);
-		session.draft = null;
 		session.queued = null;
+		// The draft shown is dropped once the page is read again, not before: a read that fails keeps it (and the tab's
+		// unload warning), with anything typed meanwhile.
+		const shown = session.draft;
+		const base = session.base;
 		const fresh = await queryClient.fetchQuery({
 			queryKey: queryKeys.docs.page(scope?.tenantId, pageId),
 			queryFn: ({ signal }) => docsService.getPage(pageId, signal),
 			staleTime: 0
 		});
-		settleReload(session, fresh.updatedAt);
+		if (session.base !== base) {
+			// A save of this tab landed during the read (a Keep Mine): its text and clock are newer than what was read.
+			void queryClient.invalidateQueries({ queryKey: queryKeys.docs.page(scope?.tenantId, pageId) });
+			return;
+		}
+		settleReload(session, shown, fresh.updatedAt);
 	}, [current, pageId, queryClient, scope?.tenantId]);
 
 	/** Keeps the draft on top of the other version, which the platform captures first. */

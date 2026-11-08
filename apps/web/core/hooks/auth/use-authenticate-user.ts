@@ -27,6 +27,7 @@ import { UseAuthenticateUserResult } from '@/core/types/interfaces/user/user';
 import { useUserQuery } from '../queries/user-user.query';
 import { logErrorInDev, logInDev } from '@/core/lib/helpers/error-message';
 import { clearChatHistoryForUser } from '@/core/components/features/chat-panel/chat-history';
+import { forgetDocsDrafts } from '@/core/hooks/docs/use-docs-autosave';
 import { rememberTeam } from '@/core/lib/auth/remembered-team';
 
 export const useAuthenticateUser = (defaultUser?: TUser): UseAuthenticateUserResult => {
@@ -171,6 +172,8 @@ export const useAuthenticateUser = (defaultUser?: TUser): UseAuthenticateUserRes
 		}
 		rememberTeam(user?.email, activeTeam?.id);
 		clearChatHistoryForUser(user?.id);
+		// Unsaved Docs text of this account stays in this browser's memory only while it is signed in.
+		forgetDocsDrafts();
 
 		// A TEAMS timer left running would keep counting after logout: stop it while the session still
 		// exists, without letting a failed or slow request hold the logout back. Past the server's midnight

@@ -21,11 +21,13 @@ jest.mock('@/core/services/client/api-error.service', () => ({
 	}
 }));
 
+let mockUserId = 'usr';
 jest.mock('./use-docs-scope', () => ({
-	useDocsScope: () => ({ tenantId: 'ten', organizationId: 'org', userId: 'usr', employeeId: null })
+	useDocsScope: () => ({ tenantId: 'ten', organizationId: 'org', userId: mockUserId, employeeId: null })
 }));
 
-import { useDocsAutosave, useEditorPageContent } from './use-docs-autosave';
+import { queryKeys } from '@/core/query/keys';
+import { forgetDocsDrafts, useDocsAutosave, useEditorPageContent } from './use-docs-autosave';
 
 const T1 = '2026-01-01T00:01:00.000Z';
 const T2 = '2026-01-01T00:02:00.000Z';
@@ -368,6 +370,162 @@ describe('useDocsAutosave, leaving a page', () => {
 		window.dispatchEvent(leaving);
 		expect(leaving.defaultPrevented).toBe(true);
 		other.unmount();
+	});
+
+	it('a failed reload keeps the draft, the text typed during the read, and the unload warning', async () => {
+		const { wrapper } = setup();
+		const page = pageOf('page-reload-fails');
+		mockUpdateContent.mockRejectedValueOnce({ statusCode: 409 });
+
+		const view = renderHook(() => useDocsAutosave(page), { wrapper });
+		await typeAndSaveNow(view, '<p>mine</p>');
+		expect(view.result.current.state).toBe('conflict');
+
+		// The read fails: the draft stays, and so does the tab's warning.
+		mockGetPage.mockRejectedValueOnce(new Error('offline'));
+		await act(async () => {
+			await view.result.current.reload().catch(() => undefined);
+		});
+		expect(view.result.current.hasDraft()).toBe(true);
+		expect(view.result.current.state).toBe('conflict');
+		const leaving = new Event('beforeunload', { cancelable: true });
+		window.dispatchEvent(leaving);
+		expect(leaving.defaultPrevented).toBe(true);
+
+		// It fails again with text typed during the read: that text stays.
+		const read = deferred<IDocumentPage>();
+		mockGetPage.mockReturnValueOnce(read.promise);
+		// Nothing renders before the read ends: the reload starts outside act.
+		const reloading = view.result.current.reload();
+		act(() => view.result.current.change('<p>mine, typed during the read</p>', null));
+		await act(async () => {
+			read.reject(new Error('offline'));
+			await reloading.catch(() => undefined);
+		});
+		expect(view.result.current.hasDraft()).toBe(true);
+		expect(view.result.current.state).toBe('conflict');
+
+		mockUpdateContent.mockRejectedValueOnce({ statusCode: 409 });
+		await act(async () => {
+			await view.result.current.flushNow();
+		});
+		expect(mockUpdateContent.mock.calls[1][1]).toMatchObject({ contentHtml: '<p>mine, typed during the read</p>', expectedUpdatedAt: page.updatedAt });
+	});
+
+	it('a refusal stops an autosave asked meanwhile: it waits for the decision instead of retrying', async () => {
+		const { wrapper } = setup();
+		const page = pageOf('page-refusal-stops');
+		const running = deferred<IDocumentPage>();
+		mockUpdateContent.mockReturnValueOnce(running.promise);
+
+		const view = renderHook(() => useDocsAutosave(page), { wrapper });
+		act(() => view.result.current.change('<p>one</p>', null));
+		act(() => void view.result.current.flushNow());
+		await typeAndSaveNow(view, '<p>one, two</p>');
+		await act(async () => {
+			running.reject({ statusCode: 409 });
+		});
+		// Long enough for a queued save to have gone.
+		await act(async () => {
+			await new Promise((resolve) => setTimeout(resolve, 20));
+		});
+		expect(view.result.current.state).toBe('conflict');
+		expect(mockUpdateContent).toHaveBeenCalledTimes(1);
+		expect(view.result.current.hasDraft()).toBe(true);
+	});
+
+	it('a save that lands after a version restore does not roll the page back to an older clock', async () => {
+		const { client, wrapper } = setup();
+		const page = pageOf('page-restore-race');
+		const key = queryKeys.docs.page('ten', page.id);
+		client.setQueryData(key, page);
+		const running = deferred<IDocumentPage>();
+		mockUpdateContent.mockReturnValueOnce(running.promise);
+
+		const view = renderHook(({ current }: { current: IDocumentPage }) => useDocsAutosave(current), { wrapper, initialProps: { current: page } });
+		act(() => view.result.current.change('<p>mine</p>', null));
+		act(() => void view.result.current.flushNow());
+		// A version is restored meanwhile: the draft is dropped and the page comes back at a later clock.
+		act(() => view.result.current.discard());
+		const restored = { ...page, updatedAt: T5, version: 9 } as IDocumentPage;
+		client.setQueryData(key, restored);
+		view.rerender({ current: restored });
+
+		await act(async () => {
+			running.resolve({ ...page, updatedAt: T1, version: 2 });
+		});
+		expect(client.getQueryData<IDocumentPage>(key)?.updatedAt).toBe(T5);
+
+		mockUpdateContent.mockResolvedValueOnce({ ...restored, updatedAt: '2026-01-01T00:06:00.000Z', version: 10 });
+		await typeAndSaveNow(view, '<p>after the restore</p>');
+		expect(mockUpdateContent.mock.calls[1][1]).toMatchObject({ expectedUpdatedAt: T5 });
+	});
+
+	it('a Keep Mine that lands during a reload is not undone by the older read', async () => {
+		const { wrapper } = setup();
+		const page = pageOf('page-reload-keep-mine');
+		mockUpdateContent.mockRejectedValueOnce({ statusCode: 409 });
+
+		const view = renderHook(() => useDocsAutosave(page), { wrapper });
+		await typeAndSaveNow(view, '<p>mine</p>');
+		expect(view.result.current.state).toBe('conflict');
+
+		const read = deferred<IDocumentPage>();
+		mockGetPage.mockReturnValueOnce(read.promise).mockResolvedValueOnce({ ...page, updatedAt: T1, version: 2 });
+		mockUpdateContent.mockResolvedValueOnce({ ...page, updatedAt: T2, version: 3 });
+		const reloading = view.result.current.reload();
+		act(() => view.result.current.change('<p>mine, kept</p>', null));
+		await act(async () => {
+			await view.result.current.keepMine();
+		});
+		expect(view.result.current.state).toBe('saved');
+		await act(async () => {
+			read.resolve({ ...page, updatedAt: T1, version: 2 });
+			await reloading;
+		});
+		expect(view.result.current.state).toBe('saved');
+
+		mockUpdateContent.mockResolvedValueOnce({ ...page, updatedAt: T3, version: 4 });
+		await typeAndSaveNow(view, '<p>mine, kept, more</p>');
+		expect(mockUpdateContent.mock.calls[2][1]).toMatchObject({ expectedUpdatedAt: T2 });
+	});
+
+	it('another account never sees nor saves a draft an account left, and signing out drops every draft', async () => {
+		const { wrapper } = setup();
+		const page = pageOf('page-account');
+		mockUpdateContent.mockRejectedValueOnce(new Error('offline'));
+		typeAndLeave(page, wrapper, '<p>account A only</p>');
+		await waitFor(() => expect(mockUpdateContent).toHaveBeenCalledTimes(1));
+		await act(async () => {});
+
+		mockUserId = 'usr-b';
+		const other = renderHook(() => useDocsAutosave(page), { wrapper });
+		expect(other.result.current.restoredHtml).toBeNull();
+		expect(other.result.current.state).toBe('idle');
+		expect(other.result.current.hasDraft()).toBe(false);
+		await act(async () => {
+			await other.result.current.flushNow();
+		});
+		expect(mockUpdateContent).toHaveBeenCalledTimes(1);
+		other.unmount();
+
+		// Back to the first account: its draft went when the other account signed in.
+		mockUserId = 'usr';
+		const back = renderHook(() => useDocsAutosave(page), { wrapper });
+		expect(back.result.current.restoredHtml).toBeNull();
+		back.unmount();
+
+		// Signing out drops every draft of the tab, and with them the unload warning.
+		mockUpdateContent.mockRejectedValueOnce(new Error('offline'));
+		typeAndLeave(pageOf('page-account-2'), wrapper, '<p>kept until sign-out</p>');
+		await waitFor(() => expect(mockUpdateContent).toHaveBeenCalledTimes(2));
+		await act(async () => {});
+		forgetDocsDrafts();
+		const leaving = new Event('beforeunload', { cancelable: true });
+		window.dispatchEvent(leaving);
+		expect(leaving.defaultPrevented).toBe(false);
+		const again = renderHook(() => useDocsAutosave(pageOf('page-account-2')), { wrapper });
+		expect(again.result.current.restoredHtml).toBeNull();
 	});
 
 	it('still keeps a draft waiting for a decision (a conflict) without saving it', async () => {
