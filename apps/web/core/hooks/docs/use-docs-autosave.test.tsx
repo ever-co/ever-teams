@@ -50,15 +50,39 @@ function setup() {
 	return { client, wrapper };
 }
 
+type Wrapper = ({ children }: { children: React.ReactNode }) => React.JSX.Element;
+
+/** An editor of the page typed the text and left. */
+function typeAndLeave(page: IDocumentPage, wrapper: Wrapper, text: string): void {
+	const view = renderHook(() => useDocsAutosave(page), { wrapper });
+	act(() => view.result.current.change(text, null));
+	view.unmount();
+}
+
+/** An editor of the page saved `saving` (that save still running), then typed `then` and left. */
+function leaveWhileSaving(page: IDocumentPage, wrapper: Wrapper, saving: string, then: string): void {
+	const view = renderHook(() => useDocsAutosave(page), { wrapper });
+	act(() => view.result.current.change(saving, null));
+	act(() => void view.result.current.flushNow());
+	act(() => view.result.current.change(then, null));
+	view.unmount();
+}
+
+/** Types the text in the editor and saves it at once (a Cmd+S). */
+async function typeAndSaveNow(view: { result: { current: ReturnType<typeof useDocsAutosave> } }, text: string): Promise<void> {
+	act(() => view.result.current.change(text, null));
+	await act(async () => {
+		await view.result.current.flushNow();
+	});
+}
+
 describe('useDocsAutosave, leaving a page', () => {
 	it('keeps the text when the departure save fails, and gives it back with the refusal on return', async () => {
 		const { wrapper } = setup();
 		const page = pageOf('page-failing');
 		mockUpdateContent.mockRejectedValueOnce(new Error('offline'));
 
-		const first = renderHook(() => useDocsAutosave(page), { wrapper });
-		act(() => first.result.current.change('<p>mine</p>', null));
-		first.unmount();
+		typeAndLeave(page, wrapper, '<p>mine</p>');
 		await waitFor(() => expect(mockUpdateContent).toHaveBeenCalledTimes(1));
 		await act(async () => {});
 
@@ -73,9 +97,7 @@ describe('useDocsAutosave, leaving a page', () => {
 		const page = pageOf('page-saved');
 		mockUpdateContent.mockResolvedValueOnce({ ...page, updatedAt: '2026-01-01T00:01:00.000Z', version: 2 });
 
-		const first = renderHook(() => useDocsAutosave(page), { wrapper });
-		act(() => first.result.current.change('<p>mine</p>', null));
-		first.unmount();
+		typeAndLeave(page, wrapper, '<p>mine</p>');
 		await waitFor(() => expect(mockUpdateContent).toHaveBeenCalledTimes(1));
 		await act(async () => {});
 
@@ -91,11 +113,7 @@ describe('useDocsAutosave, leaving a page', () => {
 		const running = deferred<IDocumentPage>();
 		mockUpdateContent.mockReturnValueOnce(running.promise).mockRejectedValueOnce({ statusCode: 423 });
 
-		const first = renderHook(() => useDocsAutosave(page), { wrapper });
-		act(() => first.result.current.change('<p>first</p>', null));
-		act(() => void first.result.current.flushNow());
-		act(() => first.result.current.change('<p>first and more</p>', null));
-		first.unmount();
+		leaveWhileSaving(page, wrapper, '<p>first</p>', '<p>first and more</p>');
 
 		// The running save is of the older text: the newer one is kept while it runs.
 		running.resolve({ ...page, updatedAt: '2026-01-01T00:01:00.000Z', version: 2 });
@@ -114,9 +132,7 @@ describe('useDocsAutosave, leaving a page', () => {
 		const running = deferred<IDocumentPage>();
 		mockUpdateContent.mockReturnValueOnce(running.promise);
 
-		const first = renderHook(() => useDocsAutosave(page), { wrapper });
-		act(() => first.result.current.change('<p>mine</p>', null));
-		first.unmount();
+		typeAndLeave(page, wrapper, '<p>mine</p>');
 
 		const back = renderHook(() => useDocsAutosave(page), { wrapper });
 		expect(back.result.current.restoredHtml).toBe('<p>mine</p>');
@@ -138,10 +154,7 @@ describe('useDocsAutosave, leaving a page', () => {
 		expect(mockUpdateContent).toHaveBeenCalledTimes(1);
 
 		mockUpdateContent.mockResolvedValueOnce({ ...page, updatedAt: T2, version: 3 });
-		act(() => back.result.current.change('<p>mine, and more</p>', null));
-		await act(async () => {
-			await back.result.current.flushNow();
-		});
+		await typeAndSaveNow(back, '<p>mine, and more</p>');
 		expect(mockUpdateContent).toHaveBeenLastCalledWith('page-return', expect.objectContaining({ expectedUpdatedAt: T1 }));
 		expect(back.result.current.state).toBe('saved');
 	});
@@ -153,11 +166,7 @@ describe('useDocsAutosave, leaving a page', () => {
 		const secondSave = deferred<IDocumentPage>();
 		mockUpdateContent.mockReturnValueOnce(firstSave.promise).mockReturnValueOnce(secondSave.promise);
 
-		const first = renderHook(() => useDocsAutosave(page), { wrapper });
-		act(() => first.result.current.change('<p>one</p>', null));
-		act(() => void first.result.current.flushNow());
-		act(() => first.result.current.change('<p>one, two</p>', null));
-		first.unmount();
+		leaveWhileSaving(page, wrapper, '<p>one</p>', '<p>one, two</p>');
 
 		const back = renderHook(() => useDocsAutosave(page), { wrapper });
 		expect(back.result.current.restoredHtml).toBe('<p>one, two</p>');
@@ -176,10 +185,7 @@ describe('useDocsAutosave, leaving a page', () => {
 		expect(back.result.current.hasDraft()).toBe(false);
 
 		mockUpdateContent.mockResolvedValueOnce({ ...page, updatedAt: T3, version: 4 });
-		act(() => back.result.current.change('<p>one, two, three</p>', null));
-		await act(async () => {
-			await back.result.current.flushNow();
-		});
+		await typeAndSaveNow(back, '<p>one, two, three</p>');
 		expect(mockUpdateContent).toHaveBeenCalledTimes(3);
 		expect(mockUpdateContent.mock.calls[2][1]).toMatchObject({ expectedUpdatedAt: T2 });
 	});
@@ -190,9 +196,7 @@ describe('useDocsAutosave, leaving a page', () => {
 		const running = deferred<IDocumentPage>();
 		mockUpdateContent.mockReturnValueOnce(running.promise);
 
-		const first = renderHook(() => useDocsAutosave(page), { wrapper });
-		act(() => first.result.current.change('<p>mine</p>', null));
-		first.unmount();
+		typeAndLeave(page, wrapper, '<p>mine</p>');
 
 		const back = renderHook(() => useDocsAutosave(page), { wrapper });
 		await act(async () => {
@@ -208,9 +212,7 @@ describe('useDocsAutosave, leaving a page', () => {
 		const page = pageOf('page-base');
 		mockUpdateContent.mockRejectedValueOnce(new Error('offline'));
 
-		const first = renderHook(() => useDocsAutosave(page), { wrapper });
-		act(() => first.result.current.change('<p>mine</p>', null));
-		first.unmount();
+		typeAndLeave(page, wrapper, '<p>mine</p>');
 		await waitFor(() => expect(mockUpdateContent).toHaveBeenCalledTimes(1));
 		await act(async () => {});
 
@@ -255,17 +257,10 @@ describe('useDocsAutosave, leaving a page', () => {
 		const firstSave = deferred<IDocumentPage>();
 		mockUpdateContent.mockReturnValueOnce(firstSave.promise).mockResolvedValueOnce({ ...page, updatedAt: T2, version: 3 });
 
-		const first = renderHook(() => useDocsAutosave(page), { wrapper });
-		act(() => first.result.current.change('<p>one</p>', null));
-		act(() => void first.result.current.flushNow());
-		act(() => first.result.current.change('<p>one, two</p>', null));
-		first.unmount();
+		leaveWhileSaving(page, wrapper, '<p>one</p>', '<p>one, two</p>');
 
 		const back = renderHook(() => useDocsAutosave(page), { wrapper });
-		act(() => back.result.current.change('<p>one, two, three</p>', null));
-		await act(async () => {
-			await back.result.current.flushNow();
-		});
+		await typeAndSaveNow(back, '<p>one, two, three</p>');
 		await act(async () => {
 			firstSave.resolve({ ...page, updatedAt: T1, version: 2 });
 		});
@@ -297,10 +292,7 @@ describe('useDocsAutosave, leaving a page', () => {
 		expect(back.result.current.state).toBe('idle');
 		expect(back.result.current.restoredHtml).toBeNull();
 		mockUpdateContent.mockResolvedValueOnce({ ...later, updatedAt: T5, version: 5 });
-		act(() => back.result.current.change('<p>new</p>', null));
-		await act(async () => {
-			await back.result.current.flushNow();
-		});
+		await typeAndSaveNow(back, '<p>new</p>');
 		expect(mockUpdateContent.mock.calls[1][1]).toMatchObject({ expectedUpdatedAt: T3 });
 	});
 
@@ -310,15 +302,12 @@ describe('useDocsAutosave, leaving a page', () => {
 		mockUpdateContent.mockRejectedValueOnce({ statusCode: 409 });
 
 		const view = renderHook(() => useDocsAutosave(page), { wrapper });
-		act(() => view.result.current.change('<p>mine</p>', null));
-		await act(async () => {
-			await view.result.current.flushNow();
-		});
+		await typeAndSaveNow(view, '<p>mine</p>');
 		expect(view.result.current.state).toBe('conflict');
 
 		const fresh = deferred<IDocumentPage>();
 		mockGetPage.mockReturnValueOnce(fresh.promise);
-		let reloading: Promise<void> = Promise.resolve();
+		let reloading: Promise<void> | undefined;
 		act(() => {
 			reloading = view.result.current.reload();
 		});
@@ -342,9 +331,7 @@ describe('useDocsAutosave, leaving a page', () => {
 		const page = pageOf('page-unload');
 		mockUpdateContent.mockRejectedValueOnce(new Error('offline'));
 
-		const first = renderHook(() => useDocsAutosave(page), { wrapper });
-		act(() => first.result.current.change('<p>mine</p>', null));
-		first.unmount();
+		typeAndLeave(page, wrapper, '<p>mine</p>');
 		await waitFor(() => expect(mockUpdateContent).toHaveBeenCalledTimes(1));
 		await act(async () => {});
 
@@ -361,10 +348,7 @@ describe('useDocsAutosave, leaving a page', () => {
 		mockUpdateContent.mockRejectedValueOnce({ statusCode: 409 });
 
 		const first = renderHook(() => useDocsAutosave(page), { wrapper });
-		act(() => first.result.current.change('<p>mine</p>', null));
-		await act(async () => {
-			await first.result.current.flushNow();
-		});
+		await typeAndSaveNow(first, '<p>mine</p>');
 		expect(first.result.current.state).toBe('conflict');
 		first.unmount();
 		await act(async () => {});

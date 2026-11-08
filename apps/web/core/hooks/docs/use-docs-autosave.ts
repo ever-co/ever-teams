@@ -88,7 +88,7 @@ function updateView(session: PageSession, patch: Partial<SessionView>): void {
 	const next = { ...session.view, ...patch };
 	if (next.state === session.view.state && next.restoredHtml === session.view.restoredHtml) return;
 	session.view = next;
-	for (const onChange of [...session.views]) onChange();
+	for (const onChange of session.views) onChange();
 }
 
 function clearSessionTimer(session: PageSession): void {
@@ -295,7 +295,7 @@ export function useDocsAutosave(page: IDocumentPage | null) {
 		const session = current();
 		if (!session || !clock) return;
 		const own = localWrites.get(session.pageId);
-		if (own && own.to === clock) {
+		if (own?.to === clock) {
 			localWrites.delete(session.pageId);
 			if (session.base === own.from) {
 				session.base = own.to;
