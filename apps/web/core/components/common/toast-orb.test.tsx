@@ -14,13 +14,13 @@ import { ToastOrb } from './toast-orb';
 describe('ToastOrb', () => {
 	const prototype = HTMLElement.prototype as unknown as { animate?: unknown };
 	const originalAnimate = prototype.animate;
-
-	beforeEach(() => {
+	const prefersReducedMotion = (reduce: boolean) =>
 		Object.defineProperty(window, 'matchMedia', {
 			configurable: true,
-			value: (query: string) => ({ matches: false, media: query, addEventListener: jest.fn(), removeEventListener: jest.fn() })
+			value: (query: string) => ({ matches: reduce, media: query, addEventListener: jest.fn(), removeEventListener: jest.fn() })
 		});
-	});
+
+	beforeEach(() => prefersReducedMotion(false));
 
 	afterEach(() => {
 		prototype.animate = originalAnimate;
@@ -28,7 +28,11 @@ describe('ToastOrb', () => {
 
 	it('appears without its arrival where the Web Animations API is missing', () => {
 		delete prototype.animate;
-		expect(() => render(<ToastOrb tone="error" />)).not.toThrow();
+		const { container } = render(<ToastOrb tone="error" />);
+		const orb = container.querySelector('span[aria-hidden="true"]') as HTMLElement | null;
+		expect(orb).not.toBeNull();
+		expect(orb?.style.getPropertyValue('--orb')).toBe('hsl(var(--destructive))');
+		expect(orb?.querySelector('span')).not.toBeNull();
 	});
 
 	it('plays its arrival once where the API is there', () => {
@@ -36,5 +40,13 @@ describe('ToastOrb', () => {
 		prototype.animate = animate;
 		render(<ToastOrb tone="success" />);
 		expect(animate).toHaveBeenCalledTimes(1);
+	});
+
+	it('plays no arrival when the person asks for reduced motion', () => {
+		const animate = jest.fn();
+		prototype.animate = animate;
+		prefersReducedMotion(true);
+		render(<ToastOrb tone="success" />);
+		expect(animate).not.toHaveBeenCalled();
 	});
 });

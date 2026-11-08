@@ -207,6 +207,9 @@ describe('AsanaProviderSection', () => {
 		// read, which renders the section selects with the new ones).
 		mockStatusOptions.mockReturnValue({ ...STATUSES, options: [{ name: 'completed' }] });
 		rerender(<AsanaProviderSection asana={asana} />);
+		// Revalidated by the new statuses alone, before any other field changes.
+		expect((within(form).getByRole('alert')).textContent ?? '').toContain('SECTION_MAP_INVALID {"values":"open"}');
+		expect((screen.getByTestId('asana-add-mapping-save') as HTMLButtonElement).disabled).toBe(true);
 		pickIn(within(form).getByTestId('asana-section-s-doing'), 'completed');
 		expect((within(form).getByRole('alert')).textContent ?? '').toContain('SECTION_MAP_INVALID {"values":"open"}');
 		expect((screen.getByTestId('asana-add-mapping-save') as HTMLButtonElement).disabled).toBe(true);
