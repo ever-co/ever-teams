@@ -73,6 +73,17 @@ describe('DemoBanner', () => {
 		expect(link.getAttribute('href')).toBe('https://teams.example.com/auth/signup');
 	});
 
+	it('links to the normalised URL when the configured one omits the slashes after the scheme', () => {
+		mockConfig.demo = true;
+		// The URL parser accepts this form, but as an href on an https page it is a path on the demo itself
+		mockRuntimeEnv.NEXT_PUBLIC_DEMO_SIGN_UP_URL = 'https:teams.example.com/auth/signup';
+
+		render(<DemoBanner />);
+
+		const link = screen.getByRole('link', { name: 'common.DEMO_BANNER_SIGN_UP' });
+		expect(link.getAttribute('href')).toBe('https://teams.example.com/auth/signup');
+	});
+
 	it('ignores a NEXT_PUBLIC_DEMO_SIGN_UP_URL that is not an absolute http(s) URL, with one warning', () => {
 		mockConfig.demo = true;
 		const warn = jest.spyOn(console, 'warn').mockImplementation(() => undefined);

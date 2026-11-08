@@ -18,8 +18,9 @@ export function demoSignUpUrl(): string {
 		readRuntimeEnv('NEXT_PUBLIC_DEMO_SIGN_UP_URL') || process.env.NEXT_PUBLIC_DEMO_SIGN_UP_URL
 	)?.trim();
 	if (configured) {
-		if (isAbsoluteHttpUrl(configured)) {
-			return configured;
+		const signUpUrl = toAbsoluteHttpUrl(configured);
+		if (signUpUrl) {
+			return signUpUrl;
 		}
 		// A scheme-less value would resolve against the demo's own origin, not the real sign-up page
 		if (!warnedInvalidSignUpUrl) {
@@ -41,12 +42,17 @@ function withoutTrailingSlashes(value: string): string {
 	return value.slice(0, end);
 }
 
-function isAbsoluteHttpUrl(value: string): boolean {
+/**
+ * `value` as a normalised absolute http(s) URL, or null. The parsed form is returned, never the raw string: the URL
+ * parser accepts `https:teams.example.com/auth/signup`, but a browser on an https page reads that `href` as a path on
+ * the demo itself.
+ */
+function toAbsoluteHttpUrl(value: string): string | null {
 	try {
-		const { protocol } = new URL(value);
-		return protocol === 'https:' || protocol === 'http:';
+		const url = new URL(value);
+		return (url.protocol === 'https:' || url.protocol === 'http:') && url.hostname ? url.href : null;
 	} catch {
-		return false;
+		return null;
 	}
 }
 
