@@ -13,6 +13,11 @@ jest.mock('./use-keyboard-preferences', () => ({
 	}
 }));
 
+/** The bindings as a refreshed user gives them: equal, but a new map (the listener is set up again). */
+function refreshBindings() {
+	mockBindings = effectiveBindings(SHORTCUT_COMMANDS, null);
+}
+
 import { isShortcutSequencePending, useShortcutHandlers, useShortcutListener } from './use-shortcuts';
 
 function Registry({ handlers }: Readonly<{ handlers: Record<string, () => void> }>) {
@@ -50,5 +55,17 @@ describe('the shortcut listener', () => {
 		fireEvent.keyDown(window, { code: 'KeyG', key: 'g' });
 		unmount();
 		expect(isShortcutSequencePending()).toBe(false);
+	});
+
+	it('keeps a sequence under way when the listener is set up again (the user refreshed between the keys)', () => {
+		const goOverdue = jest.fn();
+		const { rerender, unmount } = render(<Registry handlers={{ goOverdue }} />);
+		fireEvent.keyDown(window, { code: 'KeyG', key: 'g' });
+		refreshBindings();
+		rerender(<Registry handlers={{ goOverdue }} />);
+		expect(isShortcutSequencePending()).toBe(true);
+		fireEvent.keyDown(window, { code: 'KeyO', key: 'o' });
+		expect(goOverdue).toHaveBeenCalledTimes(1);
+		unmount();
 	});
 });

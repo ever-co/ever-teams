@@ -59,7 +59,7 @@ describe('shortcut bindings', () => {
 		expect(formatBinding(bindings.get('paletteOpen')!)).toBe('mod+k');
 	});
 
-	it('keeps the default of a row key whose stored binding the list could not match', () => {
+	it('keeps the default of a command whose stored binding the help would refuse', () => {
 		// Stored by another client or by hand: a sequence, ⌘/Ctrl, or a key the list keeps for itself.
 		const bindings = effectiveBindings(SHORTCUT_COMMANDS, {
 			taskStatus: 'g s',
@@ -74,8 +74,12 @@ describe('shortcut bindings', () => {
 		expect(formatBinding(bindings.get('taskPriority')!)).toBe('p');
 		// An empty override still removes the key.
 		expect(bindings.get('taskLabels')).toBeNull();
-		// Commands the registry's listener runs keep any binding that parses, sequences included.
-		expect(formatBinding(effectiveBindings(SHORTCUT_COMMANDS, { listSaveView: 'g s' }).get('listSaveView')!)).toBe('g s');
+		// Commands the registry's listener runs take sequences; a key the list keeps or a browser combination is refused
+		// for them too (a "go to" on Esc would run as the focused row clears its selection).
+		const registry = effectiveBindings(SHORTCUT_COMMANDS, { listSaveView: 'g s', goTasks: 'escape', helpOpen: 'mod+w' });
+		expect(formatBinding(registry.get('listSaveView')!)).toBe('g s');
+		expect(formatBinding(registry.get('goTasks')!)).toBe('g t');
+		expect(formatBinding(registry.get('helpOpen')!)).toBe('?');
 	});
 
 	it('refuses a sequence or ⌘/Ctrl for a row key, a key the list keeps, and a browser combination', () => {

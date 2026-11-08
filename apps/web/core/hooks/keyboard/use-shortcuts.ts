@@ -134,9 +134,10 @@ export function useShortcutListener(): void {
 			if (pending.current.length) clearPending();
 		};
 		window.addEventListener('keydown', onKeyDown);
-		return () => {
-			window.removeEventListener('keydown', onKeyDown);
-			clearPending();
-		};
+		// The pending chords outlive a new listener (the user's data refreshed between `G` and `O`); its timer still
+		// lapses them.
+		return () => window.removeEventListener('keydown', onKeyDown);
 	}, [bindings, clearPending, contexts, handlers]);
+
+	useEffect(() => clearPending, [clearPending]);
 }

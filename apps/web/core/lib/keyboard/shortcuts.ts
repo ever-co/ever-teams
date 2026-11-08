@@ -229,9 +229,10 @@ export function effectiveBindings(commands: readonly ShortcutCommand[], override
 			continue;
 		}
 		const parsed = parseBinding(override);
-		// A row key the help would refuse (a sequence, ⌘/Ctrl, a key the list keeps), stored by another client or by
-		// hand, leaves the default in force.
-		const isUnusable = !parsed || (command.chordOnly === true && refusalOf(command, parsed) !== null);
+		// A binding the help would refuse (a browser combination, a key the list keeps, a sequence or ⌘/Ctrl for a row
+		// key), stored by another client or by hand, leaves the default in force: a "go to" on Esc would otherwise run
+		// as the focused row clears its selection.
+		const isUnusable = !parsed || refusalOf(command, parsed) !== null;
 		result.set(command.id, isUnusable ? defaultBinding : parsed);
 	}
 	return result;
