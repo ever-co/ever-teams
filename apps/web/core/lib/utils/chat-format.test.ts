@@ -7,10 +7,12 @@ import {
 	mentionQueryAt,
 	mentionedEmployeeIds,
 	mergeMessages,
+	nextMessageOrder,
 	plainBody,
 	sortConversations,
 	splitMentions,
-	suggestMentions
+	suggestMentions,
+	withMessageOrder
 } from './chat-format';
 
 const ANA = '11111111-1111-4111-8111-111111111111';
@@ -115,6 +117,24 @@ describe('messages', () => {
 		expect(bodyOf(original, edited).body).toBe('second');
 		// A reaction or a pin keeps the edit time: its copy lands.
 		expect(bodyOf(edited, reacted).reactions).toHaveLength(1);
+	});
+
+	it('orders stamped copies by the read or write they came from: a page read started earlier never undoes a reaction', () => {
+		const plain = message('a', '2026-01-01T10:01:00Z');
+		const earlierRead = nextMessageOrder();
+		const laterRead = nextMessageOrder();
+		expect(laterRead).toBeGreaterThan(earlierRead);
+		const stale = withMessageOrder([plain], earlierRead)[0];
+		const reacted = withMessageOrder([{ ...plain, reactions: [{ emoji: '👍', count: 1, mine: true }] }], laterRead)[0];
+
+		expect(mergeMessages([reacted], [stale])[0].reactions).toHaveLength(1);
+		expect(mergeMessages([stale], [reacted])[0].reactions).toHaveLength(1);
+		// A write applied after both reads (a reaction removed here) wins over either.
+		const removed = withMessageOrder([{ ...plain, reactions: [] }], nextMessageOrder())[0];
+		expect(mergeMessages([removed], [reacted])[0].reactions).toEqual([]);
+		// A deletion is final whatever the order.
+		const deleted = withMessageOrder([{ ...plain, body: '', deletedAt: '2026-01-01T10:09:00Z' }], earlierRead)[0];
+		expect(mergeMessages([deleted], [reacted])[0].deletedAt).toBe('2026-01-01T10:09:00Z');
 	});
 
 	it('keys a draft by conversation and thread', () => {

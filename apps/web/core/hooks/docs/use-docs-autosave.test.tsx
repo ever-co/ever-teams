@@ -7,9 +7,10 @@ import { act, renderHook, waitFor } from '@testing-library/react';
 import type { IDocumentNode, IDocumentPage } from '@/core/types/interfaces/common/docs';
 
 const mockUpdateContent = jest.fn();
+const mockGetPage = jest.fn();
 
 jest.mock('@/core/services/client/api/docs', () => ({
-	docsService: { updateContent: (...args: unknown[]) => mockUpdateContent(...args), getPage: jest.fn() }
+	docsService: { updateContent: (...args: unknown[]) => mockUpdateContent(...args), getPage: (...args: unknown[]) => mockGetPage(...args) }
 }));
 
 jest.mock('@/core/services/client/api-error.service', () => ({
@@ -225,6 +226,84 @@ describe('useDocsAutosave, leaving a page', () => {
 		expect(back.result.current.state).toBe('conflict');
 	});
 
+	it('a Keep Mine asked while a save runs keeps its forced snapshot when it goes', async () => {
+		const { wrapper } = setup();
+		const page = pageOf('page-keep-mine');
+		const running = deferred<IDocumentPage>();
+		mockUpdateContent.mockReturnValueOnce(running.promise).mockResolvedValueOnce({ ...page, updatedAt: T2, version: 3 });
+		mockGetPage.mockResolvedValueOnce({ ...page, updatedAt: T1, version: 2 });
+
+		const view = renderHook(() => useDocsAutosave(page), { wrapper });
+		act(() => view.result.current.change('<p>mine</p>', null));
+		act(() => void view.result.current.flushNow());
+		await act(async () => {
+			await view.result.current.keepMine();
+		});
+		expect(mockUpdateContent).toHaveBeenCalledTimes(1);
+
+		await act(async () => {
+			running.reject({ statusCode: 409 });
+		});
+		await waitFor(() => expect(mockUpdateContent).toHaveBeenCalledTimes(2));
+		expect(mockUpdateContent.mock.calls[1][1]).toMatchObject({ forceSnapshot: true, expectedUpdatedAt: T1, contentHtml: '<p>mine</p>' });
+		await waitFor(() => expect(view.result.current.state).toBe('saved'));
+	});
+
+	it('the text left behind never follows newer text typed after coming back: only the latest draft is saved', async () => {
+		const { wrapper } = setup();
+		const page = pageOf('page-superseded');
+		const firstSave = deferred<IDocumentPage>();
+		mockUpdateContent.mockReturnValueOnce(firstSave.promise).mockResolvedValueOnce({ ...page, updatedAt: T2, version: 3 });
+
+		const first = renderHook(() => useDocsAutosave(page), { wrapper });
+		act(() => first.result.current.change('<p>one</p>', null));
+		act(() => void first.result.current.flushNow());
+		act(() => first.result.current.change('<p>one, two</p>', null));
+		first.unmount();
+
+		const back = renderHook(() => useDocsAutosave(page), { wrapper });
+		act(() => back.result.current.change('<p>one, two, three</p>', null));
+		await act(async () => {
+			await back.result.current.flushNow();
+		});
+		await act(async () => {
+			firstSave.resolve({ ...page, updatedAt: T1, version: 2 });
+		});
+		await waitFor(() => expect(back.result.current.state).toBe('saved'));
+		await act(async () => {});
+
+		expect(mockUpdateContent.mock.calls.map((call) => (call[1] as { contentHtml: string }).contentHtml)).toEqual(['<p>one</p>', '<p>one, two, three</p>']);
+		expect(mockUpdateContent.mock.calls[1][1]).toMatchObject({ expectedUpdatedAt: T1 });
+		expect(back.result.current.hasDraft()).toBe(false);
+	});
+
+	it('a page left with nothing to save leaves nothing behind: the next visit starts from the page', async () => {
+		const { wrapper } = setup();
+		const page = pageOf('page-nothing-left');
+		const running = deferred<IDocumentPage>();
+		mockUpdateContent.mockReturnValueOnce(running.promise);
+
+		const first = renderHook(() => useDocsAutosave(page), { wrapper });
+		act(() => first.result.current.change('<p>mine</p>', null));
+		act(() => void first.result.current.flushNow());
+		first.unmount();
+		await act(async () => {
+			running.resolve({ ...page, updatedAt: T1, version: 2 });
+		});
+		await act(async () => {});
+
+		const later = { ...page, updatedAt: T3, version: 4 } as IDocumentPage;
+		const back = renderHook(() => useDocsAutosave(later), { wrapper });
+		expect(back.result.current.state).toBe('idle');
+		expect(back.result.current.restoredHtml).toBeNull();
+		mockUpdateContent.mockResolvedValueOnce({ ...later, updatedAt: T5, version: 5 });
+		act(() => back.result.current.change('<p>new</p>', null));
+		await act(async () => {
+			await back.result.current.flushNow();
+		});
+		expect(mockUpdateContent.mock.calls[1][1]).toMatchObject({ expectedUpdatedAt: T3 });
+	});
+
 	it('still keeps a draft waiting for a decision (a conflict) without saving it', async () => {
 		const { wrapper } = setup();
 		const page = pageOf('page-conflict');
@@ -259,13 +338,20 @@ describe('useEditorPageContent, a refreshed page', () => {
 		expect(view.result.current).toEqual({ html: '<p>theirs</p>', json: THEIRS });
 	});
 
-	it('waits while a draft is open, its JSON too (an unsupported one would drop the draft), and arrives once it is saved or dropped', () => {
+	it('waits while a draft is open, with no page JSON to check (an unsupported one would drop the draft), and arrives once it is saved or dropped', () => {
 		const view = render({ pageId: 'p1', html: '<p>one</p>', json: ONE, hasDraft: true });
 		view.rerender({ pageId: 'p1', html: '<p>theirs</p>', json: THEIRS, hasDraft: true });
 		expect(view.result.current.html).toBe('<p>one</p>');
-		expect(view.result.current.json).toBe(ONE);
+		expect(view.result.current.json).toBeNull();
 		view.rerender({ pageId: 'p1', html: '<p>theirs</p>', json: THEIRS, hasDraft: false });
 		expect(view.result.current).toEqual({ html: '<p>theirs</p>', json: THEIRS });
+	});
+
+	it('a draft taken back on a page whose JSON this editor cannot carry: the draft is shown, the JSON is not checked', () => {
+		const view = render({ pageId: 'p1', html: '<p>theirs</p>', json: THEIRS, hasDraft: true });
+		expect(view.result.current).toEqual({ html: '<p>theirs</p>', json: null });
+		view.rerender({ pageId: 'p1', html: '<p>theirs</p>', json: THEIRS, hasDraft: false });
+		expect(view.result.current.json).toBe(THEIRS);
 	});
 
 	it('never holds the content of another page', () => {

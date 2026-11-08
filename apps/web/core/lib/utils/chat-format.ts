@@ -143,12 +143,38 @@ export function newNonce(): string {
 }
 
 /**
- * Whether a copy of a message is older than the one held: a deletion is final, and an edit is never undone by a copy
- * from before it (an earlier edit time, or none). A reaction or a pin keeps the edit time, so its copy still lands.
+ * When this tab got a copy of a message: copies are stamped with an order taken as a read starts (or as a write's
+ * answer is applied), so a copy from a read started later, or a write applied later, supersedes one from before it.
+ * A reaction leaves the message's own times unchanged, so only this order tells such copies apart.
+ */
+let messageOrder = 0;
+
+/** The order of a read about to start, or of a write applied now: after every one taken before. */
+export function nextMessageOrder(): number {
+	messageOrder += 1;
+	return messageOrder;
+}
+
+/** Copies of messages stamped with the order of the read (or the write) they came from. */
+export function withMessageOrder<T extends IChatMessage>(messages: readonly T[], order: number): T[] {
+	return messages.map((message) => ({ ...message, readOrder: order }));
+}
+
+function orderOf(message: IChatMessage): number | undefined {
+	return (message as IChatMessage & { readOrder?: number }).readOrder;
+}
+
+/**
+ * Whether a copy of a message is older than the one held: a deletion is final; between two stamped copies the one
+ * from the later read (or write) wins, a reaction or a pin included; and an unstamped copy never undoes an edit
+ * (an earlier edit time, or none).
  */
 function isOlderCopy(incoming: IChatMessage, held: IChatMessage): boolean {
 	if (incoming.deletedAt) return false;
 	if (held.deletedAt) return true;
+	const incomingOrder = orderOf(incoming);
+	const heldOrder = orderOf(held);
+	if (incomingOrder !== undefined && heldOrder !== undefined) return incomingOrder < heldOrder;
 	if (!held.editedAt) return false;
 	return !incoming.editedAt || Date.parse(incoming.editedAt) < Date.parse(held.editedAt);
 }
