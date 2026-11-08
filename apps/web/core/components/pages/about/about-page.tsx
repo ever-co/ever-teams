@@ -74,12 +74,24 @@ const API_LABELS = {
 	checking: 'pages.about.API_CHECKING'
 } as const;
 
-/** Whether the API answered its version, is still being asked, or did not answer. */
-function getApiState(hasVersion: boolean, isLoading: boolean): ApiState {
+/**
+ * Whether the API answered its version, failed to, or has not said yet (loading, or paused while offline):
+ * "not reachable" only once a request has actually failed.
+ */
+function getApiState(hasVersion: boolean, hasFailed: boolean): ApiState {
 	if (hasVersion) {
 		return 'connected';
 	}
-	return isLoading ? 'checking' : 'unreachable';
+	return hasFailed ? 'unreachable' : 'checking';
+}
+
+/** A build as one line: version and commit, each only when known (`v1.2.3 (abc1234)`, `v1.2.3`, `abc1234`). */
+function formatBuild(version?: string | null, commit?: string | null): string {
+	const parts = [version?.trim() ? `v${getVersionNumber(version)}` : '', commit?.trim() ? `(${commit.trim()})` : ''];
+	return parts
+		.filter(Boolean)
+		.join(' ')
+		.replace(/^((.*))$/, '$1');
 }
 
 /** The deployment name the operator gave (the Sentry environment), if any. */
@@ -238,10 +250,10 @@ export function AboutPage() {
 	const t = useTranslations();
 	const locale = useLocale();
 	const webBuild = getWebBuildInfo();
-	const { data: apiVersion, isError: apiFailed, isLoading: apiLoading } = useAppVersionQuery();
+	const { data: apiVersion, isError: apiFailed } = useAppVersionQuery();
 
 	const hasApiVersion = Boolean(apiVersion?.version?.trim() || apiVersion?.commit?.trim());
-	const apiState = getApiState(hasApiVersion, apiLoading && !apiFailed);
+	const apiState = getApiState(hasApiVersion, apiFailed);
 	const apiStatusLabel = t(API_LABELS[apiState]);
 
 	const buildKind = getBuildKind(process.env.NODE_ENV);
@@ -269,13 +281,8 @@ export function AboutPage() {
 	const runningInLabel = t(IS_DESKTOP_APP ? 'pages.about.RUNNING_IN_DESKTOP' : 'pages.about.RUNNING_IN_BROWSER');
 
 	const details = formatAboutDetails(APP_NAME, [
-		[t('pages.about.WEB_APP'), `v${getVersionNumber(webBuild.version)} (${webBuild.commit})`],
-		[
-			t('pages.about.API'),
-			hasApiVersion && apiVersion
-				? `v${getVersionNumber(apiVersion.version)} (${apiVersion.commit})`
-				: apiStatusLabel
-		],
+		[t('pages.about.WEB_APP'), formatBuild(webBuild.version, webBuild.commit)],
+		[t('pages.about.API'), hasApiVersion ? formatBuild(apiVersion?.version, apiVersion?.commit) : apiStatusLabel],
 		[t('pages.about.BUILD'), buildLabel],
 		[t('pages.about.DEPLOYMENT'), deployment],
 		[t('pages.about.MODE'), modeLabel],

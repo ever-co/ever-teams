@@ -54,6 +54,19 @@ describe('About page links', () => {
 	});
 });
 
+describe('About page link checks', () => {
+	it('refuses a malformed address or one carrying credentials', () => {
+		expect(
+			getBrandingLinks({
+				...settings,
+				appLink: 'https://[bad',
+				companyLink: 'https://user:secret@example.com',
+				setByOperator: { app: true, company: true, terms: false, privacy: false }
+			})
+		).toEqual([]);
+	});
+});
+
 describe('About page details', () => {
 	it('reads the build kind from NODE_ENV', () => {
 		expect(getBuildKind('production')).toBe('production');

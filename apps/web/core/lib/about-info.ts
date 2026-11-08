@@ -41,7 +41,17 @@ export interface BrandingLink {
 	labelKey?: 'layout.footer.TERMS' | 'layout.footer.PRIVACY_POLICY';
 }
 
-const isHttpUrl = (value: string) => /^https?:\/\/[^\s/?#]/i.test(value.trim());
+/** A well-formed http(s) address with a host and no credentials in it: the only links the page renders. */
+const isHttpUrl = (value: string) => {
+	try {
+		const url = new URL(value.trim());
+		return (
+			(url.protocol === 'http:' || url.protocol === 'https:') && !!url.hostname && !url.username && !url.password
+		);
+	} catch {
+		return false;
+	}
+};
 
 const hostOf = (value: string) => {
 	try {
