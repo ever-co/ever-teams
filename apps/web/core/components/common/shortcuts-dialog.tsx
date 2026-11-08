@@ -12,8 +12,8 @@ import {
 	bindingKeyCaps,
 	chordOfEvent,
 	conflictsOf,
-	isBrowserReserved,
 	parseBinding,
+	refusalOf,
 	SHORTCUT_COMMANDS,
 	SHORTCUT_CONTEXTS,
 	withOverride,
@@ -27,6 +27,14 @@ import { shortcutsHelpOpenAtom } from '@/core/stores/common/shortcuts';
 
 /** How long the next chord of a recorded sequence may take. */
 const RECORD_TIMEOUT_MS = 900;
+
+/** Why a recorded binding is refused, as the person reads it. */
+const REFUSAL_MESSAGES = {
+	reserved: 'shortcuts.RESERVED',
+	sequence: 'shortcuts.SINGLE_KEY_ONLY',
+	modifier: 'shortcuts.NO_MOD_KEY',
+	listKey: 'shortcuts.LIST_KEY'
+} as const satisfies Record<NonNullable<ReturnType<typeof refusalOf>>, DottedLanguageObjectStringPaths>;
 
 function KeyCaps({ binding, isMac }: Readonly<{ binding: ShortcutBinding | null; isMac: boolean }>) {
 	const t = useTranslations();
@@ -116,8 +124,9 @@ export function ShortcutsDialog() {
 		async (commandId: string, binding: ShortcutBinding | null) => {
 			const command = SHORTCUT_COMMANDS.find((item) => item.id === commandId);
 			if (!command || isSaving) return;
-			if (binding && isBrowserReserved(binding)) {
-				toast.error(t('shortcuts.RESERVED'));
+			const refusal = binding ? refusalOf(command, binding) : null;
+			if (refusal) {
+				toast.error(t(REFUSAL_MESSAGES[refusal]));
 				return;
 			}
 			if (binding) {
