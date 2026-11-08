@@ -211,7 +211,7 @@ let unloadGuarded = false;
  * the tab, added by the first editor and kept: it only reads the sessions.
  */
 function guardUnload(): void {
-	if (unloadGuarded || typeof window === 'undefined') return;
+	if (unloadGuarded) return;
 	unloadGuarded = true;
 	window.addEventListener('beforeunload', (event) => {
 		for (const session of sessions.values()) {
@@ -390,7 +390,8 @@ export function useDocsAutosave(page: IDocumentPage | null) {
 
 	const hasDraft = useCallback(() => Boolean(current()?.draft), [current]);
 
-	useEffect(guardUnload, []);
+	// Effects run in the browser only: the guard is added there, once.
+	useEffect(() => guardUnload(), []);
 
 	return { state: view.state, change, flushNow, reload, keepMine, discard, restoredHtml: view.restoredHtml, hasDraft };
 }
