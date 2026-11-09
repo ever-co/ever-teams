@@ -117,6 +117,19 @@ describe('documentToMarkdown', () => {
 		expect(documentToMarkdown(doc)).toBe('| [go](https://x.test/a\\\\\\|b) |\n| --- |\n');
 	});
 
+	it('escapes parentheses in link and image destinations so they cannot end early', () => {
+		const doc: IDocumentNode = {
+			type: 'doc',
+			content: [
+				paragraph(text('wiki', [{ type: 'link', attrs: { href: 'https://x.test/a_(b)\\)c' } }])),
+				{ type: 'image', attrs: { src: 'https://x.test/p(1).png', alt: 'p' } }
+			]
+		};
+		expect(documentToMarkdown(doc)).toBe(
+			'[wiki](https://x.test/a_\\(b\\)\\\\\\)c)\n\n![p](https://x.test/p\\(1\\).png)\n'
+		);
+	});
+
 	it('exports a cell with a very long run of backslashes in linear time', () => {
 		const doc: IDocumentNode = {
 			type: 'doc',

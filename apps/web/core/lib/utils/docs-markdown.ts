@@ -171,11 +171,11 @@ function withMarks(text: string, marks: readonly { type: string; attrs?: Record<
 }
 
 /**
- * A link or image destination with its backslashes escaped (`\\` is a valid CommonMark escape there), so a backslash in
- * a URL survives, also before a `|` that a table cell escapes after it.
+ * A link or image destination with its backslashes and parentheses escaped (valid CommonMark escapes there): a backslash
+ * in a URL survives, also before a `|` that a table cell escapes after it, and a `)` cannot end the destination early.
  */
 function escapeDestination(destination: string): string {
-	return destination.replace(/\\/g, '\\\\');
+	return destination.replace(/[\\()]/g, '\\$&');
 }
 
 function escapeText(text: string): string {
