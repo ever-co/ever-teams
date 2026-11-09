@@ -768,16 +768,87 @@ describe('useDocsAutosave, restoring a version', () => {
 		again.unmount();
 	});
 
-	it('builds an edit made before the restored page arrives on the restore answer’s clock', () => {
+	it('keeps text typed before the restored page reaches the editor on the old clock, so it meets the restored version as a conflict', () => {
 		const { wrapper } = setup();
-		const view = renderHook(() => useDocsAutosave(pageOf('page-restore-early-edit')), { wrapper });
+		const page = pageOf('page-restore-early-edit');
+		const view = renderHook(({ shown }: { shown: IDocumentPage }) => useDocsAutosave(shown), { wrapper, initialProps: { shown: page } });
 		act(() => view.result.current.change('<p>replaced</p>', null));
-		act(() => view.result.current.holdForRestore()(true, T3));
+		act(() => view.result.current.holdForRestore()(true));
+
+		// Typed over the old text: the restored page has not reached the editor yet.
+		const before = mockUpdateContent.mock.calls.length;
+		act(() => view.result.current.change('<p>typed over the old text</p>', null));
+		act(() => void view.result.current.flushNow());
+		expect(mockUpdateContent.mock.calls[before][1]).toMatchObject({ expectedUpdatedAt: page.updatedAt });
+		view.unmount();
+	});
+
+	it('follows the restored page that arrives after the restore ended with nothing typed', () => {
+		const { wrapper } = setup();
+		const page = pageOf('page-restore-late-page');
+		const view = renderHook(({ shown }: { shown: IDocumentPage }) => useDocsAutosave(shown), { wrapper, initialProps: { shown: page } });
+		act(() => view.result.current.change('<p>replaced</p>', null));
+		act(() => view.result.current.holdForRestore()(true));
+		view.rerender({ shown: { ...page, updatedAt: T3, version: 4, contentHtml: '<p>restored</p>' } as IDocumentPage });
 
 		const before = mockUpdateContent.mock.calls.length;
-		act(() => view.result.current.change('<p>right after the restore</p>', null));
+		act(() => view.result.current.change('<p>on the restored text</p>', null));
 		act(() => void view.result.current.flushNow());
-		expect(mockUpdateContent.mock.calls[before][1]).toMatchObject({ contentHtml: '<p>right after the restore</p>', expectedUpdatedAt: T3 });
+		expect(mockUpdateContent.mock.calls[before][1]).toMatchObject({ expectedUpdatedAt: T3 });
+		view.unmount();
+	});
+
+	it('keeps a queued Keep Mine whose save was about to go when the restore began', async () => {
+		const { wrapper } = setup();
+		const page = pageOf('page-restore-queued-keep-mine');
+		const view = renderHook(() => useDocsAutosave(page), { wrapper });
+		const running = deferred<IDocumentPage>();
+		mockUpdateContent.mockReturnValueOnce(running.promise);
+		act(() => view.result.current.change('<p>older</p>', null));
+		act(() => void view.result.current.flushNow());
+		act(() => view.result.current.change('<p>newer</p>', null));
+		// Keep Mine while the older save runs: queued, with its forced snapshot.
+		mockGetPage.mockResolvedValueOnce({ ...page, updatedAt: T1, version: 2 });
+		await act(async () => {
+			await view.result.current.keepMine();
+		});
+		const before = mockUpdateContent.mock.calls.length;
+		let release!: (restored: boolean) => void;
+		// The older save lands (its end schedules the queued save at once), and a restore begins before that runs.
+		await act(async () => {
+			running.resolve({ ...page, updatedAt: T2, version: 3 });
+			await running.promise;
+			release = view.result.current.holdForRestore();
+		});
+		expect(mockUpdateContent.mock.calls.length).toBe(before);
+
+		act(() => release(false));
+		await waitFor(() => expect(mockUpdateContent.mock.calls.length).toBe(before + 1));
+		expect(mockUpdateContent.mock.calls[before][1]).toMatchObject({ contentHtml: '<p>newer</p>', forceSnapshot: true });
+		view.unmount();
+	});
+
+	it('resumes the interrupted autosave once the save running at the failed restore’s end settles', async () => {
+		const { wrapper } = setup();
+		const view = renderHook(() => useDocsAutosave(pageOf('page-restore-settles-later')), { wrapper });
+		const failing = deferred<IDocumentPage>();
+		mockUpdateContent.mockReturnValueOnce(failing.promise);
+		act(() => view.result.current.change('<p>older</p>', null));
+		act(() => void view.result.current.flushNow());
+		act(() => view.result.current.change('<p>newer</p>', null));
+		let release!: (restored: boolean) => void;
+		act(() => {
+			release = view.result.current.holdForRestore();
+		});
+		// The restore fails while the older save still runs; that save fails afterwards.
+		act(() => release(false));
+		const before = contentsSaved().length;
+		await act(async () => {
+			failing.reject(new Error('offline'));
+			await failing.promise.catch(() => undefined);
+		});
+		expect(view.result.current.state).toBe('error');
+		await waitFor(() => expect(contentsSaved().slice(before)).toEqual(['<p>newer</p>']), { timeout: 5_000 });
 		view.unmount();
 	});
 

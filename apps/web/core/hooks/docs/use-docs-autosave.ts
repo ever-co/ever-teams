@@ -72,8 +72,13 @@ interface PageSession {
 	 * not saved, and a save asked meanwhile waits in `queued` for the last one to end.
 	 */
 	held: number;
-	/** The autosave a restore interrupted (its delay was running when the first restore began): it resumes if all fail. */
+	/**
+	 * The autosave a restore interrupted (its delay was running when the first restore began): it resumes if all
+	 * fail — at once, or when the save running then settles.
+	 */
 	interrupted: boolean;
+	/** The queued save the timer is about to send (a Keep Mine's forced snapshot): a restore that stops it keeps it. */
+	timerSave: { force: boolean } | null;
 	/** A save asked while one ran: it goes when that one ends, forcing the snapshot when Keep Mine asked for it. */
 	queued: { force: boolean } | null;
 	/** The autosave delay after the last keystroke, or a queued save about to go. */
@@ -104,7 +109,7 @@ function sessionOf(userId: string, pageId: string, clock: string | null): PageSe
 	const key = sessionKey(userId, pageId);
 	let session = sessions.get(key);
 	if (!session) {
-		session = { key, pageId, dropped: false, draft: null, base: clock, view: IDLE_VIEW, saving: false, held: 0, interrupted: false, queued: null, timer: null, applySaved: null, views: new Set() };
+		session = { key, pageId, dropped: false, draft: null, base: clock, view: IDLE_VIEW, saving: false, held: 0, interrupted: false, timerSave: null, queued: null, timer: null, applySaved: null, views: new Set() };
 		sessions.set(key, session);
 		syncUnloadGuard();
 	}
@@ -148,6 +153,7 @@ function updateView(session: PageSession, patch: Partial<SessionView>): void {
 function clearSessionTimer(session: PageSession): void {
 	if (session.timer) clearTimeout(session.timer);
 	session.timer = null;
+	session.timerSave = null;
 }
 
 /** A session with no editor, no text and no work left is forgotten (the next visit starts from the page). */
@@ -226,8 +232,18 @@ async function saveSession(session: PageSession, options: { force?: boolean } = 
 	}
 	const queued = session.queued;
 	session.queued = null;
-	if (queued) session.timer = setTimeout(() => void saveSession(session, queued), 0);
-	else releaseIfDone(session);
+	// The autosave of a newer draft a restore interrupted while this save ran, the restore having failed: it goes now.
+	const resume =
+		!queued && session.interrupted && session.held === 0 && !!session.draft && (session.view.state === 'dirty' || session.view.state === 'error');
+	if (session.held === 0) session.interrupted = false;
+	if (queued) {
+		session.timer = setTimeout(() => void saveSession(session, queued), 0);
+		session.timerSave = queued;
+	} else if (resume) {
+		session.timer = setTimeout(() => void saveSession(session), DOCS_AUTOSAVE_DELAY_MS);
+	} else {
+		releaseIfDone(session);
+	}
 	return 'saved' in outcome;
 }
 
@@ -489,20 +505,25 @@ export function useDocsAutosave(page: IDocumentPage | null) {
 	/**
 	 * Holds the draft while a version is restored: nothing is saved until the returned release runs (once; restores
 	 * that overlap each hold, saving waits for the last, and the session stays while held). `restored` true drops the
-	 * draft and adopts the restored version's clock — `restoredClock` (the restore's answer) or the page's, whichever is
-	 * later, so an edit made before the restored page reaches the editor builds on it too. False keeps the draft and,
-	 * once no restore runs, saves as before: the save asked meanwhile (a Keep Mine's forced snapshot included) right
-	 * away, else a changed draft — or one whose autosave the restore interrupted, after a failed save — after the usual
-	 * delay. A conflict or a lock still waits for the person.
+	 * draft and follows the restored version's clock once its page is the one shown (now, or when it arrives with
+	 * nothing typed): text typed before it reaches the editor was typed over the old text, so its save meets the
+	 * restored version as a conflict rather than replacing it. False keeps the draft and, once no restore runs, saves
+	 * as before: the save asked meanwhile (a Keep Mine's forced snapshot included) right away, else a changed draft —
+	 * or one whose autosave the restore interrupted, after a failed save, also when that save settles later — after
+	 * the usual delay. A conflict or a lock still waits for the person.
 	 */
-	const holdForRestore = useCallback((): ((restored: boolean, restoredClock?: string | null) => void) => {
+	const holdForRestore = useCallback((): ((restored: boolean) => void) => {
 		const session = current();
 		if (!session) return () => undefined;
-		if (session.timer) session.interrupted = true;
+		if (session.timer) {
+			session.interrupted = true;
+			// A queued save about to go keeps its place (and a Keep Mine its forced snapshot).
+			if (session.timerSave) session.queued = { force: Boolean(session.queued?.force || session.timerSave.force) };
+		}
 		clearSessionTimer(session);
 		session.held += 1;
 		let released = false;
-		return (restored, restoredClock) => {
+		return (restored) => {
 			if (released) return;
 			released = true;
 			session.held = Math.max(0, session.held - 1);
@@ -511,20 +532,24 @@ export function useDocsAutosave(page: IDocumentPage | null) {
 				clearSessionTimer(session);
 				session.draft = null;
 				session.queued = null;
-				// The next edit builds on the restored version. Its page may have reached this editor while the draft still
-				// held the session (the clock effect left the clock where it was), or may not have reached it yet.
-				const restoredAt = isLaterClock(restoredClock, clockRef.current) ? restoredClock : clockRef.current;
-				if (restoredAt && !isLaterClock(session.base, restoredAt)) session.base = restoredAt;
+				session.interrupted = false;
+				// The restored page may have reached this editor while the draft still held the session (the clock effect
+				// left the clock where it was, and does not run again for it): follow it. One that arrives later is followed
+				// by the clock effect, the session being idle.
+				const shown = clockRef.current;
+				if (shown && !isLaterClock(session.base, shown)) session.base = shown;
 				updateView(session, { state: 'idle', restoredHtml: null });
 			}
 			if (session.held > 0) return;
-			const interrupted = session.interrupted;
-			session.interrupted = false;
 			if (!restored) {
 				const queued = session.queued;
 				session.queued = null;
+				const interrupted = session.interrupted;
+				// A save still running settles first; its end resumes the interrupted autosave (see `saveSession`).
+				if (!session.saving) session.interrupted = false;
 				if (queued) {
 					session.timer = setTimeout(() => void saveSession(session, queued), 0);
+					session.timerSave = queued;
 				} else if (
 					session.draft &&
 					!session.saving &&

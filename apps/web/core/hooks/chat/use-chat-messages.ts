@@ -104,8 +104,8 @@ export async function refreshHeldMessage(queryClient: QueryClient, queryKey: Que
 /**
  * Reads again the messages a timeline holds, a page at a time up to the catch-up budget, and puts the platform's copies
  * in their place: an edit, a reaction, a deletion's tombstone. It starts at the oldest held message, or after `from`
- * (where the previous refresh stopped) while that one is still held, and answers where to go on (`next`: the last held
- * message read when the budget ran out) or `null` once it reached the newest held one, so a long timeline is covered
+ * (where the previous refresh stopped), and answers where to go on (`next`: the last message read when the budget ran
+ * out) or `null` once it reached the newest held one, so a long timeline is covered
  * over several refreshes and then from the oldest again. Only held messages are written: newer ones are the forward
  * read's, which keeps `serverNewestId`. A copy read before a jump never replaces the jump's (`mergeMessages` keeps the
  * copy of the read started last).
@@ -127,21 +127,21 @@ export async function refreshHeldWindow(
 	let reachedNewest = false;
 	const fresh: IChatMessage[] = [];
 	let next: string | null = null;
-	let page = from && heldIds.has(from) ? await readMessages(conversationId, { after: from }) : await readMessages(conversationId, { around: held[0].id });
-	let lastHeldRead: string | null = null;
+	// Goes on after the previous refresh's last message (held or not: a long gap is not read twice); one past the held
+	// window (a jump replaced the timeline) ends at its first page, and the next refresh starts from the oldest.
+	let page = from ? await readMessages(conversationId, { after: from }) : await readMessages(conversationId, { around: held[0].id });
 	for (let read = 1; ; read += 1) {
 		for (const message of page.messages) {
 			if (!heldIds.has(message.id)) continue;
 			fresh.push(message);
-			lastHeldRead = message.id;
 			if (message.id === newestHeld.id) reachedNewest = true;
 		}
 		const last = page.messages[page.messages.length - 1];
 		// Past the newest message held, or at the end of the conversation: the next refresh starts from the oldest.
 		if (!last || !page.hasAfter || reachedNewest || Date.parse(last.createdAt) > newestHeldAt) break;
-		// Out of budget: the next refresh goes on after the last held message read.
+		// Out of budget: the next refresh goes on after the last message read.
 		if (read >= CATCH_UP_PAGES) {
-			next = lastHeldRead;
+			next = last.id;
 			break;
 		}
 		page = await readMessages(conversationId, { after: last.id });
