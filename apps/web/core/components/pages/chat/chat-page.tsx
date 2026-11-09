@@ -88,6 +88,12 @@ function ChatPageContent({ view }: Readonly<{ view: ChatView }>) {
 	const browse = useChatBrowse(enabled);
 	const [dialog, setDialog] = useState<'channel' | 'direct' | 'browse' | null>(null);
 	const [listOpen, setListOpen] = useState(!conversationId);
+	// Opening a conversation closes the list on narrow screens: adjusted while rendering, not in an effect.
+	const [listFor, setListFor] = useState(conversationId);
+	if (listFor !== conversationId) {
+		setListFor(conversationId);
+		if (conversationId) setListOpen(false);
+	}
 
 	const conversationNames = useMemo(() => new Map(list.conversations.map((c) => [c.id, c.name ?? ''])), [list.conversations]);
 	const { threadsUnread } = useChatStates(enabled);
@@ -108,7 +114,6 @@ function ChatPageContent({ view }: Readonly<{ view: ChatView }>) {
 
 	useEffect(() => {
 		if (!conversationId) return;
-		setListOpen(false);
 		try {
 			window.localStorage.setItem('chat-last-conversation', conversationId);
 		} catch {

@@ -38,6 +38,7 @@ const DOCUMENT_KEYS: RealtimeInvalidation[] = [
 ];
 
 /** The keys a resynchronisation refetches: everything the channel carries. */
+// eslint-disable-next-line @typescript-eslint/no-unused-vars -- callers pass the scope; every key is refetched whatever it is
 export function resyncInvalidations(scope: RealtimeScope): RealtimeInvalidation[] {
 	return [
 		{ queryKey: queryKeys.tasks.all, deferrable: true },

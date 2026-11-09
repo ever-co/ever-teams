@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useRef } from 'react';
+import { useIsomorphicLayoutEffect } from '@/core/hooks/common/use-isomorphic-layout-effect';
 import { realtimeBus } from '@/core/lib/realtime/bus';
 import type { RealtimeEnvelope } from '@/core/lib/realtime/events';
 
@@ -14,7 +15,10 @@ import type { RealtimeEnvelope } from '@/core/lib/realtime/events';
  */
 export function useRealtimeEvent(names: readonly string[] | null, handler: (envelope: RealtimeEnvelope) => void): void {
 	const latest = useRef(handler);
-	latest.current = handler;
+	// Not during render: the handler is only called after commit, and React keeps refs out of render.
+	useIsomorphicLayoutEffect(() => {
+		latest.current = handler;
+	});
 	const key = names ? names.join('|') : '*';
 
 	useEffect(() => {
@@ -26,7 +30,9 @@ export function useRealtimeEvent(names: readonly string[] | null, handler: (enve
 /** Runs the handler when the platform tells the tab to resynchronise (refetch through the read APIs). */
 export function useRealtimeResync(handler: () => void): void {
 	const latest = useRef(handler);
-	latest.current = handler;
+	useIsomorphicLayoutEffect(() => {
+		latest.current = handler;
+	});
 
 	useEffect(() => realtimeBus.onResync(() => latest.current()), []);
 }

@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useEffect, useMemo, useRef, useState, type DragEvent, type KeyboardEvent } from 'react';
+import { useCallback, useMemo, useRef, useState, type DragEvent, type KeyboardEvent } from 'react';
 import Link from 'next/link';
 import { useTranslations } from 'next-intl';
 import { ChevronRight, FileText, MoreHorizontal, Plus, Star } from '@/core/components/icons';
@@ -57,9 +57,8 @@ export function DocsTree({ tree, activeId, expanded, favoriteIds, onToggle, onSe
 	const [dropTarget, setDropTarget] = useState<string | null>(null);
 	const listRef = useRef<HTMLUListElement>(null);
 
-	useEffect(() => {
-		if (focusIndex >= rows.length) setFocusIndex(rows.length - 1);
-	}, [focusIndex, rows.length]);
+	// A shorter tree (a collapsed folder, a moved page) keeps the roving focus on its last row.
+	const focusedRow = Math.min(focusIndex, rows.length - 1);
 
 	const focusRow = useCallback((index: number) => {
 		const link = listRef.current?.querySelectorAll<HTMLAnchorElement>('a[data-docs-row]')[index];
@@ -155,7 +154,7 @@ export function DocsTree({ tree, activeId, expanded, favoriteIds, onToggle, onSe
 					isExpanded={expanded.has(row.page.id)}
 					isFavorite={favoriteIds.has(row.page.id)}
 					isDropTarget={dropTarget === row.page.id}
-					tabIndex={index === (focusIndex < 0 ? 0 : focusIndex) ? 0 : -1}
+					tabIndex={index === (focusedRow < 0 ? 0 : focusedRow) ? 0 : -1}
 					onFocus={() => setFocusIndex(index)}
 					onToggle={() => onToggle(row.page.id)}
 					actions={actions}

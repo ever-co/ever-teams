@@ -39,6 +39,7 @@ export function useDocsActions() {
 			queryClient.setQueryData<IDocumentPage[]>(treeKey, (current) => {
 				if (!current) return current;
 				const at = current.findIndex((item) => item.id === page.id);
+				// eslint-disable-next-line @typescript-eslint/no-unused-vars -- drops the content fields from the listed page
 				const { contentJson: _json, contentHtml: _html, ...listed } = page;
 				if (at < 0) return [...current, listed];
 				return current.map((item) => (item.id === page.id ? { ...item, ...listed } : item));

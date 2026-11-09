@@ -284,7 +284,7 @@ function InboxPageContent() {
 				.catch(reportFailure);
 			setSelected(new Set());
 		},
-		[reportFailure, setArchived, t, targetsOf]
+		[reportFailure, setArchived, setSelected, t, targetsOf]
 	);
 
 	// A question, an approval or an escalation answered in the detail pane: the lists and counts follow the answer.
@@ -327,7 +327,7 @@ function InboxPageContent() {
 				.catch(reportFailure);
 			setSelected(new Set());
 		},
-		[actions, reportFailure, t, targetsOf]
+		[actions, reportFailure, setSelected, t, targetsOf]
 	);
 
 	const handleDone = useCallback(
@@ -346,7 +346,7 @@ function InboxPageContent() {
 				.catch(reportFailure);
 			setSelected(new Set());
 		},
-		[actions, reportFailure, t, targetsOf]
+		[actions, reportFailure, setSelected, t, targetsOf]
 	);
 
 	const handleMarkAll = useCallback(() => {

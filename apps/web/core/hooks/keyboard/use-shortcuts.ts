@@ -1,6 +1,7 @@
 'use client';
 
 import { useCallback, useEffect, useMemo, useRef } from 'react';
+import { useIsomorphicLayoutEffect } from '@/core/hooks/common/use-isomorphic-layout-effect';
 import { useAtomValue, useSetAtom } from 'jotai';
 import {
 	chordOfEvent,
@@ -39,7 +40,10 @@ export function useShortcutHandlers(handlers: Record<string, ShortcutHandler>, c
 	const setHandlers = useSetAtom(shortcutHandlersAtom);
 	const setContexts = useSetAtom(shortcutContextsAtom);
 	const latest = useRef(handlers);
-	latest.current = handlers;
+	// Not during render: the handlers run on key presses, after commit.
+	useIsomorphicLayoutEffect(() => {
+		latest.current = handlers;
+	});
 	const ids = Object.keys(handlers)
 		.sort((first, second) => first.localeCompare(second))
 		.join('|');

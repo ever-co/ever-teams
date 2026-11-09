@@ -8,6 +8,7 @@ import type { IDocumentNode, IDocumentPage } from '@/core/types/interfaces/commo
 
 // A save no test answers stays pending: an editor left mounted by one test (cleanup unmounts it, which saves) never
 // takes an answer meant for the next test.
+// eslint-disable-next-line @typescript-eslint/no-unused-vars -- typed arguments so the tests can read mock.calls
 const mockUpdateContent = jest.fn((..._args: unknown[]) => new Promise<IDocumentPage>(() => undefined));
 const mockGetPage = jest.fn();
 
