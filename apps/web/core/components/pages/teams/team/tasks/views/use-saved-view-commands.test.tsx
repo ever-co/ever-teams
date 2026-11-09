@@ -1,0 +1,98 @@
+/**
+ * @jest-environment jsdom
+ */
+import { act, renderHook } from '@testing-library/react';
+import type { ITaskView, ITaskViewDefinition } from '@/core/types/interfaces/common/task-views';
+
+const mockSaveDefinition = jest.fn();
+const mockUpdateView = jest.fn();
+
+jest.mock('next/navigation', () => ({ useRouter: () => ({ push: jest.fn() }) }));
+jest.mock('next-intl', () => ({ useTranslations: () => (key: string) => key }));
+jest.mock('sonner', () => ({ toast: { success: jest.fn(), error: jest.fn() } }));
+jest.mock('@/core/lib/utils/task-views-enabled', () => ({ isTaskViewsEnabled: () => true }));
+jest.mock('@/core/hooks/task-views/use-task-view-actions', () => {
+	class TaskViewConflictError extends Error {
+		constructor(public readonly latest: unknown) {
+			super('TASK_VIEW_VERSION_CONFLICT');
+		}
+	}
+	return {
+		TaskViewConflictError,
+		useTaskViewActions: () => ({ saveDefinition: mockSaveDefinition, createView: jest.fn(), updateView: mockUpdateView, deleteView: jest.fn() })
+	};
+});
+
+import { useSavedViewCommands } from './use-saved-view-commands';
+
+const MINE = { groupBy: 'status' } as unknown as ITaskViewDefinition;
+const viewAt = (version: number): ITaskView => ({ id: 'v1', name: 'Board', version }) as unknown as ITaskView;
+
+type Props = { savedView: ITaskView; isDirty: boolean };
+
+function render(initial: Props) {
+	return renderHook((props: Props) => useSavedViewCommands({ ...props, isBuiltIn: false, definition: MINE, applyDefinition: jest.fn() }), {
+		initialProps: initial
+	});
+}
+
+/** The version the last save stated. */
+const statedVersion = (): number | undefined => (mockSaveDefinition.mock.calls.at(-1)?.[0] as ITaskView | undefined)?.version;
+
+describe('useSavedViewCommands, saving a changed view', () => {
+	beforeEach(() => {
+		mockSaveDefinition.mockReset().mockResolvedValue(viewAt(9));
+		mockUpdateView.mockReset();
+	});
+
+	it('states the version the change was made on, also once a newer version reached the page (a conflict, a refetch)', async () => {
+		const view = render({ savedView: viewAt(1), isDirty: false });
+		// The person changes the view on version 1; then version 2 (someone else's save) reaches the cache.
+		view.rerender({ savedView: viewAt(1), isDirty: true });
+		view.rerender({ savedView: viewAt(2), isDirty: true });
+
+		await act(async () => view.result.current.toolbarCommands.save());
+
+		// Version 1: the platform answers a conflict instead of letting the change overwrite version 2.
+		expect(statedVersion()).toBe(1);
+	});
+
+	it('states the newer version once the page shows it (a Reload), and the change is made on it', async () => {
+		const view = render({ savedView: viewAt(1), isDirty: true });
+		// Reload: the page shows version 2 unchanged; then the person changes it again.
+		view.rerender({ savedView: viewAt(2), isDirty: false });
+		view.rerender({ savedView: viewAt(2), isDirty: true });
+
+		await act(async () => view.result.current.toolbarCommands.save());
+
+		expect(statedVersion()).toBe(2);
+	});
+
+	it('builds on what this tab wrote: a share made on the same version, then edits while a save ran', async () => {
+		const view = render({ savedView: viewAt(1), isDirty: false });
+		view.rerender({ savedView: viewAt(1), isDirty: true });
+		// Shared from here on version 1 → version 2 (the page still shows the change).
+		mockUpdateView.mockResolvedValueOnce(viewAt(2));
+		await act(async () => view.result.current.toolbarCommands.toggleVisibility());
+		view.rerender({ savedView: viewAt(2), isDirty: true });
+		mockSaveDefinition.mockResolvedValueOnce(viewAt(3));
+		await act(async () => view.result.current.toolbarCommands.save());
+		expect(statedVersion()).toBe(2);
+		// Edited again while that save ran: the next save states the version it wrote.
+		view.rerender({ savedView: viewAt(3), isDirty: true });
+		await act(async () => view.result.current.toolbarCommands.save());
+		expect(statedVersion()).toBe(3);
+	});
+
+	it("never adopts someone else's version through this tab's write made on it", async () => {
+		const view = render({ savedView: viewAt(1), isDirty: false });
+		view.rerender({ savedView: viewAt(1), isDirty: true });
+		// Someone else saved version 2; this tab shares it (version 3): the change still builds on version 1.
+		view.rerender({ savedView: viewAt(2), isDirty: true });
+		mockUpdateView.mockResolvedValueOnce(viewAt(3));
+		await act(async () => view.result.current.toolbarCommands.toggleVisibility());
+		view.rerender({ savedView: viewAt(3), isDirty: true });
+		await act(async () => view.result.current.toolbarCommands.save());
+		expect(statedVersion()).toBe(1);
+	});
+});

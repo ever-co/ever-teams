@@ -14,6 +14,11 @@ import { useChatScope } from './use-chat-scope';
 
 /** Without the live channel the open conversation asks for newer messages on this cadence. */
 const NEWER_POLL_MS = 5_000;
+/**
+ * Without the live channel the messages the open conversation holds are read again on this cadence: nothing else tells
+ * it of an edit, a reaction or a deletion of a message it already shows (the poll reads newer messages only).
+ */
+const HELD_REFRESH_MS = 30_000;
 /** The pages one catch-up reads at most (a long absence, a jump far back); the next one continues. */
 const CATCH_UP_PAGES = 10;
 /** The pages of replies a thread reads (500 replies at the platform's page size). */
@@ -96,6 +101,105 @@ export async function refreshHeldMessage(queryClient: QueryClient, queryKey: Que
 	}
 }
 
+/** Where a held-window refresh stopped: the last message it read, by its place in the platform's order. */
+export interface HeldRefreshCursor {
+	id: string;
+	createdAt: string;
+}
+
+/** A message's place in the platform's page order: its time, then its id (`message.createdAt`, `message.id`). */
+function comparePlaces(a: Pick<IChatMessage, 'id' | 'createdAt'>, b: Pick<IChatMessage, 'id' | 'createdAt'>): number {
+	const byTime = Date.parse(a.createdAt) - Date.parse(b.createdAt);
+	if (byTime !== 0) return byTime;
+	return a.id < b.id ? -1 : a.id > b.id ? 1 : 0;
+}
+
+/** A message the platform leaves out of its pages: deleted, with no replies (a thread root stays, as a tombstone). */
+function isLeftOutOfPages(message: IChatMessage): boolean {
+	return !!message.deletedAt && !((message.replyCount ?? 0) > 0);
+}
+
+/**
+ * Reads again the messages a timeline holds, a page at a time up to the catch-up budget, and puts the platform's copies
+ * in their place: an edit, a reaction, a thread root's tombstone. It starts at the oldest held message, or after `from`
+ * (where the previous refresh stopped), and answers where to go on (`next`: the last message read when the budget ran
+ * out) or `null` once it reached the newest held one, so a long timeline is covered over several refreshes and then
+ * from the oldest again. Only held messages are written: newer ones are the forward read's, which keeps
+ * `serverNewestId`.
+ *
+ * A message deleted without replies is left out of the pages, so a held one inside the stretch the pages covered (by
+ * the platform's order: time, then id — from `from` or the first message read, or the conversation's start, to the
+ * last one read, or its end) that no page answered is removed, and so is the anchor of the first page when the
+ * platform answers it deleted without replies. Messages held only since the read began (a send, a jump) are not
+ * judged. A copy read before a jump never replaces the jump's (`mergeMessages` keeps the copy of the read started
+ * last).
+ */
+export async function refreshHeldWindow(
+	queryClient: QueryClient,
+	queryKey: QueryKey,
+	conversationId: string,
+	from: HeldRefreshCursor | null = null
+): Promise<{ replaced: number; removed: number; next: HeldRefreshCursor | null }> {
+	const held = queryClient.getQueryData<ChatMessagesCache>(queryKey)?.messages.filter((message) => !isLocalMessage(message)) ?? [];
+	if (!held.length) return { replaced: 0, removed: 0, next: null };
+	const heldIds = new Set(held.map((message) => message.id));
+	// Read up to the newest held message itself (or past its place, should it be gone), not up to the first page that
+	// ends on a message not held: a page may end inside a gap of the held timeline, and the held messages after it
+	// still need reading.
+	const newestHeld = held[held.length - 1];
+	let reachedNewest = false;
+	const fresh: IChatMessage[] = [];
+	const answered = new Set<string>();
+	const leftOut = new Set<string>();
+	let next: HeldRefreshCursor | null = null;
+	let lower: Pick<IChatMessage, 'id' | 'createdAt'> | null = from;
+	let upper: Pick<IChatMessage, 'id' | 'createdAt'> | null = null;
+	let toEnd = false;
+	// Goes on after the previous refresh's last message (held or not: a long gap is not read twice); one past the held
+	// window (a jump replaced the timeline) ends at its first page, and the next refresh starts from the oldest.
+	let page = from ? await readMessages(conversationId, { after: from.id }) : await readMessages(conversationId, { around: held[0].id });
+	const fromStart = !from && !page.hasBefore;
+	for (let read = 1; ; read += 1) {
+		for (const message of page.messages) {
+			answered.add(message.id);
+			if (!heldIds.has(message.id)) continue;
+			if (isLeftOutOfPages(message)) leftOut.add(message.id);
+			else fresh.push(message);
+			if (message.id === newestHeld.id) reachedNewest = true;
+		}
+		const last = page.messages[page.messages.length - 1];
+		if (last) {
+			lower ??= page.messages[0];
+			upper = last;
+		}
+		toEnd = !page.hasAfter;
+		// Past the newest message held, or at the end of the conversation: the next refresh starts from the oldest.
+		if (!last || !page.hasAfter || reachedNewest || comparePlaces(last, newestHeld) > 0) break;
+		// Out of budget: the next refresh goes on after the last message read.
+		if (read >= CATCH_UP_PAGES) {
+			next = { id: last.id, createdAt: last.createdAt };
+			break;
+		}
+		page = await readMessages(conversationId, { after: last.id });
+	}
+	const inside = (message: IChatMessage) =>
+		(fromStart || (lower !== null && comparePlaces(message, lower) > 0)) && (toEnd || (upper !== null && comparePlaces(message, upper) < 0));
+	const gone = new Set([...leftOut, ...held.filter((message) => !answered.has(message.id) && inside(message)).map((message) => message.id)]);
+	let replaced = 0;
+	let removed = 0;
+	queryClient.setQueryData<ChatMessagesCache>(queryKey, (current) => {
+		if (!current) return current;
+		// Only a message still held is put back: a timeline that moved on meanwhile (a jump, a reload) keeps what it has.
+		const still = new Set(current.messages.map((message) => message.id));
+		const kept = fresh.filter((message) => still.has(message.id));
+		const remaining = current.messages.filter((message) => !gone.has(message.id));
+		replaced = kept.length;
+		removed = current.messages.length - remaining.length;
+		return kept.length || removed ? { ...current, messages: mergeMessages(remaining, kept) } : current;
+	});
+	return { replaced, removed, next };
+}
+
 /** Reads forward from a message: every newer one, a page at a time, up to the catch-up budget. */
 async function readAfter(conversationId: string, fromId: string, signal?: AbortSignal): Promise<{ messages: IChatMessage[]; newestId: string; hasAfter: boolean }> {
 	const messages: IChatMessage[] = [];
@@ -169,12 +273,35 @@ export function useChatMessages(conversationId: string | null, enabled: boolean)
 	const liveRef = useRef(false);
 	liveRef.current = useAtomValue(realtimeStatusAtom) === 'connected';
 
-	// Newer messages, while this tab is visible: read forward from the newest one read from the platform.
+	// Newer messages, while this tab is visible: read forward from the newest one read from the platform. Without the live
+	// channel the held messages are also read again now and then (edits and deletions).
 	useEffect(() => {
 		if (!enabled || !conversationId || !hasData || typeof window === 'undefined') return;
 		let busy = false;
+		// The timeline was just read: the first refresh of what it holds comes a cadence later. It runs on its own (a
+		// slow one never holds up newer messages), one at a time, and goes on where the previous one stopped.
+		let heldReadAt = Date.now();
+		let heldBusy = false;
+		let heldFrom: HeldRefreshCursor | null = null;
+		const refreshHeld = async () => {
+			if (heldBusy) return;
+			heldBusy = true;
+			heldReadAt = Date.now();
+			try {
+				heldFrom = (await refreshHeldWindow(queryClient, keyRef.current, conversationId, heldFrom)).next;
+			} catch {
+				// The next refresh reads again (from the oldest).
+				heldFrom = null;
+			} finally {
+				heldBusy = false;
+			}
+		};
 		const tick = async () => {
-			if (busy || document.visibilityState !== 'visible') return;
+			if (document.visibilityState !== 'visible') return;
+			// Live, the change events read a changed message again (see below); without them the poll does, on its own
+			// cadence, whether or not the newer messages read (a forward read that keeps failing).
+			if (!liveRef.current && !heldBusy && Date.now() - heldReadAt >= HELD_REFRESH_MS) void refreshHeld();
+			if (busy) return;
 			const key = keyRef.current;
 			// Live: the poll pauses — but a timeline opened at an older message keeps reading forward until it reaches the
 			// newest (an event's refetch leaves such a timeline as it is).

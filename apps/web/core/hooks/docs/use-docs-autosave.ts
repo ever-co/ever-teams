@@ -67,6 +67,20 @@ interface PageSession {
 	view: SessionView;
 	/** A save of the page is running. */
 	saving: boolean;
+	/**
+	 * The restores of the page running (see `holdForRestore`): while any runs, the draft (the text a restore replaces) is
+	 * not saved, and a save asked meanwhile waits in `queued` for the last one to end.
+	 */
+	held: number;
+	/**
+	 * The autosave a restore interrupted (its delay was running when the first restore began): it resumes if all
+	 * fail — at once, or when the save running then settles.
+	 */
+	interrupted: boolean;
+	/** The queued save the timer is about to send (a Keep Mine's forced snapshot): a restore that stops it keeps it. */
+	timerSave: { force: boolean } | null;
+	/** The page clock the editors of the page show now (the last one to render: an editor that replaced another too). */
+	shownClock: string | null;
 	/** A save asked while one ran: it goes when that one ends, forcing the snapshot when Keep Mine asked for it. */
 	queued: { force: boolean } | null;
 	/** The autosave delay after the last keystroke, or a queued save about to go. */
@@ -97,7 +111,7 @@ function sessionOf(userId: string, pageId: string, clock: string | null): PageSe
 	const key = sessionKey(userId, pageId);
 	let session = sessions.get(key);
 	if (!session) {
-		session = { key, pageId, dropped: false, draft: null, base: clock, view: IDLE_VIEW, saving: false, queued: null, timer: null, applySaved: null, views: new Set() };
+		session = { key, pageId, dropped: false, draft: null, base: clock, view: IDLE_VIEW, saving: false, held: 0, interrupted: false, timerSave: null, shownClock: clock, queued: null, timer: null, applySaved: null, views: new Set() };
 		sessions.set(key, session);
 		syncUnloadGuard();
 	}
@@ -141,11 +155,13 @@ function updateView(session: PageSession, patch: Partial<SessionView>): void {
 function clearSessionTimer(session: PageSession): void {
 	if (session.timer) clearTimeout(session.timer);
 	session.timer = null;
+	session.timerSave = null;
 }
 
 /** A session with no editor, no text and no work left is forgotten (the next visit starts from the page). */
 function releaseIfDone(session: PageSession): void {
-	if (session.views.size || session.draft || session.saving || session.timer || session.queued) return;
+	// A session a restore holds stays (an editor that returns meanwhile must find it held).
+	if (session.views.size || session.draft || session.saving || session.timer || session.queued || session.held > 0) return;
 	if (sessions.get(session.key) === session) sessions.delete(session.key);
 	syncUnloadGuard();
 }
@@ -158,6 +174,12 @@ function releaseIfDone(session: PageSession): void {
 async function saveSession(session: PageSession, options: { force?: boolean } = {}): Promise<boolean> {
 	clearSessionTimer(session);
 	if (session.dropped) return true;
+	// A restore is running: the draft waits (its save would land over the restored version), and so does the save asked
+	// now, a Keep Mine's forced snapshot included: the end of the last restore decides.
+	if (session.held > 0) {
+		if (session.draft) session.queued = { force: Boolean(session.queued?.force || options.force) };
+		return false;
+	}
 	const draft = session.draft;
 	if (!draft || !session.base) {
 		releaseIfDone(session);
@@ -212,8 +234,21 @@ async function saveSession(session: PageSession, options: { force?: boolean } = 
 	}
 	const queued = session.queued;
 	session.queued = null;
-	if (queued) session.timer = setTimeout(() => void saveSession(session, queued), 0);
-	else releaseIfDone(session);
+	// The autosave of a newer draft a restore interrupted while this save ran, the restore having failed: it goes now.
+	const resume =
+		!queued && session.interrupted && session.held === 0 && !!session.draft && (session.view.state === 'dirty' || session.view.state === 'error');
+	if (session.held === 0) session.interrupted = false;
+	if (queued) {
+		// The queued save sends the latest draft now: an autosave delay running since is not needed (nor left behind).
+		clearSessionTimer(session);
+		session.timer = setTimeout(() => void saveSession(session, queued), 0);
+		session.timerSave = queued;
+	} else if (resume && !session.timer) {
+		// Text typed since has its own autosave delay running: that one goes, this is not added.
+		session.timer = setTimeout(() => void saveSession(session), DOCS_AUTOSAVE_DELAY_MS);
+	} else {
+		releaseIfDone(session);
+	}
 	return 'saved' in outcome;
 }
 
@@ -340,6 +375,9 @@ export function useDocsAutosave(page: IDocumentPage | null) {
 	// Not during render: `subscribe` reads it, and React subscribes after the layout effects ran.
 	useIsomorphicLayoutEffect(() => {
 		clockRef.current = clock;
+		// The session knows the clock its editors show, whichever editor renders it (one that replaced the restoring one).
+		const shown = key ? sessions.get(key) : undefined;
+		if (shown) shown.shownClock = clock;
 	});
 
 	const subscribe = useCallback(
@@ -472,6 +510,67 @@ export function useDocsAutosave(page: IDocumentPage | null) {
 		updateView(session, { state: 'idle', restoredHtml: null });
 	}, [current]);
 
+	/**
+	 * Holds the draft while a version is restored: nothing is saved until the returned release runs (once; restores
+	 * that overlap each hold, saving waits for the last, and the session stays while held). `restored` true drops the
+	 * draft and follows the restored version's clock once its page is the one shown (now, or when it arrives with
+	 * nothing typed): text typed before it reaches the editor was typed over the old text, so its save meets the
+	 * restored version as a conflict rather than replacing it. False keeps the draft and, once no restore runs, saves
+	 * as before: the save asked meanwhile (a Keep Mine's forced snapshot included) right away, else a changed draft —
+	 * or one whose autosave the restore interrupted, after a failed save, also when that save settles later — after
+	 * the usual delay. A conflict or a lock still waits for the person.
+	 */
+	const holdForRestore = useCallback((): ((restored: boolean) => void) => {
+		const session = current();
+		if (!session) return () => undefined;
+		if (session.timer) {
+			session.interrupted = true;
+			// A queued save about to go keeps its place (and a Keep Mine its forced snapshot).
+			if (session.timerSave) session.queued = { force: Boolean(session.queued?.force || session.timerSave.force) };
+		}
+		clearSessionTimer(session);
+		session.held += 1;
+		let released = false;
+		return (restored) => {
+			if (released) return;
+			released = true;
+			session.held = Math.max(0, session.held - 1);
+			if (session.dropped) return;
+			if (restored) {
+				clearSessionTimer(session);
+				session.draft = null;
+				session.queued = null;
+				session.interrupted = false;
+				// The restored page may have reached this editor while the draft still held the session (the clock effect
+				// left the clock where it was, and does not run again for it): follow it. One that arrives later is followed
+				// by the clock effect, the session being idle.
+				const shown = isLaterClock(session.shownClock, clockRef.current) ? session.shownClock : clockRef.current;
+				if (shown && !isLaterClock(session.base, shown)) session.base = shown;
+				updateView(session, { state: 'idle', restoredHtml: null });
+			}
+			if (session.held > 0) return;
+			if (!restored) {
+				const queued = session.queued;
+				session.queued = null;
+				const interrupted = session.interrupted;
+				// A save still running settles first; its end resumes the interrupted autosave (see `saveSession`).
+				if (!session.saving) session.interrupted = false;
+				if (queued) {
+					session.timer = setTimeout(() => void saveSession(session, queued), 0);
+					session.timerSave = queued;
+				} else if (
+					session.draft &&
+					!session.saving &&
+					!session.timer &&
+					(session.view.state === 'dirty' || (interrupted && session.view.state === 'error'))
+				) {
+					session.timer = setTimeout(() => void saveSession(session), DOCS_AUTOSAVE_DELAY_MS);
+				}
+			}
+			releaseIfDone(session);
+		};
+	}, [current]);
+
 	const hasDraft = useCallback(() => Boolean(current()?.draft), [current]);
 
 	// Effects run in the browser only: the tab guard follows the page sessions (added with the first, removed with the last).
@@ -480,5 +579,5 @@ export function useDocsAutosave(page: IDocumentPage | null) {
 		return syncUnloadGuard;
 	}, []);
 
-	return { state: view.state, change, flushNow, reload, keepMine, discard, restoredHtml: view.restoredHtml, hasDraft };
+	return { state: view.state, change, flushNow, reload, keepMine, discard, holdForRestore, restoredHtml: view.restoredHtml, hasDraft };
 }
