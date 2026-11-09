@@ -294,5 +294,45 @@
 	{
 		"id": "removed:navigation:apps/web/core/components/pages/auth/password/page-component.tsx::href=/auth/forgot-password::#1",
 		"reason": "Moved with the password sign-in into pages/auth/sign-in/credentials-step.tsx (#4914), which links to /auth/forgot-password."
+	},
+	{
+		"id": "removed:navigation:apps/web/core/components/pages/auth/accept-invite/complete-invitation-registration-form.tsx::router.push=/::#1",
+		"reason": "Replaced by navigateAfterSignIn() (window.location.assign('/'), ad3a514da): after a sign-in sets the session the app opens with a full page load, so the new cookies reach the server instead of the router replaying a prefetched redirect to the sign-in page. Same destination, /."
+	},
+	{
+		"id": "removed:navigation:apps/web/core/hooks/auth/use-authentication-passcode.ts::router.push=/::#1",
+		"reason": "Replaced by navigateAfterSignIn() (window.location.assign('/'), ad3a514da): after a sign-in sets the session the app opens with a full page load, so the new cookies reach the server instead of the router replaying a prefetched redirect to the sign-in page. Same destination, /."
+	},
+	{
+		"id": "removed:navigation:apps/web/core/hooks/auth/use-authentication-passcode.ts::router.replace=/::#1",
+		"reason": "Replaced by navigateAfterSignIn() (window.location.assign('/'), ad3a514da): after a sign-in sets the session the app opens with a full page load, so the new cookies reach the server instead of the router replaying a prefetched redirect to the sign-in page. Same destination, /."
+	},
+	{
+		"id": "removed:navigation:apps/web/core/hooks/auth/use-authentication-passcode.ts::router.replace=/::#2",
+		"reason": "Replaced by navigateAfterSignIn() (window.location.assign('/'), ad3a514da): after a sign-in sets the session the app opens with a full page load, so the new cookies reach the server instead of the router replaying a prefetched redirect to the sign-in page. Same destination, /."
+	},
+	{
+		"id": "removed:navigation:apps/web/core/hooks/auth/use-authentication-passcode.ts::router.replace=/::#3",
+		"reason": "Replaced by navigateAfterSignIn() (window.location.assign('/'), ad3a514da): after a sign-in sets the session the app opens with a full page load, so the new cookies reach the server instead of the router replaying a prefetched redirect to the sign-in page. Same destination, /."
+	},
+	{
+		"id": "removed:navigation:apps/web/core/hooks/auth/use-authentication-password.ts::router.push=/::#1",
+		"reason": "Replaced by navigateAfterSignIn() (window.location.assign('/'), ad3a514da): after a sign-in sets the session the app opens with a full page load, so the new cookies reach the server instead of the router replaying a prefetched redirect to the sign-in page. Same destination, /."
+	},
+	{
+		"id": "removed:navigation:apps/web/core/hooks/auth/use-authentication-social-login.ts::router.push=/::#1",
+		"reason": "Replaced by navigateAfterSignIn() (window.location.assign('/'), ad3a514da): after a sign-in sets the session the app opens with a full page load, so the new cookies reach the server instead of the router replaying a prefetched redirect to the sign-in page. Same destination, /."
+	},
+	{
+		"id": "removed:navigation:apps/web/core/hooks/auth/use-authentication-team.ts::router.push=/::#1",
+		"reason": "Replaced by navigateAfterSignIn() (window.location.assign('/'), ad3a514da): after a sign-in sets the session the app opens with a full page load, so the new cookies reach the server instead of the router replaying a prefetched redirect to the sign-in page. Same destination, /."
+	},
+	{
+		"id": "removed:navigation:apps/web/core/hooks/auth/use-authentication-team.ts::router.push=/::#2",
+		"reason": "Replaced by navigateAfterSignIn() (window.location.assign('/'), ad3a514da): after a sign-in sets the session the app opens with a full page load, so the new cookies reach the server instead of the router replaying a prefetched redirect to the sign-in page. Same destination, /."
+	},
+	{
+		"id": "removed:navigation:apps/web/core/hooks/auth/use-ever-id-workspace-choice.ts::router.push=/::#1",
+		"reason": "Replaced by navigateAfterSignIn() (window.location.assign('/'), ad3a514da): after a sign-in sets the session the app opens with a full page load, so the new cookies reach the server instead of the router replaying a prefetched redirect to the sign-in page. Same destination, /."
 	}
 ]

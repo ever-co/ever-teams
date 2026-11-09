@@ -62,7 +62,7 @@ function blockOf(node: IDocumentNode, indent: string): string | null {
 			return `${indent}---`;
 		case 'image': {
 			const alt = String(node.attrs?.alt ?? node.attrs?.title ?? '');
-			return `${indent}![${alt}](${String(node.attrs?.src ?? '')})`;
+			return `${indent}![${alt}](${escapeDestination(String(node.attrs?.src ?? ''))})`;
 		}
 		case 'table':
 			return tableOf(node, indent);
@@ -92,9 +92,26 @@ function listOf(node: IDocumentNode, indent: string, marker: (at: number, item: 
 	return lines.join('\n');
 }
 
+/**
+ * A table cell's Markdown with every unescaped `|` escaped, so it cannot end the cell. The cell text is already Markdown
+ * (`escapeText` doubles a literal backslash), so a pipe after an even run of backslashes is a real pipe and gets one
+ * more backslash, and a pipe after an odd run is already escaped and stays as it is. One pass, counting the current run
+ * of backslashes: a regex that captures the run rescans it from every start and freezes the export on a long run.
+ */
+function escapeCellPipes(markdown: string): string {
+	let out = '';
+	let backslashes = 0;
+	for (const char of markdown) {
+		if (char === '|' && backslashes % 2 === 0) out += '\\';
+		out += char;
+		backslashes = char === '\\' ? backslashes + 1 : 0;
+	}
+	return out;
+}
+
 function tableOf(node: IDocumentNode, indent: string): string {
 	const rows = (node.content ?? []).map((row) =>
-		(row.content ?? []).map((cell) => blocksOf(cell.content ?? [], '').join(' ').replace(/\|/g, '\\|').replace(/\n/g, ' '))
+		(row.content ?? []).map((cell) => escapeCellPipes(blocksOf(cell.content ?? [], '').join(' ')).replace(/\n/g, ' '))
 	);
 	if (rows.length === 0) return '';
 	const width = Math.max(...rows.map((row) => row.length));
@@ -115,11 +132,11 @@ function inlineNodeOf(node: IDocumentNode): string {
 			return '  \n';
 		case 'mention': {
 			const label = String(node.attrs?.label ?? node.attrs?.name ?? node.attrs?.id ?? '');
-			return label ? `@${label}` : '';
+			return label ? `@${escapeText(label)}` : '';
 		}
 		case 'image': {
 			const alt = String(node.attrs?.alt ?? '');
-			return `![${alt}](${String(node.attrs?.src ?? '')})`;
+			return `![${alt}](${escapeDestination(String(node.attrs?.src ?? ''))})`;
 		}
 		default:
 			return node.text !== undefined ? escapeText(node.text) : inlineOf(node.content ?? []);
@@ -144,13 +161,21 @@ function withMarks(text: string, marks: readonly { type: string; attrs?: Record<
 				out = `\`${text}\``;
 				break;
 			case 'link':
-				out = `[${out}](${String(mark.attrs?.href ?? '')})`;
+				out = `[${out}](${escapeDestination(String(mark.attrs?.href ?? ''))})`;
 				break;
 			default:
 				break;
 		}
 	}
 	return out;
+}
+
+/**
+ * A link or image destination with its backslashes and parentheses escaped (valid CommonMark escapes there): a backslash
+ * in a URL survives, also before a `|` that a table cell escapes after it, and a `)` cannot end the destination early.
+ */
+function escapeDestination(destination: string): string {
+	return destination.replace(/[\\()]/g, '\\$&');
 }
 
 function escapeText(text: string): string {

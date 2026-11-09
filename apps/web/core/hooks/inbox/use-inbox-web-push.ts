@@ -6,13 +6,13 @@ import { inboxPushService } from '@/core/services/client/api/inbox';
 import { base64UrlToBytes, supportsWebPush, unsubscribeThisBrowserPush } from '@/core/lib/utils/web-push';
 
 /** The worker that shows pushed inbox entries (served from `public/`). */
-export const INBOX_PUSH_WORKER_URL = '/inbox-push-sw.js';
+const INBOX_PUSH_WORKER_URL = '/inbox-push-sw.js';
 
 /**
  * Where this browser stands: `unavailable` (the platform has web push off), `unsupported` (the browser cannot),
  * `blocked` (the person refused notifications for the site), `off`, `on`, `loading`.
  */
-export type InboxWebPushState = 'loading' | 'unavailable' | 'unsupported' | 'blocked' | 'off' | 'on';
+type InboxWebPushState = 'loading' | 'unavailable' | 'unsupported' | 'blocked' | 'off' | 'on';
 
 async function currentSubscription(): Promise<PushSubscription | null> {
 	const registration = await navigator.serviceWorker.getRegistration('/');

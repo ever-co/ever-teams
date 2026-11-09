@@ -48,7 +48,7 @@ interface ToggleVariables {
 }
 
 /** One change of the setting: a type's switch, or a patch of the delivery preferences. */
-export type NotificationSettingSave =
+type NotificationSettingSave =
 	| { kind: 'switch'; key: TEmployeeNotificationSettingKey; isOn: boolean }
 	| { kind: 'preferences'; patch: Partial<INotificationPreferences> };
 

@@ -63,6 +63,94 @@ describe('documentToMarkdown', () => {
 		);
 	});
 
+	it('keeps a table cell whole when a backslash comes before a pipe', () => {
+		const cell = (...content: IDocumentNode[]): IDocumentNode => ({ type: 'tableCell', content: [paragraph(...content)] });
+		const doc: IDocumentNode = {
+			type: 'doc',
+			content: [
+				{
+					type: 'table',
+					content: [
+						{ type: 'tableRow', content: [cell(text('h1')), cell(text('h2'))] },
+						{
+							type: 'tableRow',
+							content: [
+								// A mention label is escaped like text, so its trailing backslash survives and the pipe after it is escaped too.
+								cell({ type: 'mention', attrs: { id: 'e1', label: 'Ada\\' } }, text('|x')),
+								// A literal backslash in text is doubled first, so the pipe after it still needs its own escape.
+								cell(text('a\\'), text('|b'))
+							]
+						}
+					]
+				}
+			]
+		};
+		const markdown = documentToMarkdown(doc);
+		expect(markdown).toBe('| h1 | h2 |\n| --- | --- |\n| @Ada\\\\\\|x | a\\\\\\|b |\n');
+		// Two columns in every row: no pipe in the content ended a cell.
+		for (const line of markdown.trim().split('\n')) {
+			expect(line.split(/(?<!\\)(?:\\\\)*\|/).length).toBe(4);
+		}
+	});
+
+	it('keeps a backslash in a link destination inside a table cell', () => {
+		const doc: IDocumentNode = {
+			type: 'doc',
+			content: [
+				{
+					type: 'table',
+					content: [
+						{
+							type: 'tableRow',
+							content: [
+								{
+									type: 'tableCell',
+									content: [paragraph(text('go', [{ type: 'link', attrs: { href: 'https://x.test/a\\|b' } }]))]
+								}
+							]
+						}
+					]
+				}
+			]
+		};
+		// The destination's backslash is doubled, then the pipe after that even run gets its own escape.
+		expect(documentToMarkdown(doc)).toBe('| [go](https://x.test/a\\\\\\|b) |\n| --- |\n');
+	});
+
+	it('escapes parentheses in link and image destinations so they cannot end early', () => {
+		const doc: IDocumentNode = {
+			type: 'doc',
+			content: [
+				paragraph(text('wiki', [{ type: 'link', attrs: { href: 'https://x.test/a_(b)\\)c' } }])),
+				{ type: 'image', attrs: { src: 'https://x.test/p(1).png', alt: 'p' } }
+			]
+		};
+		expect(documentToMarkdown(doc)).toBe(
+			'[wiki](https://x.test/a_\\(b\\)\\\\\\)c)\n\n![p](https://x.test/p\\(1\\).png)\n'
+		);
+	});
+
+	it('exports a cell with a very long run of backslashes in linear time', () => {
+		const doc: IDocumentNode = {
+			type: 'doc',
+			content: [
+				{
+					type: 'table',
+					content: [
+						{
+							type: 'tableRow',
+							content: [{ type: 'tableCell', content: [paragraph(text(`${'\\'.repeat(200_000)}|`))] }]
+						}
+					]
+				}
+			]
+		};
+		// No wall-clock bound: a rescanning escape runs for minutes on this input, so the test timeout catches it.
+		const markdown = documentToMarkdown(doc);
+		// 200,000 literal backslashes are doubled by escapeText; the pipe after that even run gets its own backslash.
+		expect(markdown).toBe(`| ${'\\'.repeat(400_000)}\\| |\n| --- |\n`);
+	});
+
 	it('escapes Markdown characters in text and flattens unknown nodes', () => {
 		const doc: IDocumentNode = {
 			type: 'doc',

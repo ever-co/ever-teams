@@ -8,7 +8,7 @@ const emailModeSchema = z.enum(['immediate', 'digest', 'off']);
  * a key Gauzy keeps that this page does not know (`inApp`, a later one) goes through as it is, so a save never
  * fails on it nor drops it.
  */
-export const notificationPreferencesSchema = z
+const notificationPreferencesSchema = z
 	.looseObject({
 		email: z.union([emailModeSchema, z.boolean()]).optional(),
 		emailByType: z.record(z.string().max(64), emailModeSchema).optional(),
