@@ -93,6 +93,29 @@ describe('documentToMarkdown', () => {
 		}
 	});
 
+	it('exports a cell with a very long run of backslashes in linear time', () => {
+		const doc: IDocumentNode = {
+			type: 'doc',
+			content: [
+				{
+					type: 'table',
+					content: [
+						{
+							type: 'tableRow',
+							content: [{ type: 'tableCell', content: [paragraph(text(`${'\\'.repeat(200_000)}|`))] }]
+						}
+					]
+				}
+			]
+		};
+		const started = Date.now();
+		const markdown = documentToMarkdown(doc);
+		// A rescanning escape takes seconds here; one pass takes a few milliseconds.
+		expect(Date.now() - started).toBeLessThan(1000);
+		// 200,000 literal backslashes are doubled by escapeText; the pipe after that even run gets its own backslash.
+		expect(markdown).toBe(`| ${'\\'.repeat(400_000)}\\| |\n| --- |\n`);
+	});
+
 	it('escapes Markdown characters in text and flattens unknown nodes', () => {
 		const doc: IDocumentNode = {
 			type: 'doc',

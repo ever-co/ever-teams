@@ -95,12 +95,18 @@ function listOf(node: IDocumentNode, indent: string, marker: (at: number, item: 
 /**
  * A table cell's Markdown with every unescaped `|` escaped, so it cannot end the cell. The cell text is already Markdown
  * (`escapeText` doubles a literal backslash), so a pipe after an even run of backslashes is a real pipe and gets one
- * more backslash, and a pipe after an odd run is already escaped and stays as it is.
+ * more backslash, and a pipe after an odd run is already escaped and stays as it is. One pass, counting the current run
+ * of backslashes: a regex that captures the run rescans it from every start and freezes the export on a long run.
  */
 function escapeCellPipes(markdown: string): string {
-	return markdown.replace(/(\\*)\|/g, (_match, backslashes: string) =>
-		backslashes.length % 2 === 0 ? `${backslashes}\\|` : `${backslashes}|`
-	);
+	let out = '';
+	let backslashes = 0;
+	for (const char of markdown) {
+		if (char === '|' && backslashes % 2 === 0) out += '\\';
+		out += char;
+		backslashes = char === '\\' ? backslashes + 1 : 0;
+	}
+	return out;
 }
 
 function tableOf(node: IDocumentNode, indent: string): string {
