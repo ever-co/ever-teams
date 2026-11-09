@@ -46,7 +46,7 @@ const COLLAPSED_STORAGE_KEY = 'team-tasks-collapsed-groups';
 const NO_FILTERS: TeamTasksFilters = {};
 
 /** How the page is opened: on the team's tasks with the device's view, or on a saved / built-in view. */
-export interface TeamTasksViewOptions {
+interface TeamTasksViewOptions {
 	/** A saved or built-in view: the page starts from this definition and keeps its changes in memory, not on the device. */
 	initial?: ITaskViewDefinition;
 	/** What names the view opened (its id, a built-in key): the page starts again from `initial` when it changes, and only then. */

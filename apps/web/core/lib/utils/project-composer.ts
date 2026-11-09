@@ -77,7 +77,7 @@ export interface ProjectDraft {
 export type ProjectDraftErrorKey = 'name' | 'dates' | 'projectUrl' | 'taskKey' | 'description' | 'teams' | 'image';
 
 /** A project's task key: 2 to 10 upper-case letters or digits, starting with a letter (the platform's own rule). */
-export const TASK_KEY_PATTERN = /^[A-Z][A-Z0-9]{1,9}$/;
+const TASK_KEY_PATTERN = /^[A-Z][A-Z0-9]{1,9}$/;
 
 /** The key the platform proposes for a name: its first three letters or digits, else its first three letters. */
 export function proposedTaskKey(name: string): string {
