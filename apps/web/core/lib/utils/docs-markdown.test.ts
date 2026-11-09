@@ -63,6 +63,36 @@ describe('documentToMarkdown', () => {
 		);
 	});
 
+	it('keeps a table cell whole when a backslash comes before a pipe', () => {
+		const cell = (...content: IDocumentNode[]): IDocumentNode => ({ type: 'tableCell', content: [paragraph(...content)] });
+		const doc: IDocumentNode = {
+			type: 'doc',
+			content: [
+				{
+					type: 'table',
+					content: [
+						{ type: 'tableRow', content: [cell(text('h1')), cell(text('h2'))] },
+						{
+							type: 'tableRow',
+							content: [
+								// A mention label is not escaped: its trailing backslash already escapes the pipe that follows.
+								cell({ type: 'mention', attrs: { id: 'e1', label: 'Ada\\' } }, text('|x')),
+								// A literal backslash in text is doubled first, so the pipe after it still needs its own escape.
+								cell(text('a\\'), text('|b'))
+							]
+						}
+					]
+				}
+			]
+		};
+		const markdown = documentToMarkdown(doc);
+		expect(markdown).toBe('| h1 | h2 |\n| --- | --- |\n| @Ada\\|x | a\\\\\\|b |\n');
+		// Two columns in every row: no pipe in the content ended a cell.
+		for (const line of markdown.trim().split('\n')) {
+			expect(line.split(/(?<!\\)(?:\\\\)*\|/).length).toBe(4);
+		}
+	});
+
 	it('escapes Markdown characters in text and flattens unknown nodes', () => {
 		const doc: IDocumentNode = {
 			type: 'doc',

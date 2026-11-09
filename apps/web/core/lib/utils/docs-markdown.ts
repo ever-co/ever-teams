@@ -92,9 +92,20 @@ function listOf(node: IDocumentNode, indent: string, marker: (at: number, item: 
 	return lines.join('\n');
 }
 
+/**
+ * A table cell's Markdown with every unescaped `|` escaped, so it cannot end the cell. The cell text is already Markdown
+ * (`escapeText` doubles a literal backslash), so a pipe after an even run of backslashes is a real pipe and gets one
+ * more backslash, and a pipe after an odd run is already escaped and stays as it is.
+ */
+function escapeCellPipes(markdown: string): string {
+	return markdown.replace(/(\\*)\|/g, (_match, backslashes: string) =>
+		backslashes.length % 2 === 0 ? `${backslashes}\\|` : `${backslashes}|`
+	);
+}
+
 function tableOf(node: IDocumentNode, indent: string): string {
 	const rows = (node.content ?? []).map((row) =>
-		(row.content ?? []).map((cell) => blocksOf(cell.content ?? [], '').join(' ').replace(/\|/g, '\\|').replace(/\n/g, ' '))
+		(row.content ?? []).map((cell) => escapeCellPipes(blocksOf(cell.content ?? [], '').join(' ')).replace(/\n/g, ' '))
 	);
 	if (rows.length === 0) return '';
 	const width = Math.max(...rows.map((row) => row.length));
