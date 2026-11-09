@@ -184,7 +184,7 @@ export function useAuthenticationPasscode() {
 						setDefaultTeamId(response.data.defaultTeamId);
 						setScreen('workspace');
 					} else {
-						navigateAfterSignIn();
+						navigateAfterSignIn({ replace: true });
 					}
 					return;
 				}
@@ -205,7 +205,7 @@ export function useAuthenticationPasscode() {
 				if (loginResponse?.data?.user || loginResponse?.data?.team) {
 					setAuthenticated(true);
 					setStatus('success');
-					navigateAfterSignIn();
+					navigateAfterSignIn({ replace: true });
 					return;
 				}
 				setStatus('error');
@@ -284,7 +284,7 @@ export function useAuthenticationPasscode() {
 				.then((res) => {
 					if (res?.data?.user) {
 						setAuthenticated(true);
-						navigateAfterSignIn();
+						navigateAfterSignIn({ replace: true });
 					} else {
 						const errors = (res.data as any).errors ?? {};
 						if (errors.email) {

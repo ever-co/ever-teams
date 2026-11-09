@@ -7,9 +7,16 @@
  * the session exists, and only a manual reload shows the app. A full page load sends the new cookies, never reads the
  * stale router cache, and starts React Query and the Jotai stores from the signed-in session (the workspace switcher
  * reloads for the same reasons, see `use-workspace-switcher.ts`).
+ *
+ * `replace` swaps the sign-in page out of the history (`location.replace`), for the paths that used
+ * `router.replace('/')`: Back then leaves the app instead of reopening the sign-in page.
  */
-export function navigateAfterSignIn(): void {
+export function navigateAfterSignIn({ replace = false }: { replace?: boolean } = {}): void {
 	if (typeof window === 'undefined') {
+		return;
+	}
+	if (replace) {
+		window.location.replace('/');
 		return;
 	}
 	window.location.assign('/');

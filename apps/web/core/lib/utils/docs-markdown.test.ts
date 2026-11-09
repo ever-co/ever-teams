@@ -75,7 +75,7 @@ describe('documentToMarkdown', () => {
 						{
 							type: 'tableRow',
 							content: [
-								// A mention label is not escaped: its trailing backslash already escapes the pipe that follows.
+								// A mention label is escaped like text, so its trailing backslash survives and the pipe after it is escaped too.
 								cell({ type: 'mention', attrs: { id: 'e1', label: 'Ada\\' } }, text('|x')),
 								// A literal backslash in text is doubled first, so the pipe after it still needs its own escape.
 								cell(text('a\\'), text('|b'))
@@ -86,7 +86,7 @@ describe('documentToMarkdown', () => {
 			]
 		};
 		const markdown = documentToMarkdown(doc);
-		expect(markdown).toBe('| h1 | h2 |\n| --- | --- |\n| @Ada\\|x | a\\\\\\|b |\n');
+		expect(markdown).toBe('| h1 | h2 |\n| --- | --- |\n| @Ada\\\\\\|x | a\\\\\\|b |\n');
 		// Two columns in every row: no pipe in the content ended a cell.
 		for (const line of markdown.trim().split('\n')) {
 			expect(line.split(/(?<!\\)(?:\\\\)*\|/).length).toBe(4);

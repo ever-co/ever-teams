@@ -132,7 +132,7 @@ function inlineNodeOf(node: IDocumentNode): string {
 			return '  \n';
 		case 'mention': {
 			const label = String(node.attrs?.label ?? node.attrs?.name ?? node.attrs?.id ?? '');
-			return label ? `@${label}` : '';
+			return label ? `@${escapeText(label)}` : '';
 		}
 		case 'image': {
 			const alt = String(node.attrs?.alt ?? '');
