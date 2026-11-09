@@ -57,7 +57,9 @@ export function DocsTree({ tree, activeId, expanded, favoriteIds, onToggle, onSe
 	const [dropTarget, setDropTarget] = useState<string | null>(null);
 	const listRef = useRef<HTMLUListElement>(null);
 
-	// A shorter tree (a collapsed folder, a moved page) keeps the roving focus on its last row.
+	// A shorter tree (a collapsed folder, a moved page) moves the roving focus to its last row, and keeps it there when the
+	// tree grows again: stored while rendering (a guarded update, not an effect), used at once for this render.
+	if (focusIndex >= rows.length) setFocusIndex(rows.length - 1);
 	const focusedRow = Math.min(focusIndex, rows.length - 1);
 
 	const focusRow = useCallback((index: number) => {
