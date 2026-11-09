@@ -10,7 +10,7 @@ self.addEventListener('push', (event) => {
 	let payload = {};
 	try {
 		payload = event.data ? event.data.json() : {};
-	} catch (error) {
+	} catch {
 		payload = { title: event.data ? event.data.text() : '' };
 	}
 	const title = payload.title || 'Inbox';
@@ -37,7 +37,7 @@ self.addEventListener('notificationclick', (event) => {
 					const focused = await client.focus();
 					if (focused && 'navigate' in focused) await focused.navigate(target);
 					return;
-				} catch (error) {
+				} catch {
 					// A tab this worker does not control cannot be steered: a new one opens below.
 				}
 			}

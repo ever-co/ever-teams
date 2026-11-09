@@ -1,6 +1,7 @@
 'use client';
 
 import { useCallback, useEffect, useRef, useState, useSyncExternalStore } from 'react';
+import { useIsomorphicLayoutEffect } from '@/core/hooks/common/use-isomorphic-layout-effect';
 import { useQueryClient } from '@tanstack/react-query';
 import { queryKeys } from '@/core/query/keys';
 import { docsService } from '@/core/services/client/api/docs';
@@ -336,7 +337,10 @@ export function useDocsAutosave(page: IDocumentPage | null) {
 	const key = pageId && userId ? sessionKey(userId, pageId) : null;
 	const clock = page?.updatedAt ?? null;
 	const clockRef = useRef(clock);
-	clockRef.current = clock;
+	// Not during render: `subscribe` reads it, and React subscribes after the layout effects ran.
+	useIsomorphicLayoutEffect(() => {
+		clockRef.current = clock;
+	});
 
 	const subscribe = useCallback(
 		(onChange: () => void) => {

@@ -37,9 +37,12 @@ describe('DemoBanner sign-up URL through the runtime env', () => {
 	});
 
 	it('links to the URL the server published', () => {
+		// require() inside jest.isolateModules: each module is loaded fresh, after process.env is set for this test.
 		jest.isolateModules(() => {
 			process.env[KEY] = 'https://teams.example.com/auth/signup';
+			// eslint-disable-next-line @typescript-eslint/no-require-imports
 			const { getPublicRuntimeEnv } = require('@/core/services/server/runtime-env');
+			// eslint-disable-next-line @typescript-eslint/no-require-imports
 			const { RUNTIME_ENV_ATTRIBUTE, serializeRuntimeEnvAttribute } = require('@/env-config');
 			const published = getPublicRuntimeEnv();
 			expect(published[KEY]).toBe('https://teams.example.com/auth/signup');
@@ -47,6 +50,7 @@ describe('DemoBanner sign-up URL through the runtime env', () => {
 			document.documentElement.setAttribute(RUNTIME_ENV_ATTRIBUTE, serializeRuntimeEnvAttribute(published));
 			delete process.env[KEY];
 
+			// eslint-disable-next-line @typescript-eslint/no-require-imports
 			const { DemoBanner } = require('./demo-banner');
 			render(<DemoBanner />);
 		});

@@ -15,21 +15,21 @@ import {
 } from '@/core/types/interfaces/common/task-views';
 
 /** The undo of a bulk update: the previous values of the tasks that changed, as the same request. */
-export function undoItemsOf(outcome: ITaskBulkUpdateOutcome): ITaskBulkUpdateItem[] {
+function undoItemsOf(outcome: ITaskBulkUpdateOutcome): ITaskBulkUpdateItem[] {
 	return outcome.results
 		.filter((result) => result.ok && result.previous && Object.keys(result.previous).length > 0)
 		.map((result) => ({ taskId: result.taskId, changes: result.previous as ITaskBulkChanges }));
 }
 
 /** Slices a list into the batches the platform takes at once. */
-export function batchesOf<T>(items: readonly T[], size = TASK_BULK_UPDATE_MAX): T[][] {
+function batchesOf<T>(items: readonly T[], size = TASK_BULK_UPDATE_MAX): T[][] {
 	const batches: T[][] = [];
 	for (let at = 0; at < items.length; at += size) batches.push(items.slice(at, at + size));
 	return batches;
 }
 
 /** One outcome out of several (the batches of one change). */
-export function mergeOutcomes(outcomes: readonly ITaskBulkUpdateOutcome[]): ITaskBulkUpdateOutcome {
+function mergeOutcomes(outcomes: readonly ITaskBulkUpdateOutcome[]): ITaskBulkUpdateOutcome {
 	return {
 		applied: outcomes.reduce((sum, item) => sum + item.applied, 0),
 		refused: outcomes.reduce((sum, item) => sum + item.refused, 0),

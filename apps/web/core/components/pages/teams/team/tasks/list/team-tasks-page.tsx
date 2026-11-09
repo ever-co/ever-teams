@@ -54,7 +54,7 @@ interface PendingEdit {
 type CreateRequest = string | null | undefined;
 
 /** What the page is opened on besides the team's tasks: a saved view, or a built-in one the platform computes. */
-export type TaskViewContext =
+type TaskViewContext =
 	| { kind: 'saved'; view: ITaskView }
 	| { kind: 'builtIn'; key: ETaskBuiltInView; tasks: TTask[]; total: number; isLoading: boolean; isError: boolean; refetch: () => void };
 

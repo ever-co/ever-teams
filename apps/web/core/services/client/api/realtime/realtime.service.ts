@@ -4,14 +4,14 @@ import { getAccessTokenCookie, getOrganizationIdCookie, getTenantIdCookie } from
 import type { RealtimeCatchUp, RealtimeCatchUpQuery, RealtimePresenceStatus } from '@/core/lib/realtime/events';
 
 /** What `GET /realtime/status` answers. */
-export interface RealtimeStatusAnswer {
+interface RealtimeStatusAnswer {
 	enabled: boolean;
 	subscriptions: boolean;
 	names: string[];
 }
 
 /** Body of `POST /realtime/typing`. */
-export interface RealtimeTypingInput {
+interface RealtimeTypingInput {
 	conversationId: string;
 	threadRootId?: string | null;
 	/** The users to tell; at most 50. */

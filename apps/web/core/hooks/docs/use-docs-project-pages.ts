@@ -7,7 +7,7 @@ import { entityFilesService } from '@/core/services/client/api/documents/entity-
 import { EDocumentKind } from '@/core/types/interfaces/common/docs';
 import { useDocsScope } from './use-docs-scope';
 
-export interface ProjectDocPage {
+interface ProjectDocPage {
 	linkId: string;
 	pageId: string;
 	name: string;

@@ -86,6 +86,7 @@ export function withSaveReverted(
 			: { ...setting, preferences: previous?.preferences ?? null };
 	// A provisional row that carries nothing any more is no row.
 	if (!reverted.id && !previous) {
+		// eslint-disable-next-line @typescript-eslint/no-unused-vars -- every field but the id
 		const { id: _id, ...rest } = reverted;
 		const carried = Object.values(rest).some((value) => value !== undefined && value !== null);
 		if (!carried) {
