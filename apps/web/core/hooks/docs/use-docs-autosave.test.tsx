@@ -849,51 +849,30 @@ describe('useDocsAutosave, restoring a version', () => {
 		view.unmount();
 	});
 
-	it('resumes the interrupted autosave once the save running at the failed restore’s end settles', async () => {
+	it.each([
+		['fails while the restore runs', false],
+		['fails after the restore failed', true]
+	])('resumes the autosave a restore interrupted when the save before it %s', async (_when, restoreFailsFirst) => {
 		const { wrapper } = setup();
-		const view = renderHook(() => useDocsAutosave(pageOf('page-restore-settles-later')), { wrapper });
+		const view = renderHook(() => useDocsAutosave(pageOf(`page-restore-interrupted-${restoreFailsFirst}`)), { wrapper });
 		const failing = deferred<IDocumentPage>();
 		mockUpdateContent.mockReturnValueOnce(failing.promise);
 		act(() => view.result.current.change('<p>older</p>', null));
 		act(() => void view.result.current.flushNow());
+		// A newer edit waits for its autosave while the older save runs; then a restore begins, and fails.
 		act(() => view.result.current.change('<p>newer</p>', null));
 		let release!: (restored: boolean) => void;
 		act(() => {
 			release = view.result.current.holdForRestore();
 		});
-		// The restore fails while the older save still runs; that save fails afterwards.
-		act(() => release(false));
+		if (restoreFailsFirst) act(() => release(false));
 		const before = contentsSaved().length;
 		await act(async () => {
 			failing.reject(new Error('offline'));
 			await failing.promise.catch(() => undefined);
 		});
 		expect(view.result.current.state).toBe('error');
-		await waitFor(() => expect(contentsSaved().slice(before)).toEqual(['<p>newer</p>']), { timeout: 5_000 });
-		view.unmount();
-	});
-
-	it('resumes the autosave a restore interrupted when the save before it failed meanwhile', async () => {
-		const { wrapper } = setup();
-		const view = renderHook(() => useDocsAutosave(pageOf('page-restore-interrupted')), { wrapper });
-		const failing = deferred<IDocumentPage>();
-		mockUpdateContent.mockReturnValueOnce(failing.promise);
-		act(() => view.result.current.change('<p>older</p>', null));
-		act(() => void view.result.current.flushNow());
-		// A newer edit waits for its autosave while the older save runs; then a restore begins.
-		act(() => view.result.current.change('<p>newer</p>', null));
-		let release!: (restored: boolean) => void;
-		act(() => {
-			release = view.result.current.holdForRestore();
-		});
-		await act(async () => {
-			failing.reject(new Error('offline'));
-			await failing.promise.catch(() => undefined);
-		});
-		expect(view.result.current.state).toBe('error');
-
-		const before = contentsSaved().length;
-		act(() => release(false));
+		if (!restoreFailsFirst) act(() => release(false));
 		await waitFor(() => expect(contentsSaved().slice(before)).toEqual(['<p>newer</p>']), { timeout: 5_000 });
 		view.unmount();
 	});
