@@ -18,7 +18,7 @@ jest.mock('./use-chat-scope', () => ({
 
 import { queryKeys } from '@/core/query/keys';
 import { realtimeBus } from '@/core/lib/realtime/bus';
-import { refreshHeldMessage, useChatMessages, type ChatMessagesCache } from './use-chat-messages';
+import { refreshHeldMessage, refreshHeldWindow, useChatMessages, type ChatMessagesCache } from './use-chat-messages';
 
 function message(id: string, minute: number, body: string, extra: Partial<IChatMessage> = {}): IChatMessage {
 	return {
@@ -36,6 +36,52 @@ function message(id: string, minute: number, body: string, extra: Partial<IChatM
 }
 
 const page = (messages: IChatMessage[], hasBefore = false): IChatMessagePage => ({ messages, hasBefore, hasAfter: false });
+
+describe('refreshHeldWindow (no live channel)', () => {
+	const key = queryKeys.chat.messages('ten', 'c1');
+
+	it('reads the held messages again from the oldest forward and shows their edits and deletions', async () => {
+		const client = new QueryClient();
+		client.setQueryData<ChatMessagesCache>(key, {
+			messages: [message('m1', 1, 'one'), message('m2', 2, 'two'), message('m3', 3, 'three'), message('pending:1', 4, 'sending')],
+			hasBefore: true,
+			hasAfter: false,
+			serverNewestId: 'm3'
+		});
+		mockMessages.mockReset();
+		mockMessages
+			// Around the oldest held: one older message (not held) and two held ones.
+			.mockResolvedValueOnce({ messages: [message('m0', 0, 'older'), message('m1', 1, 'one, edited', { editedAt: '2026-01-01T00:08:00.000Z' }), message('m2', 2, 'two')], hasBefore: true, hasAfter: true })
+			// Forward: the last held one, deleted, then a newer one (not held: the forward read's).
+			.mockResolvedValueOnce({ messages: [message('m3', 3, '', { deletedAt: '2026-01-01T00:09:00.000Z' }), message('m4', 5, 'newer')], hasBefore: true, hasAfter: false });
+
+		await expect(refreshHeldWindow(client, key, 'c1')).resolves.toBe(3);
+
+		expect(mockMessages.mock.calls).toEqual([
+			['c1', { around: 'm1' }],
+			['c1', { after: 'm2' }]
+		]);
+		const held = client.getQueryData<ChatMessagesCache>(key);
+		expect(held?.messages.map((m) => [m.id, m.body, m.deletedAt ?? null])).toEqual([
+			['m1', 'one, edited', null],
+			['m2', 'two', null],
+			['m3', '', '2026-01-01T00:09:00.000Z'],
+			['pending:1', 'sending', null]
+		]);
+		expect(held?.serverNewestId).toBe('m3');
+	});
+
+	it('stops at the first page that reaches past the newest held message', async () => {
+		const client = new QueryClient();
+		client.setQueryData<ChatMessagesCache>(key, { messages: [message('m1', 1, 'one')], hasBefore: false, hasAfter: false, serverNewestId: 'm1' });
+		mockMessages.mockReset();
+		mockMessages.mockResolvedValueOnce({ messages: [message('m1', 1, 'one'), message('m2', 2, 'not held')], hasBefore: false, hasAfter: true });
+
+		await expect(refreshHeldWindow(client, key, 'c1')).resolves.toBe(1);
+		expect(mockMessages).toHaveBeenCalledTimes(1);
+		expect(client.getQueryData<ChatMessagesCache>(key)?.messages.map((m) => m.id)).toEqual(['m1']);
+	});
+});
 
 describe('refreshHeldMessage', () => {
 	const key = queryKeys.chat.messages('ten', 'c1');

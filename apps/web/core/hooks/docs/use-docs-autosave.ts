@@ -67,6 +67,11 @@ interface PageSession {
 	view: SessionView;
 	/** A save of the page is running. */
 	saving: boolean;
+	/**
+	 * A version of the page is being restored: the draft (the text the restore replaces) is not saved meanwhile, and is
+	 * dropped only once the restore succeeded (see `holdForRestore`).
+	 */
+	held: boolean;
 	/** A save asked while one ran: it goes when that one ends, forcing the snapshot when Keep Mine asked for it. */
 	queued: { force: boolean } | null;
 	/** The autosave delay after the last keystroke, or a queued save about to go. */
@@ -97,7 +102,7 @@ function sessionOf(userId: string, pageId: string, clock: string | null): PageSe
 	const key = sessionKey(userId, pageId);
 	let session = sessions.get(key);
 	if (!session) {
-		session = { key, pageId, dropped: false, draft: null, base: clock, view: IDLE_VIEW, saving: false, queued: null, timer: null, applySaved: null, views: new Set() };
+		session = { key, pageId, dropped: false, draft: null, base: clock, view: IDLE_VIEW, saving: false, held: false, queued: null, timer: null, applySaved: null, views: new Set() };
 		sessions.set(key, session);
 		syncUnloadGuard();
 	}
@@ -158,6 +163,8 @@ function releaseIfDone(session: PageSession): void {
 async function saveSession(session: PageSession, options: { force?: boolean } = {}): Promise<boolean> {
 	clearSessionTimer(session);
 	if (session.dropped) return true;
+	// A restore is running: the draft waits (its save would land over the restored version); the restore's end decides.
+	if (session.held) return false;
 	const draft = session.draft;
 	if (!draft || !session.base) {
 		releaseIfDone(session);
@@ -472,6 +479,34 @@ export function useDocsAutosave(page: IDocumentPage | null) {
 		updateView(session, { state: 'idle', restoredHtml: null });
 	}, [current]);
 
+	/**
+	 * Holds the draft while a version is restored: nothing is saved until the returned release runs. `restored` true
+	 * drops the draft (the restored version replaces it); false keeps it and saves it after the usual delay, so a
+	 * restore that fails loses nothing typed.
+	 */
+	const holdForRestore = useCallback((): ((restored: boolean) => void) => {
+		const session = current();
+		if (!session) return () => undefined;
+		clearSessionTimer(session);
+		session.held = true;
+		return (restored) => {
+			session.held = false;
+			if (session.dropped) return;
+			if (restored) {
+				clearSessionTimer(session);
+				session.draft = null;
+				session.queued = null;
+				updateView(session, { state: 'idle', restoredHtml: null });
+				releaseIfDone(session);
+				return;
+			}
+			// A draft that waited (typed before or during the restore) saves as usual; a save still running ends as usual.
+			if (session.draft && !session.saving && !session.timer && session.view.state === 'dirty') {
+				session.timer = setTimeout(() => void saveSession(session), DOCS_AUTOSAVE_DELAY_MS);
+			}
+		};
+	}, [current]);
+
 	const hasDraft = useCallback(() => Boolean(current()?.draft), [current]);
 
 	// Effects run in the browser only: the tab guard follows the page sessions (added with the first, removed with the last).
@@ -480,5 +515,5 @@ export function useDocsAutosave(page: IDocumentPage | null) {
 		return syncUnloadGuard;
 	}, []);
 
-	return { state: view.state, change, flushNow, reload, keepMine, discard, restoredHtml: view.restoredHtml, hasDraft };
+	return { state: view.state, change, flushNow, reload, keepMine, discard, holdForRestore, restoredHtml: view.restoredHtml, hasDraft };
 }

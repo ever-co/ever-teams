@@ -387,9 +387,16 @@ export function DocsPageView({ pageId, tree, actions }: DocsPageViewProps) {
 						pageId={page.id}
 						onClose={() => setShowHistory(false)}
 						onRestore={async (versionId) => {
-							// The pending draft is the text being replaced: it must not be saved over the restored version.
-							autosave.discard();
-							await actions.restoreVersion(page.id, versionId);
+							// The pending draft is the text being replaced: it is not saved while the version is restored (it would
+							// land over it), and it is dropped only once the restore succeeded — a failed restore keeps it.
+							const release = autosave.holdForRestore();
+							let restored = false;
+							try {
+								await actions.restoreVersion(page.id, versionId);
+								restored = true;
+							} finally {
+								release(restored);
+							}
 							toast.success(t('docs.VERSION_RESTORED'));
 						}}
 					/>

@@ -639,6 +639,50 @@ describe('useDocsAutosave, leaving a page', () => {
 	});
 });
 
+describe('useDocsAutosave, restoring a version', () => {
+	const contentsSaved = (): string[] => mockUpdateContent.mock.calls.map((call) => (call[1] as { contentHtml: string }).contentHtml);
+
+	it('saves nothing while the restore runs, and keeps the draft when the restore fails', async () => {
+		const { wrapper } = setup();
+		const view = renderHook(() => useDocsAutosave(pageOf('page-restore-fails')), { wrapper });
+		act(() => view.result.current.change('<p>typed before the restore</p>', null));
+		const before = contentsSaved().length;
+
+		let release!: (restored: boolean) => void;
+		act(() => {
+			release = view.result.current.holdForRestore();
+		});
+		await act(async () => {
+			await view.result.current.flushNow();
+		});
+		expect(contentsSaved().length).toBe(before);
+
+		act(() => release(false));
+		expect(view.result.current.hasDraft()).toBe(true);
+		expect(view.result.current.state).toBe('dirty');
+		// The save goes (its answer stays pending: no test answers it).
+		act(() => void view.result.current.flushNow());
+		expect(contentsSaved().slice(before)).toEqual(['<p>typed before the restore</p>']);
+		view.unmount();
+	});
+
+	it('drops the draft once the restore succeeded, and saves nothing of it', async () => {
+		const { wrapper } = setup();
+		const view = renderHook(() => useDocsAutosave(pageOf('page-restored')), { wrapper });
+		act(() => view.result.current.change('<p>replaced by the restore</p>', null));
+		const before = contentsSaved().length;
+
+		act(() => view.result.current.holdForRestore()(true));
+		expect(view.result.current.hasDraft()).toBe(false);
+		expect(view.result.current.state).toBe('idle');
+		await act(async () => {
+			await view.result.current.flushNow();
+		});
+		view.unmount();
+		expect(contentsSaved().slice(before)).toEqual([]);
+	});
+});
+
 describe('useEditorPageContent, a refreshed page', () => {
 	type Props = { pageId: string | null; html: string; json: IDocumentNode | null; hasDraft: boolean };
 	const render = (initialProps: Props) =>

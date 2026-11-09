@@ -1,9 +1,10 @@
 'use client';
 
-import { useCallback, useMemo, useState } from 'react';
+import { useCallback, useMemo, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 import { toast } from 'sonner';
+import { useIsomorphicLayoutEffect } from '@/core/hooks/common/use-isomorphic-layout-effect';
 import { TaskViewConflictError, useTaskViewActions } from '@/core/hooks/task-views/use-task-view-actions';
 import { definitionOf } from '@/core/lib/utils/task-views';
 import { isTaskViewsEnabled } from '@/core/lib/utils/task-views-enabled';
@@ -34,6 +35,15 @@ export function useSavedViewCommands({ savedView, isBuiltIn, definition, isDirty
 	const actions = useTaskViewActions();
 	const [saveDialog, setSaveDialog] = useState<SaveViewMode | null>(null);
 	const [isBusy, setIsBusy] = useState(false);
+	// The version the page's definition builds on: the saved view's while the page shows it unchanged, kept from the
+	// first change on. A save states it, so a version saved meanwhile by someone else — the latest version a conflict
+	// put in the cache, a refetch, a live update — meets the save as a conflict again instead of being overwritten by
+	// the definition that was written against the older one. Reload (the page shows the latest) moves it on.
+	const baseRef = useRef<{ id: string; version: ITaskView['version'] } | null>(null);
+	useIsomorphicLayoutEffect(() => {
+		if (!savedView) return;
+		if (!isDirty || baseRef.current?.id !== savedView.id) baseRef.current = { id: savedView.id, version: savedView.version };
+	});
 
 	const reportSaveError = useCallback(
 		(error: unknown) => {
@@ -53,7 +63,8 @@ export function useSavedViewCommands({ savedView, isBuiltIn, definition, isDirty
 		if (!savedView || !isDirty || isBusy) return;
 		setIsBusy(true);
 		try {
-			await actions.saveDefinition(savedView, definition);
+			const base = baseRef.current;
+			await actions.saveDefinition(base?.id === savedView.id ? { ...savedView, version: base.version } : savedView, definition);
 			toast.success(t('taskViews.SAVED_TOAST'));
 		} catch (error) {
 			reportSaveError(error);
