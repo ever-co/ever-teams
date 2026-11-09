@@ -119,9 +119,12 @@ export async function refreshHeldWindow(
 	const held = queryClient.getQueryData<ChatMessagesCache>(queryKey)?.messages.filter((message) => !isLocalMessage(message)) ?? [];
 	if (!held.length) return { replaced: 0, next: null };
 	const heldIds = new Set(held.map((message) => message.id));
-	// Read up to the newest held message by time, not up to the first page that ends on a message not held: a page may
-	// end inside a gap of the held timeline, and the held messages after it still need reading.
-	const newestHeldAt = Date.parse(held[held.length - 1].createdAt);
+	// Read up to the newest held message itself (or past its time, should it be gone), not up to the first page that
+	// ends on a message not held: a page may end inside a gap of the held timeline, or on a message stamped the same
+	// time as the newest held one, and the held messages after it still need reading.
+	const newestHeld = held[held.length - 1];
+	const newestHeldAt = Date.parse(newestHeld.createdAt);
+	let reachedNewest = false;
 	const fresh: IChatMessage[] = [];
 	let next: string | null = null;
 	let page = from && heldIds.has(from) ? await readMessages(conversationId, { after: from }) : await readMessages(conversationId, { around: held[0].id });
@@ -131,10 +134,11 @@ export async function refreshHeldWindow(
 			if (!heldIds.has(message.id)) continue;
 			fresh.push(message);
 			lastHeldRead = message.id;
+			if (message.id === newestHeld.id) reachedNewest = true;
 		}
 		const last = page.messages[page.messages.length - 1];
 		// Past the newest message held, or at the end of the conversation: the next refresh starts from the oldest.
-		if (!last || !page.hasAfter || Date.parse(last.createdAt) >= newestHeldAt) break;
+		if (!last || !page.hasAfter || reachedNewest || Date.parse(last.createdAt) > newestHeldAt) break;
 		// Out of budget: the next refresh goes on after the last held message read.
 		if (read >= CATCH_UP_PAGES) {
 			next = lastHeldRead;

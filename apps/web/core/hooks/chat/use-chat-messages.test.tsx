@@ -133,6 +133,30 @@ describe('refreshHeldWindow over a gap in the held timeline', () => {
 	});
 });
 
+describe('refreshHeldWindow over messages stamped the same time', () => {
+	const key = queryKeys.chat.messages('ten', 'c1');
+
+	it('reads on past a page that ends on a message stamped like the newest held one, up to that message itself', async () => {
+		const client = new QueryClient();
+		const same = { createdAt: '2026-01-01T00:05:00.000Z' };
+		client.setQueryData<ChatMessagesCache>(key, {
+			messages: [message('m1', 1, 'one'), message('m2', 5, 'two', same), message('m3', 5, 'three', same)],
+			hasBefore: false,
+			hasAfter: false,
+			serverNewestId: 'm3'
+		});
+		mockMessages.mockReset();
+		mockMessages
+			.mockResolvedValueOnce({ messages: [message('m1', 1, 'one'), message('m2', 5, 'two', same)], hasBefore: false, hasAfter: true })
+			.mockResolvedValueOnce({ messages: [message('m3', 5, '', { ...same, deletedAt: '2026-01-01T00:09:00.000Z' })], hasBefore: true, hasAfter: true });
+
+		await expect(refreshHeldWindow(client, key, 'c1')).resolves.toEqual({ replaced: 3, next: null });
+		// Stopped at the newest held message itself: no read past it.
+		expect(mockMessages).toHaveBeenCalledTimes(2);
+		expect(client.getQueryData<ChatMessagesCache>(key)?.messages.find((m) => m.id === 'm3')?.deletedAt).toBe('2026-01-01T00:09:00.000Z');
+	});
+});
+
 describe('refreshHeldMessage', () => {
 	const key = queryKeys.chat.messages('ten', 'c1');
 
