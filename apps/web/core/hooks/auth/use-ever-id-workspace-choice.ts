@@ -1,7 +1,6 @@
 'use client';
 
 import { useCallback, useMemo, useRef, useState } from 'react';
-import { useRouter } from 'next/navigation';
 import { signOut } from 'next-auth/react';
 import { restartEverIdSignIn } from '@/core/lib/auth/ever-id/restart';
 import {
@@ -12,6 +11,7 @@ import {
 } from '@/core/lib/auth/ever-id/session';
 import { userTimezone } from '@/core/lib/helpers/user-timezone';
 import { everIdService } from '@/core/services/client/api/auth/ever-id.service';
+import { navigateAfterSignIn } from '@/core/lib/auth/navigate-after-sign-in';
 
 /**
  * The Ever ID part of the workspace chooser after an Ever ID sign-in; for any other session it does nothing.
@@ -24,7 +24,6 @@ import { everIdService } from '@/core/services/client/api/auth/ever-id.service';
  * stops because the account has no organization yet (its setup stopped after the tenant) is set up the same way.
  */
 export function useEverIdWorkspaceChoice(everIdSession: EverIdChooserData | null) {
-	const router = useRouter();
 	const [setupRunning, setSetupRunning] = useState(false);
 	// The workspace the person chose last (the usual workspace sign-in's failure refers to it).
 	const chosen = useRef(-1);
@@ -47,7 +46,7 @@ export function useEverIdWorkspaceChoice(everIdSession: EverIdChooserData | null
 				} catch {
 					// The Gauzy cookies are set either way.
 				}
-				router.push('/');
+				navigateAfterSignIn();
 				return;
 			}
 			setSetupRunning(false);
@@ -57,7 +56,7 @@ export function useEverIdWorkspaceChoice(everIdSession: EverIdChooserData | null
 				onNothingToSetUp?.();
 			}
 		},
-		[router]
+		[]
 	);
 
 	/**

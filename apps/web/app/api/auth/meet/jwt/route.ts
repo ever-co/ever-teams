@@ -57,7 +57,8 @@ function tenantRoomName(tenantId: string, room: string) {
 
 export async function GET(req: Request) {
 	const res = new NextResponse();
-	const { $res, user } = await authenticatedGuard(req, res);
+	// A fresh check: this route signs a meeting token with a server secret on the strength of the session alone.
+	const { $res, user } = await authenticatedGuard(req, res, { fresh: true });
 	if (!user) return $res('Unauthorized');
 
 	// Session tenant, not the guard's auth-tenant-id cookie: that one is client-writable

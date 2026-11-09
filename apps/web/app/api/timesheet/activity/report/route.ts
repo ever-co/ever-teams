@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { authenticatedGuard } from '@/core/services/server/guards/authenticated-guard-app';
 import { getActivityReportRequest } from '@/core/services/server/requests/timesheet';
 import { IActivityRequestParams, readArrayParam } from '@/core/services/server/requests/timesheet';
+import { readResponseShape } from '@/core/services/server/requests/response-shape';
 import { ETimeLogType } from '@/core/types/generics/enums/timer';
 
 export const dynamic = 'force-dynamic';
@@ -29,7 +30,9 @@ export async function GET(req: NextRequest) {
 			startDate: searchParams.get('startDate') || undefined,
 			endDate: searchParams.get('endDate') || undefined,
 			timeZone: searchParams.get('timeZone') || undefined,
-			groupBy: searchParams.get('groupBy') || undefined
+			groupBy: searchParams.get('groupBy') || undefined,
+			// Forwarded as asked (`lean` or `full`), absent otherwise, so the API's default stays the API's
+			shape: readResponseShape(searchParams)
 		};
 
 		// Validate required parameters

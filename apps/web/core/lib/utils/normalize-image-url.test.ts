@@ -1,11 +1,11 @@
-// cspell:ignore alish julia rahul
+// cspell:ignore aiden
 /**
  * normalizeImageUrl — every user avatar 404'd on demo.ever.team. The Gauzy seed stores a
  * ROUTE-RELATIVE `imageUrl` (`assets/images/avatars/avatar-default.svg`, no leading slash, no origin
  * — see `packages/core/src/lib/user/default-users.ts` in ever-gauzy). The Angular Gauzy app renders
  * it correctly because it ships `<base href="/">`; Next.js ships no `<base>`, so the browser resolves
  * the value against the CURRENT ROUTE and requests
- * `/dashboard/team-dashboard/assets/images/avatars/alish.jpg` -> 404. The 404 path therefore changed
+ * `/dashboard/team-dashboard/assets/images/avatars/aiden.png` -> 404. The 404 path therefore changed
  * with whatever page the user was on.
  *
  * The fix normalises such values to root-relative before they ever reach an <img>/<Image> `src`.
@@ -26,12 +26,12 @@ describe('normalizeImageUrl', () => {
 	});
 
 	it('leaves an already root-relative path untouched', () => {
-		expect(normalizeImageUrl('/assets/images/avatars/alish.jpg')).toBe('/assets/images/avatars/alish.jpg');
+		expect(normalizeImageUrl('/assets/images/avatars/aiden.png')).toBe('/assets/images/avatars/aiden.png');
 	});
 
 	it('leaves an absolute https URL untouched', () => {
-		expect(normalizeImageUrl('https://cdn.ever.co/avatars/alish.jpg')).toBe(
-			'https://cdn.ever.co/avatars/alish.jpg'
+		expect(normalizeImageUrl('https://cdn.ever.co/avatars/aiden.png')).toBe(
+			'https://cdn.ever.co/avatars/aiden.png'
 		);
 	});
 
@@ -40,7 +40,7 @@ describe('normalizeImageUrl', () => {
 	});
 
 	it('leaves a protocol-relative URL untouched', () => {
-		expect(normalizeImageUrl('//cdn.ever.co/avatars/alish.jpg')).toBe('//cdn.ever.co/avatars/alish.jpg');
+		expect(normalizeImageUrl('//cdn.ever.co/avatars/aiden.png')).toBe('//cdn.ever.co/avatars/aiden.png');
 	});
 
 	it('leaves a data: URI untouched', () => {
@@ -54,7 +54,7 @@ describe('normalizeImageUrl', () => {
 	});
 
 	it('trims surrounding whitespace before deciding', () => {
-		expect(normalizeImageUrl('  assets/images/avatars/alish.jpg  ')).toBe('/assets/images/avatars/alish.jpg');
+		expect(normalizeImageUrl('  assets/images/avatars/aiden.png  ')).toBe('/assets/images/avatars/aiden.png');
 	});
 
 	it('returns undefined for undefined', () => {

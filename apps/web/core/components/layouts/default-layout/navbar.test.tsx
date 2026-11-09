@@ -30,6 +30,7 @@ jest.mock('@/core/components/optimized-components/teams', () => ({
 	LazyTeamsDropDown: () => null
 }));
 jest.mock('@/core/components/notifications/inbox/notification-bell', () => ({ NotificationBell: () => null }));
+jest.mock('@/core/components/whats-new/whats-new-button', () => ({ WhatsNewButton: () => null }));
 jest.mock('./header/command-palette-trigger', () => ({ CommandPaletteTrigger: () => null }));
 jest.mock('../../common/keyboard-shortcuts', () => ({ KeyboardShortcuts: () => null }));
 jest.mock('@/core/components/common/skeleton/min-timer-skeleton', () => ({ MinTimerSkeleton: () => null }));

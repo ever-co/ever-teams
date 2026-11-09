@@ -368,7 +368,10 @@ export default {
 		ctx.log(`adapter: signed in with ${how}; ${SIGNED_IN_CHECK_PAGE} opened signed in`);
 	},
 
-	/** The ids of what createFixtures made; a placeholder for the pages of a project or a task. */
+	/**
+	 * The ids of what createFixtures made; a placeholder for the pages of a project or a task, and for the
+	 * pages of a chat conversation, a Docs page and a saved task view (none of which the fixtures create).
+	 */
 	async routeParams(ctx) {
 		const fixtures = ctx.fixtures ?? {};
 		return {
@@ -376,7 +379,10 @@ export default {
 			teamId: fixtures.teamId ?? PLACEHOLDER_ID,
 			memberId: fixtures.userId ?? PLACEHOLDER_ID,
 			profileLink: fixtures.profileLink ?? 'egress-audit-team',
-			id: PLACEHOLDER_ID
+			id: PLACEHOLDER_ID,
+			conversationId: PLACEHOLDER_ID,
+			pageId: PLACEHOLDER_ID,
+			viewId: PLACEHOLDER_ID
 		};
 	}
 };

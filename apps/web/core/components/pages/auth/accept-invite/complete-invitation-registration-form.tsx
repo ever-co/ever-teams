@@ -3,7 +3,6 @@ import { Checkbox } from '@/core/components/common/checkbox';
 import { TERMS_LINK } from '@/core/constants/config/constants';
 import { TInviteVerified } from '@/core/types/schemas/user/invite.schema';
 import { useTranslations } from 'next-intl';
-import { useRouter } from 'next/navigation';
 import { useCallback, useEffect, useState, type FormEvent } from 'react';
 import { Lock, User } from '@/core/components/icons';
 import { AuthField, PasswordField } from '@/core/components/auth/kit/auth-field';
@@ -12,6 +11,7 @@ import { AuthState } from '@/core/components/auth/kit/auth-state';
 import { minLengthRuleOf, PasswordChecks } from '@/core/components/auth/kit/password-checks';
 import { meetsPasswordMinLength } from '@/core/lib/utils/password-strength';
 import { AUTH_TEXT_LINK } from '@/core/components/auth/kit/auth-recipes';
+import { navigateAfterSignIn } from '@/core/lib/auth/navigate-after-sign-in';
 
 const NO_ERRORS = {
 	password: '',
@@ -31,7 +31,6 @@ export function CompleteInvitationRegistrationForm(props: {
 	const [agreeToTerms, setAgreeToTerms] = useState(false);
 	// A deployment that turned TERMS_LINK off has no terms to agree to: no checkbox, nothing to tick.
 	const requiresTermsAgreement = Boolean(TERMS_LINK);
-	const router = useRouter();
 	const [loadingWorkspace, setLoadingWorkspace] = useState(false);
 
 	const [userDetails, setUserDetails] = useState({
@@ -60,13 +59,13 @@ export function CompleteInvitationRegistrationForm(props: {
 			try {
 				await onCompleteRegistration(userDetails);
 				setLoadingWorkspace(true);
-				router.push('/');
+				navigateAfterSignIn();
 			} catch (error) {
 				setErrors({ ...NO_ERRORS, acceptInviteFailed: t('auth.invite.FAILED') });
 				console.error('Failed to accept invitation:', error);
 			}
 		},
-		[onCompleteRegistration, userDetails, router, t]
+		[onCompleteRegistration, userDetails, t]
 	);
 
 	useEffect(() => {

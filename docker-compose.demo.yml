@@ -13,6 +13,8 @@ services:
       # with the demo accounts (e.g. apidemo.ever.team). The previous image ignored this value (demo was baked
       # off), so it defaults to "false" to keep that behaviour; set NEXT_PUBLIC_DEMO=true to enable it.
       NEXT_PUBLIC_DEMO: ${NEXT_PUBLIC_DEMO:-false}
+      # Demo mode only: where the demo banner sends people to open a real account (unset = APP_LINK + /auth/signup)
+      NEXT_PUBLIC_DEMO_SIGN_UP_URL: ${NEXT_PUBLIC_DEMO_SIGN_UP_URL:-}
       # App Branding Variables
       APP_NAME: ${APP_NAME:-Ever Teams}
       APP_SIGNATURE: ${APP_SIGNATURE:-Ever Teams}

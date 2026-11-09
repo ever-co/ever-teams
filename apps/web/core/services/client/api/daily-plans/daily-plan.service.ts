@@ -103,7 +103,9 @@ class DailyPlanService extends APIService {
 			const obj = {
 				'where[organizationId]': organizationId,
 				'where[tenantId]': tenantId,
-				'where[organizationTeamId]': teamId
+				'where[organizationTeamId]': teamId,
+				// The people trimmed to ids, name and avatar (ever-co/ever-gauzy#11730); an older API ignores it
+				shape: 'lean'
 			} as Record<string, string>;
 
 			relations.forEach((relation, i) => {
@@ -147,7 +149,9 @@ class DailyPlanService extends APIService {
 			const obj = {
 				'where[organizationId]': this.organizationId,
 				'where[tenantId]': this.tenantId,
-				'where[organizationTeamId]': this.activeTeamId
+				'where[organizationTeamId]': this.activeTeamId,
+				// The people trimmed to ids, name and avatar (ever-co/ever-gauzy#11730); an older API ignores it
+				shape: 'lean'
 			} as Record<string, string>;
 
 			relations.forEach((relation, i) => {

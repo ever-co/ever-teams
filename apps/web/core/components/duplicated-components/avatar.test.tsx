@@ -1,6 +1,6 @@
 /** @jest-environment jsdom */
 
-// cspell:ignore alish
+// cspell:ignore aiden
 
 /**
  * Avatar (duplicated-components) — same defect as AvatarImage/AvatarStack: a ROUTE-RELATIVE
@@ -26,23 +26,23 @@ const decodedSrc = (alt: string) => decodeURIComponent(screen.getByAltText(alt).
 
 describe('Avatar', () => {
 	it('makes a route-relative seed path root-relative', () => {
-		render(<Avatar size={32} imageUrl="assets/images/avatars/alish.jpg" alt="Alish M." />);
+		render(<Avatar size={32} imageUrl="assets/images/avatars/aiden.png" alt="Aiden M." />);
 
-		expect(decodedSrc('Alish M.')).toContain('/assets/images/avatars/alish.jpg');
+		expect(decodedSrc('Aiden M.')).toContain('/assets/images/avatars/aiden.png');
 	});
 
 	it('leaves an absolute uploaded-avatar URL untouched', () => {
-		render(<Avatar size={32} imageUrl="https://cdn.ever.co/avatars/alish.jpg" alt="Alish M." />);
+		render(<Avatar size={32} imageUrl="https://cdn.ever.co/avatars/aiden.png" alt="Aiden M." />);
 
-		expect(decodedSrc('Alish M.')).toContain('https://cdn.ever.co/avatars/alish.jpg');
+		expect(decodedSrc('Aiden M.')).toContain('https://cdn.ever.co/avatars/aiden.png');
 	});
 
 	// A whitespace-only value is truthy, so branching on the RAW value would render <Image src="">,
 	// which next/image rejects. The branch has to use the normalised value.
 	it('renders the initial instead of an empty src when imageUrl is whitespace only', () => {
-		render(<Avatar size={32} imageUrl="   " imageTitle="Rahul" alt="Rahul S." />);
+		render(<Avatar size={32} imageUrl="   " imageTitle="Rafael" alt="Rafael S." />);
 
-		expect(screen.queryByAltText('Rahul S.')).toBeNull();
+		expect(screen.queryByAltText('Rafael S.')).toBeNull();
 		expect(screen.getByText('R')).toBeTruthy();
 	});
 });

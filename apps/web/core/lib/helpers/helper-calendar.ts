@@ -158,7 +158,7 @@ export const dataSourceTimeSheet: TimeSheet[] = [
         task: "#324 Working on UI Design & making prototype for user testing tomorrow  & making prototype for user testing tomorrow",
         name: "Ever Gauzy",
         description: "Members count 11",
-        employee: "Ruslan Konviser",
+        employee: "Ronan B.",
         status: "Approved",
         time: '08:00h'
     },
@@ -167,7 +167,7 @@ export const dataSourceTimeSheet: TimeSheet[] = [
         task: "#321 Spike for creating calendar views on mobile",
         name: "Gauzy Platform SaaS",
         description: "Members count 11",
-        employee: "Ruslan Konviser",
+        employee: "Ronan B.",
         status: "Pending",
         time: '08:00h'
     },
@@ -176,7 +176,7 @@ export const dataSourceTimeSheet: TimeSheet[] = [
         task: "chore(deps-dev): bump karma from 5.2.3 to 6.3.16chore",
         name: "Gauzy Platform SaaS",
         description: "Members count 11",
-        employee: "Ruslan Konviser",
+        employee: "Ronan B.",
         status: "Approved",
         time: '08:00h'
     },
@@ -185,7 +185,7 @@ export const dataSourceTimeSheet: TimeSheet[] = [
         task: "chore(deps-dev): bump karma from 5.2.3 to 6.3.16chore",
         name: "Gauzy Platform SaaS",
         description: "Members count 11",
-        employee: "Ruslan Konviser",
+        employee: "Ronan B.",
         status: "Pending",
         time: '08:00h'
     },
@@ -194,7 +194,7 @@ export const dataSourceTimeSheet: TimeSheet[] = [
         task: "chore(deps-dev): bump karma from 5.2.3 to 6.3.16chore",
         name: "Gauzy Platform SaaS",
         description: "Members count 11",
-        employee: "Ruslan Konviser",
+        employee: "Ronan B.",
         status: "Rejected",
         time: '06:00h'
     },
@@ -203,7 +203,7 @@ export const dataSourceTimeSheet: TimeSheet[] = [
         task: "chore(deps-dev): bump karma from 5.2.3 to 6.3.16chore",
         name: "Gauzy Platform SaaS",
         description: "Members count 11",
-        employee: "Ruslan Konviser",
+        employee: "Ronan B.",
         status: "Pending",
         time: '06:00h'
     },
@@ -212,7 +212,7 @@ export const dataSourceTimeSheet: TimeSheet[] = [
         task: "chore(deps-dev): bump karma from 5.2.3 to 6.3.16chore",
         name: "Gauzy Platform SaaS",
         description: "Members count 11",
-        employee: "Ruslan Konviser",
+        employee: "Ronan B.",
         status: "Approved",
         time: '06:00h'
     },
@@ -221,7 +221,7 @@ export const dataSourceTimeSheet: TimeSheet[] = [
         task: "chore(deps-dev): bump karma from 5.2.3 to 6.3.16chore",
         name: "Gauzy Platform SaaS",
         description: "Members count 11",
-        employee: "Ruslan Konviser",
+        employee: "Ronan B.",
         status: "Approved",
         time: '06:00h'
     },

@@ -25,6 +25,7 @@ import { TeamsDropDownSkeleton } from '@/core/components/common/skeleton/teams-d
 import { CollaborateSkeleton } from '@/core/components/common/skeleton/collaborate-skeleton';
 import { useUserQuery } from '@/core/hooks/queries/user-user.query';
 import { NotificationBell } from '@/core/components/notifications/inbox/notification-bell';
+import { WhatsNewButton } from '@/core/components/whats-new/whats-new-button';
 import { HeaderAppSwitcher } from '@/core/components/common/app-switcher/header-app-switcher';
 
 const TEAM_DROPDOWN_HIDDEN_PATHS = new Set(['/task/[id]', '/profile/[memberId]']);
@@ -32,13 +33,14 @@ const TEAM_DROPDOWN_HIDDEN_PATHS = new Set(['/task/[id]', '/profile/[memberId]']
 const CONTROL_SKELETON = 'h-8 shrink-0 animate-pulse rounded-full bg-foreground/[0.05]';
 
 /**
- * The controls of the top bar while the user loads, each at the size of the control it stands for (timer, inbox,
- * Collaborate, team switcher, shortcuts), so they fill in place instead of appearing one by one.
+ * The controls of the top bar while the user loads, each at the size of the control it stands for (timer, What's new,
+ * inbox, Collaborate, team switcher, shortcuts), so they fill in place instead of appearing one by one.
  */
 function HeaderSkeleton({ showTimer }: Readonly<{ showTimer: boolean }>) {
 	return (
 		<div className="flex items-center gap-2" aria-hidden="true">
 			{showTimer && <MinTimerSkeleton />}
+			<span className={cn(CONTROL_SKELETON, 'w-8')} />
 			<span className={cn(CONTROL_SKELETON, 'w-8')} />
 			<span className={cn(CONTROL_SKELETON, 'hidden w-[120px] md:block')} />
 			<span className={cn(CONTROL_SKELETON, 'hidden w-[160px] md:block')} />
@@ -114,6 +116,8 @@ export function Navbar({
 
 			{/* Phones only: the sidebar is a sheet there, so the palette keeps a trigger in the bar. */}
 			<CommandPaletteTrigger variant="icon" className="md:hidden" />
+
+			{!isPublicTeam && <WhatsNewButton />}
 
 			{!isPublicTeam && <NotificationBell />}
 

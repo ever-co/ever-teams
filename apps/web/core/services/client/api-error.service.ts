@@ -90,15 +90,19 @@ export const AxiosErrorDetails: Record<string, AxiosErrorInfo> = {
 
 // Gauzy names the request fields a refusal is about (`fields`) next to its code rather than under `details`
 function detailsOf(data: ApiErrorResponse | undefined): ApiErrorResponse['details'] {
+	// A failure that still made something names it (chat create-task: the task exists, the message could not be linked);
+	// the id is kept so the caller offers to open it instead of creating it again.
+	const madeTaskId = (data as { taskId?: unknown } | undefined)?.taskId;
+	const kept = typeof madeTaskId === 'string' && madeTaskId ? { taskId: madeTaskId } : {};
 	const details = data?.details;
 	if (details) {
-		return details;
+		return { ...details, ...kept };
 	}
 	const fields = data?.fields;
 	if (!Array.isArray(fields)) {
-		return undefined;
+		return Object.keys(kept).length ? kept : undefined;
 	}
-	return { fields };
+	return { fields, ...kept };
 }
 
 /**

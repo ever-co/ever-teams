@@ -1,4 +1,5 @@
 import { serverFetch } from '../fetch';
+import type { ResponseShape } from './response-shape';
 import qs from 'qs';
 import { TTaskStatistics } from '@/core/types/interfaces/task/task';
 import { ITimeLog } from '@/core/types/interfaces/timer/time-log/time-log';
@@ -183,6 +184,8 @@ export interface IActivityRequestParams extends ITimeLogRequestParams {
 	source?: string[];
 	/** Types of logs to include */
 	logType?: ETimeLogType[];
+	/** `lean` trims the group heads and drops the per-row copies (ever-co/ever-gauzy#11730); absent keeps the API's default */
+	shape?: ResponseShape;
 }
 
 /**
@@ -314,6 +317,7 @@ export async function getTimeLogReportWeeklyRequest(params: ITimeLogRequestParam
  */
 export function getActivityReportRequest(params: IActivityRequestParams, bearer_token?: string) {
 	const queries = buildTimeLogParams(params);
+	if (params.shape) queries.append('shape', params.shape);
 
 	return serverFetch<IActivityReport>({
 		path: `/timesheet/activity/report?${queries}`,

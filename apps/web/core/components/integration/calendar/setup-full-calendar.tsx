@@ -180,12 +180,12 @@ export const CardItems = ({ selectedDate }: { selectedDate: Date }) => {
 					/>
 					<CardItemsMember
 						imageUrl={getPlaceholderImageUrl('330x300', '0ecc9D', 'E')}
-						name="Ruslan"
+						name="Ellis"
 						time="04:06h"
 					/>
 					<CardItemsMember
 						imageUrl={getPlaceholderImageUrl('330x300', '0ecc8D', 'R')}
-						name="Ruslan"
+						name="Ronan"
 						time="04:06h"
 					/>
 					<CardItemsProjects
@@ -195,7 +195,7 @@ export const CardItems = ({ selectedDate }: { selectedDate: Date }) => {
 					/>
 					<CardItemsMember
 						imageUrl={getPlaceholderImageUrl('330x300', '0ecc9D', 'K')}
-						name="Ruslan"
+						name="Kai"
 						time="04:06h"
 					/>
 				</div>

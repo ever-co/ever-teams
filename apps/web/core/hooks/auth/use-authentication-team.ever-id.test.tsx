@@ -12,15 +12,17 @@ const TERMS = [
 	{ documentId: 'tos:gauzy', version: '1.0.2', sha256: 'a'.repeat(64), locale: 'en', title: 'Terms of Service' },
 	{ documentId: 'privacy:gauzy', version: '1.0.2', sha256: 'b'.repeat(64), locale: 'en', title: 'Privacy Policy' }
 ];
-const mockPush = jest.fn();
+const mockNavigateAfterSignIn = jest.fn();
 const mockPrefill = jest.fn();
 const mockEverIdRegister = jest.fn();
 const mockRegisterUserTeam = jest.fn();
 let mockQuery = 'ever_id=signup';
 
 jest.mock('next/navigation', () => ({
-	useRouter: () => ({ push: mockPush, replace: jest.fn() }),
 	useSearchParams: () => new URLSearchParams(mockQuery)
+}));
+jest.mock('@/core/lib/auth/navigate-after-sign-in', () => ({
+	navigateAfterSignIn: () => mockNavigateAfterSignIn()
 }));
 jest.mock('next-intl', () => ({ useTranslations: () => (key: string) => key, useLocale: () => 'fr' }));
 jest.mock('@/core/services/client/api/auth/auth.service', () => ({
@@ -148,7 +150,9 @@ describe('useAuthenticationTeam in Ever ID mode', () => {
 		);
 		expect(JSON.stringify(mockEverIdRegister.mock.calls[0][0])).not.toContain('handoff');
 		expect(mockRegisterUserTeam).not.toHaveBeenCalled();
-		expect(mockPush).toHaveBeenCalledWith('/');
+		expect(mockNavigateAfterSignIn).toHaveBeenCalledTimes(1);
+		// The form stays locked while the app loads: a second submission would only meet the used-up sign-up.
+		expect(result.current.loading).toBe(true);
 	});
 
 	it('lets the person enter a name when the Ever ID has none (or one too short), and says so', async () => {
@@ -193,7 +197,7 @@ describe('useAuthenticationTeam in Ever ID mode', () => {
 
 			expect(result.current.step).toBe('STEP2');
 			expect(result.current.everId?.error).toBeNull();
-			expect(mockPush).not.toHaveBeenCalled();
+			expect(mockNavigateAfterSignIn).not.toHaveBeenCalled();
 		} finally {
 			reported.mockRestore();
 		}
@@ -242,7 +246,7 @@ describe('useAuthenticationTeam in Ever ID mode', () => {
 
 		expect(result.current.step).toBe('STEP1');
 		expect(result.current.everId?.error).toBe(message);
-		expect(mockPush).not.toHaveBeenCalled();
+		expect(mockNavigateAfterSignIn).not.toHaveBeenCalled();
 	});
 
 	it('shows the unavailable message on the first step when the call itself fails', async () => {

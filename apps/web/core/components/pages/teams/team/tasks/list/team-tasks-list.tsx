@@ -14,6 +14,17 @@ import {
 import { useTranslations } from 'next-intl';
 import { defaultRangeExtractor, useVirtualizer, type Range } from '@tanstack/react-virtual';
 import { cn } from '@/core/lib/helpers';
+import { useDetectOS } from '@/core/hooks/common/use-detect-os';
+import { useKeyboardPreferences } from '@/core/hooks/keyboard/use-keyboard-preferences';
+import { isShortcutSequencePending } from '@/core/hooks/keyboard/use-shortcuts';
+import {
+	bindingKeyCaps,
+	chordOfEvent,
+	effectiveBindings,
+	matchListKey,
+	SHORTCUT_COMMANDS,
+	type ShortcutBinding
+} from '@/core/lib/keyboard/shortcuts';
 import type { TeamTasksViewState } from '@/core/hooks/tasks/use-team-tasks-view';
 import type { TeamTasksListRow } from '@/core/lib/utils/team-tasks-view';
 import { GROUP_HEIGHT, ROW_HEIGHT, TEAM_TASK_LIST_MIN_WIDTH, type TeamTasksGrid } from './team-tasks-grid';
@@ -25,13 +36,28 @@ import type { TeamTaskMenuAnchor } from './team-task-menu';
 
 const OVERSCAN = 10;
 
-/** Keys that open a picker on the focused row, with the key cap the picker shows. */
-const PICKER_KEYS: Record<string, { kind: TeamTaskPickerKind; shortcut: string; appliesToSelection: boolean }> = {
-	s: { kind: 'status', shortcut: 'S', appliesToSelection: true },
-	p: { kind: 'priority', shortcut: 'P', appliesToSelection: true },
-	l: { kind: 'labels', shortcut: 'L', appliesToSelection: false },
-	d: { kind: 'dueDate', shortcut: 'D', appliesToSelection: false }
-};
+/** The commands that open a picker on the focused row (their keys are the bindings in force). */
+const PICKER_COMMANDS: ReadonlyMap<string, { kind: TeamTaskPickerKind; appliesToSelection: boolean }> = new Map([
+	['taskStatus', { kind: 'status', appliesToSelection: true }],
+	['taskPriority', { kind: 'priority', appliesToSelection: true }],
+	['taskLabels', { kind: 'labels', appliesToSelection: false }],
+	['taskDueDate', { kind: 'dueDate', appliesToSelection: false }]
+]);
+
+/** The list's keys with the saved-views feature off: the defaults, as they always were. */
+const DEFAULT_BINDINGS = effectiveBindings(SHORTCUT_COMMANDS, null);
+
+/** The key cap a picker shows for the binding that opened it (`S`, `⇧S`, `Alt+S`). */
+function keyCapOf(binding: ShortcutBinding | null | undefined, isMac: boolean) {
+	if (binding?.length !== 1) {
+		return undefined;
+	}
+	const [caps] = bindingKeyCaps(binding, isMac);
+	if (isMac) {
+		return caps.join('');
+	}
+	return caps.join('+');
+}
 
 export interface TeamTasksListCommands {
 	openTask: (taskId: string) => void;
@@ -63,11 +89,6 @@ function stepOf(isDown: boolean) {
 		return 1;
 	}
 	return -1;
-}
-
-function hasModifier(event: KeyboardEvent<HTMLElement>) {
-	const hasCommand = event.metaKey || event.ctrlKey;
-	return hasCommand || event.altKey;
 }
 
 function rowElementOf(container: HTMLElement | null, taskId: string) {
@@ -163,6 +184,12 @@ export function TeamTasksList({
 	const [focusedTaskId, setFocusedTaskId] = useState<string | null>(null);
 	const { contentRef, rowGroupRef, listOffset } = useListOffset();
 	const pendingFocusRef = useRef<string | null>(null);
+	const { bindings: preferredBindings, canRebind } = useKeyboardPreferences();
+	const { os } = useDetectOS();
+	const isMac = os === 'Mac';
+	// The person's bindings with the saved-views feature on (letters by their physical key, as the registry reads
+	// them); without it, the keys the list always had, by the character typed.
+	const bindings = canRebind ? preferredBindings : DEFAULT_BINDINGS;
 
 	const stickyIndexes = useMemo(() => {
 		const indexes: number[] = [];
@@ -264,16 +291,19 @@ export function TeamTasksList({
 	);
 
 	const openPickerFromKey = useCallback(
-		(taskId: string, key: string) => {
-			const pickerKey = PICKER_KEYS[key];
-			const anchor = cellAnchorOf(scrollRef.current, taskId, pickerKey.kind);
+		(taskId: string, commandId: string) => {
+			const picker = PICKER_COMMANDS.get(commandId);
+			if (!picker) {
+				return;
+			}
+			const anchor = cellAnchorOf(scrollRef.current, taskId, picker.kind);
 			if (!anchor) {
 				return;
 			}
-			const taskIds = targetIdsFor(taskId, pickerKey.appliesToSelection);
-			commands.openPicker(pickerKey.kind, taskIds, anchor, pickerKey.shortcut);
+			const taskIds = targetIdsFor(taskId, picker.appliesToSelection);
+			commands.openPicker(picker.kind, taskIds, anchor, keyCapOf(bindings.get(commandId), isMac));
 		},
-		[commands, scrollRef, targetIdsFor]
+		[bindings, commands, isMac, scrollRef, targetIdsFor]
 	);
 
 	const handleKeyDown = (event: KeyboardEvent<HTMLDivElement>) => {
@@ -282,40 +312,46 @@ export function TeamTasksList({
 		if (!taskId) {
 			return;
 		}
-		if (hasModifier(event)) {
+		// The second key of a sequence (`G`, then `O`) is the registry's, not the row's.
+		if (isShortcutSequencePending()) {
 			return;
 		}
-		const key = event.key.toLowerCase();
-		const isDown = key === 'arrowdown' || key === 'j';
-		const isUp = key === 'arrowup' || key === 'k';
-		if (isDown || isUp) {
+		const chord = chordOfEvent(event, canRebind);
+		if (!chord) {
+			return;
+		}
+		const match = matchListKey(chord, SHORTCUT_COMMANDS, bindings);
+		if (!match) {
+			return;
+		}
+		const isDown = match.commandId === 'listDown';
+		if (isDown || match.commandId === 'listUp') {
 			event.preventDefault();
 			const step = stepOf(isDown);
 			const nextId = moveFocus(taskId, step);
-			const extendsSelection = event.shiftKey && Boolean(nextId);
+			const extendsSelection = match.extend && Boolean(nextId);
 			if (extendsSelection) {
 				view.setManySelected([taskId, nextId as string], true);
 			}
 			return;
 		}
-		if (key === 'enter' || key === 'o') {
+		if (match.commandId === 'listOpen') {
 			event.preventDefault();
 			commands.openTask(taskId);
 			return;
 		}
-		if (key === 'x') {
+		if (match.commandId === 'listSelect') {
 			event.preventDefault();
-			view.toggleSelected(taskId, event.shiftKey);
+			view.toggleSelected(taskId, match.extend);
 			return;
 		}
-		if (key === 'escape') {
+		if (match.commandId === 'listClear') {
 			view.clearSelection();
 			return;
 		}
-		const opensPicker = key in PICKER_KEYS;
-		if (opensPicker) {
+		if (PICKER_COMMANDS.has(match.commandId)) {
 			event.preventDefault();
-			openPickerFromKey(taskId, key);
+			openPickerFromKey(taskId, match.commandId);
 		}
 	};
 

@@ -206,6 +206,9 @@ class ActivityService extends APIService {
 				endDate,
 				timeZone,
 				groupBy,
+				// Group heads trimmed to what the page shows, no employee/project copy per row (ever-co/ever-gauzy#11730);
+				// an older API ignores it and answers the full shape
+				shape: 'lean',
 				...(projectIds.length && { projectIds }),
 				...(employeeIds.length && { employeeIds }),
 				...(source.length && { source }),

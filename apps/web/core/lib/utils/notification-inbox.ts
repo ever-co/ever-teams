@@ -51,7 +51,8 @@ function firstFilled(candidates: ReadonlyArray<string | null | undefined>): stri
 	return null;
 }
 
-function quotedSubjectOf(title: string): string | null {
+/** The task, team or broadcast title the platform quoted in its English title. */
+export function quotedSubjectOf(title: string): string | null {
 	const opening = title.indexOf('"');
 	const closing = title.lastIndexOf('"');
 	const hasQuotedPart = opening >= 0 && closing > opening;
@@ -66,7 +67,8 @@ function quotedSubjectOf(title: string): string | null {
 	return subject;
 }
 
-function senderNameFromTitle(title: string): string | null {
+/** The actor's name, read off the platform's English title (`Ana Assigned you …`). */
+export function senderNameFromTitle(title: string): string | null {
 	for (const word of TITLE_ACTION_WORDS) {
 		const position = title.indexOf(word);
 		if (position <= 0) {

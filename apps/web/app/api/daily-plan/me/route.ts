@@ -1,5 +1,5 @@
 import { authenticatedGuard } from '@/core/services/server/guards/authenticated-guard-app';
-import { getMyDailyPlansRequest } from '@/core/services/server/requests';
+import { getMyDailyPlansRequest, readResponseShape } from '@/core/services/server/requests';
 import { NextResponse } from 'next/server';
 
 export async function GET(req: Request) {
@@ -20,7 +20,9 @@ export async function GET(req: Request) {
 		bearer_token: access_token,
 		organizationId,
 		tenantId,
-		organizationTeamId
+		organizationTeamId,
+		// The browser's `shape=lean` reaches the API through the proxy too (ever-co/ever-gauzy#11730)
+		shape: readResponseShape(new URL(req.url).searchParams)
 	});
 
 	return $res(response.data);

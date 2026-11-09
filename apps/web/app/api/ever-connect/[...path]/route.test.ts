@@ -35,16 +35,25 @@ function bodyOf(body: unknown): string | undefined {
 function call(method: keyof typeof handlers, path: string, body?: unknown) {
 	const url = new URL(`https://teams.example.test/api/ever-connect/${path}`);
 	const segments = url.pathname.replace('/api/ever-connect/', '').split('/');
-	return handlers[method](
-		new Request(url, { method, headers: sessionCookies(), body: bodyOf(body) }),
-		{ params: Promise.resolve({ path: segments }) }
-	);
+	return handlers[method](new Request(url, { method, headers: sessionCookies(), body: bodyOf(body) }), {
+		params: Promise.resolve({ path: segments })
+	});
 }
 
 beforeEach(() => {
-	process.env = { ...ORIGINAL_ENV, GAUZY_API_SERVER_URL: 'http://api.example.test', NEXT_PUBLIC_EVER_CONNECT_ENABLED: 'true' };
+	process.env = {
+		...ORIGINAL_ENV,
+		GAUZY_API_SERVER_URL: 'http://api.example.test',
+		NEXT_PUBLIC_EVER_CONNECT_ENABLED: 'true'
+	};
 	mockSession = { token: 'person-token', tenant: 'tenant-1' };
-	fetchMock = jest.fn(async () => new Response(JSON.stringify({ connected: true }), { status: 200, headers: { 'content-type': 'application/json' } }));
+	fetchMock = jest.fn(
+		async () =>
+			new Response(JSON.stringify({ connected: true }), {
+				status: 200,
+				headers: { 'content-type': 'application/json' }
+			})
+	);
 	global.fetch = fetchMock as unknown as typeof fetch;
 	info = jest.spyOn(console, 'info').mockImplementation(() => undefined);
 });
@@ -103,15 +112,28 @@ describe('the allow-list', () => {
 	});
 
 	it('forwards only the known query parameters, each with its shape', async () => {
-		await call('GET', `audit?organizationId=${ORG}&page=2&limit=20&integration=stats_link&tenantId=other&redirect=https://x.test`);
+		await call(
+			'GET',
+			`audit?organizationId=${ORG}&page=2&limit=20&integration=stats_link&tenantId=other&redirect=https://x.test`
+		);
 		const url = new URL(String(fetchMock.mock.calls[0][0]));
 		expect(url.pathname).toBe('/api/ever-connect/audit');
-		expect(Object.fromEntries(url.searchParams)).toEqual({ organizationId: ORG, page: '2', limit: '20', integration: 'stats_link' });
+		expect(Object.fromEntries(url.searchParams)).toEqual({
+			organizationId: ORG,
+			page: '2',
+			limit: '20',
+			integration: 'stats_link'
+		});
 	});
 
 	it('forwards a link code only, and refuses a malformed one without a request', async () => {
-		await call('POST', `links?organizationId=${ORG}`, { link_code: 'EVL-ABCD-EFGH-JKMN', email: 'someone@example.com' });
-		expect(JSON.parse(String((fetchMock.mock.calls[0][1] as RequestInit).body))).toEqual({ link_code: 'EVL-ABCD-EFGH-JKMN' });
+		await call('POST', `links?organizationId=${ORG}`, {
+			link_code: 'EVL-ABCD-EFGH-JKMN',
+			email: 'someone@example.com'
+		});
+		expect(JSON.parse(String((fetchMock.mock.calls[0][1] as RequestInit).body))).toEqual({
+			link_code: 'EVL-ABCD-EFGH-JKMN'
+		});
 		fetchMock.mockClear();
 		const refused = await call('POST', 'links', { link_code: 'EVL-ILOU-0000-0000' });
 		expect(refused.status).toBe(400);
@@ -141,6 +163,84 @@ describe('the allow-list', () => {
 	it('answers 401 without a signed-in person, and asks nobody', async () => {
 		mockSession = { token: null, tenant: null };
 		expect((await call('GET', 'health')).status).toBe(401);
+		expect(fetchMock).not.toHaveBeenCalled();
+	});
+});
+
+describe('the App Launcher routes', () => {
+	function launcher(path: string, headers: Record<string, string>, method: keyof typeof handlers = 'GET') {
+		const url = new URL(`https://teams.example.test/api/ever-connect/${path}`);
+		const segments = url.pathname.replace('/api/ever-connect/', '').split('/');
+		return handlers[method](new Request(url, { method, headers: { ...sessionCookies(), ...headers } }), {
+			params: Promise.resolve({ path: segments })
+		});
+	}
+
+	it('forwards config and apps for this app own pages, with this app origin, the organization only', async () => {
+		process.env.NEXT_PUBLIC_WEB_APP_URL = 'https://app.teams.example/some/path';
+		await launcher('launcher/config', { 'sec-fetch-site': 'same-origin' });
+		await launcher(`launcher/apps?organizationId=${ORG}&tenantId=other`, { origin: 'https://app.teams.example' });
+		const [configUrl, configInit] = fetchMock.mock.calls[0] as [string, RequestInit];
+		const [appsUrl, appsInit] = fetchMock.mock.calls[1] as [string, RequestInit];
+		expect(configUrl).toBe('http://api.example.test/api/ever-connect/launcher/config');
+		expect(appsUrl).toBe(`http://api.example.test/api/ever-connect/launcher/apps?organizationId=${ORG}`);
+		for (const init of [configInit, appsInit]) {
+			expect(init.method).toBe('GET');
+			expect(init.headers).toMatchObject({
+				authorization: 'Bearer person-token',
+				'tenant-id': 'tenant-1',
+				origin: 'https://app.teams.example'
+			});
+		}
+	});
+
+	it('uses the origin the request was made to when NEXT_PUBLIC_WEB_APP_URL is unset', async () => {
+		delete process.env.NEXT_PUBLIC_WEB_APP_URL;
+		await launcher('launcher/config', { origin: 'https://teams.example.test' });
+		expect((fetchMock.mock.calls[0][1] as RequestInit).headers).toMatchObject({
+			origin: 'https://teams.example.test'
+		});
+	});
+
+	it('warns once, and uses the origin the request was made to, when NEXT_PUBLIC_WEB_APP_URL is not a URL', async () => {
+		const warn = jest.spyOn(console, 'warn').mockImplementation(() => undefined);
+		process.env.NEXT_PUBLIC_WEB_APP_URL = 'app.teams.example';
+		await launcher('launcher/config', { 'sec-fetch-site': 'same-origin' });
+		await launcher('launcher/config', { 'sec-fetch-site': 'same-origin' });
+		expect((fetchMock.mock.calls[0][1] as RequestInit).headers).toMatchObject({
+			origin: 'https://teams.example.test'
+		});
+		expect(warn.mock.calls.filter(([line]) => String(line).includes('NEXT_PUBLIC_WEB_APP_URL'))).toHaveLength(1);
+		warn.mockRestore();
+	});
+
+	it.each([
+		['another site', { origin: 'https://elsewhere.example' }],
+		['a cross-site request without an origin', { 'sec-fetch-site': 'cross-site' }],
+		['a request no browser marked', {}]
+	])('answers 403 without a request for %s', async (_case, headers) => {
+		process.env.NEXT_PUBLIC_WEB_APP_URL = 'https://app.teams.example';
+		const answer = await launcher('launcher/config', headers as Record<string, string>);
+		expect(answer.status).toBe(403);
+		expect(fetchMock).not.toHaveBeenCalled();
+	});
+
+	it.each([
+		['GET', 'launcher'],
+		['GET', 'launcher/apps/extra'],
+		['POST', 'launcher/apps']
+	] as const)('%s %s answers 404 without a request', async (method, path) => {
+		const answer = await launcher(path, { 'sec-fetch-site': 'same-origin' }, method);
+		expect(answer.status).toBe(404);
+		expect(fetchMock).not.toHaveBeenCalled();
+	});
+
+	it('answers 401 without a signed-in person, and sends no origin on the other routes', async () => {
+		await call('GET', 'health');
+		expect((fetchMock.mock.calls[0][1] as RequestInit).headers).not.toHaveProperty('origin');
+		fetchMock.mockClear();
+		mockSession = { token: null, tenant: null };
+		expect((await launcher('launcher/config', { 'sec-fetch-site': 'same-origin' })).status).toBe(401);
 		expect(fetchMock).not.toHaveBeenCalled();
 	});
 });

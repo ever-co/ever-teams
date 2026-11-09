@@ -9,6 +9,11 @@
       "source": "router"
     },
     {
+      "path": "/:locale/about",
+      "file": "apps/web/app/[locale]/(main)/about/page.tsx",
+      "source": "router"
+    },
+    {
       "path": "/:locale/all-teams",
       "file": "apps/web/app/[locale]/(main)/(teams)/all-teams/page.tsx",
       "source": "router"
@@ -74,6 +79,26 @@
       "source": "router"
     },
     {
+      "path": "/:locale/chat",
+      "file": "apps/web/app/[locale]/(main)/chat/page.tsx",
+      "source": "router"
+    },
+    {
+      "path": "/:locale/chat/:conversationId",
+      "file": "apps/web/app/[locale]/(main)/chat/[conversationId]/page.tsx",
+      "source": "router"
+    },
+    {
+      "path": "/:locale/chat/threads",
+      "file": "apps/web/app/[locale]/(main)/chat/threads/page.tsx",
+      "source": "router"
+    },
+    {
+      "path": "/:locale/chat/unreads",
+      "file": "apps/web/app/[locale]/(main)/chat/unreads/page.tsx",
+      "source": "router"
+    },
+    {
       "path": "/:locale/dashboard/app-url/:teamId",
       "file": "apps/web/app/[locale]/(main)/dashboard/app-url/[teamId]/page.tsx",
       "source": "router"
@@ -91,6 +116,26 @@
     {
       "path": "/:locale/delete-account/confirm",
       "file": "apps/web/app/[locale]/delete-account/confirm/page.tsx",
+      "source": "router"
+    },
+    {
+      "path": "/:locale/docs",
+      "file": "apps/web/app/[locale]/(main)/docs/page.tsx",
+      "source": "router"
+    },
+    {
+      "path": "/:locale/docs/:pageId",
+      "file": "apps/web/app/[locale]/(main)/docs/[pageId]/page.tsx",
+      "source": "router"
+    },
+    {
+      "path": "/:locale/docs/trash",
+      "file": "apps/web/app/[locale]/(main)/docs/trash/page.tsx",
+      "source": "router"
+    },
+    {
+      "path": "/:locale/inbox",
+      "file": "apps/web/app/[locale]/(main)/inbox/page.tsx",
       "source": "router"
     },
     {
@@ -271,6 +316,16 @@
     {
       "path": "/:locale/verify-email",
       "file": "apps/web/app/[locale]/(focus)/verify-email/page.tsx",
+      "source": "router"
+    },
+    {
+      "path": "/:locale/views",
+      "file": "apps/web/app/[locale]/(main)/views/page.tsx",
+      "source": "router"
+    },
+    {
+      "path": "/:locale/views/:viewId",
+      "file": "apps/web/app/[locale]/(main)/views/[viewId]/page.tsx",
       "source": "router"
     },
     {

@@ -114,7 +114,8 @@ function newestFirst(first: TEntityFileLink, second: TEntityFileLink) {
 
 /** The files a link list holds, newest first; a folder linked to the record is not a file to show here. */
 export function filesOf(links: TEntityFileLink[]) {
-	const files = links.filter((link) => link.document?.kind !== 'FOLDER');
+	// Folders are not files, and pages (the Docs tab of a project) are not attachments.
+	const files = links.filter((link) => link.document?.kind !== 'FOLDER' && link.document?.kind !== 'PAGE');
 	return [...files].sort(newestFirst);
 }
 

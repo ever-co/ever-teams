@@ -50,6 +50,10 @@ import { IIssueType } from '@/core/types/interfaces/task/issue-type';
 import { EIssueType, ETaskStatusName, ETaskPriority, ETaskSize } from '@/core/types/generics/enums/task';
 import { TOrganizationTeamEmployee } from '@/core/types/schemas';
 import { TTask } from '@/core/types/schemas/task/task.schema';
+import { isTaskViewsEnabled } from '@/core/lib/utils/task-views-enabled';
+
+/** The legacy `c` hotkey does nothing while the shortcut registry owns the key. */
+const ignoreHotkey = () => undefined;
 
 type Props = {
 	task?: Nullable<TTask>;
@@ -347,7 +351,9 @@ export function TaskInput(props: Props) {
 		}
 	}, [setEditMode, editMode, targetEl]);
 
-	useHotkeys(HostKeys.CREATE_TASK, handleCommandKeySequence);
+	// With the shortcut registry on, `c` is its `taskCreate` (the create-task dialog, everywhere); the input keeps
+	// the key otherwise.
+	useHotkeys(HostKeys.CREATE_TASK, isTaskViewsEnabled() ? ignoreHotkey : handleCommandKeySequence);
 
 	useEffect(() => {
 		if (props.autoFocus && targetEl.current) {

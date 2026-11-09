@@ -1,6 +1,28 @@
 import { z } from 'zod';
 
-/** One switch per notification type, the keys of Gauzy's notification setting DTO. */
+const timeOfDaySchema = z.string().regex(/^([01]?\d|2[0-3]):([0-5]\d)$/, 'HH:mm');
+const emailModeSchema = z.enum(['immediate', 'digest', 'off']);
+
+/**
+ * The delivery preferences of the setting (`preferences`): the email modes, the quiet hours, the digest hour. Loose:
+ * a key Gauzy keeps that this page does not know (`inApp`, a later one) goes through as it is, so a save never
+ * fails on it nor drops it.
+ */
+const notificationPreferencesSchema = z
+	.looseObject({
+		email: z.union([emailModeSchema, z.boolean()]).optional(),
+		emailByType: z.record(z.string().max(64), emailModeSchema).optional(),
+		push: z.boolean().optional(),
+		taskUpdate: z.boolean().optional(),
+		dnd: z
+			.object({ start: timeOfDaySchema, end: timeOfDaySchema, timeZone: z.string().max(64).optional() })
+			.strict()
+			.nullable()
+			.optional(),
+		digestHour: z.number().int().min(0).max(23).optional()
+	});
+
+/** One switch per notification type, the keys of Gauzy's notification setting DTO, and the preferences. */
 export const notificationSettingSwitchesSchema = z
 	.object({
 		assignment: z.boolean().optional(),
@@ -8,7 +30,8 @@ export const notificationSettingSwitchesSchema = z
 		comment: z.boolean().optional(),
 		invitation: z.boolean().optional(),
 		message: z.boolean().optional(),
-		payment: z.boolean().optional()
+		payment: z.boolean().optional(),
+		preferences: notificationPreferencesSchema.optional()
 	})
 	.strip();
 
