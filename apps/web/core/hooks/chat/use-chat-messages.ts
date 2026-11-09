@@ -107,7 +107,8 @@ export async function refreshHeldMessage(queryClient: QueryClient, queryKey: Que
  * (where the previous refresh stopped), and answers where to go on (`next`: the last message read when the budget ran
  * out) or `null` once it reached the newest held one, so a long timeline is covered
  * over several refreshes and then from the oldest again. Only held messages are written: newer ones are the forward
- * read's, which keeps `serverNewestId`. A copy read before a jump never replaces the jump's (`mergeMessages` keeps the
+ * read's, which keeps `serverNewestId`; a held message deleted on the platform (left out of the pages) is removed. A
+ * copy read before a jump never replaces the jump's (`mergeMessages` keeps the
  * copy of the read started last).
  */
 export async function refreshHeldWindow(
@@ -115,9 +116,9 @@ export async function refreshHeldWindow(
 	queryKey: QueryKey,
 	conversationId: string,
 	from: string | null = null
-): Promise<{ replaced: number; next: string | null }> {
+): Promise<{ replaced: number; removed: number; next: string | null }> {
 	const held = queryClient.getQueryData<ChatMessagesCache>(queryKey)?.messages.filter((message) => !isLocalMessage(message)) ?? [];
-	if (!held.length) return { replaced: 0, next: null };
+	if (!held.length) return { replaced: 0, removed: 0, next: null };
 	const heldIds = new Set(held.map((message) => message.id));
 	// Read up to the newest held message itself (or past its time, should it be gone), not up to the first page that
 	// ends on a message not held: a page may end inside a gap of the held timeline, or on a message stamped the same
@@ -126,17 +127,30 @@ export async function refreshHeldWindow(
 	const newestHeldAt = Date.parse(newestHeld.createdAt);
 	let reachedNewest = false;
 	const fresh: IChatMessage[] = [];
+	const answered = new Set<string>();
 	let next: string | null = null;
+	// The stretch of the timeline the pages covered: from the first message read (or the conversation's start) to the
+	// last one read (or its end).
+	let firstAt: number | null = null;
+	let lastAt: number | null = null;
+	let toEnd = false;
 	// Goes on after the previous refresh's last message (held or not: a long gap is not read twice); one past the held
 	// window (a jump replaced the timeline) ends at its first page, and the next refresh starts from the oldest.
 	let page = from ? await readMessages(conversationId, { after: from }) : await readMessages(conversationId, { around: held[0].id });
+	const fromStart = !from && !page.hasBefore;
 	for (let read = 1; ; read += 1) {
 		for (const message of page.messages) {
+			answered.add(message.id);
 			if (!heldIds.has(message.id)) continue;
 			fresh.push(message);
 			if (message.id === newestHeld.id) reachedNewest = true;
 		}
 		const last = page.messages[page.messages.length - 1];
+		if (last) {
+			firstAt ??= Date.parse(page.messages[0].createdAt);
+			lastAt = Date.parse(last.createdAt);
+		}
+		toEnd = !page.hasAfter;
 		// Past the newest message held, or at the end of the conversation: the next refresh starts from the oldest.
 		if (!last || !page.hasAfter || reachedNewest || Date.parse(last.createdAt) > newestHeldAt) break;
 		// Out of budget: the next refresh goes on after the last message read.
@@ -146,15 +160,24 @@ export async function refreshHeldWindow(
 		}
 		page = await readMessages(conversationId, { after: last.id });
 	}
+	// A message deleted without replies is left out of the pages (only a thread's root stays, as a tombstone): a held
+	// message inside the stretch read that no page answered is gone. Strictly inside: one stamped like an edge may sit
+	// on the page next to it. Messages held only since the read began (a send, a jump) are not judged.
+	const inside = (at: number) => (fromStart || (firstAt !== null && at > firstAt)) && (toEnd || (lastAt !== null && at < lastAt));
+	const gone = new Set(held.filter((message) => !answered.has(message.id) && inside(Date.parse(message.createdAt))).map((message) => message.id));
 	let replaced = 0;
+	let removed = 0;
 	queryClient.setQueryData<ChatMessagesCache>(queryKey, (current) => {
+		if (!current) return current;
 		// Only a message still held is put back: a timeline that moved on meanwhile (a jump, a reload) keeps what it has.
-		const still = new Set(current?.messages.map((message) => message.id) ?? []);
+		const still = new Set(current.messages.map((message) => message.id));
 		const kept = fresh.filter((message) => still.has(message.id));
+		const remaining = current.messages.filter((message) => !gone.has(message.id));
 		replaced = kept.length;
-		return current && kept.length ? { ...current, messages: mergeMessages(current.messages, kept) } : current;
+		removed = current.messages.length - remaining.length;
+		return kept.length || removed ? { ...current, messages: mergeMessages(remaining, kept) } : current;
 	});
-	return { replaced, next };
+	return { replaced, removed, next };
 }
 
 /** Reads forward from a message: every newer one, a page at a time, up to the catch-up budget. */
