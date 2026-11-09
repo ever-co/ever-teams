@@ -62,7 +62,7 @@ function blockOf(node: IDocumentNode, indent: string): string | null {
 			return `${indent}---`;
 		case 'image': {
 			const alt = String(node.attrs?.alt ?? node.attrs?.title ?? '');
-			return `${indent}![${alt}](${String(node.attrs?.src ?? '')})`;
+			return `${indent}![${alt}](${escapeDestination(String(node.attrs?.src ?? ''))})`;
 		}
 		case 'table':
 			return tableOf(node, indent);
@@ -136,7 +136,7 @@ function inlineNodeOf(node: IDocumentNode): string {
 		}
 		case 'image': {
 			const alt = String(node.attrs?.alt ?? '');
-			return `![${alt}](${String(node.attrs?.src ?? '')})`;
+			return `![${alt}](${escapeDestination(String(node.attrs?.src ?? ''))})`;
 		}
 		default:
 			return node.text !== undefined ? escapeText(node.text) : inlineOf(node.content ?? []);
@@ -161,13 +161,21 @@ function withMarks(text: string, marks: readonly { type: string; attrs?: Record<
 				out = `\`${text}\``;
 				break;
 			case 'link':
-				out = `[${out}](${String(mark.attrs?.href ?? '')})`;
+				out = `[${out}](${escapeDestination(String(mark.attrs?.href ?? ''))})`;
 				break;
 			default:
 				break;
 		}
 	}
 	return out;
+}
+
+/**
+ * A link or image destination with its backslashes escaped (`\\` is a valid CommonMark escape there), so a backslash in
+ * a URL survives, also before a `|` that a table cell escapes after it.
+ */
+function escapeDestination(destination: string): string {
+	return destination.replace(/\\/g, '\\\\');
 }
 
 function escapeText(text: string): string {

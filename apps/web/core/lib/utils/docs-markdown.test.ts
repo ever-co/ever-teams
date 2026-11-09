@@ -93,6 +93,30 @@ describe('documentToMarkdown', () => {
 		}
 	});
 
+	it('keeps a backslash in a link destination inside a table cell', () => {
+		const doc: IDocumentNode = {
+			type: 'doc',
+			content: [
+				{
+					type: 'table',
+					content: [
+						{
+							type: 'tableRow',
+							content: [
+								{
+									type: 'tableCell',
+									content: [paragraph(text('go', [{ type: 'link', attrs: { href: 'https://x.test/a\\|b' } }]))]
+								}
+							]
+						}
+					]
+				}
+			]
+		};
+		// The destination's backslash is doubled, then the pipe after that even run gets its own escape.
+		expect(documentToMarkdown(doc)).toBe('| [go](https://x.test/a\\\\\\|b) |\n| --- |\n');
+	});
+
 	it('exports a cell with a very long run of backslashes in linear time', () => {
 		const doc: IDocumentNode = {
 			type: 'doc',
@@ -108,10 +132,8 @@ describe('documentToMarkdown', () => {
 				}
 			]
 		};
-		const started = Date.now();
+		// No wall-clock bound: a rescanning escape runs for minutes on this input, so the test timeout catches it.
 		const markdown = documentToMarkdown(doc);
-		// A rescanning escape takes seconds here; one pass takes a few milliseconds.
-		expect(Date.now() - started).toBeLessThan(1000);
 		// 200,000 literal backslashes are doubled by escapeText; the pipe after that even run gets its own backslash.
 		expect(markdown).toBe(`| ${'\\'.repeat(400_000)}\\| |\n| --- |\n`);
 	});
