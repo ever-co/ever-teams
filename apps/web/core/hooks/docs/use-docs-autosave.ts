@@ -68,10 +68,10 @@ interface PageSession {
 	/** A save of the page is running. */
 	saving: boolean;
 	/**
-	 * A version of the page is being restored: the draft (the text the restore replaces) is not saved meanwhile, and is
-	 * dropped only once the restore succeeded (see `holdForRestore`).
+	 * The restores of the page running (see `holdForRestore`): while any runs, the draft (the text a restore replaces) is
+	 * not saved, and a save asked meanwhile waits in `queued` for the last one to end.
 	 */
-	held: boolean;
+	held: number;
 	/** A save asked while one ran: it goes when that one ends, forcing the snapshot when Keep Mine asked for it. */
 	queued: { force: boolean } | null;
 	/** The autosave delay after the last keystroke, or a queued save about to go. */
@@ -102,7 +102,7 @@ function sessionOf(userId: string, pageId: string, clock: string | null): PageSe
 	const key = sessionKey(userId, pageId);
 	let session = sessions.get(key);
 	if (!session) {
-		session = { key, pageId, dropped: false, draft: null, base: clock, view: IDLE_VIEW, saving: false, held: false, queued: null, timer: null, applySaved: null, views: new Set() };
+		session = { key, pageId, dropped: false, draft: null, base: clock, view: IDLE_VIEW, saving: false, held: 0, queued: null, timer: null, applySaved: null, views: new Set() };
 		sessions.set(key, session);
 		syncUnloadGuard();
 	}
@@ -163,8 +163,12 @@ function releaseIfDone(session: PageSession): void {
 async function saveSession(session: PageSession, options: { force?: boolean } = {}): Promise<boolean> {
 	clearSessionTimer(session);
 	if (session.dropped) return true;
-	// A restore is running: the draft waits (its save would land over the restored version); the restore's end decides.
-	if (session.held) return false;
+	// A restore is running: the draft waits (its save would land over the restored version), and so does the save asked
+	// now, a Keep Mine's forced snapshot included: the end of the last restore decides.
+	if (session.held > 0) {
+		if (session.draft) session.queued = { force: Boolean(session.queued?.force || options.force) };
+		return false;
+	}
 	const draft = session.draft;
 	if (!draft || !session.base) {
 		releaseIfDone(session);
@@ -480,30 +484,42 @@ export function useDocsAutosave(page: IDocumentPage | null) {
 	}, [current]);
 
 	/**
-	 * Holds the draft while a version is restored: nothing is saved until the returned release runs. `restored` true
-	 * drops the draft (the restored version replaces it); false keeps it and saves it after the usual delay, so a
-	 * restore that fails loses nothing typed.
+	 * Holds the draft while a version is restored: nothing is saved until the returned release runs (once; restores
+	 * that overlap each hold, and saving waits for the last). `restored` true drops the draft and adopts the restored
+	 * version's clock; false keeps the draft and, once no restore runs, saves it as before — the save asked meanwhile
+	 * (with a Keep Mine's forced snapshot) right away, else after the usual delay — so a failed restore loses nothing.
 	 */
 	const holdForRestore = useCallback((): ((restored: boolean) => void) => {
 		const session = current();
 		if (!session) return () => undefined;
 		clearSessionTimer(session);
-		session.held = true;
+		session.held += 1;
+		let released = false;
 		return (restored) => {
-			session.held = false;
+			if (released) return;
+			released = true;
+			session.held = Math.max(0, session.held - 1);
 			if (session.dropped) return;
 			if (restored) {
 				clearSessionTimer(session);
 				session.draft = null;
 				session.queued = null;
+				// The next edit builds on the restored version. Its page may have reached this editor while the draft still
+				// held the session, which left the clock where it was (and the clock effect does not run again for it).
+				const restoredClock = clockRef.current;
+				if (restoredClock && !isLaterClock(session.base, restoredClock)) session.base = restoredClock;
 				updateView(session, { state: 'idle', restoredHtml: null });
-				releaseIfDone(session);
-				return;
+			} else if (session.held === 0) {
+				const queued = session.queued;
+				session.queued = null;
+				if (queued) {
+					session.timer = setTimeout(() => void saveSession(session, queued), 0);
+				} else if (session.draft && !session.saving && !session.timer && session.view.state === 'dirty') {
+					// A draft that waited (typed before or during the restore) saves as usual; a save still running ends as usual.
+					session.timer = setTimeout(() => void saveSession(session), DOCS_AUTOSAVE_DELAY_MS);
+				}
 			}
-			// A draft that waited (typed before or during the restore) saves as usual; a save still running ends as usual.
-			if (session.draft && !session.saving && !session.timer && session.view.state === 'dirty') {
-				session.timer = setTimeout(() => void saveSession(session), DOCS_AUTOSAVE_DELAY_MS);
-			}
+			if (session.held === 0) releaseIfDone(session);
 		};
 	}, [current]);
 

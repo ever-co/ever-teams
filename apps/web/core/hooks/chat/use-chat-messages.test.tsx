@@ -55,7 +55,7 @@ describe('refreshHeldWindow (no live channel)', () => {
 			// Forward: the last held one, deleted, then a newer one (not held: the forward read's).
 			.mockResolvedValueOnce({ messages: [message('m3', 3, '', { deletedAt: '2026-01-01T00:09:00.000Z' }), message('m4', 5, 'newer')], hasBefore: true, hasAfter: false });
 
-		await expect(refreshHeldWindow(client, key, 'c1')).resolves.toBe(3);
+		await expect(refreshHeldWindow(client, key, 'c1')).resolves.toEqual({ replaced: 3, next: null });
 
 		expect(mockMessages.mock.calls).toEqual([
 			['c1', { around: 'm1' }],
@@ -77,9 +77,39 @@ describe('refreshHeldWindow (no live channel)', () => {
 		mockMessages.mockReset();
 		mockMessages.mockResolvedValueOnce({ messages: [message('m1', 1, 'one'), message('m2', 2, 'not held')], hasBefore: false, hasAfter: true });
 
-		await expect(refreshHeldWindow(client, key, 'c1')).resolves.toBe(1);
+		await expect(refreshHeldWindow(client, key, 'c1')).resolves.toEqual({ replaced: 1, next: null });
 		expect(mockMessages).toHaveBeenCalledTimes(1);
 		expect(client.getQueryData<ChatMessagesCache>(key)?.messages.map((m) => m.id)).toEqual(['m1']);
+	});
+});
+
+describe('refreshHeldWindow over a long timeline', () => {
+	const key = queryKeys.chat.messages('ten', 'c1');
+
+	it('goes on where the budget stopped it, and starts from the oldest again once it reached the newest held message', async () => {
+		const client = new QueryClient();
+		// 12 held messages, one per page: the 10-page budget stops at m10.
+		const held = Array.from({ length: 12 }, (_, index) => message(`m${index + 1}`, 0, `body ${index + 1}`, { createdAt: `2026-01-01T00:${String(index + 10)}:00.000Z` }));
+		client.setQueryData<ChatMessagesCache>(key, { messages: held, hasBefore: false, hasAfter: false, serverNewestId: 'm12' });
+		const pageOf = (index: number) => ({ messages: [held[index]], hasBefore: index > 0, hasAfter: index < 11 });
+		mockMessages.mockReset();
+		mockMessages.mockImplementation(async (_conversationId: string, query?: IChatMessagesQuery) => {
+			const at = query?.around ?? query?.after;
+			const index = held.findIndex((m) => m.id === at);
+			return pageOf(query?.around ? index : index + 1);
+		});
+
+		const first = await refreshHeldWindow(client, key, 'c1');
+		expect(first).toEqual({ replaced: 10, next: 'm10' });
+
+		const second = await refreshHeldWindow(client, key, 'c1', first.next);
+		expect(second).toEqual({ replaced: 2, next: null });
+		expect(mockMessages.mock.calls.slice(10).map((call) => call[1])).toEqual([{ after: 'm10' }, { after: 'm11' }]);
+
+		// A cursor no longer held (a jump replaced the timeline) starts from the oldest.
+		mockMessages.mockClear();
+		await refreshHeldWindow(client, key, 'c1', 'gone');
+		expect(mockMessages.mock.calls[0][1]).toEqual({ around: 'm1' });
 	});
 });
 

@@ -681,6 +681,70 @@ describe('useDocsAutosave, restoring a version', () => {
 		view.unmount();
 		expect(contentsSaved().slice(before)).toEqual([]);
 	});
+
+	it('waits for the last of two overlapping restores before saving', async () => {
+		const { wrapper } = setup();
+		const view = renderHook(() => useDocsAutosave(pageOf('page-two-restores')), { wrapper });
+		act(() => view.result.current.change('<p>mine</p>', null));
+		const before = contentsSaved().length;
+		let first!: (restored: boolean) => void;
+		let second!: (restored: boolean) => void;
+		act(() => {
+			first = view.result.current.holdForRestore();
+			second = view.result.current.holdForRestore();
+		});
+		act(() => first(false));
+		// Still held by the second restore: the save asked now waits.
+		await act(async () => {
+			await view.result.current.flushNow();
+		});
+		expect(contentsSaved().length).toBe(before);
+		act(() => second(false));
+		await waitFor(() => expect(contentsSaved().slice(before)).toEqual(['<p>mine</p>']));
+		view.unmount();
+	});
+
+	it('keeps a Keep Mine asked during a restore that fails: its forced save goes once the restore ends', async () => {
+		const { wrapper } = setup();
+		const page = pageOf('page-keep-mine-restore');
+		const view = renderHook(() => useDocsAutosave(page), { wrapper });
+		act(() => view.result.current.change('<p>mine</p>', null));
+		const before = mockUpdateContent.mock.calls.length;
+		let release!: (restored: boolean) => void;
+		act(() => {
+			release = view.result.current.holdForRestore();
+		});
+		mockGetPage.mockResolvedValueOnce({ ...page, updatedAt: T1, version: 2 });
+		await act(async () => {
+			await view.result.current.keepMine();
+		});
+		expect(mockUpdateContent.mock.calls.length).toBe(before);
+
+		act(() => release(false));
+		await waitFor(() => expect(mockUpdateContent.mock.calls.length).toBe(before + 1));
+		expect(mockUpdateContent.mock.calls[before][1]).toMatchObject({ contentHtml: '<p>mine</p>', forceSnapshot: true, expectedUpdatedAt: T1 });
+		view.unmount();
+	});
+
+	it('builds the next edit on the restored version, also when its page arrived while the draft held the session', async () => {
+		const { wrapper } = setup();
+		const page = pageOf('page-restored-clock');
+		const view = renderHook(({ shown }: { shown: IDocumentPage }) => useDocsAutosave(shown), { wrapper, initialProps: { shown: page } });
+		act(() => view.result.current.change('<p>replaced</p>', null));
+		let release!: (restored: boolean) => void;
+		act(() => {
+			release = view.result.current.holdForRestore();
+		});
+		// The restored page reaches the editor before the restore ends (the version list is still being read again).
+		view.rerender({ shown: { ...page, updatedAt: T2, version: 3, contentHtml: '<p>restored</p>' } as IDocumentPage });
+		act(() => release(true));
+
+		const before = mockUpdateContent.mock.calls.length;
+		act(() => view.result.current.change('<p>after the restore</p>', null));
+		act(() => void view.result.current.flushNow());
+		expect(mockUpdateContent.mock.calls[before][1]).toMatchObject({ contentHtml: '<p>after the restore</p>', expectedUpdatedAt: T2 });
+		view.unmount();
+	});
 });
 
 describe('useEditorPageContent, a refreshed page', () => {

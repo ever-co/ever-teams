@@ -102,21 +102,36 @@ export async function refreshHeldMessage(queryClient: QueryClient, queryKey: Que
 }
 
 /**
- * Reads again the messages a timeline holds, from the oldest held forward (a page at a time, up to the catch-up budget),
- * and puts the platform's copies in their place: an edit, a reaction, a deletion's tombstone. Only held messages are
- * written: newer ones are the forward read's, which keeps `serverNewestId`. Answers how many were put back.
+ * Reads again the messages a timeline holds, a page at a time up to the catch-up budget, and puts the platform's copies
+ * in their place: an edit, a reaction, a deletion's tombstone. It starts at the oldest held message, or after `from`
+ * (where the previous refresh stopped) while that one is still held, and answers where to go on (`next`: the last held
+ * message read when the budget ran out) or `null` once it reached the newest held one, so a long timeline is covered
+ * over several refreshes and then from the oldest again. Only held messages are written: newer ones are the forward
+ * read's, which keeps `serverNewestId`. A copy read before a jump never replaces the jump's (`mergeMessages` keeps the
+ * copy of the read started last).
  */
-export async function refreshHeldWindow(queryClient: QueryClient, queryKey: QueryKey, conversationId: string): Promise<number> {
+export async function refreshHeldWindow(
+	queryClient: QueryClient,
+	queryKey: QueryKey,
+	conversationId: string,
+	from: string | null = null
+): Promise<{ replaced: number; next: string | null }> {
 	const held = queryClient.getQueryData<ChatMessagesCache>(queryKey)?.messages.filter((message) => !isLocalMessage(message)) ?? [];
-	if (!held.length) return 0;
+	if (!held.length) return { replaced: 0, next: null };
 	const heldIds = new Set(held.map((message) => message.id));
 	const fresh: IChatMessage[] = [];
-	let page = await readMessages(conversationId, { around: held[0].id });
+	let next: string | null = null;
+	let page = from && heldIds.has(from) ? await readMessages(conversationId, { after: from }) : await readMessages(conversationId, { around: held[0].id });
 	for (let read = 1; ; read += 1) {
 		fresh.push(...page.messages.filter((message) => heldIds.has(message.id)));
 		const last = page.messages[page.messages.length - 1];
-		// Past the newest message held, at the end of the conversation, or out of budget (the next refresh reads again).
-		if (!last || !page.hasAfter || !heldIds.has(last.id) || read >= CATCH_UP_PAGES) break;
+		// Past the newest message held, or at the end of the conversation: the next refresh starts from the oldest.
+		if (!last || !page.hasAfter || !heldIds.has(last.id)) break;
+		// Out of budget: the next refresh goes on from here.
+		if (read >= CATCH_UP_PAGES) {
+			next = last.id;
+			break;
+		}
 		page = await readMessages(conversationId, { after: last.id });
 	}
 	let replaced = 0;
@@ -127,7 +142,7 @@ export async function refreshHeldWindow(queryClient: QueryClient, queryKey: Quer
 		replaced = kept.length;
 		return current && kept.length ? { ...current, messages: mergeMessages(current.messages, kept) } : current;
 	});
-	return replaced;
+	return { replaced, next };
 }
 
 /** Reads forward from a message: every newer one, a page at a time, up to the catch-up budget. */
@@ -208,8 +223,24 @@ export function useChatMessages(conversationId: string | null, enabled: boolean)
 	useEffect(() => {
 		if (!enabled || !conversationId || !hasData || typeof window === 'undefined') return;
 		let busy = false;
-		// The timeline was just read: the first refresh of what it holds comes a cadence later.
+		// The timeline was just read: the first refresh of what it holds comes a cadence later. It runs on its own (a
+		// slow one never holds up newer messages), one at a time, and goes on where the previous one stopped.
 		let heldReadAt = Date.now();
+		let heldBusy = false;
+		let heldFrom: string | null = null;
+		const refreshHeld = async () => {
+			if (heldBusy) return;
+			heldBusy = true;
+			heldReadAt = Date.now();
+			try {
+				heldFrom = (await refreshHeldWindow(queryClient, keyRef.current, conversationId, heldFrom)).next;
+			} catch {
+				// The next refresh reads again (from the oldest).
+				heldFrom = null;
+			} finally {
+				heldBusy = false;
+			}
+		};
 		const tick = async () => {
 			if (busy || document.visibilityState !== 'visible') return;
 			const key = keyRef.current;
@@ -234,12 +265,7 @@ export function useChatMessages(conversationId: string | null, enabled: boolean)
 					current ? { ...current, messages: mergeMessages(current.messages, read.messages), hasAfter: read.hasAfter, serverNewestId: read.newestId } : current
 				);
 				// Live, the change events read a changed message again (see below); without them, the poll does.
-				if (!liveRef.current && Date.now() - heldReadAt >= HELD_REFRESH_MS) {
-					heldReadAt = Date.now();
-					await refreshHeldWindow(queryClient, key, conversationId).catch(() => {
-						// The next refresh reads again.
-					});
-				}
+				if (!liveRef.current && !heldBusy && Date.now() - heldReadAt >= HELD_REFRESH_MS) void refreshHeld();
 			} catch {
 				// The message read last may be gone (deleted): start again from the newest page.
 				try {

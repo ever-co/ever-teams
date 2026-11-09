@@ -44,6 +44,14 @@ export function useSavedViewCommands({ savedView, isBuiltIn, definition, isDirty
 		if (!savedView) return;
 		if (!isDirty || baseRef.current?.id !== savedView.id) baseRef.current = { id: savedView.id, version: savedView.version };
 	});
+	/**
+	 * This tab's own write landed: the change builds on the version it wrote when the write stated the change's base
+	 * (a save, or a rename or share made on the same version), never on a version someone else saved meanwhile.
+	 */
+	const advanceBase = useCallback((stated: ITaskView['version'], saved: ITaskView) => {
+		const base = baseRef.current;
+		if (base?.id === saved.id && base.version === stated) baseRef.current = { id: saved.id, version: saved.version };
+	}, []);
 
 	const reportSaveError = useCallback(
 		(error: unknown) => {
@@ -64,14 +72,17 @@ export function useSavedViewCommands({ savedView, isBuiltIn, definition, isDirty
 		setIsBusy(true);
 		try {
 			const base = baseRef.current;
-			await actions.saveDefinition(base?.id === savedView.id ? { ...savedView, version: base.version } : savedView, definition);
+			const stated = base?.id === savedView.id ? base.version : savedView.version;
+			const saved = await actions.saveDefinition({ ...savedView, version: stated }, definition);
+			// Edits made while the save ran build on what it saved (the page stays changed, so the effect keeps the base).
+			advanceBase(stated, saved);
 			toast.success(t('taskViews.SAVED_TOAST'));
 		} catch (error) {
 			reportSaveError(error);
 		} finally {
 			setIsBusy(false);
 		}
-	}, [actions, definition, isBusy, isDirty, reportSaveError, savedView, t]);
+	}, [actions, advanceBase, definition, isBusy, isDirty, reportSaveError, savedView, t]);
 
 	/** Creates the view; answers whether it worked (the dialog stays open otherwise). */
 	const create = useCallback(
@@ -94,7 +105,7 @@ export function useSavedViewCommands({ savedView, isBuiltIn, definition, isDirty
 		async (name: string): Promise<boolean> => {
 			if (!savedView) return false;
 			try {
-				await actions.updateView(savedView, { name });
+				advanceBase(savedView.version, await actions.updateView(savedView, { name }));
 				toast.success(t('taskViews.SAVED_TOAST'));
 				return true;
 			} catch (error) {
@@ -102,7 +113,7 @@ export function useSavedViewCommands({ savedView, isBuiltIn, definition, isDirty
 				return false;
 			}
 		},
-		[actions, reportSaveError, savedView, t]
+		[actions, advanceBase, reportSaveError, savedView, t]
 	);
 
 	const toggleVisibility = useCallback(async () => {
@@ -110,14 +121,14 @@ export function useSavedViewCommands({ savedView, isBuiltIn, definition, isDirty
 		const visibility = savedView.visibility === ETaskViewVisibility.PERSONAL ? ETaskViewVisibility.SHARED : ETaskViewVisibility.PERSONAL;
 		setIsBusy(true);
 		try {
-			await actions.updateView(savedView, { visibility });
+			advanceBase(savedView.version, await actions.updateView(savedView, { visibility }));
 			toast.success(t('taskViews.SAVED_TOAST'));
 		} catch (error) {
 			reportSaveError(error);
 		} finally {
 			setIsBusy(false);
 		}
-	}, [actions, isBusy, reportSaveError, savedView, t]);
+	}, [actions, advanceBase, isBusy, reportSaveError, savedView, t]);
 
 	const remove = useCallback(async () => {
 		if (!savedView || isBusy) return;

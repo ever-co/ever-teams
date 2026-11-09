@@ -5,6 +5,7 @@ import { act, renderHook } from '@testing-library/react';
 import type { ITaskView, ITaskViewDefinition } from '@/core/types/interfaces/common/task-views';
 
 const mockSaveDefinition = jest.fn();
+const mockUpdateView = jest.fn();
 
 jest.mock('next/navigation', () => ({ useRouter: () => ({ push: jest.fn() }) }));
 jest.mock('next-intl', () => ({ useTranslations: () => (key: string) => key }));
@@ -18,7 +19,7 @@ jest.mock('@/core/hooks/task-views/use-task-view-actions', () => {
 	}
 	return {
 		TaskViewConflictError,
-		useTaskViewActions: () => ({ saveDefinition: mockSaveDefinition, createView: jest.fn(), updateView: jest.fn(), deleteView: jest.fn() })
+		useTaskViewActions: () => ({ saveDefinition: mockSaveDefinition, createView: jest.fn(), updateView: mockUpdateView, deleteView: jest.fn() })
 	};
 });
 
@@ -39,7 +40,10 @@ function render(initial: Props) {
 const statedVersion = (): number | undefined => (mockSaveDefinition.mock.calls.at(-1)?.[0] as ITaskView | undefined)?.version;
 
 describe('useSavedViewCommands, saving a changed view', () => {
-	beforeEach(() => mockSaveDefinition.mockReset().mockResolvedValue(viewAt(9)));
+	beforeEach(() => {
+		mockSaveDefinition.mockReset().mockResolvedValue(viewAt(9));
+		mockUpdateView.mockReset();
+	});
 
 	it('states the version the change was made on, also once a newer version reached the page (a conflict, a refetch)', async () => {
 		const view = render({ savedView: viewAt(1), isDirty: false });
@@ -62,5 +66,33 @@ describe('useSavedViewCommands, saving a changed view', () => {
 		await act(async () => view.result.current.toolbarCommands.save());
 
 		expect(statedVersion()).toBe(2);
+	});
+
+	it('builds on what this tab wrote: a share made on the same version, then edits while a save ran', async () => {
+		const view = render({ savedView: viewAt(1), isDirty: false });
+		view.rerender({ savedView: viewAt(1), isDirty: true });
+		// Shared from here on version 1 → version 2 (the page still shows the change).
+		mockUpdateView.mockResolvedValueOnce(viewAt(2));
+		await act(async () => view.result.current.toolbarCommands.toggleVisibility());
+		view.rerender({ savedView: viewAt(2), isDirty: true });
+		mockSaveDefinition.mockResolvedValueOnce(viewAt(3));
+		await act(async () => view.result.current.toolbarCommands.save());
+		expect(statedVersion()).toBe(2);
+		// Edited again while that save ran: the next save states the version it wrote.
+		view.rerender({ savedView: viewAt(3), isDirty: true });
+		await act(async () => view.result.current.toolbarCommands.save());
+		expect(statedVersion()).toBe(3);
+	});
+
+	it("never adopts someone else's version through this tab's write made on it", async () => {
+		const view = render({ savedView: viewAt(1), isDirty: false });
+		view.rerender({ savedView: viewAt(1), isDirty: true });
+		// Someone else saved version 2; this tab shares it (version 3): the change still builds on version 1.
+		view.rerender({ savedView: viewAt(2), isDirty: true });
+		mockUpdateView.mockResolvedValueOnce(viewAt(3));
+		await act(async () => view.result.current.toolbarCommands.toggleVisibility());
+		view.rerender({ savedView: viewAt(3), isDirty: true });
+		await act(async () => view.result.current.toolbarCommands.save());
+		expect(statedVersion()).toBe(1);
 	});
 });
