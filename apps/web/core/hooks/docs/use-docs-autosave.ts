@@ -79,6 +79,8 @@ interface PageSession {
 	interrupted: boolean;
 	/** The queued save the timer is about to send (a Keep Mine's forced snapshot): a restore that stops it keeps it. */
 	timerSave: { force: boolean } | null;
+	/** The page clock the editors of the page show now (the last one to render: an editor that replaced another too). */
+	shownClock: string | null;
 	/** A save asked while one ran: it goes when that one ends, forcing the snapshot when Keep Mine asked for it. */
 	queued: { force: boolean } | null;
 	/** The autosave delay after the last keystroke, or a queued save about to go. */
@@ -109,7 +111,7 @@ function sessionOf(userId: string, pageId: string, clock: string | null): PageSe
 	const key = sessionKey(userId, pageId);
 	let session = sessions.get(key);
 	if (!session) {
-		session = { key, pageId, dropped: false, draft: null, base: clock, view: IDLE_VIEW, saving: false, held: 0, interrupted: false, timerSave: null, queued: null, timer: null, applySaved: null, views: new Set() };
+		session = { key, pageId, dropped: false, draft: null, base: clock, view: IDLE_VIEW, saving: false, held: 0, interrupted: false, timerSave: null, shownClock: clock, queued: null, timer: null, applySaved: null, views: new Set() };
 		sessions.set(key, session);
 		syncUnloadGuard();
 	}
@@ -237,9 +239,12 @@ async function saveSession(session: PageSession, options: { force?: boolean } = 
 		!queued && session.interrupted && session.held === 0 && !!session.draft && (session.view.state === 'dirty' || session.view.state === 'error');
 	if (session.held === 0) session.interrupted = false;
 	if (queued) {
+		// The queued save sends the latest draft now: an autosave delay running since is not needed (nor left behind).
+		clearSessionTimer(session);
 		session.timer = setTimeout(() => void saveSession(session, queued), 0);
 		session.timerSave = queued;
-	} else if (resume) {
+	} else if (resume && !session.timer) {
+		// Text typed since has its own autosave delay running: that one goes, this is not added.
 		session.timer = setTimeout(() => void saveSession(session), DOCS_AUTOSAVE_DELAY_MS);
 	} else {
 		releaseIfDone(session);
@@ -370,6 +375,9 @@ export function useDocsAutosave(page: IDocumentPage | null) {
 	// Not during render: `subscribe` reads it, and React subscribes after the layout effects ran.
 	useIsomorphicLayoutEffect(() => {
 		clockRef.current = clock;
+		// The session knows the clock its editors show, whichever editor renders it (one that replaced the restoring one).
+		const shown = key ? sessions.get(key) : undefined;
+		if (shown) shown.shownClock = clock;
 	});
 
 	const subscribe = useCallback(
@@ -536,7 +544,7 @@ export function useDocsAutosave(page: IDocumentPage | null) {
 				// The restored page may have reached this editor while the draft still held the session (the clock effect
 				// left the clock where it was, and does not run again for it): follow it. One that arrives later is followed
 				// by the clock effect, the session being idle.
-				const shown = clockRef.current;
+				const shown = isLaterClock(session.shownClock, clockRef.current) ? session.shownClock : clockRef.current;
 				if (shown && !isLaterClock(session.base, shown)) session.base = shown;
 				updateView(session, { state: 'idle', restoredHtml: null });
 			}

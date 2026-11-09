@@ -798,6 +798,27 @@ describe('useDocsAutosave, restoring a version', () => {
 		view.unmount();
 	});
 
+	it('follows the clock a replacement editor shows when the restoring editor left before the restore ended', () => {
+		const { wrapper } = setup();
+		const page = pageOf('page-restore-replacement');
+		const restoring = renderHook(() => useDocsAutosave(page), { wrapper });
+		act(() => restoring.result.current.change('<p>replaced</p>', null));
+		let release!: (restored: boolean) => void;
+		act(() => {
+			release = restoring.result.current.holdForRestore();
+		});
+		// The history's editor leaves; another editor of the page opens on the restored version before the restore ends.
+		restoring.unmount();
+		const replacement = renderHook(() => useDocsAutosave({ ...page, updatedAt: T3, version: 4, contentHtml: '<p>restored</p>' } as IDocumentPage), { wrapper });
+		act(() => release(true));
+
+		const before = mockUpdateContent.mock.calls.length;
+		act(() => replacement.result.current.change('<p>on the restored text</p>', null));
+		act(() => void replacement.result.current.flushNow());
+		expect(mockUpdateContent.mock.calls[before][1]).toMatchObject({ expectedUpdatedAt: T3 });
+		replacement.unmount();
+	});
+
 	it('keeps a queued Keep Mine whose save was about to go when the restore began', async () => {
 		const { wrapper } = setup();
 		const page = pageOf('page-restore-queued-keep-mine');

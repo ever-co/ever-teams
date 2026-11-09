@@ -52,8 +52,8 @@ describe('refreshHeldWindow (no live channel)', () => {
 		mockMessages
 			// Around the oldest held: one older message (not held) and two held ones.
 			.mockResolvedValueOnce({ messages: [message('m0', 0, 'older'), message('m1', 1, 'one, edited', { editedAt: '2026-01-01T00:08:00.000Z' }), message('m2', 2, 'two')], hasBefore: true, hasAfter: true })
-			// Forward: the last held one, deleted, then a newer one (not held: the forward read's).
-			.mockResolvedValueOnce({ messages: [message('m3', 3, '', { deletedAt: '2026-01-01T00:09:00.000Z' }), message('m4', 5, 'newer')], hasBefore: true, hasAfter: false });
+			// Forward: the last held one, deleted (a thread root: its tombstone stays), then a newer one (the forward read's).
+			.mockResolvedValueOnce({ messages: [message('m3', 3, '', { deletedAt: '2026-01-01T00:09:00.000Z', replyCount: 2 }), message('m4', 5, 'newer')], hasBefore: true, hasAfter: false });
 
 		await expect(refreshHeldWindow(client, key, 'c1')).resolves.toEqual({ replaced: 3, removed: 0, next: null });
 
@@ -102,7 +102,7 @@ describe('refreshHeldWindow over a long timeline', () => {
 		});
 
 		const first = await refreshHeldWindow(client, key, 'c1');
-		expect(first).toEqual({ replaced: 10, removed: 0, next: 'm10' });
+		expect(first).toEqual({ replaced: 10, removed: 0, next: { id: 'm10', createdAt: held[9].createdAt } });
 
 		const second = await refreshHeldWindow(client, key, 'c1', first.next);
 		expect(second).toEqual({ replaced: 2, removed: 0, next: null });
@@ -110,7 +110,7 @@ describe('refreshHeldWindow over a long timeline', () => {
 
 		// A cursor past the held window (a jump replaced the timeline) ends at its first page; the next starts from the oldest.
 		mockMessages.mockClear();
-		await expect(refreshHeldWindow(client, key, 'c1', 'past')).resolves.toEqual({ replaced: 0, removed: 0, next: null });
+		await expect(refreshHeldWindow(client, key, 'c1', { id: 'past', createdAt: '2026-01-01T00:58:00.000Z' })).resolves.toEqual({ replaced: 0, removed: 0, next: null });
 		expect(mockMessages).toHaveBeenCalledTimes(1);
 	});
 });
@@ -150,7 +150,7 @@ describe('refreshHeldWindow over messages stamped the same time', () => {
 		mockMessages.mockReset();
 		mockMessages
 			.mockResolvedValueOnce({ messages: [message('m1', 1, 'one'), message('m2', 5, 'two', same)], hasBefore: false, hasAfter: true })
-			.mockResolvedValueOnce({ messages: [message('m3', 5, '', { ...same, deletedAt: '2026-01-01T00:09:00.000Z' })], hasBefore: true, hasAfter: true });
+			.mockResolvedValueOnce({ messages: [message('m3', 5, '', { ...same, deletedAt: '2026-01-01T00:09:00.000Z', replyCount: 1 })], hasBefore: true, hasAfter: true });
 
 		await expect(refreshHeldWindow(client, key, 'c1')).resolves.toEqual({ replaced: 3, removed: 0, next: null });
 		// Stopped at the newest held message itself: no read past it.
@@ -178,7 +178,7 @@ describe('refreshHeldWindow over a gap longer than its budget', () => {
 		});
 
 		const first = await refreshHeldWindow(client, key, 'c1');
-		expect(first).toEqual({ replaced: 1, removed: 0, next: 'u10' });
+		expect(first).toEqual({ replaced: 1, removed: 0, next: { id: 'u10', createdAt: at(10) } });
 		const second = await refreshHeldWindow(client, key, 'c1', first.next);
 		expect(second).toEqual({ replaced: 1, removed: 0, next: null });
 		expect(mockMessages.mock.calls.slice(10).map((call) => call[1])).toEqual([
@@ -212,10 +212,11 @@ describe('refreshHeldWindow and messages deleted on the platform', () => {
 		expect(client.getQueryData<ChatMessagesCache>(key)?.messages.map((m) => m.id)).toEqual(['m1', 'm3', 'm4', 'pending:1']);
 	});
 
-	it('keeps a held message stamped like an edge of the stretch read, and one held only since the read began', async () => {
+	it('judges a message stamped like an edge by the platform order (time, then id), and leaves one held only since the read began', async () => {
 		const client = new QueryClient();
 		client.setQueryData<ChatMessagesCache>(key, {
-			messages: [message('m1', 1, 'one'), message('m1b', 1, 'same time as m1'), message('m2', 2, 'two')],
+			// m0z sits before m1 (same time, smaller id): outside the stretch; m1b after it: inside, and not answered.
+			messages: [message('m0z', 1, 'before m1'), message('m1', 1, 'one'), message('m1b', 1, 'deleted meanwhile'), message('m2', 2, 'two')],
 			hasBefore: true,
 			hasAfter: false,
 			serverNewestId: 'm2'
@@ -223,13 +224,51 @@ describe('refreshHeldWindow and messages deleted on the platform', () => {
 		mockMessages.mockReset();
 		let answer!: (page: IChatMessagePage) => void;
 		mockMessages.mockReturnValueOnce(new Promise<IChatMessagePage>((resolve) => (answer = resolve)));
-		const refreshing = refreshHeldWindow(client, key, 'c1');
+		const refreshing = refreshHeldWindow(client, key, 'c1', null);
 		// A message lands in the timeline while the page is read (a send): it is not judged by this read.
 		client.setQueryData<ChatMessagesCache>(key, (current) => (current ? { ...current, messages: [...current.messages, message('m3', 3, 'sent meanwhile')] } : current));
 		answer({ messages: [message('m1', 1, 'one'), message('m2', 2, 'two')], hasBefore: true, hasAfter: true });
 
-		await expect(refreshing).resolves.toEqual({ replaced: 2, removed: 0, next: null });
-		expect(client.getQueryData<ChatMessagesCache>(key)?.messages.map((m) => m.id)).toEqual(['m1', 'm1b', 'm2', 'm3']);
+		await expect(refreshing).resolves.toEqual({ replaced: 2, removed: 1, next: null });
+		expect(client.getQueryData<ChatMessagesCache>(key)?.messages.map((m) => m.id)).toEqual(['m0z', 'm1', 'm2', 'm3']);
+	});
+
+	it('removes the first page anchor the platform answers deleted without replies, and keeps a thread root tombstone', async () => {
+		const client = new QueryClient();
+		client.setQueryData<ChatMessagesCache>(key, {
+			messages: [message('m1', 1, 'one'), message('m2', 2, 'root'), message('m3', 3, 'three')],
+			hasBefore: false,
+			hasAfter: false,
+			serverNewestId: 'm3'
+		});
+		mockMessages.mockReset();
+		const gone = { deletedAt: '2026-01-01T00:09:00.000Z' };
+		mockMessages.mockResolvedValueOnce({
+			messages: [message('m1', 1, '', gone), message('m2', 2, '', { ...gone, replyCount: 3 }), message('m3', 3, 'three')],
+			hasBefore: false,
+			hasAfter: false
+		});
+
+		await expect(refreshHeldWindow(client, key, 'c1')).resolves.toEqual({ replaced: 2, removed: 1, next: null });
+		expect(client.getQueryData<ChatMessagesCache>(key)?.messages.map((m) => [m.id, m.deletedAt ?? null])).toEqual([
+			['m2', '2026-01-01T00:09:00.000Z'],
+			['m3', null]
+		]);
+	});
+
+	it('judges the stretch between the previous refresh cursor and the first message it reads', async () => {
+		const client = new QueryClient();
+		client.setQueryData<ChatMessagesCache>(key, {
+			messages: [message('m5', 5, 'cursor'), message('m6', 6, 'deleted meanwhile'), message('m7', 7, 'seven')],
+			hasBefore: true,
+			hasAfter: false,
+			serverNewestId: 'm7'
+		});
+		mockMessages.mockReset();
+		mockMessages.mockResolvedValueOnce({ messages: [message('m7', 7, 'seven')], hasBefore: true, hasAfter: false });
+
+		await expect(refreshHeldWindow(client, key, 'c1', { id: 'm5', createdAt: message('m5', 5, '').createdAt })).resolves.toEqual({ replaced: 1, removed: 1, next: null });
+		expect(client.getQueryData<ChatMessagesCache>(key)?.messages.map((m) => m.id)).toEqual(['m5', 'm7']);
 	});
 });
 
