@@ -391,11 +391,13 @@ export function DocsPageView({ pageId, tree, actions }: DocsPageViewProps) {
 							// land over it), and it is dropped only once the restore succeeded — a failed restore keeps it.
 							const release = autosave.holdForRestore();
 							let restored = false;
+							let restoredClock: string | null = null;
 							try {
-								await actions.restoreVersion(page.id, versionId);
+								const restoredPage = (await actions.restoreVersion(page.id, versionId)) as Partial<IDocumentPage> | null | undefined;
+								restoredClock = restoredPage?.updatedAt ?? null;
 								restored = true;
 							} finally {
-								release(restored);
+								release(restored, restoredClock);
 							}
 							toast.success(t('docs.VERSION_RESTORED'));
 						}}

@@ -119,17 +119,25 @@ export async function refreshHeldWindow(
 	const held = queryClient.getQueryData<ChatMessagesCache>(queryKey)?.messages.filter((message) => !isLocalMessage(message)) ?? [];
 	if (!held.length) return { replaced: 0, next: null };
 	const heldIds = new Set(held.map((message) => message.id));
+	// Read up to the newest held message by time, not up to the first page that ends on a message not held: a page may
+	// end inside a gap of the held timeline, and the held messages after it still need reading.
+	const newestHeldAt = Date.parse(held[held.length - 1].createdAt);
 	const fresh: IChatMessage[] = [];
 	let next: string | null = null;
 	let page = from && heldIds.has(from) ? await readMessages(conversationId, { after: from }) : await readMessages(conversationId, { around: held[0].id });
+	let lastHeldRead: string | null = null;
 	for (let read = 1; ; read += 1) {
-		fresh.push(...page.messages.filter((message) => heldIds.has(message.id)));
+		for (const message of page.messages) {
+			if (!heldIds.has(message.id)) continue;
+			fresh.push(message);
+			lastHeldRead = message.id;
+		}
 		const last = page.messages[page.messages.length - 1];
 		// Past the newest message held, or at the end of the conversation: the next refresh starts from the oldest.
-		if (!last || !page.hasAfter || !heldIds.has(last.id)) break;
-		// Out of budget: the next refresh goes on from here.
+		if (!last || !page.hasAfter || Date.parse(last.createdAt) >= newestHeldAt) break;
+		// Out of budget: the next refresh goes on after the last held message read.
 		if (read >= CATCH_UP_PAGES) {
-			next = last.id;
+			next = lastHeldRead;
 			break;
 		}
 		page = await readMessages(conversationId, { after: last.id });
@@ -242,7 +250,11 @@ export function useChatMessages(conversationId: string | null, enabled: boolean)
 			}
 		};
 		const tick = async () => {
-			if (busy || document.visibilityState !== 'visible') return;
+			if (document.visibilityState !== 'visible') return;
+			// Live, the change events read a changed message again (see below); without them the poll does, on its own
+			// cadence, whether or not the newer messages read (a forward read that keeps failing).
+			if (!liveRef.current && !heldBusy && Date.now() - heldReadAt >= HELD_REFRESH_MS) void refreshHeld();
+			if (busy) return;
 			const key = keyRef.current;
 			// Live: the poll pauses — but a timeline opened at an older message keeps reading forward until it reaches the
 			// newest (an event's refetch leaves such a timeline as it is).
@@ -264,8 +276,6 @@ export function useChatMessages(conversationId: string | null, enabled: boolean)
 				queryClient.setQueryData<ChatMessagesCache>(key, (current) =>
 					current ? { ...current, messages: mergeMessages(current.messages, read.messages), hasAfter: read.hasAfter, serverNewestId: read.newestId } : current
 				);
-				// Live, the change events read a changed message again (see below); without them, the poll does.
-				if (!liveRef.current && !heldBusy && Date.now() - heldReadAt >= HELD_REFRESH_MS) void refreshHeld();
 			} catch {
 				// The message read last may be gone (deleted): start again from the newest page.
 				try {

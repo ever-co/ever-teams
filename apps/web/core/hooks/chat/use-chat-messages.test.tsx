@@ -113,6 +113,26 @@ describe('refreshHeldWindow over a long timeline', () => {
 	});
 });
 
+describe('refreshHeldWindow over a gap in the held timeline', () => {
+	const key = queryKeys.chat.messages('ten', 'c1');
+
+	it('reads on past a page that ends inside a gap, up to the newest held message', async () => {
+		const client = new QueryClient();
+		client.setQueryData<ChatMessagesCache>(key, { messages: [message('m1', 1, 'one'), message('m3', 3, 'three')], hasBefore: false, hasAfter: false, serverNewestId: 'm3' });
+		mockMessages.mockReset();
+		mockMessages
+			.mockResolvedValueOnce({ messages: [message('m1', 1, 'one'), message('m2', 2, 'not held')], hasBefore: false, hasAfter: true })
+			.mockResolvedValueOnce({ messages: [message('m3', 3, 'three, edited', { editedAt: '2026-01-01T00:08:00.000Z' })], hasBefore: true, hasAfter: false });
+
+		await expect(refreshHeldWindow(client, key, 'c1')).resolves.toEqual({ replaced: 2, next: null });
+		expect(mockMessages.mock.calls.map((call) => call[1])).toEqual([{ around: 'm1' }, { after: 'm2' }]);
+		expect(client.getQueryData<ChatMessagesCache>(key)?.messages.map((m) => [m.id, m.body])).toEqual([
+			['m1', 'one'],
+			['m3', 'three, edited']
+		]);
+	});
+});
+
 describe('refreshHeldMessage', () => {
 	const key = queryKeys.chat.messages('ten', 'c1');
 
