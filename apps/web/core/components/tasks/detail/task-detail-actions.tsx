@@ -6,6 +6,7 @@ import {
 	Calendar,
 	ChevronDown,
 	ChevronUp,
+	Comment,
 	Copy,
 	Link as LinkIcon,
 	MoreHorizontal,
@@ -22,6 +23,7 @@ import {
 } from '@/core/components/common/dropdown-menu';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/core/components/common/tooltip';
 import { CreateDailyPlanFormModal } from '@/core/components/features/daily-plan/create-daily-plan-form-modal';
+import { SendTaskToChatDialog } from '@/core/components/pages/chat/send-task-to-chat-dialog';
 import { TaskCardTimerButton, TaskTimerController } from '@/core/components/tasks/task-card';
 import { usePlanTaskForDay } from '@/core/hooks/daily-plans/use-plan-task-for-day';
 import { useUserQuery } from '@/core/hooks/queries/user-user.query';
@@ -31,6 +33,7 @@ import { useTaskPagerKeys } from '@/core/hooks/tasks/use-task-pager-keys';
 import { useTaskSelfAssignment } from '@/core/hooks/tasks/use-task-self-assignment';
 import { useTaskStatusesQuery } from '@/core/hooks/tasks/use-task-statuses-query';
 import { cn } from '@/core/lib/helpers';
+import { isChatEnabled } from '@/core/lib/utils/chat-enabled';
 import { EDailyPlanMode } from '@/core/types/generics/enums/daily-plan';
 import type { TTask } from '@/core/types/schemas/task/task.schema';
 import { DETAIL_ICON_ACTION } from './task-detail-recipes';
@@ -200,7 +203,11 @@ export function TaskDetailTimerButton({ task }: Readonly<{ task: TTask }>) {
 	);
 }
 
-function TaskDetailMenuItems({ task, onPlanSomeDay }: Readonly<{ task: TTask; onPlanSomeDay: () => void }>) {
+function TaskDetailMenuItems({
+	task,
+	onPlanSomeDay,
+	onSendToChat
+}: Readonly<{ task: TTask; onPlanSomeDay: () => void; onSendToChat: (() => void) | null }>) {
 	const t = useTranslations();
 	const { data: user } = useUserQuery();
 	const { copyText, copyTaskLink, copyTaskId, makeCopy } = useTaskMenuActions();
@@ -233,6 +240,12 @@ function TaskDetailMenuItems({ task, onPlanSomeDay }: Readonly<{ task: TTask; on
 				<Copy />
 				{t('taskDetail.header.COPY_ID')}
 			</DropdownMenuItem>
+			{onSendToChat && (
+				<DropdownMenuItem onClick={onSendToChat}>
+					<Comment />
+					{t('teamChat.SEND_TO_CHAT')}
+				</DropdownMenuItem>
+			)}
 			<DropdownMenuSeparator />
 			<DropdownMenuItem onClick={() => planTaskForDay('today', task.id, employeeId)}>
 				<Calendar />
@@ -273,7 +286,9 @@ export function TaskDetailActionsMenu({ task }: Readonly<{ task: TTask }>) {
 	const { data: user } = useUserQuery();
 	const [isOpen, setIsOpen] = useState(false);
 	const [isPlanning, setIsPlanning] = useState(false);
+	const [isSendingToChat, setIsSendingToChat] = useState(false);
 	const employeeId = user?.employee?.id ?? user?.employeeId ?? '';
+	const chatEnabled = isChatEnabled();
 	return (
 		<>
 			<DropdownMenu open={isOpen} onOpenChange={setIsOpen}>
@@ -281,7 +296,13 @@ export function TaskDetailActionsMenu({ task }: Readonly<{ task: TTask }>) {
 					<MoreHorizontal aria-hidden="true" />
 				</DropdownMenuTrigger>
 				<DropdownMenuContent align="end" className="w-60">
-					{isOpen && <TaskDetailMenuItems task={task} onPlanSomeDay={() => setIsPlanning(true)} />}
+					{isOpen && (
+						<TaskDetailMenuItems
+							task={task}
+							onPlanSomeDay={() => setIsPlanning(true)}
+							onSendToChat={chatEnabled ? () => setIsSendingToChat(true) : null}
+						/>
+					)}
 				</DropdownMenuContent>
 			</DropdownMenu>
 			{isPlanning && (
@@ -294,6 +315,7 @@ export function TaskDetailActionsMenu({ task }: Readonly<{ task: TTask }>) {
 					chooseMember={true}
 				/>
 			)}
+			{isSendingToChat && <SendTaskToChatDialog task={task} onClose={() => setIsSendingToChat(false)} />}
 		</>
 	);
 }

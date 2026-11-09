@@ -69,6 +69,8 @@ export const organizationProjectBaseSchema = z
 		billingFlat: z.boolean().optional().nullable(),
 		openSource: z.boolean().optional().nullable(),
 		projectUrl: z.string().optional().nullable(),
+		// The key the project's tasks are addressed by (`WEB-42`): unique in the organization, editable by managers.
+		taskKey: z.string().optional().nullable(),
 		openSourceProjectUrl: z.string().optional().nullable(),
 		budget: z.coerce.number().optional(),
 		budgetType: z.nativeEnum(EProjectBudgetType).optional(),
@@ -108,6 +110,7 @@ export const createProjectRequestSchema = organizationProjectBaseSchema
 		organizationId: true,
 		tenantId: true,
 		projectUrl: true,
+		taskKey: true,
 		description: true,
 		color: true,
 		tags: true,

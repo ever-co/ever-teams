@@ -1,4 +1,11 @@
 import * as React from 'react';
+import { useTaskViewsQuery } from '@/core/hooks/task-views/use-task-views-query';
+import { isTaskViewsEnabled } from '@/core/lib/utils/task-views-enabled';
+import { builtInViewLabelKey } from '@/core/components/pages/teams/team/tasks/views/views-page';
+import { TASK_BUILT_IN_VIEWS } from '@/core/types/interfaces/common/task-views';
+
+/** The saved views the sidebar lists (the first in sidebar order); All views has every one of them. */
+const SIDEBAR_SAVED_VIEWS_MAX = 8;
 import {
 	Bot,
 	Calendar,
@@ -7,6 +14,7 @@ import {
 	Dashboard,
 	Folder,
 	Home,
+	FileText,
 	Inbox,
 	LayoutGrid,
 	Archive,
@@ -14,7 +22,9 @@ import {
 	Spinner,
 	Star,
 	Task,
-	X
+	X,
+	Layers,
+	MessageSquare
 } from '@/core/components/icons/hugeicons';
 
 import {
@@ -81,22 +91,21 @@ import { GlobalAssignTaskModal } from '../features/tasks/global-assign-task-moda
 import { GlobalProjectActionModal } from '../features/projects/global-project-action-modal';
 import { useSidebarDataOwner } from '@/core/hooks/bootstrap/use-feature-data';
 import { getMyWorkNavigation } from './my-work-navigation';
-import { readRuntimeEnv } from '@/env-config';
+import { isInboxEnabled } from '@/core/lib/utils/inbox-enabled';
+import { isChatEnabled } from '@/core/lib/utils/chat-enabled';
 import { CommandPaletteTrigger } from './default-layout/header/command-palette-trigger';
 import { DefaultCreateAction } from '../features/layouts/header/create-default-action';
 import { SettingsNav } from '../settings/kit/settings-nav';
 import { isSettingsPath } from '../settings/kit/settings-entries';
 import { useRememberAppPath } from '@/core/hooks/common/use-remember-app-path';
+import { isDocsEnabled } from '@/core/lib/utils/docs-enabled';
+import { useDocsAvailability } from '@/core/hooks/docs/use-docs-availability';
 
 type AppSidebarProps = React.ComponentProps<typeof Sidebar> & { publicTeam: boolean | undefined };
 
 // Limit to 5 projects for sidebar display
 const MAX_SIDEBAR_PROJECTS = 5;
 
-function isInboxEnabled() {
-	const runtimeFlag = readRuntimeEnv('NEXT_PUBLIC_INBOX_ENABLED') || process.env.NEXT_PUBLIC_INBOX_ENABLED;
-	return runtimeFlag === 'true';
-}
 
 /**
  * The sidebar sits on the window background (variant `inset`): the pages render in the rounded panel
@@ -108,6 +117,10 @@ export function AppSidebar({ publicTeam, ...props }: AppSidebarProps) {
 	const username = user?.name || user?.firstName || user?.lastName || user?.username;
 
 	const isTeamManager = useAtomValue(isTeamManagerState);
+	// The Docs entry needs the flag and a platform that serves documents (one shared probe per page load).
+	const docsAvailability = useDocsAvailability(isDocsEnabled());
+	// The saved views of the team, listed under Views when the feature is on (an empty list otherwise).
+	const { views: savedViews } = useTaskViewsQuery();
 	const { currentEmployeeFavorites } = useFavoritesQuery();
 	const tasks = useAtomValue(tasksByTeamState);
 	const { isOpen, closeModal } = useModal();
@@ -194,11 +207,29 @@ export function AppSidebar({ publicTeam, ...props }: AppSidebarProps) {
 		};
 		// /inbox has no page yet (404 for every user who clicks it). Gated, not removed: flip
 		// NEXT_PUBLIC_INBOX_ENABLED=true when the route ships (read at runtime: no rebuild of the image).
-		if (isInboxEnabled()) {
-			return [homeEntry, inboxEntry, calendarEntry];
-		}
-		return [homeEntry, calendarEntry];
-	}, [t]);
+		// The team chat ships behind NEXT_PUBLIC_CHAT_ENABLED (read at runtime); the assistant keeps its own row.
+		const chatEntry = {
+			title: t('teamChat.TITLE'),
+			url: '/chat',
+			selectable: true,
+			icon: MessageSquare,
+			label: 'chat'
+		};
+		// Docs ships behind NEXT_PUBLIC_DOCS_ENABLED (read at runtime), after the inbox and before the calendar.
+		const docsEntry = {
+			title: t('docs.TITLE'),
+			url: '/docs',
+			selectable: true,
+			icon: FileText,
+			label: 'docs'
+		};
+		const entries = [homeEntry];
+		if (isInboxEnabled()) entries.push(inboxEntry);
+		if (isChatEnabled()) entries.push(chatEntry);
+		if (isDocsEnabled() && docsAvailability !== 'unavailable') entries.push(docsEntry);
+		entries.push(calendarEntry);
+		return entries;
+	}, [docsAvailability, t]);
 
 	const navMain = useMemo(() => {
 		const favoriteItems = hasFavoriteTasks
@@ -360,6 +391,30 @@ export function AppSidebar({ publicTeam, ...props }: AppSidebarProps) {
 					}
 				]
 			},
+			...(isTaskViewsEnabled()
+				? [
+						{
+							title: t('taskViews.TITLE'),
+							url: '/views',
+							selectable: false,
+							icon: Layers,
+							label: 'views',
+							items: [
+								...TASK_BUILT_IN_VIEWS.map((key) => ({
+									title: t(builtInViewLabelKey(key)),
+									url: `/views/${key}`,
+									label: `view-${key}`
+								})),
+								...savedViews.slice(0, SIDEBAR_SAVED_VIEWS_MAX).map((savedView) => ({
+									title: savedView.name,
+									url: `/views/${savedView.id}`,
+									label: `view-${savedView.id}`
+								})),
+								{ title: t('taskViews.ALL_VIEWS'), url: '/views', label: 'all-views' }
+							]
+						}
+					]
+				: []),
 			{
 				title: t('sidebar.PROJECTS'),
 				url: '/projects',
@@ -406,7 +461,8 @@ export function AppSidebar({ publicTeam, ...props }: AppSidebarProps) {
 		encodedUsername,
 		myWorkNavigation.timeAndActivity,
 		myWorkNavigation.workDiary,
-		isTeamManager
+		isTeamManager,
+		savedViews
 	]);
 
 	const showsSettingsNav = isSettingsPath(stripLocalePrefix(pathname ?? ''));

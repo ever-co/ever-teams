@@ -5,11 +5,11 @@ import { ISigninEmailConfirmWorkspaces } from '@/core/types/interfaces/auth/auth
 import { useCallback, useRef, useState } from 'react';
 import { useQueryCall } from '../common/use-query';
 import { AxiosError, isAxiosError } from 'axios';
-import { useRouter } from 'next/navigation';
 import { authService } from '@/core/services/client/api/auth/auth.service';
 import { IOrganizationTeam } from '@/core/types/interfaces/team/organization-team';
 import { ApiErrorService } from '@/core/services/client/api-error.service';
 import { findMostRecentWorkspace } from '@/core/lib/utils/date-comparison.utils';
+import { navigateAfterSignIn } from '@/core/lib/auth/navigate-after-sign-in';
 
 type AuthCodeRef = {
 	focus: () => void;
@@ -17,8 +17,6 @@ type AuthCodeRef = {
 };
 
 export function useAuthenticationPassword() {
-	const router = useRouter();
-
 	const inputCodeRef = useRef<AuthCodeRef | null>(null);
 
 	const [screen, setScreen] = useState<'login' | 'workspace'>('login');
@@ -106,7 +104,7 @@ export function useAuthenticationPassword() {
 					setAuthenticated(true);
 					// Reset infinite loading before navigation to ensure clean state
 					infiniteLoading.current = false;
-					router.push('/');
+					navigateAfterSignIn();
 				})
 				.catch((err: AxiosError) => {
 					// Reset infinite loading on error to stop the loading state
@@ -119,7 +117,7 @@ export function useAuthenticationPassword() {
 					onError?.(err);
 				});
 		},
-		[signInWorkspaceQueryCall, router, infiniteLoading]
+		[signInWorkspaceQueryCall, infiniteLoading]
 	);
 
 	const handleWorkspaceSubmit = (e: any, token: string, selectedTeam: string, onError?: (error: unknown) => void) => {

@@ -135,3 +135,20 @@ describe('ActivityService.getDailyActivities', () => {
 		await expect(activityService.getDailyActivities(dailyRequest('SITE'))).rejects.toThrow();
 	});
 });
+
+describe('ActivityService.getActivitiesReport', () => {
+	it('asks for the lean shape of the report', async () => {
+		const get = mockDailyRows([]);
+		await activityService.getActivitiesReport({
+			organizationId: 'organization-1',
+			tenantId: 'tenant-1',
+			startDate: '2026-10-25T00:00:00.000Z',
+			endDate: '2026-10-25T23:59:59.999Z',
+			groupBy: 'date'
+		});
+		const url = requestedUrl(get);
+		expect(url.pathname.endsWith('/timesheet/activity/report')).toBe(true);
+		expect(url.searchParams.get('shape')).toBe('lean');
+		expect(url.searchParams.get('groupBy')).toBe('date');
+	});
+});

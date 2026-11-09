@@ -8,6 +8,7 @@ jest.mock('@/core/lib/auth/disconnect-logger', () => ({ logDisconnection: jest.f
 
 import { DisconnectionReason } from '@/core/types/enums/disconnection-reason';
 import { handleUnauthorized, resetUnauthorizedHandler } from './handle-unauthorized';
+import { onSignOut } from './sign-out-cleanups';
 
 const originalLocation = window.location;
 
@@ -37,6 +38,17 @@ describe('handleUnauthorized when the session has ended', () => {
 
 		expect(mockRemoveAuthCookies).toHaveBeenCalled();
 		expect(assign).toHaveBeenCalled();
+	});
+
+	it('runs the sign-out cleanups of the features (unsaved Docs text) when the session is ended for the person', async () => {
+		openPage('/docs/page-1');
+		const cleanup = jest.fn();
+		const remove = onSignOut(cleanup);
+
+		await handleUnauthorized(DisconnectionReason.REFRESH_TOKEN_EXPIRED);
+
+		expect(cleanup).toHaveBeenCalledTimes(1);
+		remove();
 	});
 
 	it.each(['/auth/reset-password', '/fr/auth/forgot-password'])(

@@ -21,6 +21,7 @@ import {
 	NotificationFilter
 } from '@/core/lib/utils/notification-inbox';
 import { NOTIFICATION_INBOX_PAGE_SIZE } from '@/core/services/client/api/notifications';
+import { isInboxEnabled } from '@/core/lib/utils/inbox-enabled';
 import { TTask } from '@/core/types/schemas/task/task.schema';
 import { NotificationRow, NotificationTaskContext } from './notification-row';
 import { NotificationEmptyState, NotificationErrorState, NotificationRowsSkeleton } from './notification-states';
@@ -227,11 +228,18 @@ export function NotificationPanel({ onClose, unreadCount }: Readonly<{ onClose: 
 				<span className="text-xs tabular-nums text-muted-foreground">
 					{t('notifications.UNREAD_COUNT', { count: unreadCount })}
 				</span>
+				{isInboxEnabled() && (
+					<Button asChild variant="ghost" size="sm" className="ml-auto text-muted-foreground">
+						<Link href="/inbox" onClick={onClose}>
+							{t('inbox.OPEN_PAGE')}
+						</Link>
+					</Button>
+				)}
 				<Button
 					asChild
 					variant="ghost"
 					size="icon-sm"
-					className="ml-auto text-muted-foreground"
+					className={isInboxEnabled() ? 'text-muted-foreground' : 'ml-auto text-muted-foreground'}
 					aria-label={t('notifications.SETTINGS')}
 					title={t('notifications.SETTINGS')}
 				>

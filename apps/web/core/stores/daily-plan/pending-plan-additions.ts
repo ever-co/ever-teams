@@ -8,6 +8,11 @@ export interface PendingPlanAddition {
 	task: TTask | null;
 	/** Null while the request may also create the day's plan. */
 	planId: string | null;
+	/**
+	 * The id of the plan a creating request answered, once it has; the addition then matches that plan by id while
+	 * it still counts as creating the day (`planId` stays null), so the day's placeholder stays until the plan lands.
+	 */
+	createdPlanId?: string | null;
 	/** `YYYY-MM-DD`, as `getDailyPlanDay` writes plan days. */
 	day: string | null;
 	employeeId: string | null;

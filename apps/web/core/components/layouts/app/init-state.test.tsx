@@ -37,13 +37,18 @@ let timerSuccess = false;
 let plansSuccess = false;
 let rawTimerRunning = false;
 let accessToken = 'token-1';
-// Mounted team views (teamPresenceViewCountState), the only atom InitState reads. A real jotai read subscribes on mount
-// and makes React call the component once more before bailing out, which the render counts below would see.
+// The atoms InitState reads: the live channel's status and the mounted team views (teamPresenceViewCountState; the
+// active team reads it too and finds no organization in a number). A real jotai read subscribes on mount and makes
+// React call the component once more before bailing out, which the render counts below would see.
 let teamPresenceViewCount = 0;
+let realtimeStatus = 'off';
 
 jest.mock('jotai', () => ({
 	...jest.requireActual('jotai'),
-	useAtomValue: () => teamPresenceViewCount
+	useAtomValue: (atom: unknown) =>
+		atom === jest.requireActual('@/core/stores/common/realtime').realtimeStatusAtom
+			? realtimeStatus
+			: teamPresenceViewCount
 }));
 
 jest.mock('@tanstack/react-query', () => ({
@@ -145,6 +150,7 @@ function resetState() {
 	rawTimerRunning = false;
 	accessToken = 'token-1';
 	teamPresenceViewCount = 0;
+	realtimeStatus = 'off';
 	mockCredentialQueries = [];
 	jest.clearAllMocks();
 	mockCancelQueries.mockResolvedValue(undefined);
@@ -254,6 +260,29 @@ describe('InitState dependency DAG', () => {
 		render(<InitState />);
 		expect(calls.teams).toHaveBeenLastCalledWith(
 			expect.objectContaining({ detailRefetchInterval: 25_000, detailRefetchOnWindowFocus: true })
+		);
+	});
+
+	it('steps the team view down to the minute while the live channel is connected, and back up when it drops', () => {
+		resolveWorkspace();
+		resolveTeam();
+		teamPresenceViewCount = 1;
+		realtimeStatus = 'connected';
+		const view = render(<InitState />);
+		expect(calls.teams).toHaveBeenLastCalledWith(
+			expect.objectContaining({ detailRefetchInterval: 60_000, detailRefetchOnWindowFocus: true })
+		);
+
+		realtimeStatus = 'reconnecting';
+		view.rerender(<InitState />);
+		expect(calls.teams).toHaveBeenLastCalledWith(
+			expect.objectContaining({ detailRefetchInterval: 25_000, detailRefetchOnWindowFocus: true })
+		);
+
+		realtimeStatus = 'connected';
+		view.rerender(<InitState />);
+		expect(calls.teams).toHaveBeenLastCalledWith(
+			expect.objectContaining({ detailRefetchInterval: 60_000, detailRefetchOnWindowFocus: true })
 		);
 	});
 

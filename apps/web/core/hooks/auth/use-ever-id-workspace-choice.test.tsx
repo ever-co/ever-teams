@@ -9,12 +9,14 @@
  */
 import { act, renderHook } from '@testing-library/react';
 
-const mockPush = jest.fn();
+const mockNavigateAfterSignIn = jest.fn();
 const mockSignOut = jest.fn();
 const mockSignInFunction = jest.fn();
 const mockFinishSetup = jest.fn();
 
-jest.mock('next/navigation', () => ({ useRouter: () => ({ push: mockPush }) }));
+jest.mock('@/core/lib/auth/navigate-after-sign-in', () => ({
+	navigateAfterSignIn: () => mockNavigateAfterSignIn()
+}));
 jest.mock('next-auth/react', () => ({ signOut: (...args: unknown[]) => mockSignOut(...args) }));
 // A server action: the real module imports next-auth, which only runs on the server.
 jest.mock('@/core/lib/helpers/social-logins', () => ({
@@ -99,7 +101,7 @@ describe('useEverIdWorkspaceChoice', () => {
 
 		expect(mockFinishSetup).toHaveBeenCalledWith(1, 'Europe/Paris');
 		expect(mockSignOut).toHaveBeenCalledWith({ redirect: false });
-		expect(mockPush).toHaveBeenCalledWith('/');
+		expect(mockNavigateAfterSignIn).toHaveBeenCalledTimes(1);
 		expect(signInUsually).not.toHaveBeenCalled();
 		// Still busy while the app opens.
 		expect(result.current.setupRunning).toBe(true);
@@ -115,7 +117,7 @@ describe('useEverIdWorkspaceChoice', () => {
 		await settle();
 
 		expect(mockSignInFunction).toHaveBeenCalledWith({ id: 'ever-id' });
-		expect(mockPush).not.toHaveBeenCalled();
+		expect(mockNavigateAfterSignIn).not.toHaveBeenCalled();
 		expect(result.current.setupRunning).toBe(false);
 	});
 
@@ -149,7 +151,7 @@ describe('useEverIdWorkspaceChoice', () => {
 		await settle();
 
 		expect(result.current.setupRunning).toBe(false);
-		expect(mockPush).not.toHaveBeenCalled();
+		expect(mockNavigateAfterSignIn).not.toHaveBeenCalled();
 		expect(mockSignInFunction).not.toHaveBeenCalled();
 		expect(signInUsually).not.toHaveBeenCalled();
 	});
@@ -167,7 +169,7 @@ describe('useEverIdWorkspaceChoice', () => {
 		await settle();
 
 		expect(mockFinishSetup).toHaveBeenCalledWith(0, 'Europe/Paris');
-		expect(mockPush).toHaveBeenCalledWith('/');
+		expect(mockNavigateAfterSignIn).toHaveBeenCalledTimes(1);
 	});
 
 	it('stops when that setup finds nothing to do (409), without a second usual sign-in', async () => {

@@ -8,6 +8,7 @@ import { usePathname } from 'next/navigation';
 import { APP_NAME } from '@/core/constants/config/constants';
 import { pathCarriesItsOwnTimer } from './timer-paths';
 import GlobalHeader from './global-header';
+import { DemoBanner } from './demo-banner';
 import { PageContentScroller } from './page-content-scroller';
 
 type PageLayoutProps = PropsWithChildren<{
@@ -88,6 +89,8 @@ export function PageLayout({
 
 	return (
 		<div className="flex h-full min-h-0 w-full flex-col overflow-clip">
+			{/* Outside headerRef: the strip must not count towards the header height the timer logic measures. */}
+			<DemoBanner />
 			<GlobalHeader
 				ref={headerRef}
 				showTimer={headerShowsTimer}

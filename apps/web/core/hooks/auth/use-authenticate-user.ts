@@ -1,6 +1,7 @@
 'use client';
 import { DEFAULT_APP_PATH, LAST_WORKSPACE_AND_TEAM } from '@/core/constants/config/constants';
 import { removeAuthCookies } from '@/core/lib/helpers/cookies';
+import { forgetThisBrowserPush } from '@/core/hooks/inbox/use-inbox-web-push';
 import { handleUnauthorized, registerRefreshTokenCallback } from '@/core/lib/auth/handle-unauthorized';
 import { DisconnectionReason } from '@/core/types/enums/disconnection-reason';
 import { logDisconnection } from '@/core/lib/auth/disconnect-logger';
@@ -26,6 +27,7 @@ import { UseAuthenticateUserResult } from '@/core/types/interfaces/user/user';
 import { useUserQuery } from '../queries/user-user.query';
 import { logErrorInDev, logInDev } from '@/core/lib/helpers/error-message';
 import { clearChatHistoryForUser } from '@/core/components/features/chat-panel/chat-history';
+import { runSignOutCleanups } from '@/core/lib/auth/sign-out-cleanups';
 import { rememberTeam } from '@/core/lib/auth/remembered-team';
 
 export const useAuthenticateUser = (defaultUser?: TUser): UseAuthenticateUserResult => {
@@ -170,6 +172,8 @@ export const useAuthenticateUser = (defaultUser?: TUser): UseAuthenticateUserRes
 		}
 		rememberTeam(user?.email, activeTeam?.id);
 		clearChatHistoryForUser(user?.id);
+		// What the features keep of this account in memory (unsaved Docs text) goes with the session.
+		runSignOutCleanups();
 
 		// A TEAMS timer left running would keep counting after logout: stop it while the session still
 		// exists, without letting a failed or slow request hold the logout back. Past the server's midnight
@@ -187,6 +191,9 @@ export const useAuthenticateUser = (defaultUser?: TUser): UseAuthenticateUserRes
 				.catch((error) => logErrorInDev('[Auth] Timer stop before logout failed:', error));
 			await Promise.race([stopTimer, new Promise((resolve) => window.setTimeout(resolve, 3000))]);
 		}
+
+		// This browser stops receiving the person's inbox notifications (a shared browser), bounded like the timer stop.
+		await Promise.race([forgetThisBrowserPush(), new Promise((resolve) => window.setTimeout(resolve, 3000))]);
 
 		removeAuthCookies();
 		queryClient.clear();

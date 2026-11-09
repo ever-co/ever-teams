@@ -6,6 +6,7 @@ export * from './tenant';
 export * from './timer';
 export * from './tasks';
 export * from './daily-plan';
+export * from './response-shape';
 export * from './employee';
 export * from './invite';
 export * from './timesheet';

@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useAtomValue } from 'jotai';
 import { activeTeamState, tasksByTeamState } from '@/core/stores';
 import { useLocalStorageState } from '@/core/hooks/common/use-local-storage-state';
@@ -35,6 +35,7 @@ import {
 	viewSettingsFromStorage,
 	withToggledProperty
 } from '@/core/lib/utils/team-tasks-view-storage';
+import type { ITaskViewDefinition } from '@/core/types/interfaces/common/task-views';
 import type { TOrganizationTeamEmployee } from '@/core/types/schemas';
 import type { TTask } from '@/core/types/schemas/task/task.schema';
 
@@ -43,6 +44,16 @@ const SCOPE_STORAGE_KEY = 'team-tasks-scope';
 const COLLAPSED_STORAGE_KEY = 'team-tasks-collapsed-groups';
 
 const NO_FILTERS: TeamTasksFilters = {};
+
+/** How the page is opened: on the team's tasks with the device's view, or on a saved / built-in view. */
+interface TeamTasksViewOptions {
+	/** A saved or built-in view: the page starts from this definition and keeps its changes in memory, not on the device. */
+	initial?: ITaskViewDefinition;
+	/** What names the view opened (its id, a built-in key): the page starts again from `initial` when it changes, and only then. */
+	resetKey?: string;
+	/** The tasks to list instead of the team's (a built-in view's, computed by the platform). */
+	tasks?: TTask[];
+}
 
 function memberEntriesOf(members: TOrganizationTeamEmployee[] | null | undefined) {
 	const entries: [string, string][] = [];
@@ -93,11 +104,13 @@ function withIds(ids: ReadonlySet<string>, changed: string[], isSelected: boolea
 
 /**
  * The Team tasks page's single source: the team's tasks narrowed by the scope, the search and the filters, grouped
- * and ordered by the saved view, flattened into the rows the virtual list renders, plus the selection. The view,
- * the scope and the folded groups are remembered on this device.
+ * and ordered by the view, flattened into the rows the virtual list renders, plus the selection. On the team's
+ * tasks the view, the scope and the folded groups are remembered on this device; on a saved or built-in view
+ * (`options.initial`) the page starts from the view and keeps its changes in memory until they are saved.
  */
-export function useTeamTasksView() {
-	const tasks = useAtomValue(tasksByTeamState);
+export function useTeamTasksView(options: TeamTasksViewOptions = {}) {
+	const teamTasks = useAtomValue(tasksByTeamState);
+	const tasks = options.tasks ?? teamTasks;
 	const activeTeam = useAtomValue(activeTeamState);
 	const {
 		taskStatuses,
@@ -108,16 +121,47 @@ export function useTeamTasksView() {
 	const priorityValueMap = useTaskPrioritiesValue();
 	const { organizationProjects } = useOrganizationProjectsQuery();
 
+	const initial = options.initial;
+	const isDetached = initial !== undefined;
+	// Without a reset key the definition itself is the key (a refetched view then re-seeds; with one, it does not).
+	const initialKey = options.resetKey ?? JSON.stringify(initial ?? null);
+	// The latest `initial`, written after commit (never during a render React may discard), before the reset
+	// effect below reads it: effects run in declaration order.
+	const initialRef = useRef(initial);
+	useEffect(() => {
+		initialRef.current = initial;
+	});
+
 	const [storedView, setStoredView] = useLocalStorageState<unknown>(VIEW_STORAGE_KEY, DEFAULT_TEAM_TASKS_VIEW);
 	const [storedScope, setStoredScope] = useLocalStorageState<unknown>(SCOPE_STORAGE_KEY, 'active');
 	const [storedCollapsed, setStoredCollapsed] = useLocalStorageState<unknown>(COLLAPSED_STORAGE_KEY, []);
-	const [search, setSearch] = useState('');
-	const [filters, setFilters] = useState<TeamTasksFilters>(NO_FILTERS);
+	// A saved or built-in view: its state lives here, seeded from the view, never on this device.
+	const [memoryView, setMemoryView] = useState<TeamTasksViewSettings>(() => initial?.settings ?? DEFAULT_TEAM_TASKS_VIEW);
+	const [memoryScope, setMemoryScope] = useState<TeamTasksScope>(() => initial?.scope ?? 'active');
+	const [search, setSearch] = useState(() => initial?.search ?? '');
+	const [filters, setFilters] = useState<TeamTasksFilters>(() => initial?.filters ?? NO_FILTERS);
 	const [selectedIds, setSelectedIds] = useState<ReadonlySet<string>>(() => new Set());
 	const [anchorId, setAnchorId] = useState<string | null>(null);
 
-	const settings = useMemo(() => viewSettingsFromStorage(storedView), [storedView]);
-	const scope = scopeFromStorage(storedScope);
+	// Another view opened in the same page: start again from it.
+	useEffect(() => {
+		const next = initialRef.current;
+		if (!next || !initialKey) {
+			return;
+		}
+		setMemoryView(next.settings);
+		setMemoryScope(next.scope);
+		setFilters(next.filters);
+		setSearch(next.search ?? '');
+		setSelectedIds(new Set());
+		setAnchorId(null);
+	}, [initialKey]);
+
+	const settings = useMemo(
+		() => (isDetached ? memoryView : viewSettingsFromStorage(storedView)),
+		[isDetached, memoryView, storedView]
+	);
+	const scope = isDetached ? memoryScope : scopeFromStorage(storedScope);
 	const collapsedKeys = useMemo(() => new Set(collapsedKeysFromStorage(storedCollapsed)), [storedCollapsed]);
 
 	const statuses = useMemo(() => sortStatusesByOrder(taskStatuses), [taskStatuses]);
@@ -205,12 +249,25 @@ export function useTeamTasksView() {
 
 	const updateView = useCallback(
 		(change: (current: TeamTasksViewSettings) => TeamTasksViewSettings) => {
+			if (isDetached) {
+				setMemoryView((current) => change(current));
+				return;
+			}
 			setStoredView((current: unknown) => change(viewSettingsFromStorage(current)));
 		},
-		[setStoredView]
+		[isDetached, setStoredView]
 	);
 
-	const setScope = useCallback((next: TeamTasksScope) => setStoredScope(next), [setStoredScope]);
+	const setScope = useCallback(
+		(next: TeamTasksScope) => {
+			if (isDetached) {
+				setMemoryScope(next);
+				return;
+			}
+			setStoredScope(next);
+		},
+		[isDetached, setStoredScope]
+	);
 
 	const setGrouping = useCallback(
 		(grouping: TeamTasksGrouping) => updateView((current) => ({ ...current, grouping })),
@@ -236,7 +293,13 @@ export function useTeamTasksView() {
 		(showsEmptyGroups: boolean) => updateView((current) => ({ ...current, showsEmptyGroups })),
 		[updateView]
 	);
-	const resetView = useCallback(() => setStoredView(DEFAULT_TEAM_TASKS_VIEW), [setStoredView]);
+	const resetView = useCallback(() => {
+		if (isDetached) {
+			setMemoryView(initial?.settings ?? DEFAULT_TEAM_TASKS_VIEW);
+			return;
+		}
+		setStoredView(DEFAULT_TEAM_TASKS_VIEW);
+	}, [initial?.settings, isDetached, setStoredView]);
 
 	const setFilter = useCallback((field: TeamTasksFilterField, values: string[]) => {
 		setFilters((current) => ({ ...current, [field]: values }));
@@ -246,6 +309,27 @@ export function useTeamTasksView() {
 		setFilters(NO_FILTERS);
 		setSearch('');
 	}, []);
+
+	/** What the page shows now, as a view would save it. */
+	const definition = useMemo<ITaskViewDefinition>(
+		() => ({ settings, filters, scope, search }),
+		[filters, scope, search, settings]
+	);
+	/** Puts a view's definition in place (a reload after someone else saved it, for one). */
+	const applyDefinition = useCallback(
+		(next: ITaskViewDefinition) => {
+			if (isDetached) {
+				setMemoryView(next.settings);
+				setMemoryScope(next.scope);
+			} else {
+				setStoredView(next.settings);
+				setStoredScope(next.scope);
+			}
+			setFilters(next.filters);
+			setSearch(next.search ?? '');
+		},
+		[isDetached, setStoredScope, setStoredView]
+	);
 
 	const toggleGroup = useCallback(
 		(key: string) => {
@@ -296,6 +380,9 @@ export function useTeamTasksView() {
 		refetchStatuses,
 		settings,
 		isDefaultView: isDefaultView(settings),
+		isDetached,
+		definition,
+		applyDefinition,
 		scope,
 		scopeCounts,
 		search,

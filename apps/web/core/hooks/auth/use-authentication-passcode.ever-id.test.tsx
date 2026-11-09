@@ -9,8 +9,7 @@
  */
 import { act, renderHook } from '@testing-library/react';
 
-const mockReplace = jest.fn();
-const mockPush = jest.fn();
+const mockNavigateAfterSignIn = jest.fn();
 const mockConfirmLink = jest.fn();
 const mockEmailConfirm = jest.fn();
 const mockSignInWorkspace = jest.fn();
@@ -18,9 +17,11 @@ const mockSignInFunction = jest.fn();
 let mockQuery = 'ever_id=confirm';
 
 jest.mock('next/navigation', () => ({
-	useRouter: () => ({ replace: mockReplace, push: mockPush }),
 	useSearchParams: () => new URLSearchParams(mockQuery),
 	usePathname: () => '/auth/passcode'
+}));
+jest.mock('@/core/lib/auth/navigate-after-sign-in', () => ({
+	navigateAfterSignIn: () => mockNavigateAfterSignIn()
 }));
 jest.mock('next-intl', () => ({ useTranslations: () => (key: string) => key }));
 jest.mock('@/core/services/client/api/auth/auth.service', () => ({
@@ -111,8 +112,7 @@ describe('useAuthenticationPasscode in Ever ID mode', () => {
 		// The workspace sign-in that follows needs the address: it comes from the answer, not from the URL.
 		expect(result.current.formValues.email).toBe('person@example.test');
 		// The chooser stays on this page: nothing navigates away.
-		expect(mockReplace).not.toHaveBeenCalled();
-		expect(mockPush).not.toHaveBeenCalled();
+		expect(mockNavigateAfterSignIn).not.toHaveBeenCalled();
 	});
 
 	it('ends the Ever ID step once the code is accepted: no marker in the URL, no code kept, e-mail codes again', async () => {
@@ -158,8 +158,7 @@ describe('useAuthenticationPasscode in Ever ID mode', () => {
 		expect(result.current.errors).toEqual({ code: message });
 		expect(result.current.authScreen.screen).toBe('passcode');
 		expect(result.current.everIdConfirm).toBe(true);
-		expect(mockReplace).not.toHaveBeenCalled();
-		expect(mockPush).not.toHaveBeenCalled();
+		expect(mockNavigateAfterSignIn).not.toHaveBeenCalled();
 	});
 
 	it('uses the team lists of a confirmed link (the chooser then lists the teams)', async () => {
