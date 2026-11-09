@@ -7,6 +7,7 @@ import { logDisconnection } from '@/core/lib/auth/disconnect-logger';
 import { isUnauthorizedError, isRetryableError } from '@/core/lib/auth/retry-logic';
 import { logInDev } from '@/core/lib/helpers/error-message';
 import { isPasswordRecoveryPage } from '@/core/lib/auth/signed-in-auth-paths';
+import { runSignOutCleanups } from '@/core/lib/auth/sign-out-cleanups';
 
 let isHandling401 = false;
 let isRedirecting = false;
@@ -114,8 +115,9 @@ async function performLogout(reason: DisconnectionReason, details?: Record<strin
 	// Log the disconnection
 	logDisconnection(reason, details);
 
-	// 1. Clear all authentication cookies
+	// 1. Clear all authentication cookies, and what the features keep of the person in memory (unsaved Docs text)
 	removeAuthCookies();
+	runSignOutCleanups();
 	// The session ended: this browser stops receiving the person's inbox notifications (the push service then refuses
 	// the platform's next push, and the platform drops the device). Fire and forget.
 	void unsubscribeThisBrowserPush();

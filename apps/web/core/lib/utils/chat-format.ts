@@ -164,19 +164,25 @@ function orderOf(message: IChatMessage): number | undefined {
 	return (message as IChatMessage & { readOrder?: number }).readOrder;
 }
 
+/** The platform's edit time of a copy, 0 for a message never edited. */
+function editTimeOf(message: IChatMessage): number {
+	return message.editedAt ? Date.parse(message.editedAt) : 0;
+}
+
 /**
- * Whether a copy of a message is older than the one held: a deletion is final; between two stamped copies the one
- * from the later read (or write) wins, a reaction or a pin included; and an unstamped copy never undoes an edit
- * (an earlier edit time, or none).
+ * Whether a copy of a message is older than the one held: a deletion is final; the platform's edit time comes next
+ * (a copy from before an edit never undoes it, whenever it arrives: a late answer of a pin or a reaction included);
+ * and between copies with the same edit time (a reaction, a pin) the one from the later read or write wins.
  */
 function isOlderCopy(incoming: IChatMessage, held: IChatMessage): boolean {
 	if (incoming.deletedAt) return false;
 	if (held.deletedAt) return true;
+	const incomingEdit = editTimeOf(incoming);
+	const heldEdit = editTimeOf(held);
+	if (incomingEdit !== heldEdit) return incomingEdit < heldEdit;
 	const incomingOrder = orderOf(incoming);
 	const heldOrder = orderOf(held);
-	if (incomingOrder !== undefined && heldOrder !== undefined) return incomingOrder < heldOrder;
-	if (!held.editedAt) return false;
-	return !incoming.editedAt || Date.parse(incoming.editedAt) < Date.parse(held.editedAt);
+	return incomingOrder !== undefined && heldOrder !== undefined && incomingOrder < heldOrder;
 }
 
 /**

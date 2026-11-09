@@ -6,6 +6,7 @@ import { queryKeys } from '@/core/query/keys';
 import { docsService } from '@/core/services/client/api/docs';
 import { ApiErrorService } from '@/core/services/client/api-error.service';
 import { DOCS_CONTENT_MAX_BYTES, type IDocumentNode, type IDocumentPage } from '@/core/types/interfaces/common/docs';
+import { onSignOut } from '@/core/lib/auth/sign-out-cleanups';
 import { useDocsScope } from './use-docs-scope';
 
 /** The content saves this long after the last keystroke. */
@@ -119,6 +120,9 @@ export function forgetDocsDrafts(): void {
 	syncUnloadGuard();
 }
 
+// Signing out (by the person, or a session that expired) drops every draft of the tab.
+onSignOut(forgetDocsDrafts);
+
 /** Whether clock `a` comes after clock `b` (ISO times; an unreadable one is not taken as later). */
 function isLaterClock(a: string | null | undefined, b: string | null | undefined): boolean {
 	if (!a || !b) return false;
@@ -228,8 +232,9 @@ function settleReload(session: PageSession, shown: Draft | null, clock: string):
 	}
 	session.base = clock;
 	if (typed) {
-		// The page did not change: the text typed meanwhile builds on it, and saves as any other.
-		updateView(session, { state: 'dirty', restoredHtml: null });
+		// The page did not change: the text typed meanwhile builds on it, and saves as any other. The editor keeps the text
+		// it shows (its value stays the same, so it is not replaced over what was typed).
+		updateView(session, { state: 'dirty' });
 		clearSessionTimer(session);
 		session.timer = setTimeout(() => void saveSession(session), DOCS_AUTOSAVE_DELAY_MS);
 		return;
@@ -395,7 +400,8 @@ export function useDocsAutosave(page: IDocumentPage | null) {
 				return;
 			}
 		}
-		if (session.view.state === 'idle' || session.view.state === 'saved') session.base = clock;
+		// Never back: an older answer read after a newer one (a reload overtaken by a save) does not move the clock.
+		if ((session.view.state === 'idle' || session.view.state === 'saved') && !isLaterClock(session.base, clock)) session.base = clock;
 	}, [clock, current]);
 
 	/** The editor changed: keep the draft and save it after the delay. */
@@ -423,16 +429,13 @@ export function useDocsAutosave(page: IDocumentPage | null) {
 		// unload warning), with anything typed meanwhile.
 		const shown = session.draft;
 		const base = session.base;
-		const fresh = await queryClient.fetchQuery({
-			queryKey: queryKeys.docs.page(scope?.tenantId, pageId),
-			queryFn: ({ signal }) => docsService.getPage(pageId, signal),
-			staleTime: 0
-		});
-		if (session.base !== base) {
-			// A save of this tab landed during the read (a Keep Mine): its text and clock are newer than what was read.
-			void queryClient.invalidateQueries({ queryKey: queryKeys.docs.page(scope?.tenantId, pageId) });
-			return;
-		}
+		const fresh = await docsService.getPage(pageId);
+		// The read goes into the cache unless the cache already holds a later version (a Keep Mine saved during the read).
+		queryClient.setQueryData<IDocumentPage>(queryKeys.docs.page(scope?.tenantId, pageId), (cached) =>
+			cached && isLaterClock(cached.updatedAt, fresh.updatedAt) ? cached : fresh
+		);
+		// A save of this tab landed during the read: its text and clock are newer than what was read.
+		if (session.base !== base) return;
 		settleReload(session, shown, fresh.updatedAt);
 	}, [current, pageId, queryClient, scope?.tenantId]);
 
@@ -441,7 +444,8 @@ export function useDocsAutosave(page: IDocumentPage | null) {
 		const session = current();
 		if (!session || !pageId || !session.draft) return;
 		const fresh = await docsService.getPage(pageId);
-		session.base = fresh.updatedAt;
+		// Never back: a read that answers after a later save (two Keep Mine at once) leaves the save's clock.
+		if (!isLaterClock(session.base, fresh.updatedAt)) session.base = fresh.updatedAt;
 		await saveSession(session, { force: true });
 	}, [current, pageId]);
 

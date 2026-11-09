@@ -137,6 +137,18 @@ describe('messages', () => {
 		expect(mergeMessages([deleted], [reacted])[0].deletedAt).toBe('2026-01-01T10:09:00Z');
 	});
 
+	it('lets a newer edit through a late pin or reaction answer: the edit time decides before the order', () => {
+		const plain = message('a', '2026-01-01T10:01:00Z');
+		// An edit read started first; a pin's answer, stamped as it arrived, came in before that read finished.
+		const editRead = nextMessageOrder();
+		const pinned = withMessageOrder([{ ...plain, body: 'first', pinnedAt: '2026-01-01T10:02:00Z' }], nextMessageOrder())[0];
+		const edited = withMessageOrder([{ ...plain, body: 'second', editedAt: '2026-01-01T10:03:00Z', pinnedAt: '2026-01-01T10:02:00Z' }], editRead)[0];
+
+		expect(mergeMessages([pinned], [edited])[0].body).toBe('second');
+		// And the pin's late answer never undoes the edit.
+		expect(mergeMessages([edited], [pinned])[0].body).toBe('second');
+	});
+
 	it('keys a draft by conversation and thread', () => {
 		expect(draftKeyOf('c1')).toBe('chat-draft:c1');
 		expect(draftKeyOf('c1', 'm1')).toBe('chat-draft:c1:m1');
