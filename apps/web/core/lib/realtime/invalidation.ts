@@ -1,6 +1,6 @@
 import type { QueryKey } from '@tanstack/react-query';
 import { queryKeys } from '@/core/query/keys';
-import { hintOf, REALTIME_EVENT_NAMES, RealtimeEnvelope } from './events';
+import { hintOf, RealtimeEnvelope } from './events';
 
 /** The scope the app acts in, for the keys that carry one. */
 export interface RealtimeScope {
@@ -27,9 +27,13 @@ const NOTIFICATION_KEYS: RealtimeInvalidation[] = [
 	{ queryKey: ['notifications', 'inbox'], deferrable: false }
 ];
 
-/** A document's queries: the pages, and the task and project file lists that show linked documents. */
+/**
+ * A document's queries: every Docs query (the page tree, the open page and its path, the trash, the versions, the
+ * search, a project's pages: all under `queryKeys.docs.all`), and the task and project file lists that show linked
+ * documents.
+ */
 const DOCUMENT_KEYS: RealtimeInvalidation[] = [
-	{ queryKey: ['documents'], deferrable: true },
+	{ queryKey: queryKeys.docs.all, deferrable: true },
 	{ queryKey: queryKeys.entityFiles.all, deferrable: true }
 ];
 
@@ -86,7 +90,8 @@ export function invalidationsFor(envelope: RealtimeEnvelope, scope: RealtimeScop
 		case 'chat_thread':
 			return chatInvalidationsOf(family, envelope.data, scope);
 		default:
-			return name === REALTIME_EVENT_NAMES.TYPING_SIGNALLED ? [] : [];
+			// A typing signal, or a family the app has no query for: nothing to refetch.
+			return [];
 	}
 }
 

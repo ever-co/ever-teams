@@ -1,13 +1,15 @@
 'use client';
 
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { QueryClient, QueryKey, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useAtomValue } from 'jotai';
 import { realtimeStatusAtom } from '@/core/stores/common/realtime';
 import { queryKeys } from '@/core/query/keys';
 import { chatService } from '@/core/services/client/api/chat';
-import { IChatMessage, IChatMessagePage, IChatThreadPage } from '@/core/types/interfaces/common/chat';
-import { mergeMessages } from '@/core/lib/utils/chat-format';
+import { IChatMessage, IChatMessagePage, IChatMessagesQuery, IChatThreadPage } from '@/core/types/interfaces/common/chat';
+import { mergeMessages, nextMessageOrder, withMessageOrder } from '@/core/lib/utils/chat-format';
+import { REALTIME_EVENT_NAMES, type RealtimeEnvelope } from '@/core/lib/realtime/events';
+import { useRealtimeEvent } from '@/core/hooks/realtime/use-realtime-event';
 import { useChatScope } from './use-chat-scope';
 
 /** Without the live channel the open conversation asks for newer messages on this cadence. */
@@ -39,13 +41,68 @@ function newestIdOf(messages: readonly IChatMessage[]): string | null {
 	return messages.length ? messages[messages.length - 1].id : null;
 }
 
+/**
+ * Reads a page of a conversation for the timeline, its copies stamped with the order the read started at: a copy from
+ * a read started earlier never replaces one from a read started later (see `mergeMessages`).
+ */
+async function readMessages(conversationId: string, query: IChatMessagesQuery = {}, signal?: AbortSignal): Promise<IChatMessagePage> {
+	const order = nextMessageOrder();
+	const page = await chatService.messages(conversationId, query, signal);
+	return { ...page, messages: withMessageOrder(page.messages, order) };
+}
+
+/** The live events that change a message a timeline may already hold: an edit (a reaction, a pin) and a deletion. */
+const MESSAGE_CHANGE_EVENTS: readonly string[] = [REALTIME_EVENT_NAMES.CHAT_MESSAGE_UPDATED, REALTIME_EVENT_NAMES.CHAT_MESSAGE_DELETED];
+
+/** A string member of a live event's data, when it is one. */
+function eventIdOf(data: RealtimeEnvelope['data'], key: string): string | null {
+	const value = (data as Record<string, unknown> | null | undefined)?.[key];
+	return typeof value === 'string' && value ? value : null;
+}
+
+/** The latest read of each held message, by timeline and message: the answer of an earlier read is dropped. */
+const latestMessageReads = new Map<string, number>();
+let messageReads = 0;
+
+/**
+ * Reads again one message a timeline holds and puts the platform's copy in its place. The refetch a live event triggers
+ * reads only the newest page, which an older message is not on: without this, an edit or a deletion of a message
+ * further up the timeline would stay unseen. Two quick changes (an edit, then a deletion) start two reads: only the one
+ * started last may write, so an earlier answer that arrives late never puts an older copy back. Answers whether the
+ * message was replaced.
+ */
+export async function refreshHeldMessage(queryClient: QueryClient, queryKey: QueryKey, conversationId: string, messageId: string): Promise<boolean> {
+	const held = queryClient.getQueryData<ChatMessagesCache>(queryKey);
+	if (!held?.messages.some((message) => message.id === messageId)) return false;
+	const readKey = `${JSON.stringify(queryKey)}|${messageId}`;
+	messageReads += 1;
+	const read = messageReads;
+	latestMessageReads.set(readKey, read);
+	try {
+		const page = await readMessages(conversationId, { around: messageId });
+		if (latestMessageReads.get(readKey) !== read) return false;
+		const fresh = page.messages.find((message) => message.id === messageId);
+		if (!fresh) return false;
+		let replaced = false;
+		queryClient.setQueryData<ChatMessagesCache>(queryKey, (current) => {
+			// Only a message still held is replaced: a timeline that moved on (a jump, a reload) is left as it is.
+			if (!current?.messages.some((message) => message.id === messageId)) return current;
+			replaced = true;
+			return { ...current, messages: mergeMessages(current.messages, [fresh]) };
+		});
+		return replaced;
+	} finally {
+		if (latestMessageReads.get(readKey) === read) latestMessageReads.delete(readKey);
+	}
+}
+
 /** Reads forward from a message: every newer one, a page at a time, up to the catch-up budget. */
 async function readAfter(conversationId: string, fromId: string, signal?: AbortSignal): Promise<{ messages: IChatMessage[]; newestId: string; hasAfter: boolean }> {
 	const messages: IChatMessage[] = [];
 	let newestId = fromId;
 	let hasAfter = true;
 	for (let page = 0; page < CATCH_UP_PAGES && hasAfter; page += 1) {
-		const answer: IChatMessagePage = await chatService.messages(conversationId, { after: newestId }, signal);
+		const answer: IChatMessagePage = await readMessages(conversationId, { after: newestId }, signal);
 		messages.push(...answer.messages);
 		if (!answer.messages.length) {
 			hasAfter = false;
@@ -73,7 +130,7 @@ export function useChatMessages(conversationId: string | null, enabled: boolean)
 	const query = useQuery<ChatMessagesCache>({
 		queryKey,
 		queryFn: async ({ signal }) => {
-			const page: IChatMessagePage = await chatService.messages(conversationId as string, {}, signal);
+			const page: IChatMessagePage = await readMessages(conversationId as string, {}, signal);
 			const current = queryClient.getQueryData<ChatMessagesCache>(queryKey);
 			if (!current) {
 				return { messages: mergeMessages([], page.messages), hasBefore: page.hasBefore, hasAfter: false, serverNewestId: newestIdOf(page.messages) };
@@ -128,7 +185,7 @@ export function useChatMessages(conversationId: string | null, enabled: boolean)
 				if (!latest) return;
 				if (!latest.serverNewestId) {
 					// Nothing read yet (an empty conversation): the newest page, so a first message appears.
-					const page = await chatService.messages(conversationId, {});
+					const page = await readMessages(conversationId, {});
 					if (!page.messages.length) return;
 					queryClient.setQueryData<ChatMessagesCache>(key, (current) =>
 						current ? { ...current, messages: mergeMessages(current.messages, page.messages), hasBefore: page.hasBefore, serverNewestId: newestIdOf(page.messages) } : current
@@ -142,7 +199,7 @@ export function useChatMessages(conversationId: string | null, enabled: boolean)
 			} catch {
 				// The message read last may be gone (deleted): start again from the newest page.
 				try {
-					const page = await chatService.messages(conversationId, {});
+					const page = await readMessages(conversationId, {});
 					queryClient.setQueryData<ChatMessagesCache>(key, (current) =>
 						current ? { ...current, messages: mergeMessages(current.messages, page.messages), hasAfter: false, serverNewestId: newestIdOf(page.messages) ?? current.serverNewestId } : current
 					);
@@ -157,13 +214,23 @@ export function useChatMessages(conversationId: string | null, enabled: boolean)
 		return () => window.clearInterval(timer);
 	}, [conversationId, enabled, hasData, queryClient, tenantId]);
 
+	// An edit or a deletion of a message this timeline holds: the refetch the event triggers reads only the newest page,
+	// so the message itself is read again (an older one is not on that page).
+	useRealtimeEvent(MESSAGE_CHANGE_EVENTS, (envelope) => {
+		const messageId = eventIdOf(envelope.data, 'messageId');
+		if (!enabled || !conversationId || !messageId || eventIdOf(envelope.data, 'conversationId') !== conversationId) return;
+		refreshHeldMessage(queryClient, queryKey, conversationId, messageId).catch(() => {
+			// The message may be gone or unreadable now: the next refetch or a reload shows what it is.
+		});
+	});
+
 	const loadOlder = useCallback(async () => {
 		const current = queryClient.getQueryData<ChatMessagesCache>(queryKey);
 		const oldest = current?.messages.find((message) => !isLocalMessage(message));
 		if (!conversationId || !current?.hasBefore || !oldest || isLoadingOlder) return;
 		setLoadingOlder(true);
 		try {
-			const page = await chatService.messages(conversationId, { before: oldest.id });
+			const page = await readMessages(conversationId, { before: oldest.id });
 			queryClient.setQueryData<ChatMessagesCache>(queryKey, (cached) =>
 				cached ? { ...cached, messages: mergeMessages(cached.messages, page.messages), hasBefore: page.hasBefore } : cached
 			);
@@ -181,7 +248,7 @@ export function useChatMessages(conversationId: string | null, enabled: boolean)
 			const current = queryClient.getQueryData<ChatMessagesCache>(queryKey);
 			if (!conversationId) return false;
 			if (current?.messages.some((message) => message.id === messageId)) return true;
-			const page = await chatService.messages(conversationId, { around: messageId });
+			const page = await readMessages(conversationId, { around: messageId });
 			const unsent = current?.messages.filter(isLocalMessage) ?? [];
 			queryClient.setQueryData<ChatMessagesCache>(queryKey, {
 				messages: mergeMessages(unsent, page.messages),

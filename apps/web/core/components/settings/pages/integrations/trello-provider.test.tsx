@@ -203,13 +203,19 @@ describe('TrelloProviderSection', () => {
 
 	it('add form: a list status that is no status of the project or the organization blocks saving and is named', () => {
 		mockStatusOptions.mockReturnValue({ ...STATUSES, options: [{ name: 'open' }] });
-		render(<TrelloProviderSection trello={connected()} />);
+		const trello = connected();
+		const { rerender } = render(<TrelloProviderSection trello={trello} />);
 		const form = screen.getByTestId('trello-add-mapping');
 		pickIn(form, 'b-2');
 		pickIn(form, 'p1');
 		pickIn(within(form).getByTestId('trello-list-l-todo'), 'open');
 		expect((screen.getByTestId('trello-add-mapping-save') as HTMLButtonElement).disabled).toBe(false);
+		// The project's statuses change (a new answer of their read): the list selects now offer the new ones.
 		mockStatusOptions.mockReturnValue({ ...STATUSES, options: [{ name: 'completed' }] });
+		rerender(<TrelloProviderSection trello={trello} />);
+		// Revalidated by the new statuses alone, before any other field changes.
+		expect((within(form).getByRole('alert')).textContent ?? '').toContain('LIST_MAP_INVALID {"values":"open"}');
+		expect((screen.getByTestId('trello-add-mapping-save') as HTMLButtonElement).disabled).toBe(true);
 		pickIn(within(form).getByTestId('trello-list-l-doing'), 'completed');
 		expect((within(form).getByRole('alert')).textContent ?? '').toContain('LIST_MAP_INVALID {"values":"open"}');
 		expect((screen.getByTestId('trello-add-mapping-save') as HTMLButtonElement).disabled).toBe(true);

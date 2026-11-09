@@ -7,7 +7,6 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useOrganizationProjectsQuery } from '@/core/hooks/organizations/projects/use-organization-projects-query';
 import { isAsanaIntegrationEnabled } from '@/core/lib/utils/integration-asana-enabled';
 import { queryKeys } from '@/core/query/keys';
-import { ApiErrorService } from '@/core/services/client/api-error.service';
 import { asanaIntegrationService } from '@/core/services/client/api/integrations/asana.service';
 import { activeTeamState } from '@/core/stores';
 import {
@@ -21,9 +20,10 @@ import {
 	IAsanaWorkspace,
 	TAsanaCallbackError
 } from '@/core/types/interfaces/integrations/asana';
+import { integrationProviderStatus, isNotFoundError, type IntegrationProviderStatus } from './integration-provider-status';
 
 /** What the Asana provider shows. */
-export type AsanaConnectionStatus = 'hidden' | 'loading' | 'loadError' | 'notConfigured' | 'notConnected' | 'connected';
+export type AsanaConnectionStatus = IntegrationProviderStatus;
 
 /** What is being changed right now (one thing at a time). */
 export interface AsanaPending {
@@ -89,11 +89,6 @@ const PROJECTS_READ_FAILED = new Error('The organization projects could not be r
 const RUNS_POLL_MS = 10_000;
 /** How long after a webhook registration the mappings are read again (the platform registers behind its answer). */
 const WEBHOOK_REREAD_MS = 3_000;
-
-function isNotFound(error: unknown): boolean {
-	if (ApiErrorService.isApiError(error)) return error.statusCode === 404 || error.hasHttpResponseStatus(404);
-	return (error as { response?: { status?: number } } | null)?.response?.status === 404;
-}
 
 function isCallbackError(value: string | null): value is TAsanaCallbackError {
 	return !!value && (ASANA_CALLBACK_ERRORS as readonly string[]).includes(value);
@@ -181,7 +176,7 @@ export function useAsanaIntegration(): AsanaIntegrationSettings {
 		queryFn: ({ signal }) => asanaIntegrationService.status(organizationId as string, signal),
 		enabled: enabled && !!organizationId,
 		staleTime: 30_000,
-		retry: (count, error) => !isNotFound(error) && count < 2
+		retry: (count, error) => !isNotFoundError(error) && count < 2
 	});
 	const connection = statusQuery.data?.connection ?? null;
 	const integrationId = connection?.id ?? null;
@@ -209,7 +204,7 @@ export function useAsanaIntegration(): AsanaIntegrationSettings {
 	});
 	const { organizationProjects, getOrganizationProjectsLoading, isOrganizationProjectsError, refetchOrganizationProjects } = useOrganizationProjectsQuery({ enabled: !!integrationId });
 	const projects = useMemo<AsanaIntegrationProject[]>(
-		() => (organizationProjects ?? []).map((project) => ({ id: project.id, name: project.name ?? '' })).filter((project) => project.id),
+		() => organizationProjects.map((project) => ({ id: project.id, name: project.name ?? '' })).filter((project) => project.id),
 		[organizationProjects]
 	);
 
@@ -344,13 +339,15 @@ export function useAsanaIntegration(): AsanaIntegrationSettings {
 		void statusQuery.refetch();
 	}, [statusQuery]);
 
-	let status: AsanaConnectionStatus = 'loading';
-	if (!enabled) status = 'hidden';
-	else if (!organizationId || statusQuery.isPending) status = 'loading';
-	else if (statusQuery.isError) status = isNotFound(statusQuery.error) ? 'hidden' : 'loadError';
-	else if (connection) status = 'connected';
-	else if (!statusQuery.data?.configured) status = 'notConfigured';
-	else status = 'notConnected';
+	const status: AsanaConnectionStatus = integrationProviderStatus({
+		enabled,
+		organizationId,
+		isPending: statusQuery.isPending,
+		isError: statusQuery.isError,
+		error: statusQuery.error,
+		configured: !!statusQuery.data?.configured,
+		connected: !!connection
+	});
 
 	return {
 		status,

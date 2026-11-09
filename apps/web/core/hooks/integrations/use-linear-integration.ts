@@ -8,7 +8,6 @@ import { useOrganizationProjectsQuery } from '@/core/hooks/organizations/project
 import { LinearStatusOption } from '@/core/lib/utils/integration-linear-state-map';
 import { isLinearIntegrationEnabled } from '@/core/lib/utils/integration-linear-enabled';
 import { queryKeys } from '@/core/query/keys';
-import { ApiErrorService } from '@/core/services/client/api-error.service';
 import { linearIntegrationService } from '@/core/services/client/api/integrations/linear.service';
 import { taskStatusService } from '@/core/services/client/api/tasks/task-status.service';
 import { activeTeamState } from '@/core/stores';
@@ -22,9 +21,10 @@ import {
 	TLinearCallbackError
 } from '@/core/types/interfaces/integrations/linear';
 import type { TaskMetadataScope } from '@/core/types/interfaces/task/task-metadata-bootstrap';
+import { integrationProviderStatus, isNotFoundError, type IntegrationProviderStatus } from './integration-provider-status';
 
 /** What the Linear provider shows. */
-export type LinearConnectionStatus = 'hidden' | 'loading' | 'loadError' | 'notConfigured' | 'notConnected' | 'connected';
+export type LinearConnectionStatus = IntegrationProviderStatus;
 
 /** What is being changed right now (one thing at a time). */
 export interface LinearPending {
@@ -82,11 +82,6 @@ const NO_RUNS: ILinearRun[] = [];
 const PROJECTS_READ_FAILED = new Error('The organization projects could not be read');
 /** How often the runs are read again while one is running. */
 const RUNS_POLL_MS = 10_000;
-
-function isNotFound(error: unknown): boolean {
-	if (ApiErrorService.isApiError(error)) return error.statusCode === 404 || error.hasHttpResponseStatus(404);
-	return (error as { response?: { status?: number } } | null)?.response?.status === 404;
-}
 
 function isCallbackError(value: string | null): value is TLinearCallbackError {
 	return !!value && (LINEAR_CALLBACK_ERRORS as readonly string[]).includes(value);
@@ -198,7 +193,7 @@ export function useLinearIntegration(): LinearIntegrationSettings {
 		queryFn: ({ signal }) => linearIntegrationService.status(organizationId as string, signal),
 		enabled: enabled && !!organizationId,
 		staleTime: 30_000,
-		retry: (count, error) => !isNotFound(error) && count < 2
+		retry: (count, error) => !isNotFoundError(error) && count < 2
 	});
 	const connection = statusQuery.data?.connection ?? null;
 	const integrationId = connection?.id ?? null;
@@ -226,7 +221,7 @@ export function useLinearIntegration(): LinearIntegrationSettings {
 	});
 	const { organizationProjects, getOrganizationProjectsLoading, isOrganizationProjectsError, refetchOrganizationProjects } = useOrganizationProjectsQuery({ enabled: !!integrationId });
 	const projects = useMemo<LinearIntegrationProject[]>(
-		() => (organizationProjects ?? []).map((project) => ({ id: project.id, name: project.name ?? '' })).filter((project) => project.id),
+		() => organizationProjects.map((project) => ({ id: project.id, name: project.name ?? '' })).filter((project) => project.id),
 		[organizationProjects]
 	);
 
@@ -343,13 +338,15 @@ export function useLinearIntegration(): LinearIntegrationSettings {
 		void statusQuery.refetch();
 	}, [statusQuery]);
 
-	let status: LinearConnectionStatus = 'loading';
-	if (!enabled) status = 'hidden';
-	else if (!organizationId || statusQuery.isPending) status = 'loading';
-	else if (statusQuery.isError) status = isNotFound(statusQuery.error) ? 'hidden' : 'loadError';
-	else if (connection) status = 'connected';
-	else if (!statusQuery.data?.configured) status = 'notConfigured';
-	else status = 'notConnected';
+	const status: LinearConnectionStatus = integrationProviderStatus({
+		enabled,
+		organizationId,
+		isPending: statusQuery.isPending,
+		isError: statusQuery.isError,
+		error: statusQuery.error,
+		configured: !!statusQuery.data?.configured,
+		connected: !!connection
+	});
 
 	return {
 		status,

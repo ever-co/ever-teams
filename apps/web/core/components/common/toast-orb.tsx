@@ -70,7 +70,8 @@ export function ToastOrb({
 		if (!disc) {
 			return;
 		}
-		if (prefersReducedMotion()) {
+		// Without the Web Animations API (an older embedded browser, a test DOM) the orb simply appears.
+		if (prefersReducedMotion() || typeof disc.animate !== 'function') {
 			return;
 		}
 		disc.animate(ARRIVAL_KEYFRAMES, ARRIVAL_TIMING);

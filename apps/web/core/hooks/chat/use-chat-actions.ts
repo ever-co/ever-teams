@@ -16,7 +16,7 @@ import {
 	IChatCreateTaskInput,
 	IChatThreadPage
 } from '@/core/types/interfaces/common/chat';
-import { mentionedEmployeeIds, mergeMessages, newNonce } from '@/core/lib/utils/chat-format';
+import { mentionedEmployeeIds, mergeMessages, newNonce, nextMessageOrder, withMessageOrder } from '@/core/lib/utils/chat-format';
 import { createdTaskIdOf, withTaskReference } from '@/core/lib/utils/chat-task';
 import type { ChatMessagesCache } from './use-chat-messages';
 import { useChatScope } from './use-chat-scope';
@@ -65,7 +65,9 @@ export function useChatActions() {
 	/** One message wherever it is cached: the timeline, its thread (as a reply), its own thread (as the root). */
 	const patchEverywhere = useCallback(
 		(message: IChatMessage, replace: (current: IChatMessage) => IChatMessage) => {
-			const apply = (m: IChatMessage) => (m.id === message.id ? replace(m) : m);
+			// Stamped as applied now: a page read started before this write cannot put the older copy back.
+			const order = nextMessageOrder();
+			const apply = (m: IChatMessage) => (m.id === message.id ? withMessageOrder([replace(m)], order)[0] : m);
 			patchMessages(message.conversationId, (messages) => messages.map(apply));
 			for (const root of [message.threadRootId, message.id]) {
 				patchThread(root, (page) => ({ ...page, root: page.root ? apply(page.root) : page.root, messages: page.messages.map(apply) }));

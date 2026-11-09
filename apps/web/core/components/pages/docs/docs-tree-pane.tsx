@@ -65,7 +65,7 @@ export function DocsTreePane({ tree, activeId, expanded, onToggle, onSetOpen, fa
 						aria-label={t('docs.SEARCH_PAGES')}
 						className="h-8 pl-7 pr-7 text-sm"
 					/>
-					{query && (
+					{query.length > 0 && (
 						<button
 							type="button"
 							onClick={() => setQuery('')}

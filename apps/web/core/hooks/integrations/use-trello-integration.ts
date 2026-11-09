@@ -8,13 +8,13 @@ import { useOrganizationProjectsQuery } from '@/core/hooks/organizations/project
 import { isTrelloIntegrationEnabled } from '@/core/lib/utils/integration-trello-enabled';
 import { tokenOfHash } from '@/core/lib/utils/integration-trello-list-map';
 import { queryKeys } from '@/core/query/keys';
-import { ApiErrorService } from '@/core/services/client/api-error.service';
 import { trelloIntegrationService } from '@/core/services/client/api/integrations/trello.service';
 import { activeTeamState } from '@/core/stores';
 import { ITrelloBoard, ITrelloConnectionSummary, ITrelloList, ITrelloMapping, ITrelloMappingInput, ITrelloRun } from '@/core/types/interfaces/integrations/trello';
+import { integrationProviderStatus, isNotFoundError, type IntegrationProviderStatus } from './integration-provider-status';
 
 /** What the Trello provider shows. */
-export type TrelloConnectionStatus = 'hidden' | 'loading' | 'loadError' | 'notConfigured' | 'notConnected' | 'connected';
+export type TrelloConnectionStatus = IntegrationProviderStatus;
 
 /** What is being changed right now (one thing at a time). */
 export interface TrelloPending {
@@ -84,11 +84,6 @@ const WEBHOOK_REREAD_MS = 3_000;
 /** The organization's projects could not be read (the projects query keeps no error object). */
 const PROJECTS_READ_FAILED = new Error('The organization projects could not be read');
 
-function isNotFound(error: unknown): boolean {
-	if (ApiErrorService.isApiError(error)) return error.statusCode === 404 || error.hasHttpResponseStatus(404);
-	return (error as { response?: { status?: number } } | null)?.response?.status === 404;
-}
-
 /** Sends this tab to the authorize page (a function so a test can replace it). */
 export function leaveForTrello(url: string): void {
 	window.location.assign(url);
@@ -147,7 +142,7 @@ export function useTrelloIntegration(): TrelloIntegrationSettings {
 		queryFn: ({ signal }) => trelloIntegrationService.status(organizationId as string, signal),
 		enabled: enabled && !!organizationId,
 		staleTime: 30_000,
-		retry: (count, error) => !isNotFound(error) && count < 2
+		retry: (count, error) => !isNotFoundError(error) && count < 2
 	});
 	const connection = statusQuery.data?.connection ?? null;
 	const integrationId = connection?.id ?? null;
@@ -211,7 +206,7 @@ export function useTrelloIntegration(): TrelloIntegrationSettings {
 	});
 	const { organizationProjects, getOrganizationProjectsLoading, isOrganizationProjectsError, refetchOrganizationProjects } = useOrganizationProjectsQuery({ enabled: !!integrationId });
 	const projects = useMemo<TrelloIntegrationProject[]>(
-		() => (organizationProjects ?? []).map((project) => ({ id: project.id, name: project.name ?? '' })).filter((project) => project.id),
+		() => organizationProjects.map((project) => ({ id: project.id, name: project.name ?? '' })).filter((project) => project.id),
 		[organizationProjects]
 	);
 
@@ -351,13 +346,15 @@ export function useTrelloIntegration(): TrelloIntegrationSettings {
 		void statusQuery.refetch();
 	}, [statusQuery]);
 
-	let status: TrelloConnectionStatus = 'loading';
-	if (!enabled) status = 'hidden';
-	else if (!organizationId || statusQuery.isPending) status = 'loading';
-	else if (statusQuery.isError) status = isNotFound(statusQuery.error) ? 'hidden' : 'loadError';
-	else if (connection) status = 'connected';
-	else if (!statusQuery.data?.configured) status = 'notConfigured';
-	else status = 'notConnected';
+	const status: TrelloConnectionStatus = integrationProviderStatus({
+		enabled,
+		organizationId,
+		isPending: statusQuery.isPending,
+		isError: statusQuery.isError,
+		error: statusQuery.error,
+		configured: !!statusQuery.data?.configured,
+		connected: !!connection
+	});
 
 	return {
 		status,

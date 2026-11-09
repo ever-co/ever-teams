@@ -7,10 +7,12 @@ import {
 	mentionQueryAt,
 	mentionedEmployeeIds,
 	mergeMessages,
+	nextMessageOrder,
 	plainBody,
 	sortConversations,
 	splitMentions,
-	suggestMentions
+	suggestMentions,
+	withMessageOrder
 } from './chat-format';
 
 const ANA = '11111111-1111-4111-8111-111111111111';
@@ -96,6 +98,55 @@ describe('messages', () => {
 	it('merges pages by id in time order', () => {
 		const merged = mergeMessages([message('b', '2026-01-01T10:02:00Z'), message('a', '2026-01-01T10:01:00Z')], [message('b', '2026-01-01T10:02:00Z'), message('c', '2026-01-01T10:03:00Z')]);
 		expect(merged.map((m) => m.id)).toEqual(['a', 'b', 'c']);
+	});
+
+	it('never lets an older copy replace a newer one: a deletion is final, an edit is not undone', () => {
+		const at = '2026-01-01T10:01:00Z';
+		const original = { ...message('a', at), body: 'first' };
+		const edited = { ...original, body: 'second', editedAt: '2026-01-01T10:05:00Z' };
+		const editedAgain = { ...original, body: 'third', editedAt: '2026-01-01T10:06:00Z' };
+		const deleted = { ...original, body: '', editedAt: null, deletedAt: '2026-01-01T10:07:00Z' };
+		const reacted = { ...edited, reactions: [{ emoji: '👍', count: 1, mine: false }] } as IChatMessage;
+		const bodyOf = (held: IChatMessage, incoming: IChatMessage) => mergeMessages([held], [incoming])[0];
+
+		expect(bodyOf(deleted, edited).deletedAt).toBe('2026-01-01T10:07:00Z');
+		expect(bodyOf(edited, deleted).deletedAt).toBe('2026-01-01T10:07:00Z');
+		expect(bodyOf(edited, original).body).toBe('second');
+		expect(bodyOf(editedAgain, edited).body).toBe('third');
+		expect(bodyOf(edited, editedAgain).body).toBe('third');
+		expect(bodyOf(original, edited).body).toBe('second');
+		// A reaction or a pin keeps the edit time: its copy lands.
+		expect(bodyOf(edited, reacted).reactions).toHaveLength(1);
+	});
+
+	it('orders stamped copies by the read or write they came from: a page read started earlier never undoes a reaction', () => {
+		const plain = message('a', '2026-01-01T10:01:00Z');
+		const earlierRead = nextMessageOrder();
+		const laterRead = nextMessageOrder();
+		expect(laterRead).toBeGreaterThan(earlierRead);
+		const stale = withMessageOrder([plain], earlierRead)[0];
+		const reacted = withMessageOrder([{ ...plain, reactions: [{ emoji: '👍', count: 1, mine: true }] }], laterRead)[0];
+
+		expect(mergeMessages([reacted], [stale])[0].reactions).toHaveLength(1);
+		expect(mergeMessages([stale], [reacted])[0].reactions).toHaveLength(1);
+		// A write applied after both reads (a reaction removed here) wins over either.
+		const removed = withMessageOrder([{ ...plain, reactions: [] }], nextMessageOrder())[0];
+		expect(mergeMessages([removed], [reacted])[0].reactions).toEqual([]);
+		// A deletion is final whatever the order.
+		const deleted = withMessageOrder([{ ...plain, body: '', deletedAt: '2026-01-01T10:09:00Z' }], earlierRead)[0];
+		expect(mergeMessages([deleted], [reacted])[0].deletedAt).toBe('2026-01-01T10:09:00Z');
+	});
+
+	it('lets a newer edit through a late pin or reaction answer: the edit time decides before the order', () => {
+		const plain = message('a', '2026-01-01T10:01:00Z');
+		// An edit read started first; a pin's answer, stamped as it arrived, came in before that read finished.
+		const editRead = nextMessageOrder();
+		const pinned = withMessageOrder([{ ...plain, body: 'first', pinnedAt: '2026-01-01T10:02:00Z' }], nextMessageOrder())[0];
+		const edited = withMessageOrder([{ ...plain, body: 'second', editedAt: '2026-01-01T10:03:00Z', pinnedAt: '2026-01-01T10:02:00Z' }], editRead)[0];
+
+		expect(mergeMessages([pinned], [edited])[0].body).toBe('second');
+		// And the pin's late answer never undoes the edit.
+		expect(mergeMessages([edited], [pinned])[0].body).toBe('second');
 	});
 
 	it('keys a draft by conversation and thread', () => {

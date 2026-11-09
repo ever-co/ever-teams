@@ -1,3 +1,5 @@
+import { QueryClient } from '@tanstack/react-query';
+import { queryKeys } from '@/core/query/keys';
 import { RealtimeEnvelope } from './events';
 import { invalidationsFor, resyncInvalidations } from './invalidation';
 
@@ -45,9 +47,31 @@ describe('invalidationsFor', () => {
 
 	it('refetches the pages and the linked file lists on a document hint', () => {
 		expect(invalidationsFor(event('document.updated', { entity: 'Document', entityId: 'd1', action: 'updated' }), scope).map((k) => k.queryKey)).toEqual([
-			['documents'],
+			['docs'],
 			['entity-files']
 		]);
+	});
+
+	it('reaches every Docs query (the tree, the open page, the trash, the versions) on a document hint and on a resynchronisation', async () => {
+		const docsKeys = [
+			queryKeys.docs.tree('ten', 'org'),
+			queryKeys.docs.page('ten', 'd1'),
+			queryKeys.docs.path('ten', 'd1'),
+			queryKeys.docs.trash('ten', 'org'),
+			queryKeys.docs.versions('ten', 'd1'),
+			queryKeys.docs.search('ten', 'org', 'plan'),
+			queryKeys.docs.projectPages('ten', 'org', 'p1')
+		];
+		for (const invalidations of [
+			invalidationsFor(event('document.updated', { entity: 'Document', entityId: 'd1', action: 'updated' }), scope),
+			resyncInvalidations(scope)
+		]) {
+			const client = new QueryClient();
+			for (const key of docsKeys) client.setQueryData(key, { seeded: true });
+			for (const { queryKey } of invalidations) await client.invalidateQueries({ queryKey, refetchType: 'none' });
+			expect(docsKeys.filter((key) => !client.getQueryState(key)?.isInvalidated)).toEqual([]);
+			client.clear();
+		}
 	});
 
 	it('refetches only the chat queries an event changed, everything of chat without its conversation', () => {
@@ -79,6 +103,6 @@ describe('invalidationsFor', () => {
 
 	it('names every family on a resynchronisation', () => {
 		const keys = resyncInvalidations(scope).map((k) => k.queryKey[0]);
-		expect(keys).toEqual(expect.arrayContaining(['tasks', 'task-comments', 'notifications', 'organization-teams', 'documents', 'entity-files', 'chat', 'inbox']));
+		expect(keys).toEqual(expect.arrayContaining(['tasks', 'task-comments', 'notifications', 'organization-teams', 'docs', 'entity-files', 'chat', 'inbox']));
 	});
 });

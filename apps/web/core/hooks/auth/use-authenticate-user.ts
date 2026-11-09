@@ -27,6 +27,7 @@ import { UseAuthenticateUserResult } from '@/core/types/interfaces/user/user';
 import { useUserQuery } from '../queries/user-user.query';
 import { logErrorInDev, logInDev } from '@/core/lib/helpers/error-message';
 import { clearChatHistoryForUser } from '@/core/components/features/chat-panel/chat-history';
+import { runSignOutCleanups } from '@/core/lib/auth/sign-out-cleanups';
 import { rememberTeam } from '@/core/lib/auth/remembered-team';
 
 export const useAuthenticateUser = (defaultUser?: TUser): UseAuthenticateUserResult => {
@@ -171,6 +172,8 @@ export const useAuthenticateUser = (defaultUser?: TUser): UseAuthenticateUserRes
 		}
 		rememberTeam(user?.email, activeTeam?.id);
 		clearChatHistoryForUser(user?.id);
+		// What the features keep of this account in memory (unsaved Docs text) goes with the session.
+		runSignOutCleanups();
 
 		// A TEAMS timer left running would keep counting after logout: stop it while the session still
 		// exists, without letting a failed or slow request hold the logout back. Past the server's midnight

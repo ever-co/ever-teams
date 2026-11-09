@@ -142,9 +142,59 @@ export function newNonce(): string {
 	return `${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 10)}`;
 }
 
-/** Inserts the messages of a page into a list (by id, newest last), keeping the list ordered by time. */
+/**
+ * When this tab got a copy of a message: copies are stamped with an order taken as a read starts (or as a write's
+ * answer is applied), so a copy from a read started later, or a write applied later, supersedes one from before it.
+ * A reaction leaves the message's own times unchanged, so only this order tells such copies apart.
+ */
+let messageOrder = 0;
+
+/** The order of a read about to start, or of a write applied now: after every one taken before. */
+export function nextMessageOrder(): number {
+	messageOrder += 1;
+	return messageOrder;
+}
+
+/** Copies of messages stamped with the order of the read (or the write) they came from. */
+export function withMessageOrder<T extends IChatMessage>(messages: readonly T[], order: number): T[] {
+	return messages.map((message) => ({ ...message, readOrder: order }));
+}
+
+function orderOf(message: IChatMessage): number | undefined {
+	return (message as IChatMessage & { readOrder?: number }).readOrder;
+}
+
+/** The platform's edit time of a copy, 0 for a message never edited. */
+function editTimeOf(message: IChatMessage): number {
+	return message.editedAt ? Date.parse(message.editedAt) : 0;
+}
+
+/**
+ * Whether a copy of a message is older than the one held: a deletion is final; the platform's edit time comes next
+ * (a copy from before an edit never undoes it, whenever it arrives: a late answer of a pin or a reaction included);
+ * and between copies with the same edit time (a reaction, a pin) the one from the later read or write wins.
+ */
+function isOlderCopy(incoming: IChatMessage, held: IChatMessage): boolean {
+	if (incoming.deletedAt) return false;
+	if (held.deletedAt) return true;
+	const incomingEdit = editTimeOf(incoming);
+	const heldEdit = editTimeOf(held);
+	if (incomingEdit !== heldEdit) return incomingEdit < heldEdit;
+	const incomingOrder = orderOf(incoming);
+	const heldOrder = orderOf(held);
+	return incomingOrder !== undefined && heldOrder !== undefined && incomingOrder < heldOrder;
+}
+
+/**
+ * Inserts the messages of a page into a list (by id, newest last), keeping the list ordered by time. A copy older than
+ * the one held (a late answer of a read made before an edit or a deletion) does not replace it.
+ */
 export function mergeMessages(existing: readonly IChatMessage[], incoming: readonly IChatMessage[]): IChatMessage[] {
 	const byId = new Map(existing.map((message) => [message.id, message]));
-	for (const message of incoming) byId.set(message.id, message);
+	for (const message of incoming) {
+		const held = byId.get(message.id);
+		if (held && isOlderCopy(message, held)) continue;
+		byId.set(message.id, message);
+	}
 	return [...byId.values()].sort((a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime() || a.id.localeCompare(b.id));
 }
