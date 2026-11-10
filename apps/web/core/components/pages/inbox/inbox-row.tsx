@@ -181,9 +181,15 @@ function InboxRowComponent({
 			</button>
 			{/* Over the row's end on hover; on a touch screen, a line of its own under the text, since nothing hovers there. */}
 			<div className="absolute end-2 top-1.5 flex items-center gap-0.5 rounded-lg bg-card p-0.5 opacity-0 shadow-sm shadow-black/10 hairline-ring ring-border transition-opacity group-hover/row:opacity-100 group-focus-within/row:opacity-100 [@media(hover:none)]:static [@media(hover:none)]:basis-full [@media(hover:none)]:justify-end [@media(hover:none)]:bg-transparent [@media(hover:none)]:p-0 [@media(hover:none)]:opacity-100 [@media(hover:none)]:[box-shadow:none]">
-				{/* Where nothing hovers, the checkbox over the avatar never shows: selecting starts here, under the avatar. */}
-				<span className="me-auto hidden size-8 items-center justify-center [@media(hover:none)]:flex">
-					<Checkbox checked={isSelected} onCheckedChange={() => onToggleSelect(entry)} aria-label={t('inbox.ACTIONS.SELECT')} />
+				{/* Where nothing hovers, the checkbox over the avatar never shows: selecting starts here, under the avatar. The
+				    control itself reaches over the whole 40px square around its mark, so a finger does not have to find 16px. */}
+				<span className="me-auto hidden size-10 items-center justify-center [@media(hover:none)]:flex">
+					<Checkbox
+						checked={isSelected}
+						onCheckedChange={() => onToggleSelect(entry)}
+						aria-label={t('inbox.ACTIONS.SELECT')}
+						className="after:absolute after:-inset-3 after:content-['']"
+					/>
 				</span>
 				<button
 					type="button"
