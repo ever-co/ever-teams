@@ -5,7 +5,7 @@ import {
 	REALTIME_CATCH_UP_POLL_MS,
 	REALTIME_PING_INTERVAL_MS
 } from './config';
-import { REALTIME_DEFAULT_SELECTION, REALTIME_EVENT_NAMES, RealtimeCatchUp, RealtimeCatchUpQuery, RealtimeEnvelope } from './events';
+import { occurredAtMs, REALTIME_DEFAULT_SELECTION, REALTIME_EVENT_NAMES, RealtimeCatchUp, RealtimeCatchUpQuery, RealtimeEnvelope } from './events';
 import { GraphqlWsConnection, isFatalCloseCode, SocketFactory } from './graphql-ws';
 
 /** Where the tab's connection stands. */
@@ -60,10 +60,10 @@ const COLLABORATION_EVENTS_SUBSCRIPTION = `subscription CollaborationEvents($nam
 }`;
 
 /**
- * How many event ids are remembered to drop a duplicate once the client is caught up. While a replay is unfinished
- * nothing is forgotten, so every event the replay may return again is still recognised.
+ * The most event ids remembered, a safety bound only: an id is forgotten once the catch-up cursor has passed its time
+ * (no later answer can return it), so this is reached only when the catch-up stops answering for a long while.
  */
-const SEEN_LIMIT = 2_000;
+const SEEN_MAX = 20_000;
 
 /** The pages one replay reads; a larger gap is cheaper to refetch than to replay, so the listeners resynchronise. */
 const REPLAY_MAX_PAGES = 50;
@@ -112,7 +112,8 @@ export class RealtimeClient {
 	private replayAgain = false;
 	/** Subscriptions the server ended in a row: the backoff of the reconnect that follows. */
 	private streamEnds = 0;
-	private readonly seen = new Set<string>();
+	/** The ids applied, with their time: kept until the catch-up cursor passes them. */
+	private readonly seen = new Map<string, number>();
 	private readonly eventHandlers = new Set<EventHandler>();
 	private readonly statusHandlers = new Set<StatusHandler>();
 	private readonly resyncHandlers = new Set<ResyncHandler>();
@@ -257,8 +258,10 @@ export class RealtimeClient {
 	/** Reads the catch-up again while this connection lasts, so the cursor stays fresh. */
 	private schedulePoll(connection: GraphqlWsConnection): void {
 		const interval = this.options.pollIntervalMs ?? REALTIME_CATCH_UP_POLL_MS;
+		// A poll of an earlier connection that ends after a reconnect must not cancel the new connection's timer.
+		if (this.connection !== connection) return;
 		this.cancelPoll();
-		if (interval <= 0 || this.connection !== connection) return;
+		if (interval <= 0) return;
 		this.pollTimer = this.setTimer(() => {
 			this.pollTimer = null;
 			if (!this.started || this.connection !== connection || !connection.isReady) return;
@@ -317,8 +320,12 @@ export class RealtimeClient {
 				const answer = await this.options.catchUp({ after: position.at, afterId: position.id, limit });
 				for (const envelope of answer.events) this.apply(envelope);
 				if (typeof answer.cursor === 'number') position = { at: answer.cursor, id: answer.cursorId };
-				// Everything up to `position` is applied: the next replay, whoever runs it, continues from there.
-				if (isAfter(position, this.cursor)) this.cursor = { ...position };
+				// Everything up to `position` is applied: the next replay, whoever runs it, continues from there, and no
+				// later answer returns an event stamped before it.
+				if (isAfter(position, this.cursor)) {
+					this.cursor = { ...position };
+					this.forgetBefore(position.at);
+				}
 				if (answer.resync) {
 					this.emitResync();
 					this.completeReplay();
@@ -342,20 +349,15 @@ export class RealtimeClient {
 		}
 	}
 
-	/** The replay is complete (or replaced by a resynchronisation): the remembered ids may be trimmed again. */
+	/** The replay is complete (or replaced by a resynchronisation). */
 	private completeReplay(): void {
 		this.caughtUp = true;
-		while (this.seen.size > SEEN_LIMIT) {
-			const oldest = this.seen.values().next().value;
-			if (oldest === undefined) break;
-			this.seen.delete(oldest);
-		}
 	}
 
 	private apply(envelope: RealtimeEnvelope): void {
 		if (!envelope?.eventId) return;
 		if (this.seen.has(envelope.eventId)) return;
-		this.remember(envelope.eventId);
+		this.remember(envelope.eventId, occurredAtMs(envelope));
 		// The stream never moves the cursor (see the class): only a catch-up answer does.
 		if (this.isOlderPresence(envelope)) return;
 		for (const handler of this.eventHandlers) {
@@ -388,11 +390,22 @@ export class RealtimeClient {
 		return false;
 	}
 
-	private remember(eventId: string): void {
-		this.seen.add(eventId);
-		if (this.caughtUp && this.seen.size > SEEN_LIMIT) {
-			const oldest = this.seen.values().next().value;
+	/** Remembers an applied id with its time (an event without one is kept until the safety bound). */
+	private remember(eventId: string, at: number | null): void {
+		this.seen.set(eventId, at ?? Number.POSITIVE_INFINITY);
+		if (this.seen.size > SEEN_MAX) {
+			const oldest = this.seen.keys().next().value;
 			if (oldest !== undefined) this.seen.delete(oldest);
+		}
+	}
+
+	/**
+	 * Forgets the ids stamped before a cursor time: a catch-up from that cursor or later never answers them again (at
+	 * the cursor time itself it may, so those are kept).
+	 */
+	private forgetBefore(at: number): void {
+		for (const [eventId, stamped] of this.seen) {
+			if (stamped < at) this.seen.delete(eventId);
 		}
 	}
 

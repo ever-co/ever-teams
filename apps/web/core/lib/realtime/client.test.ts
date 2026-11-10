@@ -378,6 +378,50 @@ describe('RealtimeClient', () => {
 		});
 	});
 
+	it('keeps a poll of an earlier connection from cancelling the new connection\'s poll', async () => {
+		let release: (answer: RealtimeCatchUp) => void = () => undefined;
+		const held = new Promise<RealtimeCatchUp>((resolve) => (release = resolve));
+		const ctx = setUp([{ events: [], cursor: 1_000, cursorId: null, hasMore: false, resync: false }, held], { pollIntervalMs: 60_000 });
+		ctx.client.start();
+		let socket = await ctx.accept();
+		// The first connection's poll is waiting for its answer when the socket drops and a new one is acknowledged.
+		ctx.timers.advance(60_000);
+		await flush();
+		socket.drop(1006);
+		ctx.timers.advance(100);
+		socket = await ctx.accept();
+		release({ events: [], cursor: 1_000, cursorId: null, hasMore: false, resync: false });
+		await flush();
+		const calls = ctx.catchUpCalls.length;
+		// The new connection's own poll still runs.
+		ctx.timers.advance(60_000);
+		await flush();
+		expect(ctx.catchUpCalls.length).toBe(calls + 1);
+	});
+
+	it('remembers an applied event until the catch-up cursor passes it, however many arrive meanwhile', async () => {
+		const ctx = setUp([
+			{ events: [], cursor: 1_000, cursorId: null, hasMore: false, resync: false },
+			// The catch-up answers again an event the stream delivered 2,500 events earlier: still recognised.
+			{ events: [envelope('s0', '2026-01-01T00:00:20.000Z')], cursor: Date.parse('2026-01-01T00:00:20.000Z'), cursorId: null, hasMore: false, resync: false },
+			// Once the cursor has passed its time, nothing returns it; later events are still recognised.
+			{ events: [envelope('s2499', '2026-01-01T00:00:21.000Z')], cursor: Date.parse('2026-01-01T00:00:22.000Z'), cursorId: null, hasMore: false, resync: false }
+		], { pollIntervalMs: 60_000 });
+		ctx.client.start();
+		const socket = await ctx.accept();
+		for (let i = 0; i < 2_500; i += 1) {
+			const at = i === 0 ? '2026-01-01T00:00:20.000Z' : '2026-01-01T00:00:21.000Z';
+			socket.serve({ id: '1', type: 'next', payload: { data: { collaborationEvents: envelope(`s${i}`, at) } } });
+		}
+		ctx.timers.advance(60_000);
+		await flush();
+		ctx.timers.advance(60_000);
+		await flush();
+		expect(ctx.events.filter((id) => id === 's0')).toHaveLength(1);
+		expect(ctx.events.filter((id) => id === 's2499')).toHaveLength(1);
+		expect(ctx.events).toHaveLength(2_500);
+	});
+
 	it('applies a presence change only when its revision is newer than the last one applied for the employee', async () => {
 		const ctx = setUp();
 		ctx.client.start();
