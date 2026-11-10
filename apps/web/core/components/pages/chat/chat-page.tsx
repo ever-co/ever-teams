@@ -163,7 +163,7 @@ function ChatPageContent({ view }: Readonly<{ view: ChatView }>) {
 	const meEmployeeId = scope?.employeeId ?? null;
 
 	return (
-		<PageLayout title={t('teamChat.TITLE')} className="min-h-0 flex-1 p-0">
+		<PageLayout fill title={t('teamChat.TITLE')} className="p-0">
 			<div className="flex h-full min-h-0">
 				<aside className={cn('w-full shrink-0 border-r border-border lg:block lg:w-64', listOpen ? 'block' : 'hidden')}>
 					{list.isLoading && <NotificationRowsSkeleton rows={6} />}

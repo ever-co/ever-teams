@@ -5229,7 +5229,51 @@
 		"DUPLICATE_ERROR": "De pagina kon niet worden gedupliceerd.",
 		"TRASH_ERROR": "De pagina kon niet naar de prullenbak.",
 		"RESTORE_ERROR": "De pagina kon niet worden hersteld.",
-		"DELETE_ERROR": "De pagina kon niet worden verwijderd."
+		"DELETE_ERROR": "De pagina kon niet worden verwijderd.",
+		"HOME": "Start",
+		"PAGE_COUNT": "{count, plural, one {# pagina} other {# pagina's}}",
+		"RECENTLY_UPDATED": "Onlangs bijgewerkt",
+		"ADD_ICON": "Pictogram toevoegen",
+		"WORD_COUNT": "{count, plural, one {# woord} other {# woorden}}",
+		"READ_TIME": "{minutes} min leestijd",
+		"OUTLINE": "Op deze pagina",
+		"SUB_PAGES": "Subpagina's",
+		"FULL_WIDTH": "Volledige breedte",
+		"COPY_LINK": "Link kopiëren",
+		"LINK_COPIED": "Link gekopieerd.",
+		"FOLDER_EMPTY": "Deze map is leeg.",
+		"TEMPLATES": {
+			"TITLE": "Begin met een sjabloon",
+			"BLANK": {
+				"NAME": "Lege pagina",
+				"TEXT": "Begin met een lege pagina"
+			},
+			"MEETING": {
+				"NAME": "Vergadernotities",
+				"TEXT": "Agenda, notities en actiepunten",
+				"ATTENDEES": "Aanwezigen",
+				"AGENDA": "Agenda",
+				"NOTES": "Notities",
+				"ACTION_ITEMS": "Actiepunten"
+			},
+			"BRIEF": {
+				"NAME": "Projectbriefing",
+				"TEXT": "Doel, scope en mijlpalen",
+				"GOAL": "Doel",
+				"BACKGROUND": "Achtergrond",
+				"SCOPE": "Scope",
+				"MILESTONES": "Mijlpalen",
+				"OPEN_QUESTIONS": "Open vragen"
+			},
+			"DECISION": {
+				"NAME": "Besluitverslag",
+				"TEXT": "Context, opties en het besluit",
+				"CONTEXT": "Context",
+				"OPTIONS": "Opties",
+				"DECISION": "Besluit",
+				"CONSEQUENCES": "Gevolgen"
+			}
+		}
 	},
 	"whatsNew": {
 		"TITLE": "Wat is er nieuw",

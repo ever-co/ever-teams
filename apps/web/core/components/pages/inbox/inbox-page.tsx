@@ -434,7 +434,7 @@ function InboxPageContent() {
 	if (!enabled) return <InboxPageSkeleton />;
 
 	return (
-		<PageLayout title={t('inbox.TITLE')} className="min-h-0 flex-1 p-0">
+		<PageLayout fill title={t('inbox.TITLE')} className="p-0">
 			<div className="flex h-full min-h-0 flex-col">
 				<div className="flex shrink-0 flex-wrap items-center gap-2 px-4 pt-3 pb-2">
 					<h1 className="text-base font-semibold text-foreground">{t('inbox.TITLE')}</h1>

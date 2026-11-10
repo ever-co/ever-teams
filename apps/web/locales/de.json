@@ -5229,7 +5229,51 @@
 		"DUPLICATE_ERROR": "Die Seite konnte nicht dupliziert werden.",
 		"TRASH_ERROR": "Die Seite konnte nicht in den Papierkorb verschoben werden.",
 		"RESTORE_ERROR": "Die Seite konnte nicht wiederhergestellt werden.",
-		"DELETE_ERROR": "Die Seite konnte nicht gelöscht werden."
+		"DELETE_ERROR": "Die Seite konnte nicht gelöscht werden.",
+		"HOME": "Start",
+		"PAGE_COUNT": "{count, plural, one {# Seite} other {# Seiten}}",
+		"RECENTLY_UPDATED": "Zuletzt aktualisiert",
+		"ADD_ICON": "Symbol hinzufügen",
+		"WORD_COUNT": "{count, plural, one {# Wort} other {# Wörter}}",
+		"READ_TIME": "{minutes} Min. Lesezeit",
+		"OUTLINE": "Auf dieser Seite",
+		"SUB_PAGES": "Unterseiten",
+		"FULL_WIDTH": "Volle Breite",
+		"COPY_LINK": "Link kopieren",
+		"LINK_COPIED": "Link kopiert.",
+		"FOLDER_EMPTY": "Dieser Ordner ist leer.",
+		"TEMPLATES": {
+			"TITLE": "Mit einer Vorlage beginnen",
+			"BLANK": {
+				"NAME": "Leere Seite",
+				"TEXT": "Mit einer leeren Seite starten"
+			},
+			"MEETING": {
+				"NAME": "Besprechungsnotizen",
+				"TEXT": "Agenda, Notizen und Aufgaben",
+				"ATTENDEES": "Teilnehmende",
+				"AGENDA": "Agenda",
+				"NOTES": "Notizen",
+				"ACTION_ITEMS": "Aufgaben"
+			},
+			"BRIEF": {
+				"NAME": "Projektbriefing",
+				"TEXT": "Ziel, Umfang und Meilensteine",
+				"GOAL": "Ziel",
+				"BACKGROUND": "Hintergrund",
+				"SCOPE": "Umfang",
+				"MILESTONES": "Meilensteine",
+				"OPEN_QUESTIONS": "Offene Fragen"
+			},
+			"DECISION": {
+				"NAME": "Entscheidungsprotokoll",
+				"TEXT": "Kontext, Optionen und die Entscheidung",
+				"CONTEXT": "Kontext",
+				"OPTIONS": "Optionen",
+				"DECISION": "Entscheidung",
+				"CONSEQUENCES": "Auswirkungen"
+			}
+		}
 	},
 	"whatsNew": {
 		"TITLE": "Neuigkeiten",

@@ -5229,7 +5229,51 @@
 		"DUPLICATE_ERROR": "تعذر تكرار الصفحة.",
 		"TRASH_ERROR": "تعذر نقل الصفحة إلى سلة المهملات.",
 		"RESTORE_ERROR": "تعذر استعادة الصفحة.",
-		"DELETE_ERROR": "تعذر حذف الصفحة."
+		"DELETE_ERROR": "تعذر حذف الصفحة.",
+		"HOME": "الرئيسية",
+		"PAGE_COUNT": "{count, plural, one {صفحة واحدة} two {صفحتان} few {# صفحات} many {# صفحة} other {# صفحة}}",
+		"RECENTLY_UPDATED": "المحدّثة مؤخرًا",
+		"ADD_ICON": "إضافة أيقونة",
+		"WORD_COUNT": "{count, plural, one {كلمة واحدة} two {كلمتان} few {# كلمات} many {# كلمة} other {# كلمة}}",
+		"READ_TIME": "{minutes} د قراءة",
+		"OUTLINE": "في هذه الصفحة",
+		"SUB_PAGES": "الصفحات الفرعية",
+		"FULL_WIDTH": "العرض الكامل",
+		"COPY_LINK": "نسخ الرابط",
+		"LINK_COPIED": "تم نسخ الرابط.",
+		"FOLDER_EMPTY": "هذا المجلد فارغ.",
+		"TEMPLATES": {
+			"TITLE": "ابدأ من قالب",
+			"BLANK": {
+				"NAME": "صفحة فارغة",
+				"TEXT": "ابدأ بصفحة فارغة"
+			},
+			"MEETING": {
+				"NAME": "ملاحظات الاجتماع",
+				"TEXT": "جدول الأعمال والملاحظات والمهام",
+				"ATTENDEES": "الحضور",
+				"AGENDA": "جدول الأعمال",
+				"NOTES": "الملاحظات",
+				"ACTION_ITEMS": "المهام المطلوبة"
+			},
+			"BRIEF": {
+				"NAME": "ملخص المشروع",
+				"TEXT": "الهدف والنطاق والمراحل",
+				"GOAL": "الهدف",
+				"BACKGROUND": "الخلفية",
+				"SCOPE": "النطاق",
+				"MILESTONES": "المراحل الرئيسية",
+				"OPEN_QUESTIONS": "أسئلة مفتوحة"
+			},
+			"DECISION": {
+				"NAME": "سجل القرار",
+				"TEXT": "السياق والخيارات والقرار",
+				"CONTEXT": "السياق",
+				"OPTIONS": "الخيارات",
+				"DECISION": "القرار",
+				"CONSEQUENCES": "النتائج المترتبة"
+			}
+		}
 	},
 	"whatsNew": {
 		"TITLE": "ما الجديد",

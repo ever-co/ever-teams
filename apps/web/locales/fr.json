@@ -5229,7 +5229,51 @@
 		"DUPLICATE_ERROR": "La page n’a pas pu être dupliquée.",
 		"TRASH_ERROR": "La page n’a pas pu être mise à la corbeille.",
 		"RESTORE_ERROR": "La page n’a pas pu être restaurée.",
-		"DELETE_ERROR": "La page n’a pas pu être supprimée."
+		"DELETE_ERROR": "La page n’a pas pu être supprimée.",
+		"HOME": "Accueil",
+		"PAGE_COUNT": "{count, plural, one {# page} other {# pages}}",
+		"RECENTLY_UPDATED": "Mises à jour récemment",
+		"ADD_ICON": "Ajouter une icône",
+		"WORD_COUNT": "{count, plural, one {# mot} other {# mots}}",
+		"READ_TIME": "{minutes} min de lecture",
+		"OUTLINE": "Sur cette page",
+		"SUB_PAGES": "Sous-pages",
+		"FULL_WIDTH": "Pleine largeur",
+		"COPY_LINK": "Copier le lien",
+		"LINK_COPIED": "Lien copié.",
+		"FOLDER_EMPTY": "Ce dossier est vide.",
+		"TEMPLATES": {
+			"TITLE": "Partir d'un modèle",
+			"BLANK": {
+				"NAME": "Page vierge",
+				"TEXT": "Commencer avec une page vide"
+			},
+			"MEETING": {
+				"NAME": "Notes de réunion",
+				"TEXT": "Ordre du jour, notes et actions",
+				"ATTENDEES": "Participants",
+				"AGENDA": "Ordre du jour",
+				"NOTES": "Notes",
+				"ACTION_ITEMS": "Actions à mener"
+			},
+			"BRIEF": {
+				"NAME": "Brief de projet",
+				"TEXT": "Objectif, périmètre et jalons",
+				"GOAL": "Objectif",
+				"BACKGROUND": "Contexte",
+				"SCOPE": "Périmètre",
+				"MILESTONES": "Jalons",
+				"OPEN_QUESTIONS": "Questions ouvertes"
+			},
+			"DECISION": {
+				"NAME": "Compte rendu de décision",
+				"TEXT": "Contexte, options et décision",
+				"CONTEXT": "Contexte",
+				"OPTIONS": "Options",
+				"DECISION": "Décision",
+				"CONSEQUENCES": "Conséquences"
+			}
+		}
 	},
 	"whatsNew": {
 		"TITLE": "Nouveautés",

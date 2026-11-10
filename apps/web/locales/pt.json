@@ -5229,7 +5229,51 @@
 		"DUPLICATE_ERROR": "Não foi possível duplicar a página.",
 		"TRASH_ERROR": "Não foi possível mover a página para a lixeira.",
 		"RESTORE_ERROR": "Não foi possível restaurar a página.",
-		"DELETE_ERROR": "Não foi possível excluir a página."
+		"DELETE_ERROR": "Não foi possível excluir a página.",
+		"HOME": "Início",
+		"PAGE_COUNT": "{count, plural, one {# página} other {# páginas}}",
+		"RECENTLY_UPDATED": "Atualizadas recentemente",
+		"ADD_ICON": "Adicionar ícone",
+		"WORD_COUNT": "{count, plural, one {# palavra} other {# palavras}}",
+		"READ_TIME": "{minutes} min de leitura",
+		"OUTLINE": "Nesta página",
+		"SUB_PAGES": "Subpáginas",
+		"FULL_WIDTH": "Largura total",
+		"COPY_LINK": "Copiar link",
+		"LINK_COPIED": "Link copiado.",
+		"FOLDER_EMPTY": "Esta pasta está vazia.",
+		"TEMPLATES": {
+			"TITLE": "Começar com um modelo",
+			"BLANK": {
+				"NAME": "Página em branco",
+				"TEXT": "Comece com uma página vazia"
+			},
+			"MEETING": {
+				"NAME": "Notas de reunião",
+				"TEXT": "Pauta, notas e ações",
+				"ATTENDEES": "Participantes",
+				"AGENDA": "Pauta",
+				"NOTES": "Notas",
+				"ACTION_ITEMS": "Ações a realizar"
+			},
+			"BRIEF": {
+				"NAME": "Resumo do projeto",
+				"TEXT": "Objetivo, escopo e marcos",
+				"GOAL": "Objetivo",
+				"BACKGROUND": "Contexto",
+				"SCOPE": "Escopo",
+				"MILESTONES": "Marcos",
+				"OPEN_QUESTIONS": "Perguntas em aberto"
+			},
+			"DECISION": {
+				"NAME": "Registro de decisão",
+				"TEXT": "Contexto, opções e a decisão",
+				"CONTEXT": "Contexto",
+				"OPTIONS": "Opções",
+				"DECISION": "Decisão",
+				"CONSEQUENCES": "Consequências"
+			}
+		}
 	},
 	"whatsNew": {
 		"TITLE": "Novidades",

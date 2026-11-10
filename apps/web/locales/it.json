@@ -5229,7 +5229,51 @@
 		"DUPLICATE_ERROR": "Impossibile duplicare la pagina.",
 		"TRASH_ERROR": "Impossibile spostare la pagina nel cestino.",
 		"RESTORE_ERROR": "Impossibile ripristinare la pagina.",
-		"DELETE_ERROR": "Impossibile eliminare la pagina."
+		"DELETE_ERROR": "Impossibile eliminare la pagina.",
+		"HOME": "Home",
+		"PAGE_COUNT": "{count, plural, one {# pagina} other {# pagine}}",
+		"RECENTLY_UPDATED": "Aggiornate di recente",
+		"ADD_ICON": "Aggiungi icona",
+		"WORD_COUNT": "{count, plural, one {# parola} other {# parole}}",
+		"READ_TIME": "{minutes} min di lettura",
+		"OUTLINE": "In questa pagina",
+		"SUB_PAGES": "Sottopagine",
+		"FULL_WIDTH": "Larghezza intera",
+		"COPY_LINK": "Copia link",
+		"LINK_COPIED": "Link copiato.",
+		"FOLDER_EMPTY": "Questa cartella è vuota.",
+		"TEMPLATES": {
+			"TITLE": "Parti da un modello",
+			"BLANK": {
+				"NAME": "Pagina vuota",
+				"TEXT": "Inizia con una pagina vuota"
+			},
+			"MEETING": {
+				"NAME": "Note della riunione",
+				"TEXT": "Ordine del giorno, note e azioni",
+				"ATTENDEES": "Partecipanti",
+				"AGENDA": "Ordine del giorno",
+				"NOTES": "Note",
+				"ACTION_ITEMS": "Azioni da svolgere"
+			},
+			"BRIEF": {
+				"NAME": "Brief di progetto",
+				"TEXT": "Obiettivo, ambito e traguardi",
+				"GOAL": "Obiettivo",
+				"BACKGROUND": "Contesto",
+				"SCOPE": "Ambito",
+				"MILESTONES": "Traguardi",
+				"OPEN_QUESTIONS": "Domande aperte"
+			},
+			"DECISION": {
+				"NAME": "Registro di decisione",
+				"TEXT": "Contesto, opzioni e decisione",
+				"CONTEXT": "Contesto",
+				"OPTIONS": "Opzioni",
+				"DECISION": "Decisione",
+				"CONSEQUENCES": "Conseguenze"
+			}
+		}
 	},
 	"whatsNew": {
 		"TITLE": "Novità",

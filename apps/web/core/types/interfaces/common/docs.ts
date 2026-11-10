@@ -172,8 +172,8 @@ export interface IDocumentLink {
 export const DOCS_CONTENT_CONFLICT = 'DOCS_CONTENT_CONFLICT';
 export const DOCS_LOCKED = 'DOCS_LOCKED';
 
-/** The platform caps a list page at this many rows. */
-export const DOCS_LIST_PAGE_SIZE = 200;
+/** The platform refuses a list page of more rows than this (400 "take must not be greater than 100"). */
+export const DOCS_LIST_PAGE_SIZE = 100;
 /** The tree never loads more pages than this; a larger workspace browses by search. */
 export const DOCS_TREE_MAX_PAGES = 2000;
 /** The platform refuses a larger content save. */

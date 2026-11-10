@@ -5229,7 +5229,51 @@
 		"DUPLICATE_ERROR": "无法复制页面。",
 		"TRASH_ERROR": "无法将页面移到回收站。",
 		"RESTORE_ERROR": "无法恢复页面。",
-		"DELETE_ERROR": "无法删除页面。"
+		"DELETE_ERROR": "无法删除页面。",
+		"HOME": "首页",
+		"PAGE_COUNT": "{count, plural, other {# 个页面}}",
+		"RECENTLY_UPDATED": "最近更新",
+		"ADD_ICON": "添加图标",
+		"WORD_COUNT": "{count, plural, other {# 字}}",
+		"READ_TIME": "阅读约 {minutes} 分钟",
+		"OUTLINE": "本页内容",
+		"SUB_PAGES": "子页面",
+		"FULL_WIDTH": "全宽",
+		"COPY_LINK": "复制链接",
+		"LINK_COPIED": "链接已复制。",
+		"FOLDER_EMPTY": "此文件夹为空。",
+		"TEMPLATES": {
+			"TITLE": "从模板开始",
+			"BLANK": {
+				"NAME": "空白页面",
+				"TEXT": "从空白页面开始"
+			},
+			"MEETING": {
+				"NAME": "会议记录",
+				"TEXT": "议程、记录和待办事项",
+				"ATTENDEES": "参会人",
+				"AGENDA": "议程",
+				"NOTES": "记录",
+				"ACTION_ITEMS": "待办事项"
+			},
+			"BRIEF": {
+				"NAME": "项目简报",
+				"TEXT": "目标、范围和里程碑",
+				"GOAL": "目标",
+				"BACKGROUND": "背景",
+				"SCOPE": "范围",
+				"MILESTONES": "里程碑",
+				"OPEN_QUESTIONS": "待解决的问题"
+			},
+			"DECISION": {
+				"NAME": "决策记录",
+				"TEXT": "背景、方案和决定",
+				"CONTEXT": "背景",
+				"OPTIONS": "方案",
+				"DECISION": "决定",
+				"CONSEQUENCES": "影响"
+			}
+		}
 	},
 	"whatsNew": {
 		"TITLE": "新功能",

@@ -5229,7 +5229,51 @@
 		"DUPLICATE_ERROR": "The page could not be duplicated.",
 		"TRASH_ERROR": "The page could not be moved to the trash.",
 		"RESTORE_ERROR": "The page could not be restored.",
-		"DELETE_ERROR": "The page could not be deleted."
+		"DELETE_ERROR": "The page could not be deleted.",
+		"HOME": "Home",
+		"PAGE_COUNT": "{count, plural, one {# page} other {# pages}}",
+		"RECENTLY_UPDATED": "Recently updated",
+		"ADD_ICON": "Add icon",
+		"WORD_COUNT": "{count, plural, one {# word} other {# words}}",
+		"READ_TIME": "{minutes} min read",
+		"OUTLINE": "On this page",
+		"SUB_PAGES": "Sub-pages",
+		"FULL_WIDTH": "Full width",
+		"COPY_LINK": "Copy link",
+		"LINK_COPIED": "Link copied.",
+		"FOLDER_EMPTY": "This folder is empty.",
+		"TEMPLATES": {
+			"TITLE": "Start from a template",
+			"BLANK": {
+				"NAME": "Blank page",
+				"TEXT": "Start with an empty page"
+			},
+			"MEETING": {
+				"NAME": "Meeting notes",
+				"TEXT": "Agenda, notes and action items",
+				"ATTENDEES": "Attendees",
+				"AGENDA": "Agenda",
+				"NOTES": "Notes",
+				"ACTION_ITEMS": "Action items"
+			},
+			"BRIEF": {
+				"NAME": "Project brief",
+				"TEXT": "Goal, scope and milestones",
+				"GOAL": "Goal",
+				"BACKGROUND": "Background",
+				"SCOPE": "Scope",
+				"MILESTONES": "Milestones",
+				"OPEN_QUESTIONS": "Open questions"
+			},
+			"DECISION": {
+				"NAME": "Decision record",
+				"TEXT": "Context, options and the decision",
+				"CONTEXT": "Context",
+				"OPTIONS": "Options",
+				"DECISION": "Decision",
+				"CONSEQUENCES": "Consequences"
+			}
+		}
 	},
 	"whatsNew": {
 		"TITLE": "What's new",

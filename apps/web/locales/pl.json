@@ -5229,7 +5229,51 @@
 		"DUPLICATE_ERROR": "Nie udało się zduplikować strony.",
 		"TRASH_ERROR": "Nie udało się przenieść strony do kosza.",
 		"RESTORE_ERROR": "Nie udało się przywrócić strony.",
-		"DELETE_ERROR": "Nie udało się usunąć strony."
+		"DELETE_ERROR": "Nie udało się usunąć strony.",
+		"HOME": "Start",
+		"PAGE_COUNT": "{count, plural, one {# strona} few {# strony} many {# stron} other {# strony}}",
+		"RECENTLY_UPDATED": "Ostatnio zaktualizowane",
+		"ADD_ICON": "Dodaj ikonę",
+		"WORD_COUNT": "{count, plural, one {# słowo} few {# słowa} many {# słów} other {# słowa}}",
+		"READ_TIME": "{minutes} min czytania",
+		"OUTLINE": "Na tej stronie",
+		"SUB_PAGES": "Podstrony",
+		"FULL_WIDTH": "Pełna szerokość",
+		"COPY_LINK": "Kopiuj link",
+		"LINK_COPIED": "Link skopiowany.",
+		"FOLDER_EMPTY": "Ten folder jest pusty.",
+		"TEMPLATES": {
+			"TITLE": "Zacznij od szablonu",
+			"BLANK": {
+				"NAME": "Pusta strona",
+				"TEXT": "Zacznij od pustej strony"
+			},
+			"MEETING": {
+				"NAME": "Notatki ze spotkania",
+				"TEXT": "Agenda, notatki i zadania",
+				"ATTENDEES": "Uczestnicy",
+				"AGENDA": "Agenda",
+				"NOTES": "Notatki",
+				"ACTION_ITEMS": "Zadania do wykonania"
+			},
+			"BRIEF": {
+				"NAME": "Brief projektu",
+				"TEXT": "Cel, zakres i kamienie milowe",
+				"GOAL": "Cel",
+				"BACKGROUND": "Tło",
+				"SCOPE": "Zakres",
+				"MILESTONES": "Kamienie milowe",
+				"OPEN_QUESTIONS": "Otwarte pytania"
+			},
+			"DECISION": {
+				"NAME": "Zapis decyzji",
+				"TEXT": "Kontekst, opcje i decyzja",
+				"CONTEXT": "Kontekst",
+				"OPTIONS": "Opcje",
+				"DECISION": "Decyzja",
+				"CONSEQUENCES": "Konsekwencje"
+			}
+		}
 	},
 	"whatsNew": {
 		"TITLE": "Co nowego",
