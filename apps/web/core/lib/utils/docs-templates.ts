@@ -1,9 +1,9 @@
 import type { IDocumentNode } from '@/core/types/interfaces/common/docs';
 
 /** What a section of a template starts with under its heading. */
-export type DocsTemplateBlock = 'text' | 'bullets' | 'todos';
+type DocsTemplateBlock = 'text' | 'bullets' | 'todos';
 
-export interface DocsTemplateSection {
+interface DocsTemplateSection {
 	heading: string;
 	block: DocsTemplateBlock;
 }

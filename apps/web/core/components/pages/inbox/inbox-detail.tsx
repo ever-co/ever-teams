@@ -25,7 +25,7 @@ const SHORTCUTS: ReadonlyArray<{ keys: readonly string[]; label: 'OPEN' | 'MOVE'
 	{ keys: ['X'], label: 'SELECT' }
 ];
 
-export interface InboxDetailProps {
+interface InboxDetailProps {
 	entry: InboxEntry | null;
 	person: Person | null;
 	taskTitle: string | null;

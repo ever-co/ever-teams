@@ -13,7 +13,7 @@ import { EEmployeeNotificationType } from '@/core/types/interfaces/common/employ
 import { INBOX_ROW_ATTRIBUTE } from '@/core/hooks/inbox/use-inbox-keyboard';
 import { SnoozeMenu } from './snooze-menu';
 
-export const INBOX_EVENT_KEYS: Record<EEmployeeNotificationType, DottedLanguageObjectStringPaths> = {
+const INBOX_EVENT_KEYS: Record<EEmployeeNotificationType, DottedLanguageObjectStringPaths> = {
 	[EEmployeeNotificationType.Assignment]: 'notifications.EVENTS.ASSIGNMENT',
 	[EEmployeeNotificationType.Mention]: 'notifications.EVENTS.MENTION',
 	[EEmployeeNotificationType.Comment]: 'notifications.EVENTS.COMMENT',
@@ -51,7 +51,7 @@ export function useInboxSentence(entry: InboxEntry, person: Person | null): Reac
 }
 
 /** Who an entry is from: the team member, or just the name the platform gave (drawn as initials). */
-export function inboxSenderOf(entry: InboxEntry, person: Person | null): Person | null {
+function inboxSenderOf(entry: InboxEntry, person: Person | null): Person | null {
 	if (person) return person;
 	return entry.senderName ? { id: entry.sentByEmployeeId ?? entry.id, name: entry.senderName, imageUrl: null } : null;
 }

@@ -1,9 +1,6 @@
 import type { IDocumentNode } from '@/core/types/interfaces/common/docs';
 
-/** The heading levels the outline lists; deeper ones stay in the text only. */
-export const DOCS_OUTLINE_LEVELS = [1, 2, 3] as const;
-
-/** The CSS selector of the headings the outline lists, in document order (what `index` counts). */
+/** The CSS selector of the headings the outline lists (levels 1 to 3), in document order (what `index` counts). */
 export const DOCS_OUTLINE_SELECTOR = 'h1, h2, h3';
 
 /** The words an adult reads per minute, for the reading time. */
@@ -16,7 +13,7 @@ export interface DocsOutlineItem {
 	index: number;
 }
 
-export interface DocsTextStats {
+interface DocsTextStats {
 	words: number;
 	/** Whole minutes to read the page; 0 for an empty page. */
 	minutes: number;
