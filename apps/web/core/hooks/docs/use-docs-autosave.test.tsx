@@ -682,6 +682,30 @@ describe('useDocsAutosave, restoring a version', () => {
 		expect(contentsSaved().slice(before)).toEqual([]);
 	});
 
+	it('keeps text typed while the restore ran, on its old clock, so its save meets the restored version as a conflict', () => {
+		const { wrapper } = setup();
+		const page = pageOf('page-restore-typed-during');
+		const view = renderHook(() => useDocsAutosave(page), { wrapper });
+		act(() => view.result.current.change('<p>replaced by the restore</p>', null));
+		let release!: (restored: boolean) => void;
+		act(() => {
+			release = view.result.current.holdForRestore();
+		});
+		// The editor stays writable while the request runs.
+		act(() => view.result.current.change('<p>typed during the restore</p>', null));
+		act(() => release(true));
+
+		expect(view.result.current.hasDraft()).toBe(true);
+		expect(view.result.current.state).toBe('dirty');
+		const before = mockUpdateContent.mock.calls.length;
+		act(() => void view.result.current.flushNow());
+		expect(mockUpdateContent.mock.calls[before][1]).toMatchObject({
+			contentHtml: '<p>typed during the restore</p>',
+			expectedUpdatedAt: page.updatedAt
+		});
+		view.unmount();
+	});
+
 	it('waits for the last of two overlapping restores before saving', async () => {
 		const { wrapper } = setup();
 		const view = renderHook(() => useDocsAutosave(pageOf('page-two-restores')), { wrapper });
