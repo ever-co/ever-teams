@@ -11,7 +11,7 @@ import { RealtimeClient } from '@/core/lib/realtime/client';
 import { isRealtimeEnabled, realtimeSocketUrl } from '@/core/lib/realtime/config';
 import { invalidationsFor, RealtimeScope, resyncInvalidations } from '@/core/lib/realtime/invalidation';
 import { InvalidationScheduler, isTextFieldFocused } from '@/core/lib/realtime/invalidation-scheduler';
-import { deliversPromptly } from '@/core/lib/realtime/delivery';
+import { trackPromptDelivery } from '@/core/lib/realtime/delivery';
 import { realtimeService } from '@/core/services/client/api/realtime';
 import { realtimePromptDeliveryAtom, realtimeStatusAtom } from '@/core/stores/common/realtime';
 
@@ -74,22 +74,12 @@ export function useRealtimeClient(): void {
 			scheduler.add(resyncInvalidations(scope));
 		});
 		// Each time the connection comes up, ask the platform whether it pushes promptly: only then may the
-		// connection stand in for the polls (`realtimePausesPollingAtom`). A redeploy can change the answer, and a
-		// failed question keeps the polls.
-		let disposed = false;
-		const readDelivery = () => {
-			realtimeService
-				.status()
-				.then((answer) => {
-					if (!disposed) setPromptDelivery(deliversPromptly(answer));
-				})
-				.catch(() => {
-					if (!disposed) setPromptDelivery(false);
-				});
-		};
+		// connection stand in for the polls (`realtimePausesPollingAtom`). A redeploy can change the answer, a
+		// failed question keeps the polls, and only the latest question counts.
+		const delivery = trackPromptDelivery(() => realtimeService.status(), setPromptDelivery);
 		const offStatus = client.onStatus((status) => {
 			setStatus(status);
-			if (status === 'connected') readDelivery();
+			void delivery.onStatus(status);
 		});
 		// Leaving a text field runs what was held for it.
 		const onFocusOut = () => scheduler.flush();
@@ -99,7 +89,7 @@ export function useRealtimeClient(): void {
 		client.start();
 
 		return () => {
-			disposed = true;
+			delivery.dispose();
 			clientRef.current = null;
 			if (typeof document !== 'undefined') document.removeEventListener('focusout', onFocusOut);
 			offEvent();
