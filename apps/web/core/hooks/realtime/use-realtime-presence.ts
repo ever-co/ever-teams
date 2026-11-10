@@ -20,8 +20,15 @@ let tabConnection: string | null = null;
  */
 export function realtimeConnectionId(): string {
 	if (!tabConnection) {
-		const random = typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function' ? crypto.randomUUID() : null;
-		tabConnection = random ?? `${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 12)}`;
+		const random = typeof crypto === 'undefined' ? undefined : crypto;
+		if (random && typeof random.randomUUID === 'function') {
+			tabConnection = random.randomUUID();
+		} else if (random && typeof random.getRandomValues === 'function') {
+			tabConnection = Array.from(random.getRandomValues(new Uint8Array(16)), (byte) => byte.toString(16).padStart(2, '0')).join('');
+		} else {
+			// No Web Crypto at all: unique enough to tell this page's tab apart, and never security material.
+			tabConnection = `tab-${Date.now().toString(36)}`;
+		}
 	}
 	return tabConnection;
 }
