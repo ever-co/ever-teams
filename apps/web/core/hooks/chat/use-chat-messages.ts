@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { QueryClient, QueryKey, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useAtomValue } from 'jotai';
-import { realtimeStatusAtom } from '@/core/stores/common/realtime';
+import { realtimePausesPollingAtom } from '@/core/stores/common/realtime';
 import { queryKeys } from '@/core/query/keys';
 import { chatService } from '@/core/services/client/api/chat';
 import { IChatMessage, IChatMessagePage, IChatMessagesQuery, IChatThreadPage } from '@/core/types/interfaces/common/chat';
@@ -268,10 +268,11 @@ export function useChatMessages(conversationId: string | null, enabled: boolean)
 	// The key is read through a ref, so the poll keeps its own cadence however often the page renders (typing).
 	const keyRef = useRef(queryKey);
 	keyRef.current = queryKey;
-	// Over the live channel every new message is an event that refetches this timeline: the poll pauses, and resumes
-	// the moment the connection drops (the reconnect replays what was missed).
+	// Where the live channel replaces the polls (see `realtimePausesPollingAtom`), every new message is an event that
+	// refetches this timeline: the poll pauses, and resumes the moment the connection drops (the reconnect replays
+	// what was missed).
 	const liveRef = useRef(false);
-	liveRef.current = useAtomValue(realtimeStatusAtom) === 'connected';
+	liveRef.current = useAtomValue(realtimePausesPollingAtom);
 
 	// Newer messages, while this tab is visible: read forward from the newest one read from the platform. Without the live
 	// channel the held messages are also read again now and then (edits and deletions).
@@ -413,7 +414,7 @@ export function useChatThread(rootMessageId: string | null, enabled: boolean) {
 	const queryClient = useQueryClient();
 	const tenantId = scope?.tenantId ?? null;
 	const queryKey = useMemo(() => queryKeys.chat.thread(tenantId, rootMessageId), [rootMessageId, tenantId]);
-	const live = useAtomValue(realtimeStatusAtom) === 'connected';
+	const live = useAtomValue(realtimePausesPollingAtom);
 	const query = useQuery<IChatThreadPage>({
 		queryKey,
 		queryFn: async ({ signal }) => {

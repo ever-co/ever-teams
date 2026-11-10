@@ -3,7 +3,7 @@
 import { useMemo } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { useAtomValue } from 'jotai';
-import { realtimeStatusAtom } from '@/core/stores/common/realtime';
+import { realtimePausesPollingAtom } from '@/core/stores/common/realtime';
 import { queryKeys } from '@/core/query/keys';
 import { chatService } from '@/core/services/client/api/chat';
 import { EChatNotifyLevel, type IChatConversationWithState, type IChatMemberState } from '@/core/types/interfaces/common/chat';
@@ -15,8 +15,8 @@ const LIST_POLL_MS = 30_000;
 
 /** My conversations with my state, and the categories; sorted for the sidebar. */
 export function useChatConversations(enabled: boolean) {
-	// Over the live channel the lists are refetched when an event says they changed: no poll.
-	const live = useAtomValue(realtimeStatusAtom) === 'connected';
+	// Where the live channel replaces the polls (`realtimePausesPollingAtom`), an event refetches the lists: no poll.
+	const live = useAtomValue(realtimePausesPollingAtom);
 	const scope = useChatScope();
 	const query = useQuery({
 		queryKey: queryKeys.chat.conversations(scope?.tenantId, scope?.organizationId, scope?.userId),
@@ -100,8 +100,8 @@ export function unreadTotalsOf(states: ReadonlyArray<Pick<IChatMemberState, 'unr
 
 /** My state of every conversation and my followed threads with their unread replies (the Threads badge). */
 export function useChatStates(enabled: boolean) {
-	// Over the live channel the lists are refetched when an event says they changed: no poll.
-	const live = useAtomValue(realtimeStatusAtom) === 'connected';
+	// Where the live channel replaces the polls (`realtimePausesPollingAtom`), an event refetches the lists: no poll.
+	const live = useAtomValue(realtimePausesPollingAtom);
 	const scope = useChatScope();
 	const query = useQuery({
 		queryKey: queryKeys.chat.states(scope?.tenantId, scope?.organizationId, scope?.userId),
@@ -118,8 +118,8 @@ export function useChatStates(enabled: boolean) {
 
 /** My followed threads with unread replies. */
 export function useChatThreads(enabled: boolean) {
-	// Over the live channel the lists are refetched when an event says they changed: no poll.
-	const live = useAtomValue(realtimeStatusAtom) === 'connected';
+	// Where the live channel replaces the polls (`realtimePausesPollingAtom`), an event refetches the lists: no poll.
+	const live = useAtomValue(realtimePausesPollingAtom);
 	const scope = useChatScope();
 	const query = useQuery({
 		queryKey: queryKeys.chat.threads(scope?.tenantId, scope?.userId),
