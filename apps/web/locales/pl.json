@@ -4948,7 +4948,8 @@
 			"NOT_DONE": "Oznacz jako niezakończone",
 			"UNARCHIVE": "Przywróć",
 			"CLEAR_SELECTION": "Wyczyść zaznaczenie",
-			"MARK_ALL_READ": "Oznacz wszystkie jako przeczytane"
+			"MARK_ALL_READ": "Oznacz wszystkie jako przeczytane",
+			"CLEAR_SEARCH": "Wyczyść wyszukiwanie"
 		},
 		"SNOOZE": {
 			"LATER_TODAY": "Później dzisiaj",
@@ -5009,10 +5010,18 @@
 			"CLOSE": "Zamknij",
 			"OPEN_TASK": "Otwórz zadanie",
 			"OPEN": "Otwórz",
-			"NO_TARGET": "To powiadomienie nie ma nic do otwarcia."
+			"NO_TARGET": "To powiadomienie nie ma nic do otwarcia.",
+			"MESSAGE_GONE": "Ta wiadomość nie jest już dostępna."
 		},
 		"KEYBOARD": {
-			"HINT": "J / K przesuń, X zaznacz, E archiwizuj, H odłóż, D zakończone, U przeczytane, Enter otwórz, Shift+Esc oznacz wszystkie jako przeczytane"
+			"HINT": "J / K przesuń, X zaznacz, E archiwizuj, H odłóż, D zakończone, U przeczytane, Enter otwórz, Shift+Esc oznacz wszystkie jako przeczytane",
+			"MOVE": "Przechodzenie między powiadomieniami",
+			"OPEN": "Otwórz",
+			"READ": "Oznacz jako przeczytane lub nieprzeczytane",
+			"ARCHIVE": "Archiwizuj",
+			"SNOOZE": "Odłóż do jutra",
+			"DONE": "Oznacz jako zrobione",
+			"SELECT": "Zaznacz"
 		},
 		"OPEN_PAGE": "Otwórz skrzynkę"
 	},

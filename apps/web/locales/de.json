@@ -4948,7 +4948,8 @@
 			"NOT_DONE": "Als nicht erledigt markieren",
 			"UNARCHIVE": "Wiederherstellen",
 			"CLEAR_SELECTION": "Auswahl aufheben",
-			"MARK_ALL_READ": "Alle als gelesen markieren"
+			"MARK_ALL_READ": "Alle als gelesen markieren",
+			"CLEAR_SEARCH": "Suche löschen"
 		},
 		"SNOOZE": {
 			"LATER_TODAY": "Später heute",
@@ -5009,10 +5010,18 @@
 			"CLOSE": "Schließen",
 			"OPEN_TASK": "Aufgabe öffnen",
 			"OPEN": "Öffnen",
-			"NO_TARGET": "Diese Benachrichtigung hat nichts zu öffnen."
+			"NO_TARGET": "Diese Benachrichtigung hat nichts zu öffnen.",
+			"MESSAGE_GONE": "Diese Nachricht ist nicht mehr verfügbar."
 		},
 		"KEYBOARD": {
-			"HINT": "J / K bewegen, X auswählen, E archivieren, H zurückstellen, D erledigt, U gelesen, Enter öffnen, Umschalt+Esc alle als gelesen markieren"
+			"HINT": "J / K bewegen, X auswählen, E archivieren, H zurückstellen, D erledigt, U gelesen, Enter öffnen, Umschalt+Esc alle als gelesen markieren",
+			"MOVE": "Zwischen Benachrichtigungen wechseln",
+			"OPEN": "Öffnen",
+			"READ": "Als gelesen oder ungelesen markieren",
+			"ARCHIVE": "Archivieren",
+			"SNOOZE": "Bis morgen zurückstellen",
+			"DONE": "Als erledigt markieren",
+			"SELECT": "Auswählen"
 		},
 		"OPEN_PAGE": "Posteingang öffnen"
 	},

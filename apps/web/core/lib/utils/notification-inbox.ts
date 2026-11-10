@@ -34,6 +34,7 @@ const TITLE_ACTION_WORDS = [
 	' Invited ',
 	' published ',
 	' sent ',
+	' replied ',
 	' asked for '
 ];
 

@@ -4948,7 +4948,8 @@
 			"NOT_DONE": "Marcar como no hecha",
 			"UNARCHIVE": "Desarchivar",
 			"CLEAR_SELECTION": "Quitar selección",
-			"MARK_ALL_READ": "Marcar todo como leído"
+			"MARK_ALL_READ": "Marcar todo como leído",
+			"CLEAR_SEARCH": "Borrar búsqueda"
 		},
 		"SNOOZE": {
 			"LATER_TODAY": "Más tarde hoy",
@@ -5009,10 +5010,18 @@
 			"CLOSE": "Cerrar",
 			"OPEN_TASK": "Abrir tarea",
 			"OPEN": "Abrir",
-			"NO_TARGET": "Esta notificación no tiene nada que abrir."
+			"NO_TARGET": "Esta notificación no tiene nada que abrir.",
+			"MESSAGE_GONE": "Este mensaje ya no está disponible."
 		},
 		"KEYBOARD": {
-			"HINT": "J / K mover, X seleccionar, E archivar, H posponer, D hecha, U leída, Intro abrir, Mayús+Esc marcar todo como leído"
+			"HINT": "J / K mover, X seleccionar, E archivar, H posponer, D hecha, U leída, Intro abrir, Mayús+Esc marcar todo como leído",
+			"MOVE": "Moverse entre notificaciones",
+			"OPEN": "Abrir",
+			"READ": "Marcar como leída o no leída",
+			"ARCHIVE": "Archivar",
+			"SNOOZE": "Posponer hasta mañana",
+			"DONE": "Marcar como hecha",
+			"SELECT": "Seleccionar"
 		},
 		"OPEN_PAGE": "Abrir la bandeja de entrada"
 	},

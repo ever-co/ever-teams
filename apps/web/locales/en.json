@@ -4948,7 +4948,8 @@
 			"NOT_DONE": "Mark as not done",
 			"UNARCHIVE": "Unarchive",
 			"CLEAR_SELECTION": "Clear selection",
-			"MARK_ALL_READ": "Mark all as read"
+			"MARK_ALL_READ": "Mark all as read",
+			"CLEAR_SEARCH": "Clear search"
 		},
 		"SNOOZE": {
 			"LATER_TODAY": "Later today",
@@ -5009,10 +5010,18 @@
 			"CLOSE": "Close",
 			"OPEN_TASK": "Open task",
 			"OPEN": "Open",
-			"NO_TARGET": "This notification has nothing to open."
+			"NO_TARGET": "This notification has nothing to open.",
+			"MESSAGE_GONE": "This message is no longer available."
 		},
 		"KEYBOARD": {
-			"HINT": "J / K move, X select, E archive, H snooze, D done, U read, Enter open, Shift+Esc mark all read"
+			"HINT": "J / K move, X select, E archive, H snooze, D done, U read, Enter open, Shift+Esc mark all read",
+			"MOVE": "Move between notifications",
+			"OPEN": "Open",
+			"READ": "Mark read or unread",
+			"ARCHIVE": "Archive",
+			"SNOOZE": "Snooze until tomorrow",
+			"DONE": "Mark as done",
+			"SELECT": "Select"
 		},
 		"OPEN_PAGE": "Open the inbox"
 	},

@@ -4948,7 +4948,8 @@
 			"NOT_DONE": "Markeren als niet afgehandeld",
 			"UNARCHIVE": "Terugzetten",
 			"CLEAR_SELECTION": "Selectie wissen",
-			"MARK_ALL_READ": "Alles als gelezen markeren"
+			"MARK_ALL_READ": "Alles als gelezen markeren",
+			"CLEAR_SEARCH": "Zoekopdracht wissen"
 		},
 		"SNOOZE": {
 			"LATER_TODAY": "Later vandaag",
@@ -5009,10 +5010,18 @@
 			"CLOSE": "Sluiten",
 			"OPEN_TASK": "Taak openen",
 			"OPEN": "Openen",
-			"NO_TARGET": "Deze melding heeft niets om te openen."
+			"NO_TARGET": "Deze melding heeft niets om te openen.",
+			"MESSAGE_GONE": "Dit bericht is niet meer beschikbaar."
 		},
 		"KEYBOARD": {
-			"HINT": "J / K verplaatsen, X selecteren, E archiveren, H snoozen, D afgehandeld, U gelezen, Enter openen, Shift+Esc alles als gelezen markeren"
+			"HINT": "J / K verplaatsen, X selecteren, E archiveren, H snoozen, D afgehandeld, U gelezen, Enter openen, Shift+Esc alles als gelezen markeren",
+			"MOVE": "Tussen meldingen bewegen",
+			"OPEN": "Openen",
+			"READ": "Markeren als gelezen of ongelezen",
+			"ARCHIVE": "Archiveren",
+			"SNOOZE": "Uitstellen tot morgen",
+			"DONE": "Markeren als afgehandeld",
+			"SELECT": "Selecteren"
 		},
 		"OPEN_PAGE": "Inbox openen"
 	},

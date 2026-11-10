@@ -4948,7 +4948,8 @@
 			"NOT_DONE": "Marcar como não concluída",
 			"UNARCHIVE": "Desarquivar",
 			"CLEAR_SELECTION": "Limpar seleção",
-			"MARK_ALL_READ": "Marcar tudo como lido"
+			"MARK_ALL_READ": "Marcar tudo como lido",
+			"CLEAR_SEARCH": "Limpar pesquisa"
 		},
 		"SNOOZE": {
 			"LATER_TODAY": "Mais tarde hoje",
@@ -5009,10 +5010,18 @@
 			"CLOSE": "Fechar",
 			"OPEN_TASK": "Abrir tarefa",
 			"OPEN": "Abrir",
-			"NO_TARGET": "Esta notificação não tem nada para abrir."
+			"NO_TARGET": "Esta notificação não tem nada para abrir.",
+			"MESSAGE_GONE": "Esta mensagem já não está disponível."
 		},
 		"KEYBOARD": {
-			"HINT": "J / K mover, X selecionar, E arquivar, H adiar, D concluída, U lida, Enter abrir, Shift+Esc marcar tudo como lido"
+			"HINT": "J / K mover, X selecionar, E arquivar, H adiar, D concluída, U lida, Enter abrir, Shift+Esc marcar tudo como lido",
+			"MOVE": "Mover entre notificações",
+			"OPEN": "Abrir",
+			"READ": "Marcar como lida ou não lida",
+			"ARCHIVE": "Arquivar",
+			"SNOOZE": "Adiar até amanhã",
+			"DONE": "Marcar como concluída",
+			"SELECT": "Selecionar"
 		},
 		"OPEN_PAGE": "Abrir a caixa de entrada"
 	},

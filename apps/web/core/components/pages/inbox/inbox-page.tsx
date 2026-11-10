@@ -9,7 +9,7 @@ import { toast } from 'sonner';
 import { useQueryClient } from '@tanstack/react-query';
 import { ApiErrorService } from '@/core/services/client/api-error.service';
 import { PageLayout } from '@/core/components/layouts/default-layout';
-import { Archive, AtSign, Check, CheckDouble, Clock, Filter, HelpCircle, InboxCheck, Mail, MailOpen, MoreHorizontal, Settings, UserAdd } from '@/core/components/icons';
+import { Archive, AtSign, Check, CheckDouble, Clock, Filter, InboxCheck, Mail, MailOpen, MoreHorizontal, Search, Settings, UserAdd, X } from '@/core/components/icons';
 import { Button } from '@/core/components/duplicated-components/_button';
 import { SegmentedControl, type SegmentedControlItem } from '@/core/components/common/segmented-control';
 import {
@@ -40,9 +40,11 @@ import {
 	filterInboxEntries,
 	fromNotificationEntry,
 	groupInboxEntriesByDay,
+	hasChatPages,
 	snoozeUntil,
 	toInboxEntry
 } from '@/core/lib/utils/inbox-entry';
+import { chatService } from '@/core/services/client/api/chat';
 import { inboxService } from '@/core/services/client/api/inbox';
 import type { IInboxItem } from '@/core/types/interfaces/common/inbox-item';
 import { activeTeamState } from '@/core/stores/teams/organization-team';
@@ -237,17 +239,45 @@ function InboxPageContent() {
 		[actions, legacyActions, usesExtension]
 	);
 
-	const handleOpen = useCallback(
+	/** Goes to what the entry is about: the task drawer, the conversation at the message, or the entry's own link. */
+	const handleOpenTarget = useCallback(
 		(entry: InboxEntry) => {
-			setCurrentId(entry.id);
-			if (entry.isUnread) setRead([entry], true).catch(reportFailure);
 			if (entry.taskId) {
 				openTaskDrawer(entry.taskId);
 				return;
 			}
+			if (entry.chatMessageId && hasChatPages()) {
+				const messageId = entry.chatMessageId;
+				// The item names the message, not its conversation: the message itself says where it is, and whether it is
+				// a reply (which opens in its thread).
+				chatService
+					.thread(messageId, { limit: 1 })
+					.then(({ root }) => {
+						const conversation = encodeURIComponent(String(root.conversationId));
+						const thread = root.threadRootId ? `thread=${encodeURIComponent(String(root.threadRootId))}&` : '';
+						router.push(`/chat/${conversation}?${thread}m=${encodeURIComponent(messageId)}`);
+					})
+					.catch(() => toast.error(t('inbox.DETAIL.MESSAGE_GONE')));
+				return;
+			}
 			if (entry.href) router.push(entry.href);
 		},
-		[openTaskDrawer, reportFailure, router, setRead]
+		[openTaskDrawer, router, t]
+	);
+
+	/**
+	 * A click on a row: the entry is read and shown in the pane. A task also opens in its drawer, over the inbox.
+	 * Anything else waits for "Open" where the pane is on screen, so reading the inbox does not leave it; without the
+	 * pane (a phone), the click goes straight to the target, unless the entry is a question to answer here.
+	 */
+	const handleOpen = useCallback(
+		(entry: InboxEntry, options: { follow?: boolean } = {}) => {
+			setCurrentId(entry.id);
+			if (entry.isUnread) setRead([entry], true).catch(reportFailure);
+			const hasPane = typeof window !== 'undefined' && window.matchMedia('(min-width: 1024px)').matches;
+			if (entry.taskId || options.follow || (!hasPane && !entry.decision)) handleOpenTarget(entry);
+		},
+		[handleOpenTarget, reportFailure, setRead]
 	);
 
 	const handleToggleSelect = useCallback(
@@ -373,7 +403,7 @@ function InboxPageContent() {
 		const entry = byId.get(linkedItemId);
 		if (entry) {
 			openedLinkRef.current = linkedItemId;
-			handleOpen(entry);
+			handleOpen(entry, { follow: true });
 			return;
 		}
 		// Not in the loaded list (older, archived, done or snoozed elsewhere): read it on its own.
@@ -381,7 +411,7 @@ function InboxPageContent() {
 		openedLinkRef.current = linkedItemId;
 		inboxService
 			.getItem(linkedItemId)
-			.then((item) => handleOpen(toInboxEntry(item)))
+			.then((item) => handleOpen(toInboxEntry(item), { follow: true }))
 			.catch(() => toast.error(t('inbox.LOAD_ERROR')));
 	}, [byId, handleOpen, isLoading, linkedItemId, t, usesExtension]);
 
@@ -393,7 +423,8 @@ function InboxPageContent() {
 		[byId]
 	);
 	const onKeyDown = useInboxKeyboard({
-		onOpen: byIdAction(handleOpen),
+		// `Enter` goes to the target; a click only shows the entry in the pane.
+		onOpen: byIdAction((entry) => handleOpen(entry, { follow: true })),
 		onToggleSelect: byIdAction(handleToggleSelect),
 		onArchive: byIdAction(handleArchive),
 		// `H` snoozes until tomorrow morning; the row's menu offers the other presets.
@@ -433,123 +464,211 @@ function InboxPageContent() {
 
 	if (!enabled) return <InboxPageSkeleton />;
 
+	const currentPerson = current?.sentByEmployeeId ? (people.get(current.sentByEmployeeId) ?? null) : null;
+	const currentTaskTitle = current?.taskId ? (taskTitles.get(current.taskId) ?? null) : null;
+	const detail = (onClose?: () => void) => (
+		<InboxDetail
+			entry={current}
+			person={currentPerson}
+			taskTitle={currentTaskTitle}
+			canTriage={usesExtension}
+			onOpenTarget={handleOpenTarget}
+			onToggleRead={handleToggleRead}
+			onArchive={handleArchive}
+			onSnooze={handleSnooze}
+			onDone={handleDone}
+			onReply={usesExtension ? handleReply : undefined}
+			onClose={onClose}
+		/>
+	);
+
 	return (
 		<PageLayout fill title={t('inbox.TITLE')} className="p-0">
-			<div className="flex h-full min-h-0 flex-col">
-				<div className="flex shrink-0 flex-wrap items-center gap-2 px-4 pt-3 pb-2">
-					<h1 className="text-base font-semibold text-foreground">{t('inbox.TITLE')}</h1>
-					<span className="text-xs tabular-nums text-muted-foreground">{t('inbox.UNREAD_COUNT', { count: unreadCount })}</span>
-					<span className="ml-auto flex items-center gap-1">
-						<span className="hidden text-xs text-muted-foreground lg:inline-flex" title={t('inbox.KEYBOARD.HINT')}>
-							<HelpCircle className="size-4" aria-label={t('inbox.KEYBOARD.HINT')} />
+			<div className="flex h-full min-h-0">
+				<section
+					aria-label={t('inbox.TITLE')}
+					className="flex h-full min-h-0 w-full flex-col lg:w-[28rem] lg:shrink-0 lg:border-r lg:border-border xl:w-[30rem]"
+				>
+					<div className="flex shrink-0 items-center gap-2 px-4 pb-2 pt-3">
+						<h1 className="text-base font-semibold text-foreground">{t('inbox.TITLE')}</h1>
+						<span
+							className={cn(
+								'rounded-full px-2 py-px text-[11px] font-medium tabular-nums',
+								unreadCount > 0 ? 'bg-primary/10 text-primary' : 'text-muted-foreground'
+							)}
+						>
+							{t('inbox.UNREAD_COUNT', { count: unreadCount })}
 						</span>
-						<Button variant="ghost" size="sm" onClick={handleMarkAll} disabled={unreadCount === 0 && !entries.some((entry) => entry.isUnread)}>
-							<CheckDouble className="size-4" />
-							{t('inbox.ACTIONS.MARK_ALL_READ')}
-						</Button>
-						<Button asChild variant="ghost" size="icon-sm" className="text-muted-foreground" aria-label={t('notifications.SETTINGS')} title={t('notifications.SETTINGS')}>
-							<Link href={NOTIFICATION_SETTINGS_HREF}>
-								<Settings className="size-4" />
-							</Link>
-						</Button>
-					</span>
-				</div>
-
-				<div className="flex shrink-0 flex-wrap items-center gap-2 px-4 pb-2">
-					<SegmentedControl
-						items={filterItems}
-						value={isSecondary ? ('' as InboxFilter) : filter}
-						onValueChange={(value) => setParams({ tab: value })}
-						ariaLabel={t('inbox.FILTER_LABEL')}
-					/>
-					{usesExtension && (
-						<DropdownMenu>
-							<DropdownMenuTrigger asChild>
-								<Button variant={isSecondary ? 'secondary' : 'ghost'} size="sm">
-									<MoreHorizontal className="size-4" />
-									{isSecondary ? t(FILTER_KEYS[filter]) : t('inbox.FILTERS.MORE')}
-								</Button>
-							</DropdownMenuTrigger>
-							<DropdownMenuContent align="start">
-								{INBOX_SECONDARY_FILTERS.map((value) => (
-									<DropdownMenuItem key={value} onClick={() => setParams({ tab: value })}>
-										{t(FILTER_KEYS[value])}
-									</DropdownMenuItem>
-								))}
-							</DropdownMenuContent>
-						</DropdownMenu>
-					)}
-					<DropdownMenu>
-						<DropdownMenuTrigger asChild>
-							<Button variant={sourceGroup ? 'secondary' : 'ghost'} size="sm" aria-label={t('inbox.SOURCES.LABEL')}>
-								<Filter className="size-4" />
-								{sourceGroup ? t(SOURCE_KEYS[sourceGroup]) : t('inbox.SOURCES.ANY')}
+						<span className="ms-auto flex items-center gap-0.5">
+							<Button
+								variant="ghost"
+								size="icon-sm"
+								className="text-muted-foreground"
+								onClick={handleMarkAll}
+								disabled={unreadCount === 0 && !entries.some((entry) => entry.isUnread)}
+								aria-label={t('inbox.ACTIONS.MARK_ALL_READ')}
+								title={`${t('inbox.ACTIONS.MARK_ALL_READ')} (Shift+Esc)`}
+							>
+								<CheckDouble className="size-4" />
 							</Button>
-						</DropdownMenuTrigger>
-						<DropdownMenuContent align="start">
-							<DropdownMenuRadioGroup value={sourceGroup ?? ''} onValueChange={(value) => setParams({ source: sourceOf(value) })}>
-								<DropdownMenuRadioItem value="">{t('inbox.SOURCES.ANY')}</DropdownMenuRadioItem>
-								{INBOX_SOURCE_GROUPS.map((value) => (
-									<DropdownMenuRadioItem key={value} value={value}>
-										{t(SOURCE_KEYS[value])}
-									</DropdownMenuRadioItem>
-								))}
-							</DropdownMenuRadioGroup>
-						</DropdownMenuContent>
-					</DropdownMenu>
-					{usesExtension && (
-						<input
-							type="search"
-							value={q}
-							onChange={(event) => setQ(event.target.value)}
-							placeholder={t('inbox.SEARCH')}
-							aria-label={t('inbox.SEARCH')}
-							className="h-8 w-48 rounded-md border border-border bg-transparent px-2 text-sm outline-none focus-visible:ring-[3px] focus-visible:ring-ring/25"
-						/>
-					)}
-				</div>
-
-				{isLegacy && <p className="mx-4 mb-2 rounded-md bg-foreground/[0.04] px-3 py-2 text-xs text-muted-foreground">{t('inbox.LEGACY_NOTICE')}</p>}
-
-				{anySelected && firstSelected && (
-					<div className="mx-4 mb-2 flex flex-wrap items-center gap-1 rounded-md bg-primary/[0.06] px-3 py-1.5 text-sm">
-						<span className="mr-2 tabular-nums">{t('inbox.SELECTED', { count: selectedCount })}</span>
-						<Button variant="ghost" size="sm" onClick={() => handleToggleRead(firstSelected)}>
-							{firstSelected.isUnread ? <MailOpen className="size-4" /> : <Mail className="size-4" />}
-							{firstSelected.isUnread ? t('notifications.MARK_READ') : t('notifications.MARK_UNREAD')}
-						</Button>
-						<Button variant="ghost" size="sm" onClick={() => handleArchive(firstSelected)}>
-							<Archive className="size-4" />
-							{firstSelected.isArchived ? t('inbox.ACTIONS.UNARCHIVE') : t('notifications.ARCHIVE')}
-						</Button>
-						{usesExtension && (
-							<Button variant="ghost" size="sm" onClick={() => handleDone(firstSelected)}>
-								<Check className="size-4" />
-								{firstSelected.isDone ? t('inbox.ACTIONS.NOT_DONE') : t('inbox.ACTIONS.DONE')}
+							<Button asChild variant="ghost" size="icon-sm" className="text-muted-foreground" aria-label={t('notifications.SETTINGS')} title={t('notifications.SETTINGS')}>
+								<Link href={NOTIFICATION_SETTINGS_HREF}>
+									<Settings className="size-4" />
+								</Link>
 							</Button>
-						)}
-						<Button variant="ghost" size="sm" className="ml-auto" onClick={() => setSelected(new Set())}>
-							{t('inbox.ACTIONS.CLEAR_SELECTION')}
-						</Button>
+						</span>
 					</div>
-				)}
 
-				<div className="flex min-h-0 flex-1">
-					<div
-						className="min-h-0 flex-1 overflow-y-auto overscroll-contain hairline-t border-border"
-						onKeyDown={onKeyDown}
-						aria-live="polite"
-						aria-busy={isLoading}
-					>
+					{usesExtension && (
+						<div className="shrink-0 px-4 pb-2">
+							<div className="relative">
+								<Search className="pointer-events-none absolute start-2.5 top-1/2 size-3.5 -translate-y-1/2 text-muted-foreground" aria-hidden="true" />
+								<input
+									type="search"
+									value={q}
+									onChange={(event) => setQ(event.target.value)}
+									onKeyDown={(event) => {
+										if (event.key === 'Escape' && q) {
+											event.stopPropagation();
+											setQ('');
+										}
+									}}
+									placeholder={t('inbox.SEARCH')}
+									aria-label={t('inbox.SEARCH')}
+									className="h-8 w-full rounded-lg bg-foreground/[0.04] pe-8 ps-8 text-[13px] text-foreground outline-none transition-colors placeholder:text-muted-foreground hover:bg-foreground/[0.06] focus-visible:bg-transparent focus-visible:ring-[3px] focus-visible:ring-ring/25 [&::-webkit-search-cancel-button]:hidden"
+								/>
+								{q && (
+									<button
+										type="button"
+										onClick={() => setQ('')}
+										aria-label={t('inbox.ACTIONS.CLEAR_SEARCH')}
+										className="absolute end-1.5 top-1/2 -translate-y-1/2 cursor-pointer rounded p-0.5 text-muted-foreground hover:text-foreground"
+									>
+										<X className="size-3.5" />
+									</button>
+								)}
+							</div>
+						</div>
+					)}
+
+					<div className="flex shrink-0 items-center gap-1 overflow-x-auto px-4 pb-2">
+						<SegmentedControl
+							items={filterItems}
+							value={isSecondary ? ('' as InboxFilter) : filter}
+							onValueChange={(value) => setParams({ tab: value })}
+							ariaLabel={t('inbox.FILTER_LABEL')}
+						/>
+						<span className="ms-auto flex shrink-0 items-center gap-0.5">
+							{usesExtension && (
+								<DropdownMenu>
+									<DropdownMenuTrigger asChild>
+										<Button
+											variant={isSecondary ? 'secondary' : 'ghost'}
+											size={isSecondary ? 'sm' : 'icon-sm'}
+											className={cn(!isSecondary && 'text-muted-foreground')}
+											aria-label={t('inbox.FILTERS.MORE')}
+											title={t('inbox.FILTERS.MORE')}
+										>
+											<MoreHorizontal className="size-4" />
+											{isSecondary && t(FILTER_KEYS[filter])}
+										</Button>
+									</DropdownMenuTrigger>
+									<DropdownMenuContent align="end">
+										{INBOX_SECONDARY_FILTERS.map((value) => (
+											<DropdownMenuItem key={value} onClick={() => setParams({ tab: value })}>
+												{t(FILTER_KEYS[value])}
+											</DropdownMenuItem>
+										))}
+									</DropdownMenuContent>
+								</DropdownMenu>
+							)}
+							<DropdownMenu>
+								<DropdownMenuTrigger asChild>
+									<Button
+										variant={sourceGroup ? 'secondary' : 'ghost'}
+										size={sourceGroup ? 'sm' : 'icon-sm'}
+										className={cn(!sourceGroup && 'text-muted-foreground')}
+										aria-label={t('inbox.SOURCES.LABEL')}
+										title={t('inbox.SOURCES.LABEL')}
+									>
+										<Filter className="size-4" />
+										{sourceGroup && t(SOURCE_KEYS[sourceGroup])}
+									</Button>
+								</DropdownMenuTrigger>
+								<DropdownMenuContent align="end">
+									<DropdownMenuRadioGroup value={sourceGroup ?? ''} onValueChange={(value) => setParams({ source: sourceOf(value) })}>
+										<DropdownMenuRadioItem value="">{t('inbox.SOURCES.ANY')}</DropdownMenuRadioItem>
+										{INBOX_SOURCE_GROUPS.map((value) => (
+											<DropdownMenuRadioItem key={value} value={value}>
+												{t(SOURCE_KEYS[value])}
+											</DropdownMenuRadioItem>
+										))}
+									</DropdownMenuRadioGroup>
+								</DropdownMenuContent>
+							</DropdownMenu>
+						</span>
+					</div>
+
+					{isLegacy && <p className="mx-4 mb-2 rounded-lg bg-foreground/[0.04] px-3 py-2 text-xs text-muted-foreground">{t('inbox.LEGACY_NOTICE')}</p>}
+
+					{anySelected && firstSelected && (
+						<div className="mx-3 mb-2 flex flex-wrap items-center gap-0.5 rounded-xl bg-primary/[0.07] py-1 pe-1 ps-3 text-[13px]">
+							<span className="me-auto font-medium tabular-nums text-foreground">{t('inbox.SELECTED', { count: selectedCount })}</span>
+							<Button
+								variant="ghost"
+								size="icon-sm"
+								onClick={() => handleToggleRead(firstSelected)}
+								aria-label={firstSelected.isUnread ? t('notifications.MARK_READ') : t('notifications.MARK_UNREAD')}
+								title={firstSelected.isUnread ? t('notifications.MARK_READ') : t('notifications.MARK_UNREAD')}
+							>
+								{firstSelected.isUnread ? <MailOpen className="size-4" /> : <Mail className="size-4" />}
+							</Button>
+							{usesExtension && (
+								<Button
+									variant="ghost"
+									size="icon-sm"
+									onClick={() => handleDone(firstSelected)}
+									aria-label={firstSelected.isDone ? t('inbox.ACTIONS.NOT_DONE') : t('inbox.ACTIONS.DONE')}
+									title={firstSelected.isDone ? t('inbox.ACTIONS.NOT_DONE') : t('inbox.ACTIONS.DONE')}
+								>
+									<Check className="size-4" />
+								</Button>
+							)}
+							<Button
+								variant="ghost"
+								size="icon-sm"
+								onClick={() => handleArchive(firstSelected)}
+								aria-label={firstSelected.isArchived ? t('inbox.ACTIONS.UNARCHIVE') : t('notifications.ARCHIVE')}
+								title={firstSelected.isArchived ? t('inbox.ACTIONS.UNARCHIVE') : t('notifications.ARCHIVE')}
+							>
+								<Archive className="size-4" />
+							</Button>
+							<Button
+								variant="ghost"
+								size="icon-sm"
+								onClick={() => setSelected(new Set())}
+								aria-label={t('inbox.ACTIONS.CLEAR_SELECTION')}
+								title={t('inbox.ACTIONS.CLEAR_SELECTION')}
+							>
+								<X className="size-4" />
+							</Button>
+						</div>
+					)}
+
+					<div className="min-h-0 flex-1 overflow-y-auto overscroll-contain hairline-t border-border" onKeyDown={onKeyDown} aria-live="polite" aria-busy={isLoading}>
 						{isLoading && <NotificationRowsSkeleton rows={8} />}
 						{isError && <NotificationErrorState message={t('inbox.LOAD_ERROR')} retryLabel={t('inbox.RETRY')} onRetry={() => retry()} />}
 						{showsList && entries.length === 0 && (
-							<NotificationEmptyState icon={emptyCopy.icon} title={t(emptyCopy.title)} message={t(emptyCopy.text)} />
+							<div className="flex h-full min-h-64 items-center justify-center">
+								<NotificationEmptyState icon={emptyCopy.icon} title={t(emptyCopy.title)} message={t(emptyCopy.text)} />
+							</div>
 						)}
 						{showsList &&
 							groups.map((group) => (
-								<section key={group.day} className="px-2 pb-2" aria-label={t(GROUP_KEYS[group.day])}>
-									<h2 className="px-3 pt-3 pb-1 text-[11px] font-medium uppercase tracking-wide text-muted-foreground">{t(GROUP_KEYS[group.day])}</h2>
+								<section key={group.day} className="px-2 pb-1" aria-label={t(GROUP_KEYS[group.day])}>
+									<h2 className="sticky top-0 z-[1] bg-background/95 px-2 pb-1 pt-3 text-[11px] font-medium uppercase tracking-wide text-muted-foreground backdrop-blur-sm">
+										{t(GROUP_KEYS[group.day])}
+									</h2>
 									{group.entries.map((entry) => (
 										<InboxRow
 											key={entry.id}
@@ -582,22 +701,20 @@ function InboxPageContent() {
 							<p className="px-5 py-3 text-xs text-muted-foreground">{t('notifications.LATEST_SHOWN', { count: entries.length })}</p>
 						)}
 					</div>
-					{/* Below the large breakpoint the pane is a sheet over the list, opened with an entry, so a question can be
-					    answered on a phone too (the other entries open their target as before). */}
-					{current?.decision && (
-						<div className="fixed inset-x-0 bottom-0 z-40 max-h-[75vh] overflow-y-auto rounded-t-xl border-t border-border bg-background shadow-lg lg:hidden" role="dialog" aria-label={t('inbox.DETAIL.SHEET_LABEL')}>
-							<div className="flex justify-end px-3 pt-2">
-								<Button variant="ghost" size="sm" onClick={() => setCurrentId(null)}>
-									{t('inbox.DETAIL.CLOSE')}
-								</Button>
-							</div>
-							<InboxDetail entry={current} taskTitle={current.taskId ? (taskTitles.get(current.taskId) ?? null) : null} onOpenTarget={handleOpen} onArchive={handleArchive} onReply={usesExtension ? handleReply : undefined} />
-						</div>
-					)}
-					<aside className={cn('hidden w-[22rem] shrink-0 overflow-y-auto hairline-l border-border lg:block')}>
-						<InboxDetail entry={current} taskTitle={current?.taskId ? (taskTitles.get(current.taskId) ?? null) : null} onOpenTarget={handleOpen} onArchive={handleArchive} onReply={usesExtension ? handleReply : undefined} />
-					</aside>
-				</div>
+				</section>
+
+				{/* Below the large breakpoint the pane is a sheet over the list, opened with an entry that is answered here (a
+				    question, an approval); the other entries open their target as before. */}
+				{current?.decision && (
+					<div
+						className="fixed inset-x-0 bottom-0 z-40 flex max-h-[80vh] flex-col overflow-hidden rounded-t-2xl border-t border-border bg-background shadow-lg lg:hidden"
+						role="dialog"
+						aria-label={t('inbox.DETAIL.SHEET_LABEL')}
+					>
+						{detail(() => setCurrentId(null))}
+					</div>
+				)}
+				<aside className="hidden h-full min-w-0 flex-1 lg:block">{detail()}</aside>
 			</div>
 		</PageLayout>
 	);

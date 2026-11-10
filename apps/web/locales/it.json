@@ -4948,7 +4948,8 @@
 			"NOT_DONE": "Segna come non completata",
 			"UNARCHIVE": "Ripristina",
 			"CLEAR_SELECTION": "Annulla selezione",
-			"MARK_ALL_READ": "Segna tutto come letto"
+			"MARK_ALL_READ": "Segna tutto come letto",
+			"CLEAR_SEARCH": "Cancella ricerca"
 		},
 		"SNOOZE": {
 			"LATER_TODAY": "Più tardi oggi",
@@ -5009,10 +5010,18 @@
 			"CLOSE": "Chiudi",
 			"OPEN_TASK": "Apri attività",
 			"OPEN": "Apri",
-			"NO_TARGET": "Questa notifica non ha nulla da aprire."
+			"NO_TARGET": "Questa notifica non ha nulla da aprire.",
+			"MESSAGE_GONE": "Questo messaggio non è più disponibile."
 		},
 		"KEYBOARD": {
-			"HINT": "J / K sposta, X seleziona, E archivia, H rimanda, D completata, U letta, Invio apri, Maiusc+Esc segna tutto come letto"
+			"HINT": "J / K sposta, X seleziona, E archivia, H rimanda, D completata, U letta, Invio apri, Maiusc+Esc segna tutto come letto",
+			"MOVE": "Spostarsi tra le notifiche",
+			"OPEN": "Apri",
+			"READ": "Segna come letta o non letta",
+			"ARCHIVE": "Archivia",
+			"SNOOZE": "Posticipa a domani",
+			"DONE": "Segna come completata",
+			"SELECT": "Seleziona"
 		},
 		"OPEN_PAGE": "Apri la posta in arrivo"
 	},
