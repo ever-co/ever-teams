@@ -34,6 +34,8 @@ export const NavHome = memo(function NavHome({
 		title: string;
 		selectable: boolean;
 		label: string;
+		/** What waits behind the entry (unread notifications, unread messages); nothing is shown for 0. */
+		badge?: number;
 	}[];
 }) {
 	const t = useTranslations();
@@ -70,6 +72,14 @@ export const NavHome = memo(function NavHome({
 									)}
 									{!isCollapsed && <item.icon className="size-4" />}
 									<span className={cn('truncate', isCollapsed && 'hidden')}>{item.title}</span>
+									{(item.badge ?? 0) > 0 &&
+										(isCollapsed ? (
+											<span aria-hidden="true" className="absolute end-1 top-1 size-1.5 rounded-full bg-primary" />
+										) : (
+											<span className="ms-auto shrink-0 rounded-full bg-primary px-1.5 text-[10px] font-semibold leading-4 tabular-nums text-primary-foreground">
+												{(item.badge ?? 0) > 99 ? '99+' : item.badge}
+											</span>
+										))}
 								</Link>
 							</SidebarMenuButton>
 						</SidebarMenuItem>
