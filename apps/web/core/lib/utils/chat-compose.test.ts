@@ -1,4 +1,14 @@
-import { ComposeEdit, insertAt, insertLink, insertMentionTrigger, replacementOf, toggleCodeBlock, toggleLinePrefix, toggleWrap } from './chat-compose';
+import {
+	ComposeEdit,
+	insertAt,
+	insertLink,
+	insertMentionTrigger,
+	ITALIC,
+	replacementOf,
+	toggleCodeBlock,
+	toggleLinePrefix,
+	toggleWrap
+} from './chat-compose';
 
 /** A text with its selection marked: `|` for a caret, or two `|` around the selected stretch. */
 function marked(text: string): { value: string; start: number; end: number } {
@@ -20,6 +30,77 @@ function wrap(text: string, marker: string): string {
 	const { value, start, end } = marked(text);
 	return shown(toggleWrap(value, start, end, marker));
 }
+
+/**
+ * The italic cases, one per line: the text with its selection marked (see `marked`), ` → `, and what pressing Italic
+ * makes of it. `⏎` stands for a line break; a line starting with `#` says what the cases after it show.
+ */
+const ITALIC_CASES = `
+	# Italic is the asterisk, which Markdown reads inside a word too (\`hel_lo_\` would show its underscores).
+	hel|lo| → hel*|lo|*
+	say |hello| now → say *|hello|* now
+	# Italic around the selection, or held by it, comes off.
+	hel*|lo|* → hel|lo|
+	|*hello*| → |hello|
+	# Bold text gets italic added instead of being taken apart, and loses it again.
+	**|bold|** → ***|bold|***
+	***|bold|*** → **|bold|**
+	|**bold**| → *|**bold**|*
+	|***bold***| → |**bold**|
+	# A selection over several lines is wrapped line by line.
+	|one⏎two| → |*one*⏎*two*|
+	|*one*⏎*two*| → |one⏎two|
+	# Italic written with underscores, as in messages from before the asterisk, comes off too.
+	_|hello|_ → |hello|
+	say _|hello|_ now → say |hello| now
+	|_hello_| → |hello|
+	*_|hello|_* → *|hello|*
+	|_one_⏎*two*| → |one⏎two|
+	# Underscores inside a word are left alone, as Markdown does.
+	snake_|case|_name → snake_*|case|*_name
+	a|_b_|c → a*|_b_|*c
+	|_snake_case_| → |snake_case|
+	# Two italic stretches are not one pair.
+	|*one* *two*| → *|*one* *two*|*
+	# Markers are read by their whole runs: bold is never split into italic, and bold italic loses its italic.
+	*|*bold*|* → **|*bold*|**
+	**|*bold*|** → **|bold|**
+	# Escaped asterisks stay as they are; after two backslashes (a literal backslash) a star is a marker again.
+	\\*|hello|* → \\**|hello|**
+	*|hello\\|* → **|hello\\|**
+	|*a \\* b*| → |a \\* b|
+	\\\\*|hello|* → \\\\|hello|
+	*|a\\\\|* → |a\\\\|
+	# A star with spaces on both sides is no marker, so it does not keep the italic around it from coming off.
+	|2 * 3| → *|2 * 3|*
+	|*2 * 3*| → |2 * 3|
+	# Underscores between letters of any script are part of the word.
+	中_|文|_字 → 中_*|文|*_字
+	# A selection over several lines judges each line's markers with the text around the selection.
+	a|_one_⏎_two_|b → a|*_one_*⏎*_two_*|b
+`;
+
+/** The cases of `ITALIC_CASES`, as [before, after]. */
+function italicCases(): [string, string][] {
+	return ITALIC_CASES.split('\n')
+		.map((line) => line.trim())
+		.filter((line) => line && !line.startsWith('#'))
+		.map((line) => {
+			const [before, after] = line.split(' → ');
+			return [before, after];
+		});
+}
+
+describe('toggleWrap with the italic marker', () => {
+	it('is the asterisk', () => {
+		expect(ITALIC).toBe('*');
+	});
+
+	it.each(italicCases())('%s → %s', (before, after) => {
+		const withBreaks = (text: string) => text.replace(/⏎/g, '\n');
+		expect(wrap(withBreaks(before), ITALIC)).toBe(withBreaks(after));
+	});
+});
 
 describe('toggleWrap', () => {
 	it('wraps the selection and keeps the text selected', () => {
