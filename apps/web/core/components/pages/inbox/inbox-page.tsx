@@ -27,6 +27,7 @@ import { useInboxActions } from '@/core/hooks/inbox/use-inbox-actions';
 import { useInboxAvailability } from '@/core/hooks/inbox/use-inbox-availability';
 import { useInboxCounts, useInboxItems } from '@/core/hooks/inbox/use-inbox-items';
 import { useInboxKeyboard } from '@/core/hooks/inbox/use-inbox-keyboard';
+import { useInboxScope } from '@/core/hooks/inbox/use-inbox-scope';
 import { useNotificationActions, useNotificationInbox, useUnreadNotificationCount } from '@/core/hooks/notifications/use-notification-inbox';
 import { useTaskDrawer } from '@/core/hooks/tasks/use-task-drawer';
 import { isInboxEnabled } from '@/core/lib/utils/inbox-enabled';
@@ -219,7 +220,11 @@ function InboxPageContent() {
 	const [currentId, setCurrentId] = useState<string | null>(null);
 	// The entry as it was opened. Opening an unread entry marks it read, which drops it from the Unread list; the pane
 	// keeps showing it from here until the user closes it or opens another one.
-	const [openedEntry, setOpenedEntry] = useState<InboxEntry | null>(null);
+	// It belongs to the workspace it was opened in: after a switch (another tab can make one) the pane lets it go.
+	const scope = useInboxScope();
+	const scopeKey = scope ? `${scope.tenantId}:${scope.organizationId}:${scope.userId}` : '';
+	const [opened, setOpened] = useState<{ scopeKey: string; entry: InboxEntry } | null>(null);
+	const openedEntry = opened && opened.scopeKey === scopeKey ? opened.entry : null;
 	const current = useMemo(
 		() =>
 			entries.find((entry) => entry.id === currentId) ??
@@ -246,7 +251,7 @@ function InboxPageContent() {
 
 	/** Keeps the entry held for the pane in step with what an action changes on it, since it may have left the list. */
 	const patchOpened = useCallback((ids: string[], patch: Partial<InboxEntry>) => {
-		setOpenedEntry((opened) => (opened && ids.includes(opened.id) ? { ...opened, ...patch } : opened));
+		setOpened((held) => (held && ids.includes(held.entry.id) ? { ...held, entry: { ...held.entry, ...patch } } : held));
 	}, []);
 
 	/**
@@ -263,7 +268,7 @@ function InboxPageContent() {
 			const before = openedEntry && ids.includes(openedEntry.id) ? openedEntry : null;
 			patchOpened(ids, patch);
 			return actions.setState(ids, state).catch((error: unknown) => {
-				if (before) setOpenedEntry((opened) => (opened && opened.id === before.id ? before : opened));
+				if (before) setOpened((held) => (held && held.entry.id === before.id ? { ...held, entry: before } : held));
 				throw error;
 			});
 		},
@@ -328,12 +333,12 @@ function InboxPageContent() {
 	const handleOpen = useCallback(
 		(entry: InboxEntry, options: { follow?: boolean } = {}) => {
 			setCurrentId(entry.id);
-			setOpenedEntry(entry.isUnread ? { ...entry, isUnread: false } : entry);
+			setOpened({ scopeKey, entry: entry.isUnread ? { ...entry, isUnread: false } : entry });
 			if (entry.isUnread) setRead([entry], true).catch(reportFailure);
 			const hasPane = typeof window !== 'undefined' && window.matchMedia('(min-width: 1024px)').matches;
 			if (entry.taskId || options.follow || (!hasPane && !entry.decision)) handleOpenTarget(entry);
 		},
-		[handleOpenTarget, reportFailure, setRead]
+		[handleOpenTarget, reportFailure, scopeKey, setRead]
 	);
 
 	const handleToggleSelect = useCallback(
