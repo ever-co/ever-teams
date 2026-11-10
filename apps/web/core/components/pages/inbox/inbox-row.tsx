@@ -125,13 +125,18 @@ function InboxRowComponent({
 			{/* The unread mark stands in the row's margin, so the text of read and unread rows lines up. */}
 			{entry.isUnread && <span aria-hidden="true" className="absolute start-1 top-[1.4rem] size-1.5 rounded-full bg-primary" />}
 			<div className="relative flex shrink-0 items-center pt-0.5">
-				<span className={cn('transition-opacity', isSelected ? 'opacity-0' : 'group-hover/row:opacity-0 group-focus-within/row:opacity-0 [@media(hover:none)]:opacity-100')}>
+				<span
+					className={cn(
+						'transition-opacity [@media(hover:none)]:opacity-100',
+						isSelected ? 'opacity-0' : 'group-hover/row:opacity-0 group-focus-within/row:opacity-0'
+					)}
+				>
 					<InboxAvatar entry={entry} person={person} />
 				</span>
 				<span
 					className={cn(
-						'absolute inset-0 flex items-center justify-center transition-opacity',
-						isSelected ? 'opacity-100' : 'opacity-0 group-hover/row:opacity-100 group-focus-within/row:opacity-100 [@media(hover:none)]:hidden'
+						'absolute inset-0 flex items-center justify-center transition-opacity [@media(hover:none)]:hidden',
+						isSelected ? 'opacity-100' : 'opacity-0 group-hover/row:opacity-100 group-focus-within/row:opacity-100'
 					)}
 				>
 					<Checkbox checked={isSelected} onCheckedChange={() => onToggleSelect(entry)} aria-label={t('inbox.ACTIONS.SELECT')} />
@@ -176,6 +181,10 @@ function InboxRowComponent({
 			</button>
 			{/* Over the row's end on hover; on a touch screen, a line of its own under the text, since nothing hovers there. */}
 			<div className="absolute end-2 top-1.5 flex items-center gap-0.5 rounded-lg bg-card p-0.5 opacity-0 shadow-sm shadow-black/10 hairline-ring ring-border transition-opacity group-hover/row:opacity-100 group-focus-within/row:opacity-100 [@media(hover:none)]:static [@media(hover:none)]:basis-full [@media(hover:none)]:justify-end [@media(hover:none)]:bg-transparent [@media(hover:none)]:p-0 [@media(hover:none)]:opacity-100 [@media(hover:none)]:[box-shadow:none]">
+				{/* Where nothing hovers, the checkbox over the avatar never shows: selecting starts here, under the avatar. */}
+				<span className="me-auto hidden size-8 items-center justify-center [@media(hover:none)]:flex">
+					<Checkbox checked={isSelected} onCheckedChange={() => onToggleSelect(entry)} aria-label={t('inbox.ACTIONS.SELECT')} />
+				</span>
 				<button
 					type="button"
 					className={ACTION_CLASS}

@@ -297,8 +297,9 @@ export function MessageComposer({
 					autoFocus={autoFocus}
 					className="block max-h-50 min-h-6 w-full resize-none bg-transparent px-3 pb-1 pt-2.5 text-[13px] leading-relaxed text-foreground outline-none placeholder:text-muted-foreground"
 				/>
-				<div className="flex items-center gap-0.5 px-1.5 pb-1.5">
-					<div role="toolbar" aria-label={t('teamChat.FORMATTING')} className="flex min-w-0 items-center gap-0.5">
+				{/* The row wraps: in a narrow pane (a thread) the actions of an edit go under the tools, never over them. */}
+				<div className="flex flex-wrap items-center gap-x-0.5 gap-y-1 px-1.5 pb-1.5">
+					<div role="toolbar" aria-label={t('teamChat.FORMATTING')} className="flex min-w-0 flex-wrap items-center gap-0.5">
 						<ToolButton label={`${t('teamChat.FORMAT_BOLD')} (${modifier}B)`} disabled={disabled} onClick={() => format((text, start, end) => toggleWrap(text, start, end, '**'))}>
 							<Bold />
 						</ToolButton>

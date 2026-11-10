@@ -142,23 +142,31 @@ export function DocsPageView({ pageId, tree, actions }: DocsPageViewProps) {
 		[]
 	);
 
-	// A page stored without the editor's document (written elsewhere, as HTML): once the editor is up, what it holds
-	// is the document the outline and the counts read.
+	// What the editor holds is the document the outline and the counts read: once it is up (a page stored without
+	// the editor's document, written elsewhere as HTML), and again whenever the text it shows is replaced from outside
+	// (a reload after a conflict, a restored version, another person's save). What was typed before no longer counts
+	// then, nor does an update still waiting from it.
+	const shownHtml = editorContent.html;
 	useEffect(() => {
 		if (!editorApi) return;
+		if (liveTimerRef.current) {
+			clearTimeout(liveTimerRef.current);
+			liveTimerRef.current = null;
+		}
 		let frames = 0;
 		let handle = 0;
 		const read = () => {
 			const json = editorApi.getJson();
-			if (json) {
-				setLiveJson((current) => current ?? json);
+			// The first frame can still hold the text being replaced: the editor is read from the next one on.
+			if (json && frames >= 1) {
+				setLiveJson(json);
 				return;
 			}
 			if (frames++ < 120) handle = requestAnimationFrame(read);
 		};
-		read();
+		handle = requestAnimationFrame(read);
 		return () => cancelAnimationFrame(handle);
-	}, [editorApi]);
+	}, [editorApi, shownHtml]);
 
 	const jumpToHeading = useCallback((item: DocsOutlineItem) => {
 		const heading = bodyRef.current?.querySelectorAll<HTMLElement>(DOCS_OUTLINE_SELECTOR)[item.index];

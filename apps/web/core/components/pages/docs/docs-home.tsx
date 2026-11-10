@@ -4,7 +4,7 @@ import { useMemo, useState, type ReactNode } from 'react';
 import Link from 'next/link';
 import { useLocale, useTranslations, type DottedLanguageObjectStringPaths } from 'next-intl';
 import { Button } from '@/core/components/duplicated-components/_button';
-import { ChevronRight, CircleAlert, Clock, FileText, Folder, Lock, Plus, Refresh, Star } from '@/core/components/icons';
+import { ArrowLeft, ChevronRight, CircleAlert, Clock, FileText, Folder, Lock, Plus, Refresh, Star } from '@/core/components/icons';
 import type { DocsTreeState } from '@/core/hooks/docs/use-docs-tree';
 import { cn } from '@/core/lib/helpers';
 import { DOCS_TEMPLATES, buildTemplateContent, type DocsTemplateContent, type DocsTemplateId } from '@/core/lib/utils/docs-templates';
@@ -47,13 +47,15 @@ interface DocsHomeProps {
 	tree: DocsTreeState;
 	favoriteIds: ReadonlySet<string>;
 	onNewPage: (request: DocsNewPageRequest) => Promise<void>;
+	/** Back to the tree, where the home covers it (a phone). */
+	onBack?: () => void;
 }
 
 /**
  * What `/docs` shows beside the tree when no page is open: the ways to start a page (empty, private, or from a
  * template), the pages changed last, and the favourites.
  */
-export function DocsHome({ tree, favoriteIds, onNewPage }: DocsHomeProps) {
+export function DocsHome({ tree, favoriteIds, onNewPage, onBack }: DocsHomeProps) {
 	const t = useTranslations();
 	const locale = useLocale();
 	const [now] = useState(() => new Date());
@@ -89,6 +91,16 @@ export function DocsHome({ tree, favoriteIds, onNewPage }: DocsHomeProps) {
 		<div className="h-full overflow-y-auto">
 			<div className="mx-auto flex w-full max-w-4xl flex-col gap-8 px-6 py-8 lg:px-10 lg:py-12">
 				<header className="flex flex-wrap items-center gap-4">
+					{onBack && (
+						<button
+							type="button"
+							onClick={onBack}
+							aria-label={t('docs.BACK')}
+							className="-ms-2 inline-flex size-8 shrink-0 cursor-pointer items-center justify-center rounded-lg text-muted-foreground outline-none hover:bg-foreground/[0.06] hover:text-foreground focus-visible:ring-[3px] focus-visible:ring-ring/25 lg:hidden"
+						>
+							<ArrowLeft className="size-4 rtl:rotate-180" />
+						</button>
+					)}
 					<span className="flex size-12 shrink-0 items-center justify-center rounded-2xl bg-primary/10 text-primary" aria-hidden="true">
 						<FileText className="size-6" />
 					</span>

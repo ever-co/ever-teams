@@ -25,6 +25,8 @@ interface DocsTreePaneProps {
 	recentIds: readonly string[];
 	actions: DocsTreeActions;
 	onNewPage: (parentId: string | null, visibility: EDocumentVisibility) => void;
+	/** The Home row was picked: where the tree covers the home (a phone), the page shows the home in its place. */
+	onHome?: () => void;
 }
 
 /** A row of the pane that is a place, not a page: the home, the trash. */
@@ -32,7 +34,7 @@ const PLACE_ROW =
 	'flex h-8 items-center gap-2 rounded-lg px-2 text-[13px] outline-none transition-colors focus-visible:ring-[3px] focus-visible:ring-ring/25 [&_svg]:size-4 [&_svg]:shrink-0';
 
 /** The left pane: the home, search, favourites, the workspace tree, the private tree, recent pages and the trash. */
-export function DocsTreePane({ tree, activeId, expanded, onToggle, onSetOpen, favoriteIds, recentIds, actions, onNewPage }: DocsTreePaneProps) {
+export function DocsTreePane({ tree, activeId, expanded, onToggle, onSetOpen, favoriteIds, recentIds, actions, onNewPage, onHome }: DocsTreePaneProps) {
 	const t = useTranslations();
 	const pathname = usePathname();
 	const [query, setQuery] = useState('');
@@ -113,6 +115,7 @@ export function DocsTreePane({ tree, activeId, expanded, onToggle, onSetOpen, fa
 					<>
 						<Link
 							href="/docs?tree=1"
+							onClick={onHome}
 							aria-current={isHomeActive ? 'page' : undefined}
 							className={cn(PLACE_ROW, 'mb-1', isHomeActive ? 'bg-foreground/[0.07] font-medium text-foreground' : 'text-muted-foreground hover:bg-foreground/[0.04] hover:text-foreground')}
 						>

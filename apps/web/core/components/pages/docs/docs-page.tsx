@@ -42,6 +42,11 @@ export function DocsPage({ view }: Readonly<{ view: DocsView }>) {
 	const { recentIds, forget } = useDocsRecent();
 	const actions = useDocsActions();
 
+	// Below the large breakpoint the tree and the home do not fit side by side: the tree shows first, and its Home row
+	// swaps it for the home, which has a way back.
+	const [homeOnPhone, setHomeOnPhone] = useState(false);
+	// A page's Back leads to the tree: the swap does not outlive the home view.
+	if (homeOnPhone && view !== 'home') setHomeOnPhone(false);
 	const [renaming, setRenaming] = useState<IDocumentPage | null>(null);
 	const [moving, setMoving] = useState<IDocumentPage | null>(null);
 	const [iconOf, setIconOf] = useState<IDocumentPage | null>(null);
@@ -216,7 +221,7 @@ export function DocsPage({ view }: Readonly<{ view: DocsView }>) {
 		);
 	}
 
-	const showsPane = view === 'home';
+	const showsPane = view === 'home' && !homeOnPhone;
 
 	return (
 		<PageLayout fill title={t('docs.TITLE')} className="p-0">
@@ -232,6 +237,7 @@ export function DocsPage({ view }: Readonly<{ view: DocsView }>) {
 						recentIds={recentIds}
 						actions={treeActions}
 						onNewPage={(parentId, visibility) => void createAndOpen(parentId, visibility)}
+						onHome={() => setHomeOnPhone(true)}
 					/>
 				</aside>
 				<main className={cn('relative min-w-0 flex-1', showsPane ? 'hidden lg:block' : 'block')}>
@@ -254,6 +260,7 @@ export function DocsPage({ view }: Readonly<{ view: DocsView }>) {
 							tree={tree}
 							favoriteIds={favorites.favoriteIds}
 							onNewPage={({ visibility, ...start }) => createAndOpen(null, visibility, start)}
+							onBack={() => setHomeOnPhone(false)}
 						/>
 					)}
 				</main>
