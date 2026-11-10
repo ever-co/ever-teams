@@ -4948,7 +4948,8 @@
 			"NOT_DONE": "ביטול סימון כהושלם",
 			"UNARCHIVE": "שחזור מהארכיון",
 			"CLEAR_SELECTION": "ניקוי הבחירה",
-			"MARK_ALL_READ": "סימון הכול כנקרא"
+			"MARK_ALL_READ": "סימון הכול כנקרא",
+			"CLEAR_SEARCH": "ניקוי החיפוש"
 		},
 		"SNOOZE": {
 			"LATER_TODAY": "מאוחר יותר היום",
@@ -5009,10 +5010,18 @@
 			"CLOSE": "סגירה",
 			"OPEN_TASK": "פתיחת המשימה",
 			"OPEN": "פתיחה",
-			"NO_TARGET": "אין מה לפתוח בהתראה הזו."
+			"NO_TARGET": "אין מה לפתוח בהתראה הזו.",
+			"MESSAGE_GONE": "ההודעה אינה זמינה עוד."
 		},
 		"KEYBOARD": {
-			"HINT": "J / K מעבר, X בחירה, E ארכיון, H דחייה, D הושלם, U נקרא, Enter פתיחה, Shift+Esc סימון הכול כנקרא"
+			"HINT": "J / K מעבר, X בחירה, E ארכיון, H דחייה, D הושלם, U נקרא, Enter פתיחה, Shift+Esc סימון הכול כנקרא",
+			"MOVE": "מעבר בין התראות",
+			"OPEN": "פתיחה",
+			"READ": "סימון כנקרא או כלא נקרא",
+			"ARCHIVE": "העברה לארכיון",
+			"SNOOZE": "דחייה למחר",
+			"DONE": "סימון כבוצע",
+			"SELECT": "בחירה"
 		},
 		"OPEN_PAGE": "פתיחת תיבת הדואר"
 	},
@@ -5121,7 +5130,33 @@
 		"SEARCH_CONVERSATIONS": "חיפוש שיחות",
 		"NO_CONVERSATIONS": "אין שיחות",
 		"NOTE_PLACEHOLDER": "הוספת הערה (לא חובה)",
-		"SENT_TO_CHAT": "נשלח אל {name}"
+		"SENT_TO_CHAT": "נשלח אל {name}",
+		"ADD_EMOJI": "הוספת אמוג׳י",
+		"ADD_REACTION": "הוספת תגובה",
+		"CLEAR_SEARCH": "ניקוי החיפוש",
+		"CREATED_ON": "נוצר ב־{date}",
+		"EDIT_HINT": "Enter לשמירה, Esc לביטול",
+		"FORMATTING": "עיצוב",
+		"FORMAT_BOLD": "מודגש",
+		"FORMAT_CODE": "קוד",
+		"FORMAT_CODE_BLOCK": "בלוק קוד",
+		"FORMAT_ITALIC": "נטוי",
+		"FORMAT_LINK": "קישור",
+		"FORMAT_LIST": "רשימת תבליטים",
+		"JUMP_TO_LATEST": "מעבר להודעות האחרונות",
+		"LAST_REPLY": "תשובה אחרונה {time}",
+		"MENTION_COUNT": "{count, plural, one {אזכור אחד} two {שני אזכורים} other {# אזכורים}}",
+		"MENTION_SOMEONE": "אזכור של מישהו",
+		"NEW_DIVIDER": "חדש",
+		"NEW_MESSAGES": "{count, plural, one {הודעה חדשה אחת} two {שתי הודעות חדשות} other {# הודעות חדשות}}",
+		"NO_REPLIES": "עדיין אין תשובות. היו הראשונים לענות.",
+		"REACT_WITH": "תגובה עם {emoji}",
+		"START_OF_CHANNEL": "זוהי תחילת #{name}",
+		"START_OF_CHANNEL_TEXT": "כל מה שנכתב בערוץ הזה מופיע כאן, מההודעה הראשונה.",
+		"START_OF_DIRECT": "זוהי תחילת השיחה שלך עם {name}",
+		"START_OF_DIRECT_TEXT": "רק המשתתפים בשיחה הזו יכולים לקרוא את ההודעות האלה.",
+		"UNREAD_REPLIES": "{count, plural, one {תשובה חדשה אחת} two {שתי תשובות חדשות} other {# תשובות חדשות}}",
+		"YOU": "את/ה"
 	},
 	"docs": {
 		"TITLE": "מסמכים",
@@ -5229,7 +5264,51 @@
 		"DUPLICATE_ERROR": "לא ניתן לשכפל את הדף.",
 		"TRASH_ERROR": "לא ניתן להעביר את הדף לאשפה.",
 		"RESTORE_ERROR": "לא ניתן לשחזר את הדף.",
-		"DELETE_ERROR": "לא ניתן למחוק את הדף."
+		"DELETE_ERROR": "לא ניתן למחוק את הדף.",
+		"HOME": "בית",
+		"PAGE_COUNT": "{count, plural, one {דף אחד} two {שני דפים} other {# דפים}}",
+		"RECENTLY_UPDATED": "עודכנו לאחרונה",
+		"ADD_ICON": "הוספת סמל",
+		"WORD_COUNT": "{count, plural, one {מילה אחת} two {שתי מילים} other {# מילים}}",
+		"READ_TIME": "{minutes} דק׳ קריאה",
+		"OUTLINE": "בדף זה",
+		"SUB_PAGES": "תת-דפים",
+		"FULL_WIDTH": "רוחב מלא",
+		"COPY_LINK": "העתקת קישור",
+		"LINK_COPIED": "הקישור הועתק.",
+		"FOLDER_EMPTY": "התיקייה ריקה.",
+		"TEMPLATES": {
+			"TITLE": "התחלה מתבנית",
+			"BLANK": {
+				"NAME": "דף ריק",
+				"TEXT": "התחילו מדף ריק"
+			},
+			"MEETING": {
+				"NAME": "סיכום פגישה",
+				"TEXT": "סדר יום, הערות ומשימות",
+				"ATTENDEES": "משתתפים",
+				"AGENDA": "סדר יום",
+				"NOTES": "הערות",
+				"ACTION_ITEMS": "משימות לביצוע"
+			},
+			"BRIEF": {
+				"NAME": "בריף פרויקט",
+				"TEXT": "מטרה, היקף ואבני דרך",
+				"GOAL": "מטרה",
+				"BACKGROUND": "רקע",
+				"SCOPE": "היקף",
+				"MILESTONES": "אבני דרך",
+				"OPEN_QUESTIONS": "שאלות פתוחות"
+			},
+			"DECISION": {
+				"NAME": "תיעוד החלטה",
+				"TEXT": "הקשר, חלופות וההחלטה",
+				"CONTEXT": "הקשר",
+				"OPTIONS": "חלופות",
+				"DECISION": "החלטה",
+				"CONSEQUENCES": "השלכות"
+			}
+		}
 	},
 	"whatsNew": {
 		"TITLE": "מה חדש",

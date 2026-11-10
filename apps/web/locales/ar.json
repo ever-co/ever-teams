@@ -4948,7 +4948,8 @@
 			"NOT_DONE": "إزالة علامة منجز",
 			"UNARCHIVE": "إلغاء الأرشفة",
 			"CLEAR_SELECTION": "مسح التحديد",
-			"MARK_ALL_READ": "وضع علامة مقروء على الكل"
+			"MARK_ALL_READ": "وضع علامة مقروء على الكل",
+			"CLEAR_SEARCH": "مسح البحث"
 		},
 		"SNOOZE": {
 			"LATER_TODAY": "لاحقًا اليوم",
@@ -5009,10 +5010,18 @@
 			"CLOSE": "إغلاق",
 			"OPEN_TASK": "فتح المهمة",
 			"OPEN": "فتح",
-			"NO_TARGET": "لا يوجد ما يمكن فتحه لهذا الإشعار."
+			"NO_TARGET": "لا يوجد ما يمكن فتحه لهذا الإشعار.",
+			"MESSAGE_GONE": "هذه الرسالة لم تعد متاحة."
 		},
 		"KEYBOARD": {
-			"HINT": "J / K للتنقل، X للتحديد، E للأرشفة، H للتأجيل، D منجز، U مقروء، Enter للفتح، Shift+Esc لوضع علامة مقروء على الكل"
+			"HINT": "J / K للتنقل، X للتحديد، E للأرشفة، H للتأجيل، D منجز، U مقروء، Enter للفتح، Shift+Esc لوضع علامة مقروء على الكل",
+			"MOVE": "التنقل بين الإشعارات",
+			"OPEN": "فتح",
+			"READ": "تعليم كمقروء أو غير مقروء",
+			"ARCHIVE": "أرشفة",
+			"SNOOZE": "تأجيل حتى الغد",
+			"DONE": "تعليم كمنجز",
+			"SELECT": "تحديد"
 		},
 		"OPEN_PAGE": "فتح البريد الوارد"
 	},
@@ -5121,7 +5130,33 @@
 		"SEARCH_CONVERSATIONS": "البحث في المحادثات",
 		"NO_CONVERSATIONS": "لا توجد محادثات",
 		"NOTE_PLACEHOLDER": "أضف ملاحظة (اختياري)",
-		"SENT_TO_CHAT": "تم الإرسال إلى {name}"
+		"SENT_TO_CHAT": "تم الإرسال إلى {name}",
+		"ADD_EMOJI": "إضافة رمز تعبيري",
+		"ADD_REACTION": "إضافة تفاعل",
+		"CLEAR_SEARCH": "مسح البحث",
+		"CREATED_ON": "أُنشئت في {date}",
+		"EDIT_HINT": "Enter للحفظ، Esc للإلغاء",
+		"FORMATTING": "التنسيق",
+		"FORMAT_BOLD": "غامق",
+		"FORMAT_CODE": "رمز برمجي",
+		"FORMAT_CODE_BLOCK": "كتلة برمجية",
+		"FORMAT_ITALIC": "مائل",
+		"FORMAT_LINK": "رابط",
+		"FORMAT_LIST": "قائمة نقطية",
+		"JUMP_TO_LATEST": "الانتقال إلى الأحدث",
+		"LAST_REPLY": "آخر رد {time}",
+		"MENTION_COUNT": "{count, plural, one {إشارة واحدة} two {إشارتان} few {# إشارات} many {# إشارة} other {# إشارة}}",
+		"MENTION_SOMEONE": "الإشارة إلى شخص",
+		"NEW_DIVIDER": "جديد",
+		"NEW_MESSAGES": "{count, plural, one {رسالة جديدة واحدة} two {رسالتان جديدتان} few {# رسائل جديدة} many {# رسالة جديدة} other {# رسالة جديدة}}",
+		"NO_REPLIES": "لا توجد ردود بعد. كن أول من يرد.",
+		"REACT_WITH": "التفاعل بـ {emoji}",
+		"START_OF_CHANNEL": "هذه بداية #{name}",
+		"START_OF_CHANNEL_TEXT": "كل ما يُكتب في هذه القناة يظهر هنا، من أول رسالة.",
+		"START_OF_DIRECT": "هذه بداية محادثتك مع {name}",
+		"START_OF_DIRECT_TEXT": "لا يستطيع قراءة هذه الرسائل إلا المشاركون في هذه المحادثة.",
+		"UNREAD_REPLIES": "{count, plural, one {رد جديد واحد} two {ردّان جديدان} few {# ردود جديدة} many {# ردًا جديدًا} other {# رد جديد}}",
+		"YOU": "أنت"
 	},
 	"docs": {
 		"TITLE": "المستندات",
@@ -5229,7 +5264,51 @@
 		"DUPLICATE_ERROR": "تعذر تكرار الصفحة.",
 		"TRASH_ERROR": "تعذر نقل الصفحة إلى سلة المهملات.",
 		"RESTORE_ERROR": "تعذر استعادة الصفحة.",
-		"DELETE_ERROR": "تعذر حذف الصفحة."
+		"DELETE_ERROR": "تعذر حذف الصفحة.",
+		"HOME": "الرئيسية",
+		"PAGE_COUNT": "{count, plural, one {صفحة واحدة} two {صفحتان} few {# صفحات} many {# صفحة} other {# صفحة}}",
+		"RECENTLY_UPDATED": "المحدّثة مؤخرًا",
+		"ADD_ICON": "إضافة أيقونة",
+		"WORD_COUNT": "{count, plural, one {كلمة واحدة} two {كلمتان} few {# كلمات} many {# كلمة} other {# كلمة}}",
+		"READ_TIME": "{minutes} د قراءة",
+		"OUTLINE": "في هذه الصفحة",
+		"SUB_PAGES": "الصفحات الفرعية",
+		"FULL_WIDTH": "العرض الكامل",
+		"COPY_LINK": "نسخ الرابط",
+		"LINK_COPIED": "تم نسخ الرابط.",
+		"FOLDER_EMPTY": "هذا المجلد فارغ.",
+		"TEMPLATES": {
+			"TITLE": "ابدأ من قالب",
+			"BLANK": {
+				"NAME": "صفحة فارغة",
+				"TEXT": "ابدأ بصفحة فارغة"
+			},
+			"MEETING": {
+				"NAME": "ملاحظات الاجتماع",
+				"TEXT": "جدول الأعمال والملاحظات والمهام",
+				"ATTENDEES": "الحضور",
+				"AGENDA": "جدول الأعمال",
+				"NOTES": "الملاحظات",
+				"ACTION_ITEMS": "المهام المطلوبة"
+			},
+			"BRIEF": {
+				"NAME": "ملخص المشروع",
+				"TEXT": "الهدف والنطاق والمراحل",
+				"GOAL": "الهدف",
+				"BACKGROUND": "الخلفية",
+				"SCOPE": "النطاق",
+				"MILESTONES": "المراحل الرئيسية",
+				"OPEN_QUESTIONS": "أسئلة مفتوحة"
+			},
+			"DECISION": {
+				"NAME": "سجل القرار",
+				"TEXT": "السياق والخيارات والقرار",
+				"CONTEXT": "السياق",
+				"OPTIONS": "الخيارات",
+				"DECISION": "القرار",
+				"CONSEQUENCES": "النتائج المترتبة"
+			}
+		}
 	},
 	"whatsNew": {
 		"TITLE": "ما الجديد",

@@ -4,6 +4,7 @@ import {
 	filterInboxEntries,
 	fromNotificationEntry,
 	groupInboxEntriesByDay,
+	messagePartsOfTitle,
 	nextFocusIndex,
 	snoozeUntil,
 	tabOfFilter,
@@ -185,5 +186,66 @@ describe('grouping and focus', () => {
 		expect(nextFocusIndex(2, 3, 1)).toBe(2);
 		expect(nextFocusIndex(1, 3, -1)).toBe(0);
 		expect(nextFocusIndex(0, 0, 1)).toBe(-1);
+	});
+});
+
+describe('chat notifications', () => {
+	const chat = (title: string, overrides: Partial<IInboxItem> = {}) =>
+		toInboxEntry(item({ title, entity: 'ChatMessage', entityId: 'm1', taskId: null, metadata: { notificationType: 'Message', sentByEmployeeId: 'e9' }, ...overrides }));
+
+	it('reads the text of a direct message from the title, with no channel', () => {
+		const entry = chat('Ana sent you a message: See you at 13:30');
+		expect(entry.senderName).toBe('Ana');
+		expect(entry.subject).toBeNull();
+		expect(entry.message).toBe('See you at 13:30');
+		expect(entry.chatMessageId).toBe('m1');
+		expect(entry.sourceGroup).toBe('chat');
+	});
+
+	it('reads the channel and the text of a thread reply, and the name of who replied', () => {
+		const entry = chat('Ana replied in a thread you follow in #general: Is staging on the latest build?');
+		expect(entry.senderName).toBe('Ana');
+		expect(entry.subject).toBe('#general');
+		expect(entry.message).toBe('Is staging on the latest build?');
+	});
+
+	it('does not take a quote inside the message for the subject, and keeps colons of the text', () => {
+		const entry = chat('Ana sent you a message: The "final" plan: ship on Friday');
+		expect(entry.subject).toBeNull();
+		expect(entry.message).toBe('The "final" plan: ship on Friday');
+	});
+
+	it('reads the sender from the head of the title, whatever the message says', () => {
+		expect(chat('Ana sent you a message: we published it').senderName).toBe('Ana');
+		expect(chat('Ana replied in a thread you follow in #general: I sent the report').senderName).toBe('Ana');
+		expect(chat('Ana replied in a thread you follow in #general: she Assigned it and Mentioned me').senderName).toBe('Ana');
+	});
+
+	it('names the channel of a mention as a channel', () => {
+		const entry = toInboxEntry(
+			item({ title: 'Ana Mentioned you on the ChatConversation "general"', entity: 'ChatConversation', entityId: 'c1', taskId: null, metadata: { notificationType: 'Mention' } })
+		);
+		expect(entry.subject).toBe('#general');
+		expect(entry.chatMessageId).toBeNull();
+	});
+
+	it('prefers the body of an item over the text read from its title', () => {
+		expect(chat('Ana sent you a message: short', { body: 'The whole message' }).message).toBe('The whole message');
+	});
+
+	it('leaves a task notification as it was', () => {
+		const entry = toInboxEntry(item());
+		expect(entry.subject).toBe('Login');
+		expect(entry.message).toBeNull();
+		expect(entry.chatMessageId).toBeNull();
+	});
+});
+
+describe('messagePartsOfTitle', () => {
+	it('splits the channel and the text', () => {
+		expect(messagePartsOfTitle('Ana replied in a thread you follow in #design-review: Looks good')).toEqual({ place: '#design-review', preview: 'Looks good' });
+		expect(messagePartsOfTitle('Ana sent you a message: Hi')).toEqual({ place: null, preview: 'Hi' });
+		expect(messagePartsOfTitle('Ana sent you a message')).toEqual({ place: null, preview: null });
+		expect(messagePartsOfTitle('Ana sent you a message: ')).toEqual({ place: null, preview: null });
 	});
 });

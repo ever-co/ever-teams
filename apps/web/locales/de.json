@@ -4948,7 +4948,8 @@
 			"NOT_DONE": "Als nicht erledigt markieren",
 			"UNARCHIVE": "Wiederherstellen",
 			"CLEAR_SELECTION": "Auswahl aufheben",
-			"MARK_ALL_READ": "Alle als gelesen markieren"
+			"MARK_ALL_READ": "Alle als gelesen markieren",
+			"CLEAR_SEARCH": "Suche löschen"
 		},
 		"SNOOZE": {
 			"LATER_TODAY": "Später heute",
@@ -5009,10 +5010,18 @@
 			"CLOSE": "Schließen",
 			"OPEN_TASK": "Aufgabe öffnen",
 			"OPEN": "Öffnen",
-			"NO_TARGET": "Diese Benachrichtigung hat nichts zu öffnen."
+			"NO_TARGET": "Diese Benachrichtigung hat nichts zu öffnen.",
+			"MESSAGE_GONE": "Diese Nachricht ist nicht mehr verfügbar."
 		},
 		"KEYBOARD": {
-			"HINT": "J / K bewegen, X auswählen, E archivieren, H zurückstellen, D erledigt, U gelesen, Enter öffnen, Umschalt+Esc alle als gelesen markieren"
+			"HINT": "J / K bewegen, X auswählen, E archivieren, H zurückstellen, D erledigt, U gelesen, Enter öffnen, Umschalt+Esc alle als gelesen markieren",
+			"MOVE": "Zwischen Benachrichtigungen wechseln",
+			"OPEN": "Öffnen",
+			"READ": "Als gelesen oder ungelesen markieren",
+			"ARCHIVE": "Archivieren",
+			"SNOOZE": "Bis morgen zurückstellen",
+			"DONE": "Als erledigt markieren",
+			"SELECT": "Auswählen"
 		},
 		"OPEN_PAGE": "Posteingang öffnen"
 	},
@@ -5121,7 +5130,33 @@
 		"SEARCH_CONVERSATIONS": "Unterhaltungen durchsuchen",
 		"NO_CONVERSATIONS": "Keine Unterhaltungen",
 		"NOTE_PLACEHOLDER": "Notiz hinzufügen (optional)",
-		"SENT_TO_CHAT": "An {name} gesendet"
+		"SENT_TO_CHAT": "An {name} gesendet",
+		"ADD_EMOJI": "Emoji einfügen",
+		"ADD_REACTION": "Reaktion hinzufügen",
+		"CLEAR_SEARCH": "Suche leeren",
+		"CREATED_ON": "Erstellt am {date}",
+		"EDIT_HINT": "Enter zum Speichern, Esc zum Abbrechen",
+		"FORMATTING": "Formatierung",
+		"FORMAT_BOLD": "Fett",
+		"FORMAT_CODE": "Code",
+		"FORMAT_CODE_BLOCK": "Codeblock",
+		"FORMAT_ITALIC": "Kursiv",
+		"FORMAT_LINK": "Link",
+		"FORMAT_LIST": "Aufzählung",
+		"JUMP_TO_LATEST": "Zu den neuesten Nachrichten",
+		"LAST_REPLY": "Letzte Antwort {time}",
+		"MENTION_COUNT": "{count, plural, one {# Erwähnung} other {# Erwähnungen}}",
+		"MENTION_SOMEONE": "Jemanden erwähnen",
+		"NEW_DIVIDER": "Neu",
+		"NEW_MESSAGES": "{count, plural, one {# neue Nachricht} other {# neue Nachrichten}}",
+		"NO_REPLIES": "Noch keine Antworten. Schreiben Sie die erste.",
+		"REACT_WITH": "Mit {emoji} reagieren",
+		"START_OF_CHANNEL": "Hier beginnt #{name}",
+		"START_OF_CHANNEL_TEXT": "Alles, was in diesem Kanal geschrieben wird, erscheint hier, ab der ersten Nachricht.",
+		"START_OF_DIRECT": "Hier beginnt Ihre Unterhaltung mit {name}",
+		"START_OF_DIRECT_TEXT": "Nur die Personen in dieser Unterhaltung können diese Nachrichten lesen.",
+		"UNREAD_REPLIES": "{count, plural, one {# neue Antwort} other {# neue Antworten}}",
+		"YOU": "Sie"
 	},
 	"docs": {
 		"TITLE": "Dokumente",
@@ -5229,7 +5264,51 @@
 		"DUPLICATE_ERROR": "Die Seite konnte nicht dupliziert werden.",
 		"TRASH_ERROR": "Die Seite konnte nicht in den Papierkorb verschoben werden.",
 		"RESTORE_ERROR": "Die Seite konnte nicht wiederhergestellt werden.",
-		"DELETE_ERROR": "Die Seite konnte nicht gelöscht werden."
+		"DELETE_ERROR": "Die Seite konnte nicht gelöscht werden.",
+		"HOME": "Start",
+		"PAGE_COUNT": "{count, plural, one {# Seite} other {# Seiten}}",
+		"RECENTLY_UPDATED": "Zuletzt aktualisiert",
+		"ADD_ICON": "Symbol hinzufügen",
+		"WORD_COUNT": "{count, plural, one {# Wort} other {# Wörter}}",
+		"READ_TIME": "{minutes} Min. Lesezeit",
+		"OUTLINE": "Auf dieser Seite",
+		"SUB_PAGES": "Unterseiten",
+		"FULL_WIDTH": "Volle Breite",
+		"COPY_LINK": "Link kopieren",
+		"LINK_COPIED": "Link kopiert.",
+		"FOLDER_EMPTY": "Dieser Ordner ist leer.",
+		"TEMPLATES": {
+			"TITLE": "Mit einer Vorlage beginnen",
+			"BLANK": {
+				"NAME": "Leere Seite",
+				"TEXT": "Mit einer leeren Seite starten"
+			},
+			"MEETING": {
+				"NAME": "Besprechungsnotizen",
+				"TEXT": "Agenda, Notizen und Aufgaben",
+				"ATTENDEES": "Teilnehmende",
+				"AGENDA": "Agenda",
+				"NOTES": "Notizen",
+				"ACTION_ITEMS": "Aufgaben"
+			},
+			"BRIEF": {
+				"NAME": "Projektbriefing",
+				"TEXT": "Ziel, Umfang und Meilensteine",
+				"GOAL": "Ziel",
+				"BACKGROUND": "Hintergrund",
+				"SCOPE": "Umfang",
+				"MILESTONES": "Meilensteine",
+				"OPEN_QUESTIONS": "Offene Fragen"
+			},
+			"DECISION": {
+				"NAME": "Entscheidungsprotokoll",
+				"TEXT": "Kontext, Optionen und die Entscheidung",
+				"CONTEXT": "Kontext",
+				"OPTIONS": "Optionen",
+				"DECISION": "Entscheidung",
+				"CONSEQUENCES": "Auswirkungen"
+			}
+		}
 	},
 	"whatsNew": {
 		"TITLE": "Neuigkeiten",

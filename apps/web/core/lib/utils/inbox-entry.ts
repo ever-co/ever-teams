@@ -31,14 +31,17 @@ export interface InboxEntry {
 	type: EEmployeeNotificationType | null;
 	/** The platform's own title, shown as is when nothing better can be read from it. */
 	rawTitle: string;
-	/** The task, team or broadcast title quoted in the title. */
+	/** The task, team or broadcast title quoted in the title; for a chat entry, the channel it happened in (`#general`). */
 	subject: string | null;
+	/** The body of the item; for a chat entry, the text of the message. */
 	message: string | null;
 	senderName: string | null;
 	sentByEmployeeId: string | null;
 	entity: string | null;
 	entityId: string | null;
 	taskId: string | null;
+	/** The chat message the entry is about: opening it resolves the conversation and scrolls to the message. */
+	chatMessageId: string | null;
 	/** Where opening the entry leads when it is not about a task. */
 	href: string | null;
 	isUnread: boolean;
@@ -103,18 +106,40 @@ function hrefOf(type: EEmployeeNotificationType | null, entry: Pick<InboxEntry, 
 	return null;
 }
 
+/**
+ * What the platform's English title of a chat notification says besides who and what: the channel (`… in #general: …`)
+ * and the text of the message (everything after the first `: `). A direct message names no channel.
+ */
+export function messagePartsOfTitle(title: string): { place: string | null; preview: string | null } {
+	const colon = title.indexOf(': ');
+	const head = colon >= 0 ? title.slice(0, colon) : title;
+	const preview = colon >= 0 ? title.slice(colon + 2).trim() : '';
+	const place = /\sin (#[^\s:]+)$/.exec(head)?.[1] ?? null;
+	return { place, preview: preview.length > 0 ? preview : null };
+}
+
+/** What an entry is about: the channel of a chat message, the channel a mention names, else the title's quoted part. */
+function subjectOf(entity: string | null, chatParts: { place: string | null } | null, quoted: string | null): string | null {
+	if (chatParts) return chatParts.place;
+	if (entity === 'ChatConversation' && quoted) return `#${quoted.replace(/^#/, '')}`;
+	return quoted;
+}
+
 /** An entry from a platform inbox item. */
 export function toInboxEntry(item: IInboxItem): InboxEntry {
 	const metadata = item.metadata ?? {};
 	const isNotification = item.kind === EInboxItemKind.Notification || item.externalSource === INBOX_NOTIFICATION_EXTERNAL_SOURCE;
 	const type = isNotification ? knownTypeOf(metadata['notificationType']) : null;
 	const rawTitle = stringOf(item.title) ?? '';
-	const subject = isNotification ? quotedSubjectOf(rawTitle) : null;
-	const message = stringOf(item.body);
 	const recipient = item.recipient;
 	const entity = stringOf(item.entity);
 	const entityId = stringOf(item.entityId);
 	const taskId = stringOf(item.taskId) ?? (entity === EBaseEntityEnum.Task ? entityId : null);
+	// A chat notification carries its channel and its text in the title; a quote inside the text is not a subject.
+	const chatParts = isNotification && entity === 'ChatMessage' ? messagePartsOfTitle(rawTitle) : null;
+	const quoted = isNotification && !chatParts ? quotedSubjectOf(rawTitle) : null;
+	const subject = subjectOf(entity, chatParts, quoted);
+	const message = stringOf(item.body) ?? chatParts?.preview ?? null;
 	const entry: InboxEntry = {
 		id: item.id,
 		kind: String(item.kind ?? ''),
@@ -129,6 +154,7 @@ export function toInboxEntry(item: IInboxItem): InboxEntry {
 		entity,
 		entityId,
 		taskId,
+		chatMessageId: entity === 'ChatMessage' ? entityId : null,
 		href: null,
 		isUnread: recipient ? recipient.isRead !== true : true,
 		isArchived: !!recipient?.isArchived,
@@ -185,6 +211,7 @@ export function fromNotificationEntry(notification: NotificationEntry): InboxEnt
 		entity: notification.taskId ? EBaseEntityEnum.Task : null,
 		entityId: notification.taskId,
 		taskId: notification.taskId,
+		chatMessageId: null,
 		href: notification.href,
 		isUnread: notification.isUnread,
 		isArchived: false,

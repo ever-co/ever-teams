@@ -47,15 +47,23 @@ class DocsService extends APIService {
 		return response.data;
 	};
 
-	/** Every page of a query, page by page, up to the tree's cap. */
+	/**
+	 * Every row of a query, page by page, up to the tree's cap. Beside `take` the platform reads `skip` as a page
+	 * number counted from 1 (it skips `take * (skip - 1)` rows), not as a row offset.
+	 */
 	listAll = async (query: IDocumentListQuery, signal?: AbortSignal): Promise<IDocumentPage[]> => {
 		const items: IDocumentPage[] = [];
-		let skip = 0;
-		for (;;) {
-			const page = await this.list({ ...query, take: DOCS_LIST_PAGE_SIZE, skip }, signal);
-			items.push(...page.items);
-			skip += page.items.length;
-			if (page.items.length === 0 || skip >= page.total || skip >= DOCS_TREE_MAX_PAGES) break;
+		const seen = new Set<string>();
+		for (let pageNumber = 1; ; pageNumber += 1) {
+			const page = await this.list({ ...query, take: DOCS_LIST_PAGE_SIZE, skip: pageNumber }, signal);
+			// A row that moved between two reads can come twice: it is kept once.
+			for (const item of page.items) {
+				if (seen.has(item.id)) continue;
+				seen.add(item.id);
+				items.push(item);
+			}
+			const read = pageNumber * DOCS_LIST_PAGE_SIZE;
+			if (page.items.length < DOCS_LIST_PAGE_SIZE || read >= page.total || read >= DOCS_TREE_MAX_PAGES) break;
 		}
 		return items;
 	};

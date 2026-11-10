@@ -4948,7 +4948,8 @@
 			"NOT_DONE": "标记为未完成",
 			"UNARCHIVE": "取消归档",
 			"CLEAR_SELECTION": "清除选择",
-			"MARK_ALL_READ": "全部标为已读"
+			"MARK_ALL_READ": "全部标为已读",
+			"CLEAR_SEARCH": "清除搜索"
 		},
 		"SNOOZE": {
 			"LATER_TODAY": "今天稍后",
@@ -5009,10 +5010,18 @@
 			"CLOSE": "关闭",
 			"OPEN_TASK": "打开任务",
 			"OPEN": "打开",
-			"NO_TARGET": "此通知没有可打开的内容。"
+			"NO_TARGET": "此通知没有可打开的内容。",
+			"MESSAGE_GONE": "此消息已不可用。"
 		},
 		"KEYBOARD": {
-			"HINT": "J / K 移动，X 选择，E 归档，H 推迟，D 完成，U 已读，Enter 打开，Shift+Esc 全部标为已读"
+			"HINT": "J / K 移动，X 选择，E 归档，H 推迟，D 完成，U 已读，Enter 打开，Shift+Esc 全部标为已读",
+			"MOVE": "在通知之间移动",
+			"OPEN": "打开",
+			"READ": "标为已读或未读",
+			"ARCHIVE": "归档",
+			"SNOOZE": "推迟到明天",
+			"DONE": "标为已完成",
+			"SELECT": "选择"
 		},
 		"OPEN_PAGE": "打开收件箱"
 	},
@@ -5121,7 +5130,33 @@
 		"SEARCH_CONVERSATIONS": "搜索会话",
 		"NO_CONVERSATIONS": "没有会话",
 		"NOTE_PLACEHOLDER": "添加备注（可选）",
-		"SENT_TO_CHAT": "已发送到 {name}"
+		"SENT_TO_CHAT": "已发送到 {name}",
+		"ADD_EMOJI": "添加表情",
+		"ADD_REACTION": "添加回应",
+		"CLEAR_SEARCH": "清除搜索",
+		"CREATED_ON": "创建于 {date}",
+		"EDIT_HINT": "Enter 保存，Esc 取消",
+		"FORMATTING": "格式",
+		"FORMAT_BOLD": "加粗",
+		"FORMAT_CODE": "代码",
+		"FORMAT_CODE_BLOCK": "代码块",
+		"FORMAT_ITALIC": "斜体",
+		"FORMAT_LINK": "链接",
+		"FORMAT_LIST": "项目符号列表",
+		"JUMP_TO_LATEST": "跳到最新",
+		"LAST_REPLY": "最后回复：{time}",
+		"MENTION_COUNT": "{count, plural, other {# 次提及}}",
+		"MENTION_SOMEONE": "提及某人",
+		"NEW_DIVIDER": "新消息",
+		"NEW_MESSAGES": "{count, plural, other {# 条新消息}}",
+		"NO_REPLIES": "还没有回复。来做第一个回复的人吧。",
+		"REACT_WITH": "用 {emoji} 回应",
+		"START_OF_CHANNEL": "这里是 #{name} 的开始",
+		"START_OF_CHANNEL_TEXT": "此频道中的所有消息都会显示在这里，从第一条开始。",
+		"START_OF_DIRECT": "这里是您与 {name} 的会话的开始",
+		"START_OF_DIRECT_TEXT": "只有此会话中的人可以阅读这些消息。",
+		"UNREAD_REPLIES": "{count, plural, other {# 条新回复}}",
+		"YOU": "您"
 	},
 	"docs": {
 		"TITLE": "文档",
@@ -5229,7 +5264,51 @@
 		"DUPLICATE_ERROR": "无法复制页面。",
 		"TRASH_ERROR": "无法将页面移到回收站。",
 		"RESTORE_ERROR": "无法恢复页面。",
-		"DELETE_ERROR": "无法删除页面。"
+		"DELETE_ERROR": "无法删除页面。",
+		"HOME": "首页",
+		"PAGE_COUNT": "{count, plural, other {# 个页面}}",
+		"RECENTLY_UPDATED": "最近更新",
+		"ADD_ICON": "添加图标",
+		"WORD_COUNT": "{count, plural, other {约 # 个词}}",
+		"READ_TIME": "阅读约 {minutes} 分钟",
+		"OUTLINE": "本页内容",
+		"SUB_PAGES": "子页面",
+		"FULL_WIDTH": "全宽",
+		"COPY_LINK": "复制链接",
+		"LINK_COPIED": "链接已复制。",
+		"FOLDER_EMPTY": "此文件夹为空。",
+		"TEMPLATES": {
+			"TITLE": "从模板开始",
+			"BLANK": {
+				"NAME": "空白页面",
+				"TEXT": "从空白页面开始"
+			},
+			"MEETING": {
+				"NAME": "会议记录",
+				"TEXT": "议程、记录和待办事项",
+				"ATTENDEES": "参会人",
+				"AGENDA": "议程",
+				"NOTES": "记录",
+				"ACTION_ITEMS": "待办事项"
+			},
+			"BRIEF": {
+				"NAME": "项目简报",
+				"TEXT": "目标、范围和里程碑",
+				"GOAL": "目标",
+				"BACKGROUND": "背景",
+				"SCOPE": "范围",
+				"MILESTONES": "里程碑",
+				"OPEN_QUESTIONS": "待解决的问题"
+			},
+			"DECISION": {
+				"NAME": "决策记录",
+				"TEXT": "背景、方案和决定",
+				"CONTEXT": "背景",
+				"OPTIONS": "方案",
+				"DECISION": "决定",
+				"CONSEQUENCES": "影响"
+			}
+		}
 	},
 	"whatsNew": {
 		"TITLE": "新功能",

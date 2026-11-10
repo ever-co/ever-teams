@@ -29,6 +29,12 @@ type PageLayoutProps = PropsWithChildren<{
 	mainHeaderSlotClassName?: string;
 	/** No effect, see `footerClassName`. */
 	isFooterFixed?: boolean;
+	/**
+	 * The page is a surface of panes that scroll on their own (a list beside its detail, a conversation over its
+	 * composer): its content is exactly as tall as the space under the top bar, so `h-full` resolves inside it and the
+	 * page itself never scrolls.
+	 */
+	fill?: boolean;
 }>;
 
 /** The header height under which a page that carries its own timer still shows the compact one. */
@@ -48,7 +54,8 @@ export function PageLayout({
 	childrenClassName,
 	breadcrumb,
 	mainHeaderSlot,
-	mainHeaderSlotClassName = ''
+	mainHeaderSlotClassName = '',
+	fill = false
 }: PageLayoutProps) {
 	const [shouldRenderTimer, setShouldRenderTimer] = useState(false);
 	const { activeTimer, setActiveTimer } = useActiveTimer();
@@ -88,7 +95,7 @@ export function PageLayout({
 	const headerShowsTimer = timerActive || Boolean(showTimer);
 
 	return (
-		<div className="flex h-full min-h-0 w-full flex-col overflow-clip">
+		<div className="flex h-full min-h-0 w-full flex-col overflow-clip" data-pane-surface={fill ? 'true' : undefined}>
 			{/* Outside headerRef: the strip must not count towards the header height the timer logic measures. */}
 			<DemoBanner />
 			<GlobalHeader
@@ -100,12 +107,13 @@ export function PageLayout({
 				mainHeaderSlot={mainHeaderSlot}
 				mainHeaderSlotClassName={mainHeaderSlotClassName}
 			/>
-			<PageContentScroller>
-				<main className={cn('relative flex min-h-full w-full flex-col p-4', className)}>
+			<PageContentScroller contentClassName={fill ? 'h-full' : undefined}>
+				<main className={cn('relative flex min-h-full w-full flex-col p-4', fill && 'h-full min-h-0', className)}>
 					{/* `clip`, not `hidden`: overflow-x hidden makes this a scroll container of its own. PageContentScroller owns scrolling. */}
 					<div
 						className={cn(
 							'-mx-2 min-h-0 w-[calc(100%+1rem)] flex-1 overflow-x-clip px-2',
+							fill && 'h-full',
 							childrenClassName
 						)}
 					>
