@@ -1,5 +1,11 @@
-import { REALTIME_BACKOFF_MAX_MS, REALTIME_BACKOFF_MIN_MS, REALTIME_CATCH_UP_LIMIT, REALTIME_PING_INTERVAL_MS } from './config';
-import { occurredAtMs, REALTIME_DEFAULT_SELECTION, RealtimeCatchUp, RealtimeCatchUpQuery, RealtimeEnvelope } from './events';
+import {
+	REALTIME_BACKOFF_MAX_MS,
+	REALTIME_BACKOFF_MIN_MS,
+	REALTIME_CATCH_UP_LIMIT,
+	REALTIME_CATCH_UP_POLL_MS,
+	REALTIME_PING_INTERVAL_MS
+} from './config';
+import { REALTIME_DEFAULT_SELECTION, REALTIME_EVENT_NAMES, RealtimeCatchUp, RealtimeCatchUpQuery, RealtimeEnvelope } from './events';
 import { GraphqlWsConnection, isFatalCloseCode, SocketFactory } from './graphql-ws';
 
 /** Where the tab's connection stands. */
@@ -12,7 +18,7 @@ export interface RealtimeCredentials {
 	organizationId?: string | null;
 }
 
-/** The position of the newest event applied: what the catch-up continues from. */
+/** The position the last catch-up answered: what the next catch-up continues from. */
 export interface RealtimeCursor {
 	at: number;
 	id: string | null;
@@ -30,6 +36,8 @@ export interface RealtimeClientOptions {
 	createSocket?: SocketFactory;
 	backoff?: { minMs: number; maxMs: number };
 	pingIntervalMs?: number;
+	/** How often a connected client reads the catch-up anyway (0: only on reconnect). */
+	pollIntervalMs?: number;
 	/** How long the server has to acknowledge a connection (0: no deadline). */
 	ackTimeoutMs?: number;
 	/** Injected for tests. */
@@ -60,6 +68,9 @@ const SEEN_LIMIT = 2_000;
 /** The pages one replay reads; a larger gap is cheaper to refetch than to replay, so the listeners resynchronise. */
 const REPLAY_MAX_PAGES = 50;
 
+/** How many employees' presence revisions are remembered to drop an older `presence.changed`. */
+const PRESENCE_REVISIONS_LIMIT = 5_000;
+
 /** Whether position `a` is after position `b` (time, then id). */
 function isAfter(a: RealtimeCursor, b: RealtimeCursor | null): boolean {
 	return !b || a.at > b.at || (a.at === b.at && (a.id ?? '') > (b.id ?? ''));
@@ -72,10 +83,14 @@ type ResyncHandler = () => void;
 /**
  * The one live connection of a tab.
  *
- * It opens the socket with the session's credential, subscribes to the collaboration events, remembers the
- * position of the newest event applied, and on every reconnect replays what it missed through the catch-up
- * listing — in order, without duplicates — or tells its listeners to resynchronise when the platform no longer
- * holds the gap. Drops reconnect with jittered exponential backoff, at once when the browser reports being
+ * It opens the socket with the session's credential, subscribes to the collaboration events, and replays through
+ * the catch-up listing — on every reconnect, and every {@link REALTIME_CATCH_UP_POLL_MS} while connected — what it
+ * has not applied, without duplicates, or tells its listeners to resynchronise when the platform no longer holds the
+ * gap. **The resume position is only ever the cursor a catch-up answered**, never a streamed event: the platform
+ * delivers the stream neither in commit order nor at once, so an event stamped before a streamed one can still be on
+ * its way. Streamed events are applied at once all the same (they are the freshness); the catch-up answers them
+ * again and they are dropped by id. A `presence.changed` older than the last one applied for its employee (a lower
+ * `revision`) is dropped. Drops reconnect with jittered exponential backoff, at once when the browser reports being
  * online again or the tab becomes visible; a refused credential stops the client until a new one is given.
  *
  * Events are never data: a listener refetches what it may read.
@@ -88,11 +103,12 @@ export class RealtimeClient {
 	private attempts = 0;
 	private reconnectTimer: unknown = null;
 	private started = false;
-	/** Whether everything up to the cursor has been applied, so a streamed event may move it. */
+	/** Whether this connection's first replay completed (until then every event id is remembered). */
 	private caughtUp = false;
-	/** The newest streamed event while not caught up: where the cursor goes once the replay completes. */
-	private streamedHigh: RealtimeCursor | null = null;
 	private replayRunning = false;
+	private pollTimer: unknown = null;
+	/** The newest presence revision applied, by employee. */
+	private readonly presenceRevisions = new Map<string, number>();
 	private replayAgain = false;
 	/** Subscriptions the server ended in a row: the backoff of the reconnect that follows. */
 	private streamEnds = 0;
@@ -153,6 +169,7 @@ export class RealtimeClient {
 		this.options.window?.removeEventListener('online', this.onOnline);
 		this.options.window?.removeEventListener('visibilitychange', this.onVisible);
 		this.cancelReconnect();
+		this.cancelPoll();
 		this.closeConnection();
 		this.setStatus('off');
 	}
@@ -164,6 +181,7 @@ export class RealtimeClient {
 			return;
 		}
 		this.cancelReconnect();
+		this.cancelPoll();
 		this.closeConnection();
 		this.attempts = 0;
 		this.connect();
@@ -225,7 +243,7 @@ export class RealtimeClient {
 					if (!envelope) return;
 					this.streamEnds = 0;
 					this.attempts = 0;
-					this.apply(envelope, 'stream');
+					this.apply(envelope);
 				},
 				error: ended,
 				complete: ended
@@ -233,23 +251,45 @@ export class RealtimeClient {
 		);
 		this.setStatus('connected');
 		await this.catchUp();
+		this.schedulePoll(connection);
+	}
+
+	/** Reads the catch-up again while this connection lasts, so the cursor stays fresh. */
+	private schedulePoll(connection: GraphqlWsConnection): void {
+		const interval = this.options.pollIntervalMs ?? REALTIME_CATCH_UP_POLL_MS;
+		this.cancelPoll();
+		if (interval <= 0 || this.connection !== connection) return;
+		this.pollTimer = this.setTimer(() => {
+			this.pollTimer = null;
+			if (!this.started || this.connection !== connection || !connection.isReady) return;
+			void this.catchUp('poll').finally(() => this.schedulePoll(connection));
+		}, interval);
+	}
+
+	private cancelPoll(): void {
+		if (this.pollTimer !== null) {
+			this.clearTimer(this.pollTimer);
+			this.pollTimer = null;
+		}
 	}
 
 	/**
-	 * Replays what was missed since the cursor; without a cursor, takes the platform's own "now" as the position
-	 * (the client's clock may differ from the platform's). One replay runs at a time: a connection acknowledged
-	 * while one runs gets its own replay right after it, from wherever the first one got to.
+	 * Replays what was missed since the cursor; without a cursor, takes the platform's own position (the client's
+	 * clock may differ from the platform's). One replay runs at a time: a connection acknowledged while one runs gets
+	 * its own replay right after it, from wherever the first one got to; a poll while one runs is not needed.
 	 */
-	private async catchUp(): Promise<void> {
+	private async catchUp(mode: 'reconnect' | 'poll' = 'reconnect'): Promise<void> {
 		if (this.replayRunning) {
-			this.replayAgain = true;
+			if (mode === 'reconnect') this.replayAgain = true;
 			return;
 		}
 		this.replayRunning = true;
 		try {
+			let current = mode;
 			do {
 				this.replayAgain = false;
-				await this.replay(this.connection);
+				await this.replay(this.connection, current);
+				current = 'reconnect';
 			} while (this.replayAgain && this.started && this.connection?.isReady);
 		} finally {
 			this.replayRunning = false;
@@ -257,11 +297,12 @@ export class RealtimeClient {
 	}
 
 	/**
-	 * One replay for one connection. It reads from its own position — never the cursor a streamed event moved —
-	 * and moves the cursor only as far as it has applied everything. Superseded by a newer connection, it stops
-	 * and leaves the rest to that connection's replay.
+	 * One replay for one connection. It reads from the cursor the last catch-up answered and moves it only as far as
+	 * it has applied everything. Superseded by a newer connection, it stops and leaves the rest to that connection's
+	 * replay. A poll that fails is let go (the next poll or reconnect reads again); a reconnect's replay that fails
+	 * tells the listeners to resynchronise rather than trust a gap.
 	 */
-	private async replay(connection: GraphqlWsConnection | null): Promise<void> {
+	private async replay(connection: GraphqlWsConnection | null, mode: 'reconnect' | 'poll' = 'reconnect'): Promise<void> {
 		const superseded = () => this.connection !== connection;
 		const limit = this.options.limit ?? REALTIME_CATCH_UP_LIMIT;
 		try {
@@ -274,7 +315,7 @@ export class RealtimeClient {
 			let position: RealtimeCursor = { ...this.cursor };
 			for (let page = 0; page < REPLAY_MAX_PAGES; page += 1) {
 				const answer = await this.options.catchUp({ after: position.at, afterId: position.id, limit });
-				for (const envelope of answer.events) this.apply(envelope, 'replay');
+				for (const envelope of answer.events) this.apply(envelope);
 				if (typeof answer.cursor === 'number') position = { at: answer.cursor, id: answer.cursorId };
 				// Everything up to `position` is applied: the next replay, whoever runs it, continues from there.
 				if (isAfter(position, this.cursor)) this.cursor = { ...position };
@@ -293,18 +334,16 @@ export class RealtimeClient {
 			this.emitResync();
 			this.completeReplay();
 		} catch {
-			// Superseded: the newer connection replays for itself. Otherwise the listeners resynchronise rather than
-			// trust a gap.
-			if (superseded()) return;
+			// Superseded: the newer connection replays for itself. A failed poll leaves the cursor where it is.
+			// Otherwise the listeners resynchronise rather than trust a gap.
+			if (superseded() || mode === 'poll') return;
 			this.emitResync();
 			this.completeReplay();
 		}
 	}
 
-	/** The replay is complete (or replaced by a resynchronisation): streamed events move the cursor again. */
+	/** The replay is complete (or replaced by a resynchronisation): the remembered ids may be trimmed again. */
 	private completeReplay(): void {
-		if (this.streamedHigh && isAfter(this.streamedHigh, this.cursor)) this.cursor = { ...this.streamedHigh };
-		this.streamedHigh = null;
 		this.caughtUp = true;
 		while (this.seen.size > SEEN_LIMIT) {
 			const oldest = this.seen.values().next().value;
@@ -313,21 +352,12 @@ export class RealtimeClient {
 		}
 	}
 
-	private apply(envelope: RealtimeEnvelope, source: 'stream' | 'replay'): void {
+	private apply(envelope: RealtimeEnvelope): void {
 		if (!envelope?.eventId) return;
 		if (this.seen.has(envelope.eventId)) return;
 		this.remember(envelope.eventId);
-		const at = occurredAtMs(envelope);
-		if (at !== null && source === 'stream') {
-			const position = { at, id: envelope.eventId };
-			// A streamed event moves the cursor only once everything before it is applied; until then it is kept
-			// for when the replay completes (a replay page's own position moves the cursor as it goes).
-			if (this.caughtUp) {
-				if (isAfter(position, this.cursor)) this.cursor = position;
-			} else if (isAfter(position, this.streamedHigh)) {
-				this.streamedHigh = position;
-			}
-		}
+		// The stream never moves the cursor (see the class): only a catch-up answer does.
+		if (this.isOlderPresence(envelope)) return;
 		for (const handler of this.eventHandlers) {
 			try {
 				handler(envelope);
@@ -335,6 +365,27 @@ export class RealtimeClient {
 				// A listener's failure is its own; the others still hear the event.
 			}
 		}
+	}
+
+	/**
+	 * Whether a `presence.changed` is older than the last one applied for its employee: two platform processes may
+	 * deliver two changes out of order, and the `revision` orders them. A change without a revision is applied.
+	 */
+	private isOlderPresence(envelope: RealtimeEnvelope): boolean {
+		if (envelope.eventName !== REALTIME_EVENT_NAMES.PRESENCE_CHANGED) return false;
+		const data = (envelope.data ?? {}) as { employeeId?: unknown; revision?: unknown };
+		const employeeId = typeof data.employeeId === 'string' ? data.employeeId : null;
+		const revision = typeof data.revision === 'number' && Number.isFinite(data.revision) ? data.revision : null;
+		if (!employeeId || revision === null) return false;
+		const last = this.presenceRevisions.get(employeeId);
+		if (last !== undefined && revision <= last) return true;
+		this.presenceRevisions.delete(employeeId);
+		this.presenceRevisions.set(employeeId, revision);
+		if (this.presenceRevisions.size > PRESENCE_REVISIONS_LIMIT) {
+			const oldest = this.presenceRevisions.keys().next().value;
+			if (oldest !== undefined) this.presenceRevisions.delete(oldest);
+		}
+		return false;
 	}
 
 	private remember(eventId: string): void {
@@ -349,6 +400,7 @@ export class RealtimeClient {
 		if (this.connection !== connection) return;
 		this.connection = null;
 		this.unsubscribe = null;
+		this.cancelPoll();
 		// What arrives between now and the next replay is unknown: the cursor waits for that replay.
 		this.caughtUp = false;
 		if (!this.started) return;

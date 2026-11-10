@@ -13,7 +13,18 @@ function envelope(eventId: string, at: string, eventName = 'task.updated'): Real
 	};
 }
 
-function setUp(catchUpAnswers: Array<RealtimeCatchUp | Error | Promise<RealtimeCatchUp>> = []) {
+function presence(eventId: string, employeeId: string, revision: number, status = 'active'): RealtimeEnvelope {
+	return {
+		eventId,
+		eventName: 'presence.changed',
+		occurredAt: '2026-01-01T00:00:30.000Z',
+		aggregate: { type: 'employee', id: employeeId },
+		sequence: null,
+		data: { employeeId, userId: `u-${employeeId}`, status, revision, at: '2026-01-01T00:00:30.000Z' }
+	};
+}
+
+function setUp(catchUpAnswers: Array<RealtimeCatchUp | Error | Promise<RealtimeCatchUp>> = [], options: { pollIntervalMs?: number } = {}) {
 	const sockets = fakeSocketFactory();
 	const timers = fakeTimers();
 	const catchUpCalls: RealtimeCatchUpQuery[] = [];
@@ -37,6 +48,7 @@ function setUp(catchUpAnswers: Array<RealtimeCatchUp | Error | Promise<RealtimeC
 		backoff: { minMs: 100, maxMs: 1_000 },
 		random: () => 0.5,
 		pingIntervalMs: 0,
+		pollIntervalMs: options.pollIntervalMs ?? 0,
 		limit: 2
 	});
 	client.onStatus((status) => statuses.push(status));
@@ -79,7 +91,7 @@ describe('RealtimeClient', () => {
 		expect(ctx.client.getCursor()).toEqual({ at: 1_000, id: null });
 	});
 
-	it('delivers streamed events once, advancing the cursor', async () => {
+	it('delivers streamed events once, at once, without moving the cursor (only a catch-up answer does)', async () => {
 		const ctx = setUp();
 		ctx.client.start();
 		const socket = await ctx.accept();
@@ -88,7 +100,9 @@ describe('RealtimeClient', () => {
 		deliver(envelope('e2', '2026-01-01T00:00:11.000Z'));
 		deliver(envelope('e1', '2026-01-01T00:00:10.000Z'));
 		expect(ctx.events).toEqual(['e1', 'e2']);
-		expect(ctx.client.getCursor()).toEqual({ at: Date.parse('2026-01-01T00:00:11.000Z'), id: 'e2' });
+		// The platform delivers the stream neither in commit order nor at once: an event stamped before e2 may still
+		// be on its way, so the position stays the one the catch-up answered.
+		expect(ctx.client.getCursor()).toEqual({ at: 5_000, id: null });
 	});
 
 	it('reconnects with backoff after a drop, replays from its cursor page by page, and drops duplicates', async () => {
@@ -108,8 +122,9 @@ describe('RealtimeClient', () => {
 		expect(ctx.sockets.sockets).toHaveLength(2);
 		socket = await ctx.accept();
 		await flush();
+		// From the catch-up's own position, not from the streamed e2; e2 comes again and is dropped by id.
 		expect(ctx.catchUpCalls.slice(1)).toEqual([
-			{ after: at, afterId: 'e2', limit: 2 },
+			{ after: 1_000, afterId: null, limit: 2 },
 			{ after: at + 1_000, afterId: 'e3', limit: 2 }
 		]);
 		expect(ctx.events).toEqual(['e2', 'e3', 'e4']);
@@ -305,7 +320,77 @@ describe('RealtimeClient', () => {
 		await ctx.accept();
 		await flush();
 		expect(ctx.catchUpCalls[ctx.catchUpCalls.length - 1]).toEqual({ after: at + 2_000, afterId: 'e3', limit: 2 });
-		expect(ctx.client.getCursor()).toEqual({ at: Date.parse('2026-01-01T00:00:19.000Z'), id: 'e9' });
+		// The streamed e9 never becomes the position, even once the replay completed.
+		expect(ctx.client.getCursor()).toEqual({ at: at + 2_000, id: 'e3' });
+	});
+
+	describe('polling the catch-up while connected', () => {
+		it('reads the catch-up again every interval, moving the cursor and filling what the stream missed', async () => {
+			const at = Date.parse('2026-01-01T00:00:11.000Z');
+			const ctx = setUp(
+				[
+					{ events: [], cursor: 1_000, cursorId: null, hasMore: false, resync: false },
+					{ events: [envelope('e7', '2026-01-01T00:00:17.000Z')], cursor: at, cursorId: null, hasMore: false, resync: false }
+				],
+				{ pollIntervalMs: 60_000 }
+			);
+			ctx.client.start();
+			await ctx.accept();
+			expect(ctx.catchUpCalls).toHaveLength(1);
+			ctx.timers.advance(60_000);
+			await flush();
+			expect(ctx.catchUpCalls[1]).toEqual({ after: 1_000, afterId: null, limit: 2 });
+			expect(ctx.events).toEqual(['e7']);
+			expect(ctx.client.getCursor()).toEqual({ at, id: null });
+			// The next poll is scheduled once this one finished.
+			ctx.timers.advance(60_000);
+			await flush();
+			expect(ctx.catchUpCalls).toHaveLength(3);
+		});
+
+		it('lets a failed poll go without resynchronising, and keeps polling', async () => {
+			const ctx = setUp(
+				[{ events: [], cursor: 1_000, cursorId: null, hasMore: false, resync: false }, new Error('network blip')],
+				{ pollIntervalMs: 60_000 }
+			);
+			ctx.client.start();
+			await ctx.accept();
+			ctx.timers.advance(60_000);
+			await flush();
+			expect(ctx.resyncs()).toBe(0);
+			expect(ctx.client.getCursor()).toEqual({ at: 1_000, id: null });
+			ctx.timers.advance(60_000);
+			await flush();
+			expect(ctx.catchUpCalls).toHaveLength(3);
+		});
+
+		it('stops polling when the connection closes or the client stops', async () => {
+			const ctx = setUp([], { pollIntervalMs: 60_000 });
+			ctx.client.start();
+			const socket = await ctx.accept();
+			socket.drop(1006);
+			ctx.timers.advance(50);
+			ctx.client.stop();
+			ctx.timers.advance(10 * 60_000);
+			await flush();
+			expect(ctx.catchUpCalls).toHaveLength(1);
+			expect(ctx.timers.pendingCount()).toBe(0);
+		});
+	});
+
+	it('applies a presence change only when its revision is newer than the last one applied for the employee', async () => {
+		const ctx = setUp();
+		ctx.client.start();
+		const socket = await ctx.accept();
+		const deliver = (e: RealtimeEnvelope) => socket.serve({ id: '1', type: 'next', payload: { data: { collaborationEvents: e } } });
+		deliver(presence('p2', 'emp-1', 2, 'idle'));
+		// Two processes told two changes out of order: the older one arrives last and is dropped.
+		deliver(presence('p1', 'emp-1', 1, 'active'));
+		deliver(presence('p3', 'emp-1', 3, 'away'));
+		// Another employee keeps a revision of their own; a change without one is applied.
+		deliver(presence('q1', 'emp-2', 1));
+		deliver({ ...presence('r0', 'emp-3', 0), data: { employeeId: 'emp-3', status: 'active' } });
+		expect(ctx.events).toEqual(['p2', 'p3', 'q1', 'r0']);
 	});
 
 	it('resynchronises when the gap is larger than one replay reads', async () => {

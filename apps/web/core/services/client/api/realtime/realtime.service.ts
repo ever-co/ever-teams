@@ -18,6 +18,11 @@ interface RealtimeTypingInput {
 	recipientUserIds: string[];
 }
 
+/** Body of `POST /realtime/presence`: the status, and the tab's connection when it has one. */
+function presenceBody(status: RealtimePresenceStatus, connectionId?: string): { status: RealtimePresenceStatus; connectionId?: string } {
+	return connectionId ? { status, connectionId } : { status };
+}
+
 /**
  * The HTTP side of the real-time channel: the catch-up listing a reconnecting tab replays from, and the
  * presence and typing signals. Both transports (this app's `/api/realtime/*` proxies, or the platform directly).
@@ -37,9 +42,13 @@ class RealtimeService extends APIService {
 		return response.data;
 	};
 
-	presence = async (status: RealtimePresenceStatus): Promise<unknown> => {
+	/**
+	 * Reports this tab's presence. `connectionId` names the tab's own connection (one per tab), so the platform merges
+	 * the tabs of an employee instead of letting the last report win; without it every tab shares one connection.
+	 */
+	presence = async (status: RealtimePresenceStatus, connectionId?: string): Promise<unknown> => {
 		// The platform's own DTOs: no tenant or organization members in the body (the token and headers say them).
-		const response = await this.post<unknown>('/realtime/presence', { status }, undefined, false);
+		const response = await this.post<unknown>('/realtime/presence', presenceBody(status, connectionId), undefined, false);
 		return response.data;
 	};
 
@@ -47,7 +56,7 @@ class RealtimeService extends APIService {
 	 * The presence a closing page reports: a `keepalive` fetch, which the browser lets outlive the page (an Axios
 	 * request is cancelled with it), with the credential and scope the app's requests carry. Fire and forget.
 	 */
-	presenceOnUnload = (status: RealtimePresenceStatus): void => {
+	presenceOnUnload = (status: RealtimePresenceStatus, connectionId?: string): void => {
 		if (typeof fetch !== 'function') return;
 		const base = String(this.axiosInstance.defaults.baseURL ?? this.baseURL ?? '').replace(/\/+$/, '');
 		const token = getAccessTokenCookie();
@@ -62,7 +71,7 @@ class RealtimeService extends APIService {
 			keepalive: true,
 			credentials: 'include',
 			headers,
-			body: JSON.stringify({ status })
+			body: JSON.stringify(presenceBody(status, connectionId))
 		}).catch(() => undefined);
 	};
 

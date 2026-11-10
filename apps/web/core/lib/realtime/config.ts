@@ -10,6 +10,16 @@ export const REALTIME_BACKOFF_MAX_MS = 30_000;
 /** A ping is sent this often on a quiet socket; two silent intervals mean the socket is dead. */
 export const REALTIME_PING_INTERVAL_MS = 25_000;
 
+/**
+ * How often a connected tab reads the catch-up anyway: the stream is no resume position (the platform delivers it
+ * neither in commit order nor at once), so the cursor only moves with catch-up answers, and this keeps it fresh and
+ * fills anything the stream missed.
+ */
+export const REALTIME_CATCH_UP_POLL_MS = 60_000;
+
+/** How often a tab reports its presence unchanged, so the platform keeps counting its connection (it lapses at 150 s). */
+export const REALTIME_PRESENCE_HEARTBEAT_MS = 60_000;
+
 /** No keyboard, mouse or touch input for this long reports the tab idle. */
 export const REALTIME_IDLE_AFTER_MS = 10 * 60_000;
 
