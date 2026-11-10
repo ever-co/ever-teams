@@ -207,9 +207,12 @@ function InboxPageContent() {
 
 	const [now] = useState(() => new Date());
 	const groups = useMemo(() => groupInboxEntriesByDay(entries, now), [entries, now]);
-	// The selection remembers the list it was made in: leaving the list of a filter drops a selection that no longer
-	// shows, without an effect that clears it after the fact.
-	const listKey = `${filter}:${sourceGroup}`;
+	// The workspace the inbox reads; a switch in another tab changes it while this page stays mounted.
+	const scope = useInboxScope();
+	const scopeKey = scope ? `${scope.tenantId}:${scope.organizationId}:${scope.userId}` : '';
+	// The selection remembers the list it was made in: leaving the list of a filter, or the workspace, drops a selection
+	// that no longer shows, without an effect that clears it after the fact.
+	const listKey = `${scopeKey}|${filter}:${sourceGroup}`;
 	const [selection, setSelection] = useState<{ list: string; ids: ReadonlySet<string> }>(() => ({ list: listKey, ids: NO_SELECTION }));
 	const selected: ReadonlySet<string> = selection.list === listKey ? selection.ids : NO_SELECTION;
 	const setSelected = useCallback(
@@ -219,10 +222,8 @@ function InboxPageContent() {
 	);
 	const [currentId, setCurrentId] = useState<string | null>(null);
 	// The entry as it was opened. Opening an unread entry marks it read, which drops it from the Unread list; the pane
-	// keeps showing it from here until the user closes it or opens another one.
-	// It belongs to the workspace it was opened in: after a switch (another tab can make one) the pane lets it go.
-	const scope = useInboxScope();
-	const scopeKey = scope ? `${scope.tenantId}:${scope.organizationId}:${scope.userId}` : '';
+	// keeps showing it from here until the user closes it or opens another one. It belongs to the workspace it was
+	// opened in: after a switch (another tab can make one) the pane lets it go.
 	const [opened, setOpened] = useState<{ scopeKey: string; entry: InboxEntry } | null>(null);
 	const openedEntry = opened && opened.scopeKey === scopeKey ? opened.entry : null;
 	const current = useMemo(
