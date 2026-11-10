@@ -12,9 +12,8 @@ import { useCheckAPI } from '@/core/hooks/common/use-check-api';
 import { useRuntimeEnvHtmlProps } from '@/core/components/providers/runtime-env-provider';
 
 import { isPostHogConfigured } from './(main)/integration/posthog/posthog-config';
-import { ACTIVE_TIMEZONE_COOKIE_NAME, APP_FAVICON_URL, IS_DEV_MODE } from '@/core/constants/config/constants';
-import { getCookie } from '@/core/lib/helpers/cookies/helpers';
-import { DEFAULT_INTL_TIME_ZONE, viewerTimeZone } from '@/core/lib/helpers/intl-time-zone';
+import { APP_FAVICON_URL, IS_DEV_MODE } from '@/core/constants/config/constants';
+import { DEFAULT_INTL_TIME_ZONE, browserIntlTimeZone } from '@/core/lib/helpers/intl-time-zone';
 import { cn } from '@/core/lib/helpers';
 import { MutationErrorToaster } from '@/core/components/common/mutation-error-toaster';
 import { DevErrorToaster } from '@/core/components/common/dev-error-toaster';
@@ -41,13 +40,10 @@ const ClientOnly = dynamic(() => Promise.resolve(({ children }: { children: Reac
 	ssr: false
 });
 
+// The browser's zone does not change during a session: nothing to subscribe to.
 const subscribeToNothing = () => () => {};
-
-/** The viewer's zone: chosen in Settings (active-timezone cookie), else the browser's. Read on every render. */
-function readViewerTimeZone(): string {
-	const stored = getCookie(ACTIVE_TIMEZONE_COOKIE_NAME);
-	return viewerTimeZone(typeof stored === 'string' ? stored : null);
-}
+const readBrowserTimeZone = () => browserIntlTimeZone();
+const serverTimeZone = () => DEFAULT_INTL_TIME_ZONE;
 
 const LocaleLayoutComponent = (props: Props) => {
 	const { children, locale, messages } = props;
@@ -57,9 +53,10 @@ const LocaleLayoutComponent = (props: Props) => {
 	const { isApiWork, loading } = useCheckAPI();
 	// Publishes this request's runtime env on <html>, before any bundle module is evaluated.
 	const runtimeEnvHtmlProps = useRuntimeEnvHtmlProps();
-	// The zone next-intl formats every date in (it was pinned to Asia/Kolkata for everyone). The server render
-	// has no viewer and uses UTC; nothing it renders shows a date, because every route below is client-only.
-	const timeZone = useSyncExternalStore(subscribeToNothing, readViewerTimeZone, () => DEFAULT_INTL_TIME_ZONE);
+	// The zone next-intl formats every date in (it was pinned to Asia/Kolkata for everyone): the browser's, the one
+	// the app builds its dates in. The server render has no viewer and uses UTC; nothing it renders shows a date,
+	// because every route below is client-only.
+	const timeZone = useSyncExternalStore(subscribeToNothing, readBrowserTimeZone, serverTimeZone);
 
 	const formatTitle = (url: string) => {
 		// Separate the URL into pathname and query parts
