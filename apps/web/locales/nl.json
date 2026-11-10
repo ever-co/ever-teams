@@ -3695,7 +3695,18 @@
 		"SEND_LINK_TO": "Stuur hem naar {names} zodat ze kunnen deelnemen.",
 		"SELECT_ALL": "Iedereen selecteren",
 		"PREPARING_MEETING": "Vergaderruimte wordt voorbereid",
-		"RECONNECTING_MEETING": "Opnieuw verbinden met de vergadering"
+		"RECONNECTING_MEETING": "Opnieuw verbinden met de vergadering",
+		"CONNECTING_MEETING_SERVER": "Verbinden met de vergaderserver",
+		"MEETING_UNAVAILABLE": "De vergadering kon niet worden geopend",
+		"MEETING_SERVER_UNREACHABLE": "De vergaderserver {domain} is niet bereikbaar. Probeer het zo opnieuw of vraag je beheerder om hem te controleren.",
+		"MEETING_SERVER_TIMEOUT": "De vergaderserver {domain} reageerde niet op tijd. Probeer het zo opnieuw.",
+		"MEETING_SERVER_INVALID": "{domain} reageerde niet als een vergaderserver. Vraag je beheerder om de vergaderinstellingen te controleren.",
+		"MEETING_SERVER_NOT_CONFIGURED": "Er is nog geen vergaderserver ingesteld. Vraag je beheerder om er een in te stellen.",
+		"MEETING_DISCONNECTED": "De verbinding met de vergadering is verbroken",
+		"MEETING_DISCONNECTED_HINT": "Controleer je verbinding en neem opnieuw deel.",
+		"MEETING_LINK_INVALID": "Deze vergaderlink bevat geen ruimte. Start de vergadering opnieuw via Samenwerken.",
+		"TRY_AGAIN": "Opnieuw proberen",
+		"BACK_HOME": "Terug naar de startpagina"
 	},
 	"settings": {
 		"nav": {

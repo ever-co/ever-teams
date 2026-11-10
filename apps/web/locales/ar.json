@@ -3695,7 +3695,18 @@
 		"SEND_LINK_TO": "أرسله إلى {names} لينضموا.",
 		"SELECT_ALL": "تحديد الكل",
 		"PREPARING_MEETING": "جارٍ تجهيز غرفة الاجتماع",
-		"RECONNECTING_MEETING": "جارٍ إعادة الاتصال بالاجتماع"
+		"RECONNECTING_MEETING": "جارٍ إعادة الاتصال بالاجتماع",
+		"CONNECTING_MEETING_SERVER": "جارٍ الاتصال بخادم الاجتماعات",
+		"MEETING_UNAVAILABLE": "تعذّر فتح الاجتماع",
+		"MEETING_SERVER_UNREACHABLE": "تعذّر الوصول إلى خادم الاجتماعات {domain}. حاول مرة أخرى بعد قليل أو اطلب من المسؤول التحقق منه.",
+		"MEETING_SERVER_TIMEOUT": "لم يستجب خادم الاجتماعات {domain} في الوقت المحدد. حاول مرة أخرى بعد قليل.",
+		"MEETING_SERVER_INVALID": "لم يستجب {domain} كخادم اجتماعات. اطلب من المسؤول التحقق من إعدادات الاجتماعات.",
+		"MEETING_SERVER_NOT_CONFIGURED": "لم يتم إعداد أي خادم اجتماعات بعد. اطلب من المسؤول إعداد خادم.",
+		"MEETING_DISCONNECTED": "انقطع اتصالك بالاجتماع",
+		"MEETING_DISCONNECTED_HINT": "تحقق من اتصالك، ثم انضم مرة أخرى.",
+		"MEETING_LINK_INVALID": "لا يحتوي رابط الاجتماع هذا على غرفة. ابدأ الاجتماع مرة أخرى من «التعاون».",
+		"TRY_AGAIN": "حاول مرة أخرى",
+		"BACK_HOME": "العودة إلى الصفحة الرئيسية"
 	},
 	"settings": {
 		"nav": {

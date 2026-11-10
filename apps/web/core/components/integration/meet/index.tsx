@@ -3,59 +3,67 @@
 import { MEET_DOMAIN } from '@/core/constants/config/constants';
 import { JitsiMeeting } from '@jitsi/react-sdk';
 import { useRouter } from 'next/navigation';
-import { useCallback, useEffect, useState } from 'react';
-import { Button } from '@/core/components/common/button';
-import { CircleAlert } from '@/core/components/icons';
-import { JitsiMeetPageSkeleton } from '@/core/components/pages/meet/meet-room-skeleton';
+import { useTranslations } from 'next-intl';
+import { useCallback, useEffect, useRef, useState } from 'react';
+import { useJitsiExternalApi } from '@/core/hooks/common/use-jitsi-external-api';
+import { MeetRoomError } from '@/core/components/pages/meet/meet-room-error';
+import { JitsiMeetPageSkeleton, MeetRoomSkeleton } from '@/core/components/pages/meet/meet-room-skeleton';
 
 interface MeetPageProps {
 	jwt: string;
 	roomName: string;
 }
 
-export default function MeetPage({ jwt, roomName }: MeetPageProps) {
-	const router = useRouter();
-	const [error, setError] = useState<Error>();
+/** The part of the Jitsi Meet API instance the room uses. */
+interface JitsiRoomApi {
+	addListener: (event: string, listener: (...args: unknown[]) => void) => unknown;
+	dispose: () => void;
+}
 
-	// Validate props
+/** What the room says when the meeting server's API could not be loaded, by reason. */
+const SERVER_FAILURE_KEYS = {
+	'not-configured': 'collaborate.MEETING_SERVER_NOT_CONFIGURED',
+	unreachable: 'collaborate.MEETING_SERVER_UNREACHABLE',
+	timeout: 'collaborate.MEETING_SERVER_TIMEOUT',
+	invalid: 'collaborate.MEETING_SERVER_INVALID'
+} as const;
+
+export default function MeetPage({ jwt, roomName }: MeetPageProps) {
+	const t = useTranslations();
+	const router = useRouter();
+	const jitsiApi = useJitsiExternalApi(MEET_DOMAIN.value);
+	const [isDisconnected, setIsDisconnected] = useState(false);
+	const [joinAttempt, setJoinAttempt] = useState(0);
+	const roomApiRef = useRef<JitsiRoomApi | null>(null);
+
+	// The SDK never ends its API instance: a new attempt at the room, and leaving the page, end the previous one
 	useEffect(() => {
-		if (!jwt) {
-			setError(new Error('JWT token is required'));
-			return;
-		}
-		if (!roomName) {
-			setError(new Error('Room name is required'));
-			return;
-		}
-	}, [jwt, roomName]);
+		return () => {
+			roomApiRef.current?.dispose();
+			roomApiRef.current = null;
+		};
+	}, [joinAttempt]);
 
 	// Handle meeting close
 	const handleClose = useCallback(() => {
-		try {
-			router.push('/');
-		} catch (err) {
-			console.error('Failed to redirect after meeting close:', err);
-		}
+		router.push('/');
 	}, [router]);
 
 	// Handle API ready
 	const handleApiReady = useCallback(
-		(externalApi: any) => {
-			try {
-				externalApi.addListener('readyToClose', handleClose);
-
-				// Add error handling
-				externalApi.addListener('videoConferenceLeft', handleClose);
-				externalApi.addListener('connectionFailed', () => {
-					setError(new Error('Failed to connect to meeting'));
-				});
-			} catch (err) {
-				console.error('Failed to setup meeting API:', err);
-				setError(err as Error);
-			}
+		(externalApi: JitsiRoomApi) => {
+			roomApiRef.current = externalApi;
+			externalApi.addListener('readyToClose', handleClose);
+			externalApi.addListener('videoConferenceLeft', handleClose);
+			externalApi.addListener('connectionFailed', () => setIsDisconnected(true));
 		},
 		[handleClose]
 	);
+
+	const rejoin = useCallback(() => {
+		setIsDisconnected(false);
+		setJoinAttempt((count) => count + 1);
+	}, []);
 
 	// Handle iframe setup
 	const handleIFrameRef = useCallback((parentNode: HTMLDivElement) => {
@@ -64,24 +72,50 @@ export default function MeetPage({ jwt, roomName }: MeetPageProps) {
 		}
 	}, []);
 
-	if (error) {
+	const canOpenRoom = Boolean(jwt && roomName);
+	if (!canOpenRoom) {
 		return (
-			<div className="flex flex-col items-center justify-center gap-1 p-4 text-center">
-				<div className="mb-2 flex size-10 items-center justify-center rounded-lg bg-destructive/10 text-destructive-ink">
-					<CircleAlert className="size-5" />
-				</div>
-				<h2 className="text-sm font-semibold text-balance text-foreground">Failed to initialize meeting</h2>
-				<p className="mb-3 text-sm text-balance text-muted-foreground">{error.message}</p>
-				<Button size="default" onClick={() => router.push('/')}>
-					Return Home
-				</Button>
-			</div>
+			<MeetRoomError
+				title={t('collaborate.MEETING_UNAVAILABLE')}
+				description={t('collaborate.MEETING_LINK_INVALID')}
+			/>
+		);
+	}
+
+	if (jitsiApi.status === 'error') {
+		const { reason } = jitsiApi.error;
+		// Only the app's configuration can give a missing server: trying again would change nothing
+		let retry: (() => void) | undefined = jitsiApi.retry;
+		if (reason === 'not-configured') {
+			retry = undefined;
+		}
+		return (
+			<MeetRoomError
+				title={t('collaborate.MEETING_UNAVAILABLE')}
+				description={t(SERVER_FAILURE_KEYS[reason], { domain: jitsiApi.domain })}
+				onRetry={retry}
+			/>
+		);
+	}
+
+	if (jitsiApi.status === 'loading') {
+		return <MeetRoomSkeleton label={t('collaborate.CONNECTING_MEETING_SERVER')} />;
+	}
+
+	if (isDisconnected) {
+		return (
+			<MeetRoomError
+				title={t('collaborate.MEETING_DISCONNECTED')}
+				description={t('collaborate.MEETING_DISCONNECTED_HINT')}
+				onRetry={rejoin}
+			/>
 		);
 	}
 
 	return (
 		<JitsiMeeting
-			domain={MEET_DOMAIN.value}
+			key={joinAttempt}
+			domain={jitsiApi.domain}
 			roomName={roomName}
 			configOverwrite={{
 				startWithAudioMuted: true,

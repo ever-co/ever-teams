@@ -3695,7 +3695,18 @@
 		"SEND_LINK_TO": "把它发给 {names}，以便他们加入。",
 		"SELECT_ALL": "全选",
 		"PREPARING_MEETING": "正在准备会议室",
-		"RECONNECTING_MEETING": "正在重新连接会议"
+		"RECONNECTING_MEETING": "正在重新连接会议",
+		"CONNECTING_MEETING_SERVER": "正在连接会议服务器",
+		"MEETING_UNAVAILABLE": "无法打开会议",
+		"MEETING_SERVER_UNREACHABLE": "无法连接会议服务器 {domain}。请稍后重试，或请管理员检查该服务器。",
+		"MEETING_SERVER_TIMEOUT": "会议服务器 {domain} 未及时响应。请稍后重试。",
+		"MEETING_SERVER_INVALID": "{domain} 的响应不像会议服务器。请让管理员检查会议设置。",
+		"MEETING_SERVER_NOT_CONFIGURED": "尚未设置会议服务器。请让管理员配置一个。",
+		"MEETING_DISCONNECTED": "与会议的连接已断开",
+		"MEETING_DISCONNECTED_HINT": "请检查网络连接，然后重新加入。",
+		"MEETING_LINK_INVALID": "此会议链接没有指定会议室。请从“协作”重新发起会议。",
+		"TRY_AGAIN": "再试一次",
+		"BACK_HOME": "返回主页"
 	},
 	"settings": {
 		"nav": {

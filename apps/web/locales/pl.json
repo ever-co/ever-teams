@@ -3695,7 +3695,18 @@
 		"SEND_LINK_TO": "Wyślij go do: {names}, aby mogli dołączyć.",
 		"SELECT_ALL": "Zaznacz wszystkich",
 		"PREPARING_MEETING": "Przygotowywanie pokoju spotkania",
-		"RECONNECTING_MEETING": "Ponowne łączenie ze spotkaniem"
+		"RECONNECTING_MEETING": "Ponowne łączenie ze spotkaniem",
+		"CONNECTING_MEETING_SERVER": "Łączenie z serwerem spotkań",
+		"MEETING_UNAVAILABLE": "Nie udało się otworzyć spotkania",
+		"MEETING_SERVER_UNREACHABLE": "Nie można połączyć się z serwerem spotkań {domain}. Spróbuj ponownie za chwilę lub poproś administratora o jego sprawdzenie.",
+		"MEETING_SERVER_TIMEOUT": "Serwer spotkań {domain} nie odpowiedział na czas. Spróbuj ponownie za chwilę.",
+		"MEETING_SERVER_INVALID": "{domain} nie odpowiedział jak serwer spotkań. Poproś administratora o sprawdzenie ustawień spotkań.",
+		"MEETING_SERVER_NOT_CONFIGURED": "Nie skonfigurowano jeszcze serwera spotkań. Poproś administratora o jego skonfigurowanie.",
+		"MEETING_DISCONNECTED": "Połączenie ze spotkaniem zostało przerwane",
+		"MEETING_DISCONNECTED_HINT": "Sprawdź połączenie, a następnie dołącz ponownie.",
+		"MEETING_LINK_INVALID": "Ten link do spotkania nie wskazuje pokoju. Rozpocznij spotkanie ponownie z poziomu Współpracuj.",
+		"TRY_AGAIN": "Spróbuj ponownie",
+		"BACK_HOME": "Wróć do strony głównej"
 	},
 	"settings": {
 		"nav": {

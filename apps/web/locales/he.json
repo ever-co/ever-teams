@@ -3695,7 +3695,18 @@
 		"SEND_LINK_TO": "שלחו אותו אל {names} כדי שיצטרפו.",
 		"SELECT_ALL": "בחר את כולם",
 		"PREPARING_MEETING": "מכינים את חדר הפגישה",
-		"RECONNECTING_MEETING": "מתחברים מחדש לפגישה"
+		"RECONNECTING_MEETING": "מתחברים מחדש לפגישה",
+		"CONNECTING_MEETING_SERVER": "מתחברים לשרת הפגישות",
+		"MEETING_UNAVAILABLE": "לא ניתן היה לפתוח את הפגישה",
+		"MEETING_SERVER_UNREACHABLE": "לא ניתן להגיע לשרת הפגישות {domain}. נסו שוב בעוד רגע או בקשו ממנהל המערכת לבדוק אותו.",
+		"MEETING_SERVER_TIMEOUT": "שרת הפגישות {domain} לא ענה בזמן. נסו שוב בעוד רגע.",
+		"MEETING_SERVER_INVALID": "{domain} לא ענה כשרת פגישות. בקשו ממנהל המערכת לבדוק את הגדרות הפגישות.",
+		"MEETING_SERVER_NOT_CONFIGURED": "עדיין לא הוגדר שרת פגישות. בקשו ממנהל המערכת להגדיר שרת.",
+		"MEETING_DISCONNECTED": "החיבור לפגישה התנתק",
+		"MEETING_DISCONNECTED_HINT": "בדקו את החיבור והצטרפו שוב.",
+		"MEETING_LINK_INVALID": "קישור הפגישה הזה לא כולל חדר. התחילו את הפגישה מחדש דרך „שיתוף פעולה”.",
+		"TRY_AGAIN": "נסה שוב",
+		"BACK_HOME": "חזרה לדף הבית"
 	},
 	"settings": {
 		"nav": {

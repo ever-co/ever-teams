@@ -3695,7 +3695,18 @@
 		"SEND_LINK_TO": "Send it to {names} so they can join.",
 		"SELECT_ALL": "Select all",
 		"PREPARING_MEETING": "Preparing the meeting room",
-		"RECONNECTING_MEETING": "Reconnecting to the meeting"
+		"RECONNECTING_MEETING": "Reconnecting to the meeting",
+		"CONNECTING_MEETING_SERVER": "Connecting to the meeting server",
+		"MEETING_UNAVAILABLE": "The meeting could not open",
+		"MEETING_SERVER_UNREACHABLE": "The meeting server {domain} could not be reached. Try again in a moment, or ask your administrator to check it.",
+		"MEETING_SERVER_TIMEOUT": "The meeting server {domain} did not answer in time. Try again in a moment.",
+		"MEETING_SERVER_INVALID": "{domain} did not answer as a meeting server. Ask your administrator to check the meeting settings.",
+		"MEETING_SERVER_NOT_CONFIGURED": "No meeting server is set up yet. Ask your administrator to configure one.",
+		"MEETING_DISCONNECTED": "You were disconnected from the meeting",
+		"MEETING_DISCONNECTED_HINT": "Check your connection, then join again.",
+		"MEETING_LINK_INVALID": "This meeting link has no room. Start the meeting again from Collaborate.",
+		"TRY_AGAIN": "Try again",
+		"BACK_HOME": "Back to home"
 	},
 	"settings": {
 		"nav": {

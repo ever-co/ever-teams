@@ -3695,7 +3695,18 @@
 		"SEND_LINK_TO": "Envie para {names} para que eles entrem.",
 		"SELECT_ALL": "Selecionar todos",
 		"PREPARING_MEETING": "Preparando a sala de reunião",
-		"RECONNECTING_MEETING": "Reconectando à reunião"
+		"RECONNECTING_MEETING": "Reconectando à reunião",
+		"CONNECTING_MEETING_SERVER": "Conectando ao servidor de reuniões",
+		"MEETING_UNAVAILABLE": "Não foi possível abrir a reunião",
+		"MEETING_SERVER_UNREACHABLE": "Não foi possível acessar o servidor de reuniões {domain}. Tente novamente em instantes ou peça ao seu administrador para verificá-lo.",
+		"MEETING_SERVER_TIMEOUT": "O servidor de reuniões {domain} não respondeu a tempo. Tente novamente em instantes.",
+		"MEETING_SERVER_INVALID": "{domain} não respondeu como um servidor de reuniões. Peça ao seu administrador para verificar as configurações de reuniões.",
+		"MEETING_SERVER_NOT_CONFIGURED": "Nenhum servidor de reuniões foi configurado ainda. Peça ao seu administrador para configurar um.",
+		"MEETING_DISCONNECTED": "A conexão com a reunião foi perdida",
+		"MEETING_DISCONNECTED_HINT": "Verifique sua conexão e entre novamente.",
+		"MEETING_LINK_INVALID": "Este link de reunião não indica nenhuma sala. Inicie a reunião novamente em Colaborar.",
+		"TRY_AGAIN": "Tentar novamente",
+		"BACK_HOME": "Voltar ao início"
 	},
 	"settings": {
 		"nav": {
