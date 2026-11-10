@@ -511,7 +511,8 @@ export function useDocsAutosave(page: IDocumentPage | null) {
 	}, [current]);
 
 	/**
-	 * Holds the draft while a version is restored: nothing is saved until the returned release runs (once; restores
+	 * Holds the draft while a version is restored (text typed meanwhile is kept, see below): nothing is saved until the
+	 * returned release runs (once; restores
 	 * that overlap each hold, saving waits for the last, and the session stays while held). `restored` true drops the
 	 * draft and follows the restored version's clock once its page is the one shown (now, or when it arrives with
 	 * nothing typed): text typed before it reaches the editor was typed over the old text, so its save meets the
@@ -530,25 +531,40 @@ export function useDocsAutosave(page: IDocumentPage | null) {
 		}
 		clearSessionTimer(session);
 		session.held += 1;
+		// The text this restore replaces: what is typed while it runs is not, and is never dropped with it.
+		const replaced = session.draft;
 		let released = false;
 		return (restored) => {
 			if (released) return;
 			released = true;
 			session.held = Math.max(0, session.held - 1);
 			if (session.dropped) return;
+			// Typed while the restore ran (the editor stays writable): typed over the old version, so it stays with the clock
+			// it was written against, and its save meets the restored version as a conflict, where the person decides.
+			const typedSince = restored && session.draft !== null && session.draft !== replaced;
 			if (restored) {
 				clearSessionTimer(session);
-				session.draft = null;
-				session.queued = null;
 				session.interrupted = false;
-				// The restored page may have reached this editor while the draft still held the session (the clock effect
-				// left the clock where it was, and does not run again for it): follow it. One that arrives later is followed
-				// by the clock effect, the session being idle.
-				const shown = isLaterClock(session.shownClock, clockRef.current) ? session.shownClock : clockRef.current;
-				if (shown && !isLaterClock(session.base, shown)) session.base = shown;
-				updateView(session, { state: 'idle', restoredHtml: null });
+				if (typedSince) {
+					// A save still running (of the text the restore replaced) goes first; the typed text's save is queued
+					// behind it (a forced snapshot asked meanwhile kept), so it is not left waiting for another keystroke.
+					if (session.saving) session.queued = { force: Boolean(session.queued?.force) };
+					updateView(session, { state: 'dirty' });
+				} else {
+					session.queued = null;
+					session.draft = null;
+					// The restored page may have reached this editor while the draft still held the session (the clock
+					// effect left the clock where it was, and does not run again for it): follow it. One that arrives later
+					// is followed by the clock effect, the session being idle.
+					const shown = isLaterClock(session.shownClock, clockRef.current) ? session.shownClock : clockRef.current;
+					if (shown && !isLaterClock(session.base, shown)) session.base = shown;
+					updateView(session, { state: 'idle', restoredHtml: null });
+				}
 			}
 			if (session.held > 0) return;
+			if (typedSince && session.draft && !session.saving && !session.timer) {
+				session.timer = setTimeout(() => void saveSession(session), DOCS_AUTOSAVE_DELAY_MS);
+			}
 			if (!restored) {
 				const queued = session.queued;
 				session.queued = null;
