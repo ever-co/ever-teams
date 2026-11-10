@@ -95,7 +95,7 @@ export function PageLayout({
 	const headerShowsTimer = timerActive || Boolean(showTimer);
 
 	return (
-		<div className="flex h-full min-h-0 w-full flex-col overflow-clip">
+		<div className="flex h-full min-h-0 w-full flex-col overflow-clip" data-pane-surface={fill ? 'true' : undefined}>
 			{/* Outside headerRef: the strip must not count towards the header height the timer logic measures. */}
 			<DemoBanner />
 			<GlobalHeader

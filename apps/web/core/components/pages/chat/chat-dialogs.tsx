@@ -5,10 +5,15 @@ import { useTranslations } from 'next-intl';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/core/components/common/dialog';
 import { Button } from '@/core/components/duplicated-components/_button';
 import { Input } from '@/core/components/common/input';
+import { Check, Search } from '@/core/components/icons';
 import { PersonAvatar } from '@/core/components/teams/people-avatars';
 import { cn } from '@/core/lib/helpers';
 import { ChatPerson } from '@/core/lib/utils/chat-format';
 import { CHAT_GROUP_MAX_MEMBERS, EChatVisibility, IChatConversationWithState } from '@/core/types/interfaces/common/chat';
+
+/** The scrolling box a dialog lists its choices in, and one row of it: the list pane's rows, on a hairline. */
+const LIST_BOX = 'max-h-60 overflow-y-auto rounded-xl p-1 hairline-ring ring-border';
+const LIST_ROW = 'flex min-h-8 items-center gap-2.5 rounded-md px-2 text-[13px]';
 
 /** A list of people to pick from, by name, with the chosen ones ticked. */
 function PeoplePicker({ people, selected, onToggle, exclude }: Readonly<{ people: readonly ChatPerson[]; selected: ReadonlySet<string>; onToggle: (employeeId: string) => void; exclude?: string | null }>) {
@@ -20,16 +25,23 @@ function PeoplePicker({ people, selected, onToggle, exclude }: Readonly<{ people
 	}, [exclude, people, query]);
 	return (
 		<div className="flex flex-col gap-2">
-			<Input value={query} onChange={(event) => setQuery(event.target.value)} placeholder={t('teamChat.SEARCH_PEOPLE')} aria-label={t('teamChat.SEARCH_PEOPLE')} />
-			<ul className="max-h-60 overflow-y-auto rounded-md border border-border p-1">
-				{shown.map((person) => (
-					<li key={person.employeeId}>
-						<button type="button" onClick={() => onToggle(person.employeeId)} className={cn('flex w-full cursor-pointer items-center gap-2 rounded-sm px-2 py-1 text-left text-[13px] hover:bg-foreground/[0.04]', selected.has(person.employeeId) && 'bg-primary/[0.08]')} aria-pressed={selected.has(person.employeeId)}>
-							<PersonAvatar person={{ id: person.employeeId, name: person.name, imageUrl: person.imageUrl }} size="sm" className="size-5" />
-							<span className="truncate">{person.name}</span>
-						</button>
-					</li>
-				))}
+			<div className="relative">
+				<Search className="pointer-events-none absolute start-2.5 top-1/2 size-3.5 -translate-y-1/2 text-muted-foreground" aria-hidden="true" />
+				<Input value={query} onChange={(event) => setQuery(event.target.value)} placeholder={t('teamChat.SEARCH_PEOPLE')} aria-label={t('teamChat.SEARCH_PEOPLE')} className="ps-8" />
+			</div>
+			<ul className={LIST_BOX}>
+				{shown.map((person) => {
+					const isPicked = selected.has(person.employeeId);
+					return (
+						<li key={person.employeeId}>
+							<button type="button" onClick={() => onToggle(person.employeeId)} className={cn(LIST_ROW, 'w-full cursor-pointer text-start outline-none transition-colors hover:bg-foreground/[0.04] focus-visible:bg-foreground/[0.06]', isPicked && 'bg-primary/[0.08] hover:bg-primary/[0.11]')} aria-pressed={isPicked}>
+								<PersonAvatar person={{ id: person.employeeId, name: person.name, imageUrl: person.imageUrl }} className="size-5 text-[9px] ring-0" />
+								<span className="min-w-0 flex-1 truncate">{person.name}</span>
+								{isPicked && <Check className="size-4 shrink-0 text-primary" aria-hidden="true" />}
+							</button>
+						</li>
+					);
+				})}
 				{shown.length === 0 && <li className="px-2 py-2 text-xs text-muted-foreground">{t('teamChat.NO_PEOPLE')}</li>}
 			</ul>
 		</div>
@@ -118,8 +130,8 @@ export function NewChannelDialog({ open, onOpenChange, people, meEmployeeId, onC
 				<div className="flex flex-col gap-3">
 					<Input value={name} onChange={(event) => setName(event.target.value)} placeholder={t('teamChat.CHANNEL_NAME')} aria-label={t('teamChat.CHANNEL_NAME')} maxLength={120} autoFocus />
 					<Input value={topic} onChange={(event) => setTopic(event.target.value)} placeholder={t('teamChat.CHANNEL_TOPIC')} aria-label={t('teamChat.CHANNEL_TOPIC')} maxLength={500} />
-					<label className="inline-flex cursor-pointer items-center gap-2 text-sm">
-						<input type="checkbox" checked={isPrivate} onChange={(event) => setPrivate(event.target.checked)} />
+					<label className="inline-flex cursor-pointer items-center gap-2 text-[13px] text-foreground">
+						<input type="checkbox" checked={isPrivate} onChange={(event) => setPrivate(event.target.checked)} className="size-3.5 accent-primary" />
 						{t('teamChat.PRIVATE_CHANNEL')}
 					</label>
 					<PeoplePicker people={people} selected={selected} onToggle={toggle} exclude={meEmployeeId} />
@@ -157,16 +169,21 @@ export function BrowseChannelsDialog({ open, onOpenChange, channels, isLoading, 
 					<DialogTitle>{t('teamChat.BROWSE_CHANNELS')}</DialogTitle>
 					<DialogDescription>{t('teamChat.BROWSE_TEXT')}</DialogDescription>
 				</DialogHeader>
-				<ul className="max-h-72 overflow-y-auto rounded-md border border-border p-1">
+				<ul className={cn(LIST_BOX, 'max-h-72')}>
 					{isLoading && <li className="px-2 py-2 text-xs text-muted-foreground">{t('teamChat.LOADING')}</li>}
 					{!isLoading && channels.length === 0 && <li className="px-2 py-2 text-xs text-muted-foreground">{t('teamChat.NO_CHANNELS_TO_JOIN')}</li>}
 					{channels.map((channel) => (
-						<li key={channel.id} className="flex items-center gap-2 rounded-sm px-2 py-1 text-[13px]">
-							<span className="min-w-0 flex-1 truncate">
-								<span className="font-medium text-foreground">#{channel.name}</span>
-								{channel.topic && <span className="ml-2 text-muted-foreground">{channel.topic}</span>}
+						<li key={channel.id} className={cn(LIST_ROW, 'py-1.5')}>
+							<span className="flex size-7 shrink-0 items-center justify-center rounded-lg bg-foreground/[0.05] text-base font-medium leading-none text-muted-foreground" aria-hidden="true">
+								#
 							</span>
-							<span className="text-[11px] text-muted-foreground">{t('teamChat.MEMBER_COUNT', { count: channel.memberCount })}</span>
+							<span className="flex min-w-0 flex-1 flex-col">
+								<span className="truncate font-medium text-foreground">{channel.name}</span>
+								<span className="truncate text-xs text-muted-foreground">
+									{t('teamChat.MEMBER_COUNT', { count: channel.memberCount })}
+									{channel.topic && <span> · {channel.topic}</span>}
+								</span>
+							</span>
 							<Button size="sm" variant="outline" onClick={() => void join(channel.id)} disabled={joining === channel.id}>
 								{t('teamChat.JOIN')}
 							</Button>
