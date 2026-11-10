@@ -31,59 +31,65 @@ function wrap(text: string, marker: string): string {
 	return shown(toggleWrap(value, start, end, marker));
 }
 
+/**
+ * The italic cases, one per line: the text with its selection marked (see `marked`), ` → `, and what pressing Italic
+ * makes of it. `⏎` stands for a line break; a line starting with `#` says what the cases after it show.
+ */
+const ITALIC_CASES = `
+	# Italic is the asterisk, which Markdown reads inside a word too (\`hel_lo_\` would show its underscores).
+	hel|lo| → hel*|lo|*
+	say |hello| now → say *|hello|* now
+	# Italic around the selection, or held by it, comes off.
+	hel*|lo|* → hel|lo|
+	|*hello*| → |hello|
+	# Bold text gets italic added instead of being taken apart, and loses it again.
+	**|bold|** → ***|bold|***
+	***|bold|*** → **|bold|**
+	|**bold**| → *|**bold**|*
+	|***bold***| → |**bold**|
+	# A selection over several lines is wrapped line by line.
+	|one⏎two| → |*one*⏎*two*|
+	|*one*⏎*two*| → |one⏎two|
+	# Italic written with underscores, as in messages from before the asterisk, comes off too.
+	_|hello|_ → |hello|
+	say _|hello|_ now → say |hello| now
+	|_hello_| → |hello|
+	*_|hello|_* → *|hello|*
+	|_one_⏎*two*| → |one⏎two|
+	# Underscores inside a word are left alone, as Markdown does.
+	snake_|case|_name → snake_*|case|*_name
+	a|_b_|c → a*|_b_|*c
+	|_snake_case_| → |snake_case|
+	# Two italic stretches are not one pair.
+	|*one* *two*| → *|*one* *two*|*
+	# Markers are read by their whole runs: bold is never split into italic, and bold italic loses its italic.
+	*|*bold*|* → **|*bold*|**
+	**|*bold*|** → **|bold|**
+	# Escaped asterisks stay as they are.
+	\\*|hello|* → \\**|hello|**
+	*|hello\\|* → **|hello\\|**
+	|*a \\* b*| → |a \\* b|
+`;
+
+/** The cases of `ITALIC_CASES`, as [before, after]. */
+function italicCases(): [string, string][] {
+	return ITALIC_CASES.split('\n')
+		.map((line) => line.trim())
+		.filter((line) => line && !line.startsWith('#'))
+		.map((line) => {
+			const [before, after] = line.split(' → ');
+			return [before, after];
+		});
+}
+
 describe('toggleWrap with the italic marker', () => {
-	it('is the asterisk, which Markdown reads inside a word too', () => {
+	it('is the asterisk', () => {
 		expect(ITALIC).toBe('*');
-		// `hel_lo_` would show its underscores; `hel*lo*` is "hel" + italic "lo".
-		expect(wrap('hel|lo|', ITALIC)).toBe('hel*|lo|*');
-		expect(wrap('say |hello| now', ITALIC)).toBe('say *|hello|* now');
 	});
 
-	it('unwraps italic around the selection or held by it', () => {
-		expect(wrap('hel*|lo|*', ITALIC)).toBe('hel|lo|');
-		expect(wrap('|*hello*|', ITALIC)).toBe('|hello|');
-	});
-
-	it('adds italic to bold text instead of taking bold apart, and takes it off again', () => {
-		expect(wrap('**|bold|**', ITALIC)).toBe('***|bold|***');
-		expect(wrap('***|bold|***', ITALIC)).toBe('**|bold|**');
-		expect(wrap('|**bold**|', ITALIC)).toBe('*|**bold**|*');
-		expect(wrap('|***bold***|', ITALIC)).toBe('|**bold**|');
-	});
-
-	it('wraps a selection over several lines line by line', () => {
-		expect(wrap('|one\ntwo|', ITALIC)).toBe('|*one*\n*two*|');
-		expect(wrap('|*one*\n*two*|', ITALIC)).toBe('|one\ntwo|');
-	});
-
-	it('takes off italic written with underscores, as messages from before the asterisk were', () => {
-		expect(wrap('_|hello|_', ITALIC)).toBe('|hello|');
-		expect(wrap('say _|hello|_ now', ITALIC)).toBe('say |hello| now');
-		expect(wrap('|_hello_|', ITALIC)).toBe('|hello|');
-		expect(wrap('*_|hello|_*', ITALIC)).toBe('*|hello|*');
-		expect(wrap('|_one_\n*two*|', ITALIC)).toBe('|one\ntwo|');
-	});
-
-	it('leaves underscores inside a word alone, as Markdown does', () => {
-		expect(wrap('snake_|case|_name', ITALIC)).toBe('snake_*|case|*_name');
-		expect(wrap('a|_b_|c', ITALIC)).toBe('a*|_b_|*c');
-		expect(wrap('|_snake_case_|', ITALIC)).toBe('|snake_case|');
-	});
-
-	it('does not take two italic stretches for one pair', () => {
-		expect(wrap('|*one* *two*|', ITALIC)).toBe('*|*one* *two*|*');
-	});
-
-	it('reads markers by their whole runs, so bold is never split into italic', () => {
-		expect(wrap('*|*bold*|*', ITALIC)).toBe('**|*bold*|**');
-		// The italic of bold italic comes off, whichever stars are selected.
-		expect(wrap('**|*bold*|**', ITALIC)).toBe('**|bold|**');
-	});
-
-	it('leaves escaped asterisks as they are', () => {
-		expect(wrap('\\*|hello|*', ITALIC)).toBe('\\**|hello|**');
-		expect(wrap('*|hello\\|*', ITALIC)).toBe('**|hello\\|**');
-		expect(wrap('|*a \\* b*|', ITALIC)).toBe('|a \\* b|');
+	it.each(italicCases())('%s → %s', (before, after) => {
+		const withBreaks = (text: string) => text.replace(/⏎/g, '\n');
+		expect(wrap(withBreaks(before), ITALIC)).toBe(withBreaks(after));
 	});
 });
 
