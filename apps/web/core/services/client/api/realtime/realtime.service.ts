@@ -2,12 +2,20 @@ import { APIService } from '@/core/services/client/api.service';
 import { GAUZY_API_BASE_SERVER_URL } from '@/core/constants/config/constants';
 import { getAccessTokenCookie, getOrganizationIdCookie, getTenantIdCookie } from '@/core/lib/helpers/cookies';
 import type { RealtimeCatchUp, RealtimeCatchUpQuery, RealtimePresenceStatus } from '@/core/lib/realtime/events';
+import type { RealtimeDelivery } from '@/core/lib/realtime/delivery';
 
 /** What `GET /realtime/status` answers. */
-interface RealtimeStatusAnswer {
+export interface RealtimeStatusAnswer {
 	enabled: boolean;
+	/** Whether the answering process serves subscriptions. */
 	subscriptions: boolean;
-	names: string[];
+	/** The event names a subscription may select and the catch-up replays. */
+	events?: string[];
+	/** The ephemeral signals (presence, typing) among them. */
+	signals?: string[];
+	maxTypingRecipients?: number;
+	/** How promptly events are pushed; absent from an older platform. */
+	delivery?: RealtimeDelivery;
 }
 
 /** Body of `POST /realtime/typing`. */
