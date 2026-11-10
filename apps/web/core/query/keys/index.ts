@@ -467,6 +467,8 @@ export const queryKeys = {
 			['chat', 'browse', tenantId ?? null, organizationId ?? null, userId ?? null] as const,
 		states: (tenantId: string | undefined | null, organizationId: string | undefined | null, userId: string | undefined | null) =>
 			['chat', 'states', tenantId ?? null, organizationId ?? null, userId ?? null] as const,
+		people: (tenantId: string | undefined | null, organizationId: string | undefined | null) =>
+			['chat', 'people', tenantId ?? null, organizationId ?? null] as const,
 		messages: (tenantId: string | undefined | null, conversationId: string | undefined | null) =>
 			['chat', 'messages', tenantId ?? null, conversationId ?? null] as const,
 		thread: (tenantId: string | undefined | null, rootMessageId: string | undefined | null) =>

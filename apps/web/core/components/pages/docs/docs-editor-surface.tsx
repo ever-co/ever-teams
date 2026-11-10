@@ -36,6 +36,13 @@ interface DocsEditorSurfaceProps {
  */
 export function DocsEditorSurface({ value, onChange, onReady, onSaveShortcut, mentions, placeholder, disabled, title, json, onUnsupported }: DocsEditorSurfaceProps) {
 	const editorRef = useRef<RichEditorHandle>(null);
+	// Whether the person has acted on the editor. Opening a page makes the editor tidy the stored text (a closing empty
+	// line, default attributes), which it reports as a change: that is not an edit, and it must never be saved — or every
+	// reader of a page would move its "updated" time, add a version and collide with whoever is writing.
+	const touchedRef = useRef(false);
+	const markTouched = useCallback(() => {
+		touchedRef.current = true;
+	}, []);
 
 	// Once the editor is up: a page whose JSON holds what this editor cannot carry is reported before any change,
 	// so the reduced text it would produce is never saved over the original.
@@ -70,6 +77,7 @@ export function DocsEditorSurface({ value, onChange, onReady, onSaveShortcut, me
 
 	const handleChange = useCallback(
 		(html: string) => {
+			if (!touchedRef.current) return;
 			const json = getJson();
 			onChange(html, json, mentionedEmployeeIds(json));
 		},
@@ -78,7 +86,13 @@ export function DocsEditorSurface({ value, onChange, onReady, onSaveShortcut, me
 
 	return (
 		<div
-			className="docs-editor-surface min-h-[50vh]"
+			// The formatting row stays in sight while a long page scrolls under it.
+			className="docs-editor-surface min-h-[50vh] [&_[role=toolbar]]:sticky [&_[role=toolbar]]:top-0 [&_[role=toolbar]]:z-10 [&_[role=toolbar]]:bg-background print:[&_[role=toolbar]]:hidden"
+			onKeyDownCapture={markTouched}
+			onBeforeInputCapture={markTouched}
+			onPointerDownCapture={markTouched}
+			onPasteCapture={markTouched}
+			onDropCapture={markTouched}
 			onKeyDown={(event) => {
 				if ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === 's') {
 					event.preventDefault();

@@ -1,14 +1,11 @@
 'use client';
 
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import Link from 'next/link';
 import { useParams, useRouter } from 'next/navigation';
 import { useTranslations, type DottedLanguageObjectStringPaths } from 'next-intl';
 import { toast } from 'sonner';
 import { PageLayout } from '@/core/components/layouts/default-layout';
 import { AnimatedEmptyState } from '@/core/components/common/empty-state';
-import { Button } from '@/core/components/duplicated-components/_button';
-import { FileText, Plus } from '@/core/components/icons';
 import { useDocsActions } from '@/core/hooks/docs/use-docs-actions';
 import { useDocsAvailability } from '@/core/hooks/docs/use-docs-availability';
 import { useDocsFavorites } from '@/core/hooks/docs/use-docs-favorites';
@@ -20,6 +17,7 @@ import { isDocsEnabled } from '@/core/lib/utils/docs-enabled';
 import { lastVisited, localStorageOrNull } from '@/core/lib/utils/docs-recent';
 import { ancestorIdsOf, pageTitle } from '@/core/lib/utils/docs-tree';
 import { EDocumentVisibility, type IDocumentPage } from '@/core/types/interfaces/common/docs';
+import { DocsHome, type DocsNewPageRequest } from './docs-home';
 import { DocsIconDialog } from './docs-icon-dialog';
 import { DocsMoveDialog, DocsNameDialog } from './docs-dialogs';
 import { DocsPageView, type DocsPageViewActions } from './docs-page-view';
@@ -44,6 +42,11 @@ export function DocsPage({ view }: Readonly<{ view: DocsView }>) {
 	const { recentIds, forget } = useDocsRecent();
 	const actions = useDocsActions();
 
+	// Below the large breakpoint the tree and the home do not fit side by side: the tree shows first, and its Home row
+	// swaps it for the home, which has a way back.
+	const [homeOnPhone, setHomeOnPhone] = useState(false);
+	// A page's Back leads to the tree: the swap does not outlive the home view.
+	if (homeOnPhone && view !== 'home') setHomeOnPhone(false);
 	const [renaming, setRenaming] = useState<IDocumentPage | null>(null);
 	const [moving, setMoving] = useState<IDocumentPage | null>(null);
 	const [iconOf, setIconOf] = useState<IDocumentPage | null>(null);
@@ -77,9 +80,9 @@ export function DocsPage({ view }: Readonly<{ view: DocsView }>) {
 	);
 
 	const createAndOpen = useCallback(
-		async (parentId: string | null, visibility: EDocumentVisibility) => {
+		async (parentId: string | null, visibility: EDocumentVisibility, start: Pick<DocsNewPageRequest, 'name' | 'icon' | 'content'> = {}) => {
 			try {
-				const page = await actions.createPage({ name: t('docs.UNTITLED'), parentId, visibility });
+				const page = await actions.createPage({ name: start.name ?? t('docs.UNTITLED'), parentId, visibility, icon: start.icon, content: start.content });
 				if (parentId) setOpen(parentId, true);
 				router.push(`/docs/${encodeURIComponent(page.id)}`);
 			} catch (error) {
@@ -200,9 +203,10 @@ export function DocsPage({ view }: Readonly<{ view: DocsView }>) {
 			restore,
 			restoreVersion: actions.restoreVersion,
 			toggleFavorite,
-			isFavorite: favorites.isFavorite
+			isFavorite: favorites.isFavorite,
+			newSubPage: (page) => void createAndOpen(page.id, page.visibility)
 		}),
-		[actions, duplicate, favorites.isFavorite, restore, setVisibility, toggleFavorite, trash]
+		[actions, createAndOpen, duplicate, favorites.isFavorite, restore, setVisibility, toggleFavorite, trash]
 	);
 
 	if (!enabled) return null;
@@ -217,10 +221,10 @@ export function DocsPage({ view }: Readonly<{ view: DocsView }>) {
 		);
 	}
 
-	const showsPane = view === 'home';
+	const showsPane = view === 'home' && !homeOnPhone;
 
 	return (
-		<PageLayout title={t('docs.TITLE')} className="min-h-0 flex-1 p-0" childrenClassName="h-full min-h-0">
+		<PageLayout fill title={t('docs.TITLE')} className="p-0">
 			<div className="relative flex h-full min-h-0">
 				<aside className={cn('h-full shrink-0 border-r border-border bg-background print:hidden', showsPane ? 'flex w-full lg:w-72' : 'hidden lg:flex lg:w-72')}>
 					<DocsTreePane
@@ -233,6 +237,7 @@ export function DocsPage({ view }: Readonly<{ view: DocsView }>) {
 						recentIds={recentIds}
 						actions={treeActions}
 						onNewPage={(parentId, visibility) => void createAndOpen(parentId, visibility)}
+						onHome={() => setHomeOnPhone(true)}
 					/>
 				</aside>
 				<main className={cn('relative min-w-0 flex-1', showsPane ? 'hidden lg:block' : 'block')}>
@@ -251,23 +256,12 @@ export function DocsPage({ view }: Readonly<{ view: DocsView }>) {
 						/>
 					)}
 					{view === 'home' && (
-						<div className="flex h-full items-center justify-center p-6">
-							<AnimatedEmptyState
-								title={t('docs.WELCOME_TITLE')}
-								message={t('docs.WELCOME_TEXT')}
-								icon={<FileText className="size-10 text-muted-foreground" />}
-								showBorder={false}
-							/>
-							<div className="absolute bottom-1/3 flex gap-2">
-								<Button type="button" onClick={() => void createAndOpen(null, EDocumentVisibility.ORGANIZATION)}>
-									<Plus className="size-4" />
-									{t('docs.NEW_PAGE')}
-								</Button>
-								<Button type="button" variant="outline" asChild>
-									<Link href="/docs/trash">{t('docs.TRASH')}</Link>
-								</Button>
-							</div>
-						</div>
+						<DocsHome
+							tree={tree}
+							favoriteIds={favorites.favoriteIds}
+							onNewPage={({ visibility, ...start }) => createAndOpen(null, visibility, start)}
+							onBack={() => setHomeOnPhone(false)}
+						/>
 					)}
 				</main>
 			</div>

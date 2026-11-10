@@ -1,7 +1,13 @@
 'use client';
 
 import { useMemo } from 'react';
+import { useQuery } from '@tanstack/react-query';
 import { useAtomValue } from 'jotai';
+import { queryKeys } from '@/core/query/keys';
+import { chatService } from '@/core/services/client/api/chat';
+import { isChatEnabled } from '@/core/lib/utils/chat-enabled';
+import { mergeChatPeople, type ChatPeople } from '@/core/lib/utils/chat-people';
+import type { IChatPersonSummary } from '@/core/types/interfaces/common/chat';
 import { userState } from '@/core/stores/user/user';
 import { activeTeamState } from '@/core/stores/teams/organization-team';
 import { taskDiscussionScope } from '@/core/lib/utils/task-discussion';
@@ -30,21 +36,37 @@ export function useChatScope(): ChatScope | null {
 	}, [employeeId, organizationId, tenantId, userId]);
 }
 
-/** The people of the active team by employee id (and by user id), for chips, avatars and mention suggestions. */
-export function useChatPeople(): { byEmployee: Map<string, ChatPerson>; byUser: Map<string, ChatPerson>; list: ChatPerson[] } {
+/** The list of the organization changes rarely: read once, kept for the session, refreshed in the background. */
+const PEOPLE_STALE_MS = 10 * 60_000;
+
+const NO_PEOPLE: readonly IChatPersonSummary[] = [];
+
+/**
+ * The people by employee id (and by user id), for chips, avatars and mention suggestions: the members of the active
+ * team, and everyone else of the organization from the platform's own list (a conversation is not bound to a team).
+ * Where chat is off, or while that list is not there, the team alone.
+ */
+export function useChatPeople(): ChatPeople {
 	const team = useAtomValue(activeTeamState);
+	const scope = useChatScope();
+	const directory = useQuery({
+		queryKey: queryKeys.chat.people(scope?.tenantId, scope?.organizationId),
+		queryFn: ({ signal }) => chatService.people(signal),
+		enabled: scope !== null && isChatEnabled(),
+		staleTime: PEOPLE_STALE_MS,
+		retry: false
+	});
+	const others = directory.data ?? NO_PEOPLE;
+
 	return useMemo(() => {
-		const byEmployee = new Map<string, ChatPerson>();
-		const byUser = new Map<string, ChatPerson>();
+		const teamPeople: ChatPerson[] = [];
 		for (const member of team?.members ?? []) {
 			const employeeId = String(member.employeeId ?? member.employee?.id ?? '');
 			if (!employeeId) continue;
 			const person = personFromTeamMember(member);
 			const userId = String(member.employee?.userId ?? member.employee?.user?.id ?? person.id ?? '');
-			const entry: ChatPerson = { employeeId, userId: userId || null, name: person.name, imageUrl: person.imageUrl ?? null };
-			byEmployee.set(employeeId, entry);
-			if (userId) byUser.set(userId, entry);
+			teamPeople.push({ employeeId, userId: userId || null, name: person.name, imageUrl: person.imageUrl ?? null });
 		}
-		return { byEmployee, byUser, list: [...byEmployee.values()] };
-	}, [team?.members]);
+		return mergeChatPeople(teamPeople, others);
+	}, [others, team?.members]);
 }

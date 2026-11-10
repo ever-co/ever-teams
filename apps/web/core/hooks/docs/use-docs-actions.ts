@@ -9,6 +9,7 @@ import { buildDocTree, nextIndexUnder, reorderedIds, siblingsOf } from '@/core/l
 import {
 	EDocumentKind,
 	EDocumentVisibility,
+	type IDocumentNode,
 	type IDocumentPage,
 	type IDocumentUpdateInput,
 	type TDocumentDeleteStrategy
@@ -72,7 +73,14 @@ export function useDocsActions() {
 
 	/** A new page at the end of its siblings; the caller opens it. */
 	const createPage = useCallback(
-		async (input: { name: string; parentId?: string | null; visibility?: EDocumentVisibility }) => {
+		async (input: {
+			name: string;
+			parentId?: string | null;
+			visibility?: EDocumentVisibility;
+			icon?: string | null;
+			/** The starting text of a page made from a template; an empty page without it. */
+			content?: { contentJson: IDocumentNode; contentHtml: string };
+		}) => {
 			const tree = buildDocTree(treePages());
 			const parentId = input.parentId ?? null;
 			const page = await docsService.create({
@@ -81,8 +89,9 @@ export function useDocsActions() {
 				parentId,
 				index: nextIndexUnder(tree, parentId),
 				visibility: input.visibility ?? (parentId ? tree.byId.get(parentId)?.page.visibility : undefined) ?? EDocumentVisibility.ORGANIZATION,
-				contentJson: { type: 'doc', content: [{ type: 'paragraph' }] },
-				contentHtml: ''
+				...(input.icon ? { icon: input.icon } : {}),
+				contentJson: input.content?.contentJson ?? { type: 'doc', content: [{ type: 'paragraph' }] },
+				contentHtml: input.content?.contentHtml ?? ''
 			});
 			putPage(page);
 			return page;

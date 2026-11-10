@@ -4948,7 +4948,8 @@
 			"NOT_DONE": "Oznacz jako niezakończone",
 			"UNARCHIVE": "Przywróć",
 			"CLEAR_SELECTION": "Wyczyść zaznaczenie",
-			"MARK_ALL_READ": "Oznacz wszystkie jako przeczytane"
+			"MARK_ALL_READ": "Oznacz wszystkie jako przeczytane",
+			"CLEAR_SEARCH": "Wyczyść wyszukiwanie"
 		},
 		"SNOOZE": {
 			"LATER_TODAY": "Później dzisiaj",
@@ -5009,10 +5010,18 @@
 			"CLOSE": "Zamknij",
 			"OPEN_TASK": "Otwórz zadanie",
 			"OPEN": "Otwórz",
-			"NO_TARGET": "To powiadomienie nie ma nic do otwarcia."
+			"NO_TARGET": "To powiadomienie nie ma nic do otwarcia.",
+			"MESSAGE_GONE": "Ta wiadomość nie jest już dostępna."
 		},
 		"KEYBOARD": {
-			"HINT": "J / K przesuń, X zaznacz, E archiwizuj, H odłóż, D zakończone, U przeczytane, Enter otwórz, Shift+Esc oznacz wszystkie jako przeczytane"
+			"HINT": "J / K przesuń, X zaznacz, E archiwizuj, H odłóż, D zakończone, U przeczytane, Enter otwórz, Shift+Esc oznacz wszystkie jako przeczytane",
+			"MOVE": "Przechodzenie między powiadomieniami",
+			"OPEN": "Otwórz",
+			"READ": "Oznacz jako przeczytane lub nieprzeczytane",
+			"ARCHIVE": "Archiwizuj",
+			"SNOOZE": "Odłóż do jutra",
+			"DONE": "Oznacz jako zrobione",
+			"SELECT": "Zaznacz"
 		},
 		"OPEN_PAGE": "Otwórz skrzynkę"
 	},
@@ -5121,7 +5130,33 @@
 		"SEARCH_CONVERSATIONS": "Szukaj rozmów",
 		"NO_CONVERSATIONS": "Brak rozmów",
 		"NOTE_PLACEHOLDER": "Dodaj notatkę (opcjonalnie)",
-		"SENT_TO_CHAT": "Wysłano do {name}"
+		"SENT_TO_CHAT": "Wysłano do {name}",
+		"ADD_EMOJI": "Dodaj emoji",
+		"ADD_REACTION": "Dodaj reakcję",
+		"CLEAR_SEARCH": "Wyczyść wyszukiwanie",
+		"CREATED_ON": "Utworzono {date}",
+		"EDIT_HINT": "Enter zapisuje, Esc anuluje",
+		"FORMATTING": "Formatowanie",
+		"FORMAT_BOLD": "Pogrubienie",
+		"FORMAT_CODE": "Kod",
+		"FORMAT_CODE_BLOCK": "Blok kodu",
+		"FORMAT_ITALIC": "Kursywa",
+		"FORMAT_LINK": "Link",
+		"FORMAT_LIST": "Lista punktowana",
+		"JUMP_TO_LATEST": "Przejdź do najnowszych",
+		"LAST_REPLY": "Ostatnia odpowiedź {time}",
+		"MENTION_COUNT": "{count, plural, one {# wzmianka} few {# wzmianki} many {# wzmianek} other {# wzmianki}}",
+		"MENTION_SOMEONE": "Wspomnij kogoś",
+		"NEW_DIVIDER": "Nowe",
+		"NEW_MESSAGES": "{count, plural, one {# nowa wiadomość} few {# nowe wiadomości} many {# nowych wiadomości} other {# nowej wiadomości}}",
+		"NO_REPLIES": "Brak odpowiedzi. Odpowiedz jako pierwszy.",
+		"REACT_WITH": "Zareaguj: {emoji}",
+		"START_OF_CHANNEL": "To początek kanału #{name}",
+		"START_OF_CHANNEL_TEXT": "Wszystko, co zostanie napisane na tym kanale, pojawia się tutaj, od pierwszej wiadomości.",
+		"START_OF_DIRECT": "To początek Twojej rozmowy z: {name}",
+		"START_OF_DIRECT_TEXT": "Te wiadomości mogą czytać tylko osoby w tej rozmowie.",
+		"UNREAD_REPLIES": "{count, plural, one {# nowa odpowiedź} few {# nowe odpowiedzi} many {# nowych odpowiedzi} other {# nowej odpowiedzi}}",
+		"YOU": "Ty"
 	},
 	"docs": {
 		"TITLE": "Dokumenty",
@@ -5229,7 +5264,51 @@
 		"DUPLICATE_ERROR": "Nie udało się zduplikować strony.",
 		"TRASH_ERROR": "Nie udało się przenieść strony do kosza.",
 		"RESTORE_ERROR": "Nie udało się przywrócić strony.",
-		"DELETE_ERROR": "Nie udało się usunąć strony."
+		"DELETE_ERROR": "Nie udało się usunąć strony.",
+		"HOME": "Start",
+		"PAGE_COUNT": "{count, plural, one {# strona} few {# strony} many {# stron} other {# strony}}",
+		"RECENTLY_UPDATED": "Ostatnio zaktualizowane",
+		"ADD_ICON": "Dodaj ikonę",
+		"WORD_COUNT": "{count, plural, one {# słowo} few {# słowa} many {# słów} other {# słowa}}",
+		"READ_TIME": "{minutes} min czytania",
+		"OUTLINE": "Na tej stronie",
+		"SUB_PAGES": "Podstrony",
+		"FULL_WIDTH": "Pełna szerokość",
+		"COPY_LINK": "Kopiuj link",
+		"LINK_COPIED": "Link skopiowany.",
+		"FOLDER_EMPTY": "Ten folder jest pusty.",
+		"TEMPLATES": {
+			"TITLE": "Zacznij od szablonu",
+			"BLANK": {
+				"NAME": "Pusta strona",
+				"TEXT": "Zacznij od pustej strony"
+			},
+			"MEETING": {
+				"NAME": "Notatki ze spotkania",
+				"TEXT": "Agenda, notatki i zadania",
+				"ATTENDEES": "Uczestnicy",
+				"AGENDA": "Agenda",
+				"NOTES": "Notatki",
+				"ACTION_ITEMS": "Zadania do wykonania"
+			},
+			"BRIEF": {
+				"NAME": "Brief projektu",
+				"TEXT": "Cel, zakres i kamienie milowe",
+				"GOAL": "Cel",
+				"BACKGROUND": "Tło",
+				"SCOPE": "Zakres",
+				"MILESTONES": "Kamienie milowe",
+				"OPEN_QUESTIONS": "Otwarte pytania"
+			},
+			"DECISION": {
+				"NAME": "Zapis decyzji",
+				"TEXT": "Kontekst, opcje i decyzja",
+				"CONTEXT": "Kontekst",
+				"OPTIONS": "Opcje",
+				"DECISION": "Decyzja",
+				"CONSEQUENCES": "Konsekwencje"
+			}
+		}
 	},
 	"whatsNew": {
 		"TITLE": "Co nowego",

@@ -83,6 +83,14 @@ export interface IChatMemberSummary {
 	joinedAt?: string | null;
 }
 
+/** Someone of the organization, as `/chat/people` lists them. */
+export interface IChatPersonSummary {
+	employeeId: ID;
+	userId?: ID | null;
+	name?: string | null;
+	imageUrl?: string | null;
+}
+
 export interface IChatConversationWithState extends IChatConversation {
 	state: IChatMemberState | null;
 	memberCount: number;

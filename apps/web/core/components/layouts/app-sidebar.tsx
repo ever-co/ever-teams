@@ -100,6 +100,10 @@ import { isSettingsPath } from '../settings/kit/settings-entries';
 import { useRememberAppPath } from '@/core/hooks/common/use-remember-app-path';
 import { isDocsEnabled } from '@/core/lib/utils/docs-enabled';
 import { useDocsAvailability } from '@/core/hooks/docs/use-docs-availability';
+import { useChatStates } from '@/core/hooks/chat/use-chat-conversations';
+import { useInboxAvailability } from '@/core/hooks/inbox/use-inbox-availability';
+import { useInboxCounts } from '@/core/hooks/inbox/use-inbox-items';
+import { useUnreadNotificationCount } from '@/core/hooks/notifications/use-notification-inbox';
 
 type AppSidebarProps = React.ComponentProps<typeof Sidebar> & { publicTeam: boolean | undefined };
 
@@ -119,6 +123,14 @@ export function AppSidebar({ publicTeam, ...props }: AppSidebarProps) {
 	const isTeamManager = useAtomValue(isTeamManagerState);
 	// The Docs entry needs the flag and a platform that serves documents (one shared probe per page load).
 	const docsAvailability = useDocsAvailability(isDocsEnabled());
+	// What waits behind the Inbox and Chat rows: the inbox's own unread count where the platform has the inbox (the
+	// bell's count elsewhere), and the unread messages of the conversations that are not muted.
+	const inboxEnabled = isInboxEnabled();
+	const { availability: inboxAvailability } = useInboxAvailability(inboxEnabled);
+	const inboxCounts = useInboxCounts(inboxEnabled && inboxAvailability === 'available');
+	const notificationsUnread = useUnreadNotificationCount();
+	const inboxUnread = inboxAvailability === 'available' ? inboxCounts.unread : notificationsUnread;
+	const { unread: chatUnread } = useChatStates(isChatEnabled());
 	// The saved views of the team, listed under Views when the feature is on (an empty list otherwise).
 	const { views: savedViews } = useTaskViewsQuery();
 	const { currentEmployeeFavorites } = useFavoritesQuery();
@@ -189,7 +201,8 @@ export function AppSidebar({ publicTeam, ...props }: AppSidebarProps) {
 			url: '/inbox',
 			selectable: true,
 			icon: Inbox,
-			label: 'inbox'
+			label: 'inbox',
+			badge: inboxUnread
 		};
 		const homeEntry = {
 			title: t('sidebar.HOME'),
@@ -213,7 +226,8 @@ export function AppSidebar({ publicTeam, ...props }: AppSidebarProps) {
 			url: '/chat',
 			selectable: true,
 			icon: MessageSquare,
-			label: 'chat'
+			label: 'chat',
+			badge: chatUnread
 		};
 		// Docs ships behind NEXT_PUBLIC_DOCS_ENABLED (read at runtime), after the inbox and before the calendar.
 		const docsEntry = {
@@ -223,13 +237,13 @@ export function AppSidebar({ publicTeam, ...props }: AppSidebarProps) {
 			icon: FileText,
 			label: 'docs'
 		};
-		const entries = [homeEntry];
+		const entries: Array<typeof homeEntry & { badge?: number }> = [homeEntry];
 		if (isInboxEnabled()) entries.push(inboxEntry);
 		if (isChatEnabled()) entries.push(chatEntry);
 		if (isDocsEnabled() && docsAvailability !== 'unavailable') entries.push(docsEntry);
 		entries.push(calendarEntry);
 		return entries;
-	}, [docsAvailability, t]);
+	}, [chatUnread, docsAvailability, inboxUnread, t]);
 
 	const navMain = useMemo(() => {
 		const favoriteItems = hasFavoriteTasks

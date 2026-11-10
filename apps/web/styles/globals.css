@@ -1016,3 +1016,11 @@ body.dark .PhoneInputCountrySelectOption:focus {
 			0 12px 32px -4px rgb(0 0 0 / 50%);
 	}
 }
+
+/*
+ * A page of panes (Inbox, Chat, Docs) keeps its own controls in the bottom corner: the send button of a composer, the
+ * last row of a list. The support launcher floats over that corner on every page; there it stands above them.
+ */
+body:has([data-pane-surface='true']) .woot-widget-bubble {
+	bottom: 7rem !important;
+}

@@ -4948,7 +4948,8 @@
 			"NOT_DONE": "Markeren als niet afgehandeld",
 			"UNARCHIVE": "Terugzetten",
 			"CLEAR_SELECTION": "Selectie wissen",
-			"MARK_ALL_READ": "Alles als gelezen markeren"
+			"MARK_ALL_READ": "Alles als gelezen markeren",
+			"CLEAR_SEARCH": "Zoekopdracht wissen"
 		},
 		"SNOOZE": {
 			"LATER_TODAY": "Later vandaag",
@@ -5009,10 +5010,18 @@
 			"CLOSE": "Sluiten",
 			"OPEN_TASK": "Taak openen",
 			"OPEN": "Openen",
-			"NO_TARGET": "Deze melding heeft niets om te openen."
+			"NO_TARGET": "Deze melding heeft niets om te openen.",
+			"MESSAGE_GONE": "Dit bericht is niet meer beschikbaar."
 		},
 		"KEYBOARD": {
-			"HINT": "J / K verplaatsen, X selecteren, E archiveren, H snoozen, D afgehandeld, U gelezen, Enter openen, Shift+Esc alles als gelezen markeren"
+			"HINT": "J / K verplaatsen, X selecteren, E archiveren, H snoozen, D afgehandeld, U gelezen, Enter openen, Shift+Esc alles als gelezen markeren",
+			"MOVE": "Tussen meldingen bewegen",
+			"OPEN": "Openen",
+			"READ": "Markeren als gelezen of ongelezen",
+			"ARCHIVE": "Archiveren",
+			"SNOOZE": "Uitstellen tot morgen",
+			"DONE": "Markeren als afgehandeld",
+			"SELECT": "Selecteren"
 		},
 		"OPEN_PAGE": "Inbox openen"
 	},
@@ -5121,7 +5130,33 @@
 		"SEARCH_CONVERSATIONS": "Gesprekken zoeken",
 		"NO_CONVERSATIONS": "Geen gesprekken",
 		"NOTE_PLACEHOLDER": "Notitie toevoegen (optioneel)",
-		"SENT_TO_CHAT": "Verstuurd naar {name}"
+		"SENT_TO_CHAT": "Verstuurd naar {name}",
+		"ADD_EMOJI": "Emoji toevoegen",
+		"ADD_REACTION": "Reactie toevoegen",
+		"CLEAR_SEARCH": "Zoekopdracht wissen",
+		"CREATED_ON": "Gemaakt op {date}",
+		"EDIT_HINT": "Enter om op te slaan, Esc om te annuleren",
+		"FORMATTING": "Opmaak",
+		"FORMAT_BOLD": "Vet",
+		"FORMAT_CODE": "Code",
+		"FORMAT_CODE_BLOCK": "Codeblok",
+		"FORMAT_ITALIC": "Cursief",
+		"FORMAT_LINK": "Link",
+		"FORMAT_LIST": "Opsommingslijst",
+		"JUMP_TO_LATEST": "Naar de nieuwste berichten",
+		"LAST_REPLY": "Laatste antwoord {time}",
+		"MENTION_COUNT": "{count, plural, one {# vermelding} other {# vermeldingen}}",
+		"MENTION_SOMEONE": "Iemand vermelden",
+		"NEW_DIVIDER": "Nieuw",
+		"NEW_MESSAGES": "{count, plural, one {# nieuw bericht} other {# nieuwe berichten}}",
+		"NO_REPLIES": "Nog geen antwoorden. Geef als eerste antwoord.",
+		"REACT_WITH": "Reageren met {emoji}",
+		"START_OF_CHANNEL": "Dit is het begin van #{name}",
+		"START_OF_CHANNEL_TEXT": "Alles wat in dit kanaal wordt gezegd, staat hier, vanaf het eerste bericht.",
+		"START_OF_DIRECT": "Dit is het begin van je gesprek met {name}",
+		"START_OF_DIRECT_TEXT": "Alleen de mensen in dit gesprek kunnen deze berichten lezen.",
+		"UNREAD_REPLIES": "{count, plural, one {# nieuw antwoord} other {# nieuwe antwoorden}}",
+		"YOU": "jij"
 	},
 	"docs": {
 		"TITLE": "Documenten",
@@ -5229,7 +5264,51 @@
 		"DUPLICATE_ERROR": "De pagina kon niet worden gedupliceerd.",
 		"TRASH_ERROR": "De pagina kon niet naar de prullenbak.",
 		"RESTORE_ERROR": "De pagina kon niet worden hersteld.",
-		"DELETE_ERROR": "De pagina kon niet worden verwijderd."
+		"DELETE_ERROR": "De pagina kon niet worden verwijderd.",
+		"HOME": "Start",
+		"PAGE_COUNT": "{count, plural, one {# pagina} other {# pagina's}}",
+		"RECENTLY_UPDATED": "Onlangs bijgewerkt",
+		"ADD_ICON": "Pictogram toevoegen",
+		"WORD_COUNT": "{count, plural, one {# woord} other {# woorden}}",
+		"READ_TIME": "{minutes} min leestijd",
+		"OUTLINE": "Op deze pagina",
+		"SUB_PAGES": "Subpagina's",
+		"FULL_WIDTH": "Volledige breedte",
+		"COPY_LINK": "Link kopiëren",
+		"LINK_COPIED": "Link gekopieerd.",
+		"FOLDER_EMPTY": "Deze map is leeg.",
+		"TEMPLATES": {
+			"TITLE": "Begin met een sjabloon",
+			"BLANK": {
+				"NAME": "Lege pagina",
+				"TEXT": "Begin met een lege pagina"
+			},
+			"MEETING": {
+				"NAME": "Vergadernotities",
+				"TEXT": "Agenda, notities en actiepunten",
+				"ATTENDEES": "Aanwezigen",
+				"AGENDA": "Agenda",
+				"NOTES": "Notities",
+				"ACTION_ITEMS": "Actiepunten"
+			},
+			"BRIEF": {
+				"NAME": "Projectbriefing",
+				"TEXT": "Doel, scope en mijlpalen",
+				"GOAL": "Doel",
+				"BACKGROUND": "Achtergrond",
+				"SCOPE": "Scope",
+				"MILESTONES": "Mijlpalen",
+				"OPEN_QUESTIONS": "Open vragen"
+			},
+			"DECISION": {
+				"NAME": "Besluitverslag",
+				"TEXT": "Context, opties en het besluit",
+				"CONTEXT": "Context",
+				"OPTIONS": "Opties",
+				"DECISION": "Besluit",
+				"CONSEQUENCES": "Gevolgen"
+			}
+		}
 	},
 	"whatsNew": {
 		"TITLE": "Wat is er nieuw",

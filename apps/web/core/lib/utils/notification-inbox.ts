@@ -34,6 +34,7 @@ const TITLE_ACTION_WORDS = [
 	' Invited ',
 	' published ',
 	' sent ',
+	' replied ',
 	' asked for '
 ];
 
@@ -69,16 +70,22 @@ export function quotedSubjectOf(title: string): string | null {
 
 /** The actor's name, read off the platform's English title (`Ana Assigned you …`). */
 export function senderNameFromTitle(title: string): string | null {
+	// A chat title quotes the message after `: `, and its text can hold any of the verbs: only the head is searched,
+	// and the verb that comes first in it is the one after the name.
+	const colon = title.indexOf(': ');
+	const head = colon >= 0 ? title.slice(0, colon) : title;
+	let first = -1;
 	for (const word of TITLE_ACTION_WORDS) {
-		const position = title.indexOf(word);
-		if (position <= 0) {
-			continue;
+		const position = head.indexOf(word);
+		if (position > 0 && (first < 0 || position < first)) {
+			first = position;
 		}
-
-		return firstFilled([title.slice(0, position)]);
+	}
+	if (first < 0) {
+		return null;
 	}
 
-	return null;
+	return firstFilled([head.slice(0, first)]);
 }
 
 function knownTypeOf(value: IEmployeeNotification['type']): EEmployeeNotificationType | null {
