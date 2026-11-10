@@ -104,7 +104,8 @@ export function DocsHome({ tree, favoriteIds, onNewPage, onBack }: DocsHomeProps
 					<span className="flex size-12 shrink-0 items-center justify-center rounded-2xl bg-primary/10 text-primary" aria-hidden="true">
 						<FileText className="size-6" />
 					</span>
-					<div className="min-w-0 flex-1">
+					{/* A width of its own, so in a narrow pane the buttons go under the title instead of squeezing it. */}
+					<div className="min-w-56 flex-1">
 						<h1 className="text-2xl font-semibold tracking-tight text-foreground">{t('docs.TITLE')}</h1>
 						<p className="text-sm text-muted-foreground text-balance">
 							{t('docs.WELCOME_TITLE')}
