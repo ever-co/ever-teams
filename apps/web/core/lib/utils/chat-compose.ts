@@ -55,14 +55,26 @@ function holdsItalic(run: number): boolean {
 	return run % 2 === 1;
 }
 
-/** A letter or a digit (an underscore next to one is part of the word, not a marker). */
+/** A letter (of any script) or a digit: an underscore next to one is part of the word, not a marker. */
 function isWordCharacter(char: string | undefined): boolean {
-	return !!char && (/[0-9]/.test(char) || char.toLowerCase() !== char.toUpperCase());
+	return !!char && /[\p{L}\p{N}]/u.test(char);
+}
+
+/** White space, or the start or end of the text. */
+function isSpace(char: string | undefined): boolean {
+	return !char || /\s/.test(char);
+}
+
+/** Whether the character at `index` is escaped: an odd number of backslashes before it (`\\*` is a backslash and a star). */
+function isEscaped(text: string, index: number): boolean {
+	let slashes = 0;
+	for (let at = index - 1; at >= 0 && text[at] === '\\'; at--) slashes++;
+	return slashes % 2 === 1;
 }
 
 /**
  * Whether a text holds a run of `char` that would open or close italic on its own: an odd run that is not escaped
- * (`\*`) and, for `_`, not inside a word.
+ * (`\*`), has text on at least one side (`2 * 3` holds none) and, for `_`, is not inside a word.
  */
 function hasLoneMarker(text: string, char: string): boolean {
 	for (let at = 0; at < text.length; ) {
@@ -71,8 +83,11 @@ function hasLoneMarker(text: string, char: string): boolean {
 			at += 1;
 			continue;
 		}
-		const insideWord = char !== ITALIC && isWordCharacter(text[at - 1]) && isWordCharacter(text[at + run]);
-		if (holdsItalic(run) && text[at - 1] !== '\\' && !insideWord) return true;
+		const before = text[at - 1];
+		const after = text[at + run];
+		const standsAlone = isSpace(before) && isSpace(after);
+		const insideWord = char !== ITALIC && isWordCharacter(before) && isWordCharacter(after);
+		if (holdsItalic(run) && !isEscaped(text, at) && !standsAlone && !insideWord) return true;
 		at += run;
 	}
 	return false;
@@ -89,7 +104,7 @@ function italicPair(char: string, value: string, open: number, close: number): b
 	if (!holdsItalic(lead) || !holdsItalic(trail)) return false;
 	const before = value[open - 1 - lead];
 	const after = value[close + trail];
-	if (before === '\\' || (close > open && value[close - 1] === '\\')) return false;
+	if (isEscaped(value, open - lead) || (close > open && isEscaped(value, close))) return false;
 	if (char !== ITALIC && (isWordCharacter(before) || isWordCharacter(after))) return false;
 	const inner = value.slice(open, close);
 	if (!inner) return true;
@@ -184,21 +199,22 @@ export function toggleWrap(value: string, selectionStart: number, selectionEnd: 
 	if (!selected.includes('\n')) return toggleSegment(value, start, end, marker);
 
 	const size = marker.length;
+	// Each line's markers are judged in the whole text, so the characters around the selection count too.
+	let lineStart = start;
 	const lines = selected.split('\n').map((line) => {
 		const text = line.trim();
 		const lead = line.slice(0, line.length - line.trimStart().length);
-		return { lead, text, trail: line.slice(lead.length + text.length) };
+		const textStart = lineStart + lead.length;
+		lineStart += line.length + 1;
+		const wrapped = !!text && holdsMarkers(value, textStart, textStart + text.length, marker);
+		return { lead, text, trail: line.slice(lead.length + text.length), wrapped };
 	});
-	const everyLineWrapped = lines.every((line) => !line.text || holdsMarkers(line.text, 0, line.text.length, marker));
+	const everyLineWrapped = lines.every((line) => !line.text || line.wrapped);
 	const next = lines
 		.map((line) => {
 			if (!line.text) return line.lead + line.trail;
 			if (everyLineWrapped) return line.lead + line.text.slice(size, line.text.length - size) + line.trail;
-			return (
-				line.lead +
-				(holdsMarkers(line.text, 0, line.text.length, marker) ? line.text : marker + line.text + marker) +
-				line.trail
-			);
+			return line.lead + (line.wrapped ? line.text : marker + line.text + marker) + line.trail;
 		})
 		.join('\n');
 	return {

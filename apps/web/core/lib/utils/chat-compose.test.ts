@@ -65,10 +65,19 @@ const ITALIC_CASES = `
 	# Markers are read by their whole runs: bold is never split into italic, and bold italic loses its italic.
 	*|*bold*|* → **|*bold*|**
 	**|*bold*|** → **|bold|**
-	# Escaped asterisks stay as they are.
+	# Escaped asterisks stay as they are; after two backslashes (a literal backslash) a star is a marker again.
 	\\*|hello|* → \\**|hello|**
 	*|hello\\|* → **|hello\\|**
 	|*a \\* b*| → |a \\* b|
+	\\\\*|hello|* → \\\\|hello|
+	*|a\\\\|* → |a\\\\|
+	# A star with spaces on both sides is no marker, so it does not keep the italic around it from coming off.
+	|2 * 3| → *|2 * 3|*
+	|*2 * 3*| → |2 * 3|
+	# Underscores between letters of any script are part of the word.
+	中_|文|_字 → 中_*|文|*_字
+	# A selection over several lines judges each line's markers with the text around the selection.
+	a|_one_⏎_two_|b → a|*_one_*⏎*_two_*|b
 `;
 
 /** The cases of `ITALIC_CASES`, as [before, after]. */
