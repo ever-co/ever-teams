@@ -102,7 +102,7 @@ export async function refreshHeldMessage(queryClient: QueryClient, queryKey: Que
 }
 
 /** Where a held-window refresh stopped: the last message it read, by its place in the platform's order. */
-export interface HeldRefreshCursor {
+interface HeldRefreshCursor {
 	id: string;
 	createdAt: string;
 }
