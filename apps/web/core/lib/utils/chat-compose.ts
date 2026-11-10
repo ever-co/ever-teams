@@ -30,8 +30,29 @@ function trimRange(value: string, start: number, end: number, skip: RegExp): [nu
 	return from === to ? [end, end] : [from, to];
 }
 
+/**
+ * The italic marker. `_` would read the same at word boundaries, but CommonMark does not take it inside a word
+ * (`hel_lo_` shows its underscores), while `*` works anywhere.
+ */
+export const ITALIC = '*';
+
 function isWrapped(text: string, marker: string): boolean {
+	if (marker === ITALIC) {
+		// `*` is italic and `**` bold: an asterisk run holds an italic marker when its length is odd (`*`, `***`).
+		return /[^*]/.test(text) && holdsItalic(runOf(text, 0, 1)) && holdsItalic(runOf(text, text.length - 1, -1));
+	}
 	return text.length >= marker.length * 2 && text.startsWith(marker) && text.endsWith(marker);
+}
+
+/** How many asterisks stand in a row from `index`, walking in `step` (1 forward, -1 back). */
+function runOf(value: string, index: number, step: 1 | -1): number {
+	let count = 0;
+	for (let at = index; at >= 0 && at < value.length && value[at] === '*'; at += step) count++;
+	return count;
+}
+
+function holdsItalic(run: number): boolean {
+	return run % 2 === 1;
 }
 
 /** Replaces the selection with a text; the caret lands after it. */
@@ -60,8 +81,13 @@ function toggleSegment(value: string, start: number, end: number, marker: string
 		const inner = selected.slice(size, selected.length - size);
 		return { value: value.slice(0, start) + inner + value.slice(end), selectionStart: start, selectionEnd: start + inner.length };
 	}
-	// The markers stand right around the selection (or around the caret, for an empty pair): they go.
-	if (start >= size && value.slice(start - size, start) === marker && value.slice(end, end + size) === marker) {
+	// The markers stand right around the selection (or around the caret, for an empty pair): they go. For italic the
+	// asterisks around it must hold one (an odd run): inside `**bold**` they are bold's, and italic is added.
+	const markersAround =
+		marker === ITALIC
+			? holdsItalic(runOf(value, start - 1, -1)) && holdsItalic(runOf(value, end, 1))
+			: start >= size && value.slice(start - size, start) === marker && value.slice(end, end + size) === marker;
+	if (markersAround) {
 		return { value: value.slice(0, start - size) + selected + value.slice(end + size), selectionStart: start - size, selectionEnd: end - size };
 	}
 	// Otherwise the text is wrapped and stays selected; with nothing selected the caret waits between the markers.

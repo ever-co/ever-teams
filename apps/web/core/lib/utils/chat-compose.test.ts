@@ -1,4 +1,4 @@
-import { ComposeEdit, insertAt, insertLink, insertMentionTrigger, replacementOf, toggleCodeBlock, toggleLinePrefix, toggleWrap } from './chat-compose';
+import { ComposeEdit, insertAt, insertLink, insertMentionTrigger, ITALIC, replacementOf, toggleCodeBlock, toggleLinePrefix, toggleWrap } from './chat-compose';
 
 /** A text with its selection marked: `|` for a caret, or two `|` around the selected stretch. */
 function marked(text: string): { value: string; start: number; end: number } {
@@ -20,6 +20,32 @@ function wrap(text: string, marker: string): string {
 	const { value, start, end } = marked(text);
 	return shown(toggleWrap(value, start, end, marker));
 }
+
+describe('toggleWrap with the italic marker', () => {
+	it('is the asterisk, which Markdown reads inside a word too', () => {
+		expect(ITALIC).toBe('*');
+		// `hel_lo_` would show its underscores; `hel*lo*` is "hel" + italic "lo".
+		expect(wrap('hel|lo|', ITALIC)).toBe('hel*|lo|*');
+		expect(wrap('say |hello| now', ITALIC)).toBe('say *|hello|* now');
+	});
+
+	it('unwraps italic around the selection or held by it', () => {
+		expect(wrap('hel*|lo|*', ITALIC)).toBe('hel|lo|');
+		expect(wrap('|*hello*|', ITALIC)).toBe('|hello|');
+	});
+
+	it('adds italic to bold text instead of taking bold apart, and takes it off again', () => {
+		expect(wrap('**|bold|**', ITALIC)).toBe('***|bold|***');
+		expect(wrap('***|bold|***', ITALIC)).toBe('**|bold|**');
+		expect(wrap('|**bold**|', ITALIC)).toBe('*|**bold**|*');
+		expect(wrap('|***bold***|', ITALIC)).toBe('|**bold**|');
+	});
+
+	it('wraps a selection over several lines line by line', () => {
+		expect(wrap('|one\ntwo|', ITALIC)).toBe('|*one*\n*two*|');
+		expect(wrap('|*one*\n*two*|', ITALIC)).toBe('|one\ntwo|');
+	});
+});
 
 describe('toggleWrap', () => {
 	it('wraps the selection and keeps the text selected', () => {
