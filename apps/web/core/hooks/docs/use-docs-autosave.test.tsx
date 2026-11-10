@@ -706,6 +706,32 @@ describe('useDocsAutosave, restoring a version', () => {
 		view.unmount();
 	});
 
+	it('autosaves the text typed during a restore that succeeds while an older save still runs', async () => {
+		const { wrapper } = setup();
+		const page = pageOf('page-restore-typed-while-saving');
+		const view = renderHook(() => useDocsAutosave(page), { wrapper });
+		const running = deferred<IDocumentPage>();
+		mockUpdateContent.mockReturnValueOnce(running.promise);
+		act(() => view.result.current.change('<p>older</p>', null));
+		act(() => void view.result.current.flushNow());
+		let release!: (restored: boolean) => void;
+		act(() => {
+			release = view.result.current.holdForRestore();
+		});
+		act(() => view.result.current.change('<p>typed during the restore</p>', null));
+		// The restore succeeds while the older save is still out; then that save lands.
+		act(() => release(true));
+		const before = contentsSaved().length;
+		await act(async () => {
+			running.resolve({ ...page, updatedAt: T1, version: 2 });
+			await running.promise;
+		});
+
+		// No keystroke and no flush: the queued save goes on its own.
+		await waitFor(() => expect(contentsSaved().slice(before)).toEqual(['<p>typed during the restore</p>']), { timeout: 5_000 });
+		view.unmount();
+	});
+
 	it('waits for the last of two overlapping restores before saving', async () => {
 		const { wrapper } = setup();
 		const view = renderHook(() => useDocsAutosave(pageOf('page-two-restores')), { wrapper });

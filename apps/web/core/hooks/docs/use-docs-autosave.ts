@@ -544,11 +544,14 @@ export function useDocsAutosave(page: IDocumentPage | null) {
 			const typedSince = restored && session.draft !== null && session.draft !== replaced;
 			if (restored) {
 				clearSessionTimer(session);
-				session.queued = null;
 				session.interrupted = false;
 				if (typedSince) {
+					// A save still running (of the text the restore replaced) goes first; the typed text's save is queued
+					// behind it (a forced snapshot asked meanwhile kept), so it is not left waiting for another keystroke.
+					if (session.saving) session.queued = { force: Boolean(session.queued?.force) };
 					updateView(session, { state: 'dirty' });
 				} else {
+					session.queued = null;
 					session.draft = null;
 					// The restored page may have reached this editor while the draft still held the session (the clock
 					// effect left the clock where it was, and does not run again for it): follow it. One that arrives later
