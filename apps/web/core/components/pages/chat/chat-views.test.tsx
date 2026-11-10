@@ -56,7 +56,7 @@ describe('the Unreads view', () => {
 
 	it('lists each unread conversation with what waits in it, and marks them all read', () => {
 		const onMarkAllRead = jest.fn();
-		render(<ChatUnreadsView conversations={[conversation('general', 4, 2), direct]} people={people} meEmployeeId={ME} isLoading={false} onMarkAllRead={onMarkAllRead} />);
+		render(<ChatUnreadsView conversations={[conversation('general', 4, 2), direct]} people={people} meEmployeeId={ME} isLoading={false} isError={false} onRetry={jest.fn()} onMarkAllRead={onMarkAllRead} />);
 		const general = screen.getByRole('link', { name: /general/ });
 		expect(general.getAttribute('href')).toBe('/chat/general');
 		expect(within(general).getByText('teamChat.UNREAD_COUNT:4')).toBeTruthy();
@@ -69,14 +69,23 @@ describe('the Unreads view', () => {
 	});
 
 	it('says so when nothing is unread, with nothing left to mark', () => {
-		render(<ChatUnreadsView conversations={[]} people={people} meEmployeeId={ME} isLoading={false} onMarkAllRead={jest.fn()} />);
+		render(<ChatUnreadsView conversations={[]} people={people} meEmployeeId={ME} isLoading={false} isError={false} onRetry={jest.fn()} onMarkAllRead={jest.fn()} />);
 		expect(screen.getByText('teamChat.NO_UNREADS_TITLE')).toBeTruthy();
 		expect((screen.getByRole('button', { name: /teamChat\.MARK_ALL_READ/ }) as HTMLButtonElement).disabled).toBe(true);
 	});
 
+	it('says the list could not load instead of "nothing unread", with a way to retry', () => {
+		const onRetry = jest.fn();
+		render(<ChatUnreadsView conversations={[]} people={people} meEmployeeId={ME} isLoading={false} isError onRetry={onRetry} onMarkAllRead={jest.fn()} />);
+		expect(screen.queryByText('teamChat.NO_UNREADS_TITLE')).toBeNull();
+		expect(screen.getByText('teamChat.LOAD_ERROR')).toBeTruthy();
+		fireEvent.click(screen.getByRole('button', { name: 'teamChat.RETRY' }));
+		expect(onRetry).toHaveBeenCalledTimes(1);
+	});
+
 	it('gives a narrow screen the way back to the list', () => {
 		const onBack = jest.fn();
-		render(<ChatUnreadsView conversations={[]} people={people} meEmployeeId={ME} isLoading={false} onMarkAllRead={jest.fn()} onBack={onBack} />);
+		render(<ChatUnreadsView conversations={[]} people={people} meEmployeeId={ME} isLoading={false} isError={false} onRetry={jest.fn()} onMarkAllRead={jest.fn()} onBack={onBack} />);
 		fireEvent.click(screen.getByRole('button', { name: 'teamChat.BACK' }));
 		expect(onBack).toHaveBeenCalledTimes(1);
 	});

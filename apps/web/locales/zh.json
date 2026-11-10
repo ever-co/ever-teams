@@ -5269,7 +5269,7 @@
 		"PAGE_COUNT": "{count, plural, other {# 个页面}}",
 		"RECENTLY_UPDATED": "最近更新",
 		"ADD_ICON": "添加图标",
-		"WORD_COUNT": "{count, plural, other {# 字}}",
+		"WORD_COUNT": "{count, plural, other {约 # 个词}}",
 		"READ_TIME": "阅读约 {minutes} 分钟",
 		"OUTLINE": "本页内容",
 		"SUB_PAGES": "子页面",

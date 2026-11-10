@@ -222,7 +222,10 @@ export function ConversationList(props: Readonly<ConversationListProps>) {
 		if (event.key === 'Enter' && matches.length > 0) {
 			event.preventDefault();
 			setQuery('');
-			router.push(`/chat/${matches[0].id}`);
+			const href = `/chat/${matches[0].id}`;
+			// As a click on the row: the page closes the list over the conversation on a narrow screen.
+			props.onNavigate?.(href);
+			router.push(href);
 		}
 	};
 

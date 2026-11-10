@@ -21,8 +21,17 @@ export const REALTIME_NOTE_HIDE_AFTER_MS = 1_500;
 function useReconnectingNote(status: RealtimeConnectionStatus): boolean {
 	const [visible, setVisible] = useState(false);
 	const everStable = useRef(false);
+	// Off, stopped or connecting for the first time: the client starts over, and so does the note (a guarded update
+	// while rendering, so a note shown before a restart cannot flash again when the new connection comes up).
+	const startsOver = status !== 'connected' && status !== 'reconnecting';
+	if (startsOver && visible) setVisible(false);
 
 	useEffect(() => {
+		if (startsOver) {
+			// What a connection before the restart proved says nothing about the next one.
+			everStable.current = false;
+			return undefined;
+		}
 		if (status === 'connected') {
 			const stable = setTimeout(() => {
 				everStable.current = true;
@@ -38,10 +47,9 @@ function useReconnectingNote(status: RealtimeConnectionStatus): boolean {
 			return () => clearTimeout(show);
 		}
 		return undefined;
-	}, [status]);
+	}, [startsOver, status]);
 
-	// Off, stopped or connecting for the first time: nothing dropped, whatever was shown before.
-	return visible && (status === 'reconnecting' || status === 'connected');
+	return visible && !startsOver;
 }
 
 /**

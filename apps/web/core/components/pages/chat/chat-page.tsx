@@ -238,7 +238,16 @@ function ChatPageContent({ view }: Readonly<{ view: ChatView }>) {
 						</div>
 					)}
 					{view === 'unreads' && (
-						<ChatUnreadsView conversations={unreadList} people={people.byEmployee} meEmployeeId={meEmployeeId} isLoading={list.isLoading} onMarkAllRead={markAllRead} onBack={showList} />
+						<ChatUnreadsView
+							conversations={unreadList}
+							people={people.byEmployee}
+							meEmployeeId={meEmployeeId}
+							isLoading={list.isLoading}
+							isError={list.isError}
+							onRetry={() => list.retry()}
+							onMarkAllRead={markAllRead}
+							onBack={showList}
+						/>
 					)}
 					{view === 'threads' && (
 						<ChatThreadsView

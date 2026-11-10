@@ -215,6 +215,12 @@ describe('chat notifications', () => {
 		expect(entry.message).toBe('The "final" plan: ship on Friday');
 	});
 
+	it('reads the sender from the head of the title, whatever the message says', () => {
+		expect(chat('Ana sent you a message: we published it').senderName).toBe('Ana');
+		expect(chat('Ana replied in a thread you follow in #general: I sent the report').senderName).toBe('Ana');
+		expect(chat('Ana replied in a thread you follow in #general: she Assigned it and Mentioned me').senderName).toBe('Ana');
+	});
+
 	it('names the channel of a mention as a channel', () => {
 		const entry = toInboxEntry(
 			item({ title: 'Ana Mentioned you on the ChatConversation "general"', entity: 'ChatConversation', entityId: 'c1', taskId: null, metadata: { notificationType: 'Mention' } })

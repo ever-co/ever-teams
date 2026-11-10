@@ -111,7 +111,7 @@ function MessageItemComponent(props: Readonly<MessageItemProps>) {
 	const mentionsMe = (!!meEmployeeId && (message.mentionEmployeeIds ?? []).map(String).includes(meEmployeeId)) || message.mentionsChannel || message.mentionsHere;
 	const createdAt = new Date(message.createdAt);
 	const sentAt = fullDateTime(createdAt, locale);
-	const name = author?.name ?? (message.appName || t('teamChat.SOMEONE'));
+	const name = author?.name || message.appName || t('teamChat.SOMEONE');
 	const reactions = message.reactions ?? [];
 
 	return (

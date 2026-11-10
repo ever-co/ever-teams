@@ -97,6 +97,37 @@ describe('RealtimeStatus', () => {
 		expect(note()).not.toBeNull();
 	});
 
+	it('does not bring a note back when the client restarts while it shows', () => {
+		const { set, wait, note } = mount();
+		set('connected');
+		wait(REALTIME_STABLE_AFTER_MS);
+		set('reconnecting');
+		wait(REALTIME_NOTE_SHOW_AFTER_MS);
+		expect(note()).not.toBeNull();
+
+		set('off');
+		set('connecting');
+		set('connected');
+		expect(note()).toBeNull();
+		wait(60_000);
+		expect(note()).toBeNull();
+	});
+
+	it('forgets an established connection when the client restarts', () => {
+		const { set, wait, note } = mount();
+		set('connected');
+		wait(REALTIME_STABLE_AFTER_MS);
+		set('off');
+		set('connecting');
+		for (let attempt = 0; attempt < 3; attempt += 1) {
+			set('connected');
+			wait(200);
+			set('reconnecting');
+			wait(REALTIME_NOTE_SHOW_AFTER_MS + 5_000);
+		}
+		expect(note()).toBeNull();
+	});
+
 	it('hides the note when the client stops or is switched off', () => {
 		const { set, wait, note } = mount();
 		set('connected');

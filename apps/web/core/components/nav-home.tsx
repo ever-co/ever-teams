@@ -74,7 +74,10 @@ export const NavHome = memo(function NavHome({
 									<span className={cn('truncate', isCollapsed && 'hidden')}>{item.title}</span>
 									{(item.badge ?? 0) > 0 &&
 										(isCollapsed ? (
-											<span aria-hidden="true" className="absolute end-1 top-1 size-1.5 rounded-full bg-primary" />
+											<>
+												<span aria-hidden="true" className="absolute end-1 top-1 size-1.5 rounded-full bg-primary" />
+												<span className="sr-only">{item.badge}</span>
+											</>
 										) : (
 											<span className="ms-auto shrink-0 rounded-full bg-primary px-1.5 text-[10px] font-semibold leading-4 tabular-nums text-primary-foreground">
 												{(item.badge ?? 0) > 99 ? '99+' : item.badge}

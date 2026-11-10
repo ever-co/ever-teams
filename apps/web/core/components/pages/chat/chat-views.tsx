@@ -57,6 +57,8 @@ export function ChatUnreadsView({
 	people,
 	meEmployeeId,
 	isLoading,
+	isError,
+	onRetry,
 	onMarkAllRead,
 	onBack
 }: Readonly<{
@@ -65,6 +67,9 @@ export function ChatUnreadsView({
 	people: ReadonlyMap<string, ChatPerson>;
 	meEmployeeId: string | null;
 	isLoading: boolean;
+	/** The conversations could not be read: "nothing unread" would be a guess. */
+	isError: boolean;
+	onRetry: () => void;
 	onMarkAllRead: () => void;
 	onBack?: () => void;
 }>) {
@@ -85,7 +90,10 @@ export function ChatUnreadsView({
 			}
 		>
 			{isLoading && <ChatCardRowsSkeleton rows={4} />}
-			{!isLoading && conversations.length === 0 && <ChatEmptyState icon={<CheckDouble />} title={t('teamChat.NO_UNREADS_TITLE')} message={t('teamChat.NO_UNREADS_TEXT')} />}
+			{isError && conversations.length === 0 && <ChatErrorState message={t('teamChat.LOAD_ERROR')} retryLabel={t('teamChat.RETRY')} onRetry={onRetry} />}
+			{!isLoading && !isError && conversations.length === 0 && (
+				<ChatEmptyState icon={<CheckDouble />} title={t('teamChat.NO_UNREADS_TITLE')} message={t('teamChat.NO_UNREADS_TEXT')} />
+			)}
 			{conversations.length > 0 && (
 				<ul className={CARD}>
 					{conversations.map((conversation) => {

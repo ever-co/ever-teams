@@ -6,7 +6,7 @@ import { Archive, ArrowUpRight, Check, Clock, Inbox, Mail, MailOpen, RotateLeft,
 import { Button } from '@/core/components/duplicated-components/_button';
 import type { Person } from '@/core/components/teams/people-avatars';
 import { formatNotificationDate } from '@/core/lib/utils/notification-inbox';
-import { InboxEntry } from '@/core/lib/utils/inbox-entry';
+import { InboxEntry, hasChatPages } from '@/core/lib/utils/inbox-entry';
 import { InboxDecisionPanel } from './inbox-decision';
 import { InboxAvatar, useInboxSentence } from './inbox-row';
 import { SnoozeMenu } from './snooze-menu';
@@ -97,7 +97,7 @@ function InboxDetailEntry({
 	const t = useTranslations();
 	const locale = useLocale();
 	const sentence = useInboxSentence(entry, person);
-	const hasTarget = !!entry.taskId || !!entry.href || !!entry.chatMessageId;
+	const hasTarget = !!entry.taskId || !!entry.href || (!!entry.chatMessageId && hasChatPages());
 	const title = taskTitle ?? entry.subject ?? (entry.type ? null : entry.rawTitle);
 
 	return (
