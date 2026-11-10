@@ -1,7 +1,7 @@
 /**
  * The composer's formatting, as pure text edits: each takes the text and its selection and answers the new text and
  * where the selection lands. They write the Markdown subset a message renders (see `chat-markdown.tsx`): `**bold**`,
- * `_italic_`, `` `code` ``, fenced code blocks, `- ` lists and `[text](url)` links.
+ * `*italic*`, `` `code` ``, fenced code blocks, `- ` lists and `[text](url)` links.
  */
 
 /** A composer's text and its selection after an edit. */
@@ -95,7 +95,7 @@ function toggleSegment(value: string, start: number, end: number, marker: string
 }
 
 /**
- * Wraps the selection in a marker (`**`, `_`, `` ` ``), or removes the marker when the selection already has it.
+ * Wraps the selection in a marker (`**`, `*`, `` ` ``), or removes the marker when the selection already has it.
  * The markers hug the text (white space at the ends of the selection stays outside, or the Markdown would not
  * render), and a selection over several lines is wrapped line by line, since a marker pair does not hold across a
  * blank line.
