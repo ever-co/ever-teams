@@ -217,7 +217,15 @@ function InboxPageContent() {
 		[listKey]
 	);
 	const [currentId, setCurrentId] = useState<string | null>(null);
-	const current = useMemo(() => entries.find((entry) => entry.id === currentId) ?? null, [currentId, entries]);
+	// The entry as it was opened. Opening an unread entry marks it read, which drops it from the Unread list; the pane
+	// keeps showing it from here until the user closes it or opens another one.
+	const [openedEntry, setOpenedEntry] = useState<InboxEntry | null>(null);
+	const current = useMemo(
+		() =>
+			entries.find((entry) => entry.id === currentId) ??
+			(openedEntry && openedEntry.id === currentId ? openedEntry : null),
+		[currentId, entries, openedEntry]
+	);
 	const byId = useMemo(() => new Map(entries.map((entry) => [entry.id, entry])), [entries]);
 
 	const reportFailure = useCallback(() => toast.error(t('inbox.TOASTS.UPDATE_FAILED')), [t]);
@@ -281,6 +289,7 @@ function InboxPageContent() {
 	const handleOpen = useCallback(
 		(entry: InboxEntry, options: { follow?: boolean } = {}) => {
 			setCurrentId(entry.id);
+			setOpenedEntry(entry.isUnread ? { ...entry, isUnread: false } : entry);
 			if (entry.isUnread) setRead([entry], true).catch(reportFailure);
 			const hasPane = typeof window !== 'undefined' && window.matchMedia('(min-width: 1024px)').matches;
 			if (entry.taskId || options.follow || (!hasPane && !entry.decision)) handleOpenTarget(entry);

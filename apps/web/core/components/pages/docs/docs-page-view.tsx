@@ -146,7 +146,9 @@ export function DocsPageView({ pageId, tree, actions }: DocsPageViewProps) {
 	// the editor's document, written elsewhere as HTML), and again whenever the text it shows is replaced from outside
 	// (a reload after a conflict, a restored version, another person's save). What was typed before no longer counts
 	// then, nor does an update still waiting from it.
-	const shownHtml = editorContent.html;
+	// The same value the editor is given below: a kept draft (`restoredHtml`) shows instead of the stored page, and its
+	// removal by Reload changes the text on screen without changing `editorContent.html`.
+	const shownHtml = autosave.restoredHtml ?? editorContent.html;
 	useEffect(() => {
 		if (!editorApi) return;
 		if (liveTimerRef.current) {
