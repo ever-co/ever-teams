@@ -22,6 +22,7 @@ import {
 } from '@/core/components/common/dropdown-menu';
 import { NotificationEmptyState, NotificationErrorState, NotificationRowsSkeleton } from '@/core/components/notifications/inbox/notification-states';
 import { personFromTeamMember, type Person } from '@/core/components/teams/people-avatars';
+import { useChatPeople } from '@/core/hooks/chat/use-chat-scope';
 import { useInboxActions } from '@/core/hooks/inbox/use-inbox-actions';
 import { useInboxAvailability } from '@/core/hooks/inbox/use-inbox-availability';
 import { useInboxCounts, useInboxItems } from '@/core/hooks/inbox/use-inbox-items';
@@ -105,17 +106,24 @@ function sourceOf(value: string | null): InboxSourceGroup | null {
 	return (INBOX_SOURCE_GROUPS as readonly string[]).includes(value ?? '') ? (value as InboxSourceGroup) : null;
 }
 
-/** The people of the active team by employee id, for the rows' avatars. */
+/**
+ * The people by employee id, for the rows' avatars: the members of the active team, and (where chat is on) everyone
+ * else of the organization, so a message from a colleague of another team still shows who sent it.
+ */
 function usePeople(): Map<string, Person> {
 	const team = useAtomValue(activeTeamState);
+	const { byEmployee } = useChatPeople();
 	return useMemo(() => {
 		const people = new Map<string, Person>();
+		for (const person of byEmployee.values()) {
+			people.set(person.employeeId, { id: person.employeeId, name: person.name, imageUrl: person.imageUrl ?? null });
+		}
 		for (const member of team?.members ?? []) {
 			const employeeId = String(member.employeeId ?? member.employee?.id ?? '');
 			if (employeeId) people.set(employeeId, personFromTeamMember(member));
 		}
 		return people;
-	}, [team?.members]);
+	}, [byEmployee, team?.members]);
 }
 
 /** The titles of the loaded team tasks by id, so a task entry leads with the task as it is now. */

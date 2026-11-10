@@ -18,6 +18,7 @@ import type {
 	IChatMessagePage,
 	IChatMessagesQuery,
 	IChatMessageUpdateInput,
+	IChatPersonSummary,
 	IChatReadAllResult,
 	IChatSendResult,
 	IChatStates,
@@ -48,6 +49,13 @@ class ChatService extends APIService {
 	browse = async (signal?: AbortSignal): Promise<IChatConversationWithState[]> => {
 		const response = await this.get<IChatConversationWithState[]>('/chat/conversations/browse', { signal });
 		return response.data;
+	};
+
+	/** The people of the organization, with the name and the picture the platform shows for them. */
+	people = async (signal?: AbortSignal): Promise<IChatPersonSummary[]> => {
+		const response = await this.get<IChatPersonSummary[] | { items?: IChatPersonSummary[] }>('/chat/people', { signal });
+		const data = response.data;
+		return Array.isArray(data) ? data : (data?.items ?? []);
 	};
 
 	states = async (signal?: AbortSignal): Promise<IChatStates> => {
