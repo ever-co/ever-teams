@@ -34,6 +34,8 @@ export const NavHome = memo(function NavHome({
 		title: string;
 		selectable: boolean;
 		label: string;
+		/** What waits behind the entry (unread notifications, unread messages); nothing is shown for 0. */
+		badge?: number;
 	}[];
 }) {
 	const t = useTranslations();
@@ -47,6 +49,10 @@ export const NavHome = memo(function NavHome({
 			<SidebarMenu className={cn('w-full gap-y-0.5', isCollapsed && 'items-center gap-y-1')}>
 				{homeData.map((item) => {
 					const isActive = isPathActive(pathname, item.url);
+					const badge = item.badge ?? 0;
+					// With something waiting, the link says where it leads and how much waits there: collapsed, its title is
+					// not drawn, and the number alone would name two links the same.
+					const label = badge > 0 ? `${item.title}: ${t('notifications.UNREAD_COUNT', { count: badge })}` : undefined;
 					return (
 						<SidebarMenuItem key={item.label}>
 							<SidebarMenuButton
@@ -59,7 +65,7 @@ export const NavHome = memo(function NavHome({
 								asChild
 								tooltip={item.title}
 							>
-								<Link href={item.url} aria-current={ariaCurrentFor(isActive)}>
+								<Link href={item.url} aria-current={ariaCurrentFor(isActive)} aria-label={label}>
 									{isCollapsed && (
 										<SidebarTriggerButton
 											variant="ghost"
@@ -70,6 +76,17 @@ export const NavHome = memo(function NavHome({
 									)}
 									{!isCollapsed && <item.icon className="size-4" />}
 									<span className={cn('truncate', isCollapsed && 'hidden')}>{item.title}</span>
+									{badge > 0 &&
+										(isCollapsed ? (
+											<span aria-hidden="true" className="absolute end-1 top-1 size-1.5 rounded-full bg-primary" />
+										) : (
+											<span
+												aria-hidden="true"
+												className="ms-auto shrink-0 rounded-full bg-primary px-1.5 text-[10px] font-semibold leading-4 tabular-nums text-primary-foreground"
+											>
+												{badge > 99 ? '99+' : badge}
+											</span>
+										))}
 								</Link>
 							</SidebarMenuButton>
 						</SidebarMenuItem>

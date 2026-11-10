@@ -4948,7 +4948,8 @@
 			"NOT_DONE": "Mark as not done",
 			"UNARCHIVE": "Unarchive",
 			"CLEAR_SELECTION": "Clear selection",
-			"MARK_ALL_READ": "Mark all as read"
+			"MARK_ALL_READ": "Mark all as read",
+			"CLEAR_SEARCH": "Clear search"
 		},
 		"SNOOZE": {
 			"LATER_TODAY": "Later today",
@@ -5009,10 +5010,18 @@
 			"CLOSE": "Close",
 			"OPEN_TASK": "Open task",
 			"OPEN": "Open",
-			"NO_TARGET": "This notification has nothing to open."
+			"NO_TARGET": "This notification has nothing to open.",
+			"MESSAGE_GONE": "This message is no longer available."
 		},
 		"KEYBOARD": {
-			"HINT": "J / K move, X select, E archive, H snooze, D done, U read, Enter open, Shift+Esc mark all read"
+			"HINT": "J / K move, X select, E archive, H snooze, D done, U read, Enter open, Shift+Esc mark all read",
+			"MOVE": "Move between notifications",
+			"OPEN": "Open",
+			"READ": "Mark read or unread",
+			"ARCHIVE": "Archive",
+			"SNOOZE": "Snooze until tomorrow",
+			"DONE": "Mark as done",
+			"SELECT": "Select"
 		},
 		"OPEN_PAGE": "Open the inbox"
 	},
@@ -5121,7 +5130,33 @@
 		"SEARCH_CONVERSATIONS": "Search conversations",
 		"NO_CONVERSATIONS": "No conversations",
 		"NOTE_PLACEHOLDER": "Add a note (optional)",
-		"SENT_TO_CHAT": "Sent to {name}"
+		"SENT_TO_CHAT": "Sent to {name}",
+		"ADD_EMOJI": "Add emoji",
+		"ADD_REACTION": "Add reaction",
+		"CLEAR_SEARCH": "Clear search",
+		"CREATED_ON": "Created on {date}",
+		"EDIT_HINT": "Enter to save, Esc to cancel",
+		"FORMATTING": "Formatting",
+		"FORMAT_BOLD": "Bold",
+		"FORMAT_CODE": "Code",
+		"FORMAT_CODE_BLOCK": "Code block",
+		"FORMAT_ITALIC": "Italic",
+		"FORMAT_LINK": "Link",
+		"FORMAT_LIST": "Bulleted list",
+		"JUMP_TO_LATEST": "Jump to latest",
+		"LAST_REPLY": "Last reply {time}",
+		"MENTION_COUNT": "{count, plural, one {# mention} other {# mentions}}",
+		"MENTION_SOMEONE": "Mention someone",
+		"NEW_DIVIDER": "New",
+		"NEW_MESSAGES": "{count, plural, one {# new message} other {# new messages}}",
+		"NO_REPLIES": "No replies yet. Be the first to answer.",
+		"REACT_WITH": "React with {emoji}",
+		"START_OF_CHANNEL": "This is the start of #{name}",
+		"START_OF_CHANNEL_TEXT": "Everything said in this channel shows here, from the first message on.",
+		"START_OF_DIRECT": "This is the start of your conversation with {name}",
+		"START_OF_DIRECT_TEXT": "Only the people in this conversation can read these messages.",
+		"UNREAD_REPLIES": "{count, plural, one {# new reply} other {# new replies}}",
+		"YOU": "you"
 	},
 	"docs": {
 		"TITLE": "Docs",
@@ -5229,7 +5264,51 @@
 		"DUPLICATE_ERROR": "The page could not be duplicated.",
 		"TRASH_ERROR": "The page could not be moved to the trash.",
 		"RESTORE_ERROR": "The page could not be restored.",
-		"DELETE_ERROR": "The page could not be deleted."
+		"DELETE_ERROR": "The page could not be deleted.",
+		"HOME": "Home",
+		"PAGE_COUNT": "{count, plural, one {# page} other {# pages}}",
+		"RECENTLY_UPDATED": "Recently updated",
+		"ADD_ICON": "Add icon",
+		"WORD_COUNT": "{count, plural, one {# word} other {# words}}",
+		"READ_TIME": "{minutes} min read",
+		"OUTLINE": "On this page",
+		"SUB_PAGES": "Sub-pages",
+		"FULL_WIDTH": "Full width",
+		"COPY_LINK": "Copy link",
+		"LINK_COPIED": "Link copied.",
+		"FOLDER_EMPTY": "This folder is empty.",
+		"TEMPLATES": {
+			"TITLE": "Start from a template",
+			"BLANK": {
+				"NAME": "Blank page",
+				"TEXT": "Start with an empty page"
+			},
+			"MEETING": {
+				"NAME": "Meeting notes",
+				"TEXT": "Agenda, notes and action items",
+				"ATTENDEES": "Attendees",
+				"AGENDA": "Agenda",
+				"NOTES": "Notes",
+				"ACTION_ITEMS": "Action items"
+			},
+			"BRIEF": {
+				"NAME": "Project brief",
+				"TEXT": "Goal, scope and milestones",
+				"GOAL": "Goal",
+				"BACKGROUND": "Background",
+				"SCOPE": "Scope",
+				"MILESTONES": "Milestones",
+				"OPEN_QUESTIONS": "Open questions"
+			},
+			"DECISION": {
+				"NAME": "Decision record",
+				"TEXT": "Context, options and the decision",
+				"CONTEXT": "Context",
+				"OPTIONS": "Options",
+				"DECISION": "Decision",
+				"CONSEQUENCES": "Consequences"
+			}
+		}
 	},
 	"whatsNew": {
 		"TITLE": "What's new",

@@ -4,24 +4,24 @@ import { queryKeys } from '@/core/query/keys';
 import { useQueryClient } from '@tanstack/react-query';
 import { realtimeStatusAtom } from '@/core/stores/common/realtime';
 import { Suspense, useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import Link from 'next/link';
 import { useParams, usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 import { toast } from 'sonner';
 import { PageLayout } from '@/core/components/layouts/default-layout';
 import { Button } from '@/core/components/duplicated-components/_button';
-import { CheckDouble } from '@/core/components/icons';
-import { NotificationEmptyState, NotificationErrorState, NotificationRowsSkeleton } from '@/core/components/notifications/inbox/notification-states';
+import { ArrowLeft, Compose, Globe, MessageBlocked, MessageCircle } from '@/core/components/icons';
 import { useChatActions } from '@/core/hooks/chat/use-chat-actions';
 import { useChatBrowse, useChatConversation, useChatConversations, useChatStates, useChatThreads } from '@/core/hooks/chat/use-chat-conversations';
 import { useChatPeople, useChatScope } from '@/core/hooks/chat/use-chat-scope';
 import { cn } from '@/core/lib/helpers';
 import { isChatEnabled } from '@/core/lib/utils/chat-enabled';
-import { conversationTitle, isUnread, plainBody } from '@/core/lib/utils/chat-format';
+import { conversationTitle, isUnread } from '@/core/lib/utils/chat-format';
 import { userState } from '@/core/stores/user/user';
 import { useAtomValue } from 'jotai';
-import { ChatPageSkeleton } from './chat-page-skeleton';
+import { ChatPageSkeleton, ConversationPaneSkeleton } from './chat-page-skeleton';
 import { BrowseChannelsDialog, NewChannelDialog, NewDirectDialog } from './chat-dialogs';
+import { ChatEmptyState } from './chat-states';
+import { ChatThreadsView, ChatUnreadsView } from './chat-views';
 import { ConversationList } from './conversation-list';
 import { ConversationView } from './conversation-view';
 import { ThreadPane } from './thread-pane';
@@ -87,7 +87,8 @@ function ChatPageContent({ view }: Readonly<{ view: ChatView }>) {
 	const threads = useChatThreads(enabled && view === 'threads');
 	const browse = useChatBrowse(enabled);
 	const [dialog, setDialog] = useState<'channel' | 'direct' | 'browse' | null>(null);
-	const [listOpen, setListOpen] = useState(!conversationId);
+	// On a narrow screen one pane shows at a time: the list, until a conversation (or Unreads, or Threads) is open.
+	const [listOpen, setListOpen] = useState(view === 'conversation' && !conversationId);
 	// Opening a conversation closes the list on narrow screens: adjusted while rendering, not in an effect.
 	const [listFor, setListFor] = useState(conversationId);
 	if (listFor !== conversationId) {
@@ -161,91 +162,120 @@ function ChatPageContent({ view }: Readonly<{ view: ChatView }>) {
 
 	const unreadList = list.conversations.filter(isUnread);
 	const meEmployeeId = scope?.employeeId ?? null;
+	const showList = () => setListOpen(true);
+	// Loading, or about to open the last conversation (`/chat` with conversations): the pane's outline, not "pick one".
+	const openingLast = !conversationId && list.conversations.length > 0;
+	const conversationLoading = !current.conversation && (current.isLoading || list.isLoading || openingLast);
+	// The thread pane names the conversation it belongs to: `#general`, or the people of a direct one.
+	const threadLabel = current.conversation ? conversationTitle(current.conversation, people.byEmployee, meEmployeeId, t('teamChat.UNNAMED')) : undefined;
 
 	return (
-		<PageLayout title={t('teamChat.TITLE')} className="min-h-0 flex-1 p-0">
-			<div className="flex h-full min-h-0">
-				<aside className={cn('w-full shrink-0 border-r border-border lg:block lg:w-64', listOpen ? 'block' : 'hidden')}>
-					{list.isLoading && <NotificationRowsSkeleton rows={6} />}
-					{list.isError && <NotificationErrorState message={t('teamChat.LOAD_ERROR')} retryLabel={t('teamChat.RETRY')} onRetry={() => list.retry()} />}
-					{!list.isLoading && !list.isError && (
-						<ConversationList
-							conversations={list.conversations}
-							categories={list.categories}
-							people={people.byEmployee}
-							meEmployeeId={meEmployeeId}
-							currentId={conversationId}
-							view={view}
-							unreadCount={list.unreadCount}
-							threadsUnread={threadsUnread}
-							onNewChannel={() => setDialog('channel')}
-							onNewDirect={() => setDialog('direct')}
-							onBrowse={() => setDialog('browse')}
-						/>
-					)}
+		<PageLayout fill title={t('teamChat.TITLE')} className="p-0">
+			<div className="relative flex h-full min-h-0">
+				<aside className={cn('h-full w-full shrink-0 border-border lg:block lg:w-72 lg:border-e', listOpen ? 'block' : 'hidden')}>
+					<ConversationList
+						conversations={list.conversations}
+						categories={list.categories}
+						people={people.byEmployee}
+						meEmployeeId={meEmployeeId}
+						currentId={conversationId}
+						view={view}
+						unreadCount={list.unreadCount}
+						threadsUnread={threadsUnread}
+						onNewChannel={() => setDialog('channel')}
+						onNewDirect={() => setDialog('direct')}
+						onBrowse={() => setDialog('browse')}
+						isLoading={list.isLoading}
+						isError={list.isError}
+						onRetry={() => list.retry()}
+						// On a narrow screen the list covers the page: picking what is already open (no navigation follows) shows it again.
+						onNavigate={(href) => {
+							if (pathname?.endsWith(href)) setListOpen(false);
+						}}
+					/>
 				</aside>
 
-				<main className={cn('min-w-0 flex-1', listOpen && 'hidden lg:block')}>
+				<main className={cn('h-full min-w-0 flex-1', listOpen && 'hidden lg:block')}>
 					{view === 'conversation' && current.conversation && (
 						<ConversationView
 							conversation={current.conversation}
 							conversationNames={conversationNames}
 							canManage={canManage}
 							onOpenThread={openThread}
-							onBack={() => setListOpen(true)}
+							onBack={showList}
 							jumpToMessageId={threadId ? null : jumpTo}
 						/>
 					)}
-					{view === 'conversation' && !current.conversation && (current.isLoading || list.isLoading) && <NotificationRowsSkeleton rows={8} />}
-					{view === 'conversation' && !current.conversation && !current.isLoading && !list.isLoading && (
-						<NotificationEmptyState icon={<span className="text-xl">💬</span>} title={conversationId ? t('teamChat.NOT_AVAILABLE_TITLE') : t('teamChat.PICK_TITLE')} message={conversationId ? t('teamChat.NOT_AVAILABLE_TEXT') : t('teamChat.PICK_TEXT')} />
+					{view === 'conversation' && conversationLoading && <ConversationPaneSkeleton />}
+					{view === 'conversation' && !current.conversation && !conversationLoading && (
+						<div className="flex h-full flex-col">
+							{/* The way back to the list, where the list is not beside this pane. */}
+							<div className="flex h-12 shrink-0 items-center px-3 lg:hidden">
+								<Button variant="ghost" size="sm" onClick={showList}>
+									<ArrowLeft className="size-4 rtl:rotate-180" /> {t('teamChat.BACK')}
+								</Button>
+							</div>
+							{conversationId ? (
+								<ChatEmptyState className="flex-1" icon={<MessageBlocked />} title={t('teamChat.NOT_AVAILABLE_TITLE')} message={t('teamChat.NOT_AVAILABLE_TEXT')} />
+							) : (
+								<ChatEmptyState
+									className="flex-1"
+									icon={<MessageCircle />}
+									title={t('teamChat.PICK_TITLE')}
+									message={t('teamChat.PICK_TEXT')}
+									action={
+										<>
+											<Button variant="outline" onClick={() => setDialog('browse')}>
+												<Globe className="size-4" /> {t('teamChat.BROWSE_CHANNELS')}
+											</Button>
+											<Button onClick={() => setDialog('direct')}>
+												<Compose className="size-4" /> {t('teamChat.NEW_MESSAGE')}
+											</Button>
+										</>
+									}
+								/>
+							)}
+						</div>
 					)}
 					{view === 'unreads' && (
-						<section className="flex h-full flex-col">
-							<header className="flex items-center gap-2 border-b border-border px-4 py-2">
-								<h1 className="flex-1 text-sm font-semibold">{t('teamChat.UNREADS')}</h1>
-								<Button variant="ghost" size="sm" onClick={markAllRead} disabled={unreadList.length === 0}>
-									<CheckDouble className="size-4" /> {t('teamChat.MARK_ALL_READ')}
-								</Button>
-							</header>
-							<div className="min-h-0 flex-1 overflow-y-auto p-2">
-								{unreadList.length === 0 && <NotificationEmptyState icon={<CheckDouble />} title={t('teamChat.NO_UNREADS_TITLE')} message={t('teamChat.NO_UNREADS_TEXT')} />}
-								{unreadList.map((conversation) => (
-									<Link key={conversation.id} href={`/chat/${conversation.id}`} className="flex items-center gap-2 rounded-md px-3 py-2 text-[13px] hover:bg-foreground/[0.04]">
-										<span className="min-w-0 flex-1 truncate font-medium text-foreground">{conversationTitle(conversation, people.byEmployee, meEmployeeId, t('teamChat.UNNAMED'))}</span>
-										<span className="text-xs tabular-nums text-muted-foreground">{t('teamChat.UNREAD_COUNT', { count: conversation.state?.unreadCount ?? 0 })}</span>
-										{(conversation.state?.mentionCount ?? 0) > 0 && <span className="rounded-full bg-primary px-1.5 text-[10px] font-semibold text-primary-foreground">{conversation.state?.mentionCount}</span>}
-									</Link>
-								))}
-							</div>
-						</section>
+						<ChatUnreadsView
+							conversations={unreadList}
+							people={people.byEmployee}
+							meEmployeeId={meEmployeeId}
+							isLoading={list.isLoading}
+							isError={list.isError}
+							onRetry={() => list.retry()}
+							onMarkAllRead={markAllRead}
+							onBack={showList}
+						/>
 					)}
 					{view === 'threads' && (
-						<section className="flex h-full flex-col">
-							<header className="flex items-center gap-2 border-b border-border px-4 py-2">
-								<h1 className="flex-1 text-sm font-semibold">{t('teamChat.THREADS')}</h1>
-							</header>
-							<div className="min-h-0 flex-1 overflow-y-auto p-2">
-								{threads.isLoading && <NotificationRowsSkeleton rows={4} />}
-								{!threads.isLoading && threads.threads.length === 0 && <NotificationEmptyState icon={<span className="text-xl">🧵</span>} title={t('teamChat.NO_THREADS_TITLE')} message={t('teamChat.NO_THREADS_TEXT')} />}
-								{threads.threads.map((root) => (
-									<Link key={root.id} href={`/chat/${root.conversationId}?thread=${root.id}`} className="flex flex-col gap-0.5 rounded-md px-3 py-2 text-[13px] hover:bg-foreground/[0.04]">
-										<span className="flex items-center gap-2">
-											<span className="min-w-0 flex-1 truncate text-muted-foreground">{conversationNames.get(root.conversationId) ? `#${conversationNames.get(root.conversationId)}` : t('teamChat.THREAD')}</span>
-											{root.unreadReplies > 0 && <span className="rounded-full bg-primary px-1.5 text-[10px] font-semibold text-primary-foreground">{root.unreadReplies}</span>}
-										</span>
-										<span className="truncate text-foreground">{plainBody(root.body, people.byEmployee, conversationNames) || t('teamChat.DELETED')}</span>
-										<span className="text-[11px] text-muted-foreground">{t('teamChat.REPLIES', { count: root.replyCount })}</span>
-									</Link>
-								))}
-							</div>
-						</section>
+						<ChatThreadsView
+							threads={threads.threads}
+							conversations={list.byId}
+							conversationNames={conversationNames}
+							people={people.byEmployee}
+							peopleByUser={people.byUser}
+							meEmployeeId={meEmployeeId}
+							isLoading={threads.isLoading}
+							isError={threads.isError}
+							onRetry={() => threads.retry()}
+							onBack={showList}
+						/>
 					)}
 				</main>
 
 				{view === 'conversation' && conversationId && threadId && (
-					<aside className="absolute inset-0 z-10 bg-background lg:static lg:z-auto lg:w-[24rem] lg:shrink-0 lg:border-l lg:border-border">
-						<ThreadPane conversationId={conversationId} rootMessageId={threadId} conversationNames={conversationNames} canManage={canManage} onClose={closeThread} highlightMessageId={jumpTo} />
+					<aside className="absolute inset-0 z-10 bg-background lg:static lg:z-auto lg:w-[24rem] lg:shrink-0 lg:border-s lg:border-border">
+						<ThreadPane
+							conversationId={conversationId}
+							rootMessageId={threadId}
+							conversationNames={conversationNames}
+							canManage={canManage}
+							onClose={closeThread}
+							highlightMessageId={jumpTo}
+							conversationLabel={threadLabel}
+						/>
 					</aside>
 				)}
 			</div>

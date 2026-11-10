@@ -4948,7 +4948,8 @@
 			"NOT_DONE": "Marcar como não concluída",
 			"UNARCHIVE": "Desarquivar",
 			"CLEAR_SELECTION": "Limpar seleção",
-			"MARK_ALL_READ": "Marcar tudo como lido"
+			"MARK_ALL_READ": "Marcar tudo como lido",
+			"CLEAR_SEARCH": "Limpar pesquisa"
 		},
 		"SNOOZE": {
 			"LATER_TODAY": "Mais tarde hoje",
@@ -5009,10 +5010,18 @@
 			"CLOSE": "Fechar",
 			"OPEN_TASK": "Abrir tarefa",
 			"OPEN": "Abrir",
-			"NO_TARGET": "Esta notificação não tem nada para abrir."
+			"NO_TARGET": "Esta notificação não tem nada para abrir.",
+			"MESSAGE_GONE": "Esta mensagem já não está disponível."
 		},
 		"KEYBOARD": {
-			"HINT": "J / K mover, X selecionar, E arquivar, H adiar, D concluída, U lida, Enter abrir, Shift+Esc marcar tudo como lido"
+			"HINT": "J / K mover, X selecionar, E arquivar, H adiar, D concluída, U lida, Enter abrir, Shift+Esc marcar tudo como lido",
+			"MOVE": "Mover entre notificações",
+			"OPEN": "Abrir",
+			"READ": "Marcar como lida ou não lida",
+			"ARCHIVE": "Arquivar",
+			"SNOOZE": "Adiar até amanhã",
+			"DONE": "Marcar como concluída",
+			"SELECT": "Selecionar"
 		},
 		"OPEN_PAGE": "Abrir a caixa de entrada"
 	},
@@ -5121,7 +5130,33 @@
 		"SEARCH_CONVERSATIONS": "Pesquisar conversas",
 		"NO_CONVERSATIONS": "Nenhuma conversa",
 		"NOTE_PLACEHOLDER": "Adicionar uma nota (opcional)",
-		"SENT_TO_CHAT": "Enviada para {name}"
+		"SENT_TO_CHAT": "Enviada para {name}",
+		"ADD_EMOJI": "Adicionar emoji",
+		"ADD_REACTION": "Adicionar reação",
+		"CLEAR_SEARCH": "Limpar pesquisa",
+		"CREATED_ON": "Criado em {date}",
+		"EDIT_HINT": "Enter para salvar, Esc para cancelar",
+		"FORMATTING": "Formatação",
+		"FORMAT_BOLD": "Negrito",
+		"FORMAT_CODE": "Código",
+		"FORMAT_CODE_BLOCK": "Bloco de código",
+		"FORMAT_ITALIC": "Itálico",
+		"FORMAT_LINK": "Link",
+		"FORMAT_LIST": "Lista com marcadores",
+		"JUMP_TO_LATEST": "Ir para as mais recentes",
+		"LAST_REPLY": "Última resposta {time}",
+		"MENTION_COUNT": "{count, plural, one {# menção} other {# menções}}",
+		"MENTION_SOMEONE": "Mencionar alguém",
+		"NEW_DIVIDER": "Novas",
+		"NEW_MESSAGES": "{count, plural, one {# nova mensagem} other {# novas mensagens}}",
+		"NO_REPLIES": "Ainda não há respostas. Seja o primeiro a responder.",
+		"REACT_WITH": "Reagir com {emoji}",
+		"START_OF_CHANNEL": "Este é o início de #{name}",
+		"START_OF_CHANNEL_TEXT": "Tudo o que for dito neste canal aparece aqui, desde a primeira mensagem.",
+		"START_OF_DIRECT": "Este é o início da sua conversa com {name}",
+		"START_OF_DIRECT_TEXT": "Só as pessoas desta conversa podem ler estas mensagens.",
+		"UNREAD_REPLIES": "{count, plural, one {# nova resposta} other {# novas respostas}}",
+		"YOU": "você"
 	},
 	"docs": {
 		"TITLE": "Documentos",
@@ -5229,7 +5264,51 @@
 		"DUPLICATE_ERROR": "Não foi possível duplicar a página.",
 		"TRASH_ERROR": "Não foi possível mover a página para a lixeira.",
 		"RESTORE_ERROR": "Não foi possível restaurar a página.",
-		"DELETE_ERROR": "Não foi possível excluir a página."
+		"DELETE_ERROR": "Não foi possível excluir a página.",
+		"HOME": "Início",
+		"PAGE_COUNT": "{count, plural, one {# página} other {# páginas}}",
+		"RECENTLY_UPDATED": "Atualizadas recentemente",
+		"ADD_ICON": "Adicionar ícone",
+		"WORD_COUNT": "{count, plural, one {# palavra} other {# palavras}}",
+		"READ_TIME": "{minutes} min de leitura",
+		"OUTLINE": "Nesta página",
+		"SUB_PAGES": "Subpáginas",
+		"FULL_WIDTH": "Largura total",
+		"COPY_LINK": "Copiar link",
+		"LINK_COPIED": "Link copiado.",
+		"FOLDER_EMPTY": "Esta pasta está vazia.",
+		"TEMPLATES": {
+			"TITLE": "Começar com um modelo",
+			"BLANK": {
+				"NAME": "Página em branco",
+				"TEXT": "Comece com uma página vazia"
+			},
+			"MEETING": {
+				"NAME": "Notas de reunião",
+				"TEXT": "Pauta, notas e ações",
+				"ATTENDEES": "Participantes",
+				"AGENDA": "Pauta",
+				"NOTES": "Notas",
+				"ACTION_ITEMS": "Ações a realizar"
+			},
+			"BRIEF": {
+				"NAME": "Resumo do projeto",
+				"TEXT": "Objetivo, escopo e marcos",
+				"GOAL": "Objetivo",
+				"BACKGROUND": "Contexto",
+				"SCOPE": "Escopo",
+				"MILESTONES": "Marcos",
+				"OPEN_QUESTIONS": "Perguntas em aberto"
+			},
+			"DECISION": {
+				"NAME": "Registro de decisão",
+				"TEXT": "Contexto, opções e a decisão",
+				"CONTEXT": "Contexto",
+				"OPTIONS": "Opções",
+				"DECISION": "Decisão",
+				"CONSEQUENCES": "Consequências"
+			}
+		}
 	},
 	"whatsNew": {
 		"TITLE": "Novidades",

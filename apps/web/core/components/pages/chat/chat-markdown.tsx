@@ -125,13 +125,19 @@ function ChatMarkdownComponent({
 					{children}
 				</a>
 			),
-			p: ({ children }) => <p className="mb-1 last:mb-0">{children}</p>,
-			code: ({ children, className: codeClass }) =>
-				codeClass ? <code className="block overflow-x-auto rounded-md bg-foreground/[0.06] p-2 text-xs">{children}</code> : <code className="rounded-sm bg-foreground/[0.06] px-1 py-px text-[12px]">{children}</code>,
-			pre: ({ children }) => <pre className="my-1">{children}</pre>,
-			ul: ({ children }) => <ul className="my-1 list-disc pl-5">{children}</ul>,
-			ol: ({ children }) => <ol className="my-1 list-decimal pl-5">{children}</ol>,
-			blockquote: ({ children }) => <blockquote className="my-1 border-l-2 border-border pl-3 text-muted-foreground">{children}</blockquote>,
+			// A line break typed in a message (Shift+Enter) shows as one: the paragraph keeps its line breaks. The parser
+			// follows a hard break with a line break of its own, so the `<br>` is left out, or the line would break twice.
+			p: ({ children }) => <p className="mb-1 whitespace-pre-wrap last:mb-0">{children}</p>,
+			br: () => null,
+			// A fenced block reaches here as `pre > code`, and `pre` draws its box: a fence without a language carries
+			// no class, so the box cannot depend on one.
+			code: ({ children }) => <code className="rounded-sm bg-foreground/[0.06] px-1 py-px font-mono text-[12px]">{children}</code>,
+			pre: ({ children }) => (
+				<pre className="my-1 overflow-x-auto rounded-lg bg-foreground/[0.05] px-3 py-2 font-mono text-xs leading-relaxed hairline-ring ring-border [&>code]:bg-transparent [&>code]:p-0 [&>code]:text-xs">{children}</pre>
+			),
+			ul: ({ children }) => <ul className="my-1 list-disc ps-5">{children}</ul>,
+			ol: ({ children }) => <ol className="my-1 list-decimal ps-5">{children}</ol>,
+			blockquote: ({ children }) => <blockquote className="my-1 border-s-2 border-border ps-3 text-muted-foreground">{children}</blockquote>,
 			span: ({ node, children }) => {
 				const token = node?.properties?.['dataChatToken'];
 				if (typeof token !== 'string') return <span>{children}</span>;

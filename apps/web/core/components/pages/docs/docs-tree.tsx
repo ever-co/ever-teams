@@ -3,7 +3,7 @@
 import { useCallback, useMemo, useRef, useState, type DragEvent, type KeyboardEvent } from 'react';
 import Link from 'next/link';
 import { useTranslations } from 'next-intl';
-import { ChevronRight, FileText, MoreHorizontal, Plus, Star } from '@/core/components/icons';
+import { ChevronRight, MoreHorizontal, Plus, Star } from '@/core/components/icons';
 import {
 	DropdownMenu,
 	DropdownMenuContent,
@@ -14,6 +14,7 @@ import {
 import { cn } from '@/core/lib/helpers';
 import { canMoveUnder, flattenTree, nextFocusIndex, pageTitle, type DocTree, type DocTreeNode } from '@/core/lib/utils/docs-tree';
 import { EDocumentVisibility, type IDocumentPage } from '@/core/types/interfaces/common/docs';
+import { DocsPageGlyph } from './docs-page-glyph';
 
 export const DOCS_DRAG_TYPE = 'application/x-docs-page';
 
@@ -130,7 +131,7 @@ export function DocsTree({ tree, activeId, expanded, favoriteIds, onToggle, onSe
 	);
 
 	if (rows.length === 0) {
-		return emptyText ? <p className="px-3 py-1.5 text-xs text-muted-foreground">{emptyText}</p> : null;
+		return emptyText ? <p className="px-2 py-1.5 text-xs text-muted-foreground text-balance">{emptyText}</p> : null;
 	}
 
 	return (
@@ -208,11 +209,11 @@ function DocsTreeRow({ row, isActive, isExpanded, isFavorite, isDropTarget, tabI
 			aria-expanded={hasChildren ? isExpanded : undefined}
 			aria-level={row.depth + 1}
 			className={cn(
-				'group relative flex items-center rounded-md pr-1 transition-colors',
-				isActive ? 'bg-primary/10 text-foreground' : 'text-foreground/85 hover:bg-foreground/[0.05]',
-				isDropTarget && 'ring-2 ring-primary/50'
+				'group relative flex h-8 items-center rounded-lg pr-1 transition-colors',
+				isActive ? 'bg-foreground/[0.07] font-medium text-foreground' : 'text-foreground/85 hover:bg-foreground/[0.04]',
+				isDropTarget && 'bg-primary/10 ring-1 ring-primary/50'
 			)}
-			style={{ paddingInlineStart: `${row.depth * 14}px` }}
+			style={{ paddingInlineStart: `${2 + row.depth * 14}px` }}
 			draggable
 			onDragStart={(event) => {
 				event.dataTransfer.setData(DOCS_DRAG_TYPE, page.id);
@@ -231,11 +232,11 @@ function DocsTreeRow({ row, isActive, isExpanded, isFavorite, isDropTarget, tabI
 					onToggle();
 				}}
 				className={cn(
-					'flex size-6 shrink-0 items-center justify-center rounded text-muted-foreground hover:bg-foreground/[0.08] hover:text-foreground',
+					'flex size-5 shrink-0 cursor-pointer items-center justify-center rounded text-muted-foreground hover:bg-foreground/[0.08] hover:text-foreground',
 					!hasChildren && 'invisible'
 				)}
 			>
-				<ChevronRight className={cn('size-3.5 transition-transform', isExpanded && 'rotate-90')} />
+				<ChevronRight className={cn('size-3.5 transition-transform rtl:rotate-180', isExpanded && 'rotate-90 rtl:rotate-90')} />
 			</button>
 			<Link
 				href={`/docs/${encodeURIComponent(page.id)}`}
@@ -243,13 +244,11 @@ function DocsTreeRow({ row, isActive, isExpanded, isFavorite, isDropTarget, tabI
 				tabIndex={tabIndex}
 				onFocus={onFocus}
 				aria-current={isActive ? 'page' : undefined}
-				className="flex min-w-0 flex-1 items-center gap-1.5 py-1 pr-1 text-sm outline-none focus-visible:ring-2 focus-visible:ring-ring/40 rounded"
+				className="flex h-full min-w-0 flex-1 items-center gap-1.5 rounded-md pr-1 text-[13px] outline-none focus-visible:ring-[3px] focus-visible:ring-ring/25"
 			>
-				<span className="flex size-5 shrink-0 items-center justify-center text-base leading-none" aria-hidden="true">
-					{page.icon ? page.icon : <FileText className="size-4 text-muted-foreground" />}
-				</span>
+				<DocsPageGlyph page={page} />
 				<span className="truncate">{title}</span>
-				{isFavorite && <Star className="size-3 shrink-0 fill-current text-amber-500" aria-label={t('docs.FAVORITE')} />}
+				{isFavorite && <Star className="size-3 shrink-0 fill-current text-amber-500" aria-label={t('docs.FAVORITES')} />}
 			</Link>
 			<div className="flex shrink-0 items-center opacity-0 transition-opacity group-focus-within:opacity-100 group-hover:opacity-100">
 				<button

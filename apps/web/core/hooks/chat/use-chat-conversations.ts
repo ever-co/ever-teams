@@ -6,7 +6,7 @@ import { useAtomValue } from 'jotai';
 import { realtimeStatusAtom } from '@/core/stores/common/realtime';
 import { queryKeys } from '@/core/query/keys';
 import { chatService } from '@/core/services/client/api/chat';
-import { IChatConversationWithState } from '@/core/types/interfaces/common/chat';
+import { EChatNotifyLevel, type IChatConversationWithState, type IChatMemberState } from '@/core/types/interfaces/common/chat';
 import { isUnread, sortConversations } from '@/core/lib/utils/chat-format';
 import { useChatScope } from './use-chat-scope';
 
@@ -83,6 +83,21 @@ export function useChatMembers(conversationId: string | null, enabled: boolean) 
 	return { members: query.data ?? [], isLoading: query.isPending && query.fetchStatus !== 'idle' };
 }
 
+/**
+ * What the sidebar's Chat row counts: the unread messages of the conversations that are not muted and, of a muted
+ * one, only its mentions (a mention reaches its reader even there). `mentions` is every mention, muted or not.
+ */
+export function unreadTotalsOf(states: ReadonlyArray<Pick<IChatMemberState, 'unreadCount' | 'mentionCount' | 'notifyLevel'>>): { unread: number; mentions: number } {
+	let unread = 0;
+	let mentions = 0;
+	for (const state of states) {
+		const mentioned = state.mentionCount ?? 0;
+		mentions += mentioned;
+		unread += state.notifyLevel === EChatNotifyLevel.Muted ? mentioned : Math.max(state.unreadCount ?? 0, mentioned);
+	}
+	return { unread, mentions };
+}
+
 /** My state of every conversation and my followed threads with their unread replies (the Threads badge). */
 export function useChatStates(enabled: boolean) {
 	// Over the live channel the lists are refetched when an event says they changed: no poll.
@@ -97,7 +112,8 @@ export function useChatStates(enabled: boolean) {
 		refetchIntervalInBackground: false
 	});
 	const threadsUnread = useMemo(() => (query.data?.threads ?? []).reduce((sum, thread) => sum + (thread.unreadReplies ?? 0), 0), [query.data?.threads]);
-	return { threadsUnread };
+	const totals = useMemo(() => unreadTotalsOf(query.data?.states ?? []), [query.data?.states]);
+	return { threadsUnread, ...totals };
 }
 
 /** My followed threads with unread replies. */
