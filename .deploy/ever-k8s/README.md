@@ -1,8 +1,8 @@
 # `.deploy/ever-k8s/` — example self-hosted Kubernetes deploy
 
 An example of running Ever Teams on a **self-hosted Kubernetes** cluster: the stateless `apps/web` Next.js app
-(Deployment, Service and Ingress), apply it with `kubectl apply -k .deploy/ever-k8s` after you set the Ingress
-host and the Gauzy API URLs to yours.
+(Deployment, Service and Ingress in the namespace `ever-teams`). Set the Ingress host and the Gauzy API URLs to
+yours, then `kubectl create namespace ever-teams` (once) and `kubectl apply -k .deploy/ever-k8s`.
 
 It started as Ever's lab deploy on its homelab cluster (`teams-lab.ever.team`), which was retired on 2026-11-10.
 Ever's own develop, stage and prod deploys are defined in the GitOps repository `ever-co/k8s-gitops`; nothing
