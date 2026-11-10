@@ -334,5 +334,17 @@
 	{
 		"id": "removed:navigation:apps/web/core/hooks/auth/use-ever-id-workspace-choice.ts::router.push=/::#1",
 		"reason": "Replaced by navigateAfterSignIn() (window.location.assign('/'), ad3a514da): after a sign-in sets the session the app opens with a full page load, so the new cookies reach the server instead of the router replaying a prefetched redirect to the sign-in page. Same destination, /."
+	},
+	{
+		"id": "removed:navigation:apps/web/core/components/pages/docs/docs-page-view.tsx::href=/docs::#2",
+		"reason": "The first crumb of a Docs page (\"Docs\") now leads to /docs?tree=1 instead of /docs (#5008): /docs opens the page last visited, which is the page the crumb stands on, so the link went nowhere. /docs?tree=1 shows the Docs home and the tree, as the phone's Back arrow of the same bar already did. The not-found state of the same file still links /docs."
+	},
+	{
+		"id": "removed:navigation:apps/web/core/components/pages/docs/docs-page.tsx::href=/docs/trash::#1",
+		"reason": "The Docs welcome had a Trash button positioned over its own text (#5008). The welcome became the Docs home (docs-home.tsx) without it; the Trash stays one click away in the tree pane beside it (docs-tree-pane.tsx links /docs/trash at its foot, on every Docs view)."
+	},
+	{
+		"id": "removed:testNames:apps/web/core/lib/realtime/client.test.ts::delivers streamed events once, advancing the cursor::#1",
+		"reason": "Renamed with its expectation by the realtime client fix (#5007, eaaaa405e): a streamed event no longer moves the cursor, only a catch-up answer does. The same scenario is now \"delivers streamed events once, at once, without moving the cursor (only a catch-up answer does)\" in the same file."
 	}
 ]
