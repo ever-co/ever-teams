@@ -1,6 +1,6 @@
 'use client';
 import { tokenLiveKitRoom } from '@/core/services/server/livekitroom';
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 
 interface ITokenLiveKitProps {
 	roomName: string;
@@ -8,6 +8,8 @@ interface ITokenLiveKitProps {
 
 export function useTokenLiveKit({ roomName }: ITokenLiveKitProps) {
 	const [issued, setIssued] = useState<{ room: string; token: string } | null>(null);
+	const [failure, setFailure] = useState<{ room: string; error: unknown } | null>(null);
+	const [attempt, setAttempt] = useState(0);
 
 	useEffect(() => {
 		if (!roomName) return;
@@ -20,10 +22,18 @@ export function useTokenLiveKit({ roomName }: ITokenLiveKitProps) {
 		const fetchToken = async () => {
 			try {
 				const response = await tokenLiveKitRoom({ roomName });
-				if (!current || !response?.token) return;
+				if (!current) return;
+				if (!response?.token) {
+					setFailure({ room: roomName, error: new Error('The LiveKit token answer has no token') });
+					return;
+				}
 				setIssued({ room: roomName, token: response.token });
 			} catch (error) {
 				console.error('Failed to fetch token:', error);
+				// A failure the room can show with a retry, instead of a spinner with no further request
+				if (current) {
+					setFailure({ room: roomName, error });
+				}
 			}
 		};
 		fetchToken();
@@ -31,9 +41,17 @@ export function useTokenLiveKit({ roomName }: ITokenLiveKitProps) {
 		return () => {
 			current = false;
 		};
-	}, [roomName]);
+	}, [roomName, attempt]);
+
+	const retry = useCallback(() => {
+		setFailure(null);
+		setAttempt((count) => count + 1);
+	}, []);
 
 	// A token only grants the room it was issued for, so handing back one from a previous
 	// room would publish local tracks into the room the user just left
-	return { token: issued?.room === roomName ? issued.token : null };
+	const token = issued?.room === roomName ? issued.token : null;
+	const error = failure?.room === roomName ? failure.error : null;
+
+	return { token, error, retry };
 }

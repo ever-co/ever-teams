@@ -4,15 +4,19 @@ import { withAuthentication } from '@/core/components/layouts/app/authenticator'
 import { Meta } from '@/core/components';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useCallback, useEffect, useRef, useState } from 'react';
+import { useTranslations, type DottedLanguageObjectStringPaths } from 'next-intl';
 import { useTokenLiveKit } from '@/core/hooks/common/use-live-kit';
 import { useAuthenticateUser } from '@/core/hooks/auth';
+import { errorReasonKeyOf } from '@/core/lib/utils/error-feedback';
 import { readRuntimeEnv } from '@/env-config';
 
 // Import optimized components from centralized location
 import { LazyLiveKit as LiveKit, preloadLiveKit } from '@/core/components/optimized-components/meet';
 import { LiveKitMeetPageSkeleton } from '../meet-room-skeleton';
+import { MeetRoomError } from '../meet-room-error';
 
 function LiveKitPage() {
+	const t = useTranslations();
 	const router = useRouter();
 	const { user } = useAuthenticateUser();
 	const [roomName, setRoomName] = useState<string | undefined>(undefined);
@@ -41,13 +45,33 @@ function LiveKitPage() {
 		}
 	}, [params]);
 
-	const { token } = useTokenLiveKit({
+	const { token, error, retry } = useTokenLiveKit({
 		roomName: roomName || ''
 	});
 
 	const hasToken = Boolean(token);
 	const hasRoomName = Boolean(roomName);
 	const canJoin = hasToken && hasRoomName;
+
+	// A link without a room never gets a token: it says so instead of loading forever
+	if (!params.get('roomName')) {
+		return (
+			<MeetRoomError
+				title={t('collaborate.MEETING_UNAVAILABLE')}
+				description={t('collaborate.MEETING_LINK_INVALID')}
+			/>
+		);
+	}
+
+	if (error) {
+		return (
+			<MeetRoomError
+				title={t('collaborate.MEETING_UNAVAILABLE')}
+				description={t(errorReasonKeyOf(error) as DottedLanguageObjectStringPaths)}
+				onRetry={retry}
+			/>
+		);
+	}
 
 	return (
 		<div>
