@@ -118,6 +118,13 @@ export function messagePartsOfTitle(title: string): { place: string | null; prev
 	return { place, preview: preview.length > 0 ? preview : null };
 }
 
+/** What an entry is about: the channel of a chat message, the channel a mention names, else the title's quoted part. */
+function subjectOf(entity: string | null, chatParts: { place: string | null } | null, quoted: string | null): string | null {
+	if (chatParts) return chatParts.place;
+	if (entity === 'ChatConversation' && quoted) return `#${quoted.replace(/^#/, '')}`;
+	return quoted;
+}
+
 /** An entry from a platform inbox item. */
 export function toInboxEntry(item: IInboxItem): InboxEntry {
 	const metadata = item.metadata ?? {};
@@ -131,7 +138,7 @@ export function toInboxEntry(item: IInboxItem): InboxEntry {
 	// A chat notification carries its channel and its text in the title; a quote inside the text is not a subject.
 	const chatParts = isNotification && entity === 'ChatMessage' ? messagePartsOfTitle(rawTitle) : null;
 	const quoted = isNotification && !chatParts ? quotedSubjectOf(rawTitle) : null;
-	const subject = chatParts ? chatParts.place : entity === 'ChatConversation' && quoted ? `#${quoted.replace(/^#/, '')}` : quoted;
+	const subject = subjectOf(entity, chatParts, quoted);
 	const message = stringOf(item.body) ?? chatParts?.preview ?? null;
 	const entry: InboxEntry = {
 		id: item.id,
