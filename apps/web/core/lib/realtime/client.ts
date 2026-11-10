@@ -65,6 +65,12 @@ const COLLABORATION_EVENTS_SUBSCRIPTION = `subscription CollaborationEvents($nam
  */
 const SEEN_MAX = 20_000;
 
+/**
+ * How long past the cursor an id is still remembered: the stream may deliver an event after the catch-up answered it
+ * (the outbox dispatcher runs every minute and retries), and that late copy must still be recognised.
+ */
+const SEEN_GRACE_MS = 10 * 60_000;
+
 /** The pages one replay reads; a larger gap is cheaper to refetch than to replay, so the listeners resynchronise. */
 const REPLAY_MAX_PAGES = 50;
 
@@ -324,7 +330,7 @@ export class RealtimeClient {
 				// later answer returns an event stamped before it.
 				if (isAfter(position, this.cursor)) {
 					this.cursor = { ...position };
-					this.forgetBefore(position.at);
+					this.forgetBefore(position.at - SEEN_GRACE_MS);
 				}
 				if (answer.resync) {
 					this.emitResync();
@@ -400,8 +406,8 @@ export class RealtimeClient {
 	}
 
 	/**
-	 * Forgets the ids stamped before a cursor time: a catch-up from that cursor or later never answers them again (at
-	 * the cursor time itself it may, so those are kept).
+	 * Forgets the ids stamped before a time: called with the cursor time less {@link SEEN_GRACE_MS}, so no catch-up
+	 * answers them again (it reads from the cursor) and a late stream copy of them has had its grace.
 	 */
 	private forgetBefore(at: number): void {
 		for (const [eventId, stamped] of this.seen) {

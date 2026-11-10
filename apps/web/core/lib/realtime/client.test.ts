@@ -422,6 +422,24 @@ describe('RealtimeClient', () => {
 		expect(ctx.events).toHaveLength(2_500);
 	});
 
+	it('still drops the stream copy of an event the catch-up delivered first (the dispatcher is late)', async () => {
+		const at = Date.parse('2026-01-01T00:00:17.000Z');
+		const ctx = setUp(
+			[
+				{ events: [], cursor: 1_000, cursorId: null, hasMore: false, resync: false },
+				// The poll answers e7 and moves the cursor past it before the stream delivers it.
+				{ events: [envelope('e7', '2026-01-01T00:00:17.000Z')], cursor: at + 5_000, cursorId: null, hasMore: false, resync: false }
+			],
+			{ pollIntervalMs: 60_000 }
+		);
+		ctx.client.start();
+		const socket = await ctx.accept();
+		ctx.timers.advance(60_000);
+		await flush();
+		socket.serve({ id: '1', type: 'next', payload: { data: { collaborationEvents: envelope('e7', '2026-01-01T00:00:17.000Z') } } });
+		expect(ctx.events).toEqual(['e7']);
+	});
+
 	it('applies a presence change only when its revision is newer than the last one applied for the employee', async () => {
 		const ctx = setUp();
 		ctx.client.start();
