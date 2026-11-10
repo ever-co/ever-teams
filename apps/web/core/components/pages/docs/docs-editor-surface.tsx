@@ -86,7 +86,8 @@ export function DocsEditorSurface({ value, onChange, onReady, onSaveShortcut, me
 
 	return (
 		<div
-			className="docs-editor-surface min-h-[50vh]"
+			// The formatting row stays in sight while a long page scrolls under it.
+			className="docs-editor-surface min-h-[50vh] [&_[role=toolbar]]:sticky [&_[role=toolbar]]:top-0 [&_[role=toolbar]]:z-10 [&_[role=toolbar]]:bg-background print:[&_[role=toolbar]]:hidden"
 			onKeyDownCapture={markTouched}
 			onBeforeInputCapture={markTouched}
 			onPointerDownCapture={markTouched}
