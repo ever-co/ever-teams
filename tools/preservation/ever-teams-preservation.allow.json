@@ -346,5 +346,9 @@
 	{
 		"id": "removed:testNames:apps/web/core/lib/realtime/client.test.ts::delivers streamed events once, advancing the cursor::#1",
 		"reason": "Renamed with its expectation by the realtime client fix (#5007, eaaaa405e): a streamed event no longer moves the cursor, only a catch-up answer does. The same scenario is now \"delivers streamed events once, at once, without moving the cursor (only a catch-up answer does)\" in the same file."
+	},
+	{
+		"id": "removed:navigation:apps/web/core/components/integration/meet/index.tsx::router.push=/::#2",
+		"reason": "Moved, not removed (#5021): the Jitsi room's error screen and its \"Return Home\" button became the shared MeetRoomError (core/components/pages/meet/meet-room-error.tsx), whose \"Back to home\" still calls router.push('/'). The room keeps its other router.push('/'), the one that leaves after the meeting closes."
 	}
 ]
