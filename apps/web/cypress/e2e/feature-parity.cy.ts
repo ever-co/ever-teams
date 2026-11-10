@@ -31,6 +31,19 @@ describe('feature parity on the authenticated shell', () => {
 		});
 	});
 
+	it('starts the timer at once when the team leaves planning to its members', () => {
+		cy.mockScenario({ hasPlan: false, requirePlanToTrack: false });
+		cy.intercept('POST', '**/api/timesheet/timer/start').as('startTimer');
+		cy.hardVisit('/');
+		cy.get('button[aria-label="Start timer"]', { timeout: 20_000 })
+			.first({ timeout: 20_000 })
+			.should('have.attr', 'aria-disabled', 'false')
+			.click();
+		cy.wait('@startTimer', { timeout: 20_000 });
+		cy.contains('Create a plan for today').should('not.exist');
+		cy.mockState().then((state) => expect(state.mutationProof.startedTimer).to.equal(true));
+	});
+
 	it('blocks timer mutation only when the team requires a missing plan', () => {
 		cy.mockScenario({ hasPlan: false, requirePlanToTrack: true });
 		cy.hardVisit('/team/tasks');
