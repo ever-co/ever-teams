@@ -33,10 +33,10 @@ const SECONDARY_BUTTON =
 	'h-9 shrink-0 gap-1.5 rounded-md bg-card px-3 py-0 text-sm font-medium text-foreground hover:bg-muted disabled:pointer-events-none';
 const PRIMARY_BUTTON = 'h-9 shrink-0 rounded-md px-3 py-0 text-sm font-medium hover:bg-primary/90';
 const CANCEL_BUTTON = 'h-9 shrink-0 rounded-md px-3 py-0 text-sm font-medium';
-// The icon and colour pickers draw their own 54px box; this sizes them like the other controls of the
-// row without touching the shared picker components.
-const PICKER =
-	'shrink-0 [&_.input-border]:h-9 [&_.input-border]:rounded-md [&_.rounded-xl]:h-9 [&_.rounded-xl]:rounded-md';
+// The icon and colour pickers size their own trigger like the other controls of the row. No descendant
+// selector here: the icon picker opens its panel inside this wrapper, and one clamped that panel to the
+// trigger's height, its icons spilling out over the page.
+const PICKER = 'shrink-0';
 
 type StatusForm = {
 	formOnly?: boolean;

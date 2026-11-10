@@ -39,6 +39,23 @@ describe('feature parity on the authenticated shell', () => {
 		cy.mockState().then((state) => expect(state.mutationProof.startedTimer).to.equal(false));
 	});
 
+	it('opens the icon picker of a new label in full, its icons inside the panel', () => {
+		cy.hardVisit('/');
+		cy.contains('button', /^\s*Labels/, { timeout: 20_000 }).click();
+		cy.contains(/create label/i).click();
+		cy.get('input[placeholder="Create new label"]', { timeout: 15_000 }).should('be.visible');
+		cy.get('[id^="headlessui-popover-button"]')
+			.contains(/^\s*Icon\s*$/)
+			.click();
+		cy.get('[id^="headlessui-popover-panel"] > div').should(($panel) => {
+			const panel = $panel[0];
+			const height = panel.getBoundingClientRect().height;
+			// The panel grows with its search field and icon grid instead of being clamped to the trigger's height
+			expect(height).to.be.greaterThan(100);
+			expect(panel.scrollHeight).to.be.at.most(Math.ceil(height) + 1);
+		});
+	});
+
 	it('keeps roles, permission controls, invitations, and public teams available', () => {
 		cy.hardVisit('/permissions');
 		cy.contains('Roles & permissions', { timeout: 15_000 }).should('be.visible');
