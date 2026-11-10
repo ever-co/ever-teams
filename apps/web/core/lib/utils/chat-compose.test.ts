@@ -1,4 +1,14 @@
-import { ComposeEdit, insertAt, insertLink, insertMentionTrigger, ITALIC, replacementOf, toggleCodeBlock, toggleLinePrefix, toggleWrap } from './chat-compose';
+import {
+	ComposeEdit,
+	insertAt,
+	insertLink,
+	insertMentionTrigger,
+	ITALIC,
+	replacementOf,
+	toggleCodeBlock,
+	toggleLinePrefix,
+	toggleWrap
+} from './chat-compose';
 
 /** A text with its selection marked: `|` for a caret, or two `|` around the selected stretch. */
 function marked(text: string): { value: string; start: number; end: number } {
@@ -44,6 +54,36 @@ describe('toggleWrap with the italic marker', () => {
 	it('wraps a selection over several lines line by line', () => {
 		expect(wrap('|one\ntwo|', ITALIC)).toBe('|*one*\n*two*|');
 		expect(wrap('|*one*\n*two*|', ITALIC)).toBe('|one\ntwo|');
+	});
+
+	it('takes off italic written with underscores, as messages from before the asterisk were', () => {
+		expect(wrap('_|hello|_', ITALIC)).toBe('|hello|');
+		expect(wrap('say _|hello|_ now', ITALIC)).toBe('say |hello| now');
+		expect(wrap('|_hello_|', ITALIC)).toBe('|hello|');
+		expect(wrap('*_|hello|_*', ITALIC)).toBe('*|hello|*');
+		expect(wrap('|_one_\n*two*|', ITALIC)).toBe('|one\ntwo|');
+	});
+
+	it('leaves underscores inside a word alone, as Markdown does', () => {
+		expect(wrap('snake_|case|_name', ITALIC)).toBe('snake_*|case|*_name');
+		expect(wrap('a|_b_|c', ITALIC)).toBe('a*|_b_|*c');
+		expect(wrap('|_snake_case_|', ITALIC)).toBe('|snake_case|');
+	});
+
+	it('does not take two italic stretches for one pair', () => {
+		expect(wrap('|*one* *two*|', ITALIC)).toBe('*|*one* *two*|*');
+	});
+
+	it('reads markers by their whole runs, so bold is never split into italic', () => {
+		expect(wrap('*|*bold*|*', ITALIC)).toBe('**|*bold*|**');
+		// The italic of bold italic comes off, whichever stars are selected.
+		expect(wrap('**|*bold*|**', ITALIC)).toBe('**|bold|**');
+	});
+
+	it('leaves escaped asterisks as they are', () => {
+		expect(wrap('\\*|hello|*', ITALIC)).toBe('\\**|hello|**');
+		expect(wrap('*|hello\\|*', ITALIC)).toBe('**|hello\\|**');
+		expect(wrap('|*a \\* b*|', ITALIC)).toBe('|a \\* b|');
 	});
 });
 
