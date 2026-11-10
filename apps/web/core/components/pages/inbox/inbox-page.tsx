@@ -230,29 +230,68 @@ function InboxPageContent() {
 
 	const reportFailure = useCallback(() => toast.error(t('inbox.TOASTS.UPDATE_FAILED')), [t]);
 
-	/** The entries an action applies to: the selection when the entry is part of it, else the entry alone. */
+	/**
+	 * The entries an action applies to: the selection when the entry is part of it, else the entry alone. An entry
+	 * kept in the pane after it left the list (read in the Unread tab) is no longer in `byId`: it still counts.
+	 */
 	const targetsOf = useCallback(
 		(entry: InboxEntry): InboxEntry[] => {
 			if (!selected.has(entry.id)) return [entry];
-			return [...selected].map((id) => byId.get(id)).filter((candidate): candidate is InboxEntry => !!candidate);
+			return [...selected]
+				.map((id) => byId.get(id) ?? (id === entry.id ? entry : undefined))
+				.filter((candidate): candidate is InboxEntry => !!candidate);
 		},
 		[byId, selected]
 	);
 
+	/** Keeps the entry held for the pane in step with what an action changes on it, since it may have left the list. */
+	const patchOpened = useCallback((ids: string[], patch: Partial<InboxEntry>) => {
+		setOpenedEntry((opened) => (opened && ids.includes(opened.id) ? { ...opened, ...patch } : opened));
+	}, []);
+
+	/**
+	 * The platform's state update, mirrored on the entry held for the pane. Like the lists, the pane goes back to what
+	 * it showed when the update fails.
+	 */
+	const setState = useCallback(
+		(ids: string[], state: Parameters<typeof actions.setState>[1]) => {
+			const patch: Partial<InboxEntry> = {};
+			if (state.isRead !== undefined) patch.isUnread = !state.isRead;
+			if (state.isArchived !== undefined) patch.isArchived = state.isArchived;
+			if (state.isDone !== undefined) patch.isDone = state.isDone;
+			if (state.snoozedUntil !== undefined) patch.snoozedUntil = state.snoozedUntil ? new Date(state.snoozedUntil) : null;
+			const before = openedEntry && ids.includes(openedEntry.id) ? openedEntry : null;
+			patchOpened(ids, patch);
+			return actions.setState(ids, state).catch((error: unknown) => {
+				if (before) setOpenedEntry((opened) => (opened && opened.id === before.id ? before : opened));
+				throw error;
+			});
+		},
+		[actions, openedEntry, patchOpened]
+	);
+
 	const setRead = useCallback(
 		async (targets: InboxEntry[], isRead: boolean) => {
-			if (usesExtension) return actions.setState(targets.map((entry) => entry.id), { isRead });
+			if (usesExtension) return setState(targets.map((entry) => entry.id), { isRead });
+			patchOpened(
+				targets.map((entry) => entry.id),
+				{ isUnread: !isRead }
+			);
 			await Promise.all(targets.map((entry) => legacyActions.setRead(entry.id, isRead)));
 		},
-		[actions, legacyActions, usesExtension]
+		[legacyActions, patchOpened, setState, usesExtension]
 	);
 
 	const setArchived = useCallback(
 		async (targets: InboxEntry[], isArchived: boolean) => {
-			if (usesExtension) return actions.setState(targets.map((entry) => entry.id), { isArchived });
+			if (usesExtension) return setState(targets.map((entry) => entry.id), { isArchived });
+			patchOpened(
+				targets.map((entry) => entry.id),
+				{ isArchived }
+			);
 			await Promise.all(targets.map((entry) => (isArchived ? legacyActions.archive(entry.id) : legacyActions.unarchive(entry.id))));
 		},
-		[actions, legacyActions, usesExtension]
+		[legacyActions, patchOpened, setState, usesExtension]
 	);
 
 	/** Goes to what the entry is about: the task drawer, the conversation at the message, or the entry's own link. */
@@ -363,18 +402,17 @@ function InboxPageContent() {
 		(entry: InboxEntry, until: Date | null) => {
 			const targets = targetsOf(entry);
 			const ids = targets.map((candidate) => candidate.id);
-			actions
-				.setState(ids, { snoozedUntil: until ? until.toISOString() : null })
+			setState(ids, { snoozedUntil: until ? until.toISOString() : null })
 				.then(() => {
 					if (!until) return;
 					toast(t('inbox.TOASTS.SNOOZED', { count: targets.length }), {
-						action: { label: t('inbox.TOASTS.UNDO'), onClick: () => actions.setState(ids, { snoozedUntil: null }).catch(reportFailure) }
+						action: { label: t('inbox.TOASTS.UNDO'), onClick: () => setState(ids, { snoozedUntil: null }).catch(reportFailure) }
 					});
 				})
 				.catch(reportFailure);
 			setSelected(new Set());
 		},
-		[actions, reportFailure, setSelected, t, targetsOf]
+		[reportFailure, setSelected, setState, t, targetsOf]
 	);
 
 	const handleDone = useCallback(
@@ -382,18 +420,17 @@ function InboxPageContent() {
 			const targets = targetsOf(entry);
 			const ids = targets.map((candidate) => candidate.id);
 			const done = !entry.isDone;
-			actions
-				.setState(ids, { isDone: done })
+			setState(ids, { isDone: done })
 				.then(() => {
 					if (!done) return;
 					toast(t('inbox.TOASTS.DONE', { count: targets.length }), {
-						action: { label: t('inbox.TOASTS.UNDO'), onClick: () => actions.setState(ids, { isDone: false }).catch(reportFailure) }
+						action: { label: t('inbox.TOASTS.UNDO'), onClick: () => setState(ids, { isDone: false }).catch(reportFailure) }
 					});
 				})
 				.catch(reportFailure);
 			setSelected(new Set());
 		},
-		[actions, reportFailure, setSelected, t, targetsOf]
+		[reportFailure, setSelected, setState, t, targetsOf]
 	);
 
 	const handleMarkAll = useCallback(() => {
