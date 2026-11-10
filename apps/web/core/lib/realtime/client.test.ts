@@ -47,6 +47,7 @@ function setUp(catchUpAnswers: Array<RealtimeCatchUp | Error | Promise<RealtimeC
 		clearTimeout: timers.clearTimeout,
 		backoff: { minMs: 100, maxMs: 1_000 },
 		random: () => 0.5,
+		now: timers.now,
 		pingIntervalMs: 0,
 		pollIntervalMs: options.pollIntervalMs ?? 0,
 		limit: 2
@@ -438,6 +439,29 @@ describe('RealtimeClient', () => {
 		await flush();
 		socket.serve({ id: '1', type: 'next', payload: { data: { collaborationEvents: envelope('e7', '2026-01-01T00:00:17.000Z') } } });
 		expect(ctx.events).toEqual(['e7']);
+	});
+
+	it('still drops a late stream copy of an event much older than the catch-up cursor, for the grace after applying it', async () => {
+		const later = Date.parse('2026-01-01T00:30:00.000Z');
+		const ctx = setUp(
+			[
+				{ events: [], cursor: 1_000, cursorId: null, hasMore: false, resync: false },
+				// The poll answers e8, twenty minutes older than the cursor it moves to.
+				{ events: [envelope('e8', '2026-01-01T00:10:00.000Z')], cursor: later, cursorId: null, hasMore: false, resync: false },
+				{ events: [], cursor: later + 60_000, cursorId: null, hasMore: false, resync: false }
+			],
+			{ pollIntervalMs: 60_000 }
+		);
+		ctx.client.start();
+		const socket = await ctx.accept();
+		ctx.timers.advance(60_000);
+		await flush();
+		// The next poll moves the cursor again; the stream delivers e8 five minutes after it was applied.
+		ctx.timers.advance(60_000);
+		await flush();
+		ctx.timers.advance(4 * 60_000);
+		socket.serve({ id: '1', type: 'next', payload: { data: { collaborationEvents: envelope('e8', '2026-01-01T00:10:00.000Z') } } });
+		expect(ctx.events).toEqual(['e8']);
 	});
 
 	it('applies a presence change only when its revision is newer than the last one applied for the employee', async () => {

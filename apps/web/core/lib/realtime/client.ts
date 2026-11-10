@@ -42,6 +42,7 @@ export interface RealtimeClientOptions {
 	ackTimeoutMs?: number;
 	/** Injected for tests. */
 	random?: () => number;
+	now?: () => number;
 	setTimeout?: (fn: () => void, ms: number) => unknown;
 	clearTimeout?: (handle: unknown) => void;
 	/** The window to listen to for `online` and visibility, when there is one. */
@@ -66,8 +67,9 @@ const COLLABORATION_EVENTS_SUBSCRIPTION = `subscription CollaborationEvents($nam
 const SEEN_MAX = 20_000;
 
 /**
- * How long past the cursor an id is still remembered: the stream may deliver an event after the catch-up answered it
- * (the outbox dispatcher runs every minute and retries), and that late copy must still be recognised.
+ * How long an applied id is remembered at least, from the moment it was applied: the stream may deliver an event after
+ * the catch-up answered it (the outbox dispatcher runs every minute and retries), and that late copy must still be
+ * recognised, however old the event itself is.
  */
 const SEEN_GRACE_MS = 10 * 60_000;
 
@@ -109,8 +111,6 @@ export class RealtimeClient {
 	private attempts = 0;
 	private reconnectTimer: unknown = null;
 	private started = false;
-	/** Whether this connection's first replay completed (until then every event id is remembered). */
-	private caughtUp = false;
 	private replayRunning = false;
 	private pollTimer: unknown = null;
 	/** The newest presence revision applied, by employee. */
@@ -118,8 +118,9 @@ export class RealtimeClient {
 	private replayAgain = false;
 	/** Subscriptions the server ended in a row: the backoff of the reconnect that follows. */
 	private streamEnds = 0;
-	/** The ids applied, with their time: kept until the catch-up cursor passes them. */
-	private readonly seen = new Map<string, number>();
+	/** The ids applied, with their time and when they were applied: kept until the cursor passed them and the grace ran out. */
+	private readonly seen = new Map<string, { at: number; appliedAt: number }>();
+	private readonly now: () => number;
 	private readonly eventHandlers = new Set<EventHandler>();
 	private readonly statusHandlers = new Set<StatusHandler>();
 	private readonly resyncHandlers = new Set<ResyncHandler>();
@@ -131,6 +132,7 @@ export class RealtimeClient {
 	};
 
 	constructor(private readonly options: RealtimeClientOptions) {
+		this.now = options.now ?? (() => Date.now());
 		this.setTimer = options.setTimeout ?? ((fn, ms) => setTimeout(fn, ms));
 		this.clearTimer = options.clearTimeout ?? ((handle) => clearTimeout(handle as ReturnType<typeof setTimeout>));
 	}
@@ -228,8 +230,6 @@ export class RealtimeClient {
 		if (this.connection !== connection || !connection.isReady) return;
 		// A server that keeps ending the subscription keeps the backoff growing; a delivered event resets it.
 		this.attempts = this.streamEnds;
-		// Until this connection's replay completes, what was missed is unknown: the cursor stays where it is.
-		this.caughtUp = false;
 		// The stream first, so nothing that happens during the replay is missed; duplicates are dropped by id.
 		const ended = () => {
 			// The server refused or ended the subscription while the socket stays open: no event would arrive and
@@ -318,7 +318,6 @@ export class RealtimeClient {
 			if (!this.cursor) {
 				const start = await this.options.catchUp({ limit });
 				if (typeof start.cursor === 'number') this.cursor = { at: start.cursor, id: start.cursorId };
-				this.completeReplay();
 				return;
 			}
 			let position: RealtimeCursor = { ...this.cursor };
@@ -330,34 +329,23 @@ export class RealtimeClient {
 				// later answer returns an event stamped before it.
 				if (isAfter(position, this.cursor)) {
 					this.cursor = { ...position };
-					this.forgetBefore(position.at - SEEN_GRACE_MS);
+					this.forgetBefore(position.at);
 				}
 				if (answer.resync) {
 					this.emitResync();
-					this.completeReplay();
 					return;
 				}
-				if (!answer.hasMore) {
-					this.completeReplay();
-					return;
-				}
+				if (!answer.hasMore) return;
 				if (superseded()) return;
 			}
 			// More is held than one replay reads: refetching is cheaper, and nothing is left silently unapplied.
 			this.emitResync();
-			this.completeReplay();
 		} catch {
 			// Superseded: the newer connection replays for itself. A failed poll leaves the cursor where it is.
 			// Otherwise the listeners resynchronise rather than trust a gap.
 			if (superseded() || mode === 'poll') return;
 			this.emitResync();
-			this.completeReplay();
 		}
-	}
-
-	/** The replay is complete (or replaced by a resynchronisation). */
-	private completeReplay(): void {
-		this.caughtUp = true;
 	}
 
 	private apply(envelope: RealtimeEnvelope): void {
@@ -398,7 +386,7 @@ export class RealtimeClient {
 
 	/** Remembers an applied id with its time (an event without one is kept until the safety bound). */
 	private remember(eventId: string, at: number | null): void {
-		this.seen.set(eventId, at ?? Number.POSITIVE_INFINITY);
+		this.seen.set(eventId, { at: at ?? Number.POSITIVE_INFINITY, appliedAt: this.now() });
 		if (this.seen.size > SEEN_MAX) {
 			const oldest = this.seen.keys().next().value;
 			if (oldest !== undefined) this.seen.delete(oldest);
@@ -406,12 +394,14 @@ export class RealtimeClient {
 	}
 
 	/**
-	 * Forgets the ids stamped before a time: called with the cursor time less {@link SEEN_GRACE_MS}, so no catch-up
-	 * answers them again (it reads from the cursor) and a late stream copy of them has had its grace.
+	 * Forgets the ids stamped before the cursor time that were applied at least {@link SEEN_GRACE_MS} ago: no catch-up
+	 * answers them again (it reads from the cursor; at the cursor time itself it may, so those are kept), and a late
+	 * stream copy of them has had its grace.
 	 */
-	private forgetBefore(at: number): void {
+	private forgetBefore(cursorAt: number): void {
+		const appliedBy = this.now() - SEEN_GRACE_MS;
 		for (const [eventId, stamped] of this.seen) {
-			if (stamped < at) this.seen.delete(eventId);
+			if (stamped.at < cursorAt && stamped.appliedAt <= appliedBy) this.seen.delete(eventId);
 		}
 	}
 
@@ -420,8 +410,6 @@ export class RealtimeClient {
 		this.connection = null;
 		this.unsubscribe = null;
 		this.cancelPoll();
-		// What arrives between now and the next replay is unknown: the cursor waits for that replay.
-		this.caughtUp = false;
 		if (!this.started) return;
 		if (isFatalCloseCode(code)) {
 			this.setStatus('stopped');
