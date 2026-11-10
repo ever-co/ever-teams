@@ -44,6 +44,21 @@ describe('feature parity on the authenticated shell', () => {
 		cy.mockState().then((state) => expect(state.mutationProof.startedTimer).to.equal(true));
 	});
 
+	it('starts on the task the task bar shows when no task was chosen on this device', () => {
+		cy.clearCookie('auth-active-task', { log: false });
+		cy.mockScenario({ hasPlan: false, requirePlanToTrack: false });
+		cy.intercept('POST', '**/api/timesheet/timer/start').as('startTimer');
+		cy.hardVisit('/');
+		cy.fixture('bootstrap').then((fixture) => {
+			cy.contains(fixture.names.task, { timeout: 20_000 }).should('be.visible');
+			cy.get('button[aria-label="Start timer"]', { timeout: 20_000 })
+				.first({ timeout: 20_000 })
+				.should('have.attr', 'aria-disabled', 'false')
+				.click();
+			cy.wait('@startTimer', { timeout: 20_000 }).its('request.body.taskId').should('equal', fixture.ids.task);
+		});
+	});
+
 	it('blocks timer mutation only when the team requires a missing plan', () => {
 		cy.mockScenario({ hasPlan: false, requirePlanToTrack: true });
 		cy.hardVisit('/team/tasks');

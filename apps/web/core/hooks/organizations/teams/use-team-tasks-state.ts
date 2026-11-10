@@ -6,7 +6,7 @@ import {
 	setActiveTaskIdCookie,
 	setActiveUserTaskCookie
 } from '@/core/lib/helpers/index';
-import { getValidActiveTask, isHeldTeamTask } from '@/core/lib/utils/task.utils';
+import { getValidActiveTask, isHeldTeamTask, memberTaskIdOf } from '@/core/lib/utils/task.utils';
 import { logErrorInDev } from '@/core/lib/helpers/error-message';
 import {
 	activeTeamState,
@@ -16,7 +16,7 @@ import {
 	teamTasksCompleteState,
 	teamTasksState
 } from '@/core/stores';
-import { useCallback, useRef, useState } from 'react';
+import { useCallback, useMemo, useRef, useState } from 'react';
 import { useAtomValue, useSetAtom, useStore } from 'jotai';
 import isEqual from 'lodash/isEqual';
 import { useUpdateEmployeeActiveTask } from './use-organization-teams-employee';
@@ -184,7 +184,14 @@ function useActiveTaskSetter() {
 		[store, setActiveTeamTask, setActiveUserTaskCookieCb, updateOrganizationTeamEmployeeActiveTask, authUserRef]
 	);
 
-	return { setActiveTask, isUpdatingActiveTask, expectedActiveTaskIdRef, authUserRef, store };
+	return {
+		setActiveTask,
+		isUpdatingActiveTask,
+		expectedActiveTaskIdRef,
+		authUserRef,
+		authUserId: authUser?.id,
+		store
+	};
 }
 
 /**
@@ -213,7 +220,8 @@ export function useSetActiveTask() {
  * - `activeTeamTask` - Currently active task
  */
 export function useTeamTasksState() {
-	const { setActiveTask, isUpdatingActiveTask, expectedActiveTaskIdRef, authUserRef, store } = useActiveTaskSetter();
+	const { setActiveTask, isUpdatingActiveTask, expectedActiveTaskIdRef, authUserRef, authUserId, store } =
+		useActiveTaskSetter();
 
 	const setAllTasks = useSetAtom(teamTasksState);
 	const tasks = useAtomValue(tasksByTeamState);
@@ -222,6 +230,11 @@ export function useTeamTasksState() {
 	const activeTeam = useAtomValue(activeTeamState);
 	const activeTeamTask = useAtomValue(activeTeamTaskState);
 	const activeTeamTaskRef = useSyncRef(activeTeamTask);
+	// The member's own task on the server, read from the team: the one the task bar and their card show
+	const memberTaskId = useMemo(() => {
+		const member = activeTeam?.members?.find((teamMember) => teamMember.employee?.userId === authUserId);
+		return memberTaskIdOf(member);
+	}, [activeTeam?.members, authUserId]);
 
 	// Sync active task from server (multi-device sync)
 	useConditionalUpdateEffect(
@@ -272,12 +285,26 @@ export function useTeamTasksState() {
 				setActiveTeamTaskIfChanged(store, validTask);
 				return;
 			}
-			const keepsHeldTask = isHeldTeamTask(activeTeamTaskRef.current, active_taskid, activeTeam?.id);
+			// No task of this team was chosen on this device: the timer takes the member's own task, the one the task
+			// bar shows (only a task they are assigned to, as there), and the cookies keep it on the next refreshes
+			const userId = authUserRef.current?.id;
+			const memberTask = getValidActiveTask(tasks, memberTaskId, activeTeam?.id);
+			const isAssignedToMember = !!memberTask?.members?.some((member) => member.userId === userId);
+			if (memberTask && isAssignedToMember) {
+				setActiveTeamTaskIfChanged(store, memberTask);
+				syncActiveTaskIdCookie(memberTask.id);
+				syncActiveUserTaskCookie(activeUserTaskCookieValue(memberTask, userId));
+				return;
+			}
+			// The member's own task, outside the loaded list, is held as the cookie's one is
+			const keepsHeldTask =
+				isHeldTeamTask(activeTeamTaskRef.current, active_taskid, activeTeam?.id) ||
+				isHeldTeamTask(activeTeamTaskRef.current, memberTaskId, activeTeam?.id);
 			if (tasksComplete && !keepsHeldTask) {
 				setActiveTeamTaskIfChanged(store, null);
 			}
 		},
-		[tasks, tasksComplete, authUserRef, activeTeam?.id],
+		[tasks, tasksComplete, authUserRef, activeTeam?.id, memberTaskId],
 		Boolean(activeTeamTask)
 	);
 
