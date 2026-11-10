@@ -559,7 +559,7 @@ function InboxPageContent() {
 						</div>
 					)}
 
-					<div className="flex shrink-0 items-center gap-1 overflow-x-auto px-4 pb-2">
+					<div className="flex shrink-0 items-center gap-1 overflow-x-auto px-4 pb-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
 						<SegmentedControl
 							items={filterItems}
 							value={isSecondary ? ('' as InboxFilter) : filter}

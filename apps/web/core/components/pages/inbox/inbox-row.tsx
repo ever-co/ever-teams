@@ -117,7 +117,7 @@ function InboxRowComponent({
 	return (
 		<div
 			className={cn(
-				'group/row relative flex items-start gap-3 rounded-xl py-2.5 pe-2 ps-3 transition-colors',
+				'group/row relative flex items-start gap-x-3 rounded-xl py-2.5 pe-2 ps-3 transition-colors [@media(hover:none)]:flex-wrap',
 				isCurrent ? 'bg-foreground/[0.06]' : 'hover:bg-foreground/[0.035]',
 				isSelected && 'bg-primary/[0.07]'
 			)}
@@ -174,8 +174,8 @@ function InboxRowComponent({
 					</span>
 				)}
 			</button>
-			{/* Over the row's end on hover; on a touch screen, beside the text, since nothing hovers there. */}
-			<div className="absolute end-2 top-1.5 flex items-center gap-0.5 rounded-lg bg-card p-0.5 opacity-0 shadow-sm shadow-black/10 hairline-ring ring-border transition-opacity group-hover/row:opacity-100 group-focus-within/row:opacity-100 [@media(hover:none)]:static [@media(hover:none)]:self-center [@media(hover:none)]:opacity-100">
+			{/* Over the row's end on hover; on a touch screen, a line of its own under the text, since nothing hovers there. */}
+			<div className="absolute end-2 top-1.5 flex items-center gap-0.5 rounded-lg bg-card p-0.5 opacity-0 shadow-sm shadow-black/10 hairline-ring ring-border transition-opacity group-hover/row:opacity-100 group-focus-within/row:opacity-100 [@media(hover:none)]:static [@media(hover:none)]:basis-full [@media(hover:none)]:justify-end [@media(hover:none)]:bg-transparent [@media(hover:none)]:p-0 [@media(hover:none)]:opacity-100 [@media(hover:none)]:[box-shadow:none]">
 				<button
 					type="button"
 					className={ACTION_CLASS}
