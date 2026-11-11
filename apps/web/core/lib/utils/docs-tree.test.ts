@@ -110,6 +110,20 @@ describe('spaces, titles and sorting', () => {
 		expect(privatePages.map((p) => p.id)).toEqual(['p']);
 	});
 
+	it('puts team pages in their team space, and a team page without its team in the workspace', () => {
+		const { workspace, privatePages, teamPages } = splitSpaces([
+			page('w'),
+			page('t1', { visibility: EDocumentVisibility.TEAM, organizationTeamId: 'team-a' }),
+			page('t2', { visibility: EDocumentVisibility.TEAM, organizationTeamId: 'team-b' }),
+			page('t3', { visibility: EDocumentVisibility.TEAM, organizationTeamId: 'team-a' }),
+			page('orphan', { visibility: EDocumentVisibility.TEAM, organizationTeamId: null })
+		]);
+		expect(workspace.map((p) => p.id)).toEqual(['w', 'orphan']);
+		expect(privatePages).toEqual([]);
+		expect(teamPages.get('team-a')?.map((p) => p.id)).toEqual(['t1', 't3']);
+		expect(teamPages.get('team-b')?.map((p) => p.id)).toEqual(['t2']);
+	});
+
 	it('reads a blank name as untitled', () => {
 		expect(pageTitle(page('x', { name: '  ' }), 'Untitled')).toBe('Untitled');
 		expect(pageTitle(page('x', { name: 'Plan' }), 'Untitled')).toBe('Plan');

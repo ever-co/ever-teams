@@ -1990,14 +1990,22 @@ describe('Ever Teams feature surface preservation', () => {
 		// 268 files and 348 verbs with the What's new changelog proxy (GET /api/changelog).
 		// 269 files and 349 verbs with the proxy of the organization's people for chat (GET /api/chat/people).
 		// 270 files and 350 verbs with the files of a conversation (GET /api/chat/conversations/[id]/files).
-		// 276 files and 356 verbs with the integrations' sync conflict proxies (/api/integration/{linear,asana,trello}/[id]/conflicts,
+		// 279 files and 360 verbs with the Docs live and collaboration proxies (/api/plugins/docs/live/status,
+		// documents/spaces, documents/[id]/space, follow (GET, POST), unfollow, mute, unmute, live/updates, live/awareness).
+		// 285 files and 366 verbs with the integrations' sync conflict proxies (/api/integration/{linear,asana,trello}/[id]/conflicts,
 		// GET, and [id]/conflicts/[conflictId]/resolve, POST).
-		expect(routes.filter((value) => /\/route\.[jt]s$/.test(value))).toHaveLength(276);
+		expect(routes.filter((value) => /\/route\.[jt]s$/.test(value))).toHaveLength(285);
 		expect(
 			routes.filter((value) => /\/route\.[jt]s::(?:GET|POST|PUT|PATCH|DELETE|HEAD|OPTIONS)$/.test(value))
-		).toHaveLength(356);
+		).toHaveLength(366);
 		expect(routes).toEqual(
 			expect.arrayContaining([
+				// Proxy mode twins of the platform's Docs live sessions and collaboration routes (2026-11-11)
+				'apps/web/app/api/plugins/docs/live/status/route.ts::GET',
+				'apps/web/app/api/plugins/docs/documents/[id]/live/updates/route.ts::POST',
+				'apps/web/app/api/plugins/docs/documents/[id]/live/awareness/route.ts::POST',
+				'apps/web/app/api/plugins/docs/documents/spaces/route.ts::GET',
+				'apps/web/app/api/plugins/docs/documents/[id]/follow/route.ts::GET',
 				// Proxy mode twins of Gauzy's public account deletion by e-mail link (2026-10-27)
 				'apps/web/app/api/account-deletion/request/route.ts::POST',
 				'apps/web/app/api/account-deletion/verify/route.ts::POST',
