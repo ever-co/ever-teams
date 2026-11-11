@@ -1995,10 +1995,11 @@ describe('Ever Teams feature surface preservation', () => {
 		// 280 files and 361 verbs with the proxy of the labels added in bulk from the catalog (POST /api/tags/bulk).
 		// 281 files and 362 verbs with the proxy of the favourite tasks of every team (GET /api/favorite/type).
 		// 282 files and 363 verbs with the favicons of the visited sites, opt-in (GET /api/favicons/[host]).
-		expect(routes.filter((value) => /\/route\.[jt]s$/.test(value))).toHaveLength(282);
+		// 283 files and 364 verbs with the workspace creation (POST /api/auth/create-workspace, #5025).
+		expect(routes.filter((value) => /\/route\.[jt]s$/.test(value))).toHaveLength(283);
 		expect(
 			routes.filter((value) => /\/route\.[jt]s::(?:GET|POST|PUT|PATCH|DELETE|HEAD|OPTIONS)$/.test(value))
-		).toHaveLength(363);
+		).toHaveLength(364);
 		expect(routes).toEqual(
 			expect.arrayContaining([
 				// Proxy mode twins of the platform's Docs live sessions and collaboration routes (2026-11-11)

@@ -35,6 +35,15 @@ const SMTP_CONFIGURED = Boolean(SMTP_USERNAME && SMTP_PASSWORD);
  */
 type EverIdProvisionResult = 'ok' | 'token_expired' | 'has_workspace' | 'failed';
 
+/** The session of a workspace just set up, for what the caller does in it next (invitations, #5025). */
+export interface ProvisionedWorkspace {
+	accessToken: string;
+	tenantId: string;
+	organizationId: string;
+	teamId: string;
+	userId: string;
+}
+
 interface EverIdProvisionInput {
 	req: Request;
 	response: NextResponse;
@@ -44,7 +53,21 @@ interface EverIdProvisionInput {
 	fallbackUserId?: string;
 	/** The team (and tenant, organization) name; by default "<name>'s Team". */
 	team?: string;
+	/** The tenant and organization name, when it is not the team's (a workspace created from the app, #5025). */
+	workspace?: string;
 	timezone?: string;
+	/** The language of the session; English by default. */
+	languageId?: string;
+	/**
+	 * Told once the workspace exists (its tenant, organization, employee and team), before its session is opened: a
+	 * caller that then gets `failed` knows the workspace was created all the same (#5025).
+	 */
+	onSetUp?: (workspace: Omit<ProvisionedWorkspace, 'accessToken'>) => void;
+	/**
+	 * Run once the workspace is set up and signed in, with its session. Its failure does not undo the workspace: the
+	 * caller notes it (the invitations of a new workspace).
+	 */
+	onProvisioned?: (workspace: ProvisionedWorkspace) => Promise<void>;
 }
 
 function isRecord(value: unknown): value is Record<string, unknown> {
@@ -92,6 +115,7 @@ export async function provisionEverIdWorkspace(input: EverIdProvisionInput): Pro
 		let auth_token = signin.data.token;
 		const userId = signin.data.user?.id ?? input.fallbackUserId ?? '';
 		const team = input.team || defaultTeamName(user);
+		const workspace = input.workspace || team;
 
 		let tenantId: string;
 		let organizationId: string | undefined;
@@ -133,7 +157,7 @@ export async function provisionEverIdWorkspace(input: EverIdProvisionInput): Pro
 				employeeId = employee?.id;
 			}
 		} else {
-			const { data: tenant } = await createTenantRequest(team, auth_token);
+			const { data: tenant } = await createTenantRequest(workspace, auth_token);
 			tenantId = tenant.id;
 			if (SMTP_CONFIGURED) {
 				await createTenantSmtpRequest({ access_token: auth_token, tenantId });
@@ -142,7 +166,7 @@ export async function provisionEverIdWorkspace(input: EverIdProvisionInput): Pro
 
 		if (!organizationId) {
 			const { data: organization } = await createOrganizationRequest(
-				{ currency: 'USD', name: team, tenantId, invitesAllowed: true },
+				{ currency: 'USD', name: workspace, tenantId, invitesAllowed: true },
 				auth_token
 			);
 			organizationId = organization.id;
@@ -166,6 +190,11 @@ export async function provisionEverIdWorkspace(input: EverIdProvisionInput): Pro
 			},
 			auth_token
 		);
+		try {
+			input.onSetUp?.({ tenantId, organizationId, teamId: createdTeam.id, userId });
+		} catch {
+			// The caller's note: never a failure of the setup
+		}
 
 		const { data: refreshed } = await refreshTokenRequest(signin.data.refresh_token);
 		auth_token = refreshed.token;
@@ -178,11 +207,15 @@ export async function provisionEverIdWorkspace(input: EverIdProvisionInput): Pro
 				teamId: createdTeam.id,
 				tenantId,
 				organizationId,
-				languageId: 'en',
+				languageId: input.languageId || 'en',
 				userId
 			},
 			{ req: input.req, res: input.response }
 		);
+		if (input.onProvisioned) {
+			const session = { accessToken: auth_token, tenantId, organizationId, teamId: createdTeam.id, userId };
+			await input.onProvisioned(session).catch(() => undefined);
+		}
 		return 'ok';
 	} catch {
 		return 'failed';

@@ -334,6 +334,16 @@
       "source": "router"
     },
     {
+      "path": "/:locale/workspace/new",
+      "file": "apps/web/app/[locale]/(main)/workspace/new/page.tsx",
+      "source": "router"
+    },
+    {
+      "path": "/:locale/workspace/welcome",
+      "file": "apps/web/app/[locale]/(main)/workspace/welcome/page.tsx",
+      "source": "router"
+    },
+    {
       "path": "/:locale/work-diary",
       "file": "apps/web/app/[locale]/(main)/work-diary/page.tsx",
       "source": "router"
