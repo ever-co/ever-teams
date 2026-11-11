@@ -4102,9 +4102,15 @@
 			"ICON_SEARCH": "Symbole suchen",
 			"ICON_EMPTY": "Kein Symbol passt zu dieser Suche.",
 			"iconGroups": {
-				"statuses": "Status-Symbole",
-				"sizes": "Größen-Symbole",
-				"priorities": "Prioritäts-Symbole"
+				"classic": "Klassische Symbole"
+			},
+			"iconLibrary": {
+				"progress": "Fortschritt",
+				"priority": "Priorität",
+				"size": "Größe",
+				"work": "Arbeit",
+				"objects": "Objekte",
+				"symbols": "Zeichen"
 			},
 			"COLOR": "Farbe",
 			"CUSTOM_COLOR": "Eigene Farbe",

@@ -4102,9 +4102,15 @@
 			"ICON_SEARCH": "Pictogrammen zoeken",
 			"ICON_EMPTY": "Geen pictogram past bij deze zoekopdracht.",
 			"iconGroups": {
-				"statuses": "Statuspictogrammen",
-				"sizes": "Groottepictogrammen",
-				"priorities": "Prioriteitspictogrammen"
+				"classic": "Klassieke pictogrammen"
+			},
+			"iconLibrary": {
+				"progress": "Voortgang",
+				"priority": "Prioriteit",
+				"size": "Grootte",
+				"work": "Werk",
+				"objects": "Objecten",
+				"symbols": "Symbolen"
 			},
 			"COLOR": "Kleur",
 			"CUSTOM_COLOR": "Eigen kleur",

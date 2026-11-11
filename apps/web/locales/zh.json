@@ -4102,9 +4102,15 @@
 			"ICON_SEARCH": "搜索图标",
 			"ICON_EMPTY": "没有符合搜索的图标。",
 			"iconGroups": {
-				"statuses": "状态图标",
-				"sizes": "规模图标",
-				"priorities": "优先级图标"
+				"classic": "经典图标"
+			},
+			"iconLibrary": {
+				"progress": "进度",
+				"priority": "优先级",
+				"size": "大小",
+				"work": "工作",
+				"objects": "物品",
+				"symbols": "符号"
 			},
 			"COLOR": "颜色",
 			"CUSTOM_COLOR": "自定义颜色",

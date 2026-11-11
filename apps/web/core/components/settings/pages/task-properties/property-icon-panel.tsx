@@ -3,35 +3,51 @@
 import { useMemo, useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { Input } from '@/core/components/common/input';
-import { MENU_ROW } from '@/core/components/common/menu-recipes';
-import { SelectedMark } from '@/core/components/common/selected-mark';
 import {
-	ICON_GROUP_ORDER,
+	LibraryIcon,
+	PROPERTY_ICON_CATALOG,
+	PROPERTY_ICON_CATEGORIES,
+	propertyIconMatches
+} from '@/core/components/icons/property-icon-catalog';
+import { classicIconGlyphOf, libraryIconKeyOf, libraryIconValue } from '@/core/lib/utils/property-icon-value';
+import { TaskPropertyIcon } from '@/core/components/tasks/task-property-icon';
+import {
 	iconOptionLabel,
 	iconOptionMatches,
 	propertyIconOptions,
-	TaskPropertySettingsKind
+	type TaskPropertySettingsKind
 } from '@/core/lib/utils/settings-task-properties';
-import { ICON_GROUP_LABEL_KEYS } from './property-i18n';
-import { PropertyIconImage } from './property-icon-image';
+import { CLASSIC_ICON_GROUP_LABEL_KEYS, CLASSIC_ICONS_LABEL_KEY, ICON_CATEGORY_LABEL_KEYS } from './property-i18n';
+
+const GROUP_LABEL = 'px-2 pt-1.5 pb-1 text-xs font-medium text-muted-foreground';
+const ICON_GRID = 'grid grid-cols-7 gap-0.5 px-1 pb-1';
+const ICON_CELL =
+	'flex size-8 cursor-pointer items-center justify-center rounded-md text-foreground outline-none hover:bg-foreground/[0.06] focus-visible:ring-[3px] focus-visible:ring-ring/25 aria-pressed:bg-primary/10 aria-pressed:text-primary aria-pressed:ring-1 aria-pressed:ring-primary/40';
 
 interface PropertyIconPanelProps {
 	kind: TaskPropertySettingsKind;
+	/** The stored icon, see `property-icon-value.ts`. */
 	value: string | null;
-	onPick: (path: string) => void;
+	onPick: (value: string) => void;
 }
 
+/**
+ * The icon library by category, then the classic icons Gauzy serves, kept so a property can go back to one. One
+ * search filters both: a library icon by its words, a classic one by its name.
+ */
 export function PropertyIconPanel({ kind, value, onPick }: Readonly<PropertyIconPanelProps>) {
 	const t = useTranslations();
 	const [query, setQuery] = useState('');
-	const options = useMemo(() => propertyIconOptions(kind), [kind]);
-	const visibleOptions = options.filter((option) => iconOptionMatches(option, query));
-	const groups = ICON_GROUP_ORDER.map((group) => ({
-		group,
-		options: visibleOptions.filter((option) => option.group === group)
-	}));
-	const filledGroups = groups.filter((entry) => entry.options.length > 0);
-	const hasResults = filledGroups.length > 0;
+	const currentLibraryKey = libraryIconKeyOf(value);
+
+	const libraryGroups = PROPERTY_ICON_CATEGORIES.map((category) => ({
+		category,
+		items: PROPERTY_ICON_CATALOG.filter((item) => item.category === category && propertyIconMatches(item, query))
+	})).filter((group) => group.items.length > 0);
+	const classicOptions = useMemo(() => propertyIconOptions(kind), [kind]);
+	const visibleClassicOptions = classicOptions.filter((option) => iconOptionMatches(option, query));
+	const hasResults = libraryGroups.length > 0 || visibleClassicOptions.length > 0;
+	const classicLabel = t(CLASSIC_ICONS_LABEL_KEY);
 
 	return (
 		<div className="flex flex-col">
@@ -46,31 +62,62 @@ export function PropertyIconPanel({ kind, value, onPick }: Readonly<PropertyIcon
 					className="h-8"
 				/>
 			</div>
-			<div className="max-h-64 overflow-y-auto overscroll-contain p-1">
-				{filledGroups.map((entry) => {
-					const groupLabel = t(ICON_GROUP_LABEL_KEYS[entry.group]);
+			<div className="max-h-72 overflow-y-auto overscroll-contain py-1">
+				{libraryGroups.map(({ category, items }) => {
+					const groupLabel = t(ICON_CATEGORY_LABEL_KEYS[category]);
 					return (
-						<fieldset key={entry.group} aria-label={groupLabel} className="min-w-0">
-							<p className="px-2 pt-1.5 pb-1 text-xs font-medium text-muted-foreground">{groupLabel}</p>
-							{entry.options.map((option) => {
-								const isCurrent = option.path === value;
+						<fieldset key={category} aria-label={groupLabel} className="min-w-0">
+							<p className={GROUP_LABEL}>{groupLabel}</p>
+							<div className={ICON_GRID}>
+								{items.map((item) => {
+									const name = item.key.split('-').join(' ');
+									return (
+										<button
+											key={item.key}
+											type="button"
+											title={name}
+											aria-label={name}
+											aria-pressed={item.key === currentLibraryKey}
+											onClick={() => onPick(libraryIconValue(item.key))}
+											className={ICON_CELL}
+										>
+											<LibraryIcon iconKey={item.key} className="size-4" />
+										</button>
+									);
+								})}
+							</div>
+						</fieldset>
+					);
+				})}
+				{visibleClassicOptions.length > 0 && (
+					<fieldset aria-label={classicLabel} className="min-w-0">
+						<p className={GROUP_LABEL}>{classicLabel}</p>
+						<div className={ICON_GRID}>
+							{visibleClassicOptions.map((option) => {
+								// Named with its property: `in progress` is also a library icon, `medium` a size and a priority
+								const name = `${iconOptionLabel(option)} (${t(CLASSIC_ICON_GROUP_LABEL_KEYS[option.group])})`;
+								const glyph = classicIconGlyphOf(option.path);
 								return (
 									<button
 										key={option.path}
 										type="button"
-										aria-pressed={isCurrent}
+										title={name}
+										aria-label={name}
+										aria-pressed={option.path === value}
 										onClick={() => onPick(option.path)}
-										className={MENU_ROW}
+										className={ICON_CELL}
 									>
-										<PropertyIconImage path={option.path} />
-										<span className="capitalize">{iconOptionLabel(option)}</span>
-										{isCurrent && <SelectedMark className="ml-auto" />}
+										{/* Drawn as the glyph the property will show, with no file to load */}
+										<TaskPropertyIcon
+											kind={glyph?.kind ?? kind}
+											name={glyph?.name ?? option.name}
+										/>
 									</button>
 								);
 							})}
-						</fieldset>
-					);
-				})}
+						</div>
+					</fieldset>
+				)}
 				{!hasResults && (
 					<p className="px-2 py-3 text-xs text-muted-foreground">{t('settings.taskProperties.ICON_EMPTY')}</p>
 				)}

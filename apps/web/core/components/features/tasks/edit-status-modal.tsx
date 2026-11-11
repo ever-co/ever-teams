@@ -16,7 +16,6 @@ import {
 	dialogTitleText
 } from '@/core/components/common/dialog';
 import { useForm } from 'react-hook-form';
-import { generateIconList, IIcon } from '@/core/components/settings/icon-items';
 import { useTranslations } from 'next-intl';
 import IconPopover from '@/core/components/settings/icon-popover';
 import { Spinner } from '@/core/components/icons';
@@ -34,7 +33,7 @@ const EditStatusModal = ({ status, onClose, setColumn }: { status: any; onClose:
 	const { setTaskStatuses } = useTaskStatusesQuery();
 	const [createNew] = useState(status);
 	const t = useTranslations();
-	const { register, handleSubmit, setValue, getValues } = useForm({
+	const { register, handleSubmit, setValue, control } = useForm({
 		defaultValues: {
 			name: status.name || '',
 			color: status.color || '',
@@ -89,18 +88,6 @@ const EditStatusModal = ({ status, onClose, setColumn }: { status: any; onClose:
 			});
 		}
 	};
-	const taskStatusIconList: IIcon[] = generateIconList('task-statuses', [
-		'open',
-		'in-progress',
-		'ready',
-		'in-review',
-		'blocked',
-		'completed'
-	]);
-	const taskSizesIconList: IIcon[] = generateIconList('task-sizes', ['x-large', 'large', 'medium', 'small', 'tiny']);
-	const taskPrioritiesIconList: IIcon[] = generateIconList('task-priorities', ['urgent', 'high', 'medium', 'low']);
-
-	const iconList: IIcon[] = [...taskStatusIconList, ...taskSizesIconList, ...taskPrioritiesIconList];
 	let headingAction = t('common.EDIT');
 	if (createNew) {
 		headingAction = t('common.NEW');
@@ -126,11 +113,7 @@ const EditStatusModal = ({ status, onClose, setColumn }: { status: any; onClose:
 					/>
 
 					<div className="flex items-center gap-3">
-						<IconPopover
-							iconList={iconList}
-							setValue={setValue as any}
-							active={iconList.find((v) => v.fullUrl === getValues('icon'))}
-						/>
+						<IconPopover kind="status" control={control} setValue={setValue} />
 						<ColorPicker defaultColor={status.color} onChange={(e) => setValue('color', e)} />
 					</div>
 				</div>
