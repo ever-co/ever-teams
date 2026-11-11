@@ -8,7 +8,8 @@ import {
 	nextFocusIndex,
 	snoozeUntil,
 	tabOfFilter,
-	toInboxEntry
+	toInboxEntry,
+	withRefreshedHeldEntry
 } from './inbox-entry';
 
 function item(overrides: Partial<IInboxItem> = {}): IInboxItem {
@@ -247,5 +248,25 @@ describe('messagePartsOfTitle', () => {
 		expect(messagePartsOfTitle('Ana sent you a message: Hi')).toEqual({ place: null, preview: 'Hi' });
 		expect(messagePartsOfTitle('Ana sent you a message')).toEqual({ place: null, preview: null });
 		expect(messagePartsOfTitle('Ana sent you a message: ')).toEqual({ place: null, preview: null });
+	});
+});
+
+/**
+ * The pane holds an entry after it left the list (an unread entry, read in the Unread tab). Its copy is read back from
+ * the platform, and the answer must land only on the entry it was asked for, in the workspace it was asked in.
+ */
+describe('withRefreshedHeldEntry', () => {
+	const held = { scopeKey: 'tenant:org:user', entry: toInboxEntry(item({ id: 'item-1', title: 'Before' })) };
+	const fresh = toInboxEntry(item({ id: 'item-1', title: 'After another tab answered' }));
+
+	it('takes what the platform holds for the held entry', () => {
+		expect(withRefreshedHeldEntry(held, 'tenant:org:user', fresh)).toEqual({ scopeKey: 'tenant:org:user', entry: fresh });
+	});
+
+	it('ignores an answer for another entry, another workspace, or when nothing is held any more', () => {
+		const other = toInboxEntry(item({ id: 'item-2' }));
+		expect(withRefreshedHeldEntry(held, 'tenant:org:user', other)).toBe(held);
+		expect(withRefreshedHeldEntry(held, 'tenant:other-org:user', fresh)).toBe(held);
+		expect(withRefreshedHeldEntry(null, 'tenant:org:user', fresh)).toBeNull();
 	});
 });
