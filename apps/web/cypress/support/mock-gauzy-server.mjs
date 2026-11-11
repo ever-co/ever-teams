@@ -332,8 +332,9 @@ const NEW_WORKSPACE = Object.freeze({
 /**
  * Another workspace for the signed-in person (#5025): Gauzy opens the account it is created with, then the sign-up's
  * steps set it up (workspace sign-in, tenant, organization, employee, team, invitations). What each step was asked is
- * recorded in `state.workspaceCreation`; `scenario.tenantRegistrationClosed` makes Gauzy refuse the opening. Once
- * created, the requests of the new workspace (its `tenant-id`) read its name and its team, as Gauzy answers them.
+ * recorded in `state.workspaceCreation`; `scenario.tenantRegistrationClosed` makes Gauzy refuse the opening, and
+ * `scenario.newWorkspaceRefreshFails` the new workspace's session once it is set up. Once created, the requests of the
+ * new workspace (its `tenant-id`) read its name and its team, as Gauzy answers them.
  */
 function workspaceCreationResponse(method, pathname, data, state, body, requestTenantId) {
 	const created = state.workspaceCreation;
@@ -429,8 +430,12 @@ function workspaceCreationResponse(method, pathname, data, state, body, requestT
 		}
 		return { email: data.baseUser.email, token: NEW_WORKSPACE.signinToken };
 	}
-	// The new workspace's session, a token the app can read (the other refreshes answer a placeholder)
+	// The new workspace's session, a token the app can read (the other refreshes answer a placeholder).
+	// `scenario.newWorkspaceRefreshFails`: Gauzy cannot answer it, once the workspace and its team exist.
 	if (pathname === '/api/auth/refresh-token' && body?.refresh_token === 'synthetic-new-workspace-refresh') {
+		if (state.scenario.newWorkspaceRefreshFails) {
+			return { [HTTP_STATUS]: 500, statusCode: 500, message: 'Internal server error' };
+		}
 		return {
 			token: syntheticToken(NEW_WORKSPACE.userId, NEW_WORKSPACE.organizationId, 'new-workspace-refreshed'),
 			refresh_token: 'synthetic-new-workspace-refresh'

@@ -66,4 +66,30 @@ describe('workspace creation', () => {
 			cy.contains('That change was not saved').should('not.exist');
 		});
 	});
+
+	it('waits for a running timer to stop: the new workspace would leave it counting out of sight', () => {
+		cy.mockScenario({ timerRunning: true });
+		cy.hardVisit('/workspace/new');
+
+		cy.contains('Stop your timer first', { timeout: 20_000 }).should('be.visible');
+		cy.get('#workspace-name').type('Lovelace Studio');
+		cy.contains('button', 'Create workspace').should('be.disabled');
+		creationState().then((created) => expect(created.openings).to.equal(0));
+	});
+
+	it('says a workspace created but not opened exists, and offers no retry that would create a second one', () => {
+		cy.mockScenario({ newWorkspaceRefreshFails: true });
+		cy.getCookie('auth-tenant-id').then((cookie) => {
+			cy.hardVisit('/workspace/new');
+			cy.get('#workspace-name', { timeout: 20_000 }).type('Lovelace Studio');
+			cy.contains('button', 'Create workspace').click();
+
+			cy.contains('Your workspace was created, but could not be opened', { timeout: 30_000 }).should(
+				'be.visible'
+			);
+			cy.contains('button', 'Create workspace').should('be.disabled');
+			cy.getCookie('auth-tenant-id').its('value').should('eq', cookie?.value);
+			creationState().then((created) => expect(created.team?.name).to.equal('Lovelace Studio'));
+		});
+	});
 });
