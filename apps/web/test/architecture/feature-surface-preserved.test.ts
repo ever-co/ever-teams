@@ -2002,12 +2002,17 @@ describe('Ever Teams feature surface preservation', () => {
 		// 283 files and 364 verbs with the workspace creation (POST /api/auth/create-workspace, #5025).
 		// 289 files and 370 verbs with the integrations' sync conflict proxies (/api/integration/{linear,asana,trello}/[id]/conflicts,
 		// GET, and [id]/conflicts/[conflictId]/resolve, POST).
-		expect(routes.filter((value) => /\/route\.[jt]s$/.test(value))).toHaveLength(289);
+		// 291 files and 373 verbs with the scheduled meetings' proxies (/api/employee-appointment GET, POST and [id] DELETE).
+		expect(routes.filter((value) => /\/route\.[jt]s$/.test(value))).toHaveLength(291);
 		expect(
 			routes.filter((value) => /\/route\.[jt]s::(?:GET|POST|PUT|PATCH|DELETE|HEAD|OPTIONS)$/.test(value))
-		).toHaveLength(370);
+		).toHaveLength(373);
 		expect(routes).toEqual(
 			expect.arrayContaining([
+				// Proxy mode twins of Gauzy's employee appointments, the scheduled meetings (#5021)
+				'apps/web/app/api/employee-appointment/route.ts::GET',
+				'apps/web/app/api/employee-appointment/route.ts::POST',
+				'apps/web/app/api/employee-appointment/[id]/route.ts::DELETE',
 				// Proxy mode twins of the platform's Docs live sessions and collaboration routes (2026-11-11)
 				'apps/web/app/api/plugins/docs/live/status/route.ts::GET',
 				'apps/web/app/api/plugins/docs/documents/[id]/live/updates/route.ts::POST',

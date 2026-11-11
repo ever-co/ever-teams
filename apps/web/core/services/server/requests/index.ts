@@ -39,3 +39,4 @@ export * from './organization-projects';
 export * from './currency';
 export * from './favorite';
 export * from './default';
+export * from './employee-appointment';
