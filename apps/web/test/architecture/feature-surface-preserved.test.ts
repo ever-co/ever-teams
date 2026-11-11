@@ -2001,12 +2001,24 @@ describe('Ever Teams feature surface preservation', () => {
 		// 286 files and 367 verbs with the link previews of chat messages (GET /api/chat/link-preview).
 		// 288 files and 370 verbs with the comment proxy (/api/comment/[id], PUT and DELETE) and the Docs Markdown export
 		// (GET /api/plugins/docs/documents/[id]/export/markdown), which develop added without raising these numbers.
-		expect(routes.filter((value) => /\/route\.[jt]s$/.test(value))).toHaveLength(288);
+		// 294 files and 379 verbs with the task automations proxies (/api/task-automations GET POST, templates GET,
+		// order PUT, [id] GET PUT DELETE, [id]/test POST, [id]/runs GET).
+		expect(routes.filter((value) => /\/route\.[jt]s$/.test(value))).toHaveLength(294);
 		expect(
 			routes.filter((value) => /\/route\.[jt]s::(?:GET|POST|PUT|PATCH|DELETE|HEAD|OPTIONS)$/.test(value))
-		).toHaveLength(370);
+		).toHaveLength(379);
 		expect(routes).toEqual(
 			expect.arrayContaining([
+				// Proxy mode twins of the platform's task automations routes (2026-11-11)
+				'apps/web/app/api/task-automations/route.ts::GET',
+				'apps/web/app/api/task-automations/route.ts::POST',
+				'apps/web/app/api/task-automations/templates/route.ts::GET',
+				'apps/web/app/api/task-automations/order/route.ts::PUT',
+				'apps/web/app/api/task-automations/[id]/route.ts::GET',
+				'apps/web/app/api/task-automations/[id]/route.ts::PUT',
+				'apps/web/app/api/task-automations/[id]/route.ts::DELETE',
+				'apps/web/app/api/task-automations/[id]/test/route.ts::POST',
+				'apps/web/app/api/task-automations/[id]/runs/route.ts::GET',
 				// Proxy mode twins of the platform's Docs live sessions and collaboration routes (2026-11-11)
 				'apps/web/app/api/plugins/docs/live/status/route.ts::GET',
 				'apps/web/app/api/plugins/docs/documents/[id]/live/updates/route.ts::POST',
