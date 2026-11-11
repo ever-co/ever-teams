@@ -125,6 +125,28 @@ function subjectOf(entity: string | null, chatParts: { place: string | null } | 
 	return quoted;
 }
 
+/**
+ * The entry the pane holds after a request the platform refused: it takes back what that request set on it, and only
+ * that field, so a change made by another action meanwhile stays. When a later action set the field again since, the
+ * entry keeps it.
+ *
+ * @param held The entry the pane holds now.
+ * @param refused The entries the refused request was for, as they were when it was made.
+ * @param field The field the request set.
+ * @param value The value it set.
+ * @returns The entry with the field as it was before the request, or `held` itself when there is nothing to take back.
+ */
+export function withRefusedChangeUndone(
+	held: InboxEntry,
+	refused: readonly InboxEntry[],
+	field: 'isUnread' | 'isArchived',
+	value: boolean
+): InboxEntry {
+	const before = refused.find((entry) => entry.id === held.id);
+	if (!before || held[field] !== value || before[field] === value) return held;
+	return { ...held, [field]: before[field] };
+}
+
 /** An entry from a platform inbox item. */
 export function toInboxEntry(item: IInboxItem): InboxEntry {
 	const metadata = item.metadata ?? {};

@@ -44,7 +44,8 @@ import {
 	groupInboxEntriesByDay,
 	hasChatPages,
 	snoozeUntil,
-	toInboxEntry
+	toInboxEntry,
+	withRefusedChangeUndone
 } from '@/core/lib/utils/inbox-entry';
 import { chatService } from '@/core/services/client/api/chat';
 import { inboxService } from '@/core/services/client/api/inbox';
@@ -282,28 +283,40 @@ function InboxPageContent() {
 		[actions, patchOpened, refreshHeld]
 	);
 
+	/**
+	 * A read or an archive without the inbox extension, one request per entry. The bell's cache rolls back what the
+	 * platform refused on its own; the copy the pane holds after the entry left the list takes back the field the refused
+	 * request set (`withRefusedChangeUndone`), then the action fails.
+	 */
+	const runLegacy = useCallback(
+		async (targets: InboxEntry[], field: 'isUnread' | 'isArchived', value: boolean, request: (id: string) => Promise<unknown>) => {
+			patchOpened(
+				targets.map((entry) => entry.id),
+				{ [field]: value }
+			);
+			const results = await Promise.allSettled(targets.map((entry) => request(entry.id)));
+			const refused = targets.filter((_, index) => results[index].status === 'rejected');
+			if (refused.length === 0) return;
+			setOpened((kept) => (kept ? { ...kept, entry: withRefusedChangeUndone(kept.entry, refused, field, value) } : kept));
+			throw (results.find((result) => result.status === 'rejected') as PromiseRejectedResult).reason;
+		},
+		[patchOpened]
+	);
+
 	const setRead = useCallback(
 		async (targets: InboxEntry[], isRead: boolean) => {
 			if (usesExtension) return setState(targets.map((entry) => entry.id), { isRead });
-			patchOpened(
-				targets.map((entry) => entry.id),
-				{ isUnread: !isRead }
-			);
-			await Promise.all(targets.map((entry) => legacyActions.setRead(entry.id, isRead)));
+			await runLegacy(targets, 'isUnread', !isRead, (id) => legacyActions.setRead(id, isRead));
 		},
-		[legacyActions, patchOpened, setState, usesExtension]
+		[legacyActions, runLegacy, setState, usesExtension]
 	);
 
 	const setArchived = useCallback(
 		async (targets: InboxEntry[], isArchived: boolean) => {
 			if (usesExtension) return setState(targets.map((entry) => entry.id), { isArchived });
-			patchOpened(
-				targets.map((entry) => entry.id),
-				{ isArchived }
-			);
-			await Promise.all(targets.map((entry) => (isArchived ? legacyActions.archive(entry.id) : legacyActions.unarchive(entry.id))));
+			await runLegacy(targets, 'isArchived', isArchived, (id) => (isArchived ? legacyActions.archive(id) : legacyActions.unarchive(id)));
 		},
-		[legacyActions, patchOpened, setState, usesExtension]
+		[legacyActions, runLegacy, setState, usesExtension]
 	);
 
 	/** Goes to what the entry is about: the task drawer, the conversation at the message, or the entry's own link. */
@@ -397,6 +410,10 @@ function InboxPageContent() {
 						? { ...data, pages: data.pages.map((page) => ({ ...page, items: page.items.map((item) => (item.id === answered.id ? { ...item, ...answered } : item)) })) }
 						: data
 				);
+				// And into the entry the pane holds after it left the list, which no cached page has. Only the answer: the
+				// reply's own recipient state may be partial.
+				const { awaitsDecision, decision } = toInboxEntry(answered);
+				patchOpened([answered.id], { awaitsDecision, decision });
 				toast(t('inbox.DECISION.SENT'));
 				return true;
 			} catch (error) {
@@ -407,7 +424,7 @@ function InboxPageContent() {
 				void queryClient.invalidateQueries({ queryKey: ['inbox'] });
 			}
 		},
-		[queryClient, t]
+		[patchOpened, queryClient, t]
 	);
 
 	const handleSnooze = useCallback(

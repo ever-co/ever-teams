@@ -8,7 +8,8 @@ import {
 	nextFocusIndex,
 	snoozeUntil,
 	tabOfFilter,
-	toInboxEntry
+	toInboxEntry,
+	withRefusedChangeUndone
 } from './inbox-entry';
 
 function item(overrides: Partial<IInboxItem> = {}): IInboxItem {
@@ -247,5 +248,34 @@ describe('messagePartsOfTitle', () => {
 		expect(messagePartsOfTitle('Ana sent you a message: Hi')).toEqual({ place: null, preview: 'Hi' });
 		expect(messagePartsOfTitle('Ana sent you a message')).toEqual({ place: null, preview: null });
 		expect(messagePartsOfTitle('Ana sent you a message: ')).toEqual({ place: null, preview: null });
+	});
+});
+
+/**
+ * Without the inbox extension the pane's copy of an entry that left the list is all it has; when the platform refuses
+ * a read or an archive, the bell's cache rolls back on its own and the copy has to as well.
+ */
+describe('withRefusedChangeUndone', () => {
+	const unread = toInboxEntry(item());
+	const read = { ...unread, isUnread: false };
+
+	it('takes back what the refused request set', () => {
+		expect(withRefusedChangeUndone(read, [unread], 'isUnread', false)).toEqual(unread);
+		const archived = { ...read, isArchived: true };
+		expect(withRefusedChangeUndone(archived, [read], 'isArchived', true)).toEqual(read);
+	});
+
+	it('keeps whatever another action changed on it meanwhile', () => {
+		const archivedMeanwhile = { ...read, isArchived: true };
+		expect(withRefusedChangeUndone(archivedMeanwhile, [unread], 'isUnread', false)).toEqual({ ...unread, isArchived: true });
+	});
+
+	it('keeps the field when a later action set it again since', () => {
+		expect(withRefusedChangeUndone(unread, [unread], 'isUnread', false)).toBe(unread);
+	});
+
+	it('leaves an entry the request was not for, or one it did not change', () => {
+		expect(withRefusedChangeUndone(read, [{ ...unread, id: 'other' }], 'isUnread', false)).toBe(read);
+		expect(withRefusedChangeUndone(read, [read], 'isUnread', false)).toBe(read);
 	});
 });
