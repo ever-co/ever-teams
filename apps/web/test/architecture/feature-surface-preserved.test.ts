@@ -2003,10 +2003,12 @@ describe('Ever Teams feature surface preservation', () => {
 		// 289 files and 370 verbs with the integrations' sync conflict proxies (/api/integration/{linear,asana,trello}/[id]/conflicts,
 		// GET, and [id]/conflicts/[conflictId]/resolve, POST).
 		// 291 files and 373 verbs with the scheduled meetings' proxies (/api/employee-appointment GET, POST and [id] DELETE).
-		expect(routes.filter((value) => /\/route\.[jt]s$/.test(value))).toHaveLength(291);
+		// 293 files and 376 verbs with the Docs comment edit/delete (/api/comment/[id] PUT, DELETE) and the Markdown export
+		// (/api/plugins/docs/documents/[id]/export/markdown GET) of #5062.
+		expect(routes.filter((value) => /\/route\.[jt]s$/.test(value))).toHaveLength(293);
 		expect(
 			routes.filter((value) => /\/route\.[jt]s::(?:GET|POST|PUT|PATCH|DELETE|HEAD|OPTIONS)$/.test(value))
-		).toHaveLength(373);
+		).toHaveLength(376);
 		expect(routes).toEqual(
 			expect.arrayContaining([
 				// Proxy mode twins of Gauzy's employee appointments, the scheduled meetings (#5021)
