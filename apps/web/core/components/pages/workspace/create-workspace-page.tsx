@@ -14,7 +14,11 @@ import { DialogFieldLabel } from '@/core/components/common/dialog-field-label';
 import { controlRecipe, Input } from '@/core/components/common/input';
 import { Notice } from '@/core/components/common/notice';
 import { Building } from '@/core/components/icons';
-import { createWorkspaceErrorCodeOf, useCreateWorkspace } from '@/core/hooks/auth/use-create-workspace';
+import {
+	createWorkspaceCheckoutUrlOf,
+	createWorkspaceErrorCodeOf,
+	useCreateWorkspace
+} from '@/core/hooks/auth/use-create-workspace';
 import { useUserQuery } from '@/core/hooks/queries/user-user.query';
 import { cn } from '@/core/lib/helpers';
 import { MAX_EMAILS_PER_INVITE } from '@/core/lib/validation/invite';
@@ -90,6 +94,8 @@ export function CreateWorkspacePage() {
 	});
 
 	const failure = creation.isError ? createWorkspaceErrorCodeOf(creation.error) : null;
+	// Where the sign-up has a paywall: the checkout to buy the product, then create again
+	const checkoutUrl = failure === 'SUBSCRIPTION_REQUIRED' ? createWorkspaceCheckoutUrlOf(creation.error) : null;
 	const isUnconfirmed = isAddressUnconfirmed || failure === 'ADDRESS_UNCONFIRMED';
 	// Created but not opened, or perhaps created: another try could create a second workspace
 	const isCreatedUnopened = failure === 'CREATED_NOT_OPENED';
@@ -149,6 +155,22 @@ export function CreateWorkspacePage() {
 						tone="error"
 						title={t('workspaceCreation.REGISTRATION_CLOSED_TITLE')}
 						description={t('workspaceCreation.REGISTRATION_CLOSED_DESCRIPTION')}
+					/>
+				)}
+				{failure === 'SUBSCRIPTION_REQUIRED' && (
+					<Notice
+						tone="warning"
+						title={t('workspaceCreation.SUBSCRIPTION_REQUIRED_TITLE')}
+						description={t('workspaceCreation.SUBSCRIPTION_REQUIRED_DESCRIPTION')}
+						actions={
+							checkoutUrl ? (
+								<Button asChild variant="outline" size="default">
+									<a href={checkoutUrl} target="_blank" rel="noopener noreferrer">
+										{t('workspaceCreation.CHOOSE_PLAN')}
+									</a>
+								</Button>
+							) : undefined
+						}
 					/>
 				)}
 				{(failure === 'FAILED' || failure === 'INVALID') && (

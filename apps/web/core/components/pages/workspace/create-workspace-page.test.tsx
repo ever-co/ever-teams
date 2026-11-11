@@ -167,6 +167,28 @@ describe('CreateWorkspacePage', () => {
 		expect(screen.getByRole('button', { name: 'workspaceCreation.CREATE' })).toHaveProperty('disabled', true);
 	});
 
+	it("leads to the sign-up's checkout where opening another workspace needs a subscription", () => {
+		Object.assign(mockCreation, {
+			isError: true,
+			error: {
+				isAxiosError: true,
+				response: {
+					status: 403,
+					data: { code: 'SUBSCRIPTION_REQUIRED', details: { checkoutUrl: 'https://ever.co/checkout' } }
+				}
+			}
+		});
+
+		render(<CreateWorkspacePage />);
+
+		expect(screen.getByText('workspaceCreation.SUBSCRIPTION_REQUIRED_TITLE')).toBeTruthy();
+		const choosePlan = screen.getByRole('link', { name: 'workspaceCreation.CHOOSE_PLAN' });
+		expect(choosePlan.getAttribute('href')).toBe('https://ever.co/checkout');
+		expect(choosePlan.getAttribute('target')).toBe('_blank');
+		// Once subscribed, the same form creates it
+		expect(screen.getByRole('button', { name: 'workspaceCreation.CREATE' })).toHaveProperty('disabled', false);
+	});
+
 	it('says when it cannot tell whether the workspace was created, and offers no retry', () => {
 		// No answer from the route (a timeout, the network): the workspace may exist all the same
 		Object.assign(mockCreation, {

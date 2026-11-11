@@ -152,6 +152,20 @@ describe('createWorkspace', () => {
 		expect(mockProvision).not.toHaveBeenCalled();
 	});
 
+	it("answers Gauzy's paywall with its checkout, an https address only", async () => {
+		const checkoutUrl = 'https://ever.co/checkout?product=ever-teams&email=ada%40ever.co';
+		mockOpenWorkspace.mockImplementationOnce(() =>
+			gauzyRefusal({ statusCode: 403, message: 'A subscription is required', checkoutUrl })
+		);
+		await expect(create()).resolves.toEqual({ status: 'subscription_required', checkoutUrl });
+
+		mockOpenWorkspace.mockImplementationOnce(() =>
+			gauzyRefusal({ message: 'A subscription is required', checkoutUrl: 'javascript:alert(1)' })
+		);
+		await expect(create()).resolves.toEqual({ status: 'subscription_required', checkoutUrl: null });
+		expect(mockProvision).not.toHaveBeenCalled();
+	});
+
 	it('reads any other refusal as a failure, not as closed registration', async () => {
 		mockOpenWorkspace.mockImplementationOnce(() =>
 			gauzyRefusal({ statusCode: 403, message: 'Opening a workspace is not allowed for this token' })

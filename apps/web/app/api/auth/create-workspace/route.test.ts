@@ -90,6 +90,18 @@ describe('POST /api/auth/create-workspace', () => {
 		expect(failed.status).toBe(502);
 		expect(failed.headers.get('set-cookie')).toBeNull();
 
+		// The sign-up's paywall: the checkout to buy the product
+		mockCreateWorkspace.mockResolvedValueOnce({
+			status: 'subscription_required',
+			checkoutUrl: 'https://ever.co/checkout'
+		});
+		const paywall = await post({ name: 'Studio' });
+		expect(paywall.status).toBe(403);
+		await expect(paywall.json()).resolves.toEqual({
+			code: 'SUBSCRIPTION_REQUIRED',
+			details: { checkoutUrl: 'https://ever.co/checkout' }
+		});
+
 		// The workspace exists, but its session could not be opened: said apart, so the page does not offer a retry
 		mockCreateWorkspace.mockResolvedValueOnce({ status: 'created_unopened' });
 		const unopened = await post({ name: 'Studio' });
