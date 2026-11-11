@@ -1617,7 +1617,9 @@
 			"TASKS_HIDDEN_BY_FILTERS": "{count, plural, zero {لا توجد مهام مخفية بواسطة عوامل التصفية} one {مهمة واحدة مخفية بواسطة عوامل التصفية} two {مهمتان مخفيتان بواسطة عوامل التصفية} few {# مهام مخفية بواسطة عوامل التصفية} many {# مهمة مخفية بواسطة عوامل التصفية} other {# مهمة مخفية بواسطة عوامل التصفية}}",
 			"NO_STATUSES_TITLE": "لا توجد حالات بعد",
 			"NO_STATUSES_MESSAGE": "لا يملك هذا الفريق حالات للمهام. أضفها من إعدادات الفريق لرؤية لوحته.",
-			"CREATION_DAY": "يوم الإنشاء"
+			"CREATION_DAY": "يوم الإنشاء",
+			"SELECT_TASK": "تحديد {title}",
+			"OTHER_TEAM_MOVE": "تنتمي هذه المهمة إلى فريق آخر: غيّر حالتها من المهمة نفسها."
 		},
 		"projects": {
 			"projectTitle": {
@@ -2496,7 +2498,11 @@
 			"SHOW_EMPTY_GROUPS": "المجموعات الفارغة",
 			"SHOW_SUB_TASKS": "المهام الفرعية",
 			"SUB_TASKS_DONE": "{done} من {total} مهام فرعية منتهية",
-			"TRACKED_NOW_BY": "يتتبّعها الآن {names}"
+			"TRACKED_NOW_BY": "يتتبّعها الآن {names}",
+			"SEARCH_PROJECT": "نقل إلى مشروع…",
+			"LAYOUT": "التخطيط",
+			"LAYOUT_LIST": "قائمة",
+			"LAYOUT_BOARD": "لوحة"
 		},
 		"joinTeam": {
 			"TITLE": "الانضمام إلى فريق",
@@ -5230,7 +5236,8 @@
 			"searchTasks": "البحث في المهام",
 			"searchProjects": "البحث في المشاريع",
 			"searchTeams": "البحث في الفرق",
-			"themeToggle": "التبديل بين الفاتح والداكن"
+			"themeToggle": "التبديل بين الفاتح والداكن",
+			"taskProject": "تغيير المشروع"
 		},
 		"CHAT_SINGLE_KEY": "مفتاح الدردشة مفتاح واحد، لا تسلسل.",
 		"CHAT_TAKEN": "الدردشة تستخدم هذا المفتاح بالفعل (التنسيق أو الإرسال أو التنقل أو التمرير)."
@@ -5661,7 +5668,45 @@
 		"FOLLOW": "متابعة الصفحة",
 		"UNFOLLOW": "إلغاء متابعة الصفحة",
 		"MUTE": "كتم الإشعارات",
-		"UNMUTE": "إلغاء كتم الإشعارات"
+		"UNMUTE": "إلغاء كتم الإشعارات",
+		"COMMENTS": "التعليقات",
+		"COMMENT": "تعليق",
+		"COMMENTS_OPEN": "مفتوحة",
+		"COMMENTS_RESOLVED": "محلولة",
+		"COMMENTS_EMPTY_OPEN": "لا توجد تعليقات مفتوحة. حدد نصًا واختر «تعليق»، أو اكتب تعليقًا أدناه.",
+		"COMMENTS_EMPTY_RESOLVED": "لا توجد تعليقات محلولة.",
+		"COMMENTS_LOAD_ERROR": "تعذر تحميل التعليقات.",
+		"COMMENT_PLACEHOLDER": "علّق على هذه الصفحة…",
+		"COMMENT_ON_SELECTION_PLACEHOLDER": "علّق على النص المحدد…",
+		"COMMENTING_ON": "التعليق على",
+		"COMMENT_ON_PAGE": "على الصفحة",
+		"COMMENT_DETACHED": "لم يعد النص الذي كان عليه هذا التعليق موجودًا في الصفحة",
+		"COMMENT_REPLY": "رد",
+		"COMMENT_RESOLVE": "حل",
+		"COMMENT_REOPEN": "إعادة فتح",
+		"COMMENT_EDIT": "تعديل",
+		"COMMENT_DELETE": "حذف",
+		"COMMENT_DELETE_TITLE": "حذف هذا التعليق؟",
+		"COMMENT_DELETE_TEXT": "سيُحذف للجميع. تبقى الردود عليه.",
+		"COMMENT_EDITED": "معدّل",
+		"COMMENT_MENU": "إجراءات التعليق",
+		"COMMENT_ERROR": "تعذر حفظ التعليق.",
+		"COMMENT_MARKER": "افتح التعليقات على هذه الكتلة",
+		"COPY_BLOCK_LINK": "نسخ رابط الكتلة",
+		"SOMEONE": "شخص ما",
+		"THREAD_NOT_FOUND": "لم يعد هذا التعليق موجودًا في هذه الصفحة.",
+		"BLOCK_NOT_FOUND": "لم يعد هذا الجزء من الصفحة موجودًا.",
+		"EXPORT_WITH_SUB_PAGES": "تصدير مع الصفحات الفرعية (zip)",
+		"EXPORTING": "جارٍ تحضير التصدير…",
+		"EXPORT_ERROR": "تعذر إجراء التصدير.",
+		"TASK_CHIP_UNKNOWN": "مهمة",
+		"OPEN_TASK": "فتح المهمة",
+		"PAGES": "الصفحات",
+		"FORMATTING": "التنسيق",
+		"PALETTE_HEADING": "الصفحات",
+		"EXPORT_UNSAVED": "لم تُحفظ تغييراتك الأخيرة بعد، لذا لم يُصدَّر شيء. حاول مجددًا عندما تظهر «تم الحفظ».",
+		"COMMENT_ANCHOR_UNSAVED": "تعذر حفظ الصفحة، لذا لم يُنشر التعليق. نصك محفوظ.",
+		"COPY_ERROR": "تعذر نسخ الرابط."
 	},
 	"whatsNew": {
 		"TITLE": "ما الجديد",

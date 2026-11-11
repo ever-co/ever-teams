@@ -23,6 +23,7 @@ import {
 	type TeamTasksFilterField,
 	type TeamTasksFilters,
 	type TeamTasksGrouping,
+	type TeamTasksLayout,
 	type TeamTasksLookups,
 	type TeamTasksOrdering,
 	type TeamTasksScope,
@@ -36,8 +37,11 @@ import {
 	withToggledProperty
 } from '@/core/lib/utils/team-tasks-view-storage';
 import type { ITaskViewDefinition } from '@/core/types/interfaces/common/task-views';
+import { isTaskViewsEnabled } from '@/core/lib/utils/task-views-enabled';
 import type { TOrganizationTeamEmployee } from '@/core/types/schemas';
 import type { TTask } from '@/core/types/schemas/task/task.schema';
+
+const NOTHING_COLLAPSED: ReadonlySet<string> = new Set();
 
 const VIEW_STORAGE_KEY = 'team-tasks-view';
 const SCOPE_STORAGE_KEY = 'team-tasks-scope';
@@ -221,14 +225,21 @@ export function useTeamTasksView(options: TeamTasksViewOptions = {}) {
 		return withoutListedSubTasks(scopedTasks);
 	}, [scopedTasks, settings.showsSubTasks]);
 
-	const groups = useMemo(
-		() => buildTeamTasksGroups(listedTasks, settings, lookups, priorityValues),
-		[listedTasks, settings, lookups, priorityValues]
+	// A board has its lanes for groups: its tasks come in the view's ordering alone, and a group collapsed in the list
+	// hides nothing there, nor from the selection.
+	const isBoard = settings.layout === 'board' && isTaskViewsEnabled();
+	const groupedSettings = useMemo<TeamTasksViewSettings>(
+		() => (isBoard ? { ...settings, grouping: 'none' } : settings),
+		[isBoard, settings]
 	);
-	const showsGroupHeaders = settings.grouping !== 'none';
+	const groups = useMemo(
+		() => buildTeamTasksGroups(listedTasks, groupedSettings, lookups, priorityValues),
+		[listedTasks, groupedSettings, lookups, priorityValues]
+	);
+	const showsGroupHeaders = groupedSettings.grouping !== 'none';
 	const rows = useMemo(
-		() => flattenTeamTasksGroups(groups, collapsedKeys, showsGroupHeaders),
-		[groups, collapsedKeys, showsGroupHeaders]
+		() => flattenTeamTasksGroups(groups, isBoard ? NOTHING_COLLAPSED : collapsedKeys, showsGroupHeaders),
+		[groups, collapsedKeys, isBoard, showsGroupHeaders]
 	);
 	const orderedIds = useMemo(() => orderedTaskIdsOf(rows), [rows]);
 
@@ -291,6 +302,16 @@ export function useTeamTasksView(options: TeamTasksViewOptions = {}) {
 	);
 	const setShowsEmptyGroups = useCallback(
 		(showsEmptyGroups: boolean) => updateView((current) => ({ ...current, showsEmptyGroups })),
+		[updateView]
+	);
+	/** A list is what a view without a layout is: only a board is written down. */
+	const setLayout = useCallback(
+		(layout: TeamTasksLayout) =>
+			updateView((current) => {
+				const next = { ...current };
+				delete next.layout;
+				return layout === 'board' ? { ...next, layout } : next;
+			}),
 		[updateView]
 	);
 	const resetView = useCallback(() => {
@@ -406,6 +427,7 @@ export function useTeamTasksView(options: TeamTasksViewOptions = {}) {
 		toggleProperty,
 		setShowsSubTasks,
 		setShowsEmptyGroups,
+		setLayout,
 		resetView,
 		toggleGroup,
 		toggleSelected,

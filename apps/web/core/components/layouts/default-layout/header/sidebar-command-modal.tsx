@@ -52,6 +52,7 @@ import type { ShortcutHandler } from '@/core/stores/common/shortcuts';
 import { InviteFormModal } from '../../../features/teams/invite-form-modal';
 import { CreateProjectModal } from '../../../features/projects/create-project-modal';
 import { CreateTeamModal } from '@/core/components/features/teams/create-team-modal';
+import { PaletteDocsResults } from './palette-docs-results';
 import { PaletteTaskResults } from './palette-task-results';
 import { PaletteChatResults } from './palette-chat-results';
 import {
@@ -610,6 +611,14 @@ export const SidebarCommandModal: FC<{ publicTeam: boolean; variant?: 'sidebar' 
 		[handlerOfTypedSequence, setOpen]
 	);
 
+	const openPage = useCallback(
+		(pageId: string) => {
+			router.push(`/docs/${encodeURIComponent(pageId)}`);
+			setOpen(false);
+		},
+		[router, setOpen]
+	);
+
 	// Rendering of command groups from the configuration
 	const renderCommandGroups = () => {
 		return visibleGroups.map((group) => (
@@ -673,6 +682,8 @@ export const SidebarCommandModal: FC<{ publicTeam: boolean; variant?: 'sidebar' 
 					{showsChatResults && (
 						<PaletteChatResults search={search} onDone={closePalette} className={paletteGroupClass} />
 					)}
+					{/* The Docs pages the platform's search finds (title and text), where the registry's Pages group is off. */}
+					{showsTaskResults && !showsPages && <PaletteDocsResults search={search} onOpenPage={openPage} className={paletteGroupClass} />}
 					{renderCommandGroups()}
 				</CommandList>
 			</CommandDialog>

@@ -26,6 +26,14 @@ describe('invalidationsFor', () => {
 		expect(keys).toEqual([{ queryKey: ['task-comments', 'by-task', 'ten', 'org', 't1'], deferrable: true }]);
 	});
 
+	it("refetches a Docs page's comments on a comment hint of a document", () => {
+		const keys = invalidationsFor(
+			event('comment.created', { entity: 'Comment', entityId: 'c1', action: 'created', parent: { entity: 'Document', entityId: 'd1' } }),
+			scope
+		);
+		expect(keys).toEqual([{ queryKey: ['docs', 'comments', 'ten', 'org', 'd1'], deferrable: true }]);
+	});
+
 	it('refetches the badge and the inbox on a mention or a notification, never deferred', () => {
 		for (const name of ['mention.created', 'employee_notification.created', 'inbox_item.created']) {
 			const keys = invalidationsFor(event(name, { entity: 'Comment', entityId: 'c1', action: 'created' }), scope);

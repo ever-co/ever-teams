@@ -20,6 +20,7 @@ import { useTaskPrioritiesValue } from '@/core/hooks/tasks/use-task-priorities-v
 import { useTaskSizesValue } from '@/core/hooks/tasks/use-task-sizes-value';
 import { useTaskLabelsValue } from '@/core/hooks/tasks/use-task-labels-value';
 import { useTeamTaskUpdates } from '@/core/hooks/tasks/use-team-task-updates';
+import { useOrganizationProjectsQuery } from '@/core/hooks/organizations/projects/use-organization-projects-query';
 import { activeTeamState } from '@/core/stores';
 import { cn } from '@/core/lib/helpers';
 import { statusIdOf } from '@/core/lib/utils/kanban-board';
@@ -318,6 +319,27 @@ function isBefore(day: Date, limit: Date | null) {
 	return day.getTime() < limit.getTime();
 }
 
+/** The latest start day of the tasks, or null when none has one. */
+function latestStartDayOf(tasks: TTask[]) {
+	const starts = tasks
+		.map((item) => startOfDayOf(item.startDate)?.getTime() ?? null)
+		.filter((day): day is number => day !== null);
+	if (!starts.length) {
+		return null;
+	}
+	return new Date(Math.max(...starts));
+}
+
+/** The due day every task has, or null when they differ (or have none). */
+function sharedDueDayOf(tasks: TTask[]) {
+	const days = tasks.map((item) => startOfDayOf(item.dueDate)?.getTime() ?? null);
+	const [first] = days;
+	if (first === null || first === undefined || days.some((day) => day !== first)) {
+		return null;
+	}
+	return new Date(first);
+}
+
 interface DuePreset {
 	key: string;
 	label: string;
@@ -331,9 +353,11 @@ function DueDatePicker(props: Readonly<PickerProps>) {
 	const { setDueDate } = useTeamTaskUpdates();
 	const [showsCalendar, setShowsCalendar] = useState(false);
 	const task = props.tasks[0];
-	const startDay = startOfDayOf(task?.startDate);
-	const currentDue = startOfDayOf(task?.dueDate);
-	const hasDueDate = Boolean(currentDue);
+	// A selection: the latest start among its tasks limits the days (no task gets a due date before its start), and
+	// the day shows as picked only when every task has it.
+	const startDay = latestStartDayOf(props.tasks);
+	const currentDue = sharedDueDayOf(props.tasks);
+	const hasDueDate = props.tasks.some((item) => Boolean(item.dueDate));
 
 	const presets = useMemo<DuePreset[]>(() => {
 		const today = startOfToday();
@@ -353,7 +377,7 @@ function DueDatePicker(props: Readonly<PickerProps>) {
 		if (!task) {
 			return;
 		}
-		setDueDate(task.id, day);
+		setDueDate(props.taskIds, day);
 		props.onOpenChange(false);
 	};
 
@@ -433,6 +457,49 @@ function DueDatePicker(props: Readonly<PickerProps>) {
 	);
 }
 
+const NO_PROJECT = '__no-project';
+
+/** The project of one task or a selection; "No project" takes them out of any. */
+function ProjectPicker(props: Readonly<PickerProps>) {
+	const t = useTranslations();
+	const { setProject } = useTeamTaskUpdates();
+	const { organizationProjects } = useOrganizationProjectsQuery();
+	const options = useMemo(() => {
+		const icon = <TaskPropertyIcon kind="project" className="size-4" />;
+		const projects = organizationProjects
+			.filter((project) => !project.isArchived && !project.archivedAt)
+			.map<TaskPropertyMenuOption<string>>((project) => ({
+				key: project.id,
+				value: project.id,
+				label: project.name ?? '',
+				icon
+			}))
+			.sort((first, second) => first.label.localeCompare(second.label));
+		const none: TaskPropertyMenuOption<string> = {
+			key: NO_PROJECT,
+			value: NO_PROJECT,
+			label: t('pages.teamTasks.NO_PROJECT'),
+			icon: <X className="size-4 text-muted-foreground" />
+		};
+		return [none, ...projects];
+	}, [organizationProjects, t]);
+	const isSelected = (value: string) =>
+		sharedBy(props.tasks, (task) => task.projectId ?? NO_PROJECT, value);
+	return (
+		<TaskPropertyMenu
+			options={options}
+			isSelected={isSelected}
+			onSelect={(value) => setProject(props.taskIds, value === NO_PROJECT ? null : value)}
+			searchPlaceholder={t('pages.teamTasks.SEARCH_PROJECT')}
+			open={props.isOpen}
+			onOpenChange={props.onOpenChange}
+			onOpenChangeComplete={props.onOpenChangeComplete}
+			anchor={props.anchor}
+			searchShortcut={props.shortcut}
+		/>
+	);
+}
+
 /**
  * The one picker of the list: whichever cell, menu row, key or bulk action asked for it, it opens against that
  * element and applies to the tasks it was given. It mounts only while open.
@@ -488,6 +555,9 @@ export function TeamTaskPicker({
 	}
 	if (target.kind === 'dueDate') {
 		return <DueDatePicker {...props} />;
+	}
+	if (target.kind === 'project') {
+		return <ProjectPicker {...props} />;
 	}
 	if (isSelection) {
 		return <SelectionAssigneePicker {...props} />;

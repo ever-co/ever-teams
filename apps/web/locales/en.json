@@ -1948,7 +1948,9 @@
 			"TASKS_HIDDEN_BY_FILTERS": "{count, plural, one {# task hidden by the filters} other {# tasks hidden by the filters}}",
 			"NO_STATUSES_TITLE": "No statuses yet",
 			"NO_STATUSES_MESSAGE": "This team has no task statuses. Add them in the team settings to see its board.",
-			"CREATION_DAY": "Creation day"
+			"CREATION_DAY": "Creation day",
+			"SELECT_TASK": "Select {title}",
+			"OTHER_TEAM_MOVE": "This task belongs to another team: change its status from the task itself."
 		},
 		"taskDetails": {
 			"BREADCRUMB": "[\"Task details\"]",
@@ -2496,7 +2498,11 @@
 			"SHOW_EMPTY_GROUPS": "Empty groups",
 			"SHOW_SUB_TASKS": "Sub-tasks",
 			"SUB_TASKS_DONE": "{done} of {total} sub-tasks done",
-			"TRACKED_NOW_BY": "Tracked now by {names}"
+			"TRACKED_NOW_BY": "Tracked now by {names}",
+			"SEARCH_PROJECT": "Move to a project…",
+			"LAYOUT": "Layout",
+			"LAYOUT_LIST": "List",
+			"LAYOUT_BOARD": "Board"
 		},
 		"joinTeam": {
 			"TITLE": "Join a team",
@@ -5230,7 +5236,8 @@
 			"searchTasks": "Search the tasks",
 			"searchProjects": "Search the projects",
 			"searchTeams": "Search the teams",
-			"themeToggle": "Switch between light and dark"
+			"themeToggle": "Switch between light and dark",
+			"taskProject": "Change the project"
 		},
 		"CHAT_SINGLE_KEY": "A chat key is one key, not a sequence.",
 		"CHAT_TAKEN": "The chat already uses that key (formatting, sending, moving or scrolling)."
@@ -5661,7 +5668,45 @@
 		"FOLLOW": "Follow page",
 		"UNFOLLOW": "Unfollow page",
 		"MUTE": "Mute notifications",
-		"UNMUTE": "Unmute notifications"
+		"UNMUTE": "Unmute notifications",
+		"COMMENTS": "Comments",
+		"COMMENT": "Comment",
+		"COMMENTS_OPEN": "Open",
+		"COMMENTS_RESOLVED": "Resolved",
+		"COMMENTS_EMPTY_OPEN": "No open comments. Select text and choose Comment, or write one below.",
+		"COMMENTS_EMPTY_RESOLVED": "No resolved comments.",
+		"COMMENTS_LOAD_ERROR": "The comments could not be loaded.",
+		"COMMENT_PLACEHOLDER": "Comment on this page…",
+		"COMMENT_ON_SELECTION_PLACEHOLDER": "Comment on the selected text…",
+		"COMMENTING_ON": "Commenting on",
+		"COMMENT_ON_PAGE": "On the page",
+		"COMMENT_DETACHED": "The text this was on is no longer on the page",
+		"COMMENT_REPLY": "Reply",
+		"COMMENT_RESOLVE": "Resolve",
+		"COMMENT_REOPEN": "Reopen",
+		"COMMENT_EDIT": "Edit",
+		"COMMENT_DELETE": "Delete",
+		"COMMENT_DELETE_TITLE": "Delete this comment?",
+		"COMMENT_DELETE_TEXT": "It is removed for everyone. Its replies stay.",
+		"COMMENT_EDITED": "edited",
+		"COMMENT_MENU": "Comment actions",
+		"COMMENT_ERROR": "The comment could not be saved.",
+		"COMMENT_MARKER": "Open the comments on this block",
+		"COPY_BLOCK_LINK": "Copy link to block",
+		"SOMEONE": "Someone",
+		"THREAD_NOT_FOUND": "That comment is no longer on this page.",
+		"BLOCK_NOT_FOUND": "That part of the page is no longer there.",
+		"EXPORT_WITH_SUB_PAGES": "Export with sub-pages (zip)",
+		"EXPORTING": "Preparing the export…",
+		"EXPORT_ERROR": "The export could not be made.",
+		"TASK_CHIP_UNKNOWN": "Task",
+		"OPEN_TASK": "Open task",
+		"PAGES": "Pages",
+		"FORMATTING": "Formatting",
+		"PALETTE_HEADING": "Pages",
+		"EXPORT_UNSAVED": "Your latest changes are not saved yet, so nothing was exported. Try again once the page says Saved.",
+		"COMMENT_ANCHOR_UNSAVED": "The page could not be saved, so the comment was not posted. Your text is kept.",
+		"COPY_ERROR": "The link could not be copied."
 	},
 	"whatsNew": {
 		"TITLE": "What's new",

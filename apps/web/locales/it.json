@@ -1617,7 +1617,9 @@
 			"TASKS_HIDDEN_BY_FILTERS": "{count, plural, one {# attività nascosta dai filtri} other {# attività nascoste dai filtri}}",
 			"NO_STATUSES_TITLE": "Nessuno stato per ora",
 			"NO_STATUSES_MESSAGE": "Questo team non ha stati delle attività. Aggiungili nelle impostazioni del team per vedere la sua bacheca.",
-			"CREATION_DAY": "Giorno di creazione"
+			"CREATION_DAY": "Giorno di creazione",
+			"SELECT_TASK": "Seleziona {title}",
+			"OTHER_TEAM_MOVE": "Questa attività appartiene a un altro team: cambiane lo stato dall'attività stessa."
 		},
 		"profile": {
 			"BREADCRUMB": "[\"Compiti dei membri\"]",
@@ -2496,7 +2498,11 @@
 			"SHOW_EMPTY_GROUPS": "Gruppi vuoti",
 			"SHOW_SUB_TASKS": "Sottoattività",
 			"SUB_TASKS_DONE": "{done} di {total} sottoattività completate",
-			"TRACKED_NOW_BY": "Tracciata ora da {names}"
+			"TRACKED_NOW_BY": "Tracciata ora da {names}",
+			"SEARCH_PROJECT": "Sposta in un progetto…",
+			"LAYOUT": "Layout",
+			"LAYOUT_LIST": "Elenco",
+			"LAYOUT_BOARD": "Bacheca"
 		},
 		"joinTeam": {
 			"TITLE": "Unisciti a un team",
@@ -5230,7 +5236,8 @@
 			"searchTasks": "Cerca nelle attività",
 			"searchProjects": "Cerca nei progetti",
 			"searchTeams": "Cerca nei team",
-			"themeToggle": "Passa da chiaro a scuro"
+			"themeToggle": "Passa da chiaro a scuro",
+			"taskProject": "Cambia il progetto"
 		},
 		"CHAT_SINGLE_KEY": "Un tasto della chat è un solo tasto, non una sequenza.",
 		"CHAT_TAKEN": "La chat usa già quel tasto (formattazione, invio, spostamento o scorrimento)."
@@ -5661,7 +5668,45 @@
 		"FOLLOW": "Segui la pagina",
 		"UNFOLLOW": "Smetti di seguire la pagina",
 		"MUTE": "Silenzia le notifiche",
-		"UNMUTE": "Riattiva le notifiche"
+		"UNMUTE": "Riattiva le notifiche",
+		"COMMENTS": "Commenti",
+		"COMMENT": "Commenta",
+		"COMMENTS_OPEN": "Aperti",
+		"COMMENTS_RESOLVED": "Risolti",
+		"COMMENTS_EMPTY_OPEN": "Nessun commento aperto. Seleziona del testo e scegli Commenta, o scrivine uno qui sotto.",
+		"COMMENTS_EMPTY_RESOLVED": "Nessun commento risolto.",
+		"COMMENTS_LOAD_ERROR": "Non è stato possibile caricare i commenti.",
+		"COMMENT_PLACEHOLDER": "Commenta questa pagina…",
+		"COMMENT_ON_SELECTION_PLACEHOLDER": "Commenta il testo selezionato…",
+		"COMMENTING_ON": "Commento su",
+		"COMMENT_ON_PAGE": "Sulla pagina",
+		"COMMENT_DETACHED": "Il testo a cui si riferiva non è più nella pagina",
+		"COMMENT_REPLY": "Rispondi",
+		"COMMENT_RESOLVE": "Risolvi",
+		"COMMENT_REOPEN": "Riapri",
+		"COMMENT_EDIT": "Modifica",
+		"COMMENT_DELETE": "Elimina",
+		"COMMENT_DELETE_TITLE": "Eliminare questo commento?",
+		"COMMENT_DELETE_TEXT": "Viene rimosso per tutti. Le risposte restano.",
+		"COMMENT_EDITED": "modificato",
+		"COMMENT_MENU": "Azioni del commento",
+		"COMMENT_ERROR": "Non è stato possibile salvare il commento.",
+		"COMMENT_MARKER": "Apri i commenti su questo blocco",
+		"COPY_BLOCK_LINK": "Copia link al blocco",
+		"SOMEONE": "Qualcuno",
+		"THREAD_NOT_FOUND": "Quel commento non è più in questa pagina.",
+		"BLOCK_NOT_FOUND": "Quella parte della pagina non c’è più.",
+		"EXPORT_WITH_SUB_PAGES": "Esporta con le sottopagine (zip)",
+		"EXPORTING": "Preparazione dell’esportazione…",
+		"EXPORT_ERROR": "Non è stato possibile esportare.",
+		"TASK_CHIP_UNKNOWN": "Attività",
+		"OPEN_TASK": "Apri attività",
+		"PAGES": "Pagine",
+		"FORMATTING": "Formattazione",
+		"PALETTE_HEADING": "Pagine",
+		"EXPORT_UNSAVED": "Le ultime modifiche non sono ancora salvate, quindi non è stato esportato nulla. Riprova quando la pagina indica Salvato.",
+		"COMMENT_ANCHOR_UNSAVED": "Non è stato possibile salvare la pagina, quindi il commento non è stato pubblicato. Il tuo testo resta.",
+		"COPY_ERROR": "Non è stato possibile copiare il link."
 	},
 	"whatsNew": {
 		"TITLE": "Novità",

@@ -1942,7 +1942,9 @@
 			"TASKS_HIDDEN_BY_FILTERS": "{count, plural, other {# 个任务被筛选隐藏}}",
 			"NO_STATUSES_TITLE": "还没有状态",
 			"NO_STATUSES_MESSAGE": "该团队还没有任务状态。请在团队设置中添加，以查看看板。",
-			"CREATION_DAY": "创建日期"
+			"CREATION_DAY": "创建日期",
+			"SELECT_TASK": "选择 {title}",
+			"OTHER_TEAM_MOVE": "此任务属于另一个团队：请在任务本身中更改其状态。"
 		},
 		"profile": {
 			"BREADCRUMB": "[\"成员任务\"]",
@@ -2496,7 +2498,11 @@
 			"SHOW_EMPTY_GROUPS": "空分组",
 			"SHOW_SUB_TASKS": "子任务",
 			"SUB_TASKS_DONE": "已完成 {done}/{total} 个子任务",
-			"TRACKED_NOW_BY": "{names} 正在计时"
+			"TRACKED_NOW_BY": "{names} 正在计时",
+			"SEARCH_PROJECT": "移至项目…",
+			"LAYOUT": "布局",
+			"LAYOUT_LIST": "列表",
+			"LAYOUT_BOARD": "看板"
 		},
 		"joinTeam": {
 			"TITLE": "加入团队",
@@ -5230,7 +5236,8 @@
 			"searchTasks": "搜索任务",
 			"searchProjects": "搜索项目",
 			"searchTeams": "搜索团队",
-			"themeToggle": "在浅色与深色之间切换"
+			"themeToggle": "在浅色与深色之间切换",
+			"taskProject": "更改项目"
 		},
 		"CHAT_SINGLE_KEY": "聊天的快捷键只能是一个按键，不能是按键序列。",
 		"CHAT_TAKEN": "聊天已在使用此按键（格式、发送、移动或滚动）。"
@@ -5661,7 +5668,45 @@
 		"FOLLOW": "关注页面",
 		"UNFOLLOW": "取消关注页面",
 		"MUTE": "静音通知",
-		"UNMUTE": "取消静音通知"
+		"UNMUTE": "取消静音通知",
+		"COMMENTS": "评论",
+		"COMMENT": "评论",
+		"COMMENTS_OPEN": "未解决",
+		"COMMENTS_RESOLVED": "已解决",
+		"COMMENTS_EMPTY_OPEN": "没有未解决的评论。选中文本并选择“评论”，或在下方撰写。",
+		"COMMENTS_EMPTY_RESOLVED": "没有已解决的评论。",
+		"COMMENTS_LOAD_ERROR": "无法加载评论。",
+		"COMMENT_PLACEHOLDER": "评论此页面…",
+		"COMMENT_ON_SELECTION_PLACEHOLDER": "评论所选文本…",
+		"COMMENTING_ON": "评论对象",
+		"COMMENT_ON_PAGE": "针对页面",
+		"COMMENT_DETACHED": "该评论所在的文本已不在页面上",
+		"COMMENT_REPLY": "回复",
+		"COMMENT_RESOLVE": "解决",
+		"COMMENT_REOPEN": "重新打开",
+		"COMMENT_EDIT": "编辑",
+		"COMMENT_DELETE": "删除",
+		"COMMENT_DELETE_TITLE": "删除此评论？",
+		"COMMENT_DELETE_TEXT": "它将对所有人删除。回复会保留。",
+		"COMMENT_EDITED": "已编辑",
+		"COMMENT_MENU": "评论操作",
+		"COMMENT_ERROR": "无法保存评论。",
+		"COMMENT_MARKER": "打开此块的评论",
+		"COPY_BLOCK_LINK": "复制块链接",
+		"SOMEONE": "某人",
+		"THREAD_NOT_FOUND": "该评论已不在此页面上。",
+		"BLOCK_NOT_FOUND": "页面的这一部分已不存在。",
+		"EXPORT_WITH_SUB_PAGES": "连同子页面导出（zip）",
+		"EXPORTING": "正在准备导出…",
+		"EXPORT_ERROR": "无法完成导出。",
+		"TASK_CHIP_UNKNOWN": "任务",
+		"OPEN_TASK": "打开任务",
+		"PAGES": "页面",
+		"FORMATTING": "格式",
+		"PALETTE_HEADING": "页面",
+		"EXPORT_UNSAVED": "您最近的更改尚未保存，因此未导出任何内容。请在页面显示“已保存”后重试。",
+		"COMMENT_ANCHOR_UNSAVED": "无法保存页面，因此评论未发布。您的文本已保留。",
+		"COPY_ERROR": "无法复制链接。"
 	},
 	"whatsNew": {
 		"TITLE": "新功能",
