@@ -2006,12 +2006,15 @@ describe('Ever Teams feature surface preservation', () => {
 		// 292 files and 374 verbs with the comment proxy (/api/comment/[id], PUT and DELETE) and the Docs Markdown export
 		// (GET /api/plugins/docs/documents/[id]/export/markdown), which develop added without raising these numbers.
 		// 294 files and 377 verbs with the scheduled meetings' proxies (/api/employee-appointment GET, POST and [id] DELETE).
-		expect(routes.filter((value) => /\/route\.[jt]s$/.test(value))).toHaveLength(294);
+		// 295 files and 378 verbs with the Inbox delivery status proxy (GET /api/inbox/delivery/status).
+		expect(routes.filter((value) => /\/route\.[jt]s$/.test(value))).toHaveLength(295);
 		expect(
 			routes.filter((value) => /\/route\.[jt]s::(?:GET|POST|PUT|PATCH|DELETE|HEAD|OPTIONS)$/.test(value))
-		).toHaveLength(377);
+		).toHaveLength(378);
 		expect(routes).toEqual(
 			expect.arrayContaining([
+				// Proxy mode twin of the platform's Inbox delivery status (2026-11-11)
+				'apps/web/app/api/inbox/delivery/status/route.ts::GET',
 				// Proxy mode twins of Gauzy's employee appointments, the scheduled meetings (#5021)
 				'apps/web/app/api/employee-appointment/route.ts::GET',
 				'apps/web/app/api/employee-appointment/route.ts::POST',
