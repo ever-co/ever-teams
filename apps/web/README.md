@@ -64,6 +64,10 @@ on its own host. They work together through `core/lib/board/board-app.ts`:
 
 - Ever Teams opens the Board with `origin=<this deployment's origin>`, next to `live` and `members`, so the Board
   knows which deployment the person comes from.
+- The Board sends a person who must sign in to `<origin>/auth/passcode?redirect=<board address>`. Ever Teams sends
+  them back to that address once they are signed in (at once when they already are, on a session the API confirms),
+  and only when it is on the origin of `NEXT_PUBLIC_BOARD_APP_DOMAIN`: https, compared exactly, with plain http for
+  localhost only while `NODE_ENV=development`. Any other `redirect` is ignored.
 
 ## Client IP for Gauzy's rate limits
 

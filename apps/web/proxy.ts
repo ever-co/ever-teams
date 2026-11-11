@@ -23,6 +23,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import createMiddleware from 'next-intl/middleware';
 import { delay } from './core/lib/auth/retry-logic';
 import { sendsSignedInVisitToApp } from './core/lib/auth/signed-in-auth-paths';
+import { BOARD_RETURN_PARAM, boardReturnUrl } from './core/lib/board/board-app';
 
 /**
  * Attach the authenticated user to the response for SSR consumers — but ONLY as much as a
@@ -310,12 +311,53 @@ export async function proxy(request: NextRequest) {
 		return lastResult || { success: false, error: 'Max retry duration exceeded', isExpired: true };
 	};
 
+	// Whether the API accepts the access token, as the Board's own check of the session will
+	const isSessionConfirmed = async (token: string): Promise<boolean> => {
+		const check = await currentAuthenticatedUserRequest({ bearer_token: token }).catch(() => null);
+		return !!check?.response.ok && !!check.data && (check.data as { statusCode?: number }).statusCode !== 401;
+	};
+
+	/**
+	 * Back to the Board app for a person already signed in here, who opened a sign-in page the Board sent them to.
+	 *
+	 * Only on a session the API confirms, after refreshing an expired access token: the Board checks the session
+	 * itself, so a token that merely looks valid here would bounce the person between the Board and this page.
+	 * Without a confirmed session the sign-in page opens, and the sign-in then ends on the Board
+	 * (core/lib/auth/board-return.ts).
+	 */
+	const returnSignedInVisitToBoard = async (boardReturn: string): Promise<NextResponse> => {
+		if (access_token && !isTokenExpired(access_token, 60) && (await isSessionConfirmed(access_token))) {
+			return NextResponse.redirect(boardReturn);
+		}
+
+		if (refresh_token) {
+			const refreshResult = await tryRefreshAndVerifyWithRetry();
+			if (refreshResult.success) {
+				const redirectResponse = NextResponse.redirect(boardReturn);
+				// The refresh wrote the new tokens on `response`: without them the Board would ask with the expired one
+				for (const cookie of response.cookies.getAll()) {
+					redirectResponse.cookies.set(cookie);
+				}
+				return redirectResponse;
+			}
+		}
+
+		console.log('[Proxy] Sign-in from the Board app without a confirmed session, showing the sign-in page');
+		return response;
+	};
+
 	// SECTION 1: Handle authenticated users accessing auth pages
 	// Check if user is trying to access auth pages while already authenticated
 	const sends_signed_in_to_app = sendsSignedInVisitToApp(url.pathname);
 	const has_any_token = access_token || refresh_token;
 
 	if (sends_signed_in_to_app && has_any_token) {
+		// A sign-in the Board app started (`?redirect=<board address>`) goes back to the Board, on its trusted origin only
+		const boardReturn = boardReturnUrl(url.searchParams.get(BOARD_RETURN_PARAM));
+		if (boardReturn) {
+			return returnSignedInVisitToBoard(boardReturn);
+		}
+
 		// User is authenticated but trying to access auth pages - verify token and redirect
 		console.log('[Proxy] Authenticated user accessing auth page, checking token validity...');
 
