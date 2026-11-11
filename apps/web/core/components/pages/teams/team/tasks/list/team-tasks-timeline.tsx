@@ -1,17 +1,23 @@
 'use client';
 
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState, type KeyboardEvent, type PointerEvent } from 'react';
+import { useAtomValue } from 'jotai';
 import { useLocale, useTranslations } from 'next-intl';
 import { cn } from '@/core/lib/helpers';
+import { useTeamTaskUpdates } from '@/core/hooks/tasks/use-team-task-updates';
 import type { TeamTasksViewState } from '@/core/hooks/tasks/use-team-tasks-view';
+import { tasksByTeamState } from '@/core/stores';
 import { isDoneStatus, statusOfTask, tasksOfGroups } from '@/core/lib/utils/team-tasks-view';
 import {
 	TIMELINE_DAY_WIDTH,
 	dateOfDayNumber,
 	dayNumberOf,
+	dayOfStoredDate,
+	draggedDatesOf,
 	ticksOf,
 	timelineOf,
 	type TeamTasksTimelineBar,
+	type TeamTasksTimelineDrag,
 	type TeamTasksTimelineZoom
 } from '@/core/lib/utils/team-tasks-timeline';
 import type { TTask } from '@/core/types/schemas/task/task.schema';
@@ -26,7 +32,9 @@ const ZOOMS: TeamTasksTimelineZoom[] = ['week', 'month'];
  * A view shown as a timeline (its layout): the tasks the view lists, with its filters, scope, search and ordering, one
  * row each, as a bar from the task's start date to its due date on a calendar of days. A task with a due date only is
  * one day at its due date; a start date only, one day at its start. The tasks with neither date are listed under the
- * calendar. A bar opens its task, as a row does; the calendar opens on today.
+ * calendar. A bar opens its task, as a row does; the calendar opens on today. A task of the active team changes its
+ * dates from its bar: dragged (the whole bar, or either end of a range) or with Alt + arrows (Alt + Shift + arrows for
+ * the due date); a task of another team (a built-in view lists the person's tasks of every team) only opens.
  */
 export function TeamTasksTimelineView({
 	view,
@@ -37,6 +45,9 @@ export function TeamTasksTimelineView({
 	const [zoom, setZoom] = useState<TeamTasksTimelineZoom>('week');
 	const [today] = useState(() => new Date());
 	const scrollRef = useRef<HTMLDivElement>(null);
+	const { setDates } = useTeamTaskUpdates();
+	const teamTasks = useAtomValue(tasksByTeamState);
+	const teamTaskIds = useMemo(() => new Set(teamTasks.map((task) => task.id)), [teamTasks]);
 	const tasks = useMemo(() => tasksOfGroups(view.groups), [view.groups]);
 	const taskById = useMemo(() => new Map(tasks.map((task) => [task.id, task])), [tasks]);
 	const timeline = useMemo(
@@ -165,8 +176,6 @@ export function TeamTasksTimelineView({
 									return null;
 								}
 								const label = barLabel(task, bar);
-								const left = bar.startDay * dayWidth;
-								const width = Math.max(dayWidth, (bar.endDay - bar.startDay + 1) * dayWidth);
 								return (
 									<li key={bar.taskId} className="flex border-b border-border/60" style={{ height: ROW_HEIGHT }}>
 										<button
@@ -182,25 +191,17 @@ export function TeamTasksTimelineView({
 											<span className="truncate">{task.title}</span>
 										</button>
 										<div className="relative" style={{ width: calendarWidth }}>
-											<button
-												type="button"
-												onClick={() => commands.openTask(task.id)}
-												aria-label={label}
-												title={label}
-												data-testid={`timeline-bar-${task.id}`}
-												className={cn(
-													'absolute top-1.5 flex items-center overflow-hidden rounded-md px-1.5 text-left text-xs font-medium outline-none focus-visible:ring-[3px] focus-visible:ring-ring/40',
-													bar.isOverdue
-														? 'bg-destructive/15 text-destructive ring-1 ring-inset ring-destructive/40'
-														: 'bg-primary/15 text-foreground ring-1 ring-inset ring-primary/30',
-													(bar.isDueOnly || bar.isStartOnly || bar.hasInvalidRange) && 'border border-dashed border-current',
-													bar.isClippedStart && 'rounded-l-none',
-													bar.isClippedEnd && 'rounded-r-none'
-												)}
-												style={{ left, width, height: ROW_HEIGHT - 12 }}
-											>
-												{width >= 64 ? <span className="truncate">{task.title}</span> : null}
-											</button>
+											<TimelineBar
+												task={task}
+												bar={bar}
+												firstDay={firstDay}
+												dayWidth={dayWidth}
+												label={label}
+												hint={t('pages.teamTasks.TIMELINE_DRAG_HINT')}
+												canEdit={teamTaskIds.has(task.id)}
+												onOpen={() => commands.openTask(task.id)}
+												onDates={(dates) => setDates(task.id, dates)}
+											/>
 										</div>
 									</li>
 								);
@@ -235,5 +236,154 @@ export function TeamTasksTimelineView({
 				</div>
 			)}
 		</section>
+	);
+}
+
+/** Movement, in pixels, before a press on a bar counts as a drag rather than a click. */
+const DRAG_THRESHOLD = 4;
+
+interface TimelineBarProps {
+	task: TTask;
+	bar: TeamTasksTimelineBar;
+	firstDay: number;
+	dayWidth: number;
+	label: string;
+	hint: string;
+	canEdit: boolean;
+	onOpen: () => void;
+	onDates: (dates: { startDate?: Date | null; dueDate?: Date | null }) => void;
+}
+
+/**
+ * One bar: a button that opens its task; with `canEdit`, dragged to move the task's dates (the body) or one end of a
+ * range (the edges), or moved with Alt + arrows (Alt + Shift + arrows: the due date). The bar follows the pointer by
+ * whole days while dragged; the dates are saved once, when it is let go.
+ */
+function TimelineBar({ task, bar, firstDay, dayWidth, label, hint, canEdit, onOpen, onDates }: Readonly<TimelineBarProps>) {
+	const [preview, setPreview] = useState<{ drag: TeamTasksTimelineDrag; delta: number } | null>(null);
+	const pressRef = useRef<{ drag: TeamTasksTimelineDrag; x: number; pointerId: number; moved: boolean } | null>(null);
+	const suppressClickRef = useRef(false);
+	const dates = useMemo(
+		() => ({ startDay: dayOfStoredDate(task.startDate), dueDay: dayOfStoredDate(task.dueDate) }),
+		[task.startDate, task.dueDate]
+	);
+	const hasRange = !bar.isDueOnly && !bar.isStartOnly && !bar.hasInvalidRange;
+
+	const save = (drag: TeamTasksTimelineDrag, delta: number) => {
+		const next = draggedDatesOf(bar, dates, drag, delta);
+		if (!next) {
+			return;
+		}
+		onDates({
+			...(next.startDay === undefined ? {} : { startDate: dateOfDayNumber(next.startDay) }),
+			...(next.dueDay === undefined ? {} : { dueDate: dateOfDayNumber(next.dueDay) })
+		});
+	};
+
+	// Where the bar shows: its dates as dragged so far, else as stored (a clipped end stays at the edge).
+	let startDay = bar.startDay;
+	let endDay = bar.endDay;
+	if (preview) {
+		const next = draggedDatesOf(bar, dates, preview.drag, preview.delta);
+		if (next) {
+			const start = (next.startDay ?? dates.startDay ?? next.dueDay ?? dates.dueDay ?? 0) - firstDay;
+			const end = (next.dueDay ?? dates.dueDay ?? next.startDay ?? dates.startDay ?? 0) - firstDay;
+			startDay = start;
+			endDay = bar.hasInvalidRange ? start : Math.max(start, end);
+		}
+	}
+	const left = startDay * dayWidth;
+	const width = Math.max(dayWidth, (endDay - startDay + 1) * dayWidth);
+
+	const handlePointerDown = (event: PointerEvent<HTMLButtonElement>) => {
+		if (!canEdit || event.button !== 0) {
+			return;
+		}
+		const handle = (event.target as HTMLElement).dataset['handle'];
+		const drag: TeamTasksTimelineDrag = handle === 'start' || handle === 'end' ? handle : 'move';
+		pressRef.current = { drag, x: event.clientX, pointerId: event.pointerId, moved: false };
+		event.currentTarget.setPointerCapture?.(event.pointerId);
+	};
+	const handlePointerMove = (event: PointerEvent<HTMLButtonElement>) => {
+		const press = pressRef.current;
+		if (!press || press.pointerId !== event.pointerId) {
+			return;
+		}
+		const dx = event.clientX - press.x;
+		if (!press.moved && Math.abs(dx) < DRAG_THRESHOLD) {
+			return;
+		}
+		press.moved = true;
+		setPreview({ drag: press.drag, delta: Math.round(dx / dayWidth) });
+	};
+	const handlePointerUp = (event: PointerEvent<HTMLButtonElement>) => {
+		const press = pressRef.current;
+		pressRef.current = null;
+		if (!press || press.pointerId !== event.pointerId) {
+			return;
+		}
+		event.currentTarget.releasePointerCapture?.(event.pointerId);
+		setPreview(null);
+		if (!press.moved) {
+			return;
+		}
+		// A drag is not a click: the button's click that follows the release does not open the task.
+		suppressClickRef.current = true;
+		save(press.drag, Math.round((event.clientX - press.x) / dayWidth));
+	};
+	const handlePointerCancel = () => {
+		pressRef.current = null;
+		setPreview(null);
+	};
+	const handleClick = () => {
+		if (suppressClickRef.current) {
+			suppressClickRef.current = false;
+			return;
+		}
+		onOpen();
+	};
+	const handleKeyDown = (event: KeyboardEvent<HTMLButtonElement>) => {
+		if (!canEdit || !event.altKey || (event.key !== 'ArrowLeft' && event.key !== 'ArrowRight')) {
+			return;
+		}
+		event.preventDefault();
+		const delta = event.key === 'ArrowLeft' ? -1 : 1;
+		save(event.shiftKey ? 'end' : 'move', delta);
+	};
+
+	return (
+		<button
+			type="button"
+			onClick={handleClick}
+			onPointerDown={handlePointerDown}
+			onPointerMove={handlePointerMove}
+			onPointerUp={handlePointerUp}
+			onPointerCancel={handlePointerCancel}
+			onKeyDown={handleKeyDown}
+			aria-label={label}
+			aria-keyshortcuts={canEdit ? 'Alt+ArrowLeft Alt+ArrowRight Alt+Shift+ArrowLeft Alt+Shift+ArrowRight' : undefined}
+			title={canEdit ? `${label}\n${hint}` : label}
+			data-testid={`timeline-bar-${task.id}`}
+			className={cn(
+				'absolute top-1.5 flex items-center overflow-hidden rounded-md px-1.5 text-left text-xs font-medium outline-none focus-visible:ring-[3px] focus-visible:ring-ring/40',
+				bar.isOverdue
+					? 'bg-destructive/15 text-destructive ring-1 ring-inset ring-destructive/40'
+					: 'bg-primary/15 text-foreground ring-1 ring-inset ring-primary/30',
+				(bar.isDueOnly || bar.isStartOnly || bar.hasInvalidRange) && 'border border-dashed border-current',
+				bar.isClippedStart && 'rounded-l-none',
+				bar.isClippedEnd && 'rounded-r-none',
+				canEdit && 'cursor-grab touch-none active:cursor-grabbing',
+				preview && 'z-10 shadow-sm'
+			)}
+			style={{ left, width, height: ROW_HEIGHT - 12 }}
+		>
+			{canEdit && hasRange && !bar.isClippedStart ? (
+				<span data-handle="start" aria-hidden="true" className="absolute inset-y-0 left-0 w-1.5 cursor-ew-resize" />
+			) : null}
+			{width >= 64 ? <span className="pointer-events-none truncate">{task.title}</span> : null}
+			{canEdit && hasRange && !bar.isClippedEnd ? (
+				<span data-handle="end" aria-hidden="true" className="absolute inset-y-0 right-0 w-1.5 cursor-ew-resize" />
+			) : null}
+		</button>
 	);
 }

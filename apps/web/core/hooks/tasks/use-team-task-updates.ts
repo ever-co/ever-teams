@@ -21,6 +21,22 @@ export type TeamTaskField = 'status' | 'priority' | 'size' | 'issueType' | 'tags
 
 type TaskChange = (task: TTask) => Partial<TTask> | null;
 
+/** Whether a date change leaves the stored day as it is (a date not part of the change counts as unchanged). */
+function sameDay(next: Date | null | undefined, current: Date | string | null | undefined, isChanged: boolean) {
+	if (!isChanged) {
+		return true;
+	}
+	if (!next || !current) {
+		return !next && !current;
+	}
+	const stored = new Date(current);
+	return (
+		next.getFullYear() === stored.getFullYear() &&
+		next.getMonth() === stored.getMonth() &&
+		next.getDate() === stored.getDate()
+	);
+}
+
 function isAssigned(task: TTask, member: TOrganizationTeamEmployee) {
 	const employeeId = member.employeeId ?? member.employee?.id;
 	const members = task.members ?? [];
@@ -213,6 +229,24 @@ export function useTeamTaskUpdates() {
 		[applyChange, bulkUpdate, t, usesBulk]
 	);
 
+	/**
+	 * Sets a task's start and due dates together (the timeline's drag): one update, so the task never holds a due date
+	 * before its start in between. `undefined` leaves a date as it is.
+	 */
+	const setDates = useCallback(
+		(taskId: string, dates: { startDate?: Date | null; dueDate?: Date | null }) => {
+			applyChange([taskId], 'dueDate', (task) => {
+				const update: Partial<TTask> = {};
+				if (dates.startDate !== undefined) update.startDate = dates.startDate;
+				if (dates.dueDate !== undefined) update.dueDate = dates.dueDate;
+				const unchanged =
+					sameDay(update.startDate, task.startDate, 'startDate' in update) && sameDay(update.dueDate, task.dueDate, 'dueDate' in update);
+				return unchanged ? null : update;
+			});
+		},
+		[applyChange]
+	);
+
 	/** Moves the tasks to a project (`null`: out of any project); a selection in one request with the feature on. */
 	const setProject = useCallback(
 		(taskIds: string[], projectId: string | null) => {
@@ -276,6 +310,7 @@ export function useTeamTaskUpdates() {
 		setIssueType,
 		toggleLabel,
 		setDueDate,
+		setDates,
 		setProject,
 		assignMember,
 		archiveTasks,

@@ -199,3 +199,45 @@ export function ticksOf(timeline: TeamTasksTimeline, zoom: TeamTasksTimelineZoom
 	}
 	return ticks;
 }
+
+/** What a drag on a bar does: move the whole bar, or one of its ends. */
+export type TeamTasksTimelineDrag = 'move' | 'start' | 'end';
+
+export interface TeamTasksTimelineDates {
+	/** The new start day, or undefined to leave it; null clears it (never produced by a drag). */
+	startDay?: number;
+	dueDay?: number;
+}
+
+/**
+ * The dates a drag of `deltaDays` gives a bar, as day numbers. A move shifts the dates the task has (a due date only
+ * moves its due date, a start date only its start); an end is dragged only on a bar with both dates, and never past
+ * the other end. Nothing to change answers null.
+ */
+export function draggedDatesOf(
+	bar: Pick<TeamTasksTimelineBar, 'isDueOnly' | 'isStartOnly' | 'hasInvalidRange'>,
+	dates: { startDay: number | null; dueDay: number | null },
+	drag: TeamTasksTimelineDrag,
+	deltaDays: number
+): TeamTasksTimelineDates | null {
+	if (deltaDays === 0) {
+		return null;
+	}
+	const { startDay, dueDay } = dates;
+	if (drag === 'move') {
+		const next: TeamTasksTimelineDates = {};
+		if (startDay !== null) next.startDay = startDay + deltaDays;
+		if (dueDay !== null) next.dueDay = dueDay + deltaDays;
+		return next.startDay === undefined && next.dueDay === undefined ? null : next;
+	}
+	// Ends are for a real range: a one-day bar of a single date moves as a whole.
+	if (startDay === null || dueDay === null || bar.hasInvalidRange) {
+		return null;
+	}
+	if (drag === 'start') {
+		const next = Math.min(startDay + deltaDays, dueDay);
+		return next === startDay ? null : { startDay: next };
+	}
+	const next = Math.max(dueDay + deltaDays, startDay);
+	return next === dueDay ? null : { dueDay: next };
+}

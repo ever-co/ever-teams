@@ -2519,7 +2519,8 @@
 			"TIMELINE_DUE_ONLY": "só data de entrega",
 			"TIMELINE_START_ONLY": "só data de início",
 			"TIMELINE_INVALID_RANGE": "entrega antes do início",
-			"TIMELINE_OVERDUE": "atrasada"
+			"TIMELINE_OVERDUE": "atrasada",
+			"TIMELINE_DRAG_HINT": "Arraste para mudar as datas, ou Alt + setas (Alt + Shift + setas: a data de entrega)."
 		},
 		"joinTeam": {
 			"TITLE": "Entrar em uma equipe",

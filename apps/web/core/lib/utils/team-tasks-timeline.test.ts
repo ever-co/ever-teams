@@ -1,4 +1,5 @@
 import {
+	draggedDatesOf,
 	TIMELINE_MAX_DAYS,
 	TIMELINE_PADDING_DAYS,
 	dayNumberOf,
@@ -140,5 +141,31 @@ describe('the ticks of the header', () => {
 		expect(week.filter((tick) => tick.isMajor).every((tick) => tick.date.getDay() === 1)).toBe(true);
 		const month = ticksOf(timeline, 'month');
 		expect(month.filter((tick) => tick.isMajor).map((tick) => tick.date.getDate())).toEqual([1]);
+	});
+});
+
+describe('the dates a drag gives a bar', () => {
+	const range = { isDueOnly: false, isStartOnly: false, hasInvalidRange: false };
+	const dates = { startDay: 100, dueDay: 104 };
+
+	it('moves both dates of a range, and only the date a single-date task has', () => {
+		expect(draggedDatesOf(range, dates, 'move', 3)).toEqual({ startDay: 103, dueDay: 107 });
+		expect(draggedDatesOf({ ...range, isDueOnly: true }, { startDay: null, dueDay: 50 }, 'move', -2)).toEqual({ dueDay: 48 });
+		expect(draggedDatesOf({ ...range, isStartOnly: true }, { startDay: 50, dueDay: null }, 'move', 1)).toEqual({ startDay: 51 });
+	});
+
+	it('drags one end of a range, never past the other', () => {
+		expect(draggedDatesOf(range, dates, 'start', 2)).toEqual({ startDay: 102 });
+		expect(draggedDatesOf(range, dates, 'start', 10)).toEqual({ startDay: 104 });
+		expect(draggedDatesOf(range, dates, 'end', -2)).toEqual({ dueDay: 102 });
+		expect(draggedDatesOf(range, dates, 'end', -10)).toEqual({ dueDay: 100 });
+		expect(draggedDatesOf(range, dates, 'end', 5)).toEqual({ dueDay: 109 });
+	});
+
+	it('changes nothing for no movement, an end of a single date, or an end already at the limit', () => {
+		expect(draggedDatesOf(range, dates, 'move', 0)).toBeNull();
+		expect(draggedDatesOf({ ...range, isDueOnly: true }, { startDay: null, dueDay: 50 }, 'end', 2)).toBeNull();
+		expect(draggedDatesOf({ ...range, hasInvalidRange: true }, { startDay: 60, dueDay: 55 }, 'start', 1)).toBeNull();
+		expect(draggedDatesOf(range, { startDay: 100, dueDay: 100 }, 'start', 3)).toBeNull();
 	});
 });

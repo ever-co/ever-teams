@@ -2519,7 +2519,8 @@
 			"TIMELINE_DUE_ONLY": "solo fecha de vencimiento",
 			"TIMELINE_START_ONLY": "solo fecha de inicio",
 			"TIMELINE_INVALID_RANGE": "vence antes de empezar",
-			"TIMELINE_OVERDUE": "vencida"
+			"TIMELINE_OVERDUE": "vencida",
+			"TIMELINE_DRAG_HINT": "Arrastra para cambiar las fechas, o Alt + flechas (Alt + Mayús + flechas: la fecha de vencimiento)."
 		},
 		"joinTeam": {
 			"TITLE": "Unirse a un equipo",

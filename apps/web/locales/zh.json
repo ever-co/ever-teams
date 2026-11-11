@@ -2519,7 +2519,8 @@
 			"TIMELINE_DUE_ONLY": "仅截止日期",
 			"TIMELINE_START_ONLY": "仅开始日期",
 			"TIMELINE_INVALID_RANGE": "截止日期早于开始日期",
-			"TIMELINE_OVERDUE": "已逾期"
+			"TIMELINE_OVERDUE": "已逾期",
+			"TIMELINE_DRAG_HINT": "拖动以更改日期，或按 Alt + 方向键（Alt + Shift + 方向键：截止日期）。"
 		},
 		"joinTeam": {
 			"TITLE": "加入团队",

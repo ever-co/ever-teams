@@ -2519,7 +2519,8 @@
 			"TIMELINE_DUE_ONLY": "due date only",
 			"TIMELINE_START_ONLY": "start date only",
 			"TIMELINE_INVALID_RANGE": "due before it starts",
-			"TIMELINE_OVERDUE": "overdue"
+			"TIMELINE_OVERDUE": "overdue",
+			"TIMELINE_DRAG_HINT": "Drag to change the dates, or Alt + arrows (Alt + Shift + arrows: the due date)."
 		},
 		"joinTeam": {
 			"TITLE": "Join a team",

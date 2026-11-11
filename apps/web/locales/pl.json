@@ -2519,7 +2519,8 @@
 			"TIMELINE_DUE_ONLY": "tylko termin",
 			"TIMELINE_START_ONLY": "tylko data rozpoczęcia",
 			"TIMELINE_INVALID_RANGE": "termin przed rozpoczęciem",
-			"TIMELINE_OVERDUE": "po terminie"
+			"TIMELINE_OVERDUE": "po terminie",
+			"TIMELINE_DRAG_HINT": "Przeciągnij, aby zmienić daty, lub Alt + strzałki (Alt + Shift + strzałki: termin)."
 		},
 		"joinTeam": {
 			"TITLE": "Dołącz do zespołu",
