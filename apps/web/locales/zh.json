@@ -3780,6 +3780,8 @@
 		"DEVICES_BLOCKED_HINT": "请在浏览器中为此网站允许它们，然后重试。你也可以不使用它们加入。",
 		"DEVICES_BUSY": "摄像头或麦克风正被其他应用使用。",
 		"DEVICES_MISSING": "未找到摄像头或麦克风。你仍可以加入并收听。",
+		"CAMERA_MISSING": "未找到摄像头。其他人能听到你，你也能看到并听到他们。",
+		"MICROPHONE_MISSING": "未找到麦克风。你能看到并听到其他人，他们也能看到你。",
 		"DEVICES_UNAVAILABLE": "此浏览器无法在这里使用摄像头",
 		"DEVICES_UNAVAILABLE_HINT": "摄像头和麦克风需要安全 (https) 连接。你仍可以加入并收听。",
 		"BACK_TO_MEETINGS": "返回会议",

@@ -3780,6 +3780,8 @@
 		"DEVICES_BLOCKED_HINT": "Allow them for this site in your browser, then try again. You can also join without them.",
 		"DEVICES_BUSY": "Your camera or microphone is used by another app.",
 		"DEVICES_MISSING": "No camera or microphone found. You can still join and listen.",
+		"CAMERA_MISSING": "No camera found. The others will hear you; you can see and hear them.",
+		"MICROPHONE_MISSING": "No microphone found. You can see and hear the others, and they can see you.",
 		"DEVICES_UNAVAILABLE": "This browser cannot use a camera here",
 		"DEVICES_UNAVAILABLE_HINT": "Camera and microphone need a secure (https) connection. You can still join and listen.",
 		"BACK_TO_MEETINGS": "Back to meetings",

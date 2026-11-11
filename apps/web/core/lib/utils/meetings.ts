@@ -242,8 +242,42 @@ function icsDateOf(date: Date): string {
 		.replace(/\.\d{3}/, '');
 }
 
+/** A C0 control character or DEL: a line break, a tab, or anything else that has no place in a property line. */
+function isControlCharacter(character: string): boolean {
+	const code = character.codePointAt(0) ?? 0;
+	return code < 0x20 || code === 0x7f;
+}
+
+/**
+ * An iCalendar TEXT value: escaped, every line break (CR, LF or both) written as `\n`, and no other control
+ * character, so no value can end its line and start a property of its own.
+ */
 function icsTextOf(value: string): string {
-	return value.replace(/\\/g, '\\\\').replace(/;/g, '\\;').replace(/,/g, '\\,').replace(/\r?\n/g, '\\n');
+	const escaped = value
+		.replace(/\\/g, '\\\\')
+		.replace(/;/g, '\\;')
+		.replace(/,/g, '\\,')
+		.replace(/\r\n|\r|\n/g, '\\n');
+	return Array.from(escaped)
+		.filter((character) => !isControlCharacter(character))
+		.join('');
+}
+
+/**
+ * The meeting's link as an iCalendar URI value, or null: Gauzy keeps the location as free text, and only an http(s)
+ * URL with no space or control character goes into a property written as it is.
+ */
+function icsUriOf(link: string): string | null {
+	const hasBreak = Array.from(link).some((character) => isControlCharacter(character) || /\s/.test(character));
+	if (hasBreak) {
+		return null;
+	}
+	try {
+		const url = new URL(link);
+		return url.protocol === 'https:' || url.protocol === 'http:' ? url.href : null;
+	} catch {
+		return null;
+	}
 }
 
 /** RFC 5545 folds a line longer than 75 octets: the rest goes on lines that start with a space. */
@@ -270,6 +304,9 @@ function foldIcsLine(line: string): string {
 /** A calendar file (iCalendar) of a meeting, to add it to one's own calendar or to send it to the people invited. */
 export function meetingIcsOf(meeting: ScheduledMeeting & { link: string }, now: Date = new Date()): string {
 	const description = [meeting.description, meeting.link].filter(Boolean).join('\n\n');
+	const uri = icsUriOf(meeting.link);
+	// The id comes from Gauzy; the UID keeps its letters, digits and dashes only
+	const uid = meeting.id.replace(/[^\w-]/g, '');
 	const lines = [
 		'BEGIN:VCALENDAR',
 		'VERSION:2.0',
@@ -277,14 +314,14 @@ export function meetingIcsOf(meeting: ScheduledMeeting & { link: string }, now: 
 		'CALSCALE:GREGORIAN',
 		'METHOD:PUBLISH',
 		'BEGIN:VEVENT',
-		`UID:${meeting.id}@ever-teams`,
+		`UID:${uid}@ever-teams`,
 		`DTSTAMP:${icsDateOf(now)}`,
 		`DTSTART:${icsDateOf(meeting.start)}`,
 		`DTEND:${icsDateOf(meeting.end)}`,
 		`SUMMARY:${icsTextOf(meeting.title)}`,
 		`DESCRIPTION:${icsTextOf(description)}`,
 		`LOCATION:${icsTextOf(meeting.link)}`,
-		`URL:${meeting.link}`,
+		...(uri ? [`URL:${uri}`] : []),
 		'END:VEVENT',
 		'END:VCALENDAR'
 	];

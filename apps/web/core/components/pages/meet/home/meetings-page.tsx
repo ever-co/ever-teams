@@ -94,6 +94,13 @@ export function MeetingsPage() {
 	const teamName = useAtomValue(activeTeamNameState);
 	const scheduled = useScheduledMeetings();
 	const [openDialog, setOpenDialog] = useState<'join' | 'schedule' | null>(null);
+	// Each opening starts a new dialog: the time it proposes is the next slot from now, and the answer of a request
+	// made by a dialog closed before it came back never shows in the next one
+	const [dialogKey, setDialogKey] = useState(0);
+	const openDialogOf = (dialog: 'join' | 'schedule') => {
+		setDialogKey((key) => key + 1);
+		setOpenDialog(dialog);
+	};
 	const title = t('meetings.TITLE');
 
 	const newRoomPath = (meetingTitle?: string) =>
@@ -135,7 +142,7 @@ export function MeetingsPage() {
 							icon={<LogIn />}
 							label={t('meetings.JOIN')}
 							hint={t('meetings.JOIN_HINT')}
-							onClick={() => setOpenDialog('join')}
+							onClick={() => openDialogOf('join')}
 							onPrepare={prepareMeeting}
 							testId="meetings-join"
 						/>
@@ -154,7 +161,7 @@ export function MeetingsPage() {
 							hint={
 								scheduled.canSchedule ? t('meetings.SCHEDULE_HINT') : t('meetings.SCHEDULE_NO_EMPLOYEE')
 							}
-							onClick={() => setOpenDialog('schedule')}
+							onClick={() => openDialogOf('schedule')}
 							disabled={!scheduled.canSchedule}
 							testId="meetings-schedule"
 						/>
@@ -175,8 +182,14 @@ export function MeetingsPage() {
 				)}
 			</div>
 
-			<JoinMeetingDialog open={openDialog === 'join'} onClose={() => setOpenDialog(null)} isJitsi={isJitsi} />
+			<JoinMeetingDialog
+				key={`join-${dialogKey}`}
+				open={openDialog === 'join'}
+				onClose={() => setOpenDialog(null)}
+				isJitsi={isJitsi}
+			/>
 			<ScheduleMeetingDialog
+				key={`schedule-${dialogKey}`}
 				open={openDialog === 'schedule'}
 				onClose={() => setOpenDialog(null)}
 				linkFor={(meetingTitle) => `${window.location.origin}${newRoomPath(meetingTitle)}`}

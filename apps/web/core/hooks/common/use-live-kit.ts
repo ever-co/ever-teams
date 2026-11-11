@@ -56,10 +56,19 @@ export function useTokenLiveKit({ roomName }: ITokenLiveKitProps) {
 		setAttempt((count) => count + 1);
 	}, []);
 
+	/**
+	 * Asks for a new token and drops the one in hand: LiveKit tokens expire, so going back into a room after a long
+	 * meeting needs a fresh one, and the room waits for it.
+	 */
+	const refresh = useCallback(() => {
+		setIssued(null);
+		retry();
+	}, [retry]);
+
 	// A token only grants the room it was issued for, so handing back one from a previous
 	// room would publish local tracks into the room the user just left
 	const token = issued?.room === roomName ? issued.token : null;
 	const error = failure?.room === roomName ? failure.error : null;
 
-	return { token, error, retry };
+	return { token, error, retry, refresh };
 }

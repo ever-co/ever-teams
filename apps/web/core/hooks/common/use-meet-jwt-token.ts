@@ -71,9 +71,18 @@ export function useMeetJwtToken(room?: string) {
 		setAttempt((count) => count + 1);
 	}, []);
 
+	/**
+	 * Asks for a new token and drops the one in hand: the meeting server's tokens last an hour, so going back into a
+	 * room after a long meeting needs a fresh one, and the room waits for it.
+	 */
+	const refresh = useCallback(() => {
+		setIssued(undefined);
+		retry();
+	}, [retry]);
+
 	// A previous room's token would keep the user in the meeting they just left
 	const meeting = issued?.requested === room ? issued : undefined;
 
 	// A retry that succeeded leaves retryCount above zero: the room is retrying only while it has no answer
-	return { loading, meeting, error, retrying: retryCount > 0 && !meeting && !error, retry };
+	return { loading, meeting, error, retrying: retryCount > 0 && !meeting && !error, retry, refresh };
 }

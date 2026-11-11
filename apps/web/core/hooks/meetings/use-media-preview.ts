@@ -120,6 +120,49 @@ function canReachDevices(): boolean {
 	return typeof navigator !== 'undefined' && typeof navigator.mediaDevices?.getUserMedia === 'function';
 }
 
+/** A device the person asked for that the computer does not have, while the other one works. */
+export interface MissingDevices {
+	audio: boolean;
+	video: boolean;
+}
+
+const NONE_MISSING: MissingDevices = { audio: false, video: false };
+
+/**
+ * Opens the camera and the microphone together. The browser refuses both when one of them is missing, so a computer
+ * with a microphone and no camera (or the reverse) then opens the device it has, alone, and says which one is missing.
+ */
+async function openDevices(
+	audio: MediaTrackConstraints | boolean,
+	video: MediaTrackConstraints | boolean
+): Promise<{ media: MediaStream; missing: MissingDevices }> {
+	const mediaDevices = navigator.mediaDevices;
+	try {
+		return { media: await mediaDevices.getUserMedia({ audio, video }), missing: NONE_MISSING };
+	} catch (error) {
+		const isOneMissing = audio !== false && video !== false && accessOfError(error) === 'missing';
+		if (!isOneMissing) {
+			throw error;
+		}
+		const [audioOnly, videoOnly] = await Promise.allSettled([
+			mediaDevices.getUserMedia({ audio, video: false }),
+			mediaDevices.getUserMedia({ audio: false, video })
+		]);
+		const media = [audioOnly, videoOnly].flatMap((result) => (result.status === 'fulfilled' ? [result.value] : []));
+		const [first, second] = media;
+		if (!first) {
+			throw error;
+		}
+		for (const track of second?.getTracks() ?? []) {
+			first.addTrack(track);
+		}
+		return {
+			media: first,
+			missing: { audio: audioOnly.status === 'rejected', video: videoOnly.status === 'rejected' }
+		};
+	}
+}
+
 /** Whether the browser plays audio on a chosen output (Chrome, Edge and recent Firefox). */
 function canPickSpeaker(): boolean {
 	return typeof HTMLMediaElement !== 'undefined' && 'setSinkId' in HTMLMediaElement.prototype;
@@ -136,6 +179,7 @@ export function useMediaPreview() {
 	const [devices, setDevices] = useState<DeviceLists>(NO_DEVICES);
 	const [stream, setStream] = useState<MediaStream | null>(null);
 	const [requestedAccess, setRequestedAccess] = useState<MediaAccess>('pending');
+	const [missingDevices, setMissingDevices] = useState<MissingDevices>(NONE_MISSING);
 	const [attempt, setAttempt] = useState(0);
 	const isSupported = canReachDevices();
 
@@ -149,19 +193,17 @@ export function useMediaPreview() {
 		}
 		let isCurrent = true;
 		let opened: MediaStream | null = null;
-		const constraints = {
-			audio: deviceConstraint(audioEnabled, audioInputId),
-			video: deviceConstraint(videoEnabled, videoInputId)
-		};
-		navigator.mediaDevices
-			.getUserMedia(constraints)
-			.then((media) => {
+		const audio = deviceConstraint(audioEnabled, audioInputId);
+		const video = deviceConstraint(videoEnabled, videoInputId);
+		openDevices(audio, video)
+			.then(({ media, missing }) => {
 				if (!isCurrent) {
 					stopTracks(media);
 					return;
 				}
 				opened = media;
 				setStream(media);
+				setMissingDevices(missing);
 				setRequestedAccess('granted');
 			})
 			.catch((error: unknown) => {
@@ -244,6 +286,7 @@ export function useMediaPreview() {
 		devices,
 		stream: isAskingForDevices ? stream : null,
 		access,
+		missing: isAskingForDevices ? missingDevices : NONE_MISSING,
 		isSupported,
 		canPickSpeaker: canPickSpeaker(),
 		toggleAudio,

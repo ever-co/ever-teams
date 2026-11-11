@@ -19,7 +19,8 @@ function fakeStream(constraints: MediaStreamConstraints) {
 		tracks,
 		getTracks: () => tracks,
 		getAudioTracks: () => tracks.filter((track) => track.kind === 'audio'),
-		getVideoTracks: () => tracks.filter((track) => track.kind === 'video')
+		getVideoTracks: () => tracks.filter((track) => track.kind === 'video'),
+		addTrack: (track: FakeTrack) => tracks.push(track)
 	};
 }
 
@@ -126,6 +127,25 @@ describe('MeetPreJoin', () => {
 		renderPreJoin();
 
 		expect(await screen.findByRole('button', { name: 'meetings.TURN_MIC_ON' })).toBeTruthy();
+	});
+
+	it('previews the microphone alone on a computer without a camera, says so, and joins without the camera', async () => {
+		const notFound = Object.assign(new Error('Requested device not found'), { name: 'NotFoundError' });
+		const getUserMedia = jest.fn((constraints: MediaStreamConstraints) => {
+			if (constraints.video) return Promise.reject(notFound);
+			const stream = fakeStream(constraints);
+			streams.push(stream);
+			return Promise.resolve(stream);
+		});
+		installDevices(getUserMedia);
+		const { onJoin } = renderPreJoin();
+
+		expect(await screen.findByText('meetings.CAMERA_MISSING')).toBeTruthy();
+		expect(screen.queryByText('meetings.DEVICES_MISSING')).toBeNull();
+		expect(streams[0].getAudioTracks()).toHaveLength(1);
+
+		fireEvent.click(screen.getByTestId('meet-join-now'));
+		expect(onJoin).toHaveBeenCalledWith(expect.objectContaining({ audioEnabled: true, videoEnabled: false }));
 	});
 
 	it('stops every track when the screen goes away, so the camera never stays on behind the room', async () => {

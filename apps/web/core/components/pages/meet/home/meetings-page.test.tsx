@@ -101,6 +101,40 @@ describe('MeetingsPage', () => {
 		expect(roomOfPath(path)).toMatch(/^EverTeam-.{10}$/);
 	});
 
+	it('opens a new form each time: an answer that comes back after Schedule was closed never shows in the next one', async () => {
+		let answer: (value: unknown) => void = () => undefined;
+		mockScheduleMeeting.mockReturnValueOnce(new Promise((resolve) => (answer = resolve)));
+		render(<MeetingsPage />);
+		fireEvent.click(screen.getByTestId('meetings-schedule'));
+		fireEvent.change(await screen.findByLabelText('meetings.FIELD_TITLE'), { target: { value: 'Retro' } });
+		fireEvent.click(screen.getByRole('button', { name: 'meetings.SCHEDULE' }));
+		// Closed while the request runs
+		fireEvent.click(screen.getByRole('button', { name: 'common.CANCEL' }));
+
+		fireEvent.click(screen.getByTestId('meetings-schedule'));
+		await act(async () => {
+			answer({ id: 'appointment-late' });
+		});
+
+		expect(screen.queryByTestId('meeting-scheduled')).toBeNull();
+		expect(((await screen.findByLabelText('meetings.FIELD_TITLE')) as HTMLInputElement).value).toBe('');
+	});
+
+	it('proposes the next half hour from when Schedule opens, not from when the page opened', async () => {
+		jest.useFakeTimers({ advanceTimers: true });
+		try {
+			jest.setSystemTime(new Date(2026, 10, 11, 9, 5));
+			render(<MeetingsPage />);
+			jest.setSystemTime(new Date(2026, 10, 11, 11, 40));
+
+			fireEvent.click(screen.getByTestId('meetings-schedule'));
+
+			expect(((await screen.findByLabelText('meetings.FIELD_TIME')) as HTMLInputElement).value).toBe('12:00');
+		} finally {
+			jest.useRealTimers();
+		}
+	});
+
 	it('joins from a pasted link, and says what is wrong with anything else', async () => {
 		render(<MeetingsPage />);
 		fireEvent.click(screen.getByTestId('meetings-join'));

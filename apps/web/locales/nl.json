@@ -3780,6 +3780,8 @@
 		"DEVICES_BLOCKED_HINT": "Sta ze toe voor deze site in je browser en probeer het opnieuw. Je kunt ook zonder deelnemen.",
 		"DEVICES_BUSY": "Je camera of microfoon wordt door een andere app gebruikt.",
 		"DEVICES_MISSING": "Geen camera of microfoon gevonden. Je kunt toch deelnemen en luisteren.",
+		"CAMERA_MISSING": "Geen camera gevonden. De anderen horen je; jij kunt hen zien en horen.",
+		"MICROPHONE_MISSING": "Geen microfoon gevonden. Je kunt de anderen zien en horen, en zij kunnen jou zien.",
 		"DEVICES_UNAVAILABLE": "Deze browser kan hier geen camera gebruiken",
 		"DEVICES_UNAVAILABLE_HINT": "Camera en microfoon hebben een beveiligde (https) verbinding nodig. Je kunt toch deelnemen en luisteren.",
 		"BACK_TO_MEETINGS": "Terug naar vergaderingen",

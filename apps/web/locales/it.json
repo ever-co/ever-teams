@@ -3780,6 +3780,8 @@
 		"DEVICES_BLOCKED_HINT": "Consentili per questo sito nel browser, poi riprova. Puoi anche partecipare senza.",
 		"DEVICES_BUSY": "La fotocamera o il microfono sono usati da un’altra app.",
 		"DEVICES_MISSING": "Nessuna fotocamera o microfono trovato. Puoi comunque partecipare e ascoltare.",
+		"CAMERA_MISSING": "Nessuna fotocamera trovata. Gli altri ti sentiranno; puoi vederli e sentirli.",
+		"MICROPHONE_MISSING": "Nessun microfono trovato. Puoi vedere e sentire gli altri, e loro possono vederti.",
 		"DEVICES_UNAVAILABLE": "Questo browser non può usare una fotocamera qui",
 		"DEVICES_UNAVAILABLE_HINT": "Fotocamera e microfono richiedono una connessione sicura (https). Puoi comunque partecipare e ascoltare.",
 		"BACK_TO_MEETINGS": "Torna alle riunioni",

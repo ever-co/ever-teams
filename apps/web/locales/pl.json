@@ -3780,6 +3780,8 @@
 		"DEVICES_BLOCKED_HINT": "Zezwól na nie dla tej witryny w przeglądarce i spróbuj ponownie. Możesz też dołączyć bez nich.",
 		"DEVICES_BUSY": "Twoja kamera lub mikrofon są używane przez inną aplikację.",
 		"DEVICES_MISSING": "Nie znaleziono kamery ani mikrofonu. Nadal możesz dołączyć i słuchać.",
+		"CAMERA_MISSING": "Nie znaleziono kamery. Inni będą cię słyszeć; ty możesz ich widzieć i słyszeć.",
+		"MICROPHONE_MISSING": "Nie znaleziono mikrofonu. Możesz widzieć i słyszeć innych, a oni mogą cię widzieć.",
 		"DEVICES_UNAVAILABLE": "Ta przeglądarka nie może tu używać kamery",
 		"DEVICES_UNAVAILABLE_HINT": "Kamera i mikrofon wymagają bezpiecznego połączenia (https). Nadal możesz dołączyć i słuchać.",
 		"BACK_TO_MEETINGS": "Wróć do spotkań",

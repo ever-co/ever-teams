@@ -61,6 +61,25 @@ describe('useMeetJwtToken', () => {
 		expect(mockGetMeetJwtAuthToken).toHaveBeenCalledTimes(5);
 	});
 
+	it('drops the token in hand on refresh and waits for a new one, for a rejoin after the hour a token lasts', async () => {
+		mockGetMeetJwtAuthToken.mockResolvedValueOnce({ data: { token: 'first', room: 'team-room_tenant' } });
+		const { result } = renderHook(() => useMeetJwtToken('team-room'));
+		await waitFor(() => expect(result.current.meeting?.token).toBe('first'));
+
+		let answer: (value: unknown) => void = () => undefined;
+		mockGetMeetJwtAuthToken.mockReturnValueOnce(new Promise((resolve) => (answer = resolve)));
+		act(() => {
+			result.current.refresh();
+		});
+
+		expect(result.current.meeting).toBeUndefined();
+		await act(async () => {
+			answer({ data: { token: 'second', room: 'team-room_tenant' } });
+		});
+		await waitFor(() => expect(result.current.meeting?.token).toBe('second'));
+		expect(mockGetMeetJwtAuthToken).toHaveBeenCalledTimes(2);
+	});
+
 	it('gives another room its own automatic retries', async () => {
 		mockGetMeetJwtAuthToken.mockRejectedValue(serverError());
 		const { result, rerender } = renderHook(({ room }) => useMeetJwtToken(room), {

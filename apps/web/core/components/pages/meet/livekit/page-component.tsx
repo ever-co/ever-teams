@@ -50,9 +50,15 @@ function LiveKitPage() {
 		}
 	}, [params]);
 
-	const { token, error, retry } = useTokenLiveKit({
+	const { token, error, retry, refresh } = useTokenLiveKit({
 		roomName: roomName || ''
 	});
+	// A token lasts an hour: coming back into the room asks for a new one, and the room waits for it
+	const { rejoin: reopenRoom } = flow;
+	const rejoin = useCallback(() => {
+		refresh();
+		reopenRoom();
+	}, [refresh, reopenRoom]);
 
 	const hasToken = Boolean(token);
 	const hasRoomName = Boolean(roomName);
@@ -92,9 +98,7 @@ function LiveKitPage() {
 					onCopyLink={flow.copyLink}
 				/>
 			)}
-			{flow.stage === 'left' && (
-				<MeetLeft title={flow.title} onRejoin={flow.rejoin} onBack={flow.backToMeetings} />
-			)}
+			{flow.stage === 'left' && <MeetLeft title={flow.title} onRejoin={rejoin} onBack={flow.backToMeetings} />}
 			{flow.stage === 'room' && !canJoin && <LiveKitMeetPageSkeleton />}
 			{flow.stage === 'room' && token && roomName && (
 				<LiveKit

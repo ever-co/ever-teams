@@ -7,7 +7,7 @@ import { useUserQuery } from '@/core/hooks/queries/user-user.query';
 import { withAuthentication } from '@/core/components/layouts/app/authenticator';
 import { Meta } from '@/core/components';
 import { useRouter, usePathname, useSearchParams } from 'next/navigation';
-import { useEffect, useMemo, useRef } from 'react';
+import { useCallback, useEffect, useMemo, useRef } from 'react';
 import { useTranslations, type DottedLanguageObjectStringPaths } from 'next-intl';
 import { errorReasonKeyOf } from '@/core/lib/utils/error-feedback';
 import { roomNameOfParam } from '@/core/lib/utils/meetings';
@@ -49,9 +49,15 @@ function MeetPage() {
 		}
 	}, [room]);
 
-	const { meeting, error, retrying, retry } = useMeetJwtToken(roomName || undefined);
+	const { meeting, error, retrying, retry, refresh } = useMeetJwtToken(roomName || undefined);
 	const { randomMeetName } = useCollaborative();
 	const flow = useMeetingRoomFlow(useMemo(() => roomNameOfParam(room), [room]));
+	// A token lasts an hour: coming back into the room asks for a new one, and the room waits for it
+	const { rejoin: reopenRoom } = flow;
+	const rejoin = useCallback(() => {
+		refresh();
+		reopenRoom();
+	}, [refresh, reopenRoom]);
 
 	// Handle room creation and navigation
 	useEffect(() => {
@@ -94,9 +100,7 @@ function MeetPage() {
 					onCopyLink={flow.copyLink}
 				/>
 			)}
-			{flow.stage === 'left' && (
-				<MeetLeft title={flow.title} onRejoin={flow.rejoin} onBack={flow.backToMeetings} />
-			)}
+			{flow.stage === 'left' && <MeetLeft title={flow.title} onRejoin={rejoin} onBack={flow.backToMeetings} />}
 			{flow.stage === 'room' && retrying && <MeetRoomSkeleton label={t('collaborate.RECONNECTING_MEETING')} />}
 			{flow.stage === 'room' && !retrying && !hasMeeting && <JitsiMeetPageSkeleton />}
 			{/* The room the server issued the token for: the link's room scoped to the user's tenant */}

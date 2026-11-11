@@ -124,6 +124,9 @@ export function MeetPreJoin({ title, displayName, onJoin, onBack, onCopyLink }: 
 	const join = () => {
 		onJoin({
 			...choices,
+			// A device the computer does not have stays off in the room, which would fail to open it
+			audioEnabled: choices.audioEnabled && !preview.missing.audio,
+			videoEnabled: choices.videoEnabled && !preview.missing.video,
 			displayName,
 			audioInputLabel: preview.labelOf('audioinput', choices.audioInputId),
 			videoInputLabel: preview.labelOf('videoinput', choices.videoInputId),
@@ -232,6 +235,12 @@ export function MeetPreJoin({ title, displayName, onJoin, onBack, onCopyLink }: 
 						/>
 					)}
 					{access === 'missing' && <Notice tone="info" title={t('meetings.DEVICES_MISSING')} />}
+					{preview.missing.video && !preview.missing.audio && (
+						<Notice tone="info" title={t('meetings.CAMERA_MISSING')} />
+					)}
+					{preview.missing.audio && !preview.missing.video && (
+						<Notice tone="info" title={t('meetings.MICROPHONE_MISSING')} />
+					)}
 					{access === 'unavailable' && (
 						<Notice
 							tone="info"

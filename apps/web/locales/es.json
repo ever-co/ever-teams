@@ -3780,6 +3780,8 @@
 		"DEVICES_BLOCKED_HINT": "Permítelos para este sitio en tu navegador y vuelve a intentarlo. También puedes unirte sin ellos.",
 		"DEVICES_BUSY": "Otra aplicación está usando tu cámara o tu micrófono.",
 		"DEVICES_MISSING": "No se encontró cámara ni micrófono. Aun así puedes unirte y escuchar.",
+		"CAMERA_MISSING": "No se encontró ninguna cámara. Los demás te oirán; tú puedes verlos y oírlos.",
+		"MICROPHONE_MISSING": "No se encontró ningún micrófono. Puedes ver y oír a los demás, y ellos pueden verte.",
 		"DEVICES_UNAVAILABLE": "Este navegador no puede usar una cámara aquí",
 		"DEVICES_UNAVAILABLE_HINT": "La cámara y el micrófono necesitan una conexión segura (https). Aun así puedes unirte y escuchar.",
 		"BACK_TO_MEETINGS": "Volver a las reuniones",

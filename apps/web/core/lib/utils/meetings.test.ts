@@ -1,4 +1,4 @@
-// cspell:ignore DTEND DTSTART VCALENDAR Équipe
+// cspell:ignore DTEND DTSTART VCALENDAR XATTENDEE Équipe
 import { meetPathFor } from './collaboration';
 import {
 	agendaOf,
@@ -166,5 +166,37 @@ describe('scheduled meetings', () => {
 		expect(ics).toContain('DESCRIPTION:Agenda:\\n1. Demo\\n\\nhttps://app.example.com');
 		expect(lines.every((line) => new TextEncoder().encode(line).length <= 75)).toBe(true);
 		expect(ics.endsWith('END:VCALENDAR\r\n')).toBe(true);
+	});
+
+	it('keeps a location of free text from adding properties to the calendar file', () => {
+		// Gauzy keeps the location as free text: line breaks in it must not start properties of their own
+		const ics = meetingIcsOf(
+			meeting('m1;X\r\nATTENDEE', '2026-11-12T14:00:00.000Z', '2026-11-12T14:45:00.000Z', {
+				link: 'https://app.example.com/meet\r\nATTENDEE:mailto:eve@example.com\rORGANIZER:mailto:eve@example.com'
+			}) as ScheduledMeeting & { link: string },
+			new Date('2026-11-11T10:00:00.000Z')
+		);
+		const lines = ics.split('\r\n');
+
+		expect(lines.some((line) => /^(ATTENDEE|ORGANIZER)/.test(line))).toBe(false);
+		expect(ics).not.toMatch(/\r(?!\n)/);
+		// Not a URL any more once it holds line breaks: no URL property at all
+		expect(lines.some((line) => line.startsWith('URL:'))).toBe(false);
+		expect(lines).toContain('UID:m1XATTENDEE@ever-teams');
+	});
+
+	it('writes the URL property only for an http(s) link', () => {
+		const ics = (link: string) =>
+			meetingIcsOf(
+				meeting('m1', '2026-11-12T14:00:00.000Z', '2026-11-12T14:45:00.000Z', { link }) as ScheduledMeeting & {
+					link: string;
+				}
+			);
+
+		expect(ics('https://app.ever.team/meet/jitsi?room=abc')).toContain(
+			'\r\nURL:https://app.ever.team/meet/jitsi?room=abc\r\n'
+		);
+		expect(ics('javascript:alert(1)')).not.toContain('URL:');
+		expect(ics('Room 4, second floor')).not.toContain('URL:');
 	});
 });

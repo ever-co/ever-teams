@@ -36,6 +36,25 @@ describe('useTokenLiveKit', () => {
 		expect(result.current.error).toBeNull();
 	});
 
+	it('drops the token in hand on refresh and waits for a new one, for a rejoin after it expired', async () => {
+		mockTokenLiveKitRoom.mockResolvedValueOnce({ token: 'first' });
+		const { result } = renderHook(() => useTokenLiveKit({ roomName: 'room-a' }));
+		await waitFor(() => expect(result.current.token).toBe('first'));
+
+		let answer: (value: unknown) => void = () => undefined;
+		mockTokenLiveKitRoom.mockReturnValueOnce(new Promise((resolve) => (answer = resolve)));
+		act(() => {
+			result.current.refresh();
+		});
+
+		expect(result.current.token).toBeNull();
+		await act(async () => {
+			answer({ token: 'second' });
+		});
+		await waitFor(() => expect(result.current.token).toBe('second'));
+		expect(mockTokenLiveKitRoom).toHaveBeenCalledTimes(2);
+	});
+
 	it('treats an answer without a token as a failure', async () => {
 		mockTokenLiveKitRoom.mockResolvedValueOnce({});
 
