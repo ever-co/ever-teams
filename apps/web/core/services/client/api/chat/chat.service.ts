@@ -152,10 +152,11 @@ class ChatService extends APIService {
 	/**
 	 * The preview of a link posted in a message (`/chat/link-preview?url=`), as the platform fetched it: `pending` while
 	 * its worker fetches the page, `ready`, or `unavailable`. A platform without the route answers 404, a link it cannot
-	 * preview at all (not http(s), with credentials, too long) 400.
+	 * preview at all (not http(s), with credentials, too long) 400. The link goes as a parameter, not in the path the
+	 * HTTP log lines print (a link can carry a share token).
 	 */
 	linkPreview = async (url: string, signal?: AbortSignal): Promise<IChatLinkPreview> => {
-		const response = await this.get<IChatLinkPreview>(`/chat/link-preview?${qs.stringify({ url })}`, { signal });
+		const response = await this.get<IChatLinkPreview>('/chat/link-preview', { signal, params: { url } });
 		return response.data;
 	};
 

@@ -25,6 +25,16 @@ const CHAT_LINK_PREVIEW_CONCURRENCY = 4;
 /** How many links are remembered as having no preview, at most (the oldest are forgotten first). */
 const CHAT_LINK_PREVIEW_REMEMBERED = 500;
 
+/** How many asks a minute, at most: the platform allows about 120 per person, the pending asks again included. */
+const CHAT_LINK_PREVIEW_PER_MINUTE = 100;
+
+/** How many times an ask the platform refused for its pace (429) is made again, after a pause. */
+const CHAT_LINK_PREVIEW_PACE_RETRIES = 2;
+
+/** The pause before the first ask again after a 429 when the answer states none (doubled each time, 60 s at most). */
+const CHAT_LINK_PREVIEW_PACE_RETRY_MS = 5000;
+const CHAT_LINK_PREVIEW_PACE_RETRY_MAX_MS = 60_000;
+
 /** A link of a message that gets a preview. */
 export interface ChatPreviewLink {
 	/** The link as written (its fragment kept): what the card opens. */
@@ -52,10 +62,36 @@ export function normalizePreviewUrl(raw: string): string | null {
 	return url.href.length > CHAT_LINK_PREVIEW_URL_MAX_LENGTH ? null : url.href;
 }
 
-/** A fence line: up to three spaces, then three or more backticks or tildes (what opens or closes a code block). */
-const FENCE = /^ {0,3}(`{3,}|~{3,})(.*)$/;
+/** A fence: three or more backticks or tildes at the start of a line's content (what opens or closes a code block). */
+const FENCE = /^(`{3,}|~{3,})(.*)$/;
 
-/** A line with its code spans (a run of backticks up to the next run of the same length) blanked out. */
+/** A list item's marker at the start of a line's content (`-`, `*`, `+`, `1.`, `1)`), with the space after it. */
+const LIST_MARKER = /^(?:[-*+]|\d{1,9}[.)])[ \t]/;
+
+/** A line indented as code (four spaces or a tab). */
+const CODE_INDENT = /^(?: {4}|\t)/;
+
+/**
+ * A line's content inside its quotes and list items (`> - ```` is a fence too). Any indent is let through, so an
+ * indented fence counts as one: a line taken for code when it is not only costs a preview, never the other way.
+ */
+function contentOf(line: string): string {
+	let rest = line.trimStart();
+	for (;;) {
+		if (rest.startsWith('>')) {
+			rest = rest.slice(1).trimStart();
+			continue;
+		}
+		const marker = LIST_MARKER.exec(rest);
+		if (!marker) return rest;
+		rest = rest.slice(marker[0].length).trimStart();
+	}
+}
+
+/**
+ * A paragraph with its code spans (a run of backticks up to the next run of the same length, on the same line or a
+ * following one) blanked out.
+ */
 function withoutCodeSpans(line: string): string {
 	const runs = [...line.matchAll(/`+/g)];
 	let result = '';
@@ -74,14 +110,20 @@ function withoutCodeSpans(line: string): string {
 }
 
 /**
- * The body with its code blanked out: fenced blocks (``` or ~~~, closed by a fence of the same character at least as
- * long, or by the end of the body) and code spans. A link written as code is shown as code, not as a link.
+ * The body with its code blanked out: fenced blocks (``` or ~~~, also in a quote or a list item, closed by a fence of
+ * the same character at least as long, or by the end of the body), indented code (outside a paragraph) and code
+ * spans, which run on over the lines of their paragraph. A link written as code is shown as code, not as a link.
  */
 export function withoutCode(body: string): string {
 	const lines: string[] = [];
 	let fence: string | null = null;
+	let paragraph: string[] = [];
+	const endParagraph = () => {
+		if (paragraph.length) lines.push(withoutCodeSpans(paragraph.join('\n')));
+		paragraph = [];
+	};
 	for (const line of body.split('\n')) {
-		const match = FENCE.exec(line);
+		const match = FENCE.exec(contentOf(line));
 		if (fence) {
 			if (match && match[1][0] === fence[0] && match[1].length >= fence.length && !match[2].trim()) fence = null;
 			lines.push('');
@@ -89,13 +131,37 @@ export function withoutCode(body: string): string {
 		}
 		// A backtick fence cannot carry a backtick in its info string (that line is a code span instead).
 		if (match && !(match[1][0] === '`' && match[2].includes('`'))) {
+			endParagraph();
 			fence = match[1];
 			lines.push('');
 			continue;
 		}
-		lines.push(withoutCodeSpans(line));
+		// Indented code cannot interrupt a paragraph: there, the indent only continues it.
+		if (!paragraph.length && CODE_INDENT.test(line) && line.trim()) {
+			lines.push('');
+			continue;
+		}
+		if (line.trim()) {
+			paragraph.push(line);
+			continue;
+		}
+		// A blank line ends the paragraph: a code span never runs past it.
+		endParagraph();
+		lines.push(line);
 	}
+	endParagraph();
 	return lines.join('\n');
+}
+
+/** A Markdown picture (`![alt](address)`): the renderer shows its words only, so its address is no link. */
+const MARKDOWN_IMAGE = /!\[[^\][\n]*\]\([^)\n]*\)/g;
+
+/** The label of a Markdown link up to its address (`[label](`): the label is the link's words, not where it goes. */
+const MARKDOWN_LINK_LABEL = /\[[^\][\n]*\]\(/g;
+
+/** The text a link is read in: no code, no picture, and only the addresses of Markdown links (not their labels). */
+function linkText(body: string): string {
+	return withoutCode(body).replace(MARKDOWN_IMAGE, ' ').replace(MARKDOWN_LINK_LABEL, ' (');
 }
 
 /**
@@ -122,6 +188,22 @@ function withoutTrailingEntity(link: string): string {
 	if (!link.endsWith(';')) return link;
 	const at = link.lastIndexOf('&');
 	return at >= 0 && ENTITY_NAME.test(link.slice(at + 1, -1)) ? link.slice(0, at) : link;
+}
+
+/** The named character references a link may carry (`&amp;` in a query), as the renderer decodes them. */
+const NAMED_REFERENCES: Readonly<Record<string, string>> = { amp: '&', lt: '<', gt: '>', quot: '"', apos: "'" };
+
+/** A character reference: `&amp;`, `&#38;` or `&#x26;`. */
+const CHARACTER_REFERENCE = /&(#x[0-9a-f]{1,6}|#\d{1,7}|[a-z]{2,8});/gi;
+
+/** A link with its character references decoded, as the address of the rendered link has them. */
+function decodeReferences(link: string): string {
+	return link.replace(CHARACTER_REFERENCE, (reference: string, name: string) => {
+		if (!name.startsWith('#')) return NAMED_REFERENCES[name.toLowerCase()] ?? reference;
+		const hex = name[1] === 'x' || name[1] === 'X';
+		const code = hex ? Number.parseInt(name.slice(2), 16) : Number.parseInt(name.slice(1), 10);
+		return code > 0 && code <= 0x10ffff ? String.fromCodePoint(code) : reference;
+	});
 }
 
 /**
@@ -153,8 +235,8 @@ export function previewLinksOf(
 	const links: ChatPreviewLink[] = [];
 	if (!body || max <= 0) return links;
 	const seen = new Set<string>();
-	for (const match of withoutCode(body).matchAll(LINK_CANDIDATE)) {
-		const written = trimLinkEnd(match[2]);
+	for (const match of linkText(body).matchAll(LINK_CANDIDATE)) {
+		const written = decodeReferences(trimLinkEnd(match[2]));
 		const absolute = /^www\./i.test(written) ? `http://${written}` : written;
 		const url = normalizePreviewUrl(absolute);
 		if (!url || seen.has(url)) continue;
@@ -174,8 +256,13 @@ export function previewLinksOf(
 export interface ChatLinkPreviewCard {
 	/** What the card opens: the link as written. */
 	href: string;
-	/** The site's name, or the link's host when the page names none. */
-	site: string;
+	/**
+	 * The host the card opens (`www.` left out). Always shown, and what the card is named by: the page names its site
+	 * as it likes, so its name alone could pass for another site's.
+	 */
+	host: string;
+	/** The name the page gives its site, when it gives one other than its host. */
+	siteName: string | null;
 	title: string | null;
 	description: string | null;
 }
@@ -207,7 +294,15 @@ export function linkPreviewCardOf(
 	const title = plainText(preview.title);
 	const description = plainText(preview.description);
 	if (!title && !description) return null;
-	return { href: link.href, site: plainText(preview.siteName) ?? hostOf(link.href), title, description };
+	const host = hostOf(link.href);
+	const siteName = plainText(preview.siteName);
+	return {
+		href: link.href,
+		host,
+		siteName: siteName && siteName.toLowerCase() !== host.toLowerCase() ? siteName : null,
+		title,
+		description
+	};
 }
 
 /** One ask of the platform for the preview of a (normalized) link. */
@@ -218,12 +313,16 @@ interface ChatLinkPreviewSessionOptions {
 	maxPolls?: number;
 	concurrency?: number;
 	remembered?: number;
+	perMinute?: number;
+	paceRetries?: number;
+	paceRetryMs?: number;
 }
 
 /**
- * What the page remembers about link previews while it is open: whether the platform has the route at all (the first
- * ask is the probe; the others wait for its answer, so a platform without it gets one request, not one per link),
- * and the links that have no preview (never asked for again).
+ * What the page remembers about link previews while it is open, to ask the platform as little as it can: whether the
+ * platform has the route at all (the first ask is the probe; the others wait for its answer, so a platform without it
+ * gets one request, not one per link), the links that have no preview (never asked for again), and the pace of the
+ * asks. A fetch coordinator only: it holds no state anything renders from (a card shows what its query answered).
  */
 export interface ChatLinkPreviewSession {
 	/**
@@ -235,11 +334,12 @@ export interface ChatLinkPreviewSession {
 	routeMissing: () => boolean;
 	/** Whether the link is known to have no preview. */
 	isUnavailable: (url: string) => boolean;
-	/** Called when the platform turns out to have no route. */
-	subscribe: (listener: () => void) => () => void;
 }
 
 type RouteState = 'unknown' | 'probing' | 'present' | 'missing';
+
+/** A minute, the window the platform counts its asks in. */
+const PACE_WINDOW_MS = 60_000;
 
 function abortError(signal: AbortSignal): unknown {
 	return signal.reason ?? new DOMException('The ask was cancelled', 'AbortError');
@@ -267,6 +367,17 @@ function wait(ms: number, signal?: AbortSignal): Promise<void> {
 	});
 }
 
+/** The `Retry-After` of a refused ask, in milliseconds (seconds or an HTTP date), when the answer carries one. */
+function retryAfterOf(error: unknown): number | null {
+	const headers = (error as { response?: { headers?: Record<string, unknown> } } | null)?.response?.headers;
+	const value = headers?.['retry-after'];
+	if (typeof value !== 'string' && typeof value !== 'number') return null;
+	const seconds = Number(value);
+	if (Number.isFinite(seconds)) return seconds * 1000;
+	const at = Date.parse(String(value));
+	return Number.isFinite(at) ? at - Date.now() : null;
+}
+
 export function createChatLinkPreviewSession(
 	ask: ChatLinkPreviewAsk,
 	options: ChatLinkPreviewSessionOptions = {}
@@ -275,10 +386,14 @@ export function createChatLinkPreviewSession(
 	const maxPolls = options.maxPolls ?? CHAT_LINK_PREVIEW_MAX_POLLS;
 	const concurrency = Math.max(1, options.concurrency ?? CHAT_LINK_PREVIEW_CONCURRENCY);
 	const rememberedMax = Math.max(1, options.remembered ?? CHAT_LINK_PREVIEW_REMEMBERED);
+	const perMinute = Math.max(1, options.perMinute ?? CHAT_LINK_PREVIEW_PER_MINUTE);
+	const paceRetries = Math.max(0, options.paceRetries ?? CHAT_LINK_PREVIEW_PACE_RETRIES);
+	const paceRetryMs = Math.max(0, options.paceRetryMs ?? CHAT_LINK_PREVIEW_PACE_RETRY_MS);
 	const state: { route: RouteState; probe: Promise<void> } = { route: 'unknown', probe: Promise.resolve() };
 	const unavailable = new Set<string>();
-	const listeners = new Set<() => void>();
 	const waiting: Array<() => void> = [];
+	/** When each ask of the last minute was sent, oldest first. */
+	const sent: number[] = [];
 	let running = 0;
 
 	const remember = (url: string) => {
@@ -289,17 +404,52 @@ export function createChatLinkPreviewSession(
 		}
 	};
 
-	/** One ask, in turn: a few at once at most (an ask that ends hands its place to the next one waiting). */
+	/** Waits until an ask fits in the minute's allowance, then counts it. */
+	const paced = async (signal?: AbortSignal): Promise<void> => {
+		for (;;) {
+			const now = Date.now();
+			while (sent.length && now - sent[0] >= PACE_WINDOW_MS) sent.shift();
+			if (sent.length < perMinute) {
+				sent.push(now);
+				return;
+			}
+			await wait(PACE_WINDOW_MS - (now - sent[0]), signal);
+		}
+	};
+
+	/** One ask, in turn and at the pace: a few at once at most (one that ends hands its place to the next waiting). */
 	const askInTurn = async (url: string, signal?: AbortSignal): Promise<IChatLinkPreview> => {
 		if (running < concurrency) running += 1;
 		else await new Promise<void>((resolve) => waiting.push(resolve));
 		try {
 			throwIfAborted(signal);
+			await paced(signal);
 			return await ask(url, signal);
 		} finally {
 			const next = waiting.shift();
 			if (next) next();
 			else running -= 1;
+		}
+	};
+
+	/**
+	 * One ask, made again after a pause when the platform refuses it for its pace (429), a couple of times at most.
+	 * `answered` hears that the route answered, even with a refusal.
+	 */
+	const askPaced = async (
+		url: string,
+		signal: AbortSignal | undefined,
+		answered: () => void
+	): Promise<IChatLinkPreview> => {
+		for (let attempt = 0; ; attempt += 1) {
+			try {
+				return await askInTurn(url, signal);
+			} catch (error) {
+				if (errorStatusOf(error) !== 429 || attempt >= paceRetries) throw error;
+				answered();
+				const pause = retryAfterOf(error) ?? paceRetryMs * 2 ** attempt;
+				await wait(Math.min(CHAT_LINK_PREVIEW_PACE_RETRY_MAX_MS, Math.max(0, pause)), signal);
+			}
 		}
 	};
 
@@ -317,16 +467,18 @@ export function createChatLinkPreviewSession(
 				settleProbe = resolve;
 			});
 		}
+		// The route answered: the other links are asked for now, while this one waits for its page.
+		const answered = () => {
+			if (!probing || state.route !== 'probing') return;
+			state.route = 'present';
+			settleProbe();
+		};
 		try {
-			let preview = await askInTurn(url, signal);
-			if (probing) {
-				// The route answered: the other links are asked for now, while this one waits for its page.
-				state.route = 'present';
-				settleProbe();
-			}
+			let preview = await askPaced(url, signal, answered);
+			answered();
 			for (let polls = 0; preview?.status === EChatLinkPreviewStatus.Pending && polls < maxPolls; polls += 1) {
 				await wait(pollMs, signal);
-				preview = await askInTurn(url, signal);
+				preview = await askPaced(url, signal, answered);
 			}
 			if (preview?.status === EChatLinkPreviewStatus.Unavailable) remember(url);
 			return preview ?? null;
@@ -334,13 +486,12 @@ export function createChatLinkPreviewSession(
 			const status = errorStatusOf(error);
 			if (status === 404) {
 				state.route = 'missing';
-				for (const listener of listeners) listener();
 				return null;
 			}
 			// A refusal of the link (400) or of the pace (429) is the route answering; an outage, a cancel or a
 			// sign-out tells nothing, and the next link probes again.
-			if (probing && state.route === 'probing')
-				state.route = status === 400 || status === 429 ? 'present' : 'unknown';
+			if (status === 400 || status === 429) answered();
+			else if (probing && state.route === 'probing') state.route = 'unknown';
 			if (status === 400) {
 				remember(url);
 				return null;
@@ -354,12 +505,6 @@ export function createChatLinkPreviewSession(
 	return {
 		load,
 		routeMissing: () => state.route === 'missing',
-		isUnavailable: (url) => unavailable.has(url),
-		subscribe: (listener) => {
-			listeners.add(listener);
-			return () => {
-				listeners.delete(listener);
-			};
-		}
+		isUnavailable: (url) => unavailable.has(url)
 	};
 }

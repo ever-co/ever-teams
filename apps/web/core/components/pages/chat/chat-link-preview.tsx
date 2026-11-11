@@ -12,9 +12,9 @@ function ownOrigin(): string | null {
 }
 
 /**
- * One link's card: the site's name, the page's title and two lines of its description. Text only: the page's picture
- * and icon live on the linked site's hosts, and drawing them would make the reader's browser call that site. The card
- * is one link, named by the title and the site; every text is the platform's plain text.
+ * One link's card: the site's name and its host, the page's title and two lines of its description. Text only: the
+ * page's picture and icon live on the linked site's hosts, and drawing them would make the reader's browser call that
+ * site. The card is one link, named by the title and the host; every text is the platform's plain text.
  */
 function LinkPreviewCard({ card }: Readonly<{ card: ChatLinkPreviewCard }>) {
 	const t = useTranslations();
@@ -27,8 +27,8 @@ function LinkPreviewCard({ card }: Readonly<{ card: ChatLinkPreviewCard }>) {
 			rel="noopener noreferrer nofollow"
 			aria-label={
 				card.title
-					? t('teamChat.LINK_PREVIEW_LABEL', { title: card.title, site: card.site })
-					: t('teamChat.LINK_PREVIEW_SITE_LABEL', { site: card.site })
+					? t('teamChat.LINK_PREVIEW_LABEL', { title: card.title, site: card.host })
+					: t('teamChat.LINK_PREVIEW_SITE_LABEL', { site: card.host })
 			}
 			aria-describedby={card.description ? descriptionId : undefined}
 			className="group/preview flex w-full max-w-md flex-col gap-0.5 rounded-lg bg-card px-2.5 py-2 text-start outline-none hairline-ring ring-border transition-colors hover:bg-foreground/[0.03] focus-visible:ring-[3px] focus-visible:ring-ring/25"
@@ -36,8 +36,17 @@ function LinkPreviewCard({ card }: Readonly<{ card: ChatLinkPreviewCard }>) {
 		>
 			<span className="flex min-w-0 items-center gap-1.5 text-[11px] leading-4 text-muted-foreground">
 				<Link className="size-3 shrink-0" aria-hidden="true" />
-				<span className="min-w-0 truncate" dir="auto">
-					{card.site}
+				{/* The page's own name for its site, then always the host the card opens. */}
+				{card.siteName && (
+					<>
+						<span className="min-w-0 shrink-[3] truncate font-medium text-foreground/80" dir="auto">
+							{card.siteName}
+						</span>
+						<span aria-hidden="true">·</span>
+					</>
+				)}
+				<span className="min-w-0 truncate" dir="ltr">
+					{card.host}
 				</span>
 			</span>
 			{card.title && (

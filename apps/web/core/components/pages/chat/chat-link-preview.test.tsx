@@ -18,7 +18,8 @@ import { MessageLinkPreviews } from './chat-link-preview';
 
 const CARD: ChatLinkPreviewCard = {
 	href: 'https://a.io/page#top',
-	site: 'A site',
+	host: 'a.io',
+	siteName: 'A site',
 	title: 'The page',
 	description: 'What the page is about'
 };
@@ -38,10 +39,10 @@ describe('MessageLinkPreviews', () => {
 		expect(mockPreviews).not.toHaveBeenCalled();
 	});
 
-	it('renders the card as one link, named by the title and the site, described by the description', () => {
+	it('renders the card as one link, named by the title and the host, described by the description', () => {
 		mockPreviews.mockReturnValue([CARD]);
 		render(<MessageLinkPreviews body="https://a.io/page#top" />);
-		const link = screen.getByRole('link', { name: 'teamChat.LINK_PREVIEW_LABEL:The page|A site' });
+		const link = screen.getByRole('link', { name: 'teamChat.LINK_PREVIEW_LABEL:The page|a.io' });
 		expect(link.getAttribute('href')).toBe('https://a.io/page#top');
 		expect(link.getAttribute('target')).toBe('_blank');
 		expect(link.getAttribute('rel')).toBe('noopener noreferrer nofollow');
@@ -55,13 +56,14 @@ describe('MessageLinkPreviews', () => {
 		const { container } = render(<MessageLinkPreviews body="https://a.io/page#top" />);
 		expect(container.querySelector('img')).toBeNull();
 		expect(screen.getByText('A site')).toBeTruthy();
+		expect(screen.getByText('a.io')).toBeTruthy();
 		expect(screen.getByText('The page')).toBeTruthy();
 	});
 
-	it('names a card without a title by its site', () => {
+	it('names a card without a title by its host', () => {
 		mockPreviews.mockReturnValue([{ ...CARD, title: null }]);
 		render(<MessageLinkPreviews body="https://a.io/page#top" />);
-		expect(screen.getByRole('link', { name: 'teamChat.LINK_PREVIEW_SITE_LABEL:A site' })).toBeTruthy();
+		expect(screen.getByRole('link', { name: 'teamChat.LINK_PREVIEW_SITE_LABEL:a.io' })).toBeTruthy();
 		expect(screen.queryByText('The page')).toBeNull();
 	});
 });

@@ -1087,8 +1087,13 @@ function collectRealHeadSurface(): Surface {
 		`const result = collectSurface('HEAD', { cwd: ${JSON.stringify(REPOSITORY_ROOT)} });`,
 		'process.stdout.write(JSON.stringify(result.surface));'
 	].join('\n');
+	// The surface of the real repository is over a MiB of JSON (1.07 MB on develop 2026-11-11), past spawnSync's
+	// default 1 MiB buffer, which then fails with ENOBUFS before any assertion runs.
 	const result = checkedSpawn(
-		spawnSync(process.execPath, ['--input-type=module', '--eval', expression], { encoding: 'utf8' })
+		spawnSync(process.execPath, ['--input-type=module', '--eval', expression], {
+			encoding: 'utf8',
+			maxBuffer: 64 * 1024 * 1024
+		})
 	);
 	if (result.status !== 0) throw new Error(result.stderr);
 	realHeadSurface = JSON.parse(result.stdout) as Surface;

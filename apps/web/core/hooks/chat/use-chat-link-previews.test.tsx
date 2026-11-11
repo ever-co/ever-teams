@@ -59,7 +59,8 @@ describe('useChatLinkPreviews', () => {
 		expect(first.result.current[0]).toMatchObject({
 			href: 'https://a.io/page#top',
 			title: 'Title of https://a.io/page',
-			site: 'Site'
+			host: 'a.io',
+			siteName: 'Site'
 		});
 		expect(mockAsk.mock.calls.map(([url]) => url).sort()).toEqual(['https://a.io/page', 'https://b.io/']);
 	});

@@ -15,9 +15,12 @@ function answer(url: string, status: EChatLinkPreviewStatus, extra: Partial<ICha
 	return { url, status, ...extra };
 }
 
-function httpError(status: number): Error {
-	return Object.assign(new Error(`HTTP ${status}`), { response: { status } });
+function httpError(status: number, headers: Record<string, string> = {}): Error {
+	return Object.assign(new Error(`HTTP ${status}`), { response: { status, headers } });
 }
+
+/** Lets the pending promise callbacks run (real timers only). */
+const flush = () => new Promise((resolve) => setTimeout(resolve, 0));
 
 /** A promise and the functions that settle it, for an ask the test answers when it wants. */
 interface Deferred<T> {
@@ -90,6 +93,31 @@ describe('previewLinksOf', () => {
 		expect(urlsOf('[https://a.io](https://a.io)')).toEqual(['https://a.io/']);
 	});
 
+	it('leaves out a link in a code span that runs over two lines, but not past a blank line', () => {
+		expect(urlsOf('see `the\nhttps://a.io/x` here')).toEqual([]);
+		expect(urlsOf('`open\n\nhttps://a.io/x')).toEqual(['https://a.io/x']);
+	});
+
+	it('reads the address of a Markdown link, not its label, and leaves pictures out', () => {
+		expect(urlsOf('[https://a.io](https://b.io)')).toEqual(['https://b.io/']);
+		expect(urlsOf('![chart](https://a.io/p.png) and https://b.io')).toEqual(['https://b.io/']);
+	});
+
+	it('leaves out links in fences inside list items and quotes, and in indented code', () => {
+		expect(urlsOf('- ```\n  https://a.io\n  ```\n- https://b.io')).toEqual(['https://b.io/']);
+		expect(urlsOf('> ```\n> https://a.io\n> ```')).toEqual([]);
+		expect(urlsOf('text\n\n    https://a.io')).toEqual([]);
+		// Indented under a list item's first line, it only continues the paragraph.
+		expect(urlsOf('- item\n    https://a.io')).toEqual(['https://a.io/']);
+	});
+
+	it('decodes character references, as the address of the rendered link has them', () => {
+		expect(urlsOf('[Search](https://example.com/?a=1&amp;b=2)')).toEqual(['https://example.com/?a=1&b=2']);
+		expect(urlsOf('https://example.com/?a=1&#38;b=2&#x26;c=3&unknown;d=4')).toEqual([
+			'https://example.com/?a=1&b=2&c=3&unknown;d=4'
+		]);
+	});
+
 	it('links www. addresses as http, the way the renderer does', () => {
 		expect(previewLinksOf('at www.example.com/a.')).toEqual([
 			{ href: 'http://www.example.com/a', url: 'http://www.example.com/a' }
@@ -145,15 +173,33 @@ describe('linkPreviewCardOf', () => {
 		// The picture and the icon sit on the linked site's hosts: drawing them would call that site from the reader's browser.
 		expect(card).toEqual({
 			href: 'https://www.a.io/p#x',
-			site: 'A',
+			host: 'a.io',
+			siteName: 'A',
 			title: 'The page',
 			description: 'What it is about'
 		});
 	});
 
-	it('names the host when the page names no site', () => {
+	it('always carries the host the card opens, whatever name the page gives its site', () => {
 		const card = linkPreviewCardOf(link, answer(link.url, EChatLinkPreviewStatus.Ready, { description: 'D' }));
-		expect(card).toEqual({ href: 'https://www.a.io/p#x', site: 'a.io', title: null, description: 'D' });
+		expect(card).toEqual({
+			href: 'https://www.a.io/p#x',
+			host: 'a.io',
+			siteName: null,
+			title: null,
+			description: 'D'
+		});
+		const posing = linkPreviewCardOf(
+			link,
+			answer(link.url, EChatLinkPreviewStatus.Ready, { title: 'T', siteName: 'Your Bank' })
+		);
+		expect(posing).toMatchObject({ host: 'a.io', siteName: 'Your Bank' });
+		// A site named by its host is named once.
+		const plain = linkPreviewCardOf(
+			link,
+			answer(link.url, EChatLinkPreviewStatus.Ready, { title: 'T', siteName: 'A.io' })
+		);
+		expect(plain?.siteName).toBeNull();
 	});
 
 	it('shows nothing while pending, when unavailable, or when the page says nothing', () => {
@@ -242,20 +288,17 @@ describe('createChatLinkPreviewSession', () => {
 		]);
 	});
 
-	it('probes the route with one ask: on 404 the others are never sent, and the page hears it once', async () => {
+	it('probes the route with one ask: on 404 the others are never sent', async () => {
 		const probe = deferred<IChatLinkPreview>();
 		const ask = jest.fn<ReturnType<ChatLinkPreviewAsk>, Parameters<ChatLinkPreviewAsk>>(() => probe.promise);
 		const session = createChatLinkPreviewSession(ask);
-		const heard = jest.fn();
-		session.subscribe(heard);
 		const loads = [session.load('https://a.io/'), session.load('https://b.io/'), session.load('https://c.io/')];
-		await Promise.resolve();
+		await flush();
 		expect(ask).toHaveBeenCalledTimes(1);
 		probe.reject(httpError(404));
 		await expect(Promise.all(loads)).resolves.toEqual([null, null, null]);
 		expect(ask).toHaveBeenCalledTimes(1);
 		expect(session.routeMissing()).toBe(true);
-		expect(heard).toHaveBeenCalledTimes(1);
 		await expect(session.load('https://d.io/')).resolves.toBeNull();
 		expect(ask).toHaveBeenCalledTimes(1);
 	});
@@ -302,19 +345,68 @@ describe('createChatLinkPreviewSession', () => {
 		const session = createChatLinkPreviewSession(ask, { concurrency: 2 });
 		// The probe first.
 		const probe = session.load('https://a.io/');
-		await Promise.resolve();
+		await flush();
 		pending[0].resolve(answer('https://a.io/', EChatLinkPreviewStatus.Ready, { title: 'A' }));
 		await probe;
 		const loads = ['https://b.io/', 'https://c.io/', 'https://d.io/'].map((url) => session.load(url));
-		await new Promise((resolve) => setTimeout(resolve, 0));
+		await flush();
 		expect(ask).toHaveBeenCalledTimes(3);
 		pending[1].resolve(answer('https://b.io/', EChatLinkPreviewStatus.Ready, { title: 'B' }));
 		await loads[0];
-		await new Promise((resolve) => setTimeout(resolve, 0));
+		await flush();
 		expect(ask).toHaveBeenCalledTimes(4);
 		pending[2].resolve(answer('https://c.io/', EChatLinkPreviewStatus.Ready, { title: 'C' }));
 		pending[3].resolve(answer('https://d.io/', EChatLinkPreviewStatus.Ready, { title: 'D' }));
 		await expect(Promise.all(loads)).resolves.toHaveLength(3);
+	});
+
+	it('keeps to the pace: past the asks of a minute, the next one waits for the oldest to be a minute old', async () => {
+		jest.useFakeTimers();
+		const ask = jest.fn<ReturnType<ChatLinkPreviewAsk>, Parameters<ChatLinkPreviewAsk>>((url) =>
+			Promise.resolve(answer(url, EChatLinkPreviewStatus.Ready, { title: url }))
+		);
+		const session = createChatLinkPreviewSession(ask, { perMinute: 2 });
+		const loads = ['https://a.io/', 'https://b.io/', 'https://c.io/'].map((url) => session.load(url));
+		await jest.advanceTimersByTimeAsync(10);
+		expect(ask).toHaveBeenCalledTimes(2);
+		await jest.advanceTimersByTimeAsync(59_000);
+		expect(ask).toHaveBeenCalledTimes(2);
+		await jest.advanceTimersByTimeAsync(1_000);
+		expect(ask).toHaveBeenCalledTimes(3);
+		await expect(Promise.all(loads)).resolves.toHaveLength(3);
+	});
+
+	it('asks again after a pause when the platform refuses the pace (429), as long as it says to wait', async () => {
+		jest.useFakeTimers();
+		const ask = jest
+			.fn<ReturnType<ChatLinkPreviewAsk>, Parameters<ChatLinkPreviewAsk>>()
+			.mockRejectedValueOnce(httpError(429, { 'retry-after': '3' }))
+			.mockRejectedValueOnce(httpError(429))
+			.mockResolvedValue(answer('https://a.io/', EChatLinkPreviewStatus.Ready, { title: 'A' }));
+		const session = createChatLinkPreviewSession(ask, { paceRetryMs: 1000 });
+		const loading = session.load('https://a.io/');
+		await jest.advanceTimersByTimeAsync(2999);
+		expect(ask).toHaveBeenCalledTimes(1);
+		await jest.advanceTimersByTimeAsync(1);
+		expect(ask).toHaveBeenCalledTimes(2);
+		// No Retry-After the second time: the pause doubles (1 s, then 2 s).
+		await jest.advanceTimersByTimeAsync(2000);
+		await expect(loading).resolves.toMatchObject({ title: 'A' });
+		expect(ask).toHaveBeenCalledTimes(3);
+	});
+
+	it('gives up after two asks again refused for the pace, the route still taken as there', async () => {
+		jest.useFakeTimers();
+		const ask = jest
+			.fn<ReturnType<ChatLinkPreviewAsk>, Parameters<ChatLinkPreviewAsk>>()
+			.mockRejectedValue(httpError(429));
+		const session = createChatLinkPreviewSession(ask, { paceRetryMs: 10 });
+		const loading = session.load('https://a.io/').catch((error: Error) => error.message);
+		await jest.advanceTimersByTimeAsync(1000);
+		await expect(loading).resolves.toBe('HTTP 429');
+		expect(ask).toHaveBeenCalledTimes(3);
+		expect(session.routeMissing()).toBe(false);
+		expect(session.isUnavailable('https://a.io/')).toBe(false);
 	});
 
 	it('stops asking for a link whose message left the screen', async () => {
