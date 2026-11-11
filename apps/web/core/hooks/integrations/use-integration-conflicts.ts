@@ -105,10 +105,17 @@ export function useIntegrationConflicts({
 		() => [...keys.conflicts(tenantId, organizationId, integrationId, status, runId), take] as const,
 		[integrationId, keys, organizationId, runId, status, take, tenantId]
 	);
-	const [pending, setPending] = useState<{ integrationId: string | null; conflictId: string | null }>({
+	// The resolve in flight, by request: only the request that set it clears it (another connection's may still run).
+	const [pending, setPending] = useState<{
+		request: number;
+		integrationId: string | null;
+		conflictId: string | null;
+	}>({
+		request: 0,
 		integrationId: null,
 		conflictId: null
 	});
+	const lastRequest = useRef(0);
 	// What the last resolve did, for the connection it was made on: another connection shows none of it.
 	const [feedback, setFeedback] = useState<{
 		integrationId: string | null;
@@ -159,23 +166,28 @@ export function useIntegrationConflicts({
 	const resolve = useCallback(
 		async (conflictId: string, keep: TIntegrationConflictKeep) => {
 			if (!integrationId || resolvingId) return;
-			setPending({ integrationId, conflictId });
+			const request = ++lastRequest.current;
+			// Only the newest resolve speaks: an older one (of another connection) finishing late says nothing.
+			const isLatest = () => request === lastRequest.current;
+			setPending({ request, integrationId, conflictId });
 			setFeedback({ integrationId, resolved: null, resolveError: null });
 			try {
 				await client.resolveConflict(integrationId, conflictId, keep);
 				queryClient.setQueryData<IIntegrationSyncConflict[]>(listKey, (current) =>
 					current?.filter((conflict) => conflict.id !== conflictId)
 				);
-				setFeedback({ integrationId, resolved: keep, resolveError: null });
+				if (isLatest()) setFeedback({ integrationId, resolved: keep, resolveError: null });
 				void queryClient.invalidateQueries({ queryKey: keys.conflictsAll });
 				// The task's value was written back: the task lists and the task are read again.
 				if (keep === 'platform') void queryClient.invalidateQueries({ queryKey: queryKeys.tasks.all });
 			} catch (error) {
 				const refusal = conflictResolveRefusalOf(error);
-				setFeedback({ integrationId, resolved: null, resolveError: { refusal, error } });
+				if (isLatest()) setFeedback({ integrationId, resolved: null, resolveError: { refusal, error } });
 				if (refusal === 'notFound') void queryClient.invalidateQueries({ queryKey: keys.conflictsAll });
 			} finally {
-				setPending({ integrationId: null, conflictId: null });
+				setPending((current) =>
+					current.request === request ? { request, integrationId: null, conflictId: null } : current
+				);
 			}
 		},
 		[client, integrationId, keys.conflictsAll, listKey, queryClient, resolvingId]

@@ -302,4 +302,41 @@ describe('useIntegrationConflicts', () => {
 		expect(result.current.resolved).toBeNull();
 		expect(result.current.resolveError).toBeNull();
 	});
+
+	it("a resolve of another connection finishing late leaves this one's resolve running", async () => {
+		linear.conflicts.mockResolvedValue([conflict()]);
+		let finishFirst: (value: IIntegrationSyncConflict) => void = () => undefined;
+		let finishSecond: (value: IIntegrationSyncConflict) => void = () => undefined;
+		linear.resolveConflict
+			.mockReturnValueOnce(new Promise((resolve) => (finishFirst = resolve)))
+			.mockReturnValueOnce(new Promise((resolve) => (finishSecond = resolve)));
+		const { result, rerender } = setup();
+		await waitFor(() => expect(result.current.conflicts).toHaveLength(1));
+
+		let first: Promise<void> = Promise.resolve();
+		act(() => {
+			first = result.current.resolve('c-1', 'external');
+		});
+		rerender({ provider: 'linear', integrationId: 'int-2', status: 'open', runId: null });
+		let second: Promise<void> = Promise.resolve();
+		act(() => {
+			second = result.current.resolve('c-2', 'platform');
+		});
+		expect(result.current.resolvingId).toBe('c-2');
+
+		await act(async () => {
+			finishFirst(conflict({ status: 'resolved' }));
+			await first;
+		});
+		// The one on this connection still runs: nothing else may be resolved, and no notice of the other shows.
+		expect(result.current.resolvingId).toBe('c-2');
+		expect(result.current.resolved).toBeNull();
+
+		await act(async () => {
+			finishSecond(conflict({ id: 'c-2', status: 'resolved' }));
+			await second;
+		});
+		expect(result.current.resolvingId).toBeNull();
+		expect(result.current.resolved).toBe('platform');
+	});
 });
