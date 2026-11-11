@@ -5421,7 +5421,62 @@
 		"FOLLOW": "Seite folgen",
 		"UNFOLLOW": "Seite nicht mehr folgen",
 		"MUTE": "Benachrichtigungen stummschalten",
-		"UNMUTE": "Benachrichtigungen einschalten"
+		"UNMUTE": "Benachrichtigungen einschalten",
+		"IMPORT": {
+			"BUTTON": "Importieren",
+			"HERE": "Seiten hier importieren",
+			"TITLE": "Seiten importieren",
+			"INTRO": "Wähle eine aus einem anderen Arbeitsbereich exportierte ZIP-Datei: einen Markdown-Tresor (Ordner mit .md-Seiten und ihren Anhängen) oder eine HTML-Export-ZIP. Bis zu {limit}.",
+			"CHOOSE_FILE": "ZIP-Datei wählen",
+			"NO_FILE": "Keine Datei gewählt",
+			"TARGET": "Importieren nach",
+			"UNDER": "Unter „{title}“",
+			"START": "Import starten",
+			"UPLOADING": "ZIP-Datei wird hochgeladen…",
+			"PROGRESS": "{done} von {total} Schritten",
+			"BACKGROUND_HINT": "Der Import läuft im Hintergrund: Du kannst dieses Fenster schließen, er geht weiter.",
+			"SUMMARY": "{imported} importiert, {skipped} übersprungen, {failed} fehlgeschlagen",
+			"UNRESOLVED": "Links auf Seiten, die nicht in der ZIP-Datei sind: {count}. Ihr Text blieb erhalten.",
+			"PAGES": "Importierte Seiten",
+			"MORE": "und {count} weitere",
+			"NOT_IMPORTED": "Nicht importiert",
+			"TRUNCATED": "Der Bericht listet nur die ersten Einträge; die Zahlen oben sind vollständig.",
+			"PHASE": {
+				"QUEUED": "Warten auf den Start…",
+				"PLANNING": "ZIP-Datei wird gelesen…",
+				"TREE": "Ordner, Seiten und Dateien werden angelegt…",
+				"CONTENT": "Seiten werden geschrieben…",
+				"DONE": "Fertig"
+			},
+			"REASON": {
+				"ENCRYPTED": "In der ZIP-Datei verschlüsselt",
+				"TOO_LARGE": "Zu groß",
+				"UNSUPPORTED_TYPE": "Dateityp nicht erlaubt",
+				"QUOTA_EXCEEDED": "Speicherkontingent erreicht",
+				"PARENT_MISSING": "Sein Ordner konnte nicht angelegt werden",
+				"READ_FAILED": "Konnte nicht gelesen werden",
+				"CREATE_FAILED": "Konnte nicht angelegt werden",
+				"CONVERSION_FAILED": "Konnte nicht umgewandelt werden",
+				"PLAIN_TEXT": "Als reiner Text importiert",
+				"OTHER": "Nicht importiert"
+			},
+			"ERROR": {
+				"FILE_REQUIRED": "Wähle eine ZIP-Datei zum Importieren",
+				"TOO_LARGE": "Die ZIP-Datei ist größer, als der Import annimmt ({limit})",
+				"NOT_A_ZIP": "Das ist keine ZIP-Datei",
+				"TOO_MANY_ENTRIES": "Die ZIP-Datei enthält mehr Dateien, als der Import annimmt",
+				"UNSAFE_PATH": "Die ZIP-Datei nennt einen Pfad außerhalb ihrer selbst und wurde abgelehnt",
+				"SYMLINK": "Die ZIP-Datei enthält einen symbolischen Link und wurde abgelehnt",
+				"ZIP_BOMB": "Die ZIP-Datei entpackt sich zu weit mehr als ihrer Größe und wurde abgelehnt",
+				"NO_PAGES": "Die ZIP-Datei enthält keine Seiten: Sie ist kein exportierter Arbeitsbereich",
+				"STALLED": "Der Import ist stehen geblieben und konnte nicht fortgesetzt werden",
+				"FAILED": "Der Import ist fehlgeschlagen"
+			}
+		},
+		"EXPORT_PDF": "Als PDF exportieren",
+		"EXPORT_PDF_WITH_SUB_PAGES": "Mit Unterseiten als PDF exportieren",
+		"PDF_ERROR": "Das PDF konnte nicht erstellt werden",
+		"PDF_TOO_MANY_PAGES": "Diese Seite hat zu viele Unterseiten für ein PDF"
 	},
 	"whatsNew": {
 		"TITLE": "Neuigkeiten",

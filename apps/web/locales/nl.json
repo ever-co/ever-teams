@@ -5421,7 +5421,62 @@
 		"FOLLOW": "Pagina volgen",
 		"UNFOLLOW": "Pagina niet meer volgen",
 		"MUTE": "Meldingen dempen",
-		"UNMUTE": "Meldingen weer aanzetten"
+		"UNMUTE": "Meldingen weer aanzetten",
+		"IMPORT": {
+			"BUTTON": "Importeren",
+			"HERE": "Pagina’s hier importeren",
+			"TITLE": "Pagina’s importeren",
+			"INTRO": "Kies een zip die uit een andere werkruimte is geëxporteerd: een Markdown-kluis (mappen met .md-pagina’s en hun bijlagen) of een HTML-exportzip. Tot {limit}.",
+			"CHOOSE_FILE": "Kies een zip",
+			"NO_FILE": "Geen bestand gekozen",
+			"TARGET": "Importeren in",
+			"UNDER": "Onder ‘{title}’",
+			"START": "Import starten",
+			"UPLOADING": "De zip wordt geüpload…",
+			"PROGRESS": "{done} van {total} stappen",
+			"BACKGROUND_HINT": "De import loopt op de achtergrond door: je kunt dit venster sluiten.",
+			"SUMMARY": "{imported} geïmporteerd, {skipped} overgeslagen, {failed} mislukt",
+			"UNRESOLVED": "Links naar pagina’s die niet in de zip staan: {count}. Hun tekst is behouden.",
+			"PAGES": "Geïmporteerde pagina’s",
+			"MORE": "en nog {count}",
+			"NOT_IMPORTED": "Niet geïmporteerd",
+			"TRUNCATED": "Het verslag toont alleen de eerste items; de aantallen hierboven zijn volledig.",
+			"PHASE": {
+				"QUEUED": "Wachten op de start…",
+				"PLANNING": "De zip wordt gelezen…",
+				"TREE": "Mappen, pagina’s en bestanden worden aangemaakt…",
+				"CONTENT": "De pagina’s worden geschreven…",
+				"DONE": "Klaar"
+			},
+			"REASON": {
+				"ENCRYPTED": "Versleuteld in de zip",
+				"TOO_LARGE": "Te groot",
+				"UNSUPPORTED_TYPE": "Bestandstype niet toegestaan",
+				"QUOTA_EXCEEDED": "Opslagquotum bereikt",
+				"PARENT_MISSING": "De map ervan kon niet worden aangemaakt",
+				"READ_FAILED": "Kon niet worden gelezen",
+				"CREATE_FAILED": "Kon niet worden aangemaakt",
+				"CONVERSION_FAILED": "Kon niet worden omgezet",
+				"PLAIN_TEXT": "Als platte tekst geïmporteerd",
+				"OTHER": "Niet geïmporteerd"
+			},
+			"ERROR": {
+				"FILE_REQUIRED": "Kies een zipbestand om te importeren",
+				"TOO_LARGE": "De zip is groter dan de import aanneemt ({limit})",
+				"NOT_A_ZIP": "Dit is geen zipbestand",
+				"TOO_MANY_ENTRIES": "De zip bevat meer bestanden dan de import aanneemt",
+				"UNSAFE_PATH": "De zip noemt een pad buiten zichzelf en is geweigerd",
+				"SYMLINK": "De zip bevat een symbolische koppeling en is geweigerd",
+				"ZIP_BOMB": "De zip pakt uit tot veel meer dan zijn grootte en is geweigerd",
+				"NO_PAGES": "De zip bevat geen pagina’s: het is geen geëxporteerde werkruimte",
+				"STALLED": "De import is gestopt en kon niet worden hervat",
+				"FAILED": "De import is mislukt"
+			}
+		},
+		"EXPORT_PDF": "Exporteren als pdf",
+		"EXPORT_PDF_WITH_SUB_PAGES": "Exporteren als pdf met subpagina’s",
+		"PDF_ERROR": "De pdf kon niet worden gemaakt",
+		"PDF_TOO_MANY_PAGES": "Deze pagina heeft te veel subpagina’s voor één pdf"
 	},
 	"whatsNew": {
 		"TITLE": "Wat is er nieuw",

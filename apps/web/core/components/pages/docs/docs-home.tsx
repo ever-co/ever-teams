@@ -4,7 +4,7 @@ import { useMemo, useState, type ReactNode } from 'react';
 import Link from 'next/link';
 import { useLocale, useTranslations, type DottedLanguageObjectStringPaths } from 'next-intl';
 import { Button } from '@/core/components/duplicated-components/_button';
-import { ArrowLeft, ChevronRight, CircleAlert, Clock, FileText, Folder, Lock, Plus, Refresh, Star } from '@/core/components/icons';
+import { ArrowLeft, ChevronRight, CircleAlert, Clock, FileText, Folder, Lock, Plus, Refresh, Star, Upload } from '@/core/components/icons';
 import type { DocsTreeState } from '@/core/hooks/docs/use-docs-tree';
 import { cn } from '@/core/lib/helpers';
 import { DOCS_TEMPLATES, buildTemplateContent, type DocsTemplateContent, type DocsTemplateId } from '@/core/lib/utils/docs-templates';
@@ -47,6 +47,8 @@ interface DocsHomeProps {
 	tree: DocsTreeState;
 	favoriteIds: ReadonlySet<string>;
 	onNewPage: (request: DocsNewPageRequest) => Promise<void>;
+	/** Opens the import of an exported workspace; absent while the import is not offered. */
+	onImport?: () => void;
 	/** Back to the tree, where the home covers it (a phone). */
 	onBack?: () => void;
 }
@@ -55,7 +57,7 @@ interface DocsHomeProps {
  * What `/docs` shows beside the tree when no page is open: the ways to start a page (empty, private, or from a
  * template), the pages changed last, and the favourites.
  */
-export function DocsHome({ tree, favoriteIds, onNewPage, onBack }: DocsHomeProps) {
+export function DocsHome({ tree, favoriteIds, onNewPage, onImport, onBack }: DocsHomeProps) {
 	const t = useTranslations();
 	const locale = useLocale();
 	const [now] = useState(() => new Date());
@@ -113,6 +115,12 @@ export function DocsHome({ tree, favoriteIds, onNewPage, onBack }: DocsHomeProps
 						</p>
 					</div>
 					<div className="flex shrink-0 flex-wrap items-center gap-2">
+						{onImport && (
+							<Button type="button" variant="outline" disabled={busy !== null} onClick={onImport}>
+								<Upload className="size-4" />
+								{t('docs.IMPORT.BUTTON')}
+							</Button>
+						)}
 						<Button type="button" variant="outline" disabled={busy !== null} onClick={() => void start('private', { visibility: EDocumentVisibility.PRIVATE })}>
 							<Lock className="size-4" />
 							{t('docs.NEW_PRIVATE_PAGE')}

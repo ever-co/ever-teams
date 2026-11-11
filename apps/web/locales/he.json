@@ -5421,7 +5421,62 @@
 		"FOLLOW": "מעקב אחרי הדף",
 		"UNFOLLOW": "הפסקת מעקב אחרי הדף",
 		"MUTE": "השתקת התראות",
-		"UNMUTE": "ביטול השתקת התראות"
+		"UNMUTE": "ביטול השתקת התראות",
+		"IMPORT": {
+			"BUTTON": "ייבוא",
+			"HERE": "ייבוא דפים לכאן",
+			"TITLE": "ייבוא דפים",
+			"INTRO": "בחרו קובץ zip שיוצא ממרחב עבודה אחר: כספת Markdown (תיקיות של דפי ‎.md והקבצים המצורפים שלהם) או zip של ייצוא HTML. עד {limit}.",
+			"CHOOSE_FILE": "בחירת zip",
+			"NO_FILE": "לא נבחר קובץ",
+			"TARGET": "ייבוא אל",
+			"UNDER": "תחת „{title}”",
+			"START": "התחלת הייבוא",
+			"UPLOADING": "מעלה את קובץ ה-zip…",
+			"PROGRESS": "{done} מתוך {total} שלבים",
+			"BACKGROUND_HINT": "הייבוא ממשיך ברקע: אפשר לסגור את החלון.",
+			"SUMMARY": "יובאו {imported}, דולגו {skipped}, נכשלו {failed}",
+			"UNRESOLVED": "קישורים לדפים שאינם בקובץ ה-zip: {count}. הטקסט שלהם נשמר.",
+			"PAGES": "דפים שיובאו",
+			"MORE": "ועוד {count}",
+			"NOT_IMPORTED": "לא יובאו",
+			"TRUNCATED": "הדוח מציג רק את הפריטים הראשונים; המספרים למעלה מלאים.",
+			"PHASE": {
+				"QUEUED": "ממתין להתחלה…",
+				"PLANNING": "קורא את קובץ ה-zip…",
+				"TREE": "יוצר תיקיות, דפים וקבצים…",
+				"CONTENT": "כותב את הדפים…",
+				"DONE": "הסתיים"
+			},
+			"REASON": {
+				"ENCRYPTED": "מוצפן בקובץ ה-zip",
+				"TOO_LARGE": "גדול מדי",
+				"UNSUPPORTED_TYPE": "סוג הקובץ אינו מתקבל",
+				"QUOTA_EXCEEDED": "מכסת האחסון מלאה",
+				"PARENT_MISSING": "לא ניתן היה ליצור את התיקייה שלו",
+				"READ_FAILED": "לא ניתן היה לקרוא",
+				"CREATE_FAILED": "לא ניתן היה ליצור",
+				"CONVERSION_FAILED": "לא ניתן היה להמיר",
+				"PLAIN_TEXT": "יובא כטקסט פשוט",
+				"OTHER": "לא יובא"
+			},
+			"ERROR": {
+				"FILE_REQUIRED": "בחרו קובץ zip לייבוא",
+				"TOO_LARGE": "קובץ ה-zip גדול ממה שהייבוא מקבל ({limit})",
+				"NOT_A_ZIP": "זה אינו קובץ zip",
+				"TOO_MANY_ENTRIES": "קובץ ה-zip מכיל יותר קבצים ממה שהייבוא מקבל",
+				"UNSAFE_PATH": "קובץ ה-zip מציין נתיב מחוץ לעצמו ונדחה",
+				"SYMLINK": "קובץ ה-zip מכיל קישור סמלי ונדחה",
+				"ZIP_BOMB": "קובץ ה-zip נפרס להרבה יותר מגודלו ונדחה",
+				"NO_PAGES": "קובץ ה-zip אינו מכיל דפים: זה אינו מרחב עבודה מיוצא",
+				"STALLED": "הייבוא נעצר ולא ניתן היה לחדש אותו",
+				"FAILED": "הייבוא נכשל"
+			}
+		},
+		"EXPORT_PDF": "ייצוא כ-PDF",
+		"EXPORT_PDF_WITH_SUB_PAGES": "ייצוא כ-PDF עם דפי המשנה",
+		"PDF_ERROR": "לא ניתן היה ליצור את ה-PDF",
+		"PDF_TOO_MANY_PAGES": "לדף זה יש יותר מדי דפי משנה ל-PDF אחד"
 	},
 	"whatsNew": {
 		"TITLE": "מה חדש",

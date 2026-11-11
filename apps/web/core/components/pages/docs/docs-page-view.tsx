@@ -24,6 +24,7 @@ import { ADD_ROW_RECIPE } from '@/core/components/common/surface-recipes';
 import { ArrowLeft, Check, CircleAlert, FileText, History, Lock, MoreHorizontal, Plus, Smile, Spinner, Star, Trash } from '@/core/components/icons';
 import { useDocsAutosave, useEditorPageContent, type DocsSaveState } from '@/core/hooks/docs/use-docs-autosave';
 import { useDocsFollow, type DocsFollowAction, type DocsSpacesState } from '@/core/hooks/docs/use-docs-collaboration';
+import { downloadDocsPdf, useDocsPdfAvailability } from '@/core/hooks/docs/use-docs-import';
 import { useDocsLive } from '@/core/hooks/docs/use-docs-live';
 import { useDocsPage, useDocsPath } from '@/core/hooks/docs/use-docs-page';
 import { useDocsRecent } from '@/core/hooks/docs/use-docs-recent';
@@ -69,6 +70,8 @@ export interface DocsPageViewActions {
 	toggleFavorite: (pageId: string) => Promise<unknown>;
 	isFavorite: (pageId: string) => boolean;
 	newSubPage: (page: IDocumentPage) => void;
+	/** Imports an exported workspace under the page; absent while the import is not offered. */
+	importHere?: (page: IDocumentPage) => void;
 }
 
 interface DocsPageViewProps {
@@ -343,6 +346,20 @@ export function DocsPageView({ pageId, tree, actions, spaces = NO_SPACES }: Docs
 
 	// ---------------------------------------------------------------- export and link
 
+	// The platform's PDF export (its probe answers 404 while it is off): the page, or the page with its sub-pages.
+	const pdfAvailable = useDocsPdfAvailability(true);
+	const [pdfBusy, setPdfBusy] = useState(false);
+	const exportPdf = async (subtree: boolean) => {
+		if (!page || pdfBusy) return;
+		setPdfBusy(true);
+		try {
+			const result = await downloadDocsPdf(page.id, { subtree });
+			if (!result.ok) toast.error(t(result.status === 413 ? 'docs.PDF_TOO_MANY_PAGES' : 'docs.PDF_ERROR'));
+		} finally {
+			setPdfBusy(false);
+		}
+	};
+
 	const exportMarkdown = () => {
 		if (!page) return;
 		const json = editorApi?.getJson() ?? page.contentJson ?? null;
@@ -541,7 +558,20 @@ export function DocsPageView({ pageId, tree, actions, spaces = NO_SPACES }: Docs
 								<>
 									<DropdownMenuSeparator />
 									<DropdownMenuItem onClick={exportMarkdown}>{t('docs.EXPORT_MARKDOWN')}</DropdownMenuItem>
+									{pdfAvailable && (
+										<>
+											<DropdownMenuItem disabled={pdfBusy} onClick={() => void exportPdf(false)}>
+												{t('docs.EXPORT_PDF')}
+											</DropdownMenuItem>
+											{hasChildren && (
+												<DropdownMenuItem disabled={pdfBusy} onClick={() => void exportPdf(true)}>
+													{t('docs.EXPORT_PDF_WITH_SUB_PAGES')}
+												</DropdownMenuItem>
+											)}
+										</>
+									)}
 									<DropdownMenuItem onClick={() => window.print()}>{t('docs.PRINT')}</DropdownMenuItem>
+									{actions.importHere && <DropdownMenuItem onClick={() => actions.importHere?.(page)}>{t('docs.IMPORT.HERE')}</DropdownMenuItem>}
 								</>
 							)}
 							<DropdownMenuSeparator />

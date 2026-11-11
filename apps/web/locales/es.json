@@ -5421,7 +5421,62 @@
 		"FOLLOW": "Seguir página",
 		"UNFOLLOW": "Dejar de seguir la página",
 		"MUTE": "Silenciar notificaciones",
-		"UNMUTE": "Activar notificaciones"
+		"UNMUTE": "Activar notificaciones",
+		"IMPORT": {
+			"BUTTON": "Importar",
+			"HERE": "Importar páginas aquí",
+			"TITLE": "Importar páginas",
+			"INTRO": "Elige un zip exportado de otro espacio de trabajo: una bóveda Markdown (carpetas de páginas .md y sus adjuntos) o un zip de exportación HTML. Hasta {limit}.",
+			"CHOOSE_FILE": "Elegir un zip",
+			"NO_FILE": "Ningún archivo elegido",
+			"TARGET": "Importar en",
+			"UNDER": "Debajo de «{title}»",
+			"START": "Iniciar la importación",
+			"UPLOADING": "Subiendo el zip…",
+			"PROGRESS": "{done} de {total} pasos",
+			"BACKGROUND_HINT": "La importación sigue en segundo plano: puedes cerrar esta ventana.",
+			"SUMMARY": "{imported} importados, {skipped} omitidos, {failed} fallidos",
+			"UNRESOLVED": "Enlaces a páginas que no están en el zip: {count}. Se conservó su texto.",
+			"PAGES": "Páginas importadas",
+			"MORE": "y {count} más",
+			"NOT_IMPORTED": "No importados",
+			"TRUNCATED": "El informe solo lista los primeros elementos; los totales de arriba están completos.",
+			"PHASE": {
+				"QUEUED": "Esperando para empezar…",
+				"PLANNING": "Leyendo el zip…",
+				"TREE": "Creando carpetas, páginas y archivos…",
+				"CONTENT": "Escribiendo las páginas…",
+				"DONE": "Hecho"
+			},
+			"REASON": {
+				"ENCRYPTED": "Cifrado en el zip",
+				"TOO_LARGE": "Demasiado grande",
+				"UNSUPPORTED_TYPE": "Tipo de archivo no admitido",
+				"QUOTA_EXCEEDED": "Cuota de almacenamiento alcanzada",
+				"PARENT_MISSING": "No se pudo crear su carpeta",
+				"READ_FAILED": "No se pudo leer",
+				"CREATE_FAILED": "No se pudo crear",
+				"CONVERSION_FAILED": "No se pudo convertir",
+				"PLAIN_TEXT": "Importado como texto sin formato",
+				"OTHER": "No importado"
+			},
+			"ERROR": {
+				"FILE_REQUIRED": "Elige un archivo zip para importar",
+				"TOO_LARGE": "El zip supera el tamaño que admite la importación ({limit})",
+				"NOT_A_ZIP": "No es un archivo zip",
+				"TOO_MANY_ENTRIES": "El zip contiene más archivos de los que admite la importación",
+				"UNSAFE_PATH": "El zip nombra una ruta fuera de sí mismo y se rechazó",
+				"SYMLINK": "El zip contiene un enlace simbólico y se rechazó",
+				"ZIP_BOMB": "El zip se descomprime a mucho más que su tamaño y se rechazó",
+				"NO_PAGES": "El zip no contiene páginas: no es un espacio de trabajo exportado",
+				"STALLED": "La importación se detuvo y no se pudo reanudar",
+				"FAILED": "La importación falló"
+			}
+		},
+		"EXPORT_PDF": "Exportar como PDF",
+		"EXPORT_PDF_WITH_SUB_PAGES": "Exportar como PDF con subpáginas",
+		"PDF_ERROR": "No se pudo crear el PDF",
+		"PDF_TOO_MANY_PAGES": "Esta página tiene demasiadas subpáginas para un PDF"
 	},
 	"whatsNew": {
 		"TITLE": "Novedades",

@@ -14,12 +14,14 @@ import { useDocsExpanded, useDocsRecent } from '@/core/hooks/docs/use-docs-recen
 import { useDocsScope } from '@/core/hooks/docs/use-docs-scope';
 import { useDocsTree } from '@/core/hooks/docs/use-docs-tree';
 import { cn } from '@/core/lib/helpers';
-import { isDocsEnabled } from '@/core/lib/utils/docs-enabled';
+import { isDocsEnabled, isDocsImportEnabled } from '@/core/lib/utils/docs-enabled';
+import { useDocsImportAvailability } from '@/core/hooks/docs/use-docs-import';
 import { lastVisited, localStorageOrNull } from '@/core/lib/utils/docs-recent';
 import { ancestorIdsOf, pageTitle } from '@/core/lib/utils/docs-tree';
 import { EDocumentVisibility, type IDocumentPage } from '@/core/types/interfaces/common/docs';
 import { DocsHome, type DocsNewPageRequest } from './docs-home';
 import { DocsIconDialog } from './docs-icon-dialog';
+import { DocsImportDialog } from './docs-import-dialog';
 import { DocsMoveDialog, DocsNameDialog } from './docs-dialogs';
 import { DocsPageView, type DocsPageViewActions } from './docs-page-view';
 import { DocsTrash } from './docs-trash';
@@ -39,6 +41,10 @@ export function DocsPage({ view }: Readonly<{ view: DocsView }>) {
 	const scope = useDocsScope();
 	const tree = useDocsTree(enabled && availability !== 'unavailable');
 	const spaces = useDocsSpaces(enabled && availability === 'available');
+	// The import of exported workspaces: this deployment's flag, then the platform's probe (404 = not offered).
+	const importing = useDocsImportAvailability(isDocsImportEnabled() && availability === 'available');
+	/** The import dialog, with the page it may land under (`null` parent: from the home). */
+	const [importInto, setImportInto] = useState<{ parent: { id: string; name: string } | null } | null>(null);
 	const { expanded, toggle, setOpen, expandAll } = useDocsExpanded();
 	const favorites = useDocsFavorites();
 	const { recentIds, forget } = useDocsRecent();
@@ -210,6 +216,9 @@ export function DocsPage({ view }: Readonly<{ view: DocsView }>) {
 		[actions, createAndOpen, duplicate, fail, reorder, setOpen, setVisibility, toggleFavorite, trash, tree.byId]
 	);
 
+	// An import created pages: the tree is read again.
+	const onImported = useCallback(() => void tree.retry(), [tree]);
+
 	const pageActions = useMemo<DocsPageViewActions>(
 		() => ({
 			rename: (id, name) => actions.updatePage(id, { name }),
@@ -223,9 +232,10 @@ export function DocsPage({ view }: Readonly<{ view: DocsView }>) {
 			restoreVersion: actions.restoreVersion,
 			toggleFavorite,
 			isFavorite: favorites.isFavorite,
-			newSubPage: (page) => void createAndOpen(page.id, page.visibility, {}, page.organizationTeamId)
+			newSubPage: (page) => void createAndOpen(page.id, page.visibility, {}, page.organizationTeamId),
+			importHere: importing.available ? (page) => setImportInto({ parent: { id: page.id, name: page.name } }) : undefined
 		}),
-		[actions, createAndOpen, duplicate, favorites.isFavorite, moveToSpace, restore, setVisibility, toggleFavorite, trash]
+		[actions, createAndOpen, duplicate, favorites.isFavorite, importing.available, moveToSpace, restore, setVisibility, toggleFavorite, trash]
 	);
 
 	if (!enabled) return null;
@@ -280,11 +290,27 @@ export function DocsPage({ view }: Readonly<{ view: DocsView }>) {
 							tree={tree}
 							favoriteIds={favorites.favoriteIds}
 							onNewPage={({ visibility, ...start }) => createAndOpen(null, visibility, start)}
+							onImport={importing.available ? () => setImportInto({ parent: null }) : undefined}
 							onBack={() => setHomeOnPhone(false)}
 						/>
 					)}
 				</main>
 			</div>
+
+			{importing.available && (
+				<DocsImportDialog
+					open={importInto !== null}
+					maxZipBytes={importing.maxZipBytes}
+					parent={importInto?.parent ?? null}
+					teamSpaces={spaces.available ? spaces.teamSpaces : []}
+					onImported={onImported}
+					onOpenPage={(id) => {
+						setImportInto(null);
+						router.push(`/docs/${encodeURIComponent(id)}`);
+					}}
+					onClose={() => setImportInto(null)}
+				/>
+			)}
 
 			<DocsNameDialog
 				open={renaming !== null}

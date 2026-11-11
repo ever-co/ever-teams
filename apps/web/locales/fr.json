@@ -5421,7 +5421,62 @@
 		"FOLLOW": "Suivre la page",
 		"UNFOLLOW": "Ne plus suivre la page",
 		"MUTE": "Couper les notifications",
-		"UNMUTE": "Réactiver les notifications"
+		"UNMUTE": "Réactiver les notifications",
+		"IMPORT": {
+			"BUTTON": "Importer",
+			"HERE": "Importer des pages ici",
+			"TITLE": "Importer des pages",
+			"INTRO": "Choisissez un zip exporté d’un autre espace de travail : un coffre Markdown (des dossiers de pages .md et leurs pièces jointes) ou un zip d’export HTML. Jusqu’à {limit}.",
+			"CHOOSE_FILE": "Choisir un zip",
+			"NO_FILE": "Aucun fichier choisi",
+			"TARGET": "Importer dans",
+			"UNDER": "Sous « {title} »",
+			"START": "Lancer l’import",
+			"UPLOADING": "Envoi du zip…",
+			"PROGRESS": "{done} étapes sur {total}",
+			"BACKGROUND_HINT": "L’import se poursuit en arrière-plan : vous pouvez fermer cette fenêtre.",
+			"SUMMARY": "{imported} importés, {skipped} ignorés, {failed} en échec",
+			"UNRESOLVED": "Liens vers des pages absentes du zip : {count}. Leur texte a été conservé.",
+			"PAGES": "Pages importées",
+			"MORE": "et {count} de plus",
+			"NOT_IMPORTED": "Non importés",
+			"TRUNCATED": "Le rapport ne liste que les premiers éléments ; les nombres ci-dessus sont complets.",
+			"PHASE": {
+				"QUEUED": "En attente du démarrage…",
+				"PLANNING": "Lecture du zip…",
+				"TREE": "Création des dossiers, pages et fichiers…",
+				"CONTENT": "Écriture des pages…",
+				"DONE": "Terminé"
+			},
+			"REASON": {
+				"ENCRYPTED": "Chiffré dans le zip",
+				"TOO_LARGE": "Trop volumineux",
+				"UNSUPPORTED_TYPE": "Type de fichier refusé",
+				"QUOTA_EXCEEDED": "Quota de stockage atteint",
+				"PARENT_MISSING": "Son dossier n’a pas pu être créé",
+				"READ_FAILED": "Illisible",
+				"CREATE_FAILED": "N’a pas pu être créé",
+				"CONVERSION_FAILED": "N’a pas pu être converti",
+				"PLAIN_TEXT": "Importé en texte brut",
+				"OTHER": "Non importé"
+			},
+			"ERROR": {
+				"FILE_REQUIRED": "Choisissez un fichier zip à importer",
+				"TOO_LARGE": "Le zip dépasse la taille acceptée par l’import ({limit})",
+				"NOT_A_ZIP": "Ce n’est pas un fichier zip",
+				"TOO_MANY_ENTRIES": "Le zip contient plus de fichiers que l’import n’en accepte",
+				"UNSAFE_PATH": "Le zip désigne un chemin hors de lui-même et a été refusé",
+				"SYMLINK": "Le zip contient un lien symbolique et a été refusé",
+				"ZIP_BOMB": "Le zip se décompresse bien au-delà de sa taille et a été refusé",
+				"NO_PAGES": "Le zip ne contient aucune page : ce n’est pas un espace de travail exporté",
+				"STALLED": "L’import s’est arrêté et n’a pas pu reprendre",
+				"FAILED": "L’import a échoué"
+			}
+		},
+		"EXPORT_PDF": "Exporter en PDF",
+		"EXPORT_PDF_WITH_SUB_PAGES": "Exporter en PDF avec les sous-pages",
+		"PDF_ERROR": "Le PDF n’a pas pu être créé",
+		"PDF_TOO_MANY_PAGES": "Cette page a trop de sous-pages pour un seul PDF"
 	},
 	"whatsNew": {
 		"TITLE": "Nouveautés",
