@@ -61,7 +61,7 @@ describe('workspace creation', () => {
 			cy.contains('New workspaces are turned off on this server', { timeout: 20_000 }).should('be.visible');
 			cy.location('pathname').should('match', /\/workspace\/new$/);
 			cy.getCookie('auth-tenant-id').its('value').should('eq', cookie?.value);
-			creationState().then((created) => expect(created.tenant).to.equal(null));
+			creationState().then((created) => expect(created.tenant).to.be.null);
 			// The page says it: no generic failure toast on top
 			cy.contains('That change was not saved').should('not.exist');
 		});
