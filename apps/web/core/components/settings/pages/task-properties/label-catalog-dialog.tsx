@@ -14,6 +14,7 @@ import { Checkbox } from '@/core/components/common/checkbox';
 import { Input } from '@/core/components/common/input';
 import { Button } from '@/core/components/duplicated-components/_button';
 import { Search, Spinner } from '@/core/components/icons';
+import { dataColorDotStyle } from '@/core/components/tasks/task-data-color';
 import type { CatalogAddOutcome } from '@/core/hooks/settings/use-add-catalog-labels';
 import { cn } from '@/core/lib/helpers';
 import {
@@ -97,7 +98,7 @@ function CategoryGroup({
 								<span
 									aria-hidden="true"
 									className="size-2.5 shrink-0 rounded-full"
-									style={{ backgroundColor: label.color }}
+									style={dataColorDotStyle(label.color)}
 								/>
 								<span className="min-w-0 flex-1 truncate">{label.name}</span>
 								{isAdded && (
