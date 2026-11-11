@@ -63,7 +63,6 @@ export function TeamTasksTimelineView({
 	);
 	const dayWidth = TIMELINE_DAY_WIDTH[zoom];
 	const calendarWidth = timeline.dayCount * dayWidth;
-	const firstDay = dayNumberOf(timeline.firstDay);
 
 	// The calendar opens on today (a third from the left), and again when the zoom changes.
 	const todayDay = timeline.todayDay;
