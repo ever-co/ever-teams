@@ -80,11 +80,13 @@ they are with the flag off.
   punctuation is that character (`/` is Shift+7 on a German layout), so `/ T` works there too. With the flag off the
   palette keeps its own keys exactly as before.
 - **Palette results (T9)**: with the flag on, a search also lists the people of the active team (to their profile),
-  the projects (archived ones left out), and with Docs or Chat on, the pages (the platform's Docs search, its text
-  included) and my conversations (named as the chat names them), each kind with its own tab, at most eight per kind,
-  every word of the search in the title. The empty field shows the entries last opened from the palette (six, per
-  person, on this device; a stored entry leading outside the app is dropped). A sequence typed into the field, one key
-  per word (`g t`), runs its command as its keys would; the entries are also found by their binding (`gt`).
+  the projects (archived ones left out, every word of the search in the name) and, with Docs on, the pages (the
+  platform's Docs search, their text included, best match first), each kind with its own tab, at most eight per kind.
+  The conversations, and the people to write to, are the chat's own palette results (chat phase 2,
+  `palette-chat-results.tsx`, with the chat on). The empty field shows the entries last opened from the palette (six,
+  per person, on this device; a stored entry leading outside the app is dropped, a page is not listed while Docs is
+  off). A sequence typed into the field, one key per word (`g t`), runs its command as its keys would; the entries are
+  also found by their binding (`gt`).
 - **Bulk project and due date, board selection and layout (T10)**: with the flag on, `M` on a focused row (a new
   rebindable row key) and the Project cell open a project picker ("No project" takes the tasks out of any); `D` and the
   Due date cell apply to the selection the row is in. A selection of several tasks sends one bulk update (`projectId`,

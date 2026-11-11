@@ -1,5 +1,4 @@
 import {
-	conversationItemsOf,
 	matchingItems,
 	pageItemsOf,
 	paletteValueOf,
@@ -68,18 +67,6 @@ describe('the palette entries', () => {
 		expect(items.map((item) => [item.title, item.href, item.icon])).toEqual([
 			['Roadmap', '/docs/b', '🗺️'],
 			['Untitled', '/docs/a', null]
-		]);
-	});
-
-	it('names conversations as the chat does, leaving archived and nameless ones out', () => {
-		const names: Record<string, string> = { c1: '#general', c2: 'Ana, Sam', c3: '', c4: '#old' };
-		const items = conversationItemsOf(
-			[{ id: 'c1' }, { id: 'c2' }, { id: 'c3' }, { id: 'c4', archivedAt: '2026-01-01' }],
-			(conversation) => names[conversation.id]
-		);
-		expect(items.map((item) => [item.title, item.href])).toEqual([
-			['#general', '/chat/c1'],
-			['Ana, Sam', '/chat/c2']
 		]);
 	});
 });

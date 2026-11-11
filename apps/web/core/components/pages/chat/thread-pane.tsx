@@ -4,8 +4,9 @@ import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } fr
 import { useAtomValue } from 'jotai';
 import { useLocale, useTranslations } from 'next-intl';
 import { toast } from 'sonner';
-import { Bell, BellOff, X } from '@/core/components/icons';
+import { ArrowLeft, Bell, BellOff, X } from '@/core/components/icons';
 import { Button } from '@/core/components/duplicated-components/_button';
+import { cn } from '@/core/lib/helpers';
 import { useChatActions, ChatOutboxMessage } from '@/core/hooks/chat/use-chat-actions';
 import { useChatAttachments } from '@/core/hooks/chat/use-chat-attachments';
 import { useChatDraft } from '@/core/hooks/chat/use-chat-draft';
@@ -193,6 +194,10 @@ function ThreadPaneBody({ conversationId, rootMessageId, conversationNames, canM
 	return (
 		<div className="flex h-full min-h-0 flex-col">
 			<header className="flex h-12 shrink-0 items-center gap-1 border-border px-3 hairline-b">
+				{/* On a phone the thread is a full view over the conversation: the way back stands where a back button does. */}
+				<button type="button" onClick={onClose} className={cn(BAR_BUTTON, 'lg:hidden')} aria-label={t('teamChat.BACK')} title={t('teamChat.BACK')}>
+					<ArrowLeft className="rtl:rotate-180" />
+				</button>
 				<div className="flex min-w-0 flex-1 items-baseline gap-2 px-1">
 					<h2 className="shrink-0 text-sm font-semibold text-foreground">{t('teamChat.THREAD')}</h2>
 					{label && <span className="min-w-0 truncate text-xs text-muted-foreground">{label}</span>}
@@ -203,7 +208,7 @@ function ThreadPaneBody({ conversationId, rootMessageId, conversationNames, canM
 						{root.following ? t('teamChat.UNFOLLOW') : t('teamChat.FOLLOW')}
 					</Button>
 				)}
-				<button type="button" onClick={onClose} className={BAR_BUTTON} aria-label={t('teamChat.CLOSE')} title={t('teamChat.CLOSE')}>
+				<button type="button" onClick={onClose} className={cn(BAR_BUTTON, 'max-lg:hidden')} aria-label={t('teamChat.CLOSE')} title={t('teamChat.CLOSE')}>
 					<X />
 				</button>
 			</header>
@@ -231,7 +236,7 @@ function ThreadPaneBody({ conversationId, rootMessageId, conversationNames, canM
 					)}
 				</div>
 			</div>
-			<div className="shrink-0 px-3 pb-3 pt-1">
+			<div className="shrink-0 px-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] pt-1">
 				<MessageComposer
 					value={draft}
 					onChange={setDraft}

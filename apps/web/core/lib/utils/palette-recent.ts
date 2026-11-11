@@ -2,7 +2,7 @@ import type { PaletteItem, PaletteItemKind } from './palette-items';
 
 /**
  * What the command palette remembers on this device, per person: the entries last opened from it (a task, a
- * person, a project, a page, a conversation), shown while its field is empty. Pure over a storage-like object, so
+ * person, a project, a page), shown while its field is empty. Pure over a storage-like object, so
  * the specs run without a browser.
  */
 
@@ -13,7 +13,7 @@ export interface PaletteRecentStorage {
 
 export const PALETTE_RECENT_MAX = 6;
 
-const KINDS: ReadonlySet<PaletteItemKind> = new Set(['task', 'person', 'project', 'page', 'conversation']);
+const KINDS: ReadonlySet<PaletteItemKind> = new Set(['task', 'person', 'project', 'page']);
 
 const recentKey = (userId: string) => `palette:recent:${userId}`;
 

@@ -11,7 +11,7 @@ let loading: Promise<ChatEmojiEntry[]> | null = null;
  * letters (never with the page, it weighs over 400 KB), then kept for the page's life. A failed fetch is tried again
  * the next time.
  */
-export function loadEmojiIndex(): Promise<ChatEmojiEntry[]> {
+function loadEmojiIndex(): Promise<ChatEmojiEntry[]> {
 	if (loaded) return Promise.resolve(loaded);
 	if (!loading) {
 		loading = import('@emoji-mart/data')

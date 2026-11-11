@@ -73,7 +73,7 @@ const NAME_SLOT = '\u0000';
 const RTL_LANGUAGES = new Set(['ar', 'he']);
 
 const TOOLBAR_BUTTON =
-	'flex size-7 shrink-0 cursor-pointer items-center justify-center rounded-md text-muted-foreground outline-none transition-colors hover:bg-foreground/[0.07] hover:text-foreground focus-visible:ring-[3px] focus-visible:ring-ring/25 data-[popup-open]:bg-foreground/[0.07] data-[popup-open]:text-foreground data-[state=open]:bg-foreground/[0.07] data-[state=open]:text-foreground [&_svg]:size-4';
+	'flex size-7 shrink-0 cursor-pointer [@media(pointer:coarse)]:size-9 items-center justify-center rounded-md text-muted-foreground outline-none transition-colors hover:bg-foreground/[0.07] hover:text-foreground focus-visible:ring-[3px] focus-visible:ring-ring/25 data-[popup-open]:bg-foreground/[0.07] data-[popup-open]:text-foreground data-[state=open]:bg-foreground/[0.07] data-[state=open]:text-foreground [&_svg]:size-4';
 
 /**
  * The toolbar floats over the top edge of its message. It shows while the pointer is on the message, while a key
@@ -87,7 +87,7 @@ const TOOLBAR = [
 	'[@media(hover:none)]:group-focus-within/message:pointer-events-auto [@media(hover:none)]:group-focus-within/message:opacity-100'
 ].join(' ');
 
-const REACTION_PILL = 'inline-flex h-[26px] cursor-pointer items-center justify-center rounded-full px-2 text-xs outline-none hairline-ring transition-colors focus-visible:ring-[3px] focus-visible:ring-ring/25';
+const REACTION_PILL = 'inline-flex h-[26px] cursor-pointer [@media(pointer:coarse)]:h-8 items-center justify-center rounded-full px-2 text-xs outline-none hairline-ring transition-colors focus-visible:ring-[3px] focus-visible:ring-ring/25';
 
 function MessageItemComponent(props: Readonly<MessageItemProps>) {
 	const { message, author, people, conversationNames, meEmployeeId, meUserId, locale, continues, inTimeline, canManage, now } = props;

@@ -65,9 +65,55 @@ platform's collaboration transport.
 sort, local filter, keyboard), `docs-recent` (recent, last visited, expanded, garbage), `docs-markdown` (blocks,
 lists, marks, tables, unknown nodes, file names, mentions).
 
-## 6. Phase 2
+## 6. Live co-editing (`NEXT_PUBLIC_DOCS_LIVE_ENABLED`, default off)
+
+On the platform's live sessions (ever-gauzy `DocsLivePlugin`, `GAUZY_DOCS_LIVE_ENABLED`):
+`Subscription.documentLive(documentId, connectionId)` on the platform's GraphQL socket (`realtimeSocketUrl`, the credential
+the real-time client presents, one socket per open page) streams the frames; edits go to
+`POST /plugins/docs/documents/:id/live/updates`, carets and presence to `…/live/awareness`, both with proxy twins.
+
+| Module | Responsibility |
+| --- | --- |
+| `core/lib/docs-live/protocol.ts` | frames, reasons, error codes, the subscription, base64 |
+| `core/lib/docs-live/binding.ts` | one tab's session of one page: the document, the frames, batching, awareness, reconnects, the fallback |
+| `core/lib/docs-live/schema-guard.ts` | the node and mark types an update or a document holds that the editor does not know |
+| `core/lib/docs-live/transport.ts` | the socket (`GraphqlWsConnection`) and the two routes |
+| `core/hooks/docs/use-docs-live.ts` | the page view's session (made on subscribe, destroyed on leave), the status probe, the page read again on fallback |
+| `core/components/common/rich-editor/live-collaboration.ts` | `Collaboration` (field `default`) + the carets (`yCursorPlugin`); loaded by the Docs editor only |
+| `core/components/pages/docs/docs-live-presence.tsx` | "Live" / "Reconnecting…" / "Not live" and the co-editors' avatars |
+
+Rules that keep the shared document whole:
+
+- The editor binds an **empty** `Y.Doc`; the `sync` frame fills it. Nothing is seeded from `contentJson` here.
+- A document kept in the tab (the last eight pages, dropped on sign-out) whose `lineage` differs from the platform's is
+  dropped before the state is applied.
+- After every `sync`, `Y.encodeStateAsUpdate(doc, stateVector)` goes when it carries anything: edits made while the
+  session was down, or sent and lost, merge that way. So any doubt about a sent edit (404 `DOCS_LIVE_SESSION_NOT_FOUND`,
+  a network error) opens the session again instead of resending.
+- Local edits go 75 ms after the first of a batch, merged (`Y.mergeUpdates`), one request at a time.
+- `readOnly` (`sync`, `mode`, a 403 or 413) makes the editor non-editable with its reason; edits refused meanwhile go
+  through a new session once it is writable again.
+- The editor's binding deletes from the shared document whatever its schema cannot render: the document is checked
+  before an editor is bound to it, and every update after, before it is applied. Unknown content ends live editing and
+  the page shows its read-only view, as a stored page of unknown content does.
+- `closed`, a 404 status route, a refused subscription (no access, the user's session limit, no such field), no first
+  state within 10 s, or unknown content: live editing stops for the page view, the header says "Not live", the page is
+  read again and the autosave (with its revision / 409 handling) takes over. Edits the platform never confirmed (the
+  batch window, refused while read-only, typed while the session was down) become the autosave's draft, written
+  against the version they were typed on: their save meets the newer text as a conflict, and the person decides.
+- An answer to a request of an earlier session never changes the current one (its edit went with the new `sync`).
+- UndoRedo is off while live (the shared document's history, one per person, replaces it).
+
+## 7. Spaces and follows (`docs-collaboration`, `GAUZY_DOCS_COLLAB_ENABLED`)
+
+The tree lists a section per team space (`GET /plugins/docs/documents/spaces`; `TEAM` pages grouped by
+`organizationTeamId`, a team the spaces do not name still shown) and creates pages in it (`visibility: TEAM`); the page
+menu moves a page to another space (`POST …/:id/space`, with its sub-pages) and follows or mutes it (`…/follow`,
+`…/unfollow`, `…/mute`, `…/unmute`). A platform without Docs collaboration answers 404: the tree keeps the workspace
+and the private pages, and the menu its Make private / Make workspace.
+
+## 8. Phase 2
 
 Text-anchored comments (generic comments on entity `Document` + anchors in the JSON), presence through the
 real-time client, task chips (`useTaskDrawer`), command palette entries, `?block=` / `?thread=` deep links,
-sub-page zip export, drag to reorder among siblings, phone editing polish, live co-editing when the platform's
-collaboration transport ships.
+sub-page zip export, drag to reorder among siblings, phone editing polish. Live co-editing: section 6.

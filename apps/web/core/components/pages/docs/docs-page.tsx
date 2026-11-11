@@ -8,6 +8,7 @@ import { PageLayout } from '@/core/components/layouts/default-layout';
 import { AnimatedEmptyState } from '@/core/components/common/empty-state';
 import { useDocsActions } from '@/core/hooks/docs/use-docs-actions';
 import { useDocsAvailability } from '@/core/hooks/docs/use-docs-availability';
+import { useDocsSpaces } from '@/core/hooks/docs/use-docs-collaboration';
 import { useDocsFavorites } from '@/core/hooks/docs/use-docs-favorites';
 import { useDocsExpanded, useDocsRecent } from '@/core/hooks/docs/use-docs-recent';
 import { useDocsScope } from '@/core/hooks/docs/use-docs-scope';
@@ -37,6 +38,7 @@ export function DocsPage({ view }: Readonly<{ view: DocsView }>) {
 	const availability = useDocsAvailability(enabled);
 	const scope = useDocsScope();
 	const tree = useDocsTree(enabled && availability !== 'unavailable');
+	const spaces = useDocsSpaces(enabled && availability === 'available');
 	const { expanded, toggle, setOpen, expandAll } = useDocsExpanded();
 	const favorites = useDocsFavorites();
 	const { recentIds, forget } = useDocsRecent();
@@ -80,9 +82,14 @@ export function DocsPage({ view }: Readonly<{ view: DocsView }>) {
 	);
 
 	const createAndOpen = useCallback(
-		async (parentId: string | null, visibility: EDocumentVisibility, start: Pick<DocsNewPageRequest, 'name' | 'icon' | 'content'> = {}) => {
+		async (
+			parentId: string | null,
+			visibility: EDocumentVisibility,
+			start: Pick<DocsNewPageRequest, 'name' | 'icon' | 'content'> = {},
+			organizationTeamId?: string | null
+		) => {
 			try {
-				const page = await actions.createPage({ name: start.name ?? t('docs.UNTITLED'), parentId, visibility, icon: start.icon, content: start.content });
+				const page = await actions.createPage({ name: start.name ?? t('docs.UNTITLED'), parentId, visibility, organizationTeamId, icon: start.icon, content: start.content });
 				if (parentId) setOpen(parentId, true);
 				router.push(`/docs/${encodeURIComponent(page.id)}`);
 			} catch (error) {
@@ -146,6 +153,17 @@ export function DocsPage({ view }: Readonly<{ view: DocsView }>) {
 		[actions, fail]
 	);
 
+	const moveToSpace = useCallback(
+		async (page: IDocumentPage, visibility: EDocumentVisibility, organizationTeamId: string | null) => {
+			try {
+				await actions.moveToSpace(page.id, visibility, organizationTeamId);
+			} catch (error) {
+				fail(error, 'docs.MOVE_ERROR');
+			}
+		},
+		[actions, fail]
+	);
+
 	const reorder = useCallback(
 		async (page: IDocumentPage, direction: 'up' | 'down') => {
 			try {
@@ -197,6 +215,7 @@ export function DocsPage({ view }: Readonly<{ view: DocsView }>) {
 			rename: (id, name) => actions.updatePage(id, { name }),
 			setIcon: setIconOf,
 			setVisibility,
+			moveToSpace,
 			moveTo: setMoving,
 			duplicate,
 			trash,
@@ -204,9 +223,9 @@ export function DocsPage({ view }: Readonly<{ view: DocsView }>) {
 			restoreVersion: actions.restoreVersion,
 			toggleFavorite,
 			isFavorite: favorites.isFavorite,
-			newSubPage: (page) => void createAndOpen(page.id, page.visibility)
+			newSubPage: (page) => void createAndOpen(page.id, page.visibility, {}, page.organizationTeamId)
 		}),
-		[actions, createAndOpen, duplicate, favorites.isFavorite, restore, setVisibility, toggleFavorite, trash]
+		[actions, createAndOpen, duplicate, favorites.isFavorite, moveToSpace, restore, setVisibility, toggleFavorite, trash]
 	);
 
 	if (!enabled) return null;
@@ -236,12 +255,13 @@ export function DocsPage({ view }: Readonly<{ view: DocsView }>) {
 						favoriteIds={favorites.favoriteIds}
 						recentIds={recentIds}
 						actions={treeActions}
-						onNewPage={(parentId, visibility) => void createAndOpen(parentId, visibility)}
+						teamSpaces={spaces.teamSpaces}
+						onNewPage={(parentId, visibility, organizationTeamId) => void createAndOpen(parentId, visibility, {}, organizationTeamId)}
 						onHome={() => setHomeOnPhone(true)}
 					/>
 				</aside>
 				<main className={cn('relative min-w-0 flex-1', showsPane ? 'hidden lg:block' : 'block')}>
-					{view === 'page' && pageId && <DocsPageView key={pageId} pageId={pageId} tree={tree} actions={pageActions} />}
+					{view === 'page' && pageId && <DocsPageView key={pageId} pageId={pageId} tree={tree} actions={pageActions} spaces={spaces} />}
 					{view === 'trash' && (
 						<DocsTrash
 							onRestore={restore}

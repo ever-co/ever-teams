@@ -3023,7 +3023,8 @@
 			"projects": "Projecten",
 			"navigation": "Navigatie",
 			"settings": "Instellingen",
-			"goTo": "Ga naar"
+			"goTo": "Ga naar",
+			"chat": "Chat"
 		},
 		"commands": {
 			"inviteUser": "Gebruiker uitnodigen",
@@ -3044,17 +3045,18 @@
 			"goToWeeklyLimit": "Naar het rapport weeklimiet",
 			"goToTimeAndActivity": "Naar het rapport tijd en activiteit",
 			"profile": "Profiel",
-			"settings": "Instellingen"
+			"settings": "Instellingen",
+			"newMessage": "Nieuw bericht"
 		},
 		"results": {
 			"recent": "Recent",
 			"tasks": "Taken",
 			"inTeam": "in {team}",
+			"conversations": "Gesprekken",
 			"people": "Personen",
+			"messagePerson": "{name} een bericht sturen",
 			"projects": "Projecten",
 			"pages": "Pagina's",
-			"conversations": "Gesprekken",
-			"conversation": "Gesprek",
 			"untitledPage": "Zonder titel",
 			"recentlyOpened": "Onlangs geopend"
 		}
@@ -3459,6 +3461,19 @@
 				"PUSH_BLOCKED": "Meldingen zijn geblokkeerd voor deze site: sta ze toe in je browserinstellingen en zet ze hier aan.",
 				"PUSH_UNSUPPORTED": "Deze browser kan geen meldingen tonen.",
 				"PUSH_FAILED": "De browsermeldingen konden niet worden gewijzigd. Probeer het opnieuw.",
+				"PUSH_KINDS_TITLE": "Verstuurd naar je apparaten",
+				"PUSH_KIND_OFF": "Hierboven uitgeschakeld, dus er wordt niets verstuurd.",
+				"DEVICES_TITLE": "Je apparaten",
+				"DEVICE_NAME": "{browser} op {system}",
+				"DEVICE_UNKNOWN": "Een browser",
+				"DEVICE_THIS": "Dit apparaat",
+				"DEVICE_LAST_USED": "Laatst gemeld {date}",
+				"DEVICE_ADDED": "Toegevoegd {date}",
+				"DEVICE_REMOVE": "Verwijderen",
+				"DEVICE_REMOVE_FAILED": "Dat apparaat is niet verwijderd. Probeer het opnieuw.",
+				"SOUND_TITLE": "Geluid",
+				"SOUND_LABEL": "Geluid bij nieuwe items",
+				"SOUND_TEXT": "Eén open tabblad van deze browser speelt een kort geluid af als er iets nieuws in je inbox binnenkomt.",
 				"EMAIL_INTRO": "Hoe elk type je per e-mail bereikt. Elk type dat je aan laat, blijft in je inbox verschijnen.",
 				"DEFAULT_LABEL": "Elk type",
 				"DEFAULT_TEXT": "De e-mailinstelling die een type gebruikt, tenzij zijn eigen rij anders zegt.",
@@ -4896,7 +4911,8 @@
 			"global": "Overal",
 			"list": "Takenlijst",
 			"task": "Gefocuste taak",
-			"view": "Weergave"
+			"view": "Weergave",
+			"chat": "Chat"
 		},
 		"commands": {
 			"paletteOpen": "Opdrachtenpalet openen",
@@ -4921,6 +4937,12 @@
 			"taskPriority": "Prioriteit wijzigen",
 			"taskLabels": "Labels wijzigen",
 			"taskDueDate": "Vervaldatum wijzigen",
+			"chatPrevious": "Vorig gesprek",
+			"chatNext": "Volgend gesprek",
+			"chatPreviousUnread": "Vorig ongelezen gesprek",
+			"chatNextUnread": "Volgend ongelezen gesprek",
+			"chatUnreads": "Ongelezen openen",
+			"chatMarkAllRead": "Alles als gelezen markeren",
 			"goHome": "Naar de startpagina",
 			"goProjects": "Naar de projecten",
 			"goKanban": "Naar het Kanban-bord",
@@ -4936,7 +4958,9 @@
 			"searchTeams": "Teams doorzoeken",
 			"themeToggle": "Wisselen tussen licht en donker",
 			"taskProject": "Project wijzigen"
-		}
+		},
+		"CHAT_SINGLE_KEY": "Een chattoets is één toets, geen reeks.",
+		"CHAT_TAKEN": "De chat gebruikt die toets al (opmaak, verzenden, verplaatsen of scrollen)."
 	},
 	"realtime": {
 		"RECONNECTING": "Opnieuw verbinden…"
@@ -5346,7 +5370,25 @@
 				"DECISION": "Besluit",
 				"CONSEQUENCES": "Gevolgen"
 			}
-		}
+		},
+		"LIVE": "Live",
+		"LIVE_CONNECTING": "Verbinden…",
+		"LIVE_RECONNECTING": "Opnieuw verbinden…",
+		"NOT_LIVE": "Niet live",
+		"LIVE_EDITORS": "{count, plural, one {# andere persoon op deze pagina} other {# andere personen op deze pagina}}",
+		"LIVE_READ_ONLY": "Je kunt deze pagina lezen terwijl ze verandert, maar hier niet bewerken.",
+		"LIVE_READ_ONLY_NO_ACCESS": "Je kunt deze pagina lezen terwijl anderen haar bewerken, maar je kunt haar niet bewerken.",
+		"LIVE_READ_ONLY_FULL": "Deze pagina heeft al zoveel bewerkers als ze aankan. Je kunt meelezen en bewerken zodra iemand vertrekt.",
+		"LIVE_ENDED": "Live bewerken is gestopt. Je wijzigingen worden zoals gewoonlijk opgeslagen.",
+		"LIVE_ENDED_ACCESS": "Je hebt geen toegang meer om deze pagina live te bewerken.",
+		"TEAM_SPACE": "Teamruimte",
+		"TEAM_SPACE_EMPTY": "Nog geen pagina’s in deze teamruimte.",
+		"NEW_TEAM_PAGE": "Nieuwe pagina in {team}",
+		"MOVE_TO_SPACE": "Naar ruimte verplaatsen",
+		"FOLLOW": "Pagina volgen",
+		"UNFOLLOW": "Pagina niet meer volgen",
+		"MUTE": "Meldingen dempen",
+		"UNMUTE": "Meldingen weer aanzetten"
 	},
 	"whatsNew": {
 		"TITLE": "Wat is er nieuw",

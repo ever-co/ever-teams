@@ -1,9 +1,9 @@
 /**
- * What the command palette finds besides tasks and commands: the people of the active team, the projects, the Docs
- * pages and the conversations, each as one entry with where it leads. Pure, so the specs run without a browser.
+ * What the command palette finds besides tasks, commands and the chat's own results: the people of the active team,
+ * the projects and the Docs pages, each as one entry with where it leads. Pure, so the specs run without a browser.
  */
 
-export type PaletteItemKind = 'task' | 'person' | 'project' | 'page' | 'conversation';
+export type PaletteItemKind = 'task' | 'person' | 'project' | 'page';
 
 export interface PaletteItem {
 	kind: PaletteItemKind;
@@ -42,11 +42,6 @@ interface PalettePage {
 	name?: string | null;
 	icon?: string | null;
 	isArchived?: boolean | null;
-}
-
-interface PaletteConversation {
-	id: string;
-	archivedAt?: string | null;
 }
 
 function trimmed(value: string | null | undefined): string {
@@ -102,22 +97,6 @@ export function pageItemsOf(pages: readonly PalettePage[] | null | undefined, un
 			href: `/docs/${encodeURIComponent(page.id)}`,
 			icon: page.icon ?? null
 		}));
-}
-
-/** My conversations that are not archived, named as the chat names them, in the chat's order. */
-export function conversationItemsOf<T extends PaletteConversation>(
-	conversations: readonly T[] | null | undefined,
-	titleOf: (conversation: T) => string
-): PaletteItem[] {
-	return (conversations ?? [])
-		.filter((conversation) => !conversation.archivedAt)
-		.map<PaletteItem>((conversation) => ({
-			kind: 'conversation',
-			id: conversation.id,
-			title: trimmed(titleOf(conversation)),
-			href: `/chat/${encodeURIComponent(conversation.id)}`
-		}))
-		.filter((item) => item.title.length > 0);
 }
 
 /**
