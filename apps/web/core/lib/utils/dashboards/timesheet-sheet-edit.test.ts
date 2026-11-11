@@ -116,6 +116,15 @@ describe('free windows and placement', () => {
 		expect(free).toEqual([{ start: at(0), end: at(14) }]);
 	});
 
+	it('gives one interval when the time spills before 09:00 inside one free stretch', () => {
+		const now = at(11);
+		const limit = placementLimitOf(bounds, now, false);
+		const free = freeWindowsBetween(busyWindowsOf([], bounds), bounds, limit);
+		const pieces = placementOf(4 * HOUR, free, at(0));
+
+		expect(pieces).toEqual([{ start: at(7), end: at(11) }]);
+	});
+
 	it('counts an entry that started the day before', () => {
 		const logs = [logOf({ id: 'night', startedAt: new Date(2026, 10, 9, 22), stoppedAt: at(2) })];
 		const free = freeWindowsBetween(busyWindowsOf(logs, bounds), bounds, bounds.end);

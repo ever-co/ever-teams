@@ -307,7 +307,8 @@ function placementAnchorOf(day: Date) {
 /**
  * Where `seconds` of new time go in a day's free windows, as the intervals to record: from 09:00 onward first, each
  * window filled from its start, then before 09:00, each window filled up to its end so the time stays near the
- * working day. Null when the free time is shorter than asked.
+ * working day. Intervals that touch come back as one, so a single free stretch around 09:00 gives a single entry.
+ * Null when the free time is shorter than asked.
  */
 export function placementOf(seconds: number, windows: ReadonlyArray<TimeWindow>, day: Date): TimeWindow[] | null {
 	const available = freeSecondsOf(windows);
@@ -339,8 +340,7 @@ export function placementOf(seconds: number, windows: ReadonlyArray<TimeWindow>,
 		pieces.push({ start, end: window.end });
 		remaining -= taken;
 	}
-	pieces.sort(byWindowStart);
-	return pieces;
+	return mergedWindowsOf(pieces);
 }
 
 export interface ReductionPlan {
