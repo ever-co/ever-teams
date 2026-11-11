@@ -113,7 +113,7 @@ const EditStatusModal = ({ status, onClose, setColumn }: { status: any; onClose:
 					/>
 
 					<div className="flex items-center gap-3">
-						<IconPopover kind="status" control={control} setValue={setValue} iconUrl={status.fullIconUrl} />
+						<IconPopover kind="status" control={control} setValue={setValue} stored={status} />
 						<ColorPicker defaultColor={status.color} onChange={(e) => setValue('color', e)} />
 					</div>
 				</div>

@@ -16,8 +16,8 @@ interface IconPopoverProps<TForm extends FieldValues> {
 	control: Control<TForm>;
 	setValue: UseFormSetValue<TForm>;
 	kind: TaskPropertySettingsKind;
-	/** The `fullIconUrl` of the property being edited, where its uploaded icon loads from. */
-	iconUrl?: string | null;
+	/** The property being edited: its uploaded icon loads from its `fullIconUrl` while the form holds that icon. */
+	stored?: { icon?: string | null; fullIconUrl?: string | null } | null;
 }
 
 /**
@@ -29,17 +29,20 @@ function IconPopover<TForm extends FieldValues>({
 	control,
 	setValue,
 	kind,
-	iconUrl
+	stored
 }: Readonly<IconPopoverProps<TForm>>) {
 	const name = 'icon' as Path<TForm>;
 	// Watched here, not in the form: a pick re-renders the picker only
 	const icon: unknown = useWatch({ control, name });
+	const value = typeof icon === 'string' && icon ? icon : null;
+	// The stored URL is the stored icon's only: an upload picked since, not saved yet, shows its own file or the glyph
+	const valueUrl = value && value === stored?.icon ? stored.fullIconUrl : null;
 
 	return (
 		<PropertyIconPicker
 			kind={kind}
-			value={typeof icon === 'string' && icon ? icon : null}
-			valueUrl={iconUrl}
+			value={value}
+			valueUrl={valueUrl}
 			onChange={(picked) => setValue(name, picked as PathValue<TForm, Path<TForm>>)}
 		/>
 	);

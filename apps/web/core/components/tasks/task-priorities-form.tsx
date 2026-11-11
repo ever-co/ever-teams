@@ -165,7 +165,7 @@ export const TaskPrioritiesForm = ({ formOnly = false, onCreated }: StatusForm) 
 											kind="priority"
 											control={control}
 											setValue={setValue}
-											iconUrl={edit?.fullIconUrl}
+											stored={edit}
 										/>
 									</div>
 

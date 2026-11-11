@@ -277,7 +277,7 @@ export const TaskStatusesForm = ({ formOnly = false, onCreated }: StatusForm) =>
 											kind="status"
 											control={control}
 											setValue={setValue}
-											iconUrl={edit?.fullIconUrl}
+											stored={edit}
 										/>
 									</div>
 									<div className={PICKER}>
