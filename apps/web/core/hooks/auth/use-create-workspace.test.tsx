@@ -118,6 +118,33 @@ describe('useCreateWorkspace', () => {
 		expect(getDefaultStore().get(workspaceOpeningState)).toBe(false);
 	});
 
+	it('reads the workspace list again when the workspace exists or may: the page sends the person to it', async () => {
+		const queryClient = new QueryClient({ defaultOptions: { mutations: { retry: false } } });
+		const invalidate = jest.spyOn(queryClient, 'invalidateQueries');
+		const wrapper = ({ children }: { children: ReactNode }) => (
+			<QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
+		);
+		const { result } = renderHook(() => useCreateWorkspace(), { wrapper });
+		const createRefusedWith = async (error: unknown) => {
+			mockCreateWorkspace.mockRejectedValueOnce(error);
+			await act(async () => {
+				await result.current.mutateAsync({ name: 'Studio', invites: [] }).catch(() => undefined);
+			});
+		};
+
+		await createRefusedWith(thrown(answer(502, { code: 'CREATED_NOT_OPENED' })));
+		expect(invalidate).toHaveBeenCalledWith({ queryKey: ['workspaces'] });
+
+		invalidate.mockClear();
+		await createRefusedWith(thrown(unanswered('ECONNABORTED', 'timeout of 120000ms exceeded')));
+		expect(invalidate).toHaveBeenCalledWith({ queryKey: ['workspaces'] });
+
+		// Not created: the list has nothing new
+		invalidate.mockClear();
+		await createRefusedWith(thrown(answer(502, { code: 'FAILED' })));
+		expect(invalidate).not.toHaveBeenCalled();
+	});
+
 	it('(control) the generic toast does speak for a mutation that says nothing itself', async () => {
 		const { result } = renderHook(
 			() => useMutation({ mutationFn: () => Promise.reject(new ApiErrorService('Forbidden', 403)) }),

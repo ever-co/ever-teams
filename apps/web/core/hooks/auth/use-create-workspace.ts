@@ -1,9 +1,10 @@
 'use client';
 
-import { useMutation } from '@tanstack/react-query';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { isAxiosError } from 'axios';
 import { useSetAtom } from 'jotai';
 import type { CreateWorkspaceBody } from '@/core/lib/validation/workspace';
+import { queryKeys } from '@/core/query/keys';
 import { ApiErrorService } from '@/core/services/client/api-error.service';
 import { workspaceService } from '@/core/services/client/api/auth/workspace.service';
 import { workspaceOpeningState } from '@/core/stores';
@@ -82,6 +83,7 @@ export function workspaceWelcomePathOf({ invited, invitesFailed }: { invited: nu
  * While it is in flight the timer does not start: it would keep running in the workspace left behind.
  */
 export function useCreateWorkspace() {
+	const queryClient = useQueryClient();
 	const setWorkspaceOpening = useSetAtom(workspaceOpeningState);
 	return useMutation({
 		mutationFn: (body: CreateWorkspaceBody) => workspaceService.createWorkspace(body),
@@ -89,7 +91,15 @@ export function useCreateWorkspace() {
 		meta: { handlesOwnError: true },
 		onMutate: () => setWorkspaceOpening(true),
 		// On success the page is replaced, which ends the hold
-		onError: () => setWorkspaceOpening(false),
+		onError: (error) => {
+			setWorkspaceOpening(false);
+			// The workspace exists, or may: the page sends the person to the workspace menu, which reads the list
+			// again instead of the one cached before the creation (kept 15 minutes)
+			const failure = createWorkspaceErrorCodeOf(error);
+			if (failure === 'CREATED_NOT_OPENED' || failure === 'OUTCOME_UNKNOWN') {
+				void queryClient.invalidateQueries({ queryKey: queryKeys.workspaces.all });
+			}
+		},
 		onSuccess: (created) => {
 			window.location.href = workspaceWelcomePathOf(created);
 		}
