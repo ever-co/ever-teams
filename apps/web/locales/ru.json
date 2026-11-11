@@ -5267,7 +5267,9 @@
 		"LOAD_MORE": "Загрузить ещё",
 		"VIEW_IMAGE": "Посмотреть {name}",
 		"OPEN_ORIGINAL": "Открыть оригинал",
-		"EMOJI_SUGGESTIONS": "Эмодзи"
+		"EMOJI_SUGGESTIONS": "Эмодзи",
+		"LINK_PREVIEW_LABEL": "{title} ({site}, откроется в новой вкладке)",
+		"LINK_PREVIEW_SITE_LABEL": "{site} (откроется в новой вкладке)"
 	},
 	"docs": {
 		"TITLE": "Документы",

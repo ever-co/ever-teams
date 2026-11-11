@@ -5267,7 +5267,9 @@
 		"LOAD_MORE": "Meer laden",
 		"VIEW_IMAGE": "{name} bekijken",
 		"OPEN_ORIGINAL": "Origineel openen",
-		"EMOJI_SUGGESTIONS": "Emoji"
+		"EMOJI_SUGGESTIONS": "Emoji",
+		"LINK_PREVIEW_LABEL": "{title} ({site}, opent in een nieuw tabblad)",
+		"LINK_PREVIEW_SITE_LABEL": "{site} (opent in een nieuw tabblad)"
 	},
 	"docs": {
 		"TITLE": "Documenten",

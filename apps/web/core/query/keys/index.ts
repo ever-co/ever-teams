@@ -486,6 +486,10 @@ export const queryKeys = {
 			['chat', 'files', tenantId ?? null, conversationId ?? null] as const
 	},
 
+	// The preview of a link, one per link and kept for the session. Outside the `chat` prefix on purpose: the live
+	// channel invalidates `['chat']` on every change, and no message event changes what a page says about itself.
+	chatLinkPreview: (tenantId: string | undefined | null, url: string) => ['chat-link-preview', tenantId ?? null, url] as const,
+
 	taskComments: {
 		all: ['task-comments'] as const,
 		byTask: (

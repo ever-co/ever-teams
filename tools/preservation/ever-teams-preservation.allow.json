@@ -354,5 +354,9 @@
 	{
 		"id": "removed:publicExports:apps/web/core/stores/index.ts::runtime::REALTIME_REPLACES_POLLING",
 		"reason": "The constant that kept the chat and notification polls running while connected (#5012) is replaced by `realtimePromptDeliveryAtom`, set from the platform's own answer (`GET /realtime/status` → `delivery.prompt`, #5031): the polls pause only where the platform says it pushes promptly. Nothing imports the constant any more."
+	},
+	{
+		"id": "removed:navigation:apps/web/core/components/pages/chat/chat-page.tsx::router.replace=<dynamic:`/chat/${target.id}`>::#1",
+		"reason": "The chat landing redirect to the conversation to open is still there, now with `?new=message` when the page was asked to start a new message (#5052, T15 review round 1: `router.replace(`/chat/${target.id}${newRequested ? '?new=message' : ''}`)`). The surface keys the template literal, so the extended template reads as a removed one and a new one."
 	}
 ]
