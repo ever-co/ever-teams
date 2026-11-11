@@ -1078,6 +1078,10 @@ function createSyntheticHistory(): { base: string; head: string; repository: str
 	return { base, head: git(repository, 'rev-parse', 'HEAD'), repository };
 }
 
+// The real surface's JSON outgrew spawnSync's 1 MiB default output buffer (ENOBUFS) once the Docs, chat and
+// integration proxies landed; it is read whole, so the buffer is sized well past it.
+const SURFACE_MAX_BUFFER = 64 * 1024 * 1024;
+
 let realHeadSurface: Surface | undefined;
 
 function collectRealHeadSurface(): Surface {
@@ -1087,13 +1091,8 @@ function collectRealHeadSurface(): Surface {
 		`const result = collectSurface('HEAD', { cwd: ${JSON.stringify(REPOSITORY_ROOT)} });`,
 		'process.stdout.write(JSON.stringify(result.surface));'
 	].join('\n');
-	// The surface of the real repository is over a MiB of JSON (1.07 MB on develop 2026-11-11), past spawnSync's
-	// default 1 MiB buffer, which then fails with ENOBUFS before any assertion runs.
 	const result = checkedSpawn(
-		spawnSync(process.execPath, ['--input-type=module', '--eval', expression], {
-			encoding: 'utf8',
-			maxBuffer: 64 * 1024 * 1024
-		})
+		spawnSync(process.execPath, ['--input-type=module', '--eval', expression], { encoding: 'utf8', maxBuffer: SURFACE_MAX_BUFFER })
 	);
 	if (result.status !== 0) throw new Error(result.stderr);
 	realHeadSurface = JSON.parse(result.stdout) as Surface;
@@ -1997,11 +1996,13 @@ describe('Ever Teams feature surface preservation', () => {
 		// 270 files and 350 verbs with the files of a conversation (GET /api/chat/conversations/[id]/files).
 		// 279 files and 360 verbs with the Docs live and collaboration proxies (/api/plugins/docs/live/status,
 		// documents/spaces, documents/[id]/space, follow (GET, POST), unfollow, mute, unmute, live/updates, live/awareness).
-		// 280 files and 361 verbs with the link previews of chat messages (GET /api/chat/link-preview).
-		expect(routes.filter((value) => /\/route\.[jt]s$/.test(value))).toHaveLength(280);
+		// 285 files and 366 verbs with the integrations' sync conflict proxies (/api/integration/{linear,asana,trello}/[id]/conflicts,
+		// GET, and [id]/conflicts/[conflictId]/resolve, POST).
+		// 286 files and 367 verbs with the link previews of chat messages (GET /api/chat/link-preview).
+		expect(routes.filter((value) => /\/route\.[jt]s$/.test(value))).toHaveLength(286);
 		expect(
 			routes.filter((value) => /\/route\.[jt]s::(?:GET|POST|PUT|PATCH|DELETE|HEAD|OPTIONS)$/.test(value))
-		).toHaveLength(361);
+		).toHaveLength(367);
 		expect(routes).toEqual(
 			expect.arrayContaining([
 				// Proxy mode twins of the platform's Docs live sessions and collaboration routes (2026-11-11)

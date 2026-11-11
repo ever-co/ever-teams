@@ -134,13 +134,13 @@ describe('TeamTasksList keys', () => {
 	it('runs the rebound keys, no longer the old ones; Shift on a bare binding extends the selection', () => {
 		const { row, focused, view, commands } = renderList({
 			canRebind: true,
-			overrides: { listDown: 'n', taskStatus: 'alt+s' }
+			overrides: { listDown: 'b', taskStatus: 'alt+s' }
 		});
 		fireEvent.keyDown(row('t1'), key('KeyJ', 'j'));
 		expect(focused()).toBeNull();
-		fireEvent.keyDown(row('t1'), key('KeyN', 'n'));
+		fireEvent.keyDown(row('t1'), key('KeyB', 'b'));
 		expect(focused()).toBe('t2');
-		fireEvent.keyDown(row('t2'), key('KeyN', 'N', { shiftKey: true }));
+		fireEvent.keyDown(row('t2'), key('KeyB', 'B', { shiftKey: true }));
 		expect(focused()).toBe('t3');
 		expect(view.setManySelected).toHaveBeenCalledWith(['t2', 't3'], true);
 		// The physical key: K on a Cyrillic layout prints `л`.
@@ -159,7 +159,7 @@ describe('TeamTasksList keys', () => {
 	it('leaves the built-in keys as they are: the arrows, Enter and O, Esc', () => {
 		const { row, focused, view, commands } = renderList({
 			canRebind: true,
-			overrides: { listDown: 'n', listUp: 'u' }
+			overrides: { listDown: 'b', listUp: 'u' }
 		});
 		fireEvent.keyDown(row('t1'), key('ArrowDown', 'ArrowDown'));
 		expect(focused()).toBe('t2');

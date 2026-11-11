@@ -12,6 +12,7 @@ import { trelloIntegrationService } from '@/core/services/client/api/integration
 import { activeTeamState } from '@/core/stores';
 import { ITrelloBoard, ITrelloConnectionSummary, ITrelloList, ITrelloMapping, ITrelloMappingInput, ITrelloRun } from '@/core/types/interfaces/integrations/trello';
 import { integrationProviderStatus, isNotFoundError, type IntegrationProviderStatus } from './integration-provider-status';
+import { useConflictsAfterRuns } from './use-integration-conflicts';
 
 /** What the Trello provider shows. */
 export type TrelloConnectionStatus = IntegrationProviderStatus;
@@ -235,6 +236,8 @@ export function useTrelloIntegration(): TrelloIntegrationSettings {
 			void queryClient.invalidateQueries({ queryKey: queryKeys.integrations.trello.status(tenantId, organizationId) });
 		}
 	}, [finishedFollowed, integrationId, organizationId, queryClient, runs, tenantId]);
+
+	useConflictsAfterRuns('trello', runs);
 
 	const retryDetails = useCallback(() => {
 		if (mappingsQuery.isError) void mappingsQuery.refetch();

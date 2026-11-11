@@ -1,6 +1,6 @@
 'use client';
 
-import { ReactNode, useId, useMemo, useState } from 'react';
+import { ReactNode, useId, useMemo, useRef, useState } from 'react';
 import { type DottedLanguageObjectStringPaths, useLocale, useTranslations } from 'next-intl';
 import { AnimatedHeight } from '@/core/components/common/animated-height';
 import { badgeVariants } from '@/core/components/common/badge';
@@ -13,11 +13,13 @@ import { SETTINGS_ROW_DESCRIPTION, SETTINGS_ROW_LABEL, SettingsSection, Settings
 import { SettingsSwitch } from '@/core/components/settings/kit/settings-switch';
 import { type AsanaIntegrationSettings, type AsanaLookup, useAsanaProjects, useAsanaSections } from '@/core/hooks/integrations/use-asana-integration';
 import { type LinearStatusOptions, useLinearStatusOptions } from '@/core/hooks/integrations/use-linear-integration';
+import { useRunConflictFilter } from '@/core/hooks/integrations/use-run-conflict-filter';
 import { cn } from '@/core/lib/helpers';
 import { errorReasonKeyOf } from '@/core/lib/utils/error-feedback';
 import { invalidSectionFields, SECTION_BY_NAME, sectionFieldsOf, sectionMapOfFields } from '@/core/lib/utils/integration-asana-section-map';
 import { matchStatusName } from '@/core/lib/utils/integration-linear-state-map';
 import { ASANA_DIRECTIONS, IAsanaMapping, IAsanaRun, IAsanaSection, TAsanaDirection } from '@/core/types/interfaces/integrations/asana';
+import { IntegrationConflictsRow } from './integration-conflicts-row';
 import { GithubProviderRowSkeleton, PROVIDER_ROW, PROVIDER_TILE } from './integrations-settings-skeleton';
 
 type AsanaProps = Readonly<{ asana: AsanaIntegrationSettings }>;
@@ -468,7 +470,7 @@ function AddMappingRow({ asana }: AsanaProps) {
 	);
 }
 
-function RunLine({ run }: Readonly<{ run: IAsanaRun }>) {
+function RunLine({ run, onShowConflicts }: Readonly<{ run: IAsanaRun; onShowConflicts: (runId: string) => void }>) {
 	const t = useTranslations();
 	const locale = useLocale();
 	const when = run.startedAt ? formatDay(run.startedAt, locale) : '';
@@ -481,12 +483,22 @@ function RunLine({ run }: Readonly<{ run: IAsanaRun }>) {
 			</span>
 			<span className="text-muted-foreground">{when}</span>
 			<span className="text-muted-foreground">{counts}</span>
+			{run.conflictCount ? (
+				<button
+					type="button"
+					className={cn(badgeVariants({ variant: 'warning' }), 'cursor-pointer outline-none focus-visible:ring-2 focus-visible:ring-ring/40')}
+					title={t('settings.integrations.conflicts.SHOW_RUN_CONFLICTS')}
+					onClick={() => onShowConflicts(run.id)}
+				>
+					{t('settings.integrations.conflicts.RUN_COUNT', { count: run.conflictCount })}
+				</button>
+			) : null}
 			{run.lastError && <span className="min-w-0 basis-full truncate text-xs text-destructive-ink">{run.lastError}</span>}
 		</li>
 	);
 }
 
-function RunsRow({ asana }: AsanaProps) {
+function RunsRow({ asana, onShowConflicts }: AsanaProps & Readonly<{ onShowConflicts: (runId: string) => void }>) {
 	const t = useTranslations();
 	if (!asana.runs.length) return <MutedRow>{t('settings.integrations.asana.NO_RUNS')}</MutedRow>;
 	return (
@@ -494,7 +506,7 @@ function RunsRow({ asana }: AsanaProps) {
 			<span className={SETTINGS_ROW_LABEL}>{t('settings.integrations.asana.RUNS_TITLE')}</span>
 			<ul className="flex flex-col gap-1.5">
 				{asana.runs.slice(0, 8).map((run) => (
-					<RunLine key={run.id} run={run} />
+					<RunLine key={run.id} run={run} onShowConflicts={onShowConflicts} />
 				))}
 			</ul>
 		</div>
@@ -506,6 +518,9 @@ function AsanaConnected({ asana, onDisconnect }: AsanaProps & Readonly<{ onDisco
 	const panelId = useId();
 	const [isOpen, setIsOpen] = useState(true);
 	const connection = asana.connection;
+	// The runs list's count of a run narrows the conflicts to that run, and brings them into view.
+	const conflictsRef = useRef<HTMLDivElement>(null);
+	const conflictFilter = useRunConflictFilter(connection?.id ?? null, conflictsRef);
 	const needsAttention = Boolean(connection?.attentionReason);
 	const account = connection?.asanaUserName || connection?.asanaUserEmail || '';
 	const summary = account ? t('settings.integrations.asana.SUMMARY_CONNECTED', { account }) : t('settings.integrations.asana.SUMMARY_CONNECTED_NO_ACCOUNT');
@@ -540,7 +555,18 @@ function AsanaConnected({ asana, onDisconnect }: AsanaProps & Readonly<{ onDisco
 											<MappingRow key={mapping.id} asana={asana} mapping={mapping} />
 										))}
 										{asana.canManageMappings && <AddMappingRow asana={asana} />}
-										<RunsRow asana={asana} />
+										{connection && (
+											<div ref={conflictsRef} tabIndex={-1} className="outline-none" aria-label={t('settings.integrations.conflicts.TITLE')}>
+												<IntegrationConflictsRow
+													provider="asana"
+													providerName={t('settings.integrations.asana.TITLE')}
+													integrationId={connection.id}
+													runId={conflictFilter.runId}
+													onClearRun={conflictFilter.clearRun}
+												/>
+											</div>
+										)}
+										<RunsRow asana={asana} onShowConflicts={conflictFilter.showRun} />
 									</>
 								)}
 								<div className={ROW_DIVIDER}>

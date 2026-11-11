@@ -51,6 +51,17 @@ jest.mock('@/core/components/common/select', () => {
 		}
 	};
 });
+// The conflict list reads its own data (its own tests cover it): here, only what the section hands it.
+jest.mock('./integration-conflicts-row', () => ({
+	IntegrationConflictsRow: ({ provider, providerName, integrationId, runId, onClearRun }: { provider: string; providerName: string; integrationId: string; runId: string | null; onClearRun: () => void }) => (
+		<div data-testid="conflicts-row" data-provider={provider} data-integration={integrationId} data-run={runId ?? ''}>
+			{providerName}
+			<button type="button" onClick={onClearRun}>
+				clear-run
+			</button>
+		</div>
+	)
+}));
 jest.mock('@/core/components/settings/kit/danger', () => ({
 	DangerRow: ({ actionLabel, onAction }: { actionLabel: string; onAction: () => void }) => (
 		<button type="button" onClick={onAction}>
@@ -258,5 +269,24 @@ describe('AsanaProviderSection', () => {
 		expect((screen.getByTestId('asana-disconnect-dialog')).textContent ?? '').toMatch(/^settings\.integrations\.asana\.DISCONNECT_TITLE$/);
 		rerender(<AsanaProviderSection asana={{ ...asana, disconnectError: new Error('disconnect failed') }} />);
 		expect(screen.getByTestId('asana-disconnect-dialog').textContent).toMatch(/DISCONNECT_TITLE \| /);
+	});
+
+	it("connected: the conflict list of the connection, and each run's conflict count opens that run's conflicts", () => {
+		const base = connected().runs[0];
+		render(<AsanaProviderSection asana={connected({ runs: [{ ...base, conflictCount: 2 }, { ...base, id: 'r2', conflictCount: 0 }] })} />);
+		const row = screen.getByTestId('conflicts-row');
+		expect(row.getAttribute('data-provider')).toBe('asana');
+		expect(row.getAttribute('data-integration')).toBe('int-1');
+		expect(row.textContent).toContain('settings.integrations.asana.TITLE');
+		expect(row.getAttribute('data-run')).toBe('');
+		// Only a run that found conflicts shows a count.
+		const counts = screen.getAllByRole('button', { name: /settings\.integrations\.conflicts\.RUN_COUNT/ });
+		expect(counts).toHaveLength(1);
+		expect(counts[0].textContent).toBe('settings.integrations.conflicts.RUN_COUNT {"count":2}');
+
+		fireEvent.click(counts[0]);
+		expect(screen.getByTestId('conflicts-row').getAttribute('data-run')).toBe('r1');
+		fireEvent.click(screen.getByRole('button', { name: 'clear-run' }));
+		expect(screen.getByTestId('conflicts-row').getAttribute('data-run')).toBe('');
 	});
 });

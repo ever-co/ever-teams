@@ -55,7 +55,8 @@ function searchValueOf(task: TTask) {
 
 interface PaletteTaskResultsProps {
 	search: string;
-	onOpenTask: (taskId: string) => void;
+	/** The task's title comes with its id: the palette remembers what was opened from it. */
+	onOpenTask: (taskId: string, title: string) => void;
 	className?: string;
 }
 
@@ -107,12 +108,12 @@ interface PaletteTaskRowProps {
 	teamName?: string;
 	status?: TStatusItem;
 	priority?: TStatusItem;
-	onOpenTask: (taskId: string) => void;
+	onOpenTask: (taskId: string, title: string) => void;
 }
 
 function PaletteTaskRow({ task, teamName, status, priority, onOpenTask }: Readonly<PaletteTaskRowProps>) {
 	const t = useTranslations();
-	const openTask = useCallback(() => onOpenTask(task.id), [onOpenTask, task.id]);
+	const openTask = useCallback(() => onOpenTask(task.id, task.title), [onOpenTask, task.id, task.title]);
 	const labels = [numberLabelOf(task)];
 	if (teamName) {
 		labels.push(t('commandPalette.results.inTeam', { team: teamName }));
