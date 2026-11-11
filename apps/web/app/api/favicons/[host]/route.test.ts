@@ -70,6 +70,8 @@ describe('GET /api/favicons/:host', () => {
 	it('asks nothing for an address that is not a public host name', async () => {
 		expect((await request('127.0.0.1')).status).toBe(400);
 		expect((await request('localhost')).status).toBe(400);
+		// A broken percent-encoding is a bad request too, not a server error
+		expect((await request('%E0%A4%A')).status).toBe(400);
 		expect(mockFaviconOf).not.toHaveBeenCalled();
 	});
 

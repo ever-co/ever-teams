@@ -7,6 +7,15 @@ import { authenticatedGuard } from '@/core/services/server/guards/authenticated-
 const FOUND_CACHE = 'private, max-age=86400, stale-while-revalidate=604800';
 const MISSING_CACHE = 'private, max-age=21600';
 
+/** The host a request names, in lower case; null when its percent-encoding is broken (`%E0%A4%A`). */
+function requestedHostOf(requested: string): string | null {
+	try {
+		return decodeURIComponent(requested).trim().toLowerCase();
+	} catch {
+		return null;
+	}
+}
+
 /**
  * `GET /api/favicons/:host` (#5023): a visited site's favicon, fetched by the web server (favicons.ts), so the
  * browser never asks the site itself. Off unless NEXT_PUBLIC_FAVICONS_ENABLED=true; only for a session the Gauzy
@@ -21,8 +30,8 @@ export async function GET(req: Request, props: { params: Promise<{ host: string 
 	if (!user) return $res('Unauthorized');
 
 	const { host: requested } = await props.params;
-	const host = decodeURIComponent(requested).trim().toLowerCase();
-	if (!isFaviconHost(host)) {
+	const host = requestedHostOf(requested);
+	if (host === null || !isFaviconHost(host)) {
 		return new NextResponse(null, { status: 400 });
 	}
 
