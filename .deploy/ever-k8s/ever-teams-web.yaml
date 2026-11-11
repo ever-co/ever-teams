@@ -1,7 +1,7 @@
-# Ever Teams — self-hosted deploy for the `ever-k8s` cluster (Proxmox homelab).
-# Managed by Argo CD (Application watches this directory). PARALLEL to the DigitalOcean deploy — DO is untouched.
-# Phase 1: stateless web app -> hosted Gauzy API (api.ever.team). No Postgres/Redis/S3 needed here.
-# Phase 2 (later): point GAUZY_API_SERVER_URL / NEXT_PUBLIC_GAUZY_API_SERVER_URL at an in-cluster Gauzy API by
+# Ever Teams — example self-hosted Kubernetes deploy (see README.md). Set the Ingress host and the API URLs to yours.
+# Nothing watches this directory: Ever's own deploys are defined in ever-co/k8s-gitops.
+# As written: stateless web app -> hosted Gauzy API (api.ever.team). No Postgres/Redis/S3 needed here.
+# Your own API: point GAUZY_API_SERVER_URL / NEXT_PUBLIC_GAUZY_API_SERVER_URL at it by
 # editing `env` below - no image rebuild: the image reads NEXT_PUBLIC_* (and every other variable) at runtime.
 apiVersion: apps/v1
 kind: Deployment
@@ -66,7 +66,7 @@ metadata:
 spec:
   ingressClassName: nginx
   rules:
-    - host: teams-lab.ever.team
+    - host: teams.example.com
       http:
         paths:
           - path: /
