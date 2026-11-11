@@ -6,7 +6,15 @@ import { JitsiApiLoadError } from '@/core/lib/utils/jitsi-external-api';
 
 const mockLoadJitsiExternalApi = jest.fn();
 const mockPush = jest.fn();
-const mockRoomRenders: Array<{ domain: string; roomName: string; onApiReady: (api: unknown) => void }> = [];
+const mockLeft = jest.fn();
+const mockRoomRenders: Array<{
+	domain: string;
+	roomName: string;
+	onApiReady: (api: unknown) => void;
+	configOverwrite: Record<string, unknown>;
+	devices: Record<string, string>;
+	userInfo: { displayName: string };
+}> = [];
 
 jest.mock('@/core/lib/utils/jitsi-external-api', () => ({
 	...jest.requireActual('@/core/lib/utils/jitsi-external-api'),
@@ -19,20 +27,23 @@ jest.mock('@/core/constants/config/constants', () => ({
 }));
 
 jest.mock('next-intl', () => ({
-	useTranslations: () => (key: string, values?: { domain?: string }) =>
-		values?.domain ? `${key}:${values.domain}` : key
+	useTranslations: () => (key: string, values?: { domain?: string; count?: number }) => {
+		if (values?.domain) return `${key}:${values.domain}`;
+		return values?.count === undefined ? key : `${key}:${values.count}`;
+	}
 }));
 
 jest.mock('next/navigation', () => ({ useRouter: () => ({ push: mockPush }) }));
 
 jest.mock('@jitsi/react-sdk', () => ({
-	JitsiMeeting: (props: { domain: string; roomName: string; onApiReady: (api: unknown) => void }): ReactNode => {
+	JitsiMeeting: (props: (typeof mockRoomRenders)[number]): ReactNode => {
 		mockRoomRenders.push(props);
 		return <div data-testid="jitsi-room">{`${props.domain}|${props.roomName}`}</div>;
 	}
 }));
 
 import MeetPage from './index';
+import type { MeetingJoinChoices } from '@/core/hooks/meetings/use-media-preview';
 
 function fakeRoomApi() {
 	const listeners: Record<string, () => void> = {};
@@ -41,12 +52,23 @@ function fakeRoomApi() {
 		addListener: jest.fn((event: string, listener: () => void) => {
 			listeners[event] = listener;
 		}),
+		executeCommand: jest.fn(),
+		getNumberOfParticipants: jest.fn(() => 3),
 		dispose: jest.fn()
 	};
 }
 
-async function renderRoom() {
-	render(<MeetPage jwt="jwt" roomName="team-room_tenant" />);
+async function renderRoom(choices?: MeetingJoinChoices) {
+	render(
+		<MeetPage
+			jwt="jwt"
+			roomName="team-room_tenant"
+			title="Sprint review"
+			choices={choices}
+			onLeft={mockLeft}
+			onCopyLink={jest.fn()}
+		/>
+	);
 	// The load answer lands in a promise callback
 	await act(async () => {
 		await Promise.resolve();
@@ -57,6 +79,7 @@ describe('Jitsi meeting room', () => {
 	beforeEach(() => {
 		mockLoadJitsiExternalApi.mockReset();
 		mockPush.mockReset();
+		mockLeft.mockReset();
 		mockRoomRenders.length = 0;
 		// The error notice's orb asks whether motion is reduced; jsdom has no matchMedia
 		window.matchMedia = jest.fn().mockReturnValue({ matches: true }) as unknown as typeof window.matchMedia;
@@ -135,7 +158,7 @@ describe('Jitsi meeting room', () => {
 		expect(screen.getByTestId('jitsi-room')).toBeTruthy();
 	});
 
-	it('goes home when the meeting is left or closed', async () => {
+	it("tells the page the person left, from Jitsi's hang-up or from the room bar", async () => {
 		mockLoadJitsiExternalApi.mockResolvedValue(function JitsiMeetExternalAPI() {
 			return undefined;
 		});
@@ -148,7 +171,59 @@ describe('Jitsi meeting room', () => {
 		act(() => {
 			room.listeners.videoConferenceLeft();
 		});
+		expect(mockLeft).toHaveBeenCalledTimes(1);
 
-		expect(mockPush).toHaveBeenCalledWith('/');
+		fireEvent.click(screen.getByRole('button', { name: 'meetings.LEAVE' }));
+
+		expect(room.executeCommand).toHaveBeenCalledWith('hangup');
+		expect(mockLeft).toHaveBeenCalledTimes(2);
+		expect(mockPush).not.toHaveBeenCalled();
+	});
+
+	it('shows the meeting in its bar: connecting, then who is there once joined', async () => {
+		mockLoadJitsiExternalApi.mockResolvedValue(function JitsiMeetExternalAPI() {
+			return undefined;
+		});
+		await renderRoom();
+		const room = fakeRoomApi();
+		act(() => {
+			mockRoomRenders[0].onApiReady(room);
+		});
+		expect(screen.getByRole('heading', { name: 'Sprint review' })).toBeTruthy();
+		expect(screen.getByText('meetings.CONNECTING')).toBeTruthy();
+
+		act(() => {
+			room.listeners.videoConferenceJoined();
+		});
+
+		expect(screen.queryByText('meetings.CONNECTING')).toBeNull();
+		expect(screen.getByText('meetings.PARTICIPANTS:3')).toBeTruthy();
+	});
+
+	it("opens the room with the devices and switches picked before joining, past Jitsi's own pre-join page", async () => {
+		mockLoadJitsiExternalApi.mockResolvedValue(function JitsiMeetExternalAPI() {
+			return undefined;
+		});
+		await renderRoom({
+			audioEnabled: true,
+			videoEnabled: false,
+			audioInputId: 'mic-2',
+			videoInputId: '',
+			audioOutputId: '',
+			audioInputLabel: 'USB microphone',
+			videoInputLabel: '',
+			audioOutputLabel: '',
+			displayName: 'Ruslan Konviser'
+		});
+
+		const { configOverwrite, devices, userInfo } = mockRoomRenders[0];
+		expect(configOverwrite).toMatchObject({
+			startWithAudioMuted: false,
+			startWithVideoMuted: true,
+			prejoinConfig: { enabled: false },
+			prejoinPageEnabled: false
+		});
+		expect(devices).toEqual({ audioInput: 'USB microphone' });
+		expect(userInfo.displayName).toBe('Ruslan Konviser');
 	});
 });

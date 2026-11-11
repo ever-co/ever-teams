@@ -2,34 +2,39 @@
 
 import { withAuthentication } from '@/core/components/layouts/app/authenticator';
 import { Meta } from '@/core/components';
-import { useRouter, useSearchParams } from 'next/navigation';
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useSearchParams } from 'next/navigation';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslations, type DottedLanguageObjectStringPaths } from 'next-intl';
 import { useTokenLiveKit } from '@/core/hooks/common/use-live-kit';
 import { useAuthenticateUser } from '@/core/hooks/auth';
+import { useMeetingRoomFlow } from '@/core/hooks/meetings/use-meeting-room-flow';
 import { errorReasonKeyOf } from '@/core/lib/utils/error-feedback';
+import { roomNameOfParam } from '@/core/lib/utils/meetings';
 import { readRuntimeEnv } from '@/env-config';
 
 // Import optimized components from centralized location
 import { LazyLiveKit as LiveKit, preloadLiveKit } from '@/core/components/optimized-components/meet';
 import { LiveKitMeetPageSkeleton } from '../meet-room-skeleton';
 import { MeetRoomError } from '../meet-room-error';
+import { MeetPreJoin } from '../pre-join/meet-pre-join';
+import { MeetLeft } from '../room/meet-left';
 
 function LiveKitPage() {
 	const t = useTranslations();
-	const router = useRouter();
 	const { user } = useAuthenticateUser();
 	const [roomName, setRoomName] = useState<string | undefined>(undefined);
 	const requestedRoom = useRef<string | undefined>(undefined);
 	const params = useSearchParams();
+	const flow = useMeetingRoomFlow(useMemo(() => roomNameOfParam(roomName), [roomName]));
+	const { leave } = flow;
 
 	const onLeave = useCallback(() => {
 		// Moving to another room unmounts the connected component, which disconnects and calls this
 		// back for the room left behind. Only a disconnect from the room still requested is a leave.
 		if (roomName !== requestedRoom.current) return;
 		window.localStorage.removeItem('current-room-live-kit');
-		router.push('/');
-	}, [roomName, router]);
+		leave();
+	}, [roomName, leave]);
 
 	// LiveKit only renders once the token arrives; fetch its chunk alongside the token, not after it.
 	useEffect(() => {
@@ -73,23 +78,41 @@ function LiveKitPage() {
 		);
 	}
 
+	const displayName = user?.name || user?.email || '';
+
 	return (
 		<div>
-			<Meta title="Meet" />
-			{!canJoin && <LiveKitMeetPageSkeleton />}
-			{token && roomName && (
+			<Meta title={flow.title ?? t('meetings.TITLE')} />
+			{flow.stage === 'prejoin' && (
+				<MeetPreJoin
+					title={flow.title}
+					displayName={displayName}
+					onJoin={flow.join}
+					onBack={flow.backToMeetings}
+					onCopyLink={flow.copyLink}
+				/>
+			)}
+			{flow.stage === 'left' && (
+				<MeetLeft title={flow.title} onRejoin={flow.rejoin} onBack={flow.backToMeetings} />
+			)}
+			{flow.stage === 'room' && !canJoin && <LiveKitMeetPageSkeleton />}
+			{flow.stage === 'room' && token && roomName && (
 				<LiveKit
+					key={flow.attempt}
 					token={token}
 					roomName={roomName}
 					liveKitUrl={readRuntimeEnv('NEXT_PUBLIC_LIVEKIT_URL') || process.env.NEXT_PUBLIC_LIVEKIT_URL || ''}
 					onLeave={onLeave}
+					title={flow.title}
+					onCopyLink={flow.copyLink}
 					userChoices={{
-						videoEnabled: true,
-						audioEnabled: true,
-						audioDeviceId: '',
-						username: user?.email || '',
-						videoDeviceId: ''
+						videoEnabled: flow.choices?.videoEnabled ?? true,
+						audioEnabled: flow.choices?.audioEnabled ?? true,
+						audioDeviceId: flow.choices?.audioInputId ?? '',
+						videoDeviceId: flow.choices?.videoInputId ?? '',
+						username: flow.choices?.displayName || displayName
 					}}
+					audioOutputDeviceId={flow.choices?.audioOutputId ?? ''}
 				/>
 			)}
 		</div>

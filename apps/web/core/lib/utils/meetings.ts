@@ -1,0 +1,292 @@
+import { meetPathFor } from './collaboration';
+
+/** The meeting pages, with or without the locale prefix of a non-default language (/fr/meet/jitsi). */
+const MEET_ROOM_PATH = /(?:^|\/)meet\/(jitsi|livekit)\/?$/;
+/** A room name typed by hand: letters, digits, dashes and underscores, as the names Ever Teams makes. */
+const TYPED_ROOM_NAME = /^[\p{L}\p{N}_-]{3,200}$/u;
+const BASE64 = /^[A-Za-z0-9+/=]+$/;
+/** `meetRoomNameFor` ends a room's name with a dash and a random suffix of this length. */
+const ROOM_SUFFIX_LENGTH = 10;
+const TITLE_MAX_LENGTH = 120;
+const MINUTE = 60_000;
+const DAY = 24 * 60 * MINUTE;
+
+/** A meeting opens this many minutes before its start, as people tend to arrive early. */
+export const JOIN_EARLY_MINUTES = 10;
+
+/** The room a meeting link carries (base64 of its UTF-8 name), or null when it is not one. */
+export function roomNameOfParam(param: string | null | undefined): string | null {
+	// Links carry the room unencoded, so a base64 "+" arrives as a space (base64 has no spaces)
+	const encoded = param?.trim().replace(/ /g, '+');
+	if (!encoded || !BASE64.test(encoded)) {
+		return null;
+	}
+	try {
+		const binary = atob(encoded);
+		const bytes = Uint8Array.from(binary, (character) => character.codePointAt(0) ?? 0);
+		const name = new TextDecoder('utf-8', { fatal: true }).decode(bytes);
+		return name.trim() ? name : null;
+	} catch {
+		return null;
+	}
+}
+
+function withTitle(path: string, title: string | null | undefined): string {
+	const shownTitle = title?.trim().slice(0, TITLE_MAX_LENGTH);
+	if (!shownTitle) {
+		return path;
+	}
+	return `${path}&title=${encodeURIComponent(shownTitle)}`;
+}
+
+/** The in-app meeting page for a room, with the title its header shows when one is known. */
+export function meetingPathFor(roomName: string, isJitsi: boolean, title?: string | null): string {
+	return withTitle(meetPathFor(roomName, isJitsi), title);
+}
+
+/**
+ * Where a pasted meeting link or a typed room name leads in this app: `undefined` when the text is no meeting link,
+ * `null` when it is one without a valid room. The room opens on this deployment's meeting server, whichever server
+ * the link was made for: the room is in the link, the server is not.
+ */
+function pathOfMeetingLink(text: string, isJitsi: boolean): string | null | undefined {
+	let url: URL;
+	try {
+		url = new URL(text, 'https://link.invalid');
+	} catch {
+		return undefined;
+	}
+	const match = MEET_ROOM_PATH.exec(url.pathname);
+	if (!match) {
+		return undefined;
+	}
+	const param = match[1] === 'jitsi' ? 'room' : 'roomName';
+	const roomName = roomNameOfParam(url.searchParams.get(param));
+	if (!roomName) {
+		return null;
+	}
+	return meetingPathFor(roomName, isJitsi, url.searchParams.get('title'));
+}
+
+/** The meeting page a pasted link or a typed room name opens, or null when the text is neither. */
+export function meetingPathOfInput(input: string, isJitsi: boolean): string | null {
+	const text = input.trim();
+	if (!text) {
+		return null;
+	}
+	const linkPath = pathOfMeetingLink(text, isJitsi);
+	if (linkPath !== undefined) {
+		return linkPath;
+	}
+	return TYPED_ROOM_NAME.test(text) ? meetingPathFor(text, isJitsi) : null;
+}
+
+/**
+ * The title a meeting shows: the one its link names, else the team and the people its room was named after
+ * (`Team-First-Second-<suffix>`, see `meetRoomNameFor`), else null for a room with a random name only.
+ */
+export function meetingTitleOf(roomName: string, linkTitle?: string | null): string | null {
+	const title = linkTitle?.trim();
+	if (title) {
+		return title.slice(0, TITLE_MAX_LENGTH);
+	}
+	const suffixStart = roomName.length - ROOM_SUFFIX_LENGTH - 1;
+	const hasSuffix = suffixStart > 0 && roomName[suffixStart] === '-';
+	if (!hasSuffix) {
+		return null;
+	}
+	const [team, ...people] = roomName.slice(0, suffixStart).split('-').filter(Boolean);
+	if (!team) {
+		return null;
+	}
+	return people.length > 0 ? `${team} · ${people.join(', ')}` : team;
+}
+
+/** A meeting scheduled in Ever Gauzy (an employee appointment whose location is the meeting link). */
+export interface ScheduledMeeting {
+	id: string;
+	title: string;
+	description: string | null;
+	start: Date;
+	end: Date;
+	link: string | null;
+}
+
+/** Where a scheduled meeting stands: running, open to join soon, later, or over. */
+export type ScheduledMeetingState = 'live' | 'soon' | 'later' | 'ended';
+
+export function scheduledMeetingStateOf(meeting: ScheduledMeeting, now: Date): ScheduledMeetingState {
+	const time = now.getTime();
+	if (time >= meeting.end.getTime()) {
+		return 'ended';
+	}
+	if (time >= meeting.start.getTime()) {
+		return 'live';
+	}
+	const opensAt = meeting.start.getTime() - JOIN_EARLY_MINUTES * MINUTE;
+	return time >= opensAt ? 'soon' : 'later';
+}
+
+function startOfDay(date: Date): Date {
+	const day = new Date(date);
+	day.setHours(0, 0, 0, 0);
+	return day;
+}
+
+export interface AgendaDay {
+	/** Midnight of the day, local time. */
+	day: Date;
+	meetings: ScheduledMeeting[];
+}
+
+/**
+ * The agenda from today on, by day: today always (an empty today says so), then each of the next days that holds a
+ * meeting. A meeting over before today is dropped; today's ended meetings stay, so the day reads as it went.
+ */
+export function agendaOf(meetings: readonly ScheduledMeeting[], now: Date, days = 7): AgendaDay[] {
+	const today = startOfDay(now);
+	const horizon = today.getTime() + days * DAY;
+	const byDay = new Map<number, ScheduledMeeting[]>([[today.getTime(), []]]);
+	const sorted = [...meetings].sort((first, second) => first.start.getTime() - second.start.getTime());
+
+	for (const meeting of sorted) {
+		const isPast = meeting.end.getTime() <= today.getTime();
+		const isBeyond = meeting.start.getTime() >= horizon;
+		if (isPast || isBeyond) {
+			continue;
+		}
+		// A meeting that began yesterday and runs on belongs to today
+		const dayKey = Math.max(startOfDay(meeting.start).getTime(), today.getTime());
+		const list = byDay.get(dayKey) ?? [];
+		list.push(meeting);
+		byDay.set(dayKey, list);
+	}
+
+	return [...byDay.entries()]
+		.sort(([first], [second]) => first - second)
+		.map(([dayKey, dayMeetings]) => ({ day: new Date(dayKey), meetings: dayMeetings }));
+}
+
+/** An employee appointment as Ever Gauzy returns it; only the fields a meeting needs. */
+export interface MeetingAppointment {
+	id: string;
+	agenda?: string | null;
+	description?: string | null;
+	location?: string | null;
+	startDateTime?: string | Date | null;
+	endDateTime?: string | Date | null;
+	status?: string | null;
+}
+
+/** The scheduled meeting an appointment holds, or null when its times are missing or it was cancelled. */
+export function scheduledMeetingOf(appointment: MeetingAppointment): ScheduledMeeting | null {
+	const start = appointment.startDateTime ? new Date(appointment.startDateTime) : null;
+	const end = appointment.endDateTime ? new Date(appointment.endDateTime) : null;
+	const hasTimes = start && end && !Number.isNaN(start.getTime()) && !Number.isNaN(end.getTime());
+	const isCancelled = appointment.status?.toLowerCase() === 'cancelled';
+	if (!hasTimes || isCancelled) {
+		return null;
+	}
+	return {
+		id: appointment.id,
+		title: appointment.agenda?.trim() || '',
+		description: appointment.description?.trim() || null,
+		start,
+		end,
+		link: appointment.location?.trim() || null
+	};
+}
+
+export interface ScheduleMeetingDraft {
+	title: string;
+	description?: string;
+	start: Date;
+	durationMinutes: number;
+	/** The full link of the meeting page. */
+	link: string;
+}
+
+export interface MeetingAppointmentInput {
+	agenda: string;
+	description?: string;
+	location: string;
+	startDateTime: string;
+	endDateTime: string;
+	employeeId: string;
+}
+
+/**
+ * The appointment Ever Gauzy stores for a scheduled meeting, owned by the person who schedules it. No `emails`:
+ * Gauzy sends them a generic "new appointment" message with neither the time nor the link, so inviting goes
+ * through the copied invitation and the calendar file instead.
+ */
+export function appointmentInputOf(draft: ScheduleMeetingDraft, employeeId: string): MeetingAppointmentInput {
+	const end = new Date(draft.start.getTime() + draft.durationMinutes * MINUTE);
+	const description = draft.description?.trim();
+	return {
+		agenda: draft.title.trim(),
+		...(description ? { description } : {}),
+		location: draft.link,
+		startDateTime: draft.start.toISOString(),
+		endDateTime: end.toISOString(),
+		employeeId
+	};
+}
+
+// iCalendar (RFC 5545) property names
+// cspell:ignore CALSCALE DTEND DTSTAMP DTSTART PRODID VCALENDAR VEVENT
+function icsDateOf(date: Date): string {
+	return date
+		.toISOString()
+		.replace(/[-:]/g, '')
+		.replace(/\.\d{3}/, '');
+}
+
+function icsTextOf(value: string): string {
+	return value.replace(/\\/g, '\\\\').replace(/;/g, '\\;').replace(/,/g, '\\,').replace(/\r?\n/g, '\\n');
+}
+
+/** RFC 5545 folds a line longer than 75 octets: the rest goes on lines that start with a space. */
+function foldIcsLine(line: string): string {
+	const encoder = new TextEncoder();
+	if (encoder.encode(line).length <= 75) {
+		return line;
+	}
+	const parts: string[] = [];
+	let current = '';
+	for (const character of line) {
+		const limit = parts.length === 0 ? 75 : 74;
+		if (encoder.encode(current + character).length > limit) {
+			parts.push(current);
+			current = character;
+		} else {
+			current += character;
+		}
+	}
+	parts.push(current);
+	return parts.join('\r\n ');
+}
+
+/** A calendar file (iCalendar) of a meeting, to add it to one's own calendar or to send it to the people invited. */
+export function meetingIcsOf(meeting: ScheduledMeeting & { link: string }, now: Date = new Date()): string {
+	const description = [meeting.description, meeting.link].filter(Boolean).join('\n\n');
+	const lines = [
+		'BEGIN:VCALENDAR',
+		'VERSION:2.0',
+		'PRODID:-//Ever Teams//Meetings//EN',
+		'CALSCALE:GREGORIAN',
+		'METHOD:PUBLISH',
+		'BEGIN:VEVENT',
+		`UID:${meeting.id}@ever-teams`,
+		`DTSTAMP:${icsDateOf(now)}`,
+		`DTSTART:${icsDateOf(meeting.start)}`,
+		`DTEND:${icsDateOf(meeting.end)}`,
+		`SUMMARY:${icsTextOf(meeting.title)}`,
+		`DESCRIPTION:${icsTextOf(description)}`,
+		`LOCATION:${icsTextOf(meeting.link)}`,
+		`URL:${meeting.link}`,
+		'END:VEVENT',
+		'END:VCALENDAR'
+	];
+	return `${lines.map(foldIcsLine).join('\r\n')}\r\n`;
+}

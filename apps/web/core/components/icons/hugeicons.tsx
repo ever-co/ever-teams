@@ -195,7 +195,13 @@ import {
 	MailValidation01Icon,
 	ArrowDown02Icon,
 	ArrowDownDoubleIcon,
-	CancelCircleIcon
+	CancelCircleIcon,
+	CalendarAdd01Icon,
+	CallEnd01Icon,
+	Login03Icon,
+	MicOff01Icon,
+	VideoOffIcon,
+	VolumeHighIcon
 } from '@hugeicons/core-free-icons';
 import { HugeiconsIcon } from '@hugeicons/react';
 
@@ -426,6 +432,13 @@ export const ArrowUpDown = /*#__PURE__*/ icon(ArrowUpDownIcon, 'ArrowUpDown');
 /** @public Part of the icon set; no screen uses it (Knip, 2026-11-06). */
 export const MicOn = /*#__PURE__*/ icon(Mic01Icon, 'MicOn');
 export const VideoCall = /*#__PURE__*/ icon(Video01Icon, 'VideoCall');
+// Meetings: the pre-join screen and the room bar
+export const MicOff = /*#__PURE__*/ icon(MicOff01Icon, 'MicOff');
+export const VideoOff = /*#__PURE__*/ icon(VideoOffIcon, 'VideoOff');
+export const PhoneOff = /*#__PURE__*/ icon(CallEnd01Icon, 'PhoneOff');
+export const Volume = /*#__PURE__*/ icon(VolumeHighIcon, 'Volume');
+export const CalendarPlus = /*#__PURE__*/ icon(CalendarAdd01Icon, 'CalendarPlus');
+export const LogIn = /*#__PURE__*/ icon(Login03Icon, 'LogIn');
 /** @public Part of the icon set; no screen uses it (Knip, 2026-11-06). */
 export const Inbox2 = /*#__PURE__*/ icon(InboxIcon, 'Inbox2');
 export const InboxCheck = /*#__PURE__*/ icon(InboxCheckIcon, 'InboxCheck');

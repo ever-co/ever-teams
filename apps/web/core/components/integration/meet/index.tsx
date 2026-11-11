@@ -2,21 +2,32 @@
 
 import { MEET_DOMAIN } from '@/core/constants/config/constants';
 import { JitsiMeeting } from '@jitsi/react-sdk';
-import { useRouter } from 'next/navigation';
 import { useTranslations } from 'next-intl';
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState, type ComponentProps } from 'react';
 import { useJitsiExternalApi } from '@/core/hooks/common/use-jitsi-external-api';
+import { useCallbackRef } from '@/core/hooks/common/use-callback-ref';
+import type { MeetingJoinChoices } from '@/core/hooks/meetings/use-media-preview';
 import { MeetRoomError } from '@/core/components/pages/meet/meet-room-error';
 import { JitsiMeetPageSkeleton, MeetRoomSkeleton } from '@/core/components/pages/meet/meet-room-skeleton';
+import { MeetRoomBar } from '@/core/components/pages/meet/room/meet-room-bar';
 
 interface MeetPageProps {
 	jwt: string;
 	roomName: string;
+	/** What the room's bar calls the meeting; null for a room with a random name. */
+	title?: string | null;
+	/** What the person picked before joining; without it the room starts muted, as it always did. */
+	choices?: MeetingJoinChoices | null;
+	/** The person left the room, from the bar or from Jitsi's own hang-up button. */
+	onLeft: () => void;
+	onCopyLink: () => void;
 }
 
 /** The part of the Jitsi Meet API instance the room uses. */
 interface JitsiRoomApi {
 	addListener: (event: string, listener: (...args: unknown[]) => void) => unknown;
+	executeCommand: (command: string, ...args: unknown[]) => void;
+	getNumberOfParticipants: () => number;
 	dispose: () => void;
 }
 
@@ -28,13 +39,29 @@ const SERVER_FAILURE_KEYS = {
 	invalid: 'collaborate.MEETING_SERVER_INVALID'
 } as const;
 
-export default function MeetPage({ jwt, roomName }: MeetPageProps) {
+type JitsiDevices = NonNullable<ComponentProps<typeof JitsiMeeting>['devices']>;
+
+/**
+ * Jitsi picks devices by their names; the system's default device has none to give, so its key stays out (the SDK
+ * types every key as required, yet passes on only the ones given).
+ */
+function jitsiDevicesOf(choices: MeetingJoinChoices | null | undefined): JitsiDevices {
+	const devices: Partial<JitsiDevices> = {};
+	if (choices?.audioInputLabel) devices.audioInput = choices.audioInputLabel;
+	if (choices?.audioOutputLabel) devices.audioOutput = choices.audioOutputLabel;
+	if (choices?.videoInputLabel) devices.videoInput = choices.videoInputLabel;
+	return devices as JitsiDevices;
+}
+
+export default function MeetPage({ jwt, roomName, title = null, choices, onLeft, onCopyLink }: MeetPageProps) {
 	const t = useTranslations();
-	const router = useRouter();
 	const jitsiApi = useJitsiExternalApi(MEET_DOMAIN.value);
 	const [isDisconnected, setIsDisconnected] = useState(false);
 	const [joinAttempt, setJoinAttempt] = useState(0);
+	const [joinedAt, setJoinedAt] = useState<number | null>(null);
+	const [participantCount, setParticipantCount] = useState<number | null>(null);
 	const roomApiRef = useRef<JitsiRoomApi | null>(null);
+	const onLeftRef = useCallbackRef(onLeft);
 
 	// The SDK never ends its API instance: a new attempt at the room, and leaving the page, end the previous one
 	useEffect(() => {
@@ -44,31 +71,41 @@ export default function MeetPage({ jwt, roomName }: MeetPageProps) {
 		};
 	}, [joinAttempt]);
 
-	// Handle meeting close
-	const handleClose = useCallback(() => {
-		router.push('/');
-	}, [router]);
-
-	// Handle API ready
 	const handleApiReady = useCallback(
 		(externalApi: JitsiRoomApi) => {
 			roomApiRef.current = externalApi;
-			externalApi.addListener('readyToClose', handleClose);
-			externalApi.addListener('videoConferenceLeft', handleClose);
+			const countParticipants = () => setParticipantCount(externalApi.getNumberOfParticipants());
+			externalApi.addListener('videoConferenceJoined', () => {
+				setJoinedAt(Date.now());
+				countParticipants();
+			});
+			externalApi.addListener('participantJoined', countParticipants);
+			externalApi.addListener('participantLeft', countParticipants);
+			// Jitsi's own hang-up button, or the room ending: the page says the person left, with a way back in
+			externalApi.addListener('readyToClose', () => onLeftRef.current());
+			externalApi.addListener('videoConferenceLeft', () => onLeftRef.current());
 			externalApi.addListener('connectionFailed', () => setIsDisconnected(true));
 		},
-		[handleClose]
+		[onLeftRef]
 	);
+
+	// Hanging up ends the call in Jitsi; the page leaves at once rather than wait for the room to answer
+	const leave = useCallback(() => {
+		roomApiRef.current?.executeCommand('hangup');
+		onLeftRef.current();
+	}, [onLeftRef]);
 
 	const rejoin = useCallback(() => {
 		setIsDisconnected(false);
+		setJoinedAt(null);
+		setParticipantCount(null);
 		setJoinAttempt((count) => count + 1);
 	}, []);
 
-	// Handle iframe setup
+	// The frame fills the space under the room bar
 	const handleIFrameRef = useCallback((parentNode: HTMLDivElement) => {
 		if (parentNode) {
-			parentNode.style.height = '100vh';
+			parentNode.style.height = '100%';
 		}
 	}, []);
 
@@ -113,28 +150,43 @@ export default function MeetPage({ jwt, roomName }: MeetPageProps) {
 	}
 
 	return (
-		<JitsiMeeting
-			key={joinAttempt}
-			domain={jitsiApi.domain}
-			roomName={roomName}
-			configOverwrite={{
-				startWithAudioMuted: true,
-				startWithVideoMuted: true,
-				disableModeratorIndicator: false,
-				startScreenSharing: false,
-				enableEmailInStats: false,
-				preJoinPageEnabled: true,
-				enableClosePage: true
-			}}
-			interfaceConfigOverwrite={{
-				DISABLE_JOIN_LEAVE_NOTIFICATIONS: false,
-				MOBILE_APP_PROMO: false,
-				SHOW_CHROME_EXTENSION_BANNER: false
-			}}
-			jwt={jwt}
-			spinner={JitsiMeetPageSkeleton}
-			onApiReady={handleApiReady}
-			getIFrameRef={handleIFrameRef}
-		/>
+		<div className="flex h-dvh w-full flex-col">
+			<MeetRoomBar
+				title={title}
+				joinedAt={joinedAt}
+				participantCount={participantCount}
+				leave={leave}
+				onCopyLink={onCopyLink}
+			/>
+			<div className="min-h-0 flex-1">
+				<JitsiMeeting
+					key={joinAttempt}
+					domain={jitsiApi.domain}
+					roomName={roomName}
+					configOverwrite={{
+						startWithAudioMuted: !choices?.audioEnabled,
+						startWithVideoMuted: !choices?.videoEnabled,
+						disableModeratorIndicator: false,
+						startScreenSharing: false,
+						enableEmailInStats: false,
+						// Ever Teams' own pre-join screen came first, and its own screen says the person left
+						prejoinConfig: { enabled: false },
+						prejoinPageEnabled: false,
+						enableClosePage: false
+					}}
+					interfaceConfigOverwrite={{
+						DISABLE_JOIN_LEAVE_NOTIFICATIONS: false,
+						MOBILE_APP_PROMO: false,
+						SHOW_CHROME_EXTENSION_BANNER: false
+					}}
+					jwt={jwt}
+					devices={jitsiDevicesOf(choices)}
+					userInfo={{ displayName: choices?.displayName ?? '', email: '' }}
+					spinner={JitsiMeetPageSkeleton}
+					onApiReady={handleApiReady}
+					getIFrameRef={handleIFrameRef}
+				/>
+			</div>
+		</div>
 	);
 }
