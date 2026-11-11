@@ -15,12 +15,21 @@ export function navigateAfterSignIn({ replace = false }: { replace?: boolean } =
 	if (typeof window === 'undefined') {
 		return;
 	}
+	// A page set for this sign-in (the workspace list's "Create a new workspace", #5025), else the home page
 	const path = takePathAfterSignIn();
-	if (replace) {
-		window.location.replace(path);
+	if (path) {
+		if (replace) {
+			window.location.replace(path);
+		} else {
+			window.location.assign(path);
+		}
 		return;
 	}
-	window.location.assign(path);
+	if (replace) {
+		window.location.replace('/');
+		return;
+	}
+	window.location.assign('/');
 }
 
 /** The page the next sign-in of this tab opens instead of the home page, kept for this tab only. */
@@ -42,18 +51,18 @@ export function setPathAfterSignIn(path: string | null): void {
 	}
 }
 
-/** The page set for this sign-in, read once; the home page unless it is a page of this app. */
-function takePathAfterSignIn(): string {
+/** The page set for this sign-in, read once; null (the home page) unless it is a page of this app. */
+function takePathAfterSignIn(): string | null {
 	try {
 		const path = window.sessionStorage.getItem(PATH_AFTER_SIGN_IN_KEY);
 		window.sessionStorage.removeItem(PATH_AFTER_SIGN_IN_KEY);
 		if (!path?.startsWith('/')) {
-			return '/';
+			return null;
 		}
 		// Resolved against this origin: "//host" or "/\\host" would lead to another site
 		const url = new URL(path, window.location.origin);
-		return url.origin === window.location.origin ? `${url.pathname}${url.search}` : '/';
+		return url.origin === window.location.origin ? `${url.pathname}${url.search}` : null;
 	} catch {
-		return '/';
+		return null;
 	}
 }

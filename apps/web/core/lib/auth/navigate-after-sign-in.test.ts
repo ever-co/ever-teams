@@ -39,20 +39,37 @@ describe('navigateAfterSignIn', () => {
 });
 
 describe('the page a sign-in opens (#5025)', () => {
-	const signInWith = (stored: string | null) => {
+	const signIn = ({ replace = false } = {}) => {
 		const assign = jest.fn();
+		const replaceLocation = jest.fn();
 		Object.defineProperty(window, 'location', {
 			configurable: true,
-			value: { ...originalLocation, origin: 'https://app.ever.team', pathname: '/auth/passcode', assign }
+			value: {
+				...originalLocation,
+				origin: 'https://app.ever.team',
+				pathname: '/auth/passcode',
+				assign,
+				replace: replaceLocation
+			}
 		});
+		navigateAfterSignIn({ replace });
+		return replace ? replaceLocation : assign;
+	};
+	const signInWith = (stored: string | null) => {
 		setPathAfterSignIn(stored);
-		navigateAfterSignIn();
-		return assign;
+		return signIn();
 	};
 
 	it('opens the page set for this sign-in, once', () => {
 		expect(signInWith('/workspace/new')).toHaveBeenCalledWith('/workspace/new');
+		// Read once: the next sign-in of the tab opens the home page
+		expect(signIn()).toHaveBeenCalledWith('/');
 		expect(signInWith(null)).toHaveBeenCalledWith('/');
+	});
+
+	it('replaces the sign-in page with it when asked', () => {
+		setPathAfterSignIn('/workspace/new');
+		expect(signIn({ replace: true })).toHaveBeenCalledWith('/workspace/new');
 	});
 
 	it('opens the home page for anything that is not a page of this app', () => {
