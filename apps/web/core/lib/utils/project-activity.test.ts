@@ -95,26 +95,41 @@ describe('projectActivityOf', () => {
 		expect(activity.undatedDone).toBe(0);
 	});
 
-	// Local-time dates and a half-year window, so whatever clock changes the machine's timezone has inside it, every
-	// Monday and Sunday midday must still land in its own calendar week (the test holds in any timezone).
-	it('places a Monday and a Sunday of every week in that week over a half-year window', () => {
-		const weeksCount = 26;
-		const tasks: TTask[] = [];
-		for (let back = 0; back < weeksCount; back += 1) {
-			const mondayOfWeek = new Date(2026, 10, 9 - 7 * back, 12, 0, 0);
-			const sundayBefore = new Date(2026, 10, 8 - 7 * back, 12, 0, 0);
-			tasks.push(taskOf({ status: 'todo', createdAt: mondayOfWeek }));
-			tasks.push(taskOf({ status: 'todo', createdAt: sundayBefore }));
+	// The timezone is pinned to zones that change their clocks inside the 26-week window (northern autumn for New York
+	// and Berlin, southern spring for Sydney), so the daylight-saving edge is always exercised, whatever the machine's own
+	// timezone is. Every Monday and Sunday midday must still land in its own calendar week.
+	it.each(['America/New_York', 'Europe/Berlin', 'Australia/Sydney'])(
+		'places a Monday and a Sunday of every week in that week across a clock change in %s',
+		(zone) => {
+			const previousZone = process.env.TZ;
+			process.env.TZ = zone;
+			try {
+				const weeksCount = 26;
+				const now = new Date(2026, 10, 11, 12, 0, 0);
+				const windowStart = new Date(2026, 4, 18, 12, 0, 0);
+				expect(windowStart.getTimezoneOffset()).not.toBe(now.getTimezoneOffset());
+
+				const tasks: TTask[] = [];
+				for (let back = 0; back < weeksCount; back += 1) {
+					const mondayOfWeek = new Date(2026, 10, 9 - 7 * back, 12, 0, 0);
+					const sundayBefore = new Date(2026, 10, 8 - 7 * back, 12, 0, 0);
+					tasks.push(taskOf({ status: 'todo', createdAt: mondayOfWeek }));
+					tasks.push(taskOf({ status: 'todo', createdAt: sundayBefore }));
+				}
+
+				const activity = projectActivityOf(tasks, STATUSES, now, weeksCount);
+
+				// The oldest Sunday is before the window; the current week's own Sunday is not in the tasks.
+				const expected = new Array<number>(weeksCount).fill(2);
+				expected[weeksCount - 1] = 1;
+				expect(activity.weeks.map((week) => week.created)).toEqual(expected);
+				expect(activity.weeks.every((week) => week.weekStart.getDay() === 1)).toBe(true);
+			} finally {
+				if (previousZone === undefined) delete process.env.TZ;
+				else process.env.TZ = previousZone;
+			}
 		}
-
-		const activity = projectActivityOf(tasks, STATUSES, NOW, weeksCount);
-
-		// The oldest Sunday is before the window; the current week's own Sunday is not in the tasks.
-		const expected = new Array<number>(weeksCount).fill(2);
-		expected[weeksCount - 1] = 1;
-		expect(activity.weeks.map((week) => week.created)).toEqual(expected);
-		expect(activity.weeks.every((week) => week.weekStart.getDay() === 1)).toBe(true);
-	});
+	);
 
 	it('follows the statuses of the team when a custom status is marked done', () => {
 		const statuses = [{ name: 'shipped', isDone: true }] as unknown as TTaskStatus[];
