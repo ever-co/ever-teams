@@ -228,7 +228,8 @@ function buildData(fixture, scenario, requestUrl, requestTenantId) {
 		lastLog: {
 			source: 'TEAMS',
 			taskId: ids.task,
-			startedAt: new Date().toISOString()
+			// `scenario.timerStartedAt`: a run started long ago, the same at every read (#5022 reminders)
+			startedAt: scenario.timerStartedAt ?? new Date().toISOString()
 		},
 		lastWorkedTask: task
 	};
@@ -379,6 +380,27 @@ function routeResponse(method, pathname, requestUrl, data, fixture, state, body,
 	if (pathname === '/api/issue-types') return data.metadata.issueTypes;
 	if (pathname === '/api/task-related-issue-types') return data.metadata.relatedIssueTypes;
 	if (pathname === '/api/tags' || pathname === '/api/tags/level') return data.metadata.taskLabels;
+
+	// The employee's notification preferences: one row, kept as saved; `scenario.notificationPreferences` seeds it
+	if (pathname === '/api/employee-notification-setting' && method === 'GET') {
+		const seeded = state.scenario.notificationPreferences
+			? {
+					id: 'notification-setting-1',
+					employeeId: ids.employee,
+					preferences: state.scenario.notificationPreferences
+				}
+			: null;
+		const setting = state.notificationSetting ?? seeded;
+		return pagination(setting ? [setting] : []);
+	}
+	if (pathname === '/api/employee-notification-setting' && method === 'POST') {
+		state.notificationSetting = { id: 'notification-setting-1', employeeId: ids.employee, ...body };
+		return state.notificationSetting;
+	}
+	if (/^\/api\/employee-notification-setting\/[^/]+$/.test(pathname) && method === 'PUT') {
+		state.notificationSetting = { ...(state.notificationSetting ?? {}), ...body, id: pathname.split('/').pop() };
+		return state.notificationSetting;
+	}
 
 	if (pathname === '/api/timesheet/timer/status') return data.timerStatus;
 	if (pathname === '/api/timesheet/timer/start') {
@@ -591,6 +613,7 @@ export async function createMockGauzyServer({ fixture, port = 3988 } = {}) {
 			connectConnected: true
 		},
 		everPlatform: { stateReads: 0, toggles: [] },
+		notificationSetting: null,
 		mutationProof: {
 			startedTimer: false,
 			updatedTask: false,
@@ -701,7 +724,8 @@ export async function createMockGauzyServer({ fixture, port = 3988 } = {}) {
 		state: () => ({
 			scenario: jsonClone(state.scenario),
 			mutationProof: jsonClone(state.mutationProof),
-			everPlatform: jsonClone(state.everPlatform)
+			everPlatform: jsonClone(state.everPlatform),
+			notificationSetting: jsonClone(state.notificationSetting)
 		}),
 		reset: () => {
 			state.requests = [];
@@ -721,6 +745,7 @@ export async function createMockGauzyServer({ fixture, port = 3988 } = {}) {
 				connectConnected: true
 			};
 			state.everPlatform = { stateReads: 0, toggles: [] };
+			state.notificationSetting = null;
 			state.mutationProof = {
 				startedTimer: false,
 				updatedTask: false,
