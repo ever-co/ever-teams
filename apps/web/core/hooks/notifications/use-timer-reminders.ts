@@ -122,6 +122,9 @@ export function useTimerReminders({ timerStatus, stopTimer }: UseTimerRemindersI
 	// The platform's copies of the reminders this tab showed, being marked read, by run and level. They outlive the run
 	// (a timer stopped from its reminder is not to be emailed about either), and end with the tab.
 	const markingRead = useRef(new Map<string, () => void>());
+	// The reminders this tab gave in a toast while out of sight, with no system notification, by toast: the person sees
+	// such a toast once they bring the tab into sight, and its copy is marked read then
+	const givenOutOfSight = useRef(new Map<string, { runKey: string; level: TimerReminderLevel }>());
 
 	useEffect(() => {
 		const marking = markingRead.current;
@@ -198,6 +201,24 @@ export function useTimerReminders({ timerStatus, stopTimer }: UseTimerRemindersI
 		[latest]
 	);
 
+	// A toast given out of sight waits in its tab: once the person brings the tab into sight they see it, and its copy on
+	// the platform is marked read, so that the email or push held for it does not follow
+	useEffect(() => {
+		const outOfSight = givenOutOfSight.current;
+		const onVisibilityChange = () => {
+			if (document.visibilityState !== 'visible') {
+				return;
+			}
+			for (const [id, { runKey, level }] of [...outOfSight]) {
+				outOfSight.delete(id);
+				recordTimerReminder(runKey, level, { shown: true });
+				markPlatformCopyRead(runKey, level, null);
+			}
+		};
+		document.addEventListener('visibilitychange', onVisibilityChange);
+		return () => document.removeEventListener('visibilitychange', onVisibilityChange);
+	}, [markPlatformCopyRead]);
+
 	// Until the employee's threshold is read, the default could remind of a timer they gave more time: nothing is read
 	// before the workspace is known, and a read that failed says nothing of it either, unless an earlier one answered
 	// with their row (an answer without a saved row is a read: the default applies). A threshold being saved is shown
@@ -246,6 +267,7 @@ export function useTimerReminders({ timerStatus, stopTimer }: UseTimerRemindersI
 			if (level === 2) {
 				toast.dismiss(timerReminderIdOf(runKey, 1));
 				closeSystemNotification(timerReminderIdOf(runKey, 1));
+				givenOutOfSight.current.delete(timerReminderIdOf(runKey, 1));
 			}
 			toast.warning(title, {
 				id,
@@ -340,10 +362,16 @@ export function useTimerReminders({ timerStatus, stopTimer }: UseTimerRemindersI
 					if (isClaimed) {
 						shownHere.current.set(runKey, level);
 						// Only a reminder the person could see stops the platform's copy: a toast in a tab out of sight,
-						// with no system notification, leaves it to go by email or push
+						// with no system notification, leaves it to go by email or push, unless the tab comes into sight
+						// before it goes
 						if (show(level as TimerReminderLevel)) {
 							recordTimerReminder(runKey, level as TimerReminderLevel, { shown: true });
 							markPlatformCopyRead(runKey, level as TimerReminderLevel, reminders);
+						} else {
+							givenOutOfSight.current.set(timerReminderIdOf(runKey, level as TimerReminderLevel), {
+								runKey,
+								level: level as TimerReminderLevel
+							});
 						}
 					} else if (givenTimerReminderLevel(runKey) >= level) {
 						shownHere.current.set(runKey, level);
@@ -414,6 +442,7 @@ export function useTimerReminders({ timerStatus, stopTimer }: UseTimerRemindersI
 				toast.dismiss(id);
 				systemNotifications.current.get(id)?.close();
 				systemNotifications.current.delete(id);
+				givenOutOfSight.current.delete(id);
 			}
 		}
 	}, [isStatusKnown, runKey]);

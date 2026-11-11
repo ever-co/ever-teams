@@ -521,6 +521,27 @@ describe('useTimerReminders', () => {
 			expect(mockUpdate).toHaveBeenCalledTimes(1);
 		});
 
+		it('marks the copy read once a toast given out of sight comes into sight, before its email or push goes', async () => {
+			visibility = 'hidden';
+			await renderReminders();
+			await advance(HOUR + TIMER_REMINDER_HIDDEN_YIELD_MS);
+			expect(shownTitles()).toEqual(['notifications.TIMER_REMINDER.LONG_TITLE']);
+			mockGetTimerReminders.mockResolvedValue([reminder(1, false, 'log-1', Date.now() + 20_000)]);
+			await advance(TIMER_REMINDER_MARK_READ_RETRY_MS);
+			expect(mockUpdate).not.toHaveBeenCalled();
+
+			// The person comes back to the tab, where the toast waits
+			visibility = 'visible';
+			await act(async () => {
+				document.dispatchEvent(new Event('visibilitychange'));
+			});
+			await advance(0);
+
+			expect(mockUpdate).toHaveBeenCalledWith('reminder-1', markedRead);
+			expect(shownTimerReminderLevel('log-1')).toBe(1);
+			expect(mockToast.warning).toHaveBeenCalledTimes(1);
+		});
+
 		it('shows a reminder the platform filed moments ago, still unread, and marks it read at once', async () => {
 			jest.setSystemTime(STARTED_AT + 8 * HOUR + MINUTE);
 			mockGetTimerReminders.mockResolvedValue([reminder(1, false, 'log-1', STARTED_AT + 8 * HOUR + 30_000)]);
