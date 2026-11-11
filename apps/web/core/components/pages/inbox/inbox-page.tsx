@@ -287,24 +287,31 @@ function InboxPageContent() {
 	/**
 	 * A read or an archive without the inbox extension, one request per entry. The bell's cache rolls back what the
 	 * platform refused on its own. The copy the pane holds after the entry left the list shows the change at once, and
-	 * once every request sent on that field has answered it holds what the last accepted one set, or what it held before
+	 * once every request sent on a field has answered it holds what the last accepted one set, or what it held before
 	 * when none was ({@link InboxFieldRequests}); a refusal then fails the action.
+	 *
+	 * @param changes Every field the request sets, as the bell's own update does (an archive also marks the entry read).
 	 */
 	const [legacyRequests] = useState(() => new InboxFieldRequests());
 	const runLegacy = useCallback(
-		async (targets: InboxEntry[], field: InboxRequestField, value: boolean, send: (id: string) => Promise<unknown>) => {
-			const request = legacyRequests.start(targets, field, value);
+		async (targets: InboxEntry[], changes: Partial<Record<InboxRequestField, boolean>>, send: (id: string) => Promise<unknown>) => {
+			const fields = (Object.keys(changes) as InboxRequestField[]).map(
+				(field) => ({ field, request: legacyRequests.start(targets, field, changes[field] === true) }) as const
+			);
 			patchOpened(
 				targets.map((entry) => entry.id),
-				{ [field]: value }
+				changes
 			);
 			const results = await Promise.allSettled(targets.map((entry) => send(entry.id)));
 			targets.forEach((entry, index) => {
-				const settled = legacyRequests.settle(entry.id, field, request, results[index].status === 'fulfilled');
-				if (settled === undefined) return;
-				setOpened((kept) =>
-					kept && kept.entry.id === entry.id && kept.entry[field] !== settled ? { ...kept, entry: { ...kept.entry, [field]: settled } } : kept
-				);
+				const accepted = results[index].status === 'fulfilled';
+				for (const { field, request } of fields) {
+					const settled = legacyRequests.settle(entry.id, field, request, accepted);
+					if (settled === undefined) continue;
+					setOpened((kept) =>
+						kept && kept.entry.id === entry.id && kept.entry[field] !== settled ? { ...kept, entry: { ...kept.entry, [field]: settled } } : kept
+					);
+				}
 			});
 			const failure = results.find((result): result is PromiseRejectedResult => result.status === 'rejected');
 			if (failure) throw failure.reason;
@@ -315,7 +322,7 @@ function InboxPageContent() {
 	const setRead = useCallback(
 		async (targets: InboxEntry[], isRead: boolean) => {
 			if (usesExtension) return setState(targets.map((entry) => entry.id), { isRead });
-			await runLegacy(targets, 'isUnread', !isRead, (id) => legacyActions.setRead(id, isRead));
+			await runLegacy(targets, { isUnread: !isRead }, (id) => legacyActions.setRead(id, isRead));
 		},
 		[legacyActions, runLegacy, setState, usesExtension]
 	);
@@ -323,7 +330,10 @@ function InboxPageContent() {
 	const setArchived = useCallback(
 		async (targets: InboxEntry[], isArchived: boolean) => {
 			if (usesExtension) return setState(targets.map((entry) => entry.id), { isArchived });
-			await runLegacy(targets, 'isArchived', isArchived, (id) => (isArchived ? legacyActions.archive(id) : legacyActions.unarchive(id)));
+			// The bell's archive also marks the entry read; its unarchive leaves the read state alone.
+			await runLegacy(targets, isArchived ? { isArchived: true, isUnread: false } : { isArchived: false }, (id) =>
+				isArchived ? legacyActions.archive(id) : legacyActions.unarchive(id)
+			);
 		},
 		[legacyActions, runLegacy, setState, usesExtension]
 	);
@@ -397,8 +407,10 @@ function InboxPageContent() {
 			setArchived(targets, archiving)
 				.then(() => {
 					if (!archiving) return;
+					// The undo starts from the entries as the archive left them: a refused undo shows them archived again.
+					const archived = targets.map((target) => ({ ...target, isArchived: true }));
 					toast(t('inbox.TOASTS.ARCHIVED', { count: targets.length }), {
-						action: { label: t('inbox.TOASTS.UNDO'), onClick: () => setArchived(targets, false).catch(reportFailure) }
+						action: { label: t('inbox.TOASTS.UNDO'), onClick: () => setArchived(archived, false).catch(reportFailure) }
 					});
 				})
 				.catch(reportFailure);
