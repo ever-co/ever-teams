@@ -72,6 +72,8 @@ export function ViewsPage() {
 	const enabled = isTaskViewsEnabled();
 	const title = t('taskViews.TITLE');
 	const counts = savedViewCountsOf(views);
+	// Counts only of a list that loaded: a failed one has none to tell, and its error says what happened
+	const hasCounts = !isLoading && !isError;
 	const shownViews = savedViewsShownOf(views, query, filter);
 	const isNarrowed = query.trim() !== '' || filter !== 'all';
 	const createView = () => router.push(NEW_VIEW_PATH);
@@ -92,9 +94,9 @@ export function ViewsPage() {
 	}
 
 	const filterItems = [
-		{ value: 'all' as const, label: t('taskViews.FILTER_ALL'), count: counts.all },
-		{ value: 'personal' as const, label: t('taskViews.PERSONAL'), count: counts.personal },
-		{ value: 'shared' as const, label: t('taskViews.SHARED'), count: counts.shared }
+		{ value: 'all' as const, label: t('taskViews.FILTER_ALL'), count: hasCounts ? counts.all : undefined },
+		{ value: 'personal' as const, label: t('taskViews.PERSONAL'), count: hasCounts ? counts.personal : undefined },
+		{ value: 'shared' as const, label: t('taskViews.SHARED'), count: hasCounts ? counts.shared : undefined }
 	];
 
 	return (
@@ -105,7 +107,7 @@ export function ViewsPage() {
 			mainHeaderSlot={
 				<DashboardToolbar
 					title={title}
-					meta={isLoading ? undefined : t('taskViews.SAVED_COUNT', { count: counts.all })}
+					meta={hasCounts ? t('taskViews.SAVED_COUNT', { count: counts.all }) : undefined}
 					isMetaLoading={isLoading}
 					actions={
 						<Button type="button" size="sm" className="h-8" onClick={createView} data-testid="views-new">
@@ -142,7 +144,7 @@ export function ViewsPage() {
 				<section aria-labelledby="saved-views" className="flex flex-col gap-3">
 					<ViewsSectionTitle
 						meta={
-							isNarrowed && !isLoading
+							isNarrowed && hasCounts
 								? t('taskViews.SHOWING', { shown: shownViews.length, total: counts.all })
 								: undefined
 						}

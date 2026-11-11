@@ -87,6 +87,12 @@ describe('ViewsPage', () => {
 		expect(within(rows[1]).getByText('UI tasks waiting for a review')).toBeTruthy();
 		expect(within(rows[1]).getByText('taskViews.SHARED')).toBeTruthy();
 		expect(within(rows[1]).getByText(/^taskViews\.UPDATED:/)).toBeTruthy();
+		expect(screen.getByText('taskViews.SAVED_COUNT:{"count":2}')).toBeTruthy();
+		expect(screen.getAllByRole('tab').map((tab) => tab.textContent)).toEqual([
+			'taskViews.FILTER_ALL2',
+			'taskViews.PERSONAL1',
+			'taskViews.SHARED1'
+		]);
 	});
 
 	it('searches and filters the saved views, and says when none matches', () => {
@@ -127,6 +133,13 @@ describe('ViewsPage', () => {
 		render(<ViewsPage />);
 
 		expect(screen.queryByText('taskViews.EMPTY_TITLE')).toBeNull();
+		// Neither the header nor the filter counts a list that did not load
+		expect(screen.queryByText(/^taskViews\.SAVED_COUNT/)).toBeNull();
+		expect(screen.getAllByRole('tab').map((tab) => tab.textContent)).toEqual([
+			'taskViews.FILTER_ALL',
+			'taskViews.PERSONAL',
+			'taskViews.SHARED'
+		]);
 		act(() => {
 			fireEvent.click(screen.getByRole('button', { name: 'pages.unauthorized.TRY_AGAIN' }));
 		});
