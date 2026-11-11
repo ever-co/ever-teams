@@ -1,4 +1,4 @@
-import { ITag } from '@/core/types/interfaces/tag/tag';
+import { ITag, ITagBulkResult } from '@/core/types/interfaces/tag/tag';
 import { ITagCreate } from '@/core/types/interfaces/tag/tag';
 import { serverFetch } from '../fetch';
 import qs from 'qs';
@@ -68,5 +68,16 @@ export function getTaskLabelsListRequest(
 		path: `/tags/level?${params.toString()}`,
 		method: 'GET',
 		bearer_token
+	});
+}
+
+/** Many labels in one request: Gauzy files each item as `POST /tags` would, and answers one outcome per item. */
+export function createLabelsBulkRequest(items: ITagCreate[], bearer_token: string, tenantId?: string) {
+	return serverFetch<ITagBulkResult>({
+		path: '/tags/bulk',
+		method: 'POST',
+		body: { items },
+		bearer_token,
+		tenantId
 	});
 }

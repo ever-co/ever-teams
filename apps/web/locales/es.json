@@ -4071,6 +4071,7 @@
 			"ADD": "{kind, select, status {Añadir estado} priority {Añadir prioridad} size {Añadir tamaño} label {Añadir etiqueta} issueType {Añadir tipo de incidencia} version {Añadir versión} other {Añadir}}",
 			"NAME_PLACEHOLDER": "{kind, select, status {Nombre del estado} priority {Nombre de la prioridad} size {Nombre del tamaño} label {Nombre de la etiqueta} issueType {Nombre del tipo de incidencia} version {Nombre de la versión, por ejemplo 2.4} other {Nombre}}",
 			"NAME_REQUIRED": "Ponle un nombre para guardarlo.",
+			"NAME_TAKEN": "{kind, select, label {El equipo ya tiene una etiqueta con este nombre.} other {Este nombre ya está en uso.}}",
 			"EMPTY_TITLE": "{kind, select, status {Aún no hay estados} priority {Aún no hay prioridades} size {Aún no hay tamaños} label {Aún no hay etiquetas} issueType {Aún no hay tipos de incidencia} version {Aún no hay versiones} other {Aún no hay nada}}",
 			"EMPTY_DESCRIPTION": "{kind, select, status {Los estados son los pasos que recorre una tarea hasta terminarse.} priority {Las prioridades indican al equipo qué tareas van primero.} size {Los tamaños dan una idea aproximada del esfuerzo de una tarea.} label {Las etiquetas agrupan tareas por tema, sea cual sea su estado.} issueType {Los tipos de incidencia distinguen un bug de una historia o de una tarea simple.} version {Las versiones son las entregas a las que puede apuntar una tarea.} other {Añade el primero.}}",
 			"ERROR_TITLE": "{kind, select, status {No se cargaron los estados} priority {No se cargaron las prioridades} size {No se cargaron los tamaños} label {No se cargaron las etiquetas} issueType {No se cargaron los tipos de incidencia} version {No se cargaron las versiones} other {No se cargó esta lista}}",
@@ -4141,6 +4142,30 @@
 				"DEFAULT_TRIGGER": "Tipo predeterminado: {name}. Cambiarlo",
 				"NO_DEFAULT": "Sin predeterminado",
 				"TYPES_SECTION": "Tipos"
+			}
+		},
+		"labelCatalog": {
+			"BROWSE": "Explorar etiquetas",
+			"TITLE": "Explorar etiquetas",
+			"DESCRIPTION": "Elige las etiquetas que necesita tu equipo. Después puedes renombrarlas, cambiarles el color o eliminarlas.",
+			"SEARCH": "Buscar etiquetas",
+			"ADDED": "Añadida",
+			"SELECT_ALL": "Seleccionar todas",
+			"CLEAR": "Borrar",
+			"SELECTED": "{count, plural, =0 {Ninguna etiqueta elegida} one {# etiqueta elegida} other {# etiquetas elegidas}}",
+			"ADD": "{count, plural, =0 {Añadir etiquetas} one {Añadir # etiqueta} other {Añadir # etiquetas}}",
+			"NO_MATCH": "Ninguna etiqueta coincide con esta búsqueda.",
+			"ADDED_TOAST": "{count, plural, one {# etiqueta añadida} other {# etiquetas añadidas}}",
+			"PARTIAL_TOAST": "Añadidas: {added}. No añadidas: {failed}, puede que el equipo ya las tenga.",
+			"FAILED_TOAST": "No se pudieron añadir las etiquetas. Inténtalo de nuevo.",
+			"categories": {
+				"TYPE": "Tipo de tarea",
+				"PRIORITY": "Prioridad",
+				"WORKFLOW": "Estado y flujo de trabajo",
+				"AREA": "Área técnica",
+				"RELEASE": "Versiones y compatibilidad",
+				"FEEDBACK": "Comentarios de clientes y del producto",
+				"PROJECT": "Gestión de proyectos"
 			}
 		},
 		"teamGeneral": {

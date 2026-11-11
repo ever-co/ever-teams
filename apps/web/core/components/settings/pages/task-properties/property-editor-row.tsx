@@ -28,6 +28,8 @@ interface PropertyEditorRowProps {
 	mode: PropertyEditorMode;
 	initialDraft: PropertyDraft;
 	showsGroupHint?: boolean;
+	/** Whether another row of the list already has the name: the row then refuses it, as a duplicate. */
+	isNameTaken?: (name: string) => boolean;
 	onCancel: () => void;
 	onSave: (draft: PropertyDraft) => Promise<void>;
 }
@@ -51,6 +53,7 @@ export function PropertyEditorRow({
 	mode,
 	initialDraft,
 	showsGroupHint = false,
+	isNameTaken,
 	onCancel,
 	onSave
 }: Readonly<PropertyEditorRowProps>) {
@@ -104,6 +107,10 @@ export function PropertyEditorRow({
 		}
 		if (!isPropertyNameFilled(draft.name)) {
 			setNameError(t('settings.taskProperties.NAME_REQUIRED'));
+			return;
+		}
+		if (isNameTaken?.(draft.name)) {
+			setNameError(t('settings.taskProperties.NAME_TAKEN', { kind }));
 			return;
 		}
 		setIsSaving(true);

@@ -4071,6 +4071,7 @@
 			"ADD": "{kind, select, status {Aggiungi stato} priority {Aggiungi priorità} size {Aggiungi dimensione} label {Aggiungi etichetta} issueType {Aggiungi tipo di issue} version {Aggiungi versione} other {Aggiungi}}",
 			"NAME_PLACEHOLDER": "{kind, select, status {Nome dello stato} priority {Nome della priorità} size {Nome della dimensione} label {Nome dell’etichetta} issueType {Nome del tipo di issue} version {Nome della versione, ad esempio 2.4} other {Nome}}",
 			"NAME_REQUIRED": "Dagli un nome per salvarlo.",
+			"NAME_TAKEN": "{kind, select, label {Il team ha già un'etichetta con questo nome.} other {Questo nome è già in uso.}}",
 			"EMPTY_TITLE": "{kind, select, status {Ancora nessuno stato} priority {Ancora nessuna priorità} size {Ancora nessuna dimensione} label {Ancora nessuna etichetta} issueType {Ancora nessun tipo di issue} version {Ancora nessuna versione} other {Ancora niente qui}}",
 			"EMPTY_DESCRIPTION": "{kind, select, status {Gli stati sono i passaggi che un’attività attraversa fino al completamento.} priority {Le priorità dicono al team quali attività vengono prima.} size {Le dimensioni danno un’idea dello sforzo richiesto da un’attività.} label {Le etichette raggruppano le attività per tema, qualunque sia il loro stato.} issueType {I tipi di issue distinguono un bug da una story o da una semplice attività.} version {Le versioni sono i rilasci a cui un’attività può puntare.} other {Aggiungi il primo.}}",
 			"ERROR_TITLE": "{kind, select, status {Gli stati non sono stati caricati} priority {Le priorità non sono state caricate} size {Le dimensioni non sono state caricate} label {Le etichette non sono state caricate} issueType {I tipi di issue non sono stati caricati} version {Le versioni non sono state caricate} other {Questo elenco non è stato caricato}}",
@@ -4141,6 +4142,30 @@
 				"DEFAULT_TRIGGER": "Tipo predefinito: {name}. Cambialo",
 				"NO_DEFAULT": "Nessun predefinito",
 				"TYPES_SECTION": "Tipi"
+			}
+		},
+		"labelCatalog": {
+			"BROWSE": "Sfoglia le etichette",
+			"TITLE": "Sfoglia le etichette",
+			"DESCRIPTION": "Scegli le etichette che servono al tuo team. Potrai rinominarle, cambiarne il colore o eliminarle in seguito.",
+			"SEARCH": "Cerca etichette",
+			"ADDED": "Aggiunta",
+			"SELECT_ALL": "Seleziona tutte",
+			"CLEAR": "Cancella",
+			"SELECTED": "{count, plural, =0 {Nessuna etichetta scelta} one {# etichetta scelta} other {# etichette scelte}}",
+			"ADD": "{count, plural, =0 {Aggiungi etichette} one {Aggiungi # etichetta} other {Aggiungi # etichette}}",
+			"NO_MATCH": "Nessuna etichetta corrisponde a questa ricerca.",
+			"ADDED_TOAST": "{count, plural, one {# etichetta aggiunta} other {# etichette aggiunte}}",
+			"PARTIAL_TOAST": "Aggiunte: {added}. Non aggiunte: {failed}, forse il team le ha già.",
+			"FAILED_TOAST": "Non è stato possibile aggiungere le etichette. Riprova.",
+			"categories": {
+				"TYPE": "Tipo di attività",
+				"PRIORITY": "Priorità",
+				"WORKFLOW": "Stato e flusso di lavoro",
+				"AREA": "Area tecnica",
+				"RELEASE": "Rilasci e compatibilità",
+				"FEEDBACK": "Feedback di clienti e prodotto",
+				"PROJECT": "Gestione dei progetti"
 			}
 		},
 		"teamGeneral": {

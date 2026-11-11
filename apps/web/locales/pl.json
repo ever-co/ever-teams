@@ -4071,6 +4071,7 @@
 			"ADD": "{kind, select, status {Dodaj status} priority {Dodaj priorytet} size {Dodaj rozmiar} label {Dodaj etykietę} issueType {Dodaj typ zgłoszenia} version {Dodaj wersję} other {Dodaj}}",
 			"NAME_PLACEHOLDER": "{kind, select, status {Nazwa statusu} priority {Nazwa priorytetu} size {Nazwa rozmiaru} label {Nazwa etykiety} issueType {Nazwa typu zgłoszenia} version {Nazwa wersji, np. 2.4} other {Nazwa}}",
 			"NAME_REQUIRED": "Podaj nazwę, aby zapisać.",
+			"NAME_TAKEN": "{kind, select, label {Zespół ma już etykietę o tej nazwie.} other {Ta nazwa jest już używana.}}",
 			"EMPTY_TITLE": "{kind, select, status {Nie ma jeszcze statusów} priority {Nie ma jeszcze priorytetów} size {Nie ma jeszcze rozmiarów} label {Nie ma jeszcze etykiet} issueType {Nie ma jeszcze typów zgłoszeń} version {Nie ma jeszcze wersji} other {Nic tu jeszcze nie ma}}",
 			"EMPTY_DESCRIPTION": "{kind, select, status {Statusy to kroki, przez które przechodzi zadanie aż do ukończenia.} priority {Priorytety pokazują zespołowi, które zadania są pierwsze.} size {Rozmiary dają ogólne pojęcie o nakładzie pracy nad zadaniem.} label {Etykiety grupują zadania według tematu, niezależnie od statusu.} issueType {Typy zgłoszeń odróżniają błąd od historyjki czy zwykłego zadania.} version {Wersje to wydania, do których może być przypisane zadanie.} other {Dodaj pierwszy element.}}",
 			"ERROR_TITLE": "{kind, select, status {Nie udało się wczytać statusów} priority {Nie udało się wczytać priorytetów} size {Nie udało się wczytać rozmiarów} label {Nie udało się wczytać etykiet} issueType {Nie udało się wczytać typów zgłoszeń} version {Nie udało się wczytać wersji} other {Nie udało się wczytać listy}}",
@@ -4141,6 +4142,30 @@
 				"DEFAULT_TRIGGER": "Typ domyślny: {name}. Zmień",
 				"NO_DEFAULT": "Brak domyślnego",
 				"TYPES_SECTION": "Typy"
+			}
+		},
+		"labelCatalog": {
+			"BROWSE": "Przeglądaj etykiety",
+			"TITLE": "Przeglądaj etykiety",
+			"DESCRIPTION": "Wybierz etykiety, których potrzebuje twój zespół. Później możesz zmienić ich nazwę, kolor lub je usunąć.",
+			"SEARCH": "Szukaj etykiet",
+			"ADDED": "Dodana",
+			"SELECT_ALL": "Zaznacz wszystkie",
+			"CLEAR": "Wyczyść",
+			"SELECTED": "{count, plural, =0 {Nie wybrano etykiety} one {Wybrano # etykietę} few {Wybrano # etykiety} many {Wybrano # etykiet} other {Wybrano # etykiety}}",
+			"ADD": "{count, plural, =0 {Dodaj etykiety} one {Dodaj # etykietę} few {Dodaj # etykiety} many {Dodaj # etykiet} other {Dodaj # etykiety}}",
+			"NO_MATCH": "Żadna etykieta nie pasuje do wyszukiwania.",
+			"ADDED_TOAST": "{count, plural, one {Dodano # etykietę} few {Dodano # etykiety} many {Dodano # etykiet} other {Dodano # etykiety}}",
+			"PARTIAL_TOAST": "Dodano: {added}. Nie dodano: {failed}, zespół może już je mieć.",
+			"FAILED_TOAST": "Nie udało się dodać etykiet. Spróbuj ponownie.",
+			"categories": {
+				"TYPE": "Typ zadania",
+				"PRIORITY": "Priorytet",
+				"WORKFLOW": "Status i przepływ pracy",
+				"AREA": "Obszar techniczny",
+				"RELEASE": "Wydania i zgodność",
+				"FEEDBACK": "Opinie klientów i o produkcie",
+				"PROJECT": "Zarządzanie projektami"
 			}
 		},
 		"teamGeneral": {

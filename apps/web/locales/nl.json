@@ -4071,6 +4071,7 @@
 			"ADD": "{kind, select, status {Status toevoegen} priority {Prioriteit toevoegen} size {Grootte toevoegen} label {Label toevoegen} issueType {Issuetype toevoegen} version {Versie toevoegen} other {Toevoegen}}",
 			"NAME_PLACEHOLDER": "{kind, select, status {Naam van de status} priority {Naam van de prioriteit} size {Naam van de grootte} label {Naam van het label} issueType {Naam van het issuetype} version {Naam van de versie, zoals 2.4} other {Naam}}",
 			"NAME_REQUIRED": "Geef het een naam om het op te slaan.",
+			"NAME_TAKEN": "{kind, select, label {Het team heeft al een label met deze naam.} other {Deze naam is al in gebruik.}}",
 			"EMPTY_TITLE": "{kind, select, status {Nog geen statussen} priority {Nog geen prioriteiten} size {Nog geen groottes} label {Nog geen labels} issueType {Nog geen issuetypes} version {Nog geen versies} other {Nog niets hier}}",
 			"EMPTY_DESCRIPTION": "{kind, select, status {Statussen zijn de stappen die een taak doorloopt tot ze klaar is.} priority {Prioriteiten laten het team zien welke taken eerst komen.} size {Groottes geven een ruw idee van de moeite die een taak kost.} label {Labels groeperen taken per thema, wat hun status ook is.} issueType {Issuetypes onderscheiden een bug van een story of een gewone taak.} version {Versies zijn de releases waar een taak op kan mikken.} other {Voeg de eerste toe.}}",
 			"ERROR_TITLE": "{kind, select, status {De statussen zijn niet geladen} priority {De prioriteiten zijn niet geladen} size {De groottes zijn niet geladen} label {De labels zijn niet geladen} issueType {De issuetypes zijn niet geladen} version {De versies zijn niet geladen} other {Deze lijst is niet geladen}}",
@@ -4141,6 +4142,30 @@
 				"DEFAULT_TRIGGER": "Standaardtype: {name}. Wijzigen",
 				"NO_DEFAULT": "Geen standaard",
 				"TYPES_SECTION": "Types"
+			}
+		},
+		"labelCatalog": {
+			"BROWSE": "Labels bekijken",
+			"TITLE": "Labels bekijken",
+			"DESCRIPTION": "Kies de labels die je team nodig heeft. Je kunt ze daarna hernoemen, een andere kleur geven of verwijderen.",
+			"SEARCH": "Labels zoeken",
+			"ADDED": "Toegevoegd",
+			"SELECT_ALL": "Alles selecteren",
+			"CLEAR": "Wissen",
+			"SELECTED": "{count, plural, =0 {Geen label gekozen} one {# label gekozen} other {# labels gekozen}}",
+			"ADD": "{count, plural, =0 {Labels toevoegen} one {# label toevoegen} other {# labels toevoegen}}",
+			"NO_MATCH": "Geen label past bij deze zoekopdracht.",
+			"ADDED_TOAST": "{count, plural, one {# label toegevoegd} other {# labels toegevoegd}}",
+			"PARTIAL_TOAST": "Toegevoegd: {added}. Niet toegevoegd: {failed}, het team heeft ze misschien al.",
+			"FAILED_TOAST": "De labels konden niet worden toegevoegd. Probeer het opnieuw.",
+			"categories": {
+				"TYPE": "Taaktype",
+				"PRIORITY": "Prioriteit",
+				"WORKFLOW": "Status en workflow",
+				"AREA": "Technisch gebied",
+				"RELEASE": "Release en compatibiliteit",
+				"FEEDBACK": "Klant- en productfeedback",
+				"PROJECT": "Projectbeheer"
 			}
 		},
 		"teamGeneral": {

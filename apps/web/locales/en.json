@@ -4071,6 +4071,7 @@
 			"ADD": "{kind, select, status {Add status} priority {Add priority} size {Add size} label {Add label} issueType {Add issue type} version {Add version} other {Add}}",
 			"NAME_PLACEHOLDER": "{kind, select, status {Status name} priority {Priority name} size {Size name} label {Label name} issueType {Issue type name} version {Version name, such as 2.4} other {Name}}",
 			"NAME_REQUIRED": "Give it a name to save it.",
+			"NAME_TAKEN": "{kind, select, label {The team already has a label with this name.} other {This name is already used.}}",
 			"EMPTY_TITLE": "{kind, select, status {No statuses yet} priority {No priorities yet} size {No sizes yet} label {No labels yet} issueType {No issue types yet} version {No versions yet} other {Nothing here yet}}",
 			"EMPTY_DESCRIPTION": "{kind, select, status {Statuses are the steps a task goes through on its way to done.} priority {Priorities tell the team which tasks come first.} size {Sizes give a rough idea of the effort a task takes.} label {Labels group tasks by theme, whatever their status.} issueType {Issue types tell a bug from a story or a plain task.} version {Versions are the releases a task can target.} other {Add the first one.}}",
 			"ERROR_TITLE": "{kind, select, status {The statuses did not load} priority {The priorities did not load} size {The sizes did not load} label {The labels did not load} issueType {The issue types did not load} version {The versions did not load} other {This list did not load}}",
@@ -4141,6 +4142,30 @@
 				"DEFAULT_TRIGGER": "Default type: {name}. Change it",
 				"NO_DEFAULT": "No default",
 				"TYPES_SECTION": "Types"
+			}
+		},
+		"labelCatalog": {
+			"BROWSE": "Browse labels",
+			"TITLE": "Browse labels",
+			"DESCRIPTION": "Pick the labels your team needs. You can rename, recolor or remove them afterwards.",
+			"SEARCH": "Search labels",
+			"ADDED": "Added",
+			"SELECT_ALL": "Select all",
+			"CLEAR": "Clear",
+			"SELECTED": "{count, plural, =0 {No label picked} one {# label picked} other {# labels picked}}",
+			"ADD": "{count, plural, =0 {Add labels} one {Add # label} other {Add # labels}}",
+			"NO_MATCH": "No label matches this search.",
+			"ADDED_TOAST": "{count, plural, one {# label added} other {# labels added}}",
+			"PARTIAL_TOAST": "Added: {added}. Not added: {failed}, the team may already have them.",
+			"FAILED_TOAST": "The labels could not be added. Try again.",
+			"categories": {
+				"TYPE": "Task type",
+				"PRIORITY": "Priority",
+				"WORKFLOW": "Status & workflow",
+				"AREA": "Technical area",
+				"RELEASE": "Release & compatibility",
+				"FEEDBACK": "Customer & product feedback",
+				"PROJECT": "Project management"
 			}
 		},
 		"teamGeneral": {

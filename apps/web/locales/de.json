@@ -4071,6 +4071,7 @@
 			"ADD": "{kind, select, status {Status hinzufügen} priority {Priorität hinzufügen} size {Größe hinzufügen} label {Label hinzufügen} issueType {Vorgangstyp hinzufügen} version {Version hinzufügen} other {Hinzufügen}}",
 			"NAME_PLACEHOLDER": "{kind, select, status {Name des Status} priority {Name der Priorität} size {Name der Größe} label {Name des Labels} issueType {Name des Vorgangstyps} version {Name der Version, etwa 2.4} other {Name}}",
 			"NAME_REQUIRED": "Gib einen Namen ein, um zu speichern.",
+			"NAME_TAKEN": "{kind, select, label {Das Team hat schon ein Label mit diesem Namen.} other {Dieser Name wird schon verwendet.}}",
 			"EMPTY_TITLE": "{kind, select, status {Noch keine Status} priority {Noch keine Prioritäten} size {Noch keine Größen} label {Noch keine Labels} issueType {Noch keine Vorgangstypen} version {Noch keine Versionen} other {Noch nichts hier}}",
 			"EMPTY_DESCRIPTION": "{kind, select, status {Status sind die Schritte, die eine Aufgabe bis zum Abschluss durchläuft.} priority {Prioritäten zeigen dem Team, welche Aufgaben zuerst drankommen.} size {Größen geben eine grobe Vorstellung vom Aufwand einer Aufgabe.} label {Labels gruppieren Aufgaben nach Thema, unabhängig vom Status.} issueType {Vorgangstypen unterscheiden einen Bug von einer Story oder einer einfachen Aufgabe.} version {Versionen sind die Releases, auf die eine Aufgabe zielen kann.} other {Füge den ersten Eintrag hinzu.}}",
 			"ERROR_TITLE": "{kind, select, status {Die Status wurden nicht geladen} priority {Die Prioritäten wurden nicht geladen} size {Die Größen wurden nicht geladen} label {Die Labels wurden nicht geladen} issueType {Die Vorgangstypen wurden nicht geladen} version {Die Versionen wurden nicht geladen} other {Diese Liste wurde nicht geladen}}",
@@ -4141,6 +4142,30 @@
 				"DEFAULT_TRIGGER": "Standardtyp: {name}. Ändern",
 				"NO_DEFAULT": "Kein Standard",
 				"TYPES_SECTION": "Typen"
+			}
+		},
+		"labelCatalog": {
+			"BROWSE": "Labels durchsuchen",
+			"TITLE": "Labels durchsuchen",
+			"DESCRIPTION": "Wähle die Labels, die dein Team braucht. Du kannst sie danach umbenennen, umfärben oder entfernen.",
+			"SEARCH": "Labels suchen",
+			"ADDED": "Hinzugefügt",
+			"SELECT_ALL": "Alle auswählen",
+			"CLEAR": "Leeren",
+			"SELECTED": "{count, plural, =0 {Kein Label ausgewählt} one {# Label ausgewählt} other {# Labels ausgewählt}}",
+			"ADD": "{count, plural, =0 {Labels hinzufügen} one {# Label hinzufügen} other {# Labels hinzufügen}}",
+			"NO_MATCH": "Kein Label passt zu dieser Suche.",
+			"ADDED_TOAST": "{count, plural, one {# Label hinzugefügt} other {# Labels hinzugefügt}}",
+			"PARTIAL_TOAST": "Hinzugefügt: {added}. Nicht hinzugefügt: {failed}, das Team hat sie vielleicht schon.",
+			"FAILED_TOAST": "Die Labels konnten nicht hinzugefügt werden. Versuch es noch einmal.",
+			"categories": {
+				"TYPE": "Aufgabentyp",
+				"PRIORITY": "Priorität",
+				"WORKFLOW": "Status und Workflow",
+				"AREA": "Technischer Bereich",
+				"RELEASE": "Release und Kompatibilität",
+				"FEEDBACK": "Kunden- und Produktfeedback",
+				"PROJECT": "Projektmanagement"
 			}
 		},
 		"teamGeneral": {
