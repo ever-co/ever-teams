@@ -23,12 +23,19 @@ export function navigateAfterSignIn({ replace = false }: { replace?: boolean } =
 	// started goes back to (board-return.ts), else the home page. Both are taken, so neither is left for a later sign-in.
 	const path = takePathAfterSignIn();
 	const boardReturn = takeBoardReturn();
-	const destination = path ?? boardReturn;
-	if (destination) {
+	if (path) {
 		if (replace) {
-			window.location.replace(destination);
+			window.location.replace(path);
 		} else {
-			window.location.assign(destination);
+			window.location.assign(path);
+		}
+		return;
+	}
+	if (boardReturn) {
+		if (replace) {
+			window.location.replace(boardReturn);
+		} else {
+			window.location.assign(boardReturn);
 		}
 		return;
 	}
