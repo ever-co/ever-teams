@@ -99,6 +99,7 @@ import { SettingsNav } from '../settings/kit/settings-nav';
 import { isSettingsPath } from '../settings/kit/settings-entries';
 import { useRememberAppPath } from '@/core/hooks/common/use-remember-app-path';
 import { isDocsEnabled } from '@/core/lib/utils/docs-enabled';
+import { isTaskTrashEnabled } from '@/core/lib/utils/comments-trash-flags';
 import { useDocsAvailability } from '@/core/hooks/docs/use-docs-availability';
 import { useChatStates } from '@/core/hooks/chat/use-chat-conversations';
 import { useInboxAvailability } from '@/core/hooks/inbox/use-inbox-availability';
@@ -402,7 +403,11 @@ export function AppSidebar({ publicTeam, ...props }: AppSidebarProps) {
 						title: t('sidebar.MY_TASKS'),
 						url: `/profile/${userId}?name=${encodedUsername}`,
 						label: 'my-tasks'
-					}
+					},
+					// NEXT_PUBLIC_TASK_TRASH_ENABLED (read at runtime): the active team's deleted tasks.
+					...(isTaskTrashEnabled()
+						? [{ title: t('taskTrash.TITLE'), url: '/team/tasks/trash', label: 'task-trash' }]
+						: [])
 				]
 			},
 			...(isTaskViewsEnabled()

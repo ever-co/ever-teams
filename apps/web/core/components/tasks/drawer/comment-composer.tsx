@@ -38,6 +38,7 @@ import {
 	type MentionSegment
 } from '@/core/lib/utils/comment-mentions';
 import { useFocusRefOnMount } from '@/core/hooks/common/use-focus-on-mount';
+import { mentionedIn } from '@/core/lib/utils/comment-ownership';
 
 const TOOL_BUTTON =
 	'flex size-7 items-center justify-center rounded-md text-muted-foreground outline-none transition-colors hover:bg-foreground/5 hover:text-foreground focus-visible:ring-[3px] focus-visible:ring-ring/25 data-[popup-open]:bg-foreground/5';
@@ -227,7 +228,9 @@ export function CommentComposer({
 	isPosting,
 	autoFocus = false,
 	onCancel,
-	canAttach = false
+	canAttach = false,
+	initialBody = '',
+	submitLabel
 }: Readonly<{
 	placeholder: string;
 	onSubmit: CommentSubmit;
@@ -236,13 +239,17 @@ export function CommentComposer({
 	onCancel?: () => void;
 	/** Files picked, pasted or dropped wait as chips and are posted with the comment. */
 	canAttach?: boolean;
+	/** The text the field starts with (an edit): the people it mentions stay mentioned unless their name is removed. */
+	initialBody?: string;
+	/** The send button's label (an edit saves); "Comment" by default. */
+	submitLabel?: string;
 }>) {
 	const t = useTranslations();
 	const listId = useId();
 	const { data: user } = useUserQuery();
 	const candidates = useMentionCandidates();
 	const names = useMemo(() => candidates.map((candidate) => candidate.name), [candidates]);
-	const [body, setBody] = useState('');
+	const [body, setBody] = useState(initialBody);
 	const [picked, setPicked] = useState<MentionablePerson[]>([]);
 	const [mentionQuery, setMentionQuery] = useState<MentionQuery | null>(null);
 	const [activeIndex, setActiveIndex] = useState(0);
@@ -309,7 +316,8 @@ export function CommentComposer({
 		if (!canSend) {
 			return;
 		}
-		const mentionEmployeeIds = collectMentionEmployeeIds(trimmedBody, picked);
+		// An edit keeps the mentions its text already holds: the platform replaces the comment's with this list.
+		const mentionEmployeeIds = collectMentionEmployeeIds(trimmedBody, [...picked, ...mentionedIn(initialBody, candidates)]);
 		const isSaved = await onSubmit(trimmedBody, mentionEmployeeIds, stagedFiles);
 		if (isSaved) {
 			setBody('');
@@ -529,7 +537,7 @@ export function CommentComposer({
 						</Button>
 					)}
 					<Button type="submit" size="sm" disabled={!canSend}>
-						{t('common.COMMENT')}
+						{submitLabel ?? t('common.COMMENT')}
 					</Button>
 				</div>
 			</div>

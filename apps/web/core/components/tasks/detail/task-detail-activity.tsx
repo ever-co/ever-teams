@@ -3,6 +3,7 @@
 import { Fragment, useCallback, useMemo, useState, type ReactNode } from 'react';
 import moment from 'moment';
 import { useTranslations } from 'next-intl';
+import { useAtomValue } from 'jotai';
 import { Calendar, ChevronUp, History, Pencil, Plus, Tag, Timer, Users } from '@/core/components/icons';
 import { SegmentedControl, type SegmentedControlItem } from '@/core/components/common/segmented-control';
 import { AnimatedEmptyState } from '@/core/components/common/empty-state';
@@ -27,6 +28,9 @@ import { useCanAttachFiles, useTaskCommentFiles } from '@/core/hooks/documents/u
 import { useMentionCandidates } from '@/core/hooks/tasks/use-mention-candidates';
 import { useTaskActivityLog } from '@/core/hooks/tasks/use-task-activity-log';
 import { useTaskComments } from '@/core/hooks/tasks/use-task-comments';
+import { useCommentReactions } from '@/core/hooks/tasks/use-comment-reactions';
+import { CommentActionsProvider, type CommentActions } from '@/core/components/tasks/drawer/comment-actions-context';
+import { userState } from '@/core/stores';
 import { cn } from '@/core/lib/helpers';
 import type { TEntityFileLink } from '@/core/types/schemas/documents/entity-file.schema';
 import type { TaskActivityChange, TaskActivityItem } from '@/core/types/interfaces/task/task-discussion';
@@ -245,6 +249,7 @@ export function TaskDetailActivity({ task, showsComposer }: Readonly<TaskDetailA
 	}
 	const discussion = useTaskComments(loadedTask);
 	const history = useTaskActivityLog(loadedTaskId);
+	const commentActions = useCommentActionsOf(discussion, loadedTaskId);
 	const threads = useMemo(() => threadsOf(discussion.comments), [discussion.comments]);
 	const filesByComment = useTaskCommentFiles(task.id);
 	const canAttach = useCanAttachFiles({ entity: 'Task', entityId: task.id });
@@ -281,6 +286,7 @@ export function TaskDetailActivity({ task, showsComposer }: Readonly<TaskDetailA
 
 	return (
 		<div ref={ref}>
+			<CommentActionsProvider value={commentActions}>
 			<TaskDetailSection
 				title={t('common.ACTIVITY')}
 				actions={
@@ -355,7 +361,39 @@ export function TaskDetailActivity({ task, showsComposer }: Readonly<TaskDetailA
 					</div>
 				)}
 			</TaskDetailSection>
+			</CommentActionsProvider>
 		</div>
+	);
+}
+
+/**
+ * What the reader may do with the comments besides replying (see {@link CommentActions}): edit, delete and resolve
+ * their own, react to any when reactions are on. One comment is edited at a time.
+ */
+function useCommentActionsOf(discussion: ReturnType<typeof useTaskComments>, taskId: string | null): CommentActions {
+	const user = useAtomValue(userState);
+	const employeeId = user?.employee?.id ?? user?.employeeId ?? null;
+	const userId = user?.id ?? null;
+	const userName = user?.name ?? '';
+	const userImageUrl = user?.imageUrl ?? null;
+	const [editingId, setEditingId] = useState<string | null>(null);
+	const me = useMemo(
+		() => (employeeId ? { employeeId, name: userName, imageUrl: userImageUrl } : null),
+		[employeeId, userImageUrl, userName]
+	);
+	const reactions = useCommentReactions(taskId, me);
+	const { editComment, deleteComment, setThreadResolved } = discussion;
+	return useMemo<CommentActions>(
+		() => ({
+			reader: { employeeId, userId },
+			editingId,
+			setEditingId,
+			editComment,
+			deleteComment,
+			setThreadResolved: (commentId, resolved) => setThreadResolved(commentId, resolved, employeeId),
+			reactions: { ...reactions, canReact: me !== null }
+		}),
+		[deleteComment, editComment, editingId, employeeId, me, reactions, setThreadResolved, userId]
 	);
 }
 

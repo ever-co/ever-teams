@@ -12,11 +12,12 @@ import { useProjectActionModal } from '@/core/hooks/use-project-action-modal';
 import { useProjectPermissions } from '@/core/hooks/projects/use-project-permissions';
 import { cn } from '@/core/lib/helpers';
 import { isDocsEnabled } from '@/core/lib/utils/docs-enabled';
+import { isTaskTrashEnabled } from '@/core/lib/utils/comments-trash-flags';
 import { clientNameOf, personFromProjectMember } from '@/core/lib/utils/project-list';
 import type { TOrganizationProject } from '@/core/types/schemas';
 import type { TTaskStatus } from '@/core/types/schemas/task/task-status.schema';
 
-export type ProjectDetailTab = 'overview' | 'tasks' | 'people' | 'docs';
+export type ProjectDetailTab = 'overview' | 'tasks' | 'people' | 'docs' | 'trash';
 
 export interface ProjectNeighbours {
 	position: number;
@@ -98,7 +99,8 @@ export function ProjectDetailHeader({
 		{ value: 'overview', label: t('pages.projects.detail.TAB_OVERVIEW') },
 		{ value: 'tasks', label: t('common.TASKS'), count: taskCount },
 		{ value: 'people', label: t('common.PEOPLE'), count: people.length },
-		...(isDocsEnabled() ? [{ value: 'docs' as const, label: t('docs.TITLE') }] : [])
+		...(isDocsEnabled() ? [{ value: 'docs' as const, label: t('docs.TITLE') }] : []),
+		...(isTaskTrashEnabled() ? [{ value: 'trash' as const, label: t('taskTrash.TAB') }] : [])
 	];
 
 	return (
