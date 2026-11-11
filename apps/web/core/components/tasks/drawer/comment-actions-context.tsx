@@ -15,7 +15,8 @@ export interface CommentActions {
 	/** The comment whose text is being edited, if any (one at a time). */
 	editingId: string | null;
 	setEditingId: (commentId: string | null) => void;
-	editComment: (commentId: string, body: string, mentionEmployeeIds: string[]) => Promise<boolean>;
+	/** `mentionEmployeeIds` left out keeps the comment's mentions as stored. */
+	editComment: (commentId: string, body: string, mentionEmployeeIds?: string[]) => Promise<boolean>;
 	deleteComment: (commentId: string) => Promise<DeletedComment | null>;
 	setThreadResolved: (commentId: string, resolved: boolean) => Promise<boolean>;
 	reactions: {

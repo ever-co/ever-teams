@@ -31,6 +31,21 @@ export function mentionedIn(text: string, candidates: readonly MentionablePerson
 	return candidates.filter((candidate) => text.includes(mentionTextOf(candidate)));
 }
 
+/**
+ * The mentions an edit sends: the new list when the text gains or loses a mention, nothing (`undefined`) when the
+ * mentions are the ones the text already had. Left out, the platform keeps the comment's mentions exactly as stored,
+ * so an edit that only fixes a typo never drops a mention of someone who left the team, nor adds a namesake.
+ *
+ * @param before - The employees the text named before the edit (as the people known now read it).
+ * @param after - The employees the edited text names.
+ */
+export function mentionsToSend(before: readonly string[], after: readonly string[]): string[] | undefined {
+	const was = new Set(before);
+	const now = new Set(after);
+	const isSame = was.size === now.size && [...now].every((id) => was.has(id));
+	return isSame ? undefined : [...now];
+}
+
 /** Whether an edit changes anything: the same text (once trimmed) is not sent. */
 export function isTextChanged(original: string, edited: string): boolean {
 	return original.trim() !== edited.trim();

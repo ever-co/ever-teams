@@ -157,6 +157,18 @@ describe('useTaskComments — edit, delete, resolve', () => {
 		await waitFor(() => expect(result.current.comments).toHaveLength(2));
 	});
 
+	it('keeps the comment’s mentions as stored when the edit leaves them out', async () => {
+		mockUpdate.mockResolvedValue({ id: 'c1' });
+		const { result } = renderHook(() => useTaskComments(task), { wrapper: wrapper(client()) });
+		await waitFor(() => expect(result.current.comments).toHaveLength(2));
+
+		await act(async () => {
+			await result.current.editComment('c1', 'Typo fixed');
+		});
+
+		expect(mockUpdate).toHaveBeenCalledWith('c1', { comment: 'Typo fixed' }, scope);
+	});
+
 	it('puts a comment back when the platform refuses its delete', async () => {
 		mockSoftDelete.mockRejectedValue(new Error('404'));
 		const { result } = renderHook(() => useTaskComments(task), { wrapper: wrapper(client()) });

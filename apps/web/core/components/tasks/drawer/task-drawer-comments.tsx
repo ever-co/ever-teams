@@ -14,7 +14,8 @@ import {
 } from '@/core/components/common/dropdown-menu';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/core/components/common/tooltip';
 import { CircleCheck, MoreHorizontal, Pencil, RotateLeft, Trash } from '@/core/components/icons';
-import { isOwnComment, isTextChanged } from '@/core/lib/utils/comment-ownership';
+import { isOwnComment, isTextChanged, mentionedIn, mentionsToSend } from '@/core/lib/utils/comment-ownership';
+import { useMentionCandidates } from '@/core/hooks/tasks/use-mention-candidates';
 import { useTaskComments } from '@/core/hooks/tasks/use-task-comments';
 import { splitMentions, type MentionSegment } from '@/core/lib/utils/comment-mentions';
 import type { TaskCommentItem } from '@/core/types/interfaces/task/task-discussion';
@@ -160,6 +161,7 @@ function OwnCommentMenu({
 /** The comment's text turned into the comment field: Save keeps the change, Cancel or Escape drops it. */
 function CommentEditor({ comment, actions }: Readonly<{ comment: TaskCommentItem; actions: CommentActions }>) {
 	const t = useTranslations();
+	const candidates = useMentionCandidates();
 	const [isSaving, setIsSaving] = useState(false);
 	const save: CommentSubmit = async (body, mentionEmployeeIds) => {
 		if (!isTextChanged(comment.body, body)) {
@@ -167,7 +169,9 @@ function CommentEditor({ comment, actions }: Readonly<{ comment: TaskCommentItem
 			return true;
 		}
 		setIsSaving(true);
-		const isSaved = await actions.editComment(comment.id, body, mentionEmployeeIds);
+		// The mentions go only when the edit adds or removes one: otherwise the platform keeps them as stored.
+		const before = mentionedIn(comment.body, candidates).map((candidate) => candidate.employeeId);
+		const isSaved = await actions.editComment(comment.id, body, mentionsToSend(before, mentionEmployeeIds));
 		setIsSaving(false);
 		if (!isSaved) {
 			toast.error(t('taskComments.SAVE_FAILED'));
@@ -302,7 +306,11 @@ export function CommentThreadView({
 	isPosting: boolean;
 }>) {
 	const t = useTranslations();
-	const [showsResolved, setShowsResolved] = useState(false);
+	// Which resolve the reader unfolded: a thread reopened and resolved again folds again (a new resolvedAt).
+	const resolvedKey = thread.comment.resolvedAt?.getTime() ?? 0;
+	const [shownResolvedKey, setShownResolvedKey] = useState<number | null>(null);
+	const showsResolved = shownResolvedKey === resolvedKey;
+	const setShowsResolved = (shows: boolean) => setShownResolvedKey(shows ? resolvedKey : null);
 	const hasReplies = thread.replies.length > 0;
 	const showsReplyColumn = hasReplies || isReplying;
 	const isFolded = thread.comment.resolved && !showsResolved && !isReplying;

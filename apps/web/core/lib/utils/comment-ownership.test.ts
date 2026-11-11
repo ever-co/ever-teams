@@ -1,4 +1,4 @@
-import { isOwnComment, isTextChanged, mentionedIn } from './comment-ownership';
+import { isOwnComment, isTextChanged, mentionedIn, mentionsToSend } from './comment-ownership';
 
 describe('isOwnComment — the platform’s rule for who may edit, resolve or delete a comment', () => {
 	const reader = { employeeId: 'employee-me', userId: 'user-me' };
@@ -34,6 +34,19 @@ describe('mentionedIn — the mentions an edit keeps', () => {
 		expect(mentionedIn('Ping @Ann Lee about it', [ann, bo])).toEqual([ann]);
 		expect(mentionedIn('No one here', [ann, bo])).toEqual([]);
 		expect(mentionedIn('', [ann])).toEqual([]);
+	});
+});
+
+describe('mentionsToSend — an edit touches the mentions only when it changes them', () => {
+	it('sends nothing when the text names the same people, whatever their order', () => {
+		expect(mentionsToSend(['ann', 'bo'], ['bo', 'ann'])).toBeUndefined();
+		expect(mentionsToSend([], [])).toBeUndefined();
+	});
+
+	it('sends the new list when a mention is added or removed', () => {
+		expect(mentionsToSend(['ann'], ['ann', 'bo'])).toEqual(['ann', 'bo']);
+		expect(mentionsToSend(['ann', 'bo'], ['bo'])).toEqual(['bo']);
+		expect(mentionsToSend(['ann'], [])).toEqual([]);
 	});
 });
 

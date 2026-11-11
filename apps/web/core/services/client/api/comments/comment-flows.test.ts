@@ -2,7 +2,7 @@ import qs from 'qs';
 import { commentService } from './comment.service';
 import { commentReactionService } from './comment-reaction.service';
 import { EBaseEntityEnum } from '@/core/types/generics/enums/entity';
-import { resolveUpdateOf, withoutComment } from '@/core/hooks/tasks/use-task-comments';
+import { resolveUpdateOf, withCommentRestored, withoutComment } from '@/core/hooks/tasks/use-task-comments';
 import type { TaskCommentItem } from '@/core/types/interfaces/task/task-discussion';
 
 const scope = { tenantId: 'tenant-1', organizationId: 'organization-1' };
@@ -83,6 +83,29 @@ describe('withoutComment — the list while a delete runs', () => {
 
 		expect(withoutComment(comments, 'c1').map((comment) => comment.id)).toEqual(['c2']);
 		expect(withoutComment(undefined, 'c1')).toEqual([]);
+	});
+});
+
+describe('withCommentRestored — a refused delete puts back only its own comment', () => {
+	const list = (ids: string[]) => ids.map((id) => ({ id })) as TaskCommentItem[];
+
+	it('puts the comment back in its place, leaving the other pending delete hidden', () => {
+		// A and B deleted one after the other; B was refused, A went through.
+		const beforeB = list(['c2', 'c3', 'c4']);
+		expect(withCommentRestored(list(['c2', 'c4']), beforeB, 'c3').map((comment) => comment.id)).toEqual([
+			'c2',
+			'c3',
+			'c4'
+		]);
+		// A was refused after B was hidden: A comes back, B stays hidden.
+		const beforeA = list(['c1', 'c2', 'c3']);
+		expect(withCommentRestored(list(['c2']), beforeA, 'c1').map((comment) => comment.id)).toEqual(['c1', 'c2']);
+	});
+
+	it('changes nothing when the comment is already there or was never known', () => {
+		const current = list(['c1', 'c2']);
+		expect(withCommentRestored(current, list(['c1', 'c2']), 'c1')).toBe(current);
+		expect(withCommentRestored(current, list(['c1']), 'c9')).toBe(current);
 	});
 });
 

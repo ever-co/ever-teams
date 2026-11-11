@@ -21,10 +21,10 @@ export interface IComment extends IAuthoredRecord {
 	resolvedByEmployee?: IAuthoredRecord['employee'];
 }
 
-/** An edit of a comment's text: the mentions it now holds replace the ones it had. */
+/** An edit of a comment's text: the mentions it now holds replace the ones it had; left out, they stay as stored. */
 export interface ICommentTextUpdate {
 	comment: string;
-	mentionEmployeeIds: ID[];
+	mentionEmployeeIds?: ID[];
 }
 
 /** A resolve or a reopen of a comment thread: the platform records the caller as the resolver. */

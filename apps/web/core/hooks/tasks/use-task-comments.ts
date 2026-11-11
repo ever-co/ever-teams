@@ -47,6 +47,33 @@ export function withoutComment(comments: TaskCommentItem[] | undefined, commentI
 	return (comments ?? NO_COMMENTS).filter((comment) => comment.id !== commentId);
 }
 
+/**
+ * The list with one comment put back where it was, once the platform refused its delete: only that comment, so the
+ * other deletes still running (or done) keep theirs. `before` is the list as it was when that delete started.
+ */
+export function withCommentRestored(
+	current: TaskCommentItem[] | undefined,
+	before: TaskCommentItem[] | undefined,
+	commentId: string
+): TaskCommentItem[] {
+	const list = current ?? NO_COMMENTS;
+	const restored = (before ?? NO_COMMENTS).find((comment) => comment.id === commentId);
+	if (!restored || list.some((comment) => comment.id === commentId)) {
+		return list;
+	}
+	// After the comments that came before it, so it goes back in its place whatever else changed meanwhile.
+	const earlier = new Set<string>();
+	for (const comment of before ?? NO_COMMENTS) {
+		if (comment.id === commentId) break;
+		earlier.add(comment.id);
+	}
+	let at = 0;
+	list.forEach((comment, index) => {
+		if (earlier.has(comment.id)) at = index + 1;
+	});
+	return [...list.slice(0, at), restored, ...list.slice(at)];
+}
+
 async function fetchTaskComments(
 	taskId: string | null,
 	scope: IEntityRecordScope | null,
@@ -155,16 +182,23 @@ export function useTaskComments(task: CommentedTask | null) {
 		[commentsKeyOf, queryClient]
 	);
 
-	/** Changes the text of a comment of the caller's own; `false` when the platform refused it. */
+	/**
+	 * Changes the text of a comment of the caller's own; `false` when the platform refused it. `mentionEmployeeIds`
+	 * replaces the comment's mentions; left out, they stay as stored (an edit that changes no mention).
+	 */
 	const editComment = useCallback(
-		async (commentId: string, body: string, mentionEmployeeIds: string[]): Promise<boolean> => {
+		async (commentId: string, body: string, mentionEmployeeIds?: string[]): Promise<boolean> => {
 			const editScope = taskDiscussionScope();
 			const comment = body.trim();
 			if (!editScope || comment.length === 0) {
 				return false;
 			}
 			try {
-				await commentService.update(commentId, { comment, mentionEmployeeIds }, editScope);
+				await commentService.update(
+					commentId,
+					mentionEmployeeIds ? { comment, mentionEmployeeIds } : { comment },
+					editScope
+				);
 			} catch {
 				return false;
 			}
@@ -191,7 +225,12 @@ export function useTaskComments(task: CommentedTask | null) {
 			try {
 				await commentService.softDelete(commentId, deleteScope);
 			} catch {
-				queryClient.setQueryData(key, previous);
+				// Only this comment comes back: another delete running meanwhile keeps its own hidden. The list is read
+				// again, so it ends as the platform has it.
+				queryClient.setQueryData<TaskCommentItem[]>(key, (current) =>
+					withCommentRestored(current, previous, commentId)
+				);
+				void refreshComments();
 				return null;
 			}
 			void refreshComments();
