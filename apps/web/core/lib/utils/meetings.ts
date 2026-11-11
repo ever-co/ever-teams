@@ -268,9 +268,9 @@ function isControlCharacter(character: string): boolean {
 function icsTextOf(value: string): string {
 	const escaped = value
 		.replace(/\\/g, '\\\\')
-		.replace(/;/g, '\\;')
-		.replace(/,/g, '\\,')
-		.replace(/\r\n|\r|\n/g, '\\n');
+		.replace(/;/g, String.raw`\;`)
+		.replace(/,/g, String.raw`\,`)
+		.replace(/\r\n|\r|\n/g, String.raw`\n`);
 	return Array.from(escaped)
 		.filter((character) => !isControlCharacter(character))
 		.join('');
