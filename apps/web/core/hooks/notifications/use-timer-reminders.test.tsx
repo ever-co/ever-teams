@@ -639,6 +639,26 @@ describe('useTimerReminders', () => {
 			expect(mockUpdate).not.toHaveBeenCalled();
 		});
 
+		it('takes over the mark after a reload within its window from when the reminder was shown', async () => {
+			// Ten hours in, on a threshold of a day: nothing due. The employee lowers it to nine hours: shown at once,
+			// although it came due an hour ago
+			jest.setSystemTime(STARTED_AT + 10 * HOUR);
+			mockSetting.current = { preferences: { timerReminderHours: 24 } };
+			const first = await renderReminders();
+			mockSetting.current = { preferences: { timerReminderHours: 9 } };
+			first.rerender({ timerStatus: RUNNING });
+			await advance(0);
+			expect(shownTitles()).toEqual(['notifications.TIMER_REMINDER.LONG_TITLE']);
+			// The tab is reloaded seconds later, before the platform filed its copy
+			first.unmount();
+			jest.setSystemTime(Date.now() + 5_000);
+			mockGetTimerReminders.mockResolvedValue([reminder(1, false, 'log-1', Date.now())]);
+
+			await renderReminders();
+
+			expect(mockUpdate).toHaveBeenCalledWith('reminder-1', markedRead);
+		});
+
 		it('asks for the copy for a while only when the platform files none (an older Gauzy, or its reminders off)', async () => {
 			await renderReminders();
 			await advance(HOUR);

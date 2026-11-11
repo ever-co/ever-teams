@@ -117,25 +117,27 @@ const TIMER_REMINDER_KEY = 'ever-teams:timer-reminder';
 
 /**
  * The run's record in this browser: `level`, the last reminder given (shown here, or left to the platform's email or
- * push), and `shown`, the last one this browser put in front of the person (a toast in sight, or a system
- * notification). A record written before `shown` existed shows nothing.
+ * push), `shown`, the last one this browser put in front of the person (a toast in sight, or a system notification),
+ * and `shownAt`, when. A record written before `shown` existed shows nothing.
  */
-function storedTimerReminder(runKey: string): { level: number; shown: number } {
+function storedTimerReminder(runKey: string): { level: number; shown: number; shownAt: number | null } {
 	try {
 		const stored = JSON.parse(window.localStorage.getItem(TIMER_REMINDER_KEY) ?? 'null') as {
 			run?: unknown;
 			level?: unknown;
 			shown?: unknown;
+			shownAt?: unknown;
 		} | null;
 		if (stored?.run !== runKey) {
-			return { level: 0, shown: 0 };
+			return { level: 0, shown: 0, shownAt: null };
 		}
 		return {
 			level: typeof stored.level === 'number' ? stored.level : 0,
-			shown: typeof stored.shown === 'number' ? stored.shown : 0
+			shown: typeof stored.shown === 'number' ? stored.shown : 0,
+			shownAt: typeof stored.shownAt === 'number' ? stored.shownAt : null
 		};
 	} catch {
-		return { level: 0, shown: 0 };
+		return { level: 0, shown: 0, shownAt: null };
 	}
 }
 
@@ -152,6 +154,11 @@ export function shownTimerReminderLevel(runKey: string): number {
 	return storedTimerReminder(runKey).shown;
 }
 
+/** When this browser showed the person the run's last reminder it showed, null when it showed none. */
+export function timerReminderShownAt(runKey: string): number | null {
+	return storedTimerReminder(runKey).shownAt;
+}
+
 /**
  * Notes a reminder of the run as given (shown, or left to the platform), and as shown when the person saw it, never
  * lower than one noted before it; only the current run is kept.
@@ -162,12 +169,14 @@ export function recordTimerReminder(
 	{ shown = false }: { shown?: boolean } = {}
 ): void {
 	const before = storedTimerReminder(runKey);
+	const isShownNow = shown && level >= before.shown;
 	const next = {
 		run: runKey,
 		level: Math.max(before.level, level),
-		shown: shown ? Math.max(before.shown, level) : before.shown
+		shown: isShownNow ? level : before.shown,
+		shownAt: isShownNow ? Date.now() : before.shownAt
 	};
-	if (next.level === before.level && next.shown === before.shown) {
+	if (next.level === before.level && next.shown === before.shown && next.shownAt === before.shownAt) {
 		return;
 	}
 	try {

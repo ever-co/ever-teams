@@ -22,9 +22,9 @@ import {
 	TIMER_REMINDER_MARK_MARGIN_UNSYNCED_MS,
 	TIMER_REMINDER_MARK_READ_RETRY_MS,
 	TIMER_REMINDER_MARK_READ_WINDOW_MS,
-	timerReminderDueAt,
 	timerReminderHoursOf,
 	timerReminderLevelAt,
+	timerReminderShownAt,
 	timerReminderToMarkRead,
 	timerRunOf,
 	wasRemindedByServer,
@@ -398,13 +398,11 @@ export function useTimerReminders({ timerStatus, stopTimer }: UseTimerRemindersI
 						shownHere.current.set(runKey, level);
 						// The tab that showed it may have closed or reloaded before it marked the copy: taken over, for a
 						// reminder this browser showed the person only, never one it left to the platform
-						const dueAt = timerReminderDueAt(
-							{ key: runKey, startedAt },
-							hours,
-							level as TimerReminderLevel
-						);
-						const wasShownHere = shownTimerReminderLevel(runKey) >= level;
-						if (isFirst && wasShownHere && Date.now() - dueAt < TIMER_REMINDER_MARK_READ_WINDOW_MS) {
+						// Within the mark's window from when the reminder was shown, which may be long after it came due
+						// (a threshold lowered while the timer ran)
+						const shownAt = timerReminderShownAt(runKey);
+						const wasShownHere = shownTimerReminderLevel(runKey) >= level && shownAt !== null;
+						if (isFirst && wasShownHere && Date.now() - shownAt < TIMER_REMINDER_MARK_READ_WINDOW_MS) {
 							markPlatformCopyRead(runKey, level as TimerReminderLevel, null);
 						}
 					} else {

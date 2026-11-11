@@ -7,6 +7,7 @@ import {
 	claimTimerReminder,
 	DEFAULT_TIMER_REMINDER_HOURS,
 	givenTimerReminderLevel,
+	timerReminderShownAt,
 	isWithinQuietHours,
 	nextTimerReminderAt,
 	quietHoursEndAfter,
@@ -108,6 +109,17 @@ describe('the reminders of a run', () => {
 		// Never lower than one noted before
 		recordTimerReminder('log-1', 1, { shown: true });
 		expect(shownTimerReminderLevel('log-1')).toBe(2);
+	});
+
+	it('keep when the person was shown the last reminder shown', () => {
+		window.localStorage.clear();
+		jest.spyOn(Date, 'now').mockReturnValue(Date.parse('2026-11-11T16:00:00Z'));
+		recordTimerReminder('log-1', 1);
+		expect(timerReminderShownAt('log-1')).toBeNull();
+
+		recordTimerReminder('log-1', 1, { shown: true });
+		expect(timerReminderShownAt('log-1')).toBe(Date.parse('2026-11-11T16:00:00Z'));
+		jest.restoreAllMocks();
 	});
 
 	it('read a record written before the shown level existed as shown nothing', () => {
