@@ -106,9 +106,40 @@ export function blockAtSelection(state: EditorState, types: ReadonlySet<string> 
 	return null;
 }
 
-/** Gives the listed blocks new anchors in `transaction`; answers whether it changed anything. */
-function stampAnchors(transaction: Transaction, positions: readonly number[]): boolean {
-	for (const pos of positions) transaction.setNodeAttribute(pos, BLOCK_ID_ATTRIBUTE, newBlockId());
+/**
+ * The block an Enter at the very start of a block left behind: an empty block of the same type right before the new
+ * one (`pos`), holding the anchor of a block that had text before the edit. The anchor belongs with the text, which is
+ * the new block now. Null when the block at `pos` is not such a case.
+ */
+export function splitAtStartOf(doc: ProseMirrorNode, previous: ProseMirrorNode, pos: number): { pos: number; blockId: string } | null {
+	const node = doc.nodeAt(pos);
+	if (!node || node.content.size === 0) return null;
+	const $pos = doc.resolve(pos);
+	const index = $pos.index();
+	if (index === 0) return null;
+	const before = $pos.parent.child(index - 1);
+	const blockId = before.attrs[BLOCK_ID_ATTRIBUTE];
+	if (before.type !== node.type || before.content.size > 0 || !isBlockId(blockId)) return null;
+	const earlier = blockOf(previous, blockId);
+	if (!earlier || earlier.node.content.size === 0) return null;
+	return { pos: pos - before.nodeSize, blockId };
+}
+
+/**
+ * Gives the listed blocks new anchors in `transaction`; answers whether it changed anything. A block split at its start
+ * hands its anchor to the part that kept the text, and the empty part takes the new one.
+ */
+function stampAnchors(transaction: Transaction, positions: readonly number[], previous: ProseMirrorNode): boolean {
+	const doc = transaction.doc;
+	for (const pos of positions) {
+		const split = splitAtStartOf(doc, previous, pos);
+		if (split) {
+			transaction.setNodeAttribute(pos, BLOCK_ID_ATTRIBUTE, split.blockId);
+			transaction.setNodeAttribute(split.pos, BLOCK_ID_ATTRIBUTE, newBlockId());
+		} else {
+			transaction.setNodeAttribute(pos, BLOCK_ID_ATTRIBUTE, newBlockId());
+		}
+	}
 	return positions.length > 0;
 }
 
@@ -164,7 +195,7 @@ export const BlockIds = Extension.create({
 						return moved.deleted ? null : moved.pos;
 					};
 					const transaction = state.tr.setMeta(blockIdPluginKey, true).setMeta('addToHistory', false);
-					return stampAnchors(transaction, blocksWithoutAnchor(state.doc, types, keeperOf)) ? transaction : null;
+					return stampAnchors(transaction, blocksWithoutAnchor(state.doc, types, keeperOf), previous.doc) ? transaction : null;
 				}
 			})
 		];

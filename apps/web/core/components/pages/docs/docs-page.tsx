@@ -28,6 +28,9 @@ import type { DocsTreeActions } from './docs-tree';
 
 export type DocsView = 'home' | 'page' | 'trash';
 
+/** Tailwind's `lg`, where the tree is a sidebar beside the page. */
+const DESKTOP_QUERY = '(min-width: 1024px)';
+
 /** The Docs pages: the tree pane and, beside it, the page, the trash, or the welcome. */
 export function DocsPage({ view }: Readonly<{ view: DocsView }>) {
 	const t = useTranslations();
@@ -68,12 +71,21 @@ export function DocsPage({ view }: Readonly<{ view: DocsView }>) {
 		const opener = document.activeElement instanceof HTMLElement ? document.activeElement : null;
 		const target = drawerRef.current?.querySelector<HTMLElement>('[aria-current="page"], a[href], button:not([disabled])');
 		target?.focus();
+		const close = () => setTreeDrawer((current) => ({ ...current, open: false }));
 		const onKeyDown = (event: KeyboardEvent) => {
-			if (event.key === 'Escape') setTreeDrawer((current) => ({ ...current, open: false }));
+			if (event.key === 'Escape') close();
+		};
+		// On a large screen the tree is the sidebar: the drawer (and the inert page) ends there.
+		const desktop = typeof window.matchMedia === 'function' ? window.matchMedia(DESKTOP_QUERY) : null;
+		if (desktop?.matches) close();
+		const onDesktop = (event: MediaQueryListEvent) => {
+			if (event.matches) close();
 		};
 		document.addEventListener('keydown', onKeyDown);
+		desktop?.addEventListener('change', onDesktop);
 		return () => {
 			document.removeEventListener('keydown', onKeyDown);
+			desktop?.removeEventListener('change', onDesktop);
 			if (opener?.isConnected) opener.focus();
 		};
 	}, [isTreeDrawerOpen]);

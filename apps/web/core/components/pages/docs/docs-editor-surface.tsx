@@ -188,6 +188,8 @@ export function DocsEditorSurface({
 		if (!current || current.isDestroyed) return null;
 		const anchored = anchorSelectionBlock(current.state);
 		if (!anchored) return null;
+		// A read-only editor (a live session that refuses edits) cannot keep a new anchor: the comment goes on the page.
+		if (anchored.transaction && !current.isEditable) return null;
 		if (anchored.transaction) {
 			// Giving the block its anchor is the person's edit: it is saved (or sent live) as any other.
 			touchedRef.current = true;

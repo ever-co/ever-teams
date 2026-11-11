@@ -5458,7 +5458,8 @@
 		"FORMATTING": "Formatierung",
 		"PALETTE_HEADING": "Seiten",
 		"EXPORT_UNSAVED": "Ihre letzten Änderungen sind noch nicht gespeichert, deshalb wurde nichts exportiert. Versuchen Sie es erneut, sobald die Seite „Gespeichert“ zeigt.",
-		"COMMENT_ANCHOR_UNSAVED": "Die Seite konnte nicht gespeichert werden, deshalb wurde der Kommentar nicht gesendet. Ihr Text bleibt erhalten."
+		"COMMENT_ANCHOR_UNSAVED": "Die Seite konnte nicht gespeichert werden, deshalb wurde der Kommentar nicht gesendet. Ihr Text bleibt erhalten.",
+		"COPY_ERROR": "Der Link konnte nicht kopiert werden."
 	},
 	"whatsNew": {
 		"TITLE": "Neuigkeiten",

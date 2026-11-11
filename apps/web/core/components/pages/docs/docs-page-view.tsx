@@ -406,10 +406,16 @@ export function DocsPageView({ pageId, tree, actions, spaces = NO_SPACES, onOpen
 
 	const copyText = useCallback(
 		(text: string) => {
-			navigator.clipboard
-				?.writeText(text)
+			// No clipboard (a page served without https) or a refused one: the person is told, never left with an old copy.
+			const clipboard = typeof navigator === 'undefined' ? undefined : navigator.clipboard;
+			if (!clipboard) {
+				toast.error(t('docs.COPY_ERROR'));
+				return;
+			}
+			clipboard
+				.writeText(text)
 				.then(() => toast(t('docs.LINK_COPIED')))
-				.catch(() => undefined);
+				.catch(() => toast.error(t('docs.COPY_ERROR')));
 		},
 		[t]
 	);

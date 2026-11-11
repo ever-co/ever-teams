@@ -5458,7 +5458,8 @@
 		"FORMATTING": "Formato",
 		"PALETTE_HEADING": "Páginas",
 		"EXPORT_UNSAVED": "Tus últimos cambios aún no se han guardado, así que no se exportó nada. Vuelve a intentarlo cuando la página diga Guardado.",
-		"COMMENT_ANCHOR_UNSAVED": "No se pudo guardar la página, así que el comentario no se publicó. Tu texto se conserva."
+		"COMMENT_ANCHOR_UNSAVED": "No se pudo guardar la página, así que el comentario no se publicó. Tu texto se conserva.",
+		"COPY_ERROR": "No se pudo copiar el enlace."
 	},
 	"whatsNew": {
 		"TITLE": "Novedades",

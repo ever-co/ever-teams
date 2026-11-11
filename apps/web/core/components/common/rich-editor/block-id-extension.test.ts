@@ -88,6 +88,17 @@ describe('block anchors', () => {
 		editor.destroy();
 	});
 
+	it('keeps the anchor on the text when a block is split at its start', () => {
+		const editor = editorWith({ type: 'doc', content: [paragraph('text', A)] });
+		editor.chain().setTextSelection(1).splitBlock().run();
+		expect(editor.state.doc.childCount).toBe(2);
+		expect(blockOf(editor.state.doc, A)?.node.textContent).toBe('text');
+		const ids = blockIdsOf(editor.state.doc);
+		expect(ids).toHaveLength(2);
+		expect(new Set(ids).size).toBe(2);
+		editor.destroy();
+	});
+
 	it('leaves the edits of a live session alone', () => {
 		const editor = editorWith({ type: 'doc', content: [paragraph('one')] });
 		editor.view.dispatch(editor.state.tr.insertText('!', 1).setMeta('y-sync$', { isChangeOrigin: true }));
