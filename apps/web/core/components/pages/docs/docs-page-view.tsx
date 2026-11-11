@@ -181,7 +181,9 @@ export function DocsPageView({ pageId, tree, actions, spaces = NO_SPACES }: Docs
 	);
 	const liveReadOnlyText = useLiveReadOnlyText(liveSnapshot?.readOnly ? liveSnapshot.readOnlyReason : null);
 
-	// The page's version while it was live: unsent text kept after live editing stops is written against it.
+	// The page's version when live editing began, never moved after: unsent text kept after live editing stops is written
+	// against it. A later clock (a refresh while the session was down) may stand for text this editor never received, and
+	// a save against it would overwrite that text; against this one, any change since meets the save as a conflict.
 	const liveClockRef = useRef<string | null>(null);
 	const { adoptDraft } = autosave;
 	const adoptedRef = useRef(false);
@@ -189,7 +191,7 @@ export function DocsPageView({ pageId, tree, actions, spaces = NO_SPACES }: Docs
 	const pageWritable = Boolean(page && !page.isArchived && !page.isLocked);
 	const unsentAtFallback = live.mode === 'fallback' && !live.rereading && Boolean(liveSnapshot?.unsentEdits);
 	useEffect(() => {
-		if (isLiveEditing) liveClockRef.current = pageClock;
+		if (isLiveEditing && liveClockRef.current === null) liveClockRef.current = pageClock;
 	}, [isLiveEditing, pageClock]);
 	useEffect(() => {
 		const content = liveContentRef.current;
