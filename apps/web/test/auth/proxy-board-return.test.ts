@@ -45,6 +45,7 @@ beforeEach(() => {
 
 afterEach(() => {
 	process.env = ORIGINAL_ENV;
+	jest.useRealTimers();
 	jest.restoreAllMocks();
 });
 
@@ -148,5 +149,74 @@ describe('proxy() on a sign-in page the Board app sent a signed-in person to', (
 
 		expect(response.status).toBe(200);
 		expect(response.headers.get('location')).toBeNull();
+	});
+
+	// Gauzy rotates the refresh token: a page sent before the refresh answers would leave the browser a dead one
+	it('waits for a token refresh already sent when the deadline passes, and gives the browser the rotated pair', async () => {
+		jest.useFakeTimers();
+		const freshToken = accessToken(3600, 'user-1-fresh');
+		mockRefresh.mockReturnValue(
+			new Promise((resolve) =>
+				setTimeout(
+					() => resolve({ data: { token: freshToken, refresh_token: 'rotated-refresh-token' } }),
+					9_000
+				)
+			)
+		);
+		mockCurrentUser.mockReturnValue(new Promise(() => undefined));
+
+		let answered = false;
+		const pending = proxy(
+			signInRequest(BOARD_ADDRESS, `auth-token=${accessToken(-3600)}; auth-refresh-token=refresh-token`)
+		).finally(() => (answered = true));
+		await jest.advanceTimersByTimeAsync(8_000);
+		expect(answered).toBe(false);
+
+		await jest.advanceTimersByTimeAsync(1_000);
+		const response = await pending;
+
+		expect(response.status).toBe(200);
+		expect(response.headers.get('location')).toBeNull();
+		expect(response.cookies.get('auth-token')?.value).toBe(freshToken);
+		expect(response.cookies.get('auth-refresh-token')?.value).toBe('rotated-refresh-token');
+	});
+
+	it('still opens the sign-in page, 15 s past the deadline, when a token refresh sent never answers', async () => {
+		jest.useFakeTimers();
+		mockRefresh.mockReturnValue(new Promise(() => undefined));
+
+		let answered = false;
+		const pending = proxy(
+			signInRequest(BOARD_ADDRESS, `auth-token=${accessToken(-3600)}; auth-refresh-token=refresh-token`)
+		).finally(() => (answered = true));
+		await jest.advanceTimersByTimeAsync(22_000);
+		expect(answered).toBe(false);
+
+		await jest.advanceTimersByTimeAsync(1_000);
+		const response = await pending;
+
+		expect(response.status).toBe(200);
+		expect(response.headers.get('location')).toBeNull();
+	});
+
+	it('starts no token refresh once the deadline has passed', async () => {
+		jest.useFakeTimers();
+		// The API refuses the session check at 5.5 s and fails the first refresh at 7.9 s: its retry would come at 8 s
+		mockCurrentUser.mockReturnValue(
+			new Promise((_, reject) => setTimeout(() => reject({ statusCode: 503, message: 'Unavailable' }), 5_500))
+		);
+		mockRefresh.mockReturnValue(
+			new Promise((_, reject) => setTimeout(() => reject({ statusCode: 500, message: 'Server error' }), 7_900))
+		);
+
+		const pending = proxy(
+			signInRequest(BOARD_ADDRESS, `auth-token=${accessToken()}; auth-refresh-token=refresh-token`)
+		);
+		await jest.advanceTimersByTimeAsync(9_000);
+		const response = await pending;
+
+		expect(response.status).toBe(200);
+		expect(response.headers.get('location')).toBeNull();
+		expect(mockRefresh).toHaveBeenCalledTimes(1);
 	});
 });
