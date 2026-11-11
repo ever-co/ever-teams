@@ -89,20 +89,7 @@ describe('scheduled meetings', () => {
 		expect(isRoomTokenStale(null, issuedAt + 60 * 60_000)).toBe(false);
 	});
 
-	it('keeps the whole seventh day in the agenda across a change of the clock (daylight saving)', () => {
-		const zone = process.env.TZ;
-		process.env.TZ = 'Europe/Paris';
-		try {
-			// Paris leaves summer time on 25 October 2026: that day lasts 25 hours
-			const late = meeting('late', '2026-10-28T23:30:00', '2026-10-28T23:45:00');
-			const agenda = agendaOf([late], new Date('2026-10-22T12:00:00'));
-
-			expect(agenda.flatMap(({ meetings }) => meetings.map(({ id }) => id))).toContain('late');
-		} finally {
-			if (zone === undefined) delete process.env.TZ;
-			else process.env.TZ = zone;
-		}
-	});
+	// Across a change of the clock: meetings-agenda-dst.test.ts, in an environment with daylight saving
 
 	it('lays out the agenda by day: today always, its ended meetings kept, then the next days that hold one', () => {
 		const agenda = agendaOf(
