@@ -84,3 +84,14 @@ export async function unwrapRejection(error: unknown): Promise<unknown> {
 		return error_;
 	}
 }
+
+/** Gauzy's HTTP status in an unwrapped serverFetch rejection, or undefined when the API gave no error answer. */
+export function apiErrorStatusOf(error: unknown): number | undefined {
+	const statusCode = (error as { statusCode?: unknown } | null | undefined)?.statusCode;
+	// NextResponse refuses a status outside 200-599 (RangeError): such a body is no usable HTTP error status
+	const isErrorStatus = typeof statusCode === 'number' && statusCode >= 400 && statusCode <= 599;
+	if (!isErrorStatus) {
+		return undefined;
+	}
+	return statusCode;
+}

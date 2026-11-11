@@ -62,6 +62,30 @@ describe('POST /api/tags/bulk', () => {
 		expect(JSON.parse(String(init.body))).toEqual({ items });
 	});
 
+	it("answers Gauzy's refusal with its status, so the client files the labels one by one on an older API", async () => {
+		const notFound = { statusCode: 404, message: 'Cannot POST /api/tags/bulk', error: 'Not Found' };
+		fetchMock.mockResolvedValue(Response.json(notFound, { status: 404 }));
+		const request = new Request('https://app.ever.team/api/tags/bulk', {
+			method: 'POST',
+			body: JSON.stringify({ items })
+		});
+
+		const response = await POST(request);
+
+		expect(response.status).toBe(404);
+		expect(await response.json()).toEqual(notFound);
+	});
+
+	it('still fails when Gauzy cannot be reached', async () => {
+		fetchMock.mockRejectedValue(new TypeError('fetch failed'));
+		const request = new Request('https://app.ever.team/api/tags/bulk', {
+			method: 'POST',
+			body: JSON.stringify({ items })
+		});
+
+		await expect(POST(request)).rejects.toThrow('fetch failed');
+	});
+
 	it('refuses a request without a session', async () => {
 		mockAuthenticatedGuard.mockResolvedValue({ $res: jest.fn(), user: null, status: 401 });
 		const request = new Request('https://app.ever.team/api/tags/bulk', {

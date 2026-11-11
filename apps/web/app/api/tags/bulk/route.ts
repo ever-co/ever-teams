@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server';
+import { apiErrorStatusOf, unwrapRejection } from '@/core/services/server/fetch';
 import { authenticatedGuard } from '@/core/services/server/guards/authenticated-guard-app';
 import { createLabelsBulkRequest } from '@/core/services/server/requests/task-labels';
 import { ITagCreate } from '@/core/types/interfaces/tag/tag';
@@ -12,7 +13,18 @@ export async function POST(req: Request) {
 
 	if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: status ?? 401 });
 
-	const response = await createLabelsBulkRequest(body?.items ?? [], access_token || '', tenantId);
+	try {
+		const response = await createLabelsBulkRequest(body?.items ?? [], access_token || '', tenantId);
 
-	return $res(response.data);
+		return $res(response.data);
+	} catch (error) {
+		// Gauzy's refusal goes back with its status, not as a 500: an API without the bulk route answers 404, which
+		// tells the client to file the labels one by one. Anything else is rethrown.
+		const apiError = await unwrapRejection(error);
+		const apiStatus = apiErrorStatusOf(apiError);
+		if (apiStatus === undefined) {
+			throw error;
+		}
+		return NextResponse.json(apiError, { status: apiStatus });
+	}
 }
