@@ -46,7 +46,7 @@ function liveStatusOnce(now = Date.now()): Promise<DocsLiveStatus> {
 }
 
 /** What the page view renders from a page's live session. */
-export interface DocsLiveView {
+interface DocsLiveView {
 	/** `off`: no live editing here (the flag, no socket, a folder, the trash); the autosave edits the page. */
 	mode: 'off' | DocsLiveState;
 	snapshot: DocsLiveSnapshot | null;

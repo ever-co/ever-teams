@@ -5,11 +5,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { queryKeys } from '@/core/query/keys';
 import { docsService } from '@/core/services/client/api/docs';
 import { ApiErrorService } from '@/core/services/client/api-error.service';
-import {
-	EDocumentSpaceKind,
-	type IDocumentFollowState,
-	type IDocumentSpace
-} from '@/core/types/interfaces/common/docs';
+import type { IDocumentFollowState, IDocumentSpace } from '@/core/types/interfaces/common/docs';
 import { useDocsScope } from './use-docs-scope';
 
 /** The spaces change rarely (a team joined or left); the tree refreshes them with the window's focus. */
@@ -45,7 +41,7 @@ export function useDocsSpaces(enabled: boolean): DocsSpacesState {
 	const teamSpaces = useMemo(
 		() =>
 			(query.data ?? [])
-				.filter((space) => space.kind === EDocumentSpaceKind.TEAM && space.organizationTeamId)
+				.filter((space) => space.kind === 'team' && space.organizationTeamId)
 				.sort((a, b) => (a.name ?? '').localeCompare(b.name ?? '')),
 		[query.data]
 	);

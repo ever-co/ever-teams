@@ -20,15 +20,11 @@ export enum EDocumentVisibility {
 }
 
 /** The spaces of the tree: the organization's, one per team the reader is in, and the reader's private one. */
-export enum EDocumentSpaceKind {
-	ORGANIZATION = 'organization',
-	TEAM = 'team',
-	PRIVATE = 'private'
-}
+export type TDocumentSpaceKind = 'organization' | 'team' | 'private';
 
 /** A space of the tree as the reader sees it (`GET /plugins/docs/documents/spaces`). */
 export interface IDocumentSpace {
-	kind: EDocumentSpaceKind;
+	kind: TDocumentSpaceKind;
 	/** The team of a team space. */
 	organizationTeamId?: string | null;
 	name: string;

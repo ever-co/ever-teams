@@ -5,13 +5,13 @@ import type { DocsLiveSink, DocsLiveTransport } from './binding';
 import { DOCUMENT_LIVE_SUBSCRIPTION, type DocsLiveFrame, type DocsLiveStatus } from './protocol';
 
 /** The platform's live routes, through the app's own HTTP client (both transports, the proxy or the platform). */
-export interface DocsLiveHttp {
+interface DocsLiveHttp {
 	status(): Promise<DocsLiveStatus>;
 	sendUpdate(documentId: string, input: { connectionId: string; update: string }): Promise<unknown>;
 	sendAwareness(documentId: string, input: { connectionId: string; awareness: string }): Promise<unknown>;
 }
 
-export interface DocsLiveTransportOptions {
+interface DocsLiveTransportOptions {
 	/** The platform's GraphQL socket, the one `collaborationEvents` uses (`realtimeSocketUrl`). */
 	socketUrl: string;
 	/** The credential and scope the real-time client presents; `null` when signed out. */

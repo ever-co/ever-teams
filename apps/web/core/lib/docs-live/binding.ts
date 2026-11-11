@@ -23,7 +23,7 @@ import {
 import { unknownTypesInFragment, unknownTypesInUpdate, type DocsLiveSchemaTypes } from './schema-guard';
 
 /** The origin of everything the platform sent: never sent back. */
-export const DOCS_LIVE_REMOTE = Symbol('docs-live-remote');
+const DOCS_LIVE_REMOTE = Symbol('docs-live-remote');
 
 /**
  * Where a page's live session stands.
@@ -107,13 +107,13 @@ export interface DocsLiveMemory {
 }
 
 /** What the binding reads of a refusal: its HTTP status and the platform's code. */
-export interface DocsLiveErrorInfo {
+interface DocsLiveErrorInfo {
 	status: number | null;
 	code: string | null;
 	reason?: string | null;
 }
 
-export interface DocsLiveBindingOptions {
+interface DocsLiveBindingOptions {
 	documentId: string;
 	/** This tab's connection (see `newConnectionId`). */
 	connectionId: string;
@@ -134,7 +134,7 @@ export interface DocsLiveBindingOptions {
 }
 
 /** The fields `ApiErrorService` carries (status, the platform's `code`, details with the read-only reason). */
-export function defaultErrorInfo(error: unknown): DocsLiveErrorInfo {
+function defaultErrorInfo(error: unknown): DocsLiveErrorInfo {
 	const value = (error ?? {}) as {
 		statusCode?: unknown;
 		status?: unknown;
@@ -155,7 +155,7 @@ export function defaultErrorInfo(error: unknown): DocsLiveErrorInfo {
 }
 
 /** Whether an update carries anything (an encoding of nothing is a few bytes long, not empty). */
-export function carriesChanges(update: Uint8Array): boolean {
+function carriesChanges(update: Uint8Array): boolean {
 	const { structs, ds } = Y.decodeUpdate(update);
 	return structs.length > 0 || ds.clients.size > 0;
 }
