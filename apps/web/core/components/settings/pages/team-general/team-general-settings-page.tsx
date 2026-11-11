@@ -57,7 +57,7 @@ function TeamGeneralContent() {
 				team={team}
 				canEdit={canEdit}
 				ownTracking={settings.ownTracking}
-				hasOwnMembership={settings.hasOwnMembership}
+				canTurnOwnTracking={settings.canTurnOwnTracking}
 				setOwnTracking={settings.setOwnTracking}
 				setShareProfileView={settings.setShareProfileView}
 				setRequirePlanToTrack={settings.setRequirePlanToTrack}

@@ -36,6 +36,7 @@ class OrganizationTeamService extends APIService {
 			'members.role',
 			'members.employee',
 			'members.employee.user',
+			'members.employee.user.role',
 			'createdByUser',
 			'projects',
 			'projects.customFields.repository'
@@ -204,6 +205,7 @@ class OrganizationTeamService extends APIService {
 			'members.role',
 			'members.employee',
 			'members.employee.user',
+			'members.employee.user.role',
 			'createdByUser',
 			'projects',
 			'projects.customFields.repository'
@@ -407,6 +409,7 @@ class OrganizationTeamService extends APIService {
 			'members.role',
 			'members.employee',
 			'members.employee.user',
+			'members.employee.user.role',
 			'createdByUser',
 			'projects',
 			'projects.customFields.repository'

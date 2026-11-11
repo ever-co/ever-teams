@@ -12,11 +12,12 @@ import { errorReasonKeyOf } from '@/core/lib/utils/error-feedback';
 import { useImageAssets } from '@/core/hooks/common/use-image-assets';
 import { useEditOrganizationTeam } from '@/core/hooks/organizations/teams/use-edit-organization-team';
 import { useGetActiveTeam } from '@/core/hooks/organizations/teams/use-get-active-team';
-import { useOrganizationEmployeeTeams } from '@/core/hooks/organizations/teams/use-organization-teams-employee';
 import { useIsMemberManager } from '@/core/hooks/organizations/teams/use-team-member';
 import { useUserQuery } from '@/core/hooks/queries/user-user.query';
+import { useMemberTrackingSwitch } from '@/core/hooks/settings/use-member-tracking-switch';
 import type { TOrganizationTeamUpdate } from '@/core/types/schemas';
 import { setActiveProjectIdCookie } from '@/core/lib/helpers/cookies';
+import { canMemberTrackTime } from '@/core/lib/helpers/team-member-tracking';
 
 export const TEAM_AVATAR_FOLDER = 'organization_teams_avatars';
 
@@ -31,7 +32,7 @@ export function useTeamGeneralSettings() {
 	const { isTeamManager, activeManager } = useIsMemberManager(user);
 	const { editOrganizationTeam } = useEditOrganizationTeam({ toastOnError: false });
 	const { createImageAssets } = useImageAssets();
-	const { updateOrganizationTeamEmployee } = useOrganizationEmployeeTeams();
+	const { mayTurnTracking, saveMemberTracking } = useMemberTrackingSwitch();
 	const teamId = activeTeam?.id;
 
 	const showFailure = useCallback(
@@ -178,28 +179,27 @@ export function useTeamGeneralSettings() {
 		[saveTeamRule]
 	);
 
-	const ownMemberRowId = activeManager?.id;
-	const ownOrganizationId = activeManager?.organizationId;
+	// The user's own row as a manager of the team. Only an admin may switch their own tracking: a manager waits for one
+	const canTurnOwnTracking = activeManager ? mayTurnTracking(activeManager) : false;
 
+	// The same save as the Members settings: the team switch, and the employee one when this user may write it
 	const setOwnTracking = useCallback(
 		async (enabled: boolean) => {
-			if (!ownMemberRowId || !teamId) {
+			const team = getActiveTeam();
+			if (!activeManager || !team) {
 				throw new Error('No membership row');
 			}
-			await updateOrganizationTeamEmployee(ownMemberRowId, {
-				organizationId: ownOrganizationId,
-				organizationTeamId: teamId,
-				isTrackingEnabled: enabled
-			});
+			await saveMemberTracking(team, activeManager, enabled);
 		},
-		[ownMemberRowId, ownOrganizationId, teamId, updateOrganizationTeamEmployee]
+		[activeManager, getActiveTeam, saveMemberTracking]
 	);
 
 	return {
 		activeTeam,
 		isTeamManager,
-		ownTracking: activeManager?.isTrackingEnabled ?? false,
-		hasOwnMembership: Boolean(ownMemberRowId),
+		// Whether the user can track here: Gauzy checks their switch in the team and their own (employee) switch
+		ownTracking: activeManager ? canMemberTrackTime(activeManager) : false,
+		canTurnOwnTracking,
 		saveName,
 		saveColor,
 		saveEmoji,

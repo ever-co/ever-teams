@@ -43,7 +43,8 @@ interface TeamTrackingSectionProps {
 	team: TOrganizationTeam;
 	canEdit: boolean;
 	ownTracking: boolean;
-	hasOwnMembership: boolean;
+	/** The user has a row in the team and may switch their own tracking there: only an admin may. */
+	canTurnOwnTracking: boolean;
 	setOwnTracking: (enabled: boolean) => Promise<void>;
 	setShareProfileView: (enabled: boolean) => Promise<void>;
 	setRequirePlanToTrack: (enabled: boolean) => Promise<void>;
@@ -53,7 +54,7 @@ export function TeamTrackingSection({
 	team,
 	canEdit,
 	ownTracking,
-	hasOwnMembership,
+	canTurnOwnTracking,
 	setOwnTracking,
 	setShareProfileView,
 	setRequirePlanToTrack
@@ -61,7 +62,7 @@ export function TeamTrackingSection({
 	const t = useTranslations();
 	const sharesProfiles = Boolean(team.shareProfileView);
 	const requiresPlan = Boolean(team.requirePlanToTrack);
-	const showsOwnTracking = canEdit && hasOwnMembership;
+	const showsOwnTracking = canEdit && canTurnOwnTracking;
 
 	if (!canEdit) {
 		return (

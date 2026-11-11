@@ -138,6 +138,7 @@ export function getOrganizationTeamRequest(
 			'members.role',
 			'members.employee',
 			'members.employee.user',
+			'members.employee.user.role',
 			'createdByUser',
 			'projects',
 			'projects.customFields.repository'
@@ -185,6 +186,7 @@ export function getAllOrganizationTeamRequest(
 			'members.role',
 			'members.employee',
 			'members.employee.user',
+			'members.employee.user.role',
 			'createdByUser',
 			'projects',
 			'projects.customFields.repository'
