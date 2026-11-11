@@ -3581,7 +3581,7 @@
 				"TITLE": "Control de tiempo",
 				"INTRO": "Un recordatorio cuando un temporizador lleva mucho tiempo en marcha, y otro al doble si sigue.",
 				"LABEL": "Recordatorio de temporizador prolongado",
-				"TEXT": "En la aplicación mientras está abierta; si no, en tu bandeja de entrada, y por correo y en tus dispositivos según elijas.",
+				"TEXT": "En la aplicación mientras está abierta, y siempre en tu bandeja de entrada. Por correo y en tus dispositivos según elijas, salvo que ya hayas visto el recordatorio en la aplicación.",
 				"OFF": "Desactivado",
 				"AFTER_HOURS": "Después de {hours, plural, one {# hora} other {# horas}}"
 			},

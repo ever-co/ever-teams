@@ -3581,7 +3581,7 @@
 				"TITLE": "Suivi du temps",
 				"INTRO": "Un rappel quand un chronomètre a longtemps tourné, et un autre au double de cette durée s’il tourne encore.",
 				"LABEL": "Rappel de chronomètre prolongé",
-				"TEXT": "Dans l’application tant qu’elle est ouverte ; sinon dans votre boîte de réception, et par e-mail et sur vos appareils selon vos choix.",
+				"TEXT": "Dans l’application tant qu’elle est ouverte, et toujours dans votre boîte de réception. Par e-mail et sur vos appareils selon vos choix, sauf si vous avez déjà vu le rappel dans l’application.",
 				"OFF": "Désactivé",
 				"AFTER_HOURS": "Après {hours, plural, one {# heure} other {# heures}}"
 			},

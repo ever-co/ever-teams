@@ -3581,7 +3581,7 @@
 				"TITLE": "Monitoraggio del tempo",
 				"INTRO": "Un promemoria quando un timer è in funzione da molto, e un altro al doppio se continua.",
 				"LABEL": "Promemoria per timer prolungato",
-				"TEXT": "Nell’app mentre è aperta; altrimenti nella tua posta in arrivo, e via email e sui tuoi dispositivi come scegli.",
+				"TEXT": "Nell’app mentre è aperta, e sempre nella tua posta in arrivo. Via email e sui tuoi dispositivi come scegli, a meno che tu non abbia già visto il promemoria nell’app.",
 				"OFF": "Disattivato",
 				"AFTER_HOURS": "Dopo {hours, plural, one {# ora} other {# ore}}"
 			},

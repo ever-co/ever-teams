@@ -3581,7 +3581,7 @@
 				"TITLE": "Tijdregistratie",
 				"INTRO": "Een herinnering wanneer een timer lang loopt, en nog een bij het dubbele als hij doorloopt.",
 				"LABEL": "Herinnering bij lang lopende timer",
-				"TEXT": "In de app zolang die open is; anders in je inbox, en per e-mail en op je apparaten zoals je kiest.",
+				"TEXT": "In de app zolang die open is, en altijd in je inbox. Per e-mail en op je apparaten zoals je kiest, tenzij je de herinnering al in de app hebt gezien.",
 				"OFF": "Uit",
 				"AFTER_HOURS": "Na {hours, plural, one {# uur} other {# uur}}"
 			},

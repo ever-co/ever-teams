@@ -3581,7 +3581,7 @@
 				"TITLE": "Zeiterfassung",
 				"INTRO": "Eine Erinnerung, wenn ein Timer lange läuft, und noch eine beim Doppelten, falls er weiterläuft.",
 				"LABEL": "Erinnerung bei lange laufendem Timer",
-				"TEXT": "In der App, solange sie geöffnet ist; sonst in deinem Posteingang und, wie du es wählst, per E-Mail und auf deinen Geräten.",
+				"TEXT": "In der App, solange sie geöffnet ist, und immer in deinem Posteingang. Per E-Mail und auf deinen Geräten, wie du es wählst, es sei denn, du hast die Erinnerung schon in der App gesehen.",
 				"OFF": "Aus",
 				"AFTER_HOURS": "Nach {hours, plural, one {# Stunde} other {# Stunden}}"
 			},

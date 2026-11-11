@@ -3581,7 +3581,7 @@
 				"TITLE": "Registo de tempo",
 				"INTRO": "Um lembrete quando um temporizador está a correr há muito tempo, e outro ao dobro se continuar.",
 				"LABEL": "Lembrete de temporizador prolongado",
-				"TEXT": "Na aplicação enquanto está aberta; caso contrário, na sua caixa de entrada, e por e-mail e nos seus dispositivos conforme escolher.",
+				"TEXT": "Na aplicação enquanto está aberta, e sempre na sua caixa de entrada. Por e-mail e nos seus dispositivos conforme escolher, a menos que já tenha visto o lembrete na aplicação.",
 				"OFF": "Desativado",
 				"AFTER_HOURS": "Após {hours, plural, one {# hora} other {# horas}}"
 			},

@@ -3581,7 +3581,7 @@
 				"TITLE": "Śledzenie czasu",
 				"INTRO": "Przypomnienie, gdy licznik czasu działa długo, i kolejne po dwukrotnie dłuższym czasie, jeśli nadal działa.",
 				"LABEL": "Przypomnienie o długo działającym liczniku",
-				"TEXT": "W aplikacji, gdy jest otwarta; w przeciwnym razie w Twojej skrzynce, a także e-mailem i na Twoich urządzeniach, zgodnie z Twoim wyborem.",
+				"TEXT": "W aplikacji, gdy jest otwarta, i zawsze w Twojej skrzynce. E-mailem i na Twoich urządzeniach, zgodnie z Twoim wyborem, chyba że przypomnienie zostało już wyświetlone w aplikacji.",
 				"OFF": "Wyłączone",
 				"AFTER_HOURS": "Po {hours, plural, one {# godzinie} other {# godzinach}}"
 			},
