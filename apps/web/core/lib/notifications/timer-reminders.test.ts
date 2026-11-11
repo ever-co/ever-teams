@@ -107,6 +107,18 @@ describe('the claim of a reminder', () => {
 		expect(shownTimerReminderLevel('log-1')).toBe(1);
 	});
 
+	it('is not given once a later reminder of the run was, and never takes the run back to a lower one', async () => {
+		// A hidden tab waits to claim the first reminder; meanwhile a tab with a shorter threshold gave the second
+		const hidden = claimTimerReminder('log-1', 1, false);
+		recordTimerReminder('log-1', 2);
+
+		await expect(settled(hidden)).resolves.toBe(false);
+		expect(shownTimerReminderLevel('log-1')).toBe(2);
+
+		recordTimerReminder('log-1', 1);
+		expect(shownTimerReminderLevel('log-1')).toBe(2);
+	});
+
 	it('is never given again for the run, even once the claim the tabs share has expired', async () => {
 		await expect(settled(claimTimerReminder('log-1', 1, true))).resolves.toBe(true);
 		jest.advanceTimersByTime(TAB_CLAIM_TTL_MS + 1);

@@ -67,7 +67,13 @@ interface UseTimerRemindersInput {
 export function useTimerReminders({ timerStatus, stopTimer }: UseTimerRemindersInput) {
 	const t = useTranslations();
 	const router = useRouter();
-	const { setting, isLoading: isSettingLoading, isError: isSettingError } = useNotificationSettings();
+	const {
+		setting,
+		isAvailable: isSettingAvailable,
+		isLoading: isSettingLoading,
+		isError: isSettingError,
+		isSavingPreferences
+	} = useNotificationSettings();
 	const preferences = setting?.preferences;
 	const hours = timerReminderHoursOf(preferences);
 	const run = timerRunOf(timerStatus);
@@ -82,10 +88,12 @@ export function useTimerReminders({ timerStatus, stopTimer }: UseTimerRemindersI
 	// The system notifications this tab raised, by reminder: withdrawn with their run, or by the next reminder
 	const systemNotifications = useRef(new Map<string, Notification>());
 
-	// Until the employee's threshold is read, the default could remind of a timer they gave more time. A read that
-	// failed says nothing of it either, unless an earlier one answered with their row; an answer without a saved row is
-	// a read: the default applies.
-	const isThresholdKnown = !isSettingLoading && (!isSettingError || setting !== null);
+	// Until the employee's threshold is read, the default could remind of a timer they gave more time: nothing is read
+	// before the workspace is known, and a read that failed says nothing of it either, unless an earlier one answered
+	// with their row (an answer without a saved row is a read: the default applies). A threshold being saved is shown
+	// before Gauzy took it, and a refusal puts the former one back: it is used once the save is over.
+	const isThresholdKnown =
+		isSettingAvailable && !isSettingLoading && !isSavingPreferences && (!isSettingError || setting !== null);
 
 	useEffect(() => {
 		if (!isThresholdKnown || !runKey || startedAt === undefined || hours === null) {

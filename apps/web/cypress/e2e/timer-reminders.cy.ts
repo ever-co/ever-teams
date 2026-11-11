@@ -73,6 +73,7 @@ describe('long-running timer reminders', () => {
 			state.requests.filter((request) => request.path === '/api/employee-notification-setting');
 		mockStateWhen((state) => hasRead(state, '/api/timesheet/timer/status') && settingReads(state).length >= 2).then(
 			(state) => {
+				expect(settingReads(state).length, 'preference reads').to.be.at.least(2);
 				expect(settingReads(state).every((request) => request.status === 500)).to.equal(true);
 			}
 		);

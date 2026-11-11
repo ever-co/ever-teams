@@ -8,7 +8,7 @@ import { act, renderHook } from '@testing-library/react';
 const mockToast = { warning: jest.fn(), dismiss: jest.fn() };
 const mockPush = jest.fn();
 const mockSetting = { current: { preferences: {} } as { preferences: Record<string, unknown> } | null };
-const mockSettingRead = { isLoading: false, isError: false };
+const mockSettingRead = { isAvailable: true, isLoading: false, isError: false, isSavingPreferences: false };
 
 jest.mock('sonner', () => ({
 	toast: {
@@ -25,7 +25,7 @@ jest.mock('@/core/hooks/notifications/use-notification-settings', () => ({
 	useNotificationSettings: () => ({ setting: mockSetting.current, ...mockSettingRead })
 }));
 
-import { TIMER_REMINDER_HIDDEN_YIELD_MS } from '@/core/lib/notifications/timer-reminders';
+import { shownTimerReminderLevel, TIMER_REMINDER_HIDDEN_YIELD_MS } from '@/core/lib/notifications/timer-reminders';
 import type { ITimerStatus } from '@/core/types/interfaces/timer/timer-status';
 import { timerReminderIdOf, useTimerReminders } from './use-timer-reminders';
 
@@ -61,8 +61,10 @@ describe('useTimerReminders', () => {
 		mockToast.dismiss.mockReset();
 		mockPush.mockReset();
 		mockSetting.current = { preferences: {} };
+		mockSettingRead.isAvailable = true;
 		mockSettingRead.isLoading = false;
 		mockSettingRead.isError = false;
+		mockSettingRead.isSavingPreferences = false;
 		window.localStorage.clear();
 		visibility = 'visible';
 		jest.spyOn(document, 'visibilityState', 'get').mockImplementation(() => visibility);
@@ -148,6 +150,48 @@ describe('useTimerReminders', () => {
 		await advance(0);
 		expect(mockToast.warning).toHaveBeenCalledTimes(1);
 		expect(mockToast.warning.mock.calls[0][0]).toContain('{"hours":10}');
+	});
+
+	it('reads no threshold before the workspace is known: the default could be too early', async () => {
+		jest.setSystemTime(STARTED_AT + 9 * HOUR);
+		mockSettingRead.isAvailable = false;
+		mockSetting.current = null;
+		const { rerender } = await renderReminders();
+		await advance(HOUR);
+		expect(mockToast.warning).not.toHaveBeenCalled();
+
+		// The workspace is known and its read answers: their own threshold, twelve hours
+		mockSettingRead.isAvailable = true;
+		mockSetting.current = { preferences: { timerReminderHours: 12 } };
+		rerender({ timerStatus: RUNNING });
+		await advance(0);
+		expect(mockToast.warning).not.toHaveBeenCalled();
+	});
+
+	it('reminds from a threshold being saved only once Gauzy took it', async () => {
+		jest.setSystemTime(STARTED_AT + 3 * HOUR);
+		const { rerender } = await renderReminders();
+
+		// Two hours chosen: shown at once, while the save is still on its way
+		mockSetting.current = { preferences: { timerReminderHours: 2 } };
+		mockSettingRead.isSavingPreferences = true;
+		rerender({ timerStatus: RUNNING });
+		await advance(0);
+		expect(mockToast.warning).not.toHaveBeenCalled();
+
+		// Refused: the eight hours come back, and no reminder of the run was noted on the way
+		mockSetting.current = { preferences: {} };
+		mockSettingRead.isSavingPreferences = false;
+		rerender({ timerStatus: RUNNING });
+		await advance(0);
+		expect(mockToast.warning).not.toHaveBeenCalled();
+		expect(shownTimerReminderLevel('log-1')).toBe(0);
+
+		// Saved: reminded at once, on two hours
+		mockSetting.current = { preferences: { timerReminderHours: 2 } };
+		rerender({ timerStatus: RUNNING });
+		await advance(0);
+		expect(mockToast.warning.mock.calls[0][0]).toContain('{"hours":2}');
 	});
 
 	it('keeps the threshold an earlier read answered when a later read fails', async () => {

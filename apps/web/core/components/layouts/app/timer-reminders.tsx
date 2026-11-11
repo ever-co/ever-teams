@@ -44,12 +44,23 @@ export function TimerReminders({ stopTimer, employeeId, runsPastMidnight }: Read
 
 	// The day's status says stopped, so the owner's stop would do nothing: the reminder stops that run itself
 	const pastMidnightSource = pastMidnightLog?.source ?? ETimeLogSource.TEAMS;
+	const pastMidnightRunId = pastMidnightLog?.id;
 	const stopPastMidnight = useCallback(async () => {
 		try {
 			await timerService.stopTimer({ source: pastMidnightSource });
 		} catch (error) {
 			// 406: another tab or device stopped it first
-			if (!(ApiErrorService.isApiError(error) && error.hasHttpResponseStatus(406))) {
+			if (ApiErrorService.isApiError(error) && error.hasHttpResponseStatus(406)) {
+				return;
+			}
+			// The stop may have landed although the answer failed (the status read that follows it): the run's last log
+			// says whether it still runs. A read that fails too leaves the failure standing, as the owner's stop does.
+			const lastLogNow = await queryClient
+				.fetchQuery({ ...lastTimerLogQuery(employeeId), staleTime: 0 })
+				.catch(() => undefined);
+			const stillRuns =
+				lastLogNow === undefined || (isRunningTeamsLog(lastLogNow) && lastLogNow.id === pastMidnightRunId);
+			if (stillRuns) {
 				toast.error(t('toasts.timer.STOP_FAILED'), {
 					id: 'timer-stop-failed',
 					description: t(errorReasonKeyOf(error) as DottedLanguageObjectStringPaths)
@@ -58,7 +69,7 @@ export function TimerReminders({ stopTimer, employeeId, runsPastMidnight }: Read
 		} finally {
 			await queryClient.invalidateQueries({ queryKey: queryKeys.timer.all });
 		}
-	}, [pastMidnightSource, queryClient, t]);
+	}, [employeeId, pastMidnightRunId, pastMidnightSource, queryClient, t]);
 
 	useTimerReminders({ timerStatus, stopTimer: pastMidnightLog ? stopPastMidnight : stopTimer });
 	return null;

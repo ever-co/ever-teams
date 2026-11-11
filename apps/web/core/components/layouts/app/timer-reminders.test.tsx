@@ -10,13 +10,17 @@ import type { ReactNode } from 'react';
 
 const mockReminders = jest.fn();
 const mockStopTimer = jest.fn();
+const mockGetLastTimerLog = jest.fn();
 const mockToastError = jest.fn();
 
 jest.mock('@/core/hooks/notifications/use-timer-reminders', () => ({
 	useTimerReminders: (input: unknown) => mockReminders(input)
 }));
 jest.mock('@/core/services/client/api/timers/timer.service', () => ({
-	timerService: { stopTimer: (...args: unknown[]) => mockStopTimer(...args), getLastTimerLog: jest.fn() }
+	timerService: {
+		stopTimer: (...args: unknown[]) => mockStopTimer(...args),
+		getLastTimerLog: (...args: unknown[]) => mockGetLastTimerLog(...args)
+	}
 }));
 jest.mock('sonner', () => ({ toast: { error: (...args: unknown[]) => mockToastError(...args) } }));
 jest.mock('next-intl', () => ({ useTranslations: () => (key: string) => key }));
@@ -72,8 +76,12 @@ describe('TimerReminders', () => {
 	beforeEach(() => {
 		mockReminders.mockReset();
 		mockStopTimer.mockReset().mockResolvedValue({ data: { running: false } });
+		mockGetLastTimerLog.mockReset();
 		mockToastError.mockReset();
 	});
+
+	/** The employee's last log as Gauzy gives it, read again after a stop. */
+	const lastLogRead = (lastLog: object) => mockGetLastTimerLog.mockResolvedValueOnce({ data: [{ lastLog }] });
 
 	it("follows the day's status and the owner's stop while the timer does not run past midnight", () => {
 		const { ownerStop } = renderReminders({ runsPastMidnight: false });
@@ -97,22 +105,51 @@ describe('TimerReminders', () => {
 		expect(mockToastError).not.toHaveBeenCalled();
 	});
 
-	it('says so when that stop fails, and nothing when another tab or device stopped the run first', async () => {
+	it('says nothing when another tab or device stopped the run first', async () => {
 		renderReminders({ runsPastMidnight: true });
 
 		mockStopTimer.mockRejectedValueOnce(responseError(406));
 		await act(async () => {
 			await lastInput().stopTimer();
 		});
-		expect(mockToastError).not.toHaveBeenCalled();
 
-		mockStopTimer.mockRejectedValueOnce(responseError(500));
-		await act(async () => {
-			await lastInput().stopTimer();
+		expect(mockToastError).not.toHaveBeenCalled();
+	});
+
+	describe('when the stop answers with a failure', () => {
+		const stop = () =>
+			act(async () => {
+				await lastInput().stopTimer();
+			});
+
+		beforeEach(() => {
+			renderReminders({ runsPastMidnight: true });
+			mockStopTimer.mockRejectedValueOnce(responseError(500));
 		});
-		expect(mockToastError).toHaveBeenCalledWith(
-			'toasts.timer.STOP_FAILED',
-			expect.objectContaining({ id: 'timer-stop-failed' })
-		);
+
+		it('says nothing when the run stopped all the same (the status read after the stop failed)', async () => {
+			lastLogRead({ ...YESTERDAYS_LOG, isRunning: false });
+			await stop();
+
+			expect(mockGetLastTimerLog).toHaveBeenCalledWith(EMPLOYEE_ID);
+			expect(mockToastError).not.toHaveBeenCalled();
+		});
+
+		it('says so when the run still goes on', async () => {
+			lastLogRead(YESTERDAYS_LOG);
+			await stop();
+
+			expect(mockToastError).toHaveBeenCalledWith(
+				'toasts.timer.STOP_FAILED',
+				expect.objectContaining({ id: 'timer-stop-failed' })
+			);
+		});
+
+		it('keeps the failure when the run cannot be read again either', async () => {
+			mockGetLastTimerLog.mockRejectedValueOnce(responseError(500));
+			await stop();
+
+			expect(mockToastError).toHaveBeenCalledTimes(1);
+		});
 	});
 });

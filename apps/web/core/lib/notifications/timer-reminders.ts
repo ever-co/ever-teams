@@ -119,8 +119,11 @@ export function shownTimerReminderLevel(runKey: string): number {
 	}
 }
 
-/** Notes the reminder shown for the run; only the current run is kept. */
+/** Notes the reminder shown for the run, never lower than one noted before it; only the current run is kept. */
 export function recordTimerReminder(runKey: string, level: TimerReminderLevel): void {
+	if (shownTimerReminderLevel(runKey) >= level) {
+		return;
+	}
 	try {
 		window.localStorage.setItem(TIMER_REMINDER_KEY, JSON.stringify({ run: runKey, level }));
 	} catch {
@@ -153,8 +156,11 @@ export async function claimTimerReminder(
 	const isClaimed = await claimForThisTab(`timer-reminder-${runKey}-${level}`, {
 		yieldMs: isVisible ? 0 : TIMER_REMINDER_HIDDEN_YIELD_MS
 	});
-	if (isClaimed) {
-		recordTimerReminder(runKey, level);
+	// A later reminder of the run was given while this claim waited (a tab whose threshold is shorter): this one is
+	// out of date, and noting it would bring the run back to a lower reminder
+	if (!isClaimed || shownTimerReminderLevel(runKey) >= level) {
+		return false;
 	}
-	return isClaimed;
+	recordTimerReminder(runKey, level);
+	return true;
 }
