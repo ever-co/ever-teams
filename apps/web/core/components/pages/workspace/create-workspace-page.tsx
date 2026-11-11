@@ -24,7 +24,7 @@ import { useUserQuery } from '@/core/hooks/queries/user-user.query';
 import { cn } from '@/core/lib/helpers';
 import { MAX_EMAILS_PER_INVITE } from '@/core/lib/validation/invite';
 import { inviteAddressesOf, MAX_WORKSPACE_NAME_LENGTH } from '@/core/lib/validation/workspace';
-import { timerStatusState } from '@/core/stores';
+import { timerStatusState, workspaceOpeningState } from '@/core/stores';
 
 const PROFILE_SETTINGS_PATH = '/settings/personal';
 
@@ -71,6 +71,8 @@ export function CreateWorkspacePage() {
 	// The new workspace opens signed in: a timer running here would keep counting out of sight (the workspace switch
 	// refuses to change workspaces while it runs, for the same reason)
 	const isTimerRunning = Boolean(useAtomValue(timerStatusState)?.running);
+	// A creation sent from an earlier visit of this page is still running: it outlives the page, so this form waits too
+	const isWorkspaceOpening = useAtomValue(workspaceOpeningState);
 	const creation = useCreateWorkspace();
 	const schema = useMemo(() => formSchemaOf(t), [t]);
 	const form = useForm<CreateWorkspaceForm>({
@@ -90,7 +92,7 @@ export function CreateWorkspacePage() {
 	// A submit waiting for a timer start in flight: a second press must not create a second workspace
 	const isAwaitingTimerStartRef = useRef(false);
 	const submit = form.handleSubmit(async ({ name, teamName, invites }) => {
-		if (isTimerRunning || isAwaitingTimerStartRef.current) {
+		if (isTimerRunning || isWorkspaceOpening || isAwaitingTimerStartRef.current) {
 			return;
 		}
 		// A start sent from the timer may still be on its way: the status says running only once it lands, and the
@@ -119,7 +121,7 @@ export function CreateWorkspacePage() {
 	const isOutcomeUnknown = failure === 'OUTCOME_UNKNOWN';
 	const isClosed = isUnconfirmed || isCreatedUnopened || isOutcomeUnknown;
 	// Creating, then opening the new workspace: the button stays busy until the page is replaced
-	const isBusy = creation.isPending || creation.isSuccess;
+	const isBusy = creation.isPending || creation.isSuccess || isWorkspaceOpening;
 
 	return (
 		<PageLayout title={t('workspaceCreation.TITLE')} className="min-h-0 flex-1">

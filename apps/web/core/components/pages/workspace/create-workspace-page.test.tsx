@@ -38,7 +38,7 @@ jest.mock('@/core/hooks/auth/use-create-workspace', () => ({
 }));
 
 import { getDefaultStore } from 'jotai';
-import { timerStatusState } from '@/core/stores';
+import { timerStatusState, workspaceOpeningState } from '@/core/stores';
 import { CreateWorkspacePage } from './create-workspace-page';
 
 describe('CreateWorkspacePage', () => {
@@ -236,6 +236,21 @@ describe('CreateWorkspacePage', () => {
 		expect(screen.getByText('workspaceCreation.OUTCOME_UNKNOWN_TITLE')).toBeTruthy();
 		expect(screen.queryByText('workspaceCreation.FAILED_TITLE')).toBeNull();
 		expect(screen.getByRole('button', { name: 'workspaceCreation.CREATE' })).toHaveProperty('disabled', true);
+	});
+
+	it('waits for a creation sent from an earlier visit of the page: it is still running', async () => {
+		const store = getDefaultStore();
+		act(() => store.set(workspaceOpeningState, true));
+		render(<CreateWorkspacePage />);
+
+		const create = screen.getByRole('button', { name: 'workspaceCreation.CREATING' });
+		expect(create).toHaveProperty('disabled', true);
+		fireEvent.submit(create.closest('form') as HTMLFormElement);
+		await act(async () => await new Promise((resolve) => setTimeout(resolve, 0)));
+		expect(mockMutate).not.toHaveBeenCalled();
+
+		act(() => store.set(workspaceOpeningState, false));
+		expect(screen.getByRole('button', { name: 'workspaceCreation.CREATE' })).toHaveProperty('disabled', false);
 	});
 
 	describe('while a timer runs', () => {
