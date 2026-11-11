@@ -6,7 +6,7 @@ import { useKeyboardPreferences } from '@/core/hooks/keyboard/use-keyboard-prefe
 import { chordOfEvent, isDialogOpen, isTypingTarget } from '@/core/lib/keyboard/shortcuts';
 import { chatShortcutOf, type ChatShortcutId } from '@/core/lib/utils/chat-shortcuts';
 
-export type ChatShortcutHandlers = Partial<Record<ChatShortcutId, () => void>>;
+type ChatShortcutHandlers = Partial<Record<ChatShortcutId, () => void>>;
 
 /**
  * The chat page's keys (`Alt+↑/↓` previous / next conversation, `Alt+Shift+↑/↓` previous / next unread, `Mod+Shift+A`

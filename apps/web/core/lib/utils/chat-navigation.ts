@@ -51,7 +51,7 @@ export function adjacentConversation(
 }
 
 /** How many conversations the palette lists before anything is typed. */
-export const PALETTE_RECENT_CONVERSATIONS = 5;
+const PALETTE_RECENT_CONVERSATIONS = 5;
 
 /**
  * The conversations the command palette offers: before anything is typed, the few that wait for the reader first and

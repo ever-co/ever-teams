@@ -25,7 +25,7 @@ import { useChatScope } from './use-chat-scope';
  * How large a photo may be when picked: it is shrunk in the browser before the platform's size cap applies, so a
  * photo over the cap can still go up once smaller; past this, the browser is not asked to decode it at all.
  */
-export const CHAT_IMAGE_PICK_MAX_BYTES = 2 * ENTITY_FILE_MAX_BYTES;
+const CHAT_IMAGE_PICK_MAX_BYTES = 2 * ENTITY_FILE_MAX_BYTES;
 
 /** What the composer shows of a file it holds, and what a message just sent shows of its files until the list has them. */
 export interface ChatUploadedFile {
