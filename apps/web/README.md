@@ -56,6 +56,15 @@ who may get a token. Both take the identity and the tenant from the session
 (never from the query or the client-writable tenant cookie) and sign a token
 for one room of the caller's tenant, never a wildcard room.
 
+## The Board app
+
+The whiteboard (`NEXT_PUBLIC_BOARD_APP_DOMAIN`, [ever-teams-boards](https://github.com/ever-co/ever-teams-boards))
+runs on its own origin and can serve several Ever Teams deployments, while the session cookies of each deployment stay
+on its own host. They work together through `core/lib/board/board-app.ts`:
+
+- Ever Teams opens the Board with `origin=<this deployment's origin>`, next to `live` and `members`, so the Board
+  knows which deployment the person comes from.
+
 ## Client IP for Gauzy's rate limits
 
 Gauzy sees every server-side call of this app as one address, so its per-IP limits (sign-in, password reset,

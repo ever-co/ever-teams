@@ -9,6 +9,7 @@ import { TUser } from '@/core/types/schemas';
 import { useUserQuery } from '../queries/user-user.query';
 import { readRuntimeEnv } from '@/env-config';
 import { preloadLiveKit } from '@/core/components/optimized-components/meet';
+import { boardTargetFor } from '@/core/lib/utils/collaboration';
 
 export function useCollaborative(user?: TUser) {
 	// Runtime (container) env first, so a published Docker image can switch to LiveKit without a rebuild.
@@ -78,18 +79,16 @@ export function useCollaborative(user?: TUser) {
 	}, [isJitsi]);
 
 	const onBoardClick = useCallback(() => {
-		const members = collaborativeMembers.map((m) => m.id).join(',');
+		const memberIds = collaborativeMembers.map((m) => m.id);
+		// The board app is told which deployment opened it (this origin), so it signs the person in here
+		const board = boardTargetFor(memberIds, BOARD_APP_DOMAIN.value, window.location.origin);
 
-		if (collaborativeMembers.length > 0 && BOARD_APP_DOMAIN.value) {
-			const url = new URL(BOARD_APP_DOMAIN.value);
-			url.searchParams.set('live', 'true');
-			url.searchParams.set('members', btoa(members));
-
-			window.open(url.toString(), '_blank', 'noreferrer');
+		if (board.isExternal) {
+			window.open(board.href, '_blank', 'noreferrer');
 			return;
 		}
 
-		router.push('/board');
+		router.push(board.href);
 	}, [collaborativeMembers, router]);
 
 	return {
