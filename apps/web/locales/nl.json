@@ -620,6 +620,14 @@
 				"SHOT_OF": "Screenshot {index} van {count}"
 			}
 		},
+		"workDiary": {
+			"FIGURES_LABEL": "De dag in cijfers",
+			"PICK_DAY": "Kies een dag",
+			"APPS_EMPTY": "Geen app of site vastgelegd op {day}.",
+			"OPEN_TIMESHEETS": "Openen in urenstaten",
+			"UPDATING": "Werkdagboek laden",
+			"NO_TIME_HINT": "Zodra er tijd wordt geregistreerd, verschijnen hier de taken, screenshots en apps van de dag."
+		},
 		"team": {
 			"META_MEMBERS": "{count, plural, one {# lid} other {# leden}}",
 			"UPDATING": "Cijfers worden bijgewerkt",

@@ -580,6 +580,14 @@
 				"SHOT_OF": "لقطة الشاشة {index} من {count}"
 			}
 		},
+		"workDiary": {
+			"FIGURES_LABEL": "اليوم بالأرقام",
+			"PICK_DAY": "اختر يومًا",
+			"APPS_EMPTY": "لم يُسجَّل أي تطبيق أو موقع في {day}.",
+			"OPEN_TIMESHEETS": "فتح في الجداول الزمنية",
+			"UPDATING": "جارٍ تحميل اليومية",
+			"NO_TIME_HINT": "عند تسجيل الوقت، تظهر هنا مهام اليوم ولقطات الشاشة والتطبيقات."
+		},
 		"team": {
 			"META_MEMBERS": "{count, plural, zero {لا أعضاء} one {عضو واحد} two {عضوان} few {# أعضاء} many {# عضوًا} other {# عضو}}",
 			"UPDATING": "جارٍ تحديث الأرقام",

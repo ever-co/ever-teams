@@ -620,6 +620,14 @@
 				"SHOT_OF": "Screenshot {index} di {count}"
 			}
 		},
+		"workDiary": {
+			"FIGURES_LABEL": "La giornata in cifre",
+			"PICK_DAY": "Scegli un giorno",
+			"APPS_EMPTY": "Nessuna app né sito registrato il {day}.",
+			"OPEN_TIMESHEETS": "Apri nei fogli ore",
+			"UPDATING": "Caricamento del diario",
+			"NO_TIME_HINT": "Quando si registra del tempo, qui compaiono le attività, gli screenshot e le app della giornata."
+		},
 		"team": {
 			"META_MEMBERS": "{count, plural, one {# membro} other {# membri}}",
 			"UPDATING": "Aggiornamento dei dati",

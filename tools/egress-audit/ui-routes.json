@@ -329,6 +329,11 @@
       "source": "router"
     },
     {
+      "path": "/:locale/work-diary",
+      "file": "apps/web/app/[locale]/(main)/work-diary/page.tsx",
+      "source": "router"
+    },
+    {
       "path": "/api/ever-connect/health",
       "source": "manual",
       "note": "The Ever Platform section's health probe, on this app: 404 unless NEXT_PUBLIC_EVER_CONNECT_ENABLED is true."

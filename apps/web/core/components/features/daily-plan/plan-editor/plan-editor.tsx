@@ -28,6 +28,7 @@ const PRIMARY_LABEL_KEYS: Record<PlanPrimaryAction, DottedLanguageObjectStringPa
 	start: 'timer.todayPlanSettings.START_WORKING_BUTTON',
 	save: 'common.SAVE_CHANGES',
 	edit: 'common.plan.EDIT_PLAN',
+	workDiary: 'sidebar.WORK_DIARY',
 	timesheets: 'common.timesheets.PLURAL'
 };
 

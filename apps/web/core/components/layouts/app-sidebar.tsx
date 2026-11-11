@@ -140,7 +140,7 @@ export function AppSidebar({ publicTeam, ...props }: AppSidebarProps) {
 	const { organizationProjects } = useSidebarDataOwner(publicTeam);
 	const activeTeam = useAtomValue(activeTeamState);
 	const pathname = usePathname();
-	const myWorkNavigation = getMyWorkNavigation(user?.id, username || undefined);
+	const myWorkNavigation = getMyWorkNavigation();
 
 	// The sidebar lists the projects of the team picked in the header. "All teams" is the
 	// /all-teams page (the header entry links there), not a cleared team: activeTeamState falls

@@ -25,7 +25,8 @@ describe('route-owned data on empty-cache hard loads', () => {
 		{ path: '/projects', expected: ['/api/organization-projects'] },
 		{ path: '/team/tasks', expected: ['/api/tasks/team'] },
 		{ path: '/kanban', expected: ['/api/daily-plan'] },
-		{ path: '/reports/weekly-limit', expected: ['/api/organization/'] }
+		{ path: '/reports/weekly-limit', expected: ['/api/organization/'] },
+		{ path: '/work-diary', expected: ['/api/timesheet/time-log', '/api/timesheet/statistics/time-slots'] }
 	];
 
 	for (const route of routes) {

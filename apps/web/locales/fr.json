@@ -620,6 +620,14 @@
 				"SHOT_OF": "Capture {index} sur {count}"
 			}
 		},
+		"workDiary": {
+			"FIGURES_LABEL": "La journée en chiffres",
+			"PICK_DAY": "Choisir un jour",
+			"APPS_EMPTY": "Aucune app ni aucun site enregistré le {day}.",
+			"OPEN_TIMESHEETS": "Ouvrir dans les feuilles de temps",
+			"UPDATING": "Chargement du journal",
+			"NO_TIME_HINT": "Dès que du temps est suivi, les tâches, captures d’écran et apps de la journée s’affichent ici."
+		},
 		"team": {
 			"META_MEMBERS": "{count, plural, one {# membre} other {# membres}}",
 			"UPDATING": "Mise à jour des chiffres",

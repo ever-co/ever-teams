@@ -620,6 +620,14 @@
 				"SHOT_OF": "צילום מסך {index} מתוך {count}"
 			}
 		},
+		"workDiary": {
+			"FIGURES_LABEL": "היום במספרים",
+			"PICK_DAY": "בחירת יום",
+			"APPS_EMPTY": "לא נרשמו אפליקציה או אתר ב-{day}.",
+			"OPEN_TIMESHEETS": "פתיחה בדוחות השעות",
+			"UPDATING": "טוען את יומן העבודה",
+			"NO_TIME_HINT": "כשנרשם זמן, המשימות, צילומי המסך והאפליקציות של היום מוצגים כאן."
+		},
 		"team": {
 			"META_MEMBERS": "{count, plural, one {חבר אחד} two {שני חברים} other {# חברים}}",
 			"UPDATING": "הנתונים מתעדכנים",

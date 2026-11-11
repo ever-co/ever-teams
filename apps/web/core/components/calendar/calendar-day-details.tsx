@@ -61,8 +61,11 @@ function estimateTextOf(estimateSeconds: number | null) {
 	return formatDurationShort(estimateSeconds);
 }
 
-/** The day's plan: done against planned, then the planned tasks with their estimates, outlined. */
-export function DayPlanBlock({ day }: Readonly<{ day: CalendarDay }>) {
+/**
+ * The day's plan: done against planned, then the planned tasks with their estimates, outlined. A page that puts the
+ * block in a titled section of its own, with done against planned in that header, leaves out the block's header.
+ */
+export function DayPlanBlock({ day, showsHeader = true }: Readonly<{ day: CalendarDay; showsHeader?: boolean }>) {
 	const t = useTranslations();
 	const plan = day.plan;
 	const untitled = t('dashboard.timesheets.NO_TASK');
@@ -70,10 +73,12 @@ export function DayPlanBlock({ day }: Readonly<{ day: CalendarDay }>) {
 	const hasPlanTasks = planTasks.length > 0;
 	return (
 		<section className="flex flex-col gap-2" aria-label={t('dashboard.calendar.PLAN_TITLE')}>
-			<div className="flex items-baseline justify-between gap-3">
-				<h3 className={BLOCK_TITLE}>{t('dashboard.calendar.PLAN_TITLE')}</h3>
-				{plan && <DoneOfPlanned day={day} plan={plan} />}
-			</div>
+			{showsHeader && (
+				<div className="flex items-baseline justify-between gap-3">
+					<h3 className={BLOCK_TITLE}>{t('dashboard.calendar.PLAN_TITLE')}</h3>
+					{plan && <DoneOfPlanned day={day} plan={plan} />}
+				</div>
+			)}
 			{!plan && <p className="text-xs text-muted-foreground">{t('dashboard.calendar.NO_PLAN')}</p>}
 			{hasPlanTasks && (
 				<ul className="flex flex-col gap-1.5">

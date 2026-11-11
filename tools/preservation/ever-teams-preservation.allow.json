@@ -356,6 +356,14 @@
 		"reason": "The constant that kept the chat and notification polls running while connected (#5012) is replaced by `realtimePromptDeliveryAtom`, set from the platform's own answer (`GET /realtime/status` → `delivery.prompt`, #5031): the polls pause only where the platform says it pushes promptly. Nothing imports the constant any more."
 	},
 	{
+		"id": "removed:navigation:apps/web/core/hooks/daily-plans/use-plan-editor.ts::router.push=<dynamic:getMyWorkNavigation(userId, userName || undefined).workDiary>::#1",
+		"reason": "A past plan's button led to the team Timesheets of its employee (/reports/timesheet/{user}), which only team managers may open (#5019). One's own past plan now opens the Work diary page on the plan's day (router.push(workDiaryPathOf(planDay))); a member's past plan, which a manager sees, still opens that member's timesheets link (router.push(timesheetPathOf(...)))."
+	},
+	{
+		"id": "removed:testNames:apps/web/core/components/layouts/my-work-navigation.test.ts::links Time & Activity and Work Diary to working report routes::#1",
+		"reason": "Work Diary is no longer a report route (#5019): it has its own page, /work-diary, outside Reports. The test is renamed \"links Work Diary to its own page, outside the team reports, and Time & Activity to its report\" and checks the new link; workDiaryPathOf, which opens a given day, has its own test."
+	},
+	{
 		"id": "removed:navigation:apps/web/core/components/pages/teams/team/tasks/list/team-tasks-page.tsx::href=#::#1",
 		"reason": "The last crumb of a view's page linked to \"#\", nowhere (#5018). A view's page now sits under Views in the breadcrumb (Views > name), and that crumb links the view's own page (/views/{id or key}). The breadcrumb of the plain Team tasks page is unchanged."
 	},
