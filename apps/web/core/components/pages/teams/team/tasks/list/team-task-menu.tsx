@@ -10,7 +10,11 @@ import {
 	DropdownMenuShortcut
 } from '@/core/components/common/dropdown-menu';
 import {
+	ArrowDown,
+	ArrowUp,
 	Calendar,
+	ChevronsDown,
+	ChevronsUp,
 	Copy,
 	ExternalLink,
 	FileText,
@@ -30,6 +34,7 @@ import { useTaskMenuActions } from '@/core/hooks/tasks/use-task-menu-actions';
 import { useUserQuery } from '@/core/hooks/queries/user-user.query';
 import { activeTeamState } from '@/core/stores';
 import type { TTask } from '@/core/types/schemas/task/task.schema';
+import type { TaskOrderStep } from '@/core/lib/utils/task-view-order';
 import type { TeamTaskPickerKind } from './team-tasks-list-context';
 
 /** A point on screen for a right click, or the "..." button: what the menu opens against. */
@@ -38,6 +43,13 @@ export type TeamTaskMenuAnchor = Element | { getBoundingClientRect: () => DOMRec
 export interface TeamTaskMenuTarget {
 	taskId: string;
 	anchor: TeamTaskMenuAnchor;
+}
+
+/** The moves of the task inside its group, when the list follows a saved view's manual order. */
+export interface TeamTaskMenuMoves {
+	canMoveUp: boolean;
+	canMoveDown: boolean;
+	onMove: (step: TaskOrderStep) => void;
 }
 
 interface TeamTaskMenuProps {
@@ -50,6 +62,8 @@ interface TeamTaskMenuProps {
 	onOpenTask: (taskId: string) => void;
 	onEdit: (kind: TeamTaskPickerKind, taskId: string) => void;
 	onPlanSomeDay: (taskId: string) => void;
+	/** Moving the task in the view's manual order; absent in any other ordering. */
+	moves?: TeamTaskMenuMoves | null;
 }
 
 function favoriteLabelKey(isFavorite: boolean) {
@@ -76,7 +90,8 @@ export function TeamTaskMenu({
 	onClosed,
 	onOpenTask,
 	onEdit,
-	onPlanSomeDay
+	onPlanSomeDay,
+	moves = null
 }: Readonly<TeamTaskMenuProps>) {
 	const handleOpenChangeComplete = (open: boolean) => {
 		if (!open) {
@@ -94,6 +109,7 @@ export function TeamTaskMenu({
 						onOpenTask={onOpenTask}
 						onEdit={onEdit}
 						onPlanSomeDay={onPlanSomeDay}
+						moves={moves}
 					/>
 				)}
 			</DropdownMenuContent>
@@ -106,13 +122,15 @@ function TeamTaskMenuItems({
 	fallbackStatusId,
 	onOpenTask,
 	onEdit,
-	onPlanSomeDay
+	onPlanSomeDay,
+	moves
 }: Readonly<{
 	task: TTask;
 	fallbackStatusId: string | undefined;
 	onOpenTask: (taskId: string) => void;
 	onEdit: (kind: TeamTaskPickerKind, taskId: string) => void;
 	onPlanSomeDay: (taskId: string) => void;
+	moves: TeamTaskMenuMoves | null;
 }>) {
 	const t = useTranslations();
 	const activeTeam = useAtomValue(activeTeamState);
@@ -176,6 +194,7 @@ function TeamTaskMenuItems({
 				{t('pages.teamTasks.SET_DUE_DATE')}
 				<DropdownMenuShortcut>D</DropdownMenuShortcut>
 			</DropdownMenuItem>
+			{moves && <TeamTaskMoveItems moves={moves} />}
 			<DropdownMenuSeparator />
 			{showsAssignToMe && (
 				<DropdownMenuItem onClick={() => assignTask(task)}>
@@ -218,6 +237,32 @@ function TeamTaskMenuItems({
 			<DropdownMenuItem onClick={() => makeCopy(task, fallbackStatusId)}>
 				<Copy />
 				{t('common.MAKE_A_COPY')}
+			</DropdownMenuItem>
+		</>
+	);
+}
+
+/** Up, down, to the top and to the bottom of its group: the way to order a task with the keyboard or a finger. */
+function TeamTaskMoveItems({ moves }: Readonly<{ moves: TeamTaskMenuMoves }>) {
+	const t = useTranslations();
+	return (
+		<>
+			<DropdownMenuSeparator />
+			<DropdownMenuItem disabled={!moves.canMoveUp} onClick={() => moves.onMove('up')}>
+				<ArrowUp />
+				{t('pages.teamTasks.MOVE_UP')}
+			</DropdownMenuItem>
+			<DropdownMenuItem disabled={!moves.canMoveDown} onClick={() => moves.onMove('down')}>
+				<ArrowDown />
+				{t('pages.teamTasks.MOVE_DOWN')}
+			</DropdownMenuItem>
+			<DropdownMenuItem disabled={!moves.canMoveUp} onClick={() => moves.onMove('top')}>
+				<ChevronsUp />
+				{t('pages.teamTasks.MOVE_TO_TOP')}
+			</DropdownMenuItem>
+			<DropdownMenuItem disabled={!moves.canMoveDown} onClick={() => moves.onMove('bottom')}>
+				<ChevronsDown />
+				{t('pages.teamTasks.MOVE_TO_BOTTOM')}
 			</DropdownMenuItem>
 		</>
 	);

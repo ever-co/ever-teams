@@ -27,12 +27,14 @@ import {
 } from '@/core/lib/keyboard/shortcuts';
 import type { TeamTasksViewState } from '@/core/hooks/tasks/use-team-tasks-view';
 import type { TeamTasksListRow } from '@/core/lib/utils/team-tasks-view';
+import type { TaskOrderMove } from '@/core/lib/utils/task-view-order';
 import { GROUP_HEIGHT, ROW_HEIGHT, TEAM_TASK_LIST_MIN_WIDTH, type TeamTasksGrid } from './team-tasks-grid';
 import { TeamTasksListProvider, type TeamTaskPickerKind, type TeamTasksListActions } from './team-tasks-list-context';
 import { TeamTaskRow } from './team-task-row';
 import { TeamTasksGroupHeader } from './team-tasks-group-header';
 import { TeamTasksColumnHeader } from './team-tasks-column-header';
 import type { TeamTaskMenuAnchor } from './team-task-menu';
+import { useTeamTaskListReorder } from './team-task-row-dnd';
 
 const OVERSCAN = 10;
 
@@ -64,6 +66,8 @@ export interface TeamTasksListCommands {
 	openPicker: (kind: TeamTaskPickerKind, taskIds: string[], anchor: Element, shortcut?: string) => void;
 	openMenu: (taskId: string, anchor: TeamTaskMenuAnchor) => void;
 	createTaskInGroup: (statusName: string | null) => void;
+	/** A row dropped next to another one of its group, in a saved view's manual order. */
+	moveTask?: (move: TaskOrderMove) => void;
 }
 
 function rowSizeOf(row: TeamTasksListRow | undefined) {
@@ -190,6 +194,8 @@ export function TeamTasksList({
 	// The person's bindings with the saved-views feature on (letters by their physical key, as the registry reads
 	// them); without it, the keys the list always had, by the character typed.
 	const bindings = canRebind ? preferredBindings : DEFAULT_BINDINGS;
+	const canReorder = view.canReorder && commands.moveTask !== undefined;
+	useTeamTaskListReorder(scrollRef, canReorder, commands.moveTask);
 
 	const stickyIndexes = useMemo(() => {
 		const indexes: number[] = [];
@@ -486,6 +492,7 @@ export function TeamTasksList({
 										isFocused={focusedTaskId === row.task.id}
 										isTabStop={tabStopId === row.task.id}
 										isSelecting={isSelecting}
+										reorderGroupKey={canReorder ? row.group.key : null}
 									/>
 								</div>
 							);

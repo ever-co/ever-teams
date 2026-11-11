@@ -45,6 +45,15 @@ they are with the flag off.
   its creator only; a team view to everyone in the team, and changed (saved, shared, deleted) by anyone in it who may edit
   tasks — the platform's rule; Save, Share and Delete are shown to those people only. A save states the version read;
   a stale one shows a conflict with a Reload action. Opening a view never touches the device-local view.
+- **Manual order** (T11): only a saved view offers the Manual ordering (the device's view has no order to follow).
+  It lists the tasks its `manualOrder` names, in that order, then the others newest first, as the platform pages
+  them, inside each group and whatever the direction. A move ("this task right before / after that one", by drag
+  within a group or from the row menu) is saved at once with `PUT /task-views/:id/order` and the version the page
+  holds; the shown tasks the order did not name yet join it as shown, hidden ones keep their places, at most 5000. A
+  409 makes the same move once on the order saved meanwhile; a second one, or another failure, says so and the list
+  shows what the platform holds. The move is not part of Save's changes, and a change in progress builds on the
+  version the move wrote only when the move stated the change's base. Save as copies the order. On touch screens the
+  rows do not drag: the row menu (a long press) moves them (T12).
 - **Built-in views** are the platform's answer (no local filtering besides the page's own search and filters).
 - **Bulk**: a change to more than one task goes in one request with the previous values coming back; undo sends
   them back as `items`. One task, or the flag off: one update per task as before.

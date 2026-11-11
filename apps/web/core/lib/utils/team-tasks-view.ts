@@ -2,13 +2,15 @@ import { TTaskStatus } from '@/core/types/schemas';
 import { TTask } from '@/core/types/schemas/task/task.schema';
 import { EIssueType } from '@/core/types/generics/enums/task';
 import { sortStatusesByOrder, statusIdOf } from './kanban-board';
+import { sortByManualOrder } from './task-view-order';
 
 /** Which part of the team's work the page shows, from the statuses' own workflow flags. */
 export type TeamTasksScope = 'active' | 'done' | 'all';
 
 export type TeamTasksGrouping = 'status' | 'priority' | 'assignee' | 'project' | 'issueType' | 'none';
 
-export type TeamTasksOrdering = 'priority' | 'updated' | 'created' | 'dueDate' | 'number' | 'title';
+/** `manual` is a saved view's own order (its `manualOrder`), offered only on a saved view. */
+export type TeamTasksOrdering = 'priority' | 'updated' | 'created' | 'dueDate' | 'number' | 'title' | 'manual';
 
 export type TeamTaskProperty =
 	| 'number'
@@ -406,7 +408,16 @@ function compareTasks(first: TTask, second: TTask, ordering: TeamTasksOrdering, 
 	return compareNullable(firstTime, secondTime, newestFirst);
 }
 
-export function sortTeamTasks(tasks: TTask[], ordering: TeamTasksOrdering, isDescending: boolean) {
+/** The tasks in the view's ordering; a manual one follows the saved view's order, whatever the direction. */
+export function sortTeamTasks(
+	tasks: TTask[],
+	ordering: TeamTasksOrdering,
+	isDescending: boolean,
+	manualOrder?: readonly string[] | null
+) {
+	if (ordering === 'manual') {
+		return sortByManualOrder(tasks, manualOrder);
+	}
 	return [...tasks].sort((first, second) => compareTasks(first, second, ordering, isDescending));
 }
 
@@ -535,9 +546,10 @@ export function buildTeamTasksGroups(
 	tasks: TTask[],
 	settings: TeamTasksViewSettings,
 	lookups: TeamTasksLookups,
-	priorityValues: string[]
+	priorityValues: string[],
+	manualOrder?: readonly string[] | null
 ): TeamTasksGroup[] {
-	const sorted = sortTeamTasks(tasks, settings.ordering, settings.isDescending);
+	const sorted = sortTeamTasks(tasks, settings.ordering, settings.isDescending, manualOrder);
 	let groups: TeamTasksGroup[];
 	if (settings.grouping === 'status') {
 		groups = groupByStatus(sorted, lookups.statuses);

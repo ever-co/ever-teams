@@ -27,6 +27,7 @@ import {
 import type { TTask } from '@/core/types/schemas/task/task.schema';
 import { useTeamTasksList, type TeamTaskPickerKind } from './team-tasks-list-context';
 import { TEAM_TASK_ROW_GRID, TEAM_TASK_WIDE_CELL, type TeamTaskColumn } from './team-tasks-grid';
+import { useTeamTaskRowDrag } from './team-task-row-dnd';
 
 const VISIBLE_LABEL_COUNT = 2;
 const VISIBLE_PEOPLE_COUNT = 3;
@@ -200,8 +201,9 @@ function TitleCell({
 	task,
 	isDone,
 	showsIssueType,
-	showsParent
-}: Readonly<{ task: TTask; isDone: boolean; showsIssueType: boolean; showsParent: boolean }>) {
+	showsParent,
+	isReorderable
+}: Readonly<{ task: TTask; isDone: boolean; showsIssueType: boolean; showsParent: boolean; isReorderable: boolean }>) {
 	const t = useTranslations();
 	const { openTask } = useTeamTasksList();
 	const handleClick = (event: MouseEvent<HTMLAnchorElement>) => {
@@ -231,6 +233,8 @@ function TitleCell({
 				href={`/task/${task.id}`}
 				onClick={handleClick}
 				tabIndex={-1}
+				// In a manual order the row is dragged, not the link.
+				draggable={isReorderable ? false : undefined}
 				className={cn(
 					'min-w-0 truncate text-[13px] font-medium outline-none hover:underline hover:decoration-foreground/30 hover:underline-offset-2',
 					isDone && 'text-muted-foreground',
@@ -464,6 +468,24 @@ export interface TeamTaskRowProps {
 	/** The row Tab lands on: the focused one, or the first when none is. */
 	isTabStop: boolean;
 	isSelecting: boolean;
+	/** The group the row moves in when the list follows a saved view's manual order; null otherwise. */
+	reorderGroupKey?: string | null;
+}
+
+function DropLine({ edge }: Readonly<{ edge: 'top' | 'bottom' | null }>) {
+	if (!edge) {
+		return null;
+	}
+	return (
+		<span
+			aria-hidden="true"
+			className={cn(
+				'pointer-events-none absolute inset-x-0 z-[1] h-0.5 bg-primary',
+				edge === 'top' && '-top-px',
+				edge === 'bottom' && '-bottom-px'
+			)}
+		/>
+	);
 }
 
 /**
@@ -476,9 +498,12 @@ export const TeamTaskRow = memo(function TeamTaskRow({
 	isSelected,
 	isFocused,
 	isTabStop,
-	isSelecting
+	isSelecting,
+	reorderGroupKey = null
 }: TeamTaskRowProps) {
 	const t = useTranslations();
+	const { rowRef, isDragging, dropEdge } = useTeamTaskRowDrag(task.id, reorderGroupKey);
+	const isReorderable = reorderGroupKey !== null;
 	const { grid, properties, statuses, liveByTask, openTask, openRowMenu, toggleSelected, focusTask } =
 		useTeamTasksList();
 	const status = statusOfTask(task, statuses);
@@ -505,6 +530,7 @@ export const TeamTaskRow = memo(function TeamTaskRow({
 
 	return (
 		<div
+			ref={rowRef}
 			role="row"
 			tabIndex={rowTabIndex(isTabStop)}
 			data-task-id={task.id}
@@ -515,9 +541,11 @@ export const TeamTaskRow = memo(function TeamTaskRow({
 			className={cn(
 				TEAM_TASK_ROW_GRID,
 				'group/row relative h-10 cursor-default pr-1 outline-none hairline-b border-border transition-colors hover:bg-foreground/[0.025] data-[focused]:bg-foreground/[0.035] max-lg:pl-1',
-				isSelected && 'bg-primary/[0.05] hover:bg-primary/[0.07] data-[focused]:bg-primary/[0.08]'
+				isSelected && 'bg-primary/[0.05] hover:bg-primary/[0.07] data-[focused]:bg-primary/[0.08]',
+				isDragging && 'opacity-40'
 			)}
 		>
+			<DropLine edge={dropEdge} />
 			{isLive && (
 				<span aria-hidden="true" className="absolute inset-y-1.5 left-0 w-0.5 rounded-r-full bg-primary" />
 			)}
@@ -559,6 +587,7 @@ export const TeamTaskRow = memo(function TeamTaskRow({
 				isDone={isDone}
 				showsIssueType={properties.issueType}
 				showsParent={properties.parent}
+				isReorderable={isReorderable}
 			/>
 			{grid.trailing.map((column) => {
 				if (column === 'assignees') {

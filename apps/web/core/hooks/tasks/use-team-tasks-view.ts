@@ -35,6 +35,7 @@ import {
 	viewSettingsFromStorage,
 	withToggledProperty
 } from '@/core/lib/utils/team-tasks-view-storage';
+import { sortByManualOrder } from '@/core/lib/utils/task-view-order';
 import type { ITaskViewDefinition } from '@/core/types/interfaces/common/task-views';
 import type { TOrganizationTeamEmployee } from '@/core/types/schemas';
 import type { TTask } from '@/core/types/schemas/task/task.schema';
@@ -44,6 +45,7 @@ const SCOPE_STORAGE_KEY = 'team-tasks-scope';
 const COLLAPSED_STORAGE_KEY = 'team-tasks-collapsed-groups';
 
 const NO_FILTERS: TeamTasksFilters = {};
+const NO_IDS: string[] = [];
 
 /** How the page is opened: on the team's tasks with the device's view, or on a saved / built-in view. */
 interface TeamTasksViewOptions {
@@ -53,6 +55,11 @@ interface TeamTasksViewOptions {
 	resetKey?: string;
 	/** The tasks to list instead of the team's (a built-in view's, computed by the platform). */
 	tasks?: TTask[];
+	/**
+	 * A saved view's manual order (its `manualOrder`, empty when it has none): the manual ordering is offered, and
+	 * the list follows this order when it is chosen. Absent on the team's tasks and on a built-in view.
+	 */
+	manualOrder?: readonly string[];
 }
 
 function memberEntriesOf(members: TOrganizationTeamEmployee[] | null | undefined) {
@@ -221,9 +228,18 @@ export function useTeamTasksView(options: TeamTasksViewOptions = {}) {
 		return withoutListedSubTasks(scopedTasks);
 	}, [scopedTasks, settings.showsSubTasks]);
 
+	const manualOrder = options.manualOrder;
+	const allowsManualOrder = manualOrder !== undefined;
+	// A task moves in a manual order only, and only on the saved view that keeps it.
+	const canReorder = allowsManualOrder && settings.ordering === 'manual';
 	const groups = useMemo(
-		() => buildTeamTasksGroups(listedTasks, settings, lookups, priorityValues),
-		[listedTasks, settings, lookups, priorityValues]
+		() => buildTeamTasksGroups(listedTasks, settings, lookups, priorityValues, manualOrder),
+		[listedTasks, settings, lookups, priorityValues, manualOrder]
+	);
+	/** The listed tasks in the view's manual order, groups aside: what a move is made against. */
+	const shownOrder = useMemo(
+		() => (canReorder ? sortByManualOrder(listedTasks, manualOrder).map((task) => task.id) : NO_IDS),
+		[canReorder, listedTasks, manualOrder]
 	);
 	const showsGroupHeaders = settings.grouping !== 'none';
 	const rows = useMemo(
@@ -381,6 +397,9 @@ export function useTeamTasksView(options: TeamTasksViewOptions = {}) {
 		settings,
 		isDefaultView: isDefaultView(settings),
 		isDetached,
+		allowsManualOrder,
+		canReorder,
+		shownOrder,
 		definition,
 		applyDefinition,
 		scope,
