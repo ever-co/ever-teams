@@ -58,7 +58,10 @@ describe('useInboxWebPush, a browser that is subscribed', () => {
 
 		await waitFor(() => expect(result.current.state).toBe('on'));
 		expect(service.register).toHaveBeenCalledTimes(1);
-		expect(service.register.mock.calls[0][0]).toMatchObject({ endpoint: THIS_ENDPOINT, keys: { p256dh: 'p256dh', auth: 'auth' } });
+		expect(service.register.mock.calls[0][0]).toMatchObject({
+			endpoint: THIS_ENDPOINT,
+			keys: { p256dh: 'p256dh', auth: 'auth' }
+		});
 	});
 
 	it('is not registered when its devices cannot be read, and shows off', async () => {
@@ -83,7 +86,9 @@ describe('useInboxWebPush, a browser that is subscribed', () => {
 				ready
 			}
 		});
-		(globalThis as unknown as { Notification: { requestPermission: jest.Mock } }).Notification.requestPermission.mockResolvedValue('granted');
+		(
+			globalThis as unknown as { Notification: { requestPermission: jest.Mock } }
+		).Notification.requestPermission.mockResolvedValue('granted');
 
 		const { result } = renderHook(() => useInboxWebPush(true));
 		await waitFor(() => expect(result.current.state).toBe('off'));

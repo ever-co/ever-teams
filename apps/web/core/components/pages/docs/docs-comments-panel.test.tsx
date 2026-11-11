@@ -23,7 +23,11 @@ jest.mock('@/core/components/common/alert-dialog-confirmation', () => ({
 
 // The composer is the task drawer's (mentions, files): here a button posting a fixed text stands for it.
 jest.mock('@/core/components/tasks/drawer/comment-composer', () => ({
-	CommentComposer: ({ onSubmit }: { onSubmit: (body: string, mentionEmployeeIds: string[], files: File[]) => Promise<boolean> }) => (
+	CommentComposer: ({
+		onSubmit
+	}: {
+		onSubmit: (body: string, mentionEmployeeIds: string[], files: File[]) => Promise<boolean>;
+	}) => (
 		<button type="button" onClick={() => void onSubmit('On this block', [], [])}>
 			post
 		</button>

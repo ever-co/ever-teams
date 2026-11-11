@@ -266,7 +266,8 @@ export function DocsPageView({ pageId, tree, actions, spaces = NO_SPACES, onOpen
 				const content = json as IDocumentNode;
 				// The autosave holds the text now: the document the tab kept for it can go. Until then it stays, so a view
 				// left meanwhile (or a page locked or trashed, which skips this) leaves the edits to the next visit.
-				if (adoptDraft(html, content, mentionedEmployeeIds(content), liveClockRef.current ?? NEVER_SAVED_CLOCK)) liveBinding?.draftAdopted();
+				const base = liveClockRef.current ?? NEVER_SAVED_CLOCK;
+				if (adoptDraft(html, content, mentionedEmployeeIds(content), base)) liveBinding?.draftAdopted();
 				setAdoption('done');
 			})
 			.catch(() => {

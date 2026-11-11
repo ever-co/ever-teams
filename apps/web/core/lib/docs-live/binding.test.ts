@@ -653,7 +653,8 @@ describe('DocsLiveBinding', () => {
 		const binding = bind(transport);
 		await settle();
 		transport.play(syncFrame(serverWith('Start')));
-		transport.updateAnswer = () => Promise.reject({ statusCode: 403, errorCode: 'DOCS_LIVE_READ_ONLY', details: { reason: 'locked' } });
+		transport.updateAnswer = () =>
+			Promise.reject({ statusCode: 403, errorCode: 'DOCS_LIVE_READ_ONLY', details: { reason: 'locked' } });
 		addParagraph(binding.getSnapshot().doc, 'Refused');
 		const waited = binding.whenConfirmed();
 		await jest.advanceTimersByTimeAsync(75);
