@@ -21,6 +21,7 @@ import {
 import type { TTask } from '@/core/types/schemas/task/task.schema';
 import type { TTaskStatus } from '@/core/types/schemas/task/task-status.schema';
 import { isSavedTeamLoading } from '@/core/lib/helpers/saved-team';
+import { ProjectActivityChart } from './project-activity-chart';
 import { ProjectProgressFiguresSkeleton } from './project-detail-skeleton';
 
 type Breakdown = 'assignees' | 'status';
@@ -256,6 +257,7 @@ export function ProjectProgressPanel({
 			/>
 			{isByAssignee && <AssigneeRows tasks={stats.tasks} statuses={statuses} />}
 			{!isByAssignee && <StatusRows tasks={stats.tasks} statuses={statuses} />}
+				<ProjectActivityChart tasks={stats.tasks} statuses={statuses} />
 		</PanelShell>
 	);
 }
