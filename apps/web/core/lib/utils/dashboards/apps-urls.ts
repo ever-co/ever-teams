@@ -1,3 +1,4 @@
+import type { ActivityKind } from '@/core/lib/utils/activity-icons';
 import { durationPartsOf, percentOf } from '@/core/lib/utils/dashboard-figures';
 
 export type AppsUrlsView = 'date' | 'employee' | 'project' | 'application';
@@ -67,7 +68,7 @@ export interface AppUsageRow {
 	dateKey: string;
 	title: string;
 	/** `url` for a visited site, `app` for a desktop app, where the report says so (#5023). */
-	kind?: 'app' | 'url' | null;
+	kind?: ActivityKind | null;
 	/** A visited address of the site, where the report carries one (#5023). */
 	url?: string | null;
 	employee: UsagePerson;
@@ -102,7 +103,7 @@ function textOf(value: unknown): string {
 }
 
 /** Gauzy's activity type (`APP` or `URL`), when the report carries it. */
-function kindOf(value: unknown): 'app' | 'url' | null {
+function kindOf(value: unknown): ActivityKind | null {
 	const type = textOf(value).toUpperCase();
 	if (type === 'URL') {
 		return 'url';
@@ -275,7 +276,7 @@ export interface TitleTotal {
 	key: string;
 	title: string;
 	/** `url` for a visited site, `app` for a desktop app, where the report says so (#5023). */
-	kind?: 'app' | 'url' | null;
+	kind?: ActivityKind | null;
 	/** A visited address of the site, where the report carries one (#5023). */
 	url?: string | null;
 	seconds: number;
@@ -337,7 +338,7 @@ export interface UsageGroupRow {
 	dateKey: string;
 	title: string;
 	/** `url` for a visited site, `app` for a desktop app, where the report says so (#5023). */
-	kind?: 'app' | 'url' | null;
+	kind?: ActivityKind | null;
 	/** A visited address of the site, where the report carries one (#5023). */
 	url?: string | null;
 	employee: UsagePerson;
@@ -733,7 +734,7 @@ export interface MosaicItem {
 	/** The app or site; empty for the others tile. */
 	title: string;
 	/** The app or site's kind and a visited address, where the report gives them (#5023). */
-	kind?: 'app' | 'url' | null;
+	kind?: ActivityKind | null;
 	url?: string | null;
 	/** Every app or site the tile holds: its own title, or the titles merged into the others tile. */
 	titles: string[];

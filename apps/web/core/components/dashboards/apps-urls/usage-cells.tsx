@@ -5,6 +5,7 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/core/components/common/av
 import { MemberCell } from '@/core/components/dashboards/kit/member-cell';
 import { dataColorHue, isPaintableColor } from '@/core/components/tasks/task-data-color';
 import { cn } from '@/core/lib/helpers';
+import type { ActivityKind } from '@/core/lib/utils/activity-icons';
 import type { UsagePerson, UsageProject } from '@/core/lib/utils/dashboards/apps-urls';
 
 const CELL_TEXT = 'truncate text-[13px] text-foreground';
@@ -22,7 +23,7 @@ export const AppTitleCell = memo(function AppTitleCell({
 	kind,
 	url,
 	className
-}: Readonly<{ title: string; kind?: 'app' | 'url' | null; url?: string | null; className?: string }>) {
+}: Readonly<{ title: string; kind?: ActivityKind | null; url?: string | null; className?: string }>) {
 	const t = useTranslations();
 	const hasTitle = title.length > 0;
 	return (

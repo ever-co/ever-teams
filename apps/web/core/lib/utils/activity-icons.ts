@@ -2,6 +2,9 @@ import { siteAddressOf } from '@/core/components/activities/activity-links';
 import { readRuntimeEnv } from '@/env-config';
 import brandData from './activity-brands.json';
 
+/** What a tracked row is: `url` for a visited site, `app` for a desktop app. */
+export type ActivityKind = 'app' | 'url';
+
 /**
  * The icons of tracked apps and visited sites (#5023). A row tells its title and, where the platform says so, its kind
  * and its address: an app or a site is recognised from those.
@@ -10,7 +13,7 @@ export interface ActivitySubject {
 	/** The app's name, or the site's host or page title. */
 	title: string;
 	/** `url` for a visited site, `app` for a desktop app; unset where the row does not say (the usage report). */
-	kind?: 'app' | 'url' | null;
+	kind?: ActivityKind | null;
 	/** The visited address, where the row carries it. */
 	url?: string | null;
 }
