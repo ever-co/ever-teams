@@ -1,11 +1,13 @@
 /** @jest-environment jsdom */
 /**
  * #5025: how the outcome of a workspace creation is read, and where the new workspace opens. Why a creation failed is
- * said by the page (its notice), never by the generic "That change was not saved" toast on top of it.
+ * said by the page (its notice), never by the generic "That change was not saved" toast on top of it. While it is in
+ * flight, the timer does not start.
  */
 import type { ReactNode } from 'react';
 import { act, renderHook, waitFor } from '@testing-library/react';
 import { QueryClient, QueryClientProvider, useMutation } from '@tanstack/react-query';
+import { getDefaultStore } from 'jotai';
 
 const mockToastError = jest.fn();
 const mockCreateWorkspace = jest.fn();
@@ -18,22 +20,38 @@ jest.mock('@/core/services/client/api/auth/workspace.service', () => ({
 
 import { MutationErrorToaster } from '@/core/components/common/mutation-error-toaster';
 import { ApiErrorService } from '@/core/services/client/api-error.service';
+import { workspaceOpeningState } from '@/core/stores';
 import { createWorkspaceErrorCodeOf, useCreateWorkspace, workspaceWelcomePathOf } from './use-create-workspace';
 
+/** An axios error, as the browser gets it: with the route's answer, or without one. */
+const answer = (status: number, data: unknown) => ({
+	isAxiosError: true,
+	message: 'failed',
+	response: { status, data }
+});
+const unanswered = (code: string, message: string) => ({ isAxiosError: true, code, message });
+/** As the app's API client throws it (ApiErrorService.fromAxiosError): the answer's code is its errorCode. */
+const thrown = (error: object) => ApiErrorService.fromAxiosError(error);
+
 describe('the outcome of a creation', () => {
-	it("reads the route's reason, and anything else as a failure to retry", () => {
-		const answer = (status: number, data: unknown) => ({ isAxiosError: true, response: { status, data } });
+	it("reads the route's reason, and anything else it answered as a failure to retry", () => {
 		expect(createWorkspaceErrorCodeOf(answer(403, { code: 'ADDRESS_UNCONFIRMED' }))).toBe('ADDRESS_UNCONFIRMED');
 		expect(createWorkspaceErrorCodeOf(answer(403, { code: 'REGISTRATION_CLOSED' }))).toBe('REGISTRATION_CLOSED');
 		expect(createWorkspaceErrorCodeOf(answer(502, { code: 'CREATED_NOT_OPENED' }))).toBe('CREATED_NOT_OPENED');
 		expect(createWorkspaceErrorCodeOf(answer(502, { code: 'FAILED' }))).toBe('FAILED');
 		expect(createWorkspaceErrorCodeOf(answer(500, { code: 'SOMETHING_ELSE' }))).toBe('FAILED');
-		expect(createWorkspaceErrorCodeOf(new Error('Network Error'))).toBe('FAILED');
-		// As the app's API client throws it: the answer's code is its errorCode
-		expect(createWorkspaceErrorCodeOf(new ApiErrorService('Forbidden', 403, 'REGISTRATION_CLOSED'))).toBe(
+		expect(createWorkspaceErrorCodeOf(thrown(answer(403, { code: 'REGISTRATION_CLOSED' })))).toBe(
 			'REGISTRATION_CLOSED'
 		);
-		expect(createWorkspaceErrorCodeOf(new ApiErrorService('Bad gateway', 502))).toBe('FAILED');
+		expect(createWorkspaceErrorCodeOf(thrown(answer(502, {})))).toBe('FAILED');
+		expect(createWorkspaceErrorCodeOf(new Error('A bug before the request'))).toBe('FAILED');
+	});
+
+	it('reads a creation the route never answered (a timeout, the network) as an unknown outcome', () => {
+		const timeout = unanswered('ECONNABORTED', 'timeout of 120000ms exceeded');
+		expect(createWorkspaceErrorCodeOf(timeout)).toBe('OUTCOME_UNKNOWN');
+		expect(createWorkspaceErrorCodeOf(thrown(timeout))).toBe('OUTCOME_UNKNOWN');
+		expect(createWorkspaceErrorCodeOf(thrown(unanswered('ERR_NETWORK', 'Network Error')))).toBe('OUTCOME_UNKNOWN');
 	});
 
 	it('opens the welcome page of the new workspace, told how the invitations went', () => {
@@ -48,6 +66,7 @@ describe('useCreateWorkspace', () => {
 	beforeEach(() => {
 		mockToastError.mockReset();
 		mockCreateWorkspace.mockReset();
+		getDefaultStore().set(workspaceOpeningState, false);
 		jest.spyOn(console, 'error').mockImplementation(() => undefined);
 	});
 
@@ -66,7 +85,7 @@ describe('useCreateWorkspace', () => {
 	}
 
 	it('leaves a refused creation to the page: no generic toast on top of its notice', async () => {
-		mockCreateWorkspace.mockRejectedValue(new ApiErrorService('Forbidden', 403, 'REGISTRATION_CLOSED'));
+		mockCreateWorkspace.mockRejectedValue(thrown(answer(403, { code: 'REGISTRATION_CLOSED' })));
 		const { result } = renderHook(() => useCreateWorkspace(), { wrapper: withToaster() });
 
 		act(() => result.current.mutate({ name: 'Studio', invites: [] }));
@@ -74,6 +93,19 @@ describe('useCreateWorkspace', () => {
 		await waitFor(() => expect(result.current.isError).toBe(true));
 		expect(createWorkspaceErrorCodeOf(result.current.error)).toBe('REGISTRATION_CLOSED');
 		expect(mockToastError).not.toHaveBeenCalled();
+	});
+
+	it('holds timer starts while the creation is in flight, and releases them when it fails', async () => {
+		let refuse: (error: unknown) => void = () => undefined;
+		mockCreateWorkspace.mockImplementation(() => new Promise((_resolve, reject) => (refuse = reject)));
+		const { result } = renderHook(() => useCreateWorkspace(), { wrapper: withToaster() });
+
+		act(() => result.current.mutate({ name: 'Studio', invites: [] }));
+		await waitFor(() => expect(getDefaultStore().get(workspaceOpeningState)).toBe(true));
+
+		act(() => refuse(thrown(answer(502, { code: 'FAILED' }))));
+		await waitFor(() => expect(result.current.isError).toBe(true));
+		expect(getDefaultStore().get(workspaceOpeningState)).toBe(false);
 	});
 
 	it('(control) the generic toast does speak for a mutation that says nothing itself', async () => {

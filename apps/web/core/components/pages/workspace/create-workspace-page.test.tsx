@@ -167,6 +167,20 @@ describe('CreateWorkspacePage', () => {
 		expect(screen.getByRole('button', { name: 'workspaceCreation.CREATE' })).toHaveProperty('disabled', true);
 	});
 
+	it('says when it cannot tell whether the workspace was created, and offers no retry', () => {
+		// No answer from the route (a timeout, the network): the workspace may exist all the same
+		Object.assign(mockCreation, {
+			isError: true,
+			error: { isAxiosError: true, code: 'ECONNABORTED', message: 'timeout of 120000ms exceeded' }
+		});
+
+		render(<CreateWorkspacePage />);
+
+		expect(screen.getByText('workspaceCreation.OUTCOME_UNKNOWN_TITLE')).toBeTruthy();
+		expect(screen.queryByText('workspaceCreation.FAILED_TITLE')).toBeNull();
+		expect(screen.getByRole('button', { name: 'workspaceCreation.CREATE' })).toHaveProperty('disabled', true);
+	});
+
 	describe('while a timer runs', () => {
 		const store = getDefaultStore();
 

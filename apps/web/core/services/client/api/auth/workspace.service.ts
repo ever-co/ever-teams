@@ -8,6 +8,12 @@ import { validateApiResponse } from '@/core/types/schemas/utils/validation';
 import { IAuthResponse } from '@/core/types/interfaces/auth/auth';
 import type { CreateWorkspaceBody } from '@/core/lib/validation/workspace';
 
+/**
+ * How long the creation may take: the route's steps (Gauzy's opening, the sign-up's steps, then invitations given up
+ * after 15 seconds) fit well within it. A creation that times out is an unknown outcome, never "not created".
+ */
+const CREATE_WORKSPACE_TIMEOUT_MS = 120_000;
+
 /** What a workspace creation answers: the invitations sent to its first team. */
 interface CreatedWorkspace {
 	invited: number;
@@ -80,7 +86,9 @@ class WorkspaceService extends APIService {
 	 */
 	createWorkspace = async (body: CreateWorkspaceBody): Promise<CreatedWorkspace> => {
 		const api = await getFallbackAPI();
-		const { data } = await api.post<CreatedWorkspace>('/auth/create-workspace', body);
+		const { data } = await api.post<CreatedWorkspace>('/auth/create-workspace', body, {
+			timeout: CREATE_WORKSPACE_TIMEOUT_MS
+		});
 		return data;
 	};
 
