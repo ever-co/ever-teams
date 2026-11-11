@@ -6,6 +6,7 @@ import { CharacterCount, Placeholder } from '@tiptap/extensions';
 import { Markdown } from '@tiptap/markdown';
 import StarterKit from '@tiptap/starter-kit';
 import { Marked, type marked } from 'marked';
+import { BlockIds } from './block-id-extension';
 import { mentionExtension, type MentionCandidate } from './mention-extension';
 import { SlashCommand, slashItems, type SlashMenuOptions } from './slash-command';
 import type { SuggestionLabels } from './suggestion-render';
@@ -21,6 +22,8 @@ export type EditorExtensionOptions = {
 	onSuggestionOpenChange: (open: boolean) => void;
 	/** Live editing: the editor binds this shared document (and its co-editors' carets) instead of holding its own text. */
 	collaboration?: EditorCollaboration | null;
+	/** What a host adds to the editor (the Docs pages: block anchors, comment marks, task chips). */
+	extraExtensions?: Extensions;
 };
 
 /**
@@ -96,6 +99,8 @@ export function buildExtensions(options: EditorExtensionOptions): Extensions {
 
 	if (collaboration) extensions.push(...collaboration.extensions);
 
+	if (options.extraExtensions?.length) extensions.push(...options.extraExtensions);
+
 	return extensions;
 }
 
@@ -122,6 +127,8 @@ export function schemaExtensions(): Extensions {
 			slashLabels: noLabels,
 			mentionLabels: noLabels,
 			mentions: () => [],
-			onSuggestionOpenChange: () => undefined
+			onSuggestionOpenChange: () => undefined,
+			// The block anchors are part of what a page stores (its JSON and the HTML rendered from it).
+			extraExtensions: [BlockIds]
 		});
 }

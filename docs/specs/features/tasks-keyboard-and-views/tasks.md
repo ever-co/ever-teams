@@ -24,7 +24,7 @@
   sequence, ⌘/Ctrl or a built-in key for them (with Shift added, still theirs in conflicts), and the second key of a
   registry sequence (`G O`) is left to the registry
 - [x] **T9**. Palette results for people, projects, pages and conversations; recent items; "Go to" sequences inside the palette input
-- [ ] **T10**. Project and due-date bulk actions; multi-select on the kanban; views for the kanban layout
+- [x] **T10**. Project and due-date bulk actions; multi-select on the kanban; views for the kanban layout
 - [ ] **T11**. Manual ordering of a view (`PUT /task-views/:id/order`) with drag and drop
 - [ ] **T12**. Saved views on mobile
 - [x] **T13**. The palette's existing sequences (`I U`, `A M`, `T H`, `C T`, `S T`, `C P`, the ⌘ ones) from the registry too

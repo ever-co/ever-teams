@@ -16,6 +16,7 @@ import { isPlainClick } from '@/core/components/tasks/drawer/task-drawer-link';
 import { useTaskWorkedSeconds } from '@/core/hooks/tasks/use-task-worked-seconds';
 import { secondsToTime } from '@/core/lib/helpers/date-and-time';
 import { cn } from '@/core/lib/helpers';
+import { isTaskViewsEnabled } from '@/core/lib/utils/task-views-enabled';
 import {
 	dueDateToneOf,
 	isDoneStatus,
@@ -295,8 +296,19 @@ function SizeCell({ task }: Readonly<{ task: TTask }>) {
 }
 
 function ProjectCell({ task }: Readonly<{ task: TTask }>) {
+	const t = useTranslations();
 	const { projectNames } = useTeamTasksList();
 	const name = itemOf(projectNames, task.projectId);
+	// With the saved-views feature the cell changes the project (`M` on a focused row too).
+	if (isTaskViewsEnabled()) {
+		return (
+			<PickerCell kind="project" taskId={task.id} label={t('taskMenus.fields.project')} className={CELL_BUTTON}>
+				{name && <TaskPropertyIcon kind="project" className="size-3.5 shrink-0 text-muted-foreground" />}
+				{name && <span className="truncate text-xs text-muted-foreground">{name}</span>}
+				{!name && <Placeholder kind="project" />}
+			</PickerCell>
+		);
+	}
 	if (!name) {
 		return null;
 	}

@@ -3,7 +3,7 @@ import { APIService } from '../../api.service';
 import { GAUZY_API_BASE_SERVER_URL } from '@/core/constants/config/constants';
 import { EBaseEntityEnum } from '@/core/types/generics/enums/entity';
 import { PaginationResponse } from '@/core/types/interfaces/common/data-response';
-import { IComment, ICommentCreateInput } from '@/core/types/interfaces/common/comment';
+import { IComment, ICommentCreateInput, ICommentUpdateInput } from '@/core/types/interfaces/common/comment';
 import { IEntityRecordScope } from '@/core/types/interfaces/common/entity-record';
 
 /** Gauzy's `PaginationQueryDTO.take` is `@Max(100)`: asking for more is a 400, not a bigger page. */
@@ -47,6 +47,21 @@ class CommentService extends APIService {
 		const response = await this.post<IComment>('/comment', input);
 
 		return response.data;
+	};
+
+	/**
+	 * Edits, resolves or reopens a comment. Gauzy finds the comment on the caller's employee: only its author may
+	 * change it, `resolved` included (anyone else gets a 400).
+	 */
+	update = async (id: string, input: ICommentUpdateInput): Promise<IComment> => {
+		const response = await this.put<IComment>(`/comment/${encodeURIComponent(id)}`, input);
+
+		return response.data;
+	};
+
+	/** Removes a comment (its author's to remove). */
+	remove = async (id: string): Promise<void> => {
+		await this.delete<unknown>(`/comment/${encodeURIComponent(id)}`);
 	};
 
 	private readonly getPage = async (
