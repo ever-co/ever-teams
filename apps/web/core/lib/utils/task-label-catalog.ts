@@ -132,7 +132,8 @@ export const LABEL_CATALOG: ReadonlyArray<LabelCategory> = [
  * app shows a stored dash as a space, so "Follow-up" and "follow up" are the same label to anyone reading it.
  */
 export function labelNameKeyOf(name: string | null | undefined): string {
-	return (name ?? '').trim().toLowerCase().replaceAll('-', ' ').replaceAll(/\s+/g, ' ');
+	// Trimmed last: a leading or trailing dash becomes a space, which must not tell two names apart
+	return (name ?? '').toLowerCase().replaceAll('-', ' ').replaceAll(/\s+/g, ' ').trim();
 }
 
 /** The keys of a team's label names, to tell which catalog labels it already has. */

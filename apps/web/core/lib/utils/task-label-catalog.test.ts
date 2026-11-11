@@ -49,6 +49,11 @@ describe('labelNameKeyOf', () => {
 		expect(labelNameKeyOf(null)).toBe('');
 		expect(labelNameKeysOf(['Bug', ' ', null])).toEqual(new Set(['bug']));
 	});
+
+	it('trims after the dashes become spaces, so a leading or trailing dash tells no names apart', () => {
+		expect(labelNameKeyOf('Bug-')).toBe('bug');
+		expect(labelNameKeyOf('-bug ')).toBe('bug');
+	});
 });
 
 describe('catalogGroupsOf', () => {
