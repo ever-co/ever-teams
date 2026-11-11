@@ -366,6 +366,18 @@ describe("the platform's own reminders", () => {
 				})
 			).toBe(Date.parse('2026-11-12T07:00:00Z'));
 		});
+
+		it('at the hour their clock shows, on a night the clocks change', () => {
+			const paris = { start: '22:00', end: '07:00', timeZone: 'Europe/Paris' };
+			// 23:10 in Paris on the night the clocks go back: 07:00 the next morning is 06:00 UTC, not 05:00
+			expect(quietHoursEndAfter(Date.parse('2026-10-24T21:10:00Z'), paris)).toBe(
+				Date.parse('2026-10-25T06:00:00Z')
+			);
+			// ...and on the night they go forward, 05:00 UTC, not 06:00
+			expect(quietHoursEndAfter(Date.parse('2026-03-28T22:10:00Z'), paris)).toBe(
+				Date.parse('2026-03-29T05:00:00Z')
+			);
+		});
 	});
 
 	/**

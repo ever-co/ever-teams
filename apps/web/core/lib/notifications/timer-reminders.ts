@@ -306,16 +306,31 @@ export interface TimerReminderDeliveryContext {
 	preferences: INotificationPreferences | null | undefined;
 }
 
-/** When the quiet hours that `at` falls in end (to the minute, in the window's time zone, else the browser's). */
+/**
+ * When the quiet hours that `at` falls in end: the first instant after it at which their clock (the window's time zone,
+ * else the browser's) shows their end. The minutes counted on the clock are an hour off across a daylight-saving
+ * change, so the guess is corrected by what the clock shows there.
+ */
 export function quietHoursEndAfter(at: number, window: INotificationQuietHours): number {
-	let minutes: number;
-	try {
-		minutes = minutesOfDay(new Date(at), window.timeZone);
-	} catch {
-		minutes = minutesOfDay(new Date(at));
+	const clockAt = (instant: number) => {
+		try {
+			return minutesOfDay(new Date(instant), window.timeZone);
+		} catch {
+			return minutesOfDay(new Date(instant));
+		}
+	};
+	const end = minutesOf(window.end);
+	const day = 24 * 60;
+	let instant = at - (at % 60_000) + ((end - clockAt(at) + day) % day) * 60_000;
+	for (let pass = 0; pass < 2; pass += 1) {
+		// How far the clock is from the end there, in (-12 h, 12 h]
+		const off = ((end - clockAt(instant) + day + day / 2) % day) - day / 2;
+		if (off === 0) {
+			break;
+		}
+		instant += off * 60_000;
 	}
-	const untilEnd = (minutesOf(window.end) - minutes + 24 * 60) % (24 * 60);
-	return at + untilEnd * 60 * 1000;
+	return instant;
 }
 
 /**
