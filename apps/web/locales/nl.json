@@ -5308,7 +5308,25 @@
 				"DECISION": "Besluit",
 				"CONSEQUENCES": "Gevolgen"
 			}
-		}
+		},
+		"LIVE": "Live",
+		"LIVE_CONNECTING": "Verbinden…",
+		"LIVE_RECONNECTING": "Opnieuw verbinden…",
+		"NOT_LIVE": "Niet live",
+		"LIVE_EDITORS": "{count, plural, one {# andere persoon op deze pagina} other {# andere personen op deze pagina}}",
+		"LIVE_READ_ONLY": "Je kunt deze pagina lezen terwijl ze verandert, maar hier niet bewerken.",
+		"LIVE_READ_ONLY_NO_ACCESS": "Je kunt deze pagina lezen terwijl anderen haar bewerken, maar je kunt haar niet bewerken.",
+		"LIVE_READ_ONLY_FULL": "Deze pagina heeft al zoveel bewerkers als ze aankan. Je kunt meelezen en bewerken zodra iemand vertrekt.",
+		"LIVE_ENDED": "Live bewerken is gestopt. Je wijzigingen worden zoals gewoonlijk opgeslagen.",
+		"LIVE_ENDED_ACCESS": "Je hebt geen toegang meer om deze pagina live te bewerken.",
+		"TEAM_SPACE": "Teamruimte",
+		"TEAM_SPACE_EMPTY": "Nog geen pagina’s in deze teamruimte.",
+		"NEW_TEAM_PAGE": "Nieuwe pagina in {team}",
+		"MOVE_TO_SPACE": "Naar ruimte verplaatsen",
+		"FOLLOW": "Pagina volgen",
+		"UNFOLLOW": "Pagina niet meer volgen",
+		"MUTE": "Meldingen dempen",
+		"UNMUTE": "Meldingen weer aanzetten"
 	},
 	"whatsNew": {
 		"TITLE": "Wat is er nieuw",

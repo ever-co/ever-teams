@@ -1042,6 +1042,10 @@ export const queryKeys = {
 		search: (tenantId: string | undefined | null, organizationId: string | undefined | null, query: string) =>
 			['docs', 'search', tenantId ?? null, organizationId ?? null, query] as const,
 		projectPages: (tenantId: string | undefined | null, organizationId: string | undefined | null, projectId: string | undefined | null) =>
-			['docs', 'project-pages', tenantId ?? null, organizationId ?? null, projectId ?? null] as const
+			['docs', 'project-pages', tenantId ?? null, organizationId ?? null, projectId ?? null] as const,
+		spaces: (tenantId: string | undefined | null, organizationId: string | undefined | null) =>
+			['docs', 'spaces', tenantId ?? null, organizationId ?? null] as const,
+		follow: (tenantId: string | undefined | null, pageId: string | undefined | null) =>
+			['docs', 'follow', tenantId ?? null, pageId ?? null] as const
 	}
 };

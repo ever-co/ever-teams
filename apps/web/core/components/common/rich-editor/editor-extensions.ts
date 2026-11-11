@@ -1,4 +1,4 @@
-import type { Extensions } from '@tiptap/core';
+import { getSchema, type Extensions } from '@tiptap/core';
 import Image from '@tiptap/extension-image';
 import TaskItem from '@tiptap/extension-task-item';
 import TaskList from '@tiptap/extension-task-list';
@@ -19,6 +19,16 @@ export type EditorExtensionOptions = {
 	mentionLabels: SuggestionLabels;
 	mentions?: () => readonly MentionCandidate[];
 	onSuggestionOpenChange: (open: boolean) => void;
+	/** Live editing: the editor binds this shared document (and its co-editors' carets) instead of holding its own text. */
+	collaboration?: EditorCollaboration | null;
+};
+
+/**
+ * Live editing: the extensions that bind the editor to a shared document (see `live-collaboration.ts`, which the
+ * live pages load; the other editors never carry them).
+ */
+export type EditorCollaboration = {
+	extensions: Extensions;
 };
 
 /**
@@ -35,8 +45,11 @@ function ownMarkedInstance() {
  * in Markdown); Markdown is only the language of the writing help and of pasted plain text.
  */
 export function buildExtensions(options: EditorExtensionOptions): Extensions {
+	const collaboration = options.collaboration ?? null;
 	const extensions: Extensions = [
 		StarterKit.configure({
+			// Live, the shared document keeps the history (each person undoes their own edits): the two exclude each other.
+			...(collaboration ? { undoRedo: false as const } : {}),
 			heading: { levels: [1, 2, 3, 4, 5, 6] },
 			dropcursor: { color: 'hsl(var(--primary))', width: 2 },
 			link: {
@@ -81,5 +94,31 @@ export function buildExtensions(options: EditorExtensionOptions): Extensions {
 		);
 	}
 
+	if (collaboration) extensions.push(...collaboration.extensions);
+
 	return extensions;
+}
+
+/**
+ * The node and mark types of the editor's schema (with mentions and pictures, as the Docs pages use it), known before
+ * any editor exists: a live document is checked against them before an editor is bound to it.
+ */
+export function editorSchemaTypes(): { nodes: Set<string>; marks: Set<string> } {
+	const noLabels = { emptyLabel: '', loadingLabel: '', ariaLabel: '' };
+	const schema = getSchema(
+		buildExtensions({
+			placeholder: '',
+			slashMenu: {
+				copy: {} as SlashMenuOptions['copy'],
+				handlers: { pickImage: () => undefined, openAi: () => undefined },
+				imagesEnabled: true,
+				aiEnabled: false
+			},
+			slashLabels: noLabels,
+			mentionLabels: noLabels,
+			mentions: () => [],
+			onSuggestionOpenChange: () => undefined
+		})
+	);
+	return { nodes: new Set(Object.keys(schema.nodes)), marks: new Set(Object.keys(schema.marks)) };
 }
