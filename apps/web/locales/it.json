@@ -1584,7 +1584,8 @@
 			"TASKS_HIDDEN_BY_FILTERS": "{count, plural, one {# attività nascosta dai filtri} other {# attività nascoste dai filtri}}",
 			"NO_STATUSES_TITLE": "Nessuno stato per ora",
 			"NO_STATUSES_MESSAGE": "Questo team non ha stati delle attività. Aggiungili nelle impostazioni del team per vedere la sua bacheca.",
-			"CREATION_DAY": "Giorno di creazione"
+			"CREATION_DAY": "Giorno di creazione",
+			"SELECT_TASK": "Seleziona {title}"
 		},
 		"profile": {
 			"BREADCRUMB": "[\"Compiti dei membri\"]",
@@ -2459,7 +2460,11 @@
 			"SHOW_EMPTY_GROUPS": "Gruppi vuoti",
 			"SHOW_SUB_TASKS": "Sottoattività",
 			"SUB_TASKS_DONE": "{done} di {total} sottoattività completate",
-			"TRACKED_NOW_BY": "Tracciata ora da {names}"
+			"TRACKED_NOW_BY": "Tracciata ora da {names}",
+			"SEARCH_PROJECT": "Sposta in un progetto…",
+			"LAYOUT": "Layout",
+			"LAYOUT_LIST": "Elenco",
+			"LAYOUT_BOARD": "Bacheca"
 		},
 		"joinTeam": {
 			"TITLE": "Unisciti a un team",
@@ -4929,7 +4934,8 @@
 			"searchTasks": "Cerca nelle attività",
 			"searchProjects": "Cerca nei progetti",
 			"searchTeams": "Cerca nei team",
-			"themeToggle": "Passa da chiaro a scuro"
+			"themeToggle": "Passa da chiaro a scuro",
+			"taskProject": "Cambia il progetto"
 		}
 	},
 	"realtime": {

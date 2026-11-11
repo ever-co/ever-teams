@@ -11,11 +11,20 @@ import {
 	TEAM_TASK_PROPERTIES,
 	type TeamTaskProperty,
 	type TeamTasksGrouping,
+	type TeamTasksLayout,
 	type TeamTasksOrdering
 } from '@/core/lib/utils/team-tasks-view';
+import { isTaskViewsEnabled } from '@/core/lib/utils/task-views-enabled';
 import type { TeamTasksViewState } from '@/core/hooks/tasks/use-team-tasks-view';
 
 const GROUPINGS: TeamTasksGrouping[] = ['status', 'priority', 'assignee', 'project', 'issueType', 'none'];
+
+const LAYOUTS: TeamTasksLayout[] = ['list', 'board'];
+
+const LAYOUT_LABEL_KEYS: Record<TeamTasksLayout, DottedLanguageObjectStringPaths> = {
+	list: 'pages.teamTasks.LAYOUT_LIST',
+	board: 'pages.teamTasks.LAYOUT_BOARD'
+};
 
 const ORDERINGS: TeamTasksOrdering[] = ['priority', 'updated', 'created', 'dueDate', 'number', 'title'];
 
@@ -67,6 +76,10 @@ function isOrdering(value: string): value is TeamTasksOrdering {
 	return ORDERINGS.includes(value as TeamTasksOrdering);
 }
 
+function isLayout(value: string): value is TeamTasksLayout {
+	return LAYOUTS.includes(value as TeamTasksLayout);
+}
+
 /**
  * The list's Display popover (Linear's, circle's display options): grouping, ordering, sub-tasks, empty groups,
  * the properties each row shows, and a reset. A dot on the trigger says the view differs from the default.
@@ -85,6 +98,12 @@ export function TeamTasksDisplayMenu({ view }: Readonly<{ view: TeamTasksViewSta
 			return;
 		}
 		view.setGrouping(value);
+	};
+	const handleLayout = (value: string | null) => {
+		if (!value || !isLayout(value)) {
+			return;
+		}
+		view.setLayout(value);
 	};
 	const handleOrdering = (value: string | null) => {
 		if (!value) {
@@ -119,6 +138,22 @@ export function TeamTasksDisplayMenu({ view }: Readonly<{ view: TeamTasksViewSta
 			</PopoverTrigger>
 			<PopoverContent align="end" sideOffset={6} className="w-80 p-0">
 				<div className="py-1.5">
+					{isTaskViewsEnabled() && (
+						<DisplayRow label={t('pages.teamTasks.LAYOUT')}>
+							<Select value={settings.layout ?? 'list'} onValueChange={handleLayout}>
+								<SelectTrigger className="h-7 w-40 text-[13px]">
+									<SelectValue />
+								</SelectTrigger>
+								<SelectContent>
+									{LAYOUTS.map((layout) => (
+										<SelectItem key={layout} value={layout}>
+											{t(LAYOUT_LABEL_KEYS[layout])}
+										</SelectItem>
+									))}
+								</SelectContent>
+							</Select>
+						</DisplayRow>
+					)}
 					<DisplayRow label={t('pages.teamTasks.GROUPING')}>
 						<Select value={settings.grouping} onValueChange={handleGrouping}>
 							<SelectTrigger className="h-7 w-40 text-[13px]">

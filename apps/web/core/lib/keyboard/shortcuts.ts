@@ -77,7 +77,8 @@ export const SHORTCUT_COMMANDS: readonly ShortcutCommand[] = [
 	{ id: 'taskStatus', context: 'task', defaultBinding: 's', chordOnly: true },
 	{ id: 'taskPriority', context: 'task', defaultBinding: 'p', chordOnly: true },
 	{ id: 'taskLabels', context: 'task', defaultBinding: 'l', chordOnly: true },
-	{ id: 'taskDueDate', context: 'task', defaultBinding: 'd', chordOnly: true }
+	{ id: 'taskDueDate', context: 'task', defaultBinding: 'd', chordOnly: true },
+	{ id: 'taskProject', context: 'task', defaultBinding: 'm', chordOnly: true }
 ];
 
 /** The contexts in the order the help dialog lists them. */

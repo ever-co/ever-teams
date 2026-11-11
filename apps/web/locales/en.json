@@ -1911,7 +1911,8 @@
 			"TASKS_HIDDEN_BY_FILTERS": "{count, plural, one {# task hidden by the filters} other {# tasks hidden by the filters}}",
 			"NO_STATUSES_TITLE": "No statuses yet",
 			"NO_STATUSES_MESSAGE": "This team has no task statuses. Add them in the team settings to see its board.",
-			"CREATION_DAY": "Creation day"
+			"CREATION_DAY": "Creation day",
+			"SELECT_TASK": "Select {title}"
 		},
 		"taskDetails": {
 			"BREADCRUMB": "[\"Task details\"]",
@@ -2459,7 +2460,11 @@
 			"SHOW_EMPTY_GROUPS": "Empty groups",
 			"SHOW_SUB_TASKS": "Sub-tasks",
 			"SUB_TASKS_DONE": "{done} of {total} sub-tasks done",
-			"TRACKED_NOW_BY": "Tracked now by {names}"
+			"TRACKED_NOW_BY": "Tracked now by {names}",
+			"SEARCH_PROJECT": "Move to a project…",
+			"LAYOUT": "Layout",
+			"LAYOUT_LIST": "List",
+			"LAYOUT_BOARD": "Board"
 		},
 		"joinTeam": {
 			"TITLE": "Join a team",
@@ -4929,7 +4934,8 @@
 			"searchTasks": "Search the tasks",
 			"searchProjects": "Search the projects",
 			"searchTeams": "Search the teams",
-			"themeToggle": "Switch between light and dark"
+			"themeToggle": "Switch between light and dark",
+			"taskProject": "Change the project"
 		}
 	},
 	"realtime": {

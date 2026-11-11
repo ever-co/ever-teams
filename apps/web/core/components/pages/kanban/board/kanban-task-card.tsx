@@ -1,6 +1,13 @@
 'use client';
 
-import { memo, useEffect, useRef, useState, type MouseEvent as ReactMouseEvent } from 'react';
+import {
+	memo,
+	useEffect,
+	useRef,
+	useState,
+	type KeyboardEvent as ReactKeyboardEvent,
+	type MouseEvent as ReactMouseEvent
+} from 'react';
 import Link from 'next/link';
 import { useTranslations } from 'next-intl';
 import { combine } from '@atlaskit/pragmatic-drag-and-drop/combine';
@@ -16,7 +23,9 @@ import { getTaskEstimation } from '@/core/lib/utils/task.utils';
 import { dataColorChipStyle, isPaintableColor } from '@/core/components/tasks/task-data-color';
 import { TaskPropertyIcon, type TaskPropertyKind } from '@/core/components/tasks/task-property-icon';
 import type { TTask } from '@/core/types/schemas/task/task.schema';
-import { useKanbanBoardContext } from './kanban-board-context';
+import { useKanbanBoardContext, useKanbanSelection, type KanbanSelection } from './kanban-board-context';
+import { Check } from '@/core/components/icons';
+import { chordOfEvent, isTypingTarget, sameChord } from '@/core/lib/keyboard/shortcuts';
 import { useTaskWorkedSeconds } from '@/core/hooks/tasks/use-task-worked-seconds';
 import {
 	IDLE_DRAG_STATE,
@@ -75,7 +84,7 @@ function PropertyChip({
 	);
 }
 
-function TaskProperties({ task }: Readonly<{ task: TTask }>) {
+function TaskProperties({ task, hasCheck }: Readonly<{ task: TTask; hasCheck: boolean }>) {
 	const { priorityItems, sizeItems } = useKanbanBoardContext();
 	const priority = task.priority as string | null | undefined;
 	const size = task.size as string | null | undefined;
@@ -90,7 +99,7 @@ function TaskProperties({ task }: Readonly<{ task: TTask }>) {
 	}
 
 	return (
-		<div className="flex min-w-0 flex-wrap items-center gap-1 pr-7">
+		<div className={cn('flex min-w-0 flex-wrap items-center gap-1', hasCheck ? 'pr-14' : 'pr-7')}>
 			{priority && <PropertyChip kind="priority" name={priority} color={priorityItems.get(priority)?.bgColor} />}
 			{size && <PropertyChip kind="size" name={size} color={sizeItems.get(size)?.bgColor} />}
 			{shownLabels.map((label) => (
@@ -154,6 +163,51 @@ function isOnControl(target: EventTarget | null) {
 	}
 	const control = target.closest('button, a, input, textarea, [role="menu"], [role="menuitem"]');
 	return Boolean(control);
+}
+
+/** Whether a key press toggles the card: the selection's key, with Shift for a range when its key has none. */
+function selectionKeyOf(event: ReactKeyboardEvent<HTMLElement>, selection: KanbanSelection) {
+	const key = selection.selectChord;
+	const chord = chordOfEvent(event.nativeEvent);
+	if (!key || !chord || isTypingTarget(event.target)) {
+		return null;
+	}
+	if (sameChord(chord, key)) {
+		return { extend: false };
+	}
+	const isShifted = !key.shift && chord.shift && sameChord({ ...chord, shift: false }, key);
+	return isShifted ? { extend: true } : null;
+}
+
+const SELECT_CHECK =
+	'absolute top-2 right-9 z-10 flex size-5 items-center justify-center rounded-full outline-none transition-opacity hairline-ring focus-visible:ring-[3px] focus-visible:ring-ring/25';
+
+function SelectCheck({
+	task,
+	selection,
+	isSelected
+}: Readonly<{ task: TTask; selection: KanbanSelection; isSelected: boolean }>) {
+	const t = useTranslations();
+	const isSelecting = selection.selectedIds.size > 0;
+	return (
+		<button
+			type="button"
+			role="checkbox"
+			aria-checked={isSelected}
+			aria-label={t('pages.kanban.SELECT_TASK', { title: task.title })}
+			onClick={(event) => selection.toggleSelected(task.id, event.shiftKey)}
+			className={cn(
+				SELECT_CHECK,
+				isSelected && 'bg-primary text-primary-foreground ring-primary',
+				!isSelected && 'bg-card ring-border',
+				!isSelected &&
+					!isSelecting &&
+					'opacity-0 group-hover/card:opacity-100 focus-visible:opacity-100 [@media(hover:none)]:opacity-100'
+			)}
+		>
+			{isSelected && <Check className="size-3" aria-hidden="true" />}
+		</button>
+	);
 }
 
 function TaskTitle({ task, onOpen }: Readonly<{ task: TTask; onOpen: () => void }>) {
@@ -248,6 +302,8 @@ export const KanbanTaskCard = memo(function KanbanTaskCard({
 	index
 }: Readonly<{ task: TTask; statusId: string; index: number }>) {
 	const { liveTaskId, openTask } = useKanbanBoardContext();
+	const selection = useKanbanSelection();
+	const isSelected = Boolean(selection?.selectedIds.has(task.id));
 	const [isEditingTitle, setIsEditingTitle] = useState(false);
 	const { ref, dragState } = useCardDragAndDrop(task.id, statusId, index, !isEditingTitle);
 
@@ -264,18 +320,43 @@ export const KanbanTaskCard = memo(function KanbanTaskCard({
 		if (isOnControl(event.target)) {
 			return;
 		}
+		// ⌘/Ctrl-click or Shift-click selects, where the board has a selection (the saved-views feature).
+		const selects = [event.metaKey, event.ctrlKey, event.shiftKey].some(Boolean);
+		if (selection && selects) {
+			event.preventDefault();
+			selection.toggleSelected(task.id, event.shiftKey);
+			return;
+		}
 		openTask(task);
+	};
+	const handleKeyDown = (event: ReactKeyboardEvent<HTMLElement>) => {
+		if (!selection || isEditingTitle) {
+			return;
+		}
+		const toggle = selectionKeyOf(event, selection);
+		if (!toggle) {
+			return;
+		}
+		event.preventDefault();
+		selection.toggleSelected(task.id, toggle.extend);
 	};
 	const hasPeople = people.length > 0;
 
 	return (
 		<div ref={ref} data-task-id={task.id} className="relative">
 			<article
-				className={cn(CARD_SURFACE, isLive && LIVE_CARD, isDragging && 'opacity-40')}
+				className={cn(
+					CARD_SURFACE,
+					isLive && LIVE_CARD,
+					isSelected && 'bg-primary/[0.03] ring-primary/60',
+					isDragging && 'opacity-40'
+				)}
 				aria-label={task.title}
 				onClick={handleCardClick}
+				onKeyDown={handleKeyDown}
 			>
-				<TaskProperties task={task} />
+				<TaskProperties task={task} hasCheck={Boolean(selection)} />
+				{selection && <SelectCheck task={task} selection={selection} isSelected={isSelected} />}
 				<div className="absolute top-2 right-2">
 					<KanbanTaskMenu task={task} onRename={() => setIsEditingTitle(true)} />
 				</div>

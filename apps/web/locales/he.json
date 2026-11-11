@@ -1584,7 +1584,8 @@
 			"TASKS_HIDDEN_BY_FILTERS": "{count, plural, one {משימה אחת מוסתרת על ידי המסננים} other {# משימות מוסתרות על ידי המסננים}}",
 			"NO_STATUSES_TITLE": "עדיין אין סטטוסים",
 			"NO_STATUSES_MESSAGE": "לצוות הזה אין סטטוסים של משימות. הוסיפו אותם בהגדרות הצוות כדי לראות את הלוח.",
-			"CREATION_DAY": "יום יצירה"
+			"CREATION_DAY": "יום יצירה",
+			"SELECT_TASK": "בחירת {title}"
 		},
 		"projects": {
 			"projectTitle": {
@@ -2459,7 +2460,11 @@
 			"SHOW_EMPTY_GROUPS": "קבוצות ריקות",
 			"SHOW_SUB_TASKS": "תתי־משימות",
 			"SUB_TASKS_DONE": "{done} מתוך {total} תתי־משימות הסתיימו",
-			"TRACKED_NOW_BY": "במעקב כעת על ידי {names}"
+			"TRACKED_NOW_BY": "במעקב כעת על ידי {names}",
+			"SEARCH_PROJECT": "העברה לפרויקט…",
+			"LAYOUT": "פריסה",
+			"LAYOUT_LIST": "רשימה",
+			"LAYOUT_BOARD": "לוח"
 		},
 		"joinTeam": {
 			"TITLE": "הצטרפות לצוות",
@@ -4929,7 +4934,8 @@
 			"searchTasks": "חיפוש במשימות",
 			"searchProjects": "חיפוש בפרויקטים",
 			"searchTeams": "חיפוש בצוותים",
-			"themeToggle": "מעבר בין בהיר לכהה"
+			"themeToggle": "מעבר בין בהיר לכהה",
+			"taskProject": "שינוי הפרויקט"
 		}
 	},
 	"realtime": {

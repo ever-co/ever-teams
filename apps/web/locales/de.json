@@ -1584,7 +1584,8 @@
 			"TASKS_HIDDEN_BY_FILTERS": "{count, plural, one {# Aufgabe durch die Filter ausgeblendet} other {# Aufgaben durch die Filter ausgeblendet}}",
 			"NO_STATUSES_TITLE": "Noch keine Status",
 			"NO_STATUSES_MESSAGE": "Dieses Team hat keine Aufgabenstatus. Lege sie in den Teameinstellungen an, um das Board zu sehen.",
-			"CREATION_DAY": "Erstellungstag"
+			"CREATION_DAY": "Erstellungstag",
+			"SELECT_TASK": "{title} auswählen"
 		},
 		"profile": {
 			"BREADCRUMB": "[\"Aufgaben des Mitglieds\"]",
@@ -2459,7 +2460,11 @@
 			"SHOW_EMPTY_GROUPS": "Leere Gruppen",
 			"SHOW_SUB_TASKS": "Unteraufgaben",
 			"SUB_TASKS_DONE": "{done} von {total} Unteraufgaben erledigt",
-			"TRACKED_NOW_BY": "Wird gerade erfasst von {names}"
+			"TRACKED_NOW_BY": "Wird gerade erfasst von {names}",
+			"SEARCH_PROJECT": "In ein Projekt verschieben…",
+			"LAYOUT": "Layout",
+			"LAYOUT_LIST": "Liste",
+			"LAYOUT_BOARD": "Board"
 		},
 		"joinTeam": {
 			"TITLE": "Einem Team beitreten",
@@ -4929,7 +4934,8 @@
 			"searchTasks": "Aufgaben durchsuchen",
 			"searchProjects": "Projekte durchsuchen",
 			"searchTeams": "Teams durchsuchen",
-			"themeToggle": "Zwischen hell und dunkel wechseln"
+			"themeToggle": "Zwischen hell und dunkel wechseln",
+			"taskProject": "Projekt ändern"
 		}
 	},
 	"realtime": {

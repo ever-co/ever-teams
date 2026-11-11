@@ -1584,7 +1584,8 @@
 			"TASKS_HIDDEN_BY_FILTERS": "{count, plural, zero {لا توجد مهام مخفية بواسطة عوامل التصفية} one {مهمة واحدة مخفية بواسطة عوامل التصفية} two {مهمتان مخفيتان بواسطة عوامل التصفية} few {# مهام مخفية بواسطة عوامل التصفية} many {# مهمة مخفية بواسطة عوامل التصفية} other {# مهمة مخفية بواسطة عوامل التصفية}}",
 			"NO_STATUSES_TITLE": "لا توجد حالات بعد",
 			"NO_STATUSES_MESSAGE": "لا يملك هذا الفريق حالات للمهام. أضفها من إعدادات الفريق لرؤية لوحته.",
-			"CREATION_DAY": "يوم الإنشاء"
+			"CREATION_DAY": "يوم الإنشاء",
+			"SELECT_TASK": "تحديد {title}"
 		},
 		"projects": {
 			"projectTitle": {
@@ -2459,7 +2460,11 @@
 			"SHOW_EMPTY_GROUPS": "المجموعات الفارغة",
 			"SHOW_SUB_TASKS": "المهام الفرعية",
 			"SUB_TASKS_DONE": "{done} من {total} مهام فرعية منتهية",
-			"TRACKED_NOW_BY": "يتتبّعها الآن {names}"
+			"TRACKED_NOW_BY": "يتتبّعها الآن {names}",
+			"SEARCH_PROJECT": "نقل إلى مشروع…",
+			"LAYOUT": "التخطيط",
+			"LAYOUT_LIST": "قائمة",
+			"LAYOUT_BOARD": "لوحة"
 		},
 		"joinTeam": {
 			"TITLE": "الانضمام إلى فريق",
@@ -4929,7 +4934,8 @@
 			"searchTasks": "البحث في المهام",
 			"searchProjects": "البحث في المشاريع",
 			"searchTeams": "البحث في الفرق",
-			"themeToggle": "التبديل بين الفاتح والداكن"
+			"themeToggle": "التبديل بين الفاتح والداكن",
+			"taskProject": "تغيير المشروع"
 		}
 	},
 	"realtime": {

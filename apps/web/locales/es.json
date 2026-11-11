@@ -1584,7 +1584,8 @@
 			"TASKS_HIDDEN_BY_FILTERS": "{count, plural, one {# tarea oculta por los filtros} other {# tareas ocultas por los filtros}}",
 			"NO_STATUSES_TITLE": "Aún no hay estados",
 			"NO_STATUSES_MESSAGE": "Este equipo no tiene estados de tarea. Añádelos en la configuración del equipo para ver su tablero.",
-			"CREATION_DAY": "Día de creación"
+			"CREATION_DAY": "Día de creación",
+			"SELECT_TASK": "Seleccionar {title}"
 		},
 		"profile": {
 			"BREADCRUMB": "[\"Tareas de miembro\"]",
@@ -2459,7 +2460,11 @@
 			"SHOW_EMPTY_GROUPS": "Grupos vacíos",
 			"SHOW_SUB_TASKS": "Subtareas",
 			"SUB_TASKS_DONE": "{done} de {total} subtareas terminadas",
-			"TRACKED_NOW_BY": "En seguimiento ahora por {names}"
+			"TRACKED_NOW_BY": "En seguimiento ahora por {names}",
+			"SEARCH_PROJECT": "Mover a un proyecto…",
+			"LAYOUT": "Diseño",
+			"LAYOUT_LIST": "Lista",
+			"LAYOUT_BOARD": "Tablero"
 		},
 		"joinTeam": {
 			"TITLE": "Unirse a un equipo",
@@ -4929,7 +4934,8 @@
 			"searchTasks": "Buscar en las tareas",
 			"searchProjects": "Buscar en los proyectos",
 			"searchTeams": "Buscar en los equipos",
-			"themeToggle": "Cambiar entre claro y oscuro"
+			"themeToggle": "Cambiar entre claro y oscuro",
+			"taskProject": "Cambiar el proyecto"
 		}
 	},
 	"realtime": {

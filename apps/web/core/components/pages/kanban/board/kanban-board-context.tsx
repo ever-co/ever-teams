@@ -10,6 +10,7 @@ import { useUserQuery } from '@/core/hooks/queries/user-user.query';
 import type { TStatus, TStatusItem } from '@/core/types/interfaces/task/task-card';
 import type { TOrganizationTeamEmployee, TTaskStatus } from '@/core/types/schemas';
 import type { TTask } from '@/core/types/schemas/task/task.schema';
+import type { ShortcutChord } from '@/core/lib/keyboard/shortcuts';
 
 export interface KanbanBoardActions {
 	moveTask: (task: TTask, toStatus: TTaskStatus, toIndex: number) => void;
@@ -110,4 +111,28 @@ export function useKanbanBoardMembers() {
 		throw new Error('useKanbanBoardMembers must be used inside KanbanBoardProvider');
 	}
 	return members;
+}
+
+/** The selection of a board, where it has one (the saved-views feature): which cards, and how to change it. */
+export interface KanbanSelection {
+	selectedIds: ReadonlySet<string>;
+	/** Toggles one card; `extend` (Shift) selects the cards from the last one toggled, in the same lane. */
+	toggleSelected: (taskId: string, extend: boolean) => void;
+	/** The key that toggles the focused card: the task list's own (`X` unless rebound). */
+	selectChord: ShortcutChord | null;
+}
+
+// Apart from the card context too: a selection change re-renders the cards, never the board's lanes.
+const KanbanSelectionContext = createContext<KanbanSelection | null>(null);
+
+export function KanbanSelectionProvider({
+	selection,
+	children
+}: Readonly<{ selection: KanbanSelection | null; children: ReactNode }>) {
+	return <KanbanSelectionContext.Provider value={selection}>{children}</KanbanSelectionContext.Provider>;
+}
+
+/** The board's selection, or null on a board without one. */
+export function useKanbanSelection() {
+	return useContext(KanbanSelectionContext);
 }

@@ -1584,7 +1584,8 @@
 			"TASKS_HIDDEN_BY_FILTERS": "{count, plural, one {# taak verborgen door de filters} other {# taken verborgen door de filters}}",
 			"NO_STATUSES_TITLE": "Nog geen statussen",
 			"NO_STATUSES_MESSAGE": "Dit team heeft geen taakstatussen. Voeg ze toe in de teaminstellingen om het bord te zien.",
-			"CREATION_DAY": "Aanmaakdag"
+			"CREATION_DAY": "Aanmaakdag",
+			"SELECT_TASK": "{title} selecteren"
 		},
 		"profile": {
 			"BREADCRUMB": "[\"Taken teamlid\"]",
@@ -2459,7 +2460,11 @@
 			"SHOW_EMPTY_GROUPS": "Lege groepen",
 			"SHOW_SUB_TASKS": "Subtaken",
 			"SUB_TASKS_DONE": "{done} van {total} subtaken klaar",
-			"TRACKED_NOW_BY": "Nu bijgehouden door {names}"
+			"TRACKED_NOW_BY": "Nu bijgehouden door {names}",
+			"SEARCH_PROJECT": "Naar een project verplaatsen…",
+			"LAYOUT": "Weergave",
+			"LAYOUT_LIST": "Lijst",
+			"LAYOUT_BOARD": "Bord"
 		},
 		"joinTeam": {
 			"TITLE": "Lid worden van een team",
@@ -4929,7 +4934,8 @@
 			"searchTasks": "Taken doorzoeken",
 			"searchProjects": "Projecten doorzoeken",
 			"searchTeams": "Teams doorzoeken",
-			"themeToggle": "Wisselen tussen licht en donker"
+			"themeToggle": "Wisselen tussen licht en donker",
+			"taskProject": "Project wijzigen"
 		}
 	},
 	"realtime": {
