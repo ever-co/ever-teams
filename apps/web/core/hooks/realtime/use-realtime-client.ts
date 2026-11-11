@@ -11,8 +11,9 @@ import { RealtimeClient } from '@/core/lib/realtime/client';
 import { isRealtimeEnabled, realtimeSocketUrl } from '@/core/lib/realtime/config';
 import { invalidationsFor, RealtimeScope, resyncInvalidations } from '@/core/lib/realtime/invalidation';
 import { InvalidationScheduler, isTextFieldFocused } from '@/core/lib/realtime/invalidation-scheduler';
+import { trackPromptDelivery } from '@/core/lib/realtime/delivery';
 import { realtimeService } from '@/core/services/client/api/realtime';
-import { realtimeStatusAtom } from '@/core/stores/common/realtime';
+import { realtimePromptDeliveryAtom, realtimeStatusAtom } from '@/core/stores/common/realtime';
 
 /**
  * Keeps the tab's one live connection while a user is signed in and the deployment turns the channel on:
@@ -29,6 +30,7 @@ export function useRealtimeClient(): void {
 	const { data: user } = useUserQuery();
 	const queryClient = useQueryClient();
 	const setStatus = useSetAtom(realtimeStatusAtom);
+	const setPromptDelivery = useSetAtom(realtimePromptDeliveryAtom);
 	const hasToken = !!accessToken;
 	const tokenRef = useRef(accessToken);
 	const clientRef = useRef<RealtimeClient | null>(null);
@@ -45,6 +47,7 @@ export function useRealtimeClient(): void {
 	useEffect(() => {
 		if (!socketUrl || !hasToken || !tenantId || !userId) {
 			setStatus('off');
+			setPromptDelivery(false);
 			return;
 		}
 
@@ -70,7 +73,14 @@ export function useRealtimeClient(): void {
 			realtimeBus.emitResync();
 			scheduler.add(resyncInvalidations(scope));
 		});
-		const offStatus = client.onStatus(setStatus);
+		// Each time the connection comes up, ask the platform whether it pushes promptly: only then may the
+		// connection stand in for the polls (`realtimePausesPollingAtom`). A redeploy can change the answer, a
+		// failed question keeps the polls, and only the latest question counts.
+		const delivery = trackPromptDelivery(() => realtimeService.status(), setPromptDelivery);
+		const offStatus = client.onStatus((status) => {
+			setStatus(status);
+			void delivery.onStatus(status);
+		});
 		// Leaving a text field runs what was held for it.
 		const onFocusOut = () => scheduler.flush();
 		if (typeof document !== 'undefined') document.addEventListener('focusout', onFocusOut);
@@ -79,6 +89,7 @@ export function useRealtimeClient(): void {
 		client.start();
 
 		return () => {
+			delivery.dispose();
 			clientRef.current = null;
 			if (typeof document !== 'undefined') document.removeEventListener('focusout', onFocusOut);
 			offEvent();
@@ -87,8 +98,9 @@ export function useRealtimeClient(): void {
 			client.stop();
 			scheduler.dispose();
 			setStatus('off');
+			setPromptDelivery(false);
 		};
-	}, [socketUrl, hasToken, tenantId, organizationId, userId, scope, queryClient, setStatus]);
+	}, [socketUrl, hasToken, tenantId, organizationId, userId, scope, queryClient, setStatus, setPromptDelivery]);
 
 	// A refreshed token: the same client reconnects with it (the socket keeps the credential it opened with).
 	useEffect(() => {
