@@ -4875,7 +4875,7 @@
 		"NO_MATCH_TEXT": "Probeer een ander woord, of toon alle weergaven.",
 		"CLEAR_SEARCH": "Alle weergaven tonen",
 		"CONFLICT_IN_LIST": "Iemand heeft deze weergave intussen gewijzigd. De lijst toont die versie; probeer het opnieuw.",
-		"DELETE_CONFIRM_TITLE": "“{name}” verwijderen?",
+		"DELETE_CONFIRM_TITLE": "„{name}” verwijderen?",
 		"BACK_TO_VIEWS": "Terug naar alle weergaven",
 		"RULE_MINE": "Alle taken die aan jou zijn toegewezen, in al je teams",
 		"RULE_THIS_WEEK": "Je taken die deze week vervallen, maandag tot zondag",

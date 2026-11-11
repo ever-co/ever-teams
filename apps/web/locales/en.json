@@ -4875,7 +4875,7 @@
 		"NO_MATCH_TEXT": "Try another word, or show every view.",
 		"CLEAR_SEARCH": "Show all views",
 		"CONFLICT_IN_LIST": "Someone changed this view meanwhile. The list shows their version; try again.",
-		"DELETE_CONFIRM_TITLE": "Delete “{name}”?",
+		"DELETE_CONFIRM_TITLE": "Delete \"{name}\"?",
 		"BACK_TO_VIEWS": "Back to all views",
 		"RULE_MINE": "Every task assigned to you, in all your teams",
 		"RULE_THIS_WEEK": "Your tasks due this week, Monday to Sunday",
