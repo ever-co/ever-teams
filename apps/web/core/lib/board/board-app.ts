@@ -132,7 +132,7 @@ export function boardAppUrl(
 }
 
 /** What the Board learns about the signed-in person: enough to name them and show their picture to collaborators. */
-export interface BoardSessionUser {
+interface BoardSessionUser {
 	id: string;
 	name: string;
 	imageUrl: string | null;

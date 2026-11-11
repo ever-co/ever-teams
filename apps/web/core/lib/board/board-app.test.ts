@@ -18,7 +18,7 @@ import {
 const BOARD: BoardTrust = { boardAppDomain: 'https://board.ever.team', allowLocalhostHttp: false };
 const LOCAL_BOARD: BoardTrust = { boardAppDomain: 'http://localhost:3000', allowLocalhostHttp: true };
 const BACKSLASH = String.fromCharCode(92);
-// Look-alikes of a Latin o and of a full stop, spelled out so the test reads as what it checks
+// Characters that pass for a Latin o and for a full stop, spelled out so the test reads as what it checks
 const CYRILLIC_O = String.fromCharCode(0x43e);
 const IDEOGRAPHIC_FULL_STOP = String.fromCharCode(0x3002);
 
