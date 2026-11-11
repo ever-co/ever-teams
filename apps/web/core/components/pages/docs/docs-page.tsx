@@ -205,6 +205,14 @@ export function DocsPage({ view }: Readonly<{ view: DocsView }>) {
 						if (parentId) setOpen(parentId, true);
 					})
 					.catch((error: unknown) => fail(error, 'docs.MOVE_ERROR'));
+			},
+			place: (id, targetId, position) => {
+				void actions
+					.placePage(id, targetId, position)
+					.then((placement) => {
+						if (placement?.parentId) setOpen(placement.parentId, true);
+					})
+					.catch((error: unknown) => fail(error, 'docs.MOVE_ERROR'));
 			}
 		}),
 		[actions, createAndOpen, duplicate, fail, reorder, setOpen, setVisibility, toggleFavorite, trash, tree.byId]

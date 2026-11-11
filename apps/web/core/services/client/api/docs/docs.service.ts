@@ -145,6 +145,20 @@ class DocsService extends APIService {
 		return response.data;
 	};
 
+	// ---------------------------------------------------------------- export
+
+	/**
+	 * The page and the pages under it the reader may read, as a zip of Markdown files (`index.md` for the page, a
+	 * folder per page with sub-pages, links between them relative, the files they show under `assets/`).
+	 */
+	exportSubtreeZip = async (id: string, signal?: AbortSignal): Promise<Blob> => {
+		const response = await this.get<Blob>(`${BASE}/${path(id)}/export/markdown?${this.scopedQuery({ subtree: true })}`, {
+			signal,
+			responseType: 'blob'
+		});
+		return response.data;
+	};
+
 	// ---------------------------------------------------------------- versions
 
 	versions = async (id: string, take: number, skip = 0, signal?: AbortSignal): Promise<IDocumentVersionList> => {
