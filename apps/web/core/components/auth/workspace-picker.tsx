@@ -244,7 +244,15 @@ export function WorkspacePicker(props: Readonly<WorkspacePickerProps>) {
 						<span className="truncate text-[13px] font-medium text-foreground">{accountEmail}</span>
 					</div>
 					{props.onBackButtonClick && (
-						<button type="button" onClick={props.onBackButtonClick} className={AUTH_QUIET_LINK}>
+						<button
+							type="button"
+							onClick={() => {
+								// Leaving the list drops what "Create a new workspace" set for this sign-in
+								setPathAfterSignIn(null);
+								props.onBackButtonClick?.();
+							}}
+							className={AUTH_QUIET_LINK}
+						>
 							{t('auth.workspace.NOT_YOU')}
 						</button>
 					)}

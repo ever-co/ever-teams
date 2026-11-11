@@ -1,6 +1,6 @@
 /** @jest-environment jsdom */
 
-import { navigateAfterSignIn, setPathAfterSignIn } from './navigate-after-sign-in';
+import { navigateAfterSignIn, PATH_AFTER_SIGN_IN_TTL_MS, setPathAfterSignIn } from './navigate-after-sign-in';
 
 const originalLocation = window.location;
 
@@ -70,6 +70,15 @@ describe('the page a sign-in opens (#5025)', () => {
 	it('replaces the sign-in page with it when asked', () => {
 		setPathAfterSignIn('/workspace/new');
 		expect(signIn({ replace: true })).toHaveBeenCalledWith('/workspace/new');
+	});
+
+	it('forgets a page set for a sign-in that never came: a much later one opens the home page', () => {
+		const now = jest.spyOn(Date, 'now').mockReturnValue(Date.UTC(2026, 10, 11, 9, 0));
+		setPathAfterSignIn('/workspace/new');
+
+		now.mockReturnValue(Date.UTC(2026, 10, 11, 9, 0) + PATH_AFTER_SIGN_IN_TTL_MS + 1);
+		expect(signIn()).toHaveBeenCalledWith('/');
+		now.mockRestore();
 	});
 
 	it('opens the home page for anything that is not a page of this app', () => {

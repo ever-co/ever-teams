@@ -20,12 +20,17 @@ function workspaceNamed(name: string, teamCount: number) {
 	} as unknown as ISigninEmailConfirmWorkspaces;
 }
 
-function renderPicker(workspaces: ISigninEmailConfirmWorkspaces[], selectedWorkspace: number) {
+function renderPicker(
+	workspaces: ISigninEmailConfirmWorkspaces[],
+	selectedWorkspace: number,
+	onBackButtonClick?: () => void
+) {
 	const onSubmit = jest.fn((event: { preventDefault: () => void }) => event.preventDefault());
 	render(
 		<WorkspacePicker
 			workspaces={workspaces}
 			onSubmit={onSubmit}
+			onBackButtonClick={onBackButtonClick}
 			selectedWorkspace={selectedWorkspace}
 			setSelectedWorkspace={jest.fn()}
 			selectedTeam=""
@@ -82,7 +87,9 @@ describe('WorkspacePicker', () => {
 		fireEvent.click(screen.getByRole('button', { name: 'auth.workspace.CREATE_NEW' }));
 
 		expect(onSubmit).toHaveBeenCalledTimes(1);
-		expect(window.sessionStorage.getItem('ever-teams:path-after-sign-in')).toBe('/workspace/new');
+		expect(JSON.parse(window.sessionStorage.getItem('ever-teams:path-after-sign-in') ?? '{}').path).toBe(
+			'/workspace/new'
+		);
 	});
 
 	it('opens the home page again when Continue is chosen after all', () => {
@@ -91,6 +98,17 @@ describe('WorkspacePicker', () => {
 
 		fireEvent.click(continueButton);
 
+		expect(window.sessionStorage.getItem('ever-teams:path-after-sign-in')).toBeNull();
+	});
+
+	it('drops the creation page when the person leaves the list ("Not you?")', () => {
+		const onBack = jest.fn();
+		renderPicker([workspaceNamed('Acme', 2)], 0, onBack);
+		fireEvent.click(screen.getByRole('button', { name: 'auth.workspace.CREATE_NEW' }));
+
+		fireEvent.click(screen.getByRole('button', { name: 'auth.workspace.NOT_YOU' }));
+
+		expect(onBack).toHaveBeenCalledTimes(1);
 		expect(window.sessionStorage.getItem('ever-teams:path-after-sign-in')).toBeNull();
 	});
 });
