@@ -26,7 +26,10 @@ export function useSavedViewListCommands() {
 		[t]
 	);
 
-	/** Renames the view being renamed; answers whether it worked (the dialog stays open otherwise). */
+	/**
+	 * Renames the view being renamed; answers whether it worked. A failed save keeps the dialog open to try again, but
+	 * a conflict closes it: the view in hand is outdated, and a new Rename starts from the version the list now shows.
+	 */
 	const rename = useCallback(
 		async (name: string): Promise<boolean> => {
 			if (!renaming) return false;
@@ -37,6 +40,7 @@ export function useSavedViewListCommands() {
 				return true;
 			} catch (error) {
 				reportUpdateError(error);
+				if (error instanceof TaskViewConflictError) setRenaming(null);
 				return false;
 			} finally {
 				setBusyId(null);

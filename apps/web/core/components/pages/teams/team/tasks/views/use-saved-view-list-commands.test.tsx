@@ -46,6 +46,22 @@ describe('useSavedViewListCommands', () => {
 		});
 		expect(renamed).toBe(false);
 		expect(mockToastError).toHaveBeenCalledWith('taskViews.SAVE_FAILED');
+		expect(result.current.renaming).toBe(VIEW);
+	});
+
+	it('closes the rename after a conflict, so a new Rename starts from the version the list now shows', async () => {
+		const { result } = renderHook(() => useSavedViewListCommands());
+		act(() => result.current.startRename(VIEW));
+		mockUpdateView.mockRejectedValueOnce(new TaskViewConflictError(null));
+
+		let renamed = true;
+		await act(async () => {
+			renamed = await result.current.rename('Bugs');
+		});
+
+		expect(renamed).toBe(false);
+		expect(mockToastError).toHaveBeenCalledWith('taskViews.CONFLICT_IN_LIST');
+		expect(result.current.renaming).toBeNull();
 	});
 
 	it('shares a personal view with the team, and says when someone changed it meanwhile', async () => {
