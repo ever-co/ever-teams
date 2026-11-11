@@ -125,26 +125,6 @@ function subjectOf(entity: string | null, chatParts: { place: string | null } | 
 	return quoted;
 }
 
-/** The entry the pane holds after it left the list, and the workspace it was opened in. */
-export interface HeldInboxEntry {
-	scopeKey: string;
-	entry: InboxEntry;
-}
-
-/**
- * The held entry with what the platform answered for it, when the answer is still about it: the same entry, opened
- * in the same workspace. An answer that arrives after the user opened another entry, or switched workspace, changes
- * nothing.
- *
- * @param held The entry the pane holds now.
- * @param scopeKey The workspace the entry was read in.
- * @param fresh The entry as the platform holds it.
- */
-export function withRefreshedHeldEntry(held: HeldInboxEntry | null, scopeKey: string, fresh: InboxEntry): HeldInboxEntry | null {
-	if (!held || held.scopeKey !== scopeKey || held.entry.id !== fresh.id) return held;
-	return { scopeKey, entry: fresh };
-}
-
 /** An entry from a platform inbox item. */
 export function toInboxEntry(item: IInboxItem): InboxEntry {
 	const metadata = item.metadata ?? {};

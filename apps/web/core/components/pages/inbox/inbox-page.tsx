@@ -25,7 +25,7 @@ import { personFromTeamMember, type Person } from '@/core/components/teams/peopl
 import { useChatPeople } from '@/core/hooks/chat/use-chat-scope';
 import { useInboxActions } from '@/core/hooks/inbox/use-inbox-actions';
 import { useInboxAvailability } from '@/core/hooks/inbox/use-inbox-availability';
-import { useInboxCounts, useInboxItems } from '@/core/hooks/inbox/use-inbox-items';
+import { useInboxCounts, useInboxItem, useInboxItems } from '@/core/hooks/inbox/use-inbox-items';
 import { useInboxKeyboard } from '@/core/hooks/inbox/use-inbox-keyboard';
 import { useInboxScope } from '@/core/hooks/inbox/use-inbox-scope';
 import { useNotificationActions, useNotificationInbox, useUnreadNotificationCount } from '@/core/hooks/notifications/use-notification-inbox';
@@ -44,8 +44,7 @@ import {
 	groupInboxEntriesByDay,
 	hasChatPages,
 	snoozeUntil,
-	toInboxEntry,
-	withRefreshedHeldEntry
+	toInboxEntry
 } from '@/core/lib/utils/inbox-entry';
 import { chatService } from '@/core/services/client/api/chat';
 import { inboxService } from '@/core/services/client/api/inbox';
@@ -223,18 +222,20 @@ function InboxPageContent() {
 	);
 	const [currentId, setCurrentId] = useState<string | null>(null);
 	// The entry as it was opened. Opening an unread entry marks it read, which drops it from the Unread list; the pane
-	// keeps showing it from here until the user closes it or opens another one, read back from the platform whenever
-	// the lists refresh (see `refreshOpened`). It belongs to the workspace it was opened in: after a switch (another tab
-	// can make one) the pane lets it go.
+	// keeps showing it until the user closes it or opens another one. While it is out of the list the pane shows it as
+	// the platform holds it (`useInboxItem`, refetched with the inbox), and this copy only until that first answers. It
+	// belongs to the workspace it was opened in: after a switch (another tab can make one) the pane lets it go.
 	const [opened, setOpened] = useState<{ scopeKey: string; entry: InboxEntry } | null>(null);
 	const openedEntry = opened && opened.scopeKey === scopeKey ? opened.entry : null;
+	const byId = useMemo(() => new Map(entries.map((entry) => [entry.id, entry])), [entries]);
+	const held = useInboxItem(usesExtension && openedEntry && !byId.has(openedEntry.id) ? openedEntry.id : null);
+	const heldEntry = held.data ?? openedEntry;
 	const current = useMemo(
 		() =>
 			entries.find((entry) => entry.id === currentId) ??
-			(openedEntry && openedEntry.id === currentId ? openedEntry : null),
-		[currentId, entries, openedEntry]
+			(heldEntry && heldEntry.id === currentId ? heldEntry : null),
+		[currentId, entries, heldEntry]
 	);
-	const byId = useMemo(() => new Map(entries.map((entry) => [entry.id, entry])), [entries]);
 
 	const reportFailure = useCallback(() => toast.error(t('inbox.TOASTS.UPDATE_FAILED')), [t]);
 
@@ -252,35 +253,21 @@ function InboxPageContent() {
 		[byId, selected]
 	);
 
-	/**
-	 * Reads the held entry back from the platform. The copy taken when it was opened never hears of later changes —
-	 * another tab answering or closing a decision, an action that partly failed — so the pane would keep an answer form
-	 * for a decision that is already closed. An entry that can no longer be read keeps its copy until the next try.
-	 */
-	const refreshOpened = useCallback(async (id: string, key: string) => {
-		try {
-			const fresh = toInboxEntry(await inboxService.getItem(id));
-			setOpened((held) => withRefreshedHeldEntry(held, key, fresh));
-		} catch {
-			// Gone or unreadable for now: the next refresh of the lists tries again.
-		}
-	}, []);
-
-	// Each refresh of the lists (a poll, a live event, an action settling) reads the held entry again while it is not in them.
-	const heldId = usesExtension && openedEntry && !byId.has(openedEntry.id) ? openedEntry.id : null;
-	useEffect(() => {
-		if (heldId) void refreshOpened(heldId, scopeKey);
-	}, [byId, heldId, refreshOpened, scopeKey]);
-
 	/** Keeps the entry held for the pane in step with what an action changes on it, since it may have left the list. */
-	const patchOpened = useCallback((ids: string[], patch: Partial<InboxEntry>) => {
-		setOpened((held) => (held && ids.includes(held.entry.id) ? { ...held, entry: { ...held.entry, ...patch } } : held));
-	}, []);
+	const { patch: patchHeld, refresh: refreshHeld } = held;
+	const patchOpened = useCallback(
+		(ids: string[], patch: Partial<InboxEntry>) => {
+			setOpened((kept) => (kept && ids.includes(kept.entry.id) ? { ...kept, entry: { ...kept.entry, ...patch } } : kept));
+			void patchHeld(ids, patch);
+		},
+		[patchHeld]
+	);
 
 	/**
-	 * The platform's state update, mirrored on the entry held for the pane. When any item of the update fails, the held
-	 * entry is read back from the platform rather than restored from a copy: its own change may have succeeded while
-	 * another item's failed, and a copy would also undo whatever else changed on it meanwhile.
+	 * The platform's state update, mirrored on the entry held for the pane. Once the update settles, whatever its
+	 * outcome, the held item is read again from scratch: when any item of the update failed the pane shows what the
+	 * platform holds rather than a copy restored from before (which would undo a change of its own that succeeded, and
+	 * whatever else changed on it meanwhile), and no read that started before the update can answer last.
 	 */
 	const setState = useCallback(
 		(ids: string[], state: Parameters<typeof actions.setState>[1]) => {
@@ -289,14 +276,10 @@ function InboxPageContent() {
 			if (state.isArchived !== undefined) patch.isArchived = state.isArchived;
 			if (state.isDone !== undefined) patch.isDone = state.isDone;
 			if (state.snoozedUntil !== undefined) patch.snoozedUntil = state.snoozedUntil ? new Date(state.snoozedUntil) : null;
-			const heldIdBefore = openedEntry && ids.includes(openedEntry.id) ? openedEntry.id : null;
 			patchOpened(ids, patch);
-			return actions.setState(ids, state).catch((error: unknown) => {
-				if (heldIdBefore) void refreshOpened(heldIdBefore, scopeKey);
-				throw error;
-			});
+			return actions.setState(ids, state).finally(() => void refreshHeld());
 		},
-		[actions, openedEntry, patchOpened, refreshOpened, scopeKey]
+		[actions, patchOpened, refreshHeld]
 	);
 
 	const setRead = useCallback(

@@ -456,6 +456,12 @@ export const queryKeys = {
 			organizationId: string | undefined | null,
 			userId: string | undefined | null
 		) => ['inbox', 'counts', tenantId ?? null, organizationId ?? null, userId ?? null] as const,
+		item: (
+			tenantId: string | undefined | null,
+			organizationId: string | undefined | null,
+			userId: string | undefined | null,
+			id: string
+		) => ['inbox', 'item', tenantId ?? null, organizationId ?? null, userId ?? null, id] as const,
 		item: (tenantId: string | undefined | null, id: string | undefined | null) =>
 			['inbox', 'item', tenantId ?? null, id ?? null] as const
 	},
