@@ -15,9 +15,45 @@ export function navigateAfterSignIn({ replace = false }: { replace?: boolean } =
 	if (typeof window === 'undefined') {
 		return;
 	}
+	const path = takePathAfterSignIn();
 	if (replace) {
-		window.location.replace('/');
+		window.location.replace(path);
 		return;
 	}
-	window.location.assign('/');
+	window.location.assign(path);
+}
+
+/** The page the next sign-in of this tab opens instead of the home page, kept for this tab only. */
+const PATH_AFTER_SIGN_IN_KEY = 'ever-teams:path-after-sign-in';
+
+/**
+ * Sets (or, with null, clears) the page the next sign-in of this tab opens instead of the home page: the workspace
+ * list's "Create a new workspace" signs in to the chosen workspace, then opens the creation page (#5025).
+ */
+export function setPathAfterSignIn(path: string | null): void {
+	try {
+		if (path) {
+			window.sessionStorage.setItem(PATH_AFTER_SIGN_IN_KEY, path);
+		} else {
+			window.sessionStorage.removeItem(PATH_AFTER_SIGN_IN_KEY);
+		}
+	} catch {
+		// No storage (a private window): the sign-in opens the home page
+	}
+}
+
+/** The page set for this sign-in, read once; the home page unless it is a page of this app. */
+function takePathAfterSignIn(): string {
+	try {
+		const path = window.sessionStorage.getItem(PATH_AFTER_SIGN_IN_KEY);
+		window.sessionStorage.removeItem(PATH_AFTER_SIGN_IN_KEY);
+		if (!path?.startsWith('/')) {
+			return '/';
+		}
+		// Resolved against this origin: "//host" or "/\\host" would lead to another site
+		const url = new URL(path, window.location.origin);
+		return url.origin === window.location.origin ? `${url.pathname}${url.search}` : '/';
+	} catch {
+		return '/';
+	}
 }

@@ -1,6 +1,6 @@
 /** @jest-environment jsdom */
 
-import { navigateAfterSignIn } from './navigate-after-sign-in';
+import { navigateAfterSignIn, setPathAfterSignIn } from './navigate-after-sign-in';
 
 const originalLocation = window.location;
 
@@ -35,5 +35,29 @@ describe('navigateAfterSignIn', () => {
 		expect(replace).toHaveBeenCalledTimes(1);
 		expect(replace).toHaveBeenCalledWith('/');
 		expect(assign).not.toHaveBeenCalled();
+	});
+});
+
+describe('the page a sign-in opens (#5025)', () => {
+	const signInWith = (stored: string | null) => {
+		const assign = jest.fn();
+		Object.defineProperty(window, 'location', {
+			configurable: true,
+			value: { ...originalLocation, origin: 'https://app.ever.team', pathname: '/auth/passcode', assign }
+		});
+		setPathAfterSignIn(stored);
+		navigateAfterSignIn();
+		return assign;
+	};
+
+	it('opens the page set for this sign-in, once', () => {
+		expect(signInWith('/workspace/new')).toHaveBeenCalledWith('/workspace/new');
+		expect(signInWith(null)).toHaveBeenCalledWith('/');
+	});
+
+	it('opens the home page for anything that is not a page of this app', () => {
+		expect(signInWith('https://evil.example.com/')).toHaveBeenCalledWith('/');
+		expect(signInWith('//evil.example.com/')).toHaveBeenCalledWith('/');
+		expect(signInWith('/\\evil.example.com/')).toHaveBeenCalledWith('/');
 	});
 });

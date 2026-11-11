@@ -75,4 +75,22 @@ describe('WorkspacePicker', () => {
 		const row = screen.getByText('Acme').closest('button');
 		expect(row?.getAttribute('aria-expanded')).toBe('true');
 	});
+
+	it('signs in to the chosen workspace, then opens the creation of another one (#5025)', () => {
+		const { onSubmit } = renderPicker([workspaceNamed('Acme', 2)], 0);
+
+		fireEvent.click(screen.getByRole('button', { name: 'auth.workspace.CREATE_NEW' }));
+
+		expect(onSubmit).toHaveBeenCalledTimes(1);
+		expect(window.sessionStorage.getItem('ever-teams:path-after-sign-in')).toBe('/workspace/new');
+	});
+
+	it('opens the home page again when Continue is chosen after all', () => {
+		const { continueButton } = renderPicker([workspaceNamed('Acme', 2)], 0);
+		fireEvent.click(screen.getByRole('button', { name: 'auth.workspace.CREATE_NEW' }));
+
+		fireEvent.click(continueButton);
+
+		expect(window.sessionStorage.getItem('ever-teams:path-after-sign-in')).toBeNull();
+	});
 });

@@ -26,7 +26,9 @@ import { TWorkspace } from '@/core/types/schemas/team/organization-team.schema';
 import { useModal } from '@/core/hooks/common/use-modal';
 import { ModalSkeleton } from './skeleton/modal-skeleton';
 import { Suspense } from 'react';
+import NextLink from 'next/link';
 import { APP_NAME } from '@/core/constants/config/constants';
+import { CREATE_WORKSPACE_PATH } from '@/core/hooks/auth/use-create-workspace';
 import { useAtomValue } from 'jotai';
 import { timerStatusState } from '@/core/stores';
 import { toast } from 'sonner';
@@ -421,9 +423,11 @@ export function WorkspacesSwitcher() {
 							{hasNoOtherWorkspace && <NoOtherWorkspace isAddressUnconfirmed={isAddressUnconfirmed} />}
 
 							<DropdownMenuSeparator />
-							<DropdownMenuItem disabled className="h-8">
-								<Plus />
-								<span>{t('switchers.ADD_WORKSPACE')}</span>
+							<DropdownMenuItem asChild className="h-8">
+								<NextLink href={CREATE_WORKSPACE_PATH}>
+									<Plus />
+									<span>{t('switchers.ADD_WORKSPACE')}</span>
+								</NextLink>
 							</DropdownMenuItem>
 						</DropdownMenuContent>
 					</DropdownMenu>
