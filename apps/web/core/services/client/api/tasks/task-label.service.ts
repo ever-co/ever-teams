@@ -1,7 +1,7 @@
 import { APIService } from '../../api.service';
 import { GAUZY_API_BASE_SERVER_URL } from '@/core/constants/config/constants';
 import { DeleteResponse, PaginationResponse } from '@/core/types/interfaces/common/data-response';
-import { ITag, ITagCreate } from '@/core/types/interfaces/tag/tag';
+import { ITag, ITagBulkResult, ITagCreate } from '@/core/types/interfaces/tag/tag';
 import { TTag } from '@/core/types/schemas';
 import { TaskMetadataScope } from '@/core/types/interfaces/task/task-metadata-bootstrap';
 import qs from 'qs';
@@ -13,6 +13,22 @@ class TaskLabelService extends APIService {
 				'Tenant-Id': this.tenantId
 			}
 		});
+	};
+
+	/**
+	 * Many labels in one request (Gauzy's `POST /tags/bulk`, up to 200 items): each item is filed as `POST /tags`
+	 * would file it, and the answer gives one outcome per item.
+	 */
+	createTaskLabelsBulk = async (items: ITagCreate[]) => {
+		return this.post<ITagBulkResult>(
+			'/tags/bulk',
+			{ items },
+			{
+				headers: {
+					'Tenant-Id': this.tenantId
+				}
+			}
+		);
 	};
 
 	editTaskLabels = async ({ tagId, data }: { tagId: string; data: ITagCreate }) => {

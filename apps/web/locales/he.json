@@ -4203,6 +4203,7 @@
 			"ADD": "{kind, select, status {הוספת סטטוס} priority {הוספת עדיפות} size {הוספת גודל} label {הוספת תווית} issueType {הוספת סוג פריט} version {הוספת גרסה} other {הוספה}}",
 			"NAME_PLACEHOLDER": "{kind, select, status {שם הסטטוס} priority {שם העדיפות} size {שם הגודל} label {שם התווית} issueType {שם סוג הפריט} version {שם הגרסה, למשל 2.4} other {שם}}",
 			"NAME_REQUIRED": "יש לתת שם כדי לשמור.",
+			"NAME_TAKEN": "{kind, select, label {לצוות כבר יש תווית בשם הזה.} other {השם הזה כבר בשימוש.}}",
 			"EMPTY_TITLE": "{kind, select, status {אין עדיין סטטוסים} priority {אין עדיין עדיפויות} size {אין עדיין גדלים} label {אין עדיין תוויות} issueType {אין עדיין סוגי פריטים} version {אין עדיין גרסאות} other {אין כאן עדיין כלום}}",
 			"EMPTY_DESCRIPTION": "{kind, select, status {סטטוסים הם השלבים שמשימה עוברת עד לסיומה.} priority {עדיפויות מראות לצוות אילו משימות קודמות.} size {גדלים נותנים מושג כללי על המאמץ שמשימה דורשת.} label {תוויות מקבצות משימות לפי נושא, בלי קשר לסטטוס.} issueType {סוגי פריטים מבדילים בין באג, סיפור ומשימה רגילה.} version {גרסאות הן השחרורים שמשימה יכולה לכוון אליהם.} other {יש להוסיף את הראשון.}}",
 			"ERROR_TITLE": "{kind, select, status {הסטטוסים לא נטענו} priority {העדיפויות לא נטענו} size {הגדלים לא נטענו} label {התוויות לא נטענו} issueType {סוגי הפריטים לא נטענו} version {הגרסאות לא נטענו} other {הרשימה לא נטענה}}",
@@ -4279,6 +4280,30 @@
 				"DEFAULT_TRIGGER": "סוג ברירת מחדל: {name}. החלפה",
 				"NO_DEFAULT": "אין ברירת מחדל",
 				"TYPES_SECTION": "סוגים"
+			}
+		},
+		"labelCatalog": {
+			"BROWSE": "עיון בתוויות",
+			"TITLE": "עיון בתוויות",
+			"DESCRIPTION": "בחרו את התוויות שהצוות צריך. אפשר לשנות להן שם או צבע, או למחוק אותן אחר כך.",
+			"SEARCH": "חיפוש תוויות",
+			"ADDED": "נוספה",
+			"SELECT_ALL": "בחירת הכול",
+			"CLEAR": "ניקוי",
+			"SELECTED": "{count, plural, =0 {לא נבחרה תווית} one {נבחרה תווית אחת} two {נבחרו שתי תוויות} other {נבחרו # תוויות}}",
+			"ADD": "{count, plural, =0 {הוספת תוויות} one {הוספת תווית אחת} two {הוספת שתי תוויות} other {הוספת # תוויות}}",
+			"NO_MATCH": "אין תווית שמתאימה לחיפוש הזה.",
+			"ADDED_TOAST": "{count, plural, one {נוספה תווית אחת} two {נוספו שתי תוויות} other {נוספו # תוויות}}",
+			"PARTIAL_TOAST": "נוספו: {added}. לא נוספו: {failed}, ייתכן שהן כבר קיימות בצוות.",
+			"FAILED_TOAST": "לא ניתן היה להוסיף את התוויות. נסו שוב.",
+			"categories": {
+				"TYPE": "סוג משימה",
+				"PRIORITY": "עדיפות",
+				"WORKFLOW": "סטטוס ותהליך עבודה",
+				"AREA": "תחום טכני",
+				"RELEASE": "גרסאות ותאימות",
+				"FEEDBACK": "משוב לקוחות ומוצר",
+				"PROJECT": "ניהול פרויקטים"
 			}
 		},
 		"teamGeneral": {

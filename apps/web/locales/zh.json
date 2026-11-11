@@ -4203,6 +4203,7 @@
 			"ADD": "{kind, select, status {添加状态} priority {添加优先级} size {添加规模} label {添加标签} issueType {添加事项类型} version {添加版本} other {添加}}",
 			"NAME_PLACEHOLDER": "{kind, select, status {状态名称} priority {优先级名称} size {规模名称} label {标签名称} issueType {事项类型名称} version {版本名称，例如 2.4} other {名称}}",
 			"NAME_REQUIRED": "请先填写名称再保存。",
+			"NAME_TAKEN": "{kind, select, label {团队已有同名标签。} other {此名称已被使用。}}",
 			"EMPTY_TITLE": "{kind, select, status {还没有状态} priority {还没有优先级} size {还没有规模} label {还没有标签} issueType {还没有事项类型} version {还没有版本} other {这里还没有内容}}",
 			"EMPTY_DESCRIPTION": "{kind, select, status {状态是任务从开始到完成要经过的各个步骤。} priority {优先级告诉团队哪些任务先做。} size {规模大致说明一项任务需要多少工作量。} label {标签按主题归类任务，与状态无关。} issueType {事项类型用来区分缺陷、故事和普通任务。} version {版本是任务可以对应的发布。} other {添加第一项。}}",
 			"ERROR_TITLE": "{kind, select, status {状态未能加载} priority {优先级未能加载} size {规模未能加载} label {标签未能加载} issueType {事项类型未能加载} version {版本未能加载} other {此列表未能加载}}",
@@ -4279,6 +4280,30 @@
 				"DEFAULT_TRIGGER": "默认类型：{name}。点击更换",
 				"NO_DEFAULT": "未设置默认",
 				"TYPES_SECTION": "类型"
+			}
+		},
+		"labelCatalog": {
+			"BROWSE": "浏览标签",
+			"TITLE": "浏览标签",
+			"DESCRIPTION": "选择团队需要的标签。之后可以重命名、修改颜色或删除它们。",
+			"SEARCH": "搜索标签",
+			"ADDED": "已添加",
+			"SELECT_ALL": "全选",
+			"CLEAR": "清除",
+			"SELECTED": "{count, plural, =0 {未选择标签} other {已选择 # 个标签}}",
+			"ADD": "{count, plural, =0 {添加标签} other {添加 # 个标签}}",
+			"NO_MATCH": "没有标签符合此搜索。",
+			"ADDED_TOAST": "{count, plural, other {已添加 # 个标签}}",
+			"PARTIAL_TOAST": "已添加：{added}。未添加：{failed}，团队可能已有这些标签。",
+			"FAILED_TOAST": "无法添加标签，请重试。",
+			"categories": {
+				"TYPE": "任务类型",
+				"PRIORITY": "优先级",
+				"WORKFLOW": "状态与工作流",
+				"AREA": "技术领域",
+				"RELEASE": "发布与兼容性",
+				"FEEDBACK": "客户与产品反馈",
+				"PROJECT": "项目管理"
 			}
 		},
 		"teamGeneral": {

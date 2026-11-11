@@ -4203,6 +4203,7 @@
 			"ADD": "{kind, select, status {Ajouter un statut} priority {Ajouter une priorité} size {Ajouter une taille} label {Ajouter une étiquette} issueType {Ajouter un type de ticket} version {Ajouter une version} other {Ajouter}}",
 			"NAME_PLACEHOLDER": "{kind, select, status {Nom du statut} priority {Nom de la priorité} size {Nom de la taille} label {Nom de l’étiquette} issueType {Nom du type de ticket} version {Nom de la version, par exemple 2.4} other {Nom}}",
 			"NAME_REQUIRED": "Donnez-lui un nom pour l’enregistrer.",
+			"NAME_TAKEN": "{kind, select, label {L’équipe a déjà une étiquette de ce nom.} other {Ce nom est déjà utilisé.}}",
 			"EMPTY_TITLE": "{kind, select, status {Aucun statut pour l’instant} priority {Aucune priorité pour l’instant} size {Aucune taille pour l’instant} label {Aucune étiquette pour l’instant} issueType {Aucun type de ticket pour l’instant} version {Aucune version pour l’instant} other {Rien ici pour l’instant}}",
 			"EMPTY_DESCRIPTION": "{kind, select, status {Les statuts sont les étapes qu’une tâche franchit jusqu’à sa fin.} priority {Les priorités indiquent à l’équipe quelles tâches passent en premier.} size {Les tailles donnent une idée de l’effort qu’une tâche demande.} label {Les étiquettes regroupent les tâches par thème, quel que soit leur statut.} issueType {Les types de ticket distinguent un bug d’une story ou d’une simple tâche.} version {Les versions sont les livraisons qu’une tâche peut viser.} other {Ajoutez le premier.}}",
 			"ERROR_TITLE": "{kind, select, status {Les statuts n’ont pas pu être chargés} priority {Les priorités n’ont pas pu être chargées} size {Les tailles n’ont pas pu être chargées} label {Les étiquettes n’ont pas pu être chargées} issueType {Les types de ticket n’ont pas pu être chargés} version {Les versions n’ont pas pu être chargées} other {Cette liste n’a pas pu être chargée}}",
@@ -4279,6 +4280,30 @@
 				"DEFAULT_TRIGGER": "Type par défaut : {name}. Le changer",
 				"NO_DEFAULT": "Aucun par défaut",
 				"TYPES_SECTION": "Types"
+			}
+		},
+		"labelCatalog": {
+			"BROWSE": "Parcourir les étiquettes",
+			"TITLE": "Parcourir les étiquettes",
+			"DESCRIPTION": "Choisissez les étiquettes dont votre équipe a besoin. Vous pourrez ensuite les renommer, en changer la couleur ou les supprimer.",
+			"SEARCH": "Rechercher des étiquettes",
+			"ADDED": "Ajoutée",
+			"SELECT_ALL": "Tout sélectionner",
+			"CLEAR": "Effacer",
+			"SELECTED": "{count, plural, =0 {Aucune étiquette choisie} one {# étiquette choisie} other {# étiquettes choisies}}",
+			"ADD": "{count, plural, =0 {Ajouter des étiquettes} one {Ajouter # étiquette} other {Ajouter # étiquettes}}",
+			"NO_MATCH": "Aucune étiquette ne correspond à cette recherche.",
+			"ADDED_TOAST": "{count, plural, one {# étiquette ajoutée} other {# étiquettes ajoutées}}",
+			"PARTIAL_TOAST": "Ajoutées : {added}. Non ajoutées : {failed}, l’équipe les a peut-être déjà.",
+			"FAILED_TOAST": "Les étiquettes n’ont pas pu être ajoutées. Réessayez.",
+			"categories": {
+				"TYPE": "Type de tâche",
+				"PRIORITY": "Priorité",
+				"WORKFLOW": "Statut et flux de travail",
+				"AREA": "Domaine technique",
+				"RELEASE": "Version et compatibilité",
+				"FEEDBACK": "Retours des clients et sur le produit",
+				"PROJECT": "Gestion de projet"
 			}
 		},
 		"teamGeneral": {
