@@ -163,7 +163,10 @@ function browserTabClaimEnvironment(): TabClaimEnvironment {
 	const locks = typeof navigator !== 'undefined' && navigator.locks ? navigator.locks : null;
 	return {
 		storage: browserStorage(),
-		locks: locks ? { request: (name, callback) => locks.request(name, async () => callback()) } : null,
+		// The lock awaits a callback's promise and answers its value; the DOM typing names the promise itself.
+		locks: locks
+			? { request: <T>(name: string, callback: () => Promise<T> | T) => locks.request(name, callback) as Promise<T> }
+			: null,
 		now: () => Date.now(),
 		wait: (ms) => new Promise((resolve) => setTimeout(resolve, ms)),
 		tabId: browserTabId

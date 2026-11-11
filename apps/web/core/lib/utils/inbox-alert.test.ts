@@ -83,7 +83,8 @@ describe('the sound choice', () => {
 		expect(values.get(INBOX_SOUND_STORAGE_KEY)).toBe('on');
 		expect(readInboxSound(storage)).toBe(true);
 		writeInboxSound(storage, false);
-		expect(values.has(INBOX_SOUND_STORAGE_KEY)).toBe(false);
+		expect(values.get(INBOX_SOUND_STORAGE_KEY)).toBe('off');
+		expect(readInboxSound(storage)).toBe(false);
 
 		const refusing = {
 			getItem: () => {

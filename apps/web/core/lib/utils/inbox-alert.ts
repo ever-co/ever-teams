@@ -60,8 +60,7 @@ export function readInboxSound(storage: KeyValueStorage | null): boolean {
 
 export function writeInboxSound(storage: KeyValueStorage | null, isOn: boolean): void {
 	try {
-		if (isOn) storage?.setItem(INBOX_SOUND_STORAGE_KEY, 'on');
-		else storage?.removeItem(INBOX_SOUND_STORAGE_KEY);
+		storage?.setItem(INBOX_SOUND_STORAGE_KEY, isOn ? 'on' : 'off');
 	} catch {
 		// Storage refused: the choice lasts as long as the page.
 	}
