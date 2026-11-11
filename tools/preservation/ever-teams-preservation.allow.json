@@ -358,5 +358,13 @@
 	{
 		"id": "removed:navigation:apps/web/core/components/integration/meet/index.tsx::router.push=/::#2",
 		"reason": "Moved, not removed (#5021): the Jitsi room's error screen and its \"Return Home\" button became the shared MeetRoomError (core/components/pages/meet/meet-room-error.tsx), whose \"Back to home\" still calls router.push('/'). The room keeps its other router.push('/'), the one that leaves after the meeting closes."
+	},
+	{
+		"id": "removed:navigation:apps/web/core/components/integration/meet/index.tsx::router.push=/::#1",
+		"reason": "Leaving a Jitsi meeting no longer jumps to the home page (#5021): the room tells its page, which shows \"You left the meeting\" with Rejoin and Back to meetings (/meet). The way home stays in the room's error notices (meet-room-error.tsx) and in the app's navigation."
+	},
+	{
+		"id": "removed:navigation:apps/web/core/components/pages/meet/livekit/page-component.tsx::router.push=/::#1",
+		"reason": "Leaving a LiveKit meeting no longer jumps to the home page (#5021): the page shows \"You left the meeting\" with Rejoin and Back to meetings (/meet), as the Jitsi page does. The way home stays in the room's error notices (meet-room-error.tsx) and in the app's navigation."
 	}
 ]
