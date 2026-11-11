@@ -613,11 +613,11 @@ export function DocsPageView({ pageId, tree, actions, spaces = NO_SPACES }: Docs
 							{!isFolder && (
 								<div ref={bodyRef}>
 									{unsupported && <p className="mb-3 rounded-lg bg-foreground/[0.04] px-3 py-2 text-xs text-muted-foreground">{t('docs.UNSUPPORTED_CONTENT')}</p>}
-									{isReadOnly ? (
+									{isReadOnly && (
 										<RichTextView value={page.contentHtml ?? ''} emptyState={<p className="text-sm text-muted-foreground">{t('docs.EMPTY_PAGE')}</p>} />
-									) : isLiveConnecting ? (
-										<BodySkeleton />
-									) : liveEditor ? (
+									)}
+									{!isReadOnly && isLiveConnecting && <BodySkeleton />}
+									{!isReadOnly && !isLiveConnecting && liveEditor && (
 										<DocsEditorSurface
 											// Its own instance: nothing of the live editor carries over to the autosave one, should live editing stop.
 											key={`${page.id}:live`}
@@ -630,7 +630,8 @@ export function DocsPageView({ pageId, tree, actions, spaces = NO_SPACES }: Docs
 											placeholder={t('docs.EDITOR_PLACEHOLDER')}
 											title={shownTitle}
 										/>
-									) : (
+									)}
+									{!isReadOnly && !isLiveConnecting && !liveEditor && (
 										<DocsEditorSurface
 											key={`${page.id}:page`}
 											value={autosave.restoredHtml ?? editorContent.html}

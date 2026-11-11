@@ -87,11 +87,8 @@ export function DocsLiveStatusLabel({
 	return (
 		<span className="mr-1 inline-flex shrink-0 items-center gap-2">
 			{peers.length > 0 && (
-				<span
-					role="group"
-					aria-label={t('docs.LIVE_EDITORS', { count: peers.length })}
-					className="flex items-center"
-				>
+				<span className="flex items-center">
+					<span className="sr-only">{t('docs.LIVE_EDITORS', { count: peers.length })}</span>
 					<AvatarStack
 						people={peers.map((peer) => ({ id: peer.id, name: peer.name, imageUrl: peer.imageUrl }))}
 						max={MAX_SHOWN_PEERS}

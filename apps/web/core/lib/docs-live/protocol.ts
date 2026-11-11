@@ -5,11 +5,13 @@
  * travel as base64.
  */
 
-/** What one frame says: `sync` first, then edits, cursors, mode changes and, last, `closed`. */
-export type DocsLiveFrameKind = 'sync' | 'update' | 'awareness' | 'mode' | 'closed';
-
+/** One frame of a session. */
 export interface DocsLiveFrame {
-	kind: DocsLiveFrameKind | string;
+	/**
+	 * What it says: `sync` first, then `update` (an edit), `awareness` (cursors, presence), `mode` (read-only or
+	 * writable) and, last, `closed`. A kind this client does not know yet is skipped.
+	 */
+	kind: string;
 	documentId: string;
 	update?: string | null;
 	stateVector?: string | null;
@@ -67,12 +69,12 @@ export const DOCUMENT_LIVE_SUBSCRIPTION = `subscription DocumentLive($documentId
 	}
 }`;
 
-/** Bytes as base64, in chunks small enough for `String.fromCharCode`. */
+/** Bytes as base64, in chunks small enough for one `String.fromCodePoint` call. */
 export function toBase64(bytes: Uint8Array): string {
 	let binary = '';
 	const chunk = 0x8000;
 	for (let at = 0; at < bytes.length; at += chunk) {
-		binary += String.fromCharCode(...bytes.subarray(at, at + chunk));
+		binary += String.fromCodePoint(...bytes.subarray(at, at + chunk));
 	}
 	return btoa(binary);
 }
@@ -83,7 +85,7 @@ export function fromBase64(value: string | null | undefined): Uint8Array | null 
 	try {
 		const binary = atob(value);
 		const bytes = new Uint8Array(binary.length);
-		for (let at = 0; at < binary.length; at += 1) bytes[at] = binary.charCodeAt(at);
+		for (let at = 0; at < binary.length; at += 1) bytes[at] = binary.codePointAt(at) ?? 0;
 		return bytes;
 	} catch {
 		return null;

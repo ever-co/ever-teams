@@ -142,16 +142,12 @@ function defaultErrorInfo(error: unknown): DocsLiveErrorInfo {
 		code?: unknown;
 		details?: { reason?: unknown };
 	};
-	const status =
-		typeof value.statusCode === 'number'
-			? value.statusCode
-			: typeof value.status === 'number'
-				? value.status
-				: null;
-	const code =
-		typeof value.errorCode === 'string' ? value.errorCode : typeof value.code === 'string' ? value.code : null;
+	const status = [value.statusCode, value.status].find((candidate) => typeof candidate === 'number') as
+		| number
+		| undefined;
+	const code = [value.errorCode, value.code].find((candidate) => typeof candidate === 'string') as string | undefined;
 	const reason = typeof value.details?.reason === 'string' ? value.details.reason : null;
-	return { status, code, reason };
+	return { status: status ?? null, code: code ?? null, reason };
 }
 
 /** Whether an update carries anything (an encoding of nothing is a few bytes long, not empty). */
@@ -205,7 +201,7 @@ const CARET_COLORS = [
 /** One color per person, the same in every tab. */
 export function colorForUser(id: string): string {
 	let hash = 0;
-	for (let at = 0; at < id.length; at += 1) hash = (hash * 31 + id.charCodeAt(at)) >>> 0;
+	for (const char of id) hash = (hash * 31 + (char.codePointAt(0) ?? 0)) >>> 0;
 	return CARET_COLORS[hash % CARET_COLORS.length];
 }
 
@@ -329,7 +325,9 @@ export class DocsLiveBinding {
 
 	subscribe = (listener: Listener): (() => void) => {
 		this.listeners.add(listener);
-		return () => void this.listeners.delete(listener);
+		return () => {
+			this.listeners.delete(listener);
+		};
 	};
 
 	/** Asks the platform whether it serves live sessions, then opens this tab's. */
@@ -379,12 +377,7 @@ export class DocsLiveBinding {
 		if (this.destroyed) return;
 		const inSession = this.state !== 'fallback' && this.inSession;
 		// What is still waiting, after the request already on its way.
-		const last =
-			inSession && this.pending.length
-				? this.pending.length === 1
-					? this.pending[0]
-					: Y.mergeUpdates(this.pending)
-				: null;
+		const last = inSession ? this.mergedPending() : null;
 		this.pending = [];
 		this.destroyed = true;
 		this.clearTimers();
@@ -529,9 +522,18 @@ export class DocsLiveBinding {
 		const awareness = fromBase64(frame.awareness);
 		if (awareness) applyAwarenessUpdate(this.awareness, awareness, DOCS_LIVE_REMOTE);
 
+		this.enterSession(frame, lineage);
+		this.sendMissing(stateVector);
+		this.peers = this.readPeers();
+		this.emit();
+		this.sendAwarenessNow();
+	}
+
+	/** The `sync` frame applied: this session is the one edits and cursors go to. */
+	private enterSession(frame: DocsLiveFrame, lineage: string | null): void {
 		this.lineage = lineage;
 		if (lineage !== null) this.memory?.set(this.memoryKey, { doc: this.doc, lineage });
-		this.revision = typeof frame.revision === 'number' ? frame.revision : this.revision;
+		if (typeof frame.revision === 'number') this.revision = frame.revision;
 		this.readOnly = Boolean(frame.readOnly);
 		this.readOnlyReason = this.readOnly ? (frame.reason ?? null) : null;
 		this.inSession = true;
@@ -544,19 +546,18 @@ export class DocsLiveBinding {
 		}
 		this.cancelBatch();
 		this.pending = [];
+	}
 
-		// What the platform lacks: edits made while the session was down, or sent and lost.
+	/** What the platform lacks after a `sync`: edits made while the session was down, or sent and lost. */
+	private sendMissing(stateVector: Uint8Array | null): void {
 		const missing = stateVector ? Y.encodeStateAsUpdate(this.doc, stateVector) : Y.encodeStateAsUpdate(this.doc);
-		if (carriesChanges(missing)) {
-			if (this.readOnly) this.heldWhileReadOnly = true;
-			else {
-				this.heldWhileReadOnly = false;
-				this.send(missing);
-			}
+		if (!carriesChanges(missing)) return;
+		if (this.readOnly) {
+			this.heldWhileReadOnly = true;
+			return;
 		}
-		this.peers = this.readPeers();
-		this.emit();
-		this.sendAwarenessNow();
+		this.heldWhileReadOnly = false;
+		this.send(missing);
 	}
 
 	private applyRemote(update: Uint8Array): void {
@@ -629,9 +630,15 @@ export class DocsLiveBinding {
 	private flush(): void {
 		this.cancelBatch();
 		if (!this.pending.length || this.sending) return;
-		const update = this.pending.length === 1 ? this.pending[0] : Y.mergeUpdates(this.pending);
+		const update = this.mergedPending();
 		this.pending = [];
-		this.send(update);
+		if (update) this.send(update);
+	}
+
+	/** The edits waiting to be sent, as one update; `null` when none wait. */
+	private mergedPending(): Uint8Array | null {
+		if (!this.pending.length) return null;
+		return this.pending.length === 1 ? this.pending[0] : Y.mergeUpdates(this.pending);
 	}
 
 	private send(update: Uint8Array): void {
@@ -821,6 +828,6 @@ export class DocsLiveBinding {
 
 	private emit(): void {
 		this.snapshot = this.buildSnapshot();
-		for (const listener of [...this.listeners]) listener();
+		for (const listener of Array.from(this.listeners)) listener();
 	}
 }

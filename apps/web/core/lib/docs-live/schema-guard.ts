@@ -16,6 +16,10 @@ function markNameOf(attribute: string): string {
 	return HASHED_MARK_NAME.exec(attribute)?.[1] ?? attribute;
 }
 
+function sortedNames(names: Iterable<string>): string[] {
+	return [...names].sort((a, b) => a.localeCompare(b));
+}
+
 function collect(found: Set<string>, kind: 'node' | 'mark', name: string, types: DocsLiveSchemaTypes): void {
 	const known = kind === 'node' ? types.nodes : types.marks;
 	if (!known.has(name)) found.add(name);
@@ -46,7 +50,7 @@ export function unknownTypesInUpdate(update: Uint8Array, types: DocsLiveSchemaTy
 			collect(found, 'mark', markNameOf(content.key), types);
 		}
 	}
-	return [...found].sort();
+	return sortedNames(found);
 }
 
 /**
@@ -70,5 +74,5 @@ export function unknownTypesInFragment(fragment: Y.XmlFragment, types: DocsLiveS
 		}
 	};
 	for (const child of fragment.toArray()) visit(child);
-	return [...found].sort();
+	return sortedNames(found);
 }
