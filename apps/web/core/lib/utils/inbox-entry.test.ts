@@ -4,8 +4,11 @@ import {
 	filterInboxEntries,
 	fromNotificationEntry,
 	groupInboxEntriesByDay,
+	hasInboxTarget,
 	messagePartsOfTitle,
 	nextFocusIndex,
+	opensInboxTarget,
+	showsInboxSheet,
 	snoozeUntil,
 	tabOfFilter,
 	InboxFieldRequests,
@@ -297,5 +300,50 @@ describe('InboxFieldRequests', () => {
 		const again = requests.start([{ ...entry, isUnread: true }], 'isUnread', false);
 		expect(requests.settle(entry.id, 'isUnread', again, false)).toBe(true);
 		expect(requests.settle('unknown', 'isUnread', again, false)).toBeUndefined();
+	});
+});
+
+describe('opening an entry on a phone and on a large screen', () => {
+	const task = { taskId: 't1', href: null, chatMessageId: null, decision: null };
+	const link = { taskId: null, href: '/settings/team/members', chatMessageId: null, decision: null };
+	const message = { taskId: null, href: null, chatMessageId: 'm1', decision: null };
+	const nothing = { taskId: null, href: null, chatMessageId: null, decision: null };
+	const question = { ...nothing, decision: { options: [] } as never };
+	const phone = { hasPane: false, follow: false, chatPages: true };
+	const large = { hasPane: true, follow: false, chatPages: true };
+
+	it('knows what an entry can open: a task, a link, or a chat message where the chat pages exist', () => {
+		expect(hasInboxTarget(task, false)).toBe(true);
+		expect(hasInboxTarget(link, false)).toBe(true);
+		expect(hasInboxTarget(message, true)).toBe(true);
+		expect(hasInboxTarget(message, false)).toBe(false);
+		expect(hasInboxTarget(nothing, true)).toBe(false);
+	});
+
+	it('goes straight to the target on a phone, and on a large screen only for a task or when asked to follow', () => {
+		expect(opensInboxTarget(link, phone)).toBe(true);
+		expect(opensInboxTarget(message, phone)).toBe(true);
+		expect(opensInboxTarget(task, large)).toBe(true);
+		expect(opensInboxTarget(link, large)).toBe(false);
+		expect(opensInboxTarget(link, { ...large, follow: true })).toBe(true);
+	});
+
+	it('keeps a question and an entry with nothing to open in the inbox, shown in the sheet on a phone', () => {
+		expect(opensInboxTarget(question, phone)).toBe(false);
+		expect(opensInboxTarget(nothing, phone)).toBe(false);
+		expect(opensInboxTarget(nothing, { ...phone, follow: true })).toBe(false);
+		expect(opensInboxTarget(message, { ...phone, chatPages: false })).toBe(false);
+		expect(showsInboxSheet(question, true)).toBe(true);
+		expect(showsInboxSheet(nothing, true)).toBe(true);
+		expect(showsInboxSheet(message, false)).toBe(true);
+		expect(showsInboxSheet(link, true)).toBe(false);
+		expect(showsInboxSheet(task, true)).toBe(false);
+		expect(showsInboxSheet(null, true)).toBe(false);
+	});
+
+	it('opens the task of a question as well, with the question kept in the sheet', () => {
+		const taskQuestion = { ...task, decision: { options: [] } as never };
+		expect(opensInboxTarget(taskQuestion, phone)).toBe(true);
+		expect(showsInboxSheet(taskQuestion, true)).toBe(true);
 	});
 });

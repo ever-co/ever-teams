@@ -56,6 +56,21 @@ export function emailModeOf(
 	return defaultEmailModeOf(preferences);
 }
 
+/**
+ * Whether a kind reaches the person's devices as a browser notification: its own switch, else the one of every kind,
+ * else on (registering a device is the opt-in) — as the platform decides it.
+ */
+export function pushOnFor(preferences: INotificationPreferences | null | undefined, type: EEmployeeNotificationType): boolean {
+	const own = preferences?.pushByType?.[type];
+	if (typeof own === 'boolean') {
+		return own;
+	}
+	if (typeof preferences?.push === 'boolean') {
+		return preferences.push;
+	}
+	return true;
+}
+
 /** The quiet hours, when set and well formed. */
 export function quietHoursOf(preferences: INotificationPreferences | null | undefined): INotificationQuietHours | null {
 	const window = preferences?.dnd;
@@ -89,9 +104,22 @@ export function digestHourLabel(hour: number, locale: string): string {
 	}
 }
 
+/** A per-type map with a patch merged in: a type patched to `undefined` is taken out, so it follows the default again. */
+function mergedByType<T>(current: Partial<Record<string, T>> | undefined, patch: Partial<Record<string, T>>): Partial<Record<string, T>> {
+	const merged: Partial<Record<string, T>> = { ...(current ?? {}) };
+	for (const [type, value] of Object.entries(patch)) {
+		if (value === undefined) {
+			delete merged[type];
+		} else {
+			merged[type] = value;
+		}
+	}
+	return merged;
+}
+
 /**
- * The preferences with a patch applied: the per-type modes merge (a type patched to `undefined` follows the default
- * again), the window merges, a `null` window clears it.
+ * The preferences with a patch applied: the per-type email modes and push switches merge (a type patched to
+ * `undefined` follows the default again), the window merges, a `null` window clears it.
  */
 export function withPreferencePatch(
 	current: INotificationPreferences | null | undefined,
@@ -99,15 +127,10 @@ export function withPreferencePatch(
 ): INotificationPreferences {
 	const next: INotificationPreferences = { ...(current ?? {}), ...patch };
 	if (patch.emailByType) {
-		const merged: Partial<Record<string, TNotificationEmailMode>> = { ...(current?.emailByType ?? {}) };
-		for (const [type, mode] of Object.entries(patch.emailByType)) {
-			if (mode === undefined) {
-				delete merged[type];
-			} else {
-				merged[type] = mode;
-			}
-		}
-		next.emailByType = merged;
+		next.emailByType = mergedByType(current?.emailByType, patch.emailByType);
+	}
+	if (patch.pushByType) {
+		next.pushByType = mergedByType(current?.pushByType, patch.pushByType);
 	}
 	if ('dnd' in patch) {
 		next.dnd = patch.dnd ? { ...(current?.dnd ?? {}), ...patch.dnd } : null;

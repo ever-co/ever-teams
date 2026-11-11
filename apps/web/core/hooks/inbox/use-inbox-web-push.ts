@@ -2,8 +2,14 @@
 
 import { useCallback, useEffect, useState } from 'react';
 import { ApiErrorService } from '@/core/services/client/api-error.service';
-import { inboxPushService } from '@/core/services/client/api/inbox';
-import { base64UrlToBytes, supportsWebPush, unsubscribeThisBrowserPush } from '@/core/lib/utils/web-push';
+import { inboxPushService, type IInboxPushDevice } from '@/core/services/client/api/inbox';
+import {
+	base64UrlToBytes,
+	sortPushDevices,
+	supportsWebPush,
+	thisBrowserPushSubscription,
+	unsubscribeThisBrowserPush
+} from '@/core/lib/utils/web-push';
 
 /** The worker that shows pushed inbox entries (served from `public/`). */
 const INBOX_PUSH_WORKER_URL = '/inbox-push-sw.js';
@@ -51,19 +57,26 @@ function deviceInputOf(subscription: PushSubscription) {
  * Browser notifications for the inbox on this device. `enable` asks the person for permission, registers the
  * worker, subscribes with the platform's VAPID key and registers the device; `disable` removes the device and
  * unsubscribes. A browser that is subscribed is registered again when the hook starts (the platform may have
- * removed the device after failed pushes): it is the same device, refreshed.
+ * removed the device after failed pushes): it is the same device, refreshed. `devices` lists every device of the
+ * person (this one is `thisEndpoint`), and `removeDevice` takes one off — this one included, which also
+ * unsubscribes this browser.
  */
 export function useInboxWebPush(enabled: boolean) {
 	const [state, setState] = useState<InboxWebPushState>('loading');
 	const [busy, setBusy] = useState(false);
+	const [devices, setDevices] = useState<IInboxPushDevice[]>([]);
+	const [thisEndpoint, setThisEndpoint] = useState<string | null>(null);
+
+	const loadDevices = useCallback(async () => {
+		const endpoint = (await thisBrowserPushSubscription())?.endpoint ?? null;
+		const listed = await inboxPushService.devices().catch(() => null);
+		setThisEndpoint(endpoint);
+		if (listed) setDevices(sortPushDevices(listed, endpoint));
+	}, []);
 
 	const refresh = useCallback(async () => {
 		if (!enabled) {
 			setState('unavailable');
-			return;
-		}
-		if (!supportsWebPush()) {
-			setState('unsupported');
 			return;
 		}
 		try {
@@ -72,8 +85,15 @@ export function useInboxWebPush(enabled: boolean) {
 			setState(ApiErrorService.isApiError(error) && error.isEndpointUnavailable() ? 'unavailable' : 'off');
 			return;
 		}
+		// The other devices are listed even where this browser cannot take notifications itself.
+		if (!supportsWebPush()) {
+			setState('unsupported');
+			await loadDevices();
+			return;
+		}
 		if (Notification.permission === 'denied') {
 			setState('blocked');
+			await loadDevices();
 			return;
 		}
 		const subscription = await currentSubscription().catch(() => null);
@@ -85,10 +105,11 @@ export function useInboxWebPush(enabled: boolean) {
 				.then(() => true)
 				.catch(() => false);
 			setState(registered ? 'on' : 'off');
-			return;
+		} else {
+			setState('off');
 		}
-		setState('off');
-	}, [enabled]);
+		await loadDevices();
+	}, [enabled, loadDevices]);
 
 	useEffect(() => {
 		void refresh();
@@ -116,11 +137,12 @@ export function useInboxWebPush(enabled: boolean) {
 				throw error;
 			}
 			setState('on');
+			await loadDevices();
 			return true;
 		} finally {
 			setBusy(false);
 		}
-	}, []);
+	}, [loadDevices]);
 
 	const disable = useCallback(async () => {
 		setBusy(true);
@@ -133,10 +155,28 @@ export function useInboxWebPush(enabled: boolean) {
 				await subscription.unsubscribe();
 			}
 			setState('off');
+			await loadDevices();
 		} finally {
 			setBusy(false);
 		}
-	}, []);
+	}, [loadDevices]);
 
-	return { state, busy, enable, disable, refresh };
+	const removeDevice = useCallback(
+		async (device: IInboxPushDevice) => {
+			if (thisEndpoint && device.endpoint === thisEndpoint) {
+				await disable();
+				return;
+			}
+			setBusy(true);
+			try {
+				await inboxPushService.remove(device.id);
+				setDevices((current) => current.filter((candidate) => candidate.id !== device.id));
+			} finally {
+				setBusy(false);
+			}
+		},
+		[disable, thisEndpoint]
+	);
+
+	return { state, busy, enable, disable, refresh, devices, thisEndpoint, removeDevice };
 }

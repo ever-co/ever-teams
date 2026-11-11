@@ -58,6 +58,7 @@ flowchart LR
 | `core/lib/realtime/bus.ts` | in-tab fan-out for features (`useRealtimeEvent`) |
 | `core/lib/realtime/invalidation.ts` | hint → query keys (pure), `resyncInvalidations` |
 | `core/lib/realtime/invalidation-scheduler.ts` | folds refetches per window; holds editing-area refetches while a text field is focused (≤ 15 s), flushes on `focusout` |
+| `core/lib/realtime/tab-claim.ts` | one tab acts on an event every tab receives (FR-8): a claim per key in `localStorage` with a 10-minute expiry, read and written under one Web Lock (`navigator.locks`), or written and read back after 60 ms where there are no Web Locks; a hidden tab yields 400 ms to a visible one |
 | `core/services/client/api/realtime/realtime.service.ts` | `status`, `catchUp`, `presence`, `typing` |
 | `app/api/realtime/*/route.ts` | proxy-mode routes (`forwardToGauzy`) |
 | `core/hooks/realtime/*` | `useRealtimeClient`, `useRealtimeEvent` / `useRealtimeResync`, `useRealtimePresence` |
@@ -107,4 +108,10 @@ refused credential, online event), `invalidation-scheduler` (folding, hold while
 
 - Promote `core/lib/realtime` to a shared package when the mobile app adopts it (open question in the spec).
 - Team presence polling subscribes to `presence.changed` instead of its interval.
-- Sounds / system notifications claimed by one tab (FR-8) ship with the inbox feature.
+- ~~Sounds / system notifications claimed by one tab (FR-8) ship with the inbox feature.~~ Done (T16):
+  `claimForThisTab` (`tab-claim.ts`) and the inbox's `useInboxAlerts` (mounted with the connection): a fresh
+  `inbox_item.created` for this user plays a short chime in the one tab that claims `inbox-<itemId>`, when the
+  person switched the sound on for this browser (notification settings, off by default). The claims live in
+  `localStorage`, not on a `BroadcastChannel`, so a tab that replays the event after sleep still finds them;
+  replays older than two minutes stay silent. System notifications come from the push worker, one per entry and
+  device (tag `inbox-<itemId>`), so no tab shows its own; a hidden tab stays silent where the browser is subscribed.

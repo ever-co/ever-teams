@@ -44,6 +44,8 @@ import {
 	groupInboxEntriesByDay,
 	hasChatPages,
 	InboxFieldRequests,
+	opensInboxTarget,
+	showsInboxSheet,
 	type InboxRequestField,
 	snoozeUntil,
 	toInboxEntry
@@ -367,7 +369,8 @@ function InboxPageContent() {
 	/**
 	 * A click on a row: the entry is read and shown in the pane. A task also opens in its drawer, over the inbox.
 	 * Anything else waits for "Open" where the pane is on screen, so reading the inbox does not leave it; without the
-	 * pane (a phone), the click goes straight to the target, unless the entry is a question to answer here.
+	 * pane (a phone), the click goes straight to the target, unless the entry is a question to answer here or has
+	 * nothing to open — those show in the sheet over the list.
 	 */
 	const handleOpen = useCallback(
 		(entry: InboxEntry, options: { follow?: boolean } = {}) => {
@@ -375,7 +378,7 @@ function InboxPageContent() {
 			setOpened({ scopeKey, entry: entry.isUnread ? { ...entry, isUnread: false } : entry });
 			if (entry.isUnread) setRead([entry], true).catch(reportFailure);
 			const hasPane = typeof window !== 'undefined' && window.matchMedia('(min-width: 1024px)').matches;
-			if (entry.taskId || options.follow || (!hasPane && !entry.decision)) handleOpenTarget(entry);
+			if (opensInboxTarget(entry, { hasPane, follow: !!options.follow, chatPages: hasChatPages() })) handleOpenTarget(entry);
 		},
 		[handleOpenTarget, reportFailure, scopeKey, setRead]
 	);
@@ -808,8 +811,8 @@ function InboxPageContent() {
 				</section>
 
 				{/* Below the large breakpoint the pane is a sheet over the list, opened with an entry that is answered here (a
-				    question, an approval); the other entries open their target as before. */}
-				{current?.decision && (
+				    question, an approval) or has nothing to open; the other entries open their target as before. */}
+				{showsInboxSheet(current, hasChatPages()) && (
 					<div
 						className="fixed inset-x-0 bottom-0 z-40 flex max-h-[80vh] flex-col overflow-hidden rounded-t-2xl border-t border-border bg-background shadow-lg lg:hidden"
 						role="dialog"
