@@ -98,7 +98,10 @@ Rules that keep the shared document whole:
   the page shows its read-only view, as a stored page of unknown content does.
 - `closed`, a 404 status route, a refused subscription (no access, the user's session limit, no such field), no first
   state within 10 s, or unknown content: live editing stops for the page view, the header says "Not live", the page is
-  read again and the autosave (with its revision / 409 handling) takes over.
+  read again and the autosave (with its revision / 409 handling) takes over. Edits the platform never confirmed (the
+  batch window, refused while read-only, typed while the session was down) become the autosave's draft, written
+  against the version they were typed on: their save meets the newer text as a conflict, and the person decides.
+- An answer to a request of an earlier session never changes the current one (its edit went with the new `sync`).
 - UndoRedo is off while live (the shared document's history, one per person, replaces it).
 
 ## 7. Spaces and follows (`docs-collaboration`, `GAUZY_DOCS_COLLAB_ENABLED`)
