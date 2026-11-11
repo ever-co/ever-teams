@@ -14,9 +14,11 @@ import { useFocusOnMount } from '@/core/hooks/common/use-focus-on-mount';
 import type { DocsCommentsState } from '@/core/hooks/docs/use-docs-comments';
 import { useMentionCandidates } from '@/core/hooks/tasks/use-mention-candidates';
 import { cn } from '@/core/lib/helpers';
+import type { DocsThreadPlace } from '@/core/lib/utils/docs-comment-anchors';
 import { isCommentAuthor, parseBlockAnchor, quoteOf, sortThreadsByDocument, threadsOfTab, type DocsCommentTab, type DocsCommentThread } from '@/core/lib/utils/docs-comments';
 import { splitMentions, type MentionSegment } from '@/core/lib/utils/comment-mentions';
 import type { IComment } from '@/core/types/interfaces/common/comment';
+import type { IDocumentCommentAnchorInput } from '@/core/types/interfaces/common/docs';
 
 const ICON_BUTTON =
 	'inline-flex size-7 shrink-0 cursor-pointer items-center justify-center rounded-md text-muted-foreground outline-none transition-colors hover:bg-foreground/[0.06] hover:text-foreground focus-visible:ring-[3px] focus-visible:ring-ring/25 disabled:cursor-default disabled:opacity-50 [&_svg]:size-4';
@@ -30,6 +32,8 @@ export interface DocsPendingAnchor {
 	quote: string;
 	/** The block got its anchor for this comment: the page must hold it before the comment names it. */
 	created?: boolean;
+	/** The selected text as a range of the block: the new thread's range (none for a caret without a selection). */
+	range?: IDocumentCommentAnchorInput | null;
 }
 
 interface DocsCommentsPanelProps {
@@ -37,6 +41,8 @@ interface DocsCommentsPanelProps {
 	/** The page's blocks in reading order, and the text of each, as the editor holds them now. */
 	blockOrder: readonly string[];
 	blockText: (blockId: string) => string | null;
+	/** Where a thread is now: its range found again, its block, the page, or nothing left of it. */
+	placeOf: (thread: DocsCommentThread) => DocsThreadPlace;
 	reader: { employeeId: string | null; userId: string | null };
 	activeThreadId: string | null;
 	/** Moves each time a thread is asked for (a marker, a link), so asking for the active one again shows its tab. */
@@ -61,14 +67,16 @@ function authorImageOf(comment: IComment): string | null {
 }
 
 /**
- * The page's comments beside it: Open and Resolved threads in reading order, each with the text it is on (or that it
- * is on the page, or that its text is gone), replies, resolve and reopen, edit and delete for their author, and the
- * field for a new comment (on the selected text when the person chose Comment on it).
+ * The page's comments beside it: Open and Resolved threads in reading order, each with the text it is on as it reads
+ * now (or its block when that text is gone, or that it is on the page, or that nothing of it is left), replies,
+ * resolve and reopen, edit and delete for their author, and the field for a new comment (on the selected text when
+ * the person chose Comment on it).
  */
 export function DocsCommentsPanel({
 	comments,
 	blockOrder,
 	blockText,
+	placeOf,
 	reader,
 	activeThreadId,
 	activeThreadRequest,
@@ -84,7 +92,7 @@ export function DocsCommentsPanel({
 	const candidates = useMentionCandidates();
 	const names = useMemo(() => candidates.map((candidate) => candidate.name), [candidates]);
 	const [tab, setTab] = useState<DocsCommentTab>('open');
-	const sorted = useMemo(() => sortThreadsByDocument(comments.threads, blockOrder), [blockOrder, comments.threads]);
+	const sorted = useMemo(() => sortThreadsByDocument(comments.threads, blockOrder, placeOf), [blockOrder, comments.threads, placeOf]);
 	const shown = useMemo(() => threadsOfTab(sorted, tab), [sorted, tab]);
 	const openCount = useMemo(() => threadsOfTab(sorted, 'open').length, [sorted]);
 	const resolvedCount = sorted.length - openCount;
@@ -121,7 +129,7 @@ export function DocsCommentsPanel({
 			return false;
 		}
 		try {
-			const created = await comments.post({ body, blockId: pendingAnchor?.blockId ?? null, mentionEmployeeIds });
+			const created = await comments.post({ body, blockId: pendingAnchor?.blockId ?? null, mentionEmployeeIds, range: pendingAnchor?.range ?? null });
 			if (!created) return false;
 			onClearPending();
 			return true;
@@ -176,8 +184,8 @@ export function DocsCommentsPanel({
 						<DocsThreadCard
 							key={thread.id}
 							thread={thread}
-							quote={thread.blockId ? quoteOf(blockText(thread.blockId)) : null}
-							isDetached={thread.blockId !== null && !blockOrder.includes(thread.blockId)}
+							place={placeOf(thread)}
+							blockText={blockText}
 							isActive={thread.id === activeThreadId}
 							names={names}
 							reader={reader}
@@ -242,8 +250,8 @@ export function DocsCommentsPanel({
 
 interface DocsThreadCardProps {
 	thread: DocsCommentThread;
-	quote: string | null;
-	isDetached: boolean;
+	place: DocsThreadPlace;
+	blockText: (blockId: string) => string | null;
 	isActive: boolean;
 	names: string[];
 	reader: { employeeId: string | null; userId: string | null };
@@ -255,7 +263,7 @@ interface DocsThreadCardProps {
 	onFail: () => void;
 }
 
-function DocsThreadCard({ thread, quote, isDetached, isActive, names, reader, comments, canComment, onSelect, onCopyLink, onDelete, onFail }: Readonly<DocsThreadCardProps>) {
+function DocsThreadCard({ thread, place, blockText, isActive, names, reader, comments, canComment, onSelect, onCopyLink, onDelete, onFail }: Readonly<DocsThreadCardProps>) {
 	const t = useTranslations();
 	const [isReplying, setIsReplying] = useState(false);
 	const canResolve = isCommentAuthor(thread.root, reader);
@@ -291,9 +299,7 @@ function DocsThreadCard({ thread, quote, isDetached, isActive, names, reader, co
 				onClick={onSelect}
 				className="-m-1 flex cursor-pointer flex-col items-start gap-0.5 rounded-md p-1 text-left text-xs outline-none hover:bg-foreground/[0.03] focus-visible:ring-[3px] focus-visible:ring-ring/25"
 			>
-				{thread.blockId === null && <span className="text-muted-foreground">{t('docs.COMMENT_ON_PAGE')}</span>}
-				{thread.blockId !== null && isDetached && <span className="italic text-muted-foreground">{t('docs.COMMENT_DETACHED')}</span>}
-				{thread.blockId !== null && !isDetached && <span className="line-clamp-2 border-l-2 border-amber-500/70 pl-2 text-foreground/80">{quote || '…'}</span>}
+				<DocsThreadPlaceLine place={place} blockText={blockText} />
 			</button>
 
 			<DocsCommentRow comment={thread.root} names={names} reader={reader} comments={comments} onDelete={onDelete} onFail={onFail} />
@@ -420,6 +426,23 @@ function DocsCommentRow({ comment, names, reader, comments, onDelete, onFail }: 
 				)}
 			</div>
 		</div>
+	);
+}
+
+/**
+ * What a thread is on: the text of its range as it reads now, its block's text (a thread without a range, or one whose
+ * text is gone and that fell back to its block, which it says), the page, or that nothing of it is left.
+ */
+function DocsThreadPlaceLine({ place, blockText }: Readonly<{ place: DocsThreadPlace; blockText: (blockId: string) => string | null }>) {
+	const t = useTranslations();
+	if (place.kind === 'page') return <span className="text-muted-foreground">{t('docs.COMMENT_ON_PAGE')}</span>;
+	if (place.kind === 'orphaned' || !place.blockId) return <span className="italic text-muted-foreground">{t('docs.COMMENT_DETACHED')}</span>;
+	const quote = place.kind === 'range' ? quoteOf(place.text) : quoteOf(blockText(place.blockId));
+	return (
+		<>
+			<span className="line-clamp-2 border-l-2 border-amber-500/70 pl-2 text-foreground/80">{quote || '…'}</span>
+			{place.kind === 'block-fallback' && <span className="italic text-muted-foreground">{t('docs.COMMENT_ON_BLOCK_FALLBACK')}</span>}
+		</>
 	);
 }
 

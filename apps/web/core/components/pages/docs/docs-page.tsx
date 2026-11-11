@@ -13,6 +13,7 @@ import { useDocsFavorites } from '@/core/hooks/docs/use-docs-favorites';
 import { useDocsExpanded, useDocsRecent } from '@/core/hooks/docs/use-docs-recent';
 import { useDocsScope } from '@/core/hooks/docs/use-docs-scope';
 import { useDocsTree } from '@/core/hooks/docs/use-docs-tree';
+import { useDocsZipExport } from '@/core/hooks/docs/use-docs-zip-export';
 import { cn } from '@/core/lib/helpers';
 import { isDocsEnabled } from '@/core/lib/utils/docs-enabled';
 import { lastVisited, localStorageOrNull } from '@/core/lib/utils/docs-recent';
@@ -46,6 +47,7 @@ export function DocsPage({ view }: Readonly<{ view: DocsView }>) {
 	const favorites = useDocsFavorites();
 	const { recentIds, forget } = useDocsRecent();
 	const actions = useDocsActions();
+	const { run: exportZip } = useDocsZipExport();
 
 	// Below the large breakpoint the tree and the home do not fit side by side: the tree shows first, and its Home row
 	// swaps it for the home, which has a way back.
@@ -231,6 +233,8 @@ export function DocsPage({ view }: Readonly<{ view: DocsView }>) {
 			duplicate: (page, deep) => void duplicate(page, deep),
 			setVisibility: (page, visibility) => void setVisibility(page, visibility),
 			trash: (page) => void trash(page),
+			// A folder holds no text of its own: nothing waits to be saved before its zip.
+			exportZip: (page) => void exportZip(page),
 			drop: (id, parentId) => {
 				void actions
 					.movePage(id, parentId)
@@ -248,7 +252,7 @@ export function DocsPage({ view }: Readonly<{ view: DocsView }>) {
 					.catch((error: unknown) => fail(error, 'docs.MOVE_ERROR'));
 			}
 		}),
-		[actions, createAndOpen, duplicate, fail, reorder, setOpen, setVisibility, toggleFavorite, trash, tree.byId]
+		[actions, createAndOpen, duplicate, exportZip, fail, reorder, setOpen, setVisibility, toggleFavorite, trash, tree.byId]
 	);
 
 	const pageActions = useMemo<DocsPageViewActions>(
