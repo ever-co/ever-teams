@@ -19,10 +19,18 @@ export function navigateAfterSignIn({ replace = false }: { replace?: boolean } =
 	if (typeof window === 'undefined') {
 		return;
 	}
-	const destination = takeBoardReturn() ?? '/';
-	if (replace) {
-		window.location.replace(destination);
+	const boardReturn = takeBoardReturn();
+	if (boardReturn) {
+		if (replace) {
+			window.location.replace(boardReturn);
+		} else {
+			window.location.assign(boardReturn);
+		}
 		return;
 	}
-	window.location.assign(destination);
+	if (replace) {
+		window.location.replace('/');
+		return;
+	}
+	window.location.assign('/');
 }
