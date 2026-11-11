@@ -18,11 +18,19 @@ export function useInboxSheetFocus(entryId: string | null, onClose: () => void) 
 	const sheetRef = useRef<HTMLDivElement | null>(null);
 	const returnFocusRef = useRef<HTMLElement | null>(null);
 
+	// The sheet takes the focus when it opens below the breakpoint, and when a window it is open in narrows below it.
 	useEffect(() => {
-		if (!entryId || typeof window === 'undefined' || window.matchMedia(LARGE_SCREEN).matches) return;
-		const active = document.activeElement;
-		if (active instanceof HTMLElement && !sheetRef.current?.contains(active)) returnFocusRef.current = active;
-		sheetRef.current?.focus();
+		if (!entryId || typeof window === 'undefined') return;
+		const largeScreen = window.matchMedia(LARGE_SCREEN);
+		const takeFocus = () => {
+			if (largeScreen.matches) return;
+			const active = document.activeElement;
+			if (active instanceof HTMLElement && !sheetRef.current?.contains(active)) returnFocusRef.current = active;
+			sheetRef.current?.focus();
+		};
+		takeFocus();
+		largeScreen.addEventListener('change', takeFocus);
+		return () => largeScreen.removeEventListener('change', takeFocus);
 	}, [entryId]);
 
 	const close = useCallback(() => {
