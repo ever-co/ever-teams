@@ -70,12 +70,14 @@ export function TeamTasksBoard({
 			// A view ordered by hand: the board shows the view's saved order alone (a refused move goes back with it).
 			// Another lane is a status change only, the card keeping its place in that order: a place saved alongside
 			// would stay if the status change failed. Inside its lane the card's place goes to the saved order.
-			if (task.taskStatusId !== toStatus.id) {
+			// The lane the card is shown in decides, not its `taskStatusId` (older tasks have only a status name)
+			const lane = lanes.find((each) => each.status.id === toStatus.id);
+			const laneIds = lane ? lane.tasks.map(({ id }) => id) : [];
+			if (!laneIds.includes(task.id)) {
 				moveTask(task, toStatus, toIndex, { keepsLaneOrder: false });
 				return;
 			}
-			const lane = lanes.find((each) => each.status.id === toStatus.id);
-			const savedMove = laneMoveOf(lane ? lane.tasks.map(({ id }) => id) : [], task.id, toIndex);
+			const savedMove = laneMoveOf(laneIds, task.id, toIndex);
 			if (savedMove) {
 				moveInSavedOrder(savedMove);
 			}

@@ -107,11 +107,16 @@ describe('a view shown as a board', () => {
 
 		// From another lane: a status change only, without a lane order of the board's; the saved order is untouched,
 		// so a failed status change leaves the card where it was
-		mockBoardMove?.({ id: 't1', taskStatusId: 's2' }, { id: 's1' }, 0);
-		expect(mockMoveTask).toHaveBeenCalledWith({ id: 't1', taskStatusId: 's2' }, { id: 's1' }, 0, {
+		mockBoardMove?.({ id: 't1', taskStatusId: 's2' }, { id: 's2' }, 0);
+		expect(mockMoveTask).toHaveBeenCalledWith({ id: 't1', taskStatusId: 's2' }, { id: 's2' }, 0, {
 			keepsLaneOrder: false
 		});
 		expect(moveInSavedOrder).toHaveBeenCalledTimes(1);
+
+		// An older task with a status name only, shown in this lane: a move inside it all the same
+		mockBoardMove?.({ id: 't1' }, { id: 's1' }, 2);
+		expect(moveInSavedOrder).toHaveBeenLastCalledWith({ taskId: 't1', targetId: 't4', edge: 'after' });
+		expect(mockMoveTask).toHaveBeenCalledTimes(1);
 		unmount();
 
 		// Not ordered by hand (no move command): the board alone, with its own lane order
