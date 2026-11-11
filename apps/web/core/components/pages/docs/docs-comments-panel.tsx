@@ -42,7 +42,10 @@ interface DocsCommentsPanelProps {
 	/** Moves each time a thread is asked for (a marker, a link), so asking for the active one again shows its tab. */
 	activeThreadRequest: number;
 	onSelectThread: (thread: DocsCommentThread) => void;
-	/** Before a comment goes on a block that just got its anchor: answers whether the page holds the anchor now. */
+	/**
+	 * Before a comment goes on a block: answers whether the platform holds the page's edits now (the block's anchor among
+	 * them), waiting for a save or the live session's confirmation when some are pending.
+	 */
 	beforePost?: (anchor: DocsPendingAnchor) => Promise<boolean>;
 	pendingAnchor: DocsPendingAnchor | null;
 	onClearPending: () => void;
@@ -115,8 +118,10 @@ export function DocsCommentsPanel({
 	const fail = () => toast.error(t('docs.COMMENT_ERROR'));
 
 	const postNew = async (body: string, mentionEmployeeIds: string[]) => {
-		// A thread never names an anchor the page does not hold (a save that failed would leave it on nothing).
-		if (pendingAnchor?.created && beforePost && !(await beforePost(pendingAnchor))) {
+		// A thread never names an anchor the page does not hold (a save that failed would leave it on nothing). Any block's
+		// anchor may exist here only: given for this comment, or to a block typed since the page was last saved (blocks
+		// get theirs as they are typed), with the save still waiting, failing or in conflict.
+		if (pendingAnchor && beforePost && !(await beforePost(pendingAnchor))) {
 			toast.error(t('docs.COMMENT_ANCHOR_UNSAVED'));
 			return false;
 		}

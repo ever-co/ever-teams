@@ -37,6 +37,7 @@ import { anchoredBlocksOf, openThreadBlockIds, openThreadOnBlock, threadOfCommen
 import { docsLinkTargetOf, docsPageUrl } from '@/core/lib/utils/docs-links';
 import { documentToMarkdown, markdownFileName, mentionedEmployeeIds } from '@/core/lib/utils/docs-markdown';
 import { DOCS_OUTLINE_SELECTOR, outlineOf, textStatsOf, type DocsOutlineItem } from '@/core/lib/utils/docs-outline';
+import { copyBlockLinkOnceHeld, type DocsPageEdits } from '@/core/lib/utils/docs-page-edits';
 import { pageTitle } from '@/core/lib/utils/docs-tree';
 import { docsService } from '@/core/services/client/api/docs';
 import { EDocumentKind, EDocumentVisibility, type IDocumentNode, type IDocumentPage } from '@/core/types/interfaces/common/docs';
@@ -111,6 +112,12 @@ function downloadBlob(blob: Blob, fileName: string) {
 	anchor.click();
 	// The click starts the download; the address is released once it had the time to.
 	setTimeout(() => URL.revokeObjectURL(url), 1000);
+}
+
+/** Writes the clipboard; rejects without one (a page served without https) or when the browser refuses. */
+function writeClipboard(text: string): Promise<void> {
+	const clipboard = typeof navigator === 'undefined' ? undefined : navigator.clipboard;
+	return clipboard ? clipboard.writeText(text) : Promise.reject(new Error('No clipboard'));
 }
 
 const NO_SPACES: DocsSpacesState = { available: false, teamSpaces: [] };
@@ -241,6 +248,7 @@ export function DocsPageView({ pageId, tree, actions, spaces = NO_SPACES, onOpen
 	const pageWritable = Boolean(page && !page.isArchived && !page.isLocked);
 	const unsentAtFallback = live.mode === 'fallback' && !live.rereading && Boolean(liveSnapshot?.unsentEdits);
 	const fallenDoc = unsentAtFallback ? (liveSnapshot?.doc ?? null) : null;
+	const liveBinding = live.binding;
 	useEffect(() => {
 		if (isLiveEditing && liveClockRef.current === null) liveClockRef.current = pageClock;
 	}, [isLiveEditing, pageClock]);
@@ -256,7 +264,9 @@ export function DocsPageView({ pageId, tree, actions, spaces = NO_SPACES, onOpen
 				if (!current) return;
 				const { json, html } = liveDocumentContent(fallenDoc, DOCS_LIVE_FIELD);
 				const content = json as IDocumentNode;
-				adoptDraft(html, content, mentionedEmployeeIds(content), liveClockRef.current ?? NEVER_SAVED_CLOCK);
+				// The autosave holds the text now: the document the tab kept for it can go. Until then it stays, so a view
+				// left meanwhile (or a page locked or trashed, which skips this) leaves the edits to the next visit.
+				if (adoptDraft(html, content, mentionedEmployeeIds(content), liveClockRef.current ?? NEVER_SAVED_CLOCK)) liveBinding?.draftAdopted();
 				setAdoption('done');
 			})
 			.catch(() => {
@@ -270,7 +280,7 @@ export function DocsPageView({ pageId, tree, actions, spaces = NO_SPACES, onOpen
 			current = false;
 			adoptingRef.current = false;
 		};
-	}, [adoptDraft, adoption, adoptionTry, fallenDoc, pageWritable]);
+	}, [adoptDraft, adoption, adoptionTry, fallenDoc, liveBinding, pageWritable]);
 	const awaitingAdoption = Boolean(fallenDoc) && pageWritable && adoption !== 'done';
 	const retryAdoption = () => {
 		setAdoption('waiting');
@@ -407,13 +417,7 @@ export function DocsPageView({ pageId, tree, actions, spaces = NO_SPACES, onOpen
 	const copyText = useCallback(
 		(text: string) => {
 			// No clipboard (a page served without https) or a refused one: the person is told, never left with an old copy.
-			const clipboard = typeof navigator === 'undefined' ? undefined : navigator.clipboard;
-			if (!clipboard) {
-				toast.error(t('docs.COPY_ERROR'));
-				return;
-			}
-			clipboard
-				.writeText(text)
+			writeClipboard(text)
 				.then(() => toast(t('docs.LINK_COPIED')))
 				.catch(() => toast.error(t('docs.COPY_ERROR')));
 		},
@@ -437,8 +441,21 @@ export function DocsPageView({ pageId, tree, actions, spaces = NO_SPACES, onOpen
 		return false;
 	}, [flushNow, hasDraft]);
 
-	// A block given its anchor for a comment: live, the edit went with the session; otherwise the page is saved first.
-	const holdAnchor = useCallback(async () => isLiveEditing || saveDraftNow(), [isLiveEditing, saveDraftNow]);
+	// Where the page's edits stand (a block's anchor among them): live, the session confirms them (a reconnecting one
+	// sends them once it is back, and the wait ends at its timeout); otherwise the draft is saved.
+	const pageEdits = useMemo<DocsPageEdits>(
+		() =>
+			isLiveEditing
+				? {
+						pending: () => liveBinding?.hasUnconfirmedEdits() ?? true,
+						hold: () => liveBinding?.whenConfirmed() ?? Promise.resolve(false)
+					}
+				: { pending: hasDraft, hold: saveDraftNow },
+		[hasDraft, isLiveEditing, liveBinding, saveDraftNow]
+	);
+
+	// A comment on a block waits until the platform holds the page's edits: the block's anchor may exist here only.
+	const holdAnchor = useCallback(() => pageEdits.hold(), [pageEdits]);
 
 	const startComment = useCallback(() => {
 		const anchor = editorApi?.anchorSelection() ?? null;
@@ -450,10 +467,16 @@ export function DocsPageView({ pageId, tree, actions, spaces = NO_SPACES, onOpen
 	const copyBlockLink = useCallback(() => {
 		const anchor = editorApi?.anchorSelection() ?? null;
 		if (!anchor) return;
-		// A block that just got its anchor is saved at once, so the link leads somewhere for whoever opens it.
-		if (anchor.created) void holdAnchor();
-		copyText(docsPageUrl(window.location.origin, pageId, { block: anchor.blockId }));
-	}, [copyText, editorApi, holdAnchor, pageId]);
+		// The link is copied once the platform holds the block's anchor (given just now, or to a block typed since the last
+		// save), so it leads to the block for whoever opens it; when the save fails nothing is copied, and the person is told.
+		const link = docsPageUrl(window.location.origin, pageId, { block: anchor.blockId });
+		const waiting = pageEdits.pending() ? toast.loading(t('docs.SAVING')) : undefined;
+		void copyBlockLinkOnceHeld(link, pageEdits, writeClipboard).then((result) => {
+			const options = waiting === undefined ? undefined : { id: waiting };
+			if (result === 'copied') toast(t('docs.LINK_COPIED'), options);
+			else toast.error(t(result === 'unsaved' ? 'docs.BLOCK_LINK_UNSAVED' : 'docs.COPY_ERROR'), options);
+		});
+	}, [editorApi, pageEdits, pageId, t]);
 
 	const openThreadOfBlock = useCallback(
 		(blockId: string) => {
