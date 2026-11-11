@@ -43,7 +43,13 @@ function DefaultTypeFace({ item, isSaving }: Readonly<{ item: PropertyListItem |
 	}
 	return (
 		<>
-			<TaskPropertyIcon kind="issueType" name={item.name} color={item.color} icon={item.icon} />
+			<TaskPropertyIcon
+				kind="issueType"
+				name={item.name}
+				color={item.color}
+				icon={item.icon}
+				iconUrl={item.iconUrl}
+			/>
 			<span className="capitalize">{item.label}</span>
 		</>
 	);
@@ -104,6 +110,7 @@ function DefaultTypePicker({ model }: Readonly<{ model: IssueTypeSettingsModel }
 										name={item.name}
 										color={item.color}
 										icon={item.icon}
+										iconUrl={item.iconUrl}
 									/>
 									<span className="min-w-0 truncate capitalize">{item.label}</span>
 									{isCurrent && <SelectedMark className="ml-auto" />}
