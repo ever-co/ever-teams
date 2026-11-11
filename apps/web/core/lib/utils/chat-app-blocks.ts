@@ -49,7 +49,7 @@ export function buttonLinkOf(button: Pick<IChatAppButton, 'url'>): string | null
 
 /** The key of one button within one message: its actions block and its action id. */
 export function appButtonKey(blockId: string | null | undefined, actionId: string): string {
-	return `${blockId ?? ''}::${actionId}`;
+	return JSON.stringify([blockId ?? '', actionId]);
 }
 
 /** What a button shows while and after it is clicked. */
@@ -62,9 +62,9 @@ export function appButtonStateOf(status: TChatInteractionStatus | string | null 
 	return 'pending';
 }
 
-/** How often, and how many times, the chat asks again about a click whose callback is being retried (~45 s). */
+/** How often, and how many times, the chat asks again about a click whose callback is being retried (60 s: the platform retries for about 47 s). */
 export const APP_INTERACTION_POLL_MS = 3000;
-export const APP_INTERACTION_POLL_MAX = 15;
+export const APP_INTERACTION_POLL_MAX = 20;
 
 /** Why a click failed, as the translation key the message shows (by the platform's answer). */
 export function appClickFailureOf(status: number | null | undefined): 'APP_NO_INTERACTIONS' | 'APP_GONE' | 'APP_CLICK_FAILED' {

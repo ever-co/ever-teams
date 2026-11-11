@@ -75,24 +75,38 @@ export function ChatAppBlocks({ message, readOnly = false, onReplaced }: Readonl
 		});
 	}, []);
 
+	/** Waits one poll interval (a timer the unmount clears). */
+	const pause = useCallback(
+		() =>
+			new Promise<void>((resolve) => {
+				const timer = setTimeout(() => {
+					timers.current.delete(timer);
+					resolve();
+				}, APP_INTERACTION_POLL_MS);
+				timers.current.add(timer);
+			}),
+		[]
+	);
+
 	/** Asks again about a click whose callback is being retried, until it settles or the chat stops asking. */
 	const follow = useCallback(
-		(key: string, blockId: string | null, interactionId: string, round = 1) => {
-			const timer = setTimeout(async () => {
-				timers.current.delete(timer);
+		async (key: string, blockId: string | null, interactionId: string) => {
+			for (let round = 0; round < APP_INTERACTION_POLL_MAX; round += 1) {
+				await pause();
+				if (!alive.current) return;
 				try {
 					const interaction = await chatService.interaction(interactionId);
 					const state = appButtonStateOf(interaction.status);
 					setState(key, state);
 					if (state === 'failed') setFailure(blockId, 'APP_CALLBACK_FAILED');
-					if (state === 'pending' && round < APP_INTERACTION_POLL_MAX) follow(key, blockId, interactionId, round + 1);
+					if (state !== 'pending') return;
 				} catch {
 					setState(key, 'failed');
+					return;
 				}
-			}, APP_INTERACTION_POLL_MS);
-			timers.current.add(timer);
+			}
 		},
-		[setFailure, setState]
+		[pause, setFailure, setState]
 	);
 
 	const click = useCallback(
@@ -107,7 +121,7 @@ export function ChatAppBlocks({ message, readOnly = false, onReplaced }: Readonl
 				const state = appButtonStateOf(result.interaction.status);
 				setState(key, state);
 				if (state === 'failed') setFailure(blockId, 'APP_CALLBACK_FAILED');
-				if (state === 'pending') follow(key, blockId, result.interaction.interactionId);
+				if (state === 'pending') void follow(key, blockId, result.interaction.interactionId);
 			} catch (error) {
 				const status = (error as { response?: { status?: number }; status?: number })?.response?.status ?? (error as { status?: number })?.status;
 				setState(key, 'failed');
