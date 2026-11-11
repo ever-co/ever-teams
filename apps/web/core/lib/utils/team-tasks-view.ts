@@ -36,7 +36,12 @@ export type TeamTasksFilterField =
 
 export type TeamTasksFilters = Partial<Record<TeamTasksFilterField, string[]>>;
 
+/** How the tasks are shown: rows, or cards in one lane per status (the saved-views feature). */
+export type TeamTasksLayout = 'list' | 'board';
+
 export interface TeamTasksViewSettings {
+	/** Absent in what was stored before the board came: a list. */
+	layout?: TeamTasksLayout;
 	grouping: TeamTasksGrouping;
 	ordering: TeamTasksOrdering;
 	isDescending: boolean;
@@ -84,6 +89,22 @@ export const DEFAULT_TEAM_TASKS_VIEW: TeamTasksViewSettings = {
 		assignees: true
 	}
 };
+
+/** The tasks of the groups once each, in the order the list shows them (a task can sit in several groups). */
+export function tasksOfGroups(groups: readonly TeamTasksGroup[]): TTask[] {
+	const seen = new Set<string>();
+	const tasks: TTask[] = [];
+	for (const group of groups) {
+		for (const task of group.tasks) {
+			if (seen.has(task.id)) {
+				continue;
+			}
+			seen.add(task.id);
+			tasks.push(task);
+		}
+	}
+	return tasks;
+}
 
 export interface TeamTasksGroup {
 	key: string;

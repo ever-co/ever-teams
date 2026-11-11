@@ -1584,7 +1584,9 @@
 			"TASKS_HIDDEN_BY_FILTERS": "{count, plural, one {# tarefa oculta pelos filtros} other {# tarefas ocultas pelos filtros}}",
 			"NO_STATUSES_TITLE": "Ainda sem status",
 			"NO_STATUSES_MESSAGE": "Esta equipe não tem status de tarefa. Adicione-os nas configurações da equipe para ver o quadro.",
-			"CREATION_DAY": "Dia de criação"
+			"CREATION_DAY": "Dia de criação",
+			"SELECT_TASK": "Selecionar {title}",
+			"OTHER_TEAM_MOVE": "Esta tarefa pertence a outra equipa: altere o estado na própria tarefa."
 		},
 		"profile": {
 			"BREADCRUMB": "[\"Tarefas do Membro\"]",
@@ -2459,7 +2461,11 @@
 			"SHOW_EMPTY_GROUPS": "Grupos vazios",
 			"SHOW_SUB_TASKS": "Subtarefas",
 			"SUB_TASKS_DONE": "{done} de {total} subtarefas concluídas",
-			"TRACKED_NOW_BY": "Acompanhada agora por {names}"
+			"TRACKED_NOW_BY": "Acompanhada agora por {names}",
+			"SEARCH_PROJECT": "Mover para um projeto…",
+			"LAYOUT": "Esquema",
+			"LAYOUT_LIST": "Lista",
+			"LAYOUT_BOARD": "Quadro"
 		},
 		"joinTeam": {
 			"TITLE": "Entrar em uma equipe",
@@ -4990,7 +4996,8 @@
 			"searchTasks": "Pesquisar nas tarefas",
 			"searchProjects": "Pesquisar nos projetos",
 			"searchTeams": "Pesquisar nas equipas",
-			"themeToggle": "Alternar entre claro e escuro"
+			"themeToggle": "Alternar entre claro e escuro",
+			"taskProject": "Alterar o projeto"
 		},
 		"CHAT_SINGLE_KEY": "Uma tecla do chat é uma só tecla, não uma sequência.",
 		"CHAT_TAKEN": "O chat já usa essa tecla (formatação, envio, movimento ou rolagem)."

@@ -1584,7 +1584,9 @@
 			"TASKS_HIDDEN_BY_FILTERS": "{count, plural, one {# zadanie ukryte przez filtry} few {# zadania ukryte przez filtry} many {# zadań ukrytych przez filtry} other {# zadania ukryte przez filtry}}",
 			"NO_STATUSES_TITLE": "Brak statusów",
 			"NO_STATUSES_MESSAGE": "Ten zespół nie ma statusów zadań. Dodaj je w ustawieniach zespołu, aby zobaczyć tablicę.",
-			"CREATION_DAY": "Dzień utworzenia"
+			"CREATION_DAY": "Dzień utworzenia",
+			"SELECT_TASK": "Zaznacz {title}",
+			"OTHER_TEAM_MOVE": "To zadanie należy do innego zespołu: zmień jego status w samym zadaniu."
 		},
 		"profile": {
 			"BREADCRUMB": "[\"Member Tasks\"]",
@@ -2459,7 +2461,11 @@
 			"SHOW_EMPTY_GROUPS": "Puste grupy",
 			"SHOW_SUB_TASKS": "Podzadania",
 			"SUB_TASKS_DONE": "Zakończone podzadania: {done} z {total}",
-			"TRACKED_NOW_BY": "Teraz śledzi: {names}"
+			"TRACKED_NOW_BY": "Teraz śledzi: {names}",
+			"SEARCH_PROJECT": "Przenieś do projektu…",
+			"LAYOUT": "Układ",
+			"LAYOUT_LIST": "Lista",
+			"LAYOUT_BOARD": "Tablica"
 		},
 		"joinTeam": {
 			"TITLE": "Dołącz do zespołu",
@@ -4990,7 +4996,8 @@
 			"searchTasks": "Szukaj w zadaniach",
 			"searchProjects": "Szukaj w projektach",
 			"searchTeams": "Szukaj w zespołach",
-			"themeToggle": "Przełącz między jasnym a ciemnym"
+			"themeToggle": "Przełącz między jasnym a ciemnym",
+			"taskProject": "Zmień projekt"
 		},
 		"CHAT_SINGLE_KEY": "Klawisz czatu to jeden klawisz, nie sekwencja.",
 		"CHAT_TAKEN": "Czat już używa tego klawisza (formatowanie, wysyłanie, przechodzenie lub przewijanie)."

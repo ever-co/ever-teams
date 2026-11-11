@@ -1584,7 +1584,9 @@
 			"TASKS_HIDDEN_BY_FILTERS": "{count, plural, one {# tâche masquée par les filtres} other {# tâches masquées par les filtres}}",
 			"NO_STATUSES_TITLE": "Aucun statut pour l'instant",
 			"NO_STATUSES_MESSAGE": "Cette équipe n'a aucun statut de tâche. Ajoutez-en dans les paramètres de l'équipe pour voir son tableau.",
-			"CREATION_DAY": "Jour de création"
+			"CREATION_DAY": "Jour de création",
+			"SELECT_TASK": "Sélectionner {title}",
+			"OTHER_TEAM_MOVE": "Cette tâche appartient à une autre équipe : changez son statut depuis la tâche elle-même."
 		},
 		"profile": {
 			"BREADCRUMB": "[\"Tâches du membre\"]",
@@ -2459,7 +2461,11 @@
 			"SHOW_EMPTY_GROUPS": "Groupes vides",
 			"SHOW_SUB_TASKS": "Sous-tâches",
 			"SUB_TASKS_DONE": "{done} sous-tâches terminées sur {total}",
-			"TRACKED_NOW_BY": "Suivie en ce moment par {names}"
+			"TRACKED_NOW_BY": "Suivie en ce moment par {names}",
+			"SEARCH_PROJECT": "Déplacer vers un projet…",
+			"LAYOUT": "Disposition",
+			"LAYOUT_LIST": "Liste",
+			"LAYOUT_BOARD": "Tableau"
 		},
 		"joinTeam": {
 			"TITLE": "Rejoindre une équipe",
@@ -4990,7 +4996,8 @@
 			"searchTasks": "Rechercher dans les tâches",
 			"searchProjects": "Rechercher dans les projets",
 			"searchTeams": "Rechercher dans les équipes",
-			"themeToggle": "Basculer entre clair et sombre"
+			"themeToggle": "Basculer entre clair et sombre",
+			"taskProject": "Changer le projet"
 		},
 		"CHAT_SINGLE_KEY": "Une touche du chat est une seule touche, pas une séquence.",
 		"CHAT_TAKEN": "Le chat utilise déjà cette touche (mise en forme, envoi, déplacement ou défilement)."

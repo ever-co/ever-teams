@@ -1584,7 +1584,9 @@
 			"TASKS_HIDDEN_BY_FILTERS": "{count, plural, one {# задача е скрита от филтрите} other {# задачи са скрити от филтрите}}",
 			"NO_STATUSES_TITLE": "Все още няма статуси",
 			"NO_STATUSES_MESSAGE": "Този екип няма статуси на задачи. Добавете ги в настройките на екипа, за да видите таблото.",
-			"CREATION_DAY": "Ден на създаване"
+			"CREATION_DAY": "Ден на създаване",
+			"SELECT_TASK": "Избери {title}",
+			"OTHER_TEAM_MOVE": "Тази задача е на друг екип: променете статуса ѝ от самата задача."
 		},
 		"projects": {
 			"projectTitle": {
@@ -2459,7 +2461,11 @@
 			"SHOW_EMPTY_GROUPS": "Празни групи",
 			"SHOW_SUB_TASKS": "Подзадачи",
 			"SUB_TASKS_DONE": "Готови подзадачи: {done} от {total}",
-			"TRACKED_NOW_BY": "Отчита се сега от {names}"
+			"TRACKED_NOW_BY": "Отчита се сега от {names}",
+			"SEARCH_PROJECT": "Премести в проект…",
+			"LAYOUT": "Изглед",
+			"LAYOUT_LIST": "Списък",
+			"LAYOUT_BOARD": "Табло"
 		},
 		"joinTeam": {
 			"TITLE": "Присъединяване към екип",
@@ -4990,7 +4996,8 @@
 			"searchTasks": "Търси в задачите",
 			"searchProjects": "Търси в проектите",
 			"searchTeams": "Търси в екипите",
-			"themeToggle": "Превключи между светла и тъмна"
+			"themeToggle": "Превключи между светла и тъмна",
+			"taskProject": "Промени проекта"
 		},
 		"CHAT_SINGLE_KEY": "Клавишът за чата е един клавиш, не поредица.",
 		"CHAT_TAKEN": "Чатът вече използва този клавиш (форматиране, изпращане, придвижване или превъртане)."
