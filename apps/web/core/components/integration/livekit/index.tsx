@@ -27,21 +27,8 @@ export default function LiveKitPage({ userChoices, onLeave, token, liveKitUrl }:
 		setError(undefined);
 	}, [token, liveKitUrl]);
 
-	React.useEffect(() => {
-		let mounted = true;
-
-		return () => {
-			mounted = false;
-			navigator.mediaDevices
-				?.getUserMedia({ audio: true, video: true })
-				.then((stream) => {
-					if (!mounted) {
-						stream.getTracks().forEach((track) => track.stop());
-					}
-				})
-				.catch(() => console.error('Failed to cleanup media streams')); // Ignore errors during cleanup
-		};
-	}, []);
+	// Leaving needs no cleanup of its own: LiveKitRoom disconnects the room when it unmounts, and the disconnect stops the
+	// local camera and microphone tracks. Asking for a new stream to stop it would turn the camera on as the user leaves.
 
 	const connectOptions = React.useMemo(
 		(): RoomConnectOptions => ({
