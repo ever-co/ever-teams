@@ -3,7 +3,7 @@
  * `/workspace/new` (#5025): the workspace's name, its first team's (it follows the workspace's name until edited) and
  * the members invited; what stops a creation is said, with the way out.
  */
-import { fireEvent, render, screen, waitFor } from '@testing-library/react';
+import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
 
 // The notices animate unless the reader asks for reduced motion: jsdom has no matchMedia
 beforeAll(() => {
@@ -32,6 +32,8 @@ jest.mock('@/core/hooks/auth/use-create-workspace', () => ({
 	useCreateWorkspace: () => mockCreation
 }));
 
+import { getDefaultStore } from 'jotai';
+import { timerStatusState } from '@/core/stores';
 import { CreateWorkspacePage } from './create-workspace-page';
 
 describe('CreateWorkspacePage', () => {
@@ -118,5 +120,82 @@ describe('CreateWorkspacePage', () => {
 		const button = screen.getByRole('button', { name: 'workspaceCreation.CREATING' });
 		expect(button).toHaveProperty('disabled', true);
 		expect(button.getAttribute('aria-busy')).toBe('true');
+	});
+
+	it('names the invitation limit beside the field, and creates nothing', async () => {
+		render(<CreateWorkspacePage />);
+
+		type('workspaceCreation.NAME_LABEL', 'Studio');
+		const addresses = Array.from({ length: 51 }, (_, index) => `member${index}@ever.co`);
+		type('workspaceCreation.INVITES_LABEL', addresses.join('\n'));
+		fireEvent.click(screen.getByRole('button', { name: 'workspaceCreation.CREATE' }));
+
+		expect(await screen.findByText('workspaceCreation.INVITES_TOO_MANY {"max":50}')).toBeTruthy();
+		expect(mockMutate).not.toHaveBeenCalled();
+	});
+
+	it('closes the form once the server says the address is unconfirmed, whatever the session says', () => {
+		Object.assign(mockCreation, {
+			isError: true,
+			error: { isAxiosError: true, response: { status: 403, data: { code: 'ADDRESS_UNCONFIRMED' } } }
+		});
+
+		render(<CreateWorkspacePage />);
+
+		expect(screen.getByText('workspaceCreation.ADDRESS_UNCONFIRMED_TITLE')).toBeTruthy();
+		expect(screen.getByLabelText(/workspaceCreation.NAME_LABEL/).closest('fieldset')).toHaveProperty(
+			'disabled',
+			true
+		);
+		expect(screen.getByRole('button', { name: 'workspaceCreation.CREATE' })).toHaveProperty('disabled', true);
+	});
+
+	it('says a workspace created but not opened exists, and offers no retry that would create a second one', () => {
+		Object.assign(mockCreation, {
+			isError: true,
+			error: { isAxiosError: true, response: { status: 502, data: { code: 'CREATED_NOT_OPENED' } } }
+		});
+
+		render(<CreateWorkspacePage />);
+
+		expect(screen.getByText('workspaceCreation.CREATED_NOT_OPENED_TITLE')).toBeTruthy();
+		expect(screen.queryByText('workspaceCreation.FAILED_TITLE')).toBeNull();
+		expect(screen.getByLabelText(/workspaceCreation.NAME_LABEL/).closest('fieldset')).toHaveProperty(
+			'disabled',
+			true
+		);
+		expect(screen.getByRole('button', { name: 'workspaceCreation.CREATE' })).toHaveProperty('disabled', true);
+	});
+
+	describe('while a timer runs', () => {
+		const store = getDefaultStore();
+
+		beforeEach(() => store.set(timerStatusState, { running: true } as never));
+		// The page is still mounted: the reset re-renders it
+		afterEach(() => act(() => store.set(timerStatusState, null as never)));
+
+		it('says to stop it first and creates nothing: the new workspace would leave it counting out of sight', async () => {
+			render(<CreateWorkspacePage />);
+
+			expect(screen.getByText('workspaceCreation.TIMER_RUNNING_TITLE')).toBeTruthy();
+			const create = screen.getByRole('button', { name: 'workspaceCreation.CREATE' });
+			expect(create).toHaveProperty('disabled', true);
+
+			// Submitted another way than the button (Enter in a field): the form's own check
+			type('workspaceCreation.NAME_LABEL', 'Studio');
+			fireEvent.submit(create.closest('form') as HTMLFormElement);
+			await act(async () => await new Promise((resolve) => setTimeout(resolve, 0)));
+			expect(mockMutate).not.toHaveBeenCalled();
+		});
+
+		it('creates once the timer is stopped', async () => {
+			render(<CreateWorkspacePage />);
+			type('workspaceCreation.NAME_LABEL', 'Studio');
+
+			act(() => store.set(timerStatusState, { running: false } as never));
+			fireEvent.click(screen.getByRole('button', { name: 'workspaceCreation.CREATE' }));
+
+			await waitFor(() => expect(mockMutate).toHaveBeenCalledTimes(1));
+		});
 	});
 });

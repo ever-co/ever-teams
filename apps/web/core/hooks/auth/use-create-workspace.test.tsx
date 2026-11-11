@@ -25,6 +25,7 @@ describe('the outcome of a creation', () => {
 		const answer = (status: number, data: unknown) => ({ isAxiosError: true, response: { status, data } });
 		expect(createWorkspaceErrorCodeOf(answer(403, { code: 'ADDRESS_UNCONFIRMED' }))).toBe('ADDRESS_UNCONFIRMED');
 		expect(createWorkspaceErrorCodeOf(answer(403, { code: 'REGISTRATION_CLOSED' }))).toBe('REGISTRATION_CLOSED');
+		expect(createWorkspaceErrorCodeOf(answer(502, { code: 'CREATED_NOT_OPENED' }))).toBe('CREATED_NOT_OPENED');
 		expect(createWorkspaceErrorCodeOf(answer(502, { code: 'FAILED' }))).toBe('FAILED');
 		expect(createWorkspaceErrorCodeOf(answer(500, { code: 'SOMETHING_ELSE' }))).toBe('FAILED');
 		expect(createWorkspaceErrorCodeOf(new Error('Network Error'))).toBe('FAILED');

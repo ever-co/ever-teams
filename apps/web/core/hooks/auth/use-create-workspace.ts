@@ -9,9 +9,19 @@ import { workspaceService } from '@/core/services/client/api/auth/workspace.serv
 export const CREATE_WORKSPACE_PATH = '/workspace/new';
 
 /** Why a workspace was not created, as `POST /api/auth/create-workspace` answers it. */
-export type CreateWorkspaceErrorCode = 'ADDRESS_UNCONFIRMED' | 'REGISTRATION_CLOSED' | 'INVALID' | 'FAILED';
+export type CreateWorkspaceErrorCode =
+	| 'ADDRESS_UNCONFIRMED'
+	| 'REGISTRATION_CLOSED'
+	| 'CREATED_NOT_OPENED'
+	| 'INVALID'
+	| 'FAILED';
 
-const KNOWN_CODES: ReadonlySet<string> = new Set(['ADDRESS_UNCONFIRMED', 'REGISTRATION_CLOSED', 'INVALID']);
+const KNOWN_CODES: ReadonlySet<string> = new Set([
+	'ADDRESS_UNCONFIRMED',
+	'REGISTRATION_CLOSED',
+	'CREATED_NOT_OPENED',
+	'INVALID'
+]);
 
 /**
  * The reason of a failed creation, from the API client's error (ApiErrorService carries the answer's `code` as its
