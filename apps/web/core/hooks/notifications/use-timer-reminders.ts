@@ -116,7 +116,7 @@ export function useTimerReminders({ timerStatus, stopTimer }: UseTimerRemindersI
 	const isRunning = Boolean(timerStatus?.running);
 
 	// Read when a reminder fires or is acted on, not when it was scheduled
-	const latest = useSyncRef({ preferences, stopTimer, isRunning, t, router, scope });
+	const latest = useSyncRef({ preferences, stopTimer, isRunning, runKey, t, router, scope });
 	// The reminders shown in this tab, for a browser that keeps no storage
 	const shownHere = useRef(new Map<string, number>());
 	// The system notifications this tab raised, by reminder: withdrawn with their run, or by the next reminder
@@ -434,8 +434,8 @@ export function useTimerReminders({ timerStatus, stopTimer }: UseTimerRemindersI
 		setReminderTarget({
 			runKey,
 			stop: () => {
-				// Stopped meanwhile, here or on another device: nothing to stop
-				if (latest.current.isRunning) {
+				// Stopped meanwhile, here or on another device, or another run started since: nothing of this run to stop
+				if (latest.current.isRunning && latest.current.runKey === runKey) {
 					return latest.current.stopTimer();
 				}
 			}

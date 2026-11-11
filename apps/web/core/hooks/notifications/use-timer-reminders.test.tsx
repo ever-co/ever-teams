@@ -396,6 +396,23 @@ describe('useTimerReminders', () => {
 		expect(stopTimer).toHaveBeenCalledTimes(1);
 	});
 
+	it('keeps a stop published for one run from stopping the next', async () => {
+		const { stopTimer, rerender } = await renderReminders();
+		const first = getDefaultStore().get(timerReminderTargetState);
+
+		// The timer was stopped and started again elsewhere: another run
+		rerender({
+			timerStatus: { running: true, lastLog: { id: 'log-2', startedAt: new Date(Date.now()) } as never }
+		});
+		const second = getDefaultStore().get(timerReminderTargetState);
+		expect(second?.runKey).toBe('log-2');
+
+		first?.stop();
+		expect(stopTimer).not.toHaveBeenCalled();
+		second?.stop();
+		expect(stopTimer).toHaveBeenCalledTimes(1);
+	});
+
 	describe("with the platform's own reminders", () => {
 		it('does not repeat a reminder the person got by email or push while no tab was open', async () => {
 			jest.setSystemTime(STARTED_AT + 9 * HOUR);
