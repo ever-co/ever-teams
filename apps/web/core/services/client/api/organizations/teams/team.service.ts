@@ -109,6 +109,8 @@ class OrganizationTeamService extends APIService {
 		// EVERY "Create New Team" failed, leaving an orphan project behind each time (2026-08-17).
 		validatedInput.projects = [project];
 		validatedInput.defaultProjectId = project.id;
+		// An Ever Teams team starts with the starter labels, which Gauzy files on request only
+		validatedInput.withStarterTags = true;
 
 		try {
 			const response = await this.post<TOrganizationTeam>('/organization-team', validatedInput, {

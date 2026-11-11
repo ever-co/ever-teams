@@ -24,6 +24,8 @@ export async function createOrganizationTeamRequest(datas: IOrganizationTeamCrea
 
 	datas.projects = [project];
 	datas.defaultProjectId = project.id;
+	// An Ever Teams team starts with the starter labels, which Gauzy files on request only
+	datas.withStarterTags = true;
 
 	try {
 		return await serverFetch<IOrganizationTeam>({
