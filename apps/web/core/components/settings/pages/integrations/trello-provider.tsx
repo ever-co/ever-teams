@@ -1,6 +1,6 @@
 'use client';
 
-import { ReactNode, useId, useMemo, useState } from 'react';
+import { ReactNode, useCallback, useId, useMemo, useRef, useState } from 'react';
 import { type DottedLanguageObjectStringPaths, useLocale, useTranslations } from 'next-intl';
 import { AnimatedHeight } from '@/core/components/common/animated-height';
 import { badgeVariants } from '@/core/components/common/badge';
@@ -19,6 +19,7 @@ import { matchStatusName } from '@/core/lib/utils/integration-linear-state-map';
 import { invalidListFields, LIST_BY_NAME, listFieldsOf, listMapOfFields } from '@/core/lib/utils/integration-trello-list-map';
 import { formatInstallDay } from '@/core/lib/utils/settings-integrations';
 import { ITrelloList, ITrelloMapping, ITrelloRun, TRELLO_DIRECTIONS, TTrelloDirection } from '@/core/types/interfaces/integrations/trello';
+import { IntegrationConflictsRow } from './integration-conflicts-row';
 import { GithubProviderRowSkeleton, PROVIDER_ROW, PROVIDER_TILE } from './integrations-settings-skeleton';
 
 type TrelloProps = Readonly<{ trello: TrelloIntegrationSettings }>;
@@ -458,7 +459,7 @@ function AddMappingRow({ trello }: TrelloProps) {
 	);
 }
 
-function RunLine({ run }: Readonly<{ run: ITrelloRun }>) {
+function RunLine({ run, onShowConflicts }: Readonly<{ run: ITrelloRun; onShowConflicts: (runId: string) => void }>) {
 	const t = useTranslations();
 	const locale = useLocale();
 	const when = run.startedAt ? formatDay(run.startedAt, locale) : '';
@@ -471,12 +472,22 @@ function RunLine({ run }: Readonly<{ run: ITrelloRun }>) {
 			</span>
 			<span className="text-muted-foreground">{when}</span>
 			<span className="text-muted-foreground">{counts}</span>
+			{run.conflictCount ? (
+				<button
+					type="button"
+					className={cn(badgeVariants({ variant: 'warning' }), 'cursor-pointer outline-none focus-visible:ring-2 focus-visible:ring-ring/40')}
+					title={t('settings.integrations.conflicts.SHOW_RUN_CONFLICTS')}
+					onClick={() => onShowConflicts(run.id)}
+				>
+					{t('settings.integrations.conflicts.RUN_COUNT', { count: run.conflictCount })}
+				</button>
+			) : null}
 			{run.lastError && <span className="min-w-0 basis-full truncate text-xs text-destructive-ink">{run.lastError}</span>}
 		</li>
 	);
 }
 
-function RunsRow({ trello }: TrelloProps) {
+function RunsRow({ trello, onShowConflicts }: TrelloProps & Readonly<{ onShowConflicts: (runId: string) => void }>) {
 	const t = useTranslations();
 	if (!trello.runs.length) return <MutedRow>{t('settings.integrations.trello.NO_RUNS')}</MutedRow>;
 	return (
@@ -484,7 +495,7 @@ function RunsRow({ trello }: TrelloProps) {
 			<span className={SETTINGS_ROW_LABEL}>{t('settings.integrations.trello.RUNS_TITLE')}</span>
 			<ul className="flex flex-col gap-1.5">
 				{trello.runs.slice(0, 8).map((run) => (
-					<RunLine key={run.id} run={run} />
+					<RunLine key={run.id} run={run} onShowConflicts={onShowConflicts} />
 				))}
 			</ul>
 		</div>
@@ -495,6 +506,13 @@ function TrelloConnected({ trello, onDisconnect }: TrelloProps & Readonly<{ onDi
 	const t = useTranslations();
 	const panelId = useId();
 	const [isOpen, setIsOpen] = useState(true);
+	// The runs list's count of a run narrows the conflicts to that run, and brings them into view.
+	const [conflictRunId, setConflictRunId] = useState<string | null>(null);
+	const conflictsRef = useRef<HTMLDivElement>(null);
+	const showRunConflicts = useCallback((runId: string) => {
+		setConflictRunId(runId);
+		conflictsRef.current?.scrollIntoView?.({ behavior: 'smooth', block: 'nearest' });
+	}, []);
 	const connection = trello.connection;
 	const needsAttention = Boolean(connection?.attentionReason);
 	const member = connection?.trelloMemberName || connection?.trelloMemberUsername || '';
@@ -530,7 +548,18 @@ function TrelloConnected({ trello, onDisconnect }: TrelloProps & Readonly<{ onDi
 											<MappingRow key={mapping.id} trello={trello} mapping={mapping} />
 										))}
 										{trello.canManageMappings && <AddMappingRow trello={trello} />}
-										<RunsRow trello={trello} />
+										{connection && (
+											<div ref={conflictsRef}>
+												<IntegrationConflictsRow
+													provider="trello"
+													providerName={t('settings.integrations.trello.TITLE')}
+													integrationId={connection.id}
+													runId={conflictRunId}
+													onClearRun={() => setConflictRunId(null)}
+												/>
+											</div>
+										)}
+										<RunsRow trello={trello} onShowConflicts={showRunConflicts} />
 									</>
 								)}
 								<div className={ROW_DIVIDER}>

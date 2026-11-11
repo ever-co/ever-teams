@@ -845,7 +845,16 @@ export const queryKeys = {
 			teams: (tenantId: string | undefined | null, organizationId: string | undefined | null, integrationId: string | undefined | null) =>
 				['integrations', 'linear', 'teams', tenantId ?? null, organizationId ?? null, integrationId ?? null] as const,
 			runs: (tenantId: string | undefined | null, organizationId: string | undefined | null, integrationId: string | undefined | null) =>
-				['integrations', 'linear', 'runs', tenantId ?? null, organizationId ?? null, integrationId ?? null] as const
+				['integrations', 'linear', 'runs', tenantId ?? null, organizationId ?? null, integrationId ?? null] as const,
+			/** Every conflict list of the provider (a resolve or a finished run reads them again). */
+			conflictsAll: ['integrations', 'linear', 'conflicts'] as const,
+			conflicts: (
+				tenantId: string | undefined | null,
+				organizationId: string | undefined | null,
+				integrationId: string | undefined | null,
+				status: string | undefined | null,
+				runId: string | undefined | null
+			) => ['integrations', 'linear', 'conflicts', tenantId ?? null, organizationId ?? null, integrationId ?? null, status ?? null, runId ?? null] as const
 		},
 		asana: {
 			all: ['integrations', 'asana'] as const,
@@ -860,7 +869,16 @@ export const queryKeys = {
 			sections: (tenantId: string | undefined | null, organizationId: string | undefined | null, integrationId: string | undefined | null, projectGid: string | undefined | null) =>
 				['integrations', 'asana', 'sections', tenantId ?? null, organizationId ?? null, integrationId ?? null, projectGid ?? null] as const,
 			runs: (tenantId: string | undefined | null, organizationId: string | undefined | null, integrationId: string | undefined | null) =>
-				['integrations', 'asana', 'runs', tenantId ?? null, organizationId ?? null, integrationId ?? null] as const
+				['integrations', 'asana', 'runs', tenantId ?? null, organizationId ?? null, integrationId ?? null] as const,
+			/** Every conflict list of the provider (a resolve or a finished run reads them again). */
+			conflictsAll: ['integrations', 'asana', 'conflicts'] as const,
+			conflicts: (
+				tenantId: string | undefined | null,
+				organizationId: string | undefined | null,
+				integrationId: string | undefined | null,
+				status: string | undefined | null,
+				runId: string | undefined | null
+			) => ['integrations', 'asana', 'conflicts', tenantId ?? null, organizationId ?? null, integrationId ?? null, status ?? null, runId ?? null] as const
 		},
 		trello: {
 			all: ['integrations', 'trello'] as const,
@@ -873,7 +891,16 @@ export const queryKeys = {
 			lists: (tenantId: string | undefined | null, organizationId: string | undefined | null, integrationId: string | undefined | null, boardId: string | undefined | null) =>
 				['integrations', 'trello', 'lists', tenantId ?? null, organizationId ?? null, integrationId ?? null, boardId ?? null] as const,
 			runs: (tenantId: string | undefined | null, organizationId: string | undefined | null, integrationId: string | undefined | null) =>
-				['integrations', 'trello', 'runs', tenantId ?? null, organizationId ?? null, integrationId ?? null] as const
+				['integrations', 'trello', 'runs', tenantId ?? null, organizationId ?? null, integrationId ?? null] as const,
+			/** Every conflict list of the provider (a resolve or a finished run reads them again). */
+			conflictsAll: ['integrations', 'trello', 'conflicts'] as const,
+			conflicts: (
+				tenantId: string | undefined | null,
+				organizationId: string | undefined | null,
+				integrationId: string | undefined | null,
+				status: string | undefined | null,
+				runId: string | undefined | null
+			) => ['integrations', 'trello', 'conflicts', tenantId ?? null, organizationId ?? null, integrationId ?? null, status ?? null, runId ?? null] as const
 		},
 		types: (tenantId: string | undefined | null) =>
 			['integrations', 'types', ...(tenantId ? [tenantId] : [])] as const,

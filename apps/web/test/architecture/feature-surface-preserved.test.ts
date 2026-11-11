@@ -1989,10 +1989,12 @@ describe('Ever Teams feature surface preservation', () => {
 		// 267 files and 347 verbs with the create-task-from-a-message proxy (/api/chat/messages/[id]/create-task).
 		// 268 files and 348 verbs with the What's new changelog proxy (GET /api/changelog).
 		// 269 files and 349 verbs with the proxy of the organization's people for chat (GET /api/chat/people).
-		expect(routes.filter((value) => /\/route\.[jt]s$/.test(value))).toHaveLength(269);
+		// 275 files and 355 verbs with the integrations' sync conflict proxies (/api/integration/{linear,asana,trello}/[id]/conflicts,
+		// GET, and [id]/conflicts/[conflictId]/resolve, POST).
+		expect(routes.filter((value) => /\/route\.[jt]s$/.test(value))).toHaveLength(275);
 		expect(
 			routes.filter((value) => /\/route\.[jt]s::(?:GET|POST|PUT|PATCH|DELETE|HEAD|OPTIONS)$/.test(value))
-		).toHaveLength(349);
+		).toHaveLength(355);
 		expect(routes).toEqual(
 			expect.arrayContaining([
 				// Proxy mode twins of Gauzy's public account deletion by e-mail link (2026-10-27)

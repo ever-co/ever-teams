@@ -22,6 +22,7 @@ import {
 } from '@/core/types/interfaces/integrations/linear';
 import type { TaskMetadataScope } from '@/core/types/interfaces/task/task-metadata-bootstrap';
 import { integrationProviderStatus, isNotFoundError, type IntegrationProviderStatus } from './integration-provider-status';
+import { useConflictsAfterRuns } from './use-integration-conflicts';
 
 /** What the Linear provider shows. */
 export type LinearConnectionStatus = IntegrationProviderStatus;
@@ -245,6 +246,8 @@ export function useLinearIntegration(): LinearIntegrationSettings {
 		}
 		wasRunning.current = isRunning;
 	}, [acceptedFinished, integrationId, isRunning, organizationId, queryClient, runs, tenantId]);
+
+	useConflictsAfterRuns('linear', runs);
 
 	const retryDetails = useCallback(() => {
 		if (mappingsQuery.isError) void mappingsQuery.refetch();
