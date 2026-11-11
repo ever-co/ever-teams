@@ -32,13 +32,12 @@ export function TimerPlanDialogs({ modals }: Readonly<{ modals: TimerPlanModals 
 	const requirePlan = useAtomValue(activeTeamRequiresPlanState);
 	const putTaskInTodayPlan = useTodayPlanEntry();
 	const isSuggestPlanMounted = useHasBeenOpen(modals.isSuggestDailyPlanModalOpen);
-	const isEnforceSoftMounted = useHasBeenOpen(modals.isEnforceTaskSoftModalOpen);
 	const isEstimationMounted = useHasBeenOpen(modals.isTasksEstimationHoursModalOpen);
 	const isEnforceMounted = useHasBeenOpen(modals.isEnforceTaskModalOpen);
 	const dayKey = todayKey();
 	const today = useMemo(() => moment(dayKey).toDate(), [dayKey]);
 
-	const { openAddTasksEstimationHoursModal, dismissEnforceTaskSoftModal, enforceTaskCloseModal } = modals;
+	const { openAddTasksEstimationHoursModal, enforceTaskCloseModal } = modals;
 
 	const openTodayPlanWithTask = useCallback(() => {
 		openAddTasksEstimationHoursModal();
@@ -49,11 +48,6 @@ export function TimerPlanDialogs({ modals }: Readonly<{ modals: TimerPlanModals 
 		putTaskInTodayPlan(activeTeamTask, hasPlan).catch(() => undefined);
 	}, [activeTeamTask, hasPlan, openAddTasksEstimationHoursModal, putTaskInTodayPlan]);
 
-	const acceptSoftPrompt = useCallback(() => {
-		dismissEnforceTaskSoftModal();
-		openTodayPlanWithTask();
-	}, [dismissEnforceTaskSoftModal, openTodayPlanWithTask]);
-
 	const acceptRequiredPrompt = useCallback(() => {
 		enforceTaskCloseModal();
 		openTodayPlanWithTask();
@@ -63,11 +57,9 @@ export function TimerPlanDialogs({ modals }: Readonly<{ modals: TimerPlanModals 
 	if (activeTeamTask) {
 		planDay = openTodayPlanWithTask;
 	}
-	const taskNumber = activeTeamTask?.taskNumber ?? '';
 	const hasTodayPlan = Boolean(hasPlan);
 	const hasActiveTask = Boolean(activeTeamTask);
 	const canPromptForTask = hasTodayPlan && hasActiveTask;
-	const showsSoftPrompt = isEnforceSoftMounted && canPromptForTask;
 	const showsRequiredPrompt = isEnforceMounted && requirePlan && canPromptForTask;
 
 	return (
@@ -77,14 +69,6 @@ export function TimerPlanDialogs({ modals }: Readonly<{ modals: TimerPlanModals 
 					isOpen={modals.isSuggestDailyPlanModalOpen}
 					closeModal={modals.suggestDailyPlanCloseModal}
 					onPlanDay={planDay}
-				/>
-			)}
-			{showsSoftPrompt && (
-				<LazyEnforcePlanedTaskModal
-					content={t('dailyPlan.ADD_TASK_TO_TODAY_PLAN_QUESTION', { number: taskNumber })}
-					closeModal={modals.enforceTaskSoftCloseModal}
-					open={modals.isEnforceTaskSoftModalOpen}
-					onConfirm={acceptSoftPrompt}
 				/>
 			)}
 			{isEstimationMounted && (

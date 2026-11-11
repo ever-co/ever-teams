@@ -5,17 +5,21 @@ import { serverFetch } from '../fetch';
 export function getEmployeeRoleRequest({
 	bearer_token,
 	role,
-	tenantId
+	tenantId,
+	init
 }: {
 	bearer_token: string;
 	role: 'EMPLOYEE';
 	tenantId: string;
+	/** Fetch options of the request (an abort signal). */
+	init?: RequestInit;
 }) {
 	return serverFetch<IRole>({
 		path: `/roles/options?name=${role}`,
 		method: 'GET',
 		bearer_token,
-		tenantId
+		tenantId,
+		init
 	});
 }
 
