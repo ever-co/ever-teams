@@ -9,7 +9,7 @@ import { IAuthResponse } from '@/core/types/interfaces/auth/auth';
 import type { CreateWorkspaceBody } from '@/core/lib/validation/workspace';
 
 /** What a workspace creation answers: the invitations sent to its first team. */
-export interface CreatedWorkspace {
+interface CreatedWorkspace {
 	invited: number;
 	invitesFailed: boolean;
 }
