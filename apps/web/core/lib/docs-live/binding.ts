@@ -14,6 +14,7 @@ import {
 	DOCS_LIVE_REASONS,
 	DOCS_LIVE_SESSION_NOT_FOUND,
 	DOCS_LIVE_TOO_LARGE,
+	DOCS_LIVE_UPDATE_INVALID,
 	DOCS_LIVE_USER_LIMIT,
 	fromBase64,
 	toBase64,
@@ -102,6 +103,8 @@ export interface DocsLiveTransport {
 export interface DocsLiveRemembered {
 	doc: Y.Doc;
 	lineage: string;
+	/** It holds edits the platform never confirmed (the page was left before they were): the tab warns on close. */
+	unsent?: boolean;
 }
 
 export interface DocsLiveMemory {
@@ -109,6 +112,8 @@ export interface DocsLiveMemory {
 	set(key: string, entry: DocsLiveRemembered): void;
 	delete(key: string): void;
 	clear(): void;
+	/** Whether any remembered document holds edits the platform never confirmed. */
+	hasUnsent(): boolean;
 }
 
 /** What the binding reads of a refusal: its HTTP status and the platform's code. */
@@ -155,10 +160,18 @@ function defaultErrorInfo(error: unknown): DocsLiveErrorInfo {
 	return { status: status ?? null, code: code ?? null, reason };
 }
 
-/** Whether an update carries anything (an encoding of nothing is a few bytes long, not empty). */
-function carriesChanges(update: Uint8Array): boolean {
-	const { structs, ds } = Y.decodeUpdate(update);
-	return structs.length > 0 || ds.clients.size > 0;
+/**
+ * Whether what the platform lacks (`Y.encodeStateAsUpdate(doc, stateVector)`) carries anything. Its delete set always
+ * travels whole, deletions the platform has included: it counts only where it differs from the platform's own.
+ *
+ * @param missing The update the platform lacks.
+ * @param platformState The platform's state as the `sync` frame gave it.
+ */
+function carriesChanges(missing: Uint8Array, platformState: Uint8Array): boolean {
+	const { structs, ds } = Y.decodeUpdate(missing);
+	if (structs.length > 0) return true;
+	if (ds.clients.size === 0) return false;
+	return !Y.equalDeleteSets(ds, Y.decodeUpdate(platformState).ds);
 }
 
 /** A small LRU of pages' live documents. */
@@ -186,6 +199,10 @@ export function createDocsLiveMemory(limit = DOCS_LIVE_REMEMBERED_PAGES): DocsLi
 		},
 		clear() {
 			entries.clear();
+		},
+		hasUnsent() {
+			for (const entry of entries.values()) if (entry.unsent) return true;
+			return false;
 		}
 	};
 }
@@ -276,8 +293,14 @@ export class DocsLiveBinding {
 	private pending: Uint8Array[] = [];
 	private batchTimer: unknown = null;
 	private sending: Promise<void> | null = null;
+	/** The local edits the request on its way covers (see `send`). */
+	private sendingCovers = 0;
 	/** Edits the platform refused while read-only: sent (through a new session) once it is writable again. */
 	private heldWhileReadOnly = false;
+	/** Moves with every `mode` frame: a refusal of an edit sent before the latest one is not taken as the mode. */
+	private modeVersion = 0;
+	/** Edits the platform refused as invalid in a row (see `onSendRefused`). */
+	private invalidRefusals = 0;
 	/** Local edits made, and the count of them the platform confirmed: more made than confirmed is unsent work. */
 	private localEdits = 0;
 	private confirmedEdits = 0;
@@ -376,6 +399,11 @@ export class DocsLiveBinding {
 		return [];
 	}
 
+	/** Whether edits made here wait for the platform's confirmation now (read at the moment, not from the snapshot). */
+	hasUnconfirmedEdits(): boolean {
+		return this.state !== 'fallback' && this.localEdits > this.confirmedEdits;
+	}
+
 	/** The document holds content the editor does not know (see `bindEditor`): live editing stops (`unsupported`). */
 	refuseEditor(unknownTypes: string[]): void {
 		this.fallback('unsupported', unknownTypes);
@@ -394,6 +422,20 @@ export class DocsLiveBinding {
 		const stop = this.stopSubscription;
 		this.stopSubscription = null;
 		const { transport, documentId, connectionId } = this.options;
+		// The kept document says whether it holds edits the platform never confirmed (the tab warns on close then). When
+		// the request on its way and the last batch both land, and nothing else waited (no edit held while read-only or
+		// typed while the session was down), it holds none.
+		const lineage = this.lineage;
+		const doc = this.doc;
+		const remember = (unsent: boolean) => {
+			if (lineage !== null && this.memory?.get(this.memoryKey)?.doc === doc)
+				this.memory.set(this.memoryKey, { doc, lineage, unsent });
+		};
+		const unconfirmed = this.state !== 'fallback' && this.localEdits > this.confirmedEdits;
+		if (unconfirmed) remember(true);
+		const allGoing = inSession && !this.heldWhileReadOnly;
+		const coversAll = this.localEdits;
+		const inFlightCovers = this.sending ? this.sendingCovers : this.confirmedEdits;
 		let finished = false;
 		const finish = () => {
 			if (finished) return;
@@ -407,6 +449,11 @@ export class DocsLiveBinding {
 		if (last || this.sending) {
 			void before
 				.then(() => (last ? transport.sendUpdate(documentId, connectionId, toBase64(last)) : undefined))
+				.then(() => {
+					if (!unconfirmed || !allGoing || this.confirmedEdits < inFlightCovers) return;
+					this.confirmedEdits = Math.max(this.confirmedEdits, coversAll);
+					remember(false);
+				})
 				.catch(() => undefined)
 				.finally(finish);
 			this.setTimer(finish, 2_000);
@@ -516,8 +563,16 @@ export class DocsLiveBinding {
 			return;
 		}
 		const lineage = frame.lineage ?? null;
-		// Another lineage would not merge with the one held here: its content would show twice. Drop it first.
-		if (this.lineage !== null && lineage !== this.lineage) this.replaceDoc();
+		// Another lineage would not merge with the one held here: its content would show twice. Drop it first; but not
+		// with edits the platform never confirmed: live editing stops then, and the page view keeps them as the autosave's
+		// draft (merging them into the other lineage would duplicate the page).
+		if (this.lineage !== null && lineage !== this.lineage) {
+			if (this.localEdits > this.confirmedEdits) {
+				this.fallback('lineage_changed');
+				return;
+			}
+			this.replaceDoc();
+		}
 		if (this.guard) {
 			const unknown = unknownTypesInUpdate(update, this.guard);
 			if (unknown.length) {
@@ -532,7 +587,7 @@ export class DocsLiveBinding {
 		if (awareness) applyAwarenessUpdate(this.awareness, awareness, DOCS_LIVE_REMOTE);
 
 		this.enterSession(frame, lineage);
-		this.sendMissing(stateVector);
+		this.sendMissing(stateVector, update);
 		this.peers = this.readPeers();
 		this.emit();
 		this.sendAwarenessNow();
@@ -555,12 +610,15 @@ export class DocsLiveBinding {
 		}
 		this.cancelBatch();
 		this.pending = [];
+		// A request of an earlier session still on its way no longer holds this session's queue: its edit is in what
+		// this `sync` says the platform lacks, or the platform has it.
+		this.sending = null;
 	}
 
 	/** What the platform lacks after a `sync`: edits made while the session was down, or sent and lost. */
-	private sendMissing(stateVector: Uint8Array | null): void {
+	private sendMissing(stateVector: Uint8Array | null, platformState: Uint8Array): void {
 		const missing = stateVector ? Y.encodeStateAsUpdate(this.doc, stateVector) : Y.encodeStateAsUpdate(this.doc);
-		if (!carriesChanges(missing)) {
+		if (!carriesChanges(missing, platformState)) {
 			// The platform holds everything made here.
 			this.confirmedEdits = this.localEdits;
 			return;
@@ -595,6 +653,7 @@ export class DocsLiveBinding {
 	}
 
 	private setMode(readOnly: boolean, reason: string | null): void {
+		this.modeVersion += 1;
 		const wasReadOnly = this.readOnly;
 		this.readOnly = readOnly;
 		this.readOnlyReason = readOnly ? reason : null;
@@ -661,6 +720,8 @@ export class DocsLiveBinding {
 		const seq = this.sessionSeq;
 		// Every local edit made so far is in this update or in one sent before it.
 		const covers = this.localEdits;
+		const modeAt = this.modeVersion;
+		this.sendingCovers = covers;
 		const request = this.options.transport.sendUpdate(
 			this.options.documentId,
 			this.options.connectionId,
@@ -670,9 +731,10 @@ export class DocsLiveBinding {
 			() => {
 				if (this.sending === sending) this.sending = null;
 				this.confirmedEdits = Math.max(this.confirmedEdits, covers);
-				if (this.destroyed || this.state === 'fallback' || seq !== this.sessionSeq) return;
+				this.invalidRefusals = 0;
+				if (this.destroyed || this.state === 'fallback' || !this.inSession) return;
 				// Typed while this one went: the next batch goes now (it waited for this one).
-				if (this.pending.length && this.batchTimer === null) {
+				if (this.pending.length && this.batchTimer === null && !this.sending) {
 					this.batchTimer = this.setTimer(() => {
 						this.batchTimer = null;
 						this.flush();
@@ -682,17 +744,28 @@ export class DocsLiveBinding {
 			(error: unknown) => {
 				if (this.sending === sending) this.sending = null;
 				if (this.destroyed || this.state === 'fallback') return;
-				this.onSendRefused(error, seq);
+				this.onSendRefused(error, seq, modeAt);
 			}
 		);
 		this.sending = sending;
 	}
 
-	private onSendRefused(error: unknown, seq: number): void {
+	private onSendRefused(error: unknown, seq: number, modeAt: number): void {
 		// The answer to a request of an earlier session says nothing about this one (which may be writable): the edit it
 		// carried went with this session's `sync` (what the platform lacked then).
 		if (seq !== this.sessionSeq) return;
 		const info = this.errorInfo(error);
+		const refusedAsReadOnly =
+			info.code === DOCS_LIVE_READ_ONLY ||
+			info.code === DOCS_LIVE_TOO_LARGE ||
+			info.status === 403 ||
+			info.status === 413;
+		// Refused under a mode the platform has changed since (it said writable after the edit went): the refusal is
+		// not the mode now. A new session sends the edit with what the platform lacks.
+		if (refusedAsReadOnly && modeAt !== this.modeVersion && !this.readOnly) {
+			this.reopenSoon(true);
+			return;
+		}
 		if (info.code === DOCS_LIVE_READ_ONLY || (info.status === 403 && !info.code)) {
 			this.heldWhileReadOnly = true;
 			this.readOnly = true;
@@ -709,6 +782,15 @@ export class DocsLiveBinding {
 			this.pending = [];
 			this.cancelBatch();
 			this.emit();
+			return;
+		}
+		if (info.code === DOCS_LIVE_UPDATE_INVALID || info.status === 400) {
+			// A block the page's schema does not accept: the platform applied nothing of the edit. A new session settles
+			// what it holds; refused again (the same edit goes with what the platform lacks), live editing stops, and the
+			// page view keeps the text as the autosave's draft rather than sending it forever.
+			this.invalidRefusals += 1;
+			if (this.invalidRefusals > 1) this.fallback('update_invalid');
+			else this.reopenSoon(true);
 			return;
 		}
 		if (info.code === DOCS_LIVE_SESSION_NOT_FOUND) {
@@ -779,6 +861,9 @@ export class DocsLiveBinding {
 			(clientId) => clientId !== this.doc.clientID
 		);
 		if (others.length) removeAwarenessStates(this.awareness, others, DOCS_LIVE_REMOTE);
+		// Their clocks go too: the next snapshot may hold the same states at the same clocks, which an awareness that kept
+		// the clocks would take as already applied, leaving the co-editors out until they move.
+		for (const clientId of others) this.awareness.meta.delete(clientId);
 		this.peers = [];
 	}
 

@@ -97,9 +97,17 @@ export function DocsPageView({ pageId, tree, actions, spaces = NO_SPACES }: Docs
 	const autosave = useDocsAutosave(page);
 	// The page holds content this editor cannot carry: shown read-only, never saved from here.
 	const [unsupported, setUnsupported] = useState(false);
+	// Text this tab kept from an earlier visit (a save that failed or met a conflict) is settled in the autosave first:
+	// decided once, when the page is there, so this view never hides that draft behind a live editor, nor starts a live
+	// session later because the draft got saved.
+	const [keptDraft, setKeptDraft] = useState<boolean | null>(null);
+	if (keptDraft === null && page) setKeptDraft(autosave.restoredHtml !== null || autosave.hasDraft());
 	// A page (not a folder) outside the trash, unlocked and carried by this editor is edited live when the deployment and
 	// the platform both do; otherwise (and once live editing stops) the autosave edits it.
-	const live = useDocsLive(page?.id ?? null, Boolean(page && page.kind === EDocumentKind.PAGE && !page.isArchived && !page.isLocked && !unsupported));
+	const live = useDocsLive(
+		page?.id ?? null,
+		Boolean(page && keptDraft === false && page.kind === EDocumentKind.PAGE && !page.isArchived && !page.isLocked && !unsupported)
+	);
 	// Follows exist where spaces do: both are the platform's Docs collaboration.
 	const follow = useDocsFollow(page?.id ?? null, Boolean(page && !page.isArchived && spaces.available));
 	// A refreshed page (a live event, another person's save) reaches the editor only while nothing typed here is unsaved:

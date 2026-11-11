@@ -40,6 +40,8 @@ export const DOCS_LIVE_SESSION_NOT_FOUND = 'DOCS_LIVE_SESSION_NOT_FOUND';
 export const DOCS_LIVE_READ_ONLY = 'DOCS_LIVE_READ_ONLY';
 export const DOCS_LIVE_TOO_LARGE = 'DOCS_LIVE_TOO_LARGE';
 export const DOCS_LIVE_USER_LIMIT = 'DOCS_LIVE_USER_LIMIT';
+/** An edit touching a block the page's schema does not accept: the platform applied nothing of it. */
+export const DOCS_LIVE_UPDATE_INVALID = 'DOCS_LIVE_UPDATE_INVALID';
 
 /** `GET /plugins/docs/live/status`: 404 when the platform does not serve live sessions. */
 export interface DocsLiveStatus {

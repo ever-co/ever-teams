@@ -327,6 +327,154 @@ describe('DocsLiveBinding', () => {
 		expect(textOf(resent)).toContain('On its way');
 	});
 
+	it('sends nothing after a sync of the same document, deletions included', async () => {
+		const memory = createDocsLiveMemory();
+		const server = serverWith('Keep', 'Gone');
+		server.getXmlFragment('default').delete(1, 1);
+		const kept = new Y.Doc();
+		Y.applyUpdate(kept, Y.encodeStateAsUpdate(server));
+		memory.set(`${ME.id}:${PAGE}`, { doc: kept, lineage: `${PAGE}:3` });
+
+		const transport = new FakeTransport();
+		const binding = bind(transport, { memory });
+		await settle();
+		transport.play(syncFrame(server, { readOnly: true, reason: 'locked' }));
+
+		expect(transport.updates).toHaveLength(0);
+		expect(binding.getSnapshot().unsentEdits).toBe(false);
+	});
+
+	it('sends a deletion made offline (a change of the delete set alone)', async () => {
+		const memory = createDocsLiveMemory();
+		const server = serverWith('Keep', 'Remove me');
+		const kept = new Y.Doc();
+		Y.applyUpdate(kept, Y.encodeStateAsUpdate(server));
+		kept.getXmlFragment('default').delete(1, 1);
+		memory.set(`${ME.id}:${PAGE}`, { doc: kept, lineage: `${PAGE}:3` });
+
+		const transport = new FakeTransport();
+		bind(transport, { memory });
+		await settle();
+		transport.play(syncFrame(server));
+
+		expect(transport.updates).toHaveLength(1);
+		expect(textOf(serverAfter(server, transport))).not.toContain('Remove me');
+	});
+
+	it('stops instead of dropping unconfirmed edits when the platform answers with another lineage', async () => {
+		const transport = new FakeTransport();
+		const binding = bind(transport);
+		await settle();
+		transport.play(syncFrame(serverWith('Start')));
+		transport.current.sink.complete();
+		addParagraph(binding.getSnapshot().doc, 'Typed while down');
+		await jest.advanceTimersByTimeAsync(1_000);
+
+		transport.play(syncFrame(serverWith('Reseeded'), { lineage: `${PAGE}:9`, revision: 9 }));
+		const snapshot = binding.getSnapshot();
+		expect(snapshot).toMatchObject({
+			state: 'fallback',
+			fallbackReason: 'lineage_changed',
+			unsentEdits: true,
+			generation: 0
+		});
+		expect(textOf(snapshot.doc)).toContain('Typed while down');
+		expect(transport.updates).toHaveLength(0);
+	});
+
+	it('sends the next edits of a new session while a request of the earlier one is still on its way', async () => {
+		const server = serverWith('Start');
+		const transport = new FakeTransport();
+		const binding = bind(transport);
+		await settle();
+		transport.play(syncFrame(server));
+		transport.updateAnswer = () => new Promise(() => undefined);
+		addParagraph(binding.getSnapshot().doc, 'Landed, answer lost');
+		await jest.advanceTimersByTimeAsync(75);
+		expect(transport.updates).toHaveLength(1);
+		// The platform applied it; the answer never comes.
+		Y.applyUpdate(server, transport.updates[0]);
+
+		transport.current.sink.complete();
+		await jest.advanceTimersByTimeAsync(1_000);
+		transport.updateAnswer = () => Promise.resolve({ accepted: true, relayed: false });
+		transport.play(syncFrame(server));
+		expect(transport.updates).toHaveLength(1);
+
+		addParagraph(binding.getSnapshot().doc, 'Next');
+		await jest.advanceTimersByTimeAsync(75);
+		expect(transport.updates).toHaveLength(2);
+	});
+
+	it('does not take a refusal of an edit sent before the latest mode change as the mode', async () => {
+		const server = serverWith('Start');
+		const transport = new FakeTransport();
+		let refuse: (error: unknown) => void = () => undefined;
+		const binding = bind(transport);
+		await settle();
+		transport.play(syncFrame(server));
+		transport.updateAnswer = () =>
+			new Promise((_, reject) => {
+				refuse = reject;
+			});
+		addParagraph(binding.getSnapshot().doc, 'Sent while it was writable');
+		await jest.advanceTimersByTimeAsync(75);
+
+		transport.play({ kind: 'mode', readOnly: true, reason: 'locked' });
+		transport.play({ kind: 'mode', readOnly: false, reason: null });
+		transport.updateAnswer = () => Promise.resolve({ accepted: true, relayed: false });
+		refuse({ statusCode: 403, errorCode: 'DOCS_LIVE_READ_ONLY', details: { reason: 'locked' } });
+		await jest.advanceTimersByTimeAsync(1);
+
+		expect(binding.getSnapshot().readOnly).toBe(false);
+		// A new session sends the refused edit with what the platform lacks.
+		expect(transport.subscriptions.length).toBeGreaterThanOrEqual(2);
+		transport.play(syncFrame(server));
+		expect(textOf(serverAfter(server, transport))).toContain('Sent while it was writable');
+	});
+
+	it('shows a co-editor again after a reconnect whose snapshot holds the same awareness clock', async () => {
+		const transport = new FakeTransport();
+		const binding = bind(transport);
+		await settle();
+		const theirs = new Awareness(new Y.Doc());
+		theirs.setLocalStateField('user', { id: 'user-ada', name: 'Ada', color: '#db2777' });
+		const snapshotOfAda = toBase64(encodeAwarenessUpdate(theirs, [theirs.clientID]));
+		transport.play(syncFrame(serverWith('Start'), { awareness: snapshotOfAda }));
+		expect(binding.getSnapshot().peers.map((peer) => peer.id)).toEqual(['user-ada']);
+
+		transport.current.sink.complete();
+		expect(binding.getSnapshot().peers).toEqual([]);
+		await jest.advanceTimersByTimeAsync(1_000);
+		transport.play(syncFrame(serverWith('Start'), { awareness: snapshotOfAda }));
+		expect(binding.getSnapshot().peers.map((peer) => peer.id)).toEqual(['user-ada']);
+		theirs.destroy();
+	});
+
+	it('opens the session again when the platform refuses an edit as invalid, and stops when it refuses it again', async () => {
+		const server = serverWith('Start');
+		const transport = new FakeTransport();
+		const binding = bind(transport);
+		await settle();
+		transport.play(syncFrame(server));
+		transport.updateAnswer = () => Promise.reject({ statusCode: 400, errorCode: 'DOCS_LIVE_UPDATE_INVALID' });
+
+		addParagraph(binding.getSnapshot().doc, 'Not for this page');
+		await jest.advanceTimersByTimeAsync(75);
+		await jest.advanceTimersByTimeAsync(1);
+		expect(transport.subscriptions).toHaveLength(2);
+		expect(binding.getSnapshot().state).toBe('reconnecting');
+
+		// The new session's sync sends the edit again (the platform lacks it); refused again, live editing stops.
+		transport.play(syncFrame(server));
+		await jest.advanceTimersByTimeAsync(1);
+		expect(binding.getSnapshot()).toMatchObject({
+			state: 'fallback',
+			fallbackReason: 'update_invalid',
+			unsentEdits: true
+		});
+	});
+
 	it('stops live editing on a closed frame: the subscription ends and the document is forgotten', async () => {
 		const memory = createDocsLiveMemory();
 		const transport = new FakeTransport();

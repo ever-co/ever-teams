@@ -26,6 +26,29 @@ import { useDocsScope } from './use-docs-scope';
 const memory = createDocsLiveMemory();
 onSignOut(() => memory.clear());
 
+/** The sessions of the page views open in this tab. */
+const openBindings = new Set<DocsLiveBinding>();
+let unloadGuard: ((event: BeforeUnloadEvent) => void) | null = null;
+
+/**
+ * Leaving the tab with live edits the platform never confirmed warns, as the autosave does for its drafts: edits of an
+ * open page (the batch window, a session that is down) and of a page left before they were confirmed.
+ */
+function syncLiveUnloadGuard(): void {
+	if (typeof window === 'undefined') return;
+	if (openBindings.size && !unloadGuard) {
+		unloadGuard = (event) => {
+			const unsent =
+				memory.hasUnsent() ||
+				Array.from(openBindings).some(
+					(binding) => binding.getSnapshot().unsentEdits || binding.hasUnconfirmedEdits()
+				);
+			if (unsent) event.preventDefault();
+		};
+		window.addEventListener('beforeunload', unloadGuard);
+	}
+}
+
 /** A successful status answer is asked again after this long; a 404 holds for the page load. */
 const STATUS_FRESH_MS = 60_000;
 let statusAnswer: { at: number; promise: Promise<DocsLiveStatus> } | null = null;
@@ -73,6 +96,8 @@ function createLiveStore(make: () => DocsLiveBinding) {
 		subscribe(listener: () => void): () => void {
 			if (!binding) {
 				binding = make();
+				openBindings.add(binding);
+				syncLiveUnloadGuard();
 				binding.start();
 			}
 			const current = binding;
@@ -84,6 +109,7 @@ function createLiveStore(make: () => DocsLiveBinding) {
 				if (subscribers === 0 && binding === current) {
 					binding = null;
 					view = null;
+					openBindings.delete(current);
 					current.destroy();
 				}
 			};

@@ -31,7 +31,7 @@ export interface DocsSpacesState {
 export function useDocsSpaces(enabled: boolean): DocsSpacesState {
 	const scope = useDocsScope();
 	const query = useQuery({
-		queryKey: queryKeys.docs.spaces(scope?.tenantId, scope?.organizationId),
+		queryKey: queryKeys.docs.spaces(scope?.tenantId, scope?.organizationId, scope?.userId),
 		queryFn: ({ signal }) => docsService.spaces(signal),
 		enabled: enabled && scope !== null,
 		staleTime: SPACES_STALE_MS,
@@ -57,7 +57,7 @@ export type DocsFollowAction = 'follow' | 'unfollow' | 'mute' | 'unmute';
 export function useDocsFollow(pageId: string | null, enabled: boolean) {
 	const scope = useDocsScope();
 	const queryClient = useQueryClient();
-	const key = queryKeys.docs.follow(scope?.tenantId, pageId);
+	const key = queryKeys.docs.follow(scope?.tenantId, scope?.userId, pageId);
 	const query = useQuery({
 		queryKey: key,
 		queryFn: ({ signal }) => docsService.followState(pageId as string, signal),
@@ -67,7 +67,11 @@ export function useDocsFollow(pageId: string | null, enabled: boolean) {
 	});
 	const mutation = useMutation({
 		mutationFn: (action: DocsFollowAction) => docsService.setFollow(pageId as string, action),
-		onSuccess: (state) => queryClient.setQueryData<IDocumentFollowState>(key, state)
+		onSuccess: async (state) => {
+			// A read that started before (or during) the change would answer the old state over this one.
+			await queryClient.cancelQueries({ queryKey: key, exact: true });
+			queryClient.setQueryData<IDocumentFollowState>(key, state);
+		}
 	});
 	const { mutateAsync } = mutation;
 	const run = useCallback((action: DocsFollowAction) => mutateAsync(action), [mutateAsync]);
