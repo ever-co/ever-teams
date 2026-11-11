@@ -1,8 +1,9 @@
-import type { Extensions } from '@tiptap/core';
+import { generateHTML, type Extensions, type JSONContent } from '@tiptap/core';
 import Collaboration from '@tiptap/extension-collaboration';
+import { yXmlFragmentToProsemirrorJSON } from '@tiptap/y-tiptap';
 import type { Awareness } from 'y-protocols/awareness';
 import type { Doc } from 'yjs';
-import type { EditorCollaboration } from './editor-extensions';
+import { schemaExtensions, type EditorCollaboration } from './editor-extensions';
 import { LiveCaret } from './live-caret-extension';
 
 /**
@@ -17,4 +18,17 @@ import { LiveCaret } from './live-caret-extension';
 export function liveCollaboration(document: Doc, awareness: Awareness, field = 'default'): EditorCollaboration {
 	const extensions: Extensions = [Collaboration.configure({ document, field }), LiveCaret.configure({ awareness })];
 	return { extensions };
+}
+
+/**
+ * What a live document holds, as the page stores it: the editor's JSON and the HTML rendered from it. Read when live
+ * editing stopped with edits the platform never confirmed, so they become the autosave's draft (also when no editor
+ * was bound to the document yet).
+ *
+ * @param document The session's shared document.
+ * @param field Its fragment.
+ */
+export function liveDocumentContent(document: Doc, field = 'default'): { json: JSONContent; html: string } {
+	const json = yXmlFragmentToProsemirrorJSON(document.getXmlFragment(field)) as JSONContent;
+	return { json, html: generateHTML(json, schemaExtensions()) };
 }

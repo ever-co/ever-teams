@@ -74,7 +74,6 @@ interface DocsLiveView {
 	mode: 'off' | DocsLiveState;
 	snapshot: DocsLiveSnapshot | null;
 	binding: DocsLiveBinding | null;
-	user: DocsLiveUser | null;
 	/** Live editing stopped and the page is being read again: the autosave editor waits for it. */
 	rereading: boolean;
 }
@@ -148,20 +147,27 @@ export function useDocsLive(pageId: string | null, eligible: boolean): DocsLiveV
 	const name =
 		account?.name || [account?.firstName, account?.lastName].filter(Boolean).join(' ') || account?.email || '';
 	const imageUrl = account?.imageUrl ?? null;
+	// Who this tab is to its co-editors. The session is made for the account and the page only: a changed name or
+	// picture reaches the running session (below) instead of opening another one, which would start live editing again
+	// over whatever the view shows by then.
 	const user = useMemo<DocsLiveUser | null>(
 		() => (userId ? { id: userId, name, color: colorForUser(userId), imageUrl } : null),
 		[imageUrl, name, userId]
 	);
-	const enabled = Boolean(eligible && pageId && socketUrl && user && tenantId);
+	const sessionUser = useMemo<DocsLiveUser | null>(
+		() => (userId ? { id: userId, name: '', color: colorForUser(userId) } : null),
+		[userId]
+	);
+	const enabled = Boolean(eligible && pageId && socketUrl && sessionUser && tenantId);
 
 	const store = useMemo(() => {
-		if (!enabled || !pageId || !socketUrl || !user || !tenantId) return null;
+		if (!enabled || !pageId || !socketUrl || !sessionUser || !tenantId) return null;
 		return createLiveStore(
 			() =>
 				new DocsLiveBinding({
 					documentId: pageId,
 					connectionId: newConnectionId(),
-					user,
+					user: sessionUser,
 					transport: createDocsLiveTransport({
 						socketUrl,
 						credentials: () => {
@@ -175,10 +181,10 @@ export function useDocsLive(pageId: string | null, eligible: boolean): DocsLiveV
 						}
 					}),
 					memory,
-					memoryKey: `${user.id}:${pageId}`
+					memoryKey: `${sessionUser.id}:${pageId}`
 				})
 		);
-	}, [enabled, organizationId, pageId, socketUrl, tenantId, user]);
+	}, [enabled, organizationId, pageId, sessionUser, socketUrl, tenantId]);
 
 	const view = useSyncExternalStore(
 		store?.subscribe ?? NO_SUBSCRIPTION,
@@ -186,6 +192,11 @@ export function useDocsLive(pageId: string | null, eligible: boolean): DocsLiveV
 		NO_SNAPSHOT
 	);
 	const snapshot = view?.snapshot ?? null;
+
+	const binding = view?.binding ?? null;
+	useEffect(() => {
+		if (binding && user) binding.updateUser(user);
+	}, [binding, user]);
 
 	// Live editing stopped: the page is read again, so the autosave starts from what the platform holds now (and the
 	// view waits for it: a draft typed over the text read before would only meet a conflict).
@@ -205,13 +216,12 @@ export function useDocsLive(pageId: string | null, eligible: boolean): DocsLiveV
 		};
 	}, [fellBack, pageId, queryClient, tenantId]);
 
-	if (!store) return { mode: 'off', snapshot: null, binding: null, user, rereading: false };
+	if (!store) return { mode: 'off', snapshot: null, binding: null, rereading: false };
 	// Before the binding is up the page is about to connect: the autosave editor is not shown in the meantime.
 	return {
 		mode: snapshot?.state ?? 'connecting',
 		snapshot,
-		binding: view?.binding ?? null,
-		user,
+		binding,
 		rereading: fellBack && reread !== pageId
 	};
 }

@@ -30,7 +30,8 @@ import { useDocsRecent } from '@/core/hooks/docs/use-docs-recent';
 import { useDocsMentionCandidates } from '@/core/hooks/docs/use-docs-scope';
 import type { DocsTreeState } from '@/core/hooks/docs/use-docs-tree';
 import { cn } from '@/core/lib/helpers';
-import { documentToMarkdown, markdownFileName } from '@/core/lib/utils/docs-markdown';
+import { DOCS_LIVE_FIELD } from '@/core/lib/docs-live/config';
+import { documentToMarkdown, markdownFileName, mentionedEmployeeIds } from '@/core/lib/utils/docs-markdown';
 import { DOCS_OUTLINE_SELECTOR, outlineOf, textStatsOf, type DocsOutlineItem } from '@/core/lib/utils/docs-outline';
 import { pageTitle } from '@/core/lib/utils/docs-tree';
 import { EDocumentKind, EDocumentVisibility, type IDocumentNode, type IDocumentPage } from '@/core/types/interfaces/common/docs';
@@ -80,6 +81,9 @@ interface DocsPageViewProps {
 
 const NO_SPACES: DocsSpacesState = { available: false, teamSpaces: [] };
 
+/** A version older than any page: a draft written against it always meets the platform's text as a conflict. */
+const NEVER_SAVED_CLOCK = '1970-01-01T00:00:00.000Z';
+
 function readFullWidth(): boolean {
 	try {
 		return window.localStorage.getItem(FULL_WIDTH_KEY) === '1';
@@ -97,17 +101,19 @@ export function DocsPageView({ pageId, tree, actions, spaces = NO_SPACES }: Docs
 	const autosave = useDocsAutosave(page);
 	// The page holds content this editor cannot carry: shown read-only, never saved from here.
 	const [unsupported, setUnsupported] = useState(false);
-	// Text this tab kept from an earlier visit (a save that failed or met a conflict) is settled in the autosave first:
-	// decided once, when the page is there, so this view never hides that draft behind a live editor, nor starts a live
-	// session later because the draft got saved.
-	const [keptDraft, setKeptDraft] = useState<boolean | null>(null);
-	if (keptDraft === null && page) setKeptDraft(autosave.restoredHtml !== null || autosave.hasDraft());
 	// A page (not a folder) outside the trash, unlocked and carried by this editor is edited live when the deployment and
-	// the platform both do; otherwise (and once live editing stops) the autosave edits it.
-	const live = useDocsLive(
-		page?.id ?? null,
-		Boolean(page && keptDraft === false && page.kind === EDocumentKind.PAGE && !page.isArchived && !page.isLocked && !unsupported)
-	);
+	// the platform both do; otherwise (and once live editing stops) the autosave edits it. One live session per view:
+	// - it starts only while the autosave holds nothing of this page (a draft kept from an earlier visit, a save on its
+	//   way): that text is settled in the autosave first, never hidden behind a live editor;
+	// - once the page stops qualifying (locked, trashed, content this editor cannot carry) it never starts again here,
+	//   so the autosave editor is never swapped for a live one under the person's hands. The next visit goes live.
+	const qualifiesForLive = Boolean(page && page.kind === EDocumentKind.PAGE && !page.isArchived && !page.isLocked && !unsupported);
+	const autosaveHolds = autosave.restoredHtml !== null || autosave.hasDraft() || (autosave.state !== 'idle' && autosave.state !== 'saved');
+	const [liveStarted, setLiveStarted] = useState(false);
+	const [liveRevoked, setLiveRevoked] = useState(false);
+	if (!liveStarted && !liveRevoked && qualifiesForLive && !autosaveHolds) setLiveStarted(true);
+	if (!liveRevoked && page && (autosaveHolds ? !liveStarted : !qualifiesForLive && liveStarted)) setLiveRevoked(true);
+	const live = useDocsLive(page?.id ?? null, liveStarted && !liveRevoked && qualifiesForLive);
 	// Follows exist where spaces do: both are the platform's Docs collaboration.
 	const follow = useDocsFollow(page?.id ?? null, Boolean(page && !page.isArchived && spaces.available));
 	// A refreshed page (a live event, another person's save) reaches the editor only while nothing typed here is unsaved:
@@ -160,11 +166,8 @@ export function DocsPageView({ pageId, tree, actions, spaces = NO_SPACES }: Docs
 		[change]
 	);
 
-	// Live, the platform saves the page: a change only moves the outline and the counts. The text is kept at hand: should
-	// live editing stop with edits the platform never confirmed, they become the autosave's draft.
-	const liveContentRef = useRef<{ html: string; json: IDocumentNode | null; mentionEmployeeIds: string[] } | null>(null);
-	const onLiveEditorChange = useCallback((html: string, json: IDocumentNode | null, mentionEmployeeIds: string[]) => {
-		liveContentRef.current = { html, json, mentionEmployeeIds };
+	// Live, the platform saves the page: a change only moves the outline and the counts.
+	const onLiveEditorChange = useCallback((_html: string, json: IDocumentNode | null) => {
 		if (liveTimerRef.current) clearTimeout(liveTimerRef.current);
 		liveTimerRef.current = setTimeout(() => setLiveJson(json), OUTLINE_DELAY_MS);
 	}, []);
@@ -198,15 +201,27 @@ export function DocsPageView({ pageId, tree, actions, spaces = NO_SPACES }: Docs
 	const pageClock = page?.updatedAt ?? null;
 	const pageWritable = Boolean(page && !page.isArchived && !page.isLocked);
 	const unsentAtFallback = live.mode === 'fallback' && !live.rereading && Boolean(liveSnapshot?.unsentEdits);
+	const fallenDoc = unsentAtFallback ? (liveSnapshot?.doc ?? null) : null;
 	useEffect(() => {
 		if (isLiveEditing && liveClockRef.current === null) liveClockRef.current = pageClock;
 	}, [isLiveEditing, pageClock]);
+	// Live editing stopped with edits the platform never confirmed: what the session's document holds becomes the
+	// autosave's draft (read from the document, which also covers edits remembered from an earlier visit that no editor
+	// showed yet). Without the version live editing began on, the oldest one stands in, so the save meets a conflict.
 	useEffect(() => {
-		const content = liveContentRef.current;
-		if (!unsentAtFallback || !pageWritable || !content || adoptedRef.current) return;
+		if (!fallenDoc || !pageWritable || adoptedRef.current) return;
 		adoptedRef.current = true;
-		adoptDraft(content.html, content.json, content.mentionEmployeeIds, liveClockRef.current);
-	}, [adoptDraft, pageWritable, unsentAtFallback]);
+		let current = true;
+		void import('@/core/components/common/rich-editor/live-collaboration').then(({ liveDocumentContent }) => {
+			if (!current) return;
+			const { json, html } = liveDocumentContent(fallenDoc, DOCS_LIVE_FIELD);
+			const content = json as IDocumentNode;
+			adoptDraft(html, content, mentionedEmployeeIds(content), liveClockRef.current ?? NEVER_SAVED_CLOCK);
+		});
+		return () => {
+			current = false;
+		};
+	}, [adoptDraft, fallenDoc, pageWritable]);
 
 	const runFollow = (action: DocsFollowAction) => {
 		follow.run(action).catch(() => toast.error(t('docs.UPDATE_ERROR')));

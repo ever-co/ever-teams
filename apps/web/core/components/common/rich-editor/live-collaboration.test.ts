@@ -5,7 +5,7 @@ import { Editor } from '@tiptap/core';
 import * as Y from 'yjs';
 import { Awareness } from 'y-protocols/awareness';
 import { buildExtensions, editorSchemaTypes } from './editor-extensions';
-import { liveCollaboration } from './live-collaboration';
+import { liveCollaboration, liveDocumentContent } from './live-collaboration';
 
 // `marked` ships as ES modules only, which this harness does not load; Markdown is not what these specs are about.
 jest.mock('marked', () => ({ Marked: class {} }));
@@ -104,6 +104,16 @@ describe('the live editor binding', () => {
 			editor.destroy();
 			awareness.destroy();
 		}
+	});
+
+	it('reads what a live document holds as the page stores it (JSON and HTML)', () => {
+		const doc = new Y.Doc();
+		seededParagraph(doc, 'Kept ');
+		seededParagraph(doc, 'text', { bold: {} });
+		const { json, html } = liveDocumentContent(doc);
+		expect(json).toMatchObject({ type: 'doc', content: [{ type: 'paragraph' }, { type: 'paragraph' }] });
+		expect(html).toContain('<p>Kept </p>');
+		expect(html).toContain('<strong>text</strong>');
 	});
 
 	it('knows the schema it is checked against before it exists', () => {

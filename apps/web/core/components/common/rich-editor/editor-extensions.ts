@@ -104,9 +104,14 @@ export function buildExtensions(options: EditorExtensionOptions): Extensions {
  * any editor exists: a live document is checked against them before an editor is bound to it.
  */
 export function editorSchemaTypes(): { nodes: Set<string>; marks: Set<string> } {
+	const schema = getSchema(schemaExtensions());
+	return { nodes: new Set(Object.keys(schema.nodes)), marks: new Set(Object.keys(schema.marks)) };
+}
+
+/** The extensions of a Docs editor for what they define (its schema, its HTML), without an editor around them. */
+export function schemaExtensions(): Extensions {
 	const noLabels = { emptyLabel: '', loadingLabel: '', ariaLabel: '' };
-	const schema = getSchema(
-		buildExtensions({
+	return buildExtensions({
 			placeholder: '',
 			slashMenu: {
 				copy: {} as SlashMenuOptions['copy'],
@@ -118,7 +123,5 @@ export function editorSchemaTypes(): { nodes: Set<string>; marks: Set<string> } 
 			mentionLabels: noLabels,
 			mentions: () => [],
 			onSuggestionOpenChange: () => undefined
-		})
-	);
-	return { nodes: new Set(Object.keys(schema.nodes)), marks: new Set(Object.keys(schema.marks)) };
+		});
 }

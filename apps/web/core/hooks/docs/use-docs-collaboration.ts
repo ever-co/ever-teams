@@ -66,15 +66,22 @@ export function useDocsFollow(pageId: string | null, enabled: boolean) {
 		retry: (failures, error) => !isCollaborationOff(error) && failures < 2
 	});
 	const mutation = useMutation({
-		mutationFn: (action: DocsFollowAction) => docsService.setFollow(pageId as string, action),
-		onSuccess: async (state) => {
+		// The page and the cache entry of the moment the change was asked: an account or page change meanwhile is not
+		// written over.
+		mutationFn: ({ action, page }: { action: DocsFollowAction; page: string; queryKey: readonly unknown[] }) =>
+			docsService.setFollow(page, action),
+		onSuccess: async (state, { queryKey }) => {
 			// A read that started before (or during) the change would answer the old state over this one.
-			await queryClient.cancelQueries({ queryKey: key, exact: true });
-			queryClient.setQueryData<IDocumentFollowState>(key, state);
+			await queryClient.cancelQueries({ queryKey, exact: true });
+			queryClient.setQueryData<IDocumentFollowState>(queryKey, state);
 		}
 	});
 	const { mutateAsync } = mutation;
-	const run = useCallback((action: DocsFollowAction) => mutateAsync(action), [mutateAsync]);
+	const run = useCallback(
+		(action: DocsFollowAction) =>
+			pageId ? mutateAsync({ action, page: pageId, queryKey: key }) : Promise.reject(new Error('No page')),
+		[key, mutateAsync, pageId]
+	);
 	return {
 		available: query.isSuccess,
 		following: query.data?.following ?? false,

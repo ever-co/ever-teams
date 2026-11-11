@@ -207,7 +207,8 @@ describe('DocsLiveBinding', () => {
 		expect(textOf(snapshot.doc)).toBe('<paragraph>New seed</paragraph>');
 		// The old lineage's content is never offered to the platform.
 		expect(transport.updates).toHaveLength(0);
-		expect(memory.get(`${ME.id}:${PAGE}`)).toEqual({ doc: snapshot.doc, lineage: `${PAGE}:3` });
+		expect(memory.get(`${ME.id}:${PAGE}`)?.doc).toBe(snapshot.doc);
+		expect(memory.get(`${ME.id}:${PAGE}`)?.lineage).toBe(`${PAGE}:3`);
 	});
 
 	it('batches local edits for the batch window into one merged update, one request at a time', async () => {
@@ -473,6 +474,72 @@ describe('DocsLiveBinding', () => {
 			fallbackReason: 'update_invalid',
 			unsentEdits: true
 		});
+	});
+
+	it('keeps edits remembered from an earlier visit when the platform answers with another lineage', async () => {
+		const memory = createDocsLiveMemory();
+		const kept = serverWith('Seeded');
+		addParagraph(kept, 'Typed before leaving');
+		memory.set(`${ME.id}:${PAGE}`, { doc: kept, lineage: `${PAGE}:1`, unsent: true });
+
+		const transport = new FakeTransport();
+		const binding = bind(transport, { memory });
+		await settle();
+		transport.play(syncFrame(serverWith('Rebuilt')));
+
+		expect(binding.getSnapshot()).toMatchObject({
+			state: 'fallback',
+			fallbackReason: 'lineage_changed',
+			unsentEdits: true
+		});
+		expect(binding.getSnapshot().doc).toBe(kept);
+		expect(transport.updates).toHaveLength(0);
+	});
+
+	it('marks a left page as holding unconfirmed edits, and lets only its latest binding clear the mark', async () => {
+		const memory = createDocsLiveMemory();
+		const key = `${ME.id}:${PAGE}`;
+		const server = serverWith('Start');
+		const transport = new FakeTransport();
+		const first = bind(transport, { memory });
+		await settle();
+		transport.play(syncFrame(server));
+		let landFirst: () => void = () => undefined;
+		transport.updateAnswer = () =>
+			new Promise((resolve) => {
+				landFirst = () => resolve({ accepted: true, relayed: false });
+			});
+		addParagraph(first.getSnapshot().doc, 'Left in the batch window');
+		first.destroy();
+		await jest.advanceTimersByTimeAsync(0);
+		expect(memory.get(key)?.unsent).toBe(true);
+		expect(memory.hasUnsent()).toBe(true);
+
+		// The page is opened again before the first view's last edit lands, and left with an edit of its own.
+		const again = new FakeTransport();
+		again.updateAnswer = () => new Promise(() => undefined);
+		const second = bind(again, { memory });
+		await settle();
+		again.play(syncFrame(server));
+		addParagraph(second.getSnapshot().doc, 'Left by the second view');
+		second.destroy();
+		await jest.advanceTimersByTimeAsync(0);
+
+		landFirst();
+		await jest.advanceTimersByTimeAsync(0);
+		expect(memory.get(key)?.unsent).toBe(true);
+	});
+
+	it('follows a changed name in the presence it sends, in the same session', async () => {
+		const transport = new FakeTransport();
+		const binding = bind(transport);
+		await settle();
+		transport.play(syncFrame(serverWith('Start')));
+		binding.updateUser({ ...ME, name: 'Me, renamed' });
+		expect(binding.getSnapshot().awareness.getLocalState()).toMatchObject({ user: { id: ME.id, name: 'Me, renamed' } });
+		await jest.advanceTimersByTimeAsync(200);
+		expect(transport.subscriptions).toHaveLength(1);
+		expect(transport.awareness.length).toBeGreaterThan(1);
 	});
 
 	it('stops live editing on a closed frame: the subscription ends and the document is forgotten', async () => {

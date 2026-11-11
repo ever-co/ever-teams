@@ -105,6 +105,8 @@ export interface DocsLiveRemembered {
 	lineage: string;
 	/** It holds edits the platform never confirmed (the page was left before they were): the tab warns on close. */
 	unsent?: boolean;
+	/** The binding that last wrote the entry: only it clears `unsent` (a binding that came back since owns it). */
+	owner?: unknown;
 }
 
 export interface DocsLiveMemory {
@@ -262,6 +264,8 @@ export class DocsLiveBinding {
 	private readonly clearTimer: (handle: unknown) => void;
 	private readonly random: () => number;
 	private readonly listeners = new Set<Listener>();
+	/** Who this tab is to its co-editors (`updateUser` follows a changed name or picture). */
+	private user: DocsLiveUser;
 
 	private doc!: Y.Doc;
 	private awareness!: Awareness;
@@ -347,9 +351,13 @@ export class DocsLiveBinding {
 		this.setTimer = options.setTimeout ?? ((fn, ms) => setTimeout(fn, ms));
 		this.clearTimer = options.clearTimeout ?? ((handle) => clearTimeout(handle as ReturnType<typeof setTimeout>));
 		this.random = options.random ?? Math.random;
+		this.user = options.user;
 
 		const remembered = this.memory?.get(this.memoryKey);
 		this.attachDoc(remembered?.doc ?? new Y.Doc(), remembered?.lineage ?? null);
+		// A document left with edits the platform never confirmed: they are this view's unsent work until its sync settles
+		// them (sent, or kept as the autosave's draft should the platform answer with another lineage).
+		if (remembered?.unsent) this.localEdits = 1;
 		this.snapshot = this.buildSnapshot();
 	}
 
@@ -399,6 +407,23 @@ export class DocsLiveBinding {
 		return [];
 	}
 
+	/** A changed name or picture: co-editors see it with the next presence this tab sends. */
+	updateUser(user: DocsLiveUser): void {
+		const { name, color, imageUrl } = this.user;
+		if (
+			user.id !== this.user.id ||
+			(user.name === name && user.color === color && (user.imageUrl ?? null) === (imageUrl ?? null))
+		)
+			return;
+		this.user = user;
+		this.awareness.setLocalStateField('user', {
+			id: user.id,
+			name: user.name,
+			color: user.color,
+			imageUrl: user.imageUrl ?? null
+		});
+	}
+
 	/** Whether edits made here wait for the platform's confirmation now (read at the moment, not from the snapshot). */
 	hasUnconfirmedEdits(): boolean {
 		return this.state !== 'fallback' && this.localEdits > this.confirmedEdits;
@@ -428,8 +453,10 @@ export class DocsLiveBinding {
 		const lineage = this.lineage;
 		const doc = this.doc;
 		const remember = (unsent: boolean) => {
-			if (lineage !== null && this.memory?.get(this.memoryKey)?.doc === doc)
-				this.memory.set(this.memoryKey, { doc, lineage, unsent });
+			const entry = this.memory?.get(this.memoryKey);
+			// Only while the entry is this binding's: a binding of the page opened since owns it (and its marker).
+			if (lineage === null || !entry || entry.doc !== doc || entry.owner !== this) return;
+			this.memory?.set(this.memoryKey, { doc, lineage, unsent, owner: this });
 		};
 		const unconfirmed = this.state !== 'fallback' && this.localEdits > this.confirmedEdits;
 		if (unconfirmed) remember(true);
@@ -596,7 +623,7 @@ export class DocsLiveBinding {
 	/** The `sync` frame applied: this session is the one edits and cursors go to. */
 	private enterSession(frame: DocsLiveFrame, lineage: string | null): void {
 		this.lineage = lineage;
-		if (lineage !== null) this.memory?.set(this.memoryKey, { doc: this.doc, lineage });
+		if (lineage !== null) this.memory?.set(this.memoryKey, { doc: this.doc, lineage, owner: this });
 		if (typeof frame.revision === 'number') this.revision = frame.revision;
 		this.readOnly = Boolean(frame.readOnly);
 		this.readOnlyReason = this.readOnly ? (frame.reason ?? null) : null;
@@ -838,7 +865,7 @@ export class DocsLiveBinding {
 
 	private readPeers(): DocsLivePeer[] {
 		const peers: DocsLivePeer[] = [];
-		const seen = new Set<string>([this.options.user.id]);
+		const seen = new Set<string>([this.user.id]);
 		const states = Array.from(this.awareness.getStates().entries()).sort(([a], [b]) => a - b);
 		for (const [clientId, state] of states) {
 			if (clientId === this.doc.clientID) continue;
@@ -873,7 +900,7 @@ export class DocsLiveBinding {
 		this.doc = doc;
 		this.lineage = lineage;
 		this.awareness = new Awareness(doc);
-		const { id, name, color, imageUrl } = this.options.user;
+		const { id, name, color, imageUrl } = this.user;
 		this.awareness.setLocalStateField('user', { id, name, color, imageUrl: imageUrl ?? null });
 		doc.on('update', this.onDocUpdate);
 		this.awareness.on('update', this.onAwarenessUpdate);
