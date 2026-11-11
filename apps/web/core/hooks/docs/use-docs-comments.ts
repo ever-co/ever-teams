@@ -11,7 +11,7 @@ import { useDocsScope } from './use-docs-scope';
 
 const NO_COMMENTS: IComment[] = [];
 
-export interface DocsCommentPost {
+interface DocsCommentPost {
 	body: string;
 	/** The block the thread is on; null for a comment on the page. A reply takes its thread's. */
 	blockId: string | null;
