@@ -1078,6 +1078,10 @@ function createSyntheticHistory(): { base: string; head: string; repository: str
 	return { base, head: git(repository, 'rev-parse', 'HEAD'), repository };
 }
 
+// The real surface's JSON outgrew spawnSync's 1 MiB default output buffer (ENOBUFS) once the Docs, chat and
+// integration proxies landed; it is read whole, so the buffer is sized well past it.
+const SURFACE_MAX_BUFFER = 64 * 1024 * 1024;
+
 let realHeadSurface: Surface | undefined;
 
 function collectRealHeadSurface(): Surface {
@@ -1088,7 +1092,7 @@ function collectRealHeadSurface(): Surface {
 		'process.stdout.write(JSON.stringify(result.surface));'
 	].join('\n');
 	const result = checkedSpawn(
-		spawnSync(process.execPath, ['--input-type=module', '--eval', expression], { encoding: 'utf8' })
+		spawnSync(process.execPath, ['--input-type=module', '--eval', expression], { encoding: 'utf8', maxBuffer: SURFACE_MAX_BUFFER })
 	);
 	if (result.status !== 0) throw new Error(result.stderr);
 	realHeadSurface = JSON.parse(result.stdout) as Surface;
@@ -1992,10 +1996,12 @@ describe('Ever Teams feature surface preservation', () => {
 		// 270 files and 350 verbs with the files of a conversation (GET /api/chat/conversations/[id]/files).
 		// 279 files and 360 verbs with the Docs live and collaboration proxies (/api/plugins/docs/live/status,
 		// documents/spaces, documents/[id]/space, follow (GET, POST), unfollow, mute, unmute, live/updates, live/awareness).
-		expect(routes.filter((value) => /\/route\.[jt]s$/.test(value))).toHaveLength(279);
+		// 285 files and 366 verbs with the integrations' sync conflict proxies (/api/integration/{linear,asana,trello}/[id]/conflicts,
+		// GET, and [id]/conflicts/[conflictId]/resolve, POST).
+		expect(routes.filter((value) => /\/route\.[jt]s$/.test(value))).toHaveLength(285);
 		expect(
 			routes.filter((value) => /\/route\.[jt]s::(?:GET|POST|PUT|PATCH|DELETE|HEAD|OPTIONS)$/.test(value))
-		).toHaveLength(360);
+		).toHaveLength(366);
 		expect(routes).toEqual(
 			expect.arrayContaining([
 				// Proxy mode twins of the platform's Docs live sessions and collaboration routes (2026-11-11)

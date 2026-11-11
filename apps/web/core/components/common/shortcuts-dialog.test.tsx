@@ -128,8 +128,8 @@ describe('ShortcutsDialog rebinding', () => {
 
 	it('saves one new key for a list command, and a sequence for a "go to"', async () => {
 		render(<ShortcutsDialog />);
-		await record('listDown', [{ code: 'KeyN', key: 'n' }]);
-		expect(mockSetOverrides).toHaveBeenLastCalledWith({ listDown: 'n' });
+		await record('listDown', [{ code: 'KeyB', key: 'b' }]);
+		expect(mockSetOverrides).toHaveBeenLastCalledWith({ listDown: 'b' });
 		await record('goTasks', [
 			{ code: 'KeyG', key: 'g' },
 			{ code: 'KeyX', key: 'x' }

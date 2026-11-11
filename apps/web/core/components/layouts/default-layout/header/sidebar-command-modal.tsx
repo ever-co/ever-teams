@@ -42,15 +42,25 @@ import { useTheme } from 'next-themes';
 import { ArrowUpRight, Compose } from '@/core/components/icons/hugeicons';
 import { useKeyboardShortcuts, CommandShortcutConfig } from '@/core/hooks/common/use-keyboard-shortcuts';
 import { useGoToCommands } from '@/core/hooks/keyboard/use-go-to-commands';
-import { REGISTRY_OWNED_MOD_KEYS } from '@/core/lib/keyboard/shortcuts';
+import { PALETTE_COMMAND_IDS, usePaletteShortcuts } from '@/core/hooks/keyboard/use-palette-shortcuts';
+import { usePaletteRecent } from '@/core/hooks/keyboard/use-palette-recent';
 import { isTaskViewsEnabled } from '@/core/lib/utils/task-views-enabled';
+import { isDocsEnabled } from '@/core/lib/utils/docs-enabled';
+import { isChatEnabled } from '@/core/lib/utils/chat-enabled';
+import type { PaletteItem } from '@/core/lib/utils/palette-items';
+import type { ShortcutHandler } from '@/core/stores/common/shortcuts';
 import { InviteFormModal } from '../../../features/teams/invite-form-modal';
 import { CreateProjectModal } from '../../../features/projects/create-project-modal';
 import { CreateTeamModal } from '@/core/components/features/teams/create-team-modal';
 import { PaletteDocsResults } from './palette-docs-results';
 import { PaletteTaskResults } from './palette-task-results';
 import { PaletteChatResults } from './palette-chat-results';
-import { isChatEnabled } from '@/core/lib/utils/chat-enabled';
+import {
+	PalettePageResults,
+	PalettePeopleResults,
+	PaletteProjectResults,
+	PaletteRecentResults
+} from './palette-entity-results';
 
 // Definition of types to improve readability and security
 type ShortcutAction = () => void;
@@ -64,6 +74,11 @@ interface CommandGroupConfig {
 const ALL_GROUPS_TAB = 'all';
 const TASKS_TAB = 'tasks';
 const CHAT_TAB = 'chat';
+const TEAMS_TAB = 'teams';
+const PROJECTS_TAB = 'projects';
+/** The tabs of the results the palette finds besides tasks and the chat (the saved-views feature; Docs for pages). */
+const PEOPLE_TAB = 'people';
+const PAGES_TAB = 'pages';
 const PALETTE_SHORTCUT_KEYS = ['⌘', 'K'];
 const paletteGroupClass =
 	'p-0 pt-1 [&_[cmdk-group-heading]]:h-8 [&_[cmdk-group-heading]]:px-2 [&_[cmdk-group-heading]]:text-[13px]';
@@ -84,17 +99,22 @@ function showsChatResultsIn(tab: string) {
 	return tab === ALL_GROUPS_TAB || tab === CHAT_TAB;
 }
 
-function shortcutKeysOf(shortcutDisplay: string) {
-	return Array.from(shortcutDisplay);
+function showsResultsIn(tab: string, resultsTab: string) {
+	return tab === ALL_GROUPS_TAB || tab === resultsTab;
+}
+
+function shortcutKeysOf(command: Pick<CommandShortcutConfig, 'shortcutDisplay' | 'shortcutKeys'>) {
+	return command.shortcutKeys ?? Array.from(command.shortcutDisplay);
 }
 
 const navigationIcon = <ArrowUpRight aria-hidden="true" />;
 
-const ClickableCommandItem: FC<{ children: React.ReactNode; action: ShortcutAction; className?: string }> = ({
-	children,
-	action,
-	...props
-}) => {
+const ClickableCommandItem: FC<{
+	children: React.ReactNode;
+	action: ShortcutAction;
+	className?: string;
+	keywords?: string[];
+}> = ({ children, action, ...props }) => {
 	const handleClick = React.useCallback(
 		(event: React.MouseEvent<HTMLDivElement>) => {
 			// Prevent propagation and default behavior
@@ -158,11 +178,11 @@ export const SidebarCommandModal: FC<{ publicTeam: boolean; variant?: 'sidebar' 
 	const createTaskModal = useModal();
 	const createProjectModal = useModal();
 
-	// Close the palette and execute an action
+	// Close the palette and execute an action (which may open it again on one of its tabs: the "search" ones)
 	const executeAction = useCallback(
 		(action: ShortcutAction) => {
-			action();
 			setOpen(false);
+			action();
 		},
 		[setOpen]
 	);
@@ -195,6 +215,42 @@ export const SidebarCommandModal: FC<{ publicTeam: boolean; variant?: 'sidebar' 
 		[router, profileLink, createTaskModal, teamModal, createProjectModal, inviteModal, setTheme, resolvedTheme]
 	);
 
+	// The palette opened on one tab, its field empty (the registry's "search" commands).
+	const openOnTab = useCallback(
+		(tab: string) => {
+			setSearch('');
+			setActiveTab(tab);
+			setOpen(true);
+		},
+		[setOpen]
+	);
+
+	// With the shortcut registry on, the keys of the palette's own commands are the registry's (rebindable); the
+	// handlers of the ones only the palette can run are registered here. Create task, the team's tasks and Settings
+	// are the layout's.
+	const paletteHandlers = useMemo(() => {
+		const handlers: Record<string, ShortcutHandler> = {
+			themeToggle: actions.toggleTheme,
+			projectCreate: actions.createProject,
+			searchTasks: () => openOnTab(TASKS_TAB),
+			searchProjects: () => openOnTab(PROJECTS_TAB),
+			searchTeams: () => openOnTab(TEAMS_TAB),
+			goHome: actions.navigateToHome,
+			goProjects: actions.navigateToProjects,
+			goKanban: actions.navigateToKanban,
+			goProfile: actions.navigateToProfile,
+			goTimesheets: actions.navigateToTimesheetsReport,
+			goWeeklyLimit: actions.navigateToWeeklyLimitReport,
+			goTimeActivity: actions.navigateToTimeAndActivityReport
+		};
+		if (canInvite) handlers['inviteUser'] = actions.inviteUser;
+		if (!publicTeam) handlers['teamCreate'] = actions.createTeam;
+		return handlers;
+	}, [actions, canInvite, openOnTab, publicTeam]);
+	const paletteShortcuts = usePaletteShortcuts(paletteHandlers);
+	const { keysOf, searchWordsOf, handlerOfTypedSequence } = paletteShortcuts;
+	const registryOn = paletteShortcuts.isOn;
+
 	// The registry's "go to" commands (saved-views feature): their keys are the registry's, not this palette's.
 	const goToCommands = useGoToCommands(navigationIcon);
 	// The chat's entries (its conversations, the people to write to, "New message") where the chat is on.
@@ -211,6 +267,7 @@ export const SidebarCommandModal: FC<{ publicTeam: boolean; variant?: 'sidebar' 
 						? [
 								{
 									sequence: ['i', 'u'],
+									commandId: PALETTE_COMMAND_IDS.inviteUser,
 									description: t('commandPalette.commands.inviteUser'),
 									shortcutDisplay: 'IU',
 									action: actions.inviteUser,
@@ -228,6 +285,7 @@ export const SidebarCommandModal: FC<{ publicTeam: boolean; variant?: 'sidebar' 
 					},
 					{
 						sequence: ['t', 'h'],
+						commandId: PALETTE_COMMAND_IDS.toggleTheme,
 						description: t('commandPalette.commands.toggleTheme'),
 						shortcutDisplay: 'TH',
 						action: actions.toggleTheme,
@@ -242,6 +300,7 @@ export const SidebarCommandModal: FC<{ publicTeam: boolean; variant?: 'sidebar' 
 					{
 						sequence: ['c', 't'],
 						modifiers: [],
+						commandId: PALETTE_COMMAND_IDS.createTask,
 						description: t('commandPalette.commands.createTask'),
 						shortcutDisplay: 'CT',
 						action: actions.createTask,
@@ -250,6 +309,7 @@ export const SidebarCommandModal: FC<{ publicTeam: boolean; variant?: 'sidebar' 
 					{
 						sequence: ['s', 't'],
 						modifiers: [],
+						commandId: PALETTE_COMMAND_IDS.searchTasks,
 						description: t('commandPalette.commands.searchTasks'),
 						shortcutDisplay: 'ST',
 						action: actions.navigateToSearchTasks,
@@ -264,6 +324,7 @@ export const SidebarCommandModal: FC<{ publicTeam: boolean; variant?: 'sidebar' 
 					{
 						sequence: ['c', 't'],
 						modifiers: ['ctrl'],
+						commandId: PALETTE_COMMAND_IDS.createTeam,
 						description: t('commandPalette.commands.createTeam'),
 						shortcutDisplay: '⌘CT',
 						action: actions.createTeam,
@@ -272,6 +333,7 @@ export const SidebarCommandModal: FC<{ publicTeam: boolean; variant?: 'sidebar' 
 					{
 						sequence: ['s', 't'],
 						modifiers: ['ctrl'],
+						commandId: PALETTE_COMMAND_IDS.searchTeams,
 						description: t('commandPalette.commands.searchTeams'),
 						shortcutDisplay: '⌘ST',
 						action: actions.navigateToSearchTeams,
@@ -285,6 +347,7 @@ export const SidebarCommandModal: FC<{ publicTeam: boolean; variant?: 'sidebar' 
 				commands: [
 					{
 						sequence: ['c', 'p'],
+						commandId: PALETTE_COMMAND_IDS.createProject,
 						description: t('commandPalette.commands.createProject'),
 						shortcutDisplay: 'CP',
 						action: actions.createProject,
@@ -293,6 +356,7 @@ export const SidebarCommandModal: FC<{ publicTeam: boolean; variant?: 'sidebar' 
 					{
 						sequence: ['s', 'p'],
 						modifiers: ['ctrl'],
+						commandId: PALETTE_COMMAND_IDS.searchProjects,
 						description: t('commandPalette.commands.searchProjects'),
 						shortcutDisplay: '⌘SP',
 						action: actions.navigateToSearchProjects,
@@ -308,6 +372,7 @@ export const SidebarCommandModal: FC<{ publicTeam: boolean; variant?: 'sidebar' 
 					{
 						sequence: ['m', 't'],
 						modifiers: ['ctrl'],
+						commandId: PALETTE_COMMAND_IDS.goToMyTasks,
 						description: t('commandPalette.commands.goToMyTasks'),
 						shortcutDisplay: '⌘MT',
 						action: actions.navigateToMyTasks,
@@ -316,6 +381,7 @@ export const SidebarCommandModal: FC<{ publicTeam: boolean; variant?: 'sidebar' 
 					{
 						sequence: ['t', 't'],
 						modifiers: ['ctrl'],
+						commandId: PALETTE_COMMAND_IDS.goToTeamTasks,
 						description: t('commandPalette.commands.goToTeamTasks'),
 						shortcutDisplay: '⌘TT',
 						action: actions.navigateToMyTeamsTasks,
@@ -324,6 +390,7 @@ export const SidebarCommandModal: FC<{ publicTeam: boolean; variant?: 'sidebar' 
 					{
 						sequence: ['t', 'p'],
 						modifiers: ['ctrl'],
+						commandId: PALETTE_COMMAND_IDS.goToProjects,
 						description: t('commandPalette.commands.goToProjects'),
 						shortcutDisplay: '⌘TP',
 						action: actions.navigateToProjects,
@@ -332,6 +399,7 @@ export const SidebarCommandModal: FC<{ publicTeam: boolean; variant?: 'sidebar' 
 					{
 						sequence: ['k'],
 						modifiers: ['ctrl'],
+						commandId: PALETTE_COMMAND_IDS.goToKanban,
 						description: t('commandPalette.commands.goToKanban'),
 						shortcutDisplay: '⌘K',
 						action: actions.navigateToKanban,
@@ -340,6 +408,7 @@ export const SidebarCommandModal: FC<{ publicTeam: boolean; variant?: 'sidebar' 
 					{
 						sequence: ['h'],
 						modifiers: ['ctrl'],
+						commandId: PALETTE_COMMAND_IDS.goToHome,
 						description: t('commandPalette.commands.goToHome'),
 						shortcutDisplay: '⌘H',
 						action: actions.navigateToHome,
@@ -348,6 +417,7 @@ export const SidebarCommandModal: FC<{ publicTeam: boolean; variant?: 'sidebar' 
 					{
 						sequence: ['t', 's'],
 						modifiers: ['ctrl'],
+						commandId: PALETTE_COMMAND_IDS.goToTimesheets,
 						description: t('commandPalette.commands.goToTimesheets'),
 						shortcutDisplay: '⌘TS',
 						action: actions.navigateToTimesheetsReport,
@@ -356,6 +426,7 @@ export const SidebarCommandModal: FC<{ publicTeam: boolean; variant?: 'sidebar' 
 					{
 						sequence: ['w', 'l'],
 						modifiers: ['ctrl'],
+						commandId: PALETTE_COMMAND_IDS.goToWeeklyLimit,
 						description: t('commandPalette.commands.goToWeeklyLimit'),
 						shortcutDisplay: '⌘WL',
 						action: actions.navigateToWeeklyLimitReport,
@@ -364,6 +435,7 @@ export const SidebarCommandModal: FC<{ publicTeam: boolean; variant?: 'sidebar' 
 					{
 						sequence: ['t', 'a'],
 						modifiers: ['ctrl'],
+						commandId: PALETTE_COMMAND_IDS.goToTimeAndActivity,
 						description: t('commandPalette.commands.goToTimeAndActivity'),
 						shortcutDisplay: '⌘TA',
 						action: actions.navigateToTimeAndActivityReport,
@@ -396,6 +468,7 @@ export const SidebarCommandModal: FC<{ publicTeam: boolean; variant?: 'sidebar' 
 					{
 						sequence: ['p'],
 						modifiers: ['ctrl'],
+						commandId: PALETTE_COMMAND_IDS.profile,
 						description: t('commandPalette.commands.profile'),
 						shortcutDisplay: '⌘P',
 						action: actions.navigateToProfile,
@@ -404,6 +477,7 @@ export const SidebarCommandModal: FC<{ publicTeam: boolean; variant?: 'sidebar' 
 					{
 						sequence: ['s'],
 						modifiers: ['ctrl'],
+						commandId: PALETTE_COMMAND_IDS.settings,
 						description: t('commandPalette.commands.settings'),
 						shortcutDisplay: '⌘S',
 						action: actions.navigateToSettings,
@@ -415,23 +489,38 @@ export const SidebarCommandModal: FC<{ publicTeam: boolean; variant?: 'sidebar' 
 		[actions, canInvite, chatOn, goToCommands, t]
 	);
 
-	// Extract all shortcut configurations for the global hook
+	// With the registry on, every entry shows its command's binding in force (none when nobody can run it now) and is
+	// also found by it (`g t`, `gt`); off, the palette's own keys as they always were.
+	const shownGroups = useMemo(() => {
+		if (!registryOn) {
+			return commandGroups;
+		}
+		// An entry runs what its keys run: the "search" ones open the palette on their tab instead of only closing it.
+		const handlerOf = (commandId: string | undefined) => (commandId ? paletteHandlers[commandId] : undefined);
+		return commandGroups.map((group) => ({
+			...group,
+			commands: group.commands.map((command) => ({
+				...command,
+				action: handlerOf(command.commandId) ?? command.action,
+				shortcutKeys: keysOf(command.commandId),
+				keywords: searchWordsOf(command.commandId)
+			}))
+		}));
+	}, [commandGroups, keysOf, paletteHandlers, registryOn, searchWordsOf]);
+
+	// Extract all shortcut configurations for the global hook: with the registry on, none (its listener has the
+	// keys of every entry, rebinding included, and never runs one twice).
 	const allShortcuts = useMemo(() => {
+		if (registryOn) {
+			return [];
+		}
 		const shortcuts: CommandShortcutConfig[] = [];
-		// With the registry on, the ⌘/Ctrl chords it owns (K, S, ,) are its to handle, rebinding included.
-		const registryOn = isTaskViewsEnabled();
 		commandGroups.forEach((group) => {
-			if (group.id === 'goTo') return; // bound by the shortcut registry's listener, never twice
 			if (group.id === CHAT_TAB) return; // no keys of its own
-			group.commands.forEach((command) => {
-				const isOwnedByRegistry =
-					registryOn && command.sequence.length === 1 && !!command.modifiers?.includes('ctrl') && REGISTRY_OWNED_MOD_KEYS.has(command.sequence[0]);
-				if (isOwnedByRegistry) return;
-				shortcuts.push(command);
-			});
+			group.commands.forEach((command) => shortcuts.push(command));
 		});
 		return shortcuts;
-	}, [commandGroups]);
+	}, [commandGroups, registryOn]);
 
 	// Use our global keyboard shortcut hook (the registry opens the palette itself while it is on)
 	const registryOwnsPalette = isTaskViewsEnabled();
@@ -460,23 +549,66 @@ export const SidebarCommandModal: FC<{ publicTeam: boolean; variant?: 'sidebar' 
 		}
 	}
 
-	const tabs = useMemo(() => {
-		const groupTabs = commandGroups.map((group) => ({ value: group.id, label: group.heading }));
-		return [{ value: ALL_GROUPS_TAB, label: t('commandPalette.tabs.all') }, ...groupTabs];
-	}, [commandGroups, t]);
+	// With the saved-views feature: people, projects, and the pages where Docs is on (the conversations are the chat's
+	// own results, with the chat on).
+	const showsPeople = registryOn;
+	const showsPages = registryOn && isDocsEnabled();
 
-	const visibleGroups = groupsForTab(commandGroups, activeTab);
+	const tabs = useMemo(() => {
+		const result: Array<{ value: string; label: string }> = [
+			{ value: ALL_GROUPS_TAB, label: t('commandPalette.tabs.all') },
+			...commandGroups.map((group) => ({ value: group.id, label: group.heading }))
+		];
+		if (showsPeople) result.push({ value: PEOPLE_TAB, label: t('commandPalette.results.people') });
+		if (showsPages) result.push({ value: PAGES_TAB, label: t('commandPalette.results.pages') });
+		return result;
+	}, [commandGroups, showsPages, showsPeople, t]);
+
+	const visibleGroups = groupsForTab(shownGroups, activeTab);
 	const showsTaskResults = showsTaskResultsIn(activeTab);
 	// Read only while the palette is open: the conversations are not polled on every page.
 	const showsChatResults = chatOn && open && showsChatResultsIn(activeTab);
 	const closePalette = useCallback(() => setOpen(false), [setOpen]);
+	const hasSearch = search.trim().length > 0;
+
+	const { items: recentItems, remember } = usePaletteRecent();
+	// A page opened while Docs was on leads nowhere once it is off: not listed then (it stays remembered).
+	const shownRecentItems = useMemo(
+		() => recentItems.filter((item) => item.kind !== 'page' || showsPages),
+		[recentItems, showsPages]
+	);
+
+	const openItem = useCallback(
+		(item: PaletteItem) => {
+			if (registryOn) remember(item);
+			router.push(item.href);
+			setOpen(false);
+		},
+		[registryOn, remember, router, setOpen]
+	);
 
 	const openTask = useCallback(
-		(taskId: string) => {
+		(taskId: string, title: string) => {
+			if (registryOn) remember({ kind: 'task', id: taskId, title, href: `/task/${taskId}` });
 			router.push(`/task/${taskId}`);
 			setOpen(false);
 		},
-		[router, setOpen]
+		[registryOn, remember, router, setOpen]
+	);
+
+	// A sequence typed into the field (`g t`) runs its command, as its keys would outside the palette.
+	const changeSearch = useCallback(
+		(value: string) => {
+			const handler = handlerOfTypedSequence(value);
+			if (!handler) {
+				setSearch(value);
+				return;
+			}
+			setSearch('');
+			setOpen(false);
+			handler();
+		},
+		[handlerOfTypedSequence, setOpen]
 	);
 
 	const openPage = useCallback(
@@ -495,6 +627,7 @@ export const SidebarCommandModal: FC<{ publicTeam: boolean; variant?: 'sidebar' 
 					<ClickableCommandItem
 						key={`${group.id}-${commandIndex}`}
 						className={paletteActionRowClass}
+						keywords={command.keywords}
 						action={() => {
 							executeAction(command.action);
 						}}
@@ -502,7 +635,7 @@ export const SidebarCommandModal: FC<{ publicTeam: boolean; variant?: 'sidebar' 
 						<span className={commandIconTileClass}>{command.icon}</span>
 						<span className="min-w-0 flex-1 truncate">{command.description}</span>
 						<CommandShortcut>
-							{shortcutKeysOf(command.shortcutDisplay).map((key, keyIndex) => (
+							{shortcutKeysOf(command).map((key, keyIndex) => (
 								<kbd key={`${command.shortcutDisplay}-${keyIndex}`} className={commandKeycapClass}>
 									{key}
 								</kbd>
@@ -522,7 +655,7 @@ export const SidebarCommandModal: FC<{ publicTeam: boolean; variant?: 'sidebar' 
 					placeholder={t('commandPalette.searchPlaceholder')}
 					shortcutKeys={PALETTE_SHORTCUT_KEYS}
 					value={search}
-					onValueChange={setSearch}
+					onValueChange={changeSearch}
 				/>
 				<CommandList
 					tabs={tabs}
@@ -531,13 +664,26 @@ export const SidebarCommandModal: FC<{ publicTeam: boolean; variant?: 'sidebar' 
 					tabsLabel={t('commandPalette.tabsLabel')}
 				>
 					<CommandEmpty>{t('commandPalette.empty')}</CommandEmpty>
+					{registryOn && !hasSearch && activeTab === ALL_GROUPS_TAB && (
+						<PaletteRecentResults items={shownRecentItems} onOpen={openItem} className={paletteGroupClass} />
+					)}
 					{showsTaskResults && (
 						<PaletteTaskResults search={search} onOpenTask={openTask} className={paletteGroupClass} />
+					)}
+					{hasSearch && showsPeople && showsResultsIn(activeTab, PEOPLE_TAB) && (
+						<PalettePeopleResults search={search} onOpen={openItem} className={paletteGroupClass} />
+					)}
+					{hasSearch && registryOn && showsResultsIn(activeTab, PROJECTS_TAB) && (
+						<PaletteProjectResults search={search} onOpen={openItem} className={paletteGroupClass} />
+					)}
+					{hasSearch && showsPages && showsResultsIn(activeTab, PAGES_TAB) && (
+						<PalettePageResults search={search} onOpen={openItem} className={paletteGroupClass} />
 					)}
 					{showsChatResults && (
 						<PaletteChatResults search={search} onDone={closePalette} className={paletteGroupClass} />
 					)}
-					{showsTaskResults && <PaletteDocsResults search={search} onOpenPage={openPage} className={paletteGroupClass} />}
+					{/* The Docs pages the platform's search finds (title and text), where the registry's Pages group is off. */}
+					{showsTaskResults && !showsPages && <PaletteDocsResults search={search} onOpenPage={openPage} className={paletteGroupClass} />}
 					{renderCommandGroups()}
 				</CommandList>
 			</CommandDialog>
