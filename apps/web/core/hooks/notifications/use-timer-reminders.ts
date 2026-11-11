@@ -335,14 +335,9 @@ export function useTimerReminders({ timerStatus, stopTimer }: UseTimerRemindersI
 			platformReminders.set(level, asked);
 			return asked;
 		};
-		// A tab opened, reloaded or woken just after this browser showed a reminder takes over marking its copy read,
-		// which the tab that showed it may not have finished
-		let isFirstCheck = true;
 
 		const check = async () => {
 			const level = timerReminderLevelAt(Date.now() - startedAt, hours);
-			const isFirst = isFirstCheck;
-			isFirstCheck = false;
 			const shownInTab = shownHere.current.get(runKey) ?? 0;
 			if (level > shownInTab) {
 				// A reminder the person already got from the platform (by email or push, or in another tab or device) is
@@ -396,13 +391,14 @@ export function useTimerReminders({ timerStatus, stopTimer }: UseTimerRemindersI
 						}
 					} else if (givenTimerReminderLevel(runKey) >= level) {
 						shownHere.current.set(runKey, level);
-						// The tab that showed it may have closed or reloaded before it marked the copy: taken over, for a
-						// reminder this browser showed the person only, never one it left to the platform
+						// The tab that showed it may close or reload before it marks the copy: every other tab of this
+						// browser takes the mark over, for a reminder this browser showed the person only, never one it
+						// left to the platform
 						// Within the mark's window from when the reminder was shown, which may be long after it came due
 						// (a threshold lowered while the timer ran)
 						const shownAt = timerReminderShownAt(runKey);
 						const wasShownHere = shownTimerReminderLevel(runKey) >= level && shownAt !== null;
-						if (isFirst && wasShownHere && Date.now() - shownAt < TIMER_REMINDER_MARK_READ_WINDOW_MS) {
+						if (wasShownHere && Date.now() - shownAt < TIMER_REMINDER_MARK_READ_WINDOW_MS) {
 							markPlatformCopyRead(runKey, level as TimerReminderLevel, null);
 						}
 					} else {

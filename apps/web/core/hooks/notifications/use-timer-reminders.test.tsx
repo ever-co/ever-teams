@@ -659,6 +659,21 @@ describe('useTimerReminders', () => {
 			expect(mockUpdate).toHaveBeenCalledWith('reminder-1', markedRead);
 		});
 
+		it('takes over the mark in a tab already open when the tab that showed the reminder closes first', async () => {
+			// Open since well before the threshold: its first check is long past
+			await renderReminders();
+			await advance(HOUR - MINUTE);
+			// Another tab of this browser shows the reminder a moment before this one gets to it, then closes before the
+			// platform files its copy
+			recordTimerReminder('log-1', 1, { shown: true });
+			mockGetTimerReminders.mockResolvedValue([reminder(1, false, 'log-1', Date.now() + 2 * MINUTE)]);
+
+			await advance(MINUTE + TIMER_REMINDER_MARK_READ_RETRY_MS);
+
+			expect(mockToast.warning).not.toHaveBeenCalled();
+			expect(mockUpdate).toHaveBeenCalledWith('reminder-1', markedRead);
+		});
+
 		it('asks for the copy for a while only when the platform files none (an older Gauzy, or its reminders off)', async () => {
 			await renderReminders();
 			await advance(HOUR);
