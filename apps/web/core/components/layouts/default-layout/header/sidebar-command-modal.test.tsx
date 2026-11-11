@@ -29,8 +29,13 @@ jest.mock('@/core/hooks/keyboard/use-shortcuts', () => ({
 }));
 jest.mock('@/core/stores/common/shortcuts', () => ({ shortcutHandlersAtom: Symbol('shortcut-handlers') }));
 jest.mock('@/core/lib/utils/task-views-enabled', () => ({ isTaskViewsEnabled: () => mockRegistryOn }));
+const mockRecent = [
+	{ kind: 'task', id: 'task-1', title: 'A task', href: '/task/task-1' },
+	{ kind: 'page', id: 'page-1', title: 'A page', href: '/docs/page-1' },
+	{ kind: 'conversation', id: 'chat-1', title: '#general', href: '/chat/chat-1' }
+];
 jest.mock('@/core/hooks/keyboard/use-palette-recent', () => ({
-	usePaletteRecent: () => ({ items: [], remember: jest.fn() })
+	usePaletteRecent: () => ({ items: mockRecent, remember: jest.fn() })
 }));
 jest.mock('@/core/hooks/common/use-detect-os', () => ({ useDetectOS: () => ({ os: 'Mac' }) }));
 jest.mock('../../../../hooks/auth', () => ({
@@ -93,7 +98,9 @@ jest.mock('./palette-entity-results', () => ({
 	PalettePageResults: () => null,
 	PalettePeopleResults: () => null,
 	PaletteProjectResults: () => null,
-	PaletteRecentResults: () => null
+	PaletteRecentResults: ({ items }: { items: Array<{ id: string }> }) => (
+		<div data-testid="recent">{items.map((item) => item.id).join(',')}</div>
+	)
 }));
 
 import { SidebarCommandModal } from './sidebar-command-modal';
@@ -197,6 +204,11 @@ describe('SidebarCommandModal with the shortcut registry', () => {
 		fireEvent.click(screen.getByText('commandPalette.commands.searchTasks'));
 		expect(mockSetOpen).toHaveBeenNthCalledWith(1, false);
 		expect(mockSetOpen).toHaveBeenLastCalledWith(true);
+	});
+
+	it('lists the recent entries, leaving out pages and conversations while Docs and Chat are off', () => {
+		render(<SidebarCommandModal publicTeam={false} variant="none" />);
+		expect(screen.getByTestId('recent').textContent).toBe('task-1');
 	});
 
 	it('runs the command whose sequence is typed into the field, and closes the palette', () => {

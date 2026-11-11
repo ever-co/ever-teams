@@ -545,6 +545,14 @@ export const SidebarCommandModal: FC<{ publicTeam: boolean; variant?: 'sidebar' 
 	const hasSearch = search.trim().length > 0;
 
 	const { items: recentItems, remember } = usePaletteRecent();
+	// A page or a conversation opened while Docs or Chat was on leads nowhere once it is off: not listed then (kept).
+	const shownRecentItems = useMemo(
+		() =>
+			recentItems.filter(
+				(item) => (item.kind !== 'page' || showsPages) && (item.kind !== 'conversation' || showsConversations)
+			),
+		[recentItems, showsConversations, showsPages]
+	);
 
 	const openItem = useCallback(
 		(item: PaletteItem) => {
@@ -625,7 +633,7 @@ export const SidebarCommandModal: FC<{ publicTeam: boolean; variant?: 'sidebar' 
 				>
 					<CommandEmpty>{t('commandPalette.empty')}</CommandEmpty>
 					{registryOn && !hasSearch && activeTab === ALL_GROUPS_TAB && (
-						<PaletteRecentResults items={recentItems} onOpen={openItem} className={paletteGroupClass} />
+						<PaletteRecentResults items={shownRecentItems} onOpen={openItem} className={paletteGroupClass} />
 					)}
 					{showsTaskResults && (
 						<PaletteTaskResults search={search} onOpenTask={openTask} className={paletteGroupClass} />
