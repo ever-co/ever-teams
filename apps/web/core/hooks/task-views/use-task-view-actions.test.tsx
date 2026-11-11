@@ -196,6 +196,29 @@ describe('useTaskViewActions, moving a task in a manual order', () => {
 		expect(client.getQueryData<ITaskView>(detailKey)).toEqual(renamed);
 	});
 
+	it('keeps a newer view the cache got before the order was answered (a rename saved after it)', async () => {
+		const view = viewOf(3, ['a', 'b', 'c']);
+		const { client, actions } = setup(view);
+		let resolveWrite: (saved: ITaskView) => void = () => undefined;
+		mockSetOrder.mockReturnValueOnce(new Promise((resolve) => (resolveWrite = resolve)));
+
+		let pending: Promise<unknown> = Promise.resolve();
+		await act(async () => {
+			pending = actions().moveTask(view, { taskId: 'c', targetId: 'a', edge: 'before' }, SHOWN);
+			await Promise.resolve();
+		});
+		// The order committed as version 4, a rename as version 5, and the rename was answered first.
+		const renamed = { ...viewOf(5, ['c', 'a', 'b']), name: 'Renamed' };
+		act(() => {
+			client.setQueryData(detailKey, renamed);
+		});
+		await act(async () => {
+			resolveWrite(viewOf(4, ['c', 'a', 'b']));
+			await pending;
+		});
+		expect(client.getQueryData<ITaskView>(detailKey)).toEqual(renamed);
+	});
+
 	it('puts back the order the page showed when the write fails for another reason', async () => {
 		const view = viewOf(3, ['a', 'b', 'c']);
 		const { client, actions } = setup(view);

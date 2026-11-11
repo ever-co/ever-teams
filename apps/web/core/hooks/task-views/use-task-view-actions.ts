@@ -204,18 +204,21 @@ export function useTaskViewActions() {
 			const { latest } = await withLatest(conflict, viewId);
 			if (!latest) throw conflict;
 			queue.confirmed = latest;
-			const rebased = orderAfterMove(latest.manualOrder, entry.shownIds, entry.move);
+			// The cache may hold a newer view than the refusal carried (a rename answered meanwhile): start from it
+			adoptNewer(queue);
+			const current = queue.confirmed;
+			const rebased = orderAfterMove(current.manualOrder, entry.shownIds, entry.move);
 			if (!rebased) {
 				// Their order already has the task there.
-				settle(latest);
+				settle(current);
 				return null;
 			}
 			try {
-				return await write(rebased, latest.version);
+				return await write(rebased, current.version);
 			} catch (retryError) {
 				const again = conflictOf(retryError);
 				if (!again) {
-					settle(latest);
+					settle(current);
 					throw retryError;
 				}
 				const known = await withLatest(again, viewId);
@@ -224,7 +227,7 @@ export function useTaskViewActions() {
 				throw known;
 			}
 		},
-		[settle]
+		[adoptNewer, settle]
 	);
 
 	/** Writes one queued move on the order the platform holds; a 409 makes it once more on the order saved meanwhile. */
@@ -237,7 +240,9 @@ export function useTaskViewActions() {
 			const write = async (taskIds: string[], statedVersion: ITaskView['version']) => {
 				const saved = await taskViewsService.setOrder(base.id, taskIds, statedVersion);
 				queue.confirmed = saved;
-				settle(saved);
+				// A newer view answered before this write (a rename's version above the order's) stays in the cache
+				adoptNewer(queue);
+				settle(queue.confirmed);
 				return { view: saved, statedVersion };
 			};
 			try {
