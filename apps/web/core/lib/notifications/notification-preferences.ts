@@ -137,3 +137,24 @@ export function withPreferencePatch(
 	}
 	return next;
 }
+
+/** What the email section says about delivery: none can go out at all (`off`), or none for the organization now. */
+export type EmailDeliveryNotice = 'off' | 'unavailable';
+
+/**
+ * The notice of the email section from the platform's delivery status (`GET /inbox/delivery/status`): `off` when the
+ * platform sends no notification emails, `unavailable` when it does but no mail server answers for the organization,
+ * and none when emails can go out or the platform does not say.
+ */
+export function emailDeliveryNoticeOf(
+	status: { email?: { enabled?: boolean; available?: boolean } | null } | null | undefined
+): EmailDeliveryNotice | null {
+	const email = status?.email;
+	if (!email) {
+		return null;
+	}
+	if (!email.enabled) {
+		return 'off';
+	}
+	return email.available ? null : 'unavailable';
+}

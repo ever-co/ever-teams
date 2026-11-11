@@ -463,7 +463,10 @@ export const queryKeys = {
 			organizationId: string | undefined | null,
 			userId: string | undefined | null,
 			id: string | undefined | null
-		) => ['inbox', 'item', tenantId ?? null, organizationId ?? null, userId ?? null, id ?? null] as const
+		) => ['inbox', 'item', tenantId ?? null, organizationId ?? null, userId ?? null, id ?? null] as const,
+		// Whether emails and web push can deliver for the organization: the platform's answer, not the caller's.
+		deliveryStatus: (tenantId: string | undefined | null, organizationId: string | undefined | null) =>
+			['inbox', 'delivery-status', tenantId ?? null, organizationId ?? null] as const
 	},
 	chat: {
 		all: ['chat'] as const,
