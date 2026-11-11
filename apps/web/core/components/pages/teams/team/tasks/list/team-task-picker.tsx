@@ -367,10 +367,7 @@ function DueDatePicker(props: Readonly<PickerProps>) {
 		if (!task) {
 			return;
 		}
-		setDueDate(
-			props.tasks.map((item) => item.id),
-			day
-		);
+		setDueDate(props.taskIds, day);
 		props.onOpenChange(false);
 	};
 
