@@ -31,3 +31,9 @@
   send a thread reply waits for the setting that turns it on (FR-8) (#5052)
 - [ ] T16 Link preview cards, from what the platform returns once it has
   a preview route (the browser fetches none itself)
+- [ ] T17 Platform gaps (ever-gauzy #11800): editable task cards (status,
+  priority and assignees in place, through `PATCH /chat/messages/:id/tasks/:taskId`,
+  FR-14), "is typing" under the timeline and under a thread (`typing.signalled`),
+  messages of files only (empty body, `📎 names` in previews), unsent uploads
+  discarded (`DELETE /chat/attachments/:documentId`), `chatService.reorderCategories`
+  (no ordering UI yet), thumbnails sized from the files' `width` / `height`

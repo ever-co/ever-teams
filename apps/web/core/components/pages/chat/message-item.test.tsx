@@ -25,6 +25,14 @@ jest.mock('./chat-markdown', () => ({
 jest.mock('./emoji-popover', () => ({
 	EmojiPopover: ({ label, onPick }: { label: string; onPick: (emoji: string) => void }) => <button type="button" aria-label={label} onClick={() => onPick('🚀')} />
 }));
+// The task card reads the task and changes it: tested on its own (chat-task-card.test.tsx).
+jest.mock('./chat-task-card', () => ({
+	ChatTaskCard: ({ taskId, title, canChange, onOpenTask }: { taskId: string; title?: string; canChange: boolean; onOpenTask: (taskId: string) => void }) => (
+		<button type="button" data-can-change={String(canChange)} onClick={() => onOpenTask(taskId)}>
+			{title}
+		</button>
+	)
+}));
 
 const ME_USER = 'user-me';
 const ANA: ChatPerson = { employeeId: 'employee-ana', userId: 'user-ana', name: 'Ana Silva' };
@@ -182,8 +190,16 @@ describe('a thread under its first message', () => {
 describe('a task and an unsent message', () => {
 	it('shows a task as a card that opens it', () => {
 		const { onOpenTask } = renderItem({ message: message({ taskReferences: [{ messageId: 'm1', taskId: 'task-1', kind: 'sent' }] }) });
-		fireEvent.click(screen.getByRole('button', { name: /Ship the page/ }));
+		const card = screen.getByRole('button', { name: /Ship the page/ });
+		expect(card.getAttribute('data-can-change')).toBe('true');
+		fireEvent.click(card);
 		expect(onOpenTask).toHaveBeenCalledWith('task-1');
+	});
+
+	it('never offers to change the task of a message still on its way', () => {
+		const pending: ChatOutboxMessage = { ...message({ id: 'pending:n3', authorUserId: ME_USER, taskReferences: [{ messageId: 'pending:n3', taskId: 'task-1', kind: 'sent' }] }), outbox: 'pending' };
+		renderItem({ message: pending });
+		expect(screen.getByRole('button', { name: /Ship the page/ }).getAttribute('data-can-change')).toBe('false');
 	});
 
 	it('offers to retry or discard a message that was not sent, and nothing else', () => {
@@ -255,6 +271,29 @@ describe('the files of a message', () => {
 		renderItem({ message: message({ body: 'shot.png, plan.pdf', attachmentIds: ['doc-shot', 'doc-plan'] }), files });
 		expect(screen.queryByTestId('body')).toBeNull();
 		expect(screen.getByRole('link', { name: /plan\.pdf/ })).toBeTruthy();
+	});
+
+	it('shows a message of files only as its files, named as the message names them before the list has them', () => {
+		renderItem({ message: message({ body: '', attachmentIds: ['doc-new'], attachmentNames: 'brief.docx' }), files });
+		expect(screen.queryByTestId('body')).toBeNull();
+		expect(screen.getByText('brief.docx')).toBeTruthy();
+		expect(screen.queryByText('teamChat.DELETED')).toBeNull();
+	});
+
+	it('keeps the place of a single picture whose size is known, and leaves it to the picture otherwise', () => {
+		const sized = new Map<string, IChatFile>([
+			['doc-wide', chatFile('doc-wide', { name: 'wide.png', mimeType: 'image/png', thumbUrl: 'https://cdn.example.com/wide.png', width: 1600, height: 900 })]
+		]);
+		const { container, unmount } = renderItem({ message: message({ attachmentIds: ['doc-wide'] }), files: sized });
+		const image = container.querySelector('img') as HTMLImageElement;
+		expect(image.style.width).toBe('320px');
+		expect(image.style.aspectRatio).toBe('1600 / 900');
+		expect(image.getAttribute('width')).toBe('1600');
+		unmount();
+		const unsized = renderItem({ message: message({ attachmentIds: ['doc-shot'] }), files });
+		const plain = unsized.container.querySelector('img') as HTMLImageElement;
+		expect(plain.style.width).toBe('');
+		expect(plain.getAttribute('width')).toBeNull();
 	});
 
 	it('shows no file of a deleted message', () => {

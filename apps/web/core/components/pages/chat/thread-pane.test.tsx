@@ -36,6 +36,9 @@ const mockDraft = { draft: '', setDraft: jest.fn(), clearDraft: jest.fn() };
 const mockBo = { employeeId: BO_EMPLOYEE, userId: BO_USER, name: 'Bo Chen' };
 const mockPeople = { byEmployee: new Map([[BO_EMPLOYEE, mockBo]]), byUser: new Map([[BO_USER, mockBo]]), list: [mockBo] };
 const mockScope = { tenantId: 't', organizationId: 'o', userId: ME_USER, employeeId: 'employee-me' };
+const mockSignalTyping = jest.fn();
+const mockTypingPlaces: Array<[string | null, string | null]> = [];
+let mockTypists: Array<{ userId: string; employeeId: string | null; conversationId: string; threadRootId: string | null; expiresAt: number }> = [];
 
 jest.mock('next-intl', () => ({
 	useLocale: () => 'en-US',
@@ -55,6 +58,14 @@ jest.mock('@/core/hooks/chat/use-chat-draft', () => ({ useChatDraft: () => mockD
 jest.mock('@/core/hooks/chat/use-chat-messages', () => ({ useChatThread: () => mockThread }));
 jest.mock('@/core/hooks/chat/use-chat-scope', () => ({ useChatScope: () => mockScope, useChatPeople: () => mockPeople }));
 jest.mock('@/core/hooks/chat/use-chat-conversations', () => ({ useChatMembers: () => ({ members: [], isLoading: false }) }));
+jest.mock('@/core/hooks/chat/use-chat-typing', () => ({
+	useChatTypingSignal: (conversationId: string | null, threadRootId: string | null) => {
+		mockTypingPlaces.push([conversationId, threadRootId]);
+		return mockSignalTyping;
+	},
+	useChatTypists: () => mockTypists
+}));
+jest.mock('./chat-task-card', () => ({ ChatTaskCard: () => null }));
 jest.mock('@/core/hooks/tasks/use-task-drawer', () => ({ useTaskDrawer: () => ({ openTaskDrawer: jest.fn() }) }));
 jest.mock('@/core/stores/teams/team-tasks', () => {
 	const { atom } = jest.requireActual<typeof import('jotai')>('jotai');
@@ -151,8 +162,34 @@ describe('the thread pane', () => {
 		await act(async () => {
 			fireEvent.keyDown(screen.getByRole('textbox', { name: 'teamChat.REPLY_PLACEHOLDER' }), { key: 'Enter' });
 		});
-		expect(mockActions.send).toHaveBeenCalledWith('c1', { body: 'a reply', threadRootId: 'root', alsoInConversation: true });
+		expect(mockActions.send).toHaveBeenCalledWith('c1', { body: 'a reply', threadRootId: 'root', alsoInConversation: true }, { attachmentNames: '' });
 		mockDraft.draft = '';
+	});
+
+	it('sends a reply of files alone with no text', async () => {
+		mockThread.root = message('root', at(9, 10));
+		mockAttachments.items = [{ key: 'k1', name: 'plan.pdf', size: 10, mimeType: 'application/pdf', status: 'ready', documentId: 'doc-1' }];
+		mockAttachments.readyIds = ['doc-1'];
+		render(pane());
+		await act(async () => {
+			fireEvent.click(screen.getByRole('button', { name: 'teamChat.SEND' }));
+		});
+		expect(mockActions.send).toHaveBeenCalledWith('c1', { body: '', threadRootId: 'root', alsoInConversation: false, attachmentIds: ['doc-1'] }, { attachmentNames: 'plan.pdf' });
+		expect(mockAttachments.releaseSent).toHaveBeenCalled();
+		mockAttachments.items = [];
+		mockAttachments.readyIds = [];
+	});
+
+	it('tells the typing of the thread as the thread, and says who types in it', () => {
+		mockThread.root = message('root', at(9, 10));
+		mockTypingPlaces.length = 0;
+		mockTypists = [{ userId: BO_USER, employeeId: BO_EMPLOYEE, conversationId: 'c1', threadRootId: 'root', expiresAt: Date.now() + 6000 }];
+		render(pane());
+		expect(mockTypingPlaces).toContainEqual(['c1', 'root']);
+		fireEvent.change(screen.getByRole('textbox', { name: 'teamChat.REPLY_PLACEHOLDER' }), { target: { value: 'on it' } });
+		expect(mockSignalTyping).toHaveBeenCalled();
+		expect(screen.getByTestId('chat-typing-line').textContent).toBe('teamChat.TYPING_ONE:Bo Chen');
+		mockTypists = [];
 	});
 
 	it('shows placeholders while loading, and the way to retry when nothing could load', () => {

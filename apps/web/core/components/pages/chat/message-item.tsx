@@ -16,10 +16,11 @@ import { cn } from '@/core/lib/helpers';
 import { ChatPerson } from '@/core/lib/utils/chat-format';
 import { clockTime, fullDateTime, relativeTime, shortClockTime } from '@/core/lib/utils/chat-timeline';
 import { ChatOutboxMessage, isOutboxMessage } from '@/core/hooks/chat/use-chat-actions';
-import { attachmentIdsOf, isFallbackBody } from '@/core/lib/utils/chat-attachments';
+import { attachmentIdsOf, attachmentNamesOf, isFallbackBody, isFilesOnlyMessage } from '@/core/lib/utils/chat-attachments';
 import { IChatFile, IChatMessage } from '@/core/types/interfaces/common/chat';
 import { MessageAttachments } from './chat-attachments';
 import { ChatMarkdown } from './chat-markdown';
+import { ChatTaskCard } from './chat-task-card';
 import { EmojiPopover } from './emoji-popover';
 
 /** The reactions offered on hover (the first few on the message's toolbar); the picker is one click further. */
@@ -127,8 +128,9 @@ function MessageItemComponent(props: Readonly<MessageItemProps>) {
 	const files = props.files ?? NO_FILES;
 	const attachmentIds = attachmentIdsOf(message);
 	const attachedFiles = attachmentIds.map((id) => files.get(id)).filter((file): file is IChatFile => !!file);
-	// A message sent with files and no words carries their names as its body: the files say it, the body is not repeated.
-	const bodyIsFileNames = !!attachmentIds.length && attachedFiles.length === attachmentIds.length && isFallbackBody(message.body, attachedFiles);
+	// A message of files only has no text (an older one carries their names as its body): the files say it.
+	const bodyIsFileNames =
+		isFilesOnlyMessage(message) || (!!attachmentIds.length && attachedFiles.length === attachmentIds.length && isFallbackBody(message.body, attachedFiles));
 
 	return (
 		<div
@@ -201,23 +203,24 @@ function MessageItemComponent(props: Readonly<MessageItemProps>) {
 					)}
 					{attachmentIds.length > 0 && (
 						<div className={cn(outbox?.outbox === 'pending' && 'opacity-60')}>
-							<MessageAttachments attachmentIds={attachmentIds} files={files} onOpenImage={props.onOpenImage ?? IGNORE} onBrokenImage={props.onBrokenImage} />
+							<MessageAttachments
+								attachmentIds={attachmentIds}
+								files={files}
+								names={attachmentNamesOf(message)}
+								onOpenImage={props.onOpenImage ?? IGNORE}
+								onBrokenImage={props.onBrokenImage}
+							/>
 						</div>
 					)}
 					{(message.taskReferences ?? []).map((reference) => (
-						<button
+						<ChatTaskCard
 							key={reference.taskId}
-							type="button"
-							onClick={() => props.onOpenTask(reference.taskId)}
-							className="group/task mt-1.5 flex w-full max-w-md cursor-pointer items-center gap-2.5 rounded-lg bg-card px-2.5 py-2 text-start text-[13px] outline-none hairline-ring ring-border transition-colors hover:bg-foreground/[0.03] focus-visible:ring-[3px] focus-visible:ring-ring/25"
-						>
-							<span className="flex size-6 shrink-0 items-center justify-center rounded-md bg-primary/10 text-primary" aria-hidden="true">
-								<Task className="size-3.5" />
-							</span>
-							<span className="min-w-0 flex-1 truncate font-medium text-foreground">{props.taskTitles.get(reference.taskId) ?? t('teamChat.TASK_CARD')}</span>
-							<span className="shrink-0 text-[11px] text-muted-foreground">{t('teamChat.OPEN_TASK')}</span>
-							<ChevronRight className="size-3.5 shrink-0 text-muted-foreground/70 rtl:rotate-180" aria-hidden="true" />
-						</button>
+							messageId={message.id}
+							taskId={reference.taskId}
+							title={props.taskTitles.get(reference.taskId)}
+							canChange={!outbox && !deleted}
+							onOpenTask={props.onOpenTask}
+						/>
 					))}
 					{reactions.length > 0 && (
 						<div className="mt-1.5 flex flex-wrap items-center gap-1">

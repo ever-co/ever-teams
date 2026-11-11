@@ -74,8 +74,9 @@ export function withinAttachmentLimit<T>(
 }
 
 /**
- * The body of a message sent with files and no words: the platform wants a body, and the files' names are what a
- * preview, a notification or a search should read. Cut to the longest body the platform takes.
+ * The body an older version of this app gave a message sent with files and no words (the platform wanted a body then):
+ * the files' names, cut to the longest body the platform takes. A message of files only is now sent with an empty
+ * body; this still recognises the older ones (see {@link isFallbackBody}).
  */
 export function attachmentFallbackBody(names: readonly string[], max = CHAT_MESSAGE_MAX_LENGTH): string {
 	const text = names
@@ -92,6 +93,54 @@ export function isFallbackBody(body: string, files: readonly Pick<IChatFile, 'na
 	const named = attachmentFallbackBody(files.map((file) => file.originalFilename || file.name));
 	const plain = attachmentFallbackBody(files.map((file) => file.name));
 	return body.trim() === named || body.trim() === plain;
+}
+
+/** The names a message's files had when it was sent or last edited (`attachmentNames`, one per line), without blanks. */
+export function attachmentNamesOf(message: Pick<IChatMessage, 'attachmentNames'>): string[] {
+	return (message.attachmentNames ?? '')
+		.split('\n')
+		.map((name) => name.trim())
+		.filter(Boolean);
+}
+
+/**
+ * Whether a message has files and no words. Not a deleted message: that one has `deletedAt`, whatever its body.
+ */
+export function isFilesOnlyMessage(
+	message: Pick<IChatMessage, 'body' | 'attachmentIds' | 'attachmentNames' | 'deletedAt'>
+): boolean {
+	if (message.deletedAt || (message.body ?? '').trim()) return false;
+	return attachmentIdsOf(message).length > 0 || attachmentNamesOf(message).length > 0;
+}
+
+/**
+ * The one line a message of files only reads as where a message is previewed (a thread in the list, a quote):
+ * `📎 report.pdf, photo.jpg`; the word for a file when the names are not known (a platform older than them).
+ */
+export function filesOnlyLine(names: readonly string[], fileWord: string): string {
+	const known = names.map((name) => name.trim()).filter(Boolean);
+	return `📎 ${known.length ? known.join(', ') : fileWord}`;
+}
+
+/** The largest a single picture's thumbnail is drawn, in CSS pixels (its box in the timeline). */
+export const CHAT_THUMB_MAX_WIDTH = 320;
+export const CHAT_THUMB_MAX_HEIGHT = 240;
+
+/**
+ * The box a picture's thumbnail takes before it loads, so the timeline does not jump when it does: its width, fitted
+ * into the thumbnail's box with its proportions kept, and its aspect ratio (the height follows). Null when the platform
+ * did not say how large the picture is (it is then drawn as it loads).
+ */
+export function pictureBoxOf(
+	file: Pick<IChatFile, 'width' | 'height'>,
+	maxWidth = CHAT_THUMB_MAX_WIDTH,
+	maxHeight = CHAT_THUMB_MAX_HEIGHT
+): { width: number; aspectRatio: string } | null {
+	const { width, height } = file;
+	if (typeof width !== 'number' || typeof height !== 'number' || !(width > 0) || !(height > 0)) return null;
+	if (!Number.isFinite(width) || !Number.isFinite(height)) return null;
+	const scale = Math.min(1, maxWidth / width, maxHeight / height);
+	return { width: Math.max(1, Math.round(width * scale)), aspectRatio: `${width} / ${height}` };
 }
 
 /** The files of a drop or a paste (`DataTransfer`): only real files, never text or a link. */

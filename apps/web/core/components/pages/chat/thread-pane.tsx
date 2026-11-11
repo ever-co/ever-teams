@@ -13,13 +13,15 @@ import { useChatDraft } from '@/core/hooks/chat/use-chat-draft';
 import { useChatFiles } from '@/core/hooks/chat/use-chat-files';
 import { useChatThread } from '@/core/hooks/chat/use-chat-messages';
 import { useChatPeople, useChatScope } from '@/core/hooks/chat/use-chat-scope';
+import { useChatTypingSignal, useChatTypists } from '@/core/hooks/chat/use-chat-typing';
 import { useTaskDrawer } from '@/core/hooks/tasks/use-task-drawer';
-import { attachmentFallbackBody } from '@/core/lib/utils/chat-attachments';
+import { attachmentIdsOf } from '@/core/lib/utils/chat-attachments';
 import { dayKeyOf, dayLabel, timelineItems } from '@/core/lib/utils/chat-timeline';
 import { tasksByTeamState } from '@/core/stores/teams/team-tasks';
 import { IChatFile, IChatMessage } from '@/core/types/interfaces/common/chat';
 import { ImageLightbox } from './chat-attachments';
 import { ChatErrorState, ChatMessagesSkeleton } from './chat-states';
+import { ChatTypingLine } from './chat-typing-line';
 import { DayDivider, RepliesDivider } from './chat-timeline-parts';
 import { BAR_BUTTON } from './conversation-header';
 import { CreateTaskFromMessageDialog } from './create-task-dialog';
@@ -59,6 +61,8 @@ function ThreadPaneBody({ conversationId, rootMessageId, conversationNames, canM
 	const { root, replies, isLoading, isError, retry } = useChatThread(rootMessageId, true);
 	const { draft, setDraft, clearDraft } = useChatDraft(conversationId, rootMessageId);
 	const attachments = useChatAttachments();
+	const signalTyping = useChatTypingSignal(conversationId, rootMessageId);
+	const typists = useChatTypists(conversationId, rootMessageId);
 	const threadMessages = useMemo(() => (root ? [root, ...replies] : replies), [replies, root]);
 	const files = useChatFiles(conversationId, threadMessages);
 	// By id: the lightbox shows the newest copy of the record (its signed address is read again with the list).
@@ -94,13 +98,13 @@ function ThreadPaneBody({ conversationId, rootMessageId, conversationNames, canM
 			clearDraft();
 			attachments.releaseSent();
 			stickToBottom.current = true;
+			// A reply of files only goes with no text: the platform keeps the files' names for its previews.
 			await actions
-				.send(conversationId, {
-					body: body || attachmentFallbackBody(names),
-					threadRootId: rootMessageId,
-					alsoInConversation: alsoToConversation,
-					attachmentIds: attachmentIds.length ? attachmentIds : undefined
-				})
+				.send(
+					conversationId,
+					{ body, threadRootId: rootMessageId, alsoInConversation: alsoToConversation, attachmentIds: attachmentIds.length ? attachmentIds : undefined },
+					{ attachmentNames: names.join('\n') }
+				)
 				.catch(() => toast.error(t('teamChat.SEND_FAILED')));
 		},
 		[actions, alsoToConversation, attachments, clearDraft, conversationId, rootMessageId, t]
@@ -185,7 +189,17 @@ function ThreadPaneBody({ conversationId, rootMessageId, conversationNames, canM
 	const itemProps = { people: people.byEmployee, conversationNames, meEmployeeId: scope?.employeeId ?? null, meUserId: scope?.userId ?? null, locale, inTimeline: false, canManage, taskTitles, files: files.byId, ...handlers };
 	const editComposer = (
 		<div className="px-4 py-2">
-			<MessageComposer value={editValue} onChange={setEditValue} onSubmit={saveEdit} onCancel={() => setEditing(null)} people={people.list} placeholder={t('teamChat.EDIT')} editing autoFocus />
+			<MessageComposer
+				value={editValue}
+				onChange={setEditValue}
+				onSubmit={saveEdit}
+				onCancel={() => setEditing(null)}
+				people={people.list}
+				placeholder={t('teamChat.EDIT')}
+				editing
+				keepsFiles={!!editing && attachmentIdsOf(editing).length > 0}
+				autoFocus
+			/>
 		</div>
 	);
 	// The platform's count can trail a reply just sent from here, and the pane's own list can stop at its page budget.
@@ -246,6 +260,8 @@ function ThreadPaneBody({ conversationId, rootMessageId, conversationNames, canM
 					alsoToConversation={{ checked: alsoToConversation, onChange: setAlsoToConversation }}
 					autoFocus={focusComposer}
 					attachments={attachments}
+					onTyping={signalTyping}
+					status={<ChatTypingLine typists={typists} peopleByUser={people.byUser} peopleByEmployee={people.byEmployee} />}
 				/>
 			</div>
 			{taskFrom && <CreateTaskFromMessageDialog key={taskFrom.id} message={taskFrom} onClose={() => setTaskFrom(null)} />}

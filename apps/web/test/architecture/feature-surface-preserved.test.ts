@@ -1998,10 +1998,13 @@ describe('Ever Teams feature surface preservation', () => {
 		// documents/spaces, documents/[id]/space, follow (GET, POST), unfollow, mute, unmute, live/updates, live/awareness).
 		// 285 files and 366 verbs with the integrations' sync conflict proxies (/api/integration/{linear,asana,trello}/[id]/conflicts,
 		// GET, and [id]/conflicts/[conflictId]/resolve, POST).
-		expect(routes.filter((value) => /\/route\.[jt]s$/.test(value))).toHaveLength(285);
+		// 289 files and 370 verbs with the chat's typing, task card, unsent upload and category order proxies
+		// (/api/chat/conversations/[id]/typing POST, messages/[id]/tasks/[taskId] PATCH, attachments/[documentId] DELETE,
+		// categories/reorder POST).
+		expect(routes.filter((value) => /\/route\.[jt]s$/.test(value))).toHaveLength(289);
 		expect(
 			routes.filter((value) => /\/route\.[jt]s::(?:GET|POST|PUT|PATCH|DELETE|HEAD|OPTIONS)$/.test(value))
-		).toHaveLength(366);
+		).toHaveLength(370);
 		expect(routes).toEqual(
 			expect.arrayContaining([
 				// Proxy mode twins of the platform's Docs live sessions and collaboration routes (2026-11-11)

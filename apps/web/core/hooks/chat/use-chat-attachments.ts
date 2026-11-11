@@ -47,6 +47,27 @@ export function uploadedFileOf(documentId: string): ChatUploadedFile | undefined
 }
 
 /**
+ * The documents a send took (or an edit, a retry): never discarded, whatever the composer does next. A send that
+ * failed keeps its files for the retry, and one the platform took late still names them.
+ */
+const sentDocumentIds = new Set<string>();
+
+/**
+ * Lets the platform discard a file uploaded for a message and not sent (taken out of the composer, or left behind when
+ * the person went elsewhere), instead of keeping it until its sweep. Best effort: a failure, or a platform older than
+ * the route (404), changes nothing here. A file a send took is never discarded.
+ */
+function discardUnsent(documentId: string): void {
+	if (!documentId || sentDocumentIds.has(documentId)) return;
+	uploadedFiles.delete(documentId);
+	try {
+		void chatService.discardAttachment(documentId).catch(() => undefined);
+	} catch {
+		// The request could not even start: the platform's sweep takes the file later.
+	}
+}
+
+/**
  * The accounts and organizations whose role the platform refused an upload (`tenant:organization:user`): the
  * composer stops offering to attach there, and only there; another organization of the same person still offers it.
  */
@@ -56,6 +77,7 @@ const forbiddenScopes = new Set<string>();
 export function resetChatUploads(): void {
 	uploadedFiles.clear();
 	forbiddenScopes.clear();
+	sentDocumentIds.clear();
 }
 
 function canPreview(file: File): boolean {
@@ -81,9 +103,13 @@ export interface ChatAttachments {
 	items: ChatAttachmentDraft[];
 	/** Picked, pasted or dropped files: each one uploads at once. */
 	add: (files: File[]) => void;
+	/** Takes a file out of the message; one already uploaded is discarded on the platform (it was never sent). */
 	remove: (key: string) => void;
 	retry: (key: string) => void;
-	/** After the send: the composer lets go of the files that went with it; one that failed stays, with its retry. */
+	/**
+	 * After the send: the composer lets go of the files that went with it (they are never discarded); one that failed
+	 * stays, with its retry.
+	 */
 	releaseSent: () => void;
 	readyIds: string[];
 	isUploading: boolean;
@@ -94,7 +120,9 @@ export interface ChatAttachments {
 /**
  * The files of the message being written: added from the picker, a paste or a drop, shrunk when they are large photos,
  * and uploaded to the person's own documents as soon as they are added, so the send only names them. A file that fails
- * stays with a retry; a file that is too large, or one more than the message takes, is refused with a word why.
+ * stays with a retry; a file that is too large, or one more than the message takes, is refused with a word why. An
+ * uploaded file that is not sent — taken out, or left in the composer when the conversation or the thread closes — is
+ * discarded on the platform.
  */
 export function useChatAttachments(): ChatAttachments {
 	const t = useTranslations();
@@ -117,7 +145,11 @@ export function useChatAttachments(): ChatAttachments {
 		mounted.current = true;
 		return () => {
 			mounted.current = false;
-			for (const item of itemsRef.current) revoke(item);
+			// The place closes (another conversation, another thread, the page): what was uploaded and not sent goes.
+			for (const item of itemsRef.current) {
+				revoke(item);
+				if (item.status === 'ready' && item.documentId) discardUnsent(item.documentId);
+			}
 		};
 	}, []);
 
@@ -129,6 +161,7 @@ export function useChatAttachments(): ChatAttachments {
 	const drop = useCallback((key: string) => {
 		const item = itemsRef.current.find((entry) => entry.key === key);
 		if (item) revoke(item);
+		if (item?.status === 'ready' && item.documentId) discardUnsent(item.documentId);
 		files.current.delete(key);
 		itemsRef.current = itemsRef.current.filter((entry) => entry.key !== key);
 		if (mounted.current) setItems((current) => current.filter((entry) => entry.key !== key));
@@ -161,6 +194,11 @@ export function useChatAttachments(): ChatAttachments {
 					toast.warning(t('entityFiles.REJECTED', { count: 1, names: picked.name }), {
 						description: rejection?.message
 					});
+					return;
+				}
+				// Taken out while it uploaded, or the composer is gone: nobody will send it.
+				if (!mounted.current || !itemsRef.current.some((entry) => entry.key === key)) {
+					discardUnsent(document.id);
 					return;
 				}
 				uploadedFiles.set(document.id, {
@@ -234,6 +272,7 @@ export function useChatAttachments(): ChatAttachments {
 		for (const item of sent) {
 			revoke(item);
 			files.current.delete(item.key);
+			if (item.documentId) sentDocumentIds.add(item.documentId);
 		}
 		itemsRef.current = itemsRef.current.filter((item) => !keys.has(item.key));
 		setItems((current) => current.filter((item) => !keys.has(item.key)));
