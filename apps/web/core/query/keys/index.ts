@@ -475,7 +475,9 @@ export const queryKeys = {
 			['chat', 'thread', tenantId ?? null, rootMessageId ?? null] as const,
 		threads: (tenantId: string | undefined | null, userId: string | undefined | null) => ['chat', 'threads', tenantId ?? null, userId ?? null] as const,
 		members: (tenantId: string | undefined | null, conversationId: string | undefined | null) =>
-			['chat', 'members', tenantId ?? null, conversationId ?? null] as const
+			['chat', 'members', tenantId ?? null, conversationId ?? null] as const,
+		files: (tenantId: string | undefined | null, conversationId: string | undefined | null) =>
+			['chat', 'files', tenantId ?? null, conversationId ?? null] as const
 	},
 
 	taskComments: {

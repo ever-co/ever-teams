@@ -4,10 +4,11 @@ import React from 'react';
 import { fireEvent, render, screen } from '@testing-library/react';
 import { ChatOutboxMessage } from '@/core/hooks/chat/use-chat-actions';
 import { ChatPerson } from '@/core/lib/utils/chat-format';
-import { IChatMessage } from '@/core/types/interfaces/common/chat';
+import { IChatFile, IChatMessage } from '@/core/types/interfaces/common/chat';
 import { MessageItem, MessageItemProps, QUICK_REACTIONS } from './message-item';
 
 jest.mock('next-intl', () => ({
+	useLocale: () => 'en-US',
 	useTranslations: () => (key: string, values?: Record<string, unknown>) => {
 		const shown = Object.entries(values ?? {}).filter(([name]) => name !== 'name');
 		return shown.length ? `${key}:${shown.map(([, value]) => String(value)).join(',')}` : key;
@@ -201,5 +202,53 @@ describe('a task and an unsent message', () => {
 		renderItem({ message: pending });
 		expect(screen.getByTestId('body').className).toContain('opacity-60');
 		expect(screen.queryByText('teamChat.SEND_FAILED')).toBeNull();
+	});
+});
+
+describe('the files of a message', () => {
+	function chatFile(documentId: string, extra: Partial<IChatFile> = {}): IChatFile {
+		return { documentId, messageId: 'm1', conversationId: 'c1', name: `${documentId}.pdf`, attachedAt: '2026-11-10T14:05:00.000Z', ...extra };
+	}
+
+	const files = new Map<string, IChatFile>([
+		['doc-shot', chatFile('doc-shot', { name: 'shot.png', mimeType: 'image/png', fileUrl: 'https://cdn.example.com/shot.png', thumbUrl: 'https://cdn.example.com/shot-thumb.png' })],
+		['doc-plan', chatFile('doc-plan', { name: 'plan.pdf', mimeType: 'application/pdf', fileSize: 2400, fileUrl: 'https://cdn.example.com/plan.pdf' })],
+		['doc-evil', chatFile('doc-evil', { name: 'evil.pdf', mimeType: 'application/pdf', fileUrl: 'javascript:alert(1)' })]
+	]);
+
+	it('shows a picture as a thumbnail that opens the lightbox, and a file as a link to it', () => {
+		const onOpenImage = jest.fn();
+		renderItem({ message: message({ body: 'Look', attachmentIds: ['doc-shot', 'doc-plan'] }), files, onOpenImage });
+		const picture = screen.getByRole('button', { name: 'teamChat.VIEW_IMAGE' });
+		expect(picture.querySelector('img')?.getAttribute('src')).toBe('https://cdn.example.com/shot-thumb.png');
+		fireEvent.click(picture);
+		expect(onOpenImage).toHaveBeenCalledWith(files.get('doc-shot'));
+		const link = screen.getByRole('link', { name: /plan\.pdf/ });
+		expect(link.getAttribute('href')).toBe('https://cdn.example.com/plan.pdf');
+		expect(link.getAttribute('rel')).toContain('noopener');
+		expect(screen.getByTestId('body').textContent).toBe('Look');
+	});
+
+	it('never links an address that is not a web one', () => {
+		renderItem({ message: message({ attachmentIds: ['doc-evil'] }), files });
+		expect(screen.queryByRole('link', { name: /evil\.pdf/ })).toBeNull();
+		expect(screen.getByText('evil.pdf')).toBeTruthy();
+	});
+
+	it('names a file the list does not have yet plainly, and fetches nothing for it', () => {
+		const { container } = renderItem({ message: message({ attachmentIds: ['doc-unknown'] }), files });
+		expect(screen.getByText('teamChat.ATTACHMENT')).toBeTruthy();
+		expect(container.querySelector('img')).toBeNull();
+	});
+
+	it('does not repeat the names of the files of a message sent without words', () => {
+		renderItem({ message: message({ body: 'shot.png, plan.pdf', attachmentIds: ['doc-shot', 'doc-plan'] }), files });
+		expect(screen.queryByTestId('body')).toBeNull();
+		expect(screen.getByRole('link', { name: /plan\.pdf/ })).toBeTruthy();
+	});
+
+	it('shows no file of a deleted message', () => {
+		renderItem({ message: message({ body: '', attachmentIds: ['doc-plan'], deletedAt: '2026-11-10T15:00:00.000Z' }), files });
+		expect(screen.queryByRole('link', { name: /plan\.pdf/ })).toBeNull();
 	});
 });

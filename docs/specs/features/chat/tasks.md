@@ -14,7 +14,10 @@
 - [ ] T10 Gate: `yarn test:web`, typecheck, cspell — fix forward
 - [ ] T11 Manual check against a platform with the chat plugin on (two users: messages, threads, reactions, badges)
 - [x] T12 Live channel through `useRealtimeEvent` (after `realtime-client` merges); drop the polls while connected (#4987)
-- [ ] T13 Phase 2: attachments, link previews, emoji autocomplete
+- [x] T13 Phase 2: attachments (picker, paste, drop; large photos shrunk before the upload; thumbnails with a lightbox,
+  the conversation's files in its header) and emoji autocomplete (`:` and two letters). Link previews: the platform
+  has no preview route yet, so none is shown and nothing is fetched (T16)
 - [x] T14 Phase 2: send-to-chat from the task drawer / page,
   create-task-from-message (#4991)
 - [ ] T15 Phase 2: command palette, presence dots, virtualised list, phone polish, shortcuts
+- [ ] T16 Link preview cards, from what the platform returns once it has a preview route (none is fetched by the browser)

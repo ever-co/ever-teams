@@ -4,9 +4,21 @@ import React, { useState } from 'react';
 import { act, fireEvent, render, screen } from '@testing-library/react';
 import { ChatPerson } from '@/core/lib/utils/chat-format';
 import { CHAT_MESSAGE_MAX_LENGTH } from '@/core/types/interfaces/common/chat';
+import type { ChatAttachments } from '@/core/hooks/chat/use-chat-attachments';
 import { MessageComposer, MessageComposerProps } from './message-composer';
 
-jest.mock('next-intl', () => ({ useTranslations: () => (key: string) => key }));
+jest.mock('next-intl', () => ({ useLocale: () => 'en-US', useTranslations: () => (key: string) => key }));
+// The dataset is fetched on demand; a few emoji stand for it.
+jest.mock('@/core/hooks/chat/use-emoji-index', () => ({
+	useEmojiIndex: (wanted: boolean) =>
+		wanted
+			? [
+					{ id: 'tada', native: '🎉', names: ['tada'], keywords: ['party'] },
+					{ id: 'taco', native: '🌮', names: ['taco'], keywords: ['food'] },
+					{ id: '+1', native: '👍', names: ['+1', 'thumbsup'], keywords: ['yes'] }
+				]
+			: null
+}));
 // The picker is fetched on demand; what the composer does with a picked emoji is what is tested here.
 jest.mock('./emoji-popover', () => ({
 	EmojiPopover: ({ label, onPick }: { label: string; onPick: (emoji: string) => void }) => <button type="button" aria-label={label} onClick={() => onPick('🎉')} />
@@ -267,5 +279,117 @@ describe('a thread composer', () => {
 		render(<Harness alsoToConversation={{ checked: false, onChange }} />);
 		fireEvent.click(screen.getByRole('checkbox', { name: 'teamChat.ALSO_SEND_TO_CONVERSATION' }));
 		expect(onChange).toHaveBeenCalledWith(true);
+	});
+});
+
+describe('emoji suggestions', () => {
+	const emojiOptions = () => screen.queryAllByRole('option').map((option) => option.textContent);
+
+	it('offers the emoji of a short name after a colon and puts the picked one in its place', async () => {
+		render(<Harness />);
+		focusField();
+		fireEvent.change(field(), { target: { value: 'well done :ta' } });
+		expect(screen.getByRole('listbox', { name: 'teamChat.EMOJI_SUGGESTIONS' })).toBeTruthy();
+		expect(emojiOptions()).toEqual(['🎉:tada:', '🌮:taco:']);
+		await press('ArrowDown');
+		await press('Enter');
+		expect(field().value).toBe('well done 🌮 ');
+		expect(emojiOptions()).toEqual([]);
+	});
+
+	it('waits for two letters, and closes on Escape for that name', async () => {
+		render(<Harness />);
+		focusField();
+		fireEvent.change(field(), { target: { value: ':t' } });
+		expect(emojiOptions()).toEqual([]);
+		fireEvent.change(field(), { target: { value: ':th' } });
+		expect(emojiOptions()).toEqual(['👍:+1:']);
+		await press('Escape');
+		expect(emojiOptions()).toEqual([]);
+		expect(field().value).toBe(':th');
+	});
+
+	it('leaves a time alone', () => {
+		render(<Harness />);
+		focusField();
+		fireEvent.change(field(), { target: { value: 'at 10:ta' } });
+		expect(emojiOptions()).toEqual([]);
+	});
+});
+
+describe('files', () => {
+	function attachments(extra: Partial<ChatAttachments> = {}): ChatAttachments {
+		return { items: [], add: jest.fn(), remove: jest.fn(), retry: jest.fn(), clear: jest.fn(), readyIds: [], isUploading: false, canAttach: true, ...extra };
+	}
+	const fileInput = (container: HTMLElement) => container.querySelector('input[type="file"]') as HTMLInputElement;
+
+	it('offers to attach where files can be attached, and adds the picked ones', () => {
+		const files = attachments();
+		const { container } = render(<Harness attachments={files} />);
+		expect(button(/^teamChat\.ATTACH_FILES$/)).toBeTruthy();
+		const picked = new File(['x'], 'plan.pdf', { type: 'application/pdf' });
+		fireEvent.change(fileInput(container), { target: { files: [picked] } });
+		expect(files.add).toHaveBeenCalledWith([picked]);
+	});
+
+	it('offers no attaching without files, where they cannot be attached, or in an edit', () => {
+		const { rerender } = render(<Harness key="none" />);
+		expect(screen.queryByRole('button', { name: /^teamChat\.ATTACH_FILES$/ })).toBeNull();
+		rerender(<Harness key="refused" attachments={attachments({ canAttach: false })} />);
+		expect(screen.queryByRole('button', { name: /^teamChat\.ATTACH_FILES$/ })).toBeNull();
+		rerender(<Harness key="edit" editing attachments={attachments()} />);
+		expect(screen.queryByRole('button', { name: /^teamChat\.ATTACH_FILES$/ })).toBeNull();
+	});
+
+	it('attaches a pasted picture, and keeps pasted text as text', () => {
+		const files = attachments();
+		render(<Harness attachments={files} />);
+		const shot = new File(['x'], 'image.png', { type: 'image/png' });
+		fireEvent.paste(field(), { clipboardData: { files: [shot], getData: () => '' } });
+		expect(files.add).toHaveBeenCalledWith([shot]);
+		fireEvent.paste(field(), { clipboardData: { files: [shot], getData: () => 'a table copied with its picture' } });
+		expect(files.add).toHaveBeenCalledTimes(1);
+	});
+
+	it('takes dropped files', () => {
+		const files = attachments();
+		render(<Harness attachments={files} />);
+		const box = field().parentElement as HTMLElement;
+		const dropped = new File(['x'], 'notes.txt', { type: 'text/plain' });
+		fireEvent.dragOver(box, { dataTransfer: { types: ['Files'], files: [dropped], dropEffect: 'none' } });
+		expect(box.getAttribute('data-dragging')).toBe('true');
+		fireEvent.drop(box, { dataTransfer: { types: ['Files'], files: [dropped] } });
+		expect(files.add).toHaveBeenCalledWith([dropped]);
+		expect(box.getAttribute('data-dragging')).toBeNull();
+	});
+
+	it('sends files alone once they are uploaded, and waits while one uploads', async () => {
+		const onSubmit = jest.fn();
+		const { rerender } = render(<Harness key="ready" onSubmit={onSubmit} attachments={attachments({ readyIds: ['doc-1'] })} />);
+		expect(sendButton().disabled).toBe(false);
+		await act(async () => {
+			fireEvent.click(sendButton());
+		});
+		expect(onSubmit).toHaveBeenCalledWith('');
+		rerender(<Harness key="uploading" initial="with words" onSubmit={onSubmit} attachments={attachments({ readyIds: ['doc-1'], isUploading: true })} />);
+		expect(sendButton().disabled).toBe(true);
+		await press('Enter');
+		expect(onSubmit).toHaveBeenCalledTimes(1);
+		expect(screen.getByText('teamChat.ATTACH_WAIT')).toBeTruthy();
+	});
+
+	it('lists the files with their state, a retry for a failed one and a way to take one out', () => {
+		const files = attachments({
+			items: [
+				{ key: 'k1', name: 'shot.png', size: 2048, mimeType: 'image/png', status: 'uploading' },
+				{ key: 'k2', name: 'plan.pdf', size: 1000, mimeType: 'application/pdf', status: 'failed' }
+			]
+		});
+		render(<Harness attachments={files} />);
+		expect(screen.getByText('shot.png')).toBeTruthy();
+		fireEvent.click(button(/^entityFiles\.RETRY$/));
+		expect(files.retry).toHaveBeenCalledWith('k2');
+		fireEvent.click(screen.getAllByRole('button', { name: /^entityFiles\.REMOVE$/ })[0]);
+		expect(files.remove).toHaveBeenCalledWith('k1');
 	});
 });
