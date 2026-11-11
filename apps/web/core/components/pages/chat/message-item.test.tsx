@@ -22,6 +22,10 @@ jest.mock('./chat-markdown', () => ({
 		</div>
 	)
 }));
+// The link previews are tested on their own (chat-link-preview.test.tsx): here, only whether the row mounts them.
+jest.mock('./chat-link-preview', () => ({
+	MessageLinkPreviews: ({ body }: { body: string }) => <div data-testid="link-previews">{body}</div>
+}));
 jest.mock('./emoji-popover', () => ({
 	EmojiPopover: ({ label, onPick }: { label: string; onPick: (emoji: string) => void }) => <button type="button" aria-label={label} onClick={() => onPick('🚀')} />
 }));
@@ -260,5 +264,34 @@ describe('the files of a message', () => {
 	it('shows no file of a deleted message', () => {
 		renderItem({ message: message({ body: '', attachmentIds: ['doc-plan'], deletedAt: '2026-11-10T15:00:00.000Z' }), files });
 		expect(screen.queryByRole('link', { name: /plan\.pdf/ })).toBeNull();
+	});
+});
+
+describe('the link previews of a message', () => {
+	const flag = process.env.NEXT_PUBLIC_CHAT_LINK_PREVIEWS_ENABLED;
+	afterEach(() => {
+		if (flag === undefined) delete process.env.NEXT_PUBLIC_CHAT_LINK_PREVIEWS_ENABLED;
+		else process.env.NEXT_PUBLIC_CHAT_LINK_PREVIEWS_ENABLED = flag;
+	});
+
+	it('are not there with the flag off', () => {
+		delete process.env.NEXT_PUBLIC_CHAT_LINK_PREVIEWS_ENABLED;
+		renderItem({ message: message({ body: 'See https://example.com' }) });
+		expect(screen.queryByTestId('link-previews')).toBeNull();
+	});
+
+	it('show under a sent message with the flag on, and not under one being sent, failed or deleted', () => {
+		process.env.NEXT_PUBLIC_CHAT_LINK_PREVIEWS_ENABLED = 'true';
+		const { unmount } = renderItem({ message: message({ body: 'See https://example.com' }) });
+		expect(screen.getByTestId('link-previews').textContent).toBe('See https://example.com');
+		unmount();
+		for (const outbox of ['pending', 'failed'] as const) {
+			const sending: ChatOutboxMessage = { ...message({ id: `pending:${outbox}`, authorUserId: ME_USER, body: 'https://example.com' }), outbox };
+			const view = renderItem({ message: sending });
+			expect(screen.queryByTestId('link-previews')).toBeNull();
+			view.unmount();
+		}
+		renderItem({ message: message({ body: 'https://example.com', deletedAt: '2026-11-10T15:00:00.000Z' }) });
+		expect(screen.queryByTestId('link-previews')).toBeNull();
 	});
 });

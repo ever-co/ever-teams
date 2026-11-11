@@ -5258,7 +5258,9 @@
 		"LOAD_MORE": "加载更多",
 		"VIEW_IMAGE": "查看 {name}",
 		"OPEN_ORIGINAL": "打开原图",
-		"EMOJI_SUGGESTIONS": "表情符号"
+		"EMOJI_SUGGESTIONS": "表情符号",
+		"LINK_PREVIEW_LABEL": "{title}（{site}，在新标签页中打开）",
+		"LINK_PREVIEW_SITE_LABEL": "{site}（在新标签页中打开）"
 	},
 	"docs": {
 		"TITLE": "文档",

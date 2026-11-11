@@ -5258,7 +5258,9 @@
 		"LOAD_MORE": "Зареждане на още",
 		"VIEW_IMAGE": "Преглед на {name}",
 		"OPEN_ORIGINAL": "Отваряне на оригинала",
-		"EMOJI_SUGGESTIONS": "Емоджи"
+		"EMOJI_SUGGESTIONS": "Емоджи",
+		"LINK_PREVIEW_LABEL": "{title} ({site}, отваря се в нов раздел)",
+		"LINK_PREVIEW_SITE_LABEL": "{site} (отваря се в нов раздел)"
 	},
 	"docs": {
 		"TITLE": "Документи",
