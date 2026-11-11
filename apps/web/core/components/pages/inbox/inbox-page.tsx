@@ -44,9 +44,9 @@ import {
 	groupInboxEntriesByDay,
 	hasChatPages,
 	InboxFieldRequests,
+	type InboxRequestField,
 	snoozeUntil,
-	toInboxEntry,
-	withRefusedChangeUndone
+	toInboxEntry
 } from '@/core/lib/utils/inbox-entry';
 import { chatService } from '@/core/services/client/api/chat';
 import { inboxService } from '@/core/services/client/api/inbox';
@@ -286,23 +286,28 @@ function InboxPageContent() {
 
 	/**
 	 * A read or an archive without the inbox extension, one request per entry. The bell's cache rolls back what the
-	 * platform refused on its own; the copy the pane holds after the entry left the list takes back the field the refused
-	 * request set (`withRefusedChangeUndone`), unless a newer request on that field was sent since, then the action fails.
+	 * platform refused on its own. The copy the pane holds after the entry left the list shows the change at once, and
+	 * once every request sent on that field has answered it holds what the last accepted one set, or what it held before
+	 * when none was ({@link InboxFieldRequests}); a refusal then fails the action.
 	 */
 	const [legacyRequests] = useState(() => new InboxFieldRequests());
 	const runLegacy = useCallback(
-		async (targets: InboxEntry[], field: 'isUnread' | 'isArchived', value: boolean, send: (id: string) => Promise<unknown>) => {
-			const ids = targets.map((entry) => entry.id);
-			const request = legacyRequests.start(ids, field);
-			patchOpened(ids, { [field]: value });
+		async (targets: InboxEntry[], field: InboxRequestField, value: boolean, send: (id: string) => Promise<unknown>) => {
+			const request = legacyRequests.start(targets, field, value);
+			patchOpened(
+				targets.map((entry) => entry.id),
+				{ [field]: value }
+			);
 			const results = await Promise.allSettled(targets.map((entry) => send(entry.id)));
+			targets.forEach((entry, index) => {
+				const settled = legacyRequests.settle(entry.id, field, request, results[index].status === 'fulfilled');
+				if (settled === undefined) return;
+				setOpened((kept) =>
+					kept && kept.entry.id === entry.id && kept.entry[field] !== settled ? { ...kept, entry: { ...kept.entry, [field]: settled } } : kept
+				);
+			});
 			const failure = results.find((result): result is PromiseRejectedResult => result.status === 'rejected');
-			if (!failure) return;
-			const refused = targets.filter((entry, index) => results[index].status === 'rejected' && legacyRequests.isLatest(entry.id, field, request));
-			if (refused.length > 0) {
-				setOpened((kept) => (kept ? { ...kept, entry: withRefusedChangeUndone(kept.entry, refused, field, value) } : kept));
-			}
-			throw failure.reason;
+			if (failure) throw failure.reason;
 		},
 		[legacyRequests, patchOpened]
 	);

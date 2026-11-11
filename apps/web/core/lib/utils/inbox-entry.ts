@@ -125,49 +125,52 @@ function subjectOf(entity: string | null, chatParts: { place: string | null } | 
 	return quoted;
 }
 
+/** A field of an entry that a request without the inbox extension sets. */
+export type InboxRequestField = 'isUnread' | 'isArchived';
+
 /**
- * Which request last set a field of an entry. Requests answer in any order: a refusal that answers after a newer request
- * on the same field was sent must take nothing back, whatever the field holds by then (archive, unarchive, archive
- * again: the first one refused last would otherwise undo the third).
+ * The requests sent on a field of each entry, for a pane that shows their change before the platform answers. They
+ * answer in any order and each may be refused, so no single answer says what the field holds: once every request sent
+ * on a field of an entry has answered, it holds what the last accepted one set, or what it held before the first one
+ * when none was accepted (archive then unarchive, both refused: not archived).
  */
 export class InboxFieldRequests {
-	private readonly latest = new Map<string, number>();
+	private readonly chains = new Map<string, { before: boolean; requests: Array<{ id: number; value: boolean; accepted: boolean | null }> }>();
 	private sent = 0;
 
-	/** Records a request that sets `field` on the entries, and returns its number. */
-	start(ids: readonly string[], field: string): number {
-		const request = ++this.sent;
-		for (const id of ids) this.latest.set(`${id}|${field}`, request);
-		return request;
+	/**
+	 * Records a request that sets `field` to `value` on the entries.
+	 *
+	 * @param entries The entries, as they were when it was sent.
+	 * @returns The request's number, for {@link settle}.
+	 */
+	start(entries: readonly InboxEntry[], field: InboxRequestField, value: boolean): number {
+		const id = ++this.sent;
+		for (const entry of entries) {
+			const key = `${entry.id}|${field}`;
+			const chain = this.chains.get(key) ?? { before: entry[field], requests: [] };
+			chain.requests.push({ id, value, accepted: null });
+			this.chains.set(key, chain);
+		}
+		return id;
 	}
 
-	/** Whether `request` is still the last one sent that sets `field` on the entry. */
-	isLatest(id: string, field: string, request: number): boolean {
-		return this.latest.get(`${id}|${field}`) === request;
+	/**
+	 * Records the platform's answer to a request for one entry.
+	 *
+	 * @returns What the field holds once every request sent on it has answered, or `undefined` while one is on its way.
+	 */
+	settle(entryId: string, field: InboxRequestField, request: number, accepted: boolean): boolean | undefined {
+		const key = `${entryId}|${field}`;
+		const chain = this.chains.get(key);
+		if (!chain) return undefined;
+		const sent = chain.requests.find((candidate) => candidate.id === request);
+		if (sent) sent.accepted = accepted;
+		if (chain.requests.some((candidate) => candidate.accepted === null)) return undefined;
+		this.chains.delete(key);
+		const lastAccepted = [...chain.requests].reverse().find((candidate) => candidate.accepted);
+		return lastAccepted ? lastAccepted.value : chain.before;
 	}
-}
-
-/**
- * The entry the pane holds after a request the platform refused: it takes back what that request set on it, and only
- * that field, so a change made by another action meanwhile stays. When a later action set the field again since, the
- * entry keeps it. The caller passes only the entries for which the refused request is still the last one sent on the
- * field ({@link InboxFieldRequests}).
- *
- * @param held The entry the pane holds now.
- * @param refused The entries the refused request was for, as they were when it was made.
- * @param field The field the request set.
- * @param value The value it set.
- * @returns The entry with the field as it was before the request, or `held` itself when there is nothing to take back.
- */
-export function withRefusedChangeUndone(
-	held: InboxEntry,
-	refused: readonly InboxEntry[],
-	field: 'isUnread' | 'isArchived',
-	value: boolean
-): InboxEntry {
-	const before = refused.find((entry) => entry.id === held.id);
-	if (!before || held[field] !== value || before[field] === value) return held;
-	return { ...held, [field]: before[field] };
 }
 
 /** An entry from a platform inbox item. */
