@@ -1,6 +1,7 @@
 'use client';
 
 import { useCallback, useEffect, useRef } from 'react';
+import { useQueryClient } from '@tanstack/react-query';
 import { useSetAtom } from 'jotai';
 import { useRouter } from 'next/navigation';
 import { useTranslations } from 'next-intl';
@@ -30,7 +31,8 @@ import {
 	type TimerReminderLevel
 } from '@/core/lib/notifications/timer-reminders';
 import { serverClockOffset } from '@/core/lib/utils/team-members.utils';
-import { employeeNotificationService } from '@/core/services/client/api/notifications';
+import { queryKeys } from '@/core/query/keys';
+import { employeeNotificationService, type INotificationInboxScope } from '@/core/services/client/api/notifications';
 import { timerReminderTargetState } from '@/core/stores/timer/timer-reminder';
 import {
 	EEmployeeNotificationType,
@@ -125,6 +127,24 @@ export function useTimerReminders({ timerStatus, stopTimer }: UseTimerRemindersI
 	// The reminders this tab gave in a toast while out of sight, with no system notification, by toast: the person sees
 	// such a toast once they bring the tab into sight, and its copy is marked read then
 	const givenOutOfSight = useRef(new Map<string, { runKey: string; level: TimerReminderLevel }>());
+	const queryClient = useQueryClient();
+
+	/** The bell, its count and the inbox show the copy read at once, with a live connection or without one. */
+	const refreshNotificationLists = useCallback(
+		(notificationScope: INotificationInboxScope | null) => {
+			if (notificationScope) {
+				const { tenantId, organizationId, receiverEmployeeId } = notificationScope;
+				void queryClient.invalidateQueries({
+					queryKey: queryKeys.notifications.inbox(tenantId, organizationId, receiverEmployeeId)
+				});
+				void queryClient.invalidateQueries({
+					queryKey: queryKeys.notifications.unreadCount(tenantId, organizationId, receiverEmployeeId)
+				});
+			}
+			void queryClient.invalidateQueries({ queryKey: queryKeys.inbox.all });
+		},
+		[queryClient]
+	);
 
 	useEffect(() => {
 		const marking = markingRead.current;
@@ -182,6 +202,7 @@ export function useTimerReminders({ timerStatus, stopTimer }: UseTimerRemindersI
 							readAt: new Date().toISOString()
 						});
 						stop();
+						refreshNotificationLists(latest.current.scope);
 						return;
 					}
 				} catch {
@@ -198,7 +219,7 @@ export function useTimerReminders({ timerStatus, stopTimer }: UseTimerRemindersI
 			};
 			void attempt(known);
 		},
-		[latest]
+		[latest, refreshNotificationLists]
 	);
 
 	// A toast given out of sight waits in its tab: once the person brings the tab into sight they see it, and its copy on

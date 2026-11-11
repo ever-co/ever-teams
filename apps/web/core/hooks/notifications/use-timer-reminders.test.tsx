@@ -3,6 +3,8 @@
  * #5022: a timer left running is worth a reminder at the employee's threshold, then at twice it, each once per run
  * whatever the tabs, with the actions to stop the timer or open it.
  */
+import type { ReactNode } from 'react';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { act, renderHook } from '@testing-library/react';
 
 const mockToast = { warning: jest.fn(), dismiss: jest.fn() };
@@ -67,11 +69,18 @@ const RUNNING: ITimerStatus = { running: true, lastLog: { id: 'log-1', startedAt
 /** Runs the clock forward, letting the reminders' claims (promises) settle between the timers. */
 const advance = (ms: number) => act(() => jest.advanceTimersByTimeAsync(ms));
 
+/** The app's query cache, which the bell, its count and the inbox read: refreshed once a copy is marked read. */
+let queryClient = new QueryClient();
+
 async function renderReminders(timerStatus: ITimerStatus | null = RUNNING, stopTimer = jest.fn()) {
+	const wrapper = ({ children }: { children: ReactNode }) => (
+		<QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
+	);
 	const rendered = renderHook(
 		(props: { timerStatus: ITimerStatus | null }) => useTimerReminders({ ...props, stopTimer }),
 		{
-			initialProps: { timerStatus }
+			initialProps: { timerStatus },
+			wrapper
 		}
 	);
 	await advance(0);
@@ -115,6 +124,7 @@ describe('useTimerReminders', () => {
 		mockUpdate.mockReset();
 		mockUpdate.mockResolvedValue({});
 		mockClockOffset.current = null;
+		queryClient = new QueryClient();
 		window.localStorage.clear();
 		visibility = 'visible';
 		jest.spyOn(document, 'visibilityState', 'get').mockImplementation(() => visibility);
@@ -540,6 +550,21 @@ describe('useTimerReminders', () => {
 			expect(mockUpdate).toHaveBeenCalledWith('reminder-1', markedRead);
 			expect(shownTimerReminderLevel('log-1')).toBe(1);
 			expect(mockToast.warning).toHaveBeenCalledTimes(1);
+		});
+
+		it('refreshes the bell, its count and the inbox once the copy is marked read', async () => {
+			jest.setSystemTime(STARTED_AT + 8 * HOUR + MINUTE);
+			mockGetTimerReminders.mockResolvedValue([reminder(1, false, 'log-1', STARTED_AT + 8 * HOUR + 30_000)]);
+			const invalidated = jest.spyOn(queryClient, 'invalidateQueries');
+
+			await renderReminders();
+
+			expect(mockUpdate).toHaveBeenCalledWith('reminder-1', markedRead);
+			expect(invalidated.mock.calls.map(([filters]) => filters?.queryKey)).toEqual([
+				['notifications', 'inbox', SCOPE.tenantId, SCOPE.organizationId, SCOPE.receiverEmployeeId],
+				['notifications', 'unread-count', SCOPE.tenantId, SCOPE.organizationId, SCOPE.receiverEmployeeId],
+				['inbox']
+			]);
 		});
 
 		it('shows a reminder the platform filed moments ago, still unread, and marks it read at once', async () => {
