@@ -59,7 +59,7 @@ function setup(id: string | null = 'item-1') {
 const titleOf = (hook: ReturnType<typeof setup>['hook']) => hook.result.current.data?.rawTitle;
 
 /**
- * React Query tells the hook about a change on a later macrotask, so a check that a value stays as it is waits for
+ * React Query tells the hook about a change on a later timer tick, so a check that a value stays as it is waits for
  * every update already scheduled to render first; otherwise it would pass before a late answer had a chance to land.
  */
 const settle = () => act(() => new Promise<void>((resolve) => setTimeout(resolve, 0)));
