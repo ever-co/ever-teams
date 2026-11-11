@@ -1,5 +1,11 @@
 import { createStore } from 'jotai';
-import { activeTeamIdState, isTrackingEnabledState, organizationTeamsState, userState } from '@/core/stores';
+import {
+	activeTeamIdState,
+	isTrackingEnabledState,
+	organizationTeamsState,
+	timerStatusState,
+	userState
+} from '@/core/stores';
 
 type MemberSwitches = { team?: boolean; employee?: boolean };
 
@@ -54,6 +60,17 @@ describe('isTrackingEnabledState', () => {
 
 	it('offers no tracking in a team the user is not a member of', () => {
 		const store = storeWith([member('user-b')]);
+
+		expect(store.get(isTrackingEnabledState)).toBe(false);
+	});
+
+	it('keeps the timer while one runs, so a timer started before tracking was turned off can be stopped', () => {
+		const store = storeWith([member('user-a', { employee: false })]);
+		store.set(timerStatusState, { running: true } as never);
+
+		expect(store.get(isTrackingEnabledState)).toBe(true);
+
+		store.set(timerStatusState, { running: false } as never);
 
 		expect(store.get(isTrackingEnabledState)).toBe(false);
 	});
