@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
+import { type DragEvent, useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAtomValue } from 'jotai';
 import { useLocale, useTranslations } from 'next-intl';
@@ -8,17 +8,25 @@ import { toast } from 'sonner';
 import { Archive, Spinner } from '@/core/components/icons';
 import { Button } from '@/core/components/duplicated-components/_button';
 import { useChatActions, ChatOutboxMessage } from '@/core/hooks/chat/use-chat-actions';
+import { useChatAttachments } from '@/core/hooks/chat/use-chat-attachments';
 import { useChatDraft } from '@/core/hooks/chat/use-chat-draft';
+import { useChatFiles } from '@/core/hooks/chat/use-chat-files';
 import { useChatMessages } from '@/core/hooks/chat/use-chat-messages';
 import { useChatPeople, useChatScope } from '@/core/hooks/chat/use-chat-scope';
 import { useTaskDrawer } from '@/core/hooks/tasks/use-task-drawer';
+import { attachmentFallbackBody, filesOfTransfer, isFileDrag } from '@/core/lib/utils/chat-attachments';
 import { ChatPerson, conversationTitle } from '@/core/lib/utils/chat-format';
-import { ChatReadPosition, dayLabel, timelineItems } from '@/core/lib/utils/chat-timeline';
+import { ChatReadPosition, ChatTimelineItem, dayLabel, timelineItems } from '@/core/lib/utils/chat-timeline';
+import { isChatVirtualListEnabled } from '@/core/lib/utils/chat-enabled';
+import { cn } from '@/core/lib/helpers';
 import { tasksByTeamState } from '@/core/stores/teams/team-tasks';
-import { EChatNotifyLevel, IChatConversationWithState, IChatMessage } from '@/core/types/interfaces/common/chat';
+import { EChatNotifyLevel, IChatConversationWithState, IChatFile, IChatMessage } from '@/core/types/interfaces/common/chat';
+import type { ETimerStatus } from '@/core/types/generics/enums/timer';
+import { ConversationFilesButton, ImageLightbox } from './chat-attachments';
 import { ChatErrorState, ChatMessagesSkeleton } from './chat-states';
+import { VirtualTimeline, type VirtualTimelineAnchor, type VirtualTimelineHandle } from './chat-virtual-timeline';
 import { ConversationWelcome, DayDivider, JumpToLatest, NewDivider } from './chat-timeline-parts';
-import { ConversationHeader } from './conversation-header';
+import { BAR_BUTTON, ConversationHeader } from './conversation-header';
 import { CreateTaskFromMessageDialog } from './create-task-dialog';
 import { MessageComposer } from './message-composer';
 import { MessageItem } from './message-item';
@@ -27,6 +35,8 @@ export interface ConversationViewProps {
 	conversation: IChatConversationWithState;
 	conversationNames: ReadonlyMap<string, string>;
 	canManage: boolean;
+	/** The status dot of each person the app knows, by employee id. */
+	presence?: ReadonlyMap<string, ETimerStatus>;
 	onOpenThread: (rootMessageId: string) => void;
 	onBack?: () => void;
 	/** `?m=` — the message to scroll to once loaded. */
@@ -39,6 +49,8 @@ const AT_BOTTOM_PX = 40;
 const FAR_FROM_BOTTOM_PX = 480;
 /** A jump over more than this is not animated: a long smooth scroll is a wait. */
 const SMOOTH_SCROLL_MAX_PX = 2400;
+/** Frames a jump waits for the virtual list to draw its target before it gives up on lighting it. */
+const JUMP_FRAMES = 8;
 
 /**
  * Where the reader had got to when they opened the conversation, when it holds something they have not read: the
@@ -57,7 +69,7 @@ export function ConversationView(props: Readonly<ConversationViewProps>) {
 	return <ConversationPane key={props.conversation.id} {...props} />;
 }
 
-function ConversationPane({ conversation, conversationNames, canManage, onOpenThread, onBack, jumpToMessageId }: Readonly<ConversationViewProps>) {
+function ConversationPane({ conversation, conversationNames, canManage, presence, onOpenThread, onBack, jumpToMessageId }: Readonly<ConversationViewProps>) {
 	const t = useTranslations();
 	const locale = useLocale();
 	const router = useRouter();
@@ -69,11 +81,27 @@ function ConversationPane({ conversation, conversationNames, canManage, onOpenTh
 	const taskTitles = useMemo(() => new Map(tasks.map((task) => [task.id, task.title])), [tasks]);
 	const { messages, hasBefore, isLoading, isError, isLoadingOlder, loadOlder, retry, newestId, jumpTo } = useChatMessages(conversation.id, true);
 	const { draft, setDraft, clearDraft } = useChatDraft(conversation.id);
+	const attachments = useChatAttachments();
+	const files = useChatFiles(conversation.id, messages);
+	// By id: the lightbox shows the newest copy of the record (its signed address is read again with the list).
+	const [pictureId, setPictureId] = useState<string | null>(null);
+	const picture = pictureId ? (files.byId.get(pictureId) ?? null) : null;
+	// A drag of files over the timeline: dropped, they join the message being written.
+	const [dropping, setDropping] = useState(false);
 	const [editing, setEditing] = useState<IChatMessage | null>(null);
 	const [editValue, setEditValue] = useState('');
 	const [taskFrom, setTaskFrom] = useState<IChatMessage | null>(null);
 	const list = useRef<HTMLDivElement | null>(null);
 	const content = useRef<HTMLDivElement | null>(null);
+	// The virtual list (behind its flag), read once: switching it mid-conversation would lose the reader's place.
+	const [virtual] = useState(isChatVirtualListEnabled);
+	const virtualTimeline = useRef<VirtualTimelineHandle | null>(null);
+	// A jump to a message the virtual list has not drawn: it scrolls there, and the target is looked for again a frame on.
+	const [jumpFrame, setJumpFrame] = useState(0);
+	const jumpTries = useRef(0);
+	// The older page being read: where the reader is (kept up to date while they scroll), until it comes in.
+	const olderRequest = useRef<{ anchor: VirtualTimelineAnchor | null; arrived: boolean } | null>(null);
+	const jumpTarget = useRef<string | null>(null);
 	const stickToBottom = useRef(true);
 	// How far the reader is from the newest message. Only at the bottom does viewing read the conversation.
 	const [away, setAway] = useState<'bottom' | 'near' | 'far'>('bottom');
@@ -125,6 +153,11 @@ function ConversationPane({ conversation, conversationNames, canManage, onOpenTh
 		const element = list.current;
 		if (!element) return;
 		if (jumpToMessageId && jumped.current !== jumpToMessageId) {
+			// Each target gets its own frames: one that was never drawn does not use up the next one's.
+			if (jumpTarget.current !== jumpToMessageId) {
+				jumpTarget.current = jumpToMessageId;
+				jumpTries.current = 0;
+			}
 			const target = element.querySelector<HTMLElement>(`[data-message-id="${CSS.escape(jumpToMessageId)}"]`);
 			if (target) {
 				jumped.current = jumpToMessageId;
@@ -132,11 +165,18 @@ function ConversationPane({ conversation, conversationNames, canManage, onOpenTh
 				target.scrollIntoView({ block: 'center' });
 				target.dataset.highlight = 'true';
 				window.setTimeout(() => delete target.dataset.highlight, 2000);
+				jumpTries.current = 0;
 				return;
+			}
+			if (virtual && jumpTries.current < JUMP_FRAMES && virtualTimeline.current?.scrollToMessage(jumpToMessageId)) {
+				jumpTries.current += 1;
+				stickToBottom.current = false;
+				const frame = window.requestAnimationFrame(() => setJumpFrame((count) => count + 1));
+				return () => window.cancelAnimationFrame(frame);
 			}
 		}
 		if (stickToBottom.current) element.scrollTop = element.scrollHeight;
-	}, [newestId, jumpToMessageId, messages.length, isLoading]);
+	}, [newestId, jumpToMessageId, messages.length, isLoading, virtual, jumpFrame]);
 
 	// At the bottom the timeline stays there when its height changes without a new message: the composer growing a
 	// line, the thread pane opening beside it, an edited message getting longer.
@@ -174,16 +214,27 @@ function ConversationPane({ conversation, conversationNames, canManage, onOpenTh
 			setAway(distance < FAR_FROM_BOTTOM_PX ? 'near' : 'far');
 			if (wasAtBottom) setLeftAt(newestId);
 		}
+		// The reader moved while the older page loads: it is their new place that is kept.
+		const pending = olderRequest.current;
+		if (pending && !pending.arrived && virtual) pending.anchor = virtualTimeline.current?.anchor() ?? null;
 		if (element.scrollTop < 80 && hasBefore && !isLoadingOlder) {
 			const before = element.scrollHeight;
+			// The virtual list measures the rows it draws as the page comes in: it puts the reader's row back itself.
+			const request = { anchor: virtual ? (virtualTimeline.current?.anchor() ?? null) : null, arrived: false };
+			olderRequest.current = request;
 			void loadOlder().then(() => {
-				// Keep what the reader was looking at in place after the older page is prepended.
+				request.arrived = true;
+				// Keep what the reader was looking at in place after the older page is prepended; unless a jump to the
+				// latest took over meanwhile.
 				requestAnimationFrame(() => {
+					if (olderRequest.current !== request) return;
+					olderRequest.current = null;
+					if (request.anchor && virtualTimeline.current?.restore(request.anchor)) return;
 					if (list.current) list.current.scrollTop += list.current.scrollHeight - before;
 				});
 			});
 		}
-	}, [hasBefore, isLoadingOlder, loadOlder, newestId]);
+	}, [hasBefore, isLoadingOlder, loadOlder, newestId, virtual]);
 
 	const jumpToLatest = useCallback(() => {
 		const element = list.current;
@@ -191,18 +242,44 @@ function ConversationPane({ conversation, conversationNames, canManage, onOpenTh
 		const distance = element.scrollHeight - element.scrollTop - element.clientHeight;
 		const calm = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
 		stickToBottom.current = true;
+		// An older page on its way no longer moves the reader back up.
+		olderRequest.current = null;
 		element.scrollTo({ top: element.scrollHeight, behavior: calm || distance > SMOOTH_SCROLL_MAX_PX ? 'auto' : 'smooth' });
 	}, []);
 
 	const send = useCallback(
 		async (body: string) => {
+			const attachmentIds = attachments.readyIds;
+			const ready = new Set(attachmentIds);
+			const names = attachments.items.filter((item) => item.documentId && ready.has(item.documentId)).map((item) => item.name);
 			clearDraft();
+			attachments.releaseSent();
 			stickToBottom.current = true;
 			readPaused.current = false;
-			await actions.send(conversation.id, { body }).catch(() => toast.error(t('teamChat.SEND_FAILED')));
+			await actions
+				.send(conversation.id, { body: body || attachmentFallbackBody(names), attachmentIds: attachmentIds.length ? attachmentIds : undefined })
+				.catch(() => toast.error(t('teamChat.SEND_FAILED')));
 		},
-		[actions, clearDraft, conversation.id, t]
+		[actions, attachments, clearDraft, conversation.id, t]
 	);
+
+	const canDrop = attachments.canAttach && !conversation.archivedAt;
+	const onDragOver = (event: DragEvent<HTMLDivElement>) => {
+		if (!canDrop || !isFileDrag(event.dataTransfer)) return;
+		event.preventDefault();
+		event.dataTransfer.dropEffect = 'copy';
+		if (!dropping) setDropping(true);
+	};
+	const onDragLeave = (event: DragEvent<HTMLDivElement>) => {
+		if (event.currentTarget.contains(event.relatedTarget as Node | null)) return;
+		setDropping(false);
+	};
+	const onDrop = (event: DragEvent<HTMLDivElement>) => {
+		if (!canDrop || !isFileDrag(event.dataTransfer)) return;
+		event.preventDefault();
+		setDropping(false);
+		attachments.add(filesOfTransfer(event.dataTransfer));
+	};
 
 	const saveEdit = useCallback(
 		async (body: string) => {
@@ -245,9 +322,11 @@ function ConversationPane({ conversation, conversationNames, canManage, onOpenTh
 				navigator.clipboard?.writeText(url).then(() => toast(t('teamChat.LINK_COPIED'))).catch(() => undefined);
 			},
 			onOpenTask: (taskId: string) => openTaskDrawer(taskId),
-			onCreateTask: (message: IChatMessage) => setTaskFrom(message)
+			onCreateTask: (message: IChatMessage) => setTaskFrom(message),
+			onOpenImage: (file: IChatFile) => setPictureId(String(file.documentId)),
+			onBrokenImage: files.refresh
 		}),
-		[actions, conversation.id, onOpenThread, openTaskDrawer, reportFailure, t]
+		[actions, conversation.id, files.refresh, onOpenThread, openTaskDrawer, reportFailure, t]
 	);
 
 	const setNotify = (level: EChatNotifyLevel) => actions.setMemberState(conversation.id, { notifyLevel: level }).catch(reportFailure);
@@ -260,6 +339,43 @@ function ConversationPane({ conversation, conversationNames, canManage, onOpenTh
 			.leave(conversation.id)
 			.then(() => router.push('/chat'))
 			.catch(reportFailure);
+
+	/** One row of the timeline: a day, the "New" line, a message (or its edit). */
+	const renderItem = (item: ChatTimelineItem) => {
+		if (item.type === 'day') return <DayDivider key={`day:${item.key}`} label={dayLabel(item.date, locale, today)} />;
+		if (item.type === 'new') return <NewDivider key="new" label={t('teamChat.NEW_DIVIDER')} />;
+		const { message } = item;
+		if (editing?.id === message.id) {
+			return (
+				<div key={message.id} className="px-4 py-2">
+					<MessageComposer value={editValue} onChange={setEditValue} onSubmit={saveEdit} onCancel={() => setEditing(null)} people={people.list} placeholder={t('teamChat.EDIT')} editing autoFocus />
+				</div>
+			);
+		}
+		let author: ChatPerson | null = null;
+		if (message.authorEmployeeId) author = people.byEmployee.get(String(message.authorEmployeeId)) ?? null;
+		else if (message.authorUserId) author = people.byUser.get(String(message.authorUserId)) ?? null;
+		return (
+			<MessageItem
+				key={message.id}
+				message={message}
+				author={author}
+				people={people.byEmployee}
+				conversationNames={conversationNames}
+				meEmployeeId={meEmployeeId}
+				meUserId={meUserId}
+				locale={locale}
+				continues={item.continues}
+				inTimeline
+				canManage={canManage}
+				// Only a message with replies words a time ("last reply 5 minutes ago"): the others are not rendered again each minute.
+				now={message.replyCount > 0 ? now : undefined}
+				taskTitles={taskTitles}
+				files={files.byId}
+				{...handlers}
+			/>
+		);
+	};
 
 	const isReady = !isLoading && !isError;
 
@@ -275,10 +391,17 @@ function ConversationPane({ conversation, conversationNames, canManage, onOpenTh
 				onNotify={setNotify}
 				onCopyLink={copyLink}
 				onLeave={leave}
+				presence={presence}
+				extra={<ConversationFilesButton conversationId={conversation.id} people={people.byEmployee} peopleByUser={people.byUser} className={BAR_BUTTON} />}
 			/>
 
-			<div className="relative min-h-0 flex-1">
-				<div ref={list} onScroll={onScroll} className="h-full overflow-y-auto overscroll-contain" role="log" aria-live="polite" aria-busy={isLoading}>
+			<div className="relative min-h-0 flex-1" onDragOver={onDragOver} onDragLeave={onDragLeave} onDrop={onDrop}>
+				{dropping && (
+					<div className="pointer-events-none absolute inset-2 z-20 flex items-center justify-center rounded-xl bg-primary/[0.06] text-sm font-medium text-primary hairline-ring ring-primary/40" aria-hidden="true">
+						{t('entityFiles.DROP_HINT')}
+					</div>
+				)}
+				<div ref={list} onScroll={onScroll} className={cn('h-full overflow-y-auto overscroll-contain', virtual && 'relative')} role="log" aria-live="polite" aria-busy={isLoading}>
 					{/* Bottom-aligned: a short conversation sits right above the composer, as the next message will. */}
 					<div ref={content} className="flex min-h-full flex-col justify-end pb-2">
 						{isLoading && <ChatMessagesSkeleton rows={7} />}
@@ -293,56 +416,33 @@ function ConversationPane({ conversation, conversationNames, canManage, onOpenTh
 							</div>
 						)}
 						{isReady && messages.length === 0 && <p className="px-4 pb-2 text-[13px] text-muted-foreground">{t('teamChat.EMPTY_CONVERSATION')}</p>}
-						{items.map((item) => {
-							if (item.type === 'day') return <DayDivider key={`day:${item.key}`} label={dayLabel(item.date, locale, today)} />;
-							if (item.type === 'new') return <NewDivider key="new" label={t('teamChat.NEW_DIVIDER')} />;
-							const { message } = item;
-							if (editing?.id === message.id) {
-								return (
-									<div key={message.id} className="px-4 py-2">
-										<MessageComposer value={editValue} onChange={setEditValue} onSubmit={saveEdit} onCancel={() => setEditing(null)} people={people.list} placeholder={t('teamChat.EDIT')} editing autoFocus />
-									</div>
-								);
-							}
-							let author: ChatPerson | null = null;
-							if (message.authorEmployeeId) author = people.byEmployee.get(String(message.authorEmployeeId)) ?? null;
-							else if (message.authorUserId) author = people.byUser.get(String(message.authorUserId)) ?? null;
-							return (
-								<MessageItem
-									key={message.id}
-									message={message}
-									author={author}
-									people={people.byEmployee}
-									conversationNames={conversationNames}
-									meEmployeeId={meEmployeeId}
-									meUserId={meUserId}
-									locale={locale}
-									continues={item.continues}
-									inTimeline
-									canManage={canManage}
-									// Only a message with replies words a time ("last reply 5 minutes ago"): the others are not rendered again each minute.
-									now={message.replyCount > 0 ? now : undefined}
-									taskTitles={taskTitles}
-									{...handlers}
-								/>
-							);
-						})}
+						{virtual ? <VirtualTimeline items={items} scrollRef={list} renderItem={renderItem} handleRef={virtualTimeline} /> : items.map(renderItem)}
 					</div>
 				</div>
 				{isReady && (away === 'far' || (away === 'near' && newBelow > 0)) && <JumpToLatest count={newBelow} onClick={jumpToLatest} />}
 			</div>
 
-			<div className="shrink-0 px-4 pb-3 pt-1">
+			{/* Above a phone's home indicator: the safe area, when it is taller than the usual space. */}
+			<div className="shrink-0 px-4 pb-[max(0.75rem,env(safe-area-inset-bottom))] pt-1">
 				{archived ? (
 					<p className="flex items-center gap-2 rounded-xl bg-foreground/[0.04] px-3 py-2.5 text-xs text-muted-foreground">
 						<Archive className="size-4 shrink-0" aria-hidden="true" />
 						{t('teamChat.ARCHIVED_NOTICE')}
 					</p>
 				) : (
-					<MessageComposer value={draft} onChange={setDraft} onSubmit={send} people={people.list} placeholder={t('teamChat.COMPOSER_PLACEHOLDER', { name: title })} autoFocus={focusComposer} />
+					<MessageComposer
+						value={draft}
+						onChange={setDraft}
+						onSubmit={send}
+						people={people.list}
+						placeholder={t('teamChat.COMPOSER_PLACEHOLDER', { name: title })}
+						autoFocus={focusComposer}
+						attachments={attachments}
+					/>
 				)}
 			</div>
 			{taskFrom && <CreateTaskFromMessageDialog key={taskFrom.id} message={taskFrom} onClose={() => setTaskFrom(null)} />}
+			<ImageLightbox file={picture} onClose={() => setPictureId(null)} />
 		</div>
 	);
 }

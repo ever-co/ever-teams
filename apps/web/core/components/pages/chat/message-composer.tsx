@@ -1,15 +1,20 @@
 'use client';
 
-import { type KeyboardEvent, type ReactNode, useCallback, useEffect, useId, useLayoutEffect, useMemo, useRef, useState } from 'react';
+import { type ClipboardEvent, type DragEvent, type KeyboardEvent, type ReactNode, useCallback, useEffect, useId, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { useTranslations } from 'next-intl';
-import { AtSign, Bold, CodeBlock, InlineCode, Italic, Link, ListBullet, Send, Smile } from '@/core/components/icons';
+import { AtSign, Attachment, Bold, CodeBlock, InlineCode, Italic, Link, ListBullet, Send, Smile } from '@/core/components/icons';
 import { Button } from '@/core/components/duplicated-components/_button';
 import { MENU_SURFACE } from '@/core/components/common/menu-recipes';
 import { PersonAvatar } from '@/core/components/teams/people-avatars';
 import { cn } from '@/core/lib/helpers';
 import { ComposeEdit, insertAt, insertLink, insertMentionTrigger, ITALIC, replacementOf, toggleCodeBlock, toggleLinePrefix, toggleWrap } from '@/core/lib/utils/chat-compose';
 import { ChatPerson, mentionQueryAt, suggestMentions } from '@/core/lib/utils/chat-format';
+import { emojiQueryAt, suggestEmojis, type ChatEmojiEntry } from '@/core/lib/utils/chat-emoji';
+import { filesOfTransfer, isFileDrag } from '@/core/lib/utils/chat-attachments';
+import type { ChatAttachments } from '@/core/hooks/chat/use-chat-attachments';
+import { useEmojiIndex } from '@/core/hooks/chat/use-emoji-index';
 import { CHAT_MESSAGE_MAX_LENGTH } from '@/core/types/interfaces/common/chat';
+import { ComposerAttachments } from './chat-attachments';
 import { EmojiPopover } from './emoji-popover';
 
 /** The `@` suggestions: the members, plus everyone. */
@@ -21,11 +26,17 @@ const EVERYONE: ChatPerson[] = [
 /** The counter shows once this few characters are left (and while the message is too long). */
 const COUNTER_FROM = 200;
 
+/** How many emoji the `:` suggestions offer. */
+const EMOJI_SUGGESTIONS = 8;
+
+/** What the list over the composer offers: people for an `@`, emoji for a `:`. */
+type Suggestions = { kind: 'mention'; start: number; items: ChatPerson[] } | { kind: 'emoji'; start: number; items: ChatEmojiEntry[] } | null;
+
 /** `Ctrl/Cmd` + these keys wrap the selection in the marker. */
 const WRAP_SHORTCUTS: Record<string, string> = { b: '**', i: ITALIC, e: '`' };
 
 const TOOL_BUTTON =
-	'flex size-7 shrink-0 cursor-pointer items-center justify-center rounded-md text-muted-foreground outline-none transition-colors hover:bg-foreground/5 hover:text-foreground focus-visible:ring-[3px] focus-visible:ring-ring/25 disabled:pointer-events-none disabled:opacity-50 data-[popup-open]:bg-foreground/5 data-[popup-open]:text-foreground [&_svg]:size-4';
+	'flex size-7 shrink-0 cursor-pointer [@media(pointer:coarse)]:size-9 items-center justify-center rounded-md text-muted-foreground outline-none transition-colors hover:bg-foreground/5 hover:text-foreground focus-visible:ring-[3px] focus-visible:ring-ring/25 disabled:pointer-events-none disabled:opacity-50 data-[popup-open]:bg-foreground/5 data-[popup-open]:text-foreground [&_svg]:size-4';
 
 export interface MessageComposerProps {
 	value: string;
@@ -40,6 +51,11 @@ export interface MessageComposerProps {
 	editing?: boolean;
 	/** A thread composer offers "also send to the conversation". */
 	alsoToConversation?: { checked: boolean; onChange: (checked: boolean) => void };
+	/**
+	 * The files of the message (picker, paste, drop): with them the composer offers to attach, shows them, and sends
+	 * with files alone once they are uploaded (`onSubmit('')`: the caller words the body). Never in edit mode.
+	 */
+	attachments?: ChatAttachments;
 	className?: string;
 }
 
@@ -68,10 +84,11 @@ function ToolButton({ label, onClick, disabled, className, children }: Readonly<
 }
 
 /**
- * The composer: a box with the text on top and a row of tools under it (formatting, emoji, mention, send).
+ * The composer: a box with the text on top and a row of tools under it (formatting, emoji, mention, files, send).
  * `Enter` sends, `Shift+Enter` breaks the line, `Escape` cancels an edit; `Ctrl/Cmd+B`, `I` and `E` make the selection
- * bold, italic or code; `@` opens the member suggestions (arrows to move, `Enter` / `Tab` to pick, `Escape` to close),
- * which insert a rename-safe mention token.
+ * bold, italic or code; `@` opens the member suggestions and `:` with two letters the emoji ones (arrows to move,
+ * `Enter` / `Tab` to pick, `Escape` to close): a member becomes a rename-safe mention token, an emoji its character.
+ * Files come from the picker, a paste or a drop, and upload at once; the send waits for them.
  */
 export function MessageComposer({
 	value,
@@ -84,30 +101,46 @@ export function MessageComposer({
 	autoFocus,
 	editing,
 	alsoToConversation,
+	attachments,
 	className
 }: Readonly<MessageComposerProps>) {
 	const t = useTranslations();
 	const listId = useId();
 	const textarea = useRef<HTMLTextAreaElement | null>(null);
+	const fileInput = useRef<HTMLInputElement | null>(null);
+	const [dragging, setDragging] = useState(false);
 	// Where an edit wants the selection, applied once the field holds the edited text.
 	const pendingSelection = useRef<{ start: number; end: number } | null>(null);
 	const [caret, setCaret] = useState(0);
 	const [selected, setSelected] = useState(0);
 	const [sending, setSending] = useState(false);
 	const [focused, setFocused] = useState(false);
-	// The `@` whose suggestions were closed with Escape: they stay closed while the caret is in that mention.
+	// The `@` (or `:`) whose suggestions were closed with Escape: they stay closed while the caret is in that query.
 	const [dismissedAt, setDismissedAt] = useState<number | null>(null);
 	// Read once on this device: the composer renders with the conversation, which the server never has.
 	const [modifier] = useState(() => (typeof navigator !== 'undefined' && /Mac|iPhone|iPad/.test(navigator.userAgent) ? '⌘' : 'Ctrl+'));
 
 	const mention = useMemo(() => mentionQueryAt(value, caret), [caret, value]);
-	const suggestions = useMemo(() => {
-		if (!mention || !focused || mention.start === dismissedAt) return [];
-		const everyone = EVERYONE.filter((entry) => !mention.query || entry.name.startsWith(mention.query.toLowerCase()));
-		return [...suggestMentions(people, mention.query, 6), ...everyone];
-	}, [dismissedAt, focused, mention, people]);
+	const emoji = useMemo(() => (mention ? null : emojiQueryAt(value, caret)), [caret, mention, value]);
+	const emojiIndex = useEmojiIndex(!!emoji && focused);
+	const suggestions = useMemo<Suggestions>(() => {
+		if (!focused) return null;
+		if (mention && mention.start !== dismissedAt) {
+			const everyone = EVERYONE.filter((entry) => !mention.query || entry.name.startsWith(mention.query.toLowerCase()));
+			const items = [...suggestMentions(people, mention.query, 6), ...everyone];
+			return items.length ? { kind: 'mention', start: mention.start, items } : null;
+		}
+		if (emoji && emoji.start !== dismissedAt && emojiIndex) {
+			const items = suggestEmojis(emojiIndex, emoji.query, EMOJI_SUGGESTIONS);
+			return items.length ? { kind: 'emoji', start: emoji.start, items } : null;
+		}
+		return null;
+	}, [dismissedAt, emoji, emojiIndex, focused, mention, people]);
+	let queryKey = '';
+	if (mention) queryKey = `@${mention.query}`;
+	else if (emoji) queryKey = `:${emoji.query}`;
 
-	useEffect(() => setSelected(0), [mention?.query]);
+	useEffect(() => setSelected(0), [queryKey]);
 
 	// The textarea grows with its content, up to a few lines.
 	useEffect(() => {
@@ -168,9 +201,31 @@ export function MessageComposer({
 		[applyEdit, caret, mention, value]
 	);
 
+	/** The picked emoji in place of its `:query`, followed by a space as a typed word is. */
+	const insertEmoji = useCallback(
+		(entry: ChatEmojiEntry) => {
+			if (!emoji) return;
+			const position = emoji.start + entry.native.length + 1;
+			applyEdit({ value: `${value.slice(0, emoji.start)}${entry.native} ${value.slice(caret)}`, selectionStart: position, selectionEnd: position });
+		},
+		[applyEdit, caret, emoji, value]
+	);
+
+	const pick = useCallback(
+		(index: number) => {
+			if (!suggestions) return;
+			if (suggestions.kind === 'mention') insertMention(suggestions.items[index] ?? suggestions.items[0]);
+			else insertEmoji(suggestions.items[index] ?? suggestions.items[0]);
+		},
+		[insertEmoji, insertMention, suggestions]
+	);
+
+	const hasFiles = !!attachments && attachments.readyIds.length > 0;
+	const isUploading = !!attachments?.isUploading;
+
 	const submit = useCallback(async () => {
 		const body = value.trim();
-		if (!body || sending || disabled) return;
+		if ((!body && !hasFiles) || sending || disabled || isUploading) return;
 		if (body.length > CHAT_MESSAGE_MAX_LENGTH) return;
 		setSending(true);
 		try {
@@ -179,28 +234,67 @@ export function MessageComposer({
 			setSending(false);
 			requestAnimationFrame(() => textarea.current?.focus());
 		}
-	}, [disabled, onSubmit, sending, value]);
+	}, [disabled, hasFiles, isUploading, onSubmit, sending, value]);
+
+	const canAttach = !!attachments?.canAttach && !editing;
+	const addFiles = useCallback(
+		(files: File[]) => {
+			if (!attachments || !canAttach || disabled || !files.length) return;
+			attachments.add(files);
+		},
+		[attachments, canAttach, disabled]
+	);
+
+	// A pasted picture (a screenshot) is attached; text pasted with a rendering of itself (copied from an office
+	// document) stays text.
+	const onPaste = (event: ClipboardEvent<HTMLTextAreaElement>) => {
+		if (!canAttach) return;
+		const files = filesOfTransfer(event.clipboardData);
+		if (!files.length || event.clipboardData.getData('text/plain')) return;
+		event.preventDefault();
+		addFiles(files);
+	};
+
+	const onDragOver = (event: DragEvent<HTMLDivElement>) => {
+		if (!canAttach || !isFileDrag(event.dataTransfer)) return;
+		event.preventDefault();
+		event.dataTransfer.dropEffect = 'copy';
+		if (!dragging) setDragging(true);
+	};
+	const onDragLeave = (event: DragEvent<HTMLDivElement>) => {
+		if (event.currentTarget.contains(event.relatedTarget as Node | null)) return;
+		setDragging(false);
+	};
+	const onDrop = (event: DragEvent<HTMLDivElement>) => {
+		if (!canAttach || !isFileDrag(event.dataTransfer)) return;
+		event.preventDefault();
+		setDragging(false);
+		addFiles(filesOfTransfer(event.dataTransfer));
+	};
 
 	const onKeyDown = (event: KeyboardEvent<HTMLTextAreaElement>) => {
-		if (suggestions.length && mention) {
+		// A chord with a modifier (Alt+↑/↓ walks the conversations) is not a move in the suggestions.
+		const plainKey = !event.altKey && !event.ctrlKey && !event.metaKey;
+		if (suggestions && plainKey) {
+			const count = suggestions.items.length;
 			if (event.key === 'ArrowDown') {
 				event.preventDefault();
-				setSelected((index) => (index + 1) % suggestions.length);
+				setSelected((index) => (index + 1) % count);
 				return;
 			}
 			if (event.key === 'ArrowUp') {
 				event.preventDefault();
-				setSelected((index) => (index - 1 + suggestions.length) % suggestions.length);
+				setSelected((index) => (index - 1 + count) % count);
 				return;
 			}
 			if ((event.key === 'Enter' || event.key === 'Tab') && !event.nativeEvent.isComposing) {
 				event.preventDefault();
-				insertMention(suggestions[selected] ?? suggestions[0]);
+				pick(selected);
 				return;
 			}
 			if (event.key === 'Escape' && !event.shiftKey) {
 				event.preventDefault();
-				setDismissedAt(mention.start);
+				setDismissedAt(suggestions.start);
 				return;
 			}
 		}
@@ -226,17 +320,42 @@ export function MessageComposer({
 	const remaining = CHAT_MESSAGE_MAX_LENGTH - value.length;
 	const tooLong = remaining < 0;
 	const hasText = value.trim().length > 0;
-	const cannotSend = disabled || sending || !hasText || tooLong;
-	const showsSuggestions = suggestions.length > 0 && !!mention;
+	const cannotSend = disabled || sending || (!hasText && !hasFiles) || tooLong || isUploading;
+	const showsSuggestions = !!suggestions;
 	let hint = t('teamChat.COMPOSER_HINT');
 	if (editing) hint = t('teamChat.EDIT_HINT');
+	if (isUploading) hint = t('teamChat.ATTACH_WAIT');
 	if (tooLong) hint = t('teamChat.TOO_LONG', { max: CHAT_MESSAGE_MAX_LENGTH });
 
 	return (
 		<div className={cn('relative flex flex-col gap-1', className)}>
-			{showsSuggestions && (
+			{suggestions?.kind === 'emoji' && (
+				<div id={listId} role="listbox" aria-label={t('teamChat.EMOJI_SUGGESTIONS')} className={cn(MENU_SURFACE, 'absolute bottom-full start-0 z-20 mb-1.5 max-h-60 w-72 max-w-full overflow-y-auto')}>
+					{suggestions.items.map((entry, index) => (
+						<div
+							key={entry.id}
+							id={`${listId}-${index}`}
+							role="option"
+							tabIndex={-1}
+							aria-selected={index === selected}
+							onMouseDown={(event) => {
+								event.preventDefault();
+								insertEmoji(entry);
+							}}
+							onMouseEnter={() => setSelected(index)}
+							className={cn('flex h-8 cursor-pointer items-center gap-2.5 rounded-md px-2 text-[13px] text-foreground [@media(pointer:coarse)]:h-10', index === selected && 'bg-foreground/5')}
+						>
+							<span className="w-5 shrink-0 text-center text-base leading-none" aria-hidden="true">
+								{entry.native}
+							</span>
+							<span className="min-w-0 flex-1 truncate">:{entry.id}:</span>
+						</div>
+					))}
+				</div>
+			)}
+			{suggestions?.kind === 'mention' && (
 				<div id={listId} role="listbox" aria-label={t('teamChat.MENTION_SOMEONE')} className={cn(MENU_SURFACE, 'absolute bottom-full start-0 z-20 mb-1.5 max-h-60 w-72 max-w-full overflow-y-auto')}>
-					{suggestions.map((person, index) => {
+					{suggestions.items.map((person, index) => {
 						const isEveryone = person.employeeId.startsWith('!');
 						return (
 							<div
@@ -250,7 +369,7 @@ export function MessageComposer({
 									insertMention(person);
 								}}
 								onMouseEnter={() => setSelected(index)}
-								className={cn('flex h-8 cursor-pointer items-center gap-2.5 rounded-md px-2 text-[13px] text-foreground', index === selected && 'bg-foreground/5')}
+								className={cn('flex h-8 cursor-pointer items-center gap-2.5 rounded-md px-2 text-[13px] text-foreground [@media(pointer:coarse)]:h-10', index === selected && 'bg-foreground/5')}
 							>
 								{isEveryone ? (
 									<span className="inline-flex size-5 shrink-0 items-center justify-center rounded-full bg-amber-500/15 text-[11px] font-medium text-amber-700 dark:text-amber-300">@</span>
@@ -265,12 +384,22 @@ export function MessageComposer({
 				</div>
 			)}
 			<div
+				onDragOver={onDragOver}
+				onDragLeave={onDragLeave}
+				onDrop={onDrop}
+				data-dragging={dragging || undefined}
 				className={cn(
-					'rounded-xl bg-card shadow-xs shadow-black/5 hairline-border border-transparent hairline-ring ring-border transition-[box-shadow,border-color] focus-within:border-foreground/30 focus-within:ring-[3px] focus-within:ring-ring/25',
+					'relative rounded-xl bg-card shadow-xs shadow-black/5 hairline-border border-transparent hairline-ring ring-border transition-[box-shadow,border-color] focus-within:border-foreground/30 focus-within:ring-[3px] focus-within:ring-ring/25',
 					tooLong && 'border-destructive ring-destructive/25 focus-within:border-destructive focus-within:ring-destructive/25',
+					dragging && 'border-primary/60 ring-[3px] ring-primary/25',
 					disabled && 'opacity-60'
 				)}
 			>
+				{dragging && (
+					<div className="pointer-events-none absolute inset-0 z-10 flex items-center justify-center rounded-xl bg-primary/[0.06] text-xs font-medium text-primary" aria-hidden="true">
+						{t('entityFiles.DROP_HINT')}
+					</div>
+				)}
 				<textarea
 					ref={textarea}
 					value={value}
@@ -285,6 +414,7 @@ export function MessageComposer({
 					}}
 					onSelect={(event) => setCaret((event.target as HTMLTextAreaElement).selectionStart ?? 0)}
 					onKeyDown={onKeyDown}
+					onPaste={onPaste}
 					onFocus={() => setFocused(true)}
 					onBlur={() => setFocused(false)}
 					placeholder={placeholder}
@@ -295,8 +425,10 @@ export function MessageComposer({
 					rows={1}
 					disabled={disabled}
 					autoFocus={autoFocus}
-					className="block max-h-50 min-h-6 w-full resize-none bg-transparent px-3 pb-1 pt-2.5 text-[13px] leading-relaxed text-foreground outline-none placeholder:text-muted-foreground"
+					// 16 px text below the small breakpoint: a phone zooms the page into a field with smaller text.
+					className="block max-h-50 min-h-6 w-full resize-none bg-transparent px-3 pb-1 pt-2.5 text-base leading-relaxed text-foreground outline-none placeholder:text-muted-foreground sm:text-[13px]"
 				/>
+				{attachments && <ComposerAttachments items={attachments.items} onRemove={attachments.remove} onRetry={attachments.retry} />}
 				{/* The row wraps: in a narrow pane (a thread) the actions of an edit go under the tools, never over them. */}
 				<div className="flex flex-wrap items-center gap-x-0.5 gap-y-1 px-1.5 pb-1.5">
 					<div role="toolbar" aria-label={t('teamChat.FORMATTING')} className="flex min-w-0 flex-wrap items-center gap-0.5">
@@ -325,6 +457,27 @@ export function MessageComposer({
 						<ToolButton label={t('teamChat.MENTION_SOMEONE')} disabled={disabled} onClick={() => format(insertMentionTrigger)}>
 							<AtSign />
 						</ToolButton>
+						{canAttach && (
+							<>
+								<ToolButton label={t('teamChat.ATTACH_FILES')} disabled={disabled} onClick={() => fileInput.current?.click()}>
+									<Attachment />
+								</ToolButton>
+								<input
+									ref={fileInput}
+									type="file"
+									multiple
+									hidden
+									tabIndex={-1}
+									aria-hidden="true"
+									data-testid="chat-file-input"
+									onChange={(event) => {
+										addFiles(Array.from(event.target.files ?? []));
+										// The same file can be picked again after it was taken out.
+										event.target.value = '';
+									}}
+								/>
+							</>
+						)}
 					</div>
 					<div className="ms-auto flex shrink-0 items-center gap-1.5 ps-2">
 						{remaining <= COUNTER_FROM && (
@@ -342,7 +495,7 @@ export function MessageComposer({
 								{t('teamChat.SAVE')}
 							</Button>
 						) : (
-							<Button type="button" size="icon-sm" variant={hasText ? 'default' : 'ghost'} onClick={() => void submit()} disabled={cannotSend} aria-label={t('teamChat.SEND')} title={t('teamChat.SEND')}>
+							<Button type="button" size="icon-sm" variant={hasText || hasFiles ? 'default' : 'ghost'} onClick={() => void submit()} disabled={cannotSend} aria-label={t('teamChat.SEND')} title={t('teamChat.SEND')}>
 								<Send className="size-4 rtl:-scale-x-100" />
 							</Button>
 						)}

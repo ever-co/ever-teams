@@ -3018,7 +3018,8 @@
 			"projects": "Projekte",
 			"navigation": "Navigation",
 			"settings": "Einstellungen",
-			"goTo": "Gehe zu"
+			"goTo": "Gehe zu",
+			"chat": "Chat"
 		},
 		"commands": {
 			"inviteUser": "Benutzer einladen",
@@ -3039,12 +3040,20 @@
 			"goToWeeklyLimit": "Zum Bericht Wochenlimit",
 			"goToTimeAndActivity": "Zum Bericht Zeit und Aktivität",
 			"profile": "Profil",
-			"settings": "Einstellungen"
+			"settings": "Einstellungen",
+			"newMessage": "Neue Nachricht"
 		},
 		"results": {
 			"recent": "Zuletzt",
 			"tasks": "Aufgaben",
-			"inTeam": "in {team}"
+			"inTeam": "in {team}",
+			"conversations": "Unterhaltungen",
+			"people": "Personen",
+			"messagePerson": "{name} schreiben",
+			"projects": "Projekte",
+			"pages": "Seiten",
+			"untitledPage": "Ohne Titel",
+			"recentlyOpened": "Zuletzt geöffnet"
 		}
 	},
 	"modals": {
@@ -3447,6 +3456,19 @@
 				"PUSH_BLOCKED": "Benachrichtigungen sind für diese Website blockiert: Erlauben Sie sie in den Browsereinstellungen und schalten Sie sie dann hier ein.",
 				"PUSH_UNSUPPORTED": "Dieser Browser kann keine Benachrichtigungen anzeigen.",
 				"PUSH_FAILED": "Die Browser-Benachrichtigungen konnten nicht geändert werden. Versuchen Sie es erneut.",
+				"PUSH_KINDS_TITLE": "An Ihre Geräte gesendet",
+				"PUSH_KIND_OFF": "Oben ausgeschaltet, daher wird nichts gesendet.",
+				"DEVICES_TITLE": "Ihre Geräte",
+				"DEVICE_NAME": "{browser} auf {system}",
+				"DEVICE_UNKNOWN": "Ein Browser",
+				"DEVICE_THIS": "Dieses Gerät",
+				"DEVICE_LAST_USED": "Zuletzt benachrichtigt {date}",
+				"DEVICE_ADDED": "Hinzugefügt {date}",
+				"DEVICE_REMOVE": "Entfernen",
+				"DEVICE_REMOVE_FAILED": "Das Gerät wurde nicht entfernt. Versuchen Sie es erneut.",
+				"SOUND_TITLE": "Ton",
+				"SOUND_LABEL": "Ton für neue Einträge",
+				"SOUND_TEXT": "Ein geöffneter Tab dieses Browsers spielt einen kurzen Ton ab, wenn etwas Neues in Ihrem Posteingang ankommt.",
 				"EMAIL_INTRO": "Wie dich jede Art per E-Mail erreicht. Jede eingeschaltete Art erscheint weiterhin in deinem Posteingang.",
 				"DEFAULT_LABEL": "Jede Art",
 				"DEFAULT_TEXT": "Die E-Mail-Einstellung, die eine Art verwendet, sofern ihre eigene Zeile nichts anderes sagt.",
@@ -4081,6 +4103,45 @@
 				"FINISH_ERROR_TITLE": "Trello konnte nicht verbunden werden",
 				"RETURN_REFUSED_TITLE": "Trello hat kein Token zurückgegeben",
 				"RETURN_REFUSED": "Die Autorisierung wurde abgelehnt oder die Rückkehr abgebrochen; nichts wurde verbunden. Verbinden Sie erneut, wenn Sie bereit sind."
+			},
+			"conflicts": {
+				"TITLE": "Synchronisierungskonflikte",
+				"DESCRIPTION": "Felder, die seit der letzten Übereinstimmung sowohl in {provider} als auch hier geändert wurden. Der Wert aus {provider} wurde auf die Aufgabe angewendet; der Wert der Aufgabe bleibt hier erhalten, damit Sie ihn wiederherstellen können.",
+				"SHOW": "Konflikte anzeigen",
+				"STATUS_open": "Offen",
+				"STATUS_resolved": "Gelöst",
+				"RUN_FILTER": "Es werden die Konflikte eines Laufs angezeigt.",
+				"SHOW_ALL": "Alle Läufe anzeigen",
+				"LOADING": "Konflikte werden geladen…",
+				"LOAD_ERROR": "Die Konflikte konnten nicht geladen werden",
+				"EMPTY_OPEN": "Kein offener Konflikt.",
+				"EMPTY_RESOLVED": "Noch kein gelöster Konflikt.",
+				"SHOW_MORE": "Ältere Konflikte anzeigen",
+				"OPEN_TASK": "Aufgabe öffnen",
+				"ITEM": "{provider}-Element {id}",
+				"FOUND": "Gefunden {when}",
+				"TASK_VALUE": "Wert der Aufgabe",
+				"PROVIDER_VALUE": "Wert aus {provider} (angewendet)",
+				"EMPTY_VALUE": "Leer",
+				"SHOW_FULL": "Alles anzeigen",
+				"SHOW_LESS": "Weniger anzeigen",
+				"FIELD_title": "Titel",
+				"FIELD_description": "Beschreibung",
+				"FIELD_status": "Status",
+				"FIELD_priority": "Priorität",
+				"FIELD_dueDate": "Fälligkeitsdatum",
+				"KEEP_PROVIDER": "Wert aus {provider} behalten",
+				"KEEP_TASK": "Wert der Aufgabe wiederherstellen",
+				"KEPT_PROVIDER": "Gelöst: Die Aufgabe behält ihren aktuellen Wert.",
+				"KEPT_TASK": "Der Wert der Aufgabe wurde zurückgeschrieben.",
+				"RESOLVED_kept_external": "Wert aus {provider} behalten",
+				"RESOLVED_kept_platform": "Wert der Aufgabe wiederhergestellt",
+				"RESOLVED_superseded": "Durch einen späteren Konflikt ersetzt",
+				"ERROR_TITLE": "Der Konflikt konnte nicht gelöst werden",
+				"ERROR_STALE": "Die Aufgabe hat sich geändert, seit der Konflikt gefunden wurde, daher wurde ihr Wert nicht zurückgeschrieben. Behalten Sie den Wert aus {provider} oder bearbeiten Sie die Aufgabe.",
+				"ERROR_NOT_FOUND": "Dieser Konflikt wurde bereits gelöst. Die Liste wurde aktualisiert.",
+				"RUN_COUNT": "{count, plural, one {# Konflikt} other {# Konflikte}}",
+				"SHOW_RUN_CONFLICTS": "Die von diesem Lauf gefundenen Konflikte anzeigen"
 			}
 		},
 		"taskProperties": {
@@ -4900,7 +4961,8 @@
 			"global": "Überall",
 			"list": "Aufgabenliste",
 			"task": "Fokussierte Aufgabe",
-			"view": "Ansicht"
+			"view": "Ansicht",
+			"chat": "Chat"
 		},
 		"commands": {
 			"paletteOpen": "Befehlspalette öffnen",
@@ -4924,8 +4986,30 @@
 			"taskStatus": "Status ändern",
 			"taskPriority": "Priorität ändern",
 			"taskLabels": "Labels ändern",
-			"taskDueDate": "Fälligkeitsdatum ändern"
-		}
+			"taskDueDate": "Fälligkeitsdatum ändern",
+			"chatPrevious": "Vorherige Unterhaltung",
+			"chatNext": "Nächste Unterhaltung",
+			"chatPreviousUnread": "Vorherige ungelesene Unterhaltung",
+			"chatNextUnread": "Nächste ungelesene Unterhaltung",
+			"chatUnreads": "Ungelesene öffnen",
+			"chatMarkAllRead": "Alles als gelesen markieren",
+			"goHome": "Zur Startseite",
+			"goProjects": "Zu den Projekten",
+			"goKanban": "Zum Kanban-Board",
+			"goProfile": "Zu meinem Profil",
+			"goTimesheets": "Zum Stundenzettel-Bericht",
+			"goWeeklyLimit": "Zum Bericht Wochenlimit",
+			"goTimeActivity": "Zum Bericht Zeit und Aktivität",
+			"teamCreate": "Team erstellen",
+			"projectCreate": "Projekt erstellen",
+			"inviteUser": "Jemanden ins Team einladen",
+			"searchTasks": "Aufgaben durchsuchen",
+			"searchProjects": "Projekte durchsuchen",
+			"searchTeams": "Teams durchsuchen",
+			"themeToggle": "Zwischen hell und dunkel wechseln"
+		},
+		"CHAT_SINGLE_KEY": "Eine Chat-Taste ist eine einzelne Taste, keine Folge.",
+		"CHAT_TAKEN": "Der Chat verwendet diese Taste bereits (Formatieren, Senden, Bewegen oder Scrollen)."
 	},
 	"realtime": {
 		"RECONNECTING": "Verbindung wird wiederhergestellt…"
@@ -5172,7 +5256,18 @@
 		"START_OF_DIRECT": "Hier beginnt Ihre Unterhaltung mit {name}",
 		"START_OF_DIRECT_TEXT": "Nur die Personen in dieser Unterhaltung können diese Nachrichten lesen.",
 		"UNREAD_REPLIES": "{count, plural, one {# neue Antwort} other {# neue Antworten}}",
-		"YOU": "Sie"
+		"YOU": "Sie",
+		"ATTACH_FILES": "Dateien anhängen",
+		"ATTACH_TOO_MANY": "Eine Nachricht kann höchstens {max} Dateien enthalten.",
+		"ATTACH_FORBIDDEN": "Ihre Rolle darf keine Dateien anhängen.",
+		"ATTACH_WAIT": "Die Dateien werden noch hochgeladen…",
+		"ATTACHMENT": "Datei",
+		"FILES": "Dateien",
+		"FILES_EMPTY": "In dieser Unterhaltung wurden noch keine Dateien geteilt.",
+		"LOAD_MORE": "Mehr laden",
+		"VIEW_IMAGE": "{name} ansehen",
+		"OPEN_ORIGINAL": "Original öffnen",
+		"EMOJI_SUGGESTIONS": "Emoji"
 	},
 	"docs": {
 		"TITLE": "Dokumente",
@@ -5324,7 +5419,25 @@
 				"DECISION": "Entscheidung",
 				"CONSEQUENCES": "Auswirkungen"
 			}
-		}
+		},
+		"LIVE": "Live",
+		"LIVE_CONNECTING": "Verbinden…",
+		"LIVE_RECONNECTING": "Neu verbinden…",
+		"NOT_LIVE": "Nicht live",
+		"LIVE_EDITORS": "{count, plural, one {# weitere Person auf dieser Seite} other {# weitere Personen auf dieser Seite}}",
+		"LIVE_READ_ONLY": "Sie können diese Seite lesen, während sie sich ändert, sie hier aber nicht bearbeiten.",
+		"LIVE_READ_ONLY_NO_ACCESS": "Sie können diese Seite lesen, während andere sie bearbeiten, aber selbst nicht bearbeiten.",
+		"LIVE_READ_ONLY_FULL": "Diese Seite hat so viele Bearbeitende, wie sie aufnehmen kann. Sie können mitlesen und bearbeiten, sobald jemand geht.",
+		"LIVE_ENDED": "Die Live-Bearbeitung wurde beendet. Ihre Änderungen werden wie gewohnt gespeichert.",
+		"LIVE_ENDED_ACCESS": "Sie haben keinen Zugriff mehr, um diese Seite live zu bearbeiten.",
+		"TEAM_SPACE": "Teambereich",
+		"TEAM_SPACE_EMPTY": "Noch keine Seiten in diesem Teambereich.",
+		"NEW_TEAM_PAGE": "Neue Seite in {team}",
+		"MOVE_TO_SPACE": "In Bereich verschieben",
+		"FOLLOW": "Seite folgen",
+		"UNFOLLOW": "Seite nicht mehr folgen",
+		"MUTE": "Benachrichtigungen stummschalten",
+		"UNMUTE": "Benachrichtigungen einschalten"
 	},
 	"whatsNew": {
 		"TITLE": "Neuigkeiten",

@@ -97,3 +97,45 @@ describe('docsService.listAll', () => {
 		expect(get).toHaveBeenCalledTimes(DOCS_TREE_MAX_PAGES / DOCS_LIST_PAGE_SIZE);
 	});
 });
+
+/**
+ * The live routes validate their body with `forbidNonWhitelisted`: an edit or a cursor carrying anything beyond the
+ * connection and the payload (the scope the other writes add, for one) would be refused with 400.
+ */
+describe('docsService live and collaboration routes', () => {
+	afterEach(() => jest.restoreAllMocks());
+
+	it('sends an edit and a cursor with exactly the connection and the payload', async () => {
+		const post = jest.spyOn(docsService, 'post').mockResolvedValue({ data: { accepted: true, relayed: false } } as never);
+
+		await docsService.liveUpdate('page/1', { connectionId: 'tab12345', update: 'AAE=', extra: 'x' } as never);
+		await docsService.liveAwareness('page/1', { connectionId: 'tab12345', awareness: 'AQI=' });
+
+		// The last argument keeps `post` from adding the tenant and organization to the body: the routes refuse them.
+		expect(post.mock.calls[0]).toEqual(['/plugins/docs/documents/page%2F1/live/updates', { connectionId: 'tab12345', update: 'AAE=' }, undefined, false]);
+		expect(post.mock.calls[1]).toEqual(['/plugins/docs/documents/page%2F1/live/awareness', { connectionId: 'tab12345', awareness: 'AQI=' }, undefined, false]);
+	});
+
+	it('asks the live status, the spaces and the follow state where the platform serves them', async () => {
+		const get = jest.spyOn(docsService, 'get').mockResolvedValue({ data: [] } as never);
+
+		await docsService.liveStatus();
+		await docsService.spaces();
+		await docsService.followState('p1');
+
+		expect(String(get.mock.calls[0][0])).toBe('/plugins/docs/live/status');
+		expect(String(get.mock.calls[1][0]).split('?')[0]).toBe('/plugins/docs/documents/spaces');
+		expect(String(get.mock.calls[2][0])).toBe('/plugins/docs/documents/p1/follow');
+	});
+
+	it('follows, mutes and moves a page to a space', async () => {
+		const post = jest.spyOn(docsService, 'post').mockResolvedValue({ data: { following: true, muted: false } } as never);
+
+		await docsService.setFollow('p1', 'mute');
+		await docsService.moveToSpace('p1', { visibility: EDocumentVisibility.TEAM, organizationTeamId: 'team-a', applyToSubtree: true });
+
+		expect(post.mock.calls[0]).toEqual(['/plugins/docs/documents/p1/mute', {}]);
+		expect(post.mock.calls[1][0]).toBe('/plugins/docs/documents/p1/space');
+		expect(post.mock.calls[1][1]).toMatchObject({ visibility: 'TEAM', organizationTeamId: 'team-a', applyToSubtree: true });
+	});
+});

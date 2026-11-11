@@ -10,7 +10,7 @@
  */
 
 /** Where a command applies; a key press is matched against the contexts active at the time. */
-export type ShortcutContext = 'global' | 'list' | 'task' | 'view';
+export type ShortcutContext = 'global' | 'list' | 'task' | 'view' | 'chat';
 
 export interface ShortcutCommand {
 	id: string;
@@ -51,6 +51,21 @@ export const SHORTCUT_COMMANDS: readonly ShortcutCommand[] = [
 	{ id: 'goDocs', context: 'global', defaultBinding: 'g d' },
 	{ id: 'goChat', context: 'global', defaultBinding: 'g c' },
 	{ id: 'goInbox', context: 'global', defaultBinding: 'g i' },
+	// the command palette's own commands (their old keys clashed with `C` and the row letters: see plan.md)
+	{ id: 'goHome', context: 'global', defaultBinding: 'g h' },
+	{ id: 'goProjects', context: 'global', defaultBinding: 'g p' },
+	{ id: 'goKanban', context: 'global', defaultBinding: 'g k' },
+	{ id: 'goProfile', context: 'global', defaultBinding: 'g u' },
+	{ id: 'goTimesheets', context: 'global', defaultBinding: 'g s' },
+	{ id: 'goWeeklyLimit', context: 'global', defaultBinding: 'g l' },
+	{ id: 'goTimeActivity', context: 'global', defaultBinding: 'g a' },
+	{ id: 'teamCreate', context: 'global', defaultBinding: 'n t' },
+	{ id: 'projectCreate', context: 'global', defaultBinding: 'n p' },
+	{ id: 'inviteUser', context: 'global', defaultBinding: 'n u' },
+	{ id: 'searchTasks', context: 'global', defaultBinding: '/ t' },
+	{ id: 'searchProjects', context: 'global', defaultBinding: '/ p' },
+	{ id: 'searchTeams', context: 'global', defaultBinding: '/ m' },
+	{ id: 'themeToggle', context: 'global', defaultBinding: 't h' },
 	// the list (the arrows, Enter, O and Esc stay its own; the person can rebind the letters)
 	{ id: 'listDown', context: 'list', defaultBinding: 'j', chordOnly: true },
 	{ id: 'listUp', context: 'list', defaultBinding: 'k', chordOnly: true },
@@ -62,19 +77,86 @@ export const SHORTCUT_COMMANDS: readonly ShortcutCommand[] = [
 	{ id: 'taskStatus', context: 'task', defaultBinding: 's', chordOnly: true },
 	{ id: 'taskPriority', context: 'task', defaultBinding: 'p', chordOnly: true },
 	{ id: 'taskLabels', context: 'task', defaultBinding: 'l', chordOnly: true },
-	{ id: 'taskDueDate', context: 'task', defaultBinding: 'd', chordOnly: true }
+	{ id: 'taskDueDate', context: 'task', defaultBinding: 'd', chordOnly: true },
+	// the chat page (it matches these itself, in the composer too: Alt or ⌘/Ctrl chords, and Escape)
+	{ id: 'chatPrevious', context: 'chat', defaultBinding: 'alt+arrowup' },
+	{ id: 'chatNext', context: 'chat', defaultBinding: 'alt+arrowdown' },
+	{ id: 'chatPreviousUnread', context: 'chat', defaultBinding: 'alt+shift+arrowup' },
+	{ id: 'chatNextUnread', context: 'chat', defaultBinding: 'alt+shift+arrowdown' },
+	{ id: 'chatUnreads', context: 'chat', defaultBinding: 'mod+shift+a' },
+	{ id: 'chatMarkAllRead', context: 'chat', defaultBinding: 'shift+escape' }
 ];
 
 /** The contexts in the order the help dialog lists them. */
-export const SHORTCUT_CONTEXTS: readonly ShortcutContext[] = ['global', 'list', 'task', 'view'];
+export const SHORTCUT_CONTEXTS: readonly ShortcutContext[] = ['global', 'list', 'task', 'view', 'chat'];
+
+/** The contexts a page matches itself, one chord per command: a binding there is never a sequence. */
+const SINGLE_CHORD_CONTEXTS: ReadonlySet<ShortcutContext> = new Set(['chat']);
+
+/**
+ * The chords the chat page already answers outside the registry, which a chat command would fight with (its keys work
+ * in the composer too): the composer's formatting (⌘/Ctrl+B, I, E; ⌘/Ctrl+B is also the sidebar's), the text field's
+ * editing chords, sending and breaking a line, and the keys that move in a field or scroll the timeline.
+ */
+const CHAT_TAKEN_CHORDS: ReadonlySet<string> = new Set([
+	'mod+b',
+	'mod+i',
+	'mod+e',
+	'mod+a',
+	'mod+c',
+	'mod+v',
+	'mod+x',
+	'mod+z',
+	'mod+y',
+	'mod+shift+z',
+	// moving by word or to a line's end, selecting with them, and deleting a word or to the line's start
+	'mod+arrowleft',
+	'mod+arrowright',
+	'mod+arrowup',
+	'mod+arrowdown',
+	'mod+shift+arrowleft',
+	'mod+shift+arrowright',
+	'mod+shift+arrowup',
+	'mod+shift+arrowdown',
+	'shift+arrowleft',
+	'shift+arrowright',
+	'shift+arrowup',
+	'shift+arrowdown',
+	'alt+arrowleft',
+	'alt+arrowright',
+	'shift+alt+arrowleft',
+	'shift+alt+arrowright',
+	'shift+home',
+	'shift+end',
+	'mod+home',
+	'mod+end',
+	'mod+backspace',
+	'mod+delete',
+	'alt+backspace',
+	'alt+delete',
+	'enter',
+	'shift+enter',
+	'mod+enter',
+	'tab',
+	'shift+tab',
+	'escape',
+	'space',
+	'backspace',
+	'delete',
+	'arrowup',
+	'arrowdown',
+	'arrowleft',
+	'arrowright',
+	'pageup',
+	'pagedown',
+	'home',
+	'end'
+]);
 
 const MODIFIER_NAMES = new Set(['mod', 'ctrl', 'cmd', 'meta', 'shift', 'alt', 'option', 'control', 'os']);
 
 /** Key combinations the browser keeps for itself: a binding on one of them is refused. */
 const BROWSER_RESERVED = new Set(['mod+w', 'mod+t', 'mod+n', 'mod+q', 'mod+r', 'mod+l', 'mod+shift+t', 'mod+shift+n', 'mod+shift+w', 'f5', 'f11', 'f12']);
-
-/** The single chords ⌘/Ctrl combinations of which the registry owns while it is on; the older listeners leave them alone. */
-export const REGISTRY_OWNED_MOD_KEYS: ReadonlySet<string> = new Set(['k', 's', ',']);
 
 /** The commands that still run while a dialog is open: toggles that leave the dialog's form as it is. */
 export const DIALOG_SAFE_COMMANDS: ReadonlySet<string> = new Set(['paletteOpen', 'helpOpen']);
@@ -159,14 +241,20 @@ function isPrintablePunctuation(key: string): boolean {
 }
 
 /**
- * The key of a key press as a binding names it: letters and digits by their physical key, the rest by `key`. With
- * `byPhysicalKey` false, letters and digits are the character typed too (the list's keys with the registry off).
+ * The key of a key press as a binding names it: letters and digits by their physical key, the rest by `key`. A digit
+ * key pressed with Shift that types punctuation is that character (`/` is Shift+7 on a German layout), as punctuation
+ * always is. With `byPhysicalKey` false, letters and digits are the character typed too (the list's keys with the
+ * registry off).
  */
-export function chordKeyOf(event: Pick<KeyboardEvent, 'key' | 'code'>, byPhysicalKey = true): string {
+export function chordKeyOf(
+	event: Pick<KeyboardEvent, 'key' | 'code'> & { shiftKey?: boolean },
+	byPhysicalKey = true
+): string {
 	const code = byPhysicalKey ? (event.code ?? '') : '';
 	if (/^Key[A-Z]$/.test(code)) return code.slice(3).toLowerCase();
-	if (/^Digit\d$/.test(code)) return code.slice(5);
-	const key = (event.key ?? '').toLowerCase();
+	const typed = event.key ?? '';
+	if (/^Digit\d$/.test(code)) return event.shiftKey && isPrintablePunctuation(typed) ? typed : code.slice(5);
+	const key = typed.toLowerCase();
 	if (key === ' ') return 'space';
 	return key;
 }
@@ -200,17 +288,22 @@ function isListBuiltInKey(chord: ShortcutChord): boolean {
 /**
  * Why a binding cannot be given to a command, or null when it can: one the browser keeps (`reserved`); for a key the
  * list matches itself, a sequence (`sequence`) or ⌘/Ctrl (`modifier`: the browser's and the app's other listeners
- * own those chords — copy, select all, the sidebar's `Mod+B` — and would run as well); or one starting with a key the
- * list keeps for itself (`listKey`), which would never reach the command while a row has the focus.
+ * own those chords — copy, select all, the sidebar's `Mod+B` — and would run as well); for a command of the chat page,
+ * which matches one chord, a sequence (`chatSequence`) or a chord the page already answers (`chatTaken`: formatting,
+ * editing, sending, moving in the composer, scrolling); or one starting with a key the list keeps for itself
+ * (`listKey`), which would never reach the command while a row has the focus.
  */
 export function refusalOf(
 	command: ShortcutCommand,
 	binding: ShortcutBinding
-): 'reserved' | 'sequence' | 'modifier' | 'listKey' | null {
+): 'reserved' | 'sequence' | 'chatSequence' | 'chatTaken' | 'modifier' | 'listKey' | null {
 	if (isBrowserReserved(binding)) return 'reserved';
 	if (command.chordOnly && binding.length > 1) return 'sequence';
+	if (SINGLE_CHORD_CONTEXTS.has(command.context) && binding.length > 1) return 'chatSequence';
+	if (SINGLE_CHORD_CONTEXTS.has(command.context) && binding.length === 1 && CHAT_TAKEN_CHORDS.has(formatBinding(binding))) return 'chatTaken';
 	if (command.chordOnly && binding.some((chord) => chord.mod)) return 'modifier';
-	if (binding.length > 0 && isListBuiltInKey(binding[0])) return 'listKey';
+	// The list's own keys only shadow a command that can reach a focused row; the chat page has no rows of tasks.
+	if (binding.length > 0 && isListBuiltInKey(binding[0]) && !SINGLE_CHORD_CONTEXTS.has(command.context)) return 'listKey';
 	return null;
 }
 
@@ -366,6 +459,37 @@ export function matchSequence(
 		pending = true;
 	}
 	return { command: null, pending };
+}
+
+/**
+ * The command a sequence typed as text in the command palette names (`g t`, `G T`: one key per word), among the
+ * given commands with their bindings in force, or null. A sequence only, and only bare keys: one word is a search,
+ * and ⌘/Ctrl or Shift cannot be typed into a field.
+ */
+export function commandOfTypedSequence(
+	text: string,
+	commands: readonly ShortcutCommand[],
+	bindings: ReadonlyMap<string, ShortcutBinding | null>
+): ShortcutCommand | null {
+	const words = text.trim().toLowerCase().split(/\s+/).filter(Boolean);
+	if (words.length < 2 || words.some((word) => Array.from(word).length !== 1)) return null;
+	const typed: ShortcutBinding = words.map((key) => ({ key, mod: false, shift: false, alt: false }));
+	const found = commands.find((command) => {
+		const binding = bindings.get(command.id);
+		return binding?.length === typed.length && binding.every((chord, at) => sameChord(chord, typed[at]));
+	});
+	return found ?? null;
+}
+
+/**
+ * The words a palette entry is also found by: its binding as text, with and without the spaces (`g t`, `gt`), so
+ * typing the keys of a sequence lists the command it runs.
+ */
+export function bindingSearchWords(binding: ShortcutBinding | null | undefined): string[] {
+	if (!binding?.length) return [];
+	const text = formatBinding(binding);
+	const joined = text.replace(/\s+/g, '');
+	return joined === text ? [text] : [text, joined];
 }
 
 /** Whether a modal dialog is open on the page: its form has the keys then, not the app's commands. */

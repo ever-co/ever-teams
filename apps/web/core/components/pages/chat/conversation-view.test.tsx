@@ -35,6 +35,17 @@ const mockTimeline = {
 	retry: jest.fn(),
 	newestId: null as string | null
 };
+const mockAttachments = {
+	items: [] as Array<{ key: string; name: string; size: number; mimeType: string; status: 'uploading' | 'ready' | 'failed'; documentId?: string }>,
+	add: jest.fn(),
+	remove: jest.fn(),
+	retry: jest.fn(),
+	releaseSent: jest.fn(),
+	readyIds: [] as string[],
+	isUploading: false,
+	canAttach: true
+};
+const mockFiles = { files: [], byId: new Map(), hasMore: false, isLoading: false, isError: false, isLoadingMore: false, loadMore: jest.fn(), refresh: jest.fn() };
 const mockDraft = { draft: '', setDraft: jest.fn(), clearDraft: jest.fn() };
 const mockBo = { employeeId: BO_EMPLOYEE, userId: BO_USER, name: 'Bo Chen' };
 const mockMe = { employeeId: ME_EMPLOYEE, userId: ME_USER, name: 'Me Myself' };
@@ -64,6 +75,8 @@ jest.mock('@/core/hooks/chat/use-chat-actions', () => ({
 	useChatActions: () => mockActions,
 	isOutboxMessage: (message: object) => 'outbox' in message
 }));
+jest.mock('@/core/hooks/chat/use-chat-attachments', () => ({ useChatAttachments: () => mockAttachments, uploadedFileOf: () => undefined }));
+jest.mock('@/core/hooks/chat/use-chat-files', () => ({ useChatFiles: () => mockFiles }));
 jest.mock('@/core/hooks/chat/use-chat-draft', () => ({ useChatDraft: () => mockDraft }));
 jest.mock('@/core/hooks/chat/use-chat-messages', () => ({ useChatMessages: () => mockTimeline }));
 jest.mock('@/core/hooks/chat/use-chat-scope', () => ({ useChatScope: () => mockScope, useChatPeople: () => mockPeople }));
@@ -280,6 +293,38 @@ describe('reading and following', () => {
 		expect(mockTimeline.loadOlder).toHaveBeenCalledTimes(1);
 	});
 
+	it('keeps the place when the older page comes in, unless the reader jumped to the latest meanwhile', async () => {
+		const frame = jest.spyOn(window, 'requestAnimationFrame').mockImplementation((run) => {
+			run(0);
+			return 0;
+		});
+		const pages: Array<() => void> = [];
+		mockTimeline.loadOlder.mockImplementation(() => new Promise<undefined>((done) => pages.push(() => done(undefined))));
+		show([message('m1', at(9, 10, 0))], { hasBefore: true });
+		render(view(conversation()));
+		const log = screen.getByRole('log');
+		log.scrollTo = jest.fn();
+		scrollTo(900, 20);
+		// The older page lands: 300 px more above what the reader looks at.
+		Object.defineProperty(log, 'scrollHeight', { configurable: true, value: 20 + 500 + 900 + 300 });
+		await act(async () => {
+			pages[0]();
+		});
+		expect(log.scrollTop).toBe(320);
+
+		// Up again, then "Jump to latest" while the next page loads: that page does not move the reader back up.
+		scrollTo(900, 20);
+		expect(pages).toHaveLength(2);
+		fireEvent.click(screen.getByRole('button', { name: 'teamChat.JUMP_TO_LATEST' }));
+		Object.defineProperty(log, 'scrollHeight', { configurable: true, value: 20 + 500 + 900 + 300 });
+		await act(async () => {
+			pages[1]();
+		});
+		expect(log.scrollTop).toBe(20);
+		frame.mockRestore();
+		mockTimeline.loadOlder.mockImplementation(async () => undefined);
+	});
+
 	it('scrolls to a linked message once and lights it', () => {
 		const scrollIntoView = jest.fn();
 		Element.prototype.scrollIntoView = scrollIntoView;
@@ -311,6 +356,52 @@ describe('writing', () => {
 		mockDraft.draft = '';
 	});
 
+	it('sends the uploaded files with the message, and lets go of them', async () => {
+		mockDraft.draft = 'the plan';
+		mockAttachments.items = [{ key: 'k1', name: 'plan.pdf', size: 10, mimeType: 'application/pdf', status: 'ready', documentId: 'doc-1' }];
+		mockAttachments.readyIds = ['doc-1'];
+		render(view(conversation()));
+		await act(async () => {
+			fireEvent.keyDown(screen.getByRole('textbox'), { key: 'Enter' });
+		});
+		expect(mockActions.send).toHaveBeenCalledWith('c1', { body: 'the plan', attachmentIds: ['doc-1'] });
+		expect(mockAttachments.releaseSent).toHaveBeenCalled();
+		mockDraft.draft = '';
+		mockAttachments.items = [];
+		mockAttachments.readyIds = [];
+	});
+
+	it('words a message of files alone with their names', async () => {
+		mockAttachments.items = [
+			{ key: 'k1', name: 'plan.pdf', size: 10, mimeType: 'application/pdf', status: 'ready', documentId: 'doc-1' },
+			{ key: 'k2', name: 'shot.png', size: 10, mimeType: 'image/png', status: 'ready', documentId: 'doc-2' }
+		];
+		mockAttachments.readyIds = ['doc-1', 'doc-2'];
+		render(view(conversation()));
+		await act(async () => {
+			fireEvent.click(screen.getByRole('button', { name: 'teamChat.SEND' }));
+		});
+		expect(mockActions.send).toHaveBeenCalledWith('c1', { body: 'plan.pdf, shot.png', attachmentIds: ['doc-1', 'doc-2'] });
+		mockAttachments.items = [];
+		mockAttachments.readyIds = [];
+	});
+
+	it('takes files dropped on the timeline into the message', () => {
+		render(view(conversation()));
+		const timeline = screen.getByRole('log').parentElement as HTMLElement;
+		const file = new File(['x'], 'notes.txt', { type: 'text/plain' });
+		fireEvent.dragOver(timeline, { dataTransfer: { types: ['Files'], files: [file], dropEffect: 'none' } });
+		expect(screen.getByText('entityFiles.DROP_HINT')).toBeTruthy();
+		fireEvent.drop(timeline, { dataTransfer: { types: ['Files'], files: [file] } });
+		expect(mockAttachments.add).toHaveBeenCalledWith([file]);
+		expect(screen.queryByText('entityFiles.DROP_HINT')).toBeNull();
+	});
+
+	it('offers the files of the conversation in its header', () => {
+		render(view(conversation()));
+		expect(screen.getByRole('button', { name: 'teamChat.FILES' })).toBeTruthy();
+	});
+
 	it('keeps the settings of the conversation in its header', async () => {
 		render(view(conversation({ state: state({ isFavorite: true }) })));
 		const favourite = screen.getByRole('button', { name: 'teamChat.FAVORITE' });
@@ -322,5 +413,28 @@ describe('writing', () => {
 		expect(screen.getByRole('button', { name: 'teamChat.NOTIFY_LEVEL' })).toBeTruthy();
 		expect(screen.getByRole('button', { name: 'teamChat.MORE' })).toBeTruthy();
 		expect(screen.getByRole('button', { name: 'teamChat.MEMBER_COUNT:4' }).textContent).toBe('4');
+	});
+});
+
+describe('the virtual timeline', () => {
+	const flag = process.env.NEXT_PUBLIC_CHAT_VIRTUAL_LIST_ENABLED;
+	afterEach(() => {
+		if (flag === undefined) delete process.env.NEXT_PUBLIC_CHAT_VIRTUAL_LIST_ENABLED;
+		else process.env.NEXT_PUBLIC_CHAT_VIRTUAL_LIST_ENABLED = flag;
+		mockTimeline.messages = [];
+		mockTimeline.newestId = null;
+	});
+
+	it('renders the rows through the virtual list behind its flag, and every row without it', () => {
+		mockTimeline.messages = [message('m1', at(10, 9)), message('m2', at(10, 10))];
+		mockTimeline.newestId = 'm2';
+		process.env.NEXT_PUBLIC_CHAT_VIRTUAL_LIST_ENABLED = 'true';
+		const { container, unmount } = render(view(conversation()));
+		expect(container.querySelector('[data-virtual-timeline]')).toBeTruthy();
+		unmount();
+		delete process.env.NEXT_PUBLIC_CHAT_VIRTUAL_LIST_ENABLED;
+		const plain = render(view(conversation()));
+		expect(plain.container.querySelector('[data-virtual-timeline]')).toBeNull();
+		expect(plain.container.querySelectorAll('[data-message-id]')).toHaveLength(2);
 	});
 });

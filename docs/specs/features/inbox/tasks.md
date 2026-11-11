@@ -11,6 +11,9 @@
 - [ ] T7 Gate: `yarn test:web`, typecheck, cspell — fix forward
 - [ ] T8 Manual check against a platform with the inbox plugin on: tabs, snooze returns, done, undo, legacy mode on an older platform
 - [x] T9 Decisions answered in the detail pane (`POST /inbox/items/:id/reply`) (#4989)
-- [ ] T10 Delivery preferences and push (platform `inbox` spec T13–T15);
-  browser push done (#4985), delivery preferences still open
-- [ ] T11 Mobile list and open-target
+- [x] T10 Delivery preferences and push (platform `inbox` spec T13–T15): email per kind, quiet hours and digest
+  hour (#4978), browser push on this device (#4985); push per kind (`pushByType`), the person's devices with a
+  remove action, and the sound of a new entry in this browser + specs
+- [x] T11 Mobile list and open-target: below the large breakpoint a row opens its target (task drawer, chat message,
+  link); a question and an entry with nothing to open show in the sheet over the list; row actions under the text
+  on touch screens (#5008) + specs

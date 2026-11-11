@@ -4,10 +4,14 @@ import {
 	filterInboxEntries,
 	fromNotificationEntry,
 	groupInboxEntriesByDay,
+	hasInboxTarget,
 	messagePartsOfTitle,
 	nextFocusIndex,
+	opensInboxTarget,
+	showsInboxSheet,
 	snoozeUntil,
 	tabOfFilter,
+	InboxFieldRequests,
 	toInboxEntry
 } from './inbox-entry';
 
@@ -247,5 +251,99 @@ describe('messagePartsOfTitle', () => {
 		expect(messagePartsOfTitle('Ana sent you a message: Hi')).toEqual({ place: null, preview: 'Hi' });
 		expect(messagePartsOfTitle('Ana sent you a message')).toEqual({ place: null, preview: null });
 		expect(messagePartsOfTitle('Ana sent you a message: ')).toEqual({ place: null, preview: null });
+	});
+});
+
+/**
+ * Without the inbox extension the pane's copy of an entry that left the list is all it has; when the platform refuses
+ * a read or an archive, the bell's cache rolls back on its own and the copy has to as well, whatever order the answers
+ * come in.
+ */
+describe('InboxFieldRequests', () => {
+	const entry = toInboxEntry(item({ recipient: { isRead: true, isArchived: false } }));
+
+	it('holds the last accepted value once every request answered, nothing before', () => {
+		const requests = new InboxFieldRequests();
+		const archive = requests.start([entry], 'isArchived', true);
+		const unarchive = requests.start([{ ...entry, isArchived: true }], 'isArchived', false);
+		expect(requests.settle(entry.id, 'isArchived', unarchive, true)).toBeUndefined();
+		expect(requests.settle(entry.id, 'isArchived', archive, true)).toBe(false);
+	});
+
+	it('archive then unarchive, both refused, the unarchive answering first: not archived', () => {
+		const requests = new InboxFieldRequests();
+		const archive = requests.start([entry], 'isArchived', true);
+		const unarchive = requests.start([{ ...entry, isArchived: true }], 'isArchived', false);
+		expect(requests.settle(entry.id, 'isArchived', unarchive, false)).toBeUndefined();
+		expect(requests.settle(entry.id, 'isArchived', archive, false)).toBe(false);
+	});
+
+	it('archive, unarchive, archive again, the first one refused last: archived', () => {
+		const requests = new InboxFieldRequests();
+		const first = requests.start([entry], 'isArchived', true);
+		const second = requests.start([{ ...entry, isArchived: true }], 'isArchived', false);
+		const third = requests.start([entry], 'isArchived', true);
+		expect(requests.settle(entry.id, 'isArchived', second, true)).toBeUndefined();
+		expect(requests.settle(entry.id, 'isArchived', third, true)).toBeUndefined();
+		expect(requests.settle(entry.id, 'isArchived', first, false)).toBe(true);
+	});
+
+	it('keeps each entry and each field apart, and starts again from the entry once a field settled', () => {
+		const requests = new InboxFieldRequests();
+		const other = { ...entry, id: 'other' };
+		const read = requests.start([entry, other], 'isUnread', false);
+		const archive = requests.start([entry], 'isArchived', true);
+		expect(requests.settle(entry.id, 'isUnread', read, false)).toBe(entry.isUnread);
+		expect(requests.settle(other.id, 'isUnread', read, true)).toBe(false);
+		expect(requests.settle(entry.id, 'isArchived', archive, false)).toBe(false);
+
+		const again = requests.start([{ ...entry, isUnread: true }], 'isUnread', false);
+		expect(requests.settle(entry.id, 'isUnread', again, false)).toBe(true);
+		expect(requests.settle('unknown', 'isUnread', again, false)).toBeUndefined();
+	});
+});
+
+describe('opening an entry on a phone and on a large screen', () => {
+	const task = { taskId: 't1', href: null, chatMessageId: null, decision: null };
+	const link = { taskId: null, href: '/settings/team/members', chatMessageId: null, decision: null };
+	const message = { taskId: null, href: null, chatMessageId: 'm1', decision: null };
+	const nothing = { taskId: null, href: null, chatMessageId: null, decision: null };
+	const question = { ...nothing, decision: { options: [] } as never };
+	const phone = { hasPane: false, follow: false, chatPages: true };
+	const large = { hasPane: true, follow: false, chatPages: true };
+
+	it('knows what an entry can open: a task, a link, or a chat message where the chat pages exist', () => {
+		expect(hasInboxTarget(task, false)).toBe(true);
+		expect(hasInboxTarget(link, false)).toBe(true);
+		expect(hasInboxTarget(message, true)).toBe(true);
+		expect(hasInboxTarget(message, false)).toBe(false);
+		expect(hasInboxTarget(nothing, true)).toBe(false);
+	});
+
+	it('goes straight to the target on a phone, and on a large screen only for a task or when asked to follow', () => {
+		expect(opensInboxTarget(link, phone)).toBe(true);
+		expect(opensInboxTarget(message, phone)).toBe(true);
+		expect(opensInboxTarget(task, large)).toBe(true);
+		expect(opensInboxTarget(link, large)).toBe(false);
+		expect(opensInboxTarget(link, { ...large, follow: true })).toBe(true);
+	});
+
+	it('keeps a question and an entry with nothing to open in the inbox, shown in the sheet on a phone', () => {
+		expect(opensInboxTarget(question, phone)).toBe(false);
+		expect(opensInboxTarget(nothing, phone)).toBe(false);
+		expect(opensInboxTarget(nothing, { ...phone, follow: true })).toBe(false);
+		expect(opensInboxTarget(message, { ...phone, chatPages: false })).toBe(false);
+		expect(showsInboxSheet(question, true)).toBe(true);
+		expect(showsInboxSheet(nothing, true)).toBe(true);
+		expect(showsInboxSheet(message, false)).toBe(true);
+		expect(showsInboxSheet(link, true)).toBe(false);
+		expect(showsInboxSheet(task, true)).toBe(false);
+		expect(showsInboxSheet(null, true)).toBe(false);
+	});
+
+	it('opens the task of a question as well, with the question kept in the sheet', () => {
+		const taskQuestion = { ...task, decision: { options: [] } as never };
+		expect(opensInboxTarget(taskQuestion, phone)).toBe(true);
+		expect(showsInboxSheet(taskQuestion, true)).toBe(true);
 	});
 });

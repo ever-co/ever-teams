@@ -1,6 +1,6 @@
 'use client';
 
-import { ReactNode, useId, useMemo, useState } from 'react';
+import { ReactNode, useId, useMemo, useRef, useState } from 'react';
 import { type DottedLanguageObjectStringPaths, useLocale, useTranslations } from 'next-intl';
 import { AnimatedHeight } from '@/core/components/common/animated-height';
 import { badgeVariants } from '@/core/components/common/badge';
@@ -12,6 +12,7 @@ import { ConfirmDestructiveDialog, DangerRow, type DangerConsequence } from '@/c
 import { SETTINGS_ROW_DESCRIPTION, SETTINGS_ROW_LABEL, SettingsSection, SettingsSurface } from '@/core/components/settings/kit/settings-page';
 import { SettingsSwitch } from '@/core/components/settings/kit/settings-switch';
 import { type LinearIntegrationSettings, type LinearStatusOptions, useLinearStatusOptions } from '@/core/hooks/integrations/use-linear-integration';
+import { useRunConflictFilter } from '@/core/hooks/integrations/use-run-conflict-filter';
 import { cn } from '@/core/lib/helpers';
 import { errorReasonKeyOf } from '@/core/lib/utils/error-feedback';
 import { effectiveStateMap, invalidStateMapKinds, matchStatusName } from '@/core/lib/utils/integration-linear-state-map';
@@ -24,6 +25,7 @@ import {
 	TLinearDirection,
 	TLinearStateKind
 } from '@/core/types/interfaces/integrations/linear';
+import { IntegrationConflictsRow } from './integration-conflicts-row';
 import { GithubProviderRowSkeleton, PROVIDER_ROW, PROVIDER_TILE } from './integrations-settings-skeleton';
 
 type LinearProps = Readonly<{ linear: LinearIntegrationSettings }>;
@@ -423,7 +425,7 @@ function AddMappingRow({ linear }: LinearProps) {
 	);
 }
 
-function RunLine({ run }: Readonly<{ run: ILinearRun }>) {
+function RunLine({ run, onShowConflicts }: Readonly<{ run: ILinearRun; onShowConflicts: (runId: string) => void }>) {
 	const t = useTranslations();
 	const locale = useLocale();
 	const when = run.startedAt ? formatInstallDay(new Date(run.startedAt), locale) : '';
@@ -436,12 +438,22 @@ function RunLine({ run }: Readonly<{ run: ILinearRun }>) {
 			</span>
 			<span className="text-muted-foreground">{when}</span>
 			<span className="text-muted-foreground">{counts}</span>
+			{run.conflictCount ? (
+				<button
+					type="button"
+					className={cn(badgeVariants({ variant: 'warning' }), 'cursor-pointer outline-none focus-visible:ring-2 focus-visible:ring-ring/40')}
+					title={t('settings.integrations.conflicts.SHOW_RUN_CONFLICTS')}
+					onClick={() => onShowConflicts(run.id)}
+				>
+					{t('settings.integrations.conflicts.RUN_COUNT', { count: run.conflictCount })}
+				</button>
+			) : null}
 			{run.lastError && <span className="min-w-0 basis-full truncate text-xs text-destructive-ink">{run.lastError}</span>}
 		</li>
 	);
 }
 
-function RunsRow({ linear }: LinearProps) {
+function RunsRow({ linear, onShowConflicts }: LinearProps & Readonly<{ onShowConflicts: (runId: string) => void }>) {
 	const t = useTranslations();
 	if (!linear.runs.length) return <MutedRow>{t('settings.integrations.linear.NO_RUNS')}</MutedRow>;
 	return (
@@ -449,7 +461,7 @@ function RunsRow({ linear }: LinearProps) {
 			<span className={SETTINGS_ROW_LABEL}>{t('settings.integrations.linear.RUNS_TITLE')}</span>
 			<ul className="flex flex-col gap-1.5">
 				{linear.runs.slice(0, 8).map((run) => (
-					<RunLine key={run.id} run={run} />
+					<RunLine key={run.id} run={run} onShowConflicts={onShowConflicts} />
 				))}
 			</ul>
 		</div>
@@ -461,6 +473,9 @@ function LinearConnected({ linear, onDisconnect }: LinearProps & Readonly<{ onDi
 	const panelId = useId();
 	const [isOpen, setIsOpen] = useState(true);
 	const connection = linear.connection;
+	// The runs list's count of a run narrows the conflicts to that run, and brings them into view.
+	const conflictsRef = useRef<HTMLDivElement>(null);
+	const conflictFilter = useRunConflictFilter(connection?.id ?? null, conflictsRef);
 	const needsAttention = Boolean(connection?.attentionReason);
 	const workspace = connection?.linearOrganizationName || connection?.linearOrganizationUrlKey || '';
 	const summary = workspace ? t('settings.integrations.linear.SUMMARY_CONNECTED', { workspace }) : t('settings.integrations.linear.SUMMARY_CONNECTED_NO_WORKSPACE');
@@ -495,7 +510,18 @@ function LinearConnected({ linear, onDisconnect }: LinearProps & Readonly<{ onDi
 											<MappingRow key={mapping.id} linear={linear} mapping={mapping} />
 										))}
 										{linear.canManageMappings && <AddMappingRow linear={linear} />}
-										<RunsRow linear={linear} />
+										{connection && (
+											<div ref={conflictsRef} tabIndex={-1} className="outline-none" aria-label={t('settings.integrations.conflicts.TITLE')}>
+												<IntegrationConflictsRow
+													provider="linear"
+													providerName={t('settings.integrations.linear.TITLE')}
+													integrationId={connection.id}
+													runId={conflictFilter.runId}
+													onClearRun={conflictFilter.clearRun}
+												/>
+											</div>
+										)}
+										<RunsRow linear={linear} onShowConflicts={conflictFilter.showRun} />
 									</>
 								)}
 								<div className={ROW_DIVIDER}>

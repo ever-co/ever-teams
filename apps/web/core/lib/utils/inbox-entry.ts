@@ -99,6 +99,40 @@ export function hasChatPages(): boolean {
 	return (readRuntimeEnv('NEXT_PUBLIC_CHAT_ENABLED') || process.env.NEXT_PUBLIC_CHAT_ENABLED) === 'true';
 }
 
+/** Whether an entry has something to open: its task, its link, or its chat message where the chat pages exist. */
+export function hasInboxTarget(entry: Pick<InboxEntry, 'taskId' | 'href' | 'chatMessageId'>, chatPages = hasChatPages()): boolean {
+	return !!entry.taskId || !!entry.href || (!!entry.chatMessageId && chatPages);
+}
+
+/** Where an entry is opened: on a large screen beside the list (the pane), on a phone over it (a sheet) or by its target. */
+interface InboxOpenView {
+	/** The pane is on screen (the large breakpoint). */
+	hasPane: boolean;
+	/** The person asked to go to the target (`Enter`, a clicked browser notification), not only to read the entry. */
+	follow: boolean;
+	chatPages: boolean;
+}
+
+/**
+ * Whether opening an entry also goes to its target. A task always opens (its drawer, over the inbox); otherwise only
+ * when asked to follow, or on a phone, where there is no pane to read it in — unless it is a question answered here.
+ * An entry with nothing to open never leaves the inbox.
+ */
+export function opensInboxTarget(entry: Pick<InboxEntry, 'taskId' | 'href' | 'chatMessageId' | 'decision'>, view: InboxOpenView): boolean {
+	if (!hasInboxTarget(entry, view.chatPages)) return false;
+	if (entry.taskId || view.follow) return true;
+	return !view.hasPane && !entry.decision;
+}
+
+/**
+ * Whether the opened entry is shown in the sheet over the list below the large breakpoint: a question answered here,
+ * or an entry with nothing to open, which would otherwise show nothing at all on a phone.
+ */
+export function showsInboxSheet(entry: Pick<InboxEntry, 'taskId' | 'href' | 'chatMessageId' | 'decision'> | null, chatPages: boolean): boolean {
+	if (!entry) return false;
+	return !!entry.decision || !hasInboxTarget(entry, chatPages);
+}
+
 function hrefOf(type: EEmployeeNotificationType | null, entry: Pick<InboxEntry, 'entity' | 'entityId'>): string | null {
 	if (type === EEmployeeNotificationType.RateChangeRequest) return RATE_CHANGE_REQUEST_HREF;
 	// Without the chat pages a conversation has nowhere to open: the entry is not a link.
@@ -123,6 +157,54 @@ function subjectOf(entity: string | null, chatParts: { place: string | null } | 
 	if (chatParts) return chatParts.place;
 	if (entity === 'ChatConversation' && quoted) return `#${quoted.replace(/^#/, '')}`;
 	return quoted;
+}
+
+/** A field of an entry that a request without the inbox extension sets. */
+export type InboxRequestField = 'isUnread' | 'isArchived';
+
+/**
+ * The requests sent on a field of each entry, for a pane that shows their change before the platform answers. They
+ * answer in any order and each may be refused, so no single answer says what the field holds: once every request sent
+ * on a field of an entry has answered, it holds what the last accepted one set, or what it held before the first one
+ * when none was accepted (archive then unarchive, both refused: not archived).
+ */
+export class InboxFieldRequests {
+	private readonly chains = new Map<string, { before: boolean; requests: Array<{ id: number; value: boolean; accepted: boolean | null }> }>();
+	private sent = 0;
+
+	/**
+	 * Records a request that sets `field` to `value` on the entries.
+	 *
+	 * @param entries The entries, as they were when it was sent.
+	 * @returns The request's number, for {@link settle}.
+	 */
+	start(entries: readonly InboxEntry[], field: InboxRequestField, value: boolean): number {
+		const id = ++this.sent;
+		for (const entry of entries) {
+			const key = `${entry.id}|${field}`;
+			const chain = this.chains.get(key) ?? { before: entry[field], requests: [] };
+			chain.requests.push({ id, value, accepted: null });
+			this.chains.set(key, chain);
+		}
+		return id;
+	}
+
+	/**
+	 * Records the platform's answer to a request for one entry.
+	 *
+	 * @returns What the field holds once every request sent on it has answered, or `undefined` while one is on its way.
+	 */
+	settle(entryId: string, field: InboxRequestField, request: number, accepted: boolean): boolean | undefined {
+		const key = `${entryId}|${field}`;
+		const chain = this.chains.get(key);
+		if (!chain) return undefined;
+		const sent = chain.requests.find((candidate) => candidate.id === request);
+		if (sent) sent.accepted = accepted;
+		if (chain.requests.some((candidate) => candidate.accepted === null)) return undefined;
+		this.chains.delete(key);
+		const lastAccepted = [...chain.requests].reverse().find((candidate) => candidate.accepted);
+		return lastAccepted ? lastAccepted.value : chain.before;
+	}
 }
 
 /** An entry from a platform inbox item. */

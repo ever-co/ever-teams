@@ -65,7 +65,7 @@ function changeButtonOf(commandId: string): HTMLButtonElement | null {
 
 async function record(
 	commandId: string,
-	presses: Array<{ code: string; key: string; shiftKey?: boolean; ctrlKey?: boolean }>
+	presses: Array<{ code: string; key: string; shiftKey?: boolean; ctrlKey?: boolean; altKey?: boolean }>
 ) {
 	fireEvent.click(changeButtonOf(commandId)!);
 	for (const press of presses) fireEvent.keyDown(window, press);
@@ -128,8 +128,8 @@ describe('ShortcutsDialog rebinding', () => {
 
 	it('saves one new key for a list command, and a sequence for a "go to"', async () => {
 		render(<ShortcutsDialog />);
-		await record('listDown', [{ code: 'KeyN', key: 'n' }]);
-		expect(mockSetOverrides).toHaveBeenLastCalledWith({ listDown: 'n' });
+		await record('listDown', [{ code: 'KeyB', key: 'b' }]);
+		expect(mockSetOverrides).toHaveBeenLastCalledWith({ listDown: 'b' });
 		await record('goTasks', [
 			{ code: 'KeyG', key: 'g' },
 			{ code: 'KeyX', key: 'x' }
@@ -145,5 +145,49 @@ describe('ShortcutsDialog rebinding', () => {
 		expect(mockToast.error).toHaveBeenNthCalledWith(1, 'shortcuts.CONFLICT');
 		expect(mockToast.error).toHaveBeenNthCalledWith(2, 'shortcuts.CONFLICT');
 		expect(mockSetOverrides).not.toHaveBeenCalled();
+	});
+});
+
+describe('ShortcutsDialog, the chat keys', () => {
+	const flag = process.env.NEXT_PUBLIC_CHAT_ENABLED;
+	beforeEach(() => {
+		jest.useFakeTimers();
+		process.env.NEXT_PUBLIC_CHAT_ENABLED = 'true';
+	});
+	afterEach(() => {
+		jest.useRealTimers();
+		if (flag === undefined) delete process.env.NEXT_PUBLIC_CHAT_ENABLED;
+		else process.env.NEXT_PUBLIC_CHAT_ENABLED = flag;
+	});
+
+	it('lists them where the chat is on', () => {
+		render(<ShortcutsDialog />);
+		expect(screen.getByText('shortcuts.commands.chatNext')).toBeTruthy();
+		expect(changeButtonOf('chatMarkAllRead')).not.toBeNull();
+	});
+
+	it('records Escape with a modifier as a key, and stops on a plain Escape', async () => {
+		render(<ShortcutsDialog />);
+		// Shift+Escape is a key: recorded for "next conversation", it clashes with "mark all read".
+		await record('chatNext', [{ code: 'Escape', key: 'Escape', shiftKey: true }]);
+		expect(mockToast.error).toHaveBeenCalledWith('shortcuts.CONFLICT');
+		mockToast.error.mockClear();
+		await record('chatNext', [{ code: 'Escape', key: 'Escape' }]);
+		expect(mockToast.error).not.toHaveBeenCalled();
+		expect(mockSetOverrides).not.toHaveBeenCalled();
+	});
+
+	it('refuses a chord the chat page already answers', async () => {
+		render(<ShortcutsDialog />);
+		await record('chatNext', [{ code: 'KeyB', key: 'b', ctrlKey: true }]);
+		expect(mockToast.error).toHaveBeenCalledWith('shortcuts.CHAT_TAKEN');
+		expect(mockSetOverrides).not.toHaveBeenCalled();
+	});
+});
+
+describe('ShortcutsDialog without the chat', () => {
+	it('lists no chat key', () => {
+		render(<ShortcutsDialog />);
+		expect(screen.queryByText('shortcuts.commands.chatNext')).toBeNull();
 	});
 });

@@ -76,7 +76,10 @@ export interface INotificationPreferences {
 	email?: TNotificationEmailMode | boolean;
 	/** The email mode per notification type (`Assignment`, `Mention`, ...). */
 	emailByType?: Partial<Record<string, TNotificationEmailMode>>;
+	/** Browser notifications for every kind unless `pushByType` says otherwise; on when unset (a device is the opt-in). */
 	push?: boolean;
+	/** Browser notifications per notification type. */
+	pushByType?: Partial<Record<string, boolean>>;
 	taskUpdate?: boolean;
 	dnd?: INotificationQuietHours | null;
 	/** The hour (0-23, in the quiet hours' time zone, else the user's) the daily digest goes out; 8 when unset. */
