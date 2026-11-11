@@ -43,8 +43,12 @@ function pending() {
 	return { promise, answer };
 }
 
+/** Every client a case made: a read one case left on its way must not answer into the next case's mock. */
+const clients: QueryClient[] = [];
+
 function setup(id: string | null = 'item-1') {
 	const queryClient = new QueryClient({ defaultOptions: { queries: { retry: false } } });
+	clients.push(queryClient);
 	const wrapper = ({ children }: { children: React.ReactNode }) => (
 		<QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
 	);
@@ -55,6 +59,12 @@ function setup(id: string | null = 'item-1') {
 const titleOf = (hook: ReturnType<typeof setup>['hook']) => hook.result.current.data?.rawTitle;
 
 /**
+ * React Query tells the hook about a change on a later macrotask, so a check that a value stays as it is waits for
+ * every update already scheduled to render first; otherwise it would pass before a late answer had a chance to land.
+ */
+const settle = () => act(() => new Promise<void>((resolve) => setTimeout(resolve, 0)));
+
+/**
  * The detail pane keeps an entry after it left the list (an unread entry, read in the Unread tab). Kept as the copy
  * taken when it was opened, it never heard that another tab answered or closed a decision; read by hand on every list
  * change, an older read could land after a newer one, and an unchanged list never asked again. The item has its own
@@ -62,6 +72,12 @@ const titleOf = (hook: ReturnType<typeof setup>['hook']) => hook.result.current.
  */
 describe('useInboxItem', () => {
 	beforeEach(() => getItem.mockReset());
+	afterEach(async () => {
+		for (const client of clients.splice(0)) {
+			await client.cancelQueries();
+			client.clear();
+		}
+	});
 
 	it('reads the held item, and again whenever the inbox is refetched', async () => {
 		getItem.mockResolvedValueOnce(item('Before')).mockResolvedValueOnce(item('Closed in another tab'));
@@ -88,6 +104,7 @@ describe('useInboxItem', () => {
 
 		// The read from before the action answers only now, with what the item was then.
 		await act(async () => beforeTheAction.answer(item('Before the action')));
+		await settle();
 		expect(titleOf(hook)).toBe('After the action');
 	});
 
@@ -102,11 +119,14 @@ describe('useInboxItem', () => {
 		await waitFor(() => expect(getItem).toHaveBeenCalledTimes(2));
 
 		await act(() => hook.result.current.patch(['item-1'], { rawTitle: 'Patched' }));
+		await waitFor(() => expect(titleOf(hook)).toBe('Patched'));
 		await act(async () => onItsWay.answer(item('Stale')));
+		await settle();
 		expect(titleOf(hook)).toBe('Patched');
 
 		// A change to another item leaves this one alone.
 		await act(() => hook.result.current.patch(['item-2'], { rawTitle: 'Other' }));
+		await settle();
 		expect(titleOf(hook)).toBe('Patched');
 	});
 
@@ -125,6 +145,7 @@ describe('useInboxItem', () => {
 	it('reads nothing while the pane holds nothing out of the list', async () => {
 		const { hook } = setup(null);
 		await act(() => hook.result.current.refresh());
+		await settle();
 		expect(hook.result.current.data).toBeUndefined();
 		expect(getItem).not.toHaveBeenCalled();
 	});
