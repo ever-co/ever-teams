@@ -5,7 +5,7 @@ import { useQueryClient } from '@tanstack/react-query';
 import { queryKeys } from '@/core/query/keys';
 import { docsService } from '@/core/services/client/api/docs';
 import { entityFilesService } from '@/core/services/client/api/documents/entity-files.service';
-import { buildDocTree, nextIndexUnder, reorderedIds, siblingsOf } from '@/core/lib/utils/docs-tree';
+import { buildDocTree, nextIndexUnder, placementOf, reorderedIds, siblingsOf } from '@/core/lib/utils/docs-tree';
 import {
 	EDocumentKind,
 	EDocumentVisibility,
@@ -77,18 +77,26 @@ export function useDocsActions() {
 			name: string;
 			parentId?: string | null;
 			visibility?: EDocumentVisibility;
+			/** With `visibility: TEAM` (or under a team page): the team space it goes in. */
+			organizationTeamId?: string | null;
 			icon?: string | null;
 			/** The starting text of a page made from a template; an empty page without it. */
 			content?: { contentJson: IDocumentNode; contentHtml: string };
 		}) => {
 			const tree = buildDocTree(treePages());
 			const parentId = input.parentId ?? null;
+			const parent = parentId ? tree.byId.get(parentId)?.page : undefined;
+			const asked = input.visibility ?? parent?.visibility ?? EDocumentVisibility.ORGANIZATION;
+			// A team page names its team (the one asked, or its parent's); without one it goes in the workspace.
+			const teamId = asked === EDocumentVisibility.TEAM ? (input.organizationTeamId ?? parent?.organizationTeamId ?? null) : null;
+			const visibility = asked === EDocumentVisibility.TEAM && !teamId ? EDocumentVisibility.ORGANIZATION : asked;
 			const page = await docsService.create({
 				kind: EDocumentKind.PAGE,
 				name: input.name,
 				parentId,
 				index: nextIndexUnder(tree, parentId),
-				visibility: input.visibility ?? (parentId ? tree.byId.get(parentId)?.page.visibility : undefined) ?? EDocumentVisibility.ORGANIZATION,
+				visibility,
+				...(teamId ? { organizationTeamId: teamId } : {}),
 				...(input.icon ? { icon: input.icon } : {}),
 				contentJson: input.content?.contentJson ?? { type: 'doc', content: [{ type: 'paragraph' }] },
 				contentHtml: input.content?.contentHtml ?? ''
@@ -142,6 +150,38 @@ export function useDocsActions() {
 		[invalidateTree, queryClient, treeKey, treePages]
 	);
 
+	/**
+	 * A dragged page put before or after another: a reorder among the same siblings, or a move to the other page's
+	 * parent at that place. Shown at once, read again from the platform after. Null when nothing changes.
+	 */
+	const placePage = useCallback(
+		async (pageId: string, targetId: string, position: 'before' | 'after') => {
+			const placement = placementOf(buildDocTree(treePages()), pageId, targetId, position);
+			if (!placement) return null;
+			const indexOf = new Map(placement.orderedIds.map((id, index) => [id, index]));
+			queryClient.setQueryData<IDocumentPage[]>(treeKey, (current) =>
+				current
+					? current.map((item) =>
+							indexOf.has(item.id)
+								? { ...item, index: indexOf.get(item.id) as number, ...(item.id === pageId ? { parentId: placement.parentId } : {}) }
+								: item
+						)
+					: current
+			);
+			try {
+				if (placement.moves) {
+					putPage(await docsService.move(pageId, { parentId: placement.parentId, index: placement.index }));
+				} else {
+					await docsService.reorder(placement.parentId, placement.orderedIds);
+				}
+			} finally {
+				await invalidateTree();
+			}
+			return placement;
+		},
+		[invalidateTree, putPage, queryClient, treeKey, treePages]
+	);
+
 	const duplicatePage = useCallback(
 		async (pageId: string, options: { deep: boolean; name?: string }) => {
 			const page = await docsService.duplicate(pageId, { deep: options.deep, name: options.name });
@@ -182,6 +222,22 @@ export function useDocsActions() {
 			await Promise.all([invalidateTree(), invalidateTrash()]);
 		},
 		[invalidateTrash, invalidateTree, queryClient, tenantId]
+	);
+
+	/** Into another space (the organization's, a team's, the reader's private one), with the sub-pages they may write. */
+	const moveToSpace = useCallback(
+		async (pageId: string, visibility: EDocumentVisibility, organizationTeamId: string | null = null) => {
+			const page = await docsService.moveToSpace(pageId, {
+				visibility,
+				organizationTeamId: visibility === EDocumentVisibility.TEAM ? organizationTeamId : null,
+				applyToSubtree: true
+			});
+			putPage(page);
+			// The sub-pages moved with it.
+			await invalidateTree();
+			return page;
+		},
+		[invalidateTree, putPage]
 	);
 
 	const restoreVersion = useCallback(
@@ -229,11 +285,13 @@ export function useDocsActions() {
 		updatePage,
 		movePage,
 		reorderPage,
+		placePage,
 		duplicatePage,
 		trashPage,
 		restorePage,
 		deletePage,
 		restoreVersion,
+		moveToSpace,
 		attachToProject,
 		detachFromProject,
 		invalidateTree,

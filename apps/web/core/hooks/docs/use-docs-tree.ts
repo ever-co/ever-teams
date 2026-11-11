@@ -23,6 +23,8 @@ export interface DocsTreeState {
 	workspaceTree: DocTree;
 	/** The reader's private pages. */
 	privateTree: DocTree;
+	/** The pages of each team space, by team (on a platform with Docs collaboration). */
+	teamTrees: Map<string, DocTree>;
 	isLoading: boolean;
 	isError: boolean;
 	error: unknown;
@@ -43,8 +45,10 @@ export function useDocsTree(enabled: boolean): DocsTreeState {
 
 	const pages = useMemo(() => query.data ?? [], [query.data]);
 	const trees = useMemo(() => {
-		const { workspace, privatePages } = splitSpaces(pages);
-		return { tree: buildDocTree(pages), workspaceTree: buildDocTree(workspace), privateTree: buildDocTree(privatePages) };
+		const { workspace, privatePages, teamPages } = splitSpaces(pages);
+		const teamTrees = new Map<string, DocTree>();
+		for (const [teamId, team] of teamPages) teamTrees.set(teamId, buildDocTree(team));
+		return { tree: buildDocTree(pages), workspaceTree: buildDocTree(workspace), privateTree: buildDocTree(privatePages), teamTrees };
 	}, [pages]);
 	const byId = useMemo(() => new Map(pages.map((page) => [page.id, page])), [pages]);
 

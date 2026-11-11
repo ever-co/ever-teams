@@ -1,6 +1,8 @@
 import qs from 'qs';
 import { APIService } from '@/core/services/client/api.service';
 import { GAUZY_API_BASE_SERVER_URL } from '@/core/constants/config/constants';
+import { validateApiResponse } from '@/core/types/schemas';
+import { uploadedDocumentsSchema, type TUploadedDocuments } from '@/core/types/schemas/documents/entity-file.schema';
 import type {
 	IChatCategory,
 	IChatConversationCreateInput,
@@ -10,6 +12,9 @@ import type {
 	IChatCreateTaskInput,
 	IChatCreateTaskResult,
 	IChatEvent,
+	IChatFilesQuery,
+	IChatFilesResult,
+	IChatLinkPreview,
 	IChatMemberState,
 	IChatMemberStateInput,
 	IChatMemberSummary,
@@ -27,6 +32,9 @@ import type {
 
 /** The newest page a conversation opens with (the platform's default is 50, its maximum 200). */
 export const CHAT_PAGE_SIZE = 50;
+
+/** A page of the files pane (the platform's maximum is 200). */
+export const CHAT_FILES_PAGE_SIZE = 100;
 
 type Events = { events: IChatEvent[] };
 type ConversationAnswer = { conversation: IChatConversationWithState } & Events;
@@ -132,6 +140,42 @@ class ChatService extends APIService {
 		const search = qs.stringify({ ...query, limit: query.limit ?? CHAT_PAGE_SIZE }, { skipNulls: true });
 		const response = await this.get<IChatMessagePage>(`/chat/conversations/${path(conversationId)}/messages?${search}`, { signal });
 		return response.data;
+	};
+
+	/** The files the messages of a conversation carry, newest first (the platform pages them by `skip`). */
+	files = async (conversationId: string, query: IChatFilesQuery = {}, signal?: AbortSignal): Promise<IChatFilesResult> => {
+		const search = qs.stringify({ limit: query.limit ?? CHAT_FILES_PAGE_SIZE, skip: query.skip }, { skipNulls: true });
+		const response = await this.get<IChatFilesResult>(`/chat/conversations/${path(conversationId)}/files?${search}`, { signal });
+		return { files: response.data?.files ?? [], hasMore: !!response.data?.hasMore };
+	};
+
+	/**
+	 * The preview of a link posted in a message (`/chat/link-preview?url=`), as the platform fetched it: `pending` while
+	 * its worker fetches the page, `ready`, or `unavailable`. A platform without the route answers 404, a link it cannot
+	 * preview at all (not http(s), with credentials, too long) 400. The link goes as a parameter, not in the path the
+	 * HTTP log lines print (a link can carry a share token).
+	 */
+	linkPreview = async (url: string, signal?: AbortSignal): Promise<IChatLinkPreview> => {
+		const response = await this.get<IChatLinkPreview>('/chat/link-preview', { signal, params: { url } });
+		return response.data;
+	};
+
+	/**
+	 * Uploads the files of a message to the organization's documents (the platform's own upload path). They are the
+	 * sender's private files, kept out of the knowledge base and of AI classification: the conversation shows them to
+	 * its members through the message. The send then names the documents.
+	 */
+	uploadAttachments = async (files: File[], signal?: AbortSignal): Promise<TUploadedDocuments> => {
+		const form = new FormData();
+		for (const file of files) form.append('files', file, file.name);
+		form.append('tenantId', this.tenantId);
+		form.append('organizationId', this.organizationId);
+		form.append('source', 'CHAT');
+		form.append('visibility', 'PRIVATE');
+		form.append('importToKnowledge', 'false');
+		form.append('classifyWithAi', 'false');
+		const response = await this.post<TUploadedDocuments>('/plugins/docs/documents/upload', form, { signal });
+		return validateApiResponse(uploadedDocumentsSchema, response.data, 'uploadAttachments API response');
 	};
 
 	pins = async (conversationId: string, signal?: AbortSignal): Promise<IChatMessage[]> => {

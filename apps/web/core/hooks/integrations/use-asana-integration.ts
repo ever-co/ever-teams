@@ -21,6 +21,7 @@ import {
 	TAsanaCallbackError
 } from '@/core/types/interfaces/integrations/asana';
 import { integrationProviderStatus, isNotFoundError, type IntegrationProviderStatus } from './integration-provider-status';
+import { useConflictsAfterRuns } from './use-integration-conflicts';
 
 /** What the Asana provider shows. */
 export type AsanaConnectionStatus = IntegrationProviderStatus;
@@ -228,6 +229,8 @@ export function useAsanaIntegration(): AsanaIntegrationSettings {
 		}
 		wasRunning.current = isRunning;
 	}, [acceptedFinished, integrationId, isRunning, organizationId, queryClient, runs, tenantId]);
+
+	useConflictsAfterRuns('asana', runs);
 
 	const retryDetails = useCallback(() => {
 		if (mappingsQuery.isError) void mappingsQuery.refetch();

@@ -4,6 +4,7 @@ import { gauzyErrorResponse } from '@/core/services/server/gauzy-error-response'
 import { uploadDocumentsRequest } from '@/core/services/server/requests/entity-files';
 import { readCappedFormData } from '@/core/lib/auth/ever-id/body';
 import { ENTITY_FILE_MAX_BYTES, ENTITY_FILES_PER_UPLOAD } from '@/core/types/schemas/documents/entity-file.schema';
+import { passedUploadFieldsOf } from '@/core/lib/utils/document-upload-fields';
 
 /** Room for the multipart boundaries and part headers around the largest upload Gauzy accepts. */
 const MULTIPART_OVERHEAD_BYTES = 1024 * 1024;
@@ -15,9 +16,9 @@ function isFile(part: FormDataEntryValue): part is File {
 }
 
 /**
- * Uploads files as documents of the caller's organization. Only the files go through: the tenant and the
- * organization are the session's, and every other part of the form is dropped. Gauzy checks each file's content,
- * type and size.
+ * Uploads files as documents of the caller's organization. The files go through with the few fields of
+ * `passedUploadFieldsOf`; the tenant and the organization are the session's, and every other part of the form is dropped.
+ * Gauzy checks each file's content, type and size.
  */
 export async function POST(req: Request) {
 	const { $res, user, access_token, tenantId, organizationId } = await authenticatedGuard(req, new NextResponse());
@@ -39,6 +40,9 @@ export async function POST(req: Request) {
 	}
 	form.append('tenantId', tenantId);
 	form.append('organizationId', organizationId);
+	for (const [name, value] of passedUploadFieldsOf(incoming)) {
+		form.append(name, value);
+	}
 
 	try {
 		const { data } = await uploadDocumentsRequest({ form, bearer_token: access_token, tenantId });

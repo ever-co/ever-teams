@@ -17,7 +17,7 @@ import type { TOrganizationTeamEmployee, TTaskStatus } from '@/core/types/schema
 import type { TTask } from '@/core/types/schemas/task/task.schema';
 
 /** The fields a list of tasks edits in place; the names match the failure toast's own select. */
-export type TeamTaskField = 'status' | 'priority' | 'size' | 'issueType' | 'tags' | 'dueDate' | 'members';
+export type TeamTaskField = 'status' | 'priority' | 'size' | 'issueType' | 'tags' | 'dueDate' | 'members' | 'project';
 
 type TaskChange = (task: TTask) => Partial<TTask> | null;
 
@@ -199,11 +199,36 @@ export function useTeamTaskUpdates() {
 		[applyChange, bulkUpdate, latestTask, t, taskLabels, usesBulk]
 	);
 
+	/** One task, or a selection (one request with the saved-views feature, one undo); `null` removes the due date. */
 	const setDueDate = useCallback(
-		(taskId: string, dueDate: Date | null) => {
-			applyChange([taskId], 'dueDate', () => ({ dueDate }));
+		(taskIds: string | string[], dueDate: Date | null) => {
+			const ids = typeof taskIds === 'string' ? [taskIds] : taskIds;
+			if (usesBulk(ids)) {
+				const message = t('taskViews.FIELD_CHANGED', { field: t('pages.taskDetails.DUE_DATE') });
+				void bulkUpdate(ids, { dueDate: dueDate ? dueDate.toISOString() : null }, message).catch(() => undefined);
+				return;
+			}
+			applyChange(ids, 'dueDate', () => ({ dueDate }));
 		},
-		[applyChange]
+		[applyChange, bulkUpdate, t, usesBulk]
+	);
+
+	/** Moves the tasks to a project (`null`: out of any project); a selection in one request with the feature on. */
+	const setProject = useCallback(
+		(taskIds: string[], projectId: string | null) => {
+			if (usesBulk(taskIds)) {
+				const message = t('taskViews.FIELD_CHANGED', { field: t('taskMenus.fields.project') });
+				void bulkUpdate(taskIds, { projectId }, message).catch(() => undefined);
+				return;
+			}
+			applyChange(taskIds, 'project', (task) => {
+				if ((task.projectId ?? null) === projectId) {
+					return null;
+				}
+				return { projectId };
+			});
+		},
+		[applyChange, bulkUpdate, t, usesBulk]
 	);
 
 	/** Adds the member to every task that does not have them yet; nobody is removed from a selection. */
@@ -244,5 +269,16 @@ export function useTeamTaskUpdates() {
 		[bulkUpdate, isBulkAvailable, t]
 	);
 
-	return { setStatus, setPriority, setSize, setIssueType, toggleLabel, setDueDate, assignMember, archiveTasks, canArchive: isBulkAvailable };
+	return {
+		setStatus,
+		setPriority,
+		setSize,
+		setIssueType,
+		toggleLabel,
+		setDueDate,
+		setProject,
+		assignMember,
+		archiveTasks,
+		canArchive: isBulkAvailable
+	};
 }

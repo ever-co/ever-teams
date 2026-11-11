@@ -1,5 +1,7 @@
 import { EBaseEntityEnum } from '@/core/types/generics/enums/entity';
 import { EEmployeeNotificationType, IEmployeeNotification } from '@/core/types/interfaces/common/employee-notification';
+import { docsInboxHrefOf } from './docs-links';
+import { isDocsEnabled } from './docs-enabled';
 
 export type NotificationFilter = 'all' | 'unread' | 'mentions' | 'assigned';
 
@@ -100,10 +102,14 @@ function knownTypeOf(value: IEmployeeNotification['type']): EEmployeeNotificatio
 	return value as EEmployeeNotificationType;
 }
 
-function hrefOf(type: EEmployeeNotificationType | null): string | null {
+function hrefOf(type: EEmployeeNotificationType | null, notification: IEmployeeNotification): string | null {
 	const isRateChangeRequest = type === EEmployeeNotificationType.RateChangeRequest;
 	if (isRateChangeRequest) {
 		return RATE_CHANGE_REQUEST_HREF;
+	}
+	// A page (shared, reviewed, commented while followed) opens in Docs where the deployment has it.
+	if (isDocsEnabled() && notification.entity === EBaseEntityEnum.Document) {
+		return docsInboxHrefOf(notification.entity, notification.entityId, null, type === EEmployeeNotificationType.Comment);
 	}
 	return null;
 }
@@ -147,7 +153,7 @@ export function toNotificationEntry(notification: IEmployeeNotification): Notifi
 		rawTitle,
 		message: distinctMessageOf(notification, subject),
 		taskId: taskIdOf(notification),
-		href: hrefOf(type),
+		href: hrefOf(type, notification),
 		createdAt: new Date(notification.createdAt)
 	};
 }

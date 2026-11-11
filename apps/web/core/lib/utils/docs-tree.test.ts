@@ -5,11 +5,13 @@ import {
 	canMoveUnder,
 	compareSiblings,
 	descendantIdsOf,
+	dropPositionAt,
 	filterPagesLocally,
 	flattenTree,
 	nextFocusIndex,
 	nextIndexUnder,
 	pageTitle,
+	placementOf,
 	reorderedIds,
 	sortByUpdated,
 	splitSpaces
@@ -110,6 +112,20 @@ describe('spaces, titles and sorting', () => {
 		expect(privatePages.map((p) => p.id)).toEqual(['p']);
 	});
 
+	it('puts team pages in their team space, and a team page without its team in the workspace', () => {
+		const { workspace, privatePages, teamPages } = splitSpaces([
+			page('w'),
+			page('t1', { visibility: EDocumentVisibility.TEAM, organizationTeamId: 'team-a' }),
+			page('t2', { visibility: EDocumentVisibility.TEAM, organizationTeamId: 'team-b' }),
+			page('t3', { visibility: EDocumentVisibility.TEAM, organizationTeamId: 'team-a' }),
+			page('orphan', { visibility: EDocumentVisibility.TEAM, organizationTeamId: null })
+		]);
+		expect(workspace.map((p) => p.id)).toEqual(['w', 'orphan']);
+		expect(privatePages).toEqual([]);
+		expect(teamPages.get('team-a')?.map((p) => p.id)).toEqual(['t1', 't3']);
+		expect(teamPages.get('team-b')?.map((p) => p.id)).toEqual(['t2']);
+	});
+
 	it('reads a blank name as untitled', () => {
 		expect(pageTitle(page('x', { name: '  ' }), 'Untitled')).toBe('Untitled');
 		expect(pageTitle(page('x', { name: 'Plan' }), 'Untitled')).toBe('Plan');
@@ -139,5 +155,41 @@ describe('nextFocusIndex', () => {
 		expect(nextFocusIndex(3, 1, 'End')).toBe(2);
 		expect(nextFocusIndex(3, 1, 'Enter')).toBe(-1);
 		expect(nextFocusIndex(0, 0, 'ArrowDown')).toBe(-1);
+	});
+});
+
+describe('drag to reorder', () => {
+	it('places beside a row in its top and bottom quarter, under it in the middle', () => {
+		expect(dropPositionAt(2, 32)).toBe('before');
+		expect(dropPositionAt(16, 32)).toBe('inside');
+		expect(dropPositionAt(30, 32)).toBe('after');
+		expect(dropPositionAt(5, 0)).toBe('inside');
+	});
+
+	it('reorders among the same siblings', () => {
+		const tree = buildDocTree(PAGES);
+		expect(placementOf(tree, 'a2', 'a1', 'before')).toEqual({ parentId: 'a', orderedIds: ['a2', 'a1'], index: 0, moves: false });
+		expect(placementOf(tree, 'a', 'b', 'after')).toEqual({ parentId: null, orderedIds: ['b', 'a'], index: 1, moves: false });
+	});
+
+	it('moves to the other parent at that place', () => {
+		const tree = buildDocTree(PAGES);
+		expect(placementOf(tree, 'b', 'a1', 'after')).toEqual({ parentId: 'a', orderedIds: ['a1', 'b', 'a2'], index: 1, moves: true });
+		expect(placementOf(tree, 'a2x', 'a', 'before')).toEqual({ parentId: null, orderedIds: ['a2x', 'a', 'b'], index: 0, moves: true });
+	});
+
+	it('refuses what changes nothing, a page beside itself and a page under its own sub-pages', () => {
+		const tree = buildDocTree(PAGES);
+		expect(placementOf(tree, 'a1', 'a2', 'before')).toBeNull();
+		expect(placementOf(tree, 'a', 'a', 'after')).toBeNull();
+		expect(placementOf(tree, 'a', 'a2x', 'before')).toBeNull();
+		expect(placementOf(tree, 'missing', 'a', 'before')).toBeNull();
+	});
+
+	it('puts nothing beside a page shown at the root because its parent is out of sight', () => {
+		const tree = buildDocTree(PAGES);
+		expect(placementOf(tree, 'b', 'orphan', 'after')).toBeNull();
+		// The root siblings on the platform leave it out.
+		expect(placementOf(tree, 'a1', 'b', 'after')?.orderedIds).toEqual(['a', 'b', 'a1']);
 	});
 });

@@ -8,6 +8,7 @@ import { useTranslations } from 'next-intl';
 import { useState } from 'react';
 import { Bold, InlineCode, Italic, Link, WritingHelp, Strikethrough, Underline } from '@/core/components/icons';
 import { LinkForm, linkLabelOf, removeHandlerOf } from './link-form';
+import type { RichEditorBubbleAction } from './rich-editor';
 import { ToolButton, ToolDivider, useShortcutLabel } from './tool-button';
 
 function selectionStateOf(editor: Editor) {
@@ -50,11 +51,14 @@ function shouldShowBubble({ editor, state }: { editor: Editor; state: EditorStat
 export function BubbleToolbar({
 	editor,
 	aiEnabled,
-	onAskAi
+	onAskAi,
+	actions = []
 }: Readonly<{
 	editor: Editor;
 	aiEnabled: boolean;
 	onAskAi: () => void;
+	/** A host's buttons after the marks (the Docs pages: Comment). */
+	actions?: readonly RichEditorBubbleAction[];
 }>) {
 	const t = useTranslations();
 	const shortcutLabel = useShortcutLabel();
@@ -135,6 +139,14 @@ export function BubbleToolbar({
 						onPress={() => editor.chain().focus().toggleCode().run()}
 					/>
 					<ToolButton icon={Link} label={linkLabel} active={state.link} onPress={() => setLinkOpen(true)} />
+					{actions.length > 0 && (
+						<>
+							<ToolDivider />
+							{actions.map((action) => (
+								<ToolButton key={action.id} icon={action.icon} label={action.label} shortcutLabel={action.shortcutLabel} onPress={() => action.onPress(editor)} />
+							))}
+						</>
+					)}
 					{aiEnabled && (
 						<>
 							<ToolDivider />
