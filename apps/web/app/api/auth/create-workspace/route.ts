@@ -16,8 +16,8 @@ const NO_STORE = { 'Cache-Control': 'no-store' };
  * Answers 201 with the invitations sent, 400 for an invalid body, 403 with `code` ADDRESS_UNCONFIRMED (the address
  * must be confirmed first), REGISTRATION_CLOSED (the operator allows no new workspace) or SUBSCRIPTION_REQUIRED (the
  * sign-up's paywall; `details.checkoutUrl` is where to buy the product), 502 with `code`
- * CREATED_NOT_OPENED (the workspace and its team exist, but its session could not be opened) or FAILED (a step before
- * the first team failed).
+ * CREATED_NOT_OPENED (the workspace exists but its session could not be opened: its team too, or its setup stopped
+ * after the tenant, which a sign-in with the new account resumes) or FAILED (a step before the tenant failed).
  */
 export async function POST(req: Request) {
 	const { $res, user, access_token, tenantId } = await authenticatedGuard(req, new NextResponse());

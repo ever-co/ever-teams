@@ -150,6 +150,8 @@ export async function createWorkspace(input: CreateWorkspaceInput): Promise<Crea
 	let invited = 0;
 	let invitesFailed = false;
 	let isSetUp = false;
+	// The tenant exists: the setup stopped part way, and a sign-in with the new account resumes it
+	let hasTenant = false;
 	const { origin } = new URL(input.req.url);
 	const result = await provisionEverIdWorkspace({
 		req: input.req,
@@ -160,6 +162,9 @@ export async function createWorkspace(input: CreateWorkspaceInput): Promise<Crea
 		workspace: input.name,
 		languageId: input.languageId,
 		timezone: input.timezone,
+		onTenantCreated: () => {
+			hasTenant = true;
+		},
 		onSetUp: () => {
 			isSetUp = true;
 		},
@@ -176,7 +181,8 @@ export async function createWorkspace(input: CreateWorkspaceInput): Promise<Crea
 				: undefined
 	});
 	if (result !== 'ok') {
-		return { status: isSetUp ? 'created_unopened' : 'failed' };
+		// Never `failed` once the tenant exists: the form would offer another creation, a second workspace
+		return { status: isSetUp || hasTenant ? 'created_unopened' : 'failed' };
 	}
 	return { status: 'ok', invited, invitesFailed };
 }

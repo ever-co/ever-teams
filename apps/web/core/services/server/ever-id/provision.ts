@@ -64,6 +64,12 @@ interface EverIdProvisionInput {
 	 */
 	onSetUp?: (workspace: Omit<ProvisionedWorkspace, 'accessToken'>) => void;
 	/**
+	 * Told once the tenant is created, before its organization, employee and team: a caller that then gets `failed`
+	 * knows the account holds a workspace whose setup stopped (a sign-in with it resumes the setup), so another
+	 * creation would make a second one (#5025).
+	 */
+	onTenantCreated?: () => void;
+	/**
 	 * Run once the workspace is set up and signed in, with its session. Its failure does not undo the workspace: the
 	 * caller notes it (the invitations of a new workspace).
 	 */
@@ -159,6 +165,11 @@ export async function provisionEverIdWorkspace(input: EverIdProvisionInput): Pro
 		} else {
 			const { data: tenant } = await createTenantRequest(workspace, auth_token);
 			tenantId = tenant.id;
+			try {
+				input.onTenantCreated?.();
+			} catch {
+				// The caller's note: never a failure of the setup
+			}
 			if (SMTP_CONFIGURED) {
 				await createTenantSmtpRequest({ access_token: auth_token, tenantId });
 			}

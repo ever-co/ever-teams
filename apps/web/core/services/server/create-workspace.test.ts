@@ -127,6 +127,22 @@ describe('createWorkspace', () => {
 		});
 	});
 
+	it('reports a workspace whose setup stopped after its tenant as created: a retry would make a second one', async () => {
+		// The tenant exists; its organization (or employee, or team) could not be made
+		mockProvision.mockImplementation(async ({ onTenantCreated }) => {
+			onTenantCreated?.();
+			return 'failed';
+		});
+
+		await expect(create()).resolves.toEqual({ status: 'created_unopened' });
+	});
+
+	it('reports a failure before any tenant as a failure, which may be tried again', async () => {
+		mockProvision.mockResolvedValue('failed');
+
+		await expect(create()).resolves.toEqual({ status: 'failed' });
+	});
+
 	it('never reports a workspace set up but not opened as not created: a retry would create a second one', async () => {
 		// The tenant, organization, employee and team exist; opening the session (the token refresh) failed
 		mockProvision.mockImplementation(async ({ onSetUp }) => {
