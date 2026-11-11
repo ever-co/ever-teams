@@ -28,6 +28,7 @@ import { useInboxAvailability } from '@/core/hooks/inbox/use-inbox-availability'
 import { useInboxCounts, useInboxItem, useInboxItems } from '@/core/hooks/inbox/use-inbox-items';
 import { useInboxKeyboard } from '@/core/hooks/inbox/use-inbox-keyboard';
 import { useInboxScope } from '@/core/hooks/inbox/use-inbox-scope';
+import { useInboxSheetFocus } from '@/core/hooks/inbox/use-inbox-sheet-focus';
 import { useNotificationActions, useNotificationInbox, useUnreadNotificationCount } from '@/core/hooks/notifications/use-notification-inbox';
 import { useTaskDrawer } from '@/core/hooks/tasks/use-task-drawer';
 import { isInboxEnabled } from '@/core/lib/utils/inbox-enabled';
@@ -568,6 +569,13 @@ function InboxPageContent() {
 	const selectedCount = selected.size;
 	const anySelected = selectedCount > 0;
 	const firstSelected = anySelected ? byId.get([...selected][0]) ?? null : null;
+	const showsSheet = showsInboxSheet(current, hasChatPages());
+	const closeSheet = useCallback(() => setCurrentId(null), []);
+	const {
+		sheetRef,
+		close: closeSheetAndReturnFocus,
+		onKeyDown: onSheetKeyDown
+	} = useInboxSheetFocus(showsSheet ? (current?.id ?? null) : null, closeSheet);
 
 	if (!enabled) return <InboxPageSkeleton />;
 
@@ -812,13 +820,16 @@ function InboxPageContent() {
 
 				{/* Below the large breakpoint the pane is a sheet over the list, opened with an entry that is answered here (a
 				    question, an approval) or has nothing to open; the other entries open their target as before. */}
-				{showsInboxSheet(current, hasChatPages()) && (
+				{showsSheet && (
 					<div
-						className="fixed inset-x-0 bottom-0 z-40 flex max-h-[80vh] flex-col overflow-hidden rounded-t-2xl border-t border-border bg-background shadow-lg lg:hidden"
+						ref={sheetRef}
+						tabIndex={-1}
+						onKeyDown={onSheetKeyDown}
+						className="fixed inset-x-0 bottom-0 z-40 flex max-h-[80vh] flex-col overflow-hidden rounded-t-2xl border-t border-border bg-background shadow-lg outline-none lg:hidden"
 						role="dialog"
 						aria-label={t('inbox.DETAIL.SHEET_LABEL')}
 					>
-						{detail(() => setCurrentId(null))}
+						{detail(closeSheetAndReturnFocus)}
 					</div>
 				)}
 				<aside className="hidden h-full min-w-0 flex-1 lg:block">{detail()}</aside>

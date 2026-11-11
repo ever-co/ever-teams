@@ -5,7 +5,6 @@ import {
 	inboxAlertKeyOf,
 	readInboxSound,
 	scheduleChime,
-	shouldChime,
 	writeInboxSound,
 	type ChimeContext
 } from './inbox-alert';
@@ -57,15 +56,6 @@ describe('inboxAlertKeyOf', () => {
 		expect(inboxAlertKeyOf(envelope({ occurredAt: stale }), { userId: 'user-1', now: NOW })).toBeNull();
 		expect(inboxAlertKeyOf(envelope({ occurredAt: edge }), { userId: 'user-1', now: NOW })).toBe('inbox-item-1');
 		expect(inboxAlertKeyOf(envelope({ occurredAt: 'yesterday' }), { userId: 'user-1', now: NOW })).toBeNull();
-	});
-});
-
-describe('shouldChime', () => {
-	it('chimes in a visible tab, and in a hidden one only where the device shows no browser notification', () => {
-		expect(shouldChime({ isVisible: true, hasPushSubscription: true })).toBe(true);
-		expect(shouldChime({ isVisible: true, hasPushSubscription: false })).toBe(true);
-		expect(shouldChime({ isVisible: false, hasPushSubscription: false })).toBe(true);
-		expect(shouldChime({ isVisible: false, hasPushSubscription: true })).toBe(false);
 	});
 });
 

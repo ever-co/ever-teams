@@ -58,6 +58,7 @@ interface StoredClaim {
 	until: number;
 }
 
+/** The claim a storage entry holds, or null when there is none or it cannot be read. */
 function readClaim(storage: TabClaimStorage, entry: string): StoredClaim | null {
 	const raw = storage.getItem(entry);
 	if (!raw) return null;
@@ -84,6 +85,7 @@ function isHeld(claim: StoredClaim | null, now: number): boolean {
 	return !!claim && claim.until > now;
 }
 
+/** Writes a claim; false when the storage refused it. */
 function write(storage: TabClaimStorage, entry: string, tabId: string, until: number): boolean {
 	try {
 		storage.setItem(entry, `${tabId}|${until}`);
@@ -141,6 +143,7 @@ export async function claimForThisTab(key: string, options: TabClaimOptions = {}
 
 let browserTabId: string | null = null;
 
+/** A random id for this tab, unique among the tabs of the browser. */
 function newTabId(): string {
 	if (typeof crypto === 'undefined') return Date.now().toString(36);
 	// `randomUUID` exists in secure contexts only; random values everywhere.
@@ -148,6 +151,7 @@ function newTabId(): string {
 	return Array.from(crypto.getRandomValues(new Uint32Array(4)), (part) => part.toString(36)).join('-');
 }
 
+/** The origin's local storage, or null where the browser refuses it. */
 function browserStorage(): TabClaimStorage | null {
 	try {
 		return typeof window !== 'undefined' && window.localStorage ? window.localStorage : null;

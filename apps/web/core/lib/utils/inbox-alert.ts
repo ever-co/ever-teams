@@ -41,15 +41,7 @@ export function inboxAlertKeyOf(
 	return `inbox-${itemId}`;
 }
 
-/**
- * Whether a tab plays the sound for an entry it claimed. A visible tab does. A hidden one does only when this browser
- * gets no browser notifications: where it does, the notification the device shows is the alert, and a chime on top
- * would sound it twice.
- */
-export function shouldChime(tab: { isVisible: boolean; hasPushSubscription: boolean }): boolean {
-	return tab.isVisible || !tab.hasPushSubscription;
-}
-
+/** The browser's choice: on only when it was switched on; off where the storage cannot be read. */
 export function readInboxSound(storage: KeyValueStorage | null): boolean {
 	try {
 		return storage?.getItem(INBOX_SOUND_STORAGE_KEY) === 'on';

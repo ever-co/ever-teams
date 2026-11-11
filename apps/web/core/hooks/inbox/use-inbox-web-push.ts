@@ -103,7 +103,10 @@ export function useInboxWebPush(enabled: boolean) {
 		try {
 			await inboxPushService.publicKey();
 		} catch (error) {
-			setState(stateWithoutKey(error));
+			const next = stateWithoutKey(error);
+			setState(next);
+			// A platform that answered something else than "no web push" may still list and remove the devices.
+			if (next !== 'unavailable') await loadDevices();
 			return;
 		}
 		setState(await browserPushState());

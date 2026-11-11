@@ -12,17 +12,16 @@ import {
 	inboxAlertKeyOf,
 	readInboxSound,
 	scheduleChime,
-	shouldChime,
 	writeInboxSound
 } from '@/core/lib/utils/inbox-alert';
 import { isInboxEnabled } from '@/core/lib/utils/inbox-enabled';
-import { thisBrowserPushSubscription } from '@/core/lib/utils/web-push';
 
 const INBOX_ALERT_EVENTS: readonly string[] = [REALTIME_EVENT_NAMES.INBOX_ITEM_CREATED];
 
 // The choice is the browser's: a switch in one tab reaches the others through the storage event.
 const soundListeners = new Set<() => void>();
 
+/** Listens to the choice: this tab's switch, and the other tabs' through the storage event. */
 function subscribeToSound(listener: () => void): () => void {
 	soundListeners.add(listener);
 	const onStorage = (event: StorageEvent) => {
@@ -57,6 +56,7 @@ function audioContext(): AudioContext | null {
 	return chimeContext;
 }
 
+/** Plays the chime, once the browser lets the page's audio run. */
 async function playChime(): Promise<void> {
 	const context = audioContext();
 	if (!context) return;
@@ -86,11 +86,14 @@ export function useInboxSound(): [boolean, (isOn: boolean) => void] {
 	return [isOn, setOn];
 }
 
-/** Plays the chime for one entry in the one tab that claims it. */
+/**
+ * Plays the chime for one entry in the one tab that claims it. The sound is the person's own choice for the browser,
+ * so it plays whether or not the device also shows a browser notification: whether the platform pushes an entry
+ * depends on its kind and the quiet hours, which the event does not say, and silencing the chime on a guess could
+ * leave the entry unannounced on both channels.
+ */
 async function chimeOnce(key: string): Promise<void> {
 	const isVisible = typeof document !== 'undefined' && document.visibilityState === 'visible';
-	const hasPushSubscription = isVisible ? false : !!(await thisBrowserPushSubscription());
-	if (!shouldChime({ isVisible, hasPushSubscription })) return;
 	const claimed = await claimForThisTab(key, { yieldMs: isVisible ? 0 : INBOX_ALERT_HIDDEN_YIELD_MS });
 	// The sound may have been switched off while the claim waited (a hidden tab yields, and its timers are slowed).
 	if (claimed && soundSnapshot()) await playChime();
@@ -101,7 +104,7 @@ async function chimeOnce(key: string): Promise<void> {
  * connection, and the one tab that claims the entry plays it — a visible tab before a hidden one. Off unless the
  * deployment has the Inbox and the person switched the sound on for this browser; with the live channel off, no
  * event arrives and nothing plays. Browser notifications are not shown here: the push worker shows them, one per
- * entry and device.
+ * entry and device, so no tab can repeat them.
  */
 export function useInboxAlerts(): void {
 	const enabled = isInboxEnabled();

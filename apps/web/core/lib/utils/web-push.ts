@@ -66,6 +66,7 @@ const SYSTEMS: ReadonlyArray<[RegExp, string]> = [
 	[/Linux/, 'Linux']
 ];
 
+/** The name of the first pattern the value matches. */
 function firstMatch(value: string, candidates: ReadonlyArray<[RegExp, string]>): string | null {
 	return candidates.find(([pattern]) => pattern.test(value))?.[1] ?? null;
 }

@@ -114,4 +114,5 @@ refused credential, online event), `invalidation-scheduler` (folding, hold while
   person switched the sound on for this browser (notification settings, off by default). The claims live in
   `localStorage`, not on a `BroadcastChannel`, so a tab that replays the event after sleep still finds them;
   replays older than two minutes stay silent. System notifications come from the push worker, one per entry and
-  device (tag `inbox-<itemId>`), so no tab shows its own; a hidden tab stays silent where the browser is subscribed.
+  device (tag `inbox-<itemId>`), so no tab shows its own. The chime does not guess whether a push also comes (that
+  depends on the kind and the quiet hours, which the event does not carry), so it is never silenced on that guess.
