@@ -152,6 +152,18 @@ describe('createWorkspace', () => {
 		expect(mockProvision).not.toHaveBeenCalled();
 	});
 
+	it('reads a message given as a list, and one that is not text as no message at all', async () => {
+		mockOpenWorkspace.mockImplementationOnce(() =>
+			gauzyRefusal({ statusCode: 403, message: ['Confirm your email address before opening another workspace'] })
+		);
+		await expect(create()).resolves.toEqual({ status: 'address_unconfirmed' });
+
+		mockOpenWorkspace.mockImplementationOnce(() =>
+			gauzyRefusal({ statusCode: 403, message: { text: 'Creating new workspaces is disabled on this server.' } })
+		);
+		await expect(create()).resolves.toEqual({ status: 'failed' });
+	});
+
 	it('reads any other refusal as a failure, not as closed registration', async () => {
 		mockOpenWorkspace.mockImplementationOnce(() =>
 			gauzyRefusal({ statusCode: 403, message: 'Opening a workspace is not allowed for this token' })

@@ -39,6 +39,14 @@ interface CreateWorkspaceInput {
 	timezone?: string;
 }
 
+/** Gauzy's message as text: a string, or the list of them a validation gives; anything else says nothing. */
+function messageOf(message: unknown): string {
+	if (typeof message === 'string') {
+		return message;
+	}
+	return Array.isArray(message) ? message.filter((part) => typeof part === 'string').join(' ') : '';
+}
+
 /**
  * Gauzy's refusal of the opening (403), told by its message: an unconfirmed address ("Confirm your email address
  * before opening another workspace"), or tenant registration closed by the operator ("Creating new workspaces is
@@ -51,7 +59,7 @@ async function refusalOf(error: unknown): Promise<'address_unconfirmed' | 'regis
 	if (statusCode !== 403) {
 		return 'failed';
 	}
-	const message = isRecord ? String((body as { message?: unknown }).message ?? '') : '';
+	const message = messageOf(isRecord ? (body as { message?: unknown }).message : undefined);
 	if (/confirm your e-?mail/i.test(message)) {
 		return 'address_unconfirmed';
 	}
