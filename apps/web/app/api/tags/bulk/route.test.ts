@@ -86,6 +86,33 @@ describe('POST /api/tags/bulk', () => {
 		await expect(POST(request)).rejects.toThrow('fetch failed');
 	});
 
+	it('refuses a body that is not a list of 1 to 200 labels, without asking Gauzy', async () => {
+		const tooMany = Array.from({ length: 201 }, (_, index) => ({ name: `Label ${index}` }));
+		const bodies = [
+			'{not json',
+			JSON.stringify({ items: 'Bug' }),
+			JSON.stringify({ items: [] }),
+			JSON.stringify({ items: tooMany })
+		];
+
+		for (const body of bodies) {
+			const response = await POST(new Request('https://app.ever.team/api/tags/bulk', { method: 'POST', body }));
+			expect(response.status).toBe(400);
+		}
+		expect(fetchMock).not.toHaveBeenCalled();
+	});
+
+	it('answers 401 to a request without a session before reading its body', async () => {
+		mockAuthenticatedGuard.mockResolvedValue({ $res: jest.fn(), user: null, status: 401 });
+
+		const response = await POST(
+			new Request('https://app.ever.team/api/tags/bulk', { method: 'POST', body: '{not json' })
+		);
+
+		expect(response.status).toBe(401);
+		expect(fetchMock).not.toHaveBeenCalled();
+	});
+
 	it('refuses a request without a session', async () => {
 		mockAuthenticatedGuard.mockResolvedValue({ $res: jest.fn(), user: null, status: 401 });
 		const request = new Request('https://app.ever.team/api/tags/bulk', {
