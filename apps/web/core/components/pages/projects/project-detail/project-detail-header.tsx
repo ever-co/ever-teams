@@ -138,7 +138,11 @@ export function ProjectDetailHeader({
 							</span>
 						</>
 					)}
-					<FavoriteStarButton entity={EBaseEntityEnum.OrganizationProject} id={project.id} />
+					<FavoriteStarButton
+						entity={EBaseEntityEnum.OrganizationProject}
+						id={project.id}
+						canAdd={!isArchived}
+					/>
 					{showsEdit && (
 						<Button variant="outline" size="default" onClick={() => openEditModal(project.id)}>
 							<Pencil />

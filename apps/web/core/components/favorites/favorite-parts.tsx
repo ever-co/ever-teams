@@ -125,11 +125,21 @@ export function FavoriteRemoveButton(props: Readonly<FavoriteRemoveButtonProps>)
 export function FavoriteStarButton({
 	entity,
 	id,
+	canAdd = true,
 	className
-}: Readonly<{ entity: EBaseEntityEnum; id: string; className?: string }>) {
+}: Readonly<{
+	entity: EBaseEntityEnum;
+	id: string;
+	/** False for an item that may only leave the favourites (an archived project): the star shows only while it is one. */
+	canAdd?: boolean;
+	className?: string;
+}>) {
 	const t = useTranslations();
 	const { isFavorite, isPending, toggleFavorite } = useFavoriteToggle(entity);
 	const isOn = isFavorite(id);
+	if (!isOn && !canAdd) {
+		return null;
+	}
 	const toggle = () => {
 		toggleFavorite(id).catch(() => toast.error(t('favorites.UPDATE_FAILED')));
 	};
