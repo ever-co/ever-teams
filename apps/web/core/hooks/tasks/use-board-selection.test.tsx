@@ -62,4 +62,17 @@ describe('the selection of a board, once a card leaves it', () => {
 		act(() => late(['b']));
 		expect([...result.current.selectedIds]).toEqual(['c']);
 	});
+
+	it('puts back only the leftovers still on the board: one a filter took off stays out once it is cleared', () => {
+		let lanes = [lane('open', ['a', 'b'])];
+		const { result, rerender } = renderHook(() => useBoardSelection(lanes));
+		act(() => result.current.clearSelection());
+		const restore = result.current.restoreLater();
+		lanes = [lane('open', ['a'])];
+		rerender();
+		act(() => restore(['a', 'b']));
+		lanes = [lane('open', ['a', 'b'])];
+		rerender();
+		expect([...result.current.selectedIds]).toEqual(['a']);
+	});
 });

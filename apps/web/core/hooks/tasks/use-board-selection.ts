@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { laneRangeIds, type KanbanLane } from '@/core/lib/utils/kanban-board';
 
 function withToggled(current: ReadonlySet<string>, id: string) {
@@ -25,6 +25,11 @@ export function useBoardSelection(lanes: readonly KanbanLane[]) {
 	const revision = useRef(0);
 
 	const onBoard = useMemo(() => new Set(lanes.flatMap((lane) => lane.tasks.map((task) => task.id))), [lanes]);
+	// The board as it is now, for a late answer (it may come after a filter took some of its tasks off the board).
+	const onBoardNow = useRef(onBoard);
+	useEffect(() => {
+		onBoardNow.current = onBoard;
+	}, [onBoard]);
 	const selectedIds = useMemo<ReadonlySet<string>>(
 		() => new Set([...selected].filter((id) => onBoard.has(id))),
 		[onBoard, selected]
@@ -76,8 +81,9 @@ export function useBoardSelection(lanes: readonly KanbanLane[]) {
 	const restoreLater = useCallback(() => {
 		const at = revision.current;
 		return (taskIds: readonly string[]) => {
-			if (revision.current !== at || !taskIds.length) return;
-			setSelected((current) => new Set([...current, ...taskIds]));
+			const stillOnBoard = taskIds.filter((id) => onBoardNow.current.has(id));
+			if (revision.current !== at || !stillOnBoard.length) return;
+			setSelected((current) => new Set([...current, ...stillOnBoard]));
 		};
 	}, []);
 
