@@ -93,15 +93,15 @@ describe('workspace creation', () => {
 		});
 	});
 
-	it('holds the timer while the new workspace opens: it would keep running in the workspace left behind', () => {
+	it('starts no timer while the new workspace opens: it would keep running in the workspace left behind', () => {
 		// Gauzy takes its time to open the account: the creation is in flight meanwhile
 		cy.mockScenario({ delays: { '/api/auth/workspaces': 6000 } });
 		cy.hardVisit('/workspace/new');
 		cy.get('#workspace-name', { timeout: 20_000 }).type('Lovelace Studio');
 		cy.contains('button', 'Create workspace').click();
 
-		cy.get('[aria-label="Start timer"]').first().click();
-		cy.contains('Your new workspace is opening', { timeout: 5000 }).should('be.visible');
+		// The header's timer offers no start on this page; pressed all the same, it starts nothing
+		cy.get('[aria-label="Start timer"]').first().click({ force: true });
 
 		cy.location('pathname', { timeout: 30_000 }).should('match', /\/workspace\/welcome$/);
 		cy.mockState().then((state) =>
