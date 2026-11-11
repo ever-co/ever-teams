@@ -99,6 +99,40 @@ export function hasChatPages(): boolean {
 	return (readRuntimeEnv('NEXT_PUBLIC_CHAT_ENABLED') || process.env.NEXT_PUBLIC_CHAT_ENABLED) === 'true';
 }
 
+/** Whether an entry has something to open: its task, its link, or its chat message where the chat pages exist. */
+export function hasInboxTarget(entry: Pick<InboxEntry, 'taskId' | 'href' | 'chatMessageId'>, chatPages = hasChatPages()): boolean {
+	return !!entry.taskId || !!entry.href || (!!entry.chatMessageId && chatPages);
+}
+
+/** Where an entry is opened: on a large screen beside the list (the pane), on a phone over it (a sheet) or by its target. */
+interface InboxOpenView {
+	/** The pane is on screen (the large breakpoint). */
+	hasPane: boolean;
+	/** The person asked to go to the target (`Enter`, a clicked browser notification), not only to read the entry. */
+	follow: boolean;
+	chatPages: boolean;
+}
+
+/**
+ * Whether opening an entry also goes to its target. A task always opens (its drawer, over the inbox); otherwise only
+ * when asked to follow, or on a phone, where there is no pane to read it in — unless it is a question answered here.
+ * An entry with nothing to open never leaves the inbox.
+ */
+export function opensInboxTarget(entry: Pick<InboxEntry, 'taskId' | 'href' | 'chatMessageId' | 'decision'>, view: InboxOpenView): boolean {
+	if (!hasInboxTarget(entry, view.chatPages)) return false;
+	if (entry.taskId || view.follow) return true;
+	return !view.hasPane && !entry.decision;
+}
+
+/**
+ * Whether the opened entry is shown in the sheet over the list below the large breakpoint: a question answered here,
+ * or an entry with nothing to open, which would otherwise show nothing at all on a phone.
+ */
+export function showsInboxSheet(entry: Pick<InboxEntry, 'taskId' | 'href' | 'chatMessageId' | 'decision'> | null, chatPages: boolean): boolean {
+	if (!entry) return false;
+	return !!entry.decision || !hasInboxTarget(entry, chatPages);
+}
+
 function hrefOf(type: EEmployeeNotificationType | null, entry: Pick<InboxEntry, 'entity' | 'entityId'>): string | null {
 	if (type === EEmployeeNotificationType.RateChangeRequest) return RATE_CHANGE_REQUEST_HREF;
 	// Without the chat pages a conversation has nowhere to open: the entry is not a link.
