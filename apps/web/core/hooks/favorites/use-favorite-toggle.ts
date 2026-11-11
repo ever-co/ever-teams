@@ -109,14 +109,14 @@ export function useFavoriteToggle(entity: EBaseEntityEnum) {
 	 * was before; while the item's favourite is already changing, from this control or another, it changes nothing.
 	 */
 	const toggleFavorite = useCallback(
-		async (entityId: string): Promise<boolean> => {
+		(entityId: string): Promise<boolean> => {
 			const isRunning =
 				queryClient.isMutating({
 					mutationKey,
 					predicate: (mutation) => mutation.state.variables === entityId
 				}) > 0;
 			if (!employeeId || isRunning) {
-				return isFavorite(entityId);
+				return Promise.resolve(isFavorite(entityId));
 			}
 			return mutateAsync(entityId);
 		},
