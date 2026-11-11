@@ -37,6 +37,17 @@ describe('LabelCatalogDialog', () => {
 		Object.values(mockToast).forEach((mock) => mock.mockReset());
 	});
 
+	it('is named by its title and described by its text', () => {
+		renderDialog();
+
+		expect(
+			screen.getByRole('dialog', {
+				name: 'settings.labelCatalog.TITLE',
+				description: 'settings.labelCatalog.DESCRIPTION'
+			})
+		).toBeTruthy();
+	});
+
 	it("lists the catalog by category, and shows the team's labels as added, not to be picked", () => {
 		renderDialog();
 

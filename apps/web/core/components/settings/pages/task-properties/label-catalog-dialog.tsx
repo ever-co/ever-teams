@@ -3,7 +3,13 @@
 import { useMemo, useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { toast } from 'sonner';
-import { APP_DIALOG_BODY, APP_DIALOG_FOOTER, AppDialog, AppDialogHeader } from '@/core/components/common/app-dialog';
+import {
+	APP_DIALOG_BODY,
+	APP_DIALOG_FOOTER,
+	AppDialog,
+	AppDialogDescription,
+	AppDialogHeader
+} from '@/core/components/common/app-dialog';
 import { Checkbox } from '@/core/components/common/checkbox';
 import { Input } from '@/core/components/common/input';
 import { Button } from '@/core/components/duplicated-components/_button';
@@ -192,26 +198,27 @@ export function LabelCatalogDialog({ open, existingNames, onClose, onAdd }: Read
 
 	return (
 		<AppDialog open={open} onClose={close} width="lg" keepOpenOnOutsideClick>
-			<AppDialogHeader
-				title={t('settings.labelCatalog.TITLE')}
-				context={t('settings.labelCatalog.DESCRIPTION')}
-				onClose={close}
-			/>
+			<AppDialogHeader title={t('settings.labelCatalog.TITLE')} onClose={close} />
 			<div className={cn(APP_DIALOG_BODY, 'flex flex-col gap-5 pb-5')}>
-				<div className="relative">
-					<Search
-						aria-hidden="true"
-						className="pointer-events-none absolute top-1/2 left-2.5 size-4 -translate-y-1/2 text-muted-foreground"
-					/>
-					<Input
-						type="search"
-						value={query}
-						onChange={(event) => setQuery(event.target.value)}
-						placeholder={t('settings.labelCatalog.SEARCH')}
-						aria-label={t('settings.labelCatalog.SEARCH')}
-						className="pl-8"
-						data-initial-focus=""
-					/>
+				<div className="flex flex-col gap-3">
+					<AppDialogDescription className="-mt-1 text-[13px] text-muted-foreground">
+						{t('settings.labelCatalog.DESCRIPTION')}
+					</AppDialogDescription>
+					<div className="relative">
+						<Search
+							aria-hidden="true"
+							className="pointer-events-none absolute top-1/2 left-2.5 size-4 -translate-y-1/2 text-muted-foreground"
+						/>
+						<Input
+							type="search"
+							value={query}
+							onChange={(event) => setQuery(event.target.value)}
+							placeholder={t('settings.labelCatalog.SEARCH')}
+							aria-label={t('settings.labelCatalog.SEARCH')}
+							className="pl-8"
+							data-initial-focus=""
+						/>
+					</div>
 				</div>
 				{groups.length === 0 && (
 					<p className="py-6 text-center text-sm text-muted-foreground">
