@@ -1826,6 +1826,7 @@
 				"WEEKLY_TREND": "Динамика по неделям",
 				"WEEKLY_TREND_SUMMARY": "Последние {weeks} нед.: создано {created}, завершено {completed}",
 				"WEEKLY_TREND_WEEK": "Неделя с {date}: создано {created}, завершено {completed}",
+				"WEEKLY_TREND_UNDATED": "Завершённые задачи без даты завершения не показаны: {count}",
 				"NO_ASSIGNEE": "Без исполнителя",
 				"SHARE_OF": "{percent}% из {total}",
 				"TASKS_IN_TEAM": "Задачи этого проекта в команде {team}",

@@ -1779,6 +1779,7 @@
 				"WEEKLY_TREND": "מגמה שבועית",
 				"WEEKLY_TREND_SUMMARY": "{weeks} השבועות האחרונים: {created} נוצרו, {completed} הושלמו",
 				"WEEKLY_TREND_WEEK": "שבוע של {date}: {created} נוצרו, {completed} הושלמו",
+				"WEEKLY_TREND_UNDATED": "משימות שהושלמו ללא תאריך השלמה אינן מוצגות: {count}",
 				"NO_ASSIGNEE": "ללא אחראי",
 				"SHARE_OF": "{percent}% מתוך {total}",
 				"TASKS_IN_TEAM": "משימות הפרויקט ב-{team}",

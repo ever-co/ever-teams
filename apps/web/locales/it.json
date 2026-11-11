@@ -1785,6 +1785,7 @@
 				"WEEKLY_TREND": "Andamento settimanale",
 				"WEEKLY_TREND_SUMMARY": "Ultime {weeks} settimane: {created} create, {completed} completate",
 				"WEEKLY_TREND_WEEK": "Settimana del {date}: {created} create, {completed} completate",
+				"WEEKLY_TREND_UNDATED": "Le attività completate senza data di completamento non sono mostrate: {count}",
 				"NO_ASSIGNEE": "Non assegnato",
 				"SHARE_OF": "{percent}% di {total}",
 				"TASKS_IN_TEAM": "Attività di questo progetto in {team}",
