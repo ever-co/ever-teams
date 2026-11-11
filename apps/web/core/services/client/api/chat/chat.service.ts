@@ -14,6 +14,8 @@ import type {
 	IChatEvent,
 	IChatFilesQuery,
 	IChatFilesResult,
+	IChatInteraction,
+	IChatInteractionResult,
 	IChatMemberState,
 	IChatMemberStateInput,
 	IChatMemberSummary,
@@ -194,6 +196,18 @@ class ChatService extends APIService {
 	/** A task from a message; the message keeps a `created` reference to it. Needs the task permission as well. */
 	createTask = async (messageId: string, input: IChatCreateTaskInput): Promise<IChatCreateTaskResult> => {
 		const response = await this.post<IChatCreateTaskResult>(`/chat/messages/${path(messageId)}/create-task`, input, undefined, false);
+		return response.data;
+	};
+
+	/** Clicks a button of an app message: the platform calls the app back; its reply, if any, comes back as the message. */
+	interact = async (messageId: string, actionId: string, blockId?: string | null): Promise<IChatInteractionResult> => {
+		const response = await this.post<IChatInteractionResult>(`/chat/messages/${path(messageId)}/interactions`, blockId ? { actionId, blockId } : { actionId }, undefined, false);
+		return response.data;
+	};
+
+	/** The state of one of my clicks (while the app's callback is retried). */
+	interaction = async (interactionId: string, signal?: AbortSignal): Promise<IChatInteraction> => {
+		const response = await this.get<IChatInteraction>(`/chat/interactions/${path(interactionId)}`, { signal });
 		return response.data;
 	};
 

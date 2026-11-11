@@ -5258,7 +5258,15 @@
 		"LOAD_MORE": "تحميل المزيد",
 		"VIEW_IMAGE": "عرض {name}",
 		"OPEN_ORIGINAL": "فتح الأصل",
-		"EMOJI_SUGGESTIONS": "الرموز التعبيرية"
+		"EMOJI_SUGGESTIONS": "الرموز التعبيرية",
+		"APP_BADGE": "تطبيق",
+		"APP_PENDING": "جارٍ الإرسال إلى التطبيق…",
+		"APP_DONE": "أُرسل إلى التطبيق",
+		"APP_FAILED": "تعذّر الوصول إلى التطبيق",
+		"APP_CALLBACK_FAILED": "لم يُجب التطبيق. حاول مرة أخرى بعد قليل.",
+		"APP_CLICK_FAILED": "تعذّر إرسال النقرة.",
+		"APP_NO_INTERACTIONS": "لم يعد هذا التطبيق يستقبل النقرات.",
+		"APP_GONE": "لم يعد هذا الزر متاحًا."
 	},
 	"docs": {
 		"TITLE": "المستندات",

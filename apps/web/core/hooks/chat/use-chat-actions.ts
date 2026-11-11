@@ -208,6 +208,14 @@ export function useChatActions() {
 		[patchEverywhere]
 	);
 
+	/** An app's reply to a click on one of its buttons replaced the message: it shows as the reply left it, everywhere. */
+	const applyAppReply = useCallback(
+		(message: IChatMessage, replaced: IChatMessage) => {
+			patchEverywhere(message, () => replaced);
+		},
+		[patchEverywhere]
+	);
+
 	/** A task from a message: the message shows its card at once, and the task lists read again (the task is new). */
 	const createTask = useCallback(
 		async (message: IChatMessage, input: IChatCreateTaskInput) => {
@@ -345,7 +353,7 @@ export function useChatActions() {
 
 	// One object while the callbacks stay the same: the effects that depend on it do not run on every render.
 	return useMemo(
-		() => ({ send, retry, discardFailed, edit, remove, pin, createTask, react, read, unreadFrom, readAll, setFollow, setMemberState, createChannel, direct, join, leave }),
-		[send, retry, discardFailed, edit, remove, pin, createTask, react, read, unreadFrom, readAll, setFollow, setMemberState, createChannel, direct, join, leave]
+		() => ({ send, retry, discardFailed, edit, remove, pin, applyAppReply, createTask, react, read, unreadFrom, readAll, setFollow, setMemberState, createChannel, direct, join, leave }),
+		[send, retry, discardFailed, edit, remove, pin, applyAppReply, createTask, react, read, unreadFrom, readAll, setFollow, setMemberState, createChannel, direct, join, leave]
 	);
 }

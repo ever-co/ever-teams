@@ -5258,7 +5258,15 @@
 		"LOAD_MORE": "Meer laden",
 		"VIEW_IMAGE": "{name} bekijken",
 		"OPEN_ORIGINAL": "Origineel openen",
-		"EMOJI_SUGGESTIONS": "Emoji"
+		"EMOJI_SUGGESTIONS": "Emoji",
+		"APP_BADGE": "App",
+		"APP_PENDING": "Bezig met verzenden naar de app…",
+		"APP_DONE": "Naar de app verzonden",
+		"APP_FAILED": "De app is niet bereikbaar",
+		"APP_CALLBACK_FAILED": "De app heeft niet geantwoord. Probeer het zo meteen opnieuw.",
+		"APP_CLICK_FAILED": "De klik kon niet worden verzonden.",
+		"APP_NO_INTERACTIONS": "Deze app neemt geen klikken meer aan.",
+		"APP_GONE": "Deze knop is niet meer beschikbaar."
 	},
 	"docs": {
 		"TITLE": "Documenten",

@@ -5258,7 +5258,15 @@
 		"LOAD_MORE": "טעינת עוד",
 		"VIEW_IMAGE": "הצגת {name}",
 		"OPEN_ORIGINAL": "פתיחת המקור",
-		"EMOJI_SUGGESTIONS": "אימוג׳י"
+		"EMOJI_SUGGESTIONS": "אימוג׳י",
+		"APP_BADGE": "אפליקציה",
+		"APP_PENDING": "שולח לאפליקציה…",
+		"APP_DONE": "נשלח לאפליקציה",
+		"APP_FAILED": "לא ניתן להגיע לאפליקציה",
+		"APP_CALLBACK_FAILED": "האפליקציה לא ענתה. נסו שוב בעוד רגע.",
+		"APP_CLICK_FAILED": "לא ניתן היה לשלוח את הלחיצה.",
+		"APP_NO_INTERACTIONS": "האפליקציה הזו כבר לא מקבלת לחיצות.",
+		"APP_GONE": "הכפתור הזה כבר לא זמין."
 	},
 	"docs": {
 		"TITLE": "מסמכים",

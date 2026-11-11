@@ -18,3 +18,13 @@ export function isChatVirtualListEnabled(): boolean {
 	const runtimeFlag = readRuntimeEnv('NEXT_PUBLIC_CHAT_VIRTUAL_LIST_ENABLED') || process.env.NEXT_PUBLIC_CHAT_VIRTUAL_LIST_ENABLED;
 	return runtimeFlag === 'true';
 }
+
+/**
+ * Whether app messages (posted by the platform's incoming webhooks) show their blocks and buttons
+ * (`NEXT_PUBLIC_CHAT_WEBHOOKS_ENABLED=true`, read at runtime). Off by default: an app message then shows its text
+ * only, as before. A button calls the platform, which answers 404 where its webhooks are off.
+ */
+export function isChatWebhooksEnabled(): boolean {
+	const runtimeFlag = readRuntimeEnv('NEXT_PUBLIC_CHAT_WEBHOOKS_ENABLED') || process.env.NEXT_PUBLIC_CHAT_WEBHOOKS_ENABLED;
+	return runtimeFlag === 'true';
+}

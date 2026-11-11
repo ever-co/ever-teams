@@ -166,6 +166,7 @@ function ThreadPaneBody({ conversationId, rootMessageId, conversationNames, canM
 			},
 			onDelete: (message: IChatMessage) => actions.remove(message).catch(reportFailure),
 			onPin: (message: IChatMessage, pinned: boolean) => actions.pin(message, pinned).catch(reportFailure),
+			onAppReply: (message: IChatMessage, replaced: IChatMessage) => actions.applyAppReply(message, replaced),
 			onUnreadFrom: (message: IChatMessage) => actions.unreadFrom(message).catch(reportFailure),
 			onRetry: (message: ChatOutboxMessage) => actions.retry(conversationId, message).catch(() => toast.error(t('teamChat.SEND_FAILED'))),
 			onDiscard: (message: ChatOutboxMessage) => actions.discardFailed(conversationId, message),

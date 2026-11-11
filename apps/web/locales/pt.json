@@ -5258,7 +5258,15 @@
 		"LOAD_MORE": "Carregar mais",
 		"VIEW_IMAGE": "Ver {name}",
 		"OPEN_ORIGINAL": "Abrir o original",
-		"EMOJI_SUGGESTIONS": "Emoji"
+		"EMOJI_SUGGESTIONS": "Emoji",
+		"APP_BADGE": "App",
+		"APP_PENDING": "A enviar para a app…",
+		"APP_DONE": "Enviado para a app",
+		"APP_FAILED": "Não foi possível contactar a app",
+		"APP_CALLBACK_FAILED": "A app não respondeu. Tente novamente daqui a pouco.",
+		"APP_CLICK_FAILED": "Não foi possível enviar o clique.",
+		"APP_NO_INTERACTIONS": "Esta app já não aceita cliques.",
+		"APP_GONE": "Este botão já não está disponível."
 	},
 	"docs": {
 		"TITLE": "Documentos",

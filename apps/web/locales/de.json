@@ -5258,7 +5258,15 @@
 		"LOAD_MORE": "Mehr laden",
 		"VIEW_IMAGE": "{name} ansehen",
 		"OPEN_ORIGINAL": "Original öffnen",
-		"EMOJI_SUGGESTIONS": "Emoji"
+		"EMOJI_SUGGESTIONS": "Emoji",
+		"APP_BADGE": "App",
+		"APP_PENDING": "Wird an die App gesendet…",
+		"APP_DONE": "An die App gesendet",
+		"APP_FAILED": "Die App ist nicht erreichbar",
+		"APP_CALLBACK_FAILED": "Die App hat nicht geantwortet. Versuchen Sie es gleich noch einmal.",
+		"APP_CLICK_FAILED": "Der Klick konnte nicht gesendet werden.",
+		"APP_NO_INTERACTIONS": "Diese App nimmt keine Klicks mehr an.",
+		"APP_GONE": "Diese Schaltfläche ist nicht mehr verfügbar."
 	},
 	"docs": {
 		"TITLE": "Dokumente",
