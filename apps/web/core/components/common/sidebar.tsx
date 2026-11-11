@@ -1,4 +1,5 @@
 import * as React from 'react';
+import { usePathname } from 'next/navigation';
 import { Slot } from '@radix-ui/react-slot';
 import { VariantProps, cva } from 'class-variance-authority';
 import { Sidebar as SidebarIcon } from '@/core/components/icons/hugeicons';
@@ -50,7 +51,15 @@ const SidebarProvider = React.forwardRef<
 	}
 >(({ defaultOpen = true, open: openProp, onOpenChange: setOpenProp, className, style, children, ...props }, ref) => {
 	const isMobile = useIsMobile();
-	const [openMobile, setOpenMobile] = React.useState(false);
+	// On a phone the sidebar is a sheet over the page, open on the page it was opened on: following one of its links
+	// (a view, a project) shows the page it leads to instead of leaving the sheet over it.
+	const pathname = usePathname();
+	const [mobileOpening, setMobileOpening] = React.useState<{ pathname: string | null } | null>(null);
+	const openMobile = mobileOpening !== null && mobileOpening.pathname === pathname;
+	const setOpenMobile = React.useCallback(
+		(value: boolean) => setMobileOpening(value ? { pathname } : null),
+		[pathname]
+	);
 
 	// This is the internal state of the sidebar.
 	// We use openProp and setOpenProp for control from outside the component.
@@ -72,8 +81,8 @@ const SidebarProvider = React.forwardRef<
 
 	// Helper to toggle the sidebar.
 	const toggleSidebar = React.useCallback(() => {
-		return isMobile ? setOpenMobile((open) => !open) : setOpen((open) => !open);
-	}, [isMobile, setOpen, setOpenMobile]);
+		return isMobile ? setOpenMobile(!openMobile) : setOpen((open) => !open);
+	}, [isMobile, openMobile, setOpen, setOpenMobile]);
 
 	// Adds a keyboard shortcut to toggle the sidebar.
 	React.useEffect(() => {
