@@ -56,6 +56,8 @@
 		"UNAVAILABLE_ITEM": "{kind, select, project {Um projeto que você não pode mais abrir} task {Uma tarefa que você não pode mais abrir} document {Uma página que você não pode mais abrir} chat {Uma conversa que você não pode mais abrir} other {Um item que você não pode mais abrir}}",
 		"ARCHIVED": "Arquivado",
 		"UPDATE_FAILED": "Não foi possível alterar o favorito. Tente novamente.",
+		"LOAD_FAILED": "Não foi possível carregar alguns favoritos.",
+		"RETRY": "Tentar novamente",
 		"kinds": {
 			"PROJECT": "Projetos",
 			"TASK": "Tarefas",

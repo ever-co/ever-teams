@@ -56,6 +56,8 @@
 		"UNAVAILABLE_ITEM": "{kind, select, project {Projekt, którego nie możesz już otworzyć} task {Zadanie, którego nie możesz już otworzyć} document {Strona, której nie możesz już otworzyć} chat {Rozmowa, której nie możesz już otworzyć} other {Element, którego nie możesz już otworzyć}}",
 		"ARCHIVED": "Zarchiwizowany",
 		"UPDATE_FAILED": "Nie udało się zmienić ulubionych. Spróbuj ponownie.",
+		"LOAD_FAILED": "Nie udało się wczytać niektórych ulubionych.",
+		"RETRY": "Spróbuj ponownie",
 		"kinds": {
 			"PROJECT": "Projekty",
 			"TASK": "Zadania",

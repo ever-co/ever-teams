@@ -56,6 +56,8 @@
 		"UNAVAILABLE_ITEM": "{kind, select, project {Een project dat je niet meer kunt openen} task {Een taak die je niet meer kunt openen} document {Een pagina die je niet meer kunt openen} chat {Een gesprek dat je niet meer kunt openen} other {Een item dat je niet meer kunt openen}}",
 		"ARCHIVED": "Gearchiveerd",
 		"UPDATE_FAILED": "De favoriet kon niet worden gewijzigd. Probeer het opnieuw.",
+		"LOAD_FAILED": "Sommige favorieten konden niet worden geladen.",
+		"RETRY": "Opnieuw proberen",
 		"kinds": {
 			"PROJECT": "Projecten",
 			"TASK": "Taken",

@@ -4,6 +4,8 @@ import Link from 'next/link';
 import { useId } from 'react';
 import { useTranslations } from 'next-intl';
 import { AnimatedEmptyState } from '@/core/components/common/empty-state';
+import { Notice } from '@/core/components/common/notice';
+import { Button } from '@/core/components/duplicated-components/_button';
 import { FavoriteLead, FavoriteRemoveButton } from '@/core/components/favorites/favorite-parts';
 import { Archive, Star } from '@/core/components/icons';
 import { PageLayout } from '@/core/components/layouts/default-layout';
@@ -136,7 +138,7 @@ export function FavoritesPageSkeleton() {
  */
 export function FavoritesPage() {
 	const t = useTranslations();
-	const { groups, unavailable, isEmpty, isLoading } = useFavoriteEntries({ loadsProjects: true });
+	const { groups, unavailable, isEmpty, isLoading, isError, retry } = useFavoriteEntries({ loadsProjects: true });
 
 	return (
 		<PageLayout title={t('favorites.TITLE')} className="min-h-0 flex-1">
@@ -148,6 +150,17 @@ export function FavoritesPage() {
 					</h1>
 					<p className="text-[13px] text-muted-foreground">{t('favorites.DESCRIPTION')}</p>
 				</header>
+				{isError && (
+					<Notice
+						tone="error"
+						title={t('favorites.LOAD_FAILED')}
+						actions={
+							<Button type="button" variant="outline" size="default" onClick={retry}>
+								{t('favorites.RETRY')}
+							</Button>
+						}
+					/>
+				)}
 				{isLoading && <FavoritesSkeleton />}
 				{isEmpty && (
 					<div className="py-10">

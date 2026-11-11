@@ -87,6 +87,8 @@ export interface FavoriteGroup<Entry> {
 export interface FavoriteSource<Item> {
 	ids: ReadonlySet<string>;
 	items: ReadonlyArray<Item> | undefined;
+	/** Favourites whose items a second request has not brought yet (or could not): neither listed nor gone. */
+	pendingIds?: ReadonlySet<string>;
 	idOf: (item: Item) => string;
 	titleOf: (item: Item) => string;
 	hrefOf: (item: Item) => string;
@@ -127,7 +129,9 @@ export function favoriteGroupsOf<P, T, D, C>(
 		for (const id of source.ids) {
 			const item = byId.get(id);
 			if (item === undefined) {
-				unavailable.push({ kind, id });
+				if (!source.pendingIds?.has(id)) {
+					unavailable.push({ kind, id });
+				}
 				continue;
 			}
 			entries.push({ kind, id, title: source.titleOf(item), href: source.hrefOf(item), item } as AnyEntry<

@@ -87,3 +87,17 @@ describe('favoriteGroupsOf', () => {
 		expect(unavailable).toEqual([]);
 	});
 });
+
+describe('favoriteGroupsOf with items still on their way', () => {
+	it('lists the known items at once, and marks none of the pending ones as gone', () => {
+		const { groups, unavailable } = favoriteGroupsOf<Named, Named, Named, Named>({
+			task: {
+				...sourceOf(['t1', 't2', 'gone'], [{ id: 't1', name: 'Known task' }]),
+				pendingIds: new Set(['t2'])
+			}
+		});
+
+		expect(groups[0].entries.map((entry) => entry.id)).toEqual(['t1']);
+		expect(unavailable).toEqual([{ kind: 'task', id: 'gone' }]);
+	});
+});

@@ -54,7 +54,12 @@ export function useFavoriteEntries({ loadsProjects }: FavoriteEntriesOptions) {
 	const t = useTranslations();
 	const { data: user } = useUserQuery();
 	const employeeId = user?.employee?.id || user?.employeeId || '';
-	const { currentEmployeeFavorites, isSuccess: areFavoritesLoaded } = useFavoritesQuery();
+	const {
+		currentEmployeeFavorites,
+		isSuccess: areFavoritesLoaded,
+		isError: favoritesFailed,
+		refetch: refetchFavorites
+	} = useFavoritesQuery();
 
 	const projectIds = useMemo(
 		() => favoriteIdsOf(currentEmployeeFavorites, FAVORITE_ENTITY_OF.project),
@@ -70,10 +75,15 @@ export function useFavoriteEntries({ loadsProjects }: FavoriteEntriesOptions) {
 	);
 
 	// Projects
-	const { organizationProjects, isOrganizationProjectsLoaded, getOrganizationProjectsLoading } =
-		useOrganizationProjectsQuery({
-			enabled: loadsProjects && projectIds.size > 0
-		});
+	const {
+		organizationProjects,
+		isOrganizationProjectsLoaded,
+		getOrganizationProjectsLoading,
+		isOrganizationProjectsError,
+		refetchOrganizationProjects
+	} = useOrganizationProjectsQuery({
+		enabled: loadsProjects && projectIds.size > 0
+	});
 
 	// Tasks: the active team's are at hand; the favourites of other teams come in one request
 	const teamTasks = useAtomValue(tasksByTeamState);
@@ -87,7 +97,8 @@ export function useFavoriteEntries({ loadsProjects }: FavoriteEntriesOptions) {
 		enabled: Boolean(employeeId) && missingTaskIds.length > 0,
 		staleTime: FAVORITE_TASKS_STALE_MS
 	});
-	const tasks = useMemo<TFavoriteTask[] | undefined>(() => {
+	// The team's favourite tasks show at once; the other teams' join them when their request answers
+	const tasks = useMemo<TFavoriteTask[]>(() => {
 		const fromTeam: TFavoriteTask[] = teamTasks
 			.filter((task) => taskIds.has(task.id))
 			.map((task) => ({
@@ -99,15 +110,15 @@ export function useFavoriteEntries({ loadsProjects }: FavoriteEntriesOptions) {
 				issueType: task.issueType,
 				status: task.status
 			}));
-		if (missingTaskIds.length === 0) {
-			return fromTeam;
-		}
-		if (!favoriteTasksQuery.data) {
-			return undefined;
-		}
 		const fromTeamIds = new Set(fromTeam.map((task) => task.id));
-		return [...fromTeam, ...favoriteTasksQuery.data.filter((task) => !fromTeamIds.has(task.id))];
-	}, [favoriteTasksQuery.data, missingTaskIds.length, taskIds, teamTasks]);
+		const fromOtherTeams = (favoriteTasksQuery.data ?? []).filter((task) => !fromTeamIds.has(task.id));
+		return [...fromTeam, ...fromOtherTeams];
+	}, [favoriteTasksQuery.data, taskIds, teamTasks]);
+	// Until that request answered (or when it failed), its tasks are neither listed nor gone
+	const pendingTaskIds = useMemo<ReadonlySet<string>>(
+		() => (favoriteTasksQuery.isSuccess ? new Set() : new Set(missingTaskIds)),
+		[favoriteTasksQuery.isSuccess, missingTaskIds]
+	);
 
 	// Pages, where Docs is on and served
 	const docsOn = isDocsEnabled();
@@ -137,6 +148,7 @@ export function useFavoriteEntries({ loadsProjects }: FavoriteEntriesOptions) {
 				task: {
 					ids: taskIds,
 					items: tasks,
+					pendingIds: pendingTaskIds,
 					idOf: (task) => task.id,
 					titleOf: (task) => task.title,
 					hrefOf: (task) => `/task/${task.id}`
@@ -173,6 +185,7 @@ export function useFavoriteEntries({ loadsProjects }: FavoriteEntriesOptions) {
 			isOrganizationProjectsLoaded,
 			meEmployeeId,
 			organizationProjects,
+			pendingTaskIds,
 			people.byEmployee,
 			projectIds,
 			showsDocuments,
@@ -188,12 +201,29 @@ export function useFavoriteEntries({ loadsProjects }: FavoriteEntriesOptions) {
 	const isSourceLoading =
 		getOrganizationProjectsLoading || favoriteTasksQuery.isLoading || docsTree.isLoading || chats.isLoading;
 
+	// A request that failed is said so, with a retry: never shown as no favourites, nor as favourites that are gone
+	const retries = [
+		favoritesFailed && refetchFavorites,
+		projectIds.size > 0 && isOrganizationProjectsError && refetchOrganizationProjects,
+		missingTaskIds.length > 0 && favoriteTasksQuery.isError && favoriteTasksQuery.refetch,
+		showsDocuments && documentIds.size > 0 && docsTree.isError && docsTree.retry,
+		hasChatFavorites && chats.isError && chats.retry
+	].filter((retry): retry is () => unknown => typeof retry === 'function');
+	const retry = () => {
+		for (const run of retries) {
+			void run();
+		}
+	};
+
 	return {
 		groups: groups as FavoriteGroup<FavoriteItemEntry>[],
 		unavailable: unavailable as UnavailableFavorite[],
 		/** The person's favourites have arrived and there are none (of the kinds shown). */
 		isEmpty: areFavoritesLoaded && favoriteCount === 0,
 		/** The favourites, or the items of some of them, are still on their way. */
-		isLoading: !areFavoritesLoaded || (resolvedCount < favoriteCount && isSourceLoading)
+		isLoading: (!areFavoritesLoaded && !favoritesFailed) || (resolvedCount < favoriteCount && isSourceLoading),
+		/** The favourites, or the items of a kind of them, could not be read. */
+		isError: retries.length > 0,
+		retry
 	};
 }

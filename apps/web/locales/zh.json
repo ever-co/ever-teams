@@ -56,6 +56,8 @@
 		"UNAVAILABLE_ITEM": "{kind, select, project {一个你已无法打开的项目} task {一个你已无法打开的任务} document {一个你已无法打开的页面} chat {一个你已无法打开的对话} other {一个你已无法打开的条目}}",
 		"ARCHIVED": "已归档",
 		"UPDATE_FAILED": "无法更改收藏，请重试。",
+		"LOAD_FAILED": "部分收藏无法加载。",
+		"RETRY": "重试",
 		"kinds": {
 			"PROJECT": "项目",
 			"TASK": "任务",
