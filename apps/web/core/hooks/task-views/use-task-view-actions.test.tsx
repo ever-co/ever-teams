@@ -73,6 +73,35 @@ describe('useTaskViewActions, moving a task in a manual order', () => {
 		expect(client.getQueryData<ITaskView>(detailKey)?.version).toBe(4);
 	});
 
+	it('writes moves one after the other, each on the order the one before saved, so a later move is never undone', async () => {
+		const view = viewOf(3, ['a', 'b', 'c']);
+		const { client, actions } = setup(view);
+		let resolveFirst: (saved: ITaskView) => void = () => undefined;
+		mockSetOrder
+			.mockReturnValueOnce(new Promise((resolve) => (resolveFirst = resolve)))
+			.mockResolvedValueOnce(viewOf(5, ['c', 'b', 'a']));
+
+		let first: Promise<unknown> = Promise.resolve();
+		let second: Promise<unknown> = Promise.resolve();
+		await act(async () => {
+			first = actions().moveTask(view, { taskId: 'c', targetId: 'a', edge: 'before' }, SHOWN);
+			// The page still shows version 3 when the second move is made.
+			second = actions().moveTask(view, { taskId: 'a', targetId: 'b', edge: 'after' }, SHOWN);
+			await Promise.resolve();
+		});
+		// Both moves shown; the second waits for the first.
+		expect(client.getQueryData<ITaskView>(detailKey)?.manualOrder).toEqual(['c', 'b', 'a']);
+		expect(mockSetOrder).toHaveBeenCalledTimes(1);
+
+		await act(async () => {
+			resolveFirst(viewOf(4, ['c', 'a', 'b']));
+			await first;
+			await second;
+		});
+		expect(mockSetOrder).toHaveBeenNthCalledWith(2, 'v1', ['c', 'b', 'a'], 4);
+		expect(client.getQueryData<ITaskView>(detailKey)).toEqual(viewOf(5, ['c', 'b', 'a']));
+	});
+
 	it('sends nothing for a move that changes nothing', async () => {
 		const view = viewOf(3, ['a', 'b', 'c']);
 		const { actions } = setup(view);

@@ -43,6 +43,8 @@ export type TeamTaskMenuAnchor = Element | { getBoundingClientRect: () => DOMRec
 export interface TeamTaskMenuTarget {
 	taskId: string;
 	anchor: TeamTaskMenuAnchor;
+	/** The group of the row it opened from, in a manual order: the one its moves are made in. */
+	groupKey?: string | null;
 }
 
 /** The moves of the task inside its group, when the list follows a saved view's manual order. */

@@ -89,6 +89,14 @@ describe('orderAfterMove', () => {
 	});
 });
 
+it('keeps the moved task and its target in a list longer than the limit', () => {
+	const shown = Array.from({ length: TASK_VIEW_ORDER_MAX + 1 }, (_, index) => `t${index}`);
+	const last = shown[shown.length - 1];
+	const next = orderAfterMove([], shown, move('t0', last, 'after'));
+	expect(next).toHaveLength(TASK_VIEW_ORDER_MAX);
+	expect(next?.slice(-2)).toEqual([last, 't0']);
+});
+
 describe('stepMoveOf', () => {
 	const group = ['a', 'b', 'c', 'd'];
 
@@ -141,6 +149,23 @@ describe('the list in a manual order', () => {
 		const rows = flattenTeamTasksGroups(groups, new Set(), true);
 		expect(groupTaskIdsOf(rows, 'bug-old')).toEqual(['bug-new', 'bug-old']);
 		expect(groupTaskIdsOf(rows, 'missing')).toEqual([]);
+	});
+
+	it('names the group of the row the menu opened from, for a task listed under several assignees', () => {
+		const shared = task('shared', '2026-01-05', { members: [{ id: 'ann' }, { id: 'bob' }] } as Partial<TTask>);
+		const byAssignee = { ...manual, grouping: 'assignee' as const };
+		const people = {
+			...lookups,
+			memberNames: new Map([
+				['ann', 'Ann'],
+				['bob', 'Bob']
+			])
+		};
+		const own = [task('ann-only', '2026-01-01', { members: [{ id: 'ann' }] } as Partial<TTask>), shared];
+		const rows = flattenTeamTasksGroups(buildTeamTasksGroups(own, byAssignee, people, [], []), new Set(), true);
+		expect(groupTaskIdsOf(rows, 'shared', 'assignee:bob')).toEqual(['shared']);
+		expect(groupTaskIdsOf(rows, 'shared', 'assignee:ann')).toEqual(['shared', 'ann-only']);
+		expect(groupTaskIdsOf(rows, 'shared')).toEqual(['shared', 'ann-only']);
 	});
 
 	it("is a saved view's ordering only: the device's stored view never reads it", () => {

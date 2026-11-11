@@ -525,7 +525,7 @@ export const TeamTaskRow = memo(function TeamTaskRow({
 		toggleSelected(task.id, event.shiftKey);
 	};
 	const handleMenuClick = (event: MouseEvent<HTMLButtonElement>) => {
-		openRowMenu(task.id, event.currentTarget);
+		openRowMenu(task.id, event.currentTarget, reorderGroupKey);
 	};
 
 	return (
@@ -534,6 +534,7 @@ export const TeamTaskRow = memo(function TeamTaskRow({
 			role="row"
 			tabIndex={rowTabIndex(isTabStop)}
 			data-task-id={task.id}
+			data-group-key={reorderGroupKey ?? undefined}
 			data-focused={focusFlag(isFocused)}
 			aria-selected={isSelected}
 			onClick={handleRowClick}

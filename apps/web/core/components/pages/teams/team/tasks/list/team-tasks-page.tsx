@@ -262,8 +262,8 @@ export function TeamTasksPage({ viewContext }: Readonly<{ viewContext?: TaskView
 		() => ({
 			openTask: (taskId: string) => openTaskDrawer(taskId, orderedIds),
 			openPicker,
-			openMenu: (taskId: string, anchor: TeamTaskMenuAnchor) => {
-				setMenuTarget({ taskId, anchor });
+			openMenu: (taskId: string, anchor: TeamTaskMenuAnchor, groupKey?: string | null) => {
+				setMenuTarget({ taskId, anchor, groupKey });
 				setIsMenuOpen(true);
 			},
 			createTaskInGroup: (statusName: string | null) => setCreateRequest(statusName),
@@ -274,11 +274,12 @@ export function TeamTasksPage({ viewContext }: Readonly<{ viewContext?: TaskView
 
 	// The row menu moves the task inside its group, in a manual order: the way to order on a phone, or by keyboard.
 	const menuTaskId = menuTarget?.taskId ?? null;
+	const menuGroupKey = menuTarget?.groupKey ?? null;
 	const menuMoves = useMemo<TeamTaskMenuMoves | null>(() => {
 		if (!canReorder || !menuTaskId) {
 			return null;
 		}
-		const groupIds = groupTaskIdsOf(rows, menuTaskId);
+		const groupIds = groupTaskIdsOf(rows, menuTaskId, menuGroupKey);
 		const index = groupIds.indexOf(menuTaskId);
 		if (index < 0 || groupIds.length < 2) {
 			return null;
@@ -291,7 +292,7 @@ export function TeamTasksPage({ viewContext }: Readonly<{ viewContext?: TaskView
 				if (move) void moveTask(move, shownOrder);
 			}
 		};
-	}, [canReorder, menuTaskId, moveTask, rows, shownOrder]);
+	}, [canReorder, menuGroupKey, menuTaskId, moveTask, rows, shownOrder]);
 
 	// The edit asked from the action menu opens once the menu has closed, so the menu's focus return does not
 	// take the focus away from the picker's search field.

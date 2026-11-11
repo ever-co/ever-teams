@@ -22,7 +22,8 @@ export type TeamTaskPickerKind = 'status' | 'priority' | 'size' | 'issueType' | 
 export interface TeamTasksListActions {
 	openTask: (taskId: string) => void;
 	openPicker: (kind: TeamTaskPickerKind, taskIds: string[], anchor: Element) => void;
-	openRowMenu: (taskId: string, anchor: Element) => void;
+	/** `groupKey`: the group of the row the menu opens from, when the list is in a manual order. */
+	openRowMenu: (taskId: string, anchor: Element, groupKey?: string | null) => void;
 	toggleSelected: (taskId: string, extendsRange: boolean) => void;
 	setManySelected: (taskIds: string[], isSelected: boolean) => void;
 	toggleGroup: (groupKey: string) => void;

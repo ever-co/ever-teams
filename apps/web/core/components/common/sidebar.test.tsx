@@ -52,6 +52,15 @@ describe('SidebarProvider on a phone', () => {
 		);
 
 		expect(screen.getByTestId('state').textContent).toBe('closed');
+
+		// Back on the page it was opened on, it stays closed.
+		mockPathname = '/views';
+		view.rerender(
+			<SidebarProvider>
+				<MobileState />
+			</SidebarProvider>
+		);
+		expect(screen.getByTestId('state').textContent).toBe('closed');
 	});
 
 	it('still opens and closes from its toggle on the same page', () => {

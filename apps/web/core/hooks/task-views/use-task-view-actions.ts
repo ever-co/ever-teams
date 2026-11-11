@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback } from 'react';
+import { useCallback, useRef } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 import { queryKeys } from '@/core/query/keys';
 import { ApiErrorService } from '@/core/services/client/api-error.service';
@@ -37,6 +37,29 @@ function conflictOf(error: unknown): TaskViewConflictError | null {
 interface TaskViewMoveResult {
 	view: ITaskView;
 	statedVersion: ITaskView['version'];
+}
+
+/** A move waiting for its write. */
+interface PendingMove {
+	move: TaskOrderMove;
+	shownIds: readonly string[];
+}
+
+/** The moves of one view, written one after the other. */
+interface MoveQueue {
+	tail: Promise<void>;
+	/** The view as the platform last answered it. */
+	confirmed: ITaskView;
+	pending: PendingMove[];
+}
+
+/** The order the platform holds with the moves still on their way made on it. */
+function pendingOrderOf(queue: MoveQueue): string[] {
+	let order = [...(queue.confirmed.manualOrder ?? [])];
+	for (const { move, shownIds } of queue.pending) {
+		order = orderAfterMove(order, shownIds, move) ?? order;
+	}
+	return order;
 }
 
 /** The conflict with the latest view in it: read again when the refusal did not carry it. */
@@ -123,60 +146,48 @@ export function useTaskViewActions() {
 		[settle]
 	);
 
-	/**
-	 * Moves a task in the view's manual order (`PUT /task-views/:id/order`), shown at once. The write states the
-	 * version the page holds. Refused because someone saved the view meanwhile (409), the move is made again, once, on
-	 * the order they saved: a move puts a task next to another one, so it applies to their order as well. A second
-	 * refusal is a {@link TaskViewConflictError}, the latest view in the cache; any other failure puts back what the
-	 * page showed. `null` when the move changes nothing.
-	 */
-	const moveTask = useCallback(
-		async (
-			view: ITaskView,
-			move: TaskOrderMove,
-			shownIds: readonly string[]
-		): Promise<TaskViewMoveResult | null> => {
-			const order = orderAfterMove(view.manualOrder, shownIds, move);
+	// One queue of moves per view: each write waits for the one before it and starts from the order it saved, so a
+	// later move is never undone by an earlier one answered after it.
+	const queuesRef = useRef(new Map<string, MoveQueue>());
+
+	/** Shows the order the platform holds with the moves still on their way made on it. */
+	const showQueue = useCallback(
+		(queue: MoveQueue) => {
+			if (!scope) return;
+			const key = queryKeys.taskViews.detail(
+				scope.tenantId,
+				scope.organizationId,
+				scope.userId,
+				queue.confirmed.id
+			);
+			// A read under way would answer an order without the moves.
+			void queryClient.cancelQueries({ queryKey: key });
+			queryClient.setQueryData(key, { ...queue.confirmed, manualOrder: pendingOrderOf(queue) });
+		},
+		[queryClient, scope]
+	);
+
+	/** Writes one queued move on the order the platform holds; a 409 makes it once more on the order saved meanwhile. */
+	const writeMove = useCallback(
+		async (queue: MoveQueue, entry: PendingMove): Promise<TaskViewMoveResult | null> => {
+			const base = queue.confirmed;
+			const order = orderAfterMove(base.manualOrder, entry.shownIds, entry.move);
 			if (!order) return null;
-			const key = scope
-				? queryKeys.taskViews.detail(scope.tenantId, scope.organizationId, scope.userId, view.id)
-				: null;
-			const shown: ITaskView = { ...view, manualOrder: order };
-			if (key) {
-				// A read under way would answer the order from before the move.
-				await queryClient.cancelQueries({ queryKey: key });
-				queryClient.setQueryData(key, shown);
-			}
-			// Only while the cache still shows this move: a newer view (another move, a refetch) stays.
-			const putBack = () => {
-				const cached = key ? queryClient.getQueryData<ITaskView>(key) : undefined;
-				const showsThisMove =
-					cached?.version === shown.version &&
-					JSON.stringify(cached?.manualOrder ?? null) === JSON.stringify(order);
-				if (key && showsThisMove) queryClient.setQueryData(key, view);
-			};
-			const write = async (
-				taskIds: string[],
-				statedVersion: ITaskView['version']
-			): Promise<TaskViewMoveResult> => {
-				const saved = await taskViewsService.setOrder(view.id, taskIds, statedVersion);
+			const write = async (taskIds: string[], statedVersion: ITaskView['version']) => {
+				const saved = await taskViewsService.setOrder(base.id, taskIds, statedVersion);
+				queue.confirmed = saved;
 				settle(saved);
 				return { view: saved, statedVersion };
 			};
 			try {
-				return await write(order, view.version);
+				return await write(order, base.version);
 			} catch (error) {
 				const conflict = conflictOf(error);
-				if (!conflict) {
-					putBack();
-					throw error;
-				}
-				const { latest } = await withLatest(conflict, view.id);
-				if (!latest) {
-					putBack();
-					throw conflict;
-				}
-				const rebased = orderAfterMove(latest.manualOrder, shownIds, move);
+				if (!conflict) throw error;
+				const { latest } = await withLatest(conflict, base.id);
+				if (!latest) throw conflict;
+				queue.confirmed = latest;
+				const rebased = orderAfterMove(latest.manualOrder, entry.shownIds, entry.move);
 				if (!rebased) {
 					// Their order already has the task there.
 					settle(latest);
@@ -190,13 +201,64 @@ export function useTaskViewActions() {
 						settle(latest);
 						throw retryError;
 					}
-					const known = await withLatest(again, view.id);
-					settle(known.latest ?? latest);
+					const known = await withLatest(again, base.id);
+					if (known.latest) queue.confirmed = known.latest;
+					settle(queue.confirmed);
 					throw known;
 				}
 			}
 		},
-		[queryClient, scope, settle]
+		[settle]
+	);
+
+	/**
+	 * Moves a task in the view's manual order (`PUT /task-views/:id/order`), shown at once. The write states the
+	 * version of the order it starts from. Refused because someone saved the view meanwhile (409), the move is made
+	 * again, once, on the order they saved: a move puts a task next to another one, so it applies to their order as
+	 * well. A second refusal is a {@link TaskViewConflictError}, the latest view in the cache; any other failure shows
+	 * the order without the move again. `null` when the move changes nothing.
+	 */
+	const moveTask = useCallback(
+		async (
+			view: ITaskView,
+			move: TaskOrderMove,
+			shownIds: readonly string[]
+		): Promise<TaskViewMoveResult | null> => {
+			const queues = queuesRef.current;
+			// An idle view starts from what the page shows: the order the platform holds.
+			const queue = queues.get(view.id) ?? { tail: Promise.resolve(), confirmed: view, pending: [] };
+			if (!orderAfterMove(pendingOrderOf(queue), shownIds, move)) return null;
+			queues.set(view.id, queue);
+			const entry: PendingMove = { move, shownIds };
+			queue.pending.push(entry);
+			showQueue(queue);
+			const job = queue.tail.then(() => writeMove(queue, entry));
+			queue.tail = job.then(
+				() => undefined,
+				() => undefined
+			);
+			try {
+				return await job;
+			} finally {
+				queue.pending = queue.pending.filter((pending) => pending !== entry);
+				if (queue.pending.length > 0) {
+					showQueue(queue);
+				} else {
+					// The order the platform holds, the move in it or not (a failure shows it without).
+					if (queues.get(view.id) === queue) queues.delete(view.id);
+					if (scope) {
+						const key = queryKeys.taskViews.detail(
+							scope.tenantId,
+							scope.organizationId,
+							scope.userId,
+							view.id
+						);
+						queryClient.setQueryData(key, queue.confirmed);
+					}
+				}
+			}
+		},
+		[queryClient, scope, showQueue, writeMove]
 	);
 
 	const deleteView = useCallback(

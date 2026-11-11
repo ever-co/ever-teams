@@ -64,7 +64,8 @@ function keyCapOf(binding: ShortcutBinding | null | undefined, isMac: boolean) {
 export interface TeamTasksListCommands {
 	openTask: (taskId: string) => void;
 	openPicker: (kind: TeamTaskPickerKind, taskIds: string[], anchor: Element, shortcut?: string) => void;
-	openMenu: (taskId: string, anchor: TeamTaskMenuAnchor) => void;
+	/** `groupKey`: the group of the row the menu opens from (a task with several assignees has a row under each). */
+	openMenu: (taskId: string, anchor: TeamTaskMenuAnchor, groupKey?: string | null) => void;
 	createTaskInGroup: (statusName: string | null) => void;
 	/** A row dropped next to another one of its group, in a saved view's manual order. */
 	moveTask?: (move: TaskOrderMove) => void;
@@ -375,7 +376,7 @@ export function TeamTasksList({
 			anchor = row;
 		}
 		setFocusedTaskId(taskId);
-		commands.openMenu(taskId, anchor);
+		commands.openMenu(taskId, anchor, row.dataset.groupKey);
 	};
 
 	const actions = useMemo<TeamTasksListActions>(
@@ -387,7 +388,7 @@ export function TeamTasksList({
 				const ids = targetIdsFor(firstId, appliesToSelection);
 				commands.openPicker(kind, ids, anchor);
 			},
-			openRowMenu: (taskId, anchor) => commands.openMenu(taskId, anchor),
+			openRowMenu: (taskId, anchor, groupKey) => commands.openMenu(taskId, anchor, groupKey),
 			toggleSelected: view.toggleSelected,
 			setManySelected: view.setManySelected,
 			toggleGroup: view.toggleGroup,

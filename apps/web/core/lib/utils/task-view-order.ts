@@ -73,20 +73,29 @@ function isSameShownOrder(first: readonly string[], second: readonly string[], s
 	return firstShown.every((id, index) => id === secondShown[index]);
 }
 
-/** At most {@link TASK_VIEW_ORDER_MAX} ids: the tasks the list does not show go first, from the end. */
-function withinLimit(order: string[], shown: ReadonlySet<string>) {
+/** Takes ids out from the end, the ones `isDropped` names, until the order fits the limit. */
+function dropFromEnd(order: string[], isDropped: (id: string) => boolean) {
 	let excess = order.length - TASK_VIEW_ORDER_MAX;
-	if (excess <= 0) {
-		return order;
-	}
-	const kept = [...order];
-	for (let index = kept.length - 1; index >= 0 && excess > 0; index -= 1) {
-		if (!shown.has(kept[index])) {
-			kept.splice(index, 1);
+	for (let index = order.length - 1; index >= 0 && excess > 0; index -= 1) {
+		if (isDropped(order[index])) {
+			order.splice(index, 1);
 			excess -= 1;
 		}
 	}
-	return kept.slice(0, TASK_VIEW_ORDER_MAX);
+}
+
+/**
+ * At most {@link TASK_VIEW_ORDER_MAX} ids. The tasks the list does not show go first, from the end; then the last shown
+ * ones, never the moved task or its target, so the move holds (the tasks left out follow, newest first).
+ */
+function withinLimit(order: string[], shown: ReadonlySet<string>, move: TaskOrderMove) {
+	if (order.length <= TASK_VIEW_ORDER_MAX) {
+		return order;
+	}
+	const kept = [...order];
+	dropFromEnd(kept, (id) => !shown.has(id));
+	dropFromEnd(kept, (id) => id !== move.taskId && id !== move.targetId);
+	return kept;
 }
 
 /**
@@ -115,7 +124,7 @@ export function orderAfterMove(
 	if (isSameShownOrder(current, next, shown)) {
 		return null;
 	}
-	return withinLimit(next, shown);
+	return withinLimit(next, shown, move);
 }
 
 /** The move a step of the row's menu makes inside the task's group; `null` when the task is already there. */
@@ -135,9 +144,13 @@ export function stepMoveOf(groupIds: readonly string[], taskId: string, step: Ta
 	return { taskId, targetId: groupIds[last], edge: 'after' };
 }
 
-/** The tasks of the group the task's first row is in, in the order the list shows them. */
-export function groupTaskIdsOf(rows: readonly TeamTasksListRow[], taskId: string): string[] {
-	const row = rows.find((item) => item.kind === 'task' && item.task.id === taskId);
+/**
+ * The tasks of the task's group, in the order the list shows them: the group of the row it was picked in (a task
+ * with several assignees has a row under each), else of its first row.
+ */
+export function groupTaskIdsOf(rows: readonly TeamTasksListRow[], taskId: string, groupKey?: string | null): string[] {
+	const isTaskRow = (item: TeamTasksListRow) => item.kind === 'task' && item.task.id === taskId;
+	const row = rows.find((item) => isTaskRow(item) && item.group.key === groupKey) ?? rows.find(isTaskRow);
 	if (!row) {
 		return [];
 	}
