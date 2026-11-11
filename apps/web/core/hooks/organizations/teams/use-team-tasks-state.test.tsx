@@ -91,12 +91,12 @@ describe('useTeamTasksState on a device where no task of the team was chosen', (
 			{ id: 'team-a', name: 'Team A', members: [{ id: 'member-a', employee: { userId: 'user-a' }, ...member }] }
 		] as never;
 
-	function renderOnDevice(member: Record<string, unknown>, tasks: TTask[]) {
+	function renderOnDevice(member: Record<string, unknown>, tasks: TTask[], { complete = true } = {}) {
 		const store = createStore();
 		store.set(organizationTeamsState, teamWithMember(member));
 		store.set(activeTeamIdState, 'team-a');
 		store.set(teamTasksState, tasks);
-		store.set(teamTasksCompleteState, true);
+		store.set(teamTasksCompleteState, complete);
 		const wrapper = ({ children }: PropsWithChildren) => <Provider store={store}>{children}</Provider>;
 		renderHook(() => useTeamTasksState(), { wrapper });
 		return store;
@@ -163,5 +163,54 @@ describe('useTeamTasksState on a device where no task of the team was chosen', (
 
 		expect(store.get(activeTeamTaskState)).toBeNull();
 		expect(mockSetActiveTaskIdCookie).not.toHaveBeenCalled();
+	});
+
+	it('waits for the later pages before giving up the task chosen on this device', () => {
+		mockCookieTaskId = 'task-x';
+		const store = renderOnDevice({ activeTaskId: 'task-a' }, [assignedTask('task-a')], { complete: false });
+
+		expect(store.get(activeTeamTaskState)).toBeNull();
+		expect(mockSetActiveTaskIdCookie).not.toHaveBeenCalled();
+
+		act(() => {
+			store.set(teamTasksState, [assignedTask('task-a'), assignedTask('task-x')]);
+			store.set(teamTasksCompleteState, true);
+		});
+
+		expect(store.get(activeTeamTaskState)?.id).toBe('task-x');
+		expect(mockSetActiveTaskIdCookie).not.toHaveBeenCalled();
+	});
+
+	it('keeps the task chosen on this device that the timer holds outside the loaded list', () => {
+		// Chosen in another project than the list's default one
+		mockCookieTaskId = 'task-x';
+		const store = renderOnDevice({ activeTaskId: 'task-a' }, [assignedTask('task-of-the-default-project')]);
+		act(() => {
+			store.set(activeTeamTaskState, assignedTask('task-x'));
+		});
+
+		act(() => {
+			store.set(teamTasksState, [assignedTask('task-of-the-default-project'), assignedTask('task-a')]);
+		});
+
+		expect(store.get(activeTeamTaskState)?.id).toBe('task-x');
+		expect(mockSetActiveTaskIdCookie).not.toHaveBeenCalled();
+	});
+
+	it('drops a held member task once the loaded list shows the member is no longer assigned to it', () => {
+		const store = renderOnDevice({ activeTaskId: 'task-a' }, [assignedTask('task-of-the-default-project')]);
+		act(() => {
+			// The task bar read it on its own while the member was still assigned
+			store.set(activeTeamTaskState, assignedTask('task-a'));
+		});
+
+		act(() => {
+			store.set(teamTasksState, [
+				assignedTask('task-of-the-default-project'),
+				assignedTask('task-a', ['user-b'])
+			]);
+		});
+
+		expect(store.get(activeTeamTaskState)).toBeNull();
 	});
 });

@@ -285,8 +285,14 @@ export function useTeamTasksState() {
 				setActiveTeamTaskIfChanged(store, validTask);
 				return;
 			}
-			// No task of this team was chosen on this device: the timer takes the member's own task, the one the task
-			// bar shows (only a task they are assigned to, as there), and the cookies keep it on the next refreshes
+			// The task chosen on this device wins while the timer holds it outside the loaded list, or while a later
+			// page may still bring it
+			const keepsChosenTask = isHeldTeamTask(activeTeamTaskRef.current, active_taskid, activeTeam?.id);
+			if (active_taskid && (keepsChosenTask || !tasksComplete)) {
+				return;
+			}
+			// No task of this team was chosen on this device, or the chosen one is gone: the timer takes the member's own
+			// task, the one the task bar shows (only a task they are assigned to, as there), and the cookies keep it
 			const userId = authUserRef.current?.id;
 			const memberTask = getValidActiveTask(tasks, memberTaskId, activeTeam?.id);
 			const isAssignedToMember = !!memberTask?.members?.some((member) => member.userId === userId);
@@ -296,10 +302,10 @@ export function useTeamTasksState() {
 				syncActiveUserTaskCookie(activeUserTaskCookieValue(memberTask, userId));
 				return;
 			}
-			// The member's own task, outside the loaded list, is held as the cookie's one is
+			// The member's own task is held only outside the loaded list: a listed one they are not assigned to is dropped
 			const keepsHeldTask =
-				isHeldTeamTask(activeTeamTaskRef.current, active_taskid, activeTeam?.id) ||
-				isHeldTeamTask(activeTeamTaskRef.current, memberTaskId, activeTeam?.id);
+				keepsChosenTask ||
+				(!memberTask && isHeldTeamTask(activeTeamTaskRef.current, memberTaskId, activeTeam?.id));
 			if (tasksComplete && !keepsHeldTask) {
 				setActiveTeamTaskIfChanged(store, null);
 			}
