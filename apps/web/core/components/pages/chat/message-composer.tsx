@@ -273,7 +273,9 @@ export function MessageComposer({
 	};
 
 	const onKeyDown = (event: KeyboardEvent<HTMLTextAreaElement>) => {
-		if (suggestions) {
+		// A chord with a modifier (Alt+↑/↓ walks the conversations) is not a move in the suggestions.
+		const plainKey = !event.altKey && !event.ctrlKey && !event.metaKey;
+		if (suggestions && plainKey) {
 			const count = suggestions.items.length;
 			if (event.key === 'ArrowDown') {
 				event.preventDefault();

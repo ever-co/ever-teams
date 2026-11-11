@@ -4922,7 +4922,8 @@
 			"chatUnreads": "Abrir No leídos",
 			"chatMarkAllRead": "Marcar todo como leído"
 		},
-		"CHAT_SINGLE_KEY": "Una tecla del chat es una sola tecla, no una secuencia."
+		"CHAT_SINGLE_KEY": "Una tecla del chat es una sola tecla, no una secuencia.",
+		"CHAT_TAKEN": "El chat ya usa esa tecla (formato, envío, movimiento o desplazamiento)."
 	},
 	"realtime": {
 		"RECONNECTING": "Reconectando…"

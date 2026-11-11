@@ -11,6 +11,7 @@ import {
 	conversationOrder,
 	directPartnerOf,
 	needsReader,
+	opensLastConversation,
 	paletteConversations,
 	peopleWithoutDirect
 } from './chat-navigation';
@@ -166,5 +167,20 @@ describe('directPartnerOf', () => {
 		expect(directPartnerOf(direct('d1', ANA), ME)).toBe(ANA);
 		expect(directPartnerOf(conversation('general'), ME)).toBeNull();
 		expect(directPartnerOf({ kind: EChatConversationKind.Direct, members: [] }, ME)).toBeNull();
+	});
+});
+
+describe('opensLastConversation', () => {
+	const base = { isConversationView: true, conversationId: null, isListLoading: false, conversationCount: 3 };
+
+	it('is about to open a conversation on /chat while the list loads or holds one', () => {
+		expect(opensLastConversation(base)).toBe(true);
+		expect(opensLastConversation({ ...base, isListLoading: true, conversationCount: 0 })).toBe(true);
+	});
+
+	it('is not once a conversation is open, on Unreads or Threads, or with no conversation at all', () => {
+		expect(opensLastConversation({ ...base, conversationId: 'c1' })).toBe(false);
+		expect(opensLastConversation({ ...base, isConversationView: false })).toBe(false);
+		expect(opensLastConversation({ ...base, conversationCount: 0 })).toBe(false);
 	});
 });

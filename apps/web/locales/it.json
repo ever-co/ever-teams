@@ -4922,7 +4922,8 @@
 			"chatUnreads": "Apri Non letti",
 			"chatMarkAllRead": "Segna tutto come letto"
 		},
-		"CHAT_SINGLE_KEY": "Un tasto della chat è un solo tasto, non una sequenza."
+		"CHAT_SINGLE_KEY": "Un tasto della chat è un solo tasto, non una sequenza.",
+		"CHAT_TAKEN": "La chat usa già quel tasto (formattazione, invio, spostamento o scorrimento)."
 	},
 	"realtime": {
 		"RECONNECTING": "Riconnessione…"

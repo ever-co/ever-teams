@@ -77,6 +77,28 @@ describe('rebinding a chat command', () => {
 		expect(refusalOf(command('goTasks'), binding('escape'))).toBe('listKey');
 	});
 
+	it('takes no chord the chat page already answers: formatting, the sidebar, sending, moving', () => {
+		for (const taken of [
+			'mod+b',
+			'mod+i',
+			'mod+e',
+			'mod+z',
+			'enter',
+			'mod+enter',
+			'arrowdown',
+			'escape',
+			'space'
+		]) {
+			expect(refusalOf(command('chatNext'), binding(taken))).toBe('chatTaken');
+		}
+		expect(refusalOf(command('chatNext'), binding('alt+arrowdown'))).toBeNull();
+		expect(refusalOf(command('chatMarkAllRead'), binding('shift+escape'))).toBeNull();
+		// A saved override on such a chord leaves the default in force.
+		const bindings = effectiveBindings(SHORTCUT_COMMANDS, { chatNext: 'mod+b' });
+		expect(chatShortcutOf(chord('alt+arrowdown'), bindings, false)).toBe('chatNext');
+		expect(chatShortcutOf(chord('mod+b'), bindings, false)).toBeNull();
+	});
+
 	it('keeps the default where an override would be a sequence', () => {
 		const bindings = effectiveBindings(SHORTCUT_COMMANDS, { chatUnreads: 'g u' });
 		expect(chatShortcutOf(chord('mod+shift+a'), bindings, false)).toBe('chatUnreads');

@@ -4922,7 +4922,8 @@
 			"chatUnreads": "Ongelezen openen",
 			"chatMarkAllRead": "Alles als gelezen markeren"
 		},
-		"CHAT_SINGLE_KEY": "Een chattoets is één toets, geen reeks."
+		"CHAT_SINGLE_KEY": "Een chattoets is één toets, geen reeks.",
+		"CHAT_TAKEN": "De chat gebruikt die toets al (opmaak, verzenden, verplaatsen of scrollen)."
 	},
 	"realtime": {
 		"RECONNECTING": "Opnieuw verbinden…"

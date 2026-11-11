@@ -14,7 +14,6 @@ import {
 	conflictsOf,
 	parseBinding,
 	refusalOf,
-	SHORTCUT_COMMANDS,
 	SHORTCUT_CONTEXTS,
 	withOverride,
 	type ShortcutBinding,
@@ -23,7 +22,7 @@ import {
 	type ShortcutContext
 } from '@/core/lib/keyboard/shortcuts';
 import { cn } from '@/core/lib/helpers';
-import { isChatEnabled } from '@/core/lib/utils/chat-enabled';
+import { availableShortcutCommands } from '@/core/lib/keyboard/available-commands';
 import { shortcutsHelpOpenAtom } from '@/core/stores/common/shortcuts';
 
 /** How long the next chord of a recorded sequence may take. */
@@ -34,6 +33,7 @@ const REFUSAL_MESSAGES = {
 	reserved: 'shortcuts.RESERVED',
 	sequence: 'shortcuts.SINGLE_KEY_ONLY',
 	chatSequence: 'shortcuts.CHAT_SINGLE_KEY',
+	chatTaken: 'shortcuts.CHAT_TAKEN',
 	modifier: 'shortcuts.NO_MOD_KEY',
 	listKey: 'shortcuts.LIST_KEY'
 } as const satisfies Record<NonNullable<ReturnType<typeof refusalOf>>, DottedLanguageObjectStringPaths>;
@@ -119,17 +119,13 @@ export function ShortcutsDialog() {
 		const groups = new Map<ShortcutContext, ShortcutCommand[]>();
 		for (const context of SHORTCUT_CONTEXTS) groups.set(context, []);
 		// The chat page's keys only where the chat is on.
-		const chatOn = isChatEnabled();
-		for (const command of SHORTCUT_COMMANDS) {
-			if (command.context === 'chat' && !chatOn) continue;
-			groups.get(command.context)?.push(command);
-		}
+		for (const command of availableShortcutCommands()) groups.get(command.context)?.push(command);
 		return [...groups.entries()].filter(([, commands]) => commands.length > 0);
 	}, []);
 
 	const commit = useCallback(
 		async (commandId: string, binding: ShortcutBinding | null) => {
-			const command = SHORTCUT_COMMANDS.find((item) => item.id === commandId);
+			const command = availableShortcutCommands().find((item) => item.id === commandId);
 			if (!command || isSaving) return;
 			const refusal = binding ? refusalOf(command, binding) : null;
 			if (refusal) {
@@ -137,7 +133,7 @@ export function ShortcutsDialog() {
 				return;
 			}
 			if (binding) {
-				const conflicts = conflictsOf(commandId, binding, SHORTCUT_COMMANDS, bindings);
+				const conflicts = conflictsOf(commandId, binding, availableShortcutCommands(), bindings);
 				if (conflicts.length) {
 					const names = conflicts.map((item) => t(`shortcuts.commands.${item.id}` as DottedLanguageObjectStringPaths)).join(', ');
 					toast.error(t('shortcuts.CONFLICT', { commands: names }));

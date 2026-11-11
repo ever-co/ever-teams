@@ -4922,7 +4922,8 @@
 			"chatUnreads": "Otwórz nieprzeczytane",
 			"chatMarkAllRead": "Oznacz wszystko jako przeczytane"
 		},
-		"CHAT_SINGLE_KEY": "Klawisz czatu to jeden klawisz, nie sekwencja."
+		"CHAT_SINGLE_KEY": "Klawisz czatu to jeden klawisz, nie sekwencja.",
+		"CHAT_TAKEN": "Czat już używa tego klawisza (formatowanie, wysyłanie, przechodzenie lub przewijanie)."
 	},
 	"realtime": {
 		"RECONNECTING": "Ponowne łączenie…"

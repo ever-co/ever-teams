@@ -17,9 +17,19 @@ import { estimateTimelineItemSize, indexOfMessage, timelineItemKey } from '@/cor
 import type { ChatTimelineItem } from '@/core/lib/utils/chat-timeline';
 
 /** What the pane asks of the virtual list: bring a message that is not drawn yet into view. */
+/** The row at the top of the view and how far its top is from the view's: what an older page must not move. */
+export interface VirtualTimelineAnchor {
+	key: string;
+	delta: number;
+}
+
 export interface VirtualTimelineHandle {
 	/** Scrolls the row of a message to the middle of the view; false when the rows do not hold it. */
 	scrollToMessage: (messageId: string) => boolean;
+	/** The row the reader is at, before an older page comes in above it. */
+	anchor: () => VirtualTimelineAnchor | null;
+	/** Puts that row back where it was once the page is in (its new place, measured rows included); false without it. */
+	restore: (anchor: VirtualTimelineAnchor) => boolean;
 }
 
 /** Rows drawn beyond the view on each side: a quick scroll or a key press shows drawn rows, not blank space. */
@@ -54,16 +64,28 @@ export function VirtualTimeline({
 		overscan: OVERSCAN,
 		scrollMargin,
 		// A conversation opens at its newest message.
-		initialOffset: () => Number.MAX_SAFE_INTEGER
+		initialOffset: () => Number.MAX_SAFE_INTEGER,
+		// A row measured as it mounts would re-render the list inside React's commit (React 19 warns): the next frame does.
+		useFlushSync: false
 	});
 
 	// Measured again whenever the rows or their height change: what stands above them changes with the rows (the
 	// conversation's start, "Load older"), and a short conversation sits at the bottom of the view.
 	const totalSize = virtualizer.getTotalSize();
-	useLayoutEffect(() => {
+	const measureMargin = useCallback(() => {
 		const top = container.current?.offsetTop ?? 0;
 		setScrollMargin((current) => (current === top ? current : top));
-	}, [items, totalSize]);
+	}, []);
+	useLayoutEffect(measureMargin, [items, totalSize, measureMargin]);
+	// A short conversation sits at the bottom of the view: the pane growing or shrinking (the composer taking a line,
+	// the window resized) moves the rows without changing them.
+	useEffect(() => {
+		const element = scrollRef.current;
+		if (!element || typeof ResizeObserver === 'undefined') return;
+		const observer = new ResizeObserver(measureMargin);
+		observer.observe(element);
+		return () => observer.disconnect();
+	}, [measureMargin, scrollRef]);
 
 	// The scrolled element is the pane's, an ancestor: its ref is set after this list's first layout pass, so the list
 	// draws once more when it is there, and finds it then.
@@ -81,7 +103,24 @@ export function VirtualTimeline({
 		},
 		[items, virtualizer]
 	);
-	useImperativeHandle(handleRef, () => ({ scrollToMessage }), [scrollToMessage]);
+	const anchor = useCallback((): VirtualTimelineAnchor | null => {
+		const offset = scrollRef.current?.scrollTop ?? 0;
+		const row = virtualizer.getVirtualItems().find((item) => item.end > offset);
+		return row ? { key: String(row.key), delta: row.start - offset } : null;
+	}, [scrollRef, virtualizer]);
+	const restore = useCallback(
+		(held: VirtualTimelineAnchor) => {
+			const element = scrollRef.current;
+			// The measurements of the rows as they are now (the total works them out first: the older page included).
+			virtualizer.getTotalSize();
+			const row = virtualizer.measurementsCache.find((item) => String(item.key) === held.key);
+			if (!element || !row) return false;
+			element.scrollTop = row.start - held.delta;
+			return true;
+		},
+		[scrollRef, virtualizer]
+	);
+	useImperativeHandle(handleRef, () => ({ scrollToMessage, anchor, restore }), [anchor, restore, scrollToMessage]);
 
 	const rows = virtualizer.getVirtualItems();
 	return (

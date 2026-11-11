@@ -4922,7 +4922,8 @@
 			"chatUnreads": "Open Unreads",
 			"chatMarkAllRead": "Mark all as read"
 		},
-		"CHAT_SINGLE_KEY": "A chat key is one key, not a sequence."
+		"CHAT_SINGLE_KEY": "A chat key is one key, not a sequence.",
+		"CHAT_TAKEN": "The chat already uses that key (formatting, sending, moving or scrolling)."
 	},
 	"realtime": {
 		"RECONNECTING": "Reconnecting…"

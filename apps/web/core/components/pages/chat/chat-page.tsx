@@ -18,7 +18,7 @@ import { useChatShortcuts } from '@/core/hooks/chat/use-chat-shortcuts';
 import { cn } from '@/core/lib/helpers';
 import { isChatEnabled } from '@/core/lib/utils/chat-enabled';
 import { conversationTitle, isUnread } from '@/core/lib/utils/chat-format';
-import { adjacentConversation, conversationOrder } from '@/core/lib/utils/chat-navigation';
+import { adjacentConversation, conversationOrder, opensLastConversation } from '@/core/lib/utils/chat-navigation';
 import { userState } from '@/core/stores/user/user';
 import { useAtomValue } from 'jotai';
 import { ChatPageSkeleton, ConversationPaneSkeleton } from './chat-page-skeleton';
@@ -105,6 +105,29 @@ function ChatPageContent({ view }: Readonly<{ view: ChatView }>) {
 	const { threadsUnread } = useChatStates(enabled);
 	const reportFailure = useCallback(() => toast.error(t('teamChat.UPDATE_FAILED')), [t]);
 
+	// The palette's "New message" lands here with `?new=message`: the dialog opens (set while rendering, once per
+	// request, and again on the conversation `/chat` opens, which is another page), and the address loses the request
+	// once no such redirect is coming.
+	const newRequested = searchParams.get('new') === 'message' && enabled;
+	const [newHandled, setNewHandled] = useState(false);
+	if (newRequested !== newHandled) {
+		setNewHandled(newRequested);
+		if (newRequested) setDialog('direct');
+	}
+	const redirecting = opensLastConversation({
+		isConversationView: view === 'conversation',
+		conversationId,
+		isListLoading: list.isLoading,
+		conversationCount: list.conversations.length
+	});
+	useEffect(() => {
+		if (!newRequested || redirecting) return;
+		const next = new URLSearchParams(searchParams.toString());
+		next.delete('new');
+		const search = next.toString();
+		router.replace(search ? `${pathname}?${search}` : pathname);
+	}, [newRequested, pathname, redirecting, router, searchParams]);
+
 	// The last conversation opened comes back on `/chat`; without one, the first of the list opens.
 	useEffect(() => {
 		if (view !== 'conversation' || conversationId || !list.conversations.length) return;
@@ -115,8 +138,8 @@ function ChatPageContent({ view }: Readonly<{ view: ChatView }>) {
 			remembered = null;
 		}
 		const target = (remembered && list.byId.get(remembered)) || list.conversations[0];
-		if (target) router.replace(`/chat/${target.id}`);
-	}, [conversationId, list.byId, list.conversations, router, view]);
+		if (target) router.replace(`/chat/${target.id}${newRequested ? '?new=message' : ''}`);
+	}, [conversationId, list.byId, list.conversations, newRequested, router, view]);
 
 	useEffect(() => {
 		if (!conversationId) return;
@@ -150,22 +173,6 @@ function ChatPageContent({ view }: Readonly<{ view: ChatView }>) {
 			.then(({ undo }) => toast(t('teamChat.ALL_READ'), { action: { label: t('teamChat.UNDO'), onClick: () => undo().catch(reportFailure) } }))
 			.catch(reportFailure);
 	}, [actions, reportFailure, t]);
-
-	// The palette's "New message" lands here with `?new=message`: the dialog opens (set while rendering, once per
-	// request), and the address loses the request.
-	const newRequested = searchParams.get('new') === 'message' && enabled;
-	const [newHandled, setNewHandled] = useState(false);
-	if (newRequested !== newHandled) {
-		setNewHandled(newRequested);
-		if (newRequested) setDialog('direct');
-	}
-	useEffect(() => {
-		if (!newRequested) return;
-		const next = new URLSearchParams(searchParams.toString());
-		next.delete('new');
-		const search = next.toString();
-		router.replace(search ? `${pathname}?${search}` : pathname);
-	}, [newRequested, pathname, router, searchParams]);
 
 	// The keys of the page (the registry's chat commands): walk the list, jump to the unread, Unreads, mark all read.
 	const ordered = useMemo(() => conversationOrder(list.conversations, list.categories), [list.categories, list.conversations]);

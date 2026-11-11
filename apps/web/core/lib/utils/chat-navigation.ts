@@ -104,3 +104,17 @@ export function directPartnerOf(
 	);
 	return others.length === 1 ? String(others[0].employeeId) : null;
 }
+
+/**
+ * Whether `/chat` is about to open the last conversation (or the first of the list): the list is loading, or it holds
+ * one. A request carried in the address (`?new=message`) goes along with that redirect, and is dropped only after it.
+ */
+export function opensLastConversation(state: {
+	isConversationView: boolean;
+	conversationId: string | null;
+	isListLoading: boolean;
+	conversationCount: number;
+}): boolean {
+	if (!state.isConversationView || state.conversationId) return false;
+	return state.isListLoading || state.conversationCount > 0;
+}

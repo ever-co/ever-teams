@@ -78,6 +78,41 @@ export const SHORTCUT_CONTEXTS: readonly ShortcutContext[] = ['global', 'list', 
 /** The contexts a page matches itself, one chord per command: a binding there is never a sequence. */
 const SINGLE_CHORD_CONTEXTS: ReadonlySet<ShortcutContext> = new Set(['chat']);
 
+/**
+ * The chords the chat page already answers outside the registry, which a chat command would fight with (its keys work
+ * in the composer too): the composer's formatting (⌘/Ctrl+B, I, E; ⌘/Ctrl+B is also the sidebar's), the text field's
+ * editing chords, sending and breaking a line, and the keys that move in a field or scroll the timeline.
+ */
+const CHAT_TAKEN_CHORDS: ReadonlySet<string> = new Set([
+	'mod+b',
+	'mod+i',
+	'mod+e',
+	'mod+a',
+	'mod+c',
+	'mod+v',
+	'mod+x',
+	'mod+z',
+	'mod+y',
+	'mod+shift+z',
+	'enter',
+	'shift+enter',
+	'mod+enter',
+	'tab',
+	'shift+tab',
+	'escape',
+	'space',
+	'backspace',
+	'delete',
+	'arrowup',
+	'arrowdown',
+	'arrowleft',
+	'arrowright',
+	'pageup',
+	'pagedown',
+	'home',
+	'end'
+]);
+
 const MODIFIER_NAMES = new Set(['mod', 'ctrl', 'cmd', 'meta', 'shift', 'alt', 'option', 'control', 'os']);
 
 /** Key combinations the browser keeps for itself: a binding on one of them is refused. */
@@ -211,16 +246,18 @@ function isListBuiltInKey(chord: ShortcutChord): boolean {
  * Why a binding cannot be given to a command, or null when it can: one the browser keeps (`reserved`); for a key the
  * list matches itself, a sequence (`sequence`) or ⌘/Ctrl (`modifier`: the browser's and the app's other listeners
  * own those chords — copy, select all, the sidebar's `Mod+B` — and would run as well); for a command of the chat page,
- * which matches one chord, a sequence (`chatSequence`); or one starting with a key the list keeps for itself
+ * which matches one chord, a sequence (`chatSequence`) or a chord the page already answers (`chatTaken`: formatting,
+ * editing, sending, moving in the composer, scrolling); or one starting with a key the list keeps for itself
  * (`listKey`), which would never reach the command while a row has the focus.
  */
 export function refusalOf(
 	command: ShortcutCommand,
 	binding: ShortcutBinding
-): 'reserved' | 'sequence' | 'chatSequence' | 'modifier' | 'listKey' | null {
+): 'reserved' | 'sequence' | 'chatSequence' | 'chatTaken' | 'modifier' | 'listKey' | null {
 	if (isBrowserReserved(binding)) return 'reserved';
 	if (command.chordOnly && binding.length > 1) return 'sequence';
 	if (SINGLE_CHORD_CONTEXTS.has(command.context) && binding.length > 1) return 'chatSequence';
+	if (SINGLE_CHORD_CONTEXTS.has(command.context) && binding.length === 1 && CHAT_TAKEN_CHORDS.has(formatBinding(binding))) return 'chatTaken';
 	if (command.chordOnly && binding.some((chord) => chord.mod)) return 'modifier';
 	// The list's own keys only shadow a command that can reach a focused row; the chat page has no rows of tasks.
 	if (binding.length > 0 && isListBuiltInKey(binding[0]) && !SINGLE_CHORD_CONTEXTS.has(command.context)) return 'listKey';

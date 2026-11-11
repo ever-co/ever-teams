@@ -4922,7 +4922,8 @@
 			"chatUnreads": "Ouvrir les non lus",
 			"chatMarkAllRead": "Tout marquer comme lu"
 		},
-		"CHAT_SINGLE_KEY": "Une touche du chat est une seule touche, pas une séquence."
+		"CHAT_SINGLE_KEY": "Une touche du chat est une seule touche, pas une séquence.",
+		"CHAT_TAKEN": "Le chat utilise déjà cette touche (mise en forme, envoi, déplacement ou défilement)."
 	},
 	"realtime": {
 		"RECONNECTING": "Reconnexion…"

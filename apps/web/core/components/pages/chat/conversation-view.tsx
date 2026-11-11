@@ -99,6 +99,7 @@ function ConversationPane({ conversation, conversationNames, canManage, presence
 	// A jump to a message the virtual list has not drawn: it scrolls there, and the target is looked for again a frame on.
 	const [jumpFrame, setJumpFrame] = useState(0);
 	const jumpTries = useRef(0);
+	const jumpTarget = useRef<string | null>(null);
 	const stickToBottom = useRef(true);
 	// How far the reader is from the newest message. Only at the bottom does viewing read the conversation.
 	const [away, setAway] = useState<'bottom' | 'near' | 'far'>('bottom');
@@ -150,6 +151,11 @@ function ConversationPane({ conversation, conversationNames, canManage, presence
 		const element = list.current;
 		if (!element) return;
 		if (jumpToMessageId && jumped.current !== jumpToMessageId) {
+			// Each target gets its own frames: one that was never drawn does not use up the next one's.
+			if (jumpTarget.current !== jumpToMessageId) {
+				jumpTarget.current = jumpToMessageId;
+				jumpTries.current = 0;
+			}
 			const target = element.querySelector<HTMLElement>(`[data-message-id="${CSS.escape(jumpToMessageId)}"]`);
 			if (target) {
 				jumped.current = jumpToMessageId;
@@ -208,14 +214,17 @@ function ConversationPane({ conversation, conversationNames, canManage, presence
 		}
 		if (element.scrollTop < 80 && hasBefore && !isLoadingOlder) {
 			const before = element.scrollHeight;
+			// The virtual list measures the rows it draws as the page comes in: it puts the reader's row back itself.
+			const anchor = virtual ? (virtualTimeline.current?.anchor() ?? null) : null;
 			void loadOlder().then(() => {
 				// Keep what the reader was looking at in place after the older page is prepended.
 				requestAnimationFrame(() => {
+					if (anchor && virtualTimeline.current?.restore(anchor)) return;
 					if (list.current) list.current.scrollTop += list.current.scrollHeight - before;
 				});
 			});
 		}
-	}, [hasBefore, isLoadingOlder, loadOlder, newestId]);
+	}, [hasBefore, isLoadingOlder, loadOlder, newestId, virtual]);
 
 	const jumpToLatest = useCallback(() => {
 		const element = list.current;

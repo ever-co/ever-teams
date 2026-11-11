@@ -4922,7 +4922,8 @@
 			"chatUnreads": "打开未读",
 			"chatMarkAllRead": "全部标为已读"
 		},
-		"CHAT_SINGLE_KEY": "聊天的快捷键只能是一个按键，不能是按键序列。"
+		"CHAT_SINGLE_KEY": "聊天的快捷键只能是一个按键，不能是按键序列。",
+		"CHAT_TAKEN": "聊天已在使用此按键（格式、发送、移动或滚动）。"
 	},
 	"realtime": {
 		"RECONNECTING": "正在重新连接…"
