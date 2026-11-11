@@ -34,6 +34,9 @@ describe('the threshold', () => {
 		expect(timerReminderHoursOf(undefined)).toBe(DEFAULT_TIMER_REMINDER_HOURS);
 		expect(timerReminderHoursOf({})).toBe(8);
 		expect(timerReminderHoursOf({ timerReminderHours: 6 })).toBe(6);
+		// To the hundredth, as Gauzy's title names it: one the title cannot name is the default, as there
+		expect(timerReminderHoursOf({ timerReminderHours: 1.234 })).toBe(1.23);
+		expect(timerReminderHoursOf({ timerReminderHours: 0.004 })).toBe(DEFAULT_TIMER_REMINDER_HOURS);
 		expect(timerReminderHoursOf({ timerReminderHours: null })).toBeNull();
 		expect(timerReminderHoursOf({ timerReminderHours: 0 })).toBeNull();
 	});
@@ -364,9 +367,11 @@ describe("the platform's own reminders", () => {
 			['Your timer has been running for 8 hours', 1, 8],
 			['Your timer has been running for 1 hour', 1, 1],
 			['Your timer has been running for 1.5 hours', 1, 1.5],
+			['Your timer has been running for 1.23 hours', 1, 1.23],
 			['Your timer has been running for 8 hours on "Fix the login page"', 1, 8],
 			['Your timer is still running after 16 hours', 2, 16],
 			['Your timer is still running after 1 hour', 2, 1],
+			['Your timer is still running after 2.46 hours', 2, 2.46],
 			['Your timer is still running after 8 hours on "Ship it"', 2, 8]
 		] as const)('"%s" is reminder %s, after %s hours', (title, level, hours) => {
 			expect(timerReminderNoticeOf(filed(title))).toEqual({ level, hours, timeLogId: 'log-1' });

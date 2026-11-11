@@ -39,9 +39,9 @@ export function timerReminderHoursOf(preferences: INotificationPreferences | nul
 	if (hours === null || hours === 0) {
 		return null;
 	}
-	return typeof hours === 'number' && Number.isFinite(hours) && hours > 0 && hours <= 24
-		? hours
-		: DEFAULT_TIMER_REMINDER_HOURS;
+	// To the hundredth, as Gauzy's title names it (`1.23 hours`): one the title cannot name (0.004) is the default there
+	const named = typeof hours === 'number' && Number.isFinite(hours) ? Number(hours.toFixed(2)) : Number.NaN;
+	return named > 0 && named <= 24 ? named : DEFAULT_TIMER_REMINDER_HOURS;
 }
 
 /** The run of a running timer, or null when it is stopped or its start is unknown. */
