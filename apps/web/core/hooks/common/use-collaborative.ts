@@ -88,7 +88,7 @@ export function useCollaborative(user?: TUser) {
 			return;
 		}
 
-		router.push(board.href);
+		router.push('/board');
 	}, [collaborativeMembers, router]);
 
 	return {
