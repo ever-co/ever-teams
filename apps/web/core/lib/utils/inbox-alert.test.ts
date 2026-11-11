@@ -70,7 +70,7 @@ describe('shouldChime', () => {
 });
 
 describe('the sound choice', () => {
-	it('is off until switched on, is kept per browser, and survives a storage that refuses it', () => {
+	it('is off until switched on, is kept per browser, and says when the storage refuses it', () => {
 		const values = new Map<string, string>();
 		const storage = {
 			getItem: (key: string) => values.get(key) ?? null,
@@ -79,10 +79,10 @@ describe('the sound choice', () => {
 		};
 
 		expect(readInboxSound(storage)).toBe(false);
-		writeInboxSound(storage, true);
+		expect(writeInboxSound(storage, true)).toBe(true);
 		expect(values.get(INBOX_SOUND_STORAGE_KEY)).toBe('on');
 		expect(readInboxSound(storage)).toBe(true);
-		writeInboxSound(storage, false);
+		expect(writeInboxSound(storage, false)).toBe(true);
 		expect(values.get(INBOX_SOUND_STORAGE_KEY)).toBe('off');
 		expect(readInboxSound(storage)).toBe(false);
 
@@ -96,7 +96,9 @@ describe('the sound choice', () => {
 			removeItem: () => undefined
 		};
 		expect(readInboxSound(refusing)).toBe(false);
-		expect(() => writeInboxSound(refusing, true)).not.toThrow();
+		// A refused write says so, so the caller keeps the choice for the page instead.
+		expect(writeInboxSound(refusing, true)).toBe(false);
+		expect(writeInboxSound(null, true)).toBe(false);
 		expect(readInboxSound(null)).toBe(false);
 	});
 });

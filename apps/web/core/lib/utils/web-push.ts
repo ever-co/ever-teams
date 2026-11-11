@@ -52,7 +52,8 @@ const BROWSERS: ReadonlyArray<[RegExp, string]> = [
 	[/SamsungBrowser\//, 'Samsung Internet'],
 	[/(Firefox|FxiOS)\//, 'Firefox'],
 	[/(Chrome|CriOS|Chromium)\//, 'Chrome'],
-	[/Version\/[\d.]+.*Safari\//, 'Safari']
+	// Safari names its own version (`Version/18.1 … Safari/…`); the browsers above that do too were matched first.
+	[/Version\/\d/, 'Safari']
 ];
 
 // iOS and Android before the desktop systems their user agents also mention ("like Mac OS X", "Linux").

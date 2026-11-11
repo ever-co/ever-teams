@@ -58,11 +58,14 @@ export function readInboxSound(storage: KeyValueStorage | null): boolean {
 	}
 }
 
-export function writeInboxSound(storage: KeyValueStorage | null, isOn: boolean): void {
+/** Saves the choice for the browser; `false` when there is no storage or it refused the write. */
+export function writeInboxSound(storage: KeyValueStorage | null, isOn: boolean): boolean {
+	if (!storage) return false;
 	try {
-		storage?.setItem(INBOX_SOUND_STORAGE_KEY, isOn ? 'on' : 'off');
+		storage.setItem(INBOX_SOUND_STORAGE_KEY, isOn ? 'on' : 'off');
+		return true;
 	} catch {
-		// Storage refused: the choice lasts as long as the page.
+		return false;
 	}
 }
 

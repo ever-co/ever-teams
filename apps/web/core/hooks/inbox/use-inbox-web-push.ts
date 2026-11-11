@@ -79,14 +79,20 @@ export function useInboxWebPush(enabled: boolean) {
 			setState('unavailable');
 			return;
 		}
+		const isSupported = supportsWebPush();
 		try {
 			await inboxPushService.publicKey();
 		} catch (error) {
-			setState(ApiErrorService.isApiError(error) && error.isEndpointUnavailable() ? 'unavailable' : 'off');
+			if (ApiErrorService.isApiError(error) && error.isEndpointUnavailable()) {
+				setState('unavailable');
+			} else {
+				// The platform did not answer: switching on can be tried again, where the browser can take notifications.
+				setState(isSupported ? 'off' : 'unsupported');
+			}
 			return;
 		}
 		// The other devices are listed even where this browser cannot take notifications itself.
-		if (!supportsWebPush()) {
+		if (!isSupported) {
 			setState('unsupported');
 			await loadDevices();
 			return;

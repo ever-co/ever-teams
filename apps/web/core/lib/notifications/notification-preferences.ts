@@ -106,7 +106,7 @@ export function digestHourLabel(hour: number, locale: string): string {
 
 /** A per-type map with a patch merged in: a type patched to `undefined` is taken out, so it follows the default again. */
 function mergedByType<T>(current: Partial<Record<string, T>> | undefined, patch: Partial<Record<string, T>>): Partial<Record<string, T>> {
-	const merged: Partial<Record<string, T>> = { ...(current ?? {}) };
+	const merged: Partial<Record<string, T>> = { ...current };
 	for (const [type, value] of Object.entries(patch)) {
 		if (value === undefined) {
 			delete merged[type];

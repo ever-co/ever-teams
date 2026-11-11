@@ -35,7 +35,10 @@ function subscribeToSound(listener: () => void): () => void {
 	};
 }
 
-const soundSnapshot = () => readInboxSound(localStorageOrNull());
+// The choice this tab made when the storage refused to keep it (blocked or full): it lasts as long as the page.
+let unsavedSound: boolean | null = null;
+
+const soundSnapshot = () => unsavedSound ?? readInboxSound(localStorageOrNull());
 const serverSoundSnapshot = () => false;
 
 let chimeContext: AudioContext | null = null;
@@ -75,7 +78,7 @@ function maySound(): boolean {
 export function useInboxSound(): [boolean, (isOn: boolean) => void] {
 	const isOn = useSyncExternalStore(subscribeToSound, soundSnapshot, serverSoundSnapshot);
 	const setOn = useCallback((next: boolean) => {
-		writeInboxSound(localStorageOrNull(), next);
+		unsavedSound = writeInboxSound(localStorageOrNull(), next) ? null : next;
 		for (const listener of soundListeners) listener();
 		// The switch is a click: the moment the browser lets the page start its audio.
 		if (next) void playChime();
@@ -89,7 +92,8 @@ async function chimeOnce(key: string): Promise<void> {
 	const hasPushSubscription = isVisible ? false : !!(await thisBrowserPushSubscription());
 	if (!shouldChime({ isVisible, hasPushSubscription })) return;
 	const claimed = await claimForThisTab(key, { yieldMs: isVisible ? 0 : INBOX_ALERT_HIDDEN_YIELD_MS });
-	if (claimed) await playChime();
+	// The sound may have been switched off while the claim waited (a hidden tab yields, and its timers are slowed).
+	if (claimed && soundSnapshot()) await playChime();
 }
 
 /**
