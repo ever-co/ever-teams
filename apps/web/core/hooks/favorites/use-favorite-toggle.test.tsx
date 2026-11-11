@@ -58,6 +58,17 @@ function renderToggle() {
 	return renderHook(() => useFavoriteToggle(PROJECT), { wrapper });
 }
 
+/** Two controls of one item, as a project's header star and its sidebar menu: two hooks over one cache. */
+function renderTwoControls() {
+	const queryClient = new QueryClient({ defaultOptions: { queries: { retry: false } } });
+	const wrapper = ({ children }: { children: React.ReactNode }) => (
+		<QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
+	);
+	return renderHook(() => ({ header: useFavoriteToggle(PROJECT), sidebar: useFavoriteToggle(PROJECT) }), {
+		wrapper
+	});
+}
+
 describe('useFavoriteToggle', () => {
 	beforeEach(() => {
 		stored = [{ id: 'favorite-0', entity: PROJECT, entityId: 'project-1', employeeId: 'employee-1' }];
@@ -101,6 +112,48 @@ describe('useFavoriteToggle', () => {
 
 		expect(result.current.isFavorite('project-1')).toBe(true);
 		expect(result.current.isPending('project-1')).toBe(false);
+	});
+
+	it('lets no other control of the item act while its favourite is being changed', async () => {
+		const { result } = renderTwoControls();
+		await waitFor(() => expect(result.current.header.isFavorite('project-1')).toBe(true));
+		let release: () => void = () => undefined;
+		mockFavoriteService.createFavorite.mockImplementationOnce(
+			(body: Omit<StoredFavorite, 'id'>) =>
+				new Promise((resolve) => {
+					release = () => resolve({ id: 'favorite-7', ...body });
+				})
+		);
+
+		let adding: Promise<boolean> = Promise.resolve(false);
+		act(() => {
+			adding = result.current.header.toggleFavorite('project-4');
+		});
+		await waitFor(() => expect(result.current.sidebar.isPending('project-4')).toBe(true));
+		// The sidebar sees the placeholder as a favourite: its click must not send the placeholder's id
+		expect(result.current.sidebar.isFavorite('project-4')).toBe(true);
+		await act(async () => {
+			await result.current.sidebar.toggleFavorite('project-4');
+		});
+		expect(mockFavoriteService.deleteFavorite).not.toHaveBeenCalled();
+
+		await act(async () => {
+			release();
+			await adding;
+		});
+		expect(result.current.sidebar.isPending('project-4')).toBe(false);
+		expect(mockFavoriteService.createFavorite).toHaveBeenCalledTimes(1);
+	});
+
+	it('reads the whole list before a click decides, so a favourite clicked early is removed, not filed twice', async () => {
+		const { result } = renderToggle();
+
+		await act(async () => {
+			await expect(result.current.toggleFavorite('project-1')).resolves.toBe(false);
+		});
+
+		expect(mockFavoriteService.createFavorite).not.toHaveBeenCalled();
+		expect(mockFavoriteService.deleteFavorite).toHaveBeenCalledWith('favorite-0');
 	});
 
 	it('sends one request at a time for an item', async () => {
