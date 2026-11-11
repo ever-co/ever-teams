@@ -53,7 +53,14 @@ function jitsiDevicesOf(choices: MeetingJoinChoices | null | undefined): JitsiDe
 	return devices as JitsiDevices;
 }
 
-export default function MeetPage({ jwt, roomName, title = null, choices, onLeft, onCopyLink }: MeetPageProps) {
+export default function MeetPage({
+	jwt,
+	roomName,
+	title = null,
+	choices,
+	onLeft,
+	onCopyLink
+}: Readonly<MeetPageProps>) {
 	const t = useTranslations();
 	const jitsiApi = useJitsiExternalApi(MEET_DOMAIN.value);
 	const [isDisconnected, setIsDisconnected] = useState(false);

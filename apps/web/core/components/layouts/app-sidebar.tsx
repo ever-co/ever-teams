@@ -227,8 +227,7 @@ export function AppSidebar({ publicTeam, ...props }: AppSidebarProps) {
 		if (isInboxEnabled()) entries.push(inboxEntry);
 		if (isChatEnabled()) entries.push(chatEntry);
 		if (isDocsEnabled() && docsAvailability !== 'unavailable') entries.push(docsEntry);
-		entries.push(calendarEntry);
-		entries.push(meetingsEntry);
+		entries.push(calendarEntry, meetingsEntry);
 		return entries;
 	}, [chatUnread, docsAvailability, inboxUnread, t]);
 
