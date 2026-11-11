@@ -38,6 +38,8 @@ export enum EChatTaskReferenceKind {
 
 export const CHAT_MESSAGE_MAX_LENGTH = 4000;
 export const CHAT_GROUP_MAX_MEMBERS = 50;
+/** The platform's `CHAT_MESSAGE_MAX_ATTACHMENTS`: a message carries at most this many files. */
+export const CHAT_MESSAGE_MAX_ATTACHMENTS = 10;
 
 /** Mention tokens inside a body: `<@employeeId>`, `<#conversationId>`, `<!channel>`, `<!here>`. */
 export const CHAT_MENTION_TOKEN_PATTERN = /<(@|#)([0-9a-fA-F-]{36})>|<!(channel|here)>/g;
@@ -228,6 +230,37 @@ export interface IChatMessageUpdateInput {
 	body: string;
 	attachmentIds?: ID[];
 	mentionEmployeeIds?: ID[];
+}
+
+/**
+ * One file of a conversation (`GET /chat/conversations/:id/files`): the document a message carries, with where and by
+ * whom it was attached. `fileUrl` / `thumbUrl` are what a browser opens (signed, so short-lived, on cloud storage).
+ */
+export interface IChatFile {
+	documentId: ID;
+	messageId: ID;
+	conversationId: ID;
+	name: string;
+	originalFilename?: string | null;
+	mimeType?: string | null;
+	fileSize?: number | null;
+	status?: string | null;
+	fileUrl?: string | null;
+	thumbUrl?: string | null;
+	authorEmployeeId?: ID | null;
+	authorUserId?: ID | null;
+	attachedAt: string;
+}
+
+export interface IChatFilesQuery {
+	limit?: number;
+	skip?: number;
+}
+
+/** A page of the files of a conversation, newest first. */
+export interface IChatFilesResult {
+	files: IChatFile[];
+	hasMore: boolean;
 }
 
 export interface IChatMessagesQuery {

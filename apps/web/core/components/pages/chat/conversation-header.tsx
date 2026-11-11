@@ -1,6 +1,6 @@
 'use client';
 
-import { useMemo, useState } from 'react';
+import { type ReactNode, useMemo, useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { ArrowLeft, Bell, BellOff, Link, LogOut, MoreHorizontal, Star, Users } from '@/core/components/icons';
 import {
@@ -95,7 +95,8 @@ export function ConversationHeader({
 	onToggleFavorite,
 	onNotify,
 	onCopyLink,
-	onLeave
+	onLeave,
+	extra
 }: Readonly<{
 	conversation: IChatConversationWithState;
 	/** The conversation's name without the `#` of a channel. */
@@ -107,6 +108,8 @@ export function ConversationHeader({
 	onNotify: (level: EChatNotifyLevel) => void;
 	onCopyLink: () => void;
 	onLeave: () => void;
+	/** More buttons of the bar, before the members (the conversation's files). */
+	extra?: ReactNode;
 }>) {
 	const t = useTranslations();
 	const isFavorite = !!conversation.state?.isFavorite;
@@ -133,6 +136,7 @@ export function ConversationHeader({
 				)}
 			</div>
 			<div className="flex shrink-0 items-center gap-0.5">
+				{extra}
 				<MembersChip conversation={conversation} people={people} meEmployeeId={meEmployeeId} />
 				<button type="button" onClick={onToggleFavorite} className={BAR_BUTTON} aria-label={t('teamChat.FAVORITE')} title={t('teamChat.FAVORITE')} aria-pressed={isFavorite}>
 					<Star className={cn(isFavorite && 'fill-current text-amber-500')} />

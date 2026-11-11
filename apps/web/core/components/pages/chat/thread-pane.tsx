@@ -7,13 +7,17 @@ import { toast } from 'sonner';
 import { Bell, BellOff, X } from '@/core/components/icons';
 import { Button } from '@/core/components/duplicated-components/_button';
 import { useChatActions, ChatOutboxMessage } from '@/core/hooks/chat/use-chat-actions';
+import { useChatAttachments } from '@/core/hooks/chat/use-chat-attachments';
 import { useChatDraft } from '@/core/hooks/chat/use-chat-draft';
+import { useChatFiles } from '@/core/hooks/chat/use-chat-files';
 import { useChatThread } from '@/core/hooks/chat/use-chat-messages';
 import { useChatPeople, useChatScope } from '@/core/hooks/chat/use-chat-scope';
 import { useTaskDrawer } from '@/core/hooks/tasks/use-task-drawer';
+import { attachmentFallbackBody } from '@/core/lib/utils/chat-attachments';
 import { dayKeyOf, dayLabel, timelineItems } from '@/core/lib/utils/chat-timeline';
 import { tasksByTeamState } from '@/core/stores/teams/team-tasks';
-import { IChatMessage } from '@/core/types/interfaces/common/chat';
+import { IChatFile, IChatMessage } from '@/core/types/interfaces/common/chat';
+import { ImageLightbox } from './chat-attachments';
 import { ChatErrorState, ChatMessagesSkeleton } from './chat-states';
 import { DayDivider, RepliesDivider } from './chat-timeline-parts';
 import { BAR_BUTTON } from './conversation-header';
@@ -53,6 +57,12 @@ function ThreadPaneBody({ conversationId, rootMessageId, conversationNames, canM
 	const taskTitles = useMemo(() => new Map(tasks.map((task) => [task.id, task.title])), [tasks]);
 	const { root, replies, isLoading, isError, retry } = useChatThread(rootMessageId, true);
 	const { draft, setDraft, clearDraft } = useChatDraft(conversationId, rootMessageId);
+	const attachments = useChatAttachments();
+	const threadMessages = useMemo(() => (root ? [root, ...replies] : replies), [replies, root]);
+	const files = useChatFiles(conversationId, threadMessages);
+	// By id: the lightbox shows the newest copy of the record (its signed address is read again with the list).
+	const [pictureId, setPictureId] = useState<string | null>(null);
+	const picture = pictureId ? (files.byId.get(pictureId) ?? null) : null;
 	const [alsoToConversation, setAlsoToConversation] = useState(false);
 	const [editing, setEditing] = useState<IChatMessage | null>(null);
 	const [editValue, setEditValue] = useState('');
@@ -77,11 +87,22 @@ function ThreadPaneBody({ conversationId, rootMessageId, conversationNames, canM
 
 	const send = useCallback(
 		async (body: string) => {
+			const attachmentIds = attachments.readyIds;
+			const ready = new Set(attachmentIds);
+			const names = attachments.items.filter((item) => item.documentId && ready.has(item.documentId)).map((item) => item.name);
 			clearDraft();
+			attachments.releaseSent();
 			stickToBottom.current = true;
-			await actions.send(conversationId, { body, threadRootId: rootMessageId, alsoInConversation: alsoToConversation }).catch(() => toast.error(t('teamChat.SEND_FAILED')));
+			await actions
+				.send(conversationId, {
+					body: body || attachmentFallbackBody(names),
+					threadRootId: rootMessageId,
+					alsoInConversation: alsoToConversation,
+					attachmentIds: attachmentIds.length ? attachmentIds : undefined
+				})
+				.catch(() => toast.error(t('teamChat.SEND_FAILED')));
 		},
-		[actions, alsoToConversation, clearDraft, conversationId, rootMessageId, t]
+		[actions, alsoToConversation, attachments, clearDraft, conversationId, rootMessageId, t]
 	);
 
 	// The newest reply stays in view while the reader is at the bottom; a link to a reply scrolls it into view once the
@@ -151,14 +172,16 @@ function ThreadPaneBody({ conversationId, rootMessageId, conversationNames, canM
 				navigator.clipboard?.writeText(`${window.location.origin}/chat/${conversationId}?thread=${rootMessageId}&m=${message.id}`).then(() => toast(t('teamChat.LINK_COPIED'))).catch(() => undefined);
 			},
 			onOpenTask: (taskId: string) => openTaskDrawer(taskId),
-			onCreateTask: (message: IChatMessage) => setTaskFrom(message)
+			onCreateTask: (message: IChatMessage) => setTaskFrom(message),
+			onOpenImage: (file: IChatFile) => setPictureId(String(file.documentId)),
+			onBrokenImage: files.refresh
 		}),
-		[actions, conversationId, openTaskDrawer, reportFailure, rootMessageId, t]
+		[actions, conversationId, files.refresh, openTaskDrawer, reportFailure, rootMessageId, t]
 	);
 
 	const authorOf = (message: IChatMessage) =>
 		message.authorEmployeeId ? (people.byEmployee.get(String(message.authorEmployeeId)) ?? null) : message.authorUserId ? (people.byUser.get(String(message.authorUserId)) ?? null) : null;
-	const itemProps = { people: people.byEmployee, conversationNames, meEmployeeId: scope?.employeeId ?? null, meUserId: scope?.userId ?? null, locale, inTimeline: false, canManage, taskTitles, ...handlers };
+	const itemProps = { people: people.byEmployee, conversationNames, meEmployeeId: scope?.employeeId ?? null, meUserId: scope?.userId ?? null, locale, inTimeline: false, canManage, taskTitles, files: files.byId, ...handlers };
 	const editComposer = (
 		<div className="px-4 py-2">
 			<MessageComposer value={editValue} onChange={setEditValue} onSubmit={saveEdit} onCancel={() => setEditing(null)} people={people.list} placeholder={t('teamChat.EDIT')} editing autoFocus />
@@ -217,9 +240,11 @@ function ThreadPaneBody({ conversationId, rootMessageId, conversationNames, canM
 					placeholder={t('teamChat.REPLY_PLACEHOLDER')}
 					alsoToConversation={{ checked: alsoToConversation, onChange: setAlsoToConversation }}
 					autoFocus={focusComposer}
+					attachments={attachments}
 				/>
 			</div>
 			{taskFrom && <CreateTaskFromMessageDialog key={taskFrom.id} message={taskFrom} onClose={() => setTaskFrom(null)} />}
+			<ImageLightbox file={picture} onClose={() => setPictureId(null)} />
 		</div>
 	);
 }

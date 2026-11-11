@@ -5156,7 +5156,18 @@
 		"START_OF_DIRECT": "Это начало вашей беседы: {name}",
 		"START_OF_DIRECT_TEXT": "Эти сообщения видят только участники этой беседы.",
 		"UNREAD_REPLIES": "{count, plural, one {# новый ответ} few {# новых ответа} many {# новых ответов} other {# нового ответа}}",
-		"YOU": "вы"
+		"YOU": "вы",
+		"ATTACH_FILES": "Прикрепить файлы",
+		"ATTACH_TOO_MANY": "В сообщении может быть не больше {max} файлов.",
+		"ATTACH_FORBIDDEN": "Ваша роль не позволяет прикреплять файлы.",
+		"ATTACH_WAIT": "Ждём, пока загрузятся файлы…",
+		"ATTACHMENT": "Файл",
+		"FILES": "Файлы",
+		"FILES_EMPTY": "В этом разговоре пока нет файлов.",
+		"LOAD_MORE": "Загрузить ещё",
+		"VIEW_IMAGE": "Посмотреть {name}",
+		"OPEN_ORIGINAL": "Открыть оригинал",
+		"EMOJI_SUGGESTIONS": "Эмодзи"
 	},
 	"docs": {
 		"TITLE": "Документы",
