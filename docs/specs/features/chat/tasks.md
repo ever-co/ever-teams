@@ -28,6 +28,6 @@
   (16 px composer text, touch targets, safe area, back from a thread),
   shortcuts (`Alt+↑/↓`, `Alt+Shift+↑/↓`, `Mod+Shift+A`, `Shift+Escape`:
   registry commands, rebindable, in the shortcuts help). `Mod+Enter` to
-  send a thread reply waits for the setting that turns it on (FR-8)
+  send a thread reply waits for the setting that turns it on (FR-8) (#5052)
 - [ ] T16 Link preview cards, from what the platform returns once it has
   a preview route (the browser fetches none itself)
