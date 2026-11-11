@@ -27,6 +27,7 @@ import {
 } from '@/core/lib/keyboard/shortcuts';
 import type { TeamTasksViewState } from '@/core/hooks/tasks/use-team-tasks-view';
 import type { TeamTasksListRow } from '@/core/lib/utils/team-tasks-view';
+import type { TaskOrderMove } from '@/core/lib/utils/task-view-order';
 import { GROUP_HEIGHT, ROW_HEIGHT, TEAM_TASK_LIST_MIN_WIDTH, type TeamTasksGrid } from './team-tasks-grid';
 import { TeamTasksListProvider, type TeamTaskPickerKind, type TeamTasksListActions } from './team-tasks-list-context';
 import { TeamTaskRow } from './team-task-row';
@@ -36,6 +37,7 @@ import { isTaskViewsEnabled } from '@/core/lib/utils/task-views-enabled';
 import { TeamTasksGroupHeader } from './team-tasks-group-header';
 import { TeamTasksColumnHeader } from './team-tasks-column-header';
 import type { TeamTaskMenuAnchor } from './team-task-menu';
+import { useTeamTaskListReorder } from './team-task-row-dnd';
 
 const OVERSCAN = 10;
 
@@ -57,8 +59,11 @@ function keyCapOf(binding: ShortcutBinding | null | undefined, isMac: boolean) {
 export interface TeamTasksListCommands {
 	openTask: (taskId: string) => void;
 	openPicker: (kind: TeamTaskPickerKind, taskIds: string[], anchor: Element, shortcut?: string) => void;
-	openMenu: (taskId: string, anchor: TeamTaskMenuAnchor) => void;
+	/** `groupKey`: the group of the row the menu opens from (a task with several assignees has a row under each). */
+	openMenu: (taskId: string, anchor: TeamTaskMenuAnchor, groupKey?: string | null) => void;
 	createTaskInGroup: (statusName: string | null) => void;
+	/** A row dropped next to another one of its group, in a saved view's manual order. */
+	moveTask?: (move: TaskOrderMove) => void;
 }
 
 function rowSizeOf(row: TeamTasksListRow | undefined) {
@@ -194,6 +199,8 @@ function TeamTasksRows({ view, grid, commands, scrollRef }: Readonly<TeamTasksLi
 	// The person's bindings with the saved-views feature on (letters by their physical key, as the registry reads
 	// them); without it, the keys the list always had, by the character typed.
 	const bindings = canRebind ? preferredBindings : DEFAULT_BINDINGS;
+	const canReorder = view.canReorder && commands.moveTask !== undefined;
+	useTeamTaskListReorder(scrollRef, canReorder, commands.moveTask);
 
 	const stickyIndexes = useMemo(() => {
 		const indexes: number[] = [];
@@ -373,7 +380,7 @@ function TeamTasksRows({ view, grid, commands, scrollRef }: Readonly<TeamTasksLi
 			anchor = row;
 		}
 		setFocusedTaskId(taskId);
-		commands.openMenu(taskId, anchor);
+		commands.openMenu(taskId, anchor, row.dataset.groupKey);
 	};
 
 	const actions = useMemo<TeamTasksListActions>(
@@ -385,7 +392,7 @@ function TeamTasksRows({ view, grid, commands, scrollRef }: Readonly<TeamTasksLi
 				const ids = targetIdsFor(firstId, appliesToSelection);
 				commands.openPicker(kind, ids, anchor);
 			},
-			openRowMenu: (taskId, anchor) => commands.openMenu(taskId, anchor),
+			openRowMenu: (taskId, anchor, groupKey) => commands.openMenu(taskId, anchor, groupKey),
 			toggleSelected: view.toggleSelected,
 			setManySelected: view.setManySelected,
 			toggleGroup: view.toggleGroup,
@@ -490,6 +497,7 @@ function TeamTasksRows({ view, grid, commands, scrollRef }: Readonly<TeamTasksLi
 										isFocused={focusedTaskId === row.task.id}
 										isTabStop={tabStopId === row.task.id}
 										isSelecting={isSelecting}
+										reorderGroupKey={canReorder ? row.group.key : null}
 									/>
 								</div>
 							);
