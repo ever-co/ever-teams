@@ -6,8 +6,10 @@ import type { ITaskView, ITaskViewDefinition } from '@/core/types/interfaces/com
 
 const mockSaveDefinition = jest.fn();
 const mockUpdateView = jest.fn();
+const mockDeleteView = jest.fn();
+const mockPush = jest.fn();
 
-jest.mock('next/navigation', () => ({ useRouter: () => ({ push: jest.fn() }) }));
+jest.mock('next/navigation', () => ({ useRouter: () => ({ push: mockPush }) }));
 jest.mock('next-intl', () => ({ useTranslations: () => (key: string) => key }));
 jest.mock('sonner', () => ({ toast: { success: jest.fn(), error: jest.fn() } }));
 jest.mock('@/core/lib/utils/task-views-enabled', () => ({ isTaskViewsEnabled: () => true }));
@@ -19,7 +21,12 @@ jest.mock('@/core/hooks/task-views/use-task-view-actions', () => {
 	}
 	return {
 		TaskViewConflictError,
-		useTaskViewActions: () => ({ saveDefinition: mockSaveDefinition, createView: jest.fn(), updateView: mockUpdateView, deleteView: jest.fn() })
+		useTaskViewActions: () => ({
+			saveDefinition: mockSaveDefinition,
+			createView: jest.fn(),
+			updateView: mockUpdateView,
+			deleteView: mockDeleteView
+		})
 	};
 });
 
@@ -31,13 +38,18 @@ const viewAt = (version: number): ITaskView => ({ id: 'v1', name: 'Board', versi
 type Props = { savedView: ITaskView; isDirty: boolean };
 
 function render(initial: Props) {
-	return renderHook((props: Props) => useSavedViewCommands({ ...props, isBuiltIn: false, definition: MINE, applyDefinition: jest.fn() }), {
-		initialProps: initial
-	});
+	return renderHook(
+		(props: Props) =>
+			useSavedViewCommands({ ...props, isBuiltIn: false, definition: MINE, applyDefinition: jest.fn() }),
+		{
+			initialProps: initial
+		}
+	);
 }
 
 /** The version the last save stated. */
-const statedVersion = (): number | undefined => (mockSaveDefinition.mock.calls.at(-1)?.[0] as ITaskView | undefined)?.version;
+const statedVersion = (): number | undefined =>
+	(mockSaveDefinition.mock.calls.at(-1)?.[0] as ITaskView | undefined)?.version;
 
 describe('useSavedViewCommands, saving a changed view', () => {
 	beforeEach(() => {
@@ -94,5 +106,55 @@ describe('useSavedViewCommands, saving a changed view', () => {
 		view.rerender({ savedView: viewAt(3), isDirty: true });
 		await act(async () => view.result.current.toolbarCommands.save());
 		expect(statedVersion()).toBe(1);
+	});
+});
+
+describe('useSavedViewCommands, deleting the open view and naming a new one', () => {
+	beforeEach(() => {
+		mockDeleteView.mockReset().mockResolvedValue(undefined);
+		mockPush.mockReset();
+	});
+
+	it("asks in the page's dialog before deleting, never in the browser's confirm box", async () => {
+		const confirmSpy = jest.spyOn(window, 'confirm');
+		const { result } = render({ savedView: viewAt(3), isDirty: false });
+
+		act(() => result.current.toolbarCommands.remove());
+
+		expect(result.current.isDeleteConfirmOpen).toBe(true);
+		expect(mockDeleteView).not.toHaveBeenCalled();
+		expect(confirmSpy).not.toHaveBeenCalled();
+
+		await act(async () => result.current.confirmRemove());
+
+		expect(mockDeleteView).toHaveBeenCalledWith(viewAt(3));
+		expect(mockPush).toHaveBeenCalledWith('/views');
+		expect(result.current.isDeleteConfirmOpen).toBe(false);
+		confirmSpy.mockRestore();
+	});
+
+	it('keeps the view when the dialog is closed', () => {
+		const { result } = render({ savedView: viewAt(3), isDirty: false });
+
+		act(() => result.current.toolbarCommands.remove());
+		act(() => result.current.closeDeleteConfirm());
+
+		expect(result.current.isDeleteConfirmOpen).toBe(false);
+		expect(mockDeleteView).not.toHaveBeenCalled();
+	});
+
+	it('opens with the dialog that names a new view, for "New view" of the views index', () => {
+		const { result } = renderHook(() =>
+			useSavedViewCommands({
+				savedView: null,
+				isBuiltIn: false,
+				definition: MINE,
+				isDirty: false,
+				applyDefinition: jest.fn(),
+				initialDialog: 'create'
+			})
+		);
+
+		expect(result.current.saveDialog).toBe('create');
 	});
 });

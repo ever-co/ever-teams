@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { useTaskViewsQuery } from '@/core/hooks/task-views/use-task-views-query';
 import { isTaskViewsEnabled } from '@/core/lib/utils/task-views-enabled';
-import { builtInViewLabelKey } from '@/core/components/pages/teams/team/tasks/views/views-page';
+import { builtInViewLabelKey } from '@/core/lib/utils/task-views-index';
 import { TASK_BUILT_IN_VIEWS } from '@/core/types/interfaces/common/task-views';
 
 /** The saved views the sidebar lists (the first in sidebar order); All views has every one of them. */
@@ -109,7 +109,6 @@ type AppSidebarProps = React.ComponentProps<typeof Sidebar> & { publicTeam: bool
 
 // Limit to 5 projects for sidebar display
 const MAX_SIDEBAR_PROJECTS = 5;
-
 
 /**
  * The sidebar sits on the window background (variant `inset`): the pages render in the rounded panel
