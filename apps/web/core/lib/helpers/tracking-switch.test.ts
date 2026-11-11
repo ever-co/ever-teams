@@ -1,5 +1,11 @@
 import { ERoleName } from '@/core/types/generics/enums/role';
-import { mayTurnTrackingOf, rankInTeam, rankOfRole, type TrackingSwitchRank } from './tracking-switch';
+import {
+	mayTurnTrackingOf,
+	mayTurnTrackingOfRole,
+	rankInTeam,
+	rankOfRole,
+	type TrackingSwitchRank
+} from './tracking-switch';
 
 /**
  * Who may turn someone's time tracking on or off (#5015): only someone of a higher role, and an admin also for another
@@ -44,5 +50,18 @@ describe('tracking switch rule', () => {
 		{ who: 'a member', whom: 'an admin', actor: 'member', target: 'admin', allowed: false }
 	])('$who acting on $whom: $allowed', ({ actor, target, allowed }) => {
 		expect(mayTurnTrackingOf(actor, target)).toBe(allowed);
+	});
+
+	it('ranks a person by their role, raised when they manage the team', () => {
+		expect(mayTurnTrackingOfRole('manager', ERoleName.EMPLOYEE)).toBe(true);
+		expect(mayTurnTrackingOfRole('manager', ERoleName.EMPLOYEE, true)).toBe(false);
+		expect(mayTurnTrackingOfRole('manager', ERoleName.ADMIN)).toBe(false);
+	});
+
+	it('leaves a person whose role did not load to an admin: that person could be an admin', () => {
+		expect(mayTurnTrackingOfRole('admin', null)).toBe(true);
+		expect(mayTurnTrackingOfRole('manager', null)).toBe(false);
+		expect(mayTurnTrackingOfRole('manager', undefined)).toBe(false);
+		expect(mayTurnTrackingOfRole('member', null)).toBe(false);
 	});
 });

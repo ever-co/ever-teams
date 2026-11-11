@@ -45,12 +45,12 @@ import { useTeamMembersSettings } from './use-team-members-settings';
  */
 
 /**
- * A row of the team: its user's tenant role, and its place in the team (the MANAGER role or the manager flag), with
- * both tracking switches on unless stated.
+ * A row of the team: its user's tenant role (null when it did not load), and its place in the team (the MANAGER role
+ * or the manager flag), with both tracking switches on unless stated.
  */
 function member(
 	key: string,
-	userRole: ERoleName,
+	userRole: ERoleName | null,
 	place: { teamRole?: ERoleName; isManager?: boolean; teamTracking?: boolean; employeeTracking?: boolean } = {}
 ) {
 	return {
@@ -73,7 +73,7 @@ function member(
 				id: `user-${key}`,
 				name: key,
 				email: `${key}@example.test`,
-				role: { name: userRole }
+				role: userRole ? { name: userRole } : null
 			}
 		}
 	};
@@ -185,6 +185,16 @@ describe('Members settings: who gets the tracking switch on which row (#5015)', 
 		signInAs('tenant-manager', ERoleName.MANAGER);
 
 		expect(rowsWithSwitch(renderSettings())).toEqual([]);
+	});
+
+	it('gives a manager no switch on a member whose role did not load, who could be an admin: only an admin may', () => {
+		const members = [...team.members, member('role-unknown', null)];
+
+		signInAs('manager', ERoleName.EMPLOYEE);
+		expect(rowOf(renderSettings(members), 'role-unknown').showsTracking).toBe(false);
+
+		signInAs('admin', ERoleName.ADMIN, ['ORG_EMPLOYEES_EDIT']);
+		expect(rowOf(renderSettings(members), 'role-unknown').showsTracking).toBe(true);
 	});
 
 	it("shows a manager a member's switch disabled, with the reason, when an admin turned their own switch off", () => {

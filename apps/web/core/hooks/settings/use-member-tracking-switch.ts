@@ -9,7 +9,7 @@ import { useUserQuery } from '@/core/hooks/queries/user-user.query';
 import { useMyRolePermissionsQuery } from '@/core/hooks/roles/use-my-role-permissions-query';
 import { useEmployeeUpdate } from '@/core/hooks/organizations/employees/use-employee';
 import { useOrganizationEmployeeTeams } from '@/core/hooks/organizations/teams/use-organization-teams-employee';
-import { mayTurnTrackingOf, rankInTeam, rankOfRole } from '@/core/lib/helpers/tracking-switch';
+import { mayTurnTrackingOfRole, rankInTeam, rankOfRole } from '@/core/lib/helpers/tracking-switch';
 import { employeeIdOf, memberRoleNameOf, memberUserIdOf } from '@/core/lib/utils/settings-team';
 import type { TOrganizationTeam, TOrganizationTeamEmployee } from '@/core/types/schemas';
 import type { TUpdateEmployee } from '@/core/types/schemas/organization/employee.schema';
@@ -27,6 +27,7 @@ import type { TUpdateEmployee } from '@/core/types/schemas/organization/employee
  * - The employee switch: it counts in every team, so only the tenant roles rank, and Gauzy writes it only for a holder
  *   of ORG_EMPLOYEES_EDIT (the admins, by default). Turning tracking on needs it on too, so whoever may write it moves
  *   it with the team switch; anyone else cannot turn on a member whose employee switch is off.
+ * - A member whose role did not load could be an admin: only an admin switches them.
  */
 export function useMemberTrackingSwitch() {
 	const queryClient = useQueryClient();
@@ -51,8 +52,7 @@ export function useMemberTrackingSwitch() {
 			if (!writesTeamSwitch) {
 				return false;
 			}
-			const memberRank = rankInTeam(rankOfRole(memberRoleNameOf(member)), isTeamManagerMember(member));
-			return mayTurnTrackingOf(ownRankInTeam, memberRank);
+			return mayTurnTrackingOfRole(ownRankInTeam, memberRoleNameOf(member), isTeamManagerMember(member));
 		},
 		[ownRankInTeam, writesTeamSwitch]
 	);
@@ -60,8 +60,7 @@ export function useMemberTrackingSwitch() {
 	/** Whether the save moves the member's own (employee) switch too, which Gauzy allows only on these terms. */
 	const writesEmployeeTracking = useCallback(
 		(member: TOrganizationTeamEmployee) => {
-			const memberRoleRank = rankOfRole(memberRoleNameOf(member));
-			return canEditEmployees && mayTurnTrackingOf(ownRoleRank, memberRoleRank);
+			return canEditEmployees && mayTurnTrackingOfRole(ownRoleRank, memberRoleNameOf(member));
 		},
 		[canEditEmployees, ownRoleRank]
 	);

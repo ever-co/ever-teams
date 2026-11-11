@@ -39,3 +39,22 @@ export function mayTurnTrackingOf(actor: TrackingSwitchRank, target: TrackingSwi
 	}
 	return RANK_ORDER[actor] > RANK_ORDER[target];
 }
+
+/**
+ * `mayTurnTrackingOf` for a person known by their role, which may not have loaded. An unknown role could be an
+ * admin's, so only an admin, who may act on anyone, may act on that person.
+ *
+ * @param actor The rank of the person changing the switch.
+ * @param targetRoleName The tenant role of the person whose switch changes, when known.
+ * @param managesTeam Whether that person manages the team the switch belongs to.
+ */
+export function mayTurnTrackingOfRole(
+	actor: TrackingSwitchRank,
+	targetRoleName: string | null | undefined,
+	managesTeam = false
+): boolean {
+	if (!targetRoleName) {
+		return actor === 'admin';
+	}
+	return mayTurnTrackingOf(actor, rankInTeam(rankOfRole(targetRoleName), managesTeam));
+}
