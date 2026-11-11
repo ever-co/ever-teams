@@ -27,6 +27,7 @@ export interface ProjectActivity {
 	undatedDone: number;
 }
 
+/** The number of weeks to show: the default when none or no finite number is asked for, else bounded and whole. */
 export function activityWeeksCountOf(requested: number | undefined): number {
 	if (requested === undefined || !Number.isFinite(requested)) {
 		return DEFAULT_ACTIVITY_WEEKS;
@@ -35,6 +36,7 @@ export function activityWeeksCountOf(requested: number | undefined): number {
 	return Math.min(MAX_ACTIVITY_WEEKS, Math.max(MIN_ACTIVITY_WEEKS, whole));
 }
 
+/** `count` empty weeks, oldest first, ending with the Monday-based week of `now`. */
 function emptyWeeksOf(now: Date, count: number): WeeklyActivity[] {
 	const currentWeekStart = startOfWeek(now, { weekStartsOn: WEEK_STARTS_ON_MONDAY });
 	const weeks: WeeklyActivity[] = [];

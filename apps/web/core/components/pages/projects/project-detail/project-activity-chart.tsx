@@ -12,6 +12,7 @@ const SQUARE = 'size-2 shrink-0 rounded-[2px]';
 const CHART_HEIGHT_CLASS = 'h-16';
 const WEEK_CHECK_INTERVAL_MS = 5 * 60 * 1000;
 
+/** Whether two dates fall in the same Monday-based week. */
 function sameWeek(first: Date, second: Date) {
 	const firstStart = startOfWeek(first, { weekStartsOn: 1 });
 	const secondStart = startOfWeek(second, { weekStartsOn: 1 });

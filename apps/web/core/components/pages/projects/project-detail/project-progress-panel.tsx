@@ -257,7 +257,7 @@ export function ProjectProgressPanel({
 			/>
 			{isByAssignee && <AssigneeRows tasks={stats.tasks} statuses={statuses} />}
 			{!isByAssignee && <StatusRows tasks={stats.tasks} statuses={statuses} />}
-				<ProjectActivityChart tasks={stats.tasks} statuses={statuses} />
+			<ProjectActivityChart tasks={stats.tasks} statuses={statuses} />
 		</PanelShell>
 	);
 }
