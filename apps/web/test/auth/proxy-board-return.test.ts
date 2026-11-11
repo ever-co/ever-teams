@@ -199,6 +199,40 @@ describe('proxy() on a sign-in page the Board app sent a signed-in person to', (
 		expect(response.headers.get('location')).toBeNull();
 	});
 
+	// A pair Gauzy rotates later still can no longer reach this page: the sign-in that opens gives the person a new one
+	it('does not wait past the grace for a refresh: the sign-in page opens, to sign in again', async () => {
+		jest.useFakeTimers();
+		mockRefresh.mockReturnValue(
+			new Promise((resolve) =>
+				setTimeout(
+					() => resolve({ data: { token: accessToken(), refresh_token: 'late-refresh-token' } }),
+					25_000
+				)
+			)
+		);
+
+		let answered = false;
+		const pending = proxy(
+			signInRequest(BOARD_ADDRESS, `auth-token=${accessToken(-3600)}; auth-refresh-token=refresh-token`)
+		).finally(() => (answered = true));
+		await jest.advanceTimersByTimeAsync(23_000);
+		expect(answered).toBe(true);
+		const response = await pending;
+
+		expect(response.status).toBe(200);
+		expect(response.headers.get('location')).toBeNull();
+		expect(response.cookies.get('auth-refresh-token')).toBeUndefined();
+	});
+
+	it('bounds the check that follows a token refresh, as it bounds the session check', async () => {
+		const freshToken = accessToken(3600, 'user-1-fresh');
+		mockRefresh.mockResolvedValue({ data: { token: freshToken, refresh_token: 'rotated-refresh-token' } });
+
+		await proxy(signInRequest(BOARD_ADDRESS, `auth-token=${accessToken(-3600)}; auth-refresh-token=refresh-token`));
+
+		expect(mockCurrentUser).toHaveBeenCalledWith({ bearer_token: freshToken, signal: expect.any(AbortSignal) });
+	});
+
 	it('starts no token refresh once the deadline has passed', async () => {
 		jest.useFakeTimers();
 		// The API refuses the session check at 5.5 s and fails the first refresh at 7.9 s: its retry would come at 8 s

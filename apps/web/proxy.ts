@@ -211,6 +211,9 @@ export async function proxy(request: NextRequest) {
 	const tokenRefreshesInFlight = new Set<Promise<unknown>>();
 	// Set once the answer no longer waits for a refresh (see returnSignedInVisitToBoard): none starts after it
 	let tokenRefreshesClosed = false;
+	// Set by the Board's confirmation, which bounds the check that follows a refresh as it bounds its own session check;
+	// the other flows check as before
+	let refreshCheckTimeoutMs: number | undefined;
 
 	// Gauzy's new token pair, written on `response` as soon as it arrives
 	const refreshTokenPair = async (refreshToken: string) => {
@@ -259,7 +262,8 @@ export async function proxy(request: NextRequest) {
 
 			// Verify the new token works
 			const verifyRes = await currentAuthenticatedUserRequest({
-				bearer_token: refreshRes.data.token
+				bearer_token: refreshRes.data.token,
+				...(refreshCheckTimeoutMs ? { signal: AbortSignal.timeout(refreshCheckTimeoutMs) } : {})
 			});
 
 			if (verifyRes?.response.ok) {
@@ -370,6 +374,7 @@ export async function proxy(request: NextRequest) {
 		}
 
 		if (refresh_token) {
+			refreshCheckTimeoutMs = BOARD_SESSION_CHECK_TIMEOUT_MS;
 			const refreshResult = await tryRefreshAndVerifyWithRetry();
 			if (refreshResult.success) {
 				const redirectResponse = NextResponse.redirect(boardReturn);
