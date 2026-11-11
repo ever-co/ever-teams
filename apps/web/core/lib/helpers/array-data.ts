@@ -49,7 +49,9 @@ export function groupAppsByHour(apps: TDailyActivity[]) {
 				});
 	});
 
-	return groupedData.sort((a, b) => (new Date(a.hour) > new Date(b.hour) ? -1 : 1));
+	// `hour` is a clock text such as "14:00", which `new Date()` cannot parse (Invalid Date), so compare the
+	// zero-padded text itself: latest hour first.
+	return groupedData.sort((a, b) => (a.hour < b.hour ? 1 : a.hour > b.hour ? -1 : 0));
 }
 
 export function groupByTime(data: TActivity[]) {
