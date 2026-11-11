@@ -121,7 +121,7 @@ function canReachDevices(): boolean {
 }
 
 /** A device the person asked for that the computer does not have, while the other one works. */
-export interface MissingDevices {
+interface MissingDevices {
 	audio: boolean;
 	video: boolean;
 }
