@@ -59,11 +59,15 @@ export function useKanbanLanes(tasks: TTask[]) {
 	const lanes = useMemo(() => buildKanbanLanes(tasks, statuses, laneOrder), [tasks, statuses, laneOrder]);
 
 	const moveTask = useCallback(
-		(task: TTask, toStatus: TTaskStatus, toIndex: number) => {
-			const targetLane = lanes.find((lane) => lane.status.id === toStatus.id);
-			const targetIds = (targetLane?.tasks ?? []).map((laneTask) => laneTask.id);
-			const nextIds = laneIdsAfterDrop(targetIds, task.id, toIndex);
-			setLaneOrder((current) => ({ ...current, [toStatus.id]: nextIds }));
+		(task: TTask, toStatus: TTaskStatus, toIndex: number, options?: { keepsLaneOrder?: boolean }) => {
+			// A board whose order is saved elsewhere (a view ordered by hand) keeps no order of its own: it would hide
+			// that order, and a refused move would stay shown
+			if (options?.keepsLaneOrder !== false) {
+				const targetLane = lanes.find((lane) => lane.status.id === toStatus.id);
+				const targetIds = (targetLane?.tasks ?? []).map((laneTask) => laneTask.id);
+				const nextIds = laneIdsAfterDrop(targetIds, task.id, toIndex);
+				setLaneOrder((current) => ({ ...current, [toStatus.id]: nextIds }));
+			}
 
 			const isSameStatus = task.taskStatusId === toStatus.id;
 			if (isSameStatus) {

@@ -63,20 +63,20 @@ export function TeamTasksBoard({
 				toast.warning(t('pages.kanban.OTHER_TEAM_MOVE'), { id: 'board-other-team-move' });
 				return;
 			}
-			// A view ordered by hand keeps a card moved inside its lane: the move goes to its saved order, as a row's does
-			const lane =
-				task.taskStatusId === toStatus.id ? lanes.find((each) => each.status.id === toStatus.id) : null;
-			const savedMove =
-				lane && moveInSavedOrder
-					? laneMoveOf(
-							lane.tasks.map(({ id }) => id),
-							task.id,
-							toIndex
-						)
-					: null;
-			moveTask(task, toStatus, toIndex);
+			if (!moveInSavedOrder) {
+				moveTask(task, toStatus, toIndex);
+				return;
+			}
+			// A view ordered by hand: the card's place goes to the view's saved order, as a row's move does, and the
+			// board shows that order alone (a refused move goes back with it). Another lane is a status change too.
+			const lane = lanes.find((each) => each.status.id === toStatus.id);
+			const laneIds = lane ? lane.tasks.map(({ id }) => id) : [];
+			const savedMove = laneMoveOf(laneIds, task.id, toIndex);
+			if (task.taskStatusId !== toStatus.id) {
+				moveTask(task, toStatus, toIndex, { keepsLaneOrder: false });
+			}
 			if (savedMove) {
-				moveInSavedOrder?.(savedMove);
+				moveInSavedOrder(savedMove);
 			}
 		},
 		[lanes, moveInSavedOrder, moveTask, t, teamTaskIds]

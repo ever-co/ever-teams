@@ -100,19 +100,24 @@ describe('a view shown as a board', () => {
 		const moveInSavedOrder = jest.fn();
 		const { unmount } = renderBoard(moveInSavedOrder);
 
+		// Inside its lane: the saved order alone, no order of the board's own
 		mockBoardMove?.({ id: 't1', taskStatusId: 's1' }, { id: 's1' }, 1);
-		expect(mockMoveTask).toHaveBeenCalledTimes(1);
+		expect(mockMoveTask).not.toHaveBeenCalled();
 		expect(moveInSavedOrder).toHaveBeenCalledWith({ taskId: 't1', targetId: 't3', edge: 'after' });
 
-		// To another lane: a status change, no move of the saved order
+		// From another lane: a status change without a lane order of the board's, and its place in the saved order
 		mockBoardMove?.({ id: 't1', taskStatusId: 's2' }, { id: 's1' }, 0);
-		expect(moveInSavedOrder).toHaveBeenCalledTimes(1);
+		expect(mockMoveTask).toHaveBeenCalledWith({ id: 't1', taskStatusId: 's2' }, { id: 's1' }, 0, {
+			keepsLaneOrder: false
+		});
+		expect(moveInSavedOrder).toHaveBeenLastCalledWith({ taskId: 't1', targetId: 't3', edge: 'before' });
 		unmount();
 
-		// Not ordered by hand (no move command): the board alone
+		// Not ordered by hand (no move command): the board alone, with its own lane order
+		mockMoveTask.mockClear();
 		renderBoard();
 		mockBoardMove?.({ id: 't1', taskStatusId: 's1' }, { id: 's1' }, 1);
-		expect(mockMoveTask).toHaveBeenCalledTimes(3);
+		expect(mockMoveTask).toHaveBeenCalledWith({ id: 't1', taskStatusId: 's1' }, { id: 's1' }, 1);
 	});
 
 	it('waits for the statuses, and offers a retry when they could not be read', () => {
