@@ -27,6 +27,11 @@ jest.mock('@/core/components/layouts/default-layout', () => ({
 jest.mock('@/core/hooks/queries/user-user.query', () => ({
 	useUserQuery: () => ({ data: mockUser.current })
 }));
+// The timer start in flight, if any: the creation waits for its outcome
+const mockPendingStart: { current: Promise<'started' | 'blocked'> | null } = { current: null };
+jest.mock('@/core/hooks/timer/use-timer-api', () => ({
+	pendingTimerStart: () => mockPendingStart.current
+}));
 jest.mock('@/core/hooks/auth/use-create-workspace', () => ({
 	...jest.requireActual('@/core/hooks/auth/use-create-workspace'),
 	useCreateWorkspace: () => mockCreation
@@ -41,6 +46,7 @@ describe('CreateWorkspacePage', () => {
 		jest.clearAllMocks();
 		mockUser.current = { isEmailVerified: true };
 		Object.assign(mockCreation, { isPending: false, isSuccess: false, isError: false, error: null });
+		mockPendingStart.current = null;
 	});
 
 	const type = (label: string, value: string) =>
@@ -63,6 +69,35 @@ describe('CreateWorkspacePage', () => {
 			teamName: 'Design',
 			invites: ['grace@ever.co', 'alan@ever.co']
 		});
+	});
+
+	it('waits for a timer start in flight, and creates nothing when the timer started', async () => {
+		let settleStart: (outcome: 'started' | 'blocked') => void = () => undefined;
+		mockPendingStart.current = new Promise((resolve) => {
+			settleStart = resolve;
+		});
+		render(<CreateWorkspacePage />);
+
+		type('workspaceCreation.NAME_LABEL', 'Studio');
+		fireEvent.click(screen.getByRole('button', { name: 'workspaceCreation.CREATE' }));
+		// A second press while the start is on its way changes nothing
+		fireEvent.click(screen.getByRole('button', { name: 'workspaceCreation.CREATE' }));
+		await act(async () => {
+			settleStart('started');
+		});
+
+		expect(mockMutate).not.toHaveBeenCalled();
+	});
+
+	it('creates the workspace once a timer start in flight was refused', async () => {
+		mockPendingStart.current = Promise.resolve('blocked');
+		render(<CreateWorkspacePage />);
+
+		type('workspaceCreation.NAME_LABEL', 'Studio');
+		fireEvent.click(screen.getByRole('button', { name: 'workspaceCreation.CREATE' }));
+
+		await waitFor(() => expect(mockMutate).toHaveBeenCalledTimes(1));
+		expect(mockMutate).toHaveBeenCalledWith({ name: 'Studio', teamName: 'Studio', invites: [] });
 	});
 
 	it('says which invitations are not addresses, and creates nothing', async () => {

@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useMemo } from 'react';
+import { useEffect, useMemo, useRef } from 'react';
 import NextLink from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useTranslations } from 'next-intl';
@@ -15,6 +15,7 @@ import { controlRecipe, Input } from '@/core/components/common/input';
 import { Notice } from '@/core/components/common/notice';
 import { Building } from '@/core/components/icons';
 import { createWorkspaceErrorCodeOf, useCreateWorkspace } from '@/core/hooks/auth/use-create-workspace';
+import { pendingTimerStart } from '@/core/hooks/timer/use-timer-api';
 import { useUserQuery } from '@/core/hooks/queries/user-user.query';
 import { cn } from '@/core/lib/helpers';
 import { MAX_EMAILS_PER_INVITE } from '@/core/lib/validation/invite';
@@ -82,9 +83,25 @@ export function CreateWorkspacePage() {
 		}
 	}, [dirtyFields.teamName, form, name]);
 
-	const submit = form.handleSubmit(({ name, teamName, invites }) => {
-		if (isTimerRunning) {
+	// A submit waiting for a timer start in flight: a second press must not create a second workspace
+	const isAwaitingTimerStartRef = useRef(false);
+	const submit = form.handleSubmit(async ({ name, teamName, invites }) => {
+		if (isTimerRunning || isAwaitingTimerStartRef.current) {
 			return;
+		}
+		// A start sent from the timer may still be on its way: the status says running only once it lands, and the
+		// timer would then keep running in this workspace. Wait for it; a timer that started blocks the creation.
+		const timerStart = pendingTimerStart();
+		if (timerStart) {
+			isAwaitingTimerStartRef.current = true;
+			try {
+				const outcome = await timerStart.catch(() => 'blocked' as const);
+				if (outcome === 'started') {
+					return;
+				}
+			} finally {
+				isAwaitingTimerStartRef.current = false;
+			}
 		}
 		creation.mutate({ name, teamName, invites: inviteAddressesOf(invites).valid });
 	});

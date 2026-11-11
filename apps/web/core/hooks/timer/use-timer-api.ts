@@ -158,6 +158,15 @@ function trackTimerCommand<T>(request: Promise<T>): Promise<T> {
 	});
 }
 
+/**
+ * The timer start in flight, from the click through its request, or null (#5025). Creating a workspace waits for it:
+ * the creation signs the browser in to the new workspace, and a start landing afterwards would leave a timer running
+ * in the workspace left behind, out of sight.
+ */
+export function pendingTimerStart(): Promise<TimerStartOutcome> | null {
+	return pendingStartTimer;
+}
+
 // Identity check: an older flow settling late must not clear the guard of a newer request
 function releaseStartGuard(request: Promise<TimerStartOutcome>) {
 	if (pendingStartTimer !== request) return;
