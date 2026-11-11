@@ -114,8 +114,10 @@ export function useIntegrationConflicts({
 		queryFn: ({ signal }) => client.conflicts(integrationId as string, { status, runId, take }, signal),
 		enabled: !!integrationId,
 		staleTime: 15_000,
-		// While a longer list is read, the shorter one stays on screen.
-		placeholderData: (previous) => previous
+		// While a longer page of the same list is read, the shorter one stays on screen; another list (connection,
+		// status or run) never shows the last one's rows.
+		placeholderData: (previous, previousQuery) =>
+			previousQuery && sameListBesidesTake(previousQuery.queryKey, listKey) ? previous : undefined
 	});
 	const conflicts = listQuery.data ?? NO_CONFLICTS;
 	const canShowMore = conflicts.length >= take && take < CONFLICTS_MAX;
@@ -157,6 +159,8 @@ export function useIntegrationConflicts({
 				);
 				setResolved(keep);
 				void queryClient.invalidateQueries({ queryKey: keys.conflictsAll });
+				// The task's value was written back: the task lists and the task are read again.
+				if (keep === 'platform') void queryClient.invalidateQueries({ queryKey: queryKeys.tasks.all });
 			} catch (error) {
 				const refusal = conflictResolveRefusalOf(error);
 				setResolveError({ refusal, error });
@@ -194,20 +198,44 @@ export function useIntegrationConflicts({
 	};
 }
 
+/** Whether two conflict list keys name the same list, whatever page size (their last member) each reads. */
+export function sameListBesidesTake(a: readonly unknown[], b: readonly unknown[]): boolean {
+	return a.length === b.length && a.slice(0, -1).every((member, index) => member === b[index]);
+}
+
+/** What a run of the runs list says about conflicts. */
+export interface ConflictRunState {
+	id: string;
+	status: string;
+	conflictCount?: number;
+}
+
+/**
+ * Whether the newer runs read holds a run that finished since the older one: one that was running and is not any
+ * more (or left the list), or one first seen already finished with conflicts (it started and ended between reads).
+ */
+export function runsFinishedSince(
+	before: readonly ConflictRunState[] | null,
+	after: readonly ConflictRunState[]
+): boolean {
+	if (!before) return false;
+	const earlier = new Set(before.map((run) => run.id));
+	const now = new Map(after.map((run) => [run.id, run.status]));
+	if (before.some((run) => run.status === 'running' && now.get(run.id) !== 'running')) return true;
+	return after.some((run) => !earlier.has(run.id) && run.status !== 'running' && (run.conflictCount ?? 0) > 0);
+}
+
 /**
  * Reads a provider's conflict lists again when one of its runs finishes, while others may still run (a finished
  * import or sync may have found conflicts): the runs' poll refreshes the runs alone.
  */
-export function useConflictsAfterRuns(
-	provider: TIntegrationConflictProvider,
-	runs: readonly { id: string; status: string }[]
-): void {
+export function useConflictsAfterRuns(provider: TIntegrationConflictProvider, runs: readonly ConflictRunState[]): void {
 	const queryClient = useQueryClient();
-	const running = useRef(new Set<string>());
+	// The runs of the last read; null until the first (the lists read then on their own).
+	const previous = useRef<readonly ConflictRunState[] | null>(null);
 	useEffect(() => {
-		const now = new Set(runs.filter((run) => run.status === 'running').map((run) => run.id));
-		const finished = [...running.current].some((id) => !now.has(id));
-		running.current = now;
+		const finished = runsFinishedSince(previous.current, runs);
+		previous.current = runs;
 		if (finished) void queryClient.invalidateQueries({ queryKey: queryKeys.integrations[provider].conflictsAll });
 	}, [provider, queryClient, runs]);
 }

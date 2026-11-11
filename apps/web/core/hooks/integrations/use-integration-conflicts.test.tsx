@@ -21,6 +21,8 @@ import { asanaIntegrationService } from '@/core/services/client/api/integrations
 import { linearIntegrationService } from '@/core/services/client/api/integrations/linear.service';
 import {
 	CONFLICTS_PAGE,
+	runsFinishedSince,
+	sameListBesidesTake,
 	useConflictsAfterRuns,
 	useIntegrationConflicts,
 	type IntegrationConflictsOptions
@@ -231,5 +233,60 @@ describe('useIntegrationConflicts', () => {
 			]
 		});
 		expect(invalidate).not.toHaveBeenCalled();
+	});
+
+	it('another filter never shows the last list while it is read', async () => {
+		linear.conflicts.mockResolvedValueOnce([conflict({ runId: 'run-1' })]);
+		const { result, rerender } = setup();
+		await waitFor(() => expect(result.current.conflicts).toHaveLength(1));
+
+		let answer: (value: IIntegrationSyncConflict[]) => void = () => undefined;
+		linear.conflicts.mockReturnValueOnce(new Promise((resolve) => (answer = resolve)));
+		rerender({ provider: 'linear', integrationId: 'int-1', status: 'open', runId: 'run-2' });
+		expect(result.current.conflicts).toHaveLength(0);
+		expect(result.current.isLoading).toBe(true);
+		await act(async () => answer([conflict({ id: 'c-2', runId: 'run-2' })]));
+		await waitFor(() => expect(result.current.conflicts.map((item) => item.id)).toEqual(['c-2']));
+	});
+
+	it("restoring the task's value reads the tasks again", async () => {
+		linear.conflicts.mockResolvedValue([conflict()]);
+		linear.resolveConflict.mockResolvedValue(conflict({ status: 'resolved' }));
+		const { result, client } = setup();
+		await waitFor(() => expect(result.current.conflicts).toHaveLength(1));
+		const invalidate = jest.spyOn(client, 'invalidateQueries');
+
+		await act(() => result.current.resolve('c-1', 'external'));
+		expect(invalidate).not.toHaveBeenCalledWith({ queryKey: ['tasks'] });
+		await act(() => result.current.resolve('c-1', 'platform'));
+		expect(invalidate).toHaveBeenCalledWith({ queryKey: ['tasks'] });
+	});
+
+	it('tells the same list at another page size from another list', () => {
+		expect(
+			sameListBesidesTake(
+				['i', 'linear', 'conflicts', 'open', null, 50],
+				['i', 'linear', 'conflicts', 'open', null, 100]
+			)
+		).toBe(true);
+		expect(
+			sameListBesidesTake(
+				['i', 'linear', 'conflicts', 'open', null, 50],
+				['i', 'linear', 'conflicts', 'open', 'run-2', 50]
+			)
+		).toBe(false);
+	});
+
+	it('a run that started and ended between two reads counts as finished when it found conflicts', () => {
+		expect(runsFinishedSince(null, [{ id: 'r1', status: 'done', conflictCount: 3 }])).toBe(false);
+		expect(runsFinishedSince([], [{ id: 'r1', status: 'done', conflictCount: 3 }])).toBe(true);
+		expect(runsFinishedSince([], [{ id: 'r1', status: 'done', conflictCount: 0 }])).toBe(false);
+		expect(runsFinishedSince([{ id: 'r1', status: 'running' }], [])).toBe(true);
+		expect(
+			runsFinishedSince(
+				[{ id: 'r1', status: 'done', conflictCount: 3 }],
+				[{ id: 'r1', status: 'done', conflictCount: 3 }]
+			)
+		).toBe(false);
 	});
 });
