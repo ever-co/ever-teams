@@ -3,17 +3,22 @@
 import React from 'react';
 import { render, screen } from '@testing-library/react';
 
-type MoveTask = (task: { id: string }, status: { id: string }, index: number) => void;
+type MoveTask = (task: { id: string; taskStatusId?: string }, status: { id: string }, index: number) => void;
 
 const mockMoveTask = jest.fn();
 const mockWarning = jest.fn();
 const mockRefetch = jest.fn();
-let mockLanes = { isLoading: false, isError: false, statuses: [{ id: 's1' }] as Array<{ id: string }> };
+let mockLanes = {
+	isLoading: false,
+	isError: false,
+	statuses: [{ id: 's1' }] as Array<{ id: string }>,
+	lanes: [] as Array<{ status: { id: string }; tasks: Array<{ id: string }> }>
+};
 let mockBoardMove: MoveTask | null = null;
 
 jest.mock('@/core/hooks/tasks/use-kanban-lanes', () => ({
 	useKanbanLanes: () => ({
-		lanes: [],
+		lanes: mockLanes.lanes,
 		statuses: mockLanes.statuses,
 		isLoading: mockLanes.isLoading,
 		isError: mockLanes.isError,
@@ -57,7 +62,7 @@ jest.mock('./team-tasks-states', () => ({
 
 import { TeamTasksBoard } from './team-tasks-board';
 
-function renderBoard() {
+function renderBoard(moveInSavedOrder?: jest.Mock) {
 	const view = {
 		groups: [{ key: 'all', tasks: [{ id: 't1' }, { id: 't2' }] }],
 		selectedIds: new Set<string>(),
@@ -68,7 +73,8 @@ function renderBoard() {
 		openTask: jest.fn(),
 		openPicker: jest.fn(),
 		openMenu: jest.fn(),
-		createTaskInGroup: jest.fn()
+		createTaskInGroup: jest.fn(),
+		moveTask: moveInSavedOrder
 	};
 	return render(<TeamTasksBoard view={view} commands={commands} />);
 }
@@ -77,7 +83,7 @@ describe('a view shown as a board', () => {
 	beforeEach(() => {
 		mockMoveTask.mockClear();
 		mockWarning.mockClear();
-		mockLanes = { isLoading: false, isError: false, statuses: [{ id: 's1' }] };
+		mockLanes = { isLoading: false, isError: false, statuses: [{ id: 's1' }], lanes: [] };
 	});
 
 	it("moves a task of the active team, and refuses one of another team onto this team's statuses", () => {
@@ -89,13 +95,33 @@ describe('a view shown as a board', () => {
 		expect(mockMoveTask).toHaveBeenCalledWith({ id: 't1' }, { id: 's1' }, 0);
 	});
 
+	it('saves a card moved inside its lane in a view ordered by hand, and only there', () => {
+		mockLanes.lanes = [{ status: { id: 's1' }, tasks: [{ id: 't1' }, { id: 't3' }, { id: 't4' }] }];
+		const moveInSavedOrder = jest.fn();
+		const { unmount } = renderBoard(moveInSavedOrder);
+
+		mockBoardMove?.({ id: 't1', taskStatusId: 's1' }, { id: 's1' }, 1);
+		expect(mockMoveTask).toHaveBeenCalledTimes(1);
+		expect(moveInSavedOrder).toHaveBeenCalledWith({ taskId: 't1', targetId: 't3', edge: 'after' });
+
+		// To another lane: a status change, no move of the saved order
+		mockBoardMove?.({ id: 't1', taskStatusId: 's2' }, { id: 's1' }, 0);
+		expect(moveInSavedOrder).toHaveBeenCalledTimes(1);
+		unmount();
+
+		// Not ordered by hand (no move command): the board alone
+		renderBoard();
+		mockBoardMove?.({ id: 't1', taskStatusId: 's1' }, { id: 's1' }, 1);
+		expect(mockMoveTask).toHaveBeenCalledTimes(3);
+	});
+
 	it('waits for the statuses, and offers a retry when they could not be read', () => {
-		mockLanes = { isLoading: true, isError: false, statuses: [] };
+		mockLanes = { isLoading: true, isError: false, statuses: [], lanes: [] };
 		const { unmount } = renderBoard();
 		expect(screen.getByTestId('skeleton')).toBeTruthy();
 		unmount();
 
-		mockLanes = { isLoading: false, isError: true, statuses: [] };
+		mockLanes = { isLoading: false, isError: true, statuses: [], lanes: [] };
 		renderBoard();
 		screen.getByText('error').click();
 		expect(mockRefetch).toHaveBeenCalledTimes(1);

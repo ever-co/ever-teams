@@ -14,6 +14,19 @@ export interface TaskOrderMove {
 	edge: TaskOrderEdge;
 }
 
+/**
+ * A card dropped at `toIndex` of its own board lane, as a move of the view's manual order: right after the card it
+ * now follows, or right before the one it now leads. Null when the lane has no other card.
+ */
+export function laneMoveOf(laneIds: readonly string[], taskId: string, toIndex: number): TaskOrderMove | null {
+	const others = laneIds.filter((id) => id !== taskId);
+	const index = Math.max(0, Math.min(toIndex, others.length));
+	if (index > 0) {
+		return { taskId, targetId: others[index - 1], edge: 'after' };
+	}
+	return others.length > 0 ? { taskId, targetId: others[0], edge: 'before' } : null;
+}
+
 /** A step the row's menu moves a task by, inside its group. */
 export type TaskOrderStep = 'up' | 'down' | 'top' | 'bottom';
 

@@ -13,6 +13,7 @@ import type { TeamTasksViewState } from '@/core/hooks/tasks/use-team-tasks-view'
 import { laneRangeIds } from '@/core/lib/utils/kanban-board';
 import { tasksByTeamState } from '@/core/stores';
 import { tasksOfGroups } from '@/core/lib/utils/team-tasks-view';
+import { laneMoveOf } from '@/core/lib/utils/task-view-order';
 import type { TTaskStatus } from '@/core/types/schemas';
 import type { TTask } from '@/core/types/schemas/task/task.schema';
 import { KanbanBoard } from '../../../../kanban/board/kanban-board';
@@ -52,7 +53,7 @@ export function TeamTasksBoard({
 	const [anchorId, setAnchorId] = useState<string | null>(null);
 	const { bindings } = useKeyboardPreferences();
 	const { selectedIds, toggleSelected, setManySelected } = view;
-	const { openTask, createTaskInGroup, openPicker } = commands;
+	const { openTask, createTaskInGroup, openPicker, moveTask: moveInSavedOrder } = commands;
 
 	// The lanes are the active team's statuses: a task of another team (a built-in view lists the person's tasks of
 	// every team) changes its status from the task itself, never to a status of this team.
@@ -62,9 +63,23 @@ export function TeamTasksBoard({
 				toast.warning(t('pages.kanban.OTHER_TEAM_MOVE'), { id: 'board-other-team-move' });
 				return;
 			}
+			// A view ordered by hand keeps a card moved inside its lane: the move goes to its saved order, as a row's does
+			const lane =
+				task.taskStatusId === toStatus.id ? lanes.find((each) => each.status.id === toStatus.id) : null;
+			const savedMove =
+				lane && moveInSavedOrder
+					? laneMoveOf(
+							lane.tasks.map(({ id }) => id),
+							task.id,
+							toIndex
+						)
+					: null;
 			moveTask(task, toStatus, toIndex);
+			if (savedMove) {
+				moveInSavedOrder?.(savedMove);
+			}
 		},
-		[moveTask, t, teamTaskIds]
+		[lanes, moveInSavedOrder, moveTask, t, teamTaskIds]
 	);
 
 	const actions = useMemo<KanbanBoardActions>(

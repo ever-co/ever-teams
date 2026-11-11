@@ -1,4 +1,5 @@
 import {
+	laneMoveOf,
 	groupTaskIdsOf,
 	orderAfterMove,
 	sortByManualOrder,
@@ -172,5 +173,14 @@ describe('the list in a manual order', () => {
 		expect(viewSettingsFromStorage({ ordering: 'manual' }).ordering).toBe(DEFAULT_TEAM_TASKS_VIEW.ordering);
 		expect(viewSettingsFromStorage({ ordering: 'manual' }, SAVED_VIEW_ORDERINGS).ordering).toBe('manual');
 		expect(definitionOf({ displayOptions: { ordering: 'manual' } }).settings.ordering).toBe('manual');
+	});
+});
+
+describe('laneMoveOf', () => {
+	it('puts a card dropped in its own lane after the card it follows, or before the one it leads', () => {
+		expect(laneMoveOf(['a', 'b', 'c'], 'a', 2)).toEqual({ taskId: 'a', targetId: 'c', edge: 'after' });
+		expect(laneMoveOf(['a', 'b', 'c'], 'c', 0)).toEqual({ taskId: 'c', targetId: 'a', edge: 'before' });
+		expect(laneMoveOf(['a', 'b'], 'a', 9)).toEqual({ taskId: 'a', targetId: 'b', edge: 'after' });
+		expect(laneMoveOf(['a'], 'a', 0)).toBeNull();
 	});
 });
