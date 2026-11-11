@@ -180,10 +180,17 @@ export function useChatActions() {
 		[send]
 	);
 
+	/**
+	 * Drops a message that was not sent. Its files go too, best effort: the platform discards only a file no message
+	 * carries, so one the send did store after all (an answer lost on the way back) stays with its message.
+	 */
 	const discardFailed = useCallback(
 		(conversationId: string, failed: ChatOutboxMessage) => {
 			patchMessages(conversationId, (messages) => messages.filter((m) => m.id !== failed.id));
 			patchThread(failed.threadRootId, (page) => ({ ...page, messages: page.messages.filter((m) => m.id !== failed.id) }));
+			for (const documentId of new Set((failed.attachmentIds ?? []).map(String))) {
+				chatService.discardAttachment(documentId).catch(() => undefined);
+			}
 		},
 		[patchMessages, patchThread]
 	);
