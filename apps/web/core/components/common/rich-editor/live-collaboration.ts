@@ -1,3 +1,4 @@
+// cspell:ignore Prosemirror
 import { generateHTML, type Extensions, type JSONContent } from '@tiptap/core';
 import Collaboration from '@tiptap/extension-collaboration';
 import { yXmlFragmentToProsemirrorJSON } from '@tiptap/y-tiptap';
