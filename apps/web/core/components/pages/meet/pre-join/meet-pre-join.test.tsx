@@ -148,6 +148,34 @@ describe('MeetPreJoin', () => {
 		expect(onJoin).toHaveBeenCalledWith(expect.objectContaining({ audioEnabled: true, videoEnabled: false }));
 	});
 
+	it('joins with both devices off on a computer that has neither, and keeps the saved choices for next time', async () => {
+		const notFound = Object.assign(new Error('Requested device not found'), { name: 'NotFoundError' });
+		installDevices(jest.fn(() => Promise.reject(notFound)));
+		const { onJoin } = renderPreJoin();
+
+		expect(await screen.findByText('meetings.DEVICES_MISSING')).toBeTruthy();
+		fireEvent.click(screen.getByTestId('meet-join-now'));
+
+		expect(onJoin).toHaveBeenCalledWith(expect.objectContaining({ audioEnabled: false, videoEnabled: false }));
+		expect(screen.getByRole('button', { name: 'meetings.TURN_MIC_OFF' })).toBeTruthy();
+		expect(screen.getByRole('button', { name: 'meetings.TURN_CAMERA_OFF' })).toBeTruthy();
+		expect(window.localStorage.getItem('ever-teams:meeting-devices')).toBeNull();
+	});
+
+	it('joins without the microphone when it was the only device asked for and the computer has none', async () => {
+		window.localStorage.setItem('ever-teams:meeting-devices', JSON.stringify({ videoEnabled: false }));
+		const notFound = Object.assign(new Error('Requested device not found'), { name: 'NotFoundError' });
+		const getUserMedia = jest.fn(() => Promise.reject(notFound));
+		installDevices(getUserMedia);
+		const { onJoin } = renderPreJoin();
+
+		expect(await screen.findByText('meetings.DEVICES_MISSING')).toBeTruthy();
+		expect(getUserMedia).toHaveBeenCalledWith({ audio: true, video: false });
+		fireEvent.click(screen.getByTestId('meet-join-now'));
+
+		expect(onJoin).toHaveBeenCalledWith(expect.objectContaining({ audioEnabled: false, videoEnabled: false }));
+	});
+
 	it('stops every track when the screen goes away, so the camera never stays on behind the room', async () => {
 		installDevices();
 		const { unmount } = renderPreJoin();

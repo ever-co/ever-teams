@@ -122,11 +122,14 @@ export function MeetPreJoin({ title, displayName, onJoin, onBack, onCopyLink }: 
 	}, [hasVideo, stream]);
 
 	const join = () => {
+		// None of the devices asked for was found: the request names no single one, so both stay off
+		const isNothingFound = access === 'missing';
 		onJoin({
 			...choices,
-			// A device the computer does not have stays off in the room, which would fail to open it
-			audioEnabled: choices.audioEnabled && !preview.missing.audio,
-			videoEnabled: choices.videoEnabled && !preview.missing.video,
+			// A device the computer does not have stays off in the room, which would fail to open it. Only this
+			// meeting: the saved choices keep what the person picked, for a computer that has the device next time.
+			audioEnabled: choices.audioEnabled && !preview.missing.audio && !isNothingFound,
+			videoEnabled: choices.videoEnabled && !preview.missing.video && !isNothingFound,
 			displayName,
 			audioInputLabel: preview.labelOf('audioinput', choices.audioInputId),
 			videoInputLabel: preview.labelOf('videoinput', choices.videoInputId),
