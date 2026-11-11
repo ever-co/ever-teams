@@ -2,6 +2,7 @@
 
 import { memo, useMemo, type ReactNode } from 'react';
 import { useTranslations } from 'next-intl';
+import { ActivityIcon } from '@/core/components/activities/activity-icon';
 import { MetricStrip, type MetricItem } from '@/core/components/dashboards/kit/metric-strip';
 import { ShareBar, ShareRows } from '@/core/components/dashboards/kit/share-rows';
 import {
@@ -175,13 +176,14 @@ function ProductivityNote() {
 	return <p className="text-xs text-muted-foreground">{t('dashboard.PRODUCTIVITY_SPLIT_UNAVAILABLE')}</p>;
 }
 
-function ShareTitleName({ title, untitledLabel }: Readonly<{ title: string; untitledLabel: string }>) {
-	if (!title) {
+function ShareTitleName({ total, untitledLabel }: Readonly<{ total: TitleTotal; untitledLabel: string }>) {
+	if (!total.title) {
 		return <span className="truncate text-muted-foreground">{untitledLabel}</span>;
 	}
 	return (
-		<span className="truncate" title={title}>
-			{title}
+		<span className="flex min-w-0 items-center gap-2" title={total.title}>
+			<ActivityIcon title={total.title} kind={total.kind} url={total.url} />
+			<span className="truncate">{total.title}</span>
 		</span>
 	);
 }
@@ -253,7 +255,7 @@ export const AppsUrlsSummary = memo(function AppsUrlsSummary({
 						<ShareRows
 							rows={rankedRows}
 							className="hairline-t border-border"
-							renderName={(total) => <ShareTitleName title={total.title} untitledLabel={untitledLabel} />}
+							renderName={(total) => <ShareTitleName total={total} untitledLabel={untitledLabel} />}
 							formatValue={formatDurationShort}
 							otherLabel={(count) => t('dashboard.appsUrls.OTHER_TITLES', { count })}
 						/>

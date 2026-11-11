@@ -486,6 +486,10 @@ export const queryKeys = {
 			['chat', 'files', tenantId ?? null, conversationId ?? null] as const
 	},
 
+	// The preview of a link, one per link and kept for the session. Outside the `chat` prefix on purpose: the live
+	// channel invalidates `['chat']` on every change, and no message event changes what a page says about itself.
+	chatLinkPreview: (tenantId: string | undefined | null, url: string) => ['chat-link-preview', tenantId ?? null, url] as const,
+
 	taskComments: {
 		all: ['task-comments'] as const,
 		byTask: (
@@ -992,6 +996,13 @@ export const queryKeys = {
 		liveCollaboration: ['live-collaboration'] as const
 	},
 
+	// Meetings the signed-in member scheduled (Ever Gauzy employee appointments)
+	meetings: {
+		all: ['meetings'] as const,
+		scheduled: (employeeId: string | undefined | null) =>
+			['meetings', 'scheduled', ...(employeeId ? [employeeId] : [])] as const
+	},
+
 	timeLogs: {
 		all: ['time-logs'] as const,
 		dailyReport: {
@@ -1082,6 +1093,9 @@ export const queryKeys = {
 		spaces: (tenantId: string | undefined | null, organizationId: string | undefined | null, userId: string | undefined | null) =>
 			['docs', 'spaces', tenantId ?? null, organizationId ?? null, userId ?? null] as const,
 		follow: (tenantId: string | undefined | null, userId: string | undefined | null, pageId: string | undefined | null) =>
-			['docs', 'follow', tenantId ?? null, userId ?? null, pageId ?? null] as const
+			['docs', 'follow', tenantId ?? null, userId ?? null, pageId ?? null] as const,
+		/** The platform's comments on the page (entity `Document`), block threads and page comments alike. */
+		comments: (tenantId: string | undefined | null, organizationId: string | undefined | null, pageId: string | undefined | null) =>
+			['docs', 'comments', tenantId ?? null, organizationId ?? null, pageId ?? null] as const
 	}
 };

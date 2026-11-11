@@ -57,3 +57,12 @@ export interface ITagCreate {
 	tenantId?: string | undefined | null;
 	organizationTeamId?: string;
 }
+
+/** What Gauzy's `POST /tags/bulk` answers: one outcome per item, by its index in the request. */
+export interface ITagBulkResult {
+	succeededCount: number;
+	failedCount: number;
+	total: number;
+	succeeded: ReadonlyArray<{ index: number; id?: string }>;
+	failed: ReadonlyArray<{ index: number; code: string; message: string }>;
+}

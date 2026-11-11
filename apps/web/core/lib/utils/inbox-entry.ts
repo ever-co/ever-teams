@@ -8,6 +8,8 @@ import {
 	INBOX_NOTIFICATION_EXTERNAL_SOURCE
 } from '@/core/types/interfaces/common/inbox-item';
 import { readRuntimeEnv } from '@/env-config';
+import { docsInboxHrefOf, isDocsInboxEntry } from './docs-links';
+import { isDocsEnabled } from './docs-enabled';
 import { NotificationEntry, quotedSubjectOf, senderNameFromTitle } from './notification-inbox';
 
 /** The families an entry is grouped and filtered by. */
@@ -82,10 +84,15 @@ function dateOf(value: string | null | undefined): Date | null {
 }
 
 /** Which family an item belongs to, from its kind, source and the record it points at. */
-export function sourceGroupOf(item: Pick<IInboxItem, 'kind' | 'source' | 'entity' | 'taskId'>, type: EEmployeeNotificationType | null): InboxSourceGroup {
+export function sourceGroupOf(
+	item: Pick<IInboxItem, 'kind' | 'source' | 'entity' | 'taskId'> & { metadata?: Record<string, unknown> | null },
+	type: EEmployeeNotificationType | null
+): InboxSourceGroup {
 	if (item.kind === EInboxItemKind.Email || item.source === EInboxItemSource.Email) return 'email';
 	if (item.source === EInboxItemSource.EverWorks) return 'integrations';
 	const entity = String(item.entity ?? '');
+	// A comment on a page (the platform names its record in the metadata) is a Docs entry, not a task's.
+	if (!item.taskId && isDocsInboxEntry(entity, item.metadata ?? null)) return 'docs';
 	if (item.taskId || entity === EBaseEntityEnum.Task || entity === 'Comment') return 'tasks';
 	if (entity === 'ChatMessage' || entity === 'ChatConversation' || type === EEmployeeNotificationType.Message) return 'chat';
 	if (entity === 'Document' || entity === 'DocumentLink') return 'docs';
@@ -133,10 +140,15 @@ export function showsInboxSheet(entry: Pick<InboxEntry, 'taskId' | 'href' | 'cha
 	return !!entry.decision || !hasInboxTarget(entry, chatPages);
 }
 
-function hrefOf(type: EEmployeeNotificationType | null, entry: Pick<InboxEntry, 'entity' | 'entityId'>): string | null {
+function hrefOf(type: EEmployeeNotificationType | null, entry: Pick<InboxEntry, 'entity' | 'entityId'>, metadata: Record<string, unknown> | null = null): string | null {
 	if (type === EEmployeeNotificationType.RateChangeRequest) return RATE_CHANGE_REQUEST_HREF;
 	// Without the chat pages a conversation has nowhere to open: the entry is not a link.
 	if (entry.entity === 'ChatConversation' && entry.entityId && hasChatPages()) return `/chat/${entry.entityId}`;
+	// A page, or a comment on one (its thread), opens in Docs where the deployment has it.
+	if (isDocsEnabled()) {
+		const docsHref = docsInboxHrefOf(entry.entity, entry.entityId, metadata, type === EEmployeeNotificationType.Comment);
+		if (docsHref) return docsHref;
+	}
 	return null;
 }
 
@@ -248,7 +260,7 @@ export function toInboxEntry(item: IInboxItem): InboxEntry {
 			String(item.status ?? '') === 'OPEN',
 		decision: decisionOf(item)
 	};
-	entry.href = hrefOf(type, entry);
+	entry.href = hrefOf(type, entry, metadata);
 	return entry;
 }
 

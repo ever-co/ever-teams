@@ -17,8 +17,10 @@ import { ChatPerson } from '@/core/lib/utils/chat-format';
 import { clockTime, fullDateTime, relativeTime, shortClockTime } from '@/core/lib/utils/chat-timeline';
 import { ChatOutboxMessage, isOutboxMessage } from '@/core/hooks/chat/use-chat-actions';
 import { attachmentIdsOf, isFallbackBody } from '@/core/lib/utils/chat-attachments';
+import { isChatLinkPreviewsEnabled } from '@/core/lib/utils/chat-enabled';
 import { IChatFile, IChatMessage } from '@/core/types/interfaces/common/chat';
 import { MessageAttachments } from './chat-attachments';
+import { MessageLinkPreviews } from './chat-link-preview';
 import { ChatMarkdown } from './chat-markdown';
 import { EmojiPopover } from './emoji-popover';
 
@@ -199,6 +201,8 @@ function MessageItemComponent(props: Readonly<MessageItemProps>) {
 							)}
 						</>
 					)}
+					{/* The cards of its links, once it is sent (with the flag on; the platform fetched the pages). */}
+					{!deleted && !outbox && !bodyIsFileNames && isChatLinkPreviewsEnabled() && <MessageLinkPreviews body={message.body} />}
 					{attachmentIds.length > 0 && (
 						<div className={cn(outbox?.outbox === 'pending' && 'opacity-60')}>
 							<MessageAttachments attachmentIds={attachmentIds} files={files} onOpenImage={props.onOpenImage ?? IGNORE} onBrokenImage={props.onBrokenImage} />

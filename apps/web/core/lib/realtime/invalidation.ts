@@ -75,6 +75,10 @@ export function invalidationsFor(envelope: RealtimeEnvelope, scope: RealtimeScop
 			if (parent?.entity === 'Task') {
 				return [{ queryKey: queryKeys.taskComments.byTask(scope.tenantId, scope.organizationId, parent.entityId), deferrable: true }];
 			}
+			// A Docs page's comments and block threads.
+			if (parent?.entity === 'Document') {
+				return [{ queryKey: queryKeys.docs.comments(scope.tenantId, scope.organizationId, parent.entityId), deferrable: true }];
+			}
 			return [{ queryKey: queryKeys.taskComments.all, deferrable: true }];
 		}
 		case 'mention':
