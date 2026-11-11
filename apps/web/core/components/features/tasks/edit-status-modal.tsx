@@ -33,7 +33,7 @@ const EditStatusModal = ({ status, onClose, setColumn }: { status: any; onClose:
 	const { setTaskStatuses } = useTaskStatusesQuery();
 	const [createNew] = useState(status);
 	const t = useTranslations();
-	const { register, handleSubmit, setValue, getValues } = useForm({
+	const { register, handleSubmit, setValue, control } = useForm({
 		defaultValues: {
 			name: status.name || '',
 			color: status.color || '',
@@ -113,7 +113,7 @@ const EditStatusModal = ({ status, onClose, setColumn }: { status: any; onClose:
 					/>
 
 					<div className="flex items-center gap-3">
-						<IconPopover kind="status" setValue={setValue as any} value={getValues('icon') || null} />
+						<IconPopover kind="status" control={control} setValue={setValue} />
 						<ColorPicker defaultColor={status.color} onChange={(e) => setValue('color', e)} />
 					</div>
 				</div>

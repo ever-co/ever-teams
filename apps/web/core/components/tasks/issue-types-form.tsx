@@ -19,7 +19,7 @@ import { useUserQuery } from '@/core/hooks/queries/user-user.query';
 export const IssueTypesForm = () => {
 	const t = useTranslations();
 	const { data: user } = useUserQuery();
-	const { register, setValue, handleSubmit, reset } = useForm();
+	const { register, setValue, handleSubmit, reset, control } = useForm();
 	const [createNew, setCreateNew] = useState(false);
 	const [edit, setEdit] = useState<IIssueType | null>(null);
 
@@ -118,7 +118,7 @@ export const IssueTypesForm = () => {
 											{...register('name')}
 										/>
 
-										<IconPopover kind="issueType" setValue={setValue} value={edit?.icon ?? null} />
+										<IconPopover kind="issueType" control={control} setValue={setValue} />
 
 										<ColorPicker
 											defaultColor={edit ? edit.color : undefined}

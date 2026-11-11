@@ -1,6 +1,7 @@
 import type { DottedLanguageObjectStringPaths } from 'next-intl';
 import {
 	statusTemplateKeyOf,
+	type IconGroup,
 	type StatusGroupId,
 	type StatusTemplateKey
 } from '@/core/lib/utils/settings-task-properties';
@@ -42,3 +43,10 @@ export const ICON_CATEGORY_LABEL_KEYS: Record<PropertyIconCategory, DottedLangua
 };
 
 export const CLASSIC_ICONS_LABEL_KEY: DottedLanguageObjectStringPaths = 'settings.taskProperties.iconGroups.classic';
+
+/** The property a classic icon was drawn for: `medium` is both a size and a priority icon. */
+export const CLASSIC_ICON_GROUP_LABEL_KEYS: Record<IconGroup, DottedLanguageObjectStringPaths> = {
+	'task-statuses': 'taskMenus.fields.status',
+	'task-sizes': 'taskMenus.fields.size',
+	'task-priorities': 'taskMenus.fields.priority'
+};

@@ -41,7 +41,7 @@ type StatusForm = {
 
 export const TaskSizesForm = ({ formOnly = false, onCreated }: StatusForm) => {
 	const { data: user } = useUserQuery();
-	const { register, setValue, handleSubmit, reset, getValues } = useForm();
+	const { register, setValue, handleSubmit, reset, getValues, control } = useForm();
 	const { taskSizes, loading } = useTaskSizesQuery();
 	const { createTaskSize, createTaskSizeLoading } = useCreateTaskSize();
 	const { editTaskSize, editTaskSizeLoading } = useEditTaskSize();
@@ -163,7 +163,7 @@ export const TaskSizesForm = ({ formOnly = false, onCreated }: StatusForm) => {
 									/>
 
 									<div className={PICKER}>
-										<IconPopover kind="size" setValue={setValue} value={edit?.icon ?? null} />
+										<IconPopover kind="size" control={control} setValue={setValue} />
 									</div>
 
 									<div className={PICKER}>

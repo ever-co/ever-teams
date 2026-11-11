@@ -17,7 +17,7 @@ import {
 	propertyIconOptions,
 	type TaskPropertySettingsKind
 } from '@/core/lib/utils/settings-task-properties';
-import { CLASSIC_ICONS_LABEL_KEY, ICON_CATEGORY_LABEL_KEYS } from './property-i18n';
+import { CLASSIC_ICON_GROUP_LABEL_KEYS, CLASSIC_ICONS_LABEL_KEY, ICON_CATEGORY_LABEL_KEYS } from './property-i18n';
 
 const GROUP_LABEL = 'px-2 pt-1.5 pb-1 text-xs font-medium text-muted-foreground';
 const ICON_GRID = 'grid grid-cols-7 gap-0.5 px-1 pb-1';
@@ -94,7 +94,8 @@ export function PropertyIconPanel({ kind, value, onPick }: Readonly<PropertyIcon
 						<p className={GROUP_LABEL}>{classicLabel}</p>
 						<div className={ICON_GRID}>
 							{visibleClassicOptions.map((option) => {
-								const name = iconOptionLabel(option);
+								// Named with its property: `in progress` is also a library icon, `medium` a size and a priority
+								const name = `${iconOptionLabel(option)} (${t(CLASSIC_ICON_GROUP_LABEL_KEYS[option.group])})`;
 								const glyph = classicIconGlyphOf(option.path);
 								return (
 									<button

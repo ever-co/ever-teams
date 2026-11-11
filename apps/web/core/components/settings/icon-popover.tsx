@@ -1,37 +1,40 @@
 'use client';
 
-import { useState } from 'react';
-import type { FieldValues, UseFormSetValue } from 'react-hook-form';
+import {
+	useWatch,
+	type Control,
+	type FieldValues,
+	type Path,
+	type PathValue,
+	type UseFormSetValue
+} from 'react-hook-form';
 import type { TaskPropertySettingsKind } from '@/core/lib/utils/settings-task-properties';
 import { PropertyIconPicker } from './pages/task-properties/property-icon-picker';
 
-interface IconPopoverProps {
-	setValue: UseFormSetValue<FieldValues>;
+interface IconPopoverProps<TForm extends FieldValues> {
+	/** The form whose `icon` field the picker shows. */
+	control: Control<TForm>;
+	setValue: UseFormSetValue<TForm>;
 	kind: TaskPropertySettingsKind;
-	/** The icon the form starts from: the edited property's, or the one its status type brings. */
-	value?: string | null;
 }
 
 /**
  * The icon field of the task property forms (task bar, task details, edit status): the same picker as the settings
- * pages, writing the chosen icon into the form's `icon` field.
+ * pages, bound to the form's `icon` field. It shows what the form holds, never a copy of its own: after a reset, an
+ * edited property loading or a status type bringing its icon, the picker shows the icon the form will send.
  */
-const IconPopover = ({ setValue, kind, value = null }: IconPopoverProps) => {
-	const [picked, setPicked] = useState<string | null>(value);
-	const [startValue, setStartValue] = useState<string | null>(value);
+function IconPopover<TForm extends FieldValues>({ control, setValue, kind }: Readonly<IconPopoverProps<TForm>>) {
+	const name = 'icon' as Path<TForm>;
+	// Watched here, not in the form: a pick re-renders the picker only
+	const icon: unknown = useWatch({ control, name });
 
-	// Another property, or another status type, brings its own icon
-	if (value !== startValue) {
-		setStartValue(value);
-		setPicked(value);
-	}
-
-	const pick = (icon: string) => {
-		setPicked(icon);
-		setValue('icon', icon);
-	};
-
-	return <PropertyIconPicker kind={kind} value={picked} onChange={pick} />;
-};
+	return (
+		<PropertyIconPicker
+			kind={kind}
+			value={typeof icon === 'string' && icon ? icon : null}
+			onChange={(picked) => setValue(name, picked as PathValue<TForm, Path<TForm>>)}
+		/>
+	);
+}
 
 export default IconPopover;

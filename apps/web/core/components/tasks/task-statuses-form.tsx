@@ -45,7 +45,7 @@ type StatusForm = {
 
 export const TaskStatusesForm = ({ formOnly = false, onCreated }: StatusForm) => {
 	const { data: user } = useUserQuery();
-	const { register, setValue, handleSubmit, reset, getValues } = useForm();
+	const { register, setValue, handleSubmit, reset, getValues, control } = useForm();
 	const [createNew, setCreateNew] = useState(formOnly);
 	const [edit, setEdit] = useState<TTaskStatus | null>(null);
 	const t = useTranslations();
@@ -162,7 +162,8 @@ export const TaskStatusesForm = ({ formOnly = false, onCreated }: StatusForm) =>
 	const tasks = useAtomValue(tasksByTeamState);
 
 	/**
-	 * Get Icon by status name
+	 * Get Icon by status name. A lookup only: the form takes the icon when a status type is picked, not on render,
+	 * so an icon picked after the type is kept.
 	 *
 	 * @param {string} iconName - Name of the icon
 	 * @returns {IIcon} - Icon of the status
@@ -177,14 +178,9 @@ export const TaskStatusesForm = ({ formOnly = false, onCreated }: StatusForm) =>
 
 			const name = STATUS_MAPPINGS[iconName] || iconName;
 
-			const icon = iconList.find((icon) => icon.title === name);
-
-			if (icon) {
-				setValue('icon', icon.path);
-			}
-			return icon;
+			return iconList.find((icon) => icon.title === name) ?? null;
 		},
-		[iconList, setValue]
+		[iconList]
 	);
 
 	/**
@@ -267,20 +263,17 @@ export const TaskStatusesForm = ({ formOnly = false, onCreated }: StatusForm) =>
 										onValueChange={(status) => {
 											setValue('template', status);
 											setSelectedStatusType(status);
+											// The type brings its icon once; the picker shows what the form holds
+											const typeIcon = getIcon(status);
+											if (typeIcon) {
+												setValue('icon', typeIcon.path);
+											}
 										}}
 										className="h-9 shrink-0"
 										defaultValue={edit?.value}
 									/>
 									<div className={PICKER}>
-										<IconPopover
-											kind="status"
-											setValue={setValue}
-											value={
-												selectedStatusType
-													? (getIcon(selectedStatusType)?.path ?? null)
-													: (edit?.icon ?? null)
-											}
-										/>
+										<IconPopover kind="status" control={control} setValue={setValue} />
 									</div>
 									<div className={PICKER}>
 										<ColorPicker

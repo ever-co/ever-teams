@@ -41,7 +41,7 @@ type StatusForm = {
 
 export const TaskPrioritiesForm = ({ formOnly = false, onCreated }: StatusForm) => {
 	const { data: user } = useUserQuery();
-	const { register, setValue, handleSubmit, reset, getValues } = useForm();
+	const { register, setValue, handleSubmit, reset, getValues, control } = useForm();
 	const [createNew, setCreateNew] = useState(formOnly);
 	const [edit, setEdit] = useState<TTaskPriority | null>(null);
 	const t = useTranslations();
@@ -161,7 +161,7 @@ export const TaskPrioritiesForm = ({ formOnly = false, onCreated }: StatusForm) 
 									/>
 
 									<div className={PICKER}>
-										<IconPopover kind="priority" setValue={setValue} value={edit?.icon ?? null} />
+										<IconPopover kind="priority" control={control} setValue={setValue} />
 									</div>
 
 									<div className={PICKER}>

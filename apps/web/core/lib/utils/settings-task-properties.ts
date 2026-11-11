@@ -245,7 +245,7 @@ export const STATUS_GROUP_GLYPH: Record<StatusGroupId, string> = {
 	other: 'backlog'
 };
 
-type IconGroup = 'task-statuses' | 'task-sizes' | 'task-priorities';
+export type IconGroup = 'task-statuses' | 'task-sizes' | 'task-priorities';
 
 export interface PropertyIconOption {
 	group: IconGroup;
