@@ -18,6 +18,7 @@ import { isTaskViewsEnabled } from '@/core/lib/utils/task-views-enabled';
 import { ETaskViewVisibility, TASK_BUILT_IN_VIEWS } from '@/core/types/interfaces/common/task-views';
 import { DeleteViewDialog } from './delete-view-dialog';
 import { SaveViewDialog } from './save-view-dialog';
+import { NEW_VIEW_PATH } from './use-new-view-request';
 import { useSavedViewListCommands } from './use-saved-view-list-commands';
 import { ViewsBreadcrumb } from './views-breadcrumb';
 import {
@@ -28,9 +29,6 @@ import {
 	SavedViewsSkeleton,
 	ViewsSectionTitle
 } from './views-index-parts';
-
-/** Where a new view starts: the team's tasks, with the dialog that names it open. */
-export const NEW_VIEW_PATH = '/team/tasks?saveView=1';
 
 function ViewsSearchField({ value, onChange }: Readonly<{ value: string; onChange: (value: string) => void }>) {
 	const t = useTranslations();

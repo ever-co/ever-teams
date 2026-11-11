@@ -1,7 +1,7 @@
 'use client';
 
 import { Suspense, useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { useParams, useRouter, useSearchParams } from 'next/navigation';
+import { useParams } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 import { useAtomValue, useSetAtom } from 'jotai';
 import { PageLayout } from '@/core/components/layouts/default-layout';
@@ -47,6 +47,7 @@ import {
 import { TeamTasksListSkeleton, TeamTasksToolbarSkeleton } from '../team-tasks-page-skeleton';
 import { DeleteViewDialog } from '../views/delete-view-dialog';
 import { SaveViewDialog } from '../views/save-view-dialog';
+import { useNewViewRequest } from '../views/use-new-view-request';
 import { TaskViewToolbarActions } from '../views/task-view-toolbar-actions';
 import { useSavedViewCommands } from '../views/use-saved-view-commands';
 import { builtInViewLabelKey } from '@/core/lib/utils/task-views-index';
@@ -219,9 +220,7 @@ export function TeamTasksPage({ viewContext }: Readonly<{ viewContext?: TaskView
 	const showsViewActions = isTaskViewsEnabled() && !isBuiltIn;
 	const breadcrumbPaths = useTeamTasksBreadcrumb(viewTitle, viewPathOf(viewContext));
 	// "New view" of the views index lands here with the dialog that names the view open
-	const router = useRouter();
-	const searchParams = useSearchParams();
-	const opensNewView = !viewContext && searchParams?.get('saveView') === '1' && isTaskViewsEnabled();
+	const opensNewView = useNewViewRequest(Boolean(viewContext));
 	const savedViewCommands = useSavedViewCommands({
 		savedView,
 		isBuiltIn,
@@ -230,10 +229,6 @@ export function TeamTasksPage({ viewContext }: Readonly<{ viewContext?: TaskView
 		applyDefinition: view.applyDefinition,
 		initialDialog: opensNewView ? 'create' : null
 	});
-	const closeSaveDialog = () => {
-		savedViewCommands.setSaveDialog(null);
-		if (opensNewView) router.replace('/team/tasks');
-	};
 	useShortcutHandlers(savedViewCommands.listShortcuts, ['list']);
 
 	const grid = useMemo(() => teamTasksGridOf(view.settings), [view.settings]);
@@ -432,7 +427,7 @@ export function TeamTasksPage({ viewContext }: Readonly<{ viewContext?: TaskView
 				initialName={savedViewCommands.saveDialog === 'rename' && savedView ? savedView.name : ''}
 				initialVisibility={savedView?.visibility ?? ETaskViewVisibility.PERSONAL}
 				onSubmit={savedViewCommands.submitDialog}
-				onClose={closeSaveDialog}
+				onClose={() => savedViewCommands.setSaveDialog(null)}
 			/>
 			<DeleteViewDialog
 				name={savedViewCommands.isDeleteConfirmOpen && savedView ? savedView.name : null}

@@ -45,7 +45,8 @@ jest.mock('@/core/hooks/task-views/use-task-view-actions', () => {
 	};
 });
 
-import { NEW_VIEW_PATH, ViewsPage } from './views-page';
+import { NEW_VIEW_PATH } from './use-new-view-request';
+import { ViewsPage } from './views-page';
 
 const VIEWS: ITaskView[] = [
 	{
