@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import dynamic from 'next/dynamic';
 import { useTranslations } from 'next-intl';
 import { Popover, PopoverContent, PopoverTrigger } from '@/core/components/common/popover';
@@ -57,6 +57,13 @@ interface PropertyIconPickerProps {
 export function PropertyIconPicker({ kind, value, valueUrl, onChange }: Readonly<PropertyIconPickerProps>) {
 	const t = useTranslations();
 	const [isOpen, setIsOpen] = useState(false);
+	// Whether the picker is open as of its latest change: a pick that arrives once it closed (an upload ending while the
+	// popup plays its closing transition, its content still mounted) changes nothing
+	const isOpenRef = useRef(false);
+	const changeOpen = (open: boolean) => {
+		isOpenRef.current = open;
+		setIsOpen(open);
+	};
 
 	let triggerLabel = t('settings.taskProperties.ICON_CHOOSE');
 	if (value) {
@@ -66,12 +73,15 @@ export function PropertyIconPicker({ kind, value, valueUrl, onChange }: Readonly
 	}
 
 	const pick = (path: string) => {
+		if (!isOpenRef.current) {
+			return;
+		}
 		onChange(path);
-		setIsOpen(false);
+		changeOpen(false);
 	};
 
 	return (
-		<Popover open={isOpen} onOpenChange={setIsOpen}>
+		<Popover open={isOpen} onOpenChange={changeOpen}>
 			<PopoverTrigger asChild>
 				<button
 					type="button"
