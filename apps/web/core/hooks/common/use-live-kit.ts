@@ -10,6 +10,13 @@ export function useTokenLiveKit({ roomName }: ITokenLiveKitProps) {
 	const [issued, setIssued] = useState<{ room: string; token: string } | null>(null);
 	const [failure, setFailure] = useState<{ room: string; error: unknown } | null>(null);
 	const [attempt, setAttempt] = useState(0);
+	const [shownRoom, setShownRoom] = useState(roomName);
+
+	// Opening a room again starts from its new request, not from the failure of an earlier visit
+	if (shownRoom !== roomName) {
+		setShownRoom(roomName);
+		setFailure(null);
+	}
 
 	useEffect(() => {
 		if (!roomName) return;
@@ -28,6 +35,7 @@ export function useTokenLiveKit({ roomName }: ITokenLiveKitProps) {
 					return;
 				}
 				setIssued({ room: roomName, token: response.token });
+				setFailure(null);
 			} catch (error) {
 				console.error('Failed to fetch token:', error);
 				// A failure the room can show with a retry, instead of a spinner with no further request

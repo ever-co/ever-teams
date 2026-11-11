@@ -21,10 +21,11 @@ export function useMeetJwtToken(room?: string) {
 	const [retriedRoom, setRetriedRoom] = useState(room);
 	const { queryCall, loading } = useQueryCall(meetAuthService.getMeetJwtAuthToken);
 
-	// Another room starts with its own automatic retries
+	// Another room starts with its own automatic retries, and without the error of the room left behind
 	if (retriedRoom !== room) {
 		setRetriedRoom(room);
 		setRetryCount(0);
+		setError(undefined);
 	}
 
 	useEffect(() => {
@@ -73,5 +74,6 @@ export function useMeetJwtToken(room?: string) {
 	// A previous room's token would keep the user in the meeting they just left
 	const meeting = issued?.requested === room ? issued : undefined;
 
-	return { loading, meeting, error, retrying: retryCount > 0, retry };
+	// A retry that succeeded leaves retryCount above zero: the room is retrying only while it has no answer
+	return { loading, meeting, error, retrying: retryCount > 0 && !meeting && !error, retry };
 }

@@ -77,6 +77,34 @@ describe('useMeetJwtToken', () => {
 		expect(result.current.error).toBeUndefined();
 	});
 
+	it('opens the room when an automatic retry succeeds', async () => {
+		mockGetMeetJwtAuthToken
+			.mockRejectedValueOnce(serverError())
+			.mockResolvedValue({ data: { token: 'jwt', room: 'team-room_tenant' } });
+
+		const { result } = renderHook(() => useMeetJwtToken('team-room'));
+		await passRetryDelays(1);
+
+		await waitFor(() => expect(result.current.meeting?.room).toBe('team-room_tenant'));
+		expect(result.current.retrying).toBe(false);
+		expect(result.current.error).toBeUndefined();
+	});
+
+	it("does not show the error of the room the user left while the new room's check runs", async () => {
+		mockGetMeetJwtAuthToken.mockRejectedValue(serverError());
+		const { result, rerender } = renderHook(({ room }) => useMeetJwtToken(room), {
+			initialProps: { room: 'first-room' }
+		});
+		await passRetryDelays(4);
+		await waitFor(() => expect(result.current.error).toBeDefined());
+
+		mockGetMeetJwtAuthToken.mockReturnValue(new Promise(() => undefined));
+		rerender({ room: 'second-room' });
+
+		expect(result.current.error).toBeUndefined();
+		expect(result.current.meeting).toBeUndefined();
+	});
+
 	it('stops a pending automatic retry when the page leaves the room', async () => {
 		mockGetMeetJwtAuthToken.mockRejectedValue(serverError());
 		const { unmount } = renderHook(() => useMeetJwtToken('team-room'));

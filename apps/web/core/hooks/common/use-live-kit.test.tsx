@@ -58,4 +58,27 @@ describe('useTokenLiveKit', () => {
 		expect(result.current.error).toBeNull();
 		await waitFor(() => expect(result.current.token).toBe('room-b-token'));
 	});
+
+	it('does not bring back an old failure when the user returns to a room', async () => {
+		mockTokenLiveKitRoom.mockRejectedValueOnce(new Error('refused'));
+		const { result, rerender } = renderHook(({ roomName }) => useTokenLiveKit({ roomName }), {
+			initialProps: { roomName: 'room-a' }
+		});
+		await waitFor(() => expect(result.current.error).toBeTruthy());
+
+		mockTokenLiveKitRoom.mockResolvedValueOnce({ token: 'room-b-token' });
+		rerender({ roomName: 'room-b' });
+		await waitFor(() => expect(result.current.token).toBe('room-b-token'));
+
+		let issueRoomA: (answer: { token: string }) => void = () => undefined;
+		mockTokenLiveKitRoom.mockReturnValueOnce(new Promise((resolve) => (issueRoomA = resolve)));
+		rerender({ roomName: 'room-a' });
+		expect(result.current.error).toBeNull();
+
+		await act(async () => {
+			issueRoomA({ token: 'room-a-token' });
+		});
+		expect(result.current.token).toBe('room-a-token');
+		expect(result.current.error).toBeNull();
+	});
 });
