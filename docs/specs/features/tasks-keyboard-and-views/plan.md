@@ -93,9 +93,12 @@ they are with the flag off.
   lane, Esc clears) and a bottom bar changes them together: status, priority, size, assignee, labels, project, due
   date, archive. A view (or the Team tasks page) can be shown as a board: the Display menu's Layout (List, Board) is
   saved with the view (`displayOptions.layout`, kept only for a board, so views saved before stay equal), and the
-  board shows the view's tasks in one lane per status with the Kanban cards, the page's selection bar acting on them.
-  The lanes' moves, collapse and order are the Kanban page's (`useKanbanLanes`). The list page's selection bar gains
-  Project and Due date once #5041 (which reworks that file) has landed; until then those two are on its keys and cells.
+  board shows the view's tasks in one lane per status, in the view's ordering alone (no grouping: the grouping and
+  empty-groups rows hide), with the Kanban cards, the page's selection bar acting on them. A focused card takes the
+  rows' keys on both boards (`X`, and `S` `P` `L` `D` `M` for the selection the card is in), yielding while a registry
+  sequence waits for its second key. A selection's due date is limited by its latest start date. The lanes' moves,
+  collapse and order are the Kanban page's (`useKanbanLanes`). The list page's selection bar gains Project and Due
+  date once #5041 (which reworks that file) has landed; until then those two are on its keys and cells.
 - **Flag off**: no mount, no sidebar section, no routes' content, the selection bar as before.
 
 ## 5. Tests
@@ -104,5 +107,6 @@ they are with the flag off.
 refusals; T13: the defaults never clash, typed sequences); `team-tasks-list.test.tsx`, `shortcuts-dialog.test.tsx`
 and `use-shortcuts.test.tsx` (T8); `palette-items.test.ts`, `palette-recent.test.ts` and
 `sidebar-command-modal.test.tsx` (T9, T13); `use-team-task-updates.test.tsx` (the bulk payloads),
-`use-board-selection.test.tsx`, `kanban-board.test.ts`, `team-tasks-view-layout.test.ts` and the list's T10 keys (T10). The
+`use-board-selection.test.tsx`, `kanban-board.test.ts`, `kanban-task-card.test.tsx`, `team-tasks-view-layout.test.ts`
+and the list's T10 keys (T10). The
 in-cluster web gate runs lint, knip, jest and the build.

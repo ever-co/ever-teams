@@ -10,7 +10,8 @@ import { useUserQuery } from '@/core/hooks/queries/user-user.query';
 import type { TStatus, TStatusItem } from '@/core/types/interfaces/task/task-card';
 import type { TOrganizationTeamEmployee, TTaskStatus } from '@/core/types/schemas';
 import type { TTask } from '@/core/types/schemas/task/task.schema';
-import type { ShortcutChord } from '@/core/lib/keyboard/shortcuts';
+import type { ShortcutBinding } from '@/core/lib/keyboard/shortcuts';
+import type { TeamTaskPickerKind } from '@/core/components/pages/teams/team/tasks/list/team-tasks-list-context';
 
 export interface KanbanBoardActions {
 	moveTask: (task: TTask, toStatus: TTaskStatus, toIndex: number) => void;
@@ -118,8 +119,10 @@ export interface KanbanSelection {
 	selectedIds: ReadonlySet<string>;
 	/** Toggles one card; `extend` (Shift) selects the cards from the last one toggled, in the same lane. */
 	toggleSelected: (taskId: string, extend: boolean) => void;
-	/** The key that toggles the focused card: the task list's own (`X` unless rebound). */
-	selectChord: ShortcutChord | null;
+	/** The bindings in force: a focused card takes the task list's keys (`X` selects, `S` `P` `L` `D` `M` pick). */
+	bindings: ReadonlyMap<string, ShortcutBinding | null>;
+	/** Opens the shared picker for these tasks against the card (the selection when the card is in it). */
+	openPicker: (kind: TeamTaskPickerKind, taskIds: string[], anchor: Element) => void;
 }
 
 // Apart from the card context too: a selection change re-renders the cards, never the board's lanes.

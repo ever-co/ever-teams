@@ -5,7 +5,7 @@ import { Modal } from '@/core/components/common/modal';
 import { ModalSkeleton } from '@/core/components/common/skeleton/modal-skeleton';
 import { LazyEditStatusModal } from '@/core/components/optimized-components/tasks';
 import { useKanbanLanes } from '@/core/hooks/tasks/use-kanban-lanes';
-import { useKanbanSelectChord } from '@/core/hooks/keyboard/use-kanban-select-chord';
+import { useKeyboardPreferences } from '@/core/hooks/keyboard/use-keyboard-preferences';
 import type { TeamTasksViewState } from '@/core/hooks/tasks/use-team-tasks-view';
 import { laneRangeIds } from '@/core/lib/utils/kanban-board';
 import { tasksOfGroups } from '@/core/lib/utils/team-tasks-view';
@@ -29,7 +29,8 @@ function keepStatusesFromQuery() {
  * A view shown as a board (its layout): the tasks the view lists, with its filters, scope and search, in one lane per
  * status, the order inside a lane being the view's ordering. The cards are the Kanban page's (drag between lanes,
  * the card menu); they select like rows (⌘/Ctrl-click, their check, `X`, Shift for a range in a lane), so the page's
- * selection bar acts on them.
+ * selection bar acts on them, and a focused card takes the rows' picker keys (`S` `P` `L` `D` `M`; the selection when
+ * the card is in it), which reach Project and Due date while the page's bar has neither (until #5041 lands).
  */
 export function TeamTasksBoard({
 	view,
@@ -39,9 +40,9 @@ export function TeamTasksBoard({
 	const { lanes, statuses, moveTask, moveLane, setLaneCollapsed } = useKanbanLanes(tasks);
 	const [editedStatus, setEditedStatus] = useState<TTaskStatus | null>(null);
 	const [anchorId, setAnchorId] = useState<string | null>(null);
-	const selectChord = useKanbanSelectChord();
+	const { bindings } = useKeyboardPreferences();
 	const { selectedIds, toggleSelected, setManySelected } = view;
-	const { openTask, createTaskInGroup } = commands;
+	const { openTask, createTaskInGroup, openPicker } = commands;
 
 	const actions = useMemo<KanbanBoardActions>(
 		() => ({
@@ -68,8 +69,8 @@ export function TeamTasksBoard({
 		[anchorId, lanes, setManySelected, toggleSelected]
 	);
 	const selection = useMemo<KanbanSelection>(
-		() => ({ selectedIds, toggleSelected: toggleCard, selectChord }),
-		[selectChord, selectedIds, toggleCard]
+		() => ({ selectedIds, toggleSelected: toggleCard, bindings, openPicker }),
+		[bindings, openPicker, selectedIds, toggleCard]
 	);
 
 	return (

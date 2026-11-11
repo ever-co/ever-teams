@@ -89,6 +89,8 @@ export function TeamTasksDisplayMenu({ view }: Readonly<{ view: TeamTasksViewSta
 	const { settings } = view;
 	const directionLabel = t(directionLabelKey(settings.isDescending));
 	const isCustomised = !view.isDefaultView;
+	// A board has its lanes for groups: the grouping and the empty groups are the list's.
+	const isBoard = isTaskViewsEnabled() && settings.layout === 'board';
 
 	const handleGrouping = (value: string | null) => {
 		if (!value) {
@@ -154,20 +156,22 @@ export function TeamTasksDisplayMenu({ view }: Readonly<{ view: TeamTasksViewSta
 							</Select>
 						</DisplayRow>
 					)}
-					<DisplayRow label={t('pages.teamTasks.GROUPING')}>
-						<Select value={settings.grouping} onValueChange={handleGrouping}>
-							<SelectTrigger className="h-7 w-40 text-[13px]">
-								<SelectValue />
-							</SelectTrigger>
-							<SelectContent>
-								{GROUPINGS.map((grouping) => (
-									<SelectItem key={grouping} value={grouping}>
-										{t(GROUPING_LABEL_KEYS[grouping])}
-									</SelectItem>
-								))}
-							</SelectContent>
-						</Select>
-					</DisplayRow>
+					{!isBoard && (
+						<DisplayRow label={t('pages.teamTasks.GROUPING')}>
+							<Select value={settings.grouping} onValueChange={handleGrouping}>
+								<SelectTrigger className="h-7 w-40 text-[13px]">
+									<SelectValue />
+								</SelectTrigger>
+								<SelectContent>
+									{GROUPINGS.map((grouping) => (
+										<SelectItem key={grouping} value={grouping}>
+											{t(GROUPING_LABEL_KEYS[grouping])}
+										</SelectItem>
+									))}
+								</SelectContent>
+							</Select>
+						</DisplayRow>
+					)}
 					<DisplayRow label={t('pages.teamTasks.ORDERING')}>
 						<div className="flex items-center gap-1">
 							<Button
@@ -203,11 +207,13 @@ export function TeamTasksDisplayMenu({ view }: Readonly<{ view: TeamTasksViewSta
 						isOn={settings.showsSubTasks}
 						onChange={view.setShowsSubTasks}
 					/>
-					<DisplaySwitchRow
-						label={t('pages.teamTasks.SHOW_EMPTY_GROUPS')}
-						isOn={settings.showsEmptyGroups}
-						onChange={view.setShowsEmptyGroups}
-					/>
+					{!isBoard && (
+						<DisplaySwitchRow
+							label={t('pages.teamTasks.SHOW_EMPTY_GROUPS')}
+							isOn={settings.showsEmptyGroups}
+							onChange={view.setShowsEmptyGroups}
+						/>
+					)}
 				</div>
 				<div className="hairline-t border-border px-3 pt-2.5 pb-3">
 					<p className="pb-2 text-xs font-medium text-muted-foreground">

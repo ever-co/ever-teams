@@ -25,7 +25,9 @@ import { TaskPropertyIcon, type TaskPropertyKind } from '@/core/components/tasks
 import type { TTask } from '@/core/types/schemas/task/task.schema';
 import { useKanbanBoardContext, useKanbanSelection, type KanbanSelection } from './kanban-board-context';
 import { Check } from '@/core/components/icons';
-import { chordOfEvent, isTypingTarget, sameChord } from '@/core/lib/keyboard/shortcuts';
+import { chordOfEvent, isTypingTarget, matchListKey, SHORTCUT_COMMANDS } from '@/core/lib/keyboard/shortcuts';
+import { isShortcutSequencePending } from '@/core/hooks/keyboard/use-shortcuts';
+import { pickerOf } from '../../teams/team/tasks/list/team-task-picker-commands';
 import { useTaskWorkedSeconds } from '@/core/hooks/tasks/use-task-worked-seconds';
 import {
 	IDLE_DRAG_STATE,
@@ -165,18 +167,16 @@ function isOnControl(target: EventTarget | null) {
 	return Boolean(control);
 }
 
-/** Whether a key press toggles the card: the selection's key, with Shift for a range when its key has none. */
-function selectionKeyOf(event: ReactKeyboardEvent<HTMLElement>, selection: KanbanSelection) {
-	const key = selection.selectChord;
-	const chord = chordOfEvent(event.nativeEvent);
-	if (!key || !chord || isTypingTarget(event.target)) {
+/**
+ * The task list's key a press on a focused card is, by the bindings in force: `X` (with Shift, a range) or a picker's
+ * (`S` `P` `L` `D` `M`). Nothing while a registry sequence waits for its second key (`G`, then `X` if so bound).
+ */
+function cardKeyOf(event: ReactKeyboardEvent<HTMLElement>, selection: KanbanSelection) {
+	if (isShortcutSequencePending() || isTypingTarget(event.target)) {
 		return null;
 	}
-	if (sameChord(chord, key)) {
-		return { extend: false };
-	}
-	const isShifted = !key.shift && chord.shift && sameChord({ ...chord, shift: false }, key);
-	return isShifted ? { extend: true } : null;
+	const chord = chordOfEvent(event.nativeEvent);
+	return chord ? matchListKey(chord, SHORTCUT_COMMANDS, selection.bindings) : null;
 }
 
 const SELECT_CHECK =
@@ -333,12 +333,20 @@ export const KanbanTaskCard = memo(function KanbanTaskCard({
 		if (!selection || isEditingTitle) {
 			return;
 		}
-		const toggle = selectionKeyOf(event, selection);
-		if (!toggle) {
+		const match = cardKeyOf(event, selection);
+		if (match?.commandId === 'listSelect') {
+			event.preventDefault();
+			selection.toggleSelected(task.id, match.extend);
+			return;
+		}
+		const picker = match ? pickerOf(match.commandId, true) : null;
+		if (!picker) {
 			return;
 		}
 		event.preventDefault();
-		selection.toggleSelected(task.id, toggle.extend);
+		const usesSelection = picker.appliesToSelection && selection.selectedIds.has(task.id);
+		const taskIds = usesSelection ? [...selection.selectedIds] : [task.id];
+		selection.openPicker(picker.kind, taskIds, event.currentTarget);
 	};
 	const hasPeople = people.length > 0;
 

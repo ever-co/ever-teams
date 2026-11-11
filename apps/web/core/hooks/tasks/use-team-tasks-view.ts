@@ -225,13 +225,18 @@ export function useTeamTasksView(options: TeamTasksViewOptions = {}) {
 		return withoutListedSubTasks(scopedTasks);
 	}, [scopedTasks, settings.showsSubTasks]);
 
-	const groups = useMemo(
-		() => buildTeamTasksGroups(listedTasks, settings, lookups, priorityValues),
-		[listedTasks, settings, lookups, priorityValues]
-	);
-	const showsGroupHeaders = settings.grouping !== 'none';
-	// A board shows every task of the view: a group collapsed in the list hides nothing there, nor from the selection.
+	// A board has its lanes for groups: its tasks come in the view's ordering alone, and a group collapsed in the list
+	// hides nothing there, nor from the selection.
 	const isBoard = settings.layout === 'board' && isTaskViewsEnabled();
+	const groupedSettings = useMemo<TeamTasksViewSettings>(
+		() => (isBoard ? { ...settings, grouping: 'none' } : settings),
+		[isBoard, settings]
+	);
+	const groups = useMemo(
+		() => buildTeamTasksGroups(listedTasks, groupedSettings, lookups, priorityValues),
+		[listedTasks, groupedSettings, lookups, priorityValues]
+	);
+	const showsGroupHeaders = groupedSettings.grouping !== 'none';
 	const rows = useMemo(
 		() => flattenTeamTasksGroups(groups, isBoard ? NOTHING_COLLAPSED : collapsedKeys, showsGroupHeaders),
 		[groups, collapsedKeys, isBoard, showsGroupHeaders]

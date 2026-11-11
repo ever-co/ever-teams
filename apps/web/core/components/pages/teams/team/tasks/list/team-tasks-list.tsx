@@ -31,53 +31,13 @@ import { GROUP_HEIGHT, ROW_HEIGHT, TEAM_TASK_LIST_MIN_WIDTH, type TeamTasksGrid 
 import { TeamTasksListProvider, type TeamTaskPickerKind, type TeamTasksListActions } from './team-tasks-list-context';
 import { TeamTaskRow } from './team-task-row';
 import { TeamTasksBoard } from './team-tasks-board';
+import { cellAppliesToSelection, pickerOf } from './team-task-picker-commands';
 import { isTaskViewsEnabled } from '@/core/lib/utils/task-views-enabled';
 import { TeamTasksGroupHeader } from './team-tasks-group-header';
 import { TeamTasksColumnHeader } from './team-tasks-column-header';
 import type { TeamTaskMenuAnchor } from './team-task-menu';
 
 const OVERSCAN = 10;
-
-interface PickerCommand {
-	kind: TeamTaskPickerKind;
-	appliesToSelection: boolean;
-	/** Only with the saved-views feature: the key, or its use on a selection, came with the platform's bulk update. */
-	withRegistry?: 'command' | 'selection';
-}
-
-/** The commands that open a picker on the focused row (their keys are the bindings in force). */
-const PICKER_COMMANDS: ReadonlyMap<string, PickerCommand> = new Map<string, PickerCommand>([
-	['taskStatus', { kind: 'status', appliesToSelection: true }],
-	['taskPriority', { kind: 'priority', appliesToSelection: true }],
-	['taskLabels', { kind: 'labels', appliesToSelection: false }],
-	['taskDueDate', { kind: 'dueDate', appliesToSelection: false, withRegistry: 'selection' }],
-	['taskProject', { kind: 'project', appliesToSelection: true, withRegistry: 'command' }]
-]);
-
-/** The picker a command opens with the registry on or off: `null` when the command is not there without it. */
-function pickerOf(commandId: string, isRegistryOn: boolean) {
-	const picker = PICKER_COMMANDS.get(commandId);
-	if (!picker) {
-		return null;
-	}
-	if (picker.withRegistry === 'command' && !isRegistryOn) {
-		return null;
-	}
-	const appliesToSelection = picker.appliesToSelection || (picker.withRegistry === 'selection' && isRegistryOn);
-	return { kind: picker.kind, appliesToSelection };
-}
-
-/** Whether a picker opened from a cell or the row menu applies to the selection the row is in. */
-function cellAppliesToSelection(kind: TeamTaskPickerKind, isRegistryOn: boolean) {
-	if (kind === 'labels' || kind === 'issueType') {
-		return false;
-	}
-	if (kind === 'dueDate') {
-		// One due date for a whole selection came with the platform's bulk update.
-		return isRegistryOn;
-	}
-	return true;
-}
 
 /** The list's keys with the saved-views feature off: the defaults, as they always were. */
 const DEFAULT_BINDINGS = effectiveBindings(SHORTCUT_COMMANDS, null);

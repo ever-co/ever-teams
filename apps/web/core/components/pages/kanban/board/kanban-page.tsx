@@ -33,7 +33,7 @@ import { KanbanToolbar } from './kanban-toolbar';
 import { useTaskDrawer } from '@/core/hooks/tasks/use-task-drawer';
 import { useBoardSelection } from '@/core/hooks/tasks/use-board-selection';
 import { useTeamTaskUpdates } from '@/core/hooks/tasks/use-team-task-updates';
-import { useKanbanSelectChord } from '@/core/hooks/keyboard/use-kanban-select-chord';
+import { useKeyboardPreferences } from '@/core/hooks/keyboard/use-keyboard-preferences';
 import { isDialogOpen, isTypingTarget } from '@/core/lib/keyboard/shortcuts';
 import { isTaskViewsEnabled } from '@/core/lib/utils/task-views-enabled';
 import { TaskSelectionBar } from '@/core/components/tasks/task-selection-bar';
@@ -182,14 +182,18 @@ export function KanbanPage() {
 	// With the saved-views feature the cards can be selected and changed together (one request, one undo).
 	const isSelectable = isTaskViewsEnabled();
 	const { selectedIds, toggleSelected, setManySelected, clearSelection } = useBoardSelection(board.lanes);
-	const selectChord = useKanbanSelectChord();
-	const selection = useMemo<KanbanSelection | null>(
-		() => (isSelectable ? { selectedIds, toggleSelected, selectChord } : null),
-		[isSelectable, selectChord, selectedIds, toggleSelected]
-	);
+	const { bindings } = useKeyboardPreferences();
 	const { archiveTasks, canArchive } = useTeamTaskUpdates();
 	const [pickerTarget, setPickerTarget] = useState<TeamTaskPickerTarget | null>(null);
 	const [isPickerOpen, setIsPickerOpen] = useState(false);
+	const openPicker = useCallback((kind: TeamTaskPickerKind, taskIds: string[], anchor: Element) => {
+		setPickerTarget({ kind, taskIds, anchor });
+		setIsPickerOpen(true);
+	}, []);
+	const selection = useMemo<KanbanSelection | null>(
+		() => (isSelectable ? { selectedIds, toggleSelected, bindings, openPicker } : null),
+		[bindings, isSelectable, openPicker, selectedIds, toggleSelected]
+	);
 	const taskById = useMemo(
 		() => new Map(board.lanes.flatMap((lane) => lane.tasks.map((task) => [task.id, task] as const))),
 		[board.lanes]
@@ -197,11 +201,8 @@ export function KanbanPage() {
 	const selectionCount = selection ? selectedIds.size : 0;
 
 	const editSelection = useCallback(
-		(kind: TeamTaskPickerKind, anchor: Element) => {
-			setPickerTarget({ kind, taskIds: [...selectedIds], anchor });
-			setIsPickerOpen(true);
-		},
-		[selectedIds]
+		(kind: TeamTaskPickerKind, anchor: Element) => openPicker(kind, [...selectedIds], anchor),
+		[openPicker, selectedIds]
 	);
 	const archiveSelection = useCallback(() => {
 		const taskIds = [...selectedIds];

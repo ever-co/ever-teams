@@ -319,6 +319,17 @@ function isBefore(day: Date, limit: Date | null) {
 	return day.getTime() < limit.getTime();
 }
 
+/** The latest start day of the tasks, or null when none has one. */
+function latestStartDayOf(tasks: TTask[]) {
+	const starts = tasks
+		.map((item) => startOfDayOf(item.startDate)?.getTime() ?? null)
+		.filter((day): day is number => day !== null);
+	if (!starts.length) {
+		return null;
+	}
+	return new Date(Math.max(...starts));
+}
+
 /** The due day every task has, or null when they differ (or have none). */
 function sharedDueDayOf(tasks: TTask[]) {
 	const days = tasks.map((item) => startOfDayOf(item.dueDate)?.getTime() ?? null);
@@ -342,10 +353,9 @@ function DueDatePicker(props: Readonly<PickerProps>) {
 	const { setDueDate } = useTeamTaskUpdates();
 	const [showsCalendar, setShowsCalendar] = useState(false);
 	const task = props.tasks[0];
-	const isSelection = props.tasks.length > 1;
-	// A selection: no start date limits the days (each task keeps its own), and the day shows as picked only when
-	// every task has it.
-	const startDay = isSelection ? null : startOfDayOf(task?.startDate);
+	// A selection: the latest start among its tasks limits the days (no task gets a due date before its start), and
+	// the day shows as picked only when every task has it.
+	const startDay = latestStartDayOf(props.tasks);
 	const currentDue = sharedDueDayOf(props.tasks);
 	const hasDueDate = props.tasks.some((item) => Boolean(item.dueDate));
 
