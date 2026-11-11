@@ -38,6 +38,7 @@ const mockPeople = { byEmployee: new Map([[BO_EMPLOYEE, mockBo]]), byUser: new M
 const mockScope = { tenantId: 't', organizationId: 'o', userId: ME_USER, employeeId: 'employee-me' };
 const mockSignalTyping = jest.fn();
 const mockTypingPlaces: Array<[string | null, string | null]> = [];
+const mockTypistPlaces: Array<[string | null, string | null]> = [];
 let mockTypists: Array<{ userId: string; employeeId: string | null; conversationId: string; threadRootId: string | null; expiresAt: number }> = [];
 
 jest.mock('next-intl', () => ({
@@ -63,7 +64,10 @@ jest.mock('@/core/hooks/chat/use-chat-typing', () => ({
 		mockTypingPlaces.push([conversationId, threadRootId]);
 		return mockSignalTyping;
 	},
-	useChatTypists: () => mockTypists
+	useChatTypists: (conversationId: string, threadRootId: string | null) => {
+		mockTypistPlaces.push([conversationId, threadRootId]);
+		return mockTypists;
+	}
 }));
 jest.mock('./chat-task-card', () => ({ ChatTaskCard: () => null }));
 jest.mock('@/core/hooks/tasks/use-task-drawer', () => ({ useTaskDrawer: () => ({ openTaskDrawer: jest.fn() }) }));
@@ -186,6 +190,7 @@ describe('the thread pane', () => {
 		mockTypists = [{ userId: BO_USER, employeeId: BO_EMPLOYEE, conversationId: 'c1', threadRootId: 'root', expiresAt: Date.now() + 6000 }];
 		render(pane());
 		expect(mockTypingPlaces).toContainEqual(['c1', 'root']);
+		expect(mockTypistPlaces).toContainEqual(['c1', 'root']);
 		fireEvent.change(screen.getByRole('textbox', { name: 'teamChat.REPLY_PLACEHOLDER' }), { target: { value: 'on it' } });
 		expect(mockSignalTyping).toHaveBeenCalled();
 		expect(screen.getByTestId('chat-typing-line').textContent).toBe('teamChat.TYPING_ONE:Bo Chen');

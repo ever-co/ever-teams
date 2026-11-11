@@ -1,31 +1,29 @@
 'use client';
 
 import { useTranslations } from 'next-intl';
+import { useChatPeople } from '@/core/hooks/chat/use-chat-scope';
+import { useChatTypists } from '@/core/hooks/chat/use-chat-typing';
 import { cn } from '@/core/lib/helpers';
-import type { ChatPerson } from '@/core/lib/utils/chat-format';
-import { typingLineOf, type ChatTypist } from '@/core/lib/utils/chat-typing';
+import { typingLineOf } from '@/core/lib/utils/chat-typing';
 
 /**
- * "Anna is typing…", "Anna and Ben are typing…", "Several people are typing…": a quiet line under the composer box.
- * The live region is always there, so a screen reader hears the line when it changes, politely; the dots stand still
- * for a reader who asked for less motion.
+ * "Anna is typing…", "Anna and Ben are typing…", "Several people are typing…": a quiet line under the composer box,
+ * for the conversation (`threadRootId` left out) or one of its threads. It listens on its own, so a signal every few
+ * seconds renders this line and not the pane around it. The live region is always there, so a screen reader hears the
+ * line when it changes, politely; the dots stand still for a reader who asked for less motion.
  */
 export function ChatTypingLine({
-	typists,
-	peopleByUser,
-	peopleByEmployee,
+	conversationId,
+	threadRootId = null,
 	className
-}: Readonly<{
-	typists: readonly ChatTypist[];
-	peopleByUser: ReadonlyMap<string, ChatPerson>;
-	peopleByEmployee: ReadonlyMap<string, ChatPerson>;
-	className?: string;
-}>) {
+}: Readonly<{ conversationId: string; threadRootId?: string | null; className?: string }>) {
 	const t = useTranslations();
+	const people = useChatPeople();
+	const typists = useChatTypists(conversationId, threadRootId);
 	const names = typists.map(
 		(typist) =>
-			peopleByUser.get(typist.userId)?.name ||
-			(typist.employeeId ? peopleByEmployee.get(typist.employeeId)?.name : undefined) ||
+			people.byUser.get(typist.userId)?.name ||
+			(typist.employeeId ? people.byEmployee.get(typist.employeeId)?.name : undefined) ||
 			t('teamChat.SOMEONE')
 	);
 	const line = typingLineOf(names);

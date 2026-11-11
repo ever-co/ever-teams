@@ -13,7 +13,7 @@ import { useChatDraft } from '@/core/hooks/chat/use-chat-draft';
 import { useChatFiles } from '@/core/hooks/chat/use-chat-files';
 import { useChatMessages } from '@/core/hooks/chat/use-chat-messages';
 import { useChatPeople, useChatScope } from '@/core/hooks/chat/use-chat-scope';
-import { useChatTypingSignal, useChatTypists } from '@/core/hooks/chat/use-chat-typing';
+import { useChatTypingSignal } from '@/core/hooks/chat/use-chat-typing';
 import { useTaskDrawer } from '@/core/hooks/tasks/use-task-drawer';
 import { attachmentIdsOf, filesOfTransfer, isFileDrag } from '@/core/lib/utils/chat-attachments';
 import { ChatPerson, conversationTitle } from '@/core/lib/utils/chat-format';
@@ -85,7 +85,6 @@ function ConversationPane({ conversation, conversationNames, canManage, presence
 	const { draft, setDraft, clearDraft } = useChatDraft(conversation.id);
 	const attachments = useChatAttachments();
 	const signalTyping = useChatTypingSignal(conversation.id);
-	const typists = useChatTypists(conversation.id);
 	const files = useChatFiles(conversation.id, messages);
 	// By id: the lightbox shows the newest copy of the record (its signed address is read again with the list).
 	const [pictureId, setPictureId] = useState<string | null>(null);
@@ -454,7 +453,7 @@ function ConversationPane({ conversation, conversationNames, canManage, presence
 						autoFocus={focusComposer}
 						attachments={attachments}
 						onTyping={signalTyping}
-						status={<ChatTypingLine typists={typists} peopleByUser={people.byUser} peopleByEmployee={people.byEmployee} />}
+						status={<ChatTypingLine conversationId={conversation.id} />}
 					/>
 				)}
 			</div>

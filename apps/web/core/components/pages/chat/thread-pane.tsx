@@ -13,7 +13,7 @@ import { useChatDraft } from '@/core/hooks/chat/use-chat-draft';
 import { useChatFiles } from '@/core/hooks/chat/use-chat-files';
 import { useChatThread } from '@/core/hooks/chat/use-chat-messages';
 import { useChatPeople, useChatScope } from '@/core/hooks/chat/use-chat-scope';
-import { useChatTypingSignal, useChatTypists } from '@/core/hooks/chat/use-chat-typing';
+import { useChatTypingSignal } from '@/core/hooks/chat/use-chat-typing';
 import { useTaskDrawer } from '@/core/hooks/tasks/use-task-drawer';
 import { attachmentIdsOf } from '@/core/lib/utils/chat-attachments';
 import { dayKeyOf, dayLabel, timelineItems } from '@/core/lib/utils/chat-timeline';
@@ -62,7 +62,6 @@ function ThreadPaneBody({ conversationId, rootMessageId, conversationNames, canM
 	const { draft, setDraft, clearDraft } = useChatDraft(conversationId, rootMessageId);
 	const attachments = useChatAttachments();
 	const signalTyping = useChatTypingSignal(conversationId, rootMessageId);
-	const typists = useChatTypists(conversationId, rootMessageId);
 	const threadMessages = useMemo(() => (root ? [root, ...replies] : replies), [replies, root]);
 	const files = useChatFiles(conversationId, threadMessages);
 	// By id: the lightbox shows the newest copy of the record (its signed address is read again with the list).
@@ -261,7 +260,7 @@ function ThreadPaneBody({ conversationId, rootMessageId, conversationNames, canM
 					autoFocus={focusComposer}
 					attachments={attachments}
 					onTyping={signalTyping}
-					status={<ChatTypingLine typists={typists} peopleByUser={people.byUser} peopleByEmployee={people.byEmployee} />}
+					status={<ChatTypingLine conversationId={conversationId} threadRootId={rootMessageId} />}
 				/>
 			</div>
 			{taskFrom && <CreateTaskFromMessageDialog key={taskFrom.id} message={taskFrom} onClose={() => setTaskFrom(null)} />}
