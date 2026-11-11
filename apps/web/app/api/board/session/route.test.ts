@@ -80,6 +80,19 @@ describe('GET /api/board/session', () => {
 		expect(await response.json()).not.toHaveProperty('id');
 	});
 
+	it('answers 401 at once when the browser sent no session cookie, without asking the API', async () => {
+		const request = new Request('https://app.ever.team/api/board/session', {
+			headers: { origin: BOARD_ORIGIN, cookie: 'auth-tenant-id=tenant-1' }
+		});
+
+		const response = await GET(request);
+
+		expect(response.status).toBe(401);
+		expect(response.headers.get('access-control-allow-origin')).toBe(BOARD_ORIGIN);
+		expect(response.headers.get('cache-control')).toBe('no-store');
+		expect(mockAuthenticatedGuard).not.toHaveBeenCalled();
+	});
+
 	it.each([
 		['no origin (a direct visit or a same-origin call)', null],
 		['another site', 'https://evil.example'],

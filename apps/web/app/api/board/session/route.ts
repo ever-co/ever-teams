@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { authenticatedGuard } from '@/core/services/server/guards/authenticated-guard-app';
+import { requestAccessToken, requestCookies } from '@/core/services/server/request-cookies';
 import { boardSessionUser, isTrustedBoardOrigin } from '@/core/lib/board/board-app';
 
 /**
@@ -35,6 +36,11 @@ export async function GET(req: Request) {
 	const origin = req.headers.get('origin');
 	if (!isTrustedBoardOrigin(origin)) {
 		return forbidden();
+	}
+
+	// No session cookie at all: no one is signed in here, and the API is not asked about an empty token
+	if (!requestAccessToken(requestCookies(req))) {
+		return forBoard(NextResponse.json({ message: 'Unauthorized' }, { status: 401 }), origin);
 	}
 
 	const guard = await authenticatedGuard(req, new NextResponse());
