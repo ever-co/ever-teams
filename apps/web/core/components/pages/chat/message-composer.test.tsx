@@ -106,9 +106,9 @@ describe('formatting', () => {
 		render(<Harness initial="hello" />);
 		select(0, 5);
 		await press('i', { metaKey: true });
-		expect(field().value).toBe('_hello_');
+		expect(field().value).toBe('*hello*');
 		await press('e', { ctrlKey: true });
-		expect(field().value).toBe('_`hello`_');
+		expect(field().value).toBe('*`hello`*');
 	});
 
 	it('leaves the browser its own shortcuts', async () => {
@@ -128,7 +128,7 @@ describe('formatting', () => {
 		};
 		expect(run(/FORMAT_BOLD/, 0, 4)).toBe('**word**');
 		rerender(<Harness key="italic" initial="word" />);
-		expect(run(/FORMAT_ITALIC/, 0, 4)).toBe('_word_');
+		expect(run(/FORMAT_ITALIC/, 0, 4)).toBe('*word*');
 		rerender(<Harness key="code" initial="word" />);
 		expect(run(/FORMAT_CODE \(/, 0, 4)).toBe('`word`');
 		rerender(<Harness key="block" initial="word" />);

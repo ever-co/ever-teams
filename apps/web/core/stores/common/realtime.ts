@@ -8,18 +8,19 @@ import type { RealtimeStatus } from '@/core/lib/realtime/client';
 export const realtimeStatusAtom = atom<RealtimeStatus>('off');
 
 /**
- * Whether an open live connection stands in for the polls of chat and of the notification count.
+ * Whether the platform says it pushes an event to every open subscription as soon as it is written
+ * (`GET /realtime/status` → `delivery.prompt`), read by the live connection each time it comes up.
  *
- * Not yet. The platform hands its events to subscribers in a pass that runs once a minute, on a deployment with a
- * queue; without one it stores them and pushes nothing, and with several API processes a subscriber only hears the
- * process that ran the pass. An open socket therefore says nothing about how soon a message arrives over it: a tab
- * that stopped polling because it is connected showed a colleague's message up to a minute late (measured: 37 s
- * against 5 s with the poll). The stream still refreshes what it announces the moment it does; the polls keep their
- * own cadence beside it, as they did before there was a stream.
- *
- * Set this to true once the platform publishes an event when it is written, to every process.
+ * An open socket alone says nothing about how soon a message arrives over it: a platform that hands events to
+ * subscribers in a once-a-minute pass, or only in the process that ran the pass, showed a colleague's message up to a
+ * minute late to a tab that had stopped polling (measured: 37 s against 5 s with the poll). So `false` until the
+ * platform says otherwise, and on any platform older than that answer.
  */
-export const REALTIME_REPLACES_POLLING = false;
+export const realtimePromptDeliveryAtom = atom<boolean>(false);
 
-/** Whether the polls pause now: the live connection is up and it delivers promptly enough to replace them. */
-export const realtimePausesPollingAtom = atom((get) => REALTIME_REPLACES_POLLING && get(realtimeStatusAtom) === 'connected');
+/**
+ * Whether the polls of chat and of the notification count pause now: the live connection is up and the platform
+ * delivers promptly enough to replace them. The stream refreshes what it announces either way, and the connection
+ * catches up from the platform every minute, which bounds what a lost push can cost.
+ */
+export const realtimePausesPollingAtom = atom((get) => get(realtimeStatusAtom) === 'connected' && get(realtimePromptDeliveryAtom));

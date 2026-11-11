@@ -1,7 +1,7 @@
 /**
  * The composer's formatting, as pure text edits: each takes the text and its selection and answers the new text and
  * where the selection lands. They write the Markdown subset a message renders (see `chat-markdown.tsx`): `**bold**`,
- * `_italic_`, `` `code` ``, fenced code blocks, `- ` lists and `[text](url)` links.
+ * `*italic*`, `` `code` ``, fenced code blocks, `- ` lists and `[text](url)` links.
  */
 
 /** A composer's text and its selection after an edit. */
@@ -15,7 +15,8 @@ const FENCE = '```';
 
 /** The selection inside the text, start first (a selection made backwards arrives reversed on some browsers). */
 function rangeOf(value: string, selectionStart: number, selectionEnd: number): [number, number] {
-	const clamp = (position: number) => Math.max(0, Math.min(value.length, Number.isFinite(position) ? Math.trunc(position) : value.length));
+	const clamp = (position: number) =>
+		Math.max(0, Math.min(value.length, Number.isFinite(position) ? Math.trunc(position) : value.length));
 	const a = clamp(selectionStart);
 	const b = clamp(selectionEnd);
 	return a <= b ? [a, b] : [b, a];
@@ -30,8 +31,107 @@ function trimRange(value: string, start: number, end: number, skip: RegExp): [nu
 	return from === to ? [end, end] : [from, to];
 }
 
-function isWrapped(text: string, marker: string): boolean {
+/**
+ * The italic marker. `_` would read the same at word boundaries, but CommonMark does not take it inside a word
+ * (`hel_lo_` shows its underscores), while `*` works anywhere.
+ */
+export const ITALIC = '*';
+
+/**
+ * The ways italic is written, for taking it off: `*`, which the composer writes, and `_`, which it wrote before (an
+ * edited message keeps its body as it was saved).
+ */
+const ITALIC_MARKERS = [ITALIC, '_'];
+
+/** How many `char` stand in a row from `index`, walking in `step` (1 forward, -1 back). */
+function runOf(value: string, index: number, step: 1 | -1, char: string): number {
+	let count = 0;
+	for (let at = index; at >= 0 && at < value.length && value[at] === char; at += step) count++;
+	return count;
+}
+
+/** `*` is italic and `**` bold: a run holds an italic marker when its length is odd (`*`, `***`). */
+function holdsItalic(run: number): boolean {
+	return run % 2 === 1;
+}
+
+/** A letter (of any script) or a digit: an underscore next to one is part of the word, not a marker. */
+function isWordCharacter(char: string | undefined): boolean {
+	return !!char && /[\p{L}\p{N}]/u.test(char);
+}
+
+/** White space, or the start or end of the text. */
+function isSpace(char: string | undefined): boolean {
+	return !char || /\s/.test(char);
+}
+
+/** Whether the character at `index` is escaped: an odd number of backslashes before it (`\\*` is a backslash and a star). */
+function isEscaped(text: string, index: number): boolean {
+	let slashes = 0;
+	for (let at = index - 1; at >= 0 && text[at] === '\\'; at--) slashes++;
+	return slashes % 2 === 1;
+}
+
+/**
+ * Whether a text holds a run of `char` that would open or close italic on its own: an odd run that is not escaped
+ * (`\*`), has text on at least one side (`2 * 3` holds none) and, for `_`, is not inside a word.
+ */
+function hasLoneMarker(text: string, char: string): boolean {
+	for (let at = 0; at < text.length; ) {
+		const run = runOf(text, at, 1, char);
+		if (!run) {
+			at += 1;
+			continue;
+		}
+		const before = text[at - 1];
+		const after = text[at + run];
+		const standsAlone = isSpace(before) && isSpace(after);
+		const insideWord = char !== ITALIC && isWordCharacter(before) && isWordCharacter(after);
+		if (holdsItalic(run) && !isEscaped(text, at) && !standsAlone && !insideWord) return true;
+		at += run;
+	}
+	return false;
+}
+
+/**
+ * Whether italic written with `char` opens right before `open` and closes right at `close`: a whole odd run on each
+ * side, neither escaped, and nothing between that one of them would pair with instead (a lone marker of its own).
+ * `_` also needs no letter or digit right outside its runs, since CommonMark ignores underscores inside a word.
+ */
+function italicPair(char: string, value: string, open: number, close: number): boolean {
+	const lead = runOf(value, open - 1, -1, char);
+	const trail = runOf(value, close, 1, char);
+	if (!holdsItalic(lead) || !holdsItalic(trail)) return false;
+	const before = value[open - 1 - lead];
+	const after = value[close + trail];
+	if (isEscaped(value, open - lead) || (close > open && isEscaped(value, close))) return false;
+	if (char !== ITALIC && (isWordCharacter(before) || isWordCharacter(after))) return false;
+	const inner = value.slice(open, close);
+	if (!inner) return true;
+	// A marker opens only before text and closes only after it (`* *` is no pair), and a run that goes on into the
+	// stretch is longer than it looks.
+	const first = inner[0];
+	const last = inner[inner.length - 1];
+	if (/\s/.test(first) || /\s/.test(last) || first === char || last === char) return false;
+	return !hasLoneMarker(inner, char);
+}
+
+/** Whether `value[start, end)` holds its own markers at its ends (italic: `*` or `_`). */
+function holdsMarkers(value: string, start: number, end: number, marker: string): boolean {
+	if (marker === ITALIC) {
+		return ITALIC_MARKERS.some((char) => {
+			const open = start + runOf(value, start, 1, char);
+			const close = end - runOf(value, end - 1, -1, char);
+			return open > start && close < end && open < close && italicPair(char, value, open, close);
+		});
+	}
+	const text = value.slice(start, end);
 	return text.length >= marker.length * 2 && text.startsWith(marker) && text.endsWith(marker);
+}
+
+/** Whether italic markers stand right around `start`–`end` (around a caret too, for an empty pair). */
+function italicAround(value: string, start: number, end: number): boolean {
+	return ITALIC_MARKERS.some((char) => italicPair(char, value, start, end));
 }
 
 /** Replaces the selection with a text; the caret lands after it. */
@@ -56,20 +156,37 @@ function toggleSegment(value: string, start: number, end: number, marker: string
 	const size = marker.length;
 	const selected = value.slice(start, end);
 	// The selection holds its own markers: they go, the text stays selected.
-	if (isWrapped(selected, marker)) {
+	if (holdsMarkers(value, start, end, marker)) {
 		const inner = selected.slice(size, selected.length - size);
-		return { value: value.slice(0, start) + inner + value.slice(end), selectionStart: start, selectionEnd: start + inner.length };
+		return {
+			value: value.slice(0, start) + inner + value.slice(end),
+			selectionStart: start,
+			selectionEnd: start + inner.length
+		};
 	}
-	// The markers stand right around the selection (or around the caret, for an empty pair): they go.
-	if (start >= size && value.slice(start - size, start) === marker && value.slice(end, end + size) === marker) {
-		return { value: value.slice(0, start - size) + selected + value.slice(end + size), selectionStart: start - size, selectionEnd: end - size };
+	// The markers stand right around the selection (or around the caret, for an empty pair): they go. For italic the
+	// asterisks around it must hold one (an odd run): inside `**bold**` they are bold's, and italic is added.
+	const markersAround =
+		marker === ITALIC
+			? italicAround(value, start, end)
+			: start >= size && value.slice(start - size, start) === marker && value.slice(end, end + size) === marker;
+	if (markersAround) {
+		return {
+			value: value.slice(0, start - size) + selected + value.slice(end + size),
+			selectionStart: start - size,
+			selectionEnd: end - size
+		};
 	}
 	// Otherwise the text is wrapped and stays selected; with nothing selected the caret waits between the markers.
-	return { value: value.slice(0, start) + marker + selected + marker + value.slice(end), selectionStart: start + size, selectionEnd: end + size };
+	return {
+		value: value.slice(0, start) + marker + selected + marker + value.slice(end),
+		selectionStart: start + size,
+		selectionEnd: end + size
+	};
 }
 
 /**
- * Wraps the selection in a marker (`**`, `_`, `` ` ``), or removes the marker when the selection already has it.
+ * Wraps the selection in a marker (`**`, `*`, `` ` ``), or removes the marker when the selection already has it.
  * The markers hug the text (white space at the ends of the selection stays outside, or the Markdown would not
  * render), and a selection over several lines is wrapped line by line, since a marker pair does not hold across a
  * blank line.
@@ -82,27 +199,41 @@ export function toggleWrap(value: string, selectionStart: number, selectionEnd: 
 	if (!selected.includes('\n')) return toggleSegment(value, start, end, marker);
 
 	const size = marker.length;
+	// Each line's markers are judged in the whole text, so the characters around the selection count too.
+	let lineStart = start;
 	const lines = selected.split('\n').map((line) => {
 		const text = line.trim();
 		const lead = line.slice(0, line.length - line.trimStart().length);
-		return { lead, text, trail: line.slice(lead.length + text.length) };
+		const textStart = lineStart + lead.length;
+		lineStart += line.length + 1;
+		const wrapped = !!text && holdsMarkers(value, textStart, textStart + text.length, marker);
+		return { lead, text, trail: line.slice(lead.length + text.length), wrapped };
 	});
-	const everyLineWrapped = lines.every((line) => !line.text || isWrapped(line.text, marker));
+	const everyLineWrapped = lines.every((line) => !line.text || line.wrapped);
 	const next = lines
 		.map((line) => {
 			if (!line.text) return line.lead + line.trail;
 			if (everyLineWrapped) return line.lead + line.text.slice(size, line.text.length - size) + line.trail;
-			return line.lead + (isWrapped(line.text, marker) ? line.text : marker + line.text + marker) + line.trail;
+			return line.lead + (line.wrapped ? line.text : marker + line.text + marker) + line.trail;
 		})
 		.join('\n');
-	return { value: value.slice(0, start) + next + value.slice(end), selectionStart: start, selectionEnd: start + next.length };
+	return {
+		value: value.slice(0, start) + next + value.slice(end),
+		selectionStart: start,
+		selectionEnd: start + next.length
+	};
 }
 
 /**
  * Starts every line the selection touches with a prefix (`- ` for a list), or removes it when they all have it.
  * Blank lines inside a selection are left alone; a caret keeps its place in the text of its line.
  */
-export function toggleLinePrefix(value: string, selectionStart: number, selectionEnd: number, prefix: string): ComposeEdit {
+export function toggleLinePrefix(
+	value: string,
+	selectionStart: number,
+	selectionEnd: number,
+	prefix: string
+): ComposeEdit {
 	const [from, to] = rangeOf(value, selectionStart, selectionEnd);
 	if (!prefix) return { value, selectionStart: from, selectionEnd: to };
 	const blockStart = from === 0 ? 0 : value.lastIndexOf('\n', from - 1) + 1;
@@ -149,7 +280,11 @@ export function toggleCodeBlock(value: string, selectionStart: number, selection
 	const closing = /^\n```(?=\n|$)/.exec(after);
 	if (opening && closing) {
 		const head = before.slice(0, opening.index + opening[1].length);
-		return { value: head + selected + after.slice(closing[0].length), selectionStart: head.length, selectionEnd: head.length + selected.length };
+		return {
+			value: head + selected + after.slice(closing[0].length),
+			selectionStart: head.length,
+			selectionEnd: head.length + selected.length
+		};
 	}
 	const head = `${before}${before && !before.endsWith('\n') ? '\n' : ''}${FENCE}\n`;
 	const tail = `\n${FENCE}${after && !after.startsWith('\n') ? '\n' : ''}${after}`;
