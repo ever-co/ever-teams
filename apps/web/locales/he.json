@@ -3018,7 +3018,8 @@
 			"projects": "פרויקטים",
 			"navigation": "ניווט",
 			"settings": "הגדרות",
-			"goTo": "מעבר אל"
+			"goTo": "מעבר אל",
+			"chat": "צ'אט"
 		},
 		"commands": {
 			"inviteUser": "הזמנת משתמש",
@@ -3039,12 +3040,16 @@
 			"goToWeeklyLimit": "מעבר לדוח המגבלה השבועית",
 			"goToTimeAndActivity": "מעבר לדוח זמן ופעילות",
 			"profile": "פרופיל",
-			"settings": "הגדרות"
+			"settings": "הגדרות",
+			"newMessage": "הודעה חדשה"
 		},
 		"results": {
 			"recent": "אחרונות",
 			"tasks": "משימות",
-			"inTeam": "ב{team}"
+			"inTeam": "ב{team}",
+			"conversations": "שיחות",
+			"people": "אנשים",
+			"messagePerson": "שליחת הודעה ל{name}"
 		}
 	},
 	"modals": {
@@ -4884,7 +4889,8 @@
 			"global": "בכל מקום",
 			"list": "רשימת משימות",
 			"task": "משימה ממוקדת",
-			"view": "תצוגה"
+			"view": "תצוגה",
+			"chat": "צ'אט"
 		},
 		"commands": {
 			"paletteOpen": "פתיחת לוח הפקודות",
@@ -4908,8 +4914,16 @@
 			"taskStatus": "שינוי הסטטוס",
 			"taskPriority": "שינוי העדיפות",
 			"taskLabels": "שינוי התוויות",
-			"taskDueDate": "שינוי תאריך היעד"
-		}
+			"taskDueDate": "שינוי תאריך היעד",
+			"chatPrevious": "השיחה הקודמת",
+			"chatNext": "השיחה הבאה",
+			"chatPreviousUnread": "השיחה הקודמת שלא נקראה",
+			"chatNextUnread": "השיחה הבאה שלא נקראה",
+			"chatUnreads": "פתיחת הודעות שלא נקראו",
+			"chatMarkAllRead": "סימון הכול כנקרא"
+		},
+		"CHAT_SINGLE_KEY": "מקש של הצ'אט הוא מקש אחד, לא רצף.",
+		"CHAT_TAKEN": "הצ'אט כבר משתמש במקש הזה (עיצוב, שליחה, תנועה או גלילה)."
 	},
 	"realtime": {
 		"RECONNECTING": "מתחבר מחדש…"

@@ -3018,7 +3018,8 @@
 			"projects": "项目",
 			"navigation": "导航",
 			"settings": "设置",
-			"goTo": "前往"
+			"goTo": "前往",
+			"chat": "聊天"
 		},
 		"commands": {
 			"inviteUser": "邀请用户",
@@ -3039,12 +3040,16 @@
 			"goToWeeklyLimit": "前往每周限额报告",
 			"goToTimeAndActivity": "前往时间与活动报告",
 			"profile": "个人资料",
-			"settings": "设置"
+			"settings": "设置",
+			"newMessage": "新消息"
 		},
 		"results": {
 			"recent": "最近",
 			"tasks": "任务",
-			"inTeam": "在 {team} 中"
+			"inTeam": "在 {team} 中",
+			"conversations": "对话",
+			"people": "成员",
+			"messagePerson": "给 {name} 发消息"
 		}
 	},
 	"modals": {
@@ -4884,7 +4889,8 @@
 			"global": "全局",
 			"list": "任务列表",
 			"task": "当前任务",
-			"view": "视图"
+			"view": "视图",
+			"chat": "聊天"
 		},
 		"commands": {
 			"paletteOpen": "打开命令面板",
@@ -4908,8 +4914,16 @@
 			"taskStatus": "更改状态",
 			"taskPriority": "更改优先级",
 			"taskLabels": "更改标签",
-			"taskDueDate": "更改截止日期"
-		}
+			"taskDueDate": "更改截止日期",
+			"chatPrevious": "上一个对话",
+			"chatNext": "下一个对话",
+			"chatPreviousUnread": "上一个未读对话",
+			"chatNextUnread": "下一个未读对话",
+			"chatUnreads": "打开未读",
+			"chatMarkAllRead": "全部标为已读"
+		},
+		"CHAT_SINGLE_KEY": "聊天的快捷键只能是一个按键，不能是按键序列。",
+		"CHAT_TAKEN": "聊天已在使用此按键（格式、发送、移动或滚动）。"
 	},
 	"realtime": {
 		"RECONNECTING": "正在重新连接…"

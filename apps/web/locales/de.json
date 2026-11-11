@@ -3018,7 +3018,8 @@
 			"projects": "Projekte",
 			"navigation": "Navigation",
 			"settings": "Einstellungen",
-			"goTo": "Gehe zu"
+			"goTo": "Gehe zu",
+			"chat": "Chat"
 		},
 		"commands": {
 			"inviteUser": "Benutzer einladen",
@@ -3039,12 +3040,16 @@
 			"goToWeeklyLimit": "Zum Bericht Wochenlimit",
 			"goToTimeAndActivity": "Zum Bericht Zeit und Aktivität",
 			"profile": "Profil",
-			"settings": "Einstellungen"
+			"settings": "Einstellungen",
+			"newMessage": "Neue Nachricht"
 		},
 		"results": {
 			"recent": "Zuletzt",
 			"tasks": "Aufgaben",
-			"inTeam": "in {team}"
+			"inTeam": "in {team}",
+			"conversations": "Unterhaltungen",
+			"people": "Personen",
+			"messagePerson": "{name} schreiben"
 		}
 	},
 	"modals": {
@@ -4884,7 +4889,8 @@
 			"global": "Überall",
 			"list": "Aufgabenliste",
 			"task": "Fokussierte Aufgabe",
-			"view": "Ansicht"
+			"view": "Ansicht",
+			"chat": "Chat"
 		},
 		"commands": {
 			"paletteOpen": "Befehlspalette öffnen",
@@ -4908,8 +4914,16 @@
 			"taskStatus": "Status ändern",
 			"taskPriority": "Priorität ändern",
 			"taskLabels": "Labels ändern",
-			"taskDueDate": "Fälligkeitsdatum ändern"
-		}
+			"taskDueDate": "Fälligkeitsdatum ändern",
+			"chatPrevious": "Vorherige Unterhaltung",
+			"chatNext": "Nächste Unterhaltung",
+			"chatPreviousUnread": "Vorherige ungelesene Unterhaltung",
+			"chatNextUnread": "Nächste ungelesene Unterhaltung",
+			"chatUnreads": "Ungelesene öffnen",
+			"chatMarkAllRead": "Alles als gelesen markieren"
+		},
+		"CHAT_SINGLE_KEY": "Eine Chat-Taste ist eine einzelne Taste, keine Folge.",
+		"CHAT_TAKEN": "Der Chat verwendet diese Taste bereits (Formatieren, Senden, Bewegen oder Scrollen)."
 	},
 	"realtime": {
 		"RECONNECTING": "Verbindung wird wiederhergestellt…"

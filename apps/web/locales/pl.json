@@ -3018,7 +3018,8 @@
 			"projects": "Projekty",
 			"navigation": "Nawigacja",
 			"settings": "Ustawienia",
-			"goTo": "Przejdź do"
+			"goTo": "Przejdź do",
+			"chat": "Czat"
 		},
 		"commands": {
 			"inviteUser": "Zaproś użytkownika",
@@ -3039,12 +3040,16 @@
 			"goToWeeklyLimit": "Przejdź do raportu limitu tygodniowego",
 			"goToTimeAndActivity": "Przejdź do raportu czasu i aktywności",
 			"profile": "Profil",
-			"settings": "Ustawienia"
+			"settings": "Ustawienia",
+			"newMessage": "Nowa wiadomość"
 		},
 		"results": {
 			"recent": "Ostatnie",
 			"tasks": "Zadania",
-			"inTeam": "w {team}"
+			"inTeam": "w {team}",
+			"conversations": "Rozmowy",
+			"people": "Osoby",
+			"messagePerson": "Napisz do: {name}"
 		}
 	},
 	"modals": {
@@ -4884,7 +4889,8 @@
 			"global": "Wszędzie",
 			"list": "Lista zadań",
 			"task": "Wybrane zadanie",
-			"view": "Widok"
+			"view": "Widok",
+			"chat": "Czat"
 		},
 		"commands": {
 			"paletteOpen": "Otwórz paletę poleceń",
@@ -4908,8 +4914,16 @@
 			"taskStatus": "Zmień status",
 			"taskPriority": "Zmień priorytet",
 			"taskLabels": "Zmień etykiety",
-			"taskDueDate": "Zmień termin"
-		}
+			"taskDueDate": "Zmień termin",
+			"chatPrevious": "Poprzednia rozmowa",
+			"chatNext": "Następna rozmowa",
+			"chatPreviousUnread": "Poprzednia nieprzeczytana rozmowa",
+			"chatNextUnread": "Następna nieprzeczytana rozmowa",
+			"chatUnreads": "Otwórz nieprzeczytane",
+			"chatMarkAllRead": "Oznacz wszystko jako przeczytane"
+		},
+		"CHAT_SINGLE_KEY": "Klawisz czatu to jeden klawisz, nie sekwencja.",
+		"CHAT_TAKEN": "Czat już używa tego klawisza (formatowanie, wysyłanie, przechodzenie lub przewijanie)."
 	},
 	"realtime": {
 		"RECONNECTING": "Ponowne łączenie…"

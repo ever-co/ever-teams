@@ -1,4 +1,4 @@
-import { mergeChatPeople } from './chat-people';
+import { mergeChatPeople, presenceByEmployee } from './chat-people';
 
 describe('mergeChatPeople', () => {
 	it('adds the people of the organization who are not in the active team', () => {
@@ -29,5 +29,20 @@ describe('mergeChatPeople', () => {
 	it('answers the team alone while the list of the organization is not there', () => {
 		const people = mergeChatPeople([{ employeeId: 'e1', userId: 'u1', name: 'Ada', imageUrl: null }], []);
 		expect(people.list).toHaveLength(1);
+	});
+});
+
+describe('presenceByEmployee', () => {
+	it('keys the status of each member by employee id, from either field, and skips one without', () => {
+		const members = [
+			{ employeeId: 'employee-ana', status: 'running' },
+			{ employee: { id: 'employee-bo' }, status: 'idle' },
+			{ employeeId: null, status: 'online' }
+		];
+		const presence = presenceByEmployee(members, (member) => member.status);
+		expect([...presence.entries()]).toEqual([
+			['employee-ana', 'running'],
+			['employee-bo', 'idle']
+		]);
 	});
 });

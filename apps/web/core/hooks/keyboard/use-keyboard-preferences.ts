@@ -5,7 +5,8 @@ import { useQueryClient } from '@tanstack/react-query';
 import { queryKeys } from '@/core/query/keys';
 import { useUserQuery } from '@/core/hooks/queries/user-user.query';
 import { uiPreferencesService, type IKeyboardUiPreferences } from '@/core/services/client/api/users/ui-preferences.service';
-import { effectiveBindings, SHORTCUT_COMMANDS, type ShortcutBinding } from '@/core/lib/keyboard/shortcuts';
+import { effectiveBindings, type ShortcutBinding } from '@/core/lib/keyboard/shortcuts';
+import { availableShortcutCommands } from '@/core/lib/keyboard/available-commands';
 import { isTaskViewsEnabled } from '@/core/lib/utils/task-views-enabled';
 
 /** The person's keyboard overrides as the platform keeps them on the user (`uiPreferences.keyboard.bindings`). */
@@ -25,7 +26,7 @@ export function useKeyboardOverrides(): Record<string, string> {
 export function useKeyboardPreferences() {
 	const overrides = useKeyboardOverrides();
 	const queryClient = useQueryClient();
-	const bindings = useMemo<Map<string, ShortcutBinding | null>>(() => effectiveBindings(SHORTCUT_COMMANDS, overrides), [overrides]);
+	const bindings = useMemo<Map<string, ShortcutBinding | null>>(() => effectiveBindings(availableShortcutCommands(), overrides), [overrides]);
 
 	const setOverrides = useCallback(
 		async (next: Record<string, string>) => {

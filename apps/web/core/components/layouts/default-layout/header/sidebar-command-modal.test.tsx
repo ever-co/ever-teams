@@ -27,7 +27,10 @@ jest.mock('jotai', () => ({
 	useAtom: () => [true, jest.fn()]
 }));
 jest.mock('@/core/stores/common/command-palette', () => ({ commandPaletteOpenAtom: Symbol('command-palette') }));
-jest.mock('next/navigation', () => ({ useRouter: () => ({ push: jest.fn() }) }));
+const mockPush = jest.fn();
+let mockChatOn = false;
+jest.mock('next/navigation', () => ({ useRouter: () => ({ push: mockPush }) }));
+jest.mock('@/core/lib/utils/chat-enabled', () => ({ isChatEnabled: () => mockChatOn }));
 jest.mock('next-intl', () => ({ useTranslations: () => (key: string) => key }));
 jest.mock('next-themes', () => ({ useTheme: () => ({ setTheme: jest.fn(), resolvedTheme: 'light' }) }));
 jest.mock('lucide-react', () => ({ ArrowUpRightIcon: () => null }));
@@ -69,6 +72,7 @@ jest.mock('../../../features/teams/invite-form-modal', () => ({ InviteFormModal:
 jest.mock('../../../features/projects/create-project-modal', () => ({ CreateProjectModal: () => null }));
 jest.mock('@/core/components/features/teams/create-team-modal', () => ({ CreateTeamModal: () => null }));
 jest.mock('./palette-task-results', () => ({ PaletteTaskResults: () => null }));
+jest.mock('./palette-chat-results', () => ({ PaletteChatResults: ({ search }: { search: string }) => <div data-testid="chat-results">{search}</div> }));
 
 import { SidebarCommandModal } from './sidebar-command-modal';
 
@@ -102,5 +106,28 @@ describe('SidebarCommandModal invite command', () => {
 		// The other commands stay.
 		expect(screen.getByText('commandPalette.commands.assignToMe')).toBeTruthy();
 		expect(registeredSequences()).toContain('a m');
+	});
+});
+
+describe('SidebarCommandModal chat entries', () => {
+	afterEach(() => {
+		mockChatOn = false;
+	});
+
+	it('offers the conversations and "New message" where the chat is on, with no key of their own', () => {
+		mockChatOn = true;
+		mockUseKeyboardShortcuts.mockClear();
+		render(<SidebarCommandModal publicTeam={false} variant="none" />);
+		expect(screen.getByTestId('chat-results')).toBeTruthy();
+		const newMessage = screen.getByText('commandPalette.commands.newMessage');
+		newMessage.click();
+		expect(mockPush).toHaveBeenCalledWith('/chat?new=message');
+		expect(registeredSequences()).not.toContain('');
+	});
+
+	it('leaves the chat out where it is off', () => {
+		render(<SidebarCommandModal publicTeam={false} variant="none" />);
+		expect(screen.queryByTestId('chat-results')).toBeNull();
+		expect(screen.queryByText('commandPalette.commands.newMessage')).toBeNull();
 	});
 });

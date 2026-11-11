@@ -3018,7 +3018,8 @@
 			"projects": "المشاريع",
 			"navigation": "التنقل",
 			"settings": "الإعدادات",
-			"goTo": "الانتقال إلى"
+			"goTo": "الانتقال إلى",
+			"chat": "الدردشة"
 		},
 		"commands": {
 			"inviteUser": "دعوة مستخدم",
@@ -3039,12 +3040,16 @@
 			"goToWeeklyLimit": "الانتقال إلى تقرير الحد الأسبوعي",
 			"goToTimeAndActivity": "الانتقال إلى تقرير الوقت والنشاط",
 			"profile": "الملف الشخصي",
-			"settings": "الإعدادات"
+			"settings": "الإعدادات",
+			"newMessage": "رسالة جديدة"
 		},
 		"results": {
 			"recent": "الأخيرة",
 			"tasks": "المهام",
-			"inTeam": "في {team}"
+			"inTeam": "في {team}",
+			"conversations": "المحادثات",
+			"people": "الأشخاص",
+			"messagePerson": "مراسلة {name}"
 		}
 	},
 	"modals": {
@@ -4884,7 +4889,8 @@
 			"global": "في كل مكان",
 			"list": "قائمة المهام",
 			"task": "المهمة المحددة",
-			"view": "طريقة العرض"
+			"view": "طريقة العرض",
+			"chat": "الدردشة"
 		},
 		"commands": {
 			"paletteOpen": "فتح لوحة الأوامر",
@@ -4908,8 +4914,16 @@
 			"taskStatus": "تغيير الحالة",
 			"taskPriority": "تغيير الأولوية",
 			"taskLabels": "تغيير التسميات",
-			"taskDueDate": "تغيير تاريخ الاستحقاق"
-		}
+			"taskDueDate": "تغيير تاريخ الاستحقاق",
+			"chatPrevious": "المحادثة السابقة",
+			"chatNext": "المحادثة التالية",
+			"chatPreviousUnread": "المحادثة غير المقروءة السابقة",
+			"chatNextUnread": "المحادثة غير المقروءة التالية",
+			"chatUnreads": "فتح غير المقروءة",
+			"chatMarkAllRead": "تعليم الكل كمقروء"
+		},
+		"CHAT_SINGLE_KEY": "مفتاح الدردشة مفتاح واحد، لا تسلسل.",
+		"CHAT_TAKEN": "الدردشة تستخدم هذا المفتاح بالفعل (التنسيق أو الإرسال أو التنقل أو التمرير)."
 	},
 	"realtime": {
 		"RECONNECTING": "جارٍ إعادة الاتصال…"

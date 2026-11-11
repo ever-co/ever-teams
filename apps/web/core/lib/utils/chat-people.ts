@@ -34,3 +34,19 @@ export function mergeChatPeople(teamPeople: readonly ChatPerson[], directory: re
 	}
 	return { byEmployee, byUser, list: [...byEmployee.values()].filter((person) => person.name.length > 0) };
 }
+
+/**
+ * The status of each member the app knows (the active team's), by employee id, as `statusOf` words it (the app's own
+ * member status: running, paused, online, idle, suspended). A member without an employee id is left out.
+ */
+export function presenceByEmployee<M extends { employeeId?: string | null; employee?: { id?: string | null } | null }, S>(
+	members: readonly M[],
+	statusOf: (member: M) => S
+): Map<string, S> {
+	const presence = new Map<string, S>();
+	for (const member of members) {
+		const employeeId = String(member.employeeId ?? member.employee?.id ?? '');
+		if (employeeId) presence.set(employeeId, statusOf(member));
+	}
+	return presence;
+}

@@ -13,9 +13,12 @@ import { ArrowLeft, Compose, Globe, MessageBlocked, MessageCircle } from '@/core
 import { useChatActions } from '@/core/hooks/chat/use-chat-actions';
 import { useChatBrowse, useChatConversation, useChatConversations, useChatStates, useChatThreads } from '@/core/hooks/chat/use-chat-conversations';
 import { useChatPeople, useChatScope } from '@/core/hooks/chat/use-chat-scope';
+import { useChatPresence } from '@/core/hooks/chat/use-chat-presence';
+import { useChatShortcuts } from '@/core/hooks/chat/use-chat-shortcuts';
 import { cn } from '@/core/lib/helpers';
 import { isChatEnabled } from '@/core/lib/utils/chat-enabled';
 import { conversationTitle, isUnread } from '@/core/lib/utils/chat-format';
+import { adjacentConversation, conversationOrder, opensLastConversation } from '@/core/lib/utils/chat-navigation';
 import { userState } from '@/core/stores/user/user';
 import { useAtomValue } from 'jotai';
 import { ChatPageSkeleton, ConversationPaneSkeleton } from './chat-page-skeleton';
@@ -73,6 +76,8 @@ function ChatPageContent({ view }: Readonly<{ view: ChatView }>) {
 	const people = useChatPeople();
 	const actions = useChatActions();
 	const canManage = useCanManageChat();
+	// The status dots; the team's presence refreshes on its own cadence while the chat is open.
+	const presence = useChatPresence(enabled);
 
 	useEffect(() => {
 		if (!enabled) router.replace('/');
@@ -100,6 +105,29 @@ function ChatPageContent({ view }: Readonly<{ view: ChatView }>) {
 	const { threadsUnread } = useChatStates(enabled);
 	const reportFailure = useCallback(() => toast.error(t('teamChat.UPDATE_FAILED')), [t]);
 
+	// The palette's "New message" lands here with `?new=message`: the dialog opens (set while rendering, once per
+	// request, and again on the conversation `/chat` opens, which is another page), and the address loses the request
+	// once no such redirect is coming.
+	const newRequested = searchParams.get('new') === 'message' && enabled;
+	const [newHandled, setNewHandled] = useState(false);
+	if (newRequested !== newHandled) {
+		setNewHandled(newRequested);
+		if (newRequested) setDialog('direct');
+	}
+	const redirecting = opensLastConversation({
+		isConversationView: view === 'conversation',
+		conversationId,
+		isListLoading: list.isLoading,
+		conversationCount: list.conversations.length
+	});
+	useEffect(() => {
+		if (!newRequested || redirecting) return;
+		const next = new URLSearchParams(searchParams.toString());
+		next.delete('new');
+		const search = next.toString();
+		router.replace(search ? `${pathname}?${search}` : pathname);
+	}, [newRequested, pathname, redirecting, router, searchParams]);
+
 	// The last conversation opened comes back on `/chat`; without one, the first of the list opens.
 	useEffect(() => {
 		if (view !== 'conversation' || conversationId || !list.conversations.length) return;
@@ -110,8 +138,8 @@ function ChatPageContent({ view }: Readonly<{ view: ChatView }>) {
 			remembered = null;
 		}
 		const target = (remembered && list.byId.get(remembered)) || list.conversations[0];
-		if (target) router.replace(`/chat/${target.id}`);
-	}, [conversationId, list.byId, list.conversations, router, view]);
+		if (target) router.replace(`/chat/${target.id}${newRequested ? '?new=message' : ''}`);
+	}, [conversationId, list.byId, list.conversations, newRequested, router, view]);
 
 	useEffect(() => {
 		if (!conversationId) return;
@@ -146,17 +174,26 @@ function ChatPageContent({ view }: Readonly<{ view: ChatView }>) {
 			.catch(reportFailure);
 	}, [actions, reportFailure, t]);
 
-	// Shift+Escape marks everything read, anywhere on the page.
-	useEffect(() => {
-		const onKey = (event: KeyboardEvent) => {
-			if (event.key === 'Escape' && event.shiftKey) {
-				event.preventDefault();
-				markAllRead();
-			}
-		};
-		window.addEventListener('keydown', onKey);
-		return () => window.removeEventListener('keydown', onKey);
-	}, [markAllRead]);
+	// The keys of the page (the registry's chat commands): walk the list, jump to the unread, Unreads, mark all read.
+	const ordered = useMemo(() => conversationOrder(list.conversations, list.categories), [list.categories, list.conversations]);
+	const goTo = useCallback(
+		(direction: 1 | -1, unreadOnly: boolean) => {
+			const target = adjacentConversation(ordered, conversationId, direction, unreadOnly);
+			if (target) router.push(`/chat/${target.id}`);
+		},
+		[conversationId, ordered, router]
+	);
+	useChatShortcuts(
+		{
+			chatPrevious: () => goTo(-1, false),
+			chatNext: () => goTo(1, false),
+			chatPreviousUnread: () => goTo(-1, true),
+			chatNextUnread: () => goTo(1, true),
+			chatUnreads: () => router.push('/chat/unreads'),
+			chatMarkAllRead: markAllRead
+		},
+		enabled
+	);
 
 	if (!enabled) return <ChatPageSkeleton />;
 
@@ -177,6 +214,7 @@ function ChatPageContent({ view }: Readonly<{ view: ChatView }>) {
 						conversations={list.conversations}
 						categories={list.categories}
 						people={people.byEmployee}
+						presence={presence}
 						meEmployeeId={meEmployeeId}
 						currentId={conversationId}
 						view={view}
@@ -201,6 +239,7 @@ function ChatPageContent({ view }: Readonly<{ view: ChatView }>) {
 							conversation={current.conversation}
 							conversationNames={conversationNames}
 							canManage={canManage}
+							presence={presence}
 							onOpenThread={openThread}
 							onBack={showList}
 							jumpToMessageId={threadId ? null : jumpTo}

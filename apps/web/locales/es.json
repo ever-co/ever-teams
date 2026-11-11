@@ -3018,7 +3018,8 @@
 			"projects": "Proyectos",
 			"navigation": "Navegación",
 			"settings": "Ajustes",
-			"goTo": "Ir a"
+			"goTo": "Ir a",
+			"chat": "Chat"
 		},
 		"commands": {
 			"inviteUser": "Invitar usuario",
@@ -3039,12 +3040,16 @@
 			"goToWeeklyLimit": "Ir al informe de límite semanal",
 			"goToTimeAndActivity": "Ir al informe de tiempo y actividad",
 			"profile": "Perfil",
-			"settings": "Configuración"
+			"settings": "Configuración",
+			"newMessage": "Nuevo mensaje"
 		},
 		"results": {
 			"recent": "Recientes",
 			"tasks": "Tareas",
-			"inTeam": "en {team}"
+			"inTeam": "en {team}",
+			"conversations": "Conversaciones",
+			"people": "Personas",
+			"messagePerson": "Escribir a {name}"
 		}
 	},
 	"modals": {
@@ -4884,7 +4889,8 @@
 			"global": "En todas partes",
 			"list": "Lista de tareas",
 			"task": "Tarea enfocada",
-			"view": "Vista"
+			"view": "Vista",
+			"chat": "Chat"
 		},
 		"commands": {
 			"paletteOpen": "Abrir la paleta de comandos",
@@ -4908,8 +4914,16 @@
 			"taskStatus": "Cambiar el estado",
 			"taskPriority": "Cambiar la prioridad",
 			"taskLabels": "Cambiar las etiquetas",
-			"taskDueDate": "Cambiar la fecha límite"
-		}
+			"taskDueDate": "Cambiar la fecha límite",
+			"chatPrevious": "Conversación anterior",
+			"chatNext": "Conversación siguiente",
+			"chatPreviousUnread": "Conversación sin leer anterior",
+			"chatNextUnread": "Conversación sin leer siguiente",
+			"chatUnreads": "Abrir No leídos",
+			"chatMarkAllRead": "Marcar todo como leído"
+		},
+		"CHAT_SINGLE_KEY": "Una tecla del chat es una sola tecla, no una secuencia.",
+		"CHAT_TAKEN": "El chat ya usa esa tecla (formato, envío, movimiento o desplazamiento)."
 	},
 	"realtime": {
 		"RECONNECTING": "Reconectando…"
