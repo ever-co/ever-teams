@@ -155,9 +155,9 @@ describe('VirtualTimeline', () => {
 		const scroll = screen.getByTestId('scroll');
 		// The reader is up in the conversation, rows drawn (and measured) around them.
 		await scrollTo(scroll, 900);
-		const anchor = handle.current?.anchor() ?? null;
-		expect(anchor).not.toBeNull();
-		const anchorId = (anchor as { key: string }).key.replace('message:', '');
+		const anchor = handle.current?.anchor();
+		if (!anchor) throw new Error('No row is drawn where the reader is');
+		const anchorId = anchor.key.replace('message:', '');
 		const shownAt = startOf(anchorId) - scroll.scrollTop;
 
 		// Forty older messages, short and long, come in above.
@@ -165,7 +165,7 @@ describe('VirtualTimeline', () => {
 			<Harness items={[...rowsOf(60, 100, (index) => 'x'.repeat((index % 7) * 90)), ...later]} handle={handle} />
 		);
 		await act(async () => {
-			expect(handle.current?.restore(anchor as NonNullable<typeof anchor>)).toBe(true);
+			expect(handle.current?.restore(anchor)).toBe(true);
 			scroll.dispatchEvent(new Event('scroll'));
 		});
 		expect(startOf(anchorId) - scroll.scrollTop).toBe(shownAt);

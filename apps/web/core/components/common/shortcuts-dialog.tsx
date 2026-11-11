@@ -166,7 +166,8 @@ export function ShortcutsDialog() {
 		const onKeyDown = (event: KeyboardEvent) => {
 			event.preventDefault();
 			event.stopPropagation();
-			if (event.key === 'Escape') {
+			// A plain Escape stops the recording; with a modifier (Shift+Escape) it is a key to record.
+			if (event.key === 'Escape' && !event.shiftKey && !event.altKey && !event.ctrlKey && !event.metaKey) {
 				chords = [];
 				finish();
 				return;
