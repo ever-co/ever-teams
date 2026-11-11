@@ -282,6 +282,19 @@ describe('Members settings: what the tracking switch writes (#5015)', () => {
 			data: expect.objectContaining({ isTrackingEnabled: false })
 		});
 	});
+
+	it('saves nothing while the permissions are not known yet: half of an admin save would be lost', async () => {
+		signInAs('admin', ERoleName.ADMIN, ['ORG_EMPLOYEES_EDIT'], { loaded: false });
+		const view = renderSettings();
+
+		expect(rowOf(view, 'member').isTrackingPending).toBe(true);
+
+		await act(() => view.result.current.setMemberTracking('row-member', false));
+
+		expect(mockUpdateMembership).not.toHaveBeenCalled();
+		expect(mockUpdateEmployee).not.toHaveBeenCalled();
+		expect(rowOf(view, 'member').isTrackingEnabled).toBe(true);
+	});
 });
 
 describe('Team settings: the switch of one’s own tracking (#5015)', () => {
@@ -326,5 +339,21 @@ describe('Team settings: the switch of one’s own tracking (#5015)', () => {
 			id: 'employee-own',
 			data: expect.objectContaining({ id: 'employee-own', isTrackingEnabled: true })
 		});
+	});
+
+	it('waits for the permissions before the admin can use it, and saves nothing before', async () => {
+		signInAs('own', ERoleName.ADMIN, ['ORG_EMPLOYEES_EDIT'], { loaded: false });
+		const view = renderOwn(ownManagerRow(ERoleName.ADMIN, { employee: false }));
+
+		expect(view.result.current.isOwnTrackingPending).toBe(true);
+		await expect(view.result.current.setOwnTracking(true)).rejects.toThrow();
+		expect(mockUpdateMembership).not.toHaveBeenCalled();
+		expect(mockUpdateEmployee).not.toHaveBeenCalled();
+	});
+
+	it('is ready once the permissions are known', () => {
+		signInAs('own', ERoleName.ADMIN, ['ORG_EMPLOYEES_EDIT']);
+
+		expect(renderOwn(ownManagerRow(ERoleName.ADMIN)).result.current.isOwnTrackingPending).toBe(false);
 	});
 });

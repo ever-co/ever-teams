@@ -58,6 +58,7 @@ function TeamGeneralContent() {
 				canEdit={canEdit}
 				ownTracking={settings.ownTracking}
 				canTurnOwnTracking={settings.canTurnOwnTracking}
+				isOwnTrackingPending={settings.isOwnTrackingPending}
 				setOwnTracking={settings.setOwnTracking}
 				setShareProfileView={settings.setShareProfileView}
 				setRequirePlanToTrack={settings.setRequirePlanToTrack}

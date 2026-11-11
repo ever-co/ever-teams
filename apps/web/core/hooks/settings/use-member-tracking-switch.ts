@@ -28,6 +28,7 @@ import type { TUpdateEmployee } from '@/core/types/schemas/organization/employee
  *   of ORG_EMPLOYEES_EDIT (the admins, by default). Turning tracking on needs it on too, so whoever may write it moves
  *   it with the team switch; anyone else cannot turn on a member whose employee switch is off.
  * - A member whose role did not load could be an admin: only an admin switches them.
+ * - Nothing is saved before the permissions are known: they decide whether the employee switch goes with the team one.
  */
 export function useMemberTrackingSwitch() {
 	const queryClient = useQueryClient();
@@ -71,6 +72,10 @@ export function useMemberTrackingSwitch() {
 	 */
 	const saveMemberTracking = useCallback(
 		async (team: TOrganizationTeam, member: TOrganizationTeamEmployee, enabled: boolean) => {
+			if (!arePermissionsLoaded) {
+				// Without them an admin's save would write the team switch alone, and tracking would stay off
+				throw new Error('The permissions are not known yet');
+			}
 			const rowId = member.id;
 			const employeeId = employeeIdOf(member);
 			if (!rowId || !employeeId) {
@@ -103,7 +108,7 @@ export function useMemberTrackingSwitch() {
 			// The rows read the employee through the team: without this they keep the old value
 			await queryClient.invalidateQueries({ queryKey: queryKeys.organizationTeams.all });
 		},
-		[queryClient, updateEmployeeAsync, updateOrganizationTeamEmployee, writesEmployeeTracking]
+		[arePermissionsLoaded, queryClient, updateEmployeeAsync, updateOrganizationTeamEmployee, writesEmployeeTracking]
 	);
 
 	return useMemo(
