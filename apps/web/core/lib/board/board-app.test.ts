@@ -221,6 +221,17 @@ describe('boardAppUrl', () => {
 		}
 	);
 
+	it('is null for a Board this deployment would not trust, which could not check the session nor be returned to', () => {
+		expect(
+			boardAppUrl('http://board.ever.team', 'https://app.ever.team', { allowLocalhostHttp: false })
+		).toBeNull();
+		expect(boardAppUrl('https://user@board.ever.team', 'https://app.ever.team')).toBeNull();
+		expect(boardAppUrl('http://localhost:3000', 'http://localhost:3030', { allowLocalhostHttp: false })).toBeNull();
+		expect(
+			boardAppUrl('http://localhost:3000', 'http://localhost:3030', { allowLocalhostHttp: true })?.origin
+		).toBe('http://localhost:3000');
+	});
+
 	it('withEverTeamsOrigin adds the origin to an address built elsewhere, before its fragment', () => {
 		const url = withEverTeamsOrigin(new URL('https://board.ever.team/#json=id,key'), 'https://stage.ever.team');
 
@@ -254,6 +265,21 @@ describe('boardSessionUser', () => {
 			name: 'Grace',
 			imageUrl: null
 		});
+	});
+
+	it("takes the picture of the person's image asset when the API sent no imageUrl", () => {
+		expect(
+			boardSessionUser({
+				id: 'user-3',
+				name: 'Ada',
+				image: { fullUrl: 'https://cdn.example.com/full.png', thumbUrl: 'https://cdn.example.com/thumb.png' }
+			}).imageUrl
+		).toBe('https://cdn.example.com/full.png');
+		expect(
+			boardSessionUser({ id: 'user-3', image: { fullUrl: '', thumbUrl: 'https://cdn.example.com/thumb.png' } })
+				.imageUrl
+		).toBe('https://cdn.example.com/thumb.png');
+		expect(boardSessionUser({ id: 'user-3', image: 'not an asset' }).imageUrl).toBeNull();
 	});
 
 	it('answers empty text for fields of the wrong type', () => {

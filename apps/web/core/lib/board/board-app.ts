@@ -117,15 +117,18 @@ export function withEverTeamsOrigin(url: URL, everTeamsOrigin: string | null | u
 /**
  * The Board address to open from this deployment: NEXT_PUBLIC_BOARD_APP_DOMAIN, naming the Ever Teams origin the
  * person is on (`window.location.origin`), so the Board signs them in here and not on a deployment of its own choice.
- * Null when the setting is not an absolute http(s) address.
+ * Null when the setting is not a Board address this deployment trusts (https, or http on localhost in development,
+ * no user name): such a Board could neither check the session nor be returned to after a sign-in, so the in-app
+ * board opens instead.
  */
 export function boardAppUrl(
 	boardAppDomain: string | null | undefined,
-	everTeamsOrigin: string | null | undefined
+	everTeamsOrigin: string | null | undefined,
+	trust: Pick<BoardTrust, 'allowLocalhostHttp'> = configuredBoardTrust()
 ): URL | null {
 	const configured = boardAppDomain?.trim();
 	const url = configured ? absoluteUrl(configured) : null;
-	if (!url || !isHttpUrl(url)) {
+	if (!url || !isSecureBoardUrl(url, trust)) {
 		return null;
 	}
 	return withEverTeamsOrigin(url, everTeamsOrigin);
@@ -144,10 +147,20 @@ interface SessionUserFields {
 	firstName?: unknown;
 	lastName?: unknown;
 	imageUrl?: unknown;
+	/** The user's image asset, when `imageUrl` is not filled in: its full size, its thumbnail, else its address. */
+	image?: unknown;
 }
 
 function text(value: unknown): string {
 	return typeof value === 'string' ? value.trim() : '';
+}
+
+function imageAssetUrl(image: unknown): string {
+	if (!image || typeof image !== 'object') {
+		return '';
+	}
+	const asset = image as { fullUrl?: unknown; thumbUrl?: unknown; url?: unknown };
+	return text(asset.fullUrl) || text(asset.thumbUrl) || text(asset.url);
 }
 
 /** The signed-in person as the Board sees them: never the e-mail address, the role, the tenant or a token. */
@@ -156,6 +169,6 @@ export function boardSessionUser(user: SessionUserFields): BoardSessionUser {
 	return {
 		id: text(user.id),
 		name: text(user.name) || fullName,
-		imageUrl: text(user.imageUrl) || null
+		imageUrl: text(user.imageUrl) || imageAssetUrl(user.image) || null
 	};
 }

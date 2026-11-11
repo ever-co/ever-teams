@@ -54,7 +54,10 @@ describe('proxy() on a sign-in page the Board app sent a signed-in person to', (
 
 		expect(response.status).toBe(307);
 		expect(response.headers.get('location')).toBe(BOARD_ADDRESS);
-		expect(mockCurrentUser).toHaveBeenCalledWith({ bearer_token: expect.any(String) });
+		expect(mockCurrentUser).toHaveBeenCalledWith({
+			bearer_token: expect.any(String),
+			signal: expect.any(AbortSignal)
+		});
 	});
 
 	it.each([
@@ -120,5 +123,30 @@ describe('proxy() on a sign-in page the Board app sent a signed-in person to', (
 		expect(response.status).toBe(200);
 		expect(response.headers.get('location')).toBeNull();
 		expect(mockCurrentUser).not.toHaveBeenCalled();
+	});
+
+	it('sends them back from a sign-in page with a locale prefix too', async () => {
+		const request = new NextRequest(
+			`https://app.ever.team/fr/auth/passcode?redirect=${encodeURIComponent(BOARD_ADDRESS)}`,
+			{ headers: { cookie: `auth-token=${accessToken()}` } }
+		);
+
+		const response = await proxy(request);
+
+		expect(response.status).toBe(307);
+		expect(response.headers.get('location')).toBe(BOARD_ADDRESS);
+	});
+
+	it('shows the sign-in page when the API does not confirm the session in time, instead of hanging', async () => {
+		jest.useFakeTimers();
+		mockCurrentUser.mockReturnValue(new Promise(() => undefined));
+
+		const pending = proxy(signInRequest(BOARD_ADDRESS));
+		await jest.advanceTimersByTimeAsync(8_000);
+		const response = await pending;
+		jest.useRealTimers();
+
+		expect(response.status).toBe(200);
+		expect(response.headers.get('location')).toBeNull();
 	});
 });

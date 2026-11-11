@@ -25,6 +25,18 @@ import { delay } from './core/lib/auth/retry-logic';
 import { sendsSignedInVisitToApp } from './core/lib/auth/signed-in-auth-paths';
 import { BOARD_RETURN_PARAM, boardReturnUrl } from './core/lib/board/board-app';
 
+/** How long a sign-in the Board app started waits for the API to confirm the session it finds here. */
+const BOARD_SESSION_CHECK_TIMEOUT_MS = 5_000;
+
+/** How long that whole confirmation may take, a token refresh included, before the sign-in page opens instead. */
+const BOARD_RETURN_DEADLINE_MS = 8_000;
+
+/** A page path without its locale prefix (`/fr/auth/passcode` is `/auth/passcode`): the routing is `as-needed`. */
+function withoutLocalePrefix(pathname: string): string {
+	const [, first, ...rest] = pathname.split('/');
+	return first && APPLICATION_LANGUAGES_CODE.includes(first) ? `/${rest.join('/')}` : pathname;
+}
+
 /**
  * Attach the authenticated user to the response for SSR consumers — but ONLY as much as a
  * reverse proxy will actually forward.
@@ -311,9 +323,13 @@ export async function proxy(request: NextRequest) {
 		return lastResult || { success: false, error: 'Max retry duration exceeded', isExpired: true };
 	};
 
-	// Whether the API accepts the access token, as the Board's own check of the session will
+	// Whether the API accepts the access token, as the Board's own check of the session will. A check that does not
+	// answer in time counts as no confirmation: the sign-in page opens rather than the visit hanging.
 	const isSessionConfirmed = async (token: string): Promise<boolean> => {
-		const check = await currentAuthenticatedUserRequest({ bearer_token: token }).catch(() => null);
+		const check = await currentAuthenticatedUserRequest({
+			bearer_token: token,
+			signal: AbortSignal.timeout(BOARD_SESSION_CHECK_TIMEOUT_MS)
+		}).catch(() => null);
 		return !!check?.response.ok && !!check.data && (check.data as { statusCode?: number }).statusCode !== 401;
 	};
 
@@ -325,7 +341,7 @@ export async function proxy(request: NextRequest) {
 	 * Without a confirmed session the sign-in page opens, and the sign-in then ends on the Board
 	 * (core/lib/auth/board-return.ts).
 	 */
-	const returnSignedInVisitToBoard = async (boardReturn: string): Promise<NextResponse> => {
+	const confirmSignedInVisitToBoard = async (boardReturn: string): Promise<NextResponse> => {
 		if (access_token && !isTokenExpired(access_token, 60) && (await isSessionConfirmed(access_token))) {
 			return NextResponse.redirect(boardReturn);
 		}
@@ -346,18 +362,43 @@ export async function proxy(request: NextRequest) {
 		return response;
 	};
 
+	// The whole confirmation, a token refresh included, within a deadline: past it the sign-in page opens, whatever
+	// the requests still on their way (their answers then change nothing)
+	const returnSignedInVisitToBoard = (boardReturn: string): Promise<NextResponse> =>
+		new Promise((resolve) => {
+			const deadline = setTimeout(() => {
+				console.log(
+					'[Proxy] Sign-in from the Board app: the session check took too long, showing the sign-in page'
+				);
+				resolve(response);
+			}, BOARD_RETURN_DEADLINE_MS);
+			confirmSignedInVisitToBoard(boardReturn).then(
+				(answer) => {
+					clearTimeout(deadline);
+					resolve(answer);
+				},
+				() => {
+					clearTimeout(deadline);
+					resolve(response);
+				}
+			);
+		});
+
 	// SECTION 1: Handle authenticated users accessing auth pages
 	// Check if user is trying to access auth pages while already authenticated
 	const sends_signed_in_to_app = sendsSignedInVisitToApp(url.pathname);
 	const has_any_token = access_token || refresh_token;
 
-	if (sends_signed_in_to_app && has_any_token) {
-		// A sign-in the Board app started (`?redirect=<board address>`) goes back to the Board, on its trusted origin only
+	// A sign-in the Board app started (`?redirect=<board address>`) goes back to the Board, on its trusted origin only,
+	// whatever the locale prefix the page has (`/fr/auth/passcode`)
+	if (has_any_token && sendsSignedInVisitToApp(withoutLocalePrefix(url.pathname))) {
 		const boardReturn = boardReturnUrl(url.searchParams.get(BOARD_RETURN_PARAM));
 		if (boardReturn) {
 			return returnSignedInVisitToBoard(boardReturn);
 		}
+	}
 
+	if (sends_signed_in_to_app && has_any_token) {
 		// User is authenticated but trying to access auth pages - verify token and redirect
 		console.log('[Proxy] Authenticated user accessing auth page, checking token validity...');
 
