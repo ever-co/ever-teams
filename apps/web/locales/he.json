@@ -623,7 +623,6 @@
 		"workDiary": {
 			"FIGURES_LABEL": "היום במספרים",
 			"PICK_DAY": "בחירת יום",
-			"TASKS_OTHER": "{count, plural, one {משימה נוספת} two {שתי משימות נוספות} other {# משימות נוספות}}",
 			"APPS_EMPTY": "לא נרשמו אפליקציה או אתר ב-{day}.",
 			"OPEN_TIMESHEETS": "פתיחה בדוחות השעות",
 			"UPDATING": "טוען את יומן העבודה",

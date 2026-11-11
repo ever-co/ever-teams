@@ -1,6 +1,6 @@
 import type { CalendarEntry } from '@/core/lib/utils/calendar-view';
 import type { ITimeLog } from '@/core/types/interfaces/timer/time-log/time-log';
-import { DIARY_HISTORY_START, diaryDayOfParam, diaryTasksOf } from './work-diary';
+import { DIARY_HISTORY_START, diaryDayOfParam, diaryTaskCountOf, diaryTasksOf } from './work-diary';
 
 const NOW = new Date(2026, 10, 11, 15, 30);
 
@@ -72,9 +72,17 @@ describe('diaryTasksOf', () => {
 		]);
 		expect(tasks[0]).toMatchObject({ projectName: 'Website', projectColor: '#123456', isRunning: true });
 		expect(tasks[0].log.id).toBe('a');
+		expect(tasks.map((task) => task.isUntasked)).toEqual([false, false, true]);
 	});
 
 	it('has no tasks on a day without time', () => {
 		expect(diaryTasksOf([])).toEqual([]);
+	});
+});
+
+describe('diaryTaskCountOf', () => {
+	it('counts the tasks the time went to, not the time tracked without a task', () => {
+		expect(diaryTaskCountOf(diaryTasksOf([entry('a', 'task-1', 600), entry('b', null, 600)]))).toBe(1);
+		expect(diaryTaskCountOf(diaryTasksOf([entry('b', null, 600)]))).toBe(0);
 	});
 });

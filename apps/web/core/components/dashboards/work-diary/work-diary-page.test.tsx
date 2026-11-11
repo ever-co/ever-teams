@@ -4,7 +4,7 @@ import { fireEvent, render, screen, within } from '@testing-library/react';
 import type { WorkDiaryPageState } from '@/core/hooks/dashboards/work-diary/use-work-diary-page';
 import type { CalendarDay, CalendarEntry } from '@/core/lib/utils/calendar-view';
 import type { AppActivity } from '@/core/lib/utils/dashboards/app-activity';
-import { type DiaryDay, type DiarySlot, diaryTasksOf } from '@/core/lib/utils/dashboards/work-diary';
+import { type DiaryDay, type DiarySlot, diaryTaskCountOf, diaryTasksOf } from '@/core/lib/utils/dashboards/work-diary';
 import type { ITimeLog } from '@/core/types/interfaces/timer/time-log/time-log';
 
 let mockState: WorkDiaryPageState;
@@ -143,6 +143,7 @@ function stateOf(overrides: Partial<WorkDiaryPageState> = {}): WorkDiaryPageStat
 		trackedKeys: new Set(['2026-11-10']),
 		shownDay,
 		tasks: diaryTasksOf(entries),
+		taskCount: diaryTaskCountOf(diaryTasksOf(entries)),
 		diary: {
 			diary: WITH_SLOT,
 			activities: ACTIVITIES,
@@ -155,6 +156,9 @@ function stateOf(overrides: Partial<WorkDiaryPageState> = {}): WorkDiaryPageStat
 		isLogsLoading: false,
 		isLogsError: false,
 		refetchLogs: jest.fn(),
+		isPlanLoading: false,
+		isPlanError: false,
+		refetchPlans: jest.fn(),
 		isUpdating: false,
 		timesheetsPath: null,
 		pickDay: jest.fn(),
@@ -182,6 +186,8 @@ describe('WorkDiaryPage', () => {
 		expect(screen.getByRole('region', { name: 'dashboard.calendar.PLAN_TITLE' })).toBeTruthy();
 		const apps = screen.getByRole('region', { name: 'dashboard.timesheets.diary.APPS' });
 		expect(within(apps).getByText('Visual Studio Code')).toBeTruthy();
+		// The time tracked without a task is listed, but it is not a task
+		expect(within(tasks).getByText('dashboard.timesheets.SHEET.TASK_COUNT:{"count":1}')).toBeTruthy();
 		const shots = screen.getByRole('region', { name: 'common.SCREENSHOTS' });
 		expect(within(shots).getByRole('button', { name: /^dashboard\.timesheets\.diary\.SLOT_LABEL/ })).toBeTruthy();
 	});
@@ -208,6 +214,42 @@ describe('WorkDiaryPage', () => {
 		const tasks = screen.getByRole('region', { name: 'common.TASKS' });
 		expect(within(tasks).getByText('Write the diary')).toBeTruthy();
 		expect(screen.getByText(/^dashboard\.workDiary\.APPS_EMPTY/)).toBeTruthy();
+	});
+
+	it('lists every task of the day, each with its name, however many there are', () => {
+		const entries = Array.from({ length: 8 }, (_, index) =>
+			entryOf(
+				`log-${index}`,
+				logOf(`log-${index}`, `task-${index}`, `Task number ${index}`),
+				600 + index * 60,
+				null
+			)
+		);
+		mockState = stateOf({
+			shownDay: dayWith(entries),
+			tasks: diaryTasksOf(entries),
+			taskCount: diaryTaskCountOf(diaryTasksOf(entries))
+		});
+		render(<WorkDiaryPage />);
+
+		const tasks = screen.getByRole('region', { name: 'common.TASKS' });
+		for (let index = 0; index < 8; index += 1) {
+			expect(within(tasks).getByText(`Task number ${index}`)).toBeTruthy();
+		}
+	});
+
+	it('keeps the plan card loading while the plans load, and offers to retry when they failed', () => {
+		mockState = stateOf({ isPlanLoading: true });
+		const { unmount } = render(<WorkDiaryPage />);
+		expect(screen.queryByText('dashboard.calendar.NO_PLAN')).toBeNull();
+		expect(screen.queryByRole('region', { name: 'dashboard.calendar.PLAN_TITLE' })).toBeNull();
+		unmount();
+
+		mockState = stateOf({ isPlanError: true, shownDay: { ...stateOf().shownDay, plan: null } });
+		render(<WorkDiaryPage />);
+		expect(screen.queryByText('dashboard.calendar.NO_PLAN')).toBeNull();
+		fireEvent.click(screen.getByRole('button', { name: 'pages.unauthorized.TRY_AGAIN' }));
+		expect(mockState.refetchPlans).toHaveBeenCalled();
 	});
 
 	it('picks a day from the strip and goes back to today', () => {

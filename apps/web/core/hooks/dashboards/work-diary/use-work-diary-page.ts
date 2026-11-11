@@ -25,7 +25,12 @@ import { localDayKeyOf } from '@/core/lib/utils/dashboard-export';
 import { daysOfPeriod, type Period } from '@/core/lib/utils/dashboard-period';
 import { timesheetPathOf } from '@/core/lib/utils/dashboards/team';
 import { isOrganizationRole } from '@/core/lib/utils/dashboards/timesheets';
-import { DIARY_HISTORY_START, diaryDayOfParam, diaryTasksOf } from '@/core/lib/utils/dashboards/work-diary';
+import {
+	DIARY_HISTORY_START,
+	diaryDayOfParam,
+	diaryTaskCountOf,
+	diaryTasksOf
+} from '@/core/lib/utils/dashboards/work-diary';
 import { currentOrganizationState } from '@/core/stores/user/user-organizations';
 import type { TDailyPlan } from '@/core/types/schemas/task/daily-plan.schema';
 import { useWorkDiaryDay } from './use-work-diary-day';
@@ -106,7 +111,12 @@ export function useWorkDiaryPage() {
 		return calendarEntriesOf(weekLogs, week, employeeId, readTimeOf(dataUpdatedAt));
 	}, [dataUpdatedAt, employeeId, week, weekLogs]);
 
-	const { employeeDailyPlans } = useEmployeeDailyPlans(employeeId);
+	const {
+		employeeDailyPlans,
+		isLoading: isPlanLoading,
+		isError: isPlanError,
+		loadEmployeeDailyPlans
+	} = useEmployeeDailyPlans(employeeId);
 	const plans = plansOrNone(employeeDailyPlans.items);
 	const plansByDay = useMemo(() => {
 		if (!employeeId) {
@@ -121,6 +131,7 @@ export function useWorkDiaryPage() {
 		[days]
 	);
 	const tasks = useMemo(() => diaryTasksOf(shownDay.entries), [shownDay]);
+	const taskCount = diaryTaskCountOf(tasks);
 
 	const diary = useWorkDiaryDay({ employeeId, isOwn: true, teamId: null, day });
 
@@ -152,11 +163,16 @@ export function useWorkDiaryPage() {
 		trackedKeys,
 		shownDay,
 		tasks,
+		taskCount,
 		diary,
 		isMemberUnknown,
 		isLogsLoading,
 		isLogsError,
 		refetchLogs: logsQuery.refetch,
+		// Empty plans while the plans load, or after they failed, are not a day without a plan
+		isPlanLoading,
+		isPlanError,
+		refetchPlans: loadEmployeeDailyPlans,
 		isUpdating: logsQuery.isFetching && hasWeekLogs,
 		timesheetsPath: canOpenTimesheets ? timesheetsPath : null,
 		pickDay,

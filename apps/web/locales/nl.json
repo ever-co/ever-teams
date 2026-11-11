@@ -623,7 +623,6 @@
 		"workDiary": {
 			"FIGURES_LABEL": "De dag in cijfers",
 			"PICK_DAY": "Kies een dag",
-			"TASKS_OTHER": "{count, plural, one {# andere taak} other {# andere taken}}",
 			"APPS_EMPTY": "Geen app of site vastgelegd op {day}.",
 			"OPEN_TIMESHEETS": "Openen in urenstaten",
 			"UPDATING": "Werkdagboek laden",

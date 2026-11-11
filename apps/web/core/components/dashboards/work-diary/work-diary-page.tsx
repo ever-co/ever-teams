@@ -87,26 +87,29 @@ function DiaryDayView({
 	onOpenSlot
 }: Readonly<{ page: WorkDiaryPageState; formats: DayFormats; onOpenSlot: (slot: DiarySlot) => void }>) {
 	const t = useTranslations();
-	const { diary, shownDay, tasks } = page;
+	const { diary, shownDay, tasks, taskCount } = page;
 	const dayText = formats.short.format(page.day);
 	const isFiguresLoading = page.isLogsLoading || diary.isLoading;
 	const isSettled = !isFiguresLoading && !page.isLogsError && !diary.isError;
 	const isDayEmpty = isSettled && shownDay.entries.length === 0 && diary.diary.slotCount === 0;
-	const taskCountText = t('dashboard.timesheets.SHEET.TASK_COUNT', { count: tasks.length });
+	const taskCountText = t('dashboard.timesheets.SHEET.TASK_COUNT', { count: taskCount });
 	const shotCountText = t('dashboard.timesheets.diary.SHOT_COUNT', { count: diary.diary.shotCount });
+	const isPlanSettled = !page.isPlanLoading && !page.isPlanError;
 
 	const figures = (
 		<DashboardSection ariaLabel={t('dashboard.workDiary.FIGURES_LABEL')}>
-			<DiaryFigures day={shownDay} diary={diary.diary} taskCount={tasks.length} isLoading={isFiguresLoading} />
+			<DiaryFigures day={shownDay} diary={diary.diary} taskCount={taskCount} isLoading={isFiguresLoading} />
 		</DashboardSection>
 	);
 	const plan = (
 		<DashboardSection
 			title={t('dashboard.calendar.PLAN_TITLE')}
-			actions={shownDay.plan && <DoneOfPlanned day={shownDay} plan={shownDay.plan} />}
+			actions={isPlanSettled && shownDay.plan && <DoneOfPlanned day={shownDay} plan={shownDay.plan} />}
 			bodyClassName="px-4 pb-3"
 		>
-			<DayPlanBlock day={shownDay} showsHeader={false} />
+			{page.isPlanLoading && <DiaryRowsSkeleton />}
+			{page.isPlanError && <DashboardErrorNotice onRetry={() => void page.refetchPlans()} />}
+			{isPlanSettled && <DayPlanBlock day={shownDay} showsHeader={false} />}
 		</DashboardSection>
 	);
 
@@ -120,7 +123,7 @@ function DiaryDayView({
 						message={page.isToday ? t('dashboard.workDiary.NO_TIME_HINT') : undefined}
 					/>
 				</DashboardSection>
-				{shownDay.plan && plan}
+				{(shownDay.plan || !isPlanSettled) && plan}
 			</>
 		);
 	}

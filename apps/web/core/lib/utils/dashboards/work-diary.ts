@@ -301,11 +301,13 @@ export interface DiaryTask {
 	projectName: string | null;
 	projectColor: string | null;
 	isRunning: boolean;
+	/** The time tracked without a task: listed with the tasks, but not one of them. */
+	isUntasked: boolean;
 }
 
 const NO_TASK_KEY = 'no-task';
 
-/** The tasks a day's entries went to, longest first; the time tracked without a task is one more task. */
+/** The tasks a day's entries went to, longest first; the time tracked without a task comes as one more row. */
 export function diaryTasksOf(entries: ReadonlyArray<CalendarEntry>): DiaryTask[] {
 	const byKey = new Map<string, DiaryTask>();
 	for (const entry of entries) {
@@ -319,7 +321,8 @@ export function diaryTasksOf(entries: ReadonlyArray<CalendarEntry>): DiaryTask[]
 				seconds: entry.daySeconds,
 				projectName: entry.projectName,
 				projectColor: entry.projectColor,
-				isRunning: entry.isRunning
+				isRunning: entry.isRunning,
+				isUntasked: taskId === null
 			});
 			continue;
 		}
@@ -327,4 +330,9 @@ export function diaryTasksOf(entries: ReadonlyArray<CalendarEntry>): DiaryTask[]
 		existing.isRunning = existing.isRunning || entry.isRunning;
 	}
 	return [...byKey.values()].sort((first, second) => second.seconds - first.seconds);
+}
+
+/** How many tasks the day's time went to: the time tracked without a task is not one. */
+export function diaryTaskCountOf(tasks: ReadonlyArray<DiaryTask>): number {
+	return tasks.filter((task) => !task.isUntasked).length;
 }

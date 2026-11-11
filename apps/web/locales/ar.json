@@ -583,7 +583,6 @@
 		"workDiary": {
 			"FIGURES_LABEL": "اليوم بالأرقام",
 			"PICK_DAY": "اختر يومًا",
-			"TASKS_OTHER": "{count, plural, zero {لا مهام أخرى} one {مهمة أخرى} two {مهمتان أخريان} few {# مهام أخرى} many {# مهمة أخرى} other {# مهمة أخرى}}",
 			"APPS_EMPTY": "لم يُسجَّل أي تطبيق أو موقع في {day}.",
 			"OPEN_TIMESHEETS": "فتح في الجداول الزمنية",
 			"UPDATING": "جارٍ تحميل اليومية",

@@ -623,7 +623,6 @@
 		"workDiary": {
 			"FIGURES_LABEL": "Der Tag in Zahlen",
 			"PICK_DAY": "Tag wählen",
-			"TASKS_OTHER": "{count, plural, one {# weitere Aufgabe} other {# weitere Aufgaben}}",
 			"APPS_EMPTY": "Am {day} wurde keine App und keine Website erfasst.",
 			"OPEN_TIMESHEETS": "In Stundenzetteln öffnen",
 			"UPDATING": "Arbeitsprotokoll wird geladen",

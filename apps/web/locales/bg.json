@@ -623,7 +623,6 @@
 		"workDiary": {
 			"FIGURES_LABEL": "Денят в числа",
 			"PICK_DAY": "Изберете ден",
-			"TASKS_OTHER": "{count, plural, one {още # задача} other {още # задачи}}",
 			"APPS_EMPTY": "Няма записано приложение или сайт на {day}.",
 			"OPEN_TIMESHEETS": "Отваряне в отчетите за времето",
 			"UPDATING": "Дневникът се зарежда",

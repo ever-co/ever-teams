@@ -86,16 +86,23 @@ function renderTaskName(task: DiaryTask) {
 	return <DiaryTaskName task={task} />;
 }
 
-/** Where the day's time went, task by task: its share of the day, the task (it opens), its project, its time. */
+/** No "other" row: every task of the day keeps its name and its link. */
+function noOtherRow() {
+	return '';
+}
+
+/**
+ * Where the day's time went, task by task: its share of the day, the task (it opens), its project, its time. Every
+ * task is listed, however short: a day holds few enough of them, and each one opens.
+ */
 export function DiaryTaskRows({ tasks }: Readonly<{ tasks: ReadonlyArray<DiaryTask> }>) {
-	const t = useTranslations();
 	const rows = useMemo(
 		() =>
 			shareRowsOf(
 				tasks,
 				(task) => task.seconds,
 				(task) => task.key,
-				LEADING_ROWS
+				tasks.length
 			),
 		[tasks]
 	);
@@ -104,7 +111,7 @@ export function DiaryTaskRows({ tasks }: Readonly<{ tasks: ReadonlyArray<DiaryTa
 			rows={rows}
 			renderName={renderTaskName}
 			formatValue={formatDurationShort}
-			otherLabel={(count) => t('dashboard.workDiary.TASKS_OTHER', { count })}
+			otherLabel={noOtherRow}
 			className="py-1.5"
 			density="narrow"
 		/>

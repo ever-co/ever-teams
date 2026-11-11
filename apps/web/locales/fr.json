@@ -623,7 +623,6 @@
 		"workDiary": {
 			"FIGURES_LABEL": "La journée en chiffres",
 			"PICK_DAY": "Choisir un jour",
-			"TASKS_OTHER": "{count, plural, one {# autre tâche} other {# autres tâches}}",
 			"APPS_EMPTY": "Aucune app ni aucun site enregistré le {day}.",
 			"OPEN_TIMESHEETS": "Ouvrir dans les feuilles de temps",
 			"UPDATING": "Chargement du journal",

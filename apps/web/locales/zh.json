@@ -623,7 +623,6 @@
 		"workDiary": {
 			"FIGURES_LABEL": "当天数据",
 			"PICK_DAY": "选择日期",
-			"TASKS_OTHER": "{count, plural, other {另外 # 个任务}}",
 			"APPS_EMPTY": "{day} 没有记录任何应用或网站。",
 			"OPEN_TIMESHEETS": "在工时表中打开",
 			"UPDATING": "正在加载工作日志",
