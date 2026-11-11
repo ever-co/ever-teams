@@ -44,12 +44,13 @@ function emptyWeeksOf(now: Date, count: number): WeeklyActivity[] {
 	return weeks;
 }
 
-/** The week of the window a date falls in, or null when it is before the window or after `now`. */
-function weekOf(weeks: ReadonlyArray<WeeklyActivity>, date: Date | null, now: Date): WeeklyActivity | null {
+/**
+ * The week of the window a date falls in, or null when it is before the window or after the current week. A date later
+ * in the current week than `now` still counts: the chart keeps one `now` for the whole week, so a task created or
+ * completed after the page was opened (or stamped by a server whose clock runs ahead) lands in this week's bars.
+ */
+function weekOf(weeks: ReadonlyArray<WeeklyActivity>, date: Date | null): WeeklyActivity | null {
 	if (!date) {
-		return null;
-	}
-	if (date.getTime() > now.getTime()) {
 		return null;
 	}
 	const index = differenceInCalendarWeeks(date, weeks[0].weekStart, { weekStartsOn: WEEK_STARTS_ON_MONDAY });
@@ -70,7 +71,7 @@ export function projectActivityOf(
 	const weeks = emptyWeeksOf(now, activityWeeksCountOf(weeksCount));
 	let undatedDone = 0;
 	for (const task of tasks) {
-		const createdWeek = weekOf(weeks, realDateOf(task.createdAt), now);
+		const createdWeek = weekOf(weeks, realDateOf(task.createdAt));
 		if (createdWeek) {
 			createdWeek.created += 1;
 		}
@@ -82,7 +83,7 @@ export function projectActivityOf(
 			undatedDone += 1;
 			continue;
 		}
-		const resolvedWeek = weekOf(weeks, resolvedAt, now);
+		const resolvedWeek = weekOf(weeks, resolvedAt);
 		if (resolvedWeek) {
 			resolvedWeek.completed += 1;
 		}

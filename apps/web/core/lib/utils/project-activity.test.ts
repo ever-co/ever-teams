@@ -82,7 +82,24 @@ describe('projectActivityOf', () => {
 		expect(activity.undatedDone).toBe(3);
 	});
 
-	it('ignores dates before the window and dates in the future', () => {
+	it('counts a task created or completed later in the current week than the time it was asked for', () => {
+		// The chart keeps one `now` for the whole week: work done after the page was opened must still show.
+		const tasks = [
+			taskOf({ status: 'todo', createdAt: new Date(2026, 10, 11, 15, 0, 0) }),
+			taskOf({
+				status: 'done',
+				createdAt: new Date(2026, 10, 2),
+				resolvedAt: new Date(2026, 10, 15, 23, 59, 0)
+			})
+		];
+
+		const activity = projectActivityOf(tasks, STATUSES, NOW, 2);
+
+		expect(activity.weeks.map((week) => week.created)).toEqual([1, 1]);
+		expect(activity.weeks.map((week) => week.completed)).toEqual([0, 1]);
+	});
+
+	it('ignores dates before the window and dates after the current week', () => {
 		const tasks = [
 			taskOf({ status: 'done', createdAt: new Date(2026, 0, 5), resolvedAt: new Date(2026, 0, 6) }),
 			taskOf({ status: 'done', createdAt: new Date(2026, 10, 20), resolvedAt: new Date(2026, 10, 21) })
