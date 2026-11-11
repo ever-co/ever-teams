@@ -145,6 +145,14 @@ function viewPathOf(viewContext: TaskViewContext | undefined): string | null {
 	return `/views/${viewContext.kind === 'saved' ? viewContext.view.id : viewContext.key}`;
 }
 
+/** What the page's narrowing starts over on: the view it is opened on, or nothing on the team's tasks. */
+function resetKeyOf(viewContext: TaskViewContext | undefined): string | undefined {
+	if (!viewContext) {
+		return undefined;
+	}
+	return viewContext.kind === 'saved' ? `view:${viewContext.view.id}` : `built-in:${viewContext.key}`;
+}
+
 function useTeamTasksBreadcrumb(viewTitle: string | null, viewPath: string | null) {
 	const t = useTranslations();
 	const params = useParams<{ locale: string }>();
@@ -191,11 +199,7 @@ export function TeamTasksPage({ viewContext }: Readonly<{ viewContext?: TaskView
 	const t = useTranslations();
 	const initial = useMemo(() => initialDefinitionOf(viewContext), [viewContext]);
 	const builtInTasks = viewContext?.kind === 'builtIn' ? viewContext.tasks : undefined;
-	const resetKey = viewContext
-		? viewContext.kind === 'saved'
-			? `view:${viewContext.view.id}`
-			: `built-in:${viewContext.key}`
-		: undefined;
+	const resetKey = resetKeyOf(viewContext);
 	const savedView = viewContext?.kind === 'saved' ? viewContext.view : null;
 	// A saved view offers its manual order (empty until a task is first moved).
 	const manualOrder = savedView ? (savedView.manualOrder ?? EMPTY_ORDER) : undefined;

@@ -104,7 +104,7 @@ function GroupLabel({ group, locale }: Readonly<{ group: UsageGroup; locale: str
 		case 'project':
 			return <ProjectCell project={group.sample.project} />;
 		case 'application':
-			return <AppTitleCell title={group.sample.title} />;
+			return <AppTitleCell title={group.sample.title} kind={group.sample.kind} url={group.sample.url} />;
 	}
 }
 
@@ -114,7 +114,7 @@ function LineLead({ line, view, locale }: Readonly<{ line: UsageGroupRow; view: 
 			<span className="block truncate text-[13px] text-foreground">{formatDayLabel(line.dateKey, locale)}</span>
 		);
 	}
-	return <AppTitleCell title={line.title} />;
+	return <AppTitleCell title={line.title} kind={line.kind} url={line.url} />;
 }
 
 const UsageLine = memo(function UsageLine({

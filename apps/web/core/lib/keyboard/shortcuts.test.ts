@@ -1,6 +1,8 @@
 import {
 	bindingKeyCaps,
+	bindingSearchWords,
 	chordOfEvent,
+	commandOfTypedSequence,
 	conflictsOf,
 	effectiveBindings,
 	formatBinding,
@@ -48,12 +50,21 @@ describe('shortcut bindings', () => {
 		expect(chordOfEvent({ code: 'ShiftLeft', key: 'Shift', metaKey: false, ctrlKey: false, shiftKey: true, altKey: false })).toBeNull();
 	});
 
+	it('reads a digit key that types punctuation with Shift as that character, and the digit otherwise', () => {
+		// `/` is Shift+7 on a German layout, `!` Shift+1 on a US one.
+		expect(press('Digit7', '/', { shiftKey: true })).toEqual({ key: '/', mod: false, shift: false, alt: false });
+		expect(press('Digit1', '!', { shiftKey: true })).toEqual({ key: '!', mod: false, shift: false, alt: false });
+		// A French layout types `&` on that key without Shift, and the digit with it: the physical key both times.
+		expect(press('Digit1', '&')).toEqual({ key: '1', mod: false, shift: false, alt: false });
+		expect(press('Digit1', '1', { shiftKey: true })).toEqual({ key: '1', mod: false, shift: true, alt: false });
+	});
+
 	it('applies overrides over the defaults; fixed commands keep theirs', () => {
-		const bindings = effectiveBindings(SHORTCUT_COMMANDS, { goTasks: 'g x', goDocs: '', listDown: 'n', listOpen: 'space', taskCreate: 'q' });
+		const bindings = effectiveBindings(SHORTCUT_COMMANDS, { goTasks: 'g x', goDocs: '', listDown: 'b', listOpen: 'space', taskCreate: 'q' });
 		expect(formatBinding(bindings.get('goTasks')!)).toBe('g x');
 		expect(bindings.get('goDocs')).toBeNull();
 		// The list's letters can be rebound; its built-in keys (Enter, Esc) and `C` are not.
-		expect(formatBinding(bindings.get('listDown')!)).toBe('n');
+		expect(formatBinding(bindings.get('listDown')!)).toBe('b');
 		expect(formatBinding(bindings.get('listOpen')!)).toBe('enter');
 		expect(formatBinding(bindings.get('taskCreate')!)).toBe('c');
 		expect(formatBinding(bindings.get('paletteOpen')!)).toBe('mod+k');
@@ -77,14 +88,14 @@ describe('shortcut bindings', () => {
 		// Commands the registry's listener runs take sequences; a key the list keeps or a browser combination is refused
 		// for them too (a "go to" on Esc would run as the focused row clears its selection).
 		const registry = effectiveBindings(SHORTCUT_COMMANDS, {
-			listSaveView: 'g s',
+			listSaveView: 'g e',
 			goTasks: 'escape',
 			helpOpen: 'mod+w',
 			// A browser chord anywhere in a sequence: it could never be finished.
 			goMine: 'mod+w m',
 			goViews: 'g mod+t'
 		});
-		expect(formatBinding(registry.get('listSaveView')!)).toBe('g s');
+		expect(formatBinding(registry.get('listSaveView')!)).toBe('g e');
 		expect(formatBinding(registry.get('goTasks')!)).toBe('g t');
 		expect(formatBinding(registry.get('helpOpen')!)).toBe('?');
 		expect(formatBinding(registry.get('goMine')!)).toBe('g m');
@@ -96,8 +107,8 @@ describe('shortcut bindings', () => {
 			const bindings = effectiveBindings(SHORTCUT_COMMANDS, overrides);
 			return Object.fromEntries(Object.keys(overrides).map((id) => [id, formatBinding(bindings.get(id) ?? [])]));
 		};
-		// `N` for the next row would take the first key of `N T`: the "go to" (earlier in the registry) goes back.
-		expect(resolved({ listDown: 'n', goTasks: 'n t' })).toEqual({ listDown: 'n', goTasks: 'g t' });
+		// `B` for the next row would take the first key of `B T`: the "go to" (earlier in the registry) goes back.
+		expect(resolved({ listDown: 'b', goTasks: 'b t' })).toEqual({ listDown: 'b', goTasks: 'g t' });
 		// Two commands on one key: the earlier goes back, the later keeps it.
 		expect(resolved({ listDown: 'u', listUp: 'u' })).toEqual({ listDown: 'j', listUp: 'u' });
 		// An override on a default still in force goes back: Status on Shift+X would take the range selection.
@@ -167,9 +178,9 @@ describe('shortcut bindings', () => {
 		expect(match(press('KeyG', 'g'))).toBeNull();
 
 		// Rebound: the new keys work, the old ones no longer do, the built-in ones stay.
-		const rebound = effectiveBindings(SHORTCUT_COMMANDS, { listDown: 'n', taskStatus: 'alt+s' });
-		expect(match(press('KeyN', 'n'), rebound)).toEqual({ commandId: 'listDown', extend: false });
-		expect(match(press('KeyN', 'N', { shiftKey: true }), rebound)).toEqual({ commandId: 'listDown', extend: true });
+		const rebound = effectiveBindings(SHORTCUT_COMMANDS, { listDown: 'b', taskStatus: 'alt+s' });
+		expect(match(press('KeyB', 'b'), rebound)).toEqual({ commandId: 'listDown', extend: false });
+		expect(match(press('KeyB', 'B', { shiftKey: true }), rebound)).toEqual({ commandId: 'listDown', extend: true });
 		expect(match(press('KeyJ', 'j'), rebound)).toBeNull();
 		expect(match(press('ArrowDown', 'ArrowDown'), rebound)?.commandId).toBe('listDown');
 		expect(match(press('KeyS', 's', { altKey: true }), rebound)?.commandId).toBe('taskStatus');
@@ -178,8 +189,8 @@ describe('shortcut bindings', () => {
 		const both = new Map(defaults).set('taskDueDate', parseBinding('shift+j'));
 		expect(match(press('KeyJ', 'J', { shiftKey: true }), both)).toEqual({ commandId: 'taskDueDate', extend: false });
 		expect(match(press('KeyJ', 'j'), both)).toEqual({ commandId: 'listDown', extend: false });
-		// A physical key: `N` on a non-Latin layout.
-		expect(match(press('KeyN', 'т'), rebound)?.commandId).toBe('listDown');
+		// A physical key: `B` on a non-Latin layout.
+		expect(match(press('KeyB', 'и'), rebound)?.commandId).toBe('listDown');
 	});
 
 	it('reads the character typed instead of the physical key when asked (the list with the registry off)', () => {
@@ -218,18 +229,20 @@ describe('shortcut bindings', () => {
 		expect(conflicts('listDown', 'k')).toEqual(['listUp']);
 		expect(conflicts('listDown', 's')).toEqual(['taskStatus']);
 		expect(conflicts('taskStatus', 'c')).toEqual(['taskCreate']);
-		expect(conflicts('listDown', 'n')).toEqual([]);
+		expect(conflicts('listDown', 'b')).toEqual([]);
+		// `N` starts the "create" sequences (`N T`, `N P`, `N U`): taken.
+		expect(conflicts('listDown', 'n')).toEqual(['teamCreate', 'projectCreate', 'inviteUser']);
 		// Shift+J extends the selection down: it is the next row's key too.
 		expect(conflicts('taskStatus', 'shift+j')).toEqual(['listDown']);
 		expect(conflicts('goTasks', 'shift+x')).toEqual(['listSelect']);
-		// And the other way round: N for the next row would take Shift+N from whoever holds it.
-		const withShiftN = effectiveBindings(SHORTCUT_COMMANDS, { taskDueDate: 'shift+n' });
-		expect(conflictsOf('listDown', parseBinding('n')!, SHORTCUT_COMMANDS, withShiftN).map((command) => command.id)).toEqual(['taskDueDate']);
+		// And the other way round: B for the next row would take Shift+B from whoever holds it.
+		const withShiftB = effectiveBindings(SHORTCUT_COMMANDS, { taskDueDate: 'shift+b' });
+		expect(conflictsOf('listDown', parseBinding('b')!, SHORTCUT_COMMANDS, withShiftB).map((command) => command.id)).toEqual(['taskDueDate']);
 		// A picker's key with Shift opens the picker too, so Shift+S is the status key's as well.
 		expect(conflicts('listUp', 'shift+s')).toEqual(['taskStatus']);
-		// Status rebound to N: a "go to" on Shift+N would never run on a focused row, the list taking it first.
-		const statusOnN = effectiveBindings(SHORTCUT_COMMANDS, { taskStatus: 'n' });
-		expect(conflictsOf('goTasks', parseBinding('shift+n')!, SHORTCUT_COMMANDS, statusOnN).map((command) => command.id)).toEqual(['taskStatus']);
+		// Status rebound to B: a "go to" on Shift+B would never run on a focused row, the list taking it first.
+		const statusOnB = effectiveBindings(SHORTCUT_COMMANDS, { taskStatus: 'b' });
+		expect(conflictsOf('goTasks', parseBinding('shift+b')!, SHORTCUT_COMMANDS, statusOnB).map((command) => command.id)).toEqual(['taskStatus']);
 		// Alt and Shift together: Shift+Alt+S is the status key's when it is Alt+S.
 		const statusOnAltS = effectiveBindings(SHORTCUT_COMMANDS, { taskStatus: 'alt+s' });
 		expect(conflictsOf('listUp', parseBinding('shift+alt+s')!, SHORTCUT_COMMANDS, statusOnAltS).map((command) => command.id)).toEqual(['taskStatus']);
@@ -252,5 +265,78 @@ describe('shortcut bindings', () => {
 		// A list key does not fire outside the list.
 		expect(matchSequence([press('KeyJ', 'j')], SHORTCUT_COMMANDS, bindings, ['global']).command).toBeNull();
 		expect(matchSequence([press('KeyJ', 'j')], SHORTCUT_COMMANDS, bindings, ['global', 'list']).command?.id).toBe('listDown');
+	});
+});
+
+describe('the default bindings', () => {
+	const bindings = effectiveBindings(SHORTCUT_COMMANDS, null);
+
+	it('never clash and are never refused: the palette commands left C and the row letters alone', () => {
+		for (const command of SHORTCUT_COMMANDS) {
+			const binding = bindings.get(command.id);
+			expect(binding).toBeTruthy();
+			// The list's built-in keys (Enter, Esc) are fixed: no one records them, so no refusal applies.
+			if (!command.fixed) {
+				expect({ id: command.id, refusal: refusalOf(command, binding!) }).toEqual({ id: command.id, refusal: null });
+			}
+			const clashes = conflictsOf(command.id, binding!, SHORTCUT_COMMANDS, bindings).map((other) => other.id);
+			expect({ id: command.id, clashes }).toEqual({ id: command.id, clashes: [] });
+		}
+	});
+
+	it('give the palette commands their new keys', () => {
+		const text = (id: string) => formatBinding(bindings.get(id)!);
+		expect(text('themeToggle')).toBe('t h');
+		expect(text('teamCreate')).toBe('n t');
+		expect(text('projectCreate')).toBe('n p');
+		expect(text('inviteUser')).toBe('n u');
+		expect(text('searchTasks')).toBe('/ t');
+		expect(text('goKanban')).toBe('g k');
+		expect(text('goProfile')).toBe('g u');
+		// The old ones started with `C` (create a task at once) or a row letter (`S` opens the status picker).
+		for (const old of ['c t', 'c p', 's t', 'a m']) {
+			expect(SHORTCUT_COMMANDS.some((command) => command.defaultBinding === old)).toBe(false);
+		}
+	});
+
+	it('runs `G K` through the sequence walker, the list leaving its K to the registry meanwhile', () => {
+		const g = press('KeyG', 'g');
+		const k = press('KeyK', 'k');
+		expect(matchSequence([g, k], SHORTCUT_COMMANDS, bindings, ['global', 'list', 'task']).command?.id).toBe('goKanban');
+		// `/` is the character typed, whatever key prints it.
+		const slash = press('Digit7', '/', { shiftKey: true });
+		expect(matchSequence([slash, press('KeyP', 'p')], SHORTCUT_COMMANDS, bindings, ['global']).command?.id).toBe('searchProjects');
+	});
+});
+
+describe('a sequence typed into the palette', () => {
+	const bindings = effectiveBindings(SHORTCUT_COMMANDS, null);
+
+	it('names the command of the binding in force, in any case, the keys separated by spaces', () => {
+		expect(commandOfTypedSequence('g t', SHORTCUT_COMMANDS, bindings)?.id).toBe('goTasks');
+		expect(commandOfTypedSequence('  G   O ', SHORTCUT_COMMANDS, bindings)?.id).toBe('goOverdue');
+		expect(commandOfTypedSequence('/ t', SHORTCUT_COMMANDS, bindings)?.id).toBe('searchTasks');
+	});
+
+	it('is a search otherwise: one word, a longer word, a sequence nobody has', () => {
+		expect(commandOfTypedSequence('gt', SHORTCUT_COMMANDS, bindings)).toBeNull();
+		expect(commandOfTypedSequence('g', SHORTCUT_COMMANDS, bindings)).toBeNull();
+		expect(commandOfTypedSequence('go to', SHORTCUT_COMMANDS, bindings)).toBeNull();
+		expect(commandOfTypedSequence('g z', SHORTCUT_COMMANDS, bindings)).toBeNull();
+		expect(commandOfTypedSequence('', SHORTCUT_COMMANDS, bindings)).toBeNull();
+	});
+
+	it('follows a rebinding, and only among the commands given (the ones someone can run)', () => {
+		const rebound = effectiveBindings(SHORTCUT_COMMANDS, { goKanban: 'b k' });
+		expect(commandOfTypedSequence('b k', SHORTCUT_COMMANDS, rebound)?.id).toBe('goKanban');
+		expect(commandOfTypedSequence('g k', SHORTCUT_COMMANDS, rebound)).toBeNull();
+		const onlyTasks = SHORTCUT_COMMANDS.filter((command) => command.id === 'goTasks');
+		expect(commandOfTypedSequence('g o', onlyTasks, bindings)).toBeNull();
+	});
+
+	it('finds an entry by its binding written with or without the spaces', () => {
+		expect(bindingSearchWords(parseBinding('g t'))).toEqual(['g t', 'gt']);
+		expect(bindingSearchWords(parseBinding('mod+,'))).toEqual(['mod+,']);
+		expect(bindingSearchWords(null)).toEqual([]);
 	});
 });

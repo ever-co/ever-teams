@@ -3,12 +3,15 @@ import {
 	TEAM_TASK_PROPERTIES,
 	type TeamTaskProperty,
 	type TeamTasksGrouping,
+	type TeamTasksLayout,
 	type TeamTasksOrdering,
 	type TeamTasksScope,
 	type TeamTasksViewSettings
 } from './team-tasks-view';
 
 const GROUPINGS: TeamTasksGrouping[] = ['status', 'priority', 'assignee', 'project', 'issueType', 'none'];
+
+const LAYOUTS: TeamTasksLayout[] = ['list', 'board'];
 
 const ORDERINGS: TeamTasksOrdering[] = ['priority', 'updated', 'created', 'dueDate', 'number', 'title'];
 
@@ -60,7 +63,10 @@ export function viewSettingsFromStorage(
 		return DEFAULT_TEAM_TASKS_VIEW;
 	}
 	const defaults = DEFAULT_TEAM_TASKS_VIEW;
+	const layout = pick(stored.layout, LAYOUTS, 'list');
 	return {
+		// Only a board is kept: a list is what a view without a layout has always been, so nothing else changes.
+		...(layout === 'board' ? { layout } : {}),
 		grouping: pick(stored.grouping, GROUPINGS, defaults.grouping),
 		ordering: pick(stored.ordering, orderings, defaults.ordering),
 		isDescending: booleanOr(stored.isDescending, defaults.isDescending),
@@ -91,6 +97,7 @@ export function withToggledProperty(settings: TeamTasksViewSettings, property: T
 export function isDefaultView(settings: TeamTasksViewSettings) {
 	const defaults = DEFAULT_TEAM_TASKS_VIEW;
 	const sameShape = [
+		(settings.layout ?? 'list') === 'list',
 		settings.grouping === defaults.grouping,
 		settings.ordering === defaults.ordering,
 		settings.isDescending === defaults.isDescending,

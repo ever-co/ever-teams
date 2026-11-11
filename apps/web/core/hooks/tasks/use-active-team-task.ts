@@ -8,7 +8,7 @@ import { useUserQuery } from '@/core/hooks/queries/user-user.query';
 import { taskService } from '@/core/services/client/api';
 import { queryKeys } from '@/core/query/keys';
 import { TTask } from '@/core/types/schemas/task/task.schema';
-import { isTaskInTeam } from '@/core/lib/utils/task.utils';
+import { isTaskInTeam, memberTaskIdOf } from '@/core/lib/utils/task.utils';
 
 /**
  * Result interface for the useActiveTeamTask hook
@@ -51,6 +51,9 @@ export const useActiveTeamTask = (): UseActiveTeamTaskResult => {
 		[activeTeam?.members, authUser?.id]
 	);
 
+	// Priority 2-3: the member's own task, activeTaskId then lastWorkedTask, the one the timer adopts too
+	const memberTaskId = memberTaskIdOf(currentUser);
+
 	// Determine the task ID to use (following priority order)
 	const taskIdToFetch = useMemo(() => {
 		// Priority 1: If we already have activeTeamTask AND it belongs to current team, no need to fetch
@@ -58,18 +61,8 @@ export const useActiveTeamTask = (): UseActiveTeamTaskResult => {
 			return null;
 		}
 
-		// Priority 2: activeTaskId from member data (set when timer starts/stops)
-		if (currentUser?.activeTaskId) {
-			return currentUser.activeTaskId;
-		}
-
-		// Priority 3: lastWorkedTask from member data
-		if (currentUser?.lastWorkedTask?.id) {
-			return currentUser.lastWorkedTask.id;
-		}
-
-		return null;
-	}, [activeTeamTask, activeTeam?.id, currentUser?.activeTaskId, currentUser?.lastWorkedTask?.id]);
+		return memberTaskId;
+	}, [activeTeamTask, activeTeam?.id, memberTaskId]);
 
 	// Try to find the task in local cache first
 	const taskFromCache = useMemo(() => {

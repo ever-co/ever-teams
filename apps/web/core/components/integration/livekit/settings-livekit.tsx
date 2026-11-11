@@ -1,173 +1,171 @@
 'use client';
 import * as React from 'react';
+import { useTranslations } from 'next-intl';
 import { LocalAudioTrack, Track } from 'livekit-client';
 import { useMaybeLayoutContext, useLocalParticipant, MediaDeviceMenu, TrackToggle } from '@livekit/components-react';
 import { Button } from '@/core/components/duplicated-components/_button';
-import styles from '@/styles/settings.module.css';
-import { shortenLink } from '@/core/lib/helpers';
-import { IconsContentCopy, IconsLoader } from '@/core/components/icons';
+import { SettingsSwitch } from '@/core/components/settings/kit/settings-switch';
+import { Copy } from '@/core/components/icons';
+import { cn } from '@/core/lib/helpers';
 
 export interface SettingsMenuProps extends React.HTMLAttributes<HTMLDivElement> {}
 
-export function SettingsMenu(props: SettingsMenuProps) {
+type SettingsTab = 'media' | 'effects';
+
+const SECTION_TITLE = 'text-xs font-medium uppercase tracking-wide text-muted-foreground';
+
+function DeviceRow({ title, children }: Readonly<{ title: string; children: React.ReactNode }>) {
+	return (
+		<section className="flex flex-col gap-2">
+			<h3 className={SECTION_TITLE}>{title}</h3>
+			<div className="lk-button-group">{children}</div>
+		</section>
+	);
+}
+
+/** The in-call settings of a LiveKit room: devices, the noise filter, and the link to invite others. */
+export function SettingsMenu({ className, ...props }: Readonly<SettingsMenuProps>) {
+	const t = useTranslations();
 	const TrackToggleComponent = TrackToggle as React.ElementType;
-
 	const layoutContext = useMaybeLayoutContext();
-	const [copied, setCopied] = React.useState<boolean>(false);
-
-	const getTeamLink = React.useCallback(() => {
-		if (typeof window !== 'undefined') {
-			return `${window.location.origin}/meet/livekit?roomName=${window.localStorage.getItem('current-room-live-kit')}`;
-		}
-		return '';
-	}, []);
-
-	const settings = React.useMemo(() => {
-		return {
-			media: { camera: true, microphone: true, label: 'Media Devices', speaker: true },
-			effects: { label: 'Effects' }
-		};
-	}, []);
-
-	const tabs = React.useMemo(() => Object.keys(settings) as Array<keyof typeof settings>, [settings]);
 	const { microphoneTrack } = useLocalParticipant();
-	const [activeTab, setActiveTab] = React.useState(tabs[0]);
+	const [activeTab, setActiveTab] = React.useState<SettingsTab>('media');
 	const [isNoiseFilterEnabled, setIsNoiseFilterEnabled] = React.useState(true);
+	const [isNoiseFilterSupported, setIsNoiseFilterSupported] = React.useState(true);
+	const [isLinkCopied, setIsLinkCopied] = React.useState(false);
+
 	React.useEffect(() => {
 		const micPublication = microphoneTrack;
-		if (micPublication && micPublication.track instanceof LocalAudioTrack) {
-			const currentProcessor = micPublication.track.getProcessor();
-			if (currentProcessor && !isNoiseFilterEnabled) {
-				micPublication.track.stopProcessor();
-			} else if (!currentProcessor && isNoiseFilterEnabled) {
-				import('@livekit/krisp-noise-filter')
-					.then(({ KrispNoiseFilter, isKrispNoiseFilterSupported }) => {
-						if (!isKrispNoiseFilterSupported()) {
-							console.error('Enhanced noise filter is not supported for this browser');
-							setIsNoiseFilterEnabled(false);
-							return;
-						}
-						micPublication?.track
-							// @ts-ignore
-							?.setProcessor(KrispNoiseFilter())
-							.then(() => console.log('successfully set noise filter'));
-					})
-					.catch((e) => console.error('Failed to load noise filter', e));
-			}
+		if (!(micPublication?.track instanceof LocalAudioTrack)) {
+			return;
 		}
+		const track = micPublication.track;
+		const currentProcessor = track.getProcessor();
+		if (currentProcessor && !isNoiseFilterEnabled) {
+			void track.stopProcessor();
+			return;
+		}
+		if (currentProcessor || !isNoiseFilterEnabled) {
+			return;
+		}
+		import('@livekit/krisp-noise-filter')
+			.then(({ KrispNoiseFilter, isKrispNoiseFilterSupported }) => {
+				if (!isKrispNoiseFilterSupported()) {
+					setIsNoiseFilterSupported(false);
+					setIsNoiseFilterEnabled(false);
+					return;
+				}
+				// The filter's processor type comes from another copy of livekit-client than the track's
+				return track.setProcessor(KrispNoiseFilter() as unknown as Parameters<typeof track.setProcessor>[0]);
+			})
+			.catch((error: unknown) => console.error('Failed to load noise filter', error));
 	}, [isNoiseFilterEnabled, microphoneTrack]);
+
+	const copyLink = async () => {
+		try {
+			await navigator.clipboard.writeText(window.location.href);
+			setIsLinkCopied(true);
+		} catch {
+			setIsLinkCopied(false);
+		}
+	};
+
+	const tabs: Array<{ id: SettingsTab; label: string }> = [
+		{ id: 'media', label: t('meetings.AUDIO_AND_VIDEO') },
+		{ id: 'effects', label: t('meetings.EFFECTS') }
+	];
 
 	return (
 		<div
-			className="fixed inset-0 items-center bg-card indent-0 justify-cent"
-			style={{ width: '100%', height: '100%' }}
+			className={cn('fixed inset-0 flex flex-col bg-card text-foreground', className)}
+			role="dialog"
+			aria-label={t('meetings.SETTINGS')}
 			{...props}
 		>
-			<div className={`${styles.tabs} p-5`}>
-				{tabs.map(
-					(tab) =>
-						settings[tab] && (
-							<button
-								className={`${styles.tab} lk-button`}
-								key={tab}
-								onClick={() => setActiveTab(tab)}
-								aria-pressed={tab === activeTab}
-							>
-								{
-									// @ts-ignore
-									settings[tab].label
-								}
-							</button>
-						)
-				)}
+			<div className="flex items-center gap-2 hairline-b border-border px-5 py-3">
+				<h2 className="flex-1 text-base font-semibold">{t('meetings.SETTINGS')}</h2>
+				<Button
+					type="button"
+					variant="outline"
+					size="sm"
+					onClick={() => layoutContext?.widget.dispatch?.({ msg: 'toggle_settings' })}
+				>
+					{t('common.CLOSE')}
+				</Button>
 			</div>
-			<div className="p-5 tab-content">
+
+			<div role="tablist" className="flex gap-1 px-5 pt-3">
+				{tabs.map((tab) => (
+					<button
+						key={tab.id}
+						type="button"
+						role="tab"
+						aria-selected={tab.id === activeTab}
+						onClick={() => setActiveTab(tab.id)}
+						className={cn(
+							'cursor-pointer rounded-md px-3 py-1.5 text-sm font-medium outline-none focus-visible:ring-[3px] focus-visible:ring-ring/25',
+							tab.id === activeTab
+								? 'bg-muted text-foreground'
+								: 'text-muted-foreground hover:text-foreground'
+						)}
+					>
+						{tab.label}
+					</button>
+				))}
+			</div>
+
+			<div className="flex min-h-0 flex-1 flex-col gap-5 overflow-y-auto px-5 py-4" role="tabpanel">
 				{activeTab === 'media' && (
 					<>
-						{settings.media && settings.media.camera && (
-							<>
-								<h3>Camera</h3>
-								<section className="lk-button-group">
-									<TrackToggleComponent source={Track.Source.Camera}>Camera</TrackToggleComponent>
-									<div className="lk-button-group-menu">
-										<MediaDeviceMenu kind="videoinput" />
-									</div>
-								</section>
-							</>
-						)}
-						{settings.media && settings.media.microphone && (
-							<>
-								<h3>Microphone</h3>
-								<section className="lk-button-group">
-									<TrackToggleComponent source={Track.Source.Microphone}>
-										Microphone
-									</TrackToggleComponent>
-									<div className="lk-button-group-menu">
-										<MediaDeviceMenu kind="audioinput" />
-									</div>
-								</section>
-							</>
-						)}
-						{settings.media && settings.media.speaker && (
-							<>
-								<h3>Speaker & Headphones</h3>
-								<section className="lk-button-group">
-									<span className="lk-button">Audio Output</span>
-									<div className="lk-button-group-menu">
-										<MediaDeviceMenu kind="audiooutput"></MediaDeviceMenu>
-									</div>
-								</section>
-							</>
-						)}
+						<DeviceRow title={t('meetings.CAMERA')}>
+							<TrackToggleComponent source={Track.Source.Camera}>
+								{t('meetings.CAMERA')}
+							</TrackToggleComponent>
+							<div className="lk-button-group-menu">
+								<MediaDeviceMenu kind="videoinput" />
+							</div>
+						</DeviceRow>
+						<DeviceRow title={t('meetings.MICROPHONE')}>
+							<TrackToggleComponent source={Track.Source.Microphone}>
+								{t('meetings.MICROPHONE')}
+							</TrackToggleComponent>
+							<div className="lk-button-group-menu">
+								<MediaDeviceMenu kind="audioinput" />
+							</div>
+						</DeviceRow>
+						<DeviceRow title={t('meetings.SPEAKER')}>
+							<span className="lk-button">{t('meetings.SPEAKER')}</span>
+							<div className="lk-button-group-menu">
+								<MediaDeviceMenu kind="audiooutput" />
+							</div>
+						</DeviceRow>
 					</>
 				)}
 				{activeTab === 'effects' && (
-					<>
-						<h3>Audio</h3>
-						<section>
-							<label htmlFor="noise-filter"> Enhanced Noise Cancellation</label>
-							<input
-								type="checkbox"
-								id="noise-filter"
-								onChange={(ev) => setIsNoiseFilterEnabled(ev.target.checked)}
-								checked={isNoiseFilterEnabled}
-							></input>
-						</section>
-					</>
+					<section className="flex items-start justify-between gap-4">
+						<div className="flex flex-col gap-0.5">
+							<span className="text-sm font-medium">{t('meetings.NOISE_FILTER')}</span>
+							<span className="text-xs text-muted-foreground">
+								{isNoiseFilterSupported
+									? t('meetings.NOISE_FILTER_HINT')
+									: t('meetings.NOISE_FILTER_UNSUPPORTED')}
+							</span>
+						</div>
+						<SettingsSwitch
+							checked={isNoiseFilterEnabled}
+							onCheckedChange={setIsNoiseFilterEnabled}
+							disabled={!isNoiseFilterSupported}
+							ariaLabel={t('meetings.NOISE_FILTER')}
+						/>
+					</section>
 				)}
 			</div>
-			<div
-				style={{
-					position: 'absolute',
-					right: 'var(--lk-grid-gap)',
-					bottom: 'var(--lk-grid-gap)'
-				}}
-				className={`flex items-center w-full justify-between`}
-			>
-				<div className="flex flex-col items-start">
-					<span className="text-sm text-muted-foreground px-7">
-						You can invite your colleagues to join the meeting by sharing this link.
-					</span>
-					<button
-						className="flex items-center gap-1 px-7 text-sm text-primary-ink hover:underline underline-offset-4"
-						onClick={() => {
-							navigator.clipboard.writeText(getTeamLink());
-							setCopied(true);
-							setTimeout(() => {
-								setCopied(false);
-							}, 1000 * 10 /** 10 Seconds */);
-						}}
-					>
-						{copied ? <IconsLoader className="animate-spine" /> : <IconsContentCopy />}
-						{shortenLink(getTeamLink())}
-					</button>
-				</div>
 
-				<Button
-					className={`lk-button  !bg-primary`}
-					onClick={() => layoutContext?.widget.dispatch?.({ msg: 'toggle_settings' })}
-				>
-					Close
+			<div className="flex flex-wrap items-center justify-between gap-2 hairline-t border-border px-5 py-3">
+				<span className="text-sm text-muted-foreground">{t('meetings.INVITE_HINT_SHORT')}</span>
+				<Button type="button" variant="outline" size="sm" onClick={copyLink}>
+					<Copy className="size-4" aria-hidden="true" />
+					{isLinkCopied ? t('meetings.LINK_COPIED') : t('meetings.COPY_LINK')}
 				</Button>
 			</div>
 		</div>

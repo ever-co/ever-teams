@@ -1,4 +1,5 @@
 import { endOfDay, isSameDay, startOfDay } from 'date-fns';
+import { addressOfMetaData } from '@/core/lib/utils/activity-icons';
 import type { TActivityEntry } from '@/core/types/schemas/activities/activity.schema';
 import { percentOfDayWindow, timelineHoursOf } from './team-day';
 
@@ -14,6 +15,8 @@ export interface AppActivity {
 	title: string;
 	detail: string;
 	kind: AppActivityKind;
+	/** The visited address the entry's metadata holds, for a site's icon (#5023). */
+	url?: string | null;
 	start: Date;
 	end: Date;
 	seconds: number;
@@ -27,6 +30,7 @@ export interface AppShare {
 	title: string;
 	detail: string;
 	kind: AppActivityKind;
+	url?: string | null;
 	seconds: number;
 	share: number;
 }
@@ -117,6 +121,7 @@ export function appActivitiesOf(entries: ReadonlyArray<TActivityEntry>): AppActi
 			title,
 			detail: entry.description?.trim() ?? '',
 			kind: kindOf(entry.type),
+			url: addressOfMetaData(entry.metaData),
 			start,
 			end: new Date(endTime),
 			seconds,
@@ -153,6 +158,7 @@ export function appSharesOf(activities: ReadonlyArray<AppActivity>): AppShare[] 
 				title: activity.title,
 				detail: activity.detail,
 				kind: activity.kind,
+				url: activity.url ?? null,
 				seconds: activity.seconds,
 				share: 0
 			});
@@ -160,6 +166,7 @@ export function appSharesOf(activities: ReadonlyArray<AppActivity>): AppShare[] 
 			continue;
 		}
 		existing.seconds += activity.seconds;
+		existing.url = existing.url ?? activity.url ?? null;
 		const detailSeconds = detailSecondsByKey.get(key) ?? 0;
 		const isLongerDetail = activity.seconds > detailSeconds;
 		const hasDetail = Boolean(activity.detail);

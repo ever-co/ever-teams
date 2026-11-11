@@ -456,8 +456,14 @@ export const queryKeys = {
 			organizationId: string | undefined | null,
 			userId: string | undefined | null
 		) => ['inbox', 'counts', tenantId ?? null, organizationId ?? null, userId ?? null] as const,
-		item: (tenantId: string | undefined | null, id: string | undefined | null) =>
-			['inbox', 'item', tenantId ?? null, id ?? null] as const
+		// One item as the caller sees it: its read, archive and snooze state are the caller's, so the key names the
+		// whole scope, as the lists' keys do.
+		item: (
+			tenantId: string | undefined | null,
+			organizationId: string | undefined | null,
+			userId: string | undefined | null,
+			id: string | undefined | null
+		) => ['inbox', 'item', tenantId ?? null, organizationId ?? null, userId ?? null, id ?? null] as const
 	},
 	chat: {
 		all: ['chat'] as const,
@@ -475,8 +481,14 @@ export const queryKeys = {
 			['chat', 'thread', tenantId ?? null, rootMessageId ?? null] as const,
 		threads: (tenantId: string | undefined | null, userId: string | undefined | null) => ['chat', 'threads', tenantId ?? null, userId ?? null] as const,
 		members: (tenantId: string | undefined | null, conversationId: string | undefined | null) =>
-			['chat', 'members', tenantId ?? null, conversationId ?? null] as const
+			['chat', 'members', tenantId ?? null, conversationId ?? null] as const,
+		files: (tenantId: string | undefined | null, conversationId: string | undefined | null) =>
+			['chat', 'files', tenantId ?? null, conversationId ?? null] as const
 	},
+
+	// The preview of a link, one per link and kept for the session. Outside the `chat` prefix on purpose: the live
+	// channel invalidates `['chat']` on every change, and no message event changes what a page says about itself.
+	chatLinkPreview: (tenantId: string | undefined | null, url: string) => ['chat-link-preview', tenantId ?? null, url] as const,
 
 	taskComments: {
 		all: ['task-comments'] as const,
@@ -839,7 +851,16 @@ export const queryKeys = {
 			teams: (tenantId: string | undefined | null, organizationId: string | undefined | null, integrationId: string | undefined | null) =>
 				['integrations', 'linear', 'teams', tenantId ?? null, organizationId ?? null, integrationId ?? null] as const,
 			runs: (tenantId: string | undefined | null, organizationId: string | undefined | null, integrationId: string | undefined | null) =>
-				['integrations', 'linear', 'runs', tenantId ?? null, organizationId ?? null, integrationId ?? null] as const
+				['integrations', 'linear', 'runs', tenantId ?? null, organizationId ?? null, integrationId ?? null] as const,
+			/** Every conflict list of the provider (a resolve or a finished run reads them again). */
+			conflictsAll: ['integrations', 'linear', 'conflicts'] as const,
+			conflicts: (
+				tenantId: string | undefined | null,
+				organizationId: string | undefined | null,
+				integrationId: string | undefined | null,
+				status: string | undefined | null,
+				runId: string | undefined | null
+			) => ['integrations', 'linear', 'conflicts', tenantId ?? null, organizationId ?? null, integrationId ?? null, status ?? null, runId ?? null] as const
 		},
 		asana: {
 			all: ['integrations', 'asana'] as const,
@@ -854,7 +875,16 @@ export const queryKeys = {
 			sections: (tenantId: string | undefined | null, organizationId: string | undefined | null, integrationId: string | undefined | null, projectGid: string | undefined | null) =>
 				['integrations', 'asana', 'sections', tenantId ?? null, organizationId ?? null, integrationId ?? null, projectGid ?? null] as const,
 			runs: (tenantId: string | undefined | null, organizationId: string | undefined | null, integrationId: string | undefined | null) =>
-				['integrations', 'asana', 'runs', tenantId ?? null, organizationId ?? null, integrationId ?? null] as const
+				['integrations', 'asana', 'runs', tenantId ?? null, organizationId ?? null, integrationId ?? null] as const,
+			/** Every conflict list of the provider (a resolve or a finished run reads them again). */
+			conflictsAll: ['integrations', 'asana', 'conflicts'] as const,
+			conflicts: (
+				tenantId: string | undefined | null,
+				organizationId: string | undefined | null,
+				integrationId: string | undefined | null,
+				status: string | undefined | null,
+				runId: string | undefined | null
+			) => ['integrations', 'asana', 'conflicts', tenantId ?? null, organizationId ?? null, integrationId ?? null, status ?? null, runId ?? null] as const
 		},
 		trello: {
 			all: ['integrations', 'trello'] as const,
@@ -867,7 +897,16 @@ export const queryKeys = {
 			lists: (tenantId: string | undefined | null, organizationId: string | undefined | null, integrationId: string | undefined | null, boardId: string | undefined | null) =>
 				['integrations', 'trello', 'lists', tenantId ?? null, organizationId ?? null, integrationId ?? null, boardId ?? null] as const,
 			runs: (tenantId: string | undefined | null, organizationId: string | undefined | null, integrationId: string | undefined | null) =>
-				['integrations', 'trello', 'runs', tenantId ?? null, organizationId ?? null, integrationId ?? null] as const
+				['integrations', 'trello', 'runs', tenantId ?? null, organizationId ?? null, integrationId ?? null] as const,
+			/** Every conflict list of the provider (a resolve or a finished run reads them again). */
+			conflictsAll: ['integrations', 'trello', 'conflicts'] as const,
+			conflicts: (
+				tenantId: string | undefined | null,
+				organizationId: string | undefined | null,
+				integrationId: string | undefined | null,
+				status: string | undefined | null,
+				runId: string | undefined | null
+			) => ['integrations', 'trello', 'conflicts', tenantId ?? null, organizationId ?? null, integrationId ?? null, status ?? null, runId ?? null] as const
 		},
 		types: (tenantId: string | undefined | null) =>
 			['integrations', 'types', ...(tenantId ? [tenantId] : [])] as const,
@@ -957,6 +996,13 @@ export const queryKeys = {
 		liveCollaboration: ['live-collaboration'] as const
 	},
 
+	// Meetings the signed-in member scheduled (Ever Gauzy employee appointments)
+	meetings: {
+		all: ['meetings'] as const,
+		scheduled: (employeeId: string | undefined | null) =>
+			['meetings', 'scheduled', ...(employeeId ? [employeeId] : [])] as const
+	},
+
 	timeLogs: {
 		all: ['time-logs'] as const,
 		dailyReport: {
@@ -1042,6 +1088,14 @@ export const queryKeys = {
 		search: (tenantId: string | undefined | null, organizationId: string | undefined | null, query: string) =>
 			['docs', 'search', tenantId ?? null, organizationId ?? null, query] as const,
 		projectPages: (tenantId: string | undefined | null, organizationId: string | undefined | null, projectId: string | undefined | null) =>
-			['docs', 'project-pages', tenantId ?? null, organizationId ?? null, projectId ?? null] as const
+			['docs', 'project-pages', tenantId ?? null, organizationId ?? null, projectId ?? null] as const,
+		// What the reader sees of the spaces and of a page's follow state is their own: the user is part of the key.
+		spaces: (tenantId: string | undefined | null, organizationId: string | undefined | null, userId: string | undefined | null) =>
+			['docs', 'spaces', tenantId ?? null, organizationId ?? null, userId ?? null] as const,
+		follow: (tenantId: string | undefined | null, userId: string | undefined | null, pageId: string | undefined | null) =>
+			['docs', 'follow', tenantId ?? null, userId ?? null, pageId ?? null] as const,
+		/** The platform's comments on the page (entity `Document`), block threads and page comments alike. */
+		comments: (tenantId: string | undefined | null, organizationId: string | undefined | null, pageId: string | undefined | null) =>
+			['docs', 'comments', tenantId ?? null, organizationId ?? null, pageId ?? null] as const
 	}
 };

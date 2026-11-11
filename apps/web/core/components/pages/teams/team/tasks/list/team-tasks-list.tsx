@@ -31,20 +31,15 @@ import type { TaskOrderMove } from '@/core/lib/utils/task-view-order';
 import { GROUP_HEIGHT, ROW_HEIGHT, TEAM_TASK_LIST_MIN_WIDTH, type TeamTasksGrid } from './team-tasks-grid';
 import { TeamTasksListProvider, type TeamTaskPickerKind, type TeamTasksListActions } from './team-tasks-list-context';
 import { TeamTaskRow } from './team-task-row';
+import { TeamTasksBoard } from './team-tasks-board';
+import { cellAppliesToSelection, pickerOf } from './team-task-picker-commands';
+import { isTaskViewsEnabled } from '@/core/lib/utils/task-views-enabled';
 import { TeamTasksGroupHeader } from './team-tasks-group-header';
 import { TeamTasksColumnHeader } from './team-tasks-column-header';
 import type { TeamTaskMenuAnchor } from './team-task-menu';
 import { useTeamTaskListReorder } from './team-task-row-dnd';
 
 const OVERSCAN = 10;
-
-/** The commands that open a picker on the focused row (their keys are the bindings in force). */
-const PICKER_COMMANDS: ReadonlyMap<string, { kind: TeamTaskPickerKind; appliesToSelection: boolean }> = new Map([
-	['taskStatus', { kind: 'status', appliesToSelection: true }],
-	['taskPriority', { kind: 'priority', appliesToSelection: true }],
-	['taskLabels', { kind: 'labels', appliesToSelection: false }],
-	['taskDueDate', { kind: 'dueDate', appliesToSelection: false }]
-]);
 
 /** The list's keys with the saved-views feature off: the defaults, as they always were. */
 const DEFAULT_BINDINGS = effectiveBindings(SHORTCUT_COMMANDS, null);
@@ -173,17 +168,26 @@ function useListOffset() {
  * thousands of tasks scrolls as lightly as one with ten. The band of the group being read stays under the column
  * labels. The keyboard walks the rows (a roving focus), and a right click opens the row's action menu.
  */
-export function TeamTasksList({
-	view,
-	grid,
-	commands,
-	scrollRef
-}: Readonly<{
+interface TeamTasksListProps {
 	view: TeamTasksViewState;
 	grid: TeamTasksGrid;
 	commands: TeamTasksListCommands;
 	scrollRef: RefObject<HTMLDivElement | null>;
-}>) {
+}
+
+/**
+ * The tasks of the page: rows, or with the saved-views feature and a board layout, cards in one lane per status (the
+ * Kanban page's board) on the same tasks, selection and commands.
+ */
+export function TeamTasksList(props: Readonly<TeamTasksListProps>) {
+	const isBoard = props.view.settings.layout === 'board' && isTaskViewsEnabled();
+	if (isBoard) {
+		return <TeamTasksBoard view={props.view} commands={props.commands} />;
+	}
+	return <TeamTasksRows {...props} />;
+}
+
+function TeamTasksRows({ view, grid, commands, scrollRef }: Readonly<TeamTasksListProps>) {
 	const t = useTranslations();
 	const { rows, orderedIds, selectedIds } = view;
 	const [focusedTaskId, setFocusedTaskId] = useState<string | null>(null);
@@ -299,7 +303,7 @@ export function TeamTasksList({
 
 	const openPickerFromKey = useCallback(
 		(taskId: string, commandId: string) => {
-			const picker = PICKER_COMMANDS.get(commandId);
+			const picker = pickerOf(commandId, canRebind);
 			if (!picker) {
 				return;
 			}
@@ -310,7 +314,7 @@ export function TeamTasksList({
 			const taskIds = targetIdsFor(taskId, picker.appliesToSelection);
 			commands.openPicker(picker.kind, taskIds, anchor, keyCapOf(bindings.get(commandId), isMac));
 		},
-		[bindings, commands, isMac, scrollRef, targetIdsFor]
+		[bindings, canRebind, commands, isMac, scrollRef, targetIdsFor]
 	);
 
 	const handleKeyDown = (event: KeyboardEvent<HTMLDivElement>) => {
@@ -356,7 +360,7 @@ export function TeamTasksList({
 			view.clearSelection();
 			return;
 		}
-		if (PICKER_COMMANDS.has(match.commandId)) {
+		if (pickerOf(match.commandId, canRebind)) {
 			event.preventDefault();
 			openPickerFromKey(taskId, match.commandId);
 		}
@@ -383,7 +387,7 @@ export function TeamTasksList({
 		() => ({
 			openTask: commands.openTask,
 			openPicker: (kind, taskIds, anchor) => {
-				const appliesToSelection = kind !== 'labels' && kind !== 'dueDate' && kind !== 'issueType';
+				const appliesToSelection = cellAppliesToSelection(kind, canRebind);
 				const firstId = taskIds[0];
 				const ids = targetIdsFor(firstId, appliesToSelection);
 				commands.openPicker(kind, ids, anchor);
@@ -395,7 +399,7 @@ export function TeamTasksList({
 			createTaskInGroup: commands.createTaskInGroup,
 			focusTask
 		}),
-		[commands, focusTask, targetIdsFor, view.setManySelected, view.toggleGroup, view.toggleSelected]
+		[canRebind, commands, focusTask, targetIdsFor, view.setManySelected, view.toggleGroup, view.toggleSelected]
 	);
 
 	const isSelecting = selectedIds.size > 0;

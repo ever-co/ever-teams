@@ -55,13 +55,6 @@ function isTrackingEnabledFor(team: TOrganizationTeam | null | undefined, userId
 	});
 }
 
-function titleKeyOf(showsOwnDiaryOnly: boolean) {
-	if (showsOwnDiaryOnly) {
-		return 'dashboard.timesheets.WORK_DIARY' as const;
-	}
-	return 'dashboard.timesheets.TITLE' as const;
-}
-
 /** The sheet groups the logs by member and task only while it is the view on screen. */
 function sheetLogsOf(view: TimesheetView, logs: ITimeLog[]) {
 	if (view === 'sheet') {
@@ -142,7 +135,8 @@ export function TimesheetsPage({ params }: Readonly<{ params: Promise<{ memberId
 		onClear: page.clearFilters
 	});
 
-	const title = t(titleKeyOf(page.showsOwnDiaryOnly));
+	// Always Timesheets, whoever the filter keeps: one's own day has its page, My work › Work diary
+	const title = t('dashboard.timesheets.TITLE');
 	const showsMember = permissions.isManage && !page.showsOwnDiaryOnly;
 	const isTrackingEnabled = isTrackingEnabledFor(page.activeTeam, permissions.userId);
 	const canAddTime = permissions.hasOrganizationRole;

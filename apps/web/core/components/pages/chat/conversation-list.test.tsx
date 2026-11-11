@@ -4,6 +4,7 @@ import React from 'react';
 import { fireEvent, render, screen, within } from '@testing-library/react';
 import { ChatPerson } from '@/core/lib/utils/chat-format';
 import { EChatConversationKind, EChatNotifyLevel, EChatVisibility, IChatCategory, IChatConversationWithState, IChatMemberState } from '@/core/types/interfaces/common/chat';
+import { ETimerStatus } from '@/core/types/generics/enums/timer';
 import { ConversationList, ConversationListProps } from './conversation-list';
 
 const mockPush = jest.fn();
@@ -12,6 +13,8 @@ jest.mock('next-intl', () => ({
 	useTranslations: () => (key: string, values?: { count?: number }) => (values?.count === undefined ? key : `${key}:${values.count}`)
 }));
 jest.mock('next/navigation', () => ({ useRouter: () => ({ push: mockPush }) }));
+// The app's status dot, tested with the timer: here, which status a row gives it.
+jest.mock('@/core/components/timer/timer-status', () => ({ TimerStatus: ({ status }: { status: string }) => <span data-testid="status-dot">{status}</span> }));
 jest.mock('next/link', () => ({
 	__esModule: true,
 	default: ({ href, children, ...rest }: { href: string; children?: React.ReactNode }) => (
@@ -201,5 +204,19 @@ describe('loading and failing', () => {
 		expect(screen.getByRole('alert').textContent).toContain('teamChat.LOAD_ERROR');
 		fireEvent.click(screen.getByRole('button', { name: 'teamChat.RETRY' }));
 		expect(handlers.onRetry).toHaveBeenCalledTimes(1);
+	});
+});
+
+describe('presence', () => {
+	it('shows the status dot of the other person on a direct conversation, and none on a channel', () => {
+		renderList({ presence: new Map([[BO, ETimerStatus.RUNNING]]) });
+		const dots = screen.getAllByTestId('status-dot');
+		expect(dots.map((dot) => dot.textContent)).toEqual(['running']);
+		expect(dots[0].closest('a')?.getAttribute('href')).toBe('/chat/dm-bo');
+	});
+
+	it('shows no dot for a person the app has no status of', () => {
+		renderList({ presence: new Map() });
+		expect(screen.queryByTestId('status-dot')).toBeNull();
 	});
 });

@@ -90,6 +90,8 @@ export interface ILinearRun {
 	skippedCount: number;
 	failedCount: number;
 	lastError: string | null;
+	/** How many sync conflicts the run found (the runs list says it; a run just started has none yet). */
+	conflictCount?: number;
 }
 
 /** The errors the platform's callback may send the person back with (`?error=`). */

@@ -13,18 +13,21 @@ import { ERoleName } from '@/core/types/generics/enums/role';
  *
  * @param body
  * @param bearer_token
+ * @param init - Fetch options of the request (an abort signal)
  * @returns
  */
 export function inviteByEmailsRequest(
 	{ tenantId, ...body }: IInviteCreate & { tenantId: string },
-	bearer_token: string
+	bearer_token: string,
+	init?: RequestInit
 ) {
 	return serverFetch<PaginationResponse<TInvite>>({
 		path: '/invite/emails',
 		method: 'POST',
 		body,
 		bearer_token,
-		tenantId
+		tenantId,
+		init
 	});
 }
 

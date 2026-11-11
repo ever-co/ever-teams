@@ -23,8 +23,8 @@
   focused row (one chord each, Shift on a bare binding extends), ↑/↓, Enter, O and Esc stay built in, the help refuses a
   sequence, ⌘/Ctrl or a built-in key for them (with Shift added, still theirs in conflicts), and the second key of a
   registry sequence (`G O`) is left to the registry
-- [ ] **T9**. Palette results for people, projects, pages and conversations; recent items; "Go to" sequences inside the palette input
-- [ ] **T10**. Project and due-date bulk actions; multi-select on the kanban; views for the kanban layout
+- [x] **T9**. Palette results for people, projects, pages and conversations; recent items; "Go to" sequences inside the palette input
+- [x] **T10**. Project and due-date bulk actions; multi-select on the kanban; views for the kanban layout
 - [x] **T11**. Manual ordering of a view (`PUT /task-views/:id/order`) with drag and drop: a saved view offers the
   Manual ordering (Display); a row drags within its group (mouse or pen), the row menu moves a task up, down, to the
   top or the bottom of its group; each move is shown at once and saved with the version read, a 409 makes the same
@@ -32,7 +32,7 @@
 - [x] **T12**. Saved views on mobile (phone widths): the row menu's moves order a view by touch (a long press opens
   it; rows do not drag on touch), the phone's sidebar sheet closes once one of its links (a view) opened a page, and
   the views list shows who sees each view
-- [ ] **T13**. The palette's existing sequences (`I U`, `A M`, `T H`, `C T`, `S T`, `C P`, the ⌘ ones) from the registry too
+- [x] **T13**. The palette's existing sequences (`I U`, `A M`, `T H`, `C T`, `S T`, `C P`, the ⌘ ones) from the registry too
   (split from T8): several clash with `C` and the row letters today, so they need new defaults first
 
 **Status 2026-11-07:** phase 1 on ever-teams `feat/tasks-keyboard-and-views` (PR opened with the lane; the cluster gate and the bots next).

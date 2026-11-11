@@ -25,9 +25,10 @@ import { personFromTeamMember, type Person } from '@/core/components/teams/peopl
 import { useChatPeople } from '@/core/hooks/chat/use-chat-scope';
 import { useInboxActions } from '@/core/hooks/inbox/use-inbox-actions';
 import { useInboxAvailability } from '@/core/hooks/inbox/use-inbox-availability';
-import { useInboxCounts, useInboxItems } from '@/core/hooks/inbox/use-inbox-items';
+import { useInboxCounts, useInboxItem, useInboxItems } from '@/core/hooks/inbox/use-inbox-items';
 import { useInboxKeyboard } from '@/core/hooks/inbox/use-inbox-keyboard';
 import { useInboxScope } from '@/core/hooks/inbox/use-inbox-scope';
+import { useInboxSheetFocus } from '@/core/hooks/inbox/use-inbox-sheet-focus';
 import { useNotificationActions, useNotificationInbox, useUnreadNotificationCount } from '@/core/hooks/notifications/use-notification-inbox';
 import { useTaskDrawer } from '@/core/hooks/tasks/use-task-drawer';
 import { isInboxEnabled } from '@/core/lib/utils/inbox-enabled';
@@ -43,6 +44,10 @@ import {
 	fromNotificationEntry,
 	groupInboxEntriesByDay,
 	hasChatPages,
+	InboxFieldRequests,
+	opensInboxTarget,
+	showsInboxSheet,
+	type InboxRequestField,
 	snoozeUntil,
 	toInboxEntry
 } from '@/core/lib/utils/inbox-entry';
@@ -222,17 +227,20 @@ function InboxPageContent() {
 	);
 	const [currentId, setCurrentId] = useState<string | null>(null);
 	// The entry as it was opened. Opening an unread entry marks it read, which drops it from the Unread list; the pane
-	// keeps showing it from here until the user closes it or opens another one. It belongs to the workspace it was
-	// opened in: after a switch (another tab can make one) the pane lets it go.
+	// keeps showing it until the user closes it or opens another one. While it is out of the list the pane shows it as
+	// the platform holds it (`useInboxItem`, refetched with the inbox), and this copy only until that first answers. It
+	// belongs to the workspace it was opened in: after a switch (another tab can make one) the pane lets it go.
 	const [opened, setOpened] = useState<{ scopeKey: string; entry: InboxEntry } | null>(null);
 	const openedEntry = opened && opened.scopeKey === scopeKey ? opened.entry : null;
+	const byId = useMemo(() => new Map(entries.map((entry) => [entry.id, entry])), [entries]);
+	const held = useInboxItem(usesExtension && openedEntry && !byId.has(openedEntry.id) ? openedEntry.id : null);
+	const heldEntry = held.data ?? openedEntry;
 	const current = useMemo(
 		() =>
 			entries.find((entry) => entry.id === currentId) ??
-			(openedEntry && openedEntry.id === currentId ? openedEntry : null),
-		[currentId, entries, openedEntry]
+			(heldEntry && heldEntry.id === currentId ? heldEntry : null),
+		[currentId, entries, heldEntry]
 	);
-	const byId = useMemo(() => new Map(entries.map((entry) => [entry.id, entry])), [entries]);
 
 	const reportFailure = useCallback(() => toast.error(t('inbox.TOASTS.UPDATE_FAILED')), [t]);
 
@@ -251,13 +259,20 @@ function InboxPageContent() {
 	);
 
 	/** Keeps the entry held for the pane in step with what an action changes on it, since it may have left the list. */
-	const patchOpened = useCallback((ids: string[], patch: Partial<InboxEntry>) => {
-		setOpened((held) => (held && ids.includes(held.entry.id) ? { ...held, entry: { ...held.entry, ...patch } } : held));
-	}, []);
+	const { patch: patchHeld, refresh: refreshHeld } = held;
+	const patchOpened = useCallback(
+		(ids: string[], patch: Partial<InboxEntry>) => {
+			setOpened((kept) => (kept && ids.includes(kept.entry.id) ? { ...kept, entry: { ...kept.entry, ...patch } } : kept));
+			void patchHeld(ids, patch);
+		},
+		[patchHeld]
+	);
 
 	/**
-	 * The platform's state update, mirrored on the entry held for the pane. Like the lists, the pane goes back to what
-	 * it showed when the update fails.
+	 * The platform's state update, mirrored on the entry held for the pane. Once the update settles, whatever its
+	 * outcome, the held item is read again from scratch: when any item of the update failed the pane shows what the
+	 * platform holds rather than a copy restored from before (which would undo a change of its own that succeeded, and
+	 * whatever else changed on it meanwhile), and no read that started before the update can answer last.
 	 */
 	const setState = useCallback(
 		(ids: string[], state: Parameters<typeof actions.setState>[1]) => {
@@ -266,38 +281,64 @@ function InboxPageContent() {
 			if (state.isArchived !== undefined) patch.isArchived = state.isArchived;
 			if (state.isDone !== undefined) patch.isDone = state.isDone;
 			if (state.snoozedUntil !== undefined) patch.snoozedUntil = state.snoozedUntil ? new Date(state.snoozedUntil) : null;
-			const before = openedEntry && ids.includes(openedEntry.id) ? openedEntry : null;
 			patchOpened(ids, patch);
-			return actions.setState(ids, state).catch((error: unknown) => {
-				if (before) setOpened((held) => (held && held.entry.id === before.id ? { ...held, entry: before } : held));
-				throw error;
-			});
+			return actions.setState(ids, state).finally(() => void refreshHeld());
 		},
-		[actions, openedEntry, patchOpened]
+		[actions, patchOpened, refreshHeld]
+	);
+
+	/**
+	 * A read or an archive without the inbox extension, one request per entry. The bell's cache rolls back what the
+	 * platform refused on its own. The copy the pane holds after the entry left the list shows the change at once, and
+	 * once every request sent on a field has answered it holds what the last accepted one set, or what it held before
+	 * when none was ({@link InboxFieldRequests}); a refusal then fails the action.
+	 *
+	 * @param changes Every field the request sets, as the bell's own update does (an archive also marks the entry read).
+	 */
+	const [legacyRequests] = useState(() => new InboxFieldRequests());
+	const runLegacy = useCallback(
+		async (targets: InboxEntry[], changes: Partial<Record<InboxRequestField, boolean>>, send: (id: string) => Promise<unknown>) => {
+			const fields = (Object.keys(changes) as InboxRequestField[]).map(
+				(field) => ({ field, request: legacyRequests.start(targets, field, changes[field] === true) }) as const
+			);
+			patchOpened(
+				targets.map((entry) => entry.id),
+				changes
+			);
+			const results = await Promise.allSettled(targets.map((entry) => send(entry.id)));
+			targets.forEach((entry, index) => {
+				const accepted = results[index].status === 'fulfilled';
+				for (const { field, request } of fields) {
+					const settled = legacyRequests.settle(entry.id, field, request, accepted);
+					if (settled === undefined) continue;
+					setOpened((kept) =>
+						kept?.entry.id === entry.id && kept.entry[field] !== settled ? { ...kept, entry: { ...kept.entry, [field]: settled } } : kept
+					);
+				}
+			});
+			const failure = results.find((result): result is PromiseRejectedResult => result.status === 'rejected');
+			if (failure) throw failure.reason;
+		},
+		[legacyRequests, patchOpened]
 	);
 
 	const setRead = useCallback(
 		async (targets: InboxEntry[], isRead: boolean) => {
 			if (usesExtension) return setState(targets.map((entry) => entry.id), { isRead });
-			patchOpened(
-				targets.map((entry) => entry.id),
-				{ isUnread: !isRead }
-			);
-			await Promise.all(targets.map((entry) => legacyActions.setRead(entry.id, isRead)));
+			await runLegacy(targets, { isUnread: !isRead }, (id) => legacyActions.setRead(id, isRead));
 		},
-		[legacyActions, patchOpened, setState, usesExtension]
+		[legacyActions, runLegacy, setState, usesExtension]
 	);
 
 	const setArchived = useCallback(
 		async (targets: InboxEntry[], isArchived: boolean) => {
 			if (usesExtension) return setState(targets.map((entry) => entry.id), { isArchived });
-			patchOpened(
-				targets.map((entry) => entry.id),
-				{ isArchived }
+			// The bell's archive also marks the entry read; its unarchive leaves the read state alone.
+			await runLegacy(targets, isArchived ? { isArchived: true, isUnread: false } : { isArchived: false }, (id) =>
+				isArchived ? legacyActions.archive(id) : legacyActions.unarchive(id)
 			);
-			await Promise.all(targets.map((entry) => (isArchived ? legacyActions.archive(entry.id) : legacyActions.unarchive(entry.id))));
 		},
-		[legacyActions, patchOpened, setState, usesExtension]
+		[legacyActions, runLegacy, setState, usesExtension]
 	);
 
 	/** Goes to what the entry is about: the task drawer, the conversation at the message, or the entry's own link. */
@@ -329,7 +370,8 @@ function InboxPageContent() {
 	/**
 	 * A click on a row: the entry is read and shown in the pane. A task also opens in its drawer, over the inbox.
 	 * Anything else waits for "Open" where the pane is on screen, so reading the inbox does not leave it; without the
-	 * pane (a phone), the click goes straight to the target, unless the entry is a question to answer here.
+	 * pane (a phone), the click goes straight to the target, unless the entry is a question to answer here or has
+	 * nothing to open — those show in the sheet over the list.
 	 */
 	const handleOpen = useCallback(
 		(entry: InboxEntry, options: { follow?: boolean } = {}) => {
@@ -337,7 +379,7 @@ function InboxPageContent() {
 			setOpened({ scopeKey, entry: entry.isUnread ? { ...entry, isUnread: false } : entry });
 			if (entry.isUnread) setRead([entry], true).catch(reportFailure);
 			const hasPane = typeof window !== 'undefined' && window.matchMedia('(min-width: 1024px)').matches;
-			if (entry.taskId || options.follow || (!hasPane && !entry.decision)) handleOpenTarget(entry);
+			if (opensInboxTarget(entry, { hasPane, follow: !!options.follow, chatPages: hasChatPages() })) handleOpenTarget(entry);
 		},
 		[handleOpenTarget, reportFailure, scopeKey, setRead]
 	);
@@ -369,8 +411,10 @@ function InboxPageContent() {
 			setArchived(targets, archiving)
 				.then(() => {
 					if (!archiving) return;
+					// The undo starts from the entries as the archive left them: a refused undo shows them archived again.
+					const archived = targets.map((target) => ({ ...target, isArchived: true }));
 					toast(t('inbox.TOASTS.ARCHIVED', { count: targets.length }), {
-						action: { label: t('inbox.TOASTS.UNDO'), onClick: () => setArchived(targets, false).catch(reportFailure) }
+						action: { label: t('inbox.TOASTS.UNDO'), onClick: () => setArchived(archived, false).catch(reportFailure) }
 					});
 				})
 				.catch(reportFailure);
@@ -391,6 +435,10 @@ function InboxPageContent() {
 						? { ...data, pages: data.pages.map((page) => ({ ...page, items: page.items.map((item) => (item.id === answered.id ? { ...item, ...answered } : item)) })) }
 						: data
 				);
+				// And into the entry the pane holds after it left the list, which no cached page has. Only the answer: the
+				// reply's own recipient state may be partial.
+				const { awaitsDecision, decision } = toInboxEntry(answered);
+				patchOpened([answered.id], { awaitsDecision, decision });
 				toast(t('inbox.DECISION.SENT'));
 				return true;
 			} catch (error) {
@@ -401,7 +449,7 @@ function InboxPageContent() {
 				void queryClient.invalidateQueries({ queryKey: ['inbox'] });
 			}
 		},
-		[queryClient, t]
+		[patchOpened, queryClient, t]
 	);
 
 	const handleSnooze = useCallback(
@@ -521,6 +569,12 @@ function InboxPageContent() {
 	const selectedCount = selected.size;
 	const anySelected = selectedCount > 0;
 	const firstSelected = anySelected ? byId.get([...selected][0]) ?? null : null;
+	const showsSheet = showsInboxSheet(current, hasChatPages());
+	const closeSheet = useCallback(() => setCurrentId(null), []);
+	const { sheetRef, close: closeSheetAndReturnFocus } = useInboxSheetFocus(
+		showsSheet ? (current?.id ?? null) : null,
+		closeSheet
+	);
 
 	if (!enabled) return <InboxPageSkeleton />;
 
@@ -764,14 +818,16 @@ function InboxPageContent() {
 				</section>
 
 				{/* Below the large breakpoint the pane is a sheet over the list, opened with an entry that is answered here (a
-				    question, an approval); the other entries open their target as before. */}
-				{current?.decision && (
+				    question, an approval) or has nothing to open; the other entries open their target as before. */}
+				{showsSheet && (
 					<div
-						className="fixed inset-x-0 bottom-0 z-40 flex max-h-[80vh] flex-col overflow-hidden rounded-t-2xl border-t border-border bg-background shadow-lg lg:hidden"
+						ref={sheetRef}
+						tabIndex={-1}
+						className="fixed inset-x-0 bottom-0 z-40 flex max-h-[80vh] flex-col overflow-hidden rounded-t-2xl border-t border-border bg-background shadow-lg outline-none lg:hidden"
 						role="dialog"
 						aria-label={t('inbox.DETAIL.SHEET_LABEL')}
 					>
-						{detail(() => setCurrentId(null))}
+						{detail(closeSheetAndReturnFocus)}
 					</div>
 				)}
 				<aside className="hidden h-full min-w-0 flex-1 lg:block">{detail()}</aside>

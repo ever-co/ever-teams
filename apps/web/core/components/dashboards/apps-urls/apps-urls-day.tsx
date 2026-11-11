@@ -2,6 +2,7 @@
 
 import { type CSSProperties, memo, useCallback, useMemo, useState } from 'react';
 import { useLocale, useTranslations } from 'next-intl';
+import { ActivityIcon } from '@/core/components/activities/activity-icon';
 import { AnimatedHeight } from '@/core/components/common/animated-height';
 import { DashboardSection } from '@/core/components/dashboards/kit/dashboard-layout';
 import { BlockEmptyMessage, DashboardErrorNotice } from '@/core/components/dashboards/kit/dashboard-states';
@@ -52,8 +53,10 @@ function shareRowsOf(shares: ReadonlyArray<AppShare>): ShareRow<AppShare>[] {
 }
 
 function AppName({ share }: Readonly<{ share: AppShare }>) {
+	const kind = share.kind === 'unknown' ? null : share.kind;
 	return (
-		<span className="flex min-w-0 items-baseline gap-1.5">
+		<span className="flex min-w-0 items-center gap-2">
+			<ActivityIcon title={share.title} kind={kind} url={share.url} />
 			<span className="truncate">{share.title}</span>
 			{share.detail && <span className="truncate text-xs text-muted-foreground">{share.detail}</span>}
 		</span>

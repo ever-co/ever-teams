@@ -65,9 +65,80 @@ platform's collaboration transport.
 sort, local filter, keyboard), `docs-recent` (recent, last visited, expanded, garbage), `docs-markdown` (blocks,
 lists, marks, tables, unknown nodes, file names, mentions).
 
-## 6. Phase 2
+## 6. Live co-editing (`NEXT_PUBLIC_DOCS_LIVE_ENABLED`, default off)
+
+On the platform's live sessions (ever-gauzy `DocsLivePlugin`, `GAUZY_DOCS_LIVE_ENABLED`):
+`Subscription.documentLive(documentId, connectionId)` on the platform's GraphQL socket (`realtimeSocketUrl`, the credential
+the real-time client presents, one socket per open page) streams the frames; edits go to
+`POST /plugins/docs/documents/:id/live/updates`, carets and presence to `…/live/awareness`, both with proxy twins.
+
+| Module | Responsibility |
+| --- | --- |
+| `core/lib/docs-live/protocol.ts` | frames, reasons, error codes, the subscription, base64 |
+| `core/lib/docs-live/binding.ts` | one tab's session of one page: the document, the frames, batching, awareness, reconnects, the fallback |
+| `core/lib/docs-live/schema-guard.ts` | the node and mark types an update or a document holds that the editor does not know |
+| `core/lib/docs-live/transport.ts` | the socket (`GraphqlWsConnection`) and the two routes |
+| `core/hooks/docs/use-docs-live.ts` | the page view's session (made on subscribe, destroyed on leave), the status probe, the page read again on fallback |
+| `core/components/common/rich-editor/live-collaboration.ts` | `Collaboration` (field `default`) + the carets (`yCursorPlugin`); loaded by the Docs editor only |
+| `core/components/pages/docs/docs-live-presence.tsx` | "Live" / "Reconnecting…" / "Not live" and the co-editors' avatars |
+
+Rules that keep the shared document whole:
+
+- The editor binds an **empty** `Y.Doc`; the `sync` frame fills it. Nothing is seeded from `contentJson` here.
+- A document kept in the tab (the last eight pages, dropped on sign-out) whose `lineage` differs from the platform's is
+  dropped before the state is applied.
+- After every `sync`, `Y.encodeStateAsUpdate(doc, stateVector)` goes when it carries anything: edits made while the
+  session was down, or sent and lost, merge that way. So any doubt about a sent edit (404 `DOCS_LIVE_SESSION_NOT_FOUND`,
+  a network error) opens the session again instead of resending.
+- Local edits go 75 ms after the first of a batch, merged (`Y.mergeUpdates`), one request at a time.
+- `readOnly` (`sync`, `mode`, a 403 or 413) makes the editor non-editable with its reason; edits refused meanwhile go
+  through a new session once it is writable again.
+- The editor's binding deletes from the shared document whatever its schema cannot render: the document is checked
+  before an editor is bound to it, and every update after, before it is applied. Unknown content ends live editing and
+  the page shows its read-only view, as a stored page of unknown content does.
+- `closed`, a 404 status route, a refused subscription (no access, the user's session limit, no such field), no first
+  state within 10 s, or unknown content: live editing stops for the page view, the header says "Not live", the page is
+  read again and the autosave (with its revision / 409 handling) takes over. Edits the platform never confirmed (the
+  batch window, refused while read-only, typed while the session was down) become the autosave's draft, written
+  against the version they were typed on: their save meets the newer text as a conflict, and the person decides.
+- An answer to a request of an earlier session never changes the current one (its edit went with the new `sync`).
+- UndoRedo is off while live (the shared document's history, one per person, replaces it).
+
+## 7. Spaces and follows (`docs-collaboration`, `GAUZY_DOCS_COLLAB_ENABLED`)
+
+The tree lists a section per team space (`GET /plugins/docs/documents/spaces`; `TEAM` pages grouped by
+`organizationTeamId`, a team the spaces do not name still shown) and creates pages in it (`visibility: TEAM`); the page
+menu moves a page to another space (`POST …/:id/space`, with its sub-pages) and follows or mutes it (`…/follow`,
+`…/unfollow`, `…/mute`, `…/unmute`). A platform without Docs collaboration answers 404: the tree keeps the workspace
+and the private pages, and the menu its Make private / Make workspace.
+
+## 8. Phase 2
 
 Text-anchored comments (generic comments on entity `Document` + anchors in the JSON), presence through the
 real-time client, task chips (`useTaskDrawer`), command palette entries, `?block=` / `?thread=` deep links,
-sub-page zip export, drag to reorder among siblings, phone editing polish, live co-editing when the platform's
-collaboration transport ships.
+sub-page zip export, drag to reorder among siblings, phone editing polish. Live co-editing: section 6.
+
+| Module | Responsibility |
+| --- | --- |
+| `core/components/common/rich-editor/block-id-extension.ts` | `blockId` on the blocks (UUID, `data-block-id`, `data-blockid` read too), a new one after an edit for a block without one or with a copy, the selection's block anchored on demand; never on the live binding's own transactions |
+| `core/lib/utils/docs-comments.ts` | the anchor line (`[[block:<blockId>]]`), threads, reading order, tabs, the marked blocks, authorship, quotes, the anchored blocks of a page's JSON |
+| `core/lib/utils/docs-links.ts` | page addresses with `?block=` / `?thread=` / `?comments=1`, task links, where an Inbox entry about a page leads |
+| `core/hooks/docs/use-docs-comments.ts` | the page's comments (`GET /comment`, entity `Document`), post, reply, edit, resolve / reopen, delete (`PUT` and `DELETE /comment/:id`, proxy twin `app/api/comment/[id]`) |
+| `core/components/pages/docs/docs-editor-extensions.ts` | the marks of the blocks with an open thread (their marker opens it), the block a link points at, the task chips and the task paste |
+| `core/components/pages/docs/docs-comments-panel.tsx` | the Comments panel |
+| `core/components/pages/docs/docs-mobile-format-bar.tsx` | the phone's formatting row above the on-screen keyboard |
+| `core/components/layouts/default-layout/header/palette-docs-results.tsx` | the palette's pages |
+
+Rules:
+
+- A comment's place is a block, as the platform stores it: the anchor is the first line of the comment's body (the
+  platform's comment has no field for it), a reply carries its thread's. The selected text is the thread's quote; the
+  panel quotes the block's current text, and a thread whose block is gone says so and stays readable.
+- A page whose blocks carry anchors opens from its JSON (the platform's HTML cache does not keep them), so no save
+  drops them. Giving the selection's block an anchor to comment on it is an edit of the page, saved as any other.
+- Editing, resolving and deleting a comment are its author's (the platform matches the comment on the caller).
+- An Inbox entry of a mention in a page comment (entity `Comment`, `metadata.parentEntity: Document`) opens its
+  thread; an entry about the page (a followed page's comment, a share, a review) opens the page, with its comments when
+  it is about a comment.
+- A drop beside a row only places a page among the pages of the same section; a page shown at the root because its
+  parent is out of sight takes nothing beside it (it is no root page on the platform).

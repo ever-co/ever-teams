@@ -6,7 +6,10 @@ import { useTranslations, type DottedLanguageObjectStringPaths } from 'next-intl
 import { useRouter } from 'next/navigation';
 import { toast } from 'sonner';
 import { DEFAULT_PLANNED_TASK_ID, TASKS_ESTIMATE_HOURS_MODAL_DATE } from '@/core/constants/config/constants';
-import { getMyWorkNavigation } from '@/core/components/layouts/my-work-navigation';
+import { workDiaryPathOf } from '@/core/components/layouts/my-work-navigation';
+import { getDailyPlanDay } from '@/core/lib/helpers/daily-plan-day';
+import { timesheetPathOf } from '@/core/lib/utils/dashboards/team';
+import { diaryDayOfParam } from '@/core/lib/utils/dashboards/work-diary';
 import { useEmployeeDailyPlans } from '@/core/hooks/daily-plans/use-employee-daily-plans';
 import { useUpdateDailyPlan } from '@/core/hooks/daily-plans/use-update-daily-plan';
 import { useSetActiveTask } from '@/core/hooks/organizations/teams/use-team-tasks-state';
@@ -30,7 +33,7 @@ import type { TTask } from '@/core/types/schemas/task/task.schema';
 
 export type PlanEditorScreen = 'plan' | 'search' | 'switchTask';
 
-export type PlanPrimaryAction = 'start' | 'save' | 'edit' | 'timesheets';
+export type PlanPrimaryAction = 'start' | 'save' | 'edit' | 'workDiary' | 'timesheets';
 
 export interface PlanEditorOptions {
 	plan: TDailyPlan | undefined;
@@ -64,8 +67,13 @@ function primaryActionOf(
 	isPast: boolean,
 	isToday: boolean,
 	isTimerRunning: boolean,
-	isDraft: boolean
+	isDraft: boolean,
+	isOwnPlan: boolean
 ): PlanPrimaryAction {
+	// A past day's time: one's own in the Work diary, a member's (a manager's view) in the team's timesheets
+	if (isPast && isOwnPlan) {
+		return 'workDiary';
+	}
 	if (isPast) {
 		return 'timesheets';
 	}
@@ -289,21 +297,27 @@ export function usePlanEditor(options: PlanEditorOptions) {
 		startAndAnnounce();
 	}, [closeAndRemember, startAndAnnounce]);
 
-	/** A past plan's time is in the Work Diary of its employee, or of the signed-in person when it names none. */
-	const openTimesheet = useCallback(() => {
-		const planUserId = plan?.employee?.user?.id;
-		const planUserName = plan?.employee?.fullName || plan?.employee?.user?.name;
-		let userId = currentUser?.id;
-		let userName = currentUser?.name;
-		if (planUserId) {
-			userId = planUserId;
-			userName = planUserName;
-		}
-		closeModal();
-		router.push(getMyWorkNavigation(userId, userName || undefined).workDiary);
-	}, [closeModal, currentUser?.id, currentUser?.name, plan?.employee, router]);
+	// A plan that names no one is the signed-in person's own
+	const planUserId = plan?.employee?.user?.id;
+	const isOwnPlan = !planUserId || planUserId === currentUser?.id;
 
-	const primaryAction = primaryActionOf(isPast, isToday, isTimerRunning, isDraft);
+	/**
+	 * A past plan's time: the signed-in person's own plan opens their Work diary on the plan's day; a member's plan,
+	 * which a manager sees, opens the team's timesheets, where a manager reviews a member's time.
+	 */
+	const openPastPlanTime = useCallback(() => {
+		closeModal();
+		if (isOwnPlan) {
+			const planDayKey = plan?.date ? getDailyPlanDay(plan.date) : null;
+			const planDay = planDayKey ? diaryDayOfParam(planDayKey, new Date()) : (selectedDate ?? new Date());
+			router.push(workDiaryPathOf(planDay));
+			return;
+		}
+		const planUserName = plan?.employee?.fullName || plan?.employee?.user?.name || '';
+		router.push(timesheetPathOf(planUserId ?? '', planUserName));
+	}, [closeModal, isOwnPlan, plan?.date, plan?.employee, planUserId, router, selectedDate]);
+
+	const primaryAction = primaryActionOf(isPast, isToday, isTimerRunning, isDraft, isOwnPlan);
 	const hasNoTask = (plan?.tasks ?? []).length === 0;
 	const hasNoHours = plannedHours <= 0;
 	const lacksStartRequirements = hasNoTask || hasNoHours;
@@ -316,8 +330,9 @@ export function usePlanEditor(options: PlanEditorOptions) {
 	const showsTimerRunningHint = isToday && waitsForAnEdit;
 
 	let runPrimary: () => void = () => void submit();
-	if (primaryAction === 'timesheets') {
-		runPrimary = openTimesheet;
+	const opensPastPlanTime = primaryAction === 'workDiary' || primaryAction === 'timesheets';
+	if (opensPastPlanTime) {
+		runPrimary = openPastPlanTime;
 	}
 
 	let runSecondary: () => void = closeAndRemember;

@@ -38,6 +38,8 @@ export enum EChatTaskReferenceKind {
 
 export const CHAT_MESSAGE_MAX_LENGTH = 4000;
 export const CHAT_GROUP_MAX_MEMBERS = 50;
+/** The platform's `CHAT_MESSAGE_MAX_ATTACHMENTS`: a message carries at most this many files. */
+export const CHAT_MESSAGE_MAX_ATTACHMENTS = 10;
 
 /** Mention tokens inside a body: `<@employeeId>`, `<#conversationId>`, `<!channel>`, `<!here>`. */
 export const CHAT_MENTION_TOKEN_PATTERN = /<(@|#)([0-9a-fA-F-]{36})>|<!(channel|here)>/g;
@@ -228,6 +230,69 @@ export interface IChatMessageUpdateInput {
 	body: string;
 	attachmentIds?: ID[];
 	mentionEmployeeIds?: ID[];
+}
+
+/**
+ * One file of a conversation (`GET /chat/conversations/:id/files`): the document a message carries, with where and by
+ * whom it was attached. `fileUrl` / `thumbUrl` are what a browser opens (signed, so short-lived, on cloud storage).
+ */
+export interface IChatFile {
+	documentId: ID;
+	messageId: ID;
+	conversationId: ID;
+	name: string;
+	originalFilename?: string | null;
+	mimeType?: string | null;
+	fileSize?: number | null;
+	status?: string | null;
+	fileUrl?: string | null;
+	thumbUrl?: string | null;
+	authorEmployeeId?: ID | null;
+	authorUserId?: ID | null;
+	attachedAt: string;
+}
+
+export interface IChatFilesQuery {
+	limit?: number;
+	skip?: number;
+}
+
+/**
+ * Where a link preview stands (`GET /chat/link-preview?url=`), as the platform's `ChatLinkPreviewStatusEnum` says it:
+ * `pending` while its worker fetches the page (ask again in a moment), `ready` once fetched, `unavailable` when there
+ * is nothing to show (show the plain link).
+ */
+export enum EChatLinkPreviewStatus {
+	Pending = 'pending',
+	Ready = 'ready',
+	Unavailable = 'unavailable'
+}
+
+/**
+ * A link preview the platform fetched (the browser fetches none itself), as its `IChatLinkPreview` contract says it.
+ * Every string is plain text the platform sanitized, rendered as text and never as HTML; `image` and `icon` are
+ * absolute `https:` addresses.
+ */
+export interface IChatLinkPreview {
+	/** The link, normalized (no fragment). */
+	url: string;
+	status: EChatLinkPreviewStatus;
+	title?: string | null;
+	description?: string | null;
+	siteName?: string | null;
+	image?: string | null;
+	imageAlt?: string | null;
+	imageWidth?: number | null;
+	imageHeight?: number | null;
+	icon?: string | null;
+	/** When the platform last fetched the page. */
+	fetchedAt?: string | null;
+}
+
+/** A page of the files of a conversation, newest first. */
+export interface IChatFilesResult {
+	files: IChatFile[];
+	hasMore: boolean;
 }
 
 export interface IChatMessagesQuery {

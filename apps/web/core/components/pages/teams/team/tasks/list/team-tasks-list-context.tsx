@@ -17,7 +17,15 @@ import type { TTask } from '@/core/types/schemas/task/task.schema';
 import type { TeamTasksGrid } from './team-tasks-grid';
 
 /** What a cell can open in place: the shared picker of the list. */
-export type TeamTaskPickerKind = 'status' | 'priority' | 'size' | 'issueType' | 'labels' | 'assignees' | 'dueDate';
+export type TeamTaskPickerKind =
+	| 'status'
+	| 'priority'
+	| 'size'
+	| 'issueType'
+	| 'labels'
+	| 'assignees'
+	| 'dueDate'
+	| 'project';
 
 export interface TeamTasksListActions {
 	openTask: (taskId: string) => void;
