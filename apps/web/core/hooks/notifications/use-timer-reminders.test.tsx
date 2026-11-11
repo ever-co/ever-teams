@@ -308,6 +308,22 @@ describe('useTimerReminders', () => {
 		expect(shownTitles()).toEqual(['notifications.TIMER_REMINDER.LONG_TITLE']);
 	});
 
+	it("asks the platform afresh while it waits on another tab's claim, and repeats no copy it sent meanwhile", async () => {
+		jest.setSystemTime(STARTED_AT + 8 * HOUR + 10_000);
+		// Another tab took the claim of the first reminder, then went away without giving it
+		const claim = `${TAB_CLAIM_PREFIX}timer-reminder-log-1-1`;
+		window.localStorage.setItem(claim, `other-tab|${Date.now() + TAB_CLAIM_TTL_MS}`);
+		await renderReminders();
+		expect(mockToast.warning).not.toHaveBeenCalled();
+
+		// Meanwhile the platform files its copy, unread, and sends it once its hold is over
+		mockGetTimerReminders.mockResolvedValue([reminder(1, false, 'log-1', Date.now() + 20_000)]);
+		await advance(TAB_CLAIM_TTL_MS + 2 * TIMER_REMINDER_CLAIM_RETRY_MS);
+
+		// The abandoned claim has expired: the reminder went by email, it is not shown again
+		expect(mockToast.warning).not.toHaveBeenCalled();
+	});
+
 	it('shows it once when two tabs reach the threshold together', async () => {
 		await renderReminders();
 		await renderReminders();

@@ -410,6 +410,8 @@ export function useTimerReminders({ timerStatus, stopTimer }: UseTimerRemindersI
 					} else {
 						// Another tab holds the claim and has given nothing yet: it may still give the reminder, or be
 						// called off and give the claim back. Asked again shortly, until a tab gives it or that claim expires.
+						// The platform may file and send its copy meanwhile: it is asked afresh then.
+						platformReminders.delete(level as TimerReminderLevel);
 						timeout = setTimeout(() => void check(), TIMER_REMINDER_CLAIM_RETRY_MS);
 						return;
 					}
