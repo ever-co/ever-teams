@@ -194,6 +194,25 @@ describe('useTimerReminders', () => {
 		expect(mockToast.warning.mock.calls[0][0]).toContain('{"hours":2}');
 	});
 
+	it('leaves a reminder called off while its claim waited to the check after it', async () => {
+		jest.setSystemTime(STARTED_AT + 9 * HOUR);
+		visibility = 'hidden';
+		const { rerender } = await renderReminders();
+
+		// A threshold starts being saved while this hidden tab waits its turn to claim the reminder
+		mockSettingRead.isSavingPreferences = true;
+		rerender({ timerStatus: RUNNING });
+		await advance(TIMER_REMINDER_HIDDEN_YIELD_MS);
+		expect(mockToast.warning).not.toHaveBeenCalled();
+		expect(shownTimerReminderLevel('log-1')).toBe(0);
+
+		// The save is refused: the threshold stays, and the reminder is given after all
+		mockSettingRead.isSavingPreferences = false;
+		rerender({ timerStatus: RUNNING });
+		await advance(TIMER_REMINDER_HIDDEN_YIELD_MS);
+		expect(shownTitles()).toEqual(['notifications.TIMER_REMINDER.LONG_TITLE']);
+	});
+
 	it('keeps the threshold an earlier read answered when a later read fails', async () => {
 		mockSettingRead.isError = true;
 		mockSetting.current = { preferences: { timerReminderHours: 4 } };

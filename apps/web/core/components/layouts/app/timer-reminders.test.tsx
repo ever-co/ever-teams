@@ -90,40 +90,61 @@ describe('TimerReminders', () => {
 		expect(lastInput().stopTimer).toBe(ownerStop);
 	});
 
+	const stop = () =>
+		act(async () => {
+			await lastInput().stopTimer();
+		});
+
 	it('reminds of the run found past midnight, and stops that run itself', async () => {
 		const { queryClient, ownerStop } = renderReminders({ runsPastMidnight: true });
 		const invalidate = jest.spyOn(queryClient, 'invalidateQueries');
 
 		expect(lastInput().timerStatus).toMatchObject({ running: true, lastLog: YESTERDAYS_LOG });
 
-		await act(async () => {
-			await lastInput().stopTimer();
-		});
+		lastLogRead(YESTERDAYS_LOG);
+		await stop();
 		expect(mockStopTimer).toHaveBeenCalledWith({ source: ETimeLogSource.TEAMS });
 		expect(ownerStop).not.toHaveBeenCalled();
 		expect(invalidate).toHaveBeenCalledWith({ queryKey: queryKeys.timer.all });
 		expect(mockToastError).not.toHaveBeenCalled();
 	});
 
+	it('stops no run started since: Gauzy would stop whatever runs now', async () => {
+		const { queryClient } = renderReminders({ runsPastMidnight: true });
+		const invalidate = jest.spyOn(queryClient, 'invalidateQueries');
+
+		// Stopped on another device, and a new run started there
+		lastLogRead({ ...YESTERDAYS_LOG, id: 'log-2', startedAt: '2026-11-11T08:00:00.000Z' });
+		await stop();
+
+		expect(mockStopTimer).not.toHaveBeenCalled();
+		expect(invalidate).toHaveBeenCalledWith({ queryKey: queryKeys.timer.all });
+	});
+
+	it('stops when the run cannot be read first: the employee asked', async () => {
+		renderReminders({ runsPastMidnight: true });
+
+		mockGetLastTimerLog.mockRejectedValueOnce(responseError(500));
+		await stop();
+
+		expect(mockStopTimer).toHaveBeenCalledTimes(1);
+	});
+
 	it('says nothing when another tab or device stopped the run first', async () => {
 		renderReminders({ runsPastMidnight: true });
 
+		lastLogRead(YESTERDAYS_LOG);
 		mockStopTimer.mockRejectedValueOnce(responseError(406));
-		await act(async () => {
-			await lastInput().stopTimer();
-		});
+		await stop();
 
 		expect(mockToastError).not.toHaveBeenCalled();
 	});
 
 	describe('when the stop answers with a failure', () => {
-		const stop = () =>
-			act(async () => {
-				await lastInput().stopTimer();
-			});
-
 		beforeEach(() => {
 			renderReminders({ runsPastMidnight: true });
+			// Read before the stop: still the run of the reminder
+			lastLogRead(YESTERDAYS_LOG);
 			mockStopTimer.mockRejectedValueOnce(responseError(500));
 		});
 

@@ -1,4 +1,4 @@
-import { claimForThisTab } from '@/core/lib/realtime/tab-claim';
+import { claimForThisTab, releaseTabClaim } from '@/core/lib/realtime/tab-claim';
 import type {
 	INotificationPreferences,
 	INotificationQuietHours
@@ -144,21 +144,30 @@ export const TIMER_REMINDER_HIDDEN_YIELD_MS = 400;
  * keeps it shown for good, after that claim has expired.
  *
  * @param isVisible Whether the employee sees this tab.
+ * @param isCalledOff Whether the reminder was called off while the claim waited (its run ended, or a threshold is being
+ * saved): the claim is then given back, and nothing is noted, so the next check (here or in another tab) decides.
  */
 export async function claimTimerReminder(
 	runKey: string,
 	level: TimerReminderLevel,
-	isVisible: boolean
+	isVisible: boolean,
+	isCalledOff: () => boolean = () => false
 ): Promise<boolean> {
 	if (shownTimerReminderLevel(runKey) >= level) {
 		return false;
 	}
-	const isClaimed = await claimForThisTab(`timer-reminder-${runKey}-${level}`, {
-		yieldMs: isVisible ? 0 : TIMER_REMINDER_HIDDEN_YIELD_MS
-	});
+	const key = `timer-reminder-${runKey}-${level}`;
+	const isClaimed = await claimForThisTab(key, { yieldMs: isVisible ? 0 : TIMER_REMINDER_HIDDEN_YIELD_MS });
+	if (!isClaimed) {
+		return false;
+	}
+	if (isCalledOff()) {
+		releaseTabClaim(key);
+		return false;
+	}
 	// A later reminder of the run was given while this claim waited (a tab whose threshold is shorter): this one is
 	// out of date, and noting it would bring the run back to a lower reminder
-	if (!isClaimed || shownTimerReminderLevel(runKey) >= level) {
+	if (shownTimerReminderLevel(runKey) >= level) {
 		return false;
 	}
 	recordTimerReminder(runKey, level);

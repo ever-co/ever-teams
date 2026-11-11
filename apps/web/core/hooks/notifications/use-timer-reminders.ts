@@ -164,7 +164,12 @@ export function useTimerReminders({ timerStatus, stopTimer }: UseTimerRemindersI
 			if (level > shownInTab) {
 				// One tab of the browser claims the reminder, the one in sight first; the others note it as shown
 				const isVisible = typeof document !== 'undefined' && document.visibilityState === 'visible';
-				const isClaimed = await claimTimerReminder(runKey, level as TimerReminderLevel, isVisible);
+				const isClaimed = await claimTimerReminder(
+					runKey,
+					level as TimerReminderLevel,
+					isVisible,
+					() => isCancelled
+				);
 				if (isCancelled) {
 					return;
 				}

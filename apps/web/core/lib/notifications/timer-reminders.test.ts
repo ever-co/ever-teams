@@ -119,6 +119,13 @@ describe('the claim of a reminder', () => {
 		expect(shownTimerReminderLevel('log-1')).toBe(2);
 	});
 
+	it('is given back when called off while it waited, so the next check can give the reminder', async () => {
+		await expect(settled(claimTimerReminder('log-1', 1, false, () => true))).resolves.toBe(false);
+		expect(shownTimerReminderLevel('log-1')).toBe(0);
+
+		await expect(settled(claimTimerReminder('log-1', 1, true))).resolves.toBe(true);
+	});
+
 	it('is never given again for the run, even once the claim the tabs share has expired', async () => {
 		await expect(settled(claimTimerReminder('log-1', 1, true))).resolves.toBe(true);
 		jest.advanceTimersByTime(TAB_CLAIM_TTL_MS + 1);
