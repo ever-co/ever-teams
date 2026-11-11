@@ -1993,10 +1993,11 @@ describe('Ever Teams feature surface preservation', () => {
 		// 279 files and 360 verbs with the Docs live and collaboration proxies (/api/plugins/docs/live/status,
 		// documents/spaces, documents/[id]/space, follow (GET, POST), unfollow, mute, unmute, live/updates, live/awareness).
 		// 280 files and 361 verbs with the proxy of the labels added in bulk from the catalog (POST /api/tags/bulk).
-		expect(routes.filter((value) => /\/route\.[jt]s$/.test(value))).toHaveLength(280);
+		// 281 files and 362 verbs with the proxy of the favourite tasks of every team (GET /api/favorite/type).
+		expect(routes.filter((value) => /\/route\.[jt]s$/.test(value))).toHaveLength(281);
 		expect(
 			routes.filter((value) => /\/route\.[jt]s::(?:GET|POST|PUT|PATCH|DELETE|HEAD|OPTIONS)$/.test(value))
-		).toHaveLength(361);
+		).toHaveLength(362);
 		expect(routes).toEqual(
 			expect.arrayContaining([
 				// Proxy mode twins of the platform's Docs live sessions and collaboration routes (2026-11-11)

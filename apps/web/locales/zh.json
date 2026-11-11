@@ -40,6 +40,31 @@
 			"ARCHIVE": "归档项目"
 		}
 	},
+	"favorites": {
+		"TITLE": "收藏夹",
+		"DESCRIPTION": "你加星标的项目、任务、页面和对话，都在这里。",
+		"FAVORITE": "收藏",
+		"ADD": "加入收藏",
+		"REMOVE": "取消收藏",
+		"REMOVE_NAMED": "将 {name} 移出收藏",
+		"ALL": "全部收藏",
+		"NONE": "还没有收藏",
+		"EMPTY_TITLE": "还没有收藏",
+		"EMPTY_DESCRIPTION": "为项目、任务、页面或对话加上星标，即可在这里和侧边栏中找到它们。",
+		"UNAVAILABLE": "已不可用",
+		"UNAVAILABLE_HINT": "已被删除或你已无权访问。移除它们，让收藏保持整洁。",
+		"UNAVAILABLE_ITEM": "{kind, select, project {一个你已无法打开的项目} task {一个你已无法打开的任务} document {一个你已无法打开的页面} chat {一个你已无法打开的对话} other {一个你已无法打开的条目}}",
+		"ARCHIVED": "已归档",
+		"UPDATE_FAILED": "无法更改收藏，请重试。",
+		"LOAD_FAILED": "部分收藏无法加载。",
+		"RETRY": "重试",
+		"kinds": {
+			"PROJECT": "项目",
+			"TASK": "任务",
+			"DOCUMENT": "文档",
+			"CHAT": "聊天"
+		}
+	},
 	"common": {
 		"DEMO_BANNER_TEXT": "您正在使用演示账户。觉得我们的软件有用吗？",
 		"DEMO_BANNER_SIGN_UP": "点击此处注册，免费开始使用！",

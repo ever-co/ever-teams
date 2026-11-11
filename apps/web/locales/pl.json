@@ -40,6 +40,31 @@
 			"ARCHIVE": "Zarchiwizuj projekt"
 		}
 	},
+	"favorites": {
+		"TITLE": "Ulubione",
+		"DESCRIPTION": "Projekty, zadania, strony i rozmowy oznaczone gwiazdką, w jednym miejscu.",
+		"FAVORITE": "Ulubione",
+		"ADD": "Dodaj do ulubionych",
+		"REMOVE": "Usuń z ulubionych",
+		"REMOVE_NAMED": "Usuń {name} z ulubionych",
+		"ALL": "Wszystkie ulubione",
+		"NONE": "Brak ulubionych",
+		"EMPTY_TITLE": "Brak ulubionych",
+		"EMPTY_DESCRIPTION": "Oznacz gwiazdką projekt, zadanie, stronę lub rozmowę, aby znaleźć je tutaj i na pasku bocznym.",
+		"UNAVAILABLE": "Już niedostępne",
+		"UNAVAILABLE_HINT": "Usunięte lub poza Twoim zasięgiem. Usuń je, aby zachować porządek w ulubionych.",
+		"UNAVAILABLE_ITEM": "{kind, select, project {Projekt, którego nie możesz już otworzyć} task {Zadanie, którego nie możesz już otworzyć} document {Strona, której nie możesz już otworzyć} chat {Rozmowa, której nie możesz już otworzyć} other {Element, którego nie możesz już otworzyć}}",
+		"ARCHIVED": "Zarchiwizowany",
+		"UPDATE_FAILED": "Nie udało się zmienić ulubionych. Spróbuj ponownie.",
+		"LOAD_FAILED": "Nie udało się wczytać niektórych ulubionych.",
+		"RETRY": "Spróbuj ponownie",
+		"kinds": {
+			"PROJECT": "Projekty",
+			"TASK": "Zadania",
+			"DOCUMENT": "Dokumenty",
+			"CHAT": "Czat"
+		}
+	},
 	"common": {
 		"DEMO_BANNER_TEXT": "Korzystasz z konta demonstracyjnego. Uważasz nasze oprogramowanie za przydatne?",
 		"DEMO_BANNER_SIGN_UP": "Kliknij tutaj, aby się zarejestrować i zacząć korzystać za darmo!",
