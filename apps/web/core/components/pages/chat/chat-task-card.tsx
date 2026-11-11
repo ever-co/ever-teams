@@ -118,6 +118,8 @@ function ChatTaskCardComponent({ messageId, taskId, title, canChange, onOpenTask
 		initialData: listTask ?? undefined,
 		staleTime: CARD_STALE_MS,
 		retry: false,
+		// A task the reader cannot open (another team's, a removed one) is not asked for again on every focus.
+		refetchOnWindowFocus: false,
 		enabled: !!taskId
 	});
 	const task = query.data ?? listTask ?? null;
@@ -162,15 +164,16 @@ function ChatTaskCardComponent({ messageId, taskId, title, canChange, onOpenTask
 	const statusItem = findItem(statusItems, statusValue, shown?.status ? shown.status.id : (task?.taskStatusId as string | undefined));
 	const priorityValue = shown?.priority ? shown.priority.value : ((task?.priority as string | null | undefined) ?? null);
 	const priorityItem = priorityValue ? findItem(priorityItems, priorityValue, shown?.priority ? shown.priority.id : (task?.taskPriorityId as string | undefined)) : undefined;
+	const shownAssigneeIds = shown?.assigneeIds;
 	const assignees: Person[] = useMemo(() => {
-		if (shown?.assigneeIds) {
-			return shown.assigneeIds.map((id) => {
+		if (shownAssigneeIds) {
+			return shownAssigneeIds.map((id) => {
 				const person = people.byEmployee.get(id);
 				return { id, name: person?.name ?? '', imageUrl: person?.imageUrl };
 			});
 		}
 		return (task?.members ?? []).map(personFromTaskMember);
-	}, [people.byEmployee, shown?.assigneeIds, task?.members]);
+	}, [people.byEmployee, shownAssigneeIds, task?.members]);
 	const assigneeIds = useMemo(() => assignees.map((person) => person.id), [assignees]);
 
 	const statusOptions = useMemo(() => statusItems.map((item) => optionOf(item, 'status')), [statusItems]);
