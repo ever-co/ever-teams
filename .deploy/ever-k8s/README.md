@@ -4,6 +4,9 @@ An example of running Ever Teams on a **self-hosted Kubernetes** cluster: the st
 (Deployment, Service and Ingress in the namespace `ever-teams`). Set the Ingress host and the Gauzy API URLs to
 yours, then `kubectl create namespace ever-teams` (once) and `kubectl apply -k .deploy/ever-k8s`.
 
+The Ingress uses the `nginx` IngressClass (ingress-nginx); set `ingressClassName` to your cluster's class if it
+differs (`kubectl get ingressclass` lists them).
+
 **Serve it over HTTPS only.** The Ingress has no `tls` section: either put a TLS terminator in front of it (a load
 balancer or a tunnel that serves HTTPS), or add `spec.tls` with a certificate for your host (for example issued by
 cert-manager) before you expose it.
