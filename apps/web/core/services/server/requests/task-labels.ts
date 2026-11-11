@@ -79,6 +79,8 @@ export function createLabelsBulkRequest(items: ReadonlyArray<TTagCreate>, bearer
 		method: 'POST',
 		body: { items },
 		bearer_token,
-		tenantId
+		tenantId,
+		// An API without the route may answer 404 (or a proxy 405) without a body: the client falls back on that status
+		keepsStatusOnError: true
 	});
 }

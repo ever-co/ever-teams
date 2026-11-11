@@ -76,6 +76,20 @@ describe('POST /api/tags/bulk', () => {
 		expect(await response.json()).toEqual(notFound);
 	});
 
+	it('answers a 404 or 405 without a status in its body with that status too', async () => {
+		for (const status of [404, 405]) {
+			fetchMock.mockResolvedValueOnce(new Response(null, { status }));
+			const request = new Request('https://app.ever.team/api/tags/bulk', {
+				method: 'POST',
+				body: JSON.stringify({ items })
+			});
+
+			const response = await POST(request);
+
+			expect(response.status).toBe(status);
+		}
+	});
+
 	it('still fails when Gauzy cannot be reached', async () => {
 		fetchMock.mockRejectedValue(new TypeError('fetch failed'));
 		const request = new Request('https://app.ever.team/api/tags/bulk', {
