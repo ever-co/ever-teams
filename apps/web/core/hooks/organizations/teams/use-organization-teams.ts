@@ -82,7 +82,8 @@ export function useOrganizationTeams() {
 	const memberActiveTaskId =
 		(timerStatus?.running && timerStatus?.lastLog?.taskId) || currentUser?.activeTaskId || null;
 
-	// isTrackingEnabledState derives the same from the store, mounted or not
+	// The timer reads isTrackingEnabledState instead, derived from the store whether this hook is mounted or not;
+	// unlike this value, it stays true while the team or user is loading and while a timer runs
 	const isTrackingEnabled = members.some((member) => {
 		const isUser = member.employee?.userId === user?.id;
 		return isUser && canMemberTrackTime(member);
