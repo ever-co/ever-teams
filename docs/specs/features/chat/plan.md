@@ -54,7 +54,9 @@ Phase 2: `chat-emoji` (the `:` query, outside code; index and ranking),
 `chat-attachments` (shrink size, limits, the body of a message of files
 alone, transfers, safe addresses, unknown files), `document-upload-fields`
 (the upload proxy passes only the vetted fields), and the hooks of the files
-and of the uploads.
+and of the uploads. `chat-link-preview` (the links of a body, outside code;
+the card of an answer; the `pending` asks again, the `unavailable` memory,
+the one-ask probe of a platform without the route) and its hook and card.
 
 ## 6. Phase 2
 
@@ -67,3 +69,10 @@ The virtualised timeline is behind its own runtime flag,
 timeline keeps every loaded message in the page. The chat keys are commands
 of the shortcut registry (context `chat`), matched by the chat page itself,
 so the shortcuts help lists them and the person can rebind them.
+
+Link previews are behind `NEXT_PUBLIC_CHAT_LINK_PREVIEWS_ENABLED` (off by
+default; with it off nothing is asked). The platform fetches the pages
+(`GET /chat/link-preview?url=`, on with `GAUZY_CHAT_LINK_PREVIEWS_ENABLED`):
+the message finds up to three links in its body, each asked for once per
+page (`queryKeys.chatLinkPreview`, outside the `chat` prefix the live
+channel invalidates), and shows the `ready` ones as cards of plain text.

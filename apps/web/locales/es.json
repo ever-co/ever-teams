@@ -5194,7 +5194,9 @@
 		"LOAD_MORE": "Cargar más",
 		"VIEW_IMAGE": "Ver {name}",
 		"OPEN_ORIGINAL": "Abrir el original",
-		"EMOJI_SUGGESTIONS": "Emoji"
+		"EMOJI_SUGGESTIONS": "Emoji",
+		"LINK_PREVIEW_LABEL": "{title} ({site}, se abre en una pestaña nueva)",
+		"LINK_PREVIEW_SITE_LABEL": "{site} (se abre en una pestaña nueva)"
 	},
 	"docs": {
 		"TITLE": "Documentos",

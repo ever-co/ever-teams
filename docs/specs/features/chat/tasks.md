@@ -29,5 +29,14 @@
   shortcuts (`Alt+↑/↓`, `Alt+Shift+↑/↓`, `Mod+Shift+A`, `Shift+Escape`:
   registry commands, rebindable, in the shortcuts help). `Mod+Enter` to
   send a thread reply waits for the setting that turns it on (FR-8) (#5052)
-- [ ] T16 Link preview cards, from what the platform returns once it has
-  a preview route (the browser fetches none itself)
+- [x] T16 Link preview cards, from what the platform returns
+  (`GET /chat/link-preview?url=`; the browser fetches no page itself):
+  up to three links per message (code left out, the app's own links
+  too), one ask per link shared by every message, asked again every 2 s
+  while `pending` (three times at most), a link `unavailable` or refused
+  not asked again in the page; a platform without the route (404) turns
+  them off for the page after one ask. A compact card (icon and site,
+  title, two lines of description, lazy thumbnail sized by the stated
+  proportions, no referrer). Behind `NEXT_PUBLIC_CHAT_LINK_PREVIEWS_ENABLED`,
+  off by default; the platform's route needs
+  `GAUZY_CHAT_LINK_PREVIEWS_ENABLED=true`
