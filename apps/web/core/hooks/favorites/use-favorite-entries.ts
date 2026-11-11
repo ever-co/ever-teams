@@ -128,8 +128,11 @@ export function useFavoriteEntries({ loadsProjects }: FavoriteEntriesOptions) {
 
 	// Conversations, where chat is on
 	const chatOn = isChatEnabled();
-	const { favoriteIds: chatIds } = useChatStates(chatOn);
+	const chatStates = useChatStates(chatOn);
+	const chatIds = chatStates.favoriteIds;
 	const hasChatFavorites = chatOn && chatIds.size > 0;
+	// Until the chat's states answer (or when they failed), its favourites are unknown: never "no favourites"
+	const areChatStatesUnknown = chatOn && (chatStates.isLoading || chatStates.isError);
 	const chats = useChatConversations(hasChatFavorites);
 	const people = useChatPeople(hasChatFavorites);
 	const meEmployeeId = useChatScope()?.employeeId ?? null;
@@ -200,6 +203,7 @@ export function useFavoriteEntries({ loadsProjects }: FavoriteEntriesOptions) {
 	const resolvedCount = groups.reduce((sum, group) => sum + group.entries.length, unavailable.length);
 	const isSourceLoading =
 		getOrganizationProjectsLoading || favoriteTasksQuery.isLoading || docsTree.isLoading || chats.isLoading;
+	const areChatStatesLoading = chatOn && chatStates.isLoading;
 
 	// A request that failed is said so, with a retry: never shown as no favourites, nor as favourites that are gone
 	const retries = [
@@ -207,7 +211,8 @@ export function useFavoriteEntries({ loadsProjects }: FavoriteEntriesOptions) {
 		projectIds.size > 0 && isOrganizationProjectsError && refetchOrganizationProjects,
 		missingTaskIds.length > 0 && favoriteTasksQuery.isError && favoriteTasksQuery.refetch,
 		showsDocuments && documentIds.size > 0 && docsTree.isError && docsTree.retry,
-		hasChatFavorites && chats.isError && chats.retry
+		hasChatFavorites && chats.isError && chats.retry,
+		chatOn && chatStates.isError && chatStates.retry
 	].filter((retry): retry is () => unknown => typeof retry === 'function');
 	const retry = () => {
 		for (const run of retries) {
@@ -219,9 +224,12 @@ export function useFavoriteEntries({ loadsProjects }: FavoriteEntriesOptions) {
 		groups: groups as FavoriteGroup<FavoriteItemEntry>[],
 		unavailable: unavailable as UnavailableFavorite[],
 		/** The person's favourites have arrived and there are none (of the kinds shown). */
-		isEmpty: areFavoritesLoaded && favoriteCount === 0,
+		isEmpty: areFavoritesLoaded && favoriteCount === 0 && !areChatStatesUnknown,
 		/** The favourites, or the items of some of them, are still on their way. */
-		isLoading: (!areFavoritesLoaded && !favoritesFailed) || (resolvedCount < favoriteCount && isSourceLoading),
+		isLoading:
+			(!areFavoritesLoaded && !favoritesFailed) ||
+			(resolvedCount < favoriteCount && isSourceLoading) ||
+			areChatStatesLoading,
 		/** The favourites, or the items of a kind of them, could not be read. */
 		isError: retries.length > 0,
 		retry

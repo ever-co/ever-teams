@@ -115,7 +115,8 @@ export function useChatStates(enabled: boolean) {
 	const totals = useMemo(() => unreadTotalsOf(query.data?.states ?? []), [query.data?.states]);
 	// The conversations I starred, for the app's Favorites (#5017): a chat's favourite is a flag of its membership
 	const favoriteIds = useMemo<ReadonlySet<string>>(() => new Set((query.data?.states ?? []).filter((state) => state.isFavorite).map((state) => String(state.conversationId))), [query.data?.states]);
-	return { threadsUnread, ...totals, favoriteIds };
+	// For the app's Favorites too: whether the states are on their way, or could not be read at all (no earlier answer)
+	return { threadsUnread, ...totals, favoriteIds, isLoading: query.isPending && query.fetchStatus !== 'idle', isError: query.isError && query.data === undefined, retry: query.refetch };
 }
 
 /** My followed threads with unread replies. */
