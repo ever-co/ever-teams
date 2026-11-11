@@ -21,6 +21,11 @@ interface MeetPageProps {
 	/** The person left the room, from the bar or from Jitsi's own hang-up button. */
 	onLeft: () => void;
 	onCopyLink: () => void;
+	/**
+	 * The room lost its connection and the person tries again: the page asks for a new token when the one in hand may
+	 * have expired (they last an hour, and Jitsi checks them on joining).
+	 */
+	onReconnect?: () => void;
 }
 
 /** The part of the Jitsi Meet API instance the room uses. */
@@ -59,7 +64,8 @@ export default function MeetPage({
 	title = null,
 	choices,
 	onLeft,
-	onCopyLink
+	onCopyLink,
+	onReconnect
 }: Readonly<MeetPageProps>) {
 	const t = useTranslations();
 	const jitsiApi = useJitsiExternalApi(MEET_DOMAIN.value);
@@ -69,6 +75,7 @@ export default function MeetPage({
 	const [participantCount, setParticipantCount] = useState<number | null>(null);
 	const roomApiRef = useRef<JitsiRoomApi | null>(null);
 	const onLeftRef = useCallbackRef(onLeft);
+	const onReconnectRef = useCallbackRef(onReconnect);
 
 	// The SDK never ends its API instance: a new attempt at the room, and leaving the page, end the previous one
 	useEffect(() => {
@@ -108,6 +115,12 @@ export default function MeetPage({
 		setParticipantCount(null);
 		setJoinAttempt((count) => count + 1);
 	}, []);
+
+	// After a lost connection the room may have lasted past its token's hour: the page renews it before the room reopens
+	const reconnect = useCallback(() => {
+		onReconnectRef.current?.();
+		rejoin();
+	}, [onReconnectRef, rejoin]);
 
 	// The frame fills the space under the room bar
 	const handleIFrameRef = useCallback((parentNode: HTMLDivElement) => {
@@ -151,7 +164,7 @@ export default function MeetPage({
 			<MeetRoomError
 				title={t('collaborate.MEETING_DISCONNECTED')}
 				description={t('collaborate.MEETING_DISCONNECTED_HINT')}
-				onRetry={rejoin}
+				onRetry={reconnect}
 			/>
 		);
 	}

@@ -69,6 +69,11 @@ function MeetPage() {
 		[enterRoom, issuedAt, refresh]
 	);
 
+	// A connection lost after the token's hour: trying again asks for a new token, which the room waits for
+	const renewStaleToken = useCallback(() => {
+		if (isRoomTokenStale(issuedAt, Date.now())) refresh();
+	}, [issuedAt, refresh]);
+
 	// Handle room creation and navigation
 	useEffect(() => {
 		const isJitsiPage = Boolean(pathname && JITSI_PAGE_PATH.test(pathname));
@@ -123,6 +128,7 @@ function MeetPage() {
 					choices={flow.choices}
 					onLeft={flow.leave}
 					onCopyLink={flow.copyLink}
+					onReconnect={renewStaleToken}
 				/>
 			)}
 		</>

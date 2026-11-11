@@ -158,6 +158,38 @@ describe('Jitsi meeting room', () => {
 		expect(screen.getByTestId('jitsi-room')).toBeTruthy();
 	});
 
+	it('asks the page to renew the token when the person tries again after a lost connection', async () => {
+		mockLoadJitsiExternalApi.mockResolvedValue(function JitsiMeetExternalAPI() {
+			return undefined;
+		});
+		const onReconnect = jest.fn();
+		render(
+			<MeetPage
+				jwt="jwt"
+				roomName="team-room_tenant"
+				title="Sprint review"
+				onLeft={mockLeft}
+				onCopyLink={jest.fn()}
+				onReconnect={onReconnect}
+			/>
+		);
+		await act(async () => {
+			await Promise.resolve();
+		});
+		const lostRoom = fakeRoomApi();
+		act(() => {
+			mockRoomRenders[0].onApiReady(lostRoom);
+		});
+		act(() => {
+			lostRoom.listeners.connectionFailed();
+		});
+		expect(onReconnect).not.toHaveBeenCalled();
+
+		fireEvent.click(screen.getByRole('button', { name: 'collaborate.TRY_AGAIN' }));
+
+		expect(onReconnect).toHaveBeenCalledTimes(1);
+	});
+
 	it("tells the page the person left, from Jitsi's hang-up or from the room bar", async () => {
 		mockLoadJitsiExternalApi.mockResolvedValue(function JitsiMeetExternalAPI() {
 			return undefined;
