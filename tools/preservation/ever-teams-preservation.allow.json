@@ -354,5 +354,25 @@
 	{
 		"id": "removed:publicExports:apps/web/core/stores/index.ts::runtime::REALTIME_REPLACES_POLLING",
 		"reason": "The constant that kept the chat and notification polls running while connected (#5012) is replaced by `realtimePromptDeliveryAtom`, set from the platform's own answer (`GET /realtime/status` → `delivery.prompt`, #5031): the polls pause only where the platform says it pushes promptly. Nothing imports the constant any more."
+	},
+	{
+		"id": "removed:overlayComponents:apps/web/core/components/features/daily-plan/timer-plan-dialogs.tsx::dismissEnforceTaskSoftModal",
+		"reason": "The soft \"add the task to today's plan?\" prompt opened only on Start in teams that do not require a daily plan, and never started the timer (#5014). Those teams now start the timer at once, so no path opens the prompt and its dialog is gone; the required-plan prompt (enforceTaskCloseModal) stays."
+	},
+	{
+		"id": "removed:overlayComponents:apps/web/core/hooks/activities/use-start-stop-timer-handler.ts::_enforceTaskSoftCloseModal",
+		"reason": "Modal state of the soft \"add the task to today's plan?\" prompt, which no timer policy path opens since teams without the plan requirement start at once (#5014). The ENFORCE_PLAN, SUGGEST_DAILY_PLAN and TASKS_ESTIMATION_HOURS modals of teams that require a plan are unchanged."
+	},
+	{
+		"id": "removed:overlayComponents:apps/web/core/hooks/activities/use-start-stop-timer-handler.ts::enforceTaskSoftCloseModal",
+		"reason": "Close handler of the soft \"add the task to today's plan?\" prompt, which no timer policy path opens since teams without the plan requirement start at once (#5014). The prompts of teams that require a plan are unchanged."
+	},
+	{
+		"id": "removed:overlayComponents:apps/web/core/hooks/activities/use-start-stop-timer-handler.ts::isEnforceTaskSoftModalOpen",
+		"reason": "Open state of the soft \"add the task to today's plan?\" prompt, which no timer policy path opens since teams without the plan requirement start at once (#5014). The prompts of teams that require a plan are unchanged."
+	},
+	{
+		"id": "removed:overlayComponents:apps/web/core/hooks/activities/use-start-stop-timer-handler.ts::openEnforcePlannedTaskSoftModal",
+		"reason": "Opener of the soft \"add the task to today's plan?\" prompt (policy modal ENFORCE_PLAN_SOFT), which the policy no longer returns: teams without the plan requirement start at once (#5014), and teams that require one get the hard ENFORCE_PLAN block as before."
 	}
 ]
