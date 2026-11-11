@@ -91,9 +91,10 @@ export function CreateWorkspacePage() {
 
 	const failure = creation.isError ? createWorkspaceErrorCodeOf(creation.error) : null;
 	const isUnconfirmed = isAddressUnconfirmed || failure === 'ADDRESS_UNCONFIRMED';
-	// Created but not opened: another try would create a second workspace
+	// Created but not opened, or perhaps created: another try could create a second workspace
 	const isCreatedUnopened = failure === 'CREATED_NOT_OPENED';
-	const isClosed = isUnconfirmed || isCreatedUnopened;
+	const isOutcomeUnknown = failure === 'OUTCOME_UNKNOWN';
+	const isClosed = isUnconfirmed || isCreatedUnopened || isOutcomeUnknown;
 	// Creating, then opening the new workspace: the button stays busy until the page is replaced
 	const isBusy = creation.isPending || creation.isSuccess;
 
@@ -134,6 +135,13 @@ export function CreateWorkspacePage() {
 						tone="warning"
 						title={t('workspaceCreation.CREATED_NOT_OPENED_TITLE')}
 						description={t('workspaceCreation.CREATED_NOT_OPENED_DESCRIPTION')}
+					/>
+				)}
+				{isOutcomeUnknown && (
+					<Notice
+						tone="warning"
+						title={t('workspaceCreation.OUTCOME_UNKNOWN_TITLE')}
+						description={t('workspaceCreation.OUTCOME_UNKNOWN_DESCRIPTION')}
 					/>
 				)}
 				{failure === 'REGISTRATION_CLOSED' && (

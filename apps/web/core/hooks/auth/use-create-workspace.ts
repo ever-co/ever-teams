@@ -2,8 +2,11 @@
 
 import { useMutation } from '@tanstack/react-query';
 import { isAxiosError } from 'axios';
+import { useSetAtom } from 'jotai';
 import type { CreateWorkspaceBody } from '@/core/lib/validation/workspace';
+import { ApiErrorService } from '@/core/services/client/api-error.service';
 import { workspaceService } from '@/core/services/client/api/auth/workspace.service';
+import { workspaceOpeningState } from '@/core/stores';
 
 /** The page that creates a workspace, from the workspace menu and the sign-in's workspace list alike. */
 export const CREATE_WORKSPACE_PATH = '/workspace/new';
@@ -13,6 +16,7 @@ export type CreateWorkspaceErrorCode =
 	| 'ADDRESS_UNCONFIRMED'
 	| 'REGISTRATION_CLOSED'
 	| 'CREATED_NOT_OPENED'
+	| 'OUTCOME_UNKNOWN'
 	| 'INVALID'
 	| 'FAILED';
 
@@ -24,10 +28,25 @@ const KNOWN_CODES: ReadonlySet<string> = new Set([
 ]);
 
 /**
+ * Whether the request failed without the route's answer (a timeout, the network): the workspace may have been created
+ * all the same, so this is never read as a failure to retry.
+ */
+function isUnanswered(error: unknown): boolean {
+	if (ApiErrorService.isApiError(error)) {
+		return error.httpResponseStatus === undefined;
+	}
+	return isAxiosError(error) && !error.response;
+}
+
+/**
  * The reason of a failed creation, from the API client's error (ApiErrorService carries the answer's `code` as its
- * `errorCode`) or a bare axios one; anything the route did not explain is a failure to retry.
+ * `errorCode`) or a bare axios one. Without an answer the outcome is unknown; anything else the route did not
+ * explain is a failure to retry.
  */
 export function createWorkspaceErrorCodeOf(error: unknown): CreateWorkspaceErrorCode {
+	if (isUnanswered(error)) {
+		return 'OUTCOME_UNKNOWN';
+	}
 	const fromClient = (error as { errorCode?: unknown } | null | undefined)?.errorCode;
 	const fromAxios = isAxiosError(error) ? (error.response?.data as { code?: unknown } | undefined)?.code : undefined;
 	const code = fromClient ?? fromAxios;
@@ -46,12 +65,17 @@ export function workspaceWelcomePathOf({ invited, invitesFailed }: { invited: nu
 /**
  * Creates another workspace for the signed-in person (#5025) and opens it. The route signs the browser in to it (its
  * cookies); a full page load then starts every query and store afresh in the new workspace, as a workspace switch does.
+ * While it is in flight the timer does not start: it would keep running in the workspace left behind.
  */
 export function useCreateWorkspace() {
+	const setWorkspaceOpening = useSetAtom(workspaceOpeningState);
 	return useMutation({
 		mutationFn: (body: CreateWorkspaceBody) => workspaceService.createWorkspace(body),
 		// The page says why a creation failed: no generic toast on top of it
 		meta: { handlesOwnError: true },
+		onMutate: () => setWorkspaceOpening(true),
+		// On success the page is replaced, which ends the hold
+		onError: () => setWorkspaceOpening(false),
 		onSuccess: (created) => {
 			window.location.href = workspaceWelcomePathOf(created);
 		}

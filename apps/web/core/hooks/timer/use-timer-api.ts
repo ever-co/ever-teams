@@ -35,7 +35,8 @@ import {
 	localTimerStatusState,
 	teamTasksState,
 	timerStatusFetchingState,
-	timerStatusState
+	timerStatusState,
+	workspaceOpeningState
 } from '@/core/stores';
 import { ETaskStatusName } from '@/core/types/generics/enums/task';
 import { ETimeLogSource } from '@/core/types/generics/enums/timer';
@@ -222,6 +223,7 @@ export function useTimerApi({
 
 	const activeTeam = useAtomValue(activeTeamState);
 	const activeTeamTask = useAtomValue(activeTeamTaskState);
+	const isWorkspaceOpeningRef = useSyncRef(useAtomValue(workspaceOpeningState));
 	const { taskStatuses } = useTaskStatusesQuery({ enabled });
 	const detailedTask = useAtomValue(detailedTaskState);
 	const activeTeamId = useAtomValue(activeTeamIdState);
@@ -548,6 +550,12 @@ export function useTimerApi({
 
 	const runStartTimer = useCallback(
 		async (explicitTask?: TTask, onRequestLanded?: () => void): Promise<TimerStartOutcome> => {
+			// A new workspace is opening: its answer switches the session, and this timer would keep running in the
+			// workspace left behind, out of sight (#5025)
+			if (isWorkspaceOpeningRef.current) {
+				toast.warning(t('toasts.timer.WORKSPACE_OPENING'), { id: 'timer-workspace-opening' });
+				return 'blocked';
+			}
 			// Before the first await: a team switch during the tracking check or the project read drops the start
 			const teamIdAtStart = activeTeamRef.current?.id;
 			const isClearToStart = await canStartWithoutTrackingConflict();
@@ -735,7 +743,8 @@ export function useTimerApi({
 			queryClient,
 			activeTeamId,
 			isCurrentScope,
-			statusEnabled
+			statusEnabled,
+			isWorkspaceOpeningRef
 		]
 	);
 
