@@ -87,7 +87,13 @@ describe('rebinding a chat command', () => {
 			'mod+enter',
 			'arrowdown',
 			'escape',
-			'space'
+			'space',
+			'mod+arrowleft',
+			'mod+backspace',
+			'alt+backspace',
+			'alt+arrowright',
+			'alt+shift+arrowleft',
+			'shift+arrowup'
 		]) {
 			expect(refusalOf(command('chatNext'), binding(taken))).toBe('chatTaken');
 		}

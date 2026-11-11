@@ -9,6 +9,7 @@ import { VirtualTimeline, type VirtualTimelineHandle } from './chat-virtual-time
 const VIEW_HEIGHT = 600;
 /** The height jsdom reports for a drawn row (its estimate differs: a measured row keeps this one). */
 const ROW_HEIGHT = 50;
+let rowHeight = ROW_HEIGHT;
 
 function message(index: number, body = `message ${index}`): IChatMessage {
 	return {
@@ -36,20 +37,23 @@ const rowsOf = (from: number, to: number, body?: (index: number) => string): Cha
  */
 function scrollable(element: HTMLDivElement) {
 	let top = 0;
+	const height = () =>
+		Number.parseInt(element.querySelector<HTMLElement>('[data-virtual-timeline]')?.style.height ?? '0', 10);
+	const bounded = (value: number) => Math.max(0, Math.min(value, height() - VIEW_HEIGHT));
 	Object.defineProperty(element, 'scrollTop', {
 		configurable: true,
 		get: () => top,
 		set: (value: number) => {
-			top = Math.max(0, value);
+			top = bounded(value);
 		}
 	});
-	Object.defineProperty(element, 'scrollHeight', {
-		configurable: true,
-		get: () =>
-			Number.parseInt(element.querySelector<HTMLElement>('[data-virtual-timeline]')?.style.height ?? '0', 10)
-	});
+	Object.defineProperty(element, 'scrollHeight', { configurable: true, get: height });
+	Object.defineProperty(element, 'clientHeight', { configurable: true, get: () => VIEW_HEIGHT });
 	element.scrollTo = ((options?: ScrollToOptions) => {
-		if (typeof options?.top === 'number') top = Math.max(0, options.top);
+		if (typeof options?.top !== 'number') return;
+		const next = bounded(options.top);
+		if (next === top) return;
+		top = next;
 		element.dispatchEvent(new Event('scroll'));
 	}) as typeof element.scrollTo;
 }
@@ -77,7 +81,7 @@ function Harness({ items, handle }: { items: ChatTimelineItem[]; handle?: React.
 const originalRect = HTMLElement.prototype.getBoundingClientRect;
 const originalOffsetHeight = Object.getOwnPropertyDescriptor(HTMLElement.prototype, 'offsetHeight');
 const heightOf = (element: HTMLElement) =>
-	element.dataset.testid === 'scroll' ? VIEW_HEIGHT : element.dataset.index !== undefined ? ROW_HEIGHT : 0;
+	element.dataset.testid === 'scroll' ? VIEW_HEIGHT : element.dataset.index !== undefined ? rowHeight : 0;
 
 beforeAll(() => {
 	HTMLElement.prototype.getBoundingClientRect = function rect(this: HTMLElement) {
@@ -100,6 +104,10 @@ beforeAll(() => {
 			return heightOf(this);
 		}
 	});
+});
+
+afterEach(() => {
+	rowHeight = ROW_HEIGHT;
 });
 
 afterAll(() => {
@@ -176,5 +184,34 @@ describe('VirtualTimeline', () => {
 		const handle = React.createRef<VirtualTimelineHandle>();
 		render(<Harness items={rowsOf(0, 10)} handle={handle} />);
 		expect(handle.current?.restore({ key: 'message:gone', delta: 0 })).toBe(false);
+	});
+
+	it('draws every row of a conversation that fits in the view, though more than the rows drawn around a place', () => {
+		rowHeight = 20;
+		render(<Harness items={rowsOf(0, 20)} />);
+		expect(document.querySelectorAll('[data-message-id]')).toHaveLength(20);
+		expect(screen.getByText('message 0')).toBeTruthy();
+	});
+
+	it('keeps a message in place, not the day it is in, when an older page of that same day comes in', async () => {
+		const handle = React.createRef<VirtualTimelineHandle>();
+		const day: ChatTimelineItem = { type: 'day', key: '2026-11-11', date: new Date(2026, 10, 11) };
+		const later = rowsOf(100, 140);
+		const { rerender } = render(<Harness items={[day, ...later]} handle={handle} />);
+		const scroll = screen.getByTestId('scroll');
+		// The reader is at the very top: the day divider, then the first message.
+		await scrollTo(scroll, 0);
+		const anchor = handle.current?.anchor();
+		if (!anchor) throw new Error('No row is drawn where the reader is');
+		expect(anchor.key).toBe('message:m100');
+		const shownAt = startOf('m100') - scroll.scrollTop;
+
+		// The older page is of the same day: the divider stays first, above it.
+		rerender(<Harness items={[day, ...rowsOf(80, 100), ...later]} handle={handle} />);
+		await act(async () => {
+			expect(handle.current?.restore(anchor)).toBe(true);
+			scroll.dispatchEvent(new Event('scroll'));
+		});
+		expect(startOf('m100') - scroll.scrollTop).toBe(shownAt);
 	});
 });

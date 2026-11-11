@@ -293,6 +293,38 @@ describe('reading and following', () => {
 		expect(mockTimeline.loadOlder).toHaveBeenCalledTimes(1);
 	});
 
+	it('keeps the place when the older page comes in, unless the reader jumped to the latest meanwhile', async () => {
+		const frame = jest.spyOn(window, 'requestAnimationFrame').mockImplementation((run) => {
+			run(0);
+			return 0;
+		});
+		const pages: Array<() => void> = [];
+		mockTimeline.loadOlder.mockImplementation(() => new Promise<undefined>((done) => pages.push(() => done(undefined))));
+		show([message('m1', at(9, 10, 0))], { hasBefore: true });
+		render(view(conversation()));
+		const log = screen.getByRole('log');
+		log.scrollTo = jest.fn();
+		scrollTo(900, 20);
+		// The older page lands: 300 px more above what the reader looks at.
+		Object.defineProperty(log, 'scrollHeight', { configurable: true, value: 20 + 500 + 900 + 300 });
+		await act(async () => {
+			pages[0]();
+		});
+		expect(log.scrollTop).toBe(320);
+
+		// Up again, then "Jump to latest" while the next page loads: that page does not move the reader back up.
+		scrollTo(900, 20);
+		expect(pages).toHaveLength(2);
+		fireEvent.click(screen.getByRole('button', { name: 'teamChat.JUMP_TO_LATEST' }));
+		Object.defineProperty(log, 'scrollHeight', { configurable: true, value: 20 + 500 + 900 + 300 });
+		await act(async () => {
+			pages[1]();
+		});
+		expect(log.scrollTop).toBe(20);
+		frame.mockRestore();
+		mockTimeline.loadOlder.mockImplementation(async () => undefined);
+	});
+
 	it('scrolls to a linked message once and lights it', () => {
 		const scrollIntoView = jest.fn();
 		Element.prototype.scrollIntoView = scrollIntoView;

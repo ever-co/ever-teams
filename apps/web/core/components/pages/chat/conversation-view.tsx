@@ -24,7 +24,7 @@ import { EChatNotifyLevel, IChatConversationWithState, IChatFile, IChatMessage }
 import type { ETimerStatus } from '@/core/types/generics/enums/timer';
 import { ConversationFilesButton, ImageLightbox } from './chat-attachments';
 import { ChatErrorState, ChatMessagesSkeleton } from './chat-states';
-import { VirtualTimeline, type VirtualTimelineHandle } from './chat-virtual-timeline';
+import { VirtualTimeline, type VirtualTimelineAnchor, type VirtualTimelineHandle } from './chat-virtual-timeline';
 import { ConversationWelcome, DayDivider, JumpToLatest, NewDivider } from './chat-timeline-parts';
 import { BAR_BUTTON, ConversationHeader } from './conversation-header';
 import { CreateTaskFromMessageDialog } from './create-task-dialog';
@@ -99,6 +99,8 @@ function ConversationPane({ conversation, conversationNames, canManage, presence
 	// A jump to a message the virtual list has not drawn: it scrolls there, and the target is looked for again a frame on.
 	const [jumpFrame, setJumpFrame] = useState(0);
 	const jumpTries = useRef(0);
+	// The older page being read: where the reader is (kept up to date while they scroll), until it comes in.
+	const olderRequest = useRef<{ anchor: VirtualTimelineAnchor | null; arrived: boolean } | null>(null);
 	const jumpTarget = useRef<string | null>(null);
 	const stickToBottom = useRef(true);
 	// How far the reader is from the newest message. Only at the bottom does viewing read the conversation.
@@ -212,14 +214,22 @@ function ConversationPane({ conversation, conversationNames, canManage, presence
 			setAway(distance < FAR_FROM_BOTTOM_PX ? 'near' : 'far');
 			if (wasAtBottom) setLeftAt(newestId);
 		}
+		// The reader moved while the older page loads: it is their new place that is kept.
+		const pending = olderRequest.current;
+		if (pending && !pending.arrived && virtual) pending.anchor = virtualTimeline.current?.anchor() ?? null;
 		if (element.scrollTop < 80 && hasBefore && !isLoadingOlder) {
 			const before = element.scrollHeight;
 			// The virtual list measures the rows it draws as the page comes in: it puts the reader's row back itself.
-			const anchor = virtual ? (virtualTimeline.current?.anchor() ?? null) : null;
+			const request = { anchor: virtual ? (virtualTimeline.current?.anchor() ?? null) : null, arrived: false };
+			olderRequest.current = request;
 			void loadOlder().then(() => {
-				// Keep what the reader was looking at in place after the older page is prepended.
+				request.arrived = true;
+				// Keep what the reader was looking at in place after the older page is prepended; unless a jump to the
+				// latest took over meanwhile.
 				requestAnimationFrame(() => {
-					if (anchor && virtualTimeline.current?.restore(anchor)) return;
+					if (olderRequest.current !== request) return;
+					olderRequest.current = null;
+					if (request.anchor && virtualTimeline.current?.restore(request.anchor)) return;
 					if (list.current) list.current.scrollTop += list.current.scrollHeight - before;
 				});
 			});
@@ -232,6 +242,8 @@ function ConversationPane({ conversation, conversationNames, canManage, presence
 		const distance = element.scrollHeight - element.scrollTop - element.clientHeight;
 		const calm = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
 		stickToBottom.current = true;
+		// An older page on its way no longer moves the reader back up.
+		olderRequest.current = null;
 		element.scrollTo({ top: element.scrollHeight, behavior: calm || distance > SMOOTH_SCROLL_MAX_PX ? 'auto' : 'smooth' });
 	}, []);
 
