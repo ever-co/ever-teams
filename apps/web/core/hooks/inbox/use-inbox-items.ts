@@ -116,7 +116,12 @@ export function useInboxItem(id: string | null) {
 	const scope = useInboxScope();
 	const queryClient = useQueryClient();
 	const tenantId = scope?.tenantId;
-	const queryKey = useMemo(() => queryKeys.inbox.item(tenantId, id), [tenantId, id]);
+	const organizationId = scope?.organizationId;
+	const userId = scope?.userId;
+	const queryKey = useMemo(
+		() => queryKeys.inbox.item(tenantId, organizationId, userId, id),
+		[tenantId, organizationId, userId, id]
+	);
 
 	const item = useQuery({
 		queryKey,
