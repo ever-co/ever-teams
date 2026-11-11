@@ -1585,7 +1585,8 @@
 			"NO_STATUSES_TITLE": "עדיין אין סטטוסים",
 			"NO_STATUSES_MESSAGE": "לצוות הזה אין סטטוסים של משימות. הוסיפו אותם בהגדרות הצוות כדי לראות את הלוח.",
 			"CREATION_DAY": "יום יצירה",
-			"SELECT_TASK": "בחירת {title}"
+			"SELECT_TASK": "בחירת {title}",
+			"OTHER_TEAM_MOVE": "המשימה הזו שייכת לצוות אחר: שנו את הסטטוס שלה מתוך המשימה עצמה."
 		},
 		"projects": {
 			"projectTitle": {

@@ -1,6 +1,9 @@
 'use client';
 
 import { Suspense, useCallback, useMemo, useState } from 'react';
+import { useAtomValue } from 'jotai';
+import { useTranslations } from 'next-intl';
+import { toast } from 'sonner';
 import { Modal } from '@/core/components/common/modal';
 import { ModalSkeleton } from '@/core/components/common/skeleton/modal-skeleton';
 import { LazyEditStatusModal } from '@/core/components/optimized-components/tasks';
@@ -8,10 +11,12 @@ import { useKanbanLanes } from '@/core/hooks/tasks/use-kanban-lanes';
 import { useKeyboardPreferences } from '@/core/hooks/keyboard/use-keyboard-preferences';
 import type { TeamTasksViewState } from '@/core/hooks/tasks/use-team-tasks-view';
 import { laneRangeIds } from '@/core/lib/utils/kanban-board';
+import { tasksByTeamState } from '@/core/stores';
 import { tasksOfGroups } from '@/core/lib/utils/team-tasks-view';
 import type { TTaskStatus } from '@/core/types/schemas';
 import type { TTask } from '@/core/types/schemas/task/task.schema';
 import { KanbanBoard } from '../../../../kanban/board/kanban-board';
+import { KanbanBoardSkeleton } from '../../../../kanban/board/kanban-board-skeleton';
 import {
 	KanbanBoardProvider,
 	KanbanSelectionProvider,
@@ -19,6 +24,7 @@ import {
 	type KanbanSelection
 } from '../../../../kanban/board/kanban-board-context';
 import type { TeamTasksListCommands } from './team-tasks-list';
+import { TeamTasksError } from './team-tasks-states';
 
 /** The edit status form still updates a column list of its own; the board reads statuses from their query. */
 function keepStatusesFromQuery() {
@@ -36,23 +42,40 @@ export function TeamTasksBoard({
 	view,
 	commands
 }: Readonly<{ view: TeamTasksViewState; commands: TeamTasksListCommands }>) {
+	const t = useTranslations();
 	const tasks = useMemo(() => tasksOfGroups(view.groups), [view.groups]);
-	const { lanes, statuses, moveTask, moveLane, setLaneCollapsed } = useKanbanLanes(tasks);
+	const { lanes, statuses, isLoading, isError, refetchTaskStatuses, moveTask, moveLane, setLaneCollapsed } =
+		useKanbanLanes(tasks);
+	const teamTasks = useAtomValue(tasksByTeamState);
+	const teamTaskIds = useMemo(() => new Set(teamTasks.map((task) => task.id)), [teamTasks]);
 	const [editedStatus, setEditedStatus] = useState<TTaskStatus | null>(null);
 	const [anchorId, setAnchorId] = useState<string | null>(null);
 	const { bindings } = useKeyboardPreferences();
 	const { selectedIds, toggleSelected, setManySelected } = view;
 	const { openTask, createTaskInGroup, openPicker } = commands;
 
+	// The lanes are the active team's statuses: a task of another team (a built-in view lists the person's tasks of
+	// every team) changes its status from the task itself, never to a status of this team.
+	const moveTeamTask = useCallback(
+		(task: TTask, toStatus: TTaskStatus, toIndex: number) => {
+			if (!teamTaskIds.has(task.id)) {
+				toast.warning(t('pages.kanban.OTHER_TEAM_MOVE'), { id: 'board-other-team-move' });
+				return;
+			}
+			moveTask(task, toStatus, toIndex);
+		},
+		[moveTask, t, teamTaskIds]
+	);
+
 	const actions = useMemo<KanbanBoardActions>(
 		() => ({
-			moveTask,
+			moveTask: moveTeamTask,
 			openTask: (task: TTask) => openTask(task.id),
 			createTaskIn: (status: TTaskStatus) => createTaskInGroup(status.name ?? null),
 			editStatus: setEditedStatus,
 			setLaneCollapsed
 		}),
-		[createTaskInGroup, moveTask, openTask, setLaneCollapsed]
+		[createTaskInGroup, moveTeamTask, openTask, setLaneCollapsed]
 	);
 
 	// A range is taken in the lane the cards share (the list's own range follows its rows).
@@ -73,11 +96,17 @@ export function TeamTasksBoard({
 		[bindings, openPicker, selectedIds, toggleCard]
 	);
 
+	if (isLoading && !statuses.length) {
+		return <KanbanBoardSkeleton />;
+	}
+	if (isError && !statuses.length) {
+		return <TeamTasksError onRetry={() => void refetchTaskStatuses()} />;
+	}
 	return (
 		<>
 			<KanbanBoardProvider statuses={statuses} actions={actions}>
 				<KanbanSelectionProvider selection={selection}>
-					<KanbanBoard lanes={lanes} onMoveTask={moveTask} onMoveLane={moveLane} />
+					<KanbanBoard lanes={lanes} onMoveTask={moveTeamTask} onMoveLane={moveLane} />
 				</KanbanSelectionProvider>
 			</KanbanBoardProvider>
 			{editedStatus && (

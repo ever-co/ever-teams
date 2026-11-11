@@ -34,3 +34,32 @@ describe('the selection of a board', () => {
 		expect(result.current.selectedIds.size).toBe(0);
 	});
 });
+
+describe('the selection of a board, once a card leaves it', () => {
+	it('forgets the card for good: clearing the filter does not select it again', () => {
+		let lanes = [lane('open', ['a', 'b'])];
+		const { result, rerender } = renderHook(() => useBoardSelection(lanes));
+		act(() => result.current.setManySelected(['a', 'b'], true));
+		lanes = [lane('open', ['a'])];
+		rerender();
+		lanes = [lane('open', ['a', 'b'])];
+		rerender();
+		expect([...result.current.selectedIds]).toEqual(['a']);
+	});
+
+	it("puts an archive's leftovers back only over the selection it cleared", () => {
+		const lanes = [lane('open', ['a', 'b', 'c'])];
+		const { result } = renderHook(() => useBoardSelection(lanes));
+		act(() => result.current.clearSelection());
+		const restore = result.current.restoreLater();
+		act(() => restore(['a']));
+		expect([...result.current.selectedIds]).toEqual(['a']);
+
+		act(() => result.current.clearSelection());
+		const late = result.current.restoreLater();
+		// The person selects another card before the answer comes.
+		act(() => result.current.toggleSelected('c', false));
+		act(() => late(['b']));
+		expect([...result.current.selectedIds]).toEqual(['c']);
+	});
+});

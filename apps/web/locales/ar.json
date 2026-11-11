@@ -1585,7 +1585,8 @@
 			"NO_STATUSES_TITLE": "لا توجد حالات بعد",
 			"NO_STATUSES_MESSAGE": "لا يملك هذا الفريق حالات للمهام. أضفها من إعدادات الفريق لرؤية لوحته.",
 			"CREATION_DAY": "يوم الإنشاء",
-			"SELECT_TASK": "تحديد {title}"
+			"SELECT_TASK": "تحديد {title}",
+			"OTHER_TEAM_MOVE": "تنتمي هذه المهمة إلى فريق آخر: غيّر حالتها من المهمة نفسها."
 		},
 		"projects": {
 			"projectTitle": {

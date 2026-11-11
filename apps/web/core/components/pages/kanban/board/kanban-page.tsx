@@ -181,7 +181,7 @@ export function KanbanPage() {
 
 	// With the saved-views feature the cards can be selected and changed together (one request, one undo).
 	const isSelectable = isTaskViewsEnabled();
-	const { selectedIds, toggleSelected, setManySelected, clearSelection } = useBoardSelection(board.lanes);
+	const { selectedIds, toggleSelected, clearSelection, restoreLater } = useBoardSelection(board.lanes);
 	const { bindings } = useKeyboardPreferences();
 	const { archiveTasks, canArchive } = useTeamTaskUpdates();
 	const [pickerTarget, setPickerTarget] = useState<TeamTaskPickerTarget | null>(null);
@@ -207,11 +207,10 @@ export function KanbanPage() {
 	const archiveSelection = useCallback(() => {
 		const taskIds = [...selectedIds];
 		clearSelection();
-		// The tasks the platform did not archive come back into the selection: a retry needs no second pick.
-		void archiveTasks(taskIds).then((left) => {
-			if (left.length) setManySelected(left, true);
-		});
-	}, [archiveTasks, clearSelection, selectedIds, setManySelected]);
+		// The tasks the platform did not archive come back into the selection (a retry needs no second pick), unless
+		// the person selected something else meanwhile.
+		void archiveTasks(taskIds).then(restoreLater());
+	}, [archiveTasks, clearSelection, restoreLater, selectedIds]);
 
 	// Esc clears the selection, unless a picker, a menu or a field has the key.
 	useEffect(() => {

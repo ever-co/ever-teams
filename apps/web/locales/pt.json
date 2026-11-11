@@ -1585,7 +1585,8 @@
 			"NO_STATUSES_TITLE": "Ainda sem status",
 			"NO_STATUSES_MESSAGE": "Esta equipe não tem status de tarefa. Adicione-os nas configurações da equipe para ver o quadro.",
 			"CREATION_DAY": "Dia de criação",
-			"SELECT_TASK": "Selecionar {title}"
+			"SELECT_TASK": "Selecionar {title}",
+			"OTHER_TEAM_MOVE": "Esta tarefa pertence a outra equipa: altere o estado na própria tarefa."
 		},
 		"profile": {
 			"BREADCRUMB": "[\"Tarefas do Membro\"]",

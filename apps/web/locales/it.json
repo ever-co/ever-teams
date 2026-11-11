@@ -1585,7 +1585,8 @@
 			"NO_STATUSES_TITLE": "Nessuno stato per ora",
 			"NO_STATUSES_MESSAGE": "Questo team non ha stati delle attività. Aggiungili nelle impostazioni del team per vedere la sua bacheca.",
 			"CREATION_DAY": "Giorno di creazione",
-			"SELECT_TASK": "Seleziona {title}"
+			"SELECT_TASK": "Seleziona {title}",
+			"OTHER_TEAM_MOVE": "Questa attività appartiene a un altro team: cambiane lo stato dall'attività stessa."
 		},
 		"profile": {
 			"BREADCRUMB": "[\"Compiti dei membri\"]",

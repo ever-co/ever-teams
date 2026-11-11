@@ -1585,7 +1585,8 @@
 			"NO_STATUSES_TITLE": "Aucun statut pour l'instant",
 			"NO_STATUSES_MESSAGE": "Cette équipe n'a aucun statut de tâche. Ajoutez-en dans les paramètres de l'équipe pour voir son tableau.",
 			"CREATION_DAY": "Jour de création",
-			"SELECT_TASK": "Sélectionner {title}"
+			"SELECT_TASK": "Sélectionner {title}",
+			"OTHER_TEAM_MOVE": "Cette tâche appartient à une autre équipe : changez son statut depuis la tâche elle-même."
 		},
 		"profile": {
 			"BREADCRUMB": "[\"Tâches du membre\"]",

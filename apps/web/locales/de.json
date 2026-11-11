@@ -1585,7 +1585,8 @@
 			"NO_STATUSES_TITLE": "Noch keine Status",
 			"NO_STATUSES_MESSAGE": "Dieses Team hat keine Aufgabenstatus. Lege sie in den Teameinstellungen an, um das Board zu sehen.",
 			"CREATION_DAY": "Erstellungstag",
-			"SELECT_TASK": "{title} auswählen"
+			"SELECT_TASK": "{title} auswählen",
+			"OTHER_TEAM_MOVE": "Diese Aufgabe gehört zu einem anderen Team: Ändern Sie ihren Status in der Aufgabe selbst."
 		},
 		"profile": {
 			"BREADCRUMB": "[\"Aufgaben des Mitglieds\"]",

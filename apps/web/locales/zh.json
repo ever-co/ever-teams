@@ -1906,7 +1906,8 @@
 			"NO_STATUSES_TITLE": "还没有状态",
 			"NO_STATUSES_MESSAGE": "该团队还没有任务状态。请在团队设置中添加，以查看看板。",
 			"CREATION_DAY": "创建日期",
-			"SELECT_TASK": "选择 {title}"
+			"SELECT_TASK": "选择 {title}",
+			"OTHER_TEAM_MOVE": "此任务属于另一个团队：请在任务本身中更改其状态。"
 		},
 		"profile": {
 			"BREADCRUMB": "[\"成员任务\"]",

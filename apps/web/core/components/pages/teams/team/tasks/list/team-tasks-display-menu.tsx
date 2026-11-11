@@ -143,7 +143,7 @@ export function TeamTasksDisplayMenu({ view }: Readonly<{ view: TeamTasksViewSta
 					{isTaskViewsEnabled() && (
 						<DisplayRow label={t('pages.teamTasks.LAYOUT')}>
 							<Select value={settings.layout ?? 'list'} onValueChange={handleLayout}>
-								<SelectTrigger className="h-7 w-40 text-[13px]">
+								<SelectTrigger className="h-7 w-40 text-[13px]" aria-label={t('pages.teamTasks.LAYOUT')}>
 									<SelectValue />
 								</SelectTrigger>
 								<SelectContent>

@@ -1585,7 +1585,8 @@
 			"NO_STATUSES_TITLE": "Nog geen statussen",
 			"NO_STATUSES_MESSAGE": "Dit team heeft geen taakstatussen. Voeg ze toe in de teaminstellingen om het bord te zien.",
 			"CREATION_DAY": "Aanmaakdag",
-			"SELECT_TASK": "{title} selecteren"
+			"SELECT_TASK": "{title} selecteren",
+			"OTHER_TEAM_MOVE": "Deze taak hoort bij een ander team: wijzig de status in de taak zelf."
 		},
 		"profile": {
 			"BREADCRUMB": "[\"Taken teamlid\"]",

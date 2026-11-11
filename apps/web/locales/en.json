@@ -1912,7 +1912,8 @@
 			"NO_STATUSES_TITLE": "No statuses yet",
 			"NO_STATUSES_MESSAGE": "This team has no task statuses. Add them in the team settings to see its board.",
 			"CREATION_DAY": "Creation day",
-			"SELECT_TASK": "Select {title}"
+			"SELECT_TASK": "Select {title}",
+			"OTHER_TEAM_MOVE": "This task belongs to another team: change its status from the task itself."
 		},
 		"taskDetails": {
 			"BREADCRUMB": "[\"Task details\"]",

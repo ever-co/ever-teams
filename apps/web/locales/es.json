@@ -1585,7 +1585,8 @@
 			"NO_STATUSES_TITLE": "Aún no hay estados",
 			"NO_STATUSES_MESSAGE": "Este equipo no tiene estados de tarea. Añádelos en la configuración del equipo para ver su tablero.",
 			"CREATION_DAY": "Día de creación",
-			"SELECT_TASK": "Seleccionar {title}"
+			"SELECT_TASK": "Seleccionar {title}",
+			"OTHER_TEAM_MOVE": "Esta tarea pertenece a otro equipo: cambia su estado desde la propia tarea."
 		},
 		"profile": {
 			"BREADCRUMB": "[\"Tareas de miembro\"]",

@@ -1585,7 +1585,8 @@
 			"NO_STATUSES_TITLE": "Brak statusów",
 			"NO_STATUSES_MESSAGE": "Ten zespół nie ma statusów zadań. Dodaj je w ustawieniach zespołu, aby zobaczyć tablicę.",
 			"CREATION_DAY": "Dzień utworzenia",
-			"SELECT_TASK": "Zaznacz {title}"
+			"SELECT_TASK": "Zaznacz {title}",
+			"OTHER_TEAM_MOVE": "To zadanie należy do innego zespołu: zmień jego status w samym zadaniu."
 		},
 		"profile": {
 			"BREADCRUMB": "[\"Member Tasks\"]",
