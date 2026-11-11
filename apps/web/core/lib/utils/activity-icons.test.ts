@@ -47,6 +47,9 @@ describe('activityBrandOf', () => {
 			'chrome'
 		);
 		expect(activityBrandOf({ title: 'Cursor', kind: 'app' })?.key).toBe('cursor');
+		// A known app whose name reads like a host, where the row does not say which it is; a real site keeps its own
+		expect(activityBrandOf({ title: 'Figma.app' })?.key).toBe('figma');
+		expect(activityBrandOf({ title: 'linear.app' })?.key).toBe('linear');
 		expect(activityBrandOf({ title: 'sublime_text.exe' })?.key).toBe('sublimetext');
 		expect(activityBrandOf({ title: 'Brave Browser' })?.key).toBe('brave');
 	});

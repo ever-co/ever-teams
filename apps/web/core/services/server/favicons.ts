@@ -13,6 +13,8 @@ export interface Favicon {
 }
 
 const TIMEOUT_MS = 5_000;
+/** The longest a whole lookup may take, redirects and bodies included: a site that drips its bytes is let go. */
+const DEADLINE_MS = 10_000;
 const MAX_REDIRECTS = 3;
 const MAX_IMAGE_BYTES = 100 * 1024;
 const MAX_PAGE_BYTES = 256 * 1024;
@@ -33,7 +35,11 @@ interface Fetched {
 	url: URL;
 }
 
-async function readUpTo(response: Response, maxBytes: number): Promise<Uint8Array | null> {
+/**
+ * The body, up to `maxBytes`: past them, null for an image (too large to keep), or the first `maxBytes` for a page
+ * (its icons are linked in its head, at the start).
+ */
+async function readUpTo(response: Response, maxBytes: number, keepsStart = false): Promise<Uint8Array | null> {
 	const reader = response.body?.getReader();
 	if (!reader) {
 		return null;
@@ -45,11 +51,16 @@ async function readUpTo(response: Response, maxBytes: number): Promise<Uint8Arra
 		if (done) {
 			break;
 		}
-		size += value.byteLength;
-		if (size > maxBytes) {
+		if (size + value.byteLength > maxBytes) {
 			await reader.cancel();
-			return null;
+			if (!keepsStart) {
+				return null;
+			}
+			chunks.push(value.subarray(0, maxBytes - size));
+			size = maxBytes;
+			break;
 		}
+		size += value.byteLength;
 		chunks.push(value);
 	}
 	const bytes = new Uint8Array(size);
@@ -61,8 +72,19 @@ async function readUpTo(response: Response, maxBytes: number): Promise<Uint8Arra
 	return bytes;
 }
 
+interface FetchOptions {
+	/** Aborts the request and its body when the lookup's deadline passes. */
+	signal: AbortSignal;
+	/** Keep the start of a body larger than `maxBytes` (a page) instead of nothing (an image). */
+	keepsStart?: boolean;
+}
+
 /** A GET that follows up to three redirects to https addresses, each through a guarded fetch of its own origin. */
-async function fetchFollowing(address: string, maxBytes: number): Promise<Fetched | null> {
+async function fetchFollowing(
+	address: string,
+	maxBytes: number,
+	{ signal, keepsStart = false }: FetchOptions
+): Promise<Fetched | null> {
 	let url = new URL(address);
 	for (let hop = 0; hop <= MAX_REDIRECTS; hop += 1) {
 		if (url.protocol !== 'https:' || url.username || url.password) {
@@ -70,7 +92,8 @@ async function fetchFollowing(address: string, maxBytes: number): Promise<Fetche
 		}
 		const guardedFetch = createGuardedFetch({ baseURL: url.origin, allowLoopback: false, timeoutMs: TIMEOUT_MS });
 		const response = await guardedFetch(url.href, {
-			headers: { accept: 'image/*,text/html;q=0.8', 'user-agent': USER_AGENT }
+			headers: { accept: 'image/*,text/html;q=0.8', 'user-agent': USER_AGENT },
+			signal
 		});
 		const location = response.headers.get('location');
 		const isRedirect = response.status >= 300 && response.status < 400 && location;
@@ -83,7 +106,7 @@ async function fetchFollowing(address: string, maxBytes: number): Promise<Fetche
 			await response.body?.cancel();
 			return null;
 		}
-		const bytes = await readUpTo(response, maxBytes);
+		const bytes = await readUpTo(response, maxBytes, keepsStart);
 		return bytes ? { bytes, url } : null;
 	}
 	return null;
@@ -103,8 +126,8 @@ export function imageTypeOf(bytes: Uint8Array): string | null {
 	return null;
 }
 
-async function fetchImage(address: string): Promise<Favicon | null> {
-	const fetched = await fetchFollowing(address, MAX_IMAGE_BYTES).catch(() => null);
+async function fetchImage(address: string, signal: AbortSignal): Promise<Favicon | null> {
+	const fetched = await fetchFollowing(address, MAX_IMAGE_BYTES, { signal }).catch(() => null);
 	if (!fetched) {
 		return null;
 	}
@@ -128,11 +151,23 @@ export function linkedIconsOf(html: string): string[] {
 }
 
 async function findFavicon(host: string): Promise<Favicon | null> {
-	const atRoot = await fetchImage(`https://${host}/favicon.ico`);
+	const deadline = new AbortController();
+	const timer = setTimeout(() => deadline.abort(), DEADLINE_MS);
+	try {
+		return await findFaviconUntil(host, deadline.signal);
+	} finally {
+		clearTimeout(timer);
+	}
+}
+
+async function findFaviconUntil(host: string, signal: AbortSignal): Promise<Favicon | null> {
+	const atRoot = await fetchImage(`https://${host}/favicon.ico`, signal);
 	if (atRoot) {
 		return atRoot;
 	}
-	const page = await fetchFollowing(`https://${host}/`, MAX_PAGE_BYTES).catch(() => null);
+	const page = await fetchFollowing(`https://${host}/`, MAX_PAGE_BYTES, { signal, keepsStart: true }).catch(
+		() => null
+	);
 	if (!page) {
 		return null;
 	}
@@ -144,7 +179,7 @@ async function findFavicon(host: string): Promise<Favicon | null> {
 		} catch {
 			continue;
 		}
-		const linked = await fetchImage(address.href);
+		const linked = await fetchImage(address.href, signal);
 		if (linked) {
 			return linked;
 		}

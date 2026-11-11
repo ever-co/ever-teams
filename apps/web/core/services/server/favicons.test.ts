@@ -51,6 +51,51 @@ describe('linkedIconsOf', () => {
 describe('faviconOf', () => {
 	const PNG = new Uint8Array([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a, 0, 0, 0, 0]);
 
+	beforeEach(() => {
+		mockGuardedFetch.mockReset();
+	});
+
+	afterEach(() => {
+		jest.useRealTimers();
+	});
+
+	it('reads the icons a large home page links at its start, without the rest of the page', async () => {
+		const page = '<html><head><link rel="icon" href="/brand.png"></head><body>' + 'x'.repeat(300 * 1024);
+		mockGuardedFetch.mockImplementation(async (address: string) => {
+			if (address.endsWith('/favicon.ico')) return new Response(null, { status: 404 });
+			if (address.endsWith('/brand.png')) return new Response(PNG, { status: 200 });
+			return new Response(page, { status: 200 });
+		});
+
+		const favicon = await faviconOf('large.example.com');
+
+		expect(favicon?.type).toBe('image/png');
+		expect(mockGuardedFetch.mock.calls.map(([address]) => address)).toEqual([
+			'https://large.example.com/favicon.ico',
+			'https://large.example.com/',
+			'https://large.example.com/brand.png'
+		]);
+	});
+
+	it('lets a site go when the whole lookup has not answered in ten seconds', async () => {
+		jest.useFakeTimers();
+		// A site that keeps the connection open: only the lookup's deadline ends the request
+		mockGuardedFetch.mockImplementation(
+			(_address: string, init: RequestInit) =>
+				new Promise((_resolve, reject) => {
+					const abort = () => reject(new Error('aborted'));
+					if (init.signal?.aborted) return abort();
+					init.signal?.addEventListener('abort', abort);
+				})
+		);
+
+		const lookup = faviconOf('slow.example.com');
+		await jest.advanceTimersByTimeAsync(10_000);
+
+		await expect(lookup).resolves.toBeNull();
+		expect(mockGuardedFetch.mock.calls.every(([, init]) => init.signal instanceof AbortSignal)).toBe(true);
+	});
+
 	it('asks for /favicon.ico first, saying what asks: a site may refuse a request that does not', async () => {
 		mockGuardedFetch.mockImplementation(async () => new Response(PNG, { status: 200 }));
 

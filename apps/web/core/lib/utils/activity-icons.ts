@@ -124,11 +124,15 @@ function brandOf(key: ActivityBrandKey | undefined): ActivityBrand | null {
 	return key ? { key, color: BRANDS[key].color } : null;
 }
 
-/** The bundled brand of a row: by its site's host, else (for what is not a site) by its app name. */
+/**
+ * The bundled brand of a row: by its site's host, else, for what is not known to be a site, by its app name. An app
+ * name can read like a host when the row does not say which it is (`Figma.app`): a known app's name decides then.
+ */
 export function activityBrandOf(subject: ActivitySubject): ActivityBrand | null {
 	const host = activityHostOf(subject);
-	if (host) {
-		return brandOf(BRAND_DOMAINS.find(({ domain }) => isHostOf(host, domain))?.key);
+	const byDomain = host ? BRAND_DOMAINS.find(({ domain }) => isHostOf(host, domain))?.key : undefined;
+	if (byDomain) {
+		return brandOf(byDomain);
 	}
 	if (subject.kind === 'url') {
 		return null;
