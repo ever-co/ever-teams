@@ -44,19 +44,29 @@ export class FaviconsBusyError extends Error {
 	}
 }
 
+/**
+ * Runs a lookup in one of the eight slots. A lookup that ends hands its slot straight to the first one waiting, still
+ * counted as running: a lookup asked before the waiting one resumes finds no free slot and waits too.
+ */
 async function inLookupSlot<T>(lookup: () => Promise<T>): Promise<T> {
 	if (runningLookups >= MAX_RUNNING_LOOKUPS) {
 		if (waitingLookups.length >= MAX_WAITING_LOOKUPS) {
 			throw new FaviconsBusyError();
 		}
+		// Resumed with the slot of the lookup that ended: it is already counted
 		await new Promise<void>((start) => waitingLookups.push(start));
+	} else {
+		runningLookups += 1;
 	}
-	runningLookups += 1;
 	try {
 		return await lookup();
 	} finally {
-		runningLookups -= 1;
-		waitingLookups.shift()?.();
+		const next = waitingLookups.shift();
+		if (next) {
+			next();
+		} else {
+			runningLookups -= 1;
+		}
 	}
 }
 

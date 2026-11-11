@@ -7,7 +7,7 @@ jest.mock('@/core/lib/chat/guarded-fetch', () => ({
 	createGuardedFetch: () => (url: string, init: RequestInit) => mockGuardedFetch(url, init)
 }));
 
-import { FaviconsBusyError, faviconOf, imageTypeOf, linkedIconsOf } from './favicons';
+import { type Favicon, FaviconsBusyError, faviconOf, imageTypeOf, linkedIconsOf } from './favicons';
 
 const bytes = (...values: number[]) => new Uint8Array([...values, 0, 0, 0, 0, 0, 0, 0, 0]);
 
@@ -105,6 +105,39 @@ describe('faviconOf', () => {
 		await expect(faviconOf('one-too-many.example.com')).resolves.toEqual(
 			expect.objectContaining({ type: 'image/png' })
 		);
+	});
+
+	it('hands a freed slot to the lookup that waited: a host asked meanwhile waits too', async () => {
+		// Every request stays open until the test answers it
+		const answers: Array<(response: Response) => void> = [];
+		mockGuardedFetch.mockImplementation(() => new Promise<Response>((resolve) => answers.push(resolve)));
+
+		const running = Array.from({ length: 8 }, (_, index) => faviconOf(`slot-${index}.example.com`));
+		const waiting = faviconOf('slot-waiting.example.com');
+		expect(mockGuardedFetch).toHaveBeenCalledTimes(8);
+
+		// One lookup ends, while a new host is asked at every step of its ending
+		answers[0](new Response(PNG, { status: 200 }));
+		const late: Array<Promise<Favicon | null>> = [];
+		let step = Promise.resolve();
+		for (let hop = 0; hop < 60; hop += 1) {
+			step = step.then(() => {
+				late.push(faviconOf(`slot-late-${hop}.example.com`));
+			});
+		}
+		await step;
+		await running[0];
+
+		// The waiting lookup took the freed slot: nine requests in all, never a ninth lookup at once
+		expect(mockGuardedFetch).toHaveBeenCalledTimes(9);
+		expect(mockGuardedFetch.mock.calls[8][0]).toBe('https://slot-waiting.example.com/favicon.ico');
+
+		// Every lookup ends, so none keeps a slot for the tests after this one
+		mockGuardedFetch.mockImplementation(async () => new Response(PNG, { status: 200 }));
+		for (const answer of answers.slice(1)) {
+			answer(new Response(PNG, { status: 200 }));
+		}
+		await expect(Promise.all([...running, waiting, ...late])).resolves.toHaveLength(8 + 1 + 60);
 	});
 
 	it('lets a site go when the whole lookup has not answered in ten seconds', async () => {
