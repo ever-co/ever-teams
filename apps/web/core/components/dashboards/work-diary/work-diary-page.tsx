@@ -174,9 +174,14 @@ function WorkDiaryPageContent() {
 		setIsSheetOpen(true);
 	}, []);
 	const closeSlotSheet = useCallback(() => setIsSheetOpen(false), []);
+	// Another day closes the slot sheet: its slot belongs to the day it was opened on
 	const pickDay = (next: Date) => {
 		setIsSheetOpen(false);
 		page.pickDay(next);
+	};
+	const showToday = () => {
+		setIsSheetOpen(false);
+		page.showToday();
 	};
 
 	const title = t('sidebar.WORK_DIARY');
@@ -223,7 +228,7 @@ function WorkDiaryPageContent() {
 								variant="outline"
 								size="default"
 								disabled={page.isToday}
-								onClick={page.showToday}
+								onClick={showToday}
 							>
 								{t('common.TODAY')}
 							</Button>

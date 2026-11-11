@@ -263,6 +263,18 @@ describe('WorkDiaryPage', () => {
 		expect(mockState.showToday).toHaveBeenCalled();
 	});
 
+	it('closes an open slot when Today moves to another day', () => {
+		render(<WorkDiaryPage />);
+		fireEvent.click(screen.getByRole('button', { name: /^dashboard\.timesheets\.diary\.SLOT_LABEL/ }));
+		expect(screen.getByRole('dialog')).toBeTruthy();
+
+		// The sheet is modal and hides the toolbar from assistive tech; the handler still has to close it
+		fireEvent.click(screen.getByRole('button', { name: 'common.TODAY', hidden: true }));
+
+		expect(mockState.showToday).toHaveBeenCalled();
+		expect(screen.queryByRole('dialog')).toBeNull();
+	});
+
 	it("offers a manager the team's timesheets, and no one else", () => {
 		mockState = stateOf({ timesheetsPath: '/reports/timesheet/user-1?name=Ruslan' });
 		const { unmount } = render(<WorkDiaryPage />);

@@ -89,7 +89,8 @@ const SlotCard = memo(function SlotCard({
 			className="-m-1.5 flex w-[calc(100%+0.75rem)] flex-col gap-1.5 rounded-lg p-1.5 text-left outline-none transition-colors hover:bg-foreground/[0.03] focus-visible:ring-[3px] focus-visible:ring-ring/25"
 		>
 			<span className="text-xs tabular-nums text-muted-foreground">{start}</span>
-			<ShotThumb slot={slot} alt={alt} />
+			{/* Keyed by its image: another day's screenshot in the same place gets a fresh try, not the last one's failure */}
+			<ShotThumb key={slot.shots[0]?.thumbUrl ?? 'no-shot'} slot={slot} alt={alt} />
 			<span className="flex min-h-5 min-w-0 items-center justify-between gap-2">
 				<span className="truncate text-xs text-muted-foreground">{topApp}</span>
 				{showsActivity && <ActivityFigure percent={slot.activityPercent ?? 0} />}

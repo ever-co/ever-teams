@@ -328,6 +328,13 @@ export function diaryTasksOf(entries: ReadonlyArray<CalendarEntry>): DiaryTask[]
 		}
 		existing.seconds += entry.daySeconds;
 		existing.isRunning = existing.isRunning || entry.isRunning;
+		// The row names and links its task through this log: a later log of the task that carries its title wins
+		const hasTitle = Boolean(existing.log.task?.title);
+		if (!hasTitle && entry.log.task?.title) {
+			existing.log = entry.log;
+		}
+		existing.projectName ??= entry.projectName;
+		existing.projectColor ??= entry.projectColor;
 	}
 	return [...byKey.values()].sort((first, second) => second.seconds - first.seconds);
 }

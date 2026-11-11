@@ -80,6 +80,21 @@ describe('diaryTasksOf', () => {
 	});
 });
 
+describe('diaryTasksOf, a task whose first log came without its title', () => {
+	it('names and links the task through a later log of it that carries the title', () => {
+		const untitled = entry('a', 'task-1', 600);
+		untitled.log = { id: 'a', taskId: 'task-1' } as unknown as ITimeLog;
+		const titled = entry('b', 'task-1', 300, { projectName: 'Website' });
+
+		const [task] = diaryTasksOf([untitled, titled]);
+
+		expect(task.log.id).toBe('b');
+		expect(task.log.task?.title).toBe('Task task-1');
+		expect(task.seconds).toBe(900);
+		expect(task.projectName).toBe('Website');
+	});
+});
+
 describe('diaryTaskCountOf', () => {
 	it('counts the tasks the time went to, not the time tracked without a task', () => {
 		expect(diaryTaskCountOf(diaryTasksOf([entry('a', 'task-1', 600), entry('b', null, 600)]))).toBe(1);
