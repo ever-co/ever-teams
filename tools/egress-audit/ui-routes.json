@@ -134,6 +134,11 @@
       "source": "router"
     },
     {
+      "path": "/:locale/favorites",
+      "file": "apps/web/app/[locale]/(main)/favorites/page.tsx",
+      "source": "router"
+    },
+    {
       "path": "/:locale/inbox",
       "file": "apps/web/app/[locale]/(main)/inbox/page.tsx",
       "source": "router"
