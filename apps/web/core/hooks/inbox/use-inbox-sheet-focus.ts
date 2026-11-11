@@ -1,6 +1,6 @@
 'use client';
 
-import { type KeyboardEvent, useCallback, useEffect, useRef } from 'react';
+import { useCallback, useEffect, useRef } from 'react';
 import { isTextFieldFocused } from '@/core/lib/realtime/invalidation-scheduler';
 
 /** The breakpoint from which the inbox shows its pane beside the list instead of the sheet over it. */
@@ -32,14 +32,18 @@ export function useInboxSheetFocus(entryId: string | null, onClose: () => void) 
 		if (back?.isConnected) back.focus();
 	}, [onClose]);
 
-	const onKeyDown = useCallback(
-		(event: KeyboardEvent<HTMLElement>) => {
+	// Escape is heard on the sheet itself (a dialog, not a control), wherever the focus is inside it.
+	useEffect(() => {
+		const sheet = sheetRef.current;
+		if (!entryId || !sheet) return;
+		const onKeyDown = (event: KeyboardEvent) => {
 			if (event.key !== 'Escape' || isTextFieldFocused(document)) return;
 			event.stopPropagation();
 			close();
-		},
-		[close]
-	);
+		};
+		sheet.addEventListener('keydown', onKeyDown);
+		return () => sheet.removeEventListener('keydown', onKeyDown);
+	}, [close, entryId]);
 
-	return { sheetRef, close, onKeyDown };
+	return { sheetRef, close };
 }

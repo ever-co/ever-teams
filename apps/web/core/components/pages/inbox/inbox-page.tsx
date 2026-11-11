@@ -571,11 +571,10 @@ function InboxPageContent() {
 	const firstSelected = anySelected ? byId.get([...selected][0]) ?? null : null;
 	const showsSheet = showsInboxSheet(current, hasChatPages());
 	const closeSheet = useCallback(() => setCurrentId(null), []);
-	const {
-		sheetRef,
-		close: closeSheetAndReturnFocus,
-		onKeyDown: onSheetKeyDown
-	} = useInboxSheetFocus(showsSheet ? (current?.id ?? null) : null, closeSheet);
+	const { sheetRef, close: closeSheetAndReturnFocus } = useInboxSheetFocus(
+		showsSheet ? (current?.id ?? null) : null,
+		closeSheet
+	);
 
 	if (!enabled) return <InboxPageSkeleton />;
 
@@ -824,7 +823,6 @@ function InboxPageContent() {
 					<div
 						ref={sheetRef}
 						tabIndex={-1}
-						onKeyDown={onSheetKeyDown}
 						className="fixed inset-x-0 bottom-0 z-40 flex max-h-[80vh] flex-col overflow-hidden rounded-t-2xl border-t border-border bg-background shadow-lg outline-none lg:hidden"
 						role="dialog"
 						aria-label={t('inbox.DETAIL.SHEET_LABEL')}

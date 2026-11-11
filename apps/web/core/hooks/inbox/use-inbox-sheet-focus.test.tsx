@@ -17,7 +17,7 @@ beforeEach(() => {
 /** A row that opens the sheet, and the sheet with a text field and a close button, as the inbox page draws them. */
 function Inbox({ onClosed }: Readonly<{ onClosed: () => void }>) {
 	const [openId, setOpenId] = useState<string | null>(null);
-	const { sheetRef, close, onKeyDown } = useInboxSheetFocus(openId, () => {
+	const { sheetRef, close } = useInboxSheetFocus(openId, () => {
 		setOpenId(null);
 		onClosed();
 	});
@@ -27,7 +27,7 @@ function Inbox({ onClosed }: Readonly<{ onClosed: () => void }>) {
 				row
 			</button>
 			{openId && (
-				<div ref={sheetRef} role="dialog" tabIndex={-1} onKeyDown={onKeyDown}>
+				<div ref={sheetRef} role="dialog" tabIndex={-1}>
 					<textarea aria-label="reason" />
 					<button type="button" onClick={close}>
 						close
