@@ -26,12 +26,34 @@ export const EMOJI_QUERY_MIN = 2;
 /** The characters of a short name (`thumbsup`, `+1`, `flag-fr`). */
 const SHORT_NAME = /^[a-z0-9_+-]+$/;
 
-/** Whether the caret sits inside code: a fenced block, or a code span on the current line. Code is literal there. */
+/** A fence line: up to three spaces, then three or more backticks or tildes (what opens or closes a code block). */
+const FENCE = /^ {0,3}(`{3,}|~{3,})(.*)$/;
+
+/**
+ * Whether the caret sits inside code, where text is literal: an open fenced block (``` or ~~~, closed by a fence of
+ * the same character at least as long, with nothing after it), or on the current line a code span opened by a run of
+ * backticks that no run of the same length has closed yet (a run of another length inside it is part of the code).
+ */
 export function isInsideCode(before: string): boolean {
-	const fences = before.split('```').length - 1;
-	if (fences % 2 === 1) return true;
-	const line = before.slice(before.lastIndexOf('\n') + 1).replace(/```/g, '');
-	return (line.split('`').length - 1) % 2 === 1;
+	const lines = before.split('\n');
+	let fence: string | null = null;
+	for (let index = 0; index < lines.length - 1; index += 1) {
+		const match = FENCE.exec(lines[index]);
+		if (!fence) {
+			if (match) fence = match[1];
+			continue;
+		}
+		const closes = !!match && match[1][0] === fence[0] && match[1].length >= fence.length && !match[2].trim();
+		if (closes) fence = null;
+	}
+	const current = lines[lines.length - 1];
+	if (fence || FENCE.test(current)) return true;
+	let open = 0;
+	for (const run of current.match(/`+/g) ?? []) {
+		if (!open) open = run.length;
+		else if (run.length === open) open = 0;
+	}
+	return open > 0;
 }
 
 /**

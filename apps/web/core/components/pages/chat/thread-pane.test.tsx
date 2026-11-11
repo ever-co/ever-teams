@@ -26,7 +26,7 @@ const mockAttachments = {
 	add: jest.fn(),
 	remove: jest.fn(),
 	retry: jest.fn(),
-	clear: jest.fn(),
+	releaseSent: jest.fn(),
 	readyIds: [] as string[],
 	isUploading: false,
 	canAttach: true

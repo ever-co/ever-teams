@@ -52,6 +52,8 @@ describe('emojiQueryAt', () => {
 		expect(emojiQueryAt('`a :tad', 7)).toBeNull();
 		expect(emojiQueryAt('```\n:tad', 8)).toBeNull();
 		expect(emojiQueryAt('`a` :tad', 8)).toEqual({ query: 'tad', start: 4 });
+		expect(emojiQueryAt('``a :tad', 8)).toBeNull();
+		expect(emojiQueryAt('~~~\n:tad', 8)).toBeNull();
 	});
 });
 
@@ -64,6 +66,24 @@ describe('isInsideCode', () => {
 		expect(isInsideCode('```\nblock\n```\nafter')).toBe(false);
 		// A span left open on an earlier line does not reach the next one.
 		expect(isInsideCode('`open\nnext')).toBe(false);
+	});
+
+	it('matches a code span by the length of its backtick run', () => {
+		expect(isInsideCode('``code')).toBe(true);
+		expect(isInsideCode('``code`` after')).toBe(false);
+		// A single backtick inside a double-backtick span is part of the code.
+		expect(isInsideCode('``a ` b')).toBe(true);
+		expect(isInsideCode('``a ` b`` c')).toBe(false);
+	});
+
+	it('knows tilde fences, longer fences and a fence being typed', () => {
+		expect(isInsideCode('~~~\nblock')).toBe(true);
+		expect(isInsideCode('~~~\nblock\n~~~\nafter')).toBe(false);
+		// A fence closes only with its own character, at least as long, and nothing after it.
+		expect(isInsideCode('````\na\n```\nstill')).toBe(true);
+		expect(isInsideCode('```\na\n~~~\nstill')).toBe(true);
+		expect(isInsideCode('```\na\n``` js\nstill')).toBe(true);
+		expect(isInsideCode('```js')).toBe(true);
 	});
 });
 

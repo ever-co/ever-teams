@@ -29,6 +29,7 @@ export const CHAT_IMAGE_MAX_EDGE = 2048;
 /** The image types shrunk in the browser (a GIF would lose its animation, an SVG is not a bitmap). */
 const SHRINKABLE_IMAGE_TYPES = new Set(['image/jpeg', 'image/png', 'image/webp']);
 
+/** Whether a picked file is a photo or a screenshot the browser can redraw smaller (JPEG, PNG, WebP). */
 export function isShrinkableImage(type: string): boolean {
 	return SHRINKABLE_IMAGE_TYPES.has(type.toLowerCase());
 }
@@ -54,6 +55,7 @@ export function readyAttachmentIds(items: readonly ChatAttachmentDraft[]): strin
 	return items.filter((item) => item.status === 'ready' && item.documentId).map((item) => item.documentId as string);
 }
 
+/** Whether one of the composer's files is still on its way up: the send waits for it. */
 export function isUploadingAny(items: readonly ChatAttachmentDraft[]): boolean {
 	return items.some((item) => item.status === 'uploading');
 }
@@ -108,10 +110,18 @@ export function isWebUrl(url: string | null | undefined): url is string {
 	if (!url) return false;
 	try {
 		const { protocol } = new URL(url);
-		return protocol === 'https:' || protocol === 'http:' || protocol === 'blob:';
+		return protocol === 'https:' || protocol === 'http:';
 	} catch {
 		return false;
 	}
+}
+
+/** The address a picture is shown at: the small one for a thumbnail, the full one for the lightbox, either standing in for the other. */
+export function pictureUrlOf(file: Pick<IChatFile, 'fileUrl' | 'thumbUrl'>, size: 'thumb' | 'full'): string | null {
+	const [first, second] = size === 'thumb' ? [file.thumbUrl, file.fileUrl] : [file.fileUrl, file.thumbUrl];
+	if (isWebUrl(first)) return first;
+	if (isWebUrl(second)) return second;
+	return null;
 }
 
 /** Whether a file shows as a picture: an image the browser draws, never an SVG (a document that can run script). */

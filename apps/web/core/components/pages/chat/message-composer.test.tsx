@@ -319,7 +319,7 @@ describe('emoji suggestions', () => {
 
 describe('files', () => {
 	function attachments(extra: Partial<ChatAttachments> = {}): ChatAttachments {
-		return { items: [], add: jest.fn(), remove: jest.fn(), retry: jest.fn(), clear: jest.fn(), readyIds: [], isUploading: false, canAttach: true, ...extra };
+		return { items: [], add: jest.fn(), remove: jest.fn(), retry: jest.fn(), releaseSent: jest.fn(), readyIds: [], isUploading: false, canAttach: true, ...extra };
 	}
 	const fileInput = (container: HTMLElement) => container.querySelector('input[type="file"]') as HTMLInputElement;
 

@@ -60,7 +60,9 @@ function ThreadPaneBody({ conversationId, rootMessageId, conversationNames, canM
 	const attachments = useChatAttachments();
 	const threadMessages = useMemo(() => (root ? [root, ...replies] : replies), [replies, root]);
 	const files = useChatFiles(conversationId, threadMessages);
-	const [picture, setPicture] = useState<IChatFile | null>(null);
+	// By id: the lightbox shows the newest copy of the record (its signed address is read again with the list).
+	const [pictureId, setPictureId] = useState<string | null>(null);
+	const picture = pictureId ? (files.byId.get(pictureId) ?? null) : null;
 	const [alsoToConversation, setAlsoToConversation] = useState(false);
 	const [editing, setEditing] = useState<IChatMessage | null>(null);
 	const [editValue, setEditValue] = useState('');
@@ -89,7 +91,7 @@ function ThreadPaneBody({ conversationId, rootMessageId, conversationNames, canM
 			const ready = new Set(attachmentIds);
 			const names = attachments.items.filter((item) => item.documentId && ready.has(item.documentId)).map((item) => item.name);
 			clearDraft();
-			attachments.clear();
+			attachments.releaseSent();
 			stickToBottom.current = true;
 			await actions
 				.send(conversationId, {
@@ -171,7 +173,7 @@ function ThreadPaneBody({ conversationId, rootMessageId, conversationNames, canM
 			},
 			onOpenTask: (taskId: string) => openTaskDrawer(taskId),
 			onCreateTask: (message: IChatMessage) => setTaskFrom(message),
-			onOpenImage: (file: IChatFile) => setPicture(file),
+			onOpenImage: (file: IChatFile) => setPictureId(String(file.documentId)),
 			onBrokenImage: files.refresh
 		}),
 		[actions, conversationId, files.refresh, openTaskDrawer, reportFailure, rootMessageId, t]
@@ -242,7 +244,7 @@ function ThreadPaneBody({ conversationId, rootMessageId, conversationNames, canM
 				/>
 			</div>
 			{taskFrom && <CreateTaskFromMessageDialog key={taskFrom.id} message={taskFrom} onClose={() => setTaskFrom(null)} />}
-			<ImageLightbox file={picture} onClose={() => setPicture(null)} />
+			<ImageLightbox file={picture} onClose={() => setPictureId(null)} />
 		</div>
 	);
 }

@@ -75,7 +75,9 @@ function ConversationPane({ conversation, conversationNames, canManage, onOpenTh
 	const { draft, setDraft, clearDraft } = useChatDraft(conversation.id);
 	const attachments = useChatAttachments();
 	const files = useChatFiles(conversation.id, messages);
-	const [picture, setPicture] = useState<IChatFile | null>(null);
+	// By id: the lightbox shows the newest copy of the record (its signed address is read again with the list).
+	const [pictureId, setPictureId] = useState<string | null>(null);
+	const picture = pictureId ? (files.byId.get(pictureId) ?? null) : null;
 	// A drag of files over the timeline: dropped, they join the message being written.
 	const [dropping, setDropping] = useState(false);
 	const [editing, setEditing] = useState<IChatMessage | null>(null);
@@ -209,7 +211,7 @@ function ConversationPane({ conversation, conversationNames, canManage, onOpenTh
 			const ready = new Set(attachmentIds);
 			const names = attachments.items.filter((item) => item.documentId && ready.has(item.documentId)).map((item) => item.name);
 			clearDraft();
-			attachments.clear();
+			attachments.releaseSent();
 			stickToBottom.current = true;
 			readPaused.current = false;
 			await actions
@@ -279,7 +281,7 @@ function ConversationPane({ conversation, conversationNames, canManage, onOpenTh
 			},
 			onOpenTask: (taskId: string) => openTaskDrawer(taskId),
 			onCreateTask: (message: IChatMessage) => setTaskFrom(message),
-			onOpenImage: (file: IChatFile) => setPicture(file),
+			onOpenImage: (file: IChatFile) => setPictureId(String(file.documentId)),
 			onBrokenImage: files.refresh
 		}),
 		[actions, conversation.id, files.refresh, onOpenThread, openTaskDrawer, reportFailure, t]
@@ -393,7 +395,7 @@ function ConversationPane({ conversation, conversationNames, canManage, onOpenTh
 				)}
 			</div>
 			{taskFrom && <CreateTaskFromMessageDialog key={taskFrom.id} message={taskFrom} onClose={() => setTaskFrom(null)} />}
-			<ImageLightbox file={picture} onClose={() => setPicture(null)} />
+			<ImageLightbox file={picture} onClose={() => setPictureId(null)} />
 		</div>
 	);
 }

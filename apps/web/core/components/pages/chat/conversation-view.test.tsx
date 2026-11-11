@@ -40,7 +40,7 @@ const mockAttachments = {
 	add: jest.fn(),
 	remove: jest.fn(),
 	retry: jest.fn(),
-	clear: jest.fn(),
+	releaseSent: jest.fn(),
 	readyIds: [] as string[],
 	isUploading: false,
 	canAttach: true
@@ -333,7 +333,7 @@ describe('writing', () => {
 			fireEvent.keyDown(screen.getByRole('textbox'), { key: 'Enter' });
 		});
 		expect(mockActions.send).toHaveBeenCalledWith('c1', { body: 'the plan', attachmentIds: ['doc-1'] });
-		expect(mockAttachments.clear).toHaveBeenCalled();
+		expect(mockAttachments.releaseSent).toHaveBeenCalled();
 		mockDraft.draft = '';
 		mockAttachments.items = [];
 		mockAttachments.readyIds = [];

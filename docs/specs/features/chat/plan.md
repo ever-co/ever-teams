@@ -50,9 +50,11 @@ and the live channel.
 
 `chat-format` (tokens, preview, `@` query, suggestions, titles, sort, grouping, merge, draft keys).
 
-Phase 2: `chat-emoji` (the `:` query, outside code; index and ranking), `chat-attachments` (shrink size, limits,
-the body of a message of files alone, transfers, safe addresses, unknown files), `document-upload-fields` (the upload
-proxy passes only the vetted fields), and the hooks of the files and of the uploads.
+Phase 2: `chat-emoji` (the `:` query, outside code; index and ranking),
+`chat-attachments` (shrink size, limits, the body of a message of files
+alone, transfers, safe addresses, unknown files), `document-upload-fields`
+(the upload proxy passes only the vetted fields), and the hooks of the files
+and of the uploads.
 
 ## 6. Phase 2
 

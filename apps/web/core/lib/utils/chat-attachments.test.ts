@@ -1,5 +1,6 @@
 import { CHAT_MESSAGE_MAX_ATTACHMENTS, type IChatFile, type IChatMessage } from '@/core/types/interfaces/common/chat';
 import {
+	pictureUrlOf,
 	attachmentFallbackBody,
 	attachmentIdsOf,
 	filesById,
@@ -145,7 +146,8 @@ describe('isWebUrl', () => {
 	it('opens web addresses and local previews only', () => {
 		expect(isWebUrl('https://cdn.example.com/a.png')).toBe(true);
 		expect(isWebUrl('http://localhost:3000/a.png')).toBe(true);
-		expect(isWebUrl('blob:https://app.example.com/1')).toBe(true);
+		// The platform's addresses are web ones: a local object URL is never taken from it.
+		expect(isWebUrl('blob:https://app.example.com/1')).toBe(false);
 		expect(isWebUrl('javascript:alert(1)')).toBe(false);
 		expect(isWebUrl('data:text/html,hi')).toBe(false);
 		expect(isWebUrl('not a url')).toBe(false);
@@ -186,5 +188,20 @@ describe('the files of messages', () => {
 		const byId = filesById([file('a', { name: 'new.png' }), file('a', { name: 'old.png' }), file('b')]);
 		expect(byId.get('a')?.name).toBe('new.png');
 		expect([...byId.keys()]).toEqual(['a', 'b']);
+	});
+});
+
+describe('pictureUrlOf', () => {
+	const both = { fileUrl: 'https://cdn.example.com/a.png', thumbUrl: 'https://cdn.example.com/a-small.png' };
+
+	it('shows the thumbnail small and the original large', () => {
+		expect(pictureUrlOf(both, 'thumb')).toBe(both.thumbUrl);
+		expect(pictureUrlOf(both, 'full')).toBe(both.fileUrl);
+	});
+
+	it('lets either stand in for the other, and never an unsafe address', () => {
+		expect(pictureUrlOf({ fileUrl: null, thumbUrl: both.thumbUrl }, 'full')).toBe(both.thumbUrl);
+		expect(pictureUrlOf({ fileUrl: both.fileUrl, thumbUrl: 'javascript:alert(1)' }, 'thumb')).toBe(both.fileUrl);
+		expect(pictureUrlOf({ fileUrl: 'data:image/png;base64,x', thumbUrl: null }, 'full')).toBeNull();
 	});
 });

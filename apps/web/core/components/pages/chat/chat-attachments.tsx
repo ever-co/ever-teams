@@ -10,7 +10,7 @@ import { FileGlyph } from '@/core/components/common/entity-files/entity-file-gly
 import { cn } from '@/core/lib/helpers';
 import { uploadedFileOf } from '@/core/hooks/chat/use-chat-attachments';
 import { useChatFiles } from '@/core/hooks/chat/use-chat-files';
-import { isPictureFile, isWebUrl, type ChatAttachmentDraft } from '@/core/lib/utils/chat-attachments';
+import { isPictureFile, isWebUrl, pictureUrlOf, type ChatAttachmentDraft } from '@/core/lib/utils/chat-attachments';
 import { ChatPerson } from '@/core/lib/utils/chat-format';
 import { fullDateTime } from '@/core/lib/utils/chat-timeline';
 import { fileKindOf, formatFileSize } from '@/core/lib/utils/entity-files';
@@ -126,31 +126,36 @@ function shownAttachmentOf(id: string, files: ReadonlyMap<string, IChatFile>, fa
 	return { id, file: null, name: fallbackName, mimeType: null, size: null };
 }
 
-/** A picture opened over the page: the image as large as it fits, its name, and the original in a new tab. */
+/**
+ * A picture opened over the page: the image as large as it fits (the thumbnail when the platform gave no full address),
+ * its name, and the original in a new tab when there is one.
+ */
 export function ImageLightbox({ file, onClose }: Readonly<{ file: IChatFile | null; onClose: () => void }>) {
 	const t = useTranslations();
-	const url = file?.fileUrl;
+	const url = file ? pictureUrlOf(file, 'full') : null;
+	const original = file && isWebUrl(file.fileUrl) ? file.fileUrl : null;
+	const name = file ? file.originalFilename || file.name : '';
 	return (
-		<Dialog open={!!file && isWebUrl(url)} onOpenChange={(open) => !open && onClose()}>
+		<Dialog open={!!url} onOpenChange={(open) => !open && onClose()}>
 			<DialogContent className="w-auto max-w-[min(64rem,calc(100%-2rem))] gap-3 p-3">
-				<DialogTitle className="truncate pe-9 text-sm font-medium">
-					{file ? file.originalFilename || file.name : ''}
-				</DialogTitle>
-				{file && isWebUrl(url) && (
+				<DialogTitle className="truncate pe-9 text-sm font-medium">{name}</DialogTitle>
+				{url && (
 					<>
 						<img
 							src={url}
-							alt={file.originalFilename || file.name}
+							alt={name}
 							referrerPolicy="no-referrer"
 							className="max-h-[calc(100dvh-9rem)] w-auto max-w-full rounded-lg object-contain"
 						/>
-						<div className="flex justify-end">
-							<Button variant="outline" size="sm" asChild>
-								<a href={url} target="_blank" rel="noopener noreferrer">
-									<ExternalLink className="size-3.5" /> {t('teamChat.OPEN_ORIGINAL')}
-								</a>
-							</Button>
-						</div>
+						{original && (
+							<div className="flex justify-end">
+								<Button variant="outline" size="sm" asChild>
+									<a href={original} target="_blank" rel="noopener noreferrer">
+										<ExternalLink className="size-3.5" /> {t('teamChat.OPEN_ORIGINAL')}
+									</a>
+								</Button>
+							</div>
+						)}
 					</>
 				)}
 			</DialogContent>
@@ -179,7 +184,7 @@ function MessageAttachmentsComponent({
 	if (!attachmentIds.length) return null;
 	const shown = attachmentIds.map((id) => shownAttachmentOf(id, files, t('teamChat.ATTACHMENT')));
 	const pictures = shown.filter(
-		(item) => item.file && isPictureFile(item.file) && isWebUrl(item.file.thumbUrl || item.file.fileUrl)
+		(item) => item.file && isPictureFile(item.file) && !!pictureUrlOf(item.file, 'thumb')
 	);
 	const others = shown.filter((item) => !pictures.includes(item));
 
@@ -199,7 +204,7 @@ function MessageAttachmentsComponent({
 									className="block cursor-zoom-in overflow-hidden rounded-lg bg-foreground/[0.04] outline-none hairline-ring ring-border focus-visible:ring-[3px] focus-visible:ring-ring/25"
 								>
 									<img
-										src={(file.thumbUrl || file.fileUrl) as string}
+										src={pictureUrlOf(file, 'thumb') as string}
 										alt={item.name}
 										loading="lazy"
 										referrerPolicy="no-referrer"
@@ -278,8 +283,10 @@ export function ConversationFilesButton({
 	const t = useTranslations();
 	const locale = useLocale();
 	const [isOpen, setIsOpen] = useState(false);
-	const [picture, setPicture] = useState<IChatFile | null>(null);
-	const files = useChatFiles(isOpen ? conversationId : null);
+	// By id: the lightbox shows the newest copy of the record, its address read again with the list.
+	const [pictureId, setPictureId] = useState<string | null>(null);
+	const files = useChatFiles(isOpen || pictureId ? conversationId : null);
+	const picture = pictureId ? (files.byId.get(pictureId) ?? null) : null;
 	const label = t('teamChat.FILES');
 
 	return (
@@ -315,7 +322,7 @@ export function ConversationFilesButton({
 									null;
 								const when = fullDateTime(new Date(file.attachedAt), locale);
 								const meta = [author?.name, when].filter(Boolean).join(' · ');
-								const isPicture = isPictureFile(file) && isWebUrl(file.fileUrl);
+								const isPicture = isPictureFile(file) && !!pictureUrlOf(file, 'full');
 								const row = (
 									<>
 										<FileGlyph kind={fileKindOf(file.mimeType, name)} size="sm" />
@@ -338,7 +345,7 @@ export function ConversationFilesButton({
 											<button
 												type="button"
 												className={cn(rowClass, 'cursor-pointer')}
-												onClick={() => setPicture(file)}
+												onClick={() => setPictureId(String(file.documentId))}
 											>
 												{row}
 											</button>
@@ -372,7 +379,7 @@ export function ConversationFilesButton({
 					)}
 				</PopoverContent>
 			</Popover>
-			<ImageLightbox file={picture} onClose={() => setPicture(null)} />
+			<ImageLightbox file={picture} onClose={() => setPictureId(null)} />
 		</>
 	);
 }

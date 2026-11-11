@@ -7,8 +7,9 @@ import { useIsomorphicLayoutEffect } from '@/core/hooks/common/use-isomorphic-la
 import { useDocsAvailability } from '@/core/hooks/docs/use-docs-availability';
 import { chatService } from '@/core/services/client/api/chat';
 import { errorReasonKeyOf, errorStatusOf } from '@/core/lib/utils/error-feedback';
-import { formatFileSize, splitBySize } from '@/core/lib/utils/entity-files';
+import { formatFileSize } from '@/core/lib/utils/entity-files';
 import {
+	isShrinkableImage,
 	isUploadingAny,
 	readyAttachmentIds,
 	withinAttachmentLimit,
@@ -18,6 +19,13 @@ import { shrinkImage } from '@/core/lib/utils/chat-image-shrink';
 import { newNonce } from '@/core/lib/utils/chat-format';
 import { CHAT_MESSAGE_MAX_ATTACHMENTS } from '@/core/types/interfaces/common/chat';
 import { ENTITY_FILE_MAX_BYTES } from '@/core/types/schemas/documents/entity-file.schema';
+import { useChatScope } from './use-chat-scope';
+
+/**
+ * How large a photo may be when picked: it is shrunk in the browser before the platform's size cap applies, so a
+ * photo over the cap can still go up once smaller; past this, the browser is not asked to decode it at all.
+ */
+export const CHAT_IMAGE_PICK_MAX_BYTES = 2 * ENTITY_FILE_MAX_BYTES;
 
 /** What the composer shows of a file it holds, and what a message just sent shows of its files until the list has them. */
 export interface ChatUploadedFile {
@@ -33,17 +41,21 @@ export interface ChatUploadedFile {
  */
 const uploadedFiles = new Map<string, ChatUploadedFile>();
 
+/** The file this tab uploaded under a document id, if any (its name and kind, before the files list has it). */
 export function uploadedFileOf(documentId: string): ChatUploadedFile | undefined {
 	return uploadedFiles.get(documentId);
 }
 
-/** Once the platform refused this person an upload (their role may not create documents), the composer stops offering it. */
-let uploadsForbidden = false;
+/**
+ * The accounts and organizations whose role the platform refused an upload (`tenant:organization:user`): the
+ * composer stops offering to attach there, and only there; another organization of the same person still offers it.
+ */
+const forbiddenScopes = new Set<string>();
 
 /** For the specs. */
 export function resetChatUploads(): void {
 	uploadedFiles.clear();
-	uploadsForbidden = false;
+	forbiddenScopes.clear();
 }
 
 function canPreview(file: File): boolean {
@@ -59,14 +71,20 @@ function revoke(item: ChatAttachmentDraft): void {
 	if (item.previewUrl && typeof URL.revokeObjectURL === 'function') URL.revokeObjectURL(item.previewUrl);
 }
 
+/** Whether a picked file is too large to go up: over the platform's cap, or, for a photo shrunk first, over its own. */
+function isTooLarge(file: File): boolean {
+	if (isShrinkableImage(file.type)) return file.size > CHAT_IMAGE_PICK_MAX_BYTES;
+	return file.size > ENTITY_FILE_MAX_BYTES;
+}
+
 export interface ChatAttachments {
 	items: ChatAttachmentDraft[];
 	/** Picked, pasted or dropped files: each one uploads at once. */
 	add: (files: File[]) => void;
 	remove: (key: string) => void;
 	retry: (key: string) => void;
-	/** After the send: the composer lets go of its files (the documents stay with the message). */
-	clear: () => void;
+	/** After the send: the composer lets go of the files that went with it; one that failed stays, with its retry. */
+	releaseSent: () => void;
 	readyIds: string[];
 	isUploading: boolean;
 	/** Whether files can be attached here: the platform serves documents and the person may create them. */
@@ -82,8 +100,11 @@ export function useChatAttachments(): ChatAttachments {
 	const t = useTranslations();
 	const locale = useLocale();
 	const availability = useDocsAvailability(true);
+	const scope = useChatScope();
+	const scopeKey = scope ? `${scope.tenantId}:${scope.organizationId}:${scope.userId}` : '';
 	const [items, setItems] = useState<ChatAttachmentDraft[]>([]);
-	const [forbidden, setForbidden] = useState(uploadsForbidden);
+	// The scope a refusal of this hook was for: it re-renders the composer at once, and only for that scope.
+	const [refusedIn, setRefusedIn] = useState<string | null>(null);
 	const files = useRef(new Map<string, File>());
 	// What add / remove count against: set as they run (two pastes within one render), and with every render.
 	const itemsRef = useRef(items);
@@ -105,10 +126,33 @@ export function useChatAttachments(): ChatAttachments {
 		setItems((current) => current.map((item) => (item.key === key ? { ...item, ...change } : item)));
 	}, []);
 
+	const drop = useCallback((key: string) => {
+		const item = itemsRef.current.find((entry) => entry.key === key);
+		if (item) revoke(item);
+		files.current.delete(key);
+		itemsRef.current = itemsRef.current.filter((entry) => entry.key !== key);
+		if (mounted.current) setItems((current) => current.filter((entry) => entry.key !== key));
+	}, []);
+
+	const warnTooLarge = useCallback(
+		(names: string[]) => {
+			toast.warning(t('entityFiles.TOO_LARGE', { count: names.length, names: names.join(', ') }), {
+				description: t('entityFiles.TOO_LARGE_HINT', { size: formatFileSize(ENTITY_FILE_MAX_BYTES, locale) })
+			});
+		},
+		[locale, t]
+	);
+
 	const upload = useCallback(
 		async (key: string, picked: File) => {
 			try {
 				const file = await shrinkImage(picked);
+				// A photo is measured once shrunk: what goes up is what the platform's cap applies to.
+				if (file.size > ENTITY_FILE_MAX_BYTES) {
+					drop(key);
+					warnTooLarge([picked.name]);
+					return;
+				}
 				const answer = await chatService.uploadAttachments([file]);
 				const document = answer.results[0]?.document;
 				if (!document) {
@@ -134,8 +178,8 @@ export function useChatAttachments(): ChatAttachments {
 			} catch (error) {
 				update(key, { status: 'failed' });
 				if (errorStatusOf(error) === 403) {
-					uploadsForbidden = true;
-					if (mounted.current) setForbidden(true);
+					if (scopeKey) forbiddenScopes.add(scopeKey);
+					if (mounted.current) setRefusedIn(scopeKey);
 					toast.error(t('teamChat.ATTACH_FORBIDDEN'));
 					return;
 				}
@@ -144,26 +188,15 @@ export function useChatAttachments(): ChatAttachments {
 				});
 			}
 		},
-		[t, update]
+		[drop, scopeKey, t, update, warnTooLarge]
 	);
 
 	const add = useCallback(
 		(picked: File[]) => {
 			if (!picked.length) return;
-			const { accepted: fitting, tooLarge } = splitBySize(picked, ENTITY_FILE_MAX_BYTES);
-			if (tooLarge.length) {
-				toast.warning(
-					t('entityFiles.TOO_LARGE', {
-						count: tooLarge.length,
-						names: tooLarge.map((file) => file.name).join(', ')
-					}),
-					{
-						description: t('entityFiles.TOO_LARGE_HINT', {
-							size: formatFileSize(ENTITY_FILE_MAX_BYTES, locale)
-						})
-					}
-				);
-			}
+			const tooLarge = picked.filter(isTooLarge);
+			if (tooLarge.length) warnTooLarge(tooLarge.map((file) => file.name));
+			const fitting = picked.filter((file) => !isTooLarge(file));
 			const { accepted, refused } = withinAttachmentLimit(fitting, itemsRef.current.length);
 			if (refused.length) toast.warning(t('teamChat.ATTACH_TOO_MANY', { max: CHAT_MESSAGE_MAX_ATTACHMENTS }));
 			if (!accepted.length) return;
@@ -181,16 +214,8 @@ export function useChatAttachments(): ChatAttachments {
 			setItems((current) => [...current, ...entries]);
 			entries.forEach((entry, index) => void upload(entry.key, accepted[index]));
 		},
-		[locale, t, upload]
+		[t, upload, warnTooLarge]
 	);
-
-	const remove = useCallback((key: string) => {
-		const item = itemsRef.current.find((entry) => entry.key === key);
-		if (item) revoke(item);
-		files.current.delete(key);
-		itemsRef.current = itemsRef.current.filter((entry) => entry.key !== key);
-		setItems((current) => current.filter((entry) => entry.key !== key));
-	}, []);
 
 	const retry = useCallback(
 		(key: string) => {
@@ -202,16 +227,22 @@ export function useChatAttachments(): ChatAttachments {
 		[update, upload]
 	);
 
-	const clear = useCallback(() => {
-		for (const item of itemsRef.current) revoke(item);
-		files.current.clear();
-		itemsRef.current = [];
-		setItems([]);
+	const releaseSent = useCallback(() => {
+		const sent = itemsRef.current.filter((item) => item.status === 'ready');
+		if (!sent.length) return;
+		const keys = new Set(sent.map((item) => item.key));
+		for (const item of sent) {
+			revoke(item);
+			files.current.delete(item.key);
+		}
+		itemsRef.current = itemsRef.current.filter((item) => !keys.has(item.key));
+		setItems((current) => current.filter((item) => !keys.has(item.key)));
 	}, []);
 
 	const readyIds = useMemo(() => readyAttachmentIds(items), [items]);
 	const isUploading = useMemo(() => isUploadingAny(items), [items]);
-	const canAttach = availability !== 'unavailable' && !forbidden;
+	const refused = forbiddenScopes.has(scopeKey) || (refusedIn !== null && refusedIn === scopeKey);
+	const canAttach = availability !== 'unavailable' && !refused;
 
-	return { items, add, remove, retry, clear, readyIds, isUploading, canAttach };
+	return { items, add, remove: drop, retry, releaseSent, readyIds, isUploading, canAttach };
 }

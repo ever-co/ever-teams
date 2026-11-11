@@ -229,6 +229,16 @@ describe('the files of a message', () => {
 		expect(screen.getByTestId('body').textContent).toBe('Look');
 	});
 
+	it('keeps a picture that has only its thumbnail', () => {
+		const onOpenImage = jest.fn();
+		const small = new Map<string, IChatFile>([
+			['doc-small', chatFile('doc-small', { name: 'small.png', mimeType: 'image/png', thumbUrl: 'https://cdn.example.com/small.png', fileUrl: null })]
+		]);
+		renderItem({ message: message({ attachmentIds: ['doc-small'] }), files: small, onOpenImage });
+		fireEvent.click(screen.getByRole('button', { name: 'teamChat.VIEW_IMAGE' }));
+		expect(onOpenImage).toHaveBeenCalledWith(small.get('doc-small'));
+	});
+
 	it('never links an address that is not a web one', () => {
 		renderItem({ message: message({ attachmentIds: ['doc-evil'] }), files });
 		expect(screen.queryByRole('link', { name: /evil\.pdf/ })).toBeNull();

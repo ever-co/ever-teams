@@ -12,8 +12,8 @@ import type { IChatFile, IChatMessage } from '@/core/types/interfaces/common/cha
 import { useChatScope } from './use-chat-scope';
 
 /**
- * The files' addresses are signed on cloud storage, so they expire: the list is read again well before. A picture
- * that fails to load asks for a fresh read sooner ({@link ChatFiles.refresh}).
+ * The files' addresses are signed on cloud storage, so they expire: the list is read again well before, on this cadence
+ * while it is shown. A picture that fails to load asks for a fresh read sooner ({@link ChatFiles.refresh}).
  */
 const FILES_STALE_MS = 10 * 60_000;
 
@@ -51,6 +51,9 @@ export function useChatFiles(conversationId: string | null, messages: readonly I
 			last.hasMore ? pages.reduce((sum, page) => sum + page.files.length, 0) : undefined,
 		enabled: isChatEnabled() && scope !== null && !!conversationId,
 		staleTime: FILES_STALE_MS,
+		// Read again on that cadence while the conversation is open, so its links and pictures keep a live address.
+		refetchInterval: FILES_STALE_MS,
+		refetchIntervalInBackground: false,
 		retry: (failureCount, error) => errorStatusOf(error) !== 404 && errorStatusOf(error) !== 403 && failureCount < 2
 	});
 
