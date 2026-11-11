@@ -50,9 +50,7 @@ export function TeamTaskTrashPage() {
 						minHeight="320px"
 					/>
 				)}
-				{isTaskTrashEnabled() && activeTeam?.id && (
-					<TaskTrashList teamId={activeTeam.id} projectId={null} />
-				)}
+				{isTaskTrashEnabled() && activeTeam?.id && <TaskTrashList teamId={activeTeam.id} projectId={null} />}
 			</div>
 		</PageLayout>
 	);

@@ -17,7 +17,12 @@ class CommentReactionService extends APIService {
 		scope: IEntityRecordScope,
 		signal?: AbortSignal
 	): Promise<IReactionSummary[]> => {
-		const query = qs.stringify({ entity, entityId, tenantId: scope.tenantId, organizationId: scope.organizationId });
+		const query = qs.stringify({
+			entity,
+			entityId,
+			tenantId: scope.tenantId,
+			organizationId: scope.organizationId
+		});
 		const response = await this.get<IReactionSummary[]>(`/reaction/comments?${query}`, { signal });
 
 		return Array.isArray(response.data) ? response.data : [];

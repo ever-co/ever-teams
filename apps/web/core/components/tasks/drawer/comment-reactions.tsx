@@ -85,17 +85,17 @@ export function CommentReactions({ commentId }: Readonly<{ commentId: string }>)
 				);
 			})}
 			{canReact && (
-					<EmojiPopover
-						label={t('taskComments.ADD_REACTION')}
-						onPick={(emoji) => void react(emoji)}
-						className={cn(
-							REACTION_PILL,
-							'gap-px text-muted-foreground ring-border hover:bg-foreground/[0.05] hover:text-foreground data-[popup-open]:bg-foreground/[0.05]'
-						)}
-					>
-						<Smile className="size-3.5" />
-						<Plus className="size-2.5" />
-					</EmojiPopover>
+				<EmojiPopover
+					label={t('taskComments.ADD_REACTION')}
+					onPick={(emoji) => void react(emoji)}
+					className={cn(
+						REACTION_PILL,
+						'gap-px text-muted-foreground ring-border hover:bg-foreground/[0.05] hover:text-foreground data-[popup-open]:bg-foreground/[0.05]'
+					)}
+				>
+					<Smile className="size-3.5" />
+					<Plus className="size-2.5" />
+				</EmojiPopover>
 			)}
 		</div>
 	);

@@ -31,7 +31,11 @@ export interface DeletedComment {
 }
 
 /** The change a resolve or a reopen writes: the platform records the caller as the resolver. */
-export function resolveUpdateOf(resolved: boolean, myEmployeeId: string | null, now: Date = new Date()): ICommentResolveUpdate {
+export function resolveUpdateOf(
+	resolved: boolean,
+	myEmployeeId: string | null,
+	now: Date = new Date()
+): ICommentResolveUpdate {
 	if (!resolved) {
 		return { resolved: false, resolvedAt: null, resolvedByEmployeeId: null };
 	}

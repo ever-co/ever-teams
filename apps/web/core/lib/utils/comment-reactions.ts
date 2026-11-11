@@ -6,7 +6,9 @@ export const NAMED_REACTORS = 3;
 const NO_REACTIONS: readonly IReactionSummary[] = [];
 
 /** The summaries by comment, each comment's in the order the platform answered (the order emojis were first used). */
-export function reactionsByComment(summaries: readonly IReactionSummary[] | undefined): Map<string, IReactionSummary[]> {
+export function reactionsByComment(
+	summaries: readonly IReactionSummary[] | undefined
+): Map<string, IReactionSummary[]> {
 	const byComment = new Map<string, IReactionSummary[]>();
 	for (const summary of summaries ?? NO_REACTIONS) {
 		if (!summary?.entityId || !summary.emoji || summary.count <= 0) {

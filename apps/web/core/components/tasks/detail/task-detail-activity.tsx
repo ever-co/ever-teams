@@ -287,80 +287,80 @@ export function TaskDetailActivity({ task, showsComposer }: Readonly<TaskDetailA
 	return (
 		<div ref={ref}>
 			<CommentActionsProvider value={commentActions}>
-			<TaskDetailSection
-				title={t('common.ACTIVITY')}
-				actions={
-					<SegmentedControl
-						items={tabs}
-						value={filter}
-						onValueChange={setFilter}
-						ariaLabel={t('taskDetail.activity.FILTER')}
-					/>
-				}
-			>
-				{isLoading && <FeedSkeleton filter={filter} />}
-				{isError && (
-					<AnimatedEmptyState
-						title={t('taskDetail.activity.LOAD_FAILED')}
-						message={null}
-						actionLabel={t('pages.unauthorized.TRY_AGAIN')}
-						onAction={retry}
-						minHeight="140px"
-						showBorder={false}
-						noBg={true}
-					/>
-				)}
-				{showsEmpty && <EmptyFeed filter={filter} />}
-				{showsEarlierButton && (
-					<button
-						type="button"
-						onClick={() => setShowsAll(true)}
-						className={cn(DETAIL_GHOST_ACTION, '-ml-2 w-fit')}
-					>
-						<ChevronUp aria-hidden="true" />
-						{t('taskDetail.activity.SHOW_EARLIER', { count: hiddenCount })}
-					</button>
-				)}
-				{showsFeed &&
-					days.map((day) => (
-						<Fragment key={day.key}>
-							<h3 className="pt-1 text-xs font-medium text-muted-foreground">
-								{dayLabelOf(day.date, t)}
-							</h3>
-							<ul className="flex flex-col gap-3">
-								{day.items.map((item, index) => (
-									<FeedEntry
-										key={`${item.kind}-${item.id}`}
-										item={item}
-										connectsToNext={isHistoryItem(day.items[index + 1])}
-										names={names}
-										filesOf={filesOf}
-										canAttach={canAttach}
-										replyingTo={replyingTo}
-										onReply={setReplyingTo}
-										onPostReply={(body, mentionEmployeeIds, files, parentId) =>
-											discussion.postComment(body, { parentId, mentionEmployeeIds, files })
-										}
-										isPosting={discussion.isPosting}
-									/>
-								))}
-							</ul>
-						</Fragment>
-					))}
-				{hasPartialFailure && (
-					<div className="flex items-center gap-2 text-[13px] text-muted-foreground">
-						<span>{t('taskDetail.activity.PARTLY_LOADED')}</span>
-						<button type="button" onClick={retry} className={DETAIL_GHOST_ACTION}>
-							{t('pages.unauthorized.TRY_AGAIN')}
+				<TaskDetailSection
+					title={t('common.ACTIVITY')}
+					actions={
+						<SegmentedControl
+							items={tabs}
+							value={filter}
+							onValueChange={setFilter}
+							ariaLabel={t('taskDetail.activity.FILTER')}
+						/>
+					}
+				>
+					{isLoading && <FeedSkeleton filter={filter} />}
+					{isError && (
+						<AnimatedEmptyState
+							title={t('taskDetail.activity.LOAD_FAILED')}
+							message={null}
+							actionLabel={t('pages.unauthorized.TRY_AGAIN')}
+							onAction={retry}
+							minHeight="140px"
+							showBorder={false}
+							noBg={true}
+						/>
+					)}
+					{showsEmpty && <EmptyFeed filter={filter} />}
+					{showsEarlierButton && (
+						<button
+							type="button"
+							onClick={() => setShowsAll(true)}
+							className={cn(DETAIL_GHOST_ACTION, '-ml-2 w-fit')}
+						>
+							<ChevronUp aria-hidden="true" />
+							{t('taskDetail.activity.SHOW_EARLIER', { count: hiddenCount })}
 						</button>
-					</div>
-				)}
-				{showsInlineComposer && (
-					<div className="pt-1">
-						<TaskCommentComposer task={task} />
-					</div>
-				)}
-			</TaskDetailSection>
+					)}
+					{showsFeed &&
+						days.map((day) => (
+							<Fragment key={day.key}>
+								<h3 className="pt-1 text-xs font-medium text-muted-foreground">
+									{dayLabelOf(day.date, t)}
+								</h3>
+								<ul className="flex flex-col gap-3">
+									{day.items.map((item, index) => (
+										<FeedEntry
+											key={`${item.kind}-${item.id}`}
+											item={item}
+											connectsToNext={isHistoryItem(day.items[index + 1])}
+											names={names}
+											filesOf={filesOf}
+											canAttach={canAttach}
+											replyingTo={replyingTo}
+											onReply={setReplyingTo}
+											onPostReply={(body, mentionEmployeeIds, files, parentId) =>
+												discussion.postComment(body, { parentId, mentionEmployeeIds, files })
+											}
+											isPosting={discussion.isPosting}
+										/>
+									))}
+								</ul>
+							</Fragment>
+						))}
+					{hasPartialFailure && (
+						<div className="flex items-center gap-2 text-[13px] text-muted-foreground">
+							<span>{t('taskDetail.activity.PARTLY_LOADED')}</span>
+							<button type="button" onClick={retry} className={DETAIL_GHOST_ACTION}>
+								{t('pages.unauthorized.TRY_AGAIN')}
+							</button>
+						</div>
+					)}
+					{showsInlineComposer && (
+						<div className="pt-1">
+							<TaskCommentComposer task={task} />
+						</div>
+					)}
+				</TaskDetailSection>
 			</CommentActionsProvider>
 		</div>
 	);

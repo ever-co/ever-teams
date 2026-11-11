@@ -30,7 +30,13 @@ import { ProjectDetailBodySkeleton, ProjectDetailToolbarSkeleton } from './proje
 
 const TAB_PARAM = 'tab';
 
-const DETAIL_TABS: ReadonlySet<ProjectDetailTab> = new Set<ProjectDetailTab>(['overview', 'tasks', 'people', 'docs', 'trash']);
+const DETAIL_TABS: ReadonlySet<ProjectDetailTab> = new Set<ProjectDetailTab>([
+	'overview',
+	'tasks',
+	'people',
+	'docs',
+	'trash'
+]);
 
 function tabOf(value: string | null): ProjectDetailTab {
 	// The Docs tab exists only where Docs is on: a `?tab=docs` link elsewhere opens the overview.

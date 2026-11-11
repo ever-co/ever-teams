@@ -317,7 +317,10 @@ export function CommentComposer({
 			return;
 		}
 		// An edit keeps the mentions its text already holds: the platform replaces the comment's with this list.
-		const mentionEmployeeIds = collectMentionEmployeeIds(trimmedBody, [...picked, ...mentionedIn(initialBody, candidates)]);
+		const mentionEmployeeIds = collectMentionEmployeeIds(trimmedBody, [
+			...picked,
+			...mentionedIn(initialBody, candidates)
+		]);
 		const isSaved = await onSubmit(trimmedBody, mentionEmployeeIds, stagedFiles);
 		if (isSaved) {
 			setBody('');

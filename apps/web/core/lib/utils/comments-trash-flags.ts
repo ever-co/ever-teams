@@ -1,6 +1,9 @@
 import { readRuntimeEnv } from '@/env-config';
 
-function isOn(name: 'NEXT_PUBLIC_COMMENT_REACTIONS_ENABLED' | 'NEXT_PUBLIC_TASK_TRASH_ENABLED', buildTime: string | undefined) {
+function isOn(
+	name: 'NEXT_PUBLIC_COMMENT_REACTIONS_ENABLED' | 'NEXT_PUBLIC_TASK_TRASH_ENABLED',
+	buildTime: string | undefined
+) {
 	const value = readRuntimeEnv(name) || buildTime;
 	return String(value ?? '').trim() === 'true';
 }

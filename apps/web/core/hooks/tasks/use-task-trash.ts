@@ -50,7 +50,13 @@ export function useTaskTrash(filter: TaskTrashFilter) {
 	const scope = taskDiscussionScope();
 	const isOn = isTaskTrashEnabled();
 	const search = filter.search.trim();
-	const queryKey = queryKeys.tasks.trash(scope?.tenantId, scope?.organizationId, filter.teamId, filter.projectId, search);
+	const queryKey = queryKeys.tasks.trash(
+		scope?.tenantId,
+		scope?.organizationId,
+		filter.teamId,
+		filter.projectId,
+		search
+	);
 	const isEnabled = isOn && scope !== null && (filter.teamId !== null || filter.projectId !== null);
 
 	const query = useInfiniteQuery({

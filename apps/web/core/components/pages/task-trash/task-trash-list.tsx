@@ -94,7 +94,10 @@ export function TaskTrashList({ teamId, projectId, showsProject = true }: Readon
 			<div className="flex flex-wrap items-center justify-between gap-2">
 				<p className="text-xs text-muted-foreground">{t('taskTrash.HINT')}</p>
 				<label className="relative flex w-full items-center sm:w-64">
-					<Search className="pointer-events-none absolute left-2.5 size-4 text-muted-foreground" aria-hidden="true" />
+					<Search
+						className="pointer-events-none absolute left-2.5 size-4 text-muted-foreground"
+						aria-hidden="true"
+					/>
 					<input
 						type="search"
 						value={search}

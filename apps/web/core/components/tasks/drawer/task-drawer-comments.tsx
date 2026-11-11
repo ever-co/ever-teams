@@ -247,10 +247,7 @@ function CommentBody({
 }
 
 /** A resolved thread folded to one line: who resolved it, its replies, Show and (for its author) Reopen. */
-function ResolvedThreadLine({
-	thread,
-	onShow
-}: Readonly<{ thread: CommentThread; onShow: () => void }>) {
+function ResolvedThreadLine({ thread, onShow }: Readonly<{ thread: CommentThread; onShow: () => void }>) {
 	const t = useTranslations();
 	const actions = useCommentActions();
 	const comment = thread.comment;
@@ -331,7 +328,11 @@ export function CommentThreadView({
 			{thread.comment.resolved && (
 				<div className="flex items-center gap-2 text-xs text-muted-foreground">
 					<CircleCheck className="size-3.5 text-primary" aria-hidden="true" />
-					<span>{t('taskComments.RESOLVED_BY', { name: thread.comment.resolvedByName || t('taskDrawer.SOMEONE') })}</span>
+					<span>
+						{t('taskComments.RESOLVED_BY', {
+							name: thread.comment.resolvedByName || t('taskDrawer.SOMEONE')
+						})}
+					</span>
 					<button type="button" onClick={() => setShowsResolved(false)} className={LINK_BUTTON}>
 						{t('taskComments.HIDE')}
 					</button>

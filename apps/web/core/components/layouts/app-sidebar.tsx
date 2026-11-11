@@ -111,7 +111,6 @@ type AppSidebarProps = React.ComponentProps<typeof Sidebar> & { publicTeam: bool
 // Limit to 5 projects for sidebar display
 const MAX_SIDEBAR_PROJECTS = 5;
 
-
 /**
  * The sidebar sits on the window background (variant `inset`): the pages render in the rounded panel
  * beside it. Its header carries the workspace switcher with the collapse button, then the palette
