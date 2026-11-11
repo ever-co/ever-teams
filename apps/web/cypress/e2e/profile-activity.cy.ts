@@ -51,7 +51,13 @@ describe('employee-scoped profile activity', () => {
 				cy.mockScenario(testCase.scenario);
 				cy.syntheticLogin();
 				cy.hardVisit(`/profile/${testCase.memberId}`);
-				cy.wait(200);
+				if (testCase.denied) {
+					// Nothing may be read: give the page the time a read would take, then look.
+					cy.wait(1000);
+				} else {
+					// A fixed 200 ms missed the read on a busy runner (stage → main gate, 2026-11-11): wait for it instead.
+					waitForProfileReads(1);
+				}
 				cy.mockRequests().then((requests) => {
 					const reads = profileReads(requests);
 					if (testCase.denied) {
@@ -91,7 +97,8 @@ describe('employee-scoped profile activity', () => {
 			cy.mockScenario({ manager: true });
 			cy.hardVisit(`/profile/${fixture.ids.teammateUser}`);
 			cy.hardVisit(`/profile/${fixture.ids.deniedUser}`);
-			cy.wait(250);
+			// One read per profile visited: wait for both rather than a fixed 250 ms.
+			waitForProfileReads(2);
 			cy.mockRequests().then((requests) => {
 				const employees = profileReads(requests).map((request) =>
 					new URLSearchParams(request.query).get('employeeId')
