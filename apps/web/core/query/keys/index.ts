@@ -965,6 +965,13 @@ export const queryKeys = {
 		liveCollaboration: ['live-collaboration'] as const
 	},
 
+	// Meetings the signed-in member scheduled (Ever Gauzy employee appointments)
+	meetings: {
+		all: ['meetings'] as const,
+		scheduled: (employeeId: string | undefined | null) =>
+			['meetings', 'scheduled', ...(employeeId ? [employeeId] : [])] as const
+	},
+
 	timeLogs: {
 		all: ['time-logs'] as const,
 		dailyReport: {

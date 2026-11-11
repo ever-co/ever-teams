@@ -432,6 +432,18 @@ function routeResponse(method, pathname, requestUrl, data, fixture, state, body,
 	if (pathname.startsWith('/api/timesheet/statistics/tasks')) return { global: {}, today: {} };
 	if (/^\/api\/organization-team-employee\//.test(pathname))
 		return body ?? { affected: 1, generatedMaps: [], raw: [] };
+	// Scheduled meetings (employee appointments): kept for the session, so a meeting scheduled shows in the agenda
+	if (pathname === '/api/employee-appointment' && method === 'GET') return pagination(state.appointments);
+	if (pathname === '/api/employee-appointment' && method === 'POST') {
+		const appointment = { id: `appointment-${state.appointments.length + 1}`, status: null, ...body };
+		state.appointments.push(appointment);
+		return appointment;
+	}
+	const appointmentPath = /^\/api\/employee-appointment\/([^/]+)$/.exec(pathname);
+	if (appointmentPath && method === 'DELETE') {
+		state.appointments = state.appointments.filter((appointment) => appointment.id !== appointmentPath[1]);
+		return { affected: 1, raw: [] };
+	}
 	if (pathname === '/api/favorite') return pagination([]);
 	if (pathname === '/api/organization-team-join') return pagination([]);
 
@@ -591,6 +603,7 @@ export async function createMockGauzyServer({ fixture, port = 3988 } = {}) {
 			connectConnected: true
 		},
 		everPlatform: { stateReads: 0, toggles: [] },
+		appointments: [],
 		mutationProof: {
 			startedTimer: false,
 			updatedTask: false,
@@ -721,6 +734,7 @@ export async function createMockGauzyServer({ fixture, port = 3988 } = {}) {
 				connectConnected: true
 			};
 			state.everPlatform = { stateReads: 0, toggles: [] };
+			state.appointments = [];
 			state.mutationProof = {
 				startedTimer: false,
 				updatedTask: false,

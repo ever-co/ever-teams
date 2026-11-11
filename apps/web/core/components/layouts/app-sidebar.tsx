@@ -24,7 +24,8 @@ import {
 	Task,
 	X,
 	Layers,
-	MessageSquare
+	MessageSquare,
+	VideoCall
 } from '@/core/components/icons/hugeicons';
 
 import {
@@ -237,11 +238,20 @@ export function AppSidebar({ publicTeam, ...props }: AppSidebarProps) {
 			icon: FileText,
 			label: 'docs'
 		};
+		// Meetings: start, join or plan a call, whichever room server (Jitsi or LiveKit) the deployment uses
+		const meetingsEntry = {
+			title: t('meetings.TITLE'),
+			url: '/meet',
+			selectable: true,
+			icon: VideoCall,
+			label: 'meetings'
+		};
 		const entries: Array<typeof homeEntry & { badge?: number }> = [homeEntry];
 		if (isInboxEnabled()) entries.push(inboxEntry);
 		if (isChatEnabled()) entries.push(chatEntry);
 		if (isDocsEnabled() && docsAvailability !== 'unavailable') entries.push(docsEntry);
 		entries.push(calendarEntry);
+		entries.push(meetingsEntry);
 		return entries;
 	}, [chatUnread, docsAvailability, inboxUnread, t]);
 
