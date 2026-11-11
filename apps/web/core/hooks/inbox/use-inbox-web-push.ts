@@ -53,6 +53,27 @@ function deviceInputOf(subscription: PushSubscription) {
 	};
 }
 
+/** Where the browser stands when the platform's key could not be read. */
+function stateWithoutKey(error: unknown): InboxWebPushState {
+	if (ApiErrorService.isApiError(error) && error.isEndpointUnavailable()) return 'unavailable';
+	// The platform did not answer: switching on can be tried again, where the browser can take notifications.
+	return supportsWebPush() ? 'off' : 'unsupported';
+}
+
+/** Where the browser stands once the platform answered its key: what it can do, and whether it is subscribed. */
+async function browserPushState(): Promise<InboxWebPushState> {
+	if (!supportsWebPush()) return 'unsupported';
+	if (Notification.permission === 'denied') return 'blocked';
+	const subscription = await currentSubscription().catch(() => null);
+	if (!subscription || Notification.permission !== 'granted') return 'off';
+	// Registered again (the platform drops devices after failed pushes); a failure shows off, and switching on sets
+	// the device up again.
+	return inboxPushService.register(deviceInputOf(subscription)).then(
+		() => 'on' as const,
+		() => 'off' as const
+	);
+}
+
 /**
  * Browser notifications for the inbox on this device. `enable` asks the person for permission, registers the
  * worker, subscribes with the platform's VAPID key and registers the device; `disable` removes the device and
@@ -79,41 +100,14 @@ export function useInboxWebPush(enabled: boolean) {
 			setState('unavailable');
 			return;
 		}
-		const isSupported = supportsWebPush();
 		try {
 			await inboxPushService.publicKey();
 		} catch (error) {
-			if (ApiErrorService.isApiError(error) && error.isEndpointUnavailable()) {
-				setState('unavailable');
-			} else {
-				// The platform did not answer: switching on can be tried again, where the browser can take notifications.
-				setState(isSupported ? 'off' : 'unsupported');
-			}
+			setState(stateWithoutKey(error));
 			return;
 		}
+		setState(await browserPushState());
 		// The other devices are listed even where this browser cannot take notifications itself.
-		if (!isSupported) {
-			setState('unsupported');
-			await loadDevices();
-			return;
-		}
-		if (Notification.permission === 'denied') {
-			setState('blocked');
-			await loadDevices();
-			return;
-		}
-		const subscription = await currentSubscription().catch(() => null);
-		if (subscription && Notification.permission === 'granted') {
-			// Registered again (the platform drops devices after failed pushes); a failure shows off, and switching on
-			// sets the device up again.
-			const registered = await inboxPushService
-				.register(deviceInputOf(subscription))
-				.then(() => true)
-				.catch(() => false);
-			setState(registered ? 'on' : 'off');
-		} else {
-			setState('off');
-		}
 		await loadDevices();
 	}, [enabled, loadDevices]);
 
