@@ -15,8 +15,8 @@ function answer(url: string, status: EChatLinkPreviewStatus, extra: Partial<ICha
 	return { url, status, ...extra };
 }
 
-function httpError(status: number, headers: Record<string, string> = {}): Error {
-	return Object.assign(new Error(`HTTP ${status}`), { response: { status, headers } });
+function httpError(status: number): Error {
+	return Object.assign(new Error(`HTTP ${status}`), { response: { status } });
 }
 
 /** Lets the pending promise callbacks run (real timers only). */
@@ -100,12 +100,16 @@ describe('previewLinksOf', () => {
 
 	it('reads the address of a Markdown link, not its label, and leaves pictures out', () => {
 		expect(urlsOf('[https://a.io](https://b.io)')).toEqual(['https://b.io/']);
+		expect(urlsOf('[nested [https://a.io]](https://b.io)')).toEqual(['https://b.io/']);
+		expect(urlsOf('![a [https://a.io] chart](https://a.io/p.png) [https://c.io] alone')).toEqual(['https://c.io/']);
 		expect(urlsOf('![chart](https://a.io/p.png) and https://b.io')).toEqual(['https://b.io/']);
 	});
 
 	it('leaves out links in fences inside list items and quotes, and in indented code', () => {
 		expect(urlsOf('- ```\n  https://a.io\n  ```\n- https://b.io')).toEqual(['https://b.io/']);
-		expect(urlsOf('> ```\n> https://a.io\n> ```')).toEqual([]);
+		expect(urlsOf('> ```\n> https://a.io\n> ```\nhttps://b.io')).toEqual(['https://b.io/']);
+		// Inside a fence opened outside any quote, `> ```` is code and does not close it.
+		expect(urlsOf('```\n> ```\nhttps://code.io\n```')).toEqual([]);
 		expect(urlsOf('text\n\n    https://a.io')).toEqual([]);
 		// Indented under a list item's first line, it only continues the paragraph.
 		expect(urlsOf('- item\n    https://a.io')).toEqual(['https://a.io/']);
@@ -376,22 +380,44 @@ describe('createChatLinkPreviewSession', () => {
 		await expect(Promise.all(loads)).resolves.toHaveLength(3);
 	});
 
-	it('asks again after a pause when the platform refuses the pace (429), as long as it says to wait', async () => {
+	it('asks again after a pause when the platform refuses the pace (429), the pause doubling', async () => {
 		jest.useFakeTimers();
 		const ask = jest
 			.fn<ReturnType<ChatLinkPreviewAsk>, Parameters<ChatLinkPreviewAsk>>()
-			.mockRejectedValueOnce(httpError(429, { 'retry-after': '3' }))
+			.mockRejectedValueOnce(httpError(429))
 			.mockRejectedValueOnce(httpError(429))
 			.mockResolvedValue(answer('https://a.io/', EChatLinkPreviewStatus.Ready, { title: 'A' }));
-		const session = createChatLinkPreviewSession(ask, { paceRetryMs: 1000 });
+		const session = createChatLinkPreviewSession(ask, { pacePauseMs: 1000 });
 		const loading = session.load('https://a.io/');
-		await jest.advanceTimersByTimeAsync(2999);
+		await jest.advanceTimersByTimeAsync(999);
 		expect(ask).toHaveBeenCalledTimes(1);
 		await jest.advanceTimersByTimeAsync(1);
 		expect(ask).toHaveBeenCalledTimes(2);
-		// No Retry-After the second time: the pause doubles (1 s, then 2 s).
-		await jest.advanceTimersByTimeAsync(2000);
+		// The second refusal in a row pauses twice as long.
+		await jest.advanceTimersByTimeAsync(1999);
+		expect(ask).toHaveBeenCalledTimes(2);
+		await jest.advanceTimersByTimeAsync(1);
 		await expect(loading).resolves.toMatchObject({ title: 'A' });
+		expect(ask).toHaveBeenCalledTimes(3);
+	});
+
+	it('pauses the asks of the other links after a 429 too, the route taken as there', async () => {
+		jest.useFakeTimers();
+		const ask = jest
+			.fn<ReturnType<ChatLinkPreviewAsk>, Parameters<ChatLinkPreviewAsk>>()
+			.mockRejectedValueOnce(httpError(429))
+			.mockImplementation((url) => Promise.resolve(answer(url, EChatLinkPreviewStatus.Ready, { title: url })));
+		const session = createChatLinkPreviewSession(ask, { pacePauseMs: 1000 });
+		const first = session.load('https://a.io/');
+		const second = session.load('https://b.io/');
+		await jest.advanceTimersByTimeAsync(999);
+		// The probe was refused for the pace: the other link no longer waits for the probe, but for the pause.
+		expect(ask.mock.calls.map(([url]) => url)).toEqual(['https://a.io/']);
+		await jest.advanceTimersByTimeAsync(1);
+		await expect(Promise.all([first, second])).resolves.toMatchObject([
+			{ title: 'https://a.io/' },
+			{ title: 'https://b.io/' }
+		]);
 		expect(ask).toHaveBeenCalledTimes(3);
 	});
 
@@ -400,7 +426,7 @@ describe('createChatLinkPreviewSession', () => {
 		const ask = jest
 			.fn<ReturnType<ChatLinkPreviewAsk>, Parameters<ChatLinkPreviewAsk>>()
 			.mockRejectedValue(httpError(429));
-		const session = createChatLinkPreviewSession(ask, { paceRetryMs: 10 });
+		const session = createChatLinkPreviewSession(ask, { pacePauseMs: 10 });
 		const loading = session.load('https://a.io/').catch((error: Error) => error.message);
 		await jest.advanceTimersByTimeAsync(1000);
 		await expect(loading).resolves.toBe('HTTP 429');

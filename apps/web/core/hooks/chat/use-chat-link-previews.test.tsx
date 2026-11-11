@@ -3,7 +3,7 @@
  */
 import React from 'react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { renderHook, waitFor } from '@testing-library/react';
+import { act, renderHook, waitFor } from '@testing-library/react';
 import { EChatLinkPreviewStatus, type IChatLinkPreview } from '@/core/types/interfaces/common/chat';
 import type { ChatPreviewLink } from '@/core/lib/utils/chat-link-preview';
 
@@ -41,6 +41,30 @@ beforeEach(() => {
 });
 
 describe('useChatLinkPreviews', () => {
+	afterEach(() => jest.useRealTimers());
+
+	it('asks again for a link still pending only once 30 s have passed, however many messages show it', async () => {
+		jest.useFakeTimers();
+		mockAsk.mockResolvedValue({ url: A.url, status: EChatLinkPreviewStatus.Pending });
+		const client = newClient();
+		const advance = (ms: number) => act(() => jest.advanceTimersByTimeAsync(ms));
+		const first = renderHook(() => useChatLinkPreviews([A]), { wrapper: wrapper(client) });
+		// One ask, then three more two seconds apart.
+		await advance(7000);
+		expect(mockAsk).toHaveBeenCalledTimes(4);
+		first.unmount();
+		const soon = renderHook(() => useChatLinkPreviews([A]), { wrapper: wrapper(client) });
+		await advance(1000);
+		expect(soon.result.current).toEqual([]);
+		expect(mockAsk).toHaveBeenCalledTimes(4);
+		soon.unmount();
+		await advance(30_000);
+		const later = renderHook(() => useChatLinkPreviews([A]), { wrapper: wrapper(client) });
+		await advance(100);
+		expect(mockAsk).toHaveBeenCalledTimes(5);
+		later.unmount();
+	});
+
 	it('asks nothing with the flag off', async () => {
 		mockFlag = false;
 		const { result } = renderHook(() => useChatLinkPreviews([A]), { wrapper: wrapper(newClient()) });

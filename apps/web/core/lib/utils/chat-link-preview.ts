@@ -31,9 +31,13 @@ const CHAT_LINK_PREVIEW_PER_MINUTE = 100;
 /** How many times an ask the platform refused for its pace (429) is made again, after a pause. */
 const CHAT_LINK_PREVIEW_PACE_RETRIES = 2;
 
-/** The pause before the first ask again after a 429 when the answer states none (doubled each time, 60 s at most). */
-const CHAT_LINK_PREVIEW_PACE_RETRY_MS = 5000;
-const CHAT_LINK_PREVIEW_PACE_RETRY_MAX_MS = 60_000;
+/**
+ * How long every ask of the page pauses after a 429, then doubled for each refusal in a row of the same ask, 60 s at
+ * most (the platform counts a minute). The answer's `Retry-After` does not reach here: the client's errors keep the
+ * status only, and the proxy passes on the body's type only.
+ */
+const CHAT_LINK_PREVIEW_PACE_PAUSE_MS = 15_000;
+const CHAT_LINK_PREVIEW_PACE_PAUSE_MAX_MS = 60_000;
 
 /** A link of a message that gets a preview. */
 export interface ChatPreviewLink {
@@ -72,20 +76,36 @@ const LIST_MARKER = /^(?:[-*+]|\d{1,9}[.)])[ \t]/;
 const CODE_INDENT = /^(?: {4}|\t)/;
 
 /**
- * A line's content inside its quotes and list items (`> - ```` is a fence too). Any indent is let through, so an
- * indented fence counts as one: a line taken for code when it is not only costs a preview, never the other way.
+ * A line's content inside its quotes and list items (`> - ```` opens a fence too), and how many quotes it is in. Any
+ * indent is let through, so an indented fence counts as one: a line taken for code when it is not only costs a
+ * preview, never the other way.
  */
-function contentOf(line: string): string {
+function contentOf(line: string): { content: string; quotes: number } {
 	let rest = line.trimStart();
+	let quotes = 0;
 	for (;;) {
 		if (rest.startsWith('>')) {
 			rest = rest.slice(1).trimStart();
+			quotes += 1;
 			continue;
 		}
 		const marker = LIST_MARKER.exec(rest);
-		if (!marker) return rest;
+		if (!marker) return { content: rest, quotes };
 		rest = rest.slice(marker[0].length).trimStart();
 	}
+}
+
+/**
+ * A line of an open fence, inside the quotes the fence opened in and no further: a `>` or a list marker past them is
+ * code, so `> ```` does not close a fence opened outside any quote. Null when the line has fewer quotes.
+ */
+function insideQuotes(line: string, quotes: number): string | null {
+	let rest = line.trimStart();
+	for (let depth = 0; depth < quotes; depth += 1) {
+		if (!rest.startsWith('>')) return null;
+		rest = rest.slice(1).trimStart();
+	}
+	return rest;
 }
 
 /**
@@ -116,23 +136,30 @@ function withoutCodeSpans(line: string): string {
  */
 export function withoutCode(body: string): string {
 	const lines: string[] = [];
-	let fence: string | null = null;
+	let fence: { marker: string; quotes: number } | null = null;
 	let paragraph: string[] = [];
 	const endParagraph = () => {
 		if (paragraph.length) lines.push(withoutCodeSpans(paragraph.join('\n')));
 		paragraph = [];
 	};
 	for (const line of body.split('\n')) {
-		const match = FENCE.exec(contentOf(line));
 		if (fence) {
-			if (match && match[1][0] === fence[0] && match[1].length >= fence.length && !match[2].trim()) fence = null;
+			// A line with fewer quotes than the fence would end the quote and the fence with it; it stays code here,
+			// which can only cost a preview.
+			const inner = insideQuotes(line, fence.quotes);
+			const close = inner === null ? null : FENCE.exec(inner);
+			const { marker } = fence;
+			if (close && close[1][0] === marker[0] && close[1].length >= marker.length && !close[2].trim())
+				fence = null;
 			lines.push('');
 			continue;
 		}
+		const { content, quotes } = contentOf(line);
+		const match = FENCE.exec(content);
 		// A backtick fence cannot carry a backtick in its info string (that line is a code span instead).
 		if (match && !(match[1][0] === '`' && match[2].includes('`'))) {
 			endParagraph();
-			fence = match[1];
+			fence = { marker: match[1], quotes };
 			lines.push('');
 			continue;
 		}
@@ -153,15 +180,59 @@ export function withoutCode(body: string): string {
 	return lines.join('\n');
 }
 
-/** A Markdown picture (`![alt](address)`): the renderer shows its words only, so its address is no link. */
-const MARKDOWN_IMAGE = /!\[[^\][\n]*\]\([^)\n]*\)/g;
+/** Where the `]` that closes the `[` at `open` is, nested brackets and escapes counted, on the same line; -1 if none. */
+function closingBracketOf(text: string, open: number): number {
+	let depth = 0;
+	for (let at = open; at < text.length && text[at] !== '\n'; at += 1) {
+		const character = text[at];
+		if (character === '\\') at += 1;
+		else if (character === '[') depth += 1;
+		else if (character === ']') {
+			depth -= 1;
+			if (depth === 0) return at;
+		}
+	}
+	return -1;
+}
 
-/** The label of a Markdown link up to its address (`[label](`): the label is the link's words, not where it goes. */
-const MARKDOWN_LINK_LABEL = /\[[^\][\n]*\]\(/g;
+/** Where a Markdown address that starts at `from` ends: after its `)`, or at the end of the line when none closes it. */
+function addressEndOf(text: string, from: number): number {
+	const end = text.indexOf(')', from);
+	const lineEnd = text.indexOf('\n', from);
+	if (end >= 0 && (lineEnd < 0 || end < lineEnd)) return end + 1;
+	return lineEnd < 0 ? text.length : lineEnd;
+}
+
+/**
+ * The text with the labels of its Markdown links left out (`[label](address)` keeps ` (address)`), nested brackets in
+ * a label included: the label is the link's words, not where it goes. A picture (`![alt](address)`) is left out whole:
+ * the renderer shows its words only, so its address is no link.
+ */
+function withoutLinkLabels(text: string): string {
+	let result = '';
+	let index = 0;
+	for (let open = text.indexOf('[', index); open >= 0; open = text.indexOf('[', index)) {
+		const close = closingBracketOf(text, open);
+		if (close < 0 || text[close + 1] !== '(') {
+			result += text.slice(index, open + 1);
+			index = open + 1;
+			continue;
+		}
+		const picture = open > index && text[open - 1] === '!';
+		result += `${text.slice(index, picture ? open - 1 : open)} `;
+		if (picture) {
+			index = addressEndOf(text, close + 2);
+		} else {
+			result += '(';
+			index = close + 2;
+		}
+	}
+	return result + text.slice(index);
+}
 
 /** The text a link is read in: no code, no picture, and only the addresses of Markdown links (not their labels). */
 function linkText(body: string): string {
-	return withoutCode(body).replace(MARKDOWN_IMAGE, ' ').replace(MARKDOWN_LINK_LABEL, ' (');
+	return withoutLinkLabels(withoutCode(body));
 }
 
 /**
@@ -315,7 +386,7 @@ interface ChatLinkPreviewSessionOptions {
 	remembered?: number;
 	perMinute?: number;
 	paceRetries?: number;
-	paceRetryMs?: number;
+	pacePauseMs?: number;
 }
 
 /**
@@ -367,17 +438,6 @@ function wait(ms: number, signal?: AbortSignal): Promise<void> {
 	});
 }
 
-/** The `Retry-After` of a refused ask, in milliseconds (seconds or an HTTP date), when the answer carries one. */
-function retryAfterOf(error: unknown): number | null {
-	const headers = (error as { response?: { headers?: Record<string, unknown> } } | null)?.response?.headers;
-	const value = headers?.['retry-after'];
-	if (typeof value !== 'string' && typeof value !== 'number') return null;
-	const seconds = Number(value);
-	if (Number.isFinite(seconds)) return seconds * 1000;
-	const at = Date.parse(String(value));
-	return Number.isFinite(at) ? at - Date.now() : null;
-}
-
 export function createChatLinkPreviewSession(
 	ask: ChatLinkPreviewAsk,
 	options: ChatLinkPreviewSessionOptions = {}
@@ -388,8 +448,13 @@ export function createChatLinkPreviewSession(
 	const rememberedMax = Math.max(1, options.remembered ?? CHAT_LINK_PREVIEW_REMEMBERED);
 	const perMinute = Math.max(1, options.perMinute ?? CHAT_LINK_PREVIEW_PER_MINUTE);
 	const paceRetries = Math.max(0, options.paceRetries ?? CHAT_LINK_PREVIEW_PACE_RETRIES);
-	const paceRetryMs = Math.max(0, options.paceRetryMs ?? CHAT_LINK_PREVIEW_PACE_RETRY_MS);
-	const state: { route: RouteState; probe: Promise<void> } = { route: 'unknown', probe: Promise.resolve() };
+	const pacePauseMs = Math.max(0, options.pacePauseMs ?? CHAT_LINK_PREVIEW_PACE_PAUSE_MS);
+	/** `pausedUntil`: no ask leaves before then (set by a 429, for every link of the page). */
+	const state: { route: RouteState; probe: Promise<void>; pausedUntil: number } = {
+		route: 'unknown',
+		probe: Promise.resolve(),
+		pausedUntil: 0
+	};
 	const unavailable = new Set<string>();
 	const waiting: Array<() => void> = [];
 	/** When each ask of the last minute was sent, oldest first. */
@@ -404,10 +469,14 @@ export function createChatLinkPreviewSession(
 		}
 	};
 
-	/** Waits until an ask fits in the minute's allowance, then counts it. */
+	/** Waits out a pause after a 429, then until an ask fits in the minute's allowance, then counts it. */
 	const paced = async (signal?: AbortSignal): Promise<void> => {
 		for (;;) {
 			const now = Date.now();
+			if (now < state.pausedUntil) {
+				await wait(state.pausedUntil - now, signal);
+				continue;
+			}
 			while (sent.length && now - sent[0] >= PACE_WINDOW_MS) sent.shift();
 			if (sent.length < perMinute) {
 				sent.push(now);
@@ -433,8 +502,9 @@ export function createChatLinkPreviewSession(
 	};
 
 	/**
-	 * One ask, made again after a pause when the platform refuses it for its pace (429), a couple of times at most.
-	 * `answered` hears that the route answered, even with a refusal.
+	 * One ask, made again when the platform refuses it for its pace (429), a couple of times at most. A refusal pauses
+	 * every ask of the page, not only this one: the others would be refused too. `answered` hears that the route
+	 * answered, even with a refusal.
 	 */
 	const askPaced = async (
 		url: string,
@@ -445,10 +515,11 @@ export function createChatLinkPreviewSession(
 			try {
 				return await askInTurn(url, signal);
 			} catch (error) {
-				if (errorStatusOf(error) !== 429 || attempt >= paceRetries) throw error;
+				if (errorStatusOf(error) !== 429) throw error;
+				const pause = Math.min(CHAT_LINK_PREVIEW_PACE_PAUSE_MAX_MS, pacePauseMs * 2 ** attempt);
+				state.pausedUntil = Math.max(state.pausedUntil, Date.now() + pause);
+				if (attempt >= paceRetries) throw error;
 				answered();
-				const pause = retryAfterOf(error) ?? paceRetryMs * 2 ** attempt;
-				await wait(Math.min(CHAT_LINK_PREVIEW_PACE_RETRY_MAX_MS, Math.max(0, pause)), signal);
 			}
 		}
 	};

@@ -45,7 +45,7 @@ function LinkPreviewCard({ card }: Readonly<{ card: ChatLinkPreviewCard }>) {
 						<span aria-hidden="true">·</span>
 					</>
 				)}
-				<span className="min-w-0 truncate" dir="ltr">
+				<span className="min-w-0 [overflow-wrap:anywhere]" dir="ltr">
 					{card.host}
 				</span>
 			</span>
