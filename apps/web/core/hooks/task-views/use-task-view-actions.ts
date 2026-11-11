@@ -150,26 +150,42 @@ export function useTaskViewActions() {
 	// later move is never undone by an earlier one answered after it.
 	const queuesRef = useRef(new Map<string, MoveQueue>());
 
+	const detailKeyOf = useCallback(
+		(viewId: string) =>
+			scope ? queryKeys.taskViews.detail(scope.tenantId, scope.organizationId, scope.userId, viewId) : null,
+		[scope]
+	);
+
+	/**
+	 * A newer view the cache got meanwhile (a rename or a save from this tab, a refetch) becomes the one the moves
+	 * start from: the queue never puts an older version back.
+	 */
+	const adoptNewer = useCallback(
+		(queue: MoveQueue) => {
+			const key = detailKeyOf(queue.confirmed.id);
+			const cached = key ? queryClient.getQueryData<ITaskView>(key) : undefined;
+			if (cached && (cached.version ?? 0) > (queue.confirmed.version ?? 0)) queue.confirmed = cached;
+		},
+		[detailKeyOf, queryClient]
+	);
+
 	/** Shows the order the platform holds with the moves still on their way made on it. */
 	const showQueue = useCallback(
 		(queue: MoveQueue) => {
-			if (!scope) return;
-			const key = queryKeys.taskViews.detail(
-				scope.tenantId,
-				scope.organizationId,
-				scope.userId,
-				queue.confirmed.id
-			);
+			const key = detailKeyOf(queue.confirmed.id);
+			if (!key) return;
+			adoptNewer(queue);
 			// A read under way would answer an order without the moves.
 			void queryClient.cancelQueries({ queryKey: key });
 			queryClient.setQueryData(key, { ...queue.confirmed, manualOrder: pendingOrderOf(queue) });
 		},
-		[queryClient, scope]
+		[adoptNewer, detailKeyOf, queryClient]
 	);
 
 	/** Writes one queued move on the order the platform holds; a 409 makes it once more on the order saved meanwhile. */
 	const writeMove = useCallback(
 		async (queue: MoveQueue, entry: PendingMove): Promise<TaskViewMoveResult | null> => {
+			adoptNewer(queue);
 			const base = queue.confirmed;
 			const order = orderAfterMove(base.manualOrder, entry.shownIds, entry.move);
 			if (!order) return null;
@@ -208,7 +224,7 @@ export function useTaskViewActions() {
 				}
 			}
 		},
-		[settle]
+		[adoptNewer, settle]
 	);
 
 	/**
@@ -241,24 +257,12 @@ export function useTaskViewActions() {
 				return await job;
 			} finally {
 				queue.pending = queue.pending.filter((pending) => pending !== entry);
-				if (queue.pending.length > 0) {
-					showQueue(queue);
-				} else {
-					// The order the platform holds, the move in it or not (a failure shows it without).
-					if (queues.get(view.id) === queue) queues.delete(view.id);
-					if (scope) {
-						const key = queryKeys.taskViews.detail(
-							scope.tenantId,
-							scope.organizationId,
-							scope.userId,
-							view.id
-						);
-						queryClient.setQueryData(key, queue.confirmed);
-					}
-				}
+				// The order the platform holds (or a newer view), the move in it or not: a failure shows it without.
+				showQueue(queue);
+				if (queue.pending.length === 0 && queues.get(view.id) === queue) queues.delete(view.id);
 			}
 		},
-		[queryClient, scope, showQueue, writeMove]
+		[showQueue, writeMove]
 	);
 
 	const deleteView = useCallback(

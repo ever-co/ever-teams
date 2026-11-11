@@ -173,6 +173,29 @@ describe('useTaskViewActions, moving a task in a manual order', () => {
 		expect(client.getQueryData<ITaskView>(detailKey)).toEqual(latest);
 	});
 
+	it('keeps a newer view the cache got meanwhile (a rename) when a move fails', async () => {
+		const view = viewOf(3, ['a', 'b', 'c']);
+		const { client, actions } = setup(view);
+		let failWrite: (reason: unknown) => void = () => undefined;
+		mockSetOrder.mockReturnValueOnce(new Promise((_, reject) => (failWrite = reject)));
+
+		let pending: Promise<unknown> = Promise.resolve();
+		await act(async () => {
+			pending = actions().moveTask(view, { taskId: 'c', targetId: 'a', edge: 'before' }, SHOWN);
+			await Promise.resolve();
+		});
+		// A rename from this tab lands while the move is on its way.
+		const renamed = { ...viewOf(4, ['a', 'b', 'c']), name: 'Renamed' };
+		act(() => {
+			client.setQueryData(detailKey, renamed);
+		});
+		await act(async () => {
+			failWrite({ response: { status: 500 } });
+			await expect(pending).rejects.toEqual({ response: { status: 500 } });
+		});
+		expect(client.getQueryData<ITaskView>(detailKey)).toEqual(renamed);
+	});
+
 	it('puts back the order the page showed when the write fails for another reason', async () => {
 		const view = viewOf(3, ['a', 'b', 'c']);
 		const { client, actions } = setup(view);
