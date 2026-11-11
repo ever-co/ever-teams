@@ -57,4 +57,14 @@ describe('integration sync conflicts', () => {
 		expect(conflictResolveRefusalOf({ response: { status: 403 } })).toBe('other');
 		expect(conflictResolveRefusalOf(new Error('offline'))).toBe('other');
 	});
+
+	it('tells a calendar day (UTC midnight) from a date-time', () => {
+		expect(conflictValueView('dueDate', '2026-11-20T00:00:00.000Z')).toMatchObject({ calendarDay: true });
+		expect(conflictValueView('dueDate', '2026-11-20T09:30:00.000Z')).toMatchObject({ calendarDay: false });
+		expect(conflictValueView('title', 'x')).toMatchObject({ calendarDay: false });
+	});
+
+	it('takes a tag whole even when a quoted attribute holds a >', () => {
+		expect(plainTextOf('<p title="a > 0"><a href=\'x>y\'>Text</a></p><p data-x="1>0">Next</p>')).toBe('Text Next');
+	});
 });

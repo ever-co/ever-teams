@@ -136,7 +136,9 @@ describe('IntegrationConflictsRow', () => {
 
 		const description = within(screen.getByTestId('conflict-c-2'));
 		// A task whose title the app does not hold still opens.
-		expect(description.getByRole('link', { name: `${KEYS}.OPEN_TASK` }).getAttribute('href')).toBe('/task/task-2');
+		expect(description.getByRole('link', { name: `${KEYS}.OPEN_TASK · task-2` }).getAttribute('href')).toBe(
+			'/task/task-2'
+		);
 		expect(description.getByText('Our text')).toBeTruthy();
 		expect(screen.getByTestId('conflict-c-2').querySelector('b')).toBeNull();
 		expect(description.getByText(`${KEYS}.EMPTY_VALUE`)).toBeTruthy();
@@ -309,5 +311,23 @@ describe('IntegrationConflictsRow', () => {
 		renderRow();
 		fireEvent.click(screen.getByRole('button', { name: `${KEYS}.SHOW_MORE` }));
 		expect(state.showMore).toHaveBeenCalled();
+	});
+
+	it('a due date stored as UTC midnight is shown as that calendar day', () => {
+		mockUseConflicts.mockReturnValue(
+			list({
+				conflicts: [
+					conflict({
+						field: 'dueDate',
+						platformValue: '2026-11-20T00:00:00.000Z',
+						externalValue: '2026-11-21T00:00:00.000Z'
+					})
+				]
+			})
+		);
+		renderRow();
+		const row = within(screen.getByTestId('conflict-c-1'));
+		expect(row.getByText('Nov 20, 2026')).toBeTruthy();
+		expect(row.getByText('Nov 21, 2026')).toBeTruthy();
 	});
 });

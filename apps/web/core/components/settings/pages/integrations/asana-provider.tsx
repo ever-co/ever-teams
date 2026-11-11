@@ -1,6 +1,6 @@
 'use client';
 
-import { ReactNode, useCallback, useId, useMemo, useRef, useState } from 'react';
+import { ReactNode, useId, useMemo, useRef, useState } from 'react';
 import { type DottedLanguageObjectStringPaths, useLocale, useTranslations } from 'next-intl';
 import { AnimatedHeight } from '@/core/components/common/animated-height';
 import { badgeVariants } from '@/core/components/common/badge';
@@ -13,6 +13,7 @@ import { SETTINGS_ROW_DESCRIPTION, SETTINGS_ROW_LABEL, SettingsSection, Settings
 import { SettingsSwitch } from '@/core/components/settings/kit/settings-switch';
 import { type AsanaIntegrationSettings, type AsanaLookup, useAsanaProjects, useAsanaSections } from '@/core/hooks/integrations/use-asana-integration';
 import { type LinearStatusOptions, useLinearStatusOptions } from '@/core/hooks/integrations/use-linear-integration';
+import { useRunConflictFilter } from '@/core/hooks/integrations/use-run-conflict-filter';
 import { cn } from '@/core/lib/helpers';
 import { errorReasonKeyOf } from '@/core/lib/utils/error-feedback';
 import { invalidSectionFields, SECTION_BY_NAME, sectionFieldsOf, sectionMapOfFields } from '@/core/lib/utils/integration-asana-section-map';
@@ -516,14 +517,10 @@ function AsanaConnected({ asana, onDisconnect }: AsanaProps & Readonly<{ onDisco
 	const t = useTranslations();
 	const panelId = useId();
 	const [isOpen, setIsOpen] = useState(true);
-	// The runs list's count of a run narrows the conflicts to that run, and brings them into view.
-	const [conflictRunId, setConflictRunId] = useState<string | null>(null);
-	const conflictsRef = useRef<HTMLDivElement>(null);
-	const showRunConflicts = useCallback((runId: string) => {
-		setConflictRunId(runId);
-		conflictsRef.current?.scrollIntoView?.({ behavior: 'smooth', block: 'nearest' });
-	}, []);
 	const connection = asana.connection;
+	// The runs list's count of a run narrows the conflicts to that run, and brings them into view.
+	const conflictsRef = useRef<HTMLDivElement>(null);
+	const conflictFilter = useRunConflictFilter(connection?.id ?? null, conflictsRef);
 	const needsAttention = Boolean(connection?.attentionReason);
 	const account = connection?.asanaUserName || connection?.asanaUserEmail || '';
 	const summary = account ? t('settings.integrations.asana.SUMMARY_CONNECTED', { account }) : t('settings.integrations.asana.SUMMARY_CONNECTED_NO_ACCOUNT');
@@ -559,17 +556,17 @@ function AsanaConnected({ asana, onDisconnect }: AsanaProps & Readonly<{ onDisco
 										))}
 										{asana.canManageMappings && <AddMappingRow asana={asana} />}
 										{connection && (
-											<div ref={conflictsRef}>
+											<div ref={conflictsRef} tabIndex={-1} className="outline-none" aria-label={t('settings.integrations.conflicts.TITLE')}>
 												<IntegrationConflictsRow
 													provider="asana"
 													providerName={t('settings.integrations.asana.TITLE')}
 													integrationId={connection.id}
-													runId={conflictRunId}
-													onClearRun={() => setConflictRunId(null)}
+													runId={conflictFilter.runId}
+													onClearRun={conflictFilter.clearRun}
 												/>
 											</div>
 										)}
-										<RunsRow asana={asana} onShowConflicts={showRunConflicts} />
+										<RunsRow asana={asana} onShowConflicts={conflictFilter.showRun} />
 									</>
 								)}
 								<div className={ROW_DIVIDER}>

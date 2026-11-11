@@ -289,4 +289,17 @@ describe('useIntegrationConflicts', () => {
 			)
 		).toBe(false);
 	});
+
+	it("a resolve's notice stays with the connection it was made on", async () => {
+		linear.conflicts.mockResolvedValue([conflict()]);
+		linear.resolveConflict.mockResolvedValue(conflict({ status: 'resolved' }));
+		const { result, rerender } = setup();
+		await waitFor(() => expect(result.current.conflicts).toHaveLength(1));
+		await act(() => result.current.resolve('c-1', 'external'));
+		expect(result.current.resolved).toBe('external');
+
+		rerender({ provider: 'linear', integrationId: 'int-2', status: 'open', runId: null });
+		expect(result.current.resolved).toBeNull();
+		expect(result.current.resolveError).toBeNull();
+	});
 });

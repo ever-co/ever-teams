@@ -25,13 +25,15 @@ export interface ConflictValueView {
 	empty: boolean;
 	/** A due date: the instant to format (null for any other field, or a date that cannot be read). */
 	date: Date | null;
+	/** The due date is a calendar day (UTC midnight, as the providers' date-only due dates are stored). */
+	calendarDay: boolean;
 	/** The text shown, cut to a line or two. */
 	text: string;
 	/** The whole text (the tooltip). */
 	full: string;
 }
 
-const EMPTY_VALUE: ConflictValueView = { empty: true, date: null, text: '', full: '' };
+const EMPTY_VALUE: ConflictValueView = { empty: true, date: null, calendarDay: false, text: '', full: '' };
 
 /**
  * A stored conflict value for the list: a description (kept as the task store's sanitized HTML) as its plain text, a
@@ -43,13 +45,25 @@ export function conflictValueView(field: string, value: string | null | undefine
 	if (!raw) return EMPTY_VALUE;
 	if (field === 'dueDate') {
 		const date = new Date(raw);
-		if (!Number.isNaN(date.getTime())) return { empty: false, date, text: raw, full: raw };
+		if (!Number.isNaN(date.getTime())) {
+			const calendarDay =
+				date.getUTCHours() === 0 &&
+				date.getUTCMinutes() === 0 &&
+				date.getUTCSeconds() === 0 &&
+				date.getUTCMilliseconds() === 0;
+			return { empty: false, date, calendarDay, text: raw, full: raw };
+		}
 	}
 	const full = field === 'description' ? plainTextOf(raw) : raw;
 	if (!full) return EMPTY_VALUE;
 	const text = full.length > CONFLICT_VALUE_MAX ? `${full.slice(0, CONFLICT_VALUE_MAX - 1).trimEnd()}…` : full;
-	return { empty: false, date: null, text, full };
+	return { empty: false, date: null, calendarDay: false, text, full };
 }
+
+/** A tag, its quoted attribute values taken whole (a `>` inside quotes does not end it). */
+const TAG = /<(?:[^>"']|"[^"]*"|'[^']*')*>/g;
+/** The end of a block, or a line break: a space in the text. */
+const BLOCK_END = /<(?:br|\/p|\/div|\/li|\/h[1-6]|\/tr|\/blockquote|\/pre)\b(?:[^>"']|"[^"]*"|'[^']*')*>/gi;
 
 const NAMED_ENTITIES: Record<string, string> = { amp: '&', lt: '<', gt: '>', quot: '"', apos: "'", nbsp: ' ' };
 
@@ -72,8 +86,8 @@ function decodeEntity(entity: string, body: string): string {
  */
 export function plainTextOf(html: string): string {
 	return html
-		.replace(/<(br|\/p|\/div|\/li|\/h[1-6]|\/tr|\/blockquote|\/pre)\b[^>]*>/gi, ' ')
-		.replace(/<[^>]*>/g, '')
+		.replace(BLOCK_END, ' ')
+		.replace(TAG, '')
 		.replace(/&(#x[0-9a-f]+|#\d+|[a-z]+);/gi, (entity, body: string) => decodeEntity(entity, body))
 		.replace(/\s+/g, ' ')
 		.trim();

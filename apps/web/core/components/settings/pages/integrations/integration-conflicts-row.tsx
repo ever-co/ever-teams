@@ -36,7 +36,12 @@ function ConflictValue({ label, view }: Readonly<{ label: string; view: Conflict
 	const isCut = view.full !== view.text;
 	let value;
 	if (view.empty) value = <em className="text-muted-foreground">{t(`${KEYS}.EMPTY_VALUE` as Key)}</em>;
-	else if (view.date) value = new Intl.DateTimeFormat(locale, { dateStyle: 'medium' }).format(view.date);
+	// A calendar date (stored as UTC midnight) is shown as that day wherever the reader is.
+	else if (view.date)
+		value = new Intl.DateTimeFormat(locale, {
+			dateStyle: 'medium',
+			...(view.calendarDay ? { timeZone: 'UTC' } : {})
+		}).format(view.date);
 	else value = <span className="whitespace-pre-wrap">{isExpanded ? view.full : view.text}</span>;
 	return (
 		<div className="min-w-0">
@@ -82,7 +87,7 @@ function ConflictLine({
 					href={`/task/${encodeURIComponent(conflict.taskId)}`}
 					className="min-w-0 truncate font-medium text-foreground underline-offset-4 hover:underline"
 				>
-					{title ?? t(`${KEYS}.OPEN_TASK` as Key)}
+					{title ?? `${t(`${KEYS}.OPEN_TASK` as Key)} · ${conflict.taskId.slice(0, 8)}`}
 				</Link>
 				<span className={badgeVariants({ variant: 'outline' })}>
 					{t(`${KEYS}.FIELD_${conflict.field}` as Key)}

@@ -105,9 +105,19 @@ export function useIntegrationConflicts({
 		() => [...keys.conflicts(tenantId, organizationId, integrationId, status, runId), take] as const,
 		[integrationId, keys, organizationId, runId, status, take, tenantId]
 	);
-	const [resolvingId, setResolvingId] = useState<string | null>(null);
-	const [resolved, setResolved] = useState<TIntegrationConflictKeep | null>(null);
-	const [resolveError, setResolveError] = useState<IntegrationConflictResolveError | null>(null);
+	const [pending, setPending] = useState<{ integrationId: string | null; conflictId: string | null }>({
+		integrationId: null,
+		conflictId: null
+	});
+	// What the last resolve did, for the connection it was made on: another connection shows none of it.
+	const [feedback, setFeedback] = useState<{
+		integrationId: string | null;
+		resolved: TIntegrationConflictKeep | null;
+		resolveError: IntegrationConflictResolveError | null;
+	}>({ integrationId: null, resolved: null, resolveError: null });
+	const resolvingId = pending.integrationId === integrationId ? pending.conflictId : null;
+	const resolved = feedback.integrationId === integrationId ? feedback.resolved : null;
+	const resolveError = feedback.integrationId === integrationId ? feedback.resolveError : null;
 
 	const listQuery = useQuery({
 		queryKey: listKey,
@@ -149,32 +159,30 @@ export function useIntegrationConflicts({
 	const resolve = useCallback(
 		async (conflictId: string, keep: TIntegrationConflictKeep) => {
 			if (!integrationId || resolvingId) return;
-			setResolvingId(conflictId);
-			setResolved(null);
-			setResolveError(null);
+			setPending({ integrationId, conflictId });
+			setFeedback({ integrationId, resolved: null, resolveError: null });
 			try {
 				await client.resolveConflict(integrationId, conflictId, keep);
 				queryClient.setQueryData<IIntegrationSyncConflict[]>(listKey, (current) =>
 					current?.filter((conflict) => conflict.id !== conflictId)
 				);
-				setResolved(keep);
+				setFeedback({ integrationId, resolved: keep, resolveError: null });
 				void queryClient.invalidateQueries({ queryKey: keys.conflictsAll });
 				// The task's value was written back: the task lists and the task are read again.
 				if (keep === 'platform') void queryClient.invalidateQueries({ queryKey: queryKeys.tasks.all });
 			} catch (error) {
 				const refusal = conflictResolveRefusalOf(error);
-				setResolveError({ refusal, error });
+				setFeedback({ integrationId, resolved: null, resolveError: { refusal, error } });
 				if (refusal === 'notFound') void queryClient.invalidateQueries({ queryKey: keys.conflictsAll });
 			} finally {
-				setResolvingId(null);
+				setPending({ integrationId: null, conflictId: null });
 			}
 		},
 		[client, integrationId, keys.conflictsAll, listKey, queryClient, resolvingId]
 	);
 
 	const clearFeedback = useCallback(() => {
-		setResolved(null);
-		setResolveError(null);
+		setFeedback({ integrationId: null, resolved: null, resolveError: null });
 	}, []);
 
 	const retry = useCallback(() => {
