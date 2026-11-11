@@ -1,3 +1,4 @@
+import { runInThisContext } from 'node:vm';
 import type { TTask } from '@/core/types/schemas/task/task.schema';
 import type { TTaskStatus } from '@/core/types/schemas/task/task-status.schema';
 import {
@@ -12,6 +13,10 @@ import {
 // Wednesday 11 November 2026, midday: the current week starts on Monday 9 November.
 const NOW = new Date(2026, 10, 11, 12, 0, 0);
 const STATUSES: TTaskStatus[] = [];
+
+// Jest hands each test file a copy of process.env, where TZ changes nothing. The zone is set on the real process,
+// reached through node:vm (Node re-reads TZ on assignment), and put back after each case.
+const realProcess = runInThisContext('process') as NodeJS.Process;
 
 function taskOf(fields: { status?: string; createdAt?: Date | null; resolvedAt?: Date | null }): TTask {
 	return { id: 'task', title: 'Task', public: false, ...fields } as unknown as TTask;
@@ -118,8 +123,8 @@ describe('projectActivityOf', () => {
 	it.each(['America/New_York', 'Europe/Berlin', 'Australia/Sydney'])(
 		'places a Monday and a Sunday of every week in that week across a clock change in %s',
 		(zone) => {
-			const previousZone = process.env.TZ;
-			process.env.TZ = zone;
+			const previousZone = realProcess.env.TZ;
+			realProcess.env.TZ = zone;
 			try {
 				const weeksCount = 26;
 				const now = new Date(2026, 10, 11, 12, 0, 0);
@@ -142,8 +147,8 @@ describe('projectActivityOf', () => {
 				expect(activity.weeks.map((week) => week.created)).toEqual(expected);
 				expect(activity.weeks.every((week) => week.weekStart.getDay() === 1)).toBe(true);
 			} finally {
-				if (previousZone === undefined) delete process.env.TZ;
-				else process.env.TZ = previousZone;
+				if (previousZone === undefined) delete realProcess.env.TZ;
+				else realProcess.env.TZ = previousZone;
 			}
 		}
 	);
