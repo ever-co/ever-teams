@@ -6,8 +6,7 @@ import {
 	DEFAULT_ACTIVITY_WEEKS,
 	MAX_ACTIVITY_WEEKS,
 	MIN_ACTIVITY_WEEKS,
-	projectActivityOf,
-	projectPaceOf
+	projectActivityOf
 } from './project-activity';
 
 // Wednesday 11 November 2026, midday: the current week starts on Monday 9 November.
@@ -139,131 +138,6 @@ describe('projectActivityOf', () => {
 		const activity = projectActivityOf(tasks, statuses, NOW, 1);
 
 		expect(activity.completed).toBe(1);
-	});
-});
-
-describe('projectPaceOf', () => {
-	function paceOf(tasks: TTask[], weeksCount: number, statuses: TTaskStatus[] = STATUSES) {
-		return projectPaceOf(tasks, statuses, projectActivityOf(tasks, statuses, NOW, weeksCount));
-	}
-
-	function doneOn(resolvedAt: Date, count = 1) {
-		return Array.from({ length: count }, () => taskOf({ status: 'done', resolvedAt }));
-	}
-
-	function openTasks(count: number) {
-		return Array.from({ length: count }, () => taskOf({ status: 'todo' }));
-	}
-
-	it('averages the completions of the full weeks and forecasts the weeks the open tasks need', () => {
-		const tasks = [
-			...doneOn(new Date(2026, 9, 20)),
-			...doneOn(new Date(2026, 9, 28), 2),
-			...doneOn(new Date(2026, 10, 4), 3),
-			...openTasks(4)
-		];
-
-		const pace = paceOf(tasks, 4);
-
-		expect(pace).toEqual({ open: 4, weeksMeasured: 3, perWeek: 2, weeksToClear: 2 });
-	});
-
-	it('leaves the running week out of the pace', () => {
-		const tasks = [
-			...doneOn(new Date(2026, 9, 28)),
-			...doneOn(new Date(2026, 10, 3)),
-			...doneOn(new Date(2026, 10, 10), 20),
-			...openTasks(1)
-		];
-
-		const pace = paceOf(tasks, 3);
-
-		// Weeks of 26 Oct and 2 Nov are measured: 2 completions over 2 weeks.
-		expect(pace.weeksMeasured).toBe(2);
-		expect(pace.perWeek).toBe(1);
-	});
-
-	it('does not dilute the pace of a young project with the empty weeks before it started', () => {
-		const tasks = [
-			taskOf({ status: 'done', createdAt: new Date(2026, 9, 27), resolvedAt: new Date(2026, 10, 4) }),
-			...openTasks(3)
-		];
-
-		const pace = paceOf(tasks, 8);
-
-		expect(pace.weeksMeasured).toBe(2);
-		expect(pace.perWeek).toBe(0.5);
-		expect(pace.weeksToClear).toBe(6);
-	});
-
-	it('gives no pace from a single full week', () => {
-		const tasks = [...doneOn(new Date(2026, 10, 4), 5), ...openTasks(2)];
-
-		const pace = paceOf(tasks, 2);
-
-		expect(pace).toEqual({ open: 2, weeksMeasured: 1, perWeek: null, weeksToClear: null });
-	});
-
-	it('gives no pace when nothing was completed in the full weeks', () => {
-		const tasks = [
-			taskOf({ status: 'todo', createdAt: new Date(2026, 9, 28) }),
-			taskOf({ status: 'todo', createdAt: new Date(2026, 10, 3) })
-		];
-
-		const pace = paceOf(tasks, 4);
-
-		expect(pace.open).toBe(2);
-		expect(pace.perWeek).toBeNull();
-		expect(pace.weeksToClear).toBeNull();
-	});
-
-	it('gives no pace for a project with no dated activity at all', () => {
-		expect(paceOf([], 8)).toEqual({ open: 0, weeksMeasured: 0, perWeek: null, weeksToClear: null });
-	});
-
-	it('gives no forecast when nothing is open', () => {
-		const tasks = [...doneOn(new Date(2026, 9, 28), 2), ...doneOn(new Date(2026, 10, 4), 2)];
-
-		const pace = paceOf(tasks, 3);
-
-		expect(pace.perWeek).toBe(2);
-		expect(pace.weeksToClear).toBeNull();
-	});
-
-	it('gives no forecast further out than a year, but still reports the pace', () => {
-		const tasks = [...doneOn(new Date(2026, 9, 28)), ...doneOn(new Date(2026, 10, 4)), ...openTasks(60)];
-
-		const pace = paceOf(tasks, 3);
-
-		expect(pace.perWeek).toBe(1);
-		expect(pace.weeksToClear).toBeNull();
-	});
-
-	it('still forecasts exactly a year out', () => {
-		const tasks = [...doneOn(new Date(2026, 9, 28)), ...doneOn(new Date(2026, 10, 4)), ...openTasks(52)];
-
-		expect(paceOf(tasks, 3).weeksToClear).toBe(52);
-	});
-
-	it('never shows a measured pace as zero', () => {
-		const tasks = [...doneOn(new Date(2026, 4, 20)), ...openTasks(1)];
-
-		const pace = paceOf(tasks, 26);
-
-		expect(pace.weeksMeasured).toBe(25);
-		expect(pace.perWeek).toBe(0.1);
-		expect(pace.weeksToClear).toBe(25);
-	});
-
-	it('counts a task as open or done from the statuses of the team', () => {
-		const statuses = [{ name: 'shipped', isDone: true }] as unknown as TTaskStatus[];
-		const tasks = [
-			taskOf({ status: 'shipped', resolvedAt: new Date(2026, 9, 28) }),
-			taskOf({ status: 'shipped', resolvedAt: new Date(2026, 10, 4) }),
-			taskOf({ status: 'in progress' })
-		];
-
-		expect(paceOf(tasks, 3, statuses).open).toBe(1);
 	});
 });
 

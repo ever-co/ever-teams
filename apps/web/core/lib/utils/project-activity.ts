@@ -98,60 +98,6 @@ export function projectActivityOf(
 	return { weeks, created, completed, peak, undatedDone };
 }
 
-/** Full weeks needed before a pace is shown: one week is noise, not a pace. */
-export const MIN_PACE_WEEKS = 2;
-/** A forecast further out than this is a guess, not a plan, so none is given. */
-export const MAX_FORECAST_WEEKS = 52;
-
-export interface ProjectPace {
-	/** Tasks that are not done, whatever their dates. */
-	open: number;
-	/** Full weeks the pace was measured over. */
-	weeksMeasured: number;
-	/** Average tasks completed per full week, to one decimal; null when there is nothing to measure yet. */
-	perWeek: number | null;
-	/** Whole weeks the open tasks need at that pace; null without a pace, with nothing open, or past the maximum. */
-	weeksToClear: number | null;
-}
-
-/**
- * How fast a project completes tasks, and what that means for the tasks still open. The pace is measured over the
- * full weeks of the activity window only (the current week is still running, so counting it would understate the
- * pace), starting at the first week with any activity so a young project is not diluted by weeks before it existed.
- */
-export function projectPaceOf(
-	tasks: ReadonlyArray<TTask>,
-	statuses: TTaskStatus[],
-	activity: ProjectActivity
-): ProjectPace {
-	let open = 0;
-	for (const task of tasks) {
-		if (statusCategoryOf(task.status, statuses) !== 'done') {
-			open += 1;
-		}
-	}
-
-	const fullWeeks = activity.weeks.slice(0, -1);
-	const firstActive = fullWeeks.findIndex((week) => week.created > 0 || week.completed > 0);
-	const measured = firstActive === -1 ? [] : fullWeeks.slice(firstActive);
-	const completed = measured.reduce((sum, week) => sum + week.completed, 0);
-
-	if (measured.length < MIN_PACE_WEEKS || completed === 0) {
-		return { open, weeksMeasured: measured.length, perWeek: null, weeksToClear: null };
-	}
-
-	const rawPerWeek = completed / measured.length;
-	const weeks = Math.ceil(open / rawPerWeek);
-	const hasForecast = open > 0 && weeks <= MAX_FORECAST_WEEKS;
-	return {
-		open,
-		weeksMeasured: measured.length,
-		// Never shown as 0: at least one task was completed, so a slow pace reads as 0.1.
-		perWeek: Math.max(0.1, Math.round(rawPerWeek * 10) / 10),
-		weeksToClear: hasForecast ? weeks : null
-	};
-}
-
 /** Bar height in percent of the chart; a week with any task keeps a visible sliver, an empty week none. */
 export function activityBarPercentOf(count: number, peak: number): number {
 	if (count <= 0 || peak <= 0) {

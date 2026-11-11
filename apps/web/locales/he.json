@@ -1780,8 +1780,6 @@
 				"WEEKLY_TREND_SUMMARY": "{weeks} השבועות האחרונים: {created} נוצרו, {completed} הושלמו",
 				"WEEKLY_TREND_WEEK": "שבוע של {date}: {created} נוצרו, {completed} הושלמו",
 				"WEEKLY_TREND_UNDATED": "משימות שהושלמו ללא תאריך השלמה אינן מוצגות: {count}",
-				"PACE": "קצב, הושלמו בשבוע: {perWeek} (שבועות מלאים שנמדדו: {weeks})",
-				"PACE_FORECAST": "שבועות לסיום העבודה הפתוחה בקצב הזה: בערך {weeks}",
 				"NO_ASSIGNEE": "ללא אחראי",
 				"SHARE_OF": "{percent}% מתוך {total}",
 				"TASKS_IN_TEAM": "משימות הפרויקט ב-{team}",

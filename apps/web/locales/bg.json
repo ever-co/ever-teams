@@ -1780,8 +1780,6 @@
 				"WEEKLY_TREND_SUMMARY": "Последните {weeks} седмици: {created} създадени, {completed} завършени",
 				"WEEKLY_TREND_WEEK": "Седмица от {date}: {created} създадени, {completed} завършени",
 				"WEEKLY_TREND_UNDATED": "Завършените задачи без дата на завършване не се показват: {count}",
-				"PACE": "Темп, завършени седмично: {perWeek} (измерени пълни седмици: {weeks})",
-				"PACE_FORECAST": "Седмици до приключване на отворените задачи при този темп: около {weeks}",
 				"NO_ASSIGNEE": "Без изпълнител",
 				"SHARE_OF": "{percent}% от {total}",
 				"TASKS_IN_TEAM": "Задачи на този проект в {team}",
