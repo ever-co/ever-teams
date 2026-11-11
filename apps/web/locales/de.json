@@ -5156,7 +5156,18 @@
 		"START_OF_DIRECT": "Hier beginnt Ihre Unterhaltung mit {name}",
 		"START_OF_DIRECT_TEXT": "Nur die Personen in dieser Unterhaltung können diese Nachrichten lesen.",
 		"UNREAD_REPLIES": "{count, plural, one {# neue Antwort} other {# neue Antworten}}",
-		"YOU": "Sie"
+		"YOU": "Sie",
+		"ATTACH_FILES": "Dateien anhängen",
+		"ATTACH_TOO_MANY": "Eine Nachricht kann höchstens {max} Dateien enthalten.",
+		"ATTACH_FORBIDDEN": "Ihre Rolle darf keine Dateien anhängen.",
+		"ATTACH_WAIT": "Die Dateien werden noch hochgeladen…",
+		"ATTACHMENT": "Datei",
+		"FILES": "Dateien",
+		"FILES_EMPTY": "In dieser Unterhaltung wurden noch keine Dateien geteilt.",
+		"LOAD_MORE": "Mehr laden",
+		"VIEW_IMAGE": "{name} ansehen",
+		"OPEN_ORIGINAL": "Original öffnen",
+		"EMOJI_SUGGESTIONS": "Emoji"
 	},
 	"docs": {
 		"TITLE": "Dokumente",

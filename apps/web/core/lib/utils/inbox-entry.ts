@@ -125,6 +125,54 @@ function subjectOf(entity: string | null, chatParts: { place: string | null } | 
 	return quoted;
 }
 
+/** A field of an entry that a request without the inbox extension sets. */
+export type InboxRequestField = 'isUnread' | 'isArchived';
+
+/**
+ * The requests sent on a field of each entry, for a pane that shows their change before the platform answers. They
+ * answer in any order and each may be refused, so no single answer says what the field holds: once every request sent
+ * on a field of an entry has answered, it holds what the last accepted one set, or what it held before the first one
+ * when none was accepted (archive then unarchive, both refused: not archived).
+ */
+export class InboxFieldRequests {
+	private readonly chains = new Map<string, { before: boolean; requests: Array<{ id: number; value: boolean; accepted: boolean | null }> }>();
+	private sent = 0;
+
+	/**
+	 * Records a request that sets `field` to `value` on the entries.
+	 *
+	 * @param entries The entries, as they were when it was sent.
+	 * @returns The request's number, for {@link settle}.
+	 */
+	start(entries: readonly InboxEntry[], field: InboxRequestField, value: boolean): number {
+		const id = ++this.sent;
+		for (const entry of entries) {
+			const key = `${entry.id}|${field}`;
+			const chain = this.chains.get(key) ?? { before: entry[field], requests: [] };
+			chain.requests.push({ id, value, accepted: null });
+			this.chains.set(key, chain);
+		}
+		return id;
+	}
+
+	/**
+	 * Records the platform's answer to a request for one entry.
+	 *
+	 * @returns What the field holds once every request sent on it has answered, or `undefined` while one is on its way.
+	 */
+	settle(entryId: string, field: InboxRequestField, request: number, accepted: boolean): boolean | undefined {
+		const key = `${entryId}|${field}`;
+		const chain = this.chains.get(key);
+		if (!chain) return undefined;
+		const sent = chain.requests.find((candidate) => candidate.id === request);
+		if (sent) sent.accepted = accepted;
+		if (chain.requests.some((candidate) => candidate.accepted === null)) return undefined;
+		this.chains.delete(key);
+		const lastAccepted = [...chain.requests].reverse().find((candidate) => candidate.accepted);
+		return lastAccepted ? lastAccepted.value : chain.before;
+	}
+}
+
 /** An entry from a platform inbox item. */
 export function toInboxEntry(item: IInboxItem): InboxEntry {
 	const metadata = item.metadata ?? {};

@@ -456,8 +456,14 @@ export const queryKeys = {
 			organizationId: string | undefined | null,
 			userId: string | undefined | null
 		) => ['inbox', 'counts', tenantId ?? null, organizationId ?? null, userId ?? null] as const,
-		item: (tenantId: string | undefined | null, id: string | undefined | null) =>
-			['inbox', 'item', tenantId ?? null, id ?? null] as const
+		// One item as the caller sees it: its read, archive and snooze state are the caller's, so the key names the
+		// whole scope, as the lists' keys do.
+		item: (
+			tenantId: string | undefined | null,
+			organizationId: string | undefined | null,
+			userId: string | undefined | null,
+			id: string | undefined | null
+		) => ['inbox', 'item', tenantId ?? null, organizationId ?? null, userId ?? null, id ?? null] as const
 	},
 	chat: {
 		all: ['chat'] as const,
@@ -475,7 +481,9 @@ export const queryKeys = {
 			['chat', 'thread', tenantId ?? null, rootMessageId ?? null] as const,
 		threads: (tenantId: string | undefined | null, userId: string | undefined | null) => ['chat', 'threads', tenantId ?? null, userId ?? null] as const,
 		members: (tenantId: string | undefined | null, conversationId: string | undefined | null) =>
-			['chat', 'members', tenantId ?? null, conversationId ?? null] as const
+			['chat', 'members', tenantId ?? null, conversationId ?? null] as const,
+		files: (tenantId: string | undefined | null, conversationId: string | undefined | null) =>
+			['chat', 'files', tenantId ?? null, conversationId ?? null] as const
 	},
 
 	taskComments: {

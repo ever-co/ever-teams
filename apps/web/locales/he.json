@@ -5156,7 +5156,18 @@
 		"START_OF_DIRECT": "זוהי תחילת השיחה שלך עם {name}",
 		"START_OF_DIRECT_TEXT": "רק המשתתפים בשיחה הזו יכולים לקרוא את ההודעות האלה.",
 		"UNREAD_REPLIES": "{count, plural, one {תשובה חדשה אחת} two {שתי תשובות חדשות} other {# תשובות חדשות}}",
-		"YOU": "את/ה"
+		"YOU": "את/ה",
+		"ATTACH_FILES": "צירוף קבצים",
+		"ATTACH_TOO_MANY": "הודעה יכולה לכלול {max} קבצים לכל היותר.",
+		"ATTACH_FORBIDDEN": "התפקיד שלכם אינו מאפשר לצרף קבצים.",
+		"ATTACH_WAIT": "ממתינים לסיום העלאת הקבצים…",
+		"ATTACHMENT": "קובץ",
+		"FILES": "קבצים",
+		"FILES_EMPTY": "עדיין לא שותפו קבצים בשיחה הזו.",
+		"LOAD_MORE": "טעינת עוד",
+		"VIEW_IMAGE": "הצגת {name}",
+		"OPEN_ORIGINAL": "פתיחת המקור",
+		"EMOJI_SUGGESTIONS": "אימוג׳י"
 	},
 	"docs": {
 		"TITLE": "מסמכים",

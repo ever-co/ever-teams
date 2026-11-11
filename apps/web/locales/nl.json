@@ -5156,7 +5156,18 @@
 		"START_OF_DIRECT": "Dit is het begin van je gesprek met {name}",
 		"START_OF_DIRECT_TEXT": "Alleen de mensen in dit gesprek kunnen deze berichten lezen.",
 		"UNREAD_REPLIES": "{count, plural, one {# nieuw antwoord} other {# nieuwe antwoorden}}",
-		"YOU": "jij"
+		"YOU": "jij",
+		"ATTACH_FILES": "Bestanden bijvoegen",
+		"ATTACH_TOO_MANY": "Een bericht bevat maximaal {max} bestanden.",
+		"ATTACH_FORBIDDEN": "Je rol mag geen bestanden bijvoegen.",
+		"ATTACH_WAIT": "Wachten tot de bestanden zijn geüpload…",
+		"ATTACHMENT": "Bestand",
+		"FILES": "Bestanden",
+		"FILES_EMPTY": "In dit gesprek zijn nog geen bestanden gedeeld.",
+		"LOAD_MORE": "Meer laden",
+		"VIEW_IMAGE": "{name} bekijken",
+		"OPEN_ORIGINAL": "Origineel openen",
+		"EMOJI_SUGGESTIONS": "Emoji"
 	},
 	"docs": {
 		"TITLE": "Documenten",

@@ -8,6 +8,7 @@ import {
 	nextFocusIndex,
 	snoozeUntil,
 	tabOfFilter,
+	InboxFieldRequests,
 	toInboxEntry
 } from './inbox-entry';
 
@@ -247,5 +248,54 @@ describe('messagePartsOfTitle', () => {
 		expect(messagePartsOfTitle('Ana sent you a message: Hi')).toEqual({ place: null, preview: 'Hi' });
 		expect(messagePartsOfTitle('Ana sent you a message')).toEqual({ place: null, preview: null });
 		expect(messagePartsOfTitle('Ana sent you a message: ')).toEqual({ place: null, preview: null });
+	});
+});
+
+/**
+ * Without the inbox extension the pane's copy of an entry that left the list is all it has; when the platform refuses
+ * a read or an archive, the bell's cache rolls back on its own and the copy has to as well, whatever order the answers
+ * come in.
+ */
+describe('InboxFieldRequests', () => {
+	const entry = toInboxEntry(item({ recipient: { isRead: true, isArchived: false } }));
+
+	it('holds the last accepted value once every request answered, nothing before', () => {
+		const requests = new InboxFieldRequests();
+		const archive = requests.start([entry], 'isArchived', true);
+		const unarchive = requests.start([{ ...entry, isArchived: true }], 'isArchived', false);
+		expect(requests.settle(entry.id, 'isArchived', unarchive, true)).toBeUndefined();
+		expect(requests.settle(entry.id, 'isArchived', archive, true)).toBe(false);
+	});
+
+	it('archive then unarchive, both refused, the unarchive answering first: not archived', () => {
+		const requests = new InboxFieldRequests();
+		const archive = requests.start([entry], 'isArchived', true);
+		const unarchive = requests.start([{ ...entry, isArchived: true }], 'isArchived', false);
+		expect(requests.settle(entry.id, 'isArchived', unarchive, false)).toBeUndefined();
+		expect(requests.settle(entry.id, 'isArchived', archive, false)).toBe(false);
+	});
+
+	it('archive, unarchive, archive again, the first one refused last: archived', () => {
+		const requests = new InboxFieldRequests();
+		const first = requests.start([entry], 'isArchived', true);
+		const second = requests.start([{ ...entry, isArchived: true }], 'isArchived', false);
+		const third = requests.start([entry], 'isArchived', true);
+		expect(requests.settle(entry.id, 'isArchived', second, true)).toBeUndefined();
+		expect(requests.settle(entry.id, 'isArchived', third, true)).toBeUndefined();
+		expect(requests.settle(entry.id, 'isArchived', first, false)).toBe(true);
+	});
+
+	it('keeps each entry and each field apart, and starts again from the entry once a field settled', () => {
+		const requests = new InboxFieldRequests();
+		const other = { ...entry, id: 'other' };
+		const read = requests.start([entry, other], 'isUnread', false);
+		const archive = requests.start([entry], 'isArchived', true);
+		expect(requests.settle(entry.id, 'isUnread', read, false)).toBe(entry.isUnread);
+		expect(requests.settle(other.id, 'isUnread', read, true)).toBe(false);
+		expect(requests.settle(entry.id, 'isArchived', archive, false)).toBe(false);
+
+		const again = requests.start([{ ...entry, isUnread: true }], 'isUnread', false);
+		expect(requests.settle(entry.id, 'isUnread', again, false)).toBe(true);
+		expect(requests.settle('unknown', 'isUnread', again, false)).toBeUndefined();
 	});
 });

@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useInfiniteQuery, useQuery, useQueryClient } from '@tanstack/react-query';
 import { queryKeys } from '@/core/query/keys';
 import { inboxService } from '@/core/services/client/api/inbox';
@@ -94,6 +94,72 @@ export function useInboxItems(selection: InboxListSelection, enabled: boolean) {
 		fetchNextPage: pages.fetchNextPage,
 		retry: pages.refetch
 	};
+}
+
+/**
+ * One item of the caller's inbox as the platform holds it: the entry the detail pane keeps after it left the list (an
+ * unread entry, read in the Unread tab).
+ *
+ * It sits under the inbox's own key, so it is refetched whenever the lists are (a live event, the window regaining
+ * focus). A copy kept by the page would never hear that another tab answered or closed a decision.
+ *
+ * A read that started before an action on the item settled may answer with what the item was before it; React Query
+ * keeps such a read rather than start a second one while the first load is in flight. So the page calls `refresh` once
+ * each action settles: it drops any read on its way and reads again, and only that newer answer counts.
+ *
+ * @param id The held item, or `null` when the pane holds nothing out of the list.
+ * @returns The item as an entry once read; `patch`, which mirrors a local change on it until the next read; and
+ * `refresh`, which reads it again from scratch (both act on the item held when they are called, not when they were
+ * created).
+ */
+export function useInboxItem(id: string | null) {
+	const scope = useInboxScope();
+	const queryClient = useQueryClient();
+	const tenantId = scope?.tenantId;
+	const organizationId = scope?.organizationId;
+	const userId = scope?.userId;
+	const queryKey = useMemo(
+		() => queryKeys.inbox.item(tenantId, organizationId, userId, id),
+		[tenantId, organizationId, userId, id]
+	);
+
+	const item = useQuery({
+		queryKey,
+		queryFn: async ({ signal }) => toInboxEntry(await inboxService.getItem(id as string, signal)),
+		enabled: !!id && scope !== null,
+		staleTime: 0,
+		// The app turns this off for every query; without a live connection, returning to the tab is when the pane
+		// learns that another tab answered or closed the decision.
+		refetchOnWindowFocus: true,
+		retry: false
+	});
+
+	// The item held now, for callbacks created before it was (opening an entry starts its action before the entry
+	// leaves the list and becomes the held one).
+	const latest = useRef<{ id: string | null; queryKey: typeof queryKey }>({ id, queryKey });
+	useEffect(() => {
+		latest.current = { id, queryKey };
+	}, [id, queryKey]);
+
+	const patch = useCallback(
+		async (ids: readonly string[], change: Partial<InboxEntry>) => {
+			const held = latest.current;
+			if (!held.id || !ids.includes(held.id)) return;
+			// A read still on its way would land after the change and put the old state back.
+			await queryClient.cancelQueries({ queryKey: held.queryKey });
+			queryClient.setQueryData<InboxEntry>(held.queryKey, (entry) => (entry ? { ...entry, ...change } : entry));
+		},
+		[queryClient]
+	);
+
+	const refresh = useCallback(async () => {
+		const held = latest.current;
+		if (!held.id) return;
+		await queryClient.cancelQueries({ queryKey: held.queryKey });
+		await queryClient.invalidateQueries({ queryKey: held.queryKey });
+	}, [queryClient]);
+
+	return { data: id && item.data?.id === id ? item.data : undefined, patch, refresh };
 }
 
 /** My unread count (the badge), polled while the tab is visible. */

@@ -5156,7 +5156,18 @@
 		"START_OF_DIRECT": "Voici le début de votre conversation avec {name}",
 		"START_OF_DIRECT_TEXT": "Seules les personnes de cette conversation peuvent lire ces messages.",
 		"UNREAD_REPLIES": "{count, plural, one {# nouvelle réponse} other {# nouvelles réponses}}",
-		"YOU": "vous"
+		"YOU": "vous",
+		"ATTACH_FILES": "Joindre des fichiers",
+		"ATTACH_TOO_MANY": "Un message contient au plus {max} fichiers.",
+		"ATTACH_FORBIDDEN": "Votre rôle ne permet pas de joindre des fichiers.",
+		"ATTACH_WAIT": "Envoi des fichiers en cours…",
+		"ATTACHMENT": "Fichier",
+		"FILES": "Fichiers",
+		"FILES_EMPTY": "Aucun fichier n'a encore été partagé dans cette conversation.",
+		"LOAD_MORE": "Charger plus",
+		"VIEW_IMAGE": "Voir {name}",
+		"OPEN_ORIGINAL": "Ouvrir l'original",
+		"EMOJI_SUGGESTIONS": "Émojis"
 	},
 	"docs": {
 		"TITLE": "Documents",
