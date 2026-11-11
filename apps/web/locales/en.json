@@ -5195,7 +5195,18 @@
 		"START_OF_DIRECT": "This is the start of your conversation with {name}",
 		"START_OF_DIRECT_TEXT": "Only the people in this conversation can read these messages.",
 		"UNREAD_REPLIES": "{count, plural, one {# new reply} other {# new replies}}",
-		"YOU": "you"
+		"YOU": "you",
+		"ATTACH_FILES": "Attach files",
+		"ATTACH_TOO_MANY": "A message carries at most {max} files.",
+		"ATTACH_FORBIDDEN": "Your role cannot attach files.",
+		"ATTACH_WAIT": "Waiting for the files to upload…",
+		"ATTACHMENT": "File",
+		"FILES": "Files",
+		"FILES_EMPTY": "No files shared in this conversation yet.",
+		"LOAD_MORE": "Load more",
+		"VIEW_IMAGE": "View {name}",
+		"OPEN_ORIGINAL": "Open the original",
+		"EMOJI_SUGGESTIONS": "Emoji"
 	},
 	"docs": {
 		"TITLE": "Docs",

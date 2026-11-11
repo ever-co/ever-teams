@@ -16,7 +16,9 @@ import { cn } from '@/core/lib/helpers';
 import { ChatPerson } from '@/core/lib/utils/chat-format';
 import { clockTime, fullDateTime, relativeTime, shortClockTime } from '@/core/lib/utils/chat-timeline';
 import { ChatOutboxMessage, isOutboxMessage } from '@/core/hooks/chat/use-chat-actions';
-import { IChatMessage } from '@/core/types/interfaces/common/chat';
+import { attachmentIdsOf, isFallbackBody } from '@/core/lib/utils/chat-attachments';
+import { IChatFile, IChatMessage } from '@/core/types/interfaces/common/chat';
+import { MessageAttachments } from './chat-attachments';
 import { ChatMarkdown } from './chat-markdown';
 import { EmojiPopover } from './emoji-popover';
 
@@ -54,7 +56,16 @@ export interface MessageItemProps {
 	onOpenTask: (taskId: string) => void;
 	/** "Create task" from the message; the item is left out where it is not offered. */
 	onCreateTask?: (message: IChatMessage) => void;
+	/** The conversation's files by document id: what the message's attachments show. */
+	files?: ReadonlyMap<string, IChatFile>;
+	/** A picture of the message opened in the lightbox. */
+	onOpenImage?: (file: IChatFile) => void;
+	/** A picture that did not load (its signed address expired): the files are read again. */
+	onBrokenImage?: () => void;
 }
+
+const NO_FILES: ReadonlyMap<string, IChatFile> = new Map();
+const IGNORE = () => undefined;
 
 /** The placeholder the assistant's name is put at, to split the translated phrase around it. */
 const NAME_SLOT = '\u0000';
@@ -113,6 +124,11 @@ function MessageItemComponent(props: Readonly<MessageItemProps>) {
 	const sentAt = fullDateTime(createdAt, locale);
 	const name = author?.name || message.appName || t('teamChat.SOMEONE');
 	const reactions = message.reactions ?? [];
+	const files = props.files ?? NO_FILES;
+	const attachmentIds = attachmentIdsOf(message);
+	const attachedFiles = attachmentIds.map((id) => files.get(id)).filter((file): file is IChatFile => !!file);
+	// A message sent with files and no words carries their names as its body: the files say it, the body is not repeated.
+	const bodyIsFileNames = !!attachmentIds.length && attachedFiles.length === attachmentIds.length && isFallbackBody(message.body, attachedFiles);
 
 	return (
 		<div
@@ -166,7 +182,7 @@ function MessageItemComponent(props: Readonly<MessageItemProps>) {
 					)}
 					{deleted ? (
 						<p className="text-[13px] italic text-muted-foreground">{t('teamChat.DELETED')}</p>
-					) : (
+					) : bodyIsFileNames ? null : (
 						<>
 							{/* An edited message says so right after its last words: its last paragraph runs on into the mark. */}
 							<ChatMarkdown
@@ -182,6 +198,11 @@ function MessageItemComponent(props: Readonly<MessageItemProps>) {
 								</span>
 							)}
 						</>
+					)}
+					{attachmentIds.length > 0 && (
+						<div className={cn(outbox?.outbox === 'pending' && 'opacity-60')}>
+							<MessageAttachments attachmentIds={attachmentIds} files={files} onOpenImage={props.onOpenImage ?? IGNORE} onBrokenImage={props.onBrokenImage} />
+						</div>
 					)}
 					{(message.taskReferences ?? []).map((reference) => (
 						<button

@@ -5195,7 +5195,18 @@
 		"START_OF_DIRECT": "To początek Twojej rozmowy z: {name}",
 		"START_OF_DIRECT_TEXT": "Te wiadomości mogą czytać tylko osoby w tej rozmowie.",
 		"UNREAD_REPLIES": "{count, plural, one {# nowa odpowiedź} few {# nowe odpowiedzi} many {# nowych odpowiedzi} other {# nowej odpowiedzi}}",
-		"YOU": "Ty"
+		"YOU": "Ty",
+		"ATTACH_FILES": "Załącz pliki",
+		"ATTACH_TOO_MANY": "Wiadomość może zawierać najwyżej {max} plików.",
+		"ATTACH_FORBIDDEN": "Twoja rola nie pozwala załączać plików.",
+		"ATTACH_WAIT": "Trwa wysyłanie plików…",
+		"ATTACHMENT": "Plik",
+		"FILES": "Pliki",
+		"FILES_EMPTY": "W tej rozmowie nie udostępniono jeszcze żadnych plików.",
+		"LOAD_MORE": "Wczytaj więcej",
+		"VIEW_IMAGE": "Pokaż {name}",
+		"OPEN_ORIGINAL": "Otwórz oryginał",
+		"EMOJI_SUGGESTIONS": "Emoji"
 	},
 	"docs": {
 		"TITLE": "Dokumenty",

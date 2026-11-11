@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
+import { type DragEvent, useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAtomValue } from 'jotai';
 import { useLocale, useTranslations } from 'next-intl';
@@ -8,17 +8,21 @@ import { toast } from 'sonner';
 import { Archive, Spinner } from '@/core/components/icons';
 import { Button } from '@/core/components/duplicated-components/_button';
 import { useChatActions, ChatOutboxMessage } from '@/core/hooks/chat/use-chat-actions';
+import { useChatAttachments } from '@/core/hooks/chat/use-chat-attachments';
 import { useChatDraft } from '@/core/hooks/chat/use-chat-draft';
+import { useChatFiles } from '@/core/hooks/chat/use-chat-files';
 import { useChatMessages } from '@/core/hooks/chat/use-chat-messages';
 import { useChatPeople, useChatScope } from '@/core/hooks/chat/use-chat-scope';
 import { useTaskDrawer } from '@/core/hooks/tasks/use-task-drawer';
+import { attachmentFallbackBody, filesOfTransfer, isFileDrag } from '@/core/lib/utils/chat-attachments';
 import { ChatPerson, conversationTitle } from '@/core/lib/utils/chat-format';
 import { ChatReadPosition, dayLabel, timelineItems } from '@/core/lib/utils/chat-timeline';
 import { tasksByTeamState } from '@/core/stores/teams/team-tasks';
-import { EChatNotifyLevel, IChatConversationWithState, IChatMessage } from '@/core/types/interfaces/common/chat';
+import { EChatNotifyLevel, IChatConversationWithState, IChatFile, IChatMessage } from '@/core/types/interfaces/common/chat';
+import { ConversationFilesButton, ImageLightbox } from './chat-attachments';
 import { ChatErrorState, ChatMessagesSkeleton } from './chat-states';
 import { ConversationWelcome, DayDivider, JumpToLatest, NewDivider } from './chat-timeline-parts';
-import { ConversationHeader } from './conversation-header';
+import { BAR_BUTTON, ConversationHeader } from './conversation-header';
 import { CreateTaskFromMessageDialog } from './create-task-dialog';
 import { MessageComposer } from './message-composer';
 import { MessageItem } from './message-item';
@@ -69,6 +73,13 @@ function ConversationPane({ conversation, conversationNames, canManage, onOpenTh
 	const taskTitles = useMemo(() => new Map(tasks.map((task) => [task.id, task.title])), [tasks]);
 	const { messages, hasBefore, isLoading, isError, isLoadingOlder, loadOlder, retry, newestId, jumpTo } = useChatMessages(conversation.id, true);
 	const { draft, setDraft, clearDraft } = useChatDraft(conversation.id);
+	const attachments = useChatAttachments();
+	const files = useChatFiles(conversation.id, messages);
+	// By id: the lightbox shows the newest copy of the record (its signed address is read again with the list).
+	const [pictureId, setPictureId] = useState<string | null>(null);
+	const picture = pictureId ? (files.byId.get(pictureId) ?? null) : null;
+	// A drag of files over the timeline: dropped, they join the message being written.
+	const [dropping, setDropping] = useState(false);
 	const [editing, setEditing] = useState<IChatMessage | null>(null);
 	const [editValue, setEditValue] = useState('');
 	const [taskFrom, setTaskFrom] = useState<IChatMessage | null>(null);
@@ -196,13 +207,37 @@ function ConversationPane({ conversation, conversationNames, canManage, onOpenTh
 
 	const send = useCallback(
 		async (body: string) => {
+			const attachmentIds = attachments.readyIds;
+			const ready = new Set(attachmentIds);
+			const names = attachments.items.filter((item) => item.documentId && ready.has(item.documentId)).map((item) => item.name);
 			clearDraft();
+			attachments.releaseSent();
 			stickToBottom.current = true;
 			readPaused.current = false;
-			await actions.send(conversation.id, { body }).catch(() => toast.error(t('teamChat.SEND_FAILED')));
+			await actions
+				.send(conversation.id, { body: body || attachmentFallbackBody(names), attachmentIds: attachmentIds.length ? attachmentIds : undefined })
+				.catch(() => toast.error(t('teamChat.SEND_FAILED')));
 		},
-		[actions, clearDraft, conversation.id, t]
+		[actions, attachments, clearDraft, conversation.id, t]
 	);
+
+	const canDrop = attachments.canAttach && !conversation.archivedAt;
+	const onDragOver = (event: DragEvent<HTMLDivElement>) => {
+		if (!canDrop || !isFileDrag(event.dataTransfer)) return;
+		event.preventDefault();
+		event.dataTransfer.dropEffect = 'copy';
+		if (!dropping) setDropping(true);
+	};
+	const onDragLeave = (event: DragEvent<HTMLDivElement>) => {
+		if (event.currentTarget.contains(event.relatedTarget as Node | null)) return;
+		setDropping(false);
+	};
+	const onDrop = (event: DragEvent<HTMLDivElement>) => {
+		if (!canDrop || !isFileDrag(event.dataTransfer)) return;
+		event.preventDefault();
+		setDropping(false);
+		attachments.add(filesOfTransfer(event.dataTransfer));
+	};
 
 	const saveEdit = useCallback(
 		async (body: string) => {
@@ -245,9 +280,11 @@ function ConversationPane({ conversation, conversationNames, canManage, onOpenTh
 				navigator.clipboard?.writeText(url).then(() => toast(t('teamChat.LINK_COPIED'))).catch(() => undefined);
 			},
 			onOpenTask: (taskId: string) => openTaskDrawer(taskId),
-			onCreateTask: (message: IChatMessage) => setTaskFrom(message)
+			onCreateTask: (message: IChatMessage) => setTaskFrom(message),
+			onOpenImage: (file: IChatFile) => setPictureId(String(file.documentId)),
+			onBrokenImage: files.refresh
 		}),
-		[actions, conversation.id, onOpenThread, openTaskDrawer, reportFailure, t]
+		[actions, conversation.id, files.refresh, onOpenThread, openTaskDrawer, reportFailure, t]
 	);
 
 	const setNotify = (level: EChatNotifyLevel) => actions.setMemberState(conversation.id, { notifyLevel: level }).catch(reportFailure);
@@ -275,9 +312,15 @@ function ConversationPane({ conversation, conversationNames, canManage, onOpenTh
 				onNotify={setNotify}
 				onCopyLink={copyLink}
 				onLeave={leave}
+				extra={<ConversationFilesButton conversationId={conversation.id} people={people.byEmployee} peopleByUser={people.byUser} className={BAR_BUTTON} />}
 			/>
 
-			<div className="relative min-h-0 flex-1">
+			<div className="relative min-h-0 flex-1" onDragOver={onDragOver} onDragLeave={onDragLeave} onDrop={onDrop}>
+				{dropping && (
+					<div className="pointer-events-none absolute inset-2 z-20 flex items-center justify-center rounded-xl bg-primary/[0.06] text-sm font-medium text-primary hairline-ring ring-primary/40" aria-hidden="true">
+						{t('entityFiles.DROP_HINT')}
+					</div>
+				)}
 				<div ref={list} onScroll={onScroll} className="h-full overflow-y-auto overscroll-contain" role="log" aria-live="polite" aria-busy={isLoading}>
 					{/* Bottom-aligned: a short conversation sits right above the composer, as the next message will. */}
 					<div ref={content} className="flex min-h-full flex-col justify-end pb-2">
@@ -323,6 +366,7 @@ function ConversationPane({ conversation, conversationNames, canManage, onOpenTh
 									// Only a message with replies words a time ("last reply 5 minutes ago"): the others are not rendered again each minute.
 									now={message.replyCount > 0 ? now : undefined}
 									taskTitles={taskTitles}
+									files={files.byId}
 									{...handlers}
 								/>
 							);
@@ -339,10 +383,19 @@ function ConversationPane({ conversation, conversationNames, canManage, onOpenTh
 						{t('teamChat.ARCHIVED_NOTICE')}
 					</p>
 				) : (
-					<MessageComposer value={draft} onChange={setDraft} onSubmit={send} people={people.list} placeholder={t('teamChat.COMPOSER_PLACEHOLDER', { name: title })} autoFocus={focusComposer} />
+					<MessageComposer
+						value={draft}
+						onChange={setDraft}
+						onSubmit={send}
+						people={people.list}
+						placeholder={t('teamChat.COMPOSER_PLACEHOLDER', { name: title })}
+						autoFocus={focusComposer}
+						attachments={attachments}
+					/>
 				)}
 			</div>
 			{taskFrom && <CreateTaskFromMessageDialog key={taskFrom.id} message={taskFrom} onClose={() => setTaskFrom(null)} />}
+			<ImageLightbox file={picture} onClose={() => setPictureId(null)} />
 		</div>
 	);
 }

@@ -5195,7 +5195,18 @@
 		"START_OF_DIRECT": "Questo è l’inizio della tua conversazione con {name}",
 		"START_OF_DIRECT_TEXT": "Solo le persone di questa conversazione possono leggere questi messaggi.",
 		"UNREAD_REPLIES": "{count, plural, one {# nuova risposta} other {# nuove risposte}}",
-		"YOU": "tu"
+		"YOU": "tu",
+		"ATTACH_FILES": "Allega file",
+		"ATTACH_TOO_MANY": "Un messaggio può contenere al massimo {max} file.",
+		"ATTACH_FORBIDDEN": "Il tuo ruolo non può allegare file.",
+		"ATTACH_WAIT": "In attesa del caricamento dei file…",
+		"ATTACHMENT": "File",
+		"FILES": "File",
+		"FILES_EMPTY": "In questa conversazione non sono ancora stati condivisi file.",
+		"LOAD_MORE": "Carica altro",
+		"VIEW_IMAGE": "Visualizza {name}",
+		"OPEN_ORIGINAL": "Apri l'originale",
+		"EMOJI_SUGGESTIONS": "Emoji"
 	},
 	"docs": {
 		"TITLE": "Documenti",

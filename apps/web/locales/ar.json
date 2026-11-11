@@ -5195,7 +5195,18 @@
 		"START_OF_DIRECT": "هذه بداية محادثتك مع {name}",
 		"START_OF_DIRECT_TEXT": "لا يستطيع قراءة هذه الرسائل إلا المشاركون في هذه المحادثة.",
 		"UNREAD_REPLIES": "{count, plural, one {رد جديد واحد} two {ردّان جديدان} few {# ردود جديدة} many {# ردًا جديدًا} other {# رد جديد}}",
-		"YOU": "أنت"
+		"YOU": "أنت",
+		"ATTACH_FILES": "إرفاق ملفات",
+		"ATTACH_TOO_MANY": "تحمل الرسالة {max} ملفات على الأكثر.",
+		"ATTACH_FORBIDDEN": "لا يسمح دورك بإرفاق الملفات.",
+		"ATTACH_WAIT": "في انتظار اكتمال رفع الملفات…",
+		"ATTACHMENT": "ملف",
+		"FILES": "الملفات",
+		"FILES_EMPTY": "لم تُشارَك أي ملفات في هذه المحادثة بعد.",
+		"LOAD_MORE": "تحميل المزيد",
+		"VIEW_IMAGE": "عرض {name}",
+		"OPEN_ORIGINAL": "فتح الأصل",
+		"EMOJI_SUGGESTIONS": "الرموز التعبيرية"
 	},
 	"docs": {
 		"TITLE": "المستندات",
