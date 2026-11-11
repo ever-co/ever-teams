@@ -642,3 +642,38 @@ export function totalSecondsOfPlans(plans: ReadonlyArray<CopyCellPlan>) {
 	}
 	return total;
 }
+
+export interface CopyFit {
+	fitting: CopyCellPlan[];
+	withoutRoomCount: number;
+}
+
+/**
+ * The copy plans that find room in their day, tried in order the way the copy writes them: the time one plan takes
+ * is no longer free for the next plans of the same day.
+ */
+export function copyFitOf(
+	plans: ReadonlyArray<CopyCellPlan>,
+	memberLogs: ReadonlyArray<ITimeLog>,
+	now: Date,
+	allowsFutureDates: boolean
+): CopyFit {
+	const fitting: CopyCellPlan[] = [];
+	const placedByDay = new Map<string, TimeWindow[]>();
+	for (const plan of plans) {
+		const bounds = dayBoundsOf(plan.day.date);
+		const placedBefore = placedByDay.get(plan.day.key) ?? [];
+		const logBusy = busyWindowsOf(memberLogs, bounds);
+		const busy = [...logBusy, ...placedBefore];
+		const limit = placementLimitOf(bounds, now, allowsFutureDates);
+		const freeWindows = freeWindowsBetween(busy, bounds, limit);
+		const pieces = placementOf(plan.seconds, freeWindows, plan.day.date);
+		if (!pieces) {
+			continue;
+		}
+		placedByDay.set(plan.day.key, [...placedBefore, ...pieces]);
+		fitting.push(plan);
+	}
+	const withoutRoomCount = plans.length - fitting.length;
+	return { fitting, withoutRoomCount };
+}

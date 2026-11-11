@@ -33,6 +33,8 @@ export interface PendingCopy {
 	totalSeconds: number;
 	/** Cells of last week that land on a closed day of this one (future, approved, running). */
 	lockedCount: number;
+	/** Open cells whose day has no free time left for last week's time. */
+	withoutRoomCount: number;
 }
 
 export interface CopyPreviousWeekInput {
@@ -138,8 +140,10 @@ export function useCopyPreviousWeek(input: CopyPreviousWeekInput) {
 		}
 		const filled = filledCellKeysOf(rows);
 		const candidates = copyPlanOf(previousRows, days, filled);
-		const plans = candidates.filter((plan) => dayLockOf(plan.day) === 'none');
-		const lockedCount = candidates.length - plans.length;
+		const openPlans = candidates.filter((plan) => dayLockOf(plan.day) === 'none');
+		const lockedCount = candidates.length - openPlans.length;
+		const fit = writes.fitCopyPlans(openPlans);
+		const plans = fit.fitting;
 		const identities = previousRows.map((row) => row.identity);
 		addRows(identities);
 		if (plans.length === 0) {
@@ -147,8 +151,8 @@ export function useCopyPreviousWeek(input: CopyPreviousWeekInput) {
 			return;
 		}
 		const totalSeconds = totalSecondsOfPlans(plans);
-		setPendingCopy({ plans, totalSeconds, lockedCount });
-	}, [addRows, days, dayLockOf, readPreviousRows, rows, t]);
+		setPendingCopy({ plans, totalSeconds, lockedCount, withoutRoomCount: fit.withoutRoomCount });
+	}, [addRows, days, dayLockOf, readPreviousRows, rows, t, writes]);
 
 	const cancelCopy = useCallback(() => {
 		setPendingCopy(null);
@@ -158,14 +162,14 @@ export function useCopyPreviousWeek(input: CopyPreviousWeekInput) {
 		if (!pendingCopy) {
 			return;
 		}
-		const { plans, lockedCount } = pendingCopy;
+		const { plans, lockedCount, withoutRoomCount } = pendingCopy;
 		setPendingCopy(null);
 		const result = await writes.applyCopyPlan(plans);
 		if (result.savedCount > 0) {
 			const total = formatDurationShort(result.savedSeconds);
 			toast.success(t('dashboard.timesheets.SHEET.COPY.DONE', { total, count: result.savedCount }));
 		}
-		const leftOut = result.skippedCount + lockedCount;
+		const leftOut = result.skippedCount + lockedCount + withoutRoomCount;
 		if (leftOut > 0) {
 			toast(t('dashboard.timesheets.SHEET.COPY.LEFT_OUT', { count: leftOut }));
 		}

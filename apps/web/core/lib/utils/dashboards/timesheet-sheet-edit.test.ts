@@ -6,6 +6,7 @@ import {
 	approvedDayKeysOf,
 	busyWindowsOf,
 	cellLockOf,
+	copyFitOf,
 	copyPlanOf,
 	dayBoundsOf,
 	freeSecondsOf,
@@ -184,6 +185,24 @@ describe('locks', () => {
 		expect(cellLockOf({ ...OPEN_RULES, isFiltered: true }, tomorrow, undefined)).toBe('filtered');
 		expect(cellLockOf({ ...OPEN_RULES, canWrite: false }, today, undefined)).toBe('permission');
 		expect(cellLockOf({ ...OPEN_RULES, allowsManualTime: false }, today, undefined)).toBe('manualTimeOff');
+	});
+});
+
+describe('copyFitOf', () => {
+	it('keeps the plans their day has room for, each one taking its time from the next', () => {
+		const day = dayOf(at(0), '2026-11-10');
+		const identity = rowIdentityOfLog(logOf({ id: 'row' }));
+		const now = at(12);
+		const plans = [
+			{ identity, day, seconds: 8 * HOUR },
+			{ identity, day, seconds: 3 * HOUR },
+			{ identity, day, seconds: 5 * HOUR }
+		];
+
+		const fit = copyFitOf(plans, [], now, false);
+
+		expect(fit.fitting).toEqual([plans[0], plans[1]]);
+		expect(fit.withoutRoomCount).toBe(1);
 	});
 });
 

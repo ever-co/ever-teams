@@ -10,6 +10,8 @@ import { formatDurationShort } from '@/core/lib/utils/dashboard-figures';
 import {
 	busyWindowsOf,
 	type CopyCellPlan,
+	type CopyFit,
+	copyFitOf,
 	dayBoundsOf,
 	freeSecondsOf,
 	freeWindowsBetween,
@@ -291,6 +293,15 @@ export function useSheetCellWrites(scope: SheetWriteScope) {
 	 * Fills empty cells from last week, one after the other. The time each one places counts as taken for the next
 	 * ones of the same day, so the whole run needs one read of the logs before and one after.
 	 */
+	const fitCopyPlans = useCallback(
+		(plans: ReadonlyArray<CopyCellPlan>): CopyFit => {
+			const memberLogs = readMemberLogs();
+			const now = new Date();
+			return copyFitOf(plans, memberLogs, now, allowsFutureDates);
+		},
+		[allowsFutureDates, readMemberLogs]
+	);
+
 	const applyCopyPlan = useCallback(
 		(plans: ReadonlyArray<CopyCellPlan>): Promise<CopyRunResult> => {
 			setIsCopying(true);
@@ -329,8 +340,8 @@ export function useSheetCellWrites(scope: SheetWriteScope) {
 	);
 
 	return useMemo(
-		() => ({ commitCell, applyCopyPlan, savingCellKeys, isCopying }),
-		[applyCopyPlan, commitCell, isCopying, savingCellKeys]
+		() => ({ commitCell, applyCopyPlan, fitCopyPlans, savingCellKeys, isCopying }),
+		[applyCopyPlan, commitCell, fitCopyPlans, isCopying, savingCellKeys]
 	);
 }
 
