@@ -3044,7 +3044,14 @@
 		"results": {
 			"recent": "Недавние",
 			"tasks": "Задачи",
-			"inTeam": "в {team}"
+			"inTeam": "в {team}",
+			"people": "Люди",
+			"projects": "Проекты",
+			"pages": "Страницы",
+			"conversations": "Беседы",
+			"conversation": "Беседа",
+			"untitledPage": "Без названия",
+			"recentlyOpened": "Недавно открытые"
 		}
 	},
 	"modals": {
@@ -4908,7 +4915,21 @@
 			"taskStatus": "Изменить статус",
 			"taskPriority": "Изменить приоритет",
 			"taskLabels": "Изменить метки",
-			"taskDueDate": "Изменить срок"
+			"taskDueDate": "Изменить срок",
+			"goHome": "На главную страницу",
+			"goProjects": "К проектам",
+			"goKanban": "К доске Kanban",
+			"goProfile": "К моему профилю",
+			"goTimesheets": "К отчёту по табелям",
+			"goWeeklyLimit": "К отчёту о недельном лимите",
+			"goTimeActivity": "К отчёту о времени и активности",
+			"teamCreate": "Создать команду",
+			"projectCreate": "Создать проект",
+			"inviteUser": "Пригласить в команду",
+			"searchTasks": "Искать в задачах",
+			"searchProjects": "Искать в проектах",
+			"searchTeams": "Искать в командах",
+			"themeToggle": "Переключить светлую и тёмную тему"
 		}
 	},
 	"realtime": {

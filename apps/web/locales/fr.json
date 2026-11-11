@@ -3044,7 +3044,14 @@
 		"results": {
 			"recent": "Récentes",
 			"tasks": "Tâches",
-			"inTeam": "dans {team}"
+			"inTeam": "dans {team}",
+			"people": "Personnes",
+			"projects": "Projets",
+			"pages": "Pages",
+			"conversations": "Conversations",
+			"conversation": "Conversation",
+			"untitledPage": "Sans titre",
+			"recentlyOpened": "Ouverts récemment"
 		}
 	},
 	"modals": {
@@ -4908,7 +4915,21 @@
 			"taskStatus": "Changer le statut",
 			"taskPriority": "Changer la priorité",
 			"taskLabels": "Changer les étiquettes",
-			"taskDueDate": "Changer l'échéance"
+			"taskDueDate": "Changer l'échéance",
+			"goHome": "Aller à l'accueil",
+			"goProjects": "Aller aux projets",
+			"goKanban": "Aller au tableau Kanban",
+			"goProfile": "Aller à mon profil",
+			"goTimesheets": "Aller au rapport des feuilles de temps",
+			"goWeeklyLimit": "Aller au rapport de limite hebdomadaire",
+			"goTimeActivity": "Aller au rapport temps et activité",
+			"teamCreate": "Créer une équipe",
+			"projectCreate": "Créer un projet",
+			"inviteUser": "Inviter quelqu'un dans l'équipe",
+			"searchTasks": "Rechercher dans les tâches",
+			"searchProjects": "Rechercher dans les projets",
+			"searchTeams": "Rechercher dans les équipes",
+			"themeToggle": "Basculer entre clair et sombre"
 		}
 	},
 	"realtime": {

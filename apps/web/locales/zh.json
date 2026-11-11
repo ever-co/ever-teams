@@ -3044,7 +3044,14 @@
 		"results": {
 			"recent": "最近",
 			"tasks": "任务",
-			"inTeam": "在 {team} 中"
+			"inTeam": "在 {team} 中",
+			"people": "人员",
+			"projects": "项目",
+			"pages": "页面",
+			"conversations": "会话",
+			"conversation": "会话",
+			"untitledPage": "无标题",
+			"recentlyOpened": "最近打开"
 		}
 	},
 	"modals": {
@@ -4908,7 +4915,21 @@
 			"taskStatus": "更改状态",
 			"taskPriority": "更改优先级",
 			"taskLabels": "更改标签",
-			"taskDueDate": "更改截止日期"
+			"taskDueDate": "更改截止日期",
+			"goHome": "前往首页",
+			"goProjects": "前往项目",
+			"goKanban": "前往看板",
+			"goProfile": "前往我的个人资料",
+			"goTimesheets": "前往工时表报告",
+			"goWeeklyLimit": "前往每周限额报告",
+			"goTimeActivity": "前往时间与活动报告",
+			"teamCreate": "创建团队",
+			"projectCreate": "创建项目",
+			"inviteUser": "邀请成员加入团队",
+			"searchTasks": "搜索任务",
+			"searchProjects": "搜索项目",
+			"searchTeams": "搜索团队",
+			"themeToggle": "在浅色与深色之间切换"
 		}
 	},
 	"realtime": {

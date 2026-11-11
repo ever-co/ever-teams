@@ -3044,7 +3044,14 @@
 		"results": {
 			"recent": "אחרונות",
 			"tasks": "משימות",
-			"inTeam": "ב{team}"
+			"inTeam": "ב{team}",
+			"people": "אנשים",
+			"projects": "פרויקטים",
+			"pages": "דפים",
+			"conversations": "שיחות",
+			"conversation": "שיחה",
+			"untitledPage": "ללא כותרת",
+			"recentlyOpened": "נפתחו לאחרונה"
 		}
 	},
 	"modals": {
@@ -4908,7 +4915,21 @@
 			"taskStatus": "שינוי הסטטוס",
 			"taskPriority": "שינוי העדיפות",
 			"taskLabels": "שינוי התוויות",
-			"taskDueDate": "שינוי תאריך היעד"
+			"taskDueDate": "שינוי תאריך היעד",
+			"goHome": "מעבר לדף הבית",
+			"goProjects": "מעבר לפרויקטים",
+			"goKanban": "מעבר ללוח הקנבן",
+			"goProfile": "מעבר לפרופיל שלי",
+			"goTimesheets": "מעבר לדוח גיליונות הזמן",
+			"goWeeklyLimit": "מעבר לדוח המגבלה השבועית",
+			"goTimeActivity": "מעבר לדוח הזמן והפעילות",
+			"teamCreate": "יצירת צוות",
+			"projectCreate": "יצירת פרויקט",
+			"inviteUser": "הזמנת מישהו לצוות",
+			"searchTasks": "חיפוש במשימות",
+			"searchProjects": "חיפוש בפרויקטים",
+			"searchTeams": "חיפוש בצוותים",
+			"themeToggle": "מעבר בין בהיר לכהה"
 		}
 	},
 	"realtime": {

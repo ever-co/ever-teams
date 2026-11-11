@@ -3044,7 +3044,14 @@
 		"results": {
 			"recent": "الأخيرة",
 			"tasks": "المهام",
-			"inTeam": "في {team}"
+			"inTeam": "في {team}",
+			"people": "الأشخاص",
+			"projects": "المشاريع",
+			"pages": "الصفحات",
+			"conversations": "المحادثات",
+			"conversation": "محادثة",
+			"untitledPage": "بلا عنوان",
+			"recentlyOpened": "المفتوحة مؤخرًا"
 		}
 	},
 	"modals": {
@@ -4908,7 +4915,21 @@
 			"taskStatus": "تغيير الحالة",
 			"taskPriority": "تغيير الأولوية",
 			"taskLabels": "تغيير التسميات",
-			"taskDueDate": "تغيير تاريخ الاستحقاق"
+			"taskDueDate": "تغيير تاريخ الاستحقاق",
+			"goHome": "الانتقال إلى الصفحة الرئيسية",
+			"goProjects": "الانتقال إلى المشاريع",
+			"goKanban": "الانتقال إلى لوحة كانبان",
+			"goProfile": "الانتقال إلى ملفي الشخصي",
+			"goTimesheets": "الانتقال إلى تقرير الجداول الزمنية",
+			"goWeeklyLimit": "الانتقال إلى تقرير الحد الأسبوعي",
+			"goTimeActivity": "الانتقال إلى تقرير الوقت والنشاط",
+			"teamCreate": "إنشاء فريق",
+			"projectCreate": "إنشاء مشروع",
+			"inviteUser": "دعوة شخص إلى الفريق",
+			"searchTasks": "البحث في المهام",
+			"searchProjects": "البحث في المشاريع",
+			"searchTeams": "البحث في الفرق",
+			"themeToggle": "التبديل بين الفاتح والداكن"
 		}
 	},
 	"realtime": {

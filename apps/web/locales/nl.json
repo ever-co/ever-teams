@@ -3044,7 +3044,14 @@
 		"results": {
 			"recent": "Recent",
 			"tasks": "Taken",
-			"inTeam": "in {team}"
+			"inTeam": "in {team}",
+			"people": "Personen",
+			"projects": "Projecten",
+			"pages": "Pagina's",
+			"conversations": "Gesprekken",
+			"conversation": "Gesprek",
+			"untitledPage": "Zonder titel",
+			"recentlyOpened": "Onlangs geopend"
 		}
 	},
 	"modals": {
@@ -4908,7 +4915,21 @@
 			"taskStatus": "Status wijzigen",
 			"taskPriority": "Prioriteit wijzigen",
 			"taskLabels": "Labels wijzigen",
-			"taskDueDate": "Vervaldatum wijzigen"
+			"taskDueDate": "Vervaldatum wijzigen",
+			"goHome": "Naar de startpagina",
+			"goProjects": "Naar de projecten",
+			"goKanban": "Naar het Kanban-bord",
+			"goProfile": "Naar mijn profiel",
+			"goTimesheets": "Naar het urenstaatrapport",
+			"goWeeklyLimit": "Naar het rapport weeklimiet",
+			"goTimeActivity": "Naar het rapport tijd en activiteit",
+			"teamCreate": "Team maken",
+			"projectCreate": "Project maken",
+			"inviteUser": "Iemand uitnodigen voor het team",
+			"searchTasks": "Taken doorzoeken",
+			"searchProjects": "Projecten doorzoeken",
+			"searchTeams": "Teams doorzoeken",
+			"themeToggle": "Wisselen tussen licht en donker"
 		}
 	},
 	"realtime": {

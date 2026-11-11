@@ -3044,7 +3044,14 @@
 		"results": {
 			"recent": "Скорошни",
 			"tasks": "Задачи",
-			"inTeam": "в {team}"
+			"inTeam": "в {team}",
+			"people": "Хора",
+			"projects": "Проекти",
+			"pages": "Страници",
+			"conversations": "Разговори",
+			"conversation": "Разговор",
+			"untitledPage": "Без заглавие",
+			"recentlyOpened": "Отваряни наскоро"
 		}
 	},
 	"modals": {
@@ -4908,7 +4915,21 @@
 			"taskStatus": "Промени състоянието",
 			"taskPriority": "Промени приоритета",
 			"taskLabels": "Промени етикетите",
-			"taskDueDate": "Промени крайния срок"
+			"taskDueDate": "Промени крайния срок",
+			"goHome": "Към началната страница",
+			"goProjects": "Към проектите",
+			"goKanban": "Към таблото Kanban",
+			"goProfile": "Към моя профил",
+			"goTimesheets": "Към отчета за работното време",
+			"goWeeklyLimit": "Към отчета за седмичния лимит",
+			"goTimeActivity": "Към отчета за време и активност",
+			"teamCreate": "Създай екип",
+			"projectCreate": "Създай проект",
+			"inviteUser": "Покани някого в екипа",
+			"searchTasks": "Търси в задачите",
+			"searchProjects": "Търси в проектите",
+			"searchTeams": "Търси в екипите",
+			"themeToggle": "Превключи между светла и тъмна"
 		}
 	},
 	"realtime": {
