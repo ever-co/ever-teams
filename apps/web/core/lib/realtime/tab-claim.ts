@@ -165,7 +165,10 @@ function browserTabClaimEnvironment(): TabClaimEnvironment {
 		storage: browserStorage(),
 		// The lock awaits a callback's promise and answers its value; the DOM typing names the promise itself.
 		locks: locks
-			? { request: <T>(name: string, callback: () => Promise<T> | T) => locks.request(name, callback) as Promise<T> }
+			? {
+					request: <T>(name: string, callback: () => Promise<T> | T) =>
+						locks.request(name, callback) as Promise<T>
+				}
 			: null,
 		now: () => Date.now(),
 		wait: (ms) => new Promise((resolve) => setTimeout(resolve, ms)),
