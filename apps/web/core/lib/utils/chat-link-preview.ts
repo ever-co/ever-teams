@@ -8,7 +8,7 @@ import { EChatLinkPreviewStatus, type IChatLinkPreview } from '@/core/types/inte
  */
 
 /** The most links of one message that get a preview card. */
-export const CHAT_LINK_PREVIEW_MAX_LINKS = 3;
+const CHAT_LINK_PREVIEW_MAX_LINKS = 3;
 
 /** The longest link the platform previews (its `CHAT_LINK_PREVIEW_URL_MAX_LENGTH`): a longer one is not asked for. */
 const CHAT_LINK_PREVIEW_URL_MAX_LENGTH = 2048;
@@ -24,13 +24,6 @@ const CHAT_LINK_PREVIEW_CONCURRENCY = 4;
 
 /** How many links are remembered as having no preview, at most (the oldest are forgotten first). */
 const CHAT_LINK_PREVIEW_REMEMBERED = 500;
-
-/** The proportions a picture is drawn at when the page states none: those of the usual share picture (1200 × 630). */
-const DEFAULT_IMAGE_RATIO = 1200 / 630;
-
-/** The proportions a thumbnail is held within, so a tall or a very wide picture keeps the card compact. */
-const MIN_IMAGE_RATIO = 1;
-const MAX_IMAGE_RATIO = 2;
 
 /** A link of a message that gets a preview. */
 export interface ChatPreviewLink {
@@ -113,10 +106,10 @@ export function withoutCode(body: string): string {
 const LINK_CANDIDATE = /(^|[\s(<[*_~>])((?:https?:\/\/|www\.)[^\s<>"`[\]]+)/gi;
 
 /** What ends a sentence or an emphasis after a link, and is not part of it. */
-const TRAILING_PUNCTUATION = /[?!.,:;*_~'"]+$/;
+const TRAILING_PUNCTUATION = new Set(['?', '!', '.', ',', ':', ';', '*', '_', '~', "'", '"']);
 
-/** An entity reference at the end of a link (`&amp;`), which is not part of it. */
-const TRAILING_ENTITY = /&[a-z0-9]+;$/i;
+/** The letters and digits of an entity reference's name. */
+const ENTITY_NAME = /^[a-z0-9]+$/i;
 
 function count(text: string, character: string): number {
 	let found = 0;
@@ -124,12 +117,25 @@ function count(text: string, character: string): number {
 	return found;
 }
 
-/** A link candidate without what follows it in the sentence: trailing punctuation, and a `)` it did not open. */
+/** The link without an entity reference at its end (`&amp;`), which is not part of it. */
+function withoutTrailingEntity(link: string): string {
+	if (!link.endsWith(';')) return link;
+	const at = link.lastIndexOf('&');
+	return at >= 0 && ENTITY_NAME.test(link.slice(at + 1, -1)) ? link.slice(0, at) : link;
+}
+
+/**
+ * A link candidate without what follows it in the sentence: trailing punctuation, an entity reference, and a `)` it
+ * did not open. Character by character (no pattern anchored at the end), so a long run of punctuation costs nothing.
+ */
 function trimLinkEnd(candidate: string): string {
 	let link = candidate;
 	for (;;) {
 		const before = link;
-		link = link.replace(TRAILING_ENTITY, '').replace(TRAILING_PUNCTUATION, '');
+		link = withoutTrailingEntity(link);
+		let end = link.length;
+		while (end > 0 && TRAILING_PUNCTUATION.has(link[end - 1])) end -= 1;
+		link = link.slice(0, end);
 		if (link.endsWith(')') && count(link, ')') > count(link, '(')) link = link.slice(0, -1);
 		if (link === before) return link;
 	}
@@ -139,7 +145,10 @@ function trimLinkEnd(candidate: string): string {
  * The links of a message body that get a preview: up to `max` distinct `http(s)` links in the order written, the ones
  * inside code left out, and those of `ownOrigin` too (a link to this app opens its own page: a message, a task).
  */
-export function previewLinksOf(body: string, options: { max?: number; ownOrigin?: string | null } = {}): ChatPreviewLink[] {
+export function previewLinksOf(
+	body: string,
+	options: { max?: number; ownOrigin?: string | null } = {}
+): ChatPreviewLink[] {
 	const max = options.max ?? CHAT_LINK_PREVIEW_MAX_LINKS;
 	const links: ChatPreviewLink[] = [];
 	if (!body || max <= 0) return links;
@@ -157,7 +166,11 @@ export function previewLinksOf(body: string, options: { max?: number; ownOrigin?
 	return links;
 }
 
-/** What a preview card shows: plain text, and `https:` pictures only. */
+/**
+ * What a preview card shows: the page's text only. The platform also answers the page's picture and icon, but they sit
+ * on the linked site's own hosts, and drawing them would make every reader's browser call that site (and hand it the
+ * reader's address); they wait for a platform route that serves them through the platform.
+ */
 export interface ChatLinkPreviewCard {
 	/** What the card opens: the link as written. */
 	href: string;
@@ -165,9 +178,6 @@ export interface ChatLinkPreviewCard {
 	site: string;
 	title: string | null;
 	description: string | null;
-	/** The page's picture, with the proportions it is drawn at (width / height). */
-	image: { src: string; alt: string; ratio: number } | null;
-	icon: string | null;
 }
 
 /** A text the platform answered, on one line, or null when there is none. */
@@ -175,24 +185,6 @@ function plainText(value: unknown): string | null {
 	if (typeof value !== 'string') return null;
 	const text = value.replace(/\s+/g, ' ').trim();
 	return text || null;
-}
-
-/** A picture's address when it is an absolute `https:` one (the only kind the platform answers), else null. */
-function httpsAddress(value: unknown): string | null {
-	if (typeof value !== 'string' || !value) return null;
-	try {
-		const url = new URL(value);
-		return url.protocol === 'https:' && !url.username && !url.password ? url.href : null;
-	} catch {
-		return null;
-	}
-}
-
-/** The proportions a thumbnail is drawn at: the picture's own when the page states them, kept within the card's. */
-function imageRatio(width: unknown, height: unknown): number {
-	const ok = (value: unknown): value is number => typeof value === 'number' && Number.isFinite(value) && value > 0;
-	const ratio = ok(width) && ok(height) ? width / height : DEFAULT_IMAGE_RATIO;
-	return Math.min(MAX_IMAGE_RATIO, Math.max(MIN_IMAGE_RATIO, ratio));
 }
 
 function hostOf(href: string): string {
@@ -207,26 +199,21 @@ function hostOf(href: string): string {
  * The card of a link, from the platform's answer: only a `ready` preview with a title or a description gets one; a
  * link still `pending`, `unavailable`, or that says nothing about itself stays a plain link.
  */
-export function linkPreviewCardOf(link: ChatPreviewLink, preview: IChatLinkPreview | null | undefined): ChatLinkPreviewCard | null {
+export function linkPreviewCardOf(
+	link: ChatPreviewLink,
+	preview: IChatLinkPreview | null | undefined
+): ChatLinkPreviewCard | null {
 	if (preview?.status !== EChatLinkPreviewStatus.Ready) return null;
 	const title = plainText(preview.title);
 	const description = plainText(preview.description);
 	if (!title && !description) return null;
-	const image = httpsAddress(preview.image);
-	return {
-		href: link.href,
-		site: plainText(preview.siteName) ?? hostOf(link.href),
-		title,
-		description,
-		image: image ? { src: image, alt: plainText(preview.imageAlt) ?? '', ratio: imageRatio(preview.imageWidth, preview.imageHeight) } : null,
-		icon: httpsAddress(preview.icon)
-	};
+	return { href: link.href, site: plainText(preview.siteName) ?? hostOf(link.href), title, description };
 }
 
 /** One ask of the platform for the preview of a (normalized) link. */
 export type ChatLinkPreviewAsk = (url: string, signal?: AbortSignal) => Promise<IChatLinkPreview>;
 
-export interface ChatLinkPreviewSessionOptions {
+interface ChatLinkPreviewSessionOptions {
 	pollMs?: number;
 	maxPolls?: number;
 	concurrency?: number;
@@ -280,7 +267,10 @@ function wait(ms: number, signal?: AbortSignal): Promise<void> {
 	});
 }
 
-export function createChatLinkPreviewSession(ask: ChatLinkPreviewAsk, options: ChatLinkPreviewSessionOptions = {}): ChatLinkPreviewSession {
+export function createChatLinkPreviewSession(
+	ask: ChatLinkPreviewAsk,
+	options: ChatLinkPreviewSessionOptions = {}
+): ChatLinkPreviewSession {
 	const pollMs = options.pollMs ?? CHAT_LINK_PREVIEW_POLL_MS;
 	const maxPolls = options.maxPolls ?? CHAT_LINK_PREVIEW_MAX_POLLS;
 	const concurrency = Math.max(1, options.concurrency ?? CHAT_LINK_PREVIEW_CONCURRENCY);
@@ -349,7 +339,8 @@ export function createChatLinkPreviewSession(ask: ChatLinkPreviewAsk, options: C
 			}
 			// A refusal of the link (400) or of the pace (429) is the route answering; an outage, a cancel or a
 			// sign-out tells nothing, and the next link probes again.
-			if (probing && state.route === 'probing') state.route = status === 400 || status === 429 ? 'present' : 'unknown';
+			if (probing && state.route === 'probing')
+				state.route = status === 400 || status === 429 ? 'present' : 'unknown';
 			if (status === 400) {
 				remember(url);
 				return null;

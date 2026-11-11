@@ -76,3 +76,6 @@ default; with it off nothing is asked). The platform fetches the pages
 the message finds up to three links in its body, each asked for once per
 page (`queryKeys.chatLinkPreview`, outside the `chat` prefix the live
 channel invalidates), and shows the `ready` ones as cards of plain text.
+The page's picture and icon are not drawn: they sit on the linked site's
+hosts, and the reader's browser would call that site. They wait for an
+image proxy on the platform.

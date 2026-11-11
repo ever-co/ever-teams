@@ -56,7 +56,11 @@ describe('useChatLinkPreviews', () => {
 		const second = renderHook(() => useChatLinkPreviews([A]), { wrapper: wrapper(client) });
 		await waitFor(() => expect(first.result.current).toHaveLength(2));
 		await waitFor(() => expect(second.result.current).toHaveLength(1));
-		expect(first.result.current[0]).toMatchObject({ href: 'https://a.io/page#top', title: 'Title of https://a.io/page', site: 'Site' });
+		expect(first.result.current[0]).toMatchObject({
+			href: 'https://a.io/page#top',
+			title: 'Title of https://a.io/page',
+			site: 'Site'
+		});
 		expect(mockAsk.mock.calls.map(([url]) => url).sort()).toEqual(['https://a.io/page', 'https://b.io/']);
 	});
 
@@ -67,7 +71,9 @@ describe('useChatLinkPreviews', () => {
 		await waitFor(() => expect(mockAsk).toHaveBeenCalledTimes(1));
 		await new Promise((resolve) => setTimeout(resolve, 20));
 		expect(result.current).toEqual([]);
-		const later = renderHook(() => useChatLinkPreviews([{ href: 'https://c.io/', url: 'https://c.io/' }]), { wrapper: wrapper(client) });
+		const later = renderHook(() => useChatLinkPreviews([{ href: 'https://c.io/', url: 'https://c.io/' }]), {
+			wrapper: wrapper(client)
+		});
 		await new Promise((resolve) => setTimeout(resolve, 20));
 		expect(later.result.current).toEqual([]);
 		expect(mockAsk).toHaveBeenCalledTimes(1);

@@ -35,8 +35,10 @@
   too), one ask per link shared by every message, asked again every 2 s
   while `pending` (three times at most), a link `unavailable` or refused
   not asked again in the page; a platform without the route (404) turns
-  them off for the page after one ask. A compact card (icon and site,
-  title, two lines of description, lazy thumbnail sized by the stated
-  proportions, no referrer). Behind `NEXT_PUBLIC_CHAT_LINK_PREVIEWS_ENABLED`,
-  off by default; the platform's route needs
-  `GAUZY_CHAT_LINK_PREVIEWS_ENABLED=true`
+  them off for the page after one ask. A compact card of text only (site,
+  title, two lines of description). Behind
+  `NEXT_PUBLIC_CHAT_LINK_PREVIEWS_ENABLED`, off by default; the platform's
+  route needs `GAUZY_CHAT_LINK_PREVIEWS_ENABLED=true`. Open: an image proxy
+  on the platform. The answer's `image` and `icon` sit on the linked site's
+  hosts, and drawing them would make each reader's browser call that site,
+  so the card shows neither until the platform serves them itself

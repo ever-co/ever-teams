@@ -8,7 +8,8 @@ import {
 } from './chat-link-preview';
 import { EChatLinkPreviewStatus, type IChatLinkPreview } from '@/core/types/interfaces/common/chat';
 
-const urlsOf = (body: string, options?: Parameters<typeof previewLinksOf>[1]) => previewLinksOf(body, options).map((link) => link.url);
+const urlsOf = (body: string, options?: Parameters<typeof previewLinksOf>[1]) =>
+	previewLinksOf(body, options).map((link) => link.url);
 
 function answer(url: string, status: EChatLinkPreviewStatus, extra: Partial<IChatLinkPreview> = {}): IChatLinkPreview {
 	return { url, status, ...extra };
@@ -67,7 +68,7 @@ describe('withoutCode', () => {
 });
 
 describe('previewLinksOf', () => {
-	it('finds bare links, Markdown links and autolinks, in the order written', () => {
+	it('finds bare links, Markdown links and links in angle brackets, in the order written', () => {
 		expect(urlsOf('Look https://a.io/x and [the doc](https://b.io/doc "Doc") or <https://c.io>')).toEqual([
 			'https://a.io/x',
 			'https://b.io/doc',
@@ -77,29 +78,45 @@ describe('previewLinksOf', () => {
 
 	it('leaves out the punctuation and the brackets around a link, but keeps the parentheses it opens', () => {
 		expect(urlsOf('Done (see https://a.io/page).')).toEqual(['https://a.io/page']);
-		expect(urlsOf('https://en.wikipedia.org/wiki/Ada_(language), nice')).toEqual(['https://en.wikipedia.org/wiki/Ada_(language)']);
+		expect(urlsOf('https://en.wikipedia.org/wiki/Ada_(language), nice')).toEqual([
+			'https://en.wikipedia.org/wiki/Ada_(language)'
+		]);
 		expect(urlsOf('**https://a.io/bold** and _https://b.io/em_')).toEqual(['https://a.io/bold', 'https://b.io/em']);
 		expect(urlsOf('Is it https://a.io/q?')).toEqual(['https://a.io/q']);
+		expect(urlsOf('https://a.io/x?a=1&amp; then')).toEqual(['https://a.io/x?a=1']);
+		expect(urlsOf(`https://a.io/long${'.'.repeat(1500)}x${'.'.repeat(5000)} ${'!'.repeat(5000)}`)).toEqual([
+			`https://a.io/long${'.'.repeat(1500)}x`
+		]);
 		expect(urlsOf('[https://a.io](https://a.io)')).toEqual(['https://a.io/']);
 	});
 
 	it('links www. addresses as http, the way the renderer does', () => {
-		expect(previewLinksOf('at www.example.com/a.')).toEqual([{ href: 'http://www.example.com/a', url: 'http://www.example.com/a' }]);
+		expect(previewLinksOf('at www.example.com/a.')).toEqual([
+			{ href: 'http://www.example.com/a', url: 'http://www.example.com/a' }
+		]);
 	});
 
 	it('asks once per link: the same page with another fragment is the same preview, the first fragment is opened', () => {
-		expect(previewLinksOf('https://a.io/p#one https://a.io/p#two https://A.io/p')).toEqual([{ href: 'https://a.io/p#one', url: 'https://a.io/p' }]);
+		expect(previewLinksOf('https://a.io/p#one https://a.io/p#two https://A.io/p')).toEqual([
+			{ href: 'https://a.io/p#one', url: 'https://a.io/p' }
+		]);
 	});
 
 	it('takes three links at most', () => {
-		expect(urlsOf('https://a.io https://b.io https://c.io https://d.io')).toEqual(['https://a.io/', 'https://b.io/', 'https://c.io/']);
+		expect(urlsOf('https://a.io https://b.io https://c.io https://d.io')).toEqual([
+			'https://a.io/',
+			'https://b.io/',
+			'https://c.io/'
+		]);
 		expect(urlsOf('https://a.io https://b.io', { max: 1 })).toEqual(['https://a.io/']);
 	});
 
 	it('leaves out links inside code, other schemes, links with credentials, and those of this app', () => {
 		expect(urlsOf('`https://a.io` and\n```\nhttps://b.io\n```')).toEqual([]);
 		expect(urlsOf('mailto:x@y.io ftp://a.io https://u:p@b.io')).toEqual([]);
-		expect(urlsOf('https://app.example.com/chat/c1?message=m1 https://b.io', { ownOrigin: 'https://app.example.com' })).toEqual(['https://b.io/']);
+		expect(
+			urlsOf('https://app.example.com/chat/c1?message=m1 https://b.io', { ownOrigin: 'https://app.example.com' })
+		).toEqual(['https://b.io/']);
 	});
 
 	it('does not read a link glued to a word or to a mention token', () => {
@@ -111,7 +128,7 @@ describe('previewLinksOf', () => {
 describe('linkPreviewCardOf', () => {
 	const link = { href: 'https://www.a.io/p#x', url: 'https://www.a.io/p' };
 
-	it('shows a ready preview with a title or a description, its text on one line', () => {
+	it('shows a ready preview with a title or a description, its text on one line, and never its picture or icon', () => {
 		const card = linkPreviewCardOf(
 			link,
 			answer(link.url, EChatLinkPreviewStatus.Ready, {
@@ -125,38 +142,31 @@ describe('linkPreviewCardOf', () => {
 				icon: 'https://a.io/icon.png'
 			})
 		);
+		// The picture and the icon sit on the linked site's hosts: drawing them would call that site from the reader's browser.
 		expect(card).toEqual({
 			href: 'https://www.a.io/p#x',
 			site: 'A',
 			title: 'The page',
-			description: 'What it is about',
-			image: { src: 'https://cdn.a.io/p.png', alt: 'A picture', ratio: 2 },
-			icon: 'https://a.io/icon.png'
+			description: 'What it is about'
 		});
 	});
 
-	it('names the host when the page names no site, and keeps a picture within the card proportions', () => {
-		const card = linkPreviewCardOf(link, answer(link.url, EChatLinkPreviewStatus.Ready, { title: 'T', image: 'https://a.io/tall.png', imageWidth: 100, imageHeight: 900 }));
-		expect(card?.site).toBe('a.io');
-		expect(card?.image).toEqual({ src: 'https://a.io/tall.png', alt: '', ratio: 1 });
-		// No stated size: the usual share picture's proportions.
-		const unsized = linkPreviewCardOf(link, answer(link.url, EChatLinkPreviewStatus.Ready, { title: 'T', image: 'https://a.io/p.png' }));
-		expect(unsized?.image?.ratio).toBeCloseTo(1200 / 630);
-	});
-
-	it('drops a picture that is not an https address', () => {
-		const card = linkPreviewCardOf(
-			link,
-			answer(link.url, EChatLinkPreviewStatus.Ready, { title: 'T', image: 'http://a.io/p.png', icon: 'data:image/png;base64,AAAA' })
-		);
-		expect(card?.image).toBeNull();
-		expect(card?.icon).toBeNull();
+	it('names the host when the page names no site', () => {
+		const card = linkPreviewCardOf(link, answer(link.url, EChatLinkPreviewStatus.Ready, { description: 'D' }));
+		expect(card).toEqual({ href: 'https://www.a.io/p#x', site: 'a.io', title: null, description: 'D' });
 	});
 
 	it('shows nothing while pending, when unavailable, or when the page says nothing', () => {
 		expect(linkPreviewCardOf(link, answer(link.url, EChatLinkPreviewStatus.Pending))).toBeNull();
-		expect(linkPreviewCardOf(link, answer(link.url, EChatLinkPreviewStatus.Unavailable, { title: 'T' }))).toBeNull();
-		expect(linkPreviewCardOf(link, answer(link.url, EChatLinkPreviewStatus.Ready, { title: '  ', image: 'https://a.io/p.png' }))).toBeNull();
+		expect(
+			linkPreviewCardOf(link, answer(link.url, EChatLinkPreviewStatus.Unavailable, { title: 'T' }))
+		).toBeNull();
+		expect(
+			linkPreviewCardOf(
+				link,
+				answer(link.url, EChatLinkPreviewStatus.Ready, { title: '  ', image: 'https://a.io/p.png' })
+			)
+		).toBeNull();
 		expect(linkPreviewCardOf(link, null)).toBeNull();
 	});
 });
@@ -166,7 +176,8 @@ describe('createChatLinkPreviewSession', () => {
 
 	it('asks again every two seconds while pending, three times at most', async () => {
 		jest.useFakeTimers();
-		const ask = jest.fn<ReturnType<ChatLinkPreviewAsk>, Parameters<ChatLinkPreviewAsk>>()
+		const ask = jest
+			.fn<ReturnType<ChatLinkPreviewAsk>, Parameters<ChatLinkPreviewAsk>>()
 			.mockResolvedValueOnce(answer('https://a.io/', EChatLinkPreviewStatus.Pending))
 			.mockResolvedValueOnce(answer('https://a.io/', EChatLinkPreviewStatus.Pending))
 			.mockResolvedValueOnce(answer('https://a.io/', EChatLinkPreviewStatus.Ready, { title: 'A' }));
@@ -183,7 +194,9 @@ describe('createChatLinkPreviewSession', () => {
 
 	it('gives up after three more asks, and leaves the last answer pending', async () => {
 		jest.useFakeTimers();
-		const ask = jest.fn<ReturnType<ChatLinkPreviewAsk>, Parameters<ChatLinkPreviewAsk>>().mockResolvedValue(answer('https://a.io/', EChatLinkPreviewStatus.Pending));
+		const ask = jest
+			.fn<ReturnType<ChatLinkPreviewAsk>, Parameters<ChatLinkPreviewAsk>>()
+			.mockResolvedValue(answer('https://a.io/', EChatLinkPreviewStatus.Pending));
 		const session = createChatLinkPreviewSession(ask);
 		const loading = session.load('https://a.io/');
 		await jest.advanceTimersByTimeAsync(20_000);
@@ -193,16 +206,22 @@ describe('createChatLinkPreviewSession', () => {
 	});
 
 	it('remembers a link without a preview and never asks for it again', async () => {
-		const ask = jest.fn<ReturnType<ChatLinkPreviewAsk>, Parameters<ChatLinkPreviewAsk>>().mockResolvedValue(answer('https://a.io/', EChatLinkPreviewStatus.Unavailable));
+		const ask = jest
+			.fn<ReturnType<ChatLinkPreviewAsk>, Parameters<ChatLinkPreviewAsk>>()
+			.mockResolvedValue(answer('https://a.io/', EChatLinkPreviewStatus.Unavailable));
 		const session = createChatLinkPreviewSession(ask);
-		await expect(session.load('https://a.io/')).resolves.toMatchObject({ status: EChatLinkPreviewStatus.Unavailable });
+		await expect(session.load('https://a.io/')).resolves.toMatchObject({
+			status: EChatLinkPreviewStatus.Unavailable
+		});
 		expect(session.isUnavailable('https://a.io/')).toBe(true);
 		await expect(session.load('https://a.io/')).resolves.toBeNull();
 		expect(ask).toHaveBeenCalledTimes(1);
 	});
 
 	it('remembers a link the platform refuses (400) as one without a preview', async () => {
-		const ask = jest.fn<ReturnType<ChatLinkPreviewAsk>, Parameters<ChatLinkPreviewAsk>>().mockRejectedValue(httpError(400));
+		const ask = jest
+			.fn<ReturnType<ChatLinkPreviewAsk>, Parameters<ChatLinkPreviewAsk>>()
+			.mockRejectedValue(httpError(400));
 		const session = createChatLinkPreviewSession(ask);
 		await expect(session.load('https://a.io/')).resolves.toBeNull();
 		await expect(session.load('https://a.io/')).resolves.toBeNull();
@@ -211,10 +230,16 @@ describe('createChatLinkPreviewSession', () => {
 	});
 
 	it('forgets the oldest unavailable link past its limit', async () => {
-		const ask = jest.fn<ReturnType<ChatLinkPreviewAsk>, Parameters<ChatLinkPreviewAsk>>((url) => Promise.resolve(answer(url, EChatLinkPreviewStatus.Unavailable)));
+		const ask = jest.fn<ReturnType<ChatLinkPreviewAsk>, Parameters<ChatLinkPreviewAsk>>((url) =>
+			Promise.resolve(answer(url, EChatLinkPreviewStatus.Unavailable))
+		);
 		const session = createChatLinkPreviewSession(ask, { remembered: 2 });
 		for (const url of ['https://a.io/', 'https://b.io/', 'https://c.io/']) await session.load(url);
-		expect(['https://a.io/', 'https://b.io/', 'https://c.io/'].map(session.isUnavailable)).toEqual([false, true, true]);
+		expect(['https://a.io/', 'https://b.io/', 'https://c.io/'].map(session.isUnavailable)).toEqual([
+			false,
+			true,
+			true
+		]);
 	});
 
 	it('probes the route with one ask: on 404 the others are never sent, and the page hears it once', async () => {
@@ -238,7 +263,11 @@ describe('createChatLinkPreviewSession', () => {
 	it('asks for the other links once the probe answers, without waiting for its pending page', async () => {
 		jest.useFakeTimers();
 		const ask = jest.fn<ReturnType<ChatLinkPreviewAsk>, Parameters<ChatLinkPreviewAsk>>((url) =>
-			Promise.resolve(answer(url, url === 'https://a.io/' ? EChatLinkPreviewStatus.Pending : EChatLinkPreviewStatus.Ready, { title: url }))
+			Promise.resolve(
+				answer(url, url === 'https://a.io/' ? EChatLinkPreviewStatus.Pending : EChatLinkPreviewStatus.Ready, {
+					title: url
+				})
+			)
 		);
 		const session = createChatLinkPreviewSession(ask, { maxPolls: 1 });
 		const first = session.load('https://a.io/');
@@ -290,7 +319,9 @@ describe('createChatLinkPreviewSession', () => {
 
 	it('stops asking for a link whose message left the screen', async () => {
 		jest.useFakeTimers();
-		const ask = jest.fn<ReturnType<ChatLinkPreviewAsk>, Parameters<ChatLinkPreviewAsk>>().mockResolvedValue(answer('https://a.io/', EChatLinkPreviewStatus.Pending));
+		const ask = jest
+			.fn<ReturnType<ChatLinkPreviewAsk>, Parameters<ChatLinkPreviewAsk>>()
+			.mockResolvedValue(answer('https://a.io/', EChatLinkPreviewStatus.Pending));
 		const session = createChatLinkPreviewSession(ask);
 		const controller = new AbortController();
 		const loading = session.load('https://a.io/', controller.signal);

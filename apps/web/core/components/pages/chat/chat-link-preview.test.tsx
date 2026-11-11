@@ -1,7 +1,7 @@
 /** @jest-environment jsdom */
 
 import React from 'react';
-import { fireEvent, render, screen } from '@testing-library/react';
+import { render, screen } from '@testing-library/react';
 import type { ChatLinkPreviewCard, ChatPreviewLink } from '@/core/lib/utils/chat-link-preview';
 
 const mockPreviews = jest.fn<ChatLinkPreviewCard[], [readonly ChatPreviewLink[]]>();
@@ -20,9 +20,7 @@ const CARD: ChatLinkPreviewCard = {
 	href: 'https://a.io/page#top',
 	site: 'A site',
 	title: 'The page',
-	description: 'What the page is about',
-	image: { src: 'https://cdn.a.io/p.png', alt: 'A chart', ratio: 2 },
-	icon: 'https://a.io/icon.png'
+	description: 'What the page is about'
 };
 
 beforeEach(() => mockPreviews.mockReset());
@@ -52,26 +50,18 @@ describe('MessageLinkPreviews', () => {
 		expect(screen.getAllByRole('link')).toHaveLength(1);
 	});
 
-	it('draws the picture lazily, sized before it loads, without the referrer, with the alt the page gave', () => {
+	it('draws no remote picture, so the browser of the reader never calls the linked site', () => {
 		mockPreviews.mockReturnValue([CARD]);
 		const { container } = render(<MessageLinkPreviews body="https://a.io/page#top" />);
-		const [icon, picture] = Array.from(container.querySelectorAll('img'));
-		expect(icon.getAttribute('alt')).toBe('');
-		expect(icon.getAttribute('referrerpolicy')).toBe('no-referrer');
-		expect(picture.getAttribute('alt')).toBe('A chart');
-		expect(picture.getAttribute('loading')).toBe('lazy');
-		expect(picture.getAttribute('referrerpolicy')).toBe('no-referrer');
-		expect(picture.getAttribute('width')).toBe('96');
-		// The width and the height carry the proportions, so the box is held before the picture arrives.
-		expect(picture.getAttribute('height')).toBe('48');
+		expect(container.querySelector('img')).toBeNull();
+		expect(screen.getByText('A site')).toBeTruthy();
+		expect(screen.getByText('The page')).toBeTruthy();
 	});
 
-	it('leaves out a picture that does not load, and names a card without a title by its site', () => {
-		mockPreviews.mockReturnValue([{ ...CARD, title: null, icon: null }]);
-		const { container } = render(<MessageLinkPreviews body="https://a.io/page#top" />);
+	it('names a card without a title by its site', () => {
+		mockPreviews.mockReturnValue([{ ...CARD, title: null }]);
+		render(<MessageLinkPreviews body="https://a.io/page#top" />);
 		expect(screen.getByRole('link', { name: 'teamChat.LINK_PREVIEW_SITE_LABEL:A site' })).toBeTruthy();
-		const picture = container.querySelector('img') as HTMLImageElement;
-		fireEvent.error(picture);
-		expect(container.querySelector('img')).toBeNull();
+		expect(screen.queryByText('The page')).toBeNull();
 	});
 });
