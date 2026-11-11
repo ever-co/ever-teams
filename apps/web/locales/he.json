@@ -3049,7 +3049,11 @@
 			"inTeam": "ב{team}",
 			"conversations": "שיחות",
 			"people": "אנשים",
-			"messagePerson": "שליחת הודעה ל{name}"
+			"messagePerson": "שליחת הודעה ל{name}",
+			"projects": "פרויקטים",
+			"pages": "דפים",
+			"untitledPage": "ללא כותרת",
+			"recentlyOpened": "נפתחו לאחרונה"
 		}
 	},
 	"modals": {
@@ -4933,7 +4937,21 @@
 			"chatPreviousUnread": "השיחה הקודמת שלא נקראה",
 			"chatNextUnread": "השיחה הבאה שלא נקראה",
 			"chatUnreads": "פתיחת הודעות שלא נקראו",
-			"chatMarkAllRead": "סימון הכול כנקרא"
+			"chatMarkAllRead": "סימון הכול כנקרא",
+			"goHome": "מעבר לדף הבית",
+			"goProjects": "מעבר לפרויקטים",
+			"goKanban": "מעבר ללוח הקנבן",
+			"goProfile": "מעבר לפרופיל שלי",
+			"goTimesheets": "מעבר לדוח גיליונות הזמן",
+			"goWeeklyLimit": "מעבר לדוח המגבלה השבועית",
+			"goTimeActivity": "מעבר לדוח הזמן והפעילות",
+			"teamCreate": "יצירת צוות",
+			"projectCreate": "יצירת פרויקט",
+			"inviteUser": "הזמנת מישהו לצוות",
+			"searchTasks": "חיפוש במשימות",
+			"searchProjects": "חיפוש בפרויקטים",
+			"searchTeams": "חיפוש בצוותים",
+			"themeToggle": "מעבר בין בהיר לכהה"
 		},
 		"CHAT_SINGLE_KEY": "מקש של הצ'אט הוא מקש אחד, לא רצף.",
 		"CHAT_TAKEN": "הצ'אט כבר משתמש במקש הזה (עיצוב, שליחה, תנועה או גלילה)."

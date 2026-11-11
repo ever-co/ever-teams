@@ -3049,7 +3049,11 @@
 			"inTeam": "w {team}",
 			"conversations": "Rozmowy",
 			"people": "Osoby",
-			"messagePerson": "Napisz do: {name}"
+			"messagePerson": "Napisz do: {name}",
+			"projects": "Projekty",
+			"pages": "Strony",
+			"untitledPage": "Bez tytułu",
+			"recentlyOpened": "Ostatnio otwierane"
 		}
 	},
 	"modals": {
@@ -4933,7 +4937,21 @@
 			"chatPreviousUnread": "Poprzednia nieprzeczytana rozmowa",
 			"chatNextUnread": "Następna nieprzeczytana rozmowa",
 			"chatUnreads": "Otwórz nieprzeczytane",
-			"chatMarkAllRead": "Oznacz wszystko jako przeczytane"
+			"chatMarkAllRead": "Oznacz wszystko jako przeczytane",
+			"goHome": "Przejdź do strony głównej",
+			"goProjects": "Przejdź do projektów",
+			"goKanban": "Przejdź do tablicy Kanban",
+			"goProfile": "Przejdź do mojego profilu",
+			"goTimesheets": "Przejdź do raportu kart czasu pracy",
+			"goWeeklyLimit": "Przejdź do raportu limitu tygodniowego",
+			"goTimeActivity": "Przejdź do raportu czasu i aktywności",
+			"teamCreate": "Utwórz zespół",
+			"projectCreate": "Utwórz projekt",
+			"inviteUser": "Zaproś kogoś do zespołu",
+			"searchTasks": "Szukaj w zadaniach",
+			"searchProjects": "Szukaj w projektach",
+			"searchTeams": "Szukaj w zespołach",
+			"themeToggle": "Przełącz między jasnym a ciemnym"
 		},
 		"CHAT_SINGLE_KEY": "Klawisz czatu to jeden klawisz, nie sekwencja.",
 		"CHAT_TAKEN": "Czat już używa tego klawisza (formatowanie, wysyłanie, przechodzenie lub przewijanie)."

@@ -3049,7 +3049,11 @@
 			"inTeam": "in {team}",
 			"conversations": "Conversations",
 			"people": "People",
-			"messagePerson": "Message {name}"
+			"messagePerson": "Message {name}",
+			"projects": "Projects",
+			"pages": "Pages",
+			"untitledPage": "Untitled",
+			"recentlyOpened": "Recently opened"
 		}
 	},
 	"modals": {
@@ -4933,7 +4937,21 @@
 			"chatPreviousUnread": "Previous unread conversation",
 			"chatNextUnread": "Next unread conversation",
 			"chatUnreads": "Open Unreads",
-			"chatMarkAllRead": "Mark all as read"
+			"chatMarkAllRead": "Mark all as read",
+			"goHome": "Go to the home page",
+			"goProjects": "Go to the projects",
+			"goKanban": "Go to the Kanban board",
+			"goProfile": "Go to my profile",
+			"goTimesheets": "Go to the timesheets report",
+			"goWeeklyLimit": "Go to the weekly limit report",
+			"goTimeActivity": "Go to the time and activity report",
+			"teamCreate": "Create a team",
+			"projectCreate": "Create a project",
+			"inviteUser": "Invite someone to the team",
+			"searchTasks": "Search the tasks",
+			"searchProjects": "Search the projects",
+			"searchTeams": "Search the teams",
+			"themeToggle": "Switch between light and dark"
 		},
 		"CHAT_SINGLE_KEY": "A chat key is one key, not a sequence.",
 		"CHAT_TAKEN": "The chat already uses that key (formatting, sending, moving or scrolling)."

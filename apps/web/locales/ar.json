@@ -3049,7 +3049,11 @@
 			"inTeam": "في {team}",
 			"conversations": "المحادثات",
 			"people": "الأشخاص",
-			"messagePerson": "مراسلة {name}"
+			"messagePerson": "مراسلة {name}",
+			"projects": "المشاريع",
+			"pages": "الصفحات",
+			"untitledPage": "بلا عنوان",
+			"recentlyOpened": "المفتوحة مؤخرًا"
 		}
 	},
 	"modals": {
@@ -4933,7 +4937,21 @@
 			"chatPreviousUnread": "المحادثة غير المقروءة السابقة",
 			"chatNextUnread": "المحادثة غير المقروءة التالية",
 			"chatUnreads": "فتح غير المقروءة",
-			"chatMarkAllRead": "تعليم الكل كمقروء"
+			"chatMarkAllRead": "تعليم الكل كمقروء",
+			"goHome": "الانتقال إلى الصفحة الرئيسية",
+			"goProjects": "الانتقال إلى المشاريع",
+			"goKanban": "الانتقال إلى لوحة كانبان",
+			"goProfile": "الانتقال إلى ملفي الشخصي",
+			"goTimesheets": "الانتقال إلى تقرير الجداول الزمنية",
+			"goWeeklyLimit": "الانتقال إلى تقرير الحد الأسبوعي",
+			"goTimeActivity": "الانتقال إلى تقرير الوقت والنشاط",
+			"teamCreate": "إنشاء فريق",
+			"projectCreate": "إنشاء مشروع",
+			"inviteUser": "دعوة شخص إلى الفريق",
+			"searchTasks": "البحث في المهام",
+			"searchProjects": "البحث في المشاريع",
+			"searchTeams": "البحث في الفرق",
+			"themeToggle": "التبديل بين الفاتح والداكن"
 		},
 		"CHAT_SINGLE_KEY": "مفتاح الدردشة مفتاح واحد، لا تسلسل.",
 		"CHAT_TAKEN": "الدردشة تستخدم هذا المفتاح بالفعل (التنسيق أو الإرسال أو التنقل أو التمرير)."

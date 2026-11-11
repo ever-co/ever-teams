@@ -3048,8 +3048,12 @@
 			"tasks": "Taken",
 			"inTeam": "in {team}",
 			"conversations": "Gesprekken",
-			"people": "Mensen",
-			"messagePerson": "{name} een bericht sturen"
+			"people": "Personen",
+			"messagePerson": "{name} een bericht sturen",
+			"projects": "Projecten",
+			"pages": "Pagina's",
+			"untitledPage": "Zonder titel",
+			"recentlyOpened": "Onlangs geopend"
 		}
 	},
 	"modals": {
@@ -4933,7 +4937,21 @@
 			"chatPreviousUnread": "Vorig ongelezen gesprek",
 			"chatNextUnread": "Volgend ongelezen gesprek",
 			"chatUnreads": "Ongelezen openen",
-			"chatMarkAllRead": "Alles als gelezen markeren"
+			"chatMarkAllRead": "Alles als gelezen markeren",
+			"goHome": "Naar de startpagina",
+			"goProjects": "Naar de projecten",
+			"goKanban": "Naar het Kanban-bord",
+			"goProfile": "Naar mijn profiel",
+			"goTimesheets": "Naar het urenstaatrapport",
+			"goWeeklyLimit": "Naar het rapport weeklimiet",
+			"goTimeActivity": "Naar het rapport tijd en activiteit",
+			"teamCreate": "Team maken",
+			"projectCreate": "Project maken",
+			"inviteUser": "Iemand uitnodigen voor het team",
+			"searchTasks": "Taken doorzoeken",
+			"searchProjects": "Projecten doorzoeken",
+			"searchTeams": "Teams doorzoeken",
+			"themeToggle": "Wisselen tussen licht en donker"
 		},
 		"CHAT_SINGLE_KEY": "Een chattoets is één toets, geen reeks.",
 		"CHAT_TAKEN": "De chat gebruikt die toets al (opmaak, verzenden, verplaatsen of scrollen)."

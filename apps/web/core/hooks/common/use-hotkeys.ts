@@ -2,10 +2,15 @@
 
 import { useEffect } from 'react';
 import hotkeys, { HotkeysEvent } from 'hotkeys-js';
+import { isShortcutSequencePending } from '@/core/hooks/keyboard/use-shortcuts';
 
 export const useHotkeys = (key: string, callback: (e?: KeyboardEvent, h?: HotkeysEvent) => void) => {
 	useEffect(() => {
 		hotkeys(key, (event, handler) => {
+			// The second key of a shortcut registry sequence (`G`, then `H` or `A`) is the registry's, not this one's.
+			if (isShortcutSequencePending()) {
+				return;
+			}
 			event.preventDefault();
 			callback(event, handler);
 		});

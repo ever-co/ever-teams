@@ -3049,7 +3049,11 @@
 			"inTeam": "в {team}",
 			"conversations": "Разговоры",
 			"people": "Люди",
-			"messagePerson": "Написать: {name}"
+			"messagePerson": "Написать: {name}",
+			"projects": "Проекты",
+			"pages": "Страницы",
+			"untitledPage": "Без названия",
+			"recentlyOpened": "Недавно открытые"
 		}
 	},
 	"modals": {
@@ -4933,7 +4937,21 @@
 			"chatPreviousUnread": "Предыдущий непрочитанный разговор",
 			"chatNextUnread": "Следующий непрочитанный разговор",
 			"chatUnreads": "Открыть непрочитанные",
-			"chatMarkAllRead": "Отметить всё как прочитанное"
+			"chatMarkAllRead": "Отметить всё как прочитанное",
+			"goHome": "На главную страницу",
+			"goProjects": "К проектам",
+			"goKanban": "К доске Kanban",
+			"goProfile": "К моему профилю",
+			"goTimesheets": "К отчёту по табелям",
+			"goWeeklyLimit": "К отчёту о недельном лимите",
+			"goTimeActivity": "К отчёту о времени и активности",
+			"teamCreate": "Создать команду",
+			"projectCreate": "Создать проект",
+			"inviteUser": "Пригласить в команду",
+			"searchTasks": "Искать в задачах",
+			"searchProjects": "Искать в проектах",
+			"searchTeams": "Искать в командах",
+			"themeToggle": "Переключить светлую и тёмную тему"
 		},
 		"CHAT_SINGLE_KEY": "Клавиша чата — одна клавиша, а не последовательность.",
 		"CHAT_TAKEN": "Чат уже использует эту клавишу (форматирование, отправка, перемещение или прокрутка)."

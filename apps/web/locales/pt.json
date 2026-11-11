@@ -3049,7 +3049,11 @@
 			"inTeam": "em {team}",
 			"conversations": "Conversas",
 			"people": "Pessoas",
-			"messagePerson": "Escrever para {name}"
+			"messagePerson": "Escrever para {name}",
+			"projects": "Projetos",
+			"pages": "Páginas",
+			"untitledPage": "Sem título",
+			"recentlyOpened": "Abertos recentemente"
 		}
 	},
 	"modals": {
@@ -4933,7 +4937,21 @@
 			"chatPreviousUnread": "Conversa não lida anterior",
 			"chatNextUnread": "Próxima conversa não lida",
 			"chatUnreads": "Abrir Não lidas",
-			"chatMarkAllRead": "Marcar tudo como lido"
+			"chatMarkAllRead": "Marcar tudo como lido",
+			"goHome": "Ir para a página inicial",
+			"goProjects": "Ir para os projetos",
+			"goKanban": "Ir para o quadro Kanban",
+			"goProfile": "Ir para o meu perfil",
+			"goTimesheets": "Ir para o relatório de folhas de horas",
+			"goWeeklyLimit": "Ir para o relatório de limite semanal",
+			"goTimeActivity": "Ir para o relatório de tempo e atividade",
+			"teamCreate": "Criar uma equipa",
+			"projectCreate": "Criar um projeto",
+			"inviteUser": "Convidar alguém para a equipa",
+			"searchTasks": "Pesquisar nas tarefas",
+			"searchProjects": "Pesquisar nos projetos",
+			"searchTeams": "Pesquisar nas equipas",
+			"themeToggle": "Alternar entre claro e escuro"
 		},
 		"CHAT_SINGLE_KEY": "Uma tecla do chat é uma só tecla, não uma sequência.",
 		"CHAT_TAKEN": "O chat já usa essa tecla (formatação, envio, movimento ou rolagem)."

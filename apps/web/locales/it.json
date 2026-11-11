@@ -3049,7 +3049,11 @@
 			"inTeam": "in {team}",
 			"conversations": "Conversazioni",
 			"people": "Persone",
-			"messagePerson": "Scrivi a {name}"
+			"messagePerson": "Scrivi a {name}",
+			"projects": "Progetti",
+			"pages": "Pagine",
+			"untitledPage": "Senza titolo",
+			"recentlyOpened": "Aperti di recente"
 		}
 	},
 	"modals": {
@@ -4933,7 +4937,21 @@
 			"chatPreviousUnread": "Conversazione non letta precedente",
 			"chatNextUnread": "Conversazione non letta successiva",
 			"chatUnreads": "Apri Non letti",
-			"chatMarkAllRead": "Segna tutto come letto"
+			"chatMarkAllRead": "Segna tutto come letto",
+			"goHome": "Vai alla home page",
+			"goProjects": "Vai ai progetti",
+			"goKanban": "Vai alla bacheca Kanban",
+			"goProfile": "Vai al mio profilo",
+			"goTimesheets": "Vai al report dei fogli ore",
+			"goWeeklyLimit": "Vai al report del limite settimanale",
+			"goTimeActivity": "Vai al report tempo e attività",
+			"teamCreate": "Crea un team",
+			"projectCreate": "Crea un progetto",
+			"inviteUser": "Invita qualcuno nel team",
+			"searchTasks": "Cerca nelle attività",
+			"searchProjects": "Cerca nei progetti",
+			"searchTeams": "Cerca nei team",
+			"themeToggle": "Passa da chiaro a scuro"
 		},
 		"CHAT_SINGLE_KEY": "Un tasto della chat è un solo tasto, non una sequenza.",
 		"CHAT_TAKEN": "La chat usa già quel tasto (formattazione, invio, spostamento o scorrimento)."

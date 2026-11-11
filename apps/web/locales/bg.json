@@ -3049,7 +3049,11 @@
 			"inTeam": "в {team}",
 			"conversations": "Разговори",
 			"people": "Хора",
-			"messagePerson": "Съобщение до {name}"
+			"messagePerson": "Съобщение до {name}",
+			"projects": "Проекти",
+			"pages": "Страници",
+			"untitledPage": "Без заглавие",
+			"recentlyOpened": "Отваряни наскоро"
 		}
 	},
 	"modals": {
@@ -4933,7 +4937,21 @@
 			"chatPreviousUnread": "Предишен непрочетен разговор",
 			"chatNextUnread": "Следващ непрочетен разговор",
 			"chatUnreads": "Отваряне на непрочетените",
-			"chatMarkAllRead": "Маркиране на всички като прочетени"
+			"chatMarkAllRead": "Маркиране на всички като прочетени",
+			"goHome": "Към началната страница",
+			"goProjects": "Към проектите",
+			"goKanban": "Към таблото Kanban",
+			"goProfile": "Към моя профил",
+			"goTimesheets": "Към отчета за работното време",
+			"goWeeklyLimit": "Към отчета за седмичния лимит",
+			"goTimeActivity": "Към отчета за време и активност",
+			"teamCreate": "Създай екип",
+			"projectCreate": "Създай проект",
+			"inviteUser": "Покани някого в екипа",
+			"searchTasks": "Търси в задачите",
+			"searchProjects": "Търси в проектите",
+			"searchTeams": "Търси в екипите",
+			"themeToggle": "Превключи между светла и тъмна"
 		},
 		"CHAT_SINGLE_KEY": "Клавишът за чата е един клавиш, не поредица.",
 		"CHAT_TAKEN": "Чатът вече използва този клавиш (форматиране, изпращане, придвижване или превъртане)."
