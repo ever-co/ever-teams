@@ -128,6 +128,9 @@ export function useInboxItem(id: string | null) {
 		queryFn: async ({ signal }) => toInboxEntry(await inboxService.getItem(id as string, signal)),
 		enabled: !!id && scope !== null,
 		staleTime: 0,
+		// The app turns this off for every query; without a live connection, returning to the tab is when the pane
+		// learns that another tab answered or closed the decision.
+		refetchOnWindowFocus: true,
 		retry: false
 	});
 

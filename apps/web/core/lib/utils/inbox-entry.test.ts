@@ -8,6 +8,7 @@ import {
 	nextFocusIndex,
 	snoozeUntil,
 	tabOfFilter,
+	InboxFieldRequests,
 	toInboxEntry,
 	withRefusedChangeUndone
 } from './inbox-entry';
@@ -277,5 +278,22 @@ describe('withRefusedChangeUndone', () => {
 	it('leaves an entry the request was not for, or one it did not change', () => {
 		expect(withRefusedChangeUndone(read, [{ ...unread, id: 'other' }], 'isUnread', false)).toBe(read);
 		expect(withRefusedChangeUndone(read, [read], 'isUnread', false)).toBe(read);
+	});
+});
+
+describe('InboxFieldRequests', () => {
+	it('knows the last request sent on a field of each entry, whatever order they answer in', () => {
+		const requests = new InboxFieldRequests();
+		const archive = requests.start(['a', 'b'], 'isArchived');
+		const unarchive = requests.start(['a'], 'isArchived');
+		const read = requests.start(['a'], 'isUnread');
+
+		// The first archive answers last, refused: on `a` a newer request was sent since, on `b` it is still the last.
+		expect(requests.isLatest('a', 'isArchived', archive)).toBe(false);
+		expect(requests.isLatest('b', 'isArchived', archive)).toBe(true);
+		expect(requests.isLatest('a', 'isArchived', unarchive)).toBe(true);
+		// Another field keeps its own last request.
+		expect(requests.isLatest('a', 'isUnread', read)).toBe(true);
+		expect(requests.isLatest('c', 'isArchived', archive)).toBe(false);
 	});
 });

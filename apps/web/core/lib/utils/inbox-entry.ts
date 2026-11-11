@@ -126,9 +126,32 @@ function subjectOf(entity: string | null, chatParts: { place: string | null } | 
 }
 
 /**
+ * Which request last set a field of an entry. Requests answer in any order: a refusal that answers after a newer request
+ * on the same field was sent must take nothing back, whatever the field holds by then (archive, unarchive, archive
+ * again: the first one refused last would otherwise undo the third).
+ */
+export class InboxFieldRequests {
+	private readonly latest = new Map<string, number>();
+	private sent = 0;
+
+	/** Records a request that sets `field` on the entries, and returns its number. */
+	start(ids: readonly string[], field: string): number {
+		const request = ++this.sent;
+		for (const id of ids) this.latest.set(`${id}|${field}`, request);
+		return request;
+	}
+
+	/** Whether `request` is still the last one sent that sets `field` on the entry. */
+	isLatest(id: string, field: string, request: number): boolean {
+		return this.latest.get(`${id}|${field}`) === request;
+	}
+}
+
+/**
  * The entry the pane holds after a request the platform refused: it takes back what that request set on it, and only
  * that field, so a change made by another action meanwhile stays. When a later action set the field again since, the
- * entry keeps it.
+ * entry keeps it. The caller passes only the entries for which the refused request is still the last one sent on the
+ * field ({@link InboxFieldRequests}).
  *
  * @param held The entry the pane holds now.
  * @param refused The entries the refused request was for, as they were when it was made.
