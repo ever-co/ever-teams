@@ -117,3 +117,28 @@ and the private pages, and the menu its Make private / Make workspace.
 Text-anchored comments (generic comments on entity `Document` + anchors in the JSON), presence through the
 real-time client, task chips (`useTaskDrawer`), command palette entries, `?block=` / `?thread=` deep links,
 sub-page zip export, drag to reorder among siblings, phone editing polish. Live co-editing: section 6.
+
+| Module | Responsibility |
+| --- | --- |
+| `core/components/common/rich-editor/block-id-extension.ts` | `blockId` on the blocks (UUID, `data-block-id`, `data-blockid` read too), a new one after an edit for a block without one or with a copy, the selection's block anchored on demand; never on the live binding's own transactions |
+| `core/lib/utils/docs-comments.ts` | the anchor line (`[[block:<blockId>]]`), threads, reading order, tabs, the marked blocks, authorship, quotes, the anchored blocks of a page's JSON |
+| `core/lib/utils/docs-links.ts` | page addresses with `?block=` / `?thread=` / `?comments=1`, task links, where an Inbox entry about a page leads |
+| `core/hooks/docs/use-docs-comments.ts` | the page's comments (`GET /comment`, entity `Document`), post, reply, edit, resolve / reopen, delete (`PUT` and `DELETE /comment/:id`, proxy twin `app/api/comment/[id]`) |
+| `core/components/pages/docs/docs-editor-extensions.ts` | the marks of the blocks with an open thread (their marker opens it), the block a link points at, the task chips and the task paste |
+| `core/components/pages/docs/docs-comments-panel.tsx` | the Comments panel |
+| `core/components/pages/docs/docs-mobile-format-bar.tsx` | the phone's formatting row above the on-screen keyboard |
+| `core/components/layouts/default-layout/header/palette-docs-results.tsx` | the palette's pages |
+
+Rules:
+
+- A comment's place is a block, as the platform stores it: the anchor is the first line of the comment's body (the
+  platform's comment has no field for it), a reply carries its thread's. The selected text is the thread's quote; the
+  panel quotes the block's current text, and a thread whose block is gone says so and stays readable.
+- A page whose blocks carry anchors opens from its JSON (the platform's HTML cache does not keep them), so no save
+  drops them. Giving the selection's block an anchor to comment on it is an edit of the page, saved as any other.
+- Editing, resolving and deleting a comment are its author's (the platform matches the comment on the caller).
+- An Inbox entry of a mention in a page comment (entity `Comment`, `metadata.parentEntity: Document`) opens its
+  thread; an entry about the page (a followed page's comment, a share, a review) opens the page, with its comments when
+  it is about a comment.
+- A drop beside a row only places a page among the pages of the same section; a page shown at the root because its
+  parent is out of sight takes nothing beside it (it is no root page on the platform).

@@ -1584,7 +1584,9 @@
 			"TASKS_HIDDEN_BY_FILTERS": "{count, plural, one {משימה אחת מוסתרת על ידי המסננים} other {# משימות מוסתרות על ידי המסננים}}",
 			"NO_STATUSES_TITLE": "עדיין אין סטטוסים",
 			"NO_STATUSES_MESSAGE": "לצוות הזה אין סטטוסים של משימות. הוסיפו אותם בהגדרות הצוות כדי לראות את הלוח.",
-			"CREATION_DAY": "יום יצירה"
+			"CREATION_DAY": "יום יצירה",
+			"SELECT_TASK": "בחירת {title}",
+			"OTHER_TEAM_MOVE": "המשימה הזו שייכת לצוות אחר: שנו את הסטטוס שלה מתוך המשימה עצמה."
 		},
 		"projects": {
 			"projectTitle": {
@@ -2459,7 +2461,11 @@
 			"SHOW_EMPTY_GROUPS": "קבוצות ריקות",
 			"SHOW_SUB_TASKS": "תתי־משימות",
 			"SUB_TASKS_DONE": "{done} מתוך {total} תתי־משימות הסתיימו",
-			"TRACKED_NOW_BY": "במעקב כעת על ידי {names}"
+			"TRACKED_NOW_BY": "במעקב כעת על ידי {names}",
+			"SEARCH_PROJECT": "העברה לפרויקט…",
+			"LAYOUT": "פריסה",
+			"LAYOUT_LIST": "רשימה",
+			"LAYOUT_BOARD": "לוח"
 		},
 		"joinTeam": {
 			"TITLE": "הצטרפות לצוות",
@@ -4994,7 +5000,8 @@
 			"searchTasks": "חיפוש במשימות",
 			"searchProjects": "חיפוש בפרויקטים",
 			"searchTeams": "חיפוש בצוותים",
-			"themeToggle": "מעבר בין בהיר לכהה"
+			"themeToggle": "מעבר בין בהיר לכהה",
+			"taskProject": "שינוי הפרויקט"
 		},
 		"CHAT_SINGLE_KEY": "מקש של הצ'אט הוא מקש אחד, לא רצף.",
 		"CHAT_TAKEN": "הצ'אט כבר משתמש במקש הזה (עיצוב, שליחה, תנועה או גלילה)."
@@ -5255,7 +5262,9 @@
 		"LOAD_MORE": "טעינת עוד",
 		"VIEW_IMAGE": "הצגת {name}",
 		"OPEN_ORIGINAL": "פתיחת המקור",
-		"EMOJI_SUGGESTIONS": "אימוג׳י"
+		"EMOJI_SUGGESTIONS": "אימוג׳י",
+		"LINK_PREVIEW_LABEL": "{title} ({site}, נפתח בכרטיסייה חדשה)",
+		"LINK_PREVIEW_SITE_LABEL": "{site} (נפתח בכרטיסייה חדשה)"
 	},
 	"docs": {
 		"TITLE": "מסמכים",
@@ -5425,7 +5434,45 @@
 		"FOLLOW": "מעקב אחרי הדף",
 		"UNFOLLOW": "הפסקת מעקב אחרי הדף",
 		"MUTE": "השתקת התראות",
-		"UNMUTE": "ביטול השתקת התראות"
+		"UNMUTE": "ביטול השתקת התראות",
+		"COMMENTS": "תגובות",
+		"COMMENT": "תגובה",
+		"COMMENTS_OPEN": "פתוחות",
+		"COMMENTS_RESOLVED": "נפתרו",
+		"COMMENTS_EMPTY_OPEN": "אין תגובות פתוחות. בחרו טקסט ובחרו \"תגובה\", או כתבו למטה.",
+		"COMMENTS_EMPTY_RESOLVED": "אין תגובות שנפתרו.",
+		"COMMENTS_LOAD_ERROR": "לא ניתן היה לטעון את התגובות.",
+		"COMMENT_PLACEHOLDER": "הגיבו על הדף הזה…",
+		"COMMENT_ON_SELECTION_PLACEHOLDER": "הגיבו על הטקסט שנבחר…",
+		"COMMENTING_ON": "תגובה על",
+		"COMMENT_ON_PAGE": "על הדף",
+		"COMMENT_DETACHED": "הטקסט שעליו נכתבה התגובה כבר לא בדף",
+		"COMMENT_REPLY": "השב",
+		"COMMENT_RESOLVE": "סמן כנפתר",
+		"COMMENT_REOPEN": "פתח מחדש",
+		"COMMENT_EDIT": "עריכה",
+		"COMMENT_DELETE": "מחיקה",
+		"COMMENT_DELETE_TITLE": "למחוק את התגובה?",
+		"COMMENT_DELETE_TEXT": "היא תוסר עבור כולם. התשובות נשארות.",
+		"COMMENT_EDITED": "נערך",
+		"COMMENT_MENU": "פעולות תגובה",
+		"COMMENT_ERROR": "לא ניתן היה לשמור את התגובה.",
+		"COMMENT_MARKER": "פתח את התגובות על הבלוק הזה",
+		"COPY_BLOCK_LINK": "העתק קישור לבלוק",
+		"SOMEONE": "מישהו",
+		"THREAD_NOT_FOUND": "התגובה הזו כבר לא בדף.",
+		"BLOCK_NOT_FOUND": "החלק הזה של הדף כבר לא קיים.",
+		"EXPORT_WITH_SUB_PAGES": "ייצוא עם דפי משנה (zip)",
+		"EXPORTING": "מכין את הייצוא…",
+		"EXPORT_ERROR": "לא ניתן היה לבצע את הייצוא.",
+		"TASK_CHIP_UNKNOWN": "משימה",
+		"OPEN_TASK": "פתח משימה",
+		"PAGES": "דפים",
+		"FORMATTING": "עיצוב",
+		"PALETTE_HEADING": "דפים",
+		"EXPORT_UNSAVED": "השינויים האחרונים שלך עדיין לא נשמרו, ולכן לא יוצא דבר. נסו שוב כשהדף יציג \"נשמר\".",
+		"COMMENT_ANCHOR_UNSAVED": "לא ניתן היה לשמור את הדף, ולכן התגובה לא פורסמה. הטקסט שלך נשמר.",
+		"COPY_ERROR": "לא ניתן היה להעתיק את הקישור."
 	},
 	"whatsNew": {
 		"TITLE": "מה חדש",

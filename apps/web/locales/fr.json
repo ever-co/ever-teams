@@ -1584,7 +1584,9 @@
 			"TASKS_HIDDEN_BY_FILTERS": "{count, plural, one {# tâche masquée par les filtres} other {# tâches masquées par les filtres}}",
 			"NO_STATUSES_TITLE": "Aucun statut pour l'instant",
 			"NO_STATUSES_MESSAGE": "Cette équipe n'a aucun statut de tâche. Ajoutez-en dans les paramètres de l'équipe pour voir son tableau.",
-			"CREATION_DAY": "Jour de création"
+			"CREATION_DAY": "Jour de création",
+			"SELECT_TASK": "Sélectionner {title}",
+			"OTHER_TEAM_MOVE": "Cette tâche appartient à une autre équipe : changez son statut depuis la tâche elle-même."
 		},
 		"profile": {
 			"BREADCRUMB": "[\"Tâches du membre\"]",
@@ -2459,7 +2461,11 @@
 			"SHOW_EMPTY_GROUPS": "Groupes vides",
 			"SHOW_SUB_TASKS": "Sous-tâches",
 			"SUB_TASKS_DONE": "{done} sous-tâches terminées sur {total}",
-			"TRACKED_NOW_BY": "Suivie en ce moment par {names}"
+			"TRACKED_NOW_BY": "Suivie en ce moment par {names}",
+			"SEARCH_PROJECT": "Déplacer vers un projet…",
+			"LAYOUT": "Disposition",
+			"LAYOUT_LIST": "Liste",
+			"LAYOUT_BOARD": "Tableau"
 		},
 		"joinTeam": {
 			"TITLE": "Rejoindre une équipe",
@@ -4994,7 +5000,8 @@
 			"searchTasks": "Rechercher dans les tâches",
 			"searchProjects": "Rechercher dans les projets",
 			"searchTeams": "Rechercher dans les équipes",
-			"themeToggle": "Basculer entre clair et sombre"
+			"themeToggle": "Basculer entre clair et sombre",
+			"taskProject": "Changer le projet"
 		},
 		"CHAT_SINGLE_KEY": "Une touche du chat est une seule touche, pas une séquence.",
 		"CHAT_TAKEN": "Le chat utilise déjà cette touche (mise en forme, envoi, déplacement ou défilement)."
@@ -5255,7 +5262,9 @@
 		"LOAD_MORE": "Charger plus",
 		"VIEW_IMAGE": "Voir {name}",
 		"OPEN_ORIGINAL": "Ouvrir l'original",
-		"EMOJI_SUGGESTIONS": "Émojis"
+		"EMOJI_SUGGESTIONS": "Émojis",
+		"LINK_PREVIEW_LABEL": "{title} ({site}, s'ouvre dans un nouvel onglet)",
+		"LINK_PREVIEW_SITE_LABEL": "{site} (s'ouvre dans un nouvel onglet)"
 	},
 	"docs": {
 		"TITLE": "Documents",
@@ -5425,7 +5434,45 @@
 		"FOLLOW": "Suivre la page",
 		"UNFOLLOW": "Ne plus suivre la page",
 		"MUTE": "Couper les notifications",
-		"UNMUTE": "Réactiver les notifications"
+		"UNMUTE": "Réactiver les notifications",
+		"COMMENTS": "Commentaires",
+		"COMMENT": "Commenter",
+		"COMMENTS_OPEN": "Ouverts",
+		"COMMENTS_RESOLVED": "Résolus",
+		"COMMENTS_EMPTY_OPEN": "Aucun commentaire ouvert. Sélectionnez du texte et choisissez Commenter, ou écrivez ci-dessous.",
+		"COMMENTS_EMPTY_RESOLVED": "Aucun commentaire résolu.",
+		"COMMENTS_LOAD_ERROR": "Les commentaires n’ont pas pu être chargés.",
+		"COMMENT_PLACEHOLDER": "Commenter cette page…",
+		"COMMENT_ON_SELECTION_PLACEHOLDER": "Commenter le texte sélectionné…",
+		"COMMENTING_ON": "Commentaire sur",
+		"COMMENT_ON_PAGE": "Sur la page",
+		"COMMENT_DETACHED": "Le texte auquel il se rapportait n’est plus sur la page",
+		"COMMENT_REPLY": "Répondre",
+		"COMMENT_RESOLVE": "Résoudre",
+		"COMMENT_REOPEN": "Rouvrir",
+		"COMMENT_EDIT": "Modifier",
+		"COMMENT_DELETE": "Supprimer",
+		"COMMENT_DELETE_TITLE": "Supprimer ce commentaire ?",
+		"COMMENT_DELETE_TEXT": "Il est supprimé pour tout le monde. Ses réponses restent.",
+		"COMMENT_EDITED": "modifié",
+		"COMMENT_MENU": "Actions du commentaire",
+		"COMMENT_ERROR": "Le commentaire n’a pas pu être enregistré.",
+		"COMMENT_MARKER": "Ouvrir les commentaires de ce bloc",
+		"COPY_BLOCK_LINK": "Copier le lien vers le bloc",
+		"SOMEONE": "Quelqu’un",
+		"THREAD_NOT_FOUND": "Ce commentaire n’est plus sur cette page.",
+		"BLOCK_NOT_FOUND": "Cette partie de la page n’existe plus.",
+		"EXPORT_WITH_SUB_PAGES": "Exporter avec les sous-pages (zip)",
+		"EXPORTING": "Préparation de l’export…",
+		"EXPORT_ERROR": "L’export n’a pas pu être fait.",
+		"TASK_CHIP_UNKNOWN": "Tâche",
+		"OPEN_TASK": "Ouvrir la tâche",
+		"PAGES": "Pages",
+		"FORMATTING": "Mise en forme",
+		"PALETTE_HEADING": "Pages",
+		"EXPORT_UNSAVED": "Vos dernières modifications ne sont pas encore enregistrées : rien n’a été exporté. Réessayez quand la page indique Enregistré.",
+		"COMMENT_ANCHOR_UNSAVED": "La page n’a pas pu être enregistrée : le commentaire n’a pas été publié. Votre texte est conservé.",
+		"COPY_ERROR": "Le lien n’a pas pu être copié."
 	},
 	"whatsNew": {
 		"TITLE": "Nouveautés",

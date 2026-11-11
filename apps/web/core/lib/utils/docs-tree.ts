@@ -140,6 +140,55 @@ export function reorderedIds(siblingIds: readonly string[], id: string, directio
 	return next;
 }
 
+/** Where a dragged page lands on a row: before it or after it among its siblings, or inside it as a sub-page. */
+export type DocsDropPosition = 'before' | 'inside' | 'after';
+
+/** The top and the bottom quarter of a row place beside it; the middle nests under it. */
+export function dropPositionAt(offsetY: number, height: number): DocsDropPosition {
+	if (!Number.isFinite(height) || height <= 0) return 'inside';
+	const ratio = offsetY / height;
+	if (ratio < 0.25) return 'before';
+	if (ratio > 0.75) return 'after';
+	return 'inside';
+}
+
+/** What a drop beside a row asks of the platform: the parent and the siblings in their new order. */
+export interface DocsPlacement {
+	parentId: string | null;
+	/** Every sibling under `parentId`, the dragged page among them. */
+	orderedIds: string[];
+	/** The dragged page's place in `orderedIds`. */
+	index: number;
+	/** Whether the page changes parent (a move) or only its place (a reorder). */
+	moves: boolean;
+}
+
+/**
+ * The siblings once `draggedId` is put before or after `targetId`; null when nothing would change or the drop is not
+ * allowed (a page beside itself, or under one of its own sub-pages).
+ */
+export function placementOf(tree: DocTree, draggedId: string, targetId: string, position: 'before' | 'after'): DocsPlacement | null {
+	const dragged = tree.byId.get(draggedId);
+	const target = tree.byId.get(targetId);
+	if (!dragged || !target || draggedId === targetId) return null;
+	// A page shown at the root because its parent is out of sight is no root page on the platform: nothing goes beside it.
+	const parentId = target.page.parentId ?? null;
+	if (parentId !== null && !tree.byId.has(parentId)) return null;
+	if (!canMoveUnder(tree, draggedId, parentId)) return null;
+	const currentParentId = dragged.page.parentId ?? null;
+	const siblings = siblingsOf(tree, parentId)
+		.filter((node) => (node.page.parentId ?? null) === parentId)
+		.map((node) => node.page.id);
+	const without = siblings.filter((id) => id !== draggedId);
+	const targetAt = without.indexOf(targetId);
+	if (targetAt < 0) return null;
+	const index = position === 'before' ? targetAt : targetAt + 1;
+	const orderedIds = [...without.slice(0, index), draggedId, ...without.slice(index)];
+	const moves = currentParentId !== parentId;
+	if (!moves && orderedIds.every((id, at) => siblings[at] === id)) return null;
+	return { parentId, orderedIds, index, moves };
+}
+
 /**
  * Private pages are the person's own space, a team's pages (`TEAM`, on a platform with Docs collaboration) its team
  * space; the rest is the workspace. A team page without its team reads as the workspace's.

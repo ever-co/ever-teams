@@ -1584,7 +1584,9 @@
 			"TASKS_HIDDEN_BY_FILTERS": "{count, plural, one {# Aufgabe durch die Filter ausgeblendet} other {# Aufgaben durch die Filter ausgeblendet}}",
 			"NO_STATUSES_TITLE": "Noch keine Status",
 			"NO_STATUSES_MESSAGE": "Dieses Team hat keine Aufgabenstatus. Lege sie in den Teameinstellungen an, um das Board zu sehen.",
-			"CREATION_DAY": "Erstellungstag"
+			"CREATION_DAY": "Erstellungstag",
+			"SELECT_TASK": "{title} auswählen",
+			"OTHER_TEAM_MOVE": "Diese Aufgabe gehört zu einem anderen Team: Ändern Sie ihren Status in der Aufgabe selbst."
 		},
 		"profile": {
 			"BREADCRUMB": "[\"Aufgaben des Mitglieds\"]",
@@ -2459,7 +2461,11 @@
 			"SHOW_EMPTY_GROUPS": "Leere Gruppen",
 			"SHOW_SUB_TASKS": "Unteraufgaben",
 			"SUB_TASKS_DONE": "{done} von {total} Unteraufgaben erledigt",
-			"TRACKED_NOW_BY": "Wird gerade erfasst von {names}"
+			"TRACKED_NOW_BY": "Wird gerade erfasst von {names}",
+			"SEARCH_PROJECT": "In ein Projekt verschieben…",
+			"LAYOUT": "Layout",
+			"LAYOUT_LIST": "Liste",
+			"LAYOUT_BOARD": "Board"
 		},
 		"joinTeam": {
 			"TITLE": "Einem Team beitreten",
@@ -4994,7 +5000,8 @@
 			"searchTasks": "Aufgaben durchsuchen",
 			"searchProjects": "Projekte durchsuchen",
 			"searchTeams": "Teams durchsuchen",
-			"themeToggle": "Zwischen hell und dunkel wechseln"
+			"themeToggle": "Zwischen hell und dunkel wechseln",
+			"taskProject": "Projekt ändern"
 		},
 		"CHAT_SINGLE_KEY": "Eine Chat-Taste ist eine einzelne Taste, keine Folge.",
 		"CHAT_TAKEN": "Der Chat verwendet diese Taste bereits (Formatieren, Senden, Bewegen oder Scrollen)."
@@ -5255,7 +5262,9 @@
 		"LOAD_MORE": "Mehr laden",
 		"VIEW_IMAGE": "{name} ansehen",
 		"OPEN_ORIGINAL": "Original öffnen",
-		"EMOJI_SUGGESTIONS": "Emoji"
+		"EMOJI_SUGGESTIONS": "Emoji",
+		"LINK_PREVIEW_LABEL": "{title} ({site}, öffnet sich in einem neuen Tab)",
+		"LINK_PREVIEW_SITE_LABEL": "{site} (öffnet sich in einem neuen Tab)"
 	},
 	"docs": {
 		"TITLE": "Dokumente",
@@ -5425,7 +5434,45 @@
 		"FOLLOW": "Seite folgen",
 		"UNFOLLOW": "Seite nicht mehr folgen",
 		"MUTE": "Benachrichtigungen stummschalten",
-		"UNMUTE": "Benachrichtigungen einschalten"
+		"UNMUTE": "Benachrichtigungen einschalten",
+		"COMMENTS": "Kommentare",
+		"COMMENT": "Kommentieren",
+		"COMMENTS_OPEN": "Offen",
+		"COMMENTS_RESOLVED": "Erledigt",
+		"COMMENTS_EMPTY_OPEN": "Keine offenen Kommentare. Text markieren und „Kommentieren“ wählen oder unten schreiben.",
+		"COMMENTS_EMPTY_RESOLVED": "Keine erledigten Kommentare.",
+		"COMMENTS_LOAD_ERROR": "Die Kommentare konnten nicht geladen werden.",
+		"COMMENT_PLACEHOLDER": "Diese Seite kommentieren…",
+		"COMMENT_ON_SELECTION_PLACEHOLDER": "Den markierten Text kommentieren…",
+		"COMMENTING_ON": "Kommentar zu",
+		"COMMENT_ON_PAGE": "Zur Seite",
+		"COMMENT_DETACHED": "Der Text, zu dem dies gehörte, ist nicht mehr auf der Seite",
+		"COMMENT_REPLY": "Antworten",
+		"COMMENT_RESOLVE": "Erledigen",
+		"COMMENT_REOPEN": "Wieder öffnen",
+		"COMMENT_EDIT": "Bearbeiten",
+		"COMMENT_DELETE": "Löschen",
+		"COMMENT_DELETE_TITLE": "Diesen Kommentar löschen?",
+		"COMMENT_DELETE_TEXT": "Er wird für alle entfernt. Die Antworten bleiben.",
+		"COMMENT_EDITED": "bearbeitet",
+		"COMMENT_MENU": "Kommentaraktionen",
+		"COMMENT_ERROR": "Der Kommentar konnte nicht gespeichert werden.",
+		"COMMENT_MARKER": "Kommentare zu diesem Block öffnen",
+		"COPY_BLOCK_LINK": "Link zum Block kopieren",
+		"SOMEONE": "Jemand",
+		"THREAD_NOT_FOUND": "Dieser Kommentar ist nicht mehr auf dieser Seite.",
+		"BLOCK_NOT_FOUND": "Dieser Teil der Seite ist nicht mehr da.",
+		"EXPORT_WITH_SUB_PAGES": "Mit Unterseiten exportieren (ZIP)",
+		"EXPORTING": "Export wird vorbereitet…",
+		"EXPORT_ERROR": "Der Export konnte nicht erstellt werden.",
+		"TASK_CHIP_UNKNOWN": "Aufgabe",
+		"OPEN_TASK": "Aufgabe öffnen",
+		"PAGES": "Seiten",
+		"FORMATTING": "Formatierung",
+		"PALETTE_HEADING": "Seiten",
+		"EXPORT_UNSAVED": "Ihre letzten Änderungen sind noch nicht gespeichert, deshalb wurde nichts exportiert. Versuchen Sie es erneut, sobald die Seite „Gespeichert“ zeigt.",
+		"COMMENT_ANCHOR_UNSAVED": "Die Seite konnte nicht gespeichert werden, deshalb wurde der Kommentar nicht gesendet. Ihr Text bleibt erhalten.",
+		"COPY_ERROR": "Der Link konnte nicht kopiert werden."
 	},
 	"whatsNew": {
 		"TITLE": "Neuigkeiten",
