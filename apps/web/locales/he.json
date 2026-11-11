@@ -5498,7 +5498,9 @@
 		"LOAD_MORE": "טעינת עוד",
 		"VIEW_IMAGE": "הצגת {name}",
 		"OPEN_ORIGINAL": "פתיחת המקור",
-		"EMOJI_SUGGESTIONS": "אימוג׳י"
+		"EMOJI_SUGGESTIONS": "אימוג׳י",
+		"LINK_PREVIEW_LABEL": "{title} ({site}, נפתח בכרטיסייה חדשה)",
+		"LINK_PREVIEW_SITE_LABEL": "{site} (נפתח בכרטיסייה חדשה)"
 	},
 	"docs": {
 		"TITLE": "מסמכים",

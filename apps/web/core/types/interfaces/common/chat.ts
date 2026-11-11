@@ -257,6 +257,38 @@ export interface IChatFilesQuery {
 	skip?: number;
 }
 
+/**
+ * Where a link preview stands (`GET /chat/link-preview?url=`), as the platform's `ChatLinkPreviewStatusEnum` says it:
+ * `pending` while its worker fetches the page (ask again in a moment), `ready` once fetched, `unavailable` when there
+ * is nothing to show (show the plain link).
+ */
+export enum EChatLinkPreviewStatus {
+	Pending = 'pending',
+	Ready = 'ready',
+	Unavailable = 'unavailable'
+}
+
+/**
+ * A link preview the platform fetched (the browser fetches none itself), as its `IChatLinkPreview` contract says it.
+ * Every string is plain text the platform sanitized, rendered as text and never as HTML; `image` and `icon` are
+ * absolute `https:` addresses.
+ */
+export interface IChatLinkPreview {
+	/** The link, normalized (no fragment). */
+	url: string;
+	status: EChatLinkPreviewStatus;
+	title?: string | null;
+	description?: string | null;
+	siteName?: string | null;
+	image?: string | null;
+	imageAlt?: string | null;
+	imageWidth?: number | null;
+	imageHeight?: number | null;
+	icon?: string | null;
+	/** When the platform last fetched the page. */
+	fetchedAt?: string | null;
+}
+
 /** A page of the files of a conversation, newest first. */
 export interface IChatFilesResult {
 	files: IChatFile[];

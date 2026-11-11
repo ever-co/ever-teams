@@ -5498,7 +5498,9 @@
 		"LOAD_MORE": "تحميل المزيد",
 		"VIEW_IMAGE": "عرض {name}",
 		"OPEN_ORIGINAL": "فتح الأصل",
-		"EMOJI_SUGGESTIONS": "الرموز التعبيرية"
+		"EMOJI_SUGGESTIONS": "الرموز التعبيرية",
+		"LINK_PREVIEW_LABEL": "{title} ({site}، يُفتح في علامة تبويب جديدة)",
+		"LINK_PREVIEW_SITE_LABEL": "{site} (يُفتح في علامة تبويب جديدة)"
 	},
 	"docs": {
 		"TITLE": "المستندات",

@@ -5498,7 +5498,9 @@
 		"LOAD_MORE": "Charger plus",
 		"VIEW_IMAGE": "Voir {name}",
 		"OPEN_ORIGINAL": "Ouvrir l'original",
-		"EMOJI_SUGGESTIONS": "Émojis"
+		"EMOJI_SUGGESTIONS": "Émojis",
+		"LINK_PREVIEW_LABEL": "{title} ({site}, s'ouvre dans un nouvel onglet)",
+		"LINK_PREVIEW_SITE_LABEL": "{site} (s'ouvre dans un nouvel onglet)"
 	},
 	"docs": {
 		"TITLE": "Documents",
