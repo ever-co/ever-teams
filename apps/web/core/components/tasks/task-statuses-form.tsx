@@ -273,7 +273,12 @@ export const TaskStatusesForm = ({ formOnly = false, onCreated }: StatusForm) =>
 										defaultValue={edit?.value}
 									/>
 									<div className={PICKER}>
-										<IconPopover kind="status" control={control} setValue={setValue} />
+										<IconPopover
+											kind="status"
+											control={control}
+											setValue={setValue}
+											iconUrl={edit?.fullIconUrl}
+										/>
 									</div>
 									<div className={PICKER}>
 										<ColorPicker

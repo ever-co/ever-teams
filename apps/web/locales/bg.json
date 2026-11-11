@@ -4339,6 +4339,18 @@
 			"ICON_CURRENT": "Икона: {name}. Смяна",
 			"ICON_SEARCH": "Търсене на икони",
 			"ICON_EMPTY": "Няма икона, която да отговаря на търсенето.",
+			"ICON_SOURCE": "Източник на иконата",
+			"ICON_TAB_LIBRARY": "Библиотека",
+			"ICON_TAB_UPLOAD": "Качване",
+			"ICON_UPLOAD_CHOOSE": "Изберете изображение",
+			"ICON_UPLOAD_REPLACE": "Замяна на изображението",
+			"ICON_UPLOAD_HINT": "Пуснете изображение тук или изберете такова: PNG, JPEG, WebP или GIF, най-много {size} MB.",
+			"ICON_UPLOADING": "Изображението се качва...",
+			"ICON_UPLOADING_PROGRESS": "Изображението се качва... {progress}%",
+			"ICON_UPLOAD_TYPE_ERROR": "Изберете изображение PNG, JPEG, WebP или GIF.",
+			"ICON_UPLOAD_SIZE_ERROR": "Това изображение е над {size} MB. Изберете по-малко.",
+			"ICON_UPLOAD_FAILED": "Изображението не е качено. {reason}",
+			"ICON_UPLOADED_NAME": "качено изображение",
 			"iconGroups": {
 				"classic": "Класически икони"
 			},

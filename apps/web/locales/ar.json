@@ -4339,6 +4339,18 @@
 			"ICON_CURRENT": "الأيقونة: {name}. تغييرها",
 			"ICON_SEARCH": "البحث في الأيقونات",
 			"ICON_EMPTY": "لا توجد أيقونة تطابق هذا البحث.",
+			"ICON_SOURCE": "مصدر الأيقونة",
+			"ICON_TAB_LIBRARY": "المكتبة",
+			"ICON_TAB_UPLOAD": "رفع",
+			"ICON_UPLOAD_CHOOSE": "اختيار صورة",
+			"ICON_UPLOAD_REPLACE": "استبدال الصورة",
+			"ICON_UPLOAD_HINT": "أفلت صورة هنا أو اخترها: PNG أو JPEG أو WebP أو GIF، بحد أقصى {size} ميغابايت.",
+			"ICON_UPLOADING": "جارٍ رفع الصورة...",
+			"ICON_UPLOADING_PROGRESS": "جارٍ رفع الصورة... {progress}%",
+			"ICON_UPLOAD_TYPE_ERROR": "اختر صورة بصيغة PNG أو JPEG أو WebP أو GIF.",
+			"ICON_UPLOAD_SIZE_ERROR": "حجم هذه الصورة أكبر من {size} ميغابايت. اختر صورة أصغر.",
+			"ICON_UPLOAD_FAILED": "لم تُرفع الصورة. {reason}",
+			"ICON_UPLOADED_NAME": "صورة مرفوعة",
 			"iconGroups": {
 				"classic": "أيقونات كلاسيكية"
 			},

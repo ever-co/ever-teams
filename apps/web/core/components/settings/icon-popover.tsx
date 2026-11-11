@@ -16,6 +16,8 @@ interface IconPopoverProps<TForm extends FieldValues> {
 	control: Control<TForm>;
 	setValue: UseFormSetValue<TForm>;
 	kind: TaskPropertySettingsKind;
+	/** The `fullIconUrl` of the property being edited, where its uploaded icon loads from. */
+	iconUrl?: string | null;
 }
 
 /**
@@ -23,7 +25,12 @@ interface IconPopoverProps<TForm extends FieldValues> {
  * pages, bound to the form's `icon` field. It shows what the form holds, never a copy of its own: after a reset, an
  * edited property loading or a status type bringing its icon, the picker shows the icon the form will send.
  */
-function IconPopover<TForm extends FieldValues>({ control, setValue, kind }: Readonly<IconPopoverProps<TForm>>) {
+function IconPopover<TForm extends FieldValues>({
+	control,
+	setValue,
+	kind,
+	iconUrl
+}: Readonly<IconPopoverProps<TForm>>) {
 	const name = 'icon' as Path<TForm>;
 	// Watched here, not in the form: a pick re-renders the picker only
 	const icon: unknown = useWatch({ control, name });
@@ -32,6 +39,7 @@ function IconPopover<TForm extends FieldValues>({ control, setValue, kind }: Rea
 		<PropertyIconPicker
 			kind={kind}
 			value={typeof icon === 'string' && icon ? icon : null}
+			valueUrl={iconUrl}
 			onChange={(picked) => setValue(name, picked as PathValue<TForm, Path<TForm>>)}
 		/>
 	);

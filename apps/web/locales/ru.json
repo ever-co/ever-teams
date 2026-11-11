@@ -4339,6 +4339,18 @@
 			"ICON_CURRENT": "Значок: {name}. Изменить",
 			"ICON_SEARCH": "Поиск значков",
 			"ICON_EMPTY": "Ни один значок не подходит под этот запрос.",
+			"ICON_SOURCE": "Источник значка",
+			"ICON_TAB_LIBRARY": "Библиотека",
+			"ICON_TAB_UPLOAD": "Загрузить",
+			"ICON_UPLOAD_CHOOSE": "Выбрать изображение",
+			"ICON_UPLOAD_REPLACE": "Заменить изображение",
+			"ICON_UPLOAD_HINT": "Перетащите изображение сюда или выберите его: PNG, JPEG, WebP или GIF, не больше {size} МБ.",
+			"ICON_UPLOADING": "Изображение загружается...",
+			"ICON_UPLOADING_PROGRESS": "Изображение загружается... {progress} %",
+			"ICON_UPLOAD_TYPE_ERROR": "Выберите изображение PNG, JPEG, WebP или GIF.",
+			"ICON_UPLOAD_SIZE_ERROR": "Это изображение больше {size} МБ. Выберите поменьше.",
+			"ICON_UPLOAD_FAILED": "Изображение не загружено. {reason}",
+			"ICON_UPLOADED_NAME": "загруженное изображение",
 			"iconGroups": {
 				"classic": "Классические значки"
 			},

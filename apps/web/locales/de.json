@@ -4339,6 +4339,18 @@
 			"ICON_CURRENT": "Symbol: {name}. Ändern",
 			"ICON_SEARCH": "Symbole suchen",
 			"ICON_EMPTY": "Kein Symbol passt zu dieser Suche.",
+			"ICON_SOURCE": "Herkunft des Symbols",
+			"ICON_TAB_LIBRARY": "Bibliothek",
+			"ICON_TAB_UPLOAD": "Hochladen",
+			"ICON_UPLOAD_CHOOSE": "Bild wählen",
+			"ICON_UPLOAD_REPLACE": "Bild ersetzen",
+			"ICON_UPLOAD_HINT": "Zieh ein Bild hierher oder wähle eins: PNG, JPEG, WebP oder GIF, höchstens {size} MB.",
+			"ICON_UPLOADING": "Bild wird hochgeladen...",
+			"ICON_UPLOADING_PROGRESS": "Bild wird hochgeladen... {progress} %",
+			"ICON_UPLOAD_TYPE_ERROR": "Wähle ein PNG-, JPEG-, WebP- oder GIF-Bild.",
+			"ICON_UPLOAD_SIZE_ERROR": "Dieses Bild ist größer als {size} MB. Wähle ein kleineres.",
+			"ICON_UPLOAD_FAILED": "Das Bild wurde nicht hochgeladen. {reason}",
+			"ICON_UPLOADED_NAME": "hochgeladenes Bild",
 			"iconGroups": {
 				"classic": "Klassische Symbole"
 			},

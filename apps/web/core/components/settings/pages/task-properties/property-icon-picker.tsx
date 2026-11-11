@@ -6,7 +6,7 @@ import { useTranslations } from 'next-intl';
 import { Popover, PopoverContent, PopoverTrigger } from '@/core/components/common/popover';
 import { TaskPropertyIcon, TaskPropertyPlaceholderIcon } from '@/core/components/tasks/task-property-icon';
 import { propertyLabelOf, TaskPropertySettingsKind } from '@/core/lib/utils/settings-task-properties';
-import { classicIconGlyphOf, libraryIconKeyOf } from '@/core/lib/utils/property-icon-value';
+import { classicIconGlyphOf, isUploadedIcon, libraryIconKeyOf } from '@/core/lib/utils/property-icon-value';
 import { PropertyIconImage } from './property-icon-image';
 
 function IconPanelLoading() {
@@ -34,27 +34,35 @@ function iconNameOf(value: string) {
 }
 
 /** The chosen icon as the property will show it: a classic one as its glyph, a custom one with a fallback. */
-function ChosenIcon({ kind, value }: Readonly<{ kind: TaskPropertySettingsKind; value: string }>) {
+function ChosenIcon({
+	kind,
+	value,
+	valueUrl
+}: Readonly<{ kind: TaskPropertySettingsKind; value: string; valueUrl?: string | null }>) {
 	const glyph = classicIconGlyphOf(value);
 	if (glyph) {
 		return <TaskPropertyIcon kind={glyph.kind} name={glyph.name} />;
 	}
-	return <PropertyIconImage value={value} fallback={<TaskPropertyPlaceholderIcon kind={kind} />} />;
+	return <PropertyIconImage value={value} url={valueUrl} fallback={<TaskPropertyPlaceholderIcon kind={kind} />} />;
 }
 
 interface PropertyIconPickerProps {
 	kind: TaskPropertySettingsKind;
 	value: string | null;
+	/** The `fullIconUrl` of the stored icon, where an uploaded one held outside Gauzy loads from. */
+	valueUrl?: string | null;
 	onChange: (path: string) => void;
 }
 
-export function PropertyIconPicker({ kind, value, onChange }: Readonly<PropertyIconPickerProps>) {
+export function PropertyIconPicker({ kind, value, valueUrl, onChange }: Readonly<PropertyIconPickerProps>) {
 	const t = useTranslations();
 	const [isOpen, setIsOpen] = useState(false);
 
 	let triggerLabel = t('settings.taskProperties.ICON_CHOOSE');
 	if (value) {
-		triggerLabel = t('settings.taskProperties.ICON_CURRENT', { name: iconNameOf(value) });
+		// The file of an uploaded image has a generated name: the image is named by what it is
+		const name = isUploadedIcon(value) ? t('settings.taskProperties.ICON_UPLOADED_NAME') : iconNameOf(value);
+		triggerLabel = t('settings.taskProperties.ICON_CURRENT', { name });
 	}
 
 	const pick = (path: string) => {
@@ -70,12 +78,12 @@ export function PropertyIconPicker({ kind, value, onChange }: Readonly<PropertyI
 					aria-label={triggerLabel}
 					className="keycap-3d flex size-8 shrink-0 cursor-pointer items-center justify-center rounded-md outline-none focus-visible:ring-[3px] focus-visible:ring-ring/25"
 				>
-					{value && <ChosenIcon kind={kind} value={value} />}
+					{value && <ChosenIcon kind={kind} value={value} valueUrl={valueUrl} />}
 					{!value && <TaskPropertyPlaceholderIcon kind={kind} />}
 				</button>
 			</PopoverTrigger>
 			<PopoverContent align="start" className="w-64 p-0">
-				<PropertyIconPanel kind={kind} value={value} onPick={pick} />
+				<PropertyIconPanel kind={kind} value={value} valueUrl={valueUrl} onPick={pick} />
 			</PopoverContent>
 		</Popover>
 	);
