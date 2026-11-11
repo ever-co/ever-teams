@@ -14,17 +14,24 @@ export interface IInboxDeliveryStatus {
 	checkedAt: string;
 }
 
-/** Whether an answer has the shape of a delivery status (an older platform, or a proxy page, answers something else). */
+function isChannelStatus(channel: unknown): channel is IInboxDeliveryChannelStatus {
+	if (!channel || typeof channel !== 'object') {
+		return false;
+	}
+	const { enabled, available } = channel as { enabled?: unknown; available?: unknown };
+	return typeof enabled === 'boolean' && typeof available === 'boolean';
+}
+
+/**
+ * Whether an answer is a whole delivery status: both channels with both fields, and the check time. An older platform,
+ * a proxy page or a partial answer is not one.
+ */
 export function isInboxDeliveryStatus(answer: unknown): answer is IInboxDeliveryStatus {
 	if (!answer || typeof answer !== 'object') {
 		return false;
 	}
-	const email = (answer as { email?: unknown }).email;
-	if (!email || typeof email !== 'object') {
-		return false;
-	}
-	const { enabled, available } = email as { enabled?: unknown; available?: unknown };
-	return typeof enabled === 'boolean' && typeof available === 'boolean';
+	const { email, push, checkedAt } = answer as { email?: unknown; push?: unknown; checkedAt?: unknown };
+	return isChannelStatus(email) && isChannelStatus(push) && typeof checkedAt === 'string';
 }
 
 /**
