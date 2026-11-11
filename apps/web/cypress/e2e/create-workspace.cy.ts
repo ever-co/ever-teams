@@ -92,4 +92,31 @@ describe('workspace creation', () => {
 			creationState().then((created) => expect(created.team?.name).to.equal('Lovelace Studio'));
 		});
 	});
+
+	it('holds the timer while the new workspace opens: it would keep running in the workspace left behind', () => {
+		// Gauzy takes its time to open the account: the creation is in flight meanwhile
+		cy.mockScenario({ delays: { '/api/auth/workspaces': 6000 } });
+		cy.hardVisit('/workspace/new');
+		cy.get('#workspace-name', { timeout: 20_000 }).type('Lovelace Studio');
+		cy.contains('button', 'Create workspace').click();
+
+		cy.get('[aria-label="Start timer"]').first().click();
+		cy.contains('Your new workspace is opening', { timeout: 5000 }).should('be.visible');
+
+		cy.location('pathname', { timeout: 30_000 }).should('match', /\/workspace\/welcome$/);
+		cy.mockState().then((state) =>
+			expect((state as { mutationProof: { startedTimer: boolean } }).mutationProof.startedTimer).to.equal(false)
+		);
+	});
+
+	it('says when it cannot tell whether the workspace was created, and offers no retry', () => {
+		// No answer from the route: the workspace may exist all the same
+		cy.intercept('POST', '**/api/auth/create-workspace', { forceNetworkError: true });
+		cy.hardVisit('/workspace/new');
+		cy.get('#workspace-name', { timeout: 20_000 }).type('Lovelace Studio');
+		cy.contains('button', 'Create workspace').click();
+
+		cy.contains('We could not tell whether your workspace was created', { timeout: 20_000 }).should('be.visible');
+		cy.contains('button', 'Create workspace').should('be.disabled');
+	});
 });
