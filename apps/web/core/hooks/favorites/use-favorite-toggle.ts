@@ -15,9 +15,14 @@ import { useFavoritesQuery } from './use-favorites-query';
 /** A favourite filed in the list before the platform answered: never an id to send. */
 const PLACEHOLDER_PREFIX = 'pending-';
 
+/** Every change of one person's favourites, whatever their entity: they share one list. */
+function toggleScopeOf(employeeId: string) {
+	return [...queryKeys.favorites.byEmployee(employeeId), 'toggle'] as const;
+}
+
 /** The changes of one entity's favourites of one person, shared by every star and menu of the app. */
 function toggleKeyOf(employeeId: string, entity: EBaseEntityEnum) {
-	return [...queryKeys.favorites.byEmployee(employeeId), 'toggle', entity] as const;
+	return [...toggleScopeOf(employeeId), entity] as const;
 }
 
 /**
@@ -59,8 +64,8 @@ export function useFavoriteToggle(entity: EBaseEntityEnum) {
 			if (existing?.id.startsWith(PLACEHOLDER_PREFIX)) {
 				return true;
 			}
-			await queryClient.cancelQueries({ queryKey });
-			const previous = queryClient.getQueryData<PaginationResponse<TFavorite>>(queryKey);
+			// The list only: the favourite tasks' details, keyed under it, keep loading
+			await queryClient.cancelQueries({ queryKey, exact: true });
 			const placeholder = { id: `${PLACEHOLDER_PREFIX}${entityId}`, entity, entityId, employeeId } as TFavorite;
 			queryClient.setQueryData<PaginationResponse<TFavorite>>(queryKey, (current) =>
 				existing ? withFavoriteRemoved(current, entity, entityId) : withFavoriteAdded(current, placeholder)
@@ -81,11 +86,22 @@ export function useFavoriteToggle(entity: EBaseEntityEnum) {
 				);
 				return true;
 			} catch (error) {
-				queryClient.setQueryData(queryKey, previous);
+				// Undo this item's change only: another item's change made meanwhile keeps its favourite and its real id
+				queryClient.setQueryData<PaginationResponse<TFavorite>>(queryKey, (current) => {
+					const withoutItem = withFavoriteRemoved(current, entity, entityId);
+					return existing ? withFavoriteAdded(withoutItem, existing) : withoutItem;
+				});
 				throw error;
 			}
 		},
-		onSettled: () => queryClient.invalidateQueries({ queryKey })
+		// The list is read again once the person's last change has settled (this one still counts while it settles):
+		// a read in between could miss a change still on its way
+		onSettled: async () => {
+			const isLastChange = queryClient.isMutating({ mutationKey: toggleScopeOf(employeeId) }) <= 1;
+			if (isLastChange) {
+				await queryClient.invalidateQueries({ queryKey });
+			}
+		}
 	});
 
 	/**

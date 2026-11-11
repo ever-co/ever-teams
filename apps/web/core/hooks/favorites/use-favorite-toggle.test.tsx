@@ -4,6 +4,7 @@
 import React from 'react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { act, renderHook, waitFor } from '@testing-library/react';
+import { queryKeys } from '@/core/query/keys';
 import { EBaseEntityEnum } from '@/core/types/generics/enums/entity';
 
 interface StoredFavorite {
@@ -17,18 +18,23 @@ interface StoredFavorite {
 let stored: StoredFavorite[] = [];
 let filed = 0;
 
+/** The platform's answers: a read of the list, a favourite filed, a favourite removed. */
+const listStored = async () => ({ items: [...stored], total: stored.length });
+const fileFavorite = async (body: Omit<StoredFavorite, 'id'>) => {
+	filed += 1;
+	const created = { id: `favorite-${filed}`, ...body };
+	stored = [...stored, created];
+	return created;
+};
+const removeStored = async (id: string) => {
+	stored = stored.filter((favorite) => favorite.id !== id);
+	return { affected: 1 };
+};
+
 const mockFavoriteService = {
-	getFavoritesByEmployee: jest.fn(async () => ({ items: [...stored], total: stored.length })),
-	createFavorite: jest.fn(async (body: Omit<StoredFavorite, 'id'>) => {
-		filed += 1;
-		const created = { id: `favorite-${filed}`, ...body };
-		stored = [...stored, created];
-		return created;
-	}),
-	deleteFavorite: jest.fn(async (id: string) => {
-		stored = stored.filter((favorite) => favorite.id !== id);
-		return { affected: 1 };
-	})
+	getFavoritesByEmployee: jest.fn(listStored),
+	createFavorite: jest.fn(fileFavorite),
+	deleteFavorite: jest.fn(removeStored)
 };
 
 // Getters: the mocked modules load before this file's constants are set, and read the service only when called
@@ -55,7 +61,7 @@ function renderToggle() {
 	const wrapper = ({ children }: { children: React.ReactNode }) => (
 		<QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
 	);
-	return renderHook(() => useFavoriteToggle(PROJECT), { wrapper });
+	return { ...renderHook(() => useFavoriteToggle(PROJECT), { wrapper }), queryClient };
 }
 
 /** Two controls of one item, as a project's header star and its sidebar menu: two hooks over one cache. */
@@ -73,7 +79,10 @@ describe('useFavoriteToggle', () => {
 	beforeEach(() => {
 		stored = [{ id: 'favorite-0', entity: PROJECT, entityId: 'project-1', employeeId: 'employee-1' }];
 		filed = 0;
-		jest.clearAllMocks();
+		// Each test starts from the platform's plain answers, whatever another one queued or left
+		mockFavoriteService.getFavoritesByEmployee.mockReset().mockImplementation(listStored);
+		mockFavoriteService.createFavorite.mockReset().mockImplementation(fileFavorite);
+		mockFavoriteService.deleteFavorite.mockReset().mockImplementation(removeStored);
 	});
 
 	it('shows a new favourite at once, then removes it with the id the platform gave it', async () => {
@@ -141,8 +150,76 @@ describe('useFavoriteToggle', () => {
 			release();
 			await adding;
 		});
-		expect(result.current.sidebar.isPending('project-4')).toBe(false);
+		// The observers hear of the settled change on a later tick
+		await waitFor(() => expect(result.current.sidebar.isPending('project-4')).toBe(false));
 		expect(mockFavoriteService.createFavorite).toHaveBeenCalledTimes(1);
+	});
+
+	it("undoes only the change that failed: another item's favourite keeps the id the platform gave it", async () => {
+		const { result, queryClient } = renderToggle();
+		await waitFor(() => expect(result.current.isFavorite('project-1')).toBe(true));
+		let releaseCreate: () => void = () => undefined;
+		mockFavoriteService.createFavorite.mockImplementationOnce(
+			(body: Omit<StoredFavorite, 'id'>) =>
+				new Promise((resolve) => {
+					releaseCreate = () => resolve({ id: 'favorite-7', ...body });
+				})
+		);
+		let refuseDelete: () => void = () => undefined;
+		mockFavoriteService.deleteFavorite.mockImplementationOnce(
+			() =>
+				new Promise((_resolve, reject) => {
+					refuseDelete = () => reject(new Error('refused'));
+				})
+		);
+
+		let adding: Promise<boolean> = Promise.resolve(false);
+		act(() => {
+			adding = result.current.toggleFavorite('project-2');
+		});
+		await waitFor(() => expect(result.current.isPending('project-2')).toBe(true));
+		let removing: Promise<boolean> = Promise.resolve(true);
+		act(() => {
+			removing = result.current.toggleFavorite('project-1');
+		});
+		await waitFor(() => expect(mockFavoriteService.deleteFavorite).toHaveBeenCalledWith('favorite-0'));
+		// The list read after the changes waits: until it answers, only the two changes shape the list
+		let answerRead: () => void = () => undefined;
+		mockFavoriteService.getFavoritesByEmployee.mockImplementation(
+			() =>
+				new Promise((resolve) => {
+					answerRead = () => resolve(listStored());
+				})
+		);
+
+		await act(async () => {
+			releaseCreate();
+			await adding;
+		});
+		act(() => refuseDelete());
+		await waitFor(() => expect(result.current.isFavorite('project-1')).toBe(true));
+
+		const list = queryClient.getQueryData<{ items: StoredFavorite[] }>(
+			queryKeys.favorites.byEmployee('employee-1')
+		);
+		expect(list?.items.find((favorite) => favorite.entityId === 'project-2')?.id).toBe('favorite-7');
+		await act(async () => {
+			answerRead();
+			await expect(removing).rejects.toThrow('refused');
+		});
+	});
+
+	it("leaves the favourite tasks' details loading while a star changes the list", async () => {
+		const { result, queryClient } = renderToggle();
+		await waitFor(() => expect(result.current.isFavorite('project-1')).toBe(true));
+		const tasksKey = [...queryKeys.favorites.byEmployee('employee-1'), 'tasks', ['task-1']];
+		void queryClient.prefetchQuery({ queryKey: tasksKey, queryFn: () => new Promise(() => undefined) });
+
+		await act(async () => {
+			await result.current.toggleFavorite('project-2');
+		});
+
+		expect(queryClient.getQueryState(tasksKey)?.fetchStatus).toBe('fetching');
 	});
 
 	it('reads the whole list before a click decides, so a favourite clicked early is removed, not filed twice', async () => {
@@ -181,6 +258,6 @@ describe('useFavoriteToggle', () => {
 			release();
 			await first;
 		});
-		expect(result.current.isPending('project-3')).toBe(false);
+		await waitFor(() => expect(result.current.isPending('project-3')).toBe(false));
 	});
 });
