@@ -19,18 +19,26 @@ import { PersonAvatar } from '@/core/components/teams/people-avatars';
 import { useChatMembers } from '@/core/hooks/chat/use-chat-conversations';
 import { cn } from '@/core/lib/helpers';
 import { ChatPerson } from '@/core/lib/utils/chat-format';
+import { directPartnerOf } from '@/core/lib/utils/chat-navigation';
 import { EChatConversationKind, EChatNotifyLevel, IChatConversationWithState } from '@/core/types/interfaces/common/chat';
+import type { ETimerStatus } from '@/core/types/generics/enums/timer';
+import { PresenceDot } from './chat-presence-dot';
 import { ConversationGlyph } from './conversation-glyph';
 
 /** An icon button of a pane's top bar. */
 export const BAR_BUTTON =
-	'inline-flex size-7 shrink-0 cursor-pointer items-center justify-center rounded-md text-muted-foreground outline-none transition-colors hover:bg-foreground/[0.06] hover:text-foreground focus-visible:ring-[3px] focus-visible:ring-ring/25 data-[state=open]:bg-foreground/[0.06] data-[state=open]:text-foreground [&_svg]:size-4';
+	'inline-flex size-7 shrink-0 cursor-pointer [@media(pointer:coarse)]:size-9 items-center justify-center rounded-md text-muted-foreground outline-none transition-colors hover:bg-foreground/[0.06] hover:text-foreground focus-visible:ring-[3px] focus-visible:ring-ring/25 data-[state=open]:bg-foreground/[0.06] data-[state=open]:text-foreground [&_svg]:size-4';
 
 /**
  * The member count of a conversation, as a chip that lists who they are. The people of the active team show by name;
  * members the team does not know (a channel of the whole organization holds people of other teams) show as a count.
  */
-function MembersChip({ conversation, people, meEmployeeId }: Readonly<{ conversation: IChatConversationWithState; people: ReadonlyMap<string, ChatPerson>; meEmployeeId: string | null }>) {
+function MembersChip({
+	conversation,
+	people,
+	meEmployeeId,
+	presence
+}: Readonly<{ conversation: IChatConversationWithState; people: ReadonlyMap<string, ChatPerson>; meEmployeeId: string | null; presence?: ReadonlyMap<string, ETimerStatus> }>) {
 	const t = useTranslations();
 	const [isOpen, setIsOpen] = useState(false);
 	// Read when the list opens; until it answers, the members the conversation came with (a direct one carries them).
@@ -56,8 +64,11 @@ function MembersChip({ conversation, people, meEmployeeId }: Readonly<{ conversa
 				<p className="px-2 py-1.5 text-xs font-medium text-muted-foreground">{label}</p>
 				<ul className="max-h-72 overflow-y-auto">
 					{known.map((person) => (
-						<li key={person.employeeId} className="flex h-8 items-center gap-2.5 rounded-md px-2 text-[13px] text-foreground">
-							<PersonAvatar person={{ id: person.employeeId, name: person.name, imageUrl: person.imageUrl }} className="size-5 text-[9px] ring-0" />
+						<li key={person.employeeId} className="flex h-8 items-center gap-2.5 rounded-md px-2 text-[13px] text-foreground [@media(pointer:coarse)]:h-10">
+							<span className="relative inline-flex shrink-0" data-presence={presence?.get(person.employeeId)}>
+								<PersonAvatar person={{ id: person.employeeId, name: person.name, imageUrl: person.imageUrl }} className="size-5 text-[9px] ring-0" />
+								{presence?.get(person.employeeId) && <PresenceDot status={presence.get(person.employeeId) as ETimerStatus} />}
+							</span>
 							<span className="min-w-0 flex-1 truncate">{person.name}</span>
 							{person.employeeId === meEmployeeId && <span className="shrink-0 text-[11px] text-muted-foreground">{t('teamChat.YOU')}</span>}
 						</li>
@@ -96,7 +107,8 @@ export function ConversationHeader({
 	onNotify,
 	onCopyLink,
 	onLeave,
-	extra
+	extra,
+	presence
 }: Readonly<{
 	conversation: IChatConversationWithState;
 	/** The conversation's name without the `#` of a channel. */
@@ -110,11 +122,15 @@ export function ConversationHeader({
 	onLeave: () => void;
 	/** More buttons of the bar, before the members (the conversation's files). */
 	extra?: ReactNode;
+	/** The status dot of each person the app knows, by employee id. */
+	presence?: ReadonlyMap<string, ETimerStatus>;
 }>) {
 	const t = useTranslations();
 	const isFavorite = !!conversation.state?.isFavorite;
 	const isMuted = conversation.state?.notifyLevel === EChatNotifyLevel.Muted;
 	const canLeave = !conversation.isDefault && conversation.kind !== EChatConversationKind.Direct;
+	const partner = directPartnerOf(conversation, meEmployeeId);
+	const partnerStatus = partner ? (presence?.get(partner) ?? null) : null;
 
 	return (
 		<header className="flex h-12 shrink-0 items-center gap-2 border-border px-3 hairline-b">
@@ -123,7 +139,7 @@ export function ConversationHeader({
 					<ArrowLeft className="rtl:rotate-180" />
 				</button>
 			)}
-			<ConversationGlyph conversation={conversation} people={people} meEmployeeId={meEmployeeId} size="tile" />
+			<ConversationGlyph conversation={conversation} people={people} meEmployeeId={meEmployeeId} size="tile" status={partnerStatus} />
 			<div className="flex min-w-0 flex-1 items-baseline gap-2.5">
 				<h1 className="max-w-[70%] shrink-0 truncate text-sm font-semibold text-foreground">{title}</h1>
 				{conversation.topic && (
@@ -137,7 +153,7 @@ export function ConversationHeader({
 			</div>
 			<div className="flex shrink-0 items-center gap-0.5">
 				{extra}
-				<MembersChip conversation={conversation} people={people} meEmployeeId={meEmployeeId} />
+				<MembersChip conversation={conversation} people={people} meEmployeeId={meEmployeeId} presence={presence} />
 				<button type="button" onClick={onToggleFavorite} className={BAR_BUTTON} aria-label={t('teamChat.FAVORITE')} title={t('teamChat.FAVORITE')} aria-pressed={isFavorite}>
 					<Star className={cn(isFavorite && 'fill-current text-amber-500')} />
 				</button>

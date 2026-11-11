@@ -219,15 +219,28 @@ class DocsService extends APIService {
 		return response.data;
 	};
 
-	/** An edit (a base64 Yjs update) of this tab's live session of the page. Exactly these fields: the platform refuses others. */
+	/**
+	 * An edit (a base64 Yjs update) of this tab's live session of the page. Exactly these fields: the platform refuses
+	 * others, so the tenant and organization `post` adds to a body by default stay out (the headers carry them).
+	 */
 	liveUpdate = async (id: string, input: { connectionId: string; update: string }): Promise<DocsLiveAck> => {
-		const response = await this.post<DocsLiveAck>(`${BASE}/${path(id)}/live/updates`, { connectionId: input.connectionId, update: input.update });
+		const response = await this.post<DocsLiveAck>(
+			`${BASE}/${path(id)}/live/updates`,
+			{ connectionId: input.connectionId, update: input.update },
+			undefined,
+			false
+		);
 		return response.data;
 	};
 
 	/** This tab's cursor and presence (a base64 y-protocols awareness update) in its live session of the page. */
 	liveAwareness = async (id: string, input: { connectionId: string; awareness: string }): Promise<DocsLiveAck> => {
-		const response = await this.post<DocsLiveAck>(`${BASE}/${path(id)}/live/awareness`, { connectionId: input.connectionId, awareness: input.awareness });
+		const response = await this.post<DocsLiveAck>(
+			`${BASE}/${path(id)}/live/awareness`,
+			{ connectionId: input.connectionId, awareness: input.awareness },
+			undefined,
+			false
+		);
 		return response.data;
 	};
 }

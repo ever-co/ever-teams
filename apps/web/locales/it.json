@@ -3018,7 +3018,8 @@
 			"projects": "Progetti",
 			"navigation": "Navigazione",
 			"settings": "Impostazioni",
-			"goTo": "Vai a"
+			"goTo": "Vai a",
+			"chat": "Chat"
 		},
 		"commands": {
 			"inviteUser": "Invita utente",
@@ -3039,12 +3040,16 @@
 			"goToWeeklyLimit": "Vai al report del limite settimanale",
 			"goToTimeAndActivity": "Vai al report tempo e attività",
 			"profile": "Profilo",
-			"settings": "Impostazioni"
+			"settings": "Impostazioni",
+			"newMessage": "Nuovo messaggio"
 		},
 		"results": {
 			"recent": "Recenti",
 			"tasks": "Attività",
-			"inTeam": "in {team}"
+			"inTeam": "in {team}",
+			"conversations": "Conversazioni",
+			"people": "Persone",
+			"messagePerson": "Scrivi a {name}"
 		}
 	},
 	"modals": {
@@ -3447,6 +3452,19 @@
 				"PUSH_BLOCKED": "Le notifiche sono bloccate per questo sito: consentile nelle impostazioni del browser, poi attivale qui.",
 				"PUSH_UNSUPPORTED": "Questo browser non può mostrare notifiche.",
 				"PUSH_FAILED": "Impossibile modificare le notifiche del browser. Riprova.",
+				"PUSH_KINDS_TITLE": "Inviato ai tuoi dispositivi",
+				"PUSH_KIND_OFF": "Disattivato sopra, quindi non viene inviato nulla.",
+				"DEVICES_TITLE": "I tuoi dispositivi",
+				"DEVICE_NAME": "{browser} su {system}",
+				"DEVICE_UNKNOWN": "Un browser",
+				"DEVICE_THIS": "Questo dispositivo",
+				"DEVICE_LAST_USED": "Ultima notifica {date}",
+				"DEVICE_ADDED": "Aggiunto {date}",
+				"DEVICE_REMOVE": "Rimuovi",
+				"DEVICE_REMOVE_FAILED": "Il dispositivo non è stato rimosso. Riprova.",
+				"SOUND_TITLE": "Suono",
+				"SOUND_LABEL": "Suono per le nuove voci",
+				"SOUND_TEXT": "Una scheda aperta di questo browser riproduce un breve suono quando arriva qualcosa di nuovo nella tua casella.",
 				"EMAIL_INTRO": "Come ogni tipo ti raggiunge via email. Ogni tipo lasciato attivo continua a comparire nella tua posta in arrivo.",
 				"DEFAULT_LABEL": "Tutti i tipi",
 				"DEFAULT_TEXT": "L'impostazione email usata da un tipo, salvo che la sua riga dica altrimenti.",
@@ -4884,7 +4902,8 @@
 			"global": "Ovunque",
 			"list": "Elenco attività",
 			"task": "Attività selezionata",
-			"view": "Vista"
+			"view": "Vista",
+			"chat": "Chat"
 		},
 		"commands": {
 			"paletteOpen": "Apri la palette dei comandi",
@@ -4908,8 +4927,16 @@
 			"taskStatus": "Cambia lo stato",
 			"taskPriority": "Cambia la priorità",
 			"taskLabels": "Cambia le etichette",
-			"taskDueDate": "Cambia la scadenza"
-		}
+			"taskDueDate": "Cambia la scadenza",
+			"chatPrevious": "Conversazione precedente",
+			"chatNext": "Conversazione successiva",
+			"chatPreviousUnread": "Conversazione non letta precedente",
+			"chatNextUnread": "Conversazione non letta successiva",
+			"chatUnreads": "Apri Non letti",
+			"chatMarkAllRead": "Segna tutto come letto"
+		},
+		"CHAT_SINGLE_KEY": "Un tasto della chat è un solo tasto, non una sequenza.",
+		"CHAT_TAKEN": "La chat usa già quel tasto (formattazione, invio, spostamento o scorrimento)."
 	},
 	"realtime": {
 		"RECONNECTING": "Riconnessione…"

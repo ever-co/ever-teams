@@ -16,11 +16,15 @@ import { useChatPeople, useChatScope } from '@/core/hooks/chat/use-chat-scope';
 import { useTaskDrawer } from '@/core/hooks/tasks/use-task-drawer';
 import { attachmentFallbackBody, filesOfTransfer, isFileDrag } from '@/core/lib/utils/chat-attachments';
 import { ChatPerson, conversationTitle } from '@/core/lib/utils/chat-format';
-import { ChatReadPosition, dayLabel, timelineItems } from '@/core/lib/utils/chat-timeline';
+import { ChatReadPosition, ChatTimelineItem, dayLabel, timelineItems } from '@/core/lib/utils/chat-timeline';
+import { isChatVirtualListEnabled } from '@/core/lib/utils/chat-enabled';
+import { cn } from '@/core/lib/helpers';
 import { tasksByTeamState } from '@/core/stores/teams/team-tasks';
 import { EChatNotifyLevel, IChatConversationWithState, IChatFile, IChatMessage } from '@/core/types/interfaces/common/chat';
+import type { ETimerStatus } from '@/core/types/generics/enums/timer';
 import { ConversationFilesButton, ImageLightbox } from './chat-attachments';
 import { ChatErrorState, ChatMessagesSkeleton } from './chat-states';
+import { VirtualTimeline, type VirtualTimelineAnchor, type VirtualTimelineHandle } from './chat-virtual-timeline';
 import { ConversationWelcome, DayDivider, JumpToLatest, NewDivider } from './chat-timeline-parts';
 import { BAR_BUTTON, ConversationHeader } from './conversation-header';
 import { CreateTaskFromMessageDialog } from './create-task-dialog';
@@ -31,6 +35,8 @@ export interface ConversationViewProps {
 	conversation: IChatConversationWithState;
 	conversationNames: ReadonlyMap<string, string>;
 	canManage: boolean;
+	/** The status dot of each person the app knows, by employee id. */
+	presence?: ReadonlyMap<string, ETimerStatus>;
 	onOpenThread: (rootMessageId: string) => void;
 	onBack?: () => void;
 	/** `?m=` — the message to scroll to once loaded. */
@@ -43,6 +49,8 @@ const AT_BOTTOM_PX = 40;
 const FAR_FROM_BOTTOM_PX = 480;
 /** A jump over more than this is not animated: a long smooth scroll is a wait. */
 const SMOOTH_SCROLL_MAX_PX = 2400;
+/** Frames a jump waits for the virtual list to draw its target before it gives up on lighting it. */
+const JUMP_FRAMES = 8;
 
 /**
  * Where the reader had got to when they opened the conversation, when it holds something they have not read: the
@@ -61,7 +69,7 @@ export function ConversationView(props: Readonly<ConversationViewProps>) {
 	return <ConversationPane key={props.conversation.id} {...props} />;
 }
 
-function ConversationPane({ conversation, conversationNames, canManage, onOpenThread, onBack, jumpToMessageId }: Readonly<ConversationViewProps>) {
+function ConversationPane({ conversation, conversationNames, canManage, presence, onOpenThread, onBack, jumpToMessageId }: Readonly<ConversationViewProps>) {
 	const t = useTranslations();
 	const locale = useLocale();
 	const router = useRouter();
@@ -85,6 +93,15 @@ function ConversationPane({ conversation, conversationNames, canManage, onOpenTh
 	const [taskFrom, setTaskFrom] = useState<IChatMessage | null>(null);
 	const list = useRef<HTMLDivElement | null>(null);
 	const content = useRef<HTMLDivElement | null>(null);
+	// The virtual list (behind its flag), read once: switching it mid-conversation would lose the reader's place.
+	const [virtual] = useState(isChatVirtualListEnabled);
+	const virtualTimeline = useRef<VirtualTimelineHandle | null>(null);
+	// A jump to a message the virtual list has not drawn: it scrolls there, and the target is looked for again a frame on.
+	const [jumpFrame, setJumpFrame] = useState(0);
+	const jumpTries = useRef(0);
+	// The older page being read: where the reader is (kept up to date while they scroll), until it comes in.
+	const olderRequest = useRef<{ anchor: VirtualTimelineAnchor | null; arrived: boolean } | null>(null);
+	const jumpTarget = useRef<string | null>(null);
 	const stickToBottom = useRef(true);
 	// How far the reader is from the newest message. Only at the bottom does viewing read the conversation.
 	const [away, setAway] = useState<'bottom' | 'near' | 'far'>('bottom');
@@ -136,6 +153,11 @@ function ConversationPane({ conversation, conversationNames, canManage, onOpenTh
 		const element = list.current;
 		if (!element) return;
 		if (jumpToMessageId && jumped.current !== jumpToMessageId) {
+			// Each target gets its own frames: one that was never drawn does not use up the next one's.
+			if (jumpTarget.current !== jumpToMessageId) {
+				jumpTarget.current = jumpToMessageId;
+				jumpTries.current = 0;
+			}
 			const target = element.querySelector<HTMLElement>(`[data-message-id="${CSS.escape(jumpToMessageId)}"]`);
 			if (target) {
 				jumped.current = jumpToMessageId;
@@ -143,11 +165,18 @@ function ConversationPane({ conversation, conversationNames, canManage, onOpenTh
 				target.scrollIntoView({ block: 'center' });
 				target.dataset.highlight = 'true';
 				window.setTimeout(() => delete target.dataset.highlight, 2000);
+				jumpTries.current = 0;
 				return;
+			}
+			if (virtual && jumpTries.current < JUMP_FRAMES && virtualTimeline.current?.scrollToMessage(jumpToMessageId)) {
+				jumpTries.current += 1;
+				stickToBottom.current = false;
+				const frame = window.requestAnimationFrame(() => setJumpFrame((count) => count + 1));
+				return () => window.cancelAnimationFrame(frame);
 			}
 		}
 		if (stickToBottom.current) element.scrollTop = element.scrollHeight;
-	}, [newestId, jumpToMessageId, messages.length, isLoading]);
+	}, [newestId, jumpToMessageId, messages.length, isLoading, virtual, jumpFrame]);
 
 	// At the bottom the timeline stays there when its height changes without a new message: the composer growing a
 	// line, the thread pane opening beside it, an edited message getting longer.
@@ -185,16 +214,27 @@ function ConversationPane({ conversation, conversationNames, canManage, onOpenTh
 			setAway(distance < FAR_FROM_BOTTOM_PX ? 'near' : 'far');
 			if (wasAtBottom) setLeftAt(newestId);
 		}
+		// The reader moved while the older page loads: it is their new place that is kept.
+		const pending = olderRequest.current;
+		if (pending && !pending.arrived && virtual) pending.anchor = virtualTimeline.current?.anchor() ?? null;
 		if (element.scrollTop < 80 && hasBefore && !isLoadingOlder) {
 			const before = element.scrollHeight;
+			// The virtual list measures the rows it draws as the page comes in: it puts the reader's row back itself.
+			const request = { anchor: virtual ? (virtualTimeline.current?.anchor() ?? null) : null, arrived: false };
+			olderRequest.current = request;
 			void loadOlder().then(() => {
-				// Keep what the reader was looking at in place after the older page is prepended.
+				request.arrived = true;
+				// Keep what the reader was looking at in place after the older page is prepended; unless a jump to the
+				// latest took over meanwhile.
 				requestAnimationFrame(() => {
+					if (olderRequest.current !== request) return;
+					olderRequest.current = null;
+					if (request.anchor && virtualTimeline.current?.restore(request.anchor)) return;
 					if (list.current) list.current.scrollTop += list.current.scrollHeight - before;
 				});
 			});
 		}
-	}, [hasBefore, isLoadingOlder, loadOlder, newestId]);
+	}, [hasBefore, isLoadingOlder, loadOlder, newestId, virtual]);
 
 	const jumpToLatest = useCallback(() => {
 		const element = list.current;
@@ -202,6 +242,8 @@ function ConversationPane({ conversation, conversationNames, canManage, onOpenTh
 		const distance = element.scrollHeight - element.scrollTop - element.clientHeight;
 		const calm = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
 		stickToBottom.current = true;
+		// An older page on its way no longer moves the reader back up.
+		olderRequest.current = null;
 		element.scrollTo({ top: element.scrollHeight, behavior: calm || distance > SMOOTH_SCROLL_MAX_PX ? 'auto' : 'smooth' });
 	}, []);
 
@@ -298,6 +340,43 @@ function ConversationPane({ conversation, conversationNames, canManage, onOpenTh
 			.then(() => router.push('/chat'))
 			.catch(reportFailure);
 
+	/** One row of the timeline: a day, the "New" line, a message (or its edit). */
+	const renderItem = (item: ChatTimelineItem) => {
+		if (item.type === 'day') return <DayDivider key={`day:${item.key}`} label={dayLabel(item.date, locale, today)} />;
+		if (item.type === 'new') return <NewDivider key="new" label={t('teamChat.NEW_DIVIDER')} />;
+		const { message } = item;
+		if (editing?.id === message.id) {
+			return (
+				<div key={message.id} className="px-4 py-2">
+					<MessageComposer value={editValue} onChange={setEditValue} onSubmit={saveEdit} onCancel={() => setEditing(null)} people={people.list} placeholder={t('teamChat.EDIT')} editing autoFocus />
+				</div>
+			);
+		}
+		let author: ChatPerson | null = null;
+		if (message.authorEmployeeId) author = people.byEmployee.get(String(message.authorEmployeeId)) ?? null;
+		else if (message.authorUserId) author = people.byUser.get(String(message.authorUserId)) ?? null;
+		return (
+			<MessageItem
+				key={message.id}
+				message={message}
+				author={author}
+				people={people.byEmployee}
+				conversationNames={conversationNames}
+				meEmployeeId={meEmployeeId}
+				meUserId={meUserId}
+				locale={locale}
+				continues={item.continues}
+				inTimeline
+				canManage={canManage}
+				// Only a message with replies words a time ("last reply 5 minutes ago"): the others are not rendered again each minute.
+				now={message.replyCount > 0 ? now : undefined}
+				taskTitles={taskTitles}
+				files={files.byId}
+				{...handlers}
+			/>
+		);
+	};
+
 	const isReady = !isLoading && !isError;
 
 	return (
@@ -312,6 +391,7 @@ function ConversationPane({ conversation, conversationNames, canManage, onOpenTh
 				onNotify={setNotify}
 				onCopyLink={copyLink}
 				onLeave={leave}
+				presence={presence}
 				extra={<ConversationFilesButton conversationId={conversation.id} people={people.byEmployee} peopleByUser={people.byUser} className={BAR_BUTTON} />}
 			/>
 
@@ -321,7 +401,7 @@ function ConversationPane({ conversation, conversationNames, canManage, onOpenTh
 						{t('entityFiles.DROP_HINT')}
 					</div>
 				)}
-				<div ref={list} onScroll={onScroll} className="h-full overflow-y-auto overscroll-contain" role="log" aria-live="polite" aria-busy={isLoading}>
+				<div ref={list} onScroll={onScroll} className={cn('h-full overflow-y-auto overscroll-contain', virtual && 'relative')} role="log" aria-live="polite" aria-busy={isLoading}>
 					{/* Bottom-aligned: a short conversation sits right above the composer, as the next message will. */}
 					<div ref={content} className="flex min-h-full flex-col justify-end pb-2">
 						{isLoading && <ChatMessagesSkeleton rows={7} />}
@@ -336,47 +416,14 @@ function ConversationPane({ conversation, conversationNames, canManage, onOpenTh
 							</div>
 						)}
 						{isReady && messages.length === 0 && <p className="px-4 pb-2 text-[13px] text-muted-foreground">{t('teamChat.EMPTY_CONVERSATION')}</p>}
-						{items.map((item) => {
-							if (item.type === 'day') return <DayDivider key={`day:${item.key}`} label={dayLabel(item.date, locale, today)} />;
-							if (item.type === 'new') return <NewDivider key="new" label={t('teamChat.NEW_DIVIDER')} />;
-							const { message } = item;
-							if (editing?.id === message.id) {
-								return (
-									<div key={message.id} className="px-4 py-2">
-										<MessageComposer value={editValue} onChange={setEditValue} onSubmit={saveEdit} onCancel={() => setEditing(null)} people={people.list} placeholder={t('teamChat.EDIT')} editing autoFocus />
-									</div>
-								);
-							}
-							let author: ChatPerson | null = null;
-							if (message.authorEmployeeId) author = people.byEmployee.get(String(message.authorEmployeeId)) ?? null;
-							else if (message.authorUserId) author = people.byUser.get(String(message.authorUserId)) ?? null;
-							return (
-								<MessageItem
-									key={message.id}
-									message={message}
-									author={author}
-									people={people.byEmployee}
-									conversationNames={conversationNames}
-									meEmployeeId={meEmployeeId}
-									meUserId={meUserId}
-									locale={locale}
-									continues={item.continues}
-									inTimeline
-									canManage={canManage}
-									// Only a message with replies words a time ("last reply 5 minutes ago"): the others are not rendered again each minute.
-									now={message.replyCount > 0 ? now : undefined}
-									taskTitles={taskTitles}
-									files={files.byId}
-									{...handlers}
-								/>
-							);
-						})}
+						{virtual ? <VirtualTimeline items={items} scrollRef={list} renderItem={renderItem} handleRef={virtualTimeline} /> : items.map(renderItem)}
 					</div>
 				</div>
 				{isReady && (away === 'far' || (away === 'near' && newBelow > 0)) && <JumpToLatest count={newBelow} onClick={jumpToLatest} />}
 			</div>
 
-			<div className="shrink-0 px-4 pb-3 pt-1">
+			{/* Above a phone's home indicator: the safe area, when it is taller than the usual space. */}
+			<div className="shrink-0 px-4 pb-[max(0.75rem,env(safe-area-inset-bottom))] pt-1">
 				{archived ? (
 					<p className="flex items-center gap-2 rounded-xl bg-foreground/[0.04] px-3 py-2.5 text-xs text-muted-foreground">
 						<Archive className="size-4 shrink-0" aria-hidden="true" />

@@ -3018,7 +3018,8 @@
 			"projects": "项目",
 			"navigation": "导航",
 			"settings": "设置",
-			"goTo": "前往"
+			"goTo": "前往",
+			"chat": "聊天"
 		},
 		"commands": {
 			"inviteUser": "邀请用户",
@@ -3039,12 +3040,16 @@
 			"goToWeeklyLimit": "前往每周限额报告",
 			"goToTimeAndActivity": "前往时间与活动报告",
 			"profile": "个人资料",
-			"settings": "设置"
+			"settings": "设置",
+			"newMessage": "新消息"
 		},
 		"results": {
 			"recent": "最近",
 			"tasks": "任务",
-			"inTeam": "在 {team} 中"
+			"inTeam": "在 {team} 中",
+			"conversations": "对话",
+			"people": "成员",
+			"messagePerson": "给 {name} 发消息"
 		}
 	},
 	"modals": {
@@ -3447,6 +3452,19 @@
 				"PUSH_BLOCKED": "此网站的通知已被阻止：请在浏览器设置中允许，然后在此处开启。",
 				"PUSH_UNSUPPORTED": "此浏览器无法显示通知。",
 				"PUSH_FAILED": "无法更改浏览器通知，请重试。",
+				"PUSH_KINDS_TITLE": "发送到你的设备",
+				"PUSH_KIND_OFF": "已在上方关闭，因此不会发送。",
+				"DEVICES_TITLE": "你的设备",
+				"DEVICE_NAME": "{system} 上的 {browser}",
+				"DEVICE_UNKNOWN": "浏览器",
+				"DEVICE_THIS": "此设备",
+				"DEVICE_LAST_USED": "上次通知 {date}",
+				"DEVICE_ADDED": "添加于 {date}",
+				"DEVICE_REMOVE": "移除",
+				"DEVICE_REMOVE_FAILED": "未能移除该设备，请重试。",
+				"SOUND_TITLE": "声音",
+				"SOUND_LABEL": "新条目提示音",
+				"SOUND_TEXT": "收件箱有新内容时，此浏览器中的一个已打开标签页会播放一段短提示音。",
 				"EMAIL_INTRO": "每种类型如何通过邮件送达。保持开启的类型仍会出现在你的收件箱中。",
 				"DEFAULT_LABEL": "所有类型",
 				"DEFAULT_TEXT": "各类型使用的邮件设置，除非其自身一行另有设定。",
@@ -4884,7 +4902,8 @@
 			"global": "全局",
 			"list": "任务列表",
 			"task": "当前任务",
-			"view": "视图"
+			"view": "视图",
+			"chat": "聊天"
 		},
 		"commands": {
 			"paletteOpen": "打开命令面板",
@@ -4908,8 +4927,16 @@
 			"taskStatus": "更改状态",
 			"taskPriority": "更改优先级",
 			"taskLabels": "更改标签",
-			"taskDueDate": "更改截止日期"
-		}
+			"taskDueDate": "更改截止日期",
+			"chatPrevious": "上一个对话",
+			"chatNext": "下一个对话",
+			"chatPreviousUnread": "上一个未读对话",
+			"chatNextUnread": "下一个未读对话",
+			"chatUnreads": "打开未读",
+			"chatMarkAllRead": "全部标为已读"
+		},
+		"CHAT_SINGLE_KEY": "聊天的快捷键只能是一个按键，不能是按键序列。",
+		"CHAT_TAKEN": "聊天已在使用此按键（格式、发送、移动或滚动）。"
 	},
 	"realtime": {
 		"RECONNECTING": "正在重新连接…"

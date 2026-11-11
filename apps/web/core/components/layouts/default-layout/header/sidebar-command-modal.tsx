@@ -39,7 +39,7 @@ import CreateTaskModal from '../../../features/tasks/create-task-modal';
 
 import { createPortal } from 'react-dom';
 import { useTheme } from 'next-themes';
-import { ArrowUpRight } from '@/core/components/icons/hugeicons';
+import { ArrowUpRight, Compose } from '@/core/components/icons/hugeicons';
 import { useKeyboardShortcuts, CommandShortcutConfig } from '@/core/hooks/common/use-keyboard-shortcuts';
 import { useGoToCommands } from '@/core/hooks/keyboard/use-go-to-commands';
 import { REGISTRY_OWNED_MOD_KEYS } from '@/core/lib/keyboard/shortcuts';
@@ -49,6 +49,8 @@ import { CreateProjectModal } from '../../../features/projects/create-project-mo
 import { CreateTeamModal } from '@/core/components/features/teams/create-team-modal';
 import { PaletteDocsResults } from './palette-docs-results';
 import { PaletteTaskResults } from './palette-task-results';
+import { PaletteChatResults } from './palette-chat-results';
+import { isChatEnabled } from '@/core/lib/utils/chat-enabled';
 
 // Definition of types to improve readability and security
 type ShortcutAction = () => void;
@@ -61,6 +63,7 @@ interface CommandGroupConfig {
 
 const ALL_GROUPS_TAB = 'all';
 const TASKS_TAB = 'tasks';
+const CHAT_TAB = 'chat';
 const PALETTE_SHORTCUT_KEYS = ['⌘', 'K'];
 const paletteGroupClass =
 	'p-0 pt-1 [&_[cmdk-group-heading]]:h-8 [&_[cmdk-group-heading]]:px-2 [&_[cmdk-group-heading]]:text-[13px]';
@@ -75,6 +78,10 @@ function groupsForTab(groups: CommandGroupConfig[], tab: string) {
 
 function showsTaskResultsIn(tab: string) {
 	return tab === ALL_GROUPS_TAB || tab === TASKS_TAB;
+}
+
+function showsChatResultsIn(tab: string) {
+	return tab === ALL_GROUPS_TAB || tab === CHAT_TAB;
 }
 
 function shortcutKeysOf(shortcutDisplay: string) {
@@ -181,13 +188,17 @@ export const SidebarCommandModal: FC<{ publicTeam: boolean; variant?: 'sidebar' 
 			createTeam: () => teamModal.openModal(),
 			createProject: () => createProjectModal.openModal(),
 			inviteUser: () => inviteModal.openModal(),
-			toggleTheme: () => setTheme(resolvedTheme === 'dark' ? 'light' : 'dark')
+			toggleTheme: () => setTheme(resolvedTheme === 'dark' ? 'light' : 'dark'),
+			// The chat page opens its "New message" dialog for `?new=message`.
+			newChatMessage: () => router.push('/chat?new=message')
 		}),
 		[router, profileLink, createTaskModal, teamModal, createProjectModal, inviteModal, setTheme, resolvedTheme]
 	);
 
 	// The registry's "go to" commands (saved-views feature): their keys are the registry's, not this palette's.
 	const goToCommands = useGoToCommands(navigationIcon);
+	// The chat's entries (its conversations, the people to write to, "New message") where the chat is on.
+	const chatOn = isChatEnabled();
 
 	// Centralized configuration of commands and shortcuts
 	const commandGroups: CommandGroupConfig[] = useMemo(
@@ -361,6 +372,23 @@ export const SidebarCommandModal: FC<{ publicTeam: boolean; variant?: 'sidebar' 
 				]
 			},
 			...(goToCommands.length ? [{ id: 'goTo', heading: t('commandPalette.groups.goTo'), commands: goToCommands }] : []),
+			...(chatOn
+				? [
+						{
+							id: CHAT_TAB,
+							heading: t('commandPalette.groups.chat'),
+							commands: [
+								{
+									sequence: [],
+									description: t('commandPalette.commands.newMessage'),
+									shortcutDisplay: '',
+									action: actions.newChatMessage,
+									icon: <Compose aria-hidden="true" />
+								}
+							]
+						}
+					]
+				: []),
 			{
 				id: 'settings',
 				heading: t('commandPalette.groups.settings'),
@@ -384,7 +412,7 @@ export const SidebarCommandModal: FC<{ publicTeam: boolean; variant?: 'sidebar' 
 				]
 			}
 		],
-		[actions, canInvite, goToCommands, t]
+		[actions, canInvite, chatOn, goToCommands, t]
 	);
 
 	// Extract all shortcut configurations for the global hook
@@ -394,6 +422,7 @@ export const SidebarCommandModal: FC<{ publicTeam: boolean; variant?: 'sidebar' 
 		const registryOn = isTaskViewsEnabled();
 		commandGroups.forEach((group) => {
 			if (group.id === 'goTo') return; // bound by the shortcut registry's listener, never twice
+			if (group.id === CHAT_TAB) return; // no keys of its own
 			group.commands.forEach((command) => {
 				const isOwnedByRegistry =
 					registryOn && command.sequence.length === 1 && !!command.modifiers?.includes('ctrl') && REGISTRY_OWNED_MOD_KEYS.has(command.sequence[0]);
@@ -438,6 +467,9 @@ export const SidebarCommandModal: FC<{ publicTeam: boolean; variant?: 'sidebar' 
 
 	const visibleGroups = groupsForTab(commandGroups, activeTab);
 	const showsTaskResults = showsTaskResultsIn(activeTab);
+	// Read only while the palette is open: the conversations are not polled on every page.
+	const showsChatResults = chatOn && open && showsChatResultsIn(activeTab);
+	const closePalette = useCallback(() => setOpen(false), [setOpen]);
 
 	const openTask = useCallback(
 		(taskId: string) => {
@@ -501,6 +533,9 @@ export const SidebarCommandModal: FC<{ publicTeam: boolean; variant?: 'sidebar' 
 					<CommandEmpty>{t('commandPalette.empty')}</CommandEmpty>
 					{showsTaskResults && (
 						<PaletteTaskResults search={search} onOpenTask={openTask} className={paletteGroupClass} />
+					)}
+					{showsChatResults && (
+						<PaletteChatResults search={search} onDone={closePalette} className={paletteGroupClass} />
 					)}
 					{showsTaskResults && <PaletteDocsResults search={search} onOpenPage={openPage} className={paletteGroupClass} />}
 					{renderCommandGroups()}

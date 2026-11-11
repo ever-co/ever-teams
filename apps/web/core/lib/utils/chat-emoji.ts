@@ -21,7 +21,7 @@ export interface ChatEmojiDataset {
 }
 
 /** How many letters after the `:` open the suggestions: one would offer half the dataset. */
-export const EMOJI_QUERY_MIN = 2;
+const EMOJI_QUERY_MIN = 2;
 
 /** The characters of a short name (`thumbsup`, `+1`, `flag-fr`). */
 const SHORT_NAME = /^[a-z0-9_+-]+$/;

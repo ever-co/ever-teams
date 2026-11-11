@@ -4,6 +4,8 @@ import { cn } from '@/core/lib/helpers';
 import { ChatPerson } from '@/core/lib/utils/chat-format';
 import { otherPeopleOf } from '@/core/lib/utils/chat-list';
 import { EChatConversationKind, EChatVisibility, IChatConversationWithState } from '@/core/types/interfaces/common/chat';
+import type { ETimerStatus } from '@/core/types/generics/enums/timer';
+import { PresenceDot } from './chat-presence-dot';
 
 /** `row` is the list's 20px mark, `tile` the 28px one of a header or a card, `hero` the big one of a conversation's start. */
 type GlyphSize = 'row' | 'tile' | 'hero';
@@ -34,19 +36,22 @@ const AVATAR: Record<GlyphSize, string> = {
 
 /**
  * What stands for a conversation wherever it is listed: `#` for a channel, a lock for a private one, the other
- * person's face for a direct conversation, a group mark for several people.
+ * person's face for a direct conversation (with their status dot when the app knows it), a group mark for several people.
  */
 export function ConversationGlyph({
 	conversation,
 	people,
 	meEmployeeId,
 	size = 'row',
+	status,
 	className
 }: Readonly<{
 	conversation: Pick<IChatConversationWithState, 'kind' | 'visibility' | 'members'>;
 	people: ReadonlyMap<string, ChatPerson>;
 	meEmployeeId: string | null;
 	size?: GlyphSize;
+	/** The other person's status, for a direct conversation. */
+	status?: ETimerStatus | null;
 	className?: string;
 }>) {
 	const box = cn('flex shrink-0 items-center justify-center text-muted-foreground', BOX[size], className);
@@ -62,7 +67,14 @@ export function ConversationGlyph({
 	const others = otherPeopleOf(conversation, people, meEmployeeId);
 	if (conversation.kind === EChatConversationKind.Direct && others.length === 1) {
 		const [person] = others;
-		return <PersonAvatar person={{ id: person.employeeId, name: person.name, imageUrl: person.imageUrl }} className={cn(AVATAR[size], className)} />;
+		const avatar = <PersonAvatar person={{ id: person.employeeId, name: person.name, imageUrl: person.imageUrl }} className={cn(AVATAR[size], !status && className)} />;
+		if (!status) return avatar;
+		return (
+			<span className={cn('relative inline-flex shrink-0', className)} data-presence={status}>
+				{avatar}
+				<PresenceDot status={status} size={size} />
+			</span>
+		);
 	}
 
 	return (
