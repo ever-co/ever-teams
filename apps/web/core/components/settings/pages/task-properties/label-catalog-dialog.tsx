@@ -48,12 +48,15 @@ function CategoryGroup({
 	group,
 	title,
 	picked,
+	isLocked,
 	onToggle,
 	onToggleAll
 }: Readonly<{
 	group: CatalogGroup;
 	title: string;
 	picked: ReadonlySet<string>;
+	/** While the picks are being saved: what is sent cannot change any more. */
+	isLocked: boolean;
 	onToggle: (label: CatalogLabel) => void;
 	onToggleAll: (labels: ReadonlyArray<CatalogLabel>, isPicking: boolean) => void;
 }>) {
@@ -70,8 +73,9 @@ function CategoryGroup({
 					<button
 						type="button"
 						onClick={() => onToggleAll(pickable, !isAllPicked)}
+						disabled={isLocked}
 						aria-label={`${toggleAllLabel}: ${title}`}
-						className="rounded-sm text-xs font-medium text-primary outline-none hover:underline focus-visible:ring-[3px] focus-visible:ring-ring/25"
+						className="rounded-sm text-xs font-medium text-primary outline-none hover:underline focus-visible:ring-[3px] focus-visible:ring-ring/25 disabled:pointer-events-none disabled:opacity-50"
 					>
 						{toggleAllLabel}
 					</button>
@@ -91,7 +95,7 @@ function CategoryGroup({
 							>
 								<Checkbox
 									checked={isPicked}
-									disabled={isAdded}
+									disabled={isAdded || isLocked}
 									onCheckedChange={() => onToggle(label)}
 									aria-label={label.name}
 								/>
@@ -180,6 +184,11 @@ export function LabelCatalogDialog({ open, existingNames, onClose, onAdd }: Read
 		setIsAdding(true);
 		try {
 			const outcome = await onAdd(pickedLabels);
+			if (outcome.added === 0) {
+				// Nothing was filed (each label refused, or each request failed): the picks stay, to try again
+				toast.error(t('settings.labelCatalog.FAILED_TOAST'));
+				return;
+			}
 			if (outcome.failed > 0) {
 				toast.warning(
 					t('settings.labelCatalog.PARTIAL_TOAST', { added: outcome.added, failed: outcome.failed })
@@ -232,6 +241,7 @@ export function LabelCatalogDialog({ open, existingNames, onClose, onAdd }: Read
 						group={group}
 						title={t(CATEGORY_KEYS[group.key])}
 						picked={pickedKeys}
+						isLocked={isAdding}
 						onToggle={toggle}
 						onToggleAll={toggleAll}
 					/>

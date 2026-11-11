@@ -109,6 +109,48 @@ describe('LabelCatalogDialog', () => {
 		expect(partial.onClose).toHaveBeenCalled();
 	});
 
+	it('keeps the dialog and the picks when no label was added, so they can be sent again', async () => {
+		const refused = renderDialog(jest.fn().mockResolvedValue({ added: 0, failed: 2 }));
+		fireEvent.click(within(category('type')).getByRole('checkbox', { name: 'Feature' }));
+		fireEvent.click(within(category('type')).getByRole('checkbox', { name: 'Design' }));
+		await act(async () => {
+			fireEvent.click(screen.getByRole('button', { name: 'settings.labelCatalog.ADD:{"count":2}' }));
+		});
+
+		expect(mockToast.error).toHaveBeenCalledWith('settings.labelCatalog.FAILED_TOAST');
+		expect(mockToast.warning).not.toHaveBeenCalled();
+		expect(refused.onClose).not.toHaveBeenCalled();
+		expect(screen.getByRole('button', { name: 'settings.labelCatalog.ADD:{"count":2}' })).toHaveProperty(
+			'disabled',
+			false
+		);
+	});
+
+	it('locks the picks while they are being saved', async () => {
+		let finish: (outcome: { added: number; failed: number }) => void = () => undefined;
+		const saving = new Promise<{ added: number; failed: number }>((resolve) => {
+			finish = resolve;
+		});
+		const { onClose } = renderDialog(jest.fn().mockReturnValue(saving));
+		fireEvent.click(within(category('type')).getByRole('checkbox', { name: 'Feature' }));
+		await act(async () => {
+			fireEvent.click(screen.getByRole('button', { name: 'settings.labelCatalog.ADD:{"count":1}' }));
+		});
+
+		expect(within(category('type')).getByRole('checkbox', { name: 'Design' }).hasAttribute('data-disabled')).toBe(
+			true
+		);
+		const selectAll = within(category('priority')).getByRole('button', {
+			name: 'settings.labelCatalog.SELECT_ALL: settings.labelCatalog.categories.PRIORITY'
+		});
+		expect(selectAll).toHaveProperty('disabled', true);
+
+		await act(async () => {
+			finish({ added: 1, failed: 0 });
+		});
+		expect(onClose).toHaveBeenCalled();
+	});
+
 	it('keeps the dialog open with an error when nothing could be added', async () => {
 		const failing = renderDialog(jest.fn().mockRejectedValue(new Error('offline')));
 		fireEvent.click(within(category('type')).getByRole('checkbox', { name: 'Feature' }));
