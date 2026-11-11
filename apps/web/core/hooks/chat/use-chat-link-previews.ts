@@ -20,6 +20,7 @@ const PREVIEW_GC_MS = 30 * 60_000;
 /** One session per query client, so per page (and a fresh one per test). */
 const sessions = new WeakMap<QueryClient, ChatLinkPreviewSession>();
 
+/** The session of this query client, made on first use. */
 function sessionOf(client: QueryClient): ChatLinkPreviewSession {
 	let session = sessions.get(client);
 	if (!session) {

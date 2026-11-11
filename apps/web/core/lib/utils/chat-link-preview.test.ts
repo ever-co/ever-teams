@@ -87,6 +87,7 @@ describe('previewLinksOf', () => {
 		expect(urlsOf('**https://a.io/bold** and _https://b.io/em_')).toEqual(['https://a.io/bold', 'https://b.io/em']);
 		expect(urlsOf('Is it https://a.io/q?')).toEqual(['https://a.io/q']);
 		expect(urlsOf('https://a.io/x?a=1&amp; then')).toEqual(['https://a.io/x?a=1']);
+		expect(urlsOf('(https://a.io/x&amp;))')).toEqual(['https://a.io/x']);
 		expect(urlsOf(`https://a.io/long${'.'.repeat(1500)}x${'.'.repeat(5000)} ${'!'.repeat(5000)}`)).toEqual([
 			`https://a.io/long${'.'.repeat(1500)}x`
 		]);
@@ -153,6 +154,16 @@ describe('previewLinksOf', () => {
 		expect(
 			urlsOf('https://app.example.com/chat/c1?message=m1 https://b.io', { ownOrigin: 'https://app.example.com' })
 		).toEqual(['https://b.io/']);
+	});
+
+	it('reads a long body of short code spans or of trailing parentheses in time linear in its length', () => {
+		// 4,000 characters, the longest message: each shape once made a pass per span or per parenthesis.
+		const spans = `${'`a` ``b`` '.repeat(400)} https://a.io`;
+		const parentheses = `https://a.io/x${';)'.repeat(1990)}`;
+		const started = Date.now();
+		expect(urlsOf(spans)).toEqual(['https://a.io/']);
+		expect(urlsOf(parentheses)).toEqual(['https://a.io/x']);
+		expect(Date.now() - started).toBeLessThan(1000);
 	});
 
 	it('does not read a link glued to a word or to a mention token', () => {

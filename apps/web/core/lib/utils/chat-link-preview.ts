@@ -114,11 +114,19 @@ function insideQuotes(line: string, quotes: number): string | null {
  */
 function withoutCodeSpans(line: string): string {
 	const runs = [...line.matchAll(/`+/g)];
+	// The next run of the same length after each run, found in one pass from the end (so many spans cost no more).
+	const nextOfLength = new Map<number, number>();
+	const closingOf: number[] = new Array<number>(runs.length);
+	for (let index = runs.length - 1; index >= 0; index -= 1) {
+		const length = runs[index][0].length;
+		closingOf[index] = nextOfLength.get(length) ?? -1;
+		nextOfLength.set(length, index);
+	}
 	let result = '';
 	let last = 0;
 	for (let index = 0; index < runs.length; index += 1) {
 		const open = runs[index];
-		const closing = runs.findIndex((run, at) => at > index && run[0].length === open[0].length);
+		const closing = closingOf[index];
 		// A run nobody closes is a literal backtick.
 		if (closing < 0) continue;
 		const close = runs[closing];
@@ -254,17 +262,24 @@ const TRAILING_PUNCTUATION = new Set(['?', '!', '.', ',', ':', ';', '*', '_', '~
 /** The letters and digits of an entity reference's name. */
 const ENTITY_NAME = /^[a-z0-9]+$/i;
 
+/** The longest entity reference looked for at the end of a link (`&` and `;` included). */
+const ENTITY_MAX_LENGTH = 34;
+
+/** How many times `character` occurs in `text`. */
 function count(text: string, character: string): number {
 	let found = 0;
 	for (const each of text) if (each === character) found += 1;
 	return found;
 }
 
-/** The link without an entity reference at its end (`&amp;`), which is not part of it. */
-function withoutTrailingEntity(link: string): string {
-	if (!link.endsWith(';')) return link;
-	const at = link.lastIndexOf('&');
-	return at >= 0 && ENTITY_NAME.test(link.slice(at + 1, -1)) ? link.slice(0, at) : link;
+/** Where the link ends without an entity reference at its end (`&amp;`, not part of it), looked for near the end only. */
+function endWithoutEntity(link: string, end: number): number {
+	if (link[end - 1] !== ';') return end;
+	const from = Math.max(0, end - ENTITY_MAX_LENGTH);
+	const near = link.slice(from, end - 1).lastIndexOf('&');
+	if (near < 0) return end;
+	const at = from + near;
+	return ENTITY_NAME.test(link.slice(at + 1, end - 1)) ? at : end;
 }
 
 /** The named character references a link may carry (`&amp;` in a query), as the renderer decodes them. */
@@ -288,15 +303,19 @@ function decodeReferences(link: string): string {
  * did not open. Character by character (no pattern anchored at the end), so a long run of punctuation costs nothing.
  */
 function trimLinkEnd(candidate: string): string {
-	let link = candidate;
+	// The parentheses are counted once: what is trimmed below is never one, except the `)` counted off as it goes.
+	const opens = count(candidate, '(');
+	let closes = count(candidate, ')');
+	let end = candidate.length;
 	for (;;) {
-		const before = link;
-		link = withoutTrailingEntity(link);
-		let end = link.length;
-		while (end > 0 && TRAILING_PUNCTUATION.has(link[end - 1])) end -= 1;
-		link = link.slice(0, end);
-		if (link.endsWith(')') && count(link, ')') > count(link, '(')) link = link.slice(0, -1);
-		if (link === before) return link;
+		const before = end;
+		end = endWithoutEntity(candidate, end);
+		while (end > 0 && TRAILING_PUNCTUATION.has(candidate[end - 1])) end -= 1;
+		if (candidate[end - 1] === ')' && closes > opens) {
+			end -= 1;
+			closes -= 1;
+		}
+		if (end === before) return candidate.slice(0, end);
 	}
 }
 
@@ -351,6 +370,7 @@ function plainText(value: unknown): string | null {
 	return text || null;
 }
 
+/** The host of a link without its `www.`, as the card shows it (the link itself when it does not parse). */
 function hostOf(href: string): string {
 	try {
 		return new URL(href).hostname.replace(/^www\./i, '');
@@ -418,14 +438,17 @@ type RouteState = 'unknown' | 'probing' | 'present' | 'missing';
 /** A minute, the window the platform counts its asks in. */
 const PACE_WINDOW_MS = 60_000;
 
+/** What a cancelled ask rejects with: the signal's own reason, else an `AbortError`. */
 function abortError(signal: AbortSignal): unknown {
 	return signal.reason ?? new DOMException('The ask was cancelled', 'AbortError');
 }
 
+/** Stops a load whose message left the screen (its query was cancelled). */
 function throwIfAborted(signal?: AbortSignal): void {
 	if (signal?.aborted) throw abortError(signal);
 }
 
+/** A pause of `ms`, cut short (rejected) when the signal aborts. */
 function wait(ms: number, signal?: AbortSignal): Promise<void> {
 	return new Promise((resolve, reject) => {
 		if (signal?.aborted) {
@@ -444,6 +467,10 @@ function wait(ms: number, signal?: AbortSignal): Promise<void> {
 	});
 }
 
+/**
+ * The session of a page: `ask` is one request to the platform's `/chat/link-preview`; the options are for tests (the
+ * defaults are the platform's pace).
+ */
 export function createChatLinkPreviewSession(
 	ask: ChatLinkPreviewAsk,
 	options: ChatLinkPreviewSessionOptions = {}
@@ -467,6 +494,7 @@ export function createChatLinkPreviewSession(
 	const sent: number[] = [];
 	let running = 0;
 
+	/** Remembers a link without a preview, forgetting the oldest past the limit. */
 	const remember = (url: string) => {
 		unavailable.add(url);
 		if (unavailable.size > rememberedMax) {
@@ -530,6 +558,7 @@ export function createChatLinkPreviewSession(
 		}
 	};
 
+	/** See {@link ChatLinkPreviewSession.load}: waits for the probe, probes when nobody has, then asks and polls. */
 	const load = async (url: string, signal?: AbortSignal): Promise<IChatLinkPreview | null> => {
 		while (state.route === 'probing') {
 			await state.probe;

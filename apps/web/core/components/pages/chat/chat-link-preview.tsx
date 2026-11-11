@@ -70,6 +70,7 @@ function LinkPreviewCard({ card }: Readonly<{ card: ChatLinkPreviewCard }>) {
 	);
 }
 
+/** The cards of a message's links that have one, under the message; nothing while none has. */
 function LinkPreviewCards({ links }: Readonly<{ links: readonly ChatPreviewLink[] }>) {
 	const cards = useChatLinkPreviews(links);
 	if (!cards.length) return null;
