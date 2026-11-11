@@ -4,7 +4,7 @@ import { Suspense, useCallback, useMemo, useState } from 'react';
 import Link from 'next/link';
 import { useAtomValue } from 'jotai';
 import { useLocale, useTranslations } from 'next-intl';
-import { DayPlanBlock } from '@/core/components/calendar/calendar-day-details';
+import { DayPlanBlock, DoneOfPlanned } from '@/core/components/calendar/calendar-day-details';
 import { DatePicker } from '@/core/components/common/date-picker';
 import { DashboardBreadcrumb } from '@/core/components/dashboards/kit/dashboard-breadcrumb';
 import { DashboardSection, DashboardToolbar } from '@/core/components/dashboards/kit/dashboard-layout';
@@ -21,7 +21,7 @@ import { isTrackingEnabledState } from '@/core/stores/timer/active-timer';
 import { DiaryDayStrip } from './diary-day-strip';
 import { DiaryBody, DiaryHoursSkeleton } from './diary-hours';
 import { DiarySlotSheet } from './diary-slot-sheet';
-import { DiaryAppRows, DiaryFigures, DiaryRowsSkeleton, DiaryTaskRows } from './work-diary-parts';
+import { DIARY_COLUMNS, DiaryAppRows, DiaryFigures, DiaryRowsSkeleton, DiaryTaskRows } from './work-diary-parts';
 import { WorkDiaryPageSkeleton } from './work-diary-page-skeleton';
 
 interface DayFormats {
@@ -80,7 +80,7 @@ function ScreenshotsBody({
 	);
 }
 
-/** The day itself: figures, then its tasks, plan and apps beside its screenshots (above them on a phone). */
+/** The day itself: its figures, then its tasks, plan and apps side by side, then its screenshots at full width. */
 function DiaryDayView({
 	page,
 	formats,
@@ -101,8 +101,12 @@ function DiaryDayView({
 		</DashboardSection>
 	);
 	const plan = (
-		<DashboardSection bodyClassName="px-4 py-3">
-			<DayPlanBlock day={shownDay} />
+		<DashboardSection
+			title={t('dashboard.calendar.PLAN_TITLE')}
+			actions={shownDay.plan && <DoneOfPlanned day={shownDay} plan={shownDay.plan} />}
+			bodyClassName="px-4 pb-3"
+		>
+			<DayPlanBlock day={shownDay} showsHeader={false} />
 		</DashboardSection>
 	);
 
@@ -124,34 +128,31 @@ function DiaryDayView({
 	return (
 		<>
 			{figures}
-			<div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_22rem] lg:items-start">
-				<div className="flex min-w-0 flex-col gap-4 lg:col-start-2 lg:row-start-1">
-					<DashboardSection
-						title={t('common.TASKS')}
-						meta={page.isLogsLoading ? undefined : taskCountText}
-						ariaLabel={t('common.TASKS')}
-					>
-						{page.isLogsLoading && <DiaryRowsSkeleton />}
-						{!page.isLogsLoading && <DiaryTaskRows tasks={tasks} />}
-					</DashboardSection>
-					{plan}
-					<DashboardSection
-						title={t('dashboard.timesheets.diary.APPS')}
-						ariaLabel={t('dashboard.timesheets.diary.APPS')}
-					>
-						<DiaryAppRows activities={diary.activities} isLoading={diary.isAppsLoading} dayText={dayText} />
-					</DashboardSection>
-				</div>
+			<div className={DIARY_COLUMNS}>
 				<DashboardSection
-					title={t('common.SCREENSHOTS')}
-					meta={diary.isLoading ? undefined : shotCountText}
-					ariaLabel={t('common.SCREENSHOTS')}
-					className="lg:col-start-1 lg:row-start-1"
-					bodyClassName="px-4 pb-4"
+					title={t('common.TASKS')}
+					meta={page.isLogsLoading ? undefined : taskCountText}
+					ariaLabel={t('common.TASKS')}
 				>
-					<ScreenshotsBody page={page} dayText={dayText} formats={formats} onOpen={onOpenSlot} />
+					{page.isLogsLoading && <DiaryRowsSkeleton />}
+					{!page.isLogsLoading && <DiaryTaskRows tasks={tasks} />}
+				</DashboardSection>
+				{plan}
+				<DashboardSection
+					title={t('dashboard.timesheets.diary.APPS')}
+					ariaLabel={t('dashboard.timesheets.diary.APPS')}
+				>
+					<DiaryAppRows activities={diary.activities} isLoading={diary.isAppsLoading} dayText={dayText} />
 				</DashboardSection>
 			</div>
+			<DashboardSection
+				title={t('common.SCREENSHOTS')}
+				meta={diary.isLoading ? undefined : shotCountText}
+				ariaLabel={t('common.SCREENSHOTS')}
+				bodyClassName="px-4 pb-4"
+			>
+				<ScreenshotsBody page={page} dayText={dayText} formats={formats} onOpen={onOpenSlot} />
+			</DashboardSection>
 		</>
 	);
 }

@@ -13,6 +13,9 @@ import { formatDurationShort, formatPercent, shareRowsOf } from '@/core/lib/util
 import { type AppActivity, type AppShare, appSharesOf } from '@/core/lib/utils/dashboards/app-activity';
 import type { DiaryDay, DiaryTask } from '@/core/lib/utils/dashboards/work-diary';
 
+/** The tasks, plan and apps of a day, side by side on a wide screen and one under the other on a phone. */
+export const DIARY_COLUMNS = 'grid gap-4 lg:grid-cols-3 lg:items-start';
+
 /** The rows a list shows before it gathers the rest in one "N other" row. */
 const LEADING_ROWS = 6;
 
@@ -61,15 +64,20 @@ export function DiaryRowsSkeleton() {
 	);
 }
 
+/** The task (it opens), "now" while its timer runs, and its project on a second line. */
 function DiaryTaskName({ task }: Readonly<{ task: DiaryTask }>) {
 	const t = useTranslations();
 	return (
-		<span className="flex min-w-0 items-baseline gap-1.5">
-			<TaskTitle log={task.log} />
+		<span className="flex min-w-0 flex-col py-0.5">
+			<span className="flex min-w-0 items-baseline gap-1.5">
+				<TaskTitle log={task.log} />
+				{task.isRunning && (
+					<span className="shrink-0 text-xs font-medium text-success">
+						{t('dashboard.timesheets.RUNNING')}
+					</span>
+				)}
+			</span>
 			{task.projectName && <span className="truncate text-xs text-muted-foreground">{task.projectName}</span>}
-			{task.isRunning && (
-				<span className="shrink-0 text-xs font-medium text-success">{t('dashboard.timesheets.RUNNING')}</span>
-			)}
 		</span>
 	);
 }
@@ -84,7 +92,7 @@ export function DiaryTaskRows({ tasks }: Readonly<{ tasks: ReadonlyArray<DiaryTa
 	const rows = useMemo(
 		() =>
 			shareRowsOf(
-				[...tasks],
+				tasks,
 				(task) => task.seconds,
 				(task) => task.key,
 				LEADING_ROWS
@@ -98,13 +106,15 @@ export function DiaryTaskRows({ tasks }: Readonly<{ tasks: ReadonlyArray<DiaryTa
 			formatValue={formatDurationShort}
 			otherLabel={(count) => t('dashboard.workDiary.TASKS_OTHER', { count })}
 			className="py-1.5"
+			density="narrow"
 		/>
 	);
 }
 
+/** The app or site, and the window it spent the most time in on a second line. */
 function AppName({ share }: Readonly<{ share: AppShare }>) {
 	return (
-		<span className="flex min-w-0 items-baseline gap-1.5">
+		<span className="flex min-w-0 flex-col py-0.5">
 			<span className="truncate">{share.title}</span>
 			{share.detail && <span className="truncate text-xs text-muted-foreground">{share.detail}</span>}
 		</span>
@@ -149,6 +159,7 @@ export function DiaryAppRows({
 			formatValue={formatDurationShort}
 			otherLabel={(count) => t('dashboard.appsUrls.day.OTHER', { count })}
 			className="py-1.5"
+			density="narrow"
 		/>
 	);
 }
