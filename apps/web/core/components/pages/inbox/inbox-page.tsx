@@ -309,7 +309,7 @@ function InboxPageContent() {
 					const settled = legacyRequests.settle(entry.id, field, request, accepted);
 					if (settled === undefined) continue;
 					setOpened((kept) =>
-						kept && kept.entry.id === entry.id && kept.entry[field] !== settled ? { ...kept, entry: { ...kept.entry, [field]: settled } } : kept
+						kept?.entry.id === entry.id && kept.entry[field] !== settled ? { ...kept, entry: { ...kept.entry, [field]: settled } } : kept
 					);
 				}
 			});
