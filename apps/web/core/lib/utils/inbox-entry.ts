@@ -232,7 +232,11 @@ export function toInboxEntry(item: IInboxItem): InboxEntry {
 	const recipient = item.recipient;
 	const entity = stringOf(item.entity);
 	const entityId = stringOf(item.entityId);
-	const taskId = stringOf(item.taskId) ?? (entity === EBaseEntityEnum.Task ? entityId : null);
+	const timerReminder = isNotification ? timerReminderNoticeOf({ type, title: rawTitle, entity, entityId }) : null;
+	// A timer reminder is about its run: it opens the timer, not a task its item may name
+	const taskId = timerReminder
+		? null
+		: (stringOf(item.taskId) ?? (entity === EBaseEntityEnum.Task ? entityId : null));
 	// A chat notification carries its channel and its text in the title; a quote inside the text is not a subject.
 	const chatParts = isNotification && entity === 'ChatMessage' ? messagePartsOfTitle(rawTitle) : null;
 	const quoted = isNotification && !chatParts ? quotedSubjectOf(rawTitle) : null;
@@ -254,7 +258,7 @@ export function toInboxEntry(item: IInboxItem): InboxEntry {
 		taskId,
 		chatMessageId: entity === 'ChatMessage' ? entityId : null,
 		href: null,
-		timerReminder: isNotification ? timerReminderNoticeOf({ type, title: rawTitle, entity, entityId }) : null,
+		timerReminder,
 		isUnread: recipient ? recipient.isRead !== true : true,
 		isArchived: !!recipient?.isArchived,
 		isDone: !!(recipient?.doneAt || recipient?.isDone),

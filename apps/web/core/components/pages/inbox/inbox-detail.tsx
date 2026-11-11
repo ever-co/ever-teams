@@ -66,8 +66,9 @@ export function InboxDetail(props: Readonly<InboxDetailProps>) {
 }
 
 function openLabelOf(entry: InboxEntry, t: ReturnType<typeof useTranslations>): string {
-	if (entry.taskId) return t('inbox.DETAIL.OPEN_TASK');
+	// A timer reminder opens its timer, even one whose item names a task
 	if (entry.timerReminder) return t('notifications.TIMER_REMINDER.OPEN');
+	if (entry.taskId) return t('inbox.DETAIL.OPEN_TASK');
 	return t('inbox.DETAIL.OPEN');
 }
 

@@ -75,6 +75,37 @@ describe('InboxDetail of a timer reminder', () => {
 		expect(onOpenTarget).toHaveBeenCalledWith(entry);
 	});
 
+	it('opens the timer, not a task, when its item names one', () => {
+		const { onOpenTarget, entry } = mount(reminder({ taskId: 'task-1' }), null);
+
+		expect(entry.taskId).toBeNull();
+		expect(entry.href).toBe('/');
+		expect(screen.queryByRole('button', { name: 'inbox.DETAIL.OPEN_TASK' })).toBeNull();
+		fireEvent.click(screen.getByRole('button', { name: 'notifications.TIMER_REMINDER.OPEN' }));
+		expect(onOpenTarget).toHaveBeenCalledWith(expect.objectContaining({ taskId: null, href: '/' }));
+	});
+
+	it('names the open action after the timer for an entry that carries a task as well', () => {
+		render(
+			<Provider store={createStore()}>
+				<InboxDetail
+					entry={{ ...toInboxEntry(reminder()), taskId: 'task-1' }}
+					person={null}
+					taskTitle={null}
+					canTriage
+					onOpenTarget={jest.fn()}
+					onToggleRead={jest.fn()}
+					onArchive={jest.fn()}
+					onSnooze={jest.fn()}
+					onDone={jest.fn()}
+				/>
+			</Provider>
+		);
+
+		expect(screen.getByRole('button', { name: 'notifications.TIMER_REMINDER.OPEN' })).toBeTruthy();
+		expect(screen.queryByRole('button', { name: 'inbox.DETAIL.OPEN_TASK' })).toBeNull();
+	});
+
 	it('stops the timer through the app owner while the run it is about still runs', () => {
 		const { stop } = mount(reminder(), 'log-1');
 
