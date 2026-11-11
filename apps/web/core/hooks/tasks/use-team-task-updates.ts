@@ -82,7 +82,7 @@ export function useTeamTaskUpdates() {
 	);
 
 	const applyChange = useCallback(
-		(taskIds: string[], field: TeamTaskField, change: TaskChange) => {
+		(taskIds: string[], field: TeamTaskField, change: TaskChange, options?: { moveTimeLogs?: boolean }) => {
 			for (const taskId of taskIds) {
 				const run = async () => {
 					const task = latestTask(taskId);
@@ -94,7 +94,7 @@ export function useTeamTaskUpdates() {
 						return;
 					}
 					try {
-						await updateTask({ ...task, ...update });
+						await updateTask({ ...task, ...update }, options);
 						// A view's own list (a built-in view) reads the platform again.
 						void queryClient.invalidateQueries({ queryKey: queryKeys.taskViews.all });
 					} catch (error) {
@@ -221,12 +221,19 @@ export function useTeamTaskUpdates() {
 				void bulkUpdate(taskIds, { projectId }, message).catch(() => undefined);
 				return;
 			}
-			applyChange(taskIds, 'project', (task) => {
-				if ((task.projectId ?? null) === projectId) {
-					return null;
-				}
-				return { projectId };
-			});
+			// The task's tracked time moves with it, as when the project is set from the task itself (`ProjectDropDown`):
+			// the same change must not give different timesheets depending on where it was made.
+			applyChange(
+				taskIds,
+				'project',
+				(task) => {
+					if ((task.projectId ?? null) === projectId) {
+						return null;
+					}
+					return { projectId };
+				},
+				{ moveTimeLogs: true }
+			);
 		},
 		[applyChange, bulkUpdate, t, usesBulk]
 	);
