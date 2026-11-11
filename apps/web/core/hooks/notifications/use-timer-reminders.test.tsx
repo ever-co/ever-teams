@@ -25,7 +25,12 @@ jest.mock('@/core/hooks/notifications/use-notification-settings', () => ({
 	useNotificationSettings: () => ({ setting: mockSetting.current, ...mockSettingRead })
 }));
 
-import { shownTimerReminderLevel, TIMER_REMINDER_HIDDEN_YIELD_MS } from '@/core/lib/notifications/timer-reminders';
+import {
+	shownTimerReminderLevel,
+	TIMER_REMINDER_CLAIM_RETRY_MS,
+	TIMER_REMINDER_HIDDEN_YIELD_MS
+} from '@/core/lib/notifications/timer-reminders';
+import { TAB_CLAIM_PREFIX, TAB_CLAIM_TTL_MS } from '@/core/lib/realtime/tab-claim';
 import type { ITimerStatus } from '@/core/types/interfaces/timer/timer-status';
 import { timerReminderIdOf, useTimerReminders } from './use-timer-reminders';
 
@@ -232,6 +237,20 @@ describe('useTimerReminders', () => {
 		await advance(HOUR);
 		await renderReminders();
 		expect(mockToast.warning).toHaveBeenCalledTimes(1);
+	});
+
+	it('asks again while another tab holds the claim without having given the reminder', async () => {
+		jest.setSystemTime(STARTED_AT + 9 * HOUR);
+		// Another tab took the claim of the first reminder, and has given nothing yet
+		const claim = `${TAB_CLAIM_PREFIX}timer-reminder-log-1-1`;
+		window.localStorage.setItem(claim, `other-tab|${Date.now() + TAB_CLAIM_TTL_MS}`);
+		await renderReminders();
+		expect(mockToast.warning).not.toHaveBeenCalled();
+
+		// That tab was called off and gave the claim back: this one gives the reminder when it asks again
+		window.localStorage.removeItem(claim);
+		await advance(TIMER_REMINDER_CLAIM_RETRY_MS);
+		expect(shownTitles()).toEqual(['notifications.TIMER_REMINDER.LONG_TITLE']);
 	});
 
 	it('shows it once when two tabs reach the threshold together', async () => {

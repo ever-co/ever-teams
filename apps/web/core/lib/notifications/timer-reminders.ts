@@ -138,6 +138,13 @@ export function recordTimerReminder(runKey: string, level: TimerReminderLevel): 
 export const TIMER_REMINDER_HIDDEN_YIELD_MS = 400;
 
 /**
+ * How soon a tab asks again for a reminder another tab claimed but has not given yet: that tab may still give it, or
+ * give the claim back. Asking stops once a tab gives it, or when the claim expires (TAB_CLAIM_TTL_MS) and this tab
+ * takes it.
+ */
+export const TIMER_REMINDER_CLAIM_RETRY_MS = 30_000;
+
+/**
  * Claims the reminder of the run's level for this tab: true for the one tab of the browser that shows it, false when
  * it was shown already, in this tab, another one, or before a reload. Tabs reaching it together are settled by the
  * claim the tabs share (tab-claim.ts: one tab takes a key, a visible tab before a hidden one); the run's record then

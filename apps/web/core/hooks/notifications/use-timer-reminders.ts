@@ -12,6 +12,7 @@ import {
 	isWithinQuietHours,
 	nextTimerReminderAt,
 	shownTimerReminderLevel,
+	TIMER_REMINDER_CLAIM_RETRY_MS,
 	timerReminderHoursOf,
 	timerReminderLevelAt,
 	timerRunOf,
@@ -162,7 +163,7 @@ export function useTimerReminders({ timerStatus, stopTimer }: UseTimerRemindersI
 			const level = timerReminderLevelAt(Date.now() - startedAt, hours);
 			const shownInTab = shownHere.current.get(runKey) ?? 0;
 			if (level > shownInTab) {
-				// One tab of the browser claims the reminder, the one in sight first; the others note it as shown
+				// One tab of the browser claims the reminder, the one in sight first; the others note it once it was given
 				const isVisible = typeof document !== 'undefined' && document.visibilityState === 'visible';
 				const isClaimed = await claimTimerReminder(
 					runKey,
@@ -173,9 +174,16 @@ export function useTimerReminders({ timerStatus, stopTimer }: UseTimerRemindersI
 				if (isCancelled) {
 					return;
 				}
-				shownHere.current.set(runKey, level);
 				if (isClaimed) {
+					shownHere.current.set(runKey, level);
 					show(level as TimerReminderLevel);
+				} else if (shownTimerReminderLevel(runKey) >= level) {
+					shownHere.current.set(runKey, level);
+				} else {
+					// Another tab holds the claim and has given nothing yet: it may still give the reminder, or be called
+					// off and give the claim back. Asked again shortly, until a tab gives it or that claim expires.
+					timeout = setTimeout(() => void check(), TIMER_REMINDER_CLAIM_RETRY_MS);
+					return;
 				}
 			}
 			const shown = Math.max(level, shownTimerReminderLevel(runKey), shownHere.current.get(runKey) ?? 0);
