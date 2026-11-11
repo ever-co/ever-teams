@@ -557,12 +557,18 @@ export function useTimerApi({
 		}
 	}, [activeTeamRef, queryClient, refreshUserData, stopStaleTeamsTimer, t, timerStatusRef]);
 
+	/** A new workspace is opening (#5025): says so and tells the start to stop. */
+	const warnIfWorkspaceOpening = useCallback((): boolean => {
+		if (!isWorkspaceOpeningRef.current) return false;
+		toast.warning(t('toasts.timer.WORKSPACE_OPENING'), { id: 'timer-workspace-opening' });
+		return true;
+	}, [isWorkspaceOpeningRef, t]);
+
 	const runStartTimer = useCallback(
 		async (explicitTask?: TTask, onRequestLanded?: () => void): Promise<TimerStartOutcome> => {
 			// A new workspace is opening: its answer switches the session, and this timer would keep running in the
 			// workspace left behind, out of sight (#5025)
-			if (isWorkspaceOpeningRef.current) {
-				toast.warning(t('toasts.timer.WORKSPACE_OPENING'), { id: 'timer-workspace-opening' });
+			if (warnIfWorkspaceOpening()) {
 				return 'blocked';
 			}
 			// Before the first await: a team switch during the tracking check or the project read drops the start
@@ -600,12 +606,8 @@ export function useTimerApi({
 			const isTaskStillChosen =
 				Boolean(explicitTask) || Boolean(pageTask) || activeTeamTaskRef.current?.id === taskIdToUse;
 			const isSameTeam = activeTeamRef.current?.id === teamIdAtStart;
-			if (!isTaskStillChosen || !isSameTeam) {
-				return 'blocked';
-			}
-			// A new workspace began opening during the checks above: the start would land in the workspace it leaves
-			if (isWorkspaceOpeningRef.current) {
-				toast.warning(t('toasts.timer.WORKSPACE_OPENING'), { id: 'timer-workspace-opening' });
+			// Or a new workspace began opening during the checks above: the start would land in the workspace it leaves
+			if (!isTaskStillChosen || !isSameTeam || warnIfWorkspaceOpening()) {
 				return 'blocked';
 			}
 
@@ -758,7 +760,7 @@ export function useTimerApi({
 			activeTeamId,
 			isCurrentScope,
 			statusEnabled,
-			isWorkspaceOpeningRef
+			warnIfWorkspaceOpening
 		]
 	);
 

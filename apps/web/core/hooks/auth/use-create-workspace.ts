@@ -40,14 +40,14 @@ function isUnanswered(error: unknown): boolean {
 }
 
 /** What a gateway (the ingress 504, Cloudflare 524) answers once it stops waiting for the route; never the route. */
-const GATEWAY_TIMEOUTS = [504, 524];
+const GATEWAY_TIMEOUTS: ReadonlySet<number> = new Set([504, 524]);
 
 /** A gateway stopped waiting for the route, which may still be creating the workspace. */
 function isGatewayTimeout(error: unknown): boolean {
 	if (ApiErrorService.isApiError(error)) {
-		return error.hasHttpResponseStatus(...GATEWAY_TIMEOUTS);
+		return error.hasHttpResponseStatus(...GATEWAY_TIMEOUTS.values());
 	}
-	return isAxiosError(error) && GATEWAY_TIMEOUTS.includes(error.response?.status ?? 0);
+	return isAxiosError(error) && GATEWAY_TIMEOUTS.has(error.response?.status ?? 0);
 }
 
 /**

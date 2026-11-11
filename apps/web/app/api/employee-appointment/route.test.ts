@@ -58,7 +58,10 @@ describe('/api/employee-appointment', () => {
 		const body = { agenda: 'Weekly sync', location: appointment.location, tenantId: 'tenant-1' };
 
 		const response = await POST(
-			new Request('https://app.ever.team/api/employee-appointment', { method: 'POST', body: JSON.stringify(body) })
+			new Request('https://app.ever.team/api/employee-appointment', {
+				method: 'POST',
+				body: JSON.stringify(body)
+			})
 		);
 
 		expect(await response.json()).toEqual(appointment);
