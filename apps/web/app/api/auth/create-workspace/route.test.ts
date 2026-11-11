@@ -89,6 +89,13 @@ describe('POST /api/auth/create-workspace', () => {
 		const failed = await post({ name: 'Studio' });
 		expect(failed.status).toBe(502);
 		expect(failed.headers.get('set-cookie')).toBeNull();
+
+		// The workspace exists, but its session could not be opened: said apart, so the page does not offer a retry
+		mockCreateWorkspace.mockResolvedValueOnce({ status: 'created_unopened' });
+		const unopened = await post({ name: 'Studio' });
+		expect(unopened.status).toBe(502);
+		await expect(unopened.json()).resolves.toEqual({ code: 'CREATED_NOT_OPENED' });
+		expect(unopened.headers.get('set-cookie')).toBeNull();
 	});
 
 	it("answers the guard's own refusal without a session", async () => {

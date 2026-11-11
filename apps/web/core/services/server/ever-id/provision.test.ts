@@ -129,4 +129,27 @@ describe('provisionEverIdWorkspace', () => {
 			userId: 'account-1'
 		});
 	});
+
+	it('tells once the workspace and its team exist, even when its session cannot be opened afterwards', async () => {
+		mockRequests.refreshTokenRequest.mockRejectedValue(new Error('Gauzy restarted'));
+		const onSetUp = jest.fn();
+
+		await expect(provision({ onSetUp })).resolves.toBe('failed');
+
+		expect(onSetUp).toHaveBeenCalledWith({
+			tenantId: 'tenant-new',
+			organizationId: 'organization-new',
+			teamId: 'team-new',
+			userId: 'account-1'
+		});
+		expect(mockSetAuthCookies).not.toHaveBeenCalled();
+	});
+
+	it('tells nothing when a step before the team fails', async () => {
+		mockRequests.createOrganizationTeamRequest.mockRejectedValue(new Error('refused'));
+		const onSetUp = jest.fn();
+
+		await expect(provision({ onSetUp })).resolves.toBe('failed');
+		expect(onSetUp).not.toHaveBeenCalled();
+	});
 });

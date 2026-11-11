@@ -13,11 +13,17 @@ import {
  * opens the account the workspace is created with (their address, no tenant yet) and answers its workspace sign-in;
  * the sign-up's steps then create the tenant, the organization, the employee and the first team, and sign it in
  * (cookies on `response`). The addresses given are invited to that team.
+ *
+ * `created_unopened`: the workspace exists but its session could not be opened (a step after the team failed). It is
+ * never reported as not created, which a retry would answer with a second workspace.
  */
 
 export type CreateWorkspaceResult =
 	| { status: 'ok'; invited: number; invitesFailed: boolean }
-	| { status: 'address_unconfirmed' | 'registration_closed' | 'failed' };
+	| { status: 'address_unconfirmed' | 'registration_closed' | 'created_unopened' | 'failed' };
+
+/** How long the invitations may take: the answer that opens the new workspace waits for them. */
+export const INVITATIONS_DEADLINE_MS = 15_000;
 
 interface CreateWorkspaceInput {
 	req: Request;
@@ -52,12 +58,31 @@ async function refusalOf(error: unknown): Promise<'address_unconfirmed' | 'regis
 	return /workspaces is disabled/i.test(message) ? 'registration_closed' : 'failed';
 }
 
-/** Invites the addresses to the new workspace's team, as its creator, with the employee role. */
+/**
+ * Invites the addresses to the new workspace's team, as its creator, with the employee role. Both requests are given
+ * up after {@link INVITATIONS_DEADLINE_MS}: a stalled one never holds back the answer that opens the workspace.
+ */
 async function inviteToWorkspace(session: ProvisionedWorkspace, emails: string[], origin: string): Promise<void> {
+	const controller = new AbortController();
+	const deadline = setTimeout(() => controller.abort(), INVITATIONS_DEADLINE_MS);
+	try {
+		await sendInvitations(session, emails, origin, { signal: controller.signal });
+	} finally {
+		clearTimeout(deadline);
+	}
+}
+
+async function sendInvitations(
+	session: ProvisionedWorkspace,
+	emails: string[],
+	origin: string,
+	init: RequestInit
+): Promise<void> {
 	const { data: employeeRole } = await getEmployeeRoleRequest({
 		tenantId: session.tenantId,
 		role: 'EMPLOYEE',
-		bearer_token: session.accessToken
+		bearer_token: session.accessToken,
+		init
 	});
 	const startedWorkOn = new Date();
 	startedWorkOn.setDate(startedWorkOn.getDate() - 1);
@@ -77,7 +102,8 @@ async function inviteToWorkspace(session: ProvisionedWorkspace, emails: string[]
 			tenantId: session.tenantId,
 			startedWorkOn: startedWorkOn.toISOString()
 		},
-		session.accessToken
+		session.accessToken,
+		init
 	);
 }
 
@@ -95,6 +121,7 @@ export async function createWorkspace(input: CreateWorkspaceInput): Promise<Crea
 
 	let invited = 0;
 	let invitesFailed = false;
+	let isSetUp = false;
 	const { origin } = new URL(input.req.url);
 	const result = await provisionEverIdWorkspace({
 		req: input.req,
@@ -105,6 +132,9 @@ export async function createWorkspace(input: CreateWorkspaceInput): Promise<Crea
 		workspace: input.name,
 		languageId: input.languageId,
 		timezone: input.timezone,
+		onSetUp: () => {
+			isSetUp = true;
+		},
 		onProvisioned:
 			input.invites.length > 0
 				? async (session) => {
@@ -118,7 +148,7 @@ export async function createWorkspace(input: CreateWorkspaceInput): Promise<Crea
 				: undefined
 	});
 	if (result !== 'ok') {
-		return { status: 'failed' };
+		return { status: isSetUp ? 'created_unopened' : 'failed' };
 	}
 	return { status: 'ok', invited, invitesFailed };
 }

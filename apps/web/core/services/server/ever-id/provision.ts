@@ -59,6 +59,11 @@ interface EverIdProvisionInput {
 	/** The language of the session; English by default. */
 	languageId?: string;
 	/**
+	 * Told once the workspace exists (its tenant, organization, employee and team), before its session is opened: a
+	 * caller that then gets `failed` knows the workspace was created all the same (#5025).
+	 */
+	onSetUp?: (workspace: Omit<ProvisionedWorkspace, 'accessToken'>) => void;
+	/**
 	 * Run once the workspace is set up and signed in, with its session. Its failure does not undo the workspace: the
 	 * caller notes it (the invitations of a new workspace).
 	 */
@@ -185,6 +190,11 @@ export async function provisionEverIdWorkspace(input: EverIdProvisionInput): Pro
 			},
 			auth_token
 		);
+		try {
+			input.onSetUp?.({ tenantId, organizationId, teamId: createdTeam.id, userId });
+		} catch {
+			// The caller's note: never a failure of the setup
+		}
 
 		const { data: refreshed } = await refreshTokenRequest(signin.data.refresh_token);
 		auth_token = refreshed.token;

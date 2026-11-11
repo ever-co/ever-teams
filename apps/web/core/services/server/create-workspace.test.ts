@@ -20,7 +20,7 @@ jest.mock('@/core/services/server/ever-id/provision', () => ({
 }));
 
 import { NextResponse } from 'next/server';
-import { createWorkspace } from './create-workspace';
+import { createWorkspace, INVITATIONS_DEADLINE_MS } from './create-workspace';
 
 const SESSION = {
 	accessToken: 'workspace-token',
@@ -104,6 +104,38 @@ describe('createWorkspace', () => {
 		mockInvite.mockRejectedValue(new Error('refused'));
 
 		await expect(create(['grace@ever.co'])).resolves.toEqual({ status: 'ok', invited: 0, invitesFailed: true });
+	});
+
+	describe('a stalled invitation', () => {
+		beforeEach(() => jest.useFakeTimers());
+		afterEach(() => jest.useRealTimers());
+
+		it('is given up after the deadline: the workspace opens all the same, the invitations said not sent', async () => {
+			// Gauzy never answers; the request ends only when it is aborted
+			mockInvite.mockImplementation(
+				(_body: unknown, _token: unknown, init: RequestInit) =>
+					new Promise((_resolve, reject) =>
+						init.signal?.addEventListener('abort', () => reject(new Error('aborted')))
+					)
+			);
+
+			const created = create(['grace@ever.co']);
+			await jest.advanceTimersByTimeAsync(INVITATIONS_DEADLINE_MS);
+
+			await expect(created).resolves.toEqual({ status: 'ok', invited: 0, invitesFailed: true });
+			expect(mockEmployeeRole.mock.calls[0][0].init.signal).toBe(mockInvite.mock.calls[0][2].signal);
+		});
+	});
+
+	it('never reports a workspace set up but not opened as not created: a retry would create a second one', async () => {
+		// The tenant, organization, employee and team exist; opening the session (the token refresh) failed
+		mockProvision.mockImplementation(async ({ onSetUp }) => {
+			onSetUp?.({ tenantId: 'tenant-new', organizationId: 'organization-new', teamId: 'team-new', userId: 'a' });
+			return 'failed';
+		});
+
+		await expect(create(['grace@ever.co'])).resolves.toEqual({ status: 'created_unopened' });
+		expect(mockInvite).not.toHaveBeenCalled();
 	});
 
 	it("tells an unconfirmed address from closed registration in Gauzy's refusal", async () => {
