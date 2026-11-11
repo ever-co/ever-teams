@@ -610,6 +610,11 @@ export function useTimerApi({
 			if (!isTaskStillChosen || !isSameTeam || warnIfWorkspaceOpening()) {
 				return 'blocked';
 			}
+			// Asked again after the awaits above: a workspace may have started opening meanwhile (#5025)
+			if (isWorkspaceOpeningRef.current) {
+				toast.warning(t('toasts.timer.WORKSPACE_OPENING'), { id: 'timer-workspace-opening' });
+				return 'blocked';
+			}
 
 			updateLocalTimerStatus({
 				lastTaskId: taskIdToUse,

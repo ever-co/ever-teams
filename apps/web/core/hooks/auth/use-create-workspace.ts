@@ -16,6 +16,7 @@ export const CREATE_WORKSPACE_PATH = '/workspace/new';
 export type CreateWorkspaceErrorCode =
 	| 'ADDRESS_UNCONFIRMED'
 	| 'REGISTRATION_CLOSED'
+	| 'SUBSCRIPTION_REQUIRED'
 	| 'CREATED_NOT_OPENED'
 	| 'OUTCOME_UNKNOWN'
 	| 'INVALID'
@@ -24,48 +25,57 @@ export type CreateWorkspaceErrorCode =
 const KNOWN_CODES: ReadonlySet<string> = new Set([
 	'ADDRESS_UNCONFIRMED',
 	'REGISTRATION_CLOSED',
+	'SUBSCRIPTION_REQUIRED',
 	'CREATED_NOT_OPENED',
-	'INVALID'
+	'INVALID',
+	'FAILED'
 ]);
 
-/**
- * Whether the request failed without the route's answer (a timeout, the network): the workspace may have been created
- * all the same, so this is never read as a failure to retry.
- */
-function isUnanswered(error: unknown): boolean {
+/** The status of the answer, undefined when there was none (a timeout, the network). */
+function answerStatusOf(error: unknown): number | undefined {
 	if (ApiErrorService.isApiError(error)) {
-		return error.httpResponseStatus === undefined;
+		return error.httpResponseStatus;
 	}
-	return isAxiosError(error) && !error.response;
+	return isAxiosError(error) ? error.response?.status : undefined;
 }
 
-/** What a gateway (the ingress 504, Cloudflare 524) answers once it stops waiting for the route; never the route. */
-const GATEWAY_TIMEOUTS: ReadonlySet<number> = new Set([504, 524]);
-
-/** A gateway stopped waiting for the route, which may still be creating the workspace. */
-function isGatewayTimeout(error: unknown): boolean {
-	if (ApiErrorService.isApiError(error)) {
-		return error.hasHttpResponseStatus(...GATEWAY_TIMEOUTS.values());
+/**
+ * Whether the outcome is unknown: no answer at all, or a server failure that is not the route's own (a gateway's 504
+ * while the route still runs). The workspace may have been created all the same, so this is never read as a failure
+ * to retry. A refusal (4xx) without the route's code was made before anything ran.
+ */
+function isOutcomeUnknown(error: unknown): boolean {
+	if (!ApiErrorService.isApiError(error) && !isAxiosError(error)) {
+		return false;
 	}
-	return isAxiosError(error) && GATEWAY_TIMEOUTS.has(error.response?.status ?? 0);
+	const status = answerStatusOf(error);
+	return status === undefined || status >= 500;
+}
+
+/** Where to buy the product, when the creation met the sign-up's paywall. */
+export function createWorkspaceCheckoutUrlOf(error: unknown): string | null {
+	const details = ApiErrorService.isApiError(error)
+		? error.details
+		: isAxiosError(error)
+			? (error.response?.data as { details?: Record<string, unknown> } | undefined)?.details
+			: undefined;
+	const checkoutUrl = details?.checkoutUrl;
+	return typeof checkoutUrl === 'string' && checkoutUrl.startsWith('https://') ? checkoutUrl : null;
 }
 
 /**
  * The reason of a failed creation, from the API client's error (ApiErrorService carries the answer's `code` as its
- * `errorCode`) or a bare axios one. Without the route's answer (none at all, or a gateway's timeout) the outcome is
- * unknown; anything else the route did not explain is a failure to retry.
+ * `errorCode`) or a bare axios one. The route's own codes are taken as they are; without one, the outcome is unknown
+ * for no answer or a server failure (a gateway's 504 while the route still runs), and a failure to retry for a refusal.
  */
 export function createWorkspaceErrorCodeOf(error: unknown): CreateWorkspaceErrorCode {
-	if (isUnanswered(error)) {
-		return 'OUTCOME_UNKNOWN';
-	}
 	const fromClient = (error as { errorCode?: unknown } | null | undefined)?.errorCode;
 	const fromAxios = isAxiosError(error) ? (error.response?.data as { code?: unknown } | undefined)?.code : undefined;
-	const code = fromClient ?? fromAxios;
-	if (typeof code === 'string' && KNOWN_CODES.has(code)) {
-		return code as CreateWorkspaceErrorCode;
+	const routeCode = fromClient ?? fromAxios;
+	if (typeof routeCode === 'string' && KNOWN_CODES.has(routeCode)) {
+		return routeCode as CreateWorkspaceErrorCode;
 	}
-	return isGatewayTimeout(error) ? 'OUTCOME_UNKNOWN' : 'FAILED';
+	return isOutcomeUnknown(error) ? 'OUTCOME_UNKNOWN' : 'FAILED';
 }
 
 /** Where the new workspace opens: its welcome page, told how the invitations went. */

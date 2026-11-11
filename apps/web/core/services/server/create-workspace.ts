@@ -20,6 +20,7 @@ import {
 
 export type CreateWorkspaceResult =
 	| { status: 'ok'; invited: number; invitesFailed: boolean }
+	| { status: 'subscription_required'; checkoutUrl: string | null }
 	| { status: 'address_unconfirmed' | 'registration_closed' | 'created_unopened' | 'failed' };
 
 /** How long the invitations may take: the answer that opens the new workspace waits for them. */
@@ -47,23 +48,42 @@ function messageOf(message: unknown): string {
 	return Array.isArray(message) ? message.filter((part) => typeof part === 'string').join(' ') : '';
 }
 
+/** The checkout Gauzy names for a paywall refusal, kept only as an https address. */
+function checkoutUrlOf(value: unknown): string | null {
+	if (typeof value !== 'string') {
+		return null;
+	}
+	try {
+		return new URL(value).protocol === 'https:' ? value : null;
+	} catch {
+		return null;
+	}
+}
+
 /**
- * Gauzy's refusal of the opening (403), told by its message: an unconfirmed address ("Confirm your email address
+ * Gauzy's refusal of the opening (403). Its paywall (where the sign-up has one) names the checkout to buy the product,
+ * as the sign-up's does; the others are told by their message: an unconfirmed address ("Confirm your email address
  * before opening another workspace"), or tenant registration closed by the operator ("Creating new workspaces is
  * disabled on this server."). Anything else is a failure, never read as one of them.
  */
-async function refusalOf(error: unknown): Promise<'address_unconfirmed' | 'registration_closed' | 'failed'> {
+async function refusalOf(error: unknown): Promise<CreateWorkspaceResult> {
 	const body = await unwrapRejection(error);
 	const isRecord = typeof body === 'object' && body !== null;
+	if (isRecord && 'checkoutUrl' in body) {
+		return {
+			status: 'subscription_required',
+			checkoutUrl: checkoutUrlOf((body as { checkoutUrl?: unknown }).checkoutUrl)
+		};
+	}
 	const statusCode = isRecord ? (body as { statusCode?: unknown }).statusCode : undefined;
 	if (statusCode !== 403) {
-		return 'failed';
+		return { status: 'failed' };
 	}
 	const message = messageOf(isRecord ? (body as { message?: unknown }).message : undefined);
 	if (/confirm your e-?mail/i.test(message)) {
-		return 'address_unconfirmed';
+		return { status: 'address_unconfirmed' };
 	}
-	return /workspaces is disabled/i.test(message) ? 'registration_closed' : 'failed';
+	return { status: /workspaces is disabled/i.test(message) ? 'registration_closed' : 'failed' };
 }
 
 /**
@@ -121,7 +141,7 @@ export async function createWorkspace(input: CreateWorkspaceInput): Promise<Crea
 		const { data } = await openWorkspaceServerRequest(input.accessToken, input.tenantId);
 		opening = data;
 	} catch (error) {
-		return { status: await refusalOf(error) };
+		return await refusalOf(error);
 	}
 	if (!opening?.email || !opening.token) {
 		return { status: 'failed' };

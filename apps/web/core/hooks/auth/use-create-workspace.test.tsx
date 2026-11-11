@@ -21,7 +21,12 @@ jest.mock('@/core/services/client/api/auth/workspace.service', () => ({
 import { MutationErrorToaster } from '@/core/components/common/mutation-error-toaster';
 import { ApiErrorService } from '@/core/services/client/api-error.service';
 import { workspaceOpeningState } from '@/core/stores';
-import { createWorkspaceErrorCodeOf, useCreateWorkspace, workspaceWelcomePathOf } from './use-create-workspace';
+import {
+	createWorkspaceCheckoutUrlOf,
+	createWorkspaceErrorCodeOf,
+	useCreateWorkspace,
+	workspaceWelcomePathOf
+} from './use-create-workspace';
 
 /** An axios error, as the browser gets it: with the route's answer, or without one. */
 const answer = (status: number, data: unknown) => ({
@@ -34,17 +39,40 @@ const unanswered = (code: string, message: string) => ({ isAxiosError: true, cod
 const thrown = (error: object) => ApiErrorService.fromAxiosError(error);
 
 describe('the outcome of a creation', () => {
-	it("reads the route's reason, and anything else it answered as a failure to retry", () => {
+	it("reads the route's own reason as it is", () => {
 		expect(createWorkspaceErrorCodeOf(answer(403, { code: 'ADDRESS_UNCONFIRMED' }))).toBe('ADDRESS_UNCONFIRMED');
 		expect(createWorkspaceErrorCodeOf(answer(403, { code: 'REGISTRATION_CLOSED' }))).toBe('REGISTRATION_CLOSED');
+		expect(createWorkspaceErrorCodeOf(answer(403, { code: 'SUBSCRIPTION_REQUIRED' }))).toBe(
+			'SUBSCRIPTION_REQUIRED'
+		);
 		expect(createWorkspaceErrorCodeOf(answer(502, { code: 'CREATED_NOT_OPENED' }))).toBe('CREATED_NOT_OPENED');
+		// The route says nothing was set up: a failure to retry
 		expect(createWorkspaceErrorCodeOf(answer(502, { code: 'FAILED' }))).toBe('FAILED');
-		expect(createWorkspaceErrorCodeOf(answer(500, { code: 'SOMETHING_ELSE' }))).toBe('FAILED');
+		expect(createWorkspaceErrorCodeOf(thrown(answer(502, { code: 'FAILED' })))).toBe('FAILED');
 		expect(createWorkspaceErrorCodeOf(thrown(answer(403, { code: 'REGISTRATION_CLOSED' })))).toBe(
 			'REGISTRATION_CLOSED'
 		);
-		expect(createWorkspaceErrorCodeOf(thrown(answer(502, {})))).toBe('FAILED');
+	});
+
+	it("reads a server failure that is not the route's own (a gateway's 504) as unknown, a refusal as a failure", () => {
+		expect(createWorkspaceErrorCodeOf(thrown(answer(504, '<html>Gateway Time-out</html>')))).toBe(
+			'OUTCOME_UNKNOWN'
+		);
+		expect(createWorkspaceErrorCodeOf(answer(500, { code: 'SOMETHING_ELSE' }))).toBe('OUTCOME_UNKNOWN');
+		expect(createWorkspaceErrorCodeOf(thrown(answer(502, {})))).toBe('OUTCOME_UNKNOWN');
+		// Refused before anything ran
+		expect(createWorkspaceErrorCodeOf(thrown(answer(429, {})))).toBe('FAILED');
 		expect(createWorkspaceErrorCodeOf(new Error('A bug before the request'))).toBe('FAILED');
+	});
+
+	it("gives the paywall's checkout, an https address only", () => {
+		const paywall = (checkoutUrl: string) =>
+			thrown(answer(403, { code: 'SUBSCRIPTION_REQUIRED', details: { checkoutUrl } }));
+		expect(createWorkspaceCheckoutUrlOf(paywall('https://ever.co/checkout?product=ever-teams'))).toBe(
+			'https://ever.co/checkout?product=ever-teams'
+		);
+		expect(createWorkspaceCheckoutUrlOf(paywall('javascript:alert(1)'))).toBeNull();
+		expect(createWorkspaceCheckoutUrlOf(thrown(answer(403, { code: 'SUBSCRIPTION_REQUIRED' })))).toBeNull();
 	});
 
 	it('reads a creation the route never answered (a timeout, the network) as an unknown outcome', () => {

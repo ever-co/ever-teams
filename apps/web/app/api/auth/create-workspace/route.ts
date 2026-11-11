@@ -14,7 +14,8 @@ const NO_STORE = { 'Cache-Control': 'no-store' };
  * browser never holds before the cookies.
  *
  * Answers 201 with the invitations sent, 400 for an invalid body, 403 with `code` ADDRESS_UNCONFIRMED (the address
- * must be confirmed first) or REGISTRATION_CLOSED (the operator allows no new workspace), 502 with `code`
+ * must be confirmed first), REGISTRATION_CLOSED (the operator allows no new workspace) or SUBSCRIPTION_REQUIRED (the
+ * sign-up's paywall; `details.checkoutUrl` is where to buy the product), 502 with `code`
  * CREATED_NOT_OPENED (the workspace and its team exist, but its session could not be opened) or FAILED (a step before
  * the first team failed).
  */
@@ -62,6 +63,14 @@ export async function POST(req: Request) {
 			return NextResponse.json({ code: 'ADDRESS_UNCONFIRMED' }, { status: 403, headers: NO_STORE });
 		case 'registration_closed':
 			return NextResponse.json({ code: 'REGISTRATION_CLOSED' }, { status: 403, headers: NO_STORE });
+		case 'subscription_required':
+			return NextResponse.json(
+				{
+					code: 'SUBSCRIPTION_REQUIRED',
+					...(result.checkoutUrl ? { details: { checkoutUrl: result.checkoutUrl } } : {})
+				},
+				{ status: 403, headers: NO_STORE }
+			);
 		case 'created_unopened':
 			return NextResponse.json({ code: 'CREATED_NOT_OPENED' }, { status: 502, headers: NO_STORE });
 		default:
