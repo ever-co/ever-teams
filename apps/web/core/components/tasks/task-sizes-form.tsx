@@ -15,7 +15,6 @@ import { useCallback, useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { useTranslations } from 'next-intl';
 
-import { generateIconList, IIcon } from '../settings/icon-items';
 import IconPopover from '../settings/icon-popover';
 import { StatusesListCard } from '../settings/list-card';
 import { InputField } from '../duplicated-components/_input';
@@ -54,18 +53,6 @@ export const TaskSizesForm = ({ formOnly = false, onCreated }: StatusForm) => {
 
 	const t = useTranslations();
 
-	const taskStatusIconList: IIcon[] = generateIconList('task-statuses', [
-		'open',
-		'in-progress',
-		'ready',
-		'in-review',
-		'blocked',
-		'completed'
-	]);
-	const taskSizesIconList: IIcon[] = generateIconList('task-sizes', ['x-large', 'large', 'medium', 'small', 'tiny']);
-	const taskPrioritiesIconList: IIcon[] = generateIconList('task-priorities', ['urgent', 'high', 'medium', 'low']);
-
-	const iconList: IIcon[] = [...taskStatusIconList, ...taskSizesIconList, ...taskPrioritiesIconList];
 	const { refetch } = useRefetchData();
 
 	useEffect(() => {
@@ -176,15 +163,7 @@ export const TaskSizesForm = ({ formOnly = false, onCreated }: StatusForm) => {
 									/>
 
 									<div className={PICKER}>
-										<IconPopover
-											iconList={iconList}
-											setValue={setValue}
-											active={
-												edit
-													? (iconList.find((icon) => icon.path === edit.icon) as IIcon)
-													: null
-											}
-										/>
+										<IconPopover kind="size" setValue={setValue} value={edit?.icon ?? null} />
 									</div>
 
 									<div className={PICKER}>

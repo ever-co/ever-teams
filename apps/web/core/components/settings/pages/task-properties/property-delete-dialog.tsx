@@ -40,7 +40,7 @@ function PropertySubject({ kind, item }: Readonly<{ kind: TaskPropertySettingsKi
 	const isFreeText = kind === 'label' || kind === 'version';
 	return (
 		<div className="flex items-center gap-2.5 rounded-lg px-3 py-2 hairline-ring ring-border">
-			<TaskPropertyIcon kind={kind} name={item.name} color={item.color} />
+			<TaskPropertyIcon kind={kind} name={item.name} color={item.color} icon={item.icon} />
 			<span
 				className={cn('min-w-0 truncate text-[13px] font-medium text-foreground', !isFreeText && 'capitalize')}
 			>

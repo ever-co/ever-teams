@@ -8,13 +8,14 @@ import { clsxm } from '@/core/lib/utils';
 import { useUserQuery } from '@/core/hooks/queries/user-user.query';
 import { Spinner } from '@/core/components/common/spinner';
 import { Plus as PlusIcon } from '@/core/components/icons';
-import { Button, ColorPicker, Text } from '@/core/components';
-import { useCallback, useEffect, useState, useRef } from 'react';
+import { Button, Text } from '@/core/components';
+import { useCallback, useEffect, useId, useState, useRef } from 'react';
 import { useForm } from 'react-hook-form';
 import { useTranslations } from 'next-intl';
 
-import { generateIconList, IIcon } from '../settings/icon-items';
-import IconPopover from '../settings/icon-popover';
+import { defaultSwatchFor } from '@/core/lib/utils/settings-task-properties';
+import { PropertyColorField } from '../settings/pages/task-properties/property-color-field';
+import { PropertyPreview } from '../settings/pages/task-properties/property-preview';
 import { StatusesListCard } from '../settings/list-card';
 import { InputField } from '../duplicated-components/_input';
 import { ITag } from '@/core/types/interfaces/tag/tag';
@@ -27,10 +28,7 @@ const SECONDARY_BUTTON =
 	'h-9 shrink-0 gap-1.5 rounded-md bg-card px-3 py-0 text-sm font-medium text-foreground hover:bg-muted';
 const PRIMARY_BUTTON = 'h-9 shrink-0 rounded-md px-3 py-0 text-sm font-medium hover:bg-primary/90';
 const CANCEL_BUTTON = 'h-9 shrink-0 rounded-md px-3 py-0 text-sm font-medium';
-// The icon and colour pickers size their own trigger like the other controls of the row. No descendant
-// selector here: the icon picker opens its panel inside this wrapper, and one clamped that panel to the
-// trigger's height, its icons spilling out over the page.
-const PICKER = 'shrink-0';
+const FIELD_LABEL = 'text-xs font-medium text-muted-foreground';
 
 type StatusForm = {
 	formOnly?: boolean;
@@ -50,29 +48,19 @@ export const TaskLabelForm = ({ formOnly = false, onCreated }: StatusForm) => {
 	const { deleteTaskLabels } = useDeleteTaskLabel();
 
 	const formValues = watch();
-
-	const taskStatusIconList: IIcon[] = generateIconList('task-statuses', [
-		'open',
-		'in-progress',
-		'ready',
-		'in-review',
-		'blocked',
-		'completed'
-	]);
-	const taskSizesIconList: IIcon[] = generateIconList('task-sizes', ['x-large']);
-	const taskPrioritiesIconList: IIcon[] = generateIconList('task-priorities', ['urgent', 'high', 'medium', 'low']);
-	const iconList: IIcon[] = [...taskStatusIconList, ...taskSizesIconList, ...taskPrioritiesIconList];
+	const colorLabelId = useId();
 
 	useEffect(() => {
 		if (initialRender.current) {
 			initialRender.current = false;
+			// Gauzy requires a color for a label: a new one starts from a swatch instead of an empty value
 			reset({
 				name: '',
-				color: '',
+				color: defaultSwatchFor(taskLabels?.length ?? 0),
 				icon: ''
 			});
 		}
-	}, [reset]);
+	}, [reset, taskLabels?.length]);
 
 	useEffect(() => {
 		if (edit) {
@@ -140,31 +128,32 @@ export const TaskLabelForm = ({ formOnly = false, onCreated }: StatusForm) => {
 								{isCreating && t('common.NEW')}
 								{edit && t('common.EDIT')} {t('common.LABEL')}
 							</Text>
-							<div className="flex w-full flex-wrap items-center gap-2">
-								<InputField
-									type="text"
-									placeholder={t('pages.settingsTeam.CREATE_NEW_LABEL')}
-									className="mb-0 h-9 w-full"
-									wrapperClassName="mb-0 min-w-[12rem] flex-1 sm:max-w-xs"
-									{...register('name')}
+							<InputField
+								type="text"
+								placeholder={t('pages.settingsTeam.CREATE_NEW_LABEL')}
+								aria-label={t('common.NAME')}
+								className="mb-0 h-9 w-full"
+								wrapperClassName="mb-0 w-full"
+								autoFocus={formOnly}
+								{...register('name')}
+							/>
+							{/* A label is told apart by its color, so the form offers no icon (#5024) */}
+							<div className="grid grid-cols-1 gap-x-4 gap-y-2 sm:grid-cols-[4.5rem_minmax(0,1fr)] sm:items-center">
+								<span id={colorLabelId} className={FIELD_LABEL}>
+									{t('settings.taskProperties.COLOR')}
+								</span>
+								<PropertyColorField
+									value={formValues.color || null}
+									onChange={(color) => setValue('color', color)}
+									labelledBy={colorLabelId}
 								/>
-
-								<div className={PICKER}>
-									<IconPopover
-										iconList={iconList}
-										setValue={setValue}
-										active={
-											edit ? (iconList.find((icon) => icon.path === edit.icon) as IIcon) : null
-										}
-									/>
-								</div>
-
-								<div className={PICKER}>
-									<ColorPicker
-										defaultColor={edit ? edit.color : formValues.color}
-										onChange={(color) => setValue('color', color)}
-									/>
-								</div>
+								<span className={FIELD_LABEL}>{t('settings.taskProperties.PREVIEW')}</span>
+								<PropertyPreview
+									kind="label"
+									name={formValues.name ?? ''}
+									color={formValues.color || null}
+									placeholder={t('pages.settingsTeam.CREATE_NEW_LABEL')}
+								/>
 							</div>
 							<div className="flex flex-wrap gap-2">
 								<Button

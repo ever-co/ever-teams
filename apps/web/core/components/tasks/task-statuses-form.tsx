@@ -273,14 +273,12 @@ export const TaskStatusesForm = ({ formOnly = false, onCreated }: StatusForm) =>
 									/>
 									<div className={PICKER}>
 										<IconPopover
-											iconList={iconList}
+											kind="status"
 											setValue={setValue}
-											active={
+											value={
 												selectedStatusType
-													? getIcon(selectedStatusType)
-													: edit
-														? (iconList.find((icon) => icon.path === edit.icon) as IIcon)
-														: null
+													? (getIcon(selectedStatusType)?.path ?? null)
+													: (edit?.icon ?? null)
 											}
 										/>
 									</div>

@@ -4080,9 +4080,15 @@
 			"ICON_SEARCH": "Search icons",
 			"ICON_EMPTY": "No icon matches this search.",
 			"iconGroups": {
-				"statuses": "Status icons",
-				"sizes": "Size icons",
-				"priorities": "Priority icons"
+				"classic": "Classic icons"
+			},
+			"iconLibrary": {
+				"progress": "Progress",
+				"priority": "Priority",
+				"size": "Size",
+				"work": "Work",
+				"objects": "Objects",
+				"symbols": "Symbols"
 			},
 			"COLOR": "Color",
 			"CUSTOM_COLOR": "Custom color",

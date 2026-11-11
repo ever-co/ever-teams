@@ -16,7 +16,6 @@ import { clsxm } from '@/core/lib/utils';
 import { Spinner } from '@/core/components/common/spinner';
 import { Plus as PlusIcon } from '@/core/components/icons';
 import { useTranslations } from 'next-intl';
-import { generateIconList, IIcon } from '../settings/icon-items';
 import IconPopover from '../settings/icon-popover';
 import { InputField } from '../duplicated-components/_input';
 import { Tooltip } from '../duplicated-components/tooltip';
@@ -46,25 +45,6 @@ export const TaskPrioritiesForm = ({ formOnly = false, onCreated }: StatusForm) 
 	const [createNew, setCreateNew] = useState(formOnly);
 	const [edit, setEdit] = useState<TTaskPriority | null>(null);
 	const t = useTranslations();
-
-	const taskStatusIconList: IIcon[] = generateIconList('task-statuses', [
-		'open',
-		'in-progress',
-		'ready',
-		'in-review',
-		'blocked',
-		'completed'
-	]);
-	const taskSizesIconList: IIcon[] = generateIconList('task-sizes', [
-		'x-large'
-		// 'large',
-		// 'medium',
-		// 'small',
-		// 'tiny',
-	]);
-	const taskPrioritiesIconList: IIcon[] = generateIconList('task-priorities', ['urgent', 'high', 'medium', 'low']);
-
-	const iconList: IIcon[] = [...taskStatusIconList, ...taskSizesIconList, ...taskPrioritiesIconList];
 
 	const { taskPriorities, loading } = useTaskPrioritiesQuery();
 	const { createTaskPriorities, createTaskPrioritiesLoading } = useCreateTaskPriority();
@@ -181,15 +161,7 @@ export const TaskPrioritiesForm = ({ formOnly = false, onCreated }: StatusForm) 
 									/>
 
 									<div className={PICKER}>
-										<IconPopover
-											iconList={iconList}
-											setValue={setValue}
-											active={
-												edit
-													? (iconList.find((icon) => icon.path === edit.icon) as IIcon)
-													: null
-											}
-										/>
+										<IconPopover kind="priority" setValue={setValue} value={edit?.icon ?? null} />
 									</div>
 
 									<div className={PICKER}>

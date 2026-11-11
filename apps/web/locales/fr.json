@@ -4080,9 +4080,15 @@
 			"ICON_SEARCH": "Rechercher une icône",
 			"ICON_EMPTY": "Aucune icône ne correspond à cette recherche.",
 			"iconGroups": {
-				"statuses": "Icônes de statut",
-				"sizes": "Icônes de taille",
-				"priorities": "Icônes de priorité"
+				"classic": "Icônes classiques"
+			},
+			"iconLibrary": {
+				"progress": "Avancement",
+				"priority": "Priorité",
+				"size": "Taille",
+				"work": "Travail",
+				"objects": "Objets",
+				"symbols": "Symboles"
 			},
 			"COLOR": "Couleur",
 			"CUSTOM_COLOR": "Couleur personnalisée",

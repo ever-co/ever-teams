@@ -43,7 +43,7 @@ function DefaultTypeFace({ item, isSaving }: Readonly<{ item: PropertyListItem |
 	}
 	return (
 		<>
-			<TaskPropertyIcon kind="issueType" name={item.name} color={item.color} />
+			<TaskPropertyIcon kind="issueType" name={item.name} color={item.color} icon={item.icon} />
 			<span className="capitalize">{item.label}</span>
 		</>
 	);
@@ -99,7 +99,12 @@ function DefaultTypePicker({ model }: Readonly<{ model: IssueTypeSettingsModel }
 							const isCurrent = item.id === defaultItem?.id;
 							return (
 								<DropdownMenuItem key={item.id} onClick={() => pick(item)}>
-									<TaskPropertyIcon kind="issueType" name={item.name} color={item.color} />
+									<TaskPropertyIcon
+										kind="issueType"
+										name={item.name}
+										color={item.color}
+										icon={item.icon}
+									/>
 									<span className="min-w-0 truncate capitalize">{item.label}</span>
 									{isCurrent && <SelectedMark className="ml-auto" />}
 								</DropdownMenuItem>

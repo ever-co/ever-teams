@@ -5,6 +5,7 @@ import {
 	type StatusTemplateKey
 } from '@/core/lib/utils/settings-task-properties';
 import type { ETaskStatusName } from '@/core/types/generics/enums/task';
+import type { PropertyIconCategory } from '@/core/components/icons/property-icon-catalog';
 
 export const STATUS_GROUP_LABEL_KEYS: Record<StatusGroupId, DottedLanguageObjectStringPaths> = {
 	todo: 'settings.taskProperties.groups.todo',
@@ -31,11 +32,13 @@ export function statusTypeLabelKeyOf(template: ETaskStatusName): DottedLanguageO
 	return STATUS_TYPE_LABEL_KEYS[key];
 }
 
-export const ICON_GROUP_LABEL_KEYS: Record<
-	'task-statuses' | 'task-sizes' | 'task-priorities',
-	DottedLanguageObjectStringPaths
-> = {
-	'task-statuses': 'settings.taskProperties.iconGroups.statuses',
-	'task-sizes': 'settings.taskProperties.iconGroups.sizes',
-	'task-priorities': 'settings.taskProperties.iconGroups.priorities'
+export const ICON_CATEGORY_LABEL_KEYS: Record<PropertyIconCategory, DottedLanguageObjectStringPaths> = {
+	progress: 'settings.taskProperties.iconLibrary.progress',
+	priority: 'settings.taskProperties.iconLibrary.priority',
+	size: 'settings.taskProperties.iconLibrary.size',
+	work: 'settings.taskProperties.iconLibrary.work',
+	objects: 'settings.taskProperties.iconLibrary.objects',
+	symbols: 'settings.taskProperties.iconLibrary.symbols'
 };
+
+export const CLASSIC_ICONS_LABEL_KEY: DottedLanguageObjectStringPaths = 'settings.taskProperties.iconGroups.classic';

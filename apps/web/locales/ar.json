@@ -4080,9 +4080,15 @@
 			"ICON_SEARCH": "البحث في الأيقونات",
 			"ICON_EMPTY": "لا توجد أيقونة تطابق هذا البحث.",
 			"iconGroups": {
-				"statuses": "أيقونات الحالات",
-				"sizes": "أيقونات الأحجام",
-				"priorities": "أيقونات الأولويات"
+				"classic": "أيقونات كلاسيكية"
+			},
+			"iconLibrary": {
+				"progress": "التقدّم",
+				"priority": "الأولوية",
+				"size": "الحجم",
+				"work": "العمل",
+				"objects": "الأشياء",
+				"symbols": "رموز"
 			},
 			"COLOR": "اللون",
 			"CUSTOM_COLOR": "لون مخصص",

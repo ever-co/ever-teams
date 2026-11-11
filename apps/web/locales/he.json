@@ -4080,9 +4080,15 @@
 			"ICON_SEARCH": "חיפוש סמלים",
 			"ICON_EMPTY": "אין סמל שמתאים לחיפוש.",
 			"iconGroups": {
-				"statuses": "סמלי סטטוס",
-				"sizes": "סמלי גודל",
-				"priorities": "סמלי עדיפות"
+				"classic": "סמלים קלאסיים"
+			},
+			"iconLibrary": {
+				"progress": "התקדמות",
+				"priority": "עדיפות",
+				"size": "גודל",
+				"work": "עבודה",
+				"objects": "חפצים",
+				"symbols": "סימנים"
 			},
 			"COLOR": "צבע",
 			"CUSTOM_COLOR": "צבע מותאם",

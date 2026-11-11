@@ -39,21 +39,30 @@ describe('feature parity on the authenticated shell', () => {
 		cy.mockState().then((state) => expect(state.mutationProof.startedTimer).to.equal(false));
 	});
 
-	it('opens the icon picker of a new label in full, its icons inside the panel', () => {
+	it('creates a label from its name and color, with no icon to pick', () => {
 		cy.hardVisit('/');
 		cy.contains('button', /^\s*Labels/, { timeout: 20_000 }).click();
 		cy.contains(/create label/i).click();
-		cy.get('input[placeholder="Create new label"]', { timeout: 15_000 }).should('be.visible');
-		cy.get('[id^="headlessui-popover-button"]')
-			.contains(/^\s*Icon\s*$/)
-			.click();
-		cy.get('[id^="headlessui-popover-panel"] > div').should(($panel) => {
-			const panel = $panel[0];
-			const height = panel.getBoundingClientRect().height;
-			// The panel grows with its search field and icon grid instead of being clamped to the trigger's height
-			expect(height).to.be.greaterThan(100);
-			expect(panel.scrollHeight).to.be.at.most(Math.ceil(height) + 1);
-		});
+		cy.get('input[placeholder="Create new label"]', { timeout: 15_000 }).should('be.visible').type('Frontend');
+		cy.contains('button', /^\s*Icons?\s*$/).should('not.exist');
+		cy.contains('Color').should('be.visible');
+		// The preview chip shows the label as it will look
+		cy.contains('Preview').should('be.visible');
+		cy.contains('span', 'Frontend').should('be.visible');
+	});
+
+	it('picks a property icon from the library, inside the panel and by search', () => {
+		cy.hardVisit('/settings/team/statuses');
+		cy.contains('button', 'Add status', { timeout: 20_000 }).click();
+		cy.get('button[aria-label="Choose an icon"], button[aria-label^="Icon:"]').first().click();
+		cy.get('input[placeholder="Search icons"]', { timeout: 15_000 }).should('be.visible');
+		cy.contains('p', 'Progress').should('be.visible');
+		// The library draws its icons inside the panel, with no file to load
+		cy.get('button[aria-label="done"] svg').should('be.visible');
+
+		cy.get('input[placeholder="Search icons"]').type('defect');
+		cy.get('button[aria-label="bug"] svg').should('be.visible');
+		cy.get('button[aria-label="done"]').should('not.exist');
 	});
 
 	it('keeps roles, permission controls, invitations, and public teams available', () => {
