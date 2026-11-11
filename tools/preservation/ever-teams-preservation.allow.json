@@ -346,5 +346,13 @@
 	{
 		"id": "removed:testNames:apps/web/core/lib/realtime/client.test.ts::delivers streamed events once, advancing the cursor::#1",
 		"reason": "Renamed with its expectation by the realtime client fix (#5007, eaaaa405e): a streamed event no longer moves the cursor, only a catch-up answer does. The same scenario is now \"delivers streamed events once, at once, without moving the cursor (only a catch-up answer does)\" in the same file."
+	},
+	{
+		"id": "removed:publicExports:apps/web/core/stores/common/index.ts::runtime::REALTIME_REPLACES_POLLING",
+		"reason": "The constant that kept the chat and notification polls running while connected (#5012) is replaced by `realtimePromptDeliveryAtom`, set from the platform's own answer (`GET /realtime/status` → `delivery.prompt`, #5031): the polls pause only where the platform says it pushes promptly. Nothing imports the constant any more."
+	},
+	{
+		"id": "removed:publicExports:apps/web/core/stores/index.ts::runtime::REALTIME_REPLACES_POLLING",
+		"reason": "The constant that kept the chat and notification polls running while connected (#5012) is replaced by `realtimePromptDeliveryAtom`, set from the platform's own answer (`GET /realtime/status` → `delivery.prompt`, #5031): the polls pause only where the platform says it pushes promptly. Nothing imports the constant any more."
 	}
 ]
