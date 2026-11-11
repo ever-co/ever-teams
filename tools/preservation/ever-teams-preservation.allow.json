@@ -356,6 +356,10 @@
 		"reason": "The constant that kept the chat and notification polls running while connected (#5012) is replaced by `realtimePromptDeliveryAtom`, set from the platform's own answer (`GET /realtime/status` → `delivery.prompt`, #5031): the polls pause only where the platform says it pushes promptly. Nothing imports the constant any more."
 	},
 	{
+		"id": "removed:navigation:apps/web/core/components/pages/teams/team/tasks/list/team-tasks-page.tsx::href=#::#1",
+		"reason": "The last crumb of a view's page linked to \"#\", nowhere (#5018). A view's page now sits under Views in the breadcrumb (Views > name), and that crumb links the view's own page (/views/{id or key}). The breadcrumb of the plain Team tasks page is unchanged."
+	},
+	{
 		"id": "removed:navigation:apps/web/core/components/integration/meet/index.tsx::router.push=/::#2",
 		"reason": "Moved, not removed (#5021): the Jitsi room's error screen and its \"Return Home\" button became the shared MeetRoomError (core/components/pages/meet/meet-room-error.tsx), whose \"Back to home\" still calls router.push('/'). The room keeps its other router.push('/'), the one that leaves after the meeting closes."
 	},
