@@ -3464,6 +3464,14 @@
 				"DIGEST_TEXT": "Jeden e-mail dziennie, o tej godzinie, z wpisami ustawionymi na podsumowanie.",
 				"SAVE_FAILED": "To ustawienie nie zostało zapisane. Spróbuj ponownie."
 			},
+			"TIMER": {
+				"TITLE": "Śledzenie czasu",
+				"INTRO": "Przypomnienie, gdy licznik czasu działa długo, i kolejne po dwukrotnie dłuższym czasie, jeśli nadal działa.",
+				"LABEL": "Przypomnienie o długo działającym liczniku",
+				"TEXT": "W aplikacji oraz jako powiadomienie na tym urządzeniu, gdy karta nie jest widoczna, a przeglądarka na to pozwala.",
+				"OFF": "Wyłączone",
+				"AFTER_HOURS": "Po {hours, plural, one {# godzinie} other {# godzinach}}"
+			},
 			"INTRO": "Wybierz, co trafia do Twojej skrzynki. Wyłączenie typu zatrzymuje nowe powiadomienia tego typu; te, które już masz, zostają.",
 			"LOAD_ERROR": "Nie udało się wczytać ustawień powiadomień.",
 			"SAVE_FAILED": "To ustawienie nie zostało zapisane. Spróbuj ponownie.",
@@ -3506,6 +3514,14 @@
 			"VERIFY_ACTION": "Wpisz kod",
 			"VERIFY_RESEND": "Wyślij nowy kod",
 			"VERIFY_SENDING": "Wysyłanie nowego kodu"
+		},
+		"TIMER_REMINDER": {
+			"LONG_TITLE": "Twój licznik czasu działa od {hours, plural, one {# godziny} other {# godzin}}",
+			"LONG_DESCRIPTION": "Zatrzymaj go po zakończeniu pracy albo pozwól mu działać dalej.",
+			"FORGOTTEN_TITLE": "Twój licznik czasu wciąż działa po {hours, plural, one {# godzinie} other {# godzinach}}",
+			"FORGOTTEN_DESCRIPTION": "Zapomniany? Zatrzymaj go, a w razie potrzeby popraw czas w karcie czasu pracy.",
+			"STOP": "Zatrzymaj licznik",
+			"OPEN": "Otwórz licznik"
 		}
 	},
 	"toasts": {

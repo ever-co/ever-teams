@@ -3464,6 +3464,14 @@
 				"DIGEST_TEXT": "Eén e-mail per dag, op dit uur, met de items die op overzicht staan.",
 				"SAVE_FAILED": "Die voorkeur is niet opgeslagen. Probeer het opnieuw."
 			},
+			"TIMER": {
+				"TITLE": "Tijdregistratie",
+				"INTRO": "Een herinnering wanneer een timer lang loopt, en nog een bij het dubbele als hij doorloopt.",
+				"LABEL": "Herinnering bij lang lopende timer",
+				"TEXT": "In de app, en als melding op dit apparaat wanneer het tabblad niet zichtbaar is en de browser het toestaat.",
+				"OFF": "Uit",
+				"AFTER_HOURS": "Na {hours, plural, one {# uur} other {# uur}}"
+			},
 			"INTRO": "Kies wat er in je inbox binnenkomt. Als je een type uitzet, komen er geen nieuwe meldingen van dat type meer; bestaande blijven staan.",
 			"LOAD_ERROR": "Je meldingsinstellingen konden niet worden geladen.",
 			"SAVE_FAILED": "Die instelling is niet opgeslagen. Probeer het opnieuw.",
@@ -3506,6 +3514,14 @@
 			"VERIFY_ACTION": "Code invoeren",
 			"VERIFY_RESEND": "Nieuwe code sturen",
 			"VERIFY_SENDING": "Nieuwe code wordt verstuurd"
+		},
+		"TIMER_REMINDER": {
+			"LONG_TITLE": "Je timer loopt al {hours, plural, one {# uur} other {# uur}}",
+			"LONG_DESCRIPTION": "Stop hem als je klaar bent, of laat hem doorlopen.",
+			"FORGOTTEN_TITLE": "Je timer loopt na {hours, plural, one {# uur} other {# uur}} nog steeds",
+			"FORGOTTEN_DESCRIPTION": "Vergeten? Stop hem en corrigeer de tijd zo nodig in je urenstaat.",
+			"STOP": "Timer stoppen",
+			"OPEN": "Timer openen"
 		}
 	},
 	"toasts": {

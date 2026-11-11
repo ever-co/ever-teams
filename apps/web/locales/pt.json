@@ -3464,6 +3464,14 @@
 				"DIGEST_TEXT": "Um e-mail por dia, a esta hora, com as entradas marcadas para o resumo.",
 				"SAVE_FAILED": "Essa preferência não foi guardada. Tente novamente."
 			},
+			"TIMER": {
+				"TITLE": "Registo de tempo",
+				"INTRO": "Um lembrete quando um temporizador está a correr há muito tempo, e outro ao dobro se continuar.",
+				"LABEL": "Lembrete de temporizador prolongado",
+				"TEXT": "Na aplicação, e como notificação neste dispositivo quando o separador não está visível e o navegador o permite.",
+				"OFF": "Desativado",
+				"AFTER_HOURS": "Após {hours, plural, one {# hora} other {# horas}}"
+			},
 			"INTRO": "Escolha o que chega à sua caixa de entrada. Desativar um tipo interrompe as novas notificações desse tipo; as que já chegaram continuam lá.",
 			"LOAD_ERROR": "Não foi possível carregar suas configurações de notificações.",
 			"SAVE_FAILED": "Essa configuração não foi salva. Tente de novo.",
@@ -3506,6 +3514,14 @@
 			"VERIFY_ACTION": "Inserir o código",
 			"VERIFY_RESEND": "Enviar um novo código",
 			"VERIFY_SENDING": "Enviando um novo código"
+		},
+		"TIMER_REMINDER": {
+			"LONG_TITLE": "O seu temporizador está a correr há {hours, plural, one {# hora} other {# horas}}",
+			"LONG_DESCRIPTION": "Pare-o se terminou, ou deixe-o a correr.",
+			"FORGOTTEN_TITLE": "O seu temporizador continua a correr após {hours, plural, one {# hora} other {# horas}}",
+			"FORGOTTEN_DESCRIPTION": "Esqueceu-se dele? Pare-o e corrija o tempo na sua folha de horas, se necessário.",
+			"STOP": "Parar temporizador",
+			"OPEN": "Abrir temporizador"
 		}
 	},
 	"toasts": {

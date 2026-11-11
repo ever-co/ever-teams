@@ -81,6 +81,11 @@ export interface INotificationPreferences {
 	dnd?: INotificationQuietHours | null;
 	/** The hour (0-23, in the quiet hours' time zone, else the user's) the daily digest goes out; 8 when unset. */
 	digestHour?: number;
+	/**
+	 * After how many hours a running timer is worth a reminder (#5022); 8 when unset, `null` (or 0) for no reminder.
+	 * A second one follows at twice that.
+	 */
+	timerReminderHours?: number | null;
 }
 
 export type TEmployeeNotificationSettingKey =

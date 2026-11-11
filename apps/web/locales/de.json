@@ -3464,6 +3464,14 @@
 				"DIGEST_TEXT": "Eine E-Mail pro Tag, zu dieser Stunde, mit den Einträgen, die auf Zusammenfassung stehen.",
 				"SAVE_FAILED": "Diese Einstellung wurde nicht gespeichert. Versuche es erneut."
 			},
+			"TIMER": {
+				"TITLE": "Zeiterfassung",
+				"INTRO": "Eine Erinnerung, wenn ein Timer lange läuft, und noch eine beim Doppelten, falls er weiterläuft.",
+				"LABEL": "Erinnerung bei lange laufendem Timer",
+				"TEXT": "In der App und als Benachrichtigung auf diesem Gerät, wenn der Tab nicht sichtbar ist und der Browser es erlaubt.",
+				"OFF": "Aus",
+				"AFTER_HOURS": "Nach {hours, plural, one {# Stunde} other {# Stunden}}"
+			},
 			"INTRO": "Wähle, was in deinem Posteingang ankommt. Wenn du einen Typ ausschaltest, kommen keine neuen Benachrichtigungen dieses Typs mehr; vorhandene bleiben.",
 			"LOAD_ERROR": "Deine Benachrichtigungseinstellungen konnten nicht geladen werden.",
 			"SAVE_FAILED": "Diese Einstellung wurde nicht gespeichert. Versuche es erneut.",
@@ -3506,6 +3514,14 @@
 			"VERIFY_ACTION": "Code eingeben",
 			"VERIFY_RESEND": "Neuen Code senden",
 			"VERIFY_SENDING": "Neuer Code wird gesendet"
+		},
+		"TIMER_REMINDER": {
+			"LONG_TITLE": "Dein Timer läuft seit {hours, plural, one {# Stunde} other {# Stunden}}",
+			"LONG_DESCRIPTION": "Stoppe ihn, wenn du fertig bist, oder lass ihn weiterlaufen.",
+			"FORGOTTEN_TITLE": "Dein Timer läuft nach {hours, plural, one {# Stunde} other {# Stunden}} noch immer",
+			"FORGOTTEN_DESCRIPTION": "Hast du ihn vergessen? Stoppe ihn und korrigiere die Zeit bei Bedarf in deinem Stundenzettel.",
+			"STOP": "Timer stoppen",
+			"OPEN": "Timer öffnen"
 		}
 	},
 	"toasts": {

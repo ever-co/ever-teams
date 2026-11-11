@@ -3464,6 +3464,14 @@
 				"DIGEST_TEXT": "One email a day, at this hour, with the entries set to the digest.",
 				"SAVE_FAILED": "That preference was not saved. Try again."
 			},
+			"TIMER": {
+				"TITLE": "Time tracking",
+				"INTRO": "A reminder when a timer has run long, and one more at twice that if it is still running.",
+				"LABEL": "Long-running timer reminder",
+				"TEXT": "In the app, and as a notification on this device when the tab is out of sight and the browser allows it.",
+				"OFF": "Off",
+				"AFTER_HOURS": "After {hours, plural, one {# hour} other {# hours}}"
+			},
 			"INTRO": "Choose what reaches your inbox. Turning a type off stops new notifications of that type; the ones already there stay.",
 			"LOAD_ERROR": "Your notification settings could not load.",
 			"SAVE_FAILED": "That setting was not saved. Try again.",
@@ -3506,6 +3514,14 @@
 			"VERIFY_ACTION": "Enter the code",
 			"VERIFY_RESEND": "Send a new code",
 			"VERIFY_SENDING": "Sending a new code"
+		},
+		"TIMER_REMINDER": {
+			"LONG_TITLE": "Your timer has been running for {hours, plural, one {# hour} other {# hours}}",
+			"LONG_DESCRIPTION": "Stop it if you are done, or keep it running.",
+			"FORGOTTEN_TITLE": "Your timer is still running after {hours, plural, one {# hour} other {# hours}}",
+			"FORGOTTEN_DESCRIPTION": "Did you forget it? Stop it, then correct the time in your timesheet if needed.",
+			"STOP": "Stop timer",
+			"OPEN": "Open timer"
 		}
 	},
 	"toasts": {

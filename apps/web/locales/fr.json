@@ -3464,6 +3464,14 @@
 				"DIGEST_TEXT": "Un e-mail par jour, à cette heure, avec les entrées réglées sur le résumé.",
 				"SAVE_FAILED": "Cette préférence n'a pas été enregistrée. Réessayez."
 			},
+			"TIMER": {
+				"TITLE": "Suivi du temps",
+				"INTRO": "Un rappel quand un chronomètre a longtemps tourné, et un autre au double de cette durée s’il tourne encore.",
+				"LABEL": "Rappel de chronomètre prolongé",
+				"TEXT": "Dans l’application, et en notification sur cet appareil quand l’onglet n’est pas visible et que le navigateur l’autorise.",
+				"OFF": "Désactivé",
+				"AFTER_HOURS": "Après {hours, plural, one {# heure} other {# heures}}"
+			},
 			"INTRO": "Choisissez ce qui arrive dans votre boîte. Désactiver un type arrête les nouvelles notifications de ce type ; celles déjà reçues restent.",
 			"LOAD_ERROR": "Vos réglages de notifications n'ont pas pu être chargés.",
 			"SAVE_FAILED": "Ce réglage n'a pas été enregistré. Réessayez.",
@@ -3506,6 +3514,14 @@
 			"VERIFY_ACTION": "Saisir le code",
 			"VERIFY_RESEND": "Envoyer un nouveau code",
 			"VERIFY_SENDING": "Envoi d'un nouveau code"
+		},
+		"TIMER_REMINDER": {
+			"LONG_TITLE": "Votre chronomètre tourne depuis {hours, plural, one {# heure} other {# heures}}",
+			"LONG_DESCRIPTION": "Arrêtez-le si vous avez terminé, ou laissez-le tourner.",
+			"FORGOTTEN_TITLE": "Votre chronomètre tourne encore après {hours, plural, one {# heure} other {# heures}}",
+			"FORGOTTEN_DESCRIPTION": "L’avez-vous oublié ? Arrêtez-le, puis corrigez le temps dans votre feuille de temps si besoin.",
+			"STOP": "Arrêter le chronomètre",
+			"OPEN": "Ouvrir le chronomètre"
 		}
 	},
 	"toasts": {

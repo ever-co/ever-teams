@@ -31,8 +31,16 @@ import {
 	INotificationQuietHours,
 	TEmployeeNotificationSettingKey
 } from '@/core/types/interfaces/common/employee-notification';
-import { DigestHourRow, EmailDefaultRow, EmailModeChoice, EmailModeSelect, QuietHoursRow } from './notification-channel-rows';
+import { timerReminderHoursOf } from '@/core/lib/notifications/timer-reminders';
+import {
+	DigestHourRow,
+	EmailDefaultRow,
+	EmailModeChoice,
+	EmailModeSelect,
+	QuietHoursRow
+} from './notification-channel-rows';
 import { NotificationGroupsSkeleton } from './notifications-settings-skeleton';
+import { TimerReminderRow } from './timer-reminder-row';
 
 interface TypeCopy {
 	type: EEmployeeNotificationType;
@@ -151,7 +159,8 @@ function TypeRows({ keys, setting, pending, isSavingPreferences, onToggle, onEma
 export function NotificationsSettingsPage() {
 	const t = useTranslations();
 	const user = useAtomValue(userState);
-	const { setting, isAvailable, isLoading, isError, retry, toggle, savePreferences, isSavingPreferences } = useNotificationSettings();
+	const { setting, isAvailable, isLoading, isError, retry, toggle, savePreferences, isSavingPreferences } =
+		useNotificationSettings();
 	const [pending, setPending] = useState<PendingSwitches>({});
 	const isUserKnown = Boolean(user);
 	const showsSkeleton = !isUserKnown || isLoading;
@@ -245,6 +254,19 @@ export function NotificationsSettingsPage() {
 						/>
 					</SettingsSection>
 					<SettingsSection
+						id="notification-time-tracking"
+						title={t('notifications.SETTINGS_PAGE.TIMER.TITLE')}
+						description={t('notifications.SETTINGS_PAGE.TIMER.INTRO')}
+					>
+						<SettingsSurface>
+							<TimerReminderRow
+								value={timerReminderHoursOf(preferences)}
+								disabled={isSavingPreferences}
+								onChange={(hours) => onPreferences({ timerReminderHours: hours })}
+							/>
+						</SettingsSurface>
+					</SettingsSection>
+					<SettingsSection
 						id="notification-email"
 						title={t('notifications.SETTINGS_PAGE.CHANNELS.EMAIL_TITLE')}
 						description={t('notifications.SETTINGS_PAGE.CHANNELS.EMAIL_INTRO')}
@@ -256,9 +278,17 @@ export function NotificationsSettingsPage() {
 						/>
 					</SettingsSection>
 					<BrowserPushSection />
-					<SettingsSection id="notification-quiet-hours" title={t('notifications.SETTINGS_PAGE.CHANNELS.QUIET_TITLE')}>
+					<SettingsSection
+						id="notification-quiet-hours"
+						title={t('notifications.SETTINGS_PAGE.CHANNELS.QUIET_TITLE')}
+					>
 						<SettingsSurface>
-							<QuietHoursRow key={quietHoursKey} window={quietHours} disabled={isSavingPreferences} onChange={onQuietHours} />
+							<QuietHoursRow
+								key={quietHoursKey}
+								window={quietHours}
+								disabled={isSavingPreferences}
+								onChange={onQuietHours}
+							/>
 							<DigestHourRow
 								value={digestHourOf(preferences)}
 								disabled={isSavingPreferences}
@@ -303,7 +333,11 @@ function BrowserPushSection() {
 			description={t('notifications.SETTINGS_PAGE.CHANNELS.PUSH_INTRO')}
 		>
 			<SettingsSurface>
-				<SettingsRow label={t('notifications.SETTINGS_PAGE.CHANNELS.PUSH_LABEL')} description={description} htmlFor="notification-push-switch">
+				<SettingsRow
+					label={t('notifications.SETTINGS_PAGE.CHANNELS.PUSH_LABEL')}
+					description={description}
+					htmlFor="notification-push-switch"
+				>
 					<SettingsSwitch
 						id="notification-push-switch"
 						checked={push.state === 'on'}
