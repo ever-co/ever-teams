@@ -1,5 +1,6 @@
 import { memo } from 'react';
 import { useTranslations } from 'next-intl';
+import { ActivityIcon } from '@/core/components/activities/activity-icon';
 import { Avatar, AvatarFallback, AvatarImage } from '@/core/components/common/avatar';
 import { MemberCell } from '@/core/components/dashboards/kit/member-cell';
 import { dataColorHue, isPaintableColor } from '@/core/components/tasks/task-data-color';
@@ -15,33 +16,18 @@ function initialOf(text: string) {
 	return firstCharacter.toUpperCase();
 }
 
-/**
- * Gauzy sends a window or page title, never an icon, so an app or site is drawn as a key cap holding its first
- * letter: the same tile for every title, no fake favicon.
- */
-export const AppTile = memo(function AppTile({ title, className }: Readonly<{ title: string; className?: string }>) {
-	return (
-		<span
-			aria-hidden="true"
-			className={cn(
-				'keycap-3d inline-flex size-5 shrink-0 items-center justify-center rounded-[6px] text-[10px] font-semibold leading-none text-muted-foreground',
-				className
-			)}
-		>
-			{initialOf(title)}
-		</span>
-	);
-});
-
+/** An app or site with its icon (#5023): its own mark, its favicon where allowed, or a generic one. */
 export const AppTitleCell = memo(function AppTitleCell({
 	title,
+	kind,
+	url,
 	className
-}: Readonly<{ title: string; className?: string }>) {
+}: Readonly<{ title: string; kind?: 'app' | 'url' | null; url?: string | null; className?: string }>) {
 	const t = useTranslations();
 	const hasTitle = title.length > 0;
 	return (
 		<span className={cn('flex min-w-0 items-center gap-2.5', className)} title={title}>
-			<AppTile title={title} />
+			<ActivityIcon title={title} kind={kind} url={url} />
 			{hasTitle && <span className={CELL_TEXT}>{title}</span>}
 			{!hasTitle && <span className={MUTED_TEXT}>{t('dashboard.appsUrls.UNTITLED')}</span>}
 		</span>

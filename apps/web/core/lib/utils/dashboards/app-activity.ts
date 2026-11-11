@@ -14,6 +14,8 @@ export interface AppActivity {
 	title: string;
 	detail: string;
 	kind: AppActivityKind;
+	/** The visited address the entry's metadata holds, for a site's icon (#5023). */
+	url?: string | null;
 	start: Date;
 	end: Date;
 	seconds: number;
@@ -27,6 +29,7 @@ export interface AppShare {
 	title: string;
 	detail: string;
 	kind: AppActivityKind;
+	url?: string | null;
 	seconds: number;
 	share: number;
 }
@@ -58,6 +61,21 @@ export interface AppDay {
 	legend: AppShare[];
 	otherCount: number;
 	hourRows: AppHourRow[];
+}
+
+/** The visited address an entry's metadata holds (an object, or its JSON as a string), if any. */
+function urlOfMetaData(metaData: unknown): string | null {
+	let value = metaData;
+	if (typeof value === 'string') {
+		try {
+			value = JSON.parse(value);
+		} catch {
+			return null;
+		}
+	}
+	const isRecord = typeof value === 'object' && value !== null && !Array.isArray(value);
+	const url = isRecord ? (value as { url?: unknown }).url : undefined;
+	return typeof url === 'string' && url.trim() ? url.trim() : null;
 }
 
 function kindOf(type: string | null | undefined): AppActivityKind {
@@ -117,6 +135,7 @@ export function appActivitiesOf(entries: ReadonlyArray<TActivityEntry>): AppActi
 			title,
 			detail: entry.description?.trim() ?? '',
 			kind: kindOf(entry.type),
+			url: urlOfMetaData(entry.metaData),
 			start,
 			end: new Date(endTime),
 			seconds,
@@ -153,6 +172,7 @@ export function appSharesOf(activities: ReadonlyArray<AppActivity>): AppShare[] 
 				title: activity.title,
 				detail: activity.detail,
 				kind: activity.kind,
+				url: activity.url ?? null,
 				seconds: activity.seconds,
 				share: 0
 			});
@@ -160,6 +180,7 @@ export function appSharesOf(activities: ReadonlyArray<AppActivity>): AppShare[] 
 			continue;
 		}
 		existing.seconds += activity.seconds;
+		existing.url = existing.url ?? activity.url ?? null;
 		const detailSeconds = detailSecondsByKey.get(key) ?? 0;
 		const isLongerDetail = activity.seconds > detailSeconds;
 		const hasDetail = Boolean(activity.detail);
