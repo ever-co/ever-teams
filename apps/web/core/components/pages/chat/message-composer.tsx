@@ -7,7 +7,7 @@ import { Button } from '@/core/components/duplicated-components/_button';
 import { MENU_SURFACE } from '@/core/components/common/menu-recipes';
 import { PersonAvatar } from '@/core/components/teams/people-avatars';
 import { cn } from '@/core/lib/helpers';
-import { ComposeEdit, insertAt, insertLink, insertMentionTrigger, replacementOf, toggleCodeBlock, toggleLinePrefix, toggleWrap } from '@/core/lib/utils/chat-compose';
+import { ComposeEdit, insertAt, insertLink, insertMentionTrigger, ITALIC, replacementOf, toggleCodeBlock, toggleLinePrefix, toggleWrap } from '@/core/lib/utils/chat-compose';
 import { ChatPerson, mentionQueryAt, suggestMentions } from '@/core/lib/utils/chat-format';
 import { CHAT_MESSAGE_MAX_LENGTH } from '@/core/types/interfaces/common/chat';
 import { EmojiPopover } from './emoji-popover';
@@ -22,7 +22,7 @@ const EVERYONE: ChatPerson[] = [
 const COUNTER_FROM = 200;
 
 /** `Ctrl/Cmd` + these keys wrap the selection in the marker. */
-const WRAP_SHORTCUTS: Record<string, string> = { b: '**', i: '_', e: '`' };
+const WRAP_SHORTCUTS: Record<string, string> = { b: '**', i: ITALIC, e: '`' };
 
 const TOOL_BUTTON =
 	'flex size-7 shrink-0 cursor-pointer items-center justify-center rounded-md text-muted-foreground outline-none transition-colors hover:bg-foreground/5 hover:text-foreground focus-visible:ring-[3px] focus-visible:ring-ring/25 disabled:pointer-events-none disabled:opacity-50 data-[popup-open]:bg-foreground/5 data-[popup-open]:text-foreground [&_svg]:size-4';
@@ -303,7 +303,7 @@ export function MessageComposer({
 						<ToolButton label={`${t('teamChat.FORMAT_BOLD')} (${modifier}B)`} disabled={disabled} onClick={() => format((text, start, end) => toggleWrap(text, start, end, '**'))}>
 							<Bold />
 						</ToolButton>
-						<ToolButton label={`${t('teamChat.FORMAT_ITALIC')} (${modifier}I)`} disabled={disabled} onClick={() => format((text, start, end) => toggleWrap(text, start, end, '_'))}>
+						<ToolButton label={`${t('teamChat.FORMAT_ITALIC')} (${modifier}I)`} disabled={disabled} onClick={() => format((text, start, end) => toggleWrap(text, start, end, ITALIC))}>
 							<Italic />
 						</ToolButton>
 						<ToolButton label={`${t('teamChat.FORMAT_CODE')} (${modifier}E)`} disabled={disabled} onClick={() => format((text, start, end) => toggleWrap(text, start, end, '`'))}>
