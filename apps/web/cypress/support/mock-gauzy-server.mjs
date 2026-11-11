@@ -318,6 +318,9 @@ function syntheticToken(userId, organizationId, rotation) {
 	return `${part({ alg: 'none', typ: 'JWT' })}.${part(claims)}.fixture`;
 }
 
+/** Where the paywall of the opening sends an address without the product (#5025). */
+const WORKSPACE_CHECKOUT_URL = 'https://checkout.example.test/?product=ever-teams&email=manager%40example.test';
+
 /** The ids of the workspace the creation flow sets up (#5025). */
 const NEW_WORKSPACE = Object.freeze({
 	signinToken: 'synthetic-new-workspace-signin',
@@ -426,6 +429,15 @@ function workspaceCreationResponse(method, pathname, data, state, body, requestT
 				[HTTP_STATUS]: 403,
 				statusCode: 403,
 				message: 'Creating new workspaces is disabled on this server.'
+			};
+		}
+		// `scenario.workspacePaywall`: the sign-up's paywall, and an address without the product
+		if (state.scenario.workspacePaywall) {
+			return {
+				[HTTP_STATUS]: 403,
+				statusCode: 403,
+				message: 'A subscription is required before you can open another workspace.',
+				checkoutUrl: WORKSPACE_CHECKOUT_URL
 			};
 		}
 		return { email: data.baseUser.email, token: NEW_WORKSPACE.signinToken };

@@ -109,6 +109,23 @@ describe('workspace creation', () => {
 		);
 	});
 
+	it("leads to the sign-up's checkout where opening another workspace needs a subscription", () => {
+		cy.mockScenario({ workspacePaywall: true });
+		cy.hardVisit('/workspace/new');
+		cy.get('#workspace-name', { timeout: 20_000 }).type('Lovelace Studio');
+		cy.contains('button', 'Create workspace').click();
+
+		cy.contains('Another workspace needs a subscription', { timeout: 20_000 }).should('be.visible');
+		cy.contains('a', 'Choose a plan')
+			.should(
+				'have.attr',
+				'href',
+				'https://checkout.example.test/?product=ever-teams&email=manager%40example.test'
+			)
+			.and('have.attr', 'target', '_blank');
+		creationState().then((created) => expect(created.tenant).to.equal(null));
+	});
+
 	it('says when it cannot tell whether the workspace was created, and offers no retry', () => {
 		// No answer from the route: the workspace may exist all the same
 		cy.intercept('POST', '**/api/auth/create-workspace', { forceNetworkError: true });
