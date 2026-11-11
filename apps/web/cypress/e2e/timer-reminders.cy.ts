@@ -9,9 +9,11 @@ const hoursAgo = (hours: number) => new Date(Date.now() - hours * HOUR).toISOStr
 
 interface MockState {
 	scenario: { timerRunning?: boolean };
-	requests: Array<{ path: string }>;
+	requests: Array<{ path: string; status: number }>;
 	notificationSetting: { preferences?: { timerReminderHours?: number | null } } | null;
 }
+
+const hasRead = (state: MockState, path: string) => state.requests.some((request) => request.path === path);
 
 /** The mock's state once `isReady` holds, read again every half second (a task's answer is not retried). */
 function mockStateWhen(isReady: (state: MockState) => boolean, tries = 40): Cypress.Chainable<MockState> {
@@ -53,13 +55,29 @@ describe('long-running timer reminders', () => {
 		cy.hardVisit('/');
 
 		// Once the timer's status and the preferences were read, still no reminder before ten hours
-		const hasRead = (state: MockState, path: string) => state.requests.some((request) => request.path === path);
 		mockStateWhen(
 			(state) =>
 				hasRead(state, '/api/timesheet/timer/status') && hasRead(state, '/api/employee-notification-setting')
 		).then((state) => {
 			expect(hasRead(state, '/api/employee-notification-setting')).to.equal(true);
 		});
+		cy.contains('Your timer has been running').should('not.exist');
+	});
+
+	it('reminds of nothing while the preferences cannot be read: the default could come before their threshold', () => {
+		cy.mockScenario({ timerRunning: true, timerStartedAt: hoursAgo(9), notificationSettingFails: true });
+		cy.hardVisit('/');
+
+		// The timer's status was read, and the preferences were asked for twice (the read and its retry), refused
+		const settingReads = (state: MockState) =>
+			state.requests.filter((request) => request.path === '/api/employee-notification-setting');
+		mockStateWhen((state) => hasRead(state, '/api/timesheet/timer/status') && settingReads(state).length >= 2).then(
+			(state) => {
+				expect(settingReads(state).every((request) => request.status === 500)).to.equal(true);
+			}
+		);
+		// A reminder comes at once after a read that answers: none is given on the default
+		cy.wait(3000);
 		cy.contains('Your timer has been running').should('not.exist');
 	});
 

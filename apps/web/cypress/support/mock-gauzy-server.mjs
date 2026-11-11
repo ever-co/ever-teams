@@ -381,8 +381,12 @@ function routeResponse(method, pathname, requestUrl, data, fixture, state, body,
 	if (pathname === '/api/task-related-issue-types') return data.metadata.relatedIssueTypes;
 	if (pathname === '/api/tags' || pathname === '/api/tags/level') return data.metadata.taskLabels;
 
-	// The employee's notification preferences: one row, kept as saved; `scenario.notificationPreferences` seeds it
+	// The employee's notification preferences: one row, kept as saved; `scenario.notificationPreferences` seeds it, and
+	// `scenario.notificationSettingFails` makes Gauzy refuse to read them
 	if (pathname === '/api/employee-notification-setting' && method === 'GET') {
+		if (state.scenario.notificationSettingFails) {
+			return { [HTTP_STATUS]: 500, statusCode: 500, message: 'Internal server error' };
+		}
 		const seeded = state.scenario.notificationPreferences
 			? {
 					id: 'notification-setting-1',
@@ -726,8 +730,8 @@ export async function createMockGauzyServer({ fixture, port = 3988 } = {}) {
 			mutationProof: jsonClone(state.mutationProof),
 			everPlatform: jsonClone(state.everPlatform),
 			notificationSetting: jsonClone(state.notificationSetting),
-			// What was asked since the reset, method and path only
-			requests: state.requests.map(({ method, path }) => ({ method, path }))
+			// What was asked since the reset: method, path and the status answered
+			requests: state.requests.map(({ method, path, status }) => ({ method, path, status }))
 		}),
 		reset: () => {
 			state.requests = [];
