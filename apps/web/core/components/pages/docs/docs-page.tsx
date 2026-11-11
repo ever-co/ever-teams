@@ -297,9 +297,9 @@ export function DocsPage({ view }: Readonly<{ view: DocsView }>) {
 				</main>
 			</div>
 
-			{importing.available && (
+			{importing.available && importInto !== null && (
 				<DocsImportDialog
-					open={importInto !== null}
+					open
 					maxZipBytes={importing.maxZipBytes}
 					parent={importInto?.parent ?? null}
 					teamSpaces={spaces.available ? spaces.teamSpaces : []}

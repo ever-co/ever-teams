@@ -47,11 +47,12 @@ interface DocsImportDialogProps {
  * an HTML export zip), choose where it lands (under the open page, or at the top of the workspace, a team space or
  * the private pages), start, follow the progress, then read the report: the imported pages to open, and what was not
  * imported, with the reason. The import goes on on the platform when the dialog closes.
+ *
+ * Mounted only while it is open (its owner renders it then), so each opening starts afresh.
  */
 export function DocsImportDialog({ open, maxZipBytes, parent, teamSpaces, onOpenPage, onImported, onClose }: DocsImportDialogProps) {
 	const t = useTranslations();
 	const run = useDocsImportRun();
-	const { reset } = run;
 	const inputRef = useRef<HTMLInputElement>(null);
 	const [file, setFile] = useState<File | null>(null);
 	const [fileError, setFileError] = useState<string | null>(null);
@@ -69,16 +70,8 @@ export function DocsImportDialog({ open, maxZipBytes, parent, teamSpaces, onOpen
 		],
 		[parent, t, teamSpaces]
 	);
-	const [choiceKey, setChoiceKey] = useState<string>(choices[0]?.key ?? 'workspace');
-
-	// A fresh dialog each time it opens.
-	useEffect(() => {
-		if (!open) return;
-		reset();
-		setFile(null);
-		setFileError(null);
-		setChoiceKey(parent ? 'parent' : 'workspace');
-	}, [open, parent, reset]);
+	// The page's owner mounts the dialog when it opens, so every opening starts from a fresh state.
+	const [choiceKey, setChoiceKey] = useState<string>(parent ? 'parent' : 'workspace');
 
 	const finished = run.step === 'done';
 	useEffect(() => {

@@ -104,7 +104,7 @@ export function useDocsImportRun() {
 				setStep('pick');
 			}
 		},
-		[queryClient, scope?.organizationId, scope?.tenantId, scope?.userId]
+		[queryClient, scope]
 	);
 
 	const reset = useCallback(() => {
