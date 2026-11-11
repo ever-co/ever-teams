@@ -145,7 +145,8 @@ export function useChatAttachments(): ChatAttachments {
 		mounted.current = true;
 		return () => {
 			mounted.current = false;
-			// The place closes (another conversation, another thread, the page): what was uploaded and not sent goes.
+			// The place closes (another conversation, another thread, another page of the app): what was uploaded and not
+			// sent goes. A closed tab tells nothing: the platform's sweep takes those files.
 			for (const item of itemsRef.current) {
 				revoke(item);
 				if (item.status === 'ready' && item.documentId) discardUnsent(item.documentId);
@@ -155,6 +156,8 @@ export function useChatAttachments(): ChatAttachments {
 
 	const update = useCallback((key: string, change: Partial<ChatAttachmentDraft>) => {
 		if (!mounted.current) return;
+		// Known at once to a removal before the next render (an upload that just finished is discarded when taken out).
+		itemsRef.current = itemsRef.current.map((item) => (item.key === key ? { ...item, ...change } : item));
 		setItems((current) => current.map((item) => (item.key === key ? { ...item, ...change } : item)));
 	}, []);
 

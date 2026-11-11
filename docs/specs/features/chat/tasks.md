@@ -43,9 +43,9 @@
   on the platform. The answer's `image` and `icon` sit on the linked site's
   hosts, and drawing them would make each reader's browser call that site,
   so the card shows neither until the platform serves them itself
-- [ ] T17 Platform gaps (ever-gauzy #11800): editable task cards (status,
+- [x] T17 Platform gaps (ever-gauzy #11800): editable task cards (status,
   priority and assignees in place, through `PATCH /chat/messages/:id/tasks/:taskId`,
   FR-14), "is typing" under the timeline and under a thread (`typing.signalled`),
   messages of files only (empty body, `📎 names` in previews), unsent uploads
   discarded (`DELETE /chat/attachments/:documentId`), `chatService.reorderCategories`
-  (no ordering UI yet), thumbnails sized from the files' `width` / `height`
+  (no ordering UI yet), thumbnails sized from the files' `width` / `height` (#5072)
