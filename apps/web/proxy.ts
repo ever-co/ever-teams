@@ -250,6 +250,8 @@ export async function proxy(request: NextRequest) {
 			return { success: false, error: 'The answer was already chosen', isExpired: false, retryable: false };
 		}
 
+		// Once Gauzy rotated the refresh token, the one this request holds is spent: a retry with it would be refused
+		let refreshTokenSpent = false;
 		try {
 			console.log('[Proxy] Attempting token refresh...');
 			const refreshing = refreshTokenPair(refresh_token);
@@ -259,6 +261,7 @@ export async function proxy(request: NextRequest) {
 				console.error('[Proxy] Token refresh failed: No token in response', refreshRes);
 				return { success: false, error: 'No token in refresh response', isExpired: true };
 			}
+			refreshTokenSpent = Boolean(refreshRes.data.refresh_token);
 
 			// Verify the new token works
 			const verifyRes = await currentAuthenticatedUserRequest({
@@ -266,13 +269,19 @@ export async function proxy(request: NextRequest) {
 				...(refreshCheckTimeoutMs ? { signal: AbortSignal.timeout(refreshCheckTimeoutMs) } : {})
 			});
 
-			if (verifyRes?.response.ok) {
+			// Only an answer with the user confirms the session: headers whose body never arrived confirm nothing
+			if (verifyRes?.response.ok && verifyRes.data) {
 				console.log('[Proxy] Token refresh and verification successful');
 				return { success: true, userData: verifyRes.data };
 			}
 
 			const isExpired = isTokenExpiredError(verifyRes);
-			return { success: false, error: `Token verification failed: ${verifyRes?.response?.status}`, isExpired };
+			return {
+				success: false,
+				error: `Token verification failed: ${verifyRes?.response?.status}`,
+				isExpired,
+				...(refreshTokenSpent ? { retryable: false } : {})
+			};
 		} catch (error: any) {
 			const errorMsg = error?.message || 'Unknown error';
 			const statusCode = error?.statusCode || error?.response?.status || error?.status;
@@ -292,7 +301,8 @@ export async function proxy(request: NextRequest) {
 			return {
 				success: false,
 				error: `Refresh failed: ${errorMsg} (${statusCode || 'no status'})`,
-				isExpired
+				isExpired,
+				...(refreshTokenSpent ? { retryable: false } : {})
 			};
 		}
 	};

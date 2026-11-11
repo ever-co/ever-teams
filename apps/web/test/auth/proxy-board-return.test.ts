@@ -233,6 +233,22 @@ describe('proxy() on a sign-in page the Board app sent a signed-in person to', (
 		expect(mockCurrentUser).toHaveBeenCalledWith({ bearer_token: freshToken, signal: expect.any(AbortSignal) });
 	});
 
+	it('takes a check whose body never arrived for no session, and asks no second refresh with the spent token', async () => {
+		const freshToken = accessToken(3600, 'user-1-fresh');
+		mockRefresh.mockResolvedValue({ data: { token: freshToken, refresh_token: 'rotated-refresh-token' } });
+		// The API sent its headers, then the body stalled until the abort: no user
+		mockCurrentUser.mockResolvedValue({ response: { ok: true }, data: undefined });
+
+		const response = await proxy(
+			signInRequest(BOARD_ADDRESS, `auth-token=${accessToken(-3600)}; auth-refresh-token=refresh-token`)
+		);
+
+		expect(response.status).toBe(200);
+		expect(response.headers.get('location')).toBeNull();
+		expect(mockRefresh).toHaveBeenCalledTimes(1);
+		expect(response.cookies.get('auth-refresh-token')?.value).toBe('rotated-refresh-token');
+	});
+
 	it('starts no token refresh once the deadline has passed', async () => {
 		jest.useFakeTimers();
 		// The API refuses the session check at 5.5 s and fails the first refresh at 7.9 s: its retry would come at 8 s
