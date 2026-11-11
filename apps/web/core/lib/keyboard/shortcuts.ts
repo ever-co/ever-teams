@@ -10,7 +10,7 @@
  */
 
 /** Where a command applies; a key press is matched against the contexts active at the time. */
-export type ShortcutContext = 'global' | 'list' | 'task' | 'view';
+export type ShortcutContext = 'global' | 'list' | 'task' | 'view' | 'chat';
 
 export interface ShortcutCommand {
 	id: string;
@@ -62,11 +62,21 @@ export const SHORTCUT_COMMANDS: readonly ShortcutCommand[] = [
 	{ id: 'taskStatus', context: 'task', defaultBinding: 's', chordOnly: true },
 	{ id: 'taskPriority', context: 'task', defaultBinding: 'p', chordOnly: true },
 	{ id: 'taskLabels', context: 'task', defaultBinding: 'l', chordOnly: true },
-	{ id: 'taskDueDate', context: 'task', defaultBinding: 'd', chordOnly: true }
+	{ id: 'taskDueDate', context: 'task', defaultBinding: 'd', chordOnly: true },
+	// the chat page (it matches these itself, in the composer too: Alt or ⌘/Ctrl chords, and Escape)
+	{ id: 'chatPrevious', context: 'chat', defaultBinding: 'alt+arrowup' },
+	{ id: 'chatNext', context: 'chat', defaultBinding: 'alt+arrowdown' },
+	{ id: 'chatPreviousUnread', context: 'chat', defaultBinding: 'alt+shift+arrowup' },
+	{ id: 'chatNextUnread', context: 'chat', defaultBinding: 'alt+shift+arrowdown' },
+	{ id: 'chatUnreads', context: 'chat', defaultBinding: 'mod+shift+a' },
+	{ id: 'chatMarkAllRead', context: 'chat', defaultBinding: 'shift+escape' }
 ];
 
 /** The contexts in the order the help dialog lists them. */
-export const SHORTCUT_CONTEXTS: readonly ShortcutContext[] = ['global', 'list', 'task', 'view'];
+export const SHORTCUT_CONTEXTS: readonly ShortcutContext[] = ['global', 'list', 'task', 'view', 'chat'];
+
+/** The contexts a page matches itself, one chord per command: a binding there is never a sequence. */
+const SINGLE_CHORD_CONTEXTS: ReadonlySet<ShortcutContext> = new Set(['chat']);
 
 const MODIFIER_NAMES = new Set(['mod', 'ctrl', 'cmd', 'meta', 'shift', 'alt', 'option', 'control', 'os']);
 
@@ -200,17 +210,20 @@ function isListBuiltInKey(chord: ShortcutChord): boolean {
 /**
  * Why a binding cannot be given to a command, or null when it can: one the browser keeps (`reserved`); for a key the
  * list matches itself, a sequence (`sequence`) or ⌘/Ctrl (`modifier`: the browser's and the app's other listeners
- * own those chords — copy, select all, the sidebar's `Mod+B` — and would run as well); or one starting with a key the
- * list keeps for itself (`listKey`), which would never reach the command while a row has the focus.
+ * own those chords — copy, select all, the sidebar's `Mod+B` — and would run as well); for a command of the chat page,
+ * which matches one chord, a sequence (`chatSequence`); or one starting with a key the list keeps for itself
+ * (`listKey`), which would never reach the command while a row has the focus.
  */
 export function refusalOf(
 	command: ShortcutCommand,
 	binding: ShortcutBinding
-): 'reserved' | 'sequence' | 'modifier' | 'listKey' | null {
+): 'reserved' | 'sequence' | 'chatSequence' | 'modifier' | 'listKey' | null {
 	if (isBrowserReserved(binding)) return 'reserved';
 	if (command.chordOnly && binding.length > 1) return 'sequence';
+	if (SINGLE_CHORD_CONTEXTS.has(command.context) && binding.length > 1) return 'chatSequence';
 	if (command.chordOnly && binding.some((chord) => chord.mod)) return 'modifier';
-	if (binding.length > 0 && isListBuiltInKey(binding[0])) return 'listKey';
+	// The list's own keys only shadow a command that can reach a focused row; the chat page has no rows of tasks.
+	if (binding.length > 0 && isListBuiltInKey(binding[0]) && !SINGLE_CHORD_CONTEXTS.has(command.context)) return 'listKey';
 	return null;
 }
 

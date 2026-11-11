@@ -3018,7 +3018,8 @@
 			"projects": "Проекти",
 			"navigation": "Навигация",
 			"settings": "Настройки",
-			"goTo": "Отиди на"
+			"goTo": "Отиди на",
+			"chat": "Чат"
 		},
 		"commands": {
 			"inviteUser": "Покани потребител",
@@ -3039,12 +3040,16 @@
 			"goToWeeklyLimit": "Към отчета за седмичния лимит",
 			"goToTimeAndActivity": "Към отчета за време и активност",
 			"profile": "Профил",
-			"settings": "Настройки"
+			"settings": "Настройки",
+			"newMessage": "Ново съобщение"
 		},
 		"results": {
 			"recent": "Скорошни",
 			"tasks": "Задачи",
-			"inTeam": "в {team}"
+			"inTeam": "в {team}",
+			"conversations": "Разговори",
+			"people": "Хора",
+			"messagePerson": "Съобщение до {name}"
 		}
 	},
 	"modals": {
@@ -4884,7 +4889,8 @@
 			"global": "Навсякъде",
 			"list": "Списък със задачи",
 			"task": "Избрана задача",
-			"view": "Изглед"
+			"view": "Изглед",
+			"chat": "Чат"
 		},
 		"commands": {
 			"paletteOpen": "Отвори палитрата с команди",
@@ -4908,8 +4914,15 @@
 			"taskStatus": "Промени състоянието",
 			"taskPriority": "Промени приоритета",
 			"taskLabels": "Промени етикетите",
-			"taskDueDate": "Промени крайния срок"
-		}
+			"taskDueDate": "Промени крайния срок",
+			"chatPrevious": "Предишен разговор",
+			"chatNext": "Следващ разговор",
+			"chatPreviousUnread": "Предишен непрочетен разговор",
+			"chatNextUnread": "Следващ непрочетен разговор",
+			"chatUnreads": "Отваряне на непрочетените",
+			"chatMarkAllRead": "Маркиране на всички като прочетени"
+		},
+		"CHAT_SINGLE_KEY": "Клавишът за чата е един клавиш, не поредица."
 	},
 	"realtime": {
 		"RECONNECTING": "Повторно свързване…"

@@ -3018,7 +3018,8 @@
 			"projects": "Projecten",
 			"navigation": "Navigatie",
 			"settings": "Instellingen",
-			"goTo": "Ga naar"
+			"goTo": "Ga naar",
+			"chat": "Chat"
 		},
 		"commands": {
 			"inviteUser": "Gebruiker uitnodigen",
@@ -3039,12 +3040,16 @@
 			"goToWeeklyLimit": "Naar het rapport weeklimiet",
 			"goToTimeAndActivity": "Naar het rapport tijd en activiteit",
 			"profile": "Profiel",
-			"settings": "Instellingen"
+			"settings": "Instellingen",
+			"newMessage": "Nieuw bericht"
 		},
 		"results": {
 			"recent": "Recent",
 			"tasks": "Taken",
-			"inTeam": "in {team}"
+			"inTeam": "in {team}",
+			"conversations": "Gesprekken",
+			"people": "Mensen",
+			"messagePerson": "{name} een bericht sturen"
 		}
 	},
 	"modals": {
@@ -4884,7 +4889,8 @@
 			"global": "Overal",
 			"list": "Takenlijst",
 			"task": "Gefocuste taak",
-			"view": "Weergave"
+			"view": "Weergave",
+			"chat": "Chat"
 		},
 		"commands": {
 			"paletteOpen": "Opdrachtenpalet openen",
@@ -4908,8 +4914,15 @@
 			"taskStatus": "Status wijzigen",
 			"taskPriority": "Prioriteit wijzigen",
 			"taskLabels": "Labels wijzigen",
-			"taskDueDate": "Vervaldatum wijzigen"
-		}
+			"taskDueDate": "Vervaldatum wijzigen",
+			"chatPrevious": "Vorig gesprek",
+			"chatNext": "Volgend gesprek",
+			"chatPreviousUnread": "Vorig ongelezen gesprek",
+			"chatNextUnread": "Volgend ongelezen gesprek",
+			"chatUnreads": "Ongelezen openen",
+			"chatMarkAllRead": "Alles als gelezen markeren"
+		},
+		"CHAT_SINGLE_KEY": "Een chattoets is één toets, geen reeks."
 	},
 	"realtime": {
 		"RECONNECTING": "Opnieuw verbinden…"

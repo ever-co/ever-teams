@@ -383,3 +383,26 @@ describe('writing', () => {
 		expect(screen.getByRole('button', { name: 'teamChat.MEMBER_COUNT:4' }).textContent).toBe('4');
 	});
 });
+
+describe('the virtual timeline', () => {
+	const flag = process.env.NEXT_PUBLIC_CHAT_VIRTUAL_LIST_ENABLED;
+	afterEach(() => {
+		if (flag === undefined) delete process.env.NEXT_PUBLIC_CHAT_VIRTUAL_LIST_ENABLED;
+		else process.env.NEXT_PUBLIC_CHAT_VIRTUAL_LIST_ENABLED = flag;
+		mockTimeline.messages = [];
+		mockTimeline.newestId = null;
+	});
+
+	it('renders the rows through the virtual list behind its flag, and every row without it', () => {
+		mockTimeline.messages = [message('m1', at(10, 9)), message('m2', at(10, 10))];
+		mockTimeline.newestId = 'm2';
+		process.env.NEXT_PUBLIC_CHAT_VIRTUAL_LIST_ENABLED = 'true';
+		const { container, unmount } = render(view(conversation()));
+		expect(container.querySelector('[data-virtual-timeline]')).toBeTruthy();
+		unmount();
+		delete process.env.NEXT_PUBLIC_CHAT_VIRTUAL_LIST_ENABLED;
+		const plain = render(view(conversation()));
+		expect(plain.container.querySelector('[data-virtual-timeline]')).toBeNull();
+		expect(plain.container.querySelectorAll('[data-message-id]')).toHaveLength(2);
+	});
+});

@@ -3018,7 +3018,8 @@
 			"projects": "Projects",
 			"navigation": "Navigation",
 			"settings": "Settings",
-			"goTo": "Go to"
+			"goTo": "Go to",
+			"chat": "Chat"
 		},
 		"commands": {
 			"inviteUser": "Invite user",
@@ -3039,12 +3040,16 @@
 			"goToWeeklyLimit": "Go to weekly limit report",
 			"goToTimeAndActivity": "Go to time & activity report",
 			"profile": "Profile",
-			"settings": "Settings"
+			"settings": "Settings",
+			"newMessage": "New message"
 		},
 		"results": {
 			"recent": "Recent",
 			"tasks": "Tasks",
-			"inTeam": "in {team}"
+			"inTeam": "in {team}",
+			"conversations": "Conversations",
+			"people": "People",
+			"messagePerson": "Message {name}"
 		}
 	},
 	"modals": {
@@ -4884,7 +4889,8 @@
 			"global": "Everywhere",
 			"list": "Task list",
 			"task": "Focused task",
-			"view": "View"
+			"view": "View",
+			"chat": "Chat"
 		},
 		"commands": {
 			"paletteOpen": "Open the command palette",
@@ -4908,8 +4914,15 @@
 			"taskStatus": "Change the status",
 			"taskPriority": "Change the priority",
 			"taskLabels": "Change the labels",
-			"taskDueDate": "Change the due date"
-		}
+			"taskDueDate": "Change the due date",
+			"chatPrevious": "Previous conversation",
+			"chatNext": "Next conversation",
+			"chatPreviousUnread": "Previous unread conversation",
+			"chatNextUnread": "Next unread conversation",
+			"chatUnreads": "Open Unreads",
+			"chatMarkAllRead": "Mark all as read"
+		},
+		"CHAT_SINGLE_KEY": "A chat key is one key, not a sequence."
 	},
 	"realtime": {
 		"RECONNECTING": "Reconnecting…"

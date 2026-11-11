@@ -36,7 +36,7 @@ type Suggestions = { kind: 'mention'; start: number; items: ChatPerson[] } | { k
 const WRAP_SHORTCUTS: Record<string, string> = { b: '**', i: ITALIC, e: '`' };
 
 const TOOL_BUTTON =
-	'flex size-7 shrink-0 cursor-pointer items-center justify-center rounded-md text-muted-foreground outline-none transition-colors hover:bg-foreground/5 hover:text-foreground focus-visible:ring-[3px] focus-visible:ring-ring/25 disabled:pointer-events-none disabled:opacity-50 data-[popup-open]:bg-foreground/5 data-[popup-open]:text-foreground [&_svg]:size-4';
+	'flex size-7 shrink-0 cursor-pointer [@media(pointer:coarse)]:size-9 items-center justify-center rounded-md text-muted-foreground outline-none transition-colors hover:bg-foreground/5 hover:text-foreground focus-visible:ring-[3px] focus-visible:ring-ring/25 disabled:pointer-events-none disabled:opacity-50 data-[popup-open]:bg-foreground/5 data-[popup-open]:text-foreground [&_svg]:size-4';
 
 export interface MessageComposerProps {
 	value: string;
@@ -367,7 +367,7 @@ export function MessageComposer({
 									insertMention(person);
 								}}
 								onMouseEnter={() => setSelected(index)}
-								className={cn('flex h-8 cursor-pointer items-center gap-2.5 rounded-md px-2 text-[13px] text-foreground', index === selected && 'bg-foreground/5')}
+								className={cn('flex h-8 cursor-pointer items-center gap-2.5 rounded-md px-2 text-[13px] text-foreground [@media(pointer:coarse)]:h-10', index === selected && 'bg-foreground/5')}
 							>
 								{isEveryone ? (
 									<span className="inline-flex size-5 shrink-0 items-center justify-center rounded-full bg-amber-500/15 text-[11px] font-medium text-amber-700 dark:text-amber-300">@</span>
@@ -423,7 +423,8 @@ export function MessageComposer({
 					rows={1}
 					disabled={disabled}
 					autoFocus={autoFocus}
-					className="block max-h-50 min-h-6 w-full resize-none bg-transparent px-3 pb-1 pt-2.5 text-[13px] leading-relaxed text-foreground outline-none placeholder:text-muted-foreground"
+					// 16 px text below the small breakpoint: a phone zooms the page into a field with smaller text.
+					className="block max-h-50 min-h-6 w-full resize-none bg-transparent px-3 pb-1 pt-2.5 text-base leading-relaxed text-foreground outline-none placeholder:text-muted-foreground sm:text-[13px]"
 				/>
 				{attachments && <ComposerAttachments items={attachments.items} onRemove={attachments.remove} onRetry={attachments.retry} />}
 				{/* The row wraps: in a narrow pane (a thread) the actions of an edit go under the tools, never over them. */}

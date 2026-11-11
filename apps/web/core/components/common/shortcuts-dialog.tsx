@@ -23,6 +23,7 @@ import {
 	type ShortcutContext
 } from '@/core/lib/keyboard/shortcuts';
 import { cn } from '@/core/lib/helpers';
+import { isChatEnabled } from '@/core/lib/utils/chat-enabled';
 import { shortcutsHelpOpenAtom } from '@/core/stores/common/shortcuts';
 
 /** How long the next chord of a recorded sequence may take. */
@@ -32,6 +33,7 @@ const RECORD_TIMEOUT_MS = 900;
 const REFUSAL_MESSAGES = {
 	reserved: 'shortcuts.RESERVED',
 	sequence: 'shortcuts.SINGLE_KEY_ONLY',
+	chatSequence: 'shortcuts.CHAT_SINGLE_KEY',
 	modifier: 'shortcuts.NO_MOD_KEY',
 	listKey: 'shortcuts.LIST_KEY'
 } as const satisfies Record<NonNullable<ReturnType<typeof refusalOf>>, DottedLanguageObjectStringPaths>;
@@ -116,7 +118,12 @@ export function ShortcutsDialog() {
 	const byContext = useMemo(() => {
 		const groups = new Map<ShortcutContext, ShortcutCommand[]>();
 		for (const context of SHORTCUT_CONTEXTS) groups.set(context, []);
-		for (const command of SHORTCUT_COMMANDS) groups.get(command.context)?.push(command);
+		// The chat page's keys only where the chat is on.
+		const chatOn = isChatEnabled();
+		for (const command of SHORTCUT_COMMANDS) {
+			if (command.context === 'chat' && !chatOn) continue;
+			groups.get(command.context)?.push(command);
+		}
 		return [...groups.entries()].filter(([, commands]) => commands.length > 0);
 	}, []);
 

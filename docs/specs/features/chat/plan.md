@@ -61,3 +61,9 @@ and of the uploads.
 Attachments (upload path), link previews (platform), emoji autocomplete, send-to-chat from the task drawer and
 page, create-task-from-message, command palette entries, presence dots, virtualised list, phone polish,
 keyboard shortcuts beyond `Shift+Escape`, categories management, channel settings.
+
+The virtualised timeline is behind its own runtime flag,
+`NEXT_PUBLIC_CHAT_VIRTUAL_LIST_ENABLED` (off by default): with it off the
+timeline keeps every loaded message in the page. The chat keys are commands
+of the shortcut registry (context `chat`), matched by the chat page itself,
+so the shortcuts help lists them and the person can rebind them.
