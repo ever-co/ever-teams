@@ -2574,6 +2574,7 @@
 		"START_TIMER": "Per favore, seleziona o crea un nuovo compito per iniziare a tracciare il tempo o creare un piano",
 		"ALREADY_TRACKING_MESSAGE": "Stai già tracciando il tempo in un'altra scheda o dispositivo.",
 		"TRACKING_DISABLED_MESSAGE": "Il monitoraggio del tempo è disattivato per te. Un amministratore dell'organizzazione può attivarlo.",
+		"TRACKING_OFF": "Monitoraggio disattivato",
 		"REQUIRED_TEAM_MESSAGE": "La tua organizzazione richiede un team per ogni timer. Apri uno dei tuoi team e riavvia.",
 		"REQUIRED_PROJECT_MESSAGE": "La tua organizzazione richiede un progetto per ogni timer. Inserisci l'attività in un progetto o assegna al team un progetto predefinito, poi riavvia.",
 		"REQUIRED_TEAM_AND_PROJECT_MESSAGE": "La tua organizzazione richiede un team e un progetto per ogni timer. Apri uno dei tuoi team e inserisci l'attività in un progetto, poi riavvia.",

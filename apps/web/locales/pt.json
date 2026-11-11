@@ -2574,6 +2574,7 @@
 		"START_TIMER": "Por favor, selecione ou crie uma nova tarefa para começar a rastrear o tempo ou crie um plano",
 		"ALREADY_TRACKING_MESSAGE": "Você já está rastreando o tempo em outra aba ou dispositivo.",
 		"TRACKING_DISABLED_MESSAGE": "O registro de tempo está desativado para você. Um administrador da organização pode ativá-lo.",
+		"TRACKING_OFF": "Registro desativado",
 		"REQUIRED_TEAM_MESSAGE": "Sua organização exige uma equipe em cada cronômetro. Abra uma das suas equipes e inicie novamente.",
 		"REQUIRED_PROJECT_MESSAGE": "Sua organização exige um projeto em cada cronômetro. Coloque a tarefa em um projeto ou dê à equipe um projeto padrão e inicie novamente.",
 		"REQUIRED_TEAM_AND_PROJECT_MESSAGE": "Sua organização exige uma equipe e um projeto em cada cronômetro. Abra uma das suas equipes, coloque a tarefa em um projeto e inicie novamente.",

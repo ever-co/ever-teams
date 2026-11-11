@@ -21,8 +21,12 @@ jest.mock('@/core/hooks/common/use-active-timer', () => ({
 }));
 jest.mock('./global-header', () => ({
 	__esModule: true,
-	default: ({ showTimer }: { showTimer: boolean }) => (
-		<div data-testid="global-header" data-show-timer={String(showTimer)} />
+	default: ({ showTimer, showTrackingOff }: { showTimer: boolean; showTrackingOff: boolean }) => (
+		<div
+			data-testid="global-header"
+			data-show-timer={String(showTimer)}
+			data-show-tracking-off={String(showTrackingOff)}
+		/>
 	)
 }));
 jest.mock('./page-content-scroller', () => ({
@@ -72,5 +76,39 @@ describe('PageLayout header timer', () => {
 
 	it('keeps the timer while it runs, so it can still be stopped', () => {
 		expect(headerTimerShown(storeWith({ employeeTracking: false, running: true }))).toBe('true');
+	});
+});
+
+describe('PageLayout header, where the timer would be', () => {
+	function header(store: ReturnType<typeof createStore>, showTimer?: boolean) {
+		render(
+			<Provider store={store}>
+				<PageLayout showTimer={showTimer}>page</PageLayout>
+			</Provider>
+		);
+		const { showTimer: timer, showTrackingOff: reason } = screen.getByTestId('global-header').dataset;
+		return { timer, reason };
+	}
+
+	it('tells a member whose tracking is off why there is no timer', () => {
+		expect(header(storeWith({ employeeTracking: false }))).toEqual({ timer: 'false', reason: 'true' });
+	});
+
+	it('tells nothing to a member who can track: they have the timer', () => {
+		expect(header(storeWith({ employeeTracking: true }))).toEqual({ timer: 'true', reason: 'false' });
+	});
+
+	it('tells nothing while their timer runs: the timer stays, to be stopped', () => {
+		expect(header(storeWith({ employeeTracking: false, running: true }))).toEqual({
+			timer: 'true',
+			reason: 'false'
+		});
+	});
+
+	it('tells nothing in a team the user is not a member of', () => {
+		const store = storeWith({ employeeTracking: false });
+		store.set(userState, { id: 'user-outside' } as never);
+
+		expect(header(store)).toEqual({ timer: 'false', reason: 'false' });
 	});
 });

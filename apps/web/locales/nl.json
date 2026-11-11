@@ -2574,6 +2574,7 @@
 		"START_TIMER": "Selecteer of maak een nieuwe taak aan om de tijd bij te houden of maak een plan",
 		"ALREADY_TRACKING_MESSAGE": "Je houdt al tijd bij in een ander tabblad of apparaat.",
 		"TRACKING_DISABLED_MESSAGE": "Tijdregistratie staat voor jou uit. Een beheerder van de organisatie kan het inschakelen.",
+		"TRACKING_OFF": "Tijdregistratie uit",
 		"REQUIRED_TEAM_MESSAGE": "Je organisatie vereist een team bij elke timer. Open een van je teams en start opnieuw.",
 		"REQUIRED_PROJECT_MESSAGE": "Je organisatie vereist een project bij elke timer. Zet de taak in een project of geef het team een standaardproject en start opnieuw.",
 		"REQUIRED_TEAM_AND_PROJECT_MESSAGE": "Je organisatie vereist een team en een project bij elke timer. Open een van je teams, zet de taak in een project en start opnieuw.",

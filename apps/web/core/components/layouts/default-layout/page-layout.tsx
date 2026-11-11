@@ -7,7 +7,7 @@ import { useActiveTimer } from '@/core/hooks/common/use-active-timer';
 import { usePathname } from 'next/navigation';
 import { useAtomValue } from 'jotai';
 import { APP_NAME } from '@/core/constants/config/constants';
-import { isTrackingEnabledState } from '@/core/stores/timer/active-timer';
+import { isOwnTrackingOffState, isTrackingEnabledState } from '@/core/stores/timer/active-timer';
 import { pathCarriesItsOwnTimer } from './timer-paths';
 import GlobalHeader from './global-header';
 import { DemoBanner } from './demo-banner';
@@ -62,6 +62,7 @@ export function PageLayout({
 	const [shouldRenderTimer, setShouldRenderTimer] = useState(false);
 	const { activeTimer, setActiveTimer } = useActiveTimer();
 	const isTrackingEnabled = useAtomValue(isTrackingEnabledState);
+	const isOwnTrackingOff = useAtomValue(isOwnTrackingOffState);
 	const path = usePathname();
 
 	const headerRef = useRef<HTMLDivElement>(null);
@@ -95,8 +96,11 @@ export function PageLayout({
 	}, [path, headerHeight, mainHeaderSlot]);
 
 	const timerActive = shouldRenderTimer && activeTimer;
+	const headerCarriesTimer = timerActive || Boolean(showTimer);
 	// The automatic header timer follows the pages' own rule: none for a member who cannot track
-	const headerShowsTimer = (timerActive || Boolean(showTimer)) && isTrackingEnabled;
+	const headerShowsTimer = headerCarriesTimer && isTrackingEnabled;
+	// In its place, a member whose tracking is turned off reads why
+	const headerShowsTrackingOff = headerCarriesTimer && isOwnTrackingOff;
 
 	return (
 		<div className="flex h-full min-h-0 w-full flex-col overflow-clip" data-pane-surface={fill ? 'true' : undefined}>
@@ -105,6 +109,7 @@ export function PageLayout({
 			<GlobalHeader
 				ref={headerRef}
 				showTimer={headerShowsTimer}
+				showTrackingOff={headerShowsTrackingOff}
 				publicTeam={publicTeam || false}
 				notFound={notFound || false}
 				breadcrumb={breadcrumb}

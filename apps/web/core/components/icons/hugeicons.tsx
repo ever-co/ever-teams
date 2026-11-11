@@ -147,6 +147,7 @@ import {
 	Tick02Icon,
 	TickDouble02Icon,
 	Timer02Icon,
+	TimerOffIcon,
 	UmbrellaIcon,
 	UnfoldMoreIcon,
 	Upload01Icon,
@@ -389,6 +390,7 @@ export const Table = /*#__PURE__*/ icon(Table01Icon, 'Table');
 export const GridView = /*#__PURE__*/ icon(GridViewIcon, 'GridView');
 export const Kanban = /*#__PURE__*/ icon(KanbanIcon, 'Kanban');
 export const Timer = /*#__PURE__*/ icon(Timer02Icon, 'Timer');
+export const TimerOff = /*#__PURE__*/ icon(TimerOffIcon, 'TimerOff');
 export const Idle = /*#__PURE__*/ icon(Coffee02Icon, 'Idle');
 export const Task = /*#__PURE__*/ icon(Task01Icon, 'Task');
 export const TaskDone = /*#__PURE__*/ icon(TaskDone01Icon, 'TaskDone');

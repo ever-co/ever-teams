@@ -2574,6 +2574,7 @@
 		"START_TIMER": "Bitte wählen oder erstellen Sie eine neue Aufgabe, um die Zeit zu tracken oder einen Plan erstellen",
 		"ALREADY_TRACKING_MESSAGE": "Sie verfolgen bereits die Zeit in einem anderen Tab oder Gerät.",
 		"TRACKING_DISABLED_MESSAGE": "Die Zeiterfassung ist für Sie deaktiviert. Ein Administrator der Organisation kann sie aktivieren.",
+		"TRACKING_OFF": "Zeiterfassung aus",
 		"REQUIRED_TEAM_MESSAGE": "Ihre Organisation verlangt für jeden Timer ein Team. Öffnen Sie eines Ihrer Teams und starten Sie erneut.",
 		"REQUIRED_PROJECT_MESSAGE": "Ihre Organisation verlangt für jeden Timer ein Projekt. Ordnen Sie die Aufgabe einem Projekt zu oder geben Sie dem Team ein Standardprojekt und starten Sie erneut.",
 		"REQUIRED_TEAM_AND_PROJECT_MESSAGE": "Ihre Organisation verlangt für jeden Timer ein Team und ein Projekt. Öffnen Sie eines Ihrer Teams, ordnen Sie die Aufgabe einem Projekt zu und starten Sie erneut.",

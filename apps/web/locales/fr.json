@@ -2574,6 +2574,7 @@
 		"START_TIMER": "Veuillez sélectionner ou créer une nouvelle tâche pour commencer le suivi du temps ou créer un plan",
 		"ALREADY_TRACKING_MESSAGE": "Vous suivez déjà le temps dans un autre onglet ou appareil.",
 		"TRACKING_DISABLED_MESSAGE": "Le suivi du temps est désactivé pour vous. Un administrateur de l'organisation peut le réactiver.",
+		"TRACKING_OFF": "Suivi désactivé",
 		"REQUIRED_TEAM_MESSAGE": "Votre organisation exige une équipe pour chaque minuteur. Ouvrez l'une de vos équipes, puis relancez.",
 		"REQUIRED_PROJECT_MESSAGE": "Votre organisation exige un projet pour chaque minuteur. Placez la tâche dans un projet ou donnez un projet par défaut à l'équipe, puis relancez.",
 		"REQUIRED_TEAM_AND_PROJECT_MESSAGE": "Votre organisation exige une équipe et un projet pour chaque minuteur. Ouvrez l'une de vos équipes et placez la tâche dans un projet, puis relancez.",

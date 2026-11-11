@@ -2574,6 +2574,7 @@
 		"START_TIMER": "请选择或创建新任务以开始计时 或製定計劃",
 		"ALREADY_TRACKING_MESSAGE": "您已经在另一个标签页或设备上跟踪时间。",
 		"TRACKING_DISABLED_MESSAGE": "您的时间跟踪已关闭。组织管理员可以将其开启。",
+		"TRACKING_OFF": "时间跟踪已关闭",
 		"REQUIRED_TEAM_MESSAGE": "你的组织要求每个计时器都带有团队。请打开你的一个团队，然后重新开始。",
 		"REQUIRED_PROJECT_MESSAGE": "你的组织要求每个计时器都带有项目。请把任务放进一个项目，或为团队设置默认项目，然后重新开始。",
 		"REQUIRED_TEAM_AND_PROJECT_MESSAGE": "你的组织要求每个计时器都带有团队和项目。请打开你的一个团队并把任务放进一个项目，然后重新开始。",
