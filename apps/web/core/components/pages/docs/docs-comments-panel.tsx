@@ -83,13 +83,20 @@ export function DocsCommentsPanel({
 	const [deleting, setDeleting] = useState<IComment | null>(null);
 	const listRef = useRef<HTMLUListElement>(null);
 
-	// A thread a link or a marked block asked for is in its tab and in sight.
+	// A thread a link or a marked block asked for is in its tab and in sight; a comment on the selection is a new open
+	// thread. Both move the tab while rendering (when they change), so the person's own choice stands in between.
 	const activeThread = activeThreadId ? (sorted.find((thread) => thread.id === activeThreadId) ?? null) : null;
-	const activeResolved = activeThread?.resolved ?? null;
-	useEffect(() => {
-		if (activeResolved === null) return;
-		setTab(activeResolved ? 'resolved' : 'open');
-	}, [activeResolved, activeThreadId]);
+	const activeTabKey = activeThread ? `${activeThread.id}:${activeThread.resolved ? 'resolved' : 'open'}` : null;
+	const [seenActive, setSeenActive] = useState<string | null>(null);
+	if (activeThread && activeTabKey !== seenActive) {
+		setSeenActive(activeTabKey);
+		setTab(activeThread.resolved ? 'resolved' : 'open');
+	}
+	const [seenPending, setSeenPending] = useState<DocsPendingAnchor | null>(null);
+	if (pendingAnchor !== seenPending) {
+		setSeenPending(pendingAnchor);
+		if (pendingAnchor) setTab('open');
+	}
 	useEffect(() => {
 		if (!activeThreadId) return;
 		const handle = requestAnimationFrame(() => {
@@ -97,11 +104,6 @@ export function DocsCommentsPanel({
 		});
 		return () => cancelAnimationFrame(handle);
 	}, [activeThreadId, tab, shown.length]);
-	// A comment on the selection is a new open thread.
-	useEffect(() => {
-		if (pendingAnchor) setTab('open');
-	}, [pendingAnchor]);
-
 	const fail = () => toast.error(t('docs.COMMENT_ERROR'));
 
 	const postNew = async (body: string, mentionEmployeeIds: string[]) => {

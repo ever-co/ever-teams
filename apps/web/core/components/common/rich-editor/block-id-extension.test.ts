@@ -89,13 +89,28 @@ describe('block anchors', () => {
 		editor.view.dispatch(editor.state.tr.setSelection(TextSelection.create(editor.state.doc, 2)));
 		expect(anchorSelectionBlock(editor.state)).toEqual({ blockId: A, transaction: null });
 		// Inside a list, the innermost anchored block is the item's paragraph.
-		const inItem = editor.state.doc.content.size - 3;
+		let inItem = 0;
+		editor.state.doc.descendants((node, pos) => {
+			if (node.isText && node.text === 'item') inItem = pos + 1;
+		});
 		editor.view.dispatch(editor.state.tr.setSelection(TextSelection.create(editor.state.doc, inItem)));
 		const anchored = anchorSelectionBlock(editor.state);
 		expect(anchored && isBlockId(anchored.blockId)).toBe(true);
+		if (anchored?.transaction) editor.view.dispatch(anchored.transaction);
+		expect(blockOf(editor.state.doc, anchored!.blockId)?.node.textContent).toBe('item');
+		expect(blockOf(editor.state.doc, anchored!.blockId)?.node.type.name).toBe('paragraph');
+		editor.destroy();
+	});
+
+	it('gives a block without an anchor one when asked, as an edit', () => {
+		const editor = editorWith({ type: 'doc', content: [paragraph('one')] });
+		editor.view.dispatch(editor.state.tr.setSelection(TextSelection.create(editor.state.doc, 2)));
+		// Nothing was edited yet: the block has no anchor.
+		expect(blockIdsOf(editor.state.doc)).toEqual([]);
+		const anchored = anchorSelectionBlock(editor.state);
 		expect(anchored?.transaction).not.toBeNull();
 		editor.view.dispatch(anchored!.transaction!);
-		expect(blockOf(editor.state.doc, anchored!.blockId)?.node.textContent).toBe('item');
+		expect(blockIdsOf(editor.state.doc)[0]).toBe(anchored!.blockId);
 		editor.destroy();
 	});
 });

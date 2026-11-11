@@ -16,7 +16,7 @@ export const BLOCK_ID_TYPES: readonly string[] = ['heading', 'paragraph', 'block
 
 const BLOCK_ID_PATTERN = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
-/** The meta of the live binding's transactions (y-prosemirror's `ySyncPluginKey`): edits of the others. */
+/** The meta of the live binding's transactions (the Yjs binding's sync plugin key): edits of the others. */
 const LIVE_SYNC_META = 'y-sync$';
 
 export const blockIdPluginKey = new PluginKey('docsBlockIds');

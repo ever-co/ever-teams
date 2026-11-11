@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import { createPortal } from 'react-dom';
 import type { Editor } from '@tiptap/core';
 import { useEditorState } from '@tiptap/react';
 import { useTranslations } from 'next-intl';
@@ -98,7 +99,8 @@ export function DocsMobileFormatBar({ editor, onComment }: Readonly<{ editor: Ed
 		);
 	};
 
-	return (
+	// On the page's body: the editor's own styles (its sticky toolbar row) and its scrolling box stay out of it.
+	return createPortal(
 		<div
 			role="toolbar"
 			aria-label={t('docs.FORMATTING')}
@@ -116,6 +118,7 @@ export function DocsMobileFormatBar({ editor, onComment }: Readonly<{ editor: Ed
 			<span className="flex-1" />
 			{state.hasHistory && tool(Undo, t('richEditor.UNDO'), false, () => editor.chain().focus().undo().run(), !state.canUndo)}
 			{state.hasHistory && tool(Redo, t('richEditor.REDO'), false, () => editor.chain().focus().redo().run(), !state.canRedo)}
-		</div>
+		</div>,
+		document.body
 	);
 }

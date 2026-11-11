@@ -28,6 +28,7 @@ export function useDocsComments(page: { id: string; name?: string | null } | nul
 	const queryClient = useQueryClient();
 	const scope = useDocsScope();
 	const pageId = page?.id ?? null;
+	const pageName = page?.name ?? null;
 	const key = queryKeys.docs.comments(scope?.tenantId, scope?.organizationId, pageId);
 	const isEnabled = enabled && scope !== null && pageId !== null;
 
@@ -74,13 +75,13 @@ export function useDocsComments(page: { id: string; name?: string | null } | nul
 				entityId: pageId,
 				tenantId: scope.tenantId,
 				organizationId: scope.organizationId,
-				...(page?.name ? { entityName: page.name } : {}),
+				...(pageName ? { entityName: pageName } : {}),
 				...(parentId ? { parentId } : {}),
 				...(mentionEmployeeIds.length > 0 ? { mentionEmployeeIds } : {})
 			};
 			return createAsync(input);
 		},
-		[createAsync, page?.name, pageId, scope]
+		[createAsync, pageName, pageId, scope]
 	);
 
 	/** A new text for a comment; its anchor stays. The mentions are left as they were. */
