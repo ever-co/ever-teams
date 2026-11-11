@@ -173,11 +173,11 @@ export const SidebarCommandModal: FC<{ publicTeam: boolean; variant?: 'sidebar' 
 	const createTaskModal = useModal();
 	const createProjectModal = useModal();
 
-	// Close the palette and execute an action
+	// Close the palette and execute an action (which may open it again on one of its tabs: the "search" ones)
 	const executeAction = useCallback(
 		(action: ShortcutAction) => {
-			action();
 			setOpen(false);
+			action();
 		},
 		[setOpen]
 	);
@@ -469,15 +469,18 @@ export const SidebarCommandModal: FC<{ publicTeam: boolean; variant?: 'sidebar' 
 		if (!registryOn) {
 			return commandGroups;
 		}
+		// An entry runs what its keys run: the "search" ones open the palette on their tab instead of only closing it.
+		const handlerOf = (commandId: string | undefined) => (commandId ? paletteHandlers[commandId] : undefined);
 		return commandGroups.map((group) => ({
 			...group,
 			commands: group.commands.map((command) => ({
 				...command,
+				action: handlerOf(command.commandId) ?? command.action,
 				shortcutKeys: keysOf(command.commandId),
 				keywords: searchWordsOf(command.commandId)
 			}))
 		}));
-	}, [commandGroups, keysOf, registryOn, searchWordsOf]);
+	}, [commandGroups, keysOf, paletteHandlers, registryOn, searchWordsOf]);
 
 	// Extract all shortcut configurations for the global hook: with the registry on, none (its listener has the
 	// keys of every entry, rebinding included, and never runs one twice).

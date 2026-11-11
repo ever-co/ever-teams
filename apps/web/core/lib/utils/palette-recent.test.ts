@@ -68,5 +68,8 @@ describe('the palette recent entries', () => {
 			}
 		};
 		expect(rememberPaletteRecent(full, 'me', task('2')).map((item) => item.id)).toEqual(['2']);
+		// The list this session holds goes on, even though the storage keeps nothing.
+		const held = rememberPaletteRecent(full, 'me', task('2'));
+		expect(rememberPaletteRecent(full, 'me', task('3'), held).map((item) => item.id)).toEqual(['3', '2']);
 	});
 });

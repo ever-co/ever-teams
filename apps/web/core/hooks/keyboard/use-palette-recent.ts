@@ -41,7 +41,8 @@ export function usePaletteRecent() {
 	const remember = useCallback(
 		(item: PaletteItem) => {
 			if (!userId) return;
-			recentByUser.set(userId, rememberPaletteRecent(paletteStorageOrNull(), userId, item));
+			// Built on the list held here: with a blocked or full storage the session still remembers.
+			recentByUser.set(userId, rememberPaletteRecent(paletteStorageOrNull(), userId, item, recentOf(userId)));
 			for (const listener of listeners) listener();
 		},
 		[userId]

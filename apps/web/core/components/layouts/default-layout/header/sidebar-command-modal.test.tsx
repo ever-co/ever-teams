@@ -192,6 +192,13 @@ describe('SidebarCommandModal with the shortcut registry', () => {
 		expect(keyCapsOf('commandPalette.commands.assignToMe')).toEqual([]);
 	});
 
+	it('opens the palette on its tab from a "search" entry, as its keys do, instead of only closing it', () => {
+		render(<SidebarCommandModal publicTeam={false} variant="none" />);
+		fireEvent.click(screen.getByText('commandPalette.commands.searchTasks'));
+		expect(mockSetOpen).toHaveBeenNthCalledWith(1, false);
+		expect(mockSetOpen).toHaveBeenLastCalledWith(true);
+	});
+
 	it('runs the command whose sequence is typed into the field, and closes the palette', () => {
 		const goKanban = jest.fn();
 		mockRegistered = new Map([['goKanban', goKanban]]);

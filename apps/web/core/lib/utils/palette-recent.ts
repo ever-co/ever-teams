@@ -47,11 +47,15 @@ export function readPaletteRecent(storage: PaletteRecentStorage | null, userId: 
 const sameEntry = (first: Pick<PaletteItem, 'kind' | 'id'>, second: Pick<PaletteItem, 'kind' | 'id'>) =>
 	first.kind === second.kind && first.id === second.id;
 
-/** Puts the entry first (with its title as it is now) and returns the new list. */
+/**
+ * Puts the entry first (with its title as it is now) and returns the new list, built on `current` when given (the
+ * list this session already holds, which a blocked or full storage could not keep).
+ */
 export function rememberPaletteRecent(
 	storage: PaletteRecentStorage | null,
 	userId: string,
-	item: PaletteItem
+	item: PaletteItem,
+	current?: readonly PaletteItem[]
 ): PaletteItem[] {
 	const entry: PaletteItem = {
 		kind: item.kind,
@@ -61,9 +65,9 @@ export function rememberPaletteRecent(
 		imageUrl: item.imageUrl ?? null,
 		icon: item.icon ?? null
 	};
-	const current = readPaletteRecent(storage, userId);
-	if (!isPaletteItem(entry) || !isInAppPath(entry.href)) return current;
-	const next = [entry, ...current.filter((other) => !sameEntry(other, entry))].slice(0, PALETTE_RECENT_MAX);
+	const previous = current ? [...current] : readPaletteRecent(storage, userId);
+	if (!isPaletteItem(entry) || !isInAppPath(entry.href)) return previous;
+	const next = [entry, ...previous.filter((other) => !sameEntry(other, entry))].slice(0, PALETTE_RECENT_MAX);
 	if (storage && userId) {
 		try {
 			storage.setItem(recentKey(userId), JSON.stringify(next));
