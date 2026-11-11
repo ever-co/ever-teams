@@ -44,6 +44,27 @@ describe('addLabelsInBulk', () => {
 		expect(mockCreateOne.mock.calls.map(([item]) => item.name)).toEqual(['Bug', 'Feature', 'Design']);
 	});
 
+	it('sends at most four single requests at once, and still counts each outcome', async () => {
+		mockCreateBulk.mockRejectedValue(httpError(405));
+		let inFlight = 0;
+		let mostInFlight = 0;
+		mockCreateOne.mockImplementation(async (item: { name: string }) => {
+			inFlight += 1;
+			mostInFlight = Math.max(mostInFlight, inFlight);
+			await new Promise((resolve) => setTimeout(resolve, 5));
+			inFlight -= 1;
+			if (item.name.endsWith('3')) {
+				throw httpError(409);
+			}
+			return {};
+		});
+		const many = Array.from({ length: 10 }, (_, index) => ({ name: `Label ${index}`, color: '#6366F1' }));
+
+		await expect(addLabelsInBulk(many)).resolves.toEqual({ added: 9, failed: 1 });
+		expect(mockCreateOne).toHaveBeenCalledTimes(10);
+		expect(mostInFlight).toBe(4);
+	});
+
 	it('passes any other refusal of the batch on, without filing anything one by one', async () => {
 		mockCreateBulk.mockRejectedValue(httpError(403));
 

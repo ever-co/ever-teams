@@ -27,6 +27,9 @@ function lacksBulkRoute(error: unknown) {
 	return status === 404 || status === 405;
 }
 
+/** How many single requests may run at once when the API has no bulk route. */
+const FALLBACK_CONCURRENCY = 4;
+
 /** Files the labels in one request, or one by one on an API that has no `POST /tags/bulk`. */
 export async function addLabelsInBulk(items: ReadonlyArray<ITagCreate>): Promise<CatalogAddOutcome> {
 	try {
@@ -39,14 +42,21 @@ export async function addLabelsInBulk(items: ReadonlyArray<ITagCreate>): Promise
 	}
 	let added = 0;
 	let failed = 0;
-	for (const item of items) {
-		try {
-			await taskLabelService.createTaskLabels(item);
-			added += 1;
-		} catch {
-			failed += 1;
+	let next = 0;
+	// A few requests at once: the whole catalog, one after another, kept the dialog waiting for 70 round trips
+	const fileTheRest = async () => {
+		while (next < items.length) {
+			const item = items[next];
+			next += 1;
+			try {
+				await taskLabelService.createTaskLabels(item);
+				added += 1;
+			} catch {
+				failed += 1;
+			}
 		}
-	}
+	};
+	await Promise.all(Array.from({ length: Math.min(FALLBACK_CONCURRENCY, items.length) }, fileTheRest));
 	return { added, failed };
 }
 
