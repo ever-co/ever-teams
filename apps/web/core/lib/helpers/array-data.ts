@@ -50,8 +50,8 @@ export function groupAppsByHour(apps: TDailyActivity[]) {
 	});
 
 	// `hour` is a clock text such as "14:00", which `new Date()` cannot parse (Invalid Date), so compare the
-	// zero-padded text itself: latest hour first.
-	return groupedData.sort((a, b) => (a.hour < b.hour ? 1 : a.hour > b.hour ? -1 : 0));
+	// zero-padded text itself: latest hour first, as `byLatestHourFirst` in activity-share-groups.tsx does.
+	return groupedData.sort((a, b) => b.hour.localeCompare(a.hour));
 }
 
 export function groupByTime(data: TActivity[]) {

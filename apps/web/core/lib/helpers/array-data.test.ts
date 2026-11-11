@@ -23,6 +23,12 @@ describe('groupAppsByHour', () => {
 		expect(groups.map((group) => group.hour)).toEqual(['23:00', '17:00', '12:00', '09:00', '08:00']);
 	});
 
+	it('puts the rows with no time after every hour', () => {
+		const groups = groupAppsByHour([activity(undefined, 3), activity('00:00:00', 10), activity('14:00:00', 10)]);
+
+		expect(groups.map((group) => group.hour)).toEqual(['14:00', '00:00', '']);
+	});
+
 	it('sums the durations of rows sharing an hour', () => {
 		const groups = groupAppsByHour([activity('10:00:00', 5, 'A'), activity('10:00:00', 7, 'B')]);
 
