@@ -9,10 +9,20 @@ const BASE64 = /^[A-Za-z0-9+/=]+$/;
 const ROOM_SUFFIX_LENGTH = 10;
 const TITLE_MAX_LENGTH = 120;
 const MINUTE = 60_000;
-const DAY = 24 * 60 * MINUTE;
 
 /** A meeting opens this many minutes before its start, as people tend to arrive early. */
 export const JOIN_EARLY_MINUTES = 10;
+
+/** A room token older than this is asked for again before the room opens: the meeting servers' tokens last an hour. */
+const TOKEN_FRESH_MINUTES = 15;
+
+/**
+ * Whether the token in hand, issued at `issuedAt`, is too old to open a room with: a person can stay long on the
+ * pre-join screen, or come back in after a long meeting. No token yet is not stale: the room waits for it anyway.
+ */
+export function isRoomTokenStale(issuedAt: number | null, now: number): boolean {
+	return issuedAt !== null && now - issuedAt > TOKEN_FRESH_MINUTES * MINUTE;
+}
 
 /** The room a meeting link carries (base64 of its UTF-8 name), or null when it is not one. */
 export function roomNameOfParam(param: string | null | undefined): string | null {
@@ -145,7 +155,10 @@ export interface AgendaDay {
  */
 export function agendaOf(meetings: readonly ScheduledMeeting[], now: Date, days = 7): AgendaDay[] {
 	const today = startOfDay(now);
-	const horizon = today.getTime() + days * DAY;
+	// Calendar days, not 24-hour steps: a day that changes the clock (daylight saving) is 23 or 25 hours long
+	const lastDay = new Date(today);
+	lastDay.setDate(lastDay.getDate() + days);
+	const horizon = lastDay.getTime();
 	const byDay = new Map<number, ScheduledMeeting[]>([[today.getTime(), []]]);
 	const sorted = [...meetings].sort((first, second) => first.start.getTime() - second.start.getTime());
 

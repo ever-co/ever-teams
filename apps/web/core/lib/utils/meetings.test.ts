@@ -3,6 +3,7 @@ import { meetPathFor } from './collaboration';
 import {
 	agendaOf,
 	appointmentInputOf,
+	isRoomTokenStale,
 	meetingIcsOf,
 	meetingPathFor,
 	meetingPathOfInput,
@@ -77,6 +78,30 @@ describe('scheduled meetings', () => {
 		expect(scheduledMeetingStateOf(meeting('a', '2026-11-11T10:10:00', '2026-11-11T11:00:00'), now)).toBe('soon');
 		expect(scheduledMeetingStateOf(meeting('a', '2026-11-11T09:30:00', '2026-11-11T10:30:00'), now)).toBe('live');
 		expect(scheduledMeetingStateOf(meeting('a', '2026-11-11T09:00:00', '2026-11-11T10:00:00'), now)).toBe('ended');
+	});
+
+	it('asks for a new room token once the one in hand waited more than a quarter of an hour', () => {
+		const issuedAt = new Date('2026-11-11T10:00:00Z').getTime();
+
+		expect(isRoomTokenStale(issuedAt, issuedAt + 14 * 60_000)).toBe(false);
+		expect(isRoomTokenStale(issuedAt, issuedAt + 16 * 60_000)).toBe(true);
+		// No token yet: the room waits for the one on its way
+		expect(isRoomTokenStale(null, issuedAt + 60 * 60_000)).toBe(false);
+	});
+
+	it('keeps the whole seventh day in the agenda across a change of the clock (daylight saving)', () => {
+		const zone = process.env.TZ;
+		process.env.TZ = 'Europe/Paris';
+		try {
+			// Paris leaves summer time on 25 October 2026: that day lasts 25 hours
+			const late = meeting('late', '2026-10-28T23:30:00', '2026-10-28T23:45:00');
+			const agenda = agendaOf([late], new Date('2026-10-22T12:00:00'));
+
+			expect(agenda.flatMap(({ meetings }) => meetings.map(({ id }) => id))).toContain('late');
+		} finally {
+			if (zone === undefined) delete process.env.TZ;
+			else process.env.TZ = zone;
+		}
 	});
 
 	it('lays out the agenda by day: today always, its ended meetings kept, then the next days that hold one', () => {

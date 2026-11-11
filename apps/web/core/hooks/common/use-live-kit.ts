@@ -8,6 +8,8 @@ interface ITokenLiveKitProps {
 
 export function useTokenLiveKit({ roomName }: ITokenLiveKitProps) {
 	const [issued, setIssued] = useState<{ room: string; token: string } | null>(null);
+	// When the token in hand was issued: one that waited too long is asked for again before the room opens
+	const [issuedAt, setIssuedAt] = useState<number | null>(null);
 	const [failure, setFailure] = useState<{ room: string; error: unknown } | null>(null);
 	const [attempt, setAttempt] = useState(0);
 	const [shownRoom, setShownRoom] = useState(roomName);
@@ -35,6 +37,7 @@ export function useTokenLiveKit({ roomName }: ITokenLiveKitProps) {
 					return;
 				}
 				setIssued({ room: roomName, token: response.token });
+				setIssuedAt(Date.now());
 				setFailure(null);
 			} catch (error) {
 				console.error('Failed to fetch token:', error);
@@ -62,6 +65,7 @@ export function useTokenLiveKit({ roomName }: ITokenLiveKitProps) {
 	 */
 	const refresh = useCallback(() => {
 		setIssued(null);
+		setIssuedAt(null);
 		retry();
 	}, [retry]);
 
@@ -70,5 +74,5 @@ export function useTokenLiveKit({ roomName }: ITokenLiveKitProps) {
 	const token = issued?.room === roomName ? issued.token : null;
 	const error = failure?.room === roomName ? failure.error : null;
 
-	return { token, error, retry, refresh };
+	return { token, issuedAt: token ? issuedAt : null, error, retry, refresh };
 }

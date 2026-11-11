@@ -10,7 +10,8 @@ import { useRouter, usePathname, useSearchParams } from 'next/navigation';
 import { useCallback, useEffect, useMemo, useRef } from 'react';
 import { useTranslations, type DottedLanguageObjectStringPaths } from 'next-intl';
 import { errorReasonKeyOf } from '@/core/lib/utils/error-feedback';
-import { roomNameOfParam } from '@/core/lib/utils/meetings';
+import { isRoomTokenStale, roomNameOfParam } from '@/core/lib/utils/meetings';
+import type { MeetingJoinChoices } from '@/core/hooks/meetings/use-media-preview';
 import { JitsiMeetPageSkeleton, MeetRoomSkeleton } from '../meet-room-skeleton';
 import { MeetRoomError } from '../meet-room-error';
 import { MeetPreJoin } from '../pre-join/meet-pre-join';
@@ -49,7 +50,7 @@ function MeetPage() {
 		}
 	}, [room]);
 
-	const { meeting, error, retrying, retry, refresh } = useMeetJwtToken(roomName || undefined);
+	const { meeting, issuedAt, error, retrying, retry, refresh } = useMeetJwtToken(roomName || undefined);
 	const { randomMeetName } = useCollaborative();
 	const flow = useMeetingRoomFlow(useMemo(() => roomNameOfParam(room), [room]));
 	// A token lasts an hour: coming back into the room asks for a new one, and the room waits for it
@@ -58,6 +59,15 @@ function MeetPage() {
 		refresh();
 		reopenRoom();
 	}, [refresh, reopenRoom]);
+	// The token was fetched with the page: after a long stay on the pre-join screen, a new one opens the room
+	const { join: enterRoom } = flow;
+	const join = useCallback(
+		(picked: MeetingJoinChoices) => {
+			if (isRoomTokenStale(issuedAt, Date.now())) refresh();
+			enterRoom(picked);
+		},
+		[enterRoom, issuedAt, refresh]
+	);
 
 	// Handle room creation and navigation
 	useEffect(() => {
@@ -95,7 +105,7 @@ function MeetPage() {
 				<MeetPreJoin
 					title={flow.title}
 					displayName={user?.name || user?.email || ''}
-					onJoin={flow.join}
+					onJoin={join}
 					onBack={flow.backToMeetings}
 					onCopyLink={flow.copyLink}
 				/>

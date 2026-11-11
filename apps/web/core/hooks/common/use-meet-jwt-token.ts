@@ -15,6 +15,8 @@ const RETRY_DELAY = 1000; // 1 second
 export function useMeetJwtToken(room?: string) {
 	// The token only opens the room it was issued with, so both come from the same response
 	const [issued, setIssued] = useState<{ requested: string; token: string; room: string }>();
+	// When the token in hand was issued: one that waited too long is asked for again before the room opens
+	const [issuedAt, setIssuedAt] = useState<number | null>(null);
 	const [error, setError] = useState<Error>();
 	const [retryCount, setRetryCount] = useState(0);
 	const [attempt, setAttempt] = useState(0);
@@ -39,6 +41,7 @@ export function useMeetJwtToken(room?: string) {
 				const res = await queryCall({ room });
 				if (!current) return;
 				setIssued({ requested: room, token: res.data.token, room: res.data.room });
+				setIssuedAt(Date.now());
 				setError(undefined);
 			} catch (err) {
 				if (!current) return;
@@ -77,6 +80,7 @@ export function useMeetJwtToken(room?: string) {
 	 */
 	const refresh = useCallback(() => {
 		setIssued(undefined);
+		setIssuedAt(null);
 		retry();
 	}, [retry]);
 
@@ -84,5 +88,13 @@ export function useMeetJwtToken(room?: string) {
 	const meeting = issued?.requested === room ? issued : undefined;
 
 	// A retry that succeeded leaves retryCount above zero: the room is retrying only while it has no answer
-	return { loading, meeting, error, retrying: retryCount > 0 && !meeting && !error, retry, refresh };
+	return {
+		loading,
+		meeting,
+		issuedAt: meeting ? issuedAt : null,
+		error,
+		retrying: retryCount > 0 && !meeting && !error,
+		retry,
+		refresh
+	};
 }

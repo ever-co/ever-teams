@@ -9,7 +9,8 @@ import { useTokenLiveKit } from '@/core/hooks/common/use-live-kit';
 import { useAuthenticateUser } from '@/core/hooks/auth';
 import { useMeetingRoomFlow } from '@/core/hooks/meetings/use-meeting-room-flow';
 import { errorReasonKeyOf } from '@/core/lib/utils/error-feedback';
-import { roomNameOfParam } from '@/core/lib/utils/meetings';
+import { isRoomTokenStale, roomNameOfParam } from '@/core/lib/utils/meetings';
+import type { MeetingJoinChoices } from '@/core/hooks/meetings/use-media-preview';
 import { readRuntimeEnv } from '@/env-config';
 
 // Import optimized components from centralized location
@@ -50,7 +51,7 @@ function LiveKitPage() {
 		}
 	}, [params]);
 
-	const { token, error, retry, refresh } = useTokenLiveKit({
+	const { token, issuedAt, error, retry, refresh } = useTokenLiveKit({
 		roomName: roomName || ''
 	});
 	// A token lasts an hour: coming back into the room asks for a new one, and the room waits for it
@@ -59,6 +60,15 @@ function LiveKitPage() {
 		refresh();
 		reopenRoom();
 	}, [refresh, reopenRoom]);
+	// The token was fetched with the page: after a long stay on the pre-join screen, a new one opens the room
+	const { join: enterRoom } = flow;
+	const join = useCallback(
+		(picked: MeetingJoinChoices) => {
+			if (isRoomTokenStale(issuedAt, Date.now())) refresh();
+			enterRoom(picked);
+		},
+		[enterRoom, issuedAt, refresh]
+	);
 
 	const hasToken = Boolean(token);
 	const hasRoomName = Boolean(roomName);
@@ -93,7 +103,7 @@ function LiveKitPage() {
 				<MeetPreJoin
 					title={flow.title}
 					displayName={displayName}
-					onJoin={flow.join}
+					onJoin={join}
 					onBack={flow.backToMeetings}
 					onCopyLink={flow.copyLink}
 				/>
