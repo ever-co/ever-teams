@@ -69,6 +69,7 @@ jest.mock('../../../features/teams/invite-form-modal', () => ({ InviteFormModal:
 jest.mock('../../../features/projects/create-project-modal', () => ({ CreateProjectModal: () => null }));
 jest.mock('@/core/components/features/teams/create-team-modal', () => ({ CreateTeamModal: () => null }));
 jest.mock('./palette-task-results', () => ({ PaletteTaskResults: () => null }));
+jest.mock('./palette-docs-results', () => ({ PaletteDocsResults: () => null }));
 
 import { SidebarCommandModal } from './sidebar-command-modal';
 

@@ -1,4 +1,5 @@
 import type { IComment } from '@/core/types/interfaces/common/comment';
+import type { IDocumentNode } from '@/core/types/interfaces/common/docs';
 
 /**
  * The comments of a Docs page are the platform's comments on entity `Document`. A thread anchored to the text says
@@ -129,4 +130,34 @@ export function quoteOf(text: string | null | undefined, maxLength = THREAD_QUOT
 	const cut = line.slice(0, maxLength);
 	const space = cut.lastIndexOf(' ');
 	return `${(space > maxLength * 0.6 ? cut.slice(0, space) : cut).trimEnd()}…`;
+}
+
+const INLINE_TYPES = new Set(['text', 'hardBreak', 'mention', 'employeeMention']);
+
+/** The text of a node of the editor's document: inline content joined, blocks one after the other. */
+function textOfNode(node: IDocumentNode | null | undefined, depth = 0): string {
+	if (!node || depth > 200) return '';
+	if (typeof node.text === 'string') return node.text;
+	if (node.type === 'hardBreak') return ' ';
+	if (node.type === 'mention' || node.type === 'employeeMention') return `@${String(node.attrs?.['label'] ?? '')}`;
+	const children = node.content ?? [];
+	const holdsInline = children.some((child) => INLINE_TYPES.has(String(child?.type ?? 'text')));
+	return children.map((child) => textOfNode(child, depth + 1)).join(holdsInline ? '' : ' ');
+}
+
+/** The anchored blocks of a page's JSON: their anchors in reading order, and the text of each. */
+export function anchoredBlocksOf(json: IDocumentNode | null | undefined): { order: string[]; text: Map<string, string> } {
+	const order: string[] = [];
+	const text = new Map<string, string>();
+	const walk = (node: IDocumentNode | null | undefined, depth: number) => {
+		if (!node || typeof node !== 'object' || depth > 200) return;
+		const blockId = node.attrs?.['blockId'];
+		if (typeof blockId === 'string' && blockId.length > 0 && !text.has(blockId)) {
+			order.push(blockId);
+			text.set(blockId, textOfNode(node).replace(/\s+/g, ' ').trim());
+		}
+		for (const child of node.content ?? []) walk(child, depth + 1);
+	};
+	walk(json, 0);
+	return { order, text };
 }

@@ -299,3 +299,49 @@ describe('InboxFieldRequests', () => {
 		expect(requests.settle('unknown', 'isUnread', again, false)).toBeUndefined();
 	});
 });
+
+describe('Docs entries', () => {
+	const PAGE = 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa';
+	const COMMENT = 'cccccccc-cccc-4ccc-8ccc-cccccccccccc';
+	const withDocs = (run: () => void) => {
+		const docsFlag = process.env.NEXT_PUBLIC_DOCS_ENABLED;
+		try {
+			process.env.NEXT_PUBLIC_DOCS_ENABLED = 'true';
+			run();
+		} finally {
+			if (docsFlag === undefined) delete process.env.NEXT_PUBLIC_DOCS_ENABLED;
+			else process.env.NEXT_PUBLIC_DOCS_ENABLED = docsFlag;
+		}
+	};
+	// A mention in a page comment, as the platform's inbox bridge files it: the comment, and its record in the metadata.
+	const mention = item({
+		title: 'Ana mentioned you in a comment',
+		entity: 'Comment',
+		entityId: COMMENT,
+		taskId: null,
+		metadata: { notificationType: 'Mention', parentEntity: 'Document', parentEntityId: PAGE }
+	});
+	// A comment on a page the reader follows (the follower fan-out): the page itself.
+	const followed = item({ title: 'Ana commented on "Roadmap"', entity: 'Document', entityId: PAGE, taskId: null, metadata: { notificationType: 'Comment' } });
+
+	it('groups a comment on a page with Docs, not with the tasks', () => {
+		expect(toInboxEntry(mention).sourceGroup).toBe('docs');
+		expect(toInboxEntry(followed).sourceGroup).toBe('docs');
+		expect(toInboxEntry(item({ entity: 'Comment', entityId: COMMENT, taskId: 't1', metadata: { parentEntity: 'Task' } })).sourceGroup).toBe('tasks');
+	});
+
+	it('opens the thread of a mention and the comments of a followed page, where the deployment has Docs', () => {
+		const docsFlag = process.env.NEXT_PUBLIC_DOCS_ENABLED;
+		delete process.env.NEXT_PUBLIC_DOCS_ENABLED;
+		try {
+			expect(toInboxEntry(mention).href).toBeNull();
+		} finally {
+			if (docsFlag !== undefined) process.env.NEXT_PUBLIC_DOCS_ENABLED = docsFlag;
+		}
+		withDocs(() => {
+			expect(toInboxEntry(mention).href).toBe(`/docs/${PAGE}?thread=${COMMENT}`);
+			expect(toInboxEntry(followed).href).toBe(`/docs/${PAGE}?comments=1`);
+			expect(toInboxEntry(item({ entity: 'Document', entityId: PAGE, taskId: null, metadata: { notificationType: 'Assignment' } })).href).toBe(`/docs/${PAGE}`);
+		});
+	});
+});

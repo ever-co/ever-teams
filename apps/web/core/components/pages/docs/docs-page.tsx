@@ -49,6 +49,10 @@ export function DocsPage({ view }: Readonly<{ view: DocsView }>) {
 	const [homeOnPhone, setHomeOnPhone] = useState(false);
 	// A page's Back leads to the tree: the swap does not outlive the home view.
 	if (homeOnPhone && view !== 'home') setHomeOnPhone(false);
+	// On a phone the tree opens over the page as a drawer; opening a page from it closes it.
+	const [treeDrawer, setTreeDrawer] = useState<{ open: boolean; pageId: string | null }>({ open: false, pageId });
+	if (treeDrawer.pageId !== pageId) setTreeDrawer({ open: false, pageId });
+	const isTreeDrawerOpen = treeDrawer.open && view === 'page';
 	const [renaming, setRenaming] = useState<IDocumentPage | null>(null);
 	const [moving, setMoving] = useState<IDocumentPage | null>(null);
 	const [iconOf, setIconOf] = useState<IDocumentPage | null>(null);
@@ -56,6 +60,15 @@ export function DocsPage({ view }: Readonly<{ view: DocsView }>) {
 	useEffect(() => {
 		if (!enabled) router.replace('/');
 	}, [enabled, router]);
+
+	useEffect(() => {
+		if (!isTreeDrawerOpen) return;
+		const onKeyDown = (event: KeyboardEvent) => {
+			if (event.key === 'Escape') setTreeDrawer((current) => ({ ...current, open: false }));
+		};
+		document.addEventListener('keydown', onKeyDown);
+		return () => document.removeEventListener('keydown', onKeyDown);
+	}, [isTreeDrawerOpen]);
 
 	// `/docs` opens the page last visited on this device, once the tree says it still exists — except when the person
 	// asked for the tree (`?tree=1`, the Back of a page on a phone, where the tree is hidden under an open page).
@@ -253,7 +266,22 @@ export function DocsPage({ view }: Readonly<{ view: DocsView }>) {
 	return (
 		<PageLayout fill title={t('docs.TITLE')} className="p-0">
 			<div className="relative flex h-full min-h-0">
-				<aside className={cn('h-full shrink-0 border-r border-border bg-background print:hidden', showsPane ? 'flex w-full lg:w-72' : 'hidden lg:flex lg:w-72')}>
+				{isTreeDrawerOpen && (
+					<button
+						type="button"
+						aria-label={t('docs.CLOSE')}
+						onClick={() => setTreeDrawer((current) => ({ ...current, open: false }))}
+						className="fixed inset-0 z-30 cursor-default bg-black/30 lg:hidden print:hidden"
+					/>
+				)}
+				<aside
+					className={cn(
+						'h-full shrink-0 border-r border-border bg-background print:hidden',
+						showsPane && 'flex w-full lg:w-72',
+						!showsPane && !isTreeDrawerOpen && 'hidden lg:flex lg:w-72',
+						!showsPane && isTreeDrawerOpen && 'fixed inset-y-0 start-0 z-40 flex w-[min(20rem,85vw)] shadow-xl lg:static lg:z-auto lg:w-72 lg:shadow-none'
+					)}
+				>
 					<DocsTreePane
 						tree={tree}
 						activeId={pageId}
@@ -269,7 +297,16 @@ export function DocsPage({ view }: Readonly<{ view: DocsView }>) {
 					/>
 				</aside>
 				<main className={cn('relative min-w-0 flex-1', showsPane ? 'hidden lg:block' : 'block')}>
-					{view === 'page' && pageId && <DocsPageView key={pageId} pageId={pageId} tree={tree} actions={pageActions} spaces={spaces} />}
+					{view === 'page' && pageId && (
+						<DocsPageView
+							key={pageId}
+							pageId={pageId}
+							tree={tree}
+							actions={pageActions}
+							spaces={spaces}
+							onOpenTree={() => setTreeDrawer({ open: true, pageId })}
+						/>
+					)}
 					{view === 'trash' && (
 						<DocsTrash
 							onRestore={restore}

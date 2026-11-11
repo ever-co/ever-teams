@@ -47,6 +47,7 @@ import { isTaskViewsEnabled } from '@/core/lib/utils/task-views-enabled';
 import { InviteFormModal } from '../../../features/teams/invite-form-modal';
 import { CreateProjectModal } from '../../../features/projects/create-project-modal';
 import { CreateTeamModal } from '@/core/components/features/teams/create-team-modal';
+import { PaletteDocsResults } from './palette-docs-results';
 import { PaletteTaskResults } from './palette-task-results';
 
 // Definition of types to improve readability and security
@@ -446,6 +447,14 @@ export const SidebarCommandModal: FC<{ publicTeam: boolean; variant?: 'sidebar' 
 		[router, setOpen]
 	);
 
+	const openPage = useCallback(
+		(pageId: string) => {
+			router.push(`/docs/${encodeURIComponent(pageId)}`);
+			setOpen(false);
+		},
+		[router, setOpen]
+	);
+
 	// Rendering of command groups from the configuration
 	const renderCommandGroups = () => {
 		return visibleGroups.map((group) => (
@@ -493,6 +502,7 @@ export const SidebarCommandModal: FC<{ publicTeam: boolean; variant?: 'sidebar' 
 					{showsTaskResults && (
 						<PaletteTaskResults search={search} onOpenTask={openTask} className={paletteGroupClass} />
 					)}
+					{showsTaskResults && <PaletteDocsResults search={search} onOpenPage={openPage} className={paletteGroupClass} />}
 					{renderCommandGroups()}
 				</CommandList>
 			</CommandDialog>
