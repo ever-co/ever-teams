@@ -50,18 +50,14 @@ describe('useInboxWebPush, a browser that is subscribed', () => {
 		expect(service.register).not.toHaveBeenCalled();
 	});
 
-	it('is registered again (refreshed) while the platform still lists it', async () => {
+	it('shows on while the platform lists it, without registering it (a removal landing meanwhile would be undone)', async () => {
 		subscribedBrowser();
 		service.devices.mockResolvedValue([{ id: 'device-this', endpoint: THIS_ENDPOINT }]);
 
 		const { result } = renderHook(() => useInboxWebPush(true));
 
 		await waitFor(() => expect(result.current.state).toBe('on'));
-		expect(service.register).toHaveBeenCalledTimes(1);
-		expect(service.register.mock.calls[0][0]).toMatchObject({
-			endpoint: THIS_ENDPOINT,
-			keys: { p256dh: 'p256dh', auth: 'auth' }
-		});
+		expect(service.register).not.toHaveBeenCalled();
 	});
 
 	it('is not registered when its devices cannot be read, and shows off', async () => {

@@ -21,17 +21,22 @@ jest.mock('@/core/components/common/alert-dialog-confirmation', () => ({
 	AlertDialogConfirmation: () => null
 }));
 
-// The composer is the task drawer's (mentions, files): here a button posting a fixed text stands for it.
+type Submit = (body: string, mentionEmployeeIds: string[], files: File[]) => Promise<boolean>;
+
+/** The latest submit the composer was given: a second Enter reaches it whatever the button shows. */
+const mockComposer: { submit: Submit | null } = { submit: null };
+
+// The composer is the task drawer's (mentions, files): here a button posting a fixed text stands for it, off while
+// a comment is posting, as the composer's is.
 jest.mock('@/core/components/tasks/drawer/comment-composer', () => ({
-	CommentComposer: ({
-		onSubmit
-	}: {
-		onSubmit: (body: string, mentionEmployeeIds: string[], files: File[]) => Promise<boolean>;
-	}) => (
-		<button type="button" onClick={() => void onSubmit('On this block', [], [])}>
-			post
-		</button>
-	)
+	CommentComposer: ({ onSubmit, isPosting }: { onSubmit: Submit; isPosting: boolean }) => {
+		mockComposer.submit = onSubmit;
+		return (
+			<button type="button" disabled={isPosting} onClick={() => void onSubmit('On this block', [], [])}>
+				post
+			</button>
+		);
+	}
 }));
 
 function commentsState(post: jest.Mock): DocsCommentsState {
@@ -98,6 +103,28 @@ describe('DocsCommentsPanel, a new comment on a block', () => {
 		await clickPost();
 
 		expect(post).toHaveBeenCalledWith({ body: 'On this block', blockId: 'b-1', mentionEmployeeIds: [] });
+	});
+
+	it('posts once, however often it is sent while the save is waited for', async () => {
+		let save: (held: boolean) => void = () => undefined;
+		const beforePost = jest.fn(() => new Promise<boolean>((resolve) => (save = resolve)));
+		const post = jest.fn().mockResolvedValue({ id: 'c-1' });
+		renderPanel({ blockId: 'b-1', quote: 'Typed since the last save', created: false }, beforePost, post);
+
+		await clickPost();
+		const button = screen.getByRole('button', { name: 'post' }) as HTMLButtonElement;
+		expect(button.disabled).toBe(true);
+		// Sent again meanwhile (a second Enter): refused.
+		let again: boolean | undefined;
+		await act(async () => {
+			again = await mockComposer.submit?.('On this block', [], []);
+		});
+		expect(again).toBe(false);
+
+		await act(async () => save(true));
+		expect(beforePost).toHaveBeenCalledTimes(1);
+		expect(post).toHaveBeenCalledTimes(1);
+		expect(button.disabled).toBe(false);
 	});
 
 	it('posts a comment on the page without waiting for a save', async () => {
