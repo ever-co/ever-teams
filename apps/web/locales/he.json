@@ -2508,7 +2508,18 @@
 			"SEARCH_PROJECT": "העברה לפרויקט…",
 			"LAYOUT": "פריסה",
 			"LAYOUT_LIST": "רשימה",
-			"LAYOUT_BOARD": "לוח"
+			"LAYOUT_BOARD": "לוח",
+			"LAYOUT_TIMELINE": "ציר זמן",
+			"TIMELINE_ZOOM": "זום",
+			"TIMELINE_ZOOM_WEEKS": "שבועות",
+			"TIMELINE_ZOOM_MONTHS": "חודשים",
+			"TIMELINE_EMPTY": "אין משימות בתצוגה זו.",
+			"TIMELINE_UNSCHEDULED": "ללא תאריכים ({count})",
+			"TIMELINE_RANGE": "{start} – {end}",
+			"TIMELINE_DUE_ONLY": "תאריך יעד בלבד",
+			"TIMELINE_START_ONLY": "תאריך התחלה בלבד",
+			"TIMELINE_INVALID_RANGE": "תאריך היעד לפני ההתחלה",
+			"TIMELINE_OVERDUE": "באיחור"
 		},
 		"joinTeam": {
 			"TITLE": "הצטרפות לצוות",

@@ -38,11 +38,14 @@ export type TeamTasksFilterField =
 
 export type TeamTasksFilters = Partial<Record<TeamTasksFilterField, string[]>>;
 
-/** How the tasks are shown: rows, or cards in one lane per status (the saved-views feature). */
-export type TeamTasksLayout = 'list' | 'board';
+/**
+ * How the tasks are shown: rows, cards in one lane per status, or bars on a calendar from each task's start to its
+ * due date (the saved-views feature).
+ */
+export type TeamTasksLayout = 'list' | 'board' | 'timeline';
 
 export interface TeamTasksViewSettings {
-	/** Absent in what was stored before the board came: a list. */
+	/** Absent in what was stored before the board came, and for a list: a list. */
 	layout?: TeamTasksLayout;
 	grouping: TeamTasksGrouping;
 	ordering: TeamTasksOrdering;

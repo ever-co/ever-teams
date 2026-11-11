@@ -2508,7 +2508,18 @@
 			"SEARCH_PROJECT": "نقل إلى مشروع…",
 			"LAYOUT": "التخطيط",
 			"LAYOUT_LIST": "قائمة",
-			"LAYOUT_BOARD": "لوحة"
+			"LAYOUT_BOARD": "لوحة",
+			"LAYOUT_TIMELINE": "المخطط الزمني",
+			"TIMELINE_ZOOM": "التكبير",
+			"TIMELINE_ZOOM_WEEKS": "أسابيع",
+			"TIMELINE_ZOOM_MONTHS": "أشهر",
+			"TIMELINE_EMPTY": "لا توجد مهام في هذا العرض.",
+			"TIMELINE_UNSCHEDULED": "بدون تواريخ ({count})",
+			"TIMELINE_RANGE": "{start} – {end}",
+			"TIMELINE_DUE_ONLY": "تاريخ الاستحقاق فقط",
+			"TIMELINE_START_ONLY": "تاريخ البدء فقط",
+			"TIMELINE_INVALID_RANGE": "الاستحقاق قبل البدء",
+			"TIMELINE_OVERDUE": "متأخرة"
 		},
 		"joinTeam": {
 			"TITLE": "الانضمام إلى فريق",

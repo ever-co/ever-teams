@@ -2508,7 +2508,18 @@
 			"SEARCH_PROJECT": "Sposta in un progetto…",
 			"LAYOUT": "Layout",
 			"LAYOUT_LIST": "Elenco",
-			"LAYOUT_BOARD": "Bacheca"
+			"LAYOUT_BOARD": "Bacheca",
+			"LAYOUT_TIMELINE": "Cronologia",
+			"TIMELINE_ZOOM": "Zoom",
+			"TIMELINE_ZOOM_WEEKS": "Settimane",
+			"TIMELINE_ZOOM_MONTHS": "Mesi",
+			"TIMELINE_EMPTY": "Nessuna attività in questa vista.",
+			"TIMELINE_UNSCHEDULED": "Senza date ({count})",
+			"TIMELINE_RANGE": "{start} – {end}",
+			"TIMELINE_DUE_ONLY": "solo scadenza",
+			"TIMELINE_START_ONLY": "solo data di inizio",
+			"TIMELINE_INVALID_RANGE": "scade prima di iniziare",
+			"TIMELINE_OVERDUE": "in ritardo"
 		},
 		"joinTeam": {
 			"TITLE": "Unisciti a un team",

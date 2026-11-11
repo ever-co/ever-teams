@@ -20,11 +20,12 @@ import type { TeamTasksViewState } from '@/core/hooks/tasks/use-team-tasks-view'
 
 const GROUPINGS: TeamTasksGrouping[] = ['status', 'priority', 'assignee', 'project', 'issueType', 'none'];
 
-const LAYOUTS: TeamTasksLayout[] = ['list', 'board'];
+const LAYOUTS: TeamTasksLayout[] = ['list', 'board', 'timeline'];
 
 const LAYOUT_LABEL_KEYS: Record<TeamTasksLayout, DottedLanguageObjectStringPaths> = {
 	list: 'pages.teamTasks.LAYOUT_LIST',
-	board: 'pages.teamTasks.LAYOUT_BOARD'
+	board: 'pages.teamTasks.LAYOUT_BOARD',
+	timeline: 'pages.teamTasks.LAYOUT_TIMELINE'
 };
 
 const ORDERINGS: TeamTasksOrdering[] = ['priority', 'updated', 'created', 'dueDate', 'number', 'title'];
