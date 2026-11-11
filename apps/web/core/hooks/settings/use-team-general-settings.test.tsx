@@ -29,7 +29,7 @@ jest.mock('@/core/hooks/organizations/employees/use-employee', () => ({
 	useEmployeeUpdate: () => ({ updateEmployeeAsync: jest.fn() })
 }));
 jest.mock('@/core/hooks/roles/use-my-role-permissions-query', () => ({
-	useMyRolePermissionsQuery: () => ({ myPermissions: [], isSuccess: true })
+	useMyRolePermissionsQuery: () => ({ myPermissions: [], isSuccess: true, isLoaded: true })
 }));
 jest.mock('@/core/hooks/organizations/teams/use-team-member', () => ({
 	useIsMemberManager: () => ({ isTeamManager: true, activeManager: null })

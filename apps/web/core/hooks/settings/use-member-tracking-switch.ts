@@ -32,7 +32,8 @@ export function useMemberTrackingSwitch() {
 	const queryClient = useQueryClient();
 	const { data: user } = useUserQuery();
 	const managers = useAtomValue(activeTeamManagersState);
-	const { myPermissions, isSuccess: arePermissionsLoaded } = useMyRolePermissionsQuery();
+	// Read once is enough: a refresh that fails keeps the permissions read before, and they still decide
+	const { myPermissions, isLoaded: arePermissionsLoaded } = useMyRolePermissionsQuery();
 	const { updateOrganizationTeamEmployee } = useOrganizationEmployeeTeams();
 	const { updateEmployeeAsync } = useEmployeeUpdate();
 

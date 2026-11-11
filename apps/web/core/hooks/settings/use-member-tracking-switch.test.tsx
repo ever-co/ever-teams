@@ -8,7 +8,7 @@ import { activeTeamIdState, organizationTeamsState } from '@/core/stores';
 import { ERoleName } from '@/core/types/generics/enums/role';
 
 let mockUser: { id: string; role: { name: string } } | null = null;
-let mockPermissions: string[] = [];
+let mockPermissionsQuery = { myPermissions: [] as string[], isSuccess: true, isLoaded: true };
 const mockUpdateMembership = jest.fn();
 const mockUpdateEmployee = jest.fn();
 
@@ -16,7 +16,7 @@ jest.mock('next-intl', () => ({ useTranslations: () => (key: string) => key }));
 jest.mock('sonner', () => ({ toast: { error: jest.fn(), success: jest.fn() } }));
 jest.mock('@/core/hooks/queries/user-user.query', () => ({ useUserQuery: () => ({ data: mockUser }) }));
 jest.mock('@/core/hooks/roles/use-my-role-permissions-query', () => ({
-	useMyRolePermissionsQuery: () => ({ myPermissions: mockPermissions, isSuccess: true })
+	useMyRolePermissionsQuery: () => mockPermissionsQuery
 }));
 jest.mock('@/core/hooks/organizations/teams/use-organization-teams-employee', () => ({
 	useOrganizationEmployeeTeams: () => ({ updateOrganizationTeamEmployee: mockUpdateMembership })
@@ -95,10 +95,22 @@ const team = {
 	]
 };
 
-/** Signs in as the user of a row, with the role and permissions given. */
-function signInAs(key: string, role: ERoleName, permissions: string[] = []) {
+/**
+ * Signs in as the user of a row, with the role and permissions given. `refreshFailed`: the permissions were read once,
+ * and a later refresh failed (the query keeps them). `loaded: false`: they were never read yet.
+ */
+function signInAs(
+	key: string,
+	role: ERoleName,
+	permissions: string[] = [],
+	{ loaded = true, refreshFailed = false } = {}
+) {
 	mockUser = { id: `user-${key}`, role: { name: role } };
-	mockPermissions = permissions;
+	mockPermissionsQuery = {
+		myPermissions: loaded ? permissions : [],
+		isSuccess: loaded && !refreshFailed,
+		isLoaded: loaded
+	};
 }
 
 /** Renders a settings hook in the active team, made of these members. */
@@ -244,6 +256,21 @@ describe('Members settings: what the tracking switch writes (#5015)', () => {
 		expect(mockUpdateMembership).toHaveBeenNthCalledWith(1, 'row-member', teamSwitch(false));
 		expect(mockUpdateMembership).toHaveBeenNthCalledWith(2, 'row-member', teamSwitch(true));
 		expect(rowOf(view, 'member')).toMatchObject({ isTrackingEnabled: true, isTrackingPending: false });
+	});
+
+	it('keeps the switches usable after a refresh of the permissions failed, with the permissions read before', async () => {
+		signInAs('admin', ERoleName.ADMIN, ['ORG_EMPLOYEES_EDIT'], { refreshFailed: true });
+		const view = renderSettings();
+
+		expect(rowOf(view, 'member').isTrackingPending).toBe(false);
+
+		await act(() => view.result.current.setMemberTracking('row-member', false));
+
+		expect(mockUpdateMembership).toHaveBeenCalledWith('row-member', teamSwitch(false));
+		expect(mockUpdateEmployee).toHaveBeenCalledWith({
+			id: 'employee-member',
+			data: expect.objectContaining({ isTrackingEnabled: false })
+		});
 	});
 });
 
