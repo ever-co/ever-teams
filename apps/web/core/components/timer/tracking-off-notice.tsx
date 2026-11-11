@@ -11,6 +11,9 @@ const TOOLTIP_DELAY_MS = 400;
 const PILL =
 	'inline-flex h-8 shrink-0 items-center gap-1.5 rounded-full bg-card px-2.5 text-[13px] text-muted-foreground hairline-ring ring-border sm:px-3 dark:ring-foreground/15';
 
+/** It reads by hover or by focus, so a keyboard reaches it too; nothing happens on a click. */
+const PILL_FOCUS = 'cursor-default outline-none focus-visible:ring-[3px] focus-visible:ring-ring/50';
+
 /** Where the timer would be for a member whose time tracking is turned off: why it is not there, and who can turn it on. */
 export function TrackingOffNotice({ className }: Readonly<{ className?: string }>) {
 	const t = useTranslations();
@@ -24,7 +27,7 @@ export function TrackingOffNotice({ className }: Readonly<{ className?: string }
 
 /**
  * The same reason in the top bar, where the compact timer would be: a short label (only the icon on phones), the
- * whole sentence on hover and for screen readers.
+ * whole sentence on hover or keyboard focus, and as the control's name for screen readers.
  */
 export function TrackingOffPill({ className }: Readonly<{ className?: string }>) {
 	const t = useTranslations();
@@ -32,13 +35,13 @@ export function TrackingOffPill({ className }: Readonly<{ className?: string }>)
 	return (
 		<Tooltip>
 			<TooltipTrigger asChild delay={TOOLTIP_DELAY_MS}>
-				<span className={cn(PILL, className)}>
+				<button type="button" className={cn(PILL, PILL_FOCUS, className)}>
 					<TimerOff aria-hidden="true" className="size-4 shrink-0" />
 					<span aria-hidden="true" className="hidden whitespace-nowrap sm:inline">
 						{t('timer.TRACKING_OFF')}
 					</span>
 					<span className="sr-only">{reason}</span>
-				</span>
+				</button>
 			</TooltipTrigger>
 			<TooltipContent side="bottom" className="max-w-64 text-pretty">
 				{reason}

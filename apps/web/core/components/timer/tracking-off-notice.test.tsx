@@ -39,4 +39,17 @@ describe('the reason a member has no timer', () => {
 		const reason = screen.getByText('Time tracking is turned off for you. An organization admin can turn it on.');
 		expect(reason.className).toContain('sr-only');
 	});
+
+	it('lets a keyboard user reach the reason: the pill is one focusable control, named by the whole sentence', () => {
+		render(<TrackingOffPill />);
+
+		const pill = screen.getByRole('button', {
+			name: 'Time tracking is turned off for you. An organization admin can turn it on.'
+		});
+		pill.focus();
+
+		expect(document.activeElement).toBe(pill);
+		expect(pill.getAttribute('type')).toBe('button');
+		expect(screen.getAllByRole('button')).toHaveLength(1);
+	});
 });
