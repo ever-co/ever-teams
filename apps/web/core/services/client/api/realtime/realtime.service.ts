@@ -5,7 +5,7 @@ import type { RealtimeCatchUp, RealtimeCatchUpQuery, RealtimePresenceStatus } fr
 import type { RealtimeDelivery } from '@/core/lib/realtime/delivery';
 
 /** What `GET /realtime/status` answers. */
-export interface RealtimeStatusAnswer {
+interface RealtimeStatusAnswer {
 	enabled: boolean;
 	/** Whether the answering process serves subscriptions. */
 	subscriptions: boolean;
