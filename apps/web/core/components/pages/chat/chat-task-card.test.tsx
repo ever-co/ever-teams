@@ -6,9 +6,11 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 
 const mockUpdateTask = jest.fn();
 const mockGetTaskById = jest.fn();
+const mockInvalidate = jest.fn();
 let mockPermissions: string[] = ['ORG_TASK_EDIT'];
 const mockAna = { employeeId: 'employee-ana', userId: 'user-ana', name: 'Ana Silva' };
 const mockBo = { employeeId: 'employee-bo', userId: 'user-bo', name: 'Bo Chen' };
+const mockChen = { employeeId: 'employee-chen', userId: 'user-chen', name: 'Chen Li' };
 
 jest.mock('next-intl', () => ({
 	useTranslations: () => (key: string, values?: Record<string, unknown>) => {
@@ -25,13 +27,17 @@ jest.mock('@/core/services/client/api/tasks/task.service', () => ({
 }));
 jest.mock('@/core/hooks/chat/use-chat-scope', () => ({
 	useChatPeople: () => ({
-		list: [mockAna, mockBo],
+		list: [mockAna, mockBo, mockChen],
 		byEmployee: new Map([
 			[mockAna.employeeId, mockAna],
-			[mockBo.employeeId, mockBo]
+			[mockBo.employeeId, mockBo],
+			[mockChen.employeeId, mockChen]
 		]),
 		byUser: new Map()
 	})
+}));
+jest.mock('@/core/hooks/organizations/teams/use-invalidate-team-tasks', () => ({
+	useInvalidateTeamTasks: () => ({ invalidateTeamTasksData: (taskId?: string) => mockInvalidate(taskId) })
 }));
 jest.mock('@/core/hooks/roles/use-my-role-permissions-query', () => ({ useMyRolePermissionsQuery: () => ({ myPermissions: mockPermissions }) }));
 jest.mock('@/core/hooks/tasks/use-task-status', () => ({
@@ -128,6 +134,7 @@ beforeEach(() => {
 	mockUpdateTask.mockResolvedValue({ task: { id: 'task-1' }, events: [] });
 	mockGetTaskById.mockReset();
 	mockGetTaskById.mockResolvedValue(fresh());
+	mockInvalidate.mockReset();
 	mockToast.error.mockReset();
 	resetChatTaskCards();
 });
@@ -144,16 +151,37 @@ describe('a task card', () => {
 		expect(onOpenTask).toHaveBeenCalledWith('task-1');
 	});
 
-	it('changes the status in place through the message, then reads the task again', async () => {
-		mockGetTaskById.mockResolvedValue(fresh({ status: 'in-progress', taskStatusId: 'st-progress' }));
+	it('changes the status in place through the message, then has the task read again wherever it shows', async () => {
 		renderCard();
 		const status = screen.getByRole('group', { name: 'teamChat.TASK_STATUS: open' });
 		await act(async () => {
 			fireEvent.click(within(status).getByRole('button', { name: 'in progress' }));
 		});
 		expect(mockUpdateTask).toHaveBeenCalledWith('m1', 'task-1', { status: 'in-progress', taskStatusId: 'st-progress' });
-		await waitFor(() => expect(mockGetTaskById).toHaveBeenCalledWith('task-1'));
-		await waitFor(() => expect(screen.getByRole('group', { name: 'teamChat.TASK_STATUS: in progress' })).toBeTruthy());
+		// Shown at once, until the team's list reads the task again.
+		expect(screen.getByRole('group', { name: 'teamChat.TASK_STATUS: in progress' })).toBeTruthy();
+		await waitFor(() => expect(mockInvalidate).toHaveBeenCalledWith('task-1'));
+	});
+
+	it('sends quick changes one after the other, each assignee pick with the whole list', async () => {
+		let answer: (value: unknown) => void = () => undefined;
+		mockUpdateTask.mockImplementationOnce(() => new Promise((resolve) => (answer = resolve)));
+		renderCard();
+		const assignees = () => within(screen.getByRole('group', { name: /^teamChat.TASK_ASSIGNEES/ }));
+		await act(async () => {
+			fireEvent.click(assignees().getByRole('button', { name: 'Bo Chen' }));
+		});
+		await act(async () => {
+			fireEvent.click(assignees().getByRole('button', { name: 'Chen Li' }));
+		});
+		// The second waits for the first.
+		expect(mockUpdateTask).toHaveBeenCalledTimes(1);
+		expect(mockUpdateTask).toHaveBeenLastCalledWith('m1', 'task-1', { assigneeEmployeeIds: ['employee-ana', 'employee-bo'] });
+		await act(async () => answer({ task: { id: 'task-1' }, events: [] }));
+		await waitFor(() => expect(mockUpdateTask).toHaveBeenCalledTimes(2));
+		expect(mockUpdateTask).toHaveBeenLastCalledWith('m1', 'task-1', { assigneeEmployeeIds: ['employee-ana', 'employee-bo', 'employee-chen'] });
+		// Read again once, after the last one.
+		await waitFor(() => expect(mockInvalidate).toHaveBeenCalledTimes(1));
 	});
 
 	it('clears the priority, and names all the assignees when one is added', async () => {
@@ -165,7 +193,7 @@ describe('a task card', () => {
 		await act(async () => {
 			fireEvent.click(within(screen.getByRole('group', { name: /^teamChat.TASK_ASSIGNEES/ })).getByRole('button', { name: 'Bo Chen' }));
 		});
-		expect(mockUpdateTask).toHaveBeenLastCalledWith('m1', 'task-1', { assigneeEmployeeIds: ['employee-ana', 'employee-bo'] });
+		await waitFor(() => expect(mockUpdateTask).toHaveBeenLastCalledWith('m1', 'task-1', { assigneeEmployeeIds: ['employee-ana', 'employee-bo'] }));
 	});
 
 	it('says what the platform answered when it refuses, and shows the task as it was', async () => {
@@ -190,18 +218,37 @@ describe('a task card', () => {
 		expect(screen.getByTitle('teamChat.TASK_PRIORITY').textContent).toBe('high');
 	});
 
-	it('turns read-only for the page when the platform has no task card route', async () => {
+	it('turns every card of the page read-only when the platform has no task card route', async () => {
 		mockUpdateTask.mockRejectedValue(Object.assign(new Error('Cannot PATCH /api/chat/messages/m1/tasks/task-1'), { statusCode: 404 }));
-		renderCard();
+		const client = new QueryClient({ defaultOptions: { queries: { retry: false } } });
+		render(
+			<QueryClientProvider client={client}>
+				<ChatTaskCard messageId="m1" taskId="task-1" canChange onOpenTask={jest.fn()} />
+				<ChatTaskCard messageId="m2" taskId="task-1" canChange onOpenTask={jest.fn()} />
+			</QueryClientProvider>
+		);
+		expect(screen.getAllByRole('group', { name: 'teamChat.TASK_STATUS: open' })).toHaveLength(2);
 		await act(async () => {
-			fireEvent.click(within(screen.getByRole('group', { name: 'teamChat.TASK_STATUS: open' })).getByRole('button', { name: 'in progress' }));
+			fireEvent.click(within(screen.getAllByRole('group', { name: 'teamChat.TASK_STATUS: open' })[0]).getByRole('button', { name: 'in progress' }));
 		});
-		expect(mockToast.error).toHaveBeenCalledWith('teamChat.TASK_UPDATE_FAILED');
+		await waitFor(() => expect(mockToast.error).toHaveBeenCalledWith('teamChat.TASK_UPDATE_FAILED'));
 		expect(screen.queryByRole('group')).toBeNull();
 	});
 
-	it('reads the task again when the platform says a message showing it changed', async () => {
-		renderCard();
+	it('keeps the status and priority of a task of another team read-only, its assignees still offered', async () => {
+		mockGetTaskById.mockResolvedValue(fresh({ id: 'task-9', title: 'Elsewhere' }));
+		renderCard({ taskId: 'task-9' });
+		await waitFor(() => expect(screen.getByText('Elsewhere')).toBeTruthy());
+		expect(screen.queryByRole('group', { name: /^teamChat.TASK_STATUS/ })).toBeNull();
+		expect(screen.getByTitle('teamChat.TASK_STATUS').textContent).toBe('open');
+		expect(screen.getByRole('group', { name: /^teamChat.TASK_ASSIGNEES/ })).toBeTruthy();
+	});
+
+	it('reads a task it read itself again when the platform says a message showing it changed', async () => {
+		mockGetTaskById.mockResolvedValue(fresh({ id: 'task-9' }));
+		renderCard({ taskId: 'task-9' });
+		await waitFor(() => expect(mockGetTaskById).toHaveBeenCalledTimes(1));
+		mockGetTaskById.mockClear();
 		await act(async () => {
 			realtimeBus.emit({
 				eventId: 'e1',
@@ -212,7 +259,7 @@ describe('a task card', () => {
 				data: { conversationId: 'c1', messageId: 'm1' }
 			});
 		});
-		await waitFor(() => expect(mockGetTaskById).toHaveBeenCalledWith('task-1'));
+		await waitFor(() => expect(mockGetTaskById).toHaveBeenCalledWith('task-9'));
 		mockGetTaskById.mockClear();
 		await act(async () => {
 			realtimeBus.emit({

@@ -48,7 +48,7 @@ export function typingSignalOf(data: unknown): IChatTypingSignal | null {
 /** How long a signal is shown, counted from when this tab heard it (two clocks never agree to the second). */
 export function typingHoldOf(signal: Pick<IChatTypingSignal, 'expiresInMs'>): number {
 	const asked = signal.expiresInMs;
-	if (typeof asked !== 'number' || !(asked > 0)) return CHAT_TYPING_TTL_MS;
+	if (typeof asked !== 'number' || !Number.isFinite(asked) || asked <= 0) return CHAT_TYPING_TTL_MS;
 	return Math.min(asked, TYPING_MAX_HOLD_MS);
 }
 

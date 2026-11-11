@@ -137,8 +137,9 @@ export function pictureBoxOf(
 	maxHeight = CHAT_THUMB_MAX_HEIGHT
 ): { width: number; aspectRatio: string } | null {
 	const { width, height } = file;
-	if (typeof width !== 'number' || typeof height !== 'number' || !(width > 0) || !(height > 0)) return null;
-	if (!Number.isFinite(width) || !Number.isFinite(height)) return null;
+	if (typeof width !== 'number' || typeof height !== 'number') return null;
+	// `Number.isFinite` leaves out NaN and the infinities; a picture has a size above zero.
+	if (!Number.isFinite(width) || !Number.isFinite(height) || width <= 0 || height <= 0) return null;
 	const scale = Math.min(1, maxWidth / width, maxHeight / height);
 	return { width: Math.max(1, Math.round(width * scale)), aspectRatio: `${width} / ${height}` };
 }

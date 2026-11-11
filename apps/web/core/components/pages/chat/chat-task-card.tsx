@@ -1,6 +1,6 @@
 'use client';
 
-import { memo, useCallback, useMemo, useState } from 'react';
+import { memo, useCallback, useMemo, useRef, useState, useSyncExternalStore, type ReactNode } from 'react';
 import { useAtomValue } from 'jotai';
 import { selectAtom } from 'jotai/utils';
 import { useTranslations, type DottedLanguageObjectStringPaths } from 'next-intl';
@@ -12,12 +12,14 @@ import { TaskPropertyMenu, type TaskPropertyMenuOption } from '@/core/components
 import { taskPropertySearchKey } from '@/core/components/tasks/task-property-trigger';
 import { PersonAvatar, personFromTaskMember, type Person } from '@/core/components/teams/people-avatars';
 import { useChatPeople } from '@/core/hooks/chat/use-chat-scope';
+import { useInvalidateTeamTasks } from '@/core/hooks/organizations/teams/use-invalidate-team-tasks';
 import { useRealtimeEvent } from '@/core/hooks/realtime/use-realtime-event';
 import { useMyRolePermissionsQuery } from '@/core/hooks/roles/use-my-role-permissions-query';
 import { useTaskPrioritiesValue } from '@/core/hooks/tasks/use-task-priorities-value';
 import { useTaskStatusValue } from '@/core/hooks/tasks/use-task-status';
 import { REALTIME_EVENT_NAMES } from '@/core/lib/realtime/events';
 import { cn } from '@/core/lib/helpers';
+import type { ChatPerson } from '@/core/lib/utils/chat-format';
 import { isMissingRouteError, platformMessageOf } from '@/core/lib/utils/chat-errors';
 import { queryKeys } from '@/core/query/keys';
 import { chatService } from '@/core/services/client/api/chat';
@@ -27,7 +29,7 @@ import type { TStatusItem } from '@/core/types/interfaces/task/task-card';
 import type { IChatTaskUpdateInput } from '@/core/types/interfaces/common/chat';
 import type { TTask } from '@/core/types/schemas/task/task.schema';
 
-/** How long a card trusts the task it read (the live channel's `task.updated` and the card's own changes read it sooner). */
+/** How long a card trusts a task it read itself (the live channel's `task.updated` reads it sooner). */
 const CARD_STALE_MS = 5 * 60_000;
 
 /** How many assignees a card shows as faces before "+N". */
@@ -36,19 +38,46 @@ const SHOWN_ASSIGNEES = 3;
 /** The permissions that let a reader change a task (the platform asks for one of them as well). */
 const TASK_EDIT_PERMISSIONS = ['ORG_TASK_EDIT', 'ALL_ORG_EDIT'];
 
-/** The platform answered that it has no task card route (older than it): cards stay read-only for the page's life. */
-let cardChangesMissing = false;
-
-/** For the specs. */
-export function resetChatTaskCards(): void {
-	cardChangesMissing = false;
-}
-
 const CARD_EVENTS: readonly string[] = [REALTIME_EVENT_NAMES.CHAT_MESSAGE_UPDATED];
 
 const PILL =
 	'inline-flex h-6 max-w-44 min-w-0 items-center gap-1.5 rounded-md bg-foreground/[0.04] px-1.5 text-xs text-foreground transition-colors';
-const PILL_ACTION = 'hover:bg-foreground/[0.08] data-[popup-open]:bg-foreground/[0.08]';
+const PILL_ACTION = cn(PILL, 'hover:bg-foreground/[0.08] data-[popup-open]:bg-foreground/[0.08]');
+
+// ---------------------------------------------------------------- a platform without the route
+
+/**
+ * The platform answered that it has no task card route (older than it): every card of the page turns read-only at
+ * once, and stays so — the platform does not change version under an open page.
+ */
+let cardChangesMissing = false;
+const missingListeners = new Set<() => void>();
+
+function subscribeToMissing(listener: () => void): () => void {
+	missingListeners.add(listener);
+	return () => void missingListeners.delete(listener);
+}
+
+function setCardChangesMissing(missing: boolean): void {
+	if (cardChangesMissing === missing) return;
+	cardChangesMissing = missing;
+	for (const listener of missingListeners) listener();
+}
+
+/** For the specs. */
+export function resetChatTaskCards(): void {
+	setCardChangesMissing(false);
+}
+
+function useCardChangesMissing(): boolean {
+	return useSyncExternalStore(
+		subscribeToMissing,
+		() => cardChangesMissing,
+		() => false
+	);
+}
+
+// ---------------------------------------------------------------- what a card shows
 
 /** What the card shows of a change while the platform takes it: until the task is read again. */
 interface CardChange {
@@ -57,21 +86,42 @@ interface CardChange {
 	assigneeIds?: string[];
 }
 
+/** A status or a priority as the card shows it: its value, its record among the options, its words. */
+interface PropertyView {
+	value: string | null;
+	item: TStatusItem | undefined;
+	label: string;
+}
+
 function itemValue(item: TStatusItem): string {
 	return String(item.value ?? item.name ?? '');
 }
 
-function itemLabel(item: TStatusItem | undefined, fallback: string | null | undefined): string {
-	return item?.realName || item?.name || (fallback ?? '').split('-').join(' ');
+function itemLabel(item: TStatusItem | undefined, fallback: string): string {
+	return item?.realName || item?.name || fallback.split('-').join(' ');
 }
 
-function findItem(items: readonly TStatusItem[], value: string | null | undefined, id: string | null | undefined): TStatusItem | undefined {
-	if (id) {
-		const byId = items.find((item) => item.id === id);
-		if (byId) return byId;
-	}
-	if (!value) return undefined;
+function findItem(items: readonly TStatusItem[], value: string | null, id: string | null): TStatusItem | undefined {
+	const byId = id ? items.find((item) => item.id === id) : undefined;
+	if (byId || !value) return byId;
 	return items.find((item) => itemValue(item) === value);
+}
+
+function textOrNull(value: unknown): string | null {
+	return typeof value === 'string' && value ? value : null;
+}
+
+/** A status or a priority: the change on its way when there is one, else the task's own. */
+function propertyView(
+	items: readonly TStatusItem[],
+	pending: { value: string | null; id: string | null } | undefined,
+	own: { value: unknown; id: unknown },
+	emptyLabel: string
+): PropertyView {
+	const value = pending ? pending.value : textOrNull(own.value);
+	const id = pending ? pending.id : textOrNull(own.id);
+	const item = value ? findItem(items, value, id) : undefined;
+	return { value, item, label: value ? itemLabel(item, value) : emptyLabel };
 }
 
 function optionOf(item: TStatusItem, kind: 'status' | 'priority'): TaskPropertyMenuOption<string | null> {
@@ -83,6 +133,192 @@ function optionOf(item: TStatusItem, kind: 'status' | 'priority'): TaskPropertyM
 		icon: item.icon ?? <TaskPropertyIcon kind={kind} name={value} color={item.bgColor} />
 	};
 }
+
+/** The assignees as the card shows them: the change on its way, or the task's members. */
+function assigneesOf(task: TTask | null, pendingIds: readonly string[] | undefined, people: ReadonlyMap<string, ChatPerson>): Person[] {
+	if (!pendingIds) return (task?.members ?? []).map(personFromTaskMember);
+	return pendingIds.map((id) => {
+		const person = people.get(id);
+		return { id, name: person?.name ?? '', imageUrl: person?.imageUrl };
+	});
+}
+
+// ---------------------------------------------------------------- reading and changing the task
+
+/**
+ * The task a card shows: the team's list copy when the list holds it (no read for the card), otherwise the task read
+ * once through the shared detail query (the full task, as the task drawer reads it). Whether the list holds it also
+ * says whether the active team's statuses and priorities are the task's own.
+ */
+function useCardTask(taskId: string): { task: TTask | null; inTeamList: boolean } {
+	const listTaskAtom = useMemo(() => selectAtom(tasksByTeamState, (tasks) => tasks.find((task) => task.id === taskId) ?? null), [taskId]);
+	const listTask = useAtomValue(listTaskAtom);
+	const detail = useQuery<TTask>({
+		queryKey: queryKeys.tasks.detail(taskId),
+		queryFn: () => taskService.getTaskById(taskId),
+		enabled: !!taskId && !listTask,
+		staleTime: CARD_STALE_MS,
+		retry: false,
+		// A task the reader cannot open (another team's, a removed one) is not asked for again on every focus.
+		refetchOnWindowFocus: false
+	});
+	return { task: listTask ?? detail.data ?? null, inTeamList: !!listTask };
+}
+
+/**
+ * The changes of one card, one after the other (two quick picks of assignees never race: each sends the whole list,
+ * in order). The card shows them at once, until the task is read again; once the last one is answered, the task is
+ * read again everywhere it shows (the team's lists, its page, the daily plans), as any task change of the app does.
+ */
+function useCardChanges(messageId: string, taskId: string, task: TTask | null) {
+	const t = useTranslations();
+	const queryClient = useQueryClient();
+	const { invalidateTeamTasksData } = useInvalidateTeamTasks();
+	const [pending, setPending] = useState<{ change: CardChange; base: TTask | null } | null>(null);
+	const queue = useRef<Promise<void>>(Promise.resolve());
+	const inFlight = useRef(0);
+	// A change shows until the task is read again: a new copy of it is the platform's answer, or a newer change.
+	const shown = pending && pending.base === task ? pending.change : null;
+
+	const change = useCallback(
+		(input: IChatTaskUpdateInput, display: CardChange) => {
+			setPending((current) => ({ change: { ...(current && current.base === task ? current.change : {}), ...display }, base: task }));
+			inFlight.current += 1;
+			queue.current = queue.current.then(async () => {
+				try {
+					await chatService.updateTask(messageId, taskId, input);
+				} catch (error) {
+					setPending(null);
+					if (isMissingRouteError(error)) setCardChangesMissing(true);
+					toast.error(platformMessageOf(error) ?? t('teamChat.TASK_UPDATE_FAILED'));
+				} finally {
+					inFlight.current -= 1;
+					if (inFlight.current === 0) invalidateTeamTasksData(taskId);
+				}
+			});
+		},
+		[invalidateTeamTasksData, messageId, t, task, taskId]
+	);
+
+	// Every conversation showing the task hears its messages changed when the task is changed from a card elsewhere.
+	// A card read from the team's list hears `task.updated` through that list; one read on its own is read again here.
+	useRealtimeEvent(CARD_EVENTS, (envelope) => {
+		if (inFlight.current > 0) return;
+		const data = envelope.data as Record<string, unknown> | null;
+		if (data?.messageId === messageId) void queryClient.invalidateQueries({ queryKey: queryKeys.tasks.detail(taskId), exact: true });
+	});
+
+	return { shown, change };
+}
+
+// ---------------------------------------------------------------- the card's parts
+
+function PropertyField({
+	kind,
+	view,
+	items,
+	editable,
+	label,
+	options,
+	onPick
+}: Readonly<{
+	kind: 'status' | 'priority';
+	view: PropertyView;
+	items: readonly TStatusItem[];
+	editable: boolean;
+	label: string;
+	options: TaskPropertyMenuOption<string | null>[];
+	onPick: (value: string | null) => void;
+}>) {
+	const t = useTranslations();
+	const glyph = view.item ? itemValue(view.item) : view.value;
+	const content = (
+		<>
+			<TaskPropertyIcon kind={kind} name={glyph} color={view.item?.bgColor} />
+			<span className={cn('min-w-0 truncate capitalize', !view.value && 'text-muted-foreground')}>{view.label}</span>
+		</>
+	);
+	if (!editable || !items.length) {
+		return view.value ? (
+			<span className={PILL} title={label}>
+				{content}
+			</span>
+		) : null;
+	}
+	return (
+		<TaskPropertyMenu
+			options={options}
+			isSelected={(value) => value === view.value}
+			onSelect={onPick}
+			searchPlaceholder={t(taskPropertySearchKey(kind) as DottedLanguageObjectStringPaths)}
+			triggerLabel={`${label}: ${view.label}`}
+			triggerClassName={PILL_ACTION}
+			optionLabelClassName="capitalize"
+			align="start"
+		>
+			{content}
+		</TaskPropertyMenu>
+	);
+}
+
+function AssigneesField({
+	assignees,
+	people,
+	editable,
+	onToggle
+}: Readonly<{ assignees: readonly Person[]; people: readonly ChatPerson[]; editable: boolean; onToggle: (employeeId: string) => void }>) {
+	const t = useTranslations();
+	const ids = assignees.map((person) => person.id);
+	const names = assignees
+		.map((person) => person.name)
+		.filter(Boolean)
+		.join(', ');
+	const options = useMemo<TaskPropertyMenuOption<string>[]>(
+		() =>
+			people.map((person) => ({
+				key: person.employeeId,
+				value: person.employeeId,
+				label: person.name,
+				icon: <PersonAvatar person={{ id: person.employeeId, name: person.name, imageUrl: person.imageUrl }} className="size-4 text-[8px] ring-0" />
+			})),
+		[people]
+	);
+	let content: ReactNode = <span className="text-muted-foreground">{t('teamChat.TASK_UNASSIGNED')}</span>;
+	if (assignees.length) {
+		content = (
+			<span className="flex items-center -space-x-1.5 rtl:space-x-reverse">
+				{assignees.slice(0, SHOWN_ASSIGNEES).map((person) => (
+					<PersonAvatar key={person.id} person={person} className="size-5 text-[9px]" />
+				))}
+				{assignees.length > SHOWN_ASSIGNEES && <span className="ps-2.5 text-[11px] tabular-nums text-muted-foreground">+{assignees.length - SHOWN_ASSIGNEES}</span>}
+			</span>
+		);
+	}
+	if (!editable || !options.length) {
+		return assignees.length ? (
+			<span className={PILL} title={names || t('teamChat.TASK_ASSIGNEES')}>
+				{content}
+			</span>
+		) : null;
+	}
+	return (
+		<TaskPropertyMenu
+			options={options}
+			isSelected={(value) => ids.includes(value)}
+			onSelect={onToggle}
+			multiple
+			searchPlaceholder={t('taskDetail.properties.SEARCH_PEOPLE')}
+			triggerLabel={names ? `${t('teamChat.TASK_ASSIGNEES')}: ${names}` : t('teamChat.TASK_ASSIGNEES')}
+			triggerClassName={PILL_ACTION}
+			popupClassName="w-64"
+			align="start"
+		>
+			{content}
+		</TaskPropertyMenu>
+	);
+}
+
+// ---------------------------------------------------------------- the card
 
 export interface ChatTaskCardProps {
 	messageId: string;
@@ -96,152 +332,55 @@ export interface ChatTaskCardProps {
 
 /**
  * A task a message shows: its title (opens the task), its status, its priority and its assignees. A reader who may
- * edit tasks changes those three in place, through the message's task card route (the platform's own task update and
- * permissions); the card shows the change at once and reads the task again once it is saved. A change of the task
- * made elsewhere reaches the card through the live channel: `task.updated`, and the `chat_message.updated` the
- * platform tells every conversation showing the task.
+ * edit tasks changes those in place, through the message's task card route (the platform's own task update and
+ * permissions). The status and the priority are offered from the active team's lists only for a task of that team;
+ * another team's task keeps them read-only (its own statuses are not the ones loaded here).
  */
 function ChatTaskCardComponent({ messageId, taskId, title, canChange, onOpenTask }: Readonly<ChatTaskCardProps>) {
 	const t = useTranslations();
-	const queryClient = useQueryClient();
 	const people = useChatPeople();
 	const { myPermissions } = useMyRolePermissionsQuery();
 	const statusValues = useTaskStatusValue();
 	const priorityValues = useTaskPrioritiesValue();
-	const listTaskAtom = useMemo(() => selectAtom(tasksByTeamState, (tasks) => tasks.find((task) => task.id === taskId) ?? null), [taskId]);
-	const listTask = useAtomValue(listTaskAtom);
-	const detailKey = useMemo(() => queryKeys.tasks.detail(taskId), [taskId]);
-	const query = useQuery<TTask>({
-		queryKey: detailKey,
-		queryFn: () => taskService.getTaskById(taskId),
-		// The team's list copy has what a card shows: no read for a task the list holds, until something changes it.
-		initialData: listTask ?? undefined,
-		staleTime: CARD_STALE_MS,
-		retry: false,
-		// A task the reader cannot open (another team's, a removed one) is not asked for again on every focus.
-		refetchOnWindowFocus: false,
-		enabled: !!taskId
-	});
-	const task = query.data ?? listTask ?? null;
-	const [pending, setPending] = useState<{ change: CardChange; readAt: number } | null>(null);
-	const [missing, setMissing] = useState(cardChangesMissing);
-	// A change shows until the task is read again (the platform's answer, or a newer change from elsewhere).
-	const shown = pending && pending.readAt === query.dataUpdatedAt ? pending.change : null;
-
-	const refresh = useCallback(() => queryClient.invalidateQueries({ queryKey: detailKey, exact: true }), [detailKey, queryClient]);
-
-	// Every conversation showing the task hears its messages changed when the task is changed from a card.
-	useRealtimeEvent(CARD_EVENTS, (envelope) => {
-		const data = envelope.data as Record<string, unknown> | null;
-		if (data?.messageId === messageId) void refresh();
-	});
+	const missing = useCardChangesMissing();
+	const { task, inTeamList } = useCardTask(taskId);
+	const { shown, change } = useCardChanges(messageId, taskId, task);
 
 	const statusItems = useMemo(() => Object.values(statusValues) as TStatusItem[], [statusValues]);
 	const priorityItems = useMemo(() => Object.values(priorityValues) as TStatusItem[], [priorityValues]);
-	const mayEdit = TASK_EDIT_PERMISSIONS.some((permission) => myPermissions.includes(permission));
-	const editable = canChange && mayEdit && !missing && !!task;
-
-	const change = useCallback(
-		async (input: IChatTaskUpdateInput, display: CardChange) => {
-			const readAt = query.dataUpdatedAt;
-			setPending((current) => ({ change: { ...(current && current.readAt === readAt ? current.change : {}), ...display }, readAt }));
-			try {
-				await chatService.updateTask(messageId, taskId, input);
-				await refresh();
-			} catch (error) {
-				setPending(null);
-				if (isMissingRouteError(error)) {
-					cardChangesMissing = true;
-					setMissing(true);
-				}
-				toast.error(platformMessageOf(error) ?? t('teamChat.TASK_UPDATE_FAILED'));
-			}
-		},
-		[messageId, query.dataUpdatedAt, refresh, t, taskId]
-	);
-
-	const statusValue = shown?.status?.value ?? (task?.status as string | undefined) ?? null;
-	const statusItem = findItem(statusItems, statusValue, shown?.status ? shown.status.id : (task?.taskStatusId as string | undefined));
-	const priorityValue = shown?.priority ? shown.priority.value : ((task?.priority as string | null | undefined) ?? null);
-	const priorityItem = priorityValue ? findItem(priorityItems, priorityValue, shown?.priority ? shown.priority.id : (task?.taskPriorityId as string | undefined)) : undefined;
-	const shownAssigneeIds = shown?.assigneeIds;
-	const assignees: Person[] = useMemo(() => {
-		if (shownAssigneeIds) {
-			return shownAssigneeIds.map((id) => {
-				const person = people.byEmployee.get(id);
-				return { id, name: person?.name ?? '', imageUrl: person?.imageUrl };
-			});
-		}
-		return (task?.members ?? []).map(personFromTaskMember);
-	}, [people.byEmployee, shownAssigneeIds, task?.members]);
-	const assigneeIds = useMemo(() => assignees.map((person) => person.id), [assignees]);
-
 	const statusOptions = useMemo(() => statusItems.map((item) => optionOf(item, 'status')), [statusItems]);
 	const priorityOptions = useMemo<TaskPropertyMenuOption<string | null>[]>(
 		() => [{ key: 'priority:none', value: null, label: t('teamChat.TASK_NO_PRIORITY') }, ...priorityItems.map((item) => optionOf(item, 'priority'))],
 		[priorityItems, t]
 	);
-	const peopleOptions = useMemo<TaskPropertyMenuOption<string>[]>(
-		() =>
-			people.list.map((person) => ({
-				key: person.employeeId,
-				value: person.employeeId,
-				label: person.name,
-				icon: <PersonAvatar person={{ id: person.employeeId, name: person.name, imageUrl: person.imageUrl }} className="size-4 text-[8px] ring-0" />
-			})),
-		[people.list]
-	);
+
+	const editable = canChange && !missing && !!task && TASK_EDIT_PERMISSIONS.some((permission) => myPermissions.includes(permission));
+	const status = propertyView(statusItems, shown?.status, { value: task?.status, id: task?.taskStatusId }, '');
+	const priority = propertyView(priorityItems, shown?.priority, { value: task?.priority, id: task?.taskPriorityId }, t('teamChat.TASK_NO_PRIORITY'));
+	const assignees = assigneesOf(task, shown?.assigneeIds, people.byEmployee);
 
 	const pickStatus = (value: string | null) => {
-		if (!value || value === statusValue) return;
-		const item = findItem(statusItems, value, null);
-		const id = item?.id ?? null;
-		void change({ status: value, ...(id ? { taskStatusId: id } : {}) }, { status: { value, id } });
+		if (!value || value === status.value) return;
+		const id = findItem(statusItems, value, null)?.id ?? null;
+		change({ status: value, ...(id ? { taskStatusId: id } : {}) }, { status: { value, id } });
 	};
 	const pickPriority = (value: string | null) => {
-		if (value === priorityValue) return;
-		const item = value ? findItem(priorityItems, value, null) : undefined;
-		const id = item?.id ?? null;
-		void change({ priority: value, taskPriorityId: id }, { priority: { value, id } });
+		if (value === priority.value) return;
+		const id = (value && findItem(priorityItems, value, null)?.id) || null;
+		change({ priority: value, taskPriorityId: id }, { priority: { value, id } });
 	};
 	const toggleAssignee = (employeeId: string) => {
-		const next = assigneeIds.includes(employeeId) ? assigneeIds.filter((id) => id !== employeeId) : [...assigneeIds, employeeId];
-		void change({ assigneeEmployeeIds: next }, { assigneeIds: next });
+		const ids = assignees.map((person) => person.id);
+		const next = ids.includes(employeeId) ? ids.filter((id) => id !== employeeId) : [...ids, employeeId];
+		change({ assigneeEmployeeIds: next }, { assigneeIds: next });
 	};
-
-	const statusLabel = statusValue ? itemLabel(statusItem, statusValue) : '';
-	const priorityLabel = priorityValue ? itemLabel(priorityItem, priorityValue) : t('teamChat.TASK_NO_PRIORITY');
-	const statusContent = (
-		<>
-			<TaskPropertyIcon kind="status" name={statusItem ? itemValue(statusItem) : statusValue} color={statusItem?.bgColor} />
-			<span className="min-w-0 truncate capitalize">{statusLabel}</span>
-		</>
-	);
-	const priorityContent = (
-		<>
-			<TaskPropertyIcon kind="priority" name={priorityItem ? itemValue(priorityItem) : priorityValue} color={priorityItem?.bgColor} />
-			<span className={cn('min-w-0 truncate capitalize', !priorityValue && 'text-muted-foreground')}>{priorityLabel}</span>
-		</>
-	);
-	const assigneesContent =
-		assignees.length > 0 ? (
-			<span className="flex items-center -space-x-1.5 rtl:space-x-reverse">
-				{assignees.slice(0, SHOWN_ASSIGNEES).map((person) => (
-					<PersonAvatar key={person.id} person={person} className="size-5 text-[9px]" />
-				))}
-				{assignees.length > SHOWN_ASSIGNEES && <span className="ps-2.5 text-[11px] tabular-nums text-muted-foreground">+{assignees.length - SHOWN_ASSIGNEES}</span>}
-			</span>
-		) : (
-			<span className="text-muted-foreground">{t('teamChat.TASK_UNASSIGNED')}</span>
-		);
-	const assigneeNames = assignees.map((person) => person.name).filter(Boolean).join(', ');
 
 	return (
 		<div className="mt-1.5 flex w-full max-w-md flex-col gap-1.5 rounded-lg bg-card px-2.5 py-2 text-[13px] hairline-ring ring-border" data-task-id={taskId}>
 			<button
 				type="button"
 				onClick={() => onOpenTask(taskId)}
-				className="group/task -m-1 flex min-w-0 cursor-pointer items-center gap-2.5 rounded-md p-1 text-start outline-none transition-colors hover:bg-foreground/[0.03] focus-visible:ring-[3px] focus-visible:ring-ring/25"
+				className="-m-1 flex min-w-0 cursor-pointer items-center gap-2.5 rounded-md p-1 text-start outline-none transition-colors hover:bg-foreground/[0.03] focus-visible:ring-[3px] focus-visible:ring-ring/25"
 			>
 				<span className="flex size-6 shrink-0 items-center justify-center rounded-md bg-primary/10 text-primary" aria-hidden="true">
 					<Task className="size-3.5" />
@@ -252,66 +391,11 @@ function ChatTaskCardComponent({ messageId, taskId, title, canChange, onOpenTask
 			</button>
 			{task && (
 				<div className="flex flex-wrap items-center gap-1 ps-8.5" data-testid="chat-task-card-fields">
-					{statusValue &&
-						(editable && statusOptions.length > 0 ? (
-							<TaskPropertyMenu
-								options={statusOptions}
-								isSelected={(value) => value === statusValue}
-								onSelect={pickStatus}
-								searchPlaceholder={t(taskPropertySearchKey('status') as DottedLanguageObjectStringPaths)}
-								triggerLabel={`${t('teamChat.TASK_STATUS')}: ${statusLabel}`}
-								triggerClassName={cn(PILL, PILL_ACTION)}
-								optionLabelClassName="capitalize"
-								align="start"
-							>
-								{statusContent}
-							</TaskPropertyMenu>
-						) : (
-							<span className={PILL} title={t('teamChat.TASK_STATUS')}>
-								{statusContent}
-							</span>
-						))}
-					{editable && priorityItems.length > 0 ? (
-						<TaskPropertyMenu
-							options={priorityOptions}
-							isSelected={(value) => value === priorityValue}
-							onSelect={pickPriority}
-							searchPlaceholder={t(taskPropertySearchKey('priority') as DottedLanguageObjectStringPaths)}
-							triggerLabel={`${t('teamChat.TASK_PRIORITY')}: ${priorityLabel}`}
-							triggerClassName={cn(PILL, PILL_ACTION)}
-							optionLabelClassName="capitalize"
-							align="start"
-						>
-							{priorityContent}
-						</TaskPropertyMenu>
-					) : (
-						priorityValue && (
-							<span className={PILL} title={t('teamChat.TASK_PRIORITY')}>
-								{priorityContent}
-							</span>
-						)
+					{status.value && (
+						<PropertyField kind="status" view={status} items={statusItems} editable={editable && inTeamList} label={t('teamChat.TASK_STATUS')} options={statusOptions} onPick={pickStatus} />
 					)}
-					{editable && peopleOptions.length > 0 ? (
-						<TaskPropertyMenu
-							options={peopleOptions}
-							isSelected={(value) => assigneeIds.includes(value)}
-							onSelect={toggleAssignee}
-							multiple
-							searchPlaceholder={t('taskDetail.properties.SEARCH_PEOPLE')}
-							triggerLabel={assigneeNames ? `${t('teamChat.TASK_ASSIGNEES')}: ${assigneeNames}` : t('teamChat.TASK_ASSIGNEES')}
-							triggerClassName={cn(PILL, PILL_ACTION)}
-							popupClassName="w-64"
-							align="start"
-						>
-							{assigneesContent}
-						</TaskPropertyMenu>
-					) : (
-						assignees.length > 0 && (
-							<span className={PILL} title={assigneeNames || t('teamChat.TASK_ASSIGNEES')}>
-								{assigneesContent}
-							</span>
-						)
-					)}
+					<PropertyField kind="priority" view={priority} items={priorityItems} editable={editable && inTeamList} label={t('teamChat.TASK_PRIORITY')} options={priorityOptions} onPick={pickPriority} />
+					<AssigneesField assignees={assignees} people={people.list} editable={editable} onToggle={toggleAssignee} />
 				</div>
 			)}
 		</div>

@@ -60,11 +60,7 @@ const sentDocumentIds = new Set<string>();
 function discardUnsent(documentId: string): void {
 	if (!documentId || sentDocumentIds.has(documentId)) return;
 	uploadedFiles.delete(documentId);
-	try {
-		void chatService.discardAttachment(documentId).catch(() => undefined);
-	} catch {
-		// The request could not even start: the platform's sweep takes the file later.
-	}
+	chatService.discardAttachment(documentId).catch(() => undefined);
 }
 
 /**
