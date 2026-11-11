@@ -1,7 +1,11 @@
+import { emailModeOf, pushOnFor, quietHoursOf } from '@/core/lib/notifications/notification-preferences';
 import { claimForThisTab, releaseTabClaim } from '@/core/lib/realtime/tab-claim';
-import type {
-	INotificationPreferences,
-	INotificationQuietHours
+import { EBaseEntityEnum } from '@/core/types/generics/enums/entity';
+import {
+	EEmployeeNotificationType,
+	type IEmployeeNotification,
+	type INotificationPreferences,
+	type INotificationQuietHours
 } from '@/core/types/interfaces/common/employee-notification';
 import type { ITimerStatus } from '@/core/types/interfaces/timer/timer-status';
 
@@ -58,6 +62,11 @@ export function timerReminderLevelAt(elapsedMs: number, hours: number): 0 | Time
 	return elapsedMs >= hours * HOUR_MS ? 1 : 0;
 }
 
+/** When the run's reminder of a level comes due. */
+export function timerReminderDueAt(run: TimerRun, hours: number, level: TimerReminderLevel): number {
+	return run.startedAt + level * hours * HOUR_MS;
+}
+
 /** When the run's next reminder is due, after the ones already shown; null once both were. */
 export function nextTimerReminderAt(run: TimerRun, hours: number, shownLevel: number): number | null {
 	if (shownLevel >= 2) {
@@ -103,29 +112,66 @@ export function isWithinQuietHours(date: Date, window: INotificationQuietHours |
 	return start < end ? now >= start && now < end : now >= start || now < end;
 }
 
-/** Where the reminders shown for the current run are kept, for every tab and reload of this browser. */
+/** Where the reminders given for the current run are kept, for every tab and reload of this browser. */
 const TIMER_REMINDER_KEY = 'ever-teams:timer-reminder';
 
-/** The last reminder shown for the run, 0 when none was. */
-export function shownTimerReminderLevel(runKey: string): number {
+/**
+ * The run's record in this browser: `level`, the last reminder given (shown here, or left to the platform's email or
+ * push), and `shown`, the last one this browser put in front of the person (a toast in sight, or a system
+ * notification). A record written before `shown` existed shows nothing.
+ */
+function storedTimerReminder(runKey: string): { level: number; shown: number } {
 	try {
 		const stored = JSON.parse(window.localStorage.getItem(TIMER_REMINDER_KEY) ?? 'null') as {
 			run?: unknown;
 			level?: unknown;
+			shown?: unknown;
 		} | null;
-		return stored?.run === runKey && typeof stored.level === 'number' ? stored.level : 0;
+		if (stored?.run !== runKey) {
+			return { level: 0, shown: 0 };
+		}
+		return {
+			level: typeof stored.level === 'number' ? stored.level : 0,
+			shown: typeof stored.shown === 'number' ? stored.shown : 0
+		};
 	} catch {
-		return 0;
+		return { level: 0, shown: 0 };
 	}
 }
 
-/** Notes the reminder shown for the run, never lower than one noted before it; only the current run is kept. */
-export function recordTimerReminder(runKey: string, level: TimerReminderLevel): void {
-	if (shownTimerReminderLevel(runKey) >= level) {
+/** The last reminder given for the run, shown here or left to the platform, 0 when none was. */
+export function givenTimerReminderLevel(runKey: string): number {
+	return storedTimerReminder(runKey).level;
+}
+
+/**
+ * The last reminder of the run this browser showed the person, 0 when none: only such a reminder's copy on the platform
+ * may be marked read.
+ */
+export function shownTimerReminderLevel(runKey: string): number {
+	return storedTimerReminder(runKey).shown;
+}
+
+/**
+ * Notes a reminder of the run as given (shown, or left to the platform), and as shown when the person saw it, never
+ * lower than one noted before it; only the current run is kept.
+ */
+export function recordTimerReminder(
+	runKey: string,
+	level: TimerReminderLevel,
+	{ shown = false }: { shown?: boolean } = {}
+): void {
+	const before = storedTimerReminder(runKey);
+	const next = {
+		run: runKey,
+		level: Math.max(before.level, level),
+		shown: shown ? Math.max(before.shown, level) : before.shown
+	};
+	if (next.level === before.level && next.shown === before.shown) {
 		return;
 	}
 	try {
-		window.localStorage.setItem(TIMER_REMINDER_KEY, JSON.stringify({ run: runKey, level }));
+		window.localStorage.setItem(TIMER_REMINDER_KEY, JSON.stringify(next));
 	} catch {
 		// No storage (a private window): the tab still shows each reminder once while it stays open
 	}
@@ -146,7 +192,7 @@ export const TIMER_REMINDER_CLAIM_RETRY_MS = 30_000;
 
 /**
  * Claims the reminder of the run's level for this tab: true for the one tab of the browser that shows it, false when
- * it was shown already, in this tab, another one, or before a reload. Tabs reaching it together are settled by the
+ * it was given already, in this tab, another one, or before a reload. Tabs reaching it together are settled by the
  * claim the tabs share (tab-claim.ts: one tab takes a key, a visible tab before a hidden one); the run's record then
  * keeps it shown for good, after that claim has expired.
  *
@@ -160,7 +206,7 @@ export async function claimTimerReminder(
 	isVisible: boolean,
 	isCalledOff: () => boolean = () => false
 ): Promise<boolean> {
-	if (shownTimerReminderLevel(runKey) >= level) {
+	if (givenTimerReminderLevel(runKey) >= level) {
 		return false;
 	}
 	const key = `timer-reminder-${runKey}-${level}`;
@@ -174,9 +220,169 @@ export async function claimTimerReminder(
 	}
 	// A later reminder of the run was given while this claim waited (a tab whose threshold is shorter): this one is
 	// out of date, and noting it would bring the run back to a lower reminder
-	if (shownTimerReminderLevel(runKey) >= level) {
+	if (givenTimerReminderLevel(runKey) >= level) {
 		return false;
 	}
 	recordTimerReminder(runKey, level);
 	return true;
+}
+
+/** A reminder the platform filed about a run (`TimerReminder`), as the bell and the inbox show it. */
+export interface TimerReminderNotice {
+	/** 1 at the threshold, 2 at twice it; 1 for a title this app does not know. */
+	level: TimerReminderLevel;
+	/** The hours the run had reached when it was filed, or null when the title names none. */
+	hours: number | null;
+	/** The run's time log, the record the reminder is about. */
+	timeLogId: string | null;
+}
+
+/**
+ * The openings of the platform's English titles of its timer reminders (Gauzy's `timerReminderNotice`), read the way
+ * the inbox reads the other kinds' titles: `Your timer has been running for 8 hours` and `Your timer is still running
+ * after 16 hours`, followed by ` on "<task>"` when the run has a task.
+ */
+const LONG_REMINDER_TITLE = /^Your timer has been running for (\d+(?:\.\d+)?) hours?\b/;
+const FORGOTTEN_REMINDER_TITLE = /^Your timer is still running after (\d+(?:\.\d+)?) hours?\b/;
+
+/** The timer reminder a notification (or the inbox item filed for it) is, or null for any other kind. */
+export function timerReminderNoticeOf(notification: {
+	type?: string | null;
+	title?: string | null;
+	entity?: string | null;
+	entityId?: string | null;
+}): TimerReminderNotice | null {
+	if (notification.type !== EEmployeeNotificationType.TimerReminder) {
+		return null;
+	}
+	const title = (notification.title ?? '').trim();
+	const long = LONG_REMINDER_TITLE.exec(title);
+	const forgotten = long ? null : FORGOTTEN_REMINDER_TITLE.exec(title);
+	const hours = Number((long ?? forgotten)?.[1]);
+	return {
+		level: forgotten ? 2 : 1,
+		hours: Number.isFinite(hours) && hours > 0 ? hours : null,
+		timeLogId:
+			notification.entity === EBaseEntityEnum.TimeLog && notification.entityId
+				? String(notification.entityId)
+				: null
+	};
+}
+
+/**
+ * How long the platform holds the email and the push of a timer reminder, for the tab that showed it to mark it read
+ * (Gauzy's `INBOX_DELIVERY_TIMER_REMINDER_GRACE_MS`). The platform files every reminder unread: a run's heartbeat does
+ * not tell it whether an Ever Teams tab is open.
+ */
+export const TIMER_REMINDER_DELIVERY_GRACE_MS = 3 * 60 * 1000;
+
+/**
+ * The time a tab leaves itself for its mark to reach the platform before the platform's copy goes out: a copy that goes
+ * out sooner is taken as gone. The browser's clock is compared with the platform's (`serverClockOffset`); where the app
+ * has not read the platform's clock yet, the margin is wider, as the two may disagree.
+ */
+export const TIMER_REMINDER_MARK_MARGIN_MS = 60 * 1000;
+export const TIMER_REMINDER_MARK_MARGIN_UNSYNCED_MS = 2 * 60 * 1000;
+
+/** How often a tab that showed a reminder asks for the platform's copy of it, to mark it read, and for how long. */
+export const TIMER_REMINDER_MARK_READ_RETRY_MS = 30_000;
+export const TIMER_REMINDER_MARK_READ_WINDOW_MS = 10 * 60 * 1000;
+
+/** A timer reminder as the platform answers it: what it says, whether it was read, and when it was filed. */
+type PlatformTimerReminder = Parameters<typeof timerReminderNoticeOf>[0] &
+	Pick<IEmployeeNotification, 'isRead'> & { createdAt?: string | null };
+
+/** What a tab knows when it decides whether the platform already reminded the person. */
+export interface TimerReminderDeliveryContext {
+	/** Now, on the platform's clock where the app knows it, else on the browser's. */
+	serverNow: number;
+	/** TIMER_REMINDER_MARK_MARGIN_MS, or the wider margin while the platform's clock is not known. */
+	markMarginMs: number;
+	/** The person's notification preferences, which say whether and when the platform's copy goes out. */
+	preferences: INotificationPreferences | null | undefined;
+}
+
+/** When the quiet hours that `at` falls in end (to the minute, in the window's time zone, else the browser's). */
+export function quietHoursEndAfter(at: number, window: INotificationQuietHours): number {
+	let minutes: number;
+	try {
+		minutes = minutesOfDay(new Date(at), window.timeZone);
+	} catch {
+		minutes = minutesOfDay(new Date(at));
+	}
+	const untilEnd = (minutesOf(window.end) - minutes + 24 * 60) % (24 * 60);
+	return at + untilEnd * 60 * 1000;
+}
+
+/**
+ * When the platform's unread copy of a reminder reaches the person: by email at once or by push, once the platform's
+ * hold is over, or at the end of the quiet hours that hold ends in. Null when it reaches them neither way (the email in
+ * the digest or off, and push off for the kind): only the inbox has it. A copy whose filing time is unknown is taken as
+ * gone.
+ */
+export function timerReminderGoesOutAt(
+	copy: Pick<PlatformTimerReminder, 'createdAt'>,
+	preferences: INotificationPreferences | null | undefined
+): number | null {
+	const isEmailedAtOnce = emailModeOf(preferences, EEmployeeNotificationType.TimerReminder) === 'immediate';
+	if (!isEmailedAtOnce && !pushOnFor(preferences, EEmployeeNotificationType.TimerReminder)) {
+		return null;
+	}
+	const filedAt = Date.parse(String(copy.createdAt ?? ''));
+	if (Number.isNaN(filedAt)) {
+		return Number.NEGATIVE_INFINITY;
+	}
+	const due = filedAt + TIMER_REMINDER_DELIVERY_GRACE_MS;
+	const quiet = quietHoursOf(preferences);
+	return quiet && isWithinQuietHours(new Date(due), quiet) ? quietHoursEndAfter(due, quiet) : due;
+}
+
+/**
+ * Whether the person already got this reminder from the platform, so the tab does not repeat it: the inbox has the
+ * run's reminder at this level or a later one, and it is read (another tab or device showed it, or the person read it
+ * in the app), or it is unread and reaches the person by email at once or by push before the tab's mark could stop it.
+ * An unread copy the platform still holds (filed moments ago, or held through the quiet hours), and one that reaches
+ * the person nowhere but in the inbox, is not got: the tab shows the reminder and marks the copy read.
+ *
+ * @param reminders The person's timer reminders about the run, as the platform answers them.
+ */
+export function wasRemindedByServer(
+	reminders: ReadonlyArray<PlatformTimerReminder>,
+	run: TimerRun,
+	level: TimerReminderLevel,
+	context: TimerReminderDeliveryContext
+): boolean {
+	const got = reminders.filter((reminder) => {
+		const notice = timerReminderNoticeOf(reminder);
+		return notice !== null && notice.timeLogId === run.key && notice.level >= level;
+	});
+	if (got.some((reminder) => reminder.isRead === true)) {
+		return true;
+	}
+	const deadline = context.serverNow + context.markMarginMs;
+	return got.some((reminder) => {
+		const goesOutAt = timerReminderGoesOutAt(reminder, context.preferences);
+		return goesOutAt !== null && goesOutAt <= deadline;
+	});
+}
+
+/**
+ * The platform's copy of a reminder this tab showed, to mark read so that its email and push do not follow: the run's
+ * reminder of that level while it is unread, `'read'` once it is read, null while the platform has filed none (it
+ * files one at its next sweep, a minute or so after the reminder came due).
+ */
+export function timerReminderToMarkRead(
+	reminders: ReadonlyArray<PlatformTimerReminder & Pick<IEmployeeNotification, 'id'>>,
+	runKey: string,
+	level: TimerReminderLevel
+): { id: string } | 'read' | null {
+	const copies = reminders.filter((reminder) => {
+		const notice = timerReminderNoticeOf(reminder);
+		return notice !== null && notice.timeLogId === runKey && notice.level === level;
+	});
+	const unread = copies.find((reminder) => reminder.isRead !== true);
+	if (unread) {
+		return { id: String(unread.id) };
+	}
+	return copies.length > 0 ? 'read' : null;
 }

@@ -1,24 +1,42 @@
 'use client';
 
-import { useEffect, useRef } from 'react';
+import { useCallback, useEffect, useRef } from 'react';
+import { useSetAtom } from 'jotai';
 import { useRouter } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 import { toast } from 'sonner';
 import { useSyncRef } from '@/core/hooks/common/use-sync-ref';
+import { useNotificationScope } from '@/core/hooks/notifications/use-notification-scope';
 import { useNotificationSettings } from '@/core/hooks/notifications/use-notification-settings';
-import { quietHoursOf } from '@/core/lib/notifications/notification-preferences';
+import { pushOnFor, quietHoursOf } from '@/core/lib/notifications/notification-preferences';
 import {
 	claimTimerReminder,
+	givenTimerReminderLevel,
 	isWithinQuietHours,
 	nextTimerReminderAt,
+	recordTimerReminder,
 	shownTimerReminderLevel,
 	TIMER_REMINDER_CLAIM_RETRY_MS,
+	TIMER_REMINDER_MARK_MARGIN_MS,
+	TIMER_REMINDER_MARK_MARGIN_UNSYNCED_MS,
+	TIMER_REMINDER_MARK_READ_RETRY_MS,
+	TIMER_REMINDER_MARK_READ_WINDOW_MS,
+	timerReminderDueAt,
 	timerReminderHoursOf,
 	timerReminderLevelAt,
+	timerReminderToMarkRead,
 	timerRunOf,
+	wasRemindedByServer,
 	type TimerReminderLevel
 } from '@/core/lib/notifications/timer-reminders';
-import type { INotificationPreferences } from '@/core/types/interfaces/common/employee-notification';
+import { serverClockOffset } from '@/core/lib/utils/team-members.utils';
+import { employeeNotificationService } from '@/core/services/client/api/notifications';
+import { timerReminderTargetState } from '@/core/stores/timer/timer-reminder';
+import {
+	EEmployeeNotificationType,
+	type IEmployeeNotification,
+	type INotificationPreferences
+} from '@/core/types/interfaces/common/employee-notification';
 import type { ITimerStatus } from '@/core/types/interfaces/timer/timer-status';
 
 /** The longest delay a timeout keeps (about 24.8 days): a reminder due later is checked again then. */
@@ -30,7 +48,10 @@ const TIMER_PATH = '/';
 /** The toast (and system notification) of one reminder of one run. */
 export const timerReminderIdOf = (runKey: string, level: TimerReminderLevel) => `timer-reminder-${runKey}-${level}`;
 
-/** A system notification as well: the tab is out of sight, the browser allows it, push is on, not the quiet hours. */
+/**
+ * A system notification as well: the tab is out of sight, the browser allows it, push is on for the timer reminders
+ * (their own switch, else the one of every kind), not the quiet hours.
+ */
 function showsSystemNotification(preferences: INotificationPreferences | null | undefined): boolean {
 	if (typeof document === 'undefined' || document.visibilityState !== 'hidden') {
 		return false;
@@ -38,7 +59,7 @@ function showsSystemNotification(preferences: INotificationPreferences | null | 
 	if (typeof Notification === 'undefined' || Notification.permission !== 'granted') {
 		return false;
 	}
-	if (preferences?.push === false) {
+	if (!pushOnFor(preferences, EEmployeeNotificationType.TimerReminder)) {
 		return false;
 	}
 	return !isWithinQuietHours(new Date(), quietHoursOf(preferences));
@@ -64,10 +85,20 @@ interface UseTimerRemindersInput {
  * or open it. A tab out of sight shows it as a system notification too, where the browser allows them, push is on and
  * it is not the quiet hours. Nothing is reminded of until the employee's preferences have been read. Mounted once for
  * the app, by its timer's owner (TimerReminders).
+ *
+ * The platform reminds of the same run on its own, in the inbox and by email or push, for when no tab is open. It
+ * files every reminder unread and holds its email and push a few minutes; a tab that put the reminder in front of the
+ * person (a toast in sight, or a system notification) marks the platform's copy read meanwhile, so that they do not go
+ * (`markPlatformCopyRead`), whatever app runs the timer. A toast in a tab out of sight, with no system notification,
+ * leaves the copy to go. A tab does not repeat a reminder the person already got from the platform
+ * (`wasRemindedByServer`), when the tab opens or wakes up after it came due. While the timer runs, the run and the
+ * owner's stop are published for the inbox's "Stop timer" (`timerReminderTargetState`).
  */
 export function useTimerReminders({ timerStatus, stopTimer }: UseTimerRemindersInput) {
 	const t = useTranslations();
 	const router = useRouter();
+	const scope = useNotificationScope();
+	const setReminderTarget = useSetAtom(timerReminderTargetState);
 	const {
 		setting,
 		isAvailable: isSettingAvailable,
@@ -83,11 +114,89 @@ export function useTimerReminders({ timerStatus, stopTimer }: UseTimerRemindersI
 	const isRunning = Boolean(timerStatus?.running);
 
 	// Read when a reminder fires or is acted on, not when it was scheduled
-	const latest = useSyncRef({ preferences, stopTimer, isRunning, t, router });
+	const latest = useSyncRef({ preferences, stopTimer, isRunning, t, router, scope });
 	// The reminders shown in this tab, for a browser that keeps no storage
 	const shownHere = useRef(new Map<string, number>());
 	// The system notifications this tab raised, by reminder: withdrawn with their run, or by the next reminder
 	const systemNotifications = useRef(new Map<string, Notification>());
+	// The platform's copies of the reminders this tab showed, being marked read, by run and level. They outlive the run
+	// (a timer stopped from its reminder is not to be emailed about either), and end with the tab.
+	const markingRead = useRef(new Map<string, () => void>());
+
+	useEffect(() => {
+		const marking = markingRead.current;
+		return () => {
+			for (const stop of [...marking.values()]) {
+				stop();
+			}
+		};
+	}, []);
+
+	/**
+	 * Marks the platform's copy of a reminder this tab showed read, so that its email and push do not follow: the
+	 * platform holds them a few minutes for it (TIMER_REMINDER_DELIVERY_GRACE_MS) and files the copy at its next sweep,
+	 * so the copy is asked for again until it is there, for a while (TIMER_REMINDER_MARK_READ_WINDOW_MS). Nothing is
+	 * marked when the platform has none (an older Gauzy, or its reminders off), nor twice.
+	 *
+	 * @param known The run's reminders the platform answered just before the reminder was shown, when it did.
+	 */
+	const markPlatformCopyRead = useCallback(
+		(runKey: string, level: TimerReminderLevel, known: readonly IEmployeeNotification[] | null) => {
+			const marking = markingRead.current;
+			const key = `${runKey}:${level}`;
+			if (marking.has(key)) {
+				return;
+			}
+			const until = Date.now() + TIMER_REMINDER_MARK_READ_WINDOW_MS;
+			let timeout: ReturnType<typeof setTimeout> | undefined;
+			let isStopped = false;
+			const stop = () => {
+				isStopped = true;
+				clearTimeout(timeout);
+				marking.delete(key);
+			};
+			marking.set(key, stop);
+
+			const attempt = async (reminders: readonly IEmployeeNotification[] | null) => {
+				try {
+					const notificationScope = latest.current.scope;
+					const copies =
+						reminders ??
+						(notificationScope
+							? await employeeNotificationService.getTimerReminders(notificationScope, runKey)
+							: null);
+					if (isStopped) {
+						return;
+					}
+					const copy = copies ? timerReminderToMarkRead(copies, runKey, level) : null;
+					if (copy === 'read') {
+						stop();
+						return;
+					}
+					if (copy) {
+						await employeeNotificationService.update(copy.id, {
+							isRead: true,
+							readAt: new Date().toISOString()
+						});
+						stop();
+						return;
+					}
+				} catch {
+					// Asked again shortly, until the window closes
+				}
+				if (isStopped) {
+					return;
+				}
+				if (Date.now() >= until) {
+					stop();
+					return;
+				}
+				timeout = setTimeout(() => void attempt(null), TIMER_REMINDER_MARK_READ_RETRY_MS);
+			};
+			void attempt(known);
+		},
+		[latest]
+	);
 
 	// Until the employee's threshold is read, the default could remind of a timer they gave more time: nothing is read
 	// before the workspace is known, and a read that failed says nothing of it either, unless an earlier one answered
@@ -108,8 +217,10 @@ export function useTimerReminders({ timerStatus, stopTimer }: UseTimerRemindersI
 			systemNotifications.current.delete(id);
 		};
 
-		const show = (level: TimerReminderLevel) => {
+		// Shows the reminder: true when the person could see it (the tab in sight, or a system notification)
+		const show = (level: TimerReminderLevel): boolean => {
 			const { t: translate } = latest.current;
+			const isInSight = typeof document !== 'undefined' && document.visibilityState === 'visible';
 			const title = translate(
 				level === 1
 					? 'notifications.TIMER_REMINDER.LONG_TITLE'
@@ -155,38 +266,107 @@ export function useTimerReminders({ timerStatus, stopTimer }: UseTimerRemindersI
 						open();
 						closeSystemNotification(id);
 					};
+					return true;
 				}
 			}
+			return isInSight;
 		};
+
+		// The platform's reminders of the run, asked once per reminder: null when it cannot say (no workspace scope yet,
+		// or a read that failed), when the reminder is shown, as before the platform reminded too
+		const platformReminders = new Map<TimerReminderLevel, Promise<IEmployeeNotification[] | null>>();
+		const remindersOfRun = (level: TimerReminderLevel) => {
+			const asked =
+				platformReminders.get(level) ??
+				(async () => {
+					const notificationScope = latest.current.scope;
+					if (!notificationScope) {
+						return null;
+					}
+					try {
+						return await employeeNotificationService.getTimerReminders(notificationScope, runKey);
+					} catch {
+						return null;
+					}
+				})();
+			platformReminders.set(level, asked);
+			return asked;
+		};
+		// A tab opened, reloaded or woken just after this browser showed a reminder takes over marking its copy read,
+		// which the tab that showed it may not have finished
+		let isFirstCheck = true;
 
 		const check = async () => {
 			const level = timerReminderLevelAt(Date.now() - startedAt, hours);
+			const isFirst = isFirstCheck;
+			isFirstCheck = false;
 			const shownInTab = shownHere.current.get(runKey) ?? 0;
 			if (level > shownInTab) {
-				// One tab of the browser claims the reminder, the one in sight first; the others note it once it was given
-				const isVisible = typeof document !== 'undefined' && document.visibilityState === 'visible';
-				const isClaimed = await claimTimerReminder(
-					runKey,
-					level as TimerReminderLevel,
-					isVisible,
-					() => isCancelled
-				);
+				// A reminder the person already got from the platform (by email or push, or in another tab or device) is
+				// noted as shown, not repeated. Not asked for one this browser gave already (a reload, another tab).
+				const isGivenHere = givenTimerReminderLevel(runKey) >= level;
+				const reminders = isGivenHere ? null : await remindersOfRun(level as TimerReminderLevel);
 				if (isCancelled) {
 					return;
 				}
-				if (isClaimed) {
-					shownHere.current.set(runKey, level);
-					show(level as TimerReminderLevel);
-				} else if (shownTimerReminderLevel(runKey) >= level) {
+				// On the platform's clock, which the platform's copy is stamped with, where the app has read it
+				const clockOffset = serverClockOffset();
+				const isRemindedElsewhere =
+					reminders !== null &&
+					wasRemindedByServer(reminders, { key: runKey, startedAt }, level as TimerReminderLevel, {
+						serverNow: Date.now() + (clockOffset ?? 0),
+						markMarginMs:
+							clockOffset === null
+								? TIMER_REMINDER_MARK_MARGIN_UNSYNCED_MS
+								: TIMER_REMINDER_MARK_MARGIN_MS,
+						preferences: latest.current.preferences
+					});
+				if (isRemindedElsewhere) {
+					recordTimerReminder(runKey, level as TimerReminderLevel);
 					shownHere.current.set(runKey, level);
 				} else {
-					// Another tab holds the claim and has given nothing yet: it may still give the reminder, or be called
-					// off and give the claim back. Asked again shortly, until a tab gives it or that claim expires.
-					timeout = setTimeout(() => void check(), TIMER_REMINDER_CLAIM_RETRY_MS);
-					return;
+					// One tab of the browser claims the reminder, the one in sight first; the others note it once it was
+					// given
+					const isVisible = typeof document !== 'undefined' && document.visibilityState === 'visible';
+					const isClaimed = await claimTimerReminder(
+						runKey,
+						level as TimerReminderLevel,
+						isVisible,
+						() => isCancelled
+					);
+					if (isCancelled) {
+						return;
+					}
+					if (isClaimed) {
+						shownHere.current.set(runKey, level);
+						// Only a reminder the person could see stops the platform's copy: a toast in a tab out of sight,
+						// with no system notification, leaves it to go by email or push
+						if (show(level as TimerReminderLevel)) {
+							recordTimerReminder(runKey, level as TimerReminderLevel, { shown: true });
+							markPlatformCopyRead(runKey, level as TimerReminderLevel, reminders);
+						}
+					} else if (givenTimerReminderLevel(runKey) >= level) {
+						shownHere.current.set(runKey, level);
+						// The tab that showed it may have closed or reloaded before it marked the copy: taken over, for a
+						// reminder this browser showed the person only, never one it left to the platform
+						const dueAt = timerReminderDueAt(
+							{ key: runKey, startedAt },
+							hours,
+							level as TimerReminderLevel
+						);
+						const wasShownHere = shownTimerReminderLevel(runKey) >= level;
+						if (isFirst && wasShownHere && Date.now() - dueAt < TIMER_REMINDER_MARK_READ_WINDOW_MS) {
+							markPlatformCopyRead(runKey, level as TimerReminderLevel, null);
+						}
+					} else {
+						// Another tab holds the claim and has given nothing yet: it may still give the reminder, or be
+						// called off and give the claim back. Asked again shortly, until a tab gives it or that claim expires.
+						timeout = setTimeout(() => void check(), TIMER_REMINDER_CLAIM_RETRY_MS);
+						return;
+					}
 				}
 			}
-			const shown = Math.max(level, shownTimerReminderLevel(runKey), shownHere.current.get(runKey) ?? 0);
+			const shown = Math.max(level, givenTimerReminderLevel(runKey), shownHere.current.get(runKey) ?? 0);
 			const next = nextTimerReminderAt({ key: runKey, startedAt }, hours, shown);
 			if (next !== null) {
 				timeout = setTimeout(() => void check(), Math.min(Math.max(next - Date.now(), 0), MAX_TIMEOUT_MS));
@@ -198,7 +378,25 @@ export function useTimerReminders({ timerStatus, stopTimer }: UseTimerRemindersI
 			isCancelled = true;
 			clearTimeout(timeout);
 		};
-	}, [isThresholdKnown, latest, runKey, startedAt, hours]);
+	}, [isThresholdKnown, latest, markPlatformCopyRead, runKey, startedAt, hours]);
+
+	// The running run and the owner's stop, for the "Stop timer" of its reminders in the inbox
+	useEffect(() => {
+		if (!runKey || !isRunning) {
+			setReminderTarget(null);
+			return;
+		}
+		setReminderTarget({
+			runKey,
+			stop: () => {
+				// Stopped meanwhile, here or on another device: nothing to stop
+				if (latest.current.isRunning) {
+					return latest.current.stopTimer();
+				}
+			}
+		});
+		return () => setReminderTarget(null);
+	}, [isRunning, latest, runKey, setReminderTarget]);
 
 	// A run that ended (the timer stopped, or another run started) takes its reminders away, the system notifications
 	// too. A status being read again (none, as on a team change) says nothing of the run: its reminders stay.

@@ -3500,7 +3500,8 @@
 			"MESSAGE": "<b>{name}</b> wysłał(a) Ci wiadomość",
 			"BROADCAST": "<b>{name}</b> opublikował(a) ogłoszenie",
 			"PAYMENT": "Zarejestrowano dla Ciebie płatność",
-			"RATE_CHANGE_REQUEST": "<b>{name}</b> prosi o zmianę stawki"
+			"RATE_CHANGE_REQUEST": "<b>{name}</b> prosi o zmianę stawki",
+			"TIMER_REMINDER": "Twój licznik czasu wciąż działa"
 		},
 		"TYPES": {
 			"ASSIGNMENT": "Przypisanie",
@@ -3510,7 +3511,8 @@
 			"MESSAGE": "Wiadomość",
 			"BROADCAST": "Ogłoszenie",
 			"PAYMENT": "Płatność",
-			"RATE_CHANGE_REQUEST": "Prośba o zmianę stawki"
+			"RATE_CHANGE_REQUEST": "Prośba o zmianę stawki",
+			"TIMER_REMINDER": "Przypomnienie o liczniku czasu"
 		},
 		"SOMEONE": "Ktoś",
 		"MARK_READ": "Oznacz jako przeczytane",
@@ -3579,7 +3581,7 @@
 				"TITLE": "Śledzenie czasu",
 				"INTRO": "Przypomnienie, gdy licznik czasu działa długo, i kolejne po dwukrotnie dłuższym czasie, jeśli nadal działa.",
 				"LABEL": "Przypomnienie o długo działającym liczniku",
-				"TEXT": "W aplikacji oraz jako powiadomienie na tym urządzeniu, gdy karta nie jest widoczna, a przeglądarka na to pozwala.",
+				"TEXT": "W aplikacji, gdy jest otwarta; w przeciwnym razie w Twojej skrzynce, a także e-mailem i na Twoich urządzeniach, zgodnie z Twoim wyborem.",
 				"OFF": "Wyłączone",
 				"AFTER_HOURS": "Po {hours, plural, one {# godzinie} other {# godzinach}}"
 			},

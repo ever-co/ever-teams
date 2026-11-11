@@ -11,7 +11,9 @@ export enum EEmployeeNotificationType {
 	Comment = 'Comment',
 	Message = 'Message',
 	Broadcast = 'Broadcast',
-	RateChangeRequest = 'RateChangeRequest'
+	RateChangeRequest = 'RateChangeRequest',
+	/** A timer left running, at the employee's threshold, then at twice it (#5022): about the run's time log. */
+	TimerReminder = 'TimerReminder'
 }
 
 export interface IEmployeeNotification {

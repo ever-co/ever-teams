@@ -3500,7 +3500,8 @@
 			"MESSAGE": "<b>{name}</b> ti ha inviato un messaggio",
 			"BROADCAST": "<b>{name}</b> ha pubblicato un annuncio",
 			"PAYMENT": "È stato registrato un pagamento per te",
-			"RATE_CHANGE_REQUEST": "<b>{name}</b> ha chiesto un cambio di tariffa"
+			"RATE_CHANGE_REQUEST": "<b>{name}</b> ha chiesto un cambio di tariffa",
+			"TIMER_REMINDER": "Il tuo timer è ancora in funzione"
 		},
 		"TYPES": {
 			"ASSIGNMENT": "Assegnazione",
@@ -3510,7 +3511,8 @@
 			"MESSAGE": "Messaggio",
 			"BROADCAST": "Annuncio",
 			"PAYMENT": "Pagamento",
-			"RATE_CHANGE_REQUEST": "Richiesta di cambio tariffa"
+			"RATE_CHANGE_REQUEST": "Richiesta di cambio tariffa",
+			"TIMER_REMINDER": "Promemoria del timer"
 		},
 		"SOMEONE": "Qualcuno",
 		"MARK_READ": "Segna come letta",
@@ -3579,7 +3581,7 @@
 				"TITLE": "Monitoraggio del tempo",
 				"INTRO": "Un promemoria quando un timer è in funzione da molto, e un altro al doppio se continua.",
 				"LABEL": "Promemoria per timer prolungato",
-				"TEXT": "Nell’app, e come notifica su questo dispositivo quando la scheda non è visibile e il browser lo consente.",
+				"TEXT": "Nell’app mentre è aperta; altrimenti nella tua posta in arrivo, e via email e sui tuoi dispositivi come scegli.",
 				"OFF": "Disattivato",
 				"AFTER_HOURS": "Dopo {hours, plural, one {# ora} other {# ore}}"
 			},

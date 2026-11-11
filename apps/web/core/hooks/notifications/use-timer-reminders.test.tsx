@@ -9,6 +9,14 @@ const mockToast = { warning: jest.fn(), dismiss: jest.fn() };
 const mockPush = jest.fn();
 const mockSetting = { current: { preferences: {} } as { preferences: Record<string, unknown> } | null };
 const mockSettingRead = { isAvailable: true, isLoading: false, isError: false, isSavingPreferences: false };
+const SCOPE = { tenantId: 'tenant-1', organizationId: 'organization-1', receiverEmployeeId: 'employee-1' };
+const mockScope = { current: SCOPE as typeof SCOPE | null };
+// The platform's own reminders of the run, as `GET /employee-notification` answers them
+const mockGetTimerReminders = jest.fn();
+// A reminder's copy on the platform marked read (`PUT /employee-notification/:id`)
+const mockUpdate = jest.fn();
+// How far the platform's clock is ahead of the browser's, null while the app has not read it
+const mockClockOffset = { current: null as number | null };
 
 jest.mock('sonner', () => ({
 	toast: {
@@ -24,13 +32,31 @@ jest.mock('next-intl', () => ({
 jest.mock('@/core/hooks/notifications/use-notification-settings', () => ({
 	useNotificationSettings: () => ({ setting: mockSetting.current, ...mockSettingRead })
 }));
+jest.mock('@/core/hooks/notifications/use-notification-scope', () => ({
+	useNotificationScope: () => mockScope.current
+}));
+jest.mock('@/core/lib/utils/team-members.utils', () => ({
+	serverClockOffset: () => mockClockOffset.current
+}));
+jest.mock('@/core/services/client/api/notifications', () => ({
+	employeeNotificationService: {
+		getTimerReminders: (...args: unknown[]) => mockGetTimerReminders(...args),
+		update: (...args: unknown[]) => mockUpdate(...args)
+	}
+}));
 
+import { getDefaultStore } from 'jotai';
 import {
+	givenTimerReminderLevel,
+	recordTimerReminder,
 	shownTimerReminderLevel,
 	TIMER_REMINDER_CLAIM_RETRY_MS,
-	TIMER_REMINDER_HIDDEN_YIELD_MS
+	TIMER_REMINDER_HIDDEN_YIELD_MS,
+	TIMER_REMINDER_MARK_READ_RETRY_MS,
+	TIMER_REMINDER_MARK_READ_WINDOW_MS
 } from '@/core/lib/notifications/timer-reminders';
 import { TAB_CLAIM_PREFIX, TAB_CLAIM_TTL_MS } from '@/core/lib/realtime/tab-claim';
+import { timerReminderTargetState } from '@/core/stores/timer/timer-reminder';
 import type { ITimerStatus } from '@/core/types/interfaces/timer/timer-status';
 import { timerReminderIdOf, useTimerReminders } from './use-timer-reminders';
 
@@ -56,6 +82,19 @@ async function renderReminders(timerStatus: ITimerStatus | null = RUNNING, stopT
 const shownTitles = () => mockToast.warning.mock.calls.map(([title]) => String(title).split(' ')[0]);
 const lastOptions = () => mockToast.warning.mock.calls.at(-1)?.[1];
 
+/** The platform's reminder of the run, as it files it (Gauzy's English title), when the level came due by default. */
+const reminder = (level: 1 | 2, isRead: boolean, entityId = 'log-1', filedAt = STARTED_AT + level * 8 * HOUR) => ({
+	id: `reminder-${level}`,
+	type: 'TimerReminder',
+	entity: 'TimeLog',
+	entityId,
+	title: level === 1 ? 'Your timer has been running for 8 hours' : 'Your timer is still running after 16 hours',
+	isRead,
+	createdAt: new Date(filedAt).toISOString()
+});
+const MINUTE = 60 * 1000;
+const markedRead = { isRead: true, readAt: expect.any(String) };
+
 describe('useTimerReminders', () => {
 	let visibility: DocumentVisibilityState;
 
@@ -70,6 +109,12 @@ describe('useTimerReminders', () => {
 		mockSettingRead.isLoading = false;
 		mockSettingRead.isError = false;
 		mockSettingRead.isSavingPreferences = false;
+		mockScope.current = SCOPE;
+		mockGetTimerReminders.mockReset();
+		mockGetTimerReminders.mockResolvedValue([]);
+		mockUpdate.mockReset();
+		mockUpdate.mockResolvedValue({});
+		mockClockOffset.current = null;
 		window.localStorage.clear();
 		visibility = 'visible';
 		jest.spyOn(document, 'visibilityState', 'get').mockImplementation(() => visibility);
@@ -190,7 +235,7 @@ describe('useTimerReminders', () => {
 		rerender({ timerStatus: RUNNING });
 		await advance(0);
 		expect(mockToast.warning).not.toHaveBeenCalled();
-		expect(shownTimerReminderLevel('log-1')).toBe(0);
+		expect(givenTimerReminderLevel('log-1')).toBe(0);
 
 		// Saved: reminded at once, on two hours
 		mockSetting.current = { preferences: { timerReminderHours: 2 } };
@@ -209,7 +254,7 @@ describe('useTimerReminders', () => {
 		rerender({ timerStatus: RUNNING });
 		await advance(TIMER_REMINDER_HIDDEN_YIELD_MS);
 		expect(mockToast.warning).not.toHaveBeenCalled();
-		expect(shownTimerReminderLevel('log-1')).toBe(0);
+		expect(givenTimerReminderLevel('log-1')).toBe(0);
 
 		// The save is refused: the threshold stays, and the reminder is given after all
 		mockSettingRead.isSavingPreferences = false;
@@ -310,6 +355,257 @@ describe('useTimerReminders', () => {
 		expect(mockToast.dismiss).toHaveBeenCalledWith(timerReminderIdOf('log-1', 2));
 	});
 
+	it("publishes the running run and the owner's stop for the inbox, and nothing once it stopped", async () => {
+		const { stopTimer, rerender } = await renderReminders();
+		const target = getDefaultStore().get(timerReminderTargetState);
+		expect(target?.runKey).toBe('log-1');
+
+		target?.stop();
+		expect(stopTimer).toHaveBeenCalledTimes(1);
+
+		rerender({ timerStatus: { running: false } });
+		expect(getDefaultStore().get(timerReminderTargetState)).toBeNull();
+		// A stop kept from before stops nothing
+		target?.stop();
+		expect(stopTimer).toHaveBeenCalledTimes(1);
+	});
+
+	describe("with the platform's own reminders", () => {
+		it('does not repeat a reminder the person got by email or push while no tab was open', async () => {
+			jest.setSystemTime(STARTED_AT + 9 * HOUR);
+			mockGetTimerReminders.mockResolvedValue([reminder(1, false)]);
+
+			await renderReminders();
+
+			expect(mockGetTimerReminders).toHaveBeenCalledWith(SCOPE, 'log-1');
+			expect(mockToast.warning).not.toHaveBeenCalled();
+			// Noted as shown: another tab or a reload does not ask again
+			await renderReminders();
+			expect(mockGetTimerReminders).toHaveBeenCalledTimes(1);
+
+			// The next one is due at twice the threshold; the platform has not reminded of it
+			await advance(7 * HOUR);
+			expect(shownTitles()).toEqual(['notifications.TIMER_REMINDER.FORGOTTEN_TITLE']);
+		});
+
+		it('does not repeat one shown in another tab or on another device minutes ago', async () => {
+			jest.setSystemTime(STARTED_AT + 8 * HOUR + 10 * 60 * 1000);
+			// Read: a tab or device that showed it marked it
+			mockGetTimerReminders.mockResolvedValue([reminder(1, true)]);
+
+			await renderReminders();
+
+			expect(mockToast.warning).not.toHaveBeenCalled();
+		});
+
+		it('does not repeat one another tab or device showed and marked read a moment ago', async () => {
+			await renderReminders();
+			mockGetTimerReminders.mockResolvedValue([reminder(1, true, 'log-1', STARTED_AT + 8 * HOUR - 20_000)]);
+
+			await advance(HOUR);
+
+			expect(mockToast.warning).not.toHaveBeenCalled();
+		});
+
+		it('shows one whose unread copy reaches the person nowhere but in the inbox, and marks it read', async () => {
+			// The timer reminders go to the digest, and are not pushed: only the inbox has the copy filed an hour ago
+			mockSetting.current = { preferences: { email: 'digest', pushByType: { TimerReminder: false } } };
+			jest.setSystemTime(STARTED_AT + 9 * HOUR);
+			mockGetTimerReminders.mockResolvedValue([reminder(1, false)]);
+
+			await renderReminders();
+
+			expect(shownTitles()).toEqual(['notifications.TIMER_REMINDER.LONG_TITLE']);
+			expect(mockUpdate).toHaveBeenCalledWith('reminder-1', markedRead);
+		});
+
+		it('shows one the quiet hours still hold, and marks it read before they end', async () => {
+			// Due at 16:00 UTC inside quiet hours from 16:00 to 18:00: its email and push wait for 18:00
+			mockSetting.current = { preferences: { dnd: { start: '16:00', end: '18:00', timeZone: 'UTC' } } };
+			jest.setSystemTime(STARTED_AT + 9 * HOUR);
+			mockGetTimerReminders.mockResolvedValue([reminder(1, false)]);
+
+			await renderReminders();
+
+			expect(shownTitles()).toEqual(['notifications.TIMER_REMINDER.LONG_TITLE']);
+			expect(mockUpdate).toHaveBeenCalledWith('reminder-1', markedRead);
+		});
+
+		it("judges the copy's age on the platform's clock, with a wider margin while the app has not read it", async () => {
+			// The platform's clock is two minutes behind the browser's. Filed 70 s before now on it, the copy goes 110 s
+			// on: time enough for a mark. On the browser's clock it would look three minutes old, and gone.
+			jest.setSystemTime(STARTED_AT + 8 * HOUR + 10 * MINUTE);
+			mockClockOffset.current = -2 * MINUTE;
+			mockGetTimerReminders.mockResolvedValue([reminder(1, false, 'log-1', Date.now() - 2 * MINUTE - 70_000)]);
+			const synced = await renderReminders();
+			expect(shownTitles()).toEqual(['notifications.TIMER_REMINDER.LONG_TITLE']);
+			synced.unmount();
+
+			// Without the platform's clock the browser's is used, with two minutes kept for the mark: the copy (filed
+			// 70 s ago by the browser's clock) goes 110 s on, too soon
+			window.localStorage.clear();
+			mockToast.warning.mockReset();
+			mockClockOffset.current = null;
+			mockGetTimerReminders.mockResolvedValue([reminder(1, false, 'log-1', Date.now() - 70_000)]);
+			await renderReminders();
+			expect(mockToast.warning).not.toHaveBeenCalled();
+		});
+
+		it('never marks read a reminder this browser left to the platform, on a reload or in another tab', async () => {
+			// The platform filed the reminder unread a minute after it came due, while no tab was open: its email went
+			const copy = reminder(1, false, 'log-1', STARTED_AT + 8 * HOUR + MINUTE);
+			mockGetTimerReminders.mockResolvedValue([copy]);
+			jest.setSystemTime(STARTED_AT + 8 * HOUR + 5 * MINUTE);
+			const first = await renderReminders();
+			expect(mockToast.warning).not.toHaveBeenCalled();
+			expect(givenTimerReminderLevel('log-1')).toBe(1);
+			expect(shownTimerReminderLevel('log-1')).toBe(0);
+			first.unmount();
+
+			// A reload two minutes on (or a second tab) does not take over a mark this browser never had to make
+			jest.setSystemTime(STARTED_AT + 8 * HOUR + 7 * MINUTE);
+			await renderReminders();
+			await advance(TIMER_REMINDER_MARK_READ_RETRY_MS);
+
+			expect(mockToast.warning).not.toHaveBeenCalled();
+			expect(mockUpdate).not.toHaveBeenCalled();
+		});
+
+		it('leaves the copy to go by email or push when its toast went to a tab out of sight, with no system notification', async () => {
+			visibility = 'hidden';
+			const rendered = await renderReminders();
+			await advance(HOUR + TIMER_REMINDER_HIDDEN_YIELD_MS);
+			expect(shownTitles()).toEqual(['notifications.TIMER_REMINDER.LONG_TITLE']);
+
+			mockGetTimerReminders.mockResolvedValue([reminder(1, false, 'log-1', Date.now() + 20_000)]);
+			await advance(5 * TIMER_REMINDER_MARK_READ_RETRY_MS);
+			expect(mockUpdate).not.toHaveBeenCalled();
+			expect(shownTimerReminderLevel('log-1')).toBe(0);
+			rendered.unmount();
+
+			// Nor does a reload take it over
+			await renderReminders();
+			await advance(TIMER_REMINDER_MARK_READ_RETRY_MS);
+			expect(mockUpdate).not.toHaveBeenCalled();
+		});
+
+		it("shows it when the platform's reminder is of a lower level or of another run", async () => {
+			jest.setSystemTime(STARTED_AT + 17 * HOUR);
+			mockGetTimerReminders.mockResolvedValue([reminder(1, false), reminder(2, false, 'log-0')]);
+
+			await renderReminders();
+
+			expect(shownTitles()).toEqual(['notifications.TIMER_REMINDER.FORGOTTEN_TITLE']);
+		});
+
+		it("marks read the platform's copy of a desktop timer's reminder it showed, so that no email or push follows", async () => {
+			const desktopRun: ITimerStatus = {
+				running: true,
+				lastLog: { id: 'log-1', startedAt: new Date(STARTED_AT), source: 'DESKTOP' } as never
+			};
+			await renderReminders(desktopRun);
+			await advance(HOUR);
+			expect(shownTitles()).toEqual(['notifications.TIMER_REMINDER.LONG_TITLE']);
+			expect(mockUpdate).not.toHaveBeenCalled();
+
+			// The platform files its copy at its next sweep, unread: it cannot tell this tab from the desktop app
+			mockGetTimerReminders.mockResolvedValue([reminder(1, false, 'log-1', Date.now() + 20_000)]);
+			await advance(TIMER_REMINDER_MARK_READ_RETRY_MS);
+			expect(mockUpdate).toHaveBeenCalledTimes(1);
+			expect(mockUpdate).toHaveBeenCalledWith('reminder-1', markedRead);
+
+			// Marked once: not asked about again
+			const asked = mockGetTimerReminders.mock.calls.length;
+			await advance(5 * TIMER_REMINDER_MARK_READ_RETRY_MS);
+			expect(mockGetTimerReminders).toHaveBeenCalledTimes(asked);
+			expect(mockUpdate).toHaveBeenCalledTimes(1);
+		});
+
+		it('shows a reminder the platform filed moments ago, still unread, and marks it read at once', async () => {
+			jest.setSystemTime(STARTED_AT + 8 * HOUR + MINUTE);
+			mockGetTimerReminders.mockResolvedValue([reminder(1, false, 'log-1', STARTED_AT + 8 * HOUR + 30_000)]);
+
+			await renderReminders();
+
+			expect(shownTitles()).toEqual(['notifications.TIMER_REMINDER.LONG_TITLE']);
+			// With the answer the tab had: not asked twice
+			expect(mockGetTimerReminders).toHaveBeenCalledTimes(1);
+			expect(mockUpdate).toHaveBeenCalledWith('reminder-1', markedRead);
+		});
+
+		it('does not repeat one the platform filed unread minutes ago: its email and push went, or are going', async () => {
+			jest.setSystemTime(STARTED_AT + 8 * HOUR + 5 * MINUTE);
+			mockGetTimerReminders.mockResolvedValue([reminder(1, false, 'log-1', STARTED_AT + 8 * HOUR + 30_000)]);
+
+			await renderReminders();
+
+			expect(mockToast.warning).not.toHaveBeenCalled();
+			expect(mockUpdate).not.toHaveBeenCalled();
+		});
+
+		it('goes on marking the copy read once the timer was stopped from the reminder', async () => {
+			const { rerender, stopTimer } = await renderReminders();
+			await advance(HOUR);
+			lastOptions().action.onClick();
+			expect(stopTimer).toHaveBeenCalledTimes(1);
+			rerender({ timerStatus: { running: false } });
+
+			mockGetTimerReminders.mockResolvedValue([reminder(1, false, 'log-1', Date.now())]);
+			await advance(TIMER_REMINDER_MARK_READ_RETRY_MS);
+
+			expect(mockUpdate).toHaveBeenCalledWith('reminder-1', markedRead);
+		});
+
+		it('takes over marking the copy read after a reload just after the reminder was given, not long after', async () => {
+			jest.setSystemTime(STARTED_AT + 8 * HOUR + 20_000);
+			// Shown in this browser before the reload; the platform has filed its copy since
+			recordTimerReminder('log-1', 1, { shown: true });
+			mockGetTimerReminders.mockResolvedValue([reminder(1, false, 'log-1', STARTED_AT + 8 * HOUR + 10_000)]);
+
+			const reloaded = await renderReminders();
+
+			expect(mockToast.warning).not.toHaveBeenCalled();
+			expect(mockUpdate).toHaveBeenCalledWith('reminder-1', markedRead);
+			reloaded.unmount();
+
+			// An hour on, a reload leaves the platform's copy alone
+			mockUpdate.mockClear();
+			mockGetTimerReminders.mockClear();
+			jest.setSystemTime(STARTED_AT + 9 * HOUR);
+			await renderReminders();
+			expect(mockGetTimerReminders).not.toHaveBeenCalled();
+			expect(mockUpdate).not.toHaveBeenCalled();
+		});
+
+		it('asks for the copy for a while only when the platform files none (an older Gauzy, or its reminders off)', async () => {
+			await renderReminders();
+			await advance(HOUR);
+			expect(shownTitles()).toEqual(['notifications.TIMER_REMINDER.LONG_TITLE']);
+
+			await advance(TIMER_REMINDER_MARK_READ_WINDOW_MS + TIMER_REMINDER_MARK_READ_RETRY_MS);
+			const asked = mockGetTimerReminders.mock.calls.length;
+			// The read before the reminder, then one every retry through the window
+			expect(asked).toBe(1 + TIMER_REMINDER_MARK_READ_WINDOW_MS / TIMER_REMINDER_MARK_READ_RETRY_MS);
+			await advance(TIMER_REMINDER_MARK_READ_WINDOW_MS);
+			expect(mockGetTimerReminders).toHaveBeenCalledTimes(asked);
+			expect(mockUpdate).not.toHaveBeenCalled();
+		});
+
+		it('shows it when the platform cannot say: no workspace scope yet, or a read that failed', async () => {
+			jest.setSystemTime(STARTED_AT + 9 * HOUR);
+			mockScope.current = null;
+			await renderReminders();
+			expect(mockGetTimerReminders).not.toHaveBeenCalled();
+			expect(mockToast.warning).toHaveBeenCalledTimes(1);
+
+			window.localStorage.clear();
+			mockScope.current = SCOPE;
+			mockGetTimerReminders.mockRejectedValue(new Error('Network Error'));
+			await renderReminders();
+			expect(mockToast.warning).toHaveBeenCalledTimes(2);
+		});
+	});
+
 	describe('as a system notification', () => {
 		const notifications: Array<{ title: string; options: NotificationOptions; close: jest.Mock }> = [];
 		let refusesNotifications = false;
@@ -346,6 +642,27 @@ describe('useTimerReminders', () => {
 			await renderHidden();
 			expect(notifications).toHaveLength(1);
 			expect(notifications[0].options.tag).toBe(timerReminderIdOf('log-1', 1));
+		});
+
+		it("marks the platform's copy read once the system notification showed the reminder", async () => {
+			mockGetTimerReminders.mockResolvedValue([]);
+			await renderHidden();
+			expect(notifications).toHaveLength(1);
+
+			mockGetTimerReminders.mockResolvedValue([reminder(1, false)]);
+			await advance(TIMER_REMINDER_MARK_READ_RETRY_MS);
+			expect(mockUpdate).toHaveBeenCalledWith('reminder-1', expect.objectContaining({ isRead: true }));
+		});
+
+		it('shows none with push off for the timer reminders alone, and leaves their copy to be pushed', async () => {
+			mockSetting.current = { preferences: { pushByType: { TimerReminder: false } } };
+			await renderHidden();
+			expect(notifications).toHaveLength(0);
+			expect(shownTitles()).toEqual(['notifications.TIMER_REMINDER.LONG_TITLE']);
+
+			mockGetTimerReminders.mockResolvedValue([reminder(1, false)]);
+			await advance(TIMER_REMINDER_MARK_READ_RETRY_MS);
+			expect(mockUpdate).not.toHaveBeenCalled();
 		});
 
 		it('shows none in a visible tab, without permission, with push off, or in the quiet hours', async () => {

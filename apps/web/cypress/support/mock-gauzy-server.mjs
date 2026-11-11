@@ -226,7 +226,10 @@ function buildData(fixture, scenario, requestUrl, requestTenantId) {
 		duration: 0,
 		running: scenario.timerRunning === true,
 		lastLog: {
-			source: 'TEAMS',
+			// `scenario.timerLogId`: the run's time log, which the platform's own reminders name (#5022)
+			...(scenario.timerLogId ? { id: scenario.timerLogId } : {}),
+			// `scenario.timerSource`: a timer started elsewhere, the desktop app's (#5022)
+			source: scenario.timerSource ?? 'TEAMS',
 			taskId: ids.task,
 			// `scenario.timerStartedAt`: a run started long ago, the same at every read (#5022 reminders)
 			startedAt: scenario.timerStartedAt ?? new Date().toISOString()
@@ -580,6 +583,30 @@ function routeResponse(method, pathname, requestUrl, data, fixture, state, body,
 	if (/^\/api\/employee-notification-setting\/[^/]+$/.test(pathname) && method === 'PUT') {
 		state.notificationSetting = { ...(state.notificationSetting ?? {}), ...body, id: pathname.split('/').pop() };
 		return state.notificationSetting;
+	}
+
+	// The employee's notifications, newest first: `scenario.notifications` seeds them (the platform's timer reminders,
+	// #5022), narrowed by the record a read names, as Gauzy narrows them by its `where`
+	if (pathname === '/api/employee-notification' && method === 'GET') {
+		const entityId = requestUrl.searchParams.get('where[entityId]');
+		const notifications = (state.scenario.notifications ?? []).filter(
+			(notification) => !entityId || notification.entityId === entityId
+		);
+		return pagination(notifications);
+	}
+	// A seeded notification marked read or archived by its receiver: the tab that showed a timer reminder marks the
+	// platform's copy read (#5022), and the seeded row takes the change as Gauzy's does
+	const markedNotification = /^\/api\/employee-notification\/([^/]+)$/.exec(pathname);
+	if (markedNotification && method === 'PUT') {
+		const notification = (state.scenario.notifications ?? []).find(
+			(candidate) => candidate.id === markedNotification[1]
+		);
+		if (notification) {
+			for (const field of ['isRead', 'readAt', 'isArchived', 'archivedAt']) {
+				if (body && Object.prototype.hasOwnProperty.call(body, field)) notification[field] = body[field];
+			}
+			return notification;
+		}
 	}
 
 	if (pathname === '/api/timesheet/timer/status') return data.timerStatus;

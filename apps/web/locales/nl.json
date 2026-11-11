@@ -3500,7 +3500,8 @@
 			"MESSAGE": "<b>{name}</b> heeft je een bericht gestuurd",
 			"BROADCAST": "<b>{name}</b> heeft een aankondiging geplaatst",
 			"PAYMENT": "Er is een betaling voor je geregistreerd",
-			"RATE_CHANGE_REQUEST": "<b>{name}</b> vroeg om een tariefwijziging"
+			"RATE_CHANGE_REQUEST": "<b>{name}</b> vroeg om een tariefwijziging",
+			"TIMER_REMINDER": "Je timer loopt nog steeds"
 		},
 		"TYPES": {
 			"ASSIGNMENT": "Toewijzing",
@@ -3510,7 +3511,8 @@
 			"MESSAGE": "Bericht",
 			"BROADCAST": "Aankondiging",
 			"PAYMENT": "Betaling",
-			"RATE_CHANGE_REQUEST": "Aanvraag tariefwijziging"
+			"RATE_CHANGE_REQUEST": "Aanvraag tariefwijziging",
+			"TIMER_REMINDER": "Timerherinnering"
 		},
 		"SOMEONE": "Iemand",
 		"MARK_READ": "Markeren als gelezen",
@@ -3579,7 +3581,7 @@
 				"TITLE": "Tijdregistratie",
 				"INTRO": "Een herinnering wanneer een timer lang loopt, en nog een bij het dubbele als hij doorloopt.",
 				"LABEL": "Herinnering bij lang lopende timer",
-				"TEXT": "In de app, en als melding op dit apparaat wanneer het tabblad niet zichtbaar is en de browser het toestaat.",
+				"TEXT": "In de app zolang die open is; anders in je inbox, en per e-mail en op je apparaten zoals je kiest.",
 				"OFF": "Uit",
 				"AFTER_HOURS": "Na {hours, plural, one {# uur} other {# uur}}"
 			},

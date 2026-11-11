@@ -3500,7 +3500,8 @@
 			"MESSAGE": "<b>{name}</b> sent you a message",
 			"BROADCAST": "<b>{name}</b> published an announcement",
 			"PAYMENT": "A payment was recorded for you",
-			"RATE_CHANGE_REQUEST": "<b>{name}</b> asked for a rate change"
+			"RATE_CHANGE_REQUEST": "<b>{name}</b> asked for a rate change",
+			"TIMER_REMINDER": "Your timer is still running"
 		},
 		"TYPES": {
 			"ASSIGNMENT": "Assignment",
@@ -3510,7 +3511,8 @@
 			"MESSAGE": "Message",
 			"BROADCAST": "Announcement",
 			"PAYMENT": "Payment",
-			"RATE_CHANGE_REQUEST": "Rate change request"
+			"RATE_CHANGE_REQUEST": "Rate change request",
+			"TIMER_REMINDER": "Timer reminder"
 		},
 		"SOMEONE": "Someone",
 		"MARK_READ": "Mark as read",
@@ -3579,7 +3581,7 @@
 				"TITLE": "Time tracking",
 				"INTRO": "A reminder when a timer has run long, and one more at twice that if it is still running.",
 				"LABEL": "Long-running timer reminder",
-				"TEXT": "In the app, and as a notification on this device when the tab is out of sight and the browser allows it.",
+				"TEXT": "In the app while it is open; otherwise in your inbox, and by email and on your devices as you choose.",
 				"OFF": "Off",
 				"AFTER_HOURS": "After {hours, plural, one {# hour} other {# hours}}"
 			},

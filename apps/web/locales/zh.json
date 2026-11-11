@@ -3500,7 +3500,8 @@
 			"MESSAGE": "<b>{name}</b> 给你发了一条消息",
 			"BROADCAST": "<b>{name}</b> 发布了一则公告",
 			"PAYMENT": "已为你登记一笔付款",
-			"RATE_CHANGE_REQUEST": "<b>{name}</b> 申请调整费率"
+			"RATE_CHANGE_REQUEST": "<b>{name}</b> 申请调整费率",
+			"TIMER_REMINDER": "你的计时器仍在运行"
 		},
 		"TYPES": {
 			"ASSIGNMENT": "分配",
@@ -3510,7 +3511,8 @@
 			"MESSAGE": "消息",
 			"BROADCAST": "公告",
 			"PAYMENT": "付款",
-			"RATE_CHANGE_REQUEST": "费率调整申请"
+			"RATE_CHANGE_REQUEST": "费率调整申请",
+			"TIMER_REMINDER": "计时器提醒"
 		},
 		"SOMEONE": "有人",
 		"MARK_READ": "标为已读",
@@ -3579,7 +3581,7 @@
 				"TITLE": "时间跟踪",
 				"INTRO": "当计时器运行较久时提醒你；如果仍在运行，会在两倍时长时再提醒一次。",
 				"LABEL": "长时间运行计时器提醒",
-				"TEXT": "在应用内提醒；当标签页不可见且浏览器允许时，也会在此设备上发送通知。",
+				"TEXT": "应用打开时在应用内提醒；否则会进入你的收件箱，并按你的选择通过邮件和你的设备通知。",
 				"OFF": "关闭",
 				"AFTER_HOURS": "{hours} 小时后"
 			},

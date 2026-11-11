@@ -3500,7 +3500,8 @@
 			"MESSAGE": "<b>{name}</b> enviou uma mensagem para você",
 			"BROADCAST": "<b>{name}</b> publicou um anúncio",
 			"PAYMENT": "Um pagamento foi registrado para você",
-			"RATE_CHANGE_REQUEST": "<b>{name}</b> pediu uma mudança de taxa"
+			"RATE_CHANGE_REQUEST": "<b>{name}</b> pediu uma mudança de taxa",
+			"TIMER_REMINDER": "O seu temporizador continua a correr"
 		},
 		"TYPES": {
 			"ASSIGNMENT": "Atribuição",
@@ -3510,7 +3511,8 @@
 			"MESSAGE": "Mensagem",
 			"BROADCAST": "Anúncio",
 			"PAYMENT": "Pagamento",
-			"RATE_CHANGE_REQUEST": "Pedido de mudança de taxa"
+			"RATE_CHANGE_REQUEST": "Pedido de mudança de taxa",
+			"TIMER_REMINDER": "Lembrete de temporizador"
 		},
 		"SOMEONE": "Alguém",
 		"MARK_READ": "Marcar como lida",
@@ -3579,7 +3581,7 @@
 				"TITLE": "Registo de tempo",
 				"INTRO": "Um lembrete quando um temporizador está a correr há muito tempo, e outro ao dobro se continuar.",
 				"LABEL": "Lembrete de temporizador prolongado",
-				"TEXT": "Na aplicação, e como notificação neste dispositivo quando o separador não está visível e o navegador o permite.",
+				"TEXT": "Na aplicação enquanto está aberta; caso contrário, na sua caixa de entrada, e por e-mail e nos seus dispositivos conforme escolher.",
 				"OFF": "Desativado",
 				"AFTER_HOURS": "Após {hours, plural, one {# hora} other {# horas}}"
 			},

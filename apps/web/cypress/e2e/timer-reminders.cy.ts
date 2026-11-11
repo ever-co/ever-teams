@@ -2,13 +2,15 @@
 
 /**
  * #5022, time tracking: a timer left running is worth a reminder at the employee's threshold (8 hours unless they
- * chose another), with the actions to stop it or open it.
+ * chose another), with the actions to stop it or open it. The platform reminds of it too while no tab is open (in the
+ * inbox, by email or push): a tab does not repeat what the person already got from it, and marks read the platform's
+ * copy of a reminder it showed, so that its email and push do not follow.
  */
 const HOUR = 60 * 60 * 1000;
 const hoursAgo = (hours: number) => new Date(Date.now() - hours * HOUR).toISOString();
 
 interface MockState {
-	scenario: { timerRunning?: boolean };
+	scenario: { timerRunning?: boolean; notifications?: Array<{ isRead?: boolean }> };
 	requests: Array<{ path: string; status: number }>;
 	notificationSetting: { preferences?: { timerReminderHours?: number | null } } | null;
 }
@@ -44,6 +46,79 @@ describe('long-running timer reminders', () => {
 		mockStateWhen((state) => state.scenario.timerRunning === false)
 			.its('scenario.timerRunning')
 			.should('equal', false);
+	});
+
+	describe("with the platform's own reminders (it reminds of a run while no tab is open)", () => {
+		const timerLogId = 'aaaaaaaa-0000-4000-8000-000000005022';
+		/** The platform's first reminder of a run, unread: it went by email or push. */
+		const platformReminder = (entityId: string) => ({
+			id: 'bbbbbbbb-0000-4000-8000-000000005022',
+			type: 'TimerReminder',
+			entity: 'TimeLog',
+			entityId,
+			title: 'Your timer has been running for 8 hours',
+			message: 'Stop it if you are done, or keep it running.',
+			isRead: false,
+			isArchived: false,
+			createdAt: hoursAgo(1)
+		});
+
+		it('does not repeat a reminder the person already got from it', () => {
+			cy.mockScenario({
+				timerRunning: true,
+				timerStartedAt: hoursAgo(9),
+				timerLogId,
+				notifications: [platformReminder(timerLogId)]
+			});
+			cy.hardVisit('/');
+
+			mockStateWhen(
+				(state) =>
+					hasRead(state, '/api/timesheet/timer/status') &&
+					hasRead(state, '/api/employee-notification-setting') &&
+					hasRead(state, '/api/employee-notification')
+			).then((state) => {
+				expect(hasRead(state, '/api/employee-notification')).to.equal(true);
+			});
+			// The reminder is due since an hour: the tab would show it at once, had the platform not reminded of it
+			cy.wait(3000);
+			cy.contains('[data-sonner-toast]', 'Your timer has been running').should('not.exist');
+		});
+
+		it('marks its copy read once the tab showed the reminder of a desktop timer, so that no email or push follows', () => {
+			cy.mockScenario({
+				timerRunning: true,
+				timerStartedAt: hoursAgo(9),
+				timerLogId,
+				timerSource: 'DESKTOP',
+				// Filed moments ago, unread: the platform holds its email and push for a tab to mark it read
+				notifications: [
+					{ ...platformReminder(timerLogId), createdAt: new Date(Date.now() - 30_000).toISOString() }
+				]
+			});
+			cy.hardVisit('/');
+
+			cy.contains('[data-sonner-toast]', 'Your timer has been running for 8 hours', { timeout: 30_000 }).should(
+				'be.visible'
+			);
+			mockStateWhen((state) => state.scenario.notifications?.[0]?.isRead === true)
+				.its('scenario.notifications.0.isRead')
+				.should('equal', true);
+		});
+
+		it('still reminds when its reminder is about another run', () => {
+			cy.mockScenario({
+				timerRunning: true,
+				timerStartedAt: hoursAgo(9),
+				timerLogId,
+				notifications: [platformReminder('aaaaaaaa-0000-4000-8000-000000000000')]
+			});
+			cy.hardVisit('/');
+
+			cy.contains('[data-sonner-toast]', 'Your timer has been running for 8 hours', { timeout: 30_000 }).should(
+				'be.visible'
+			);
+		});
 	});
 
 	it("follows the employee's threshold: none before it", () => {

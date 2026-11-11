@@ -3500,7 +3500,8 @@
 			"MESSAGE": "<b>{name}</b> vous a envoyé un message",
 			"BROADCAST": "<b>{name}</b> a publié une annonce",
 			"PAYMENT": "Un paiement a été enregistré pour vous",
-			"RATE_CHANGE_REQUEST": "<b>{name}</b> demande un changement de taux"
+			"RATE_CHANGE_REQUEST": "<b>{name}</b> demande un changement de taux",
+			"TIMER_REMINDER": "Votre chronomètre tourne encore"
 		},
 		"TYPES": {
 			"ASSIGNMENT": "Assignation",
@@ -3510,7 +3511,8 @@
 			"MESSAGE": "Message",
 			"BROADCAST": "Annonce",
 			"PAYMENT": "Paiement",
-			"RATE_CHANGE_REQUEST": "Demande de changement de taux"
+			"RATE_CHANGE_REQUEST": "Demande de changement de taux",
+			"TIMER_REMINDER": "Rappel de chronomètre"
 		},
 		"SOMEONE": "Quelqu'un",
 		"MARK_READ": "Marquer comme lue",
@@ -3579,7 +3581,7 @@
 				"TITLE": "Suivi du temps",
 				"INTRO": "Un rappel quand un chronomètre a longtemps tourné, et un autre au double de cette durée s’il tourne encore.",
 				"LABEL": "Rappel de chronomètre prolongé",
-				"TEXT": "Dans l’application, et en notification sur cet appareil quand l’onglet n’est pas visible et que le navigateur l’autorise.",
+				"TEXT": "Dans l’application tant qu’elle est ouverte ; sinon dans votre boîte de réception, et par e-mail et sur vos appareils selon vos choix.",
 				"OFF": "Désactivé",
 				"AFTER_HOURS": "Après {hours, plural, one {# heure} other {# heures}}"
 			},

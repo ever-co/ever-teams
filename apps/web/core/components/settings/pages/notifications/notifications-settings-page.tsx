@@ -153,6 +153,7 @@ export function NotificationsSettingsPage() {
 		onPreferences({ emailByType: { [type]: mode === 'default' ? undefined : mode } });
 	const onQuietHours = (window: INotificationQuietHours | null) => onPreferences({ dnd: window });
 	const preferences = setting?.preferences;
+	const timerReminderHours = timerReminderHoursOf(preferences);
 	const quietHours = quietHoursOf(preferences);
 	const quietHoursKey = quietHours ? `${quietHours.start}-${quietHours.end}` : 'off';
 
@@ -214,9 +215,13 @@ export function NotificationsSettingsPage() {
 					>
 						<SettingsSurface>
 							<TimerReminderRow
-								value={timerReminderHoursOf(preferences)}
+								value={timerReminderHours}
 								disabled={isSavingPreferences}
 								onChange={(hours) => onPreferences({ timerReminderHours: hours })}
+								emailMode={
+									ownEmailModeOf(preferences, EEmployeeNotificationType.TimerReminder) ?? 'default'
+								}
+								onEmailMode={(mode) => onEmailMode(EEmployeeNotificationType.TimerReminder, mode)}
 							/>
 						</SettingsSurface>
 					</SettingsSection>
@@ -233,6 +238,7 @@ export function NotificationsSettingsPage() {
 					</SettingsSection>
 					<BrowserPushSection
 						isKindOn={(key) => isTypeShownOn(setting, key, pending)}
+						isTimerReminderOn={timerReminderHours !== null}
 						preferences={preferences}
 						isSavingPreferences={isSavingPreferences}
 						onPreferences={onPreferences}
