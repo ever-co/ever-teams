@@ -18,7 +18,6 @@ import {
 	TIMER_REMINDER_HIDDEN_YIELD_MS,
 	TIMER_REMINDER_DELIVERY_GRACE_MS,
 	TIMER_REMINDER_MARK_MARGIN_MS,
-	timerReminderDueAt,
 	timerReminderLevelAt,
 	timerReminderNoticeOf,
 	timerReminderToMarkRead,
@@ -409,12 +408,6 @@ describe("the platform's own reminders", () => {
 			expect(timerReminderToMarkRead([copy(level2)], 'log-1', 1)).toBeNull();
 			expect(timerReminderToMarkRead([copy(level1, { entityId: 'log-0' })], 'log-1', 1)).toBeNull();
 			expect(timerReminderToMarkRead([copy(level1, { type: 'Mention' })], 'log-1', 1)).toBeNull();
-		});
-
-		it('comes due at the threshold, then at twice it', () => {
-			const run = { key: 'log-1', startedAt: Date.parse('2026-11-11T08:00:00Z') };
-			expect(timerReminderDueAt(run, 8, 1)).toBe(run.startedAt + 8 * HOUR);
-			expect(timerReminderDueAt(run, 8, 2)).toBe(run.startedAt + 16 * HOUR);
 		});
 	});
 });

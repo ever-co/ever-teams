@@ -62,11 +62,6 @@ export function timerReminderLevelAt(elapsedMs: number, hours: number): 0 | Time
 	return elapsedMs >= hours * HOUR_MS ? 1 : 0;
 }
 
-/** When the run's reminder of a level comes due. */
-export function timerReminderDueAt(run: TimerRun, hours: number, level: TimerReminderLevel): number {
-	return run.startedAt + level * hours * HOUR_MS;
-}
-
 /** When the run's next reminder is due, after the ones already shown; null once both were. */
 export function nextTimerReminderAt(run: TimerRun, hours: number, shownLevel: number): number | null {
 	if (shownLevel >= 2) {
