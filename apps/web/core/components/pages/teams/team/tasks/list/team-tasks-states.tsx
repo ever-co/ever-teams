@@ -8,6 +8,8 @@ import { Button } from '@/core/components/duplicated-components/_button';
 import { Archive, Search, Tag, Task, Users, X } from '@/core/components/icons';
 import { TaskPropertyPlaceholderIcon, type TaskPropertyKind } from '@/core/components/tasks/task-property-icon';
 import type { TeamTasksScope } from '@/core/lib/utils/team-tasks-view';
+import { builtInViewTextKeysOf } from '@/core/lib/utils/task-views-index';
+import type { ETaskBuiltInView } from '@/core/types/interfaces/common/task-views';
 import type { TeamTaskPickerKind } from './team-tasks-list-context';
 
 const FLOATING_ROW = 'pointer-events-none absolute inset-x-0 bottom-4 z-30 flex justify-center px-4';
@@ -47,12 +49,16 @@ export function TeamTasksNoMatch({ onClear }: Readonly<{ onClear: () => void }>)
 	);
 }
 
-/** A built-in view with nothing in it (no task of mine, nothing due): no action to take. */
-export function TeamTasksViewEmpty() {
+/**
+ * A built-in view with nothing in it: it says what the view looked for (no task assigned to me, nothing overdue),
+ * with no action to take. Without a view it says nothing matches.
+ */
+export function TeamTasksViewEmpty({ viewKey }: Readonly<{ viewKey?: ETaskBuiltInView }>) {
 	const t = useTranslations();
+	const message = viewKey ? t(builtInViewTextKeysOf(viewKey).empty) : t('taskViews.VIEW_EMPTY_TEXT');
 	return (
 		<StateFrame>
-			<AnimatedEmptyState title={t('taskViews.VIEW_EMPTY_TITLE')} message={t('taskViews.VIEW_EMPTY_TEXT')} icon={<Task />} />
+			<AnimatedEmptyState title={t('taskViews.VIEW_EMPTY_TITLE')} message={message} icon={<Task />} />
 		</StateFrame>
 	);
 }
@@ -117,7 +123,12 @@ export function TeamTasksHiddenPill({ count, onClear }: Readonly<{ count: number
 
 interface SelectionAction {
 	kind: TeamTaskPickerKind;
-	labelKey: 'taskMenus.fields.status' | 'taskMenus.fields.priority' | 'taskMenus.fields.size' | 'common.ASSIGNEE' | 'taskViews.LABELS';
+	labelKey:
+		| 'taskMenus.fields.status'
+		| 'taskMenus.fields.priority'
+		| 'taskMenus.fields.size'
+		| 'common.ASSIGNEE'
+		| 'taskViews.LABELS';
 	glyph: TaskPropertyKind | null;
 	icon?: 'users' | 'tag';
 }

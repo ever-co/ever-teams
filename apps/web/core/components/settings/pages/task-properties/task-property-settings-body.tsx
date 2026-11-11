@@ -1,5 +1,6 @@
 'use client';
 
+import type { ReactNode } from 'react';
 import { useTranslations } from 'next-intl';
 import { Button } from '@/core/components/duplicated-components/_button';
 import { Plus } from '@/core/components/icons';
@@ -13,6 +14,10 @@ interface TaskPropertySettingsBodyProps {
 	description: string;
 	model: TaskPropertySettingsModel;
 	skeletonRows: number;
+	/** Next to Add in the header (the labels offer their catalog there). */
+	secondaryAction?: ReactNode;
+	/** Next to Add in the empty list. */
+	emptyAction?: ReactNode;
 }
 
 export function TaskPropertySettingsBody({
@@ -20,7 +25,9 @@ export function TaskPropertySettingsBody({
 	title,
 	description,
 	model,
-	skeletonRows
+	skeletonRows,
+	secondaryAction,
+	emptyAction
 }: Readonly<TaskPropertySettingsBodyProps>) {
 	const t = useTranslations();
 	const controller = usePropertyListController();
@@ -31,10 +38,13 @@ export function TaskPropertySettingsBody({
 			title={title}
 			description={description}
 			actions={
-				<Button type="button" onClick={() => openCreate()}>
-					<Plus />
-					{t('settings.taskProperties.ADD', { kind })}
-				</Button>
+				<>
+					{secondaryAction}
+					<Button type="button" onClick={() => openCreate()}>
+						<Plus />
+						{t('settings.taskProperties.ADD', { kind })}
+					</Button>
+				</>
 			}
 		>
 			<PropertyList
@@ -43,6 +53,7 @@ export function TaskPropertySettingsBody({
 				controller={controller}
 				skeletonRows={skeletonRows}
 				onDelete={model.remove}
+				emptyAction={emptyAction}
 			/>
 		</SettingsPage>
 	);

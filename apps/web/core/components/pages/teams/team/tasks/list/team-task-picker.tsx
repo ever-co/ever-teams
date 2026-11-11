@@ -80,7 +80,7 @@ function StatusPicker({ statuses, ...props }: PickerProps & { statuses: TTaskSta
 				key: status.id,
 				value: status,
 				label: readableName(status.name),
-				icon: <TaskPropertyIcon kind="status" name={status.name} color={status.color} />
+				icon: <TaskPropertyIcon kind="status" name={status.name} color={status.color} icon={status.icon} />
 			})),
 		[statuses]
 	);

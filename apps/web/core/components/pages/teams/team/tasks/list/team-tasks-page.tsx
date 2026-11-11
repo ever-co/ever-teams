@@ -22,7 +22,12 @@ import { viewTasksState } from '@/core/stores/tasks/task-views';
 import { DEFAULT_TASK_VIEW_DEFINITION, definitionOf, isSameDefinition } from '@/core/lib/utils/task-views';
 import { isTaskViewsEnabled } from '@/core/lib/utils/task-views-enabled';
 import { EDailyPlanMode } from '@/core/types/generics/enums/daily-plan';
-import { ETaskViewVisibility, type ETaskBuiltInView, type ITaskView, type ITaskViewDefinition } from '@/core/types/interfaces/common/task-views';
+import {
+	ETaskViewVisibility,
+	type ETaskBuiltInView,
+	type ITaskView,
+	type ITaskViewDefinition
+} from '@/core/types/interfaces/common/task-views';
 import type { TTask } from '@/core/types/schemas/task/task.schema';
 import { teamTasksGridOf } from './team-tasks-grid';
 import { TeamTasksToolbar } from './team-tasks-toolbar';
@@ -40,10 +45,12 @@ import {
 	TeamTasksViewEmpty
 } from './team-tasks-states';
 import { TeamTasksListSkeleton, TeamTasksToolbarSkeleton } from '../team-tasks-page-skeleton';
+import { DeleteViewDialog } from '../views/delete-view-dialog';
 import { SaveViewDialog } from '../views/save-view-dialog';
+import { useNewViewRequest } from '../views/use-new-view-request';
 import { TaskViewToolbarActions } from '../views/task-view-toolbar-actions';
 import { useSavedViewCommands } from '../views/use-saved-view-commands';
-import { builtInViewLabelKey } from '../views/views-page';
+import { builtInViewLabelKey } from '@/core/lib/utils/task-views-index';
 
 interface PendingEdit {
 	kind: TeamTaskPickerKind;
@@ -56,7 +63,15 @@ type CreateRequest = string | null | undefined;
 /** What the page is opened on besides the team's tasks: a saved view, or a built-in one the platform computes. */
 type TaskViewContext =
 	| { kind: 'saved'; view: ITaskView }
-	| { kind: 'builtIn'; key: ETaskBuiltInView; tasks: TTask[]; total: number; isLoading: boolean; isError: boolean; refetch: () => void };
+	| {
+			kind: 'builtIn';
+			key: ETaskBuiltInView;
+			tasks: TTask[];
+			total: number;
+			isLoading: boolean;
+			isError: boolean;
+			refetch: () => void;
+	  };
 
 /** What the body of the page shows, decided once per render. */
 type BodyState = 'loading' | 'error' | 'viewEmpty' | 'emptyTeam' | 'noMatch' | 'scopeEmpty' | 'list';
@@ -115,22 +130,41 @@ function bodyStateOf(
 	return nothingMatches ? 'noMatch' : 'scopeEmpty';
 }
 
-function useTeamTasksBreadcrumb(viewTitle: string | null) {
+/** Where a view lives: its id, or a built-in view's key. */
+function viewPathOf(viewContext: TaskViewContext | undefined): string | null {
+	if (!viewContext) {
+		return null;
+	}
+	return `/views/${viewContext.kind === 'saved' ? viewContext.view.id : viewContext.key}`;
+}
+
+/** What the page's narrowing starts over on: the view it is opened on, or nothing on the team's tasks. */
+function resetKeyOf(viewContext: TaskViewContext | undefined): string | undefined {
+	if (!viewContext) {
+		return undefined;
+	}
+	return viewContext.kind === 'saved' ? `view:${viewContext.view.id}` : `built-in:${viewContext.key}`;
+}
+
+function useTeamTasksBreadcrumb(viewTitle: string | null, viewPath: string | null) {
 	const t = useTranslations();
 	const params = useParams<{ locale: string }>();
 	const activeTeam = useAtomValue(activeTeamState);
 	const locale = params?.locale;
 	return useMemo(() => {
-		const paths = [
+		// A view lives under the views, not under the active team's tasks (a built-in view lists the person's tasks)
+		if (viewTitle !== null && viewPath !== null) {
+			return [
+				{ title: t('taskViews.TITLE'), href: `/${locale}/views` },
+				{ title: viewTitle, href: `/${locale}${viewPath}` }
+			];
+		}
+		return [
 			{ title: JSON.parse(t('pages.home.BREADCRUMB')), href: '/' },
 			{ title: activeTeam?.name || '', href: '/' },
 			{ title: t('sidebar.TEAMTASKS'), href: `/${locale}/team/tasks` }
 		];
-		if (viewTitle !== null) {
-			paths.push({ title: t('taskViews.TITLE'), href: `/${locale}/views` }, { title: viewTitle, href: '#' });
-		}
-		return paths;
-	}, [activeTeam?.name, locale, t, viewTitle]);
+	}, [activeTeam?.name, locale, t, viewPath, viewTitle]);
 }
 
 /** The title the page shows for a saved or built-in view, or null on the team's tasks. */
@@ -158,7 +192,7 @@ export function TeamTasksPage({ viewContext }: Readonly<{ viewContext?: TaskView
 	const t = useTranslations();
 	const initial = useMemo(() => initialDefinitionOf(viewContext), [viewContext]);
 	const builtInTasks = viewContext?.kind === 'builtIn' ? viewContext.tasks : undefined;
-	const resetKey = viewContext ? (viewContext.kind === 'saved' ? `view:${viewContext.view.id}` : `built-in:${viewContext.key}`) : undefined;
+	const resetKey = resetKeyOf(viewContext);
 	const view = useTeamTasksView({ initial, resetKey, tasks: builtInTasks });
 	// The pickers and the row menu read the tasks they edit from the team's list; a built-in view's tasks are
 	// shared with them here, so an edit on one of them reaches the platform.
@@ -188,13 +222,16 @@ export function TeamTasksPage({ viewContext }: Readonly<{ viewContext?: TaskView
 	const viewTitle = useViewTitle(viewContext);
 	const isDirty = savedView !== null && !isSameDefinition(view.definition, definitionOf(savedView));
 	const showsViewActions = isTaskViewsEnabled() && !isBuiltIn;
-	const breadcrumbPaths = useTeamTasksBreadcrumb(viewTitle);
+	const breadcrumbPaths = useTeamTasksBreadcrumb(viewTitle, viewPathOf(viewContext));
+	// "New view" of the views index lands here with the dialog that names the view open
+	const opensNewView = useNewViewRequest(Boolean(viewContext));
 	const savedViewCommands = useSavedViewCommands({
 		savedView,
 		isBuiltIn,
 		definition: view.definition,
 		isDirty,
-		applyDefinition: view.applyDefinition
+		applyDefinition: view.applyDefinition,
+		initialDialog: opensNewView ? 'create' : null
 	});
 	useShortcutHandlers(savedViewCommands.listShortcuts, ['list']);
 
@@ -307,7 +344,7 @@ export function TeamTasksPage({ viewContext }: Readonly<{ viewContext?: TaskView
 	const bodies: Record<BodyState, () => React.ReactNode> = {
 		loading: () => <TeamTasksListSkeleton />,
 		error: () => <TeamTasksError onRetry={retry} />,
-		viewEmpty: () => <TeamTasksViewEmpty />,
+		viewEmpty: () => <TeamTasksViewEmpty viewKey={viewContext?.kind === 'builtIn' ? viewContext.key : undefined} />,
 		emptyTeam: () => <TeamTasksEmptyTeam onCreate={openCreate} />,
 		noMatch: () => <TeamTasksNoMatch onClear={view.clearNarrowing} />,
 		scopeEmpty: () => <TeamTasksScopeEmpty scope={view.scope} onShowAll={() => view.setScope('all')} />,
@@ -395,6 +432,12 @@ export function TeamTasksPage({ viewContext }: Readonly<{ viewContext?: TaskView
 				initialVisibility={savedView?.visibility ?? ETaskViewVisibility.PERSONAL}
 				onSubmit={savedViewCommands.submitDialog}
 				onClose={() => savedViewCommands.setSaveDialog(null)}
+			/>
+			<DeleteViewDialog
+				name={savedViewCommands.isDeleteConfirmOpen && savedView ? savedView.name : null}
+				isBusy={savedViewCommands.isBusy}
+				onConfirm={savedViewCommands.confirmRemove}
+				onClose={savedViewCommands.closeDeleteConfirm}
 			/>
 			{isCreateOpen && (
 				<Suspense fallback={<ModalSkeleton size="lg" />}>

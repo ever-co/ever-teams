@@ -1996,18 +1996,27 @@ describe('Ever Teams feature surface preservation', () => {
 		// 270 files and 350 verbs with the files of a conversation (GET /api/chat/conversations/[id]/files).
 		// 279 files and 360 verbs with the Docs live and collaboration proxies (/api/plugins/docs/live/status,
 		// documents/spaces, documents/[id]/space, follow (GET, POST), unfollow, mute, unmute, live/updates, live/awareness).
-		// 285 files and 366 verbs with the integrations' sync conflict proxies (/api/integration/{linear,asana,trello}/[id]/conflicts,
+		// 280 files and 361 verbs with the proxy of the labels added in bulk from the catalog (POST /api/tags/bulk).
+		// 281 files and 362 verbs with the proxy of the favourite tasks of every team (GET /api/favorite/type).
+		// 282 files and 363 verbs with the favicons of the visited sites, opt-in (GET /api/favicons/[host]).
+		// 283 files and 364 verbs with the workspace creation (POST /api/auth/create-workspace, #5025).
+		// 289 files and 370 verbs with the integrations' sync conflict proxies (/api/integration/{linear,asana,trello}/[id]/conflicts,
 		// GET, and [id]/conflicts/[conflictId]/resolve, POST).
-		// 286 files and 367 verbs with the link previews of chat messages (GET /api/chat/link-preview).
-		// 288 files and 370 verbs with the comment proxy (/api/comment/[id], PUT and DELETE) and the Docs Markdown export
+		// 290 files and 371 verbs with the link previews of chat messages (GET /api/chat/link-preview).
+		// 292 files and 374 verbs with the comment proxy (/api/comment/[id], PUT and DELETE) and the Docs Markdown export
 		// (GET /api/plugins/docs/documents/[id]/export/markdown), which develop added without raising these numbers.
-		// 289 files and 372 verbs with the Board app's session check (/api/board/session, GET and its CORS OPTIONS).
-		expect(routes.filter((value) => /\/route\.[jt]s$/.test(value))).toHaveLength(289);
+		// 294 files and 377 verbs with the scheduled meetings' proxies (/api/employee-appointment GET, POST and [id] DELETE).
+		// 295 files and 379 verbs with the Board app's session check (/api/board/session, GET and its CORS OPTIONS).
+		expect(routes.filter((value) => /\/route\.[jt]s$/.test(value))).toHaveLength(295);
 		expect(
 			routes.filter((value) => /\/route\.[jt]s::(?:GET|POST|PUT|PATCH|DELETE|HEAD|OPTIONS)$/.test(value))
-		).toHaveLength(372);
+		).toHaveLength(379);
 		expect(routes).toEqual(
 			expect.arrayContaining([
+				// Proxy mode twins of Gauzy's employee appointments, the scheduled meetings (#5021)
+				'apps/web/app/api/employee-appointment/route.ts::GET',
+				'apps/web/app/api/employee-appointment/route.ts::POST',
+				'apps/web/app/api/employee-appointment/[id]/route.ts::DELETE',
 				// Proxy mode twins of the platform's Docs live sessions and collaboration routes (2026-11-11)
 				'apps/web/app/api/plugins/docs/live/status/route.ts::GET',
 				'apps/web/app/api/plugins/docs/documents/[id]/live/updates/route.ts::POST',

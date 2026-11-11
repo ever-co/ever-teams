@@ -53,3 +53,21 @@ export function deleteFavoriteRequest({
 		tenantId
 	});
 }
+
+/** The starred records of one kind themselves (`GET /favorite/type`), the query as the client sent it. */
+export function getFavoriteDetailsRequest({
+	query,
+	bearer_token,
+	tenantId
+}: {
+	query: string;
+	bearer_token: string;
+	tenantId: string;
+}) {
+	return serverFetch<PaginationResponse<unknown>>({
+		path: `/favorite/type?${query}`,
+		method: 'GET',
+		bearer_token,
+		tenantId
+	});
+}

@@ -4,13 +4,16 @@ import { GAUZY_API_BASE_SERVER_URL } from '@/core/constants/config/constants';
 import { IFavoriteCreateRequest } from '@/core/types/interfaces/common/favorite';
 import { DeleteResponse, PaginationResponse } from '@/core/types/interfaces/common/data-response';
 import { ID } from '@/core/types/interfaces/common/base-interfaces';
+import { EBaseEntityEnum } from '@/core/types/generics/enums/entity';
 import {
 	validatePaginationResponse,
 	favoriteSchema,
+	favoriteTaskSchema,
 	validateApiResponse,
 	favoriteCreateSchema,
 	ZodValidationError,
-	TFavorite
+	TFavorite,
+	TFavoriteTask
 } from '@/core/types/schemas';
 
 /**
@@ -96,6 +99,24 @@ class FavoriteService extends APIService {
 			}
 			throw error;
 		}
+	};
+
+	/**
+	 * The person's favourite tasks themselves, whatever their team, in one request (`GET /favorite/type`): the sidebar
+	 * and the Favorites page list the favourite tasks of every team, not only the active team's.
+	 */
+	getFavoriteTasks = async ({ employeeId }: { employeeId: ID }, signal?: AbortSignal): Promise<TFavoriteTask[]> => {
+		const query = qs.stringify({
+			'where[entity]': EBaseEntityEnum.Task,
+			'where[employeeId]': employeeId,
+			'where[organizationId]': this.organizationId,
+			'where[tenantId]': this.tenantId
+		});
+		const response = await this.get<PaginationResponse<TFavoriteTask>>(`/favorite/type?${query}`, {
+			tenantId: this.tenantId,
+			...(signal ? { signal } : {})
+		});
+		return validatePaginationResponse(favoriteTaskSchema, response.data, 'getFavoriteTasks API response').items;
 	};
 
 	/**
