@@ -1,9 +1,8 @@
 /** @jest-environment jsdom */
 import { render, screen } from '@testing-library/react';
 import { createStore, Provider } from 'jotai';
-import { activeTeamIdState, organizationTeamsState } from '@/core/stores/teams/organization-team';
-import { timerStatusState } from '@/core/stores/timer/timer';
 import { userState } from '@/core/stores/user/user';
+import { storeWithSignedInMember as storeWith } from '@/test/tracking/signed-in-member';
 import { PageLayout } from './page-layout';
 
 jest.mock('next-intl', () => ({
@@ -36,21 +35,6 @@ jest.mock('@/core/constants/config/constants', () => ({
 	...jest.requireActual('@/core/constants/config/constants'),
 	IS_DEMO_MODE: false
 }));
-
-/** The signed-in member, with their own (employee) tracking switch, and whether their timer runs. */
-function storeWith({ employeeTracking, running = false }: { employeeTracking: boolean; running?: boolean }) {
-	const store = createStore();
-	const member = {
-		id: 'member-a',
-		isTrackingEnabled: true,
-		employee: { userId: 'user-a', isTrackingEnabled: employeeTracking }
-	};
-	store.set(organizationTeamsState, [{ id: 'team-a', name: 'Team A', members: [member] }] as never);
-	store.set(activeTeamIdState, 'team-a');
-	store.set(userState, { id: 'user-a' } as never);
-	store.set(timerStatusState, { running } as never);
-	return store;
-}
 
 function headerTimerShown(store: ReturnType<typeof createStore>, showTimer?: boolean) {
 	render(

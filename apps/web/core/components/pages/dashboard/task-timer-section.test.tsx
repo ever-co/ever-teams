@@ -3,10 +3,8 @@
 import type { ComponentType } from 'react';
 import { render, screen } from '@testing-library/react';
 import { createStore, Provider } from 'jotai';
-import { activeTeamIdState, organizationTeamsState } from '@/core/stores/teams/organization-team';
 import { isTrackingEnabledState } from '@/core/stores/timer/active-timer';
-import { timerStatusState } from '@/core/stores/timer/timer';
-import { userState } from '@/core/stores/user/user';
+import { storeWithSignedInMember as storeWith } from '@/test/tracking/signed-in-member';
 import { TaskTimerSection } from './task-timer-section';
 
 jest.mock('next-intl', () => ({ useTranslations: () => (key: string) => key }));
@@ -29,21 +27,6 @@ jest.mock('@/core/components/auth/auth-user-task-input', () => ({
 jest.mock('@/core/components/timer/timer', () => ({ Timer: () => <div data-testid="timer" /> }));
 
 const REASON = 'timer.TRACKING_DISABLED_MESSAGE';
-
-/** The signed-in member, with their own (employee) tracking switch, and whether their timer runs. */
-function storeWith({ employeeTracking, running = false }: { employeeTracking: boolean; running?: boolean }) {
-	const store = createStore();
-	const member = {
-		id: 'member-a',
-		isTrackingEnabled: true,
-		employee: { userId: 'user-a', isTrackingEnabled: employeeTracking }
-	};
-	store.set(organizationTeamsState, [{ id: 'team-a', name: 'Team A', members: [member] }] as never);
-	store.set(activeTeamIdState, 'team-a');
-	store.set(userState, { id: 'user-a' } as never);
-	store.set(timerStatusState, { running } as never);
-	return store;
-}
 
 async function renderBlock(store: ReturnType<typeof createStore>) {
 	render(

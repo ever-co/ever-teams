@@ -34,8 +34,15 @@ jest.mock('@/core/hooks/users/use-settings', () => ({ useSettings: () => ({ upda
 jest.mock('@/core/hooks/organizations/rates/use-rates', () => ({
 	useEmployeeRatesMutation: () => ({ saveEmployeeRates: jest.fn() })
 }));
+jest.mock('@/core/hooks/common/use-image-assets', () => ({ useImageAssets: () => ({ createImageAssets: jest.fn() }) }));
 
+import { useTeamGeneralSettings } from './use-team-general-settings';
 import { useTeamMembersSettings } from './use-team-members-settings';
+
+/**
+ * The tracking switch of the Members settings and of the Team settings (#5015), which share one rule and one save
+ * (`useMemberTrackingSwitch`): only someone of a higher role switches a member's tracking, an admin also an admin's.
+ */
 
 /**
  * A row of the team: its user's tenant role, and its place in the team (the MANAGER role or the manager flag), with
@@ -44,7 +51,7 @@ import { useTeamMembersSettings } from './use-team-members-settings';
 function member(
 	key: string,
 	userRole: ERoleName,
-	place: { teamRole?: ERoleName; isManager?: boolean; employeeTracking?: boolean } = {}
+	place: { teamRole?: ERoleName; isManager?: boolean; teamTracking?: boolean; employeeTracking?: boolean } = {}
 ) {
 	return {
 		id: `row-${key}`,
@@ -52,7 +59,7 @@ function member(
 		organizationId: 'organization-a',
 		tenantId: 'tenant-a',
 		organizationTeamId: 'team-a',
-		isTrackingEnabled: true,
+		isTrackingEnabled: place.teamTracking ?? true,
 		isManager: place.isManager ?? false,
 		role: place.teamRole ? { name: place.teamRole } : null,
 		employee: {
@@ -62,7 +69,12 @@ function member(
 			tenantId: 'tenant-a',
 			isActive: true,
 			isTrackingEnabled: place.employeeTracking ?? true,
-			user: { id: `user-${key}`, name: key, email: `${key}@example.test`, role: { name: userRole } }
+			user: {
+				id: `user-${key}`,
+				name: key,
+				email: `${key}@example.test`,
+				role: { name: userRole }
+			}
 		}
 	};
 }
@@ -89,18 +101,21 @@ function signInAs(key: string, role: ERoleName, permissions: string[] = []) {
 	mockPermissions = permissions;
 }
 
-function renderSettings() {
+/** Renders a settings hook in the active team, made of these members. */
+function renderInTeam<Result>(useSettings: () => Result, members: unknown[] = team.members) {
 	const client = new QueryClient({ defaultOptions: { queries: { retry: false } } });
 	const store = createStore();
-	store.set(organizationTeamsState, [team] as never);
+	store.set(organizationTeamsState, [{ ...team, members }] as never);
 	store.set(activeTeamIdState, 'team-a');
 	const wrapper = ({ children }: PropsWithChildren) => (
 		<QueryClientProvider client={client}>
 			<Provider store={store}>{children}</Provider>
 		</QueryClientProvider>
 	);
-	return renderHook(() => useTeamMembersSettings(), { wrapper });
+	return renderHook(useSettings, { wrapper });
 }
+
+const renderSettings = (members?: unknown[]) => renderInTeam(useTeamMembersSettings, members);
 
 /** The rows that offer the tracking switch, by row key. */
 function rowsWithSwitch(view: ReturnType<typeof renderSettings>) {
@@ -113,13 +128,19 @@ const rowOf = (view: ReturnType<typeof renderSettings>, key: string) => {
 	return row;
 };
 
-describe('Members settings: who gets the tracking switch on which row (#5015)', () => {
-	beforeEach(() => {
-		jest.clearAllMocks();
-		mockUpdateMembership.mockResolvedValue({ affected: 1 });
-		mockUpdateEmployee.mockResolvedValue({});
-	});
+const teamSwitch = (enabled: boolean) => ({
+	organizationId: 'organization-a',
+	organizationTeamId: 'team-a',
+	isTrackingEnabled: enabled
+});
 
+beforeEach(() => {
+	jest.clearAllMocks();
+	mockUpdateMembership.mockResolvedValue({ affected: 1 });
+	mockUpdateEmployee.mockResolvedValue({});
+});
+
+describe('Members settings: who gets the tracking switch on which row (#5015)', () => {
 	it('gives an admin the switch on every row: admins (themselves included), managers and members', () => {
 		signInAs('admin', ERoleName.ADMIN, ['ORG_EMPLOYEES_EDIT']);
 
@@ -177,18 +198,6 @@ describe('Members settings: who gets the tracking switch on which row (#5015)', 
 });
 
 describe('Members settings: what the tracking switch writes (#5015)', () => {
-	beforeEach(() => {
-		jest.clearAllMocks();
-		mockUpdateMembership.mockResolvedValue({ affected: 1 });
-		mockUpdateEmployee.mockResolvedValue({});
-	});
-
-	const teamSwitch = (enabled: boolean) => ({
-		organizationId: 'organization-a',
-		organizationTeamId: 'team-a',
-		isTrackingEnabled: enabled
-	});
-
 	it("moves a manager's switch in the team, and their own switch, when an admin turns it off", async () => {
 		signInAs('admin', ERoleName.ADMIN, ['ORG_EMPLOYEES_EDIT']);
 		const view = renderSettings();
@@ -235,5 +244,50 @@ describe('Members settings: what the tracking switch writes (#5015)', () => {
 		expect(mockUpdateMembership).toHaveBeenNthCalledWith(1, 'row-member', teamSwitch(false));
 		expect(mockUpdateMembership).toHaveBeenNthCalledWith(2, 'row-member', teamSwitch(true));
 		expect(rowOf(view, 'member')).toMatchObject({ isTrackingEnabled: true, isTrackingPending: false });
+	});
+});
+
+describe('Team settings: the switch of one’s own tracking (#5015)', () => {
+	/** The signed-in user's own row, as a manager of the team, with their switch in the team and their own switch. */
+	const ownManagerRow = (userRole: ERoleName, { team: teamTracking = true, employee = true } = {}) =>
+		member('own', userRole, { isManager: true, teamTracking, employeeTracking: employee });
+
+	const renderOwn = (row: ReturnType<typeof ownManagerRow>) => renderInTeam(useTeamGeneralSettings, [row]);
+
+	it('is offered to an admin, who may act on themselves', () => {
+		signInAs('own', ERoleName.ADMIN, ['ORG_EMPLOYEES_EDIT']);
+
+		expect(renderOwn(ownManagerRow(ERoleName.ADMIN)).result.current.canTurnOwnTracking).toBe(true);
+	});
+
+	it('is not offered to a team manager, who waits for an admin', () => {
+		signInAs('own', ERoleName.EMPLOYEE);
+
+		expect(renderOwn(ownManagerRow(ERoleName.EMPLOYEE)).result.current.canTurnOwnTracking).toBe(false);
+	});
+
+	it('shows whether the admin can track: their own switch counts, not only the team one', () => {
+		signInAs('own', ERoleName.ADMIN, ['ORG_EMPLOYEES_EDIT']);
+
+		const view = renderOwn(ownManagerRow(ERoleName.ADMIN, { employee: false }));
+
+		expect(view.result.current.ownTracking).toBe(false);
+	});
+
+	it('turns both of the admin’s switches on, as the Members settings do', async () => {
+		signInAs('own', ERoleName.ADMIN, ['ORG_EMPLOYEES_EDIT']);
+		const view = renderOwn(ownManagerRow(ERoleName.ADMIN, { employee: false }));
+
+		await act(() => view.result.current.setOwnTracking(true));
+
+		expect(mockUpdateMembership).toHaveBeenCalledWith('row-own', {
+			organizationId: 'organization-a',
+			organizationTeamId: 'team-a',
+			isTrackingEnabled: true
+		});
+		expect(mockUpdateEmployee).toHaveBeenCalledWith({
+			id: 'employee-own',
+			data: expect.objectContaining({ id: 'employee-own', isTrackingEnabled: true })
+		});
 	});
 });
