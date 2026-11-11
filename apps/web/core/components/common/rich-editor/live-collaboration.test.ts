@@ -116,6 +116,20 @@ describe('the live editor binding', () => {
 		expect(html).toContain('<strong>text</strong>');
 	});
 
+	it('keeps the JSON whole and the text as HTML when the document holds a node the editor does not know', () => {
+		const doc = new Y.Doc();
+		seededParagraph(doc, 'Before <the> box');
+		const callout = new Y.XmlElement('callout');
+		const inner = new Y.XmlElement('paragraph');
+		inner.insert(0, [new Y.XmlText('Inside & out')]);
+		callout.insert(0, [inner]);
+		doc.getXmlFragment('default').push([callout]);
+
+		const { json, html } = liveDocumentContent(doc);
+		expect(json.content?.map((node) => node.type)).toEqual(['paragraph', 'callout']);
+		expect(html).toBe('<p>Before &lt;the&gt; box</p><p>Inside &amp; out</p>');
+	});
+
 	it('knows the schema it is checked against before it exists', () => {
 		const types = editorSchemaTypes();
 		for (const node of [

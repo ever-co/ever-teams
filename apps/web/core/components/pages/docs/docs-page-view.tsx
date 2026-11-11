@@ -197,7 +197,11 @@ export function DocsPageView({ pageId, tree, actions, spaces = NO_SPACES }: Docs
 	// a save against it would overwrite that text; against this one, any change since meets the save as a conflict.
 	const liveClockRef = useRef<string | null>(null);
 	const { adoptDraft } = autosave;
-	const adoptedRef = useRef(false);
+	// Where the adoption of a fallen-back session's text stands: the autosave editor stays closed until it is done, so
+	// nothing typed meanwhile can start another draft before it (which would leave the live text out).
+	const [adoption, setAdoption] = useState<'waiting' | 'done' | 'failed'>('waiting');
+	const [adoptionTry, setAdoptionTry] = useState(0);
+	const adoptingRef = useRef(false);
 	const pageClock = page?.updatedAt ?? null;
 	const pageWritable = Boolean(page && !page.isArchived && !page.isLocked);
 	const unsentAtFallback = live.mode === 'fallback' && !live.rereading && Boolean(liveSnapshot?.unsentEdits);
@@ -209,19 +213,34 @@ export function DocsPageView({ pageId, tree, actions, spaces = NO_SPACES }: Docs
 	// autosave's draft (read from the document, which also covers edits remembered from an earlier visit that no editor
 	// showed yet). Without the version live editing began on, the oldest one stands in, so the save meets a conflict.
 	useEffect(() => {
-		if (!fallenDoc || !pageWritable || adoptedRef.current) return;
-		adoptedRef.current = true;
+		if (!fallenDoc || !pageWritable || adoption !== 'waiting' || adoptingRef.current) return;
+		adoptingRef.current = true;
 		let current = true;
-		void import('@/core/components/common/rich-editor/live-collaboration').then(({ liveDocumentContent }) => {
-			if (!current) return;
-			const { json, html } = liveDocumentContent(fallenDoc, DOCS_LIVE_FIELD);
-			const content = json as IDocumentNode;
-			adoptDraft(html, content, mentionedEmployeeIds(content), liveClockRef.current ?? NEVER_SAVED_CLOCK);
-		});
+		import('@/core/components/common/rich-editor/live-collaboration')
+			.then(({ liveDocumentContent }) => {
+				if (!current) return;
+				const { json, html } = liveDocumentContent(fallenDoc, DOCS_LIVE_FIELD);
+				const content = json as IDocumentNode;
+				adoptDraft(html, content, mentionedEmployeeIds(content), liveClockRef.current ?? NEVER_SAVED_CLOCK);
+				setAdoption('done');
+			})
+			.catch(() => {
+				// The editor's code did not load (offline, a new deployment): the document stays, and Retry tries again.
+				if (current) setAdoption('failed');
+			})
+			.finally(() => {
+				if (current) adoptingRef.current = false;
+			});
 		return () => {
 			current = false;
+			adoptingRef.current = false;
 		};
-	}, [adoptDraft, fallenDoc, pageWritable]);
+	}, [adoptDraft, adoption, adoptionTry, fallenDoc, pageWritable]);
+	const awaitingAdoption = Boolean(fallenDoc) && pageWritable && adoption !== 'done';
+	const retryAdoption = () => {
+		setAdoption('waiting');
+		setAdoptionTry((count) => count + 1);
+	};
 
 	const runFollow = (action: DocsFollowAction) => {
 		follow.run(action).catch(() => toast.error(t('docs.UPDATE_ERROR')));
@@ -661,7 +680,15 @@ export function DocsPageView({ pageId, tree, actions, spaces = NO_SPACES }: Docs
 									{isReadOnly && (
 										<RichTextView value={page.contentHtml ?? ''} emptyState={<p className="text-sm text-muted-foreground">{t('docs.EMPTY_PAGE')}</p>} />
 									)}
-									{!isReadOnly && isLiveConnecting && <BodySkeleton />}
+									{!isReadOnly && awaitingAdoption && adoption === 'failed' && (
+										<Notice tone="warning">
+											<span>{t('docs.SAVE_ERROR')}</span>
+											<Button type="button" size="sm" variant="outline" onClick={retryAdoption}>
+												{t('docs.RETRY')}
+											</Button>
+										</Notice>
+									)}
+									{!isReadOnly && (isLiveConnecting || (awaitingAdoption && adoption === 'waiting')) && <BodySkeleton />}
 									{!isReadOnly && !isLiveConnecting && liveEditor && (
 										<DocsEditorSurface
 											// Its own instance: nothing of the live editor carries over to the autosave one, should live editing stop.
@@ -676,7 +703,7 @@ export function DocsPageView({ pageId, tree, actions, spaces = NO_SPACES }: Docs
 											title={shownTitle}
 										/>
 									)}
-									{!isReadOnly && !isLiveConnecting && !liveEditor && (
+									{!isReadOnly && !isLiveConnecting && !liveEditor && !awaitingAdoption && (
 										<DocsEditorSurface
 											key={`${page.id}:page`}
 											value={autosave.restoredHtml ?? editorContent.html}

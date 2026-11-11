@@ -31,5 +31,25 @@ export function liveCollaboration(document: Doc, awareness: Awareness, field = '
  */
 export function liveDocumentContent(document: Doc, field = 'default'): { json: JSONContent; html: string } {
 	const json = yXmlFragmentToProsemirrorJSON(document.getXmlFragment(field)) as JSONContent;
-	return { json, html: generateHTML(json, schemaExtensions()) };
+	try {
+		return { json, html: generateHTML(json, schemaExtensions()) };
+	} catch {
+		// A node this editor's schema does not know: the JSON is kept whole (it is what the page stores), and the HTML is
+		// its text, a paragraph per block, so nothing of the edits is lost to the schema.
+		return { json, html: plainHtmlOf(json) };
+	}
+}
+
+const HTML_ESCAPES: Record<string, string> = { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' };
+
+function textOf(node: JSONContent): string {
+	if (typeof node.text === 'string') return node.text;
+	return (node.content ?? []).map(textOf).join(node.type === 'doc' ? '\n' : '');
+}
+
+/** The text of each top-level block as a paragraph, escaped. */
+function plainHtmlOf(json: JSONContent): string {
+	return (json.content ?? [])
+		.map((block) => `<p>${textOf(block).replace(/[&<>"']/g, (char) => HTML_ESCAPES[char])}</p>`)
+		.join('');
 }
