@@ -40,6 +40,29 @@
 			"ARCHIVE": "Archive project"
 		}
 	},
+	"favorites": {
+		"TITLE": "Favorites",
+		"DESCRIPTION": "The projects, tasks, pages and conversations you starred, in one place.",
+		"FAVORITE": "Favorite",
+		"ADD": "Add to favorites",
+		"REMOVE": "Remove from favorites",
+		"REMOVE_NAMED": "Remove {name} from favorites",
+		"ALL": "All favorites",
+		"NONE": "No favorites yet",
+		"EMPTY_TITLE": "No favorites yet",
+		"EMPTY_DESCRIPTION": "Star a project, a task, a page or a conversation to find it here and in the sidebar.",
+		"UNAVAILABLE": "No longer available",
+		"UNAVAILABLE_HINT": "Deleted, or out of your reach. Remove them to keep your favorites tidy.",
+		"UNAVAILABLE_ITEM": "{kind, select, project {A project you can no longer open} task {A task you can no longer open} document {A page you can no longer open} chat {A conversation you can no longer open} other {An item you can no longer open}}",
+		"ARCHIVED": "Archived",
+		"UPDATE_FAILED": "The favorite could not be changed. Try again.",
+		"kinds": {
+			"PROJECT": "Projects",
+			"TASK": "Tasks",
+			"DOCUMENT": "Docs",
+			"CHAT": "Chat"
+		}
+	},
 	"common": {
 		"DEMO_BANNER_TEXT": "You are using a demo account. Finding our software useful?",
 		"DEMO_BANNER_SIGN_UP": "Click here to Sign Up and start using for free!",

@@ -40,6 +40,29 @@
 			"ARCHIVE": "Projekt archivieren"
 		}
 	},
+	"favorites": {
+		"TITLE": "Favoriten",
+		"DESCRIPTION": "Die Projekte, Aufgaben, Seiten und Unterhaltungen, die du mit einem Stern markiert hast, an einem Ort.",
+		"FAVORITE": "Favorit",
+		"ADD": "Zu Favoriten hinzufügen",
+		"REMOVE": "Aus Favoriten entfernen",
+		"REMOVE_NAMED": "{name} aus Favoriten entfernen",
+		"ALL": "Alle Favoriten",
+		"NONE": "Noch keine Favoriten",
+		"EMPTY_TITLE": "Noch keine Favoriten",
+		"EMPTY_DESCRIPTION": "Markiere ein Projekt, eine Aufgabe, eine Seite oder eine Unterhaltung mit einem Stern, um sie hier und in der Seitenleiste zu finden.",
+		"UNAVAILABLE": "Nicht mehr verfügbar",
+		"UNAVAILABLE_HINT": "Gelöscht oder außerhalb deiner Reichweite. Entferne sie, damit deine Favoriten aufgeräumt bleiben.",
+		"UNAVAILABLE_ITEM": "{kind, select, project {Ein Projekt, das du nicht mehr öffnen kannst} task {Eine Aufgabe, die du nicht mehr öffnen kannst} document {Eine Seite, die du nicht mehr öffnen kannst} chat {Eine Unterhaltung, die du nicht mehr öffnen kannst} other {Ein Element, das du nicht mehr öffnen kannst}}",
+		"ARCHIVED": "Archiviert",
+		"UPDATE_FAILED": "Der Favorit konnte nicht geändert werden. Versuch es noch einmal.",
+		"kinds": {
+			"PROJECT": "Projekte",
+			"TASK": "Aufgaben",
+			"DOCUMENT": "Dokumente",
+			"CHAT": "Chat"
+		}
+	},
 	"common": {
 		"DEMO_BANNER_TEXT": "Sie verwenden ein Demo-Konto. Finden Sie unsere Software nützlich?",
 		"DEMO_BANNER_SIGN_UP": "Klicken Sie hier, um sich zu registrieren und kostenlos loszulegen!",

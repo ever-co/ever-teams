@@ -24,6 +24,8 @@ export interface DocsTreeState {
 	/** The reader's private pages. */
 	privateTree: DocTree;
 	isLoading: boolean;
+	/** The pages have arrived (there may be none): a page missing from them is gone, not still loading. */
+	isLoaded: boolean;
 	isError: boolean;
 	error: unknown;
 	retry: () => void;
@@ -53,6 +55,7 @@ export function useDocsTree(enabled: boolean): DocsTreeState {
 		byId,
 		...trees,
 		isLoading: query.isPending && query.fetchStatus !== 'idle',
+		isLoaded: query.isSuccess,
 		isError: query.isError,
 		error: query.error,
 		retry: query.refetch

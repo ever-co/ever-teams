@@ -40,6 +40,29 @@
 			"ARCHIVE": "Project archiveren"
 		}
 	},
+	"favorites": {
+		"TITLE": "Favorieten",
+		"DESCRIPTION": "De projecten, taken, pagina’s en gesprekken die je met een ster hebt gemarkeerd, op één plek.",
+		"FAVORITE": "Favoriet",
+		"ADD": "Aan favorieten toevoegen",
+		"REMOVE": "Uit favorieten verwijderen",
+		"REMOVE_NAMED": "{name} uit favorieten verwijderen",
+		"ALL": "Alle favorieten",
+		"NONE": "Nog geen favorieten",
+		"EMPTY_TITLE": "Nog geen favorieten",
+		"EMPTY_DESCRIPTION": "Markeer een project, een taak, een pagina of een gesprek met een ster om het hier en in de zijbalk terug te vinden.",
+		"UNAVAILABLE": "Niet meer beschikbaar",
+		"UNAVAILABLE_HINT": "Verwijderd of buiten je bereik. Haal ze weg om je favorieten overzichtelijk te houden.",
+		"UNAVAILABLE_ITEM": "{kind, select, project {Een project dat je niet meer kunt openen} task {Een taak die je niet meer kunt openen} document {Een pagina die je niet meer kunt openen} chat {Een gesprek dat je niet meer kunt openen} other {Een item dat je niet meer kunt openen}}",
+		"ARCHIVED": "Gearchiveerd",
+		"UPDATE_FAILED": "De favoriet kon niet worden gewijzigd. Probeer het opnieuw.",
+		"kinds": {
+			"PROJECT": "Projecten",
+			"TASK": "Taken",
+			"DOCUMENT": "Documenten",
+			"CHAT": "Chat"
+		}
+	},
 	"common": {
 		"DEMO_BANNER_TEXT": "U gebruikt een demo-account. Vindt u onze software nuttig?",
 		"DEMO_BANNER_SIGN_UP": "Klik hier om u aan te melden en gratis aan de slag te gaan!",
