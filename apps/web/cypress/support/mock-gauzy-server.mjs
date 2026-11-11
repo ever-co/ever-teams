@@ -725,7 +725,9 @@ export async function createMockGauzyServer({ fixture, port = 3988 } = {}) {
 			scenario: jsonClone(state.scenario),
 			mutationProof: jsonClone(state.mutationProof),
 			everPlatform: jsonClone(state.everPlatform),
-			notificationSetting: jsonClone(state.notificationSetting)
+			notificationSetting: jsonClone(state.notificationSetting),
+			// What was asked since the reset, method and path only
+			requests: state.requests.map(({ method, path }) => ({ method, path }))
 		}),
 		reset: () => {
 			state.requests = [];

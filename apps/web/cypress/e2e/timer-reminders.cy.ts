@@ -35,7 +35,8 @@ describe('long-running timer reminders', () => {
 		cy.hardVisit('/');
 
 		cy.contains('Your timer has been running for 8 hours', { timeout: 30_000 }).should('be.visible');
-		cy.contains('button', 'Stop timer').click();
+		// The reminder's own button: the page's timer has one with the same name
+		cy.get('[data-sonner-toast]').contains('button', 'Stop timer').click();
 
 		cy.contains('Your timer has been running for 8 hours').should('not.exist');
 		mockStateWhen((state) => state.scenario.timerRunning === false)
