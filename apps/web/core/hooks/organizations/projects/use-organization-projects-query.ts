@@ -112,6 +112,8 @@ export function useOrganizationProjectsQuery({ enabled = true }: UseOrganization
 	return {
 		organizationProjects,
 		getOrganizationProjectsLoading: organizationProjectsQuery.isLoading,
+		/** The list has arrived (it may be empty): a project missing from it is gone, not still loading. */
+		isOrganizationProjectsLoaded: organizationProjectsQuery.isSuccess,
 		isOrganizationProjectsError: organizationProjectsQuery.isError,
 		refetchOrganizationProjects: organizationProjectsQuery.refetch,
 		getOrganizationProject,

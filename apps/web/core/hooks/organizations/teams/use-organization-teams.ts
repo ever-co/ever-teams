@@ -18,7 +18,6 @@ import {
 	activeTeamState,
 	isTeamManagerState,
 	isTeamMemberState,
-	isTrackingEnabledState,
 	memberActiveTaskIdState,
 	organizationTeamsState,
 	timerStatusState
@@ -50,7 +49,6 @@ export function useOrganizationTeams() {
 	const timerStatus = useAtomValue(timerStatusState);
 	const [isTeamMember] = useAtom(isTeamMemberState);
 	const [isTeamManager] = useAtom(isTeamManagerState);
-	const setIsTrackingEnabledState = useSetAtom(isTrackingEnabledState);
 
 	// ==================== SPECIALIZED HOOKS ====================
 
@@ -84,6 +82,8 @@ export function useOrganizationTeams() {
 	const memberActiveTaskId =
 		(timerStatus?.running && timerStatus?.lastLog?.taskId) || currentUser?.activeTaskId || null;
 
+	// The timer reads isTrackingEnabledState instead, derived from the store whether this hook is mounted or not;
+	// unlike this value, it stays true while the team or user is loading and while a timer runs
 	const isTrackingEnabled = members.some((member) => {
 		const isUser = member.employee?.userId === user?.id;
 		return isUser && canMemberTrackTime(member);
@@ -102,7 +102,6 @@ export function useOrganizationTeams() {
 		if (defaultProjectId) {
 			setActiveProjectIdCookie(defaultProjectId);
 		}
-		setIsTrackingEnabledState(isTrackingEnabled);
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [activeTeam]);
 

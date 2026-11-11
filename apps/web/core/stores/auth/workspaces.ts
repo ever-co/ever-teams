@@ -30,6 +30,13 @@ export const workspacesLoadingState = atom<boolean>(false);
 export const workspaceSwitchingState = atom<boolean>(false);
 
 /**
+ * A new workspace is being created and opened (#5025). Its answer signs the browser in to it, so a timer started
+ * meanwhile would keep running in the workspace left behind, out of sight: the timer refuses to start until then. Set
+ * while the creation is in flight and cleared when it fails; on success the page is replaced.
+ */
+export const workspaceOpeningState = atom<boolean>(false);
+
+/**
  * Store for errors related to workspaces
  */
 export const workspacesErrorState = atom<string | null>(null);

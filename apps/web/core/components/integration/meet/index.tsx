@@ -2,105 +2,211 @@
 
 import { MEET_DOMAIN } from '@/core/constants/config/constants';
 import { JitsiMeeting } from '@jitsi/react-sdk';
-import { useRouter } from 'next/navigation';
-import { useCallback, useEffect, useState } from 'react';
-import { Button } from '@/core/components/common/button';
-import { CircleAlert } from '@/core/components/icons';
-import { JitsiMeetPageSkeleton } from '@/core/components/pages/meet/meet-room-skeleton';
+import { useTranslations } from 'next-intl';
+import { useCallback, useEffect, useRef, useState, type ComponentProps } from 'react';
+import { useJitsiExternalApi } from '@/core/hooks/common/use-jitsi-external-api';
+import { useCallbackRef } from '@/core/hooks/common/use-callback-ref';
+import type { MeetingJoinChoices } from '@/core/hooks/meetings/use-media-preview';
+import { MeetRoomError } from '@/core/components/pages/meet/meet-room-error';
+import { JitsiMeetPageSkeleton, MeetRoomSkeleton } from '@/core/components/pages/meet/meet-room-skeleton';
+import { MeetRoomBar } from '@/core/components/pages/meet/room/meet-room-bar';
 
 interface MeetPageProps {
 	jwt: string;
 	roomName: string;
+	/** What the room's bar calls the meeting; null for a room with a random name. */
+	title?: string | null;
+	/** What the person picked before joining; without it the room starts muted, as it always did. */
+	choices?: MeetingJoinChoices | null;
+	/** The person left the room, from the bar or from Jitsi's own hang-up button. */
+	onLeft: () => void;
+	onCopyLink: () => void;
+	/**
+	 * The room lost its connection and the person tries again: the page asks for a new token when the one in hand may
+	 * have expired (they last an hour, and Jitsi checks them on joining).
+	 */
+	onReconnect?: () => void;
 }
 
-export default function MeetPage({ jwt, roomName }: MeetPageProps) {
-	const router = useRouter();
-	const [error, setError] = useState<Error>();
+/** The part of the Jitsi Meet API instance the room uses. */
+interface JitsiRoomApi {
+	addListener: (event: string, listener: (...args: unknown[]) => void) => unknown;
+	executeCommand: (command: string, ...args: unknown[]) => void;
+	getNumberOfParticipants: () => number;
+	dispose: () => void;
+}
 
-	// Validate props
+/** What the room says when the meeting server's API could not be loaded, by reason. */
+const SERVER_FAILURE_KEYS = {
+	'not-configured': 'collaborate.MEETING_SERVER_NOT_CONFIGURED',
+	unreachable: 'collaborate.MEETING_SERVER_UNREACHABLE',
+	timeout: 'collaborate.MEETING_SERVER_TIMEOUT',
+	invalid: 'collaborate.MEETING_SERVER_INVALID'
+} as const;
+
+type JitsiDevices = NonNullable<ComponentProps<typeof JitsiMeeting>['devices']>;
+
+/**
+ * Jitsi picks devices by their names; the system's default device has none to give, so its key stays out (the SDK
+ * types every key as required, yet passes on only the ones given).
+ */
+function jitsiDevicesOf(choices: MeetingJoinChoices | null | undefined): JitsiDevices {
+	const devices: Partial<JitsiDevices> = {};
+	if (choices?.audioInputLabel) devices.audioInput = choices.audioInputLabel;
+	if (choices?.audioOutputLabel) devices.audioOutput = choices.audioOutputLabel;
+	if (choices?.videoInputLabel) devices.videoInput = choices.videoInputLabel;
+	return devices as JitsiDevices;
+}
+
+export default function MeetPage({
+	jwt,
+	roomName,
+	title = null,
+	choices,
+	onLeft,
+	onCopyLink,
+	onReconnect
+}: Readonly<MeetPageProps>) {
+	const t = useTranslations();
+	const jitsiApi = useJitsiExternalApi(MEET_DOMAIN.value);
+	const [isDisconnected, setIsDisconnected] = useState(false);
+	const [joinAttempt, setJoinAttempt] = useState(0);
+	const [joinedAt, setJoinedAt] = useState<number | null>(null);
+	const [participantCount, setParticipantCount] = useState<number | null>(null);
+	const roomApiRef = useRef<JitsiRoomApi | null>(null);
+	const onLeftRef = useCallbackRef(onLeft);
+	const onReconnectRef = useCallbackRef(onReconnect);
+
+	// The SDK never ends its API instance: a new attempt at the room, and leaving the page, end the previous one
 	useEffect(() => {
-		if (!jwt) {
-			setError(new Error('JWT token is required'));
-			return;
-		}
-		if (!roomName) {
-			setError(new Error('Room name is required'));
-			return;
-		}
-	}, [jwt, roomName]);
+		return () => {
+			roomApiRef.current?.dispose();
+			roomApiRef.current = null;
+		};
+	}, [joinAttempt]);
 
-	// Handle meeting close
-	const handleClose = useCallback(() => {
-		try {
-			router.push('/');
-		} catch (err) {
-			console.error('Failed to redirect after meeting close:', err);
-		}
-	}, [router]);
-
-	// Handle API ready
 	const handleApiReady = useCallback(
-		(externalApi: any) => {
-			try {
-				externalApi.addListener('readyToClose', handleClose);
-
-				// Add error handling
-				externalApi.addListener('videoConferenceLeft', handleClose);
-				externalApi.addListener('connectionFailed', () => {
-					setError(new Error('Failed to connect to meeting'));
-				});
-			} catch (err) {
-				console.error('Failed to setup meeting API:', err);
-				setError(err as Error);
-			}
+		(externalApi: JitsiRoomApi) => {
+			roomApiRef.current = externalApi;
+			const countParticipants = () => setParticipantCount(externalApi.getNumberOfParticipants());
+			externalApi.addListener('videoConferenceJoined', () => {
+				setJoinedAt(Date.now());
+				countParticipants();
+			});
+			externalApi.addListener('participantJoined', countParticipants);
+			externalApi.addListener('participantLeft', countParticipants);
+			// Jitsi's own hang-up button, or the room ending: the page says the person left, with a way back in
+			externalApi.addListener('readyToClose', () => onLeftRef.current());
+			externalApi.addListener('videoConferenceLeft', () => onLeftRef.current());
+			externalApi.addListener('connectionFailed', () => setIsDisconnected(true));
 		},
-		[handleClose]
+		[onLeftRef]
 	);
 
-	// Handle iframe setup
+	// Hanging up ends the call in Jitsi; the page leaves at once rather than wait for the room to answer
+	const leave = useCallback(() => {
+		roomApiRef.current?.executeCommand('hangup');
+		onLeftRef.current();
+	}, [onLeftRef]);
+
+	const rejoin = useCallback(() => {
+		setIsDisconnected(false);
+		setJoinedAt(null);
+		setParticipantCount(null);
+		setJoinAttempt((count) => count + 1);
+	}, []);
+
+	// After a lost connection the room may have lasted past its token's hour: the page renews it before the room reopens
+	const reconnect = useCallback(() => {
+		onReconnectRef.current?.();
+		rejoin();
+	}, [onReconnectRef, rejoin]);
+
+	// The frame fills the space under the room bar
 	const handleIFrameRef = useCallback((parentNode: HTMLDivElement) => {
 		if (parentNode) {
-			parentNode.style.height = '100vh';
+			parentNode.style.height = '100%';
 		}
 	}, []);
 
-	if (error) {
+	const canOpenRoom = Boolean(jwt && roomName);
+	if (!canOpenRoom) {
 		return (
-			<div className="flex flex-col items-center justify-center gap-1 p-4 text-center">
-				<div className="mb-2 flex size-10 items-center justify-center rounded-lg bg-destructive/10 text-destructive-ink">
-					<CircleAlert className="size-5" />
-				</div>
-				<h2 className="text-sm font-semibold text-balance text-foreground">Failed to initialize meeting</h2>
-				<p className="mb-3 text-sm text-balance text-muted-foreground">{error.message}</p>
-				<Button size="default" onClick={() => router.push('/')}>
-					Return Home
-				</Button>
-			</div>
+			<MeetRoomError
+				title={t('collaborate.MEETING_UNAVAILABLE')}
+				description={t('collaborate.MEETING_LINK_INVALID')}
+			/>
+		);
+	}
+
+	if (jitsiApi.status === 'error') {
+		const { reason } = jitsiApi.error;
+		// Only the app's configuration can give a missing server: trying again would change nothing
+		let retry: (() => void) | undefined = jitsiApi.retry;
+		if (reason === 'not-configured') {
+			retry = undefined;
+		}
+		return (
+			<MeetRoomError
+				title={t('collaborate.MEETING_UNAVAILABLE')}
+				description={t(SERVER_FAILURE_KEYS[reason], { domain: jitsiApi.domain })}
+				onRetry={retry}
+			/>
+		);
+	}
+
+	if (jitsiApi.status === 'loading') {
+		return <MeetRoomSkeleton label={t('collaborate.CONNECTING_MEETING_SERVER')} />;
+	}
+
+	if (isDisconnected) {
+		return (
+			<MeetRoomError
+				title={t('collaborate.MEETING_DISCONNECTED')}
+				description={t('collaborate.MEETING_DISCONNECTED_HINT')}
+				onRetry={reconnect}
+			/>
 		);
 	}
 
 	return (
-		<JitsiMeeting
-			domain={MEET_DOMAIN.value}
-			roomName={roomName}
-			configOverwrite={{
-				startWithAudioMuted: true,
-				startWithVideoMuted: true,
-				disableModeratorIndicator: false,
-				startScreenSharing: false,
-				enableEmailInStats: false,
-				preJoinPageEnabled: true,
-				enableClosePage: true
-			}}
-			interfaceConfigOverwrite={{
-				DISABLE_JOIN_LEAVE_NOTIFICATIONS: false,
-				MOBILE_APP_PROMO: false,
-				SHOW_CHROME_EXTENSION_BANNER: false
-			}}
-			jwt={jwt}
-			spinner={JitsiMeetPageSkeleton}
-			onApiReady={handleApiReady}
-			getIFrameRef={handleIFrameRef}
-		/>
+		<div className="flex h-dvh w-full flex-col">
+			<MeetRoomBar
+				title={title}
+				joinedAt={joinedAt}
+				participantCount={participantCount}
+				leave={leave}
+				onCopyLink={onCopyLink}
+			/>
+			<div className="min-h-0 flex-1">
+				<JitsiMeeting
+					key={joinAttempt}
+					domain={jitsiApi.domain}
+					roomName={roomName}
+					configOverwrite={{
+						startWithAudioMuted: !choices?.audioEnabled,
+						startWithVideoMuted: !choices?.videoEnabled,
+						disableModeratorIndicator: false,
+						startScreenSharing: false,
+						enableEmailInStats: false,
+						// Ever Teams' own pre-join screen came first, and its own screen says the person left
+						prejoinConfig: { enabled: false },
+						prejoinPageEnabled: false,
+						enableClosePage: false
+					}}
+					interfaceConfigOverwrite={{
+						DISABLE_JOIN_LEAVE_NOTIFICATIONS: false,
+						MOBILE_APP_PROMO: false,
+						SHOW_CHROME_EXTENSION_BANNER: false
+					}}
+					jwt={jwt}
+					devices={jitsiDevicesOf(choices)}
+					userInfo={{ displayName: choices?.displayName ?? '', email: '' }}
+					spinner={JitsiMeetPageSkeleton}
+					onApiReady={handleApiReady}
+					getIFrameRef={handleIFrameRef}
+				/>
+			</div>
+		</div>
 	);
 }

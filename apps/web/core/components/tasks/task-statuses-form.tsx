@@ -33,10 +33,10 @@ const SECONDARY_BUTTON =
 	'h-9 shrink-0 gap-1.5 rounded-md bg-card px-3 py-0 text-sm font-medium text-foreground hover:bg-muted disabled:pointer-events-none';
 const PRIMARY_BUTTON = 'h-9 shrink-0 rounded-md px-3 py-0 text-sm font-medium hover:bg-primary/90';
 const CANCEL_BUTTON = 'h-9 shrink-0 rounded-md px-3 py-0 text-sm font-medium';
-// The icon and colour pickers draw their own 54px box; this sizes them like the other controls of the
-// row without touching the shared picker components.
-const PICKER =
-	'shrink-0 [&_.input-border]:h-9 [&_.input-border]:rounded-md [&_.rounded-xl]:h-9 [&_.rounded-xl]:rounded-md';
+// The icon and colour pickers size their own trigger like the other controls of the row. No descendant
+// selector here: the icon picker opens its panel inside this wrapper, and one clamped that panel to the
+// trigger's height, its icons spilling out over the page.
+const PICKER = 'shrink-0';
 
 type StatusForm = {
 	formOnly?: boolean;
@@ -45,7 +45,7 @@ type StatusForm = {
 
 export const TaskStatusesForm = ({ formOnly = false, onCreated }: StatusForm) => {
 	const { data: user } = useUserQuery();
-	const { register, setValue, handleSubmit, reset, getValues } = useForm();
+	const { register, setValue, handleSubmit, reset, getValues, control } = useForm();
 	const [createNew, setCreateNew] = useState(formOnly);
 	const [edit, setEdit] = useState<TTaskStatus | null>(null);
 	const t = useTranslations();
@@ -162,7 +162,8 @@ export const TaskStatusesForm = ({ formOnly = false, onCreated }: StatusForm) =>
 	const tasks = useAtomValue(tasksByTeamState);
 
 	/**
-	 * Get Icon by status name
+	 * Get Icon by status name. A lookup only: the form takes the icon when a status type is picked, not on render,
+	 * so an icon picked after the type is kept.
 	 *
 	 * @param {string} iconName - Name of the icon
 	 * @returns {IIcon} - Icon of the status
@@ -177,14 +178,9 @@ export const TaskStatusesForm = ({ formOnly = false, onCreated }: StatusForm) =>
 
 			const name = STATUS_MAPPINGS[iconName] || iconName;
 
-			const icon = iconList.find((icon) => icon.title === name);
-
-			if (icon) {
-				setValue('icon', icon.path);
-			}
-			return icon;
+			return iconList.find((icon) => icon.title === name) ?? null;
 		},
-		[iconList, setValue]
+		[iconList]
 	);
 
 	/**
@@ -267,22 +263,17 @@ export const TaskStatusesForm = ({ formOnly = false, onCreated }: StatusForm) =>
 										onValueChange={(status) => {
 											setValue('template', status);
 											setSelectedStatusType(status);
+											// The type brings its icon once; the picker shows what the form holds
+											const typeIcon = getIcon(status);
+											if (typeIcon) {
+												setValue('icon', typeIcon.path);
+											}
 										}}
 										className="h-9 shrink-0"
 										defaultValue={edit?.value}
 									/>
 									<div className={PICKER}>
-										<IconPopover
-											iconList={iconList}
-											setValue={setValue}
-											active={
-												selectedStatusType
-													? getIcon(selectedStatusType)
-													: edit
-														? (iconList.find((icon) => icon.path === edit.icon) as IIcon)
-														: null
-											}
-										/>
+										<IconPopover kind="status" control={control} setValue={setValue} />
 									</div>
 									<div className={PICKER}>
 										<ColorPicker

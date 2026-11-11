@@ -46,3 +46,47 @@ describe('serverFetch on a non-2xx answer', () => {
 		expect(unhandled).toEqual([]);
 	});
 });
+
+describe('serverFetch with keepsStatusOnError', () => {
+	const realFetch = global.fetch;
+
+	afterEach(() => {
+		global.fetch = realFetch;
+	});
+
+	async function rejectionOf(answer: Response, keepsStatusOnError?: boolean) {
+		global.fetch = jest.fn(async () => answer) as unknown as typeof fetch;
+		let error: unknown;
+		try {
+			await serverFetch({ path: '/tags/bulk', method: 'POST', body: {}, keepsStatusOnError });
+		} catch (caught) {
+			error = caught;
+		}
+		return unwrapRejection(error);
+	}
+
+	it('gives the HTTP status of an error answer whose body has none', async () => {
+		await expect(
+			rejectionOf(new Response(null, { status: 405, statusText: 'Method Not Allowed' }), true)
+		).resolves.toEqual({
+			statusCode: 405,
+			message: 'Method Not Allowed'
+		});
+		await expect(
+			rejectionOf(new Response('Not Found', { status: 404, statusText: 'Not Found' }), true)
+		).resolves.toEqual({
+			statusCode: 404,
+			message: 'Not Found'
+		});
+	});
+
+	it("keeps Gauzy's own error body as it is", async () => {
+		const body = { statusCode: 404, message: 'Cannot POST /api/tags/bulk', error: 'Not Found' };
+
+		await expect(rejectionOf(Response.json(body, { status: 404 }), true)).resolves.toEqual(body);
+	});
+
+	it('changes nothing for the callers that do not ask for it', async () => {
+		await expect(rejectionOf(new Response(null, { status: 405 }))).resolves.toBeUndefined();
+	});
+});

@@ -35,7 +35,8 @@ import {
 	localTimerStatusState,
 	teamTasksState,
 	timerStatusFetchingState,
-	timerStatusState
+	timerStatusState,
+	workspaceOpeningState
 } from '@/core/stores';
 import { ETaskStatusName } from '@/core/types/generics/enums/task';
 import { ETimeLogSource } from '@/core/types/generics/enums/timer';
@@ -157,6 +158,29 @@ function trackTimerCommand<T>(request: Promise<T>): Promise<T> {
 	});
 }
 
+/**
+ * The task a start is for: the one asked for, else the task page's own (it becomes the active task), else the active
+ * task. `pageTask` is set only on a task page.
+ */
+function startTaskOf(
+	explicitTask: TTask | undefined,
+	pathname: string | null,
+	detailedTask: TTask | null,
+	activeTask: TTask | null
+): { pageTask: TTask | null; taskToUse: TTask | null } {
+	const pageTask = pathname?.startsWith('/task/') ? detailedTask : null;
+	return { pageTask, taskToUse: explicitTask || pageTask || activeTask };
+}
+
+/**
+ * The timer start in flight, from the click through its request, or null (#5025). Creating a workspace waits for it:
+ * the creation signs the browser in to the new workspace, and a start landing afterwards would leave a timer running
+ * in the workspace left behind, out of sight.
+ */
+export function pendingTimerStart(): Promise<TimerStartOutcome> | null {
+	return pendingStartTimer;
+}
+
 // Identity check: an older flow settling late must not clear the guard of a newer request
 function releaseStartGuard(request: Promise<TimerStartOutcome>) {
 	if (pendingStartTimer !== request) return;
@@ -222,6 +246,7 @@ export function useTimerApi({
 
 	const activeTeam = useAtomValue(activeTeamState);
 	const activeTeamTask = useAtomValue(activeTeamTaskState);
+	const isWorkspaceOpeningRef = useSyncRef(useAtomValue(workspaceOpeningState));
 	const { taskStatuses } = useTaskStatusesQuery({ enabled });
 	const detailedTask = useAtomValue(detailedTaskState);
 	const activeTeamId = useAtomValue(activeTeamIdState);
@@ -546,8 +571,20 @@ export function useTimerApi({
 		}
 	}, [activeTeamRef, queryClient, refreshUserData, stopStaleTeamsTimer, t, timerStatusRef]);
 
+	/** A new workspace is opening (#5025): says so and tells the start to stop. */
+	const warnIfWorkspaceOpening = useCallback((): boolean => {
+		if (!isWorkspaceOpeningRef.current) return false;
+		toast.warning(t('toasts.timer.WORKSPACE_OPENING'), { id: 'timer-workspace-opening' });
+		return true;
+	}, [isWorkspaceOpeningRef, t]);
+
 	const runStartTimer = useCallback(
 		async (explicitTask?: TTask, onRequestLanded?: () => void): Promise<TimerStartOutcome> => {
+			// A new workspace is opening: its answer switches the session, and this timer would keep running in the
+			// workspace left behind, out of sight (#5025)
+			if (warnIfWorkspaceOpening()) {
+				return 'blocked';
+			}
 			// Before the first await: a team switch during the tracking check or the project read drops the start
 			const teamIdAtStart = activeTeamRef.current?.id;
 			const isClearToStart = await canStartWithoutTrackingConflict();
@@ -557,8 +594,12 @@ export function useTimerApi({
 
 			// NOTE_FIX: Use explicit task if provided to avoid race conditions with taskId.current.
 			// On a task page that page's task becomes the active one, so it is also the one to start.
-			const pageTask = pathname?.startsWith('/task/') ? detailedTask : null;
-			const taskToUse = explicitTask || pageTask || activeTeamTaskRef.current;
+			const { pageTask, taskToUse } = startTaskOf(
+				explicitTask,
+				pathname,
+				detailedTask,
+				activeTeamTaskRef.current
+			);
 			const taskIdToUse = taskToUse?.id;
 			const projectIdToUse = timerStartProjectId(taskToUse, activeTeamRef.current);
 
@@ -583,7 +624,13 @@ export function useTimerApi({
 			const isTaskStillChosen =
 				Boolean(explicitTask) || Boolean(pageTask) || activeTeamTaskRef.current?.id === taskIdToUse;
 			const isSameTeam = activeTeamRef.current?.id === teamIdAtStart;
-			if (!isTaskStillChosen || !isSameTeam) {
+			// Or a new workspace began opening during the checks above: the start would land in the workspace it leaves
+			if (!isTaskStillChosen || !isSameTeam || warnIfWorkspaceOpening()) {
+				return 'blocked';
+			}
+			// Asked again after the awaits above: a workspace may have started opening meanwhile (#5025)
+			if (isWorkspaceOpeningRef.current) {
+				toast.warning(t('toasts.timer.WORKSPACE_OPENING'), { id: 'timer-workspace-opening' });
 				return 'blocked';
 			}
 
@@ -735,7 +782,8 @@ export function useTimerApi({
 			queryClient,
 			activeTeamId,
 			isCurrentScope,
-			statusEnabled
+			statusEnabled,
+			warnIfWorkspaceOpening
 		]
 	);
 

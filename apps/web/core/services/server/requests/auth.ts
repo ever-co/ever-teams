@@ -247,6 +247,21 @@ export const linkUserToSocialAccount = (data: ISocialAccountSendToken) => {
 };
 
 /**
+ * Another workspace for the signed-in person (`POST /auth/workspaces`, #5025): the e-mail address and the workspace
+ * sign-in token of the account the workspace is created with, which has no tenant yet. Gauzy refuses it (403) for an
+ * unconfirmed address, or while the operator has closed tenant registration.
+ */
+export const openWorkspaceServerRequest = (bearerToken: string, tenantId: string) => {
+	return serverFetch<{ email: string; token: string }>({
+		method: 'POST',
+		path: '/auth/workspaces',
+		body: {},
+		tenantId,
+		bearer_token: bearerToken
+	});
+};
+
+/**
  * Switch workspace server request - calls Gauzy API directly
  * Only needs tenantId, organizationId is retrieved from the response
  */

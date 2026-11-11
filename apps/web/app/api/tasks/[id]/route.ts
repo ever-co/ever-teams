@@ -1,20 +1,9 @@
 import { authenticatedGuard } from '@/core/services/server/guards/authenticated-guard-app';
 import { updateTaskRequest, getTaskByIdRequest } from '@/core/services/server/requests';
-import { unwrapRejection } from '@/core/services/server/fetch';
+import { apiErrorStatusOf, unwrapRejection } from '@/core/services/server/fetch';
 import { INextParams } from '@/core/types/interfaces/common/data-response';
 import { ITask } from '@/core/types/interfaces/task/task';
 import { NextResponse } from 'next/server';
-
-/** Gauzy's HTTP status in an unwrapped serverFetch rejection, or undefined when the API gave no error answer. */
-function getApiErrorStatus(error: unknown): number | undefined {
-	const statusCode = (error as { statusCode?: unknown } | null | undefined)?.statusCode;
-	// NextResponse refuses a status outside 200-599 (RangeError): such a body is no usable HTTP error status
-	const isErrorStatus = typeof statusCode === 'number' && statusCode >= 400 && statusCode <= 599;
-	if (!isErrorStatus) {
-		return undefined;
-	}
-	return statusCode;
-}
 
 export async function GET(req: Request, props: INextParams) {
 	const params = await props.params;
@@ -40,7 +29,7 @@ export async function GET(req: Request, props: INextParams) {
 		// Gauzy's own refusal goes back with its status (404 for a missing task) instead of a 500, so the task
 		// page can tell a missing task from a failed load. Anything else is rethrown as before.
 		const apiError = await unwrapRejection(error);
-		const status = getApiErrorStatus(apiError);
+		const status = apiErrorStatusOf(apiError);
 		if (status === undefined) {
 			throw error;
 		}
