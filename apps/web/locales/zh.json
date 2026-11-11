@@ -1768,6 +1768,8 @@
 				"WEEKLY_TREND_SUMMARY": "最近 {weeks} 周：创建 {created} 个，完成 {completed} 个",
 				"WEEKLY_TREND_WEEK": "{date} 起的一周：创建 {created} 个，完成 {completed} 个",
 				"WEEKLY_TREND_UNDATED": "未显示没有完成日期的已完成任务：{count}",
+				"PACE": "完成速度，每周完成：{perWeek}（统计的完整周数：{weeks}）",
+				"PACE_FORECAST": "按此速度清完未完成工作所需周数：约 {weeks}",
 				"NO_ASSIGNEE": "未分配",
 				"SHARE_OF": "{total} 个中的 {percent}%",
 				"TASKS_IN_TEAM": "{team} 中此项目的任务",

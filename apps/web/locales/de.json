@@ -1830,6 +1830,8 @@
 				"WEEKLY_TREND_SUMMARY": "Letzte {weeks} Wochen: {created} erstellt, {completed} abgeschlossen",
 				"WEEKLY_TREND_WEEK": "Woche ab {date}: {created} erstellt, {completed} abgeschlossen",
 				"WEEKLY_TREND_UNDATED": "Abgeschlossene Aufgaben ohne Abschlussdatum werden nicht angezeigt: {count}",
+				"PACE": "Tempo, abgeschlossen pro Woche: {perWeek} (gemessene volle Wochen: {weeks})",
+				"PACE_FORECAST": "Wochen bis zum Abbau der offenen Arbeit in diesem Tempo: etwa {weeks}",
 				"NO_ASSIGNEE": "Nicht zugewiesen",
 				"SHARE_OF": "{percent} % von {total}",
 				"TASKS_IN_TEAM": "Aufgaben dieses Projekts in {team}",

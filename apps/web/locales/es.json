@@ -1898,6 +1898,8 @@
 				"WEEKLY_TREND_SUMMARY": "Últimas {weeks} semanas: {created} creadas, {completed} completadas",
 				"WEEKLY_TREND_WEEK": "Semana del {date}: {created} creadas, {completed} completadas",
 				"WEEKLY_TREND_UNDATED": "Las tareas completadas sin fecha de finalización no se muestran: {count}",
+				"PACE": "Ritmo, completadas por semana: {perWeek} (semanas completas medidas: {weeks})",
+				"PACE_FORECAST": "Semanas para terminar el trabajo abierto a este ritmo: unas {weeks}",
 				"NO_ASSIGNEE": "Sin asignar",
 				"SHARE_OF": "{percent} % de {total}",
 				"TASKS_IN_TEAM": "Tareas de este proyecto en {team}",

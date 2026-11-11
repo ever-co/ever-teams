@@ -4,7 +4,13 @@ import { useEffect, useMemo, useState } from 'react';
 import { useFormatter, useTranslations } from 'next-intl';
 import { startOfWeek } from 'date-fns';
 import { cn } from '@/core/lib/helpers';
-import { activityBarPercentOf, projectActivityOf, type ProjectActivity } from '@/core/lib/utils/project-activity';
+import {
+	activityBarPercentOf,
+	projectActivityOf,
+	projectPaceOf,
+	type ProjectActivity,
+	type ProjectPace
+} from '@/core/lib/utils/project-activity';
 import type { TTask } from '@/core/types/schemas/task/task.schema';
 import type { TTaskStatus } from '@/core/types/schemas/task/task-status.schema';
 
@@ -74,6 +80,30 @@ function WeekBars({ activity }: Readonly<{ activity: ProjectActivity }>) {
 	);
 }
 
+/** The average weekly completions and the weeks the open tasks need at that pace; nothing until there is a pace. */
+function PaceLines({ pace }: Readonly<{ pace: ProjectPace }>) {
+	const t = useTranslations();
+	const format = useFormatter();
+	if (pace.perWeek === null) {
+		return null;
+	}
+	return (
+		<div className="flex flex-col gap-0.5">
+			<p className="text-xs text-muted-foreground">
+				{t('pages.projects.detail.PACE', {
+					perWeek: format.number(pace.perWeek, { maximumFractionDigits: 1 }),
+					weeks: pace.weeksMeasured
+				})}
+			</p>
+			{pace.weeksToClear !== null && (
+				<p className="text-xs text-muted-foreground">
+					{t('pages.projects.detail.PACE_FORECAST', { weeks: pace.weeksToClear })}
+				</p>
+			)}
+		</div>
+	);
+}
+
 /**
  * Tasks created and completed per week over the last weeks, from the creation and resolution dates of the project's
  * tasks. It stays out of the way (renders nothing) until the project has had any of either in that window, or has done
@@ -86,6 +116,7 @@ export function ProjectActivityChart({
 	const t = useTranslations();
 	const now = useNowByWeek();
 	const activity = useMemo(() => projectActivityOf(tasks, statuses, now), [now, statuses, tasks]);
+	const pace = useMemo(() => projectPaceOf(tasks, statuses, activity), [activity, statuses, tasks]);
 	const hasActivity = activity.created > 0 || activity.completed > 0;
 	const hasUndated = activity.undatedDone > 0;
 
@@ -114,6 +145,7 @@ export function ProjectActivityChart({
 				</div>
 			)}
 			{hasActivity && <WeekBars activity={activity} />}
+			{hasActivity && <PaceLines pace={pace} />}
 			{hasUndated && (
 				<p className="text-xs text-muted-foreground">
 					{t('pages.projects.detail.WEEKLY_TREND_UNDATED', { count: activity.undatedDone })}
