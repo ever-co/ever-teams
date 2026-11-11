@@ -594,6 +594,11 @@ export function useTimerApi({
 			if (!isTaskStillChosen || !isSameTeam) {
 				return 'blocked';
 			}
+			// A new workspace began opening during the checks above: the start would land in the workspace it leaves
+			if (isWorkspaceOpeningRef.current) {
+				toast.warning(t('toasts.timer.WORKSPACE_OPENING'), { id: 'timer-workspace-opening' });
+				return 'blocked';
+			}
 
 			updateLocalTimerStatus({
 				lastTaskId: taskIdToUse,
