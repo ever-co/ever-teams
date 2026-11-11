@@ -1078,6 +1078,10 @@ function createSyntheticHistory(): { base: string; head: string; repository: str
 	return { base, head: git(repository, 'rev-parse', 'HEAD'), repository };
 }
 
+// The real surface's JSON outgrew spawnSync's 1 MiB default output buffer (ENOBUFS) once the Docs, chat and
+// integration proxies landed; it is read whole, so the buffer is sized well past it.
+const SURFACE_MAX_BUFFER = 64 * 1024 * 1024;
+
 let realHeadSurface: Surface | undefined;
 
 function collectRealHeadSurface(): Surface {
@@ -1088,7 +1092,7 @@ function collectRealHeadSurface(): Surface {
 		'process.stdout.write(JSON.stringify(result.surface));'
 	].join('\n');
 	const result = checkedSpawn(
-		spawnSync(process.execPath, ['--input-type=module', '--eval', expression], { encoding: 'utf8' })
+		spawnSync(process.execPath, ['--input-type=module', '--eval', expression], { encoding: 'utf8', maxBuffer: SURFACE_MAX_BUFFER })
 	);
 	if (result.status !== 0) throw new Error(result.stderr);
 	realHeadSurface = JSON.parse(result.stdout) as Surface;
@@ -1996,10 +2000,12 @@ describe('Ever Teams feature surface preservation', () => {
 		// 281 files and 362 verbs with the proxy of the favourite tasks of every team (GET /api/favorite/type).
 		// 282 files and 363 verbs with the favicons of the visited sites, opt-in (GET /api/favicons/[host]).
 		// 283 files and 364 verbs with the workspace creation (POST /api/auth/create-workspace, #5025).
-		expect(routes.filter((value) => /\/route\.[jt]s$/.test(value))).toHaveLength(283);
+		// 289 files and 370 verbs with the integrations' sync conflict proxies (/api/integration/{linear,asana,trello}/[id]/conflicts,
+		// GET, and [id]/conflicts/[conflictId]/resolve, POST).
+		expect(routes.filter((value) => /\/route\.[jt]s$/.test(value))).toHaveLength(289);
 		expect(
 			routes.filter((value) => /\/route\.[jt]s::(?:GET|POST|PUT|PATCH|DELETE|HEAD|OPTIONS)$/.test(value))
-		).toHaveLength(364);
+		).toHaveLength(370);
 		expect(routes).toEqual(
 			expect.arrayContaining([
 				// Proxy mode twins of the platform's Docs live sessions and collaboration routes (2026-11-11)

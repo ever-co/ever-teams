@@ -1,5 +1,7 @@
 import { APIService } from '@/core/services/client/api.service';
 import { GAUZY_API_BASE_SERVER_URL } from '@/core/constants/config/constants';
+import { conflictQueryString } from '@/core/lib/utils/integration-sync-conflicts';
+import type { IIntegrationConflictQuery, IIntegrationSyncConflict, TIntegrationConflictKeep } from '@/core/types/interfaces/integrations/integration-sync-conflict';
 import type {
 	ILinearConnectionSummary,
 	ILinearMapping,
@@ -74,8 +76,25 @@ class LinearIntegrationService extends APIService {
 		return response.data;
 	};
 
+	/** The latest runs, each with how many conflicts it found (`conflictCount`). */
 	runs = async (integrationId: string, take = 20, signal?: AbortSignal): Promise<ILinearRun[]> => {
 		const response = await this.get<ILinearRun[]>(`${BASE}/${segment(integrationId)}/runs?take=${take}`, { signal });
+		return response.data;
+	};
+
+	/** The connection's sync conflicts, newest first: open ones unless the query says otherwise. */
+	conflicts = async (integrationId: string, query: IIntegrationConflictQuery = {}, signal?: AbortSignal): Promise<IIntegrationSyncConflict[]> => {
+		const response = await this.get<IIntegrationSyncConflict[]>(`${BASE}/${segment(integrationId)}/conflicts${conflictQueryString(query)}`, { signal });
+		return response.data;
+	};
+
+	/**
+	 * Resolves an open conflict: `external` keeps Linear's value (already the task's), `platform` writes the task's back
+	 * (and a mapping that sends changes out sends it to the issue). 409 when the task changed since, 404 when it is
+	 * resolved already.
+	 */
+	resolveConflict = async (integrationId: string, conflictId: string, keep: TIntegrationConflictKeep): Promise<IIntegrationSyncConflict> => {
+		const response = await this.post<IIntegrationSyncConflict>(`${BASE}/${segment(integrationId)}/conflicts/${segment(conflictId)}/resolve`, { keep });
 		return response.data;
 	};
 }

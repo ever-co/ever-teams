@@ -86,4 +86,6 @@ export interface ITrelloRun {
 	skippedCount: number;
 	failedCount: number;
 	lastError: string | null;
+	/** How many sync conflicts the run found (the runs list says it; a run just started has none yet). */
+	conflictCount?: number;
 }

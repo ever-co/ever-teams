@@ -14,6 +14,8 @@ import { PUT as putMapping } from './[id]/mappings/[mappingId]/route';
 import { POST as postWebhook } from './[id]/mappings/[mappingId]/webhook/route';
 import { POST as postImport } from './[id]/mappings/[mappingId]/import/route';
 import { GET as getRuns } from './[id]/runs/route';
+import { GET as getConflicts } from './[id]/conflicts/route';
+import { POST as postResolve } from './[id]/conflicts/[conflictId]/resolve/route';
 
 afterEach(restoreFetch);
 
@@ -73,5 +75,25 @@ describe('the Asana integration proxies', () => {
 		const response = await deleteConnection(signedInRequest('https://app.ever.team/api/integration/asana/int-1', 'DELETE'), params({ id: 'int-1' }));
 		expect(sentToGauzy(fetchMock)).toMatchObject({ url: gauzyUrl('/integration/asana/int-1'), method: 'DELETE' });
 		expect(response.status).toBe(204);
+	});
+
+	it('lists the sync conflicts with their filters, and resolves one, each id kept to one segment', async () => {
+		const conflictParams = (id: string, conflictId: string) => ({ params: Promise.resolve({ id, conflictId }) });
+		let fetchMock = gauzyAnswers(Response.json([], { status: 200 }));
+		await getConflicts(signedInRequest('https://app.ever.team/api/integration/asana/int-1/conflicts?status=resolved&runId=r-1'), { params: Promise.resolve({ id: 'int-1' }) });
+		expect(sentToGauzy(fetchMock)).toMatchObject({ url: gauzyUrl('/integration/asana/int-1/conflicts?status=resolved&runId=r-1'), method: 'GET' });
+
+		fetchMock = gauzyAnswers(Response.json({ id: 'c-1', status: 'resolved', resolution: 'kept_platform' }, { status: 200 }));
+		const response = await postResolve(
+			signedInRequest('https://app.ever.team/api/integration/asana/int-1/conflicts/c-1/resolve', 'POST', { keep: 'platform' }),
+			conflictParams('int-1', '../c-1')
+		);
+		expect(sentToGauzy(fetchMock)).toMatchObject({ url: gauzyUrl('/integration/asana/int-1/conflicts/..%2Fc-1/resolve'), method: 'POST', body: { keep: 'platform' } });
+		expect(response.status).toBe(200);
+
+		// The platform's refusal (the task changed since) reaches the page as it was answered.
+		fetchMock = gauzyAnswers(Response.json({ message: 'Stale', code: 'ASANA_CONFLICT_STALE' }, { status: 409 }));
+		const refused = await postResolve(signedInRequest('https://app.ever.team/api/integration/asana/int-1/conflicts/c-1/resolve', 'POST', { keep: 'platform' }), conflictParams('int-1', 'c-1'));
+		expect(refused.status).toBe(409);
 	});
 });
