@@ -123,7 +123,7 @@ describe('workspace creation', () => {
 				'https://checkout.example.test/?product=ever-teams&email=manager%40example.test'
 			)
 			.and('have.attr', 'target', '_blank');
-		creationState().then((created) => expect(created.tenant).to.equal(null));
+		creationState().then((created) => expect(created.tenant).to.be.null);
 	});
 
 	it('says when it cannot tell whether the workspace was created, and offers no retry', () => {

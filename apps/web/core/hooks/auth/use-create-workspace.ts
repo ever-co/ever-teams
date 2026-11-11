@@ -52,14 +52,20 @@ function isOutcomeUnknown(error: unknown): boolean {
 	return status === undefined || status >= 500;
 }
 
+/** The `details` of the route's refusal, from the API client's error or a bare axios one. */
+function errorDetailsOf(error: unknown): Record<string, unknown> | undefined {
+	if (ApiErrorService.isApiError(error)) {
+		return error.details;
+	}
+	if (isAxiosError(error)) {
+		return (error.response?.data as { details?: Record<string, unknown> } | undefined)?.details;
+	}
+	return undefined;
+}
+
 /** Where to buy the product, when the creation met the sign-up's paywall. */
 export function createWorkspaceCheckoutUrlOf(error: unknown): string | null {
-	const details = ApiErrorService.isApiError(error)
-		? error.details
-		: isAxiosError(error)
-			? (error.response?.data as { details?: Record<string, unknown> } | undefined)?.details
-			: undefined;
-	const checkoutUrl = details?.checkoutUrl;
+	const checkoutUrl = errorDetailsOf(error)?.checkoutUrl;
 	return typeof checkoutUrl === 'string' && checkoutUrl.startsWith('https://') ? checkoutUrl : null;
 }
 

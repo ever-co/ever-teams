@@ -159,6 +159,20 @@ function trackTimerCommand<T>(request: Promise<T>): Promise<T> {
 }
 
 /**
+ * The task a start is for: the one asked for, else the task page's own (it becomes the active task), else the active
+ * task. `pageTask` is set only on a task page.
+ */
+function startTaskOf(
+	explicitTask: TTask | undefined,
+	pathname: string | null,
+	detailedTask: TTask | null,
+	activeTask: TTask | null
+): { pageTask: TTask | null; taskToUse: TTask | null } {
+	const pageTask = pathname?.startsWith('/task/') ? detailedTask : null;
+	return { pageTask, taskToUse: explicitTask || pageTask || activeTask };
+}
+
+/**
  * The timer start in flight, from the click through its request, or null (#5025). Creating a workspace waits for it:
  * the creation signs the browser in to the new workspace, and a start landing afterwards would leave a timer running
  * in the workspace left behind, out of sight.
@@ -580,8 +594,12 @@ export function useTimerApi({
 
 			// NOTE_FIX: Use explicit task if provided to avoid race conditions with taskId.current.
 			// On a task page that page's task becomes the active one, so it is also the one to start.
-			const pageTask = pathname?.startsWith('/task/') ? detailedTask : null;
-			const taskToUse = explicitTask || pageTask || activeTeamTaskRef.current;
+			const { pageTask, taskToUse } = startTaskOf(
+				explicitTask,
+				pathname,
+				detailedTask,
+				activeTeamTaskRef.current
+			);
 			const taskIdToUse = taskToUse?.id;
 			const projectIdToUse = timerStartProjectId(taskToUse, activeTeamRef.current);
 
