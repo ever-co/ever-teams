@@ -5319,7 +5319,25 @@
 				"DECISION": "决定",
 				"CONSEQUENCES": "影响"
 			}
-		}
+		},
+		"LIVE": "实时",
+		"LIVE_CONNECTING": "正在连接…",
+		"LIVE_RECONNECTING": "正在重新连接…",
+		"NOT_LIVE": "非实时",
+		"LIVE_EDITORS": "{count, plural, other {此页面还有 # 人}}",
+		"LIVE_READ_ONLY": "你可以在此页面变化时阅读它，但不能在这里编辑。",
+		"LIVE_READ_ONLY_NO_ACCESS": "你可以在他人编辑时阅读此页面，但你没有编辑权限。",
+		"LIVE_READ_ONLY_FULL": "此页面的编辑人数已达上限。你可以同步阅读，有人离开后即可编辑。",
+		"LIVE_ENDED": "实时编辑已停止。你的更改会照常保存。",
+		"LIVE_ENDED_ACCESS": "你已无权实时编辑此页面。",
+		"TEAM_SPACE": "团队空间",
+		"TEAM_SPACE_EMPTY": "此团队空间还没有页面。",
+		"NEW_TEAM_PAGE": "在 {team} 中新建页面",
+		"MOVE_TO_SPACE": "移动到空间",
+		"FOLLOW": "关注页面",
+		"UNFOLLOW": "取消关注页面",
+		"MUTE": "静音通知",
+		"UNMUTE": "取消静音通知"
 	},
 	"whatsNew": {
 		"TITLE": "新功能",

@@ -23,8 +23,10 @@ the app's existing rich editor (headings, lists, checklists, tables, code, callo
 images, files, mentions, task links), page comments anchored to text, version history
 with restore, duplicate, move, trash and restore, Markdown export, and a search that
 covers page titles and text. Pages can be attached to a project and show up in the
-project's Docs tab. Presence avatars show who has a page open; live co-editing arrives in
-a later release (single-writer autosave with conflict detection ships first).
+project's Docs tab. Presence avatars show who has a page open. With
+`NEXT_PUBLIC_DOCS_LIVE_ENABLED` and a platform that serves live sessions, people edit a page
+together live (carets, presence); otherwise, and whenever a live session ends, the
+single-writer autosave with conflict detection saves the page.
 
 ## 2. User Scenarios
 
@@ -45,6 +47,19 @@ a later release (single-writer autosave with conflict detection ships first).
 - **Given** a page edited by two people, **when** the second saves on an older version,
   **then** they see a conflict notice with "Reload" and "Keep my changes as a new
   version"; nothing is silently lost.
+- **Given** live editing on and a page two people have open, **when** one types, **then** the
+  other sees the text and the caret with the author's name at once, the header shows "Live"
+  with the other person's avatar, and nothing waits for a save.
+- **Given** a live page, **when** the connection drops, **then** the header shows
+  "Reconnecting…", the person keeps typing, and what they typed merges once it is back.
+- **Given** a live page the person may only read (no edit access, a locked page, too many
+  editors, the size limit), **when** it opens, **then** it is read-only with the reason.
+- **Given** a live page, **when** its session ends (access revoked, the page trashed, the
+  platform without live sessions), **then** the header shows "Not live", the page is read
+  again and the autosave takes over.
+- **Given** a platform with Docs collaboration, **when** the user opens Docs, **then** each team
+  they are in has its space in the tree, and the page menu moves a page between spaces and
+  follows or mutes it.
 - **Given** a page with history, **when** the user opens Version history, **then** they
   see versions grouped by day, can preview and restore one (the current state is kept as
   a version).
@@ -121,8 +136,6 @@ a later release (single-writer autosave with conflict detection ships first).
 
 ## 6. Out of Scope
 
-- Live multi-cursor co-editing (next release, when the platform's collaboration
-  transport ships).
 - Public sharing links, per-page permissions beyond space visibility.
 - Databases/properties inside pages, templates (may follow).
 

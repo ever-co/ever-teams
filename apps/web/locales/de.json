@@ -5319,7 +5319,25 @@
 				"DECISION": "Entscheidung",
 				"CONSEQUENCES": "Auswirkungen"
 			}
-		}
+		},
+		"LIVE": "Live",
+		"LIVE_CONNECTING": "Verbinden…",
+		"LIVE_RECONNECTING": "Neu verbinden…",
+		"NOT_LIVE": "Nicht live",
+		"LIVE_EDITORS": "{count, plural, one {# weitere Person auf dieser Seite} other {# weitere Personen auf dieser Seite}}",
+		"LIVE_READ_ONLY": "Sie können diese Seite lesen, während sie sich ändert, sie hier aber nicht bearbeiten.",
+		"LIVE_READ_ONLY_NO_ACCESS": "Sie können diese Seite lesen, während andere sie bearbeiten, aber selbst nicht bearbeiten.",
+		"LIVE_READ_ONLY_FULL": "Diese Seite hat so viele Bearbeitende, wie sie aufnehmen kann. Sie können mitlesen und bearbeiten, sobald jemand geht.",
+		"LIVE_ENDED": "Die Live-Bearbeitung wurde beendet. Ihre Änderungen werden wie gewohnt gespeichert.",
+		"LIVE_ENDED_ACCESS": "Sie haben keinen Zugriff mehr, um diese Seite live zu bearbeiten.",
+		"TEAM_SPACE": "Teambereich",
+		"TEAM_SPACE_EMPTY": "Noch keine Seiten in diesem Teambereich.",
+		"NEW_TEAM_PAGE": "Neue Seite in {team}",
+		"MOVE_TO_SPACE": "In Bereich verschieben",
+		"FOLLOW": "Seite folgen",
+		"UNFOLLOW": "Seite nicht mehr folgen",
+		"MUTE": "Benachrichtigungen stummschalten",
+		"UNMUTE": "Benachrichtigungen einschalten"
 	},
 	"whatsNew": {
 		"TITLE": "Neuigkeiten",

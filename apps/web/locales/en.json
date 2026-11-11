@@ -5319,7 +5319,25 @@
 				"DECISION": "Decision",
 				"CONSEQUENCES": "Consequences"
 			}
-		}
+		},
+		"LIVE": "Live",
+		"LIVE_CONNECTING": "Connecting…",
+		"LIVE_RECONNECTING": "Reconnecting…",
+		"NOT_LIVE": "Not live",
+		"LIVE_EDITORS": "{count, plural, one {# other person on this page} other {# other people on this page}}",
+		"LIVE_READ_ONLY": "You can read this page as it changes, but not edit it here.",
+		"LIVE_READ_ONLY_NO_ACCESS": "You can read this page as others edit it, but you cannot edit it.",
+		"LIVE_READ_ONLY_FULL": "This page has as many editors as it can take. You can read along, and edit once someone leaves.",
+		"LIVE_ENDED": "Live editing stopped. Your changes save as usual.",
+		"LIVE_ENDED_ACCESS": "You no longer have access to edit this page live.",
+		"TEAM_SPACE": "Team space",
+		"TEAM_SPACE_EMPTY": "No pages in this team space yet.",
+		"NEW_TEAM_PAGE": "New page in {team}",
+		"MOVE_TO_SPACE": "Move to space",
+		"FOLLOW": "Follow page",
+		"UNFOLLOW": "Unfollow page",
+		"MUTE": "Mute notifications",
+		"UNMUTE": "Unmute notifications"
 	},
 	"whatsNew": {
 		"TITLE": "What's new",

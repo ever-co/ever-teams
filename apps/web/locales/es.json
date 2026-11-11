@@ -5319,7 +5319,25 @@
 				"DECISION": "Decisión",
 				"CONSEQUENCES": "Consecuencias"
 			}
-		}
+		},
+		"LIVE": "En vivo",
+		"LIVE_CONNECTING": "Conectando…",
+		"LIVE_RECONNECTING": "Reconectando…",
+		"NOT_LIVE": "Sin conexión en vivo",
+		"LIVE_EDITORS": "{count, plural, one {# persona más en esta página} other {# personas más en esta página}}",
+		"LIVE_READ_ONLY": "Puedes leer esta página mientras cambia, pero no editarla aquí.",
+		"LIVE_READ_ONLY_NO_ACCESS": "Puedes leer esta página mientras otros la editan, pero no puedes editarla.",
+		"LIVE_READ_ONLY_FULL": "Esta página tiene tantos editores como admite. Puedes seguir leyendo y editar cuando alguien salga.",
+		"LIVE_ENDED": "La edición en vivo se detuvo. Tus cambios se guardan como siempre.",
+		"LIVE_ENDED_ACCESS": "Ya no tienes acceso para editar esta página en vivo.",
+		"TEAM_SPACE": "Espacio del equipo",
+		"TEAM_SPACE_EMPTY": "Todavía no hay páginas en este espacio del equipo.",
+		"NEW_TEAM_PAGE": "Nueva página en {team}",
+		"MOVE_TO_SPACE": "Mover a un espacio",
+		"FOLLOW": "Seguir página",
+		"UNFOLLOW": "Dejar de seguir la página",
+		"MUTE": "Silenciar notificaciones",
+		"UNMUTE": "Activar notificaciones"
 	},
 	"whatsNew": {
 		"TITLE": "Novedades",
