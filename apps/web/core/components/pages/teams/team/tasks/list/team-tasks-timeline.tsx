@@ -35,7 +35,7 @@ export function TeamTasksTimelineView({
 	const t = useTranslations();
 	const locale = useLocale();
 	const [zoom, setZoom] = useState<TeamTasksTimelineZoom>('week');
-	const [today] = useState(() => new Date());
+	const today = useToday();
 	const scrollRef = useRef<HTMLDivElement>(null);
 	const tasks = useMemo(() => tasksOfGroups(view.groups), [view.groups]);
 	const taskById = useMemo(() => new Map(tasks.map((task) => [task.id, task])), [tasks]);
@@ -75,10 +75,18 @@ export function TeamTasksTimelineView({
 		element.scrollLeft = Math.max(0, todayDay * dayWidth - (element.clientWidth - TITLE_WIDTH) / 3);
 	}, [todayDay, dayWidth]);
 
+	// The task's own dates (never the calendar's edges a long bar is cut at).
 	const barLabel = (task: TTask, bar: TeamTasksTimelineBar) => {
-		const start = formats.day.format(dateOfDayNumber(firstDay + bar.startDay));
-		const end = formats.day.format(dateOfDayNumber(firstDay + bar.endDay));
-		const dates = bar.startDay === bar.endDay ? start : t('pages.teamTasks.TIMELINE_RANGE', { start, end });
+		const day = (value: number) => formats.day.format(dateOfDayNumber(value));
+		const { taskStartDay, taskDueDay } = bar;
+		let dates = '';
+		if (taskStartDay !== null && taskDueDay !== null && taskStartDay !== taskDueDay) {
+			dates = t('pages.teamTasks.TIMELINE_RANGE', { start: day(taskStartDay), end: day(taskDueDay) });
+		} else if (taskDueDay !== null) {
+			dates = day(taskDueDay);
+		} else if (taskStartDay !== null) {
+			dates = day(taskStartDay);
+		}
 		const notes = [
 			bar.isDueOnly ? t('pages.teamTasks.TIMELINE_DUE_ONLY') : null,
 			bar.isStartOnly ? t('pages.teamTasks.TIMELINE_START_ONLY') : null,
@@ -174,7 +182,8 @@ export function TeamTasksTimelineView({
 											onClick={() => commands.openTask(task.id)}
 											className="sticky left-0 z-10 flex shrink-0 items-center gap-2 truncate border-r border-border bg-background px-3 text-left text-sm outline-none hover:bg-foreground/[0.03] focus-visible:ring-[3px] focus-visible:ring-inset focus-visible:ring-ring/25"
 											style={{ width: TITLE_WIDTH }}
-											title={task.title}
+											aria-label={label}
+											title={label}
 										>
 											{task.number ? (
 												<span className="shrink-0 text-xs tabular-nums text-muted-foreground">#{task.number}</span>
@@ -182,6 +191,22 @@ export function TeamTasksTimelineView({
 											<span className="truncate">{task.title}</span>
 										</button>
 										<div className="relative" style={{ width: calendarWidth }}>
+											{bar.outside ? (
+												<button
+													type="button"
+													onClick={() => commands.openTask(task.id)}
+													aria-label={label}
+													title={label}
+													data-testid={`timeline-outside-${task.id}`}
+													className={cn(
+														'absolute top-1.5 flex items-center rounded-md px-1.5 text-xs font-medium text-muted-foreground outline-none hover:bg-foreground/[0.05] focus-visible:ring-[3px] focus-visible:ring-ring/40',
+														bar.isOverdue && 'text-destructive'
+													)}
+													style={{ ...(bar.outside === 'before' ? { left: 0 } : { right: 0 }), height: ROW_HEIGHT - 12 }}
+												>
+													<span aria-hidden="true">{bar.outside === 'before' ? '‹' : '›'}</span>
+												</button>
+											) : (
 											<button
 												type="button"
 												onClick={() => commands.openTask(task.id)}
@@ -201,6 +226,7 @@ export function TeamTasksTimelineView({
 											>
 												{width >= 64 ? <span className="truncate">{task.title}</span> : null}
 											</button>
+											)}
 										</div>
 									</li>
 								);
@@ -236,4 +262,39 @@ export function TeamTasksTimelineView({
 			)}
 		</section>
 	);
+}
+
+/**
+ * Today, kept current: it moves at local midnight and when the tab comes back after the day changed (a timer of a
+ * sleeping tab can run late), so the today line and the overdue marks never stay on yesterday.
+ */
+function useToday() {
+	const [today, setToday] = useState(() => new Date());
+	useEffect(() => {
+		let timer: ReturnType<typeof setTimeout> | undefined;
+		const refresh = () => {
+			setToday((current) => {
+				const now = new Date();
+				return dayNumberOf(now) === dayNumberOf(current) ? current : now;
+			});
+		};
+		const schedule = () => {
+			const now = new Date();
+			const nextMidnight = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1);
+			timer = setTimeout(() => {
+				refresh();
+				schedule();
+			}, nextMidnight.getTime() - now.getTime() + 1000);
+		};
+		const onVisible = () => {
+			if (document.visibilityState === 'visible') refresh();
+		};
+		schedule();
+		document.addEventListener('visibilitychange', onVisible);
+		return () => {
+			if (timer) clearTimeout(timer);
+			document.removeEventListener('visibilitychange', onVisible);
+		};
+	}, []);
+	return today;
 }

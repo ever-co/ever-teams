@@ -96,7 +96,8 @@ export function TeamTasksDisplayMenu({ view }: Readonly<{ view: TeamTasksViewSta
 	// A manual order has no direction: it is the order the tasks were put in.
 	const isManual = settings.ordering === 'manual';
 	// A board has its lanes for groups: the grouping and the empty groups are the list's.
-	const isBoard = isTaskViewsEnabled() && settings.layout === 'board';
+	// A board has lanes for groups and a timeline one row per task: neither offers the list's grouping.
+	const isBoard = isTaskViewsEnabled() && (settings.layout === 'board' || settings.layout === 'timeline');
 
 	const handleGrouping = (value: string | null) => {
 		if (!value) {
