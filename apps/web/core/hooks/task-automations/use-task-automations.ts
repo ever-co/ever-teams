@@ -1,0 +1,192 @@
+'use client';
+
+import { useCallback, useMemo } from 'react';
+import { useAtomValue } from 'jotai';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { queryKeys } from '@/core/query/keys';
+import { taskAutomationsService } from '@/core/services/client/api/task-automations';
+import { ApiErrorService } from '@/core/services/client/api-error.service';
+import { errorStatusOf } from '@/core/lib/utils/error-feedback';
+import { isTaskAutomationsEnabled } from '@/core/lib/utils/task-automations-enabled';
+import { rulesInOrder, sortTaskAutomationRules } from '@/core/lib/utils/task-automations';
+import { activeTeamState } from '@/core/stores/teams/organization-team';
+import { userState } from '@/core/stores/user/user';
+import type {
+	ITaskAutomationRule,
+	ITaskAutomationRuleCreateInput,
+	ITaskAutomationRuleUpdateInput,
+	ITaskAutomationTemplate,
+	ITaskAutomationTestResult
+} from '@/core/types/interfaces/common/task-automation';
+
+/** Whose rules, in which organization; `null` before those are known. */
+export interface TaskAutomationsScope {
+	tenantId: string;
+	organizationId: string;
+	userId: string;
+}
+
+export function useTaskAutomationsScope(): TaskAutomationsScope | null {
+	const user = useAtomValue(userState);
+	const team = useAtomValue(activeTeamState);
+	const tenantId = team?.tenantId ?? user?.tenantId ?? null;
+	const organizationId = team?.organizationId ?? null;
+	const userId = user?.id ?? null;
+	return useMemo(() => {
+		if (!tenantId || !organizationId || !userId) return null;
+		return { tenantId, organizationId, userId };
+	}, [organizationId, tenantId, userId]);
+}
+
+/**
+ * Whether Settings → Automations can be used here:
+ * - `off`: the deployment's switch is off (nothing is asked of the platform);
+ * - `loading`: the platform has not answered yet;
+ * - `available`: the platform serves the automations to this person;
+ * - `unavailable`: the platform has no automations (404): the entry and the page hide;
+ * - `forbidden`: the platform has them, this person may not manage them (403);
+ * - `error`: the question failed for another reason (offline, a 5xx): the page offers a retry.
+ */
+export type TaskAutomationsAvailability = 'off' | 'loading' | 'available' | 'unavailable' | 'forbidden' | 'error';
+
+/** What a failed probe says about the feature. */
+export function availabilityOfError(error: unknown): Exclude<TaskAutomationsAvailability, 'off' | 'loading' | 'available'> {
+	if (ApiErrorService.isApiError(error) && error.isEndpointUnavailable()) return 'unavailable';
+	if (errorStatusOf(error) === 404) return 'unavailable';
+	if (errorStatusOf(error) === 403) return 'forbidden';
+	return 'error';
+}
+
+/** Only a temporary failure is worth asking again for. */
+export function shouldRetryProbe(failureCount: number, error: unknown): boolean {
+	return availabilityOfError(error) === 'error' && failureCount < 2;
+}
+
+const NO_TEMPLATES: ITaskAutomationTemplate[] = [];
+
+/**
+ * The availability probe, which is also the templates' read: `GET /task-automations/templates`, once per sign-in and
+ * organization. `probe` false (a person who could not see the entry anyway) asks nothing.
+ */
+export function useTaskAutomationsAvailability(probe = true) {
+	const scope = useTaskAutomationsScope();
+	const enabled = isTaskAutomationsEnabled();
+	const query = useQuery({
+		queryKey: queryKeys.taskAutomations.templates(scope?.tenantId, scope?.organizationId, scope?.userId),
+		queryFn: ({ signal }) => taskAutomationsService.templates(scope!.organizationId, signal),
+		enabled: enabled && probe && scope !== null,
+		staleTime: 5 * 60_000,
+		retry: shouldRetryProbe
+	});
+	let availability: TaskAutomationsAvailability;
+	if (!enabled) availability = 'off';
+	else if (query.isSuccess) availability = 'available';
+	else if (query.isError) availability = availabilityOfError(query.error);
+	else availability = 'loading';
+	return { availability, templates: query.data ?? NO_TEMPLATES, retry: query.refetch };
+}
+
+const NO_RULES: ITaskAutomationRule[] = [];
+
+/** The organization's rules, in the order the platform runs them. */
+export function useTaskAutomationRules(enabled: boolean) {
+	const scope = useTaskAutomationsScope();
+	const query = useQuery({
+		queryKey: queryKeys.taskAutomations.rules(scope?.tenantId, scope?.organizationId, scope?.userId),
+		queryFn: ({ signal }) => taskAutomationsService.list(scope!.organizationId, signal),
+		enabled: enabled && isTaskAutomationsEnabled() && scope !== null,
+		staleTime: 15_000
+	});
+	const rules = useMemo(() => sortTaskAutomationRules(query.data ?? NO_RULES), [query.data]);
+	return { rules, isLoading: query.isLoading, isError: query.isError, error: query.error, refetch: query.refetch };
+}
+
+/** A rule's last runs, newest first; asked only while `ruleId` is set (the history is open). */
+export function useTaskAutomationRuns(ruleId: string | null) {
+	const scope = useTaskAutomationsScope();
+	return useQuery({
+		queryKey: queryKeys.taskAutomations.runs(scope?.tenantId, scope?.organizationId, scope?.userId, ruleId),
+		queryFn: ({ signal }) => taskAutomationsService.runs(scope!.organizationId, ruleId as string, 50, signal),
+		enabled: isTaskAutomationsEnabled() && scope !== null && !!ruleId,
+		staleTime: 5_000
+	});
+}
+
+/**
+ * The writes of the page: create, edit, switch on/off and reorder (both shown at once and rolled back when the
+ * platform refuses), delete, and the dry run (which writes nothing). Each answers the platform's rule, or throws.
+ */
+export function useTaskAutomationActions() {
+	const scope = useTaskAutomationsScope();
+	const queryClient = useQueryClient();
+	const rulesKey = queryKeys.taskAutomations.rules(scope?.tenantId, scope?.organizationId, scope?.userId);
+	const organizationId = scope?.organizationId ?? '';
+
+	const setRules = useCallback(
+		(update: (rules: ITaskAutomationRule[]) => ITaskAutomationRule[]) =>
+			queryClient.setQueryData<ITaskAutomationRule[]>(rulesKey, (current) => update(current ?? [])),
+		[queryClient, rulesKey]
+	);
+	const invalidate = useCallback(() => queryClient.invalidateQueries({ queryKey: rulesKey }), [queryClient, rulesKey]);
+
+	const createMutation = useMutation({
+		mutationFn: (input: ITaskAutomationRuleCreateInput) => taskAutomationsService.create(organizationId, input),
+		onSuccess: (created) => setRules((rules) => [...rules.filter((one) => one.id !== created.id), created])
+	});
+
+	const updateMutation = useMutation({
+		mutationFn: ({ id, input }: { id: string; input: ITaskAutomationRuleUpdateInput }) =>
+			taskAutomationsService.update(organizationId, id, input),
+		onMutate: async ({ id, input }) => {
+			// Only the switch is shown before the answer: the rest of an edit waits for what the platform kept.
+			if (input.isEnabled === undefined || Object.keys(input).length !== 1) return undefined;
+			await queryClient.cancelQueries({ queryKey: rulesKey });
+			const previous = queryClient.getQueryData<ITaskAutomationRule[]>(rulesKey);
+			setRules((rules) => rules.map((rule) => (rule.id === id ? { ...rule, isEnabled: !!input.isEnabled } : rule)));
+			return { previous };
+		},
+		onError: (_error, _variables, context) => {
+			if (context?.previous) queryClient.setQueryData(rulesKey, context.previous);
+		},
+		onSuccess: (updated) => setRules((rules) => rules.map((rule) => (rule.id === updated.id ? updated : rule)))
+	});
+
+	const reorderMutation = useMutation({
+		mutationFn: (ids: string[]) => taskAutomationsService.reorder(organizationId, ids),
+		onMutate: async (ids) => {
+			await queryClient.cancelQueries({ queryKey: rulesKey });
+			const previous = queryClient.getQueryData<ITaskAutomationRule[]>(rulesKey);
+			setRules((rules) => rulesInOrder(rules, ids));
+			return { previous };
+		},
+		onError: (_error, _ids, context) => {
+			if (context?.previous) queryClient.setQueryData(rulesKey, context.previous);
+		},
+		onSuccess: (rules) => queryClient.setQueryData(rulesKey, rules)
+	});
+
+	const removeMutation = useMutation({
+		mutationFn: (id: string) => taskAutomationsService.remove(organizationId, id),
+		onSuccess: (_result, id) => setRules((rules) => rules.filter((rule) => rule.id !== id))
+	});
+
+	const testMutation = useMutation({
+		mutationFn: ({ id, taskId }: { id: string; taskId: string }): Promise<ITaskAutomationTestResult> =>
+			taskAutomationsService.test(organizationId, id, taskId)
+	});
+
+	return {
+		create: createMutation.mutateAsync,
+		isCreating: createMutation.isPending,
+		update: (id: string, input: ITaskAutomationRuleUpdateInput) => updateMutation.mutateAsync({ id, input }),
+		isUpdating: updateMutation.isPending,
+		setEnabled: (id: string, isEnabled: boolean) => updateMutation.mutateAsync({ id, input: { isEnabled } }),
+		reorder: reorderMutation.mutateAsync,
+		isReordering: reorderMutation.isPending,
+		remove: removeMutation.mutateAsync,
+		isRemoving: removeMutation.isPending,
+		test: (id: string, taskId: string) => testMutation.mutateAsync({ id, taskId }),
+		isTesting: testMutation.isPending,
+		invalidate
+	};
+}
