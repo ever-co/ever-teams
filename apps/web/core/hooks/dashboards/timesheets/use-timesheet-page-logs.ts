@@ -35,36 +35,47 @@ function timeZoneNameOf(userTimeZone: string | null | undefined) {
  * timesheet mutations refresh it. The previous period stays on screen while the next one loads.
  */
 export function useTimesheetPageLogs(period: Period, scope: TimesheetPageLogsScope) {
-	const startDate = localDayKeyOf(period.from);
-	const endDate = localDayKeyOf(period.to);
-	const timeZone = timeZoneNameOf(scope.userTimeZone);
-	const employeeIds = [...scope.employeeIds].sort((first, second) => first.localeCompare(second));
+	const request = timesheetPageLogsRequestOf(period, scope);
 	const hasTenant = Boolean(scope.tenantId);
 	const hasOrganization = Boolean(scope.organizationId);
 	const isReady = hasTenant && hasOrganization;
-	const isLive = isLiveDayRange(startDate, endDate);
+	const isLive = isLiveDayRange(request.startDate, request.endDate);
 
 	return useQuery({
-		queryKey: [
-			...queryKeys.timesheet.all,
-			'page-logs',
-			{
-				tenantId: scope.tenantId ?? null,
-				organizationId: scope.organizationId ?? null,
-				startDate,
-				endDate,
-				timeZone,
-				employeeIds
-			}
-		],
-		queryFn: async (): Promise<ITimeLog[]> => {
-			const logs = await timeLogService.getTimeLogs({ startDate, endDate, timeZone, employeeIds });
-			return logs ?? [];
-		},
+		queryKey: request.queryKey,
+		queryFn: request.queryFn,
 		enabled: isReady && scope.isEnabled,
 		placeholderData: keepPreviousData,
 		staleTime: STALE_TIME,
 		gcTime: GC_TIME,
 		...liveQueryOptionsOf(isLive)
 	});
+}
+
+/**
+ * The key and the read of a period's logs, shared by the page and by anything that reads another period the same
+ * way (the week before, to copy it), so both land in one cache entry.
+ */
+export function timesheetPageLogsRequestOf(period: Period, scope: Omit<TimesheetPageLogsScope, 'isEnabled'>) {
+	const startDate = localDayKeyOf(period.from);
+	const endDate = localDayKeyOf(period.to);
+	const timeZone = timeZoneNameOf(scope.userTimeZone);
+	const employeeIds = [...scope.employeeIds].sort((first, second) => first.localeCompare(second));
+	const queryKey = [
+		...queryKeys.timesheet.all,
+		'page-logs',
+		{
+			tenantId: scope.tenantId ?? null,
+			organizationId: scope.organizationId ?? null,
+			startDate,
+			endDate,
+			timeZone,
+			employeeIds
+		}
+	];
+	const queryFn = async (): Promise<ITimeLog[]> => {
+		const logs = await timeLogService.getTimeLogs({ startDate, endDate, timeZone, employeeIds });
+		return logs ?? [];
+	};
+	return { startDate, endDate, queryKey, queryFn, staleTime: STALE_TIME, gcTime: GC_TIME };
 }
