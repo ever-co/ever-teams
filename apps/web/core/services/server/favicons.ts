@@ -30,6 +30,36 @@ const MAX_CACHED_HOSTS = 500;
 const cache = new Map<string, { favicon: Favicon | null; until: number }>();
 const pending = new Map<string, Promise<Favicon | null>>();
 
+/** At most eight lookups reach out at once, and 64 more wait their turn: a burst of hosts cannot hold every socket. */
+const MAX_RUNNING_LOOKUPS = 8;
+const MAX_WAITING_LOOKUPS = 64;
+let runningLookups = 0;
+const waitingLookups: Array<() => void> = [];
+
+/** Too many favicons asked at once: the lookup was not started (the route answers 503, not cached). */
+export class FaviconsBusyError extends Error {
+	constructor() {
+		super('Too many favicon lookups at once');
+		this.name = 'FaviconsBusyError';
+	}
+}
+
+async function inLookupSlot<T>(lookup: () => Promise<T>): Promise<T> {
+	if (runningLookups >= MAX_RUNNING_LOOKUPS) {
+		if (waitingLookups.length >= MAX_WAITING_LOOKUPS) {
+			throw new FaviconsBusyError();
+		}
+		await new Promise<void>((start) => waitingLookups.push(start));
+	}
+	runningLookups += 1;
+	try {
+		return await lookup();
+	} finally {
+		runningLookups -= 1;
+		waitingLookups.shift()?.();
+	}
+}
+
 interface Fetched {
 	bytes: Uint8Array;
 	url: URL;
@@ -197,7 +227,10 @@ function remember(host: string, favicon: Favicon | null) {
 	cache.set(host, { favicon, until: Date.now() + (favicon ? FOUND_TTL_MS : MISSING_TTL_MS) });
 }
 
-/** A host's favicon, from the cache or the site; null when it has none the app can show. One lookup per host at a time. */
+/**
+ * A host's favicon, from the cache or the site; null when it has none the app can show. One lookup per host at a time,
+ * eight at once in all; rejects with FaviconsBusyError when too many wait already.
+ */
 export function faviconOf(host: string): Promise<Favicon | null> {
 	const cached = cache.get(host);
 	if (cached && cached.until > Date.now()) {
@@ -207,13 +240,18 @@ export function faviconOf(host: string): Promise<Favicon | null> {
 	if (running) {
 		return running;
 	}
-	const lookup = findFavicon(host)
-		.catch(() => null)
-		.then((favicon) => {
+	const lookup = inLookupSlot(() => findFavicon(host).catch(() => null)).then(
+		(favicon) => {
 			remember(host, favicon);
 			pending.delete(host);
 			return favicon;
-		});
+		},
+		(error: unknown) => {
+			// Not started: nothing to remember, the next request may find a slot
+			pending.delete(host);
+			throw error;
+		}
+	);
 	pending.set(host, lookup);
 	return lookup;
 }

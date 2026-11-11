@@ -224,7 +224,13 @@ function addUsageRow(rowsByKey: Map<string, AppUsageRow>, row: AppUsageRow) {
 		rowsByKey.set(row.key, row);
 		return;
 	}
-	rowsByKey.set(row.key, { ...existing, seconds: existing.seconds + row.seconds });
+	// The kind and address of either row: the first may lack what the second carries
+	rowsByKey.set(row.key, {
+		...existing,
+		kind: existing.kind ?? row.kind ?? null,
+		url: existing.url ?? row.url ?? null,
+		seconds: existing.seconds + row.seconds
+	});
 }
 
 /**

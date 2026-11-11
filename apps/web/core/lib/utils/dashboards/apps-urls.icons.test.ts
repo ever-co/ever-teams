@@ -42,6 +42,29 @@ describe('the kind and address of the usage rows', () => {
 		]);
 	});
 
+	it('keeps them when two rows share a key and only the second carries them', () => {
+		const rows = flattenActivityReport(
+			reportOf([
+				{ employeeId: 'employee-1', date: '2026-11-10', title: 'Pull requests', duration: 30 },
+				{
+					employeeId: 'employee-1',
+					date: '2026-11-10',
+					title: 'Pull requests',
+					type: 'URL',
+					url: 'https://github.com/ever-co/ever-teams/pulls',
+					duration: 90
+				}
+			])
+		);
+
+		expect(rows).toHaveLength(1);
+		expect([rows[0].kind, rows[0].url, rows[0].seconds]).toEqual([
+			'url',
+			'https://github.com/ever-co/ever-teams/pulls',
+			120
+		]);
+	});
+
 	it('keeps them for the period totals, from the first row that has them', () => {
 		const rows = flattenActivityReport(
 			reportOf([

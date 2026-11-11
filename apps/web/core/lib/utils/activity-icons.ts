@@ -25,6 +25,21 @@ export function appNameKeyOf(title: string): string {
 		.trim();
 }
 
+/** The visited address an entry's metadata holds (an object, or its JSON as a string, as SQLite stores it), if any. */
+export function addressOfMetaData(metaData: unknown): string | null {
+	let value = metaData;
+	if (typeof value === 'string') {
+		try {
+			value = JSON.parse(value);
+		} catch {
+			return null;
+		}
+	}
+	const isRecord = typeof value === 'object' && value !== null && !Array.isArray(value);
+	const url = isRecord ? (value as { url?: unknown }).url : undefined;
+	return typeof url === 'string' && url.trim() ? url.trim() : null;
+}
+
 function hostOfAddress(address: string | null | undefined): string | null {
 	if (!address) {
 		return null;
@@ -125,10 +140,16 @@ function brandOf(key: ActivityBrandKey | undefined): ActivityBrand | null {
 }
 
 /**
- * The bundled brand of a row: by its site's host, else, for what is not known to be a site, by its app name. An app
- * name can read like a host when the row does not say which it is (`Figma.app`): a known app's name decides then.
+ * The bundled brand of a row: by its site's host, else, for what is not known to be a site, by its app name. Where the
+ * row does not say which it is, a known app's name decides first unless the title is a host (a browser's entry holds
+ * the page it showed), and an app name that reads like a host (`Figma.app`) decides once no brand owns that host.
  */
 export function activityBrandOf(subject: ActivitySubject): ActivityBrand | null {
+	const byApp = subject.kind === 'url' ? undefined : BRAND_OF_APP.get(appNameKeyOf(subject.title));
+	const isTitleAHost = hostOfAddress(siteAddressOf(subject.title)) !== null;
+	if (byApp && subject.kind == null && !isTitleAHost) {
+		return brandOf(byApp);
+	}
 	const host = activityHostOf(subject);
 	const byDomain = host ? BRAND_DOMAINS.find(({ domain }) => isHostOf(host, domain))?.key : undefined;
 	if (byDomain) {
@@ -137,5 +158,5 @@ export function activityBrandOf(subject: ActivitySubject): ActivityBrand | null 
 	if (subject.kind === 'url') {
 		return null;
 	}
-	return brandOf(BRAND_OF_APP.get(appNameKeyOf(subject.title)));
+	return brandOf(byApp);
 }

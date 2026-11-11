@@ -7,7 +7,7 @@ jest.mock('@/core/lib/chat/guarded-fetch', () => ({
 	createGuardedFetch: () => (url: string, init: RequestInit) => mockGuardedFetch(url, init)
 }));
 
-import { faviconOf, imageTypeOf, linkedIconsOf } from './favicons';
+import { FaviconsBusyError, faviconOf, imageTypeOf, linkedIconsOf } from './favicons';
 
 const bytes = (...values: number[]) => new Uint8Array([...values, 0, 0, 0, 0, 0, 0, 0, 0]);
 
@@ -75,6 +75,36 @@ describe('faviconOf', () => {
 			'https://large.example.com/',
 			'https://large.example.com/brand.png'
 		]);
+	});
+
+	it('reaches out for eight hosts at once, lets 64 wait, and refuses more without remembering them', async () => {
+		jest.useFakeTimers();
+		// Sites that keep the connection open until each lookup's deadline
+		mockGuardedFetch.mockImplementation(
+			(_address: string, init: RequestInit) =>
+				new Promise((_resolve, reject) => {
+					const abort = () => reject(new Error('aborted'));
+					if (init.signal?.aborted) return abort();
+					init.signal?.addEventListener('abort', abort);
+				})
+		);
+
+		const lookups = Array.from({ length: 72 }, (_, index) => faviconOf(`busy-${index}.example.com`));
+		await jest.advanceTimersByTimeAsync(0);
+
+		expect(mockGuardedFetch).toHaveBeenCalledTimes(8);
+		await expect(faviconOf('one-too-many.example.com')).rejects.toBeInstanceOf(FaviconsBusyError);
+
+		// Each wave of eight lets the next eight start, until every lookup has ended
+		for (let wave = 0; wave < 9; wave += 1) {
+			await jest.advanceTimersByTimeAsync(10_000);
+		}
+		await expect(Promise.all(lookups)).resolves.toHaveLength(72);
+		// The refused host was not remembered as missing: it is asked again once there is room
+		mockGuardedFetch.mockImplementation(async () => new Response(PNG, { status: 200 }));
+		await expect(faviconOf('one-too-many.example.com')).resolves.toEqual(
+			expect.objectContaining({ type: 'image/png' })
+		);
 	});
 
 	it('lets a site go when the whole lookup has not answered in ten seconds', async () => {

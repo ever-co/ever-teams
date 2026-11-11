@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { faviconsEnabled, isFaviconHost } from '@/core/lib/utils/activity-icons';
-import { faviconOf } from '@/core/services/server/favicons';
+import { faviconOf, FaviconsBusyError } from '@/core/services/server/favicons';
 import { authenticatedGuard } from '@/core/services/server/guards/authenticated-guard-app';
 
 /** A day for a found favicon, six hours for a missing one; in the browser only (the route asks for a session). */
@@ -26,7 +26,19 @@ export async function GET(req: Request, props: { params: Promise<{ host: string 
 		return new NextResponse(null, { status: 400 });
 	}
 
-	const favicon = await faviconOf(host);
+	let favicon: Awaited<ReturnType<typeof faviconOf>>;
+	try {
+		favicon = await faviconOf(host);
+	} catch (error) {
+		if (error instanceof FaviconsBusyError) {
+			// Not cached: the browser shows the generic icon now and may ask again later
+			return new NextResponse(null, {
+				status: 503,
+				headers: { 'Cache-Control': 'no-store', 'Retry-After': '5' }
+			});
+		}
+		throw error;
+	}
 	if (!favicon) {
 		return new NextResponse(null, { status: 404, headers: { 'Cache-Control': MISSING_CACHE } });
 	}

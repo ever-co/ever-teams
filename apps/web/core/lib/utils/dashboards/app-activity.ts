@@ -1,4 +1,5 @@
 import { endOfDay, isSameDay, startOfDay } from 'date-fns';
+import { addressOfMetaData } from '@/core/lib/utils/activity-icons';
 import type { TActivityEntry } from '@/core/types/schemas/activities/activity.schema';
 import { percentOfDayWindow, timelineHoursOf } from './team-day';
 
@@ -63,21 +64,6 @@ export interface AppDay {
 	hourRows: AppHourRow[];
 }
 
-/** The visited address an entry's metadata holds (an object, or its JSON as a string), if any. */
-function urlOfMetaData(metaData: unknown): string | null {
-	let value = metaData;
-	if (typeof value === 'string') {
-		try {
-			value = JSON.parse(value);
-		} catch {
-			return null;
-		}
-	}
-	const isRecord = typeof value === 'object' && value !== null && !Array.isArray(value);
-	const url = isRecord ? (value as { url?: unknown }).url : undefined;
-	return typeof url === 'string' && url.trim() ? url.trim() : null;
-}
-
 function kindOf(type: string | null | undefined): AppActivityKind {
 	const normalized = type?.toUpperCase();
 	if (normalized === 'APP') {
@@ -135,7 +121,7 @@ export function appActivitiesOf(entries: ReadonlyArray<TActivityEntry>): AppActi
 			title,
 			detail: entry.description?.trim() ?? '',
 			kind: kindOf(entry.type),
-			url: urlOfMetaData(entry.metaData),
+			url: addressOfMetaData(entry.metaData),
 			start,
 			end: new Date(endTime),
 			seconds,

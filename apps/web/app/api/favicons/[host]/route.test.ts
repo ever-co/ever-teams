@@ -5,12 +5,14 @@ const mockFaviconOf = jest.fn();
 const mockAuthenticatedGuard = jest.fn();
 
 jest.mock('@/core/services/server/favicons', () => ({
+	...jest.requireActual('@/core/services/server/favicons'),
 	faviconOf: (...args: unknown[]) => mockFaviconOf(...args)
 }));
 jest.mock('@/core/services/server/guards/authenticated-guard-app', () => ({
 	authenticatedGuard: (...args: unknown[]) => mockAuthenticatedGuard(...args)
 }));
 
+import { FaviconsBusyError } from '@/core/services/server/favicons';
 import { GET } from './route';
 
 const PNG = new Uint8Array([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a, 0, 0, 0, 0]);
@@ -78,6 +80,15 @@ describe('GET /api/favicons/:host', () => {
 
 		expect(response.status).toBe(401);
 		expect(mockFaviconOf).not.toHaveBeenCalled();
+	});
+
+	it('answers 503, not kept, when too many favicons are asked at once', async () => {
+		mockFaviconOf.mockRejectedValue(new FaviconsBusyError());
+
+		const response = await request('github.com');
+
+		expect(response.status).toBe(503);
+		expect(response.headers.get('cache-control')).toBe('no-store');
 	});
 
 	it('is off unless the deployment turns it on', async () => {

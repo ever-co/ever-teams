@@ -4,6 +4,7 @@
 // cspell:ignore bcher
 import {
 	activityBrandOf,
+	addressOfMetaData,
 	activityHostOf,
 	appNameKeyOf,
 	faviconPathOf,
@@ -52,6 +53,9 @@ describe('activityBrandOf', () => {
 		expect(activityBrandOf({ title: 'linear.app' })?.key).toBe('linear');
 		expect(activityBrandOf({ title: 'sublime_text.exe' })?.key).toBe('sublimetext');
 		expect(activityBrandOf({ title: 'Brave Browser' })?.key).toBe('brave');
+		// A row that does not say its kind: the browser's own name decides, whatever page its entry holds
+		expect(activityBrandOf({ title: 'Google Chrome', url: 'https://github.com/ever-co' })?.key).toBe('chrome');
+		expect(activityBrandOf({ title: 'github.com', url: 'https://github.com/ever-co' })?.key).toBe('github');
 	});
 
 	it('recognises a site by its host or a sub-domain, the most precise domain first', () => {
@@ -99,5 +103,22 @@ describe('the favicon route switch', () => {
 		process.env.NEXT_PUBLIC_FAVICONS_ENABLED = 'true';
 		expect(faviconsEnabled()).toBe(true);
 		expect(faviconPathOf('github.com')).toBe('/api/favicons/github.com');
+	});
+});
+
+describe('addressOfMetaData', () => {
+	it('reads the address from an object, or from its JSON as SQLite stores it', () => {
+		expect(addressOfMetaData({ url: 'https://github.com/ever-co' })).toBe('https://github.com/ever-co');
+		expect(addressOfMetaData('{"title":"Pull requests","url":" https://github.com/ever-co "}')).toBe(
+			'https://github.com/ever-co'
+		);
+	});
+
+	it('finds none in text that is not JSON, an array, a missing or blank address', () => {
+		expect(addressOfMetaData('not json')).toBeNull();
+		expect(addressOfMetaData([{ url: 'https://github.com' }])).toBeNull();
+		expect(addressOfMetaData({ title: 'x' })).toBeNull();
+		expect(addressOfMetaData({ url: '  ' })).toBeNull();
+		expect(addressOfMetaData(null)).toBeNull();
 	});
 });
