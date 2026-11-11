@@ -5,9 +5,10 @@ import { readRuntimeEnv } from '@/env-config';
  *
  * One Board serves several Ever Teams deployments (app., stage. and demo.ever.team), and the session of each stays
  * on its own host. So a deployment tells the Board where it was opened from, and the Board comes back to that
- * deployment to sign the person in:
+ * deployment to sign the person in and to ask who is signed in:
  * - the Board address names this deployment's origin in its `origin` parameter (boardAppUrl);
- * - a sign-in the Board starts, `/auth/passcode?redirect=<board address>`, ends back on the Board (boardReturnUrl).
+ * - a sign-in the Board starts, `/auth/passcode?redirect=<board address>`, ends back on the Board (boardReturnUrl);
+ * - `/api/board/session` tells the Board who is signed in, and answers the Board origin only (isTrustedBoardOrigin).
  *
  * The one Board origin a deployment trusts is the origin of NEXT_PUBLIC_BOARD_APP_DOMAIN, compared exactly. It must
  * use https; plain http is accepted for localhost only, while NODE_ENV is development.
@@ -76,6 +77,15 @@ export function trustedBoardOrigin(trust: BoardTrust = configuredBoardTrust()): 
 	return url.origin;
 }
 
+/** Whether a request's `Origin` header names the trusted Board origin, exactly. */
+export function isTrustedBoardOrigin(
+	origin: string | null | undefined,
+	trust: BoardTrust = configuredBoardTrust()
+): origin is string {
+	const trusted = trustedBoardOrigin(trust);
+	return trusted !== null && origin === trusted;
+}
+
 /**
  * The address to send a person back to at the end of a sign-in the Board started, or null when `candidate` is not an
  * absolute, secure address on the trusted Board origin. Anything else (another host, a look-alike host, a relative
@@ -119,4 +129,33 @@ export function boardAppUrl(
 		return null;
 	}
 	return withEverTeamsOrigin(url, everTeamsOrigin);
+}
+
+/** What the Board learns about the signed-in person: enough to name them and show their picture to collaborators. */
+export interface BoardSessionUser {
+	id: string;
+	name: string;
+	imageUrl: string | null;
+}
+
+interface SessionUserFields {
+	id?: unknown;
+	name?: unknown;
+	firstName?: unknown;
+	lastName?: unknown;
+	imageUrl?: unknown;
+}
+
+function text(value: unknown): string {
+	return typeof value === 'string' ? value.trim() : '';
+}
+
+/** The signed-in person as the Board sees them: never the e-mail address, the role, the tenant or a token. */
+export function boardSessionUser(user: SessionUserFields): BoardSessionUser {
+	const fullName = [text(user.firstName), text(user.lastName)].filter(Boolean).join(' ');
+	return {
+		id: text(user.id),
+		name: text(user.name) || fullName,
+		imageUrl: text(user.imageUrl) || null
+	};
 }

@@ -1,14 +1,16 @@
 /**
- * The Board app's address carries the Ever Teams origin it was opened from, and the way back from the Board (the
- * sign-in redirect) trusts the origin of NEXT_PUBLIC_BOARD_APP_DOMAIN only, exactly, and only over https (plain http
- * for localhost in development). A redirect parameter must never become an open redirect.
+ * The Board app's address carries the Ever Teams origin it was opened from, and the two ways back from the Board (the
+ * sign-in redirect and the session route's CORS) trust the origin of NEXT_PUBLIC_BOARD_APP_DOMAIN only, exactly, and
+ * only over https (plain http for localhost in development). A redirect parameter must never become an open redirect.
  */
 import {
 	BOARD_EVER_TEAMS_ORIGIN_PARAM,
 	type BoardTrust,
 	boardAppUrl,
 	boardReturnUrl,
+	boardSessionUser,
 	configuredBoardTrust,
+	isTrustedBoardOrigin,
 	trustedBoardOrigin,
 	withEverTeamsOrigin
 } from './board-app';
@@ -80,6 +82,33 @@ describe('configuredBoardTrust', () => {
 		};
 		expect(configuredBoardTrust()).toEqual({ boardAppDomain: 'http://localhost:3000', allowLocalhostHttp: true });
 		expect(trustedBoardOrigin()).toBe('http://localhost:3000');
+	});
+});
+
+describe('isTrustedBoardOrigin', () => {
+	it('accepts the Board origin exactly as a browser sends it', () => {
+		expect(isTrustedBoardOrigin('https://board.ever.team', BOARD)).toBe(true);
+	});
+
+	it.each([
+		null,
+		undefined,
+		'',
+		'null',
+		'https://board.ever.team/',
+		'http://board.ever.team',
+		'https://board.ever.team:8443',
+		'https://board.ever.team.evil.example',
+		'https://evilboard.ever.team',
+		'https://app.ever.team',
+		'HTTPS://BOARD.EVER.TEAM'
+	])('refuses the origin %p', (origin) => {
+		expect(isTrustedBoardOrigin(origin, BOARD)).toBe(false);
+	});
+
+	it('refuses every origin when no Board is configured', () => {
+		expect(isTrustedBoardOrigin('https://board.ever.team', { boardAppDomain: '' })).toBe(false);
+		expect(isTrustedBoardOrigin('null', { boardAppDomain: 'not a url' })).toBe(false);
 	});
 });
 
@@ -196,5 +225,42 @@ describe('boardAppUrl', () => {
 		const url = withEverTeamsOrigin(new URL('https://board.ever.team/#json=id,key'), 'https://stage.ever.team');
 
 		expect(url.toString()).toBe('https://board.ever.team/?origin=https%3A%2F%2Fstage.ever.team#json=id,key');
+	});
+});
+
+describe('boardSessionUser', () => {
+	it('keeps the id, the name and the picture only', () => {
+		const user = {
+			id: 'user-1',
+			name: 'Ada Lovelace',
+			firstName: 'Ada',
+			lastName: 'Lovelace',
+			email: 'ada@example.com',
+			imageUrl: 'https://cdn.example.com/ada.png',
+			tenantId: 'tenant-1',
+			role: { name: 'ADMIN' }
+		};
+
+		expect(boardSessionUser(user)).toEqual({
+			id: 'user-1',
+			name: 'Ada Lovelace',
+			imageUrl: 'https://cdn.example.com/ada.png'
+		});
+	});
+
+	it('builds the name from the first and last names when the API sent none', () => {
+		expect(boardSessionUser({ id: 'user-2', firstName: 'Grace', lastName: ' ', imageUrl: '' })).toEqual({
+			id: 'user-2',
+			name: 'Grace',
+			imageUrl: null
+		});
+	});
+
+	it('answers empty text for fields of the wrong type', () => {
+		expect(boardSessionUser({ id: 7, name: { first: 'x' }, imageUrl: 3 })).toEqual({
+			id: '',
+			name: '',
+			imageUrl: null
+		});
 	});
 });

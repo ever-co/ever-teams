@@ -68,6 +68,11 @@ on its own host. They work together through `core/lib/board/board-app.ts`:
   them back to that address once they are signed in (at once when they already are, on a session the API confirms),
   and only when it is on the origin of `NEXT_PUBLIC_BOARD_APP_DOMAIN`: https, compared exactly, with plain http for
   localhost only while `NODE_ENV=development`. Any other `redirect` is ignored.
+- The Board learns who is signed in with `fetch('<origin>/api/board/session', { credentials: 'include' })`: 200 with
+  `{ id, name, imageUrl }`, or the status of the session check (401, 503). Only the Board origin may read it (CORS),
+  and the access token never leaves Ever Teams. The session cookies reach that route because the Board and Ever
+  Teams are on one site (`board.example.com` and `teams.example.com`); a Board on another site would need
+  `NEXT_PUBLIC_COOKIE_SAME_SITE=none` and a browser that accepts third-party cookies.
 
 ## Client IP for Gauzy's rate limits
 

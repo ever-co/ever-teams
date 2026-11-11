@@ -2001,10 +2001,11 @@ describe('Ever Teams feature surface preservation', () => {
 		// 286 files and 367 verbs with the link previews of chat messages (GET /api/chat/link-preview).
 		// 288 files and 370 verbs with the comment proxy (/api/comment/[id], PUT and DELETE) and the Docs Markdown export
 		// (GET /api/plugins/docs/documents/[id]/export/markdown), which develop added without raising these numbers.
-		expect(routes.filter((value) => /\/route\.[jt]s$/.test(value))).toHaveLength(288);
+		// 289 files and 372 verbs with the Board app's session check (/api/board/session, GET and its CORS OPTIONS).
+		expect(routes.filter((value) => /\/route\.[jt]s$/.test(value))).toHaveLength(289);
 		expect(
 			routes.filter((value) => /\/route\.[jt]s::(?:GET|POST|PUT|PATCH|DELETE|HEAD|OPTIONS)$/.test(value))
-		).toHaveLength(370);
+		).toHaveLength(372);
 		expect(routes).toEqual(
 			expect.arrayContaining([
 				// Proxy mode twins of the platform's Docs live sessions and collaboration routes (2026-11-11)
