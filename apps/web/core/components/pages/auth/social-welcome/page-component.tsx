@@ -5,6 +5,7 @@ import { useTranslations } from 'next-intl';
 import { useRouter } from 'next/navigation';
 import { useEffect } from 'react';
 import { DEFAULT_APP_PATH } from '@/core/constants/config/constants';
+import { navigateAfterSignIn } from '@/core/lib/auth/navigate-after-sign-in';
 import { readSocialSession, socialRefreshToken } from '@/core/lib/auth/social-session';
 import Link from 'next/link';
 import { Mail } from '@/core/components/icons';
@@ -24,7 +25,8 @@ export default function Welcome() {
 		// The session arrives after the first render (no initial session): wait for it, or a sign-up that waits for its
 		// e-mail confirmation would be sent on before its notice shows
 		if (status === 'loading' || verifyEmail !== null) return;
-		const loadOAuthSession = () => {
+		// Whether the social session was opened here (its cookies set)
+		const loadOAuthSession = (): boolean => {
 			if (session) {
 				const { access_token, organizationId, refresh_token, tenantId, teamId, userId } =
 					readSocialSession(session) ?? {};
@@ -41,12 +43,17 @@ export default function Welcome() {
 						languageId: 'en',
 						userId
 					});
+					return true;
 				}
-			} else {
-				return;
 			}
+			return false;
 		};
-		loadOAuthSession();
+		// A sign-up that opened its session ends as every sign-in does: on the page set for it, the Board that started
+		// it (board-return.ts), else the app
+		if (loadOAuthSession()) {
+			navigateAfterSignIn({ replace: true });
+			return;
+		}
 		router.replace(DEFAULT_APP_PATH);
 	}, [router, session, status, update, verifyEmail]);
 
