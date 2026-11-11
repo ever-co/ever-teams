@@ -39,7 +39,12 @@ function loadedJitsiApi(): unknown {
 export function normalizeMeetDomain(value: string | null | undefined): string {
 	const trimmed = (value ?? '').trim();
 	const withoutScheme = trimmed.replace(/^[a-z][a-z\d+.-]*:\/\//i, '');
-	return withoutScheme.replace(/\/+$/, '');
+	// Trailing slashes go with a scan: a `/\/+$/` pattern backtracks over every run of slashes it cannot end on
+	let end = withoutScheme.length;
+	while (end > 0 && withoutScheme[end - 1] === '/') {
+		end -= 1;
+	}
+	return withoutScheme.slice(0, end);
 }
 
 let pendingLoad: { domain: string; promise: Promise<unknown> } | null = null;

@@ -37,6 +37,9 @@ describe('normalizeMeetDomain', () => {
 		['https://meet.example.com/', 'meet.example.com'],
 		['http://meet.example.com:8443/', 'meet.example.com:8443'],
 		['meet.example.com/tenant/', 'meet.example.com/tenant'],
+		['https://meet.example.com///', 'meet.example.com'],
+		['meet.example.com//tenant//', 'meet.example.com//tenant'],
+		['///', ''],
 		['', ''],
 		[undefined, '']
 	])('reads %p as the host %p', async (value, expected) => {

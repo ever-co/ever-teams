@@ -55,7 +55,8 @@ export function useMeetJwtToken(room?: string) {
 			}
 		};
 
-		getToken();
+		// getToken catches its own failures, so nothing waits on it
+		void getToken();
 
 		return () => {
 			current = false;
