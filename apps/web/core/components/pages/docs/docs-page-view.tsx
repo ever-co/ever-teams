@@ -152,8 +152,11 @@ export function DocsPageView({ pageId, tree, actions, spaces = NO_SPACES }: Docs
 		[change]
 	);
 
-	// Live, the platform saves the page: a change only moves the outline and the counts.
-	const onLiveEditorChange = useCallback((_html: string, json: IDocumentNode | null) => {
+	// Live, the platform saves the page: a change only moves the outline and the counts. The text is kept at hand: should
+	// live editing stop with edits the platform never confirmed, they become the autosave's draft.
+	const liveContentRef = useRef<{ html: string; json: IDocumentNode | null; mentionEmployeeIds: string[] } | null>(null);
+	const onLiveEditorChange = useCallback((html: string, json: IDocumentNode | null, mentionEmployeeIds: string[]) => {
+		liveContentRef.current = { html, json, mentionEmployeeIds };
 		if (liveTimerRef.current) clearTimeout(liveTimerRef.current);
 		liveTimerRef.current = setTimeout(() => setLiveJson(json), OUTLINE_DELAY_MS);
 	}, []);
@@ -177,6 +180,23 @@ export function DocsPageView({ pageId, tree, actions, spaces = NO_SPACES }: Docs
 		[isLiveEditing, live.binding, liveSnapshot]
 	);
 	const liveReadOnlyText = useLiveReadOnlyText(liveSnapshot?.readOnly ? liveSnapshot.readOnlyReason : null);
+
+	// The page's version while it was live: unsent text kept after live editing stops is written against it.
+	const liveClockRef = useRef<string | null>(null);
+	const { adoptDraft } = autosave;
+	const adoptedRef = useRef(false);
+	const pageClock = page?.updatedAt ?? null;
+	const pageWritable = Boolean(page && !page.isArchived && !page.isLocked);
+	const unsentAtFallback = live.mode === 'fallback' && !live.rereading && Boolean(liveSnapshot?.unsentEdits);
+	useEffect(() => {
+		if (isLiveEditing) liveClockRef.current = pageClock;
+	}, [isLiveEditing, pageClock]);
+	useEffect(() => {
+		const content = liveContentRef.current;
+		if (!unsentAtFallback || !pageWritable || !content || adoptedRef.current) return;
+		adoptedRef.current = true;
+		adoptDraft(content.html, content.json, content.mentionEmployeeIds, liveClockRef.current);
+	}, [adoptDraft, pageWritable, unsentAtFallback]);
 
 	const runFollow = (action: DocsFollowAction) => {
 		follow.run(action).catch(() => toast.error(t('docs.UPDATE_ERROR')));

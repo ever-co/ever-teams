@@ -278,6 +278,55 @@ describe('DocsLiveBinding', () => {
 		expect(binding.getSnapshot()).toMatchObject({ state: 'live', readOnly: true, readOnlyReason: 'locked' });
 	});
 
+	it('reports the edits the platform never confirmed when live editing stops, and none once they are confirmed', async () => {
+		const transport = new FakeTransport();
+		const binding = bind(transport);
+		await settle();
+		transport.play(syncFrame(serverWith('Start')));
+		const { doc } = binding.getSnapshot();
+
+		addParagraph(doc, 'Confirmed');
+		await jest.advanceTimersByTimeAsync(75);
+		expect(binding.getSnapshot().unsentEdits).toBe(false);
+
+		addParagraph(doc, 'Still in the batch window');
+		transport.play({ kind: 'closed', reason: 'shutdown' });
+		expect(binding.getSnapshot()).toMatchObject({ state: 'fallback', unsentEdits: true });
+	});
+
+	it('does not let the answer to a request of an earlier session make the new one read-only', async () => {
+		const server = serverWith('Start');
+		const transport = new FakeTransport();
+		let refuse: (error: unknown) => void = () => undefined;
+		const binding = bind(transport);
+		await settle();
+		transport.play(syncFrame(server));
+		transport.updateAnswer = () =>
+			new Promise((_, reject) => {
+				refuse = reject;
+			});
+		addParagraph(binding.getSnapshot().doc, 'On its way');
+		await jest.advanceTimersByTimeAsync(75);
+		expect(transport.updates).toHaveLength(1);
+
+		// The socket drops and the new session is writable.
+		transport.current.sink.complete();
+		await jest.advanceTimersByTimeAsync(1_000);
+		transport.updateAnswer = () => Promise.resolve({ accepted: true, relayed: false });
+		transport.play(syncFrame(server));
+		expect(binding.getSnapshot()).toMatchObject({ state: 'live', readOnly: false });
+
+		refuse({ statusCode: 403, errorCode: 'DOCS_LIVE_READ_ONLY' });
+		await jest.advanceTimersByTimeAsync(0);
+		expect(binding.getSnapshot()).toMatchObject({ state: 'live', readOnly: false });
+		// The edit went again with the new session's sync (what the platform lacked then).
+		expect(transport.updates).toHaveLength(2);
+		const resent = new Y.Doc();
+		Y.applyUpdate(resent, Y.encodeStateAsUpdate(server));
+		Y.applyUpdate(resent, transport.updates[1]);
+		expect(textOf(resent)).toContain('On its way');
+	});
+
 	it('stops live editing on a closed frame: the subscription ends and the document is forgotten', async () => {
 		const memory = createDocsLiveMemory();
 		const transport = new FakeTransport();

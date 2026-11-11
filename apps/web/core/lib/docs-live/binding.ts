@@ -65,6 +65,11 @@ export interface DocsLiveSnapshot {
 	fallbackReason: DocsLiveFallbackReason | null;
 	/** With `fallbackReason: 'unsupported'`: the node and mark types the editor does not know. */
 	unsupportedTypes: string[];
+	/**
+	 * Edits made here that the platform has not confirmed (waiting, refused while read-only, typed while the session was
+	 * down, or on their way): when live editing stops with some, the page view keeps them as the autosave's draft.
+	 */
+	unsentEdits: boolean;
 	/** The document the editor binds to; replaced (and `generation` moved) when the platform's lineage changes. */
 	doc: Y.Doc;
 	awareness: Awareness;
@@ -273,10 +278,14 @@ export class DocsLiveBinding {
 	private sending: Promise<void> | null = null;
 	/** Edits the platform refused while read-only: sent (through a new session) once it is writable again. */
 	private heldWhileReadOnly = false;
+	/** Local edits made, and the count of them the platform confirmed: more made than confirmed is unsent work. */
+	private localEdits = 0;
+	private confirmedEdits = 0;
 	private awarenessTimer: unknown = null;
 
 	private readonly onDocUpdate = (update: Uint8Array, origin: unknown) => {
 		if (origin === DOCS_LIVE_REMOTE || this.destroyed || this.state === 'fallback') return;
+		this.localEdits += 1;
 		this.queueLocal(update);
 	};
 
@@ -551,7 +560,13 @@ export class DocsLiveBinding {
 	/** What the platform lacks after a `sync`: edits made while the session was down, or sent and lost. */
 	private sendMissing(stateVector: Uint8Array | null): void {
 		const missing = stateVector ? Y.encodeStateAsUpdate(this.doc, stateVector) : Y.encodeStateAsUpdate(this.doc);
-		if (!carriesChanges(missing)) return;
+		if (!carriesChanges(missing)) {
+			// The platform holds everything made here.
+			this.confirmedEdits = this.localEdits;
+			return;
+		}
+		// Edits of an earlier visit (a remembered document) count as this tab's unsent work until confirmed.
+		if (this.localEdits === this.confirmedEdits) this.localEdits += 1;
 		if (this.readOnly) {
 			this.heldWhileReadOnly = true;
 			return;
@@ -603,7 +618,8 @@ export class DocsLiveBinding {
 		const stop = this.stopSubscription;
 		this.stopSubscription = null;
 		stop?.();
-		// The page is read again from the platform: nothing held here is worth keeping.
+		// The page is read again from the platform; edits it never confirmed are the snapshot's `unsentEdits`, which the
+		// page view keeps as the autosave's draft (the document itself is not kept: another lineage may follow).
 		this.memory?.delete(this.memoryKey);
 		this.forgetPeers();
 		this.emit();
@@ -643,6 +659,8 @@ export class DocsLiveBinding {
 
 	private send(update: Uint8Array): void {
 		const seq = this.sessionSeq;
+		// Every local edit made so far is in this update or in one sent before it.
+		const covers = this.localEdits;
 		const request = this.options.transport.sendUpdate(
 			this.options.documentId,
 			this.options.connectionId,
@@ -651,6 +669,7 @@ export class DocsLiveBinding {
 		const sending: Promise<void> = request.then(
 			() => {
 				if (this.sending === sending) this.sending = null;
+				this.confirmedEdits = Math.max(this.confirmedEdits, covers);
 				if (this.destroyed || this.state === 'fallback' || seq !== this.sessionSeq) return;
 				// Typed while this one went: the next batch goes now (it waited for this one).
 				if (this.pending.length && this.batchTimer === null) {
@@ -670,6 +689,9 @@ export class DocsLiveBinding {
 	}
 
 	private onSendRefused(error: unknown, seq: number): void {
+		// The answer to a request of an earlier session says nothing about this one (which may be writable): the edit it
+		// carried went with this session's `sync` (what the platform lacked then).
+		if (seq !== this.sessionSeq) return;
 		const info = this.errorInfo(error);
 		if (info.code === DOCS_LIVE_READ_ONLY || (info.status === 403 && !info.code)) {
 			this.heldWhileReadOnly = true;
@@ -689,7 +711,6 @@ export class DocsLiveBinding {
 			this.emit();
 			return;
 		}
-		if (seq !== this.sessionSeq) return;
 		if (info.code === DOCS_LIVE_SESSION_NOT_FOUND) {
 			// The platform no longer holds this tab's session (a restart, another process): open it again.
 			this.reopenSoon(true);
@@ -817,6 +838,7 @@ export class DocsLiveBinding {
 			readOnlyReason: this.readOnlyReason,
 			fallbackReason: this.fallbackReason,
 			unsupportedTypes: this.unsupportedTypes,
+			unsentEdits: this.localEdits > this.confirmedEdits,
 			doc: this.doc,
 			awareness: this.awareness,
 			generation: this.generation,
