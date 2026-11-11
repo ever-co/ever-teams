@@ -16,17 +16,21 @@ let mockLanes = {
 };
 let mockBoardMove: MoveTask | null = null;
 
+let mockLanesOptions: unknown = null;
 jest.mock('@/core/hooks/tasks/use-kanban-lanes', () => ({
-	useKanbanLanes: () => ({
-		lanes: mockLanes.lanes,
-		statuses: mockLanes.statuses,
-		isLoading: mockLanes.isLoading,
-		isError: mockLanes.isError,
-		refetchTaskStatuses: mockRefetch,
-		moveTask: mockMoveTask,
-		moveLane: jest.fn(),
-		setLaneCollapsed: jest.fn()
-	})
+	useKanbanLanes: (_tasks: unknown, options: unknown) => {
+		mockLanesOptions = options;
+		return {
+			lanes: mockLanes.lanes,
+			statuses: mockLanes.statuses,
+			isLoading: mockLanes.isLoading,
+			isError: mockLanes.isError,
+			refetchTaskStatuses: mockRefetch,
+			moveTask: mockMoveTask,
+			moveLane: jest.fn(),
+			setLaneCollapsed: jest.fn()
+		};
+	}
 }));
 jest.mock('@/core/hooks/keyboard/use-keyboard-preferences', () => ({
 	useKeyboardPreferences: () => ({ bindings: new Map() })
@@ -100,6 +104,9 @@ describe('a view shown as a board', () => {
 		const moveInSavedOrder = jest.fn();
 		const { unmount } = renderBoard(moveInSavedOrder);
 
+		// The board shows the saved order alone, a lane order kept this session included
+		expect(mockLanesOptions).toEqual({ keepsLaneOrder: false });
+
 		// Inside its lane: the saved order alone, no order of the board's own
 		mockBoardMove?.({ id: 't1', taskStatusId: 's1' }, { id: 's1' }, 1);
 		expect(mockMoveTask).not.toHaveBeenCalled();
@@ -122,6 +129,7 @@ describe('a view shown as a board', () => {
 		// Not ordered by hand (no move command): the board alone, with its own lane order
 		mockMoveTask.mockClear();
 		renderBoard();
+		expect(mockLanesOptions).toEqual({ keepsLaneOrder: true });
 		mockBoardMove?.({ id: 't1', taskStatusId: 's1' }, { id: 's1' }, 1);
 		expect(mockMoveTask).toHaveBeenCalledWith({ id: 't1', taskStatusId: 's1' }, { id: 's1' }, 1);
 	});

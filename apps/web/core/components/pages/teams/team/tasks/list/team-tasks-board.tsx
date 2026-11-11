@@ -45,8 +45,10 @@ export function TeamTasksBoard({
 }: Readonly<{ view: TeamTasksViewState; commands: TeamTasksListCommands }>) {
 	const t = useTranslations();
 	const tasks = useMemo(() => tasksOfGroups(view.groups), [view.groups]);
+	// A view ordered by hand shows its saved order alone (a lane order made before Manual was picked included)
+	const keepsLaneOrder = commands.moveTask === undefined;
 	const { lanes, statuses, isLoading, isError, refetchTaskStatuses, moveTask, moveLane, setLaneCollapsed } =
-		useKanbanLanes(tasks);
+		useKanbanLanes(tasks, { keepsLaneOrder });
 	const teamTasks = useAtomValue(tasksByTeamState);
 	const teamTaskIds = useMemo(() => new Set(teamTasks.map((task) => task.id)), [teamTasks]);
 	const [editedStatus, setEditedStatus] = useState<TTaskStatus | null>(null);

@@ -37,7 +37,12 @@ function hasChanged(result: { affected?: number } | undefined) {
  * update moves it before the server answers; the order inside a lane is kept for the session only, because Gauzy
  * stores no position for a task inside its status. Collapsing and reordering lanes are saved on the status.
  */
-export function useKanbanLanes(tasks: TTask[]) {
+/** No order of the board's own: the tasks' order is saved elsewhere (a view ordered by hand). */
+const NO_LANE_ORDER: KanbanLaneOrder = {};
+
+export function useKanbanLanes(tasks: TTask[], options?: { keepsLaneOrder?: boolean }) {
+	// A board whose order is saved elsewhere ignores the order kept this session, even one made before it was
+	const keepsLaneOrder = options?.keepsLaneOrder !== false;
 	const {
 		taskStatuses,
 		getTaskStatusesLoading,
@@ -56,7 +61,8 @@ export function useKanbanLanes(tasks: TTask[]) {
 		[taskStatuses, statusOverrides]
 	);
 
-	const lanes = useMemo(() => buildKanbanLanes(tasks, statuses, laneOrder), [tasks, statuses, laneOrder]);
+	const shownLaneOrder = keepsLaneOrder ? laneOrder : NO_LANE_ORDER;
+	const lanes = useMemo(() => buildKanbanLanes(tasks, statuses, shownLaneOrder), [tasks, statuses, shownLaneOrder]);
 
 	const moveTask = useCallback(
 		(task: TTask, toStatus: TTaskStatus, toIndex: number, options?: { keepsLaneOrder?: boolean }) => {
