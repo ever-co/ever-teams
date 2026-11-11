@@ -111,8 +111,9 @@ describe('docsService live and collaboration routes', () => {
 		await docsService.liveUpdate('page/1', { connectionId: 'tab12345', update: 'AAE=', extra: 'x' } as never);
 		await docsService.liveAwareness('page/1', { connectionId: 'tab12345', awareness: 'AQI=' });
 
-		expect(post.mock.calls[0]).toEqual(['/plugins/docs/documents/page%2F1/live/updates', { connectionId: 'tab12345', update: 'AAE=' }]);
-		expect(post.mock.calls[1]).toEqual(['/plugins/docs/documents/page%2F1/live/awareness', { connectionId: 'tab12345', awareness: 'AQI=' }]);
+		// The last argument keeps `post` from adding the tenant and organization to the body: the routes refuse them.
+		expect(post.mock.calls[0]).toEqual(['/plugins/docs/documents/page%2F1/live/updates', { connectionId: 'tab12345', update: 'AAE=' }, undefined, false]);
+		expect(post.mock.calls[1]).toEqual(['/plugins/docs/documents/page%2F1/live/awareness', { connectionId: 'tab12345', awareness: 'AQI=' }, undefined, false]);
 	});
 
 	it('asks the live status, the spaces and the follow state where the platform serves them', async () => {
