@@ -101,6 +101,10 @@ describe('previewLinksOf', () => {
 	it('reads the address of a Markdown link, not its label, and leaves pictures out', () => {
 		expect(urlsOf('[https://a.io](https://b.io)')).toEqual(['https://b.io/']);
 		expect(urlsOf('[nested [https://a.io]](https://b.io)')).toEqual(['https://b.io/']);
+		// An escaped bracket opens no label; an unclosed one is text, and the labels after it still count.
+		expect(urlsOf('\\[https://a.io](https://b.io)')).toEqual(['https://a.io/', 'https://b.io/']);
+		expect(urlsOf('[ [https://a.io](https://b.io)')).toEqual(['https://b.io/']);
+		expect(urlsOf(`${'['.repeat(3000)} https://a.io`)).toEqual(['https://a.io/']);
 		expect(urlsOf('![a [https://a.io] chart](https://a.io/p.png) [https://c.io] alone')).toEqual(['https://c.io/']);
 		expect(urlsOf('![chart](https://a.io/p.png) and https://b.io')).toEqual(['https://b.io/']);
 	});

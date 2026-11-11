@@ -180,19 +180,24 @@ export function withoutCode(body: string): string {
 	return lines.join('\n');
 }
 
-/** Where the `]` that closes the `[` at `open` is, nested brackets and escapes counted, on the same line; -1 if none. */
-function closingBracketOf(text: string, open: number): number {
-	let depth = 0;
-	for (let at = open; at < text.length && text[at] !== '\n'; at += 1) {
+/**
+ * The `]` that closes each `[` of the text, by the index of the `[`: nested brackets and escapes counted, within a
+ * line. One pass, so a body full of brackets costs no more than its length.
+ */
+function closingBrackets(text: string): Map<number, number> {
+	const closes = new Map<number, number>();
+	const opens: number[] = [];
+	for (let at = 0; at < text.length; at += 1) {
 		const character = text[at];
 		if (character === '\\') at += 1;
-		else if (character === '[') depth += 1;
+		else if (character === '\n') opens.length = 0;
+		else if (character === '[') opens.push(at);
 		else if (character === ']') {
-			depth -= 1;
-			if (depth === 0) return at;
+			const open = opens.pop();
+			if (open !== undefined) closes.set(open, at);
 		}
 	}
-	return -1;
+	return closes;
 }
 
 /** Where a Markdown address that starts at `from` ends: after its `)`, or at the end of the line when none closes it. */
@@ -209,11 +214,12 @@ function addressEndOf(text: string, from: number): number {
  * the renderer shows its words only, so its address is no link.
  */
 function withoutLinkLabels(text: string): string {
+	const closes = closingBrackets(text);
 	let result = '';
 	let index = 0;
 	for (let open = text.indexOf('[', index); open >= 0; open = text.indexOf('[', index)) {
-		const close = closingBracketOf(text, open);
-		if (close < 0 || text[close + 1] !== '(') {
+		const close = closes.get(open);
+		if (close === undefined || text[close + 1] !== '(') {
 			result += text.slice(index, open + 1);
 			index = open + 1;
 			continue;
