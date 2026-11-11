@@ -265,5 +265,11 @@ export function InitState() {
 	}, [criticalReady, readyScope]);
 
 	// A timer left running is worth a reminder, on every page (#5022)
-	return <TimerReminders stopTimer={timerOwner.stopTimer} />;
+	return (
+		<TimerReminders
+			stopTimer={timerOwner.stopTimer}
+			employeeId={user?.employee?.id}
+			runsPastMidnight={timerRunning && !timerOwner.rawTimerRunning}
+		/>
+	);
 }

@@ -4,15 +4,18 @@
  * third; quiet hours keep the system notification away.
  */
 import {
+	claimTimerReminder,
 	DEFAULT_TIMER_REMINDER_HOURS,
 	isWithinQuietHours,
 	nextTimerReminderAt,
 	recordTimerReminder,
 	shownTimerReminderLevel,
 	timerReminderHoursOf,
+	TIMER_REMINDER_HIDDEN_YIELD_MS,
 	timerReminderLevelAt,
 	timerRunOf
 } from './timer-reminders';
+import { TAB_CLAIM_TTL_MS } from '@/core/lib/realtime/tab-claim';
 
 const HOUR = 60 * 60 * 1000;
 
@@ -76,6 +79,42 @@ describe('the reminders of a run', () => {
 		recordTimerReminder('log-2', 2);
 		expect(shownTimerReminderLevel('log-2')).toBe(2);
 		expect(shownTimerReminderLevel('log-1')).toBe(0);
+	});
+});
+
+describe('the claim of a reminder', () => {
+	beforeEach(() => {
+		jest.useFakeTimers();
+		window.localStorage.clear();
+	});
+
+	afterEach(() => {
+		jest.useRealTimers();
+	});
+
+	/** The claims settle on timers: the wait of a hidden tab, and the read-back of a browser without Web Locks. */
+	const settled = async <T>(claim: Promise<T>) => {
+		await jest.advanceTimersByTimeAsync(TIMER_REMINDER_HIDDEN_YIELD_MS + 1_000);
+		return claim;
+	};
+
+	it('goes to one tab, the one in sight before a hidden one that reached it at the same moment', async () => {
+		const hidden = claimTimerReminder('log-1', 1, false);
+		const visible = claimTimerReminder('log-1', 1, true);
+
+		await expect(settled(visible)).resolves.toBe(true);
+		await expect(settled(hidden)).resolves.toBe(false);
+		expect(shownTimerReminderLevel('log-1')).toBe(1);
+	});
+
+	it('is never given again for the run, even once the claim the tabs share has expired', async () => {
+		await expect(settled(claimTimerReminder('log-1', 1, true))).resolves.toBe(true);
+		jest.advanceTimersByTime(TAB_CLAIM_TTL_MS + 1);
+
+		await expect(settled(claimTimerReminder('log-1', 1, true))).resolves.toBe(false);
+		// The next reminder of the run, and the reminders of another run, are still to give
+		await expect(settled(claimTimerReminder('log-1', 2, true))).resolves.toBe(true);
+		await expect(settled(claimTimerReminder('log-2', 1, true))).resolves.toBe(true);
 	});
 });
 

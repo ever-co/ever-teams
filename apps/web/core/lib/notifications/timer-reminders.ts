@@ -1,3 +1,4 @@
+import { claimForThisTab } from '@/core/lib/realtime/tab-claim';
 import type {
 	INotificationPreferences,
 	INotificationQuietHours
@@ -125,4 +126,35 @@ export function recordTimerReminder(runKey: string, level: TimerReminderLevel): 
 	} catch {
 		// No storage (a private window): the tab still shows each reminder once while it stays open
 	}
+}
+
+/**
+ * How long a tab out of sight waits before claiming a reminder, so the tab the employee looks at shows it (the same
+ * wait as the inbox's chime, INBOX_ALERT_HIDDEN_YIELD_MS).
+ */
+export const TIMER_REMINDER_HIDDEN_YIELD_MS = 400;
+
+/**
+ * Claims the reminder of the run's level for this tab: true for the one tab of the browser that shows it, false when
+ * it was shown already, in this tab, another one, or before a reload. Tabs reaching it together are settled by the
+ * claim the tabs share (tab-claim.ts: one tab takes a key, a visible tab before a hidden one); the run's record then
+ * keeps it shown for good, after that claim has expired.
+ *
+ * @param isVisible Whether the employee sees this tab.
+ */
+export async function claimTimerReminder(
+	runKey: string,
+	level: TimerReminderLevel,
+	isVisible: boolean
+): Promise<boolean> {
+	if (shownTimerReminderLevel(runKey) >= level) {
+		return false;
+	}
+	const isClaimed = await claimForThisTab(`timer-reminder-${runKey}-${level}`, {
+		yieldMs: isVisible ? 0 : TIMER_REMINDER_HIDDEN_YIELD_MS
+	});
+	if (isClaimed) {
+		recordTimerReminder(runKey, level);
+	}
+	return isClaimed;
 }

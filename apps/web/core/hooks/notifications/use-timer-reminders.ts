@@ -8,9 +8,9 @@ import { useSyncRef } from '@/core/hooks/common/use-sync-ref';
 import { useNotificationSettings } from '@/core/hooks/notifications/use-notification-settings';
 import { quietHoursOf } from '@/core/lib/notifications/notification-preferences';
 import {
+	claimTimerReminder,
 	isWithinQuietHours,
 	nextTimerReminderAt,
-	recordTimerReminder,
 	shownTimerReminderLevel,
 	timerReminderHoursOf,
 	timerReminderLevelAt,
@@ -43,6 +43,15 @@ function showsSystemNotification(preferences: INotificationPreferences | null | 
 	return !isWithinQuietHours(new Date(), quietHoursOf(preferences));
 }
 
+/** The system notification of a reminder, or none: some browsers (Chrome on Android) refuse to build one in a page. */
+function systemNotificationOf(title: string, body: string, tag: string): Notification | null {
+	try {
+		return new Notification(title, { body, tag });
+	} catch {
+		return null;
+	}
+}
+
 interface UseTimerRemindersInput {
 	timerStatus: ITimerStatus | null | undefined;
 	stopTimer: () => unknown;
@@ -50,14 +59,15 @@ interface UseTimerRemindersInput {
 
 /**
  * Reminds the employee of a timer left running (#5022): once it has run for their threshold, then at twice it, each
- * reminder once per run whatever the tabs and reloads, with the actions to stop the timer or open it. A tab out of
- * sight shows it as a system notification too, where the browser allows them, push is on and it is not the quiet
- * hours. Mounted once for the app, by its timer's owner (TimerReminders).
+ * reminder once per run whatever the tabs and reloads (the tab in sight shows it), with the actions to stop the timer
+ * or open it. A tab out of sight shows it as a system notification too, where the browser allows them, push is on and
+ * it is not the quiet hours. Nothing is reminded of until the employee's preferences have been read. Mounted once for
+ * the app, by its timer's owner (TimerReminders).
  */
 export function useTimerReminders({ timerStatus, stopTimer }: UseTimerRemindersInput) {
 	const t = useTranslations();
 	const router = useRouter();
-	const { setting, isLoading: isSettingLoading } = useNotificationSettings();
+	const { setting, isLoading: isSettingLoading, isError: isSettingError } = useNotificationSettings();
 	const preferences = setting?.preferences;
 	const hours = timerReminderHoursOf(preferences);
 	const run = timerRunOf(timerStatus);
@@ -69,13 +79,25 @@ export function useTimerReminders({ timerStatus, stopTimer }: UseTimerRemindersI
 	const latest = useSyncRef({ preferences, stopTimer, isRunning, t, router });
 	// The reminders shown in this tab, for a browser that keeps no storage
 	const shownHere = useRef(new Map<string, number>());
+	// The system notifications this tab raised, by reminder: withdrawn with their run, or by the next reminder
+	const systemNotifications = useRef(new Map<string, Notification>());
+
+	// Until the employee's threshold is read, the default could remind of a timer they gave more time. A read that
+	// failed says nothing of it either, unless an earlier one answered with their row; an answer without a saved row is
+	// a read: the default applies.
+	const isThresholdKnown = !isSettingLoading && (!isSettingError || setting !== null);
 
 	useEffect(() => {
-		// Before the employee's threshold is known, the default would remind of a timer they gave more time
-		if (isSettingLoading || !runKey || startedAt === undefined || hours === null) {
+		if (!isThresholdKnown || !runKey || startedAt === undefined || hours === null) {
 			return;
 		}
 		let timeout: ReturnType<typeof setTimeout> | undefined;
+		let isCancelled = false;
+
+		const closeSystemNotification = (id: string) => {
+			systemNotifications.current.get(id)?.close();
+			systemNotifications.current.delete(id);
+		};
 
 		const show = (level: TimerReminderLevel) => {
 			const { t: translate } = latest.current;
@@ -97,14 +119,16 @@ export function useTimerReminders({ timerStatus, stopTimer }: UseTimerRemindersI
 				}
 			};
 			const open = () => latest.current.router.push(TIMER_PATH);
+			const id = timerReminderIdOf(runKey, level);
 
 			// The second reminder takes the first one's place. Never before the first: sonner applies a dismissal a frame
 			// later, so it would take away the reminder created with that id meanwhile.
 			if (level === 2) {
 				toast.dismiss(timerReminderIdOf(runKey, 1));
+				closeSystemNotification(timerReminderIdOf(runKey, 1));
 			}
 			toast.warning(title, {
-				id: timerReminderIdOf(runKey, level),
+				id,
 				description,
 				duration: Infinity,
 				action: { label: translate('notifications.TIMER_REMINDER.STOP'), onClick: stop },
@@ -114,38 +138,49 @@ export function useTimerReminders({ timerStatus, stopTimer }: UseTimerRemindersI
 			});
 			if (showsSystemNotification(latest.current.preferences)) {
 				// Tagged per reminder: the system shows one whatever the tabs that raise it
-				const notification = new Notification(title, {
-					body: description,
-					tag: timerReminderIdOf(runKey, level)
-				});
-				notification.onclick = () => {
-					window.focus();
-					open();
-					notification.close();
-				};
+				const notification = systemNotificationOf(title, description, id);
+				if (notification) {
+					systemNotifications.current.set(id, notification);
+					notification.onclick = () => {
+						window.focus();
+						open();
+						closeSystemNotification(id);
+					};
+				}
 			}
 		};
 
-		const check = () => {
-			const shown = Math.max(shownTimerReminderLevel(runKey), shownHere.current.get(runKey) ?? 0);
+		const check = async () => {
 			const level = timerReminderLevelAt(Date.now() - startedAt, hours);
-			if (level > shown) {
-				recordTimerReminder(runKey, level as TimerReminderLevel);
+			const shownInTab = shownHere.current.get(runKey) ?? 0;
+			if (level > shownInTab) {
+				// One tab of the browser claims the reminder, the one in sight first; the others note it as shown
+				const isVisible = typeof document !== 'undefined' && document.visibilityState === 'visible';
+				const isClaimed = await claimTimerReminder(runKey, level as TimerReminderLevel, isVisible);
+				if (isCancelled) {
+					return;
+				}
 				shownHere.current.set(runKey, level);
-				show(level as TimerReminderLevel);
+				if (isClaimed) {
+					show(level as TimerReminderLevel);
+				}
 			}
-			const next = nextTimerReminderAt({ key: runKey, startedAt }, hours, Math.max(level, shown));
+			const shown = Math.max(level, shownTimerReminderLevel(runKey), shownHere.current.get(runKey) ?? 0);
+			const next = nextTimerReminderAt({ key: runKey, startedAt }, hours, shown);
 			if (next !== null) {
-				timeout = setTimeout(check, Math.min(Math.max(next - Date.now(), 0), MAX_TIMEOUT_MS));
+				timeout = setTimeout(() => void check(), Math.min(Math.max(next - Date.now(), 0), MAX_TIMEOUT_MS));
 			}
 		};
-		check();
+		void check();
 
-		return () => clearTimeout(timeout);
-	}, [isSettingLoading, latest, runKey, startedAt, hours]);
+		return () => {
+			isCancelled = true;
+			clearTimeout(timeout);
+		};
+	}, [isThresholdKnown, latest, runKey, startedAt, hours]);
 
-	// A run that ended (the timer stopped, or another run started) takes its reminders away. A status being read again
-	// (none, as on a team change) says nothing of the run: its reminders stay.
+	// A run that ended (the timer stopped, or another run started) takes its reminders away, the system notifications
+	// too. A status being read again (none, as on a team change) says nothing of the run: its reminders stay.
 	const isStatusKnown = timerStatus != null;
 	const previousRunKey = useRef(runKey);
 	useEffect(() => {
@@ -155,8 +190,12 @@ export function useTimerReminders({ timerStatus, stopTimer }: UseTimerRemindersI
 		const previous = previousRunKey.current;
 		previousRunKey.current = runKey;
 		if (previous && previous !== runKey) {
-			toast.dismiss(timerReminderIdOf(previous, 1));
-			toast.dismiss(timerReminderIdOf(previous, 2));
+			for (const level of [1, 2] as const) {
+				const id = timerReminderIdOf(previous, level);
+				toast.dismiss(id);
+				systemNotifications.current.get(id)?.close();
+				systemNotifications.current.delete(id);
+			}
 		}
 	}, [isStatusKnown, runKey]);
 }
