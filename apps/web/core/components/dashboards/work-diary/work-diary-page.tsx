@@ -145,7 +145,11 @@ function DiaryDayView({
 					title={t('dashboard.timesheets.diary.APPS')}
 					ariaLabel={t('dashboard.timesheets.diary.APPS')}
 				>
-					<DiaryAppRows activities={diary.activities} isLoading={diary.isAppsLoading} dayText={dayText} />
+					{diary.isAppsError ? (
+						<DashboardErrorNotice onRetry={() => void diary.refetchApps()} />
+					) : (
+						<DiaryAppRows activities={diary.activities} isLoading={diary.isAppsLoading} dayText={dayText} />
+					)}
 				</DashboardSection>
 			</div>
 			<DashboardSection

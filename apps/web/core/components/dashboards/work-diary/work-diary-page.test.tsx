@@ -148,6 +148,8 @@ function stateOf(overrides: Partial<WorkDiaryPageState> = {}): WorkDiaryPageStat
 			diary: WITH_SLOT,
 			activities: ACTIVITIES,
 			isAppsLoading: false,
+			isAppsError: false,
+			refetchApps: jest.fn(),
 			isLoading: false,
 			isError: false,
 			refetch: jest.fn()
@@ -250,6 +252,15 @@ describe('WorkDiaryPage', () => {
 		expect(screen.queryByText('dashboard.calendar.NO_PLAN')).toBeNull();
 		fireEvent.click(screen.getByRole('button', { name: 'pages.unauthorized.TRY_AGAIN' }));
 		expect(mockState.refetchPlans).toHaveBeenCalled();
+	});
+
+	it('says the apps and sites could not be read, with a retry, instead of a day with none', () => {
+		mockState = stateOf({ diary: { ...stateOf().diary, activities: [], isAppsError: true } });
+		render(<WorkDiaryPage />);
+
+		expect(screen.queryByText(/dashboard.workDiary.APPS_EMPTY/)).toBeNull();
+		fireEvent.click(screen.getByRole('button', { name: 'pages.unauthorized.TRY_AGAIN' }));
+		expect(mockState.diary.refetchApps).toHaveBeenCalled();
 	});
 
 	it('picks a day from the strip and goes back to today', () => {
