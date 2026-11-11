@@ -79,9 +79,9 @@ export function pruneTabClaims(storage: TabClaimStorage, now: number): void {
 	for (const entry of expired) storage.removeItem(entry);
 }
 
-/** Whether another tab holds the key now. */
-function isHeldElsewhere(claim: StoredClaim | null, tabId: string, now: number): boolean {
-	return !!claim && claim.until > now && claim.tab !== tabId;
+/** Whether the key is claimed now, by any tab: a key is acted on once, so even its holder is not told yes twice. */
+function isHeld(claim: StoredClaim | null, now: number): boolean {
+	return !!claim && claim.until > now;
 }
 
 function write(storage: TabClaimStorage, entry: string, tabId: string, until: number): boolean {
@@ -97,7 +97,7 @@ function write(storage: TabClaimStorage, entry: string, tabId: string, until: nu
 function takeUnderLock(environment: TabClaimEnvironment, storage: TabClaimStorage, entry: string): boolean {
 	const now = environment.now();
 	pruneTabClaims(storage, now);
-	if (isHeldElsewhere(readClaim(storage, entry), environment.tabId, now)) return false;
+	if (isHeld(readClaim(storage, entry), now)) return false;
 	// A storage that refuses the write (full) cannot be shared: the tab acts rather than nobody acting.
 	write(storage, entry, environment.tabId, now + TAB_CLAIM_TTL_MS);
 	return true;
@@ -111,7 +111,7 @@ async function takeByReadBack(
 ): Promise<boolean> {
 	const now = environment.now();
 	pruneTabClaims(storage, now);
-	if (isHeldElsewhere(readClaim(storage, entry), environment.tabId, now)) return false;
+	if (isHeld(readClaim(storage, entry), now)) return false;
 	if (!write(storage, entry, environment.tabId, now + TAB_CLAIM_TTL_MS)) return true;
 	await environment.wait(TAB_CLAIM_SETTLE_MS);
 	return readClaim(storage, entry)?.tab === environment.tabId;
@@ -121,7 +121,7 @@ async function takeByReadBack(
  * Claims a key for this tab.
  *
  * @param key What is claimed: an event, or the record it is about (`inbox-<itemId>`).
- * @returns Whether this tab is the one that acts on it. A tab claiming a key it already holds is told yes again.
+ * @returns Whether this tab is the one that acts on it: yes once per key, no for every later claim of it.
  */
 export async function claimForThisTab(key: string, options: TabClaimOptions = {}): Promise<boolean> {
 	const environment = options.environment ?? browserTabClaimEnvironment();

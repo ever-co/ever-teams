@@ -109,13 +109,13 @@ describe('claimForThisTab', () => {
 		await expect(claimForThisTab('inbox-1', { environment: tab('c', { storage, locks }) })).resolves.toBe(false);
 	});
 
-	it('answers yes again to the tab that holds the key, and keys are independent', async () => {
+	it('answers yes once per key, so the tab that acted is not told to act again, and keys are independent', async () => {
 		const storage = new MapStorage();
 		const locks = fakeLocks();
 
 		await claimForThisTab('inbox-1', { environment: tab('a', { storage, locks }) });
 
-		await expect(claimForThisTab('inbox-1', { environment: tab('a', { storage, locks }) })).resolves.toBe(true);
+		await expect(claimForThisTab('inbox-1', { environment: tab('a', { storage, locks }) })).resolves.toBe(false);
 		await expect(claimForThisTab('inbox-2', { environment: tab('b', { storage, locks }) })).resolves.toBe(true);
 	});
 
