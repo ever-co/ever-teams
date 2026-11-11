@@ -54,6 +54,16 @@ describe('the outcome of a creation', () => {
 		expect(createWorkspaceErrorCodeOf(thrown(unanswered('ERR_NETWORK', 'Network Error')))).toBe('OUTCOME_UNKNOWN');
 	});
 
+	it('reads a gateway that stopped waiting for the route as an unknown outcome, never as a failure to retry', () => {
+		// The ingress, or Cloudflare, gives up while the route may still be creating the workspace
+		const ingressTimeout = answer(504, '<html><h1>504 Gateway Time-out</h1></html>');
+		expect(createWorkspaceErrorCodeOf(ingressTimeout)).toBe('OUTCOME_UNKNOWN');
+		expect(createWorkspaceErrorCodeOf(thrown(ingressTimeout))).toBe('OUTCOME_UNKNOWN');
+		expect(createWorkspaceErrorCodeOf(thrown(answer(524, '')))).toBe('OUTCOME_UNKNOWN');
+		// The route's own reason still wins
+		expect(createWorkspaceErrorCodeOf(answer(504, { code: 'CREATED_NOT_OPENED' }))).toBe('CREATED_NOT_OPENED');
+	});
+
 	it('opens the welcome page of the new workspace, told how the invitations went', () => {
 		expect(workspaceWelcomePathOf({ invited: 2, invitesFailed: false })).toBe('/workspace/welcome?invited=2');
 		expect(workspaceWelcomePathOf({ invited: 0, invitesFailed: true })).toBe(

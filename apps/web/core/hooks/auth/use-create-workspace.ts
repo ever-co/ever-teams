@@ -38,10 +38,21 @@ function isUnanswered(error: unknown): boolean {
 	return isAxiosError(error) && !error.response;
 }
 
+/** What a gateway (the ingress 504, Cloudflare 524) answers once it stops waiting for the route; never the route. */
+const GATEWAY_TIMEOUTS = [504, 524];
+
+/** A gateway stopped waiting for the route, which may still be creating the workspace. */
+function isGatewayTimeout(error: unknown): boolean {
+	if (ApiErrorService.isApiError(error)) {
+		return error.hasHttpResponseStatus(...GATEWAY_TIMEOUTS);
+	}
+	return isAxiosError(error) && GATEWAY_TIMEOUTS.includes(error.response?.status ?? 0);
+}
+
 /**
  * The reason of a failed creation, from the API client's error (ApiErrorService carries the answer's `code` as its
- * `errorCode`) or a bare axios one. Without an answer the outcome is unknown; anything else the route did not
- * explain is a failure to retry.
+ * `errorCode`) or a bare axios one. Without the route's answer (none at all, or a gateway's timeout) the outcome is
+ * unknown; anything else the route did not explain is a failure to retry.
  */
 export function createWorkspaceErrorCodeOf(error: unknown): CreateWorkspaceErrorCode {
 	if (isUnanswered(error)) {
@@ -50,7 +61,10 @@ export function createWorkspaceErrorCodeOf(error: unknown): CreateWorkspaceError
 	const fromClient = (error as { errorCode?: unknown } | null | undefined)?.errorCode;
 	const fromAxios = isAxiosError(error) ? (error.response?.data as { code?: unknown } | undefined)?.code : undefined;
 	const code = fromClient ?? fromAxios;
-	return typeof code === 'string' && KNOWN_CODES.has(code) ? (code as CreateWorkspaceErrorCode) : 'FAILED';
+	if (typeof code === 'string' && KNOWN_CODES.has(code)) {
+		return code as CreateWorkspaceErrorCode;
+	}
+	return isGatewayTimeout(error) ? 'OUTCOME_UNKNOWN' : 'FAILED';
 }
 
 /** Where the new workspace opens: its welcome page, told how the invitations went. */
