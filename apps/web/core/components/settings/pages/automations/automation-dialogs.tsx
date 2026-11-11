@@ -35,14 +35,23 @@ export function OutcomeBadge({ outcome }: Readonly<{ outcome: ETaskAutomationRun
 	return <Badge variant={BADGE_OF_TONE[outcomeToneOf(outcome)]}>{t(`settings.automations.outcomes.${outcome}` as Key)}</Badge>;
 }
 
+/** The templates the app has strings for; a template the platform adds later shows the platform's English. */
+const TRANSLATED_TEMPLATES = new Set([
+	'close-parent-when-subtasks-done',
+	'reopen-parent-when-subtask-reopens',
+	'status-sets-fields',
+	'assigned-moves-in-progress',
+	'due-date-notify-assignees',
+	'link-closed-sets-status'
+]);
+
 /** A template's name and description as the app shows them (translated by key; the platform's English otherwise). */
 export function useTemplateText() {
 	const t = useTranslations();
 	return (template: ITaskAutomationTemplate) => {
+		if (!TRANSLATED_TEMPLATES.has(template.key)) return { name: template.name, description: template.description };
 		const base = `settings.automations.templates.${template.key}`;
-		const name = t.has(`${base}.NAME` as Key) ? t(`${base}.NAME` as Key) : template.name;
-		const description = t.has(`${base}.DESCRIPTION` as Key) ? t(`${base}.DESCRIPTION` as Key) : template.description;
-		return { name, description };
+		return { name: String(t(`${base}.NAME` as Key)), description: String(t(`${base}.DESCRIPTION` as Key)) };
 	};
 }
 

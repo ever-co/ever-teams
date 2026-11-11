@@ -1,3 +1,4 @@
+// cspell:ignore Ftemplates
 /**
  * Proxy mode: the task automations routes hand each call on to the platform as it is (path, query, body), so Settings →
  * Automations works the same way on both transports, and an id is kept to one path segment.

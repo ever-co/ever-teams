@@ -137,8 +137,8 @@ export function ChipPicker({
 }: Readonly<{ options: AutomationOption[]; value: string[]; onChange: (next: string[]) => void; label: string; disabled?: boolean }>) {
 	const t = useTranslations();
 	const known = new Set(options.map((option) => option.id));
-	const extra = value.filter((id) => !known.has(id)).map((id) => ({ id, label: id }));
-	const all = [...options, ...extra];
+	const extra: AutomationOption[] = value.filter((id) => !known.has(id)).map((id) => ({ id, label: id }));
+	const all: AutomationOption[] = [...options, ...extra];
 	const toggle = (id: string) => onChange(value.includes(id) ? value.filter((one) => one !== id) : [...value, id]);
 
 	if (!all.length) {
@@ -190,9 +190,10 @@ export function OptionSelect({
 }>) {
 	const NONE = '__none__';
 	const hasValue = !!value && options.some((option) => option.id === value);
-	const current = value ? value : noneLabel ? NONE : null;
+	// The empty string is the select's "nothing chosen" (it stays controlled).
+	const current = value || (noneLabel ? NONE : '');
 	return (
-		<Select value={current} onValueChange={(next) => onChange(!next || next === NONE ? null : String(next))} disabled={disabled}>
+		<Select value={current} onValueChange={(next) => onChange(!next || next === NONE ? null : next)} disabled={disabled}>
 			<SelectTrigger id={id} className={SELECT_TRIGGER}>
 				<SelectValue placeholder={placeholder} />
 			</SelectTrigger>
