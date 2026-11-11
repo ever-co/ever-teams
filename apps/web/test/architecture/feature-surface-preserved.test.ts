@@ -1078,6 +1078,10 @@ function createSyntheticHistory(): { base: string; head: string; repository: str
 	return { base, head: git(repository, 'rev-parse', 'HEAD'), repository };
 }
 
+// The real surface's JSON outgrew spawnSync's 1 MiB default output buffer (ENOBUFS) once the Docs, chat and
+// integration proxies landed; it is read whole, so the buffer is sized well past it.
+const SURFACE_MAX_BUFFER = 64 * 1024 * 1024;
+
 let realHeadSurface: Surface | undefined;
 
 function collectRealHeadSurface(): Surface {
@@ -1088,7 +1092,7 @@ function collectRealHeadSurface(): Surface {
 		'process.stdout.write(JSON.stringify(result.surface));'
 	].join('\n');
 	const result = checkedSpawn(
-		spawnSync(process.execPath, ['--input-type=module', '--eval', expression], { encoding: 'utf8' })
+		spawnSync(process.execPath, ['--input-type=module', '--eval', expression], { encoding: 'utf8', maxBuffer: SURFACE_MAX_BUFFER })
 	);
 	if (result.status !== 0) throw new Error(result.stderr);
 	realHeadSurface = JSON.parse(result.stdout) as Surface;
