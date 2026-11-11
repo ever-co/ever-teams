@@ -100,13 +100,15 @@ describe('the timeline of a view', () => {
 		expect(timeline.bars[2]).toMatchObject({ isStartOnly: true });
 	});
 
-	it('draws a due date before the start as one day at the start, and says so', () => {
+	it('draws a due date before the start as one day at the start, and says so; overdue by its own due date', () => {
 		const [bar] = timelineOf([task('x', { startDate: '2026-11-15', dueDate: '2026-11-10' })], {
 			today: TODAY,
 			zoom: 'week'
 		}).bars;
-		expect(bar).toMatchObject({ hasInvalidRange: true });
+		expect(bar).toMatchObject({ hasInvalidRange: true, isOverdue: true });
 		expect(bar.endDay).toBe(bar.startDay);
+		expect(bar.taskDueDay).toBe(dayNumberOf(new Date(2026, 10, 10)));
+		expect(bar.taskStartDay).toBe(dayNumberOf(new Date(2026, 10, 15)));
 	});
 
 	it('shows today alone, padded, when no task has a date', () => {
@@ -117,7 +119,7 @@ describe('the timeline of a view', () => {
 		expect(timeline.bars).toEqual([]);
 	});
 
-	it('caps the calendar around today and clips the bars past it', () => {
+	it('caps the calendar around today and clips the bars past it, keeping their own dates', () => {
 		const timeline = timelineOf(
 			[task('far', { startDate: '2020-01-01', dueDate: '2032-01-01' }), task('near', { dueDate: '2026-11-13' })],
 			{ today: TODAY, zoom: 'month' }
@@ -125,8 +127,29 @@ describe('the timeline of a view', () => {
 		expect(timeline.dayCount).toBe(TIMELINE_MAX_DAYS);
 		expect(timeline.todayDay).not.toBeNull();
 		const far = timeline.bars.find((bar) => bar.taskId === 'far');
-		expect(far).toMatchObject({ startDay: 0, endDay: TIMELINE_MAX_DAYS - 1, isClippedStart: true, isClippedEnd: true });
+		expect(far).toMatchObject({ startDay: 0, endDay: TIMELINE_MAX_DAYS - 1, isClippedStart: true, isClippedEnd: true, outside: null });
+		expect(far?.taskStartDay).toBe(dayNumberOf(new Date(2020, 0, 1)));
 		expect(timeline.bars.find((bar) => bar.taskId === 'near')).toMatchObject({ isClippedStart: false, isClippedEnd: false });
+	});
+
+	it('keeps the row of a task wholly outside the capped calendar, marked at that edge', () => {
+		const timeline = timelineOf(
+			[
+				task('long', { startDate: '2026-01-01', dueDate: '2029-12-31' }),
+				task('old', { dueDate: '2020-01-01' }),
+				task('later', { startDate: '2031-06-01' })
+			],
+			{ today: TODAY, zoom: 'month' }
+		);
+		expect(timeline.dayCount).toBe(TIMELINE_MAX_DAYS);
+		expect(timeline.bars.map((bar) => [bar.taskId, bar.outside])).toEqual([
+			['long', null],
+			['old', 'before'],
+			['later', 'after']
+		]);
+		const old = timeline.bars[1];
+		expect(old).toMatchObject({ startDay: 0, endDay: 0, isOverdue: true, taskDueDay: dayNumberOf(new Date(2020, 0, 1)) });
+		expect(timeline.bars[2]).toMatchObject({ startDay: TIMELINE_MAX_DAYS - 1, endDay: TIMELINE_MAX_DAYS - 1 });
 	});
 });
 

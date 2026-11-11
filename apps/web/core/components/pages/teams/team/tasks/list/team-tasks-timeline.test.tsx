@@ -59,7 +59,15 @@ describe('TeamTasksTimelineView', () => {
 
 	it('draws a bar per dated task, lists the undated ones apart, and opens a task from either', () => {
 		const { commands } = renderTimeline([
-			{ id: 'a', title: 'Ship the release', number: 12, startDate: '2026-11-10', dueDate: '2026-11-14', status: 'open', taskStatusId: 'open' },
+			{
+				id: 'a',
+				title: 'Ship the release',
+				number: 12,
+				startDate: '2026-11-10',
+				dueDate: '2026-11-14',
+				status: 'open',
+				taskStatusId: 'open'
+			},
 			{ id: 'b', title: 'Write the notes', status: 'open', taskStatusId: 'open' },
 			{ id: 'c', title: 'Old bug', dueDate: '2026-11-01', status: 'open', taskStatusId: 'open' }
 		]);
@@ -68,7 +76,9 @@ describe('TeamTasksTimelineView', () => {
 			'Ship the release · pages.teamTasks.TIMELINE_RANGE(Nov 10,Nov 14)'
 		);
 		// Due before today and open: overdue, and said so.
-		expect(screen.getByTestId('timeline-bar-c').getAttribute('aria-label')).toContain('pages.teamTasks.TIMELINE_OVERDUE');
+		expect(screen.getByTestId('timeline-bar-c').getAttribute('aria-label')).toContain(
+			'pages.teamTasks.TIMELINE_OVERDUE'
+		);
 		expect(screen.getByTestId('timeline-today')).toBeTruthy();
 
 		const unscheduled = screen.getByTestId('timeline-unscheduled');
@@ -82,7 +92,9 @@ describe('TeamTasksTimelineView', () => {
 	});
 
 	it('never marks a done task overdue, and switches the zoom', () => {
-		renderTimeline([{ id: 'd', title: 'Done long ago', dueDate: '2026-10-01', status: 'done', taskStatusId: 'done' }]);
+		renderTimeline([
+			{ id: 'd', title: 'Done long ago', dueDate: '2026-10-01', status: 'done', taskStatusId: 'done' }
+		]);
 
 		expect(screen.getByTestId('timeline-bar-d').getAttribute('aria-label')).not.toContain('TIMELINE_OVERDUE');
 		const months = screen.getByText('pages.teamTasks.TIMELINE_ZOOM_MONTHS');
@@ -94,7 +106,14 @@ describe('TeamTasksTimelineView', () => {
 	it('moves a task of the team by a day with Alt + arrows, and its due date with Alt + Shift + arrows', () => {
 		mockSetDates.mockClear();
 		renderTimeline([
-			{ id: 'a', title: 'Ship', startDate: '2026-11-10', dueDate: '2026-11-14', status: 'open', taskStatusId: 'open' }
+			{
+				id: 'a',
+				title: 'Ship',
+				startDate: '2026-11-10',
+				dueDate: '2026-11-14',
+				status: 'open',
+				taskStatusId: 'open'
+			}
 		]);
 		const bar = screen.getByTestId('timeline-bar-a');
 
@@ -137,7 +156,14 @@ describe('TeamTasksTimelineView', () => {
 	it('leaves the dates of another team’s task alone: its bar only opens it', () => {
 		mockSetDates.mockClear();
 		renderTimeline([
-			{ id: 'other', title: 'Elsewhere', startDate: '2026-11-10', dueDate: '2026-11-12', status: 'open', taskStatusId: 'open' }
+			{
+				id: 'other',
+				title: 'Elsewhere',
+				startDate: '2026-11-10',
+				dueDate: '2026-11-12',
+				status: 'open',
+				taskStatusId: 'open'
+			}
 		]);
 		const bar = screen.getByTestId('timeline-bar-other');
 
@@ -148,6 +174,44 @@ describe('TeamTasksTimelineView', () => {
 
 		expect(mockSetDates).not.toHaveBeenCalled();
 		expect(bar.getAttribute('aria-keyshortcuts')).toBeNull();
+	});
+
+	it('gives a title the full label, and keeps a task dated far outside the calendar with a marker at that edge', () => {
+		const { commands } = renderTimeline([
+			{
+				id: 'a',
+				title: 'Ship',
+				startDate: '2026-11-10',
+				dueDate: '2026-11-14',
+				status: 'open',
+				taskStatusId: 'open'
+			},
+			{ id: 'old', title: 'Ancient', dueDate: '2019-01-01', status: 'open', taskStatusId: 'open' },
+			{
+				id: 'span',
+				title: 'Decade',
+				startDate: '2020-01-01',
+				dueDate: '2031-01-01',
+				status: 'open',
+				taskStatusId: 'open'
+			}
+		]);
+
+		// The title and the bar both carry the full label.
+		expect(
+			screen.getAllByRole('button', { name: 'Ship · pages.teamTasks.TIMELINE_RANGE(Nov 10,Nov 14)' })
+		).toHaveLength(2);
+		// Far outside the capped calendar: no bar, a marker that opens the task, its own date in the label.
+		const marker = screen.getByTestId('timeline-outside-old');
+		expect(marker.getAttribute('aria-label')).toBe(
+			'Ancient · Jan 1 · pages.teamTasks.TIMELINE_DUE_ONLY · pages.teamTasks.TIMELINE_OVERDUE'
+		);
+		fireEvent.click(marker);
+		expect(commands.openTask).toHaveBeenCalledWith('old');
+		// A long task cut at the edges is labelled with its own dates, not the calendar's.
+		expect(screen.getByTestId('timeline-bar-span').getAttribute('aria-label')).toContain(
+			'TIMELINE_RANGE(Jan 1,Jan 1)'
+		);
 	});
 
 	it('says so when the view has no tasks', () => {

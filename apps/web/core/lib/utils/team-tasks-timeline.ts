@@ -26,16 +26,24 @@ export interface TeamTasksTimelineTask {
 
 export interface TeamTasksTimelineBar {
 	taskId: string;
-	/** Day offsets from the first day drawn, both included. */
+	/** Day offsets from the first day drawn, both included (clamped to the days drawn). */
 	startDay: number;
 	endDay: number;
+	/** The task's own dates as day numbers (never clamped): what its label says. */
+	taskStartDay: number | null;
+	taskDueDay: number | null;
+	/**
+	 * The bar lies wholly before or after the days drawn (the calendar was capped): no bar is drawn, only a marker at
+	 * that edge, and the task keeps its row.
+	 */
+	outside: 'before' | 'after' | null;
 	/** The task has a due date only: one day, at its due date. */
 	isDueOnly: boolean;
 	/** The task has a start date only: one day, at its start, with no end known. */
 	isStartOnly: boolean;
 	/** The due date came before the start date: drawn as one day at the start. */
 	hasInvalidRange: boolean;
-	/** Due before today and not done. */
+	/** Due before today and not done (by the task's own due date, also when it comes before the start). */
 	isOverdue: boolean;
 	/** The bar starts before the first day drawn, or ends after the last one (the calendar was capped). */
 	isClippedStart: boolean;
@@ -106,6 +114,8 @@ interface DatedTask {
 	task: TeamTasksTimelineTask;
 	start: number;
 	end: number;
+	taskStart: number | null;
+	taskDue: number | null;
 	isDueOnly: boolean;
 	isStartOnly: boolean;
 	hasInvalidRange: boolean;
@@ -117,16 +127,17 @@ function datedTaskOf(task: TeamTasksTimelineTask): DatedTask | null {
 	if (start === null && due === null) {
 		return null;
 	}
+	const own = { taskStart: start, taskDue: due };
 	if (start === null) {
-		return { task, start: due as number, end: due as number, isDueOnly: true, isStartOnly: false, hasInvalidRange: false };
+		return { task, ...own, start: due as number, end: due as number, isDueOnly: true, isStartOnly: false, hasInvalidRange: false };
 	}
 	if (due === null) {
-		return { task, start, end: start, isDueOnly: false, isStartOnly: true, hasInvalidRange: false };
+		return { task, ...own, start, end: start, isDueOnly: false, isStartOnly: true, hasInvalidRange: false };
 	}
 	if (due < start) {
-		return { task, start, end: start, isDueOnly: false, isStartOnly: false, hasInvalidRange: true };
+		return { task, ...own, start, end: start, isDueOnly: false, isStartOnly: false, hasInvalidRange: true };
 	}
-	return { task, start, end: due, isDueOnly: false, isStartOnly: false, hasInvalidRange: false };
+	return { task, ...own, start, end: due, isDueOnly: false, isStartOnly: false, hasInvalidRange: false };
 }
 
 /**
@@ -166,24 +177,33 @@ export function timelineOf(
 		last = first + TIMELINE_MAX_DAYS - 1;
 	}
 
-	const bars = dated.map(({ task, start, end, isDueOnly, isStartOnly, hasInvalidRange }) => ({
-		taskId: task.id,
-		startDay: Math.max(start, first) - first,
-		endDay: Math.min(end, last) - first,
-		isDueOnly,
-		isStartOnly,
-		hasInvalidRange,
-		isOverdue: !task.isDone && !isStartOnly && end < today,
-		isClippedStart: start < first,
-		isClippedEnd: end > last
-	}));
+	const bars = dated.map(({ task, start, end, taskStart, taskDue, isDueOnly, isStartOnly, hasInvalidRange }) => {
+		let outside: TeamTasksTimelineBar['outside'] = null;
+		if (end < first) outside = 'before';
+		else if (start > last) outside = 'after';
+		const edge = outside === 'before' ? 0 : last - first;
+		return {
+			taskId: task.id,
+			startDay: outside ? edge : Math.max(start, first) - first,
+			endDay: outside ? edge : Math.min(end, last) - first,
+			taskStartDay: taskStart,
+			taskDueDay: taskDue,
+			outside,
+			isDueOnly,
+			isStartOnly,
+			hasInvalidRange,
+			isOverdue: !task.isDone && taskDue !== null && taskDue < today,
+			isClippedStart: !outside && start < first,
+			isClippedEnd: !outside && end > last
+		};
+	});
 
 	return {
 		firstDay: dateOfDayNumber(first),
 		dayCount: last - first + 1,
 		todayDay: today >= first && today <= last ? today - first : null,
-		// A bar wholly outside the capped calendar is not drawn; its task stays listed in its row.
-		bars: bars.filter((bar) => bar.startDay <= bar.endDay),
+		// Every dated task keeps its row; one wholly outside the capped calendar is marked at that edge.
+		bars,
 		unscheduledIds
 	};
 }

@@ -43,7 +43,7 @@ export function TeamTasksTimelineView({
 	const t = useTranslations();
 	const locale = useLocale();
 	const [zoom, setZoom] = useState<TeamTasksTimelineZoom>('week');
-	const [today] = useState(() => new Date());
+	const today = useToday();
 	const scrollRef = useRef<HTMLDivElement>(null);
 	const { setDates } = useTeamTaskUpdates();
 	const teamTasks = useAtomValue(tasksByTeamState);
@@ -86,10 +86,18 @@ export function TeamTasksTimelineView({
 		element.scrollLeft = Math.max(0, todayDay * dayWidth - (element.clientWidth - TITLE_WIDTH) / 3);
 	}, [todayDay, dayWidth]);
 
+	// The task's own dates (never the calendar's edges a long bar is cut at).
 	const barLabel = (task: TTask, bar: TeamTasksTimelineBar) => {
-		const start = formats.day.format(dateOfDayNumber(firstDay + bar.startDay));
-		const end = formats.day.format(dateOfDayNumber(firstDay + bar.endDay));
-		const dates = bar.startDay === bar.endDay ? start : t('pages.teamTasks.TIMELINE_RANGE', { start, end });
+		const day = (value: number) => formats.day.format(dateOfDayNumber(value));
+		const { taskStartDay, taskDueDay } = bar;
+		let dates = '';
+		if (taskStartDay !== null && taskDueDay !== null && taskStartDay !== taskDueDay) {
+			dates = t('pages.teamTasks.TIMELINE_RANGE', { start: day(taskStartDay), end: day(taskDueDay) });
+		} else if (taskDueDay !== null) {
+			dates = day(taskDueDay);
+		} else if (taskStartDay !== null) {
+			dates = day(taskStartDay);
+		}
 		const notes = [
 			bar.isDueOnly ? t('pages.teamTasks.TIMELINE_DUE_ONLY') : null,
 			bar.isStartOnly ? t('pages.teamTasks.TIMELINE_START_ONLY') : null,
@@ -102,8 +110,16 @@ export function TeamTasksTimelineView({
 	const hasTasks = timeline.bars.length > 0 || timeline.unscheduledIds.length > 0;
 
 	return (
-		<section aria-label={t('pages.teamTasks.LAYOUT_TIMELINE')} className="flex min-h-0 flex-1 flex-col gap-3" data-testid="team-tasks-timeline">
-			<div className="flex items-center justify-end gap-1" role="group" aria-label={t('pages.teamTasks.TIMELINE_ZOOM')}>
+		<section
+			aria-label={t('pages.teamTasks.LAYOUT_TIMELINE')}
+			className="flex min-h-0 flex-1 flex-col gap-3"
+			data-testid="team-tasks-timeline"
+		>
+			<div
+				className="flex items-center justify-end gap-1"
+				role="group"
+				aria-label={t('pages.teamTasks.TIMELINE_ZOOM')}
+			>
 				{ZOOMS.map((each) => (
 					<button
 						key={each}
@@ -112,10 +128,16 @@ export function TeamTasksTimelineView({
 						onClick={() => setZoom(each)}
 						className={cn(
 							'h-7 rounded-md px-2.5 text-xs font-medium outline-none transition-colors focus-visible:ring-[3px] focus-visible:ring-ring/25',
-							zoom === each ? 'bg-foreground/[0.08] text-foreground' : 'text-muted-foreground hover:bg-foreground/[0.05]'
+							zoom === each
+								? 'bg-foreground/[0.08] text-foreground'
+								: 'text-muted-foreground hover:bg-foreground/[0.05]'
 						)}
 					>
-						{t(each === 'week' ? 'pages.teamTasks.TIMELINE_ZOOM_WEEKS' : 'pages.teamTasks.TIMELINE_ZOOM_MONTHS')}
+						{t(
+							each === 'week'
+								? 'pages.teamTasks.TIMELINE_ZOOM_WEEKS'
+								: 'pages.teamTasks.TIMELINE_ZOOM_MONTHS'
+						)}
 					</button>
 				))}
 			</div>
@@ -126,8 +148,14 @@ export function TeamTasksTimelineView({
 				<div ref={scrollRef} className="relative min-h-0 flex-1 overflow-auto rounded-lg border border-border">
 					<div className="relative" style={{ width: TITLE_WIDTH + calendarWidth }}>
 						{/* The header: month or week labels over the days. */}
-						<div className="sticky top-0 z-20 flex border-b border-border bg-background" style={{ height: HEADER_HEIGHT }}>
-							<div className="sticky left-0 z-30 shrink-0 border-r border-border bg-background" style={{ width: TITLE_WIDTH }} />
+						<div
+							className="sticky top-0 z-20 flex border-b border-border bg-background"
+							style={{ height: HEADER_HEIGHT }}
+						>
+							<div
+								className="sticky left-0 z-30 shrink-0 border-r border-border bg-background"
+								style={{ width: TITLE_WIDTH }}
+							/>
 							<div className="relative" style={{ width: calendarWidth }} aria-hidden="true">
 								{ticks.map((tick) =>
 									tick.isMajor ? (
@@ -136,7 +164,9 @@ export function TeamTasksTimelineView({
 											className="absolute top-1.5 whitespace-nowrap pl-1 text-xs font-medium text-foreground"
 											style={{ left: tick.day * dayWidth }}
 										>
-											{zoom === 'week' ? formats.day.format(tick.date) : formats.month.format(tick.date)}
+											{zoom === 'week'
+												? formats.day.format(tick.date)
+												: formats.month.format(tick.date)}
 										</span>
 									) : null
 								)}
@@ -154,11 +184,19 @@ export function TeamTasksTimelineView({
 						</div>
 
 						{/* Lines of the weeks or months, and today, behind the rows. */}
-						<div className="pointer-events-none absolute bottom-0" style={{ left: TITLE_WIDTH, top: HEADER_HEIGHT, width: calendarWidth }} aria-hidden="true">
+						<div
+							className="pointer-events-none absolute bottom-0"
+							style={{ left: TITLE_WIDTH, top: HEADER_HEIGHT, width: calendarWidth }}
+							aria-hidden="true"
+						>
 							{ticks
 								.filter((tick) => tick.isMajor)
 								.map((tick) => (
-									<span key={tick.day} className="absolute inset-y-0 w-px bg-border" style={{ left: tick.day * dayWidth }} />
+									<span
+										key={tick.day}
+										className="absolute inset-y-0 w-px bg-border"
+										style={{ left: tick.day * dayWidth }}
+									/>
 								))}
 							{todayDay !== null && (
 								<span
@@ -177,31 +215,60 @@ export function TeamTasksTimelineView({
 								}
 								const label = barLabel(task, bar);
 								return (
-									<li key={bar.taskId} className="flex border-b border-border/60" style={{ height: ROW_HEIGHT }}>
+									<li
+										key={bar.taskId}
+										className="flex border-b border-border/60"
+										style={{ height: ROW_HEIGHT }}
+									>
 										<button
 											type="button"
 											onClick={() => commands.openTask(task.id)}
 											className="sticky left-0 z-10 flex shrink-0 items-center gap-2 truncate border-r border-border bg-background px-3 text-left text-sm outline-none hover:bg-foreground/[0.03] focus-visible:ring-[3px] focus-visible:ring-inset focus-visible:ring-ring/25"
 											style={{ width: TITLE_WIDTH }}
-											title={task.title}
+											aria-label={label}
+											title={label}
 										>
 											{task.number ? (
-												<span className="shrink-0 text-xs tabular-nums text-muted-foreground">#{task.number}</span>
+												<span className="shrink-0 text-xs tabular-nums text-muted-foreground">
+													#{task.number}
+												</span>
 											) : null}
 											<span className="truncate">{task.title}</span>
 										</button>
 										<div className="relative" style={{ width: calendarWidth }}>
-											<TimelineBar
-												task={task}
-												bar={bar}
-												firstDay={firstDay}
-												dayWidth={dayWidth}
-												label={label}
-												hint={t('pages.teamTasks.TIMELINE_DRAG_HINT')}
-												canEdit={teamTaskIds.has(task.id)}
-												onOpen={() => commands.openTask(task.id)}
-												onDates={(dates) => setDates(task.id, dates)}
-											/>
+											{bar.outside ? (
+												<button
+													type="button"
+													onClick={() => commands.openTask(task.id)}
+													aria-label={label}
+													title={label}
+													data-testid={`timeline-outside-${task.id}`}
+													className={cn(
+														'absolute top-1.5 flex items-center rounded-md px-1.5 text-xs font-medium text-muted-foreground outline-none hover:bg-foreground/[0.05] focus-visible:ring-[3px] focus-visible:ring-ring/40',
+														bar.isOverdue && 'text-destructive'
+													)}
+													style={{
+														...(bar.outside === 'before' ? { left: 0 } : { right: 0 }),
+														height: ROW_HEIGHT - 12
+													}}
+												>
+													<span aria-hidden="true">
+														{bar.outside === 'before' ? '‹' : '›'}
+													</span>
+												</button>
+											) : (
+												<TimelineBar
+													task={task}
+													bar={bar}
+													firstDay={firstDay}
+													dayWidth={dayWidth}
+													label={label}
+													hint={t('pages.teamTasks.TIMELINE_DRAG_HINT')}
+													canEdit={teamTaskIds.has(task.id)}
+													onOpen={() => commands.openTask(task.id)}
+													onDates={(dates) => setDates(task.id, dates)}
+												/>
+											)}
 										</div>
 									</li>
 								);
@@ -226,7 +293,11 @@ export function TeamTasksTimelineView({
 										onClick={() => commands.openTask(id)}
 										className="flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-left text-sm outline-none hover:bg-foreground/[0.04] focus-visible:ring-[3px] focus-visible:ring-ring/25"
 									>
-										{task.number ? <span className="shrink-0 text-xs tabular-nums text-muted-foreground">#{task.number}</span> : null}
+										{task.number ? (
+											<span className="shrink-0 text-xs tabular-nums text-muted-foreground">
+												#{task.number}
+											</span>
+										) : null}
 										<span className="truncate">{task.title}</span>
 									</button>
 								</li>
@@ -259,7 +330,17 @@ interface TimelineBarProps {
  * range (the edges), or moved with Alt + arrows (Alt + Shift + arrows: the due date). The bar follows the pointer by
  * whole days while dragged; the dates are saved once, when it is let go.
  */
-function TimelineBar({ task, bar, firstDay, dayWidth, label, hint, canEdit, onOpen, onDates }: Readonly<TimelineBarProps>) {
+function TimelineBar({
+	task,
+	bar,
+	firstDay,
+	dayWidth,
+	label,
+	hint,
+	canEdit,
+	onOpen,
+	onDates
+}: Readonly<TimelineBarProps>) {
 	const [preview, setPreview] = useState<{ drag: TeamTasksTimelineDrag; delta: number } | null>(null);
 	const pressRef = useRef<{ drag: TeamTasksTimelineDrag; x: number; pointerId: number; moved: boolean } | null>(null);
 	const suppressClickRef = useRef(false);
@@ -361,7 +442,9 @@ function TimelineBar({ task, bar, firstDay, dayWidth, label, hint, canEdit, onOp
 			onPointerCancel={handlePointerCancel}
 			onKeyDown={handleKeyDown}
 			aria-label={label}
-			aria-keyshortcuts={canEdit ? 'Alt+ArrowLeft Alt+ArrowRight Alt+Shift+ArrowLeft Alt+Shift+ArrowRight' : undefined}
+			aria-keyshortcuts={
+				canEdit ? 'Alt+ArrowLeft Alt+ArrowRight Alt+Shift+ArrowLeft Alt+Shift+ArrowRight' : undefined
+			}
 			title={canEdit ? `${label}\n${hint}` : label}
 			data-testid={`timeline-bar-${task.id}`}
 			className={cn(
@@ -378,12 +461,58 @@ function TimelineBar({ task, bar, firstDay, dayWidth, label, hint, canEdit, onOp
 			style={{ left, width, height: ROW_HEIGHT - 12 }}
 		>
 			{canEdit && hasRange && !bar.isClippedStart ? (
-				<span data-handle="start" aria-hidden="true" className="absolute inset-y-0 left-0 w-1.5 cursor-ew-resize" />
+				<span
+					data-handle="start"
+					aria-hidden="true"
+					className="absolute inset-y-0 left-0 w-1.5 cursor-ew-resize"
+				/>
 			) : null}
 			{width >= 64 ? <span className="pointer-events-none truncate">{task.title}</span> : null}
 			{canEdit && hasRange && !bar.isClippedEnd ? (
-				<span data-handle="end" aria-hidden="true" className="absolute inset-y-0 right-0 w-1.5 cursor-ew-resize" />
+				<span
+					data-handle="end"
+					aria-hidden="true"
+					className="absolute inset-y-0 right-0 w-1.5 cursor-ew-resize"
+				/>
 			) : null}
 		</button>
 	);
+}
+
+/**
+ * Today, kept current: it moves at local midnight and when the tab comes back after the day changed (a timer of a
+ * sleeping tab can run late), so the today line and the overdue marks never stay on yesterday.
+ */
+function useToday() {
+	const [today, setToday] = useState(() => new Date());
+	useEffect(() => {
+		let timer: ReturnType<typeof setTimeout> | undefined;
+		const refresh = () => {
+			setToday((current) => {
+				const now = new Date();
+				return dayNumberOf(now) === dayNumberOf(current) ? current : now;
+			});
+		};
+		const schedule = () => {
+			const now = new Date();
+			const nextMidnight = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1);
+			timer = setTimeout(
+				() => {
+					refresh();
+					schedule();
+				},
+				nextMidnight.getTime() - now.getTime() + 1000
+			);
+		};
+		const onVisible = () => {
+			if (document.visibilityState === 'visible') refresh();
+		};
+		schedule();
+		document.addEventListener('visibilitychange', onVisible);
+		return () => {
+			if (timer) clearTimeout(timer);
+			document.removeEventListener('visibilitychange', onVisible);
+		};
+	}, []);
+	return today;
 }
