@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { useTranslations, type DottedLanguageObjectStringPaths } from 'next-intl';
 import { toast } from 'sonner';
@@ -61,13 +61,21 @@ export function DocsPage({ view }: Readonly<{ view: DocsView }>) {
 		if (!enabled) router.replace('/');
 	}, [enabled, router]);
 
+	// The drawer is modal: the focus goes into it (the page behind is inert) and back to what opened it.
+	const drawerRef = useRef<HTMLElement | null>(null);
 	useEffect(() => {
 		if (!isTreeDrawerOpen) return;
+		const opener = document.activeElement instanceof HTMLElement ? document.activeElement : null;
+		const target = drawerRef.current?.querySelector<HTMLElement>('[aria-current="page"], a[href], button:not([disabled])');
+		target?.focus();
 		const onKeyDown = (event: KeyboardEvent) => {
 			if (event.key === 'Escape') setTreeDrawer((current) => ({ ...current, open: false }));
 		};
 		document.addEventListener('keydown', onKeyDown);
-		return () => document.removeEventListener('keydown', onKeyDown);
+		return () => {
+			document.removeEventListener('keydown', onKeyDown);
+			if (opener?.isConnected) opener.focus();
+		};
 	}, [isTreeDrawerOpen]);
 
 	// `/docs` opens the page last visited on this device, once the tree says it still exists — except when the person
@@ -275,6 +283,10 @@ export function DocsPage({ view }: Readonly<{ view: DocsView }>) {
 					/>
 				)}
 				<aside
+					ref={drawerRef}
+					role={isTreeDrawerOpen ? 'dialog' : undefined}
+					aria-modal={isTreeDrawerOpen ? true : undefined}
+					aria-label={isTreeDrawerOpen ? t('docs.PAGES') : undefined}
 					className={cn(
 						'h-full shrink-0 border-r border-border bg-background print:hidden',
 						showsPane && 'flex w-full lg:w-72',
@@ -296,7 +308,7 @@ export function DocsPage({ view }: Readonly<{ view: DocsView }>) {
 						onHome={() => setHomeOnPhone(true)}
 					/>
 				</aside>
-				<main className={cn('relative min-w-0 flex-1', showsPane ? 'hidden lg:block' : 'block')}>
+				<main inert={isTreeDrawerOpen} className={cn('relative min-w-0 flex-1', showsPane ? 'hidden lg:block' : 'block')}>
 					{view === 'page' && pageId && (
 						<DocsPageView
 							key={pageId}

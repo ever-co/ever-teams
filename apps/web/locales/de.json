@@ -5399,7 +5399,9 @@
 		"OPEN_TASK": "Aufgabe öffnen",
 		"PAGES": "Seiten",
 		"FORMATTING": "Formatierung",
-		"PALETTE_HEADING": "Seiten"
+		"PALETTE_HEADING": "Seiten",
+		"EXPORT_UNSAVED": "Ihre letzten Änderungen sind noch nicht gespeichert, deshalb wurde nichts exportiert. Versuchen Sie es erneut, sobald die Seite „Gespeichert“ zeigt.",
+		"COMMENT_ANCHOR_UNSAVED": "Die Seite konnte nicht gespeichert werden, deshalb wurde der Kommentar nicht gesendet. Ihr Text bleibt erhalten."
 	},
 	"whatsNew": {
 		"TITLE": "Neuigkeiten",

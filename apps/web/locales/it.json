@@ -5399,7 +5399,9 @@
 		"OPEN_TASK": "Apri attività",
 		"PAGES": "Pagine",
 		"FORMATTING": "Formattazione",
-		"PALETTE_HEADING": "Pagine"
+		"PALETTE_HEADING": "Pagine",
+		"EXPORT_UNSAVED": "Le ultime modifiche non sono ancora salvate, quindi non è stato esportato nulla. Riprova quando la pagina indica Salvato.",
+		"COMMENT_ANCHOR_UNSAVED": "Non è stato possibile salvare la pagina, quindi il commento non è stato pubblicato. Il tuo testo resta."
 	},
 	"whatsNew": {
 		"TITLE": "Novità",

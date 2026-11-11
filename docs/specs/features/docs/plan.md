@@ -123,7 +123,7 @@ sub-page zip export, drag to reorder among siblings, phone editing polish. Live 
 | `core/components/common/rich-editor/block-id-extension.ts` | `blockId` on the blocks (UUID, `data-block-id`, `data-blockid` read too), a new one after an edit for a block without one or with a copy, the selection's block anchored on demand; never on the live binding's own transactions |
 | `core/lib/utils/docs-comments.ts` | the anchor line (`[[block:<blockId>]]`), threads, reading order, tabs, the marked blocks, authorship, quotes, the anchored blocks of a page's JSON |
 | `core/lib/utils/docs-links.ts` | page addresses with `?block=` / `?thread=` / `?comments=1`, task links, where an Inbox entry about a page leads |
-| `core/hooks/docs/use-docs-comments.ts` | the page's comments (`GET /comment`, entity `Document`), post, reply, edit, resolve / reopen, delete (`PUT|DELETE /comment/:id`, proxy twin `app/api/comment/[id]`) |
+| `core/hooks/docs/use-docs-comments.ts` | the page's comments (`GET /comment`, entity `Document`), post, reply, edit, resolve / reopen, delete (`PUT` and `DELETE /comment/:id`, proxy twin `app/api/comment/[id]`) |
 | `core/components/pages/docs/docs-editor-extensions.ts` | the marks of the blocks with an open thread (their marker opens it), the block a link points at, the task chips and the task paste |
 | `core/components/pages/docs/docs-comments-panel.tsx` | the Comments panel |
 | `core/components/pages/docs/docs-mobile-format-bar.tsx` | the phone's formatting row above the on-screen keyboard |

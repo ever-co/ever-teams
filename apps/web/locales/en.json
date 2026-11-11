@@ -5399,7 +5399,9 @@
 		"OPEN_TASK": "Open task",
 		"PAGES": "Pages",
 		"FORMATTING": "Formatting",
-		"PALETTE_HEADING": "Pages"
+		"PALETTE_HEADING": "Pages",
+		"EXPORT_UNSAVED": "Your latest changes are not saved yet, so nothing was exported. Try again once the page says Saved.",
+		"COMMENT_ANCHOR_UNSAVED": "The page could not be saved, so the comment was not posted. Your text is kept."
 	},
 	"whatsNew": {
 		"TITLE": "What's new",

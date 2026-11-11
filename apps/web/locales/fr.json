@@ -5399,7 +5399,9 @@
 		"OPEN_TASK": "Ouvrir la tâche",
 		"PAGES": "Pages",
 		"FORMATTING": "Mise en forme",
-		"PALETTE_HEADING": "Pages"
+		"PALETTE_HEADING": "Pages",
+		"EXPORT_UNSAVED": "Vos dernières modifications ne sont pas encore enregistrées : rien n’a été exporté. Réessayez quand la page indique Enregistré.",
+		"COMMENT_ANCHOR_UNSAVED": "La page n’a pas pu être enregistrée : le commentaire n’a pas été publié. Votre texte est conservé."
 	},
 	"whatsNew": {
 		"TITLE": "Nouveautés",

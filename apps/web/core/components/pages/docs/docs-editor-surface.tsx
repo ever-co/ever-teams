@@ -1,14 +1,14 @@
 'use client';
 
 import { useCallback, useEffect, useMemo, useRef, useState, type RefObject } from 'react';
-import { generateHTML, type Editor, type Extensions, type JSONContent } from '@tiptap/core';
+import type { Editor, Extensions } from '@tiptap/core';
 import { useTranslations } from 'next-intl';
 import type { Awareness } from 'y-protocols/awareness';
 import type { Doc } from 'yjs';
 import { Comment, Link } from '@/core/components/icons';
 import { RichEditor, type RichEditorBubbleAction, type RichEditorHandle } from '@/core/components/common/rich-editor/rich-editor';
 import { anchorSelectionBlock, blockOf, BlockIds } from '@/core/components/common/rich-editor/block-id-extension';
-import { editorSchemaTypes, schemaExtensions, type EditorCollaboration } from '@/core/components/common/rich-editor/editor-extensions';
+import { editorSchemaTypes, type EditorCollaboration } from '@/core/components/common/rich-editor/editor-extensions';
 import { liveCollaboration } from '@/core/components/common/rich-editor/live-collaboration';
 import type { MentionCandidate } from '@/core/components/common/rich-editor/mention-extension';
 import { useShortcutLabel } from '@/core/components/common/rich-editor/tool-button';
@@ -16,11 +16,12 @@ import { useDocsTaskChips } from '@/core/hooks/docs/use-docs-task-chips';
 import { useTaskDrawer } from '@/core/hooks/tasks/use-task-drawer';
 import type { DocsLiveBinding } from '@/core/lib/docs-live/binding';
 import { DOCS_LIVE_FIELD } from '@/core/lib/docs-live/config';
-import { anchoredBlocksOf, quoteOf } from '@/core/lib/utils/docs-comments';
+import { quoteOf } from '@/core/lib/utils/docs-comments';
 import { mentionedEmployeeIds } from '@/core/lib/utils/docs-markdown';
 import { unsupportedTypesOf } from '@/core/lib/utils/docs-content';
 import type { IDocumentNode } from '@/core/types/interfaces/common/docs';
 import { DocsCommentMarksExtension, DocsTaskChipsExtension, setCommentMarks, setTaskChips } from './docs-editor-extensions';
+import { editorHtmlOf } from './docs-editor-html';
 import { DocsMobileFormatBar } from './docs-mobile-format-bar';
 
 /** The live session the editor binds to, when the page is edited live. */
@@ -41,7 +42,7 @@ export interface DocsEditorApi {
 	 * The block of the selection as a comment's place: its anchor (given to it now when it has none, which is an edit
 	 * of the page, saved as any other) and the selected text as its quote. Null when the selection is in no block.
 	 */
-	anchorSelection: () => { blockId: string; quote: string } | null;
+	anchorSelection: () => { blockId: string; quote: string; created: boolean } | null;
 }
 
 /** The comment threads the editor marks, and what it does with them. */
@@ -83,20 +84,6 @@ interface DocsEditorSurfaceProps {
 	comments?: DocsEditorComments | null;
 }
 
-let docsSchemaExtensions: Extensions | null = null;
-
-/** The HTML the editor opens: from the stored JSON when its blocks carry anchors (and the editor knows every type). */
-export function editorHtmlOf(value: string, json: IDocumentNode | null | undefined): string {
-	if (!json || anchoredBlocksOf(json).order.length === 0) return value;
-	try {
-		docsSchemaExtensions ??= schemaExtensions();
-		if (unsupportedTypesOf(json, editorSchemaTypes()).length > 0) return value;
-		return generateHTML(json as JSONContent, docsSchemaExtensions);
-	} catch {
-		return value;
-	}
-}
-
 /** The editor of the RichEditor once it is up (it is made after the first render), again when it is rebuilt. */
 function useEditorOf(editorRef: RefObject<RichEditorHandle | null>, rebuild: string): Editor | null {
 	const [editor, setEditor] = useState<Editor | null>(null);
@@ -136,13 +123,16 @@ export function DocsEditorSurface({
 	live = null,
 	sourceJson = null,
 	comments = null
-}: DocsEditorSurfaceProps) {
+}: Readonly<DocsEditorSurfaceProps>) {
 	const t = useTranslations();
 	const shortcutLabel = useShortcutLabel();
 	const editorRef = useRef<RichEditorHandle>(null);
-	// What the editor opens, worked out again only when the page's text is replaced (a draft held meanwhile keeps it).
-	const [shown, setShown] = useState(() => ({ source: value, html: editorHtmlOf(value, sourceJson) }));
-	if (!live && shown.source !== value) setShown({ source: value, html: editorHtmlOf(value, sourceJson) });
+	// What the editor opens, worked out again when the page's text is replaced: a new HTML, or a new stored JSON with the
+	// same HTML (another save that moved only anchors, which the HTML cache does not keep). A draft held meanwhile hands
+	// no JSON (`null`), which keeps what is shown.
+	const [shown, setShown] = useState(() => ({ source: value, json: sourceJson, html: editorHtmlOf(value, sourceJson) }));
+	const replaced = shown.source !== value || (sourceJson !== null && sourceJson !== shown.json);
+	if (!live && replaced) setShown({ source: value, json: sourceJson, html: editorHtmlOf(value, sourceJson) });
 	const editorValue = live ? value : shown.html;
 	const liveBinding = live?.binding ?? null;
 	const liveDoc = live?.doc ?? null;
@@ -206,7 +196,7 @@ export function DocsEditorSurface({
 		const { from, to } = current.state.selection;
 		const selected = current.state.doc.textBetween(from, to, ' ', ' ').trim();
 		const block = blockOf(current.state.doc, anchored.blockId);
-		return { blockId: anchored.blockId, quote: quoteOf(selected || block?.node.textContent || '') };
+		return { blockId: anchored.blockId, quote: quoteOf(selected || block?.node.textContent || ''), created: anchored.transaction !== null };
 	}, []);
 
 	useEffect(() => {

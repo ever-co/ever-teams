@@ -5399,7 +5399,9 @@
 		"OPEN_TASK": "Otwórz zadanie",
 		"PAGES": "Strony",
 		"FORMATTING": "Formatowanie",
-		"PALETTE_HEADING": "Strony"
+		"PALETTE_HEADING": "Strony",
+		"EXPORT_UNSAVED": "Twoje ostatnie zmiany nie są jeszcze zapisane, więc nic nie wyeksportowano. Spróbuj ponownie, gdy strona pokaże „Zapisano”.",
+		"COMMENT_ANCHOR_UNSAVED": "Nie udało się zapisać strony, więc komentarz nie został opublikowany. Twój tekst został zachowany."
 	},
 	"whatsNew": {
 		"TITLE": "Co nowego",

@@ -91,6 +91,11 @@ interface DocsPageViewProps {
 const LINKED_BLOCK_LIT_MS = 4000;
 /** How long the page is searched for a block a link or a thread points at. */
 const BLOCK_SEARCH_MS = 12_000;
+/** How many times, and how far apart, a draft is saved while a save already runs, before an export or a new anchor. */
+const DRAFT_SAVE_ATTEMPTS = 20;
+const DRAFT_SAVE_WAIT_MS = 300;
+/** The save states that wait for the person: nothing is saved until they act. */
+const SAVE_FAILURES: ReadonlySet<DocsSaveState> = new Set<DocsSaveState>(['conflict', 'locked', 'too-large', 'error']);
 
 /** The selector of a block by its anchor, in the editor and in the read-only view (the platform's spelling too). */
 function blockSelectorOf(blockId: string): string {
@@ -312,6 +317,11 @@ export function DocsPageView({ pageId, tree, actions, spaces = NO_SPACES, onOpen
 	const linkTarget = useMemo(() => docsLinkTargetOf(searchParams?.toString() ?? ''), [searchParams]);
 	const [showComments, setShowComments] = useState(linkTarget.comments || linkTarget.thread !== null);
 	const [activeThreadId, setActiveThreadId] = useState<string | null>(null);
+	const [threadRequest, setThreadRequest] = useState(0);
+	const askThread = useCallback((threadId: string) => {
+		setActiveThreadId(threadId);
+		setThreadRequest((count) => count + 1);
+	}, []);
 	const [pendingAnchor, setPendingAnchor] = useState<DocsPendingAnchor | null>(null);
 	const [activeBlockId, setActiveBlockId] = useState<string | null>(null);
 	// A block to bring into sight; the count lets the same block be asked for again.
@@ -352,9 +362,9 @@ export function DocsPageView({ pageId, tree, actions, spaces = NO_SPACES, onOpen
 			toast(t('docs.THREAD_NOT_FOUND'));
 			return;
 		}
-		setActiveThreadId(thread.id);
+		askThread(thread.id);
 		if (thread.blockId) revealBlock(thread.blockId, true);
-	}, [comments.isReady, comments.threads, linkedThread, openComments, revealBlock, t]);
+	}, [askThread, comments.isReady, comments.threads, linkedThread, openComments, revealBlock, t]);
 	useEffect(() => {
 		if (linkTarget.comments) openComments();
 	}, [linkTarget.comments, openComments]);
@@ -388,10 +398,10 @@ export function DocsPageView({ pageId, tree, actions, spaces = NO_SPACES, onOpen
 
 	const selectThread = useCallback(
 		(thread: DocsCommentThread) => {
-			setActiveThreadId(thread.id);
+			askThread(thread.id);
 			if (thread.blockId) revealBlock(thread.blockId);
 		},
-		[revealBlock]
+		[askThread, revealBlock]
 	);
 
 	const copyText = useCallback(
@@ -404,6 +414,26 @@ export function DocsPageView({ pageId, tree, actions, spaces = NO_SPACES, onOpen
 		[t]
 	);
 
+	// The draft saved and settled (a save already running is waited for); false when it cannot be (a conflict, a lock, a
+	// draft too large, an error).
+	const saveStateRef = useRef(autosave.state);
+	useEffect(() => {
+		saveStateRef.current = autosave.state;
+	});
+	const { flushNow, hasDraft } = autosave;
+	const saveDraftNow = useCallback(async (): Promise<boolean> => {
+		for (let attempt = 0; attempt < DRAFT_SAVE_ATTEMPTS; attempt += 1) {
+			const saved = await flushNow();
+			if (saved && !hasDraft()) return true;
+			if (SAVE_FAILURES.has(saveStateRef.current)) return false;
+			await new Promise((resolve) => setTimeout(resolve, DRAFT_SAVE_WAIT_MS));
+		}
+		return false;
+	}, [flushNow, hasDraft]);
+
+	// A block given its anchor for a comment: live, the edit went with the session; otherwise the page is saved first.
+	const holdAnchor = useCallback(async () => isLiveEditing || saveDraftNow(), [isLiveEditing, saveDraftNow]);
+
 	const startComment = useCallback(() => {
 		const anchor = editorApi?.anchorSelection() ?? null;
 		setPendingAnchor(anchor);
@@ -414,17 +444,19 @@ export function DocsPageView({ pageId, tree, actions, spaces = NO_SPACES, onOpen
 	const copyBlockLink = useCallback(() => {
 		const anchor = editorApi?.anchorSelection() ?? null;
 		if (!anchor) return;
+		// A block that just got its anchor is saved at once, so the link leads somewhere for whoever opens it.
+		if (anchor.created) void holdAnchor();
 		copyText(docsPageUrl(window.location.origin, pageId, { block: anchor.blockId }));
-	}, [copyText, editorApi, pageId]);
+	}, [copyText, editorApi, holdAnchor, pageId]);
 
 	const openThreadOfBlock = useCallback(
 		(blockId: string) => {
 			const thread = openThreadOnBlock(comments.threads, blockId);
 			openComments();
 			setActiveBlockId(blockId);
-			if (thread) setActiveThreadId(thread.id);
+			if (thread) askThread(thread.id);
 		},
-		[comments.threads, openComments]
+		[askThread, comments.threads, openComments]
 	);
 
 	const editorComments = useMemo<DocsEditorComments | null>(
@@ -436,6 +468,26 @@ export function DocsPageView({ pageId, tree, actions, spaces = NO_SPACES, onOpen
 	);
 	const reader = useMemo(() => ({ employeeId: scope?.employeeId ?? null, userId: scope?.userId ?? null }), [scope?.employeeId, scope?.userId]);
 	const blockText = useCallback((blockId: string) => anchoredBlocks.text.get(blockId) ?? null, [anchoredBlocks]);
+
+	// The read-only view shows the stored HTML, which lacks the block anchors: a page whose JSON has them is rendered
+	// from it (the editor's HTML code loads for that), so a link to a block finds it there too.
+	const readOnlyNow = Boolean(page && (page.isLocked || page.isArchived || unsupported));
+	const storedHtml = page?.contentHtml ?? '';
+	const storedJson = page?.contentJson ?? null;
+	const [anchoredHtml, setAnchoredHtml] = useState<{ json: IDocumentNode; html: string } | null>(null);
+	useEffect(() => {
+		if (!readOnlyNow || unsupported || !storedJson || anchoredBlocksOf(storedJson).order.length === 0) return;
+		let current = true;
+		import('./docs-editor-html')
+			.then(({ editorHtmlOf }) => {
+				if (current) setAnchoredHtml({ json: storedJson, html: editorHtmlOf(storedHtml, storedJson) });
+			})
+			.catch(() => undefined);
+		return () => {
+			current = false;
+		};
+	}, [readOnlyNow, storedHtml, storedJson, unsupported]);
+	const readOnlyHtml = anchoredHtml && anchoredHtml.json === storedJson && !unsupported ? anchoredHtml.html : storedHtml;
 
 	const jumpToHeading = useCallback((item: DocsOutlineItem) => {
 		const heading = bodyRef.current?.querySelectorAll<HTMLElement>(DOCS_OUTLINE_SELECTOR)[item.index];
@@ -531,7 +583,11 @@ export function DocsPageView({ pageId, tree, actions, spaces = NO_SPACES, onOpen
 		setIsExporting(true);
 		const toastId = toast.loading(t('docs.EXPORTING'));
 		try {
-			await autosave.flushNow();
+			// The zip is of the text as saved: the person's latest text goes first, or nothing is exported.
+			if (!isLiveEditing && !(await saveDraftNow())) {
+				toast.error(t('docs.EXPORT_UNSAVED'), { id: toastId });
+				return;
+			}
 			const blob = await docsService.exportSubtreeZip(page.id);
 			downloadBlob(blob, markdownFileName(pageTitle({ name: title }, t('docs.UNTITLED'))).replace(/\.md$/, '.zip'));
 			toast.dismiss(toastId);
@@ -889,7 +945,7 @@ export function DocsPageView({ pageId, tree, actions, spaces = NO_SPACES, onOpen
 								<div ref={bodyRef}>
 									{unsupported && <p className="mb-3 rounded-lg bg-foreground/[0.04] px-3 py-2 text-xs text-muted-foreground">{t('docs.UNSUPPORTED_CONTENT')}</p>}
 									{isReadOnly && (
-										<RichTextView value={page.contentHtml ?? ''} emptyState={<p className="text-sm text-muted-foreground">{t('docs.EMPTY_PAGE')}</p>} />
+										<RichTextView value={readOnlyHtml} emptyState={<p className="text-sm text-muted-foreground">{t('docs.EMPTY_PAGE')}</p>} />
 									)}
 									{!isReadOnly && awaitingAdoption && adoption === 'failed' && (
 										<Notice tone="warning">
@@ -1003,7 +1059,9 @@ export function DocsPageView({ pageId, tree, actions, spaces = NO_SPACES, onOpen
 						blockText={blockText}
 						reader={reader}
 						activeThreadId={activeThreadId}
+						activeThreadRequest={threadRequest}
 						onSelectThread={selectThread}
+						beforePost={holdAnchor}
 						pendingAnchor={pendingAnchor}
 						onClearPending={() => {
 							setPendingAnchor(null);

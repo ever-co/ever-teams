@@ -1,6 +1,7 @@
 import { Extension } from '@tiptap/core';
 import type { Node as ProseMirrorNode } from '@tiptap/pm/model';
 import { Plugin, PluginKey, type EditorState, type Transaction } from '@tiptap/pm/state';
+import { Mapping } from '@tiptap/pm/transform';
 
 /**
  * Block anchors for the Docs pages: every block of these types carries a `blockId`, the anchor comment threads and
@@ -25,37 +26,41 @@ export function isBlockId(value: unknown): value is string {
 	return typeof value === 'string' && BLOCK_ID_PATTERN.test(value);
 }
 
-/** A new anchor: a version 4 UUID, which the platform's schema requires. */
+/** A new anchor: a version 4 UUID, which the platform's schema requires, from the browser's cryptographic source. */
 export function newBlockId(): string {
-	const cryptoApi = typeof globalThis.crypto === 'undefined' ? undefined : globalThis.crypto;
-	if (typeof cryptoApi?.randomUUID === 'function') return cryptoApi.randomUUID();
-	const bytes = new Uint8Array(16);
-	if (typeof cryptoApi?.getRandomValues === 'function') {
-		cryptoApi.getRandomValues(bytes);
-	} else {
-		for (let at = 0; at < bytes.length; at += 1) bytes[at] = Math.floor(Math.random() * 256);
-	}
+	const cryptoApi = globalThis.crypto;
+	if (typeof cryptoApi.randomUUID === 'function') return cryptoApi.randomUUID();
+	// `randomUUID` needs a secure context (https or localhost); `getRandomValues` does not.
+	const bytes = cryptoApi.getRandomValues(new Uint8Array(16));
 	bytes[6] = (bytes[6] & 0x0f) | 0x40;
 	bytes[8] = (bytes[8] & 0x3f) | 0x80;
 	const hex = [...bytes].map((byte) => byte.toString(16).padStart(2, '0')).join('');
 	return `${hex.slice(0, 8)}-${hex.slice(8, 12)}-${hex.slice(12, 16)}-${hex.slice(16, 20)}-${hex.slice(20)}`;
 }
 
-/** The blocks of a document that need an anchor (none, not a UUID, or one an earlier block already has), in order. */
-export function blocksWithoutAnchor(doc: ProseMirrorNode, types: ReadonlySet<string>): number[] {
-	const seen = new Set<string>();
-	const positions: number[] = [];
+/**
+ * The blocks of a document that need an anchor, in order: none, one that is no UUID, or one another block has too (a
+ * copy). Of the blocks sharing an anchor, the one at `keeperOf(anchor)` keeps it (the block that had it before the
+ * edit, so its threads and links stay on it); without one there, the first does.
+ */
+export function blocksWithoutAnchor(doc: ProseMirrorNode, types: ReadonlySet<string>, keeperOf: (blockId: string) => number | null = () => null): number[] {
+	const anchored: Array<{ pos: number; id: string | null }> = [];
+	const count = new Map<string, number>();
 	doc.descendants((node, pos) => {
-		if (!types.has(node.type.name)) return true;
+		if (!types.has(node.type.name)) return;
 		const id = node.attrs[BLOCK_ID_ATTRIBUTE];
-		if (isBlockId(id) && !seen.has(id)) {
-			seen.add(id);
-		} else {
-			positions.push(pos);
-		}
-		return true;
+		const valid = isBlockId(id) ? id : null;
+		anchored.push({ pos, id: valid });
+		if (valid) count.set(valid, (count.get(valid) ?? 0) + 1);
 	});
-	return positions;
+	const keeperAt = new Map<string, number>();
+	for (const [id, times] of count) {
+		if (times < 2) continue;
+		const keeper = keeperOf(id);
+		const atKeeper = keeper !== null && anchored.some((block) => block.id === id && block.pos === keeper);
+		keeperAt.set(id, atKeeper ? (keeper as number) : (anchored.find((block) => block.id === id) as { pos: number }).pos);
+	}
+	return anchored.filter((block) => block.id === null || (keeperAt.has(block.id) && keeperAt.get(block.id) !== block.pos)).map((block) => block.pos);
 }
 
 /** Every anchor of a document, in reading order. */
@@ -64,7 +69,6 @@ export function blockIdsOf(doc: ProseMirrorNode): string[] {
 	doc.descendants((node) => {
 		const id = node.attrs[BLOCK_ID_ATTRIBUTE];
 		if (isBlockId(id)) ids.push(id);
-		return true;
 	});
 	return ids;
 }
@@ -131,7 +135,7 @@ export const BlockIds = Extension.create({
 						// A split block is a new block: it gets an anchor of its own.
 						keepOnSplit: false,
 						// `data-blockid` is what the platform's editor writes (its attribute name lower-cased by HTML).
-						parseHTML: (element: HTMLElement) => element.getAttribute('data-block-id') ?? element.getAttribute('data-blockid'),
+						parseHTML: (element: HTMLElement) => element.dataset.blockId ?? element.dataset.blockid ?? null,
 						renderHTML: (attributes: Record<string, unknown>) =>
 							isBlockId(attributes[BLOCK_ID_ATTRIBUTE]) ? { 'data-block-id': attributes[BLOCK_ID_ATTRIBUTE] as string } : {}
 					}
@@ -145,12 +149,22 @@ export const BlockIds = Extension.create({
 		return [
 			new Plugin({
 				key: blockIdPluginKey,
-				appendTransaction: (transactions, _previous, state) => {
+				appendTransaction: (transactions, previous, state) => {
 					// After an edit made here; the others' edits (live) come anchored by the editor that made them.
 					const edited = transactions.some((transaction) => transaction.docChanged && !transaction.getMeta(LIVE_SYNC_META) && !transaction.getMeta(blockIdPluginKey));
 					if (!edited) return null;
+					// A copy of a block keeps none of its anchor: the block that had it before the edit (where the edit moved
+					// it) keeps it, wherever the copy landed.
+					const mapping = new Mapping();
+					for (const step of transactions) mapping.appendMapping(step.mapping);
+					const keeperOf = (blockId: string) => {
+						const before = blockOf(previous.doc, blockId);
+						if (!before) return null;
+						const moved = mapping.mapResult(before.pos, 1);
+						return moved.deleted ? null : moved.pos;
+					};
 					const transaction = state.tr.setMeta(blockIdPluginKey, true).setMeta('addToHistory', false);
-					return stampAnchors(transaction, blocksWithoutAnchor(state.doc, types)) ? transaction : null;
+					return stampAnchors(transaction, blocksWithoutAnchor(state.doc, types, keeperOf)) ? transaction : null;
 				}
 			})
 		];

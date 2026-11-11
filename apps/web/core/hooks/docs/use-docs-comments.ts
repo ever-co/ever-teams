@@ -79,7 +79,7 @@ export function useDocsComments(page: { id: string; name?: string | null } | nul
 				...(parentId ? { parentId } : {}),
 				...(mentionEmployeeIds.length > 0 ? { mentionEmployeeIds } : {})
 			};
-			return createAsync(input);
+			return await createAsync(input);
 		},
 		[createAsync, pageName, pageId, scope]
 	);
@@ -89,19 +89,19 @@ export function useDocsComments(page: { id: string; name?: string | null } | nul
 		async (comment: IComment, body: string) => {
 			const text = body.trim();
 			if (text.length === 0) return null;
-			return updateAsync({ id: String(comment.id), input: { comment: withBlockAnchor(parseBlockAnchor(comment.comment).blockId, text) } });
+			return await updateAsync({ id: String(comment.id), input: { comment: withBlockAnchor(parseBlockAnchor(comment.comment).blockId, text) } });
 		},
 		[updateAsync]
 	);
 
 	/** Closes or opens again a thread (its first comment). The time is cleared on a reopen: the platform does not. */
 	const setResolved = useCallback(
-		async (comment: IComment, resolved: boolean) =>
+		(comment: IComment, resolved: boolean) =>
 			updateAsync({ id: String(comment.id), input: { resolved, resolvedAt: resolved ? new Date().toISOString() : null } }),
 		[updateAsync]
 	);
 
-	const removeComment = useCallback(async (comment: IComment) => removeAsync(String(comment.id)), [removeAsync]);
+	const removeComment = useCallback((comment: IComment) => removeAsync(String(comment.id)), [removeAsync]);
 
 	return {
 		comments,

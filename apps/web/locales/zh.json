@@ -5399,7 +5399,9 @@
 		"OPEN_TASK": "打开任务",
 		"PAGES": "页面",
 		"FORMATTING": "格式",
-		"PALETTE_HEADING": "页面"
+		"PALETTE_HEADING": "页面",
+		"EXPORT_UNSAVED": "您最近的更改尚未保存，因此未导出任何内容。请在页面显示“已保存”后重试。",
+		"COMMENT_ANCHOR_UNSAVED": "无法保存页面，因此评论未发布。您的文本已保留。"
 	},
 	"whatsNew": {
 		"TITLE": "新功能",

@@ -80,6 +80,11 @@ describe('the Docs layer of the editor', () => {
 		expect(marker?.getAttribute('aria-label')).toBe('Open the comments');
 		marker?.dispatchEvent(new MouseEvent('mousedown', { bubbles: true, cancelable: true }));
 		expect(onOpenThread).toHaveBeenCalledWith(A);
+		// The click after a mouse press does not open it twice; a click from the keyboard (no press) opens it.
+		marker?.dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true, detail: 1 }));
+		expect(onOpenThread).toHaveBeenCalledTimes(1);
+		marker?.dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true, detail: 0 }));
+		expect(onOpenThread).toHaveBeenCalledTimes(2);
 		// Resolving the thread takes the mark away without touching the text.
 		const before = editor.getJSON();
 		setCommentMarks(editor.view, { open: new Set(), active: null });

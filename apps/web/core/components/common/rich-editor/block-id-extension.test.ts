@@ -67,6 +67,17 @@ describe('block anchors', () => {
 		editor.destroy();
 	});
 
+	it('gives a copy pasted above its block a new anchor, and leaves the original its own', () => {
+		const editor = editorWith({ type: 'doc', content: [paragraph('intro', B), paragraph('original', A)] });
+		// The copy lands before the original: by position it would be first.
+		editor.commands.insertContentAt(0, { type: 'paragraph', attrs: { blockId: A }, content: [{ type: 'text', text: 'copy' }] });
+		expect(blockOf(editor.state.doc, A)?.node.textContent).toBe('original');
+		const ids = blockIdsOf(editor.state.doc);
+		expect(new Set(ids).size).toBe(3);
+		expect(ids).toContain(B);
+		editor.destroy();
+	});
+
 	it('gives a split block an anchor of its own', () => {
 		const editor = editorWith({ type: 'doc', content: [paragraph('first second', A)] });
 		editor.chain().setTextSelection(7).splitBlock().run();

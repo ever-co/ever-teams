@@ -32,6 +32,23 @@ export interface DocsCommentMarksOptions {
 	markerLabel: () => string;
 }
 
+/**
+ * A widget button's action: on the mouse press (a click would first move the selection and rebuild the widget under
+ * it), and on a click made from the keyboard (Enter, Space), which comes without a press.
+ */
+function onActivate(button: HTMLButtonElement, act: () => void): void {
+	button.addEventListener('mousedown', (event) => {
+		event.preventDefault();
+		event.stopPropagation();
+		act();
+	});
+	button.addEventListener('click', (event) => {
+		event.preventDefault();
+		event.stopPropagation();
+		if (event.detail === 0) act();
+	});
+}
+
 /** Sets what the editor marks; resolving a thread never touches the document. */
 export function setCommentMarks(view: EditorView | null | undefined, marks: Partial<DocsCommentMarks>): void {
 	if (!view || (view as { isDestroyed?: boolean }).isDestroyed) return;
@@ -46,12 +63,7 @@ function commentMarker(blockId: string, options: DocsCommentMarksOptions): HTMLE
 	button.dataset.blockId = blockId;
 	button.setAttribute('aria-label', options.markerLabel());
 	button.title = options.markerLabel();
-	// The selection would move under a click and rebuild the marker: the press is on mousedown.
-	button.addEventListener('mousedown', (event) => {
-		event.preventDefault();
-		event.stopPropagation();
-		options.onOpenThread(blockId);
-	});
+	onActivate(button, () => options.onOpenThread(blockId));
 	return button;
 }
 
@@ -60,10 +72,10 @@ function commentDecorations(doc: ProseMirrorNode, marks: DocsCommentMarks, optio
 	const decorations: Decoration[] = [];
 	doc.descendants((node, pos) => {
 		const blockId = node.attrs[BLOCK_ID_ATTRIBUTE];
-		if (!isBlockId(blockId)) return true;
+		if (!isBlockId(blockId)) return;
 		const isOpen = marks.open.has(blockId);
 		const isActive = marks.active === blockId;
-		if (!isOpen && !isActive) return true;
+		if (!isOpen && !isActive) return;
 		const classes = [isOpen && 'docs-commented-block', isActive && 'docs-active-block'].filter(Boolean).join(' ');
 		decorations.push(Decoration.node(pos, pos + node.nodeSize, { class: classes }));
 		// The button sits at the start of a text block; a block of blocks (a list, a quote) marks its own text blocks.
@@ -72,7 +84,6 @@ function commentDecorations(doc: ProseMirrorNode, marks: DocsCommentMarks, optio
 				Decoration.widget(pos + 1, () => commentMarker(blockId, options), { side: -1, key: `comment-${blockId}`, ignoreSelection: true })
 			);
 		}
-		return true;
 	});
 	return DecorationSet.create(doc, decorations);
 }
@@ -158,7 +169,7 @@ export function taskLinkRunsOf(doc: ProseMirrorNode, origin: string): Array<{ fr
 		const href = typeof link?.attrs.href === 'string' ? link.attrs.href : null;
 		const taskId = href ? taskIdOfHref(href, origin) : null;
 		if (!taskId || !href) return false;
-		const last = runs[runs.length - 1];
+		const last = runs.at(-1);
 		// A link with a bold word in it is several text nodes: one chip for the whole link.
 		if (last && last.to === pos && last.href === href) {
 			last.to = pos + node.nodeSize;
@@ -189,11 +200,7 @@ function taskChip(taskId: string, chip: DocsTaskChip | undefined, options: DocsT
 		element.append(status);
 	}
 	element.setAttribute('aria-label', [options.openLabel(), chip?.number, chip?.title, chip?.status].filter(Boolean).join(' '));
-	element.addEventListener('mousedown', (event) => {
-		event.preventDefault();
-		event.stopPropagation();
-		options.onOpenTask(taskId);
-	});
+	onActivate(element, () => options.onOpenTask(taskId));
 	return element;
 }
 
@@ -201,11 +208,11 @@ function chipDecorations(doc: ProseMirrorNode, chips: ReadonlyMap<string, DocsTa
 	const decorations: Decoration[] = [];
 	for (const run of taskLinkRunsOf(doc, options.origin())) {
 		const chip = chips.get(run.taskId);
-		decorations.push(Decoration.inline(run.from, run.to, { class: 'docs-task-link' }));
 		decorations.push(
+			Decoration.inline(run.from, run.to, { class: 'docs-task-link' }),
 			Decoration.widget(run.from, () => taskChip(run.taskId, chip, options), {
 				side: -1,
-				key: `task-${run.from}-${run.taskId}-${chip?.number ?? ''}-${chip?.status ?? ''}`,
+				key: ['task', run.from, run.taskId, chip?.number ?? '', chip?.status ?? ''].join('-'),
 				ignoreSelection: true
 			})
 		);

@@ -67,7 +67,8 @@ export function docsCommentThreads(comments: readonly IComment[]): DocsCommentTh
 			roots.push(comment);
 		}
 	}
-	return roots.sort(byCreatedAt).map((root) => ({
+	roots.sort(byCreatedAt);
+	return roots.map((root) => ({
 		id: String(root.id),
 		root,
 		replies: (repliesOf.get(String(root.id)) ?? []).sort(byCreatedAt),
@@ -108,7 +109,7 @@ export function threadOfComment(threads: readonly DocsCommentThread[], commentId
 /** The open thread on a block, the newest first, for a click on a marked block. */
 export function openThreadOnBlock(threads: readonly DocsCommentThread[], blockId: string): DocsCommentThread | null {
 	const onBlock = threads.filter((thread) => !thread.resolved && thread.blockId === blockId);
-	return onBlock.length > 0 ? onBlock[onBlock.length - 1] : null;
+	return onBlock.at(-1) ?? null;
 }
 
 /**
@@ -139,7 +140,10 @@ function textOfNode(node: IDocumentNode | null | undefined, depth = 0): string {
 	if (!node || depth > 200) return '';
 	if (typeof node.text === 'string') return node.text;
 	if (node.type === 'hardBreak') return ' ';
-	if (node.type === 'mention' || node.type === 'employeeMention') return `@${String(node.attrs?.['label'] ?? '')}`;
+	if (node.type === 'mention' || node.type === 'employeeMention') {
+		const label = node.attrs?.['label'];
+		return `@${typeof label === 'string' ? label : ''}`;
+	}
 	const children = node.content ?? [];
 	const holdsInline = children.some((child) => INLINE_TYPES.has(String(child?.type ?? 'text')));
 	return children.map((child) => textOfNode(child, depth + 1)).join(holdsInline ? '' : ' ');

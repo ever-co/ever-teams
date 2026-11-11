@@ -22,7 +22,8 @@ export function docsPageHref(pageId: string, target: DocsLinkTarget = {}): strin
 	if (target.thread) params.set('thread', target.thread);
 	if (target.comments && !target.thread) params.set('comments', '1');
 	const query = params.toString();
-	return `/docs/${encodeURIComponent(pageId)}${query ? `?${query}` : ''}`;
+	const path = `/docs/${encodeURIComponent(pageId)}`;
+	return query ? `${path}?${query}` : path;
 }
 
 /** The place a page's address asks for; a value that is no id is ignored. */
@@ -39,15 +40,17 @@ export function docsLinkTargetOf(search: string | URLSearchParams | null | undef
 
 /** The address with the places of a page taken out, once the page went there. */
 export function withoutDocsLinkTarget(href: string): string {
-	const url = new URL(href, 'http://local.invalid');
+	const url = new URL(href, 'https://local.invalid');
 	for (const key of ['block', 'thread', 'comments']) url.searchParams.delete(key);
 	const query = url.searchParams.toString();
-	return `${url.pathname}${query ? `?${query}` : ''}${url.hash}`;
+	return url.pathname + (query ? `?${query}` : '') + url.hash;
 }
 
 /** The full address of a page (or a place on it), to copy. */
 export function docsPageUrl(origin: string, pageId: string, target: DocsLinkTarget = {}): string {
-	return `${origin.replace(/\/+$/, '')}${docsPageHref(pageId, target)}`;
+	let base = origin;
+	while (base.endsWith('/')) base = base.slice(0, -1);
+	return base + docsPageHref(pageId, target);
 }
 
 /** A locale segment of the app's paths (`/en/…`, `/pt-BR/…`). */
@@ -69,8 +72,13 @@ export function taskIdOfHref(href: string | null | undefined, origin: string): s
 	const segments = url.pathname.split('/').filter(Boolean);
 	const start = segments.length > 0 && LOCALE_SEGMENT.test(segments[0]) && segments[0] !== 'task' ? 1 : 0;
 	if (segments.length !== start + 2 || segments[start] !== 'task') return null;
-	const id = decodeURIComponent(segments[start + 1]);
-	return RECORD_ID_PATTERN.test(id) ? id : null;
+	try {
+		const id = decodeURIComponent(segments[start + 1]);
+		return RECORD_ID_PATTERN.test(id) ? id : null;
+	} catch {
+		// A broken escape (`/task/%zz`) is a plain link, not a task.
+		return null;
+	}
 }
 
 /**

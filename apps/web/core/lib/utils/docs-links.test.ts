@@ -47,6 +47,8 @@ describe('task links', () => {
 		expect(taskIdOfHref('mailto:someone@example.test', ORIGIN)).toBeNull();
 		expect(taskIdOfHref('', ORIGIN)).toBeNull();
 		expect(taskIdOfHref(null, ORIGIN)).toBeNull();
+		// A broken escape is a plain link, never an error that would stop the editor.
+		expect(taskIdOfHref(`${ORIGIN}/task/%zz`, ORIGIN)).toBeNull();
 	});
 });
 

@@ -5399,7 +5399,9 @@
 		"OPEN_TASK": "Abrir tarefa",
 		"PAGES": "Páginas",
 		"FORMATTING": "Formatação",
-		"PALETTE_HEADING": "Páginas"
+		"PALETTE_HEADING": "Páginas",
+		"EXPORT_UNSAVED": "Suas últimas alterações ainda não foram salvas, então nada foi exportado. Tente de novo quando a página mostrar Salvo.",
+		"COMMENT_ANCHOR_UNSAVED": "Não foi possível salvar a página, então o comentário não foi publicado. Seu texto foi mantido."
 	},
 	"whatsNew": {
 		"TITLE": "Novidades",

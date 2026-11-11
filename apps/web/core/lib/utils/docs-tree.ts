@@ -145,7 +145,7 @@ export type DocsDropPosition = 'before' | 'inside' | 'after';
 
 /** The top and the bottom quarter of a row place beside it; the middle nests under it. */
 export function dropPositionAt(offsetY: number, height: number): DocsDropPosition {
-	if (!(height > 0)) return 'inside';
+	if (!Number.isFinite(height) || height <= 0) return 'inside';
 	const ratio = offsetY / height;
 	if (ratio < 0.25) return 'before';
 	if (ratio > 0.75) return 'after';

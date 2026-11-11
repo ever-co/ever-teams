@@ -15,7 +15,7 @@ import type { DocsCommentsState } from '@/core/hooks/docs/use-docs-comments';
 import { useMentionCandidates } from '@/core/hooks/tasks/use-mention-candidates';
 import { cn } from '@/core/lib/helpers';
 import { isCommentAuthor, parseBlockAnchor, quoteOf, sortThreadsByDocument, threadsOfTab, type DocsCommentTab, type DocsCommentThread } from '@/core/lib/utils/docs-comments';
-import { splitMentions } from '@/core/lib/utils/comment-mentions';
+import { splitMentions, type MentionSegment } from '@/core/lib/utils/comment-mentions';
 import type { IComment } from '@/core/types/interfaces/common/comment';
 
 const ICON_BUTTON =
@@ -28,6 +28,8 @@ const TEXT_ACTION =
 export interface DocsPendingAnchor {
 	blockId: string;
 	quote: string;
+	/** The block got its anchor for this comment: the page must hold it before the comment names it. */
+	created?: boolean;
 }
 
 interface DocsCommentsPanelProps {
@@ -37,7 +39,11 @@ interface DocsCommentsPanelProps {
 	blockText: (blockId: string) => string | null;
 	reader: { employeeId: string | null; userId: string | null };
 	activeThreadId: string | null;
+	/** Moves each time a thread is asked for (a marker, a link), so asking for the active one again shows its tab. */
+	activeThreadRequest: number;
 	onSelectThread: (thread: DocsCommentThread) => void;
+	/** Before a comment goes on a block that just got its anchor: answers whether the page holds the anchor now. */
+	beforePost?: (anchor: DocsPendingAnchor) => Promise<boolean>;
 	pendingAnchor: DocsPendingAnchor | null;
 	onClearPending: () => void;
 	/** The page can take comments (not in the trash). */
@@ -65,13 +71,15 @@ export function DocsCommentsPanel({
 	blockText,
 	reader,
 	activeThreadId,
+	activeThreadRequest,
 	onSelectThread,
+	beforePost,
 	pendingAnchor,
 	onClearPending,
 	canComment,
 	onCopyThreadLink,
 	onClose
-}: DocsCommentsPanelProps) {
+}: Readonly<DocsCommentsPanelProps>) {
 	const t = useTranslations();
 	const candidates = useMentionCandidates();
 	const names = useMemo(() => candidates.map((candidate) => candidate.name), [candidates]);
@@ -85,8 +93,8 @@ export function DocsCommentsPanel({
 
 	// A thread a link or a marked block asked for is in its tab and in sight; a comment on the selection is a new open
 	// thread. Both move the tab while rendering (when they change), so the person's own choice stands in between.
-	const activeThread = activeThreadId ? (sorted.find((thread) => thread.id === activeThreadId) ?? null) : null;
-	const activeTabKey = activeThread ? `${activeThread.id}:${activeThread.resolved ? 'resolved' : 'open'}` : null;
+	const activeThread = sorted.find((thread) => thread.id === activeThreadId) ?? null;
+	const activeTabKey = activeThread ? `${activeThread.id}:${activeThreadRequest}:${activeThread.resolved ? 'resolved' : 'open'}` : null;
 	const [seenActive, setSeenActive] = useState<string | null>(null);
 	if (activeThread && activeTabKey !== seenActive) {
 		setSeenActive(activeTabKey);
@@ -107,6 +115,11 @@ export function DocsCommentsPanel({
 	const fail = () => toast.error(t('docs.COMMENT_ERROR'));
 
 	const postNew = async (body: string, mentionEmployeeIds: string[]) => {
+		// A thread never names an anchor the page does not hold (a save that failed would leave it on nothing).
+		if (pendingAnchor?.created && beforePost && !(await beforePost(pendingAnchor))) {
+			toast.error(t('docs.COMMENT_ANCHOR_UNSAVED'));
+			return false;
+		}
 		try {
 			const created = await comments.post({ body, blockId: pendingAnchor?.blockId ?? null, mentionEmployeeIds });
 			if (!created) return false;
@@ -242,7 +255,7 @@ interface DocsThreadCardProps {
 	onFail: () => void;
 }
 
-function DocsThreadCard({ thread, quote, isDetached, isActive, names, reader, comments, canComment, onSelect, onCopyLink, onDelete, onFail }: DocsThreadCardProps) {
+function DocsThreadCard({ thread, quote, isDetached, isActive, names, reader, comments, canComment, onSelect, onCopyLink, onDelete, onFail }: Readonly<DocsThreadCardProps>) {
 	const t = useTranslations();
 	const [isReplying, setIsReplying] = useState(false);
 	const canResolve = isCommentAuthor(thread.root, reader);
@@ -326,7 +339,7 @@ interface DocsCommentRowProps {
 	onFail: () => void;
 }
 
-function DocsCommentRow({ comment, names, reader, comments, onDelete, onFail }: DocsCommentRowProps) {
+function DocsCommentRow({ comment, names, reader, comments, onDelete, onFail }: Readonly<DocsCommentRowProps>) {
 	const t = useTranslations();
 	const body = parseBlockAnchor(comment.comment).body;
 	const [draft, setDraft] = useState<string | null>(null);
@@ -377,15 +390,9 @@ function DocsCommentRow({ comment, names, reader, comments, onDelete, onFail }: 
 				</div>
 				{draft === null ? (
 					<p className="text-[13px] leading-5 whitespace-pre-wrap text-foreground [overflow-wrap:anywhere]">
-						{segments.map((segment, index) =>
-							segment.isMention ? (
-								<span key={`${index}-${segment.text}`} className="rounded-[4px] bg-primary/10 px-0.5 font-medium text-primary-ink dark:bg-primary/20">
-									{segment.text}
-								</span>
-							) : (
-								<span key={`${index}-${segment.text}`}>{segment.text}</span>
-							)
-						)}
+						{segments.map((segment, index) => (
+							<CommentSegment key={`${index}-${segment.text}`} segment={segment} />
+						))}
 					</p>
 				) : (
 					<div className="flex flex-col gap-2">
@@ -414,4 +421,10 @@ function DocsCommentRow({ comment, names, reader, comments, onDelete, onFail }: 
 			</div>
 		</div>
 	);
+}
+
+/** A mention of a known person reads in the brand ink, the rest as written. */
+function CommentSegment({ segment }: Readonly<{ segment: MentionSegment }>) {
+	if (!segment.isMention) return <span>{segment.text}</span>;
+	return <span className="rounded-[4px] bg-primary/10 px-0.5 font-medium text-primary-ink dark:bg-primary/20">{segment.text}</span>;
 }

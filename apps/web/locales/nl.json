@@ -5399,7 +5399,9 @@
 		"OPEN_TASK": "Taak openen",
 		"PAGES": "Pagina’s",
 		"FORMATTING": "Opmaak",
-		"PALETTE_HEADING": "Pagina’s"
+		"PALETTE_HEADING": "Pagina’s",
+		"EXPORT_UNSAVED": "Je laatste wijzigingen zijn nog niet opgeslagen, dus er is niets geëxporteerd. Probeer het opnieuw zodra de pagina Opgeslagen toont.",
+		"COMMENT_ANCHOR_UNSAVED": "De pagina kon niet worden opgeslagen, dus de opmerking is niet geplaatst. Je tekst blijft bewaard."
 	},
 	"whatsNew": {
 		"TITLE": "Wat is er nieuw",
