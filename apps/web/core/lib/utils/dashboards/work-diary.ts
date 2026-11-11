@@ -8,6 +8,7 @@ import {
 	startOfDay,
 	startOfWeek
 } from 'date-fns';
+import type { CalendarEntry } from '@/core/lib/utils/calendar-view';
 import { clampedDayOfPeriod, type Period } from '@/core/lib/utils/dashboard-period';
 import type { TTimeSlotsData } from '@/core/types/schemas/timer/time-slot.schema';
 import type { ITimeLog } from '@/core/types/interfaces/timer/time-log/time-log';
@@ -259,4 +260,71 @@ export function trackedDayKeysOf(logs: ReadonlyArray<ITimeLog>, employeeId: stri
 		}
 	}
 	return keys;
+}
+
+/** The furthest back the Work diary page steps: its day strip moves a week at a time, its day picker to any day. */
+export const DIARY_HISTORY_START = new Date(2000, 0, 1);
+
+const DAY_PARAM = /^(\d{4})-(\d{2})-(\d{2})$/;
+
+/**
+ * The day a Work diary link names in its `date` parameter (`YYYY-MM-DD`, a local day), at midnight: today when the
+ * parameter is missing, not a real day (`2026-02-31`) or after today.
+ */
+export function diaryDayOfParam(value: string | null | undefined, now: Date): Date {
+	const today = startOfDay(now);
+	const match = DAY_PARAM.exec(value ?? '');
+	if (!match) {
+		return today;
+	}
+	const [, yearText, monthText, dayText] = match;
+	const day = new Date(Number(yearText), Number(monthText) - 1, Number(dayText));
+	const isRealDay = localDayKeyOf(day) === value;
+	if (!isRealDay) {
+		return today;
+	}
+	const isAhead = day.getTime() > today.getTime();
+	if (isAhead) {
+		return today;
+	}
+	if (day.getTime() < DIARY_HISTORY_START.getTime()) {
+		return DIARY_HISTORY_START;
+	}
+	return day;
+}
+
+/** One task of a Work diary day: its time that day, its project, and one of its logs, for its title and link. */
+export interface DiaryTask {
+	key: string;
+	log: ITimeLog;
+	seconds: number;
+	projectName: string | null;
+	projectColor: string | null;
+	isRunning: boolean;
+}
+
+const NO_TASK_KEY = 'no-task';
+
+/** The tasks a day's entries went to, longest first; the time tracked without a task is one more task. */
+export function diaryTasksOf(entries: ReadonlyArray<CalendarEntry>): DiaryTask[] {
+	const byKey = new Map<string, DiaryTask>();
+	for (const entry of entries) {
+		const taskId = entry.log.task?.id ?? entry.log.taskId ?? null;
+		const key = taskId ?? NO_TASK_KEY;
+		const existing = byKey.get(key);
+		if (!existing) {
+			byKey.set(key, {
+				key,
+				log: entry.log,
+				seconds: entry.daySeconds,
+				projectName: entry.projectName,
+				projectColor: entry.projectColor,
+				isRunning: entry.isRunning
+			});
+			continue;
+		}
+		existing.seconds += entry.daySeconds;
+		existing.isRunning = existing.isRunning || entry.isRunning;
+	}
+	return [...byKey.values()].sort((first, second) => second.seconds - first.seconds);
 }

@@ -110,7 +110,6 @@ type AppSidebarProps = React.ComponentProps<typeof Sidebar> & { publicTeam: bool
 // Limit to 5 projects for sidebar display
 const MAX_SIDEBAR_PROJECTS = 5;
 
-
 /**
  * The sidebar sits on the window background (variant `inset`): the pages render in the rounded panel
  * beside it. Its header carries the workspace switcher with the collapse button, then the palette
@@ -140,7 +139,7 @@ export function AppSidebar({ publicTeam, ...props }: AppSidebarProps) {
 	const { organizationProjects } = useSidebarDataOwner(publicTeam);
 	const activeTeam = useAtomValue(activeTeamState);
 	const pathname = usePathname();
-	const myWorkNavigation = getMyWorkNavigation(user?.id, username || undefined);
+	const myWorkNavigation = getMyWorkNavigation();
 
 	// The sidebar lists the projects of the team picked in the header. "All teams" is the
 	// /all-teams page (the header entry links there), not a cleared team: activeTeamState falls

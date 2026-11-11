@@ -620,6 +620,15 @@
 				"SHOT_OF": "Снимка {index} от {count}"
 			}
 		},
+		"workDiary": {
+			"FIGURES_LABEL": "Денят в числа",
+			"PICK_DAY": "Изберете ден",
+			"TASKS_OTHER": "{count, plural, one {още # задача} other {още # задачи}}",
+			"APPS_EMPTY": "Няма записано приложение или сайт на {day}.",
+			"OPEN_TIMESHEETS": "Отваряне в отчетите за времето",
+			"UPDATING": "Дневникът се зарежда",
+			"NO_TIME_HINT": "Щом се отчете време, тук се показват задачите, екранните снимки и приложенията за деня."
+		},
 		"team": {
 			"META_MEMBERS": "{count, plural, one {# член} other {# членове}}",
 			"UPDATING": "Данните се обновяват",

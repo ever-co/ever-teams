@@ -428,6 +428,10 @@ function routeResponse(method, pathname, requestUrl, data, fixture, state, body,
 		};
 	}
 	if (pathname === '/api/timesheet/time-log/time-limit') return [];
+	// A member's day (Work diary, Calendar, Timesheets) comes as plain lists: logs, ten-minute slots, apps and sites
+	if (method === 'GET' && pathname === '/api/timesheet/time-log') return [];
+	if (method === 'GET' && pathname === '/api/timesheet/statistics/time-slots') return [];
+	if (method === 'GET' && pathname === '/api/timesheet/activity') return [];
 	if (pathname === '/api/timesheet/statistics/counts') return { today: 0, week: 0, month: 0 };
 	if (pathname.startsWith('/api/timesheet/statistics/tasks')) return { global: {}, today: {} };
 	if (/^\/api\/organization-team-employee\//.test(pathname))
