@@ -22,8 +22,16 @@ const CELL_INPUT =
 /** An empty cell that can take time reads as a slot to fill: a faint dashed outline, stronger under the pointer. */
 const EMPTY_CELL_INPUT = 'hairline-border border-dashed border-foreground/15 hover:border-foreground/30';
 
+/**
+ * A day column can be as narrow as the duration it shows, so the way into a cell's entries takes no room beside the
+ * value: a dot in the corner marks a cell that has entries, and the count button takes its place while the cell is
+ * under the pointer, holds the focus or has its entries open.
+ */
+const ENTRIES_MARKER =
+	'pointer-events-none absolute top-1.5 right-1.5 size-1 rounded-full bg-foreground/30 transition-opacity group-focus-within/cell:opacity-0 group-hover/cell:opacity-0';
+
 const ENTRIES_BUTTON =
-	'absolute top-1/2 right-1.5 flex h-4 min-w-4 -translate-y-1/2 items-center justify-center rounded-[5px] px-0.5 text-[10px] font-medium tabular-nums text-muted-foreground outline-none transition-colors hover:bg-foreground/[0.06] hover:text-foreground focus-visible:ring-[3px] focus-visible:ring-ring/25 aria-expanded:bg-foreground/[0.06] aria-expanded:text-foreground';
+	'pointer-events-none absolute top-0.5 right-0.5 flex h-4 min-w-4 items-center justify-center rounded-[5px] bg-card px-0.5 text-[10px] font-medium tabular-nums text-muted-foreground opacity-0 hairline-ring ring-border outline-none transition-opacity group-focus-within/cell:pointer-events-auto group-focus-within/cell:opacity-100 group-hover/cell:pointer-events-auto group-hover/cell:opacity-100 hover:text-foreground focus-visible:ring-[3px] focus-visible:ring-ring/25 aria-expanded:pointer-events-auto aria-expanded:text-foreground aria-expanded:opacity-100';
 
 const DAY_LOCK_KEYS: Partial<Record<CellLock, string>> = {
 	future: 'dashboard.timesheets.SHEET.EDIT.LOCK_FUTURE',
@@ -191,9 +199,11 @@ function EditableCell({
 	};
 
 	return (
-		<span role="cell" className={cn('relative flex p-1', weekendClassOf(day))}>
+		<span role="cell" className={cn('group/cell relative flex p-1', weekendClassOf(day))}>
+			{/* size 1: an input's default width of 20 characters would set the width of every day column. */}
 			<input
 				type="text"
+				size={1}
 				inputMode="decimal"
 				autoComplete="off"
 				spellCheck={false}
@@ -206,8 +216,9 @@ function EditableCell({
 				onFocus={handleFocus}
 				onBlur={handleBlur}
 				onKeyDown={handleKeyDown}
-				className={cn(CELL_INPUT, isEmpty && EMPTY_CELL_INPUT, hasEntries && 'pr-5')}
+				className={cn(CELL_INPUT, isEmpty && EMPTY_CELL_INPUT)}
 			/>
+			{hasEntries && <span aria-hidden="true" className={ENTRIES_MARKER} />}
 			{hasEntries && (
 				<button
 					type="button"
