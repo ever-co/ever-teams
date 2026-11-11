@@ -24,7 +24,8 @@ export class TaskViewConflictError extends Error {
 }
 
 function conflictOf(error: unknown): TaskViewConflictError | null {
-	const response = (error as { response?: { status?: number; data?: { code?: string; view?: ITaskView } } } | null)?.response;
+	const response = (error as { response?: { status?: number; data?: { code?: string; view?: ITaskView } } } | null)
+		?.response;
 	if (response?.status === 409) return new TaskViewConflictError(response.data?.view ?? null);
 	// The request layer answers an HTTP error as an ApiErrorService: the status survives, the body's extras may not.
 	if (ApiErrorService.isApiError(error) && (error.statusCode === 409 || error.hasHttpResponseStatus(409))) {
@@ -81,7 +82,10 @@ export function useTaskViewActions() {
 		(view?: ITaskView | null) => {
 			void queryClient.invalidateQueries({ queryKey: queryKeys.taskViews.all });
 			if (view?.id && scope) {
-				queryClient.setQueryData(queryKeys.taskViews.detail(scope.tenantId, scope.organizationId, scope.userId, view.id), view);
+				queryClient.setQueryData(
+					queryKeys.taskViews.detail(scope.tenantId, scope.organizationId, scope.userId, view.id),
+					view
+				);
 			}
 		},
 		[queryClient, scope]
@@ -111,7 +115,10 @@ export function useTaskViewActions() {
 	const saveDefinition = useCallback(
 		async (view: ITaskView, definition: ITaskViewDefinition): Promise<ITaskView> => {
 			try {
-				const saved = await taskViewsService.update(view.id, { ...columnsOf(definition), expectedVersion: view.version });
+				const saved = await taskViewsService.update(view.id, {
+					...columnsOf(definition),
+					expectedVersion: view.version
+				});
 				settle(saved);
 				return saved;
 			} catch (error) {
@@ -182,6 +189,44 @@ export function useTaskViewActions() {
 		[adoptNewer, detailKeyOf, queryClient]
 	);
 
+	/**
+	 * Makes a move the platform refused (409) once more, on the order saved meanwhile. A second refusal puts the latest
+	 * view in the cache and is thrown as a {@link TaskViewConflictError}.
+	 */
+	const rewriteOnLatest = useCallback(
+		async (
+			queue: MoveQueue,
+			entry: PendingMove,
+			conflict: TaskViewConflictError,
+			write: (taskIds: string[], statedVersion: ITaskView['version']) => Promise<TaskViewMoveResult>
+		): Promise<TaskViewMoveResult | null> => {
+			const viewId = queue.confirmed.id;
+			const { latest } = await withLatest(conflict, viewId);
+			if (!latest) throw conflict;
+			queue.confirmed = latest;
+			const rebased = orderAfterMove(latest.manualOrder, entry.shownIds, entry.move);
+			if (!rebased) {
+				// Their order already has the task there.
+				settle(latest);
+				return null;
+			}
+			try {
+				return await write(rebased, latest.version);
+			} catch (retryError) {
+				const again = conflictOf(retryError);
+				if (!again) {
+					settle(latest);
+					throw retryError;
+				}
+				const known = await withLatest(again, viewId);
+				if (known.latest) queue.confirmed = known.latest;
+				settle(queue.confirmed);
+				throw known;
+			}
+		},
+		[settle]
+	);
+
 	/** Writes one queued move on the order the platform holds; a 409 makes it once more on the order saved meanwhile. */
 	const writeMove = useCallback(
 		async (queue: MoveQueue, entry: PendingMove): Promise<TaskViewMoveResult | null> => {
@@ -200,31 +245,10 @@ export function useTaskViewActions() {
 			} catch (error) {
 				const conflict = conflictOf(error);
 				if (!conflict) throw error;
-				const { latest } = await withLatest(conflict, base.id);
-				if (!latest) throw conflict;
-				queue.confirmed = latest;
-				const rebased = orderAfterMove(latest.manualOrder, entry.shownIds, entry.move);
-				if (!rebased) {
-					// Their order already has the task there.
-					settle(latest);
-					return null;
-				}
-				try {
-					return await write(rebased, latest.version);
-				} catch (retryError) {
-					const again = conflictOf(retryError);
-					if (!again) {
-						settle(latest);
-						throw retryError;
-					}
-					const known = await withLatest(again, base.id);
-					if (known.latest) queue.confirmed = known.latest;
-					settle(queue.confirmed);
-					throw known;
-				}
+				return rewriteOnLatest(queue, entry, conflict, write);
 			}
 		},
-		[adoptNewer, settle]
+		[adoptNewer, rewriteOnLatest, settle]
 	);
 
 	/**
@@ -268,7 +292,10 @@ export function useTaskViewActions() {
 	const deleteView = useCallback(
 		async (view: ITaskView): Promise<void> => {
 			await taskViewsService.remove(view.id);
-			if (scope) queryClient.removeQueries({ queryKey: queryKeys.taskViews.detail(scope.tenantId, scope.organizationId, scope.userId, view.id) });
+			if (scope)
+				queryClient.removeQueries({
+					queryKey: queryKeys.taskViews.detail(scope.tenantId, scope.organizationId, scope.userId, view.id)
+				});
 			settle();
 		},
 		[queryClient, scope, settle]
