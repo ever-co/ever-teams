@@ -8,9 +8,9 @@ import { meetingTitleOf } from '@/core/lib/utils/meetings';
 import type { MeetingJoinChoices } from './use-media-preview';
 
 /** The steps of a meeting page: checking one's devices, in the room, then out of it. */
-export type MeetingStage = 'prejoin' | 'room' | 'left';
+type MeetingStage = 'prejoin' | 'room' | 'left';
 
-export const MEETINGS_HOME = '/meet';
+const MEETINGS_HOME = '/meet';
 
 async function copyText(text: string): Promise<boolean> {
 	try {
