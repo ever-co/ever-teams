@@ -10,7 +10,7 @@ import { Plus } from '@/core/components/icons';
 import { TaskPropertyIcon, TaskPropertyPlaceholderIcon } from '@/core/components/tasks/task-property-icon';
 import { useTaskSettingsAccess } from '@/core/hooks/tasks/use-task-settings-access';
 import { cn } from '@/core/lib/helpers';
-import { labelNameKeyOf } from '@/core/lib/utils/task-label-catalog';
+import { isLabelNameTaken } from '@/core/lib/utils/task-label-catalog';
 import {
 	defaultSwatchFor,
 	draftOfItem,
@@ -435,10 +435,9 @@ export function PropertyList({
 	);
 
 	// Tasks, filters and pickers tell a team's labels apart by name: a label may not take another one's name
-	const isLabelNameTaken = (name: string) => {
-		const editedId = editor?.mode === 'edit' ? editor.itemId : null;
-		const key = labelNameKeyOf(name);
-		return items.some((item) => item.id !== editedId && labelNameKeyOf(item.name) === key);
+	const isNameTakenByAnother = (name: string) => {
+		const edited = editor?.mode === 'edit' ? items.find((item) => item.id === editor.itemId) : null;
+		return isLabelNameTaken(items, name, edited);
 	};
 
 	const renderEditor = (mode: 'create' | 'edit', initialDraft: PropertyDraft) => (
@@ -447,7 +446,7 @@ export function PropertyList({
 			mode={mode}
 			initialDraft={initialDraft}
 			showsGroupHint={isGrouped}
-			isNameTaken={kind === 'label' ? isLabelNameTaken : undefined}
+			isNameTaken={kind === 'label' ? isNameTakenByAnother : undefined}
 			onCancel={cancelEditor}
 			onSave={saveDraft}
 		/>

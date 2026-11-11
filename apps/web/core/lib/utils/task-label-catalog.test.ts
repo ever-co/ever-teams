@@ -1,5 +1,6 @@
 import {
 	catalogGroupsOf,
+	isLabelNameTaken,
 	LABEL_CATALOG,
 	type LabelCategoryKey,
 	labelNameKeyOf,
@@ -53,6 +54,29 @@ describe('labelNameKeyOf', () => {
 	it('trims after the dashes become spaces, so a leading or trailing dash tells no names apart', () => {
 		expect(labelNameKeyOf('Bug-')).toBe('bug');
 		expect(labelNameKeyOf('-bug ')).toBe('bug');
+	});
+});
+
+describe('isLabelNameTaken', () => {
+	const labels = [
+		{ id: 'bug-1', name: 'Bug' },
+		{ id: 'bug-2', name: 'bug' },
+		{ id: 'follow-up', name: 'Follow-up' }
+	];
+
+	it("refuses a new label another label's name, whatever its case or dashes", () => {
+		expect(isLabelNameTaken(labels, 'follow up')).toBe(true);
+		expect(isLabelNameTaken(labels, 'Feature')).toBe(false);
+	});
+
+	it('lets an edit keep its own name, even one an older label shares', () => {
+		expect(isLabelNameTaken(labels, 'Bug', labels[0])).toBe(false);
+		expect(isLabelNameTaken(labels, ' BUG ', labels[1])).toBe(false);
+	});
+
+	it("refuses an edit that takes another label's name", () => {
+		expect(isLabelNameTaken(labels, 'Follow-up', labels[0])).toBe(true);
+		expect(isLabelNameTaken(labels, 'bug', labels[2])).toBe(true);
 	});
 });
 

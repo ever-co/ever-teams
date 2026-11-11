@@ -45,6 +45,23 @@ export function labelNameKeysOf(names: ReadonlyArray<string | null | undefined>)
 	return new Set(names.map(labelNameKeyOf).filter(Boolean));
 }
 
+interface NamedLabel {
+	id: string;
+	name: string | null | undefined;
+}
+
+/**
+ * Whether a name is another label's, for the add and edit row. An edit that keeps its own name (whatever its case or
+ * dashes) is never refused: two labels that already shared a name before this check can still change colour.
+ */
+export function isLabelNameTaken(labels: ReadonlyArray<NamedLabel>, name: string, edited?: NamedLabel | null): boolean {
+	const key = labelNameKeyOf(name);
+	if (edited && labelNameKeyOf(edited.name) === key) {
+		return false;
+	}
+	return labels.some((label) => label.id !== edited?.id && labelNameKeyOf(label.name) === key);
+}
+
 export interface CatalogEntry {
 	label: CatalogLabel;
 	/** The team already has a label of that name: it shows as added and cannot be picked again. */
