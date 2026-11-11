@@ -70,6 +70,8 @@ describe('useTimerReminders', () => {
 		expect(shownTitles()).toEqual(['notifications.TIMER_REMINDER.LONG_TITLE']);
 		expect(mockToast.warning.mock.calls[0][0]).toContain('{"hours":8}');
 		expect(lastOptions()).toMatchObject({ id: timerReminderIdOf('log-1', 1), duration: Infinity });
+		// Sonner applies a dismissal a frame later: one of this id would take the new reminder away
+		expect(mockToast.dismiss).not.toHaveBeenCalled();
 
 		act(() => jest.advanceTimersByTime(8 * HOUR));
 		expect(shownTitles()).toEqual([
@@ -141,6 +143,18 @@ describe('useTimerReminders', () => {
 		rerender({ timerStatus: { running: false } });
 		action.onClick();
 		expect(stopTimer).toHaveBeenCalledTimes(1);
+	});
+
+	it('keeps the reminder while the status is read again (none, as on a team change)', () => {
+		jest.setSystemTime(STARTED_AT + 9 * HOUR);
+		const { rerender } = renderReminders();
+		mockToast.dismiss.mockReset();
+
+		rerender({ timerStatus: null });
+		rerender({ timerStatus: RUNNING });
+
+		expect(mockToast.dismiss).not.toHaveBeenCalled();
+		expect(mockToast.warning).toHaveBeenCalledTimes(1);
 	});
 
 	it('takes the reminders of a run away once its timer stops', () => {

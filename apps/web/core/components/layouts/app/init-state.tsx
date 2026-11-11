@@ -27,9 +27,9 @@ import { rememberTeam } from '@/core/lib/auth/remembered-team';
 import { queryKeys } from '@/core/query/keys';
 import { getShellCriticalQueryKeys, useScopeTransitionGuard } from './use-scope-transition-guard';
 import { teamDefaultProjectId } from '@/core/lib/helpers/team-default-project';
+import { TimerReminders } from './timer-reminders';
 
 const SHELL_REFRESH_INTERVAL = 60_000;
-
 
 export function AppState() {
 	const { data: user } = useUserQuery();
@@ -264,5 +264,6 @@ export function InitState() {
 		}
 	}, [criticalReady, readyScope]);
 
-	return null;
+	// A timer left running is worth a reminder, on every page (#5022)
+	return <TimerReminders stopTimer={timerOwner.stopTimer} />;
 }

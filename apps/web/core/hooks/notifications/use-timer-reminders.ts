@@ -52,7 +52,7 @@ interface UseTimerRemindersInput {
  * Reminds the employee of a timer left running (#5022): once it has run for their threshold, then at twice it, each
  * reminder once per run whatever the tabs and reloads, with the actions to stop the timer or open it. A tab out of
  * sight shows it as a system notification too, where the browser allows them, push is on and it is not the quiet
- * hours. Mounted once, beside the header's timer.
+ * hours. Mounted once for the app, by its timer's owner (TimerReminders).
  */
 export function useTimerReminders({ timerStatus, stopTimer }: UseTimerRemindersInput) {
 	const t = useTranslations();
@@ -98,14 +98,19 @@ export function useTimerReminders({ timerStatus, stopTimer }: UseTimerRemindersI
 			};
 			const open = () => latest.current.router.push(TIMER_PATH);
 
-			// The second reminder takes the first one's place
-			toast.dismiss(timerReminderIdOf(runKey, 1));
+			// The second reminder takes the first one's place. Never before the first: sonner applies a dismissal a frame
+			// later, so it would take away the reminder created with that id meanwhile.
+			if (level === 2) {
+				toast.dismiss(timerReminderIdOf(runKey, 1));
+			}
 			toast.warning(title, {
 				id: timerReminderIdOf(runKey, level),
 				description,
 				duration: Infinity,
 				action: { label: translate('notifications.TIMER_REMINDER.STOP'), onClick: stop },
-				cancel: { label: translate('notifications.TIMER_REMINDER.OPEN'), onClick: open }
+				cancel: { label: translate('notifications.TIMER_REMINDER.OPEN'), onClick: open },
+				// Two actions beside the text would squeeze it: they go on a row of their own, under it
+				classNames: { toast: 'flex-wrap', content: 'basis-[calc(100%-3rem)]', cancelButton: 'ml-auto' }
 			});
 			if (showsSystemNotification(latest.current.preferences)) {
 				// Tagged per reminder: the system shows one whatever the tabs that raise it
@@ -139,14 +144,19 @@ export function useTimerReminders({ timerStatus, stopTimer }: UseTimerRemindersI
 		return () => clearTimeout(timeout);
 	}, [isSettingLoading, latest, runKey, startedAt, hours]);
 
-	// A run that ended (the timer stopped, or another run started) takes its reminders away
+	// A run that ended (the timer stopped, or another run started) takes its reminders away. A status being read again
+	// (none, as on a team change) says nothing of the run: its reminders stay.
+	const isStatusKnown = timerStatus != null;
 	const previousRunKey = useRef(runKey);
 	useEffect(() => {
+		if (!isStatusKnown) {
+			return;
+		}
 		const previous = previousRunKey.current;
 		previousRunKey.current = runKey;
 		if (previous && previous !== runKey) {
 			toast.dismiss(timerReminderIdOf(previous, 1));
 			toast.dismiss(timerReminderIdOf(previous, 2));
 		}
-	}, [runKey]);
+	}, [isStatusKnown, runKey]);
 }

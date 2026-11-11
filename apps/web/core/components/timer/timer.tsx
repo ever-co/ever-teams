@@ -5,7 +5,6 @@ import { useActiveTaskEstimation, useTimerView } from '@/core/hooks/activities/u
 import { useTimerClock } from '@/core/hooks/timer/use-timer-ui';
 import { ALREADY_TRACKING_TOAST_ID } from '@/core/hooks/timer/use-timer-api';
 import { useTimerOptimisticUI } from '@/core/hooks/activities/use-timer-optimistic-ui';
-import { useTimerReminders } from '@/core/hooks/notifications/use-timer-reminders';
 import { useTodayWorkedTime } from '@/core/hooks/activities/use-today-worked-time';
 import { clsxm } from '@/core/lib/utils/clsxm';
 import { Text } from '@/core/components/common/typography';
@@ -229,8 +228,6 @@ export function MinTimerFrame({ className }: IClassName) {
 	const hydrated = useHydrated();
 	const { timerStatus, startTimer, stopTimer } = useTimerView();
 	const isTimerRunning = Boolean(timerStatus?.running);
-	// The header's timer is mounted once on every page: it reminds of a timer left running (#5022)
-	useTimerReminders({ timerStatus, stopTimer });
 	const { modals, actionDisabled, startStopTimerHandler } = useStartStopTimerHandler({ startTimer, stopTimer });
 
 	// NOTE_FIX: Use team-scoped time instead of global timerStatus.duration
