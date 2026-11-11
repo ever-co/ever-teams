@@ -965,3 +965,36 @@ describe('useEditorPageContent, a refreshed page', () => {
 		expect(view.result.current).toEqual({ html: '<p>two</p>', json: null });
 	});
 });
+
+describe('useDocsAutosave, text a live session never sent', () => {
+	it('shows the kept text and saves it against the version it was typed on, so a moved page meets a conflict', async () => {
+		const { wrapper } = setup();
+		const page = { ...pageOf('page-live-unsent'), updatedAt: T3 };
+		mockUpdateContent.mockRejectedValueOnce({ statusCode: 409 });
+
+		const view = renderHook(() => useDocsAutosave(page), { wrapper });
+		act(() => view.result.current.adoptDraft('<p>typed live</p>', null, ['emp-1'], T1));
+
+		expect(view.result.current.restoredHtml).toBe('<p>typed live</p>');
+		expect(view.result.current.state).toBe('dirty');
+		expect(view.result.current.hasDraft()).toBe(true);
+		await act(async () => {
+			await view.result.current.flushNow();
+		});
+		expect(mockUpdateContent).toHaveBeenLastCalledWith('page-live-unsent', expect.objectContaining({ contentHtml: '<p>typed live</p>', expectedUpdatedAt: T1, mentionEmployeeIds: ['emp-1'] }));
+		expect(view.result.current.state).toBe('conflict');
+		view.unmount();
+		forgetDocsDrafts();
+	});
+
+	it('keeps a draft the session already holds', () => {
+		const { wrapper } = setup();
+		const page = pageOf('page-live-draft');
+		const view = renderHook(() => useDocsAutosave(page), { wrapper });
+		act(() => view.result.current.change('<p>autosaved draft</p>', null));
+		act(() => view.result.current.adoptDraft('<p>live text</p>', null, [], T1));
+		expect(view.result.current.restoredHtml).toBeNull();
+		view.unmount();
+		forgetDocsDrafts();
+	});
+});

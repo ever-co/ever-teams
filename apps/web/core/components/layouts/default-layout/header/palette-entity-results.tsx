@@ -4,15 +4,11 @@ import { useCallback, useMemo, type ReactNode } from 'react';
 import { useAtomValue } from 'jotai';
 import { useTranslations } from 'next-intl';
 import { CommandGroup, CommandItem, commandIconTileClass } from '@/core/components/common/command';
-import { FileText, Folder, MessageSquare, Task } from '@/core/components/icons';
+import { FileText, Folder, Task } from '@/core/components/icons';
 import { PersonAvatar } from '@/core/components/teams/people-avatars';
 import { useOrganizationProjectsQuery } from '@/core/hooks/organizations/projects/use-organization-projects-query';
 import { useDocsSearch } from '@/core/hooks/docs/use-docs-search';
-import { useChatConversations } from '@/core/hooks/chat/use-chat-conversations';
-import { useChatPeople, useChatScope } from '@/core/hooks/chat/use-chat-scope';
-import { conversationTitle } from '@/core/lib/utils/chat-format';
 import {
-	conversationItemsOf,
 	matchingItems,
 	pageItemsOf,
 	PALETTE_RESULTS_LIMIT,
@@ -34,8 +30,7 @@ const KIND_ICONS: Record<PaletteItemKind, ReactNode> = {
 	task: <Task aria-hidden="true" />,
 	person: null,
 	project: <Folder aria-hidden="true" />,
-	page: <FileText aria-hidden="true" />,
-	conversation: <MessageSquare aria-hidden="true" />
+	page: <FileText aria-hidden="true" />
 };
 
 function ItemIcon({ item }: Readonly<{ item: PaletteItem }>) {
@@ -111,8 +106,7 @@ const KIND_LABEL_KEYS = {
 	task: 'commandPalette.results.tasks',
 	person: 'commandPalette.results.people',
 	project: 'commandPalette.results.projects',
-	page: 'commandPalette.results.pages',
-	conversation: 'commandPalette.results.conversations'
+	page: 'commandPalette.results.pages'
 } as const satisfies Record<PaletteItemKind, string>;
 
 /** The entries last opened from the palette, while its field is empty; each says what it is. */
@@ -183,33 +177,6 @@ export function PalettePageResults({ search, onOpen, className }: Readonly<Resul
 	return (
 		<ResultsGroup
 			heading={t('commandPalette.results.pages')}
-			items={items}
-			search={search}
-			onOpen={onOpen}
-			className={className}
-		/>
-	);
-}
-
-/** My conversations whose name (or the names of the people in it) matches. */
-export function PaletteConversationResults({ search, onOpen, className }: Readonly<ResultsProps>) {
-	const t = useTranslations();
-	const { conversations } = useChatConversations(true);
-	const people = useChatPeople();
-	const scope = useChatScope();
-	const fallback = t('commandPalette.results.conversation');
-	const meEmployeeId = scope?.employeeId ?? null;
-	const all = useMemo(
-		() =>
-			conversationItemsOf(conversations, (conversation) =>
-				conversationTitle(conversation, people.byEmployee, meEmployeeId, fallback)
-			),
-		[conversations, fallback, meEmployeeId, people.byEmployee]
-	);
-	const items = useMemo(() => matchingItems(all, search), [all, search]);
-	return (
-		<ResultsGroup
-			heading={t('commandPalette.results.conversations')}
 			items={items}
 			search={search}
 			onOpen={onOpen}

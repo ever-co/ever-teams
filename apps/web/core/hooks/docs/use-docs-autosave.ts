@@ -589,11 +589,31 @@ export function useDocsAutosave(page: IDocumentPage | null) {
 
 	const hasDraft = useCallback(() => Boolean(current()?.draft), [current]);
 
+	/**
+	 * Takes over text the platform never received (a live session that ended with edits not sent): it becomes the
+	 * draft, shown instead of the page's text and written against `base`, the version it was typed on. Its save then
+	 * meets what the platform holds since as a conflict, and the person decides (Reload drops it, Keep mine saves it);
+	 * nothing is lost silently. A session that already holds a draft keeps it.
+	 */
+	const adoptDraft = useCallback(
+		(html: string, json: IDocumentNode | null, mentionEmployeeIds: string[], base: string | null) => {
+			const session = current();
+			if (!session || session.draft) return;
+			session.draft = { html, json, mentionEmployeeIds };
+			if (base) session.base = base;
+			updateView(session, { state: 'dirty', restoredHtml: html });
+			clearSessionTimer(session);
+			session.timer = setTimeout(() => void saveSession(session), DOCS_AUTOSAVE_DELAY_MS);
+			syncUnloadGuard();
+		},
+		[current]
+	);
+
 	// Effects run in the browser only: the tab guard follows the page sessions (added with the first, removed with the last).
 	useEffect(() => {
 		syncUnloadGuard();
 		return syncUnloadGuard;
 	}, []);
 
-	return { state: view.state, change, flushNow, reload, keepMine, discard, holdForRestore, restoredHtml: view.restoredHtml, hasDraft };
+	return { state: view.state, change, flushNow, reload, keepMine, discard, holdForRestore, adoptDraft, restoredHtml: view.restoredHtml, hasDraft };
 }

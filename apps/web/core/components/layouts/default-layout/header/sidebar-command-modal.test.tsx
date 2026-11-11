@@ -31,8 +31,7 @@ jest.mock('@/core/stores/common/shortcuts', () => ({ shortcutHandlersAtom: Symbo
 jest.mock('@/core/lib/utils/task-views-enabled', () => ({ isTaskViewsEnabled: () => mockRegistryOn }));
 const mockRecent = [
 	{ kind: 'task', id: 'task-1', title: 'A task', href: '/task/task-1' },
-	{ kind: 'page', id: 'page-1', title: 'A page', href: '/docs/page-1' },
-	{ kind: 'conversation', id: 'chat-1', title: '#general', href: '/chat/chat-1' }
+	{ kind: 'page', id: 'page-1', title: 'A page', href: '/docs/page-1' }
 ];
 jest.mock('@/core/hooks/keyboard/use-palette-recent', () => ({
 	usePaletteRecent: () => ({ items: mockRecent, remember: jest.fn() })
@@ -49,7 +48,10 @@ jest.mock('jotai', () => ({
 	useAtomValue: () => mockRegistered
 }));
 jest.mock('@/core/stores/common/command-palette', () => ({ commandPaletteOpenAtom: Symbol('command-palette') }));
-jest.mock('next/navigation', () => ({ useRouter: () => ({ push: jest.fn() }) }));
+const mockPush = jest.fn();
+let mockChatOn = false;
+jest.mock('next/navigation', () => ({ useRouter: () => ({ push: mockPush }) }));
+jest.mock('@/core/lib/utils/chat-enabled', () => ({ isChatEnabled: () => mockChatOn }));
 jest.mock('next-intl', () => ({ useTranslations: () => (key: string) => key }));
 jest.mock('next-themes', () => ({ useTheme: () => ({ setTheme: jest.fn(), resolvedTheme: 'light' }) }));
 jest.mock('lucide-react', () => ({ ArrowUpRightIcon: () => null }));
@@ -94,7 +96,6 @@ jest.mock('../../../features/projects/create-project-modal', () => ({ CreateProj
 jest.mock('@/core/components/features/teams/create-team-modal', () => ({ CreateTeamModal: () => null }));
 jest.mock('./palette-task-results', () => ({ PaletteTaskResults: () => null }));
 jest.mock('./palette-entity-results', () => ({
-	PaletteConversationResults: () => null,
 	PalettePageResults: () => null,
 	PalettePeopleResults: () => null,
 	PaletteProjectResults: () => null,
@@ -102,6 +103,7 @@ jest.mock('./palette-entity-results', () => ({
 		<div data-testid="recent">{items.map((item) => item.id).join(',')}</div>
 	)
 }));
+jest.mock('./palette-chat-results', () => ({ PaletteChatResults: ({ search }: { search: string }) => <div data-testid="chat-results">{search}</div> }));
 
 import { SidebarCommandModal } from './sidebar-command-modal';
 
@@ -206,7 +208,7 @@ describe('SidebarCommandModal with the shortcut registry', () => {
 		expect(mockSetOpen).toHaveBeenLastCalledWith(true);
 	});
 
-	it('lists the recent entries, leaving out pages and conversations while Docs and Chat are off', () => {
+	it('lists the recent entries, leaving out pages while Docs is off', () => {
 		render(<SidebarCommandModal publicTeam={false} variant="none" />);
 		expect(screen.getByTestId('recent').textContent).toBe('task-1');
 	});
@@ -228,5 +230,28 @@ describe('SidebarCommandModal with the shortcut registry', () => {
 		fireEvent.change(field, { target: { value: 'gk' } });
 		expect(goKanban).toHaveBeenCalledTimes(1);
 		expect(field.value).toBe('gk');
+	});
+});
+
+describe('SidebarCommandModal chat entries', () => {
+	afterEach(() => {
+		mockChatOn = false;
+	});
+
+	it('offers the conversations and "New message" where the chat is on, with no key of their own', () => {
+		mockChatOn = true;
+		mockUseKeyboardShortcuts.mockClear();
+		render(<SidebarCommandModal publicTeam={false} variant="none" />);
+		expect(screen.getByTestId('chat-results')).toBeTruthy();
+		const newMessage = screen.getByText('commandPalette.commands.newMessage');
+		newMessage.click();
+		expect(mockPush).toHaveBeenCalledWith('/chat?new=message');
+		expect(registeredSequences()).not.toContain('');
+	});
+
+	it('leaves the chat out where it is off', () => {
+		render(<SidebarCommandModal publicTeam={false} variant="none" />);
+		expect(screen.queryByTestId('chat-results')).toBeNull();
+		expect(screen.queryByText('commandPalette.commands.newMessage')).toBeNull();
 	});
 });

@@ -3018,7 +3018,8 @@
 			"projects": "Proyectos",
 			"navigation": "Navegación",
 			"settings": "Ajustes",
-			"goTo": "Ir a"
+			"goTo": "Ir a",
+			"chat": "Chat"
 		},
 		"commands": {
 			"inviteUser": "Invitar usuario",
@@ -3039,17 +3040,18 @@
 			"goToWeeklyLimit": "Ir al informe de límite semanal",
 			"goToTimeAndActivity": "Ir al informe de tiempo y actividad",
 			"profile": "Perfil",
-			"settings": "Configuración"
+			"settings": "Configuración",
+			"newMessage": "Nuevo mensaje"
 		},
 		"results": {
 			"recent": "Recientes",
 			"tasks": "Tareas",
 			"inTeam": "en {team}",
+			"conversations": "Conversaciones",
 			"people": "Personas",
+			"messagePerson": "Escribir a {name}",
 			"projects": "Proyectos",
 			"pages": "Páginas",
-			"conversations": "Conversaciones",
-			"conversation": "Conversación",
 			"untitledPage": "Sin título",
 			"recentlyOpened": "Abiertos recientemente"
 		}
@@ -3454,6 +3456,19 @@
 				"PUSH_BLOCKED": "Las notificaciones están bloqueadas para este sitio: permítelas en la configuración del navegador y vuelve a activarlas aquí.",
 				"PUSH_UNSUPPORTED": "Este navegador no puede mostrar notificaciones.",
 				"PUSH_FAILED": "No se pudieron cambiar las notificaciones del navegador. Inténtalo de nuevo.",
+				"PUSH_KINDS_TITLE": "Enviado a tus dispositivos",
+				"PUSH_KIND_OFF": "Desactivado arriba, así que no se envía nada.",
+				"DEVICES_TITLE": "Tus dispositivos",
+				"DEVICE_NAME": "{browser} en {system}",
+				"DEVICE_UNKNOWN": "Un navegador",
+				"DEVICE_THIS": "Este dispositivo",
+				"DEVICE_LAST_USED": "Última notificación {date}",
+				"DEVICE_ADDED": "Añadido {date}",
+				"DEVICE_REMOVE": "Quitar",
+				"DEVICE_REMOVE_FAILED": "No se quitó ese dispositivo. Inténtalo de nuevo.",
+				"SOUND_TITLE": "Sonido",
+				"SOUND_LABEL": "Sonido para entradas nuevas",
+				"SOUND_TEXT": "Una pestaña abierta de este navegador reproduce un sonido breve cuando llega algo nuevo a tu bandeja.",
 				"EMAIL_INTRO": "Cómo te llega cada tipo por correo. Todo tipo que dejes activado sigue apareciendo en tu bandeja.",
 				"DEFAULT_LABEL": "Todos los tipos",
 				"DEFAULT_TEXT": "El ajuste de correo que usa un tipo salvo que su propia fila diga otra cosa.",
@@ -4891,7 +4906,8 @@
 			"global": "En todas partes",
 			"list": "Lista de tareas",
 			"task": "Tarea enfocada",
-			"view": "Vista"
+			"view": "Vista",
+			"chat": "Chat"
 		},
 		"commands": {
 			"paletteOpen": "Abrir la paleta de comandos",
@@ -4916,6 +4932,12 @@
 			"taskPriority": "Cambiar la prioridad",
 			"taskLabels": "Cambiar las etiquetas",
 			"taskDueDate": "Cambiar la fecha límite",
+			"chatPrevious": "Conversación anterior",
+			"chatNext": "Conversación siguiente",
+			"chatPreviousUnread": "Conversación sin leer anterior",
+			"chatNextUnread": "Conversación sin leer siguiente",
+			"chatUnreads": "Abrir No leídos",
+			"chatMarkAllRead": "Marcar todo como leído",
 			"goHome": "Ir a la página de inicio",
 			"goProjects": "Ir a los proyectos",
 			"goKanban": "Ir al tablero Kanban",
@@ -4930,7 +4952,9 @@
 			"searchProjects": "Buscar en los proyectos",
 			"searchTeams": "Buscar en los equipos",
 			"themeToggle": "Cambiar entre claro y oscuro"
-		}
+		},
+		"CHAT_SINGLE_KEY": "Una tecla del chat es una sola tecla, no una secuencia.",
+		"CHAT_TAKEN": "El chat ya usa esa tecla (formato, envío, movimiento o desplazamiento)."
 	},
 	"realtime": {
 		"RECONNECTING": "Reconectando…"
@@ -5340,7 +5364,25 @@
 				"DECISION": "Decisión",
 				"CONSEQUENCES": "Consecuencias"
 			}
-		}
+		},
+		"LIVE": "En vivo",
+		"LIVE_CONNECTING": "Conectando…",
+		"LIVE_RECONNECTING": "Reconectando…",
+		"NOT_LIVE": "Sin conexión en vivo",
+		"LIVE_EDITORS": "{count, plural, one {# persona más en esta página} other {# personas más en esta página}}",
+		"LIVE_READ_ONLY": "Puedes leer esta página mientras cambia, pero no editarla aquí.",
+		"LIVE_READ_ONLY_NO_ACCESS": "Puedes leer esta página mientras otros la editan, pero no puedes editarla.",
+		"LIVE_READ_ONLY_FULL": "Esta página tiene tantos editores como admite. Puedes seguir leyendo y editar cuando alguien salga.",
+		"LIVE_ENDED": "La edición en vivo se detuvo. Tus cambios se guardan como siempre.",
+		"LIVE_ENDED_ACCESS": "Ya no tienes acceso para editar esta página en vivo.",
+		"TEAM_SPACE": "Espacio del equipo",
+		"TEAM_SPACE_EMPTY": "Todavía no hay páginas en este espacio del equipo.",
+		"NEW_TEAM_PAGE": "Nueva página en {team}",
+		"MOVE_TO_SPACE": "Mover a un espacio",
+		"FOLLOW": "Seguir página",
+		"UNFOLLOW": "Dejar de seguir la página",
+		"MUTE": "Silenciar notificaciones",
+		"UNMUTE": "Activar notificaciones"
 	},
 	"whatsNew": {
 		"TITLE": "Novedades",

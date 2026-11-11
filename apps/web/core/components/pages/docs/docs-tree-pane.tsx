@@ -6,12 +6,12 @@ import { usePathname } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 import { Button } from '@/core/components/duplicated-components/_button';
 import { Input } from '@/core/components/common/input';
-import { ChevronRight, CircleAlert, Home, Lock, Plus, Refresh, Search, Trash, X } from '@/core/components/icons';
+import { ChevronRight, CircleAlert, Home, Lock, Plus, Refresh, Search, Trash, Users, X } from '@/core/components/icons';
 import { useDocsSearch } from '@/core/hooks/docs/use-docs-search';
 import type { DocsTreeState } from '@/core/hooks/docs/use-docs-tree';
 import { cn } from '@/core/lib/helpers';
-import { filterPagesLocally, pageTitle } from '@/core/lib/utils/docs-tree';
-import { EDocumentVisibility, type IDocumentPage } from '@/core/types/interfaces/common/docs';
+import { buildDocTree, filterPagesLocally, pageTitle } from '@/core/lib/utils/docs-tree';
+import { EDocumentVisibility, type IDocumentPage, type IDocumentSpace } from '@/core/types/interfaces/common/docs';
 import { DocsPageGlyph } from './docs-page-glyph';
 import { DocsTree, type DocsTreeActions } from './docs-tree';
 
@@ -24,7 +24,9 @@ interface DocsTreePaneProps {
 	favoriteIds: ReadonlySet<string>;
 	recentIds: readonly string[];
 	actions: DocsTreeActions;
-	onNewPage: (parentId: string | null, visibility: EDocumentVisibility) => void;
+	/** The team spaces the reader is in (on a platform with Docs collaboration); none without it. */
+	teamSpaces?: readonly IDocumentSpace[];
+	onNewPage: (parentId: string | null, visibility: EDocumentVisibility, organizationTeamId?: string) => void;
 	/** The Home row was picked: where the tree covers the home (a phone), the page shows the home in its place. */
 	onHome?: () => void;
 }
@@ -33,8 +35,14 @@ interface DocsTreePaneProps {
 const PLACE_ROW =
 	'flex h-8 items-center gap-2 rounded-lg px-2 text-[13px] outline-none transition-colors focus-visible:ring-[3px] focus-visible:ring-ring/25 [&_svg]:size-4 [&_svg]:shrink-0';
 
-/** The left pane: the home, search, favourites, the workspace tree, the private tree, recent pages and the trash. */
-export function DocsTreePane({ tree, activeId, expanded, onToggle, onSetOpen, favoriteIds, recentIds, actions, onNewPage, onHome }: DocsTreePaneProps) {
+const NO_TEAM_SPACES: readonly IDocumentSpace[] = [];
+const EMPTY_TEAM_TREE = buildDocTree([]);
+
+/**
+ * The left pane: the home, search, favourites, the workspace tree, a tree per team space, the private tree, recent
+ * pages and the trash.
+ */
+export function DocsTreePane({ tree, activeId, expanded, onToggle, onSetOpen, favoriteIds, recentIds, actions, teamSpaces = NO_TEAM_SPACES, onNewPage, onHome }: DocsTreePaneProps) {
 	const t = useTranslations();
 	const pathname = usePathname();
 	const [query, setQuery] = useState('');
@@ -58,6 +66,14 @@ export function DocsTreePane({ tree, activeId, expanded, onToggle, onSetOpen, fa
 			else next.add(key);
 			return next;
 		});
+
+	// Every team space the reader is in, and the team pages of a team the spaces do not name (they are never hidden).
+	const teamSections = useMemo(() => {
+		const sections = teamSpaces.map((space) => ({ teamId: String(space.organizationTeamId), name: space.name }));
+		const named = new Set(sections.map((section) => section.teamId));
+		for (const teamId of tree.teamTrees.keys()) if (!named.has(teamId)) sections.push({ teamId, name: '' });
+		return sections;
+	}, [teamSpaces, tree.teamTrees]);
 
 	const isTrashActive = pathname?.endsWith('/docs/trash') ?? false;
 	const isHomeActive = activeId === null && !isTrashActive;
@@ -165,6 +181,33 @@ export function DocsTreePane({ tree, activeId, expanded, onToggle, onSetOpen, fa
 								/>
 							)}
 						</Section>
+						{isReady &&
+							teamSections.map(({ teamId, name }) => {
+								const label = name || t('docs.TEAM_SPACE');
+								return (
+									<Section
+										key={teamId}
+										id={`team:${teamId}`}
+										label={label}
+										icon={<Users className="size-3" aria-hidden="true" />}
+										closed={closedSections}
+										onToggle={toggleSection}
+										action={<SectionAction label={t('docs.NEW_TEAM_PAGE', { team: label })} onClick={() => onNewPage(null, EDocumentVisibility.TEAM, teamId)} />}
+									>
+										<DocsTree
+											tree={tree.teamTrees.get(teamId) ?? EMPTY_TEAM_TREE}
+											activeId={activeId}
+											expanded={expanded}
+											favoriteIds={favoriteIds}
+											onToggle={onToggle}
+											onSetOpen={onSetOpen}
+											actions={actions}
+											label={label}
+											emptyText={t('docs.TEAM_SPACE_EMPTY')}
+										/>
+									</Section>
+								);
+							})}
 						{isReady && (
 							<Section
 								id="private"
@@ -224,11 +267,12 @@ function SectionHeader({ label, count }: Readonly<{ label: string; count?: numbe
 function Section({
 	id,
 	label,
+	icon,
 	closed,
 	onToggle,
 	action,
 	children
-}: Readonly<{ id: string; label: string; closed: ReadonlySet<string>; onToggle: (id: string) => void; action?: ReactNode; children: ReactNode }>) {
+}: Readonly<{ id: string; label: string; icon?: ReactNode; closed: ReadonlySet<string>; onToggle: (id: string) => void; action?: ReactNode; children: ReactNode }>) {
 	const isOpen = !closed.has(id);
 	return (
 		<section className="mb-1">
@@ -240,6 +284,7 @@ function Section({
 					className="flex h-full min-w-0 flex-1 cursor-pointer items-center gap-1 rounded-md px-2 text-[11px] font-medium uppercase tracking-wide text-muted-foreground outline-none hover:text-foreground focus-visible:ring-[3px] focus-visible:ring-ring/25"
 				>
 					<ChevronRight className={cn('size-3 transition-transform rtl:rotate-180', isOpen && 'rotate-90 rtl:rotate-90')} aria-hidden="true" />
+					{icon}
 					<span className="truncate">{label}</span>
 				</button>
 				{action && <div className="opacity-0 transition-opacity group-focus-within:opacity-100 group-hover:opacity-100 [@media(hover:none)]:opacity-100">{action}</div>}

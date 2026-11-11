@@ -140,14 +140,26 @@ export function reorderedIds(siblingIds: readonly string[], id: string, directio
 	return next;
 }
 
-/** Private pages are the person's own space; the rest is the workspace. */
-export function splitSpaces(pages: readonly IDocumentPage[]): { workspace: IDocumentPage[]; privatePages: IDocumentPage[] } {
+/**
+ * Private pages are the person's own space, a team's pages (`TEAM`, on a platform with Docs collaboration) its team
+ * space; the rest is the workspace. A team page without its team reads as the workspace's.
+ */
+export function splitSpaces(pages: readonly IDocumentPage[]): { workspace: IDocumentPage[]; privatePages: IDocumentPage[]; teamPages: Map<string, IDocumentPage[]> } {
 	const workspace: IDocumentPage[] = [];
 	const privatePages: IDocumentPage[] = [];
+	const teamPages = new Map<string, IDocumentPage[]>();
 	for (const page of pages) {
-		(page.visibility === EDocumentVisibility.PRIVATE ? privatePages : workspace).push(page);
+		if (page.visibility === EDocumentVisibility.PRIVATE) {
+			privatePages.push(page);
+		} else if (page.visibility === EDocumentVisibility.TEAM && page.organizationTeamId) {
+			const team = teamPages.get(page.organizationTeamId) ?? [];
+			team.push(page);
+			teamPages.set(page.organizationTeamId, team);
+		} else {
+			workspace.push(page);
+		}
 	}
-	return { workspace, privatePages };
+	return { workspace, privatePages, teamPages };
 }
 
 /** The pages of a list, newest change first. */

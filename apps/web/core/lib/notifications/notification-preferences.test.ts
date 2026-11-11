@@ -5,6 +5,7 @@ import {
 	emailModeOf,
 	isTimeOfDay,
 	ownEmailModeOf,
+	pushOnFor,
 	quietHoursOf,
 	withPreferencePatch
 } from './notification-preferences';
@@ -48,5 +49,24 @@ describe('notification preferences', () => {
 		expect(withPreferencePatch(current, { emailByType: { Mention: undefined } }).emailByType).toEqual({});
 		expect(withPreferencePatch(current, { dnd: null }).dnd).toBeNull();
 		expect(withPreferencePatch(null, { digestHour: 9 })).toEqual({ digestHour: 9 });
+	});
+
+	it("reads a kind's own push switch before the one of every kind, and push as on when neither is set", () => {
+		expect(pushOnFor(null, EEmployeeNotificationType.Mention)).toBe(true);
+		expect(pushOnFor({ push: false }, EEmployeeNotificationType.Mention)).toBe(false);
+		expect(pushOnFor({ push: false, pushByType: { Mention: true } }, EEmployeeNotificationType.Mention)).toBe(true);
+		expect(pushOnFor({ pushByType: { Mention: false } }, EEmployeeNotificationType.Mention)).toBe(false);
+		expect(pushOnFor({ pushByType: { Mention: false } }, EEmployeeNotificationType.Comment)).toBe(true);
+		expect(pushOnFor({ pushByType: { Mention: 'no' as never } }, EEmployeeNotificationType.Mention)).toBe(true);
+	});
+
+	it('merges the per-type push switches like the email modes, and keeps the other preferences', () => {
+		const current = { email: 'digest' as const, pushByType: { Mention: false } };
+		expect(withPreferencePatch(current, { pushByType: { Comment: false } })).toEqual({
+			email: 'digest',
+			pushByType: { Mention: false, Comment: false }
+		});
+		expect(withPreferencePatch(current, { pushByType: { Mention: undefined } }).pushByType).toEqual({});
+		expect(withPreferencePatch(current, { digestHour: 9 }).pushByType).toEqual({ Mention: false });
 	});
 });

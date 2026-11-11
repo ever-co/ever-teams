@@ -77,18 +77,26 @@ export function useDocsActions() {
 			name: string;
 			parentId?: string | null;
 			visibility?: EDocumentVisibility;
+			/** With `visibility: TEAM` (or under a team page): the team space it goes in. */
+			organizationTeamId?: string | null;
 			icon?: string | null;
 			/** The starting text of a page made from a template; an empty page without it. */
 			content?: { contentJson: IDocumentNode; contentHtml: string };
 		}) => {
 			const tree = buildDocTree(treePages());
 			const parentId = input.parentId ?? null;
+			const parent = parentId ? tree.byId.get(parentId)?.page : undefined;
+			const asked = input.visibility ?? parent?.visibility ?? EDocumentVisibility.ORGANIZATION;
+			// A team page names its team (the one asked, or its parent's); without one it goes in the workspace.
+			const teamId = asked === EDocumentVisibility.TEAM ? (input.organizationTeamId ?? parent?.organizationTeamId ?? null) : null;
+			const visibility = asked === EDocumentVisibility.TEAM && !teamId ? EDocumentVisibility.ORGANIZATION : asked;
 			const page = await docsService.create({
 				kind: EDocumentKind.PAGE,
 				name: input.name,
 				parentId,
 				index: nextIndexUnder(tree, parentId),
-				visibility: input.visibility ?? (parentId ? tree.byId.get(parentId)?.page.visibility : undefined) ?? EDocumentVisibility.ORGANIZATION,
+				visibility,
+				...(teamId ? { organizationTeamId: teamId } : {}),
 				...(input.icon ? { icon: input.icon } : {}),
 				contentJson: input.content?.contentJson ?? { type: 'doc', content: [{ type: 'paragraph' }] },
 				contentHtml: input.content?.contentHtml ?? ''
@@ -184,6 +192,22 @@ export function useDocsActions() {
 		[invalidateTrash, invalidateTree, queryClient, tenantId]
 	);
 
+	/** Into another space (the organization's, a team's, the reader's private one), with the sub-pages they may write. */
+	const moveToSpace = useCallback(
+		async (pageId: string, visibility: EDocumentVisibility, organizationTeamId: string | null = null) => {
+			const page = await docsService.moveToSpace(pageId, {
+				visibility,
+				organizationTeamId: visibility === EDocumentVisibility.TEAM ? organizationTeamId : null,
+				applyToSubtree: true
+			});
+			putPage(page);
+			// The sub-pages moved with it.
+			await invalidateTree();
+			return page;
+		},
+		[invalidateTree, putPage]
+	);
+
 	const restoreVersion = useCallback(
 		async (pageId: string, versionId: string) => {
 			const page = await docsService.restoreVersion(pageId, versionId);
@@ -234,6 +258,7 @@ export function useDocsActions() {
 		restorePage,
 		deletePage,
 		restoreVersion,
+		moveToSpace,
 		attachToProject,
 		detachFromProject,
 		invalidateTree,

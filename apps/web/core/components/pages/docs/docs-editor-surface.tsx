@@ -1,11 +1,27 @@
 'use client';
 
-import { useCallback, useEffect, useRef } from 'react';
+import { useCallback, useEffect, useMemo, useRef } from 'react';
+import type { Awareness } from 'y-protocols/awareness';
+import type { Doc } from 'yjs';
 import { RichEditor, type RichEditorHandle } from '@/core/components/common/rich-editor/rich-editor';
+import { editorSchemaTypes, type EditorCollaboration } from '@/core/components/common/rich-editor/editor-extensions';
+import { liveCollaboration } from '@/core/components/common/rich-editor/live-collaboration';
 import type { MentionCandidate } from '@/core/components/common/rich-editor/mention-extension';
+import type { DocsLiveBinding } from '@/core/lib/docs-live/binding';
+import { DOCS_LIVE_FIELD } from '@/core/lib/docs-live/config';
 import { mentionedEmployeeIds } from '@/core/lib/utils/docs-markdown';
 import { unsupportedTypesOf } from '@/core/lib/utils/docs-content';
 import type { IDocumentNode } from '@/core/types/interfaces/common/docs';
+
+/** The live session the editor binds to, when the page is edited live. */
+export interface DocsEditorLive {
+	binding: DocsLiveBinding;
+	doc: Doc;
+	awareness: Awareness;
+	/** Moves when the session replaced its document: the editor is built again on the new one. */
+	generation: number;
+	readOnly: boolean;
+}
 
 /** What the page view can ask the editor once it is up. */
 export interface DocsEditorApi {
@@ -27,6 +43,11 @@ interface DocsEditorSurfaceProps {
 	json?: IDocumentNode | null;
 	/** The JSON holds types the editor does not know: the page must not be edited here. */
 	onUnsupported?: (types: string[]) => void;
+	/**
+	 * Live editing: the editor binds the session's shared document (`value` and `json` are not used), and every change,
+	 * whoever made it, is reported (the platform saves it; the page only follows the outline).
+	 */
+	live?: DocsEditorLive | null;
 }
 
 /**
@@ -34,8 +55,25 @@ interface DocsEditorSurfaceProps {
  * with the tree. Every change hands back the HTML (what the page shows) and the editor's JSON (what the
  * platform keeps as the canonical text).
  */
-export function DocsEditorSurface({ value, onChange, onReady, onSaveShortcut, mentions, placeholder, disabled, title, json, onUnsupported }: DocsEditorSurfaceProps) {
+export function DocsEditorSurface({ value, onChange, onReady, onSaveShortcut, mentions, placeholder, disabled, title, json, onUnsupported, live = null }: DocsEditorSurfaceProps) {
 	const editorRef = useRef<RichEditorHandle>(null);
+	const liveBinding = live?.binding ?? null;
+	const liveDoc = live?.doc ?? null;
+	const liveAwareness = live?.awareness ?? null;
+	// Live, the editor's binding deletes from the shared document (for everyone) whatever its schema cannot render: the
+	// document is checked before the editor is bound, and the session checks every update after (`bindEditor`). Done
+	// while rendering, so no update can land between the check and the editor.
+	const schemaTypes = useMemo(() => (liveBinding ? editorSchemaTypes() : null), [liveBinding]);
+	const unknownLiveTypes = useMemo(() => (liveBinding && liveDoc && schemaTypes ? liveBinding.bindEditor(schemaTypes) : []), [liveBinding, liveDoc, schemaTypes]);
+	const collaboration = useMemo<EditorCollaboration | null>(
+		() => (liveDoc && liveAwareness && unknownLiveTypes.length === 0 ? liveCollaboration(liveDoc, liveAwareness, DOCS_LIVE_FIELD) : null),
+		[liveAwareness, liveDoc, unknownLiveTypes.length]
+	);
+	useEffect(() => {
+		if (!liveBinding || unknownLiveTypes.length === 0) return;
+		liveBinding.refuseEditor(unknownLiveTypes);
+		onUnsupported?.(unknownLiveTypes);
+	}, [liveBinding, onUnsupported, unknownLiveTypes]);
 	// Whether the person has acted on the editor. Opening a page makes the editor tidy the stored text (a closing empty
 	// line, default attributes), which it reports as a change: that is not an edit, and it must never be saved — or every
 	// reader of a page would move its "updated" time, add a version and collide with whoever is writing.
@@ -75,14 +113,19 @@ export function DocsEditorSurface({ value, onChange, onReady, onSaveShortcut, me
 		});
 	}, [getJson, onReady]);
 
+	const isLive = live !== null;
 	const handleChange = useCallback(
 		(html: string) => {
-			if (!touchedRef.current) return;
+			// Live, a change of someone else's moves the outline too (nothing here saves it).
+			if (!isLive && !touchedRef.current) return;
 			const json = getJson();
 			onChange(html, json, mentionedEmployeeIds(json));
 		},
-		[getJson, onChange]
+		[getJson, isLive, onChange]
 	);
+
+	// Live with content this editor cannot carry: nothing is bound; the page shows its read-only view.
+	if (live && !collaboration) return null;
 
 	return (
 		<div
@@ -101,6 +144,8 @@ export function DocsEditorSurface({ value, onChange, onReady, onSaveShortcut, me
 			}}
 		>
 			<RichEditor
+				// A new shared document needs a new editor: the binding is made once per editor.
+				key={live ? `live-${live.generation}` : 'page'}
 				ref={editorRef}
 				value={value}
 				onChange={handleChange}
@@ -109,7 +154,8 @@ export function DocsEditorSurface({ value, onChange, onReady, onSaveShortcut, me
 				toolbar
 				images
 				mentions={mentions}
-				disabled={disabled}
+				collaboration={collaboration}
+				disabled={disabled || Boolean(live?.readOnly)}
 				contentClassName="min-h-[40vh] text-base"
 				aria-label={title}
 			/>

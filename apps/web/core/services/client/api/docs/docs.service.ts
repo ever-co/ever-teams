@@ -7,17 +7,21 @@ import {
 	type IDocumentContentInput,
 	type IDocumentCreateInput,
 	type IDocumentDuplicateInput,
+	type IDocumentFollowState,
 	type IDocumentLink,
 	type IDocumentListQuery,
 	type IDocumentMoveInput,
 	type IDocumentPage,
 	type IDocumentPageList,
 	type IDocumentPathSegment,
+	type IDocumentSpace,
+	type IDocumentSpaceMoveInput,
 	type IDocumentUpdateInput,
 	type IDocumentVersion,
 	type IDocumentVersionList,
 	type TDocumentDeleteStrategy
 } from '@/core/types/interfaces/common/docs';
+import type { DocsLiveAck, DocsLiveStatus } from '@/core/lib/docs-live/protocol';
 
 const BASE = '/plugins/docs/documents';
 const path = (id: string) => encodeURIComponent(id);
@@ -166,6 +170,51 @@ class DocsService extends APIService {
 		const response = await this.get<IDocumentLink[] | { items: IDocumentLink[] }>(`${BASE}/${path(id)}/links?${this.scopedQuery()}`, { signal });
 		const data = response.data;
 		return Array.isArray(data) ? data : (data?.items ?? []);
+	};
+
+	// ---------------------------------------------------------------- spaces and follows (Docs collaboration)
+
+	/** The spaces of the tree the reader sees; 404 while the platform's Docs collaboration is off. */
+	spaces = async (signal?: AbortSignal): Promise<IDocumentSpace[]> => {
+		const response = await this.get<IDocumentSpace[]>(`${BASE}/spaces?${this.scopedQuery()}`, { signal });
+		return Array.isArray(response.data) ? response.data : [];
+	};
+
+	/** Moves a page (with the sub-pages the reader may write, unless told otherwise) to another space. */
+	moveToSpace = async (id: string, input: IDocumentSpaceMoveInput): Promise<IDocumentPage> => {
+		const response = await this.post<IDocumentPage>(`${BASE}/${path(id)}/space`, { ...input, ...this.scope() });
+		return response.data;
+	};
+
+	followState = async (id: string, signal?: AbortSignal): Promise<IDocumentFollowState> => {
+		const response = await this.get<IDocumentFollowState>(`${BASE}/${path(id)}/follow`, { signal });
+		return response.data;
+	};
+
+	/** Follows, unfollows, mutes or unmutes the page; answers the new state. */
+	setFollow = async (id: string, action: 'follow' | 'unfollow' | 'mute' | 'unmute'): Promise<IDocumentFollowState> => {
+		const response = await this.post<IDocumentFollowState>(`${BASE}/${path(id)}/${action}`, {});
+		return response.data;
+	};
+
+	// ---------------------------------------------------------------- live sessions
+
+	/** Whether the platform serves live sessions of pages; 404 when it does not. */
+	liveStatus = async (): Promise<DocsLiveStatus> => {
+		const response = await this.get<DocsLiveStatus>('/plugins/docs/live/status');
+		return response.data;
+	};
+
+	/** An edit (a base64 Yjs update) of this tab's live session of the page. Exactly these fields: the platform refuses others. */
+	liveUpdate = async (id: string, input: { connectionId: string; update: string }): Promise<DocsLiveAck> => {
+		const response = await this.post<DocsLiveAck>(`${BASE}/${path(id)}/live/updates`, { connectionId: input.connectionId, update: input.update });
+		return response.data;
+	};
+
+	/** This tab's cursor and presence (a base64 y-protocols awareness update) in its live session of the page. */
+	liveAwareness = async (id: string, input: { connectionId: string; awareness: string }): Promise<DocsLiveAck> => {
+		const response = await this.post<DocsLiveAck>(`${BASE}/${path(id)}/live/awareness`, { connectionId: input.connectionId, awareness: input.awareness });
+		return response.data;
 	};
 }
 

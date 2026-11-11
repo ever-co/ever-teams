@@ -309,6 +309,17 @@ describe('emoji suggestions', () => {
 		expect(field().value).toBe(':th');
 	});
 
+	it('leaves a chord with a modifier to the page', () => {
+		render(<Harness />);
+		focusField();
+		fireEvent.change(field(), { target: { value: ':ta' } });
+		expect(emojiOptions().length).toBeGreaterThan(0);
+		// Not handled here (fireEvent answers false when the default was prevented): Alt+↓ walks the conversations.
+		expect(fireEvent.keyDown(field(), { key: 'ArrowDown', altKey: true })).toBe(true);
+		expect(screen.getAllByRole('option')[0].getAttribute('aria-selected')).toBe('true');
+		expect(fireEvent.keyDown(field(), { key: 'ArrowDown' })).toBe(false);
+	});
+
 	it('leaves a time alone', () => {
 		render(<Harness />);
 		focusField();

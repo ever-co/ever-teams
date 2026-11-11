@@ -3018,7 +3018,8 @@
 			"projects": "פרויקטים",
 			"navigation": "ניווט",
 			"settings": "הגדרות",
-			"goTo": "מעבר אל"
+			"goTo": "מעבר אל",
+			"chat": "צ'אט"
 		},
 		"commands": {
 			"inviteUser": "הזמנת משתמש",
@@ -3039,17 +3040,18 @@
 			"goToWeeklyLimit": "מעבר לדוח המגבלה השבועית",
 			"goToTimeAndActivity": "מעבר לדוח זמן ופעילות",
 			"profile": "פרופיל",
-			"settings": "הגדרות"
+			"settings": "הגדרות",
+			"newMessage": "הודעה חדשה"
 		},
 		"results": {
 			"recent": "אחרונות",
 			"tasks": "משימות",
 			"inTeam": "ב{team}",
+			"conversations": "שיחות",
 			"people": "אנשים",
+			"messagePerson": "שליחת הודעה ל{name}",
 			"projects": "פרויקטים",
 			"pages": "דפים",
-			"conversations": "שיחות",
-			"conversation": "שיחה",
 			"untitledPage": "ללא כותרת",
 			"recentlyOpened": "נפתחו לאחרונה"
 		}
@@ -3454,6 +3456,19 @@
 				"PUSH_BLOCKED": "ההתראות חסומות לאתר הזה: אפשרו אותן בהגדרות הדפדפן ואז הפעילו כאן.",
 				"PUSH_UNSUPPORTED": "הדפדפן הזה לא יכול להציג התראות.",
 				"PUSH_FAILED": "לא ניתן היה לשנות את התראות הדפדפן. נסו שוב.",
+				"PUSH_KINDS_TITLE": "נשלח למכשירים שלך",
+				"PUSH_KIND_OFF": "כבוי למעלה, ולכן לא נשלח דבר.",
+				"DEVICES_TITLE": "המכשירים שלך",
+				"DEVICE_NAME": "{browser} ב-{system}",
+				"DEVICE_UNKNOWN": "דפדפן",
+				"DEVICE_THIS": "המכשיר הזה",
+				"DEVICE_LAST_USED": "התראה אחרונה {date}",
+				"DEVICE_ADDED": "נוסף {date}",
+				"DEVICE_REMOVE": "הסרה",
+				"DEVICE_REMOVE_FAILED": "המכשיר לא הוסר. נסו שוב.",
+				"SOUND_TITLE": "צליל",
+				"SOUND_LABEL": "צליל לפריטים חדשים",
+				"SOUND_TEXT": "כרטיסייה פתוחה אחת בדפדפן הזה משמיעה צליל קצר כשמשהו חדש מגיע לתיבה.",
 				"EMAIL_INTRO": "איך כל סוג מגיע אליך בדוא\"ל. כל סוג שנשאר פעיל ממשיך להופיע בתיבת הדואר.",
 				"DEFAULT_LABEL": "כל הסוגים",
 				"DEFAULT_TEXT": "הגדרת הדוא\"ל שסוג משתמש בה אלא אם השורה שלו אומרת אחרת.",
@@ -4891,7 +4906,8 @@
 			"global": "בכל מקום",
 			"list": "רשימת משימות",
 			"task": "משימה ממוקדת",
-			"view": "תצוגה"
+			"view": "תצוגה",
+			"chat": "צ'אט"
 		},
 		"commands": {
 			"paletteOpen": "פתיחת לוח הפקודות",
@@ -4916,6 +4932,12 @@
 			"taskPriority": "שינוי העדיפות",
 			"taskLabels": "שינוי התוויות",
 			"taskDueDate": "שינוי תאריך היעד",
+			"chatPrevious": "השיחה הקודמת",
+			"chatNext": "השיחה הבאה",
+			"chatPreviousUnread": "השיחה הקודמת שלא נקראה",
+			"chatNextUnread": "השיחה הבאה שלא נקראה",
+			"chatUnreads": "פתיחת הודעות שלא נקראו",
+			"chatMarkAllRead": "סימון הכול כנקרא",
 			"goHome": "מעבר לדף הבית",
 			"goProjects": "מעבר לפרויקטים",
 			"goKanban": "מעבר ללוח הקנבן",
@@ -4930,7 +4952,9 @@
 			"searchProjects": "חיפוש בפרויקטים",
 			"searchTeams": "חיפוש בצוותים",
 			"themeToggle": "מעבר בין בהיר לכהה"
-		}
+		},
+		"CHAT_SINGLE_KEY": "מקש של הצ'אט הוא מקש אחד, לא רצף.",
+		"CHAT_TAKEN": "הצ'אט כבר משתמש במקש הזה (עיצוב, שליחה, תנועה או גלילה)."
 	},
 	"realtime": {
 		"RECONNECTING": "מתחבר מחדש…"
@@ -5340,7 +5364,25 @@
 				"DECISION": "החלטה",
 				"CONSEQUENCES": "השלכות"
 			}
-		}
+		},
+		"LIVE": "בזמן אמת",
+		"LIVE_CONNECTING": "מתחבר…",
+		"LIVE_RECONNECTING": "מתחבר מחדש…",
+		"NOT_LIVE": "לא בזמן אמת",
+		"LIVE_EDITORS": "{count, plural, one {אדם נוסף בדף הזה} two {שני אנשים נוספים בדף הזה} other {# אנשים נוספים בדף הזה}}",
+		"LIVE_READ_ONLY": "אפשר לקרוא את הדף הזה בזמן שהוא משתנה, אבל לא לערוך אותו כאן.",
+		"LIVE_READ_ONLY_NO_ACCESS": "אפשר לקרוא את הדף הזה בזמן שאחרים עורכים אותו, אבל אין לך הרשאה לערוך אותו.",
+		"LIVE_READ_ONLY_FULL": "לדף הזה כבר יש את מספר העורכים המרבי. אפשר לקרוא יחד עם כולם ולערוך כשמישהו עוזב.",
+		"LIVE_ENDED": "העריכה בזמן אמת הופסקה. השינויים שלך נשמרים כרגיל.",
+		"LIVE_ENDED_ACCESS": "כבר אין לך גישה לערוך את הדף הזה בזמן אמת.",
+		"TEAM_SPACE": "מרחב הצוות",
+		"TEAM_SPACE_EMPTY": "עדיין אין דפים במרחב הצוות הזה.",
+		"NEW_TEAM_PAGE": "דף חדש ב-{team}",
+		"MOVE_TO_SPACE": "העברה למרחב",
+		"FOLLOW": "מעקב אחרי הדף",
+		"UNFOLLOW": "הפסקת מעקב אחרי הדף",
+		"MUTE": "השתקת התראות",
+		"UNMUTE": "ביטול השתקת התראות"
 	},
 	"whatsNew": {
 		"TITLE": "מה חדש",

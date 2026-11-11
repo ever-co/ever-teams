@@ -3018,7 +3018,8 @@
 			"projects": "Projects",
 			"navigation": "Navigation",
 			"settings": "Settings",
-			"goTo": "Go to"
+			"goTo": "Go to",
+			"chat": "Chat"
 		},
 		"commands": {
 			"inviteUser": "Invite user",
@@ -3039,17 +3040,18 @@
 			"goToWeeklyLimit": "Go to weekly limit report",
 			"goToTimeAndActivity": "Go to time & activity report",
 			"profile": "Profile",
-			"settings": "Settings"
+			"settings": "Settings",
+			"newMessage": "New message"
 		},
 		"results": {
 			"recent": "Recent",
 			"tasks": "Tasks",
 			"inTeam": "in {team}",
+			"conversations": "Conversations",
 			"people": "People",
+			"messagePerson": "Message {name}",
 			"projects": "Projects",
 			"pages": "Pages",
-			"conversations": "Conversations",
-			"conversation": "Conversation",
 			"untitledPage": "Untitled",
 			"recentlyOpened": "Recently opened"
 		}
@@ -3454,6 +3456,19 @@
 				"PUSH_BLOCKED": "Notifications are blocked for this site: allow them in your browser settings, then switch this on.",
 				"PUSH_UNSUPPORTED": "This browser cannot show notifications.",
 				"PUSH_FAILED": "Browser notifications could not be changed. Try again.",
+				"PUSH_KINDS_TITLE": "Sent to your devices",
+				"PUSH_KIND_OFF": "Off above, so nothing is sent for it.",
+				"DEVICES_TITLE": "Your devices",
+				"DEVICE_NAME": "{browser} on {system}",
+				"DEVICE_UNKNOWN": "A browser",
+				"DEVICE_THIS": "This device",
+				"DEVICE_LAST_USED": "Last notified {date}",
+				"DEVICE_ADDED": "Added {date}",
+				"DEVICE_REMOVE": "Remove",
+				"DEVICE_REMOVE_FAILED": "That device was not removed. Try again.",
+				"SOUND_TITLE": "Sound",
+				"SOUND_LABEL": "Sound for new entries",
+				"SOUND_TEXT": "One open tab of this browser plays a short sound when something new reaches your inbox.",
 				"EMAIL_INTRO": "How each kind reaches you by email. Every kind you keep on still appears in your inbox.",
 				"DEFAULT_LABEL": "Every kind",
 				"DEFAULT_TEXT": "The email setting a kind uses unless its own row says otherwise.",
@@ -4891,7 +4906,8 @@
 			"global": "Everywhere",
 			"list": "Task list",
 			"task": "Focused task",
-			"view": "View"
+			"view": "View",
+			"chat": "Chat"
 		},
 		"commands": {
 			"paletteOpen": "Open the command palette",
@@ -4916,6 +4932,12 @@
 			"taskPriority": "Change the priority",
 			"taskLabels": "Change the labels",
 			"taskDueDate": "Change the due date",
+			"chatPrevious": "Previous conversation",
+			"chatNext": "Next conversation",
+			"chatPreviousUnread": "Previous unread conversation",
+			"chatNextUnread": "Next unread conversation",
+			"chatUnreads": "Open Unreads",
+			"chatMarkAllRead": "Mark all as read",
 			"goHome": "Go to the home page",
 			"goProjects": "Go to the projects",
 			"goKanban": "Go to the Kanban board",
@@ -4930,7 +4952,9 @@
 			"searchProjects": "Search the projects",
 			"searchTeams": "Search the teams",
 			"themeToggle": "Switch between light and dark"
-		}
+		},
+		"CHAT_SINGLE_KEY": "A chat key is one key, not a sequence.",
+		"CHAT_TAKEN": "The chat already uses that key (formatting, sending, moving or scrolling)."
 	},
 	"realtime": {
 		"RECONNECTING": "Reconnecting…"
@@ -5340,7 +5364,25 @@
 				"DECISION": "Decision",
 				"CONSEQUENCES": "Consequences"
 			}
-		}
+		},
+		"LIVE": "Live",
+		"LIVE_CONNECTING": "Connecting…",
+		"LIVE_RECONNECTING": "Reconnecting…",
+		"NOT_LIVE": "Not live",
+		"LIVE_EDITORS": "{count, plural, one {# other person on this page} other {# other people on this page}}",
+		"LIVE_READ_ONLY": "You can read this page as it changes, but not edit it here.",
+		"LIVE_READ_ONLY_NO_ACCESS": "You can read this page as others edit it, but you cannot edit it.",
+		"LIVE_READ_ONLY_FULL": "This page has as many editors as it can take. You can read along, and edit once someone leaves.",
+		"LIVE_ENDED": "Live editing stopped. Your changes save as usual.",
+		"LIVE_ENDED_ACCESS": "You no longer have access to edit this page live.",
+		"TEAM_SPACE": "Team space",
+		"TEAM_SPACE_EMPTY": "No pages in this team space yet.",
+		"NEW_TEAM_PAGE": "New page in {team}",
+		"MOVE_TO_SPACE": "Move to space",
+		"FOLLOW": "Follow page",
+		"UNFOLLOW": "Unfollow page",
+		"MUTE": "Mute notifications",
+		"UNMUTE": "Unmute notifications"
 	},
 	"whatsNew": {
 		"TITLE": "What's new",

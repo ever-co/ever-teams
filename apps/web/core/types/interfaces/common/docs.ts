@@ -14,7 +14,34 @@ export enum EDocumentVisibility {
 	/** Every member of the organization can read it. */
 	ORGANIZATION = 'ORGANIZATION',
 	/** Its author, and the people it is shared with. */
-	PRIVATE = 'PRIVATE'
+	PRIVATE = 'PRIVATE',
+	/** The members of a team (`organizationTeamId`), on a platform with Docs collaboration on. */
+	TEAM = 'TEAM'
+}
+
+/** The spaces of the tree: the organization's, one per team the reader is in, and the reader's private one. */
+export type TDocumentSpaceKind = 'organization' | 'team' | 'private';
+
+/** A space of the tree as the reader sees it (`GET /plugins/docs/documents/spaces`). */
+export interface IDocumentSpace {
+	kind: TDocumentSpaceKind;
+	/** The team of a team space. */
+	organizationTeamId?: string | null;
+	name: string;
+	documentCount: number;
+}
+
+/** Moves a page (with the sub-pages the reader may write, unless told otherwise) to another space. */
+export interface IDocumentSpaceMoveInput {
+	visibility: EDocumentVisibility;
+	organizationTeamId?: string | null;
+	applyToSubtree?: boolean;
+}
+
+/** Whether the reader follows a page (comments and changes reach the Inbox) and whether they muted it. */
+export interface IDocumentFollowState {
+	following: boolean;
+	muted: boolean;
 }
 
 /** A node of the editor's document, as the platform stores it. */
@@ -49,6 +76,8 @@ export interface IDocumentPage {
 	/** Bumped by the platform on every version snapshot. */
 	version?: number;
 	visibility: EDocumentVisibility;
+	/** The team whose space holds the page (`visibility: TEAM`). */
+	organizationTeamId?: string | null;
 	/** The Docs trash: an archived page is hidden from the tree and can be restored. */
 	isArchived?: boolean;
 	archivedAt?: string | null;
@@ -121,6 +150,8 @@ export interface IDocumentCreateInput {
 	contentJson?: IDocumentNode;
 	contentHtml?: string;
 	visibility?: EDocumentVisibility;
+	/** With `visibility: TEAM`: the team whose space the page goes in. */
+	organizationTeamId?: string | null;
 	mentionEmployeeIds?: string[];
 }
 
