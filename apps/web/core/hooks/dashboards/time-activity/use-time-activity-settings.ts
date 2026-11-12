@@ -3,6 +3,8 @@
 import { useCallback, useMemo, useState } from 'react';
 import { useLocalStorageState } from '@/core/hooks/common/use-local-storage-state';
 import { useReportUrlFilters } from '@/core/hooks/dashboards/use-report-url-filters';
+import { useMyRolePermissionsQuery } from '@/core/hooks/roles/use-my-role-permissions-query';
+import { canReadClients } from '@/core/lib/utils/clients';
 import type { ReportUrlFilterField } from '@/core/lib/utils/dashboards/report-filters';
 import {
 	EMPTY_STORED_TIME_ACTIVITY_FILTERS,
@@ -15,6 +17,8 @@ import {
 	type TimeActivityFilters,
 	type TimeActivityGrouping,
 	activeFilterCountOf,
+	clientGroupingAccessOf,
+	effectiveGroupingOf,
 	filtersFromStorage,
 	hiddenColumnsFromStorage,
 	isStoredTimeActivityFilterField
@@ -42,7 +46,16 @@ function withToggledColumn(hidden: TimeActivityColumn[], column: TimeActivityCol
 export function useTimeActivitySettings() {
 	const [storedFilters, setStoredFilters] = useLocalStorageState<unknown>(TIME_ACTIVITY_FILTERS_STORAGE_KEY, null);
 	const [storedColumns, setStoredColumns] = useLocalStorageState<unknown>(TIME_ACTIVITY_COLUMNS_STORAGE_KEY, null);
-	const [grouping, setGrouping] = useState<TimeActivityGrouping>('date');
+	const [pickedGrouping, setGrouping] = useState<TimeActivityGrouping>('date');
+	const {
+		myPermissions,
+		isLoaded: arePermissionsLoaded,
+		isLoading: arePermissionsLoading
+	} = useMyRolePermissionsQuery();
+	const mayReadClients = canReadClients(myPermissions);
+	const arePermissionsPending = !arePermissionsLoaded && arePermissionsLoading;
+	const clientGroupingAccess = clientGroupingAccessOf(mayReadClients, arePermissionsPending);
+	const grouping = effectiveGroupingOf(pickedGrouping, clientGroupingAccess);
 	const {
 		filters: linkedFilters,
 		setFilter: setLinkedFilter,
@@ -99,7 +112,8 @@ export function useTimeActivitySettings() {
 		hiddenColumns,
 		toggleColumn,
 		grouping,
-		setGrouping
+		setGrouping,
+		clientGroupingAccess
 	};
 }
 
