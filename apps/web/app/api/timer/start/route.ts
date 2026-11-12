@@ -22,6 +22,18 @@ function planDayOf(body: object): string | undefined {
 	return planDay;
 }
 
+// Empty notes are not sent, so a start without any reaches Gauzy as it did before a start could carry notes.
+function notesOf(description: unknown): string | undefined {
+	if (typeof description !== 'string') {
+		return undefined;
+	}
+	const notes = description.trim();
+	if (!notes) {
+		return undefined;
+	}
+	return notes;
+}
+
 export async function POST(req: Request) {
 	const res = new NextResponse();
 	const {
@@ -61,8 +73,8 @@ export async function POST(req: Request) {
 		return NextResponse.json({ error: 'projectId must be a non-empty string' }, { status: 400 });
 	}
 
-	const notes = readTimerNotes((body as { description?: unknown }).description);
-	if (!notes.isValid) {
+	const notesReading = readTimerNotes((body as { description?: unknown }).description);
+	if (!notesReading.isValid) {
 		return NextResponse.json({ error: NOTES_REFUSAL }, { status: 400 });
 	}
 
@@ -86,8 +98,11 @@ export async function POST(req: Request) {
 		startParams.projectId = bodyProjectId;
 	}
 
-	if (notes.description !== undefined) {
-		startParams.description = notes.description;
+	// Like the project, the notes belong to the task the body names: a start that falls back to the cookie's task sends none
+	const notes = notesOf(notesReading.description);
+	const forwardsNotes = hasBodyTaskId && notes !== undefined;
+	if (forwardsNotes) {
+		startParams.description = notes;
 	}
 
 	try {

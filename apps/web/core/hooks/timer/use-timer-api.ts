@@ -63,6 +63,7 @@ import { useScopeGuard } from '../bootstrap/use-scope-guard';
 import { useStopStaleTeamsTimer } from './use-stale-timer-guard';
 import { useStopNotesWarning } from './use-stop-notes-warning';
 import { useResolveTimerBillable } from './use-timer-billable';
+import { takeTimerStartNotes } from './use-timer-start-notes';
 
 // ==================== TYPES ====================
 
@@ -711,7 +712,10 @@ export function useTimerApi({
 			});
 
 			if (!statusEnabled || isCurrentScope()) setTimerStatusFetching(true);
-			const notesToUse = notesToSendAtStart(store.get(timerNotesState));
+			// The notes of an entry continued from a report go with the start of its task, ahead of a draft typed in the
+			// timer, and become the timer's notes once it runs (#5131 with #5113)
+			const continuedNotes = takeTimerStartNotes(store, taskIdToUse);
+			const notesToUse = continuedNotes ?? notesToSendAtStart(store.get(timerNotesState));
 			const startRequest = startTimerMutate({
 				taskId: taskIdToUse,
 				projectId: projectIdToUse,
@@ -725,7 +729,12 @@ export function useTimerApi({
 					setTimerStatus(res.data);
 				onRequestLanded?.();
 				// Notes typed before this start are the notes of the entry it created, and of no entry found running later
-				store.set(timerNotesState, (notes) => timerNotesAfterStart(notes, res.data, notesToUse));
+				store.set(timerNotesState, (notes) => {
+					// Continued notes replace a draft: tied to the entry, the draft would overwrite them at the stop
+					const notesSent = continuedNotes === undefined ? notes : { text: continuedNotes, timeLogId: null };
+					const notesAfterStart = timerNotesAfterStart(notesSent, res.data, notesToUse);
+					return notesAfterStart === notesSent ? notes : notesAfterStart;
+				});
 
 				// Save active task via API when timer starts
 				// Skip if we're on /task/ page because setActiveTask already does it

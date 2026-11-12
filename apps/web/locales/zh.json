@@ -3025,6 +3025,22 @@
 	"timeSlot": {
 		"DELETE_MESSAGE": "您确定要删除此时间段吗？"
 	},
+	"timeEntryActions": {
+		"CONTINUE": "继续",
+		"DUPLICATE": "复制",
+		"TASK_ACTIONS": "{task} 的操作",
+		"ALREADY_RUNNING": "计时器已在此任务上运行",
+		"recent": {
+			"TITLE": "最近",
+			"START_ON": "在 {task} 上启动计时器",
+			"ERROR": "无法加载您最近的任务。",
+			"RETRY": "重试"
+		},
+		"duplicate": {
+			"OVERLAPS": "该时间与已记录的条目重叠（{range}）。请选择空闲时间或其他日期。",
+			"CHECK_FAILED": "无法检查当天的条目，因此未保存任何内容。请重试。"
+		}
+	},
 	"chatConfig": {
 		"DIALOG_TITLE": "AI 聊天配置",
 		"DIALOG_DESCRIPTION": "配置您的 AI 提供商和 API 密钥以启用聊天助手。",

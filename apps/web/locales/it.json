@@ -3025,6 +3025,22 @@
 	"timeSlot": {
 		"DELETE_MESSAGE": "Sei sicuro di voler eliminare questa fascia oraria?"
 	},
+	"timeEntryActions": {
+		"CONTINUE": "Continua",
+		"DUPLICATE": "Duplica",
+		"TASK_ACTIONS": "Azioni per {task}",
+		"ALREADY_RUNNING": "Il timer è già in corso su questa attività",
+		"recent": {
+			"TITLE": "Recenti",
+			"START_ON": "Avvia il timer su {task}",
+			"ERROR": "Non è stato possibile caricare le tue attività recenti.",
+			"RETRY": "Riprova"
+		},
+		"duplicate": {
+			"OVERLAPS": "Questo orario si sovrappone a una registrazione già presente ({range}). Scegli un orario libero o un'altra data.",
+			"CHECK_FAILED": "Non è stato possibile controllare le registrazioni del giorno, quindi non è stato salvato nulla. Riprova."
+		}
+	},
 	"chatConfig": {
 		"DIALOG_TITLE": "Configurazione Chat IA",
 		"DIALOG_DESCRIPTION": "Configura il tuo provider IA e la chiave API per attivare l'assistente chat.",

@@ -5,6 +5,7 @@ import dynamic from 'next/dynamic';
 import { useTranslations } from 'next-intl';
 import { useHasBeenOpen } from '@/core/hooks/common/use-has-been-open';
 import type { TimesheetDialogsState } from '@/core/hooks/dashboards/timesheets/use-timesheet-dialogs';
+import type { TimeEntryDuplicateState } from '@/core/hooks/timesheet/use-time-entry-duplicate';
 
 const LazyAddTaskModal = dynamic(
 	() => import('@/core/components/features/timesheet/add-mask-modal').then((module) => module.AddTaskModal),
@@ -68,6 +69,27 @@ export function TimesheetsDeleteDialog({
 }
 
 /**
+ * A copied entry opens the Add time entry dialog on its own instance, keyed by the copy: the form of the page's
+ * Add time keeps what was typed in it, and a second copy never opens on the fields of the first.
+ */
+function DuplicateDialog({ duplicate }: Readonly<{ duplicate: TimeEntryDuplicateState }>) {
+	const hasOpened = useHasBeenOpen(duplicate.isOpen);
+	const draft = duplicate.draft;
+	if (!hasOpened || !draft) {
+		return null;
+	}
+	return (
+		<LazyAddTaskModal
+			key={draft.id}
+			isOpen={duplicate.isOpen}
+			closeModal={duplicate.close}
+			prefill={draft}
+			checkBeforeSave={duplicate.checkBeforeSave}
+		/>
+	);
+}
+
+/**
  * The existing timesheet dialogs, each mounted once for the whole page and loaded on its first opening, so the
  * page carries none of them until one is needed.
  */
@@ -76,13 +98,15 @@ export function TimesheetsDialogs({
 	canAddTime,
 	isDeleting,
 	onRejected,
-	onDeleteConfirmed
+	onDeleteConfirmed,
+	duplicate
 }: Readonly<{
 	dialogs: TimesheetDialogsState;
 	canAddTime: boolean;
 	isDeleting: boolean;
 	onRejected: () => void;
 	onDeleteConfirmed: () => Promise<void>;
+	duplicate?: TimeEntryDuplicateState;
 }>) {
 	const hasOpenedAddTime = useHasBeenOpen(dialogs.isAddTimeOpen);
 	const hasOpenedEdit = useHasBeenOpen(dialogs.isEditOpen);
@@ -104,6 +128,7 @@ export function TimesheetsDialogs({
 	return (
 		<>
 			{showsAddTime && <LazyAddTaskModal isOpen={dialogs.isAddTimeOpen} closeModal={dialogs.closeAddTime} />}
+			{duplicate && <DuplicateDialog duplicate={duplicate} />}
 			{editDialog}
 			{hasOpenedReject && (
 				<LazyRejectSelectedModal

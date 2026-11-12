@@ -3025,6 +3025,22 @@
 	"timeSlot": {
 		"DELETE_MESSAGE": "Tem certeza de que deseja excluir este intervalo de tempo?"
 	},
+	"timeEntryActions": {
+		"CONTINUE": "Continuar",
+		"DUPLICATE": "Duplicar",
+		"TASK_ACTIONS": "Ações de {task}",
+		"ALREADY_RUNNING": "O temporizador já está em execução nesta tarefa",
+		"recent": {
+			"TITLE": "Recentes",
+			"START_ON": "Iniciar o temporizador em {task}",
+			"ERROR": "Não foi possível carregar suas tarefas recentes.",
+			"RETRY": "Tentar novamente"
+		},
+		"duplicate": {
+			"OVERLAPS": "Este horário se sobrepõe a um registro já existente ({range}). Escolha um horário livre ou outra data.",
+			"CHECK_FAILED": "Não foi possível verificar os registros do dia, então nada foi salvo. Tente novamente."
+		}
+	},
 	"chatConfig": {
 		"DIALOG_TITLE": "Configuração do Chat IA",
 		"DIALOG_DESCRIPTION": "Configure seu provedor de IA e chave API para ativar o assistente de chat.",

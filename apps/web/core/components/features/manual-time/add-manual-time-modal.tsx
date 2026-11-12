@@ -19,6 +19,7 @@ import { FormEvent, useCallback, useEffect, useId, useMemo, useRef, useState } f
 import { manualTimeReasons } from '@/core/constants/config/constants';
 import { useManualTime } from '@/core/hooks/activities/use-manual-time';
 import { useTimeOverlapGuard } from '@/core/hooks/timesheet/use-time-overlap-guard';
+import { useOpenSession } from '@/core/hooks/common/use-open-session';
 import { TimeOverlapCheckError, TimeOverlapConfirmDialog } from './time-overlap-confirm-dialog';
 import { useIsMemberManager } from '@/core/hooks/organizations/teams/use-team-member';
 import { DatePicker } from '@/core/components/common/date-picker';
@@ -34,6 +35,7 @@ import { activeTeamState, activeTeamTaskState, organizationTeamsState, tasksByTe
 import { queryKeys } from '@/core/query/keys';
 import { taskService } from '@/core/services/client/api/tasks/task.service';
 import { useReactiveAccessTokenCookie } from '@/core/hooks/auth/use-reactive-access-token-cookie';
+import type { CheckTimeEntrySave, TimeEntryCopy, TimeWindow } from '@/core/lib/utils/time-entry-reuse';
 
 /**
  * Interface for the properties of the `AddManualTimeModal` component.
@@ -55,6 +57,10 @@ interface IAddManualTimeModalProps {
 	initialStart?: Date;
 	/** Where the entry ends when the dialog opens; the start when not given. */
 	initialEnd?: Date;
+	/** The task, notes and billable status of a copied entry, which the dialog opens with. */
+	prefill?: Pick<TimeEntryCopy, 'taskId' | 'description' | 'isBillable'>;
+	/** Asked before the entry is saved: a returned message refuses the save and is shown in the dialog. */
+	checkBeforeSave?: CheckTimeEntrySave;
 }
 
 function clockTimeOf(date: Date) {
@@ -100,11 +106,12 @@ function isEmployeeOfTeam(team: TOrganizationTeam | null | undefined, employeeId
 }
 
 export function AddManualTimeModal(props: Readonly<IAddManualTimeModalProps>) {
-	const { closeModal, isOpen, params, timeSheetStatus, initialStart, initialEnd } = props;
+	const { closeModal, isOpen, params, timeSheetStatus, initialStart, initialEnd, prefill, checkBeforeSave } = props;
 	const t = useTranslations();
 	const locale = useLocale();
-	const [isBillable, setIsBillable] = useState<boolean>(false);
-	const [description, setDescription] = useState<string>('');
+	const [isBillable, setIsBillable] = useState<boolean>(prefill?.isBillable ?? false);
+	const [description, setDescription] = useState<string>(prefill?.description ?? '');
+	const [isCheckingSave, setIsCheckingSave] = useState(false);
 	const [reason, setReason] = useState<string>('');
 	const [errorMsg, setErrorMsg] = useState<string>('');
 	const [endTime, setEndTime] = useState<string>('');
@@ -114,7 +121,9 @@ export function AddManualTimeModal(props: Readonly<IAddManualTimeModalProps>) {
 	const [taskId, setTaskId] = useState<string>('');
 	const [projectId, setProjectId] = useState<string>('');
 	const [employeeId, setEmployeeId] = useState<string>('');
-	const isTaskPickedRef = useRef(false);
+	// A copied entry keeps its own task or none: the active task never stands in for it
+	const copiedTaskId = prefill?.taskId ?? '';
+	const isTaskPickedRef = useRef(copiedTaskId !== '');
 	const isTeamPickedRef = useRef(false);
 	const [timeDifference, setTimeDifference] = useState<string>('');
 
@@ -172,7 +181,8 @@ export function AddManualTimeModal(props: Readonly<IAddManualTimeModalProps>) {
 	const saveAfterOverlapCheck = overlapGuard.saveAfterCheck;
 	const ownEmployeeId = user?.employee?.id ?? '';
 
-	const isSaving = addManualTimeLoading || overlapGuard.isChecking;
+	const isSaving = addManualTimeLoading || overlapGuard.isChecking || isCheckingSave;
+	const openSessionOf = useOpenSession(isOpen);
 
 	const startTimeId = useId();
 	const endTimeId = useId();
@@ -197,6 +207,37 @@ export function AddManualTimeModal(props: Readonly<IAddManualTimeModalProps>) {
 	const pickedFields = useMemo(
 		() => ({ ...(projectId && { projectId }), ...(employeeId && { employeeId }) }),
 		[projectId, employeeId]
+	);
+
+	const savedEmployeeId = employeeId || ownEmployeeId;
+
+	/** Saves once the dialog's opener has nothing against the interval (a copied entry may not run over another). */
+	const saveUnlessRefused = useCallback(
+		async (period: TimeWindow, save: () => void) => {
+			if (!checkBeforeSave) {
+				save();
+				return;
+			}
+			const session = openSessionOf();
+			setIsCheckingSave(true);
+			let refusal: string | null;
+			try {
+				refusal = await checkBeforeSave({ employeeId: savedEmployeeId, periods: [period] });
+			} finally {
+				setIsCheckingSave(false);
+			}
+			// Closed while the check ran: the copy is not saved behind the person's back
+			const wasDismissed = session !== openSessionOf();
+			if (wasDismissed) {
+				return;
+			}
+			if (refusal) {
+				setErrorMsg(refusal);
+				return;
+			}
+			save();
+		},
+		[checkBeforeSave, openSessionOf, savedEmployeeId]
 	);
 
 	const handleSubmit = useCallback(
@@ -268,18 +309,21 @@ export function AddManualTimeModal(props: Readonly<IAddManualTimeModalProps>) {
 				return;
 			}
 
-			// The time is saved for the picked employee, or else for the signed-in member (the hook's default)
-			const savedEmployeeId = employeeId || ownEmployeeId;
-			void saveAfterOverlapCheck({
-				employeeId: savedEmployeeId,
-				periods: [{ start: startedAt, end: stoppedAt }],
-				save: () => addManualTime(requestData)
-			});
+			const period = { start: startedAt, end: stoppedAt };
+			// A copied entry is refused over another entry; any other time over recorded time asks first
+			void saveUnlessRefused(period, () =>
+				saveAfterOverlapCheck({
+					employeeId: savedEmployeeId,
+					periods: [period],
+					save: () => addManualTime(requestData)
+				})
+			);
 		},
 		[
 			addManualTime,
+			saveUnlessRefused,
 			saveAfterOverlapCheck,
-			ownEmployeeId,
+			savedEmployeeId,
 			date,
 			description,
 			endTime,
@@ -450,6 +494,17 @@ export function AddManualTimeModal(props: Readonly<IAddManualTimeModalProps>) {
 			setTeam(activeTeam);
 		}
 	}, [activeTeamTask, activeTeam, activeTeamTasks]);
+
+	// A copied entry's task is picked once the list offers it: one the member can no longer pick stays unpicked
+	const isCopiedTaskOffered = useMemo(
+		() => activeTeamTasks.some((task) => task.id === copiedTaskId),
+		[activeTeamTasks, copiedTaskId]
+	);
+	useEffect(() => {
+		if (isCopiedTaskOffered) {
+			setTaskId((current) => current || copiedTaskId);
+		}
+	}, [copiedTaskId, isCopiedTaskOffered]);
 
 	const memberItemsLists = useMemo(() => {
 		return {

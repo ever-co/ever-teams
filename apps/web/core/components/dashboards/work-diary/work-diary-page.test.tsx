@@ -48,6 +48,17 @@ jest.mock('@/core/hooks/dashboards/work-diary/use-work-diary-page', () => ({
 jest.mock('./diary-week-view', () => ({
 	DiaryWeekView: () => <section aria-label="week sheet" />
 }));
+// Continue and Duplicate have their own tests: here a marker shows which rows of the day get their menu
+function mockTaskActions(task: { key: string; isUntasked: boolean }) {
+	if (task.isUntasked) {
+		return null;
+	}
+	return <button type="button">{`actions of ${task.key}`}</button>;
+}
+jest.mock('./diary-task-reuse', () => ({
+	useDiaryTaskReuse: () => ({ renderTaskActions: mockTaskActions, startRequest: null, duplicate: null }),
+	DiaryTaskReuseLayers: () => null
+}));
 
 import { WorkDiaryPage } from './work-diary-page';
 
@@ -246,6 +257,14 @@ describe('WorkDiaryPage', () => {
 		for (let index = 0; index < 8; index += 1) {
 			expect(within(tasks).getByText(`Task number ${index}`)).toBeTruthy();
 		}
+	});
+
+	it('puts the actions of a task at the end of its row, and none on the time tracked without a task', () => {
+		render(<WorkDiaryPage />);
+
+		const tasks = screen.getByRole('region', { name: 'common.TASKS' });
+		expect(within(tasks).getByRole('button', { name: 'actions of task-1' })).toBeTruthy();
+		expect(within(tasks).getAllByRole('button')).toHaveLength(1);
 	});
 
 	it('keeps the plan card loading while the plans load, and offers to retry when they failed', () => {
