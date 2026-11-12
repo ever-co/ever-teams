@@ -17,18 +17,29 @@ import {
 	memberLastNameOf,
 	memberNameOf,
 	memberUserIdOf,
+	memberWorkspaceRoleIdOf,
 	rosterWithout,
 	rosterWithRole,
 	teamRosterOf,
 	teamsWithRenamedMember,
 	type TeamRole
 } from '@/core/lib/utils/settings-team';
+import {
+	assignableWorkspaceRolesOf,
+	canChangeWorkspaceRole,
+	canDeactivateMember,
+	readsWorkspaceRoles,
+	workspaceRoleNameOf,
+	type WorkspaceRole
+} from '@/core/lib/utils/member-access';
 import { useSettings } from '@/core/hooks/users/use-settings';
 import { useDeleteTask } from '@/core/hooks/organizations/teams/use-delete-task';
 import { useEditOrganizationTeam } from '@/core/hooks/organizations/teams/use-edit-organization-team';
 import { useGetActiveTeam } from '@/core/hooks/organizations/teams/use-get-active-team';
 import { useUserQuery } from '@/core/hooks/queries/user-user.query';
 import { useMyRolePermissionsQuery } from '@/core/hooks/roles/use-my-role-permissions-query';
+import { useRolesQuery } from '@/core/hooks/roles/use-roles-query';
+import { useMemberWorkEnd, useWorkspaceRoleAssignment } from '@/core/hooks/settings/use-member-access';
 import { useMemberTrackingSwitch } from '@/core/hooks/settings/use-member-tracking-switch';
 import { canMemberTrackTime } from '@/core/lib/helpers/team-member-tracking';
 import { useEmployeeRatesMutation } from '@/core/hooks/organizations/rates/use-rates';
@@ -63,6 +74,11 @@ export interface MemberRowModel {
 	rate: MemberRate;
 	canEditRate: boolean;
 	employeeId: string | null;
+	workspaceRoleId: string | null;
+	workspaceRoleName: string | null;
+	canChangeWorkspaceRole: boolean;
+	isWorkspaceRolePending: boolean;
+	canDeactivate: boolean;
 }
 
 type Overrides<T> = Readonly<Record<string, T>>;
@@ -117,6 +133,42 @@ function memberRateOf(member: TOrganizationTeamEmployee): MemberRate {
 	};
 }
 
+interface MemberAccessContext {
+	userId: string | undefined;
+	permissions: ReadonlyArray<string>;
+	workspaceRoles: ReadonlyArray<WorkspaceRole>;
+	assignableRoles: ReadonlyArray<WorkspaceRole>;
+}
+
+const NO_MEMBER_ACCESS = { canDeactivate: false, canChangeWorkspaceRole: false };
+
+/**
+ * What the viewer may do to a member's access, read from the role Gauzy stores and never from a change still on its
+ * way: the list and the actions both go through it, so an action is checked again on the data of the moment.
+ */
+function memberAccessOf(member: TOrganizationTeamEmployee, context: MemberAccessContext) {
+	if (!context.userId) {
+		return NO_MEMBER_ACCESS;
+	}
+	const memberUserId = memberUserIdOf(member);
+	const isYou = memberUserId === context.userId;
+	const workspaceRoleName = workspaceRoleNameOf(context.workspaceRoles, memberWorkspaceRoleIdOf(member));
+	return {
+		canDeactivate: canDeactivateMember({
+			permissions: context.permissions,
+			isYou,
+			hasEmployee: Boolean(employeeIdOf(member)),
+			workspaceRoleName
+		}),
+		canChangeWorkspaceRole: canChangeWorkspaceRole({
+			isYou,
+			hasUser: Boolean(memberUserId),
+			workspaceRoleName,
+			assignableRoles: context.assignableRoles
+		})
+	};
+}
+
 export function useTeamMembersSettings() {
 	const t = useTranslations();
 	const { data: user } = useUserQuery();
@@ -130,14 +182,29 @@ export function useTeamMembersSettings() {
 	const { arePermissionsLoaded, mayTurnTracking, writesEmployeeTracking, saveMemberTracking } =
 		useMemberTrackingSwitch();
 	const { saveEmployeeRates } = useEmployeeRatesMutation();
+	const { setMemberWorkEnd } = useMemberWorkEnd();
+	const { assignWorkspaceRole } = useWorkspaceRoleAssignment();
+	const { roles: workspaceRoles } = useRolesQuery({ enabled: readsWorkspaceRoles(myPermissions) });
 
 	const [roleOverrides, setRoleOverrides] = useState<Overrides<TeamRole>>({});
 	const [trackingOverrides, setTrackingOverrides] = useState<Overrides<boolean>>({});
+	const [workspaceRoleOverrides, setWorkspaceRoleOverrides] = useState<Overrides<string>>({});
 	const [pendingRoles, setPendingRoles] = useState<ReadonlySet<string>>(new Set());
 	const [pendingTracking, setPendingTracking] = useState<ReadonlySet<string>>(new Set());
+	const [pendingWorkspaceRoles, setPendingWorkspaceRoles] = useState<ReadonlySet<string>>(new Set());
 
 	const members = useMemo(() => activeTeam?.members ?? [], [activeTeam?.members]);
 	const userId = user?.id;
+	const viewerRoleName = user?.role?.name;
+
+	const assignableRoles = useMemo(
+		() => assignableWorkspaceRolesOf({ viewerRoleName, permissions: myPermissions, roles: workspaceRoles }),
+		[myPermissions, viewerRoleName, workspaceRoles]
+	);
+	const accessContext = useMemo<MemberAccessContext>(
+		() => ({ userId, permissions: myPermissions, workspaceRoles, assignableRoles }),
+		[assignableRoles, myPermissions, userId, workspaceRoles]
+	);
 
 	useEffect(() => {
 		const memberById = new Map(members.map((member) => [member.id ?? '', member]));
@@ -159,6 +226,15 @@ export function useTeamMembersSettings() {
 				return isTrackingEnabledOf(member);
 			})
 		);
+		setWorkspaceRoleOverrides((current) =>
+			withoutSettled(current, (rowId) => {
+				const member = memberById.get(rowId);
+				if (!member) {
+					return undefined;
+				}
+				return memberWorkspaceRoleIdOf(member) ?? undefined;
+			})
+		);
 	}, [members]);
 
 	const rows = useMemo<MemberRowModel[]>(() => {
@@ -177,6 +253,8 @@ export function useTeamMembersSettings() {
 			// Before the permissions load an admin would look like a team manager and save the team switch alone
 			const isSavingTracking = pendingTracking.has(rowId);
 			const waitsForPermissions = !arePermissionsLoaded;
+			const workspaceRoleId = workspaceRoleOverrides[rowId] ?? memberWorkspaceRoleIdOf(member);
+			const access = memberAccessOf(member, accessContext);
 			models.push({
 				id: rowId,
 				name: memberNameOf(member),
@@ -198,20 +276,29 @@ export function useTeamMembersSettings() {
 				isTrackingPending: isSavingTracking || waitsForPermissions,
 				rate: memberRateOf(member),
 				canEditRate: canEditMemberRates({ permissions: myPermissions, hasEmployee, isYou }),
-				employeeId
+				employeeId,
+				workspaceRoleId,
+				workspaceRoleName: workspaceRoleNameOf(workspaceRoles, workspaceRoleId),
+				canChangeWorkspaceRole: access.canChangeWorkspaceRole,
+				isWorkspaceRolePending: pendingWorkspaceRoles.has(rowId),
+				canDeactivate: access.canDeactivate
 			});
 		}
 		return models;
 	}, [
+		accessContext,
 		arePermissionsLoaded,
 		mayTurnTracking,
 		myPermissions,
 		members,
 		pendingRoles,
 		pendingTracking,
+		pendingWorkspaceRoles,
 		roleOverrides,
 		trackingOverrides,
 		userId,
+		workspaceRoleOverrides,
+		workspaceRoles,
 		writesEmployeeTracking
 	]);
 
@@ -332,10 +419,80 @@ export function useTeamMembersSettings() {
 		[findMember, saveEmployeeRates]
 	);
 
+	const workspaceRoleTargetOf = useCallback(
+		(rowId: string, roleId: string) => {
+			const member = getActiveTeam()?.members?.find((candidate) => candidate.id === rowId);
+			if (!member) {
+				return null;
+			}
+			const memberUserId = memberUserIdOf(member);
+			const isOfferedRole = assignableRoles.some((role) => role.id === roleId);
+			const mayChangeRole = memberAccessOf(member, accessContext).canChangeWorkspaceRole;
+			const isAllowed = isOfferedRole && mayChangeRole;
+			if (!memberUserId || !isAllowed) {
+				return null;
+			}
+			return { userId: memberUserId, name: memberNameOf(member) };
+		},
+		[accessContext, assignableRoles, getActiveTeam]
+	);
+
+	const changeWorkspaceRole = useCallback(
+		async (rowId: string, roleId: string) => {
+			const target = workspaceRoleTargetOf(rowId, roleId);
+			if (!target) {
+				return;
+			}
+			setWorkspaceRoleOverrides((current) => ({ ...current, [rowId]: roleId }));
+			setPendingWorkspaceRoles((current) => new Set(current).add(rowId));
+			try {
+				await assignWorkspaceRole({ userId: target.userId, roleId });
+			} catch (error) {
+				setWorkspaceRoleOverrides((current) => withoutKey(current, rowId));
+				showFailure('settings.members.WORKSPACE_ROLE_NOT_SAVED', { name: target.name }, error);
+			} finally {
+				setPendingWorkspaceRoles((current) => {
+					const next = new Set(current);
+					next.delete(rowId);
+					return next;
+				});
+			}
+		},
+		[assignWorkspaceRole, showFailure, workspaceRoleTargetOf]
+	);
+
+	const deactivateMember = useCallback(
+		async (rowId: string) => {
+			const { team, member, employeeId } = findMember(rowId);
+			const name = memberNameOf(member);
+			const organizationId = team.organizationId;
+			const tenantId = team.tenantId;
+			const mayDeactivate = memberAccessOf(member, accessContext).canDeactivate;
+			try {
+				if (!mayDeactivate) {
+					throw new Error('Member cannot be deactivated');
+				}
+				if (!organizationId || !tenantId) {
+					throw new Error('Team without an organization');
+				}
+				const endWork = new Date().toISOString();
+				await setMemberWorkEnd({ employeeId, organizationId, tenantId, endWork });
+			} catch (error) {
+				showFailure('settings.members.DEACTIVATE_FAILED', { name }, error);
+				throw error;
+			}
+			toast.success(t('settings.members.DEACTIVATED', { name }));
+		},
+		[accessContext, findMember, setMemberWorkEnd, showFailure, t]
+	);
+
 	return {
 		teamName: activeTeam?.name ?? '',
 		rows,
+		assignableRoles,
 		changeRole,
+		changeWorkspaceRole,
+		deactivateMember,
 		removeMember,
 		renameMember,
 		setMemberTracking,
