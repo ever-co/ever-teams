@@ -410,7 +410,8 @@ export function meetingLinkWithTitle(link: string, title: string): string {
 		.filter((param) => param && paramNameOf(param) !== 'title');
 	const titleParam = withTitle('', title).slice(1);
 	const params = titleParam ? [...kept, titleParam] : kept;
-	return `${base}${params.length > 0 ? `?${params.join('&')}` : ''}${fragment}`;
+	const query = params.length > 0 ? `?${params.join('&')}` : '';
+	return `${base}${query}${fragment}`;
 }
 
 // iCalendar (RFC 5545) property names
