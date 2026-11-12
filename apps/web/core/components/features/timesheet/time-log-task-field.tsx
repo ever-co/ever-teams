@@ -10,7 +10,7 @@ const FIELD_LABEL = 'text-xs font-medium text-muted-foreground';
 
 const FIELD_NOTE = 'text-xs text-muted-foreground';
 
-function TaskLine({ task }: Readonly<{ task: TTask | null | undefined }>) {
+export function TaskLine({ task }: Readonly<{ task: TTask | null | undefined }>) {
 	return (
 		<TaskNameInfoDisplay
 			task={task ?? null}
