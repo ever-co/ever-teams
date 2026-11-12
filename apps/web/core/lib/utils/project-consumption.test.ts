@@ -10,6 +10,7 @@ import {
 	hasProjectBudget,
 	sortProjectsByBudgetUsed,
 	sortProjectsByTimeSpent,
+	sortProjectsWithConsumption,
 	timeSpentOf,
 	timeSpentTextOf
 } from './project-consumption';
@@ -210,5 +211,21 @@ describe('sortProjectsByBudgetUsed', () => {
 			'hours-over',
 			'untouched'
 		]);
+	});
+});
+
+describe('sortProjectsWithConsumption', () => {
+	it('sorts by time spent and by budget used', () => {
+		const byTime = sortProjectsWithConsumption(PROJECTS, { id: 'timeSpent', desc: true }, rowOf);
+		const byBudget = sortProjectsWithConsumption(PROJECTS, { id: 'budgetUsed', desc: true }, rowOf);
+
+		expect(idsOf(byTime)[0]).toBe('hours-half');
+		expect(idsOf(byBudget)[0]).toBe('hours-over');
+	});
+
+	it('leaves the other orderings to the list', () => {
+		const byName = sortProjectsWithConsumption(PROJECTS, { id: 'name', desc: true }, rowOf);
+
+		expect(idsOf(byName)[0]).toBe('untouched');
 	});
 });

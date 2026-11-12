@@ -1,6 +1,12 @@
 import { describe, expect, it } from '@jest/globals';
 import type { TOrganizationProject } from '@/core/types/schemas';
-import { compareWithUnsetLast, sortProjects } from './project-list';
+import {
+	compareWithUnsetLast,
+	isConsumptionColumn,
+	isConsumptionOrderField,
+	PROJECT_COLUMNS,
+	sortProjects
+} from './project-list';
 
 function projectOf(id: string, overrides: Partial<TOrganizationProject> = {}): TOrganizationProject {
 	return { id, name: id, public: null, owner: null, code: null, ...overrides };
@@ -49,5 +55,26 @@ describe('sortProjects', () => {
 		const sorted = sortProjects(projects, { id: 'startDate', desc: true });
 
 		expect(idsOf(sorted)).toEqual(['march', 'january', 'undated', 'epoch']);
+	});
+
+	it('falls back on the name for an ordering that needs the budget report', () => {
+		const sorted = sortProjects(projects, { id: 'timeSpent', desc: false });
+
+		expect(idsOf(sorted)).toEqual(['epoch', 'january', 'march', 'undated']);
+	});
+});
+
+describe('columns and orderings read from the budget report', () => {
+	it('names the time spent column, and no other', () => {
+		const consumptionColumns = PROJECT_COLUMNS.filter((column) => isConsumptionColumn(column));
+
+		expect(consumptionColumns).toEqual(['timeSpent']);
+	});
+
+	it('names the two orderings by consumption', () => {
+		expect(isConsumptionOrderField('timeSpent')).toBe(true);
+		expect(isConsumptionOrderField('budgetUsed')).toBe(true);
+		expect(isConsumptionOrderField('name')).toBe(false);
+		expect(isConsumptionOrderField('startDate')).toBe(false);
 	});
 });

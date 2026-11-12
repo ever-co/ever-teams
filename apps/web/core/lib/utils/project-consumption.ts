@@ -131,3 +131,17 @@ export function sortProjectsByTimeSpent(projects: TOrganizationProject[], rowOf:
 export function sortProjectsByBudgetUsed(projects: TOrganizationProject[], rowOf: BudgetRowLookup, desc: boolean) {
 	return sortedByFigure(projects, shareUsedOf, rowOf, desc);
 }
+
+export function sortProjectsWithConsumption(
+	projects: TOrganizationProject[],
+	ordering: ProjectOrdering,
+	rowOf: BudgetRowLookup
+) {
+	if (ordering.id === 'timeSpent') {
+		return sortProjectsByTimeSpent(projects, rowOf, ordering.desc);
+	}
+	if (ordering.id === 'budgetUsed') {
+		return sortProjectsByBudgetUsed(projects, rowOf, ordering.desc);
+	}
+	return sortProjects(projects, ordering);
+}
