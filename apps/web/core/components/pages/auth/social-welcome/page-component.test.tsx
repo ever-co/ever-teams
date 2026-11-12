@@ -64,6 +64,21 @@ describe('the social sign-up welcome', () => {
 		expect(mockReplace).not.toHaveBeenCalled();
 	});
 
+	it('ends the sign-up once, though the session comes again before the page leaves', () => {
+		mockSession.current = {
+			status: 'authenticated',
+			data: { user: { access_token: 'access-token', refresh_token: 'refresh-token', tenantId: 'tenant-1' } }
+		};
+
+		const { rerender } = render(<Welcome />);
+		// A refetched session: a new object, and a new `update`, so the effect runs again
+		mockSession.current = { ...mockSession.current, data: { ...(mockSession.current.data as object) } };
+		rerender(<Welcome />);
+
+		expect(mockNavigateAfterSignIn).toHaveBeenCalledTimes(1);
+		expect(mockReplace).not.toHaveBeenCalled();
+	});
+
 	it('goes to the app when no session was opened', () => {
 		mockSession.current = { status: 'unauthenticated', data: null };
 
