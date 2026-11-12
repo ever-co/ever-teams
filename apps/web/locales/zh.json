@@ -3936,6 +3936,8 @@
 		"YOU_LEFT": "你已离开会议",
 		"YOU_LEFT_HINT": "会议仍在进行。你可以重新加入，或返回你的会议。",
 		"REJOIN": "重新加入",
+		"SHARE_SCREEN": "共享屏幕",
+		"SHARE_SCREEN_REFUSED": "浏览器没有开始共享你的屏幕，需要点击一下才能开始。",
 		"SETTINGS": "设置",
 		"AUDIO_AND_VIDEO": "音频和视频",
 		"EFFECTS": "效果",

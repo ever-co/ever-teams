@@ -9,7 +9,10 @@ import {
 	useRoomContext
 } from '@livekit/components-react';
 import { RoomConnectOptions, RoomOptions } from 'livekit-client';
+import { useTranslations } from 'next-intl';
 import '@livekit/components-styles';
+import { Button } from '@/core/components/duplicated-components/_button';
+import { ScreenShare } from '@/core/components/icons';
 import { SettingsMenu } from './settings-livekit';
 import { MeetRoomSkeleton } from '@/core/components/pages/meet/meet-room-skeleton';
 import { MeetRoomBar } from '@/core/components/pages/meet/room/meet-room-bar';
@@ -24,6 +27,8 @@ type LiveKitPageProps = {
 	liveKitUrl?: string;
 	/** What the room's bar calls the meeting; null for a room with a random name. */
 	title?: string | null;
+	/** The meeting was started to show the screen: sharing starts as soon as the room is joined. */
+	shareScreenOnJoin?: boolean;
 	onLeave?: () => void;
 	onCopyLink?: () => void;
 };
@@ -58,6 +63,50 @@ function LiveKitRoomBar({
 	);
 }
 
+/**
+ * Shares the screen once the room is joined. A browser may refuse a share no click asked for (Safari, and Firefox a few
+ * seconds after the last click): a band under the room's bar then says so and offers the click it wants.
+ */
+function ShareScreenOnJoin() {
+	const t = useTranslations();
+	const room = useRoomContext();
+	const [isRefused, setIsRefused] = React.useState(false);
+	const hasAsked = React.useRef(false);
+
+	const share = React.useCallback(async () => {
+		try {
+			await room.localParticipant.setScreenShareEnabled(true, { audio: true, selfBrowserSurface: 'include' });
+			setIsRefused(false);
+		} catch {
+			setIsRefused(true);
+		}
+	}, [room]);
+
+	React.useEffect(() => {
+		if (hasAsked.current) return;
+		hasAsked.current = true;
+		void share();
+	}, [share]);
+
+	if (!isRefused) return null;
+	return (
+		<div
+			role="alert"
+			data-testid="share-screen-refused"
+			className="flex shrink-0 flex-wrap items-center gap-2 hairline-b border-border bg-card px-3 py-2 text-sm sm:px-4"
+		>
+			<span className="min-w-0 flex-1 text-foreground">{t('meetings.SHARE_SCREEN_REFUSED')}</span>
+			<Button type="button" size="sm" onClick={() => void share()}>
+				<ScreenShare className="size-4" aria-hidden="true" />
+				{t('meetings.SHARE_SCREEN')}
+			</Button>
+			<Button type="button" variant="ghost" size="sm" onClick={() => setIsRefused(false)}>
+				{t('common.CLOSE')}
+			</Button>
+		</div>
+	);
+}
+
 export default function LiveKitPage({
 	userChoices,
 	audioOutputDeviceId = '',
@@ -65,6 +114,7 @@ export default function LiveKitPage({
 	token,
 	liveKitUrl,
 	title = null,
+	shareScreenOnJoin = false,
 	onCopyLink = () => undefined
 }: Readonly<LiveKitPageProps>) {
 	const [error, setError] = React.useState<string>();
@@ -143,6 +193,7 @@ export default function LiveKitPage({
 			onDisconnected={onLeave}
 		>
 			<LiveKitRoomBar title={title} joinedAt={joinedAt} onCopyLink={onCopyLink} />
+			{joinedAt !== null && shareScreenOnJoin && <ShareScreenOnJoin />}
 			{joinedAt === null && <MeetRoomSkeleton className="h-full" />}
 			{joinedAt !== null && (
 				<div className="min-h-0 flex-1">

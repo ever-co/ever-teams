@@ -3936,6 +3936,8 @@
 		"YOU_LEFT": "Du hast die Besprechung verlassen",
 		"YOU_LEFT_HINT": "Die Besprechung geht ohne dich weiter. Tritt erneut bei oder geh zurück zu deinen Besprechungen.",
 		"REJOIN": "Erneut beitreten",
+		"SHARE_SCREEN": "Bildschirm teilen",
+		"SHARE_SCREEN_REFUSED": "Dein Browser hat das Teilen des Bildschirms nicht gestartet. Dafür braucht er einen Klick.",
 		"SETTINGS": "Einstellungen",
 		"AUDIO_AND_VIDEO": "Audio und Video",
 		"EFFECTS": "Effekte",

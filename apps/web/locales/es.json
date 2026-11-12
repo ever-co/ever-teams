@@ -3936,6 +3936,8 @@
 		"YOU_LEFT": "Saliste de la reunión",
 		"YOU_LEFT_HINT": "La reunión sigue sin ti. Vuelve a unirte o regresa a tus reuniones.",
 		"REJOIN": "Volver a unirse",
+		"SHARE_SCREEN": "Compartir pantalla",
+		"SHARE_SCREEN_REFUSED": "Tu navegador no empezó a compartir tu pantalla. Necesita un clic para hacerlo.",
 		"SETTINGS": "Configuración",
 		"AUDIO_AND_VIDEO": "Audio y video",
 		"EFFECTS": "Efectos",

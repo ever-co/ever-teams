@@ -1,8 +1,9 @@
 /** @jest-environment jsdom */
-import { act, render } from '@testing-library/react';
+import { act, fireEvent, render, screen } from '@testing-library/react';
 import type { ReactNode } from 'react';
 
 const mockDisconnect = jest.fn();
+const mockSetScreenShareEnabled = jest.fn();
 const mockRoomProps: Array<Record<string, unknown>> = [];
 const mockBarProps: Array<{ leave: () => void; participantCount: number | null; joinedAt: number | null }> = [];
 
@@ -13,10 +14,14 @@ jest.mock('@livekit/components-react', () => ({
 	},
 	VideoConference: () => <div data-testid="video-conference" />,
 	formatChatMessageLinks: jest.fn(),
-	useRoomContext: () => ({ disconnect: mockDisconnect }),
+	useRoomContext: () => ({
+		disconnect: mockDisconnect,
+		localParticipant: { setScreenShareEnabled: mockSetScreenShareEnabled }
+	}),
 	useParticipants: () => [{}, {}]
 }));
 jest.mock('@livekit/components-styles', () => ({}));
+jest.mock('next-intl', () => ({ useTranslations: () => (key: string) => key }));
 jest.mock('livekit-client', () => ({}));
 jest.mock('./settings-livekit', () => ({ SettingsMenu: () => null }));
 jest.mock('@/core/components/pages/meet/meet-room-skeleton', () => ({
@@ -39,6 +44,7 @@ describe('LiveKitPage', () => {
 
 	beforeEach(() => {
 		mockDisconnect.mockReset();
+		mockSetScreenShareEnabled.mockReset().mockResolvedValue(undefined);
 		mockRoomProps.length = 0;
 		mockBarProps.length = 0;
 	});
@@ -112,5 +118,66 @@ describe('LiveKitPage', () => {
 
 		lastBarProps().leave();
 		expect(mockDisconnect).toHaveBeenCalledTimes(1);
+	});
+
+	it('shares the screen once the room is joined, when the meeting was started to show it', async () => {
+		render(
+			<LiveKitPage
+				userChoices={{ audioEnabled: true, videoEnabled: true } as never}
+				token="room-token"
+				liveKitUrl="wss://livekit.example.test"
+				shareScreenOnJoin
+			/>
+		);
+		expect(mockSetScreenShareEnabled).not.toHaveBeenCalled();
+
+		await act(async () => {
+			(lastRoomProps().onConnected as () => void)();
+		});
+
+		expect(mockSetScreenShareEnabled).toHaveBeenCalledTimes(1);
+		expect(mockSetScreenShareEnabled).toHaveBeenCalledWith(true, expect.objectContaining({ audio: true }));
+		expect(screen.queryByTestId('share-screen-refused')).toBeNull();
+	});
+
+	it('offers the click a browser wants when it refuses to share the screen without one', async () => {
+		mockSetScreenShareEnabled.mockRejectedValueOnce(
+			Object.assign(new Error('no gesture'), { name: 'InvalidStateError' })
+		);
+		render(
+			<LiveKitPage
+				userChoices={{ audioEnabled: true, videoEnabled: true } as never}
+				token="room-token"
+				liveKitUrl="wss://livekit.example.test"
+				shareScreenOnJoin
+			/>
+		);
+		await act(async () => {
+			(lastRoomProps().onConnected as () => void)();
+		});
+
+		const refused = screen.getByTestId('share-screen-refused');
+		expect(refused.textContent).toContain('meetings.SHARE_SCREEN_REFUSED');
+		await act(async () => {
+			fireEvent.click(screen.getByRole('button', { name: 'meetings.SHARE_SCREEN' }));
+		});
+
+		expect(mockSetScreenShareEnabled).toHaveBeenCalledTimes(2);
+		expect(screen.queryByTestId('share-screen-refused')).toBeNull();
+	});
+
+	it('leaves the screen alone in a meeting not started to show it', async () => {
+		render(
+			<LiveKitPage
+				userChoices={{ audioEnabled: true, videoEnabled: true } as never}
+				token="room-token"
+				liveKitUrl="wss://livekit.example.test"
+			/>
+		);
+		await act(async () => {
+			(lastRoomProps().onConnected as () => void)();
+		});
+
+		expect(mockSetScreenShareEnabled).not.toHaveBeenCalled();
 	});
 });

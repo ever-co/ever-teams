@@ -3936,6 +3936,8 @@
 		"YOU_LEFT": "You left the meeting",
 		"YOU_LEFT_HINT": "The meeting goes on without you. Rejoin it, or go back to your meetings.",
 		"REJOIN": "Rejoin",
+		"SHARE_SCREEN": "Share screen",
+		"SHARE_SCREEN_REFUSED": "Your browser did not start sharing your screen. It needs a click to do so.",
 		"SETTINGS": "Settings",
 		"AUDIO_AND_VIDEO": "Audio and video",
 		"EFFECTS": "Effects",

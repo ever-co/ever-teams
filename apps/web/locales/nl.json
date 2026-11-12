@@ -3936,6 +3936,8 @@
 		"YOU_LEFT": "Je hebt de vergadering verlaten",
 		"YOU_LEFT_HINT": "De vergadering gaat zonder jou door. Neem opnieuw deel of ga terug naar je vergaderingen.",
 		"REJOIN": "Opnieuw deelnemen",
+		"SHARE_SCREEN": "Scherm delen",
+		"SHARE_SCREEN_REFUSED": "Je browser is niet begonnen met het delen van je scherm. Daarvoor is een klik nodig.",
 		"SETTINGS": "Instellingen",
 		"AUDIO_AND_VIDEO": "Audio en video",
 		"EFFECTS": "Effecten",

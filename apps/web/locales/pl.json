@@ -3936,6 +3936,8 @@
 		"YOU_LEFT": "Opuszczono spotkanie",
 		"YOU_LEFT_HINT": "Spotkanie trwa dalej bez ciebie. Dołącz ponownie lub wróć do swoich spotkań.",
 		"REJOIN": "Dołącz ponownie",
+		"SHARE_SCREEN": "Udostępnij ekran",
+		"SHARE_SCREEN_REFUSED": "Przeglądarka nie zaczęła udostępniać ekranu. Potrzebuje do tego kliknięcia.",
 		"SETTINGS": "Ustawienia",
 		"AUDIO_AND_VIDEO": "Dźwięk i obraz",
 		"EFFECTS": "Efekty",
