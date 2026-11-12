@@ -599,5 +599,34 @@ describe('TeamTasksCalendarView', () => {
 			expect(mockMoveToDay).toHaveBeenCalledWith('d', november(23));
 			expect(screen.queryByRole('dialog')).toBeNull();
 		});
+
+		it('closes an open "+N more" list when another task of the month is dragged, so the days under it take it', () => {
+			renderCalendar(
+				[
+					openTask('a', 'First', '2026-11-20'),
+					openTask('b', 'Second', '2026-11-20'),
+					openTask('c', 'Third', '2026-11-20'),
+					openTask('d', 'Fourth', '2026-11-20'),
+					openTask('e', 'Elsewhere', '2026-11-12')
+				],
+				{ teamTaskIds: ['a', 'b', 'c', 'd', 'e'] }
+			);
+			const grid = monthGrid('November 2026');
+			fireEvent.click(
+				within(dayCell(grid, 'Friday, November 20')).getByRole('button', {
+					name: 'dashboard.calendar.MORE_ENTRIES(1)'
+				})
+			);
+			expect(screen.getByRole('dialog')).toBeTruthy();
+			const elsewhere = within(dayCell(grid, 'Thursday, November 12')).getByRole('button', {
+				name: 'Elsewhere, open'
+			});
+
+			const drag = beginDrag(elsewhere);
+			expect(screen.queryByRole('dialog')).toBeNull();
+			dropOn(drag, dayCell(grid, 'Monday, November 23'));
+
+			expect(mockMoveToDay).toHaveBeenCalledWith('e', november(23));
+		});
 	});
 });

@@ -111,8 +111,10 @@ export function useCalendarTaskMoves(
 }
 
 /**
- * A day's "+N more" list while one of its tasks is dragged out of it: `isDraggingOut` lets the month under the list
- * take the drop (the list fades and lets the pointer through), and the list closes once the task is dropped.
+ * A day's "+N more" list while a task of the month is dragged. One of its own tasks dragged out of it: `isDraggingOut`
+ * lets the month under the list take the drop (the list fades and lets the pointer through), and the list closes
+ * once the task is dropped. Any other task: the list closes at once, since a drag sends no click to close it by
+ * (Safari and Firefox on macOS do not move the focus out of it on a press either), and it would hide the days below.
  */
 export function useDayListDragOut(isOpen: boolean, setIsOpen: (isOpen: boolean) => void) {
 	const listRef = useRef<HTMLDivElement>(null);
@@ -123,14 +125,28 @@ export function useDayListDragOut(isOpen: boolean, setIsOpen: (isOpen: boolean) 
 			return;
 		}
 		const isInList = (element: Element) => Boolean(listRef.current?.contains(element));
-		return monitorForElements({
-			canMonitor: ({ source }) => isCalendarTaskData(source.data) && isInList(source.element),
-			onDragStart: () => setIsDraggingOut(true),
-			onDrop: () => {
+		const cleanup = monitorForElements({
+			canMonitor: ({ source }) => isCalendarTaskData(source.data),
+			onDragStart: ({ source }) => {
+				if (!isInList(source.element)) {
+					setIsOpen(false);
+					return;
+				}
+				setIsDraggingOut(true);
+			},
+			onDrop: ({ source }) => {
+				if (!isInList(source.element)) {
+					return;
+				}
 				setIsDraggingOut(false);
 				setIsOpen(false);
 			}
 		});
+		// The list may close another way mid-drag: it never opens again faded.
+		return () => {
+			cleanup();
+			setIsDraggingOut(false);
+		};
 	}, [isOpen, setIsOpen]);
 
 	return { listRef, isDraggingOut };
