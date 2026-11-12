@@ -144,6 +144,26 @@ describe('the Client field of the project form while a client is being created',
 		expect(offeredIds).toContain('client-zenith');
 	});
 
+	it('saves the project with a client picked meanwhile, without waiting for the one being created', async () => {
+		const creation = deferred<TClient>();
+		mockContactService.createClient.mockReturnValue(creation.promise);
+		const { result } = renderComposer();
+		await startCreatingClient(result, 'Zenith');
+		expect(result.current.isAwaitingCreatedClient).toBe(true);
+
+		act(() => result.current.setClientId('client-acme'));
+		expect(result.current.isAwaitingCreatedClient).toBe(false);
+
+		await act(() => result.current.submit());
+
+		expect(mockCreateProject).toHaveBeenCalledTimes(1);
+		const [request] = mockCreateProject.mock.calls[0] as [Record<string, unknown>];
+		expect(request).toMatchObject({ name: 'Website', organizationContactId: 'client-acme' });
+
+		await answerCreation(result, creation, zenith);
+		expect(result.current.draft.clientId).toBe('client-acme');
+	});
+
 	it('keeps the field cleared while a client was being created', async () => {
 		const creation = deferred<TClient>();
 		mockContactService.createClient.mockReturnValue(creation.promise);

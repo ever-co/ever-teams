@@ -140,7 +140,7 @@ export function ProjectComposer({ mode, project, context, onClose }: Readonly<Pr
 	if (composer.hasClientCreateFailed) {
 		clientErrorKey = 'clients.picker.CREATE_FAILED';
 	}
-	const isSaveBlocked = composer.isSubmitting || composer.isCreatingClient;
+	const isSaveBlocked = composer.isSubmitting || composer.isAwaitingCreatedClient;
 
 	let title = t('modals.project.createTitle');
 	let submitLabel = t('pages.projects.list.CREATE_PROJECT');
