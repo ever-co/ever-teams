@@ -22,8 +22,16 @@ jest.mock('@livekit/components-react', () => ({
 }));
 jest.mock('@livekit/components-styles', () => ({}));
 jest.mock('next-intl', () => ({ useTranslations: () => (key: string) => key }));
-jest.mock('livekit-client', () => ({}));
-jest.mock('./settings-livekit', () => ({ SettingsMenu: () => null }));
+jest.mock('livekit-client', () => ({
+	VideoPresets: {
+		h720: { resolution: { width: 1280, height: 720 } },
+		h360: { resolution: { width: 640, height: 360 } }
+	}
+}));
+jest.mock('./settings-livekit', () => ({
+	SettingsMenu: () => null,
+	NoiseFilterChoiceContext: jest.requireActual('react').createContext(true)
+}));
 jest.mock('@/core/components/pages/meet/meet-room-skeleton', () => ({
 	MeetRoomSkeleton: () => <div data-testid="meet-room-skeleton" />
 }));
@@ -179,5 +187,32 @@ describe('LiveKitPage', () => {
 		});
 
 		expect(mockSetScreenShareEnabled).not.toHaveBeenCalled();
+	});
+
+	it('captures the camera in HD unless HD video was turned off in the settings', () => {
+		const view = render(
+			<LiveKitPage
+				userChoices={{ audioEnabled: true, videoEnabled: true } as never}
+				token="room-token"
+				liveKitUrl="wss://livekit.example.test"
+			/>
+		);
+		expect(lastRoomProps()).toMatchObject({
+			options: { videoCaptureDefaults: { resolution: { width: 1280, height: 720 } } }
+		});
+		view.unmount();
+
+		render(
+			<LiveKitPage
+				userChoices={{ audioEnabled: true, videoEnabled: true } as never}
+				token="room-token"
+				liveKitUrl="wss://livekit.example.test"
+				hdVideo={false}
+			/>
+		);
+
+		expect(lastRoomProps()).toMatchObject({
+			options: { videoCaptureDefaults: { resolution: { width: 640, height: 360 } } }
+		});
 	});
 });

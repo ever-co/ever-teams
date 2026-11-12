@@ -129,6 +129,8 @@ function LiveKitPage() {
 						username: flow.choices?.displayName || displayName
 					}}
 					audioOutputDeviceId={flow.choices?.audioOutputId ?? ''}
+					noiseFilter={flow.choices?.noiseFilter ?? true}
+					hdVideo={flow.choices?.hdVideo ?? true}
 				/>
 			)}
 		</div>

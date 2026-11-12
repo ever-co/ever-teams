@@ -8,12 +8,12 @@ import {
 	useParticipants,
 	useRoomContext
 } from '@livekit/components-react';
-import { RoomConnectOptions, RoomOptions } from 'livekit-client';
+import { RoomConnectOptions, RoomOptions, VideoPresets } from 'livekit-client';
 import { useTranslations } from 'next-intl';
 import '@livekit/components-styles';
 import { Button } from '@/core/components/duplicated-components/_button';
 import { ScreenShare } from '@/core/components/icons';
-import { SettingsMenu } from './settings-livekit';
+import { NoiseFilterChoiceContext, SettingsMenu } from './settings-livekit';
 import { MeetRoomSkeleton } from '@/core/components/pages/meet/meet-room-skeleton';
 import { MeetRoomBar } from '@/core/components/pages/meet/room/meet-room-bar';
 
@@ -21,6 +21,10 @@ type LiveKitPageProps = {
 	userChoices: LocalUserChoices;
 	/** The speaker picked before joining; empty for the system's default. */
 	audioOutputDeviceId?: string;
+	/** The background noise filter of the video and audio settings: on unless turned off there. */
+	noiseFilter?: boolean;
+	/** HD video of the video and audio settings: the camera captured in 720p, else in 360p. */
+	hdVideo?: boolean;
 	roomName?: string;
 	region?: string;
 	token?: string;
@@ -110,6 +114,8 @@ function ShareScreenOnJoin() {
 export default function LiveKitPage({
 	userChoices,
 	audioOutputDeviceId = '',
+	noiseFilter = true,
+	hdVideo = true,
 	onLeave,
 	token,
 	liveKitUrl,
@@ -138,14 +144,17 @@ export default function LiveKitPage({
 		[]
 	);
 
-	// The devices picked before joining; LiveKit reads its options once, when it creates the room
+	// The devices and the video quality picked before joining; LiveKit reads its options once, when it creates the room
 	const roomOptions = React.useMemo(
 		(): RoomOptions => ({
-			videoCaptureDefaults: userChoices.videoDeviceId ? { deviceId: userChoices.videoDeviceId } : undefined,
+			videoCaptureDefaults: {
+				...(userChoices.videoDeviceId ? { deviceId: userChoices.videoDeviceId } : {}),
+				resolution: (hdVideo ? VideoPresets.h720 : VideoPresets.h360).resolution
+			},
 			audioCaptureDefaults: userChoices.audioDeviceId ? { deviceId: userChoices.audioDeviceId } : undefined,
 			audioOutput: audioOutputDeviceId ? { deviceId: audioOutputDeviceId } : undefined
 		}),
-		[userChoices.videoDeviceId, userChoices.audioDeviceId, audioOutputDeviceId]
+		[userChoices.videoDeviceId, userChoices.audioDeviceId, audioOutputDeviceId, hdVideo]
 	);
 
 	const LiveKitRoomComponent = LiveKitRoom as React.ElementType;
@@ -197,7 +206,12 @@ export default function LiveKitPage({
 			{joinedAt === null && <MeetRoomSkeleton className="h-full" />}
 			{joinedAt !== null && (
 				<div className="min-h-0 flex-1">
-					<VideoConference chatMessageFormatter={formatChatMessageLinks} SettingsComponent={SettingsMenu} />
+					<NoiseFilterChoiceContext.Provider value={noiseFilter}>
+						<VideoConference
+							chatMessageFormatter={formatChatMessageLinks}
+							SettingsComponent={SettingsMenu}
+						/>
+					</NoiseFilterChoiceContext.Provider>
 				</div>
 			)}
 		</LiveKitRoomComponent>
