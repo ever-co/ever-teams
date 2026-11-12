@@ -7,9 +7,9 @@ import { PageLayout } from '@/core/components/layouts/default-layout/page-layout
 import { Button } from '@/core/components/duplicated-components/_button';
 import { DashboardBreadcrumb } from '@/core/components/dashboards/kit/dashboard-breadcrumb';
 import { BlockEmptyMessage, DashboardErrorNotice } from '@/core/components/dashboards/kit/dashboard-states';
-import { type ExportOption, ExportMenu } from '@/core/components/dashboards/kit/export-menu';
+import { ExportMenu } from '@/core/components/dashboards/kit/export-menu';
 import { DASHBOARD_STACK, DASHBOARD_SURFACE } from '@/core/components/dashboards/kit/recipes';
-import { Clock, FileSheet, Plus } from '@/core/components/icons';
+import { Clock, Plus } from '@/core/components/icons';
 import { useTimesheetDialogs } from '@/core/hooks/dashboards/timesheets/use-timesheet-dialogs';
 import { useTimesheetLogActions } from '@/core/hooks/dashboards/timesheets/use-timesheet-log-actions';
 import { useTimesheetSheet } from '@/core/hooks/dashboards/timesheets/use-timesheet-sheet';
@@ -28,7 +28,7 @@ import type { TOrganizationTeam, TOrganizationTeamEmployee } from '@/core/types/
 import type { TimesheetRowHandlers } from './timesheet-log-row';
 import { TimesheetsMonthView, TimesheetsWeekView } from './timesheets-calendar';
 import { TimesheetsDialogs } from './timesheets-dialogs';
-import { downloadTimesheetCsv } from './timesheets-export';
+import { useTimesheetExportOptions } from './timesheets-export';
 import { useTimesheetFilterCategories, useTimesheetFilterControls } from './timesheets-filters';
 import { TimesheetsList } from './timesheets-list';
 import { TimesheetsReportSkeleton } from './timesheets-page-skeleton';
@@ -236,18 +236,14 @@ export function TimesheetsPage({ params }: Readonly<{ params: Promise<{ memberId
 		}
 	}, [clearSelection, deleteLogs, dialogs.deleteTarget]);
 
-	const { shownLogs, period } = page;
-	const exportOptions = useMemo<ExportOption[]>(
-		() => [
-			{
-				key: 'csv',
-				label: t('dashboard.timesheets.EXPORT_CSV'),
-				icon: <FileSheet />,
-				run: () => downloadTimesheetCsv(shownLogs, period, t)
-			}
-		],
-		[period, shownLogs, t]
-	);
+	const { shownLogs } = page;
+	const exportOptions = useTimesheetExportOptions({
+		logs: shownLogs,
+		period: page.period,
+		appliedFilters: filterControls.applied,
+		statusFilter: page.statusFilter,
+		search: page.search
+	});
 	const hasShownLogs = shownLogs.length > 0;
 
 	const actionsNode = (

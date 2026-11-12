@@ -274,7 +274,11 @@ export function useTimesheetFilterControls({
 		[categories, onChange]
 	);
 
-	const applied = appliedFiltersOf(filters, categories, knownNames, t('dashboard.timeActivity.filters.UNLISTED'));
+	const unlistedName = t('dashboard.timeActivity.filters.UNLISTED');
+	const applied = useMemo(
+		() => appliedFiltersOf(filters, categories, knownNames, unlistedName),
+		[categories, filters, knownNames, unlistedName]
+	);
 	const hasApplied = applied.length > 0;
 
 	const menu = (
@@ -318,5 +322,5 @@ export function useTimesheetFilterControls({
 		</div>
 	);
 
-	return { menu, chips };
+	return { menu, chips, applied };
 }
