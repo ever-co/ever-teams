@@ -6,6 +6,7 @@ import {
 	notesToSendAtStart,
 	notesToSendAtStop,
 	readTimerNotes,
+	timerNotesAfterStart,
 	timerNotesFor,
 	wereNotesLostAtStop,
 	withoutTimerNotesDraft
@@ -34,11 +35,18 @@ describe('timerNotesFor', () => {
 		expect(timerNotesFor(draft, null)).toBe(draft);
 	});
 
-	it('ties a draft to the entry that starts', () => {
+	it('keeps a draft apart from a running entry that was not started with it', () => {
 		const draft = { text: 'Fix the login page', timeLogId: null };
 
-		expect(timerNotesFor(draft, { id: 'log-1', description: null })).toEqual({
-			text: 'Fix the login page',
+		expect(timerNotesFor(draft, { id: 'log-9', description: 'Typed on the phone' })).toBe(draft);
+		expect(timerNotesFor(draft, { id: 'log-9', description: null })).toBe(draft);
+	});
+
+	it('ties a draft to the running entry that already carries it, as after a start whose answer was lost', () => {
+		const draft = { text: ' Fix the login page', timeLogId: null };
+
+		expect(timerNotesFor(draft, { id: 'log-1', description: 'Fix the login page' })).toEqual({
+			text: ' Fix the login page',
 			timeLogId: 'log-1'
 		});
 	});
@@ -72,6 +80,38 @@ describe('timerNotesFor', () => {
 		const earlier = { text: 'Old notes', timeLogId: 'log-0' };
 
 		expect(timerNotesFor(earlier, { id: 'log-1' })).toEqual({ text: '', timeLogId: 'log-1' });
+	});
+});
+
+describe('timerNotesAfterStart', () => {
+	const draft = { text: 'Fix the login page', timeLogId: null };
+
+	it('ties a draft to the entry its own start created', () => {
+		const answer = { running: true, lastLog: { id: 'log-1', description: 'Fix the login page' } };
+
+		expect(timerNotesAfterStart(draft, answer)).toEqual({ text: 'Fix the login page', timeLogId: 'log-1' });
+	});
+
+	it('ties what was typed while the start was in flight too, so the stop sends the difference', () => {
+		const typedOn = { text: 'Fix the login page and its tests', timeLogId: null };
+		const answer = { running: true, lastLog: { id: 'log-1', description: 'Fix the login page' } };
+
+		expect(timerNotesAfterStart(typedOn, answer)).toEqual({
+			text: 'Fix the login page and its tests',
+			timeLogId: 'log-1'
+		});
+	});
+
+	it('leaves the notes alone when the answer shows no running entry', () => {
+		expect(timerNotesAfterStart(draft, null)).toBe(draft);
+		expect(timerNotesAfterStart(draft, { running: true })).toBe(draft);
+		expect(timerNotesAfterStart(draft, { running: false, lastLog: { id: 'log-0' } })).toBe(draft);
+	});
+
+	it('never gives the notes of an earlier entry to the entry that starts', () => {
+		const earlier = { text: 'Old notes', timeLogId: 'log-0' };
+
+		expect(timerNotesAfterStart(earlier, { running: true, lastLog: { id: 'log-1' } })).toBe(earlier);
 	});
 });
 

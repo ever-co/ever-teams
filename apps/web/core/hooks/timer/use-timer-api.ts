@@ -24,7 +24,12 @@ import {
 	requiredTrackingFieldsOf
 } from '@/core/lib/helpers/timer-errors';
 import { isTimerTaskOfTeam } from '@/core/lib/utils/task.utils';
-import { notesToSendAtStart, notesToSendAtStop, wereNotesLostAtStop } from '@/core/lib/utils/timer/timer-notes';
+import {
+	notesToSendAtStart,
+	notesToSendAtStop,
+	timerNotesAfterStart,
+	wereNotesLostAtStop
+} from '@/core/lib/utils/timer/timer-notes';
 import { startTaskOf } from '@/core/lib/utils/timer/timer-start-task';
 import { queryKeys } from '@/core/query/keys';
 import { ApiErrorService } from '@/core/services/client/api-error.service';
@@ -647,6 +652,8 @@ export function useTimerApi({
 					!isEqual(timerStatus, res.data) &&
 					setTimerStatus(res.data);
 				onRequestLanded?.();
+				// Notes typed before this start are the notes of the entry it created, and of no entry found running later
+				store.set(timerNotesState, (notes) => timerNotesAfterStart(notes, res.data));
 
 				// Save active task via API when timer starts
 				// Skip if we're on /task/ page because setActiveTask already does it

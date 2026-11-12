@@ -22,8 +22,10 @@ export function normalizedTimerNotes(text: string | null | undefined): string {
 }
 
 /**
- * The notes once the running entry is known. A draft follows the entry that starts, an entry started or reloaded
- * elsewhere brings its own notes, and the notes of an entry that ended never carry over to the next one.
+ * The notes once the running entry is known. An entry started or reloaded elsewhere brings its own notes, and the
+ * notes of an entry that ended never carry over to the next one. A draft waits for the start that sends it: an entry
+ * found running takes it only when it already carries the same notes, so an entry started on another device or in
+ * another tab is never given notes it was not started with.
  */
 export function timerNotesFor(notes: TimerNotes, runningLog: TimerNotesLog | null): TimerNotes {
 	if (!runningLog) {
@@ -36,11 +38,36 @@ export function timerNotesFor(notes: TimerNotes, runningLog: TimerNotesLog | nul
 		return notes;
 	}
 	const isDraft = notes.timeLogId === null;
-	const hasText = normalizedTimerNotes(notes.text) !== '';
-	if (isDraft && hasText) {
+	const draftText = normalizedTimerNotes(notes.text);
+	const hasDraft = isDraft && draftText !== '';
+	if (!hasDraft) {
+		return { text: runningLog.description ?? '', timeLogId: runningLog.id };
+	}
+	const wasStartedWithDraft = normalizedTimerNotes(runningLog.description) === draftText;
+	if (wasStartedWithDraft) {
 		return { text: notes.text, timeLogId: runningLog.id };
 	}
-	return { text: runningLog.description ?? '', timeLogId: runningLog.id };
+	return notes;
+}
+
+export interface TimerStartAnswer {
+	running?: boolean;
+	lastLog?: TimerNotesLog | null;
+}
+
+/**
+ * The notes once a start made here is answered: a draft belongs to the entry that start created, with whatever was
+ * typed while the start was in flight. Notes that are not a draft are left to `timerNotesFor`.
+ */
+export function timerNotesAfterStart(notes: TimerNotes, answer: TimerStartAnswer | null | undefined): TimerNotes {
+	const startedLog = answer?.lastLog;
+	if (!answer?.running || !startedLog) {
+		return notes;
+	}
+	if (notes.timeLogId !== null) {
+		return notes;
+	}
+	return { text: notes.text, timeLogId: startedLog.id };
 }
 
 /**

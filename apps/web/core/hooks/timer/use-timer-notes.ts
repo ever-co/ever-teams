@@ -7,8 +7,9 @@ import { timerNotesFor, type TimerNotesLog } from '@/core/lib/utils/timer/timer-
 import { timerNotesState, timerStatusState } from '@/core/stores';
 
 /**
- * The notes of the timer, for the field that edits them. It also keeps them in step with the running entry: a draft
- * follows the entry that starts, a reload reads the running entry's notes back, an entry that ended leaves none.
+ * The notes of the timer, for the field that edits them. It also keeps them in step with the running entry: a reload
+ * reads the running entry's notes back, an entry that ended leaves none, and a draft waits for the start that sends
+ * it (that start ties it to its entry, see `timerNotesAfterStart`).
  */
 export function useTimerNotes() {
 	const [notes, setNotes] = useAtom(timerNotesState);
@@ -41,5 +42,8 @@ export function useTimerNotes() {
 		[setNotes]
 	);
 
-	return { text: notes.text, setText, isRunning: Boolean(runningLogId) };
+	// A draft kept beside an entry started elsewhere stays a draft: the next start sends it, this entry's stop does not
+	const isOnRunningEntry = runningLogId !== undefined && notes.timeLogId === runningLogId;
+
+	return { text: notes.text, setText, isRunning: isOnRunningEntry };
 }
