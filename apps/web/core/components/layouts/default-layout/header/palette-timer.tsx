@@ -13,6 +13,7 @@ import { LazyAddManualTimeModal } from '@/core/components/optimized-components/c
 import { useModal } from '@/core/hooks/common/use-modal';
 import { useSyncRef } from '@/core/hooks/common/use-sync-ref';
 import { useStartStopTimerHandler } from '@/core/hooks/activities/use-start-stop-timer-handler';
+import { useUserQuery } from '@/core/hooks/queries/user-user.query';
 import { useTimerButtonLogic } from '@/core/hooks/tasks/use-timer-button';
 import { useTimerActions } from '@/core/hooks/timer';
 import { useTimerPlanStatus } from '@/core/hooks/timer/use-timer-plan-status';
@@ -113,6 +114,7 @@ function PaletteTimerStop() {
 
 function PaletteTimerStart({ task }: Readonly<{ task: TTask }>) {
 	const t = useTranslations();
+	const { data: user } = useUserQuery();
 	const { activeTaskStatus, disabled, canTrack, startStopTimerHandler, startTimerWithTask, modals } =
 		useTimerButtonLogic({ task });
 
@@ -120,6 +122,7 @@ function PaletteTimerStart({ task }: Readonly<{ task: TTask }>) {
 		const action = paletteStartActionOf({
 			isActiveTask: Boolean(activeTaskStatus),
 			isTimerRunning: activeTaskStatus?.running === true,
+			isEmailVerified: Boolean(user?.isEmailVerified),
 			isMainStartDisabled: disabled,
 			canTrackTask: canTrack
 		});
@@ -127,6 +130,9 @@ function PaletteTimerStart({ task }: Readonly<{ task: TTask }>) {
 		switch (action) {
 			case 'ALREADY_RUNNING':
 				toast.info(t('toasts.timer.ALREADY_RUNNING_ON_TASK'), { id: 'timer-already-running-on-task' });
+				return;
+			case 'EMAIL_NOT_VERIFIED':
+				toast.warning(t('common.VERIFY_ACCOUNT_MSG'), { id: 'timer-email-not-verified' });
 				return;
 			case 'UNAVAILABLE':
 				toast.warning(t('timer.START_TIMER'), { id: 'timer-start-unavailable' });

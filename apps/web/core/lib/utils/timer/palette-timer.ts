@@ -60,12 +60,20 @@ export function tasksToStartFor<T extends PaletteStartTask>(
 	return matches.slice(0, limit);
 }
 
-export type PaletteStartAction = 'ALREADY_RUNNING' | 'UNAVAILABLE' | 'MAIN_START' | 'BLOCKED_BY_PLAN' | 'TASK_START';
+export type PaletteStartAction =
+	| 'ALREADY_RUNNING'
+	| 'EMAIL_NOT_VERIFIED'
+	| 'UNAVAILABLE'
+	| 'MAIN_START'
+	| 'BLOCKED_BY_PLAN'
+	| 'TASK_START';
 
 export interface PaletteStartState {
 	/** The task is the active one and the timer status is known: its card shows the main start and stop. */
 	isActiveTask: boolean;
 	isTimerRunning: boolean;
+	/** A card's start does not check it, and the timer's Stop refuses such a member: the start could not be undone. */
+	isEmailVerified: boolean;
 	/** The main Start is disabled (email not verified, task closed). */
 	isMainStartDisabled: boolean;
 	/** The plan rule of the team lets a card start this task. */
@@ -75,12 +83,17 @@ export interface PaletteStartState {
 /**
  * What a start asked from the palette does, by the rules of the task's own card: the active task goes through the
  * main Start (and its daily plan dialogs), any other task through its card's start, which the plan rule can refuse.
+ * A member whose email is not verified starts neither.
  */
 export function paletteStartActionOf(state: PaletteStartState): PaletteStartAction {
+	const isRunningOnTask = state.isActiveTask && state.isTimerRunning;
+	if (isRunningOnTask) {
+		return 'ALREADY_RUNNING';
+	}
+	if (!state.isEmailVerified) {
+		return 'EMAIL_NOT_VERIFIED';
+	}
 	if (state.isActiveTask) {
-		if (state.isTimerRunning) {
-			return 'ALREADY_RUNNING';
-		}
 		if (state.isMainStartDisabled) {
 			return 'UNAVAILABLE';
 		}

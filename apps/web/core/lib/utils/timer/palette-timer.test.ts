@@ -65,6 +65,7 @@ describe('paletteStartActionOf', () => {
 	const otherTask: PaletteStartState = {
 		isActiveTask: false,
 		isTimerRunning: false,
+		isEmailVerified: true,
 		isMainStartDisabled: false,
 		canTrackTask: true
 	};
@@ -92,5 +93,19 @@ describe('paletteStartActionOf', () => {
 
 	it('does nothing the disabled main Start would not do', () => {
 		expect(paletteStartActionOf({ ...activeTask, isMainStartDisabled: true })).toBe('UNAVAILABLE');
+	});
+
+	it('starts no task for a member whose email is not verified, the active one or another', () => {
+		const unverifiedOnOther = { ...otherTask, isEmailVerified: false };
+		const unverifiedOnActive = { ...activeTask, isEmailVerified: false, isMainStartDisabled: true };
+
+		expect(paletteStartActionOf(unverifiedOnOther)).toBe('EMAIL_NOT_VERIFIED');
+		expect(paletteStartActionOf(unverifiedOnActive)).toBe('EMAIL_NOT_VERIFIED');
+	});
+
+	it('still says the timer already runs on the task asked for to a member whose email is not verified', () => {
+		const running = { ...activeTask, isTimerRunning: true, isEmailVerified: false };
+
+		expect(paletteStartActionOf(running)).toBe('ALREADY_RUNNING');
 	});
 });
