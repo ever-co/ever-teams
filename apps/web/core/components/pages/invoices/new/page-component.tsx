@@ -15,7 +15,6 @@ import { Button } from '@/core/components/duplicated-components/_button';
 import { Invoice } from '@/core/components/icons';
 import { withAuthentication } from '@/core/components/layouts/app/authenticator';
 import { PageLayout } from '@/core/components/layouts/default-layout';
-import { useCurrentOrganizationOwner } from '@/core/hooks/bootstrap/use-feature-data';
 import { INVOICE_WEEK_START, useNewInvoice, type NewInvoiceState } from '@/core/hooks/invoices/use-new-invoice';
 import { cn } from '@/core/lib/helpers';
 import { formatPeriod, shiftPeriod } from '@/core/lib/utils/dashboard-period';
@@ -110,11 +109,15 @@ function NewInvoiceBody({ invoice }: Readonly<{ invoice: NewInvoiceState }>) {
 	const hasClients = invoice.clients.length > 0;
 	const hasBillableTime = time.lines.length > 0 || time.unpriced.length > 0;
 
-	if (invoice.areClientsLoading) {
+	const isWaiting = invoice.areClientsLoading || invoice.isOrganizationLoading;
+	if (isWaiting) {
 		return <InvoiceSheetSkeleton />;
 	}
 	if (invoice.haveClientsFailed) {
 		return <DashboardErrorNotice onRetry={() => void invoice.refetchClients()} />;
+	}
+	if (invoice.hasOrganizationFailed) {
+		return <DashboardErrorNotice onRetry={() => void invoice.refetchOrganization()} />;
 	}
 	if (!hasClients) {
 		return (
@@ -228,9 +231,7 @@ function NewInvoiceContent() {
 	);
 }
 
-/** The organisation (its name, its time zone and its payment term fill the invoice) is loaded through its owner hook. */
 function NewInvoicePage() {
-	useCurrentOrganizationOwner();
 	return (
 		<InvoiceAccessGuard need="create" fallback={<NewInvoicePageSkeleton />}>
 			<NewInvoiceContent />

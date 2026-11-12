@@ -4,6 +4,7 @@ import { useCallback, useMemo, useState } from 'react';
 import { useAtomValue } from 'jotai';
 import { useSearchParams } from 'next/navigation';
 import { useTranslations } from 'next-intl';
+import { useCurrentOrganizationOwner } from '@/core/hooks/bootstrap/use-feature-data';
 import { useActiveClients } from '@/core/hooks/clients/use-clients-query';
 import { getOrganizationIdCookie, getTenantIdCookie } from '@/core/lib/helpers/cookies';
 import { periodOfPreset, type Period } from '@/core/lib/utils/dashboard-period';
@@ -50,7 +51,11 @@ function numberTextOf(typedNumber: string | null, nextNumber: number | null) {
 export function useNewInvoice() {
 	const t = useTranslations();
 	const searchParams = useSearchParams();
+	const organizationRead = useCurrentOrganizationOwner();
 	const organization = useAtomValue(currentOrganizationState);
+	const isOrganizationKnown = organization !== null;
+	const hasOrganizationFailed = !isOrganizationKnown && organizationRead.isError;
+	const isOrganizationLoading = !isOrganizationKnown && !organizationRead.isError;
 	const clientsQuery = useActiveClients();
 	const clients = clientsQuery.clients;
 
@@ -153,6 +158,10 @@ export function useNewInvoice() {
 
 	const timeZone = organization?.timeZone;
 	const invoiceRequest = useCallback((): InvoiceRequest | null => {
+		// The organisation's time zone dates the invoice: before it is read, the days would be the browser's.
+		if (!isOrganizationKnown) {
+			return null;
+		}
 		const invoiceNumber = parseInvoiceNumber(numberText);
 		if (problems.length > 0 || invoiceNumber === null) {
 			return null;
@@ -179,6 +188,7 @@ export function useNewInvoice() {
 		currency,
 		descriptions,
 		dueDay,
+		isOrganizationKnown,
 		issueDay,
 		keptLines,
 		numberText,
@@ -205,6 +215,9 @@ export function useNewInvoice() {
 
 	return {
 		organizationName: organization?.name ?? '',
+		isOrganizationLoading,
+		hasOrganizationFailed,
+		refetchOrganization: organizationRead.refetch,
 		timeZone,
 		clients,
 		areClientsLoading: clientsQuery.isLoading,
