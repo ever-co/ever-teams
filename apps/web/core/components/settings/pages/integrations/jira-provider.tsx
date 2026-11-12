@@ -737,7 +737,11 @@ function MappingRow({ jira, mapping }: JiraProps & Readonly<{ mapping: IJiraMapp
 	const statuses = useLinearStatusOptions(mapping.projectId);
 	const [editing, setEditing] = useState(false);
 	const [draft, setDraft] = useState<JiraMapDraft | null>(null);
-	const detail = useJiraProjectDetail(editing ? jira.integrationId : null, editing ? mapping.jiraProjectId : null);
+	const detail = useJiraProjectDetail(
+		editing ? jira.integrationId : null,
+		jira.connection?.cloudId ?? null,
+		editing ? mapping.jiraProjectId : null
+	);
 	const isPending = jira.pending.mappingId === mapping.id;
 	const anyPending = jira.pending.kind !== null;
 	const projectName = jira.projects.find((project) => project.id === mapping.projectId)?.name ?? '';
@@ -897,7 +901,7 @@ function AddMappingRow({ jira }: JiraProps) {
 	const [direction, setDirection] = useState<TJiraDirection>('inbound');
 	const [draft, setDraft] = useState<JiraMapDraft | null>(null);
 	const jiraProjects = useJiraProjects(jira.integrationId, jira.connection?.cloudId ?? null);
-	const detail = useJiraProjectDetail(jira.integrationId, jiraProject || null);
+	const detail = useJiraProjectDetail(jira.integrationId, jira.connection?.cloudId ?? null, jiraProject || null);
 	const statuses = useLinearStatusOptions(project || null);
 	const unmapped = useMemo(() => {
 		const mapped = new Set(jira.mappings.map((mapping) => mapping.jiraProjectId));
@@ -1102,6 +1106,8 @@ function JiraDetails({
 	const t = useTranslations();
 	const [changingSite, setChangingSite] = useState(false);
 	const connection = jira.connection;
+	// The forms belong to the site they were filled for: another site starts them afresh (its projects and statuses differ).
+	const siteKey = connection?.cloudId ?? 'no-site';
 	if (jira.isLoadingDetails) return <MutedRow>{t(`${KEYS}.LOADING_DETAILS` as Key)}</MutedRow>;
 	return (
 		<>
@@ -1123,9 +1129,9 @@ function JiraDetails({
 			)}
 			<WebhookRow jira={jira} />
 			{jira.mappings.map((mapping) => (
-				<MappingRow key={mapping.id} jira={jira} mapping={mapping} />
+				<MappingRow key={`${mapping.id}:${siteKey}`} jira={jira} mapping={mapping} />
 			))}
-			{jira.canManageMappings && <AddMappingRow jira={jira} />}
+			{jira.canManageMappings && <AddMappingRow key={siteKey} jira={jira} />}
 			{connection && (
 				<div
 					ref={conflictsRef}

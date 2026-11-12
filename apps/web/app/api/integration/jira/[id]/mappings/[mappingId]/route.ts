@@ -2,16 +2,11 @@ import { forwardToGauzy } from '@/core/services/server/forward-to-gauzy';
 
 type RouteContext = { params: Promise<{ id: string; mappingId: string }> };
 
-async function gauzyPathOf({ params }: RouteContext): Promise<string> {
+/** Proxy mode: a change to one mapping (PUT), and its removal (DELETE). */
+async function forwardMapping(req: Request, { params }: RouteContext) {
 	const { id, mappingId } = await params;
-	return `/integration/jira/${encodeURIComponent(id)}/mappings/${encodeURIComponent(mappingId)}`;
+	return forwardToGauzy(req, `/integration/jira/${encodeURIComponent(id)}/mappings/${encodeURIComponent(mappingId)}`);
 }
 
-/** Proxy mode: a change to one mapping, and its removal. */
-export async function PUT(req: Request, context: RouteContext) {
-	return forwardToGauzy(req, await gauzyPathOf(context));
-}
-
-export async function DELETE(req: Request, context: RouteContext) {
-	return forwardToGauzy(req, await gauzyPathOf(context));
-}
+export const PUT = forwardMapping;
+export const DELETE = forwardMapping;

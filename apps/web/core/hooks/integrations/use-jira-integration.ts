@@ -160,28 +160,34 @@ export interface JiraProjectDetailLookup {
 	retry: () => void;
 }
 
-/** One Jira project's issue types and statuses, for a status map and an issue type filter. */
+/**
+ * One Jira project's issue types and statuses, for a status map and an issue type filter. Keyed by the site as well:
+ * two sites may hold a project of the same id, and what one site answered must never stand for the other's.
+ */
 export function useJiraProjectDetail(
 	integrationId: string | null,
+	cloudId: string | null,
 	jiraProjectId: string | null
 ): JiraProjectDetailLookup {
 	const activeTeam = useAtomValue(activeTeamState);
+	const enabled = !!integrationId && !!cloudId && !!jiraProjectId;
 	const query = useQuery({
 		queryKey: queryKeys.integrations.jira.project(
 			activeTeam?.tenantId,
 			activeTeam?.organizationId,
 			integrationId,
+			cloudId,
 			jiraProjectId
 		),
 		queryFn: ({ signal }) =>
 			jiraIntegrationService.project(integrationId as string, jiraProjectId as string, signal),
-		enabled: !!integrationId && !!jiraProjectId,
+		enabled,
 		staleTime: 5 * 60_000
 	});
 	const retry = useCallback(() => void query.refetch(), [query]);
 	return {
 		detail: query.data ?? null,
-		isLoading: !!integrationId && !!jiraProjectId && query.isPending,
+		isLoading: enabled && query.isPending,
 		error: query.error ?? null,
 		retry
 	};

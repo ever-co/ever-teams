@@ -13,7 +13,7 @@ import { JiraProviderSection } from './jira-provider';
 
 const mockSites = jest.fn<JiraLookup<IJiraSite>, [string | null]>();
 const mockProjects = jest.fn<JiraLookup<IJiraProject>, [string | null, string | null]>();
-const mockDetail = jest.fn<JiraProjectDetailLookup, [string | null, string | null]>();
+const mockDetail = jest.fn<JiraProjectDetailLookup, [string | null, string | null, string | null]>();
 const mockStatusOptions = jest.fn<LinearStatusOptions, [string | null]>();
 
 jest.mock('next-intl', () => ({
@@ -24,8 +24,8 @@ jest.mock('next-intl', () => ({
 jest.mock('@/core/hooks/integrations/use-jira-integration', () => ({
 	useJiraSites: (integrationId: string | null) => mockSites(integrationId),
 	useJiraProjects: (integrationId: string | null, cloudId: string | null) => mockProjects(integrationId, cloudId),
-	useJiraProjectDetail: (integrationId: string | null, jiraProjectId: string | null) =>
-		mockDetail(integrationId, jiraProjectId)
+	useJiraProjectDetail: (integrationId: string | null, cloudId: string | null, jiraProjectId: string | null) =>
+		mockDetail(integrationId, cloudId, jiraProjectId)
 }));
 jest.mock('@/core/hooks/integrations/use-linear-integration', () => ({
 	useLinearStatusOptions: (projectId: string | null) => mockStatusOptions(projectId)
@@ -291,7 +291,7 @@ const pickIn = (container: HTMLElement, value: string) =>
 beforeEach(() => {
 	mockSites.mockReset().mockImplementation((integrationId) => lookup(integrationId ? SITES : []));
 	mockProjects.mockReset().mockImplementation((_integrationId, cloudId) => lookup(cloudId ? JIRA_PROJECTS : []));
-	mockDetail.mockReset().mockImplementation((_integrationId, jiraProjectId) => detailOf(jiraProjectId));
+	mockDetail.mockReset().mockImplementation((_integrationId, _cloudId, jiraProjectId) => detailOf(jiraProjectId));
 	mockStatusOptions.mockReset().mockReturnValue(STATUSES);
 });
 
@@ -377,7 +377,7 @@ describe('JiraProviderSection', () => {
 		// Roadmap is mapped already: only Launch is offered.
 		expect(form.querySelector('[data-option="10000"]')).toBeNull();
 		pickIn(form, '10001');
-		expect(mockDetail).toHaveBeenLastCalledWith('int-1', '10001');
+		expect(mockDetail).toHaveBeenLastCalledWith('int-1', 'cloud-1', '10001');
 		pickIn(form, 'p1');
 		expect(mockStatusOptions).toHaveBeenLastCalledWith('p1');
 		pickIn(within(form).getByTestId('jira-status-3'), 'completed');
@@ -413,8 +413,28 @@ describe('JiraProviderSection', () => {
 		expect((screen.getByTestId('jira-add-mapping-save') as HTMLButtonElement).disabled).toBe(false);
 	});
 
+	it('another site starts the forms afresh: no project, status or issue type chosen for the former one is kept', () => {
+		const jira = connected();
+		const { rerender } = render(<JiraProviderSection jira={jira} />);
+		const form = screen.getByTestId('jira-add-mapping');
+		pickIn(form, '10001');
+		pickIn(form, 'p1');
+		fireEvent.click(within(form).getByRole('checkbox', { name: 'Story' }));
+		expect((screen.getByTestId('jira-add-mapping-save') as HTMLButtonElement).disabled).toBe(false);
+		const row = screen.getByTestId('jira-mapping-m1');
+		fireEvent.click(within(row).getByRole('button', { name: `${K}.STATUS_MAP_EDIT` }));
+		expect(screen.getByTestId('jira-status-map-save-m1')).toBeTruthy();
+
+		rerender(<JiraProviderSection jira={{ ...jira, connection: { ...CONNECTION, cloudId: 'cloud-2' } }} />);
+		expect(mockProjects).toHaveBeenLastCalledWith('int-1', 'cloud-2');
+		const fresh = screen.getByTestId('jira-add-mapping');
+		expect(fresh.querySelector('[data-testid="jira-status-map"]')).toBeNull();
+		expect((screen.getByTestId('jira-add-mapping-save') as HTMLButtonElement).disabled).toBe(true);
+		expect(screen.queryByTestId('jira-status-map-save-m1')).toBeNull();
+	});
+
 	it('add form: saving waits for the project statuses and issue types', () => {
-		mockDetail.mockImplementation((_integrationId, jiraProjectId) => ({
+		mockDetail.mockImplementation((_integrationId, _cloudId, jiraProjectId) => ({
 			...detailOf(jiraProjectId),
 			detail: null,
 			isLoading: !!jiraProjectId
@@ -432,7 +452,7 @@ describe('JiraProviderSection', () => {
 		render(<JiraProviderSection jira={jira} />);
 		const row = screen.getByTestId('jira-mapping-m1');
 		fireEvent.click(within(row).getByRole('button', { name: `${K}.STATUS_MAP_EDIT` }));
-		expect(mockDetail).toHaveBeenCalledWith('int-1', '10000');
+		expect(mockDetail).toHaveBeenCalledWith('int-1', 'cloud-1', '10000');
 		expect(
 			within(row).getByTestId('jira-status-3').querySelector('[data-testid="select"]')?.getAttribute('data-value')
 		).toBe('in-progress');

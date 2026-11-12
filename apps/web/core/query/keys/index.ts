@@ -947,8 +947,9 @@ export const queryKeys = {
 			/** The projects of the connection's site (keyed by the site: a new site has other projects). */
 			projects: (tenantId: string | undefined | null, organizationId: string | undefined | null, integrationId: string | undefined | null, cloudId: string | undefined | null) =>
 				['integrations', 'jira', 'projects', tenantId ?? null, organizationId ?? null, integrationId ?? null, cloudId ?? null] as const,
-			project: (tenantId: string | undefined | null, organizationId: string | undefined | null, integrationId: string | undefined | null, jiraProjectId: string | undefined | null) =>
-				['integrations', 'jira', 'project', tenantId ?? null, organizationId ?? null, integrationId ?? null, jiraProjectId ?? null] as const,
+			/** One project's statuses and issue types, keyed by the site too (two sites may hold a project of the same id). */
+			project: (tenantId: string | undefined | null, organizationId: string | undefined | null, integrationId: string | undefined | null, cloudId: string | undefined | null, jiraProjectId: string | undefined | null) =>
+				['integrations', 'jira', 'project', tenantId ?? null, organizationId ?? null, integrationId ?? null, cloudId ?? null, jiraProjectId ?? null] as const,
 			runs: (tenantId: string | undefined | null, organizationId: string | undefined | null, integrationId: string | undefined | null) =>
 				['integrations', 'jira', 'runs', tenantId ?? null, organizationId ?? null, integrationId ?? null] as const,
 			/** Every conflict list of the provider (a resolve or a finished run reads them again). */
