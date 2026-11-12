@@ -148,6 +148,10 @@ export function useTimeImportCopy() {
 					return t('timeImport.problems.BILLABLE_UNREADABLE', TIME_IMPORT_EXAMPLES);
 				case 'memberUnknown':
 					return t('timeImport.problems.MEMBER_UNKNOWN');
+				case 'memberNameUnknown':
+					return t('timeImport.mapping.problems.MEMBER_NAME_UNKNOWN');
+				case 'memberAmbiguous':
+					return t('timeImport.mapping.problems.MEMBER_AMBIGUOUS', { count: problem.count });
 				case 'memberNotAllowed':
 					return t('timeImport.problems.MEMBER_NOT_ALLOWED');
 				case 'noOwnMember':

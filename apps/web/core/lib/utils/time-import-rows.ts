@@ -76,6 +76,8 @@ export type TimeImportProblem =
 	| { code: 'inFuture' }
 	| { code: 'billableUnreadable' }
 	| { code: 'memberUnknown' }
+	| { code: 'memberNameUnknown' }
+	| { code: 'memberAmbiguous'; count: number }
 	| { code: 'memberNotAllowed' }
 	| { code: 'noOwnMember' }
 	| { code: 'projectUnknown' }
@@ -305,28 +307,67 @@ function viewerAsMember(context: TimeImportContext): Reading<ResolvedMember> {
 	return { value: { employeeId: context.viewerEmployeeId, name: null }, problems: [] };
 }
 
-/**
- * Whose time the row is. A file is never trusted to book time for someone else: an email other than the viewer's
- * own only counts for a viewer the API lets add time for that member, and leaves the row out for anyone else.
- */
-function memberOf(email: string, context: TimeImportContext): Reading<ResolvedMember> {
-	const namesNobody = email === '';
-	const namesViewer = isSameName(email, context.viewerEmail ?? '');
-	if (namesNobody || namesViewer) {
-		return viewerAsMember(context);
-	}
-	if (!context.canImportForOthers) {
-		return { value: null, problems: [{ code: 'memberNotAllowed' }] };
-	}
-	const member = context.members.find((candidate) => isSameName(candidate.email, email));
-	if (!member) {
-		return { value: null, problems: [{ code: 'memberUnknown' }] };
-	}
+function isEmailLike(text: string): boolean {
+	return text.includes('@');
+}
+
+/** The viewer's name as the team lists it, for a file that names members by name. */
+function viewerNameOf(context: TimeImportContext): string {
+	const viewer = context.members.find((member) => member.employeeId === context.viewerEmployeeId);
+	return viewer?.name ?? '';
+}
+
+function namesViewer(cell: string, context: TimeImportContext): boolean {
+	const namesViewerEmail = isSameName(cell, context.viewerEmail ?? '');
+	const namesViewerName = isSameName(cell, viewerNameOf(context));
+	return namesViewerEmail || namesViewerName;
+}
+
+function namedMemberOf(member: TimeImportMember, context: TimeImportContext): Reading<ResolvedMember> {
 	const isViewer = member.employeeId === context.viewerEmployeeId;
 	if (isViewer) {
 		return viewerAsMember(context);
 	}
 	return { value: { employeeId: member.employeeId, name: member.name }, problems: [] };
+}
+
+function memberByEmailOf(email: string, context: TimeImportContext): Reading<ResolvedMember> {
+	const member = context.members.find((candidate) => isSameName(candidate.email, email));
+	if (!member) {
+		return { value: null, problems: [{ code: 'memberUnknown' }] };
+	}
+	return namedMemberOf(member, context);
+}
+
+/** Two members of a team may share a name: such a row names nobody for sure, and only an email settles it. */
+function memberByNameOf(name: string, context: TimeImportContext): Reading<ResolvedMember> {
+	const matches = context.members.filter((candidate) => isSameName(candidate.name, name));
+	if (matches.length === 0) {
+		return { value: null, problems: [{ code: 'memberNameUnknown' }] };
+	}
+	if (matches.length > 1) {
+		return { value: null, problems: [{ code: 'memberAmbiguous', count: matches.length }] };
+	}
+	return namedMemberOf(matches[0], context);
+}
+
+/**
+ * Whose time the row is, named by email or by name as the team lists its members. A file is never trusted to book
+ * time for someone else: a member other than the viewer only counts for a viewer the API lets add time for that
+ * member, and leaves the row out for anyone else.
+ */
+function memberOf(cell: string, context: TimeImportContext): Reading<ResolvedMember> {
+	const namesNobody = cell === '';
+	if (namesNobody || namesViewer(cell, context)) {
+		return viewerAsMember(context);
+	}
+	if (!context.canImportForOthers) {
+		return { value: null, problems: [{ code: 'memberNotAllowed' }] };
+	}
+	if (isEmailLike(cell)) {
+		return memberByEmailOf(cell, context);
+	}
+	return memberByNameOf(cell, context);
 }
 
 function projectOf(name: string, context: TimeImportContext): Reading<TimeImportProject> {

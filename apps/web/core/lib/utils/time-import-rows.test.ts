@@ -265,6 +265,30 @@ describe('draftRowsOf', () => {
 		it('is left out when the viewer has no employee record to hold their own time', () => {
 			expect(problemCodesOf(draftOf({}, { viewerEmployeeId: null }))).toEqual(['noOwnMember']);
 		});
+
+		it('is the viewer own when the row names the viewer by name, as a file from another tool does', () => {
+			expect(draftOf({ memberEmail: ' vera VIEWER ' }).entry?.employeeId).toBe(VIEWER.employeeId);
+		});
+
+		it('never becomes the viewer own time when the row names someone else by name', () => {
+			expect(problemCodesOf(draftOf({ memberEmail: ADA.name }))).toEqual(['memberNotAllowed']);
+		});
+
+		it('is the member named by name for a viewer the API lets add time for others', () => {
+			const row = draftOf({ memberEmail: 'ada lovelace', task: 'Write docs' }, { canImportForOthers: true });
+
+			expect(row.entry).toMatchObject({ employeeId: ADA.employeeId, memberName: 'Ada Lovelace' });
+		});
+
+		it('is left out when the name matches no member, or more than one', () => {
+			const twin = { ...ADA, employeeId: 'employee-ada-2', email: 'ada.2@ever.co' };
+			const others = { canImportForOthers: true };
+
+			expect(problemCodesOf(draftOf({ memberEmail: 'Grace Hopper' }, others))).toEqual(['memberNameUnknown']);
+			expect(draftOf({ memberEmail: ADA.name }, { ...others, members: [VIEWER, ADA, twin] }).problems).toEqual([
+				{ code: 'memberAmbiguous', count: 2 }
+			]);
+		});
 	});
 
 	it('judges nothing else on a row with more cells than the header', () => {
