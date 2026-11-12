@@ -1784,6 +1784,11 @@
 				"title": "Ripristina progetto",
 				"description": "Sei sicuro di voler ripristinare {projectName}?"
 			},
+			"billable": {
+				"LABEL": "Fatturabile per impostazione predefinita",
+				"HELP": "Il tempo registrato o aggiunto su questo progetto parte come fatturabile. Ogni registrazione si può ancora modificare, e le registrazioni già salvate mantengono il loro valore.",
+				"NOT_BILLABLE": "Non fatturabile"
+			},
 			"bulkActions": {
 				"bulkArchiveModal": {
 					"title": "Archivia {projectsCount} progetti",
@@ -1875,11 +1880,6 @@
 				"MEMBER_COUNT": "{count, plural, one {# membro} other {# membri}}",
 				"ERROR_TITLE": "Impossibile caricare il progetto",
 				"ERROR_MESSAGE": "Controlla la connessione e riprova."
-			},
-			"billable": {
-				"LABEL": "Fatturabile per impostazione predefinita",
-				"HELP": "Il tempo registrato o aggiunto su questo progetto parte come fatturabile. Ogni registrazione si può ancora modificare, e le registrazioni già salvate mantengono il loro valore.",
-				"NOT_BILLABLE": "Non fatturabile"
 			},
 			"modals": {
 				"openProject": "Apri progetto",

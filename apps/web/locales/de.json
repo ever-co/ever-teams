@@ -1828,6 +1828,11 @@
 				"title": "Projekt wiederherstellen",
 				"description": "Sind Sie sicher, dass Sie {projectName} wiederherstellen möchten?"
 			},
+			"billable": {
+				"LABEL": "Standardmäßig abrechenbar",
+				"HELP": "Erfasste oder hinzugefügte Zeit in diesem Projekt ist zunächst abrechenbar. Jeder Eintrag lässt sich weiterhin ändern, und bereits gespeicherte Einträge behalten ihren Wert.",
+				"NOT_BILLABLE": "Nicht abrechenbar"
+			},
 			"bulkActions": {
 				"bulkArchiveModal": {
 					"title": "Archivieren {projectsCount} Projekte",
@@ -1919,11 +1924,6 @@
 				"MEMBER_COUNT": "{count, plural, one {# Mitglied} other {# Mitglieder}}",
 				"ERROR_TITLE": "Das Projekt konnte nicht geladen werden",
 				"ERROR_MESSAGE": "Prüfen Sie Ihre Verbindung und versuchen Sie es erneut."
-			},
-			"billable": {
-				"LABEL": "Standardmäßig abrechenbar",
-				"HELP": "Erfasste oder hinzugefügte Zeit in diesem Projekt ist zunächst abrechenbar. Jeder Eintrag lässt sich weiterhin ändern, und bereits gespeicherte Einträge behalten ihren Wert.",
-				"NOT_BILLABLE": "Nicht abrechenbar"
 			},
 			"modals": {
 				"openProject": "Projekt öffnen",

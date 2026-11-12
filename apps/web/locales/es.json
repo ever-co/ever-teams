@@ -1896,6 +1896,11 @@
 				"title": "Restaurar proyecto",
 				"description": "¿Estás seguro de que quieres restaurar {projectName}?"
 			},
+			"billable": {
+				"LABEL": "Facturable de forma predeterminada",
+				"HELP": "El tiempo registrado o agregado en este proyecto empieza como facturable. Cada registro se puede cambiar después, y los registros ya guardados conservan su valor.",
+				"NOT_BILLABLE": "No facturable"
+			},
 			"bulkActions": {
 				"bulkArchiveModal": {
 					"title": "Archivar {projectsCount} proyectos",
@@ -1987,11 +1992,6 @@
 				"MEMBER_COUNT": "{count, plural, one {# miembro} other {# miembros}}",
 				"ERROR_TITLE": "No se pudo cargar el proyecto",
 				"ERROR_MESSAGE": "Revisa tu conexión y vuelve a intentarlo."
-			},
-			"billable": {
-				"LABEL": "Facturable de forma predeterminada",
-				"HELP": "El tiempo registrado o agregado en este proyecto empieza como facturable. Cada registro se puede cambiar después, y los registros ya guardados conservan su valor.",
-				"NOT_BILLABLE": "No facturable"
 			},
 			"modals": {
 				"openProject": "Abrir proyecto",

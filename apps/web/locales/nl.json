@@ -1825,6 +1825,11 @@
 				"title": "Project herstellen",
 				"description": "Weet u zeker dat u {projectName} wilt herstellen?"
 			},
+			"billable": {
+				"LABEL": "Standaard factureerbaar",
+				"HELP": "Tijd die op dit project wordt geregistreerd of toegevoegd, begint als factureerbaar. Elke registratie kan nog worden gewijzigd, en al opgeslagen registraties houden hun waarde.",
+				"NOT_BILLABLE": "Niet factureerbaar"
+			},
 			"bulkActions": {
 				"bulkArchiveModal": {
 					"title": "Archiveer {projectsCount} projecten",
@@ -1916,11 +1921,6 @@
 				"MEMBER_COUNT": "{count, plural, one {# lid} other {# leden}}",
 				"ERROR_TITLE": "Het project kon niet worden geladen",
 				"ERROR_MESSAGE": "Controleer je verbinding en probeer het opnieuw."
-			},
-			"billable": {
-				"LABEL": "Standaard factureerbaar",
-				"HELP": "Tijd die op dit project wordt geregistreerd of toegevoegd, begint als factureerbaar. Elke registratie kan nog worden gewijzigd, en al opgeslagen registraties houden hun waarde.",
-				"NOT_BILLABLE": "Niet factureerbaar"
 			},
 			"modals": {
 				"openProject": "Project openen",

@@ -1764,6 +1764,11 @@
 				"title": "恢复项目",
 				"description": "您确定要恢复 {projectName} 吗？"
 			},
+			"billable": {
+				"LABEL": "默认可计费",
+				"HELP": "在此项目上记录或添加的时间一开始为可计费。每条记录仍可修改，已保存的记录保持原值。",
+				"NOT_BILLABLE": "不可计费"
+			},
 			"bulkActions": {
 				"bulkArchiveModal": {
 					"title": "归档 {projectsCount} 个项目",
@@ -1855,11 +1860,6 @@
 				"MEMBER_COUNT": "{count, plural, other {# 名成员}}",
 				"ERROR_TITLE": "无法加载项目",
 				"ERROR_MESSAGE": "请检查网络连接后重试。"
-			},
-			"billable": {
-				"LABEL": "默认可计费",
-				"HELP": "在此项目上记录或添加的时间一开始为可计费。每条记录仍可修改，已保存的记录保持原值。",
-				"NOT_BILLABLE": "不可计费"
 			},
 			"modals": {
 				"openProject": "打开项目",

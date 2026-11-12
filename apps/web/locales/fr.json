@@ -1825,6 +1825,11 @@
 				"title": "Restaurer le projet",
 				"description": "Êtes-vous sûr de vouloir restaurer {projectName}?"
 			},
+			"billable": {
+				"LABEL": "Facturable par défaut",
+				"HELP": "Le temps suivi ou ajouté sur ce projet est facturable au départ. Chaque saisie reste modifiable, et les saisies déjà enregistrées gardent leur valeur.",
+				"NOT_BILLABLE": "Non facturable"
+			},
 			"bulkActions": {
 				"bulkArchiveModal": {
 					"title": "Archiver {projectsCount} projets",
@@ -1916,11 +1921,6 @@
 				"MEMBER_COUNT": "{count, plural, one {# membre} other {# membres}}",
 				"ERROR_TITLE": "Le projet n'a pas pu être chargé",
 				"ERROR_MESSAGE": "Vérifiez votre connexion, puis réessayez."
-			},
-			"billable": {
-				"LABEL": "Facturable par défaut",
-				"HELP": "Le temps suivi ou ajouté sur ce projet est facturable au départ. Chaque saisie reste modifiable, et les saisies déjà enregistrées gardent leur valeur.",
-				"NOT_BILLABLE": "Non facturable"
 			},
 			"modals": {
 				"openProject": "Ouvrir le projet",
