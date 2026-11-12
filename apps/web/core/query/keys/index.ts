@@ -1122,6 +1122,12 @@ export const queryKeys = {
 			['docs', 'spaces', tenantId ?? null, organizationId ?? null, userId ?? null] as const,
 		follow: (tenantId: string | undefined | null, userId: string | undefined | null, pageId: string | undefined | null) =>
 			['docs', 'follow', tenantId ?? null, userId ?? null, pageId ?? null] as const,
+		// Whether the platform imports exported workspaces / exports PDFs (404 while off), and one import's state.
+		importProbe: (tenantId: string | undefined | null, organizationId: string | undefined | null, userId: string | undefined | null) =>
+			['docs', 'import-probe', tenantId ?? null, organizationId ?? null, userId ?? null] as const,
+		pdfProbe: (tenantId: string | undefined | null) => ['docs', 'pdf-probe', tenantId ?? null] as const,
+		import: (tenantId: string | undefined | null, importId: string | undefined | null) =>
+			['docs', 'import', tenantId ?? null, importId ?? null] as const,
 		/** The platform's comments on the page (entity `Document`), block threads and page comments alike. */
 		comments: (tenantId: string | undefined | null, organizationId: string | undefined | null, pageId: string | undefined | null) =>
 			['docs', 'comments', tenantId ?? null, organizationId ?? null, pageId ?? null] as const
