@@ -103,8 +103,30 @@ jest.mock('./palette-entity-results', () => ({
 		<div data-testid="recent">{items.map((item) => item.id).join(',')}</div>
 	)
 }));
-jest.mock('./palette-chat-results', () => ({ PaletteChatResults: ({ search }: { search: string }) => <div data-testid="chat-results">{search}</div> }));
+jest.mock('./palette-chat-results', () => ({
+	PaletteChatResults: ({ search }: { search: string }) => <div data-testid="chat-results">{search}</div>
+}));
 jest.mock('./palette-docs-results', () => ({ PaletteDocsResults: () => null }));
+// The timer's side of the palette: what it offers, and what it is asked to do.
+let mockCanStopTimer = false;
+const mockStopTimer = jest.fn();
+const mockStartTimerOn = jest.fn();
+const mockOpenAddTime = jest.fn();
+const TASK_TO_START = { id: 'task-9', title: 'Fix the login page' };
+jest.mock('./palette-timer', () => ({
+	usePaletteTimer: () => ({
+		canStop: mockCanStopTimer,
+		stopTimer: mockStopTimer,
+		startTimerOn: mockStartTimerOn,
+		openAddTime: mockOpenAddTime
+	}),
+	PaletteTimerLayer: () => <div data-testid="timer-layer" />,
+	PaletteTimerStartResults: ({ search, onStartTimer }: { search: string; onStartTimer: (task: unknown) => void }) => (
+		<button type="button" data-testid="timer-start-results" onClick={() => onStartTimer(TASK_TO_START)}>
+			{search}
+		</button>
+	)
+}));
 
 import { SidebarCommandModal } from './sidebar-command-modal';
 
@@ -254,5 +276,64 @@ describe('SidebarCommandModal chat entries', () => {
 		render(<SidebarCommandModal publicTeam={false} variant="none" />);
 		expect(screen.queryByTestId('chat-results')).toBeNull();
 		expect(screen.queryByText('commandPalette.commands.newMessage')).toBeNull();
+	});
+});
+
+describe('SidebarCommandModal timer entries', () => {
+	beforeEach(() => {
+		mockUseKeyboardShortcuts.mockClear();
+		mockSetOpen.mockClear();
+		mockStopTimer.mockClear();
+		mockStartTimerOn.mockClear();
+		mockOpenAddTime.mockClear();
+	});
+
+	afterEach(() => {
+		mockCanStopTimer = false;
+	});
+
+	it('offers "Add time" and opens it once the palette is closed, with no key of its own', () => {
+		render(<SidebarCommandModal publicTeam={false} variant="none" />);
+
+		fireEvent.click(screen.getByText('commandPalette.commands.addTime'));
+
+		expect(mockSetOpen).toHaveBeenCalledWith(false);
+		expect(mockOpenAddTime).toHaveBeenCalledTimes(1);
+		expect(registeredSequences()).not.toContain('');
+	});
+
+	it('offers "Stop timer" only while the timer can be stopped', () => {
+		const { unmount } = render(<SidebarCommandModal publicTeam={false} variant="none" />);
+		expect(screen.queryByText('commandPalette.commands.stopTimer')).toBeNull();
+		unmount();
+
+		mockCanStopTimer = true;
+		render(<SidebarCommandModal publicTeam={false} variant="none" />);
+		fireEvent.click(screen.getByText('commandPalette.commands.stopTimer'));
+
+		expect(mockSetOpen).toHaveBeenCalledWith(false);
+		expect(mockStopTimer).toHaveBeenCalledTimes(1);
+	});
+
+	it('lists the tasks to start the timer on once the member types, and starts the one chosen', () => {
+		render(<SidebarCommandModal publicTeam={false} variant="none" />);
+		expect(screen.queryByTestId('timer-start-results')).toBeNull();
+
+		fireEvent.change(screen.getByLabelText('search'), { target: { value: 'login' } });
+		fireEvent.click(screen.getByTestId('timer-start-results'));
+
+		expect(mockSetOpen).toHaveBeenCalledWith(false);
+		expect(mockStartTimerOn).toHaveBeenCalledWith(TASK_TO_START);
+	});
+
+	it('offers nothing of the timer to the visitor of a public team', () => {
+		mockCanStopTimer = true;
+		render(<SidebarCommandModal publicTeam variant="none" />);
+		fireEvent.change(screen.getByLabelText('search'), { target: { value: 'login' } });
+
+		expect(screen.queryByText('commandPalette.commands.addTime')).toBeNull();
+		expect(screen.queryByText('commandPalette.commands.stopTimer')).toBeNull();
+		expect(screen.queryByTestId('timer-start-results')).toBeNull();
+		expect(screen.queryByTestId('timer-layer')).toBeNull();
 	});
 });
