@@ -17,6 +17,7 @@ import {
 	httpsUrlOf
 } from '@/core/lib/utils/chat-app-blocks';
 import { CHAT_MESSAGE_MAX_LENGTH, IChatAppBlock, IChatMessage } from '@/core/types/interfaces/common/chat';
+import { ApiErrorService } from '@/core/services/client/api-error.service';
 import { ChatAppBlocks } from './chat-app-blocks';
 import { MessageItem } from './message-item';
 
@@ -274,6 +275,35 @@ describe('ChatAppBlocks', () => {
 		} finally {
 			jest.useRealTimers();
 		}
+	});
+
+	it('ends the asking as gone when the platform answers 404 (as the API service reports it)', async () => {
+		jest.useFakeTimers();
+		try {
+			mockInteract.mockResolvedValue({ interaction: interaction('retrying'), events: [] });
+			mockInteraction.mockRejectedValue(ApiErrorService.fromAxiosError({ message: 'Not Found', status: 404, response: { status: 404, data: { message: 'Not Found' } } }));
+			render(<ChatAppBlocks message={appMessage()} />);
+			await act(async () => {
+				fireEvent.click(screen.getByText('Acknowledge'));
+			});
+			await act(async () => {
+				await jest.advanceTimersByTimeAsync(APP_INTERACTION_POLL_MS);
+			});
+			expect(mockInteraction).toHaveBeenCalledTimes(1);
+			expect(screen.getByRole('alert').textContent).toBe('teamChat.APP_GONE');
+			expect((screen.getByText('Acknowledge').closest('button') as HTMLButtonElement).disabled).toBe(false);
+		} finally {
+			jest.useRealTimers();
+		}
+	});
+
+	it('maps a refused click from the API service to its reason', async () => {
+		mockInteract.mockRejectedValue(ApiErrorService.fromAxiosError({ message: 'Conflict', status: 409, response: { status: 409, data: { message: 'Conflict' } } }));
+		render(<ChatAppBlocks message={appMessage()} />);
+		await act(async () => {
+			fireEvent.click(screen.getByText('Acknowledge'));
+		});
+		expect(screen.getByRole('alert').textContent).toBe('teamChat.APP_NO_INTERACTIONS');
 	});
 
 	it('stops after that one more look when no reply came', async () => {

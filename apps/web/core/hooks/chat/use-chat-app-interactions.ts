@@ -14,9 +14,13 @@ import { nextMessageOrder, withMessageOrder } from '@/core/lib/utils/chat-format
 import { chatService } from '@/core/services/client/api/chat/chat.service';
 import type { IChatAppButton, IChatInteraction, IChatMessage } from '@/core/types/interfaces/common/chat';
 
-/** The HTTP status of a failed platform call, when it had one. */
+/**
+ * The HTTP status the platform answered a failed call with, when it answered: the API service's `ApiErrorService`
+ * keeps it as `httpResponseStatus` (none when no answer came); a plain Axios error as `response.status`.
+ */
 function statusOf(error: unknown): number | undefined {
-	return (error as { response?: { status?: number }; status?: number })?.response?.status ?? (error as { status?: number })?.status;
+	const failed = error as { httpResponseStatus?: number; response?: { status?: number }; status?: number } | null;
+	return failed?.httpResponseStatus ?? failed?.response?.status ?? failed?.status;
 }
 
 export interface UseChatAppInteractionsOptions {
