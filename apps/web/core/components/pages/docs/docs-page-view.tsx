@@ -732,7 +732,9 @@ export function DocsPageView({ pageId, tree, actions, spaces = NO_SPACES, onOpen
 			return;
 		}
 		const isFolderPage = page.kind === EDocumentKind.FOLDER;
-		void zipExport.run(page, { title, beforeExport: isFolderPage || isLiveEditing ? undefined : saveDraftNow });
+		// The page's edits first, as the PDF export: live, the session confirms them; otherwise the draft is saved.
+		const holdEdits = async () => !pageEdits.pending() || (await pageEdits.hold());
+		void zipExport.run(page, { title, beforeExport: isFolderPage ? undefined : holdEdits });
 	};
 
 	const updatedAtLabel = useMemo(() => {
