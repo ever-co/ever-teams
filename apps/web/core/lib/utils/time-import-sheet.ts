@@ -78,6 +78,12 @@ export const NO_TIME_IMPORT_COLUMNS: TimeImportMapping = {
 	memberEmail: null
 };
 
+/** The columns a file is read through, and the format of its dates when its own dates do not tell it. */
+export interface TimeImportColumnsChoice {
+	mapping: TimeImportMapping;
+	dateOrder: DateOrder | null;
+}
+
 export interface TimeImportSheetRow {
 	/** The row's position in the file, as a spreadsheet numbers it: the header is row 1. */
 	row: number;
