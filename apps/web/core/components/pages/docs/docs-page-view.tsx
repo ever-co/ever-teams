@@ -592,12 +592,18 @@ export function DocsPageView({ pageId, tree, actions, spaces = NO_SPACES, onOpen
 	// ---------------------------------------------------------------- export and link
 
 	// The platform's PDF export (its probe answers 404 while it is off): the page, or the page with its sub-pages.
+	// The platform renders the text as saved: the page's pending edits are saved (or confirmed live) first, or nothing
+	// is exported.
 	const pdfAvailable = useDocsPdfAvailability(true);
 	const [pdfBusy, setPdfBusy] = useState(false);
 	const exportPdf = async (subtree: boolean) => {
 		if (!page || pdfBusy) return;
 		setPdfBusy(true);
 		try {
+			if (pageEdits.pending() && !(await pageEdits.hold())) {
+				toast.error(t('docs.EXPORT_UNSAVED'));
+				return;
+			}
 			const result = await downloadDocsPdf(page.id, { subtree });
 			if (!result.ok) toast.error(t(result.status === 413 ? 'docs.PDF_TOO_MANY_PAGES' : 'docs.PDF_ERROR'));
 		} finally {
