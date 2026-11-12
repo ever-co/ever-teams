@@ -181,7 +181,7 @@ export function useTimesheetFilterCategories({
 				field: 'clients',
 				keepsCase: true,
 				icon: <Building />,
-				label: t('common.CLIENT'),
+				label: t('clients.TITLE'),
 				options: clientOptionsOf(clients, t('common.NO_CLIENT'))
 			});
 		}

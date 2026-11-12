@@ -40,7 +40,7 @@ const FILTER_LABEL_KEYS: Record<TimeActivityFilterField, DottedLanguageObjectStr
 	employeeIds: 'dashboard.timeActivity.filters.MEMBERS',
 	projectIds: 'dashboard.timeActivity.filters.PROJECTS',
 	taskIds: 'dashboard.timeActivity.filters.TASKS',
-	clientIds: 'common.CLIENT',
+	clientIds: 'clients.TITLE',
 	billable: 'dashboard.timesheets.BILLABLE'
 };
 
