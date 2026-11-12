@@ -12,15 +12,16 @@ export interface DocsPageEdits {
 
 /**
  * Whether an export of the platform's saved text (the PDF, the zip of Markdown files) may go: once the page's pending
- * edits are saved, or confirmed live (a reconnecting session's included). Never while the text a stopped live session
- * left is not the autosave's yet (the page read again, the text being adopted, or its adoption failed): the export
- * would leave it out.
+ * edits are saved, or confirmed live (a reconnecting session's included). Never while the tab holds text `edits` does
+ * not cover yet: the text a stopped live session left before the autosave adopted it (the page read again, the text
+ * being adopted, or its adoption failed), or edits remembered from an earlier visit before the session's first sync.
+ * The export would leave that text out.
  *
  * @param edits Where the page's edits stand.
- * @param adopting A stopped live session's text is not the autosave's draft yet.
+ * @param uncovered The tab holds unsent text that `edits` does not cover yet.
  */
-export async function holdForExport(edits: DocsPageEdits, adopting: boolean): Promise<boolean> {
-	if (adopting) return false;
+export async function holdForExport(edits: DocsPageEdits, uncovered: boolean): Promise<boolean> {
+	if (uncovered) return false;
 	return !edits.pending() || edits.hold();
 }
 

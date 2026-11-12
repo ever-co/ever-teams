@@ -251,6 +251,9 @@ export function DocsPageView({ pageId, tree, actions, spaces = NO_SPACES, onOpen
 	const pageWritable = Boolean(page && !page.isArchived && !page.isLocked);
 	const unsentAtFallback = live.mode === 'fallback' && !live.rereading && Boolean(liveSnapshot?.unsentEdits);
 	const fallenDoc = unsentAtFallback ? (liveSnapshot?.doc ?? null) : null;
+	// Edits remembered from an earlier visit reach the platform only with the session's first sync, and until then the
+	// page's edits read as the autosave's: an export of the saved text would leave them out.
+	const unsentBeforeSync = Boolean(liveSnapshot && !liveSnapshot.synced && liveSnapshot.unsentEdits);
 	const liveBinding = live.binding;
 	useEffect(() => {
 		if (isLiveEditing && liveClockRef.current === null) liveClockRef.current = pageClock;
@@ -601,7 +604,7 @@ export function DocsPageView({ pageId, tree, actions, spaces = NO_SPACES, onOpen
 		if (!page || pdfBusy) return;
 		setPdfBusy(true);
 		try {
-			if (!(await holdForExport(pageEdits, live.rereading || awaitingAdoption))) {
+			if (!(await holdForExport(pageEdits, live.rereading || awaitingAdoption || unsentBeforeSync))) {
 				toast.error(t('docs.EXPORT_UNSAVED'));
 				return;
 			}
@@ -639,7 +642,7 @@ export function DocsPageView({ pageId, tree, actions, spaces = NO_SPACES, onOpen
 		try {
 			// The zip is of the text as saved: the person's latest edits are saved (or confirmed live, a reconnecting
 			// session's included) first, or nothing is exported.
-			if (!(await holdForExport(pageEdits, live.rereading || awaitingAdoption))) {
+			if (!(await holdForExport(pageEdits, live.rereading || awaitingAdoption || unsentBeforeSync))) {
 				toast.error(t('docs.EXPORT_UNSAVED'), { id: toastId });
 				return;
 			}

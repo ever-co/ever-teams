@@ -64,7 +64,7 @@ describe('holdForExport', () => {
 		expect(edits.hold).not.toHaveBeenCalled();
 	});
 
-	it('refuses the export while the text of a stopped live session is not the autosave draft yet', async () => {
+	it('refuses the export while the tab holds unsent text its edits do not cover (a stopped session, edits before the first sync)', async () => {
 		const edits = editsOf(false, true);
 
 		await expect(holdForExport(edits, true)).resolves.toBe(false);
