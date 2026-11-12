@@ -269,6 +269,11 @@
       "source": "router"
     },
     {
+      "path": "/:locale/settings/team/import",
+      "file": "apps/web/app/[locale]/(main)/settings/team/import/page.tsx",
+      "source": "router"
+    },
+    {
       "path": "/:locale/settings/team/integrations",
       "file": "apps/web/app/[locale]/(main)/settings/team/integrations/page.tsx",
       "source": "router"
