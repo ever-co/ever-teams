@@ -1,5 +1,6 @@
 import {
 	Bell,
+	Bot,
 	Clock,
 	FlagPriority,
 	Integration,
@@ -27,6 +28,7 @@ export type SettingsEntryId =
 	| 'teamGeneral'
 	| 'members'
 	| 'integrations'
+	| 'automations'
 	| 'permissions'
 	| 'statuses'
 	| 'priorities'
@@ -55,6 +57,8 @@ export const SETTINGS_ENTRIES: ReadonlyArray<SettingsEntry> = [
 	{ id: 'teamGeneral', group: 'team', href: '/settings/team', icon: Settings },
 	{ id: 'members', group: 'team', href: '/settings/team/members', icon: Users, managerOnly: true },
 	{ id: 'integrations', group: 'team', href: '/settings/team/integrations', icon: Integration, managerOnly: true },
+	// Behind NEXT_PUBLIC_TASK_AUTOMATIONS_ENABLED and the platform's answer: `useHiddenSettingsEntries` hides it otherwise.
+	{ id: 'automations', group: 'team', href: '/settings/team/automations', icon: Bot, managerOnly: true },
 	// The roles page keeps its own route, so links to it still work; the settings sidebar stays on it.
 	{ id: 'permissions', group: 'team', href: PERMISSIONS_PATH, icon: ShieldUser, managerOnly: true },
 	{ id: 'statuses', group: 'taskProperties', href: '/settings/team/statuses', icon: StatusCircle },
@@ -107,13 +111,20 @@ export function isEntryVisible(entry: SettingsEntry, canManageTeam: boolean): bo
 	return canManageTeam;
 }
 
-export function entriesOfGroup(group: SettingsGroupId, canManageTeam: boolean): SettingsEntry[] {
+/** The entries of a group the person sees; `hidden` names the optional ones this deployment does not offer now. */
+export function entriesOfGroup(
+	group: SettingsGroupId,
+	canManageTeam: boolean,
+	hidden: ReadonlySet<SettingsEntryId> = NO_HIDDEN_ENTRIES
+): SettingsEntry[] {
 	return SETTINGS_ENTRIES.filter((entry) => {
 		const isInGroup = entry.group === group;
-		const isVisible = isEntryVisible(entry, canManageTeam);
+		const isVisible = isEntryVisible(entry, canManageTeam) && !hidden.has(entry.id);
 		return isInGroup && isVisible;
 	});
 }
+
+export const NO_HIDDEN_ENTRIES: ReadonlySet<SettingsEntryId> = new Set<SettingsEntryId>();
 
 export function isSettingsPath(strippedPathname: string): boolean {
 	const isRoot = strippedPathname === SETTINGS_ROOT;
