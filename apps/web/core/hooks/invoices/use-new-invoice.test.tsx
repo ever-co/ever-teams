@@ -8,6 +8,7 @@ import { currentOrganizationState } from '@/core/stores/user/user-organizations'
 import type { TOrganization } from '@/core/types/schemas';
 
 const mockCreateInvoice = jest.fn();
+const mockSaveAndSendInvoice = jest.fn();
 const mockOrganizationRead = { isError: false, refetch: jest.fn() };
 const mockClients: Array<{ id: string; name: string; paymentTermsDays?: number | null }> = [
 	{ id: 'client-acme', name: 'Acme' }
@@ -60,7 +61,8 @@ jest.mock('./use-invoices-query', () => ({
 	useClientInvoices: () => ({ invoices: [], isLoading: false, isError: false })
 }));
 jest.mock('./use-invoice-mutations', () => ({
-	useCreateInvoice: () => ({ createInvoice: mockCreateInvoice, isSaving: false })
+	useCreateInvoice: () => ({ createInvoice: mockCreateInvoice, isSaving: false }),
+	useSaveAndSendInvoice: () => ({ saveAndSendInvoice: mockSaveAndSendInvoice, isSavingAndSending: false })
 }));
 
 import { useNewInvoice } from './use-new-invoice';
@@ -183,6 +185,40 @@ describe('the discount and the tax of a new invoice', () => {
 		expect(result.current.taxText).toBe('');
 		expect(result.current.hasAdjustments).toBe(false);
 		expect(result.current.total).toBe(800);
+	});
+});
+
+describe('saving a new invoice and sending it', () => {
+	beforeEach(() => {
+		mockSaveAndSendInvoice.mockReset();
+		mockSaveAndSendInvoice.mockResolvedValue({ invoice: { id: 'invoice-1' }, outcome: 'sent' });
+	});
+
+	it('saves the invoice and sends it to the address given, in one step', async () => {
+		const { result } = renderNewInvoice(tokyoOrganization);
+
+		let saved: unknown = null;
+		await act(async () => {
+			saved = await result.current.saveAndSend('billing@acme.test');
+		});
+
+		expect(saved).toEqual({ invoice: { id: 'invoice-1' }, outcome: 'sent' });
+		expect(mockSaveAndSendInvoice).toHaveBeenCalledTimes(1);
+		const { request, email } = mockSaveAndSendInvoice.mock.calls[0][0];
+		expect(email).toBe('billing@acme.test');
+		expect(request).toMatchObject({ invoiceNumber: 7, status: 'DRAFT', toContactId: 'client-acme' });
+	});
+
+	it('sends nothing before the organisation is read', async () => {
+		const { result } = renderNewInvoice(null);
+
+		let saved: unknown = 'not answered';
+		await act(async () => {
+			saved = await result.current.saveAndSend('billing@acme.test');
+		});
+
+		expect(saved).toBeNull();
+		expect(mockSaveAndSendInvoice).not.toHaveBeenCalled();
 	});
 });
 

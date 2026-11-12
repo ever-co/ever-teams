@@ -105,6 +105,45 @@ export function useSendInvoice() {
 	return { sendInvoice: mutation.mutateAsync, isSending: mutation.isPending };
 }
 
+export type SaveAndSendOutcome = InvoiceSendOutcome | 'notSent';
+
+export interface SavedAndSentInvoice {
+	invoice: TInvoice;
+	outcome: SaveAndSendOutcome;
+}
+
+interface InvoiceToSaveAndSend {
+	request: InvoiceRequest;
+	email: string;
+}
+
+/** A refused sending leaves the invoice saved as a draft: it is reported, never thrown. */
+async function sendSavedInvoice(target: InvoiceToSend): Promise<SaveAndSendOutcome> {
+	try {
+		return await sendInvoiceToClient(target);
+	} catch {
+		return 'notSent';
+	}
+}
+
+/** Saves the invoice, then sends it. Throws only when the save is refused: nothing was created then. */
+async function saveAndSendInvoice({ request, email }: InvoiceToSaveAndSend): Promise<SavedAndSentInvoice> {
+	const invoice = await invoiceService.createInvoice(request);
+	const target = { invoiceId: invoice.id, invoiceNumber: request.invoiceNumber, email, marksSent: true };
+	const outcome = await sendSavedInvoice(target);
+	return { invoice, outcome };
+}
+
+export function useSaveAndSendInvoice() {
+	const queryClient = useQueryClient();
+	const mutation = useMutation({
+		mutationFn: saveAndSendInvoice,
+		onSettled: () => queryClient.invalidateQueries({ queryKey: queryKeys.invoices.all }),
+		meta: { handlesOwnError: true }
+	});
+	return { saveAndSendInvoice: mutation.mutateAsync, isSavingAndSending: mutation.isPending };
+}
+
 export interface InvoiceStatusChangeRequest {
 	invoiceId: string;
 	change: InvoiceStatusChange;

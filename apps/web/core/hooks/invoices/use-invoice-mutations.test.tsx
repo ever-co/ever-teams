@@ -6,12 +6,14 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { queryKeys } from '@/core/query/keys';
 import { paidChangeOf } from '@/core/lib/utils/invoice-actions';
 
+const mockCreateInvoice = jest.fn();
 const mockSendInvoiceByEmail = jest.fn();
 const mockChangeInvoiceStatus = jest.fn();
 const mockDeleteInvoice = jest.fn();
 
 jest.mock('@/core/services/client/api/organizations/invoice.service', () => ({
 	invoiceService: {
+		createInvoice: (...args: unknown[]) => mockCreateInvoice(...args),
 		sendInvoiceByEmail: (...args: unknown[]) => mockSendInvoiceByEmail(...args),
 		changeInvoiceStatus: (...args: unknown[]) => mockChangeInvoiceStatus(...args),
 		deleteInvoice: (...args: unknown[]) => mockDeleteInvoice(...args)
@@ -22,7 +24,13 @@ jest.mock('@/core/lib/helpers/cookies', () => ({
 	getOrganizationIdCookie: () => 'organization-1'
 }));
 
-import { useChangeInvoiceStatus, useDeleteInvoice, useSendInvoice } from './use-invoice-mutations';
+import {
+	useChangeInvoiceStatus,
+	useDeleteInvoice,
+	useSaveAndSendInvoice,
+	useSendInvoice
+} from './use-invoice-mutations';
+import type { InvoiceRequest } from '@/core/lib/utils/invoices';
 
 const LIST_KEY = queryKeys.invoices.list('tenant-1', 'organization-1');
 
@@ -57,9 +65,56 @@ function renderWith<T>(queryClient: QueryClient, hook: () => T) {
 }
 
 beforeEach(() => {
+	mockCreateInvoice.mockReset();
 	mockSendInvoiceByEmail.mockReset();
 	mockChangeInvoiceStatus.mockReset();
 	mockDeleteInvoice.mockReset();
+});
+
+describe('saving a new invoice and sending it', () => {
+	const request = { id: 'inv-9', invoiceNumber: 9 } as InvoiceRequest;
+
+	it('saves it, e-mails it, then marks it Sent', async () => {
+		mockCreateInvoice.mockResolvedValue({ id: 'inv-9', invoiceNumber: 9 });
+		mockSendInvoiceByEmail.mockResolvedValue(undefined);
+		mockChangeInvoiceStatus.mockResolvedValue(undefined);
+		const { result } = renderWith(new QueryClient(), () => useSaveAndSendInvoice());
+
+		let saved: unknown = null;
+		await act(async () => {
+			saved = await result.current.saveAndSendInvoice({ request, email: 'billing@acme.test' });
+		});
+
+		expect(saved).toEqual({ invoice: { id: 'inv-9', invoiceNumber: 9 }, outcome: 'sent' });
+		expect(mockSendInvoiceByEmail.mock.calls[0][0]).toMatchObject({ invoiceId: 'inv-9', invoiceNumber: 9 });
+		expect(mockChangeInvoiceStatus).toHaveBeenCalledWith('inv-9', { status: 'SENT' });
+	});
+
+	it('leaves a saved draft and says so when the sending is refused', async () => {
+		mockCreateInvoice.mockResolvedValue({ id: 'inv-9', invoiceNumber: 9 });
+		mockSendInvoiceByEmail.mockRejectedValue(new Error('Bad Request'));
+		const { result } = renderWith(new QueryClient(), () => useSaveAndSendInvoice());
+
+		let saved: unknown = null;
+		await act(async () => {
+			saved = await result.current.saveAndSendInvoice({ request, email: 'billing@acme.test' });
+		});
+
+		expect(saved).toEqual({ invoice: { id: 'inv-9', invoiceNumber: 9 }, outcome: 'notSent' });
+		expect(mockCreateInvoice).toHaveBeenCalledTimes(1);
+		expect(mockChangeInvoiceStatus).not.toHaveBeenCalled();
+	});
+
+	it('sends nothing when the invoice is not saved', async () => {
+		mockCreateInvoice.mockRejectedValue(new Error('A record with these values already exists.'));
+		const { result } = renderWith(new QueryClient(), () => useSaveAndSendInvoice());
+
+		await act(async () => {
+			await expect(result.current.saveAndSendInvoice({ request, email: 'billing@acme.test' })).rejects.toThrow();
+		});
+
+		expect(mockSendInvoiceByEmail).not.toHaveBeenCalled();
+	});
 });
 
 describe('sending an invoice to its client', () => {

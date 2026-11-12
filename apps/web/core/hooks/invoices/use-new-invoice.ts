@@ -35,7 +35,7 @@ import {
 } from '@/core/lib/utils/invoice-totals';
 import { newUuid } from '@/core/lib/utils/uuid';
 import { currentOrganizationState } from '@/core/stores/user/user-organizations';
-import { useCreateInvoice } from './use-invoice-mutations';
+import { useCreateInvoice, useSaveAndSendInvoice } from './use-invoice-mutations';
 import { useInvoiceTime, type InvoiceTimeLabels } from './use-invoice-time';
 import { useClientInvoices, useNextInvoiceNumber } from './use-invoices-query';
 
@@ -236,21 +236,33 @@ export function useNewInvoice() {
 		timeZone
 	]);
 
-	const { createInvoice, isSaving } = useCreateInvoice();
+	const { createInvoice, isSaving: isCreating } = useCreateInvoice();
+	const { saveAndSendInvoice, isSavingAndSending } = useSaveAndSendInvoice();
+	const isSaving = isCreating || isSavingAndSending;
 	const refetchNextNumber = nextNumber.refetch;
-	const save = useCallback(async () => {
-		const request = invoiceRequest();
-		if (!request) {
-			return null;
-		}
-		try {
-			return await createInvoice(request);
-		} catch (error) {
-			// The number is the likeliest refusal (another invoice took it): the form shows the highest again.
-			void refetchNextNumber();
-			throw error;
-		}
-	}, [createInvoice, invoiceRequest, refetchNextNumber]);
+	const submit = useCallback(
+		async <T>(run: (request: InvoiceRequest) => Promise<T>): Promise<T | null> => {
+			const request = invoiceRequest();
+			if (!request) {
+				return null;
+			}
+			try {
+				return await run(request);
+			} catch (error) {
+				// The number is the likeliest refusal (another invoice took it): the form shows the highest again.
+				void refetchNextNumber();
+				throw error;
+			}
+		},
+		[invoiceRequest, refetchNextNumber]
+	);
+
+	const save = useCallback(() => submit(createInvoice), [createInvoice, submit]);
+
+	const saveAndSend = useCallback(
+		(email: string) => submit((request) => saveAndSendInvoice({ request, email })),
+		[saveAndSendInvoice, submit]
+	);
 
 	return {
 		organizationName: organization?.name ?? '',
@@ -310,6 +322,7 @@ export function useNewInvoice() {
 		overlappingInvoices,
 		problems,
 		save,
+		saveAndSend,
 		isSaving
 	};
 }
