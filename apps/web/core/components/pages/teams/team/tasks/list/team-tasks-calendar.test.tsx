@@ -123,7 +123,8 @@ describe('TeamTasksCalendarView', () => {
 		);
 		const today = dayCell(monthGrid('November 2026'), 'Thursday, November 12');
 		const chip = within(today).getByRole('button', { name: 'Ship the release, open' });
-		const selectedChip = within(today).getByRole('button', { name: 'Write the notes, open' });
+		// A selected task says so in its name.
+		const selectedChip = within(today).getByRole('button', { name: 'Write the notes, open, common.SELECTED' });
 
 		fireEvent.click(chip, { ctrlKey: true });
 		expect(toggleSelected).toHaveBeenLastCalledWith('a', false);
@@ -227,7 +228,7 @@ describe('TeamTasksCalendarView', () => {
 		);
 		fireEvent.click(screen.getByRole('button', { name: /^pages\.teamTasks\.CALENDAR_NO_DUE_DATE/ }));
 		const notes = screen.getByRole('button', { name: 'Write the notes' });
-		const client = screen.getByRole('button', { name: 'Call the client' });
+		const client = screen.getByRole('button', { name: 'Call the client, common.SELECTED' });
 
 		expect(notes.getAttribute('data-selected')).toBe('false');
 		expect(client.getAttribute('data-selected')).toBe('true');

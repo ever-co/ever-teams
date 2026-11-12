@@ -107,6 +107,10 @@ const TaskChip = memo(function TaskChip({
 	if (isOverdue) {
 		labelParts.push(t('pages.teamTasks.TIMELINE_OVERDUE'));
 	}
+	// A selection is a click's second meaning, not a toggle (a click opens the task): its name says it, not aria-pressed.
+	if (isSelected) {
+		labelParts.push(t('common.SELECTED'));
+	}
 	const label = labelParts.join(', ');
 
 	const handleClick = (event: MouseEvent<HTMLButtonElement>) => {
@@ -328,6 +332,11 @@ const UndatedRow = memo(function UndatedRow({
 	const isDone = isDoneStatus(status);
 	const isSelected = context.selectedIds.has(task.id);
 	const setDueDateLabel = t('pages.teamTasks.SET_DUE_DATE');
+	// A selected task says so in its name; otherwise the name is its title, read from the button.
+	let selectedLabel: string | undefined;
+	if (isSelected) {
+		selectedLabel = `${task.title}, ${t('common.SELECTED')}`;
+	}
 	const handleClick = (event: MouseEvent<HTMLButtonElement>) => {
 		const togglesSelection = event.metaKey || event.ctrlKey;
 		if (togglesSelection) {
@@ -341,6 +350,7 @@ const UndatedRow = memo(function UndatedRow({
 			<button
 				type="button"
 				onClick={handleClick}
+				aria-label={selectedLabel}
 				data-selected={isSelected}
 				className={cn(
 					'flex h-7 min-w-0 flex-1 items-center gap-2 rounded-md px-1 text-left text-[13px] text-foreground hover:bg-foreground/5',
