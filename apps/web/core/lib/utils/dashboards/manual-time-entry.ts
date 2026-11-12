@@ -102,7 +102,12 @@ export interface ShownTimes {
 
 const NO_TIMES: ShownTimes = { startMinutes: null, endMinutes: null };
 
-export function spanSecondsOf(shown: ShownTimes): number | null {
+/**
+ * The time from the start to the end a form shows, as it passes on that day: where the clock changes, a day lasts an
+ * hour more or less than its clock tells, and the entry is saved with the time that really passed. While no day is
+ * picked, only the clock can be counted.
+ */
+export function spanSecondsOf(shown: ShownTimes, day: Date | null): number | null {
 	const { startMinutes, endMinutes } = shown;
 	if (startMinutes === null) {
 		return null;
@@ -110,11 +115,21 @@ export function spanSecondsOf(shown: ShownTimes): number | null {
 	if (endMinutes === null) {
 		return null;
 	}
-	const minutes = endMinutes - startMinutes;
-	if (minutes <= 0) {
+	const clockMinutes = endMinutes - startMinutes;
+	if (clockMinutes <= 0) {
 		return null;
 	}
-	return minutes * SECONDS_PER_MINUTE;
+	if (!day) {
+		return clockMinutes * SECONDS_PER_MINUTE;
+	}
+	const start = dateAtMinutes(day, startMinutes);
+	const end = dateAtMinutes(day, endMinutes);
+	const milliseconds = end.getTime() - start.getTime();
+	if (milliseconds <= 0) {
+		return null;
+	}
+	const passedMinutes = milliseconds / MILLISECONDS_PER_MINUTE;
+	return passedMinutes * SECONDS_PER_MINUTE;
 }
 
 function timesOfInterval(interval: TimeWindow): ShownTimes {
@@ -186,7 +201,7 @@ export function askedSecondsOf(phase: DurationPhase): number | null {
  * What the duration field reads while nothing is being typed: the refused text, the duration still asked for, or
  * the time from the start to the end the form shows.
  */
-export function restingDurationTextOf(phase: DurationPhase, shown: ShownTimes): string {
+export function restingDurationTextOf(phase: DurationPhase, shown: ShownTimes, day: Date | null): string {
 	if (phase.kind === 'invalid') {
 		return phase.text;
 	}
@@ -196,7 +211,7 @@ export function restingDurationTextOf(phase: DurationPhase, shown: ShownTimes): 
 	if (isAskedOnly) {
 		return formatDurationShort(askedSeconds);
 	}
-	const spanSeconds = spanSecondsOf(shown);
+	const spanSeconds = spanSecondsOf(shown, day);
 	if (spanSeconds === null) {
 		return '';
 	}

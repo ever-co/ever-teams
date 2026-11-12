@@ -72,7 +72,7 @@ export function useDurationEntry(input: DurationEntryInput): DurationEntry {
 	const shown = useMemo<ShownTimes>(() => ({ startMinutes, endMinutes }), [endMinutes, startMinutes]);
 	const shownRef = useSyncRef(shown);
 	const standingPhase = standingPhaseOf(phase, shown);
-	const restingText = restingDurationTextOf(standingPhase, shown);
+	const restingText = restingDurationTextOf(standingPhase, shown, day);
 
 	const readMemberLogs = async (memberId: string, around: Date): Promise<ITimeLog[]> => {
 		const period = { from: subDays(around, 1), to: addDays(around, 1) };
