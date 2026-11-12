@@ -7,6 +7,9 @@ import {
 	TIMELINE_PADDING_DAYS,
 	dayNumberOf,
 	dayOfStoredDate,
+	labelledTicksOf,
+	TIMELINE_DAY_WIDTH,
+	TIMELINE_HEADER_LABEL_WIDTH,
 	ticksOf,
 	timelineOf,
 	type TeamTasksTimelineTask
@@ -188,6 +191,33 @@ describe('the ticks of the header', () => {
 		expect(week.filter((tick) => tick.isMajor).every((tick) => tick.date.getDay() === 1)).toBe(true);
 		const month = ticksOf(timeline, 'month');
 		expect(month.filter((tick) => tick.isMajor).map((tick) => tick.date.getDate())).toEqual([1]);
+	});
+});
+
+describe('the labels of the header', () => {
+	it('labels the first day of a month calendar that holds no first of a month', () => {
+		// 3 to 21 Nov: no first of a month.
+		const timeline = timelineOf([task('a', { startDate: '2026-11-10', dueDate: '2026-11-14' })], {
+			today: TODAY,
+			zoom: 'month'
+		});
+		const ticks = ticksOf(timeline, 'month');
+		expect(ticks.some((tick) => tick.isMajor)).toBe(false);
+		const labelled = labelledTicksOf(ticks, TIMELINE_DAY_WIDTH.month, TIMELINE_HEADER_LABEL_WIDTH.month);
+		expect(labelled.map((tick) => tick.day)).toEqual([0]);
+	});
+
+	it('labels the first day only when the first labelled day leaves room for it', () => {
+		const ticks = Array.from({ length: 30 }, (_, day) => ({
+			day,
+			date: new Date(2026, 10, 1 + day),
+			isMajor: day === 2
+		}));
+		// Two days of 36 px are 72 px: room for a label of 56 px before the Monday.
+		expect(labelledTicksOf(ticks, 36, 56).map((tick) => tick.day)).toEqual([0, 2]);
+		// Two days of 10 px: no room; the Monday's label is enough.
+		expect(labelledTicksOf(ticks, 10, 56).map((tick) => tick.day)).toEqual([2]);
+		expect(labelledTicksOf([], 36, 56)).toEqual([]);
 	});
 });
 
