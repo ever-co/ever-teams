@@ -65,10 +65,19 @@ export function TaskTrashList({ teamId, projectId, showsProject = true }: Readon
 
 	const deleteForever = async (task: ITrashedTask) => {
 		markBusy(task.id, true);
-		const isDeleted = await trash.deleteForever(task);
+		const outcome = await trash.deleteForever(task);
 		markBusy(task.id, false);
 		setDeleting((current) => (current?.id === task.id ? null : current));
-		if (!isDeleted) {
+		if (outcome === 'not-in-trash') {
+			// Restored or deleted by someone else since the list was read: nothing was deleted, and the list is read again.
+			toast.warning(t('taskTrash.NO_LONGER_IN_TRASH', { title: task.title }));
+			return;
+		}
+		if (outcome === 'still-linked') {
+			toast.error(t('taskTrash.STILL_LINKED', { title: task.title }));
+			return;
+		}
+		if (outcome === 'failed') {
 			toast.error(t('taskTrash.DELETE_FAILED'));
 			return;
 		}
