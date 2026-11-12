@@ -29,6 +29,12 @@ describe('isHeldTeamTask', () => {
 		it('does not keep a task of another team because the timer runs on it', () => {
 			expect(isHeldTeamTask(taskOfTeam('task-a', 'team-b'), 'task-a', 'team-a', 'task-a')).toBe(false);
 		});
+
+		it("keeps it while the member's record in the team names it, and not when it names another task", () => {
+			expect(isHeldTeamTask(plannedTask, 'task-a', 'team-a', null, 'task-a')).toBe(true);
+			expect(isHeldTeamTask(plannedTask, 'task-a', 'team-a', null, 'task-b')).toBe(false);
+			expect(isHeldTeamTask(taskOfTeam('task-a', 'team-b'), 'task-a', 'team-a', null, 'task-a')).toBe(false);
+		});
 	});
 });
 

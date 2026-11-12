@@ -223,17 +223,23 @@ describe('useTeamTasksState while the timer runs on a task outside the loaded li
 	const listedTask = (id: string) =>
 		({ id, teams: [{ id: 'team-a' }], members: [{ userId: 'user-a' }] }) as unknown as TTask;
 
-	/** The member works on a planned task of another project than the list's default one, chosen on this device. */
-	function renderWhileWorkingOn(taskId: string) {
-		mockCookieTaskId = taskId;
-		const store = createStore();
-		store.set(organizationTeamsState, [
+	const teamWhoseMemberWorksOn = (memberTaskId: string) =>
+		[
 			{
 				id: 'team-a',
 				name: 'Team A',
-				members: [{ id: 'member-a', employee: { userId: 'user-a' }, activeTaskId: taskId }]
+				members: [{ id: 'member-a', employee: { userId: 'user-a' }, activeTaskId: memberTaskId }]
 			}
-		] as never);
+		] as never;
+
+	/**
+	 * The member works on a planned task of another project than the list's default one, chosen on this device. Their
+	 * record in the team still names the task they had before: the save of the new one has not come back yet.
+	 */
+	function renderWhileWorkingOn(taskId: string) {
+		mockCookieTaskId = taskId;
+		const store = createStore();
+		store.set(organizationTeamsState, teamWhoseMemberWorksOn('task-before'));
 		store.set(activeTeamIdState, 'team-a');
 		store.set(teamTasksState, [listedTask('task-of-the-default-project')]);
 		store.set(teamTasksCompleteState, true);
@@ -269,6 +275,17 @@ describe('useTeamTasksState while the timer runs on a task outside the loaded li
 
 		act(() => {
 			store.set(teamTasksState, [listedTask('task-of-the-default-project')]);
+		});
+
+		expect(store.get(activeTeamTaskState)?.id).toBe('task-planned');
+	});
+
+	it('keeps a planned task the member chose once their record in the team names it, before its timer starts', () => {
+		const store = renderWhileWorkingOn('task-planned');
+
+		act(() => {
+			// The save of the chosen task reads the team again, before the task card starts the timer
+			store.set(organizationTeamsState, teamWhoseMemberWorksOn('task-planned'));
 		});
 
 		expect(store.get(activeTeamTaskState)?.id).toBe('task-planned');

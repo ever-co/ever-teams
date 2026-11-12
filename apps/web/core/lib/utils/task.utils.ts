@@ -168,14 +168,17 @@ export function memberTaskIdOf(member: TOrganizationTeamEmployee | null | undefi
  * `teamId`. The team's task list follows its default project: when the default project changes, a task of another
  * project of the team drops out of the list while staying the member's task, and the one their timer runs on.
  *
- * A task read from a daily plan comes without its teams, so it cannot be validated: while the timer runs on it
- * (`timerTaskId`), it is held all the same (#5119). A task known to belong to other teams only is never held.
+ * A task read from a daily plan comes without its teams, so it cannot be validated. It is held all the same while the
+ * timer runs on it (`timerTaskId`), or while the member's record in the team names it as theirs (`memberTaskId`): the
+ * save of a chosen task brings that record back before its timer starts (#5119). A task known to belong to other
+ * teams only is never held.
  */
 export function isHeldTeamTask(
 	heldTask: TTask | null | undefined,
 	taskId: string | null | undefined,
 	teamId: string | null | undefined,
-	timerTaskId?: string | null
+	timerTaskId?: string | null,
+	memberTaskId?: string | null
 ): boolean {
 	if (!heldTask) {
 		return false;
@@ -188,8 +191,12 @@ export function isHeldTeamTask(
 		return true;
 	}
 	const hasKnownTeams = !!heldTask.teams?.length;
+	if (hasKnownTeams) {
+		return false;
+	}
 	const isTimerTask = heldTask.id === timerTaskId;
-	return !hasKnownTeams && isTimerTask;
+	const isMemberTask = heldTask.id === memberTaskId;
+	return isTimerTask || isMemberTask;
 }
 
 /**
