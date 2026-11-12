@@ -10,10 +10,10 @@ const HOME_TIMER_PLACEHOLDERS = {
 };
 
 const PROFILE_TIMER_PLACEHOLDERS = {
-	toggle: 'size-7',
-	clock: 'h-9 w-38',
-	digits: 'h-7',
-	button: 'size-11'
+	toggle: 'size-9',
+	clock: 'h-7 w-[6.5rem]',
+	digits: 'h-5',
+	button: 'size-9'
 };
 
 function placeholdersOf(compact: boolean) {

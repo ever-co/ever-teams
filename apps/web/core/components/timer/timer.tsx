@@ -72,19 +72,12 @@ function runningFractionClassNameOf(compact: boolean) {
 	return clsxm(RUNNING_FRACTION_CLASS_NAME, 'max-sm:hidden');
 }
 
+/** The start button's diameter, which the entry's toggles share, so the timer's round controls read as one row. */
 function timerButtonClassNameOf(compact: boolean) {
 	if (compact) {
 		return 'size-9';
 	}
 	return 'size-11';
-}
-
-/** The home timer's toggles take its start button's diameter, so its three round controls read as one row. */
-function entryToggleClassNameOf(compact: boolean) {
-	if (compact) {
-		return undefined;
-	}
-	return timerButtonClassNameOf(compact);
 }
 
 export function Timer({ className, showTimerButton = true, compact = false }: IClassName<{ compact?: boolean }>) {
@@ -155,7 +148,6 @@ export function Timer({ className, showTimerButton = true, compact = false }: IC
 	const clockClassName = clockClassNameOf(compact);
 	const runningFractionClassName = runningFractionClassNameOf(compact);
 	const timerButtonClassName = timerButtonClassNameOf(compact);
-	const entryToggleClassName = entryToggleClassNameOf(compact);
 
 	return (
 		<div className={clsxm('flex min-w-[260px] flex-row items-center justify-between gap-4 p-2', className)}>
@@ -164,7 +156,7 @@ export function Timer({ className, showTimerButton = true, compact = false }: IC
 					<TimerEntryToggles
 						locked={isBillableLocked}
 						className="gap-2"
-						toggleClassName={entryToggleClassName}
+						toggleClassName={timerButtonClassName}
 					/>
 				)}
 				<div className="flex min-w-0 items-start gap-2">
