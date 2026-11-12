@@ -496,6 +496,18 @@ describe('AddTaskModal project of the saved time', () => {
 		);
 	});
 
+	it('sends no project field when neither the task nor the form has a project', () => {
+		renderAddTimeForm();
+
+		pickTaskAndEmployee('task-loose', 'employee-a');
+		fillShiftTimes();
+		save();
+
+		const [entry] = mockCreateTimesheet.mock.calls[0];
+		expect(entry.taskId).toBe('task-loose');
+		expect('projectId' in entry).toBe(false);
+	});
+
 	it('keeps the project picked by hand for a task without one', () => {
 		renderAddTimeForm();
 

@@ -114,6 +114,14 @@ function billableOf(billableChoice: boolean | null, project: TOrganizationProjec
 	return project?.billable === true;
 }
 
+/** An entry without a project sends no project field: the API refuses an empty id as a wrong format. */
+function projectFieldOf(projectId: string) {
+	if (!projectId) {
+		return {};
+	}
+	return { projectId };
+}
+
 export function AddTaskModal({ closeModal, isOpen, fixedMember }: IAddTaskModalProps) {
 	const tasks = useAtomValue(tasksByTeamState);
 	const { generateTimeOptions } = useTimelogFilterOptions();
@@ -248,7 +256,7 @@ export function AddTaskModal({ closeModal, isOpen, fixedMember }: IAddTaskModalP
 		const payload = {
 			isBillable,
 			description: formState.notes,
-			projectId: entryProjectId,
+			...projectFieldOf(entryProjectId),
 			logType: ETimeLogType.MANUAL as any,
 			source: ETimeLogSource.TEAMS as any,
 			taskId: formState.taskId,
