@@ -105,6 +105,7 @@ function LiveKitPage() {
 					displayName={displayName}
 					onJoin={join}
 					onBack={flow.backToMeetings}
+					shareScreenOnJoin={flow.shareScreenOnJoin}
 					onCopyLink={flow.copyLink}
 				/>
 			)}
@@ -118,6 +119,7 @@ function LiveKitPage() {
 					liveKitUrl={readRuntimeEnv('NEXT_PUBLIC_LIVEKIT_URL') || process.env.NEXT_PUBLIC_LIVEKIT_URL || ''}
 					onLeave={onLeave}
 					title={flow.title}
+					shareScreenOnJoin={flow.shareScreenOnJoin}
 					onCopyLink={flow.copyLink}
 					userChoices={{
 						videoEnabled: flow.choices?.videoEnabled ?? true,

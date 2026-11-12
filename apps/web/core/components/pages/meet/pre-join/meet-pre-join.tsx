@@ -97,6 +97,8 @@ interface MeetPreJoinProps {
 	/** The meeting's title, or null for a room with a random name. */
 	title: string | null;
 	displayName: string;
+	/** The meeting was started to show the screen: it is shared once the room is joined. */
+	shareScreenOnJoin?: boolean;
 	onJoin: (choices: MeetingJoinChoices) => void;
 	onBack: () => void;
 	onCopyLink: () => void;
@@ -106,7 +108,14 @@ interface MeetPreJoinProps {
  * The step before a meeting room: the person sees and hears themselves, picks devices, decides to come in with the
  * camera or the microphone off, and then joins. Nothing here talks to the meeting server.
  */
-export function MeetPreJoin({ title, displayName, onJoin, onBack, onCopyLink }: Readonly<MeetPreJoinProps>) {
+export function MeetPreJoin({
+	title,
+	displayName,
+	shareScreenOnJoin = false,
+	onJoin,
+	onBack,
+	onCopyLink
+}: Readonly<MeetPreJoinProps>) {
 	const t = useTranslations();
 	const preview = useMediaPreview();
 	const { choices, stream, access } = preview;
@@ -214,6 +223,7 @@ export function MeetPreJoin({ title, displayName, onJoin, onBack, onCopyLink }: 
 						</p>
 					</div>
 
+					{shareScreenOnJoin && <Notice tone="info" title={t('meetings.SHARE_SCREEN_ON_JOIN')} />}
 					{access === 'denied' && (
 						<Notice
 							tone="warning"

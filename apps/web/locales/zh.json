@@ -3939,6 +3939,7 @@
 		"SHARE_SCREEN": "共享屏幕",
 		"SHARE_SCREEN_REFUSED": "浏览器没有开始共享你的屏幕，需要点击一下才能开始。",
 		"SHARE_SCREEN_JITSI_HINT": "请在浏览器窗口中选择要共享的屏幕。如果没有弹出窗口，请使用会议工具栏中的共享按钮。",
+		"SHARE_SCREEN_ON_JOIN": "加入后会立即共享你的屏幕。",
 		"SETTINGS": "设置",
 		"AUDIO_AND_VIDEO": "音频和视频",
 		"EFFECTS": "效果",

@@ -118,6 +118,16 @@ describe('MeetingsPage', () => {
 		expect(roomOfPath(path)).toMatch(/^EverTeam-.{10}$/);
 	});
 
+	it('starts a meeting in a new room that shares the screen once joined', () => {
+		render(<MeetingsPage />);
+
+		fireEvent.click(screen.getByTestId('meetings-share-screen'));
+
+		const path = mockPush.mock.calls[0][0] as string;
+		expect(path).toMatch(/^\/meet\/jitsi\?room=.+&share=screen$/);
+		expect(roomOfPath(path)).toMatch(/^EverTeam-.{10}$/);
+	});
+
 	it('opens a new form each time: an answer that comes back after Schedule was closed never shows in the next one', async () => {
 		let answer: (value: unknown) => void = () => undefined;
 		mockScheduleMeeting.mockReturnValueOnce(new Promise((resolve) => (answer = resolve)));

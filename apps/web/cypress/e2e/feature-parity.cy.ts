@@ -306,6 +306,19 @@ describe('feature parity on the authenticated shell', () => {
 		cy.get('[data-testid="scheduled-meeting"]').should('contain', 'Retro, moved');
 	});
 
+	it('starts a meeting to show the screen: devices first, the screen once in the room', () => {
+		cy.intercept('GET', '**/api/auth/meet/jwt*', { token: 'synthetic-meet-token', room: 'room_tenant' });
+		cy.hardVisit('/meet');
+		cy.get('[data-testid="meetings-share-screen"]', { timeout: 20_000 }).click();
+		cy.location('pathname', { timeout: 15_000 }).should('match', /\/meet\/jitsi$/);
+		cy.contains('Your screen is shared as soon as you join.', { timeout: 20_000 }).should('be.visible');
+		cy.get('[data-testid="meet-join-now"]').should('be.visible');
+		// The request leaves the address, which is the link people copy
+		cy.location('search')
+			.should('match', /^\?room=/)
+			.and('not.contain', 'share=');
+	});
+
 	it('shows the agenda one day at a time, with the day before, the day after and back to today', () => {
 		cy.hardVisit('/meet');
 		cy.get('[data-testid="meetings-agenda-day"]', { timeout: 20_000 }).should(

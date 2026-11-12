@@ -50,11 +50,12 @@ function installDevices(getUserMedia?: jest.Mock) {
 	return media;
 }
 
-function renderPreJoin(onJoin = jest.fn()) {
+function renderPreJoin(onJoin = jest.fn(), shareScreenOnJoin = false) {
 	const view = render(
 		<MeetPreJoin
 			title="Sprint review"
 			displayName="Ruslan Konviser"
+			shareScreenOnJoin={shareScreenOnJoin}
 			onJoin={onJoin}
 			onBack={jest.fn()}
 			onCopyLink={jest.fn()}
@@ -98,6 +99,13 @@ describe('MeetPreJoin', () => {
 				displayName: 'Ruslan Konviser'
 			})
 		);
+	});
+
+	it('says the screen is shared once joined, in a meeting started to show it', async () => {
+		installDevices();
+		renderPreJoin(jest.fn(), true);
+
+		expect(await screen.findByText('meetings.SHARE_SCREEN_ON_JOIN')).toBeTruthy();
 	});
 
 	it('turns the camera off before joining: its track stops and the room opens without it', async () => {

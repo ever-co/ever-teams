@@ -3939,6 +3939,7 @@
 		"SHARE_SCREEN": "Condividi schermo",
 		"SHARE_SCREEN_REFUSED": "Il browser non ha avviato la condivisione dello schermo. Per farlo gli serve un clic.",
 		"SHARE_SCREEN_JITSI_HINT": "Scegli lo schermo da condividere nella finestra del browser. Se non se ne è aperta nessuna, usa il pulsante di condivisione nella barra della riunione.",
+		"SHARE_SCREEN_ON_JOIN": "Il tuo schermo viene condiviso appena partecipi.",
 		"SETTINGS": "Impostazioni",
 		"AUDIO_AND_VIDEO": "Audio e video",
 		"EFFECTS": "Effetti",

@@ -8,13 +8,14 @@ import { nanoid } from 'nanoid';
 import { PageLayout } from '@/core/components/layouts/default-layout';
 import { Breadcrumb } from '@/core/components/duplicated-components/breadcrumb';
 import { DASHBOARD_STACK } from '@/core/components/dashboards/kit/recipes';
-import { CalendarPlus, LogIn, Plus, VideoCall } from '@/core/components/icons';
+import { Button } from '@/core/components/duplicated-components/_button';
+import { CalendarPlus, LogIn, Plus, ScreenShare, VideoCall } from '@/core/components/icons';
 import { preloadLiveKit } from '@/core/components/optimized-components/meet';
 import { useScheduledMeetings } from '@/core/hooks/meetings/use-scheduled-meetings';
 import { activeTeamNameState } from '@/core/stores';
 import { cn } from '@/core/lib/helpers';
 import { isJitsiMeeting, meetRoomNameFor } from '@/core/lib/utils/collaboration';
-import { meetingPathFor, type ScheduledMeeting } from '@/core/lib/utils/meetings';
+import { meetingPathFor, sharingScreenPathOf, type ScheduledMeeting } from '@/core/lib/utils/meetings';
 import { JoinMeetingDialog } from './join-meeting-dialog';
 import { MeetingAgenda } from './meeting-agenda';
 import { ScheduleMeetingDialog } from './schedule-meeting-dialog';
@@ -82,7 +83,8 @@ function ActionTile({
 }
 
 /**
- * The meetings home: the time, the three ways in (join, start, plan) and the agenda of the meetings one scheduled.
+ * The meetings home: the time, the three ways in (join, start, plan), a meeting to show one's screen, and the agenda
+ * of the meetings one scheduled.
  * Rooms are Jitsi or LiveKit, as the deployment chose; scheduling keeps the meeting in Ever Gauzy.
  */
 export function MeetingsPage() {
@@ -112,6 +114,7 @@ export function MeetingsPage() {
 		meetingPathFor(meetRoomNameFor(teamName, [], nanoid(10)), isJitsi, meetingTitle);
 
 	const startMeeting = () => router.push(newRoomPath());
+	const shareScreen = () => router.push(sharingScreenPathOf(newRoomPath()));
 	const prepareMeeting = () => {
 		if (!isJitsi) preloadLiveKit();
 	};
@@ -171,6 +174,18 @@ export function MeetingsPage() {
 							testId="meetings-schedule"
 						/>
 					</div>
+					<Button
+						type="button"
+						variant="outline"
+						size="lg"
+						onClick={shareScreen}
+						onPointerEnter={prepareMeeting}
+						onFocus={prepareMeeting}
+						data-testid="meetings-share-screen"
+					>
+						<ScreenShare className="size-4" aria-hidden="true" />
+						{t('meetings.SHARE_SCREEN')}
+					</Button>
 				</section>
 
 				{scheduled.canSchedule && (

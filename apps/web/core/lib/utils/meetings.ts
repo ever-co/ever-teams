@@ -56,6 +56,31 @@ export function meetingPathFor(roomName: string, isJitsi: boolean, title?: strin
 	return withTitle(meetPathFor(roomName, isJitsi), title);
 }
 
+/** The part of a meeting page's address that asks it to share the screen once the room is joined. */
+const SHARE_SCREEN_PARAM = 'share=screen';
+
+/** The meeting page of a meeting started to show the screen. */
+export function sharingScreenPathOf(path: string): string {
+	return `${path}&${SHARE_SCREEN_PARAM}`;
+}
+
+/** Whether a meeting page's query asks it to share the screen once joined. */
+export function isSharingScreenAsked(search: string): boolean {
+	return search.replace(/^\?/, '').split('&').includes(SHARE_SCREEN_PARAM);
+}
+
+/**
+ * A meeting page's query without the request to share the screen, the rest kept as written: the address is the link
+ * people copy, and it must not ask someone else's browser to share.
+ */
+export function searchWithoutSharing(search: string): string {
+	const kept = search
+		.replace(/^\?/, '')
+		.split('&')
+		.filter((part) => part && part !== SHARE_SCREEN_PARAM);
+	return kept.length > 0 ? `?${kept.join('&')}` : '';
+}
+
 /**
  * Where a pasted meeting link or a typed room name leads in this app: `undefined` when the text is no meeting link,
  * `null` when it is one without a valid room. The room opens on this deployment's meeting server, whichever server

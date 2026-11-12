@@ -3939,6 +3939,7 @@
 		"SHARE_SCREEN": "Share screen",
 		"SHARE_SCREEN_REFUSED": "Your browser did not start sharing your screen. It needs a click to do so.",
 		"SHARE_SCREEN_JITSI_HINT": "Pick the screen to share in your browser's window. If none opened, use the share button in the meeting's toolbar.",
+		"SHARE_SCREEN_ON_JOIN": "Your screen is shared as soon as you join.",
 		"SETTINGS": "Settings",
 		"AUDIO_AND_VIDEO": "Audio and video",
 		"EFFECTS": "Effects",

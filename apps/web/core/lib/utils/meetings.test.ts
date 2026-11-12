@@ -12,11 +12,14 @@ import {
 	meetingPathFor,
 	meetingPathOfInput,
 	meetingsOfDay,
+	isSharingScreenAsked,
 	meetingTitleOf,
 	participantsWithText,
 	roomNameOfParam,
 	scheduledMeetingOf,
 	scheduledMeetingStateOf,
+	searchWithoutSharing,
+	sharingScreenPathOf,
 	startOfDay,
 	type ScheduledMeeting
 } from './meetings';
@@ -261,6 +264,18 @@ describe('scheduled meetings', () => {
 		expect(meetingLinkWithTitle(`https://app.example.com/meet/livekit?roomName=${room}`, 'Retro')).toBe(
 			`https://app.example.com/meet/livekit?roomName=${room}&title=Retro`
 		);
+	});
+
+	it('asks a meeting page to share the screen, and takes the request out of its address as written', () => {
+		const path = sharingScreenPathOf('/meet/jitsi?room=room+one/two=');
+
+		expect(path).toBe('/meet/jitsi?room=room+one/two=&share=screen');
+		expect(isSharingScreenAsked(path.split('?')[1])).toBe(true);
+		expect(isSharingScreenAsked('?room=abc&share=screens')).toBe(false);
+		expect(searchWithoutSharing('?room=room+one/two=&share=screen&title=Demo%20day')).toBe(
+			'?room=room+one/two=&title=Demo%20day'
+		);
+		expect(searchWithoutSharing('?share=screen')).toBe('');
 	});
 
 	it('writes a calendar file with the time in UTC, escaped text and folded long lines', () => {
