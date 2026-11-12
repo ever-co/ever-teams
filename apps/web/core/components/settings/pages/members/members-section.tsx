@@ -226,7 +226,9 @@ export function MembersSection({ onInvite, canInvite }: Readonly<{ onInvite: () 
 	if (showsInactive) {
 		listedCount = inactive.members.length;
 	}
-	const showsSearch = listedCount >= MIN_ROWS_FOR_SEARCH;
+	const hasEnoughRowsToSearch = listedCount >= MIN_ROWS_FOR_SEARCH;
+	const isSearching = query !== '';
+	const showsSearch = hasEnoughRowsToSearch || isSearching;
 	const hasInactiveMembers = inactive.members.length > 0;
 	const hasVisibleInactiveMembers = visibleInactiveMembers.length > 0;
 	const hidesEveryInactiveMember = hasInactiveMembers && !hasVisibleInactiveMembers;

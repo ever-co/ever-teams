@@ -99,6 +99,19 @@ describe('the inactive members of the active team', () => {
 		expect(view.result.current.isLoading).toBe(false);
 	});
 
+	it('says so when the list could not be read again, instead of showing the earlier answer as current', async () => {
+		const view = renderInactiveMembers(true);
+		await waitFor(() => expect(view.result.current.members).toHaveLength(1));
+		mockGetInactiveEmployees.mockRejectedValue({ status: 500 });
+
+		await act(async () => {
+			await view.result.current.retry();
+		});
+
+		await waitFor(() => expect(view.result.current.isError).toBe(true));
+		expect(view.result.current.isLoading).toBe(false);
+	});
+
 	it('lets a viewer who only reads employees see the list without restoring', async () => {
 		mockPermissions = ['ORG_EMPLOYEES_VIEW'];
 

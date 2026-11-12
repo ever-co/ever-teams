@@ -37,6 +37,10 @@ export function ConfirmMemberDialog({
 	const name = shown?.name ?? '';
 
 	const close = () => {
+		// The request cannot be taken back, and its answer would land on whichever member's dialog is open by then
+		if (isPending) {
+			return;
+		}
 		setError(null);
 		onClose();
 	};

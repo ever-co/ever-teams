@@ -48,7 +48,7 @@ export function useInactiveMembers(isShown: boolean) {
 	const employees = query.data;
 	const members = useMemo(() => inactiveMembersOfTeam(employees ?? [], teamId), [employees, teamId]);
 	const hasAnswer = Boolean(employees);
-	const isError = query.isError && !hasAnswer;
+	const isError = query.isError;
 	const isWaiting = isAsked && !hasAnswer;
 	const isLoading = isWaiting && !isError;
 

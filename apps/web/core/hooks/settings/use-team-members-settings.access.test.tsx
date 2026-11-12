@@ -267,9 +267,54 @@ describe('changing the workspace role of a member', () => {
 		await act(() => view.result.current.changeWorkspaceRole('row-ana', 'role-viewer'));
 
 		expect(rowOf('ana').workspaceRoleName).toBe('EMPLOYEE');
+		expect(rowOf('ana').canDeactivate).toBe(true);
 		expect(mockToast.error).toHaveBeenCalledWith('settings.members.WORKSPACE_ROLE_NOT_SAVED:Member ana', {
 			description: 'toasts.REASONS.PERMISSION:'
 		});
+	});
+
+	it('offers no Deactivate on a member who is being made an admin', async () => {
+		mockAssignWorkspaceRole.mockReturnValue(new Promise<void>(() => undefined));
+		const { view, rowOf } = renderMembers();
+
+		await act(async () => {
+			void view.result.current.changeWorkspaceRole('row-ana', 'role-admin');
+		});
+
+		expect(rowOf('ana').workspaceRoleName).toBe('ADMIN');
+		expect(rowOf('ana').canDeactivate).toBe(false);
+	});
+
+	it('sends no deactivation for a member who is being made an admin', async () => {
+		mockAssignWorkspaceRole.mockReturnValue(new Promise<void>(() => undefined));
+		const { view } = renderMembers();
+
+		await act(async () => {
+			void view.result.current.changeWorkspaceRole('row-ana', 'role-admin');
+		});
+		await act(async () => {
+			await expect(view.result.current.deactivateMember('row-ana')).rejects.toThrow();
+		});
+
+		expect(mockSetMemberWorkEnd).not.toHaveBeenCalled();
+	});
+
+	it('offers Deactivate again only once the team read again carries the saved role', async () => {
+		mockAssignWorkspaceRole.mockResolvedValue(undefined);
+		const { view, rowOf, store } = renderMembers();
+
+		await act(() => view.result.current.changeWorkspaceRole('row-ana', 'role-viewer'));
+
+		expect(rowOf('ana').isWorkspaceRolePending).toBe(false);
+		expect(rowOf('ana').canDeactivate).toBe(false);
+
+		const readAgain = { ...TEAM, members: [member('admin', 'role-admin'), member('ana', 'role-viewer')] };
+		await act(async () => {
+			store.set(organizationTeamsState, [readAgain] as never);
+		});
+
+		expect(rowOf('ana').workspaceRoleName).toBe('VIEWER');
+		expect(rowOf('ana').canDeactivate).toBe(true);
 	});
 
 	it('never sends a role the viewer is not offered, nor a change on a member out of their reach', async () => {

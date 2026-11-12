@@ -46,6 +46,7 @@ jest.mock('@/core/components/settings/kit/danger', () => ({
 		confirmDisabled,
 		isPending,
 		error,
+		onClose,
 		onConfirm
 	}: {
 		open: boolean;
@@ -55,6 +56,7 @@ jest.mock('@/core/components/settings/kit/danger', () => ({
 		confirmDisabled?: boolean;
 		isPending: boolean;
 		error?: string | null;
+		onClose: () => void;
 		onConfirm: () => void;
 	}) => {
 		if (!open) {
@@ -62,6 +64,9 @@ jest.mock('@/core/components/settings/kit/danger', () => ({
 		}
 		return (
 			<div role="dialog" aria-label={title}>
+				<button type="button" onClick={onClose}>
+					close
+				</button>
 				<ul>
 					{consequences.map((consequence) => (
 						<li key={consequence.key}>{consequence.text}</li>
@@ -172,6 +177,29 @@ describe('the Active and Inactive lists', () => {
 	});
 });
 
+describe('the search field', () => {
+	const rowNamed = (name: string) => ({ ...ANA, id: `row-${name}`, name, email: `${name}@example.com` });
+	const others = ['Bo', 'Cy', 'Dee', 'Eli', 'Fay', 'Gus'].map(rowNamed);
+
+	it('stays while a search is typed, though the list fell under the size that shows it', () => {
+		const rows = [rowNamed('Ana Lima'), rowNamed('Ana Chen'), ...others];
+		mockUseTeamMembersSettings.mockReturnValue(membersSettings({ rows }));
+		const view = renderSection();
+		fireEvent.change(screen.getByRole('searchbox'), { target: { value: 'Ana' } });
+
+		mockUseTeamMembersSettings.mockReturnValue(membersSettings({ rows: [rowNamed('Ana Lima'), ...others] }));
+		view.rerender(<MembersSection onInvite={jest.fn()} canInvite />);
+
+		expect(screen.queryByText('Bo')).toBeNull();
+		expect((screen.getByRole('searchbox') as HTMLInputElement).value).toBe('Ana');
+
+		fireEvent.change(screen.getByRole('searchbox'), { target: { value: '' } });
+
+		expect(screen.getByText('Bo')).toBeTruthy();
+		expect(screen.queryByRole('searchbox')).toBeNull();
+	});
+});
+
 describe('the Deactivate confirmation', () => {
 	it('says what changes, then deactivates the member once confirmed', async () => {
 		const deactivateMember = jest.fn().mockResolvedValue(undefined);
@@ -212,6 +240,30 @@ describe('the Deactivate confirmation', () => {
 
 		expect(screen.getByRole('alert').textContent).toBe('toasts.REASONS.PERMISSION');
 		expect(screen.getByRole('dialog')).toBeTruthy();
+	});
+
+	it('stays open when it is asked to close while the deactivation is on its way', async () => {
+		let finish: () => void = () => undefined;
+		const answer = new Promise<void>((resolve) => {
+			finish = resolve;
+		});
+		const deactivateMember = jest.fn().mockReturnValue(answer);
+		mockUseTeamMembersSettings.mockReturnValue(membersSettings({ deactivateMember }));
+		renderSection();
+		fireEvent.click(screen.getByRole('button', { name: 'deactivate Ana Lima' }));
+		await act(async () => {
+			fireEvent.click(screen.getByRole('button', { name: 'settings.members.DEACTIVATE' }));
+		});
+
+		fireEvent.click(screen.getByRole('button', { name: 'close' }));
+
+		expect(screen.getByRole('dialog')).toBeTruthy();
+
+		await act(async () => {
+			finish();
+		});
+
+		expect(screen.queryByRole('dialog')).toBeNull();
 	});
 
 	it('cannot be confirmed once the member can no longer be deactivated', () => {

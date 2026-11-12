@@ -138,13 +138,29 @@ interface MemberAccessContext {
 	permissions: ReadonlyArray<string>;
 	workspaceRoles: ReadonlyArray<WorkspaceRole>;
 	assignableRoles: ReadonlyArray<WorkspaceRole>;
+	workspaceRoleOverrides: Overrides<string>;
 }
 
 const NO_MEMBER_ACCESS = { canDeactivate: false, canChangeWorkspaceRole: false };
 
+/** A role given to the member that the team data does not carry yet: it is being saved, or was not read back. */
+function hasWorkspaceRoleOnItsWay(member: TOrganizationTeamEmployee, overrides: Overrides<string>): boolean {
+	const rowId = member.id;
+	if (!rowId) {
+		return false;
+	}
+	const roleIdOnItsWay = overrides[rowId];
+	if (!roleIdOnItsWay) {
+		return false;
+	}
+	return roleIdOnItsWay !== memberWorkspaceRoleIdOf(member);
+}
+
 /**
  * What the viewer may do to a member's access, read from the role Gauzy stores and never from a change still on its
- * way: the list and the actions both go through it, so an action is checked again on the data of the moment.
+ * way: the list and the actions both go through it, so an action is checked again on the data of the moment. While
+ * a change of role is on its way the member may already hold the new one, an admin's included, so Deactivate waits
+ * until the team data carries it.
  */
 function memberAccessOf(member: TOrganizationTeamEmployee, context: MemberAccessContext) {
 	if (!context.userId) {
@@ -153,13 +169,15 @@ function memberAccessOf(member: TOrganizationTeamEmployee, context: MemberAccess
 	const memberUserId = memberUserIdOf(member);
 	const isYou = memberUserId === context.userId;
 	const workspaceRoleName = workspaceRoleNameOf(context.workspaceRoles, memberWorkspaceRoleIdOf(member));
+	const isRoleSettled = !hasWorkspaceRoleOnItsWay(member, context.workspaceRoleOverrides);
+	const mayDeactivate = canDeactivateMember({
+		permissions: context.permissions,
+		isYou,
+		hasEmployee: Boolean(employeeIdOf(member)),
+		workspaceRoleName
+	});
 	return {
-		canDeactivate: canDeactivateMember({
-			permissions: context.permissions,
-			isYou,
-			hasEmployee: Boolean(employeeIdOf(member)),
-			workspaceRoleName
-		}),
+		canDeactivate: mayDeactivate && isRoleSettled,
 		canChangeWorkspaceRole: canChangeWorkspaceRole({
 			isYou,
 			hasUser: Boolean(memberUserId),
@@ -202,8 +220,8 @@ export function useTeamMembersSettings() {
 		[myPermissions, viewerRoleName, workspaceRoles]
 	);
 	const accessContext = useMemo<MemberAccessContext>(
-		() => ({ userId, permissions: myPermissions, workspaceRoles, assignableRoles }),
-		[assignableRoles, myPermissions, userId, workspaceRoles]
+		() => ({ userId, permissions: myPermissions, workspaceRoles, assignableRoles, workspaceRoleOverrides }),
+		[assignableRoles, myPermissions, userId, workspaceRoleOverrides, workspaceRoles]
 	);
 
 	useEffect(() => {
