@@ -12,6 +12,7 @@ import {
 	type WorkspaceNumberFormat
 } from '@/core/lib/utils/workspace-formats';
 import { ERoleName } from '@/core/types/generics/enums/role';
+import { organizationSchema, type TOrganization } from '@/core/types/schemas/organization/organization.schema';
 import type { TWorkspace } from '@/core/types/schemas/team/organization-team.schema';
 
 /** Gauzy asks for this permission on every write of an organization: its currency and its formats. */
@@ -44,6 +45,23 @@ export function isRenameRefused(error: unknown): boolean {
 		return false;
 	}
 	return status >= 400 && status < 500;
+}
+
+/**
+ * The organization every screen reads, once a save went through. The API answers a save with the organization as it
+ * stored it, which also holds what another admin changed since this page read it. An answer that does not read as an
+ * organization leaves the page's copy, with what this save changed.
+ */
+export function organizationAfterSave(
+	pageCopy: TOrganization,
+	changes: Partial<TOrganization>,
+	apiAnswer: unknown
+): TOrganization {
+	const stored = organizationSchema.safeParse(apiAnswer);
+	if (stored.success) {
+		return stored.data;
+	}
+	return { ...pageCopy, ...changes };
 }
 
 export function workspaceOfTenant(

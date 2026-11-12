@@ -10,9 +10,11 @@ import {
 	isWorkspaceNameValid,
 	numberFormatChoiceOf,
 	numberFormatSampleOf,
+	organizationAfterSave,
 	workspaceOfTenant,
 	workspacesAfterRename
 } from './settings-workspace';
+import type { TOrganization } from '@/core/types/schemas/organization/organization.schema';
 import type { TWorkspace } from '@/core/types/schemas/team/organization-team.schema';
 
 function workspaceOf(tenantId: string, name: string): TWorkspace {
@@ -62,6 +64,40 @@ describe('the workspace name', () => {
 		expect(isRenameRefused({ statusCode: 504 })).toBe(false);
 		expect(isRenameRefused(new Error('Network Error'))).toBe(false);
 		expect(isRenameRefused(undefined)).toBe(false);
+	});
+});
+
+describe('the organization kept after a save', () => {
+	const pageCopy = {
+		id: 'c9bf9e57-1685-4c89-bafb-ff5af830be8a',
+		name: 'Acme',
+		isDefault: true,
+		profile_link: 'acme',
+		totalEmployees: 3,
+		banner: null,
+		currency: 'USD',
+		dateFormat: null
+	} as TOrganization;
+
+	it('is the one the API stored, which also holds what another admin changed', () => {
+		const apiAnswer = { ...pageCopy, currency: 'EUR', dateFormat: 'DD/MM/YYYY', registrationDate: '2026-01-05' };
+
+		const kept = organizationAfterSave(pageCopy, { dateFormat: 'DD/MM/YYYY' }, apiAnswer);
+
+		expect(kept.currency).toBe('EUR');
+		expect(kept.dateFormat).toBe('DD/MM/YYYY');
+		expect(kept.registrationDate).toEqual(new Date('2026-01-05'));
+	});
+
+	it("is the page's copy with the change when the answer does not read as an organization", () => {
+		const change = { dateFormat: 'DD/MM/YYYY' };
+
+		expect(organizationAfterSave(pageCopy, change, {})).toEqual({ ...pageCopy, dateFormat: 'DD/MM/YYYY' });
+		expect(organizationAfterSave(pageCopy, change, undefined)).toEqual({ ...pageCopy, dateFormat: 'DD/MM/YYYY' });
+		expect(organizationAfterSave(pageCopy, change, { id: 'not-an-organization' })).toEqual({
+			...pageCopy,
+			dateFormat: 'DD/MM/YYYY'
+		});
 	});
 });
 

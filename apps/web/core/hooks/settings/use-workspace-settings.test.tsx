@@ -210,6 +210,30 @@ describe('saving the currency and the formats', () => {
 		});
 	});
 
+	it('keeps the organization as the API stored it, with what another admin changed since the page read it', async () => {
+		const pageCopy = {
+			id: 'c9bf9e57-1685-4c89-bafb-ff5af830be8a',
+			name: 'Acme',
+			isDefault: true,
+			profile_link: 'acme',
+			totalEmployees: 3,
+			banner: null,
+			currency: 'USD',
+			dateFormat: null,
+			numberFormat: null
+		};
+		const storedByApi = { ...pageCopy, currency: 'EUR', dateFormat: 'DD/MM/YYYY' };
+		mockUpdateOrganization.mockResolvedValue(storedByApi);
+		const { view, client } = renderSettings(pageCopy);
+
+		await act(async () => {
+			await view.result.current.saveDateFormat('DD/MM/YYYY');
+		});
+
+		const organizationKey = queryKeys.workspaces.currentOrganizationByScope('tenant-a', pageCopy.id);
+		expect(client.getQueryData(organizationKey)).toEqual(storedByApi);
+	});
+
 	it('sends one save at a time, the second with what the first saved', async () => {
 		const firstSave = deferred();
 		mockUpdateOrganization.mockImplementationOnce(() => firstSave.promise);

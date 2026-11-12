@@ -15,6 +15,7 @@ import {
 	canEditWorkspace,
 	canRenameWorkspace,
 	isRenameRefused,
+	organizationAfterSave,
 	workspaceOfTenant,
 	workspacesAfterRename
 } from '@/core/lib/utils/settings-workspace';
@@ -114,12 +115,12 @@ export function useWorkspaceSettings() {
 	const saveOrganization = useCallback(
 		async (scope: SaveScope, changes: WorkspaceChanges) => {
 			const latest = queryClient.getQueryData<TOrganization>(scope.organizationKey) ?? scope.organization;
-			await organizationService.updateOrganization(latest, changes);
-			const withChanges = (cached: TOrganization | undefined): TOrganization => {
+			const apiAnswer = await organizationService.updateOrganization(latest, changes);
+			const afterSave = (cached: TOrganization | undefined): TOrganization => {
 				const current = cached ?? latest;
-				return { ...current, ...changes };
+				return organizationAfterSave(current, changes, apiAnswer);
 			};
-			queryClient.setQueryData<TOrganization>(scope.organizationKey, withChanges);
+			queryClient.setQueryData<TOrganization>(scope.organizationKey, afterSave);
 		},
 		[queryClient]
 	);
