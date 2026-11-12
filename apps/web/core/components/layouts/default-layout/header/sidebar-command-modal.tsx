@@ -48,7 +48,14 @@ import { usePaletteRecent } from '@/core/hooks/keyboard/use-palette-recent';
 import { isTaskViewsEnabled } from '@/core/lib/utils/task-views-enabled';
 import { isDocsEnabled } from '@/core/lib/utils/docs-enabled';
 import { isChatEnabled } from '@/core/lib/utils/chat-enabled';
-import { openablePageHandlers, paletteListedGroups, SECTION_SEPARATOR } from '@/core/lib/utils/palette-go-to';
+import {
+	GO_TO_GROUP_ID,
+	openablePageHandlers,
+	paletteListedGroups,
+	SECTION_SEPARATOR,
+	withGoToPreview,
+	type GoToPreview
+} from '@/core/lib/utils/palette-go-to';
 import type { SidebarPage } from '@/core/lib/utils/sidebar-pages';
 import type { PaletteItem } from '@/core/lib/utils/palette-items';
 import { shortcutsHelpOpenAtom, type ShortcutHandler } from '@/core/stores/common/shortcuts';
@@ -86,6 +93,9 @@ const PALETTE_SHORTCUT_KEYS = ['⌘', 'K'];
 const paletteGroupClass =
 	'p-0 pt-1 [&_[cmdk-group-heading]]:h-8 [&_[cmdk-group-heading]]:px-2 [&_[cmdk-group-heading]]:text-[13px]';
 const paletteActionRowClass = 'min-h-10 gap-3 rounded-lg px-2 text-sm';
+/** A link in the brand ink, starting where the labels of the rows above start (padding, icon tile, gap). */
+const paletteShowMoreRowClass =
+	'min-h-8 rounded-lg pl-12 text-sm text-primary-ink data-[selected=true]:text-primary-ink';
 
 function groupsForTab(groups: CommandGroupConfig[], tab: string) {
 	if (tab === ALL_GROUPS_TAB) {
@@ -612,6 +622,13 @@ export const SidebarCommandModal: FC<{
 	const showsChatResults = chatOn && open && showsChatResultsIn(activeTab);
 	const closePalette = useCallback(() => setOpen(false), [setOpen]);
 	const hasSearch = search.trim().length > 0;
+	const isAllTab = activeTab === ALL_GROUPS_TAB;
+	const showsPagePreview = isAllTab && !hasSearch;
+	let renderedGroups: Array<CommandGroupConfig & GoToPreview> = visibleGroups;
+	if (showsPagePreview) {
+		renderedGroups = withGoToPreview(visibleGroups);
+	}
+	const showAllPages = useCallback(() => setActiveTab(GO_TO_GROUP_ID), []);
 
 	const { items: recentItems, remember } = usePaletteRecent();
 	// A page opened while Docs was on leads nowhere once it is off: not listed then (it stays remembered).
@@ -663,7 +680,7 @@ export const SidebarCommandModal: FC<{
 
 	// Rendering of command groups from the configuration
 	const renderCommandGroups = () => {
-		return visibleGroups.map((group) => (
+		return renderedGroups.map((group) => (
 			<CommandGroup key={group.id} heading={group.heading} className={paletteGroupClass}>
 				{group.commands.map((command, commandIndex) => (
 					<ClickableCommandItem
@@ -693,6 +710,11 @@ export const SidebarCommandModal: FC<{
 						</CommandShortcut>
 					</ClickableCommandItem>
 				))}
+				{group.hasMorePages && (
+					<ClickableCommandItem className={paletteShowMoreRowClass} action={showAllPages}>
+						{t('common.SHOW_MORE')}
+					</ClickableCommandItem>
+				)}
 			</CommandGroup>
 		));
 	};

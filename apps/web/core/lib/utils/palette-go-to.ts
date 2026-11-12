@@ -47,7 +47,7 @@ export const SECTION_SEPARATOR = ' › ';
 
 /** The group of hard-coded links the palette had before it read the sidebar, and the group that lists the pages. */
 const NAVIGATION_GROUP_ID = 'navigation';
-const GO_TO_GROUP_ID = 'goTo';
+export const GO_TO_GROUP_ID = 'goTo';
 
 function pathOf(url: string): string {
 	const withoutHash = url.split('#')[0];
@@ -203,4 +203,35 @@ export function paletteListedGroups<Command extends PaletteKeys, Group extends P
 		listed.push({ ...group, commands });
 	}
 	return listed;
+}
+
+export interface GoToPreview {
+	/** The group shows part of its pages: the others are behind "Show more". */
+	hasMorePages?: boolean;
+}
+
+function isTiedToCommand(row: PaletteKeys): boolean {
+	return Boolean(row.commandId);
+}
+
+/**
+ * The groups as the "All" tab lists them before anything is typed: "Go to" keeps the pages that have keys, the
+ * destinations the palette listed before it read the sidebar, and says it has more. A group where every page has
+ * keys, or none has, stays whole; typing or the "Go to" tab lists every page.
+ */
+export function withGoToPreview<Command extends PaletteKeys, Group extends PaletteGroup<Command>>(
+	groups: readonly Group[]
+): Array<Group & GoToPreview> {
+	return groups.map((group) => {
+		if (group.id !== GO_TO_GROUP_ID) {
+			return group;
+		}
+		const keyedPages = group.commands.filter(isTiedToCommand);
+		const hasKeyedPages = keyedPages.length > 0;
+		const hasOtherPages = keyedPages.length < group.commands.length;
+		if (!hasKeyedPages || !hasOtherPages) {
+			return group;
+		}
+		return { ...group, commands: keyedPages, hasMorePages: true };
+	});
 }

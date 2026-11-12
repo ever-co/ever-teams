@@ -1,4 +1,10 @@
-import { goToCommandIdOf, goToRowsOf, openablePageHandlers, paletteListedGroups } from './palette-go-to';
+import {
+	goToCommandIdOf,
+	goToRowsOf,
+	openablePageHandlers,
+	paletteListedGroups,
+	withGoToPreview
+} from './palette-go-to';
 import type { SidebarPage } from './sidebar-pages';
 
 const MEMBER_PAGES: SidebarPage[] = [
@@ -149,5 +155,29 @@ describe('paletteListedGroups', () => {
 			{ commandId: undefined, shortcutDisplay: '' },
 			{ commandId: 'goMine', shortcutDisplay: '', shortcutKeys: ['G', 'M'] }
 		]);
+	});
+});
+
+describe('withGoToPreview', () => {
+	const home = { commandId: 'goHome', shortcutDisplay: '⌘H' };
+	const calendar = { commandId: undefined, shortcutDisplay: '' };
+	const kanban = { commandId: 'goKanban', shortcutDisplay: '⌘K' };
+	const suggestions = { id: 'suggestions', commands: [{ commandId: undefined, shortcutDisplay: 'AM' }] };
+
+	it('keeps the pages that have keys, in their order, and says the group has more', () => {
+		const [, goTo] = withGoToPreview([suggestions, { id: 'goTo', commands: [home, calendar, kanban] }]);
+		expect(goTo.commands).toEqual([home, kanban]);
+		expect(goTo.hasMorePages).toBe(true);
+	});
+
+	it('leaves the group whole when every page has keys, or when none has', () => {
+		const everyPageKeyed = { id: 'goTo', commands: [home, kanban] };
+		const noPageKeyed = { id: 'goTo', commands: [calendar] };
+		expect(withGoToPreview([everyPageKeyed])[0]).toBe(everyPageKeyed);
+		expect(withGoToPreview([noPageKeyed])[0]).toBe(noPageKeyed);
+	});
+
+	it('leaves the other groups as they are, even with an entry that has no keys', () => {
+		expect(withGoToPreview([suggestions])[0]).toBe(suggestions);
 	});
 });

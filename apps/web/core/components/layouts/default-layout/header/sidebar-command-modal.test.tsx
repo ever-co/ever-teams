@@ -342,6 +342,30 @@ describe('SidebarCommandModal with the pages of the sidebar', () => {
 		expect(registeredSequences()).toContain('k');
 	});
 
+	it('lists the pages that have keys before anything is typed, and the others behind "Show more"', () => {
+		const pages = [...MEMBER_PAGES, { title: 'Calendar', url: '/calendar' }];
+		render(<SidebarCommandModal publicTeam={false} variant="none" pages={pages} />);
+
+		expect(pageRow('Tasks › Kanban')).toBeTruthy();
+		expect(screen.queryByText('Calendar')).toBeNull();
+		fireEvent.click(screen.getByText('common.SHOW_MORE'));
+
+		expect(screen.getByText('Calendar')).toBeTruthy();
+		expect(screen.queryByText('common.SHOW_MORE')).toBeNull();
+		// "Show more" opens the "Go to" tab: the palette stays open.
+		expect(mockSetOpen).not.toHaveBeenCalledWith(false);
+	});
+
+	it('lists every page once something is typed', () => {
+		const pages = [...MEMBER_PAGES, { title: 'Calendar', url: '/calendar' }];
+		render(<SidebarCommandModal publicTeam={false} variant="none" pages={pages} />);
+
+		fireEvent.change(screen.getByLabelText('search'), { target: { value: 'cal' } });
+
+		expect(screen.getByText('Calendar')).toBeTruthy();
+		expect(screen.queryByText('common.SHOW_MORE')).toBeNull();
+	});
+
 	it('gives the registry no handler for a "go to" whose page it is not handed', () => {
 		mockRegistryOn = true;
 		render(<SidebarCommandModal publicTeam={false} variant="none" pages={MEMBER_PAGES} />);
