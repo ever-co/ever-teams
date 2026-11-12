@@ -14,6 +14,11 @@ import {
 	SelectValue
 } from '@/core/components/common/select';
 import { useCreateTimesheet } from '@/core/hooks/timesheet/use-create-timesheet';
+import { useTimeOverlapGuard } from '@/core/hooks/timesheet/use-time-overlap-guard';
+import {
+	TimeOverlapCheckError,
+	TimeOverlapConfirmDialog
+} from '@/core/components/features/manual-time/time-overlap-confirm-dialog';
 import { toUTC } from '@/core/lib/helpers/index';
 import { Plus, Spinner } from '@/core/components/icons';
 import { Button } from '@/core/components/duplicated-components/_button';
@@ -143,6 +148,7 @@ export function AddTaskModal({ closeModal, isOpen }: IAddTaskModalProps) {
 
 	const activeTeam = useAtomValue(activeTeamState);
 	const { createTimesheet, loadingCreateTimesheet } = useCreateTimesheet();
+	const overlapGuard = useTimeOverlapGuard();
 
 	const timeOptions = generateTimeOptions(5);
 	const t = useTranslations();
@@ -184,7 +190,8 @@ export function AddTaskModal({ closeModal, isOpen }: IAddTaskModalProps) {
 	// Its billable default is unknown until the entry's project has loaded
 	const hasUnloadedProject = Boolean(entryProjectId) && !selectedProject;
 	const waitsForProject = hasUnloadedProject && getOrganizationProjectsLoading;
-	const isSaveDisabled = loadingCreateTimesheet || waitsForProject;
+	const isSaving = loadingCreateTimesheet || overlapGuard.isChecking;
+	const isSaveDisabled = isSaving || waitsForProject;
 
 	const pickTask = useCallback(
 		(taskId: string) => {
@@ -298,17 +305,29 @@ export function AddTaskModal({ closeModal, isOpen }: IAddTaskModalProps) {
 				}
 				return { start, end };
 			});
-			await Promise.all(
-				entries.map(({ start, end }) =>
-					createTimesheet({
-						...payload,
-						startedAt: start,
-						stoppedAt: end,
-						taskId: payload.taskId
-					})
-				)
-			);
-			closeModal();
+			const saveEntries = async () => {
+				try {
+					await Promise.all(
+						entries.map(({ start, end }) =>
+							createTimesheet({
+								...payload,
+								startedAt: start,
+								stoppedAt: end,
+								taskId: payload.taskId
+							})
+						)
+					);
+					closeModal();
+				} catch (error) {
+					console.error('Failed to create timesheet:', error);
+				}
+			};
+			// Every period is checked before any is sent
+			await overlapGuard.saveAfterCheck({
+				employeeId: formState.employeeId,
+				periods: entries,
+				save: saveEntries
+			});
 		} catch (error) {
 			console.error('Failed to create timesheet:', error);
 		}
@@ -436,6 +455,7 @@ export function AddTaskModal({ closeModal, isOpen }: IAddTaskModalProps) {
 						{formState.notes.length}/{120}
 					</div>
 				</div>
+				<TimeOverlapCheckError guard={overlapGuard} />
 				<div className="flex gap-x-2 justify-end items-center w-full">
 					<Button variant="outline" size="lg" type="button" onClick={closeModal}>
 						{t('common.CANCEL')}
@@ -446,11 +466,12 @@ export function AddTaskModal({ closeModal, isOpen }: IAddTaskModalProps) {
 						onClick={() => handleAddTimesheet(formState as any)}
 						type="submit"
 					>
-						{loadingCreateTimesheet && <Spinner className="animate-spin" />}
+						{isSaving && <Spinner className="animate-spin" />}
 						{t('common.SAVE')}
 					</Button>
 				</div>
 			</div>
+			<TimeOverlapConfirmDialog guard={overlapGuard} confirmLabel={t('timeOverlap.CONFIRM_SAVE')} />
 		</Modal>
 	);
 }

@@ -5819,5 +5819,16 @@
 		"ERROR": "Non è stato possibile caricare gli ultimi aggiornamenti.",
 		"RETRY": "Riprova",
 		"ABOUT_LINK": "Informazioni su {appName}"
+	},
+	"timeOverlap": {
+		"TITLE": "Questo rimuove {duration} di tempo registrato",
+		"DESCRIPTION": "{count, plural, one {Si sovrappone a # voce già registrata. Salvando, quella voce viene rimossa per intero, non solo il tempo in comune.} other {Si sovrappone a # voci già registrate. Salvando, quelle voci vengono rimosse per intero, non solo il tempo in comune.}}",
+		"ENTRY_REMOVED": "{when} · {duration} rimossi",
+		"RUNNING_SINCE": "In corso da {start}",
+		"NO_TASK": "Nessuna attività",
+		"MORE_ENTRIES": "{count, plural, one {E # altra voce} other {E altre # voci}}",
+		"CONFIRM_ADD": "Aggiungi comunque",
+		"CONFIRM_SAVE": "Salva comunque",
+		"CHECK_FAILED": "Non è stato possibile verificare se questo tempo si sovrappone a tempo già registrato, quindi non è stato salvato nulla. Riprova."
 	}
 }

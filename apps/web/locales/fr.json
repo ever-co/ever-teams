@@ -5819,5 +5819,16 @@
 		"ERROR": "Les dernières mises à jour n'ont pas pu être chargées.",
 		"RETRY": "Réessayer",
 		"ABOUT_LINK": "À propos de {appName}"
+	},
+	"timeOverlap": {
+		"TITLE": "Cela supprime {duration} de temps enregistré",
+		"DESCRIPTION": "{count, plural, one {Ce temps chevauche # entrée déjà enregistrée. L'enregistrer supprime cette entrée en entier, pas seulement le temps en commun.} other {Ce temps chevauche # entrées déjà enregistrées. L'enregistrer supprime ces entrées en entier, pas seulement le temps en commun.}}",
+		"ENTRY_REMOVED": "{when} · {duration} à supprimer",
+		"RUNNING_SINCE": "En cours depuis {start}",
+		"NO_TASK": "Sans tâche",
+		"MORE_ENTRIES": "{count, plural, one {Et # autre entrée} other {Et # autres entrées}}",
+		"CONFIRM_ADD": "Ajouter quand même",
+		"CONFIRM_SAVE": "Enregistrer quand même",
+		"CHECK_FAILED": "Impossible de vérifier si ce temps chevauche du temps déjà enregistré, donc rien n'a été enregistré. Réessayez."
 	}
 }

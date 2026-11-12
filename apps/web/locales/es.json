@@ -5819,5 +5819,16 @@
 		"ERROR": "No se pudieron cargar las últimas actualizaciones.",
 		"RETRY": "Reintentar",
 		"ABOUT_LINK": "Acerca de {appName}"
+	},
+	"timeOverlap": {
+		"TITLE": "Esto elimina {duration} de tiempo registrado",
+		"DESCRIPTION": "{count, plural, one {Se solapa con # entrada ya registrada. Al guardar se elimina esa entrada por completo, no solo el tiempo que comparten.} other {Se solapa con # entradas ya registradas. Al guardar se eliminan esas entradas por completo, no solo el tiempo que comparten.}}",
+		"ENTRY_REMOVED": "{when} · se eliminan {duration}",
+		"RUNNING_SINCE": "En curso desde {start}",
+		"NO_TASK": "Sin tarea",
+		"MORE_ENTRIES": "{count, plural, one {Y # entrada más} other {Y # entradas más}}",
+		"CONFIRM_ADD": "Añadir de todos modos",
+		"CONFIRM_SAVE": "Guardar de todos modos",
+		"CHECK_FAILED": "No se pudo comprobar si este tiempo se solapa con tiempo ya registrado, así que no se guardó nada. Inténtalo de nuevo."
 	}
 }

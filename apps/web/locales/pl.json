@@ -5819,5 +5819,16 @@
 		"ERROR": "Nie udało się wczytać najnowszych aktualizacji.",
 		"RETRY": "Spróbuj ponownie",
 		"ABOUT_LINK": "O {appName}"
+	},
+	"timeOverlap": {
+		"TITLE": "To usunie {duration} zarejestrowanego czasu",
+		"DESCRIPTION": "{count, plural, one {Czas pokrywa się z # zapisanym już wpisem. Zapisanie usunie ten wpis w całości, a nie tylko wspólny czas.} few {Czas pokrywa się z # zapisanymi już wpisami. Zapisanie usunie te wpisy w całości, a nie tylko wspólny czas.} many {Czas pokrywa się z # zapisanymi już wpisami. Zapisanie usunie te wpisy w całości, a nie tylko wspólny czas.} other {Czas pokrywa się z # zapisanego już wpisu. Zapisanie usunie te wpisy w całości, a nie tylko wspólny czas.}}",
+		"ENTRY_REMOVED": "{when} · zostanie usunięte {duration}",
+		"RUNNING_SINCE": "Trwa od {start}",
+		"NO_TASK": "Brak zadania",
+		"MORE_ENTRIES": "{count, plural, one {I jeszcze # wpis} few {I jeszcze # wpisy} many {I jeszcze # wpisów} other {I jeszcze # wpisu}}",
+		"CONFIRM_ADD": "Dodaj mimo to",
+		"CONFIRM_SAVE": "Zapisz mimo to",
+		"CHECK_FAILED": "Nie udało się sprawdzić, czy ten czas pokrywa się z już zarejestrowanym czasem, więc nic nie zostało zapisane. Spróbuj ponownie."
 	}
 }

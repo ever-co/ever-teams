@@ -5819,5 +5819,16 @@
 		"ERROR": "The latest updates could not be loaded.",
 		"RETRY": "Try again",
 		"ABOUT_LINK": "About {appName}"
+	},
+	"timeOverlap": {
+		"TITLE": "This removes {duration} of recorded time",
+		"DESCRIPTION": "{count, plural, one {It overlaps # entry already recorded. Saving removes that entry entirely, not only the time they share.} other {It overlaps # entries already recorded. Saving removes those entries entirely, not only the time they share.}}",
+		"ENTRY_REMOVED": "{when} · {duration} removed",
+		"RUNNING_SINCE": "Running since {start}",
+		"NO_TASK": "No task",
+		"MORE_ENTRIES": "{count, plural, one {And # more entry} other {And # more entries}}",
+		"CONFIRM_ADD": "Add time anyway",
+		"CONFIRM_SAVE": "Save anyway",
+		"CHECK_FAILED": "We could not check whether this time overlaps time already recorded, so nothing was saved. Try again."
 	}
 }

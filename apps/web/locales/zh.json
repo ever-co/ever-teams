@@ -5819,5 +5819,16 @@
 		"ERROR": "无法加载最新更新。",
 		"RETRY": "重试",
 		"ABOUT_LINK": "关于 {appName}"
+	},
+	"timeOverlap": {
+		"TITLE": "这将删除 {duration} 的已记录时间",
+		"DESCRIPTION": "{count, plural, other {该时间与 # 条已记录的条目重叠。保存后，这些条目将被整条删除，而不仅仅是重叠的时间。}}",
+		"ENTRY_REMOVED": "{when} · 将删除 {duration}",
+		"RUNNING_SINCE": "自 {start} 起进行中",
+		"NO_TASK": "无任务",
+		"MORE_ENTRIES": "{count, plural, other {以及另外 # 条}}",
+		"CONFIRM_ADD": "仍然添加",
+		"CONFIRM_SAVE": "仍然保存",
+		"CHECK_FAILED": "无法检查该时间是否与已记录的时间重叠，因此未保存任何内容。请重试。"
 	}
 }

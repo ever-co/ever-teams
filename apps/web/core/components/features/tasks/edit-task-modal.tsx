@@ -17,7 +17,11 @@ import { toast } from 'sonner';
 import { useAtomValue } from 'jotai';
 import { activeTeamState } from '@/core/stores';
 import { useOrganizationProjectsQuery } from '@/core/hooks/organizations/projects/use-organization-projects-query';
-import { useUpdateTimeLogMutation } from '@/core/hooks/timesheet';
+import { useTimeOverlapGuard, useUpdateTimeLogMutation } from '@/core/hooks/timesheet';
+import {
+	TimeOverlapCheckError,
+	TimeOverlapConfirmDialog
+} from '@/core/components/features/manual-time/time-overlap-confirm-dialog';
 import { ITimeLogUpdatePayload } from '@/core/types/interfaces/timesheet/time-log.interface';
 import { useMyRolePermissionsQuery } from '@/core/hooks';
 
@@ -33,6 +37,9 @@ export function EditTaskModal({ isOpen, closeModal, timeLogData }: IEditTaskModa
 	const activeTeam = useAtomValue(activeTeamState);
 	const t = useTranslations();
 	const { mutateAsync: updateTimeLog, isPending: isUpdateTimeLogLoading } = useUpdateTimeLogMutation();
+	const overlapGuard = useTimeOverlapGuard();
+	const saveAfterOverlapCheck = overlapGuard.saveAfterCheck;
+	const isSaving = isUpdateTimeLogLoading || overlapGuard.isChecking;
 	const initialTimeRange = {
 		startTime: formatTimeFromDate(timeLogData.startedAt),
 		endTime: formatTimeFromDate(timeLogData.stoppedAt)
@@ -155,17 +162,25 @@ export function EditTaskModal({ isOpen, closeModal, timeLogData }: IEditTaskModa
 				startedAt,
 				stoppedAt
 			};
-			updateTimeLog(updatePayload)
-				.then(() => {
-					toast.success(t('toasts.time.LOG_UPDATED'));
-					closeModal();
-				})
-				.catch((error) => {
-					// The failure toast comes from the global mutation fallback
-					if (!error) {
+			const saveUpdate = () =>
+				updateTimeLog(updatePayload)
+					.then(() => {
+						toast.success(t('toasts.time.LOG_UPDATED'));
 						closeModal();
-					}
-				});
+					})
+					.catch((error) => {
+						// The failure toast comes from the global mutation fallback
+						if (!error) {
+							closeModal();
+						}
+					});
+			// Checked on every save: the API clears what the interval overlaps even when only the notes changed
+			await saveAfterOverlapCheck({
+				employeeId: timesheetData.employeeId,
+				periods: [{ start: startedAt, end: stoppedAt }],
+				ignoredLogId: timeLogData.id,
+				save: saveUpdate
+			});
 		},
 		[
 			timeRange.startTime,
@@ -181,6 +196,7 @@ export function EditTaskModal({ isOpen, closeModal, timeLogData }: IEditTaskModa
 			timesheetData.projectId,
 			closeModal,
 			updateTimeLog,
+			saveAfterOverlapCheck,
 			t
 		]
 	);
@@ -225,7 +241,7 @@ export function EditTaskModal({ isOpen, closeModal, timeLogData }: IEditTaskModa
 	}
 
 	let submitLabel = t('common.SAVE');
-	if (isUpdateTimeLogLoading) {
+	if (isSaving) {
 		submitLabel = t('common.PROCESSING');
 	}
 
@@ -383,6 +399,7 @@ export function EditTaskModal({ isOpen, closeModal, timeLogData }: IEditTaskModa
 							{timesheetData.notes.length}/{120}
 						</div>
 					</div>
+					<TimeOverlapCheckError guard={overlapGuard} />
 					<div className="w-full hairline-t border-border"></div>
 					<div className="flex w-full items-center justify-between gap-2">
 						<div className="flex flex-col justify-center items-start">
@@ -406,18 +423,19 @@ export function EditTaskModal({ isOpen, closeModal, timeLogData }: IEditTaskModa
 								{t('common.CANCEL')}
 							</Button>
 							<Button
-								disabled={isUpdateTimeLogLoading}
+								disabled={isSaving}
 								type="submit"
 								size="default"
 								className={modalPrimaryActionClass}
 							>
-								{isUpdateTimeLogLoading && <Spinner className="size-4 animate-spin" />}
+								{isSaving && <Spinner className="size-4 animate-spin" />}
 								{submitLabel}
 							</Button>
 						</div>
 					</div>
 				</div>
 			</form>
+			<TimeOverlapConfirmDialog guard={overlapGuard} confirmLabel={t('timeOverlap.CONFIRM_SAVE')} />
 		</Modal>
 	);
 }

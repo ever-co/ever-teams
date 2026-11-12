@@ -2008,6 +2008,8 @@ describe('Ever Teams feature surface preservation', () => {
 		// 294 files and 377 verbs with the scheduled meetings' proxies (/api/employee-appointment GET, POST and [id] DELETE).
 		// 295 files and 378 verbs with the Inbox delivery status proxy (GET /api/inbox/delivery/status).
 		// 296 files and 379 verbs with the link preview pictures proxy (GET /api/chat/link-preview/image).
+		// 296 files and 379 verbs with the lookup of the time a manual entry would overlap
+		// (GET /api/timesheet/time-log/conflict, #5089).
 		expect(routes.filter((value) => /\/route\.[jt]s$/.test(value))).toHaveLength(296);
 		expect(
 			routes.filter((value) => /\/route\.[jt]s::(?:GET|POST|PUT|PATCH|DELETE|HEAD|OPTIONS)$/.test(value))
@@ -2016,6 +2018,8 @@ describe('Ever Teams feature surface preservation', () => {
 			expect.arrayContaining([
 				// Proxy mode twin of the platform's link preview pictures (2026-11-12)
 				'apps/web/app/api/chat/link-preview/image/route.ts::GET',
+				// Proxy mode twin of Gauzy's lookup of the time a manual entry would overlap (#5089)
+				'apps/web/app/api/timesheet/time-log/conflict/route.ts::GET',
 				// Proxy mode twin of the platform's Inbox delivery status (2026-11-11)
 				'apps/web/app/api/inbox/delivery/status/route.ts::GET',
 				// Proxy mode twins of Gauzy's employee appointments, the scheduled meetings (#5021)
