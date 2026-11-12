@@ -322,10 +322,14 @@ function timeOf(date: StoredDate) {
 	return real.getTime();
 }
 
-/** Unset dates sort last whatever the direction, so the projects that carry the value lead. */
 function compareDates(a: StoredDate, b: StoredDate, desc: boolean) {
 	const left = timeOf(a);
 	const right = timeOf(b);
+	return compareWithUnsetLast(left, right, desc);
+}
+
+/** Unset values sort last whatever the direction, so the projects that carry the value lead. */
+export function compareWithUnsetLast(left: number | null, right: number | null, desc: boolean) {
 	if (left === null && right === null) {
 		return 0;
 	}

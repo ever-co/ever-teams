@@ -81,6 +81,25 @@ export type BudgetFilters = Record<BudgetFilterField, string[]>;
 
 export const EMPTY_BUDGET_FILTERS: BudgetFilters = { projects: [], budgetTypes: [], statuses: [] };
 
+/** A link to the report names one project with `?project=<id>`: the report then opens filtered on it. */
+export const BUDGET_PROJECT_PARAM = 'project';
+
+const PROJECT_BUDGET_PATH = '/reports/project-budget';
+
+export function projectBudgetPathOf(projectId: string) {
+	const params = new URLSearchParams({ [BUDGET_PROJECT_PARAM]: projectId });
+	const query = params.toString();
+	return `${PROJECT_BUDGET_PATH}?${query}`;
+}
+
+export function budgetFiltersOfLink(linkedProjectId: string | null | undefined): BudgetFilters {
+	const projectId = linkedProjectId?.trim();
+	if (!projectId) {
+		return EMPTY_BUDGET_FILTERS;
+	}
+	return { ...EMPTY_BUDGET_FILTERS, projects: [projectId] };
+}
+
 /** A budget covers the project's whole life, and Gauzy needs a start: no Ever Teams time log is older than this. */
 export function wholeProjectPeriodOf(todayKey: string): Period {
 	const from = new Date(2000, 0, 1, 0, 0, 0, 0);
@@ -331,6 +350,18 @@ function listedProjectsByIdOf(projects: ReadonlyArray<TOrganizationProject>) {
 		byId.set(project.id, project);
 	}
 	return byId;
+}
+
+/** A filter chip names its project from the organisation list when the scope on screen has no row for it. */
+export function projectNamesByIdOf(projects: ReadonlyArray<TOrganizationProject>): Record<string, string> {
+	const namesById: Record<string, string> = {};
+	for (const project of projects) {
+		const name = firstTextOf([project.name]);
+		if (name) {
+			namesById[project.id] = name;
+		}
+	}
+	return namesById;
 }
 
 function hasListedBudget(project: TOrganizationProject) {
