@@ -2561,6 +2561,8 @@
 			"CALENDAR_EMPTY_MONTH": "Нет задач со сроком: {month}",
 			"CALENDAR_NO_DUE_DATE": "Без срока",
 			"CALENDAR_UNDATED_HINT": "Этих задач нет в календаре. Задайте срок, чтобы они появились.",
+			"CALENDAR_UNDATED_DRAG_HINT": "Этих задач нет в календаре. Перетащите задачу на день или задайте ей срок.",
+			"CALENDAR_DRAG_HINT": "Перетащите на другой день, чтобы изменить срок.",
 			"TIMELINE_ZOOM": "Масштаб",
 			"TIMELINE_ZOOM_WEEKS": "Недели",
 			"TIMELINE_ZOOM_MONTHS": "Месяцы",

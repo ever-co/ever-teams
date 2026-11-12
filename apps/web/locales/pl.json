@@ -2561,6 +2561,8 @@
 			"CALENDAR_EMPTY_MONTH": "Brak zadań z terminem: {month}",
 			"CALENDAR_NO_DUE_DATE": "Bez terminu",
 			"CALENDAR_UNDATED_HINT": "Tych zadań nie ma w kalendarzu. Ustaw termin, aby je umieścić.",
+			"CALENDAR_UNDATED_DRAG_HINT": "Tych zadań nie ma w kalendarzu. Przeciągnij jedno na dzień albo ustaw mu termin.",
+			"CALENDAR_DRAG_HINT": "Przeciągnij na inny dzień, aby zmienić termin.",
 			"TIMELINE_ZOOM": "Powiększenie",
 			"TIMELINE_ZOOM_WEEKS": "Tygodnie",
 			"TIMELINE_ZOOM_MONTHS": "Miesiące",

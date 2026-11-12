@@ -2561,6 +2561,8 @@
 			"CALENDAR_EMPTY_MONTH": "{month}没有到期的任务",
 			"CALENDAR_NO_DUE_DATE": "无截止日期",
 			"CALENDAR_UNDATED_HINT": "这些任务不在日历上。设置截止日期即可将其放入日历。",
+			"CALENDAR_UNDATED_DRAG_HINT": "这些任务不在日历上。将任务拖到某一天，或为其设置截止日期。",
+			"CALENDAR_DRAG_HINT": "拖到另一天即可更改截止日期。",
 			"TIMELINE_ZOOM": "缩放",
 			"TIMELINE_ZOOM_WEEKS": "周",
 			"TIMELINE_ZOOM_MONTHS": "月",

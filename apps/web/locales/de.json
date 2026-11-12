@@ -2561,6 +2561,8 @@
 			"CALENDAR_EMPTY_MONTH": "Im {month} ist keine Aufgabe fällig",
 			"CALENDAR_NO_DUE_DATE": "Ohne Fälligkeit",
 			"CALENDAR_UNDATED_HINT": "Diese Aufgaben stehen nicht im Kalender. Mit einer Fälligkeit erscheinen sie dort.",
+			"CALENDAR_UNDATED_DRAG_HINT": "Diese Aufgaben stehen nicht im Kalender. Ziehen Sie eine auf einen Tag oder legen Sie ihre Fälligkeit fest.",
+			"CALENDAR_DRAG_HINT": "Auf einen anderen Tag ziehen, um die Fälligkeit zu ändern.",
 			"TIMELINE_ZOOM": "Zoom",
 			"TIMELINE_ZOOM_WEEKS": "Wochen",
 			"TIMELINE_ZOOM_MONTHS": "Monate",

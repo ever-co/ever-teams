@@ -2561,6 +2561,8 @@
 			"CALENDAR_EMPTY_MONTH": "Няма задачи с краен срок през {month}",
 			"CALENDAR_NO_DUE_DATE": "Без краен срок",
 			"CALENDAR_UNDATED_HINT": "Тези задачи не са в календара. Задайте краен срок, за да се появят.",
+			"CALENDAR_UNDATED_DRAG_HINT": "Тези задачи не са в календара. Плъзнете някоя към ден или ѝ задайте краен срок.",
+			"CALENDAR_DRAG_HINT": "Плъзнете я към друг ден, за да смените крайния ѝ срок.",
 			"TIMELINE_ZOOM": "Мащаб",
 			"TIMELINE_ZOOM_WEEKS": "Седмици",
 			"TIMELINE_ZOOM_MONTHS": "Месеци",

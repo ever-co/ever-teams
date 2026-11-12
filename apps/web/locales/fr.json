@@ -2561,6 +2561,8 @@
 			"CALENDAR_EMPTY_MONTH": "Aucune tâche n'arrive à échéance en {month}",
 			"CALENDAR_NO_DUE_DATE": "Sans échéance",
 			"CALENDAR_UNDATED_HINT": "Ces tâches ne sont pas sur le calendrier. Donnez-leur une échéance pour les placer.",
+			"CALENDAR_UNDATED_DRAG_HINT": "Ces tâches ne sont pas sur le calendrier. Faites-en glisser une sur un jour, ou donnez-lui une échéance.",
+			"CALENDAR_DRAG_HINT": "Faites-la glisser sur un autre jour pour changer son échéance.",
 			"TIMELINE_ZOOM": "Zoom",
 			"TIMELINE_ZOOM_WEEKS": "Semaines",
 			"TIMELINE_ZOOM_MONTHS": "Mois",

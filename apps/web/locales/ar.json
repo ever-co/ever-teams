@@ -2561,6 +2561,8 @@
 			"CALENDAR_EMPTY_MONTH": "لا مهام مستحقة في {month}",
 			"CALENDAR_NO_DUE_DATE": "بلا تاريخ استحقاق",
 			"CALENDAR_UNDATED_HINT": "هذه المهام ليست على التقويم. حدّد تاريخ استحقاق لوضعها عليه.",
+			"CALENDAR_UNDATED_DRAG_HINT": "هذه المهام ليست على التقويم. اسحب إحداها إلى يوم، أو حدّد تاريخ استحقاقها.",
+			"CALENDAR_DRAG_HINT": "اسحبها إلى يوم آخر لتغيير تاريخ استحقاقها.",
 			"TIMELINE_ZOOM": "التكبير",
 			"TIMELINE_ZOOM_WEEKS": "أسابيع",
 			"TIMELINE_ZOOM_MONTHS": "أشهر",
