@@ -15,6 +15,7 @@ import {
 } from '@/core/components/common/select';
 import { useCreateTimesheet } from '@/core/hooks/timesheet/use-create-timesheet';
 import { useTimeOverlapGuard } from '@/core/hooks/timesheet/use-time-overlap-guard';
+import { periodsOverlapEachOther } from '@/core/lib/utils/time-log-overlap';
 import {
 	TimeOverlapCheckError,
 	TimeOverlapConfirmDialog
@@ -305,6 +306,10 @@ export function AddTaskModal({ closeModal, isOpen }: IAddTaskModalProps) {
 				}
 				return { start, end };
 			});
+			// Sent together, the later of two overlapping periods would make the API remove the earlier one
+			if (periodsOverlapEachOther(entries)) {
+				throw new Error('Periods overlap each other.');
+			}
 			const saveEntries = async () => {
 				try {
 					await Promise.all(

@@ -88,6 +88,16 @@ function sharesTimeWith(period: TimePeriod, start: Date, end: Date): boolean {
 	return sharedEnd > sharedStart;
 }
 
+/**
+ * Whether two of the periods saved together share time. The API would remove the one saved first when it saves
+ * the other, and the lookup cannot warn about it: neither is recorded yet when it asks.
+ */
+export function periodsOverlapEachOther(periods: ReadonlyArray<TimePeriod>): boolean {
+	return periods.some((period, index) =>
+		periods.slice(index + 1).some((other) => sharesTimeWith(period, other.start, other.end))
+	);
+}
+
 function overlappedEntryOf(log: OverlapCandidateLog, periods: ReadonlyArray<TimePeriod>, now: Date) {
 	const start = parsedDateOf(log.startedAt);
 	if (!start) {
